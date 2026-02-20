@@ -1,0 +1,1 @@
+ 10 | WARNING | `esc_js()` should not be used, it is obsolete and somewhat misleading. Prefer `esc_attr()` and/or `wp_json_encode()` instead. (Jetpack.Functions.EscJs.Found)

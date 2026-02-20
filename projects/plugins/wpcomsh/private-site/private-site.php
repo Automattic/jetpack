@@ -425,7 +425,9 @@ function send_access_denied_error_response() {
 					'This site is private.',
 					'wpcomsh'
 				),
-			)
+			),
+			null, // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- It takes null, but its phpdoc only says int.
+			JSON_UNESCAPED_SLASHES
 		);
 	}
 
@@ -769,6 +771,41 @@ function private_robots_txt() {
 	// Purposefully overriding current output; we only want these rules.
 	return "User-agent: *\nDisallow: /\n";
 }
+
+// Dummy gettext calls to get strings in the catalog.
+/* translators: User role. */
+_x( 'Viewer', 'User role', 'wpcomsh' );
+
+/**
+ * Renames the "Subscriber" role to "Viewer".
+ *
+ * @param \WP_Roles $roles WP_Roles object.
+ */
+function rename_subscriber_role_to_viewer( $roles ) {
+	if ( site_is_private() && isset( $roles->roles['subscriber'] ) ) {
+		$roles->roles['subscriber']['name'] = 'Viewer';
+		$roles->role_names['subscriber']    = 'Viewer';
+	}
+}
+add_action( 'wp_roles_init', '\Private_Site\rename_subscriber_role_to_viewer' );
+
+/**
+ * Translate Viewer role using the wpcomsh textdomain.
+ *
+ * @param string $translation  Translated text.
+ * @param string $text         Text to translate.
+ * @param string $context      Context information for the translators.
+ * @param string $domain       Text domain. Unique identifier for retrieving translated strings.
+ * @return string
+ */
+function translate_viewer_role( $translation, $text, $context, $domain ) {
+	if ( 'User role' === $context && 'default' === $domain && 'Viewer' === $text ) {
+		return translate_user_role( $text, 'wpcomsh' );
+	}
+
+	return $translation;
+}
+add_filter( 'gettext_with_context', '\Private_Site\translate_viewer_role', 10, 4 );
 
 /**
  * Output the meta tag that tells Pinterest not to allow users to pin

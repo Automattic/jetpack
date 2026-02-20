@@ -63,7 +63,8 @@ class Inline_Search_Test extends TestCase {
 				array(
 					'total'   => 0,
 					'results' => array(),
-				)
+				),
+				JSON_UNESCAPED_SLASHES
 			),
 			'response' => array( 'code' => 200 ),
 			'cookies'  => array(),

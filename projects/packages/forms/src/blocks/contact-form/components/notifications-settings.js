@@ -1,4 +1,5 @@
 import { isWpcomPlatformSite } from '@automattic/jetpack-script-data';
+import { WpcomSupportLink } from '@automattic/jetpack-shared-extension-utils/components';
 import { FormTokenField, ToggleControl, ExternalLink } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
@@ -56,9 +57,10 @@ const NotificationsSettings = ( {
 	// All available user names for suggestions
 	const allUserNames = eligibleUsers.map( user => user.name || user.slug );
 
-	const supportNotificationsLink = isWpcomPlatformSite()
-		? 'https://jetpack.com/support/notifications/'
-		: 'https://wordpress.com/support/notifications/';
+	const isWpcom = isWpcomPlatformSite();
+	const wpcomSupportLink =
+		'https://wordpress.com/support/wordpress-editor/blocks/form-block/view-contact-form-messages/#receive-push-notifications';
+	const jetpackSupportLink = 'https://jetpack.com/support/notifications/';
 
 	return (
 		<>
@@ -79,7 +81,11 @@ const NotificationsSettings = ( {
 							'jetpack-forms'
 						),
 						{
-							pushNotificationsLink: <ExternalLink href={ supportNotificationsLink } />,
+							pushNotificationsLink: isWpcom ? (
+								<WpcomSupportLink supportLink={ wpcomSupportLink } />
+							) : (
+								<ExternalLink href={ jetpackSupportLink } />
+							),
 						}
 					) }
 					checked={ localFormNotifications }

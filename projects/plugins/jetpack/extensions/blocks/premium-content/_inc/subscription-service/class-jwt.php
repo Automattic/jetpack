@@ -324,7 +324,7 @@ class JWT {
 	 * @throws DomainException Provided object could not be encoded to valid JSON.
 	 */
 	public static function json_encode( $input ) {
-		$json  = wp_json_encode( $input );
+		$json  = wp_json_encode( $input, JSON_UNESCAPED_SLASHES );
 		$errno = json_last_error();
 
 		if ( $errno ) {

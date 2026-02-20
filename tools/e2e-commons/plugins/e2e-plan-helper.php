@@ -87,7 +87,7 @@ function e2e_helper_set_plan_data( $request ) {
 
 	delete_option( 'e2e_jetpack_plan_data' );
 
-	$success = update_option( 'e2e_jetpack_plan_data', wp_json_encode( $plan_data ) );
+	$success = update_option( 'e2e_jetpack_plan_data', wp_json_encode( $plan_data, JSON_UNESCAPED_SLASHES ) );
 
 	if ( $success ) {
 		return new WP_REST_Response(

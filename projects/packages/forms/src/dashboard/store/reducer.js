@@ -13,6 +13,8 @@ import {
 	UPDATE_COUNTS_OPTIMISTICALLY,
 	MARK_RECORDS_AS_INVALID,
 	CLEAR_INVALID_RECORDS,
+	ADD_PENDING_ACTION,
+	REMOVE_PENDING_ACTION,
 } from './action-types.js';
 
 const filters = ( state = {}, action ) => {
@@ -29,6 +31,7 @@ const currentQuery = (
 		page: 1,
 		per_page: 20,
 		status: 'draft,publish',
+		fields_format: 'collection',
 	},
 	action
 ) => {
@@ -119,10 +122,26 @@ const invalidRecords = ( state = new Set(), action ) => {
 	return state;
 };
 
+const pendingActions = ( state = new Set(), action ) => {
+	if ( action.type === ADD_PENDING_ACTION ) {
+		return new Set( [ ...state, action.actionId ] );
+	}
+
+	if ( action.type === REMOVE_PENDING_ACTION ) {
+		const newState = new Set( state );
+		newState.delete( action.actionId );
+
+		return newState;
+	}
+
+	return state;
+};
+
 export default combineReducers( {
 	selectedResponsesFromCurrentDataset,
 	filters,
 	currentQuery,
 	counts,
 	invalidRecords,
+	pendingActions,
 } );

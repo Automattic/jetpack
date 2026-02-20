@@ -47,7 +47,7 @@ class Initial_State {
 	 * @return string - JS string.
 	 */
 	public function render() {
-		return 'var JETPACK_SEARCH_DASHBOARD_INITIAL_STATE=JSON.parse(decodeURIComponent("' . rawurlencode( wp_json_encode( $this->get_initial_state() ) ) . '"));';
+		return 'var JETPACK_SEARCH_DASHBOARD_INITIAL_STATE=' . wp_json_encode( $this->get_initial_state(), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ';';
 	}
 
 	/**

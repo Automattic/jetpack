@@ -106,13 +106,15 @@ class SearchResultProduct extends Component {
 					/>
 				</h3>
 
-				<ProductPrice
-					price={ fields[ 'wc.price' ] }
-					salePrice={ fields[ 'wc.sale_price' ] }
-					formattedPrice={ fields[ 'wc.formatted_price' ] }
-					formattedRegularPrice={ fields[ 'wc.formatted_regular_price' ] }
-					formattedSalePrice={ fields[ 'wc.formatted_sale_price' ] }
-				/>
+				{ this.props.showProductPrice && (
+					<ProductPrice
+						price={ fields[ 'wc.price' ] }
+						salePrice={ fields[ 'wc.sale_price' ] }
+						formattedPrice={ fields[ 'wc.formatted_price' ] }
+						formattedRegularPrice={ fields[ 'wc.formatted_regular_price' ] }
+						formattedSalePrice={ fields[ 'wc.formatted_sale_price' ] }
+					/>
+				) }
 
 				{ !! fields[ 'meta._wc_average_rating.double' ] && (
 					<ProductRatings

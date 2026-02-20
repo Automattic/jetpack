@@ -5,7 +5,7 @@ defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
  * This file registers the GiveWP module with core; it's pretty convoluted,
  * but that's due to a legacy init setup. The goal here is to have all
  * needed code self-contained in the module's folder.
- * 
+ *
  * If the module is enabled, it is loaded with the jpcrm_load_modules hook
  */
 
@@ -47,7 +47,6 @@ function jpcrm_register_external_sources_givewp( $external_sources ) {
 }
 add_filter( 'jpcrm_register_external_sources', 'jpcrm_register_external_sources_givewp' );
 
-
 global $zeroBSCRM_extensionsCompleteList;
 $zeroBSCRM_extensionsCompleteList['givewp'] = array(
 	'fallbackname' => __( 'GiveWP Connector', 'zero-bs-crm' ),
@@ -74,8 +73,8 @@ function zeroBSCRM_extension_install_givewp() {
 		$status_to_add = __( 'Donor', 'zero-bs-crm' );
 
 		$customised_fields_settings = $zbs->settings->get( 'customisedfields' );
-		$contact_statuses = explode( ',', $customised_fields_settings['customers']['status'][1] );
-		if ( !in_array( $status_to_add, $contact_statuses ) ) {
+		$contact_statuses           = explode( ',', $customised_fields_settings['customers']['status'][1] );
+		if ( ! in_array( $status_to_add, $contact_statuses ) ) {
 			$contact_statuses[] = $status_to_add;
 		}
 		$customised_fields_settings['customers']['status'][1] = implode( ',', $contact_statuses );
@@ -93,7 +92,7 @@ function zeroBSCRM_extension_uninstall_givewp() {
 function jpcrm_load_givewp() {
 	global $zbs;
 	if ( zeroBSCRM_isExtensionInstalled( 'givewp' ) ) {
-		require_once( JPCRM_MODULES_PATH . 'givewp/class-jpcrm-givewp.php' );
+		require_once JPCRM_MODULES_PATH . 'givewp/class-jpcrm-givewp.php';
 		// $zbs->givewp = new JPCRM_GiveWP;
 		$zbs->modules->load_module( 'givewp', 'JPCRM_GiveWP' );
 	}

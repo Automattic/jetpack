@@ -89,7 +89,7 @@ trait Jetpack_WooCommerce_Analytics_Trait {
 			$products[] = $data;
 		}
 
-		return wp_json_encode( $products );
+		return wp_json_encode( $products, JSON_UNESCAPED_SLASHES );
 	}
 
 	/**
@@ -278,26 +278,6 @@ trait Jetpack_WooCommerce_Analytics_Trait {
 		return array_merge( $site_info, $cart_checkout_info );
 	}
 
-	/**
-	 * Render tracks event properties as string of JavaScript object props.
-	 *
-	 * @deprecated 13.3
-	 *
-	 * @param  array $properties Array of key/value pairs.
-	 * @return string String of the form "key1: value1, key2: value2, " (etc).
-	 */
-	private function render_properties_as_js( $properties ) {
-		$js_args_string = '';
-		foreach ( $properties as $key => $value ) {
-			if ( is_array( $value ) ) {
-				$js_args_string = $js_args_string . "'$key': " . wp_json_encode( $value ) . ',';
-			} else {
-				$js_args_string = $js_args_string . "'$key': '" . esc_js( $value ) . "', ";
-			}
-		}
-		return $js_args_string;
-	}
-
 		/**
 		 * Record an event with optional product and custom properties.
 		 *
@@ -401,15 +381,17 @@ trait Jetpack_WooCommerce_Analytics_Trait {
 			)
 		);
 
-		$js = "{'_en': '" . esc_js( $event_name ) . "'";
-
 		if ( isset( $product_details ) ) {
 				$all_props = array_merge( $all_props, $product_details );
 		}
 
-		$js .= ',' . $this->render_properties_as_js( $all_props ) . '}';
-
-		return $js;
+		return wp_json_encode(
+			array_merge(
+				array( '_en' => $event_name ),
+				$all_props
+			),
+			JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
+		);
 	}
 
 	/**

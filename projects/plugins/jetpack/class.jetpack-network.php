@@ -387,8 +387,8 @@ class Jetpack_Network {
 			$classname = 'error';
 		}
 		?>
-		<div id="message" class="<?php echo esc_attr( $classname ); ?> jetpack-message jp-connect" style="display:block !important;">
-			<p><?php echo esc_html( $notice ); ?></p>
+		<div id="message" class="<?php echo esc_attr( $classname ?? '' ); ?> jetpack-message jp-connect" style="display:block !important;">
+			<p><?php echo esc_html( $notice ?? '' ); ?></p>
 		</div>
 		<?php
 	}

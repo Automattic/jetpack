@@ -106,6 +106,9 @@ class Jetpack_Sync_Post_Test extends Jetpack_Sync_TestBase {
 	public function test_trash_post_trashes_data() {
 		$this->assertSame( 1, $this->server_replica_storage->post_count( 'publish' ) );
 		$this->server_event_storage->reset();
+		// Ensure there is whitelisted meta on the post.
+		Settings::update_settings( array( 'post_meta_whitelist' => array( 'foobar' ) ) );
+		add_post_meta( $this->post->ID, 'foobar', 'value' );
 		wp_delete_post( $this->post->ID );
 
 		$this->sender->do_sync();
@@ -125,6 +128,14 @@ class Jetpack_Sync_Post_Test extends Jetpack_Sync_TestBase {
 		wp_delete_post( $this->post->ID );
 		$this->sender->do_sync();
 
+		// Ensure we are not sending deleted_post_meta actions as well.
+		$deleted_post_meta = $this->server_event_storage->get_most_recent_event( 'deleted_post_meta' );
+		$this->assertFalse( $deleted_post_meta );
+		// And no meta should exist.
+		$this->assertSame(
+			'',
+			$this->server_replica_storage->get_metadata( 'post', $this->post->ID, 'foobar', true )
+		);
 		// Since the post status is not changing here we don't expect the post to be trashed again.
 		$delete_event = $this->server_event_storage->get_most_recent_event( 'deleted_post' );
 		$save_event   = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_post' );
@@ -1261,9 +1272,9 @@ That was a cool video.';
 		$remote_post = $this->server_replica_storage->get_post( $post_id );
 		$this->assertEquals( 'publish', $remote_post->post_status );
 
-		$event = $this->server_event_storage->get_most_recent_event();
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_published_post' );
 
-		$this->assertEquals( 'jetpack_published_post', $event->action );
+		$this->assertNotEmpty( $event );
 		$this->assertEquals( $post_id, $event->args[0] );
 		$this->assertEquals( 'post', $event->args[1]['post_type'] );
 		// We add the author information to this so that we know who the author is
@@ -1375,15 +1386,26 @@ That was a cool video.';
 
 		$events = $this->server_event_storage->get_all_events();
 
-		$events = array_slice( $events, -4 );
+		$filtered = array_filter(
+			$events,
+			function ( $event ) {
+				return in_array(
+					$event->action,
+					array(
+						'jetpack_sync_save_post',
+						'jetpack_published_post',
+					),
+					true
+				);
+			}
+		);
 
-		$this->assertEquals( $events[0]->args[0], $events[1]->args[0] );
-		$this->assertEquals( 'jetpack_sync_save_post', $events[0]->action );
-		$this->assertEquals( 'jetpack_published_post', $events[1]->action );
+		// Reindex
+		$filtered = array_values( $filtered );
 
-		$this->assertEquals( $events[2]->args[0], $events[3]->args[0] );
-		$this->assertEquals( 'jetpack_sync_save_post', $events[2]->action );
-		$this->assertEquals( 'jetpack_published_post', $events[3]->action );
+		$this->assertEquals( $filtered[0]->args[0], $filtered[1]->args[0] );
+		$this->assertEquals( 'jetpack_sync_save_post', $filtered[0]->action );
+		$this->assertEquals( 'jetpack_published_post', $filtered[1]->action );
 	}
 
 	/**

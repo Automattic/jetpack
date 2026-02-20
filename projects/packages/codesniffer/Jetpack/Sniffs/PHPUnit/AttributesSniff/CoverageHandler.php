@@ -184,7 +184,8 @@ class CoverageHandler extends Handler {
 							'type'  => 'class',
 							'class' => $d->class,
 							'alias' => $d->alias,
-						)
+						),
+						JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
 					);
 					$ktrait = json_encode(
 						array(
@@ -192,7 +193,8 @@ class CoverageHandler extends Handler {
 							'type'  => 'trait',
 							'class' => $d->class,
 							'alias' => $d->alias,
-						)
+						),
+						JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
 					);
 					if ( isset( $attributes[ $kclass ] ) ) {
 						$annotations[ $kclass ] = $annotations[ $k ];
@@ -219,7 +221,8 @@ class CoverageHandler extends Handler {
 						'type'  => 'class',
 						'class' => $d->class,
 						'alias' => $d->alias,
-					)
+					),
+					JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
 				);
 				if ( isset( $attributes[ $kclass ] ) ) {
 					unset( $attributes[ $k ] );
@@ -253,13 +256,14 @@ class CoverageHandler extends Handler {
 			if ( isset( $annotationsByType[ $which ]['function'] ) ) {
 				foreach ( $annotationsByType[ $which ]['function'] as $k => $d ) {
 					$k2                 = json_encode(
-						(object) array(
+						array(
 							'which'  => $d->which,
 							'type'   => 'method',
 							'class'  => $dc->class,
 							'alias'  => $dc->alias,
 							'method' => $d->function,
-						)
+						),
+						JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
 					);
 					$annotations[ $k2 ] = $annotations[ $k ];
 					unset( $annotations[ $k ] );

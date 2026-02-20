@@ -286,6 +286,7 @@ class Jetpack_Subscriptions_Test extends WP_UnitTestCase {
 	 */
 	#[DataProvider( 'matrix_access' )]
 	public function test_subscriber_access_level( $type_user_id, $logged, $token_set, $post_access_level, $should_email_be_sent, $should_user_access_post, $subscription_end_date = null, $status = null ) {
+		$user_id = null;
 		if ( $type_user_id !== null ) {
 			$user_id = $this->{$type_user_id};
 		}

@@ -314,8 +314,8 @@ function stats_script_dismiss_nudge_handler() {
 		// Send an AJAX request.
 		// Note we can provide a 'postponed_for' parameter to set the delay.
 		// Without a parameter it defaults to 30 days which is what we want here.
-		let nonce = <?php echo wp_json_encode( wp_create_nonce( 'wp_rest' ) ); ?>;
-		let url = <?php echo wp_json_encode( rest_url( '/jetpack/v4/stats-app/stats/notices' ) ); ?>;
+		let nonce = <?php echo wp_json_encode( wp_create_nonce( 'wp_rest' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
+		let url = <?php echo wp_json_encode( rest_url( '/jetpack/v4/stats-app/stats/notices' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
 		let data = {
 			id: 'opt_in_new_stats',
 			status: 'postponed',
@@ -360,7 +360,7 @@ function stats_js_remove_stnojs_cookie() {
 	?>
 <script type="text/javascript">
 /* <![CDATA[ */
-document.cookie = 'stnojs=0; expires=Wed, 9 Mar 2011 16:55:50 UTC; path=<?php echo esc_js( $parsed['path'] ); ?>';
+document.cookie = <?php echo wp_json_encode( 'stnojs=0; expires=Wed, 9 Mar 2011 16:55:50 UTC; path=' . $parsed['path'], JSON_UNESCAPED_SLASHES | JSON_HEX_TAG ); ?>;
 /* ]]> */
 </script>
 	<?php
@@ -1173,7 +1173,7 @@ function stats_dashboard_widget_content() {
 function stats_print_wp_remote_error( $get, $url ) {
 	$state_name     = 'stats_remote_error_' . substr( md5( $url ), 0, 8 );
 	$previous_error = Jetpack::state( $state_name );
-	$error          = md5( wp_json_encode( compact( 'get', 'url' ) ) );
+	$error          = md5( wp_json_encode( compact( 'get', 'url' ), JSON_UNESCAPED_SLASHES ) );
 	Jetpack::state( $state_name, $error );
 	if ( $error !== $previous_error ) {
 		?>
@@ -1388,7 +1388,7 @@ function stats_get_from_restapi( $args = array(), $resource = '' ) {
 	$endpoint    = jetpack_stats_api_path( $resource );
 	$api_version = '1.1';
 	$args        = wp_parse_args( $args, array() );
-	$cache_key   = md5( implode( '|', array( $endpoint, $api_version, wp_json_encode( $args ) ) ) );
+	$cache_key   = md5( implode( '|', array( $endpoint, $api_version, wp_json_encode( $args, JSON_UNESCAPED_SLASHES ) ) ) );
 
 	$transient_name = "jetpack_restapi_stats_cache_{$cache_key}";
 

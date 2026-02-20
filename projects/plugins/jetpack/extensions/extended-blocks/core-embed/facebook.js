@@ -1,4 +1,3 @@
-import { getIconColor } from '@automattic/jetpack-shared-extension-utils';
 import { FacebookIcon } from '@automattic/jetpack-shared-extension-utils/icons';
 import { addFilter } from '@wordpress/hooks';
 import { __, _x } from '@wordpress/i18n';
@@ -8,7 +7,6 @@ const facebookVariation = {
 	title: __( 'Facebook Embed', 'jetpack' ),
 	icon: {
 		src: FacebookIcon,
-		foreground: getIconColor(),
 	},
 	keywords: [ _x( 'social', 'block search term', 'jetpack' ) ],
 	description: __( 'Embed a Facebook post.', 'jetpack' ),

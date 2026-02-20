@@ -89,17 +89,7 @@ abstract class Code_Editor {
 			wp_enqueue_script_module( self::MODULE_PREFIX . 'code-editor' );
 
 			// Enqueue code editor script dependencies.
-			wp_enqueue_script( 'react' );
-			wp_enqueue_script( 'wp-blocks' );
-			wp_enqueue_script( 'wp-components' );
-			wp_enqueue_script( 'wp-compose' );
-			wp_enqueue_script( 'wp-core-data' );
-			wp_enqueue_script( 'wp-data' );
-			wp_enqueue_script( 'wp-editor' );
 			wp_enqueue_script( 'wp-i18n' );
-			wp_enqueue_script( 'wp-keyboard-shortcuts' );
-			wp_enqueue_script( 'wp-plugins' );
-			wp_enqueue_script( 'wp-private-apis' );
 		}
 
 		/**

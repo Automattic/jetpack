@@ -2,12 +2,16 @@ import { Icon } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { mobile } from '@wordpress/icons';
 import defaultSettings from '../shared/settings/index.js';
-import { getIconColor } from '../shared/util/block-icons.js';
 import deprecated from './deprecated.js';
 import edit from './edit.js';
 import save from './save.js';
 
-const name = 'field-telephone';
+export const name = 'field-telephone';
+
+export const form_editor = {
+	category: 'contact-info',
+};
+
 export const settings = {
 	...defaultSettings,
 	title: __( 'Phone number field', 'jetpack-forms' ),
@@ -18,7 +22,6 @@ export const settings = {
 	],
 	description: __( 'Collect phone numbers from site visitors.', 'jetpack-forms' ),
 	icon: {
-		foreground: getIconColor(),
 		src: <Icon icon={ mobile } />,
 	},
 	edit,
@@ -70,4 +73,5 @@ export const settings = {
 export default {
 	name,
 	settings,
+	form_editor,
 };

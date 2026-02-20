@@ -23,7 +23,7 @@ const deprecatedButtonAttributes = [
 /**
  * Deprecated save function.
  *
- * Adapted button save function from @wordpress/block-library
+ * Adapted button save function from `@wordpress/block-library`
  * (Using Gutenberg code that shipped with WordPress 5.3)
  *
  * @see https://github.com/WordPress/gutenberg/blob/wp/5.3/packages/block-library/src/button/save.js

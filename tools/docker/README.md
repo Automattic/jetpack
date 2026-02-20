@@ -103,7 +103,7 @@ You can just quickly install WordPress and activate Jetpack via command line. En
 jetpack docker install
 ```
 
-This will give you a single site with user/pass `wordpress` (unless you changed these from `./tools/docker/.env` file). You will still have to connect Jetpack to WordPress.com manually.
+This will give you a single site with user `jp_docker_acct` and password `jp_docker_pass` (unless you changed these in `tools/docker/.env`). You will still have to connect Jetpack to WordPress.com manually.
 
 To convert installed single site into a multisite, run:
 
@@ -269,7 +269,7 @@ define( 'JETPACK__SANDBOX_DOMAIN', '{your sandbox}.wordpress.com' );
 
 ## Jurassic Tube Tunneling Service
 
-This is for Automatticians only.
+This is for Automatticians only. More information: PCYsg-GJ2-p2.
 
 Jurassic Tube is a tunneling service that allows you to expose your local Docker environment to the internet, enabling you to connect Jetpack to WordPress.com for testing.
 
@@ -372,6 +372,46 @@ You should now be able to configure [Jetpack Backup & Scan](https://jetpack.com/
 - Server username: `wordpress`
 - Server password: `wordpress`
 - WordPress installation path: `/var/www/html`
+
+### Improved performance when tunneling
+
+Loading tunnelled local sites like Jurassic Tube or Ngrok can sometimes be slow due to all traffic having to go to the server and back. Depending on where you live, there can be a considerable delay for most browser requests.
+
+**Solution**: Make the site reachable from the outside world, but _when working locally, load everything locally_, without tunneling, using a reverse proxy.
+
+#### Setup
+1. Install [Caddy](https://formulae.brew.sh/formula/caddy)
+
+    Why Caddy? The developer environment only listens for HTTP traffic, not HTTPS traffic. Caddy accepts the HTTPS connection and proxies the request to the developer environment.
+
+    ```sh
+    brew install caddy
+    ```
+
+2. Edit the hosts file (`/etc/hosts` on macOS/Linux) as an administrator (requires `sudo` privileges)
+
+    For example, you can run:
+
+    ```sh
+    sudo nano /etc/hosts
+    ```
+    Add this line:
+
+    ```
+    127.0.0.1 localhost your-test-site.example.com
+    ```
+
+3. Start Jurassic Tube tunnel or Ngrok
+
+4. Run Caddy
+
+    ```sh
+    caddy reverse-proxy --from your-test-site.example.com --to localhost:80 --internal-certs --disable-redirects
+    ```
+
+    `--internal-certs` and `--disable-redirects` are needed for HTTPS. [Read more](https://caddyserver.com/docs/command-line#caddy-reverse-proxy).
+
+That’s it!
 
 ## Custom plugins & themes in the container
 

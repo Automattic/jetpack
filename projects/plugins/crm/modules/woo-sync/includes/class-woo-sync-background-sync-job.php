@@ -1,5 +1,5 @@
-<?php 
-/*!
+<?php
+/*
  * Jetpack CRM
  * https://jetpackcrm.com
  *
@@ -12,15 +12,12 @@ namespace Automattic\JetpackCRM;
 defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 
 #} the WooCommerce API
-use Automattic\WooCommerce\Client;
 use Automattic\WooCommerce\HttpClient\HttpClientException;
-use Automattic\JetpackCRM\Missing_Settings_Exception;
 
 /**
  * WooSync Background Sync Job class
  */
 class Woo_Sync_Background_Sync_Job {
-
 
 	/**
 	 * Site Key
@@ -41,7 +38,7 @@ class Woo_Sync_Background_Sync_Job {
 	 * Number of orders to process per job
 	 */
 	private $orders_per_page = 50;
-	private $pages_per_job = 1;
+	private $pages_per_job   = 1;
 
 	/**
 	 * Current page the job is working on
@@ -57,7 +54,7 @@ class Woo_Sync_Background_Sync_Job {
 	 * Number of orders in Woo
 	 */
 	private $woo_total_orders = 0;
-	
+
 	/**
 	 * If set to true this will echo progress of a sync job.
 	 */
@@ -71,7 +68,7 @@ class Woo_Sync_Background_Sync_Job {
 	public function __construct( $site_key = '', $site_info = false, $debug = false, $orders_per_page = 50, $pages_per_job = 1 ) {
 
 		// requires key
-		if ( empty( $site_key ) ){
+		if ( empty( $site_key ) ) {
 
 			// fail.
 			return false;
@@ -86,14 +83,14 @@ class Woo_Sync_Background_Sync_Job {
 		$this->pages_per_job   = $pages_per_job;
 
 		// load where not passed
-		if ( !is_array( $this->site_info ) ){
+		if ( ! is_array( $this->site_info ) ) {
 
 			$this->site_info = $this->woosync()->get_active_sync_site( $this->site_key );
 
 		}
 
 		// promote paused state
-		if ( isset( $this->site_info['paused'] ) && $this->site_info['paused'] ){
+		if ( isset( $this->site_info['paused'] ) && $this->site_info['paused'] ) {
 
 			$this->paused = true;
 
@@ -105,37 +102,33 @@ class Woo_Sync_Background_Sync_Job {
 			return false;
 
 		}
-
 	}
-
 
 	/**
 	 * Returns main class instance
 	 */
-	public function woosync(){
+	public function woosync() {
 
 		global $zbs;
 		return $zbs->modules->woosync;
-
 	}
 
 	/**
 	 * Returns full settings array from main settings class
 	 */
-	public function settings(){
+	public function settings() {
 
 		return $this->woosync()->settings->getAll();
-
 	}
 
 	/**
 	 * Returns 'local' or 'api'
 	 *  (whichever mode is selected in settings)
 	 */
-	public function import_mode( $str_mode = false ){
+	public function import_mode( $str_mode = false ) {
 
 		// import mode
-		$mode = (int)$this->site_info['mode'];
+		$mode = (int) $this->site_info['mode'];
 
 		// debug/string mode
 		if ( $str_mode ) {
@@ -147,7 +140,6 @@ class Woo_Sync_Background_Sync_Job {
 		}
 
 		return $mode;
-
 	}
 
 	/**
@@ -155,18 +147,17 @@ class Woo_Sync_Background_Sync_Job {
 	 *
 	 * @param string - Debug string
 	 */
-	private function debug( $str ){
+	private function debug( $str ) {
 
-		if ( $this->debug ){
+		if ( $this->debug ) {
 
 			echo '[' . zeroBSCRM_locale_utsToDatetime( time() ) . '] ' . $str . '<br>';
 
 		}
-
 	}
 
 	/**
-	 * Main job function: this will retrieve and import orders from WooCommerce into CRM. 
+	 * Main job function: this will retrieve and import orders from WooCommerce into CRM.
 	 * for a given sync site
 	 *
 	 * @return mixed (int|json)
@@ -175,14 +166,14 @@ class Woo_Sync_Background_Sync_Job {
 	 *      - if completed sync: JSON summary info is output and then exit() is called
 	 *      - else count of orders imported is returned
 	 */
-	public function run_sync(){
+	public function run_sync() {
 
 		global $zbs;
 
 		$this->debug( 'Fired `sync_orders()` for `' . $this->site_key . '`.<pre>' . print_r( $this->site_info, 1 ) . '</pre>' );
 
-		if ( !is_array( $this->site_info ) ){
-			
+		if ( ! is_array( $this->site_info ) ) {
+
 			// debug
 			$this->debug( 'Failed to retrieve site to sync! ' );
 			return false;
@@ -190,13 +181,13 @@ class Woo_Sync_Background_Sync_Job {
 		}
 
 		// prep vars
-		$run_sync_job = true;
+		$run_sync_job          = true;
 		$total_remaining_pages = 0;
-		$total_pages = 0;
-		$errors = array();
+		$total_pages           = 0;
+		$errors                = array();
 
 		// check not marked 'paused'
-		if ( $this->paused ){
+		if ( $this->paused ) {
 
 			// skip it
 			$this->debug( 'Skipping Sync for ' . $this->site_info['domain'] . ' (mode: ' . $this->site_info['mode'] . ') - Paused' );
@@ -231,15 +222,14 @@ class Woo_Sync_Background_Sync_Job {
 
 				// skip this site connection
 				$run_sync_job = false;
-	
+
 			}
-	
 		} elseif ( $this->site_info['mode'] == JPCRM_WOO_SYNC_MODE_LOCAL ) {
-	
+
 			// local install
 
 			// verify woo installed
-			if ( !$zbs->woocommerce_is_active() ) {
+			if ( ! $zbs->woocommerce_is_active() ) {
 
 				$status_short_text = __( 'Missing WooCommerce', 'zero-bs-crm' );
 
@@ -256,7 +246,6 @@ class Woo_Sync_Background_Sync_Job {
 				$run_sync_job = false;
 
 			}
-
 		} else {
 
 			// no mode, or a faulty one!
@@ -274,7 +263,7 @@ class Woo_Sync_Background_Sync_Job {
 
 		}
 
-		if ( $run_sync_job ){
+		if ( $run_sync_job ) {
 
 			$this->debug( 'Running Import of ' . $this->pages_per_job . ' pages' );
 
@@ -294,8 +283,8 @@ class Woo_Sync_Background_Sync_Job {
 				$this->current_page = $page_to_retrieve;
 				// import the page of orders
 				// This always returns the count of imported orders,
-				//   unless 100% sync is reached, at which point it will exit (if called via AJAX)
-				//   for now, we don't need to track the return
+				// unless 100% sync is reached, at which point it will exit (if called via AJAX)
+				// for now, we don't need to track the return
 				$this->import_page_of_orders( $page_to_retrieve );
 
 			}
@@ -308,16 +297,16 @@ class Woo_Sync_Background_Sync_Job {
 
 		// return overall % counts later used to provide a summary % across sync site connections
 		$percentage_counts = $this->percentage_completed( true );
-		if ( is_array( $percentage_counts ) ){
+		if ( is_array( $percentage_counts ) ) {
 
-			$total_pages = (int)$percentage_counts['total_pages'];
+			$total_pages           = (int) $percentage_counts['total_pages'];
 			$total_remaining_pages = $percentage_counts['total_pages'] - $percentage_counts['page_no'];
 
 		}
 
 		// We should never have less than zero here
 		// (seems to happen when site connections error out)
-		if ( $total_remaining_pages < 0 ){
+		if ( $total_remaining_pages < 0 ) {
 			$total_remaining_pages = 0;
 		}
 
@@ -328,9 +317,7 @@ class Woo_Sync_Background_Sync_Job {
 			'errors'                => $errors,
 
 		);
-
 	}
-
 
 	/**
 	 * Retrieve and process 1 page of WooCommerce orders via API or from local store
@@ -345,7 +332,7 @@ class Woo_Sync_Background_Sync_Job {
 	 */
 	private function import_page_of_orders( $page_no ) {
 
-		$this->debug( 'Fired `import_page_of_orders( ' . $page_no . ' )`, importing from ' . $this->import_mode( true ) . ' on site ' . $this->site_key .'.' );
+		$this->debug( 'Fired `import_page_of_orders( ' . $page_no . ' )`, importing from ' . $this->import_mode( true ) . ' on site ' . $this->site_key . '.' );
 
 		// store/api switch
 		if ( $this->import_mode() === JPCRM_WOO_SYNC_MODE_API ) {
@@ -358,9 +345,7 @@ class Woo_Sync_Background_Sync_Job {
 			return $this->import_orders_from_store( $page_no );
 
 		}
-
 	}
-
 
 	/**
 	 * Retrieve and process a page of WooCommerce orders from local store
@@ -379,33 +364,35 @@ class Woo_Sync_Background_Sync_Job {
 		// Where we're trying to run without WooCommerce, fail.
 		// In theory we shouldn't ever hit this, as we catch it earlier.
 		global $zbs;
-		if ( !$zbs->woocommerce_is_active() ) {
+		if ( ! $zbs->woocommerce_is_active() ) {
 			$this->debug( 'Unable to import as it appears WooCommerce is not installed.' );
 			return false;
 		}
 
 		// retrieve orders
-		$orders = wc_get_orders( array(
-			'limit'    => $this->orders_per_page,
-			'paged'    => $page_no,
-			'paginate' => true,
-			'order'    => 'ASC',
-			'orderby'  => 'ID',
-		));
+		$orders = wc_get_orders(
+			array(
+				'limit'    => $this->orders_per_page,
+				'paged'    => $page_no,
+				'paginate' => true,
+				'order'    => 'ASC',
+				'orderby'  => 'ID',
+			)
+		);
 
 		// count the pages and break if we have nothing to import
 		if ( $orders->max_num_pages == 0 ) {
 
 			// we're at 100%, mark sync complete
 			$this->set_first_import_status( true );
-			
+
 			// return count
 			return 0;
 
 		}
 
 		// cache values
-		$this->woo_total_pages = $orders->max_num_pages;
+		$this->woo_total_pages  = $orders->max_num_pages;
 		$this->woo_total_orders = $orders->total;
 
 		// we have some pages to process, so proceed
@@ -426,7 +413,7 @@ class Woo_Sync_Background_Sync_Job {
 				$order_num = $order_post_id;
 			}
 
-			if ( !empty( $order_post_id ) ) {
+			if ( ! empty( $order_post_id ) ) {
 
 				$this->debug( 'Importing order: ' . $order_num . '(' . $order_post_id . ')' );
 
@@ -435,10 +422,9 @@ class Woo_Sync_Background_Sync_Job {
 				$this->add_update_from_woo_order( $order_post_id );
 
 				// this will include orders updated...
-				$orders_imported++;
+				++$orders_imported;
 
 			}
-
 		}
 
 		// check for completion
@@ -462,9 +448,7 @@ class Woo_Sync_Background_Sync_Job {
 
 		// return the count
 		return $orders_imported;
-
 	}
-
 
 	/**
 	 * Retrieve and process a page of WooCommerce orders via API
@@ -492,7 +476,7 @@ class Woo_Sync_Background_Sync_Job {
 			// clock origin
 			$origin = '';
 			$domain = $this->site_info['domain'];
-			if ( !empty( $domain ) ) {
+			if ( ! empty( $domain ) ) {
 
 				// if Domain
 				if ( $domain ) {
@@ -500,7 +484,6 @@ class Woo_Sync_Background_Sync_Job {
 					$origin = $zbs->DAL->add_origin_prefix( $domain, 'domain' );
 
 				}
-
 			}
 
 			// retrieve orders
@@ -521,7 +504,7 @@ class Woo_Sync_Background_Sync_Job {
 			$lc_response_headers = array_change_key_case( $response_headers, CASE_LOWER );
 
 			// error if X-WP-TotalPages header doesn't exist
-			if ( !isset( $lc_response_headers['x-wp-totalpages'] ) ) {
+			if ( ! isset( $lc_response_headers['x-wp-totalpages'] ) ) {
 
 				wp_send_json(
 					array(
@@ -536,20 +519,25 @@ class Woo_Sync_Background_Sync_Job {
 			}
 
 			// cache values
-			$this->woo_total_pages = (int)$lc_response_headers['x-wp-totalpages'];
-			$this->woo_total_orders = (int)$lc_response_headers['x-wp-total'];
+			$this->woo_total_pages  = (int) $lc_response_headers['x-wp-totalpages'];
+			$this->woo_total_orders = (int) $lc_response_headers['x-wp-total'];
 
-			$total_pages = (int)$lc_response_headers['x-wp-totalpages'];
+			$total_pages = (int) $lc_response_headers['x-wp-totalpages'];
 
-			$this->debug( 'API Response:<pre>' . var_export( array(
+			$this->debug(
+				'API Response:<pre>' . var_export(
+					array(
 
-				'orders_retrieved'    => count( $orders ),
-				// 'last_response'       => $last_response,
-				// 'response_headers'    => $response_headers,
-				// 'lc_response_headers' => $lc_response_headers,
-				'total_pages'         => $this->woo_total_pages,
+						'orders_retrieved' => count( $orders ),
+						// 'last_response'       => $last_response,
+						// 'response_headers'    => $response_headers,
+						// 'lc_response_headers' => $lc_response_headers,
+						'total_pages'      => $this->woo_total_pages,
 
-			), true ) . '</pre>' );
+					),
+					true
+				) . '</pre>'
+			);
 
 			// count the pages and break if we have nothing to import
 			if ( $this->woo_total_pages === 0 ) {
@@ -571,7 +559,7 @@ class Woo_Sync_Background_Sync_Job {
 
 				// prefix ID and number
 				$order->number = $this->woosync()->get_prefix( $this->site_key ) . $order->number;
-				$order->id = $this->woosync()->get_prefix( $this->site_key ) . $order->id;
+				$order->id     = $this->woosync()->get_prefix( $this->site_key ) . $order->id;
 
 				// translate order data to crm objects
 				$crm_objects = $this->woocommerce_api_order_to_crm_objects( $order, $origin );
@@ -579,7 +567,7 @@ class Woo_Sync_Background_Sync_Job {
 				// import crm objects
 				$this->import_crm_object_data( $crm_objects );
 
-				$orders_imported++;
+				++$orders_imported;
 
 			}
 
@@ -622,7 +610,7 @@ class Woo_Sync_Background_Sync_Job {
 
 			// compile string of what's missing
 			$missing_string = '';
-			$missing_data = $e->get_error_data();
+			$missing_data   = $e->get_error_data();
 			if ( is_array( $missing_data ) && isset( $missing_data['missing'] ) ) {
 				$missing_string = '<br>' . __( 'Missing:', 'zero-bs-crm' ) . ' ' . implode( ', ', $missing_data['missing'] );
 			}
@@ -635,7 +623,6 @@ class Woo_Sync_Background_Sync_Job {
 			return 'error';
 
 		}
-
 	}
 
 	/**
@@ -698,7 +685,6 @@ class Woo_Sync_Background_Sync_Job {
 
 		// import data
 		$this->import_crm_object_data( $tidy_order_data );
-
 	}
 
 	/**
@@ -708,21 +694,20 @@ class Woo_Sync_Background_Sync_Job {
 	 *
 	 * @return bool $status
 	 */
-	public function set_first_import_status( $status ){
+	public function set_first_import_status( $status ) {
 
 		$status_bool = false;
 
-		if ( $status == 'yes' || $status === true ){
+		if ( $status == 'yes' || $status === true ) {
 
 			$status_bool = true;
 
 		}
 
-		// set it 
+		// set it
 		$this->woosync()->set_sync_site_attribute( $this->site_key, 'first_import_complete', $status_bool );
 
 		return $status_bool;
-
 	}
 
 	/**
@@ -730,21 +715,20 @@ class Woo_Sync_Background_Sync_Job {
 	 *
 	 * @return bool $status
 	 */
-	public function first_import_completed(){
+	public function first_import_completed() {
 
 		$status_bool = false;
 
 		// get
 		$sync_site = $this->woosync()->get_active_sync_site( $this->site_key );
 
-		if ( $sync_site['first_import_complete'] == 'yes' || $sync_site['first_import_complete'] === true || $sync_site['first_import_complete'] == 1 ){
+		if ( $sync_site['first_import_complete'] == 'yes' || $sync_site['first_import_complete'] === true || $sync_site['first_import_complete'] == 1 ) {
 
 			$status_bool = true;
 
 		}
 
 		return $status_bool;
-
 	}
 
 	/**
@@ -752,13 +736,12 @@ class Woo_Sync_Background_Sync_Job {
 	 *
 	 * @return int $page
 	 */
-	public function set_resume_from_page( $page_no ){
+	public function set_resume_from_page( $page_no ) {
 
-		//update_option( 'zbs_woo_resume_sync_' . $this->site_key, $page_no );
+		// update_option( 'zbs_woo_resume_sync_' . $this->site_key, $page_no );
 		$this->woosync()->set_sync_site_attribute( $this->site_key, 'resume_from_page', $page_no );
 
 		return $page_no;
-
 	}
 
 	/**
@@ -766,10 +749,9 @@ class Woo_Sync_Background_Sync_Job {
 	 *
 	 * @return int $page
 	 */
-	public function resume_from_page(){
+	public function resume_from_page() {
 
 		return $this->woosync()->get_sync_site_attribute( $this->site_key, 'resume_from_page', 1 );
-
 	}
 
 	/**
@@ -780,7 +762,6 @@ class Woo_Sync_Background_Sync_Job {
 	 * @param array $crm_object_data (Woo Order data passed through `woocommerce_order_to_crm_objects`)
 	 *
 	 * @return int $transaction_id
-	 *
 	 */
 	public function import_crm_object_data( $crm_object_data ) {
 
@@ -793,11 +774,13 @@ class Woo_Sync_Background_Sync_Job {
 		if ( isset( $crm_object_data['contact'] ) && isset( $crm_object_data['contact']['email'] ) ) {
 
 			// Add the contact
-			$contact_id = $zbs->DAL->contacts->addUpdateContact( array(
-				'data'                 => $crm_object_data['contact'],
-				'extraMeta'            => $crm_object_data['contact_extra_meta'],
-				'do_not_update_blanks' => true
-			) );
+			$contact_id = $zbs->DAL->contacts->addUpdateContact(
+				array(
+					'data'                 => $crm_object_data['contact'],
+					'extraMeta'            => $crm_object_data['contact_extra_meta'],
+					'do_not_update_blanks' => true,
+				)
+			);
 
 		}
 
@@ -817,37 +800,38 @@ class Woo_Sync_Background_Sync_Job {
 			// contact logs
 			if ( is_array( $crm_object_data['contact_logs'] ) ) {
 
-				foreach ( $crm_object_data['contact_logs'] as $log ) {					
+				foreach ( $crm_object_data['contact_logs'] as $log ) {
 
 					// add log
-					$log_id = $zbs->DAL->logs->addUpdateLog( array(
+					$log_id = $zbs->DAL->logs->addUpdateLog(
+						array(
 
-						'id'    => -1,
-						'owner' => -1,
-						'ignore_if_existing_desc_type' => true,
-		                'ignore_if_meta_matching' => array(
-		                  'key' => 'from_woo_order',
-		                  'value' => $crm_object_data['order_post_id']
-		                ),
+							'id'                           => -1,
+							'owner'                        => -1,
+							'ignore_if_existing_desc_type' => true,
+							'ignore_if_meta_matching'      => array(
+								'key'   => 'from_woo_order',
+								'value' => $crm_object_data['order_post_id'],
+							),
 
-						// fields (directly)
-						'data'  => array(
+							// fields (directly)
+							'data'                         => array(
 
-							'objtype'   => ZBS_TYPE_CONTACT,
-							'objid'     => $contact_id,
-							'type'      => $log['type'],
-							'shortdesc' => $log['shortdesc'],
-							'longdesc'  => $log['longdesc'],
+								'objtype'   => ZBS_TYPE_CONTACT,
+								'objid'     => $contact_id,
+								'type'      => $log['type'],
+								'shortdesc' => $log['shortdesc'],
+								'longdesc'  => $log['longdesc'],
 
-							'meta'      => array( 'from_woo_order' => $crm_object_data['order_post_id'] ),
-							'created'   => -1
+								'meta'      => array( 'from_woo_order' => $crm_object_data['order_post_id'] ),
+								'created'   => -1,
 
-						),
+							),
 
-					) );
+						)
+					);
 
 				}
-
 			}
 
 			// add contact ID relationship to the related objects
@@ -856,7 +840,7 @@ class Woo_Sync_Background_Sync_Job {
 
 			// Add/update company (if using b2b mode, and successfully added/updated contact):
 			$b2b_mode = zeroBSCRM_getSetting( 'companylevelcustomers' );
-			if ( $b2b_mode && isset( $crm_object_data['company']['name'] ) && !empty( $crm_object_data['company']['name'] ) ) {
+			if ( $b2b_mode && isset( $crm_object_data['company']['name'] ) && ! empty( $crm_object_data['company']['name'] ) ) {
 
 				/**
 				 * Note: we use existing company ID if we can find it by name; otherwise we create it
@@ -895,12 +879,10 @@ class Woo_Sync_Background_Sync_Job {
 						$this->debug( 'Company import failed: <code>' . json_encode( $crm_object_data['company'] ) . '</code>' );
 
 				}
-
 			}
-
 		} else {
 
-			// failed to add contact? 
+			// failed to add contact?
 			$this->debug( 'Contact import failed, or there was no contact to import. Contact Data: <code>' . json_encode( $crm_object_data['contact'] ) . '</code>' );
 
 		}
@@ -913,27 +895,28 @@ class Woo_Sync_Background_Sync_Job {
 			// note this is substituting $crm_object_data['invoice']['existence_check_args'] for what should be $args, but it works
 			$invoice_id = $zbs->DAL->invoices->getInvoice( -1, $crm_object_data['invoice']['existence_check_args'] );
 
-
 			// add logo if invoice doesn't exist yet
-			if ( !$invoice_id ) {
+			if ( ! $invoice_id ) {
 				$crm_object_data['invoice']['logo_url'] = jpcrm_business_logo_url();
 			} else {
 				// if this is an update, let's not overwrite existing hash and logo
-				$old_invoice_data = $zbs->DAL->invoices->getInvoice( $invoice_id );
+				$old_invoice_data                       = $zbs->DAL->invoices->getInvoice( $invoice_id );
 				$crm_object_data['invoice']['logo_url'] = $old_invoice_data['logo_url'];
-				$crm_object_data['invoice']['hash'] = $old_invoice_data['hash'];
+				$crm_object_data['invoice']['hash']     = $old_invoice_data['hash'];
 			}
 
 			// add/update invoice
-			$invoice_id = $zbs->DAL->invoices->addUpdateInvoice( array(
-				'id'               => $invoice_id,
-				'data'             => $crm_object_data['invoice'],
-				'extraMeta'        => ( isset( $crm_object_data['invoice']['extra_meta'] ) ? $crm_object_data['invoice']['extra_meta'] : -1 ),
-				'calculate_totals' => true,
-			) );
+			$invoice_id = $zbs->DAL->invoices->addUpdateInvoice(
+				array(
+					'id'               => $invoice_id,
+					'data'             => $crm_object_data['invoice'],
+					'extraMeta'        => ( isset( $crm_object_data['invoice']['extra_meta'] ) ? $crm_object_data['invoice']['extra_meta'] : -1 ),
+					'calculate_totals' => true,
+				)
+			);
 
 			// link the transaction to the invoice
-			if ( !empty( $invoice_id ) ) {
+			if ( ! empty( $invoice_id ) ) {
 
 				$this->debug( 'Added invoice #' . $invoice_id );
 
@@ -944,14 +927,13 @@ class Woo_Sync_Background_Sync_Job {
 				$this->debug( 'invoice import failed: <code>' . json_encode( $crm_object_data['invoice'] ) . '</code>' );
 
 			}
-
 		}
 
 		// Add/update transaction (previously `add_or_update_transaction`)
 		// note this is substituting $crm_object_data['invoice']['existence_check_args'] for what should be $args, but it works
 		$existing_transaction_id = $zbs->DAL->transactions->getTransaction( -1, $crm_object_data['transaction']['existence_check_args'] );
-		
-		if ( !empty( $existing_transaction_id ) ) {
+
+		if ( ! empty( $existing_transaction_id ) ) {
 			$this->debug( 'Existing transaction #' . $existing_transaction_id );
 		}
 
@@ -969,17 +951,16 @@ class Woo_Sync_Background_Sync_Job {
 		}
 
 		// This parameter (do_not_mark_invoices) makes sure invoice status are not changed.
-		$args[ 'do_not_mark_invoices' ] = true;
-		$transaction_id = $zbs->DAL->transactions->addUpdateTransaction( $args );
+		$args['do_not_mark_invoices'] = true;
+		$transaction_id               = $zbs->DAL->transactions->addUpdateTransaction( $args );
 
-		if ( !empty( $transaction_id ) ) {
+		if ( ! empty( $transaction_id ) ) {
 
 			// if we have success here, but we didn't have a previous id, then it's a successful new order addition
-			if ( empty( $existing_transaction_id ) ){
+			if ( empty( $existing_transaction_id ) ) {
 
 				// increment connection order import count
 				$this->woosync()->increment_sync_site_count( $this->site_key, 'total_order_count' );
-
 
 				$this->debug( 'Added transaction #' . $transaction_id );
 
@@ -988,7 +969,6 @@ class Woo_Sync_Background_Sync_Job {
 				$this->debug( 'Updated transaction #' . $transaction_id );
 
 			}
-
 		} else {
 
 			$this->debug( 'Transaction import failed: <code>' . json_encode( $crm_object_data['transaction'] ) . '</code>' );
@@ -1004,7 +984,7 @@ class Woo_Sync_Background_Sync_Job {
 				$existing_transaction_id = $zbs->DAL->transactions->getTransaction( -1, $sub_transaction['existence_check_args'] );
 
 				// debug
-				if ( !empty( $existing_transaction_id ) ){
+				if ( ! empty( $existing_transaction_id ) ) {
 					$this->debug( 'Sub transaction: Existing transaction #' . $existing_transaction_id );
 				}
 
@@ -1016,23 +996,23 @@ class Woo_Sync_Background_Sync_Job {
 				);
 
 				// if we have transaction id, also inject it as a parent (this gets caught by the UI to give a link back)
-				if ( isset( $transaction_id ) && !empty( $contact_id ) ) {
+				if ( isset( $transaction_id ) && ! empty( $contact_id ) ) {
 					$args['data']['parent'] = $transaction_id;
 				}
 
 				// if we have contact id, also inject it
-				if ( isset( $contact_id ) && !empty( $contact_id ) ) {
+				if ( isset( $contact_id ) && ! empty( $contact_id ) ) {
 					$args['data']['contacts'] = array( $contact_id );
 				}
 
 				// if we have company id, also inject it
-				if ( isset( $company_id ) && !empty( $company_id ) ) {
+				if ( isset( $company_id ) && ! empty( $company_id ) ) {
 					$args['data']['companies'] = array( $company_id );
 				}
 
 				// if we have invoice_id, inject it
 				// ... this makes our double entry invoices work.
-				if ( isset( $invoice_id ) && !empty( $invoice_id ) ) {
+				if ( isset( $invoice_id ) && ! empty( $invoice_id ) ) {
 
 					$args['data']['invoice_id'] = $invoice_id;
 
@@ -1051,11 +1031,9 @@ class Woo_Sync_Background_Sync_Job {
 				$this->debug( 'Added/Updated Sub-transaction (Refund) #' . $sub_transaction_id );
 
 			}
-
 		}
 
 		return $transaction_id;
-
 	}
 
 	/**
@@ -1086,104 +1064,103 @@ class Woo_Sync_Background_Sync_Job {
 		$extra_meta = array()
 	) {
 
-	    global $zbs;
+		global $zbs;
 
-	    // get settings
-	    $settings = $this->settings();
+		// get settings
+		$settings = $this->settings();
 
-	    // build arrays
-	    $data = array(
-	        'contact'                 => array(),
-	        'contact_extra_meta'      => array(),
-	        'contact_logs'            => array(),
-	        'company'                 => false,
-	        'invoice'                 => false,
-	        'transaction'             => false,
-	        'secondary_transactions'  => array(),
-	        'lineitems'               => array(),
-	    	'order_post_id'           => $order_post_id,
-	    );
+		// build arrays
+		$data = array(
+			'contact'                => array(),
+			'contact_extra_meta'     => array(),
+			'contact_logs'           => array(),
+			'company'                => false,
+			'invoice'                => false,
+			'transaction'            => false,
+			'secondary_transactions' => array(),
+			'lineitems'              => array(),
+			'order_post_id'          => $order_post_id,
+		);
 
-	    // Below we sometimes need to do some type-conversion, (e.g. dates), so here we retrieve our 
-	    // crm contact custom fields to use the types...
-	    $custom_fields              = $zbs->DAL->getActiveCustomFields( array( 'objtypeid' => ZBS_TYPE_CONTACT ) );
-	    $is_status_mapping_enabled  = ( isset( $settings['enable_woo_status_mapping'] ) ? ( (int) $settings['enable_woo_status_mapping'] === 1 ) : true );
+		// Below we sometimes need to do some type-conversion, (e.g. dates), so here we retrieve our
+		// crm contact custom fields to use the types...
+		$custom_fields             = $zbs->DAL->getActiveCustomFields( array( 'objtypeid' => ZBS_TYPE_CONTACT ) );
+		$is_status_mapping_enabled = ( isset( $settings['enable_woo_status_mapping'] ) ? ( (int) $settings['enable_woo_status_mapping'] === 1 ) : true );
 		$contact_statuses          = zeroBSCRM_getCustomerStatuses( true );
 
-	    // initialise dates
-	    $contact_creation_date         = -1;
-	    $contact_creation_date_uts     = -1;
-	    $transaction_creation_date_uts = -1;
-	    $invoice_creation_date_uts     = -1;
+		// initialise dates
+		$contact_creation_date         = -1;
+		$contact_creation_date_uts     = -1;
+		$transaction_creation_date_uts = -1;
+		$invoice_creation_date_uts     = -1;
 
-	    // Tag customer setting i.e. do we want to tag with every product name
-	    // Will be useful to be able to filter Sales Dashboard by Product name eventually
-	    $tag_contact_with_item     = false;
-	    $tag_transaction_with_item = false;
-	    $tag_invoice_with_item     = false;
-	    $tag_with_coupon           = false;
-	    $tag_product_prefix = ( isset( $settings['wctagproductprefix'] ) ) ? zeroBSCRM_textExpose( $settings['wctagproductprefix'] ) : '';
-	    $tag_coupon_prefix = ( isset( $settings['wctagcouponprefix'] ) ) ? zeroBSCRM_textExpose( $settings['wctagcouponprefix'] ) : '';
-	    if ( isset( $settings['wctagcust'] ) && $settings['wctagcust'] == 1 ) {
+		// Tag customer setting i.e. do we want to tag with every product name
+		// Will be useful to be able to filter Sales Dashboard by Product name eventually
+		$tag_contact_with_item     = false;
+		$tag_transaction_with_item = false;
+		$tag_invoice_with_item     = false;
+		$tag_with_coupon           = false;
+		$tag_product_prefix        = ( isset( $settings['wctagproductprefix'] ) ) ? zeroBSCRM_textExpose( $settings['wctagproductprefix'] ) : '';
+		$tag_coupon_prefix         = ( isset( $settings['wctagcouponprefix'] ) ) ? zeroBSCRM_textExpose( $settings['wctagcouponprefix'] ) : '';
+		if ( isset( $settings['wctagcust'] ) && $settings['wctagcust'] == 1 ) {
 
-	        $tag_contact_with_item = true;
+			$tag_contact_with_item = true;
 
-	    }
-	    if ( isset( $settings['wctagtransaction'] ) && $settings['wctagtransaction'] == 1 ) {
+		}
+		if ( isset( $settings['wctagtransaction'] ) && $settings['wctagtransaction'] == 1 ) {
 
-	        $tag_transaction_with_item = true;
+			$tag_transaction_with_item = true;
 
-	    }
-	    if ( isset( $settings['wctaginvoice'] ) && $settings['wctaginvoice'] == 1 ) {
+		}
+		if ( isset( $settings['wctaginvoice'] ) && $settings['wctaginvoice'] == 1 ) {
 
-	        $tag_invoice_with_item = true;
+			$tag_invoice_with_item = true;
 
-	    }
-	    if ( isset( $settings['wctagcoupon'] ) && $settings['wctagcoupon'] == 1 ) {
+		}
+		if ( isset( $settings['wctagcoupon'] ) && $settings['wctagcoupon'] == 1 ) {
 
-	        $tag_with_coupon = true;
+			$tag_with_coupon = true;
 
-	    }
+		}
 
-	    // pre-processing from the $order_data
-	    $order_status   = $order_data['status'];
-	    $order_currency = $order_data['currency'];
+		// pre-processing from the $order_data
+		$order_status   = $order_data['status'];
+		$order_currency = $order_data['currency'];
 
-	    // Add external source
-	    $data['source'] = array(
-	        'externalSource'      => 'woo',
-	        'externalSourceUID'   => $order_post_id,
-	        'origin'              => $origin,
-	        'onlyID'              => true
-	    );
+		// Add external source
+		$data['source'] = array(
+			'externalSource'    => 'woo',
+			'externalSourceUID' => $order_post_id,
+			'origin'            => $origin,
+			'onlyID'            => true,
+		);
 
-	    // Dates:
-	    if ( !$from_api ) {
+		// Dates:
+		if ( ! $from_api ) {
 
-	        // from local store
+			// from local store
 
-	        if ( isset( $order_data['date_created'] ) && !empty( $order_data['date_created'] ) ) {
+			if ( isset( $order_data['date_created'] ) && ! empty( $order_data['date_created'] ) ) {
 
-	            $contact_creation_date         = $order_data['date_created']->date("Y-m-d h:m:s");
-	            $contact_creation_date_uts     = $order_data['date_created']->date("U");
-	            $transaction_creation_date_uts = $order_data['date_created']->date("U");
-	            $invoice_creation_date_uts     = $order_data['date_created']->date("U");
+				$contact_creation_date         = $order_data['date_created']->date( 'Y-m-d h:m:s' );
+				$contact_creation_date_uts     = $order_data['date_created']->date( 'U' );
+				$transaction_creation_date_uts = $order_data['date_created']->date( 'U' );
+				$invoice_creation_date_uts     = $order_data['date_created']->date( 'U' );
 
-	        }
+			}
+		} else {
 
-	    } else {
+			// from API
+			// dates are strings in API.
+			$contact_creation_date         = $order_data['date_created'];
+			$contact_creation_date_uts     = strtotime( $order_data['date_created'] );
+			$transaction_creation_date_uts = strtotime( $order_data['date_created'] );
+			$invoice_creation_date_uts     = strtotime( $order_data['date_created'] );
 
-	        // from API
-	        // dates are strings in API.
-	        $contact_creation_date         = $order_data['date_created'];
-	        $contact_creation_date_uts     = strtotime($order_data['date_created']);
-	        $transaction_creation_date_uts = strtotime($order_data['date_created']);
-	        $invoice_creation_date_uts     = strtotime($order_data['date_created']);
+		}
 
-	    }
-
-	    // ==== Tax Rates (on local stores only)
-	    if ( !$from_api ) {
+		// ==== Tax Rates (on local stores only)
+		if ( ! $from_api ) {
 
 			// Force Woo order totals recalculation to ensure taxes were applied correctly
 			// Only force recalculation if the order is not paid yet
@@ -1201,112 +1178,104 @@ class Woo_Sync_Background_Sync_Job {
 			}
 
 			$order_data = $order->get_data();
-		
+
 			// retrieve tax table to feed in tax links
 			$tax_rates_table = $this->woosync()->background_sync->get_tax_rates_table();
 
 			// Add/update any tax rates used in this order
 			$tax_rate_changes = false;
-	        foreach ( $order->get_items('tax') as $item ){
+			foreach ( $order->get_items( 'tax' ) as $item ) {
 
-	            $tax_rate_id    = $item->get_rate_id(); // Tax rate ID
-	            $tax_label      = $item->get_label(); // Tax label name
-	            $tax_percent    = \WC_Tax::get_rate_percent( $tax_rate_id ); // Tax percentage
-	            $tax_rate       = str_replace('%', '', $tax_percent); // Tax rate
+				$tax_rate_id = $item->get_rate_id(); // Tax rate ID
+				$tax_label   = $item->get_label(); // Tax label name
+				$tax_percent = \WC_Tax::get_rate_percent( $tax_rate_id ); // Tax percentage
+				$tax_rate    = str_replace( '%', '', $tax_percent ); // Tax rate
 
-	            /*
-	            $tax_rate_code  = $item->get_rate_code(); // Tax code
-	            $tax_name       = $item->get_(); // Tax name
-	            $tax_total      = $item->get_tax_total(); // Tax Total
-	            $tax_ship_total = $item->get_shipping_tax_total(); // Tax shipping total
-	            $tax_compound   = $item->get_compound(); // Tax compound
-	            */          
+				/*
+				$tax_rate_code  = $item->get_rate_code(); // Tax code
+				$tax_name       = $item->get_(); // Tax name
+				$tax_total      = $item->get_tax_total(); // Tax Total
+				$tax_ship_total = $item->get_shipping_tax_total(); // Tax shipping total
+				$tax_compound   = $item->get_compound(); // Tax compound
+				*/
 
-	        	// check if tax rate exists already
-	        	$tax_rate_exists = false;
-	        	foreach ( $tax_rates_table as $tax_rate_id => $tax_rate_detail ){
+				// check if tax rate exists already
+				$tax_rate_exists = false;
+				foreach ( $tax_rates_table as $tax_rate_id => $tax_rate_detail ) {
 
-	        		if ( 
-	        			
-						// name
+					if ( // name
 						$tax_label === $tax_rate_detail['name']
-	        			&&
+						&&
 						// rate - compare with full precision to preserve accuracy
 						(float) $tax_rate === (float) $tax_rate_detail['rate']
-	        			
-	        			){
 
-	        				$tax_rate_exists = true;
-	        				break;
+						) {
 
-	        			}        		
+							$tax_rate_exists = true;
+							break;
 
-	        	}
+					}
+				}
 
-	        	// add/update it if it doesn't exist or has changed rate
-	        	if ( !$tax_rate_exists ){
+				// add/update it if it doesn't exist or has changed rate
+				if ( ! $tax_rate_exists ) {
 
-	        		// add/update
+					// add/update
 					$added_rate_id = zeroBSCRM_taxRates_addUpdateTaxRate(
 						array(
 
-							//'id'   => -1,
+							// 'id'   => -1,
 							'data' => array(
 								'name' => $tax_label,
-								'rate' => (float)$tax_rate,
+								'rate' => (float) $tax_rate,
 							),
 						)
 					);
 
-	        		// mark as table changed
-	        		$tax_rate_changes = true;
+					// mark as table changed
+					$tax_rate_changes = true;
 
 				}
+			}
 
-	        };
+			// reload tax rate table if changes actioned
+			if ( $tax_rate_changes ) {
 
-	        // reload tax rate table if changes actioned
-	        if ( $tax_rate_changes ){
+				$tax_rates_table = $this->woosync()->background_sync->get_tax_rates_table( true );
 
-	        	$tax_rates_table = $this->woosync()->background_sync->get_tax_rates_table( true );
+			}
+		}
 
-	        }
+		// /=== Tax
 
-	    }
+		// ==== Contact
 
-        // /=== Tax
+		// Always use contact email, not billing email:
+		// We've hit issues based on adding a Jetpack CRM contact based on billing email if they have a WP user attached
+		// with a different email. The $order_data['customer_id'] will = 0 for guest or +tive for users. This way we will always
+		// store the contact against the contact email (and not the billing email)
+		$contact_email = '';
+		$billing_email = '';
 
-	    // ==== Contact
-
-	    // Always use contact email, not billing email:
-	    // We've hit issues based on adding a Jetpack CRM contact based on billing email if they have a WP user attached
-	    // with a different email. The $order_data['customer_id'] will = 0 for guest or +tive for users. This way we will always
-	    // store the contact against the contact email (and not the billing email)
-	    $contact_email = '';
-	    $billing_email = '';
-
-	    if ( isset( $order_data['customer_id']) && $order_data['customer_id'] > 0 ) {
-				// then we have an existing user. Get the WP email
-				$user          = get_user_by( 'id', $order_data['customer_id'] );
+		if ( isset( $order_data['customer_id'] ) && $order_data['customer_id'] > 0 ) {
+			// then we have an existing user. Get the WP email
+				$user = get_user_by( 'id', $order_data['customer_id'] );
+			if ( $user ) {
 				$contact_email = $user->user_email;
-				if ( isset($order_data['billing']['email'] ) ) {
-					$billing_email = $order_data['billing']['email'];
-				}
+			}
+			if ( isset( $order_data['billing']['email'] ) ) {
+				$billing_email = $order_data['billing']['email'];
+			}
 
-				// pass WP ID to contact
-				$data['contact']['wpid'] = $order_data['customer_id'];
-
-	    } else {
-
-	        if ( isset( $order_data['billing']['email'] ) ) {
-	            $billing_email = $order_data['billing']['email'];
-	            $contact_email = $billing_email;
-	        }
-
-	    }
+			// pass WP ID to contact
+			$data['contact']['wpid'] = $order_data['customer_id'];
+		} elseif ( isset( $order_data['billing']['email'] ) ) {
+			$billing_email = $order_data['billing']['email'];
+			$contact_email = $billing_email;
+		}
 
 		// we only add a contact whom has an email
-		if ( !empty( $contact_email ) ) {
+		if ( ! empty( $contact_email ) ) {
 
 			if ( $is_status_mapping_enabled ) {
 				$contact_id = zeroBS_getCustomerIDWithEmail( $contact_email );
@@ -1345,7 +1314,7 @@ class Woo_Sync_Background_Sync_Job {
 				if (
 					isset( $woo_customer_meta['first_name'] )
 					&&
-					( !isset( $data['contact']['fname'] ) || empty( $data['contact']['fname'] ) )
+					( ! isset( $data['contact']['fname'] ) || empty( $data['contact']['fname'] ) )
 				) {
 
 					$data['contact']['fname'] = $woo_customer_meta['first_name'][0];
@@ -1356,7 +1325,7 @@ class Woo_Sync_Background_Sync_Job {
 				if (
 					isset( $woo_customer_meta['last_name'] )
 					&&
-					( !isset( $data['contact']['lname'] ) || empty( $data['contact']['lname'] ) )
+					( ! isset( $data['contact']['lname'] ) || empty( $data['contact']['lname'] ) )
 				) {
 
 					$data['contact']['lname'] = $woo_customer_meta['last_name'][0];
@@ -1420,7 +1389,7 @@ class Woo_Sync_Background_Sync_Job {
 			}
 
 			// Store the billing email as an alias, and as an extraMeta (for later potential origin work)
-			if ( !empty( $billing_email ) ) {
+			if ( ! empty( $billing_email ) ) {
 
 				$data['contact_extra_meta']['billingemail'] = $billing_email;
 
@@ -1431,7 +1400,7 @@ class Woo_Sync_Background_Sync_Job {
 			}
 
 			// Store any customer notes
-			if ( isset( $order_data['customer_note'] ) && !empty( $order_data['customer_note'] ) ) {
+			if ( isset( $order_data['customer_note'] ) && ! empty( $order_data['customer_note'] ) ) {
 
 				// Previously `notes` field, refactor into core moved this into log addition
 				$data['contact_logs'][] = array(
@@ -1448,7 +1417,6 @@ class Woo_Sync_Background_Sync_Job {
 			// Returns array of WC_Meta_Data objects https://woocommerce.github.io/code-reference/classes/WC-Meta-Data.html
 			// Filters to support WooCommerce Checkout Field Editor, Field editor Pro etc.
 			/*
-
 					[1] => WC_Meta_Data Object
 						(
 								[current_data:protected] => Array
@@ -1481,7 +1449,7 @@ class Woo_Sync_Background_Sync_Job {
 						// process it, only adding if not already set (to avoid custom checkout overriding base fields)
 						$key = $zbs->DAL->makeSlug( $meta_data['key'] );
 
-						if ( !empty( $key ) && !isset( $data['contact'][ $key ] ) ) {
+						if ( ! empty( $key ) && ! isset( $data['contact'][ $key ] ) ) {
 
 							$value = $meta_data['value'];
 
@@ -1497,7 +1465,6 @@ class Woo_Sync_Background_Sync_Job {
 										break;
 
 								}
-
 							}
 
 							// simplistic add
@@ -1507,11 +1474,8 @@ class Woo_Sync_Background_Sync_Job {
 							$data['contact'] = $this->filter_checkout_contact_fields( $key, $value, $data['contact'], $order, $custom_fields );
 
 						}
-
 					}
-
 				}
-
 			}
 
 			// WooCommerce Checkout Add-ons fields support, where installed
@@ -1551,29 +1515,29 @@ class Woo_Sync_Background_Sync_Job {
 		$transaction_paid_date_uts      = null;
 		$transaction_completed_date_uts = null;
 
-		if ( array_key_exists( 'date_paid', $order_data ) && !empty( $order_data['date_paid'] ) ) {
+		if ( array_key_exists( 'date_paid', $order_data ) && ! empty( $order_data['date_paid'] ) ) {
 			$transaction_paid_date_uts = $order_data['date_paid']->date( 'U' );
 		}
 
 		$invoice_status = $this->woosync()->translate_order_status_to_obj_status( ZBS_TYPE_INVOICE, $order_status );
 
 		// retrieve completed date, where available
-		if ( array_key_exists( 'date_completed', $order_data ) && !empty( $order_data['date_completed'] ) ) {
+		if ( array_key_exists( 'date_completed', $order_data ) && ! empty( $order_data['date_completed'] ) ) {
 
 			$transaction_completed_date_uts = $order_data['date_completed']->date( 'U' );
 
 		}
 
 		// Retrieve and process order line items
-		if ( !$from_api ) {
+		if ( ! $from_api ) {
 
-			$item_title = '';
+			$item_title  = '';
 			$order_items = $order->get_items();
 
 			// Retrieve order-used tax rates
 			$tax_items_labels = array();
 
-			foreach ( $order->get_items('tax') as $tax_item ) {
+			foreach ( $order->get_items( 'tax' ) as $tax_item ) {
 				$rate_id                      = $tax_item->get_rate_id();
 				$tax_items_labels[ $rate_id ] = $tax_item->get_label();
 
@@ -1617,30 +1581,28 @@ class Woo_Sync_Background_Sync_Job {
 				$order_data['subtotal'] += $price;
 
 				// translate Woo taxes to CRM taxes
-				$item_woo_taxes = $item->get_taxes();
-				$tax_label = '';
+				$item_woo_taxes    = $item->get_taxes();
+				$tax_label         = '';
 				$item_tax_rate_ids = array(); // collect taxes
 
-			    foreach ( $item_woo_taxes['subtotal'] as $rate_id => $tax ){
+				foreach ( $item_woo_taxes['subtotal'] as $rate_id => $tax ) {
 
-			        if ( isset( $tax_items_labels[ $rate_id ] ) ){
+					if ( isset( $tax_items_labels[ $rate_id ] ) ) {
 
-			        	$tax_label = $tax_items_labels[ $rate_id ];
+						$tax_label = $tax_items_labels[ $rate_id ];
 
-			        	// match tax label to tax in our crm tax table (should have been added by the logic above here, even if new)
-			        	foreach ( $tax_rates_table as $tax_rate_id => $tax_rate_detail ){
+						// match tax label to tax in our crm tax table (should have been added by the logic above here, even if new)
+						foreach ( $tax_rates_table as $tax_rate_id => $tax_rate_detail ) {
 
 							if ( $tax_label === $tax_rate_detail['name'] ) {
 
-			        			// this tax is applied to this line item
-			        			$item_tax_rate_ids[] = $tax_rate_id;
+								// this tax is applied to this line item
+								$item_tax_rate_ids[] = $tax_rate_id;
 
-			        		}
-			        	}
-
-			        }
-
-			    }
+							}
+						}
+					}
+				}
 
 				// Get product short description for line item description.
 				$product_id_to_fetch = $item_data['product_id'];
@@ -1676,10 +1638,9 @@ class Woo_Sync_Background_Sync_Job {
 				$data['lineitems'][] = $new_line_item;
 
 				// add to tags where not alreday present
-				if ( !in_array( $item_data['name'], $order_tags ) ) {
+				if ( ! in_array( $item_data['name'], $order_tags ) ) {
 					$order_tags[] = $tag_product_prefix . $item_data['name'];
 				}
-
 			}
 
 			// --- Process any present fee in the order --- //
@@ -1729,9 +1690,7 @@ class Woo_Sync_Background_Sync_Job {
 				foreach ( $order->get_coupon_codes() as $coupon_code ) {
 					$order_tags[] = $tag_coupon_prefix . $coupon_code;
 				}
-
 			}
-
 		} else {
 
 			// API response returns these differently
@@ -1943,7 +1902,6 @@ class Woo_Sync_Background_Sync_Job {
 				$data['invoice']['tag_mode'] = 'append';
 
 			}
-
 		}
 
 		// Let third parties modify the data array before it's stored as a CRM Object.
@@ -1959,102 +1917,101 @@ class Woo_Sync_Background_Sync_Job {
 	 *
 	 * @return array of various objects (contact|company|transaction|invoice)
 	 */
-	public function woocommerce_api_order_to_crm_objects( $order, $origin = '' ){
+	public function woocommerce_api_order_to_crm_objects( $order, $origin = '' ) {
 
-	    // $order_status is the WooCommerce order status
-		$settings = $this->settings();
-		$tag_with_coupon = false;
-	    $tag_product_prefix = ( isset( $settings['wctagproductprefix'] ) ) ? zeroBSCRM_textExpose( $settings['wctagproductprefix'] ) : '';
-	    $tag_coupon_prefix = zeroBSCRM_textExpose( $settings['wctagcouponprefix'] );
-	    if ( $settings['wctagcoupon'] == 1 ) {
+		// $order_status is the WooCommerce order status
+		$settings           = $this->settings();
+		$tag_with_coupon    = false;
+		$tag_product_prefix = ( isset( $settings['wctagproductprefix'] ) ) ? zeroBSCRM_textExpose( $settings['wctagproductprefix'] ) : '';
+		$tag_coupon_prefix  = zeroBSCRM_textExpose( $settings['wctagcouponprefix'] );
+		if ( $settings['wctagcoupon'] == 1 ) {
 
-	        $tag_with_coupon = true;
+			$tag_with_coupon = true;
 
-	    }
+		}
 
-	    // Translate API order into local order equivalent
-	    $order_data = array(
+		// Translate API order into local order equivalent
+		$order_data = array(
 
-	        'status'         => $order->status,
-	        'currency'       => $order->currency,
-	        'date_created'   => $order->date_created_gmt,
-	        'customer_id'    => 0, // will be 0 from the API.
-	        'billing'        => array(
-	            'company'    => $order->billing->company,
-	            'email'      => $order->billing->email,
-	            'first_name' => $order->billing->first_name,
-	            'last_name'  => $order->billing->last_name,
-	            'address_1'  => $order->billing->address_1,
-	            'address_2'  => $order->billing->address_2,
-	            'city'       => $order->billing->city,
-	            'state'      => $order->billing->state,
-	            'postcode'   => $order->billing->postcode,
-	            'country'    => $order->billing->country,
-	            'phone'      => $order->billing->phone,
-	        ),
-	        'shipping'       => array(
-	            'address_1' => $order->shipping->address_1,
-	            'address_2' => $order->shipping->address_2,
-	            'city'      => $order->shipping->city,
-	            'state'     => $order->shipping->state,
-	            'postcode'  => $order->shipping->postcode,
-	            'country'   => $order->shipping->country,
-	        ),
-	        'total'          => $order->total,
-	        'discount_total' => $order->discount_total,
-	        'shipping_total' => $order->shipping_total,
-	        'shipping_tax'   => $order->shipping_tax,
-	        'total_tax'      => $order->total_tax,
+			'status'         => $order->status,
+			'currency'       => $order->currency,
+			'date_created'   => $order->date_created_gmt,
+			'customer_id'    => 0, // will be 0 from the API.
+			'billing'        => array(
+				'company'    => $order->billing->company,
+				'email'      => $order->billing->email,
+				'first_name' => $order->billing->first_name,
+				'last_name'  => $order->billing->last_name,
+				'address_1'  => $order->billing->address_1,
+				'address_2'  => $order->billing->address_2,
+				'city'       => $order->billing->city,
+				'state'      => $order->billing->state,
+				'postcode'   => $order->billing->postcode,
+				'country'    => $order->billing->country,
+				'phone'      => $order->billing->phone,
+			),
+			'shipping'       => array(
+				'address_1' => $order->shipping->address_1,
+				'address_2' => $order->shipping->address_2,
+				'city'      => $order->shipping->city,
+				'state'     => $order->shipping->state,
+				'postcode'  => $order->shipping->postcode,
+				'country'   => $order->shipping->country,
+			),
+			'total'          => $order->total,
+			'discount_total' => $order->discount_total,
+			'shipping_total' => $order->shipping_total,
+			'shipping_tax'   => $order->shipping_tax,
+			'total_tax'      => $order->total_tax,
 
-	    );
+		);
 
-	    $order_line_items = array();
-	    $order_tags       = array();
-	    $item_title       = '';
+		$order_line_items = array();
+		$order_tags       = array();
+		$item_title       = '';
 
-	    // cycle through line items and process
-	    foreach ( $order->line_items as $line_item_key => $line_item ) {
+		// cycle through line items and process
+		foreach ( $order->line_items as $line_item_key => $line_item ) {
 
-	        if ( empty( $item_title ) ) {
+			if ( empty( $item_title ) ) {
 
-	            $item_title = $line_item->name;
+				$item_title = $line_item->name;
 
-	        } else {
+			} else {
 
-	            $item_title = __( 'Multiple Items', 'zero-bs-crm' );
+				$item_title = __( 'Multiple Items', 'zero-bs-crm' );
 
-	        }
+			}
 
-	        $order_line_items[] = array(
-	            'order'    => $order->id,
-	            'quantity' => $line_item->quantity,
-	            'price'    => $line_item->price,
-	            'currency' => $order_data['currency'],
-	            'total'    => $line_item->subtotal,
-	            'title'    => $line_item->name,
-	            'desc'     => $line_item->name . ' (#' . $line_item->product_id . ')',
-	            'tax'      => $line_item->total_tax,
-	            'shipping' => 0,
-	        );
-	        
-	        if ( !in_array( $line_item->name, $order_tags ) ){
-	        	
-	        	$order_tags[] = $tag_product_prefix . $line_item->name;
+			$order_line_items[] = array(
+				'order'    => $order->id,
+				'quantity' => $line_item->quantity,
+				'price'    => $line_item->price,
+				'currency' => $order_data['currency'],
+				'total'    => $line_item->subtotal,
+				'title'    => $line_item->name,
+				'desc'     => $line_item->name . ' (#' . $line_item->product_id . ')',
+				'tax'      => $line_item->total_tax,
+				'shipping' => 0,
+			);
 
-	        }
-	    }
+			if ( ! in_array( $line_item->name, $order_tags ) ) {
 
-	    // catch coupon_lines and tag if tagging
-	    // http://woocommerce.github.io/woocommerce-rest-api-docs/#coupon-properties
-        if ( $tag_with_coupon && isset( $order->coupon_lines ) ) {
-        
-        	foreach ( $order->coupon_lines as $coupon_line ) {
-	            
-	            $order_tags[] = $tag_coupon_prefix . $coupon_line->code;
+				$order_tags[] = $tag_product_prefix . $line_item->name;
 
-	        }
+			}
+		}
 
-	    }
+		// catch coupon_lines and tag if tagging
+		// http://woocommerce.github.io/woocommerce-rest-api-docs/#coupon-properties
+		if ( $tag_with_coupon && isset( $order->coupon_lines ) ) {
+
+			foreach ( $order->coupon_lines as $coupon_line ) {
+
+				$order_tags[] = $tag_coupon_prefix . $coupon_line->code;
+
+			}
+		}
 
 			// store the order post ID for future reference
 		$extra_meta = array(
@@ -2074,7 +2031,6 @@ class Woo_Sync_Background_Sync_Job {
 			$origin,
 			$extra_meta
 		);
-
 	}
 
 	/**
@@ -2082,13 +2038,13 @@ class Woo_Sync_Background_Sync_Job {
 	 *
 	 * @param bool $return_counts - Return counts (if true returns an array inc % completed, x of y pages)
 	 * @param bool $use_cache - use values cached in object instead of retrieving them directly from Woo
-	 * 
+	 *
 	 * @return int|bool - percentage completed, or false if not attainable
 	 */
 	public function percentage_completed( $return_counts = false, $use_cache = true ) {
 
 		// if not using cache, retrieve values from Woo
-		if ( !$use_cache ) {
+		if ( ! $use_cache ) {
 
 			// could probably abstract the retrieval of orders for more nesting. For now it's fairly DRY as only in 2 places.
 
@@ -2106,7 +2062,7 @@ class Woo_Sync_Background_Sync_Job {
 					$orders = $woocommerce->get(
 						'orders',
 						array(
-							'page'  => 1,
+							'page'     => 1,
 							'per_page' => 1,
 						)
 					);
@@ -2116,15 +2072,14 @@ class Woo_Sync_Background_Sync_Job {
 					$response_headers = $last_response->getHeaders();
 
 					$lc_response_headers = array_change_key_case( $response_headers, CASE_LOWER );
-					if ( !isset( $lc_response_headers['x-wp-totalpages'] ) ) {
+					if ( ! isset( $lc_response_headers['x-wp-totalpages'] ) ) {
 						return false;
 					}
 
-					$this->woo_total_orders = (int)$lc_response_headers['x-wp-total'];
+					$this->woo_total_orders = (int) $lc_response_headers['x-wp-total'];
 
 					// we can't rely on the X-WP-TotalPages header here, as we're only retrieving one order for speed
 					$this->woo_total_pages = ceil( $this->woo_total_orders / $this->orders_per_page );
-
 
 				} catch ( HttpClientException $e ) {
 
@@ -2137,14 +2092,12 @@ class Woo_Sync_Background_Sync_Job {
 					return false;
 
 				}
-
-
 			} else {
 
 				// Local store
 
 				// Where we're trying to run without WooCommerce, fail.
-				if ( !function_exists( 'wc_get_orders' ) ) {
+				if ( ! function_exists( 'wc_get_orders' ) ) {
 
 					$this->debug( 'Unable to return percentage completed as it appears WooCommerce is not installed.' );
 					return false;
@@ -2166,9 +2119,7 @@ class Woo_Sync_Background_Sync_Job {
 					$this->woo_total_pages = ceil( $this->woo_total_orders / $this->orders_per_page );
 
 				}
-
 			}
-
 		}
 
 		// calculate completeness
@@ -2189,13 +2140,13 @@ class Woo_Sync_Background_Sync_Job {
 		$this->debug( 'Orders completed: ' . min( $this->current_page * $this->orders_per_page, $this->woo_total_orders ) . ' / ' . $this->woo_total_orders );
 		$this->debug( 'Percentage completed: ' . $percentage_completed . '%' );
 
-		if ( $return_counts ){
+		if ( $return_counts ) {
 
 			return array(
 
 				'page_no'              => $this->current_page,
 				'total_pages'          => $this->woo_total_pages,
-				'percentage_completed' => $percentage_completed
+				'percentage_completed' => $percentage_completed,
 
 			);
 
@@ -2209,7 +2160,6 @@ class Woo_Sync_Background_Sync_Job {
 		}
 
 		return false;
-
 	}
 
 	/**
@@ -2221,31 +2171,28 @@ class Woo_Sync_Background_Sync_Job {
 	 * @param array $contact_data
 	 * @param array $order - WooCommerce order object passed down
 	 * @param array $custom_fields - CRM Contact custom fields details
-	 * 
+	 *
 	 * @return array ($contact_data potentially modified)
 	 */
 	private function filter_checkout_contact_fields( $field_key, $field_value, $contact_data, $order, $custom_fields ) {
 
-	    // Checkout Field Editor custom fields support, (where installed)
-	    // https://woocommerce.com/products/woocommerce-checkout-field-editor/
-	    if ( function_exists( 'wc_get_custom_checkout_fields' ) ) {
-	    	
-	    	$contact_data = $this->checkout_field_editor_filter_field( $field_key, $field_value, $contact_data, $order, $custom_fields );
-	    
-	    }
+		// Checkout Field Editor custom fields support, (where installed)
+		// https://woocommerce.com/products/woocommerce-checkout-field-editor/
+		if ( function_exists( 'wc_get_custom_checkout_fields' ) ) {
 
+			$contact_data = $this->checkout_field_editor_filter_field( $field_key, $field_value, $contact_data, $order, $custom_fields );
 
-	    // Checkout Field Editor Pro custom fields support, (where installed)
-	    // https://wordpress.org/plugins/woo-checkout-field-editor-pro/
-	    if ( class_exists( 'THWCFD' ) ) {
-	    	
-	    	$contact_data = $this->checkout_field_editor_pro_filter_field( $field_key, $field_value, $contact_data, $order, $custom_fields );
-	    
-	    }
+		}
 
-	    
-	    return $contact_data;
+		// Checkout Field Editor Pro custom fields support, (where installed)
+		// https://wordpress.org/plugins/woo-checkout-field-editor-pro/
+		if ( class_exists( 'THWCFD' ) ) {
 
+			$contact_data = $this->checkout_field_editor_pro_filter_field( $field_key, $field_value, $contact_data, $order, $custom_fields );
+
+		}
+
+		return $contact_data;
 	}
 
 	/**
@@ -2257,70 +2204,61 @@ class Woo_Sync_Background_Sync_Job {
 	 * @param array $contact_data
 	 * @param array $order - WooCommerce order object passed down
 	 * @param array $custom_fields - CRM Contact custom fields details
-	 * 
+	 *
 	 * @return array ($contact_data potentially modified)
 	 */
 	private function checkout_field_editor_filter_field( $field_key, $field_value, $contact_data, $order, $custom_fields ) {
 
-	    // Checkout Field Editor custom fields support, (where installed)
-	    if ( function_exists( 'wc_get_custom_checkout_fields' ) ) {
+		// Checkout Field Editor custom fields support, (where installed)
+		if ( function_exists( 'wc_get_custom_checkout_fields' ) ) {
 
-	    	// get full fields
-	    	$fields_info = wc_get_custom_checkout_fields( $order );
+			// get full fields
+			$fields_info = wc_get_custom_checkout_fields( $order );
 
-	    	// catch specific cases
-	    	if ( isset( $fields_info[ $field_key ] ) ){
+			// catch specific cases
+			if ( isset( $fields_info[ $field_key ] ) ) {
 
-	    		// format info from Checkout Field Editor
-	    		$field_info = $fields_info[ $field_key ];
+				// format info from Checkout Field Editor
+				$field_info = $fields_info[ $field_key ];
 
-	    		switch ( $field_info['type'] ){
+				switch ( $field_info['type'] ) {
 
-	    			// multiselect
-	    			case 'multiselect':
+					// multiselect
+					case 'multiselect':
+						// here the value will be a csv with extra padding (spaces we don't store)
+						$contact_data[ $field_key ] = str_replace( ', ', ',', $field_value );
 
-	    				// here the value will be a csv with extra padding (spaces we don't store)
-	    				$contact_data[ $field_key ] = str_replace( ', ', ',', $field_value );
+						break;
 
-	    				break;
+					// checkbox, singular
+					case 'checkbox':
+						// here the value will be 1 if it's checked,
+						// but in CRM we only have 'checkboxes' plural, so here we convert '1' to a checked matching box
+						// Here if checked, we'll check the first available checkbox
+						if ( $field_value == 1 ) {
 
-	    			// checkbox, singular
-	    			case 'checkbox':
+							// get value
+							if ( isset( $custom_fields[ $field_key ] ) ) {
 
-	    				// here the value will be 1 if it's checked, 
-	    				// but in CRM we only have 'checkboxes' plural, so here we convert '1' to a checked matching box
-	    				// Here if checked, we'll check the first available checkbox
-	    				if ( $field_value == 1 ){
+								$fields_csv = $custom_fields[ $field_key ][2];
+								if ( strpos( $fields_csv, ',' ) ) {
+									$field_value = substr( $fields_csv, 0, strpos( $fields_csv, ',' ) );
+								} else {
+									$field_value = $fields_csv;
+								}
+							}
 
-	    					// get value
-	    					if ( isset( $custom_fields[ $field_key ] ) ){
+							$contact_data[ $field_key ] = $field_value;
 
-	    						$fields_csv = $custom_fields[ $field_key ][2];
-	    						if ( strpos( $fields_csv, ',' ) ){
-	    							$field_value = substr( $fields_csv, 0, strpos( $fields_csv, ',' ) );
-	    						} else {
-	    							$field_value = $fields_csv;
-	    						}
+						}
 
-	    					}
+						break;
 
-	    					$contact_data[ $field_key ] = $field_value;
+				}
+			}
+		}
 
-	    				}
-
-
-	    				break;
-
-	    		}
-
-
-	    	}
-
-
-	    }
-
-	    return $contact_data;
-
+		return $contact_data;
 	}
 
 	/**
@@ -2332,57 +2270,50 @@ class Woo_Sync_Background_Sync_Job {
 	 * @param array $contact_data
 	 * @param array $order - WooCommerce order object passed down
 	 * @param array $custom_fields - CRM Contact custom fields details
-	 * 
+	 *
 	 * @return array ($contact_data potentially modified)
 	 */
 	private function checkout_field_editor_pro_filter_field( $field_key, $field_value, $contact_data, $order, $custom_fields ) {
 
-	    // Checkout Field Editor custom fields support, (where installed)
-	    if ( class_exists( 'THWCFD' ) ) {
+		// Checkout Field Editor custom fields support, (where installed)
+		if ( class_exists( 'THWCFD' ) ) {
 
 			// see if we have a matching custom field to infer type conversions from:
-			if ( isset( $custom_fields[ $field_key ] ) ){
+			if ( isset( $custom_fields[ $field_key ] ) ) {
 
 				// switch on type
-				switch ( $custom_fields[ $field_key ][0] ){
+				switch ( $custom_fields[ $field_key ][0] ) {
 
-	    			// checkbox, singular
-	    			case 'checkbox':
+					// checkbox, singular
+					case 'checkbox':
+						// here the value will be 1 if it's checked,
+						// but in CRM we only have 'checkboxes' plural, so here we convert '1' to a checked matching box
+						// Here if checked, we'll check the first available checkbox
+						if ( $field_value == 1 ) {
 
-	    				// here the value will be 1 if it's checked, 
-	    				// but in CRM we only have 'checkboxes' plural, so here we convert '1' to a checked matching box
-	    				// Here if checked, we'll check the first available checkbox
-	    				if ( $field_value == 1 ){
+							// get value
+							if ( isset( $custom_fields[ $field_key ] ) ) {
 
-	    					// get value
-	    					if ( isset( $custom_fields[ $field_key ] ) ){
+								$fields_csv = $custom_fields[ $field_key ][2];
+								if ( strpos( $fields_csv, ',' ) ) {
+									$field_value = substr( $fields_csv, 0, strpos( $fields_csv, ',' ) );
+								} else {
+									$field_value = $fields_csv;
+								}
+							}
 
-	    						$fields_csv = $custom_fields[ $field_key ][2];
-	    						if ( strpos( $fields_csv, ',' ) ){
-	    							$field_value = substr( $fields_csv, 0, strpos( $fields_csv, ',' ) );
-	    						} else {
-	    							$field_value = $fields_csv;
-	    						}
+							$contact_data[ $field_key ] = $field_value;
 
-	    					}
+						}
 
-	    					$contact_data[ $field_key ] = $field_value;
-
-	    				}
-
-
-	    				break;
+						break;
 
 				}
+			}
+		}
 
-			}			
-
-	    }
-
-	    return $contact_data;
-
+		return $contact_data;
 	}
-
 
 	/**
 	 * Filter to add WooCommerce Checkout Add-ons fields support, where installed
@@ -2391,109 +2322,99 @@ class Woo_Sync_Background_Sync_Job {
 	 * @param array $order_post_id - WooCommerce order id
 	 * @param array $contact_data
 	 * @param array $custom_fields - CRM Contact custom fields details
-	 * 
+	 *
 	 * @return array ($contact_data potentially modified)
 	 */
 	private function checkout_add_ons_add_field_values( $order_post_id, $contact_data, $custom_fields ) {
 
 		global $zbs;
 
-	    // WooCommerce Checkout Add-ons fields support, where installed
-	    if ( function_exists( 'wc_checkout_add_ons' ) ) {
+		// WooCommerce Checkout Add-ons fields support, where installed
+		if ( function_exists( 'wc_checkout_add_ons' ) ) {
 
-	    	$checkout_addons_instance = wc_checkout_add_ons();
-	    	$field_values = $checkout_addons_instance->get_order_add_ons( $order_post_id );
-	    	
-	    	// Add any fields we have saved in Checkout Add-ons,
-	    	// note this overrides any existing values, if conflicting
-	    	if ( is_array( $field_values ) ){
+			$checkout_addons_instance = wc_checkout_add_ons();
+			$field_values             = $checkout_addons_instance->get_order_add_ons( $order_post_id );
 
-	    		/* Example
-	    		    Array(
-		    		    [de22a81] => Array
-				        (
-				            [name] => tax-id-2
-				            [checkout_label] => tax-id-2
-				            [value] => 999
-				            [normalized_value] => 999
-				            [total] => 0
-				            [total_tax] => 0
-				            [fee_id] => 103
-				        )
-				    )
-			    */
+			// Add any fields we have saved in Checkout Add-ons,
+			// note this overrides any existing values, if conflicting
+			if ( is_array( $field_values ) ) {
 
-	    		foreach ( $field_values as $checkout_addon_key => $checkout_addon_field ){
+				/*
+				Example
+					Array(
+						[de22a81] => Array
+						(
+							[name] => tax-id-2
+							[checkout_label] => tax-id-2
+							[value] => 999
+							[normalized_value] => 999
+							[total] => 0
+							[total_tax] => 0
+							[fee_id] => 103
+						)
+					)
+				*/
 
-	    			$field_key = $zbs->DAL->makeSlug( $checkout_addon_field['name'] );
+				foreach ( $field_values as $checkout_addon_key => $checkout_addon_field ) {
 
-	    			// brutal addition/override of any fields passed
-	    			$contact_data[ $field_key ] = $checkout_addon_field['value'];
+					$field_key = $zbs->DAL->makeSlug( $checkout_addon_field['name'] );
 
-	    			// all array-type values (multi-select etc.) can be imploded for our storage:
-	    			// multiselect, multicheckbox
-	    			if ( is_array( $contact_data[ $field_key ] ) ){
+					// brutal addition/override of any fields passed
+					$contact_data[ $field_key ] = $checkout_addon_field['value'];
 
-	    				// note we used `normalized_value` not `value`, because that matches our custom field storage
-	    				// ... e.g. "Blue" = `normalized_value`, "blue" = value (but we store case)
-	    				$contact_data[ $field_key ] = implode( ',', $checkout_addon_field['normalized_value'] );
+					// all array-type values (multi-select etc.) can be imploded for our storage:
+					// multiselect, multicheckbox
+					if ( is_array( $contact_data[ $field_key ] ) ) {
 
-	    			}
+						// note we used `normalized_value` not `value`, because that matches our custom field storage
+						// ... e.g. "Blue" = `normalized_value`, "blue" = value (but we store case)
+						$contact_data[ $field_key ] = implode( ',', $checkout_addon_field['normalized_value'] );
 
-	    			// see if we have a matching custom field to infer type conversions from:
-    				if ( isset( $custom_fields[ $field_key ] ) ){
+					}
 
-    					// switch on type
-    					switch ( $custom_fields[ $field_key ][0] ){
+					// see if we have a matching custom field to infer type conversions from:
+					if ( isset( $custom_fields[ $field_key ] ) ) {
 
-			    			// Select, radio
-			    			case 'select':
-			    			case 'radio':
+						// switch on type
+						switch ( $custom_fields[ $field_key ][0] ) {
 
-			    				// note we used `normalized_value` not `value`, because that matches our custom field storage
-			    				// ... e.g. "Blue" = `normalized_value`, "blue" = value (but we store case)
-			    				$contact_data[ $field_key ] = $checkout_addon_field['normalized_value'];
+							// Select, radio
+							case 'select':
+							case 'radio':
+								// note we used `normalized_value` not `value`, because that matches our custom field storage
+								// ... e.g. "Blue" = `normalized_value`, "blue" = value (but we store case)
+								$contact_data[ $field_key ] = $checkout_addon_field['normalized_value'];
 
-			    				break;
+								break;
 
-			    			// checkbox, singular
-			    			case 'checkbox':
+							// checkbox, singular
+							case 'checkbox':
+								// here the value will be 1 if it's checked,
+								// but in CRM we only have 'checkboxes' plural, so here we convert '1' to a checked matching box
+								// Here if checked, we'll check the first available checkbox
+								if ( $contact_data[ $field_key ] == 1 ) {
 
-			    				// here the value will be 1 if it's checked, 
-			    				// but in CRM we only have 'checkboxes' plural, so here we convert '1' to a checked matching box
-			    				// Here if checked, we'll check the first available checkbox
-			    				if ( $contact_data[ $field_key ] == 1 ){
+									// get value
+									if ( isset( $custom_fields[ $field_key ] ) ) {
 
-			    					// get value
-			    					if ( isset( $custom_fields[ $field_key ] ) ){
+										$fields_csv = $custom_fields[ $field_key ][2];
+										if ( strpos( $fields_csv, ',' ) ) {
+											$contact_data[ $field_key ] = substr( $fields_csv, 0, strpos( $fields_csv, ',' ) );
+										} else {
+											$contact_data[ $field_key ] = $fields_csv;
+										}
+									}
+								}
 
-			    						$fields_csv = $custom_fields[ $field_key ][2];
-			    						if ( strpos( $fields_csv, ',' ) ){
-			    							$contact_data[ $field_key ] = substr( $fields_csv, 0, strpos( $fields_csv, ',' ) );
-			    						} else {
-			    							$contact_data[ $field_key ] = $fields_csv;
-			    						}
+								break;
 
-			    					}
+						}
+					}
+				}
+			}
+		}
 
-			    				}
-
-			    				break;
-
-    					}
-
-    				}
-
-
-	    		}
-
-	    	}
-	    
-	    
-	    }
-
-	    return $contact_data;
-
+		return $contact_data;
 	}
 
 	/*
@@ -2509,14 +2430,12 @@ class Woo_Sync_Background_Sync_Job {
 
 		$this->debug( 'External store connection error detected (' . $error_count . ')' );
 
-		if ( $error_count >= 3 ){
+		if ( $error_count >= 3 ) {
 
 			$this->pause_site_due_to_connection_error();
 
 		}
-
 	}
-
 
 	/*
 	 * Fired when a remote site errors out 3 times, pauses site and adds notification to admin area
@@ -2532,7 +2451,7 @@ class Woo_Sync_Background_Sync_Job {
 
 		// check not fired within past day
 		$existing_transient = get_transient( 'woosync.syncsite.paused.errors' );
-		if ( !$existing_transient ) {
+		if ( ! $existing_transient ) {
 			global $zbs;
 
 			// add notice & transient
@@ -2543,6 +2462,5 @@ class Woo_Sync_Background_Sync_Job {
 			set_transient( 'woosync.syncsite.paused.errors', 'woosync.syncsite.paused.errors', HOUR_IN_SECONDS * 24 );
 
 		}
-
 	}
 }

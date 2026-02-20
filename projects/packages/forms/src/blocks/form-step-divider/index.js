@@ -1,10 +1,13 @@
 import { Path } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import renderMaterialIcon from '../shared/components/render-material-icon.js';
-import { getIconColor } from '../shared/util/block-icons.js';
+import renderMaterialIcon from '../shared/components/render-material-icon.jsx';
 import edit from './edit.js';
 
 export const name = 'form-step-divider';
+
+export const form_editor = {
+	category: 'multistep',
+};
 
 export const settings = {
 	apiVersion: 3,
@@ -13,7 +16,6 @@ export const settings = {
 	category: 'contact-form',
 	parent: [ 'jetpack/form-step', 'jetpack/contact-form' ],
 	icon: {
-		foreground: getIconColor(),
 		src: renderMaterialIcon( <Path d="M19 13H5v-2h14v2z" /> ),
 	},
 	supports: {
@@ -27,4 +29,5 @@ export const settings = {
 export default {
 	name,
 	settings,
+	form_editor,
 };

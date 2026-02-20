@@ -1,20 +1,23 @@
 import { Path } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import renderMaterialIcon from '../shared/components/render-material-icon.js';
+import renderMaterialIcon from '../shared/components/render-material-icon.jsx';
 import defaultSettings from '../shared/settings/index.js';
-import { getIconColor } from '../shared/util/block-icons.js';
 import deprecated from './deprecated.js';
 import edit from './edit.js';
 import save from './save.js';
 
-const name = 'field-checkbox';
-const settings = {
+export const name = 'field-checkbox';
+
+export const form_editor = {
+	category: 'choice',
+};
+
+export const settings = {
 	...defaultSettings,
 	title: __( 'Checkbox', 'jetpack-forms' ),
 	keywords: [ __( 'Confirm', 'jetpack-forms' ), __( 'Accept', 'jetpack-forms' ) ],
 	description: __( 'Confirm or select information with a single checkbox.', 'jetpack-forms' ),
 	icon: {
-		foreground: getIconColor(),
 		src: renderMaterialIcon(
 			<Path
 				fillRule="evenodd"
@@ -53,4 +56,5 @@ const settings = {
 export default {
 	name,
 	settings,
+	form_editor,
 };

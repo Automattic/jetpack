@@ -358,7 +358,7 @@ class Classic_Search {
 			'user-agent' => 'jetpack_search',
 		);
 
-		$request_body = wp_json_encode( $es_args );
+		$request_body = wp_json_encode( $es_args, JSON_UNESCAPED_SLASHES );
 
 		$start_time = microtime( true );
 

@@ -430,6 +430,7 @@ function wpcomsh_woa_post_process_store_woocommerce_connection_details( $args, $
 	WP_CLI::success( 'WooCommerce connection details stored' );
 
 	if ( class_exists( 'WC_Helper' ) && method_exists( 'WC_Helper', 'refresh_helper_subscriptions' ) ) {
+		// @phan-suppress-current-line UnusedPluginSuppression @phan-suppress-next-line PhanUndeclaredStaticMethod -- We check if the class and method exist before using them; see https://github.com/phan/phan/issues/1204
 		WC_Helper::refresh_helper_subscriptions();
 
 		WP_CLI::success( 'Cleared WooCommerce Helper cache' );
@@ -441,7 +442,7 @@ add_action( 'wpcomsh_woa_post_transfer', 'wpcomsh_woa_post_process_store_woocomm
 
 /**
  * Ensures that specific Jetpack modules are activated after a transfer.
- * Addresses the issue where certain modules like blocks, account-protection and blaze
+ * Addresses the issue where certain modules like blocks, account-protection, blaze, and wpcom-reader
  * may be disabled during the transfer process.
  *
  * @param array $args       Arguments.
@@ -461,6 +462,7 @@ function wpcomsh_woa_post_process_activate_jetpack_modules( $args, $assoc_args )
 		'account-protection',
 		'blaze',
 		'blocks',
+		'wpcom-reader',
 	);
 
 	$activated_modules = array();

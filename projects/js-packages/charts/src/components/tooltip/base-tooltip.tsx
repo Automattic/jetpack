@@ -1,3 +1,4 @@
+import { formatNumber } from '@automattic/number-formatters';
 import styles from './base-tooltip.module.scss';
 import type { CSSProperties, ComponentType, ReactNode } from 'react';
 
@@ -41,7 +42,7 @@ type BaseTooltipProps = TooltipCommonProps & ( DefaultDataTooltip | CustomToolti
 
 const DefaultTooltipContent = ( { data }: TooltipComponentProps ) => (
 	<>
-		{ data?.label }: { data?.valueDisplay || data?.value }
+		{ data?.label }: { data?.valueDisplay || formatNumber( data?.value ) }
 	</>
 );
 

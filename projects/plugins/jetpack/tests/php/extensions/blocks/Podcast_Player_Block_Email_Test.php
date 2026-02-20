@@ -8,8 +8,9 @@
 require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/podcast-player/podcast-player.php';
 
 // Include mock classes for WooCommerce Email Editor helpers
-require_once __DIR__ . '/class-mock-styles-helper.php';
-require_once __DIR__ . '/class-mock-table-wrapper-helper.php';
+require_once __DIR__ . '/mocks/class-mock-styles-helper.php';
+require_once __DIR__ . '/mocks/class-mock-table-wrapper-helper.php';
+require_once __DIR__ . '/mocks/class-mock-woocommerce-audio-renderer.php';
 
 use PHPUnit\Framework\Attributes\CoversFunction;
 
@@ -65,6 +66,17 @@ class Podcast_Player_Block_Email_Test extends WP_UnitTestCase {
 	 * Test render_email with valid podcast URL.
 	 */
 	public function test_render_email_with_valid_podcast_url() {
+		// Create a test post so get_the_permalink() works
+		$post_id = wp_insert_post(
+			array(
+				'post_title'   => 'Test Post',
+				'post_content' => 'Test content',
+				'post_status'  => 'publish',
+			)
+		);
+		global $post;
+		$post = get_post( $post_id );
+
 		$parsed_block = $this->create_parsed_block_with_attrs();
 		$mock_context = $this->create_rendering_context_mock();
 		$result       = \Automattic\Jetpack\Extensions\Podcast_Player\render_email( '', $parsed_block, $mock_context );
@@ -75,11 +87,17 @@ class Podcast_Player_Block_Email_Test extends WP_UnitTestCase {
 		$this->assertStringContainsString( 'href=', $result );
 		$this->assertStringContainsString( 'Listen to the podcast', $result );
 
+		// Should link to the post URL, not the RSS feed URL
+		$this->assertStringContainsString( get_permalink( $post_id ), $result );
+
 		// Should contain table-based layout for email compatibility
-		$this->assertStringContainsString( 'border-collapse: collapse', $result );
+		$this->assertStringContainsString( 'border-collapse', $result );
 
 		// Should contain margin styling for email spacing
 		$this->assertStringContainsString( 'margin: 16px 0', $result );
+
+		// Cleanup
+		wp_delete_post( $post_id, true );
 	}
 
 	/**
@@ -98,9 +116,40 @@ class Podcast_Player_Block_Email_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test render_email returns empty when no post context.
+	 */
+	public function test_render_email_returns_empty_when_no_post() {
+		// Clear global post to simulate no post context
+		global $post;
+		$original_post = $post;
+		$post          = null;
+
+		$parsed_block = $this->create_parsed_block_with_attrs();
+		$mock_context = $this->create_rendering_context_mock();
+		$result       = \Automattic\Jetpack\Extensions\Podcast_Player\render_email( '', $parsed_block, $mock_context );
+
+		// Should return empty string when no post permalink available
+		$this->assertSame( '', $result );
+
+		// Restore original post
+		$post = $original_post;
+	}
+
+	/**
 	 * Test render_email with empty URL.
 	 */
 	public function test_render_email_with_empty_url() {
+		// Create a test post so get_the_permalink() works
+		$post_id = wp_insert_post(
+			array(
+				'post_title'   => 'Test Post',
+				'post_content' => 'Test content',
+				'post_status'  => 'publish',
+			)
+		);
+		global $post;
+		$post = get_post( $post_id );
+
 		$parsed_block = $this->create_parsed_block_with_attrs(
 			array(
 				'url' => '',
@@ -111,12 +160,26 @@ class Podcast_Player_Block_Email_Test extends WP_UnitTestCase {
 
 		// Should return empty string when no valid URL
 		$this->assertSame( '', $result );
+
+		// Cleanup
+		wp_delete_post( $post_id, true );
 	}
 
 	/**
 	 * Test render_email with invalid URL.
 	 */
 	public function test_render_email_with_invalid_url() {
+		// Create a test post so get_the_permalink() works
+		$post_id = wp_insert_post(
+			array(
+				'post_title'   => 'Test Post',
+				'post_content' => 'Test content',
+				'post_status'  => 'publish',
+			)
+		);
+		global $post;
+		$post = get_post( $post_id );
+
 		$parsed_block = $this->create_parsed_block_with_attrs(
 			array(
 				'url' => 'not-a-valid-url',
@@ -127,12 +190,26 @@ class Podcast_Player_Block_Email_Test extends WP_UnitTestCase {
 
 		// Should return empty string when URL is invalid
 		$this->assertSame( '', $result );
+
+		// Cleanup
+		wp_delete_post( $post_id, true );
 	}
 
 	/**
-	 * Test render_email returns empty when WooCommerce Email Editor helper classes are missing.
+	 * Test render_email returns empty when WooCommerce Email Editor audio renderer class is missing.
 	 */
-	public function test_render_email_returns_empty_when_helpers_missing() {
+	public function test_render_email_returns_empty_when_audio_renderer_missing() {
+		// Create a test post so get_the_permalink() works
+		$post_id = wp_insert_post(
+			array(
+				'post_title'   => 'Test Post',
+				'post_content' => 'Test content',
+				'post_status'  => 'publish',
+			)
+		);
+		global $post;
+		$post = get_post( $post_id );
+
 		$parsed_block = $this->create_parsed_block_with_attrs();
 		$mock_context = $this->create_rendering_context_mock();
 
@@ -141,16 +218,30 @@ class Podcast_Player_Block_Email_Test extends WP_UnitTestCase {
 		$this->assertNotEmpty( $result_with_mocks );
 
 		// Test the class existence check logic directly
-		$table_helper_exists = class_exists( '\Automattic\WooCommerce\EmailEditor\Integrations\Utils\Table_Wrapper_Helper' );
+		$audio_renderer_exists = class_exists( '\Automattic\WooCommerce\EmailEditor\Integrations\Core\Renderer\Blocks\Audio' );
 
 		// Class should exist due to our mock
-		$this->assertTrue( $table_helper_exists, 'Table_Wrapper_Helper class should be mocked and available' );
+		$this->assertTrue( $audio_renderer_exists, 'Audio renderer class should be mocked and available' );
+
+		// Cleanup
+		wp_delete_post( $post_id, true );
 	}
 
 	/**
 	 * Test render_email security - URL validation.
 	 */
 	public function test_render_email_security_url_validation() {
+		// Create a test post so get_the_permalink() works
+		$post_id = wp_insert_post(
+			array(
+				'post_title'   => 'Test Post',
+				'post_content' => 'Test content',
+				'post_status'  => 'publish',
+			)
+		);
+		global $post;
+		$post = get_post( $post_id );
+
 		$parsed_block = $this->create_parsed_block_with_attrs(
 			array(
 				'url' => 'https://feeds.acast.com/public/shows/test-podcast',
@@ -161,35 +252,67 @@ class Podcast_Player_Block_Email_Test extends WP_UnitTestCase {
 
 		// Should render with valid URL
 		$this->assertNotEmpty( $result );
-		$this->assertStringContainsString( 'href="https://feeds.acast.com/public/shows/test-podcast"', $result );
+		// Should link to the post URL, not the RSS feed URL
+		$this->assertStringContainsString( get_permalink( $post_id ), $result );
+
+		// Cleanup
+		wp_delete_post( $post_id, true );
 	}
 
 	/**
 	 * Test render_email contains proper button styling.
 	 */
 	public function test_render_email_contains_button_styling() {
+		// Create a test post so get_the_permalink() works
+		$post_id = wp_insert_post(
+			array(
+				'post_title'   => 'Test Post',
+				'post_content' => 'Test content',
+				'post_status'  => 'publish',
+			)
+		);
+		global $post;
+		$post = get_post( $post_id );
+
 		$parsed_block = $this->create_parsed_block_with_attrs();
 		$mock_context = $this->create_rendering_context_mock();
 		$result       = \Automattic\Jetpack\Extensions\Podcast_Player\render_email( '', $parsed_block, $mock_context );
 
-		// Should contain button styling
+		// Should contain button styling from audio renderer
 		$this->assertNotEmpty( $result );
 		$this->assertStringContainsString( 'background-color: #f6f7f7', $result );
 		$this->assertStringContainsString( 'border: 1px solid #AAA', $result );
 		$this->assertStringContainsString( 'border-radius: 9999px', $result );
+
+		// Cleanup
+		wp_delete_post( $post_id, true );
 	}
 
 	/**
 	 * Test render_email contains play icon.
 	 */
 	public function test_render_email_contains_play_icon() {
+		// Create a test post so get_the_permalink() works
+		$post_id = wp_insert_post(
+			array(
+				'post_title'   => 'Test Post',
+				'post_content' => 'Test content',
+				'post_status'  => 'publish',
+			)
+		);
+		global $post;
+		$post = get_post( $post_id );
+
 		$parsed_block = $this->create_parsed_block_with_attrs();
 		$mock_context = $this->create_rendering_context_mock();
 		$result       = \Automattic\Jetpack\Extensions\Podcast_Player\render_email( '', $parsed_block, $mock_context );
 
-		// Should contain play icon
+		// Should contain play icon from audio renderer
 		$this->assertNotEmpty( $result );
 		$this->assertStringContainsString( 'audio-play.png', $result );
 		$this->assertStringContainsString( '<img', $result );
+
+		// Cleanup
+		wp_delete_post( $post_id, true );
 	}
 }

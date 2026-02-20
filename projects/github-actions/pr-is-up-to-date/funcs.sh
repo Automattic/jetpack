@@ -180,7 +180,7 @@ function should_process_pr {
 function update_github_status {
 	if [[ -n "$CI" ]]; then
 		echo "::group::Setting GitHub status"
-		curl -v \
+		curl -v --fail-with-body \
 			--url "${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/statuses/${1}" \
 			--header "authorization: Bearer $API_TOKEN" \
 			--header 'content-type: application/json' \

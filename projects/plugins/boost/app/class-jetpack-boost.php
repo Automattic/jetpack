@@ -285,7 +285,7 @@ class Jetpack_Boost {
 	public function deactivate() {
 		do_action( 'jetpack_boost_deactivate' );
 
-		wp_clear_scheduled_hook( 'jetpack_boost_routine_cleanup' );
+		wp_clear_scheduled_hook( 'jetpack_boost_general_cleanup' );
 
 		// Tell Minify JS/CSS to clean up.
 		jetpack_boost_page_optimize_deactivate();

@@ -10,8 +10,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+along with this program; if not, see <https://www.gnu.org/licenses/>.
 */
 
 export { default as JetpackLogo } from './components/jetpack-logo/index.tsx';
@@ -26,10 +25,10 @@ export { default as AutomatticBylineLogo } from './components/automattic-byline-
 export { default as AutomatticIconLogo } from './components/automattic-icon-logo/index.tsx';
 export { default as AutomatticForAgenciesLogo } from './components/automattic-for-agencies-logo/index.tsx';
 export { default as JetpackFooter } from './components/jetpack-footer/index.tsx';
-export { default as Spinner } from './components/spinner/index.jsx';
+export { default as Spinner } from './components/spinner/index.tsx';
 export { default as Gridicon } from './components/gridicon/index.tsx';
 export { default as IconTooltip } from './components/icon-tooltip/index.tsx';
-export { default as ActionButton } from './components/action-button/index.jsx';
+export { default as ActionButton } from './components/action-button/index.tsx';
 export { default as PricingCard } from './components/pricing-card/index.tsx';
 export { default as NumberSlider } from './components/number-slider/index.tsx';
 export { default as AdminSection } from './components/admin-section/basic/index.tsx';
@@ -46,7 +45,7 @@ export { default as SplitButton } from './components/split-button/index.tsx';
 export { default as ThemeProvider } from './components/theme-provider/index.tsx';
 export { default as Text, H2, H3, Title } from './components/text/index.tsx';
 export { default as ToggleControl } from './components/toggle-control/index.tsx';
-export { default as NumberControl } from './components/number-control/index.jsx';
+export { default as NumberControl } from './components/number-control/index.tsx';
 export { default as QRCode } from './components/qr-code/index.tsx';
 export { default as Button } from './components/button/index.tsx';
 export type { ButtonProps } from './components/button/types.ts';
@@ -85,3 +84,4 @@ export { default as DiffViewer } from './components/diff-viewer/index.tsx';
 export { default as MarkedLines } from './components/marked-lines/index.tsx';
 export { default as DetailsViewer } from './components/details-viewer/index.tsx';
 export * from './components/global-notices/index.ts';
+export * from './components/navigator-modal/index.tsx';

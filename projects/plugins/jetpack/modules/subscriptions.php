@@ -18,6 +18,7 @@
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\XMLRPC_Async_Call;
+use Automattic\Jetpack\Newsletter\Settings as Newsletter_Settings;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
@@ -157,6 +158,9 @@ class Jetpack_Subscriptions {
 		add_action( 'wp_ajax_add-tag', array( $this, 'track_newsletter_category_creation' ), 1 );
 		$subscribers_dashboard = new Subscribers_Dashboard();
 		$subscribers_dashboard::init();
+
+		$newsletter_settings = new Newsletter_Settings();
+		$newsletter_settings::init();
 	}
 
 	/**
@@ -566,6 +570,7 @@ class Jetpack_Subscriptions {
 			if ( $async ) {
 				XMLRPC_Async_Call::add_call( 'jetpack.subscribeToSite', 0, $email, $post_id, serialize( $extra_data ) ); //phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
 			} else {
+				// @phan-suppress-next-line PhanPossiblyUndeclaredVariable -- $xml is set when $async is false
 				$xml->addCall( 'jetpack.subscribeToSite', $email, $post_id, serialize( $extra_data ) ); //phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
 			}
 		}
@@ -575,17 +580,22 @@ class Jetpack_Subscriptions {
 		}
 
 		// Call.
+		// @phan-suppress-next-line PhanPossiblyUndeclaredVariable -- $xml is set when $async is false, otherwise we return early
 		$xml->query();
 
+		// @phan-suppress-next-line PhanPossiblyUndeclaredVariable -- $xml is set when $async is false, otherwise we return early
 		if ( $xml->isError() ) {
+			// @phan-suppress-next-line PhanPossiblyUndeclaredVariable -- $xml is set when $async is false, otherwise we return early
 			return $xml->get_jetpack_error();
 		}
 
+		// @phan-suppress-next-line PhanPossiblyUndeclaredVariable -- $xml is set when $async is false
 		$responses = $xml->getResponse();
 
 		$r = array();
 		foreach ( (array) $responses as $response ) {
 			if ( isset( $response['faultCode'] ) || isset( $response['faultString'] ) ) {
+				// @phan-suppress-next-line PhanPossiblyUndeclaredVariable -- $xml is set when $async is false
 				$r[] = $xml->get_jetpack_error( $response['faultCode'], $response['faultString'] );
 				continue;
 			}
@@ -803,6 +813,17 @@ class Jetpack_Subscriptions {
 	 * @param string     $approved Comment status.
 	 */
 	public function comment_subscribe_submit( $comment_id, $approved ) {
+		/**
+		 * Filters whether to skip comment subscription processing.
+		 *
+		 * @since 15.5
+		 *
+		 * @param bool $skip Whether to skip comment subscription. Default false.
+		 */
+		if ( apply_filters( 'jetpack_subscription_comment_subscribe_skip', false ) ) {
+			return;
+		}
+
 		if ( 'spam' === $approved ) {
 			return;
 		}
@@ -1033,7 +1054,7 @@ class Jetpack_Subscriptions {
 
 		Admin_Menu::add_menu(
 			__( 'Subscribers', 'jetpack' ),
-			__( 'Subscribers', 'jetpack' ) . ' <span class="dashicons dashicons-external"></span>',
+			__( 'Subscribers', 'jetpack' ) . ' <span aria-hidden="true">↗</span>',
 			'manage_options',
 			esc_url( $link ),
 			null,

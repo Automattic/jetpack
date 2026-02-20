@@ -549,6 +549,43 @@ class Jetpack_Memberships {
 	}
 
 	/**
+	 * Render email callback.
+	 *
+	 * @param string $block_content The block content.
+	 * @param array  $parsed_block  The parsed block data.
+	 * @param object $rendering_context The email rendering context.
+	 *
+	 * @return string
+	 */
+	public function render_button_email( $block_content, array $parsed_block, $rendering_context ) {
+		// Check for the required renderers.
+		if ( ! function_exists( '\Automattic\Jetpack\Extensions\Button\render_email' ) || ! class_exists( '\Automattic\WooCommerce\EmailEditor\Integrations\Core\Renderer\Blocks\Button' ) ) {
+			return '';
+		}
+
+		// Get the first inner block, which should be the button block.
+		$button_block = $parsed_block['innerBlocks'][0] ?? array();
+
+		// We should only accept button blocks.
+		if ( empty( $button_block['blockName'] ) || 'jetpack/button' !== $button_block['blockName'] ) {
+			return '';
+		}
+
+		// We need attributes.
+		if ( ! isset( $button_block['attrs'] ) || ! is_array( $button_block['attrs'] ) ) {
+			return '';
+		}
+
+		// If the button block is missing text or url, return empty string.
+		if ( empty( $button_block['attrs']['text'] ) || empty( $button_block['attrs']['url'] ) ) {
+			return '';
+		}
+
+		// Reuse the button block's email rendering method.
+		return \Automattic\Jetpack\Extensions\Button\render_email( $block_content, $button_block, $rendering_context );
+	}
+
+	/**
 	 * Builds subscription URL for this membership using the current blog and
 	 * supplied plan IDs.
 	 *
@@ -987,9 +1024,10 @@ class Jetpack_Memberships {
 			Blocks::jetpack_register_block(
 				'jetpack/recurring-payments',
 				array(
-					'render_callback'  => array( $this, 'render_button' ),
-					'uses_context'     => array( 'isPremiumContentChild' ),
-					'provides_context' => array(
+					'render_callback'       => array( $this, 'render_button' ),
+					'render_email_callback' => array( $this, 'render_button_email' ),
+					'uses_context'          => array( 'isPremiumContentChild' ),
+					'provides_context'      => array(
 						'jetpack/parentBlockWidth' => 'width',
 					),
 				)

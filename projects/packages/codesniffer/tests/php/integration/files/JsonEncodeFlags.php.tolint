@@ -1,0 +1,48 @@
+<?php
+/**
+ * A dummy file to test the Jetpack.Functions.JsonEncodeFlags sniff.
+ *
+ * @package automattic/jetpack-codesniffer
+ */
+
+// phpcs:disable WordPress, VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+
+// Missing flags.
+json_encode( $data );
+wp_json_encode( $data );
+wp_send_json( $response );
+wp_send_json_success();
+wp_send_json_error();
+wp_send_json_success( $response );
+wp_send_json_error( $response );
+wp_send_json( $response, 200 );
+wp_send_json_success( $response, 200 );
+wp_send_json_error( $response, 400 );
+
+// Has flags.
+json_encode( $data, JSON_UNESCAPED_SLASHES );
+wp_json_encode( $data, $flags );
+wp_send_json( $response, 200, JSON_UNESCAPED_SLASHES );
+wp_send_json_success( $response, 200, JSON_UNESCAPED_SLASHES );
+wp_send_json_error( $response, 400, JSON_UNESCAPED_SLASHES );
+
+// Multi-line.
+json_encode(
+	array(
+		'foo' => 1,
+		'bar' => 42,
+	),
+	JSON_UNESCAPED_SLASHES | JSON_HEX_AMP | JSON_HEX_TAG
+);
+
+// Passing zero.
+json_encode(
+	$data,
+	0 // Hysterical raisins.
+);
+
+// Passing zero, ignored.
+json_encode(
+	$data,
+	0 // phpcs:ignore Jetpack.Functions.JsonEncodeFlags.ZeroFound -- Hysterical raisins.
+);

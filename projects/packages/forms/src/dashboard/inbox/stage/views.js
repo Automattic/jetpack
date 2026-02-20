@@ -3,7 +3,7 @@
  */
 import { useEvent } from '@wordpress/compose';
 import { useEffect, useState } from '@wordpress/element';
-import { useSearchParams } from 'react-router';
+import { useDashboardSearchParams } from '../../router/dashboard-search-params-context.tsx';
 
 const LAYOUT_TABLE = 'table';
 
@@ -13,7 +13,8 @@ export const defaultView = {
 	filters: [],
 	page: 1,
 	perPage: 20,
-	fields: [ 'from', 'date', 'source', 'ip' ],
+	titleField: 'from',
+	fields: [ 'date', 'source', 'ip' ],
 };
 
 export const defaultLayouts = {
@@ -29,32 +30,41 @@ export const defaultLayouts = {
  * @return {Array} The [ state, setState ] tuple.
  */
 export function useView() {
-	const [ searchParams, setSearchParams ] = useSearchParams();
-	const urlSearch = searchParams.get( 'search' );
+	const [ searchParams, setSearchParams ] = useDashboardSearchParams();
+	// Normalize missing query param to empty string so we don't treat
+	// `null` (missing) and `''` (empty) as different values.
+	const urlSearch = searchParams.get( 'search' ) ?? '';
 	const [ view, setView ] = useState( () => ( {
 		...defaultView,
-		search: urlSearch ?? '',
+		search: urlSearch,
 	} ) );
 	// When view changes, update the URL params if needed.
-	const setViewWithUrlUpdate = useEvent( newView => {
-		setView( newView );
-		if ( newView.search !== urlSearch ) {
-			setSearchParams( previousSearchParams => {
-				const _searchParams = new URLSearchParams( previousSearchParams );
-				if ( newView.search ) {
-					_searchParams.set( 'search', newView.search );
-				} else {
-					_searchParams.delete( 'search' );
-				}
-				return _searchParams;
-			} );
-		}
+	const setViewWithUrlUpdate = useEvent( nextView => {
+		// Support both "setView(newView)" and "setView(prev => next)" call styles,
+		// since callers treat this like a normal React setState setter.
+		setView( previousView => {
+			const resolvedView = typeof nextView === 'function' ? nextView( previousView ) : nextView;
+
+			if ( resolvedView.search !== urlSearch ) {
+				setSearchParams( previousSearchParams => {
+					const _searchParams = new URLSearchParams( previousSearchParams );
+					if ( resolvedView.search ) {
+						_searchParams.set( 'search', resolvedView.search );
+					} else {
+						_searchParams.delete( 'search' );
+					}
+					return _searchParams;
+				} );
+			}
+
+			return resolvedView;
+		} );
 	} );
 	// When search URL param changes, update the view's search filter
 	// without affecting any other config.
 	const onUrlSearchChange = useEvent( () => {
 		setView( previousView => {
-			const newValue = urlSearch ?? '';
+			const newValue = urlSearch;
 			if ( newValue === previousView.search ) {
 				return previousView;
 			}

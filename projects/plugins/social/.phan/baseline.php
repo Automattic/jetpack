@@ -10,11 +10,9 @@
 return [
     // # Issue statistics:
     // PhanTypeMismatchArgument : 1 occurrence
-    // PhanTypeMismatchReturnProbablyReal : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
-        'src/class-jetpack-social.php' => ['PhanTypeMismatchReturnProbablyReal'],
         'src/class-note.php' => ['PhanTypeMismatchArgument'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.

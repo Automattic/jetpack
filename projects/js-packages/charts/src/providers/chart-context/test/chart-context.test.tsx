@@ -4,7 +4,6 @@ import { GlobalChartsProvider } from '../global-charts-provider';
 import { useChartId } from '../hooks/use-chart-id';
 import { useChartRegistration } from '../hooks/use-chart-registration';
 import { useGlobalChartsContext } from '../hooks/use-global-charts-context';
-import { wooTheme } from '../themes';
 import type { BaseLegendItem } from '../../../components/legend';
 import type { ChartTheme, SeriesData } from '../../../types';
 import type { GlobalChartsContextValue } from '../types';
@@ -441,8 +440,8 @@ describe( 'ChartContext', () => {
 			expect( generatedColor ).not.toBe( mockTheme.colors[ 1 ] );
 			expect( generatedColor ).not.toBe( mockTheme.colors[ 2 ] );
 
-			// Generated color should be in HSL format
-			expect( generatedColor ).toMatch( /^hsl\(\d+,\s*\d+%,\s*\d+%\)$/ );
+			// Generated color should be in hex format
+			expect( generatedColor ).toMatch( /^#[0-9a-f]{6}$/i );
 		} );
 
 		it( 'generates consistent colors for same index beyond palette', () => {
@@ -767,40 +766,6 @@ describe( 'ChartContext', () => {
 			} ).color;
 
 			expect( afterThemeChangeColor ).not.toBe( initialColor );
-		} );
-
-		it( 'generates colors with Woo theme characteristics', () => {
-			let contextValue: GlobalChartsContextValue;
-
-			const TestComponent = () => {
-				contextValue = useGlobalChartsContext();
-				return <div>Test</div>;
-			};
-
-			render(
-				<GlobalChartsProvider theme={ wooTheme }>
-					<TestComponent />
-				</GlobalChartsProvider>
-			);
-
-			// Generate colors beyond the palette
-			const generatedColors = [];
-			for ( let i = 5; i < 8; i++ ) {
-				const color = contextValue.getElementStyles( {
-					data: createMockDataWithGroup( undefined ),
-					index: i,
-				} ).color;
-				generatedColors.push( color );
-			}
-
-			// All generated colors should be in HSL format
-			generatedColors.forEach( color => {
-				expect( color ).toMatch( /^hsl\(\d+,\s*\d+%,\s*\d+%\)$/ );
-			} );
-
-			// All generated colors should be different
-			const uniqueColors = new Set( generatedColors );
-			expect( uniqueColors.size ).toBe( generatedColors.length );
 		} );
 	} );
 
@@ -1702,6 +1667,693 @@ describe( 'ChartContext', () => {
 
 			// Should have empty set after all series are visible
 			expect( hidden.size ).toBe( 0 );
+		} );
+	} );
+
+	describe( 'GlobalChartsProvider - CSS Variable Support', () => {
+		let originalGetComputedStyle: typeof window.getComputedStyle;
+
+		beforeEach( () => {
+			originalGetComputedStyle = window.getComputedStyle;
+		} );
+
+		afterEach( () => {
+			window.getComputedStyle = originalGetComputedStyle;
+		} );
+
+		describe( 'CSS Variable Resolution', () => {
+			it( 'resolves CSS custom properties in theme colors', () => {
+				window.getComputedStyle = jest.fn( () => ( {
+					getPropertyValue: ( prop: string ) => {
+						if ( prop === '--primary-color' ) {
+							return '#00ff00';
+						}
+						return '';
+					},
+				} ) ) as unknown as typeof window.getComputedStyle;
+
+				let contextValue: GlobalChartsContextValue;
+
+				const TestComponent = () => {
+					contextValue = useGlobalChartsContext();
+					return <div>Test</div>;
+				};
+
+				const cssVarTheme: ChartTheme = {
+					colors: [ '--primary-color', '#ff0000' ],
+				} as ChartTheme;
+
+				render(
+					<GlobalChartsProvider theme={ cssVarTheme }>
+						<TestComponent />
+					</GlobalChartsProvider>
+				);
+
+				const color = contextValue.getElementStyles( {
+					data: undefined,
+					index: 0,
+				} ).color;
+
+				expect( color ).toBe( '#00ff00' );
+			} );
+
+			it( 'uses wrapper element for scoped CSS variable resolution', () => {
+				const mockGetComputedStyle = jest.fn( ( element: Element ) => {
+					// Scoped wrapper returns different value than root
+					if ( element !== document.documentElement ) {
+						return {
+							getPropertyValue: ( prop: string ) => {
+								if ( prop === '--scoped-color' ) {
+									return '#00ff00'; // Scoped value
+								}
+								return '';
+							},
+						};
+					}
+					// Root would return different value
+					return {
+						getPropertyValue: ( prop: string ) => {
+							if ( prop === '--scoped-color' ) {
+								return '#ff0000'; // Root value
+							}
+							return '';
+						},
+					};
+				} );
+				window.getComputedStyle = mockGetComputedStyle as unknown as typeof window.getComputedStyle;
+
+				let contextValue: GlobalChartsContextValue;
+
+				const TestComponent = () => {
+					contextValue = useGlobalChartsContext();
+					return <div>Test</div>;
+				};
+
+				const cssVarTheme: ChartTheme = {
+					colors: [ '--scoped-color' ],
+				} as ChartTheme;
+
+				render(
+					<GlobalChartsProvider theme={ cssVarTheme }>
+						<TestComponent />
+					</GlobalChartsProvider>
+				);
+
+				const color = contextValue.getElementStyles( {
+					data: undefined,
+					index: 0,
+				} ).color;
+
+				// Should use scoped value from wrapper element
+				expect( color ).toBe( '#00ff00' );
+			} );
+
+			it( 'resolves multiple CSS variables in color array', () => {
+				window.getComputedStyle = jest.fn( () => ( {
+					getPropertyValue: ( prop: string ) => {
+						if ( prop === '--color-1' ) {
+							return '#ff0000';
+						}
+						if ( prop === '--color-2' ) {
+							return '#00ff00';
+						}
+						return '';
+					},
+				} ) ) as unknown as typeof window.getComputedStyle;
+
+				let contextValue: GlobalChartsContextValue;
+
+				const TestComponent = () => {
+					contextValue = useGlobalChartsContext();
+					return <div>Test</div>;
+				};
+
+				const cssVarTheme: ChartTheme = {
+					colors: [ '--color-1', '--color-2', '#0000ff' ],
+				} as ChartTheme;
+
+				render(
+					<GlobalChartsProvider theme={ cssVarTheme }>
+						<TestComponent />
+					</GlobalChartsProvider>
+				);
+
+				const color1 = contextValue.getElementStyles( {
+					data: undefined,
+					index: 0,
+				} ).color;
+				const color2 = contextValue.getElementStyles( {
+					data: undefined,
+					index: 1,
+				} ).color;
+				const color3 = contextValue.getElementStyles( {
+					data: undefined,
+					index: 2,
+				} ).color;
+
+				expect( color1 ).toBe( '#ff0000' );
+				expect( color2 ).toBe( '#00ff00' );
+				expect( color3 ).toBe( '#0000ff' );
+			} );
+		} );
+
+		describe( 'CSS Variable Edge Cases', () => {
+			it( 'skips CSS variables that are not defined', () => {
+				window.getComputedStyle = jest.fn( () => ( {
+					getPropertyValue: () => {
+						// Undefined var returns empty string
+						return '';
+					},
+				} ) ) as unknown as typeof window.getComputedStyle;
+
+				let contextValue: GlobalChartsContextValue;
+
+				const TestComponent = () => {
+					contextValue = useGlobalChartsContext();
+					return <div>Test</div>;
+				};
+
+				const cssVarTheme: ChartTheme = {
+					colors: [ '--undefined-color', '#ff0000' ],
+				} as ChartTheme;
+
+				render(
+					<GlobalChartsProvider theme={ cssVarTheme }>
+						<TestComponent />
+					</GlobalChartsProvider>
+				);
+
+				// Should skip undefined variable and use second color
+				const color = contextValue.getElementStyles( {
+					data: undefined,
+					index: 0,
+				} ).color;
+
+				expect( color ).toBe( '#ff0000' );
+			} );
+
+			it( 'skips CSS variables that resolve to empty string', () => {
+				window.getComputedStyle = jest.fn( () => ( {
+					getPropertyValue: () => '', // Returns empty string
+				} ) ) as unknown as typeof window.getComputedStyle;
+
+				let contextValue: GlobalChartsContextValue;
+
+				const TestComponent = () => {
+					contextValue = useGlobalChartsContext();
+					return <div>Test</div>;
+				};
+
+				const cssVarTheme: ChartTheme = {
+					colors: [ '--undefined-color', '#00ff00' ],
+				} as ChartTheme;
+
+				render(
+					<GlobalChartsProvider theme={ cssVarTheme }>
+						<TestComponent />
+					</GlobalChartsProvider>
+				);
+
+				// Undefined variable should be skipped, second color becomes first
+				const color = contextValue.getElementStyles( {
+					data: undefined,
+					index: 0,
+				} ).color;
+
+				expect( color ).toBe( '#00ff00' );
+			} );
+
+			it( 'handles CSS variables resolving to non-hex colors', () => {
+				window.getComputedStyle = jest.fn( () => ( {
+					getPropertyValue: ( prop: string ) => {
+						if ( prop === '--rgb-color' ) {
+							return 'rgb(255, 0, 0)'; // Non-hex format
+						}
+						return '';
+					},
+				} ) ) as unknown as typeof window.getComputedStyle;
+
+				let contextValue: GlobalChartsContextValue;
+
+				const TestComponent = () => {
+					contextValue = useGlobalChartsContext();
+					return <div>Test</div>;
+				};
+
+				const cssVarTheme: ChartTheme = {
+					colors: [ '--rgb-color', '#ff0000' ],
+				} as ChartTheme;
+
+				render(
+					<GlobalChartsProvider theme={ cssVarTheme }>
+						<TestComponent />
+					</GlobalChartsProvider>
+				);
+
+				// Non-hex colors are currently skipped, should use second color
+				const color = contextValue.getElementStyles( {
+					data: undefined,
+					index: 0,
+				} ).color;
+
+				expect( color ).toBe( '#ff0000' );
+			} );
+		} );
+
+		describe( 'Error Handling', () => {
+			it( 'handles invalid hex colors gracefully during HSL conversion', () => {
+				window.getComputedStyle = jest.fn( () => ( {
+					getPropertyValue: () => '',
+				} ) ) as unknown as typeof window.getComputedStyle;
+
+				let contextValue: GlobalChartsContextValue;
+
+				const TestComponent = () => {
+					contextValue = useGlobalChartsContext();
+					return <div>Test</div>;
+				};
+
+				const invalidTheme: ChartTheme = {
+					colors: [ '#invalid', '#ff0000' ],
+				} as ChartTheme;
+
+				// Should not crash
+				expect( () => {
+					render(
+						<GlobalChartsProvider theme={ invalidTheme }>
+							<TestComponent />
+						</GlobalChartsProvider>
+					);
+				} ).not.toThrow();
+
+				// Invalid colors are still added to palette, just don't contribute to HSL calculations
+				const color1 = contextValue.getElementStyles( {
+					data: undefined,
+					index: 0,
+				} ).color;
+				const color2 = contextValue.getElementStyles( {
+					data: undefined,
+					index: 1,
+				} ).color;
+
+				expect( color1 ).toBe( '#invalid' );
+				expect( color2 ).toBe( '#ff0000' );
+			} );
+
+			it( 'handles malformed hex colors in color cache', () => {
+				window.getComputedStyle = jest.fn( () => ( {
+					getPropertyValue: () => '',
+				} ) ) as unknown as typeof window.getComputedStyle;
+
+				let contextValue: GlobalChartsContextValue;
+
+				const TestComponent = () => {
+					contextValue = useGlobalChartsContext();
+					return <div>Test</div>;
+				};
+
+				const malformedTheme: ChartTheme = {
+					colors: [ '#ff', '#gggggg', '#00ff00' ],
+				} as ChartTheme;
+
+				// Should not crash
+				expect( () => {
+					render(
+						<GlobalChartsProvider theme={ malformedTheme }>
+							<TestComponent />
+						</GlobalChartsProvider>
+					);
+				} ).not.toThrow();
+
+				// Malformed colors are still in palette, just don't contribute to HSL calculations
+				const color1 = contextValue.getElementStyles( {
+					data: undefined,
+					index: 0,
+				} ).color;
+				const color2 = contextValue.getElementStyles( {
+					data: undefined,
+					index: 1,
+				} ).color;
+				const color3 = contextValue.getElementStyles( {
+					data: undefined,
+					index: 2,
+				} ).color;
+
+				expect( color1 ).toBe( '#ff' );
+				expect( color2 ).toBe( '#gggggg' );
+				expect( color3 ).toBe( '#00ff00' );
+			} );
+
+			it( 'continues processing colors after encountering an error', () => {
+				window.getComputedStyle = jest.fn( () => ( {
+					getPropertyValue: ( prop: string ) => {
+						if ( prop === '--valid-1' ) {
+							return '#ff0000';
+						}
+						if ( prop === '--invalid' ) {
+							return '#bad'; // Will fail HSL conversion
+						}
+						if ( prop === '--valid-2' ) {
+							return '#0000ff';
+						}
+						return '';
+					},
+				} ) ) as unknown as typeof window.getComputedStyle;
+
+				let contextValue: GlobalChartsContextValue;
+
+				const TestComponent = () => {
+					contextValue = useGlobalChartsContext();
+					return <div>Test</div>;
+				};
+
+				const mixedTheme: ChartTheme = {
+					colors: [ '--valid-1', '--invalid', '--valid-2' ],
+				} as ChartTheme;
+
+				render(
+					<GlobalChartsProvider theme={ mixedTheme }>
+						<TestComponent />
+					</GlobalChartsProvider>
+				);
+
+				// All colors are preserved in order, invalid ones just don't contribute to HSL
+				const color1 = contextValue.getElementStyles( {
+					data: undefined,
+					index: 0,
+				} ).color;
+				const color2 = contextValue.getElementStyles( {
+					data: undefined,
+					index: 1,
+				} ).color;
+				const color3 = contextValue.getElementStyles( {
+					data: undefined,
+					index: 2,
+				} ).color;
+
+				expect( color1 ).toBe( '#ff0000' );
+				expect( color2 ).toBe( '#bad' ); // Invalid color is still in palette
+				expect( color3 ).toBe( '#0000ff' );
+			} );
+		} );
+
+		describe( 'Color Cache Timing', () => {
+			it( 'recomputes color cache when theme colors change with CSS variables', () => {
+				let mockColor = '#ff0000';
+				window.getComputedStyle = jest.fn( () => ( {
+					getPropertyValue: ( prop: string ) => {
+						if ( prop === '--dynamic-color' ) {
+							return mockColor;
+						}
+						return '';
+					},
+				} ) ) as unknown as typeof window.getComputedStyle;
+
+				let contextValue: GlobalChartsContextValue;
+
+				const TestComponent = () => {
+					contextValue = useGlobalChartsContext();
+					return <div>Test</div>;
+				};
+
+				const theme1: ChartTheme = {
+					colors: [ '--dynamic-color' ],
+				} as ChartTheme;
+
+				const { rerender } = render(
+					<GlobalChartsProvider theme={ theme1 }>
+						<TestComponent />
+					</GlobalChartsProvider>
+				);
+
+				const initialColor = contextValue.getElementStyles( {
+					data: undefined,
+					index: 0,
+				} ).color;
+
+				// Change the mock to return different color
+				mockColor = '#00ff00';
+
+				const theme2: ChartTheme = {
+					colors: [ '--dynamic-color' ],
+				} as ChartTheme;
+
+				// Re-render with new theme (different object reference)
+				rerender(
+					<GlobalChartsProvider theme={ theme2 }>
+						<TestComponent />
+					</GlobalChartsProvider>
+				);
+
+				const updatedColor = contextValue.getElementStyles( {
+					data: undefined,
+					index: 0,
+				} ).color;
+
+				expect( initialColor ).toBe( '#ff0000' );
+				expect( updatedColor ).toBe( '#00ff00' );
+			} );
+		} );
+
+		describe( 'Integration with CSS Variables', () => {
+			it( 'generates colors based on CSS variable hue range', () => {
+				window.getComputedStyle = jest.fn( () => ( {
+					getPropertyValue: ( prop: string ) => {
+						// Colors with specific hue range (red to orange)
+						if ( prop === '--base-1' ) {
+							return '#ff0000'; // Hue 0
+						}
+						if ( prop === '--base-2' ) {
+							return '#ff8800'; // Hue ~33
+						}
+						return '';
+					},
+				} ) ) as unknown as typeof window.getComputedStyle;
+
+				let contextValue: GlobalChartsContextValue;
+
+				const TestComponent = () => {
+					contextValue = useGlobalChartsContext();
+					return <div>Test</div>;
+				};
+
+				const cssVarTheme: ChartTheme = {
+					colors: [ '--base-1', '--base-2' ],
+				} as ChartTheme;
+
+				render(
+					<GlobalChartsProvider theme={ cssVarTheme }>
+						<TestComponent />
+					</GlobalChartsProvider>
+				);
+
+				// Request color beyond palette
+				const generatedColor = contextValue.getElementStyles( {
+					data: undefined,
+					index: 3,
+				} ).color;
+
+				// Should be a hex color (generated)
+				expect( generatedColor ).toMatch( /^#[0-9a-f]{6}$/i );
+			} );
+
+			it( 'mixed static and CSS variable colors work together', () => {
+				window.getComputedStyle = jest.fn( () => ( {
+					getPropertyValue: ( prop: string ) => {
+						if ( prop === '--custom' ) {
+							return '#00ff00';
+						}
+						return '';
+					},
+				} ) ) as unknown as typeof window.getComputedStyle;
+
+				let contextValue: GlobalChartsContextValue;
+
+				const TestComponent = () => {
+					contextValue = useGlobalChartsContext();
+					return <div>Test</div>;
+				};
+
+				const mixedTheme: ChartTheme = {
+					colors: [ '#ff0000', '--custom', '#0000ff' ],
+				} as ChartTheme;
+
+				render(
+					<GlobalChartsProvider theme={ mixedTheme }>
+						<TestComponent />
+					</GlobalChartsProvider>
+				);
+
+				const color1 = contextValue.getElementStyles( {
+					data: undefined,
+					index: 0,
+				} ).color;
+				const color2 = contextValue.getElementStyles( {
+					data: undefined,
+					index: 1,
+				} ).color;
+				const color3 = contextValue.getElementStyles( {
+					data: undefined,
+					index: 2,
+				} ).color;
+
+				expect( color1 ).toBe( '#ff0000' );
+				expect( color2 ).toBe( '#00ff00' ); // Resolved from CSS var
+				expect( color3 ).toBe( '#0000ff' );
+
+				// Verify group assignments work
+				const groupColor = contextValue.getElementStyles( {
+					data: createMockDataWithGroup( 'test-group' ),
+					index: 0,
+				} ).color;
+
+				expect( [ '#ff0000', '#00ff00', '#0000ff' ] ).toContain( groupColor );
+			} );
+
+			it( 'CSS variable changes reset group color mappings', () => {
+				let mockColor = '#ff0000';
+				window.getComputedStyle = jest.fn( () => ( {
+					getPropertyValue: ( prop: string ) => {
+						if ( prop === '--theme-color' ) {
+							return mockColor;
+						}
+						return '';
+					},
+				} ) ) as unknown as typeof window.getComputedStyle;
+
+				let contextValue: GlobalChartsContextValue;
+
+				const TestComponent = () => {
+					contextValue = useGlobalChartsContext();
+					return <div>Test</div>;
+				};
+
+				const theme1: ChartTheme = {
+					colors: [ '--theme-color' ],
+				} as ChartTheme;
+
+				const { rerender } = render(
+					<GlobalChartsProvider theme={ theme1 }>
+						<TestComponent />
+					</GlobalChartsProvider>
+				);
+
+				// Create group mapping
+				const initialGroupColor = contextValue.getElementStyles( {
+					data: createMockDataWithGroup( 'test-group' ),
+					index: 0,
+				} ).color;
+
+				expect( initialGroupColor ).toBe( '#ff0000' );
+
+				// Change theme colors
+				mockColor = '#00ff00';
+				const theme2: ChartTheme = {
+					colors: [ '--theme-color' ],
+				} as ChartTheme;
+
+				rerender(
+					<GlobalChartsProvider theme={ theme2 }>
+						<TestComponent />
+					</GlobalChartsProvider>
+				);
+
+				// Group mapping should be reset and use new color
+				const updatedGroupColor = contextValue.getElementStyles( {
+					data: createMockDataWithGroup( 'test-group' ),
+					index: 0,
+				} ).color;
+
+				expect( updatedGroupColor ).toBe( '#00ff00' );
+			} );
+		} );
+
+		describe( 'Server-Side Rendering', () => {
+			it( 'handles SSR environment where getComputedStyle unavailable', () => {
+				// Mock resolveCssVariable to return null (simulating SSR behavior)
+				window.getComputedStyle = jest.fn( () => {
+					throw new Error( 'window is not defined' );
+				} ) as unknown as typeof window.getComputedStyle;
+
+				let contextValue: GlobalChartsContextValue;
+
+				const TestComponent = () => {
+					contextValue = useGlobalChartsContext();
+					return <div>Test</div>;
+				};
+
+				const cssVarTheme: ChartTheme = {
+					colors: [ '--ssr-color', '#ff0000' ],
+				} as ChartTheme;
+
+				// Should not crash during SSR
+				expect( () => {
+					render(
+						<GlobalChartsProvider theme={ cssVarTheme }>
+							<TestComponent />
+						</GlobalChartsProvider>
+					);
+				} ).not.toThrow();
+
+				// Should fall back to static colors
+				const color = contextValue.getElementStyles( {
+					data: undefined,
+					index: 0,
+				} ).color;
+
+				expect( color ).toBe( '#ff0000' );
+			} );
+		} );
+
+		describe( 'Performance and Caching', () => {
+			it( 'color cache remains stable when theme unchanged with CSS vars', () => {
+				window.getComputedStyle = jest.fn( () => ( {
+					getPropertyValue: ( prop: string ) => {
+						if ( prop === '--stable-color' ) {
+							return '#ff0000';
+						}
+						return '';
+					},
+				} ) ) as unknown as typeof window.getComputedStyle;
+
+				let contextValue: GlobalChartsContextValue;
+
+				const TestComponent = () => {
+					contextValue = useGlobalChartsContext();
+					return <div>Test</div>;
+				};
+
+				const cssVarTheme: ChartTheme = {
+					colors: [ '--stable-color' ],
+				} as ChartTheme;
+
+				const { rerender } = render(
+					<GlobalChartsProvider theme={ cssVarTheme }>
+						<TestComponent />
+					</GlobalChartsProvider>
+				);
+
+				const initialColor = contextValue.getElementStyles( {
+					data: undefined,
+					index: 0,
+				} ).color;
+
+				// Re-render with same theme
+				rerender(
+					<GlobalChartsProvider theme={ cssVarTheme }>
+						<TestComponent />
+					</GlobalChartsProvider>
+				);
+
+				const afterRerenderColor = contextValue.getElementStyles( {
+					data: undefined,
+					index: 0,
+				} ).color;
+
+				// Colors should remain stable
+				expect( afterRerenderColor ).toBe( initialColor );
+				expect( afterRerenderColor ).toBe( '#ff0000' );
+			} );
 		} );
 	} );
 } );

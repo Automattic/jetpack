@@ -904,7 +904,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 				foreach ( $status as $key => $item ) {
 					$collection[] = array(
 						'option' => $key,
-						'value'  => is_scalar( $item ) ? $item : wp_json_encode( $item ),
+						'value'  => is_scalar( $item ) ? $item : wp_json_encode( $item, JSON_UNESCAPED_SLASHES ),
 					);
 				}
 				WP_CLI::log( __( 'Sync Status:', 'jetpack' ) );
@@ -916,7 +916,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 				foreach ( Settings::get_settings() as $setting => $item ) {
 					$settings[] = array(
 						'setting' => $setting,
-						'value'   => is_scalar( $item ) ? $item : wp_json_encode( $item ),
+						'value'   => is_scalar( $item ) ? $item : wp_json_encode( $item, JSON_UNESCAPED_SLASHES ),
 					);
 				}
 				WP_CLI\Utils\format_items( 'table', $settings, array( 'setting', 'value' ) );
@@ -1134,7 +1134,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 					foreach ( $items as $item ) {
 						$collection[] = array(
 							'action'          => $item[0],
-							'args'            => wp_json_encode( $item[1] ),
+							'args'            => wp_json_encode( $item[1], JSON_UNESCAPED_SLASHES ),
 							'current_user_id' => $item[2],
 							'microtime'       => $item[3],
 							'importing'       => (string) $item[4],
@@ -1295,13 +1295,14 @@ class Jetpack_CLI extends WP_CLI_Command {
 						'success'       => false,
 						'error_code'    => $body_json->get_error_code(),
 						'error_message' => $body_json->get_error_message(),
-					)
+					),
+					JSON_UNESCAPED_SLASHES
 				)
 			);
 			exit( 1 );
 		}
 
-		WP_CLI::log( wp_json_encode( $body_json ) );
+		WP_CLI::log( wp_json_encode( $body_json, JSON_UNESCAPED_SLASHES ) );
 	}
 
 	/**
@@ -1418,7 +1419,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 
 		( new Tokens() )->update_user_token( $current_user_id, sprintf( '%s.%d', $named_args['token'], $current_user_id ), $is_connection_owner );
 
-		WP_CLI::log( wp_json_encode( $named_args ) );
+		WP_CLI::log( wp_json_encode( $named_args, JSON_UNESCAPED_SLASHES ) );
 
 		if ( $is_connection_owner ) {
 			/**
@@ -1533,7 +1534,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 		if ( isset( $named_args['pretty'] ) ) {
 			$decoded_output = json_decode( $output );
 			if ( $decoded_output ) {
-				$output = wp_json_encode( $decoded_output, JSON_PRETTY_PRINT );
+				$output = wp_json_encode( $decoded_output, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT );
 			}
 		}
 
@@ -1621,7 +1622,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 				'resource'    => '/activity-log/%d/update-credentials',
 				'method'      => 'POST',
 				'api_version' => '1.1',
-				'body'        => wp_json_encode( $values ),
+				'body'        => wp_json_encode( $values, JSON_UNESCAPED_SLASHES ),
 				'timeout'     => 30,
 			),
 			$named_args
@@ -1780,7 +1781,6 @@ class Jetpack_CLI extends WP_CLI_Command {
 		if ( ( new Status() )->is_offline_mode() ) {
 			if (
 				! defined( 'JETPACK_DEV_DEBUG' ) &&
-				! has_filter( 'jetpack_development_mode' ) &&
 				! has_filter( 'jetpack_offline_mode' ) &&
 				! str_contains( site_url(), '.' )
 			) {
@@ -1949,7 +1949,8 @@ class Jetpack_CLI extends WP_CLI_Command {
 					'success'       => false,
 					'error_code'    => $error->get_error_code(),
 					'error_message' => $error->get_error_message(),
-				)
+				),
+				JSON_UNESCAPED_SLASHES
 			)
 		);
 		exit( 1 );
@@ -2059,12 +2060,12 @@ class Jetpack_CLI extends WP_CLI_Command {
 				'block-block-json',
 				array(
 					'slug'        => $slug,
-					'title'       => wp_json_encode( $title, JSON_UNESCAPED_UNICODE ),
+					'title'       => wp_json_encode( $title, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ),
 					'description' => isset( $assoc_args['description'] )
-						? wp_json_encode( $assoc_args['description'], JSON_UNESCAPED_UNICODE )
-						: wp_json_encode( $title, JSON_UNESCAPED_UNICODE ),
+						? wp_json_encode( $assoc_args['description'], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE )
+						: wp_json_encode( $title, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ),
 					'nextVersion' => $next_version,
-					'keywords'    => wp_json_encode( $keywords, JSON_UNESCAPED_UNICODE ),
+					'keywords'    => wp_json_encode( $keywords, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ),
 				)
 			),
 			"$path/$slug.php"   => self::render_block_file(
@@ -2117,7 +2118,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 				$new_block_list->{ $variation }[] = $slug;
 
 				// Format the JSON to match our coding standards.
-				$new_block_list_formatted = wp_json_encode( $new_block_list, JSON_PRETTY_PRINT ) . "\n";
+				$new_block_list_formatted = wp_json_encode( $new_block_list, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT ) . "\n";
 				$new_block_list_formatted = preg_replace_callback(
 					// Find all occurrences of multiples of 4 spaces a the start of the line.
 					'/^((?:    )+)/m',

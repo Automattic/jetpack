@@ -717,15 +717,12 @@ class Jetpack_Backup {
 				return $upsell_products[ $bytes_1tb ];
 			}
 
+			$matched_bytes = $bytes_10gb;
 			foreach ( $upsell_products as $bytes => $product ) {
 				if ( $bytes > $additional_bytes_needed ) {
 					$matched_bytes = $bytes;
 					break;
 				}
-			}
-
-			if ( ! $matched_bytes ) {
-				$matched_bytes = $bytes_10gb;
 			}
 
 			return $upsell_products[ $matched_bytes ];

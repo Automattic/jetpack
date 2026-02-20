@@ -1,19 +1,20 @@
 // Charts
-export { BarChart, BarChartUnresponsive } from './components/bar-chart';
-export { LineChart, LineChartUnresponsive } from './components/line-chart';
-export { PieChart, PieChartUnresponsive } from './components/pie-chart';
-export {
-	PieSemiCircleChart,
-	PieSemiCircleChartUnresponsive,
-} from './components/pie-semi-circle-chart';
-export { BarListChart, BarListChartUnresponsive } from './components/bar-list-chart';
-export { LeaderboardChart, LeaderboardChartUnresponsive } from './components/leaderboard-chart';
-export { ConversionFunnelChart } from './components/conversion-funnel-chart';
+export { BarChart, BarChartUnresponsive } from './charts/bar-chart';
+export { BarListChart, BarListChartUnresponsive } from './charts/bar-list-chart';
+export { ConversionFunnelChart } from './charts/conversion-funnel-chart';
+export { GeoChart, GeoChartUnresponsive } from './charts/geo-chart';
+export { LeaderboardChart, LeaderboardChartUnresponsive } from './charts/leaderboard-chart';
+export { LineChart, LineChartUnresponsive } from './charts/line-chart';
+export { PieChart, PieChartUnresponsive } from './charts/pie-chart';
+export { PieSemiCircleChart, PieSemiCircleChartUnresponsive } from './charts/pie-semi-circle-chart';
+export { Sparkline, SparklineUnresponsive } from './charts/sparkline';
 
-// Chart components
+// Components
 export { BaseTooltip } from './components/tooltip';
 export { Legend, useChartLegendItems } from './components/legend';
-export type { LegendValueDisplay, BaseLegendItem } from './components/legend';
+export { TrendIndicator } from './components/trend-indicator';
+
+// Compositions
 
 // Themes
 export { GlobalChartsProvider as ThemeProvider } from './providers';
@@ -25,13 +26,22 @@ export {
 	useGlobalChartsTheme,
 	GlobalChartsContext,
 	defaultTheme,
-	jetpackTheme,
-	wooTheme,
 } from './providers';
 
 // Types
 export type * from './types';
 export type * from './visx/types';
-export type { PieChartProps } from './components/pie-chart';
-
+export type { PieChartProps, PieChartRenderTooltipParams } from './charts/pie-chart';
+export type {
+	PieSemiCircleChartProps,
+	PieSemiCircleChartRenderTooltipParams,
+} from './charts/pie-semi-circle-chart';
+export type { GeoChartProps, GeoRegion, GeoResolution } from './charts/geo-chart';
+export type { LegendValueDisplay, BaseLegendItem } from './components/legend';
+export type { TrendIndicatorProps, TrendDirection } from './components/trend-indicator';
 export type { LineStyles, GridStyles, EventHandlerParams } from '@visx/xychart';
+export type {
+	GoogleDataTableColumn,
+	GoogleDataTableRow,
+	GoogleDataTableColumnRoleType,
+} from 'react-google-charts';

@@ -653,8 +653,8 @@ class Publicize extends Publicize_Base {
 
 		$error_data = array(
 			'user_can_refresh' => $user_can_refresh,
-			'refresh_text'     => $refresh_text,
-			'refresh_url'      => $refresh_url,
+			'refresh_text'     => $refresh_text ?? null,
+			'refresh_url'      => $refresh_url ?? null,
 		);
 
 		$this->test_connection_results[ $id ] = new WP_Error( $connection_error_code, $connection_test_message, $error_data );

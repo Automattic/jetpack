@@ -33,6 +33,7 @@
 	background: var(--wpds-color-bg-surface-neutral-strong);
 	transition: padding ease-out 0.1s;
 	flex-shrink: 0;
+	z-index: 10;
 
 	&.has-tabs {
 		padding-block-end: 0;
@@ -41,6 +42,8 @@
 
 	@container (max-width: 430px) {
 		padding: variables.$grid-unit-15 variables.$grid-unit-30;
+		// Account for wp-admin bar on mobile (46px)
+		top: var(--wp-admin--admin-bar--height, 0);
 	}
 }
 
@@ -60,15 +63,16 @@
 	gap: variables.$grid-unit-30;
 
 	&.has-padding {
-		padding: variables.$grid-unit-60 variables.$grid-unit * 2.5;
+		padding: variables.$grid-unit-40 variables.$grid-unit * 2.5;
 
 		@container (max-width: 430px) {
+
 			padding: variables.$grid-unit-15 variables.$grid-unit-30;
 		}
 	}
 
 	&.has-border {
-		border-top: 1px solid var(--wpds-color-stroke-surface-neutral-weak);
+		border-top: 1px solid var(--wpds-color-stroke-surface-neutral);
 	}
 
 	&.is-constrained {

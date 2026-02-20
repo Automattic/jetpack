@@ -125,7 +125,7 @@ class Automattic_For_Agencies_Client {
 	 * @return string
 	 */
 	private static function render_initial_state() {
-		return 'var automatticForAgenciesClientInitialState=JSON.parse(decodeURIComponent("' . rawurlencode( wp_json_encode( static::initial_state() ) ) . '"));';
+		return 'var automatticForAgenciesClientInitialState=' . wp_json_encode( static::initial_state(), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ';';
 	}
 
 	/**

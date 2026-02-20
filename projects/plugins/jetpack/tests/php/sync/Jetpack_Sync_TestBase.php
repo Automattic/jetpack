@@ -207,7 +207,7 @@ abstract class Jetpack_Sync_TestBase extends WP_UnitTestCase {
 	}
 
 	public function pre_http_request_success() {
-		return array( 'body' => json_encode( array( 'success' => true ) ) );
+		return array( 'body' => json_encode( array( 'success' => true ), JSON_UNESCAPED_SLASHES ) );
 	}
 
 	/**
@@ -245,7 +245,8 @@ abstract class Jetpack_Sync_TestBase extends WP_UnitTestCase {
 							),
 						),
 						'translations' => array(),
-					)
+					),
+					JSON_UNESCAPED_SLASHES
 				),
 			);
 		}
@@ -266,7 +267,8 @@ abstract class Jetpack_Sync_TestBase extends WP_UnitTestCase {
 						),
 						'translations' => array(),
 						'no_update'    => array(),
-					)
+					),
+					JSON_UNESCAPED_SLASHES
 				),
 			);
 		}
@@ -288,7 +290,8 @@ abstract class Jetpack_Sync_TestBase extends WP_UnitTestCase {
 						'no_update'    => array(
 							'jetpack/jetpack.php' => true,
 						),
-					)
+					),
+					JSON_UNESCAPED_SLASHES
 				),
 			);
 		}
@@ -319,7 +322,8 @@ abstract class Jetpack_Sync_TestBase extends WP_UnitTestCase {
 						'msg'               => 'API Key Required',
 						'seconds_remaining' => 60,
 						'error'             => 'API Key Required',
-					)
+					),
+					JSON_UNESCAPED_SLASHES
 				),
 			);
 		}

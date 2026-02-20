@@ -340,6 +340,10 @@ class Full_Sync extends Module {
 				$id        = 'comment_ID';
 				$where_sql = Settings::get_comments_filter_sql();
 				break;
+			default:
+				// This should never be reached due to the guard condition above,
+				// but Phan complains so let's make it happy.
+				return array();
 		}
 
 		// TODO: Call $wpdb->prepare on the following query.

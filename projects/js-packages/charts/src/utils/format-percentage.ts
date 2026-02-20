@@ -2,7 +2,7 @@ import { formatNumber } from '@automattic/number-formatters';
 
 /**
  * Format a percentage value with smart decimal handling.
- * Uses @automattic/number-formatters for consistent formatting.
+ * Uses `@automattic/number-formatters` for consistent formatting.
  * Removes unnecessary trailing zeros and caps at 2 decimal places.
  *
  * @param value - The percentage value (0-100 range)

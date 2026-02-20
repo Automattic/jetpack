@@ -130,14 +130,21 @@ tests_add_filter(
 );
 
 /** Activates this plugin in WordPress so it can be tested. */
-function _manually_load_plugin() {
-	if ( '1' === getenv( 'JETPACK_TEST_WOOCOMMERCE' ) ) {
-		require JETPACK_WOOCOMMERCE_INSTALL_DIR . '/woocommerce.php';
-	}
+if ( ! function_exists( '_manually_load_plugin' ) ) {
+	function _manually_load_plugin() {
+		if ( '1' === getenv( 'JETPACK_TEST_WOOCOMMERCE' ) ) {
+			require JETPACK_WOOCOMMERCE_INSTALL_DIR . '/woocommerce.php';
 
-	require __DIR__ . '/../../jetpack.php';
-	$jetpack = Jetpack::init();
-	$jetpack->configure();
+			// Action Scheduler is needed early on since 10.4.0.
+			$as_file = JETPACK_WOOCOMMERCE_INSTALL_DIR . '/packages/action-scheduler/action-scheduler.php';
+			require_once JETPACK_WOOCOMMERCE_INSTALL_DIR . '/packages/action-scheduler/classes/abstracts/ActionScheduler.php';
+			ActionScheduler::init( $as_file );
+		}
+
+		require __DIR__ . '/../../jetpack.php';
+		$jetpack = Jetpack::init();
+		$jetpack->configure();
+	}
 }
 
 function _manually_install_woocommerce() {

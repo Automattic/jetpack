@@ -205,16 +205,16 @@ if ( ! class_exists( 'Simple_Payments_Widget' ) ) {
 		 */
 		public function ajax_get_payment_buttons() {
 			if ( ! check_ajax_referer( 'customize-jetpack-simple-payments', 'customize-jetpack-simple-payments-nonce', false ) ) {
-				wp_send_json_error( 'bad_nonce', 400 );
+				wp_send_json_error( 'bad_nonce', 400, JSON_UNESCAPED_SLASHES );
 			}
 
 			if ( ! current_user_can( 'customize' ) ) {
-				wp_send_json_error( 'customize_not_allowed', 403 );
+				wp_send_json_error( 'customize_not_allowed', 403, JSON_UNESCAPED_SLASHES );
 			}
 
 			$post_type_object = get_post_type_object( Simple_Payments::$post_type_product );
 			if ( ! current_user_can( $post_type_object->cap->create_posts ) || ! current_user_can( $post_type_object->cap->publish_posts ) ) {
-				wp_send_json_error( 'insufficient_post_permissions', 403 );
+				wp_send_json_error( 'insufficient_post_permissions', 403, JSON_UNESCAPED_SLASHES );
 			}
 
 			$product_posts = get_posts(
@@ -228,7 +228,8 @@ if ( ! class_exists( 'Simple_Payments_Widget' ) ) {
 
 			$formatted_products = array_map( array( $this, 'format_product_post_for_ajax_reponse' ), $product_posts );
 
-			wp_send_json_success( $formatted_products );
+			// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- It takes null, but its phpdoc only says int.
+			wp_send_json_success( $formatted_products, null, JSON_UNESCAPED_SLASHES );
 		}
 
 		/**
@@ -248,26 +249,27 @@ if ( ! class_exists( 'Simple_Payments_Widget' ) ) {
 		 */
 		public function ajax_save_payment_button() {
 			if ( ! check_ajax_referer( 'customize-jetpack-simple-payments', 'customize-jetpack-simple-payments-nonce', false ) ) {
-				wp_send_json_error( 'bad_nonce', 400 );
+				wp_send_json_error( 'bad_nonce', 400, JSON_UNESCAPED_SLASHES );
 			}
 
 			if ( ! current_user_can( 'customize' ) ) {
-				wp_send_json_error( 'customize_not_allowed', 403 );
+				wp_send_json_error( 'customize_not_allowed', 403, JSON_UNESCAPED_SLASHES );
 			}
 
 			$post_type_object = get_post_type_object( Simple_Payments::$post_type_product );
 			if ( ! current_user_can( $post_type_object->cap->create_posts ) || ! current_user_can( $post_type_object->cap->publish_posts ) ) {
-				wp_send_json_error( 'insufficient_post_permissions', 403 );
+				wp_send_json_error( 'insufficient_post_permissions', 403, JSON_UNESCAPED_SLASHES );
 			}
 
 			if ( empty( $_POST['params'] ) || ! is_array( $_POST['params'] ) ) {
-				wp_send_json_error( 'missing_params', 400 );
+				wp_send_json_error( 'missing_params', 400, JSON_UNESCAPED_SLASHES );
 			}
 
 			$params = wp_unslash( $_POST['params'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Manually validated by validate_ajax_params().
 			$errors = $this->validate_ajax_params( $params );
 			if ( ! empty( $errors->errors ) ) {
-				wp_send_json_error( $errors );
+				// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- It takes null, but its phpdoc only says int.
+				wp_send_json_error( $errors, null, JSON_UNESCAPED_SLASHES );
 			}
 
 			$product_post_id = isset( $params['product_post_id'] ) ? (int) $params['product_post_id'] : 0;
@@ -294,7 +296,8 @@ if ( ! class_exists( 'Simple_Payments_Widget' ) ) {
 			}
 
 			if ( ! $product_post_id || is_wp_error( $product_post_id ) ) {
-				wp_send_json_error( $product_post_id );
+				// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- It takes null, but its phpdoc only says int.
+				wp_send_json_error( $product_post_id, null, JSON_UNESCAPED_SLASHES );
 			}
 
 			$tracks_properties = array(
@@ -312,7 +315,9 @@ if ( ! class_exists( 'Simple_Payments_Widget' ) ) {
 				array(
 					'product_post_id'    => $product_post_id,
 					'product_post_title' => $params['post_title'],
-				)
+				),
+				null, // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- It takes null, but its phpdoc only says int.
+				JSON_UNESCAPED_SLASHES
 			);
 		}
 
@@ -321,21 +326,21 @@ if ( ! class_exists( 'Simple_Payments_Widget' ) ) {
 		 */
 		public function ajax_delete_payment_button() {
 			if ( ! check_ajax_referer( 'customize-jetpack-simple-payments', 'customize-jetpack-simple-payments-nonce', false ) ) {
-				wp_send_json_error( 'bad_nonce', 400 );
+				wp_send_json_error( 'bad_nonce', 400, JSON_UNESCAPED_SLASHES );
 			}
 
 			if ( ! current_user_can( 'customize' ) ) {
-				wp_send_json_error( 'customize_not_allowed', 403 );
+				wp_send_json_error( 'customize_not_allowed', 403, JSON_UNESCAPED_SLASHES );
 			}
 
 			if ( empty( $_POST['params'] ) || ! is_array( $_POST['params'] ) ) {
-				wp_send_json_error( 'missing_params', 400 );
+				wp_send_json_error( 'missing_params', 400, JSON_UNESCAPED_SLASHES );
 			}
 
 			$params         = wp_unslash( $_POST['params'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Manually validated just below.
 			$illegal_params = array_diff( array_keys( $params ), array( 'product_post_id' ) );
 			if ( ! empty( $illegal_params ) ) {
-				wp_send_json_error( 'illegal_params', 400 );
+				wp_send_json_error( 'illegal_params', 400, JSON_UNESCAPED_SLASHES );
 			}
 
 			$product_id   = (int) $params['product_post_id'];
@@ -351,7 +356,8 @@ if ( ! class_exists( 'Simple_Payments_Widget' ) ) {
 
 			$this->record_event( 'deleted', 'delete', array( 'id' => $product_id ) );
 
-			wp_send_json_success( $return );
+			// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- It takes null, but its phpdoc only says int.
+			wp_send_json_success( $return, null, JSON_UNESCAPED_SLASHES );
 		}
 
 		/**

@@ -37,7 +37,8 @@ class Odyssey_Assets_Test extends Stats_TestCase {
 				array(
 					'cache_buster' => 'calypso-4917-8664-123456',
 					'cached_at'    => floor( microtime( true ) * 1000 ), // milliseconds.
-				)
+				),
+				JSON_UNESCAPED_SLASHES
 			),
 			false
 		);
@@ -54,7 +55,8 @@ class Odyssey_Assets_Test extends Stats_TestCase {
 				array(
 					'cache_buster' => 'calypso-4917-8664-123456',
 					'cached_at'    => floor( microtime( true ) * 1000 - MINUTE_IN_SECONDS * 1000 * 20 ), // milliseconds.
-				)
+				),
+				JSON_UNESCAPED_SLASHES
 			),
 			false
 		);
@@ -72,7 +74,8 @@ class Odyssey_Assets_Test extends Stats_TestCase {
 				array(
 					'cache_buster' => 'calypso-4917-8664-123456',
 					'cached_at'    => floor( microtime( true ) * 1000 - MINUTE_IN_SECONDS * 1000 * 20 ), // milliseconds.
-				)
+				),
+				JSON_UNESCAPED_SLASHES
 			),
 			false
 		);

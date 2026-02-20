@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Change default form layout from vertical to horizontal with wrap, allowing form fields to display side-by-side.

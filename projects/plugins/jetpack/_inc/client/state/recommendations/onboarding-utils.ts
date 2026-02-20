@@ -23,7 +23,7 @@ export function getOnboardingNameByProductSlug( productSlug: string ) {
  *
  * @param {string} name - onboarding name
  * @return {number} the onboarding priority
- * @throws exception when the requested onboarding is not in the ONBOARDING_ORDER array.
+ * @throws {string} exception when the requested onboarding is not in the ONBOARDING_ORDER array.
  */
 function getOnboardingPriority( name: string ) {
 	const index = ONBOARDING_ORDER.indexOf( name );

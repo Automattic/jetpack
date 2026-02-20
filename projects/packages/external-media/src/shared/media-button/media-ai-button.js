@@ -1,7 +1,6 @@
 import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { SOURCE_JETPACK_AI_GENERAL_PURPOSE_IMAGE_FOR_BLOCK } from '../constants';
-import { isSupportNext40pxDefaultSize } from '../utils/is-support-next-40px-default-size';
 
 /**
  * MediaAiButton component
@@ -13,7 +12,7 @@ function MediaAiButton( props ) {
 
 	return (
 		<Button
-			__next40pxDefaultSize={ isSupportNext40pxDefaultSize() }
+			__next40pxDefaultSize={ true }
 			variant="secondary"
 			className="jetpack-external-media-button-menu"
 			aria-haspopup="false"

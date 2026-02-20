@@ -5,6 +5,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [7.0.0] - 2025-12-16
+
+As of version 7.0.0, this package is now under the MIT license.
+Previous versions were licensed GPL v2.0-or-later.
+
+### Added
+- Add `Jetpack-Compat-85` ruleset. [#45834]
+- Add `Automattic\Jetpack\Codesniffer\Utils\IsTestClassTrait`. [#46324]
+- New sniff `Jetpack.Functions.EscJs`. [#46243]
+- New sniff `Jetpack.Functions.JsonEncodeFlags`. [#46227]
+- New sniff `Jetpack.PHPUnit.FunctionCoversBackslash`. [#45829]
+
+### Changed
+- Relicense under the MIT license. [#46328]
+- Replace `MediaWiki.Usage.NestedFunctions` with `Squiz.PHP.InnerFunctions`. [#45910]
+- Update `mediawiki/mediawiki-codesniffer` to v48.0.0. [#45910]
+
+### Removed
+- Drop support for PHP 8.0, following upstream `mediawiki/mediawiki-codesniffer` package. [#45910]
+
+### Fixed
+- Ensure proper flags are used with `json_encode()`. [#46092]
+
 ## [6.0.1] - 2025-08-06
 ### Changed
 - Update package dependencies. [#43515]
@@ -196,6 +219,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Codesniffer: Add a package to hold our coding standard
 
+[7.0.0]: https://github.com/Automattic/jetpack-codesniffer/compare/v6.0.1...v7.0.0
 [6.0.1]: https://github.com/Automattic/jetpack-codesniffer/compare/v6.0.0...v6.0.1
 [6.0.0]: https://github.com/Automattic/jetpack-codesniffer/compare/v5.0.0...v6.0.0
 [5.0.0]: https://github.com/Automattic/jetpack-codesniffer/compare/v4.0.0...v5.0.0

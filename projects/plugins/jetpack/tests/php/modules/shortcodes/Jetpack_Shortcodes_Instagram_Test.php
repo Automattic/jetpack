@@ -86,7 +86,7 @@ class Jetpack_Shortcodes_Instagram_Test extends WP_UnitTestCase {
 				'type'       => 'OAuthException',
 			);
 
-			$response['body'] = wp_json_encode( compact( 'error' ) );
+			$response['body'] = wp_json_encode( compact( 'error' ), JSON_UNESCAPED_SLASHES );
 			return $response;
 		}
 
@@ -113,7 +113,7 @@ class Jetpack_Shortcodes_Instagram_Test extends WP_UnitTestCase {
 				'type'             => 'OAuthException',
 			);
 
-			$response['body'] = wp_json_encode( compact( 'error' ) );
+			$response['body'] = wp_json_encode( compact( 'error' ), JSON_UNESCAPED_SLASHES );
 			return $response;
 		}
 

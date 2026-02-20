@@ -9,12 +9,6 @@ body.jetpack_page_jetpack-forms-admin {
 	#wpcontent {
 		padding-left: 0;
 	}
-
-	#wpbody-content {
-		display: flex;
-		height: 100%;
-		min-height: 100%;
-	}
 }
 
 .jp-forms-layout {
@@ -43,6 +37,19 @@ body.jetpack_page_jetpack-forms-admin {
 
 	@include mixins.flex-center;
 	gap: 8px;
+
+	&__link {
+		font: inherit;
+		color: inherit;
+
+		&:hover {
+			text-decoration: underline;
+		}
+
+		&:focus-visible {
+			text-decoration: underline;
+		}
+	}
 }
 
 .jp-forms-layout__surface {
@@ -93,6 +100,7 @@ body.jetpack_page_jetpack-forms-admin {
 
 		&.is-stage {
 			flex-grow: 1;
+			margin-left: variables.$grid-unit-10; // Help left stage look good with WP Admin sidebar
 		}
 
 		&.is-inspector {

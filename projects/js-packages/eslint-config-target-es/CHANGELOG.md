@@ -5,13 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.0.0] - 2026-01-12
+### Added
+- Enable new rules from `eslint-plugin-es-x`. [#46167]
+
+### Changed
+- Update package dependencies. [#45658] [#45915] [#45958] [#46081] [#46104] [#46143] [#46167] [#46456]
+
 ## [4.0.1] - 2025-10-13
 ### Changed
 - Update package dependencies. [#44677] [#44701] [#44892] [#45027] [#45229] [#45242]
 
 ## [4.0.0] - 2025-08-06
 ### Added
-- Enable new rules from `eslint-plugin-es-x'. [#44288]
+- Enable new rules from `eslint-plugin-es-x`. [#44288]
 
 ### Changed
 - Update package dependencies. [#43522] [#43578] [#44020] [#44148] [#44217] [#44276] [#44288] [#44289] [#44355] [#44508]
@@ -102,6 +109,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial release.
 
+[5.0.0]: https://github.com/Automattic/eslint-config-target-es/compare/4.0.1...5.0.0
 [4.0.1]: https://github.com/Automattic/eslint-config-target-es/compare/4.0.0...4.0.1
 [4.0.0]: https://github.com/Automattic/eslint-config-target-es/compare/3.0.0...4.0.0
 [3.0.0]: https://github.com/Automattic/eslint-config-target-es/compare/2.2.2...3.0.0

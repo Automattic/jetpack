@@ -1,6 +1,5 @@
 <?php
 /*
-!
  * Main Settings Page file: This is the main file which controls the different pages in the setting section and render the layout
  * Jetpack CRM - https://jetpackcrm.com
  */

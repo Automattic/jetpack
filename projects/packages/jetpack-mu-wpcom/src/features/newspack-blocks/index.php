@@ -59,7 +59,8 @@ function enqueue_newspack_blocks_data( $handle ) {
 			// Define URL to core one to make autocomplete working for newspack-blocks installed via jetpack-mu-wpcom.
 			'authors_rest_url'        => rest_url() . 'wp/v2/users',
 			'custom_taxonomies'       => array(),
-		)
+		),
+		JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 	);
 
 	wp_add_inline_script(

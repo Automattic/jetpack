@@ -175,6 +175,7 @@ class Actions {
 		) ) {
 			self::initialize_sender();
 			add_action( 'shutdown', array( self::$sender, 'do_sync' ), 9998 );
+
 			if ( self::should_initialize_sender( true ) ) {
 				add_action( 'shutdown', array( self::$sender, 'do_full_sync' ), 9999 );
 			}
@@ -362,6 +363,10 @@ class Actions {
 
 		$queue      = self::$sender->get_sync_queue();
 		$full_queue = self::$sender->get_full_sync_queue();
+		// We are sending the expiry vs the actual dedicated lock value to ensure backwards compatibility
+		// with previous versions where the lock value was a timestamp.
+		$dedicated_sync_lock_option_name  = Dedicated_Sender::DEDICATED_SYNC_REQUEST_LOCK_OPTION_NAME;
+		$dedicated_sync_lock_expires_name = $dedicated_sync_lock_option_name . '_expires';
 
 		$debug['debug_details']['sync_locks'] = array(
 			'retry_time_sync'                       => get_option( self::RETRY_AFTER_PREFIX . 'sync' ),
@@ -370,7 +375,7 @@ class Actions {
 			'next_sync_time_full_sync'              => self::$sender->get_next_sync_time( 'full_sync' ),
 			'queue_locked_sync'                     => $queue->is_locked(),
 			'queue_locked_full_sync'                => $full_queue->is_locked(),
-			'dedicated_sync_request_lock'           => \Jetpack_Options::get_raw_option( Dedicated_Sender::DEDICATED_SYNC_REQUEST_LOCK_OPTION_NAME, null ),
+			'dedicated_sync_request_lock'           => \Jetpack_Options::get_raw_option( $dedicated_sync_lock_expires_name, null ),
 			'dedicated_sync_temporary_disable_flag' => get_transient( Dedicated_Sender::DEDICATED_SYNC_TEMPORARY_DISABLE_FLAG ),
 		);
 
@@ -684,7 +689,45 @@ class Actions {
 	 * @static
 	 */
 	public static function do_cron_sync() {
-		self::do_cron_sync_by_type( 'sync' );
+		if ( ! self::sync_allowed() ) {
+			return;
+		}
+
+		self::initialize_sender();
+
+		$time_limit = Settings::get_setting( 'cron_sync_time_limit' );
+		$start_time = time();
+		$executions = 0;
+
+		$lock_id = Dedicated_Sender::try_lock_spawn_request();
+
+		do {
+			$next_sync_time = self::$sender->get_next_sync_time( 'sync' );
+
+			if ( $next_sync_time ) {
+				$delay = $next_sync_time - time() + 1;
+				if ( $delay > 15 ) {
+					break;
+				} elseif ( $delay > 0 ) {
+					sleep( (int) $delay );
+				}
+			}
+
+			$result = self::$sender->do_sync_and_set_delays( self::$sender->get_sync_queue() );
+
+			if ( is_wp_error( $result ) && in_array( $result->get_error_code(), array( 'unclosed_buffer', 'sync_throttled' ), true ) ) {
+				$result = true; // Give it some time.
+			}
+			// # of send actions performed.
+			++$executions;
+
+		} while ( $result && ! is_wp_error( $result ) && ( $start_time + $time_limit ) > time() );
+
+		if ( $lock_id ) {
+			Dedicated_Sender::try_release_lock_spawn_request( $lock_id );
+		}
+
+		return $executions;
 	}
 
 	/**
@@ -694,7 +737,31 @@ class Actions {
 	 * @static
 	 */
 	public static function do_cron_full_sync() {
-		self::do_cron_sync_by_type( 'full_sync' );
+		if ( ! self::sync_allowed() ) {
+			return;
+		}
+
+		self::initialize_sender();
+
+		$executions = 0;
+
+		$next_sync_time = self::$sender->get_next_sync_time( 'full_sync' );
+
+		if ( $next_sync_time ) {
+			$delay = $next_sync_time - time() + 1;
+			if ( $delay > 15 ) {
+				return;
+			} elseif ( $delay > 0 ) {
+				sleep( (int) $delay );
+			}
+		}
+
+		// Explicitly only allow 1 do_full_sync call until issue with Immediate Full Sync is resolved.
+		// For more context see p1HpG7-9pe-p2.
+		self::$sender->do_full_sync();
+		++$executions;
+
+		return $executions;
 	}
 
 	/**
@@ -1142,7 +1209,11 @@ class Actions {
 		delete_option( self::RETRY_AFTER_PREFIX . 'sync' );
 		delete_option( self::RETRY_AFTER_PREFIX . 'full_sync' );
 		// Dedicated sync locks.
-		\Jetpack_Options::delete_raw_option( Dedicated_Sender::DEDICATED_SYNC_REQUEST_LOCK_OPTION_NAME );
+		$dedicated_sync_lock_option         = Dedicated_Sender::DEDICATED_SYNC_REQUEST_LOCK_OPTION_NAME;
+		$dedicated_sync_lock_expires_option = $dedicated_sync_lock_option . '_expires';
+		\Jetpack_Options::delete_raw_option( $dedicated_sync_lock_option );
+		\Jetpack_Options::delete_raw_option( $dedicated_sync_lock_expires_option );
+
 		delete_transient( Dedicated_Sender::DEDICATED_SYNC_TEMPORARY_DISABLE_FLAG );
 		// Lock for disabling Sync sending temporarily.
 		delete_transient( Sender::TEMP_SYNC_DISABLE_TRANSIENT_NAME );
@@ -1170,7 +1241,7 @@ class Actions {
 			"\n",
 			array_map(
 				function ( $key, $value ) {
-					return wp_json_encode( array( $key => $value ) );
+					return wp_json_encode( array( $key => $value ), JSON_UNESCAPED_SLASHES );
 				},
 				array_keys( (array) $data ),
 				array_values( (array) $data )

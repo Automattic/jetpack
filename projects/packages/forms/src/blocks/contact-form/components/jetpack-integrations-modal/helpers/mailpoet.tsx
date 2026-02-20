@@ -7,7 +7,6 @@ import {
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import MailPoetIcon from '../../../../../icons/mailpoet.tsx';
-import ConsentToggle from '../components/consent-toggle.tsx';
 import type { CardItem, CardBuilderProps } from './types.ts';
 import type { Integration } from '../../../../../types/index.ts';
 
@@ -19,7 +18,9 @@ export function buildMailPoetCard( {
 	context,
 	attributes,
 	setAttributes,
+	components,
 }: CardBuilderProps ): CardItem {
+	const ConsentToggle = components?.ConsentToggle;
 	const {
 		isConnected = false,
 		settingsUrl = '',
@@ -58,7 +59,7 @@ export function buildMailPoetCard( {
 					'Add powerful email marketing to your forms with <a>MailPoet</a>. Simply install the plugin to start sending emails.',
 					'jetpack-forms'
 				),
-				{ a: <ExternalLink href={ marketingUrl } /> }
+				{ a: <ExternalLink href={ marketingUrl } children={ null } /> }
 			),
 			notActivatedMessage: __(
 				'MailPoet is installed. Just activate the plugin to start sending emails.',
@@ -75,7 +76,7 @@ export function buildMailPoetCard( {
 							'MailPoet is active. There is one step left. Please complete <a>MailPoet setup</a>.',
 							'jetpack-forms'
 						),
-						{ a: <ExternalLink href={ settingsUrl } /> }
+						{ a: <ExternalLink href={ settingsUrl } children={ null } /> }
 					) }
 				</p>
 				<HStack spacing="3" justify="start">
@@ -98,7 +99,7 @@ export function buildMailPoetCard( {
 				{ context === 'block-editor' &&
 					( lists.length ? (
 						<SelectControl
-							label={ __( 'Which MailPoet list should contacts be added to?', 'jetpack-forms' ) }
+							label={ __( 'Which email list should contacts be added to?', 'jetpack-forms' ) }
 							value={ selectedListId }
 							options={ lists.map( list => ( { label: list.name, value: list.id } ) ) }
 							onChange={ ( newId: string ) =>
@@ -120,12 +121,14 @@ export function buildMailPoetCard( {
 							) }
 						</p>
 					) ) }
-				{ context === 'block-editor' && <ConsentToggle /> }
-				<p className="integration-card__description">
-					<ExternalLink href={ settingsUrl }>
-						{ __( 'View MailPoet dashboard', 'jetpack-forms' ) }
-					</ExternalLink>
-				</p>
+				{ context === 'block-editor' && ConsentToggle && <ConsentToggle /> }
+				{ settingsUrl && (
+					<p className="integration-card__description">
+						<ExternalLink href={ settingsUrl }>
+							{ __( 'View dashboard', 'jetpack-forms' ) }
+						</ExternalLink>
+					</p>
+				) }
 			</div>
 		),
 	};

@@ -1,0 +1,214 @@
+import { Meta, Canvas, Source } from '@storybook/addon-docs/blocks';
+import * as TrendIndicatorStories from './index.stories';
+
+<Meta title="JS Packages/Charts Library/Components/Trend Indicator" of={ TrendIndicatorStories } />
+
+# Trend Indicator
+
+A compact component for displaying directional trends with values, perfect for showing percentage changes, growth metrics, or status indicators.
+
+<Canvas of={ TrendIndicatorStories.Up } />
+
+## Overview
+
+The TrendIndicator component displays a value with an optional directional icon and color-coded styling to indicate positive, negative, or neutral trends. It's designed to be used inline with text or alongside metrics in dashboards.
+
+<Source
+	language="tsx"
+	code={`import { TrendIndicator } from '@automattic/charts';
+
+<TrendIndicator direction="up" value="+14%" />
+<TrendIndicator direction="down" value="-5%" />
+<TrendIndicator direction="neutral" value="0%" />`}
+/>
+
+## API Reference
+
+For detailed information about component props and types, see the [Trend Indicator API Reference](./?path=/docs/js-packages-charts-library-components-trend-indicator-api-reference--docs).
+
+## Basic Usage
+
+### Upward Trend
+
+Use `direction="up"` for positive changes. The indicator displays in green with an upward arrow:
+
+<Canvas of={ TrendIndicatorStories.Up } />
+
+<Source
+	language="tsx"
+	code={`<TrendIndicator direction="up" value="+14%" />`}
+/>
+
+### Downward Trend
+
+Use `direction="down"` for negative changes. The indicator displays in red with a downward arrow:
+
+<Canvas of={ TrendIndicatorStories.Down } />
+
+<Source
+	language="tsx"
+	code={`<TrendIndicator direction="down" value="-5%" />`}
+/>
+
+### Neutral Trend
+
+Use `direction="neutral"` for unchanged values. The indicator displays in gray without an arrow:
+
+<Canvas of={ TrendIndicatorStories.Neutral } />
+
+<Source
+	language="tsx"
+	code={`<TrendIndicator direction="neutral" value="0%" />`}
+/>
+
+### Required Props
+
+- **`direction`**: The trend direction (`'up'`, `'down'`, or `'neutral'`)
+- **`value`**: The value to display (string or number)
+
+### Optional Props
+
+- **`showIcon`** (default: `true`): Whether to show the directional arrow icon
+- **`className`**: Additional CSS class name
+- **`style`**: Inline CSS styles
+
+## Visual Customization
+
+### Without Icon
+
+Hide the directional icon when you only need color-coded text:
+
+<Canvas of={ TrendIndicatorStories.WithoutIcon } />
+
+<Source
+	language="tsx"
+	code={`<TrendIndicator direction="up" value="+14%" showIcon={false} />`}
+/>
+
+### Custom Styling
+
+Apply custom styles using the `className` or `style` props:
+
+<Source
+	language="tsx"
+	code={`<TrendIndicator
+	direction="up"
+	value="+25%"
+	style={{ fontSize: '1.5rem', fontWeight: 700 }}
+/>
+
+<TrendIndicator
+	direction="down"
+	value="-10%"
+	className="my-custom-trend"
+/>`}
+/>
+
+### Value Formats
+
+The `value` prop accepts any string or number format:
+
+<Source
+	language="tsx"
+	code={`// Percentages
+<TrendIndicator direction="up" value="+14%" />
+<TrendIndicator direction="down" value="-5.2%" />
+
+// Currency
+<TrendIndicator direction="up" value="+$500" />
+<TrendIndicator direction="down" value="-$1,234" />
+
+// Numbers
+<TrendIndicator direction="up" value={42} />
+<TrendIndicator direction="up" value="2.5k" />`}
+/>
+
+## Theming
+
+The component uses CSS custom properties for colors, making it easy to customize:
+
+<Source
+	language="css"
+	code={`:root {
+	--charts-trend-up-color: #1a8917;    /* Green for positive */
+	--charts-trend-down-color: #d63638;  /* Red for negative */
+	--charts-trend-neutral-color: #646970; /* Gray for neutral */
+}`}
+/>
+
+Override these variables in your stylesheet to match your design system.
+
+## Common Use Cases
+
+### Dashboard Metrics
+
+Display trend indicators alongside key metrics:
+
+<Source
+	language="tsx"
+	code={`<div className="metric-card">
+	<span className="metric-label">Monthly Revenue</span>
+	<div className="metric-value">
+		<span>$45,231</span>
+		<TrendIndicator direction="up" value="+12%" />
+	</div>
+</div>`}
+/>
+
+### Data Tables
+
+Show trends in table cells:
+
+<Source
+	language="tsx"
+	code={`<table>
+	<tbody>
+		<tr>
+			<td>Product A</td>
+			<td>1,234 sales</td>
+			<td><TrendIndicator direction="up" value="+8%" /></td>
+		</tr>
+		<tr>
+			<td>Product B</td>
+			<td>567 sales</td>
+			<td><TrendIndicator direction="down" value="-3%" /></td>
+		</tr>
+	</tbody>
+</table>`}
+/>
+
+### Inline with Text
+
+Use inline with descriptive text:
+
+<Source
+	language="tsx"
+	code={`<p>
+	Sales increased this quarter <TrendIndicator direction="up" value="+14%" />
+</p>`}
+/>
+
+## Accessibility
+
+The TrendIndicator component includes built-in accessibility features:
+
+- **aria-label**: Automatically generated label describing the trend (e.g., "Increase: +14%")
+- **aria-hidden**: The decorative icon is hidden from screen readers
+- **Color independence**: Trends are distinguishable by icon direction, not just color
+
+<Source
+	language="tsx"
+	code={`// Rendered output includes:
+<span aria-label="Increase: +14%">
+	<svg aria-hidden="true">...</svg>
+	<span>+14%</span>
+</span>`}
+/>
+
+## Browser Compatibility
+
+TrendIndicator is compatible with all modern browsers:
+- Chrome/Edge (latest)
+- Firefox (latest)
+- Safari (latest)
+- Mobile browsers (iOS Safari, Chrome Mobile)

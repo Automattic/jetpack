@@ -323,7 +323,7 @@ class Status_Test extends BaseTestCase {
 	 */
 	public function return_sample_response() {
 		return array(
-			'body'     => wp_json_encode( static::get_sample_api_response() ),
+			'body'     => wp_json_encode( static::get_sample_api_response(), JSON_UNESCAPED_SLASHES ),
 			'response' => array(
 				'code'    => 200,
 				'message' => '',
@@ -338,7 +338,7 @@ class Status_Test extends BaseTestCase {
 	 */
 	public function return_broken_sample_response() {
 		return array(
-			'body'     => wp_json_encode( $this->get_broken_sample_api_response() ),
+			'body'     => wp_json_encode( $this->get_broken_sample_api_response(), JSON_UNESCAPED_SLASHES ),
 			'response' => array(
 				'code'    => 200,
 				'message' => '',
@@ -385,7 +385,7 @@ class Status_Test extends BaseTestCase {
 	 */
 	public function return_sample_empty_response() {
 		return array(
-			'body'     => wp_json_encode( static::get_sample_empty_response() ),
+			'body'     => wp_json_encode( static::get_sample_empty_response(), JSON_UNESCAPED_SLASHES ),
 			'response' => array(
 				'code'    => 200,
 				'message' => '',
@@ -400,7 +400,7 @@ class Status_Test extends BaseTestCase {
 	 */
 	public function return_sample_error_response() {
 		return array(
-			'body'     => wp_json_encode( 'error' ),
+			'body'     => wp_json_encode( 'error', JSON_UNESCAPED_SLASHES ),
 			'response' => array(
 				'code'    => 400,
 				'message' => '',

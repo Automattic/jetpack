@@ -762,7 +762,8 @@ class REST_Controller {
 					array(
 						'user_email' => $user_email,
 					)
-				)
+				),
+				JSON_UNESCAPED_SLASHES
 			),
 			'wpcom'
 		);

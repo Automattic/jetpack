@@ -164,7 +164,10 @@ class Client {
 				// We cast this to a new variable, because the array form of $body needs to be
 				// maintained so it can be passed into the request later on in the code.
 				if ( array() !== $body_to_hash ) {
-					$body_to_hash = wp_json_encode( self::_stringify_data( $body_to_hash ) );
+					$body_to_hash = wp_json_encode(
+						self::_stringify_data( $body_to_hash ),
+						0 // phpcs:ignore Jetpack.Functions.JsonEncodeFlags.ZeroFound -- No `json_encode()` flags because this needs to match whatever is calculating the hash on the other end.
+					);
 				} else {
 					$body_to_hash = '';
 				}
@@ -417,7 +420,7 @@ class Client {
 	 * @param string            $path             REST API path.
 	 * @param string            $version          REST API version. Default is `2`.
 	 * @param array             $args             Arguments to {@see WP_Http}. Default is `array()`.
-	 * @param null|string|array $body       Body passed to {@see WP_Http}. Default is `null`.
+	 * @param null|string|array $body             Body passed to {@see WP_Http}. Default is `null`.
 	 * @param string            $base_api_path    REST API root. Default is `wpcom`.
 	 *
 	 * @return array|WP_Error $response Response data, else {@see WP_Error} on failure.
@@ -438,7 +441,7 @@ class Client {
 		}
 
 		if ( isset( $body ) && ! is_string( $body ) ) {
-			$body = wp_json_encode( $body );
+			$body = wp_json_encode( $body, JSON_UNESCAPED_SLASHES );
 		}
 
 		return self::remote_request( $args, $body );

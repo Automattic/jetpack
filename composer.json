@@ -14,13 +14,13 @@
 		"dealerdirect/phpcodesniffer-composer-installer": "^1.0.0",
 		"phan/phan": "5.5.2",
 		"php-parallel-lint/php-parallel-lint": "^1.4.0",
-		"php-stubs/woocommerce-stubs": ">=8.7",
-		"php-stubs/wordpress-stubs": ">=6.7",
-		"php-stubs/wordpress-tests-stubs": ">=6.7",
+		"php-stubs/woocommerce-stubs": ">=7.0",
+		"php-stubs/wordpress-stubs": ">=6.8",
+		"php-stubs/wordpress-tests-stubs": ">=6.8",
 		"php-stubs/wp-cli-stubs": "^2.10",
 		"phpcompatibility/phpcompatibility-wp": "^2.1",
 		"sirbrillig/phpcs-changed": "^2.11.5",
-		"squizlabs/php_codesniffer": "^3.6.2"
+		"squizlabs/php_codesniffer": "^3.6.2 || ^4.0.0"
 	},
 	"scripts": {
 		"php:lint": [

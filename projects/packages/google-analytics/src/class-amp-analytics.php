@@ -148,7 +148,7 @@ class AMP_Analytics {
 						"trackPageview": {
 							"on": "visible",
 							"request": "pageview",
-							"extraUrlParams": <?php echo wp_json_encode( $event['ga_params'] ); ?>
+							"extraUrlParams": <?php echo wp_json_encode( $event['ga_params'], JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>
 					}
 				}
 			}

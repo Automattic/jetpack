@@ -2,7 +2,7 @@
 Contributors: automattic, kallehauge, cleacos, diegogarciarodrigues, bradshawtm, wpkaren, robertf4, woodyhayday, mikemayhem3030
 Tags: CRM, Woocommerce CRM, Client Portal, Marketing Automation, Lead Generation
 Tested up to: 6.9
-Stable tag: 6.4.2
+Stable tag: 6.7.2
 Requires at least: 6.0
 Requires PHP: 7.4
 License: GPLv2
@@ -362,8 +362,13 @@ We offer a full, no-hassle refund within 14 days. You can read more about that, 
 
 
 == Changelog ==
-### 6.6.1 - 2025-07-10
+### 6.7.2 - 2026-02-03
+#### Changed
+- Replace use of confusing `esc_js` with `wp_json_encode`.
+- Update package dependencies.
+
 #### Fixed
-- Address regression that caused excess queries.
-- Quote Templates: Clean up link when creating a new quote template.
+- CSV Importer: Fix path separator issue causing import failures on Windows servers.
+- WooSync: Fix CRM contact identification on orders where customer used a different billing email.
+- WooSync: Prevent PHP warnings when order status does not have a mapping.
 

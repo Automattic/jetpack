@@ -15,20 +15,19 @@ return [
     // PhanTypeMismatchPropertyProbablyReal : 9 occurrences
     // PhanTypeMismatchReturnProbablyReal : 8 occurrences
     // PhanTypeArraySuspiciousNullable : 5 occurrences
+    // PhanTypeMismatchArgumentProbablyReal : 4 occurrences
     // PhanTypeMismatchDefault : 4 occurrences
-    // PhanTypeMismatchArgumentProbablyReal : 3 occurrences
-    // PhanTypeObjectUnsetDeclaredProperty : 3 occurrences
     // PhanDeprecatedFunction : 2 occurrences
     // PhanNonClassMethodCall : 2 occurrences
     // PhanPluginUnreachableCode : 2 occurrences
-    // PhanPossiblyUndeclaredVariable : 2 occurrences
     // PhanTypeMismatchPropertyDefault : 2 occurrences
-    // PhanTypeMismatchReturnNullable : 2 occurrences
+    // PhanTypeObjectUnsetDeclaredProperty : 2 occurrences
     // PhanTypePossiblyInvalidDimOffset : 2 occurrences
     // PhanPluginDuplicateAdjacentStatement : 1 occurrence
     // PhanPluginSimplifyExpressionBool : 1 occurrence
     // PhanTypeMismatchArgumentNullable : 1 occurrence
     // PhanTypeMismatchDeclaredParamNullable : 1 occurrence
+    // PhanTypeMismatchReturnNullable : 1 occurrence
     // PhanUndeclaredClassMethod : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
@@ -40,7 +39,6 @@ return [
         'src/class-error-handler.php' => ['PhanTypeMismatchReturnProbablyReal'],
         'src/class-heartbeat.php' => ['PhanTypeMismatchPropertyDefault'],
         'src/class-manager.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgument', 'PhanTypeMismatchDeclaredParamNullable', 'PhanTypeMismatchDefault', 'PhanTypeMismatchPropertyProbablyReal', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnNullable', 'PhanTypeMismatchReturnProbablyReal'],
-        'src/class-nonce-handler.php' => ['PhanPossiblyUndeclaredVariable', 'PhanTypeMismatchReturnNullable'],
         'src/class-partner-coupon.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
         'src/class-partner.php' => ['PhanTypeMismatchPropertyProbablyReal'],
         'src/class-rest-authentication.php' => ['PhanTypeMismatchPropertyDefault', 'PhanTypeMismatchPropertyProbablyReal'],
@@ -59,7 +57,6 @@ return [
         'tests/php/REST_Authentication_Test.php' => ['PhanTypeMismatchArgument'],
         'tests/php/REST_Endpoints_Test.php' => ['PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal'],
         'tests/php/Server_Sandbox_Test.php' => ['PhanTypeArraySuspiciousNullable'],
-        'tests/php/TokensTest.php' => ['PhanTypeObjectUnsetDeclaredProperty'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.
     // (directory_suppressions will currently be ignored by subsequent calls to --save-baseline, but may be preserved in future Phan releases)

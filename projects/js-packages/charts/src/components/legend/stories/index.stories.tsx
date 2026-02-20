@@ -1,8 +1,13 @@
 import { Meta, StoryObj } from '@storybook/react';
-import { simpleChartDecorator, ChartStoryArgs, themeArgTypes } from '../../../stories';
-import { BarChart } from '../../bar-chart';
-import { LineChart } from '../../line-chart';
-import { PieChart } from '../../pie-chart';
+import { BarChart } from '../../../charts/bar-chart';
+import { LineChart } from '../../../charts/line-chart';
+import { PieChart } from '../../../charts/pie-chart';
+import {
+	simpleChartDecorator,
+	ChartStoryArgs,
+	themeArgTypes,
+	sharedThemeArgs,
+} from '../../../stories';
 import { useChartLegendItems } from '../hooks/use-chart-legend-items';
 import { Legend } from '../legend';
 import type { SeriesData, DataPointPercentage } from '../../../types';
@@ -10,7 +15,7 @@ import type { SeriesData, DataPointPercentage } from '../../../types';
 type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof Legend > >;
 
 const meta: Meta< StoryArgs > = {
-	title: 'JS Packages/Charts/Composites/Legend',
+	title: 'JS Packages/Charts Library/Components/Legend',
 	component: Legend,
 	parameters: {
 		layout: 'centered',
@@ -72,10 +77,11 @@ const pieChartData: DataPointPercentage[] = [
 export const Horizontal: Story = {
 	render: args => {
 		// eslint-disable-next-line @typescript-eslint/no-unused-vars
-		const { themeName, ...legendProps } = args;
+		const { themeName, accentColor, ...legendProps } = args;
 		return <Legend { ...legendProps } />;
 	},
 	args: {
+		...sharedThemeArgs,
 		items: [
 			{ label: 'Desktop', value: '65%', color: '#3858E9' },
 			{ label: 'Mobile', value: '35%', color: '#80C8FF' },
@@ -87,10 +93,11 @@ export const Horizontal: Story = {
 export const Vertical: Story = {
 	render: args => {
 		// eslint-disable-next-line @typescript-eslint/no-unused-vars
-		const { themeName, ...legendProps } = args;
+		const { themeName, accentColor, ...legendProps } = args;
 		return <Legend { ...legendProps } />;
 	},
 	args: {
+		...sharedThemeArgs,
 		items: [
 			{ label: 'Desktop', value: '65%', color: '#3858E9' },
 			{ label: 'Mobile', value: '35%', color: '#80C8FF' },

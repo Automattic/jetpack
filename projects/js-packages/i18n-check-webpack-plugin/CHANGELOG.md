@@ -5,6 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.34] - 2026-02-18
+### Changed
+- Set `.repository.url` in `package.json` to the mirror repo rather than the monorepo. [#47149]
+- Update package dependencies. [#47173]
+
+## [1.1.33] - 2026-02-12
+### Changed
+- Update package dependencies. [#47099]
+
+## [1.1.32] - 2026-02-10
+### Changed
+- Update package dependencies. [#47002]
+
+## [1.1.31] - 2025-12-11
+### Changed
+- Internal updates.
+
+## [1.1.30] - 2025-12-08
+### Changed
+- Internal updates.
+
 ## [1.1.29] - 2025-11-17
 ### Changed
 - Update package dependencies. [#45958]
@@ -293,6 +314,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial release.
 
+[1.1.34]: https://github.com/Automattic/i18n-check-webpack-plugin/compare/v1.1.33...v1.1.34
+[1.1.33]: https://github.com/Automattic/i18n-check-webpack-plugin/compare/v1.1.32...v1.1.33
+[1.1.32]: https://github.com/Automattic/i18n-check-webpack-plugin/compare/v1.1.31...v1.1.32
+[1.1.31]: https://github.com/Automattic/i18n-check-webpack-plugin/compare/v1.1.30...v1.1.31
+[1.1.30]: https://github.com/Automattic/i18n-check-webpack-plugin/compare/v1.1.29...v1.1.30
 [1.1.29]: https://github.com/Automattic/i18n-check-webpack-plugin/compare/v1.1.28...v1.1.29
 [1.1.28]: https://github.com/Automattic/i18n-check-webpack-plugin/compare/v1.1.27...v1.1.28
 [1.1.27]: https://github.com/Automattic/i18n-check-webpack-plugin/compare/v1.1.26...v1.1.27

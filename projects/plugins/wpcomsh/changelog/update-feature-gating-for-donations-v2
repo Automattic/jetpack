@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Update the feature gating for Donations, allowing conditional hiding based on a sticker

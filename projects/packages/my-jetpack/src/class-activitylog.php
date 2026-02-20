@@ -48,7 +48,7 @@ class Activitylog {
 		return Admin_Menu::add_menu(
 			/** "Activity Log" is a product name, do not translate. */
 			'Activity Log',
-			'Activity Log <span class="dashicons dashicons-external"></span>',
+			'Activity Log <span aria-hidden="true">↗</span>',
 			'manage_options',
 			esc_url( Redirect::get_url( 'cloud-activity-log-wp-menu', $args ) ),
 			null,

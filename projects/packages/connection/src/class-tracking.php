@@ -76,14 +76,16 @@ class Tracking {
 		) {
 			wp_send_json_error(
 				__( 'You aren’t authorized to do that.', 'jetpack-connection' ),
-				403
+				403,
+				JSON_UNESCAPED_SLASHES
 			);
 		}
 
 		if ( ! isset( $_REQUEST['tracksEventName'] ) || ! isset( $_REQUEST['tracksEventType'] ) ) {
 			wp_send_json_error(
 				__( 'No valid event name or type.', 'jetpack-connection' ),
-				403
+				403,
+				JSON_UNESCAPED_SLASHES
 			);
 		}
 
@@ -98,7 +100,7 @@ class Tracking {
 
 		$this->record_user_event( filter_var( wp_unslash( $_REQUEST['tracksEventName'] ) ), $tracks_data, null, false );
 
-		wp_send_json_success();
+		wp_send_json_success( null, null, JSON_UNESCAPED_SLASHES );
 	}
 
 	/**

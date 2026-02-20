@@ -29,6 +29,10 @@ const reporter: ReporterDescription[] = [
 		{
 			outputDir: `${ config.get( 'dirs.output' ) }`,
 			outputFile: `ctrf-report-${ Date.now() }.json`,
+			branchName: process.env.GITHUB_REF_NAME || '',
+			commit: process.env.GITHUB_SHA || '',
+			appName: 'jetpack',
+			repositoryName: process.env.GITHUB_REPOSITORY || '',
 		},
 	],
 ];

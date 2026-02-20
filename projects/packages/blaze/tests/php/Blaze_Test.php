@@ -206,7 +206,7 @@ class Blaze_Test extends BaseTestCase {
 			set_transient( 'jetpack_blaze_site_supports_blaze_0', $eligibility_details['transient'] );
 		} else {
 			if ( isset( $eligibility_details['body'] ) ) {
-				$eligibility_details['body'] = wp_json_encode( $eligibility_details['body'] );
+				$eligibility_details['body'] = wp_json_encode( $eligibility_details['body'], JSON_UNESCAPED_SLASHES );
 			}
 
 			$remote_request_happened = true;
