@@ -2,6 +2,7 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import {
 	getSiteFragment,
 	isComingSoon,
+	isPrivateSite,
 	useAnalytics,
 } from '@automattic/jetpack-shared-extension-utils';
 import { JetpackEditorPanelLogo } from '@automattic/jetpack-shared-extension-utils/components';
@@ -49,6 +50,41 @@ const NewsletterDisabledNotice = () => (
 	<Notice status="info" isDismissible={ false } className="edit-post-post-visibility__notice">
 		{ __( 'You will be able to send newsletters once the site is published', 'jetpack' ) }
 	</Notice>
+);
+
+const NewsletterPrivateNotice = () => (
+	<Notice status="info" isDismissible={ false } className="edit-post-post-visibility__notice">
+		{ __(
+			'Your site is currently private. Only subscribers who are registered users on your site will receive your newsletters.',
+			'jetpack'
+		) }
+	</Notice>
+);
+
+const NewsletterPrivatePanels = () => (
+	<>
+		<PluginDocumentSettingPanel
+			className="jetpack-subscribe-newsletters-panel"
+			title={ __( 'Access', 'jetpack' ) }
+			icon={ <JetpackEditorPanelLogo /> }
+		>
+			<NewsletterPrivateNotice />
+		</PluginDocumentSettingPanel>
+		<PluginPrePublishPanel
+			className="jetpack-subscribe-newsletters-panel"
+			title={ __( 'Newsletter', 'jetpack' ) }
+			icon={ <JetpackEditorPanelLogo /> }
+		>
+			<NewsletterPrivateNotice />
+		</PluginPrePublishPanel>
+		<PluginPostPublishPanel
+			className="jetpack-subscribe-newsletters-panel"
+			title={ __( 'Newsletter', 'jetpack' ) }
+			icon={ <JetpackEditorPanelLogo /> }
+		>
+			<NewsletterPrivateNotice />
+		</PluginPostPublishPanel>
+	</>
 );
 
 const NewsletterDisabledPanels = () => (
@@ -196,6 +232,11 @@ export default function SubscribePanels() {
 	// Subscriptions will not be triggered on WordPress.com sites that have not been launched yet.
 	if ( isComingSoon() ) {
 		return <NewsletterDisabledPanels />;
+	}
+
+	// Private sites can send newsletters, but only to registered site members.
+	if ( isPrivateSite() ) {
+		return <NewsletterPrivatePanels />;
 	}
 
 	return (

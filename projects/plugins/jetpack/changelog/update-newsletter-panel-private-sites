@@ -1,4 +1,4 @@
 Significance: patch
 Type: other
 
-Subscriptions: do not display warning in the Newsletter panel when a WordPress.com site is marked as private.
+Subscriptions: show a private-site-specific notice in the Newsletter panel instead of the "site not published" warning.
