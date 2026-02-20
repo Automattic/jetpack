@@ -1,6 +1,6 @@
 # Check If Docs Needed
 
-Uses AI to analyze PR diffs and descriptions to determine if changes are user-facing. If detected with medium or high confidence, applies the `[Status] UI Changes` label and sends a Slack notification to the product ambassadors channel.
+Uses AI to analyze PR diffs and descriptions to determine if changes are user-facing. If detected with medium or high confidence, applies the `[Status] UI Changes` label, optionally creates a Linear issue for the Docs team, and sends a Slack notification to the product ambassadors channel.
 
 ## How it works
 
@@ -8,7 +8,8 @@ Uses AI to analyze PR diffs and descriptions to determine if changes are user-fa
 2. Sends content to OpenAI for analysis
 3. If changes are determined to be user-facing (with medium or high confidence):
    - Adds the `[Status] UI Changes` label
-   - Sends a Slack notification (if `slack_product_ambassadors_channel` is configured)
+   - Creates a Linear issue in the docs team (if `linear_api_key` and `linear_docs_team_id` are configured)
+   - Sends a Slack notification (if `slack_product_ambassadors_channel` is configured), including a link to the Linear issue when one was created
 
 ## Bailout conditions
 
@@ -22,4 +23,4 @@ The task skips processing when:
 
 ## Rationale
 
-User-facing changes often require documentation updates. This task helps identify PRs that may need docs review by automatically flagging them for the product ambassadors team.
+User-facing changes often require documentation updates. This task helps identify PRs that may need docs review by automatically flagging them for the docs team.
