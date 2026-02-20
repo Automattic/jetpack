@@ -44,7 +44,7 @@ const mimeMap: Record< string, string > = {
 
 const FieldFile = ( { file, onClick } ) => {
 	const fileExtension = file.name.split( '.' ).pop().toLowerCase();
-	const fileType = file.type.split( '/' )[ 0 ];
+	const fileType = file.type?.split( '/' )?.[ 0 ];
 	const fileIconsUrl = useConfigValue( 'fileIconsUrl' );
 
 	const iconType = extensionMap[ fileExtension ] || mimeMap[ fileType ] || 'txt';
