@@ -1,6 +1,6 @@
 {
 	"name": "social-logos",
-	"version": "3.3.6",
+	"version": "3.3.8",
 	"description": "A repository of all the social logos used on WordPress.com.",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/social-logos/",
 	"bugs": {
@@ -8,8 +8,7 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/Automattic/jetpack.git",
-		"directory": "projects/js-packages/social-logos"
+		"url": "git+https://github.com/Automattic/social-logos.git"
 	},
 	"license": "GPL-2.0+",
 	"exports": {

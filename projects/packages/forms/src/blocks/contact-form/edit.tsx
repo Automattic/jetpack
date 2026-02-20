@@ -49,6 +49,7 @@ import { SyncedAttributeProvider } from '../shared/hooks/use-synced-attributes.j
 import { CORE_BLOCKS, FORM_POST_TYPE } from '../shared/util/constants.js';
 import { childBlocks } from './child-blocks.js';
 import { ConvertFormToolbar } from './components/convert-form-toolbar.tsx';
+import FormStatusNotice from './components/form-status-notice.tsx';
 import { ContactFormPlaceholder } from './components/jetpack-contact-form-placeholder.js';
 import ContactFormSkeletonLoader from './components/jetpack-contact-form-skeleton-loader.js';
 import NotificationsSettings from './components/notifications-settings.js';
@@ -154,6 +155,14 @@ type JetpackContactFormAttributes = {
 	disableSummary: boolean;
 	notificationRecipients: string[];
 	webhooks: Webhook[];
+	// Layout support attributes (added by block supports)
+	layout?: {
+		type?: string;
+		orientation?: 'horizontal' | 'vertical';
+		flexWrap?: 'wrap' | 'nowrap';
+		justifyContent?: string;
+		verticalAlignment?: string;
+	};
 };
 
 type JetpackContactFormEditProps = {
@@ -162,6 +171,7 @@ type JetpackContactFormEditProps = {
 	setAttributes: ( attributes: Partial< JetpackContactFormAttributes > ) => void;
 	clientId: string;
 	className: string;
+	isSelected: boolean;
 };
 
 function JetpackContactFormEdit( {
@@ -170,6 +180,7 @@ function JetpackContactFormEdit( {
 	setAttributes,
 	clientId,
 	className,
+	isSelected,
 }: JetpackContactFormEditProps ) {
 	// Initialize default form block settings as needed.
 	useFormBlockDefaults( { attributes, setAttributes } );
@@ -190,6 +201,7 @@ function JetpackContactFormEdit( {
 		disableSummary,
 		notificationRecipients,
 		webhooks,
+		layout,
 	} = attributes;
 	const isIntegrationsEnabled = useConfigValue( 'isIntegrationsEnabled' );
 	const showWebhooks = useConfigValue( 'isWebhooksEnabled' ) && hasFeatureFlag( 'form-webhooks' );
@@ -241,10 +253,16 @@ function JetpackContactFormEdit( {
 		selectedBlockClientId,
 		onlySubmitBlock,
 		isJetpackFormEditor,
+		hasChildSelected,
 	} = useSelect(
 		select => {
-			const { getBlocks, getBlock, getSelectedBlockClientId, getBlockParentsByBlockName } =
-				select( blockEditorStore );
+			const {
+				getBlocks,
+				getBlock,
+				getSelectedBlockClientId,
+				getBlockParentsByBlockName,
+				hasSelectedInnerBlock,
+			} = select( blockEditorStore );
 			const { getEditedPostAttribute, getCurrentPostType } = select( editorStore );
 			const selectedBlockId = getSelectedBlockClientId();
 			const selectedBlock = getBlock( selectedBlockId );
@@ -276,6 +294,7 @@ function JetpackContactFormEdit( {
 				selectedBlockClientId: selectedStepBlockId,
 				onlySubmitBlock: isSingleButtonBlock,
 				isJetpackFormEditor: getCurrentPostType() === FORM_POST_TYPE,
+				hasChildSelected: hasSelectedInnerBlock( clientId, true ),
 			};
 		},
 		[ clientId ]
@@ -306,13 +325,19 @@ function JetpackContactFormEdit( {
 
 	const wrapperRef = useRef();
 	const innerRef = useRef();
-	const blockProps = useBlockProps( { ref: wrapperRef } );
+	const blockProps = useBlockProps( {
+		ref: wrapperRef,
+		className: clsx( className, {
+			'is-multistep': variationName === 'multistep',
+		} ),
+	} );
 	const formClassnames = clsx(
 		className,
 		'jetpack-contact-form',
 		isFirstStep && 'is-first-step',
 		isLastStep && 'is-last-step',
-		variationName === 'multistep' && isSingleStep && 'is-previewing-step'
+		variationName === 'multistep' && isSingleStep && 'is-previewing-step',
+		attributes?.layout ? 'has-jetpack-form-layout' : 'has-no-jetpack-form-layout'
 	);
 	const innerBlocksProps = useInnerBlocksProps(
 		{
@@ -354,7 +379,7 @@ function JetpackContactFormEdit( {
 	} );
 
 	// Auto-save editor changes BACK to the synced form post
-	useSyncedFormAutoSave( {
+	const { flushPendingSave } = useSyncedFormAutoSave( {
 		ref,
 		syncedForm,
 		attributes,
@@ -443,6 +468,47 @@ function JetpackContactFormEdit( {
 			}
 		}
 	}, [ currentInnerBlocks, getInputFieldBlocks, updateBlockAttributes ] );
+
+	// Helper function to get all field blocks (blocks with width attribute)
+	const getFieldBlocks = useCallback( ( blocks: typeof currentInnerBlocks ) => {
+		const fieldBlocks: typeof currentInnerBlocks = [];
+
+		const findFields = ( blockList: typeof currentInnerBlocks ) => {
+			blockList.forEach( block => {
+				// Check if block is a field (has jetpack/field- prefix)
+				if ( block.name.startsWith( 'jetpack/field-' ) ) {
+					fieldBlocks.push( block );
+				}
+				// Recursively check inner blocks (for multistep forms)
+				if ( block.innerBlocks && block.innerBlocks.length > 0 ) {
+					findFields( block.innerBlocks );
+				}
+			} );
+		};
+
+		findFields( blocks );
+		return fieldBlocks;
+	}, [] );
+
+	// Track previous orientation to detect changes
+	const prevOrientationRef = useRef< string | null >( null );
+
+	// Effect to sync field widths when layout orientation changes
+	useEffect( () => {
+		const orientation = layout?.orientation ?? 'horizontal';
+
+		// Skip initial render, only react to actual orientation changes
+		if ( prevOrientationRef.current !== null && prevOrientationRef.current !== orientation ) {
+			const fieldBlocks = getFieldBlocks( currentInnerBlocks );
+			const newWidth = orientation === 'vertical' ? 100 : 'auto';
+
+			fieldBlocks.forEach( field => {
+				updateBlockAttributes( field.clientId, { width: newWidth } );
+			} );
+		}
+
+		prevOrientationRef.current = orientation;
+	}, [ layout?.orientation, currentInnerBlocks, getFieldBlocks, updateBlockAttributes ] );
 
 	// Deep-scan helper – user might drop a Step block inside nested structures.
 	const containsMultistepBlock = useCallback( function hasMultistep( blocks ) {
@@ -552,9 +618,26 @@ function JetpackContactFormEdit( {
 			if ( ! button ) return null;
 
 			const preparedButton = button;
-			preparedButton.attributes.uniqueId = 'submit-step';
-			preparedButton.attributes.customVariant = 'submit';
-			preparedButton.attributes.metaName = __( 'Submit button', 'jetpack-forms' );
+			// Add the form-button-submit and is-submit classes for identification and CSS visibility
+			const existingClassName = preparedButton.attributes.className || '';
+			const existingClassTokens = existingClassName.split( /\s+/ ).filter( Boolean );
+			const classesToAdd = [];
+			if ( ! existingClassTokens.includes( 'form-button-submit' ) ) {
+				classesToAdd.push( 'form-button-submit' );
+			}
+			if ( ! existingClassTokens.includes( 'is-submit' ) ) {
+				classesToAdd.push( 'is-submit' );
+			}
+			if ( classesToAdd.length > 0 ) {
+				preparedButton.attributes.className = existingClassName
+					? `${ existingClassName } ${ classesToAdd.join( ' ' ) }`
+					: classesToAdd.join( ' ' );
+			}
+			// Set metadata name for core/button
+			preparedButton.attributes.metadata = {
+				...( preparedButton.attributes.metadata || {} ),
+				name: __( 'Submit button', 'jetpack-forms' ),
+			};
 			return preparedButton;
 		};
 
@@ -584,8 +667,12 @@ function JetpackContactFormEdit( {
 					},
 				},
 				button
-					? [ createBlock( PREVIOUS_BUTTON_TEMPLATE ), createBlock( NEXT_BUTTON_TEMPLATE ), button ]
-					: NAVIGATION_TEMPLATE.map( createBlock )
+					? [
+							createBlock( ...PREVIOUS_BUTTON_TEMPLATE ),
+							createBlock( ...NEXT_BUTTON_TEMPLATE ),
+							button,
+					  ]
+					: NAVIGATION_TEMPLATE.map( template => createBlock( ...template ) )
 			);
 		};
 
@@ -766,10 +853,21 @@ function JetpackContactFormEdit( {
 				) {
 					// Capture submit button (if any) inside navigation but skip the wrapper.
 					if ( ! finalSubmitButton ) {
-						finalSubmitButton = block.innerBlocks?.find(
-							inner =>
-								inner.name === 'jetpack/button' && inner.attributes?.customVariant === 'submit'
-						);
+						finalSubmitButton = block.innerBlocks?.find( inner => {
+							// Check for jetpack/button with customVariant (legacy)
+							if (
+								inner.name === 'jetpack/button' &&
+								inner.attributes?.customVariant === 'submit'
+							) {
+								return true;
+							}
+							// Check for core/button with form-button-submit class
+							if ( inner.name === 'core/button' ) {
+								const buttonClassName = inner.attributes?.className || '';
+								return buttonClassName.split( /\s+/ ).includes( 'form-button-submit' );
+							}
+							return false;
+						} );
 					}
 					return; // Omit multistep-specific blocks.
 				}
@@ -858,6 +956,9 @@ function JetpackContactFormEdit( {
 		stepBlock,
 	] );
 
+	// Determine if form or any child is selected for status notice visibility
+	const isFormOrChildSelected = isSelected || hasChildSelected;
+
 	let elt;
 
 	// Show loading state when resolving synced form
@@ -913,7 +1014,11 @@ function JetpackContactFormEdit( {
 			<>
 				<BlockControls>
 					{ isCentralFormManagementEnabled && ! isJetpackFormEditor && (
-						<ConvertFormToolbar clientId={ clientId } attributes={ attributes } />
+						<ConvertFormToolbar
+							clientId={ clientId }
+							attributes={ attributes }
+							onBeforeNavigate={ flushPendingSave }
+						/>
 					) }
 					{ variationName === 'multistep' && <StepControls formClientId={ clientId } /> }
 				</BlockControls>
@@ -1069,7 +1174,17 @@ function JetpackContactFormEdit( {
 	return (
 		<SyncedAttributeProvider>
 			<ThemeProvider targetDom={ wrapperRef.current }>
-				<div { ...blockProps }>{ elt }</div>
+				<div { ...blockProps }>
+					{ ref && (
+						<FormStatusNotice
+							syncedForm={ syncedForm }
+							formRef={ ref }
+							isVisible={ isFormOrChildSelected }
+							clientId={ clientId }
+						/>
+					) }
+					{ elt }
+				</div>
 			</ThemeProvider>
 		</SyncedAttributeProvider>
 	);

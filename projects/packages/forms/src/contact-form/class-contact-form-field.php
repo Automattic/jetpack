@@ -1028,6 +1028,11 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		// $class is ill-formed, so we need to fix it
 		// Strip 'class=' and quotes to get just the class names
 		$class_names = preg_replace( "/^class=['\"]([^'\"]*)['\"].*$/", '$1', $class );
+		// somehow we are getting the class jetpack-field__input-element on the wrong wrapper
+		// .jetpack-field__input-element is meant to be applied just to the input element, not its wrapper.
+		// Remove the jetpack-field__input-element class token regardless of its position and normalize whitespace.
+		$class_names = preg_replace( '/\s*\bjetpack-field__input-element\b\s*/', ' ', $class_names );
+		$class_names = trim( preg_replace( '/\s+/', ' ', $class_names ) );
 
 		$link_label_id = $id . '-number';
 
@@ -2071,9 +2076,10 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		foreach ( $working_options as $option_index => $option ) {
 			$option_label  = Contact_Form_Plugin::strip_tags( $option['label'] );
 			$option_letter = Contact_Form_Plugin::strip_tags( $option['letter'] );
-			$image_block   = $option['image'];
+			$image_block   = $option['image'] ?? null;
+			$image_id      = ( is_array( $image_block ) && isset( $image_block['attrs'] ) && is_array( $image_block['attrs'] ) ) ? ( $image_block['attrs']['id'] ?? null ) : null;
 
-			$rendered_image_block = render_block( $image_block );
+			$rendered_image_block = is_array( $image_block ) ? render_block( $image_block ) : '';
 			// Remove any links from the rendered block
 			$rendered_image_block = preg_replace( '/<a[^>]*>(.*?)<\/a>/s', '$1', $rendered_image_block );
 
@@ -2099,7 +2105,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					'label'      => $option_label,
 					'showLabels' => $show_labels,
 					'image'      => array(
-						'id'  => $image_block['attrs']['id'] ?? null,
+						'id'  => $image_id,
 						'src' => $image_src ?? null,
 					),
 				),

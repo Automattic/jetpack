@@ -5,6 +5,48 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.72.5] - 2026-02-19
+### Added
+- Add visual dot to active connection in preview modal. [#47218]
+
+### Changed
+- Disable AI image option in the media UI for standalone plugin. [#47193]
+
+## [0.72.4] - 2026-02-18
+### Added
+- Add analytics tracking for per network customizations UI. [#47188]
+- Create reusable link previews modal and tabs component. [#47142]
+
+### Changed
+- Replace link previews in the panel with the unified one. [#47153]
+- Update package dependencies. [#47173]
+
+## [0.72.3] - 2026-02-16
+### Added
+- Add media validation notices to preview modal. [#47006]
+
+### Changed
+- Convert connection and illustration images from PNG to WebP. [#47084]
+- Replace form in the sidebar with message when using per-network customizations. [#47003]
+- Update package dependencies. [#47099]
+
+### Fixed
+- Compatibility: Clean up deprecated CSS. [#47067]
+- Fix connection sync on toggle for published posts. [#46966]
+- Fix Tumblr preview to prioritize custom message when it is set. [#47075]
+- Refresh plan features on post-checkout redirect. [#46961]
+
+## [0.72.2] - 2026-02-10
+### Changed
+- Improve the media selection UI in preview modal. [#46921]
+- Make pre-publish confirmation opt-in by default. [#46945]
+- Update package dependencies. [#46905] [#47002]
+- Update preview modal copy on pre-publish screen. [#47009]
+
+### Fixed
+- Fix customization form legend visibility and connection toggle margin. [#46947]
+- Preview Modal: Fix footer scroll on smaller screens. [#46925]
+
 ## [0.72.1] - 2026-02-02
 ### Added
 - Add "View" action to the scheduled post snackbar. [#46772]
@@ -1248,6 +1290,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update package.json metadata.
 
+[0.72.5]: https://github.com/Automattic/jetpack-publicize/compare/v0.72.4...v0.72.5
+[0.72.4]: https://github.com/Automattic/jetpack-publicize/compare/v0.72.3...v0.72.4
+[0.72.3]: https://github.com/Automattic/jetpack-publicize/compare/v0.72.2...v0.72.3
+[0.72.2]: https://github.com/Automattic/jetpack-publicize/compare/v0.72.1...v0.72.2
 [0.72.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.72.0...v0.72.1
 [0.72.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.71.0...v0.72.0
 [0.71.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.70.0...v0.71.0

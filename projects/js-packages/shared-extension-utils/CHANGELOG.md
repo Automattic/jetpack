@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.13] - 2026-02-18
+### Changed
+- Set `.repository.url` in `package.json` to the mirror repo rather than the monorepo. [#47149]
+
+## [1.4.12] - 2026-02-16
+### Changed
+- Update package dependencies. [#47099]
+
+## [1.4.11] - 2026-02-10
+### Added
+- Shared Extension Utils: Add separate site type utils export. [#46938]
+
+### Removed
+- Remove Chrome AI tokens type and mapping. [#46896]
+
 ## [1.4.10] - 2026-02-04
 ### Changed
 - Update dependencies. [#46944]
@@ -859,6 +874,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Core: prepare utility for release
 
+[1.4.13]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.4.12...1.4.13
+[1.4.12]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.4.11...1.4.12
+[1.4.11]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.4.10...1.4.11
 [1.4.10]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.4.9...1.4.10
 [1.4.9]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.4.8...1.4.9
 [1.4.8]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.4.7...1.4.8

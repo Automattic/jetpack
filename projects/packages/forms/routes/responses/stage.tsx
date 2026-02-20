@@ -33,7 +33,8 @@ import DataViewsHeaderRow from '../../src/dashboard/wp-build/components/dataview
 import usePageHeaderDetails from '../../src/dashboard/wp-build/hooks/use-page-header-details';
 import useConfigValue from '../../src/hooks/use-config-value';
 import { INTEGRATIONS_STORE, IntegrationsSelectors } from '../../src/store/integrations';
-import { getActions } from './actions';
+import { getRowActions } from './actions';
+import '../../src/dashboard/wp-build/style.scss';
 import './style.scss';
 /**
  * Types
@@ -452,38 +453,34 @@ function StageInner() {
 				filterBy: { operators: [ 'is' ] as Operator[] },
 				enableSorting: false,
 			},
-			...( isSingleFormView
-				? []
-				: [
-						{
-							id: 'source',
-							label: __( 'Source', 'jetpack-forms' ),
-							render: ( { item } ) => {
-								const source =
-									item.entry_title ||
-									getUrlPath( item.entry_permalink ) ||
-									__( '(no title)', 'jetpack-forms' );
-								if ( item.entry_permalink ) {
-									return styleUnreadValue(
-										<ExternalLink href={ item.entry_permalink }>{ source }</ExternalLink>,
-										item.is_unread
-									);
-								}
-								return styleUnreadValue( source, item.is_unread );
-							},
-							elements: ( ( filterOptions as unknown as FeedbackFilters )?.source || [] ).map(
-								source => ( {
-									value: source.id.toString(),
-									label:
-										decodeEntities( source.title ) ||
-										getUrlPath( source.url ) ||
-										__( '(no title)', 'jetpack-forms' ),
-								} )
-							),
-							filterBy: { operators: [ 'is' ] as Operator[] },
-							enableSorting: false,
-						},
-				  ] ),
+			{
+				id: 'source',
+				label: __( 'Source', 'jetpack-forms' ),
+				render: ( { item } ) => {
+					const source =
+						item.entry_title ||
+						getUrlPath( item.entry_permalink ) ||
+						__( '(no title)', 'jetpack-forms' );
+					if ( item.entry_permalink ) {
+						return styleUnreadValue(
+							<ExternalLink href={ item.entry_permalink }>{ source }</ExternalLink>,
+							item.is_unread
+						);
+					}
+					return styleUnreadValue( source, item.is_unread );
+				},
+				elements: ( ( filterOptions as unknown as FeedbackFilters )?.source || [] ).map(
+					source => ( {
+						value: source.id.toString(),
+						label:
+							decodeEntities( source.title ) ||
+							getUrlPath( source.url ) ||
+							__( '(no title)', 'jetpack-forms' ),
+					} )
+				),
+				...( isSingleFormView ? {} : { filterBy: { operators: [ 'is' ] as Operator[] } } ),
+				enableSorting: false,
+			},
 			{
 				id: 'read_status',
 				label: __( 'Status', 'jetpack-forms' ),
@@ -522,7 +519,7 @@ function StageInner() {
 
 	const actions = useMemo(
 		() =>
-			getActions( {
+			getRowActions( {
 				navigate,
 				searchParams,
 				view: statusView,

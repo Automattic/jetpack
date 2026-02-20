@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/block-delimiter",
-	"version": "0.3.4",
+	"version": "0.3.5",
 	"private": true,
 	"description": "Efficiently work with block structure",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/block-delimiter/#readme",

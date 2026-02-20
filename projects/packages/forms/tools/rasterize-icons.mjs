@@ -2,12 +2,14 @@
 /* eslint-disable no-console */
 
 /**
- * Rasterize SVG block icons into PNG images for use in email templates.
+ * Rasterize SVG icons into PNG images for use in email templates.
  *
- * Finds all icon.svg files in src/blocks/field-* directories and converts
- * them to 48x48 PNG files (2x retina for 24x24 display) with transparent background,
- * output to src/contact-form/images/field-icons/. Uses palette mode and max
- * compression for minimal file size.
+ * Processes two sets of icons:
+ * 1. Block field icons: src/blocks/field-* /icon.svg → field-icons/{name}@2x.png
+ * 2. File-type icons:   src/contact-form/images/file-icons/*.svg → file-icons/{name}@2x.png
+ *
+ * All PNGs are 48x48 (2x retina for 24x24 display) with transparent background,
+ * palette mode, and max compression for minimal file size.
  *
  * Usage: node tools/rasterize-icons.mjs
  */
@@ -26,49 +28,87 @@ const {
 	svgFilename,
 	rasterOutputDir: outputDir,
 	rasterSuffix,
+	fileIconsDir,
 } = iconPipelineConfig;
 
-// Find all SVG icon files matching the configured block pattern.
-const svgFiles = await glob( join( blocksDir, blockDirPattern, svgFilename ) );
+/**
+ * Rasterize a single SVG file to PNG.
+ *
+ * @param {string} svgFile    - Absolute path to the SVG source.
+ * @param {string} outputFile - Absolute path for the PNG output.
+ * @return {boolean} True on success, false on failure.
+ */
+async function rasterize( svgFile, outputFile ) {
+	const relativePath = relative( formsRoot, outputFile );
+	try {
+		const svgContent = await readFile( svgFile, 'utf8' );
+		const svgBuffer = Buffer.from( svgContent.replace( /currentColor/g, '#000' ) );
 
-if ( svgFiles.length > 0 ) {
-	console.log( `Found ${ svgFiles.length } SVG icons. Rasterizing...\n` );
+		// Density 144 renders the 24×24 viewBox natively at 48px (24 × 144/72),
+		// avoiding the blur from rasterizing at a smaller size and upscaling.
+		await sharp( svgBuffer, { density: 144 } )
+			.png( {
+				compressionLevel: 9,
+				palette: true,
+				colors: 16,
+			} )
+			.toFile( outputFile );
 
+		console.log( `  ✓ ${ relativePath }` );
+		return true;
+	} catch ( err ) {
+		console.error( `  ✗ ${ relativePath }: ${ err.message }` );
+		return false;
+	}
+}
+
+let totalProcessed = 0;
+let totalFailed = 0;
+
+// --- Block field icons (src/blocks/field-*/icon.svg) -------------------------
+
+const blockSvgFiles = await glob( join( blocksDir, blockDirPattern, svgFilename ) );
+
+if ( blockSvgFiles.length > 0 ) {
+	console.log( `Found ${ blockSvgFiles.length } block icon(s). Rasterizing...\n` );
 	await mkdir( outputDir, { recursive: true } );
 
-	let failed = 0;
-
-	for ( const svgFile of svgFiles ) {
+	for ( const svgFile of blockSvgFiles ) {
 		const blockName = basename( dirname( svgFile ) );
 		const outputFile = join( outputDir, `${ blockName }${ rasterSuffix }.png` );
-		const relativePath = relative( formsRoot, outputFile );
-
-		try {
-			// Replace currentColor with black — PNGs need a concrete fill value.
-			const svgContent = await readFile( svgFile, 'utf8' );
-			const svgBuffer = Buffer.from( svgContent.replace( /currentColor/g, '#000' ) );
-
-			// Density 144 renders the 24×24 viewBox natively at 48px (24 × 144/72),
-			// avoiding the blur from rasterizing at a smaller size and upscaling.
-			await sharp( svgBuffer, { density: 144 } )
-				.png( {
-					compressionLevel: 9,
-					palette: true,
-					colors: 16,
-				} )
-				.toFile( outputFile );
-
-			console.log( `  ✓ ${ relativePath }` );
-		} catch ( err ) {
-			console.error( `  ✗ ${ relativePath }: ${ err.message }` );
-			failed++;
+		const ok = await rasterize( svgFile, outputFile );
+		totalProcessed++;
+		if ( ! ok ) {
+			totalFailed++;
 		}
 	}
+}
 
-	console.log( `\nDone: ${ svgFiles.length - failed } converted, ${ failed } failed.` );
+// --- File-type icons (src/contact-form/images/file-icons/*.svg) --------------
 
-	if ( failed > 0 ) {
-		throw new Error( `${ failed } icon(s) failed to convert.` );
+const fileIconSvgs = await glob( join( fileIconsDir, '*.svg' ) );
+
+if ( fileIconSvgs.length > 0 ) {
+	console.log( `\nFound ${ fileIconSvgs.length } file-type icon(s). Rasterizing...\n` );
+	await mkdir( fileIconsDir, { recursive: true } );
+
+	for ( const svgFile of fileIconSvgs ) {
+		const name = basename( svgFile, '.svg' );
+		const outputFile = join( fileIconsDir, `${ name }${ rasterSuffix }.png` );
+		const ok = await rasterize( svgFile, outputFile );
+		totalProcessed++;
+		if ( ! ok ) {
+			totalFailed++;
+		}
+	}
+}
+
+// --- Summary -----------------------------------------------------------------
+
+if ( totalProcessed > 0 ) {
+	console.log( `\nDone: ${ totalProcessed - totalFailed } converted, ${ totalFailed } failed.` );
+	if ( totalFailed > 0 ) {
+		throw new Error( `${ totalFailed } icon(s) failed to convert.` );
 	}
 } else {
 	console.log( 'No SVG icons found.' );

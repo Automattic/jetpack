@@ -473,9 +473,6 @@ function wpcom_get_product_features( $product ) {
 
 		if ( $is_personal_or_premium_plan ) {
 			$current_blog_id = get_current_blog_id();
-			if ( has_blog_sticker( 'summer-special-2025', $current_blog_id ) ) {
-				$sticker_cache_suffix .= '_summer2025';
-			}
 			if ( has_blog_sticker( 'gating-business-q1', $current_blog_id ) ) {
 				$sticker_cache_suffix .= '_gatingbq1';
 			}

@@ -1,6 +1,6 @@
 .jp-forms__inbox-response-data {
 	padding: 0 16px;
-	word-break: break-word;
+	overflow-wrap: break-word;
 
 	&.is-collection-format {
 
@@ -17,7 +17,7 @@
 
 		.jp-forms__field-preview-content {
 			min-width: 0; // Prevents flex item from overflowing
-			word-break: break-word;
+			overflow-wrap: break-word;
 			line-height: var(--wpds-font-line-height-sm, 20px);
 		}
 

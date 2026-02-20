@@ -1,13 +1,14 @@
+import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { useCallback, useMemo } from '@wordpress/element';
 import { store as socialStore } from '../../social-store';
+import { CUSTOMIZE_PER_NETWORK_KEY } from '../../social-store/constants';
+import { hasSocialPaidFeatures } from '../../utils';
 import useFeaturedImage from '../use-featured-image';
 import useMediaDetails from '../use-media-details';
 import { usePostMeta } from '../use-post-meta';
 import { computeAttachedMediaForSource, getEffectiveMediaSource } from './utils';
-
-const TOGGLE_KEY = '_wpas_customize_per_network';
 
 /**
  * Hook to manage per network customization toggle state.
@@ -16,6 +17,7 @@ const TOGGLE_KEY = '_wpas_customize_per_network';
  */
 export function usePerNetworkCustomization() {
 	const postMeta = usePostMeta();
+	const { recordEvent } = useAnalytics();
 
 	const { editPost } = useDispatch( editorStore );
 	const { customizeConnectionById } = useDispatch( socialStore );
@@ -30,7 +32,7 @@ export function usePerNetworkCustomization() {
 	const isEnabled = useSelect( select => {
 		const meta = select( editorStore ).getEditedPostAttribute( 'meta' );
 
-		return Boolean( meta?.[ TOGGLE_KEY ] );
+		return Boolean( meta?.[ CUSTOMIZE_PER_NETWORK_KEY ] );
 	}, [] );
 
 	const syncConnections = useCallback( () => {
@@ -67,21 +69,25 @@ export function usePerNetworkCustomization() {
 	const toggle = useCallback( () => {
 		const isNowEnabled = ! isEnabled;
 
+		recordEvent( 'jetpack_social_per_network_customization_toggled', {
+			enabled: isNowEnabled,
+		} );
+
 		// Update post metadata.
 		editPost( {
 			meta: {
-				[ TOGGLE_KEY ]: isNowEnabled,
+				[ CUSTOMIZE_PER_NETWORK_KEY ]: isNowEnabled,
 			},
 		} );
 
 		if ( isNowEnabled ) {
 			syncConnections();
 		}
-	}, [ isEnabled, editPost, syncConnections ] );
+	}, [ isEnabled, recordEvent, editPost, syncConnections ] );
 
 	return useMemo(
 		() => ( {
-			isEnabled,
+			isEnabled: isEnabled && hasSocialPaidFeatures(),
 			toggle,
 		} ),
 		[ isEnabled, toggle ]

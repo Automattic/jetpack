@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Contact Form: fix layout classes applied to wrong element for synced forms.

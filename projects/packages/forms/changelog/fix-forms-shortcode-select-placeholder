@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Forms: add placeholder option for required shortcode-based select fields to fix validation.

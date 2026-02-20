@@ -41,17 +41,27 @@ export const navigateToForm = (
 interface ConvertFormToolbarProps {
 	clientId: string;
 	attributes: Record< string, unknown >;
+	/**
+	 * Optional callback to run before navigating to form editor.
+	 * Use this to stage any pending edits in the entity store (not save to database).
+	 */
+	onBeforeNavigate?: () => void;
 }
 
 /**
  * Toolbar component for converting inline forms to synced forms and editing synced forms.
  *
- * @param props            - Component props.
- * @param props.clientId   - The block client ID.
- * @param props.attributes - The block attributes.
+ * @param props                  - Component props.
+ * @param props.clientId         - The block client ID.
+ * @param props.attributes       - The block attributes.
+ * @param props.onBeforeNavigate - Callback to stage pending edits before navigation.
  * @return Toolbar with edit/convert buttons.
  */
-export function ConvertFormToolbar( { clientId, attributes }: ConvertFormToolbarProps ) {
+export function ConvertFormToolbar( {
+	clientId,
+	attributes,
+	onBeforeNavigate,
+}: ConvertFormToolbarProps ) {
 	const editorContext = getEditorContext();
 	const isWidgetEditor = editorContext === 'widget';
 
@@ -133,6 +143,8 @@ export function ConvertFormToolbar( { clientId, attributes }: ConvertFormToolbar
 
 	const handleEditOriginal = () => {
 		if ( attributes.ref ) {
+			// Stage any pending edits in the entity store before navigating
+			onBeforeNavigate?.();
 			navigateToForm( attributes.ref as number, editorContext, onNavigateToEntityRecord );
 		}
 	};

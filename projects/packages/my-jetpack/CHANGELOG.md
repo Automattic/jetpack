@@ -5,6 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.31.5] - 2026-02-19
+### Changed
+- Internal updates.
+
+## [5.31.4] - 2026-02-18
+### Changed
+- Update package dependencies. [#47173]
+
+## [5.31.3] - 2026-02-16
+### Changed
+- Convert product interstitial and onboarding images from PNG to WebP. [#47083]
+- Update external menu links in My Jetpack to use an external-link arrow indicator (↗) for improved clarity and modern appearance. [#47076]
+- Update package dependencies. [#47099]
+
+### Fixed
+- Compatibility: Clean up deprecated CSS. [#47067]
+
+## [5.31.2] - 2026-02-10
+### Changed
+- Update package dependencies. [#47002]
+
 ## [5.31.1] - 2026-02-04
 ### Changed
 - Update dependencies. [#46944]
@@ -2518,6 +2539,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[5.31.5]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.31.4...5.31.5
+[5.31.4]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.31.3...5.31.4
+[5.31.3]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.31.2...5.31.3
+[5.31.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.31.1...5.31.2
 [5.31.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.31.0...5.31.1
 [5.31.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.30.4...5.31.0
 [5.30.4]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.30.3...5.30.4

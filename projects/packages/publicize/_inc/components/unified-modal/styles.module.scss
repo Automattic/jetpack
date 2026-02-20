@@ -5,7 +5,7 @@
 	&:global(.components-modal__frame.is-full-screen) {
 
 		@include gb.break-medium() {
-			max-width: gb.$wide-content-width;
+			max-width: gb.$break-wide;
 			max-height: 64rem;
 		}
 

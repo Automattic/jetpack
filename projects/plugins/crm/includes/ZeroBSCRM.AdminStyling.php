@@ -260,7 +260,7 @@ function zbs_color_grabber() {
 			background-color: <?php echo esc_html( $zbsadmincolors[1] ); ?> !important;
 		}
 		.zerobs_quote{
-			background-color: <?php echo esc_html( $zbsadmincolors[3] ); ?> !important;
+			background-color: <?php echo esc_html( $zbsadmincolors[3] ?? $zbsadmincolors[2] ); ?> !important;
 		}
 		.graph-box .view-me, .rev{
 			color: <?php echo esc_html( $zbsadmincolors[0] ); ?> !important;

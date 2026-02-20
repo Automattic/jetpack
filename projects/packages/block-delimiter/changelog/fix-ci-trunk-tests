@@ -1,5 +1,0 @@
-Significance: patch
-Type: fixed
-Comment: Restore `yoast/phpunit-polyfills` to require-dev in composer.json.
-
-

@@ -31,6 +31,20 @@ jest.mock( '../../use-post-meta', () => ( {
 	} ) ),
 } ) );
 
+// Mock useAnalytics to avoid deep dependency chain
+jest.mock( '@automattic/jetpack-shared-extension-utils', () => ( {
+	useAnalytics: jest.fn( () => ( { recordEvent: jest.fn() } ) ),
+} ) );
+
+// Mock hasSocialPaidFeatures to return true by default
+jest.mock( '../../../utils', () => {
+	const actual = jest.requireActual( '../../../utils' );
+	return {
+		...actual,
+		hasSocialPaidFeatures: jest.fn( () => true ),
+	};
+} );
+
 const mockUseDispatch = useDispatch as jest.MockedFunction< typeof useDispatch >;
 const mockUseSelect = useSelect as jest.MockedFunction< typeof useSelect >;
 

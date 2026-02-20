@@ -95,19 +95,19 @@ export default function DataViewsHeaderRow( {
 					) : (
 						<Tabs.Root value={ activeTab } onValueChange={ onTabChange }>
 							<Tabs.List density="compact">
-								<Tabs.Tab value="responses">
-									<span>
-										{ __( 'Responses', 'jetpack-forms' ) }
-										<Badge intent="default" className="jp-forms-count-badge">
-											{ formatNumberCompact( responsesInboxCount || 0 ) }
-										</Badge>
-									</span>
-								</Tabs.Tab>
 								<Tabs.Tab value="forms">
 									<span>
 										{ __( 'Forms', 'jetpack-forms' ) }
 										<Badge intent="default" className="jp-forms-count-badge">
 											{ formatNumberCompact( formsCount || 0 ) }
+										</Badge>
+									</span>
+								</Tabs.Tab>
+								<Tabs.Tab value="responses">
+									<span>
+										{ __( 'Responses', 'jetpack-forms' ) }
+										<Badge intent="default" className="jp-forms-count-badge">
+											{ formatNumberCompact( responsesInboxCount || 0 ) }
 										</Badge>
 									</span>
 								</Tabs.Tab>

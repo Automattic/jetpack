@@ -96,6 +96,7 @@ const createMockConnection = ( overrides: Partial< Connection > = {} ): Connecti
 
 const defaultPostData = {
 	title: 'Test Post',
+	siteTitle: 'Test Site',
 	description: 'Test description',
 	url: 'https://example.com/post',
 	image: 'https://example.com/image.jpg',

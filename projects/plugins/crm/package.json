@@ -40,9 +40,9 @@
 		"@automattic/color-studio": "4.1.0",
 		"@automattic/jetpack-webpack-config": "workspace:*",
 		"@automattic/remove-asset-webpack-plugin": "workspace:*",
-		"@babel/core": "7.28.4",
-		"@babel/preset-env": "7.28.3",
-		"@babel/runtime": "7.28.4",
+		"@babel/core": "7.29.0",
+		"@babel/preset-env": "7.29.0",
+		"@babel/runtime": "7.28.6",
 		"@fullcalendar/core": "6.1.20",
 		"@testing-library/dom": "10.4.1",
 		"@testing-library/react": "16.3.0",
@@ -68,7 +68,7 @@
 		"sweetalert2": "7.33.1",
 		"typeahead.js": "0.11.1",
 		"typescript": "5.9.3",
-		"webpack": "5.104.1",
+		"webpack": "5.105.2",
 		"webpack-cli": "6.0.1"
 	}
 }
