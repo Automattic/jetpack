@@ -959,12 +959,12 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Test AI extensions blanket-disabled when no screen is available.
+	 * Test AI extensions remain available when no screen is available.
 	 *
-	 * On the first call (during module load), get_current_screen() is not
-	 * available, so we blanket disable as a safe default.
+	 * When get_current_screen() is not available (early in module load),
+	 * Image Studio won't load either, so AI extensions remain available.
 	 */
-	public function test_ai_extensions_blanket_disabled_when_no_screen() {
+	public function test_ai_extensions_not_disabled_when_no_screen() {
 		$this->enable_image_studio();
 		$this->make_ai_extensions_available();
 
@@ -972,9 +972,9 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 		ImageStudio\disable_jetpack_ai_image_extensions();
 
 		foreach ( self::get_ai_image_extensions() as $ext ) {
-			$this->assertFalse(
+			$this->assertTrue(
 				\Jetpack_Gutenberg::is_available( $ext ),
-				"Extension $ext should be disabled when no screen is available (blanket disable)."
+				"Extension $ext should remain available when no screen is available (Image Studio won't load)."
 			);
 		}
 	}
