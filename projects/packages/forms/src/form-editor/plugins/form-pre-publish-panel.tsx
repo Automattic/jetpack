@@ -34,10 +34,10 @@ import './form-pre-publish-panel.scss';
  * Uses the same structure as WordPress's PostPanelRow component
  * (HStack with editor-post-panel__row classes) for pixel-perfect matching.
  *
- * @param {object} props         - Component props.
- * @param {string} props.label   - The row label.
- * @param {string|JSX.Element} props.value - The row value.
- * @param {Function} props.onClick - Click handler for the value button.
+ * @param {object}             props         - Component props.
+ * @param {string}             props.label   - The row label.
+ * @param {string|JSX.Element} props.value   - The row value.
+ * @param {Function}           props.onClick - Click handler for the value button.
  * @return {JSX.Element} The setting row element.
  */
 const SettingRow = ( {
