@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add getSiteType() utility for categorizing sites as 'simple', 'atomic', or 'jetpack'
