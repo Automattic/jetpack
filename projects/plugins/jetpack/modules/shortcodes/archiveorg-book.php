@@ -20,22 +20,15 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Get ID of requested archive.org book embed.
  *
  * @since 4.5.0
+ * @deprecated $$next-version$$ Use Automattic\Jetpack\Post_Media\Shortcodes::get_archiveorg_book_id() instead.
  *
  * @param array $atts Shortcode attributes.
  *
  * @return int|string
  */
 function jetpack_shortcode_get_archiveorg_book_id( $atts ) {
-	if ( isset( $atts[0] ) ) {
-		$atts[0] = trim( $atts[0], '=' );
-		if ( preg_match( '#archive.org/stream/(.+)/?$#i', $atts[0], $match ) ) {
-			$id = $match[1];
-		} else {
-			$id = $atts[0];
-		}
-		return $id;
-	}
-	return 0;
+	_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Post_Media\Shortcodes::get_archiveorg_book_id' );
+	return \Automattic\Jetpack\Post_Media\Shortcodes::get_archiveorg_book_id( $atts );
 }
 
 /**

@@ -6,81 +6,46 @@
  */
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Post_Media\Shortcodes;
 
 /**
  * Required for class.media-extractor.php to match expected function naming convention.
+ *
+ * @deprecated $$next-version$$ Use Automattic\Jetpack\Post_Media\Shortcodes::get_youtube_id() instead.
  *
  * @param string|array $url Can be just the $url or the whole $atts array.
  * @return bool|mixed The Youtube video ID via jetpack_get_youtube_id
  */
 function jetpack_shortcode_get_youtube_id( $url ) {
-	return jetpack_get_youtube_id( $url );
+	_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Post_Media\Shortcodes::get_youtube_id' );
+	return Shortcodes::get_youtube_id( $url );
 }
 
 /**
  * Extract video ID from a YouTube url.
  *
+ * @deprecated $$next-version$$ Use Automattic\Jetpack\Post_Media\Shortcodes::get_youtube_id() instead.
+ *
  * @param string|array $url YouTube URL.
  * @return bool|mixed The Youtube video ID
  */
 function jetpack_get_youtube_id( $url ) {
-	// Do we have an $atts array?  Get first att
-	if ( is_array( $url ) ) {
-		$url = reset( $url );
-	}
-
-	$url = jetpack_youtube_sanitize_url( $url );
-	$url = wp_parse_url( $url );
-	$id  = false;
-
-	if ( ! isset( $url['query'] ) ) {
-		return false;
-	}
-
-	parse_str( $url['query'], $qargs );
-
-	if ( ! isset( $qargs['v'] ) && ! isset( $qargs['list'] ) ) {
-		return false;
-	}
-
-	if ( isset( $qargs['list'] ) ) {
-		$id = preg_replace( '|[^_a-z0-9-]|i', '', $qargs['list'] );
-	}
-
-	if ( empty( $id ) ) {
-		$id = preg_replace( '|[^_a-z0-9-]|i', '', $qargs['v'] );
-	}
-
-	return $id;
+	_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Post_Media\Shortcodes::get_youtube_id' );
+	return Shortcodes::get_youtube_id( $url );
 }
 
 if ( ! function_exists( 'jetpack_youtube_sanitize_url' ) ) :
 	/**
 	 * Normalizes a YouTube URL to include a v= parameter and a query string free of encoded ampersands.
 	 *
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Post_Media\Shortcodes::sanitize_youtube_url() instead.
+	 *
 	 * @param string|array $url YouTube URL.
 	 * @return string|false The normalized URL or false if input is invalid.
 	 */
 	function jetpack_youtube_sanitize_url( $url ) {
-		if ( is_array( $url ) && isset( $url['url'] ) ) {
-			$url = $url['url'];
-		}
-		if ( ! is_string( $url ) ) {
-			return false;
-		}
-
-		$url = trim( $url, ' "' );
-		$url = trim( $url );
-		$url = str_replace( array( 'youtu.be/', '/v/', '/shorts/', '#!v=', '&amp;', '&#038;', 'playlist' ), array( 'youtu.be/?v=', '/?v=', '/watch?v=', '?v=', '&', '&', 'videoseries' ), $url );
-
-		// Replace any extra question marks with ampersands - the result of a URL like "https://www.youtube.com/v/dQw4w9WgXcQ?fs=1&hl=en_US" being passed in.
-		$query_string_start = strpos( $url, '?' );
-
-		if ( false !== $query_string_start ) {
-			$url = substr( $url, 0, $query_string_start + 1 ) . str_replace( '?', '&', substr( $url, $query_string_start + 1 ) );
-		}
-
-		return $url;
+		_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Post_Media\Shortcodes::sanitize_youtube_url' );
+		return Shortcodes::sanitize_youtube_url( $url );
 	}
 endif;
 

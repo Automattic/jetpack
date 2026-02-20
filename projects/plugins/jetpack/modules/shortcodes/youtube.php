@@ -136,38 +136,18 @@ function jetpack_youtube_link_callback( $matches ) {
 	return "\n" . jetpack_youtube_id( $matches[0] ) . "\n";
 }
 
-/**
- * Normalizes a YouTube URL to include a v= parameter and a query string free of encoded ampersands.
- *
- * @param string|array $url Youtube URL.
- * @return string|false The normalized URL or false if input is invalid.
- */
 if ( ! function_exists( 'jetpack_youtube_sanitize_url' ) ) :
 	/**
-	 * Clean up Youtube URL to match a single format.
+	 * Normalizes a YouTube URL to include a v= parameter and a query string free of encoded ampersands.
+	 *
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Post_Media\Shortcodes::sanitize_youtube_url() instead.
 	 *
 	 * @param string|array $url Youtube URL.
+	 * @return string|false The normalized URL or false if input is invalid.
 	 */
 	function jetpack_youtube_sanitize_url( $url ) {
-		if ( is_array( $url ) && isset( $url['url'] ) ) {
-			$url = $url['url'];
-		}
-		if ( ! is_string( $url ) ) {
-			return false;
-		}
-
-		$url = trim( $url, ' "' );
-		$url = trim( $url );
-		$url = str_replace( array( 'youtu.be/', '/v/', '/shorts/', '#!v=', '&amp;', '&#038;', 'playlist' ), array( 'youtu.be/?v=', '/?v=', '/watch?v=', '?v=', '&', '&', 'videoseries' ), $url );
-
-		// Replace any extra question marks with ampersands - the result of a URL like "https://www.youtube.com/v/dQw4w9WgXcQ?fs=1&hl=en_US" being passed in.
-		$query_string_start = strpos( $url, '?' );
-
-		if ( false !== $query_string_start ) {
-			$url = substr( $url, 0, $query_string_start + 1 ) . str_replace( '?', '&', substr( $url, $query_string_start + 1 ) );
-		}
-
-		return $url;
+		_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Post_Media\Shortcodes::sanitize_youtube_url' );
+		return \Automattic\Jetpack\Post_Media\Shortcodes::sanitize_youtube_url( $url );
 	}
 endif;
 

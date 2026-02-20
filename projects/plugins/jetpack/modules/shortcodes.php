@@ -149,16 +149,15 @@ if ( ! function_exists( 'jetpack_shortcode_get_wpvideo_id' ) ) {
 	/**
 	 * Get VideoPress ID from wpvideo shortcode attributes.
 	 *
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Post_Media\Shortcodes::get_wpvideo_id() instead.
+	 *
 	 * @param array $atts Shortcode attributes.
 	 *
 	 * @return string|int $id VideoPress ID.
 	 */
 	function jetpack_shortcode_get_wpvideo_id( $atts ) {
-		if ( isset( $atts[0] ) ) {
-			return $atts[0];
-		} else {
-			return 0;
-		}
+		_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Post_Media\Shortcodes::get_wpvideo_id' );
+		return \Automattic\Jetpack\Post_Media\Shortcodes::get_wpvideo_id( $atts );
 	}
 }
 
@@ -166,15 +165,14 @@ if ( ! function_exists( 'jetpack_shortcode_get_videopress_id' ) ) {
 	/**
 	 * Get VideoPress ID from videopress shortcode attributes.
 	 *
+	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Post_Media\Shortcodes::get_videopress_id() instead.
+	 *
 	 * @param array $atts Shortcode attributes.
 	 * @return int  $id   VideoPress ID.
 	 */
 	function jetpack_shortcode_get_videopress_id( $atts ) {
-		if ( isset( $atts[0] ) ) {
-			return $atts[0];
-		} else {
-			return 0;
-		}
+		_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Post_Media\Shortcodes::get_videopress_id' );
+		return \Automattic\Jetpack\Post_Media\Shortcodes::get_videopress_id( $atts );
 	}
 }
 

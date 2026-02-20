@@ -22,12 +22,14 @@ wp_oembed_add_provider( '!https?://(www\.)?ted.com/talks/[a-zA-Z\-\_]+\.html!i',
 
 /**
  * Get the unique ID of a TED video.
- * Used in Jetpack_Media_Meta_Extractor.
+ *
+ * @deprecated $$next-version$$ Use Automattic\Jetpack\Post_Media\Shortcodes::get_ted_id() instead.
  *
  * @param array $atts Shortcode attributes.
  */
 function jetpack_shortcode_get_ted_id( $atts ) {
-	return ( ! empty( $atts['id'] ) ? $atts['id'] : 0 );
+	_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Post_Media\Shortcodes::get_ted_id' );
+	return \Automattic\Jetpack\Post_Media\Shortcodes::get_ted_id( $atts );
 }
 
 /**

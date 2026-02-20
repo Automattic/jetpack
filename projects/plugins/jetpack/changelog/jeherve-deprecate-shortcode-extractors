@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Shortcodes: Deprecate shortcode ID extraction functions in favor of Automattic\Jetpack\Post_Media\Shortcodes methods.
