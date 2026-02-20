@@ -855,6 +855,7 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	public function test_ai_extensions_disabled_when_enabled() {
 		$this->enable_image_studio();
 		$this->make_ai_extensions_available();
+		$this->set_block_editor_screen();
 
 		ImageStudio\disable_jetpack_ai_image_extensions();
 
@@ -872,6 +873,7 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	public function test_ai_extensions_disabled_when_unified_experience() {
 		$this->enable_unified_experience();
 		$this->make_ai_extensions_available();
+		$this->set_block_editor_screen();
 
 		ImageStudio\disable_jetpack_ai_image_extensions();
 
