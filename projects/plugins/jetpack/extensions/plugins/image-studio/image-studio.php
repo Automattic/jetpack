@@ -157,7 +157,7 @@ function get_asset_data_from_file() {
  * @return array|false The decoded asset data, or false on failure.
  */
 function get_asset_data_from_remote() {
-	$response = wp_remote_get( ASSET_JSON_URL );
+	$response = wp_safe_remote_get( ASSET_JSON_URL );
 	if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
 		return false;
 	}
