@@ -1,4 +1,0 @@
-Significance: patch
-Type: removed
-
-SSO: Remove deprecated jetpack_user_connected_th() method.

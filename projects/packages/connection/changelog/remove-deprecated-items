@@ -1,4 +1,0 @@
-Significance: patch
-Type: removed
-
-Remove deprecated external_storage_empty and external_storage_error error codes from Error_Handler.
