@@ -9,6 +9,8 @@
 namespace Automattic\Jetpack\Post_Media;
 
 use Automattic\Jetpack\Shortcodes;
+use WP_Error;
+use WP_Post;
 
 /**
  * Class with methods to extract metadata from a post/page about videos, images, links, mentions embedded
@@ -32,8 +34,8 @@ class Meta_Extractor {
 	/**
 	 * Shortcodes to keep.
 	 *
-	 * For these, we try to extract some data from the shortcode, rather than just recording its presence (which we do for all)
-	 * There should be a function get_{shortcode}_id( $atts ) or static method SomethingShortcode::get_{shortcode}_id( $atts ) for these.
+	 * For these, we try to extract some data from the shortcode, rather than just recording its presence (which we do for all).
+	 * There should be a matching Shortcodes::get_{shortcode}_id( $atts ) method for these.
 	 *
 	 * @var string[]
 	 */
@@ -67,7 +69,7 @@ class Meta_Extractor {
 		}
 
 		$post = get_post( $post_id );
-		if ( ! $post instanceof \WP_Post ) {
+		if ( ! $post instanceof WP_Post ) {
 			if ( function_exists( 'restore_current_blog' ) ) {
 				restore_current_blog();
 			}
@@ -394,7 +396,7 @@ class Meta_Extractor {
 	 */
 	private static function get_image_fields( $post, $args = array(), $extract_alt_text = false ) {
 
-		if ( ! $post instanceof \WP_Post ) {
+		if ( ! $post instanceof WP_Post ) {
 			return array();
 		}
 
