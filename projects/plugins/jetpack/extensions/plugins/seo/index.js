@@ -8,6 +8,7 @@ import {
 	getJetpackExtensionAvailability,
 	getRequiredPlan,
 } from '@automattic/jetpack-shared-extension-utils';
+import { JetpackEditorPanelLogo } from '@automattic/jetpack-shared-extension-utils/components';
 import { PanelRow } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect, select as globalSelect, useDispatch } from '@wordpress/data';
@@ -103,6 +104,7 @@ const Seo = () => {
 				className="jetpack-seo-panel"
 				title={ __( 'Optimize SEO', 'jetpack' ) }
 				name="jetpack-seo"
+				icon={ <JetpackEditorPanelLogo /> }
 			>
 				<UpsellNotice requiredPlan={ requiredPlan } />
 			</PluginDocumentSettingPanel>
@@ -115,6 +117,7 @@ const Seo = () => {
 				className="jetpack-seo-panel"
 				title={ __( 'Optimize SEO', 'jetpack' ) }
 				name="jetpack-seo"
+				icon={ <JetpackEditorPanelLogo /> }
 			>
 				{ isLoadingModules ? (
 					<SeoSkeletonLoader />
@@ -130,7 +133,7 @@ const Seo = () => {
 	}
 
 	const jetpackSeoPublishPanelsProps = {
-		icon: false,
+		icon: <JetpackEditorPanelLogo />,
 		title: __( 'SEO', 'jetpack' ),
 		initialOpen: isSeoEnhancerEnabled,
 	};
@@ -142,6 +145,7 @@ const Seo = () => {
 				className="jetpack-seo-panel"
 				title={ __( 'Optimize SEO', 'jetpack' ) }
 				name="jetpack-seo"
+				icon={ <JetpackEditorPanelLogo /> }
 			>
 				{ isSeoEnhancerEnabled && hasRequiredPlanForEnhancer && (
 					<SeoEnhancer placement="document-settings" disableAutoEnhance={ ! canHaveAutoEnhance } />

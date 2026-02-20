@@ -453,6 +453,30 @@ class Listener {
 			$actor['user_agent'] = isset( $_SERVER['HTTP_USER_AGENT'] ) ? filter_var( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : 'unknown';
 		}
 
+		$raw_mcp_header = '';
+		if ( isset( $_SERVER['HTTP_X_WPCOM_MCP'] ) && is_string( $_SERVER['HTTP_X_WPCOM_MCP'] ) ) {
+			$raw_mcp_header = trim( wp_unslash( $_SERVER['HTTP_X_WPCOM_MCP'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sanitization happens below.
+		}
+
+		if ( ! empty( $raw_mcp_header ) && preg_match( '/^[A-Za-z0-9+\/=]+$/', $raw_mcp_header ) ) {
+			// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode -- Decoding MCP header payload.
+			$decoded = base64_decode( $raw_mcp_header, true );
+			if ( false !== $decoded ) {
+				$mcp_data = json_decode( $decoded, true );
+				if ( is_array( $mcp_data ) ) {
+					if ( isset( $mcp_data['mcp_client_name'] ) && is_string( $mcp_data['mcp_client_name'] ) ) {
+						$actor['mcp_client_name'] = sanitize_text_field( $mcp_data['mcp_client_name'] );
+					}
+					if ( isset( $mcp_data['mcp_client_version'] ) && is_string( $mcp_data['mcp_client_version'] ) ) {
+						$actor['mcp_client_version'] = sanitize_text_field( $mcp_data['mcp_client_version'] );
+					}
+					if ( ! empty( $actor['mcp_client_name'] ) || ! empty( $actor['mcp_client_version'] ) ) {
+						$actor['is_mcp_agent'] = true;
+					}
+				}
+			}
+		}
+
 		return $actor;
 	}
 
