@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Newsletter;
 
 use Automattic\Jetpack\Connection\Urls;
 use Automattic\Jetpack\Modules;
+use Automattic\Jetpack\Status\Host;
 use WP_Admin_Bar;
 
 /**
@@ -81,18 +82,27 @@ class Reader_Link {
 	 * @param WP_Admin_Bar $wp_admin_bar The WP_Admin_Bar core object.
 	 */
 	public function add_reader_menu( $wp_admin_bar ) {
-		$wp_admin_bar->add_menu(
-			array(
-				'id'     => 'reader',
-				'title'  => '<span class="ab-icon" title="' . __( 'Read the blogs and topics you follow', 'jetpack-newsletter' ) . '" aria-hidden="true"></span>' .
-							'<span class="ab-label">' . __( 'Reader', 'jetpack-newsletter' ) . '</span>',
-				'href'   => Urls::maybe_add_origin_site_id( 'https://wordpress.com/reader' ),
-				'meta'   => array(
-					'class' => 'wp-admin-bar-reader',
-				),
-				'parent' => 'top-secondary',
-			)
+		$reader_menu_settings = array(
+			'id'     => 'reader',
+			'title'  => '<span class="ab-icon" title="' . __( 'Read the blogs and topics you follow', 'jetpack-newsletter' ) . '" aria-hidden="true"></span>' .
+						'<span class="ab-label">' . __( 'Reader', 'jetpack-newsletter' ) . '</span>',
+			'href'   => Urls::maybe_add_origin_site_id( 'https://wordpress.com/reader' ),
+			'meta'   => array(
+				'class' => 'wp-admin-bar-reader',
+			),
+			'parent' => 'top-secondary',
 		);
+
+		/*
+		 * On self-hosted sites, open the Reader link in a new tab
+		 * since they're not necessarily logged in to WordPress.com
+		 * and may not want to navigate away from their site.
+		 */
+		if ( ! ( new Host() )->is_wpcom_platform() ) {
+			$reader_menu_settings['meta']['target'] = '_blank';
+		}
+
+		$wp_admin_bar->add_menu( $reader_menu_settings );
 	}
 
 	/**

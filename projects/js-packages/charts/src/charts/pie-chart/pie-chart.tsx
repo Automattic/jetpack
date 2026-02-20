@@ -384,10 +384,9 @@ const PieChartInternal = ( {
 											} );
 										};
 
-										const pathProps: SVGProps< SVGPathElement > & { 'data-testid'?: string } = {
+										const pathProps: SVGProps< SVGPathElement > = {
 											d: pie.path( arc ) || '',
 											fill: accessors.fill( arc.data ),
-											'data-testid': 'pie-segment',
 										};
 
 										const groupProps: SVGProps< SVGGElement > = {};
@@ -405,7 +404,7 @@ const PieChartInternal = ( {
 
 										return (
 											<g key={ `arc-${ index }` } { ...groupProps }>
-												<path { ...pathProps } />
+												<path { ...pathProps } data-testid="pie-segment" />
 												{ showLabels && hasSpaceForLabel && (
 													<g>
 														{ providerTheme.labelBackgroundColor && (

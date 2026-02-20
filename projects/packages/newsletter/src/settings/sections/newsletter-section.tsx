@@ -1,12 +1,15 @@
 /**
  * External dependencies
  */
+import analytics from '@automattic/jetpack-analytics';
 import { ExternalLink } from '@wordpress/components';
 import { DataForm, type Field } from '@wordpress/dataviews/wp';
+import { useCallback, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import { getSiteType } from '../utils';
 import type { NewsletterSettings, JetpackNewsletterSettings } from '../types';
 
 interface NewsletterSectionProps {
@@ -26,6 +29,34 @@ export function NewsletterSection( {
 	jetpackSettings,
 	onChange,
 }: NewsletterSectionProps ): JSX.Element {
+	const siteType = getSiteType( jetpackSettings );
+	const previousSubscriptionsValue = useRef( data.subscriptions );
+
+	// Wrap onChange to track module toggle
+	const handleChange = useCallback(
+		( updates: Partial< NewsletterSettings > ) => {
+			if (
+				'subscriptions' in updates &&
+				updates.subscriptions !== previousSubscriptionsValue.current
+			) {
+				analytics.tracks.recordEvent( 'jetpack_newsletter_module_toggle', {
+					site_type: siteType,
+					enabled: !! updates.subscriptions,
+				} );
+				previousSubscriptionsValue.current = !! updates.subscriptions;
+			}
+			onChange( updates );
+		},
+		[ onChange, siteType ]
+	);
+
+	// Track manage subscribers click
+	const handleManageSubscribersClick = useCallback( () => {
+		analytics.tracks.recordEvent( 'jetpack_newsletter_manage_subscribers_click', {
+			site_type: siteType,
+		} );
+	}, [ siteType ] );
+
 	const fields: Field< NewsletterSettings >[] = [
 		{
 			id: 'subscriptions',
@@ -54,11 +85,14 @@ export function NewsletterSection( {
 						},
 						fields: [ 'subscriptions' ],
 					} }
-					onChange={ onChange }
+					onChange={ handleChange }
 				/>
 				{ data.subscriptions && jetpackSettings && (
 					<div>
-						<ExternalLink href={ jetpackSettings.subscriberManagementUrl }>
+						<ExternalLink
+							href={ jetpackSettings.subscriberManagementUrl }
+							onClick={ handleManageSubscribersClick }
+						>
 							{ __( 'Manage all subscribers', 'jetpack-newsletter' ) }
 						</ExternalLink>
 					</div>

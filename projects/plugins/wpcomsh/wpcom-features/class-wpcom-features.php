@@ -468,6 +468,7 @@ class WPCOM_Features {
 	public const REPUBLICIZE                       = 'republicize';
 	public const SCAN                              = 'scan';
 	public const SCAN_MANAGED                      = 'scan-managed';
+	public const SCAN_SELF_SERVE                   = 'scan-self-serve';
 	public const SCHEDULED_UPDATES                 = 'scheduled-updates';
 	public const SECURITY_SETTINGS                 = 'security-settings';
 	public const SEO_PREVIEW_TOOLS                 = 'seo-preview-tools';
@@ -476,15 +477,11 @@ class WPCOM_Features {
 	public const SFTP                              = 'sftp';
 	public const SIMPLE_PAYMENTS                   = 'simple-payments';
 	public const SITE_PREVIEW_LINKS                = 'site-preview-links';
-	public const SOCIAL_ADMIN_PAGE                 = 'social-admin-page';
 	public const SOCIAL_IMAGE_GENERATOR            = 'social-image-generator';
 	public const SOCIAL_SHARES_1000                = 'social-shares-1000';
 	public const SOCIAL_ENHANCED_PUBLISHING        = 'social-enhanced-publishing';
 	public const SOCIAL_IMAGE_AUTO_CONVERT         = 'social-image-auto-convert';
 	public const SOCIAL_UNIFIED_UI_V1              = 'social-unified-ui-v1';
-	public const SOCIAL_CONNECTIONS_MANAGEMENT     = 'social-connections-management';
-	public const SOCIAL_EDITOR_PREVIEW             = 'social-editor-preview';
-	public const SOCIAL_SHARE_STATUS               = 'social-share-status';
 	public const SPACE                             = 'space';
 	public const SPACE_UPGRADED_STORAGE            = 'space-upgraded-storage';
 	public const SSH                               = 'ssh';
@@ -1199,6 +1196,7 @@ class WPCOM_Features {
 			self::JETPACK_PREMIUM_AND_HIGHER,
 			self::JETPACK_SCAN_PLANS,
 			self::JETPACK_GOLDEN_TOKEN,
+			self::WPCOM_PERSONAL_AND_PREMIUM_PLANS,
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::WPCOM_PRO_PLANS,
 			self::WPCOM_FLEX_CACHE_SITE_FREE_PLANS,
@@ -1209,6 +1207,19 @@ class WPCOM_Features {
 		 * See D57207-code.
 		 */
 		self::SCAN_MANAGED                      => array(
+			self::WPCOM_PERSONAL_AND_PREMIUM_PLANS,
+			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
+			self::WPCOM_PRO_PLANS,
+			self::WPCOM_FLEX_CACHE_SITE_FREE_PLANS,
+		),
+
+		// This governs UI access to Jetpack Scan.
+		// All WoW sites should perform scans, however we don't want to expose the UI to sites on lower wpcom plans.
+		// It's not completely clear how this differs from SCAN_MANAGED.
+		self::SCAN_SELF_SERVE                   => array(
+			self::JETPACK_PREMIUM_AND_HIGHER,
+			self::JETPACK_SCAN_PLANS,
+			self::JETPACK_GOLDEN_TOKEN,
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::WPCOM_PRO_PLANS,
 			self::WPCOM_FLEX_CACHE_SITE_FREE_PLANS,
@@ -1320,13 +1331,6 @@ class WPCOM_Features {
 			self::JETPACK_GROWTH_PLANS,
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 		),
-		self::SOCIAL_ADMIN_PAGE                 => array(
-			self::WPCOM_ALL_SITES,
-		),
-		self::SOCIAL_CONNECTIONS_MANAGEMENT     => array(
-			self::JETPACK_ALL_SITES,
-			self::WPCOM_ALL_SITES,
-		),
 		self::SOCIAL_UNIFIED_UI_V1              => array(
 			array(
 				// The feature is not available yet.
@@ -1334,12 +1338,6 @@ class WPCOM_Features {
 				self::WPCOM_ALL_SITES,
 				self::JETPACK_ALL_SITES,
 			),
-		),
-		self::SOCIAL_EDITOR_PREVIEW             => array(
-			self::WPCOM_ALL_SITES,
-		),
-		self::SOCIAL_SHARE_STATUS               => array(
-			self::WPCOM_ALL_SITES,
 		),
 		self::SOCIAL_IMAGE_AUTO_CONVERT         => array(
 			self::WPCOM_ALL_SITES,

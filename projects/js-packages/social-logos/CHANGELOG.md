@@ -1,3 +1,7 @@
+## [3.3.8] - 2026-02-18
+### Changed
+- Set `.repository.url` in `package.json` to the mirror repo rather than the monorepo. [#47149]
+
 ## [3.3.7] - 2026-02-16
 ### Fixed
 - Compatibility: Clean up deprecated CSS. [#47067]
@@ -301,6 +305,7 @@
 
 - Build: Refactored (aligned build system with Gridicons).
 
+[3.3.8]: https://github.com/Automattic/social-logos/compare/v3.3.7...v3.3.8
 [3.3.7]: https://github.com/Automattic/social-logos/compare/v3.3.6...v3.3.7
 [3.3.6]: https://github.com/Automattic/social-logos/compare/v3.3.5...v3.3.6
 [3.3.5]: https://github.com/Automattic/social-logos/compare/v3.3.4...v3.3.5

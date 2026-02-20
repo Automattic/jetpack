@@ -32,6 +32,7 @@
 		"extends @wordpress/browserslist-config"
 	],
 	"dependencies": {
+		"@automattic/jetpack-analytics": "workspace:*",
 		"@automattic/jetpack-api": "workspace:*",
 		"@automattic/jetpack-components": "workspace:*",
 		"@automattic/jetpack-shared-extension-utils": "workspace:*",
@@ -57,7 +58,7 @@
 		"sass-embedded": "1.97.2",
 		"sass-loader": "16.0.5",
 		"typescript": "5.9.3",
-		"webpack": "5.104.1",
+		"webpack": "5.105.2",
 		"webpack-cli": "6.0.1"
 	},
 	"optionalDependencies": {

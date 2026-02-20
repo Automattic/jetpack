@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Dashboard: re-add the source column to the single form view responses table.

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Dashboard: remove bottom margin on search control that caused vertical misalignment in the header row.

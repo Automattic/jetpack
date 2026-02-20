@@ -117,6 +117,8 @@ fi
       # Mount main .git/ so git operations work inside the container
       WORKTREE_DOCKER_ARGS+=(
           -v "$MAIN_GIT_DIR:/repo-git:ro"
+          -v "$MAIN_GIT_DIR/objects:/repo-git/objects"
+          -v "$MAIN_GIT_DIR/worktrees/$WORKTREE_NAME:/repo-git/worktrees/$WORKTREE_NAME"
           -e "GIT_DIR=/repo-git/worktrees/$WORKTREE_NAME"
           -e "GIT_WORK_TREE=/workspace"
       )

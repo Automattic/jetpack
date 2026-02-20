@@ -125,9 +125,9 @@
 		"resize-observer-polyfill": "1.5.1",
 		"sass-embedded": "1.97.2",
 		"social-logos": "workspace:*",
-		"swiper": "11.2.10",
+		"swiper": "12.1.2",
 		"tus-js-client": "4.2.3",
-		"webpack": "5.104.1",
+		"webpack": "5.105.2",
 		"webpack-cli": "6.0.1"
 	},
 	"devDependencies": {
