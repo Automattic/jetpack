@@ -266,12 +266,13 @@ function get_ai_image_extensions() {
  * and again inside Jetpack_Gutenberg::get_availability() during enqueue (where the
  * screen IS available).
  *
- * - First call (no screen): blanket disable as a safe default.
- * - Subsequent calls (screen available): only disable if Image Studio will actually
- *   load on this screen (i.e. should_load_on_current_screen() is true).
+ * Only disables AI extensions when we can confirm Image Studio will actually load
+ * on the current screen (i.e. screen is available and should_load_on_current_screen()
+ * returns true). If the screen is not available or Image Studio won't load on this
+ * screen, AI extensions remain enabled.
  *
- * This ensures AI extensions are restored on screens where Image Studio won't load
- * (e.g. dashboard or other non-editor screens).
+ * This ensures AI extensions are available on screens where Image Studio won't load
+ * (e.g. dashboard, other non-editor screens, or early initialization).
  *
  * @return void
  */
@@ -280,11 +281,9 @@ function disable_jetpack_ai_image_extensions() {
 		return;
 	}
 
-	// When the screen is available, only disable if Image Studio will actually load.
-	if ( function_exists( 'get_current_screen' ) && get_current_screen() ) {
-		if ( ! should_load_on_current_screen() ) {
-			return;
-		}
+	// Only disable if screen is available and Image Studio will actually load.
+	if ( ! function_exists( 'get_current_screen' ) || ! get_current_screen() || ! should_load_on_current_screen() ) {
+		return;
 	}
 
 	foreach ( get_ai_image_extensions() as $extension ) {
