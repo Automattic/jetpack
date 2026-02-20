@@ -114,6 +114,7 @@ jp test coverage <project>  # Generate coverage report
   1. `jp docker up -d` — Start Docker WordPress containers
   2. `jp docker install` — Install WordPress in Docker
   Then run: `jp test php plugins/jetpack`
+- If you've modified package versions or dependencies between monorepo packages, run `tools/fixup-project-versions.sh` to update lock files before testing.
 - If a project's `composer.json` doesn't define `test-js`, the JS test step is skipped automatically — this is normal, not an error.
 
 ### What to Test
@@ -124,6 +125,7 @@ After modifying a project, run its tests and static analysis:
 jp test php <project>           # PHP tests
 jp test js <project>            # JS tests (skipped if not defined)
 jp phan <project>               # Static analysis
+jp test coverage <project>      # Generate coverage report (optional)
 ```
 
 ### PHP Testing
