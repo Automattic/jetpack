@@ -6,7 +6,6 @@ import useNameFieldTransforms from './hooks/use-name-field-transforms.js';
 import {
 	isFirstNameVariationId,
 	isLastNameVariationId,
-	isNameVariationId,
 	FIRST_NAME_ID,
 	LAST_NAME_ID,
 	NAME_ID,
@@ -20,20 +19,19 @@ export default function NameFieldEdit( props ) {
 
 	// Initialize fieldVariant for backward compatibility with existing Name field blocks.
 	useEffect( () => {
-		if ( fieldVariant ) {
+		if ( fieldVariant !== undefined ) {
 			return;
 		}
+
+		let variant = NAME_ID;
 		if ( isFirstNameVariationId( id ) ) {
-			setAttributes( { fieldVariant: FIRST_NAME_ID } );
+			variant = FIRST_NAME_ID;
 		} else if ( isLastNameVariationId( id ) ) {
-			setAttributes( { fieldVariant: LAST_NAME_ID } );
-		} else if ( isNameVariationId( id ) ) {
-			setAttributes( { fieldVariant: NAME_ID } );
-		} else {
-			// Default to base 'name' variant for any other case (empty id or 'name' id)
-			setAttributes( { fieldVariant: '' } );
+			variant = LAST_NAME_ID;
 		}
-	}, [ clientId, fieldVariant, id, setAttributes ] );
+
+		setAttributes( { fieldVariant: variant } );
+	}, [ fieldVariant, id, setAttributes ] );
 
 	// Update HTML IDs and labels when transforming between variations.
 	useNameFieldTransforms( { clientId, fieldVariant } );
