@@ -359,6 +359,7 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 
 			default:
 				$support = 'https://wordpress.com/support/wordpress-editor/blocks/social-icons-block/display-social-profiles/#supported-social-icons';
+				break;
 		}
 		?>
 
