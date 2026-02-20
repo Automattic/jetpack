@@ -2779,6 +2779,9 @@ importers:
       '@wordpress/router':
         specifier: ^1.8.11
         version: 1.40.0(react@18.3.1)
+      '@wordpress/sync':
+        specifier: 1.40.0
+        version: 1.40.0
       '@wordpress/url':
         specifier: 4.40.0
         version: 4.40.0
@@ -2794,6 +2797,9 @@ importers:
       events:
         specifier: ^3.3.0
         version: 3.3.0
+      lib0:
+        specifier: 0.2.99
+        version: 0.2.99
       lodash:
         specifier: 4.17.23
         version: 4.17.23
@@ -2818,6 +2824,12 @@ importers:
       wpcom-proxy-request:
         specifier: ^7.0.3
         version: 7.0.7
+      y-protocols:
+        specifier: ^1.0.7
+        version: 1.0.7(yjs@13.6.29)
+      yjs:
+        specifier: 13.6.29
+        version: 13.6.29
     devDependencies:
       '@automattic/jetpack-webpack-config':
         specifier: workspace:*
@@ -14326,11 +14338,6 @@ packages:
   levn@0.4.1:
     resolution: {integrity: sha512-+bT2uH4E5LGE7h/n3evcS/sQlJXCpIp6ym8OWJ5eV6+67Dsql/LaaT7qJBAt2rzfoa/5QBGBhxDix1dMt2kQKQ==}
     engines: {node: '>= 0.8.0'}
-
-  lib0@0.2.117:
-    resolution: {integrity: sha512-DeXj9X5xDCjgKLU/7RR+/HQEVzuuEUiwldwOGsHK/sfAfELGWEyTcf0x+uOvCvK3O2zPmZePXWL85vtia6GyZw==}
-    engines: {node: '>=16'}
-    hasBin: true
 
   lib0@0.2.99:
     resolution: {integrity: sha512-vwztYuUf1uf/1zQxfzRfO5yzfNKhTtgOByCruuiQQxWQXnPb8Itaube5ylofcV0oM0aKal9Mv+S1s1Ky0UYP1w==}
@@ -30142,10 +30149,6 @@ snapshots:
       prelude-ls: 1.2.1
       type-check: 0.4.0
 
-  lib0@0.2.117:
-    dependencies:
-      isomorphic.js: 0.2.5
-
   lib0@0.2.99:
     dependencies:
       isomorphic.js: 0.2.5
@@ -34563,7 +34566,7 @@ snapshots:
 
   y-protocols@1.0.7(yjs@13.6.29):
     dependencies:
-      lib0: 0.2.117
+      lib0: 0.2.99
       yjs: 13.6.29
 
   y18n@4.0.3: {}
@@ -34646,7 +34649,7 @@ snapshots:
 
   yjs@13.6.29:
     dependencies:
-      lib0: 0.2.117
+      lib0: 0.2.99
 
   yocto-queue@0.1.0: {}
 
