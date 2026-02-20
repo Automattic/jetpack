@@ -814,11 +814,11 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		\Jetpack_Options::update_option( 'id', 12345 );
 
 		// Mock the API response.
-		add_filter( 'pre_http_request', array( $this, 'mock_preferences_api_enabled' ), 10, 3 );
+		add_filter( 'pre_http_request', array( $this, 'mock_agents_manager_state_api_enabled' ), 10, 3 );
 
 		$result = $this->agents_manager->should_use_unified_experience();
 
-		remove_filter( 'pre_http_request', array( $this, 'mock_preferences_api_enabled' ), 10 );
+		remove_filter( 'pre_http_request', array( $this, 'mock_agents_manager_state_api_enabled' ), 10 );
 
 		$this->assertTrue( $result );
 	}
@@ -853,11 +853,11 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		\Jetpack_Options::update_option( 'id', 12345 );
 
 		// Mock the API response.
-		add_filter( 'pre_http_request', array( $this, 'mock_preferences_api_disabled' ), 10, 3 );
+		add_filter( 'pre_http_request', array( $this, 'mock_agents_manager_state_api_disabled' ), 10, 3 );
 
 		$result = $this->agents_manager->should_use_unified_experience();
 
-		remove_filter( 'pre_http_request', array( $this, 'mock_preferences_api_disabled' ), 10 );
+		remove_filter( 'pre_http_request', array( $this, 'mock_agents_manager_state_api_disabled' ), 10 );
 
 		$this->assertFalse( $result );
 	}
@@ -947,12 +947,12 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		\Jetpack_Options::update_option( 'id', 12345 );
 
 		// Mock API failure.
-		add_filter( 'pre_http_request', array( $this, 'mock_preferences_api_error' ), 10, 3 );
+		add_filter( 'pre_http_request', array( $this, 'mock_agents_manager_state_api_error' ), 10, 3 );
 
 		// First call - should fail and cache the failure.
 		$result1 = $this->agents_manager->should_use_unified_experience();
 
-		remove_filter( 'pre_http_request', array( $this, 'mock_preferences_api_error' ), 10 );
+		remove_filter( 'pre_http_request', array( $this, 'mock_agents_manager_state_api_error' ), 10 );
 
 		$this->assertFalse( $result1 );
 
@@ -969,7 +969,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	 * @param string $url The URL.
 	 * @return array The mocked response.
 	 */
-	public function mock_preferences_api_enabled( $response, $args, $url ) {
+	public function mock_agents_manager_state_api_enabled( $response, $args, $url ) {
 		if ( strpos( $url, '/agents-manager/state' ) === false ) {
 			return $response;
 		}
@@ -991,7 +991,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	 * @param string $url The URL.
 	 * @return array The mocked response.
 	 */
-	public function mock_preferences_api_disabled( $response, $args, $url ) {
+	public function mock_agents_manager_state_api_disabled( $response, $args, $url ) {
 		if ( strpos( $url, '/agents-manager/state' ) === false ) {
 			return $response;
 		}
@@ -1013,7 +1013,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	 * @param string $url The URL.
 	 * @return \WP_Error The mocked error response.
 	 */
-	public function mock_preferences_api_error( $response, $args, $url ) {
+	public function mock_agents_manager_state_api_error( $response, $args, $url ) {
 		if ( strpos( $url, '/agents-manager/state' ) === false ) {
 			return $response;
 		}
