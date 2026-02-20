@@ -17,7 +17,7 @@ import {
 	JETPACK_FORM_PRE_PUBLISH_PANEL,
 } from './plugins/form-pre-publish-panel';
 import { FormTitleModal } from './plugins/form-title-modal';
-import { HeaderActions } from './plugins/header-actions';
+import { HeaderActions, HEADER_ACTIONS_PLUGIN } from './plugins/header-actions';
 import {
 	activateBlockCategoryOverrides,
 	deactivateBlockCategoryOverrides,
@@ -36,7 +36,6 @@ import type { WPPlugin } from '@wordpress/plugins';
 type PluginSettings = Omit< WPPlugin, 'name' >;
 
 const NEW_FORMS_MODAL_PLUGIN = 'jetpack-form-title-modal';
-const HEADER_ACTIONS_PLUGIN = 'jetpack-form-header-actions';
 
 import './style.scss';
 
