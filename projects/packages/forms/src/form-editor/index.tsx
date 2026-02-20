@@ -17,6 +17,7 @@ import {
 	JETPACK_FORM_PRE_PUBLISH_PANEL,
 } from './plugins/form-pre-publish-panel';
 import { FormTitleModal } from './plugins/form-title-modal';
+import { EmbedCodePanel, EMBED_CODE_PANEL_PLUGIN } from './plugins/embed-code-panel';
 import { HeaderActions, HEADER_ACTIONS_PLUGIN } from './plugins/header-actions';
 import {
 	activateBlockCategoryOverrides,
@@ -368,6 +369,9 @@ const setupFormEditorSubscription = () => {
 					registerPlugin( HEADER_ACTIONS_PLUGIN, {
 						render: HeaderActions,
 					} );
+					registerPlugin( EMBED_CODE_PANEL_PLUGIN, {
+						render: EmbedCodePanel,
+					} );
 				} else {
 					// We just left the form editor.
 					document.body.classList.remove( 'post-type-jetpack_form' );
@@ -380,6 +384,10 @@ const setupFormEditorSubscription = () => {
 
 					if ( getPlugin( JETPACK_FORM_PRE_PUBLISH_PANEL ) ) {
 						unregisterPlugin( JETPACK_FORM_PRE_PUBLISH_PANEL );
+					}
+
+					if ( getPlugin( EMBED_CODE_PANEL_PLUGIN ) ) {
+						unregisterPlugin( EMBED_CODE_PANEL_PLUGIN );
 					}
 
 					if ( state.categoriesSetUp ) {
