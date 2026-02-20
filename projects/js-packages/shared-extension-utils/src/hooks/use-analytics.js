@@ -1,5 +1,5 @@
 import jetpackAnalytics from '@automattic/jetpack-analytics';
-import { useConnection } from '@automattic/jetpack-connection';
+import useConnection from '@automattic/jetpack-connection/use-connection';
 import { useEffect, useState, useCallback } from '@wordpress/element';
 
 const { tracks } = jetpackAnalytics;

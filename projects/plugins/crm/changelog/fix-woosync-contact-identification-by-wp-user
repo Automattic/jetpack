@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-WooSync: Fix CRM contact identification on orders where customer used a different billing email.

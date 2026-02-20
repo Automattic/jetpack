@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.28.0] - 2026-02-19
+### Added
+- Add WooCommerce store address details (`address`, `address_2`, `city`, `postcode`) and admin install timestamp to sync whitelist for improved WooCommerce site settings sync. [#47192]
+- Add triggering action name to data sent with `jetpack_sync_data_loss` action. [#47161]
+
+## [4.27.0] - 2026-02-10
+### Changed
+- Ensure we sync directly during cron. [#46887]
+
+## [4.26.0] - 2026-02-02
+### Added
+- Introduce Sync blacklist for `jetpack_options`. [#46852]
+
+### Changed
+- Stop syncing deleted_post_meta actions when deleting posts. [#46775]
+
+### Removed
+- Stop syncing `updating_jetpack_version` actions to WordPress.com. [#46762]
+
 ## [4.25.2] - 2026-01-26
 ### Changed
 - Move installation and update failure actions to shutdown to decrease their associated lag. [#46723]
@@ -1638,6 +1657,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Packages: Move sync to a classmapped package
 
+[4.28.0]: https://github.com/Automattic/jetpack-sync/compare/v4.27.0...v4.28.0
+[4.27.0]: https://github.com/Automattic/jetpack-sync/compare/v4.26.0...v4.27.0
+[4.26.0]: https://github.com/Automattic/jetpack-sync/compare/v4.25.2...v4.26.0
 [4.25.2]: https://github.com/Automattic/jetpack-sync/compare/v4.25.1...v4.25.2
 [4.25.1]: https://github.com/Automattic/jetpack-sync/compare/v4.25.0...v4.25.1
 [4.25.0]: https://github.com/Automattic/jetpack-sync/compare/v4.24.2...v4.25.0

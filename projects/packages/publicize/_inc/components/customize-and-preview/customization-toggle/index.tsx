@@ -5,6 +5,7 @@ import {
 } from '@wordpress/components';
 import { _x } from '@wordpress/i18n';
 import { usePerNetworkCustomization } from '../../../hooks/use-per-network-customization';
+import styles from './styles.module.scss';
 
 /**
  * Customization Toggle component for the social preview modal.
@@ -23,10 +24,11 @@ export function CustomizationToggle() {
 			onChange={ toggle }
 			value={ isEnabled ? 'each' : 'all' }
 			hideLabelFromVision
+			className={ styles[ 'customization-toggle' ] }
 		>
 			<ToggleGroupControlOption
 				label={ _x(
-					'For all',
+					'Same for all',
 					'An option to customize for all networks',
 					'jetpack-publicize-pkg'
 				) }
@@ -34,7 +36,7 @@ export function CustomizationToggle() {
 			/>
 			<ToggleGroupControlOption
 				label={ _x(
-					'For each',
+					'Customize each',
 					'An option to customize for each network',
 					'jetpack-publicize-pkg'
 				) }

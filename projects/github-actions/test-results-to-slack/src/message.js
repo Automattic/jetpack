@@ -1,11 +1,11 @@
-const { getInput } = require( '@actions/core' );
-const github = require( '@actions/github' );
-const { WebClient } = require( '@slack/web-api' );
-const { debug } = require( './debug' );
-const extras = require( './extra-context' );
-const { isWorkflowFailed, getRunUrl } = require( './github' );
-const { getPlaywrightBlocks } = require( './playwright' );
-const { getMessage, postOrUpdateMessage } = require( './slack' );
+import { getInput } from '@actions/core';
+import * as github from '@actions/github';
+import { WebClient } from '@slack/web-api';
+import { debug } from './debug.js';
+import extras from './extra-context.js';
+import { isWorkflowFailed, getRunUrl } from './github.js';
+import { getPlaywrightBlocks } from './playwright.js';
+import { getMessage, postOrUpdateMessage } from './slack.js';
 const {
 	context: { eventName, sha, payload, runId, actor, serverUrl },
 } = github;
@@ -19,7 +19,7 @@ const { refType, refName, runAttempt, triggeringActor, repository } = extras;
  * @param {boolean} isFailure - whether the workflow is failed or not
  * @return {object} Notificaton data as described
  */
-async function createMessage( isFailure ) {
+export async function createMessage( isFailure ) {
 	let target = `for ${ sha }`;
 	let msgId;
 	const contextElements = [];
@@ -179,7 +179,7 @@ function getButton( text, url ) {
  * @param {string} channel    - the id of the channel to send the message to
  * @param {string} username   - the username to use when sending the message
  */
-async function sendMessage( slackToken, ghToken, channel, username ) {
+export async function sendMessage( slackToken, ghToken, channel, username ) {
 	const client = new WebClient( slackToken );
 	const isFailure = await isWorkflowFailed( ghToken );
 	const { text, id, mainMsgBlocks, detailsMsgBlocksChunks } = await createMessage( isFailure );
@@ -241,5 +241,3 @@ async function sendMessage( slackToken, ghToken, channel, username ) {
 		}
 	}
 }
-
-module.exports = { sendMessage, createMessage };

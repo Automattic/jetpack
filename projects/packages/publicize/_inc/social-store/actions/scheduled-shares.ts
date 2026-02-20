@@ -96,6 +96,13 @@ type ScheduledSharesParams = {
 };
 type ScheduledSharesConfig = {
 	savePost?: boolean;
+	/**
+	 * Optional array of actions to include in the success notice.
+	 */
+	actions?: Array< {
+		label: string;
+		onClick?: VoidFunction;
+	} >;
 };
 
 /**
@@ -107,7 +114,7 @@ type ScheduledSharesConfig = {
  */
 export function scheduleShares(
 	{ message, connectionIds, timestamp }: ScheduledSharesParams,
-	{ savePost = true }: ScheduledSharesConfig
+	{ savePost = true, actions = [] }: ScheduledSharesConfig
 ) {
 	return async function ( { dispatch, registry } ): Promise< boolean > {
 		if ( ! connectionIds.length || ! timestamp ) {
@@ -157,6 +164,7 @@ export function scheduleShares(
 			createSuccessNotice( __( 'Post scheduled successfully.', 'jetpack-publicize-pkg' ), {
 				type: 'snackbar',
 				id: SCHEDULE_SHARE_NOTICE_ID,
+				actions,
 			} );
 		}
 

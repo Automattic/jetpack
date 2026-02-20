@@ -5,6 +5,36 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 8.0.1 - 2026-02-19
+### Added
+- Add visual dot to active connection in preview modal. [#47218]
+
+### Changed
+- Disable AI image option in the media UI when Jetpack plugin is not active. [#47193]
+
+## 8.0.0 - 2026-02-18
+### Added
+- Add Jetpack Protect details page for users without the dedicated Jetpack Protect plugin. [#46630]
+- Gate per-network customization behind paid features. [#46740]
+- Show a snackbar while sharing is in progress. [#46672]
+
+### Changed
+- Mark new connections as shared by default for privileged users. [#46796]
+- My Jetpack: Check red bubble notification async when cache is not available. [#46396]
+- Refactor share status UI to use Notice component. [#46673]
+- Update `composer.lock`. [#46686]
+- Update package dependencies. [#46785] [#47021]
+- Update social post preview modal height. [#46882]
+- Use fallback avatar for Jetpack Social connection icons. [#46677]
+
+### Removed
+- General: Update minimum WordPress version to 6.8. [#46801]
+
+### Fixed
+- Fix Tumblr preview to prioritize custom message when it is set. [#47075]
+- Refresh plan features on post-checkout redirect. [#46961]
+- Social Previews: Use fallback image when social preview profile picture fails. [#46674]
+
 ## 7.4.0 - 2026-01-14
 ### Added
 - Add the new media selection UI for Social. [#46085]

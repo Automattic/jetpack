@@ -12,6 +12,7 @@ use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Forms\ContactForm\Contact_Form;
 use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin;
+use Automattic\Jetpack\Forms\ContactForm\Form_Preview;
 use Automattic\Jetpack\Forms\Dashboard\Dashboard as Forms_Dashboard;
 use Automattic\Jetpack\Forms\Jetpack_Forms;
 use Automattic\Jetpack\Modules;
@@ -41,8 +42,26 @@ class Contact_Form_Block {
 		Blocks::jetpack_register_block(
 			'jetpack/contact-form',
 			array(
-				'render_callback'       => array( __CLASS__, 'gutenblock_render_form' ),
 				'render_email_callback' => array( __CLASS__, 'render_email' ),
+				'render_callback'       => array( __CLASS__, 'gutenblock_render_form' ),
+				'supports'              => array(
+					'layout' => array(
+						'default'                => array(
+							'type'              => 'flex',
+							'flexWrap'          => 'wrap',
+							'orientation'       => 'horizontal',
+							'justifyContent'    => 'left',
+							'verticalAlignment' => 'top',
+						),
+						'allowSwitching'         => false,
+						'allowEditing'           => true,
+						'allowOrientation'       => true,
+						'allowVerticalAlignment' => true,
+						'allowJustification'     => true,
+						'allowWrap'              => false,
+					),
+				),
+				'style_handles'         => array( 'jetpack-forms-layout' ),
 			)
 		);
 
@@ -673,6 +692,15 @@ class Contact_Form_Block {
 		// Count and store form steps
 		self::$form_step_count = self::count_form_steps_in_block( $parsed_block );
 
+		// For ref (synced) forms, render here via pre_render_block to short-circuit
+		// render_block(). This prevents wp_render_layout_support_flag from adding
+		// layout classes to the outer ref block's container div. The synced form's
+		// inner jetpack/contact-form block renders through the normal pipeline and
+		// gets layout classes on the correct element (wp-block-jetpack-contact-form).
+		if ( isset( $parsed_block['attrs']['ref'] ) ) {
+			return self::gutenblock_render_form( $parsed_block['attrs'], '' );
+		}
+
 		return $pre_render; // Don't actually pre-render, let normal rendering continue
 	}
 
@@ -758,73 +786,29 @@ class Contact_Form_Block {
 	 */
 	public static function gutenblock_render_form( $atts, $content ) {
 		// We should not render block if the module is disabled on a site using the Jetpack plugin.
-		if ( class_exists( 'Jetpack' ) && ! ( new Modules() )->is_active( 'contact-form' ) ) {
+		// Exception: allow rendering in preview mode so form previews work.
+		if ( class_exists( 'Jetpack' ) && ! ( new Modules() )->is_active( 'contact-form' ) && ! Form_Preview::is_preview_mode() ) {
 			return '';
 		}
 		// Render fallback in other contexts than frontend (i.e. feed, emails, API, etc.), unless the form is being submitted.
-		if ( ! Request::is_frontend() && ! isset( $_POST['contact-form-id'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+		// Exception: allow rendering in preview mode.
+		if ( ! Request::is_frontend() && ! isset( $_POST['contact-form-id'] ) && ! Form_Preview::is_preview_mode() ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
 			return self::render_fallback( $atts );
 		}
 
 		self::load_view_scripts();
 
-		// Handle ref attribute - load form from jetpack-form post
+		// Handle ref attribute - load form from jetpack_form post
 		if ( isset( $atts['ref'] ) ) {
 			$ref_id = absint( $atts['ref'] );
 			if ( $ref_id > 0 ) {
-				return self::render_synced_form( $ref_id );
+				return Contact_Form::render_synced_form( $ref_id );
 			} else {
 				return ''; // Invalid ref ID.
 			}
 		}
 
 		return Contact_Form::parse( $atts, do_blocks( $content ) );
-	}
-
-	/**
-	 * Render a synced form by reference ID.
-	 *
-	 * @param int $ref_id The jetpack_form post ID.
-	 * @return string Rendered form HTML.
-	 */
-	private static function render_synced_form( $ref_id ) {
-		// Circular reference prevention.
-		static $seen_refs = array();
-
-		if ( isset( $seen_refs[ $ref_id ] ) ) {
-			// Return empty string to match other error cases and unit test expectations.
-			return '';
-		}
-
-		// Load the jetpack-form post.
-		$synced_form = get_post( $ref_id );
-
-		// Validate post.
-		if ( ! $synced_form || 'jetpack_form' !== $synced_form->post_type ) {
-			return '';
-		}
-
-		// Only render published forms statuses.
-		if ( ! in_array( $synced_form->post_status, array( 'publish' ), true ) ) {
-			return '';
-		}
-
-		// Mark as seen for circular reference prevention.
-		$seen_refs[ $ref_id ] = true;
-		Contact_Form::set_ref_id( $ref_id );
-		$output = '';
-		try {
-			// Parse and render blocks from post_content.
-			$blocks = parse_blocks( $synced_form->post_content );
-			foreach ( $blocks as $block ) {
-				$output .= render_block( $block );
-			}
-		} finally {
-			// Clean up.
-			unset( $seen_refs[ $ref_id ] );
-			Contact_Form::clear_ref_id();
-		}
-		return $output;
 	}
 
 	/**

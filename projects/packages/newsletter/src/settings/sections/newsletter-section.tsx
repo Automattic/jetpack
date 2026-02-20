@@ -57,7 +57,7 @@ export function NewsletterSection( {
 					onChange={ onChange }
 				/>
 				{ data.subscriptions && jetpackSettings && (
-					<div className="newsletter-settings__link">
+					<div>
 						<ExternalLink href={ jetpackSettings.subscriberManagementUrl }>
 							{ __( 'Manage all subscribers', 'jetpack-newsletter' ) }
 						</ExternalLink>

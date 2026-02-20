@@ -54,10 +54,6 @@ export const themeArgTypes = {
 	},
 };
 
-/**
- * Shared default args for theme-related controls in chart stories
- * These provide actual default values that appear in Storybook controls
- */
 export const sharedThemeArgs = {
 	themeName: 'default',
 	accentColor: DEFAULT_ACCENT_COLOR,

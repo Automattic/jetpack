@@ -43,7 +43,7 @@ const PluginActionButton = ( {
 	const [ isReconcilingStatus, setIsReconcilingStatus ] = useState( false );
 	const isDisabled = isInstalling || isReconcilingStatus || ! canPerformAction;
 
-	const handleAction = async ( event: MouseEvent ) => {
+	const handleAction = async ( event: React.MouseEvent< HTMLButtonElement > ) => {
 		event.stopPropagation();
 		if ( isDisabled ) {
 			return;

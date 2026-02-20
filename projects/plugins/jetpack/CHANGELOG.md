@@ -2,67 +2,117 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
-## 15.5-a.5 - 2026-01-26
+## 15.6-a.3 - 2026-02-16
 ### Enhancements
+- Form Notifications: Add new HTML email template design with respondent info header, metadata section, and improved action buttons. [#47022]
+- Forms: Allow Accordion, Details, and Icon blocks in forms, and Icon block to be added inside the file upload dropzone. [#47121]
+- Forms: Allow filtering Forms dashboard URL. [#47039]
+- Forms: Create new forms in same tab. [#47098]
+- Forms: Replace dashicon with SVG icon and add tooltip to admin bar "Form Responses" link. [#47120]
+- Reader: Add Discover card to Reader settings page to highlight feature benefits. [#47089]
+- Update external menu links to display an arrow indicator for improved performance and a more modern appearance. [#47076]
+- VideoPress: Accept SRT subtitle files for upload alongside VTT. [#46978]
+- WordPress.com Reader: Automatically enable the admin bar link on sites newly connected to WordPress.com. [#47033]
+
+### Bug fixes
+- AI Assistant: Restore Jetpack logo in pre-publish panel where branding is not otherwise apparent. [#47081]
+- Block Editor Assets: Fix Gutenberg asset detection when assets are served from a CDN. [#47072]
+- Social: Fix Tumblr preview to prioritize custom message when it is set. [#47075]
+- Social: Refresh plan features on post-checkout redirect. [#46961]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Admin: Remove default WordPress footer on Jetpack admin pages. [#46876]
+- AI Assistant: Remove Jetpack logo from Improve with AI panel in the Page sidebar. [#47040]
+- Compatibility: Clean up deprecated CSS. [#47067]
+- Recommendations: Drop redundant PNG fallback images in favor of WebP, reducing plugin zip size by ~7 MB. [#47071]
+- Reduce plugin zip size by converting vendored package images from PNG to WebP. [#47083]
+- SEO: Move the Optimize SEO panel from the Jetpack sidebar to the document settings panel. [#47045]
+- Update package dependencies. [#47099]
+- WordPress.com Reader: Load feature in new module. [#46783]
+
+## 15.6-a.1 - 2026-02-10
+### Enhancements
+- Forms: Update response sidebar styles. [#46929]
+- WordPress.com Reader: Add new option to show a link to the WordPress.com Reader in the admin bar. [#46781]
+
+### Bug fixes
+- Forms: Fix IP address lookup link in response inspector. [#46969]
+- Sharing: Fix LinkedIn sharing by updating to the current share URL endpoint. [#47008]
+- Slideshow: Fix an issue with sizing when images are lazily loaded. [#46924]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Admin dashboard: add new "Reader" section. [#46779]
+- AI: Remove Chrome AI built-in API experiment code. [#46896]
+- Cover RESTful JSON API with unit tests. [#46940]
+- Cover the JSON API posts endpoint with unit tests. [#46939]
+- Janitorial: Clean up to-test.md. [#46943]
+- Move IDC stats from Jetpack plugin to connection package. [#46967]
+- Update package dependencies. [#46936] [#47002] [#47021]
+- VideoPress: Improve attachment details display with proper i18n support and WordPress core styling. [#46458]
+
+## 15.5 - 2026-02-03
+### Major Enhancements
+- General: Update minimum WordPress version to 6.8. [#46801]
+
+### Enhancements
+- Add Jetpack Protect details page for users without the dedicated Jetpack Protect plugin. [#46630]
+- Command Palette: Add site switcher command to quickly switch between WordPress.com connected sites. [#46342]
+- Forms: Add form editor. [#46444]
+- Forms: Add ref attribute support for the form block. [#46555]
+- Forms: Add single forms screen. [#46767]
+- Forms: Allow merging two options together with backspace. [#46507]
+- Forms: Display star and heart rating icons on form submission confirmation page. [#46679]
+- Forms: Make form webhooks generally available. [#46422]
 - Forms: Update DataViews header and filters. [#46732]
+- IDC: Add revalidation of IDC. [#46268]
+- Instant Search: Show WooCommerce product filters in filter widget. [#46373]
+- Likes: Add minified build for CSS. [#46750]
+- Likes: Display a notice to block theme users explaining they can add the Like block directly in the site editor instead of enabling the legacy feature. [#46726]
 - Likes: Enable CSS inlining. [#46745]
+- My Jetpack: Check red bubble notifications async when cache is not available. [#46396]
+- Sharing: Improve accessibility of sharing button texts by removing "Click to" prefix. [#46583]
+- Social: Gate per-network customization behind paid features. [#46740]
+- Social: Mark new connections as shared by default for privileged users. [#46796]
 - Social: Refactor share status UI to use Notice component. [#46673]
 - Social: Show a snackbar while sharing is in progress. [#46672]
 - Social: Use fallback avatar for Jetpack Social connection icons. [#46677]
 
 ### Bug fixes
-- AI Assistant: Fix markdown rendering in feedback sidebar to properly display bold text, lists, and other formatting. [#46718]
-- Copy Post: Copy Gutenberg Footnotes block content when duplicating posts. [#46715]
-- Google Fonts: Prevent Gutenberg 22.4+ from printing all registered fonts. [#46734]
-- Social Previews: Use fallback image when social preview profile picture fails. [#46674]
-
-### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
-- Forms: Fix block styles not loading in CIAB environment. [#46643]
-- Newsletters: More work on the WIP new settings screen. [#46471]
-- Render slideshow block as core gallery block in emails. [#46624]
-- Update package dependencies. [#46691] [#46716]
-
-## 15.5-a.3 - 2026-01-19
-### Enhancements
-- Command Palette: Add site switcher command to quickly switch between WordPress.com connected sites. [#46342]
-- Forms: Add ref attribute support for the form block. [#46555]
-- Forms: Make form webhooks generally available. [#46422]
-- Instant Search: Show WooCommerce product filters in filter widget. [#46373]
-- My Jetpack: Check red bubble notifications async when cache is not available. [#46396]
-- Sharing: Improve accessibility of sharing button texts by removing "Click to" prefix. [#46583]
-
-### Bug fixes
 - About Page: Fix plugin icon positioning and sizing. [#46610]
-- Contact Form: Fix checkbox field value not being properly output in the classic editor form builder. [#46354]
-- Shortcode: Fix broken YouTube URL on the classic editor. [#46433]
-- Slideshow: Ensure slideshows do not stretch to parent container width on mobile if no list height is set. [#46450]
-
-### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
-- E2E: pre-build number-formatter package in E2E run. [#46586]
-- Forms: Update E2E test to match new form submission confirmation heading. [#46521]
-- Newsletter: Work on new UI, not available yet. [#46470]
-- Reader: Fix post embed previews not displaying correctly when reposting from Reader. [#46522]
-- Tests: Add coverage for modules added to sync configuration mid-progress. [#46475]
-- Update composer lock following Publicize changes. [#46516]
-- Update package dependencies. [#46647]
-
-## 15.5-a.1 - 2026-01-12
-### Enhancements
-- Forms: Add form editor. [#46444]
-- Forms: Allow merging two options together with backspace. [#46507]
-- IDC: Add revalidation of IDC. [#46268]
-
-### Bug fixes
+- AI Assistant: Fix markdown rendering in feedback sidebar to properly display bold text, lists, and other formatting. [#46718]
 - AI Search: Prevent AI Search from disappearing when returning certain responses. [#46476]
+- Contact Form: Fix checkbox field value not being properly output in the classic editor form builder. [#46354]
+- Copy Post: Copy Gutenberg Footnotes block content when duplicating posts. [#46715]
 - Forms: Fix date exports. [#46445]
+- Forms: Improve VoiceOver for form submissions. [#46707]
+- Google Fonts: Prevent Gutenberg 22.4+ from printing all registered fonts. [#46734]
+- Shortcode: Fix broken YouTube URL on the classic editor. [#46433]
+- Site Switcher: Fix partial keyword matching so typing 'swit' shows 'Switch to...' results in the command palette. [#46766]
+- Slideshow: Ensure slideshows do not stretch to parent container width on mobile if no list height is set. [#46450]
+- Social Previews: Use fallback image when social preview profile picture fails. [#46674]
 - UI: Prevent social modals in editor from stretching too wide on large screens. [#46400]
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
 - Comments API: Use end-user's IP-address for JSON API requests. [#46494]
+- Disable buttons on VideoPress block renders that require an upgrade to function. [#46822]
+- E2E: pre-build number-formatter package in E2E run. [#46586]
+- Forms: Fix block styles not loading in CIAB environment. [#46643]
+- Forms: Update E2E test to match new form submission confirmation heading. [#46521]
 - Gate donations block behind conditional features. [#46499]
 - Gate payment buttons block behind conditional features. [#46513]
 - Gate PayPal payment buttons block behind conditional features. [#46536]
+- Newsletter: Work on new UI, not available yet. [#46470]
+- Newsletters: More work on the WIP new settings screen. [#46471]
+- Podcast player email rendering: Use audio block rendering and link to post. [#46768]
+- Reader: Fix post embed previews not displaying correctly when reposting from Reader. [#46522]
+- Remove experimental Math (LaTeX) block. [#45746]
+- Render slideshow block as core gallery block in emails. [#46624]
+- Social: Update social post preview modal height. [#46882]
+- Switch Site command: Disable for now - note this was never included in a jetpack-plugin release. [#46855]
+- Tests: Add coverage for modules added to sync configuration mid-progress. [#46475]
+- Update composer lock following Publicize changes. [#46516]
 - Update dependencies. [#46467] [#46489] [#46456] [#46512]
+- Update package dependencies. [#46647] [#46691] [#46716] [#46785] [#46854]
 
 ## 15.4 - 2026-01-06
 ### Enhancements

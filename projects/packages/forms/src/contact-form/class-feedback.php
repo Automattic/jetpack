@@ -1771,6 +1771,26 @@ class Feedback {
 	}
 
 	/**
+	 * Get field-specific metadata based on the field type.
+	 *
+	 * @param Contact_Form_Field $field The field object.
+	 * @param string             $type  The field type.
+	 * @return array Metadata array for the field.
+	 */
+	public static function get_field_meta( $field, $type ) {
+		$meta = array();
+
+		if ( $type === 'rating' ) {
+			$icon_style        = $field->get_attribute( 'iconstyle' );
+			$max               = $field->get_attribute( 'max' );
+			$meta['iconStyle'] = ! empty( $icon_style ) ? $icon_style : 'stars';
+			$meta['maxRating'] = is_numeric( $max ) && (int) $max > 0 ? (int) $max : 5;
+		}
+
+		return $meta;
+	}
+
+	/**
 	 * Get all the fields of the response, computed from the post data.
 	 *
 	 * @param array        $post_data The post data from the form submission.
@@ -1795,7 +1815,7 @@ class Feedback {
 			$label = wp_strip_all_tags( $field->get_attribute( 'label' ) );
 			$key   = $i . '_' . $label;
 
-			$meta           = array();
+			$meta           = self::get_field_meta( $field, $type );
 			$fields[ $key ] = new Feedback_Field( $key, $label, $value, $type, $meta, $field_id );
 			if ( ! $this->has_file && $fields[ $key ]->has_file() ) {
 				$this->has_file = true;

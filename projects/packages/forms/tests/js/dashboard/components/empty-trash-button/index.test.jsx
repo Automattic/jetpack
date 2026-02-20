@@ -179,7 +179,7 @@ describe( 'EmptyTrashButton', () => {
 	};
 
 	it( 'renders correctly', () => {
-		renderWithProvider( <EmptyTrashButton totalItemsTrash={ 1 } isLoadingCounts={ false } /> );
+		renderWithProvider( <EmptyTrashButton totalItemsTrash={ 1 } /> );
 
 		const button = screen.getByText( 'Empty trash' );
 		expect( button ).toBeInTheDocument();
@@ -188,7 +188,7 @@ describe( 'EmptyTrashButton', () => {
 	} );
 
 	it( 'shows disabled state when trash is empty', () => {
-		renderWithProvider( <EmptyTrashButton totalItemsTrash={ 0 } isLoadingCounts={ false } /> );
+		renderWithProvider( <EmptyTrashButton totalItemsTrash={ 0 } /> );
 
 		const button = screen.getByText( 'Empty trash' );
 		expect( button ).toBeDisabled();
@@ -196,7 +196,7 @@ describe( 'EmptyTrashButton', () => {
 	} );
 
 	it( 'shows confirmation dialog when clicked', async () => {
-		renderWithProvider( <EmptyTrashButton totalItemsTrash={ 1 } isLoadingCounts={ false } /> );
+		renderWithProvider( <EmptyTrashButton totalItemsTrash={ 1 } /> );
 
 		const button = screen.getByText( 'Empty trash' );
 		await userEvent.click( button );
@@ -211,7 +211,7 @@ describe( 'EmptyTrashButton', () => {
 		const { useDispatch } = await import( '@wordpress/data' );
 		const mockDispatch = useDispatch( 'notices' );
 
-		renderWithProvider( <EmptyTrashButton totalItemsTrash={ 1 } isLoadingCounts={ false } /> );
+		renderWithProvider( <EmptyTrashButton totalItemsTrash={ 1 } /> );
 
 		// Click empty trash button
 		const button = screen.getByText( 'Empty trash' );

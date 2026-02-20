@@ -16,6 +16,7 @@
 		"automattic/jetpack-connection": "@dev",
 		"automattic/jetpack-google-analytics": "@dev",
 		"automattic/jetpack-masterbar": "@dev",
+		"automattic/jetpack-newsletter": "@dev",
 		"automattic/jetpack-redirect": "@dev",
 		"automattic/jetpack-stats-admin": "@dev",
 		"automattic/jetpack-status": "@dev",
