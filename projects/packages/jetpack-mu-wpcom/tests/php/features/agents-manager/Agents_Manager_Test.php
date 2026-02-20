@@ -1817,6 +1817,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		$wp_styles = null;
 
 		wp_register_script( 'agents-manager', 'https://example.com/agents-manager.js', array(), '1.0', true );
+		wp_register_style( 'agents-manager-style', 'https://example.com/agents-manager.css', array(), '1.0' );
 
 		// Enable unified experience. Not a Jetpack site, so is_jetpack_disconnected() returns false.
 		add_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );

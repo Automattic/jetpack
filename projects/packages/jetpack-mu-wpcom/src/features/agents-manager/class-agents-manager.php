@@ -169,6 +169,13 @@ class Agents_Manager {
 		$use_disconnected = str_contains( $variant, 'disconnected' );
 		$is_gutenberg     = $this->is_block_editor();
 
+		// In Gutenberg, dequeue Help Center so we don't end up with two buttons.
+		// Agents Manager fires at priority 101, after Help Center at 100, so HC is already enqueued.
+		if ( $is_gutenberg ) {
+			wp_dequeue_script( 'help-center' );
+			wp_dequeue_style( 'help-center-style' );
+		}
+
 		// For non-Gutenberg environments, add to admin bar
 		// Gutenberg doesn't have an admin bar, so JS will handle UI insertion
 		if ( ! $is_gutenberg ) {
