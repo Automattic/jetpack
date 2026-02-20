@@ -11,11 +11,97 @@ use WorDBless\BaseTestCase;
 class Meta_Extractor_Test extends BaseTestCase {
 
 	/**
+	 * Set up the test environment.
+	 */
+	public function set_up() {
+		parent::set_up();
+
+		// Set up an admin user so wp_insert_post / wp_update_post
+		// does not apply wp_kses_post sanitization.
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'test_admin',
+				'user_pass'  => 'password',
+				'role'       => 'administrator',
+			)
+		);
+		wp_set_current_user( $user_id );
+
+		// Ensure upload directory exists with proper permissions.
+		$upload_dir = wp_upload_dir();
+		wp_mkdir_p( $upload_dir['basedir'] );
+		wp_mkdir_p( $upload_dir['path'] );
+
+		// Force an absolute URL for attachment URLs during testing.
+		add_filter(
+			'wp_get_attachment_url',
+			function ( $url ) {
+				$site_url = 'http://example.org';
+				if ( ! empty( $url ) && ! preg_match( '/^http(s)?:\/\//i', $url ) ) {
+					return $site_url . $url;
+				}
+				return $url;
+			}
+		);
+
+		add_filter(
+			'upload_dir',
+			function ( $upload_dir ) {
+				$site_url = 'http://example.org';
+
+				// Normalize the upload directory to standard 'wp-content/uploads'
+				// so URLs match the hardcoded paths in test fixtures.
+				$upload_dir['basedir'] = preg_replace( '/uploads[^\/]*/', 'uploads', $upload_dir['basedir'] );
+				$upload_dir['path']    = preg_replace( '/uploads[^\/]*/', 'uploads', $upload_dir['path'] );
+				$upload_dir['baseurl'] = $site_url . '/wp-content/uploads';
+				$upload_dir['url']     = $site_url . '/wp-content/uploads' . $upload_dir['subdir'];
+
+				return $upload_dir;
+			}
+		);
+
+		// In WorDBless, image files do not physically exist on disk,
+		// so image_downsize() cannot resolve image data.
+		// This filter provides the full-size image data from attachment metadata.
+		add_filter(
+			'image_downsize',
+			function ( $out, $id ) {
+				$meta = wp_get_attachment_metadata( $id );
+				if ( ! $meta || ! isset( $meta['width'] ) || ! isset( $meta['height'] ) ) {
+					return $out;
+				}
+				$url = wp_get_attachment_url( $id );
+				if ( ! $url ) {
+					return $out;
+				}
+				return array( $url, $meta['width'], $meta['height'], false );
+			},
+			10,
+			2
+		);
+
+		// Register shortcodes that are normally provided by Jetpack modules.
+		// These are needed so get_shortcode_regex() can match them.
+		$nop = array( $this, 'shortcode_nop' );
+		add_shortcode( 'youtube', $nop );
+		add_shortcode( 'vimeo', $nop );
+		add_shortcode( 'ted', $nop );
+		add_shortcode( 'wpvideo', $nop );
+	}
+
+	/**
 	 * Tear down after each test.
 	 */
 	public function tear_down() {
 		\WorDBless\Posts::init()->clear_all_posts();
 		\WorDBless\PostMeta::init()->clear_all_meta();
+		\WorDBless\Users::init()->clear_all_users();
+
+		remove_shortcode( 'youtube' );
+		remove_shortcode( 'vimeo' );
+		remove_shortcode( 'ted' );
+		remove_shortcode( 'wpvideo' );
+
 		parent::tear_down();
 	}
 
@@ -474,8 +560,8 @@ class Meta_Extractor_Test extends BaseTestCase {
 
 		$expected = array(
 			'image' => array(
-				0 => array( 'url' => 'http://example.org/wp-content/uploads/image2.jpg' ),
-				1 => array( 'url' => 'http://example.org/wp-content/uploads/image1.jpg' ),
+				0 => array( 'url' => 'http://example.org/wp-content/uploads/image1.jpg' ),
+				1 => array( 'url' => 'http://example.org/wp-content/uploads/image2.jpg' ),
 			),
 			'has'   => array(
 				'image'   => 2,

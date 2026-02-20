@@ -16,6 +16,7 @@ class Functions_Compat_Test extends WP_UnitTestCase {
 	 * @since 3.2
 	 */
 	public function test_jetpack_youtube_sanitize_url_with_valid_url() {
+		$this->setExpectedDeprecated( 'jetpack_youtube_sanitize_url' );
 
 		$valid_url = 'https://www.youtube.com/watch?v=snAvGxz7D04';
 
@@ -29,6 +30,7 @@ class Functions_Compat_Test extends WP_UnitTestCase {
 	 * @since 3.2
 	 */
 	public function test_jetpack_youtube_sanitize_url_with_shortened_url() {
+		$this->setExpectedDeprecated( 'jetpack_youtube_sanitize_url' );
 
 		$valid_short_url        = 'https://youtu.be/snAvGxz7D04';
 		$expected_sanitized_url = 'https://youtu.be/?v=snAvGxz7D04';
@@ -43,6 +45,7 @@ class Functions_Compat_Test extends WP_UnitTestCase {
 	 * @since 3.2
 	 */
 	public function test_jetpack_youtube_sanitize_url_with_slash_v_slash() {
+		$this->setExpectedDeprecated( 'jetpack_youtube_sanitize_url' );
 
 		$slash_v_slash_url      = 'https://www.youtube.com/v/9FhMMmqzbD8';
 		$expected_sanitized_url = 'https://www.youtube.com/?v=9FhMMmqzbD8';
@@ -57,6 +60,7 @@ class Functions_Compat_Test extends WP_UnitTestCase {
 	 * @since 3.2
 	 */
 	public function test_jetpack_youtube_sanitize_url_with_hashbang() {
+		$this->setExpectedDeprecated( 'jetpack_youtube_sanitize_url' );
 
 		$hashbang_url           = 'https://www.youtube.com/#!v=9FhMMmqzbD8';
 		$expected_sanitized_url = 'https://www.youtube.com/?v=9FhMMmqzbD8';
@@ -71,6 +75,7 @@ class Functions_Compat_Test extends WP_UnitTestCase {
 	 * @since 3.2
 	 */
 	public function test_jetpack_youtube_sanitize_url_with_amp_ampersand() {
+		$this->setExpectedDeprecated( 'jetpack_youtube_sanitize_url' );
 
 		$amp_ampersand_url      = 'https://www.youtube.com/watch?v=snAvGxz7D04&amp;hl=en_US';
 		$expected_sanitized_url = 'https://www.youtube.com/watch?v=snAvGxz7D04&hl=en_US';
@@ -85,6 +90,7 @@ class Functions_Compat_Test extends WP_UnitTestCase {
 	 * @since 3.2
 	 */
 	public function test_jetpack_youtube_sanitize_url_with_encoded_ampersand() {
+		$this->setExpectedDeprecated( 'jetpack_youtube_sanitize_url' );
 
 		$encoded_ampersand_url  = 'https://www.youtube.com/watch?v=snAvGxz7D04&#038;hl=en_US';
 		$expected_sanitized_url = 'https://www.youtube.com/watch?v=snAvGxz7D04&hl=en_US';
@@ -99,6 +105,7 @@ class Functions_Compat_Test extends WP_UnitTestCase {
 	 * @since 3.2
 	 */
 	public function test_jetpack_youtube_sanitize_url_with_playlist() {
+		$this->setExpectedDeprecated( 'jetpack_youtube_sanitize_url' );
 
 		$valid_playlist_url     = 'https://www.youtube.com/playlist?list=PL56C3506BBE979C1B';
 		$expected_sanitized_url = 'https://www.youtube.com/videoseries?list=PL56C3506BBE979C1B';
@@ -113,6 +120,7 @@ class Functions_Compat_Test extends WP_UnitTestCase {
 	 * @since 3.2
 	 */
 	public function test_jetpack_youtube_sanitize_url_with_extra_question_mark() {
+		$this->setExpectedDeprecated( 'jetpack_youtube_sanitize_url' );
 
 		$extra_question_mark_url = 'http://www.youtube.com/v/9FhMMmqzbD8?fs=1&hl=en_US';
 		$expected_sanitized_url  = 'http://www.youtube.com/?v=9FhMMmqzbD8&fs=1&hl=en_US';
@@ -127,6 +135,7 @@ class Functions_Compat_Test extends WP_UnitTestCase {
 	 * @since 13.2
 	 */
 	public function test_jetpack_youtube_sanitize_url_as_array() {
+		$this->setExpectedDeprecated( 'jetpack_youtube_sanitize_url' );
 
 		$url_array              = array(
 			'url' => 'http://www.youtube.com/v/9FhMMmqzbD8?fs=1&hl=en_US',
@@ -143,6 +152,7 @@ class Functions_Compat_Test extends WP_UnitTestCase {
 	 * @since 13.2
 	 */
 	public function test_jetpack_youtube_sanitize_url_invalid_input() {
+		$this->setExpectedDeprecated( 'jetpack_youtube_sanitize_url' );
 
 		$invalid_url_array      = array(
 			'vv' => 'http://www.youtube.com/v/9FhMMmqzbD8?fs=1&hl=en_US',
@@ -159,6 +169,7 @@ class Functions_Compat_Test extends WP_UnitTestCase {
 	 * @since 15.6
 	 */
 	public function test_jetpack_youtube_sanitize_url_with_shorts_url() {
+		$this->setExpectedDeprecated( 'jetpack_youtube_sanitize_url' );
 		$sanitized_url = jetpack_youtube_sanitize_url( 'https://www.youtube.com/shorts/VIDEO_ID' );
 
 		$this->assertEquals( 'https://www.youtube.com/watch?v=VIDEO_ID', $sanitized_url );
@@ -169,6 +180,7 @@ class Functions_Compat_Test extends WP_UnitTestCase {
 	 * @since 3.2
 	 */
 	public function test_jetpack_get_youtube_id_with_single_video_url() {
+		$this->setExpectedDeprecated( 'jetpack_get_youtube_id' );
 
 		$single_video_url = 'https://www.youtube.com/watch?v=snAvGxz7D04';
 		$expected_id      = 'snAvGxz7D04';
@@ -183,6 +195,7 @@ class Functions_Compat_Test extends WP_UnitTestCase {
 	 * @since 3.2
 	 */
 	public function test_jetpack_get_youtube_id_with_playlist_url() {
+		$this->setExpectedDeprecated( 'jetpack_get_youtube_id' );
 
 		$playlist_url = 'https://www.youtube.com/playlist?list=PL56C3506BBE979C1B';
 		$expected_id  = 'PL56C3506BBE979C1B';
@@ -197,6 +210,7 @@ class Functions_Compat_Test extends WP_UnitTestCase {
 	 * @since 15.6
 	 */
 	public function test_jetpack_get_youtube_id_with_shorts_url() {
+		$this->setExpectedDeprecated( 'jetpack_get_youtube_id' );
 		$youtube_id = jetpack_get_youtube_id( 'https://www.youtube.com/shorts/VIDEO_ID' );
 
 		$this->assertEquals( 'VIDEO_ID', $youtube_id );

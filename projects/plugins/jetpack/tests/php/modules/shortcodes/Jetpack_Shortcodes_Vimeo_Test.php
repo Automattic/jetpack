@@ -125,6 +125,7 @@ class Jetpack_Shortcodes_Vimeo_Test extends WP_UnitTestCase {
 	 */
 	#[DataProvider( 'get_sample_shortcode_attributes' )]
 	public function test_shortcode_attributes( $attribute_string, $extracted_attributes ) {
+		$this->setExpectedDeprecated( 'jetpack_shortcode_get_vimeo_id' );
 		$content           = '[vimeo ' . $attribute_string . ']';
 		$shortcode_content = do_shortcode( $content );
 
@@ -188,6 +189,7 @@ class Jetpack_Shortcodes_Vimeo_Test extends WP_UnitTestCase {
 	 */
 	#[DataProvider( 'get_vimeo_urls' )]
 	public function test_shortcodes_vimeo_replace_url_with_iframe_in_the_content( $url, $video_id ) {
+		$this->setExpectedDeprecated( 'jetpack_shortcode_get_vimeo_id' );
 		if (
 			( defined( 'IS_WPCOM' ) && IS_WPCOM )
 				|| ( defined( 'IS_ATOMIC' ) && IS_ATOMIC )

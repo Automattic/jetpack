@@ -89,7 +89,7 @@ class Meta_Extractor {
 			$extracted = self::get_image_fields( $post, array(), $extract_alt_text );
 
 			// Turn off images so we can safely call extract_from_content() below.
-			$what_to_extract = $what_to_extract - self::IMAGES;
+			$what_to_extract -= self::IMAGES;
 		}
 
 		if ( function_exists( 'restore_current_blog' ) ) {
@@ -566,8 +566,8 @@ class Meta_Extractor {
 						$image_to_add['alt_text'] = $extracted_image['alt_text'];
 					}
 					if ( ! empty( $extracted_image['src_width'] ) || ! empty( $extracted_image['src_height'] ) ) {
-							$image_to_add['src_width']  = $extracted_image['src_width'];
-							$image_to_add['src_height'] = $extracted_image['src_height'];
+							$image_to_add['src_width']  = $extracted_image['src_width'] ?? '';
+							$image_to_add['src_height'] = $extracted_image['src_height'] ?? '';
 					}
 				} else {
 					$image_to_add = $queryless;
