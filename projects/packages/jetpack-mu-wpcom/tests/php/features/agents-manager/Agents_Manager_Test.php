@@ -1499,6 +1499,33 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Tests that enqueue_scripts includes helpCenterUrl in agentsManagerData.
+	 */
+	public function test_enqueue_scripts_includes_help_center_url() {
+		// Set admin context - scripts only enqueue in admin.
+		$this->set_admin_context();
+
+		// Reset the script registry.
+		global $wp_scripts;
+		$wp_scripts = null;
+
+		wp_register_script( 'agents-manager', 'https://example.com/agents-manager.js', array(), '1.0', true );
+
+		add_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+
+		$this->agents_manager->enqueue_scripts();
+
+		$this->assertNotNull( $wp_scripts, 'wp_scripts should be initialized after enqueue_scripts' );
+		$inline_scripts = $wp_scripts->registered['agents-manager']->extra['before'] ?? array();
+		$inline_script  = implode( "\n", array_filter( $inline_scripts ) );
+
+		$this->assertStringContainsString( '"helpCenterUrl":', $inline_script );
+		$this->assertStringContainsString( 'https://wordpress.com/help?help-center=home', $inline_script );
+
+		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+	}
+
+	/**
 	 * Tests that enqueue_scripts includes sectionName as wp-admin by default.
 	 */
 	public function test_enqueue_scripts_includes_section_name_wp_admin() {
@@ -1863,8 +1890,8 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	/**
 	 * Tests that scripts are not enqueued on P2 frontend.
 	 *
-	 * This verifies the P2 frontend detection logic (lines 203-209 in class-agents-manager.php)
-	 * that prevents Agents Manager from loading on P2 sites when not in admin context.
+	 * This verifies the P2 frontend detection logic that prevents Agents Manager
+	 * from loading on P2 sites when not in admin context.
 	 */
 	public function test_scripts_not_enqueued_on_p2_frontend() {
 		global $wp_admin_bar;
