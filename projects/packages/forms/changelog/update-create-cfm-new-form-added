@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Forms: Auto-create synced form when inserting a field block outside a form (when central form management is enabled).

@@ -2,186 +2,35 @@
  * WordPress dependencies
  */
 import apiFetch from '@wordpress/api-fetch';
-import { Button, ExternalLink, Modal, Spinner, Tip } from '@wordpress/components';
+import {
+	Modal,
+	Spinner,
+	Tip,
+	__experimentalConfirmDialog as ConfirmDialog, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+} from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useDispatch, useSelect } from '@wordpress/data';
-import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
+import { useCallback, useEffect, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
-import { __, _n } from '@wordpress/i18n';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import { useParams, useSearch, useNavigate } from '@wordpress/route';
+import { Stack } from '@wordpress/ui';
 import * as React from 'react';
 /**
  * Internal dependencies
  */
-import CopyClipboardButton from '../../../src/dashboard/components/copy-clipboard-button';
+import FeedbackComments from '../../../src/dashboard/components/feedback-comments';
 import PreviewFile from '../../../src/dashboard/components/inspector/preview-file';
+import ResponseFieldsIterator from '../../../src/dashboard/components/inspector/response-fields';
 import ResponseMeta from '../../../src/dashboard/components/inspector/response-meta';
-import {
-	isFileUploadField,
-	isImageSelectField,
-	isLikelyPhoneNumber,
-} from '../../../src/dashboard/components/inspector/utils';
 import useInboxData from '../../../src/dashboard/hooks/use-inbox-data.ts';
+import { useMarkAsSpam } from '../../../src/dashboard/hooks/use-mark-as-spam.ts';
+import useConfigValue from '../../../src/hooks/use-config-value.ts';
 import { ResponseActions } from './actions';
 import { ResponseNavigation } from './navigation';
 import type { DispatchActions, SelectActions } from '../../../src/dashboard/inbox/stage/types.tsx';
 import type { FormResponse } from '../../../src/types/index.ts';
-import '../../../src/dashboard/components/inspector/style.scss';
-
-type DisplayField = {
-	label: string;
-	value: unknown;
-	key: string;
-};
-
-const getDisplayFields = (
-	fields: FormResponse[ 'fields' ] | undefined | null
-): DisplayField[] => {
-	if ( ! fields ) {
-		return [];
-	}
-
-	// New collection format: [{ label, value, key, ... }]
-	if ( Array.isArray( fields ) ) {
-		return fields.map( ( field, index ) => ( {
-			label: field.label || field.key || String( index ),
-			value: field.value,
-			key: field.key || field.id || `${ index }-${ field.label }`,
-		} ) );
-	}
-
-	// Legacy format: { [label]: value }
-	return Object.entries( fields ).map( ( [ label, value ] ) => ( {
-		label,
-		value,
-		key: label,
-	} ) );
-};
-
-type UploadedFile = {
-	url: string;
-	name: string;
-	is_image?: boolean;
-};
-
-/**
- * Renders a list of uploaded files.
- *
- * @param props                   - Props used while rendering the list of uploaded files.
- * @param props.files             - The list of uploaded files.
- * @param props.handleFilePreview - Callback fired when a file is clicked.
- *
- * @return                        - Element containing the list of uploaded files.
- */
-function FieldFile( {
-	files,
-	handleFilePreview,
-}: {
-	files: Array< UploadedFile >;
-	handleFilePreview: ( file: UploadedFile ) => () => void;
-} ) {
-	return (
-		<ul style={ { margin: 0, paddingLeft: '20px' } }>
-			{ files.map( ( file, index ) => (
-				<li key={ index }>
-					{ file.is_image ? (
-						<Button variant="link" onClick={ handleFilePreview( file ) }>
-							{ decodeEntities( file.name ) }
-						</Button>
-					) : (
-						<ExternalLink href={ file.url }>{ decodeEntities( file.name ) }</ExternalLink>
-					) }
-				</li>
-			) ) }
-		</ul>
-	);
-}
-
-/**
- * Renders an email address.
- *
- * @param props       - Props used while rendering the email address.
- * @param props.email - The email address to render.
- *
- * @return            - Element containing the email address.
- */
-function FieldEmail( { email }: { email: string } ) {
-	return (
-		<span style={ { display: 'inline-flex', alignItems: 'center', gap: '4px' } }>
-			<a href={ `mailto:${ email }` }>{ email }</a>
-			<CopyClipboardButton text={ email } />
-		</span>
-	);
-}
-
-type ImageSelectChoice = {
-	url: string;
-	name: string;
-	selected?: boolean;
-};
-
-/**
- * Creates a handler for the enter key.
- *
- * @param handler - The handler to call when the enter key is pressed.
- *
- * @return        - Function that handles the enter key press.
- */
-function createEnterKeyHandler( handler: () => void ) {
-	return function handleEnterKeyDown( event: React.KeyboardEvent< HTMLDivElement > ) {
-		if ( event.key === 'Enter' ) {
-			handler();
-		}
-	};
-}
-
-/**
- * Renders a list of image choices.
- *
- * @param props                   - Props used while rendering the list of image choices.
- * @param props.choices           - The list of image choices.
- * @param props.handleFilePreview - Callback fired when a image choice is clicked.
- *
- * @return                        - Element containing the list of image choices.
- */
-function FieldImageSelect( {
-	choices,
-	handleFilePreview,
-}: {
-	choices: Array< ImageSelectChoice >;
-	handleFilePreview: ( choice: ImageSelectChoice ) => () => void;
-} ) {
-	return (
-		<div style={ { display: 'flex', gap: '8px', flexWrap: 'wrap' } }>
-			{ choices.map( ( choice, index ) => {
-				const previewHandler = handleFilePreview( choice );
-				const keyDownHandler = createEnterKeyHandler( previewHandler );
-
-				return (
-					<div
-						key={ index }
-						style={ {
-							border: choice.selected ? '2px solid var(--wp-admin-theme-color)' : '1px solid #ddd',
-							borderRadius: '4px',
-							padding: '4px',
-							cursor: 'pointer',
-						} }
-						onClick={ previewHandler }
-						onKeyDown={ keyDownHandler }
-						role="button"
-						tabIndex={ 0 }
-					>
-						<img
-							src={ choice.url }
-							alt={ choice.name }
-							style={ { width: '60px', height: '60px', objectFit: 'cover' } }
-						/>
-					</div>
-				);
-			} ) }
-		</div>
-	);
-}
+import './style.scss';
 
 /**
  * Renders a single response.
@@ -209,7 +58,12 @@ function SingleResponseView( {
 	const [ isImageLoading, setIsImageLoading ] = useState( true );
 	const [ hasMarkedAsRead, setHasMarkedAsRead ] = useState< number | null >( null );
 
+	const emptyTrashDays = useConfigValue( 'emptyTrashDays' ) ?? 0;
+	const isNotesEnabled = useConfigValue( 'isNotesEnabled' ) ?? false;
+
 	const { editEntityRecord } = useDispatch( coreStore ) as unknown as DispatchActions;
+	const navigate = useNavigate();
+	const searchParams = useSearch( { from: '/responses/$view' } );
 
 	const { response, isLoading } = useSelect(
 		select => {
@@ -218,7 +72,7 @@ function SingleResponseView( {
 			}
 
 			return {
-				response: ( select( coreStore ) as unknown as SelectActions ).getEntityRecord(
+				response: select( coreStore ).getEditedEntityRecord(
 					'postType',
 					'feedback',
 					responseId
@@ -231,6 +85,35 @@ function SingleResponseView( {
 		},
 		[ responseId ]
 	);
+
+	// Use the mark as spam hook with wp-build specific callbacks
+	const {
+		isConfirmDialogOpen,
+		onConfirmMarkAsSpam,
+		onCancelMarkAsSpam,
+		markAsSpamConfirmationMessage,
+		isSaving,
+	} = useMarkAsSpam( response as FormResponse | null, {
+		checkParameter: () => searchParams?.mark_as_spam === 1,
+		removeParameter: () => {
+			navigate( {
+				search: {
+					...searchParams,
+					mark_as_spam: undefined,
+				},
+			} );
+		},
+		switchToSpam: ( id: number | string ) => {
+			navigate( {
+				to: '/responses/spam',
+				search: {
+					...searchParams,
+					responseIds: [ String( id ) ],
+					mark_as_spam: undefined,
+				},
+			} );
+		},
+	} );
 
 	const currentIndex = allResponseIds.indexOf( responseId );
 	const hasNext = currentIndex < allResponseIds.length - 1;
@@ -324,80 +207,25 @@ function SingleResponseView( {
 		[ hasNext, hasPrevious, handleNext, handlePrevious, onClose ]
 	);
 
-	const renderFieldValue = ( value: unknown ) => {
-		if ( value === null || value === undefined ) {
-			return '-';
-		}
-
-		if ( isImageSelectField( value ) ) {
-			return (
-				<FieldImageSelect
-					choices={ ( value as { choices: ImageSelectChoice[] } ).choices }
-					handleFilePreview={ handleFilePreview }
-				/>
-			);
-		}
-
-		if ( isFileUploadField( value ) ) {
-			return (
-				<FieldFile
-					files={ ( value as { files: UploadedFile[] } ).files }
-					handleFilePreview={ handleFilePreview }
-				/>
-			);
-		}
-
-		const emailRegEx = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
-		if ( typeof value === 'string' && emailRegEx.test( value ) ) {
-			return <FieldEmail email={ value } />;
-		}
-
-		if ( isLikelyPhoneNumber( value ) ) {
-			return <a href={ `tel:${ value }` }>{ value as string }</a>;
-		}
-
-		if ( Array.isArray( value ) ) {
-			return value.join( ', ' );
-		}
-
-		if ( typeof value === 'object' ) {
-			return JSON.stringify( value );
-		}
-
-		return String( value );
-	};
-
-	const displayFields = useMemo( () => getDisplayFields( response?.fields ), [ response?.fields ] );
-
 	if ( isLoading ) {
 		return (
-			<div style={ { display: 'flex', justifyContent: 'center', padding: '40px' } }>
+			<Stack direction="row" justify="center" style={ { padding: '40px' } }>
 				<Spinner />
-			</div>
+			</Stack>
 		);
 	}
 
 	if ( ! response ) {
 		return (
-			<div style={ { padding: '20px' } }>
+			<Stack direction="row" justify="center" style={ { padding: '40px' } }>
 				<p>{ __( 'Response not found.', 'jetpack-forms' ) }</p>
-			</div>
+			</Stack>
 		);
 	}
 
 	return (
 		<>
-			<div
-				style={ {
-					display: 'flex',
-					justifyContent: 'space-between',
-					alignItems: 'center',
-					padding: '8px 16px',
-					borderBottom: '1px solid #e0e0e0',
-					gap: '8px',
-					flexWrap: 'wrap',
-				} }
-			>
+			<Stack className="jp-forms-response-header" direction="row" gap="xs" justify="space-between">
 				<ResponseActions response={ response } onActionComplete={ handleActionComplete } />
 				<ResponseNavigation
 					hasNext={ hasNext }
@@ -406,61 +234,48 @@ function SingleResponseView( {
 					onPrevious={ handlePrevious }
 					onClose={ onClose }
 				/>
-			</div>
+			</Stack>
 
-			<div style={ { padding: '20px', overflowY: 'auto' } }>
-				<ResponseMeta response={ response } />
+			<ResponseMeta response={ response } />
 
-				{ displayFields.length > 0 && (
-					<div>
-						{ displayFields.map( ( { label, value, key } ) => (
-							<div
-								key={ key }
-								style={ {
-									marginBottom: '16px',
-									paddingBottom: '16px',
-									borderBottom: '1px solid #eee',
-								} }
-							>
-								<div
-									style={ {
-										fontWeight: 600,
-										marginBottom: '6px',
-										color: '#1e1e1e',
-										fontSize: '13px',
-									} }
-								>
-									{ label.endsWith( '?' ) ? label : `${ label }:` }
-								</div>
-								<div style={ { color: '#3c434a', fontSize: '14px' } }>
-									{ renderFieldValue( value ) }
-								</div>
-							</div>
-						) ) }
-					</div>
-				) }
+			<ResponseFieldsIterator fields={ response.fields } onFilePreview={ handleFilePreview } />
 
-				{ response.status === 'spam' && (
-					<div style={ { marginTop: '20px' } }>
-						<Tip>
-							{ __( 'Spam responses are permanently deleted after 15 days.', 'jetpack-forms' ) }
-						</Tip>
-					</div>
-				) }
+			{ isNotesEnabled && <FeedbackComments postId={ response.id } /> }
 
-				{ response.status === 'trash' && (
-					<div style={ { marginTop: '20px' } }>
-						<Tip>
-							{ _n(
-								'Items in trash are permanently deleted after 30 days.',
-								'Items in trash are permanently deleted after 30 days.',
-								30,
+			{ response.status === 'spam' && (
+				<div className="jp-forms__inbox__tip-container">
+					<Tip>
+						{ sprintf(
+							/* translators: %d number of days. */
+							_n(
+								'Spam responses are permanently deleted after %d day.',
+								'Spam responses are permanently deleted after %d days.',
+								15,
 								'jetpack-forms'
-							) }
-						</Tip>
-					</div>
-				) }
-			</div>
+							),
+							// Number from https://github.com/Automattic/jetpack/blob/bde3cf9a89ce0d02e50469df173a6253383bd276/projects/packages/forms/src/contact-form/class-contact-form-plugin.php#L132
+							15
+						) }
+					</Tip>
+				</div>
+			) }
+
+			{ response.status === 'trash' && (
+				<div className="jp-forms__inbox__tip-container">
+					<Tip>
+						{ sprintf(
+							/* translators: %d number of days. */
+							_n(
+								'Items in trash are permanently deleted after %d day.',
+								'Items in trash are permanently deleted after %d days.',
+								emptyTrashDays,
+								'jetpack-forms'
+							),
+							emptyTrashDays
+						) }
+					</Tip>
+				</div>
+			) }
 
 			{ previewFile && (
 				<Modal title={ decodeEntities( previewFile.name ) } onRequestClose={ closePreviewModal }>
@@ -471,6 +286,15 @@ function SingleResponseView( {
 					/>
 				</Modal>
 			) }
+
+			<ConfirmDialog
+				isOpen={ isConfirmDialogOpen }
+				onConfirm={ onConfirmMarkAsSpam }
+				onCancel={ onCancelMarkAsSpam }
+				isBusy={ isSaving }
+			>
+				{ markAsSpamConfirmationMessage }
+			</ConfirmDialog>
 		</>
 	);
 }

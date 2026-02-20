@@ -1,3 +1,13 @@
 .post-type-jetpack_form .block-editor-block-breadcrumb li:first-child {
 	display: none;
 }
+
+// Ensure the form title has enough padding to not be hidden by
+// the block toolbar.
+.post-type-jetpack_form .editor-post-title {
+	padding-block-end: 48px;
+}
+
+.post-type-jetpack_form .editor-post-last-edited-panel {
+	display: none;
+}

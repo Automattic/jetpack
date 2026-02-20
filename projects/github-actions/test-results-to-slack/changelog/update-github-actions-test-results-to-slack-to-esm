@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Convert to ESM. This should not affect the operation of the action.

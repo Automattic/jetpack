@@ -355,6 +355,7 @@ export const CustomLegendPositioning: Story = {
 		legendOrientation: 'vertical',
 		legendAlignment: 'start',
 		legendPosition: 'top',
+		containerHeight: '450px',
 		data: [
 			{
 				label: 'Desktop',

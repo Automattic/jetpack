@@ -168,7 +168,7 @@ export const SharePostForm: FC< SharePostFormProps > = ( {
 					</div>
 				) : (
 					<>
-						{ siteHasFeature( features.ENHANCED_PUBLISHING ) && (
+						{ hasPaidFeatures && (
 							<div>
 								<MediaSection
 									analyticsData={ analyticsData }

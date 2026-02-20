@@ -13,7 +13,13 @@ import ExportResponsesModal from './modal.tsx';
 
 import './style.scss';
 
-const ExportResponsesButton = ( { isPrimary = false }: { isPrimary?: boolean } ) => {
+const ExportResponsesButton = ( {
+	isPrimary = false,
+	showIcon = true,
+}: {
+	isPrimary?: boolean;
+	showIcon?: boolean;
+} ) => {
 	const {
 		showExportModal,
 		openModal,
@@ -37,7 +43,7 @@ const ExportResponsesButton = ( { isPrimary = false }: { isPrimary?: boolean } )
 			<Button
 				size="compact"
 				variant={ isPrimary ? 'primary' : 'secondary' }
-				icon={ download }
+				icon={ showIcon ? download : undefined }
 				onClick={ openModal }
 				accessibleWhenDisabled
 				disabled={ isDisabled }

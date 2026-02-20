@@ -17,7 +17,6 @@ import type { FileItem, ResponseField, ResponseFields } from '../../../../types/
 export type ResponseFieldsProps = {
 	fields: ResponseFields;
 	onFilePreview: ( file: FileItem | { url: string; name: string } ) => () => void;
-	className: string;
 };
 
 /**
@@ -26,16 +25,14 @@ export type ResponseFieldsProps = {
  * @param props               - Component props.
  * @param props.fields        - The response fields (array or record).
  * @param props.onFilePreview - Callback that returns a handler to open file preview for a given file.
- * @param props.className     - CSS class for the container.
  * @return The response fields view.
  */
 const ResponseFieldsIterator = ( {
 	fields,
 	onFilePreview,
-	className,
 }: ResponseFieldsProps ): import('react').JSX.Element => {
 	const fieldsAreNewFormat = isFieldsCollection( fields );
-	const rootClass = clsx( className, {
+	const rootClass = clsx( 'jp-forms__inbox-response-data', {
 		'is-collection-format': fieldsAreNewFormat,
 	} );
 	const renderFieldValue = ( value: unknown ) => {

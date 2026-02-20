@@ -87,6 +87,7 @@ if ( interface_exists( 'Automattic\Jetpack\Connection\Storage_Provider_Interface
 		 *
 		 * Reports storage errors and empty states to the wpcom logstash cluster
 		 * for centralized error tracking and alerting.
+		 * Currently we are reporting only errors.
 		 *
 		 * @since $$next-version$$
 		 *
@@ -96,6 +97,10 @@ if ( interface_exists( 'Automattic\Jetpack\Connection\Storage_Provider_Interface
 		 * @param string $environment The environment identifier.
 		 */
 		public function handle_error_event( $event_type, $key, $details, $environment ) {
+			if ( 'error' !== $event_type ) {
+				return;
+			}
+
 			// Build log message
 			$message = sprintf(
 				'External Storage %s: %s',

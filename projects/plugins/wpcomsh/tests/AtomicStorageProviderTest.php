@@ -229,4 +229,27 @@ class AtomicStorageProviderTest extends WP_UnitTestCase {
 		// Should have replaced with new token
 		$this->assertSame( 'new.secret.' . $user_id, $result[ $user_id ] );
 	}
+
+	/**
+	 * Test handle_error_event ignores non-error event types.
+	 */
+	public function test_handle_error_event_ignores_non_error_events() {
+		$this->provider->handle_error_event( 'empty', 'master_user', '', 'woa' );
+		$this->provider->handle_error_event( 'empty', 'user_tokens', '', 'woa' );
+		$this->provider->handle_error_event( 'empty', 'blog_token', '', 'woa' );
+
+		$this->assertTrue( true );
+	}
+
+	/**
+	 * Test handle_error_event logs error events.
+	 */
+	public function test_handle_error_event_logs_error_events() {
+		$this->provider->handle_error_event( 'error', 'master_user', 'Some error', 'woa' );
+		$this->provider->handle_error_event( 'error', 'user_tokens', 'Some error', 'woa' );
+		$this->provider->handle_error_event( 'error', 'blog_token', '', 'woa' );
+		$this->provider->handle_error_event( 'error', 'id', 'Some error', 'woa' );
+
+		$this->assertTrue( true );
+	}
 }

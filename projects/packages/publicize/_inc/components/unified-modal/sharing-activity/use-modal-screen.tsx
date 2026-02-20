@@ -11,14 +11,14 @@ import { useFooterActions } from './use-footer-actions';
  *
  * @return screen details
  */
-export function useModalScreen(): ScreenDetails {
+export function useModalScreen() {
 	const isScreenLocked = useSelect(
 		select => select( socialStore ).isUnifiedModalScreenLocked(),
 		[]
 	);
 	const footerActions = useFooterActions();
 
-	return useMemo(
+	return useMemo< ScreenDetails >(
 		() => ( {
 			path: '/sharing-activity',
 			title: __( 'Sharing activity', 'jetpack-publicize-pkg' ),

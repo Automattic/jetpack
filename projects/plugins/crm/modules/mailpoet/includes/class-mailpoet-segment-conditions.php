@@ -1,5 +1,5 @@
-<?php 
-/*!
+<?php
+/*
  * Jetpack CRM
  * https://jetpackcrm.com
  *
@@ -32,10 +32,9 @@ class Mailpoet_Segment_Conditions {
 	public function __construct() {
 
 		// Require segment conditions when jpcrm is ready
-    	add_action( 'jpcrm_post_init', array( $this, 'require_segment_conditions'), 1 );
-
+		add_action( 'jpcrm_post_init', array( $this, 'require_segment_conditions' ), 1 );
 	}
-		
+
 	/**
 	 * Main Class Instance.
 	 *
@@ -43,26 +42,23 @@ class Mailpoet_Segment_Conditions {
 	 *
 	 * @since 2.0
 	 * @static
-	 * @see 
+	 * @see
 	 * @return Mailpoet_Segment_Conditions main instance
 	 */
 	public static function instance() {
-		if ( is_null( self::$_instance ) ) {
+		if ( self::$_instance === null ) {
 			self::$_instance = new self();
 		}
 		return self::$_instance;
 	}
 
-
-
 	/**
 	 * Require segment conditions
 	 */
-	public function require_segment_conditions(){
+	public function require_segment_conditions() {
 
 		// is mailpoet subscriber
-		require_once( JPCRM_MAILPOET_ROOT_PATH . 'includes/segment-conditions/class-segment-condition-mailpoet-subscriber.php' );
+		require_once JPCRM_MAILPOET_ROOT_PATH . 'includes/segment-conditions/class-segment-condition-mailpoet-subscriber.php';
 		$this->conditions['is_mailpoet_customer'] = new \Segment_Condition_Mailpoet_Subscriber();
-
 	}
 }

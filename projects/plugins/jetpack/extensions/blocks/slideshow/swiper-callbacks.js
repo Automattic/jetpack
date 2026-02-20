@@ -47,9 +47,45 @@ function swiperResize( swiper ) {
 	if ( ! img ) {
 		return;
 	}
-	const hasNatural = img.naturalWidth > 0 && img.naturalHeight > 0;
-	const aspectRatio = hasNatural ? img.naturalWidth / img.naturalHeight : SIXTEEN_BY_NINE;
+
+	let aspectRatio;
+
+	// If the image element has `naturalWidth` and `naturalHeight` defined, we prefer using
+	// those numbers, because they're guaranteed to be up to date and correct, since they're
+	// taken from the actual image that the browser loaded.
+	//
+	// However, in some cases these numbers will be missing, due to e.g. lazy image loading.
+	// In those situations, we first fall back to the recorded aspect ratio in the <img>
+	// element, then the `width` and `height` attributes in the same element.
+	if ( img.naturalWidth > 0 && img.naturalHeight > 0 ) {
+		aspectRatio = img.naturalWidth / img.naturalHeight;
+	} else if ( img.dataset.aspectRatio ) {
+		const matches = img.dataset.aspectRatio.match( /(\d+) \/ (\d+)/ );
+		if ( matches && matches[ 1 ] && matches[ 2 ] ) {
+			aspectRatio = parseInt( matches[ 1 ], 10 ) / parseInt( matches[ 2 ], 10 );
+		}
+	} else if ( img.getAttribute( 'width' ) && img.getAttribute( 'height' ) ) {
+		aspectRatio =
+			parseInt( img.getAttribute( 'width' ), 10 ) / parseInt( img.getAttribute( 'height' ), 10 );
+	}
+
+	// If we don't have a valid aspect ratio at this point, we set it to a sane default.
+	if ( ! aspectRatio ) {
+		aspectRatio = SIXTEEN_BY_NINE;
+
+		// Then, if the image is still loading, we schedule a new resize for once it loads.
+		// This might cause a layout shift, but it improves the chances that we display the
+		// slideshow at the correct aspect ratio, based on the image's natural dimensions.
+		if ( ! img.complete ) {
+			img.addEventListener( 'load', () => swiperResize( swiper ), { once: true } );
+		}
+	}
+
+	// After we have an aspect ratio, we run a final check to make sure it's within an
+	// acceptable range of values, and clamp it if necessary.
 	const sanityAspectRatio = Math.max( Math.min( aspectRatio, SIXTEEN_BY_NINE ), 1 );
+
+	// Finally, we also clamp the height to a sane maximum.
 	const sanityHeight =
 		typeof window !== 'undefined'
 			? window.innerHeight * MAX_HEIGHT_PERCENT_OF_WINDOW_HEIGHT

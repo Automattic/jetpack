@@ -1,13 +1,9 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { isSimpleSite } from '@automattic/jetpack-script-data';
-import {
-	getSiteFragment,
-	useAutosaveAndRedirect,
-} from '@automattic/jetpack-shared-extension-utils';
-import { Notice } from '@wordpress/components';
+import { useAnalytics, getSiteFragment } from '@automattic/jetpack-shared-extension-utils';
+import { Button, Flex, FlexItem, Notice } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import clsx from 'clsx';
-import styles from './styles.module.scss';
+import { useCallback } from 'react';
 
 /**
  * A notice for upgrading to a plan that supports per-network customization.
@@ -15,37 +11,49 @@ import styles from './styles.module.scss';
  * @return The UpgradeNoticeCustomization component.
  */
 export function UpgradeNoticeCustomization() {
-	const redirectUrl = getRedirectUrl( 'jetpack-social-basic-plan-block-editor', {
-		site: getSiteFragment() || '',
-		query: 'redirect_to=' + encodeURIComponent( window.location.href ),
-	} );
+	const { recordEvent } = useAnalytics();
 
-	const { autosaveAndRedirect, isRedirecting } = useAutosaveAndRedirect( redirectUrl );
+	const onClickUpgrade = useCallback( () => {
+		recordEvent( 'jetpack_social_per_network_customization_upgrade_click' );
+	}, [ recordEvent ] );
 
 	if ( isSimpleSite() ) {
 		return null;
 	}
 
+	const redirectUrl = getRedirectUrl( 'jetpack-social-basic-plan-block-editor', {
+		site: getSiteFragment() || '',
+		query: 'redirect_to=' + encodeURIComponent( window.location.href ),
+	} );
+
+	const message = __(
+		'Customize images and messages for each account for better engagement.',
+		'jetpack-publicize-pkg'
+	);
+
 	return (
-		<Notice
-			isDismissible={ false }
-			status="info"
-			className={ styles[ 'upgrade-notice-customization' ] }
-			actions={ [
-				{
-					variant: 'primary',
-					label: __( 'Upgrade now', 'jetpack-publicize-pkg' ),
-					onClick: isRedirecting ? undefined : autosaveAndRedirect,
-					className: clsx( 'is-compact', {
-						'is-busy': isRedirecting,
-					} ),
-				},
-			] }
-		>
-			{ __(
-				'Customize images and messages for each account for better engagement.',
-				'jetpack-publicize-pkg'
-			) }
+		/**
+		 * Render actions manually instead of using Notice actions prop
+		 * because actions are not flexible enough for our use case. e.g., the actions do not accept all the button props.
+		 *
+		 * @see https://github.com/WordPress/gutenberg/issues/74090
+		 */
+		<Notice isDismissible={ false } status="info" spokenMessage={ message }>
+			<Flex direction="column">
+				<FlexItem>{ message }</FlexItem>
+				<Flex>
+					<Button
+						variant="primary"
+						href={ redirectUrl }
+						className="is-compact"
+						target="_blank"
+						rel="noopener noreferrer"
+						onClick={ onClickUpgrade }
+					>
+						{ __( 'Upgrade now', 'jetpack-publicize-pkg' ) }
+					</Button>
+				</Flex>
+			</Flex>
 		</Notice>
 	);
 }

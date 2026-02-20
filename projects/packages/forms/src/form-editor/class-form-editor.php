@@ -75,7 +75,7 @@ class Form_Editor {
 			'jetpack/field-image-select',
 
 			// Supporting blocks.
-			'jetpack/button',
+			'jetpack/button', // Used for the submit button previously.
 			'jetpack/label',
 			'jetpack/input',
 			'jetpack/options',
@@ -95,17 +95,20 @@ class Form_Editor {
 			'jetpack/form-progress-indicator',
 
 			// Core blocks for rich content.
+			'core/accordion',
 			'core/audio',
-			'core/button',
+			'core/button', // Used for the submit button.
 			'core/code',
-			'core/columns',
 			'core/column',
+			'core/columns',
+			'core/details',
 			'core/group',
 			'core/heading',
 			'core/html',
+			'core/icon',
 			'core/image',
-			'core/list',
 			'core/list-item',
+			'core/list',
 			'core/math',
 			'core/paragraph',
 			'core/row',

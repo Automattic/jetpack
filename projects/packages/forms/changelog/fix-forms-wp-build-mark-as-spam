@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix 'Mark as spam' button in email notifications to work with wp-build dashboard.

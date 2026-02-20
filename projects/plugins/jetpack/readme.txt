@@ -1,7 +1,7 @@
 === Jetpack - WP Security, Backup, Speed, & Growth ===
 Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav, alternatekev, andy, annamcphee, annezazu, apeatling, arcangelini, arsihasi, azaozz, barry, batmoo, beaulebens, bindlegirl, biskobe, bjorsch, blobaugh, brbrr, brileyhooper, cainm, cena, cfinke, cgastrell, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, daniloercoli, davoraltman, delawski, designsimply, dkmyta, dllh, drawmyface, dsmart, dun2mis, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, joen, jblz, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lhkowalski, lschuyler, macmanx, martinremy, matt, mattwiebe, matveb, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, miguelxavierpenha, mikeyarce, mkaz, nancythanki, nickmomrik, njweller, nunyvega, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, renatoagds, retrofox, richardmtl, richardmuscat, robertbpugh, roccotripaldi, ryancowles, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, thehenridev, tmoorewp, tyxla, Viper007Bond, westi, williamvianas, wpkaren, yoavf, zinigor
 Tags: Security, backup, malware, scan, performance
-Stable tag: 15.5-a.5
+Stable tag: 15.6-a.3
 Requires at least: 6.8
 Requires PHP: 7.2
 Tested up to: 6.9
@@ -326,19 +326,23 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 15.5-a.5 - 2026-01-26
+### 15.6-a.3 - 2026-02-16
 #### Enhancements
-- Forms: Update DataViews header and filters.
-- Likes: Enable CSS inlining.
-- Social: Refactor share status UI to use Notice component.
-- Social: Show a snackbar while sharing is in progress.
-- Social: Use fallback avatar for Jetpack Social connection icons.
+- Form Notifications: Add new HTML email template design with respondent info header, metadata section, and improved action buttons.
+- Forms: Allow Accordion, Details, and Icon blocks in forms, and Icon block to be added inside the file upload dropzone.
+- Forms: Allow filtering Forms dashboard URL.
+- Forms: Create new forms in same tab.
+- Forms: Replace dashicon with SVG icon and add tooltip to admin bar "Form Responses" link.
+- Reader: Add Discover card to Reader settings page to highlight feature benefits.
+- Update external menu links to display an arrow indicator for improved performance and a more modern appearance.
+- VideoPress: Accept SRT subtitle files for upload alongside VTT.
+- WordPress.com Reader: Automatically enable the admin bar link on sites newly connected to WordPress.com.
 
 #### Bug fixes
-- AI Assistant: Fix markdown rendering in feedback sidebar to properly display bold text, lists, and other formatting.
-- Copy Post: Copy Gutenberg Footnotes block content when duplicating posts.
-- Google Fonts: Prevent Gutenberg 22.4+ from printing all registered fonts.
-- Social Previews: Use fallback image when social preview profile picture fails.
+- AI Assistant: Restore Jetpack logo in pre-publish panel where branding is not otherwise apparent.
+- Block Editor Assets: Fix Gutenberg asset detection when assets are served from a CDN.
+- Social: Fix Tumblr preview to prioritize custom message when it is set.
+- Social: Refresh plan features on post-checkout redirect.
 
 --------
 

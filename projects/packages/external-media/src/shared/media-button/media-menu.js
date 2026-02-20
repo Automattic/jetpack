@@ -23,6 +23,7 @@ function MediaButtonMenu( props ) {
 	if ( isReplace ) {
 		return (
 			<MediaSources
+				mediaProps={ mediaProps }
 				originalButton={ originalComponent }
 				open={ open }
 				setSource={ setSelectedSource }

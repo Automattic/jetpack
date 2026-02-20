@@ -11,6 +11,7 @@ import { useDispatch } from '@wordpress/data';
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __, _n, sprintf } from '@wordpress/i18n';
+import { useSearchParams } from 'react-router';
 /**
  * Internal dependencies
  */
@@ -20,7 +21,7 @@ import { useMarkAsSpam } from '../../hooks/use-mark-as-spam.ts';
 import { updateMenuCounter, updateMenuCounterOptimistically } from '../../inbox/utils.js';
 import { store as dashboardStore } from '../../store/index.js';
 import FeedbackComments from '../feedback-comments/index.tsx';
-import PreviewFile from './preview-file';
+import PreviewFile from './preview-file/index';
 import ResponseFieldsIterator from './response-fields/index.tsx';
 import ResponseMeta from './response-meta';
 import type { FormResponse } from '../../../types/index.ts';
@@ -52,6 +53,7 @@ const ResponseViewBody = ( {
 	const [ previewFile, setPreviewFile ] = useState< { url: string; name: string } | null >( null );
 	const [ isImageLoading, setIsImageLoading ] = useState( true );
 	const [ hasMarkedSelfAsRead, setHasMarkedSelfAsRead ] = useState( 0 );
+	const [ searchParams, setSearchParams ] = useSearchParams();
 
 	const { editEntityRecord } = useDispatch( 'core' );
 
@@ -59,9 +61,26 @@ const ResponseViewBody = ( {
 	const isNotesEnabled = useConfigValue( 'isNotesEnabled' ) ?? false;
 
 	// When opening a "Mark as spam" link from the email, the ResponseViewBody component is rendered, so we use a hook here to handle it.
-	const { isConfirmDialogOpen, onConfirmMarkAsSpam, onCancelMarkAsSpam } = useMarkAsSpam(
-		response as FormResponse
-	);
+	const {
+		isConfirmDialogOpen,
+		onConfirmMarkAsSpam,
+		onCancelMarkAsSpam,
+		markAsSpamConfirmationMessage,
+		isSaving,
+	} = useMarkAsSpam( response as FormResponse | null, {
+		checkParameter: () => searchParams.get( 'mark_as_spam' ) != null,
+		removeParameter: () => {
+			const newSearchParams = new URLSearchParams( searchParams );
+			newSearchParams.delete( 'mark_as_spam' );
+			setSearchParams( newSearchParams );
+		},
+		switchToSpam: () => {
+			const newSearchParams = new URLSearchParams( searchParams );
+			newSearchParams.set( 'status', 'spam' );
+			newSearchParams.delete( 'mark_as_spam' );
+			setSearchParams( newSearchParams );
+		},
+	} );
 
 	const { invalidateCounts, markRecordsAsInvalid } = useDispatch( dashboardStore );
 
@@ -181,11 +200,7 @@ const ResponseViewBody = ( {
 			<div ref={ ref } className="jp-forms__inbox-response">
 				<ResponseMeta response={ response } />
 
-				<ResponseFieldsIterator
-					fields={ response.fields }
-					onFilePreview={ handleFilePreview }
-					className="jp-forms__inbox-response-data"
-				/>
+				<ResponseFieldsIterator fields={ response.fields } onFilePreview={ handleFilePreview } />
 				{ isPreviewModalOpen && previewFile && onModalStateChange && (
 					<Modal
 						title={ decodeEntities( previewFile.name ) }
@@ -203,8 +218,9 @@ const ResponseViewBody = ( {
 					isOpen={ isConfirmDialogOpen }
 					onConfirm={ onConfirmMarkAsSpam }
 					onCancel={ onCancelMarkAsSpam }
+					isBusy={ isSaving }
 				>
-					{ __( 'Are you sure you want to mark this response as spam?', 'jetpack-forms' ) }
+					{ markAsSpamConfirmationMessage }
 				</ConfirmDialog>
 			</div>
 			{ /* Comments section */ }

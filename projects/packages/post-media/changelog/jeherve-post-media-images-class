@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add Images class (copy of Jetpack_PostImages) for extracting images from WordPress posts.

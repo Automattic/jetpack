@@ -11,12 +11,10 @@ export function GlobalCustomizationForm() {
 	const hasPaidFeatures = hasSocialPaidFeatures();
 
 	return (
-		<div>
-			<SharePostForm
-				analyticsData={ { location: 'preview-modal' } }
-				isInsideNavigatorModal
-				upgradeNotice={ ! hasPaidFeatures ? <UpgradeNoticeCustomization /> : undefined }
-			/>
-		</div>
+		<SharePostForm
+			analyticsData={ { location: 'preview-modal' } }
+			isInsideNavigatorModal
+			upgradeNotice={ ! hasPaidFeatures ? <UpgradeNoticeCustomization /> : undefined }
+		/>
 	);
 }

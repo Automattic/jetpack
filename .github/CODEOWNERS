@@ -12,6 +12,8 @@
 /projects/packages/connection/src @Automattic/jetpack-vulcan
 /projects/packages/connection/legacy @Automattic/jetpack-vulcan
 /projects/packages/sync/src @Automattic/jetpack-vulcan
+/projects/packages/connection/src/class-package-version.php
+/projects/packages/sync/src/class-package-version.php
 
 # Plugins
 

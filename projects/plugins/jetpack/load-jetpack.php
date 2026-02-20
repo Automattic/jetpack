@@ -64,6 +64,8 @@ if ( is_admin() ) {
 
 	// Initialize Newsletter Settings (always-loaded so the settings page URL works even when module is inactive).
 	\Automattic\Jetpack\Newsletter\Settings::init();
+
+	\Automattic\Jetpack\Plugin\Jetpack_Script_Data::configure();
 }
 
 // Play nice with https://wp-cli.org/.
@@ -73,7 +75,6 @@ if ( defined( 'WP_CLI' ) && WP_CLI ) {
 
 require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.core-rest-api-endpoints.php';
 require_once JETPACK__PLUGIN_DIR . '_inc/blogging-prompts.php';
-require_once JETPACK__PLUGIN_DIR . '_inc/site-switcher.php';
 
 add_action( 'updating_jetpack_version', array( 'Jetpack', 'do_version_bump' ), 10, 2 );
 add_filter( 'is_jetpack_site', '__return_true' );

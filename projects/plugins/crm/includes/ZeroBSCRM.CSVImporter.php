@@ -1,6 +1,5 @@
 <?php
 /*
-!
  * Jetpack CRM
  * https://jetpackcrm.com
  * V1.0
@@ -77,7 +76,7 @@ function zeroBSCRM_CSVImporterLite_extended_upload ( $mime_types =array() ) {
 // } Add le admin menu
 function zeroBSCRM_CSVImporterLiteadmin_menu() {
 
-	global $zbs,$zeroBSCRM_CSVImporterLiteslugs; // req
+	global $zbs, $zeroBSCRM_CSVImporterLiteslugs; // req
 
 	wp_register_style( 'zerobscrm-csvimporter-admcss', ZEROBSCRM_URL . 'css/ZeroBSCRM.admin.csvimporter' . wp_scripts_get_suffix() . '.css', array(), $zbs::VERSION );
 	$csv_admin_page = add_submenu_page( 'jpcrm-hidden', 'CSV Importer', 'CSV Importer', 'admin_zerobs_customers', $zbs->slugs['csvlite'], 'zeroBSCRM_CSVImporterLitepages_app', 1 ); // phpcs:ignore WordPress.WP.Capabilities.Unknown
@@ -289,7 +288,7 @@ function jpcrm_csvimporter_lite_preflight_checks( $stage ) {
 // } HTML for main app
 function zeroBSCRM_CSVImporterLitehtml_app() {
 
-	global $zbsCustomerFields, $zeroBSCRM_CSVImporterLiteslugs,  $zbs;// ,$zeroBSCRM_CSVImporterSettings;
+	global $zbsCustomerFields, $zeroBSCRM_CSVImporterLiteslugs, $zbs;// ,$zeroBSCRM_CSVImporterSettings;
 
 	// $settings = $zeroBSCRM_CSVImporterSettings->getAll();
 	$default_status    = $zbs->settings->get( 'defaultstatus' );

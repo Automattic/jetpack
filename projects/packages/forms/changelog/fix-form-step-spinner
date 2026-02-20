@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Multi-step forms: fix submit button spinner CSS selector to target the correct element.

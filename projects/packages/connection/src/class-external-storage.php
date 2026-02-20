@@ -52,7 +52,7 @@ class External_Storage {
 	/**
 	 * Static cache to prevent logging same event multiple times in single request.
 	 *
-	 * @since $$next-version$$
+	 * @since 7.0.0
 	 *
 	 * @var array
 	 */
@@ -63,7 +63,7 @@ class External_Storage {
 	 * This also determines the transient expiry for tracking first empty state.
 	 * Provider custom thresholds must not exceed this value.
 	 *
-	 * @since $$next-version$$
+	 * @since 7.0.0
 	 */
 	private const EMPTY_STATE_TRANSIENT_EXPIRY = 15 * MINUTE_IN_SECONDS;
 
