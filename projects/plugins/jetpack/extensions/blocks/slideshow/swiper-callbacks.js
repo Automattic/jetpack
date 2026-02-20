@@ -77,7 +77,7 @@ function swiperResize( swiper ) {
 		// This might cause a layout shift, but it improves the chances that we display the
 		// slideshow at the correct aspect ratio, based on the image's natural dimensions.
 		if ( ! img.complete ) {
-			img.addEventListener( 'load', () => swiperResize( swiper ) );
+			img.addEventListener( 'load', () => swiperResize( swiper ), { once: true } );
 		}
 	}
 
