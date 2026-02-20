@@ -916,6 +916,7 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	 */
 	public function test_ai_extensions_disabled_on_block_editor() {
 		$this->enable_image_studio();
+		ImageStudio\register_plugin();
 		$this->make_ai_extensions_available();
 
 		$this->set_block_editor_screen();
@@ -934,6 +935,7 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	 */
 	public function test_ai_extensions_disabled_on_media_library() {
 		$this->enable_image_studio();
+		ImageStudio\register_plugin();
 		$this->make_ai_extensions_available();
 
 		$this->set_media_library_screen();
