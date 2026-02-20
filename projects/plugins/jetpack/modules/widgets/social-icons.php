@@ -347,12 +347,13 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 		</p>
 
 		<?php
-		switch ( get_locale() ) {
+		$lang = strtolower( substr( get_locale(), 0, 2 ) );
+		switch ( $lang ) {
 			case 'es':
 				$support = 'https://wordpress.com/es/support/wordpress-editor/blocks/social-icons-block/display-social-profiles/#iconos-sociales-compatibles';
 				break;
 
-			case 'pt-br':
+			case 'pt':
 				$support = 'https://wordpress.com/pt-br/support/exibir-perfis-de-redes-sociais/#icones-de-redes-sociais-compativeis';
 				break;
 
