@@ -239,7 +239,8 @@
 
 .jetpack-contact-form.is-placeholder {
 	background-color: #fff;
-	border: 1px solid #1e1e1e;
+	border: 1px solid #ddd;
+	border-radius: 4px;
 	padding: 24px;
 
 	.components-placeholder {
@@ -262,6 +263,204 @@
 			text-align: left;
 		}
 	}
+
+	// Header section
+	.form-placeholder__header {
+		display: flex;
+		align-items: center;
+		gap: 10px;
+		margin-bottom: 0;
+	}
+
+	.form-placeholder__header-icon {
+		flex-shrink: 0;
+		width: 24px;
+		height: 24px;
+		fill: currentColor;
+	}
+
+	.form-placeholder__header-title {
+		font-size: 16px;
+		font-weight: 600;
+		color: #1e1e1e;
+	}
+
+	// AI Prompt input section
+	.form-placeholder__prompt {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		margin: 0;
+		background-color: #fff;
+		border: 1px solid #ddd;
+		border-radius: 28px;
+		padding: 4px 4px 4px 16px;
+
+		.components-base-control {
+			flex: 1;
+			margin-bottom: 0;
+		}
+
+		.components-base-control__field {
+			margin-bottom: 0;
+		}
+
+		.components-text-control__input,
+		input[type="text"],
+		input:not([type="submit"]):not([type="checkbox"]):not([type="radio"]):not([type="range"]) {
+			background: transparent;
+			border: none !important;
+			box-shadow: none !important;
+			flex: 1;
+			font-size: 16px;
+			padding: 10px 0;
+			margin: 0;
+			min-height: auto;
+			height: auto;
+			line-height: 1.4;
+			outline: none !important;
+
+			&:focus {
+				box-shadow: none !important;
+				outline: none !important;
+				border: none !important;
+			}
+
+			&::placeholder {
+				color: #757575;
+			}
+		}
+	}
+
+	.form-placeholder__prompt-submit {
+		background-color: #f0f0f0;
+		border-radius: 50%;
+		width: 40px;
+		height: 40px;
+		min-width: 40px;
+		padding: 0;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		flex-shrink: 0;
+		border: none;
+
+		&:hover:not(:disabled) {
+			background-color: #e0e0e0;
+		}
+
+		&:disabled {
+			opacity: 0.4;
+		}
+
+		svg {
+			width: 24px;
+			height: 24px;
+			fill: #1e1e1e;
+		}
+	}
+
+	// Template grid section
+	.form-placeholder__grid {
+		display: grid;
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+		gap: 20px;
+		margin-bottom: 24px;
+
+		@media (max-width: 782px) {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+		}
+
+		@media (max-width: 480px) {
+			grid-template-columns: minmax(0, 1fr);
+		}
+	}
+
+	.form-placeholder__template-card {
+		cursor: pointer;
+		border-radius: 4px;
+		transition: box-shadow 0.15s ease;
+		min-width: 0; // Prevent grid blowout
+
+		&:hover,
+		&:focus {
+			outline: none;
+
+			.form-placeholder__template-preview {
+				border-color: #007cba;
+				box-shadow: 0 0 0 1px #007cba;
+			}
+		}
+	}
+
+	.form-placeholder__template-preview {
+		background: #f6f7f7;
+		border: 1px solid #e0e0e0;
+		border-radius: 8px;
+		overflow: hidden;
+		height: 180px;
+		margin-bottom: 12px;
+		transition: border-color 0.15s ease, box-shadow 0.15s ease;
+
+		// Ensure the preview container fills and clips
+		.block-editor-block-preview__container {
+			overflow: hidden;
+			width: 100%;
+			height: 100%;
+		}
+
+		// Scale down the preview content
+		.block-editor-block-preview__content {
+			transform-origin: top left;
+		}
+
+		// Hide any iframe scrollbars
+		iframe {
+			pointer-events: none;
+		}
+	}
+
+	.form-placeholder__template-label {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		font-size: 14px;
+		font-weight: 500;
+		color: #1e1e1e;
+	}
+
+	.form-placeholder__template-icon {
+		flex-shrink: 0;
+		width: 20px;
+		height: 20px;
+		fill: currentColor;
+	}
+
+	.form-placeholder__template-title {
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+
+	// Actions section
+	.form-placeholder__actions {
+		display: flex;
+		justify-content: center;
+		margin-bottom: 16px;
+	}
+
+	.form-placeholder__view-all {
+		width: 100%;
+		justify-content: center;
+		border-color: #007cba;
+		color: #007cba;
+
+		&:hover {
+			border-color: #006ba1;
+			color: #006ba1;
+		}
+	}
+
 }
 
 .is-form-empty .block-editor-inserter {
