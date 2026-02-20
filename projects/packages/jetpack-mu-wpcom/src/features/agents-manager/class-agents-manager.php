@@ -18,7 +18,7 @@ class Agents_Manager {
 	 *
 	 * @var string
 	 */
-	private const HELP_CENTER_URL = 'https://wordpress.com/support';
+	private const HELP_CENTER_URL = 'https://wordpress.com/help?help-center=home';
 
 	/**
 	 * Class instance.
@@ -34,12 +34,6 @@ class Agents_Manager {
 		add_action( 'rest_api_init', array( $this, 'register_rest_api' ) );
 		add_filter( 'calypso_preferences_update', array( $this, 'calypso_preferences_update' ) );
 
-		// Hook early to prevent Help Center from loading in Gutenberg and CIAB when Agents Manager should handle it.
-		// Priority 50 runs before Help Center's priority 100 (for admin_enqueue_scripts).
-		// Priority 500 runs before Help Center's priority 1000 (for next_admin_init).
-		add_action( 'admin_enqueue_scripts', array( $this, 'maybe_prevent_help_center' ), 50 );
-		add_action( 'next_admin_init', array( $this, 'maybe_prevent_help_center' ), 500 );
-
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ), 101 );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ), 101 );
 		add_action( 'next_admin_init', array( $this, 'enqueue_scripts' ), 1001 );
@@ -53,47 +47,6 @@ class Agents_Manager {
 	 */
 	public function should_display_menu_panel() {
 		return apply_filters( 'agents_manager_use_unified_experience', false );
-	}
-
-	/**
-	 * Prevent Help Center from loading when Agents Manager should handle it.
-	 *
-	 * This runs at:
-	 * - Priority 50 on admin_enqueue_scripts (before Help Center's priority 100)
-	 * - Priority 500 on next_admin_init (before Help Center's priority 1000)
-	 *
-	 * Prevents Help Center from loading when Agents Manager will be active to avoid duplicate UI elements.
-	 */
-	public function maybe_prevent_help_center() {
-		// Only prevent if Agents Manager will be loading.
-		// This ensures Help Center doesn't enqueue duplicate JS/CSS in wp-admin,
-		// Gutenberg, or CIAB when Agents Manager is active.
-		if ( ! $this->should_enqueue_script() ) {
-			return;
-		}
-
-		// Get the Help Center singleton instance and remove its hooks.
-		$help_center_class = 'A8C\FSE\Help_Center';
-		if ( class_exists( $help_center_class ) ) {
-			// Try to get the instance via reflection to access the private static property.
-			try {
-				$reflection        = new \ReflectionClass( $help_center_class );
-				$instance_property = $reflection->getProperty( 'instance' );
-				// setAccessible() is deprecated in PHP 8.4 and unnecessary since PHP 8.1.
-				if ( PHP_VERSION_ID < 80100 ) {
-					$instance_property->setAccessible( true );
-				}
-				$instance = $instance_property->getValue();
-
-				if ( $instance ) {
-					// Remove Help Center from both admin_enqueue_scripts and next_admin_init hooks.
-					remove_action( 'admin_enqueue_scripts', array( $instance, 'enqueue_wp_admin_scripts' ), 100 );
-					remove_action( 'next_admin_init', array( $instance, 'enqueue_wp_admin_scripts' ), 1000 );
-				}
-			} catch ( \ReflectionException $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
-				// If reflection fails, silently continue - Agents Manager will still load.
-			}
-		}
 	}
 
 	/**
@@ -208,13 +161,12 @@ class Agents_Manager {
 			return;
 		}
 
-		// Check if scripts should be enqueued before adding admin bar UI.
-		// This prevents rendering non-functional UI on the frontend where scripts won't load.
-		if ( ! $this->should_enqueue_script() ) {
+		// Determine which variant to load (null = don't load).
+		$variant = $this->get_variant();
+		if ( null === $variant ) {
 			return;
 		}
-
-		$use_disconnected = $this->should_use_disconnected_variant();
+		$use_disconnected = str_contains( $variant, 'disconnected' );
 		$is_gutenberg     = $this->is_block_editor();
 
 		// For non-Gutenberg environments, add to admin bar
@@ -229,8 +181,8 @@ class Agents_Manager {
 					$menu_args = array(
 						'id'     => 'agents-manager',
 						'title'  => '<span title="' . __( 'Help Center', 'jetpack-mu-wpcom' ) . '"><svg id="agents-manager-icon" class="ab-icon" width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-											<path fill="currentColor" fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm-1 16v-2h2v2h-2zm2-3v-1.141A3.991 3.991 0 0016 10a4 4 0 00-8 0h2c0-1.103.897-2 2-2s2 .897 2 2-.897 2-2 2a1 1 0 00-1 1v2h2z" />
-										</svg></span>',
+										<path fill="currentColor" fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm-1 16v-2h2v2h-2zm2-3v-1.141A3.991 3.991 0 0016 10a4 4 0 00-8 0h2c0-1.103.897-2 2-2s2 .897 2 2-.897 2-2 2a1 1 0 00-1 1v2h2z" />
+									</svg></span>',
 						'parent' => 'top-secondary',
 					);
 
@@ -283,22 +235,6 @@ class Agents_Manager {
 		 */
 		$use_unified_experience = apply_filters( 'agents_manager_use_unified_experience', false );
 
-		// Determine if disconnected variant should be used.
-		$variant = 'wp-admin';
-
-		if ( $this->should_use_disconnected_variant() ) {
-			// Disconnected variants - lightweight help icon only.
-			$variant = 'wp-admin-disconnected';
-
-			if ( $this->is_block_editor() ) {
-				$variant = 'gutenberg-disconnected';
-			} elseif ( $this->is_ciab_environment() ) {
-				$variant = 'ciab-disconnected';
-			}
-		} elseif ( $this->is_block_editor() ) {
-			$variant = 'gutenberg';
-		}
-
 		$this->enqueue_script( $variant );
 
 		wp_add_inline_script(
@@ -320,53 +256,99 @@ class Agents_Manager {
 	}
 
 	/**
-	 * Determine if the agents manager files should be enqueued.
+	 * Determine which script variant to load, or null if none should be loaded.
+	 *
+	 * Combines the gating logic (should we load at all?) with variant selection
+	 * (which build to use?) into a single method so the two cannot get out of sync.
+	 *
+	 * @return string|null The variant name, or null if scripts should not be loaded.
 	 */
-	private function should_enqueue_script() {
-		// Don't load on site frontend - only load in wp-admin.
-		if ( ! is_admin() ) {
-			return false;
+	private function get_variant() {
+		// CIAB/Next Admin: only load when disconnected (connected CIAB is handled by Help Center).
+		if ( $this->is_ciab_environment() ) {
+			if ( $this->is_enabled() && $this->is_jetpack_disconnected() ) {
+				return 'ciab-disconnected';
+			}
+			return null;
 		}
 
+		// Frontend: load disconnected variant for eligible logged-in editors.
+		if ( ! is_admin() ) {
+			if ( $this->is_loading_on_frontend() && $this->is_enabled() ) {
+				return 'wp-admin-disconnected';
+			}
+			return null;
+		}
+
+		// Apply wp-admin exclusions (WooCommerce, customizer, preview contexts).
+		if ( ! $this->passes_admin_checks() ) {
+			return null;
+		}
+
+		if ( ! $this->is_enabled() ) {
+			return null;
+		}
+
+		$disconnected = $this->is_jetpack_disconnected();
+
+		if ( $this->is_block_editor() ) {
+			return $disconnected ? 'gutenberg-disconnected' : 'gutenberg';
+		}
+
+		return $disconnected ? 'wp-admin-disconnected' : 'wp-admin';
+	}
+
+	/**
+	 * Returns true if the Agents Manager should be loaded in the current context.
+	 *
+	 * True when the unified experience filter is enabled, or when the block editor
+	 * has the unified Big Sky flag active.
+	 *
+	 * @return bool
+	 */
+	private function is_enabled() {
+		if ( apply_filters( 'agents_manager_use_unified_experience', false ) ) {
+			return true;
+		}
+
+		if ( $this->is_block_editor() && class_exists( 'Big_Sky' ) && $this->has_unified_big_sky_flag() ) {
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Returns true if the current wp-admin context passes all exclusion checks.
+	 *
+	 * Excludes WooCommerce Admin home, customizer preview, Gutenberg asset requests,
+	 * and preview query param contexts.
+	 *
+	 * @return bool
+	 */
+	private function passes_admin_checks() {
 		// Don't load on WooCommerce Admin home page to avoid UI conflicts.
-		// This matches the exclusion in Help_Center::enqueue_wp_admin_scripts().
 		global $current_screen;
 		if ( $current_screen && $current_screen->id === 'woocommerce_page_wc-admin' ) {
 			return false;
 		}
 
-		// Don't load in customizer preview iframe - Help Center handles customizer separately
-		// via customize_controls_enqueue_scripts hook (loads only in controls panel, not preview).
+		// Don't load in customizer preview iframe.
 		if ( is_customize_preview() ) {
 			return false;
 		}
 
-		// Don't load during Gutenberg asset requests or in preview contexts.
-		// This matches the logic in Help_Center::init() to prevent excessive/unnecessary loading.
+		// Don't load during Gutenberg asset requests or preview contexts.
 		$request_uri = isset( $_SERVER['REQUEST_URI'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- This is a context check, not a form submission.
 		$is_preview = isset( $_GET['preview'] ) && 'true' === sanitize_text_field( wp_unslash( $_GET['preview'] ) );
-		if ( str_contains( $request_uri, 'wp-content/plugins/gutenberg-core' ) || $is_preview ) {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- This is a context check, not a form submission.
+		$is_preview_overlay = isset( $_GET['preview_overlay'] );
+		if ( str_contains( $request_uri, 'wp-content/plugins/gutenberg-core' ) || $is_preview || $is_preview_overlay ) {
 			return false;
 		}
 
-		// Load if unified experience is enabled (full UI).
-		if ( apply_filters( 'agents_manager_use_unified_experience', false ) ) {
-			return true;
-		}
-
-		// Load if block editor with unified Big Sky flag (full UI).
-		if ( $this->is_block_editor() && class_exists( 'Big_Sky' ) && $this->has_unified_big_sky_flag() ) {
-			return true;
-		}
-
-		// For disconnected variants, also load when disconnected variant is needed.
-		// This allows the lightweight help icon to display in block editor, CIAB admin, and regular wp-admin.
-		if ( $this->should_use_disconnected_variant() ) {
-			return true;
-		}
-
-		return false;
+		return true;
 	}
 
 	/**
@@ -697,6 +679,28 @@ class Agents_Manager {
 	}
 
 	/**
+	 * Returns true if the current request is on the frontend and the user can edit posts.
+	 *
+	 * Mirrors Help_Center::is_loading_on_frontend().
+	 *
+	 * @return bool True if loading on the frontend for an eligible user.
+	 */
+	private function is_loading_on_frontend() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- This is a context check, not a form submission.
+		if ( isset( $_GET['na_site_preview'] ) || isset( $_GET['preview_overlay'] ) ) {
+			return false;
+		}
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- This is a context check, not a form submission.
+		if ( isset( $_GET['preview'] ) && 'true' === sanitize_text_field( wp_unslash( $_GET['preview'] ) ) ) {
+			return false;
+		}
+
+		$can_edit_posts = current_user_can( 'edit_posts' ) && is_user_member_of_blog();
+		return ! is_admin() && ! $this->is_block_editor() && $can_edit_posts;
+	}
+
+	/**
 	 * Returns true if the current screen is the block editor.
 	 *
 	 * @return bool True if the current screen is the block editor.
@@ -723,30 +727,25 @@ class Agents_Manager {
 	}
 
 	/**
-	 * Check if disconnected variant should be used.
+	 * Returns true if the current user is connected through Jetpack.
 	 *
-	 * Disconnected variants are lightweight and only show a help icon
-	 * linking to the WordPress.com support page. They are used when:
-	 * - Unified experience is disabled
-	 * - Help center icon needs to display
-	 * - Full Agents Manager UI is not needed
+	 * Mirrors the logic from Help_Center::is_jetpack_disconnected().
 	 *
-	 * @return bool True if disconnected variant should be used.
+	 * @return bool True if the site uses Jetpack but the current user is not connected.
 	 */
-	private function should_use_disconnected_variant() {
-		// Don't use disconnected variant if unified experience is enabled.
-		if ( apply_filters( 'agents_manager_use_unified_experience', false ) ) {
-			return false;
+	private function is_jetpack_disconnected() {
+		$user_id = get_current_user_id();
+		$blog_id = get_current_blog_id();
+
+		if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
+			return ! ( new Connection_Manager( 'jetpack' ) )->is_user_connected( $user_id );
 		}
 
-		// Don't use disconnected variant if Big Sky full UI is enabled.
-		if ( $this->is_block_editor() && class_exists( 'Big_Sky' ) && $this->has_unified_big_sky_flag() ) {
-			return false;
+		if ( true === apply_filters( 'is_jetpack_site', false, $blog_id ) ) {
+			return ! ( new Connection_Manager( 'jetpack' ) )->is_user_connected( $user_id );
 		}
 
-		// Use disconnected variant when help icon should show but not full UI.
-		// This can be controlled via filter for flexibility.
-		return apply_filters( 'agents_manager_use_disconnected_variant', true );
+		return false;
 	}
 
 	/**

@@ -1187,17 +1187,28 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Helper to call the private should_enqueue_script method via reflection.
+	 * Helper to call the private get_variant method via reflection.
 	 *
-	 * @return bool The result of should_enqueue_script.
+	 * @return string|null The variant name, or null if scripts should not be loaded.
 	 */
-	private function call_should_enqueue_script() {
+	private function call_get_variant() {
 		$reflection = new \ReflectionClass( Agents_Manager::class );
-		$method     = $reflection->getMethod( 'should_enqueue_script' );
+		$method     = $reflection->getMethod( 'get_variant' );
 		if ( PHP_VERSION_ID < 80100 ) {
 			$method->setAccessible( true );
 		}
 		return $method->invoke( $this->agents_manager );
+	}
+
+	/**
+	 * Helper to call get_variant and return a boolean (true = variant found, false = null).
+	 *
+	 * Convenience wrapper used by tests that only care whether scripts are loaded.
+	 *
+	 * @return bool True if a variant was returned (scripts will load), false if null.
+	 */
+	private function call_should_enqueue_script() {
+		return null !== $this->call_get_variant();
 	}
 
 	/**
@@ -1500,8 +1511,9 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 
 		wp_register_script( 'agents-manager', 'https://example.com/agents-manager.js', array(), '1.0', true );
 
+		// Enable unified experience. Jetpack is not connected (default test state),
+		// so is_jetpack_disconnected() returns false for non-Jetpack sites.
 		add_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
-		add_filter( 'agents_manager_use_disconnected_variant', '__return_false', 20 );
 
 		$this->agents_manager->enqueue_scripts();
 
@@ -1512,7 +1524,6 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		$this->assertStringContainsString( '"sectionName":"wp-admin"', $inline_script );
 
 		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
-		remove_filter( 'agents_manager_use_disconnected_variant', '__return_false', 20 );
 	}
 
 	/**
@@ -1539,8 +1550,9 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 
 		wp_register_script( 'agents-manager', 'https://example.com/agents-manager.js', array(), '1.0', true );
 
+		// Enable unified experience. Jetpack is not connected (default test state),
+		// so is_jetpack_disconnected() returns false for non-Jetpack sites.
 		add_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
-		add_filter( 'agents_manager_use_disconnected_variant', '__return_false', 20 );
 
 		$this->agents_manager->enqueue_scripts();
 
@@ -1551,7 +1563,6 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		$this->assertStringContainsString( '"sectionName":"gutenberg"', $inline_script );
 
 		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
-		remove_filter( 'agents_manager_use_disconnected_variant', '__return_false', 20 );
 	}
 
 	/**
@@ -1581,8 +1592,9 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 
 		wp_register_script( 'agents-manager', 'https://example.com/agents-manager.js', array(), '1.0', true );
 
+		// Enable unified experience. Jetpack is not connected (default test state),
+		// so is_jetpack_disconnected() returns false for non-Jetpack sites.
 		add_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
-		add_filter( 'agents_manager_use_disconnected_variant', '__return_false', 20 );
 
 		$this->agents_manager->enqueue_scripts();
 
@@ -1593,11 +1605,11 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		$this->assertStringContainsString( '"sectionName":"wp-admin"', $inline_script );
 
 		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
-		remove_filter( 'agents_manager_use_disconnected_variant', '__return_false', 20 );
 	}
 
 	/**
-	 * Tests that enqueue_scripts includes sectionName as wp-admin-disconnected when disconnected variant is enabled.
+	 * Tests that enqueue_scripts includes sectionName as wp-admin-disconnected when unified experience
+	 * is enabled but Jetpack is disconnected.
 	 */
 	public function test_enqueue_scripts_includes_section_name_wp_admin_disconnected() {
 		// Set admin context - scripts only enqueue in admin.
@@ -1609,9 +1621,10 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 
 		wp_register_script( 'agents-manager', 'https://example.com/agents-manager.js', array(), '1.0', true );
 
-		// Enable disconnected variant, disable unified experience.
-		add_filter( 'agents_manager_use_unified_experience', '__return_false', 20 );
-		add_filter( 'agents_manager_use_disconnected_variant', '__return_true', 20 );
+		// Enable unified experience and simulate a Jetpack site with a disconnected user.
+		add_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+		add_filter( 'is_jetpack_site', '__return_true', 20 );
+		// Do not connect the user - is_user_connected() will return false by default.
 
 		$this->agents_manager->enqueue_scripts();
 
@@ -1621,12 +1634,13 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertStringContainsString( '"sectionName":"wp-admin-disconnected"', $inline_script );
 
-		remove_filter( 'agents_manager_use_unified_experience', '__return_false', 20 );
-		remove_filter( 'agents_manager_use_disconnected_variant', '__return_true', 20 );
+		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+		remove_filter( 'is_jetpack_site', '__return_true', 20 );
 	}
 
 	/**
-	 * Tests that enqueue_scripts includes sectionName as gutenberg-disconnected in block editor with disconnected variant.
+	 * Tests that enqueue_scripts includes sectionName as gutenberg-disconnected in block editor
+	 * when unified experience is enabled but Jetpack is disconnected.
 	 */
 	public function test_enqueue_scripts_includes_section_name_gutenberg_disconnected() {
 		require_once ABSPATH . 'wp-admin/includes/screen.php';
@@ -1649,9 +1663,10 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 
 		wp_register_script( 'agents-manager', 'https://example.com/agents-manager.js', array(), '1.0', true );
 
-		// Enable disconnected variant, disable unified experience.
-		add_filter( 'agents_manager_use_unified_experience', '__return_false', 20 );
-		add_filter( 'agents_manager_use_disconnected_variant', '__return_true', 20 );
+		// Enable unified experience and simulate a Jetpack site with a disconnected user.
+		add_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+		add_filter( 'is_jetpack_site', '__return_true', 20 );
+		// Do not connect the user - is_user_connected() will return false by default.
 
 		$this->agents_manager->enqueue_scripts();
 
@@ -1661,12 +1676,13 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertStringContainsString( '"sectionName":"gutenberg-disconnected"', $inline_script );
 
-		remove_filter( 'agents_manager_use_unified_experience', '__return_false', 20 );
-		remove_filter( 'agents_manager_use_disconnected_variant', '__return_true', 20 );
+		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+		remove_filter( 'is_jetpack_site', '__return_true', 20 );
 	}
 
 	/**
-	 * Tests that enqueue_scripts includes sectionName as ciab-disconnected in CIAB environment with disconnected variant.
+	 * Tests that enqueue_scripts includes sectionName as ciab-disconnected in CIAB environment
+	 * when unified experience is enabled but Jetpack is disconnected.
 	 */
 	public function test_enqueue_scripts_includes_section_name_ciab_disconnected() {
 		// Set admin context - scripts only enqueue in admin.
@@ -1685,9 +1701,10 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 
 		wp_register_script( 'agents-manager', 'https://example.com/agents-manager.js', array(), '1.0', true );
 
-		// Enable disconnected variant, disable unified experience.
-		add_filter( 'agents_manager_use_unified_experience', '__return_false', 20 );
-		add_filter( 'agents_manager_use_disconnected_variant', '__return_true', 20 );
+		// Enable unified experience and simulate a Jetpack site with a disconnected user.
+		add_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+		add_filter( 'is_jetpack_site', '__return_true', 20 );
+		// Do not connect the user - is_user_connected() will return false by default.
 
 		$this->agents_manager->enqueue_scripts();
 
@@ -1697,8 +1714,8 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertStringContainsString( '"sectionName":"ciab-disconnected"', $inline_script );
 
-		remove_filter( 'agents_manager_use_unified_experience', '__return_false', 20 );
-		remove_filter( 'agents_manager_use_disconnected_variant', '__return_true', 20 );
+		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+		remove_filter( 'is_jetpack_site', '__return_true', 20 );
 
 		// Restore the original did_action counter to prevent test order dependencies.
 		if ( $original_action_count === 0 ) {
@@ -1709,26 +1726,27 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Tests that should_enqueue_script returns true when disconnected variant is enabled in wp-admin.
+	 * Tests that should_enqueue_script returns true when unified experience is enabled but Jetpack is disconnected (in wp-admin).
 	 */
 	public function test_should_enqueue_script_returns_true_when_disconnected_variant_enabled_in_admin() {
 		$this->set_admin_context();
 		$_SERVER['REQUEST_URI'] = '/wp-admin/index.php';
 
-		// Enable disconnected variant, disable unified experience.
-		add_filter( 'agents_manager_use_unified_experience', '__return_false', 20 );
-		add_filter( 'agents_manager_use_disconnected_variant', '__return_true', 20 );
+		// Enable unified experience and simulate a Jetpack site with a disconnected user.
+		add_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+		add_filter( 'is_jetpack_site', '__return_true', 20 );
+		// Do not connect the user - is_user_connected() will return false by default.
 
 		$result = $this->call_should_enqueue_script();
 
-		remove_filter( 'agents_manager_use_unified_experience', '__return_false', 20 );
-		remove_filter( 'agents_manager_use_disconnected_variant', '__return_true', 20 );
+		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+		remove_filter( 'is_jetpack_site', '__return_true', 20 );
 
 		$this->assertTrue( $result );
 	}
 
 	/**
-	 * Tests that should_enqueue_script returns true when disconnected variant is enabled in block editor.
+	 * Tests that should_enqueue_script returns true when unified experience is enabled but Jetpack is disconnected (in block editor).
 	 */
 	public function test_should_enqueue_script_returns_true_when_disconnected_variant_enabled_in_block_editor() {
 		require_once ABSPATH . 'wp-admin/includes/screen.php';
@@ -1745,22 +1763,23 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		}
 		$property->setValue( $screen, true );
 
-		// Enable disconnected variant, disable unified experience.
-		add_filter( 'agents_manager_use_unified_experience', '__return_false', 20 );
-		add_filter( 'agents_manager_use_disconnected_variant', '__return_true', 20 );
+		// Enable unified experience and simulate a Jetpack site with a disconnected user.
+		add_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+		add_filter( 'is_jetpack_site', '__return_true', 20 );
+		// Do not connect the user - is_user_connected() will return false by default.
 
 		$result = $this->call_should_enqueue_script();
 
-		remove_filter( 'agents_manager_use_unified_experience', '__return_false', 20 );
-		remove_filter( 'agents_manager_use_disconnected_variant', '__return_true', 20 );
+		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+		remove_filter( 'is_jetpack_site', '__return_true', 20 );
 
 		$this->assertTrue( $result );
 	}
 
 	/**
-	 * Tests that disconnected variant is not used when unified experience is enabled.
+	 * Tests that disconnected variant is not used when unified experience is enabled and Jetpack is connected.
 	 */
-	public function test_disconnected_variant_not_used_when_unified_experience_enabled() {
+	public function test_disconnected_variant_not_used_when_unified_experience_enabled_and_connected() {
 		// Set admin context.
 		$this->set_admin_context();
 
@@ -1770,10 +1789,8 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 
 		wp_register_script( 'agents-manager', 'https://example.com/agents-manager.js', array(), '1.0', true );
 
-		// Enable both unified experience and disconnected variant filter.
-		// Unified experience should take precedence.
+		// Enable unified experience. Do not simulate a Jetpack site, so is_jetpack_disconnected() returns false.
 		add_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
-		add_filter( 'agents_manager_use_disconnected_variant', '__return_true', 20 );
 
 		$this->agents_manager->enqueue_scripts();
 
@@ -1781,29 +1798,28 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		$inline_scripts = $wp_scripts->registered['agents-manager']->extra['before'] ?? array();
 		$inline_script  = implode( "\n", array_filter( $inline_scripts ) );
 
-		// Should use wp-admin, not wp-admin-disconnected, because unified experience takes precedence.
+		// Should use wp-admin, not wp-admin-disconnected, because Jetpack is connected (or not a Jetpack site).
 		$this->assertStringContainsString( '"sectionName":"wp-admin"', $inline_script );
 		$this->assertStringNotContainsString( '"sectionName":"wp-admin-disconnected"', $inline_script );
 		$this->assertStringNotContainsString( '"sectionName":"gutenberg-disconnected"', $inline_script );
 		$this->assertStringNotContainsString( '"sectionName":"ciab-disconnected"', $inline_script );
 
 		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
-		remove_filter( 'agents_manager_use_disconnected_variant', '__return_true', 20 );
 	}
 
 	/**
 	 * Tests that CSS is enqueued for wp-admin variants but not for gutenberg or ciab variants.
 	 */
 	public function test_css_enqueued_only_for_wp_admin_variants() {
-		// Test wp-admin variant - should enqueue CSS.
+		// Test wp-admin variant (connected) - should enqueue CSS.
 		$this->set_admin_context();
 		global $wp_styles;
 		$wp_styles = null;
 
 		wp_register_script( 'agents-manager', 'https://example.com/agents-manager.js', array(), '1.0', true );
 
+		// Enable unified experience. Not a Jetpack site, so is_jetpack_disconnected() returns false.
 		add_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
-		add_filter( 'agents_manager_use_disconnected_variant', '__return_false', 20 );
 
 		$this->agents_manager->enqueue_scripts();
 
@@ -1811,9 +1827,8 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		$this->assertTrue( isset( $wp_styles->registered['agents-manager-style'] ), 'CSS should be enqueued for wp-admin variant' );
 
 		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
-		remove_filter( 'agents_manager_use_disconnected_variant', '__return_false', 20 );
 
-		// Test gutenberg-disconnected variant - should NOT enqueue CSS.
+		// Test gutenberg-disconnected variant (unified experience enabled + Jetpack disconnected) - should NOT enqueue CSS.
 		require_once ABSPATH . 'wp-admin/includes/screen.php';
 		set_current_screen( 'post' );
 		$screen = get_current_screen();
@@ -1828,8 +1843,10 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		$wp_styles = null;
 		wp_register_script( 'agents-manager', 'https://example.com/agents-manager.js', array(), '1.0', true );
 
-		add_filter( 'agents_manager_use_unified_experience', '__return_false', 20 );
-		add_filter( 'agents_manager_use_disconnected_variant', '__return_true', 20 );
+		// Enable unified experience and simulate a Jetpack site with a disconnected user.
+		add_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+		add_filter( 'is_jetpack_site', '__return_true', 20 );
+		// Do not connect the user - is_user_connected() will return false by default.
 
 		$this->agents_manager->enqueue_scripts();
 
@@ -1838,8 +1855,8 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		// @phan-suppress-next-line PhanSuspiciousValueComparison - WordPress may initialize $wp_styles during enqueue
 		$this->assertTrue( null === $wp_styles || ! isset( $wp_styles->registered['agents-manager-style'] ), 'CSS should NOT be enqueued for gutenberg-disconnected variant' );
 
-		remove_filter( 'agents_manager_use_unified_experience', '__return_false', 20 );
-		remove_filter( 'agents_manager_use_disconnected_variant', '__return_true', 20 );
+		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+		remove_filter( 'is_jetpack_site', '__return_true', 20 );
 	}
 
 	/**
@@ -1877,6 +1894,37 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		$this->assertNull( $node, 'No admin bar node should be added on P2 frontend' );
 
 		remove_all_filters( 'stylesheet' );
+	}
+
+	/**
+	 * Tests that should_enqueue_script returns false in CIAB environment when Jetpack is connected.
+	 *
+	 * Connected CIAB is handled by Help Center; Agents Manager should not load.
+	 */
+	public function test_should_enqueue_script_returns_false_in_ciab_when_connected() {
+		$this->set_admin_context();
+
+		// Save and simulate CIAB environment.
+		global $wp_actions;
+		$original_action_count = $wp_actions['next_admin_init'] ?? 0;
+		do_action( 'next_admin_init' );
+
+		// Enable unified experience but do NOT simulate a Jetpack disconnected site.
+		// is_jetpack_disconnected() returns false for non-Jetpack sites.
+		add_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+
+		$result = $this->call_should_enqueue_script();
+
+		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+
+		// Restore did_action counter.
+		if ( $original_action_count === 0 ) {
+			unset( $wp_actions['next_admin_init'] );
+		} else {
+			$wp_actions['next_admin_init'] = $original_action_count;
+		}
+
+		$this->assertFalse( $result );
 	}
 
 	/**
