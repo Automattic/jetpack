@@ -206,7 +206,7 @@ export default function usePageHeaderDetails(
 			return __( 'View responses for this form.', 'jetpack-forms' );
 		}
 
-		return __( 'View and manage all your form submissions in one place.', 'jetpack-forms' );
+		return __( 'View and manage all your form responses in one place.', 'jetpack-forms' );
 	}, [ formTitle, isFormsScreen, isSingleFormScreen, onOpenFormsHelp, formsCount ] );
 
 	const actions = useMemo( () => {

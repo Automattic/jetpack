@@ -257,7 +257,7 @@ function StageInner() {
 			},
 			{
 				id: 'entries',
-				label: __( 'Entries', 'jetpack-forms' ),
+				label: __( 'Responses', 'jetpack-forms' ),
 				getValue: ( { item }: { item: FormListItem } ) => item.entriesCount ?? 0,
 				render: ( { item }: { item: FormListItem } ) => item.entriesCount ?? 0,
 				enableSorting: false,
