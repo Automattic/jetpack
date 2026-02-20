@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import analytics from '@automattic/jetpack-analytics';
 import {
 	AdminPage,
 	Col,
@@ -27,6 +28,7 @@ import {
 	SubscriptionsSection,
 	WelcomeEmailSection,
 } from './sections';
+import { getSiteType } from './utils';
 import type { NewsletterSettings, JetpackNewsletterSettings } from './types';
 import './style.scss';
 
@@ -93,6 +95,14 @@ function NewsletterSettingsApp(): JSX.Element | null {
 	// Global notices for success/error messages
 	const { createSuccessNotice, createErrorNotice } = useGlobalNotices();
 
+	// Initialize analytics with user data
+	useEffect( () => {
+		const tracksUserData = jetpackSettings?.tracksUserData;
+		if ( tracksUserData && typeof tracksUserData === 'object' ) {
+			analytics.initialize( tracksUserData.userid, tracksUserData.username );
+		}
+	}, [ jetpackSettings ] );
+
 	// Load settings on mount
 	useEffect( () => {
 		fetchSettings( jetpackSettings )
@@ -108,11 +118,40 @@ function NewsletterSettingsApp(): JSX.Element | null {
 			} );
 	}, [ jetpackSettings ] );
 
+	// Get site type for analytics
+	const siteType = getSiteType( jetpackSettings );
+
 	// Handle auto-save for newsletter toggle and email settings
 	const handleAutoSave = useCallback(
 		( updates: Partial< NewsletterSettings > ) => {
 			if ( ! data ) {
 				return;
+			}
+
+			// Track setting changes for analytics
+			for ( const key of Object.keys( updates ) as Array< keyof NewsletterSettings > ) {
+				const newValue = updates[ key ];
+				const oldValue = data[ key ];
+
+				// Skip if value hasn't changed
+				if ( newValue === oldValue ) {
+					continue;
+				}
+
+				// Track based on value type - no manual lists to maintain
+				if ( typeof newValue === 'boolean' ) {
+					analytics.tracks.recordEvent( 'jetpack_newsletter_setting_toggle', {
+						site_type: siteType,
+						setting: String( key ),
+						enabled: newValue,
+					} );
+				} else if ( typeof newValue === 'string' ) {
+					analytics.tracks.recordEvent( 'jetpack_newsletter_setting_change', {
+						site_type: siteType,
+						setting: String( key ),
+						value: newValue,
+					} );
+				}
 			}
 
 			// Update local state optimistically
@@ -133,7 +172,7 @@ function NewsletterSettingsApp(): JSX.Element | null {
 					setData( data );
 				} );
 		},
-		[ createErrorNotice, createSuccessNotice, data, jetpackSettings ]
+		[ createErrorNotice, createSuccessNotice, data, jetpackSettings, siteType ]
 	);
 
 	// Handle sender name changes (staged, not auto-saved)
@@ -364,6 +403,7 @@ function NewsletterSettingsApp(): JSX.Element | null {
 						<PaidNewsletterSection
 							jetpackSettings={ jetpackSettings }
 							isNewsletterEnabled={ data.subscriptions }
+							hasActivePlan={ data.newsletter_has_active_plan }
 						/>
 
 						<NewsletterCategoriesSection
@@ -413,6 +453,7 @@ function NewsletterSettingsApp(): JSX.Element | null {
 							isSaving={ isSavingWelcomeEmail }
 							hasChanges={ hasWelcomeEmailChanges }
 							isNewsletterEnabled={ data.subscriptions }
+							jetpackSettings={ jetpackSettings }
 						/>
 
 						<GlobalNotices />

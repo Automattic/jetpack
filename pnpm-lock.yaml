@@ -3133,6 +3133,9 @@ importers:
 
   projects/packages/newsletter:
     dependencies:
+      '@automattic/jetpack-analytics':
+        specifier: workspace:*
+        version: link:../../js-packages/analytics
       '@automattic/jetpack-api':
         specifier: workspace:*
         version: link:../../js-packages/api
