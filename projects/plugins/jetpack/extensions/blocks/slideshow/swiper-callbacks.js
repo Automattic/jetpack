@@ -71,7 +71,7 @@ function swiperResize( swiper ) {
 
 	// If we don't have a valid aspect ratio at this point, we set it to a sane default.
 	if ( ! aspectRatio ) {
-		aspectRatio = aspectRatio || SIXTEEN_BY_NINE;
+		aspectRatio = SIXTEEN_BY_NINE;
 
 		// Then, if the image is still loading, we schedule a new resize for once it loads.
 		// This might cause a layout shift, but it improves the chances that we display the
