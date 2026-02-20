@@ -131,13 +131,47 @@ fi
   else
       DOCKER_DATA_DIR="$MONOREPO_ROOT/tools/docker/data/monorepo"
   fi
+
+  # Set pnpm store directory.
+  # For worktrees: use /root/.pnpm-store (shared across all worktrees via DOCKER_DATA_DIR).
+  # For non-worktrees: use /workspace/.pnpm-store (same mount as node_modules, preserves hardlinks).
+  # Note: pnpm 10.x ignores PNPM_STORE_DIR; npm_config_store_dir is the correct env var.
+  if [[ "$IS_WORKTREE" = "1" ]]; then
+      PNPM_STORE_DIR_CONTAINER="/root/.pnpm-store"
+  else
+      PNPM_STORE_DIR_CONTAINER="/workspace/.pnpm-store"
+  fi
+
+  if [[ "${DEBUG:-}" = "1" ]]; then
+      echo "[pnpm] store dir (container): $PNPM_STORE_DIR_CONTAINER"
+      if [[ "$IS_WORKTREE" = "1" ]]; then
+          echo "[pnpm] store dir (host): $DOCKER_DATA_DIR/.pnpm-store"
+      fi
+  fi
+
   mkdir -p "$DOCKER_DATA_DIR"
 
-  # In worktrees, node_modules is missing (gitignored). Wrap the command to
-  # auto-install dependencies on first run so hooks and build scripts work.
+  # In worktrees, auto-install dependencies when:
+  # 1. node_modules is missing (first run in worktree)
+  # 2. node_modules points to a different pnpm store (store migration)
   if [[ "$IS_WORKTREE" = "1" ]]; then
-      INSTALL_PREFIX='if [ ! -d /workspace/node_modules ]; then echo "Installing dependencies (first run in worktree)..." && pnpm install --frozen-lockfile; fi && '
-      WRAPPED_CMD="${INSTALL_PREFIX}$*"
+      read -r -d '' INSTALL_CHECK <<'INSTALLEOF'
+needs_install=0
+if [ ! -d /workspace/node_modules ]; then
+    echo "Installing dependencies (first run in worktree)..."
+    needs_install=1
+elif [ -f /workspace/node_modules/.modules.yaml ]; then
+    current_store=$(grep '^storeDir:' /workspace/node_modules/.modules.yaml | sed 's/^storeDir: *//' | sed 's|/v[0-9]*$||')
+    if [ -n "$current_store" ] && [ "$current_store" != "$npm_config_store_dir" ]; then
+        echo "Migrating pnpm store from $current_store to $npm_config_store_dir..."
+        needs_install=1
+    fi
+fi
+if [ "$needs_install" = "1" ]; then
+    pnpm install --frozen-lockfile
+fi
+INSTALLEOF
+      WRAPPED_CMD="${INSTALL_CHECK} && $*"
       set -- sh -c "$WRAPPED_CMD"
   fi
 
@@ -158,7 +192,7 @@ fi
     -e NPM_CONFIG_USERCONFIG=/root/.npmrc \
     -e NPM_CONFIG_CACHE=/root/.npm \
     -e PNPM_HOME=/root/.local/share/pnpm \
-    -e PNPM_STORE_DIR=/root/.pnpm-store \
+    -e npm_config_store_dir="$PNPM_STORE_DIR_CONTAINER" \
     -e GIT_AUTHOR_NAME="${GIT_USER_NAME}" \
     -e GIT_AUTHOR_EMAIL="${GIT_USER_EMAIL}" \
     -e GIT_COMMITTER_NAME="${GIT_USER_NAME}" \
