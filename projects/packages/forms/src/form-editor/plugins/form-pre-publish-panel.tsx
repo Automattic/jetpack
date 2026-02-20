@@ -34,10 +34,10 @@ import './form-pre-publish-panel.scss';
  * Uses the same structure as WordPress's PostPanelRow component
  * (HStack with editor-post-panel__row classes) for pixel-perfect matching.
  *
- * @param {object}              props         - Component props.
- * @param {string}              props.label   - The row label.
- * @param {string|JSX.Element}  props.value   - The row value.
- * @param {Function}            props.onClick - Click handler for the value button.
+ * @param {object} props         - Component props.
+ * @param {string} props.label   - The row label.
+ * @param {string|JSX.Element} props.value - The row value.
+ * @param {Function} props.onClick - Click handler for the value button.
  * @return {JSX.Element} The setting row element.
  */
 const SettingRow = ( {
@@ -160,7 +160,7 @@ const FormPrePublishPanel = () => {
 				path: `/wp/v2/jetpack-forms/${ postId }/preview-url`,
 			} );
 			window.open( response.preview_url, '_blank' );
-		} catch ( error ) { // eslint-disable-line no-unused-vars
+		} catch {
 			createErrorNotice(
 				__( 'Failed to generate preview URL. Please try again.', 'jetpack-forms' ),
 				{ type: 'snackbar' }
@@ -196,23 +196,21 @@ const FormPrePublishPanel = () => {
 				window as unknown as {
 					wp: {
 						data: {
-							dispatch: (
-								storeKey: string
-							) => Record< string, ( ...args: unknown[] ) => unknown >;
+							dispatch: ( storeKey: string ) => Record< string, ( ...args: unknown[] ) => unknown >;
 						};
 					};
 				}
-			).wp?.data;
+			 ).wp?.data;
 
 			if ( wpData ) {
 				try {
 					wpData.dispatch( 'core/edit-post' ).openGeneralSidebar( 'edit-post/block' );
-				} catch ( e ) { // eslint-disable-line no-unused-vars
+				} catch {
 					try {
 						wpData
 							.dispatch( 'core/interface' )
 							.enableComplementaryArea( 'core', 'edit-post/block' );
-					} catch ( e2 ) { // eslint-disable-line no-unused-vars
+					} catch {
 						// Silently fail — the retry loop will handle sidebar activation via DOM.
 					}
 				}
@@ -332,18 +330,12 @@ const FormPrePublishPanel = () => {
 		() => openInspectorPanel( __( 'Form notifications', 'jetpack-forms' ) ),
 		[ openInspectorPanel ]
 	);
-	const handleIntegrationsClick = useCallback(
-		() => setIsIntegrationsModalOpen( true ),
-		[]
-	);
+	const handleIntegrationsClick = useCallback( () => setIsIntegrationsModalOpen( true ), [] );
 	const handleResponsesClick = useCallback(
 		() => openInspectorPanel( __( 'Responses storage', 'jetpack-forms' ) ),
 		[ openInspectorPanel ]
 	);
-	const handleIntegrationsModalClose = useCallback(
-		() => setIsIntegrationsModalOpen( false ),
-		[]
-	);
+	const handleIntegrationsModalClose = useCallback( () => setIsIntegrationsModalOpen( false ), [] );
 
 	// Only render for jetpack_form post type
 	if ( postType !== FORM_POST_TYPE ) {
@@ -493,7 +485,11 @@ const FormPrePublishPanel = () => {
 				/>
 				<SettingRow
 					label={ __( 'Save responses', 'jetpack-forms' ) }
-					value={ saveResponses ? __( 'Yes', 'jetpack-forms' ) : _x( 'No', 'save responses', 'jetpack-forms' ) }
+					value={
+						saveResponses
+							? __( 'Yes', 'jetpack-forms' )
+							: _x( 'No', 'save responses', 'jetpack-forms' )
+					}
 					onClick={ handleResponsesClick }
 				/>
 			</div>
