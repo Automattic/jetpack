@@ -21,7 +21,7 @@ test( 'Jetpack Social sidebar', async ( { page, admin, editor } ) => {
 		await editor.openSettings( 'Jetpack Social' );
 		const previewButton = editor
 			.getEditorSettingsSidebar()
-			.getByRole( 'button', { name: 'Open Social Previews', exact: true } );
+			.getByRole( 'button', { name: 'Open link preview', exact: true } );
 		await expect( previewButton ).toBeVisible();
 	} );
 } );

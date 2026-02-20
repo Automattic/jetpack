@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+getCurrencyObject: add floatValue property to currency object.

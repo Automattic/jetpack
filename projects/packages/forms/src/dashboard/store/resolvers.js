@@ -1,6 +1,6 @@
 import apiFetch from '@wordpress/api-fetch';
 import { addQueryArgs } from '@wordpress/url';
-import { INVALIDATE_FILTERS, INVALIDATE_COUNTS } from './action-types';
+import { INVALIDATE_FILTERS, INVALIDATE_COUNTS } from './action-types.js';
 
 export const getFilters =
 	() =>

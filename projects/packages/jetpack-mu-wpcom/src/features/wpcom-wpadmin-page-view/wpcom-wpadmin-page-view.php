@@ -52,7 +52,7 @@ function wpcom_nosara_track_admin_page_views() {
 	<script type="text/javascript">
 		var _admin_pv_props = {
 			from_page: '<?php echo esc_js( $current_screen->id ); ?>',
-			is_block_editor: '<?php echo esc_js( $current_screen->is_block_editor ? 'true' : 'false' ); ?>',
+			is_block_editor: '<?php echo $current_screen->is_block_editor ? 'true' : 'false'; ?>',
 			source: 'wp-admin',
 			blog_id: '<?php echo esc_js( (string) $blog_id ); ?>',
 			user_type: '<?php echo esc_js( implode( ',', $user_types ) ); ?>'

@@ -1,7 +1,7 @@
 import { test, expect } from '../../lib/fixtures/test';
 
 test.describe.serial( 'Critical CSS module', () => {
-	let previousTheme;
+	let previousTheme: string | null = null;
 
 	test.beforeAll( async ( { boostUtils } ) => {
 		await boostUtils.resetEnvironment();
@@ -55,6 +55,9 @@ test.describe.serial( 'Critical CSS module', () => {
 		page,
 	} ) => {
 		await boostUtils.activateBoostModule( 'critical_css' );
+		await boostUtils.executeWpCommand(
+			'plugin activate e2e-external-css-enqueue/e2e-external-css-enqueue.php'
+		);
 		await jetpackBoostPage.visit();
 
 		await expect(

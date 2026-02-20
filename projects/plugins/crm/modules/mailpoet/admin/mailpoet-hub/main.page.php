@@ -1,5 +1,5 @@
-<?php 
-/*!
+<?php
+/*
  * Jetpack CRM
  * https://jetpackcrm.com
  *
@@ -19,13 +19,13 @@ function jpcrm_mailpoet_render_hub_page() {
 
 	// any messages to output
 	$general_notices = array();
-	$error_notices = array();
+	$error_notices   = array();
 
 	// intercept for attempting restart of initial sync
 	if ( isset( $_GET['restart_sync'] ) ) {
 
 		// Show message: are you sure?
-		$html = '<p>' . __( 'This will restart syncing your MailPoet subscribers from scratch, using your current settings.', 'zero-bs-crm' ) . '</p>';
+		$html  = '<p>' . __( 'This will restart syncing your MailPoet subscribers from scratch, using your current settings.', 'zero-bs-crm' ) . '</p>';
 		$html .= '<p>' . __( 'This will not remove any existing subscribers or data, but it will update objects if they are reimported and have since changed.', 'zero-bs-crm' ) . '</p>';
 		$html .= '<p><a href="' . jpcrm_esc_link( $zbs->modules->mailpoet->slugs['hub'] . '&definitely_restart_sync=1' ) . '" class="ui button teal">' . __( 'Yes, do a full resync', 'zero-bs-crm' ) . '</a>&nbsp;&nbsp;<a href="' . jpcrm_esc_link( $zbs->modules->mailpoet->slugs['hub'] ) . '" class="ui button red">' . __( 'No, cancel and go back to hub', 'zero-bs-crm' ) . '</a></p>';
 
@@ -47,30 +47,30 @@ function jpcrm_mailpoet_render_hub_page() {
 	}
 
 	// intercept for debug, if we have $_GET['debug_sync'], call that
-	if ( isset( $_GET['debug_sync'] ) ){
-		
+	if ( isset( $_GET['debug_sync'] ) ) {
+
 		// render debug mode sync page
 		jpcrm_mailpoet_render_hub_page_debug_mode();
 		exit( 0 );
 
 	}
 
-	$settings = $zbs->modules->mailpoet->settings->getAll();
+	$settings          = $zbs->modules->mailpoet->settings->getAll();
 	$settings_page_url = jpcrm_esc_link( $zbs->slugs['settings'] . '&tab=' . $zbs->modules->mailpoet->slugs['settings'] );
 
 	// retrieve current counts
 	$jpcrm_mailpoet_latest_stats = $zbs->modules->mailpoet->get_jpcrm_mailpoet_latest_stats();
 
 	// various states:
-	if ( !$zbs->mailpoet_is_active() ){
+	if ( ! $zbs->mailpoet_is_active() ) {
 
-		$error_notices[] = zeroBSCRM_UI2_messageHTML( 'warning', '', __( 'You do not currently have the MailPoet plugin installed. You\'ll need to install MailPoet to use MailPoet Sync', 'zero-bs-crm' ) ) ;
+		$error_notices[]   = zeroBSCRM_UI2_messageHTML( 'warning', '', __( 'You do not currently have the MailPoet plugin installed. You\'ll need to install MailPoet to use MailPoet Sync', 'zero-bs-crm' ) );
 		$no_mailpoet_found = true;
 
 	}
 
 	// shorthand
-	$settings_cog_html = '<a href="' . $settings_page_url . '" title="' . __( 'Change Settings', 'zero-bs-crm' ) . '" target="_blank"><i class="cog icon"></i></a>';
+	$settings_cog_html        = '<a href="' . $settings_page_url . '" title="' . __( 'Change Settings', 'zero-bs-crm' ) . '" target="_blank"><i class="cog icon"></i></a>';
 	$settings_cog_button_html = '<a href="' . $settings_page_url . '" title="' . __( 'Change Settings', 'zero-bs-crm' ) . '" target="_blank" class="ui right floated jpcrm-mailpoet-settings-button"><i class="cog icon"></i>' . __( 'MailPoet Sync Settings', 'zero-bs-crm' ) . '</a>';
 
 	?>
@@ -83,12 +83,14 @@ function jpcrm_mailpoet_render_hub_page() {
 		<?php
 
 		// any notices?
-		if ( count( $general_notices ) > 0 ){
+		if ( count( $general_notices ) > 0 ) {
 			?>
 			<div id="jpcrm-mailpoet-messages">
-				<?php foreach ( $general_notices as $notice_html ){
+				<?php
+				foreach ( $general_notices as $notice_html ) {
 					echo $notice_html;
-				} ?>
+				}
+				?>
 			</div>
 			<?php
 		}
@@ -107,9 +109,11 @@ function jpcrm_mailpoet_render_hub_page() {
 				?>
 			</div>
 
-			<?php if ( isset( $no_mailpoet_found ) ){
-				
-				// No MailPoet ?>
+			<?php
+			if ( isset( $no_mailpoet_found ) ) {
+
+				// No MailPoet
+				?>
 				<h2 class="ui header">
 					<i id="jpcrm-mailpoet-status-icon" class="icon hourglass half green"></i>
 					<div class="content">
@@ -130,11 +134,12 @@ function jpcrm_mailpoet_render_hub_page() {
 						</div>
 					</div>
 				</h2>
-			<?php
+				<?php
 
-			} else { 
+			} else {
 
-				// Has plugin ?>
+				// Has plugin
+				?>
 				<h2 class="ui header">
 					<i id="jpcrm-mailpoet-status-icon" class="icon hourglass half green"></i>
 					<div class="content">
@@ -146,7 +151,7 @@ function jpcrm_mailpoet_render_hub_page() {
 								<?php esc_html_e( 'Setup Type:', 'zero-bs-crm' ); ?> 
 								<?php esc_html_e( 'Local', 'zero-bs-crm' ); ?><br />
 								<?php echo '<span id="jpcrm-mailpoet-stat-contacts-synced">' . esc_html( $jpcrm_mailpoet_latest_stats['subscribers_synced'] ) . '</span> ' . esc_html__( 'Subscribers Synced', 'zero-bs-crm' ); ?>
-								<a href="<?php echo jpcrm_esc_link( 'manage-customers&quickfilters=mailpoet_subscriber' ); ?>" id="jpcrm-mailpoet-recap-link-to-contacts" class="ui tiny black button<?php if ( $jpcrm_mailpoet_latest_stats['subscribers_synced'] <= 0 ) { echo ' hidden'; } ?>" style="margin-left:10px"><?php esc_html_e( 'View Subscribers in CRM', 'zero-bs-crm' ); // phpcs:ignore Squiz.ControlStructures.ControlSignature.NewlineAfterOpenBrace ?></a>
+								<a href="<?php echo jpcrm_esc_link( 'manage-customers&quickfilters=mailpoet_subscriber' ); ?>" id="jpcrm-mailpoet-recap-link-to-contacts" class="ui tiny black button<?php if ( $jpcrm_mailpoet_latest_stats['subscribers_synced'] <= 0 ) { echo ' hidden'; } // phpcs:ignore Squiz.ControlStructures.ControlSignature.NewlineAfterOpenBrace ?>" style="margin-left:10px"><?php esc_html_e( 'View Subscribers in CRM', 'zero-bs-crm' ); ?></a>
 							</p>
 							<br>
 							<span id="jpcrm-mailpoet-status-long-text"><?php esc_html_e( 'MailPoet Sync is importing subscribers...', 'zero-bs-crm' ); ?></span>
@@ -186,11 +191,14 @@ function jpcrm_mailpoet_render_hub_page() {
 		</div>
 
 		<div id="jpcrm-mailpoet-quiet-restart-link">
-			<?php esc_html_e( 'Admin Tools:', 'zero-bs-crm' );
+			<?php
+			esc_html_e( 'Admin Tools:', 'zero-bs-crm' );
 
 			// settings link
 			if ( zeroBSCRM_isZBSAdminOrAdmin() ) {
-				?> <a href="<?php echo esc_url( $settings_page_url ); ?>"><?php esc_html_e( 'MailPoet Sync Settings', 'zero-bs-crm' ); ?></a> <?php
+				?>
+				<a href="<?php echo esc_url( $settings_page_url ); ?>"><?php esc_html_e( 'MailPoet Sync Settings', 'zero-bs-crm' ); ?></a> 
+				<?php
 			}
 			?>
 			| <a href="<?php echo jpcrm_esc_link( $zbs->modules->mailpoet->slugs['hub'] . '&restart_sync=1' ); ?>"><?php esc_html_e( 'Restart Sync', 'zero-bs-crm' ); ?></a>
@@ -201,7 +209,6 @@ function jpcrm_mailpoet_render_hub_page() {
 
 	// output language labels
 	jpcrm_mailpoet_output_language_labels();
-
 }
 
 /*
@@ -209,51 +216,52 @@ function jpcrm_mailpoet_render_hub_page() {
 *
 * @param $additional_labels - array; any key/value pairs here will be expressed in the JS label var
 */
-function jpcrm_mailpoet_output_language_labels( $additional_labels = array() ){
+function jpcrm_mailpoet_output_language_labels( $additional_labels = array() ) {
 
 	// specify default (generic) labels
-	$language_labels = array_merge( array(
+	$language_labels = array_merge(
+		array(
 
-		'ajax_fail'             => __( 'Failed retrieving data.', 'zero-bs-crm' ),
-		'complete'              => __( 'Completed Sync.', 'zero-bs-crm' ),
-		'remaining_pages'       => __( '{0} remaining pages.', 'zero-bs-crm' ),
-		'caught_mid_job'        => __( 'Import job is running in the back end. If this message is still shown after some time, please contact support.', 'zero-bs-crm' ),
-		'server_error'          => __( 'There was a general server error.', 'zero-bs-crm' ),
+			'ajax_fail'           => __( 'Failed retrieving data.', 'zero-bs-crm' ),
+			'complete'            => __( 'Completed Sync.', 'zero-bs-crm' ),
+			'remaining_pages'     => __( '{0} remaining pages.', 'zero-bs-crm' ),
+			'caught_mid_job'      => __( 'Import job is running in the back end. If this message is still shown after some time, please contact support.', 'zero-bs-crm' ),
+			'server_error'        => __( 'There was a general server error.', 'zero-bs-crm' ),
 
-		'incomplete_nextpage'   => __( 'Completed page. Next: page {0} of {1} pages. ({2})', 'zero-bs-crm' ),
-		'complete_lastpage'     => __( 'Completed last page, (page {0} of {1} pages)', 'zero-bs-crm' ),
-		'debug_return'          => __( 'Return: {0}', 'zero-bs-crm' ),
-		'retrieving_page'       => __( 'Retrieving page {0}', 'zero-bs-crm' ),
+			'incomplete_nextpage' => __( 'Completed page. Next: page {0} of {1} pages. ({2})', 'zero-bs-crm' ),
+			'complete_lastpage'   => __( 'Completed last page, (page {0} of {1} pages)', 'zero-bs-crm' ),
+			'debug_return'        => __( 'Return: {0}', 'zero-bs-crm' ),
+			'retrieving_page'     => __( 'Retrieving page {0}', 'zero-bs-crm' ),
 
-	), $additional_labels );
+		),
+		$additional_labels
+	);
 
-
-	?><script>var jpcrm_mailpoet_language_labels = <?php echo json_encode( $language_labels ); ?></script><?php
-
+	?>
+	<script>var jpcrm_mailpoet_language_labels = <?php echo json_encode( $language_labels ); ?></script>
+	<?php
 }
-
 
 /**
  * Styles and scripts for hub page
  */
-function jpcrm_mailpoet_hub_page_styles_scripts(){
+function jpcrm_mailpoet_hub_page_styles_scripts() {
 
-	global $zbs;	
+	global $zbs;
 	wp_enqueue_script( 'jpcrm-mailpoet', plugins_url( '/js/jpcrm-mailpoet-hub-page' . wp_scripts_get_suffix() . '.js', JPCRM_MAILPOET_ROOT_FILE ), array( 'jquery' ), $zbs::VERSION ); // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.NotInFooter
 	wp_enqueue_style( 'jpcrm-mailpoet-hub-page', plugins_url( '/css/jpcrm-mailpoet-hub-page' . wp_scripts_get_suffix() . '.css', JPCRM_MAILPOET_ROOT_FILE ), array(), $zbs::VERSION );
 	zeroBSCRM_global_admin_styles();
-
 }
-
 
 /**
  * Run a sync in debug mode:
  */
-function jpcrm_mailpoet_render_hub_page_debug_mode(){
+function jpcrm_mailpoet_render_hub_page_debug_mode() {
 
 	global $zbs;
 
-	?><div id="jpcrm-mailpoet-hub-page">
+	?>
+	<div id="jpcrm-mailpoet-hub-page">
 		<div id="jpcrm-mailpoet-logo">
 			<img id="jpcrm-mailpoet-jpcrm-logo" src="<?php echo esc_url( ZEROBSCRM_URL ); ?>i/jpcrm-logo-horizontal-black.png" alt="" />
 			<i class="plus icon"></i>
@@ -271,8 +279,10 @@ function jpcrm_mailpoet_render_hub_page_debug_mode(){
 				// call job function
 				$zbs->modules->mailpoet->background_sync->sync_subscribers();
 
-			?></div>
+			?>
+			</div>
 		</div>
-		<p style="text-align: center;margin-top:2em"><a href="<?php echo jpcrm_esc_link( $zbs->modules->mailpoet->slugs['hub'] ) ?>" class="ui button green"><?php esc_html_e( 'Go back to MailPoet Sync Hub', 'zero-bs-crm' ); ?></a>
-	</div><?php
+		<p style="text-align: center;margin-top:2em"><a href="<?php echo jpcrm_esc_link( $zbs->modules->mailpoet->slugs['hub'] ); ?>" class="ui button green"><?php esc_html_e( 'Go back to MailPoet Sync Hub', 'zero-bs-crm' ); ?></a>
+	</div>
+	<?php
 }

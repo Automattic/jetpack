@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-fixes issue where more than 2 decimal places would result in multiple tax rates being added

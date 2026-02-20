@@ -283,7 +283,7 @@ module.exports = [
 					if ( ! resource.contextInfo.issuer.includes( 'extensions/shared/i18n-to-php' ) ) {
 						resource.request = path.join(
 							path.dirname( __dirname ),
-							'./extensions/shared/i18n-to-php'
+							'./extensions/shared/i18n-to-php.js'
 						);
 					}
 				}

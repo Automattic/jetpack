@@ -45,7 +45,7 @@ class Jetpack_Shortcodes_Flickr_Test extends WP_UnitTestCase {
 				);
 
 				return array(
-					'body' => wp_json_encode( $body ),
+					'body' => wp_json_encode( $body, JSON_UNESCAPED_SLASHES ),
 				);
 			}
 

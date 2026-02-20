@@ -1,20 +1,17 @@
 /**
  * External dependencies
  */
+import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-/**
- * Internal dependencies
- */
-import EmptySpamButton from '../../../../../src/dashboard/components/empty-spam-button';
 
 // Mock React Router
-jest.mock( 'react-router', () => ( {
+await jest.unstable_mockModule( 'react-router', () => ( {
 	useSearchParams: () => [ new URLSearchParams(), jest.fn() ],
 } ) );
 
 // Mock WordPress dependencies
-jest.mock( '@wordpress/components', () => ( {
+await jest.unstable_mockModule( '@wordpress/components', () => ( {
 	Button: props => {
 		const { __next40pxDefaultSize, accessibleWhenDisabled, isBusy, showTooltip, ...buttonProps } =
 			props;
@@ -34,41 +31,49 @@ jest.mock( '@wordpress/components', () => ( {
 		) : null,
 } ) );
 
-jest.mock( '@wordpress/icons', () => ( {
+await jest.unstable_mockModule( '@wordpress/icons', () => ( {
 	trash: 'trash-icon-mock',
 } ) );
 
-jest.mock( '@wordpress/core-data', () => ( {
+await jest.unstable_mockModule( '@wordpress/core-data', () => ( {
 	useEntityRecords: jest.fn(),
 	store: 'core',
 } ) );
 
-jest.mock( '@wordpress/notices', () => ( {
+await jest.unstable_mockModule( '@wordpress/notices', () => ( {
 	store: 'notices',
 } ) );
 
-jest.mock( '@wordpress/api-fetch', () =>
-	jest.fn( req => {
+await jest.unstable_mockModule( '@wordpress/api-fetch', () => ( {
+	default: jest.fn( req => {
 		if ( req.path && req.path.includes( '/wp/v2/feedback/counts' ) ) {
 			return Promise.resolve( { inbox: 0, spam: 1, trash: 0 } );
 		}
 		return Promise.resolve( { deleted: 1 } );
-	} )
-);
+	} ),
+} ) );
 
-jest.mock( '@automattic/jetpack-analytics', () => ( {
-	tracks: {
-		recordEvent: jest.fn(),
+await jest.unstable_mockModule( '@automattic/jetpack-analytics', () => ( {
+	default: {
+		tracks: {
+			recordEvent: jest.fn(),
+		},
 	},
 } ) );
 
 // Mock the dashboard store
-jest.mock( '../../../../../src/dashboard/store', () => ( {
+await jest.unstable_mockModule( '../../../../../src/dashboard/store', () => ( {
 	store: 'dashboard',
 } ) );
 
+// Import actual lodash and re-export it - needed for use-inbox-data hook
+const actualLodash = await import( 'lodash' );
+await jest.unstable_mockModule( 'lodash', () => ( {
+	...( actualLodash.default || actualLodash ),
+} ) );
+
 // Mock WordPress data
-jest.mock( '@wordpress/data', () => {
+await jest.unstable_mockModule( '@wordpress/data', () => {
 	const mockDispatch = {
 		createSuccessNotice: jest.fn(),
 		createErrorNotice: jest.fn(),
@@ -89,6 +94,7 @@ jest.mock( '@wordpress/data', () => {
 		getSpamCount: jest.fn().mockReturnValue( 1 ),
 		getTrashCount: jest.fn().mockReturnValue( 0 ),
 		getInvalidRecords: jest.fn().mockReturnValue( new Set() ),
+		hasPendingActions: jest.fn().mockReturnValue( false ),
 	};
 
 	return {
@@ -138,18 +144,42 @@ afterAll( () => {
 } );
 /* eslint-enable no-console */
 
+// Dynamically import the component after mocks are set up
+const EmptySpamButtonModule = await import(
+	'../../../../../src/dashboard/components/empty-spam-button'
+);
+const EmptySpamButton = EmptySpamButtonModule.default;
+
+const DashboardSearchParamsModule = await import(
+	'../../../../../src/dashboard/router/dashboard-search-params-context'
+);
+const { DashboardSearchParamsProvider } = DashboardSearchParamsModule;
+
 describe( 'EmptySpamButton', () => {
-	beforeEach( () => {
+	const mockSetSearchParams = jest.fn();
+	const mockSearchParams = new URLSearchParams( 'status=spam' );
+
+	beforeEach( async () => {
 		// Reset all mocks before each test
 		jest.clearAllMocks();
-		require( '@wordpress/core-data' ).useEntityRecords.mockReturnValue( {
+		mockSetSearchParams.mockClear();
+		const coreDataModule = await import( '@wordpress/core-data' );
+		coreDataModule.useEntityRecords.mockReturnValue( {
 			totalItems: 1,
 			isResolving: false,
 		} );
 	} );
 
+	const renderWithProvider = component => {
+		return render(
+			<DashboardSearchParamsProvider value={ [ mockSearchParams, mockSetSearchParams ] }>
+				{ component }
+			</DashboardSearchParamsProvider>
+		);
+	};
+
 	it( 'renders correctly', () => {
-		render( <EmptySpamButton totalItemsSpam={ 1 } isLoadingCounts={ false } /> );
+		renderWithProvider( <EmptySpamButton totalItemsSpam={ 1 } /> );
 
 		const button = screen.getByText( 'Delete spam' );
 		expect( button ).toBeInTheDocument();
@@ -157,8 +187,8 @@ describe( 'EmptySpamButton', () => {
 		expect( button ).toBeEnabled();
 	} );
 
-	it( 'shows disabled state when trash is empty', () => {
-		render( <EmptySpamButton totalItemsSpam={ 0 } isLoadingCounts={ false } /> );
+	it( 'shows disabled state when spam is empty', () => {
+		renderWithProvider( <EmptySpamButton totalItemsSpam={ 0 } /> );
 
 		const button = screen.getByText( 'Delete spam' );
 		expect( button ).toBeDisabled();
@@ -166,7 +196,7 @@ describe( 'EmptySpamButton', () => {
 	} );
 
 	it( 'shows confirmation dialog when clicked', async () => {
-		render( <EmptySpamButton totalItemsSpam={ 1 } isLoadingCounts={ false } /> );
+		renderWithProvider( <EmptySpamButton totalItemsSpam={ 1 } /> );
 
 		const button = screen.getByText( 'Delete spam' );
 		await userEvent.click( button );
@@ -176,14 +206,14 @@ describe( 'EmptySpamButton', () => {
 		expect( screen.getByText( 'Delete forever' ) ).toBeInTheDocument();
 	} );
 
-	it( 'empties trash when confirmed', async () => {
-		const apiFetch = require( '@wordpress/api-fetch' );
-		const { useDispatch } = require( '@wordpress/data' );
+	it( 'empties spam when confirmed', async () => {
+		const { default: apiFetch } = await import( '@wordpress/api-fetch' );
+		const { useDispatch } = await import( '@wordpress/data' );
 		const mockDispatch = useDispatch( 'notices' );
 
-		render( <EmptySpamButton totalItemsSpam={ 1 } isLoadingCounts={ false } /> );
+		renderWithProvider( <EmptySpamButton totalItemsSpam={ 1 } /> );
 
-		// Click empty trash button
+		// Click empty spam button
 		const button = screen.getByText( 'Delete spam' );
 		await userEvent.click( button );
 

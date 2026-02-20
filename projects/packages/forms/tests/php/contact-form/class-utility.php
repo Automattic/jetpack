@@ -67,7 +67,7 @@ class Utility {
 			$entry_values
 		);
 
-		$content = addslashes( wp_kses( "$comment_content\n<!--more-->\nAUTHOR: {$comment_author}\nAUTHOR EMAIL: {$comment_author_email}\nAUTHOR URL: {$comment_author_url}\nSUBJECT: {$subject}\nIP: {$comment_ip_text}\nJSON_DATA\n" . wp_json_encode( $all_values ), array() ) );
+		$content = addslashes( wp_kses( "$comment_content\n<!--more-->\nAUTHOR: {$comment_author}\nAUTHOR EMAIL: {$comment_author_email}\nAUTHOR URL: {$comment_author_url}\nSUBJECT: {$subject}\nIP: {$comment_ip_text}\nJSON_DATA\n" . wp_json_encode( $all_values, JSON_UNESCAPED_SLASHES ), array() ) );
 		if ( $strip_new_lines ) {
 			$content = str_replace( array( "\n", "\r" ), ' ', $content );
 		}
@@ -140,7 +140,7 @@ class Utility {
 				'post_title'     => addslashes( wp_kses( $feedback_title, array() ) ),
 				'post_date'      => $feedback_time,
 				'post_name'      => $feedback_id,
-				'post_content'   => wp_json_encode( $content ),
+				'post_content'   => wp_json_encode( $content, JSON_UNESCAPED_SLASHES ),
 				'post_mime_type' => 'v2', // a way to help us identify what version of the data this is.
 				'post_parent'    => $post ? $post->ID : 0,
 			)

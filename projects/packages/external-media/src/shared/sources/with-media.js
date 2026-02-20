@@ -156,6 +156,19 @@ export default function withMedia( mediaSource = MediaSource.Unknown, mediaOptio
 				this.setState( { isLoading: false, isCopying: false } );
 			};
 
+			selectMediaForMode = result => {
+				const { addToGallery, multiple, existingMedia } = this.props;
+
+				if ( multiple ) {
+					// For galleries, merge existing images with new selections
+					if ( addToGallery && existingMedia && existingMedia.length > 0 ) {
+						return existingMedia.concat( result );
+					}
+					return result;
+				}
+				return result[ 0 ];
+			};
+
 			getMediaRequest = url => {
 				const { nextHandle, media } = this.state;
 
@@ -239,9 +252,6 @@ export default function withMedia( mediaSource = MediaSource.Unknown, mediaOptio
 							} ) );
 						}
 
-						const { value, addToGallery, multiple } = this.props;
-						const media = multiple ? result : result[ 0 ];
-
 						const itemWithErrors = result.find( item => item.errors );
 						if ( itemWithErrors ) {
 							const { errors } = itemWithErrors;
@@ -254,8 +264,7 @@ export default function withMedia( mediaSource = MediaSource.Unknown, mediaOptio
 						}
 
 						this.props.onClose();
-						// Select the image(s). This will close the modal
-						this.props.onSelect( addToGallery ? value.concat( result ) : media );
+						this.props.onSelect( this.selectMediaForMode( result ) );
 					} )
 					.catch( this.handleApiError );
 			};
@@ -338,11 +347,8 @@ export default function withMedia( mediaSource = MediaSource.Unknown, mediaOptio
 					result = [ this.mapImageToResult( items ) ];
 				}
 
-				const { value, multiple, addToGallery } = this.props;
-				const media = multiple ? result : result[ 0 ];
-
 				this.props.onClose();
-				this.props.onSelect( addToGallery ? value.concat( result ) : media );
+				this.props.onSelect( this.selectMediaForMode( result ) );
 				// end insert media
 			};
 
@@ -467,15 +473,32 @@ export default function withMedia( mediaSource = MediaSource.Unknown, mediaOptio
 			}
 		}
 
-		return withSelect( select => {
+		return withSelect( ( select, ownProps ) => {
 			const currentPost = select( 'core/editor' ).getCurrentPost();
 			// Templates and template parts' numerical ID is stored in `wp_id`.
 			const currentPostId =
 				typeof currentPost?.id === 'number' ? currentPost.id : currentPost?.wp_id;
 
+			// we only get the ids in the value prop, so we need to fetch the media objects
+			let existingMedia = [];
+			if ( ownProps.addToGallery && ownProps.value && ownProps.value.length > 0 ) {
+				const coreSelect = select( 'core' );
+				existingMedia = ownProps.value
+					.map( id => coreSelect?.getMedia?.( id ) )
+					.filter( Boolean )
+					.map( media => ( {
+						id: media.id,
+						url: media.source_url,
+						alt: media.alt_text || '',
+						caption: media.caption?.raw || '',
+						type: 'image',
+					} ) );
+			}
+
 			return {
 				postId: currentPostId ?? 0,
 				pickerSession: getGooglePhotosPickerSession(),
+				existingMedia,
 			};
 		} )( withNotices( WithMediaComponent ) );
 	} );

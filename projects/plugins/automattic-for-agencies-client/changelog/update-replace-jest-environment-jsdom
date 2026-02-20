@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+Comment: Use monorepo standard jest testEnvironment instead of `jest-environment-jsdom`
+

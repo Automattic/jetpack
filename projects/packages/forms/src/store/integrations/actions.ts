@@ -3,9 +3,9 @@ import {
 	INVALIDATE_INTEGRATIONS,
 	SET_INTEGRATIONS_LOADING,
 	SET_INTEGRATIONS_ERROR,
-} from './action-types';
-import { getIntegrations } from './resolvers';
-import type { Integration } from '../../types';
+} from './action-types.ts';
+import { getIntegrations } from './resolvers.ts';
+import type { Integration } from '../../types/index.ts';
 
 export const receiveIntegrations = ( items: Integration[] ) => ( {
 	type: RECEIVE_INTEGRATIONS,

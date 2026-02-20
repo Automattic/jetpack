@@ -158,7 +158,7 @@ if ( ! function_exists( 'jetpack_youtube_sanitize_url' ) ) :
 
 		$url = trim( $url, ' "' );
 		$url = trim( $url );
-		$url = str_replace( array( 'youtu.be/', '/v/', '#!v=', '&amp;', '&#038;', 'playlist' ), array( 'youtu.be/?v=', '/?v=', '?v=', '&', '&', 'videoseries' ), $url );
+		$url = str_replace( array( 'youtu.be/', '/v/', '/shorts/', '#!v=', '&amp;', '&#038;', 'playlist' ), array( 'youtu.be/?v=', '/?v=', '/watch?v=', '?v=', '&', '&', 'videoseries' ), $url );
 
 		// Replace any extra question marks with ampersands - the result of a URL like "https://www.youtube.com/v/dQw4w9WgXcQ?fs=1&hl=en_US" being passed in.
 		$query_string_start = strpos( $url, '?' );
@@ -553,10 +553,6 @@ function wpcom_youtube_get_regex() {
  * Add a new handler to automatically transform custom Youtube URLs (like playlists) into embeds.
  */
 function wpcom_youtube_embed_crazy_url_init() {
-	if ( ! defined( 'REST_API_REQUEST' ) ) {
-		return;
-	}
-
 	// Register the custom handler to provide the better support for the private video.
 	wp_embed_register_handler( 'wpcom_youtube_embed_crazy_url', wpcom_youtube_get_regex(), 'wpcom_youtube_embed_crazy_url' );
 }

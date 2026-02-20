@@ -7,13 +7,19 @@ import { download } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
-import useExportResponses from '../../hooks/use-export-responses';
-import useInboxData from '../../hooks/use-inbox-data';
-import ExportResponsesModal from './modal';
+import useExportResponses from '../../hooks/use-export-responses.ts';
+import useInboxData from '../../hooks/use-inbox-data.ts';
+import ExportResponsesModal from './modal.tsx';
 
 import './style.scss';
 
-const ExportResponsesButton = ( { isPrimary = false }: { isPrimary?: boolean } ) => {
+const ExportResponsesButton = ( {
+	isPrimary = false,
+	showIcon = true,
+}: {
+	isPrimary?: boolean;
+	showIcon?: boolean;
+} ) => {
 	const {
 		showExportModal,
 		openModal,
@@ -23,10 +29,12 @@ const ExportResponsesButton = ( { isPrimary = false }: { isPrimary?: boolean } )
 		autoConnectGdrive,
 		exportLabel,
 	} = useExportResponses();
+
 	const { totalItems, isLoadingData } = useInboxData();
 	const isEmpty = isLoadingData || totalItems === 0;
+	const isDisabled = isEmpty || userCanExport === false;
 
-	if ( ! userCanExport ) {
+	if ( userCanExport === false ) {
 		return null;
 	}
 
@@ -35,10 +43,10 @@ const ExportResponsesButton = ( { isPrimary = false }: { isPrimary?: boolean } )
 			<Button
 				size="compact"
 				variant={ isPrimary ? 'primary' : 'secondary' }
-				icon={ download }
+				icon={ showIcon ? download : undefined }
 				onClick={ openModal }
 				accessibleWhenDisabled
-				disabled={ isEmpty }
+				disabled={ isDisabled }
 				label={ isEmpty ? __( 'Nothing to export.', 'jetpack-forms' ) : '' }
 				showTooltip={ isEmpty }
 			>

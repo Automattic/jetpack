@@ -325,7 +325,7 @@ class Search_Widget extends \WP_Widget {
 	 * @since 8.3.0
 	 */
 	public function widget_non_instant( $args, $instance ) {
-		$display_filters = false;
+		$filters = array();
 
 		// Search instance must have been initialized before widget render.
 		if ( is_search() ) {
@@ -339,13 +339,9 @@ class Search_Widget extends \WP_Widget {
 			if ( ! Helper::are_filters_by_widget_disabled() && ! $this->should_display_sitewide_filters() ) {
 				$filters = array_filter( $filters, array( $this, 'is_for_current_widget' ) );
 			}
-
-			if ( ! empty( $filters ) ) {
-				$display_filters = true;
-			}
 		}
 
-		if ( ! $display_filters && empty( $instance['search_box_enabled'] ) && empty( $instance['user_sort_enabled'] ) ) {
+		if ( ! $filters && empty( $instance['search_box_enabled'] ) && empty( $instance['user_sort_enabled'] ) ) {
 			return;
 		}
 
@@ -400,7 +396,7 @@ class Search_Widget extends \WP_Widget {
 			<?php
 		endif;
 
-		if ( $display_filters ) {
+		if ( $filters ) {
 			/**
 			 * Responsible for rendering filters to narrow down search results.
 			 *
@@ -445,8 +441,6 @@ class Search_Widget extends \WP_Widget {
 			$filters = array_filter( $filters, array( $this, 'is_for_current_widget' ) );
 		}
 
-		$display_filters = ! empty( $filters );
-
 		$title = ! empty( $instance['title'] ) ? $instance['title'] : '';
 
 		/** This filter is documented in core/src/wp-includes/default-widgets.php */
@@ -473,7 +467,7 @@ class Search_Widget extends \WP_Widget {
 
 		Template_Tags::render_widget_search_form( array(), '', '' );
 
-		if ( $display_filters ) {
+		if ( $filters ) {
 			/**
 			 * Responsible for rendering filters to narrow down search results.
 			 *
@@ -700,21 +694,18 @@ class Search_Widget extends \WP_Widget {
 							'interval' => sanitize_key( $new_instance['date_histogram_interval'][ $index ] ?? '' ),
 						);
 						break;
-					// phpcs:disable Squiz.PHP.CommentedOutCode.Found
-					// TODO: Uncomment when Search rebuild is complete (search for: product_attribute filter).
-					// case 'product_attribute':
-					// $filter_data = array(
-					// 'name'  => sanitize_text_field( $new_instance['filter_name'][ $index ] ),
-					// 'type'  => 'product_attribute',
-					// 'count' => $count,
-					// );
-					// Save included attributes if any are selected.
-					// if ( isset( $new_instance[ 'included_attributes_' . $index ] ) && is_array( $new_instance[ 'included_attributes_' . $index ] ) ) {
-					// $filter_data['included_attributes'] = array_map( 'sanitize_key', $new_instance[ 'included_attributes_' . $index ] );
-					// }
-					// $filters[] = $filter_data;
-					// break.
-					// phpcs:enable Squiz.PHP.CommentedOutCode.Found
+					case 'product_attribute':
+						$filter_data = array(
+							'name'  => sanitize_text_field( $new_instance['filter_name'][ $index ] ?? '' ),
+							'type'  => 'product_attribute',
+							'count' => $count,
+						);
+						// Save included attributes if any are selected.
+						if ( isset( $new_instance[ 'included_attributes_' . $index ] ) && is_array( $new_instance[ 'included_attributes_' . $index ] ) ) {
+							$filter_data['included_attributes'] = array_map( 'sanitize_key', $new_instance[ 'included_attributes_' . $index ] );
+						}
+						$filters[] = $filter_data;
+						break;
 				}
 			}
 		}
@@ -1020,11 +1011,9 @@ class Search_Widget extends \WP_Widget {
 						<option value="date_histogram" <?php $this->render_widget_option_selected( 'type', $args['type'], 'date_histogram', $is_template ); ?>>
 							<?php esc_html_e( 'Date', 'jetpack-search-pkg' ); ?>
 						</option>
-						<!-- TODO: Uncomment when Search rebuild is complete (search for: product_attribute filter).
 						<option value="product_attribute" <?php $this->render_widget_option_selected( 'type', $args['type'], 'product_attribute', $is_template ); ?>>
 							<?php esc_html_e( 'Product Attributes', 'jetpack-search-pkg' ); ?>
 						</option>
-						-->
 					</select>
 				</label>
 			</p>

@@ -24,7 +24,7 @@ export default function IntegrationsButton(): JSX.Element {
 
 	return (
 		<Button size="compact" variant="secondary" onClick={ onButtonClickHandler }>
-			{ __( 'Integrations', 'jetpack-forms' ) }
+			{ __( 'Manage integrations', 'jetpack-forms' ) }
 		</Button>
 	);
 }

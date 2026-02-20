@@ -15,17 +15,7 @@ module.exports = [
 		optimization: {
 			...jetpackWebpackConfig.optimization,
 		},
-		resolve: {
-			...jetpackWebpackConfig.resolve,
-			alias: {
-				...jetpackWebpackConfig.resolve.alias,
-				'@automattic/calypso-config': '@automattic/calypso-config/src/client.js',
-			},
-			fallback: {
-				...jetpackWebpackConfig.resolve.fallback,
-				events: require.resolve( 'events/' ),
-			},
-		},
+		resolve: jetpackWebpackConfig.resolve,
 		node: false,
 		plugins: [ ...jetpackWebpackConfig.StandardPlugins() ],
 		module: {

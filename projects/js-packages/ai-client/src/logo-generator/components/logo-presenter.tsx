@@ -4,7 +4,7 @@
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { Button, Icon } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import debugFactory from 'debug';
 /**
  * Internal dependencies
@@ -71,7 +71,7 @@ const SaveInLibraryButton: FC< { siteId: string } > = ( { siteId } ) => {
 		}
 	};
 
-	const savingLabel = __( 'Saving…', 'jetpack-ai-client' );
+	const savingLabel = _x( 'Saving…', 'Logo save button', 'jetpack-ai-client' );
 	const savedLabel = __( 'Saved', 'jetpack-ai-client' );
 
 	return ! saving && ! saved ? (

@@ -1,5 +1,7 @@
+import { describe, expect, jest, test } from '@jest/globals';
+
 // Mock createBlock to avoid WordPress block registration issues in tests
-jest.mock( '@wordpress/blocks', () => ( {
+await jest.unstable_mockModule( '@wordpress/blocks', () => ( {
 	createBlock: jest.fn( ( blockName, attributes ) => ( {
 		name: blockName,
 		attributes: attributes || {},
@@ -7,14 +9,15 @@ jest.mock( '@wordpress/blocks', () => ( {
 } ) );
 
 // Mock useInnerBlocksProps to avoid WordPress private APIs issues in tests
-jest.mock( '@wordpress/block-editor', () => ( {
+await jest.unstable_mockModule( '@wordpress/block-editor', () => ( {
 	useInnerBlocksProps: {
 		save: jest.fn( () => ( {} ) ),
 	},
 } ) );
 
 // Import deprecated blocks directly to avoid loading the full edit component
-import deprecated from '../../../src/blocks/field-telephone/deprecated.js';
+const deprecatedModule = await import( '../../../src/blocks/field-telephone/deprecated.js' );
+const deprecated = deprecatedModule.default;
 
 describe( 'Field Telephone Block Migration', () => {
 	test( 'successfully migrates old block structure', () => {

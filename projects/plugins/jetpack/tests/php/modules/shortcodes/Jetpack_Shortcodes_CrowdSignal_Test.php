@@ -70,7 +70,7 @@ class Jetpack_Shortcodes_CrowdSignal_Test extends WP_UnitTestCase {
 
 		$this->assertEquals(
 			sprintf(
-				'<a name="pd_a_%1$d"></a><div class="CSS_Poll PDS_Poll" id="PDI_container%1$d" data-settings="{&quot;url&quot;:&quot;https:\/\/secure.polldaddy.com\/p\/%1$d.js&quot;}" style=""></div><div id="PD_superContainer"></div><noscript><a href="https://polldaddy.com/p/%1$d" target="_blank" rel="noopener noreferrer">Take Our Poll</a></noscript>',
+				'<a name="pd_a_%1$d"></a><div class="CSS_Poll PDS_Poll" id="PDI_container%1$d" data-settings="{&quot;url&quot;:&quot;https://secure.polldaddy.com/p/%1$d.js&quot;}" style=""></div><div id="PD_superContainer"></div><noscript><a href="https://polldaddy.com/p/%1$d" target="_blank" rel="noopener noreferrer">Take Our Poll</a></noscript>',
 				$id
 			),
 			$shortcode_content
@@ -91,7 +91,7 @@ class Jetpack_Shortcodes_CrowdSignal_Test extends WP_UnitTestCase {
 
 		$this->assertEquals(
 			sprintf(
-				'<a name="pd_a_%1$d"></a><div class="CSS_Poll PDS_Poll" id="PDI_container%1$d" data-settings="{&quot;url&quot;:&quot;https:\/\/secure.polldaddy.com\/p\/%1$d.js&quot;}" style=""></div><div id="PD_superContainer"></div><noscript><a href="https://poll.fm/%1$d" target="_blank" rel="noopener noreferrer">Take Our Poll</a></noscript>',
+				'<a name="pd_a_%1$d"></a><div class="CSS_Poll PDS_Poll" id="PDI_container%1$d" data-settings="{&quot;url&quot;:&quot;https://secure.polldaddy.com/p/%1$d.js&quot;}" style=""></div><div id="PD_superContainer"></div><noscript><a href="https://poll.fm/%1$d" target="_blank" rel="noopener noreferrer">Take Our Poll</a></noscript>',
 				$id
 			),
 			$shortcode_content
@@ -204,7 +204,7 @@ class Jetpack_Shortcodes_CrowdSignal_Test extends WP_UnitTestCase {
 
 		$this->assertEquals(
 			sprintf(
-				'<div class="cs-embed pd-embed" data-settings="{&quot;type&quot;:&quot;iframe&quot;,&quot;auto&quot;:true,&quot;domain&quot;:&quot;%2$s.survey.fm\/&quot;,&quot;id&quot;:&quot;%3$s&quot;,&quot;site&quot;:&quot;crowdsignal.com&quot;}"></div><noscript><a href="https://survey.fm/%1$s" target="_blank" rel="noopener noreferrer">%4$s</a></noscript>',
+				'<div class="cs-embed pd-embed" data-settings="{&quot;type&quot;:&quot;iframe&quot;,&quot;auto&quot;:true,&quot;domain&quot;:&quot;%2$s.survey.fm/&quot;,&quot;id&quot;:&quot;%3$s&quot;,&quot;site&quot;:&quot;crowdsignal.com&quot;}"></div><noscript><a href="https://survey.fm/%1$s" target="_blank" rel="noopener noreferrer">%4$s</a></noscript>',
 				$id,
 				$domain,
 				$name,

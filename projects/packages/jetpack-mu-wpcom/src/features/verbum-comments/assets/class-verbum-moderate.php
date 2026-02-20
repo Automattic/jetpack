@@ -81,7 +81,8 @@ class Verbum_Moderate {
 				array(
 					'embedNonce' => wp_create_nonce( 'embed_nonce' ),
 					'isRTL'      => is_rtl(),
-				)
+				),
+				JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 			),
 			'before'
 		);

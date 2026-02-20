@@ -1,5 +1,5 @@
 import { createBlock } from '@wordpress/blocks';
-import deprecateFieldStyles from '../util/deprecate-field-styles';
+import deprecateFieldStyles from '../util/deprecate-field-styles.js';
 
 const INNER_BLOCKS_DEPRECATION = {
 	attributes: {

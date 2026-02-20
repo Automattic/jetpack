@@ -1,3 +1,23 @@
+## [3.3.8] - 2026-02-18
+### Changed
+- Set `.repository.url` in `package.json` to the mirror repo rather than the monorepo. [#47149]
+
+## [3.3.7] - 2026-02-16
+### Fixed
+- Compatibility: Clean up deprecated CSS. [#47067]
+
+## [3.3.6] - 2026-02-04
+### Changed
+- Update package dependencies. [#46936]
+
+## [3.3.5] - 2025-12-08
+### Fixed
+- Move `react` and `react-dom` to `devDependencies`. [#46167]
+
+## [3.3.4] - 2025-11-18
+### Changed
+- Update package dependencies. [#45961]
+
 ## [3.3.3] - 2025-11-10
 ### Changed
 - Update package dependencies. [#45737]
@@ -285,6 +305,11 @@
 
 - Build: Refactored (aligned build system with Gridicons).
 
+[3.3.8]: https://github.com/Automattic/social-logos/compare/v3.3.7...v3.3.8
+[3.3.7]: https://github.com/Automattic/social-logos/compare/v3.3.6...v3.3.7
+[3.3.6]: https://github.com/Automattic/social-logos/compare/v3.3.5...v3.3.6
+[3.3.5]: https://github.com/Automattic/social-logos/compare/v3.3.4...v3.3.5
+[3.3.4]: https://github.com/Automattic/social-logos/compare/v3.3.3...v3.3.4
 [3.3.3]: https://github.com/Automattic/social-logos/compare/v3.3.2...v3.3.3
 [3.3.2]: https://github.com/Automattic/social-logos/compare/v3.3.1...v3.3.2
 [3.3.1]: https://github.com/Automattic/social-logos/compare/v3.3.0...v3.3.1

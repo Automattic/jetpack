@@ -546,7 +546,7 @@ class Jetpack_Ai extends Product {
 		/**
 		 * Filter to enable/disable Jetpack AI.
 		 *
-		 * @since $$next-version$$
+		 * @since 5.28.3
 		 *
 		 * @param boolean $enabled True if Jetpack AI should be enabled, false otherwise. Default true.
 		 */

@@ -146,7 +146,7 @@ class VideoPress_Uploader_Test extends BaseTestCase {
 	 * @return array
 	 */
 	public function return_valid_response() {
-		return array( 'body' => wp_json_encode( array( 'upload_token' => 'asd123qwe' ) ) );
+		return array( 'body' => wp_json_encode( array( 'upload_token' => 'asd123qwe' ), JSON_UNESCAPED_SLASHES ) );
 	}
 
 	/**
@@ -174,6 +174,8 @@ class VideoPress_Uploader_Test extends BaseTestCase {
 			$callback = array( $this, 'return_empty_response' );
 		} elseif ( 'error' === $response_from_server ) {
 			$callback = array( $this, 'return_wp_error' );
+		} else {
+			$this->fail( "Unsupported response '$response_from_server'" );
 		}
 		$u = new Uploader( $this->valid_attachment_id );
 		if ( $throw ) {

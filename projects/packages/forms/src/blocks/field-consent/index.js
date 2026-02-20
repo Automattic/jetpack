@@ -1,14 +1,18 @@
 import { Path } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import renderMaterialIcon from '../shared/components/render-material-icon';
-import defaultSettings from '../shared/settings';
-import { getIconColor } from '../shared/util/block-icons';
-import deprecated from './deprecated';
-import edit from './edit';
-import save from './save';
+import renderMaterialIcon from '../shared/components/render-material-icon.jsx';
+import defaultSettings from '../shared/settings/index.js';
+import deprecated from './deprecated.js';
+import edit from './edit.js';
+import save from './save.js';
 
-const name = 'field-consent';
-const settings = {
+export const name = 'field-consent';
+
+export const form_editor = {
+	category: 'advanced',
+};
+
+export const settings = {
 	...defaultSettings,
 	title: __( 'Terms consent', 'jetpack-forms' ),
 	keywords: [ __( 'Consent', 'jetpack-forms' ) ],
@@ -17,7 +21,6 @@ const settings = {
 		'jetpack-forms'
 	),
 	icon: {
-		foreground: getIconColor(),
 		src: renderMaterialIcon(
 			<>
 				<Path d="M7 5.5H17C17.2761 5.5 17.5 5.72386 17.5 6V13H19V6C19 4.89543 18.1046 4 17 4H7C5.89543 4 5 4.89543 5 6V18C5 19.1046 5.89543 20 7 20H11.5V18.5H7C6.72386 18.5 6.5 18.2761 6.5 18V6C6.5 5.72386 6.72386 5.5 7 5.5ZM16 7.75H8V9.25H16V7.75ZM8 11H13V12.5H8V11Z" />
@@ -74,4 +77,5 @@ const settings = {
 export default {
 	name,
 	settings,
+	form_editor,
 };

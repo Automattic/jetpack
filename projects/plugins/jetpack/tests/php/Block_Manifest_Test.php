@@ -118,7 +118,8 @@ class Block_Manifest_Test extends WP_UnitTestCase {
 				array(
 					'name'  => 'test/block1',
 					'title' => 'Test Block 1',
-				)
+				),
+				JSON_UNESCAPED_SLASHES
 			)
 		);
 		$this->cleanup_paths[] = $block1_json;
@@ -134,7 +135,8 @@ class Block_Manifest_Test extends WP_UnitTestCase {
 				array(
 					'name'  => 'test/block2',
 					'title' => 'Test Block 2',
-				)
+				),
+				JSON_UNESCAPED_SLASHES
 			)
 		);
 		$this->cleanup_paths[] = $block2_json;

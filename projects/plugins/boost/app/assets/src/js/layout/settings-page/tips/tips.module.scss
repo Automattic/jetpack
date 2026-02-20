@@ -13,7 +13,7 @@
 		@include mixins.breakpoint(md) {
 			display: grid;
 			grid-template-columns: 1fr 1fr;
-			grid-gap: 2em;
+			gap: 2em;
 		}
 	}
 
@@ -23,7 +23,7 @@
 		@include mixins.breakpoint(sm) {
 			display: grid;
 			grid-template-columns: 80px 1fr;
-			grid-gap: 1em;
+			gap: 1em;
 		}
 
 		.item-rate {

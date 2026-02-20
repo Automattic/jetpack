@@ -4,6 +4,9 @@
 import { __ } from '@wordpress/i18n';
 
 export default {
+	ref: {
+		type: 'number' as const,
+	},
 	subject: {
 		type: 'string',
 		default: window.jpFormsBlocks?.defaults?.subject || '',
@@ -18,7 +21,7 @@ export default {
 	},
 	customThankyouHeading: {
 		type: 'string',
-		default: __( 'Your message has been sent', 'jetpack-forms' ),
+		default: __( 'Thank you for your response.', 'jetpack-forms' ),
 	},
 	customThankyouMessage: {
 		type: 'string',
@@ -30,6 +33,7 @@ export default {
 	},
 	confirmationType: {
 		enum: [ 'text', 'redirect' ],
+		default: 'text',
 	},
 	jetpackCRM: {
 		type: 'boolean',
@@ -82,6 +86,10 @@ export default {
 		default: true,
 	},
 	notificationRecipients: {
+		type: 'array',
+		default: [],
+	},
+	webhooks: {
 		type: 'array',
 		default: [],
 	},

@@ -1,7 +1,7 @@
 /**
  * Internal dependencies
  */
-import { getCacheKey } from './reducer';
+import { getCacheKey } from './reducer.js';
 
 export const getFilters = state => state.filters;
 export const getCurrentQuery = state => state.currentQuery;
@@ -57,4 +57,24 @@ export const getInvalidRecords = state => {
  */
 export const isRecordInvalid = ( state, recordId ) => {
 	return state.invalidRecords?.has( recordId ) || false;
+};
+
+/**
+ * Get set of pending action IDs.
+ *
+ * @param {object} state - Store state.
+ * @return {Set<string>} Set of pending action IDs.
+ */
+export const getPendingActions = state => {
+	return state.pendingActions || new Set();
+};
+
+/**
+ * Check if there are any pending actions.
+ *
+ * @param {object} state - Store state.
+ * @return {boolean} Whether there are pending actions.
+ */
+export const hasPendingActions = state => {
+	return ( state.pendingActions?.size ?? 0 ) > 0;
 };

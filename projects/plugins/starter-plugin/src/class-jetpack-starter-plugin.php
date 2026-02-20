@@ -99,7 +99,7 @@ class Jetpack_Starter_Plugin {
 	 * @return string
 	 */
 	public function render_initial_state() {
-		return 'var jetpackStarterPluginInitialState=JSON.parse(decodeURIComponent("' . rawurlencode( wp_json_encode( $this->initial_state() ) ) . '"));';
+		return 'var jetpackStarterPluginInitialState=' . wp_json_encode( $this->initial_state(), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ';';
 	}
 
 	/**

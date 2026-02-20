@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-components",
-	"version": "1.3.9",
+	"version": "1.4.14",
 	"description": "Jetpack Components Package",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/components/#readme",
 	"bugs": {
@@ -8,8 +8,7 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/Automattic/jetpack.git",
-		"directory": "projects/js-packages/components"
+		"url": "git+https://github.com/Automattic/jetpack-components.git"
 	},
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
@@ -24,6 +23,11 @@
 			"types": "./build/index.d.ts",
 			"default": "./build/index.js"
 		},
+		"./jetpack-logo": {
+			"jetpack:src": "./components/jetpack-logo/index.tsx",
+			"types": "./build/components/jetpack-logo/index.d.ts",
+			"default": "./build/components/jetpack-logo/index.js"
+		},
 		"./tools/jp-redirect": {
 			"jetpack:src": "./tools/jp-redirect/index.ts",
 			"types": "./build/tools/jp-redirect/index.d.ts",
@@ -31,9 +35,10 @@
 		}
 	},
 	"scripts": {
-		"build": "pnpm run clean && pnpm run compile-ts",
+		"build": "pnpm run clean && pnpm run compile-ts && pnpm run copy-scss",
 		"clean": "rm -rf build/",
 		"compile-ts": "tsc --pretty --project tsconfig.build.json",
+		"copy-scss": "node ./tools/copy-scss-to-build.mjs",
 		"test": "NODE_OPTIONS=--experimental-vm-modules jest",
 		"test-coverage": "pnpm run test --coverage",
 		"typecheck": "tsc --noEmit"
@@ -48,15 +53,15 @@
 		"@automattic/jetpack-script-data": "workspace:*",
 		"@automattic/number-formatters": "workspace:*",
 		"@babel/runtime": "^7",
-		"@wordpress/browserslist-config": "6.31.0",
-		"@wordpress/components": "30.4.0",
-		"@wordpress/compose": "7.31.0",
-		"@wordpress/data": "10.31.0",
-		"@wordpress/date": "5.31.0",
-		"@wordpress/element": "6.31.0",
-		"@wordpress/i18n": "6.4.0",
-		"@wordpress/icons": "10.31.0",
-		"@wordpress/notices": "5.31.0",
+		"@wordpress/browserslist-config": "6.39.0",
+		"@wordpress/components": "32.1.0",
+		"@wordpress/compose": "7.39.0",
+		"@wordpress/data": "10.39.0",
+		"@wordpress/date": "5.39.0",
+		"@wordpress/element": "6.39.0",
+		"@wordpress/i18n": "6.12.0",
+		"@wordpress/icons": "11.6.0",
+		"@wordpress/notices": "5.39.0",
 		"clsx": "2.1.1",
 		"prop-types": "^15.7.2",
 		"qrcode.react": "4.2.0",
@@ -67,27 +72,26 @@
 	},
 	"devDependencies": {
 		"@automattic/jetpack-base-styles": "workspace:*",
-		"@babel/core": "7.28.4",
-		"@babel/preset-react": "7.27.1",
-		"@jest/globals": "30.0.4",
-		"@storybook/addon-docs": "9.0.15",
-		"@storybook/react": "9.0.15",
-		"@testing-library/dom": "10.4.0",
+		"@babel/core": "7.29.0",
+		"@babel/preset-react": "7.28.5",
+		"@jest/globals": "30.2.0",
+		"@storybook/addon-docs": "10.2.3",
+		"@storybook/react": "10.2.3",
+		"@testing-library/dom": "10.4.1",
 		"@testing-library/react": "16.3.0",
 		"@testing-library/user-event": "14.6.1",
 		"@types/jest": "30.0.0",
-		"@types/react": "18.3.26",
+		"@types/react": "18.3.27",
 		"@types/react-dom": "18.3.7",
 		"@types/react-slider": "1.3.6",
-		"jest": "30.0.4",
-		"jest-environment-jsdom": "30.0.4",
+		"jest": "30.2.0",
 		"react": "18.3.1",
 		"react-dom": "18.3.1",
 		"require-from-string": "2.0.2",
-		"storybook": "9.0.15",
+		"storybook": "10.2.3",
 		"ts-dedent": "2.2.0",
 		"typescript": "5.9.3",
-		"webpack": "5.101.3",
+		"webpack": "5.105.2",
 		"webpack-cli": "6.0.1"
 	},
 	"peerDependencies": {

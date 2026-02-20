@@ -5,192 +5,151 @@
 @use "../../blocks/shared/styles/empty_image_option" as *;
 @import "@wordpress/dataviews/build-style/style.css";
 
-.jp-forms__inbox__view-actions {
-	border-bottom: 1px solid var(--wpds-color-stroke-surface-neutral-weak, #dcdcde);
-	padding: 0 var(--jp-forms-page-padding-inline); // Match .admin-ui-page__header padding
+.jp-forms-filters-bar {
+	border-bottom: 1px solid var(--wpds-color-stroke-surface-neutral-weak);
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	flex-wrap: wrap;
+	gap: variables.$grid-unit * 1.25;
+	background: var(--wpds-color-bg-surface-neutral-strong, #fff);
+	padding: 12px 16px;
+
+	&__chips {
+		display: flex;
+		flex: 1 1 auto;
+		min-width: 0;
+		align-items: center;
+		gap: 8px;
+	}
+
+	&__status-chips {
+		gap: 8px;
+		display: flex;
+
+		.components-button {
+			border-radius: 16px;
+			background-color: var(--jp-gray-5);
+			color: var(--jp-gray-40);
+		}
+
+		.components-button.is-active {
+			color: var(--wp-admin-theme-color);
+			background: rgba(var(--wp-admin-theme-color--rgb), 0.04);
+		}
+	}
+
+	&__controls {
+		flex: 0 0 auto;
+	}
+
+}
+
+.jp-forms-dataviews-layout-container {
 	overflow-x: auto;
 	width: 100%;
+	flex-grow: 1;
 	display: flex;
-	container-type: inline-size;
-	flex-shrink: 0;
-	position: sticky;
-	left: 0;
-	background: var(--wpds-color-bg-surface-neutral-strong, #fff);
-
-	// On small stacks, switch to column stacking
-	flex-direction: row;
-
-	@container (width < 600px) {
-		flex-direction: column;
-		flex-wrap: wrap;
-		align-items: flex-start;
-		gap: 12px;
-
-		// Make all child divs full width on mobile
-		> div {
-			width: 100%;
-		}
-	}
-
-	> div:not(:empty) {
-		min-height: 48px;
-	}
-
-	// Tab styling
-	button[role="tab"] {
-		margin: 0;
-		padding: 12px 0;
-		color: var(--wpds-color-fg-interactive-neutral);
-
-		&[data-active="true"] {
-			color: var(--wpds-color-fg-interactive-neutral-active);
-		}
-
-		&:hover:not([data-active="true"]) {
-			color: var(--wpds-color-fg-interactive-neutral-active);
-		}
-	}
+	flex-direction: column;
+	background-color: var(--wpds-color-bg-surface-neutral-strong, #fff);
 }
 
-.jp-forms__inbox__filters-container:not(:empty) {
-	padding-inline: var(--jp-forms-page-padding-inline); // Match header padding
-	padding-block: 12px;
-}
+/*
+ * DataViews custom spacing adjustments
+*/
+.dataviews-wrapper {
+	// Jetpack Forms specific
+	display: flex;
+	flex-direction: column;
+	flex-grow: 1;
+	min-height: 0;
 
-.jp-forms__inbox__dataviews__container {
-	justify-content: unset;
-	align-items: unset;
-}
-
-.jp-forms__inbox__dataviews {
-
-	@include mixins.flex-column;
-	flex: 1 1 60%;
-
-	// Optionally, fix the footer to bottom of the page and add margin
-	// so the last row is not hidden by the footer.
-	@include mixins.dataviews-footer-spacing;
-
-	.dataviews-wrapper {
-		background: var(--jp-white);
-		flex-grow: 1;
-
-		@media (min-width: #{ (breakpoints.$break-medium + 1) }) {
-			border-right: 1px solid var(--jp-gray-5);
-		}
+	.dataviews-footer,
+	.dataviews-view-grid,
+	.dataviews-view-list div[role="row"] .dataviews-view-list__item-wrapper {
+		padding-inline: variables.$grid-unit * 2.5;
 	}
 
 	.dataviews-footer {
-		position: fixed;
-		bottom: 0;
+		padding-block: variables.$grid-unit-10;
+	}
 
-		// Match .admin-ui-page__header padding
-		padding-inline: var(--jp-forms-page-padding-inline);
+	.dataviews-view-grid {
+		gap: variables.$grid-unit * 2.5;
+		padding-block: variables.$grid-unit * 2.5;
+	}
 
-		// Compensation for the width of the sidebar
-		// Set left position when auto-fold is not on the body element.
-		// Adapted from https://github.com/WordPress/gutenberg/blob/4ea86f891145daa12c8b59b18f02fb9fc4d83c5a/packages/base-styles/_mixins.scss#L183-L218
-		left: 0;
-		width: 100%;
+	.dataviews-view-table {
 
-		@media (min-width: #{ (breakpoints.$break-medium + 1) }) {
-			left: var(--forms-admin-sidebar-width, variables.$admin-sidebar-width);
-			width: calc(100% - var(--forms-admin-sidebar-width, variables.$admin-sidebar-width));
+		tr {
+
+			td,
+			th {
+
+				&:first-child {
+					padding-inline-start: variables.$grid-unit * 2.5;
+				}
+
+				&:last-child {
+					padding-inline-end: variables.$grid-unit * 2.5;
+				}
+			}
 		}
 	}
 
-	.jp-forms__inbox__author-field {
-		position: relative;
-
-		@include mixins.flex-center;
-		gap: 12px;
-		max-width: 100%;
-
-		&--mobile {
-			text-decoration: underline;
-		}
-	}
-
-	.jp-forms__inbox__author-info-container {
-		overflow: hidden;
-
-		@include mixins.flex-column;
-	}
-
-	.jp-forms__inbox__author-info,
-	.jp-forms__inbox__author-field__email {
-		text-overflow: ellipsis;
-		overflow: hidden;
-	}
-
-	.jp-forms__inbox__author-field__email {
-		font-size: 11px;
-		filter: opacity(0.8);
-	}
-
-	.jp-forms__inbox__unread-indicator {
-		color: #d63638;
-		font-size: 8px;
-		position: absolute;
-		left: -12px;
-		cursor: pointer;
+	.dataviews-view-grid__group-header {
+		padding-inline: variables.$grid-unit * 2.5;
 	}
 }
 
-/*
- * Compensation for the width of the sidebar
- * Auto fold is when on smaller breakpoints, nav menu auto collapses.
- * Adapted from: https://github.com/WordPress/gutenberg/blob/4ea86f891145daa12c8b59b18f02fb9fc4d83c5a/packages/base-styles/_mixins.scss#L183-L218
- */
-.auto-fold .jp-forms__inbox__dataviews .dataviews-footer {
+.jp-forms__inbox__author-field {
+	position: relative;
 
-	@media (min-width: #{ (breakpoints.$break-medium + 1) }) {
-		left: var(--forms-admin-sidebar-width, variables.$admin-sidebar-width-collapsed);
-		width: calc(100% - var(--forms-admin-sidebar-width, variables.$admin-sidebar-width-collapsed));
-	}
-
-	@media (min-width: #{ (breakpoints.$break-large + 1) }) {
-		left: var(--forms-admin-sidebar-width, variables.$admin-sidebar-width);
-		width: calc(100% - var(--forms-admin-sidebar-width, variables.$admin-sidebar-width));
-	}
+	@include mixins.flex-center;
+	gap: 12px;
+	max-width: 100%;
 }
 
-/*
- * Compensation for the width of the sidebar when the Sidebar
- * is manually collapsed.
- * Adapted from: https://github.com/WordPress/gutenberg/blob/4ea86f891145daa12c8b59b18f02fb9fc4d83c5a/packages/base-styles/_mixins.scss#L183-L218
- */
-.folded .jp-forms__inbox__dataviews .dataviews-footer {
-	left: 0;
+.jp-forms__inbox__author-info-container {
+	overflow: hidden;
 
-	@media (min-width: #{ (breakpoints.$break-medium + 1) }) {
-		left: var(--forms-admin-sidebar-width, variables.$admin-sidebar-width-collapsed);
-		width: calc(100% - var(--forms-admin-sidebar-width, variables.$admin-sidebar-width-collapsed));
-	}
+	@include mixins.flex-column;
 }
 
-/*
- * We need to make the available canvas 100% tall. Without this,
- * no flex values will work, they will only use the available space.
- */
-body[class*="_page_jetpack-forms"],
-body.jetpack_page_jetpack-forms-admin {
+.jp-forms__inbox__author-info,
+.jp-forms__inbox__author-field__email {
+	text-overflow: ellipsis;
+	overflow: hidden;
+}
 
-	#wpwrap,
-	#wpcontent,
-	#wpbody,
-	#wpbody-content {
-		min-height: 100%;
-	}
+.jp-forms__inbox__author-field__email {
+	font-size: 11px;
+	filter: opacity(0.6);
+}
+
+.jp-forms__inbox__unread-indicator {
+	color: #d63638;
+	font-size: 8px;
+	position: absolute;
+	left: -12px;
+	cursor: pointer;
 }
 
 #jp-forms-dashboard {
+	display: flex;
+	flex-direction: column;
+	flex: 1 1 auto;
+	height: calc(100vh - var(--wp-admin-bar-height, 32px));
 
-	@include mixins.flex-column;
-	width: 100%;
+	// First child is the router wrapper
+	> div:first-child {
+		display: flex;
+		flex-direction: column;
+		flex: 1 1 auto;
+		min-height: 0;
+	}
 }
 
 .jp-forms__inbox__unread {
 	font-weight: 600;
 }
-

@@ -1,7 +1,7 @@
 import { useMemo, useCallback } from '@wordpress/element';
-import { FormResponse } from '../../types';
-import { getItemId } from '../inbox/utils';
-import useInboxData from './use-inbox-data';
+import { FormResponse } from '../../types/index.ts';
+import { getItemId } from '../inbox/utils.js';
+import useInboxData from './use-inbox-data.ts';
 
 interface UseResponseNavigationProps {
 	onChangeSelection: ( responses: string[] ) => void | null;

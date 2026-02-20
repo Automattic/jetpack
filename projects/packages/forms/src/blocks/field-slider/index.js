@@ -1,17 +1,20 @@
 import { __ } from '@wordpress/i18n';
-import SliderIcon from '../input-range/icon';
-import defaultSettings from '../shared/settings';
-import { getIconColor } from '../shared/util/block-icons';
-import edit from './edit';
-import save from './save';
+import SliderIcon from '../input-range/icon.jsx';
+import defaultSettings from '../shared/settings/index.js';
+import edit from './edit.js';
+import save from './save.js';
 
-const name = 'field-slider';
-const settings = {
+export const name = 'field-slider';
+
+export const form_editor = {
+	category: 'advanced',
+};
+
+export const settings = {
 	...defaultSettings,
 	title: __( 'Slider field', 'jetpack-forms' ),
 	description: __( 'Collect a value from site visitors using a slider field.', 'jetpack-forms' ),
 	icon: {
-		foreground: getIconColor(),
 		src: <SliderIcon />,
 	},
 	attributes: {
@@ -81,4 +84,5 @@ const settings = {
 export default {
 	name,
 	settings,
+	form_editor,
 };

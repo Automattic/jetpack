@@ -130,11 +130,11 @@ class Jetpack_ReCaptcha_Test extends WP_UnitTestCase {
 	}
 
 	public function pre_http_request_response_success() {
-		return array( 'body' => json_encode( array( 'success' => true ) ) );
+		return array( 'body' => json_encode( array( 'success' => true ), JSON_UNESCAPED_SLASHES ) );
 	}
 
 	public function pre_http_request_response_unexpected() {
-		return array( 'body' => json_encode( array( 'success' => false ) ) );
+		return array( 'body' => json_encode( array( 'success' => false ), JSON_UNESCAPED_SLASHES ) );
 	}
 
 	public function pre_http_request_response_malformed_json() {
@@ -163,7 +163,8 @@ class Jetpack_ReCaptcha_Test extends WP_UnitTestCase {
 				array(
 					'success'     => false,
 					'error-codes' => array( $first_error_code ),
-				)
+				),
+				JSON_UNESCAPED_SLASHES
 			),
 		);
 	}

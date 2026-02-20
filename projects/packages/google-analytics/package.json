@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-google-analytics",
-	"version": "0.3.3",
+	"version": "0.3.4",
 	"private": true,
 	"description": "Set up Google Analytics without touching a line of code.",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/google-analytics/#readme",

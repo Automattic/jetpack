@@ -3,11 +3,11 @@ import { SelectControl } from '@wordpress/components';
 import { useCallback, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
-import JetpackFieldControls from '../shared/components/jetpack-field-controls';
-import useFieldSelected from '../shared/hooks/use-field-selected';
-import useFormWrapper from '../shared/hooks/use-form-wrapper';
-import useJetpackFieldStyles from '../shared/hooks/use-jetpack-field-styles';
-import { ALLOWED_INNER_BLOCKS, DATE_FORMAT_OPTIONS } from '../shared/util/constants';
+import JetpackFieldControls from '../shared/components/jetpack-field-controls.js';
+import useFieldSelected from '../shared/hooks/use-field-selected.js';
+import useFormWrapper from '../shared/hooks/use-form-wrapper.js';
+import useJetpackFieldStyles from '../shared/hooks/use-jetpack-field-styles.js';
+import { ALLOWED_INNER_BLOCKS, DATE_FORMAT_OPTIONS } from '../shared/util/constants.js';
 
 export default function DateFieldEdit( props ) {
 	const { attributes, clientId, isSelected, name, setAttributes } = props;

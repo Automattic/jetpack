@@ -23,3 +23,6 @@ export { mergeThemes } from './merge-themes';
 
 // Color utilities
 export * from './color-utils';
+
+// CSS utilities
+export { resolveCssVariable } from './resolve-css-var';

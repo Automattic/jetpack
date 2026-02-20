@@ -10,10 +10,10 @@ import { useNavigate } from 'react-router';
 /**
  * Internal dependencies
  */
-import useCreateForm from '../../hooks/use-create-form';
-import useExportResponses from '../../hooks/use-export-responses';
-import useInboxData from '../../hooks/use-inbox-data';
-import { ExportResponsesModal } from '../export-responses';
+import useCreateForm from '../../hooks/use-create-form.ts';
+import useExportResponses from '../../hooks/use-export-responses.ts';
+import useInboxData from '../../hooks/use-inbox-data.ts';
+import { ExportResponsesModal } from '../export-responses/index.tsx';
 
 type ActionsDropdownMenuProps = {
 	exportData: { show: boolean };
@@ -70,6 +70,7 @@ const ActionsDropdownMenu = ( { exportData }: ActionsDropdownMenuProps ) => {
 
 	return (
 		<>
+			{ /* @ts-expect-error label is missing here */ }
 			<DropdownMenu controls={ controls } icon={ menu } />
 			{ showExportModal && (
 				<ExportResponsesModal

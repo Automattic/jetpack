@@ -2,10 +2,17 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { GoogleCalendarEdit } from '../edit';
 
-jest.mock( '@wordpress/components/build/sandbox', () => ( {
-	__esModule: true,
-	default: props => <iframe title="Some title" { ...props } />,
-} ) );
+jest.mock( '@wordpress/components', () => {
+	const actual = jest.requireActual( '@wordpress/components' );
+	const mocks = {
+		SandBox: props => <iframe title="Some title" { ...props } />,
+	};
+	return new Proxy( actual, {
+		get( target, property ) {
+			return mocks[ property ] ?? target[ property ];
+		},
+	} );
+} );
 
 // Mock @automattic/jetpack-script-data functions to allow isWpcomPlatformSite to be correctly used.
 jest.mock( '@automattic/jetpack-script-data', () => {
@@ -84,7 +91,7 @@ describe( 'GoogleCalendarEdit', () => {
 			screen.getByText( 'Paste the embed code you copied from your Google Calendar below' )
 		).toBeInTheDocument();
 
-		const supportLink = screen.getByRole( 'link', { name: 'Learn more (opens in a new tab)' } );
+		const supportLink = screen.getByRole( 'link', { name: 'Learn more(opens in a new tab)' } );
 
 		expect( supportLink ).toBeInTheDocument();
 		expect( supportLink ).toHaveAttribute(
@@ -108,7 +115,7 @@ describe( 'GoogleCalendarEdit', () => {
 		render( <GoogleCalendarEdit { ...emptyProps } /> );
 
 		const url = 'https://en.support.wordpress.com/wordpress-editor/blocks/google-calendar/';
-		const supportLink = screen.getByRole( 'link', { name: 'Learn more (opens in a new tab)' } );
+		const supportLink = screen.getByRole( 'link', { name: 'Learn more(opens in a new tab)' } );
 		expect( supportLink ).toBeInTheDocument();
 		expect( supportLink ).toHaveAttribute( 'href', url );
 	} );

@@ -6,12 +6,13 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import IntegrationsList from './integrations-list';
+import IntegrationsList from './integrations-list.tsx';
 import './style.scss';
 /**
  * Types
  */
-import type { Integration } from '../../../../types';
+import type { IntegrationComponents } from './helpers/types.ts';
+import type { Integration } from '../../../../types/index.ts';
 
 type BlockAttributes = Record< string, unknown >;
 
@@ -23,6 +24,7 @@ type IntegrationsModalProps = {
 	integrationsData: Integration[];
 	refreshIntegrations: () => Promise< void >;
 	context?: 'block-editor' | 'dashboard';
+	components?: IntegrationComponents;
 };
 
 const IntegrationsModal = ( {
@@ -33,6 +35,7 @@ const IntegrationsModal = ( {
 	integrationsData,
 	refreshIntegrations,
 	context = 'block-editor',
+	components,
 }: IntegrationsModalProps ) => {
 	if ( ! isOpen ) {
 		return null;
@@ -52,6 +55,7 @@ const IntegrationsModal = ( {
 					context={ context }
 					attributes={ attributes }
 					setAttributes={ setAttributes }
+					components={ components }
 				/>
 			</VStack>
 		</Modal>

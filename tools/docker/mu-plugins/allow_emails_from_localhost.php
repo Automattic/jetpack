@@ -24,7 +24,7 @@ namespace Jetpack\Docker\MuPlugin\AllowEmailsFromLocalhost;
  */
 function jetpack_allow_emails_from_localhost( $from_email ) {
 	if ( $from_email === 'wordpress@localhost' ) {
-		return 'wordpress@jetpack.docker';
+		return 'wordpress@jetpack.docker.localhost';
 
 	}
 	return $from_email;

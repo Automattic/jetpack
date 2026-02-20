@@ -75,10 +75,13 @@ class VaultPress_Filesystem {
 		if ( !function_exists( 'exec' ) )
 			return false;
 		$out = array();
-		if ( 'md5' == $method )
+		if ( 'md5' === $method ) {
 			$method_bin = 'md5sum';
-		if ( 'sha1' == $method )
+		} elseif ( 'sha1' === $method ) {
 			$method_bin = 'sha1sum';
+		} else {
+			return false;
+		}
 		$checksum = '';
 		exec( sprintf( '%s %s', escapeshellcmd( $method_bin ), escapeshellarg( $file ) ), $out );
 		if ( !empty( $out ) )

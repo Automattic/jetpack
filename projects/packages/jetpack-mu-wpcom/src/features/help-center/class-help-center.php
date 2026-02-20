@@ -40,24 +40,28 @@ class Help_Center {
 	 * Help_Center constructor.
 	 */
 	public function __construct() {
-		global $wp_customize;
-
-		if ( isset( $wp_customize ) ) {
-			return;
-		}
-
 		if ( function_exists( 'wpcom_get_site_purchases' ) ) {
 			$this->purchases = wp_list_filter( wpcom_get_site_purchases(), array( 'product_type' => 'bundle' ) );
 		}
 
+		$blog_id               = get_current_blog_id();
+		$this->is_support_site = ( defined( 'WPCOM_SUPPORT_BLOG_IDS' ) && in_array( $blog_id, (array) WPCOM_SUPPORT_BLOG_IDS, true ) ) || ( defined( 'WPCOM_FORUM_BLOG_IDS' ) && in_array( $blog_id, (array) WPCOM_FORUM_BLOG_IDS, true ) );
+
+		// Always register REST API endpoints.
 		add_action( 'rest_api_init', array( $this, 'register_rest_api' ) );
+		add_filter( 'calypso_preferences_update', array( $this, 'calypso_preferences_update' ) );
+
+		// Handle customizer separately.
+		if ( is_customize_preview() ) {
+			add_action( 'customize_controls_enqueue_scripts', array( $this, 'enqueue_customizer_scripts' ) );
+			add_action( 'customize_controls_print_footer_scripts', array( $this, 'add_help_center_container' ) );
+			return;
+		}
+
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_wp_admin_scripts' ), 100 );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_wp_admin_scripts' ), 100 );
 		add_action( 'next_admin_init', array( $this, 'enqueue_wp_admin_scripts' ), 1000 );
 		add_filter( 'in_admin_header', array( $this, 'jetpack_remove_core_help_tab' ) );
-		add_filter( 'calypso_preferences_update', array( $this, 'calypso_preferences_update' ) );
-
-		$this->is_support_site = defined( 'WPCOM_SUPPORT_BLOG_IDS' ) && in_array( get_current_blog_id(), (array) WPCOM_SUPPORT_BLOG_IDS, true );
 	}
 
 	/**
@@ -215,7 +219,7 @@ class Help_Center {
 				12
 			);
 
-			if ( $variant === 'wp-admin' && $this->is_menu_panel_enabled() ) {
+			if ( is_user_logged_in() && $variant === 'wp-admin' && $this->is_menu_panel_enabled() ) {
 				// Initialize the help center menu panel
 				require_once __DIR__ . '/class-help-center-menu-panel.php';
 				Help_Center_Menu_Panel::init();
@@ -250,7 +254,7 @@ class Help_Center {
 		);
 
 		wp_enqueue_style(
-			'help-center-style',
+			'help-center-' . $variant . '-style',
 			'https://widgets.wp.com/help-center/help-center-' . $variant . ( is_rtl() ? '.rtl.css' : '.css' ),
 			array(),
 			$version
@@ -264,19 +268,19 @@ class Help_Center {
 				'const helpCenterFeatureFlags = ' . wp_json_encode(
 					array(
 						'loadNextStepsTutorial' => self::is_next_steps_tutorial_enabled(),
-					)
+					),
+					JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 				),
 				'before'
 			);
 
 			$user_id            = get_current_user_id();
 			$user_data          = get_userdata( $user_id );
-			$username           = $user_data->user_login;
-			$user_email         = $user_data->user_email;
-			$display_name       = $user_data->display_name;
-			$avatar_url         = function_exists( 'wpcom_get_avatar_url' ) ? wpcom_get_avatar_url( $user_email, 64, '', true )[0] : get_avatar_url( $user_id );
+			$username           = $user_data ? $user_data->user_login : null;
+			$user_email         = $user_data ? $user_data->user_email : null;
+			$display_name       = $user_data ? $user_data->display_name : null;
+			$avatar_url         = $user_data ? ( function_exists( 'wpcom_get_avatar_url' ) ? wpcom_get_avatar_url( $user_email, 64, '', true )[0] : get_avatar_url( $user_id ) ) : null;
 			$is_commerce_garden = defined( 'IS_COMMERCE_GARDEN' );
-			$is_next_admin      = (bool) did_action( 'next_admin_init' );
 
 			wp_add_inline_script(
 				'help-center',
@@ -286,7 +290,6 @@ class Help_Center {
 						'isSU'             => defined( 'WPCOM_SUPPORT_SESSION' ) && WPCOM_SUPPORT_SESSION,
 						'isSSP'            => isset( $_COOKIE['ssp'] ),
 						'sectionName'      => $this->is_support_site ? 'wp.com/support' : $variant,
-						'isNextAdmin'      => $is_next_admin,
 						'isCommerceGarden' => $is_commerce_garden,
 						'currentUser'      => array(
 							'ID'           => $user_id,
@@ -297,15 +300,19 @@ class Help_Center {
 						),
 						'site'             => $this->get_current_site(),
 						'locale'           => self::determine_iso_639_locale(),
-					)
+					),
+					JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 				),
 				'before'
 			);
 		}
 
-		if ( ! is_admin() ) {
+		$should_enqueue_wp_components = ! is_admin() || ( is_customize_preview() && ( new Host() )->is_wpcom_simple() );
+
+		if ( $should_enqueue_wp_components ) {
 			$stylesheet     = is_rtl() ? 'build/components/style-rtl.css' : 'build/components/style.css';
 			$stylesheet_url = plugins_url( 'gutenberg/' . $stylesheet );
+
 			if ( function_exists( 'gutenberg_url' ) ) {
 				// @phan-suppress-next-line PhanUndeclaredFunction
 				$stylesheet_url = gutenberg_url( $stylesheet );
@@ -326,39 +333,44 @@ class Help_Center {
 	 * @return boolean True if the menu panel experiment variation is enabled, false otherwise.
 	 */
 	private function is_menu_panel_enabled() {
-		$experiment_name      = 'calypso_help_center_menu_popover';
+		$experiment_name      = 'calypso_help_center_menu_popover_increase_exposure';
 		$experiment_variation = 'menu_popover';
+		$user_id              = get_current_user_id();
+		$cache_key            = 'help-center-menu-panel-enabled-' . $user_id . '-' . $experiment_name;
+
+		// Check cache first.
+		$cached_result = get_transient( $cache_key );
+		if ( false !== $cached_result ) {
+			return (bool) $cached_result;
+		}
+
+		$result = false;
 
 		if ( ( new Host() )->is_wpcom_simple() ) {
-			return $experiment_variation === \ExPlat\assign_current_user( $experiment_name );
+			$result = $experiment_variation === \ExPlat\assign_current_user( $experiment_name );
+		} elseif ( ( new Connection_Manager() )->is_user_connected() ) {
+			$request_path = '/experiments/0.1.0/assignments/calypso';
+			$response     = Client::wpcom_json_api_request_as_user(
+				add_query_arg( array( 'experiment_name' => $experiment_name ), $request_path ),
+				'v2'
+			);
+
+			if ( ! is_wp_error( $response ) ) {
+				$response_code = wp_remote_retrieve_response_code( $response );
+				if ( 200 === $response_code ) {
+					$data = json_decode( wp_remote_retrieve_body( $response ), true );
+					if ( isset( $data['variations'] ) && isset( $data['variations'][ $experiment_name ] ) ) {
+						$variation = $data['variations'][ $experiment_name ];
+						$result    = $experiment_variation === $variation;
+					}
+				}
+			}
 		}
 
-		if ( ! ( new Connection_Manager() )->is_user_connected() ) {
-			return false;
-		}
+		// Cache the result for 1 hour.
+		set_transient( $cache_key, $result ? 1 : 0, HOUR_IN_SECONDS );
 
-		$request_path = '/experiments/0.1.0/assignments/calypso';
-		$response     = Client::wpcom_json_api_request_as_user(
-			add_query_arg( array( 'experiment_name' => $experiment_name ), $request_path ),
-			'v2'
-		);
-
-		if ( is_wp_error( $response ) ) {
-			return false;
-		}
-
-		$response_code = wp_remote_retrieve_response_code( $response );
-		if ( 200 !== $response_code ) {
-			return false;
-		}
-
-		$data = json_decode( wp_remote_retrieve_body( $response ), true );
-		if ( isset( $data['variations'] ) && isset( $data['variations'][ $experiment_name ] ) ) {
-			$variation = $data['variations'][ $experiment_name ];
-			return $experiment_variation === $variation;
-		}
-
-		return false;
+		return $result;
 	}
 
 	/**
@@ -486,8 +498,13 @@ class Help_Center {
 	 */
 	public function is_block_editor() {
 		global $current_screen;
+
+		if ( ! $current_screen ) {
+			return false;
+		}
+
 		// widgets screen does have the block editor but also no Gutenberg top bar.
-		return $current_screen && $current_screen->is_block_editor() && $current_screen->id !== 'widgets';
+		return $current_screen->is_block_editor() && $current_screen->id !== 'widgets';
 	}
 
 	/**
@@ -563,6 +580,42 @@ class Help_Center {
 	}
 
 	/**
+	 * Enqueue Help Center assets for the customizer.
+	 */
+	public function enqueue_customizer_scripts() {
+		if ( $this->is_jetpack_disconnected() ) {
+			$variant = 'wp-admin-disconnected';
+		} else {
+			$variant = 'customizer';
+		}
+
+		$cache_key  = 'help-center-asset-' . $variant . '.asset.json';
+		$asset_file = get_transient( $cache_key );
+
+		if ( ! $asset_file ) {
+			$asset_file = self::get_assets_json( 'widgets.wp.com/help-center/help-center-' . $variant . '.asset.json' );
+			if ( ! $asset_file ) {
+				return;
+			}
+			set_transient( $cache_key, $asset_file, HOUR_IN_SECONDS );
+		}
+
+		// When the request is proxied, use a random cache buster as the version for easier debugging.
+		$version = self::is_proxied() ? wp_rand() : $asset_file['version'];
+
+		$this->enqueue_script( $variant, $asset_file['dependencies'], $version );
+	}
+
+	/**
+	 * Add Help Center container div in customizer.
+	 */
+	public function add_help_center_container() {
+		?>
+		<div id="help-center-customizer"></div>
+		<?php
+	}
+
+	/**
 	 * Add icon to WP-ADMIN admin bar.
 	 */
 	public function enqueue_wp_admin_scripts() {
@@ -585,11 +638,39 @@ class Help_Center {
 			return;
 		}
 
-		if ( $this->is_support_site ) {
-			$variant = 'wp-admin' . ( $this->is_jetpack_disconnected() ? '-disconnected' : '' );
+		// Do not load Help Center for logged-out users if we are not on support sites and the experiment variation is the treatment.
+		if ( ! is_user_logged_in() ) {
+			if ( ! $this->is_support_site ) {
+				return;
+			}
+
+			$experiment_variation = null;
+			if ( function_exists( '\ExPlat\assign_maybe_anon_user' ) ) {
+				$experiment_variation = \ExPlat\assign_maybe_anon_user( 'wpcom_ai_on_logged_out_support_pages_v2' );
+			} else {
+				log2logstash(
+					array(
+						'feature' => 'help-center',
+						'message' => 'ExPlat\assign_maybe_anon_user function is unavailable',
+					)
+				);
+			}
+			if ( $experiment_variation !== 'treatment' ) {
+				return;
+			}
+		}
+
+		if ( $is_next_admin ) {
+			$variant = 'ciab-admin' . ( $this->is_jetpack_disconnected() ? '-disconnected' : '' );
+		} elseif ( $this->is_support_site ) {
+			if ( ! is_user_logged_in() ) {
+				$variant = 'logged-out';
+			} else {
+				$variant = 'wp-admin' . ( $this->is_jetpack_disconnected() ? '-disconnected' : '' );
+			}
 		} elseif ( $this->is_loading_on_frontend() ) {
 			$variant = 'wp-admin-disconnected';
-		} elseif ( $this->is_block_editor() || $is_next_admin ) {
+		} elseif ( $this->is_block_editor() ) {
 			$variant = 'gutenberg' . ( $this->is_jetpack_disconnected() ? '-disconnected' : '' );
 		} else {
 			$variant = 'wp-admin' . ( $this->is_jetpack_disconnected() ? '-disconnected' : '' );

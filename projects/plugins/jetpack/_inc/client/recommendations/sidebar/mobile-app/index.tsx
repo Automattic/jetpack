@@ -87,7 +87,8 @@ const MobileApp: FC< Props > = ( { slug, underside = false } ) => {
 								rel="noopener noreferrer"
 								target="_blank"
 								onClick={ onJpcomAppClick }
-							></ExternalLink>
+								children={ null }
+							/>
 						),
 					}
 				) }

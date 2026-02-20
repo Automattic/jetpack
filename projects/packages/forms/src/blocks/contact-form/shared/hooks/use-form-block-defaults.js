@@ -1,6 +1,6 @@
 import { useSelect } from '@wordpress/data';
 import { useEffect } from '@wordpress/element';
-import { INTEGRATIONS_STORE } from '../../../../store/integrations';
+import { INTEGRATIONS_STORE } from '../../../../store/integrations/index.ts';
 
 /**
  * Apply default form block settings once per block instance when needed.

@@ -266,7 +266,7 @@ class Jetpack_Brightcove_Shortcode {
 				'brightcove-loader',
 				'brightcoveData',
 				array(
-					'tld' => esc_js( $js_tld ),
+					'tld' => $js_tld,
 				)
 			);
 

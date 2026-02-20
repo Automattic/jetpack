@@ -47,16 +47,14 @@ class Jetpack_Social_Test extends BaseTestCase {
 		$this->activate_plugin( JETPACK_SOCIAL_PLUGIN_ROOT_FILE_RELATIVE_PATH );
 		$this->assertFalse( ( Jetpack_Social::is_publicize_active() ) );
 
-		$connection_manager = $this->createMock( Connection_Manager::class );
+		$connection_manager = $this->createStub( Connection_Manager::class );
 		$connection_manager->method( 'is_connected' )->willReturn( true );
 		$connection_manager->method( 'has_connected_user' )->willReturn( true );
 
-		// Publicize global is not available at the moment during these tests
 		$this->social = $this->getMockBuilder( Jetpack_Social::class )
 			->setConstructorArgs( array( $connection_manager ) )
-			->onlyMethods( array( 'calculate_scheduled_shares' ) )
+			->onlyMethods( array() )
 			->getMock();
-		$this->social->expects( $this->once() )->method( 'calculate_scheduled_shares' );
 
 		$this->activate_plugin( JETPACK_SOCIAL_PLUGIN_ROOT_FILE_RELATIVE_PATH );
 		$this->assertTrue( Jetpack_Social::is_publicize_active() );
@@ -66,7 +64,7 @@ class Jetpack_Social_Test extends BaseTestCase {
 	 * Test that the Publicize package isn't ensured without a user connection
 	 */
 	public function test_publicize_not_configured() {
-		$connection_manager = $this->createMock( Connection_Manager::class );
+		$connection_manager = $this->createStub( Connection_Manager::class );
 		$connection_manager->method( 'is_connected' )->willReturn( true );
 		$connection_manager->method( 'has_connected_user' )->willReturn( false );
 

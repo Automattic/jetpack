@@ -415,6 +415,6 @@ abstract class Handler {
 				return null;
 			}
 		}
-		return json_encode( $obj );
+		return json_encode( $obj, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE );
 	}
 }

@@ -1,3 +1,5 @@
+@use "@automattic/jetpack-base-styles/root-variables";
+
 :root {
 	// Forms-specific variables
 	--jp-forms-font-size-regular: 14px;
@@ -34,7 +36,7 @@ body.jetpack_page_jetpack-forms-admin {
 
 // Adjust the position of the notices.
 .forms-dashboard-notices {
-	position: sticky;
+	position: fixed;
 	right: 0;
 	bottom: 44px;
 	padding-left: 24px;

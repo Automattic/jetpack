@@ -1,6 +1,6 @@
 import { createBlock } from '@wordpress/blocks';
 import { __ } from '@wordpress/i18n';
-import deprecateFieldStyles from '../util/deprecate-field-styles';
+import deprecateFieldStyles from '../util/deprecate-field-styles.js';
 
 const isValidOption = value => typeof value === 'string' && value.trim().length > 0;
 

@@ -3,7 +3,7 @@ import {
 	store,
 	withSyncEvent as originalWithSyncEvent,
 } from '@wordpress/interactivity';
-import { focusNextInput } from '../form/shared';
+import { focusNextInput } from '../form/shared.ts';
 
 const NAMESPACE = 'jetpack/form';
 

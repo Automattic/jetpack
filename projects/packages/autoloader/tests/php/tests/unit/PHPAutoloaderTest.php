@@ -32,9 +32,7 @@ class PHPAutoloaderTest extends TestCase {
 
 		global $jetpack_autoloader_loader;
 
-		$loader = $this->getMockBuilder( Version_Loader::class )
-			->disableOriginalConstructor()
-			->getMock();
+		$loader = $this->createStub( Version_Loader::class );
 
 		( new PHP_Autoloader() )->register_autoloader( $loader );
 

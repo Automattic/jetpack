@@ -1,7 +1,7 @@
 import { useSelect } from '@wordpress/data';
-import { CONFIG_STORE } from '../store/config';
-import type { ConfigSelectors } from '../store/config/types';
-import type { FormsConfigData } from '../types';
+import { CONFIG_STORE } from '../store/config/index.ts';
+import type { ConfigSelectors } from '../store/config/types.ts';
+import type { FormsConfigData } from '../types/index.ts';
 
 /**
  * Hook to get a specific config value from the forms config store.

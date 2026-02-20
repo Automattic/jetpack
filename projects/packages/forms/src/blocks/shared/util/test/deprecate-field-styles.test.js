@@ -1,4 +1,4 @@
-import deprecateFieldStyles from '../deprecate-field-styles';
+import deprecateFieldStyles from '../deprecate-field-styles.js';
 
 describe( 'deprecateFieldStyles', () => {
 	it( 'should deprecate input styles', () => {

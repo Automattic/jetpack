@@ -27,7 +27,7 @@ Once the installation is complete, continue onto the section [Running Jetpack lo
 Prior to installation, we recommend using [`Homebrew`](https://brew.sh/) to manage installations and [`nvm`](https://github.com/nvm-sh/nvm/) to manage Node.js versions. If you don't already have those installed, you can do so by copy/pasting each of the following commands and running them in your terminal:
 
 - Homebrew: `bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"`
-- nvm: `curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash`
+- nvm: `curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash` (see [nvm releases](https://github.com/nvm-sh/nvm/releases) for the latest version)
 
 The Jetpack Monorepo requires various software to be installed on your machine.
 
@@ -56,8 +56,8 @@ tools/check-development-environment.sh
 
 Running the script will tell you if you have your environment already set up and what you need to do in order to get it ready for Jetpack development:
 
-- All green `YES` or `OK` messages mean you're ready to start
-- Red `NO` messages mean something is wrong or missing, and a link will be provided to help you with a fix.
+- All green `ok` or `yes` messages mean you're ready to start
+- Red `no` or similar messages mean something is wrong or missing, and a link will be provided to help you with a fix.
 - Yellow messages indicate something optional is broken or missing.
 
 ## Running Jetpack locally
@@ -80,11 +80,13 @@ For more in depth Docker instructions, follow the [Docker environment for Jetpac
 
 ## Setting up Jurassic Tube
 
+**Note:** This is for Automattician use only. For other methods, check out [ngrok](../tools/docker/README.md#using-ngrok-with-jetpack) or [another similar service](https://alternativeto.net/software/ngrok/).
+
 In order to test features that require a WordPress.com connection and other network related Jetpack features, you'll need a test site that can create local HTTP tunnels. If you're an Automattician, we recommend using Jurassic Tube.
 
-Note: This is for Automattician use only. For other methods, check out [ngrok](../tools/docker/README.md#using-ngrok-with-jetpack) or [another similar service](https://alternativeto.net/software/ngrok/).
-
 To set up Jurassic Tube and establish a tunnel to your local machine, use the following instructions: PCYsg-GJ2-p2
+
+For detailed information about using Jurassic Tube with Docker, including recommended proxy configurations, see the [Jurassic Tube Tunneling Service](../tools/docker/README.md#jurassic-tube-tunneling-service) section in the Docker documentation.
 
 ## Development Workflow
 

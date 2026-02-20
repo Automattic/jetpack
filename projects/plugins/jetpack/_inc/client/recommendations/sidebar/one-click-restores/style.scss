@@ -20,7 +20,7 @@
 	display: grid;
 	padding: 1.125rem 0;
 	grid-template-columns: minmax(0, 130px) minmax(0, 150px);
-	grid-gap: 1rem;
+	gap: 1rem;
 
 	@include breakpoints.breakpoint( "660px-1040px" ) {
 		grid-template-columns: 1fr;

@@ -15,22 +15,21 @@
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with CSSTidy; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ * along with CSSTidy; if not, see <https://www.gnu.org/licenses/>.
  *
  * @license https://opensource.org/licenses/gpl-license.php GNU Public License
  * @package csstidy
  * @author Florian Schmitz (floele at gmail dot com) 2005, Nikolay Matsievsky (speed at webo dot name) 2010
  */
 
-define( 'AT_START', 1 );
-define( 'AT_END', 2 );
-define( 'SEL_START', 3 );
-define( 'SEL_END', 4 );
-define( 'PROPERTY', 5 );
-define( 'VALUE', 6 );
-define( 'COMMENT', 7 );
-define( 'DEFAULT_AT', 41 );
+defined( 'AT_START' ) || define( 'AT_START', 1 );
+defined( 'AT_END' ) || define( 'AT_END', 2 );
+defined( 'SEL_START' ) || define( 'SEL_START', 3 );
+defined( 'SEL_END' ) || define( 'SEL_END', 4 );
+defined( 'PROPERTY' ) || define( 'PROPERTY', 5 );
+defined( 'VALUE' ) || define( 'VALUE', 6 );
+defined( 'COMMENT' ) || define( 'COMMENT', 7 );
+defined( 'DEFAULT_AT' ) || define( 'DEFAULT_AT', 41 );
 
 /**
  * All whitespace allowed in CSS

@@ -255,6 +255,70 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Test extends Jetpack_REST_T
 	}
 
 	/**
+	 * Test that WPCOM-specific Gutenberg assets are preserved when served from a CDN.
+	 */
+	public function test_wpcom_gutenberg_assets_are_preserved_with_cdn_urls() {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
+
+		add_action( 'enqueue_block_editor_assets', array( $this, 'mock_cdn_gutenberg_assets' ) );
+
+		$request  = new WP_REST_Request( Requests::GET, '/wpcom/v2/editor-assets' );
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+
+		// Verify CDN-served Gutenberg assets are preserved in the output
+		$this->assertStringContainsString( 'cdn-gutenberg-script', $data['scripts'] );
+		$this->assertStringContainsString( 'cdn-gutenberg-style', $data['styles'] );
+		$this->assertStringContainsString( 'plugins/gutenberg/script.js', $data['scripts'] );
+		$this->assertStringContainsString( 'plugins/gutenberg/style.css', $data['styles'] );
+
+		remove_action( 'enqueue_block_editor_assets', array( $this, 'mock_cdn_gutenberg_assets' ) );
+	}
+
+	/**
+	 * Enqueue Gutenberg assets using a CDN domain.
+	 */
+	public function mock_cdn_gutenberg_assets() {
+		wp_register_script( 'cdn-gutenberg-script', 'https://cdn.example.com/wp-content/plugins/gutenberg/script.js', array(), '1.0', true );
+		wp_register_style( 'cdn-gutenberg-style', 'https://cdn.example.com/wp-content/plugins/gutenberg/style.css', array(), '1.0' );
+
+		wp_enqueue_script( 'cdn-gutenberg-script' );
+		wp_enqueue_style( 'cdn-gutenberg-style' );
+	}
+
+	/**
+	 * Test that WPCOM-specific gutenberg-core assets are preserved when served from a CDN.
+	 */
+	public function test_wpcom_gutenberg_core_assets_are_preserved_with_cdn_urls() {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
+
+		add_action( 'enqueue_block_editor_assets', array( $this, 'mock_cdn_gutenberg_core_assets' ) );
+
+		$request  = new WP_REST_Request( Requests::GET, '/wpcom/v2/editor-assets' );
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+
+		// Verify CDN-served WPCOM Gutenberg core assets are preserved in the output
+		$this->assertStringContainsString( 'cdn-gutenberg-core-script', $data['scripts'] );
+		$this->assertStringContainsString( 'cdn-gutenberg-core-style', $data['styles'] );
+		$this->assertStringContainsString( 'plugins/gutenberg-core/script.js', $data['scripts'] );
+		$this->assertStringContainsString( 'plugins/gutenberg-core/style.css', $data['styles'] );
+
+		remove_action( 'enqueue_block_editor_assets', array( $this, 'mock_cdn_gutenberg_core_assets' ) );
+	}
+
+	/**
+	 * Enqueue WPCOM Gutenberg core assets using a CDN domain.
+	 */
+	public function mock_cdn_gutenberg_core_assets() {
+		wp_register_script( 'cdn-gutenberg-core-script', 'https://cdn.example.com/wp-content/plugins/gutenberg-core/script.js', array(), '1.0', true );
+		wp_register_style( 'cdn-gutenberg-core-style', 'https://cdn.example.com/wp-content/plugins/gutenberg-core/style.css', array(), '1.0' );
+
+		wp_enqueue_script( 'cdn-gutenberg-core-script' );
+		wp_enqueue_style( 'cdn-gutenberg-core-style' );
+	}
+
+	/**
 	 * Test that required WordPress actions are triggered.
 	 */
 	public function test_required_wordpress_actions_are_triggered() {
@@ -873,6 +937,42 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Test extends Jetpack_REST_T
 	}
 
 	/**
+	 * Test exclude parameter with 'gutenberg' value excludes CDN-served Gutenberg assets.
+	 */
+	public function test_exclude_parameter_with_cdn_gutenberg() {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
+
+		// Add mock CDN-served Gutenberg assets with jetpack- prefix so they survive unregister_disallowed_plugin_assets
+		add_action(
+			'enqueue_block_editor_assets',
+			function () {
+				wp_register_script( 'jetpack-cdn-gutenberg-script', 'https://cdn.example.com/wp-content/plugins/gutenberg/script.js', array(), '1.0', true );
+				wp_register_style( 'jetpack-cdn-gutenberg-style', 'https://cdn.example.com/wp-content/plugins/gutenberg/style.css', array(), '1.0' );
+				wp_enqueue_script( 'jetpack-cdn-gutenberg-script' );
+				wp_enqueue_style( 'jetpack-cdn-gutenberg-style' );
+			}
+		);
+
+		// First, verify CDN assets ARE present without exclusion
+		$request_without_exclude  = new WP_REST_Request( Requests::GET, '/wpcom/v2/editor-assets' );
+		$response_without_exclude = $this->server->dispatch( $request_without_exclude );
+		$data_without_exclude     = $response_without_exclude->get_data();
+
+		$this->assertStringContainsString( 'plugins/gutenberg/script.js', $data_without_exclude['scripts'], 'CDN Gutenberg script should be present without exclusion' );
+		$this->assertStringContainsString( 'plugins/gutenberg/style.css', $data_without_exclude['styles'], 'CDN Gutenberg style should be present without exclusion' );
+
+		// Now verify they ARE excluded with 'exclude=gutenberg'
+		$request = new WP_REST_Request( Requests::GET, '/wpcom/v2/editor-assets' );
+		$request->set_param( 'exclude', 'gutenberg' );
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+
+		// CDN-served Gutenberg assets should be excluded
+		$this->assertStringNotContainsString( 'plugins/gutenberg/script.js', $data['scripts'], 'CDN Gutenberg script should be excluded' );
+		$this->assertStringNotContainsString( 'plugins/gutenberg/style.css', $data['styles'], 'CDN Gutenberg style should be excluded' );
+	}
+
+	/**
 	 * Test exclude parameter with both 'core' and 'gutenberg' values.
 	 */
 	public function test_exclude_parameter_with_core_and_gutenberg() {
@@ -1141,5 +1241,97 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Test extends Jetpack_REST_T
 		// Jetpack script in conditional comment should still be present
 		$this->assertStringContainsString( 'jetpack-ie.js', $data['scripts'], 'Jetpack script in conditional comment should be preserved when excluding core' );
 		$this->assertStringContainsString( 'jetpack-ie-compat', $data['scripts'], 'Jetpack script handle should be preserved' );
+	}
+
+	/**
+	 * Test that wpforms-lite callback is not executed after hook removal.
+	 *
+	 * This test creates a mock wpforms-lite plugin structure and verifies
+	 * that callbacks from that plugin are removed before execution.
+	 *
+	 * @phan-suppress PhanUndeclaredClassMethod, PhanUndeclaredClassStaticProperty, PhanUndeclaredClassInCallable
+	 */
+	public function test_wpforms_callback_is_not_executed_after_hook_removal() {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
+
+		// Create a mock wpforms-lite plugin directory and class file
+		$plugins_dir         = WP_PLUGIN_DIR . '/wpforms-lite';
+		$plugin_file         = $plugins_dir . '/wpforms-mock.php';
+		$created_plugin_dir  = false;
+		$created_plugin_file = false;
+
+		// Create temporary plugin structure if it doesn't exist
+		if ( ! is_dir( $plugins_dir ) ) {
+			mkdir( $plugins_dir, 0777, true );
+			$created_plugin_dir = true;
+		}
+
+		if ( ! file_exists( $plugin_file ) ) {
+			file_put_contents(
+				$plugin_file,
+				'<?php
+				if ( ! class_exists( "WPForms_Mock_Class" ) ) {
+					class WPForms_Mock_Class {
+						public static $callback_executed = false;
+						public function mock_callback() {
+							self::$callback_executed = true;
+						}
+					}
+				}'
+			);
+			$created_plugin_file = true;
+		}
+
+		// Include the mock plugin file
+		require_once $plugin_file;
+
+		// Mock is_plugin_active() to return true for wpforms-lite (simulates production scenario)
+		add_filter(
+			'option_active_plugins',
+			function ( $plugins ) {
+				if ( ! in_array( 'wpforms-lite/wpforms.php', $plugins, true ) ) {
+					$plugins[] = 'wpforms-lite/wpforms.php';
+				}
+				return $plugins;
+			}
+		);
+
+		// Reset the static flag
+		WPForms_Mock_Class::$callback_executed = false;
+
+		// Create an instance of the mock class (needed for object method callback detection)
+		$wpforms_instance = new WPForms_Mock_Class();
+
+		// Add callback from the mock wpforms-lite plugin using instance method
+		add_action( 'enqueue_block_editor_assets', array( $wpforms_instance, 'mock_callback' ), 10 );
+
+		// Verify the hook is registered before the request
+		$this->assertTrue( has_action( 'enqueue_block_editor_assets', array( $wpforms_instance, 'mock_callback' ) ) !== false, 'Hook should be registered before request' );
+
+		// Make the REST request - this should trigger remove_problematic_plugin_hooks
+		$request  = new WP_REST_Request( Requests::GET, '/wpcom/v2/editor-assets' );
+		$response = $this->server->dispatch( $request );
+
+		// Should return 200
+		$this->assertEquals( 200, $response->get_status() );
+
+		// CRITICAL: The callback should NOT have executed because it was removed
+		$this->assertFalse( WPForms_Mock_Class::$callback_executed, 'WPForms callback should NOT execute after hook removal - this test MUST fail when remove_problematic_plugin_hooks() is disabled' );
+
+		// Clean up
+		remove_action( 'enqueue_block_editor_assets', array( $wpforms_instance, 'mock_callback' ), 10 );
+
+		// Remove temporary files if we created them
+		if ( $created_plugin_file ) {
+			unlink( $plugin_file );
+		}
+		if ( $created_plugin_dir ) {
+			// Only remove directory if it's empty (to avoid failures if other files exist)
+			$dir_contents = scandir( $plugins_dir );
+			$is_empty     = count( $dir_contents ) === 2; // Only '.' and '..' remain
+			if ( $is_empty ) {
+				rmdir( $plugins_dir );
+			}
+		}
 	}
 }

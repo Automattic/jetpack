@@ -160,7 +160,7 @@ class WPCOM_JSON_API_Site_Settings_V1_4_Endpoint_Test extends WP_UnitTestCase {
 	 */
 	#[DataProvider( 'setting_value_pairs_post_request' )]
 	public function test_post_settings_sets_key_values( $setting_name, $setting_value, $expected_value ) {
-		$setting  = wp_json_encode( array( $setting_name => $setting_value ) );
+		$setting  = wp_json_encode( array( $setting_name => $setting_value ), JSON_UNESCAPED_SLASHES );
 		$response = $this->make_post_request( $setting );
 		$updated  = $response['updated'];
 		$this->assertSame( $expected_value, $updated[ $setting_name ] );

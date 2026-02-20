@@ -76,7 +76,7 @@ function e2e_mock_speed_score_api_response( $body ) {
 		'response' => array(
 			'code' => 200,
 		),
-		'body'     => wp_json_encode( $body ),
+		'body'     => wp_json_encode( $body, JSON_UNESCAPED_SLASHES ),
 	);
 }
 

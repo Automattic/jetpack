@@ -3,5 +3,18 @@
 	&__suggestion {
 		padding: 18px 0;
 		margin-bottom: -32px;
+
+		ul,
+		ol {
+			margin-inline-start: 1.5em;
+		}
+
+		ul {
+			list-style-type: disc;
+		}
+
+		ol {
+			list-style-type: decimal;
+		}
 	}
 }

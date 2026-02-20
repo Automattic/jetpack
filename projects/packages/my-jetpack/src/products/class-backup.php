@@ -351,7 +351,14 @@ class Backup extends Hybrid_Product {
 		// First check the status of Rewind for failure.
 		$rewind_state = self::get_state_from_wpcom();
 		if ( ! is_wp_error( $rewind_state ) ) {
-			if ( $rewind_state->state !== 'active' && $rewind_state->state !== 'provisioning' && $rewind_state->state !== 'awaiting_credentials' ) {
+			// Special case: 'unavailable' with 'site_new' reason is a normal provisioning state for brand new sites.
+			$is_new_site_provisioning = ( 'unavailable' === $rewind_state->state &&
+										'site_new' === ( $rewind_state->reason ?? '' ) );
+
+			if (
+				! in_array( $rewind_state->state, array( 'active', 'provisioning', 'awaiting_credentials' ), true ) &&
+				! $is_new_site_provisioning
+			) {
 				$backup_failed_status = array(
 					'type' => 'error',
 					'data' => array(
@@ -388,7 +395,7 @@ class Backup extends Hybrid_Product {
 			}
 		}
 
-		if ( is_array( $backup_failed_status ) && $backup_failed_status['type'] === 'error' ) {
+		if ( is_array( $backup_failed_status ) ) {
 			set_transient( self::BACKUP_STATUS_TRANSIENT_KEY, $backup_failed_status, 5 * MINUTE_IN_SECONDS );
 		} else {
 			set_transient( self::BACKUP_STATUS_TRANSIENT_KEY, 'no_errors', HOUR_IN_SECONDS );
@@ -451,5 +458,32 @@ class Backup extends Hybrid_Product {
 			'jetpack_backup_t0_yearly',
 			'jetpack_backup_t0_monthly',
 		);
+	}
+
+	/**
+	 * Override the product status to return INACTIVE when backups are deactivated.
+	 *
+	 * @return string
+	 */
+	public static function get_status() {
+		// Get the default status from parent.
+		$status = parent::get_status();
+
+		// Check if backups are deactivated (not an error, just manually turned off).
+		$needs_attention = static::does_module_need_attention();
+		if (
+			is_array( $needs_attention ) &&
+			isset( $needs_attention['data']['status'] ) &&
+			'backups-deactivated' === $needs_attention['data']['status']
+		) {
+			// Preserve NEEDS_PLAN status - user must purchase before reactivating.
+			if ( \Automattic\Jetpack\My_Jetpack\Products::STATUS_NEEDS_PLAN === $status ) {
+				return $status;
+			}
+
+			return \Automattic\Jetpack\My_Jetpack\Products::STATUS_INACTIVE;
+		}
+
+		return $status;
 	}
 }

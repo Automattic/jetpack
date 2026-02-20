@@ -1,10 +1,15 @@
 /**
- *WARNING: No ES6 modules here. Not transpiled! ****
+ * Webpack config for blocks
  */
 
-const path = require( 'path' );
-const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
-const CopyWebpackPlugin = require( 'copy-webpack-plugin' );
+import path from 'path';
+import { fileURLToPath } from 'url';
+import jetpackWebpackConfig from '@automattic/jetpack-webpack-config/webpack';
+import autoprefixer from 'autoprefixer';
+import CopyWebpackPlugin from 'copy-webpack-plugin';
+
+const __filename = fileURLToPath( import.meta.url );
+const __dirname = path.dirname( __filename );
 
 /**
  * Internal variables
@@ -68,15 +73,33 @@ const sharedWebpackConfig = {
 						loader: 'postcss-loader',
 						options: {
 							// postcssOptions: { config: path.join( __dirname, 'postcss.config.js' ) },
-							postcssOptions: { plugins: [ require( 'autoprefixer' ) ] },
+							postcssOptions: { plugins: [ autoprefixer ] },
 						},
 					},
 					{ loader: 'sass-loader', options: { api: 'modern-compiler' } },
 				],
 			} ),
 
-			// Handle images.
-			jetpackWebpackConfig.FileRule(),
+			// Allow importing .svg files as React components via `?component` query.
+			{
+				test: /\.svg$/i,
+				issuer: /\.[jt]sx?$/,
+				resourceQuery: /component/,
+				use: [ '@svgr/webpack' ],
+			},
+
+			// Allow importing .svg files as raw HTML strings via `?raw` query.
+			{
+				test: /\.svg$/i,
+				resourceQuery: /raw/,
+				type: 'asset/source',
+			},
+
+			// Handle images (exclude ?component and ?raw SVG imports).
+			{
+				...jetpackWebpackConfig.FileRule(),
+				resourceQuery: { not: [ /component/, /raw/ ] },
+			},
 		],
 	},
 	watchOptions: {
@@ -84,7 +107,7 @@ const sharedWebpackConfig = {
 	},
 };
 
-module.exports = [
+export default [
 	{
 		...sharedWebpackConfig,
 		plugins: [

@@ -1,5 +1,5 @@
-import type { ConfigState } from './types';
-import type { FormsConfigData } from '../../types';
+import type { ConfigState } from './types.ts';
+import type { FormsConfigData } from '../../types/index.ts';
 
 export const getConfig = ( state: ConfigState ): Partial< FormsConfigData > | null => state.config;
 

@@ -1,79 +1,110 @@
 @use "../../mixins";
+@use "@wordpress/base-styles/variables";
+@use "@wordpress/base-styles/mixins" as wp-mixins;
+@import "../../design-tokens.css";
 
 body[class*="_page_jetpack-forms"],
 body.jetpack_page_jetpack-forms-admin {
-	background-color: #fff;
 
 	#wpcontent {
 		padding-left: 0;
 	}
 }
 
-.jp-forms__layout {
+.jp-forms-layout {
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+	color: var(--wpds-color-fg-content-neutral);
 
-	@include mixins.flex-column;
-	flex: 1 1 auto;
-	margin: 0;
-	padding: 0;
-	width: 100%;
-	min-height: calc(100vh - var(--wp-admin--admin-bar--height, 0px));
-	background: var(--wpds-color-bg-surface-neutral-strong, #fff);
-	color: var(--wpds-color-fg-content-neutral, #1e1e1e);
-	overflow: auto;
+	// Create an separate stacking context for Base UI portal rendering.
+	// See: https://base-ui.com/react/overview/quick-start#set-up-portals
+	isolation: isolate;
 
-	.jp-forms__layout-header-title {
-
-		@include mixins.flex-center;
-		gap: 8px;
+	.editor-visual-editor:not(.has-padding) {
+		background: none;
 	}
 }
 
-#jp-forms-dashboard .jp-forms__layout {
+.jp-forms-layout__content {
+	height: 100%;
+	flex-grow: 1;
+	display: flex;
+}
 
-	.admin-ui-page__content {
-		display: flex;
-		flex: 1 1 auto;
-		flex-direction: column;
-		min-height: 0;
-		background: var(--wpds-color-bg-surface-neutral-strong, #fff);
+// Jetpack Forms custom header title
+.jp-forms-page-header-title {
 
-		// Ensure Outlet renders as flex child that expands
-		> * {
-			display: flex;
-			flex: 1;
-			flex-direction: column;
+	@include mixins.flex-center;
+	gap: 8px;
+
+	&__link {
+		font: inherit;
+		color: inherit;
+
+		&:hover {
+			text-decoration: underline;
 		}
 
-		.jp-forms__inbox__dataviews__container {
-			flex-direction: row;
-			justify-content: unset;
-			align-items: unset;
+		&:focus-visible {
+			text-decoration: underline;
+		}
+	}
+}
+
+.jp-forms-layout__surface {
+	margin: 0;
+	overflow: auto;
+	box-shadow: variables.$elevation-x-small;
+
+	// Mobile-first: surfaces take full screen
+	width: 100vw;
+	height: calc(100vh - 46px);
+	border-radius: 0;
+	position: fixed;
+	top: 46px;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	color: var(--wpds-color-fg-content-neutral);
+	background: var(--wpds-color-bg-surface-neutral);
+
+	&.is-inspector {
+		z-index: 3; // Medium surface priority
+
+		// AI Agent inspector should always be on the far right
+		&.ai-agent-inspector {
+			order: 10;
+
+			&.is-collapsed {
+				display: none;
+			}
 		}
 	}
 
-	.admin-ui-page__header {
-		margin: 0;
-		padding: 8px var(--jp-forms-page-padding-inline);
-		width: 100%;
-		background: var(--wpds-color-bg-surface-neutral-strong, #fff);
-		border-bottom: none;
+	&.is-stage {
+		z-index: 2; // Highest surface priority
 	}
 
-	.admin-ui-page__header-subtitle {
-		color: var(--wpds-color-fg-content-neutral-weak, #757575);
-		margin: 0;
-		padding-block-end: 8px;
-		line-height: 20px;
-	}
+	// Desktop: restore original styles
+	@include wp-mixins.break-medium {
+		position: static;
+		width: auto;
+		height: auto;
+		border-radius: 8px;
+		margin:
+			variables.$grid-unit-10 variables.$grid-unit-10
+			variables.$grid-unit-10 0;
 
-	// these overrides mimic the ones in new admin packages
-	.dataviews-wrapper .dataviews-view-table tr td:first-child,
-	.dataviews-wrapper .dataviews-view-table tr th:first-child {
-		padding-inline-start: var(--jp-forms-page-padding-inline);
-	}
+		border: 1px solid var(--wpds-color-stroke-surface-neutral-weak);
 
-	.dataviews-wrapper .dataviews-view-table tr td:last-child,
-	.dataviews-wrapper .dataviews-view-table tr th:last-child {
-		padding-inline-end: var(--jp-forms-page-padding-inline);
+		&.is-stage {
+			flex-grow: 1;
+			margin-left: variables.$grid-unit-10; // Help left stage look good with WP Admin sidebar
+		}
+
+		&.is-inspector {
+			width: 420px;
+		}
 	}
 }

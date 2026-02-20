@@ -52,30 +52,12 @@ class Jetpack_Sync_Themes_Test extends Jetpack_Sync_TestBase {
 	);
 
 	/**
-	 * Lock file.
-	 *
-	 * @var resource|null
-	 */
-	protected static $lockfile = null;
-
-	/**
 	 * Move Dummy Themes to proper location for testing.
 	 *
 	 * @throws RuntimeException If locking is needed and fails.
 	 */
 	public static function set_up_before_class() {
 		parent::set_up_before_class();
-
-		// For CI coverage tests, use a lock file to avoid multiple copies of this test from interfering with each other.
-		if ( getenv( 'PHPUNIT_JETPACK_TESTSUITE_IS_PARALLEL' ) === 'true' ) {
-			static::$lockfile = fopen( WP_CONTENT_DIR . '/themes/.jplock', 'c+' );
-			if ( ! static::$lockfile ) {
-				throw new RuntimeException( 'Failed to open lockfile ' . WP_CONTENT_DIR . '/themes/.jplock' );
-			}
-			if ( ! flock( static::$lockfile, LOCK_EX ) ) {
-				throw new RuntimeException( 'Failed to lock lockfile ' . WP_CONTENT_DIR . '/themes/.jplock' );
-			}
-		}
 
 		// Copy themes from tests/php/files/ to wp-content/themes.
 		foreach ( static::$themes as $theme ) {
@@ -94,8 +76,6 @@ class Jetpack_Sync_Themes_Test extends Jetpack_Sync_TestBase {
 	 * Remove Dummy Themes.
 	 */
 	public static function tear_down_after_class() {
-		parent::tear_down_after_class();
-
 		// Remove themes previously copied from tests/php/files/ to wp-content/themes.
 		foreach ( static::$themes as $theme ) {
 			$dest_dir = WP_CONTENT_DIR . '/themes/' . $theme;
@@ -106,10 +86,7 @@ class Jetpack_Sync_Themes_Test extends Jetpack_Sync_TestBase {
 
 			rmdir( $dest_dir );
 		}
-
-		if ( static::$lockfile ) {
-			fclose( static::$lockfile );
-		}
+		parent::tear_down_after_class();
 	}
 
 	/**

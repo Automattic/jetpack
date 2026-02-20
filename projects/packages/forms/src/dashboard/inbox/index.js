@@ -1,2 +1,2 @@
 import './style.scss';
-export { default } from './dataviews';
+export { default } from './stage/index.js';

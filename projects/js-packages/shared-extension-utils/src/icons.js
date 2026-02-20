@@ -1,7 +1,6 @@
 import colorStudio from '@automattic/color-studio';
 import { G, Path, Polygon, Rect, SVG, Circle } from '@wordpress/components';
 import clsx from 'clsx';
-import { getIconColor } from './block-icons';
 
 import './icons.scss';
 
@@ -242,7 +241,7 @@ export const GooglePhotosLogo = () => {
 	);
 };
 
-export const JetpackLogo = ( { size = 24, border = 0, className, color = COLOR_JETPACK } ) => {
+export const JetpackLogo = ( { size = 24, border = 0, className = '', color = COLOR_JETPACK } ) => {
 	const borderOffset = border ? ( -border / size ) * 32 : 0;
 
 	return (
@@ -321,7 +320,6 @@ export const JetpackAppIcon = () => {
 };
 
 export const LoomIcon = {
-	foreground: getIconColor(),
 	src: (
 		<SVG viewBox="0 0 100 100">
 			<Path d="M100,44H72.4l23.9-13.8l-6-10.4L66.4,33.6L80.2,9.7l-10.4-6L56,27.59V0H44v27.6L30.2,3.7l-10.4,6l13.8,23.9 L9.7,19.8l-6,10.4L27.6,44H0V56h27.6L3.7,69.8l6,10.4l23.9-13.8L19.8,90.3l10.4,6L44,72.4V100H56V72.41l13.8,23.9l10.4-6L66.4,66.4 l23.9,13.8l6-10.4L72.4,56H100V44z M50,65.23c-8.41,0-15.23-6.82-15.23-15.23c0-8.41,6.82-15.23,15.23-15.23S65.23,41.59,65.23,50 C65.23,58.41,58.41,65.23,50,65.23z" />
@@ -330,7 +328,6 @@ export const LoomIcon = {
 };
 
 export const SmartFrameIcon = {
-	foreground: getIconColor(),
 	src: (
 		<SVG xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20.7 17" xmlSpace="preserve">
 			<Path d="m20.7 12.9-.9-11c0-.5-.2-.9-.5-1.3-.3-.3-.8-.5-1.3-.5L1.9 0h-.1c-.2 0-.5 0-.7.1C.9.2.7.4.5.5.4.7.2.9.1 1.1c-.1.2-.1.5-.1.7v.1l.9 13.4c0 .5.2.9.5 1.3.3.2.8.4 1.3.4H3l16.1-2c.4 0 .9-.3 1.1-.6.3-.3.5-.8.5-1.2v-.3zm-3.1.8L4.2 15.3H4c-.4 0-.8-.1-1-.4-.3-.3-.4-.6-.5-1L1.7 3.2v-.1c0-.4.2-.8.5-1 .3-.3.7-.4 1-.4h.1l13.5.1c.4 0 .8.1 1 .4.3.3.4.6.5 1L19 12v.3c0 .4-.2.7-.4 1-.3.2-.6.4-1 .4z" />
@@ -339,7 +336,6 @@ export const SmartFrameIcon = {
 };
 
 export const DescriptIcon = {
-	foreground: getIconColor(),
 	src: (
 		<SVG xmlns="http://www.w3.org/2000/svg" viewBox="0 0 43 43" xmlSpace="preserve">
 			<Path
@@ -352,7 +348,6 @@ export const DescriptIcon = {
 };
 
 export const DonationsIcon = {
-	foreground: getIconColor(),
 	src: (
 		<SVG viewBox="0 0 24 24">
 			<Rect x="0" fill="none" width="24" height="24" />
@@ -364,7 +359,6 @@ export const DonationsIcon = {
 };
 
 export const ConversationIcon = {
-	foreground: getIconColor(),
 	src: (
 		<SVG viewBox="0 0 24 24">
 			<Rect x="0" fill="none" width="24" height="24" />
@@ -376,7 +370,6 @@ export const ConversationIcon = {
 };
 
 export const DialogueIcon = {
-	foreground: getIconColor(),
 	src: (
 		<SVG viewBox="0 0 24 24">
 			<Rect x="0" fill="none" width="24" height="24" />
@@ -388,25 +381,19 @@ export const DialogueIcon = {
 };
 
 export const TranscriptIcon = {
-	foreground: getIconColor(),
 	src: (
 		<SVG viewBox="0 0 24 24">
 			<Rect x="0" fill="none" width="24" height="24" />
 			<G>
-				<Path
-					d="M11.1114 8H20.0002M11.1113 15H20.0002"
-					stroke={ getIconColor() }
-					strokeWidth="1.5"
-				/>
-				<Path d="M4 10V6L8 8L4 10Z" fill={ getIconColor() } />
-				<Path d="M4 17V13L8 15L4 17Z" fill={ getIconColor() } />
+				<Path d="M11.1114 8H20.0002M11.1113 15H20.0002" strokeWidth="1.5" />
+				<Path d="M4 10V6L8 8L4 10Z" />
+				<Path d="M4 17V13L8 15L4 17Z" />
 			</G>
 		</SVG>
 	),
 };
 
 export const TranscriptSpeakerIcon = {
-	foreground: getIconColor(),
 	src: (
 		<SVG viewBox="0 0 24 24">
 			<Rect x="0" fill="none" width="24" height="24" />

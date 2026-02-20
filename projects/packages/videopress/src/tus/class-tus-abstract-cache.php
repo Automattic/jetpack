@@ -166,7 +166,7 @@ abstract class Tus_Abstract_Cache {
 			$contents[] = $value;
 		}
 
-		$status = $this->cache_set( $key, \wp_json_encode( $contents ), ! empty( $cache_data ) );
+		$status = $this->cache_set( $key, \wp_json_encode( $contents, JSON_UNESCAPED_SLASHES ), ! empty( $cache_data ) );
 		return false !== $status;
 	}
 

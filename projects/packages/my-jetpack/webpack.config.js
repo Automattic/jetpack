@@ -5,6 +5,7 @@ module.exports = [
 	{
 		entry: {
 			index: './_inc/admin.jsx',
+			'async-notification-bubble': './_inc/utils/async-notification-bubble.ts',
 		},
 		mode: jetpackWebpackConfig.mode,
 		devtool: jetpackWebpackConfig.devtool,
@@ -63,5 +64,8 @@ module.exports = [
 				consumer_slug: 'my_jetpack',
 			} ),
 		},
+		devServer: jetpackWebpackConfig.DevServer( {
+			static: { directory: path.resolve( './build' ) },
+		} ),
 	},
 ];

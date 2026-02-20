@@ -1,8 +1,8 @@
 import { createReduxStore, register } from '@wordpress/data';
-import * as actions from './actions';
-import reducer from './reducer';
-import * as resolvers from './resolvers';
-import * as selectors from './selectors';
+import * as actions from './actions.ts';
+import reducer from './reducer.ts';
+import * as resolvers from './resolvers.ts';
+import * as selectors from './selectors.ts';
 
 export const CONFIG_STORE = 'jetpack/forms/config';
 
@@ -15,6 +15,6 @@ export const store = createReduxStore( CONFIG_STORE, {
 
 register( store );
 
-export * from './actions';
-export * from './selectors';
-export * from './types';
+export * from './actions.ts';
+export * from './selectors.ts';
+export * from './types.ts';

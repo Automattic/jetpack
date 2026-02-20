@@ -5,14 +5,18 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import defaultSettings from '../shared/settings';
-import edit from './edit';
-import icon from './icon';
-import save from './save';
+import defaultSettings from '../shared/settings/index.js';
+import edit from './edit.tsx';
+import icon from './icon.tsx';
+import save from './save.tsx';
 
-const name = 'field-image-select';
+export const name = 'field-image-select';
 
-const settings = {
+export const form_editor = {
+	category: 'choice',
+};
+
+export const settings = {
 	...defaultSettings,
 	title: __( 'Image Select Field', 'jetpack-forms' ),
 	keywords: [
@@ -104,4 +108,5 @@ const settings = {
 export default {
 	name,
 	settings,
+	form_editor,
 };

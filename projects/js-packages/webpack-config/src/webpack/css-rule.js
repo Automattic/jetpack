@@ -1,3 +1,5 @@
+const isDevelopment = process.env.NODE_ENV !== 'production';
+
 const MiniCssExtractLoader = options => ( {
 	loader: require( 'mini-css-extract-plugin' ).loader,
 	options: options,
@@ -8,6 +10,10 @@ const CssLoader = options => ( {
 	options: {
 		// By default we do not want css-loader to try to handle absolute paths.
 		url: { filter: path => ! path.startsWith( '/' ) },
+		modules: {
+			auto: true,
+			localIdentName: isDevelopment ? '[local]--[hash:base64:5]' : '[hash:base64]',
+		},
 		...options,
 	},
 } );

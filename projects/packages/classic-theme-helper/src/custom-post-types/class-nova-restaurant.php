@@ -1403,7 +1403,7 @@ if ( ! class_exists( __NAMESPACE__ . '\Nova_Restaurant' ) ) {
 			);
 			$args['taxonomy'] = self::MENU_TAX;
 
-			$terms = get_terms( $args ); // @phan-suppress-current-line PhanAccessMethodInternal
+			$terms = get_terms( $args ); // @phan-suppress-current-line PhanAccessMethodInternal @phan-suppress-current-line UnusedSuppression -- Fixed in WP 6.9, but then we need a suppression for the WP 6.8 compat run. @todo Remove this suppression when we drop WP <6.9.
 			if ( ! $terms || is_wp_error( $terms ) ) {
 				return array();
 			}

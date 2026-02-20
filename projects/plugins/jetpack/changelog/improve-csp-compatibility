@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Update Jetpack notifications script tag to use wp_print_inline_script_tag. This allows for injection of a nonce attribute and CSP compatibility.

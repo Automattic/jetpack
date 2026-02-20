@@ -58,7 +58,7 @@ function render_block( $attr ) {
 		"!function(t,o){if(!t.tock){var e=t.tock=function(){e.callMethod?
 		  e.callMethod.apply(e,arguments):e.queue.push(arguments)};t._tock||(t._tock=e),
 		  e.push=e,e.loaded=!0,e.version='1.0',e.queue=[];}}(window,document);
-			tock('init', '" . esc_js( $attr['url'] ) . "');",
+			tock('init', " . wp_json_encode( $attr['url'], JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ');',
 		'before'
 	);
 	return sprintf(

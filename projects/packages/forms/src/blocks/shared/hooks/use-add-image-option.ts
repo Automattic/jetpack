@@ -8,7 +8,7 @@ import { useCallback } from '@wordpress/element';
 /**
  * Types
  */
-import type { BlockEditorStoreDispatch, BlockEditorStoreSelect } from '../../../types';
+import type { BlockEditorStoreDispatch, BlockEditorStoreSelect } from '../../../types/index.ts';
 
 /**
  * Custom hook for adding new image option blocks.

@@ -9,6 +9,7 @@ use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 use Automattic\Jetpack\Identity_Crisis;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Status\Host;
 
 /**
  * Shared logic between Jetpack admin pages.
@@ -88,6 +89,9 @@ abstract class Jetpack_Admin_Page {
 
 		// Attach page specific actions in addition to the above.
 		$this->add_page_actions( $hook );
+
+		// Override the page title for the module list page and the debugger page.
+		add_action( 'current_screen', array( __CLASS__, 'override_page_title' ) );
 	}
 
 	/**
@@ -277,7 +281,7 @@ abstract class Jetpack_Admin_Page {
 						</a>
 					</div>
 					<?php
-					if ( $args['show-nav'] ) :
+					if ( $args['show-nav'] && ! ( new Host() )->is_wpcom_platform() ) :
 						?>
 						<div class="jp-masthead__nav">
 							<?php
@@ -406,5 +410,25 @@ abstract class Jetpack_Admin_Page {
 	 */
 	protected function block_page_rendering_for_idc() {
 		return Jetpack::is_connection_ready() && Identity_Crisis::validate_sync_error_idc_option() && ! Jetpack_Options::get_option( 'safe_mode_confirmed' );
+	}
+
+	/**
+	 * Set a page title for both the module list page and the debugger page.
+	 * We set these here because we do not register a page title when we register them,
+	 * so they do not appear in the admin navigation.
+	 *
+	 * @since 15.4
+	 *
+	 * @param WP_Screen $screen The screen object.
+	 *
+	 * @return void
+	 */
+	public static function override_page_title( WP_Screen $screen ) {
+		global $title;
+		if ( 'admin_page_jetpack_modules' === $screen->id ) {
+			$title = __( 'Jetpack Settings', 'jetpack' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- we override the title global only on this page.
+		} elseif ( 'admin_page_jetpack-debugger' === $screen->id ) {
+			$title = __( 'Debugging Center', 'jetpack' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- we override the title global only on this page.
+		}
 	}
 }

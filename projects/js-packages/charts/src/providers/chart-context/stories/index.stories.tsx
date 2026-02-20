@@ -26,7 +26,7 @@ type StoryArgs = ChartStoryArgs< {
 } >;
 
 const meta: Meta< StoryArgs > = {
-	title: 'JS Packages/Charts/Chart Context',
+	title: 'JS Packages/Charts Library/Global Context',
 	parameters: {
 		layout: 'centered',
 	},

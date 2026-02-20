@@ -268,6 +268,7 @@ class Red_Bubble_Notifications {
 							if ( $bundle_product::is_bundle_product() &&
 								$bundle_product::has_paid_plan_for_product() &&
 								! $bundle_product::is_paid_plan_expired() &&
+								! $bundle_product::is_paid_plan_expiring() &&
 								method_exists( $bundle_product, 'get_supported_products' ) &&
 								in_array( $key, $bundle_product::get_supported_products(), true ) ) {
 								$is_covered_by_active_bundle = true;
@@ -365,6 +366,16 @@ class Red_Bubble_Notifications {
 				self::alert_if_paid_plan_requires_plugin_install_or_activation( $red_bubble_slugs )
 			);
 		}
+	}
+
+	/**
+	 * Get cached red bubble alerts without triggering expensive computation.
+	 * Returns the cached transient value or false if not cached.
+	 *
+	 * @return array|false Cached alerts or false if cache is empty.
+	 */
+	public static function get_cached_alerts() {
+		return get_transient( self::MY_JETPACK_RED_BUBBLE_TRANSIENT_KEY );
 	}
 
 	/**

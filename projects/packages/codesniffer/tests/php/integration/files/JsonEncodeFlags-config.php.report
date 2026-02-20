@@ -1,0 +1,4 @@
+ 11 | WARNING | Passing the `$flags` parameter to `json_encode()` is strongly recommended, as the default value is often insecure. See docs/json_encode_flags.txt for recommendations. (Jetpack.Functions.JsonEncodeFlags.Missing)
+ 13 | WARNING | Passing the `$flags` parameter to `xxx_json_encode()` is strongly recommended, as the default value is often insecure. See docs/json_encode_flags.txt for recommendations. (Jetpack.Functions.JsonEncodeFlags.Missing)
+ 21 | WARNING | Passing 0 for the `$flags` parameter to `json_encode()` is strongly discouraged, as the default value is often insecure. See docs/json_encode_flags.txt for recommendations. (Jetpack.Functions.JsonEncodeFlags.ZeroFound)
+ 23 | WARNING | Passing 0 for the `$flags` parameter to `xxx_json_encode()` is strongly discouraged, as the default value is often insecure. See docs/json_encode_flags.txt for recommendations. (Jetpack.Functions.JsonEncodeFlags.ZeroFound)

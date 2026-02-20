@@ -2,13 +2,19 @@
  * Builds the forms dashboard JS bundle.
  */
 
-const path = require( 'path' );
-const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
+import { createRequire } from 'module';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import jetpackWebpackConfig from '@automattic/jetpack-webpack-config/webpack';
+
+const __filename = fileURLToPath( import.meta.url );
+const __dirname = path.dirname( __filename );
+const require = createRequire( import.meta.url );
 
 /**
- * Generate i18n function variants for @automattic/babel-plugin-replace-textdomain.
+ * Generate i18n function variants for `@automattic/babel-plugin-replace-textdomain`.
  *
- * The @wordpress/dataviews currently uses the i18n functions under a variety of aliases,
+ * The `@wordpress/dataviews` currently uses the i18n functions under a variety of aliases,
  * which makes it a pain to add the proper textdomain. This function generates an object
  * with the base function and 99 more variants as keys.
  *
@@ -24,7 +30,7 @@ const generateI18nVariants = ( baseFn, value ) =>
 		] )
 	);
 
-module.exports = {
+export default {
 	mode: jetpackWebpackConfig.mode,
 	entry: {
 		'jetpack-forms-dashboard': path.join( __dirname, '..', 'src/dashboard/index.tsx' ),
@@ -72,7 +78,7 @@ module.exports = {
 			} ),
 
 			/**
-			 * Transpile @wordpress/dataviews in node_modules too.
+			 * Transpile `@wordpress/dataviews` in node_modules too.
 			 *
 			 * @see https://github.com/Automattic/jetpack/issues/39907
 			 */
@@ -102,8 +108,26 @@ module.exports = {
 				extraLoaders: [ { loader: 'sass-loader', options: { api: 'modern-compiler' } } ],
 			} ),
 
-			// Handle images.
-			jetpackWebpackConfig.FileRule(),
+			// Allow importing .svg files as React components via `?component` query.
+			{
+				test: /\.svg$/i,
+				issuer: /\.[jt]sx?$/,
+				resourceQuery: /component/,
+				use: [ '@svgr/webpack' ],
+			},
+
+			// Allow importing .svg files as raw HTML strings via `?raw` query.
+			{
+				test: /\.svg$/i,
+				resourceQuery: /raw/,
+				type: 'asset/source',
+			},
+
+			// Handle images (exclude ?component and ?raw SVG imports).
+			{
+				...jetpackWebpackConfig.FileRule(),
+				resourceQuery: { not: [ /component/, /raw/ ] },
+			},
 		],
 	},
 	plugins: [

@@ -31,13 +31,13 @@ class Module_Control_Test extends Search_TestCase {
 	public function setUp(): void {
 		parent::setUp();
 
-		$plan = $this->createMock( Plan::class );
+		$plan = $this->createStub( Plan::class );
 		$plan->method( 'supports_search' )->willReturn( true );
 		$plan->method( 'supports_instant_search' )->willReturn( true );
 
 		static::$search_module = new Module_Control( $plan );
 
-		$plan = $this->createMock( Plan::class );
+		$plan = $this->createStub( Plan::class );
 		$plan->method( 'supports_search' )->willReturn( true );
 		$plan->method( 'supports_instant_search' )->willReturn( false );
 
@@ -75,7 +75,7 @@ class Module_Control_Test extends Search_TestCase {
 	 * Test static::$search_module->activate() when search is not supported
 	 */
 	public function test_activate_module_failed_not_supported() {
-		$plan = $this->createMock( Plan::class );
+		$plan = $this->createStub( Plan::class );
 		$plan->method( 'supports_search' )->willReturn( false );
 
 		$search_module = new Module_Control( $plan );
@@ -89,7 +89,7 @@ class Module_Control_Test extends Search_TestCase {
 	 * Test static::$search_module->activate() when site is not connected
 	 */
 	public function test_activate_module_failed_connection_required() {
-		$connection_manager = $this->createMock( Connection_Manager::class );
+		$connection_manager = $this->createStub( Connection_Manager::class );
 		$connection_manager->method( 'is_connected' )->willReturn( false );
 		$search_module = new Module_Control( null, $connection_manager );
 		$err           = $search_module->activate();

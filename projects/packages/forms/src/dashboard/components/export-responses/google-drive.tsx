@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { useConnection } from '@automattic/jetpack-connection';
+import useConnection from '@automattic/jetpack-connection/use-connection';
 import { isSimpleSite } from '@automattic/jetpack-script-data';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import requestExternalAccess from '@automattic/request-external-access';
@@ -13,14 +13,17 @@ import clsx from 'clsx';
 /**
  * Internal dependencies
  */
-import useConfigValue from '../../../hooks/use-config-value';
-import { INTEGRATIONS_STORE } from '../../../store/integrations';
-import { PARTIAL_RESPONSES_PATH } from '../../../util/get-preferred-responses-view';
+import useConfigValue from '../../../hooks/use-config-value.ts';
+import { INTEGRATIONS_STORE } from '../../../store/integrations/index.ts';
+import { PARTIAL_RESPONSES_PATH } from '../../../util/get-preferred-responses-view.js';
 /**
  * Internal dependencies
  */
-import type { SelectIntegrations, IntegrationsDispatch } from '../../../store/integrations';
-import type { Integration } from '../../../types';
+import type {
+	SelectIntegrations,
+	IntegrationsDispatch,
+} from '../../../store/integrations/index.ts';
+import type { Integration } from '../../../types/index.ts';
 
 const GoogleDriveExport = ( { onExport, autoConnect = false } ) => {
 	const [ isExporting, setIsExporting ] = useState( false );

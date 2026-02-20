@@ -56,6 +56,7 @@ class Code_Block_HTML_Replacer extends WP_HTML_Processor {
 
 		if ( $language_name ) {
 			$processor->add_class(
+				'language-' .
 				\strtr(
 					\strtolower( $language_name ),
 					array(

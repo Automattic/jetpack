@@ -35,6 +35,24 @@ class Jetpack_Sync_Listener_Test extends Jetpack_Sync_TestBase {
 		$this->assertSame( 0, $queue->size() );
 	}
 
+	public function test_never_queues_if_current_action_is_blacklisted() {
+		$original_sync_actions_blacklist = Settings::get_setting( 'sync_actions_blacklist' );
+		try {
+			Settings::update_settings( array( 'sync_actions_blacklist' => array( 'jetpack_sync_save_post' ) ) );
+			$queue = $this->listener->get_sync_queue();
+			$queue->reset(); // remove any actions that already got queued
+			self::factory()->post->create();
+			$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_post' );
+			$this->assertFalse( $event );
+		} finally {
+			Settings::update_settings(
+				array(
+					'sync_actions_blacklist' => $original_sync_actions_blacklist,
+				)
+			);
+		}
+	}
+
 	public function test_detects_if_exceeded_queue_size_limit_and_oldest_item_gt_15_mins() {
 		// This is trickier than you would expect because we only check against
 		// maximum queue size periodically (to avoid a counts on every request), and then
@@ -227,19 +245,22 @@ class Jetpack_Sync_Listener_Test extends Jetpack_Sync_TestBase {
 		Health::update_status( Health::STATUS_IN_SYNC );
 		$this->assertEquals( Health::STATUS_IN_SYNC, Health::get_status() );
 
-		$this->listener->sync_data_loss( $this->listener->get_sync_queue() );
+		$this->listener->sync_data_loss( $this->listener->get_sync_queue(), 'test_action' );
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_data_loss' );
 
 		$this->assertTrue( isset( $event->args['timestamp'] ) );
 		$this->assertTrue( isset( $event->args['queue_size'] ) );
 		$this->assertTrue( isset( $event->args['queue_lag'] ) );
+		$this->assertTrue( isset( $event->args['extra'] ) );
+		$this->assertIsArray( $event->args['extra'] );
+		$this->assertEquals( array( 'current_filter' => 'test_action' ), $event->args['extra'] );
 		$this->assertEquals( Health::STATUS_OUT_OF_SYNC, Health::get_status() );
 	}
 
 	public function test_data_loss_action_ignored_if_already_out_of_sync() {
 		Health::update_status( Health::STATUS_OUT_OF_SYNC );
 
-		$this->listener->sync_data_loss( $this->listener->get_sync_queue() );
+		$this->listener->sync_data_loss( $this->listener->get_sync_queue(), 'test_action' );
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_data_loss' );
 
 		$this->assertFalse( $event );

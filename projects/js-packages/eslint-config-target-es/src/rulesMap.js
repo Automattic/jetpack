@@ -6,10 +6,28 @@ module.exports = {
 	'no-asyncdisposablestack': 'javascript.builtins.AsyncDisposableStack.AsyncDisposableStack',
 	'no-disposablestack': 'javascript.builtins.DisposableStack.DisposableStack',
 	'no-error-iserror': 'javascript.builtins.Error.isError',
+	'no-intl-locale-prototype-firstdayofweek': false, // No compat data yet.
+	'no-intl-locale-prototype-getcalendars': 'javascript.builtins.Intl.Locale.getCalendars',
+	'no-intl-locale-prototype-getcollations': 'javascript.builtins.Intl.Locale.getCollations',
+	'no-intl-locale-prototype-gethourcycles': 'javascript.builtins.Intl.Locale.getHourCycles',
+	'no-intl-locale-prototype-getnumberingsystems':
+		'javascript.builtins.Intl.Locale.getNumberingSystems',
+	'no-intl-locale-prototype-gettextinfo': 'javascript.builtins.Intl.Locale.getTextInfo',
+	'no-intl-locale-prototype-gettimezones': 'javascript.builtins.Intl.Locale.getTimeZones',
+	'no-intl-locale-prototype-getweekinfo': 'javascript.builtins.Intl.Locale.getWeekInfo',
+	'no-iterator-concat': 'javascript.builtins.Iterator.concat',
+	'no-json-israwjson': 'javascript.builtins.JSON.isRawJSON',
+	'no-json-parse-reviver-context-parameter':
+		'javascript.builtins.JSON.parse.reviver_parameter_context_argument',
+	'no-json-rawjson': 'javascript.builtins.JSON.rawJSON',
+	'no-map-prototype-getorinsert': 'javascript.builtins.Map.getOrInsert',
+	'no-map-prototype-getorinsertcomputed': 'javascript.builtins.Map.getOrInsertComputed',
 	'no-suppressederror': 'javascript.builtins.SuppressedError.SuppressedError',
 	'no-symbol-asyncdispose': 'javascript.builtins.Symbol.asyncDispose',
 	'no-symbol-dispose': 'javascript.builtins.Symbol.dispose',
 	'no-using-declarations': 'javascript.statements.using',
+	'no-weakmap-prototype-getorinsert': 'javascript.builtins.WeakMap.getOrInsert',
+	'no-weakmap-prototype-getorinsertcomputed': 'javascript.builtins.WeakMap.getOrInsertComputed',
 
 	// ES2025
 	'no-dataview-prototype-getfloat16-setfloat16': [

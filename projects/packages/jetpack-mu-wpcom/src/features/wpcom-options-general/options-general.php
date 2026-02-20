@@ -39,7 +39,7 @@ add_action( 'load-options-general.php', 'wpcom_fiverr' );
  */
 function wpcom_site_management_panel_link() {
 	?>
-	<a href="https://wordpress.com/sites/settings/site/<?php echo esc_attr( wpcom_get_site_slug() ); ?>">
+	<a href="https://wordpress.com/sites/<?php echo esc_attr( wpcom_get_site_slug() ); ?>/settings">
 		<?php esc_html_e( 'Manage gift subscriptions, ownership, and other site tools on WordPress.com ↗', 'jetpack-mu-wpcom' ); ?>
 	</a>
 	<?php
@@ -87,7 +87,8 @@ function wpcom_enqueue_options_general_assets() {
 				'homeUrl'           => home_url(),
 				'siteSlug'          => $site_slug,
 				'optionsGeneralUrl' => $options_general_url,
-			)
+			),
+			JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 		) . ';',
 		'before'
 	);

@@ -20,7 +20,7 @@ registerPlugin( 'jetpack-likes-and-sharing-panel', {
 						<JetpackPluginSidebar>
 							<PanelBody
 								className="jetpack-likes-sharing-panel"
-								title={ __( 'Likes and Sharing', 'jetpack' ) }
+								title={ __( 'Insert likes and sharing', 'jetpack' ) }
 								initialOpen={ false }
 							>
 								{ fills }

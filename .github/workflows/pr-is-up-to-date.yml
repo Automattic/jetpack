@@ -8,11 +8,16 @@ on:
       - pr-update-to
       - pr-update-to-projects/**
 
+permissions:
+  # ./.github/actions/turnstile
+  actions: read
+  # Note everything else, including actions/checkout, is using secrets.API_TOKEN_GITHUB, so no need for permissions.
+
 jobs:
   check:
     name: Check
     runs-on: ubuntu-latest
-    timeout-minutes: 5  # 2021-03-23: The run on push to the tag might take a minute or two.
+    timeout-minutes: 5 # 2025-11-20: The run on push to the tag might take a minute or two.
     steps:
 
       # We basically have two workflows in one here, one for pushes to trunk and one for PRs and pushes to tags.
@@ -22,7 +27,7 @@ jobs:
       # First, the "PR or tag" job.
 
       - name: Checkout trunk for tag push or PR
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         if: github.event_name != 'push' || github.ref != 'refs/heads/trunk'
         with:
           ref: trunk
@@ -71,7 +76,7 @@ jobs:
       # Second, the "push to trunk" job.
 
       - name: Checkout push to trunk
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         if: github.event_name == 'push' && github.ref == 'refs/heads/trunk'
         with:
           # The "Check whether the tag needs updating for trunk commit" needs the previous commit for diffing.

@@ -2,12 +2,12 @@ import { useBlockProps, useInnerBlocksProps } from '@wordpress/block-editor';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
-import JetpackFieldControls from '../shared/components/jetpack-field-controls';
-import useFieldSelected from '../shared/hooks/use-field-selected';
-import useFormWrapper from '../shared/hooks/use-form-wrapper';
-import useJetpackFieldStyles from '../shared/hooks/use-jetpack-field-styles';
-import useSyncRequiredIndicator from '../shared/hooks/use-sync-required-indicator';
-import { ALLOWED_INNER_BLOCKS } from '../shared/util/constants';
+import JetpackFieldControls from '../shared/components/jetpack-field-controls.js';
+import useFieldSelected from '../shared/hooks/use-field-selected.js';
+import useFormWrapper from '../shared/hooks/use-form-wrapper.js';
+import useJetpackFieldStyles from '../shared/hooks/use-jetpack-field-styles.js';
+import useSyncRequiredIndicator from '../shared/hooks/use-sync-required-indicator.js';
+import { ALLOWED_INNER_BLOCKS } from '../shared/util/constants.js';
 
 export default function TextareaFieldEdit( props ) {
 	const { attributes, clientId, isSelected, setAttributes } = props;
