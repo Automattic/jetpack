@@ -975,7 +975,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		}
 
 		return array(
-			'body'     => wp_json_encode( true, JSON_UNESCAPED_SLASHES ),
+			'body'     => wp_json_encode( array( 'unified_ai_chat' => true ), JSON_UNESCAPED_SLASHES ),
 			'response' => array(
 				'code'    => 200,
 				'message' => 'OK',
@@ -997,7 +997,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		}
 
 		return array(
-			'body'     => wp_json_encode( false, JSON_UNESCAPED_SLASHES ),
+			'body'     => wp_json_encode( array( 'unified_ai_chat' => false ), JSON_UNESCAPED_SLASHES ),
 			'response' => array(
 				'code'    => 200,
 				'message' => 'OK',
