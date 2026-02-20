@@ -482,3 +482,4 @@ setupFormEditorSubscription();
 
 // Import plugins
 import './plugins/preview-button';
+import './plugins/form-pre-publish-panel';
