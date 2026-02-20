@@ -5815,7 +5815,10 @@ endif;
 	}
 
 	/**
-	 * Returns a boolean for whether backups UI should be displayed or not.
+	 * Whether UI for backups should be displayed.
+	 *
+	 * On WPCom platforms this is gated on the backups-self-serve site feature.
+	 * On self-hosted Jetpack sites it falls back to the jetpack_show_backups filter.
 	 *
 	 * @return bool Should backups UI be displayed?
 	 */
