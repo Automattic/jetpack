@@ -39,7 +39,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '5.30.0';
+	const PACKAGE_VERSION = '5.31.5';
 
 	/**
 	 * HTML container ID for the IDC screen on My Jetpack page.
@@ -688,12 +688,15 @@ class Initializer {
 	}
 
 	/**
-	 * Conditionally append the red bubble notification to the "Jetpack" menu item if there are alerts to show
+	 * Conditionally append the red bubble notification to the "Jetpack" menu item if there are alerts to show.
+	 *
+	 * On My Jetpack page: Uses blocking behavior to fetch fresh data.
+	 * On other admin pages: Uses cached data only to avoid blocking, with async JS fetch if cache is empty.
 	 *
 	 * @return void
 	 */
 	public static function maybe_show_red_bubble() {
-		global $menu;
+		global $menu, $pagenow;
 
 		// Don't show red bubble alerts for non-admin users
 		// These alerts are generally only actionable for admins
@@ -708,14 +711,32 @@ class Initializer {
 			return;
 		}
 
-		$rbn = new Red_Bubble_Notifications();
+		// Check if we're on the My Jetpack page.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$page               = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : '';
+		$is_my_jetpack_page = $pagenow === 'admin.php' && $page === 'my-jetpack';
 
-		// filters for the items in this file
-		add_filter( 'my_jetpack_red_bubble_notification_slugs', array( $rbn, 'add_red_bubble_alerts' ) );
+		if ( $is_my_jetpack_page ) {
+			// On My Jetpack page: use blocking behavior for fresh data.
+			add_filter( 'my_jetpack_red_bubble_notification_slugs', array( Red_Bubble_Notifications::class, 'add_red_bubble_alerts' ) );
+			$red_bubble_alerts = Red_Bubble_Notifications::get_red_bubble_alerts();
+		} else {
+			// On other pages: use cached data only to avoid blocking.
+			$cached_alerts = Red_Bubble_Notifications::get_cached_alerts();
+
+			if ( false === $cached_alerts ) {
+				// No cache - fetch asynchronously via JS.
+				add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_red_bubble_script' ) );
+				return;
+			}
+
+			$red_bubble_alerts = $cached_alerts;
+		}
+
+		// Filter out silent alerts.
 		$red_bubble_alerts = array_filter(
-			$rbn::get_red_bubble_alerts(),
+			$red_bubble_alerts,
 			function ( $alert ) {
-				// We don't want to show the red bubble for silent alerts
 				return empty( $alert['is_silent'] );
 			}
 		);
@@ -729,6 +750,24 @@ class Initializer {
 			// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 			$menu[3][0] .= sprintf( ' <span class="awaiting-mod">%d</span>', count( $red_bubble_alerts ) );
 		}
+	}
+
+	/**
+	 * Enqueue the notification bubble script.
+	 * Fetches fresh alert data via REST API without blocking page load.
+	 *
+	 * @return void
+	 */
+	public static function enqueue_red_bubble_script() {
+		Assets::register_script(
+			'my-jetpack-notification-bubble',
+			'../build/async-notification-bubble.js',
+			__FILE__,
+			array(
+				'enqueue'   => true,
+				'in_footer' => true,
+			)
+		);
 	}
 
 	/**

@@ -8,7 +8,7 @@ A comprehensive charting library for displaying interactive data visualizations 
 
 ## Features
 
-- ✨ **Rich Chart Types** - Bar charts, bar list charts, conversion funnel charts, donut charts, leaderboard visualizations, line charts, and pie charts
+- ✨ **Rich Chart Types** - Bar charts, bar list charts, conversion funnel charts, donut charts, geo charts, leaderboard visualizations, line charts, pie charts, and sparklines
 - 🎨 **Themeable** - Built-in default theme with custom theme support
 - 📱 **Responsive** - Automatically adapts to container size and viewport changes
 - ♿ **Accessible** - Full keyboard navigation, screen reader support, and ARIA compliance
@@ -53,43 +53,134 @@ yarn add @automattic/charts
 			</GlobalChartsProvider>
 		);
 	}`}
+
 />
+
+### Design Tokens
+
+Some chart components use WordPress design tokens for consistent spacing and styling. If your application doesn't already include the WordPress theme package, you'll need to import the design tokens CSS:
+
+<Source
+	language="jsx"
+	code={`// Add this import to your app's entry point if tokens aren't already available
+import '@wordpress/theme/design-tokens.css';`}
+/>
+
+In WordPress environments (wp-admin, Gutenberg editor), these tokens are typically already loaded. For standalone applications or Storybook, you may need to add this import explicitly.
 
 ## Available Chart Types
 
 ### [Bar Chart](./?path=/docs/js-packages-charts-library-charts-bar-chart--docs)
+
 Ideal for comparing values across categories, with vertical and horizontal orientations.
 
 ### [Bar List Chart](./?path=/docs/js-packages-charts-library-charts-bar-list-chart--docs)
+
 A horizontal bar chart with customizable labels and value positioning, perfect for displaying categorized data with text annotations.
 
 ### [Conversion Funnel Chart](./?path=/docs/js-packages-charts-library-charts-conversion-funnel-chart--docs)
+
 A specialized chart for visualizing conversion funnels with interactive bar selection, hover effects, and step-by-step progression tracking.
 
 ### [Donut Chart](./?path=/docs/js-packages-charts-library-charts-donut-chart--docs)
+
 A variation of pie charts with a hollow center for additional content display.
 
+### [Geo Chart](./?path=/docs/js-packages-charts-library-charts-geo-chart--docs)
+
+Visualizes geographical data on an interactive world map, making it easy to understand the distribution of values across countries.
+
 ### [Leaderboard Chart](./?path=/docs/js-packages-charts-library-charts-leaderboard-chart--docs)
+
 Specialized for ranking data with progress bars and comparison values.
 
 ### [Line Chart](./?path=/docs/js-packages-charts-library-charts-line-chart--docs)
+
 Perfect for displaying trends over time, with support for multiple data series, annotations, and various curve types.
 
 ### [Pie Chart](./?path=/docs/js-packages-charts-library-charts-pie-chart--docs)
+
 Great for showing parts of a whole, with customizable thickness and gap spacing.
+
+### [Sparkline](./?path=/docs/js-packages-charts-library-charts-sparkline--docs)
+
+A minimal, word-sized chart component designed for showing trends at a glance, perfect for dashboard metrics and inline data visualization.
 
 ## Core Concepts
 
 ### Data Format
+
 Charts expect data in a standardized format with `date` (for time-series) or category values and numeric `value` properties.
 
 ### Theme System
+
 Use the `GlobalChartsProvider` component to apply consistent styling across all charts. Create custom themes by defining the properties you want to override, such as colors, grid styling, and typography.
 
 ### Responsive Design
-All charts automatically adapt to their container size using the `withResponsive` higher-order component.
+
+All charts automatically adapt to their container size using the `withResponsive` higher-order component. By default, charts **fill their parent container's dimensions** rather than calculating height from a fixed aspect ratio.
+
+#### Default Behavior (Fill Container)
+
+When you omit dimension props, the chart expands to fill its parent container:
+
+<Source
+	language="jsx"
+	code={`// Chart fills parent container's width and height
+	<div style={{ width: '100%', height: '400px' }}>
+		<LineChart data={data} />
+	</div>`}
+/>
+
+**Important**: The parent container must have an explicit height. Without a defined height, the chart cannot determine how tall to render.
+
+#### Aspect Ratio Mode
+
+For layouts where you want height calculated from width, pass the `aspectRatio` prop:
+
+<Source
+	language="jsx"
+	code={`// Height = width × aspectRatio (e.g., 2:1 ratio)
+	<div style={{ width: '100%' }}>
+		<LineChart data={data} aspectRatio={0.5} />
+	</div>`}
+/>
+
+This is useful for responsive layouts where the container width varies but you want consistent proportions.
+
+#### Fixed Dimensions
+
+For complete control, specify explicit `width` and `height` props:
+
+<Source
+	language="jsx"
+	code={`<LineChart data={data} width={800} height={400} />`}
+/>
+
+#### Responsive Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `width` | `number` | - | Fixed width in pixels (omit for responsive) |
+| `height` | `number` | - | Fixed height in pixels (omit for responsive) |
+| `aspectRatio` | `number` | - | Height as ratio of width (e.g., `0.5` = half width) |
+| `maxWidth` | `number` | `1200` | Maximum width constraint |
+| `resizeDebounceTime` | `number` | `300` | Debounce delay for resize events (ms) |
+
+#### Unresponsive Variants
+
+Each chart exports an "Unresponsive" variant for cases where you need direct control without the responsive wrapper:
+
+<Source
+	language="jsx"
+	code={`import { LineChartUnresponsive } from '@automattic/charts';
+
+	// Requires explicit width and height
+	<LineChartUnresponsive data={data} width={800} height={400} />`}
+/>
 
 ### Compound Components
+
 Advanced features like annotations, legends, and tooltips are implemented as compound components for maximum flexibility.
 
 ## Development

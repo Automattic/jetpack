@@ -1,3 +1,4 @@
+import * as actions from '../actions/connection-data';
 import {
 	ADD_CONNECTION,
 	DELETE_CONNECTION,
@@ -12,17 +13,26 @@ import {
 	ADD_ABORT_CONTROLLER,
 	REMOVE_ABORT_CONTROLLERS,
 	REQUEST_TYPE_DEFAULT,
+	CUSTOMIZE_CONNECTION,
 } from '../actions/constants';
 import { ConnectionData } from '../types';
+
+type ActionType =
+	| Extract<
+			ReturnType< ( typeof actions )[ keyof typeof actions ] >,
+			// Filter out thunk actions
+			{ type: string }
+	  >
+	| { type: '@@UNKNOWN_ACTION@@' };
 
 /**
  * Connection data reducer
  *
- * @param {import('../types').ConnectionData} state  - Current state.
- * @param {object}                            action - Action object.
- * @return {import('../types').ConnectionData} The new state.
+ * @param state  - Current state.
+ * @param action - Action object.
+ * @return  The new state.
  */
-const connectionData = ( state: ConnectionData = { connections: [] }, action ) => {
+const connectionData = ( state: ConnectionData = { connections: [] }, action: ActionType ) => {
 	switch ( action.type ) {
 		case TOGGLE_CONNECTIONS_MODAL:
 			return {
@@ -139,6 +149,22 @@ const connectionData = ( state: ConnectionData = { connections: [] }, action ) =
 						return {
 							...connection,
 							enabled: ! connection.enabled,
+						};
+					}
+					return connection;
+				} ),
+			};
+
+		case CUSTOMIZE_CONNECTION:
+			return {
+				...state,
+				connections: state.connections.map( connection => {
+					const isTargetConnection = connection.connection_id === action.connectionId;
+
+					if ( isTargetConnection ) {
+						return {
+							...connection,
+							...action.data,
 						};
 					}
 					return connection;

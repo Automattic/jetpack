@@ -1,5 +1,6 @@
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
+import { AvatarWithFallback } from '../avatar-with-fallback';
 import {
 	baseDomain,
 	formatNextdoorDate,
@@ -9,11 +10,9 @@ import {
 import { FEED_TEXT_MAX_LENGTH } from './constants';
 import { FooterActions } from './footer-actions';
 import { ChevronIcon } from './icons/chevron-icon';
-import { DefaultAvatar } from './icons/default-avatar';
 import { DefaultImage } from './icons/default-image';
 import { GlobeIcon } from './icons/globe-icon';
 import { NextdoorPreviewProps } from './types';
-
 import './style.scss';
 
 /**
@@ -40,7 +39,7 @@ export function NextdoorPostPreview( {
 				<div className="nextdoor-preview__content">
 					<div className="nextdoor-preview__header">
 						<div className="nextdoor-preview__header--avatar">
-							{ profileImage ? <img src={ profileImage } alt="" /> : <DefaultAvatar /> }
+							<AvatarWithFallback src={ profileImage } />
 						</div>
 						<div className="nextdoor-preview__header--details">
 							<div className="nextdoor-preview__header--name">

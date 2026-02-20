@@ -44,7 +44,8 @@ class Help_Center {
 			$this->purchases = wp_list_filter( wpcom_get_site_purchases(), array( 'product_type' => 'bundle' ) );
 		}
 
-		$this->is_support_site = defined( 'WPCOM_SUPPORT_BLOG_IDS' ) && in_array( get_current_blog_id(), (array) WPCOM_SUPPORT_BLOG_IDS, true );
+		$blog_id               = get_current_blog_id();
+		$this->is_support_site = ( defined( 'WPCOM_SUPPORT_BLOG_IDS' ) && in_array( $blog_id, (array) WPCOM_SUPPORT_BLOG_IDS, true ) ) || ( defined( 'WPCOM_FORUM_BLOG_IDS' ) && in_array( $blog_id, (array) WPCOM_FORUM_BLOG_IDS, true ) );
 
 		// Always register REST API endpoints.
 		add_action( 'rest_api_init', array( $this, 'register_rest_api' ) );
@@ -218,7 +219,7 @@ class Help_Center {
 				12
 			);
 
-			if ( $variant === 'wp-admin' && $this->is_menu_panel_enabled() ) {
+			if ( is_user_logged_in() && $variant === 'wp-admin' && $this->is_menu_panel_enabled() ) {
 				// Initialize the help center menu panel
 				require_once __DIR__ . '/class-help-center-menu-panel.php';
 				Help_Center_Menu_Panel::init();
@@ -253,7 +254,7 @@ class Help_Center {
 		);
 
 		wp_enqueue_style(
-			'help-center-style',
+			'help-center-' . $variant . '-style',
 			'https://widgets.wp.com/help-center/help-center-' . $variant . ( is_rtl() ? '.rtl.css' : '.css' ),
 			array(),
 			$version
@@ -275,10 +276,10 @@ class Help_Center {
 
 			$user_id            = get_current_user_id();
 			$user_data          = get_userdata( $user_id );
-			$username           = $user_data->user_login;
-			$user_email         = $user_data->user_email;
-			$display_name       = $user_data->display_name;
-			$avatar_url         = function_exists( 'wpcom_get_avatar_url' ) ? wpcom_get_avatar_url( $user_email, 64, '', true )[0] : get_avatar_url( $user_id );
+			$username           = $user_data ? $user_data->user_login : null;
+			$user_email         = $user_data ? $user_data->user_email : null;
+			$display_name       = $user_data ? $user_data->display_name : null;
+			$avatar_url         = $user_data ? ( function_exists( 'wpcom_get_avatar_url' ) ? wpcom_get_avatar_url( $user_email, 64, '', true )[0] : get_avatar_url( $user_id ) ) : null;
 			$is_commerce_garden = defined( 'IS_COMMERCE_GARDEN' );
 
 			wp_add_inline_script(
@@ -497,8 +498,13 @@ class Help_Center {
 	 */
 	public function is_block_editor() {
 		global $current_screen;
+
+		if ( ! $current_screen ) {
+			return false;
+		}
+
 		// widgets screen does have the block editor but also no Gutenberg top bar.
-		return $current_screen && $current_screen->is_block_editor() && $current_screen->id !== 'widgets';
+		return $current_screen->is_block_editor() && $current_screen->id !== 'widgets';
 	}
 
 	/**
@@ -632,10 +638,36 @@ class Help_Center {
 			return;
 		}
 
+		// Do not load Help Center for logged-out users if we are not on support sites and the experiment variation is the treatment.
+		if ( ! is_user_logged_in() ) {
+			if ( ! $this->is_support_site ) {
+				return;
+			}
+
+			$experiment_variation = null;
+			if ( function_exists( '\ExPlat\assign_maybe_anon_user' ) ) {
+				$experiment_variation = \ExPlat\assign_maybe_anon_user( 'wpcom_ai_on_logged_out_support_pages_v2' );
+			} else {
+				log2logstash(
+					array(
+						'feature' => 'help-center',
+						'message' => 'ExPlat\assign_maybe_anon_user function is unavailable',
+					)
+				);
+			}
+			if ( $experiment_variation !== 'treatment' ) {
+				return;
+			}
+		}
+
 		if ( $is_next_admin ) {
 			$variant = 'ciab-admin' . ( $this->is_jetpack_disconnected() ? '-disconnected' : '' );
 		} elseif ( $this->is_support_site ) {
-			$variant = 'wp-admin' . ( $this->is_jetpack_disconnected() ? '-disconnected' : '' );
+			if ( ! is_user_logged_in() ) {
+				$variant = 'logged-out';
+			} else {
+				$variant = 'wp-admin' . ( $this->is_jetpack_disconnected() ? '-disconnected' : '' );
+			}
 		} elseif ( $this->is_loading_on_frontend() ) {
 			$variant = 'wp-admin-disconnected';
 		} elseif ( $this->is_block_editor() ) {

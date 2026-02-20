@@ -37,7 +37,7 @@ export const VideoRowError = ( { id, className = '', title }: VideoRowProps ) =>
 
 	const { dismissErroredVideo } = useDispatch( STORE_ID );
 
-	const uploadDateFormatted = dateI18n( 'M j, Y', new Date(), null );
+	const uploadDateFormatted = dateI18n( 'M j, Y', new Date() );
 	const isEllipsisActive = textRef?.current?.offsetWidth < textRef?.current?.scrollWidth;
 
 	const showTitleLabel = ! isSmall && isEllipsisActive;

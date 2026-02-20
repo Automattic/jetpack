@@ -2270,19 +2270,6 @@ describe( 'ChartContext', () => {
 
 		describe( 'Server-Side Rendering', () => {
 			it( 'handles SSR environment where getComputedStyle unavailable', () => {
-				const originalWindow = globalThis.window;
-				const originalDocument = globalThis.document;
-
-				// Simulate SSR by temporarily removing window/document
-				// eslint-disable-next-line @typescript-eslint/no-explicit-any
-				delete ( globalThis as any ).window;
-				// eslint-disable-next-line @typescript-eslint/no-explicit-any
-				delete ( globalThis as any ).document;
-
-				// Restore for test to actually run
-				globalThis.window = originalWindow;
-				globalThis.document = originalDocument;
-
 				// Mock resolveCssVariable to return null (simulating SSR behavior)
 				window.getComputedStyle = jest.fn( () => {
 					throw new Error( 'window is not defined' );

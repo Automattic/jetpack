@@ -26,7 +26,8 @@ const GLYPH_THEME_MAP = {
 
 // Custom decorator for glyph stories that includes the glyph theme
 const glyphChartDecorator: Decorator = ( Story, { args } ) => {
-	const themeName = ( args as unknown as StoryArgs ).themeName;
+	const storyArgs = args as unknown as StoryArgs;
+	const themeName = storyArgs.themeName;
 	const theme = GLYPH_THEME_MAP[ themeName || 'default' ];
 
 	return (
@@ -37,6 +38,7 @@ const glyphChartDecorator: Decorator = ( Story, { args } ) => {
 					overflow: 'auto',
 					padding: '2rem',
 					width: '800px',
+					height: storyArgs.containerHeight || '400px',
 					maxWidth: '1200px',
 					border: '1px dashed #ccc',
 					display: 'inline-block',

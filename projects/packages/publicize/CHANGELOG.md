@@ -5,6 +5,89 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.72.5] - 2026-02-19
+### Added
+- Add visual dot to active connection in preview modal. [#47218]
+
+### Changed
+- Disable AI image option in the media UI for standalone plugin. [#47193]
+
+## [0.72.4] - 2026-02-18
+### Added
+- Add analytics tracking for per network customizations UI. [#47188]
+- Create reusable link previews modal and tabs component. [#47142]
+
+### Changed
+- Replace link previews in the panel with the unified one. [#47153]
+- Update package dependencies. [#47173]
+
+## [0.72.3] - 2026-02-16
+### Added
+- Add media validation notices to preview modal. [#47006]
+
+### Changed
+- Convert connection and illustration images from PNG to WebP. [#47084]
+- Replace form in the sidebar with message when using per-network customizations. [#47003]
+- Update package dependencies. [#47099]
+
+### Fixed
+- Compatibility: Clean up deprecated CSS. [#47067]
+- Fix connection sync on toggle for published posts. [#46966]
+- Fix Tumblr preview to prioritize custom message when it is set. [#47075]
+- Refresh plan features on post-checkout redirect. [#46961]
+
+## [0.72.2] - 2026-02-10
+### Changed
+- Improve the media selection UI in preview modal. [#46921]
+- Make pre-publish confirmation opt-in by default. [#46945]
+- Update package dependencies. [#46905] [#47002]
+- Update preview modal copy on pre-publish screen. [#47009]
+
+### Fixed
+- Fix customization form legend visibility and connection toggle margin. [#46947]
+- Preview Modal: Fix footer scroll on smaller screens. [#46925]
+
+## [0.72.1] - 2026-02-02
+### Added
+- Add "View" action to the scheduled post snackbar. [#46772]
+- Add "View scheduled" link in share preview modal. [#46776]
+- Gate per-network customization behind paid features. [#46740]
+- Sync media to connections for per network customizations. [#46744]
+
+### Changed
+- Adjust connection toggle UI and remove redundant "Preview" heading. [#46889]
+- Convert upgrade and demo buttons to links that open in new tab. [#46891]
+- Mark new connections as shared by default for privileged users. [#46796]
+- Preview Modal: Clarify disabled account state with icon and simple text. [#46885]
+- Social Preview: Retain previously selected preview tab on navigation. [#46886]
+- Update social post preview modal height. [#46882]
+- Update package dependencies. [#46430] [#46853] [#46854]
+
+### Fixed
+- Fix the social preview modal UX. [#46856]
+
+## [0.72.0] - 2026-01-26
+### Added
+- Add sharing activity modal with tabs for All shares, Shared, and Scheduled views. [#46633]
+- Add HMR support by wiring up webpack dev server. [#46686]
+- Unify shared and scheduled sharing activity in Dataviews table. [#46724]
+- Wire up media customization per network. [#46699]
+- Wire up per-network customization form. [#46678]
+
+### Changed
+- Refactor share status UI to use Notice component. [#46673]
+- Show a snackbar while sharing is in progress. [#46672]
+- Update the customization toggle and save the flag to post meta. [#46654]
+- Use fallback avatar for Jetpack Social connection icons. [#46677]
+
+## [0.71.0] - 2026-01-19
+### Added
+- Add per-network customization with global toggle and per-connection message/media overrides. [#46563]
+
+### Changed
+- Disable customization form when connection is disabled. [#46588]
+- Update package dependencies. [#46647]
+
 ## [0.70.0] - 2026-01-14
 ### Changed
 - Decouple `SharePostForm` component from the store by adding optional props for controlled mode. [#46545]
@@ -1207,6 +1290,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update package.json metadata.
 
+[0.72.5]: https://github.com/Automattic/jetpack-publicize/compare/v0.72.4...v0.72.5
+[0.72.4]: https://github.com/Automattic/jetpack-publicize/compare/v0.72.3...v0.72.4
+[0.72.3]: https://github.com/Automattic/jetpack-publicize/compare/v0.72.2...v0.72.3
+[0.72.2]: https://github.com/Automattic/jetpack-publicize/compare/v0.72.1...v0.72.2
+[0.72.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.72.0...v0.72.1
+[0.72.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.71.0...v0.72.0
+[0.71.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.70.0...v0.71.0
 [0.70.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.69.2...v0.70.0
 [0.69.2]: https://github.com/Automattic/jetpack-publicize/compare/v0.69.1...v0.69.2
 [0.69.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.69.0...v0.69.1

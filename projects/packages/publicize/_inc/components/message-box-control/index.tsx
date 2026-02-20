@@ -2,6 +2,7 @@ import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { TextareaControl } from '@wordpress/components';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { useCallback, useRef } from 'react';
+import styles from './styles.module.scss';
 
 export const getPlaceholderText = () =>
 	__(
@@ -89,6 +90,7 @@ export default function MessageBoxControl( {
 				charactersRemaining
 			) }
 			__nextHasNoMarginBottom={ true }
+			className={ styles[ 'message-box-control' ] }
 		/>
 	);
 }

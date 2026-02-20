@@ -3,6 +3,7 @@ import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { store as socialStore } from '../../social-store';
 import { Connection } from '../../social-store/types';
+import ConnectionIcon from '../connection-icon';
 import { ConnectionName } from '../connection-management/connection-name';
 import { ConnectionStatus } from '../connection-management/connection-status';
 import { Disconnect } from '../connection-management/disconnect';
@@ -29,15 +30,11 @@ export const ServiceConnectionInfo = ( {
 	return (
 		<div className={ styles[ 'service-connection' ] }>
 			<div>
-				{ connection.profile_picture ? (
-					<img
-						className={ styles[ 'profile-pic' ] }
-						src={ connection.profile_picture }
-						alt={ connection.display_name }
-					/>
-				) : (
-					<service.icon iconSize={ 40 } />
-				) }
+				<ConnectionIcon
+					className={ styles[ 'profile-pic' ] }
+					profilePicture={ connection.profile_picture }
+					label={ connection.display_name }
+				/>
 			</div>
 			<div className={ styles[ 'connection-details' ] }>
 				<ConnectionName connection={ connection } />

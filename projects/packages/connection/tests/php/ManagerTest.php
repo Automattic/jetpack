@@ -938,8 +938,7 @@ class ManagerTest extends TestCase {
 		$tokens->update_user_token( $secondary_admin_id, sprintf( '%s.%s.%d', 'key', 'private', $secondary_admin_id ), false );
 
 		// Mock get_connection_owner_id to return the owner
-		$this->manager->expects( $this->any() )
-			->method( 'get_connection_owner_id' )
+		$this->manager->method( 'get_connection_owner_id' )
 			->willReturn( $owner_id );
 
 		// Mock unlink_user_from_wpcom to succeed for non-owner users
@@ -958,8 +957,7 @@ class ManagerTest extends TestCase {
 			'external_user_id' => 1,
 		);
 
-		$this->tokens->expects( $this->any() )
-			->method( 'get_access_token' )
+		$this->tokens->method( 'get_access_token' )
 			->willReturnCallback(
 				function ( $user_id ) use ( $owner_id, $owner_token ) {
 					return $user_id === $owner_id ? $owner_token : false;

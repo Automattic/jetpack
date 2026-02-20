@@ -1,13 +1,18 @@
 import { Path } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import renderMaterialIcon from '../shared/components/render-material-icon.js';
+import renderMaterialIcon from '../shared/components/render-material-icon.jsx';
 import defaultSettings from '../shared/settings/index.js';
 import deprecated from './deprecated.js';
 import edit from './edit.js';
 import save from './save.js';
 
-const name = 'field-textarea';
-const settings = {
+export const name = 'field-textarea';
+
+export const form_editor = {
+	category: 'basic',
+};
+
+export const settings = {
 	...defaultSettings,
 	title: __( 'Multi-line text field', 'jetpack-forms' ),
 	keywords: [
@@ -45,4 +50,5 @@ const settings = {
 export default {
 	name,
 	settings,
+	form_editor,
 };

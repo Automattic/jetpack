@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Pass current user ID when deleting VideoPress videos on wpcom to fix activity log attribution.

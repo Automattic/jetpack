@@ -1,9 +1,21 @@
+import { AttachedMedia, MediaSourceValue, SHARING_ACTIVITY_TABS } from '../utils';
+
 export type ConnectionStatus = 'ok' | 'broken' | 'must_reauth';
 
-export type Connection = {
+/**
+ * Connection object in the block editor
+ */
+export interface EditorConnection {
+	enabled: boolean;
+	// Customization fields
+	message?: string;
+	attached_media?: Array< AttachedMedia >;
+	media_source?: MediaSourceValue;
+}
+
+export type Connection = Partial< EditorConnection > & {
 	connection_id: string;
 	display_name: string;
-	enabled: boolean;
 	external_handle: string;
 	external_id: string;
 	profile_link: string;
@@ -69,10 +81,20 @@ export type ScheduledShares = {
 	isScheduling?: boolean;
 };
 
+export type UnifiedModalData = {
+	sharingActivity?: {
+		initialTab?: ( typeof SHARING_ACTIVITY_TABS )[ keyof typeof SHARING_ACTIVITY_TABS ];
+	};
+	socialPreview?: {
+		initialTab?: string;
+	};
+};
+
 export type UnifiedModalState = {
 	isOpen?: boolean;
 	initialPath?: string;
 	isScreenLocked?: boolean;
+	data?: UnifiedModalData;
 };
 
 export type RenderCount = { [ Key in 'social-preview' | 'edit-template' ]?: number };
