@@ -3,17 +3,14 @@
  */
 import { useBreakpointMatch } from '@automattic/jetpack-components';
 import JetpackLogo from '@automattic/jetpack-components/jetpack-logo';
-/**
- * WordPress dependencies
- */
 import { Breadcrumbs } from '@wordpress/admin-ui';
-import { DropdownMenu } from '@wordpress/components';
+import { DropdownMenu, Button } from '@wordpress/components';
 import { store as coreDataStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { useMemo } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __, sprintf } from '@wordpress/i18n';
-import { moreVertical, plus, download, plugins, trash } from '@wordpress/icons';
+import { moreVertical } from '@wordpress/icons';
 import { Stack } from '@wordpress/ui';
 /**
  * Internal dependencies
@@ -32,6 +29,7 @@ import useEmptyTrash from '../../hooks/use-empty-trash';
 import useExportResponses from '../../hooks/use-export-responses';
 import useInboxData from '../../hooks/use-inbox-data';
 import ManageIntegrationsButton from '../components/manage-integrations-button';
+import useFormItemActions from './use-form-item-actions';
 import type { ReactNode } from 'react';
 
 type ResponsesStatusView = 'inbox' | 'spam' | 'trash';
@@ -40,9 +38,11 @@ type UsePageHeaderDetailsProps = {
 	screen: 'forms' | 'responses';
 	statusView?: ResponsesStatusView;
 	sourceId?: string | number;
+	formsCount?: number;
 	isIntegrationsEnabled: boolean;
 	showDashboardIntegrations: boolean;
 	onOpenIntegrations: () => void;
+	onOpenFormsHelp?: () => void;
 };
 
 type UsePageHeaderDetailsReturn = {
@@ -63,8 +63,15 @@ type UsePageHeaderDetailsReturn = {
 export default function usePageHeaderDetails(
 	props: UsePageHeaderDetailsProps
 ): UsePageHeaderDetailsReturn {
-	const { screen, sourceId, isIntegrationsEnabled, showDashboardIntegrations, onOpenIntegrations } =
-		props;
+	const {
+		screen,
+		sourceId,
+		formsCount,
+		isIntegrationsEnabled,
+		showDashboardIntegrations,
+		onOpenIntegrations,
+		onOpenFormsHelp,
+	} = props;
 	const statusView: ResponsesStatusView = props.statusView ?? 'inbox';
 	const sourceIdNumber = useMemo( () => {
 		const value = sourceId;
@@ -113,6 +120,41 @@ export default function usePageHeaderDetails(
 		return decodeEntities( rendered );
 	}, [ formRecord?.title?.rendered ] );
 
+	const { duplicateForm, previewForm, copyEmbed, copyShortcode } = useFormItemActions();
+
+	const formItemControls = useMemo( () => {
+		if ( ! sourceIdNumber ) {
+			return [];
+		}
+
+		const formItem = { id: sourceIdNumber, title: formTitle };
+		const controls: Array< { title: string; onClick: () => void } > = [
+			{
+				title: __( 'Duplicate', 'jetpack-forms' ),
+				onClick: () => duplicateForm( formItem ),
+			},
+			{
+				title: __( 'Preview', 'jetpack-forms' ),
+				onClick: () => previewForm( formItem ),
+			},
+		];
+
+		if ( navigator?.clipboard ) {
+			controls.push(
+				{
+					title: __( 'Copy embed', 'jetpack-forms' ),
+					onClick: () => copyEmbed( formItem ),
+				},
+				{
+					title: __( 'Copy shortcode', 'jetpack-forms' ),
+					onClick: () => copyShortcode( formItem ),
+				}
+			);
+		}
+
+		return controls;
+	}, [ sourceIdNumber, formTitle, duplicateForm, previewForm, copyEmbed, copyShortcode ] );
+
 	const breadcrumbsItems = useMemo( () => {
 		if ( isSingleFormScreen ) {
 			return [
@@ -135,7 +177,22 @@ export default function usePageHeaderDetails(
 
 	const subtitle = useMemo( () => {
 		if ( isFormsScreen ) {
-			return __( 'View and manage all your forms in one place.', 'jetpack-forms' );
+			const shortMessage = __( 'View and manage all your forms.', 'jetpack-forms' );
+			const longMessage = __( 'View and manage all your forms in one place.', 'jetpack-forms' );
+
+			const shouldShowFormsHelpLink =
+				!! onOpenFormsHelp && ( typeof formsCount !== 'number' || formsCount < 5 );
+
+			return shouldShowFormsHelpLink ? (
+				<>
+					{ shortMessage }{ ' ' }
+					<Button variant="link" onClick={ onOpenFormsHelp }>
+						{ __( 'Missing forms?', 'jetpack-forms' ) }
+					</Button>
+				</>
+			) : (
+				longMessage
+			);
 		}
 
 		if ( isSingleFormScreen ) {
@@ -150,7 +207,7 @@ export default function usePageHeaderDetails(
 		}
 
 		return __( 'View and manage all your form submissions in one place.', 'jetpack-forms' );
-	}, [ formTitle, isFormsScreen, isSingleFormScreen ] );
+	}, [ formTitle, isFormsScreen, isSingleFormScreen, onOpenFormsHelp, formsCount ] );
 
 	const actions = useMemo( () => {
 		// Mobile: show dropdown menu with actions
@@ -161,14 +218,12 @@ export default function usePageHeaderDetails(
 				// Forms screen: Manage integrations, Create a form
 				if ( isIntegrationsEnabled && showDashboardIntegrations ) {
 					dropdownControls.push( {
-						icon: plugins,
 						onClick: onOpenIntegrations,
 						title: __( 'Manage integrations', 'jetpack-forms' ),
 					} );
 				}
 
 				dropdownControls.push( {
-					icon: plus,
 					onClick: () => openNewForm( {} ),
 					title: __( 'Create a form', 'jetpack-forms' ),
 				} );
@@ -185,7 +240,6 @@ export default function usePageHeaderDetails(
 					} );
 				}
 				dropdownControls.push( {
-					icon: download,
 					onClick: openExportModal,
 					title: exportLabel,
 					isDisabled: ! hasResponses,
@@ -193,7 +247,6 @@ export default function usePageHeaderDetails(
 
 				if ( statusView === 'trash' ) {
 					dropdownControls.push( {
-						icon: trash,
 						onClick: emptyTrash.openConfirmDialog,
 						title: __( 'Empty trash', 'jetpack-forms' ),
 						isDisabled: emptyTrash.isEmpty || emptyTrash.isEmptying,
@@ -202,17 +255,17 @@ export default function usePageHeaderDetails(
 
 				if ( statusView === 'spam' ) {
 					dropdownControls.push( {
-						icon: trash,
 						onClick: emptySpam.openConfirmDialog,
 						title: __( 'Delete spam', 'jetpack-forms' ),
 						isDisabled: emptySpam.isEmpty || emptySpam.isEmptying,
 					} );
 				}
+
+				dropdownControls.push( ...formItemControls );
 			} else {
 				// Responses list screen: Manage integrations (inbox only), Create a form (inbox only), Export, Empty trash/spam
 				if ( statusView === 'inbox' && isIntegrationsEnabled && showDashboardIntegrations ) {
 					dropdownControls.push( {
-						icon: plugins,
 						onClick: onOpenIntegrations,
 						title: __( 'Manage integrations', 'jetpack-forms' ),
 					} );
@@ -220,14 +273,12 @@ export default function usePageHeaderDetails(
 
 				if ( statusView === 'inbox' ) {
 					dropdownControls.push( {
-						icon: plus,
 						onClick: () => openNewForm( { showPatterns: false } ),
 						title: __( 'Create a form', 'jetpack-forms' ),
 					} );
 				}
 
 				dropdownControls.push( {
-					icon: download,
 					onClick: openExportModal,
 					title: exportLabel,
 					isDisabled: ! hasResponses,
@@ -235,7 +286,6 @@ export default function usePageHeaderDetails(
 
 				if ( statusView === 'trash' ) {
 					dropdownControls.push( {
-						icon: trash,
 						onClick: emptyTrash.openConfirmDialog,
 						title: __( 'Empty trash', 'jetpack-forms' ),
 						isDisabled: emptyTrash.isEmpty || emptyTrash.isEmptying,
@@ -244,7 +294,6 @@ export default function usePageHeaderDetails(
 
 				if ( statusView === 'spam' ) {
 					dropdownControls.push( {
-						icon: trash,
 						onClick: emptySpam.openConfirmDialog,
 						title: __( 'Delete spam', 'jetpack-forms' ),
 						isDisabled: emptySpam.isEmpty || emptySpam.isEmptying,
@@ -323,6 +372,16 @@ export default function usePageHeaderDetails(
 				/>,
 				...( statusView === 'trash' ? [ <EmptyTrashButton key="empty-trash" /> ] : [] ),
 				...( statusView === 'spam' ? [ <EmptySpamButton key="empty-spam" /> ] : [] ),
+				...( formItemControls.length > 0
+					? [
+							<DropdownMenu
+								key="form-actions-menu"
+								controls={ formItemControls }
+								icon={ moreVertical }
+								label={ __( 'More actions', 'jetpack-forms' ) }
+							/>,
+					  ]
+					: [] ),
 			];
 		}
 
@@ -357,6 +416,7 @@ export default function usePageHeaderDetails(
 		sourceIdNumber,
 		isFormsScreen,
 		isSingleFormScreen,
+		formItemControls,
 		statusView,
 		openNewForm,
 		openExportModal,

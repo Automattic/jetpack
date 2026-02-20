@@ -440,6 +440,9 @@ class Feedback_Field {
 		if ( $this->is_of_type( 'file' ) ) {
 			return $this->render_email_file();
 		}
+		if ( $this->is_of_type( 'image-select' ) ) {
+			return $this->render_email_image_select();
+		}
 		return $this->render_email_default();
 	}
 
@@ -784,6 +787,78 @@ class Feedback_Field {
 		);
 
 		return $category_map[ $category ] ?? 'txt';
+	}
+
+	/**
+	 * Render an image-select field for email.
+	 *
+	 * Renders each selected choice as a card with an image thumbnail,
+	 * letter code, and label arranged horizontally.
+	 *
+	 * @return string HTML for the image-select field.
+	 */
+	private function render_email_image_select() {
+		if ( ! is_array( $this->value ) || empty( $this->value['choices'] ) || ! is_array( $this->value['choices'] ) ) {
+			return $this->render_empty_value_html();
+		}
+
+		$cards = array();
+		foreach ( $this->value['choices'] as $choice ) {
+			$letter     = isset( $choice['selected'] ) ? esc_html( $choice['selected'] ) : '';
+			$label      = ! empty( $choice['label'] ) ? esc_html( $choice['label'] ) : '';
+			$image_src  = ! empty( $choice['image']['src'] ) ? esc_url( $choice['image']['src'] ) : '';
+			$show_label = ! empty( $choice['showLabels'] );
+
+			// Image thumbnail or gray placeholder at 138×144.
+			if ( $image_src !== '' ) {
+				$image_html = sprintf(
+					'<div style="padding: 8px 8px 0 8px;"><img src="%s" alt="%s" width="138" height="144" style="display: block; width: 138px; height: 144px; object-fit: cover;" /></div>',
+					$image_src,
+					$label !== '' ? $label : $letter
+				);
+			} else {
+				$placeholder_icon = Jetpack_Forms::plugin_url() . 'contact-form/images/field-icons/field-image-select@2x.png';
+				$image_html       = sprintf(
+					'<div style="padding: 8px 8px 0 8px;"><div style="width: 138px; height: 144px; background-color: #f0f0f0; text-align: center; line-height: 144px;"><img src="%s" alt="" width="24" height="24" style="vertical-align: middle;" /></div></div>',
+					esc_url( $placeholder_icon )
+				);
+			}
+
+			// Letter code box + label.
+			$caption_html = '';
+			if ( $letter !== '' ) {
+				$caption_html .= sprintf(
+					'<span style="display: inline-block; min-width: 1em; padding: 4px; line-height: 1; text-align: center; border: 1px solid #dcdcde; border-radius: 2px; font-size: 11px; font-weight: 600; color: #1e1e1e; vertical-align: baseline;">%s</span>',
+					$letter
+				);
+			}
+
+			if ( $show_label && $label !== '' ) {
+				$caption_html .= sprintf(
+					' <span style="font-size: 13px; color: #1e1e1e; vertical-align: baseline;">%s</span>',
+					$label
+				);
+			}
+
+			// Card with fixed width matching the admin preview (138px image + 16px padding).
+			$card  = '<div style="display: inline-block; vertical-align: top; width: 154px; border: 1px solid #dcdcde; border-radius: 8px; margin: 0 8px 8px 0;">';
+			$card .= $image_html;
+			if ( $caption_html !== '' ) {
+				$card .= sprintf(
+					'<div style="padding: 4px 8px 8px 8px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">%s</div>',
+					$caption_html
+				);
+			}
+			$card .= '</div>';
+
+			$cards[] = $card;
+		}
+
+		if ( empty( $cards ) ) {
+			return $this->render_empty_value_html();
+		}
+
+		return implode( '', $cards );
 	}
 
 	/**

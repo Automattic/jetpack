@@ -4,6 +4,7 @@ import { Path } from '@wordpress/components';
 import { __, _x } from '@wordpress/i18n';
 import { people } from '@wordpress/icons';
 import renderMaterialIcon from '../shared/components/render-material-icon.jsx';
+import { VERTICAL_LAYOUT } from '../shared/util/constants.js';
 
 const variations = [
 	{
@@ -22,6 +23,7 @@ const variations = [
 		},
 		attributes: {
 			variationName: 'default-empty',
+			layout: VERTICAL_LAYOUT,
 		},
 		scope: [ 'transform' ],
 		isActive: ( { variationName } ) => variationName !== 'multistep',
@@ -76,6 +78,7 @@ const variations = [
 		],
 		attributes: {
 			variationName: 'default',
+			layout: VERTICAL_LAYOUT,
 		},
 	},
 	{
@@ -155,6 +158,7 @@ const variations = [
 		],
 		attributes: {
 			subject: __( 'A new RSVP from your website', 'jetpack-forms' ),
+			layout: VERTICAL_LAYOUT,
 		},
 		example: {
 			innerBlocks: [
@@ -308,6 +312,7 @@ const variations = [
 		],
 		attributes: {
 			subject: __( 'A new registration from your website', 'jetpack-forms' ),
+			layout: VERTICAL_LAYOUT,
 		},
 		example: {
 			innerBlocks: [
@@ -497,6 +502,7 @@ const variations = [
 		],
 		attributes: {
 			subject: __( 'A new appointment booked from your website', 'jetpack-forms' ),
+			layout: VERTICAL_LAYOUT,
 		},
 		example: {
 			innerBlocks: [
@@ -643,6 +649,7 @@ const variations = [
 		],
 		attributes: {
 			subject: __( 'New feedback received from your website', 'jetpack-forms' ),
+			layout: VERTICAL_LAYOUT,
 		},
 		example: {
 			innerBlocks: [
@@ -923,6 +930,7 @@ const variations = [
 		],
 		attributes: {
 			variationName: 'multistep',
+			layout: VERTICAL_LAYOUT,
 		},
 		scope: [ 'block', 'inserter', 'transform' ],
 		isActive: [ 'variationName' ],
@@ -964,7 +972,9 @@ const variations = [
 				},
 			],
 		],
-		attributes: {},
+		attributes: {
+			layout: VERTICAL_LAYOUT,
+		},
 		example: {
 			innerBlocks: [
 				{
