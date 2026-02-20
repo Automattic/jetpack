@@ -233,7 +233,7 @@ class Meta_Extractor {
 				}
 			}
 
-			// Remove the shortcodes form our copy of $content, so we don't count links in them as links below.
+			// Remove the shortcodes from our copy of $content, so we don't count links in them as links below.
 			$content = preg_replace( $shortcode_pattern, ' ', $content );
 		}
 
@@ -479,11 +479,11 @@ class Meta_Extractor {
 	}
 
 	/**
-	 * Helper function to get images from HTML and return it with the set sturcture.
+	 * Helper function to get images from HTML and return it with the set structure.
 	 *
 	 * @param string $content HTML content.
 	 * @param array  $image_list Array of already found images.
-	 * @param string $extract_alt_text Whether or not to extract the alt text.
+	 * @param bool   $extract_alt_text Whether or not to extract the alt text.
 	 *
 	 * @return array|array[] Array of images.
 	 */
@@ -579,7 +579,7 @@ class Meta_Extractor {
 	}
 
 	/**
-	 * Strips concents of all tags, shortcodes, and decodes HTML entities.
+	 * Strips contents of all tags, shortcodes, and decodes HTML entities.
 	 *
 	 * @param string $content Original content.
 	 *
