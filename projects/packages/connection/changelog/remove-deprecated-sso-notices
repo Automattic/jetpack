@@ -1,0 +1,4 @@
+Significance: patch
+Type: removed
+
+SSO: Remove deprecated sso_not_allowed_in_staging() method and its jetpack_sso_disallowed_staging_notice filter.
