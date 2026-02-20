@@ -10,11 +10,10 @@ import {
 import { useSelect, useDispatch } from '@wordpress/data';
 import { PluginPrePublishPanel, store as editorStore } from '@wordpress/editor';
 import { useCallback, useMemo, useState } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, _n, _nx, _x, sprintf } from '@wordpress/i18n';
 import { page as pageIcon } from '@wordpress/icons';
 import { store as noticesStore } from '@wordpress/notices';
 import { registerPlugin } from '@wordpress/plugins';
-
 /**
  * Internal dependencies
  */
@@ -27,16 +26,19 @@ import HostingerReachIcon from '../../icons/hostinger-reach';
 import MailPoetIcon from '../../icons/mailpoet';
 import SalesforceIcon from '../../icons/salesforce';
 import { INTEGRATIONS_STORE } from '../../store/integrations/index.ts';
+import type { Integration } from '../../types/index.ts';
 import './form-pre-publish-panel.scss';
 
 /**
  * A single settings summary row displayed in the pre-publish panel.
  * Uses the same structure as WordPress's PostPanelRow component
  * (HStack with editor-post-panel__row classes) for pixel-perfect matching.
- * @param root0
- * @param root0.label
- * @param root0.value
- * @param root0.onClick
+ *
+ * @param {object}              props         - Component props.
+ * @param {string}              props.label   - The row label.
+ * @param {string|JSX.Element}  props.value   - The row value.
+ * @param {Function}            props.onClick - Click handler for the value button.
+ * @return {JSX.Element} The setting row element.
  */
 const SettingRow = ( {
 	label,
@@ -63,6 +65,8 @@ const SettingRow = ( {
  * Get the contact-form block attributes from the editor.
  * Since the form editor always has exactly one contact-form block,
  * we find it and return its attributes.
+ *
+ * @return {object} The form block attributes and clientId.
  */
 const useFormAttributes = () => {
 	return useSelect( select => {
@@ -78,7 +82,6 @@ const useFormAttributes = () => {
 		const formBlock = blocks.find( block => block.name === FORM_BLOCK_NAME );
 
 		return {
-			formBlock,
 			attributes: ( formBlock?.attributes || {} ) as Record< string, unknown >,
 			clientId: formBlock?.clientId || '',
 		};
@@ -86,14 +89,12 @@ const useFormAttributes = () => {
 };
 
 /**
- * Hook to update contact-form block attributes from outside the block.
- */
-
-/**
  * Form Pre-Publish Panel component.
  *
  * Displays a summary of form settings in the WordPress pre-publish sidebar,
  * allowing users to review and adjust settings before publishing.
+ *
+ * @return {JSX.Element|null} The pre-publish panel or null.
  */
 const FormPrePublishPanel = () => {
 	const [ isPreviewLoading, setIsPreviewLoading ] = useState( false );
@@ -121,15 +122,14 @@ const FormPrePublishPanel = () => {
 	const { autosave } = useDispatch( 'core/editor' );
 	const { createErrorNotice } = useDispatch( noticesStore );
 	const { closePublishSidebar } = useDispatch( editorStore );
-	const { selectBlock } = useDispatch( blockEditorStore );
-	const { updateBlockAttributes } = useDispatch( blockEditorStore );
+	const { selectBlock, updateBlockAttributes } = useDispatch( blockEditorStore );
 
 	// Integrations store data for the modal
 	const integrationsData = useSelect( select => {
-		const store = select( INTEGRATIONS_STORE ) as {
-			getIntegrations: () => Array< Record< string, unknown > >;
+		const integrationsStore = select( INTEGRATIONS_STORE ) as {
+			getIntegrations: () => Integration[] | null;
 		};
-		return store.getIntegrations() || [];
+		return integrationsStore.getIntegrations() || [];
 	}, [] );
 	const { refreshIntegrations } = useDispatch( INTEGRATIONS_STORE );
 	const modalComponents = useMemo( () => ( { ConsentToggle } ), [] );
@@ -142,6 +142,207 @@ const FormPrePublishPanel = () => {
 			}
 		},
 		[ clientId, updateBlockAttributes ]
+	);
+
+	// Preview handler (reuses the same logic as preview-button.tsx)
+	const handlePreview = useCallback( async () => {
+		if ( isPreviewLoading ) {
+			return;
+		}
+
+		setIsPreviewLoading( true );
+		try {
+			if ( isDirty && isAutosaveable ) {
+				await autosave();
+			}
+
+			const response = await apiFetch< { preview_url: string } >( {
+				path: `/wp/v2/jetpack-forms/${ postId }/preview-url`,
+			} );
+			window.open( response.preview_url, '_blank' );
+		} catch ( error ) { // eslint-disable-line no-unused-vars
+			createErrorNotice(
+				__( 'Failed to generate preview URL. Please try again.', 'jetpack-forms' ),
+				{ type: 'snackbar' }
+			);
+		} finally {
+			setIsPreviewLoading( false );
+		}
+	}, [ postId, isPreviewLoading, isDirty, isAutosaveable, autosave, createErrorNotice ] );
+
+	/**
+	 * Navigate to a specific settings panel in the block inspector.
+	 *
+	 * Flow:
+	 * 1. Close the publish sidebar
+	 * 2. Open the block inspector sidebar via wp.data store
+	 * 3. Select the form block
+	 * 4. Wait for the sidebar to render, then click the Block tab + Settings sub-tab
+	 * 5. Wait for the inspector panels to render, then open the target panel
+	 *
+	 * @param {string} panelTitle - The title of the panel to open.
+	 */
+	const openInspectorPanel = useCallback(
+		( panelTitle: string ) => {
+			// Step 1: Close the pre-publish sidebar
+			closePublishSidebar();
+
+			// Step 2: Select the form block
+			selectBlock( clientId );
+
+			// Step 3: Use the openGeneralSidebar API to request the block inspector sidebar,
+			// then use a retry loop for the DOM tab click and panel expansion.
+			const wpData = (
+				window as unknown as {
+					wp: {
+						data: {
+							dispatch: (
+								storeKey: string
+							) => Record< string, ( ...args: unknown[] ) => unknown >;
+						};
+					};
+				}
+			).wp?.data;
+
+			if ( wpData ) {
+				try {
+					wpData.dispatch( 'core/edit-post' ).openGeneralSidebar( 'edit-post/block' );
+				} catch ( e ) { // eslint-disable-line no-unused-vars
+					try {
+						wpData
+							.dispatch( 'core/interface' )
+							.enableComplementaryArea( 'core', 'edit-post/block' );
+					} catch ( e2 ) { // eslint-disable-line no-unused-vars
+						// Silently fail — the retry loop will handle sidebar activation via DOM.
+					}
+				}
+			}
+
+			const tryOpen = ( attempt: number ) => {
+				if ( attempt > 20 ) {
+					return;
+				}
+				setTimeout( () => {
+					// 3a: Find and click the top-level "Block" tab.
+					const sidebar =
+						document.querySelector( '.interface-complementary-area' ) ||
+						document.querySelector( '.edit-post-sidebar' );
+					if ( ! sidebar ) {
+						tryOpen( attempt + 1 );
+						return;
+					}
+
+					const topTabs = sidebar.querySelectorAll(
+						':scope > [role="tablist"] > [role="tab"], :scope [role="tablist"] [role="tab"]'
+					);
+					let blockTabActive = false;
+					for ( const tab of topTabs ) {
+						if ( tab.textContent?.trim() === 'Block' ) {
+							if ( ( tab as HTMLElement ).getAttribute( 'aria-selected' ) !== 'true' ) {
+								( tab as HTMLElement ).click();
+								tryOpen( attempt + 1 );
+								return;
+							}
+							blockTabActive = true;
+							break;
+						}
+					}
+
+					if ( ! blockTabActive ) {
+						tryOpen( attempt + 1 );
+						return;
+					}
+
+					// 3b: Inside the block inspector, click the "Settings" sub-tab
+					// (the gear icon — the second of the three icon tabs).
+					const inspector = sidebar.querySelector( '.block-editor-block-inspector' );
+					if ( ! inspector ) {
+						tryOpen( attempt + 1 );
+						return;
+					}
+
+					const subTabs = inspector.querySelectorAll( '[role="tab"]' );
+					let settingsTabActive = false;
+					for ( const tab of subTabs ) {
+						const tabLabel = (
+							tab.getAttribute( 'aria-label' ) ||
+							tab.textContent ||
+							''
+						).toLowerCase();
+						if ( tabLabel.includes( 'settings' ) || tabLabel.includes( 'setting' ) ) {
+							if ( ( tab as HTMLElement ).getAttribute( 'aria-selected' ) !== 'true' ) {
+								( tab as HTMLElement ).click();
+								tryOpen( attempt + 1 );
+								return;
+							}
+							settingsTabActive = true;
+							break;
+						}
+					}
+
+					// Fallback: try the second tab in the inspector sub-tab list.
+					if ( ! settingsTabActive && subTabs.length >= 2 ) {
+						const secondTab = subTabs[ 1 ] as HTMLElement;
+						if ( secondTab.getAttribute( 'aria-selected' ) !== 'true' ) {
+							secondTab.click();
+							tryOpen( attempt + 1 );
+							return;
+						}
+						settingsTabActive = true;
+					}
+
+					if ( ! settingsTabActive ) {
+						tryOpen( attempt + 1 );
+						return;
+					}
+
+					// 3c: Settings sub-tab is active — find and open the target panel
+					const panels = document.querySelectorAll( '.components-panel__body-toggle' );
+					let found = false;
+					for ( const toggle of panels ) {
+						if ( toggle.textContent?.includes( panelTitle ) ) {
+							if ( toggle.getAttribute( 'aria-expanded' ) === 'false' ) {
+								( toggle as HTMLElement ).click();
+							}
+							( toggle as HTMLElement ).scrollIntoView( {
+								behavior: 'smooth',
+								block: 'start',
+							} );
+							found = true;
+							break;
+						}
+					}
+
+					if ( ! found ) {
+						tryOpen( attempt + 1 );
+					}
+				}, 150 );
+			};
+			tryOpen( 0 );
+		},
+		[ closePublishSidebar, selectBlock, clientId ]
+	);
+
+	// Click handlers for settings rows
+	const handleConfirmationClick = useCallback(
+		() => openInspectorPanel( __( 'Action after submit', 'jetpack-forms' ) ),
+		[ openInspectorPanel ]
+	);
+	const handleEmailClick = useCallback(
+		() => openInspectorPanel( __( 'Form notifications', 'jetpack-forms' ) ),
+		[ openInspectorPanel ]
+	);
+	const handleIntegrationsClick = useCallback(
+		() => setIsIntegrationsModalOpen( true ),
+		[]
+	);
+	const handleResponsesClick = useCallback(
+		() => openInspectorPanel( __( 'Responses storage', 'jetpack-forms' ) ),
+		[ openInspectorPanel ]
+	);
+	const handleIntegrationsModalClose = useCallback(
+		() => setIsIntegrationsModalOpen( false ),
+		[]
 	);
 
 	// Only render for jetpack_form post type
@@ -164,7 +365,6 @@ const FormPrePublishPanel = () => {
 	integrationIcons.push( <AkismetIcon key="akismet" width={ 20 } height={ 20 } /> );
 
 	if ( attributes.jetpackCRM ) {
-		// Use the Jetpack green icon for CRM
 		integrationIcons.push(
 			<svg
 				key="jetpack-crm"
@@ -197,7 +397,6 @@ const FormPrePublishPanel = () => {
 		integrationIcons.push( <HostingerReachIcon key="hostinger" width={ 20 } height={ 20 } /> );
 	}
 
-	// Google Sheets integration
 	if ( attributes.googleSheets ) {
 		integrationIcons.push( <GoogleSheetsIcon key="google-sheets" width={ 20 } height={ 20 } /> );
 	}
@@ -210,9 +409,9 @@ const FormPrePublishPanel = () => {
 	const confirmationLabel =
 		confirmationType === 'redirect'
 			? __( 'Redirect', 'jetpack-forms' )
-			: __( 'Text', 'jetpack-forms' );
+			: _x( 'Text', 'confirmation type', 'jetpack-forms' );
 
-	// Format email recipients — show the address or count
+	// Format email recipients — show count
 	let emailsLabel: string;
 	if ( ! emailNotifications ) {
 		emailsLabel = __( 'Disabled', 'jetpack-forms' );
@@ -221,11 +420,11 @@ const FormPrePublishPanel = () => {
 			.split( ',' )
 			.map( e => e.trim() )
 			.filter( Boolean );
-		if ( recipients.length === 1 ) {
-			emailsLabel = __( '1 recipient', 'jetpack-forms' );
-		} else {
-			emailsLabel = recipients.length + ' ' + __( 'recipients', 'jetpack-forms' );
-		}
+		emailsLabel = sprintf(
+			/* translators: %d: number of email recipients */
+			_n( '%d recipient', '%d recipients', recipients.length, 'jetpack-forms' ),
+			recipients.length
+		);
 	} else {
 		emailsLabel = __( 'Enabled', 'jetpack-forms' );
 	}
@@ -234,190 +433,19 @@ const FormPrePublishPanel = () => {
 	let notificationsLabel: string;
 	if ( ! hasNotifications ) {
 		notificationsLabel = __( 'Disabled', 'jetpack-forms' );
-	} else if ( notificationRecipients.length === 1 ) {
-		notificationsLabel = __( '1 recipient', 'jetpack-forms' );
 	} else {
-		notificationsLabel = notificationRecipients.length + ' ' + __( 'recipients', 'jetpack-forms' );
+		notificationsLabel = sprintf(
+			/* translators: %d: number of push notification recipients */
+			_nx(
+				'%d recipient',
+				'%d recipients',
+				notificationRecipients.length,
+				'push notifications',
+				'jetpack-forms'
+			),
+			notificationRecipients.length
+		);
 	}
-
-	// Preview handler (reuses the same logic as preview-button.tsx)
-	const handlePreview = useCallback( async () => {
-		if ( isPreviewLoading ) {
-			return;
-		}
-
-		setIsPreviewLoading( true );
-		try {
-			if ( isDirty && isAutosaveable ) {
-				await autosave();
-			}
-
-			const response = await apiFetch< { preview_url: string } >( {
-				path: `/wp/v2/jetpack-forms/${ postId }/preview-url`,
-			} );
-			window.open( response.preview_url, '_blank' );
-		} catch {
-			createErrorNotice(
-				__( 'Failed to generate preview URL. Please try again.', 'jetpack-forms' ),
-				{ type: 'snackbar' }
-			);
-		} finally {
-			setIsPreviewLoading( false );
-		}
-	}, [ postId, isPreviewLoading, isDirty, isAutosaveable, autosave, createErrorNotice ] );
-
-	/**
-	 * Navigate to a specific settings panel in the block inspector.
-	 *
-	 * Flow:
-	 * 1. Close the publish sidebar
-	 * 2. Open the block inspector sidebar via wp.data store
-	 * 3. Select the form block
-	 * 4. Wait for the sidebar to render, then click the Block tab
-	 * 5. Wait for the inspector panels to render, then open the target panel
-	 */
-	const openInspectorPanel = useCallback(
-		( panelTitle: string ) => {
-			// Step 1: Close the pre-publish sidebar
-			closePublishSidebar();
-
-			// Step 2: Select the form block
-			selectBlock( clientId );
-
-			// Step 3: Use the older openGeneralSidebar API to explicitly request
-			// the block inspector sidebar, then use a retry loop for the DOM tab
-			// click and panel expansion.
-			const wpData = (
-				window as unknown as {
-					wp: {
-						data: {
-							dispatch: ( store: string ) => Record< string, ( ...args: unknown[] ) => unknown >;
-						};
-					};
-				}
-			 ).wp?.data;
-
-			// Use openGeneralSidebar from edit-post store — this is the most
-			// reliable way to switch to the block inspector tab.
-			if ( wpData ) {
-				try {
-					wpData.dispatch( 'core/edit-post' ).openGeneralSidebar( 'edit-post/block' );
-				} catch {
-					// Fallback: try the interface store
-					try {
-						wpData
-							.dispatch( 'core/interface' )
-							.enableComplementaryArea( 'core', 'edit-post/block' );
-					} catch {
-						// silent
-					}
-				}
-			}
-
-			const tryOpen = ( attempt: number ) => {
-				if ( attempt > 20 ) {
-					return;
-				}
-				setTimeout( () => {
-					// 3a: Find and click the top-level "Block" tab.
-					// The form editor sidebar has "Form" and "Block" top-level tabs.
-					const sidebar =
-						document.querySelector( '.interface-complementary-area' ) ||
-						document.querySelector( '.edit-post-sidebar' );
-					if ( ! sidebar ) {
-						tryOpen( attempt + 1 );
-						return;
-					}
-
-					const topTabs = sidebar.querySelectorAll(
-						':scope > [role="tablist"] > [role="tab"], :scope [role="tablist"] [role="tab"]'
-					);
-					let blockTabActive = false;
-					for ( const tab of topTabs ) {
-						if ( tab.textContent?.trim() === 'Block' ) {
-							if ( ( tab as HTMLElement ).getAttribute( 'aria-selected' ) !== 'true' ) {
-								( tab as HTMLElement ).click();
-								tryOpen( attempt + 1 );
-								return;
-							}
-							blockTabActive = true;
-							break;
-						}
-					}
-
-					if ( ! blockTabActive ) {
-						tryOpen( attempt + 1 );
-						return;
-					}
-
-					// 3b: Inside the block inspector, click the "Settings" sub-tab
-					// (the gear icon — the second of the three icon tabs:
-					// list view, settings, appearance/styles).
-					const inspector = sidebar.querySelector( '.block-editor-block-inspector' );
-					if ( ! inspector ) {
-						tryOpen( attempt + 1 );
-						return;
-					}
-
-					const subTabs = inspector.querySelectorAll( '[role="tab"]' );
-					let settingsTabActive = false;
-					for ( const tab of subTabs ) {
-						const label = (
-							tab.getAttribute( 'aria-label' ) ||
-							tab.textContent ||
-							''
-						).toLowerCase();
-						if ( label.includes( 'settings' ) || label.includes( 'setting' ) ) {
-							if ( ( tab as HTMLElement ).getAttribute( 'aria-selected' ) !== 'true' ) {
-								( tab as HTMLElement ).click();
-								tryOpen( attempt + 1 );
-								return;
-							}
-							settingsTabActive = true;
-							break;
-						}
-					}
-
-					// Fallback: if we can't find a tab by label, try the second tab
-					// in the inspector sub-tab list (settings is typically the second).
-					if ( ! settingsTabActive && subTabs.length >= 2 ) {
-						const secondTab = subTabs[ 1 ] as HTMLElement;
-						if ( secondTab.getAttribute( 'aria-selected' ) !== 'true' ) {
-							secondTab.click();
-							tryOpen( attempt + 1 );
-							return;
-						}
-						settingsTabActive = true;
-					}
-
-					if ( ! settingsTabActive ) {
-						tryOpen( attempt + 1 );
-						return;
-					}
-
-					// 3c: Settings sub-tab is active — find and open the target panel
-					const panels = document.querySelectorAll( '.components-panel__body-toggle' );
-					let found = false;
-					for ( const toggle of panels ) {
-						if ( toggle.textContent?.includes( panelTitle ) ) {
-							if ( toggle.getAttribute( 'aria-expanded' ) === 'false' ) {
-								( toggle as HTMLElement ).click();
-							}
-							( toggle as HTMLElement ).scrollIntoView( { behavior: 'smooth', block: 'start' } );
-							found = true;
-							break;
-						}
-					}
-
-					if ( ! found ) {
-						tryOpen( attempt + 1 );
-					}
-				}, 150 );
-			};
-			tryOpen( 0 );
-		},
-		[ closePublishSidebar, selectBlock, clientId ]
-	);
 
 	return (
 		<PluginPrePublishPanel className="jetpack-form-pre-publish-panel" initialOpen>
@@ -438,7 +466,7 @@ const FormPrePublishPanel = () => {
 			>
 				{ isPreviewLoading
 					? __( 'Saving & opening', 'jetpack-forms' )
-					: __( 'Preview the form', 'jetpack-forms' ) }
+					: _x( 'Preview the form', 'button label', 'jetpack-forms' ) }
 			</Button>
 
 			{ /* Settings summary rows */ }
@@ -446,36 +474,36 @@ const FormPrePublishPanel = () => {
 				<SettingRow
 					label={ __( 'Confirmation', 'jetpack-forms' ) }
 					value={ confirmationLabel }
-					onClick={ () => openInspectorPanel( __( 'Action after submit', 'jetpack-forms' ) ) }
+					onClick={ handleConfirmationClick }
 				/>
 				<SettingRow
 					label={ __( 'Email notifications', 'jetpack-forms' ) }
 					value={ emailsLabel }
-					onClick={ () => openInspectorPanel( __( 'Form notifications', 'jetpack-forms' ) ) }
+					onClick={ handleEmailClick }
 				/>
 				<SettingRow
 					label={ __( 'Push notifications', 'jetpack-forms' ) }
 					value={ notificationsLabel }
-					onClick={ () => openInspectorPanel( __( 'Form notifications', 'jetpack-forms' ) ) }
+					onClick={ handleEmailClick }
 				/>
 				<SettingRow
 					label={ __( 'Integrations', 'jetpack-forms' ) }
 					value={ integrationsValue }
-					onClick={ () => setIsIntegrationsModalOpen( true ) }
+					onClick={ handleIntegrationsClick }
 				/>
 				<SettingRow
 					label={ __( 'Save responses', 'jetpack-forms' ) }
-					value={ saveResponses ? __( 'Yes', 'jetpack-forms' ) : __( 'No', 'jetpack-forms' ) }
-					onClick={ () => openInspectorPanel( __( 'Responses storage', 'jetpack-forms' ) ) }
+					value={ saveResponses ? __( 'Yes', 'jetpack-forms' ) : _x( 'No', 'save responses', 'jetpack-forms' ) }
+					onClick={ handleResponsesClick }
 				/>
 			</div>
 
 			<IntegrationsModal
 				isOpen={ isIntegrationsModalOpen }
-				onClose={ () => setIsIntegrationsModalOpen( false ) }
+				onClose={ handleIntegrationsModalClose }
 				attributes={ attributes }
 				setAttributes={ setFormAttributes }
-				integrationsData={ integrationsData as Array< Record< string, unknown > > }
+				integrationsData={ integrationsData }
 				refreshIntegrations={ refreshIntegrations }
 				components={ modalComponents }
 			/>

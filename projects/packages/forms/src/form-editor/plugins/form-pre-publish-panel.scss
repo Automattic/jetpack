@@ -1,7 +1,7 @@
 // Hide the default WordPress "Visibility" and "Publish: Immediately" rows
 // in the pre-publish sidebar — not relevant for forms.
 // This CSS only loads in the form editor context.
-.editor-post-publish-panel__prepublish > .components-panel__body:not( .jetpack-form-pre-publish-panel ) {
+.editor-post-publish-panel__prepublish > .components-panel__body:not(.jetpack-form-pre-publish-panel) {
 	display: none !important;
 }
 
@@ -12,7 +12,7 @@
 	flex-direction: column;
 
 	// Site info section (typically the second child)
-	> div:not( .components-panel__body ) {
+	> div:not(.components-panel__body) {
 		order: -1;
 	}
 
