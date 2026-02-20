@@ -1,4 +1,4 @@
-const { filterItems } = require( '@babel/helper-compilation-targets' );
+const { filterItems, default: getTargets } = require( '@babel/helper-compilation-targets' );
 const browserslist = require( 'browserslist' );
 const TerserPlugin = require( 'terser-webpack-plugin' );
 
@@ -77,7 +77,7 @@ const babelPlugins = filterItems(
 	require( '@babel/compat-data/plugins' ),
 	new Set(),
 	new Set(),
-	browsers
+	getTargets( { browsers } )
 );
 if (
 	babelPlugins.has( 'transform-arrow-functions' ) ||

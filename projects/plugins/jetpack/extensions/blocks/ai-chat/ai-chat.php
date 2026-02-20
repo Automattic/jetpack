@@ -94,7 +94,7 @@ function add_ai_chat_block_data() {
 	);
 	wp_add_inline_script(
 		'jetpack-blocks-editor',
-		'var Jetpack_AIChatBlock = ' . wp_json_encode( $initial_state, JSON_HEX_TAG | JSON_HEX_AMP ) . ';',
+		'var Jetpack_AIChatBlock = ' . wp_json_encode( $initial_state, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ';',
 		'before'
 	);
 }

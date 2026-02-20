@@ -37,18 +37,21 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v6
 
+      - name: Setup K6
+        uses: grafana/setup-k6-action@v1
+
       - name: Run k6 frontend tests
-        uses: grafana/k6-action@v0.3.0
+        uses: grafana/run-k6-action@v1
         with:
-          filename: .github/files/jetpack-staging-sites/k6-frontend.js
+          path: .github/files/jetpack-staging-sites/k6-frontend.js
         env:
           JETPACKSTAGING_K6_USERNAME: ${{ secrets.JETPACKSTAGING_K6_USERNAME }}
           JETPACKSTAGING_K6_PASSWORD: ${{ secrets.JETPACKSTAGING_K6_PASSWORD }}
 
       - name: Run k6 backend tests
-        uses: grafana/k6-action@v0.3.0
+        uses: grafana/run-k6-action@v1
         with:
-          filename: .github/files/jetpack-staging-sites/k6-backend.js
+          path: .github/files/jetpack-staging-sites/k6-backend.js
         env:
           JETPACKSTAGING_K6_USERNAME: ${{ secrets.JETPACKSTAGING_K6_USERNAME }}
           JETPACKSTAGING_K6_PASSWORD: ${{ secrets.JETPACKSTAGING_K6_PASSWORD }}

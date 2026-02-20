@@ -157,7 +157,8 @@ export const Antispam = withModuleSettingsFormHelpers(
 						<SettingsGroup
 							support={ {
 								text: __( 'Removes spam from comments and contact forms.', 'jetpack' ),
-								link: 'https://akismet.com/jetpack/',
+								link: 'https://akismet.com/support/getting-started/activate/',
+								privacyLink: 'https://akismet.com/privacy/',
 							} }
 						>
 							<FormFieldset>

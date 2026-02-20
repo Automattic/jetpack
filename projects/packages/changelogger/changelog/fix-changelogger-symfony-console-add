@@ -1,5 +1,0 @@
-Significance: patch
-Type: fixed
-Comment: Actually update tests to use addCommand() instead of deprecated add() method
-
-

@@ -531,7 +531,7 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 			}
 
 			if ( 'json' === $assoc_args['format'] ) {
-				$output = wp_json_encode( $output, JSON_PRETTY_PRINT );
+				$output = wp_json_encode( $output, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT );
 			}
 
 			WP_CLI::log( print_r( $output, true ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_print_r
@@ -569,7 +569,7 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 		public function headstart_terms( $args, $assoc_args ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter, VariableAnalysis.CodeAnalysis.VariableAnalysis
 			$results            = wpcomsh_apply_headstart_terms();
 			$missing_taxonomies = $results['missing_taxonomies'];
-			$output             = wp_json_encode( array( 'missing_taxonomies' => $missing_taxonomies ), JSON_PRETTY_PRINT );
+			$output             = wp_json_encode( array( 'missing_taxonomies' => $missing_taxonomies ), JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT );
 			WP_CLI::log( $output );
 		}
 
@@ -687,7 +687,7 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 			if ( $action === 'list' ) {
 				$global_styles = $response->get_data();
 				$global_styles = ! empty( $field_path ) ? _wp_array_get( $global_styles, $field_path ) : $global_styles;
-				WP_CLI::log( wp_json_encode( $global_styles, JSON_PRETTY_PRINT ) );
+				WP_CLI::log( wp_json_encode( $global_styles, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT ) );
 				return;
 			}
 
@@ -710,7 +710,7 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 				_wp_array_set( $global_styles, $field_path, $value );
 
 				if ( $dry_run ) {
-					WP_CLI::log( wp_json_encode( $global_styles, JSON_PRETTY_PRINT ) );
+					WP_CLI::log( wp_json_encode( $global_styles, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT ) );
 				} else {
 					$request = new \WP_REST_Request( 'POST', "/wp/v2/global-styles/$active_global_styles_id" );
 					$request->set_query_params( $global_styles );
@@ -719,7 +719,7 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 						WP_CLI::error( $response->as_error() );
 					}
 
-					WP_CLI::log( wp_json_encode( $response->get_data(), JSON_PRETTY_PRINT ) );
+					WP_CLI::log( wp_json_encode( $response->get_data(), JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT ) );
 				}
 
 				WP_CLI::success( "Update the data field `$field` successfully" );
@@ -744,7 +744,7 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 				unset( $current[ $field_path[ $i ] ] );
 
 				if ( $dry_run ) {
-					WP_CLI::log( wp_json_encode( $global_styles, JSON_PRETTY_PRINT ) );
+					WP_CLI::log( wp_json_encode( $global_styles, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT ) );
 				} else {
 					$request = new \WP_REST_Request( 'POST', "/wp/v2/global-styles/$active_global_styles_id" );
 					$request->set_query_params( $global_styles );
@@ -753,7 +753,7 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 						WP_CLI::error( $response->as_error() );
 					}
 
-					WP_CLI::log( wp_json_encode( $response->get_data(), JSON_PRETTY_PRINT ) );
+					WP_CLI::log( wp_json_encode( $response->get_data(), JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT ) );
 				}
 
 				WP_CLI::success( "Removing the data field `$field` successfully" );

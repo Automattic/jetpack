@@ -68,6 +68,7 @@ function render() {
 							path="/newsletter"
 							element={ <Main routeName={ getRouteName( '/newsletter' ) } /> }
 						/>
+						<Route path="/reader" element={ <Main routeName={ getRouteName( '/reader' ) } /> } />
 						<Route
 							path="/security"
 							element={ <Main routeName={ getRouteName( '/security' ) } /> }
@@ -123,6 +124,8 @@ export function getRouteName( path ) {
 			return _x( 'Monetize', 'Navigation item.', 'jetpack' );
 		case '/newsletter':
 			return _x( 'Newsletter', 'Navigation item.', 'jetpack' );
+		case '/reader':
+			return _x( 'Reader', 'Navigation item.', 'jetpack' );
 		case '/security':
 			return _x( 'Security', 'Navigation item.', 'jetpack' );
 		case '/performance':

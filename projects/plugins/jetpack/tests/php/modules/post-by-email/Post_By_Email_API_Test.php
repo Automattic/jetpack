@@ -302,7 +302,7 @@ class Post_By_Email_API_Test extends Jetpack_REST_TestCase {
 	 * @return WP_REST_Response
 	 */
 	private function rest_dispatch( $action ) {
-		$body = wp_json_encode( array( 'post_by_email_address' => $action ) );
+		$body = wp_json_encode( array( 'post_by_email_address' => $action ), JSON_UNESCAPED_SLASHES );
 		$this->request->set_body( $body );
 		$_GET['body-hash'] = Jetpack::connection()->sha1_base64( $body );
 

@@ -3,7 +3,7 @@ import '@automattic/ui/style.css';
 import { BaseControl, ExternalLink, TextControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import SalesforceIcon from '../../../../../icons/salesforce.tsx';
-import HelpMessage from '../../help-message/index.js';
+import HelpMessage from '../../help-message/index.jsx';
 import CreateSalesforceLeadFormButton from '../components/create-salesforce-lead-form-button.tsx';
 import type { CardItem, CardBuilderProps } from './types.ts';
 

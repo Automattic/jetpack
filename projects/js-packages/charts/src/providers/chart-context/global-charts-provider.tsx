@@ -1,3 +1,4 @@
+import { hsl as d3Hsl } from '@visx/vendor/d3-color';
 import {
 	createContext,
 	useCallback,
@@ -7,12 +8,13 @@ import {
 	useLayoutEffect,
 	useRef,
 } from 'react';
+import { useTooltipPortalRelocator } from '../../hooks/use-tooltip-portal-relocator';
 import {
 	getItemShapeStyles,
 	getSeriesLineStyles,
 	mergeThemes,
-	hexToHsl,
 	resolveCssVariable,
+	normalizeColorToHex,
 } from '../../utils';
 import { getChartColor, type ColorCache } from './private/get-chart-color';
 import { defaultTheme } from './themes';
@@ -25,9 +27,22 @@ export const GlobalChartsContext = createContext< GlobalChartsContextValue | nul
 export interface GlobalChartsProviderProps {
 	children: ReactNode;
 	theme?: Partial< ChartTheme >;
+	/**
+	 * Optional ref to an element that chart tooltip portals should be relocated into.
+	 * When provided, visx tooltip portals (normally appended to document.body) will be
+	 * moved into this container so they participate in the same effective CSS stacking context.
+	 * The element referenced here, or one of its ancestors, should establish the desired
+	 * stacking context (for example by using `position` and `z-index`) so that tooltips
+	 * appear above the relevant chart content.
+	 */
+	portalContainer?: React.RefObject< HTMLElement | null >;
 }
 
-export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { children, theme } ) => {
+export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( {
+	children,
+	theme,
+	portalContainer,
+} ) => {
 	const [ charts, setCharts ] = useState< Map< string, ChartRegistration > >( () => new Map() );
 	// Track hidden series per chart: chartId -> Set<seriesLabel>
 	const [ hiddenSeries, setHiddenSeries ] = useState< Map< string, Set< string > > >(
@@ -36,6 +51,9 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { childre
 
 	// Ref to the wrapper element for resolving scoped CSS variables
 	const wrapperRef = useRef< HTMLDivElement >( null );
+
+	// Relocate tooltip portals into the wrapper (or a consumer-provided container) for z-index control.
+	useTooltipPortalRelocator( portalContainer ?? wrapperRef );
 
 	const providerTheme: CompleteChartTheme = useMemo( () => {
 		return theme ? mergeThemes( defaultTheme, theme ) : defaultTheme;
@@ -70,9 +88,10 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { childre
 				if ( color && typeof color === 'string' ) {
 					let colorValue = color;
 
-					// Handle CSS custom properties names - resolve them to actual values
+					// Handle CSS custom properties - resolve them to actual values
+					// Supports both '--var-name' and 'var(--var-name)' formats
 					// Use wrapper element to resolve scoped CSS variables
-					if ( color.startsWith( '--' ) ) {
+					if ( color.startsWith( '--' ) || color.startsWith( 'var(' ) ) {
 						const resolved = resolveCssVariable( color, wrapperRef.current );
 
 						if ( resolved === null || resolved === '' ) {
@@ -85,15 +104,18 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { childre
 					// Process hex colors
 					if ( colorValue.startsWith( '#' ) ) {
 						resolvedColors.push( colorValue );
-						try {
-							const hslColor = hexToHsl( colorValue );
-							hues.push( hslColor[ 0 ] );
-							existingHslColors.push( hslColor );
-							minHue = Math.min( minHue, hslColor[ 0 ] );
-							maxHue = Math.max( maxHue, hslColor[ 0 ] );
-						} catch {
-							// Ignore invalid hex colors that don't parse to HSL
-							continue;
+						const hslColor = d3Hsl( colorValue );
+						// d3Hsl returns NaN values for invalid colors
+						if ( ! isNaN( hslColor.h ) ) {
+							const hslTuple: [ number, number, number ] = [
+								hslColor.h,
+								hslColor.s * 100,
+								hslColor.l * 100,
+							];
+							hues.push( hslTuple[ 0 ] );
+							existingHslColors.push( hslTuple );
+							minHue = Math.min( minHue, hslTuple[ 0 ] );
+							maxHue = Math.max( maxHue, hslTuple[ 0 ] );
 						}
 					}
 				}
@@ -150,7 +172,7 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { childre
 		} ): string => {
 			// Highest precedence: eg. explicit series stroke or chart color prop
 			if ( overrideColor ) {
-				return overrideColor;
+				return normalizeColorToHex( overrideColor, wrapperRef.current, resolveCssVariable );
 			}
 
 			// If group provided, maintain a stable assignment
@@ -161,15 +183,16 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { childre
 					return existing;
 				}
 
+				// Use map size as index to assign colors sequentially (0, 1, 2...)
+				// ensuring each new group gets the next available palette color
 				const assignedCount = groupToColorMap.size;
-				const color =
-					colorCache.colors.length > 0 ? getChartColor( assignedCount, colorCache ) : '#000000';
+				const color = getChartColor( assignedCount, colorCache );
 				groupToColorMap.set( group, color );
 
 				return color;
 			}
 
-			return colorCache.colors.length > 0 ? getChartColor( index, colorCache ) : '#000000';
+			return getChartColor( index, colorCache );
 		},
 		[ colorCache, groupToColorMap ]
 	);

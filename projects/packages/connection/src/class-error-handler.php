@@ -125,6 +125,8 @@ class Error_Handler {
 		'invalid_nonce',
 		'signature_mismatch',
 		'invalid_connection_owner',
+		// @deprecated 7.0.0 External storage error reporting moved to provider classes.
+		// These error codes will be removed in a future release.
 		'external_storage_empty',
 		'external_storage_error',
 	);

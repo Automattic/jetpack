@@ -68,7 +68,7 @@
 		vertical-align: baseline;
 		color: var(--studio-gray-100);
 		line-height: 1.6;
-		word-break: break-word;
+		overflow-wrap: break-word;
 
 		&:focus,
 		&:active {

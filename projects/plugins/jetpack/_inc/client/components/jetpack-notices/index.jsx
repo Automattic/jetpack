@@ -71,7 +71,7 @@ export class OfflineModeNotice extends Component {
 				reasons = [];
 
 			if ( offlineMode.filter ) {
-				reasons.push( __( 'The jetpack_development_mode filter is active', 'jetpack' ) );
+				reasons.push( __( 'The jetpack_offline_mode filter is active', 'jetpack' ) );
 			}
 			if ( offlineMode.constant ) {
 				reasons.push(

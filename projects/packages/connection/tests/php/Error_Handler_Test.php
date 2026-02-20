@@ -608,13 +608,15 @@ class Error_Handler_Test extends BaseTestCase {
 	 */
 	public function test_send_error_to_wpcom_encryption_failure() {
 		// Mock encryption to fail
-		$error_handler_mock = $this->getMockBuilder( Error_Handler::class )
-			->disableOriginalConstructor()
-			->onlyMethods( array( 'encrypt_data_to_wpcom' ) )
-			->getMock();
-
-		$error_handler_mock->method( 'encrypt_data_to_wpcom' )
-			->willReturn( false );
+		// Anonymous class to disable constructor and replace one method.
+		// PHPUnit 12.5 whines about mocks without expectations, while getStubBuilder() doesn't exist until 12.5.
+		$error_handler_mock = new class() extends Error_Handler {
+			public function __construct() {
+			}
+			public function encrypt_data_to_wpcom( $data ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+				return false;
+			}
+		};
 
 		$error_array = array(
 			'error_code' => 'test_error',

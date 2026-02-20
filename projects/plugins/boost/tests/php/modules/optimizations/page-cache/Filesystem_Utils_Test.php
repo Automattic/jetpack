@@ -63,7 +63,6 @@ class Filesystem_Utils_Test extends TestCase {
 
 		$filename = Filesystem_Utils::get_request_filename( $parameters );
 		$this->assertIsString( $filename );
-		$this->assertEquals( 32, strlen( md5( json_encode( $parameters ) ) ) );
 		$this->assertStringEndsWith( '.html', $filename );
 	}
 

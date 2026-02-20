@@ -1,5 +1,5 @@
-<?php 
-/*!
+<?php
+/*
 * Jetpack CRM
 * https://jetpackcrm.com
 *
@@ -12,9 +12,8 @@ namespace Automattic\JetpackCRM;
 defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 
 /**
- * 
+ *
  * GiveWP Connector for Jetpack CRM
- * 
  */
 class JPCRM_GiveWP {
 
@@ -28,7 +27,6 @@ class JPCRM_GiveWP {
 	 * Checks dependencies for GiveWP integration
 	 *
 	 * @return bool
-	 *
 	 */
 	public function check_dependencies() {
 
@@ -62,7 +60,6 @@ class JPCRM_GiveWP {
 	/**
 	 *
 	 * Adds GiveWP hooks
-	 *
 	 */
 	public function init_hooks() {
 		// fires at end of GiveWP's give_insert_payment() function
@@ -80,7 +77,6 @@ class JPCRM_GiveWP {
 	 *
 	 * @param int   $givewp_donation_id donation ID
 	 * @param array $payment_data       donor/donation info
-	 *
 	 */
 	public function add_donation( $givewp_donation_id, $payment_data ) {
 
@@ -93,7 +89,7 @@ class JPCRM_GiveWP {
 		$transaction_id = $this->get_transaction_id_from_give_id( $givewp_donation_id );
 
 		// if donor now exists and the transaction ID does not exist, create!
-		if ( $contact_id && !$transaction_id ) {
+		if ( $contact_id && ! $transaction_id ) {
 
 			// build transaction
 
@@ -129,10 +125,12 @@ class JPCRM_GiveWP {
 			);
 
 			// add transaction
-			$transaction_id = $zbs->DAL->transactions->addUpdateTransaction( array(
-				'data'      => $new_transaction_data,
-				'extraMeta' => array( 'givewp_transaction_id' => $givewp_donation_id ),
-			));
+			$transaction_id = $zbs->DAL->transactions->addUpdateTransaction(
+				array(
+					'data'      => $new_transaction_data,
+					'extraMeta' => array( 'givewp_transaction_id' => $givewp_donation_id ),
+				)
+			);
 		}
 	}
 
@@ -149,7 +147,7 @@ class JPCRM_GiveWP {
 		global $zbs;
 
 		// inspired by Jetpack Forms implementation
-		$restricted_keys = array(
+		$restricted_keys    = array(
 			'externalSources',
 			'companies',
 			'lastcontacted',
@@ -182,13 +180,13 @@ class JPCRM_GiveWP {
 					$new_contact_data['email'] = $v;
 					break;
 				case 'address':
-					if ( !empty( $v ) ) {
-						$new_contact_data['addr1'] = $v['line1'];
-						$new_contact_data['addr2'] = $v['line2'];
-						$new_contact_data['city'] = $v['city'];
-						$new_contact_data['county'] = $v['state'];
+					if ( ! empty( $v ) ) {
+						$new_contact_data['addr1']    = $v['line1'];
+						$new_contact_data['addr2']    = $v['line2'];
+						$new_contact_data['city']     = $v['city'];
+						$new_contact_data['county']   = $v['state'];
 						$new_contact_data['postcode'] = $v['zip'];
-						$new_contact_data['country'] = $v['country'];
+						$new_contact_data['country']  = $v['country'];
 					}
 					break;
 				default:
@@ -198,7 +196,7 @@ class JPCRM_GiveWP {
 						$data_key = substr( $k, strlen( $jpcrm_field_prefix ) );
 						if ( ! in_array( $data_key, $restricted_keys, true ) ) {
 							if ( $data_key === 'tags' ) {
-								$new_contact_data['tags'] = explode( ',', $v );
+								$new_contact_data['tags']   = explode( ',', $v );
 								$new_contact_data['tags'][] = 'GiveWP';
 							} else {
 								$new_contact_data[ $data_key ] = $v;
@@ -223,7 +221,7 @@ class JPCRM_GiveWP {
 		);
 
 		// log if contact is created by GiveWP
-		$longdesc = sprintf( __( 'User was created from GiveWP when submitting donation %s through the %s form.', 'zero-bs-crm' ), $givewp_donation_id, '<b>' . $payment_data['give_form_title'] . '</b>' );
+		$longdesc     = sprintf( __( 'User was created from GiveWP when submitting donation %1$s through the %2$s form.', 'zero-bs-crm' ), $givewp_donation_id, '<b>' . $payment_data['give_form_title'] . '</b>' );
 		$created_meta = array(
 			'note_override' =>
 				array(
@@ -234,7 +232,7 @@ class JPCRM_GiveWP {
 		);
 
 		// log if GiveWP transaction was added to this contact
-		$longdesc = sprintf( __( 'A GiveWP donation was submitted by this user via the %s form.', 'zero-bs-crm' ), '<b>' . $payment_data['give_form_title'] . '</b>' );
+		$longdesc    = sprintf( __( 'A GiveWP donation was submitted by this user via the %s form.', 'zero-bs-crm' ), '<b>' . $payment_data['give_form_title'] . '</b>' );
 		$exists_meta = array(
 			'type'      => __( 'Form filled', 'zero-bs-crm' ),
 			'shortdesc' => __( 'Donation via GiveWP', 'zero-bs-crm' ),
@@ -259,7 +257,7 @@ class JPCRM_GiveWP {
 	 *
 	 * This is hooked into the 'give_update_payment_status' action, which
 	 * is run at the end of GiveWP's Give_Payment::update_status() function
-	 * 
+	 *
 	 * Note that this also runs when a new donation is created
 	 *
 	 * @param int    $givewp_donation_id donation ID
@@ -267,7 +265,6 @@ class JPCRM_GiveWP {
 	 * @param string $old_status         old donation status
 	 *
 	 * @return bool
-	 *
 	 */
 	public function update_donation_status( $givewp_donation_id, $new_status, $old_status ) {
 
@@ -282,7 +279,7 @@ class JPCRM_GiveWP {
 		}
 
 		// check if transaction exists
-		$transaction_id = (int)$this->get_transaction_id_from_give_id( $givewp_donation_id );
+		$transaction_id = (int) $this->get_transaction_id_from_give_id( $givewp_donation_id );
 
 		// update status if transaction exists
 		if ( $transaction_id > 0 ) {
@@ -300,10 +297,12 @@ class JPCRM_GiveWP {
 	 */
 	public function get_transaction_id_from_give_id( $givewp_donation_id ) {
 		global $zbs;
-		return $zbs->DAL->getIDWithMeta( array(
-			'objtype' => ZBS_TYPE_TRANSACTION,
-			'key'     => 'extra_givewp_transaction_id',
-			'val'     => $givewp_donation_id,
-		));
+		return $zbs->DAL->getIDWithMeta(
+			array(
+				'objtype' => ZBS_TYPE_TRANSACTION,
+				'key'     => 'extra_givewp_transaction_id',
+				'val'     => $givewp_donation_id,
+			)
+		);
 	}
 }

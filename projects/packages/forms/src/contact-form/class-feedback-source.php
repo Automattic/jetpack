@@ -81,7 +81,7 @@ class Feedback_Source {
 			$this->page_number = 1;
 		}
 
-		$this->title       = $title;
+		$this->title       = html_entity_decode( $title, ENT_QUOTES | ENT_HTML5, 'UTF-8' );
 		$this->permalink   = empty( $request_url ) ? home_url() : $request_url;
 		$this->source_type = $source_type; // possible source types: single, widget, block_template, block_template_part
 		$this->request_url = $request_url;
@@ -90,7 +90,7 @@ class Feedback_Source {
 			$entry_post = get_post( (int) $id );
 			if ( $entry_post && $entry_post->post_status === 'publish' ) {
 				$this->permalink = get_permalink( $entry_post );
-				$this->title     = get_the_title( $entry_post );
+				$this->title     = html_entity_decode( get_the_title( $entry_post ), ENT_QUOTES | ENT_HTML5, 'UTF-8' );
 			} elseif ( $entry_post ) {
 				$this->permalink = '';
 
@@ -121,7 +121,7 @@ class Feedback_Source {
 			return new self( 0, '', $current_page_number );
 		}
 
-		$title = $current_post->post_title ?? __( '(no title)', 'jetpack-forms' );
+		$title = isset( $current_post->post_title ) ? html_entity_decode( $current_post->post_title, ENT_QUOTES | ENT_HTML5, 'UTF-8' ) : __( '(no title)', 'jetpack-forms' );
 
 		return new self( $id, $title, $current_page_number );
 	}

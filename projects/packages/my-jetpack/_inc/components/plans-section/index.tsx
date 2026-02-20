@@ -3,7 +3,7 @@ import { getUserConnectionUrl } from '@automattic/jetpack-connection';
 import { getMyJetpackUrl } from '@automattic/jetpack-script-data';
 import { ExternalLink } from '@wordpress/components';
 import { dateI18n, getDate } from '@wordpress/date';
-import { __, _n, sprintf } from '@wordpress/i18n';
+import { __, _n, _x, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useCallback } from 'react';
 import { PRODUCT_STATUSES } from '../../constants';
@@ -196,6 +196,10 @@ const PlanSectionFooter: FC< PlanSectionHeaderAndFooterProps > = ( { numberOfPur
 		recordEvent( 'jetpack_myjetpack_plans_manage_click' );
 	}, [ recordEvent ] );
 
+	const viewIncludedFeaturesClickHandler = useCallback( () => {
+		recordEvent( 'jetpack_myjetpack_plans_view_included_features_click' );
+	}, [ recordEvent ] );
+
 	const planPurchaseClickHandler = useCallback( () => {
 		recordEvent( 'jetpack_myjetpack_plans_purchase_click' );
 	}, [ recordEvent ] );
@@ -204,10 +208,23 @@ const PlanSectionFooter: FC< PlanSectionHeaderAndFooterProps > = ( { numberOfPur
 		recordEvent( 'jetpack_myjetpack_activate_license_click' );
 	}, [ recordEvent ] );
 
-	let activateLicenceDescription: string = __( 'Activate a license', 'jetpack-my-jetpack' );
+	let activateLicenceDescription: string;
 	if ( ! isUserConnected ) {
-		activateLicenceDescription = __(
+		activateLicenceDescription = _x(
 			'Activate a license (requires a user connection)',
+			'Activate a license button text',
+			'jetpack-my-jetpack'
+		);
+	} else if ( numberOfPurchases > 0 ) {
+		activateLicenceDescription = _x(
+			'Activate a new license',
+			'Activate a new license button text',
+			'jetpack-my-jetpack'
+		);
+	} else {
+		activateLicenceDescription = _x(
+			'Activate a license',
+			'Activate a license button text',
 			'jetpack-my-jetpack'
 		);
 	}
@@ -215,12 +232,24 @@ const PlanSectionFooter: FC< PlanSectionHeaderAndFooterProps > = ( { numberOfPur
 	const { loadAddLicenseScreen = '' } = getMyJetpackWindowInitialState();
 
 	return (
-		<ul>
+		<ul className={ styles[ 'actions-list' ] }>
 			{ numberOfPurchases > 0 && (
 				<li className={ styles[ 'actions-list-item' ] }>
 					<ExternalLink onClick={ planManageClickHandler } href={ getManageYourPlanUrl() }>
 						{ planManageDescription }
 					</ExternalLink>
+				</li>
+			) }
+			{ numberOfPurchases > 0 && (
+				<li className={ styles[ 'actions-list-item' ] }>
+					<Button
+						onClick={ viewIncludedFeaturesClickHandler }
+						href={ getMyJetpackUrl( '#/products?filter=included' ) }
+						variant="link"
+						weight="regular"
+					>
+						{ __( 'View included features', 'jetpack-my-jetpack' ) }
+					</Button>
 				</li>
 			) }
 			{ ! hasComplete && (

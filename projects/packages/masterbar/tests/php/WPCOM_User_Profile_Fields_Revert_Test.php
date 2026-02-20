@@ -75,7 +75,7 @@ class WPCOM_User_Profile_Fields_Revert_Test extends TestCase {
 	 * Check if the revert ignores not connected users.
 	 */
 	public function test_if_it_skips_not_connected_users() {
-		$connection_manager = $this->createMock( Connection_Manager::class );
+		$connection_manager = $this->createStub( Connection_Manager::class );
 		$connection_manager->method( 'is_user_connected' )->willReturn( false );
 		$service = new WPCOM_User_Profile_Fields_Revert( $connection_manager );
 
@@ -89,7 +89,7 @@ class WPCOM_User_Profile_Fields_Revert_Test extends TestCase {
 	 * Check if the implementation prevents updating the display_name.
 	 */
 	public function test_revert_display_name() {
-		$connection_manager = $this->createMock( Connection_Manager::class );
+		$connection_manager = $this->createStub( Connection_Manager::class );
 		$connection_manager->method( 'is_user_connected' )->willReturn( true );
 		$service = new WPCOM_User_Profile_Fields_Revert( $connection_manager );
 
@@ -103,7 +103,7 @@ class WPCOM_User_Profile_Fields_Revert_Test extends TestCase {
 	 * Check if the revert works for first_name, last_name and description fields.
 	 */
 	public function test_revert_user_fields() {
-		$connection_manager = $this->createMock( Connection_Manager::class );
+		$connection_manager = $this->createStub( Connection_Manager::class );
 		$connection_manager->method( 'is_user_connected' )->willReturn( true );
 		$service = new WPCOM_User_Profile_Fields_Revert( $connection_manager );
 

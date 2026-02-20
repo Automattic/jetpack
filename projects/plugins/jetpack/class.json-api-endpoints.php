@@ -2548,8 +2548,8 @@ abstract class WPCOM_JSON_API_Endpoint {
 			return $mimes;
 		}
 
-		// bail early if they already have the upgrade..
-		if ( wpcom_site_has_videopress() ) {
+		// bail early if they already have video upload capability.
+		if ( wpcom_site_can_upload_videos() ) {
 			return $mimes;
 		}
 
@@ -2804,7 +2804,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 			$response = WPCOM_JSON_API::wrap_http_envelope( $status_code, $response, 'application/json' );
 		}
 
-		$response = wp_json_encode( $response );
+		$response = wp_json_encode( $response, JSON_UNESCAPED_SLASHES );
 
 		$nonce = wp_generate_password( 10, false );
 		$hmac  = hash_hmac( 'sha1', $nonce . $response, $token->secret );

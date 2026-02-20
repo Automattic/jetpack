@@ -1,4 +1,5 @@
 import type { FormResponse } from '../../../types/index.ts';
+import type { IconType } from '@wordpress/components';
 import type { StoreDescriptor } from '@wordpress/data';
 
 /**
@@ -45,7 +46,7 @@ export type DispatchActions = {
 		kind: string,
 		name: string,
 		recordId: number,
-		query: Record< string, unknown >,
+		query?: Record< string, unknown >,
 		options?: { throwOnError?: boolean }
 	) => Promise< void >;
 	editEntityRecord: (
@@ -68,9 +69,9 @@ export type DispatchActions = {
 		status: string,
 		newStatus: string,
 		count: number,
-		queryParams: QueryParams
+		queryParams?: QueryParams
 	) => void;
-	doBulkAction: ( ids: string[], action: string ) => void;
+	doBulkAction: ( ids: string[], action: string ) => Promise< void >;
 	invalidateFilters: () => void;
 	invalidateCounts: () => void;
 	markRecordsAsInvalid: ( ids: number[] ) => void;
@@ -88,6 +89,7 @@ export type SelectActions = {
 	getTrashCount: ( queryParams: QueryParams ) => number;
 	getSpamCount: ( queryParams: QueryParams ) => number;
 	getInboxCount: ( queryParams: QueryParams ) => number;
+	getCounts: () => { inbox: number; spam: number; trash: number };
 
 	// Core store select actions
 	getEntityRecord: (
@@ -95,6 +97,7 @@ export type SelectActions = {
 		name: string,
 		recordId: number
 	) => Record< string, unknown > | undefined;
+	isResolving: ( selector: string, args: unknown[] ) => boolean;
 };
 
 export type ResolveSelectActions = {
@@ -117,7 +120,7 @@ export type Registry = {
 export type Action = {
 	id: string;
 	isPrimary: boolean;
-	icon: React.ReactNode;
+	icon: IconType;
 	label: string;
 	modalHeader?: string;
 	isEligible?: ( item: FormResponse ) => boolean;

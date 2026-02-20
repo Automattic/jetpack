@@ -7,7 +7,7 @@ on:
 
 concurrency:
   # Trunk runs need to not be cancelled for concurrency, mainly for code coverage. Everything else can be.
-  group: tests-${{ github.event_name }}-${{ github.ref }}-${{ github.event_name == 'push' && github.ref == 'refs/heads/trunk' && github.run_id || '' }}
+  group: tests-${{ github.event_name }}-${{ github.ref }}-${{ case( github.event_name == 'push' && github.ref == 'refs/heads/trunk', github.run_id, '' ) }}
   cancel-in-progress: true
 
 permissions:
@@ -61,8 +61,8 @@ jobs:
 
     # Note matrix-job outputs are kind of weird. Last-to-run job that sets a non-empty value wins.
     outputs:
-      did-coverage: ${{ ( steps.run-tests.conclusion != 'cancelled' && steps.process-coverage.conclusion == 'success' && steps.upload-artifacts.conclusion == 'success' ) && 'true' || '' }}
-      coverage-status: ${{ matrix.script == 'test-coverage' && steps.run-tests.conclusion || '' }}
+      did-coverage: ${{ case( steps.run-tests.conclusion != 'cancelled' && steps.process-coverage.conclusion == 'success' && steps.upload-artifacts.conclusion == 'success', 'true', '' ) }}
+      coverage-status: ${{ case( matrix.script == 'test-coverage', steps.run-tests.conclusion, '' ) }}
 
     steps:
       - uses: actions/checkout@v6
@@ -82,7 +82,7 @@ jobs:
         uses: ./.github/actions/tool-setup
         with:
           php: ${{ matrix.php }}
-          coverage: ${{ matrix.script == 'test-coverage' && 'pcov' || 'none' }}
+          coverage: ${{ case( matrix.script == 'test-coverage', 'pcov', 'none' ) }}
           node: ${{ matrix.node }}
 
       - name: Monorepo install
@@ -100,6 +100,12 @@ jobs:
           if [[ "$WITH_WOOCOMMERCE" == true ]]; then
             echo "Testing with WooCommerce, filtering for projects that have WooCommerce-specific tests."
             CHANGED=$( jq -c 'with_entries( select( .key == "plugins/jetpack" ) )' <<<"$CHANGED" )
+          fi
+
+          # Ensure certain plugins are tested if WITH_WPCOMSH and wpcomsh is changed.
+          if [[ "$WITH_WPCOMSH" == true ]] && jq -e '.["plugins/wpcomsh"] // false' <<<"$CHANGED" > /dev/null; then
+            echo "Testing with wpcomsh, making sure projects that have wpcomsh-specific tests are also tested."
+            CHANGED=$( jq -c '. += { "plugins/jetpack": true }' <<<"$CHANGED" )
           fi
 
           ANY_PLUGINS="$(jq --argjson changed "$CHANGED" -n '$changed | with_entries( select( .key | startswith( "plugins/" ) ) ) | any')"
@@ -163,7 +169,7 @@ jobs:
       - name: Run project tests
         id: run-tests
         env:
-          FORCE_PACKAGE_TESTS: ${{ matrix.force-package-tests && 'true' || 'false' }}
+          FORCE_PACKAGE_TESTS: ${{ case( matrix.force-package-tests, 'true', 'false' ) }}
           CHANGED: ${{ steps.changed.outputs.projects }}
         run: |
           EXIT=0
@@ -309,7 +315,7 @@ jobs:
       - name: Upload artifacts
         id: upload-artifacts
         if: always() && steps.check-artifacts.outputs.any == 'true'
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: ${{ matrix.artifact }}
           path: artifacts
@@ -337,14 +343,14 @@ jobs:
         uses: ./.github/actions/tool-setup
 
       - name: Download coverage artifact
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           name: 'Code coverage'
           path: coverage
 
       - name: Upload coverage results
         env:
-          PR_ID: ${{ github.event_name != 'pull_request' && 'trunk' || github.event.pull_request.number }}
+          PR_ID: ${{ case( github.event_name != 'pull_request', 'trunk', github.event.pull_request.number ) }}
           SECRET: ${{ secrets.CODECOV_SECRET }}
           STATUS: ${{ needs.run-tests.outputs.coverage-status }}
           PR_HEAD: ${{ github.event.pull_request.head.sha }}

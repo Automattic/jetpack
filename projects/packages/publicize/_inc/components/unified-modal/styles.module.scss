@@ -1,0 +1,22 @@
+@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+
+.unified-modal {
+
+	&:global(.components-modal__frame.is-full-screen) {
+
+		@include gb.break-medium() {
+			max-width: gb.$break-wide;
+			max-height: 64rem;
+		}
+
+		// Override default bottom margin for full screen modals
+		:global(:where(.components-modal__content)) {
+			margin-bottom: 0;
+		}
+	}
+
+	// Override global .components-button svg fill causing blue close icon
+	:global(.jp-navigator-modal__header .components-button svg) {
+		fill: inherit;
+	}
+}

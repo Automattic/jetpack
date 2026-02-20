@@ -778,9 +778,9 @@ function wpsc_dump_get_request() {
 	}
 
 	if ( function_exists( 'wp_json_encode' ) ) {
-		$string = wp_json_encode( $_GET );
+		$string = wp_json_encode( $_GET, JSON_UNESCAPED_SLASHES ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 	} else {
-		$string = json_encode( $_GET );
+		$string = json_encode( $_GET, JSON_UNESCAPED_SLASHES ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended,WordPress.WP.AlternativeFunctions.json_encode_json_encode
 	}
 
 	return $string;
@@ -2947,7 +2947,7 @@ function wp_cache_shutdown_callback() {
 			}
 		}
 
-		$serial = '<?php die(); ?>' . json_encode( $wp_cache_meta );
+		$serial = '<?php die(); ?>' . wp_json_encode( $wp_cache_meta, JSON_UNESCAPED_SLASHES );
 		$dir    = get_current_url_supercache_dir();
 		if ( @is_dir( $dir ) == false ) {
 			@wp_mkdir_p( $dir );

@@ -1,11 +1,16 @@
+/* eslint-disable no-console */
+/* eslint-disable react/jsx-no-bind */
 import { Button, Flex, Navigator } from '@wordpress/components';
 import { useReducer } from 'react';
 import { NavigatorModal } from '../index.tsx';
+import type { Meta } from '@storybook/react';
 
-export default {
+const meta: Meta< typeof NavigatorModal > = {
 	title: 'JS Packages/Components/NavigatorModal',
 	component: NavigatorModal,
 };
+
+export default meta;
 
 /**
  * Default NavigatorModal story with multiple screens.
@@ -134,9 +139,7 @@ export const CustomInitialPath = () => {
 export const ComplexNavigation = () => {
 	const [ isOpen, toggleOpen ] = useReducer( open => ! open, true );
 
-	// eslint-disable-next-line no-console
 	const handleSaveChanges = () => console.log( 'Account changes saved' );
-	// eslint-disable-next-line no-console
 	const handleCancelChanges = () => console.log( 'Changes cancelled' );
 
 	return (
@@ -244,9 +247,7 @@ export const ComplexNavigation = () => {
 export const WithFooterActions = () => {
 	const [ isOpen, toggleOpen ] = useReducer( open => ! open, true );
 
-	// eslint-disable-next-line no-console
 	const handleConfirm = () => console.log( 'Changes confirmed' );
-	// eslint-disable-next-line no-console
 	const handleCancel = () => console.log( 'Changes cancelled' );
 
 	return (
@@ -267,16 +268,30 @@ export const WithFooterActions = () => {
 					title="Confirm Changes"
 					isScreenLocked={ false }
 					footerActions={ [
-						{
-							children: 'Cancel',
-							variant: 'secondary',
-							onClick: handleCancel,
-						},
-						{
-							children: 'Confirm',
-							variant: 'primary',
-							onClick: handleConfirm,
-						},
+						( { navigate } ) => (
+							<Button
+								key="cancel"
+								variant="secondary"
+								onClick={ () => {
+									handleCancel();
+									navigate();
+								} }
+							>
+								Cancel
+							</Button>
+						),
+						( { navigate } ) => (
+							<Button
+								key="confirm"
+								variant="primary"
+								onClick={ () => {
+									handleConfirm();
+									navigate();
+								} }
+							>
+								Confirm
+							</Button>
+						),
 					] }
 				>
 					<div style={ { padding: '1.5rem' } }>

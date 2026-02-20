@@ -19,8 +19,24 @@
 			"padding": true,
 			"margin": true
 		},
-		"align": [ "wide", "full" ]
+		"align": [ "wide", "full" ],
+		"layout": {
+			"default": {
+				"type": "flex",
+				"flexWrap": "wrap",
+				"orientation": "horizontal",
+				"justifyContent": "left",
+				"verticalAlignment": "top"
+			},
+			"allowSwitching": false,
+			"allowEditing": true,
+			"allowOrientation": true,
+			"allowVerticalAlignment": true,
+			"allowJustification": true,
+			"allowWrap": false
+		}
 	},
 	"attributes": {},
-	"editorScript": "file:./editor.js"
+	"editorScript": "file:./editor.js",
+	"style": "file:../../../dist/contact-form/css/jetpack-forms-layout.css"
 }

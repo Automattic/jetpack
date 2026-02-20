@@ -8,7 +8,10 @@ import clsx from 'clsx';
 import Header from './header';
 import NavigableRegion from './navigable-region';
 import { SidebarToggleFill } from './sidebar-toggle-slot';
+import { Stack } from './stack';
 import './style.scss';
+
+export { Stack };
 
 /**
  * Page component for dashboard layout

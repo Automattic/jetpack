@@ -18,7 +18,7 @@ use WP_Error;
  */
 class GA_Manager {
 
-	const PACKAGE_VERSION = '0.3.3';
+	const PACKAGE_VERSION = '0.3.4';
 
 	/**
 	 * Jetpack_Google_Analytics singleton instance.
@@ -290,7 +290,7 @@ class GA_Manager {
 			md5(
 				'googleanalytics' . wp_json_encode(
 					$config_data,
-					0 // No `json_encode()` flags because we don't want to disrupt the current hash index.
+					0 // phpcs:ignore Jetpack.Functions.JsonEncodeFlags.ZeroFound -- No `json_encode()` flags because we don't want to disrupt the current hash index.
 				)
 			),
 			0,

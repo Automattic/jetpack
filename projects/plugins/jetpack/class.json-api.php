@@ -721,7 +721,7 @@ class WPCOM_JSON_API {
 			echo "/**/$callback("; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- This is JSONP output, not HTML.
 
 		}
-		echo $this->json_encode( $response ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- This is JSON or JSONP output, not HTML.
+		echo $this->json_encode( $response, JSON_UNESCAPED_SLASHES ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- This is JSON or JSONP output, not HTML.
 		if ( $callback ) {
 			echo ');';
 		}
@@ -914,11 +914,14 @@ class WPCOM_JSON_API {
 	/**
 	 * JSON encode.
 	 *
-	 * @param mixed $data Data.
+	 * @param mixed $value   The value to encode.
+	 * @param int   $flags   Options to be passed to json_encode(). Default 0.
+	 * @param int   $depth   Maximum depth to walk through $value. Must be greater than 0.
+	 *
 	 * @return string|false
 	 */
-	public function json_encode( $data ) {
-		return wp_json_encode( $data );
+	public function json_encode( $value, $flags = 0, $depth = 512 ) {
+		return wp_json_encode( $value, $flags, $depth );
 	}
 
 	/**

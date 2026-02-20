@@ -1,9 +1,13 @@
 /**
  * External dependencies
  */
+import { select } from '@wordpress/data';
 import debugFactory from 'debug';
+/**
+ * Internal dependencies
+ */
 import SuggestionsEventSource from '../suggestions-event-source/index.ts';
-/*
+/**
  * Types & constants
  */
 import type { AiModelTypeProp, PromptProp } from '../types.ts';
@@ -38,6 +42,11 @@ export type AskQuestionOptionsArgProps = {
 		// eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
 		implementation?: Function;
 	} >;
+
+	/*
+	 * The language configured in the WordPress site settings.
+	 */
+	languageCode?: string;
 };
 
 const debug = debugFactory( 'jetpack-ai-client:ask-question' );
@@ -62,18 +71,36 @@ const debug = debugFactory( 'jetpack-ai-client:ask-question' );
  */
 export default async function askQuestion(
 	question: PromptProp,
-	{ postId = null, fromCache = false, feature, functions, model }: AskQuestionOptionsArgProps = {}
+	{
+		postId = null,
+		fromCache = false,
+		feature,
+		functions,
+		model,
+		languageCode,
+	}: AskQuestionOptionsArgProps = {}
 ): Promise< SuggestionsEventSource > {
+	const code =
+		languageCode || select( 'core' ).getEntityRecord( 'root', 'site' )?.language || 'en_US';
+
 	debug( 'Asking question: %o. options: %o', question, {
 		postId,
 		fromCache,
 		feature,
 		functions,
 		model,
+		languageCode: code,
 	} );
 
 	return new SuggestionsEventSource( {
 		question,
-		options: { postId, feature, fromCache, functions, model },
+		options: {
+			postId,
+			feature,
+			fromCache,
+			functions,
+			model,
+			languageCode: code,
+		},
 	} );
 }

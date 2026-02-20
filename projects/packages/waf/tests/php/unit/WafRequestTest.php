@@ -6,11 +6,13 @@
  */
 
 use Automattic\Jetpack\Waf\Waf_Request;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\Attributes\TestWith;
 
 /**
  * Request test suite.
  */
+#[AllowMockObjectsWithoutExpectations /* Mocks created in setUp, some tests add expectations and others don't. */ ]
 class WafRequestTest extends PHPUnit\Framework\TestCase {
 
 	/**
@@ -155,7 +157,8 @@ class WafRequestTest extends PHPUnit\Framework\TestCase {
 		unset( $_SERVER['CONTENT_LENGTH'] );
 		$request = new Waf_Request();
 		$headers = $request->get_headers();
-		$this->assertContains( array( 'content-type', 'application/octet-stream' ), $headers );
+		// ModSecurity does not follow RFC 7231 - an empty Content-Type is _not_ set to octet-stream.
+		$this->assertNotContains( array( 'content-type', 'application/octet-stream' ), $headers );
 		$this->assertContains( array( 'content-length', '0' ), $headers );
 	}
 

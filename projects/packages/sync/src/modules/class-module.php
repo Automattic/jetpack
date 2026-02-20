@@ -249,7 +249,7 @@ abstract class Module {
 		return crc32(
 			wp_json_encode(
 				Functions::json_wrap( $values ),
-				0 // No `json_encode()` flags because we don't want disrupt the checksum algorithm.
+				0 // phpcs:ignore Jetpack.Functions.JsonEncodeFlags.ZeroFound -- No `json_encode()` flags because we don't want disrupt the checksum algorithm.
 			)
 		);
 	}
@@ -407,10 +407,10 @@ abstract class Module {
 	 *
 	 * @access protected
 	 *
-	 * @param string $config Full sync configuration for this module.
-	 * @param array  $status the current module full sync status.
-	 * @param float  $send_until timestamp until we want this request to send full sync events.
-	 * @param int    $started The timestamp when the full sync started.
+	 * @param array $config Full sync configuration for this module.
+	 * @param array $status the current module full sync status.
+	 * @param float $send_until timestamp until we want this request to send full sync events.
+	 * @param int   $started The timestamp when the full sync started.
 	 *
 	 * @return array Status, the module full sync status updated.
 	 */

@@ -20,7 +20,7 @@ class FrontendNoticesTest extends WP_UnitTestCase {
 			'expiry_date'  => ( new DateTime() )->sub( new DateInterval( 'P1D' ) )->format( 'c' ),
 			'auto_renew'   => false,
 		);
-		Atomic_Persistent_Data::set( 'WPCOM_PURCHASES', wp_json_encode( array( $business_plan_purchase ) ) );
+		Atomic_Persistent_Data::set( 'WPCOM_PURCHASES', wp_json_encode( array( $business_plan_purchase ), JSON_UNESCAPED_SLASHES ) );
 		$gifting_banner = new Gifting_Banner();
 		$this->assertTrue( $gifting_banner->should_display_expiring_plan_notice() );
 	}
@@ -34,7 +34,7 @@ class FrontendNoticesTest extends WP_UnitTestCase {
 			'expiry_date'  => ( new DateTime() )->add( new DateInterval( 'P4D' ) )->format( 'c' ),
 			'auto_renew'   => false,
 		);
-		Atomic_Persistent_Data::set( 'WPCOM_PURCHASES', wp_json_encode( array( $business_plan_purchase ) ) );
+		Atomic_Persistent_Data::set( 'WPCOM_PURCHASES', wp_json_encode( array( $business_plan_purchase ), JSON_UNESCAPED_SLASHES ) );
 		$gifting_banner = new Gifting_Banner();
 		$this->assertTrue( $gifting_banner->should_display_expiring_plan_notice() );
 	}
@@ -48,7 +48,7 @@ class FrontendNoticesTest extends WP_UnitTestCase {
 			'expiry_date'  => ( new DateTime() )->add( new DateInterval( 'P6D' ) )->format( 'c' ),
 			'auto_renew'   => false,
 		);
-		Atomic_Persistent_Data::set( 'WPCOM_PURCHASES', wp_json_encode( array( $business_plan_purchase ) ) );
+		Atomic_Persistent_Data::set( 'WPCOM_PURCHASES', wp_json_encode( array( $business_plan_purchase ), JSON_UNESCAPED_SLASHES ) );
 		$gifting_banner = new Gifting_Banner();
 		$this->assertFalse( $gifting_banner->should_display_expiring_plan_notice() );
 	}
@@ -62,7 +62,7 @@ class FrontendNoticesTest extends WP_UnitTestCase {
 			'expiry_date'  => ( new DateTime() )->add( new DateInterval( 'P53D' ) )->format( 'c' ),
 			'auto_renew'   => false,
 		);
-		Atomic_Persistent_Data::set( 'WPCOM_PURCHASES', wp_json_encode( array( $business_plan_purchase ) ) );
+		Atomic_Persistent_Data::set( 'WPCOM_PURCHASES', wp_json_encode( array( $business_plan_purchase ), JSON_UNESCAPED_SLASHES ) );
 		$gifting_banner = new Gifting_Banner();
 		$this->assertTrue( $gifting_banner->should_display_expiring_plan_notice() );
 	}
@@ -76,7 +76,7 @@ class FrontendNoticesTest extends WP_UnitTestCase {
 			'expiry_date'  => ( new DateTime() )->add( new DateInterval( 'P55D' ) )->format( 'c' ),
 			'auto_renew'   => false,
 		);
-		Atomic_Persistent_Data::set( 'WPCOM_PURCHASES', wp_json_encode( array( $business_plan_purchase ) ) );
+		Atomic_Persistent_Data::set( 'WPCOM_PURCHASES', wp_json_encode( array( $business_plan_purchase ), JSON_UNESCAPED_SLASHES ) );
 		$gifting_banner = new Gifting_Banner();
 		$this->assertFalse( $gifting_banner->should_display_expiring_plan_notice() );
 	}
@@ -89,7 +89,7 @@ class FrontendNoticesTest extends WP_UnitTestCase {
 			'product_slug' => 'unknown',
 			'expiry_date'  => ( new DateTime() )->sub( new DateInterval( 'P1D' ) )->format( 'c' ),
 		);
-		Atomic_Persistent_Data::set( 'WPCOM_PURCHASES', wp_json_encode( array( $business_plan_purchase ) ) );
+		Atomic_Persistent_Data::set( 'WPCOM_PURCHASES', wp_json_encode( array( $business_plan_purchase ), JSON_UNESCAPED_SLASHES ) );
 		$gifting_banner = new Gifting_Banner();
 		$this->assertFalse( $gifting_banner->should_display_expiring_plan_notice() );
 	}
@@ -103,7 +103,7 @@ class FrontendNoticesTest extends WP_UnitTestCase {
 			'expiry_date'  => ( new DateTime() )->sub( new DateInterval( 'P1D' ) )->format( 'c' ),
 			'auto_renew'   => true,
 		);
-		Atomic_Persistent_Data::set( 'WPCOM_PURCHASES', wp_json_encode( array( $business_plan_purchase ) ) );
+		Atomic_Persistent_Data::set( 'WPCOM_PURCHASES', wp_json_encode( array( $business_plan_purchase ), JSON_UNESCAPED_SLASHES ) );
 		$gifting_banner = new Gifting_Banner();
 		$this->assertFalse( $gifting_banner->should_display_expiring_plan_notice() );
 	}
@@ -117,7 +117,7 @@ class FrontendNoticesTest extends WP_UnitTestCase {
 			'expiry_date'  => ( new DateTime() )->sub( new DateInterval( 'P1D' ) )->format( 'c' ),
 			'auto_renew'   => true,
 		);
-		Atomic_Persistent_Data::set( 'WPCOM_PURCHASES', wp_json_encode( array( $business_plan_purchase ) ) );
+		Atomic_Persistent_Data::set( 'WPCOM_PURCHASES', wp_json_encode( array( $business_plan_purchase ), JSON_UNESCAPED_SLASHES ) );
 		$gifting_banner = new Gifting_Banner();
 		add_option( 'wpcom_gifting_subscription', true );
 		$this->assertTrue( $gifting_banner->should_display_expiring_plan_notice() );
@@ -133,7 +133,7 @@ class FrontendNoticesTest extends WP_UnitTestCase {
 			'expiry_date'  => ( new DateTime() )->sub( new DateInterval( 'P1D' ) )->format( 'c' ),
 			'auto_renew'   => false,
 		);
-		Atomic_Persistent_Data::set( 'WPCOM_PURCHASES', wp_json_encode( array( $business_plan_purchase ) ) );
+		Atomic_Persistent_Data::set( 'WPCOM_PURCHASES', wp_json_encode( array( $business_plan_purchase ), JSON_UNESCAPED_SLASHES ) );
 		$gifting_banner = new Gifting_Banner();
 		$this->assertTrue( $gifting_banner->should_display_expiring_plan_notice() );
 
@@ -146,7 +146,7 @@ class FrontendNoticesTest extends WP_UnitTestCase {
 	 * Test should not display gift notice when no purchases.
 	 */
 	public function test_should_not_display_gift_notice_when_no_purchases() {
-		Atomic_Persistent_Data::set( 'WPCOM_PURCHASES', wp_json_encode( array() ) );
+		Atomic_Persistent_Data::set( 'WPCOM_PURCHASES', wp_json_encode( array(), JSON_UNESCAPED_SLASHES ) );
 		$gifting_banner = new Gifting_Banner();
 		$this->assertFalse( $gifting_banner->should_display_expiring_plan_notice() );
 	}

@@ -31,83 +31,23 @@ export const usePlan = (): usePlanProps => {
 	const introductoryOffer = mapObjectKeysToCamel( productData.introductory_offer, true );
 	const videoPressProduct = { ...mapObjectKeysToCamel( productData, true ), introductoryOffer };
 
-	const { purchases, isFetchingPurchases } = useSelect( select => {
+	const { features, isFetchingFeatures } = useSelect( select => {
 		return {
-			purchases: ( select( STORE_ID ) as VideopressSelectors ).getPurchases(),
-			isFetchingPurchases: ( select( STORE_ID ) as VideopressSelectors ).isFetchingPurchases(),
+			features: ( select( STORE_ID ) as VideopressSelectors ).getFeatures(),
+			isFetchingFeatures: ( select( STORE_ID ) as VideopressSelectors ).isFetchingFeatures(),
 		};
 	}, [] );
-	const purchasesCamelCase = purchases.map( purchase => mapObjectKeysToCamel( purchase, true ) );
 
-	/**
-	 * Check if the user has a plan that includes VideoPress
-	 *
-	 * @param {string} productSlug - wpcom prtoduct slug
-	 * @return {boolean}            true if the product is owned by the user
-	 */
-	function hasPurchase( productSlug ) {
-		return purchasesCamelCase.some( product => product.productSlug === productSlug );
-	}
-
-	const hasVideoPressPurchase = [
-		'jetpack_videopress_bi_yearly',
-		'jetpack_videopress',
-		'jetpack_videopress_monthly',
-		'jetpack_complete_bi_yearly',
-		'jetpack_complete',
-		'jetpack_complete_monthly',
-		'jetpack_business',
-		'jetpack_business_monthly',
-		'jetpack_personal',
-		'jetpack_personal_monthly',
-		'jetpack_premium',
-		'jetpack_premium_monthly',
-		'videopress',
-		'videopress-pro',
-		'wp_p2_plus_monthly',
-
-		// WPCOM Premium plans
-		'bundle_pro',
-		'value_bundle',
-		'value_bundle_monthly',
-		'value_bundle-2y',
-		'value_bundle-3y',
-
-		// WPCOM PRO plans
-		'pro-plan',
-		'pro-plan-monthly',
-		'pro-plan-2y',
-
-		// WPCOM Business plans
-		'business-bundle',
-		'business-bundle-monthly',
-		'business-bundle-2y',
-		'business-bundle-3y',
-		'wp_com_hundred_year_bundle_centennially',
-		'wp_bundle_migration_trial_monthly',
-		'wp_bundle_hosting_trial_monthly',
-
-		// WPCOM eCommerce plans
-		'ecommerce-bundle',
-		'ecommerce-bundle-monthly',
-		'ecommerce-bundle-2y',
-		'ecommerce-bundle-3y',
-		'ecommerce-trial-bundle-monthly',
-		'wooexpress-small-bundle-yearly',
-		'wooexpress-small-bundle-monthly',
-		'wooexpress-medium-bundle-yearly',
-		'wooexpress-medium-bundle-monthly',
-	].some( plan => hasPurchase( plan ) );
+	// Use dynamic features from API, fall back to static paidFeatures from initial state while loading
+	const resolvedFeatures = features ?? paidFeatures;
 
 	return {
-		features: paidFeatures,
+		features: resolvedFeatures,
 		siteProduct: { ...mapObjectKeysToCamel( { ...siteProductData }, true ), pricingForUi },
 		product: videoPressProduct,
 		productPrice,
 
-		// Site purchases
-		purchases: purchasesCamelCase,
-		hasVideoPressPurchase,
-		isFetchingPurchases,
+		hasVideoPressPurchase: resolvedFeatures?.isVideoPress1TBSupported ?? false,
+		isFetchingFeatures,
 	};
 };

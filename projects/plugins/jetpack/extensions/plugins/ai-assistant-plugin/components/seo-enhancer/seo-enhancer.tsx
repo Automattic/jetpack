@@ -35,7 +35,7 @@ export function SeoEnhancer( {
 	placement = null,
 }: {
 	disableAutoEnhance?: boolean;
-	placement?: 'jetpack-sidebar' | 'jetpack-prepublish-sidebar';
+	placement?: 'jetpack-sidebar' | 'document-settings' | 'jetpack-prepublish-sidebar';
 } ) {
 	const { tracks } = useAnalytics();
 	const { isEnabled, toggleEnhancer, isToggling } = useSeoModuleSettings();

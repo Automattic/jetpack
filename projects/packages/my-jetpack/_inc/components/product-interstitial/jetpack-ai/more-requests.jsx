@@ -20,7 +20,7 @@ import { Link } from 'react-router';
  */
 import useAnalytics from '../../../hooks/use-analytics';
 import GoBackLink from '../../go-back-link';
-import jetpackAiImage from '../assets/jetpack-ai.png';
+import jetpackAiImage from '../assets/jetpack-ai.webp';
 import styles from './style.module.scss';
 
 /**

@@ -1,6 +1,6 @@
-const fs = require( 'fs' );
-const path = require( 'path' );
-const { debug, error } = require( './debug' );
+import fs from 'fs';
+import path from 'path';
+import { debug, error } from './debug.js';
 
 /**
  * Sends a Slack message.
@@ -10,7 +10,7 @@ const { debug, error } = require( './debug' );
  * @param {object}  options - options
  * @return {Promise<*>} the response from the Slack API. In case when multiple messages are sent due to the blocks length the last message response is returned.
  */
-async function postOrUpdateMessage( client, update, options ) {
+export async function postOrUpdateMessage( client, update, options ) {
 	const { text, blocks = [], channel, username, icon_emoji, ts, thread_ts } = options;
 
 	const method = update ? 'update' : 'postMessage';
@@ -115,7 +115,7 @@ function getBlocksChunksByType( blocks, type ) {
  * @param {string}   typeDelimiter - the type property to use as delimiter
  * @return {[object]} the array of chunks
  */
-function getBlocksChunks( blocks, maxSize, typeDelimiter ) {
+export function getBlocksChunks( blocks, maxSize, typeDelimiter ) {
 	const chunksByType = getBlocksChunksByType( blocks, typeDelimiter );
 	const chunks = [];
 
@@ -136,7 +136,7 @@ function getBlocksChunks( blocks, maxSize, typeDelimiter ) {
  * @param {string} identifier - the string to search for in the messages text
  * @return {Promise<*|null>} the message Object
  */
-async function getMessage( client, channelId, identifier ) {
+export async function getMessage( client, channelId, identifier ) {
 	debug( `Looking for ${ identifier }` );
 	let message;
 	// Get the messages in the channel. It only returns parent messages in case of threads.
@@ -157,9 +157,3 @@ async function getMessage( client, channelId, identifier ) {
 
 	return message;
 }
-
-module.exports = {
-	getMessage,
-	postOrUpdateMessage,
-	getBlocksChunks,
-};

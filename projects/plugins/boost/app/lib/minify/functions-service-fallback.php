@@ -98,7 +98,7 @@ function jetpack_boost_page_optimize_service_request() {
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
 		file_put_contents( $cache_file, $content );
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
-		file_put_contents( $cache_file_meta, wp_json_encode( array( 'headers' => $headers ) ) );
+		file_put_contents( $cache_file_meta, wp_json_encode( array( 'headers' => $headers ), JSON_UNESCAPED_SLASHES ) );
 	}
 
 	die( 0 );

@@ -182,7 +182,10 @@ class Boost_Cache_Settings {
 
 		$this->settings = array_merge( $this->settings, $settings );
 
-		$contents = "<?php die();\n/*\n * Configuration data for Jetpack Boost Cache. Do not edit.\n" . json_encode( $this->settings ) . "\n */"; // phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode
+		$contents = "<?php die();\n/*\n * Configuration data for Jetpack Boost Cache. Do not edit.\n" . json_encode( // phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode
+			$this->settings,
+			JSON_HEX_TAG // Need to escape slashes because this is, for some reason, going into a PHP comment and we need to guard against `*/`.
+		) . "\n */";
 		$result   = Filesystem_Utils::write_to_file( $this->config_file, $contents );
 		if ( $result instanceof Boost_Cache_Error ) {
 			Logger::debug( $result->get_error_message() );

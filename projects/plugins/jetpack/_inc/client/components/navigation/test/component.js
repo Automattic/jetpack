@@ -61,7 +61,7 @@ describe( 'Navigation', () => {
 			expect( screen.getByRole( 'menuitem', { name: 'At a Glance' } ) ).toBeInTheDocument();
 			expect( screen.getByRole( 'option', { name: 'At a Glance' } ) ).toBeInTheDocument();
 			expect(
-				screen.getByRole( 'menuitem', { name: 'Plans (opens in a new tab)' } )
+				screen.getByRole( 'menuitem', { name: 'Plans(opens in a new tab)' } )
 			).toBeInTheDocument();
 			expect( screen.getByRole( 'option', { name: 'Plans' } ) ).toBeInTheDocument();
 		} );
@@ -96,7 +96,7 @@ describe( 'Navigation', () => {
 			expect( screen.getByRole( 'menuitem', { name: 'My Plan' } ) ).toBeInTheDocument();
 			expect( screen.getByRole( 'option', { name: 'My Plan' } ) ).toBeInTheDocument();
 			expect(
-				screen.getByRole( 'menuitem', { name: 'Plans (opens in a new tab)' } )
+				screen.getByRole( 'menuitem', { name: 'Plans(opens in a new tab)' } )
 			).toBeInTheDocument();
 			expect( screen.getByRole( 'option', { name: 'Plans' } ) ).toBeInTheDocument();
 		} );

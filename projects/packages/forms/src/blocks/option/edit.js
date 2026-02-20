@@ -7,6 +7,8 @@ import useEnter from './use-enter.js';
 
 const SYNCED_ATTRIBUTE_KEYS = [ 'textColor', 'fontFamily', 'fontSize', 'style' ];
 
+const noop = () => undefined;
+
 const getLabelOrFallback = ( label, placeholder ) => {
 	if ( label === '' ) {
 		return placeholder;
@@ -15,7 +17,7 @@ const getLabelOrFallback = ( label, placeholder ) => {
 	return label ?? placeholder;
 };
 
-const OptionEdit = ( { attributes, clientId, context, name, setAttributes } ) => {
+const OptionEdit = ( { attributes, clientId, context, name, setAttributes, mergeBlocks } ) => {
 	const {
 		'jetpack/field-default-value': defaultValue,
 		'jetpack/field-options-type': type = 'checkbox',
@@ -68,6 +70,7 @@ const OptionEdit = ( { attributes, clientId, context, name, setAttributes } ) =>
 					<input
 						className="jetpack-field-option__checkbox"
 						checked={ !! defaultValue }
+						onChange={ noop }
 						type={ type }
 					/>
 				) }
@@ -107,6 +110,7 @@ const OptionEdit = ( { attributes, clientId, context, name, setAttributes } ) =>
 				identifier="label"
 				tagName="div"
 				className="wp-block"
+				onMerge={ mergeBlocks }
 				value={ labelValue }
 				placeholder={ __( 'Add option…', 'jetpack-forms' ) }
 				__unstableDisableFormats

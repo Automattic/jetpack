@@ -9,7 +9,7 @@
  */
 return [
     // # Issue statistics:
-    // PhanTypeMismatchArgument : 40+ occurrences
+    // PhanTypeMismatchArgument : 35+ occurrences
     // PhanPluginDuplicateConditionalNullCoalescing : 30+ occurrences
     // PhanTypeMismatchReturnProbablyReal : 25+ occurrences
     // PhanTypeMismatchReturn : 20+ occurrences
@@ -28,7 +28,6 @@ return [
     // PhanTypePossiblyInvalidDimOffset : 2 occurrences
     // PhanParamTooManyCallable : 1 occurrence
     // PhanPluginUseReturnValueInternalKnown : 1 occurrence
-    // PhanTypeInvalidLeftOperandOfNumericOp : 1 occurrence
     // PhanTypeMismatchArgumentNullableInternal : 1 occurrence
     // PhanTypeMismatchDeclaredParam : 1 occurrence
     // PhanTypeMismatchDefault : 1 occurrence
@@ -39,7 +38,6 @@ return [
     'file_suppressions' => [
         'src/class-actions.php' => ['PhanPluginSimplifyExpressionBool'],
         'src/class-data-settings.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
-        'src/class-dedicated-sender.php' => ['PhanTypeInvalidLeftOperandOfNumericOp'],
         'src/class-functions.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchReturnProbablyReal', 'PhanTypePossiblyInvalidDimOffset'],
         'src/class-listener.php' => ['PhanNonClassMethodCall', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeArraySuspicious', 'PhanTypeExpectedObjectPropAccess', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal'],
         'src/class-lock.php' => ['PhanTypeMismatchReturn'],

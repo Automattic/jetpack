@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.14] - 2026-02-02
+### Changed
+- Internal updates.
+
 ## [0.9.13] - 2025-11-03
 ### Fixed
 - Phan: Address PhanRedundantCondition, PhanRedundantArrayValuesCall, and PhanPluginRedundantAssignment violations. [#45681]
@@ -178,6 +182,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Fixed various imported resources hierarchies [#29012]
 
+[0.9.14]: https://github.com/Automattic/jetpack-import/compare/v0.9.13...v0.9.14
 [0.9.13]: https://github.com/Automattic/jetpack-import/compare/v0.9.12...v0.9.13
 [0.9.12]: https://github.com/Automattic/jetpack-import/compare/v0.9.11...v0.9.12
 [0.9.11]: https://github.com/Automattic/jetpack-import/compare/v0.9.10...v0.9.11

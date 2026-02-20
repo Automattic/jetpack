@@ -39,12 +39,14 @@ function wp_ajax_wpcom_generate_site_preview_link() {
 	);
 
 	if ( is_wp_error( $body ) ) {
-		wp_send_json_error( $body );
+		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- It takes null, but its phpdoc only says int.
+		wp_send_json_error( $body, null, JSON_UNESCAPED_SLASHES );
 		return;
 	}
 
 	$response = json_decode( wp_remote_retrieve_body( $body ) );
-	wp_send_json( $response[0] ?? $response );
+	// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- It takes null, but its phpdoc only says int.
+	wp_send_json( $response[0] ?? $response, null, JSON_UNESCAPED_SLASHES );
 }
 add_action( 'wp_ajax_wpcom_generate_site_preview_link', 'wp_ajax_wpcom_generate_site_preview_link' );
 
@@ -58,7 +60,9 @@ function wp_ajax_wpcom_delete_site_preview_link() {
 		wp_send_json_error(
 			array(
 				'error' => 'Missing code',
-			)
+			),
+			null, // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- It takes null, but its phpdoc only says int.
+			JSON_UNESCAPED_SLASHES
 		);
 		return;
 	}

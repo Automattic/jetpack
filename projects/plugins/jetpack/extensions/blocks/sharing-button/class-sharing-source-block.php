@@ -521,7 +521,8 @@ class Share_Email_Block extends Sharing_Source_Block {
 		}
 
 		if ( $is_ajax ) {
-			wp_send_json_success();
+			// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- It takes null, but its phpdoc only says int.
+			wp_send_json_success( null, null, JSON_UNESCAPED_SLASHES );
 		} else {
 			wp_safe_redirect( get_permalink( $post->ID ) . '?shared=email&msg=fail' );
 			exit( 0 );
@@ -1428,13 +1429,11 @@ class Share_LinkedIn_Block extends Sharing_Source_Block {
 
 		$post_link = $this->get_share_url( $post->ID );
 
-		// Using the same URL as the official button, which is *not* LinkedIn's documented sharing link
-		// https://www.linkedin.com/cws/share?url={url}&token=&isFramed=false
 		$linkedin_url = add_query_arg(
 			array(
 				'url' => rawurlencode( $post_link ),
 			),
-			'https://www.linkedin.com/cws/share?token=&isFramed=false'
+			'https://www.linkedin.com/sharing/share-offsite/'
 		);
 
 		// Record stats

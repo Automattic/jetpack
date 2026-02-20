@@ -4,7 +4,6 @@ import { GlobalChartsProvider } from '../global-charts-provider';
 import { useChartId } from '../hooks/use-chart-id';
 import { useChartRegistration } from '../hooks/use-chart-registration';
 import { useGlobalChartsContext } from '../hooks/use-global-charts-context';
-import { wooTheme } from '../themes';
 import type { BaseLegendItem } from '../../../components/legend';
 import type { ChartTheme, SeriesData } from '../../../types';
 import type { GlobalChartsContextValue } from '../types';
@@ -441,8 +440,8 @@ describe( 'ChartContext', () => {
 			expect( generatedColor ).not.toBe( mockTheme.colors[ 1 ] );
 			expect( generatedColor ).not.toBe( mockTheme.colors[ 2 ] );
 
-			// Generated color should be in HSL format
-			expect( generatedColor ).toMatch( /^hsl\(\d+,\s*\d+%,\s*\d+%\)$/ );
+			// Generated color should be in hex format
+			expect( generatedColor ).toMatch( /^#[0-9a-f]{6}$/i );
 		} );
 
 		it( 'generates consistent colors for same index beyond palette', () => {
@@ -767,40 +766,6 @@ describe( 'ChartContext', () => {
 			} ).color;
 
 			expect( afterThemeChangeColor ).not.toBe( initialColor );
-		} );
-
-		it( 'generates colors with Woo theme characteristics', () => {
-			let contextValue: GlobalChartsContextValue;
-
-			const TestComponent = () => {
-				contextValue = useGlobalChartsContext();
-				return <div>Test</div>;
-			};
-
-			render(
-				<GlobalChartsProvider theme={ wooTheme }>
-					<TestComponent />
-				</GlobalChartsProvider>
-			);
-
-			// Generate colors beyond the palette
-			const generatedColors = [];
-			for ( let i = 5; i < 8; i++ ) {
-				const color = contextValue.getElementStyles( {
-					data: createMockDataWithGroup( undefined ),
-					index: i,
-				} ).color;
-				generatedColors.push( color );
-			}
-
-			// All generated colors should be in HSL format
-			generatedColors.forEach( color => {
-				expect( color ).toMatch( /^hsl\(\d+,\s*\d+%,\s*\d+%\)$/ );
-			} );
-
-			// All generated colors should be different
-			const uniqueColors = new Set( generatedColors );
-			expect( uniqueColors.size ).toBe( generatedColors.length );
 		} );
 	} );
 
@@ -2188,8 +2153,8 @@ describe( 'ChartContext', () => {
 					index: 3,
 				} ).color;
 
-				// Should be an HSL color (generated)
-				expect( generatedColor ).toMatch( /^hsl\(\d+,\s*\d+%,\s*\d+%\)$/ );
+				// Should be a hex color (generated)
+				expect( generatedColor ).toMatch( /^#[0-9a-f]{6}$/i );
 			} );
 
 			it( 'mixed static and CSS variable colors work together', () => {
@@ -2305,19 +2270,6 @@ describe( 'ChartContext', () => {
 
 		describe( 'Server-Side Rendering', () => {
 			it( 'handles SSR environment where getComputedStyle unavailable', () => {
-				const originalWindow = globalThis.window;
-				const originalDocument = globalThis.document;
-
-				// Simulate SSR by temporarily removing window/document
-				// eslint-disable-next-line @typescript-eslint/no-explicit-any
-				delete ( globalThis as any ).window;
-				// eslint-disable-next-line @typescript-eslint/no-explicit-any
-				delete ( globalThis as any ).document;
-
-				// Restore for test to actually run
-				globalThis.window = originalWindow;
-				globalThis.document = originalDocument;
-
 				// Mock resolveCssVariable to return null (simulating SSR behavior)
 				window.getComputedStyle = jest.fn( () => {
 					throw new Error( 'window is not defined' );

@@ -3,7 +3,6 @@ import { __, isRTL } from '@wordpress/i18n';
 import { chevronLeft, chevronRight, close } from '@wordpress/icons';
 import { useCallback, useContext } from 'react';
 import { NavigatorModalContext } from './context.ts';
-import styles from './styles.module.scss';
 
 export type HeaderProps = {
 	/**
@@ -14,6 +13,10 @@ export type HeaderProps = {
 	 * Whether the screen is locked, in which case to hide the back button.
 	 */
 	isScreenLocked?: boolean;
+	/**
+	 * Optional icon to display in the header.
+	 */
+	icon?: React.ReactNode;
 };
 
 /**
@@ -22,7 +25,7 @@ export type HeaderProps = {
  *
  * @return component
  */
-export function Header( { title, isScreenLocked }: HeaderProps ) {
+export function Header( { icon, title, isScreenLocked }: HeaderProps ) {
 	const context = useContext( NavigatorModalContext );
 	const navigator = useNavigator();
 
@@ -31,8 +34,8 @@ export function Header( { title, isScreenLocked }: HeaderProps ) {
 	}, [ navigator ] );
 
 	return (
-		<div className={ styles.header }>
-			<div className={ styles[ 'title-wrap' ] }>
+		<div className="jp-navigator-modal__header">
+			<div className="jp-navigator-modal__title-wrap">
 				{ ! isScreenLocked ? (
 					<Button
 						label={ __( 'Go back', 'jetpack-components' ) }
@@ -42,6 +45,7 @@ export function Header( { title, isScreenLocked }: HeaderProps ) {
 						size="compact"
 					/>
 				) : null }
+				{ icon }
 				<h1>{ title }</h1>
 			</div>
 			{ context.isDismissible ? (

@@ -1,4 +1,4 @@
-import { defaultTheme, jetpackTheme, wooTheme } from '../providers';
+import { defaultTheme } from '../providers';
 import type { ChartTheme } from '../types';
 
 /**
@@ -10,13 +10,16 @@ export const DEFAULT_ACCENT_COLOR = '#4a19ab';
  * Custom theme using a CSS variable for dynamic color generation
  */
 export const customTheme: ChartTheme = {
-	colors: [ '--wpds-color-bg-interactive-brand' ],
+	colors: [ 'var(--wpds-color-bg-interactive-brand)' ],
 	seriesLineStyles: [
 		{},
 		{
 			strokeDasharray: '5 8',
 		},
 	],
+	geoChart: {
+		featureFillColor: '#ffffff',
+	},
 	gridStyles: {
 		stroke: '#ffe3e3',
 		strokeWidth: 2,
@@ -28,8 +31,6 @@ export const customTheme: ChartTheme = {
  */
 export const CHART_THEME_MAP: Record< string, ChartTheme | undefined > = {
 	default: defaultTheme,
-	jetpack: jetpackTheme,
-	woo: wooTheme,
 	custom: customTheme,
 };
 
@@ -39,7 +40,7 @@ export const CHART_THEME_MAP: Record< string, ChartTheme | undefined > = {
 export const themeArgTypes = {
 	themeName: {
 		control: { type: 'select' as const },
-		options: [ 'default', 'jetpack', 'woo', 'custom' ],
+		options: Object.keys( CHART_THEME_MAP ),
 		defaultValue: 'default',
 		description: 'Select a theme to apply to the chart',
 		table: { category: 'Theme' },
@@ -53,10 +54,6 @@ export const themeArgTypes = {
 	},
 };
 
-/**
- * Shared default args for theme-related controls in chart stories
- * These provide actual default values that appear in Storybook controls
- */
 export const sharedThemeArgs = {
 	themeName: 'default',
 	accentColor: DEFAULT_ACCENT_COLOR,

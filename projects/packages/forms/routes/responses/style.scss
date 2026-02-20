@@ -1,0 +1,13 @@
+@use "@wordpress/base-styles/variables";
+@use "../shared";
+
+// Filters "pills" row: collapse when empty (match Inbox behavior).
+.jp-forms-dataviews-filters__container,
+.jp-forms-dataviews-filters__container:not(:empty) {
+	padding: 0;
+}
+
+.jp-forms-dataviews-filters__container:not(:empty) {
+	padding-inline: variables.$grid-unit * 2.5;
+	padding-block: variables.$grid-unit * 1.5;
+}

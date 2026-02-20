@@ -71,10 +71,10 @@ header( 'Content-Type: ' . get_bloginfo( 'html_type' ) . '; charset=' . get_blog
 						<?php if ( isset( $_GET['calypso_token'] ) ) { /* phpcs:ignore WordPress.Security */ ?>
 							window.calypso.postMessage(JSON.stringify({
 								type: 'needs-auth',
-								channel: "preview-" + <?php echo wp_json_encode( $_GET['calypso_token'] ); /* phpcs:ignore WordPress.Security */ ?>
+								channel: "preview-" + <?php echo wp_json_encode( $_GET['calypso_token'], JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); /* phpcs:ignore WordPress.Security */ ?>
 							}), '*');
 						<?php } else { ?>
-							window.location.href = <?php echo wp_json_encode( $login_link ); ?>;
+							window.location.href = <?php echo wp_json_encode( $login_link, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
 						<?php } ?>
 					}
 				</script>

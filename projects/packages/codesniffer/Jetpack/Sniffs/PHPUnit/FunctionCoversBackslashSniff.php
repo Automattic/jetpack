@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Sniffs\PHPUnit;
 
 use Automattic\Jetpack\Codesniffer\Utils\Attributes;
 use Automattic\Jetpack\Codesniffer\Utils\DocBlocks;
+use Automattic\Jetpack\Codesniffer\Utils\IsTestClassTrait;
 use Automattic\Jetpack\Codesniffer\Utils\NamespaceInfo;
 use PHP_CodeSniffer\Files\File;
 use PHP_CodeSniffer\Sniffs\Sniff;
@@ -19,7 +20,7 @@ use PHPUnit\Framework\Attributes\UsesFunction;
  * Sniff for incorrect use of a backslash in `@covers ::function` and `[#CoversFunction]`.
  */
 class FunctionCoversBackslashSniff implements Sniff {
-	use \MediaWiki\Sniffs\PHPUnit\PHPUnitTestTrait;
+	use IsTestClassTrait;
 
 	/**
 	 * Returns the token types that this sniff is interested in.

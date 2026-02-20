@@ -28,6 +28,7 @@ function register_block() {
 			array(
 				'render_callback'       => __NAMESPACE__ . '\render_block',
 				'render_email_callback' => __NAMESPACE__ . '\render_block_email',
+				'plan_check'            => true,
 				'supports'              => array(
 					'layout' => array(
 						'allowSwitching'  => false,

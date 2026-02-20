@@ -3,6 +3,7 @@
 // phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed
 
 use Automattic\Jetpack\Publicize\Publicize;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\Attributes\Group;
 
 if ( ! function_exists( 'publicize_init' ) ) {
@@ -23,6 +24,7 @@ if ( ! function_exists( 'publicize_init' ) ) {
 /**
  * @group publicize
  */
+#[AllowMockObjectsWithoutExpectations /* getStubBuilder() (for partial stubs) doesn't exist until PHPUnit 12.5. */ ]
 #[Group( 'publicize' )]
 class Publicize_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
@@ -498,7 +500,7 @@ class Publicize_Test extends WP_UnitTestCase {
 			'Normal connection checkbox should not be disabled.'
 		);
 
-		$before = json_encode( $normal_connection );
+		$before = json_encode( $normal_connection, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE );
 
 		add_filter( 'publicize_checkbox_global_default', array( $this, 'publicize_connection_filter_no_normal' ), 10, 4 );
 
@@ -506,7 +508,7 @@ class Publicize_Test extends WP_UnitTestCase {
 		$connection_list   = $this->publicize->get_filtered_connection_data( $this->post->ID );
 		$normal_connection = $connection_list[ self::NORMAL_CONNECTION_INDEX ];
 
-		$this->assertSame( $before, json_encode( $normal_connection ), 'Normal connection should be unaffected by filter to uncheck global connection' );
+		$this->assertSame( $before, json_encode( $normal_connection, JSON_UNESCAPED_UNICODE ), 'Normal connection should be unaffected by filter to uncheck global connection' );
 	}
 
 	/**

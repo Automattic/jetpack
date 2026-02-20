@@ -12,21 +12,20 @@
  */
 
 /*
-    Copyright Automattic and many other contributors.
+Copyright Automattic and many other contributors.
 
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or
-    (at your option) any later version.
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+You should have received a copy of the GNU General Public License
+along with this program; if not, see <https://www.gnu.org/licenses/>.
 */
 
 define( 'WPSC_VERSION_ID', '1.12.1' );
@@ -378,18 +377,18 @@ function wpsc_ajax_activate_boost() {
 	check_ajax_referer( 'activate-boost' );
 
 	if ( ! isset( $_POST['source'] ) ) {
-		wp_send_json_error( 'no source specified' );
+		wp_send_json_error( 'no source specified', null, JSON_UNESCAPED_SLASHES );
 	}
 
 	$source = sanitize_text_field( wp_unslash( $_POST['source'] ) );
 	$result = activate_plugin( 'jetpack-boost/jetpack-boost.php' );
 	if ( is_wp_error( $result ) ) {
-		wp_send_json_error( $result->get_error_message() );
+		wp_send_json_error( $result->get_error_message(), null, JSON_UNESCAPED_SLASHES );
 	}
 
 	wpsc_notify_migration_to_boost( $source );
 
-	wp_send_json_success();
+	wp_send_json_success( null, null, JSON_UNESCAPED_SLASHES );
 }
 add_action( 'wp_ajax_wpsc_activate_boost', 'wpsc_ajax_activate_boost' );
 
@@ -3310,7 +3309,7 @@ function clear_post_supercache( $post_id ) {
  */
 function wpsc_ajax_get_preload_status() {
 	$preload_status = wpsc_get_preload_status( true );
-	wp_send_json_success( $preload_status );
+	wp_send_json_success( $preload_status, null, JSON_UNESCAPED_SLASHES );
 }
 add_action( 'wp_ajax_wpsc_get_preload_status', 'wpsc_ajax_get_preload_status' );
 
@@ -3383,7 +3382,7 @@ function wpsc_update_active_preload( $group = null, $progress = null, $url = nul
 
 	$filename = wpsc_get_preload_status_file_path();
 	// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
-	if ( false === file_put_contents( $filename, wp_json_encode( $preload_status ) ) ) {
+	if ( false === file_put_contents( $filename, wp_json_encode( $preload_status, JSON_UNESCAPED_SLASHES ) ) ) {
 		wp_cache_debug( "wpsc_update_active_preload: failed to write to $filename" );
 	}
 }
@@ -3403,7 +3402,7 @@ function wpsc_update_idle_preload( $finish_time = null ) {
 
 	$filename = wpsc_get_preload_status_file_path();
 	// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
-	if ( false === file_put_contents( $filename, wp_json_encode( $preload_status ) ) ) {
+	if ( false === file_put_contents( $filename, wp_json_encode( $preload_status, JSON_UNESCAPED_SLASHES ) ) ) {
 		wp_cache_debug( "wpsc_update_idle_preload: failed to write to $filename" );
 	}
 }

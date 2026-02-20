@@ -66,14 +66,20 @@ export function setCurrentQuery( currentQuery ) {
 	return ( { dispatch, select, registry } ) => {
 		const previousQuery = select.getCurrentQuery();
 
+		// Ensure fields_format is always included (for backwards compatibility with API)
+		const queryWithFormat = {
+			...currentQuery,
+			fields_format: currentQuery.fields_format ?? previousQuery.fields_format ?? 'collection',
+		};
+
 		// Check if filters changed (not just pagination)
 		const filtersChanged =
-			previousQuery.status !== currentQuery.status ||
-			previousQuery.search !== currentQuery.search ||
-			previousQuery.is_unread !== currentQuery.is_unread ||
-			previousQuery.parent !== currentQuery.parent ||
-			previousQuery.before !== currentQuery.before ||
-			previousQuery.after !== currentQuery.after;
+			previousQuery.status !== queryWithFormat.status ||
+			previousQuery.search !== queryWithFormat.search ||
+			previousQuery.is_unread !== queryWithFormat.is_unread ||
+			previousQuery.parent !== queryWithFormat.parent ||
+			previousQuery.before !== queryWithFormat.before ||
+			previousQuery.after !== queryWithFormat.after;
 
 		// If filters changed, clear invalid records and refetch
 		if ( filtersChanged ) {
@@ -82,13 +88,13 @@ export function setCurrentQuery( currentQuery ) {
 			if ( registry && registry.dispatch( 'core' ) ) {
 				registry
 					.dispatch( 'core' )
-					.invalidateResolution( 'getEntityRecords', [ 'postType', 'feedback', currentQuery ] );
+					.invalidateResolution( 'getEntityRecords', [ 'postType', 'feedback', queryWithFormat ] );
 			}
 		}
 
 		dispatch( {
 			type: SET_CURRENT_QUERY,
-			currentQuery,
+			currentQuery: queryWithFormat,
 		} );
 	};
 }

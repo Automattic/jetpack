@@ -1,6 +1,3 @@
-/**
- * @jest-environment jsdom
- */
 import { resolveCssVariable } from '../resolve-css-var';
 
 describe( 'resolveCssVariable', () => {
@@ -69,20 +66,98 @@ describe( 'resolveCssVariable', () => {
 		} );
 	} );
 
-	describe( 'Invalid input handling', () => {
-		it( 'returns null for CSS variables without double dash prefix', () => {
-			const result = resolveCssVariable( 'test-color' );
+	describe( 'var() syntax handling', () => {
+		it( 'resolves var(--name) syntax without fallback', () => {
+			window.getComputedStyle = jest.fn( () => ( {
+				getPropertyValue: ( prop: string ) => {
+					if ( prop === '--my-color' ) {
+						return '#ff0000';
+					}
+					return '';
+				},
+			} ) ) as unknown as typeof window.getComputedStyle;
+
+			const result = resolveCssVariable( 'var(--my-color)' );
+			expect( result ).toBe( '#ff0000' );
+		} );
+
+		it( 'resolves var(--name, fallback) syntax with fallback', () => {
+			window.getComputedStyle = jest.fn( () => ( {
+				getPropertyValue: ( prop: string ) => {
+					if ( prop === '--jp-white' ) {
+						return '#ffffff';
+					}
+					return '';
+				},
+			} ) ) as unknown as typeof window.getComputedStyle;
+
+			const result = resolveCssVariable( 'var(--jp-white, #000000)' );
+			expect( result ).toBe( '#ffffff' );
+		} );
+
+		it( 'uses fallback when variable is not defined', () => {
+			window.getComputedStyle = jest.fn( () => ( {
+				getPropertyValue: () => '', // Variable not defined
+			} ) ) as unknown as typeof window.getComputedStyle;
+
+			const result = resolveCssVariable( 'var(--undefined-var, #fallback)' );
+			expect( result ).toBe( '#fallback' );
+		} );
+
+		it( 'returns null when variable not defined and no fallback', () => {
+			window.getComputedStyle = jest.fn( () => ( {
+				getPropertyValue: () => '', // Variable not defined
+			} ) ) as unknown as typeof window.getComputedStyle;
+
+			const result = resolveCssVariable( 'var(--undefined-var)' );
 			expect( result ).toBeNull();
 		} );
 
+		it( 'handles var() with extra whitespace', () => {
+			window.getComputedStyle = jest.fn( () => ( {
+				getPropertyValue: () => '', // Variable not defined
+			} ) ) as unknown as typeof window.getComputedStyle;
+
+			const result = resolveCssVariable( 'var(  --my-var  ,  #abc123  )' );
+			expect( result ).toBe( '#abc123' );
+		} );
+
+		it( 'handles complex fallback values', () => {
+			window.getComputedStyle = jest.fn( () => ( {
+				getPropertyValue: () => '', // Variable not defined
+			} ) ) as unknown as typeof window.getComputedStyle;
+
+			const result = resolveCssVariable( 'var(--color, rgb(255, 0, 0))' );
+			expect( result ).toBe( 'rgb(255, 0, 0)' );
+		} );
+	} );
+
+	describe( 'Regular value passthrough', () => {
+		it( 'returns hex color values as-is', () => {
+			const result = resolveCssVariable( '#ff0000' );
+			expect( result ).toBe( '#ff0000' );
+		} );
+
+		it( 'returns named colors as-is', () => {
+			const result = resolveCssVariable( 'red' );
+			expect( result ).toBe( 'red' );
+		} );
+
+		it( 'returns rgb values as-is', () => {
+			const result = resolveCssVariable( 'rgb(255, 0, 0)' );
+			expect( result ).toBe( 'rgb(255, 0, 0)' );
+		} );
+	} );
+
+	describe( 'Invalid input handling', () => {
 		it( 'returns null for empty string', () => {
 			const result = resolveCssVariable( '' );
 			expect( result ).toBeNull();
 		} );
 
-		it( 'returns null for single dash prefix', () => {
+		it( 'returns single dash prefix values as-is (not a valid variable)', () => {
 			const result = resolveCssVariable( '-test-color' );
-			expect( result ).toBeNull();
+			expect( result ).toBe( '-test-color' );
 		} );
 	} );
 
@@ -119,30 +194,6 @@ describe( 'resolveCssVariable', () => {
 
 			const result = resolveCssVariable( '-----' );
 			expect( result ).toBe( 'value' );
-		} );
-	} );
-
-	describe( 'SSR compatibility', () => {
-		it( 'returns null when window is undefined', () => {
-			const originalWindow = globalThis.window;
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			delete ( globalThis as any ).window;
-
-			const result = resolveCssVariable( '--test-color' );
-			expect( result ).toBeNull();
-
-			globalThis.window = originalWindow;
-		} );
-
-		it( 'returns null when document is undefined', () => {
-			const originalDocument = globalThis.document;
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			delete ( globalThis as any ).document;
-
-			const result = resolveCssVariable( '--test-color' );
-			expect( result ).toBeNull();
-
-			globalThis.document = originalDocument;
 		} );
 	} );
 

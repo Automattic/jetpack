@@ -2,7 +2,7 @@ import { ActionButton, getRedirectUrl } from '@automattic/jetpack-components';
 import { useProductCheckoutWorkflow, useConnection } from '@automattic/jetpack-connection';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import backupVideoThumbnail from './images/jetpack-backup-video-thumbnail.png';
+import backupVideoThumbnail from './images/jetpack-backup-video-thumbnail.webp';
 
 import './style.scss';
 

@@ -182,9 +182,9 @@ class Jetpack_Search_Debug_Bar extends Debug_Bar_Panel {
 				// bar.
 				// Use _wp_specialchars() "manually" to ensure entities are encoded correctly.
 				echo _wp_specialchars( // phpcs:ignore WordPress.Security.EscapeOutput
-					wp_json_encode( $value ),
+					wp_json_encode( $value, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ),
 					ENT_NOQUOTES, // Don't need to encode quotes (output is for a text node).
-					'UTF-8',         // wp_json_encode() outputs UTF-8 (really just ASCII), not the blog's charset.
+					'UTF-8',         // wp_json_encode() outputs UTF-8, not the blog's charset.
 					true       // Do "double-encode" existing HTML entities.
 				);
 			?>

@@ -235,14 +235,14 @@ class XMLRPC_Logger {
 	public function convert_xml_rpc_to_json( $xml ) {
 		// Convert SimpleXML object to an array
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode, WordPress.WP.AlternativeFunctions.json_decode_json_decode
-		$array = json_decode( json_encode( (array) $xml ), true );
+		$array = json_decode( json_encode( (array) $xml, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ), true );
 
 		// Recursively clean up the array from empty arrays and objects
 		$array = $this->recursive_array_clean( $array );
 
 		// Convert the array to a JSON string
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode
-		return json_encode( $array, JSON_PRETTY_PRINT );
+		return json_encode( $array, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT );
 	}
 
 	/**
