@@ -552,7 +552,7 @@ class Agents_Manager {
 			return false;
 		}
 
-		// Call dedicated agents-manager/state endpoint (limits token scope to only needed preferences).
+		// Call dedicated agents-manager/state endpoint.
 		$wpcom_request = \Automattic\Jetpack\Connection\Client::wpcom_json_api_request_as_user(
 			'/agents-manager/state?key=unified_ai_chat',
 			'2',
