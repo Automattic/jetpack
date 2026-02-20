@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Agents Manager: Add `agents_manager_enqueue_in_block_editor` filter to allow preventing enqueue in block editor contexts.

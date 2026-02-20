@@ -311,6 +311,12 @@ class Agents_Manager {
 	 * @return bool
 	 */
 	private function is_enabled() {
+		// Allow environments (e.g. CIAB) to prevent loading in block editor contexts
+		// where agents-manager is already running from the parent page.
+		if ( $this->is_block_editor() && ! apply_filters( 'agents_manager_enqueue_in_block_editor', true ) ) {
+			return false;
+		}
+
 		// Full unified experience: Agents Manager with support guides, Help Center takeover, etc.
 		if ( apply_filters( 'agents_manager_use_unified_experience', false ) ) {
 			return true;
