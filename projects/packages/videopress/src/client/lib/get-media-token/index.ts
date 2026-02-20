@@ -94,9 +94,7 @@ const requestMediaToken = function (
 
 		const fetchPromise: Promise< Response > = useApiFetch
 			? window.wp.apiFetch( {
-					...( /^https?:\/\//.test( adminAjaxAPI )
-						? { url: adminAjaxAPI }
-						: { path: adminAjaxAPI } ),
+					url: adminAjaxAPI,
 					...fetchOptions,
 					parse: false,
 			  } )
