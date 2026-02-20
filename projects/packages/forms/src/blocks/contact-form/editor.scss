@@ -287,31 +287,55 @@
 
 	// AI Prompt input section
 	.form-placeholder__prompt {
-		display: flex;
-		align-items: center;
-		gap: 8px;
 		margin: 0;
-		background-color: #fff;
-		border: 1px solid #ddd;
-		border-radius: 28px;
-		padding: 4px 4px 4px 16px;
 
-		.components-base-control {
+		// Remove all shadows from AIControl
+		*,
+		*::before,
+		*::after {
+			box-shadow: none !important;
+		}
+
+		// Override AIControl container styles
+		.jetpack-components-ai-control__container-wrapper {
+			margin: 0;
+			box-shadow: none !important;
+		}
+
+		.jetpack-components-ai-control__container {
+			margin: 0;
+			box-shadow: none;
+			border: none;
+		}
+
+		.jetpack-components-ai-control__wrapper {
+			background-color: #fff;
+			border: 1px solid #ddd;
+			border-radius: 28px;
+			padding: 4px 6px 4px 20px;
+			box-shadow: none !important;
+			min-height: auto;
+			gap: 8px;
+
+			&:focus-within {
+				border-color: #ddd;
+				box-shadow: none !important;
+			}
+		}
+
+		// Hide the AI status indicator
+		.jetpack-components-ai-status-indicator {
+			display: none;
+		}
+
+		.jetpack-components-ai-control__input-wrapper {
 			flex: 1;
-			margin-bottom: 0;
 		}
 
-		.components-base-control__field {
-			margin-bottom: 0;
-		}
-
-		.components-text-control__input,
-		input[type="text"],
-		input:not([type="submit"]):not([type="checkbox"]):not([type="radio"]):not([type="range"]) {
+		.jetpack-components-ai-control__input {
 			background: transparent;
 			border: none !important;
 			box-shadow: none !important;
-			flex: 1;
 			font-size: 16px;
 			padding: 10px 0;
 			margin: 0;
@@ -467,12 +491,11 @@
 	width: 100%;
 }
 
-.form-placeholder__patterns-modal {
-	max-width: 1200px;
+.form-placeholder__forms-modal {
+	max-width: 900px;
 
 	@include gb.break-small() {
 		width: calc(100% - #{ gb.$grid-unit-20 * 2 });
-		height: calc(100% - #{ gb.$header-height * 2 });
 	}
 
 	@include gb.break-medium() {
@@ -480,33 +503,33 @@
 	}
 
 	@include gb.break-large() {
-		height: 80%;
 		width: 80%;
-		max-height: none;
+		max-width: 900px;
 	}
 
 	.components-modal__content {
-		padding: 0;
-		margin-bottom: 60px;
-
-		.view-mode-carousel {
-
-			.carousel-container {
-				margin-bottom: 20px;
-			}
-
-			.pattern-slide {
-				border: 1px solid #ddd;
-			}
-
-			.block-editor-block-pattern-setup__container {
-				padding: 0 32px;
-			}
-		}
+		padding: 20px;
 	}
 
-	.block-editor-block-pattern-setup__grid .block-editor-block-pattern-setup__container {
-		padding-bottom: 72px;
+	.form-placeholder__forms-loading {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		min-height: 200px;
+	}
+
+	.form-placeholder__forms-grid {
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 20px;
+
+		@include gb.break-medium() {
+			grid-template-columns: repeat(3, minmax(0, 1fr));
+		}
+
+		.form-placeholder__template-card {
+			margin: 0;
+		}
 	}
 }
 

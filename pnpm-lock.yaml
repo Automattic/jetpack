@@ -2350,6 +2350,9 @@ importers:
       '@automattic/babel-plugin-replace-textdomain':
         specifier: workspace:*
         version: link:../../js-packages/babel-plugin-replace-textdomain
+      '@automattic/jetpack-ai-client':
+        specifier: workspace:*
+        version: link:../../js-packages/ai-client
       '@automattic/jetpack-analytics':
         specifier: workspace:*
         version: link:../../js-packages/analytics

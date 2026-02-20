@@ -42,6 +42,7 @@
 	],
 	"dependencies": {
 		"@automattic/babel-plugin-replace-textdomain": "workspace:*",
+		"@automattic/jetpack-ai-client": "workspace:*",
 		"@automattic/jetpack-analytics": "workspace:*",
 		"@automattic/jetpack-components": "workspace:*",
 		"@automattic/jetpack-connection": "workspace:*",
