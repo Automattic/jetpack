@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix file-type icon paths and show image thumbnails for file fields in the inspector
