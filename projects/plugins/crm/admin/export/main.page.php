@@ -29,7 +29,7 @@ function jpcrm_render_export_page() {
 	// secondary permissions check
 	if ( ! zeroBSCRM_permsExport() ) {
 
-		return jpcrm_export_preflight_error( __( 'You do not have permissions to access this page.' ) );
+		return jpcrm_export_preflight_error( __( 'You do not have permissions to access this page.', 'zero-bs-crm' ) );
 
 	}
 
@@ -62,12 +62,12 @@ function jpcrm_render_export_page() {
 
 	// bad object type, so fail
 	if ( ! $zbs->DAL->isValidObjTypeID( $obj_type_id ) ) {
-		return jpcrm_export_preflight_error( __( 'Invalid object selected for export!' ) );
+		return jpcrm_export_preflight_error( __( 'Invalid object selected for export!', 'zero-bs-crm' ) );
 	}
 
 	// no perms for this object
 	if ( ! zeroBSCRM_permsObjType( $obj_type_id ) ) {
-		return jpcrm_export_preflight_error( __( 'You do not have permissions to access this page.' ) );
+		return jpcrm_export_preflight_error( __( 'You do not have permissions to access this page.', 'zero-bs-crm' ) );
 	}
 
 	// get segment id, if exporting segment
@@ -116,7 +116,7 @@ function jpcrm_render_export_page() {
 
 	// bad object type, so fail
 	if ( $obj_count == 0 ) {
-		return jpcrm_export_preflight_error( __( 'No objects to export!' ) );
+		return jpcrm_export_preflight_error( __( 'No objects to export!', 'zero-bs-crm' ) );
 	}
 
 	// == / Retrieve objs to export =======
