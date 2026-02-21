@@ -13,7 +13,7 @@ import { BlockControls, useBlockProps } from '@wordpress/block-editor';
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback, useEffect, useState, useRef, useMemo } from '@wordpress/element';
-import { addFilter } from '@wordpress/hooks';
+import { addFilter, doAction } from '@wordpress/hooks';
 import clsx from 'clsx';
 import debugFactory from 'debug';
 /*
@@ -273,6 +273,10 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 					}
 					focusInput();
 				}, 100 );
+
+				// Fire a WordPress action for cross-package communication.
+				// This allows packages (like forms) to react to AI generation completion.
+				doAction( 'jetpack_ai_assistant_generation_complete', clientId, blockName );
 			},
 			[
 				disableAutoScroll,
@@ -284,6 +288,8 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 				adjustBlockPadding,
 				tracks,
 				lastPromptType,
+				clientId,
+				blockName,
 			]
 		);
 
@@ -563,7 +569,9 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 		}
 
 		const ProviderProps = {
-			value: { [ blockName ]: { handleAskAiAssistant, handleRequestSuggestion } },
+			value: {
+				[ blockName ]: { handleAskAiAssistant, handleRequestSuggestion },
+			},
 		};
 
 		return (
