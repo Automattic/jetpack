@@ -201,32 +201,14 @@ class Admin_Menu extends Base_Admin_Menu {
 	}
 
 	/**
-	 * Checks if the site is globally configured to use the wp-admin interface.
-	 *
-	 * This bypasses the per-screen override filter from wpcom_admin_interface_pre_get_option
-	 * which returns 'wp-admin' for screens in WPCOM_DUPLICATED_VIEW (like edit.php).
-	 * We need the actual stored option to determine if jetpack-mu-wpcom handles the upsell.
-	 *
-	 * @return bool
-	 */
-	private function is_wp_admin_interface() {
-		remove_filter( 'pre_option_wpcom_admin_interface', 'wpcom_admin_interface_pre_get_option' );
-		$is_wp_admin = 'wp-admin' === get_option( 'wpcom_admin_interface' );
-		if ( function_exists( 'wpcom_admin_interface_pre_get_option' ) ) {
-			add_filter( 'pre_option_wpcom_admin_interface', 'wpcom_admin_interface_pre_get_option', 10 );
-		}
-		return $is_wp_admin;
-	}
-
-	/**
 	 * Renders the upsell nudge directly in the admin menu.
 	 *
 	 * This renders server-side via the `adminmenu` hook to avoid the layout
 	 * shift caused by the previous AJAX-based approach.
 	 */
 	public function render_upsell_nudge() {
-		// Skip if jetpack-mu-wpcom handles this for wp-admin interface sites.
-		if ( $this->is_wp_admin_interface() ) {
+		// Skip if jetpack-mu-wpcom is already rendering the upsell banner.
+		if ( has_action( 'adminmenu', 'wpcom_add_sidebar_notice_menu_page' ) ) {
 			return;
 		}
 
