@@ -31,7 +31,7 @@ class WPcom_Admin_Menu extends Admin_Menu {
 
 		add_action( 'wp_ajax_sidebar_state', array( $this, 'ajax_sidebar_state' ) );
 		add_action( 'wp_ajax_jitm_dismiss', array( $this, 'wp_ajax_jitm_dismiss' ) );
-		add_action( 'adminmenu', array( $this, 'render_upsell_nudge' ) );
+		add_action( 'adminmenu', array( $this, 'render_upsell_nudge' ), 100 );
 		add_action( 'admin_init', array( $this, 'sync_sidebar_collapsed_state' ) );
 		add_action( 'admin_menu', array( $this, 'remove_submenus' ), 140 ); // After hookpress hook at 130.
 	}

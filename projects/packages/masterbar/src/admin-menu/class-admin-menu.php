@@ -252,7 +252,13 @@ class Admin_Menu extends Base_Admin_Menu {
 				</div>
 			</a>
 		</li>
-		<script>(function(el){if(el){el.parentNode.prepend(el)}})(document.getElementById("toplevel_page_site-notices"))</script>
+		<script>
+		( function ( el ) {
+			if ( el && el.parentNode ) {
+				el.parentNode.prepend( el );
+			}
+		} )( document.getElementById( 'toplevel_page_site-notices' ) );
+		</script>
 		<?php
 	}
 
