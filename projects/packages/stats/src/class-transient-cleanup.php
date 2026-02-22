@@ -174,7 +174,7 @@ class Transient_Cleanup {
 	 * Purge expired transients for a specific prefix.
 	 *
 	 * @param string $prefix The transient prefix to clean up.
-	 * @return int Number of deleted transients.
+	 * @return int Number of deleted transient options, two entries for each transient.
 	 */
 	private static function purge_expired_transients( $prefix ) {
 		global $wpdb;
@@ -227,7 +227,6 @@ class Transient_Cleanup {
 			}
 		}
 
-		// Each transient has 2 rows (value + timeout), so divide by 2 for transient count.
-		return (int) ( $total_deleted / 2 );
+		return $total_deleted;
 	}
 }
