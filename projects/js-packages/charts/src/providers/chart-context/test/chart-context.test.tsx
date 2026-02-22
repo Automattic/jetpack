@@ -258,6 +258,43 @@ describe( 'ChartContext', () => {
 			expect( capturedColor ).toBe( mockTheme.colors[ 0 ] );
 		} );
 
+		it( 'returns transparent for CSS variables on first render before DOM resolution', () => {
+			// CSS variables cannot be resolved until DOM is available. On first render,
+			// we should return 'transparent' instead of generating a wrong color.
+			// This ensures a smooth fade-in rather than a jarring color flicker.
+			let firstRenderColor: string | undefined;
+
+			const TestComponent = () => {
+				const context = useGlobalChartsContext();
+				const hasCaptured = useRef( false );
+
+				// Capture color only on first render (before useLayoutEffect runs)
+				if ( ! hasCaptured.current ) {
+					hasCaptured.current = true;
+					firstRenderColor = context.getElementStyles( {
+						data: undefined,
+						index: 0,
+					} ).color;
+				}
+
+				return <div>Test</div>;
+			};
+
+			const cssVarTheme: ChartTheme = {
+				colors: [ 'var(--some-color)', '--another-color' ],
+			} as ChartTheme;
+
+			render(
+				<GlobalChartsProvider theme={ cssVarTheme }>
+					<TestComponent />
+				</GlobalChartsProvider>
+			);
+
+			// On first render, CSS variables can't be resolved (no DOM yet),
+			// so we should get 'transparent' instead of a generated wrong color
+			expect( firstRenderColor ).toBe( 'transparent' );
+		} );
+
 		it( 'provides getElementStyles function for color resolution', () => {
 			let contextValue: GlobalChartsContextValue;
 
