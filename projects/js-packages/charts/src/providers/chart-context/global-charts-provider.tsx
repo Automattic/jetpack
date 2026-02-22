@@ -130,7 +130,18 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( {
 	// Re-compute color cache after DOM is updated to resolve CSS variables.
 	// This is needed because CSS variables in <style> tags must be applied to the DOM first.
 	useLayoutEffect( () => {
-		setColorCache( processColors( providerTheme.colors, wrapperRef.current ) );
+		const nextCache = processColors( providerTheme.colors, wrapperRef.current );
+		// Avoid unnecessary state updates/renders when the cache hasn't actually changed
+		// (e.g., when the theme is hex-only and already resolved in the initializer).
+		setColorCache( prevCache => {
+			if (
+				prevCache.colors.length === nextCache.colors.length &&
+				prevCache.colors.every( ( c, i ) => c === nextCache.colors[ i ] )
+			) {
+				return prevCache;
+			}
+			return nextCache;
+		} );
 	}, [ providerTheme ] );
 
 	const [ groupToColorMap, setGroupToColorMap ] = useState< Map< string, string > >(
@@ -186,20 +197,19 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( {
 				const themeColorsCount = providerTheme.colors?.length ?? 0;
 				const cacheFullyResolved = colorCache.colors.length >= themeColorsCount;
 
-				// If cache has all theme colors resolved, use normal resolution path
-				if ( cacheFullyResolved && colorIndex < colorCache.colors.length ) {
-					return null;
-				}
-
-				// Cache not fully resolved (CSS vars pending) - check theme color at this index
+				// Prefer the current theme's hex color when available.
+				// This avoids using stale cache when theme changes to a different palette.
 				const themeColor = providerTheme.colors?.[ colorIndex ];
 				if ( themeColor && isValidHexColor( themeColor ) ) {
 					return themeColor;
 				}
-				// CSS variable or unresolved color - use transparent to avoid flicker
-				if ( themeColor ) {
+
+				// When cache is not fully resolved (CSS vars pending), avoid flicker by using transparent
+				if ( ! cacheFullyResolved && themeColor ) {
 					return 'transparent';
 				}
+
+				// Fall back to normal resolution path (getChartColor)
 				return null;
 			};
 

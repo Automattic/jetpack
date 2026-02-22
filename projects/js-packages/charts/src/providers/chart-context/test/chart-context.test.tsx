@@ -298,40 +298,46 @@ describe( 'ChartContext', () => {
 		it( 'resolves group colors correctly after CSS variables are resolved', () => {
 			// This test verifies that group colors don't stay 'transparent' permanently.
 			// After useLayoutEffect resolves CSS variables, group colors should update.
-			window.getComputedStyle = jest.fn( () => ( {
-				getPropertyValue: ( prop: string ) => {
-					if ( prop === '--theme-color' ) {
-						return '#3858e9';
-					}
-					return '';
-				},
-			} ) ) as unknown as typeof window.getComputedStyle;
+			const originalGetComputedStyle = window.getComputedStyle;
 
-			let contextValue: GlobalChartsContextValue;
+			try {
+				window.getComputedStyle = jest.fn( () => ( {
+					getPropertyValue: ( prop: string ) => {
+						if ( prop === '--theme-color' ) {
+							return '#3858e9';
+						}
+						return '';
+					},
+				} ) ) as unknown as typeof window.getComputedStyle;
 
-			const TestComponent = () => {
-				contextValue = useGlobalChartsContext();
-				return <div>Test</div>;
-			};
+				let contextValue: GlobalChartsContextValue;
 
-			const cssVarTheme: ChartTheme = {
-				colors: [ 'var(--theme-color)' ],
-			} as ChartTheme;
+				const TestComponent = () => {
+					contextValue = useGlobalChartsContext();
+					return <div>Test</div>;
+				};
 
-			render(
-				<GlobalChartsProvider theme={ cssVarTheme }>
-					<TestComponent />
-				</GlobalChartsProvider>
-			);
+				const cssVarTheme: ChartTheme = {
+					colors: [ 'var(--theme-color)' ],
+				} as ChartTheme;
 
-			// After render + useLayoutEffect, CSS variable should be resolved
-			// and group color should be the resolved value, not 'transparent'
-			const groupColor = contextValue.getElementStyles( {
-				data: createMockDataWithGroup( 'test-group' ),
-				index: 0,
-			} ).color;
+				render(
+					<GlobalChartsProvider theme={ cssVarTheme }>
+						<TestComponent />
+					</GlobalChartsProvider>
+				);
 
-			expect( groupColor ).toBe( '#3858e9' );
+				// After render + useLayoutEffect, CSS variable should be resolved
+				// and group color should be the resolved value, not 'transparent'
+				const groupColor = contextValue.getElementStyles( {
+					data: createMockDataWithGroup( 'test-group' ),
+					index: 0,
+				} ).color;
+
+				expect( groupColor ).toBe( '#3858e9' );
+			} finally {
+				window.getComputedStyle = originalGetComputedStyle;
+			}
 		} );
 
 		it( 'provides getElementStyles function for color resolution', () => {
