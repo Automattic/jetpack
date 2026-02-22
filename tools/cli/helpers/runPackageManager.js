@@ -25,8 +25,7 @@ export async function runPackageManager( { command, requiredFile } ) {
 
 	if (
 		rawArgs.length > 0 &&
-		( rawArgs[ 0 ] === 'monorepo' ||
-			projectTypes.some( t => rawArgs[ 0 ].startsWith( t + '/' ) ) )
+		( rawArgs[ 0 ] === 'monorepo' || projectTypes.some( t => rawArgs[ 0 ].startsWith( t + '/' ) ) )
 	) {
 		project = rawArgs[ 0 ];
 		cmdArgs = rawArgs.slice( 1 );
