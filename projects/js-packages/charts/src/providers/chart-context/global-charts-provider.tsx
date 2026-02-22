@@ -137,11 +137,13 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( {
 		() => new Map()
 	);
 
-	// Reset group color mappings when theme colors change
+	// Reset group color mappings when theme colors change or when colorCache is updated.
+	// The colorCache dependency ensures that after CSS variables are resolved by useLayoutEffect,
+	// any 'transparent' placeholder colors cached in groupToColorMap are cleared.
 	useEffect( () => {
 		// Create a completely new Map instance to trigger dependencies, e.g. useChartLegendItems
 		setGroupToColorMap( new Map() );
-	}, [ providerTheme.colors ] );
+	}, [ providerTheme.colors, colorCache ] );
 
 	const registerChart = useCallback( ( id: string, data: ChartRegistration ) => {
 		setCharts( prev => new Map( prev ).set( id, data ) );
@@ -181,11 +183,15 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( {
 			// Returns the color if available, or 'transparent' for CSS variables that need DOM.
 			// This prevents color flicker by showing transparent instead of a generated wrong color.
 			const getFirstRenderColor = ( colorIndex: number ): string | null => {
-				// If cache has this color, use normal resolution path
-				if ( colorIndex < colorCache.colors.length ) {
+				const themeColorsCount = providerTheme.colors?.length ?? 0;
+				const cacheFullyResolved = colorCache.colors.length >= themeColorsCount;
+
+				// If cache has all theme colors resolved, use normal resolution path
+				if ( cacheFullyResolved && colorIndex < colorCache.colors.length ) {
 					return null;
 				}
-				// Cache doesn't have this color yet - check if it's a hex color we can use directly
+
+				// Cache not fully resolved (CSS vars pending) - check theme color at this index
 				const themeColor = providerTheme.colors?.[ colorIndex ];
 				if ( themeColor && isValidHexColor( themeColor ) ) {
 					return themeColor;

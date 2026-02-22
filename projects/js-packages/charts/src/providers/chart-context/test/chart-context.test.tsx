@@ -295,6 +295,45 @@ describe( 'ChartContext', () => {
 			expect( firstRenderColor ).toBe( 'transparent' );
 		} );
 
+		it( 'resolves group colors correctly after CSS variables are resolved', () => {
+			// This test verifies that group colors don't stay 'transparent' permanently.
+			// After useLayoutEffect resolves CSS variables, group colors should update.
+			window.getComputedStyle = jest.fn( () => ( {
+				getPropertyValue: ( prop: string ) => {
+					if ( prop === '--theme-color' ) {
+						return '#3858e9';
+					}
+					return '';
+				},
+			} ) ) as unknown as typeof window.getComputedStyle;
+
+			let contextValue: GlobalChartsContextValue;
+
+			const TestComponent = () => {
+				contextValue = useGlobalChartsContext();
+				return <div>Test</div>;
+			};
+
+			const cssVarTheme: ChartTheme = {
+				colors: [ 'var(--theme-color)' ],
+			} as ChartTheme;
+
+			render(
+				<GlobalChartsProvider theme={ cssVarTheme }>
+					<TestComponent />
+				</GlobalChartsProvider>
+			);
+
+			// After render + useLayoutEffect, CSS variable should be resolved
+			// and group color should be the resolved value, not 'transparent'
+			const groupColor = contextValue.getElementStyles( {
+				data: createMockDataWithGroup( 'test-group' ),
+				index: 0,
+			} ).color;
+
+			expect( groupColor ).toBe( '#3858e9' );
+		} );
+
 		it( 'provides getElementStyles function for color resolution', () => {
 			let contextValue: GlobalChartsContextValue;
 
@@ -1888,7 +1927,7 @@ describe( 'ChartContext', () => {
 		} );
 
 		describe( 'CSS Variable Edge Cases', () => {
-			it( 'skips CSS variables that are not defined', () => {
+			it( 'returns transparent for undefined CSS variables', () => {
 				window.getComputedStyle = jest.fn( () => ( {
 					getPropertyValue: () => {
 						// Undefined var returns empty string
@@ -1913,16 +1952,22 @@ describe( 'ChartContext', () => {
 					</GlobalChartsProvider>
 				);
 
-				// Should skip undefined variable and use second color
-				const color = contextValue.getElementStyles( {
+				// Index 0 is unresolvable CSS variable, returns transparent
+				// Index 1 is hex color
+				const color0 = contextValue.getElementStyles( {
 					data: undefined,
 					index: 0,
 				} ).color;
+				const color1 = contextValue.getElementStyles( {
+					data: undefined,
+					index: 1,
+				} ).color;
 
-				expect( color ).toBe( '#ff0000' );
+				expect( color0 ).toBe( 'transparent' );
+				expect( color1 ).toBe( '#ff0000' );
 			} );
 
-			it( 'skips CSS variables that resolve to empty string', () => {
+			it( 'returns transparent for CSS variables that resolve to empty string', () => {
 				window.getComputedStyle = jest.fn( () => ( {
 					getPropertyValue: () => '', // Returns empty string
 				} ) ) as unknown as typeof window.getComputedStyle;
@@ -1944,13 +1989,19 @@ describe( 'ChartContext', () => {
 					</GlobalChartsProvider>
 				);
 
-				// Undefined variable should be skipped, second color becomes first
-				const color = contextValue.getElementStyles( {
+				// Index 0 is unresolvable CSS variable, returns transparent
+				// Index 1 is hex color
+				const color0 = contextValue.getElementStyles( {
 					data: undefined,
 					index: 0,
 				} ).color;
+				const color1 = contextValue.getElementStyles( {
+					data: undefined,
+					index: 1,
+				} ).color;
 
-				expect( color ).toBe( '#00ff00' );
+				expect( color0 ).toBe( 'transparent' );
+				expect( color1 ).toBe( '#00ff00' );
 			} );
 
 			it( 'handles CSS variables resolving to non-hex colors', () => {
@@ -1980,13 +2031,19 @@ describe( 'ChartContext', () => {
 					</GlobalChartsProvider>
 				);
 
-				// Non-hex colors are currently skipped, should use second color
-				const color = contextValue.getElementStyles( {
+				// Index 0 is a CSS variable that resolves to non-hex, returns transparent
+				// Index 1 is the hex color
+				const color0 = contextValue.getElementStyles( {
 					data: undefined,
 					index: 0,
 				} ).color;
+				const color1 = contextValue.getElementStyles( {
+					data: undefined,
+					index: 1,
+				} ).color;
 
-				expect( color ).toBe( '#ff0000' );
+				expect( color0 ).toBe( 'transparent' );
+				expect( color1 ).toBe( '#ff0000' );
 			} );
 		} );
 
@@ -2365,13 +2422,19 @@ describe( 'ChartContext', () => {
 					);
 				} ).not.toThrow();
 
-				// Should fall back to static colors
-				const color = contextValue.getElementStyles( {
+				// Index 0 is a CSS variable that can't be resolved, returns transparent
+				// Index 1 is the hex color
+				const color0 = contextValue.getElementStyles( {
 					data: undefined,
 					index: 0,
 				} ).color;
+				const color1 = contextValue.getElementStyles( {
+					data: undefined,
+					index: 1,
+				} ).color;
 
-				expect( color ).toBe( '#ff0000' );
+				expect( color0 ).toBe( 'transparent' );
+				expect( color1 ).toBe( '#ff0000' );
 			} );
 		} );
 
