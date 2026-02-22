@@ -287,3 +287,20 @@ export const WithoutTooltips: Story = {
 		renderTooltip: () => null,
 	},
 };
+
+/**
+ * Tests CSS variable color resolution fix.
+ * The custom theme uses `var(--wpds-color-bg-interactive-brand)` which requires DOM to resolve.
+ * Before the fix: bars would flicker from a wrong generated color (red) to the correct color.
+ * After the fix: bars should fade in smoothly from transparent (no jarring color flash).
+ */
+export const WithCSSVariableTheme: Story = {
+	args: {
+		themeName: 'custom',
+		accentColor: '#3858e9',
+		mainRate: 10.3,
+		changeIndicator: '+2%',
+		steps: ecommerceFunnelData,
+		loading: false,
+	},
+};
