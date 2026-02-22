@@ -39,6 +39,64 @@ export interface GlobalChartsProviderProps {
 	portalContainer?: React.RefObject< HTMLElement | null >;
 }
 
+/**
+ * Process an array of colors into a ColorCache structure.
+ * Handles hex colors directly, and optionally resolves CSS variables if an element is provided.
+ *
+ * @param colors  - Array of color strings (hex or CSS variables)
+ * @param element - DOM element for resolving CSS variables (null for sync init)
+ * @return ColorCache with resolved colors and computed hue data
+ */
+function processColors( colors: string[] | undefined, element: HTMLElement | null ): ColorCache {
+	const resolvedColors: string[] = [];
+	const hues: number[] = [];
+	const existingHslColors: Array< [ number, number, number ] > = [];
+	let minHue = 360;
+	let maxHue = 0;
+
+	if ( Array.isArray( colors ) ) {
+		for ( const color of colors ) {
+			if ( color && typeof color === 'string' ) {
+				let colorValue = color;
+
+				// Handle CSS custom properties - resolve them to actual values
+				// Supports both '--var-name' and 'var(--var-name)' formats
+				if ( color.startsWith( '--' ) || color.startsWith( 'var(' ) ) {
+					// CSS variables can only be resolved when DOM element is available
+					if ( ! element ) {
+						continue;
+					}
+					const resolved = resolveCssVariable( color, element );
+					if ( resolved === null || resolved === '' ) {
+						continue;
+					}
+					colorValue = resolved;
+				}
+
+				// Process hex colors
+				if ( colorValue.startsWith( '#' ) ) {
+					resolvedColors.push( colorValue );
+					const hslColor = d3Hsl( colorValue );
+					// d3Hsl returns NaN values for invalid colors
+					if ( ! isNaN( hslColor.h ) ) {
+						const hslTuple: [ number, number, number ] = [
+							hslColor.h,
+							hslColor.s * 100,
+							hslColor.l * 100,
+						];
+						hues.push( hslTuple[ 0 ] );
+						existingHslColors.push( hslTuple );
+						minHue = Math.min( minHue, hslTuple[ 0 ] );
+						maxHue = Math.max( maxHue, hslTuple[ 0 ] );
+					}
+				}
+			}
+		}
+	}
+
+	return { colors: resolvedColors, hues, existingHslColors, minHue, maxHue };
+}
+
 export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( {
 	children,
 	theme,
@@ -60,76 +118,19 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( {
 		return theme ? mergeThemes( defaultTheme, theme ) : defaultTheme;
 	}, [ theme ] );
 
-	// Cache expensive color computations that only change when theme colors change
-	// Using useState + useLayoutEffect instead of useMemo to ensure CSS variables
-	// in <style> tags are applied to the DOM before we try to resolve them
-	const [ colorCache, setColorCache ] = useState< ColorCache >( () => ( {
-		colors: [],
-		hues: [],
-		existingHslColors: [],
-		minHue: 360,
-		maxHue: 0,
-	} ) );
+	// Cache expensive color computations that only change when theme colors change.
+	// Initialize synchronously with hex colors (no DOM needed), then useLayoutEffect
+	// re-processes to resolve CSS variables once DOM is available.
+	const [ colorCache, setColorCache ] = useState< ColorCache >( () => {
+		const mergedTheme = theme ? mergeThemes( defaultTheme, theme ) : defaultTheme;
+		// Process hex colors synchronously (CSS variables skipped since no DOM yet)
+		return processColors( mergedTheme.colors, null );
+	} );
 
-	// Compute color cache after DOM is updated (so CSS variables are available)
-	// Resolves CSS variables from the wrapper element's scope to handle scoped variables
-	// Note: Only re-runs when providerTheme changes, not when wrapper element changes.
-	// This is intentional, as wrapperRef is expected to be stable for the lifetime of the provider.
+	// Re-compute color cache after DOM is updated to resolve CSS variables.
+	// This is needed because CSS variables in <style> tags must be applied to the DOM first.
 	useLayoutEffect( () => {
-		const { colors } = providerTheme;
-		const resolvedColors: string[] = [];
-		const hues: number[] = [];
-		const existingHslColors: Array< [ number, number, number ] > = [];
-		let minHue = 360;
-		let maxHue = 0;
-
-		// Process all colors once and cache the results
-		if ( Array.isArray( colors ) ) {
-			for ( const color of colors ) {
-				if ( color && typeof color === 'string' ) {
-					let colorValue = color;
-
-					// Handle CSS custom properties - resolve them to actual values
-					// Supports both '--var-name' and 'var(--var-name)' formats
-					// Use wrapper element to resolve scoped CSS variables
-					if ( color.startsWith( '--' ) || color.startsWith( 'var(' ) ) {
-						const resolved = resolveCssVariable( color, wrapperRef.current );
-
-						if ( resolved === null || resolved === '' ) {
-							continue;
-						}
-
-						colorValue = resolved;
-					}
-
-					// Process hex colors
-					if ( colorValue.startsWith( '#' ) ) {
-						resolvedColors.push( colorValue );
-						const hslColor = d3Hsl( colorValue );
-						// d3Hsl returns NaN values for invalid colors
-						if ( ! isNaN( hslColor.h ) ) {
-							const hslTuple: [ number, number, number ] = [
-								hslColor.h,
-								hslColor.s * 100,
-								hslColor.l * 100,
-							];
-							hues.push( hslTuple[ 0 ] );
-							existingHslColors.push( hslTuple );
-							minHue = Math.min( minHue, hslTuple[ 0 ] );
-							maxHue = Math.max( maxHue, hslTuple[ 0 ] );
-						}
-					}
-				}
-			}
-		}
-
-		setColorCache( {
-			colors: resolvedColors,
-			hues,
-			existingHslColors,
-			minHue,
-			maxHue,
-		} );
+		setColorCache( processColors( providerTheme.colors, wrapperRef.current ) );
 	}, [ providerTheme ] );
 
 	const [ groupToColorMap, setGroupToColorMap ] = useState< Map< string, string > >(
@@ -176,14 +177,22 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( {
 				return normalizeColorToHex( overrideColor, wrapperRef.current, resolveCssVariable );
 			}
 
-			// Fallback for first render: if colorCache is not yet populated by useLayoutEffect,
-			// use raw theme hex colors directly to prevent color flicker
-			const getRawThemeColor = ( colorIndex: number ): string | null => {
-				if ( colorCache.colors.length === 0 ) {
-					const themeColor = providerTheme.colors?.[ colorIndex ];
-					if ( themeColor && isValidHexColor( themeColor ) ) {
-						return themeColor;
-					}
+			// Fallback for first render when colorCache may not have all colors resolved yet.
+			// Returns the color if available, or 'transparent' for CSS variables that need DOM.
+			// This prevents color flicker by showing transparent instead of a generated wrong color.
+			const getFirstRenderColor = ( colorIndex: number ): string | null => {
+				// If cache has this color, use normal resolution path
+				if ( colorIndex < colorCache.colors.length ) {
+					return null;
+				}
+				// Cache doesn't have this color yet - check if it's a hex color we can use directly
+				const themeColor = providerTheme.colors?.[ colorIndex ];
+				if ( themeColor && isValidHexColor( themeColor ) ) {
+					return themeColor;
+				}
+				// CSS variable or unresolved color - use transparent to avoid flicker
+				if ( themeColor ) {
+					return 'transparent';
 				}
 				return null;
 			};
@@ -200,13 +209,13 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( {
 				// ensuring each new group gets the next available palette color
 				const assignedCount = groupToColorMap.size;
 				const color =
-					getRawThemeColor( assignedCount ) ?? getChartColor( assignedCount, colorCache );
+					getFirstRenderColor( assignedCount ) ?? getChartColor( assignedCount, colorCache );
 				groupToColorMap.set( group, color );
 
 				return color;
 			}
 
-			return getRawThemeColor( index ) ?? getChartColor( index, colorCache );
+			return getFirstRenderColor( index ) ?? getChartColor( index, colorCache );
 		},
 		[ colorCache, groupToColorMap, providerTheme.colors ]
 	);
