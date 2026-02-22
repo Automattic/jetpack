@@ -7,8 +7,6 @@
 
 namespace Automattic\Jetpack\Masterbar;
 
-use Automattic\Jetpack\Assets;
-
 require_once __DIR__ . '/class-base-admin-menu.php';
 
 /**
@@ -203,20 +201,43 @@ class Admin_Menu extends Base_Admin_Menu {
 	}
 
 	/**
-	 * AJAX handler for retrieving the upsell nudge.
+	 * Checks if the site is globally configured to use the wp-admin interface.
+	 *
+	 * This bypasses the per-screen override filter from wpcom_admin_interface_pre_get_option
+	 * which returns 'wp-admin' for screens in WPCOM_DUPLICATED_VIEW (like edit.php).
+	 * We need the actual stored option to determine if jetpack-mu-wpcom handles the upsell.
+	 *
+	 * @return bool
 	 */
-	public function wp_ajax_upsell_nudge_jitm() {
-		check_ajax_referer( 'upsell_nudge_jitm' );
+	private function is_wp_admin_interface() {
+		remove_filter( 'pre_option_wpcom_admin_interface', 'wpcom_admin_interface_pre_get_option' );
+		$is_wp_admin = 'wp-admin' === get_option( 'wpcom_admin_interface' );
+		if ( function_exists( 'wpcom_admin_interface_pre_get_option' ) ) {
+			add_filter( 'pre_option_wpcom_admin_interface', 'wpcom_admin_interface_pre_get_option', 10 );
+		}
+		return $is_wp_admin;
+	}
 
-		// Filter to turn off all just in time messages
+	/**
+	 * Renders the upsell nudge directly in the admin menu.
+	 *
+	 * This renders server-side via the `adminmenu` hook to avoid the layout
+	 * shift caused by the previous AJAX-based approach.
+	 */
+	public function render_upsell_nudge() {
+		// Skip if jetpack-mu-wpcom handles this for wp-admin interface sites.
+		if ( $this->is_wp_admin_interface() ) {
+			return;
+		}
+
 		/** This action is already documented in \Automattic\Jetpack\JITMS\JITM */
 		if ( ! apply_filters( 'jetpack_just_in_time_msgs', true ) ) {
-			wp_die();
+			return;
 		}
 
 		$nudge = $this->get_upsell_nudge();
 		if ( ! $nudge ) {
-			wp_die();
+			return;
 		}
 
 		$link = $nudge['link'];
@@ -249,24 +270,8 @@ class Admin_Menu extends Base_Admin_Menu {
 				</div>
 			</a>
 		</li>
+		<script>(function(el){if(el){el.parentNode.prepend(el)}})(document.getElementById("toplevel_page_site-notices"))</script>
 		<?php
-		wp_die();
-	}
-
-	/**
-	 * Fixes scrollbar issue if upsell nudge is loaded.
-	 * https://github.com/Automattic/dotcom-forge/issues/7936
-	 */
-	public function wpcom_upsell_nudge_jitm_fix() {
-		$assets_base_path = '../../dist/admin-menu/';
-		Assets::register_script(
-			'wpcom-upsell-nudge-jitm-fix',
-			$assets_base_path . 'wpcom-upsell-nudge-jitm-fix.js',
-			__FILE__,
-			array(
-				'enqueue' => true,
-			)
-		);
 	}
 
 	/**
