@@ -7,9 +7,14 @@
 
 namespace Automattic\Jetpack\Stats;
 
+use PHPUnit\Framework\Attributes\CoversClass;
+
 /**
  * Class Transient_Cleanup_Test
+ *
+ * @covers \Automattic\Jetpack\Stats\Transient_Cleanup
  */
+#[CoversClass( Transient_Cleanup::class )]
 class Transient_Cleanup_Test extends StatsBaseTestCase {
 
 	/**

@@ -134,7 +134,7 @@ class Transient_Cleanup {
 	/**
 	 * Run the transient cleanup.
 	 *
-	 * @return int|false Number of deleted transients, or false if skipped.
+	 * @return int|false Number of deleted transient options (two entries per transient), or false if skipped.
 	 */
 	public static function run_cleanup() {
 		/**
@@ -200,15 +200,15 @@ class Transient_Cleanup {
 		}
 
 		// Build list of option names to delete (both transient and timeout entries).
-		$options_names = array();
+		$option_names = array();
 		foreach ( $transients as $transient ) {
-			$options_names[] = '_transient_' . $prefix . $transient;
-			$options_names[] = '_transient_timeout_' . $prefix . $transient;
+			$option_names[] = '_transient_' . $prefix . $transient;
+			$option_names[] = '_transient_timeout_' . $prefix . $transient;
 		}
 
 		// Delete in chunks to avoid excessively long SQL queries.
 		// Each option name can be ~80 chars, so 50 items ≈ 4KB per query.
-		$chunks        = array_chunk( $options_names, 50 );
+		$chunks        = array_chunk( $option_names, 50 );
 		$total_deleted = 0;
 
 		foreach ( $chunks as $chunk ) {
