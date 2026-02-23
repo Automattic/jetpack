@@ -33,7 +33,7 @@ export function useElementSize< T extends HTMLElement = HTMLDivElement >( {
 				setHeight( rect.height || 0 );
 			};
 			handleResize();
-			const resizeObserver = new window.ResizeObserver( handleResize );
+			const resizeObserver = new ResizeObserver( handleResize );
 			resizeObserver.observe( node );
 			observerRef.current = resizeObserver;
 		}

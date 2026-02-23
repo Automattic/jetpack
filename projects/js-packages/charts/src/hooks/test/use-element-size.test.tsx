@@ -31,7 +31,6 @@ describe( 'useElementSize', () => {
 	beforeEach( () => {
 		mockResizeObserver = MockResizeObserver;
 		globalThis.ResizeObserver = mockResizeObserver;
-		globalThis.window.ResizeObserver = mockResizeObserver;
 	} );
 
 	afterEach( () => {
