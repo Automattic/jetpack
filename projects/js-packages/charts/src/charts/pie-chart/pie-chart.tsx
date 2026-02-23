@@ -328,7 +328,6 @@ const PieChartInternal = ( {
 			maxWidth={ legendMaxWidth }
 			textOverflow={ legendTextOverflow }
 			legendItemClassName={ legendItemClassName }
-			className={ styles[ 'pie-chart__legend' ] }
 			shape={ legendShape }
 			chartId={ chartId }
 			interactive={ legendInteractive }
