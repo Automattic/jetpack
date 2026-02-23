@@ -86,6 +86,9 @@ class Contact_Form_Block {
 
 		// Load scripts for the editing interface
 		add_action( 'enqueue_block_editor_assets', array( __CLASS__, 'load_editor_scripts' ), 9 );
+
+		// Load AI integration after Jetpack_Gutenberg registers extensions (priority 10)
+		add_action( 'enqueue_block_editor_assets', array( __CLASS__, 'maybe_load_ai_integration' ), 11 );
 	}
 	/**
 	 * Register the contact form block feature flag.
@@ -875,6 +878,50 @@ class Contact_Form_Block {
 		);
 
 		wp_add_inline_script( $handle, 'window.jpFormsBlocks = ' . wp_json_encode( $data, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ';', 'before' );
+	}
+
+	/**
+	 * Conditionally loads the AI form generation integration script.
+	 *
+	 * This script is only loaded when:
+	 * 1. The AI Assistant extension is available (ai-assistant-form-support)
+	 * 2. The central-form-management feature flag is enabled
+	 *
+	 * By checking these conditions in PHP, we ensure no JavaScript is loaded
+	 * when either the AI extension is disabled or central form management is off.
+	 *
+	 * This is hooked at priority 11 on enqueue_block_editor_assets to ensure
+	 * it runs after Jetpack_Gutenberg registers extensions at priority 10.
+	 */
+	public static function maybe_load_ai_integration() {
+		// Check if central form management is enabled.
+		if ( ! Contact_Form_Plugin::has_editor_feature_flag( 'central-form-management' ) ) {
+			return;
+		}
+
+		// Check if AI Assistant form support is available.
+		// This extension is set as available when the AI Assistant block is registered.
+		if ( ! class_exists( 'Jetpack_Gutenberg' ) ) {
+			return;
+		}
+
+		// Ensure extensions are registered by calling get_cached_availability().
+		\Jetpack_Gutenberg::get_cached_availability();
+		if ( ! \Jetpack_Gutenberg::is_available( 'ai-assistant-form-support' ) ) {
+			return;
+		}
+
+		Assets::register_script(
+			'jp-forms-ai-plugin',
+			'../../../dist/blocks/ai-form-plugin.js',
+			__FILE__,
+			array(
+				'dependencies' => array( 'jp-forms-blocks' ),
+				'in_footer'    => true,
+				'textdomain'   => 'jetpack-forms',
+				'enqueue'      => true,
+			)
+		);
 	}
 
 	/**

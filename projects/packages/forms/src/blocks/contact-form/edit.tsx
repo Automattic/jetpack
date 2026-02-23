@@ -55,7 +55,6 @@ import { ContactFormPlaceholder } from './components/jetpack-contact-form-placeh
 import ContactFormSkeletonLoader from './components/jetpack-contact-form-skeleton-loader.js';
 import NotificationsSettings from './components/notifications-settings.js';
 import WebhooksSettings from './components/webhooks-settings.js';
-import { useAiFormGeneration } from './hooks/use-ai-form-generation.ts';
 import { useSyncedFormAutoSave } from './hooks/use-synced-form-auto-save.ts';
 import { useSyncedFormLoader } from './hooks/use-synced-form-loader.ts';
 import { useSyncedForm } from './hooks/use-synced-form.ts';
@@ -218,9 +217,6 @@ function JetpackContactFormEdit( {
 		syncedAttributes: syncedFormAttributes,
 		syncedInnerBlocks: syncedFormBlocks,
 	} = useSyncedForm( ref );
-
-	// Handle AI form generation - creates synced form when AI generates fields
-	useAiFormGeneration( { clientId, hasRef: !! ref } );
 
 	// Backward compatibility for the deprecated customThankyou attribute.
 	// Older forms will have a customThankyou attribute set, but not a confirmationType attribute
@@ -994,8 +990,7 @@ function JetpackContactFormEdit( {
 
 	let elt;
 
-	// Show loading state when resolving synced form
-	if ( ref && isResolvingSyncedForm ) {
+	if ( ref && isResolvingSyncedForm && ! hasAnyInnerBlocks ) {
 		return (
 			<div { ...blockProps }>
 				<ContactFormSkeletonLoader />
