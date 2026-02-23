@@ -19,7 +19,7 @@ export default function NameFieldEdit( props ) {
 
 	// Initialize fieldVariant for backward compatibility with existing Name field blocks.
 	useEffect( () => {
-		if ( fieldVariant !== undefined ) {
+		if ( fieldVariant ) {
 			return;
 		}
 
