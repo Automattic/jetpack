@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add Transient_Cleanup class to periodically clean up expired stats cache transients on sites without persistent object cache.
