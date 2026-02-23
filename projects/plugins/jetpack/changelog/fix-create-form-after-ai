@@ -1,4 +1,4 @@
 Significance: patch
-Type: other
+Type: added
 
-AI Assistant: Fire action when AI generation completes to allow other blocks to react
+AI Assistant: Add jetpack_ai_assistant_generation_complete action hook for cross-package communication
