@@ -79,9 +79,21 @@ class Transient_Cleanup {
 	/**
 	 * Schedule the cleanup cron job.
 	 *
+	 * Skips scheduling on sites with persistent object cache since transients
+	 * auto-expire there and cleanup is unnecessary.
+	 *
 	 * @return void
 	 */
 	public static function schedule_cleanup() {
+		// Skip scheduling on sites with persistent object cache - not needed there.
+		if ( wp_using_ext_object_cache() ) {
+			// Unschedule if it was previously scheduled (e.g., object cache was added later).
+			if ( wp_next_scheduled( self::CRON_HOOK ) ) {
+				wp_clear_scheduled_hook( self::CRON_HOOK );
+			}
+			return;
+		}
+
 		if ( ! wp_next_scheduled( self::CRON_HOOK ) ) {
 			wp_schedule_event( time() + self::CRON_INTERVAL, 'jetpack_stats_eight_hours', self::CRON_HOOK );
 		}

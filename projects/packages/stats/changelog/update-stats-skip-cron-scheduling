@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Transient cleanup: Skip scheduling cron job entirely on sites with persistent object cache
