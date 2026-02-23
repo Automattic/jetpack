@@ -428,7 +428,7 @@ class Feedback_Email_Renderer {
 		// Build the field row as a table with icon + content.
 		$html  = '<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="border-bottom: 1px solid #F0F0F0; padding: 0; margin: 0;">';
 		$html .= '<tr>';
-		$html .= '<td width="24" valign="top" style="padding: 18px 16px 20px 0; width: 24px; vertical-align: top; -webkit-user-select: none; user-select: none;">';
+		$html .= '<td class="field-icon-cell" width="24" valign="top" style="padding: 18px 16px 20px 0; width: 24px; vertical-align: top; -webkit-user-select: none; user-select: none;">';
 		$html .= sprintf(
 			'<img src="%s" width="24" height="24" alt="" style="display: block; width: 24px; height: 24px; -webkit-user-select: none; user-select: none;" />',
 			esc_url( $icon_url )
@@ -623,6 +623,14 @@ class Feedback_Email_Renderer {
 			$respondent_html,
 			$metadata_html
 		);
+
+		// Inject print styles into <body> for Outlook.com compatibility (it strips <head> styles
+		// but preserves <body> styles). The same styles are already in <head> for Gmail and others.
+		// This is done after sprintf to avoid % signs in CSS being interpreted as format specifiers.
+		if ( isset( $print_style ) ) {
+			// phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable -- defined in the template file loaded via require above.
+			$html_message = str_replace( '</body>', '<style type="text/css">' . $print_style . '</style></body>', $html_message );
+		}
 
 		return $html_message;
 	}
