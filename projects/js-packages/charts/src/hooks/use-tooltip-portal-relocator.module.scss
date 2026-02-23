@@ -1,9 +1,6 @@
 .relocatedPortal {
 	position: fixed;
-	top: 0;
-	left: 0;
-	width: 0;
-	height: 0;
+	inset: 0;
 	overflow: visible;
 	z-index: 1;
 	pointer-events: none;
