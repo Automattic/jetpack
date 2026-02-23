@@ -353,6 +353,14 @@ function fixPeerDeps( pkg ) {
 		pkg.peerDependencies[ '@wordpress/i18n' ] = '^6';
 	}
 
+	// Outdated peer dependency because Gutenberg is still on node 20.
+	if (
+		pkg.name === '@wordpress/e2e-test-utils-playwright' &&
+		pkg.peerDependencies?.[ '@types/node' ]?.startsWith( '^20.' )
+	) {
+		pkg.peerDependencies[ '@types/node' ] += ' || ^22.0.0';
+	}
+
 	// Should be an optional peer dep, but isn't.
 	// Since it already has a (non-optional 🙄) peer dep on sass-embedded, we can just delete the sass dep.
 	if ( pkg.name === 'esbuild-sass-plugin' && pkg.dependencies.sass ) {
