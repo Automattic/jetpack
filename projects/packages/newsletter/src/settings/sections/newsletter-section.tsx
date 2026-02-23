@@ -29,7 +29,7 @@ export function NewsletterSection( {
 	jetpackSettings,
 	onChange,
 }: NewsletterSectionProps ): JSX.Element {
-	const siteType = getSiteType( jetpackSettings );
+	const siteType = getSiteType();
 	const previousSubscriptionsValue = useRef( data.subscriptions );
 
 	// Wrap onChange to track module toggle

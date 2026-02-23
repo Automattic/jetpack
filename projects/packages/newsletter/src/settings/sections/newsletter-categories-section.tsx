@@ -40,7 +40,7 @@ export function NewsletterCategoriesSection( {
 	jetpackSettings,
 	isNewsletterEnabled,
 }: NewsletterCategoriesSectionProps ): JSX.Element {
-	const siteType = getSiteType( jetpackSettings );
+	const siteType = getSiteType();
 	const [ categories, setCategories ] = useState< WordPressCategory[] >( [] );
 	const [ isFetchingCategories, setIsFetchingCategories ] = useState( true );
 	const [ categoriesError, setCategoriesError ] = useState< string | null >( null );
@@ -56,7 +56,7 @@ export function NewsletterCategoriesSection( {
 
 	// Fetch WordPress categories on mount
 	useEffect( () => {
-		fetchCategories( jetpackSettings )
+		fetchCategories()
 			.then( fetchedCategories => {
 				// Convert category IDs to strings
 				setCategories(
@@ -73,7 +73,7 @@ export function NewsletterCategoriesSection( {
 				);
 				setIsFetchingCategories( false );
 			} );
-	}, [ jetpackSettings ] );
+	}, [] );
 
 	// Define fields
 	const fields: Field< NewsletterSettings >[] = [

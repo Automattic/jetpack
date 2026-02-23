@@ -28,7 +28,7 @@ export function PaidNewsletterSection( {
 	isNewsletterEnabled,
 	hasActivePlan = false,
 }: PaidNewsletterSectionProps ): JSX.Element | null {
-	const siteType = getSiteType( jetpackSettings );
+	const siteType = getSiteType();
 
 	// Track paid plans button click
 	const handlePaidPlansClick = useCallback( () => {

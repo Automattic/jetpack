@@ -405,7 +405,7 @@ function NewsletterSettingsApp(): JSX.Element | null {
 			<Container horizontalSpacing={ 3 }>
 				<Col>
 					<div className="newsletter-settings">
-						{ ! jetpackSettings?.isWpcomSimple && (
+						{ ! isSimpleSite() && (
 							<NewsletterSection
 								data={ data }
 								jetpackSettings={ jetpackSettings }
@@ -476,7 +476,6 @@ function NewsletterSettingsApp(): JSX.Element | null {
 							isSaving={ isSavingWelcomeEmail }
 							hasChanges={ hasWelcomeEmailChanges }
 							isNewsletterEnabled={ data.subscriptions }
-							jetpackSettings={ jetpackSettings }
 						/>
 
 						<GlobalNotices />

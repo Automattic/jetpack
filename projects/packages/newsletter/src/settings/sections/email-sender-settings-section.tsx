@@ -39,7 +39,7 @@ export function EmailSenderSettingsSection( {
 	jetpackSettings,
 	isNewsletterEnabled,
 }: EmailSenderSettingsSectionProps ): JSX.Element {
-	const siteType = getSiteType( jetpackSettings );
+	const siteType = getSiteType();
 
 	// Translation strings for save button
 	const savingText = __( 'Saving…', 'jetpack-newsletter' );
