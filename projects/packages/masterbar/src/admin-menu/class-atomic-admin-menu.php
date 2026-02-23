@@ -29,7 +29,7 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		add_action( 'admin_enqueue_scripts', array( $this, 'dequeue_scripts' ), 20 );
 		add_action( 'wp_ajax_sidebar_state', array( $this, 'ajax_sidebar_state' ) );
 		add_action( 'wp_ajax_jitm_dismiss', array( $this, 'wp_ajax_jitm_dismiss' ) );
-		add_action( 'wp_ajax_upsell_nudge_jitm', array( $this, 'wp_ajax_upsell_nudge_jitm' ) );
+		add_action( 'adminmenu', array( $this, 'render_upsell_nudge' ), 100 );
 
 		if ( ! $this->is_api_request ) {
 			add_filter( 'submenu_file', array( $this, 'override_the_theme_installer' ), 10, 2 );

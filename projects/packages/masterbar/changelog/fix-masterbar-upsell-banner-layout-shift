@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix admin menu upsell banner layout shift by rendering server-side instead of via AJAX.
