@@ -7,7 +7,7 @@ import { Breadcrumbs } from '@wordpress/admin-ui';
 import { DropdownMenu, Button } from '@wordpress/components';
 import { store as coreDataStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
-import { useMemo } from '@wordpress/element';
+import { useCallback, useMemo, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __, sprintf } from '@wordpress/i18n';
 import { moreVertical } from '@wordpress/icons';
@@ -28,8 +28,10 @@ import useEmptySpam from '../../hooks/use-empty-spam';
 import useEmptyTrash from '../../hooks/use-empty-trash';
 import useExportResponses from '../../hooks/use-export-responses';
 import useInboxData from '../../hooks/use-inbox-data';
+import ChangeFormStatusModal from '../components/change-form-status-modal';
 import ManageIntegrationsButton from '../components/manage-integrations-button';
 import useFormItemActions from './use-form-item-actions';
+import useUpdateFormStatus from './use-update-form-status';
 import type { ReactNode } from 'react';
 
 type ResponsesStatusView = 'inbox' | 'spam' | 'trash';
@@ -110,7 +112,7 @@ export default function usePageHeaderDetails(
 						'postType',
 						'jetpack_form',
 						sourceIdNumber
-				  ) as { title?: { rendered?: string } } | undefined )
+				  ) as { title?: { rendered?: string }; status?: string } | undefined )
 				: undefined,
 		[ sourceIdNumber ]
 	);
@@ -120,7 +122,27 @@ export default function usePageHeaderDetails(
 		return decodeEntities( rendered );
 	}, [ formRecord?.title?.rendered ] );
 
+	const formStatus = formRecord?.status;
+
 	const { duplicateForm, previewForm, copyEmbed, copyShortcode } = useFormItemActions();
+
+	const [ isChangeStatusModalOpen, setIsChangeStatusModalOpen ] = useState( false );
+	const openChangeStatusModal = useCallback( () => setIsChangeStatusModalOpen( true ), [] );
+	const closeChangeStatusModal = useCallback( () => setIsChangeStatusModalOpen( false ), [] );
+
+	const { isUpdating: isChangingStatus, updateStatus } = useUpdateFormStatus();
+
+	const handleConfirmChangeStatus = useCallback(
+		async ( nextStatus: string ) => {
+			if ( ! sourceIdNumber ) {
+				return;
+			}
+			await updateStatus( [ { id: sourceIdNumber } ], nextStatus, {
+				invalidateLastFormsListQuery: true,
+			} );
+		},
+		[ sourceIdNumber, updateStatus ]
+	);
 
 	const formItemControls = useMemo( () => {
 		if ( ! sourceIdNumber ) {
@@ -128,7 +150,12 @@ export default function usePageHeaderDetails(
 		}
 
 		const formItem = { id: sourceIdNumber, title: formTitle };
-		const controls: Array< { title: string; onClick: () => void } > = [
+		const controls: Array< { title: string; onClick: () => void; isDisabled?: boolean } > = [
+			{
+				title: __( 'Change status…', 'jetpack-forms' ),
+				onClick: openChangeStatusModal,
+				isDisabled: isChangingStatus,
+			},
 			{
 				title: __( 'Duplicate', 'jetpack-forms' ),
 				onClick: () => duplicateForm( formItem ),
@@ -153,7 +180,39 @@ export default function usePageHeaderDetails(
 		}
 
 		return controls;
-	}, [ sourceIdNumber, formTitle, duplicateForm, previewForm, copyEmbed, copyShortcode ] );
+	}, [
+		sourceIdNumber,
+		formTitle,
+		duplicateForm,
+		previewForm,
+		copyEmbed,
+		copyShortcode,
+		openChangeStatusModal,
+		isChangingStatus,
+	] );
+
+	const changeStatusModal = useMemo( () => {
+		if ( ! isSingleFormScreen || ! sourceIdNumber ) {
+			return null;
+		}
+		return (
+			<ChangeFormStatusModal
+				key="change-status-modal"
+				isOpen={ isChangeStatusModalOpen }
+				itemsCount={ 1 }
+				initialStatus={ typeof formStatus === 'string' ? formStatus : undefined }
+				onClose={ closeChangeStatusModal }
+				onConfirm={ handleConfirmChangeStatus }
+			/>
+		);
+	}, [
+		closeChangeStatusModal,
+		formStatus,
+		handleConfirmChangeStatus,
+		isChangeStatusModalOpen,
+		isSingleFormScreen,
+		sourceIdNumber,
+	] );
 
 	const breadcrumbsItems = useMemo( () => {
 		if ( isSingleFormScreen ) {
@@ -314,6 +373,7 @@ export default function usePageHeaderDetails(
 					toggleProps={ { size: 'compact' } }
 				/>,
 				// Include modals when on mobile
+				changeStatusModal,
 				...( showExportModal
 					? [
 							<ExportResponsesModal
@@ -384,6 +444,7 @@ export default function usePageHeaderDetails(
 							/>,
 					  ]
 					: [] ),
+				changeStatusModal,
 			];
 		}
 
@@ -419,6 +480,7 @@ export default function usePageHeaderDetails(
 		isFormsScreen,
 		isSingleFormScreen,
 		formItemControls,
+		changeStatusModal,
 		statusView,
 		openNewForm,
 		openExportModal,

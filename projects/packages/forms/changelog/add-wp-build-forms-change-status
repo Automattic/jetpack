@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-Forms dashboard: Add a "Change status" action for managed forms in the new wp-build Forms list.
+Forms dashboard: Add a "Change status" action for managed forms (Forms list and single-form header menu).

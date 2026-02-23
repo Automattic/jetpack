@@ -11,6 +11,20 @@ export type FormListItem = {
 	editUrl?: string;
 };
 
+let lastFormsListQuery: Record< string, unknown > | null = null;
+
+/**
+ * Get the most recent Forms list query used by this module.
+ *
+ * This is used by other dashboard actions (e.g. status changes from outside the list)
+ * to invalidate the exact `getEntityRecords` resolution key.
+ *
+ * @return The last query object, or null if none has been set yet.
+ */
+export function getLastFormsListQuery(): Record< string, unknown > | null {
+	return lastFormsListQuery;
+}
+
 /**
  * Build the query object for fetching Forms list records from core-data.
  *
@@ -74,6 +88,8 @@ export default function useFormsData(
 	const query = useMemo( () => {
 		return getFormsListQuery( page, perPage, search, status );
 	}, [ page, perPage, search, status ] );
+
+	lastFormsListQuery = query;
 
 	const {
 		records: rawRecords,

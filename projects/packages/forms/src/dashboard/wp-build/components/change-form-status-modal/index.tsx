@@ -4,6 +4,10 @@
 import { Button, Modal, SelectControl } from '@wordpress/components';
 import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
+/**
+ * Internal dependencies
+ */
+import './style.scss';
 
 type StatusOption = {
 	label: string;
@@ -107,7 +111,7 @@ export default function ChangeFormStatusModal( props: ChangeFormStatusModalProps
 				__next40pxDefaultSize
 				disabled={ isSaving }
 			/>
-			<div className="jp-forms-name-modal__buttons">
+			<div className="jp-forms-change-status-modal__buttons">
 				<Button variant="tertiary" onClick={ handleClose } disabled={ isSaving }>
 					{ __( 'Cancel', 'jetpack-forms' ) }
 				</Button>
