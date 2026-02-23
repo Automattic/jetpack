@@ -78,9 +78,6 @@ jobs:
       # Whether any auto-updated Phan stub files were changed.
       phanstubs: ${{ steps.filter.outputs.phanstubs == 'true' }}
 
-      # Whether any Phan configuration files were changed.
-      misc_phan: ${{ steps.filter.outputs.misc_phan == 'true' }}
-
     steps:
       - if: github.event_name == 'pull_request'
         uses: actions/checkout@v6
@@ -191,6 +188,8 @@ jobs:
               # If Phan config or the CLI that runs it changed, re-run static analysis.
               - '.phan/**'
               - '**/.phan/**'
+              - '**/phan.config.php'
+              - '**/phan-baseline.php'
               - 'tools/cli/**'
               - 'projects/packages/phan-plugins/**'
             misc_excludelist:
@@ -202,12 +201,6 @@ jobs:
             phanstubs:
               # If auto-generated Phan stub files are changed, we may want to post a warning to the PR.
               - '.phan/stubs/**'
-            misc_phan:
-              # If Phan config or plugins changed, re-run static analysis.
-              - '.phan/**'
-              - '**/phan.config.php'
-              - '**/phan-baseline.php'
-              - 'projects/packages/phan-plugins/**'
 
       - if: github.event_name == 'pull_request'
         id: filterPHP
@@ -691,8 +684,18 @@ jobs:
         run: pnpm install
       - name: Determine projects to analyze
         id: projects
+        env:
+          MISC_PHAN: ${{ needs.changed_files.outputs.misc_phan }}
         run: |
-          if [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
+          if [[ "$GITHUB_EVENT_NAME" != "pull_request" ]]; then
+            # Run on all projects for push events
+            echo "args=--all" >> "$GITHUB_OUTPUT"
+            echo "Push event, analyzing all projects"
+          elif [[ "$MISC_PHAN" == "true" ]]; then
+            # Phan config changes can affect all projects, analyze everything.
+            echo "args=--all" >> "$GITHUB_OUTPUT"
+            echo "Phan config changed, analyzing all projects"
+          else
             # Get changed projects for PRs
             CHANGED=$( .github/files/list-changed-projects.sh | jq -r 'keys[]' | tr '\n' ' ' )
             if [[ -n "$CHANGED" ]]; then
@@ -702,10 +705,6 @@ jobs:
               echo "args=--all" >> "$GITHUB_OUTPUT"
               echo "No specific projects detected, analyzing all"
             fi
-          else
-            # Run on all projects for push events
-            echo "args=--all" >> "$GITHUB_OUTPUT"
-            echo "Push event, analyzing all projects"
           fi
       - name: Add back removed packages in case of a release branch.
         run: |
