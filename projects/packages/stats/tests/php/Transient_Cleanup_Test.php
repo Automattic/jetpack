@@ -198,6 +198,53 @@ class Transient_Cleanup_Test extends StatsBaseTestCase {
 	}
 
 	/**
+	 * Test that schedule_cleanup does not schedule when using external object cache.
+	 */
+	public function test_schedule_cleanup_skipped_with_external_object_cache() {
+		global $_wp_using_ext_object_cache;
+
+		Transient_Cleanup::init();
+
+		// Enable external object cache.
+		$original                   = $_wp_using_ext_object_cache;
+		$_wp_using_ext_object_cache = true;
+
+		Transient_Cleanup::schedule_cleanup();
+
+		// Restore original value.
+		$_wp_using_ext_object_cache = $original;
+
+		$this->assertFalse( wp_next_scheduled( Transient_Cleanup::CRON_HOOK ) );
+	}
+
+	/**
+	 * Test that schedule_cleanup unschedules existing cron when object cache is enabled later.
+	 */
+	public function test_schedule_cleanup_unschedules_when_object_cache_added() {
+		global $_wp_using_ext_object_cache;
+
+		Transient_Cleanup::init();
+
+		// First, schedule without object cache.
+		$original                   = $_wp_using_ext_object_cache;
+		$_wp_using_ext_object_cache = false;
+		Transient_Cleanup::schedule_cleanup();
+
+		// Verify it was scheduled.
+		$this->assertNotFalse( wp_next_scheduled( Transient_Cleanup::CRON_HOOK ) );
+
+		// Now enable object cache and call schedule_cleanup again.
+		$_wp_using_ext_object_cache = true;
+		Transient_Cleanup::schedule_cleanup();
+
+		// Restore original value.
+		$_wp_using_ext_object_cache = $original;
+
+		// The cron should be unscheduled.
+		$this->assertFalse( wp_next_scheduled( Transient_Cleanup::CRON_HOOK ) );
+	}
+
+	/**
 	 * Note: Tests for actual transient deletion (purge_expired_transients) are not included
 	 * because they require direct SQL queries which WorDBless doesn't support.
 	 * These behaviors should be tested via integration tests on a real WordPress installation:
