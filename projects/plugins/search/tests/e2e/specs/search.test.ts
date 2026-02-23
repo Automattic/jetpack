@@ -5,7 +5,7 @@ import {
 	searchResultForTest2,
 	SEARCH_API_PATTERN,
 } from '../fixtures/test';
-import type { Page, Response } from '@playwright/test';
+import type { Page } from '@playwright/test';
 
 /**
  * Asserts that the first result title matches the expected value with retry logic.
@@ -57,8 +57,6 @@ test.describe( 'Instant Search', () => {
 	} );
 
 	test( 'Can perform search with default settings', async ( { page } ) => {
-		let searchResponsePromise: Promise< Response >;
-
 		await page.goto( '/?result_format=expanded' );
 
 		await test.step( 'Can open the overlay by entering a query', async () => {
@@ -106,7 +104,9 @@ test.describe( 'Instant Search', () => {
 		await test.step( 'Can edit query and search for another term', async () => {
 			await overlaySearchInput.clear();
 			await overlaySearchInput.focus();
-			searchResponsePromise = page.waitForResponse( resp => SEARCH_API_PATTERN.test( resp.url() ) );
+			const searchResponsePromise = page.waitForResponse( resp =>
+				SEARCH_API_PATTERN.test( resp.url() )
+			);
 			await overlaySearchInput.fill( 'test2' );
 			await searchResponsePromise;
 		} );
@@ -116,7 +116,9 @@ test.describe( 'Instant Search', () => {
 		} );
 
 		await test.step( 'Can change sort order', async () => {
-			searchResponsePromise = page.waitForResponse( resp => SEARCH_API_PATTERN.test( resp.url() ) );
+			const searchResponsePromise = page.waitForResponse( resp =>
+				SEARCH_API_PATTERN.test( resp.url() )
+			);
 			await page.getByRole( 'button', { name: 'Newest' } ).click();
 			await searchResponsePromise;
 
@@ -129,9 +131,11 @@ test.describe( 'Instant Search', () => {
 
 			await expectFirstResultTitle( page, '<mark>Test2</mark> Record 3' );
 
-			searchResponsePromise = page.waitForResponse( resp => SEARCH_API_PATTERN.test( resp.url() ) );
+			const searchResponsePromise2 = page.waitForResponse( resp =>
+				SEARCH_API_PATTERN.test( resp.url() )
+			);
 			await page.getByRole( 'button', { name: 'Oldest' } ).click();
-			await searchResponsePromise;
+			await searchResponsePromise2;
 
 			await expect(
 				page.locator(
@@ -144,16 +148,20 @@ test.describe( 'Instant Search', () => {
 		} );
 
 		await test.step( 'Can apply filters', async () => {
-			searchResponsePromise = page.waitForResponse( resp => SEARCH_API_PATTERN.test( resp.url() ) );
+			const searchResponsePromise = page.waitForResponse( resp =>
+				SEARCH_API_PATTERN.test( resp.url() )
+			);
 			await page.getByRole( 'checkbox', { name: 'Category 2' } ).check();
 			await searchResponsePromise;
 
 			await expectFirstResultTitle( page, '<mark>Test2</mark> Record 2' );
 
-			searchResponsePromise = page.waitForResponse( resp => SEARCH_API_PATTERN.test( resp.url() ) );
+			const searchResponsePromise2 = page.waitForResponse( resp =>
+				SEARCH_API_PATTERN.test( resp.url() )
+			);
 			await page.getByRole( 'checkbox', { name: 'Category 2' } ).uncheck();
 			await page.getByRole( 'checkbox', { name: 'Tag 3' } ).check();
-			await searchResponsePromise;
+			await searchResponsePromise2;
 
 			await expectFirstResultTitle( page, '<mark>Test2</mark> Record 3' );
 		} );

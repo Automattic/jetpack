@@ -18,6 +18,12 @@
 		"build-production": "echo 'Not implemented.'",
 		"build-production-js": "echo 'Not implemented.'"
 	},
+	"exports": {
+		"./gutenberg-base-styles": "./gutenberg-base-styles.scss",
+		"./package.json": "./package.json",
+		"./root-variables": "./root-variables.scss",
+		"./style": "./style.scss"
+	},
 	"devDependencies": {
 		"@wordpress/base-styles": "6.15.0"
 	}
