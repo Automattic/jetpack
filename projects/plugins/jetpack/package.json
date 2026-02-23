@@ -146,7 +146,7 @@
 		"@testing-library/react": "16.3.0",
 		"@testing-library/user-event": "14.6.1",
 		"@types/jest": "30.0.0",
-		"@types/react": "19.2.14",
+		"@types/react": "18.3.28",
 		"@types/wordpress__block-editor": "15.0.3",
 		"@wordpress/api-fetch": "7.39.0",
 		"@wordpress/blob": "4.39.0",
