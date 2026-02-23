@@ -355,8 +355,8 @@ const PieChartInternal = ( {
 					className
 				) }
 				style={ {
-					width: propWidth,
-					height: propHeight,
+					width: propWidth || undefined,
+					height: propHeight || undefined,
 				} }
 			>
 				{ legendPosition === 'top' && legendElement }
