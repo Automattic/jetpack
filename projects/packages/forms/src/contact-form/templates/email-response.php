@@ -30,6 +30,19 @@ $font_size_field_value = \Automattic\Jetpack\Forms\ContactForm\Feedback_Email_Re
 $font_size_metadata    = \Automattic\Jetpack\Forms\ContactForm\Feedback_Email_Renderer::FONT_SIZE_METADATA;
 $font_size_button      = \Automattic\Jetpack\Forms\ContactForm\Feedback_Email_Renderer::FONT_SIZE_BUTTON;
 
+// Print styles: defined once, included in both <head> and <body> for maximum
+// email client compatibility (Gmail preserves <head> styles, Outlook.com preserves <body> styles).
+$print_style = '@media print {
+	body, .body { background-color: #ffffff !important; }
+	.container { width: 100% !important; max-width: 100% !important; padding: 0 !important; }
+	.wrapper { padding: 16px 0 !important; }
+	.main { border-radius: 0 !important; }
+	.field-icon-cell { display: none !important; width: 0 !important; max-width: 0 !important; padding: 0 !important; overflow: hidden !important; }
+	.form-fields-inner { padding: 0 !important; }
+	.actions, .powered-by-table, .preheader { display: none !important; }
+	.collapse { display: none !important; }
+}';
+
 // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- used in class-contact-form.php
 $template = '
 <!DOCTYPE html>
@@ -623,6 +636,8 @@ $style = '<style media="all" type="text/css">
 			text-align: center !important;
 		}
 	}
+
+	' . $print_style . '
 
 	@media all {
 		.ExternalClass {
