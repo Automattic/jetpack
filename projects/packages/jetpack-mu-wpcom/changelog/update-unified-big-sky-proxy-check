@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Agents Manager: Replace unified-big-sky query string flag with is_dev_mode() check to enable unified experience automatically in dev environments.

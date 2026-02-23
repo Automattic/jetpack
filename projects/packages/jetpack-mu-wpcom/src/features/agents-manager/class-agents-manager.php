@@ -318,7 +318,7 @@ class Agents_Manager {
 			return true;
 		}
 
-		if ( $this->is_block_editor() && class_exists( 'Big_Sky' ) && $this->has_unified_big_sky_flag() ) {
+		if ( $this->is_block_editor() && class_exists( 'Big_Sky' ) && $this->should_use_unified_big_sky() ) {
 			return true;
 		}
 
@@ -753,9 +753,13 @@ class Agents_Manager {
 	}
 
 	/**
-	 * Determine if the user should use unified experience for Big Sky.
+	 * Determine if the unified Agents Manager experience should replace Big Sky.
+	 *
+	 * Currently enabled in all dev environments (local, proxied, sandbox).
+	 *
+	 * @return bool
 	 */
-	private function has_unified_big_sky_flag() {
+	private function should_use_unified_big_sky() {
 		return self::is_dev_mode();
 	}
 
