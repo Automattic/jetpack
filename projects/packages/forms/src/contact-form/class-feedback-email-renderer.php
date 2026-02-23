@@ -428,9 +428,9 @@ class Feedback_Email_Renderer {
 		// Build the field row as a table with icon + content.
 		$html  = '<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="border-bottom: 1px solid #F0F0F0; padding: 0; margin: 0;">';
 		$html .= '<tr>';
-		$html .= '<td width="24" valign="top" style="padding: 18px 16px 20px 0; width: 24px; vertical-align: top;">';
+		$html .= '<td width="24" valign="top" style="padding: 18px 16px 20px 0; width: 24px; vertical-align: top; -webkit-user-select: none; user-select: none;">';
 		$html .= sprintf(
-			'<img src="%s" width="24" height="24" alt="" style="display: block; width: 24px; height: 24px;" />',
+			'<img src="%s" width="24" height="24" alt="" style="display: block; width: 24px; height: 24px; -webkit-user-select: none; user-select: none;" />',
 			esc_url( $icon_url )
 		);
 		$html .= '</td>';
@@ -581,7 +581,7 @@ class Feedback_Email_Renderer {
 				<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" class="powered-by-table" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; margin-top: 24px;">
 					<tr>
 						<td align="center" class="powered-by" style="padding: 24px 0 0 0; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Oxygen-Sans, Ubuntu, Cantarell, \'Helvetica Neue\', sans-serif;">
-							<img src="' . esc_url( $logo_url ) . '" alt="Jetpack" width="20" height="20" style="vertical-align: middle; margin-right: 6px; border: 0; outline: none; text-decoration: none;">
+							<img src="' . esc_url( $logo_url ) . '" alt="Jetpack" width="20" height="20" style="vertical-align: middle; margin-right: 6px; border: 0; outline: none; text-decoration: none; -webkit-user-select: none; user-select: none;">
 							<span style="font-size: ' . self::FONT_SIZE_METADATA . '; color: #50575e; line-height: 20px;">' .
 					sprintf(
 						// translators: %1$s is a link to the Jetpack Forms page.
