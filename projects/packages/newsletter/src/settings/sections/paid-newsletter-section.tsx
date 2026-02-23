@@ -2,13 +2,13 @@
  * External dependencies
  */
 import analytics from '@automattic/jetpack-analytics';
+import { getSiteType } from '@automattic/jetpack-script-data';
 import { Button } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { getSiteType } from '../utils';
 import type { CombinedNewsletterSettings } from '../types';
 
 interface PaidNewsletterSectionProps {

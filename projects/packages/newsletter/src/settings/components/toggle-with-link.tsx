@@ -2,16 +2,12 @@
  * External dependencies
  */
 import analytics from '@automattic/jetpack-analytics';
-import { getAdminUrl } from '@automattic/jetpack-script-data';
+import { getAdminUrl, type SiteType } from '@automattic/jetpack-script-data';
 import { ExternalLink, ToggleControl } from '@wordpress/components';
 import { type Field } from '@wordpress/dataviews/wp';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
-/**
- * Internal dependencies
- */
-import { type SiteType } from '../utils';
 import './toggle-with-link.scss';
 
 interface ToggleWithLinkProps {

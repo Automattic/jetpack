@@ -2,6 +2,7 @@
  * External dependencies
  */
 import analytics from '@automattic/jetpack-analytics';
+import { getSiteType } from '@automattic/jetpack-script-data';
 import { Button } from '@wordpress/components';
 import { DataForm, type Field } from '@wordpress/dataviews/wp';
 import { useCallback, useMemo } from '@wordpress/element';
@@ -9,7 +10,6 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { getSiteType } from '../utils';
 import type { NewsletterSettings } from '../types';
 
 interface WelcomeEmailSectionProps {

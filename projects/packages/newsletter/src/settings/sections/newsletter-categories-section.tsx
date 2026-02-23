@@ -2,7 +2,7 @@
  * External dependencies
  */
 import analytics from '@automattic/jetpack-analytics';
-import { getAdminUrl } from '@automattic/jetpack-script-data';
+import { getAdminUrl, getSiteType } from '@automattic/jetpack-script-data';
 import { WpcomSupportLink } from '@automattic/jetpack-shared-extension-utils/components';
 import { Button, ExternalLink, Notice } from '@wordpress/components';
 import { DataForm, type Field, useFormValidity } from '@wordpress/dataviews/wp';
@@ -12,7 +12,6 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import { fetchCategories } from '../api';
-import { getSiteType } from '../utils';
 import type { NewsletterSettings, CombinedNewsletterSettings, WordPressCategory } from '../types';
 
 interface NewsletterCategoriesSectionProps {

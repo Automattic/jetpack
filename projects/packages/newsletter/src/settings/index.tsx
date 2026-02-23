@@ -12,6 +12,7 @@ import {
 import {
 	getScriptData,
 	getSiteData,
+	getSiteType,
 	isSimpleSite,
 	isWpcomPlatformSite,
 } from '@automattic/jetpack-script-data';
@@ -34,7 +35,6 @@ import {
 	SubscriptionsSection,
 	WelcomeEmailSection,
 } from './sections';
-import { getSiteType } from './utils';
 import type {
 	NewsletterSettings,
 	NewsletterJetpackScriptData,
