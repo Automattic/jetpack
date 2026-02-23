@@ -756,16 +756,7 @@ class Agents_Manager {
 	 * Determine if the user should use unified experience for Big Sky.
 	 */
 	private function has_unified_big_sky_flag() {
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- This is a feature flag check, not a form submission.
-		if ( isset( $_GET['flags'] ) ) {
-			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- This is a feature flag check, not a form submission.
-			$flags = explode( ',', sanitize_text_field( wp_unslash( $_GET['flags'] ) ) );
-			if ( in_array( 'unified-big-sky', $flags, true ) ) {
-				return true;
-			}
-		}
-
-		return false;
+		return self::is_proxied();
 	}
 
 	/**
