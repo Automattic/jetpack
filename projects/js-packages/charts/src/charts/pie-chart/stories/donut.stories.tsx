@@ -160,9 +160,7 @@ export const Thin: Story = {
 		...Default.args,
 		thickness: 0.2,
 		gapScale: 0.01,
-		size: 700,
-		containerWidth: '732px',
-		containerHeight: '732px',
+		showLabels: false,
 		children: (
 			<Group>
 				<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 24 } y={ -16 }>
@@ -180,6 +178,24 @@ export const Animation: Story = {
 	args: {
 		...Default.args,
 		animation: true,
+	},
+};
+
+export const WithTooltips: Story = {
+	args: {
+		...Default.args,
+		showLabels: false,
+		withTooltips: true,
+		children: (
+			<Group>
+				<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 14 } y={ -10 }>
+					Hover over segments
+				</Text>
+				<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 14 } y={ 10 }>
+					to see tooltips
+				</Text>
+			</Group>
+		),
 	},
 };
 
