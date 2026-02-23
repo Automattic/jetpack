@@ -11,6 +11,7 @@ import { store as editorStore } from '@wordpress/editor';
 import { useCallback, useEffect, useRef } from '@wordpress/element';
 import { addAction, removeAction } from '@wordpress/hooks';
 import { __ } from '@wordpress/i18n';
+import { store as noticesStore } from '@wordpress/notices';
 import { FORM_POST_TYPE } from '../../shared/util/constants.js';
 import { createSyncedForm } from '../util/create-synced-form.ts';
 
@@ -42,6 +43,7 @@ export function useAiFormGeneration( { clientId, hasRef }: UseAiFormGenerationPr
 	}, [] );
 
 	const { replaceInnerBlocks, updateBlockAttributes } = useDispatch( blockEditorStore );
+	const { createErrorNotice } = useDispatch( noticesStore );
 
 	// Use a ref to get the latest block data when the action fires
 	const getBlock = useSelect( select => select( blockEditorStore ).getBlock, [] );
@@ -103,7 +105,7 @@ export function useAiFormGeneration( { clientId, hasRef }: UseAiFormGenerationPr
 				const formId = await createSyncedForm(
 					{ attributes: block.attributes, innerBlocks: block.innerBlocks },
 					formTitle,
-					Number( currentPostIdRef.current ) || 0
+					currentPostIdRef.current || 0
 				);
 
 				if ( ! formId ) {
@@ -123,9 +125,16 @@ export function useAiFormGeneration( { clientId, hasRef }: UseAiFormGenerationPr
 				// If synced form creation fails, the inline form remains functional
 				// eslint-disable-next-line no-console
 				console.error( 'Failed to create synced form:', error );
+				createErrorNotice(
+					__(
+						'Failed to save the AI-generated form. Your form is still available but not synced.',
+						'jetpack-forms'
+					),
+					{ type: 'snackbar' }
+				);
 			}
 		},
-		[ getBlock, replaceInnerBlocks, updateBlockAttributes ]
+		[ createErrorNotice, getBlock, replaceInnerBlocks, updateBlockAttributes ]
 	);
 
 	// Subscribe to the AI generation complete action only if central form management is enabled
