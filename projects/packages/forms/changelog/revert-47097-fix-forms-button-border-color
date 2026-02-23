@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Forms: revert https://github.com/Automattic/jetpack/pull/47097 - restore button border colors to previous state
