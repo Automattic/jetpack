@@ -90,10 +90,8 @@ type Story = StoryObj< StoryArgs >;
 export const Default: Story = {
 	args: {
 		...sharedThemeArgs,
-		size: 400,
 		containerWidth: '432px',
 		containerHeight: '432px',
-		resize: 'none',
 		thickness: 0.5,
 		gapScale: 0.03,
 		cornerScale: 0.03,
@@ -105,6 +103,25 @@ export const Default: Story = {
 					User Activity
 				</Text>
 				<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 18 } y={ 16 }>
+					Total: 100K Users
+				</Text>
+			</Group>
+		),
+	},
+};
+
+export const WithSize: Story = {
+	args: {
+		...Default.args,
+		size: 200,
+		thickness: 0.3,
+		showLabels: false,
+		children: (
+			<Group>
+				<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 18 } y={ -16 }>
+					User Activity
+				</Text>
+				<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 14 } y={ 16 }>
 					Total: 100K Users
 				</Text>
 			</Group>
@@ -124,12 +141,12 @@ export const ErrorStates: Story = {
 		<div style={ { display: 'grid', gap: '2rem', gridTemplateColumns: 'repeat(2, 1fr)' } }>
 			<div>
 				<h3>Empty Data</h3>
-				<PieChart size={ 300 } thickness={ 0.6 } data={ [] } />
+				<PieChart height={ 300 } thickness={ 0.6 } data={ [] } />
 			</div>
 			<div>
 				<h3>Single Value</h3>
 				<PieChart
-					size={ 300 }
+					height={ 300 }
 					thickness={ 0.6 }
 					data={ [ { label: 'Single', value: 100, percentage: 100 } ] }
 				/>
@@ -143,9 +160,7 @@ export const Thin: Story = {
 		...Default.args,
 		thickness: 0.2,
 		gapScale: 0.01,
-		size: 700,
-		containerWidth: '732px',
-		containerHeight: '732px',
+		showLabels: false,
 		children: (
 			<Group>
 				<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 24 } y={ -16 }>
@@ -159,54 +174,28 @@ export const Thin: Story = {
 	},
 };
 
-export const Doughnut: Story = {
-	args: {
-		...Default.args,
-		thickness: 0.5,
-		gapScale: 0.03,
-		cornerScale: 0.03,
-		size: 600,
-		containerWidth: '632px',
-		containerHeight: '632px',
-		children: (
-			<Group>
-				<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 24 } y={ -16 }>
-					🍩 Doughnut
-				</Text>
-				<Text textAnchor="middle" verticalAnchor="middle" fill="#008A20" fontSize={ 18 } y={ 16 }>
-					Three donuts for the price of one!
-				</Text>
-			</Group>
-		),
-	},
-	parameters: {
-		docs: {
-			description: {
-				story: 'Doughnut chart variant with the thickness set to 0.5 (50%).',
-			},
-		},
-	},
-};
-
-export const WithTooltipsDoughnut: Story = {
-	args: {
-		...Default.args,
-		thickness: 0.5,
-		withTooltips: true,
-	},
-	parameters: {
-		docs: {
-			description: {
-				story: 'Doughnut chart with interactive tooltips that appear on hover.',
-			},
-		},
-	},
-};
-
 export const Animation: Story = {
 	args: {
 		...Default.args,
 		animation: true,
+	},
+};
+
+export const WithTooltips: Story = {
+	args: {
+		...Default.args,
+		showLabels: false,
+		withTooltips: true,
+		children: (
+			<Group>
+				<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 14 } y={ -10 }>
+					Hover over segments
+				</Text>
+				<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 14 } y={ 10 }>
+					to see tooltips
+				</Text>
+			</Group>
+		),
 	},
 };
 
@@ -220,69 +209,32 @@ export const WithLegend: Story = {
 
 export const WithCompositionLegend: Story = {
 	render: args => (
-		<div
-			style={ {
-				display: 'grid',
-				gap: '2rem',
-				gridTemplateColumns: 'repeat(2, 1fr)',
-				alignItems: 'center',
-			} }
+		<PieChart
+			size={ 300 }
+			data={ args.data }
+			thickness={ 0.5 }
+			legendValueDisplay={ args.legendValueDisplay }
 		>
-			<div>
-				<h3>Traditional Props-based</h3>
-				<PieChart
-					size={ 300 }
-					data={ args.data }
-					thickness={ 0.5 }
-					showLegend={ true }
-					legendPosition={ args.legendPosition || 'bottom' }
-					legendOrientation={ args.legendOrientation || 'horizontal' }
-					legendAlignment={ args.legendAlignment || 'center' }
-					legendMaxWidth={ args.legendMaxWidth }
-					legendTextOverflow={ args.legendTextOverflow || 'wrap' }
-					legendValueDisplay={ args.legendValueDisplay }
-				>
-					<Group>
-						<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 16 } y={ -8 }>
-							User Stats
-						</Text>
-						<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 14 } y={ 12 } fill="#666">
-							100K Total
-						</Text>
-					</Group>
-				</PieChart>
-			</div>
-			<div>
-				<h3>Composition API</h3>
-				<PieChart
-					size={ 300 }
-					data={ args.data }
-					thickness={ 0.5 }
-					legendValueDisplay={ args.legendValueDisplay }
-				>
-					<Group>
-						<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 16 } y={ -8 }>
-							User Stats
-						</Text>
-						<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 14 } y={ 12 } fill="#666">
-							100K Total
-						</Text>
-					</Group>
-					<PieChart.Legend
-						position={ args.legendPosition || 'bottom' }
-						orientation={ args.legendOrientation || 'horizontal' }
-						alignment={ args.legendAlignment || 'center' }
-						maxWidth={ args.legendMaxWidth }
-						textOverflow={ args.legendTextOverflow || 'wrap' }
-					/>
-				</PieChart>
-			</div>
-		</div>
+			<Group>
+				<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 16 } y={ -8 }>
+					User Stats
+				</Text>
+				<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 14 } y={ 12 } fill="#666">
+					100K Total
+				</Text>
+			</Group>
+			<PieChart.Legend
+				position={ args.legendPosition || 'bottom' }
+				orientation={ args.legendOrientation || 'horizontal' }
+				alignment={ args.legendAlignment || 'center' }
+				maxWidth={ args.legendMaxWidth }
+				textOverflow={ args.legendTextOverflow || 'wrap' }
+			/>
+		</PieChart>
 	),
 	args: {
 		data,
 		thickness: 0.5,
-		containerHeight: '500px',
 	},
 	argTypes: {
 		legendInteractive: {
@@ -302,40 +254,35 @@ export const WithCompositionLegend: Story = {
 export const InteractiveLegend: Story = {
 	render: args => (
 		<GlobalChartsProvider>
-			<div style={ { padding: '20px' } }>
-				<h3>Interactive Donut Chart</h3>
-				<p style={ { marginBottom: '20px', color: '#666' } }>
+			<PieChartUnresponsive
+				chartId="interactive-donut-chart"
+				size={ args.size }
+				data={ args.data }
+				thickness={ 0.5 }
+				showLegend={ true }
+				legendInteractive={ true }
+				legendPosition={ args.legendPosition || 'bottom' }
+				legendOrientation={ args.legendOrientation || 'horizontal' }
+				legendAlignment={ args.legendAlignment || 'center' }
+				legendValueDisplay={ args.legendValueDisplay }
+			>
+				<Group>
+					<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 16 } y={ -8 }>
+						User Stats
+					</Text>
+					<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 14 } y={ 12 } fill="#666">
+						100K Total
+					</Text>
+				</Group>
+				<p style={ { color: '#666' } }>
 					Click legend items to show/hide segments. The total value updates dynamically.
 				</p>
-				<PieChartUnresponsive
-					chartId="interactive-donut-chart"
-					size={ args.size || 400 }
-					data={ args.data }
-					thickness={ 0.5 }
-					showLegend={ true }
-					legendInteractive={ true }
-					legendPosition={ args.legendPosition || 'bottom' }
-					legendOrientation={ args.legendOrientation || 'horizontal' }
-					legendAlignment={ args.legendAlignment || 'center' }
-					legendValueDisplay={ args.legendValueDisplay }
-				>
-					<Group>
-						<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 16 } y={ -8 }>
-							User Stats
-						</Text>
-						<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 14 } y={ 12 } fill="#666">
-							100K Total
-						</Text>
-					</Group>
-				</PieChartUnresponsive>
-			</div>
+			</PieChartUnresponsive>
 		</GlobalChartsProvider>
 	),
 	args: {
 		data,
-		size: 400,
 		thickness: 0.5,
-		containerHeight: '600px',
 	},
 	parameters: {
 		docs: {
@@ -455,7 +402,8 @@ export const CustomLegend: Story = {
 	),
 	args: {
 		...Default.args,
-		data: customerRevenueData.map( segment => ( { ...segment, label: '' } ) ),
+		data: customerRevenueData,
+		showLabels: false,
 		thickness: 0.3,
 		cornerScale: 0.03,
 		gapScale: 0.01,
