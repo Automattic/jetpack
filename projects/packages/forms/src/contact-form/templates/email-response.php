@@ -560,7 +560,8 @@ $style = '<style media="all" type="text/css">
 	.respondent-details-cell {
 		vertical-align: middle;
 	}
-
+</style>
+<style media="all" type="text/css">
 	/* Responsive */
 	@media only screen and (max-width: 640px) {
 		.main p,
