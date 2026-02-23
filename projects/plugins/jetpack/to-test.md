@@ -13,15 +13,9 @@ You can see a [full list of changes in this release here](https://github.com/Aut
 
 ### Social: New Preview & Customization Modal (V2)
 
-> **Important:** The new Social UI is behind a feature flag. It is enabled on the provided test sites via a blog sticker (`jetpack-social-unified-ui-v1`). If you create your own test site, you will **not** see the new changes unless the sticker is applied.
-
-#### Prerequisites
-
-- Use the provided test sites above — they already have the blog sticker and some social accounts connected
-
 #### Test 1: Preview modal — use paid plan site
 
-1. Create a new post editor and open the Jetpack/Social sidebar
+1. Create a new post and open the Jetpack/Social sidebar
 2. Click "Preview and customize" to open the modal
 3. Verify the two-column layout: customization on the left, preview on the right
 4. Toggle between "Same for all" and "Customize each" modes
@@ -29,7 +23,7 @@ You can see a [full list of changes in this release here](https://github.com/Aut
 6. Select a connection with a long name (e.g. Mastodon) and verify the legend truncates with ellipsis
 7. Verify the connection toggle ("Share to…") appears above the preview section
 8. Verify the customization mode toggle is sticky when scrolling
-9. Click on the "Publish" button
+9. Click the "Publish" button
 10. Confirm that the preview modal shows up with a checkbox, "Always confirm before publishing".
 11. Uncheck the checkbox and publish the post
 12. Create a new post and verify that the preview modal does not show up after clicking "Publish"
@@ -37,7 +31,7 @@ You can see a [full list of changes in this release here](https://github.com/Aut
 For actually customizing per network:
 
 1. Open the preview modal on a published post
-2. Toggle "Customize each network"
+2. Toggle "Customize each"
 3. Expected: You can write a different custom message for each connected account
 4. Expected: You can set different media for each account
 5. The sidebar should show a message indicating per-network mode is active (not the global customization form)
