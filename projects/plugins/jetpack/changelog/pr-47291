@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Forms: Fix duplicate title in plain text form submission notification emails.
