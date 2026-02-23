@@ -1,4 +1,4 @@
-import { CurrentUserData } from './types.ts';
+import { CurrentUserData, SiteType } from './types.ts';
 
 /**
  * Get the script data from the window object.
@@ -110,14 +110,6 @@ export function isWpcomPlatformSite() {
 export function isJetpackSelfHostedSite() {
 	return getScriptData()?.site?.host === 'unknown';
 }
-
-/**
- * Site type categories for analytics and conditional logic.
- * - 'simple': WordPress.com Simple sites
- * - 'woa': WordPress.com sites on Atomic infrastructure
- * - 'jetpack': Self-hosted Jetpack sites
- */
-export type SiteType = 'simple' | 'woa' | 'jetpack';
 
 /**
  * Get the site type category.
