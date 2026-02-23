@@ -308,17 +308,16 @@ class Agents_Manager {
 	/**
 	 * Returns true if the Agents Manager should be loaded in the current context.
 	 *
-	 * True when either the general unified experience filter is enabled (for
-	 * opted-in users) or the unified Big Sky filter is enabled (hooked by
-	 * Big Sky in dev environments).
-	 *
 	 * @return bool
 	 */
 	private function is_enabled() {
+		// Full unified experience: Agents Manager with support guides, Help Center takeover, etc.
 		if ( apply_filters( 'agents_manager_use_unified_experience', false ) ) {
 			return true;
 		}
 
+		// Unified Big Sky only: Agents Manager replaces Big Sky's native UI on its surfaces
+		// (block editor, wp-admin, CIAB). Hooked by Big Sky in dev environments.
 		if ( apply_filters( 'agents_manager_use_unified_big_sky', false ) ) {
 			return true;
 		}
