@@ -30,15 +30,14 @@ import { createSyncedForm } from '../util/create-synced-form.ts';
  * @param clientId  - The block client ID that received AI-generated content.
  * @param blockName - The block type name (e.g., 'jetpack/contact-form').
  */
-async function handleAiGenerationComplete( clientId: string, blockName: string ): Promise< void > {
+export async function handleAiGenerationComplete(
+	clientId: string,
+	blockName: string
+): Promise< void > {
 	// Only handle contact-form blocks
 	if ( blockName !== 'jetpack/contact-form' ) {
 		return;
 	}
-
-	// DEBUG: Remove after testing
-	// eslint-disable-next-line no-console
-	console.log( '[Forms Debug] AI generation complete - creating synced form for:', clientId );
 
 	// Don't create synced form if already in form editor
 	const editorSelectors = select( editorStore );
@@ -72,9 +71,6 @@ async function handleAiGenerationComplete( clientId: string, blockName: string )
 			Number( currentPostId ) || 0
 		);
 
-		// eslint-disable-next-line no-console
-		console.log( '[Forms Debug] Creating synced form with title:', formId );
-
 		if ( ! formId ) {
 			return;
 		}
@@ -102,7 +98,7 @@ async function handleAiGenerationComplete( clientId: string, blockName: string )
  * This script is only loaded when both the AI Assistant extension is available
  * and central-form-management feature flag is enabled (checked in PHP).
  */
-function initAiFormGenerationIntegration(): void {
+export function initAiFormGenerationIntegration(): void {
 	hasAction( 'jetpack_ai_assistant_generation_complete', 'jetpack-forms/ai-integration' ) ||
 		addAction(
 			'jetpack_ai_assistant_generation_complete',
