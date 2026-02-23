@@ -41,8 +41,8 @@ jest.mock( '../../../social-store', () => ( {
 	store: 'jetpack-social-store',
 } ) );
 
-const mockUseDispatch = useDispatch as jest.MockedFunction< typeof useDispatch >;
-const mockUseSelect = useSelect as jest.MockedFunction< typeof useSelect >;
+const mockUseDispatch = useDispatch as jest.MockedFunction< typeof useDispatch< any > >; // eslint-disable-line @typescript-eslint/no-explicit-any
+const mockUseSelect = useSelect as unknown as jest.MockedFunction< typeof useSelect< () => any > >; // eslint-disable-line @typescript-eslint/no-explicit-any
 const mockHasSocialPaidFeatures = scriptData.hasSocialPaidFeatures as jest.MockedFunction<
 	typeof scriptData.hasSocialPaidFeatures
 >;
