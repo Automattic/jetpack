@@ -274,8 +274,16 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 					focusInput();
 				}, 100 );
 
-				// Fire a WordPress action for cross-package communication.
-				// This allows packages (like forms) to react to AI generation completion.
+				/**
+				 * Fires when AI generation completes for a block.
+				 * This allows cross-package communication - for example, the forms package
+				 * uses this to automatically create a synced form after AI generates form fields.
+				 *
+				 * @since 15.6.0
+				 *
+				 * @param {string} clientId  - The block client ID that received AI-generated content.
+				 * @param {string} blockName - The block type name (e.g., 'jetpack/contact-form').
+				 */
 				doAction( 'jetpack_ai_assistant_generation_complete', clientId, blockName );
 			},
 			[
