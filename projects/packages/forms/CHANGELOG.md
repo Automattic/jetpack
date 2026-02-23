@@ -5,6 +5,37 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [7.9.0] - 2026-02-23
+### Added
+- Dashboard: Add "Duplicate" action to the wp-build forms list. [#47171]
+- Dashboard: Add actions dropdown (Duplicate, Preview, Copy embed, Copy shortcode) to the single form view header. [#47202]
+- Dashboard: Add help for blocks vs forms. [#47135]
+- Dashboard: Add rename action to forms list. [#47104]
+- Add file field HTML output for emails. [#47148]
+- Add pre-publish panel with settings summary and quick navigation to the form editor. [#47255]
+
+### Changed
+- Change default form layout from vertical to horizontal with wrap, allowing form fields to display side-by-side. [#47210]
+- Change forms dashboard URL filter to allow customizing the dashboard location and resolve legacy hash fragments from email links. [#47029]
+- Render images from image select fields on email notifications. [#47160]
+- Update package dependencies. [#47173]
+
+### Fixed
+- Contact Form: Fix layout classes applied to wrong element for synced forms. [#47136]
+- Contact Form: Fix shortcode ref attribute to load form from `jetpack_form` post type. [#47129]
+- Dashboard: Fix flash of unstyled response data in the inspector sidebar on initial page load. [#47179]
+- Dashboard: Re-add the source column to the single form view responses table. [#47232]
+- Dashboard: Remove bottom margin on search control that caused vertical misalignment in the header row. [#47263]
+- Dashboard: Remove icons from mobile dropdown menu items for a cleaner appearance. [#47206]
+- Dashboard: Use consistent "responses" terminology instead of "entries" and "submissions". [#47256]
+- Email template: Fix button layout regression, add responsive mobile stacking, improve font sizes, and align field icons with labels. [#47127]
+- Fix 'Mark as spam' button in email notifications to work with wp-build dashboard. [#47150]
+- Fix file-type icon paths and show image thumbnails for file fields in the inspector. [#47253]
+- Fix image-select field preview styling on the wp-build dashboard. [#47252]
+- Fix wp-build dashboard headers and content positioning on mobile. [#47139]
+- Form Editor: Add padding below title to prevent block toolbar overlap. [#47170]
+- Image Select: Prevent fatal error when rendering image-select fields with invalid image payloads. [#47236]
+
 ## [7.8.0] - 2026-02-16
 ### Added
 - Dashboard: Add 'Copy embed' and 'Copy shortcode' actions to copy form code to clipboard. [#47092]
@@ -2222,6 +2253,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a new jetpack/forms package [#28409]
 - Added a public load_contact_form method for initializing the contact form module. [#28416]
 
+[7.9.0]: https://github.com/automattic/jetpack-forms/compare/v7.8.0...v7.9.0
 [7.8.0]: https://github.com/automattic/jetpack-forms/compare/v7.7.0...v7.8.0
 [7.7.0]: https://github.com/automattic/jetpack-forms/compare/v7.6.0...v7.7.0
 [7.6.0]: https://github.com/automattic/jetpack-forms/compare/v7.5.0...v7.6.0

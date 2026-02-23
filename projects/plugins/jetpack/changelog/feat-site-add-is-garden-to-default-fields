@@ -1,4 +1,0 @@
-Significance: minor
-Type: enhancement
-
-Site: Ensure is_garden is included in default site fields for server-side rendering.

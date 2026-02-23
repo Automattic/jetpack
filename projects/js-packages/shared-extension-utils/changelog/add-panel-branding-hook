@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-JetpackEditorPanelLogo now respects the jetpack_show_editor_panel_branding PHP filter.
