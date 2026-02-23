@@ -756,7 +756,7 @@ class Agents_Manager {
 	 * Determine if the user should use unified experience for Big Sky.
 	 */
 	private function has_unified_big_sky_flag() {
-		return self::is_proxied();
+		return self::is_dev_mode();
 	}
 
 	/**
