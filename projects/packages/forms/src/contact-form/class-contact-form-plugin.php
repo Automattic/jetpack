@@ -355,6 +355,13 @@ class Contact_Form_Plugin {
 			\JETPACK__VERSION
 		);
 
+		wp_register_style(
+			'jetpack-form-status-notice',
+			Jetpack_Forms::plugin_url() . '../dist/contact-form/css/form-status-notice.css',
+			array(),
+			\JETPACK__VERSION
+		);
+
 		add_filter( 'js_do_concat', array( __CLASS__, 'disable_forms_view_script_concat' ), 10, 3 );
 
 		if ( defined( 'JETPACK__PLUGIN_DIR' ) ) {

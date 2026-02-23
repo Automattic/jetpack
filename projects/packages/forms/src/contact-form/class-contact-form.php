@@ -315,6 +315,8 @@ class Contact_Form extends Contact_Form_Shortcode {
 			return '';
 		}
 
+		wp_enqueue_style( 'jetpack-form-status-notice' );
+
 		$config     = $status_config[ $status ];
 		$type_class = 'info' === $config['type'] ? 'jetpack-form-status-notice--info' : 'jetpack-form-status-notice--warning';
 		$edit_url   = get_edit_post_link( $synced_form->ID, 'raw' );
