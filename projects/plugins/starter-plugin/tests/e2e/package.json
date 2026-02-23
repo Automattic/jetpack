@@ -20,7 +20,7 @@
 	"browserslist": [],
 	"devDependencies": {
 		"@playwright/test": "1.55.1",
-		"@types/node": "^20.4.2",
+		"@types/node": "^24.0.0",
 		"_jetpack-e2e-commons": "workspace:*",
 		"allure-playwright": "2.15.1",
 		"config": "4.1.1",

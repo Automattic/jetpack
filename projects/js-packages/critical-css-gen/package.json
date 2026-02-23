@@ -47,7 +47,7 @@
 		"@babel/preset-typescript": "7.28.5",
 		"@types/clean-css": "4.2.11",
 		"@types/css-tree": "2.3.11",
-		"@types/node": "^20.4.2",
+		"@types/node": "^24.0.0",
 		"express": "4.22.0",
 		"jest": "30.2.0",
 		"path-browserify": "1.0.1",
