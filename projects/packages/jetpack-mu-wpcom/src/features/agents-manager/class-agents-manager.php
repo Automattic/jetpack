@@ -308,13 +308,22 @@ class Agents_Manager {
 	/**
 	 * Returns true if the Agents Manager should be loaded in the current context.
 	 *
-	 * Enabled when the unified experience filter returns true. Big Sky hooks this
-	 * filter in dev environments; the Agents Manager hooks it for opted-in users.
+	 * True when either the general unified experience filter is enabled (for
+	 * opted-in users) or the unified Big Sky filter is enabled (hooked by
+	 * Big Sky in dev environments).
 	 *
 	 * @return bool
 	 */
 	private function is_enabled() {
-		return (bool) apply_filters( 'agents_manager_use_unified_experience', false );
+		if ( apply_filters( 'agents_manager_use_unified_experience', false ) ) {
+			return true;
+		}
+
+		if ( apply_filters( 'agents_manager_use_unified_big_sky', false ) ) {
+			return true;
+		}
+
+		return false;
 	}
 
 	/**
