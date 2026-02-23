@@ -316,9 +316,8 @@ class Agents_Manager {
 			return true;
 		}
 
-		// Unified Big Sky only: Agents Manager replaces Big Sky's native UI on its surfaces
-		// (block editor, wp-admin, CIAB). Hooked by Big Sky.
-		if ( apply_filters( 'agents_manager_use_unified_big_sky', false ) ) {
+		// Block editor only: Agents Manager replaces Big Sky's native UI. Hooked by Big Sky.
+		if ( $this->is_block_editor() && apply_filters( 'agents_manager_enabled_in_block_editor', false ) ) {
 			return true;
 		}
 
