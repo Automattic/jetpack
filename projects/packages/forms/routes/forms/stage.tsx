@@ -28,8 +28,10 @@ import { NON_TRASH_FORM_STATUSES } from '../../src/dashboard/constants';
 import useDeleteForm from '../../src/dashboard/hooks/use-delete-form.ts';
 import useFormsData from '../../src/dashboard/hooks/use-forms-data.ts';
 import WpRouteDashboardSearchParamsProvider from '../../src/dashboard/router/wp-route-dashboard-search-params-provider.tsx';
+import ChangeFormStatusModal from '../../src/dashboard/wp-build/components/change-form-status-modal';
 import DataViewsHeaderRow from '../../src/dashboard/wp-build/components/dataviews-header-row';
 import FormsHelpModal from '../../src/dashboard/wp-build/components/forms-help-modal';
+import useChangeFormStatus from '../../src/dashboard/wp-build/hooks/use-change-form-status';
 import useFormItemActions from '../../src/dashboard/wp-build/hooks/use-form-item-actions';
 import usePageHeaderDetails from '../../src/dashboard/wp-build/hooks/use-page-header-details';
 import '../../src/dashboard/wp-build/style.scss';
@@ -138,12 +140,22 @@ function StageInner() {
 		statusQuery,
 	} );
 
+	const { isChangingStatus, changeFormStatus } = useChangeFormStatus( {
+		view,
+		setView,
+		recordsLength: records?.length ?? 0,
+		statusQuery,
+	} );
+
 	const [ selection, setSelection ] = useState< string[] >( [] );
 	const [ pendingPermanentDeleteCount, setPendingPermanentDeleteCount ] = useState( 0 );
 
 	// Rename modal state
 	const [ renameFormItem, setRenameFormItem ] = useState< FormListItem | null >( null );
 	const renameRetryRef = useRef< { item: FormListItem; title: string } | null >( null );
+
+	// Change status modal state
+	const [ statusChangeItems, setStatusChangeItems ] = useState< FormListItem[] | null >( null );
 
 	const { createSuccessNotice, createErrorNotice } = useDispatch( noticesStore );
 	const { saveEntityRecord } = useDispatch( coreStore );
@@ -183,6 +195,34 @@ function StageInner() {
 		setRenameFormItem( null );
 		renameRetryRef.current = null;
 	}, [] );
+
+	const openChangeStatusModal = useCallback(
+		( items: FormListItem[] ) => {
+			if ( ! items?.length || isDeleting || isChangingStatus ) {
+				return;
+			}
+			setStatusChangeItems( items );
+		},
+		[ isChangingStatus, isDeleting ]
+	);
+
+	const closeChangeStatusModal = useCallback( () => {
+		setStatusChangeItems( null );
+	}, [] );
+
+	const handleConfirmChangeStatus = useCallback(
+		async ( nextStatus: string ) => {
+			if ( ! statusChangeItems?.length ) {
+				return;
+			}
+			try {
+				await changeFormStatus( statusChangeItems, nextStatus );
+			} finally {
+				setSelection( [] );
+			}
+		},
+		[ changeFormStatus, statusChangeItems ]
+	);
 
 	const handleRename = useCallback(
 		async ( newTitle: string ) => {
@@ -226,6 +266,18 @@ function StageInner() {
 		},
 		[ renameFormItem, saveEntityRecord, createSuccessNotice, createErrorNotice ]
 	);
+
+	const statusChangeInitialStatus = useMemo( () => {
+		if ( ! statusChangeItems?.length ) {
+			return undefined;
+		}
+		const firstStatus = statusChangeItems[ 0 ]?.status;
+		if ( ! firstStatus ) {
+			return undefined;
+		}
+		const allSame = statusChangeItems.every( item => item.status === firstStatus );
+		return allSame ? firstStatus : undefined;
+	}, [ statusChangeItems ] );
 
 	const statusLabel = useCallback( ( status: string ) => {
 		switch ( status ) {
@@ -420,6 +472,17 @@ function StageInner() {
 				},
 			} );
 		}
+
+		actionsList.push( {
+			id: 'change-status',
+			isPrimary: false,
+			label: __( 'Change status', 'jetpack-forms' ),
+			supportsBulk: true,
+			callback( items: FormListItem[] ) {
+				openChangeStatusModal( items );
+			},
+		} );
+
 		actionsList.push( {
 			id: 'rename-form',
 			isPrimary: false,
@@ -459,6 +522,7 @@ function StageInner() {
 		isDeleting,
 		isViewingTrash,
 		onOpenPermanentDeleteConfirm,
+		openChangeStatusModal,
 		openRenameModal,
 		openSingleFormView,
 		previewForm,
@@ -602,6 +666,13 @@ function StageInner() {
 				onSave={ handleRename }
 				title={ __( 'Rename form', 'jetpack-forms' ) }
 				initialValue={ renameRetryRef.current?.title || renameFormItem?.title || '' }
+			/>
+			<ChangeFormStatusModal
+				isOpen={ !! statusChangeItems?.length }
+				itemsCount={ statusChangeItems?.length || 0 }
+				initialStatus={ statusChangeInitialStatus }
+				onClose={ closeChangeStatusModal }
+				onConfirm={ handleConfirmChangeStatus }
 			/>
 			<IntegrationsModal
 				isOpen={ isIntegrationsModalOpen }
