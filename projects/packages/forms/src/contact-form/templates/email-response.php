@@ -84,9 +84,7 @@ $template = '
 								%4$s
 
 								<!-- Actions -->
-								<div class="actions">
-									%8$s
-								</div>
+								%8$s
 
 								<!-- Powered By -->
 								%9$s
@@ -453,43 +451,6 @@ $style = '<style media="all" type="text/css">
 		background-color: transparent;
 		color: ' . $link_color . ' !important;
 		border: 1px solid ' . $link_color . ';
-	}
-
-	/* Legacy Actions Support */
-	.actions .button_block {
-		mso-table-lspace: 0pt;
-		mso-table-rspace: 0pt;
-		width: unset;
-		margin-top: 24px;
-	}
-
-	.actions .button_block .pad,
-	.actions .button_block .pad a {
-		border-radius: 4px;
-		background-image: url(\'https://s0.wordpress.com/i/emails/marketing/wpcom/2024/blueberry-px.png\');
-		background-size: cover;
-		background-color: #3858E9;
-	}
-
-	.actions .button_block .pad a {
-		font-size: 14px;
-		font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
-		font-weight: 500;
-		text-decoration: none;
-		padding: 12px 24px;
-		color: #ffffff;
-		border-radius: 4px;
-		display: inline-block;
-		mso-padding-alt: 0;
-	}
-
-	.actions .button_block .pad a span {
-		mso-text-raise: 15pt;
-	}
-
-	.actions .button_block .pad i {
-		letter-spacing: 25px;
-		mso-font-width: -100%;
 	}
 
 	/* Footer */
