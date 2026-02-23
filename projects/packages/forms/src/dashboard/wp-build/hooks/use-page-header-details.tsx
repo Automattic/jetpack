@@ -152,11 +152,6 @@ export default function usePageHeaderDetails(
 		const formItem = { id: sourceIdNumber, title: formTitle };
 		const controls: Array< { title: string; onClick: () => void; isDisabled?: boolean } > = [
 			{
-				title: __( 'Change status…', 'jetpack-forms' ),
-				onClick: openChangeStatusModal,
-				isDisabled: isChangingStatus,
-			},
-			{
 				title: __( 'Duplicate', 'jetpack-forms' ),
 				onClick: () => duplicateForm( formItem ),
 			},
@@ -178,6 +173,12 @@ export default function usePageHeaderDetails(
 				}
 			);
 		}
+
+		controls.push( {
+			title: __( 'Change status', 'jetpack-forms' ),
+			onClick: openChangeStatusModal,
+			isDisabled: isChangingStatus,
+		} );
 
 		return controls;
 	}, [
