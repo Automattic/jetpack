@@ -13,7 +13,9 @@ import { projectTypes } from './projectHelpers.js';
  * @param {string} options.requiredFile - File that must exist in the target directory (e.g. 'composer.json').
  */
 export async function runPackageManager( { command, requiredFile } ) {
-	// Extract raw args from process.argv after the command name.
+	// Extract raw args from process.argv rather than yargs-parsed argv, because
+	// yargs consumes flags it recognizes (e.g. --verbose) and can mangle others
+	// (e.g. --no-dev). Reading process.argv ensures all flags pass through untouched.
 	const allArgs = process.argv.slice( 2 );
 	const cmdIdx = allArgs.indexOf( command );
 	const rawArgs = allArgs.slice( cmdIdx + 1 );
