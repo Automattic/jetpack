@@ -308,17 +308,16 @@ class Agents_Manager {
 	/**
 	 * Returns true if the Agents Manager should be loaded in the current context.
 	 *
-	 * True when the unified experience filter is enabled, or when the block editor
-	 * has the unified Big Sky flag active.
-	 *
 	 * @return bool
 	 */
 	private function is_enabled() {
+		// Full unified experience: Agents Manager with support guides, Help Center takeover, etc.
 		if ( apply_filters( 'agents_manager_use_unified_experience', false ) ) {
 			return true;
 		}
 
-		if ( $this->is_block_editor() && class_exists( 'Big_Sky' ) && $this->has_unified_big_sky_flag() ) {
+		// Block editor only: Agents Manager replaces Big Sky's native UI. Hooked by Big Sky.
+		if ( $this->is_block_editor() && apply_filters( 'agents_manager_enabled_in_block_editor', false ) ) {
 			return true;
 		}
 
@@ -747,22 +746,6 @@ class Agents_Manager {
 
 		if ( true === apply_filters( 'is_jetpack_site', false, $blog_id ) ) {
 			return ! ( new Connection_Manager( 'jetpack' ) )->is_user_connected( $user_id );
-		}
-
-		return false;
-	}
-
-	/**
-	 * Determine if the user should use unified experience for Big Sky.
-	 */
-	private function has_unified_big_sky_flag() {
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- This is a feature flag check, not a form submission.
-		if ( isset( $_GET['flags'] ) ) {
-			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- This is a feature flag check, not a form submission.
-			$flags = explode( ',', sanitize_text_field( wp_unslash( $_GET['flags'] ) ) );
-			if ( in_array( 'unified-big-sky', $flags, true ) ) {
-				return true;
-			}
 		}
 
 		return false;
