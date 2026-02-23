@@ -628,6 +628,14 @@ class Feedback_Email_Renderer {
 			$metadata_html
 		);
 
+		// Inject print styles into <body> for Outlook.com compatibility (it strips <head> styles
+		// but preserves <body> styles). The same styles are already in <head> for Gmail and others.
+		// This is done after sprintf to avoid % signs in CSS being interpreted as format specifiers.
+		if ( isset( $print_style ) ) {
+			// phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable -- defined in the template file loaded via require above.
+			$html_message = str_replace( '</body>', '<style type="text/css">' . $print_style . '</style></body>', $html_message );
+		}
+
 		return $html_message;
 	}
 

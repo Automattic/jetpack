@@ -32,6 +32,17 @@ $font_size_button     = \Automattic\Jetpack\Forms\ContactForm\Feedback_Email_Ren
 // and removes non-essential elements. Works for clients that preserve <style> tags
 // in print (Apple Mail ~52%, Outlook, Thunderbird). Gmail strips <style> when
 // printing so @media print has no effect there — a known limitation.
+// Defined as a variable so it can also be injected into <body> for Outlook.com.
+$print_style = '@media print {
+	body, .body { background-color: #ffffff !important; }
+	.container { width: 100% !important; max-width: 100% !important; padding: 0 !important; }
+	.wrapper { padding: 16px 0 !important; }
+	.main { border-radius: 0 !important; }
+	.field-icon-cell { display: none !important; width: 0 !important; max-width: 0 !important; padding: 0 !important; overflow: hidden !important; }
+	.form-fields-inner { padding: 0 !important; }
+	.actions, .powered-by-table, .preheader { display: none !important; }
+	.collapse { display: none !important; }
+}';
 
 // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- used in class-contact-form.php
 $template = '
@@ -74,7 +85,9 @@ $template = '
 								%4$s
 
 								<!-- Actions -->
-								%8$s
+								<div class="actions">
+									%8$s
+								</div>
 
 								<!-- Powered By -->
 								%9$s
@@ -362,16 +375,7 @@ $style = '<style media="all" type="text/css">
 		}
 	}
 
-	@media print {
-		body, .body { background-color: #ffffff !important; }
-		.container { width: 100% !important; max-width: 100% !important; padding: 0 !important; }
-		.wrapper { padding: 16px 0 !important; }
-		.main { border-radius: 0 !important; }
-		.field-icon-cell { display: none !important; width: 0 !important; max-width: 0 !important; padding: 0 !important; overflow: hidden !important; }
-		.form-fields-inner { padding: 0 !important; }
-		.actions, .powered-by-table, .preheader { display: none !important; }
-		.collapse { display: none !important; }
-	}
+	' . $print_style . '
 
 	@media all {
 		.ExternalClass {
