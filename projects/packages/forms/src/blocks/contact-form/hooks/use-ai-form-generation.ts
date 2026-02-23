@@ -115,7 +115,9 @@ export function useAiFormGeneration( { clientId, hasRef }: UseAiFormGenerationPr
 				// Clear inner blocks and set ref to the new form
 				replaceInnerBlocks( generatedClientId, [], false );
 
-				// Clear all attributes and set only the ref
+				// Clear all inline form attributes when transitioning to synced mode.
+				// Setting attributes to undefined reverts them to block defaults in Gutenberg,
+				// ensuring the synced form (via ref) controls all form settings.
 				const clearedAttributes = Object.keys( block.attributes || {} ).reduce(
 					( acc, key ) => ( { ...acc, [ key ]: undefined } ),
 					{ ref: formId }
