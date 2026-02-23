@@ -59,6 +59,18 @@ class Contact_Form_Block {
 						'allowVerticalAlignment' => true,
 						'allowJustification'     => true,
 						'allowWrap'              => false,
+						'__experimentalBorder'   => array(
+							'color'  => true,
+							'radius' => true,
+							'style'  => true,
+							'width'  => true,
+							'__experimentalDefaultControls' => array(
+								'color'  => true,
+								'radius' => true,
+								'style'  => true,
+								'width'  => true,
+							),
+						),
 					),
 				),
 				'style_handles'         => array( 'jetpack-forms-layout' ),
