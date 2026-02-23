@@ -18,6 +18,9 @@
 		"build-production": "echo 'Not implemented.'",
 		"build-production-js": "echo 'Not implemented.'"
 	},
+	"exports": {
+		"./package.json": "./package.json"
+	},
 	"devDependencies": {
 		"@wordpress/base-styles": "6.15.0"
 	}

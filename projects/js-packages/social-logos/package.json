@@ -3,6 +3,7 @@
 	"version": "3.3.9",
 	"description": "A repository of all the social logos used on WordPress.com.",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/social-logos/",
+	"author": "Automattic",
 	"bugs": {
 		"url": "https://github.com/Automattic/jetpack/labels/[JS Package] Social Logos"
 	},

@@ -1,4 +1,5 @@
 {
+	"private": true,
 	"name": "@automattic/jetpack-crm",
 	"version": "6.7.2",
 	"description": "The CRM for WordPress",

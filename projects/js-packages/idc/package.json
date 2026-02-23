@@ -4,6 +4,11 @@
 	"description": "Jetpack Connection Component",
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Automattic/jetpack",
+		"directory": "projects/js-packages/idc"
+	},
 	"sideEffects": [
 		"*.css",
 		"*.scss"
