@@ -476,13 +476,13 @@ class Dashboard {
 	/**
 	 * Get admin URL for given screen ID.
 	 *
-	 * @deprecated $$next-version$$ Use Dashboard::get_forms_admin_url() instead.
+	 * @deprecated 7.9.0 Use Dashboard::get_forms_admin_url() instead.
 	 *
 	 * @param string $screen_id Screen ID.
 	 * @return string Admin URL.
 	 */
 	public static function get_admin_url( $screen_id ) {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Dashboard::get_forms_admin_url' );
+		_deprecated_function( __METHOD__, 'jetpack-7.9.0', 'Dashboard::get_forms_admin_url' );
 
 		if ( 'edit-jetpack_form' === $screen_id ) {
 			return self::get_forms_admin_url( 'forms' );

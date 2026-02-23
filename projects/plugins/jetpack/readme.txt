@@ -326,23 +326,24 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 15.6-a.3 - 2026-02-16
+### 15.6-a.5 - 2026-02-23
 #### Enhancements
-- Form Notifications: Add new HTML email template design with respondent info header, metadata section, and improved action buttons.
-- Forms: Allow Accordion, Details, and Icon blocks in forms, and Icon block to be added inside the file upload dropzone.
-- Forms: Allow filtering Forms dashboard URL.
-- Forms: Create new forms in same tab.
-- Forms: Replace dashicon with SVG icon and add tooltip to admin bar "Form Responses" link.
-- Reader: Add Discover card to Reader settings page to highlight feature benefits.
-- Update external menu links to display an arrow indicator for improved performance and a more modern appearance.
-- VideoPress: Accept SRT subtitle files for upload alongside VTT.
-- WordPress.com Reader: Automatically enable the admin bar link on sites newly connected to WordPress.com.
+- AI Sidebar: Add `jetpack.ai.imageGenerationHandler` filter to allow external plugins (e.g. Image Studio) to replace the built-in AI image generation flow for the "Get Featured Image" entry point.
+- Block Editor: Make Jetpack logo display behavior consistent across SEO and AI panels. Logo now appears in global contexts (document settings, pre-publish, post-publish) but not in the Jetpack sidebar.
+- Forms: Render images from image select fields on email notifications.
+- Image Studio: Add Image Studio plugin support to block editor and media library.
+- Post Images: Add `jetpack-ignore-thumbnail` CSS class and `jetpack_postimages_exclude_image` filter to exclude specific images from post image discovery.
+- SEO: Add social link previews to the SEO tools UI.
+- Site: Ensure `is_garden` is included in default site fields for server-side rendering.
+- Social: Add visual dot to active connection in preview modal.
 
 #### Bug fixes
-- AI Assistant: Restore Jetpack logo in pre-publish panel where branding is not otherwise apparent.
-- Block Editor Assets: Fix Gutenberg asset detection when assets are served from a CDN.
-- Social: Fix Tumblr preview to prioritize custom message when it is set.
-- Social: Refresh plan features on post-checkout redirect.
+- Forms: Prevent fatal error when rendering image-select fields with invalid image payloads.
+- Sharing: Remove Pocket sharing button.
+- Shortcode embeds: Improve handling of YouTube shorts in embeds.
+- Slideshow: Fix doubled navigation arrows.
+- Slideshow block: Fix further issues with aspect ratio.
+- Social Icons: Update documentation links for available icons.
 
 --------
 

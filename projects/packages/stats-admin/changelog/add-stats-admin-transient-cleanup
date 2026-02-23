@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Register STATS_REST_RESP_ transient prefix for cleanup by the stats package transient cleanup cron.
