@@ -1519,19 +1519,23 @@ class Contact_Form_Plugin {
 							$jetpack_badge_count += intval( $jetpack_menu_item['count'] );
 						}
 
-						$jetpack_unread_tag = " <span data-unread-diff='" . ( $jetpack_badge_count - $unread ) . "' class='jp-feedback-unread-counter count-{$jetpack_badge_count} awaiting-mod'><span class='feedback-unread-counter'>" . number_format_i18n( $jetpack_badge_count ) . '</span></span>';
+						if ( $unread > 0 ) {
+							$jetpack_unread_tag = " <span data-unread-diff='" . ( $jetpack_badge_count - $unread ) . "' class='jp-feedback-unread-counter count-{$jetpack_badge_count} awaiting-mod'><span class='feedback-unread-counter'>" . number_format_i18n( $jetpack_badge_count ) . '</span></span>';
 
-						// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-						$menu[ $index ][0] = $jetpack_menu_item['title'] . ' ' . $jetpack_unread_tag;
+							// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+							$menu[ $index ][0] = $jetpack_menu_item['title'] . ' ' . $jetpack_unread_tag;
+						}
 					}
 				}
 
 				// Jetpack submenu entries
-				foreach ( $submenu['jetpack'] as $index => $menu_item ) {
-					$admin_slug = apply_filters( 'jetpack_forms_alpha', false ) ? Dashboard::FORMS_WPBUILD_ADMIN_SLUG : Dashboard::ADMIN_SLUG;
-					if ( $admin_slug === $menu_item[2] ) {
-						// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-						$submenu['jetpack'][ $index ][0] .= $forms_unread_count_tag;
+				if ( $unread > 0 ) {
+					foreach ( $submenu['jetpack'] as $index => $menu_item ) {
+						$admin_slug = apply_filters( 'jetpack_forms_alpha', false ) ? Dashboard::FORMS_WPBUILD_ADMIN_SLUG : Dashboard::ADMIN_SLUG;
+						if ( $admin_slug === $menu_item[2] ) {
+							// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+							$submenu['jetpack'][ $index ][0] .= $forms_unread_count_tag;
+						}
 					}
 				}
 			}
