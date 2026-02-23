@@ -3099,6 +3099,15 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'validate_callback' => __CLASS__ . '::validate_boolean',
 				'jp_group'          => 'videopress',
 			),
+
+			// MCP (Model Context Protocol) abilities.
+			'mcp_abilities'                             => array(
+				'description'       => esc_html__( 'MCP abilities enabled state per ability name.', 'jetpack' ),
+				'type'              => 'object',
+				'default'           => array(),
+				'validate_callback' => __CLASS__ . '::validate_mcp_abilities',
+				'jp_group'          => 'settings',
+			),
 		);
 
 		// SEO Tools - SEO Enhancer.
@@ -3197,6 +3206,71 @@ class Jetpack_Core_Json_Api_Endpoints {
 				)
 			);
 		}
+		return true;
+	}
+
+	/**
+	 * Validates the mcp_abilities parameter (object of ability name => 1|0).
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array           $value  Value to check.
+	 * @param WP_REST_Request $request The request sent to the WP REST API.
+	 * @param string          $param  Name of the parameter passed to endpoint holding $value.
+	 *
+	 * @return bool|WP_Error
+	 */
+	public static function validate_mcp_abilities( $value, $request, $param ) {
+		if ( ! is_array( $value ) ) {
+			return new WP_Error(
+				'invalid_param',
+				sprintf(
+					/* Translators: Placeholder is a parameter name. */
+					esc_html__( '%s must be an object.', 'jetpack' ),
+					$param
+				)
+			);
+		}
+
+		$all_ability_names = Jetpack_MCP_Abilities::get_all_ability_names();
+
+		foreach ( $value as $ability_name => $enabled ) {
+			if ( ! is_string( $ability_name ) ) {
+				return new WP_Error(
+					'invalid_param',
+					sprintf(
+						/* Translators: Placeholder is a parameter name. */
+						esc_html__( '%s keys must be ability name strings.', 'jetpack' ),
+						$param
+					)
+				);
+			}
+			if ( ! in_array( $ability_name, $all_ability_names, true ) ) {
+				return new WP_Error(
+					'invalid_param',
+					sprintf(
+						/* translators: %1$s: parameter name, %2$s: invalid ability name */
+						esc_html__( '%1$s: invalid ability %2$s.', 'jetpack' ),
+						$param,
+						$ability_name
+					)
+				);
+			}
+			// Value must be boolean-like (true, false, 0, 1).
+			$valid = is_bool( $enabled ) || ( ctype_digit( (string) $enabled ) && in_array( (int) $enabled, array( 0, 1 ), true ) );
+			if ( ! $valid ) {
+				return new WP_Error(
+					'invalid_param',
+					sprintf(
+						/* translators: %1$s: parameter name, %2$s: ability name */
+						esc_html__( '%1$s: %2$s must be true, false, 0 or 1.', 'jetpack' ),
+						$param,
+						$ability_name
+					)
+				);
+			}
+		}
+
 		return true;
 	}
 

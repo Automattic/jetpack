@@ -78,6 +78,7 @@ function render() {
 							element={ <Main routeName={ getRouteName( '/performance' ) } /> }
 						/>
 						<Route path="/traffic" element={ <Main routeName={ getRouteName( '/traffic' ) } /> } />
+						<Route path="/ai" element={ <Main routeName={ getRouteName( '/ai' ) } /> } />
 						<Route path="/writing" element={ <Main routeName={ getRouteName( '/writing' ) } /> } />
 						<Route path="/sharing" element={ <Main routeName={ getRouteName( '/sharing' ) } /> } />
 						<Route
@@ -132,6 +133,8 @@ export function getRouteName( path ) {
 			return _x( 'Performance', 'Navigation item.', 'jetpack' );
 		case '/traffic':
 			return _x( 'Traffic', 'Navigation item.', 'jetpack' );
+		case '/ai':
+			return _x( 'AI', 'Navigation item.', 'jetpack' );
 		case '/writing':
 			return _x( 'Writing', 'Navigation item.', 'jetpack' );
 		case '/sharing':

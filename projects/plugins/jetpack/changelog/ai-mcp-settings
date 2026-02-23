@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Add AI settings tab with MCP (Model Context Protocol) access toggle. On self-hosted sites, fetch available abilities from WordPress.com API when the local registry is not present.

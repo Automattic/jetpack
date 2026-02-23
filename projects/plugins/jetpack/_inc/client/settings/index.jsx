@@ -3,6 +3,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { Component } from 'react';
 import { connect } from 'react-redux';
 import { useLocation } from 'react-router';
+import AiSettings from 'ai';
 import Discussion from 'discussion';
 import Earn from 'earn';
 import Subscriptions from 'newsletter';
@@ -102,6 +103,7 @@ class Settings extends Component {
 						}
 						{ ...commonProps }
 					/>
+					<AiSettings active={ '/ai' === pathname } { ...commonProps } />
 					<Privacy active={ '/privacy' === pathname } { ...commonProps } />
 					<SearchableModules searchTerm={ searchTerm } />
 				</div>

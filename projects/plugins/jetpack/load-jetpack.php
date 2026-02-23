@@ -73,6 +73,7 @@ if ( defined( 'WP_CLI' ) && WP_CLI ) {
 	require_once JETPACK__PLUGIN_DIR . 'class.jetpack-cli.php';
 }
 
+require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-mcp-abilities.php';
 require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.core-rest-api-endpoints.php';
 require_once JETPACK__PLUGIN_DIR . '_inc/blogging-prompts.php';
 

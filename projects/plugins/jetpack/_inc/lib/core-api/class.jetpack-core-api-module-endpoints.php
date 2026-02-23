@@ -494,6 +494,10 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 					$response[ $setting ] = 1;
 					break;
 
+				case 'mcp_abilities':
+					$response[ $setting ] = Jetpack_MCP_Abilities::get_abilities_for_rest();
+					break;
+
 				default:
 					$default              = isset( $settings[ $setting ]['default'] ) ? $settings[ $setting ]['default'] : false;
 					$response[ $setting ] = Jetpack_Core_Json_Api_Endpoints::cast_value( get_option( $setting, $default ), $settings[ $setting ] );
@@ -994,6 +998,14 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 
 				case 'jetpack_blocks_disabled':
 					$updated = (bool) get_option( $option ) !== (bool) $value ? update_option( $option, (bool) $value ) : true;
+					break;
+
+				case 'mcp_abilities':
+					$result  = Jetpack_MCP_Abilities::set_abilities( $value );
+					$updated = is_wp_error( $result ) ? false : true;
+					if ( is_wp_error( $result ) ) {
+						$error = $result->get_error_message();
+					}
 					break;
 
 				case 'subscription_options':
