@@ -308,21 +308,13 @@ class Agents_Manager {
 	/**
 	 * Returns true if the Agents Manager should be loaded in the current context.
 	 *
-	 * True when the unified experience filter is enabled, or when Big Sky is present
-	 * in the block editor and the current environment is a dev environment.
+	 * Enabled when the unified experience filter returns true. Big Sky hooks this
+	 * filter in dev environments; the Agents Manager hooks it for opted-in users.
 	 *
 	 * @return bool
 	 */
 	private function is_enabled() {
-		if ( apply_filters( 'agents_manager_use_unified_experience', false ) ) {
-			return true;
-		}
-
-		if ( $this->is_block_editor() && class_exists( 'Big_Sky' ) && $this->should_use_unified_big_sky() ) {
-			return true;
-		}
-
-		return false;
+		return (bool) apply_filters( 'agents_manager_use_unified_experience', false );
 	}
 
 	/**
@@ -750,17 +742,6 @@ class Agents_Manager {
 		}
 
 		return false;
-	}
-
-	/**
-	 * Determine if the unified Agents Manager experience should replace Big Sky.
-	 *
-	 * Currently enabled in all dev environments (local, proxied, sandbox).
-	 *
-	 * @return bool
-	 */
-	private function should_use_unified_big_sky() {
-		return self::is_dev_mode();
 	}
 
 	/**
