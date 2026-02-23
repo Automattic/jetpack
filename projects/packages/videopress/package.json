@@ -66,7 +66,7 @@
 		"@automattic/number-formatters": "workspace:*",
 		"@babel/core": "7.29.0",
 		"@babel/preset-react": "7.28.5",
-		"@csstools/postcss-global-data": "2.1.1",
+		"@csstools/postcss-global-data": "4.0.0",
 		"@jest/globals": "30.2.0",
 		"@storybook/addon-docs": "10.2.3",
 		"@storybook/react": "10.2.3",

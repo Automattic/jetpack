@@ -2068,8 +2068,8 @@ importers:
         specifier: 7.29.0
         version: 7.29.0
       '@csstools/postcss-global-data':
-        specifier: 2.1.1
-        version: 2.1.1(postcss@8.5.6)
+        specifier: 4.0.0
+        version: 4.0.0(postcss@8.5.6)
       '@wordpress/browserslist-config':
         specifier: 6.39.0
         version: 6.39.0
@@ -2935,8 +2935,8 @@ importers:
         specifier: 7.29.0
         version: 7.29.0
       '@csstools/postcss-global-data':
-        specifier: 2.1.1
-        version: 2.1.1(postcss@8.5.6)
+        specifier: 4.0.0
+        version: 4.0.0(postcss@8.5.6)
       '@wordpress/browserslist-config':
         specifier: 6.39.0
         version: 6.39.0
@@ -3546,8 +3546,8 @@ importers:
         specifier: 7.28.6
         version: 7.28.6
       '@csstools/postcss-global-data':
-        specifier: 2.1.1
-        version: 2.1.1(postcss@8.5.6)
+        specifier: 4.0.0
+        version: 4.0.0(postcss@8.5.6)
       '@storybook/react':
         specifier: 10.2.3
         version: 10.2.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(storybook@10.2.3(@testing-library/dom@10.4.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(typescript@5.9.3)
@@ -3745,8 +3745,8 @@ importers:
         specifier: 7.28.6
         version: 7.28.6
       '@csstools/postcss-global-data':
-        specifier: 2.1.1
-        version: 2.1.1(postcss@8.5.6)
+        specifier: 4.0.0
+        version: 4.0.0(postcss@8.5.6)
       '@size-limit/preset-app':
         specifier: 11.2.0
         version: 11.2.0(size-limit@11.2.0)
@@ -4000,8 +4000,8 @@ importers:
         specifier: 7.28.5
         version: 7.28.5(@babel/core@7.29.0)
       '@csstools/postcss-global-data':
-        specifier: 2.1.1
-        version: 2.1.1(postcss@8.5.6)
+        specifier: 4.0.0
+        version: 4.0.0(postcss@8.5.6)
       '@jest/globals':
         specifier: 30.2.0
         version: 30.2.0
@@ -5059,8 +5059,8 @@ importers:
         specifier: 7.28.6
         version: 7.28.6
       '@csstools/postcss-global-data':
-        specifier: 2.1.1
-        version: 2.1.1(postcss@8.5.6)
+        specifier: 4.0.0
+        version: 4.0.0(postcss@8.5.6)
       '@svgr/webpack':
         specifier: 8.1.0
         version: 8.1.0(typescript@5.9.3)
@@ -7066,9 +7066,9 @@ packages:
       '@csstools/css-parser-algorithms': ^3.0.5
       '@csstools/css-tokenizer': ^3.0.4
 
-  '@csstools/postcss-global-data@2.1.1':
-    resolution: {integrity: sha512-tihdBLogY2G5jgUSu2jKSEVeOcnWqsz6k7UmPM7+ezhuV9FP5MIyX35Hc/YvqipQLRNsfBj9wRkBvsE7k1GM8A==}
-    engines: {node: ^14 || ^16 || >=18}
+  '@csstools/postcss-global-data@4.0.0':
+    resolution: {integrity: sha512-mPKrL3Tzt8k1V+hTkU8XTH6JKRekB97oKHv/MekC9nfmRa+gMf1swlHRt8YK722sYN4xOipl17FZst99jsScLA==}
+    engines: {node: '>=20.19.0'}
     peerDependencies:
       postcss: ^8.4
 
@@ -19688,7 +19688,7 @@ snapshots:
       '@csstools/css-parser-algorithms': 3.0.5(@csstools/css-tokenizer@3.0.4)
       '@csstools/css-tokenizer': 3.0.4
 
-  '@csstools/postcss-global-data@2.1.1(postcss@8.5.6)':
+  '@csstools/postcss-global-data@4.0.0(postcss@8.5.6)':
     dependencies:
       postcss: 8.5.6
 

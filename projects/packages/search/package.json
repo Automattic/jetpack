@@ -80,7 +80,7 @@
 		"@babel/preset-react": "7.28.5",
 		"@babel/preset-typescript": "7.28.5",
 		"@babel/runtime": "7.28.6",
-		"@csstools/postcss-global-data": "2.1.1",
+		"@csstools/postcss-global-data": "4.0.0",
 		"@size-limit/preset-app": "11.2.0",
 		"@testing-library/dom": "10.4.1",
 		"@testing-library/preact": "3.2.4",
