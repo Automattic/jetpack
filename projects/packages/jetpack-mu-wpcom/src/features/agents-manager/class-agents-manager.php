@@ -308,8 +308,8 @@ class Agents_Manager {
 	/**
 	 * Returns true if the Agents Manager should be loaded in the current context.
 	 *
-	 * True when the unified experience filter is enabled, or when the block editor
-	 * has the unified Big Sky flag active.
+	 * True when the unified experience filter is enabled, or when Big Sky is present
+	 * in the block editor and the current environment is a dev environment.
 	 *
 	 * @return bool
 	 */
