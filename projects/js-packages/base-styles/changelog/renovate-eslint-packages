@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Make it explicit that this package has no JS exports by setting `exports` in package.json.
+Set `exports` in package.json.
