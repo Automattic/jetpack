@@ -1,4 +1,5 @@
 import fs from 'fs/promises';
+import path from 'path';
 import chalk from 'chalk';
 import { execa } from 'execa';
 import { projectDir } from './install.js';
@@ -18,26 +19,15 @@ export async function runPackageManager( { command, requiredFile } ) {
 	const rawArgs = allArgs.slice( cmdIdx + 1 );
 
 	// Determine if the first arg is a project.
-	let cwd;
-	let cmdArgs;
-
-	let project;
-
-	if (
+	const isProjectArg =
 		rawArgs.length > 0 &&
-		( rawArgs[ 0 ] === 'monorepo' || projectTypes.some( t => rawArgs[ 0 ].startsWith( t + '/' ) ) )
-	) {
-		project = rawArgs[ 0 ];
-		cmdArgs = rawArgs.slice( 1 );
-		cwd = projectDir( project );
-	} else {
-		project = 'monorepo';
-		cmdArgs = rawArgs;
-		cwd = projectDir( project );
-	}
+		( rawArgs[ 0 ] === 'monorepo' || projectTypes.some( t => rawArgs[ 0 ].startsWith( t + '/' ) ) );
+	const project = isProjectArg ? rawArgs[ 0 ] : 'monorepo';
+	const cmdArgs = isProjectArg ? rawArgs.slice( 1 ) : rawArgs;
+	const cwd = projectDir( project );
 
 	// Validate the target directory has the required file.
-	if ( ( await fs.access( cwd + '/' + requiredFile ).catch( () => false ) ) === false ) {
+	if ( ( await fs.access( path.join( cwd, requiredFile ) ).catch( () => false ) ) === false ) {
 		console.error( chalk.red( `No ${ requiredFile } found in project ${ project }` ) );
 		process.exit( 1 );
 	}
