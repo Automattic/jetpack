@@ -72,8 +72,6 @@ export interface NewsletterJetpackScriptData extends JetpackScriptData {
 export interface CombinedNewsletterSettings extends NewsletterScriptData {
 	// From JetpackScriptData.site
 	siteName: string;
-	blogID: number;
-	isWpcomPlatform: boolean;
 	// From JetpackScriptData.user.current_user
 	displayName: string;
 }

@@ -9,7 +9,6 @@ namespace Automattic\Jetpack\Newsletter;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Assets;
-use Automattic\Jetpack\Assets\Script_Data;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Paths;
@@ -36,7 +35,6 @@ class Settings {
 	public static function init() {
 		if ( ! self::$initialized ) {
 			self::$initialized = true;
-			Script_Data::configure();
 			( new self() )->init_hooks();
 		}
 	}

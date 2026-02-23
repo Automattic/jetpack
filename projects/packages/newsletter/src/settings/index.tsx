@@ -14,7 +14,6 @@ import {
 	getSiteData,
 	getSiteType,
 	isSimpleSite,
-	isWpcomPlatformSite,
 } from '@automattic/jetpack-script-data';
 import { Notice } from '@wordpress/components';
 import { createRoot, useCallback, useEffect, useState, useMemo } from '@wordpress/element';
@@ -112,11 +111,8 @@ function NewsletterSettingsApp(): JSX.Element | null {
 		}
 		return {
 			...newsletterData,
-			// Site data fields needed by components (using script-data utilities)
+			// Site data fields needed by components
 			siteName: siteData.title ?? '',
-			blogID: siteData.wpcom?.blog_id ?? 0,
-			isWpcomPlatform: isWpcomPlatformSite() ?? false,
-			// User data fields needed by components
 			displayName: scriptData.user.current_user?.display_name ?? '',
 		};
 	}, [ newsletterData, siteData, scriptData?.user ] );
@@ -435,7 +431,6 @@ function NewsletterSettingsApp(): JSX.Element | null {
 							onSave={ saveNewsletterCategories }
 							isSaving={ isSavingNewsletterCategories }
 							hasChanges={ hasNewsletterCategoriesChanges }
-							jetpackSettings={ jetpackSettings }
 							isNewsletterEnabled={ data.subscriptions }
 						/>
 
