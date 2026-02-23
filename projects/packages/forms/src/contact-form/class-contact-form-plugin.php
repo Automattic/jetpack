@@ -980,6 +980,11 @@ class Contact_Form_Plugin {
 				$processor->remove_attribute( 'id' );
 				$processor->add_class( 'is-submit is-hidden' );
 				$processor->set_attribute( 'data-wp-class--is-hidden', 'state.isNotLastStep' );
+				if ( 'BUTTON' === $processor->get_tag() ) {
+					$processor->set_attribute( 'data-wp-class--is-submitting', 'state.isSubmitting' );
+				} elseif ( $processor->next_tag( 'button' ) ) {
+					$processor->set_attribute( 'data-wp-class--is-submitting', 'state.isSubmitting' );
+				}
 			}
 		}
 
