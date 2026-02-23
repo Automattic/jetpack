@@ -36,7 +36,7 @@ class Transient_Cleanup {
 	 * Used as the SQL LIMIT per prefix and as the threshold for stopping iteration.
 	 * Actual deletions per run may slightly exceed this when processing multiple prefixes.
 	 */
-	const BATCH_SIZE = 2000;
+	const BATCH_SIZE = 5000;
 
 	/**
 	 * Cron interval in seconds (8 hours).
