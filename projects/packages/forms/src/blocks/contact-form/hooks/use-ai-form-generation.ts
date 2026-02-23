@@ -105,7 +105,7 @@ export function useAiFormGeneration( { clientId, hasRef }: UseAiFormGenerationPr
 				const formId = await createSyncedForm(
 					{ attributes: block.attributes, innerBlocks: block.innerBlocks },
 					formTitle,
-					currentPostIdRef.current || 0
+					Number( currentPostIdRef.current ) || 0
 				);
 
 				if ( ! formId ) {
