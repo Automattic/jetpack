@@ -603,6 +603,10 @@ class Feedback_Email_Renderer {
 		// Generate metadata HTML.
 		$metadata_html = self::generate_metadata_html( $metadata );
 
+		// Minify CSS to stay under Gmail's 8,192-char limit for style blocks.
+		// The template file keeps readable formatting; we strip it here at render time.
+		$style = self::minify_css( $style );
+
 		$html_message = sprintf(
 			// The tabs are just here so that the raw code is correctly formatted for developers
 			// They're removed so that they don't affect the final message sent to users.
@@ -770,5 +774,29 @@ class Feedback_Email_Renderer {
 				<td class="metadata-label" style="color: #50575e; width: 100px; padding: 4px 12px 4px 0; font-size: ' . self::FONT_SIZE_METADATA . '; vertical-align: top; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Oxygen-Sans, Ubuntu, Cantarell, \'Helvetica Neue\', sans-serif; line-height: 1.4;">' . esc_html( $label ) . ':</td>
 				<td class="metadata-value" style="color: #1e1e1e; padding: 4px 0; font-size: ' . self::FONT_SIZE_METADATA . '; vertical-align: top; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Oxygen-Sans, Ubuntu, Cantarell, \'Helvetica Neue\', sans-serif; line-height: 1.4;">' . $value . '</td>
 			</tr>';
+	}
+
+	/**
+	 * Minify a CSS string by removing comments, collapsing whitespace,
+	 * and stripping unnecessary characters.
+	 *
+	 * Gmail imposes an 8,192-character limit across all <style> blocks.
+	 * This keeps the template file readable while fitting under the limit.
+	 *
+	 * @param string $css The CSS string (may include <style> tags).
+	 * @return string The minified CSS string.
+	 */
+	private static function minify_css( $css ) {
+		// Remove CSS comments.
+		$css = preg_replace( '/\/\*.*?\*\//s', '', $css );
+		// Collapse all whitespace (tabs, newlines, spaces) into single spaces.
+		$css = preg_replace( '/\s+/', ' ', $css );
+		// Remove spaces around CSS punctuation: { } ; : ,
+		$css = preg_replace( '/\s*([{};,])\s*/', '$1', $css );
+		// Remove space after colons (but not inside url() or content strings).
+		$css = preg_replace( '/:\s+/', ':', $css );
+		// Remove trailing semicolons before closing braces.
+		$css = str_replace( ';}', '}', $css );
+		return trim( $css );
 	}
 }
