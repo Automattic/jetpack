@@ -925,7 +925,7 @@ class Block_Notes_Test extends \WP_UnitTestCase {
 	 * Test customize_ai_avatar replaces URL for AI-authored notes.
 	 */
 	public function test_customize_ai_avatar_replaces_url_for_ai_author() {
-		$comment             = new stdClass();
+		$comment                 = new stdClass();
 		$comment->comment_author = 'AI [experimental]';
 
 		$args = BlockNotes\customize_ai_avatar( array( 'url' => 'https://example.com/default.jpg' ), $comment );
