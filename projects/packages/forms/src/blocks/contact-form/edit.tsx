@@ -13,7 +13,7 @@ import {
 	store as blockEditorStore,
 	BlockControls,
 	BlockContextProvider,
-	BlockPreview,
+	useBlockEditingMode,
 } from '@wordpress/block-editor';
 import { createBlock } from '@wordpress/blocks';
 import {
@@ -215,6 +215,11 @@ function JetpackContactFormEdit( {
 
 	// Check if we're in widget editor with a synced form (ref)
 	const isWidgetEditorWithRef = ref && getEditorContext() === 'widget';
+
+	// Hide auxiliary block controls (toolbar, movers, settings) for synced forms in widget editor.
+	// 'contentOnly' mode hides these controls while still allowing interaction with content (like our "Edit Form" button).
+	// This replaces the blocks.registerBlockType filter approach and provides runtime control.
+	useBlockEditingMode( isWidgetEditorWithRef ? 'contentOnly' : 'default' );
 
 	// Load synced form data from the jetpack_form post type
 	const {
@@ -1031,8 +1036,6 @@ function JetpackContactFormEdit( {
 						onBeforeNavigate={ flushPendingSave }
 					/>
 				</BlockControls>
-				<InspectorControls />
-				<InspectorControls group="color" />
 				<Notice
 					status="info"
 					isDismissible={ false }
@@ -1048,9 +1051,7 @@ function JetpackContactFormEdit( {
 				</Notice>
 				{ previewBlocks && previewBlocks.length > 0 ? (
 					<Disabled>
-						<div className={ formClassnames }>
-							<BlockPreview blocks={ previewBlocks } viewportWidth={ 0 } />
-						</div>
+						<div { ...innerBlocksProps } />
 					</Disabled>
 				) : (
 					<ContactFormSkeletonLoader />

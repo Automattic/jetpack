@@ -2,7 +2,6 @@ import { InnerBlocks, useBlockProps } from '@wordpress/block-editor';
 import { Path } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { select } from '@wordpress/data';
-import { addFilter } from '@wordpress/hooks';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __, _x } from '@wordpress/i18n';
 import './editor.scss';
@@ -14,7 +13,6 @@ import deprecated from './deprecated.js';
 import edit from './edit.tsx';
 import transforms from './transforms.js';
 import { DEFAULT_FORM_LABEL, extractTitleText, formatFormLabel } from './util/form-label.js';
-import { getEditorContext } from './util/get-editor-context.ts';
 import variations from './variations.js';
 
 export const name = 'contact-form';
@@ -75,32 +73,6 @@ const icon = renderMaterialIcon(
 // Extract only valid block registration properties from block.json
 // Exclude file-based properties like editorScript, style, etc.
 const { editorScript, style, name: blockName, $schema, ...validBlockMetadata } = blockMetadata;
-
-/**
- * Filter to disable layout support in the widget editor.
- *
- * In the widget editor, synced forms (with ref) are read-only and shown as previews.
- * Disabling layout support prevents showing controls that users cannot interact with.
- */
-addFilter(
-	'blocks.registerBlockType',
-	'jetpack-forms/disable-layout-in-widget-editor',
-	( settings, blockType ) => {
-		if ( blockType !== 'jetpack/contact-form' ) {
-			return settings;
-		}
-
-		// Disable layout support in widget editor
-		if ( getEditorContext() === 'widget' ) {
-			return {
-				...settings,
-				supports: {},
-			};
-		}
-
-		return settings;
-	}
-);
 
 export const settings = {
 	// Import valid metadata from block.json to ensure consistency
