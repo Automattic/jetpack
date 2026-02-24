@@ -987,6 +987,17 @@ class Contact_Form_Plugin {
 				$processor->remove_attribute( 'id' );
 				$processor->add_class( 'is-submit is-hidden' );
 				$processor->set_attribute( 'data-wp-class--is-hidden', 'state.isNotLastStep' );
+				if ( 'BUTTON' === $processor->get_tag() ) {
+					Contact_Form::add_submit_button_interactivity_attributes( $processor );
+				} else {
+					$processor->set_bookmark( 'pre-button-search' );
+					if ( $processor->next_tag( 'button' ) ) {
+						Contact_Form::add_submit_button_interactivity_attributes( $processor );
+					} else {
+						$processor->seek( 'pre-button-search' );
+					}
+					$processor->release_bookmark( 'pre-button-search' );
+				}
 			}
 		}
 
