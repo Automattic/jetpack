@@ -9,7 +9,7 @@
 		"@automattic/number-formatters": "workspace:*",
 		"@automattic/ui": "1.0.2",
 		"@tanstack/react-router": ">=1.120.5 <1.121.0",
-		"@types/react": "18.3.26",
+		"@types/react": "18.3.28",
 		"@wordpress/admin-ui": "1.7.0",
 		"@wordpress/api-fetch": "7.39.0",
 		"@wordpress/block-editor": "15.12.0",
