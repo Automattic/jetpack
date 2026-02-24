@@ -136,7 +136,7 @@ Only flag a PR if BOTH conditions are true:
 The following are changes aimed at developers/themers who extend Jetpack programmatically. They are NEVER documented on jetpack.com/support and must ALWAYS be classified as is_user_facing = false, regardless of which feature area they touch:
 
 - New or modified PHP filters (add_filter / apply_filters)
-- New or modified PHP actions (add_action / do_action)  
+- New or modified PHP actions (add_action / do_action)
 - New or modified WordPress hooks of any kind
 - New PHP classes, methods, or functions that are only callable via code
 - New or modified REST API endpoints or parameters
