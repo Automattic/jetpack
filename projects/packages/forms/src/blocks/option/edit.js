@@ -87,9 +87,9 @@ const OptionEdit = ( {
 	const isPreviewMode = useSelect( select => {
 		return select( blockEditorStore ).getSettings().isPreviewMode;
 	}, [] );
-	const emptyPlaceholder = isOther
-		? __( 'Other', 'jetpack-forms' )
-		: __( 'Add option…', 'jetpack-forms' );
+	const otherLabel = __( 'Other', 'jetpack-forms' );
+	const addOptionLabel = __( 'Add option…', 'jetpack-forms' );
+	const emptyPlaceholder = isOther ? otherLabel : addOptionLabel;
 	const placeholderValue = placeholder !== '' ? placeholder : emptyPlaceholder;
 
 	// The label value to use for the RichText field must manually fall back to the

@@ -79,8 +79,11 @@ const settings = {
 	],
 	edit,
 	save,
-	__experimentalLabel: ( { isOther } ) =>
-		isOther ? __( 'Option (other)', 'jetpack-forms' ) : __( 'Option', 'jetpack-forms' ),
+	__experimentalLabel: ( { isOther: isOtherOption } ) => {
+		const otherLabel = __( 'Option (other)', 'jetpack-forms' );
+		const defaultLabel = __( 'Option', 'jetpack-forms' );
+		return isOtherOption ? otherLabel : defaultLabel;
+	},
 };
 
 export default {
