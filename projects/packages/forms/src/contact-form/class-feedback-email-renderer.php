@@ -562,6 +562,7 @@ class Feedback_Email_Renderer {
 		 *
 		 * @param string the filename of the HTML template used for response emails to the form owner.
 		 */
+		$print_style = null; // May be set by the template file loaded below.
 		require apply_filters( 'jetpack_forms_response_email_template', __DIR__ . '/templates/email-response.php' );
 
 		/**
@@ -631,8 +632,8 @@ class Feedback_Email_Renderer {
 		// Inject print styles into <body> for Outlook.com compatibility (it strips <head> styles
 		// but preserves <body> styles). The same styles are already in <head> for Gmail and others.
 		// This is done after sprintf to avoid % signs in CSS being interpreted as format specifiers.
-		if ( isset( $print_style ) ) {
-			// phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable -- defined in the template file loaded via require above.
+		// @phan-suppress-next-line PhanRedundantCondition -- $print_style is set by the template file loaded via require above.
+		if ( ! empty( $print_style ) ) {
 			$html_message = str_replace( '</body>', '<style type="text/css">' . $print_style . '</style></body>', $html_message );
 		}
 
