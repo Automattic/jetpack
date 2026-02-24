@@ -1491,10 +1491,17 @@ class Jetpack_Sync_Full_Immediately_Test extends Jetpack_Sync_TestBase {
 	public function test_stuck_sync_halves_chunk_size_after_10_minutes() {
 		self::factory()->post->create_many( 3 );
 
+		$limits          = \Automattic\Jetpack\Sync\Defaults::$default_full_sync_limits;
+		$limits['posts'] = array(
+			'chunk_size' => 100,
+			'max_chunks' => 10,
+		);
+		Settings::update_settings( array( 'full_sync_limits' => $limits ) );
+
 		$this->full_sync->start( array( 'posts' => true ) );
 		$started = $this->full_sync->get_status()['started'];
 
-		// Simulate stuck for over 10 minutes with default chunk size.
+		// Simulate stuck for over 10 minutes with the configured chunk size.
 		$transient_key = $this->get_stuck_transient_key( 'posts', $started );
 		set_transient(
 			$transient_key,
@@ -1520,6 +1527,13 @@ class Jetpack_Sync_Full_Immediately_Test extends Jetpack_Sync_TestBase {
 	 */
 	public function test_stuck_sync_resets_timestamp_after_adjustment() {
 		self::factory()->post->create_many( 3 );
+
+		$limits          = \Automattic\Jetpack\Sync\Defaults::$default_full_sync_limits;
+		$limits['posts'] = array(
+			'chunk_size' => 100,
+			'max_chunks' => 10,
+		);
+		Settings::update_settings( array( 'full_sync_limits' => $limits ) );
 
 		$this->full_sync->start( array( 'posts' => true ) );
 		$started = $this->full_sync->get_status()['started'];
@@ -1586,6 +1600,13 @@ class Jetpack_Sync_Full_Immediately_Test extends Jetpack_Sync_TestBase {
 	 */
 	public function test_stuck_sync_sends_action_only_at_minimum_chunk_size() {
 		self::factory()->post->create_many( 3 );
+
+		$limits          = \Automattic\Jetpack\Sync\Defaults::$default_full_sync_limits;
+		$limits['posts'] = array(
+			'chunk_size' => 100,
+			'max_chunks' => 10,
+		);
+		Settings::update_settings( array( 'full_sync_limits' => $limits ) );
 
 		$this->full_sync->start( array( 'posts' => true ) );
 		$started = $this->full_sync->get_status()['started'];
