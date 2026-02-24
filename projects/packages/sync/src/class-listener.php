@@ -184,9 +184,8 @@ class Listener {
 			return false;
 		}
 
-		// Per-request in-memory cache: avoids a get_transient() call on every enqueue within the same request.
-		// On sites with an external object cache, each get_transient() is a network rount-trip, so a request that
-		// enqueues many actions would otherwise make one network call per action just for this check.
+		// Per-request in-memory cache: avoids a get_transient() call on every can_add_to_queue
+		// check within the same request when many actions are enqueued.
 		if ( isset( $this->request_queue_state_cache[ $queue->id ] ) ) {
 			list( $queue_size, $queue_age ) = $this->request_queue_state_cache[ $queue->id ];
 			return ( $queue_age < $this->sync_queue_lag_limit )
