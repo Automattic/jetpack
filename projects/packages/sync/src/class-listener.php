@@ -52,7 +52,7 @@ class Listener {
 	 * Avoids repeated get_transient() calls for every
 	 * can_add_to_queue check within a single request.
 	 *
-	 * @var array<string, array<int, float>>
+	 * @var array<string, array{int, float}>
 	 */
 	private $request_queue_state_cache = array();
 
@@ -189,7 +189,7 @@ class Listener {
 		if ( isset( $this->request_queue_state_cache[ $queue->id ] ) ) {
 			list( $queue_size, $queue_age ) = $this->request_queue_state_cache[ $queue->id ];
 			return ( $queue_age < $this->sync_queue_lag_limit )
-				|| ( ( $queue_size + 1 ) < $this->sync_queue_size_limit );
+				|| ( ( $queue_size + ( $this->request_adds_count[ $queue->id ] ?? 0 ) + 1 ) < $this->sync_queue_size_limit );
 		}
 
 		$state_transient_name = self::QUEUE_STATE_CHECK_TRANSIENT . '_' . $queue->id;
