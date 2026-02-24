@@ -1403,4 +1403,40 @@ class Jetpack_Sync_Full_Immediately_Test extends Jetpack_Sync_TestBase {
 	public function count_before_module_sync_start() {
 		$this->before_module_sync_count += 1;
 	}
+
+	/**
+	 * Test that get_last_item result is stored in module progress status
+	 * and reused across subsequent full sync invocations.
+	 */
+	public function test_full_sync_stores_last_item_in_status() {
+		self::factory()->post->create_many( 5 );
+
+		// Use chunk_size=1, max_chunks=1 so the sync needs multiple rounds.
+		$limits          = \Automattic\Jetpack\Sync\Defaults::$default_full_sync_limits;
+		$limits['posts'] = array(
+			'chunk_size' => 1,
+			'max_chunks' => 1,
+		);
+		Settings::update_settings( array( 'full_sync_limits' => $limits ) );
+
+		$this->full_sync->start( array( 'posts' => true ) );
+		$this->sender->do_full_sync();
+
+		$status_after_first = $this->full_sync->get_status();
+		$this->assertArrayHasKey( 'last_item', $status_after_first['progress']['posts'], 'last_item should be stored in progress after first sync round.' );
+
+		$stored_last_item = $status_after_first['progress']['posts']['last_item'];
+		$this->assertNotNull( $stored_last_item, 'last_item should not be null.' );
+
+		// Run another round — last_item should be reused, not re-queried.
+		$this->full_sync->continue_sending();
+		$this->sender->do_full_sync();
+
+		$status_after_second = $this->full_sync->get_status();
+		$this->assertSame(
+			$stored_last_item,
+			$status_after_second['progress']['posts']['last_item'],
+			'last_item should remain the same across sync rounds (stored).'
+		);
+	}
 }

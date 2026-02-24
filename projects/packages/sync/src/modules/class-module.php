@@ -437,7 +437,12 @@ abstract class Module {
 
 		$chunks_sent = 0;
 
-		$last_item = $this->get_last_item( $config );
+		// Store last_item in status to avoid re-running this expensive query on every invocation.
+		// The minimum ID does not change during a Full Sync.
+		if ( ! isset( $status['last_item'] ) ) {
+			$status['last_item'] = $this->get_last_item( $config );
+		}
+		$last_item = $status['last_item'];
 
 		while ( $chunks_sent < $limits['max_chunks'] && microtime( true ) < $send_until ) {
 			$objects = $this->get_next_chunk( $config, $status, $limits['chunk_size'] );
