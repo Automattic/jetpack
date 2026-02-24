@@ -74,7 +74,10 @@ class Gutenblock_Render_Test extends BaseTestCase {
 			'submit button by class'         => array(
 				'<button class="form-button-submit">Submit</button>',
 				array(
-					'data-wp-class--is-hidden' => 'state.isNotLastStep',
+					'data-wp-class--is-hidden'     => 'state.isNotLastStep',
+					'data-wp-class--is-submitting' => 'state.isSubmitting',
+					'data-wp-bind--aria-disabled'  => 'state.isAriaDisabled',
+					'data-wp-bind--disabled'       => 'state.isAriaDisabled',
 				),
 				'Submit button identified by form-button-submit class',
 			),
@@ -97,7 +100,10 @@ class Gutenblock_Render_Test extends BaseTestCase {
 			'submit button by legacy attr'   => array(
 				'<button data-id-attr="submit-step">Submit</button>',
 				array(
-					'data-wp-class--is-hidden' => 'state.isNotLastStep',
+					'data-wp-class--is-hidden'     => 'state.isNotLastStep',
+					'data-wp-class--is-submitting' => 'state.isSubmitting',
+					'data-wp-bind--aria-disabled'  => 'state.isAriaDisabled',
+					'data-wp-bind--disabled'       => 'state.isAriaDisabled',
 				),
 				'Submit button identified by legacy data-id-attr',
 			),
@@ -122,6 +128,8 @@ class Gutenblock_Render_Test extends BaseTestCase {
 		$result     = Contact_Form_Plugin::gutenblock_render_form_step_navigation( array(), $input_html );
 
 		$this->assertStringContainsString( 'data-wp-class--is-submitting="state.isSubmitting"', $result, 'Inner button should get is-submitting attribute' );
+		$this->assertStringContainsString( 'data-wp-bind--aria-disabled="state.isAriaDisabled"', $result, 'Inner button should get aria-disabled binding' );
+		$this->assertStringContainsString( 'data-wp-bind--disabled="state.isAriaDisabled"', $result, 'Inner button should get disabled binding' );
 	}
 
 	/**

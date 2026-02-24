@@ -982,10 +982,14 @@ class Contact_Form_Plugin {
 				$processor->set_attribute( 'data-wp-class--is-hidden', 'state.isNotLastStep' );
 				if ( 'BUTTON' === $processor->get_tag() ) {
 					$processor->set_attribute( 'data-wp-class--is-submitting', 'state.isSubmitting' );
+					$processor->set_attribute( 'data-wp-bind--aria-disabled', 'state.isAriaDisabled' );
+					$processor->set_attribute( 'data-wp-bind--disabled', 'state.isAriaDisabled' );
 				} else {
 					$processor->set_bookmark( 'pre-button-search' );
 					if ( $processor->next_tag( 'button' ) ) {
 						$processor->set_attribute( 'data-wp-class--is-submitting', 'state.isSubmitting' );
+						$processor->set_attribute( 'data-wp-bind--aria-disabled', 'state.isAriaDisabled' );
+						$processor->set_attribute( 'data-wp-bind--disabled', 'state.isAriaDisabled' );
 					} else {
 						$processor->seek( 'pre-button-search' );
 					}
