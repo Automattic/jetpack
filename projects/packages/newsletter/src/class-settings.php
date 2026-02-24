@@ -82,7 +82,9 @@ class Settings {
 		}
 
 		// Add admin menu item.
-		add_action( 'admin_menu', array( $this, 'add_wp_admin_menu' ), 1000 );
+		// Use priority 999 to ensure menu items are queued BEFORE Admin_Menu::admin_menu_hook_callback
+		// runs at priority 1000 to process all queued items.
+		add_action( 'admin_menu', array( $this, 'add_wp_admin_menu' ), 999 );
 
 		// Hijack the config URLs to point to our settings page.
 		// Customize the configuration URL to lead to the Subscriptions settings.
