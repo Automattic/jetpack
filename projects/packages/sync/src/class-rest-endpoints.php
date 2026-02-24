@@ -332,6 +332,24 @@ class REST_Endpoints {
 				'permission_callback' => __CLASS__ . '::verify_default_permissions',
 			)
 		);
+
+		// Clear Sync queue.
+		register_rest_route(
+			'jetpack/v4',
+			'/sync/clear-queue',
+			array(
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => __CLASS__ . '::clear_queue',
+				'permission_callback' => __CLASS__ . '::verify_default_permissions',
+				'args'                => array(
+					'queue' => array(
+						'description' => __( 'Name of Sync queue to clear.', 'jetpack-sync' ),
+						'type'        => 'string',
+						'required'    => true,
+					),
+				),
+			)
+		);
 	}
 
 	/**
@@ -806,6 +824,39 @@ class REST_Endpoints {
 		return rest_ensure_response(
 			array(
 				'success' => true,
+			)
+		);
+	}
+
+	/**
+	 * Clear a Sync queue.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param \WP_REST_Request $request The request sent to the WP REST API.
+	 *
+	 * @return \WP_REST_Response|WP_Error
+	 */
+	public static function clear_queue( $request ) {
+		$queue_name = $request->get_param( 'queue' );
+
+		if ( ! in_array( $queue_name, array( 'sync', 'full_sync' ), true ) ) {
+			return new WP_Error( 'invalid_queue', 'Queue name should be sync or full_sync', array( 'status' => 400 ) );
+		}
+
+		$queue = new Queue( $queue_name );
+		$queue->reset();
+
+		// If the incremental sync queue was cleared, re-enable sending in case
+		// it was temporarily disabled during a pull.
+		if ( 'sync' === $queue_name ) {
+			delete_transient( Sender::TEMP_SYNC_DISABLE_TRANSIENT_NAME );
+		}
+
+		return rest_ensure_response(
+			array(
+				'success' => true,
+				'queue'   => $queue_name,
 			)
 		);
 	}
