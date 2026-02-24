@@ -6,6 +6,7 @@
  */
 
 use Automattic\Jetpack\Extensions\ImageStudio;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 require_once JETPACK__PLUGIN_DIR . '/extensions/plugins/image-studio/image-studio.php';
 
@@ -1303,6 +1304,109 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	 */
 	public function test_headless_agent_provider_constant() {
 		$this->assertEquals( 'image-studio/headless-agent-provider', ImageStudio\HEADLESS_AGENT_PROVIDER );
+	}
+
+	// -------------------------------------------------------------------------
+	// determine_iso_639_locale() tests
+	// -------------------------------------------------------------------------
+
+	/**
+	 * Test locale detection returns expected ISO 639 codes.
+	 *
+	 * @dataProvider provide_locale_mappings
+	 *
+	 * @param string $wp_locale     The WordPress locale to set.
+	 * @param string $expected_code The expected ISO 639 code.
+	 */
+	#[DataProvider( 'provide_locale_mappings' )]
+	public function test_determine_iso_639_locale( $wp_locale, $expected_code ) {
+		add_filter(
+			'locale',
+			function () use ( $wp_locale ) {
+				return $wp_locale;
+			}
+		);
+
+		$this->assertSame( $expected_code, ImageStudio\determine_iso_639_locale() );
+	}
+
+	/**
+	 * Data provider for locale mapping tests.
+	 *
+	 * Covers: simple strip (fr_FR), compound preserve (pt_BR, zh_TW),
+	 * bare code (en), and empty fallback.
+	 *
+	 * @return array[] [ WordPress locale, expected ISO 639 code ].
+	 */
+	public static function provide_locale_mappings() {
+		return array(
+			'simple strip' => array( 'fr_FR', 'fr' ),
+			'pt_BR kept'   => array( 'pt_BR', 'pt-br' ),
+			'zh_TW kept'   => array( 'zh_TW', 'zh-tw' ),
+			'bare code'    => array( 'en', 'en' ),
+			'empty'        => array( '', 'en' ),
+		);
+	}
+
+	// -------------------------------------------------------------------------
+	// Translation enqueue tests
+	// -------------------------------------------------------------------------
+
+	/**
+	 * Test that no translation script is enqueued for English locale.
+	 */
+	public function test_no_translation_script_for_english() {
+		add_filter(
+			'locale',
+			function () {
+				return 'en_US';
+			}
+		);
+		$this->enable_and_enqueue_block_editor();
+
+		$this->assertFalse( wp_script_is( 'image-studio-translations', 'enqueued' ) );
+
+		$script = $GLOBALS['wp_scripts']->registered[ ImageStudio\FEATURE_NAME ];
+		$this->assertNotContains( 'image-studio-translations', $script->deps );
+	}
+
+	/**
+	 * Test that translation script is enqueued for non-English locale
+	 * with correct URL and wired as a dependency of the main script.
+	 */
+	public function test_translation_script_enqueued_for_non_english() {
+		add_filter(
+			'locale',
+			function () {
+				return 'fr_FR';
+			}
+		);
+		$this->enable_and_enqueue_block_editor();
+
+		$this->assertTrue( wp_script_is( 'image-studio-translations', 'enqueued' ) );
+
+		$tr_script = $GLOBALS['wp_scripts']->registered['image-studio-translations'];
+		$this->assertStringContainsString( 'languages/fr-v1.js', $tr_script->src );
+		$this->assertContains( 'wp-i18n', $tr_script->deps );
+
+		$main_script = $GLOBALS['wp_scripts']->registered[ ImageStudio\FEATURE_NAME ];
+		$this->assertContains( 'image-studio-translations', $main_script->deps );
+	}
+
+	/**
+	 * Test that compound locales produce the correct translation URL.
+	 */
+	public function test_translation_script_url_for_compound_locale() {
+		add_filter(
+			'locale',
+			function () {
+				return 'pt_BR';
+			}
+		);
+		$this->enable_and_enqueue_block_editor();
+
+		$script = $GLOBALS['wp_scripts']->registered['image-studio-translations'];
+		$this->assertStringContainsString( 'languages/pt-br-v1.js', $script->src );
 	}
 
 	// -------------------------------------------------------------------------
