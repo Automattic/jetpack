@@ -75,7 +75,8 @@
 		"ai-assistant-image-extension",
 		"ai-seo-enhancer",
 		"paypal-payment-buttons",
-		"image-studio"
+		"image-studio",
+		"block-notes"
 	],
 	"beta": [
 		"google-docs-embed",
