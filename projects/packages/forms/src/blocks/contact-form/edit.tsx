@@ -1047,7 +1047,10 @@ function JetpackContactFormEdit( {
 						},
 					] }
 				>
-					{ __( 'This form cannot be edited in the widget editor.', 'jetpack-forms' ) }
+					{ __(
+						'Forms are edited in the Form Editor. Changes will sync back to this widget.',
+						'jetpack-forms'
+					) }
 				</Notice>
 				{ previewBlocks && previewBlocks.length > 0 ? (
 					<Disabled>

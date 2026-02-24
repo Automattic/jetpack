@@ -1107,6 +1107,15 @@
 	background-color: var(--jetpack--contact-form--input-background);
 }
 
+.wp-block-jetpack-contact-form .components-notice__actions .components-button {
+	margin-left: 0;
+	margin-top: 12px;
+}
+
+.wp-block-jetpack-contact-form .components-notice {
+	margin-top: 8px;
+}
+
 :where(.wp-block-jetpack-contact-form.is-style-outlined) {
 
 	.notched-label__leading {
