@@ -142,23 +142,25 @@ const OptionEdit = ( {
 
 	return (
 		<>
-			<InspectorControls>
-				<PanelBody
-					title={ __( 'Settings', 'jetpack-forms' ) }
-					className="jetpack-contact-form__panel"
-				>
-					<ToggleControl
-						label={ __( '"Other" option', 'jetpack-forms' ) }
-						checked={ !! isOther }
-						onChange={ value => setAttributes( { isOther: value } ) }
-						help={ __(
-							'Show as "Other" option with a text input field below it.',
-							'jetpack-forms'
-						) }
-						__nextHasNoMarginBottom={ true }
-					/>
-				</PanelBody>
-			</InspectorControls>
+			{ type === 'radio' && (
+				<InspectorControls>
+					<PanelBody
+						title={ __( 'Settings', 'jetpack-forms' ) }
+						className="jetpack-contact-form__panel"
+					>
+						<ToggleControl
+							label={ __( '"Other" option', 'jetpack-forms' ) }
+							checked={ !! isOther }
+							onChange={ value => setAttributes( { isOther: value } ) }
+							help={ __(
+								'Show as "Other" option with a text input field below it.',
+								'jetpack-forms'
+							) }
+							__nextHasNoMarginBottom={ true }
+						/>
+					</PanelBody>
+				</InspectorControls>
+			) }
 			<li { ...blockProps }>
 				<input type={ type } className="jetpack-option__type" tabIndex="-1" />
 				<RichText
@@ -174,7 +176,7 @@ const OptionEdit = ( {
 					onRemove={ onRemove }
 				/>
 			</li>
-			{ isOther && ( isSelected || isParentSelected ) && (
+			{ type === 'radio' && isOther && ( isSelected || isParentSelected ) && (
 				<li className="jetpack-other-text-input-wrapper is-visible">
 					<VisuallyHidden as="label" htmlFor={ `${ clientId }-other-text` }>
 						{ otherPlaceholder || __( 'Please specify…', 'jetpack-forms' ) }
