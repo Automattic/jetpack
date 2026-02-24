@@ -684,6 +684,7 @@ class Contact_Form_Plugin {
 							// server-side rendering can attach special handlers.
 							if ( ! empty( $option['attrs']['isOther'] ) ) {
 								$option_data['isOther'] = true;
+								$atts['allowother']     = true;
 							}
 							if ( ! empty( $option['attrs']['otherPlaceholder'] ) ) {
 								$option_data['otherPlaceholder'] = $option['attrs']['otherPlaceholder'];
