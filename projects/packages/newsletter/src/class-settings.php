@@ -312,7 +312,7 @@ class Settings {
 
 		$notice_text = sprintf(
 			/* translators: %s is a link to the Newsletter settings page. */
-			esc_html__( 'This setting controls your RSS feed only. To control what\'s included in newsletter emails sent to subscribers, visit your %s.', 'jetpack-newsletter' ),
+			esc_html__( 'To control what\'s included in newsletter emails, visit your %s.', 'jetpack-newsletter' ),
 			'<a href="' . esc_url( $newsletter_url ) . '">' . esc_html__( 'Newsletter settings', 'jetpack-newsletter' ) . '</a>'
 		);
 
