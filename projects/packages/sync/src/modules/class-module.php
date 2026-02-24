@@ -529,7 +529,7 @@ abstract class Module {
 		// Set or update the transient with the new last_sent, timestamp, and stuck_count.
 		// Reset the timestamp when not stuck or after an adjustment, so each new chunk size
 		// gets a 10-minute window to prove itself before halving further.
-		$previous_chunk_size = isset( $stuck_data['adjusted_chunk_size'] ) ? $stuck_data['adjusted_chunk_size'] : null;
+		$previous_chunk_size = $stuck_data['adjusted_chunk_size'] ?? null;
 		$reset_timestamp     = ! $is_stuck || $adjusted_chunk_size !== $previous_chunk_size;
 		set_transient(
 			$transient_key,
