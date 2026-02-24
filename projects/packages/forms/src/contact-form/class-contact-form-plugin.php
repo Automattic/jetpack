@@ -982,8 +982,14 @@ class Contact_Form_Plugin {
 				$processor->set_attribute( 'data-wp-class--is-hidden', 'state.isNotLastStep' );
 				if ( 'BUTTON' === $processor->get_tag() ) {
 					$processor->set_attribute( 'data-wp-class--is-submitting', 'state.isSubmitting' );
-				} elseif ( $processor->next_tag( 'button' ) ) {
-					$processor->set_attribute( 'data-wp-class--is-submitting', 'state.isSubmitting' );
+				} else {
+					$processor->set_bookmark( 'pre-button-search' );
+					if ( $processor->next_tag( 'button' ) ) {
+						$processor->set_attribute( 'data-wp-class--is-submitting', 'state.isSubmitting' );
+					} else {
+						$processor->seek( 'pre-button-search' );
+					}
+					$processor->release_bookmark( 'pre-button-search' );
 				}
 			}
 		}
