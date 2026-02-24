@@ -68,6 +68,12 @@ class Settings {
 	 * Subscribe to necessary hooks.
 	 */
 	public function init_hooks() {
+		// Add the Reading settings notice regardless of the new UI feature flag,
+		// as long as subscriptions are active.
+		if ( $this->is_subscriptions_active() ) {
+			add_action( 'admin_init', array( $this, 'add_reading_page_notice' ) );
+		}
+
 		if ( ! $this->expose_to_users() ) {
 			return;
 		}
@@ -287,5 +293,44 @@ class Settings {
 		?>
 		<div id="newsletter-settings-root"></div>
 		<?php
+	}
+
+	/**
+	 * Register a notice on the Reading settings page to clarify that the RSS
+	 * excerpt setting does not control newsletter emails.
+	 *
+	 * @since $$next-version$$
+	 */
+	public function add_reading_page_notice() {
+		add_settings_field(
+			'jetpack_newsletter_reading_notice',
+			'',
+			array( $this, 'render_reading_page_notice' ),
+			'reading',
+			'default'
+		);
+	}
+
+	/**
+	 * Render the clarifying notice on the Reading settings page.
+	 *
+	 * @since $$next-version$$
+	 */
+	public function render_reading_page_notice() {
+		// Use the filtered URL so it points to the correct settings page
+		// regardless of whether the new newsletter UI is enabled.
+		$newsletter_url = apply_filters(
+			'jetpack_module_configuration_url_subscriptions',
+			admin_url( 'admin.php?page=jetpack#/newsletter' )
+		);
+
+		printf(
+			'<p class="description">%s</p>',
+			sprintf(
+				/* translators: %s is a link to the Newsletter settings page. */
+				esc_html__( 'This setting controls your RSS feed only. To control what\'s included in newsletter emails sent to subscribers, visit your %s.', 'jetpack-newsletter' ),
+				'<a href="' . esc_url( $newsletter_url ) . '">' . esc_html__( 'Newsletter settings', 'jetpack-newsletter' ) . '</a>'
+			)
+		);
 	}
 }
