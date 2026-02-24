@@ -292,7 +292,7 @@ add_action( 'admin_enqueue_scripts', __NAMESPACE__ . '\enqueue_image_studio_admi
  * @return array Modified row actions.
  */
 function add_image_studio_row_action( $actions, $post ) {
-	// Keep in sync with IMAGE_STUDIO_SUPPORTED_MIME_TYPES in packages/image-studio/src/types.ts.
+	// Keep in sync with IMAGE_STUDIO_SUPPORTED_MIME_TYPES in wp-calypso/packages/image-studio/src/types/index.ts.
 	$supported_mime_types = array(
 		'image/jpeg',
 		'image/jpg',
