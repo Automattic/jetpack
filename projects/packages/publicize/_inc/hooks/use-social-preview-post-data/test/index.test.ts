@@ -30,7 +30,7 @@ jest.mock( '../../use-link-preview-post-data/utils', () => ( {
 } ) );
 
 const mockUsePostMeta = usePostMeta as jest.MockedFunction< typeof usePostMeta >;
-const mockUseSelect = useSelect as unknown as jest.MockedFunction< typeof useSelect< () => any > >; // eslint-disable-line @typescript-eslint/no-explicit-any
+const mockUseSelect = useSelect as jest.Mock;
 const mockUseLinkPreviewPostData = useLinkPreviewPostData as jest.MockedFunction<
 	typeof useLinkPreviewPostData
 >;
