@@ -286,6 +286,7 @@ export const FormPrePublishPanel = () => {
 				className="jetpack-form-pre-publish__preview-button"
 				onClick={ handlePreview }
 				isBusy={ isPreviewLoading }
+				disabled={ isPreviewLoading }
 			>
 				{ isPreviewLoading
 					? __( 'Saving & opening', 'jetpack-forms' )

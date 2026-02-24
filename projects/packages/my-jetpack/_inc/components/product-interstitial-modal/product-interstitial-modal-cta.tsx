@@ -1,5 +1,5 @@
 import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
-import { Button } from '@wordpress/components';
+import { Button, VisuallyHidden } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { useCallback, type FC } from 'react';
 import useProduct from '../../data/products/use-product';
@@ -81,10 +81,16 @@ const ProductInterstitialModalCta: FC< ProductInterstitialModalCtaProps > = ( {
 			isBusy={ isProductLoading || hasMainCheckoutStarted }
 			onClick={ mainCheckoutRedirect }
 			target={ isExternalLink ? '_blank' : undefined }
+			rel={ isExternalLink ? 'noopener noreferrer' : undefined }
 			href={ href }
 			disabled={ disabled || isProductLoading }
 		>
 			{ buttonLabel || __( 'Upgrade', 'jetpack-my-jetpack' ) }
+			{ isExternalLink && (
+				<VisuallyHidden as="span">
+					{ __( '(opens in a new tab)', 'jetpack-my-jetpack' ) }
+				</VisuallyHidden>
+			) }
 		</Button>
 	);
 };

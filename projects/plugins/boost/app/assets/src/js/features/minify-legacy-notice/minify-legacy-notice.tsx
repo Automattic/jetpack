@@ -1,7 +1,7 @@
 import { useDismissibleAlertState } from '$features/performance-history/lib/hooks';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import { getRedirectUrl, Notice } from '@automattic/jetpack-components';
-import { Button } from '@wordpress/components';
+import { Button, VisuallyHidden } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 
 const MinifyLegacyNotice = () => {
@@ -27,6 +27,7 @@ const MinifyLegacyNotice = () => {
 					<Button
 						variant="secondary"
 						target="_blank"
+						rel="noopener noreferrer"
 						onClick={ () => {
 							recordBoostEvent( 'critical_css_retry', {
 								error_type: 'UnknownError',
@@ -37,6 +38,9 @@ const MinifyLegacyNotice = () => {
 						} }
 					>
 						{ __( 'Learn more', 'jetpack-boost' ) }
+						<VisuallyHidden as="span">
+							{ __( '(opens in a new tab)', 'jetpack-boost' ) }
+						</VisuallyHidden>
 					</Button>
 				</p>
 			</Notice>

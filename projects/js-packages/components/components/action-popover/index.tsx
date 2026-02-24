@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { Button, Popover } from '@wordpress/components';
+import { Button, Popover, VisuallyHidden } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import { close } from '@wordpress/icons';
 import useBreakpointMatch from '../layout/use-breakpoint-match/index.ts';
@@ -93,9 +93,15 @@ const ActionPopover = ( {
 							disabled={ buttonDisabled }
 							onClick={ onClick }
 							target={ buttonExternalLink ? '_blank' : undefined }
+							rel={ buttonExternalLink ? 'noopener noreferrer' : undefined }
 							href={ buttonHref }
 						>
 							{ buttonContent }
+							{ buttonExternalLink && (
+								<VisuallyHidden as="span">
+									{ __( '(opens in a new tab)', 'jetpack-components' ) }
+								</VisuallyHidden>
+							) }
 						</Button>
 					</div>
 				</div>

@@ -1,6 +1,6 @@
 import { __ } from '@wordpress/i18n';
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { Button } from '@wordpress/components';
+import { Button, VisuallyHidden } from '@wordpress/components';
 import styles from './support.module.scss';
 import { recordBoostEvent } from '$lib/utils/analytics';
 
@@ -25,8 +25,16 @@ const Support = () => {
 						</p>
 					</div>
 					<div className={ styles.cta }>
-						<Button variant="secondary" onClick={ openPaidSupport } target="_blank">
+						<Button
+							variant="secondary"
+							onClick={ openPaidSupport }
+							target="_blank"
+							rel="noopener noreferrer"
+						>
 							{ __( 'Contact Us', 'jetpack-boost' ) }
+							<VisuallyHidden as="span">
+								{ __( '(opens in a new tab)', 'jetpack-boost' ) }
+							</VisuallyHidden>
 						</Button>
 					</div>
 				</div>

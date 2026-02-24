@@ -1,5 +1,5 @@
 import { Text, ThemeProvider, Col, Container } from '@automattic/jetpack-components';
-import { Button, Modal } from '@wordpress/components';
+import { Button, Modal, VisuallyHidden } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useCallback, useState, cloneElement } from 'react';
@@ -237,9 +237,15 @@ const ProductInterstitialModal: FC< ProductInterstitialModalProps > = props => {
 									<Button
 										variant="link"
 										target={ secondaryButtonHasExternalLink ? '_blank' : undefined }
+										rel={ secondaryButtonHasExternalLink ? 'noopener noreferrer' : undefined }
 										href={ secondaryButtonHref }
 									>
 										{ __( 'Learn more', 'jetpack-my-jetpack' ) }
+										{ secondaryButtonHasExternalLink && (
+											<VisuallyHidden as="span">
+												{ __( '(opens in a new tab)', 'jetpack-my-jetpack' ) }
+											</VisuallyHidden>
+										) }
 									</Button>
 								</div>
 							</Col>

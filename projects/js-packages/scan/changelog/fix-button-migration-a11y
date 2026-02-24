@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Threat notice: add VisuallyHidden screen reader text, rel="noopener noreferrer", and disabled prop to external link buttons during loading states.

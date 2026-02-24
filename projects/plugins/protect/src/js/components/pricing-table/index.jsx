@@ -8,7 +8,7 @@ import {
 import { useConnection } from '@automattic/jetpack-connection';
 import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import useNotices from '../../hooks/use-notices';
 import usePlan from '../../hooks/use-plan';
@@ -23,11 +23,19 @@ const ConnectedPricingTable = () => {
 	const { showErrorNotice } = useNotices();
 	const { recordEvent } = useAnalyticsTracks();
 	const { upgradePlan, isLoading: isPlanLoading } = usePlan();
-	const { handleRegisterSite } = useConnection( {
+	const { handleRegisterSite, registrationError } = useConnection( {
 		from: 'protect',
 		skipUserConnection: true,
 		redirectUri: 'admin.php?page=jetpack-protect',
 	} );
+
+	// Surface registration errors from the connection hook via the notice system.
+	useEffect( () => {
+		if ( registrationError ) {
+			showErrorNotice( __( 'An error occurred. Please try again.', 'jetpack-protect' ) );
+			setHasConnectionStarted( false );
+		}
+	}, [ registrationError, showErrorNotice ] );
 
 	// Track whether the connection process has started outside of the connection/checkout flows.
 	// This flag is used to show the related actions as "busy" all the way until the post-connection/checkout redirect is complete.

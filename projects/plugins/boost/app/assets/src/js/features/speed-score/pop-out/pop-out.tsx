@@ -4,7 +4,7 @@ import styles from './pop-out.module.scss';
 import { __ } from '@wordpress/i18n';
 import { ReactNode, useState, useEffect } from 'react';
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { Button } from '@wordpress/components';
+import { Button, VisuallyHidden } from '@wordpress/components';
 import { useDismissibleAlertState } from '$features/performance-history/lib/hooks';
 import { recordBoostEvent } from '$lib/utils/analytics';
 
@@ -91,8 +91,17 @@ export const VanillaPopOut = ( { message, onClose, onDismiss, isVisible }: Vanil
 
 				<>{ message.body }</>
 
-				<Button variant="primary" href={ message?.ctaLink } target="_blank" onClick={ onDismiss }>
+				<Button
+					variant="primary"
+					href={ message?.ctaLink }
+					target="_blank"
+					rel="noopener noreferrer"
+					onClick={ onDismiss }
+				>
 					{ message.cta }
+					<VisuallyHidden as="span">
+						{ __( '(opens in a new tab)', 'jetpack-boost' ) }
+					</VisuallyHidden>
 				</Button>
 
 				<Button

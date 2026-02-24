@@ -8,7 +8,7 @@ import {
 	Text,
 } from '@automattic/jetpack-components';
 import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
-import { Button } from '@wordpress/components';
+import { Button, VisuallyHidden } from '@wordpress/components';
 import { sprintf, __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
 import { useCallback, useMemo, useState, useEffect } from 'react';
@@ -330,8 +330,12 @@ const ProductDetailTable = ( {
 					variant="secondary"
 					href={ `https://wordpress.org/plugins/${ pluginSlug }` }
 					target="_blank"
+					rel="noopener noreferrer"
 				>
 					{ __( 'Get plugin', 'jetpack-my-jetpack' ) }
+					<VisuallyHidden as="span">
+						{ __( '(opens in a new tab)', 'jetpack-my-jetpack' ) }
+					</VisuallyHidden>
 				</Button>,
 			] }
 		/>

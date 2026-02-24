@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Button: add VisuallyHidden screen reader text and rel="noopener noreferrer" to external link buttons for WCAG 2.1 SC 3.2.5 compliance.

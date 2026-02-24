@@ -115,12 +115,22 @@ export function ResponseActions( {
 	const readUnreadButtons = (
 		<>
 			{ response.is_unread && (
-				<Button isBusy={ isTogglingReadStatus } onClick={ handleMarkAsRead } size="compact">
+				<Button
+					isBusy={ isTogglingReadStatus }
+					disabled={ isTogglingReadStatus }
+					onClick={ handleMarkAsRead }
+					size="compact"
+				>
 					{ __( 'Mark as read', 'jetpack-forms' ) }
 				</Button>
 			) }
 			{ ! response.is_unread && (
-				<Button isBusy={ isTogglingReadStatus } onClick={ handleMarkAsUnread } size="compact">
+				<Button
+					isBusy={ isTogglingReadStatus }
+					disabled={ isTogglingReadStatus }
+					onClick={ handleMarkAsUnread }
+					size="compact"
+				>
 					{ __( 'Mark as unread', 'jetpack-forms' ) }
 				</Button>
 			) }
@@ -128,31 +138,51 @@ export function ResponseActions( {
 	);
 
 	const trashButton = (
-		<Button isBusy={ isMovingToTrash } onClick={ handleMoveToTrash } size="compact">
+		<Button
+			isBusy={ isMovingToTrash }
+			disabled={ isMovingToTrash }
+			onClick={ handleMoveToTrash }
+			size="compact"
+		>
 			{ __( 'Trash', 'jetpack-forms' ) }
 		</Button>
 	);
 
 	const spamButton = (
-		<Button isBusy={ isMarkingAsSpam } onClick={ handleMarkAsSpam } size="compact">
+		<Button
+			isBusy={ isMarkingAsSpam }
+			disabled={ isMarkingAsSpam }
+			onClick={ handleMarkAsSpam }
+			size="compact"
+		>
 			{ __( 'Spam', 'jetpack-forms' ) }
 		</Button>
 	);
 
 	const notSpamButton = (
-		<Button isBusy={ isMarkingAsNotSpam } onClick={ handleMarkAsNotSpam } size="compact">
+		<Button
+			isBusy={ isMarkingAsNotSpam }
+			disabled={ isMarkingAsNotSpam }
+			onClick={ handleMarkAsNotSpam }
+			size="compact"
+		>
 			{ __( 'Not spam', 'jetpack-forms' ) }
 		</Button>
 	);
 
 	const deleteButton = (
-		<Button isBusy={ isDeleting } onClick={ handleDelete } size="compact">
+		<Button isBusy={ isDeleting } disabled={ isDeleting } onClick={ handleDelete } size="compact">
 			{ __( 'Delete', 'jetpack-forms' ) }
 		</Button>
 	);
 
 	const restoreButton = (
-		<Button isBusy={ isRestoring } onClick={ handleRestore } size="compact">
+		<Button
+			isBusy={ isRestoring }
+			disabled={ isRestoring }
+			onClick={ handleRestore }
+			size="compact"
+		>
 			{ __( 'Restore', 'jetpack-forms' ) }
 		</Button>
 	);

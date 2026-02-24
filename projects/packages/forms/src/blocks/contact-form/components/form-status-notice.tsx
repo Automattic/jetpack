@@ -267,6 +267,7 @@ export default function FormStatusNotice( {
 							variant="primary"
 							isDestructive
 							isBusy={ isDeleting }
+							disabled={ isDeleting }
 							onClick={ () => {
 								setShowDeleteConfirmation( false );
 								handleDeletePermanently();

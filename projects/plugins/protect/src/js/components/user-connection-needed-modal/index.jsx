@@ -1,6 +1,6 @@
 import { Text } from '@automattic/jetpack-components';
 import { useConnection } from '@automattic/jetpack-connection';
-import { Button } from '@wordpress/components';
+import { Button, VisuallyHidden } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import useModal from '../../hooks/use-modal';
 import Notice from '../notice';
@@ -51,8 +51,17 @@ const UserConnectionNeededModal = () => {
 				<Button variant="secondary" onClick={ handleCancelClick() }>
 					{ __( 'Not now', 'jetpack-protect' ) }
 				</Button>
-				<Button target="_blank" isBusy={ userIsConnecting } onClick={ handleConnectUser }>
+				<Button
+					target="_blank"
+					rel="noopener noreferrer"
+					isBusy={ userIsConnecting }
+					disabled={ userIsConnecting }
+					onClick={ handleConnectUser }
+				>
 					{ __( 'Connect your user account', 'jetpack-protect' ) }
+					<VisuallyHidden as="span">
+						{ __( '(opens in a new tab)', 'jetpack-protect' ) }
+					</VisuallyHidden>
 				</Button>
 			</div>
 		</>

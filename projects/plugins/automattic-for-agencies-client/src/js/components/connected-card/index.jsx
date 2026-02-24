@@ -1,4 +1,4 @@
-import { Button } from '@wordpress/components';
+import { Button, VisuallyHidden } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useCallback } from 'react';
@@ -31,8 +31,11 @@ export default function ConnectedCard() {
 					{ __( 'Site is connected and syncing', 'automattic-for-agencies-client' ) }
 				</p>
 				<div>
-					<Button onClick={ navigateToDashboard } target="_blank">
+					<Button onClick={ navigateToDashboard } target="_blank" rel="noopener noreferrer">
 						{ __( 'Visit the dashboard', 'automattic-for-agencies-client' ) }
+						<VisuallyHidden as="span">
+							{ __( '(opens in a new tab)', 'automattic-for-agencies-client' ) }
+						</VisuallyHidden>
 					</Button>
 				</div>
 			</div>

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Buttons: add disabled prop alongside isBusy to prevent interaction during loading states.

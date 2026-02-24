@@ -1,5 +1,6 @@
-import { Button, Card, CardBody } from '@wordpress/components';
+import { Button, Card, CardBody, VisuallyHidden } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 import { UpsellBannerProps } from './types.ts';
 import type { FC, ReactNode } from 'react';
 
@@ -53,8 +54,14 @@ const UpsellBanner: FC< UpsellBannerProps > = props => {
 								href={ secondaryCtaURL }
 								onClick={ secondaryCtaOnClick ?? undefined }
 								target={ secondaryCtaIsExternalLink ? '_blank' : undefined }
+								rel={ secondaryCtaIsExternalLink ? 'noopener noreferrer' : undefined }
 							>
 								{ secondaryCtaLabel }
+								{ secondaryCtaIsExternalLink && (
+									<VisuallyHidden as="span">
+										{ __( '(opens in a new tab)', 'jetpack-components' ) }
+									</VisuallyHidden>
+								) }
 							</Button>
 						) }
 						{ primaryCtaLabel && primaryCtaURL && (
@@ -63,8 +70,14 @@ const UpsellBanner: FC< UpsellBannerProps > = props => {
 								href={ primaryCtaURL }
 								onClick={ primaryCtaOnClick ?? undefined }
 								target={ primaryCtaIsExternalLink ? '_blank' : undefined }
+								rel={ primaryCtaIsExternalLink ? 'noopener noreferrer' : undefined }
 							>
 								{ primaryCtaLabel }
+								{ primaryCtaIsExternalLink && (
+									<VisuallyHidden as="span">
+										{ __( '(opens in a new tab)', 'jetpack-components' ) }
+									</VisuallyHidden>
+								) }
 							</Button>
 						) }
 					</div>

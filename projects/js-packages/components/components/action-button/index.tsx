@@ -1,4 +1,4 @@
-import { Button, Spinner } from '@wordpress/components';
+import { Button, Spinner, VisuallyHidden } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import PropTypes from 'prop-types';
@@ -39,9 +39,15 @@ const ActionButton = props => {
 					onClick={ onClick }
 					variant={ isExternalLink ? 'link' : variant }
 					target={ isExternalLink ? '_blank' : undefined }
+					rel={ isExternalLink ? 'noopener noreferrer' : undefined }
 					disabled={ isLoading || isDisabled }
 				>
 					{ isLoading ? loadingContent : label }
+					{ isExternalLink && (
+						<VisuallyHidden as="span">
+							{ __( '(opens in a new tab)', 'jetpack-components' ) }
+						</VisuallyHidden>
+					) }
 				</Button>
 			}
 
