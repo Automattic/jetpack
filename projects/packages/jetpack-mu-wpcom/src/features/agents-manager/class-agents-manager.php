@@ -271,12 +271,12 @@ class Agents_Manager {
 	 * @return string|null The variant name, or null if scripts should not be loaded.
 	 */
 	private function get_variant() {
-		// CIAB/Next Admin: only load when disconnected (connected CIAB is handled by Help Center).
+		// CIAB/Next Admin: use ciab-disconnected when disconnected, wp-admin when connected.
 		if ( $this->is_ciab_environment() ) {
-			if ( $this->is_enabled() && $this->is_jetpack_disconnected() ) {
-				return 'ciab-disconnected';
+			if ( ! $this->is_enabled() ) {
+				return null;
 			}
-			return null;
+			return $this->is_jetpack_disconnected() ? 'ciab-disconnected' : 'wp-admin';
 		}
 
 		// Frontend: load disconnected variant for eligible logged-in editors.

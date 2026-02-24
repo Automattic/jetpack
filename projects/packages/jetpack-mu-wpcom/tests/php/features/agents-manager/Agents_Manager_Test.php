@@ -1952,11 +1952,11 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Tests that should_enqueue_script returns false in CIAB environment when Jetpack is connected.
+	 * Tests that get_variant returns wp-admin in CIAB environment when Jetpack is connected.
 	 *
-	 * Connected CIAB is handled by Help Center; Agents Manager should not load.
+	 * Since there is no dedicated ciab variant, connected CIAB should use wp-admin.
 	 */
-	public function test_should_enqueue_script_returns_false_in_ciab_when_connected() {
+	public function test_get_variant_returns_wp_admin_in_ciab_when_connected() {
 		$this->set_admin_context();
 
 		// Save and simulate CIAB environment.
@@ -1968,7 +1968,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		// is_jetpack_disconnected() returns false for non-Jetpack sites.
 		add_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
 
-		$result = $this->call_should_enqueue_script();
+		$result = $this->call_get_variant();
 
 		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
 
@@ -1979,7 +1979,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 			$wp_actions['next_admin_init'] = $original_action_count;
 		}
 
-		$this->assertFalse( $result );
+		$this->assertSame( 'wp-admin', $result );
 	}
 
 	/**

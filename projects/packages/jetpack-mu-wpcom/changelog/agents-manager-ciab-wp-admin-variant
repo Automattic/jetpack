@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Agents Manager: Return wp-admin variant for connected CIAB environments instead of not loading.
