@@ -214,7 +214,7 @@ function JetpackContactFormEdit( {
 	const instanceId = useInstanceId( JetpackContactFormEdit );
 
 	// Check if we're in widget editor with a synced form (ref)
-	const isWidgetEditorWithRef = ref && getEditorContext() === 'widget';
+	const isWidgetEditorWithRef = !! ref && getEditorContext() === 'widget';
 
 	// Hide auxiliary block controls (toolbar, movers, settings) for synced forms in widget editor.
 	// 'contentOnly' mode hides these controls while still allowing interaction with content (like our "Edit Form" button).
@@ -1023,6 +1023,7 @@ function JetpackContactFormEdit( {
 			syncedFormBlocks && syncedFormBlocks.length > 0 ? syncedFormBlocks : currentInnerBlocks;
 
 		const handleEditForm = () => {
+			flushPendingSave();
 			navigateToForm( ref, 'widget' );
 		};
 
