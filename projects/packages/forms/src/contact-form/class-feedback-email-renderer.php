@@ -793,7 +793,7 @@ class Feedback_Email_Renderer {
 		$css = preg_replace( '/\s+/', ' ', $css );
 		// Remove spaces around CSS punctuation: { } ; : ,
 		$css = preg_replace( '/\s*([{};,])\s*/', '$1', $css );
-		// Remove space after colons (but not inside url() or content strings).
+		// Remove space after colons in all contexts.
 		$css = preg_replace( '/:\s+/', ':', $css );
 		// Remove trailing semicolons before closing braces.
 		$css = str_replace( ';}', '}', $css );
