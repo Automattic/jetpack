@@ -279,7 +279,7 @@ $style = '<style media="all" type="text/css">
 
 	.respondent-avatar-cell {
 		width: 64px;
-		vertical-align: top;
+		vertical-align: middle;
 	}
 
 	.respondent-avatar-wrapper {

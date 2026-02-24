@@ -674,14 +674,14 @@ class Feedback_Email_Renderer {
 
 		// Avatar content - either image or initials.
 		$avatar_content = ! empty( $avatar )
-			? '<img src="' . $avatar . '" alt="" width="48" height="48" style="border-radius: 24px;">'
+			? '<img src="' . $avatar . '" alt="" width="48" height="48" style="border-radius: 24px; vertical-align: middle;">'
 			: esc_html( $initials );
 
 		// Use table layout for maximum email client compatibility.
 		$html = '
 		<table role="presentation" border="0" cellpadding="0" cellspacing="0" class="respondent-table" width="100%" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; margin-bottom: 16px;">
 			<tr>
-				<td class="respondent-avatar-cell" style="width: 64px; vertical-align: top; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Oxygen-Sans, Ubuntu, Cantarell, \'Helvetica Neue\', sans-serif;">
+				<td class="respondent-avatar-cell" style="width: 64px; vertical-align: middle; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Oxygen-Sans, Ubuntu, Cantarell, \'Helvetica Neue\', sans-serif;">
 					<!--[if mso]>
 					<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="48" height="48" style="width: 48px; height: 48px;">
 					<tr>
