@@ -991,6 +991,11 @@ function render_email( $block_content, array $parsed_block, $rendering_context )
  * @return mixed
  */
 function jetpack_filter_excerpt_for_newsletter( $excerpt, $post = null ) {
+	// Only modify excerpts when rendering a newsletter email.
+	if ( ! defined( 'IS_HTML_EMAIL' ) && ! defined( 'IS_WC_EMAIL' ) ) {
+		return $excerpt;
+	}
+
 	// The blogmagazine theme is overriding WP core `get_the_excerpt` filter and only passing the excerpt
 	// TODO: Until this is fixed, return the excerpt without gating. See https://github.com/Automattic/jetpack/pull/28102#issuecomment-1369161116
 	if ( $post instanceof \WP_Post && has_block( 'jetpack/subscriptions', $post ) ) {

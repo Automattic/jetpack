@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Subscriptions: Only filter excerpts for newsletter emails, not on the front end.
