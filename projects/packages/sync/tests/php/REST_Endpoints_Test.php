@@ -263,6 +263,63 @@ class REST_Endpoints_Test extends TestCase {
 	}
 
 	/**
+	 * Testing the `POST /jetpack/v4/sync/clear-queue` endpoint clears the specified queue.
+	 */
+	public function test_sync_clear_queue() {
+		$user = wp_get_current_user();
+		$user->add_cap( 'manage_options' );
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/sync/clear-queue' );
+		$request->set_header( 'Content-Type', 'application/json' );
+		$request->set_body( '{ "queue": "sync" }' );
+
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+
+		$user->remove_cap( 'manage_options' );
+
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertTrue( $data['success'] );
+		$this->assertEquals( 'sync', $data['queue'] );
+	}
+
+	/**
+	 * Testing the `POST /jetpack/v4/sync/clear-queue` endpoint rejects queue names other than sync and full_sync.
+	 *
+	 * @param string $queue_name Queue name to test.
+	 * @dataProvider clear_queue_invalid_queue_provider
+	 */
+	#[DataProvider( 'clear_queue_invalid_queue_provider' )]
+	public function test_sync_clear_queue_invalid_queue( $queue_name ) {
+		$user = wp_get_current_user();
+		$user->add_cap( 'manage_options' );
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/sync/clear-queue' );
+		$request->set_header( 'Content-Type', 'application/json' );
+		$request->set_body( '{ "queue": "' . $queue_name . '" }' );
+
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+
+		$user->remove_cap( 'manage_options' );
+
+		$this->assertEquals( 400, $response->get_status() );
+		$this->assertEquals( 'invalid_queue', $data['code'] );
+	}
+
+	/**
+	 * Queue names that should be rejected by the clear-queue endpoint.
+	 *
+	 * @return array
+	 */
+	public static function clear_queue_invalid_queue_provider() {
+		return array(
+			array( 'immediate' ),
+			array( 'invalid_queue' ),
+		);
+	}
+
+	/**
 	 * Array of Sync Endpoints and method.
 	 *
 	 * @return int[][]
@@ -283,6 +340,7 @@ class REST_Endpoints_Test extends TestCase {
 			array( 'sync/data-check', 'GET', null ),
 			array( 'sync/data-histogram', 'POST', null ),
 			array( 'sync/locks', 'DELETE', null ),
+			array( 'sync/clear-queue', 'POST', '{ "queue": "sync" }' ),
 		);
 	}
 
