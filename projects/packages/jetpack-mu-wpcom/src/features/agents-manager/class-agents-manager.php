@@ -273,7 +273,7 @@ class Agents_Manager {
 	private function get_variant() {
 		// CIAB/Next Admin: only load when disconnected (connected CIAB is handled by Help Center).
 		if ( $this->is_ciab_environment() ) {
-			if ( $this->is_enabled() && $this->is_jetpack_disconnected() ) {
+			if ( self::is_enabled() && $this->is_jetpack_disconnected() ) {
 				return 'ciab-disconnected';
 			}
 			return null;
@@ -281,7 +281,7 @@ class Agents_Manager {
 
 		// Frontend: load disconnected variant for eligible logged-in editors.
 		if ( ! is_admin() ) {
-			if ( $this->is_loading_on_frontend() && $this->is_enabled() ) {
+			if ( $this->is_loading_on_frontend() && self::is_enabled() ) {
 				return 'wp-admin-disconnected';
 			}
 			return null;
@@ -292,7 +292,7 @@ class Agents_Manager {
 			return null;
 		}
 
-		if ( ! $this->is_enabled() ) {
+		if ( ! self::is_enabled() ) {
 			return null;
 		}
 
@@ -310,14 +310,14 @@ class Agents_Manager {
 	 *
 	 * @return bool
 	 */
-	private function is_enabled() {
+	public static function is_enabled() {
 		// Full unified experience: Agents Manager with support guides, Help Center takeover, etc.
 		if ( apply_filters( 'agents_manager_use_unified_experience', false ) ) {
 			return true;
 		}
 
 		// Block editor only: Agents Manager replaces Big Sky's native UI. Hooked by Big Sky.
-		if ( $this->is_block_editor() && apply_filters( 'agents_manager_enabled_in_block_editor', false ) ) {
+		if ( self::is_block_editor() && apply_filters( 'agents_manager_enabled_in_block_editor', false ) ) {
 			return true;
 		}
 
@@ -708,7 +708,7 @@ class Agents_Manager {
 	 *
 	 * @return bool True if the current screen is the block editor.
 	 */
-	private function is_block_editor() {
+	private static function is_block_editor() {
 		if ( ! function_exists( 'get_current_screen' ) ) {
 			return false;
 		}
