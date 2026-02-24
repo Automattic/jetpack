@@ -1632,6 +1632,13 @@ class Jetpack_Sync_Full_Immediately_Test extends Jetpack_Sync_TestBase {
 
 		$stuck_event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_stuck_adjustment' );
 		$this->assertNotFalse( $stuck_event, 'send_action should fire when chunk size reaches minimum (1).' );
+
+		// Verify the event data is a flat associative array, not nested in an extra wrapper.
+		$event_data = $stuck_event->args;
+		$this->assertArrayHasKey( 'module', $event_data, 'Event data should contain module key at the top level.' );
+		$this->assertArrayHasKey( 'adjusted_chunk_size', $event_data, 'Event data should contain adjusted_chunk_size key at the top level.' );
+		$this->assertSame( 'posts', $event_data['module'] );
+		$this->assertSame( 1, $event_data['adjusted_chunk_size'] );
 	}
 
 	/**

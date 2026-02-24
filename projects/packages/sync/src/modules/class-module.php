@@ -517,12 +517,10 @@ abstract class Module {
 				$this->send_action(
 					'jetpack_full_sync_stuck_adjustment',
 					array(
-						array(
-							'module'              => $this->name(),
-							'last_sent'           => $last_sent,
-							'stuck_count'         => $stuck_count,
-							'adjusted_chunk_size' => $adjusted_chunk_size,
-						),
+						'module'              => $this->name(),
+						'last_sent'           => $last_sent,
+						'stuck_count'         => $stuck_count,
+						'adjusted_chunk_size' => $adjusted_chunk_size,
 					)
 				);
 			}
