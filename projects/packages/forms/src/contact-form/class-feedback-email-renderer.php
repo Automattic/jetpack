@@ -497,8 +497,11 @@ class Feedback_Email_Renderer {
 	public static function add_plain_text_alternative( $phpmailer ) {
 		// phpcs:disable WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 
+		// Remove the preheader (hidden email preview text) so it doesn't duplicate the title in plain text.
+		$alt_body = preg_replace( '/<span class="preheader">.*?<\/span>/s', '', $phpmailer->Body );
+
 		// Add an extra break so that the extra space above the <p> is preserved after the <p> is stripped out.
-		$alt_body = str_replace( '<p>', '<p><br />', $phpmailer->Body );
+		$alt_body = str_replace( '<p>', '<p><br />', $alt_body );
 
 		// Convert <br> to \n breaks, to preserve the space between lines that we want to keep.
 		$alt_body = str_replace( array( '<br>', '<br />' ), "\n", $alt_body );
