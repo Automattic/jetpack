@@ -918,6 +918,23 @@ class SSO {
 			// Cache the user's details, so we can present it back to them on their user screen.
 			update_user_meta( $user->ID, 'wpcom_user_data', $user_data );
 
+			/*
+			 * Two-Factor plugin 0.15.0+ unconditionally hooks wp_login at PHP_INT_MAX,
+			 * which destroys the auth session and prompts for local 2FA — even for SSO
+			 * logins that already completed 2FA on WordPress.com.
+			 *
+			 * When WP.com confirms the user has 2FA active, remove Two-Factor's wp_login
+			 * hook so SSO can complete without a redundant local 2FA prompt.
+			 *
+			 * When WP.com 2FA is NOT active, the hook stays and Two-Factor can enforce
+			 * local 2FA as a safety net.
+			 *
+			 * @see https://github.com/WordPress/two-factor/issues/811
+			 */
+			if ( ! empty( $user_data->two_step_enabled ) && class_exists( 'Two_Factor_Core' ) ) {
+				remove_action( 'wp_login', array( 'Two_Factor_Core', 'wp_login' ), PHP_INT_MAX );
+			}
+
 			add_filter( 'auth_cookie_expiration', array( Helpers::class, 'extend_auth_cookie_expiration_for_sso' ) );
 			wp_set_auth_cookie( $user->ID, true );
 			remove_filter( 'auth_cookie_expiration', array( Helpers::class, 'extend_auth_cookie_expiration_for_sso' ) );
