@@ -4,7 +4,7 @@ settings:
   autoInstallPeers: false
   excludeLinksFromLockfile: false
 
-pnpmfileChecksum: sha256-UdCUuqlbNvFbIBR7Lm7XajJXu1gAjrawuyh2gz630KU=
+pnpmfileChecksum: sha256-6WB2gwhE5lz5Qeo33gw4dkwjk8Lg/7L3m78A1iFmKjQ=
 
 patchedDependencies:
   uuid@<11:
@@ -23664,7 +23664,7 @@ snapshots:
       clsx: 2.1.1
       colord: 2.9.3
       deepmerge: 4.3.1
-      diff: 8.0.3
+      diff: 4.0.4
       fast-deep-equal: 3.1.3
       memize: 2.1.1
       parsel-js: 1.2.2
@@ -23727,7 +23727,7 @@ snapshots:
       clsx: 2.1.1
       colord: 2.9.3
       deepmerge: 4.3.1
-      diff: 8.0.3
+      diff: 4.0.4
       fast-deep-equal: 3.1.3
       memize: 2.1.1
       parsel-js: 1.2.2
@@ -23790,7 +23790,7 @@ snapshots:
       clsx: 2.1.1
       colord: 2.9.3
       deepmerge: 4.3.1
-      diff: 8.0.3
+      diff: 4.0.4
       fast-deep-equal: 3.1.3
       memize: 2.1.1
       parsel-js: 1.2.2
