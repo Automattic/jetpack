@@ -131,9 +131,43 @@ Only flag a PR if BOTH conditions are true:
 - Accessibility improvements that don't change documented workflows
 - Translation/i18n string changes or locale updates
 
-## WHEN IN DOUBT
+## CRITICAL: DEVELOPER-FACING CHANGES ARE NOT USER-FACING
 
-If the change is borderline, lean toward is_user_facing = false. The goal is to surface only PRs that would actually leave a support page outdated or missing. A false negative (missing a flaggable PR) is much less costly than a false positive (noisy alerts the team learns to ignore).
+The following are changes aimed at developers/themers who extend Jetpack programmatically. They are NEVER documented on jetpack.com/support and must ALWAYS be classified as is_user_facing = false, regardless of which feature area they touch:
+
+- New or modified PHP filters (add_filter / apply_filters)
+- New or modified PHP actions (add_action / do_action)  
+- New or modified WordPress hooks of any kind
+- New PHP classes, methods, or functions that are only callable via code
+- New or modified REST API endpoints or parameters
+- New or modified JavaScript filters or SlotFill extension points
+- New CSS classes intended for developer/themer use (not visible UI changes)
+- New properties or methods added to internal JavaScript packages/utilities
+- Deprecation of PHP classes or functions when the user-visible behavior is unchanged
+- Changes described as "adding a filter for..." or "allowing plugins to..." — these are extensibility features for developers, not end-user features
+
+Ask yourself: "Would a non-technical site owner ever see or interact with this change in the WordPress dashboard, Jetpack settings, or their site's frontend WITHOUT writing custom code?" If the answer is no, it is NOT user-facing.
+
+Would NOT need a docs update (developer-facing):
+
+- "Added new PHP filter jetpack_show_editor_panel_branding" - PHP filter = developer API, not user-facing
+- "Added CSS class jetpack-ignore-thumbnail for excluding images"
+- "Added floatValue property to getCurrencyObject in number-formatters" - Internal JS package API, not visible to end users
+- "Moved Twitter_Cards class to jetpack-post-media package" - Code reorganization, identical behavior preserved
+- "Added jetpack.ai.imageGenerationHandler filter for external plugins" - Filter for other plugins to hook into = developer extensibility
+- "Only intercept video uploads when VideoPress is available" - Bug fix restoring correct behavior, docs already accurate
+- "Changed default form layout from vertical to horizontal" - Minor visual default change, not a new workflow or setting
+
+## WHEN IN DOUBT — DEFAULT TO NOT FLAGGING
+
+Apply this additional filter before flagging:
+
+1. Does the PR add a PHP filter, action, hook, CSS class, or JS extension point? → Do NOT flag (developer API)
+2. Does the PR title contain "refactor", "move", "migrate", "deprecate class", "rename file", or "package"? → Examine carefully; likely NOT user-facing
+3. Does the PR fix a bug (restoring correct/expected behavior)? Do NOT flag (docs describe the intended behavior)
+4. Is the change only visible if a developer writes custom code? Do NOT flag
+
+If after all this you're still borderline, set is_user_facing = false.
 
 Here is the PR title:
 \`\`\`\`
