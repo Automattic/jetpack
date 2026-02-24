@@ -9,12 +9,7 @@ import {
 	GlobalNotices,
 	useGlobalNotices,
 } from '@automattic/jetpack-components';
-import {
-	getScriptData,
-	getSiteData,
-	getSiteType,
-	isSimpleSite,
-} from '@automattic/jetpack-script-data';
+import { getSiteType, isSimpleSite } from '@automattic/jetpack-script-data';
 import { Notice } from '@wordpress/components';
 import { createRoot, useCallback, useEffect, useState, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -23,6 +18,7 @@ import { __ } from '@wordpress/i18n';
  */
 import { fetchSettings, updateSettings } from './api';
 import { Header } from './components/header';
+import { getNewsletterScriptData } from './script-data';
 import {
 	EmailContentSection,
 	EmailBylineSection,
@@ -34,11 +30,7 @@ import {
 	SubscriptionsSection,
 	WelcomeEmailSection,
 } from './sections';
-import type {
-	NewsletterSettings,
-	NewsletterJetpackScriptData,
-	CombinedNewsletterSettings,
-} from './types';
+import type { NewsletterSettings } from './types';
 import './style.scss';
 
 const MODULE_NAME = __( 'Jetpack Newsletter', 'jetpack-newsletter' );
@@ -96,40 +88,22 @@ function NewsletterSettingsApp(): JSX.Element | null {
 	);
 	const [ isSavingWelcomeEmail, setIsSavingWelcomeEmail ] = useState( false );
 
-	// Get all data from JetpackScriptData (common site data + newsletter-specific data)
-	const scriptData = useMemo(
-		() => getScriptData() as NewsletterJetpackScriptData | undefined,
-		[]
-	);
-	const siteData = useMemo( () => getSiteData(), [] );
-	const newsletterData = scriptData?.newsletter;
-
-	// Combine site data, user data, and newsletter data for section components
-	const jetpackSettings = useMemo( (): CombinedNewsletterSettings | undefined => {
-		if ( ! newsletterData || ! siteData || ! scriptData?.user ) {
-			return undefined;
-		}
-		return {
-			...newsletterData,
-			// Site data fields needed by components
-			siteName: siteData.title ?? '',
-			displayName: scriptData.user.current_user?.display_name ?? '',
-		};
-	}, [ newsletterData, siteData, scriptData?.user ] );
+	// Get newsletter script data
+	const newsletterScriptData = useMemo( () => getNewsletterScriptData(), [] );
 
 	// Global notices for success/error messages
 	const { createSuccessNotice, createErrorNotice } = useGlobalNotices();
 
-	// Get site type for analytics (uses JetpackScriptData)
+	// Get site type for analytics
 	const siteType = useMemo( () => getSiteType(), [] );
 
 	// Initialize analytics with user data
 	useEffect( () => {
-		const tracksUserData = newsletterData?.tracksUserData;
+		const tracksUserData = newsletterScriptData?.tracksUserData;
 		if ( tracksUserData && typeof tracksUserData === 'object' ) {
 			analytics.initialize( tracksUserData.userid, tracksUserData.username );
 		}
-	}, [ newsletterData ] );
+	}, [ newsletterScriptData ] );
 
 	// Load settings on mount
 	useEffect( () => {
@@ -401,17 +375,10 @@ function NewsletterSettingsApp(): JSX.Element | null {
 			<Container horizontalSpacing={ 3 }>
 				<Col>
 					<div className="newsletter-settings">
-						{ ! isSimpleSite() && (
-							<NewsletterSection
-								data={ data }
-								jetpackSettings={ jetpackSettings }
-								onChange={ handleAutoSave }
-							/>
-						) }
+						{ ! isSimpleSite() && <NewsletterSection data={ data } onChange={ handleAutoSave } /> }
 
 						<SubscriptionsSection
 							data={ data }
-							jetpackSettings={ jetpackSettings }
 							onChange={ handleSubscriptionChange }
 							onSave={ saveSubscriptionSettings }
 							isSaving={ isSavingSubscriptions }
@@ -420,7 +387,6 @@ function NewsletterSettingsApp(): JSX.Element | null {
 						/>
 
 						<PaidNewsletterSection
-							jetpackSettings={ jetpackSettings }
 							isNewsletterEnabled={ data.subscriptions }
 							hasActivePlan={ data.newsletter_has_active_plan }
 						/>
@@ -437,14 +403,12 @@ function NewsletterSettingsApp(): JSX.Element | null {
 						<EmailContentSection
 							data={ data }
 							onChange={ handleAutoSave }
-							isSitePublic={ jetpackSettings?.isSitePublic ?? true }
 							isNewsletterEnabled={ data.subscriptions }
 						/>
 
 						<EmailBylineSection
 							data={ data }
 							onChange={ handleAutoSave }
-							jetpackSettings={ jetpackSettings }
 							isNewsletterEnabled={ data.subscriptions }
 						/>
 
@@ -454,7 +418,6 @@ function NewsletterSettingsApp(): JSX.Element | null {
 							onSave={ saveSenderName }
 							isSaving={ isSavingSenderName }
 							hasChanges={ hasSenderNameChanges }
-							jetpackSettings={ jetpackSettings }
 							isNewsletterEnabled={ data.subscriptions }
 						/>
 

@@ -10,11 +10,11 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import type { NewsletterSettings, CombinedNewsletterSettings } from '../types';
+import { getNewsletterScriptData } from '../script-data';
+import type { NewsletterSettings } from '../types';
 
 interface NewsletterSectionProps {
 	data: NewsletterSettings;
-	jetpackSettings: CombinedNewsletterSettings | undefined;
 	onChange: ( updates: Partial< NewsletterSettings > ) => void;
 }
 
@@ -24,11 +24,8 @@ interface NewsletterSectionProps {
  * @param {NewsletterSectionProps} props - Component props
  * @return {JSX.Element} The newsletter section
  */
-export function NewsletterSection( {
-	data,
-	jetpackSettings,
-	onChange,
-}: NewsletterSectionProps ): JSX.Element {
+export function NewsletterSection( { data, onChange }: NewsletterSectionProps ): JSX.Element {
+	const newsletterScriptData = getNewsletterScriptData();
 	const siteType = getSiteType();
 	const previousSubscriptionsValue = useRef( data.subscriptions );
 
@@ -87,10 +84,10 @@ export function NewsletterSection( {
 					} }
 					onChange={ handleChange }
 				/>
-				{ data.subscriptions && jetpackSettings && (
+				{ data.subscriptions && newsletterScriptData && (
 					<div>
 						<ExternalLink
-							href={ jetpackSettings.subscriberManagementUrl }
+							href={ newsletterScriptData.subscriberManagementUrl }
 							onClick={ handleManageSubscribersClick }
 						>
 							{ __( 'Manage all subscribers', 'jetpack-newsletter' ) }

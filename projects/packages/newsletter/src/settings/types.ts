@@ -2,8 +2,6 @@
  * Type definitions for newsletter settings
  */
 
-import type { JetpackScriptData } from '@automattic/jetpack-script-data';
-
 /**
  * Type definitions for newsletter settings data from the API
  */
@@ -37,7 +35,7 @@ export interface NewsletterSettings {
 
 /**
  * Newsletter-specific data added to JetpackScriptData via the jetpack_admin_js_script_data filter.
- * Note: Common data like admin_url, rest_nonce, title, is_wpcom_platform, and
+ * Common data like admin_url, rest_nonce, title, is_wpcom_platform, and
  * user.current_user.display_name are provided by Script_Data defaults.
  */
 export interface NewsletterScriptData {
@@ -56,24 +54,6 @@ export interface NewsletterScriptData {
 				username: string;
 		  }
 		| false;
-}
-
-/**
- * Extended JetpackScriptData with newsletter-specific data.
- */
-export interface NewsletterJetpackScriptData extends JetpackScriptData {
-	newsletter: NewsletterScriptData;
-}
-
-/**
- * Combined settings interface used by section components.
- * Combines newsletter-specific data with site/user data fields needed by components.
- */
-export interface CombinedNewsletterSettings extends NewsletterScriptData {
-	// From JetpackScriptData.site
-	siteName: string;
-	// From JetpackScriptData.user.current_user
-	displayName: string;
 }
 
 /**

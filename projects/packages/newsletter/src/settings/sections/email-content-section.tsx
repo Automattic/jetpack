@@ -7,12 +7,12 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import { getNewsletterScriptData } from '../script-data';
 import type { NewsletterSettings } from '../types';
 
 interface EmailContentSectionProps {
 	data: NewsletterSettings;
 	onChange: ( updates: Partial< NewsletterSettings > ) => void;
-	isSitePublic: boolean;
 	isNewsletterEnabled: boolean;
 }
 
@@ -27,9 +27,9 @@ interface EmailContentSectionProps {
 export function EmailContentSection( {
 	data,
 	onChange,
-	isSitePublic,
 	isNewsletterEnabled,
 }: EmailContentSectionProps ): JSX.Element {
+	const isSitePublic = getNewsletterScriptData()?.isSitePublic ?? true;
 	const fields: Field< NewsletterSettings >[] = [
 		{
 			id: 'wpcom_featured_image_in_email',
