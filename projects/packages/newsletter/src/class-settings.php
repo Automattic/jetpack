@@ -71,7 +71,7 @@ class Settings {
 		// Add the Reading settings notice regardless of the new UI feature flag,
 		// as long as subscriptions are active.
 		if ( $this->is_subscriptions_active() ) {
-			add_action( 'admin_init', array( $this, 'add_reading_page_notice' ) );
+			add_action( 'admin_footer-options-reading.php', array( $this, 'render_reading_page_notice' ) );
 		}
 
 		if ( ! $this->expose_to_users() ) {
@@ -296,41 +296,47 @@ class Settings {
 	}
 
 	/**
-	 * Register a notice on the Reading settings page to clarify that the RSS
-	 * excerpt setting does not control newsletter emails.
+	 * Render a clarifying notice on the Reading settings page, placed directly
+	 * below the "For each post in a feed, include" radio buttons.
 	 *
-	 * @since $$next-version$$
-	 */
-	public function add_reading_page_notice() {
-		add_settings_field(
-			'jetpack_newsletter_reading_notice',
-			'',
-			array( $this, 'render_reading_page_notice' ),
-			'reading',
-			'default'
-		);
-	}
-
-	/**
-	 * Render the clarifying notice on the Reading settings page.
+	 * Uses an inline script to insert the notice after the correct table row,
+	 * since the Settings API only appends fields to the end of a section.
 	 *
 	 * @since $$next-version$$
 	 */
 	public function render_reading_page_notice() {
-		// Use the filtered URL so it points to the correct settings page
-		// regardless of whether the new newsletter UI is enabled.
 		$newsletter_url = apply_filters(
 			'jetpack_module_configuration_url_subscriptions',
 			admin_url( 'admin.php?page=jetpack#/newsletter' )
 		);
 
-		printf(
-			'<p class="description">%s</p>',
-			sprintf(
-				/* translators: %s is a link to the Newsletter settings page. */
-				esc_html__( 'This setting controls your RSS feed only. To control what\'s included in newsletter emails sent to subscribers, visit your %s.', 'jetpack-newsletter' ),
-				'<a href="' . esc_url( $newsletter_url ) . '">' . esc_html__( 'Newsletter settings', 'jetpack-newsletter' ) . '</a>'
-			)
+		$notice_text = sprintf(
+			/* translators: %s is a link to the Newsletter settings page. */
+			esc_html__( 'This setting controls your RSS feed only. To control what\'s included in newsletter emails sent to subscribers, visit your %s.', 'jetpack-newsletter' ),
+			'<a href="' . esc_url( $newsletter_url ) . '">' . esc_html__( 'Newsletter settings', 'jetpack-newsletter' ) . '</a>'
 		);
+
+		?>
+		<script>
+		( function() {
+			var feedRow = document.querySelector( 'input[name="rss_use_excerpt"]' );
+			if ( ! feedRow ) {
+				return;
+			}
+			var row = feedRow.closest( 'tr' );
+			if ( ! row ) {
+				return;
+			}
+			var descriptionP = row.querySelector( 'p.description' );
+			if ( ! descriptionP ) {
+				return;
+			}
+			var notice = document.createElement( 'p' );
+			notice.className = 'description';
+			notice.innerHTML = <?php echo wp_json_encode( $notice_text ); ?>;
+			descriptionP.parentNode.insertBefore( notice, descriptionP.nextSibling );
+		} )();
+		</script>
+		<?php
 	}
 }
