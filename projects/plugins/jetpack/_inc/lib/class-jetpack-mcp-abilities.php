@@ -151,8 +151,8 @@ class Jetpack_MCP_Abilities {
 		}
 
 		$response = Automattic\Jetpack\Connection\Client::wpcom_json_api_request_as_blog(
-			sprintf( '/sites/%d/mcp-abilities?force=wpcom', $site_id ),
-			'1.1',
+			sprintf( '/sites/%d/mcp-abilities?force=wpcom&_envelope=1', $site_id ),
+			'2',
 			array( 'method' => 'GET' ),
 			null,
 			'wpcom'
@@ -170,7 +170,16 @@ class Jetpack_MCP_Abilities {
 		$body = wp_remote_retrieve_body( $response );
 		$data = $body ? json_decode( $body, true ) : null;
 
-		if ( ! is_array( $data ) || empty( $data['abilities'] ) || ! is_array( $data['abilities'] ) ) {
+		if ( ! is_array( $data ) ) {
+			return array();
+		}
+
+		// Handle _envelope=1 response format: { body, status, headers }.
+		if ( isset( $data['body'] ) && is_array( $data['body'] ) ) {
+			$data = $data['body'];
+		}
+
+		if ( empty( $data['abilities'] ) || ! is_array( $data['abilities'] ) ) {
 			return array();
 		}
 
