@@ -1552,6 +1552,23 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 		$this->assertArrayHasKey( 'edit-with-ai', $actions );
 	}
 
+	/**
+	 * Test row action is not added when user cannot edit the attachment.
+	 */
+	public function test_row_action_not_added_without_edit_permission() {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'subscriber' ) ) );
+
+		$post             = $this->create_attachment_post( 'image/jpeg' );
+		$original_actions = array(
+			'trash' => '<a>Trash</a>',
+		);
+
+		$actions = ImageStudio\add_image_studio_row_action( $original_actions, $post );
+
+		$this->assertSame( $original_actions, $actions );
+		$this->assertArrayNotHasKey( 'edit-with-ai', $actions );
+	}
+
 	// -------------------------------------------------------------------------
 	// Constants tests
 	// -------------------------------------------------------------------------

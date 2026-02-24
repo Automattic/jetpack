@@ -363,18 +363,8 @@ function get_ai_image_extensions() {
 /**
  * Disable Jetpack AI image extensions when Image Studio is available.
  *
- * This hook fires on `jetpack_register_gutenberg_extensions` which may run multiple
- * times: once during initial module load (before get_current_screen() is available)
- * and again inside Jetpack_Gutenberg::get_availability() during enqueue (where the
- * screen IS available).
- *
- * Only disables AI extensions when we can confirm Image Studio will actually load
- * on the current screen (i.e. screen is available and should_load_on_current_screen()
- * returns true). If the screen is not available or Image Studio won't load on this
- * screen, AI extensions remain enabled.
- *
- * This ensures AI extensions are available on screens where Image Studio won't load
- * (e.g. dashboard, other non-editor screens, or early initialization).
+ * When Image Studio is available (via Jetpack_Gutenberg::is_available), AI image
+ * extensions are disabled globally to avoid duplicate functionality.
  *
  * @return void
  */
