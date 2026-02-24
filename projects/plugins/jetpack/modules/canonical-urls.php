@@ -86,17 +86,6 @@ function jetpack_canonical_urls_output_tag() {
 
 	$url = Jetpack_Canonical_Urls_Resolver::get_canonical_url();
 
-	/**
-	 * Filter the canonical URL before output.
-	 *
-	 * @module canonical-urls
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @param string $url The canonical URL for the current page.
-	 */
-	$url = apply_filters( 'jetpack_canonical_url', $url );
-
 	if ( ! empty( $url ) ) {
 		echo '<link rel="canonical" href="' . esc_url( $url ) . '" />' . "\n";
 	}

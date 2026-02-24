@@ -75,7 +75,16 @@ class Jetpack_Canonical_Urls_Resolver {
 			$url = self::apply_pagination( $url );
 		}
 
-		return $url;
+		/**
+		 * Filter the canonical URL before output.
+		 *
+		 * @module canonical-urls
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param string $url The canonical URL for the current page.
+		 */
+		return apply_filters( 'jetpack_canonical_url', $url );
 	}
 
 	/**
