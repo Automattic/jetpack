@@ -16,6 +16,10 @@ export const DEFAULT_STATE = {
 		enabled: false,
 		categories: [],
 	},
+	postEmailSentState: {
+		email_sent_at: null,
+		stats_on_send: null,
+	},
 };
 
 export default function reducer( state = DEFAULT_STATE, action ) {
@@ -38,11 +42,6 @@ export default function reducer( state = DEFAULT_STATE, action ) {
 				...state,
 				subscriberCounts: action.subscriberCounts,
 			};
-		case 'SET_TOTAL_EMAILS_SENT_COUNT':
-			return {
-				...state,
-				totalEmailsSentCount: action.totalEmailsSentCount,
-			};
 		case 'SET_NEWSLETTER_CATEGORIES':
 			return {
 				...state,
@@ -52,6 +51,11 @@ export default function reducer( state = DEFAULT_STATE, action ) {
 			return {
 				...state,
 				newsletterCategoriesSubscriptionsCount: action.newsletterCategoriesSubscriptionsCount,
+			};
+		case 'SET_POST_EMAIL_SENT_STATE':
+			return {
+				...state,
+				postEmailSentState: action.payload,
 			};
 	}
 	return state;

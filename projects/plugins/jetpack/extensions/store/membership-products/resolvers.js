@@ -1,4 +1,3 @@
-import { isSimpleSite } from '@automattic/jetpack-script-data';
 import apiFetch from '@wordpress/api-fetch';
 import { store as editorStore } from '@wordpress/editor';
 import { addQueryArgs, getQueryArg } from '@wordpress/url';
@@ -16,19 +15,19 @@ import {
 	setSubscriberCounts,
 	setNewsletterCategories,
 	setNewsletterCategoriesSubscriptionsCount,
-	setTotalEmailsSentCount,
+	setPostEmailSentState,
 } from './actions';
 import { API_STATE_CONNECTED, API_STATE_NOTCONNECTED } from './constants';
 import { onError } from './utils';
 
 const EXECUTION_KEY = 'membership-products-resolver-getProducts';
 const SUBSCRIBER_COUNT_EXECUTION_KEY = 'membership-products-resolver-getSubscriberCounts';
-const TOTAL_EMAILS_SENT_COUNT_EXECUTION_KEY =
-	'membership-products-resolver-getTotalEmailsSentCount';
 const GET_NEWSLETTER_CATEGORIES_EXECUTION_KEY =
 	'membership-products-resolver-getNewsletterCategories';
 const GET_NEWSLETTER_CATEGORIES_SUBSCRIPTIONS_COUNT_EXECUTION_KEY =
 	'membership-products-resolver-getNewsletterCategoriesSubscriptionsCount';
+const GET_POST_EMAIL_SENT_STATE_EXECUTION_KEY =
+	'membership-products-resolver-getPostEmailSentState';
 let hydratedFromAPI = false;
 
 const fetchMemberships = async () => {
@@ -101,36 +100,6 @@ const fetchSubscriberCounts = async () => {
 	return response;
 };
 
-const fetchTotalEmailsSentCount = async ( blogId, postId ) => {
-	if ( ! blogId || ! postId ) {
-		return;
-	}
-
-	const baseUrl = isSimpleSite() ? '/rest/v1.1/sites' : '/jetpack/v4/stats-app/sites';
-	const response = await apiFetch( {
-		path: baseUrl + `/${ blogId }/stats/opens/emails/${ postId }/rate`,
-	} );
-
-	if ( ! response || typeof response !== 'object' ) {
-		throw new Error( 'Unexpected API response' );
-	}
-
-	/**
-	 * WP_Error returns a list of errors with custom names:
-	 * `errors: { foo: [ 'message' ], bar: [ 'message' ] }`
-	 * Since we don't know their names, to get the message, we transform the object
-	 * into an array, and just pick the first message of the first error.
-	 *
-	 * @see https://developer.wordpress.org/reference/classes/wp_error/
-	 */
-	const wpError = response?.errors && Object.values( response.errors )?.[ 0 ]?.[ 0 ];
-	if ( wpError ) {
-		throw new Error( wpError );
-	}
-
-	return response;
-};
-
 const fetchNewsletterCategories = async () => {
 	const response = await apiFetch( {
 		path: '/wpcom/v2/newsletter-categories',
@@ -174,6 +143,28 @@ export const fetchNewsletterCategoriesSubscriptionsCount = async termIds => {
 	 *
 	 * @see https://developer.wordpress.org/reference/classes/wp_error/
 	 */
+	const wpError = response?.errors && Object.values( response.errors )?.[ 0 ]?.[ 0 ];
+	if ( wpError ) {
+		throw new Error( wpError );
+	}
+
+	return response;
+};
+
+const fetchPostEmailSentState = async postId => {
+	if ( ! postId ) {
+		return { email_sent_at: null, stats_on_send: null };
+	}
+
+	const response = await apiFetch( {
+		path: `/wpcom/v2/newsletter-email-sent-status?post_id=${ postId }`,
+		method: 'GET',
+	} );
+
+	if ( ! response || typeof response !== 'object' ) {
+		throw new Error( 'Unexpected API response' );
+	}
+
 	const wpError = response?.errors && Object.values( response.errors )?.[ 0 ]?.[ 0 ];
 	if ( wpError ) {
 		throw new Error( wpError );
@@ -288,23 +279,6 @@ export const getSubscriberCounts =
 		}
 	};
 
-export const getTotalEmailsSentCount =
-	( blogId, postId ) =>
-	async ( { dispatch, registry } ) => {
-		await executionLock.blockExecution( TOTAL_EMAILS_SENT_COUNT_EXECUTION_KEY );
-
-		const lock = executionLock.acquire( TOTAL_EMAILS_SENT_COUNT_EXECUTION_KEY );
-		try {
-			const response = await fetchTotalEmailsSentCount( blogId, postId );
-			dispatch( setTotalEmailsSentCount( response?.total_sends ) );
-		} catch ( error ) {
-			dispatch( setApiState( API_STATE_NOTCONNECTED ) );
-			onError( error.message, registry );
-		} finally {
-			executionLock.release( lock );
-		}
-	};
-
 export const getNewsletterCategories =
 	() =>
 	async ( { dispatch, registry } ) => {
@@ -342,6 +316,33 @@ export const getNewsletterCategoriesSubscriptionsCount =
 		try {
 			const response = await fetchNewsletterCategoriesSubscriptionsCount( termIds );
 			dispatch( setNewsletterCategoriesSubscriptionsCount( response.subscriptions_count ) );
+		} catch ( error ) {
+			dispatch( setApiState( API_STATE_NOTCONNECTED ) );
+			onError( error.message, registry );
+		} finally {
+			executionLock.release( lock );
+		}
+	};
+
+export const getPostEmailSentState =
+	postId =>
+	async ( { dispatch, registry } ) => {
+		if ( ! postId ) {
+			dispatch( setPostEmailSentState( { email_sent_at: null, stats_on_send: null } ) );
+			return;
+		}
+
+		await executionLock.blockExecution( GET_POST_EMAIL_SENT_STATE_EXECUTION_KEY );
+
+		const lock = executionLock.acquire( GET_POST_EMAIL_SENT_STATE_EXECUTION_KEY );
+		try {
+			const response = await fetchPostEmailSentState( postId );
+			dispatch(
+				setPostEmailSentState( {
+					email_sent_at: response.email_sent_at ?? null,
+					stats_on_send: response.stats_on_send ?? null,
+				} )
+			);
 		} catch ( error ) {
 			dispatch( setApiState( API_STATE_NOTCONNECTED ) );
 			onError( error.message, registry );

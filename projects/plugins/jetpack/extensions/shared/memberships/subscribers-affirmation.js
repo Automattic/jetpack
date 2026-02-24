@@ -3,7 +3,7 @@ import { isComingSoon } from '@automattic/jetpack-shared-extension-utils';
 import { Animate } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
-import { createInterpolateElement } from '@wordpress/element';
+import { createInterpolateElement, useRef, useEffect } from '@wordpress/element';
 import { sprintf, __, _n } from '@wordpress/i18n';
 import paywallBlockMetadata from '../../blocks/paywall/block.json';
 import {
@@ -164,36 +164,193 @@ export const getCopyForSubscribers = ( {
 	);
 };
 
+const SENDING_IN_PROGRESS_WINDOW_MS = 15 * 60 * 1000;
+
+/**
+ * Format sent date from Unix timestamp or MySQL timestamp string.
+ *
+ * @param {number|null} emailSentAt    - Unix timestamp from email_notification meta
+ * @param {string|null} statsTimestamp - MySQL timestamp from stats_on_send
+ * @return {string} Formatted date string
+ */
+function formatSentDate( emailSentAt, statsTimestamp ) {
+	let date = null;
+	if ( emailSentAt ) {
+		date = new Date( emailSentAt * 1000 );
+	} else if ( statsTimestamp ) {
+		date = new Date( statsTimestamp );
+	}
+	if ( ! date || isNaN( date.getTime() ) ) {
+		return '';
+	}
+	return date.toLocaleDateString( undefined, {
+		year: 'numeric',
+		month: 'long',
+		day: 'numeric',
+	} );
+}
+
+/**
+ * Get category names from stats post_categories (term IDs) using newsletter categories list.
+ *
+ * @param {Array} postCategories       - Term IDs from stats_on_send
+ * @param {Array} newsletterCategories - Site newsletter categories with id, name
+ * @return {string} Formatted category list (e.g. "Category A and Category B" or "All content")
+ */
+function getCategoryNamesFromStats( postCategories, newsletterCategories ) {
+	if ( ! postCategories?.length ) {
+		return '';
+	}
+	const categoryNames = postCategories
+		.map( termId => {
+			const cat = newsletterCategories.find( c => c.id === termId );
+			return cat ? cat.name : null;
+		} )
+		.filter( Boolean );
+	const hasUnknown = postCategories.some(
+		termId => ! newsletterCategories.some( c => c.id === termId )
+	);
+	if ( hasUnknown ) {
+		categoryNames.push( __( 'All content', 'jetpack' ) );
+	}
+	const formatted = categoryNames.map( n => `<strong>${ n }</strong>` );
+	if ( formatted.length === 1 ) return formatted[ 0 ];
+	if ( formatted.length === 2 ) {
+		return sprintf(
+			/* translators: %1$s: first category, %2$s: second category */
+			__( '%1$s and %2$s', 'jetpack' ),
+			formatted[ 0 ],
+			formatted[ 1 ]
+		);
+	}
+	const allButLast = formatted.slice( 0, -1 ).join( `${ __( ',', 'jetpack' ) } ` );
+	return sprintf(
+		/* translators: %1$s: comma-separated categories, %2$s: last category */
+		__( '%1$s, and %2$s', 'jetpack' ),
+		allButLast,
+		formatted[ formatted.length - 1 ]
+	);
+}
+
+/**
+ * Get access level label for "was emailed to X" copy from stats access_level string.
+ *
+ * @param {string} accessLevel - e.g. 'everybody', 'subscribers', 'paid_subscribers'
+ * @return {string} Access level label for display (e.g. "all subscribers", "paid subscribers").
+ */
+function getAccessLevelLabelFromStats( accessLevel ) {
+	if ( ! accessLevel ) return __( 'all subscribers', 'jetpack' );
+	const key = accessLevel.startsWith( 'paid_subscribers' ) ? 'paid_subscribers' : accessLevel;
+	switch ( key ) {
+		case 'everybody':
+			return __( 'all subscribers', 'jetpack' );
+		case 'subscribers':
+			return __( 'all subscribers', 'jetpack' );
+		case 'paid_subscribers':
+			return __( 'paid subscribers', 'jetpack' );
+		default:
+			return __( 'all subscribers', 'jetpack' );
+	}
+}
+
+/**
+ * Build "was sent" or "is being sent" copy for access + categories.
+ *
+ * @param {object}  opts
+ * @param {string}  opts.accessLabel   - "all subscribers" or "paid subscribers"
+ * @param {string}  opts.categoryNames - Formatted category list (or empty)
+ * @param {boolean} opts.pastTense     - "was emailed" vs "is being emailed"
+ * @param {string}  opts.dateStr       - For past tense only
+ * @return {string} Formatted sentence for "was sent" or "is being sent" copy.
+ */
+function getSentCopyLine( { accessLabel, categoryNames, pastTense, dateStr } ) {
+	if ( categoryNames ) {
+		if ( pastTense ) {
+			return sprintf(
+				/* translators: %1$s: access (e.g. "all subscribers"), %2$s: category list, %3$s: date */
+				__(
+					'This post was emailed to %1$s subscribers of %2$s on %3$s. View delivery details on your email stats page.',
+					'jetpack'
+				),
+				accessLabel,
+				categoryNames,
+				dateStr
+			);
+		}
+		return sprintf(
+			/* translators: %1$s: access, %2$s: category list */
+			__(
+				'This post is being emailed to %1$s subscribers of %2$s. Delivery details can be seen on your email stats page shortly.',
+				'jetpack'
+			),
+			accessLabel,
+			categoryNames
+		);
+	}
+	if ( pastTense ) {
+		return sprintf(
+			/* translators: %1$s: access, %2$s: date */
+			__(
+				'This post was emailed to %1$s subscribers on %2$s. View delivery details on your email stats page.',
+				'jetpack'
+			),
+			accessLabel,
+			dateStr
+		);
+	}
+	return sprintf(
+		/* translators: %s: access level */
+		__(
+			'This post is being emailed to %s subscribers. Delivery details can be seen on your email stats page shortly.',
+			'jetpack'
+		),
+		accessLabel
+	);
+}
+
 /*
  * Determines copy to show in pre/post-publish panels to confirm number and type of subscribers receiving the post as email.
  */
 function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
+	const wasPublishedOnLoad = useRef( undefined );
+	const transitionedToPublishInSession = useRef( false );
+
 	const postHasPaywallBlock = useSelect( select =>
 		select( 'core/block-editor' )
 			.getBlocks()
 			.some( block => block.name === paywallBlockMetadata.name )
 	);
 
-	const { isScheduledPost, isPostOlderThanADay, postCategories, postId, postMeta } = useSelect(
+	const { isScheduledPost, postCategories, postId, postMeta, publishDate, status } = useSelect(
 		select => {
 			const { isCurrentPostScheduled, getEditedPostAttribute, getCurrentPost } =
 				select( editorStore );
-			const status = getCurrentPost()?.status;
-			const publishTime = new Date( getCurrentPost()?.date );
-			const time24HoursAgo = new Date( Date.now() - 24 * 60 * 60 * 1000 );
+			const post = getCurrentPost();
+			const statusVal = post?.status;
+			const dateVal = post?.date;
+			const publishTime = dateVal ? new Date( dateVal ) : null;
 
 			return {
 				isScheduledPost: isCurrentPostScheduled(),
-				isPostOlderThanADay: status === 'publish' && publishTime < time24HoursAgo,
 				postCategories: getEditedPostAttribute( 'categories' ),
-				postId: getCurrentPost()?.id,
+				postId: post?.id,
 				postMeta: getEditedPostAttribute( 'meta' ),
+				publishDate: publishTime,
+				status: statusVal,
 			};
 		}
 	);
 
+	useEffect( () => {
+		if ( status === 'publish' ) {
+			if ( wasPublishedOnLoad.current === undefined ) {
+				wasPublishedOnLoad.current = true;
+			}
+			transitionedToPublishInSession.current = true;
+		}
+	}, [ status ] );
+
 	const isSendEmailEnabled = () => {
-		// Meta value is negated, "don't send", but toggle is truthy when enabled "send"
 		return ! postMeta?.[ META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS ];
 	};
 
@@ -205,35 +362,47 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 		newsletterCategoriesEnabled,
 		newsletterCategorySubscriberCount,
 		paidSubscribersCount,
-		totalEmailsSentCount, // To display stats from Jetpack. It is necessary to provide the accurate count for historical posts.
-	} = useSelect( select => {
-		const {
-			getNewsletterCategories,
-			getNewsletterCategoriesEnabled,
-			getNewsletterCategoriesSubscriptionsCount,
-			getSubscriberCounts,
-			getTotalEmailsSentCount,
-			hasFinishedResolution,
-		} = select( membershipProductsStore );
+		postEmailSentState,
+	} = useSelect(
+		select => {
+			const {
+				getNewsletterCategories,
+				getNewsletterCategoriesEnabled,
+				getNewsletterCategoriesSubscriptionsCount,
+				getPostEmailSentState,
+				getSubscriberCounts,
+				hasFinishedResolution,
+			} = select( membershipProductsStore );
 
-		// Free and paid subscriber counts
-		const { emailSubscribers, paidSubscribers } = getSubscriberCounts();
+			const { emailSubscribers, paidSubscribers } = getSubscriberCounts();
 
-		return {
-			hasFinishedLoading: [
-				// getNewsletterCategoriesEnabled state is set by getNewsletterCategories so no need to check for it here.
-				hasFinishedResolution( 'getSubscriberCounts' ),
-				hasFinishedResolution( 'getNewsletterCategories' ),
-				hasFinishedResolution( 'getNewsletterCategoriesSubscriptionsCount' ),
-			].every( Boolean ),
-			emailSubscribersCount: emailSubscribers,
-			newsletterCategories: getNewsletterCategories(),
-			newsletterCategoriesEnabled: getNewsletterCategoriesEnabled(),
-			newsletterCategorySubscriberCount: getNewsletterCategoriesSubscriptionsCount(),
-			paidSubscribersCount: paidSubscribers,
-			totalEmailsSentCount: isPostOlderThanADay ? getTotalEmailsSentCount( blogId, postId ) : null,
-		};
-	} );
+			// Trigger fetch when post is published so we have email_sent_at / stats_on_send
+			if ( status === 'publish' && postId ) {
+				getPostEmailSentState( postId );
+			}
+
+			const postEmailResolved =
+				status !== 'publish' ||
+				! postId ||
+				hasFinishedResolution( 'getPostEmailSentState', [ postId ] );
+
+			return {
+				hasFinishedLoading: [
+					hasFinishedResolution( 'getSubscriberCounts' ),
+					hasFinishedResolution( 'getNewsletterCategories' ),
+					hasFinishedResolution( 'getNewsletterCategoriesSubscriptionsCount' ),
+					postEmailResolved,
+				].every( Boolean ),
+				emailSubscribersCount: emailSubscribers,
+				newsletterCategories: getNewsletterCategories(),
+				newsletterCategoriesEnabled: getNewsletterCategoriesEnabled(),
+				newsletterCategorySubscriberCount: getNewsletterCategoriesSubscriptionsCount(),
+				paidSubscribersCount: paidSubscribers,
+				postEmailSentState: status === 'publish' && postId ? getPostEmailSentState( postId ) : null,
+			};
+		},
+		[ status, postId ]
+	);
 
 	if ( ! hasFinishedLoading ) {
 		return (
@@ -248,38 +417,154 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 	}
 
 	const isPaidPost = accessLevel === accessOptions.paid_subscribers.key;
-
-	// Show all copy in future tense
 	const futureTense = prePublish || isScheduledPost;
+
+	const emailSentAt = postEmailSentState?.email_sent_at ?? null;
+	const statsOnSend = postEmailSentState?.stats_on_send ?? null;
+
+	const isAlreadySent = emailSentAt != null;
+	const isSendingInProgress =
+		status === 'publish' &&
+		isSendEmailEnabled() &&
+		emailSentAt == null &&
+		( transitionedToPublishInSession.current ||
+			( wasPublishedOnLoad.current &&
+				publishDate &&
+				publishDate.getTime() >= Date.now() - SENDING_IN_PROGRESS_WINDOW_MS ) );
+	const isPublishedNotSent =
+		status === 'publish' && isSendEmailEnabled() && emailSentAt == null && ! isSendingInProgress;
 
 	const reachForAccessLevel = getReachForAccessLevelKey( {
 		accessLevel,
-		subscribers: isPostOlderThanADay ? totalEmailsSentCount : emailSubscribersCount,
+		subscribers: emailSubscribersCount,
 		paidSubscribers: paidSubscribersCount,
 		postHasPaywallBlock,
 	} );
 
 	let text;
+	let append = '';
 
 	if ( ! isSendEmailEnabled() ) {
-		text = __( 'Not sent via email.', 'jetpack' );
+		// "Post only" but already emailed: show "was sent" copy, not "Not sent via email"
+		if ( isAlreadySent && statsOnSend ) {
+			const dateStr = formatSentDate( emailSentAt, statsOnSend.timestamp );
+			const accessLabel = getAccessLevelLabelFromStats( statsOnSend.access_level );
+			const categoryNames = getCategoryNamesFromStats(
+				statsOnSend.post_categories,
+				newsletterCategories
+			);
+			text = getSentCopyLine( {
+				accessLabel,
+				categoryNames,
+				pastTense: true,
+				dateStr,
+			} );
+		} else if ( isAlreadySent ) {
+			text = sprintf(
+				/* translators: %s: formatted date */
+				__(
+					'This post was emailed on %s. View delivery details on your email stats page.',
+					'jetpack'
+				),
+				formatSentDate( emailSentAt, null )
+			);
+		} else {
+			text = __( 'Not sent via email.', 'jetpack' );
+		}
 	} else if ( isComingSoon() ) {
 		text = __(
 			'Your site is in Coming Soon mode. Emails are sent only when your site is public.',
 			'jetpack'
 		);
+	} else if ( isAlreadySent ) {
+		const dateStr = formatSentDate( emailSentAt, statsOnSend?.timestamp ?? null );
+		if ( statsOnSend ) {
+			const accessLabel = getAccessLevelLabelFromStats( statsOnSend.access_level );
+			const categoryNames = getCategoryNamesFromStats(
+				statsOnSend.post_categories,
+				newsletterCategories
+			);
+			text = getSentCopyLine( {
+				accessLabel,
+				categoryNames,
+				pastTense: true,
+				dateStr,
+			} );
+		} else {
+			text = sprintf(
+				/* translators: %s: formatted date */
+				__(
+					'This post was emailed on %s. View delivery details on your email stats page.',
+					'jetpack'
+				),
+				dateStr
+			);
+		}
+		if ( transitionedToPublishInSession.current ) {
+			append = __( 'Updating or republishing does not send a new email.', 'jetpack' );
+		}
+		const statsAccess = statsOnSend?.access_level;
+		const statsCats = statsOnSend?.post_categories ?? [];
+		const accessMatches =
+			! statsAccess || statsAccess === accessLevel || statsAccess.startsWith( accessLevel );
+		const categoriesMatch =
+			! statsOnSend?.has_newsletter_categories ||
+			( Array.isArray( postCategories ) &&
+				statsCats.length === postCategories.length &&
+				statsCats.every( ( id, i ) => postCategories[ i ] === id ) );
+		if ( ! accessMatches || ! categoriesMatch ) {
+			append = append
+				? append + ' ' + __( 'Changing access settings does not resend the email.', 'jetpack' )
+				: __( 'Changing access settings does not resend the email.', 'jetpack' );
+		}
+	} else if ( isSendingInProgress ) {
+		const accessLabel = getAccessLevelLabelFromStats( accessLevel );
+		const categoryNames =
+			newsletterCategoriesEnabled && newsletterCategories?.length && postCategories?.length
+				? getFormattedCategories( postCategories, newsletterCategories )
+				: '';
+		text = getSentCopyLine( {
+			accessLabel,
+			categoryNames,
+			pastTense: false,
+			dateStr: '',
+		} );
+	} else if ( isPublishedNotSent ) {
+		text = __(
+			"This post was published without sending an email. To send, move the post to draft, enable 'Post and email,' and republish.",
+			'jetpack'
+		);
+	} else if ( futureTense ) {
+		// Pre-send: "will be sent" with subscriber counts
+		if ( newsletterCategoriesEnabled && newsletterCategories.length > 0 && ! isPaidPost ) {
+			text = getCopyForCategorySubscribers( {
+				futureTense: true,
+				isPaidPost,
+				newsletterCategories,
+				postCategories,
+				reachCount: newsletterCategorySubscriberCount,
+			} );
+		} else {
+			text = getCopyForSubscribers( {
+				futureTense: true,
+				isPaidPost,
+				postHasPaywallBlock,
+				reachCount: reachForAccessLevel,
+			} );
+		}
 	} else if ( newsletterCategoriesEnabled && newsletterCategories.length > 0 && ! isPaidPost ) {
-		// Get newsletter category copy & count separately, unless post is paid
+		// Published, not sent, not sending in progress (fallback) — category subscribers
 		text = getCopyForCategorySubscribers( {
-			futureTense,
+			futureTense: false,
 			isPaidPost,
 			newsletterCategories,
 			postCategories,
-			reachCount: isPostOlderThanADay ? totalEmailsSentCount : newsletterCategorySubscriberCount,
+			reachCount: newsletterCategorySubscriberCount,
 		} );
 	} else {
+		// Published, not sent, not sending in progress (fallback) — all/paid subscribers
 		text = getCopyForSubscribers( {
-			futureTense,
+			futureTense: false,
 			isPaidPost,
 			postHasPaywallBlock,
 			reachCount: reachForAccessLevel,
@@ -292,6 +577,7 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 				strong: <strong />,
 				link: <a href={ getJetpackEmailStatsLink( blogId, postId ) } />,
 			} ) }
+			{ append ? <> { createInterpolateElement( append, { strong: <strong /> } ) }</> : null }
 		</p>
 	);
 }

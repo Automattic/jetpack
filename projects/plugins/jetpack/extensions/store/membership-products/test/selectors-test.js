@@ -4,7 +4,6 @@ import {
 	getNewsletterTierProducts,
 	getNewsletterCategoriesSubscriptionsCount,
 	getProducts,
-	getTotalEmailsSentCount,
 } from '../selectors';
 
 describe( 'Membership Products Selectors', () => {
@@ -56,13 +55,5 @@ describe( 'Membership Products Selectors', () => {
 		expect( getNewsletterCategoriesSubscriptionsCount( state ) ).toStrictEqual(
 			state.newsletterCategoriesSubscriptionsCount
 		);
-	} );
-
-	test( 'getTotalEmailsSentCount works as expected', () => {
-		const state = {
-			totalEmailsSentCount: 100,
-		};
-
-		expect( getTotalEmailsSentCount( state ) ).toStrictEqual( state.totalEmailsSentCount );
 	} );
 } );
