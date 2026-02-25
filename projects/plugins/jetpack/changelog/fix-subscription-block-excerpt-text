@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Subscriptions: Stop appending the “View post … subscribe” message to post excerpts in subscription emails.
