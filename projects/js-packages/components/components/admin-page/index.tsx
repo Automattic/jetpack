@@ -34,7 +34,7 @@ const AdminPage: FC< AdminPageProps > = ( {
 	optionalMenuItems,
 	header,
 	title,
-	tagline,
+	subTitle,
 	logo,
 	actions,
 	tabs,
@@ -72,7 +72,7 @@ const AdminPage: FC< AdminPageProps > = ( {
 				<AdminHeader
 					logo={ logo }
 					title={ title }
-					tagline={ tagline }
+					subTitle={ subTitle }
 					actions={ actions }
 					tabs={ tabs }
 				/>
