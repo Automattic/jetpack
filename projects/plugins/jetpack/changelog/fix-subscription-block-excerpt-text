@@ -1,4 +1,4 @@
 Significance: patch
 Type: bugfix
 
-Subscriptions: Remove jetpack_filter_excerpt_for_newsletter method from the excerpt filter.
+Subscriptions: Stop appending the “View post … subscribe” message to post excerpts in subscription emails.
