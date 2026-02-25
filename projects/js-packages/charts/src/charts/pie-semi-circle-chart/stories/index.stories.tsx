@@ -275,6 +275,9 @@ export const ErrorStates: Story = {
 			</div>
 		</div>
 	),
+	args: {
+		containerHeight: 600,
+	},
 	parameters: {
 		docs: {
 			description: {
