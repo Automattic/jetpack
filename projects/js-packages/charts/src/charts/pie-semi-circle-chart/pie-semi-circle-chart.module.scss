@@ -2,10 +2,23 @@
 	display: flex;
 	flex-direction: column;
 	text-align: center;
-	gap: 20px;
+	overflow: hidden;
 
-	&--legend-top {
-		flex-direction: column-reverse;
+	// Fill parent when no explicit width/height provided
+	&--responsive {
+		height: 100%;
+		width: 100%;
+	}
+
+	// Flex wrapper that fills remaining Stack space and measures the SVG area
+	&__svg-wrapper {
+		flex: 1;
+		min-height: 0; // Required for flex shrinking
+		min-width: 0; // Required for flex shrinking
+		width: 100%;
+		display: flex;
+		align-items: center;
+		justify-content: center;
 	}
 
 	.label {

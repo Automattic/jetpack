@@ -51,13 +51,47 @@ type Story = StoryObj< StoryArgs >;
 export const Default: Story = {
 	args: {
 		...sharedThemeArgs,
-		containerWidth: '600px',
-		resize: 'none',
 		thickness: 0.4,
 		data,
 		label: 'OS',
 		note: 'Windows +10%',
 		clockwise: true,
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Responsive semi-circle pie chart. Resize the dashed container to see the chart adapt while maintaining a 2:1 width-to-height ratio.',
+			},
+		},
+	},
+};
+
+export const FixedDimensions: Story = {
+	render: args => (
+		<PieSemiCircleChartUnresponsive
+			width={ args.width ?? 400 }
+			data={ args.data }
+			label={ args.label }
+			note={ args.note }
+			thickness={ args.thickness }
+			clockwise={ args.clockwise }
+		/>
+	),
+	args: {
+		...Default.args,
+		resize: 'none',
+		containerWidth: '600px',
+		containerHeight: '350px',
+		width: 400,
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Semi-circle pie chart with fixed pixel dimensions. Use `PieSemiCircleChartUnresponsive` when you need precise control over the chart size.',
+			},
+		},
 	},
 };
 
@@ -102,7 +136,6 @@ export const WithCompositionLegend: Story = {
 			<div>
 				<h3>Traditional Props-based Legend</h3>
 				<PieSemiCircleChart
-					width={ 400 }
 					data={ args.data }
 					label="Performance Metrics"
 					note="Q4 2023 Results"
@@ -116,12 +149,7 @@ export const WithCompositionLegend: Story = {
 			</div>
 			<div>
 				<h3>Composition API with Legend Component</h3>
-				<PieSemiCircleChart
-					width={ 400 }
-					data={ args.data }
-					label="Performance Metrics"
-					note="Q4 2023 Results"
-				>
+				<PieSemiCircleChart data={ args.data } label="Performance Metrics" note="Q4 2023 Results">
 					<PieSemiCircleChart.Legend
 						position={ args.legendPosition || 'bottom' }
 						orientation={ args.legendOrientation || 'horizontal' }
@@ -136,6 +164,7 @@ export const WithCompositionLegend: Story = {
 	args: {
 		data,
 		containerWidth: '900px',
+		containerHeight: '400px',
 	},
 	argTypes: {
 		legendInteractive: {
@@ -192,8 +221,7 @@ export const InteractiveLegend: Story = {
 export const CustomLegendPositioning: Story = {
 	args: {
 		containerWidth: '600px',
-		containerHeight: '350px',
-		resize: 'none',
+		containerHeight: '400px',
 		thickness: 0.4,
 		data: [
 			{
@@ -234,15 +262,17 @@ export const CustomLegendPositioning: Story = {
 	},
 };
 
-const responsiveArgs = { ...Default.args, resize: 'both' as const };
-delete responsiveArgs.width;
 export const Responsiveness: Story = {
-	args: responsiveArgs,
+	args: {
+		...Default.args,
+		containerWidth: '800px',
+		containerHeight: '500px',
+	},
 	parameters: {
 		docs: {
 			description: {
 				story:
-					'Semi-circle pie chart with responsive behavior. Uses width prop for unified width/height handling.',
+					'Demonstrates responsive resizing. The chart automatically maintains a 2:1 width-to-height ratio as the container is resized. Drag the bottom-right corner of the dashed container to resize.',
 			},
 		},
 	},
