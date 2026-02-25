@@ -328,7 +328,6 @@ export const getPostEmailSentState =
 	postId =>
 	async ( { dispatch, registry } ) => {
 		if ( ! postId ) {
-			dispatch( setPostEmailSentState( { email_sent_at: null, stats_on_send: null } ) );
 			return;
 		}
 

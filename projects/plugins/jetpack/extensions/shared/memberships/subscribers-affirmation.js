@@ -269,7 +269,7 @@ function getSentCopyLine( { accessLabel, categoryNames, pastTense, dateStr } ) {
 			return sprintf(
 				/* translators: %1$s: access (e.g. "all subscribers"), %2$s: category list, %3$s: date */
 				__(
-					'This post was emailed to %1$s subscribers of %2$s on %3$s. View delivery details on your email stats page.',
+					'This post was emailed to %1$s of %2$s on %3$s. View delivery details on <link>your email stats page</link>.',
 					'jetpack'
 				),
 				accessLabel,
@@ -280,7 +280,7 @@ function getSentCopyLine( { accessLabel, categoryNames, pastTense, dateStr } ) {
 		return sprintf(
 			/* translators: %1$s: access, %2$s: category list */
 			__(
-				'This post is being emailed to %1$s subscribers of %2$s. Delivery details can be seen on your email stats page shortly.',
+				'This post is being emailed to %1$s of %2$s. Delivery details can be seen on <link>your email stats page</link> shortly.',
 				'jetpack'
 			),
 			accessLabel,
@@ -291,7 +291,7 @@ function getSentCopyLine( { accessLabel, categoryNames, pastTense, dateStr } ) {
 		return sprintf(
 			/* translators: %1$s: access, %2$s: date */
 			__(
-				'This post was emailed to %1$s subscribers on %2$s. View delivery details on your email stats page.',
+				'This post was emailed to %1$s on %2$s. View delivery details on <link>your email stats page</link>.',
 				'jetpack'
 			),
 			accessLabel,
@@ -301,7 +301,7 @@ function getSentCopyLine( { accessLabel, categoryNames, pastTense, dateStr } ) {
 	return sprintf(
 		/* translators: %s: access level */
 		__(
-			'This post is being emailed to %s subscribers. Delivery details can be seen on your email stats page shortly.',
+			'This post is being emailed to %s. Delivery details can be seen on <link>your email stats page</link> shortly.',
 			'jetpack'
 		),
 		accessLabel
@@ -314,6 +314,7 @@ function getSentCopyLine( { accessLabel, categoryNames, pastTense, dateStr } ) {
 function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 	const wasPublishedOnLoad = useRef( undefined );
 	const transitionedToPublishInSession = useRef( false );
+	const prevStatusRef = useRef( null );
 
 	const postHasPaywallBlock = useSelect( select =>
 		select( 'core/block-editor' )
@@ -346,8 +347,11 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 			if ( wasPublishedOnLoad.current === undefined ) {
 				wasPublishedOnLoad.current = true;
 			}
-			transitionedToPublishInSession.current = true;
+			if ( prevStatusRef.current !== null && prevStatusRef.current !== 'publish' ) {
+				transitionedToPublishInSession.current = true;
+			}
 		}
+		prevStatusRef.current = status;
 	}, [ status ] );
 
 	const isSendEmailEnabled = () => {
@@ -383,8 +387,7 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 
 			const postEmailResolved =
 				status !== 'publish' ||
-				! postId ||
-				hasFinishedResolution( 'getPostEmailSentState', [ postId ] );
+				( !! postId && hasFinishedResolution( 'getPostEmailSentState', [ postId ] ) );
 
 			return {
 				hasFinishedLoading: [
@@ -463,7 +466,7 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 			text = sprintf(
 				/* translators: %s: formatted date */
 				__(
-					'This post was emailed on %s. View delivery details on your email stats page.',
+					'This post was emailed on %s. View delivery details on <link>your email stats page</link>.',
 					'jetpack'
 				),
 				formatSentDate( emailSentAt, null )
@@ -494,7 +497,7 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 			text = sprintf(
 				/* translators: %s: formatted date */
 				__(
-					'This post was emailed on %s. View delivery details on your email stats page.',
+					'This post was emailed on %s. View delivery details on <link>your email stats page</link>.',
 					'jetpack'
 				),
 				dateStr
