@@ -32,7 +32,7 @@ export type AdminPageProps = {
 	/**
 	 * Optional tagline displayed below the title in the unified header.
 	 */
-	tagline?: string;
+	subTitle?: string;
 
 	/**
 	 * Custom logo element for the unified header. Defaults to JetpackLogo icon.
