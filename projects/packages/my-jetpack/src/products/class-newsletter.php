@@ -172,6 +172,10 @@ class Newsletter extends Module_Product {
 	 * @return ?string
 	 */
 	public static function get_manage_url() {
+		/** This filter is documented in jetpack-newsletter/src/class-settings.php */
+		if ( apply_filters( 'jetpack_wp_admin_newsletter_settings_enabled', false ) ) {
+			return admin_url( 'admin.php?page=jetpack-newsletter' );
+		}
 		return admin_url( 'admin.php?page=jetpack#/settings?term=newsletter' );
 	}
 
