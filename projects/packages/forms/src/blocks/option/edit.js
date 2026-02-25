@@ -174,7 +174,7 @@ const OptionEdit = ( {
 					tagName="div"
 					className="wp-block"
 					value={ labelValue }
-					placeholder={ __( 'Add option…', 'jetpack-forms' ) }
+					placeholder={ placeholderValue }
 					__unstableDisableFormats
 					onChange={ newLabel => setAttributes( { label: newLabel } ) }
 					onMerge={ mergeBlocks }
