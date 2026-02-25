@@ -53,6 +53,7 @@ const renderDefaultPieSemiCircleTooltip = ( {
 };
 
 const PAD_ANGLE = 0.03; // Padding between segments
+const DEFAULT_WIDTH = 400;
 
 export interface PieSemiCircleChartProps extends BaseChartProps< DataPointPercentage[] > {
 	/**
@@ -301,8 +302,12 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 
 	const prefersReducedMotion = usePrefersReducedMotion();
 
+	const effectiveWidth = propWidth || DEFAULT_WIDTH;
+
 	if ( ! isValid ) {
-		const errorWidth = Math.min( propWidth || 400, ( propHeight || ( propWidth || 400 ) / 2 ) * 2 );
+		const errorWidth = propHeight
+			? Math.min( propWidth || propHeight * 2, propHeight * 2 )
+			: effectiveWidth;
 		const errorHeight = errorWidth / 2;
 
 		return (
@@ -319,9 +324,9 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 	// Calculate chart dimensions maintaining the 2:1 width-to-height ratio.
 	// Use measured SVG wrapper dimensions to respect height constraints, falling back
 	// to explicit props during initial render before measurement is available.
-	const availableWidth = svgWrapperWidth > 0 ? svgWrapperWidth : propWidth || 400;
+	const availableWidth = svgWrapperWidth > 0 ? svgWrapperWidth : effectiveWidth;
 	const availableHeight =
-		svgWrapperHeight > 0 ? svgWrapperHeight : propHeight || ( propWidth || 400 ) / 2;
+		svgWrapperHeight > 0 ? svgWrapperHeight : propHeight || effectiveWidth / 2;
 	// Constrain width so that height (= width / 2) never exceeds the available height
 	const width = Math.min( availableWidth, availableHeight * 2 );
 	const height = width / 2;
