@@ -517,7 +517,13 @@ class REST_Endpoints {
 				Health::update_status( $requested_status );
 				break;
 			default:
-				return new WP_Error( 'invalid_status', 'Invalid Sync Status Provided.' );
+				return new WP_Error(
+					'invalid_status',
+					'Invalid Sync Status Provided.',
+					array(
+						'status' => 400,
+					)
+				);
 		}
 
 		// re-fetch so we see what's really being stored.
