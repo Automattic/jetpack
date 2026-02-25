@@ -13,6 +13,7 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Paths;
 use Automattic\Jetpack\Redirect;
+use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 use Jetpack_Tracks_Client;
 
@@ -198,8 +199,10 @@ class Settings {
 		$site_raw_url = preg_replace( '(^https?://)', '', $site_url );
 
 		$host                   = new Host();
+		$status                 = new Status();
 		$blog_id                = (int) $host->get_wpcom_site_id();
 		$is_wpcom_simple        = $host->is_wpcom_simple();
+		$is_block_theme         = wp_is_block_theme();
 		$setup_payment_plan_url = ( $is_wpcom_simple ? 'https://wordpress.com/earn/payments/' : 'https://cloud.jetpack.com/monetize/payments/' ) . rawurlencode( $site_raw_url );
 
 		$wp_admin_subscriber_management_enabled = apply_filters( 'jetpack_wp_admin_subscriber_management_enabled', false );
@@ -211,15 +214,15 @@ class Settings {
 		// Note: Common data like admin_url, rest_nonce, rest_root, title, is_wpcom_platform,
 		// and user.current_user.display_name are already provided by Script_Data.
 		$data['newsletter'] = array(
-			'isBlockTheme'                    => wp_is_block_theme(),
+			'isBlockTheme'                    => $is_block_theme,
 			'themeStylesheet'                 => $theme->get_stylesheet(),
 			'email'                           => $current_user->user_email,
 			'gravatar'                        => get_avatar_url( $current_user->ID ),
 			'dateExample'                     => gmdate( get_option( 'date_format' ), time() ),
 			'subscriberManagementUrl'         => $this->get_subscriber_management_url( $wp_admin_subscriber_management_enabled, $is_wpcom_simple, $site_raw_url, $blog_id ),
-			'isSubscriptionSiteEditSupported' => wp_is_block_theme(),
+			'isSubscriptionSiteEditSupported' => $is_block_theme,
 			'setupPaymentPlansUrl'            => $setup_payment_plan_url,
-			'isSitePublic'                    => (int) get_option( 'blog_public' ) === 1,
+			'isSitePublic'                    => ! $status->is_private_site() && ! $status->is_coming_soon(),
 			'tracksUserData'                  => Jetpack_Tracks_Client::get_connected_user_tracks_identity(),
 		);
 

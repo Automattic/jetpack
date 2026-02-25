@@ -68,7 +68,7 @@ export function EmailContentSection( {
 				{ ! isSitePublic && (
 					<Notice status="warning" isDismissible={ false }>
 						{ __(
-							'Featured images will not be used in your emails while the site is private, because access to the images is restricted to your site only.',
+							'Featured images will not be used in your emails until the site is public, because access to the images is restricted to your site only.',
 							'jetpack-newsletter'
 						) }
 					</Notice>

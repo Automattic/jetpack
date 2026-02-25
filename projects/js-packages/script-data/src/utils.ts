@@ -122,7 +122,7 @@ export function getSiteType(): SiteType {
 		return 'simple';
 	}
 
-	if ( isWpcomPlatformSite() ) {
+	if ( isWoASite() ) {
 		return 'woa';
 	}
 

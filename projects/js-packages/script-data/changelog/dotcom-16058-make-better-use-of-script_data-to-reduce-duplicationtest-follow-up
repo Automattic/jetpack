@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Use isWoASite() instead of isWpcomPlatformSite() in getSiteType() for more explicit WoA detection
