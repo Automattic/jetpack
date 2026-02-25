@@ -680,6 +680,16 @@ class Contact_Form_Plugin {
 							$option_attrs = self::get_block_support_classes_and_styles( 'jetpack/option', $option['attrs'] );
 							$option_data  = array( 'label' => $option_label );
 
+							// Preserve isOther attribute from the option block so
+							// server-side rendering can attach special handlers.
+							if ( ! empty( $option['attrs']['isOther'] ) ) {
+								$option_data['isOther'] = true;
+								$atts['allowother']     = true;
+							}
+							if ( ! empty( $option['attrs']['otherPlaceholder'] ) ) {
+								$option_data['otherPlaceholder'] = $option['attrs']['otherPlaceholder'];
+							}
+
 							if ( isset( $option_attrs['class'] ) ) {
 								$option_data['class'] = $option_attrs['class'] . ' wp-block-jetpack-option';
 							} else {
