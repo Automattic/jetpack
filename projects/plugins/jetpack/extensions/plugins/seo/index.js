@@ -20,6 +20,7 @@ import {
 } from '@wordpress/editor';
 import { useEffect, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import clsx from 'clsx';
 /**
  * Internal dependencies
  */
@@ -167,24 +168,28 @@ const Seo = () => {
 	return (
 		<>
 			<JetpackPluginSidebar>
-				<PanelBody
-					title={ __( 'Optimize SEO', 'jetpack' ) }
-					initialOpen={ false }
-					className="jetpack-seo-panel"
-				>
+				<PanelBody title={ __( 'Optimize SEO', 'jetpack' ) } className="jetpack-seo-panel">
 					{ isSeoEnhancerEnabled && hasRequiredPlanForEnhancer && (
 						<SeoEnhancer placement="jetpack-sidebar" disableAutoEnhance={ ! canHaveAutoEnhance } />
 					) }
-					<PanelRow>
+					<PanelRow
+						className={ clsx( { 'jetpack-seo-sidebar__feature-section': isSeoEnhancerEnabled } ) }
+					>
 						<SeoTitlePanel />
 					</PanelRow>
-					<PanelRow>
+					<PanelRow
+						className={ clsx( { 'jetpack-seo-sidebar__feature-section': isSeoEnhancerEnabled } ) }
+					>
 						<SeoDescriptionPanel />
 					</PanelRow>
-					<PanelRow>
+					<PanelRow
+						className={ clsx( { 'jetpack-seo-sidebar__feature-section': isSeoEnhancerEnabled } ) }
+					>
 						<LinkPreviewModalWithTrigger />
 					</PanelRow>
-					<PanelRow>
+					<PanelRow
+						className={ clsx( { 'jetpack-seo-sidebar__feature-section': isSeoEnhancerEnabled } ) }
+					>
 						<SeoNoindexPanel />
 					</PanelRow>
 				</PanelBody>
