@@ -13,7 +13,7 @@ Main component for rendering semi-circular pie charts.
 | Prop | Type | Default | Description |
 | ---- | ---- | ------- | ----------- |
 | `data` | `DataPointPercentage[]` | - | **Required.** Array of data points to display |
-| `width` | `number` | responsive | Width of the chart in pixels. When omitted, fills parent width (height is automatically half of width) |
+| `width` | `number` | responsive | Width of the chart in pixels. When omitted, the chart will try to fill the parent width, but may reduce its width based on available height to maintain the 2:1 aspect ratio (height is automatically half of the final width) |
 | `thickness` | `number` | `0.4` | Thickness of the pie segments (0-1, where 1 is full thickness) |
 | `clockwise` | `boolean` | `true` | Direction of segment rendering |
 | `label` | `string` | - | Text displayed above the chart |
