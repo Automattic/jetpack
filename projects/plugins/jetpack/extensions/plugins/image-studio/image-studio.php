@@ -18,6 +18,7 @@ const ASSET_CSS_URL           = 'https://' . ASSET_BASE_PATH . 'image-studio.css
 const ASSET_RTL_URL           = 'https://' . ASSET_BASE_PATH . 'image-studio.rtl.css';
 const ASSET_JSON_URL          = 'https://' . ASSET_BASE_PATH . 'image-studio.asset.json';
 const ASSET_JSON_PATH         = ASSET_BASE_PATH . 'image-studio.asset.json';
+const ASSET_TRANSLATIONS_URL  = 'https://' . ASSET_BASE_PATH . 'languages/';
 const ASSET_TRANSIENT         = 'jetpack_image_studio_asset';
 const HEADLESS_AGENT_PROVIDER = 'image-studio/headless-agent-provider';
 
@@ -221,7 +222,7 @@ function do_enqueue_assets() {
 		// Load translations from widgets.wp.com.
 		wp_enqueue_script(
 			'image-studio-translations',
-			'https://widgets.wp.com/agents-manager/languages/' . $locale . '-v1.js',
+			ASSET_TRANSLATIONS_URL . $locale . '-v1.js',
 			array( 'wp-i18n' ),
 			$version,
 			true
