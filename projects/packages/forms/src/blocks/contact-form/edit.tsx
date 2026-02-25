@@ -1018,10 +1018,6 @@ function JetpackContactFormEdit( {
 	}
 	// In widget editor, synced forms (with ref) are not editable
 	else if ( isWidgetEditorWithRef ) {
-		// Use syncedFormBlocks from API, or fall back to currentInnerBlocks if already loaded into editor
-		const previewBlocks =
-			syncedFormBlocks && syncedFormBlocks.length > 0 ? syncedFormBlocks : currentInnerBlocks;
-
 		const handleEditForm = () => {
 			flushPendingSave();
 			navigateToForm( ref, 'widget' );
@@ -1052,13 +1048,10 @@ function JetpackContactFormEdit( {
 						'jetpack-forms'
 					) }
 				</Notice>
-				{ previewBlocks && previewBlocks.length > 0 ? (
-					<Disabled>
-						<div { ...innerBlocksProps } />
-					</Disabled>
-				) : (
-					<ContactFormSkeletonLoader />
-				) }
+
+				<Disabled>
+					<div { ...innerBlocksProps } />
+				</Disabled>
 			</div>
 		);
 	} else if ( ! isModuleActive ) {
