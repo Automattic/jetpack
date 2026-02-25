@@ -1477,6 +1477,39 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	}
 
 	/**
+	 * Test row action is added for supported JPG image.
+	 */
+	public function test_row_action_added_for_jpg() {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
+		$post    = $this->create_attachment_post( 'image/jpg' );
+		$actions = ImageStudio\add_image_studio_row_action( array( 'edit' => '<a>Edit</a>' ), $post );
+
+		$this->assertArrayHasKey( 'edit-with-ai', $actions );
+	}
+
+	/**
+	 * Test row action is added for supported BMP image.
+	 */
+	public function test_row_action_added_for_bmp() {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
+		$post    = $this->create_attachment_post( 'image/bmp' );
+		$actions = ImageStudio\add_image_studio_row_action( array( 'edit' => '<a>Edit</a>' ), $post );
+
+		$this->assertArrayHasKey( 'edit-with-ai', $actions );
+	}
+
+	/**
+	 * Test row action is added for supported TIFF image.
+	 */
+	public function test_row_action_added_for_tiff() {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
+		$post    = $this->create_attachment_post( 'image/tiff' );
+		$actions = ImageStudio\add_image_studio_row_action( array( 'edit' => '<a>Edit</a>' ), $post );
+
+		$this->assertArrayHasKey( 'edit-with-ai', $actions );
+	}
+
+	/**
 	 * Test row action is NOT added for unsupported MIME type (PDF).
 	 */
 	public function test_row_action_not_added_for_pdf() {
