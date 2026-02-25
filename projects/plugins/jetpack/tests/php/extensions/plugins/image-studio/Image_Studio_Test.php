@@ -7,8 +7,11 @@
 
 use Automattic\Jetpack\Extensions\ImageStudio;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 
 require_once JETPACK__PLUGIN_DIR . '/extensions/plugins/image-studio/image-studio.php';
+require_once JETPACK__PLUGIN_DIR . '/extensions/plugins/ai-assistant-plugin/ai-assistant-plugin.php';
 
 /**
  * Image Studio extension tests.
@@ -92,9 +95,20 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 
 	/**
 	 * Enable Image Studio via jetpack_image_studio_enabled filter.
+	 *
+	 * Also enables the AI assistant extension, since is_image_studio_enabled()
+	 * now requires AI features (Big Sky or AI Assistant) to return true.
 	 */
 	private function enable_image_studio() {
 		add_filter( 'jetpack_image_studio_enabled', '__return_true' );
+		$this->enable_jp_ai_assistant();
+	}
+
+	/**
+	 * Enable the AI assistant plugin extension.
+	 */
+	private function enable_jp_ai_assistant() {
+		\Jetpack_Gutenberg::set_extension_available( 'ai-assistant-plugin' );
 	}
 
 	/**
@@ -228,7 +242,7 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	// -------------------------------------------------------------------------
 
 	/**
-	 * Test is_image_studio_enabled returns true when jetpack_image_studio_enabled is true.
+	 * Enabled when jetpack_image_studio_enabled filter is true and AI features exist.
 	 */
 	public function test_is_enabled_via_jetpack_filter() {
 		$this->enable_image_studio();
@@ -236,27 +250,78 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Test is_image_studio_enabled returns true when unified experience is true.
+	 * Enabled when unified experience is true and AI features exist.
 	 */
 	public function test_is_enabled_via_unified_experience() {
 		$this->enable_unified_experience();
+		$this->enable_jp_ai_assistant();
 		$this->assertTrue( ImageStudio\is_image_studio_enabled() );
 	}
 
 	/**
-	 * Test is_image_studio_enabled returns false when both filters are false.
+	 * Not enabled when neither filter is set.
 	 */
 	public function test_is_not_enabled_when_both_filters_false() {
 		$this->assertFalse( ImageStudio\is_image_studio_enabled() );
 	}
 
 	/**
-	 * Test is_image_studio_enabled returns true when both filters are true.
+	 * Enabled when both filters are true.
 	 */
 	public function test_is_enabled_when_both_filters_true() {
 		$this->enable_image_studio();
 		$this->enable_unified_experience();
 		$this->assertTrue( ImageStudio\is_image_studio_enabled() );
+	}
+
+	/**
+	 * AI features alone aren't enough; a filter must also be set.
+	 */
+	public function test_is_not_enabled_via_ai_assistant_without_filter() {
+		$this->enable_jp_ai_assistant();
+		$this->assertFalse( ImageStudio\is_image_studio_enabled() );
+	}
+
+	/**
+	 * Enabled via filter when AI Assistant is available.
+	 */
+	public function test_is_enabled_via_filter_with_ai_assistant() {
+		add_filter( 'jetpack_image_studio_enabled', '__return_true' );
+		$this->enable_jp_ai_assistant();
+		$this->assertTrue( ImageStudio\is_image_studio_enabled() );
+	}
+
+	/**
+	 * Unified experience alone isn't enough; AI features must also exist.
+	 */
+	public function test_is_not_enabled_via_unified_experience_without_ai_features() {
+		$this->reset_availability();
+		$this->enable_unified_experience();
+		$this->assertFalse( ImageStudio\is_image_studio_enabled() );
+	}
+
+	/**
+	 * Enabled via filter when Big Sky is active.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[PreserveGlobalState( false )]
+	#[RunInSeparateProcess]
+	public function test_is_enabled_via_filter_with_big_sky() {
+		require_once JETPACK__PLUGIN_DIR . '/extensions/plugins/image-studio/image-studio.php';
+		require_once __DIR__ . '/mocks/class-big-sky.php';
+
+		add_filter( 'jetpack_image_studio_enabled', '__return_true' );
+		$this->assertTrue( ImageStudio\is_image_studio_enabled() );
+	}
+
+	/**
+	 * Filter alone isn't enough; AI features must also exist.
+	 */
+	public function test_is_not_enabled_via_filter_without_ai_features() {
+		add_filter( 'jetpack_image_studio_enabled', '__return_true' );
+		$this->assertFalse( ImageStudio\is_image_studio_enabled() );
 	}
 
 	// -------------------------------------------------------------------------
@@ -385,6 +450,7 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	 */
 	public function test_register_plugin_sets_available_when_unified_experience() {
 		$this->enable_unified_experience();
+		$this->enable_jp_ai_assistant();
 		ImageStudio\register_plugin();
 		$this->assertTrue( \Jetpack_Gutenberg::is_available( ImageStudio\FEATURE_NAME ) );
 	}
@@ -412,6 +478,7 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 		$this->assertTrue( \Jetpack_Gutenberg::is_available( ImageStudio\FEATURE_NAME ) );
 
 		$this->reset_availability();
+		$this->enable_jp_ai_assistant();
 
 		// Media Library - still registers.
 		$this->set_media_library_screen();
@@ -419,6 +486,7 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 		$this->assertTrue( \Jetpack_Gutenberg::is_available( ImageStudio\FEATURE_NAME ) );
 
 		$this->reset_availability();
+		$this->enable_jp_ai_assistant();
 
 		// Dashboard - still registers.
 		set_current_screen( 'dashboard' );
@@ -874,6 +942,7 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	 */
 	public function test_ai_extensions_disabled_when_unified_experience() {
 		$this->enable_unified_experience();
+		$this->enable_jp_ai_assistant();
 		$this->make_ai_extensions_available();
 		$this->set_block_editor_screen();
 
@@ -1281,6 +1350,8 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	 * when agents_manager_use_unified_experience is already true.
 	 */
 	public function test_enable_agents_manager_preserves_existing_true() {
+		$this->enable_jp_ai_assistant();
+
 		// Even without image studio enabled, if already true, stay true.
 		$result = ImageStudio\enable_agents_manager_for_image_studio( true );
 
@@ -1459,5 +1530,58 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	 */
 	public function test_asset_transient_constant() {
 		$this->assertEquals( 'jetpack_image_studio_asset', ImageStudio\ASSET_TRANSIENT );
+	}
+
+	// -------------------------------------------------------------------------
+	// Hook priority tests
+	// -------------------------------------------------------------------------
+	// These test priorities directly rather than behaviour because the
+	// ordering is important but can't be verified end-to-end in these tests
+	// -------------------------------------------------------------------------
+
+	/**
+	 * Test that register_plugin runs after the AI Assistant plugin's register_plugin.
+	 *
+	 * Image Studio checks is_available( 'ai-assistant-plugin' ), so it must
+	 * register after the AI assistant has set itself available.
+	 */
+	public function test_register_plugin_priority_after_ai_assistant() {
+		$hook = 'jetpack_register_gutenberg_extensions';
+
+		$jp_ai_priority        = has_action(
+			$hook,
+			'Automattic\Jetpack\Extensions\AiAssistantPlugin\register_plugin'
+		);
+		$image_studio_priority = has_action(
+			$hook,
+			'Automattic\Jetpack\Extensions\ImageStudio\register_plugin'
+		);
+
+		$this->assertNotFalse( $jp_ai_priority, 'AI Assistant register_plugin should be hooked.' );
+		$this->assertNotFalse( $image_studio_priority, 'Image Studio register_plugin should be hooked.' );
+		$this->assertGreaterThan( $jp_ai_priority, $image_studio_priority );
+	}
+
+	/**
+	 * Test that disable_jetpack_ai_image_extensions runs after the AI Assistant
+	 * plugin's register_plugin.
+	 *
+	 * AI extensions must be registered before they can be disabled.
+	 */
+	public function test_disable_ai_extensions_priority_after_ai_assistant() {
+		$hook = 'jetpack_register_gutenberg_extensions';
+
+		$jp_ai_priority   = has_action(
+			$hook,
+			'Automattic\Jetpack\Extensions\AiAssistantPlugin\register_plugin'
+		);
+		$disable_priority = has_action(
+			$hook,
+			'Automattic\Jetpack\Extensions\ImageStudio\disable_jetpack_ai_image_extensions'
+		);
+
+		$this->assertNotFalse( $jp_ai_priority, 'AI Assistant register_plugin should be hooked.' );
+		$this->assertNotFalse( $disable_priority, 'disable_jetpack_ai_image_extensions should be hooked.' );
+		$this->assertGreaterThan( $jp_ai_priority, $disable_priority );
 	}
 }

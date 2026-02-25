@@ -25,14 +25,29 @@ const HEADLESS_AGENT_PROVIDER = 'image-studio/headless-agent-provider';
 /**
  * Check if Image Studio is enabled.
  *
- * Returns true if either the unified chat experience or the
- * jetpack_image_studio_enabled filter is active.
+ * Requires AI features (Big Sky or AI Assistant) plus at least one of:
+ * - The unified chat experience (agents_manager_use_unified_experience).
+ * - The jetpack_image_studio_enabled filter.
  *
  * @return bool
  */
 function is_image_studio_enabled() {
+	if ( ! has_ai_features() ) {
+		return false;
+	}
+
 	return apply_filters( 'agents_manager_use_unified_experience', false )
 		|| apply_filters( 'jetpack_image_studio_enabled', false );
+}
+
+/**
+ * Check whether AI features are available (Big Sky or AI Assistant).
+ *
+ * @return bool
+ */
+function has_ai_features() {
+	return ( class_exists( 'Big_Sky' ) && \Big_Sky::$enabled )
+		|| \Jetpack_Gutenberg::is_available( 'ai-assistant-plugin' );
 }
 
 /**
@@ -91,7 +106,9 @@ function register_plugin() {
 
 	\Jetpack_Gutenberg::set_extension_available( FEATURE_NAME );
 }
-add_action( 'jetpack_register_gutenberg_extensions', __NAMESPACE__ . '\register_plugin' );
+// Priority 11 ensures this runs after the AI Assistant plugin registers at priority 10,
+// so that is_available( 'ai-assistant-plugin' ) returns the correct value.
+add_action( 'jetpack_register_gutenberg_extensions', __NAMESPACE__ . '\register_plugin', 11 );
 
 /**
  * Fetch and cache the remote asset manifest.
@@ -332,7 +349,7 @@ add_action( 'jetpack_register_gutenberg_extensions', __NAMESPACE__ . '\disable_j
 
 /**
  * Enable the agents manager unified experience on self-hosted sites
- * when jetpack_image_studio_enabled is true.
+ * when Image Studio is enabled with AI capabilities.
  *
  * This ensures the agents manager loads and can host the headless agent
  * even when the unified chat experience is not otherwise enabled.
@@ -341,6 +358,10 @@ add_action( 'jetpack_register_gutenberg_extensions', __NAMESPACE__ . '\disable_j
  * @return bool
  */
 function enable_agents_manager_for_image_studio( $use_unified_experience ) {
+	if ( ! has_ai_features() ) {
+		return false;
+	}
+
 	if ( $use_unified_experience ) {
 		return true;
 	}
