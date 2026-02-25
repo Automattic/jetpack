@@ -26,7 +26,7 @@ export const isNameVariationId = id => typeof id === 'string' && /^name(?:-\d+)?
 const variations = [
 	{
 		name: NAME_ID,
-		title: DEFAULT_NAME_LABEL,
+		title: __( 'Name field', 'jetpack-forms' ), // must match that of main block title for e2e purposes
 		description: __( 'Collect the site visitor’s name.', 'jetpack-forms' ),
 		icon,
 		scope: [ 'transform' ],
