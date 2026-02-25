@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Button, ToggleControl: Remove Jetpack color overrides on core WordPress components.
