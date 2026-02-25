@@ -2,14 +2,10 @@
 
 This file provides guidance to AI coding agents when working with code in this repository.
 
-## Essential Documentation
-
-- [Package README](./README.md)
-- [Source code (src/)](./src/)
-
 ## Project Overview
 
 This package provides the Stats Dashboard UI infrastructure for WordPress admin.
+
 - **Namespace**: `Automattic\Jetpack\Stats_Admin`
 - **Text Domain**: `jetpack-stats-admin`
 
