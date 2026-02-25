@@ -1,5 +1,7 @@
 .text {
 	grid-column: span 2;
+	max-width: 80ch;
+	text-wrap: balance;
 
 	a {
 		color: inherit;
