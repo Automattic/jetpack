@@ -7,7 +7,8 @@
 	z-index: 1;
 }
 
-.admin-header .admin-header-subtitle {
+/* stylelint-disable-next-line selector-class-pattern */
+.admin-header :global(.admin-ui-page__header-subtitle) {
 	padding-block-end: 8px;
 	color: #757575;
 	font-size: 13px;
