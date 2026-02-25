@@ -1,20 +1,8 @@
 # AGENTS.md
 
-This file provides guidance to AI coding agents when working with code in this repository.
-
-## Essential Documentation
-
-**Primary Reference**: [Stats Admin README.md](./README.md) - Package overview and installation
-
-**Additional Resources**:
-
-- [Automated Testing Overview](../../../docs/automated-testing.md) - Testing patterns and strategies
-- [Coding Standards & Guidelines](../../../docs/coding-guidelines.md) - Development best practices
-- [Jetpack CLI Documentation](../../../tools/cli/README.md) - CLI commands and workflows
+This package provides the Stats Dashboard UI infrastructure for WordPress admin.
 
 ## Project Overview
-
-This package provides the Stats Dashboard UI infrastructure for WordPress admin.
 
 - **Namespace**: `Automattic\Jetpack\Stats_Admin`
 - **Text Domain**: `jetpack-stats-admin`
@@ -28,7 +16,7 @@ src/
 ├── class-odyssey-assets.php          # Odyssey dashboard asset loading
 ├── class-odyssey-config-data.php     # Config data for Odyssey React app
 ├── class-rest-controller.php         # REST API endpoints
-├── class-wpcom-client.php            # WPCOM API client with caching
+├── class-wpcom-client.php            # WPCOM API client with caching for wpcom/v2 endpoints
 ├── class-notices.php                 # Admin notices handling
 ├── class-admin-post-list-column.php  # Post list view count column
 └── class-wp-dashboard-odyssey-widget.php # WP Dashboard widget
@@ -62,7 +50,7 @@ This package depends on several Jetpack packages:
 ## Architectural Decisions
 
 - **Odyssey Dashboard**: The main stats dashboard uses the Odyssey React app built in Calypso (wp-calypso repo) and loaded via the CDN at `https://widgets.wp.com/odyssey-stats/`. This package provides the PHP wrapper and config data.
-- **REST API**: Proxies requests to WordPress.com stats APIs via the internal `WPCOM_Client`. Responses are cached using transients with prefix `STATS_REST_RESP_`.
+- **REST API**: Proxies `wpcom/v1.1` requests to WordPress.com stats APIs via the internal `WPCOM_Client`. Responses are cached using transients with prefix `jetpack_restapi_stats_cache_`. `wpcom/v2` endpoints are handled with `class-wpcom-client` cached with prefix `STATS_REST_RESP_`.
 - **Relationship with `stats` package**: This package provides the WordPress admin UI infrastructure (PHP wrapper and integration for the Odyssey dashboard), while the `stats` package handles backend tracking and data fetching. They are separate but related.
 
 ## Common Pitfalls
