@@ -45,14 +45,15 @@ class Jetpack_Newsletter_Dashboard_Widget {
 	 */
 	public static function get_config_data() {
 		$config_data = array(
-			'emailSubscribers'       => 0,
-			'paidSubscribers'        => 0,
-			'allSubscribers'         => 0,
-			'subscriberTotalsByDate' => array(),
-			'isStatsModuleActive'    => false,
-			'showHeader'             => false,
-			'showChart'              => false,
-			'isWidgetVisible'        => false,
+			'emailSubscribers'                   => 0,
+			'paidSubscribers'                    => 0,
+			'allSubscribers'                     => 0,
+			'subscriberTotalsByDate'             => array(),
+			'isStatsModuleActive'                => false,
+			'showHeader'                         => false,
+			'showChart'                          => false,
+			'isWidgetVisible'                    => false,
+			'isWpAdminNewsletterSettingsEnabled' => apply_filters( 'jetpack_wp_admin_newsletter_settings_enabled', false ),
 		);
 
 		if ( Jetpack::is_connection_ready() ) {

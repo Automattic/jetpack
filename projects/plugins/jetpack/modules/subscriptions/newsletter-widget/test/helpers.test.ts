@@ -28,6 +28,18 @@ describe( 'helpers', () => {
 			const url = getNewsletterSettingsUrl( testSite, false, testAdminUrl );
 			expect( url ).toBe( `${ testAdminUrl }admin.php?page=jetpack#newsletter` );
 		} );
+
+		it( 'returns new newsletter settings URL when isWpAdminNewsletterSettingsEnabled is true', () => {
+			const url = getNewsletterSettingsUrl( testSite, false, testAdminUrl, true );
+			expect( url ).toBe( `${ testAdminUrl }admin.php?page=jetpack-newsletter` );
+		} );
+
+		it( 'returns WordPress.com URL for WordPress.com sites even when isWpAdminNewsletterSettingsEnabled is true', () => {
+			const url = getNewsletterSettingsUrl( testSite, true, testAdminUrl, true );
+			expect( url ).toBe(
+				getRedirectUrl( 'https://wordpress.com/settings/newsletter/' + testSite )
+			);
+		} );
 	} );
 
 	describe( 'formatDate', () => {

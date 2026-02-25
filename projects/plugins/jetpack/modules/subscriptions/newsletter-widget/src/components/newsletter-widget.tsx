@@ -28,6 +28,7 @@ export interface NewsletterWidgetProps {
 	subscriberTotalsByDate?: SubscriberTotalsByDate;
 	showHeader?: boolean;
 	showChart?: boolean;
+	isWpAdminNewsletterSettingsEnabled?: boolean;
 }
 
 export const NewsletterWidget = ( {
@@ -41,6 +42,7 @@ export const NewsletterWidget = ( {
 	subscriberTotalsByDate = {},
 	showHeader,
 	showChart,
+	isWpAdminNewsletterSettingsEnabled = false,
 }: NewsletterWidgetProps ) => {
 	const { tracks } = useAnalytics();
 
@@ -183,7 +185,12 @@ export const NewsletterWidget = ( {
 						<li>
 							{ DashboardLink(
 								true,
-								getNewsletterSettingsUrl( site, isWpcomSite, adminUrl ),
+								getNewsletterSettingsUrl(
+									site,
+									isWpcomSite,
+									adminUrl,
+									isWpAdminNewsletterSettingsEnabled
+								),
 								'newsletter_settings_click',
 								__( 'Newsletter settings', 'jetpack' )
 							) }

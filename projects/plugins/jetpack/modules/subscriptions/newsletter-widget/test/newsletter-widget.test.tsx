@@ -150,6 +150,22 @@ describe( 'NewsletterWidget', () => {
 		} );
 	} );
 
+	it( 'renders new newsletter settings URL when isWpAdminNewsletterSettingsEnabled is true', () => {
+		render(
+			<NewsletterWidget
+				{ ...defaultProps }
+				isWpcomSite={ false }
+				isWpAdminNewsletterSettingsEnabled={ true }
+			/>
+		);
+
+		const link = screen.getByText( 'Newsletter settings' );
+		expect( link ).toHaveAttribute(
+			'href',
+			`https://${ defaultProps.site }/wp-admin/admin.php?page=jetpack-newsletter`
+		);
+	} );
+
 	describe( 'Stats display conditions', () => {
 		it( 'hides stats when showHeader = false', () => {
 			render( <NewsletterWidget { ...defaultProps } showHeader={ false } /> );
