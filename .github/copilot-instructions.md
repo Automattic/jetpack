@@ -2,7 +2,7 @@
 
 Use this file as a routing layer, not a duplicate source of truth.
 
-Start with the repository standards in `AGENTS.md`.
+Start with the repository standards in the root `AGENTS.md`.
 
 If guidance conflicts, the closest package-level `AGENTS.md` is authoritative for files in that package.
 

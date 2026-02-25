@@ -3,6 +3,7 @@ name: Charts Agent Docs Guard
 on:
   pull_request:
     paths:
+      - '.github/workflows/charts-agent-docs-guard.yml'
       - 'projects/js-packages/charts/**'
       - '.agents/skills/charts-docs*.md'
       - '.claude/skills/charts-docs/**'

@@ -27,7 +27,7 @@ pnpm run test               # Run Jest test suite (TZ=UTC)
 pnpm run test-coverage      # Run tests with coverage report
 
 # Production
-pnpm run build:prod         # Production build (clean + optimized)
+pnpm run build:prod         # Production tsup build
 ```
 
 ## Documentation Standards
