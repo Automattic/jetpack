@@ -72,6 +72,7 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 		remove_all_filters( 'agents_manager_use_unified_experience' );
 		remove_all_filters( 'agents_manager_agent_providers' );
 		remove_all_filters( 'pre_http_request' );
+		remove_all_filters( 'locale' );
 		unset( $_GET['enable_image_studio'] );
 		$GLOBALS['current_screen'] = $this->saved_screen;
 		$GLOBALS['wp_scripts']     = $this->saved_wp_scripts;
