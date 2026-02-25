@@ -67,7 +67,6 @@ export const SocialAdminPage = () => {
 			<AdminPage
 				moduleName={ moduleName }
 				title={ __( 'Social', 'jetpack-publicize-pkg' ) }
-				showHeader={ true }
 				showBackground={ false }
 				useInternalLinks={ shouldUseInternalLinks() }
 			>
@@ -97,8 +96,6 @@ export const SocialAdminPage = () => {
 		<AdminPage
 			moduleName={ moduleName }
 			title={ __( 'Social', 'jetpack-publicize-pkg' ) }
-			// should we add a subTitle? Page seems already crowded
-			// subTitle={ __( 'Share your posts with your social media network.', 'jetpack-publicize-pkg' ) }
 			actions={ licenseAction }
 			showFooter={ isJetpackSite }
 			useInternalLinks={ shouldUseInternalLinks() }
