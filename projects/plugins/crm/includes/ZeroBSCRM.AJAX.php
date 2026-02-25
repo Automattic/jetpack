@@ -1984,6 +1984,12 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 		'pagekey'    => ( isset( $pArray['pagekey'] ) ) ? sanitize_text_field( $pArray['pagekey'] ) : '',
 	);
 
+	// Security: validate sort field is a safe identifier to prevent SQL injection via ORDER BY.
+	// Hyphens are allowed because custom field slugs use them (e.g. "new-field", "forced-numeric").
+	if ( ! empty( $listViewParams['sort'] ) && ! preg_match( '/^[a-zA-Z_][a-zA-Z0-9_-]*$/', $listViewParams['sort'] ) ) {
+		$listViewParams['sort'] = false;
+	}
+
 	// deal with arrayed items
 
 		// cols
