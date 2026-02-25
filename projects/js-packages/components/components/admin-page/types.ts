@@ -19,7 +19,7 @@ export type AdminPageProps = {
 
 	/**
 	 * Custom header. Optional.
-	 * @deprecated Use `title` and `tagline` props instead for the unified header.
+	 * @deprecated Use `title` and `subTitle` props instead for the unified header.
 	 */
 	header?: ReactNode;
 
