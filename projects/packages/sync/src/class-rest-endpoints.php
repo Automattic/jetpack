@@ -838,7 +838,6 @@ class REST_Endpoints {
 		return rest_ensure_response(
 			array(
 				'success' => true,
-				'queue'   => 'sync',
 			)
 		);
 	}

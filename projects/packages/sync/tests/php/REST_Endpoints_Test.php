@@ -280,7 +280,6 @@ class REST_Endpoints_Test extends TestCase {
 
 		$this->assertEquals( 200, $response->get_status() );
 		$this->assertTrue( $data['success'] );
-		$this->assertEquals( 'sync', $data['queue'] );
 		$this->assertFalse( get_transient( Sender::TEMP_SYNC_DISABLE_TRANSIENT_NAME ) );
 	}
 
