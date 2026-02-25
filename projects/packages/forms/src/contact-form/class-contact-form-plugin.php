@@ -995,7 +995,12 @@ class Contact_Form_Plugin {
 			}
 			if ( $is_submit_btn ) {
 				$processor->remove_attribute( 'id' );
-				$processor->add_class( 'is-submit is-hidden' );
+				if ( $processor->has_class( 'is-submit' ) ) {
+					$processor->add_class( 'is-hidden' );
+				} else {
+					$processor->add_class( 'is-submit is-hidden' );
+				}
+
 				$processor->set_attribute( 'data-wp-class--is-hidden', 'state.isNotLastStep' );
 				if ( 'BUTTON' === $processor->get_tag() ) {
 					Contact_Form::add_submit_button_interactivity_attributes( $processor );
