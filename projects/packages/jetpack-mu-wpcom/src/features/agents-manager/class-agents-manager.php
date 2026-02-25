@@ -273,11 +273,6 @@ class Agents_Manager {
 	 * @return string|null The variant name, or null if scripts should not be loaded.
 	 */
 	private function get_variant() {
-		// Universal: skip block editor if explicitly disabled (e.g. CIAB parent page already runs AM).
-		if ( self::is_block_editor() && ! apply_filters( 'agents_manager_enqueue_in_block_editor', true ) ) {
-			return null;
-		}
-
 		// CIAB: Load either the connected or disconnected variants if enabled.
 		if ( $this->is_ciab_environment() && self::is_enabled() ) {
 			return $this->is_jetpack_disconnected() ? 'ciab-disconnected' : 'ciab';
