@@ -3,12 +3,15 @@
  */
 import apiFetch from '@wordpress/api-fetch';
 import { useDispatch } from '@wordpress/data';
-import { useCallback } from '@wordpress/element';
+import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
 /**
  * Internal dependencies
  */
+import { FORM_POST_TYPE } from '../../../blocks/shared/util/constants.js';
+import { NON_TRASH_FORM_STATUSES } from '../../constants';
+import { getFormsListQuery } from '../../hooks/use-forms-data.ts';
 import useDuplicateForm from './use-duplicate-form';
 /**
  * Types
@@ -17,16 +20,23 @@ import type { FormListItem } from '../../hooks/use-forms-data.ts';
 
 type FormItem = Pick< FormListItem, 'id' > & Partial< Pick< FormListItem, 'title' > >;
 
+type UpdateStatusOptions = {
+	invalidateQueries?: Array< Record< string, unknown > >;
+};
+
 type UseFormItemActionsReturn = {
 	duplicateForm: ( item: FormItem ) => Promise< void >;
 	previewForm: ( item: FormItem ) => Promise< void >;
 	copyEmbed: ( item: FormItem ) => Promise< void >;
 	copyShortcode: ( item: FormItem ) => Promise< void >;
 	isDuplicating: boolean;
+	isUpdatingStatus: boolean;
+	publishForms: ( items: FormItem[], options?: UpdateStatusOptions ) => Promise< void >;
+	setFormsToDraft: ( items: FormItem[], options?: UpdateStatusOptions ) => Promise< void >;
 };
 
 /**
- * Shared form-level action callbacks (Duplicate, Preview, Copy embed, Copy shortcode).
+ * Shared form-level action callbacks (Duplicate, Preview, Copy embed, Copy shortcode, Publish, Unpublish).
  *
  * Each callback accepts a minimal `{ id, title? }` object so it works with both
  * full `FormListItem` records (DataViews table) and a simple form ID + title
@@ -37,6 +47,16 @@ type UseFormItemActionsReturn = {
 export default function useFormItemActions(): UseFormItemActionsReturn {
 	const { createSuccessNotice, createErrorNotice } = useDispatch( noticesStore );
 	const { duplicateForm, isDuplicating } = useDuplicateForm();
+	const [ isUpdatingStatus, setIsUpdatingStatus ] = useState( false );
+	const { saveEntityRecord, invalidateResolution } = useDispatch( 'core' ) as {
+		saveEntityRecord: (
+			kind: string,
+			name: string,
+			record: Record< string, unknown >,
+			options?: { throwOnError?: boolean }
+		) => Promise< unknown >;
+		invalidateResolution: ( selector: string, args: unknown[] ) => void;
+	};
 
 	const previewForm = useCallback( async ( item: FormItem ) => {
 		try {
@@ -84,5 +104,99 @@ export default function useFormItemActions(): UseFormItemActionsReturn {
 		[ createErrorNotice, createSuccessNotice ]
 	);
 
-	return { duplicateForm, previewForm, copyEmbed, copyShortcode, isDuplicating };
+	const invalidateListQuery = useCallback(
+		( query: Record< string, unknown > ) => {
+			invalidateResolution( 'getEntityRecords', [ 'postType', FORM_POST_TYPE, query ] );
+			invalidateResolution( 'getEntityRecords', [
+				'postType',
+				FORM_POST_TYPE,
+				{ ...query, per_page: 1, _fields: 'id' },
+			] );
+		},
+		[ invalidateResolution ]
+	);
+
+	const updateStatus = useCallback(
+		async (
+			items: FormItem[],
+			nextStatus: 'publish' | 'draft',
+			options: UpdateStatusOptions = {}
+		) => {
+			if ( isUpdatingStatus || ! items?.length ) {
+				return;
+			}
+
+			setIsUpdatingStatus( true );
+			try {
+				const promises = await Promise.allSettled(
+					items.map( item =>
+						saveEntityRecord(
+							'postType',
+							FORM_POST_TYPE,
+							{ id: item.id, status: nextStatus },
+							{ throwOnError: true }
+						)
+					)
+				);
+
+				const updatedCount = promises.filter( p => p.status === 'fulfilled' ).length;
+				const failedCount = promises.length - updatedCount;
+
+				if ( updatedCount ) {
+					createSuccessNotice( __( 'Status updated.', 'jetpack-forms' ), { type: 'snackbar' } );
+				}
+				if ( failedCount ) {
+					createErrorNotice( __( 'Could not update status.', 'jetpack-forms' ), {
+						type: 'snackbar',
+					} );
+				}
+
+				items.forEach( item => {
+					invalidateResolution( 'getEntityRecord', [ 'postType', FORM_POST_TYPE, item.id ] );
+				} );
+
+				const invalidateQueries = options.invalidateQueries?.length
+					? options.invalidateQueries
+					: [
+							getFormsListQuery( 1, 20, '', NON_TRASH_FORM_STATUSES ) as Record< string, unknown >,
+					  ];
+				invalidateQueries.forEach( invalidateListQuery );
+			} finally {
+				setIsUpdatingStatus( false );
+			}
+		},
+		[
+			createErrorNotice,
+			createSuccessNotice,
+			invalidateListQuery,
+			invalidateResolution,
+			isUpdatingStatus,
+			saveEntityRecord,
+		]
+	);
+
+	const publishForms = useCallback(
+		async ( items: FormItem[], options?: UpdateStatusOptions ) => {
+			await updateStatus( items, 'publish', options );
+		},
+		[ updateStatus ]
+	);
+
+	const setFormsToDraft = useCallback(
+		async ( items: FormItem[], options?: UpdateStatusOptions ) => {
+			await updateStatus( items, 'draft', options );
+		},
+		[ updateStatus ]
+	);
+
+	return {
+		duplicateForm,
+		previewForm,
+		copyEmbed,
+		copyShortcode,
+		isDuplicating,
+		isUpdatingStatus,
+		publishForms,
+		setFormsToDraft,
+	};
 }

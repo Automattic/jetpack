@@ -133,7 +133,15 @@ export default function usePageHeaderDetails(
 		return <Badge intent="draft">{ statusLabel }</Badge>;
 	}, [ isSingleFormScreen, formStatus, statusLabel ] );
 
-	const { duplicateForm, previewForm, copyEmbed, copyShortcode } = useFormItemActions();
+	const {
+		duplicateForm,
+		previewForm,
+		copyEmbed,
+		copyShortcode,
+		publishForms,
+		setFormsToDraft,
+		isUpdatingStatus,
+	} = useFormItemActions();
 
 	const formItemControls = useMemo( () => {
 		if ( ! sourceIdNumber ) {
@@ -141,7 +149,7 @@ export default function usePageHeaderDetails(
 		}
 
 		const formItem = { id: sourceIdNumber, title: formTitle };
-		const controls: Array< { title: string; onClick: () => void } > = [
+		const controls: Array< { title: string; onClick: () => void; isDisabled?: boolean } > = [
 			{
 				title: __( 'Duplicate', 'jetpack-forms' ),
 				onClick: () => duplicateForm( formItem ),
@@ -165,8 +173,33 @@ export default function usePageHeaderDetails(
 			);
 		}
 
+		if ( formRecord?.status === 'publish' ) {
+			controls.push( {
+				title: __( 'Unpublish', 'jetpack-forms' ),
+				onClick: () => setFormsToDraft( [ formItem ] ),
+				isDisabled: isUpdatingStatus,
+			} );
+		} else {
+			controls.push( {
+				title: __( 'Publish', 'jetpack-forms' ),
+				onClick: () => publishForms( [ formItem ] ),
+				isDisabled: isUpdatingStatus,
+			} );
+		}
+
 		return controls;
-	}, [ sourceIdNumber, formTitle, duplicateForm, previewForm, copyEmbed, copyShortcode ] );
+	}, [
+		copyEmbed,
+		copyShortcode,
+		duplicateForm,
+		formRecord?.status,
+		formTitle,
+		isUpdatingStatus,
+		publishForms,
+		previewForm,
+		setFormsToDraft,
+		sourceIdNumber,
+	] );
 
 	const breadcrumbsItems = useMemo( () => {
 		if ( isSingleFormScreen ) {

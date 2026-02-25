@@ -27,7 +27,7 @@ import { EmptyWrapper } from '../../src/dashboard/components/empty-responses/ind
 import { FormNameModal } from '../../src/dashboard/components/form-name-modal';
 import { NON_TRASH_FORM_STATUSES, getFormStatusLabel } from '../../src/dashboard/constants';
 import useDeleteForm from '../../src/dashboard/hooks/use-delete-form.ts';
-import useFormsData from '../../src/dashboard/hooks/use-forms-data.ts';
+import useFormsData, { getFormsListQuery } from '../../src/dashboard/hooks/use-forms-data.ts';
 import WpRouteDashboardSearchParamsProvider from '../../src/dashboard/router/wp-route-dashboard-search-params-provider.tsx';
 import DataViewsHeaderRow from '../../src/dashboard/wp-build/components/dataviews-header-row';
 import FormsHelpModal from '../../src/dashboard/wp-build/components/forms-help-modal';
@@ -122,7 +122,15 @@ function StageInner() {
 		statusQuery
 	);
 
-	const { duplicateForm, previewForm, copyEmbed, copyShortcode } = useFormItemActions();
+	const {
+		duplicateForm,
+		previewForm,
+		copyEmbed,
+		copyShortcode,
+		publishForms,
+		setFormsToDraft,
+		isUpdatingStatus,
+	} = useFormItemActions();
 
 	const {
 		isDeleting,
@@ -337,6 +345,62 @@ function StageInner() {
 		}
 
 		actionsList.push( {
+			id: 'publish-form',
+			isPrimary: false,
+			label: __( 'Publish', 'jetpack-forms' ),
+			isEligible: ( item: FormListItem ) => item.status !== 'publish',
+			supportsBulk: true,
+			async callback( items: FormListItem[] ) {
+				if ( isDeleting || isUpdatingStatus ) {
+					return;
+				}
+				const eligibleItems = ( items || [] ).filter( item => item.status !== 'publish' );
+				if ( ! eligibleItems.length ) {
+					return;
+				}
+				const query = getFormsListQuery(
+					view.page ?? 1,
+					view.perPage ?? 20,
+					view.search ?? '',
+					statusQuery
+				) as Record< string, unknown >;
+				try {
+					await publishForms( eligibleItems, { invalidateQueries: [ query ] } );
+				} finally {
+					setSelection( [] );
+				}
+			},
+		} );
+
+		actionsList.push( {
+			id: 'unpublish-form',
+			isPrimary: false,
+			label: __( 'Unpublish', 'jetpack-forms' ),
+			isEligible: ( item: FormListItem ) => item.status === 'publish',
+			supportsBulk: true,
+			async callback( items: FormListItem[] ) {
+				if ( isDeleting || isUpdatingStatus ) {
+					return;
+				}
+				const eligibleItems = ( items || [] ).filter( item => item.status === 'publish' );
+				if ( ! eligibleItems.length ) {
+					return;
+				}
+				const query = getFormsListQuery(
+					view.page ?? 1,
+					view.perPage ?? 20,
+					view.search ?? '',
+					statusQuery
+				) as Record< string, unknown >;
+				try {
+					await setFormsToDraft( eligibleItems, { invalidateQueries: [ query ] } );
+				} finally {
+					setSelection( [] );
+				}
+			},
+		} );
+
+		actionsList.push( {
 			id: 'edit-form',
 			isPrimary: true,
 			label: __( 'Edit', 'jetpack-forms' ),
@@ -443,13 +507,20 @@ function StageInner() {
 		copyShortcode,
 		duplicateForm,
 		isDeleting,
+		isUpdatingStatus,
 		isViewingTrash,
 		onOpenPermanentDeleteConfirm,
 		openRenameModal,
 		openSingleFormView,
+		publishForms,
 		previewForm,
 		restoreForms,
+		setFormsToDraft,
+		statusQuery,
 		trashForms,
+		view.page,
+		view.perPage,
+		view.search,
 	] );
 
 	const paginationInfo = useMemo(
