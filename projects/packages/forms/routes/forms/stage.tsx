@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { Badge } from '@automattic/ui';
 import { Page } from '@wordpress/admin-ui';
 import {
 	__experimentalConfirmDialog as ConfirmDialog, // eslint-disable-line @wordpress/no-unsafe-wp-apis
@@ -266,7 +267,11 @@ function StageInner() {
 				id: 'status',
 				label: __( 'Status', 'jetpack-forms' ),
 				getValue: ( { item }: { item: FormListItem } ) => item.status,
-				render: ( { item }: { item: FormListItem } ) => statusLabel( item.status ),
+				render: ( { item }: { item: FormListItem } ) => (
+					<Badge intent="default" className="jp-forms-badge">
+						{ statusLabel( item.status ) }
+					</Badge>
+				),
 				elements: [
 					{ label: __( 'All', 'jetpack-forms' ), value: 'all' },
 					{ label: __( 'Published', 'jetpack-forms' ), value: 'publish' },
