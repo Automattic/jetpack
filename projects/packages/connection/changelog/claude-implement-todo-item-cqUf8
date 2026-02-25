@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Remove error silencer from token scope parsing in favor of proper array handling.

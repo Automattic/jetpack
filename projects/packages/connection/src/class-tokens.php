@@ -239,9 +239,9 @@ class Tokens {
 			return new WP_Error( 'scope', 'No Scope', $code );
 		}
 
-		// TODO: get rid of the error silencer.
-		// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
-		@list( $role, $hmac ) = explode( ':', $json->scope );
+		$scope_parts = explode( ':', $json->scope, 2 );
+		$role        = $scope_parts[0] ?? '';
+		$hmac        = $scope_parts[1] ?? '';
 		if ( empty( $role ) || empty( $hmac ) ) {
 			return new WP_Error( 'scope', 'Malformed Scope', $code );
 		}
