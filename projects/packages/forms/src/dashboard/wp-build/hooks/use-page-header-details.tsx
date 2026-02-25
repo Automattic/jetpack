@@ -142,10 +142,14 @@ export default function usePageHeaderDetails(
 	}, [ formStatus ] );
 
 	const badges = useMemo( () => {
-		if ( ! isSingleFormScreen || ! formStatus ) {
+		if ( ! isSingleFormScreen || ! formStatus || formStatus === 'publish' ) {
 			return undefined;
 		}
-		return <Badge intent="default">{ statusLabel }</Badge>;
+		return (
+			<Badge className="jp-forms-badge" intent="default">
+				{ statusLabel }
+			</Badge>
+		);
 	}, [ isSingleFormScreen, formStatus, statusLabel ] );
 
 	const { duplicateForm, previewForm, copyEmbed, copyShortcode } = useFormItemActions();
