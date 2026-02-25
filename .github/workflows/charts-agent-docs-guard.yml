@@ -1,0 +1,59 @@
+name: Charts Agent Docs Guard
+
+on:
+  pull_request:
+    paths:
+      - 'projects/js-packages/charts/**'
+      - '.agents/skills/charts-docs*.md'
+      - '.claude/skills/charts-docs/**'
+      - '.github/copilot-instructions.md'
+
+jobs:
+  charts-agent-docs-guard:
+    name: Validate charts agent docs contract
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate required files and pointers
+        run: |
+          set -euo pipefail
+
+          fail() {
+            echo "ERROR: $1" >&2
+            exit 1
+          }
+
+          # 1) Required files exist
+          [ -f "projects/js-packages/charts/AGENTS.md" ] || fail "Missing projects/js-packages/charts/AGENTS.md"
+          [ -f "projects/js-packages/charts/CLAUDE.md" ] || fail "Missing projects/js-packages/charts/CLAUDE.md"
+          [ -f ".github/copilot-instructions.md" ] || fail "Missing .github/copilot-instructions.md"
+          [ -f ".agents/skills/charts-docs.md" ] || fail "Missing .agents/skills/charts-docs.md"
+
+          # 2) CLAUDE shim points to AGENTS.md
+          claude_line="$(tr -d '\r' < projects/js-packages/charts/CLAUDE.md | sed -e 's/[[:space:]]*$//')"
+          [ "$claude_line" = "@AGENTS.md" ] || fail "charts/CLAUDE.md must contain exactly '@AGENTS.md'"
+
+          # 3) Charts AGENTS references charts docs skill
+          rg -q '\.agents/skills/charts-docs\.md' projects/js-packages/charts/AGENTS.md \
+            || fail "charts AGENTS.md must reference .agents/skills/charts-docs.md"
+
+          # 4) Every `pnpm run <script>` in charts AGENTS exists in package.json
+          missing_scripts=0
+          while IFS= read -r script_name; do
+            node -e "const p=require('./projects/js-packages/charts/package.json'); process.exit(p.scripts && p.scripts['${script_name}'] ? 0 : 1)" \
+              || {
+                echo "ERROR: charts AGENTS.md references missing npm script: ${script_name}" >&2
+                missing_scripts=1
+              }
+          done < <(rg -o 'pnpm run [a-zA-Z0-9:_-]+' projects/js-packages/charts/AGENTS.md | awk '{print $3}' | sort -u)
+
+          [ "$missing_scripts" -eq 0 ] || fail "charts AGENTS.md contains invalid pnpm script references"
+
+          # 5) Copilot instructions should route charts work to charts AGENTS
+          rg -q 'projects/js-packages/charts/AGENTS\.md' .github/copilot-instructions.md \
+            || fail "copilot-instructions.md must reference charts AGENTS.md"
+
+          echo "Charts agent docs guard passed."
