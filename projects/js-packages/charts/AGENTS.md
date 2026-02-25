@@ -136,7 +136,7 @@ When contributing to the Charts library, follow the Jetpack monorepo's standard 
 
 ## Agent-Specific Guidelines
 
-## Charts Skills
+### Charts Skills
 
 - For chart documentation workflows, use `.agents/skills/charts-docs.md`.
 
