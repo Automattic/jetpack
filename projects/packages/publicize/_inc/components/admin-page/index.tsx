@@ -67,6 +67,7 @@ export const SocialAdminPage = () => {
 			<AdminPage
 				moduleName={ moduleName }
 				title={ __( 'Social', 'jetpack-publicize-pkg' ) }
+				subTitle={ __( 'Publish once. Share everywhere.', 'jetpack-publicize-pkg' ) }
 				showBackground={ false }
 				useInternalLinks={ shouldUseInternalLinks() }
 			>
@@ -96,6 +97,7 @@ export const SocialAdminPage = () => {
 		<AdminPage
 			moduleName={ moduleName }
 			title={ __( 'Social', 'jetpack-publicize-pkg' ) }
+			subTitle={ __( 'Publish once. Share everywhere.', 'jetpack-publicize-pkg' ) }
 			actions={ licenseAction }
 			showFooter={ isJetpackSite }
 			useInternalLinks={ shouldUseInternalLinks() }
