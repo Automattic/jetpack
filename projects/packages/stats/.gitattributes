@@ -13,3 +13,4 @@ package.json      export-ignore
 changelog/**      production-exclude
 .phpcs.dir.xml    production-exclude
 tests/**          production-exclude
+

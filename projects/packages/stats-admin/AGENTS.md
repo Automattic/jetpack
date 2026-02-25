@@ -54,6 +54,7 @@ This package depends on several Jetpack packages:
 - `jetpack-connection` - WPCOM connection
 - `jetpack-stats` - Backend stats tracking (see sibling `stats` package)
 - `jetpack-blaze` - Blaze integration
+- `jetpack-constants` - Shared constants and environment/context helpers
 - `jetpack-plans` - Plan checking
 - `jetpack-status` - Site status
 - `jetpack-jitm` - Just In Time Messages
