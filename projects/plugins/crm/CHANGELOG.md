@@ -5,6 +5,10 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.7.3] - 2026-02-25
+### Security
+- Fix SQL injection vulnerability in list view request. [#47329]
+
 ## [6.7.2] - 2026-02-03
 ### Changed
 - Replace use of confusing `esc_js` with `wp_json_encode`. [#46229]
@@ -3720,6 +3724,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Tested across 4 common web hosts
 - Tested with extensions: WooCommerce CRM Sync, PayPal CRM Sync, CSV Importer, ZBS CRM Mail Campaigns, and CRM Sales Dashboard
 
+[6.7.3]: https://github.com/Automattic/jetpack-crm/compare/6.7.2...6.7.3
 [6.7.2]: https://github.com/Automattic/jetpack-crm/compare/6.7.1...6.7.2
 [6.7.1]: https://github.com/Automattic/jetpack-crm/compare/6.7.0...6.7.1
 [6.7.0]: https://github.com/Automattic/jetpack-crm/compare/6.6.1...6.7.0
