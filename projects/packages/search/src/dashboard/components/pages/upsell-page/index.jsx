@@ -108,7 +108,6 @@ export default function UpsellPage( { isLoading = false } ) {
 		<>
 			{ isPageLoading && <Loading /> }
 			{ ! isPageLoading && (
-				// <div className="jp-search-dashboard-upsell-page uses-new-admin-ui">
 				<AdminPage
 					moduleName={ __( 'Jetpack Search', 'jetpack-search-pkg' ) }
 					title={ __( 'Search', 'jetpack-search-pkg' ) }
@@ -131,7 +130,6 @@ export default function UpsellPage( { isLoading = false } ) {
 						) }
 					</AdminSectionHero>
 				</AdminPage>
-				// </div>
 			) }
 		</>
 	);
