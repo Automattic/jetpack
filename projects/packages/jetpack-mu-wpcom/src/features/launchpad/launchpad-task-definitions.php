@@ -474,6 +474,10 @@ function wpcom_launchpad_get_task_definitions() {
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
 				if ( wpcom_launchpad_should_use_wp_admin_link() ) {
+					/** This filter is documented in jetpack-newsletter/src/class-settings.php */
+					if ( apply_filters( 'jetpack_wp_admin_newsletter_settings_enabled', false ) ) {
+						return admin_url( 'admin.php?page=jetpack-newsletter' );
+					}
 					return admin_url( 'admin.php?page=jetpack#/newsletter' );
 				}
 				return '/settings/newsletter/' . $data['site_slug_encoded'] . '#messages';
@@ -486,6 +490,10 @@ function wpcom_launchpad_get_task_definitions() {
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
 				if ( wpcom_launchpad_should_use_wp_admin_link() ) {
+					/** This filter is documented in jetpack-newsletter/src/class-settings.php */
+					if ( apply_filters( 'jetpack_wp_admin_newsletter_settings_enabled', false ) ) {
+						return admin_url( 'admin.php?page=jetpack-newsletter' );
+					}
 					return admin_url( 'admin.php?page=jetpack#/newsletter' );
 				}
 				return '/settings/newsletter/' . $data['site_slug_encoded'];
