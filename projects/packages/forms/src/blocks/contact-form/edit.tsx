@@ -1029,7 +1029,6 @@ function JetpackContactFormEdit( {
 
 		return (
 			<div { ...blockProps }>
-				{ /* Empty controls to hide the default panels from block supports */ }
 				<BlockControls>
 					<ConvertFormToolbar
 						clientId={ clientId }
