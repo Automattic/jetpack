@@ -40,7 +40,7 @@ jobs:
           [ "$claude_line" = "@AGENTS.md" ] || fail "charts/CLAUDE.md must contain exactly '@AGENTS.md'"
 
           # 3) Charts AGENTS references charts docs skill
-          rg -q '\.agents/skills/charts-docs\.md' projects/js-packages/charts/AGENTS.md \
+          grep -Eq '\.agents/skills/charts-docs\.md' projects/js-packages/charts/AGENTS.md \
             || fail "charts AGENTS.md must reference .agents/skills/charts-docs.md"
 
           # 4) Every `pnpm run <script>` in charts AGENTS exists in package.json
@@ -51,12 +51,12 @@ jobs:
                 echo "ERROR: charts AGENTS.md references missing npm script: ${script_name}" >&2
                 missing_scripts=1
               }
-          done < <(rg -o 'pnpm run [a-zA-Z0-9:_-]+' projects/js-packages/charts/AGENTS.md | awk '{print $3}' | sort -u)
+          done < <(grep -Eo 'pnpm run [a-zA-Z0-9:_-]+' projects/js-packages/charts/AGENTS.md | awk '{print $3}' | sort -u)
 
           [ "$missing_scripts" -eq 0 ] || fail "charts AGENTS.md contains invalid pnpm script references"
 
           # 5) Copilot instructions should route charts work to charts AGENTS
-          rg -q 'projects/js-packages/charts/AGENTS\.md' .github/copilot-instructions.md \
+          grep -Eq 'projects/js-packages/charts/AGENTS\.md' .github/copilot-instructions.md \
             || fail "copilot-instructions.md must reference charts AGENTS.md"
 
           echo "Charts agent docs guard passed."
