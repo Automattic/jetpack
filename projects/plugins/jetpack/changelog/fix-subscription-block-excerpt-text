@@ -1,4 +1,4 @@
 Significance: patch
 Type: bugfix
 
-Subscriptions: Only filter excerpts for newsletter emails, not on the front end.
+Subscriptions: Append paywall gate to excerpt on paid posts where the viewer cannot access the content.
