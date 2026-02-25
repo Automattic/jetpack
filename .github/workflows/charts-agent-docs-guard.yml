@@ -8,6 +8,9 @@ on:
       - '.claude/skills/charts-docs/**'
       - '.github/copilot-instructions.md'
 
+permissions:
+  contents: read
+
 jobs:
   charts-agent-docs-guard:
     name: Validate charts agent docs contract
