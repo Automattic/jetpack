@@ -1,3 +1,8 @@
+import {
+	__experimentalVStack as VStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+	__experimentalHeading as Heading, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+} from '@wordpress/components';
 import clsx from 'clsx';
 import JetpackLogo from '../jetpack-logo/index.tsx';
 import styles from './style.module.scss';
@@ -7,7 +12,7 @@ import type { FC } from 'react';
 /**
  * Unified admin page header component.
  *
- * Renders a sticky header with logo, product title, optional tagline,
+ * Renders a sticky header with logo, product title, optional subtitle,
  * actions, and tabs. Follows the `@wordpress/admin-ui` Page header pattern.
  *
  * @param {AdminHeaderProps} props - Component properties.
@@ -16,25 +21,40 @@ import type { FC } from 'react';
 const AdminHeader: FC< AdminHeaderProps > = ( {
 	logo,
 	title,
-	tagline,
+	subTitle,
 	actions,
-	tabs,
+	tabs = null,
 	className,
+	breadcrumbs = null,
+	badges = null,
 } ) => {
+	const classes = clsx( styles[ 'admin-header' ], className );
 	return (
-		<header className={ clsx( styles[ 'admin-header' ], className ) }>
-			<div className={ styles[ 'admin-header__title-row' ] }>
-				<div className={ styles[ 'admin-header__title' ] }>
-					<span className={ styles[ 'admin-header__logo' ] }>
-						{ logo || <JetpackLogo showText={ false } height={ 20 } /> }
-					</span>
-					<h1 className={ styles[ 'admin-header__product-name' ] }>{ title }</h1>
-				</div>
-				{ actions && <div className={ styles[ 'admin-header__actions' ] }>{ actions }</div> }
-			</div>
-			{ tagline && <p className={ styles[ 'admin-header__tagline' ] }>{ tagline }</p> }
+		<VStack className={ classes } as="header">
+			<HStack justify="space-between" spacing={ 2 }>
+				<HStack spacing={ 2 } justify="left">
+					{ title && (
+						<HStack spacing={ 2 } justify="left">
+							{ logo || <JetpackLogo showText={ false } height={ 20 } /> }
+							<Heading as="h2" level={ 3 } weight={ 500 } truncate>
+								{ title }
+							</Heading>
+						</HStack>
+					) }
+					{ breadcrumbs }
+					{ badges }
+				</HStack>
+				<HStack
+					style={ { width: 'auto', flexShrink: 0 } }
+					spacing={ 2 }
+					className="admin-ui-page__header-actions"
+				>
+					{ actions }
+				</HStack>
+			</HStack>
+			{ subTitle && <p className={ styles[ 'admin-header-subtitle' ] }>{ subTitle }</p> }
 			{ tabs }
-		</header>
+		</VStack>
 	);
 };
 

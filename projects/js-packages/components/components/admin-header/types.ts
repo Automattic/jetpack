@@ -12,9 +12,19 @@ export type AdminHeaderProps = {
 	title: string;
 
 	/**
-	 * Optional tagline displayed below the title row.
+	 * Optional subtitle displayed below the title row.
 	 */
-	tagline?: string;
+	subTitle?: string;
+
+	/**
+	 * Optional breadcrumb elements displayed next to the title.
+	 */
+	breadcrumbs?: ReactNode;
+
+	/**
+	 * Optional badge elements displayed next to the title.
+	 */
+	badges?: ReactNode;
 
 	/**
 	 * Optional action elements (buttons, links) displayed on the right side of the header.
