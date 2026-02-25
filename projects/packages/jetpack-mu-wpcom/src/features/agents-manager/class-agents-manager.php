@@ -176,9 +176,11 @@ class Agents_Manager {
 			wp_dequeue_style( 'help-center-style' );
 		}
 
-		// For non-Gutenberg environments, add to admin bar
-		// Gutenberg doesn't have an admin bar, so JS will handle UI insertion
-		if ( ! $is_gutenberg ) {
+		// For non-Gutenberg, non-CIAB environments, add to admin bar.
+		// Gutenberg doesn't have an admin bar, so JS will handle UI insertion.
+		// CIAB hides the classic admin bar and uses its own Site Hub — the JS variant handles UI there.
+		$is_ciab = $this->is_ciab_environment();
+		if ( ! $is_gutenberg && ! $is_ciab ) {
 			add_action(
 				'admin_bar_menu',
 				function ( $wp_admin_bar ) use ( $use_disconnected ) {
@@ -271,12 +273,14 @@ class Agents_Manager {
 	 * @return string|null The variant name, or null if scripts should not be loaded.
 	 */
 	private function get_variant() {
-		// CIAB/Next Admin: only load when disconnected (connected CIAB is handled by Help Center).
-		if ( $this->is_ciab_environment() ) {
-			if ( self::is_enabled() && $this->is_jetpack_disconnected() ) {
-				return 'ciab-disconnected';
-			}
+		// Universal: skip block editor if explicitly disabled (e.g. CIAB parent page already runs AM).
+		if ( $this->is_block_editor() && ! apply_filters( 'agents_manager_enqueue_in_block_editor', true ) ) {
 			return null;
+		}
+
+		// CIAB/Next Admin: always load. No is_enabled() gating — CIAB manages its own AI experience.
+		if ( $this->is_ciab_environment() ) {
+			return $this->is_jetpack_disconnected() ? 'ciab-disconnected' : 'ciab';
 		}
 
 		// Frontend: load disconnected variant for eligible logged-in editors.
@@ -321,6 +325,7 @@ class Agents_Manager {
 			return true;
 		}
 
+		// Note: CIAB environments bypass is_enabled() entirely — see get_variant().
 		return false;
 	}
 
