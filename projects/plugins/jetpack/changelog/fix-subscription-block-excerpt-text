@@ -1,4 +1,4 @@
 Significance: patch
 Type: bugfix
 
-Subscriptions: Append paywall gate to excerpt on paid posts where the viewer cannot access the content.
+Subscriptions: Remove jetpack_filter_excerpt_for_newsletter method from the excerpt filter.
