@@ -1,0 +1,8 @@
+/* Proxy file to import @wordpress/admin-ui styles.
+ *
+ * Importing the CSS via @import inside a .css file avoids the
+ * @wordpress/dependency-extraction-webpack-plugin externalization that
+ * breaks direct JS `import '@wordpress/admin-ui/build-style/style.css'`.
+ * css-loader resolves @import independently of the externals plugin.
+ */
+@import "@wordpress/admin-ui/build-style/style.css";
