@@ -2,6 +2,7 @@ import restApi from '@automattic/jetpack-api';
 import { __, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useEffect, useCallback } from 'react';
+import AdminHeader from '../admin-header/index.tsx';
 import JetpackFooter from '../jetpack-footer/index.tsx';
 import JetpackLogo from '../jetpack-logo/index.tsx';
 import Col from '../layout/col/index.tsx';
@@ -32,6 +33,11 @@ const AdminPage: FC< AdminPageProps > = ( {
 	apiNonce = '',
 	optionalMenuItems,
 	header,
+	title,
+	tagline,
+	logo,
+	actions,
+	tabs,
 } ) => {
 	useEffect( () => {
 		restApi.setApiRoot( apiRoot );
@@ -62,25 +68,35 @@ const AdminPage: FC< AdminPageProps > = ( {
 
 	return (
 		<div className={ rootClassName }>
-			{ showHeader && (
-				<Container horizontalSpacing={ 5 }>
-					<Col className={ clsx( styles[ 'admin-page-header' ], 'jp-admin-page-header' ) }>
-						{ header ? header : <JetpackLogo /> }
-						{ sandboxedDomain && (
-							<code
-								className={ styles[ 'sandbox-domain-badge' ] }
-								onClick={ testConnection }
-								onKeyDown={ testConnection }
-								// eslint-disable-next-line jsx-a11y/no-noninteractive-element-to-interactive-role
-								role="button"
-								tabIndex={ 0 }
-								title={ `Sandboxing via ${ sandboxedDomain }. Click to test connection.` }
-							>
-								API Sandboxed
-							</code>
-						) }
-					</Col>
-				</Container>
+			{ showHeader && title ? (
+				<AdminHeader
+					logo={ logo }
+					title={ title }
+					tagline={ tagline }
+					actions={ actions }
+					tabs={ tabs }
+				/>
+			) : (
+				showHeader && (
+					<Container horizontalSpacing={ 5 }>
+						<Col className={ clsx( styles[ 'admin-page-header' ], 'jp-admin-page-header' ) }>
+							{ header ? header : <JetpackLogo /> }
+							{ sandboxedDomain && (
+								<code
+									className={ styles[ 'sandbox-domain-badge' ] }
+									onClick={ testConnection }
+									onKeyDown={ testConnection }
+									// eslint-disable-next-line jsx-a11y/no-noninteractive-element-to-interactive-role
+									role="button"
+									tabIndex={ 0 }
+									title={ `Sandboxing via ${ sandboxedDomain }. Click to test connection.` }
+								>
+									API Sandboxed
+								</code>
+							) }
+						</Col>
+					</Container>
+				)
 			) }
 			<Container fluid horizontalSpacing={ 0 }>
 				<Col>{ children }</Col>
