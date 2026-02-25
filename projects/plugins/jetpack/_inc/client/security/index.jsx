@@ -1,4 +1,4 @@
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import { Component } from 'react';
 import { connect } from 'react-redux';
 import QueryAkismetKeyCheck from 'components/data/query-akismet-key-check';
@@ -16,6 +16,7 @@ import AllowList from './allowList';
 import Antispam from './antispam';
 import BackupsScan from './backups-scan';
 import { JetpackBackup } from './jetpack-backup';
+import McpCard from './mcp-card';
 import { Monitor } from './monitor';
 import { Protect } from './protect';
 import { SSO } from './sso';
@@ -78,7 +79,17 @@ export class Security extends Component {
 			foundAkismet = this.isAkismetFound(),
 			rewindActive = ! isSearchTerm && 'active' === this.props.rewindStatus?.state,
 			foundBackups = this.props.isModuleFound( 'vaultpress' ) || rewindActive,
-			foundMonitor = this.props.isModuleFound( 'monitor' );
+			foundMonitor = this.props.isModuleFound( 'monitor' ),
+			foundMcp =
+				! isSearchTerm ||
+				[
+					_x( 'ai', 'Search term.', 'jetpack' ),
+					_x( 'mcp', 'Search term.', 'jetpack' ),
+					_x( 'model context protocol', 'Search term.', 'jetpack' ),
+				]
+					.join( ' ' )
+					.toLowerCase()
+					.indexOf( isSearchTerm.toLowerCase() ) > -1;
 
 		if (
 			! foundSso &&
@@ -86,7 +97,8 @@ export class Security extends Component {
 			! foundAccountProtection &&
 			! foundAkismet &&
 			! foundBackups &&
-			! foundMonitor
+			! foundMonitor &&
+			! foundMcp
 		) {
 			return null;
 		}
@@ -127,6 +139,7 @@ export class Security extends Component {
 				{ foundProtect && <Protect { ...commonProps } /> }
 				{ ( foundWaf || foundProtect ) && <AllowList { ...commonProps } /> }
 				{ foundSso && <SSO { ...commonProps } /> }
+				{ foundMcp && <McpCard { ...commonProps } /> }
 			</div>
 		);
 	}

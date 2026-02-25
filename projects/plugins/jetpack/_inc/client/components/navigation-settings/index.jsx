@@ -228,13 +228,6 @@ export class NavigationSettings extends Component {
 							{ _x( 'Monetize', 'Navigation item.', 'jetpack' ) }
 						</NavItem>
 					) }
-					<NavItem
-						path="#ai"
-						onClick={ this.handleClickForTracking( 'ai' ) }
-						selected={ this.props.location.pathname === '/ai' }
-					>
-						{ _x( 'AI', 'Navigation item.', 'jetpack' ) }
-					</NavItem>
 				</NavTabs>
 			);
 		} else if ( this.props.isSubscriber ) {

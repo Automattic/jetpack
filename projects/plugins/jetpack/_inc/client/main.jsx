@@ -145,7 +145,6 @@ const settingsRoutes = [
 	'/newsletter',
 	'/reader',
 	'/traffic',
-	'/ai',
 	'/privacy',
 ];
 
@@ -333,7 +332,6 @@ class Main extends Component {
 			case '/newsletter':
 			case '/reader':
 			case '/traffic':
-			case '/ai':
 			case '/privacy':
 				return (
 					<NavigationSettings
@@ -548,7 +546,6 @@ class Main extends Component {
 			case '/newsletter':
 			case '/reader':
 			case '/traffic':
-			case '/ai':
 			case '/privacy':
 				pageComponent = (
 					<SearchableSettings
