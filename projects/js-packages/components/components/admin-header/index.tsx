@@ -3,9 +3,7 @@ import {
 	__experimentalHeading as Heading, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
-import clsx from 'clsx';
 import JetpackLogo from '../jetpack-logo/index.tsx';
-import styles from './style.module.scss';
 import type { AdminHeaderProps } from './types.ts';
 import type { FC } from 'react';
 
@@ -28,7 +26,7 @@ const AdminHeader: FC< AdminHeaderProps > = ( {
 	breadcrumbs = null,
 	badges = null,
 } ) => {
-	const classes = clsx( styles[ 'admin-header' ], className );
+	const classes = className;
 
 	// While admin-ui Page has a title prop, it fails to render both the logo and
 	// text. Internally it tries to accommodate both inside Heading.
