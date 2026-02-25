@@ -35,10 +35,16 @@ jobs:
           [ -f "projects/js-packages/charts/CLAUDE.md" ] || fail "Missing projects/js-packages/charts/CLAUDE.md"
           [ -f ".github/copilot-instructions.md" ] || fail "Missing .github/copilot-instructions.md"
           [ -f ".agents/skills/charts-docs.md" ] || fail "Missing .agents/skills/charts-docs.md"
+          [ -f ".claude/skills/charts-docs/SKILL.md" ] || fail "Missing .claude/skills/charts-docs/SKILL.md"
 
           # 2) CLAUDE shim points to AGENTS.md
           claude_line="$(tr -d '\r' < projects/js-packages/charts/CLAUDE.md | sed -e 's/[[:space:]]*$//')"
           [ "$claude_line" = "@AGENTS.md" ] || fail "charts/CLAUDE.md must contain exactly '@AGENTS.md'"
+
+          # 2b) Claude charts skill points to shared charts docs skill
+          charts_skill_line="$(tr -d '\r' < .claude/skills/charts-docs/SKILL.md | sed -e 's/[[:space:]]*$//')"
+          [ "$charts_skill_line" = "@../../../.agents/skills/charts-docs.md" ] \
+            || fail ".claude/skills/charts-docs/SKILL.md must contain exactly '@../../../.agents/skills/charts-docs.md'"
 
           # 3) Charts AGENTS references charts docs skill
           grep -Eq '\.agents/skills/charts-docs\.md' projects/js-packages/charts/AGENTS.md \
