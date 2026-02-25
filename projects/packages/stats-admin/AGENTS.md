@@ -52,7 +52,7 @@ This package depends on several Jetpack packages:
 
 ## Common Pitfalls
 
-- **Do NOT modify Odyssey React code here** - it lives in Calypso (`wp-calypso` repo), not this package.
+- **Do NOT modify Odyssey React code here** - it lives in Calypso (`wp-calypso` repo - <https://github.com/Automattic/wp-calypso>), not this package.
 - **Transient caching** - The `WPCOM_Client` class uses transients for caching. The `stats` package handles cleanup via `jetpack_stats_transient_cleanup_prefixes` filter.
 - **JITM disabled on Stats page** - JITMs are intentionally disabled on the stats page (handled separately by Calypso).
 - **Simple vs Jetpack sites** - Some features may behave differently. Always check site context.
