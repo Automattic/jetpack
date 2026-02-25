@@ -27,7 +27,6 @@ import Price from 'components/price';
 import SearchPromotionBlock from 'components/search-promotion';
 import useProductCheckoutWorkflow from 'hooks/use-product-checkout-workflow';
 import { STORE_ID } from 'store';
-import Header from './header';
 
 import './styles.scss';
 
@@ -44,11 +43,14 @@ export default function UpsellPage( { isLoading = false } ) {
 	// Introduce the gate for new pricing with URL parameter `new_pricing_202208=1`
 	const APINonce = useSelect( select => select( STORE_ID ).getAPINonce(), [] );
 	const isNewPricing = useSelect( select => select( STORE_ID ).isNewPricing202208(), [] );
+	const isWpcom = useSelect( select => select( STORE_ID ).isWpcom(), [] );
+	const activateLicenseUrl = useSelect(
+		select => `${ select( STORE_ID ).getSiteAdminUrl() }admin.php?page=my-jetpack#/add-license`
+	);
 	useSelect( select => select( STORE_ID ).getSearchPricing(), [] );
 	const domain = useSelect( select => select( STORE_ID ).getCalypsoSlug(), [] );
 	const blogID = useSelect( select => select( STORE_ID ).getBlogId(), [] );
 	const adminUrl = useSelect( select => select( STORE_ID ).getSiteAdminUrl(), [] );
-	const isWpcom = useSelect( select => select( STORE_ID ).isWpcom(), [] );
 
 	const { fetchSearchPlanInfo } = useDispatch( STORE_ID );
 	const checkSiteHasSearchProduct = useCallback( () => {
@@ -90,29 +92,46 @@ export default function UpsellPage( { isLoading = false } ) {
 		[ isLoading, hasCheckoutStartedPaid, hasCheckoutStartedFree ]
 	);
 
+	const licenseAction = ! isWpcom
+		? createInterpolateElement(
+				__(
+					'Already have an existing plan or license key? <a>Click here to get started</a>',
+					'jetpack-search-pkg'
+				),
+				{
+					a: <a href={ activateLicenseUrl } />,
+				}
+		  )
+		: null;
+
 	return (
 		<>
 			{ isPageLoading && <Loading /> }
 			{ ! isPageLoading && (
-				<div className="jp-search-dashboard-upsell-page">
-					<AdminPage
-						moduleName={ __( 'Jetpack Search', 'jetpack-search-pkg' ) }
-						header={ <Header /> }
-						moduleNameHref={ JETPACK_SEARCH__LINK }
-						useInternalLinks={ shouldUseInternalLinks() }
-					>
-						<AdminSectionHero>
-							{ isNewPricing ? (
-								<NewPricingComponent
-									sendToCartPaid={ sendToCartPaid }
-									sendToCartFree={ sendToCartFree }
-								/>
-							) : (
-								<OldPricingComponent sendToCart={ sendToCartPaid } />
-							) }
-						</AdminSectionHero>
-					</AdminPage>
-				</div>
+				// <div className="jp-search-dashboard-upsell-page uses-new-admin-ui">
+				<AdminPage
+					moduleName={ __( 'Jetpack Search', 'jetpack-search-pkg' ) }
+					title={ __( 'Search', 'jetpack-search-pkg' ) }
+					subTitle={ __(
+						'Help you visitors find exactly what they are looking for.',
+						'jetpack-search-pkg'
+					) }
+					actions={ licenseAction }
+					moduleNameHref={ JETPACK_SEARCH__LINK }
+					useInternalLinks={ shouldUseInternalLinks() }
+				>
+					<AdminSectionHero>
+						{ isNewPricing ? (
+							<NewPricingComponent
+								sendToCartPaid={ sendToCartPaid }
+								sendToCartFree={ sendToCartFree }
+							/>
+						) : (
+							<OldPricingComponent sendToCart={ sendToCartPaid } />
+						) }
+					</AdminSectionHero>
+				</AdminPage>
+				// </div>
 			) }
 		</>
 	);

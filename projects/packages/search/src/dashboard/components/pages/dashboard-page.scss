@@ -21,7 +21,7 @@ body {
 		sans-serif;
 }
 
-#wpcontent {
+#wpcontent:not:has(.uses-new-admin-ui) {
 	padding-left: 0 !important;
 }
 
