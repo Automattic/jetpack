@@ -274,12 +274,12 @@ class Agents_Manager {
 	 */
 	private function get_variant() {
 		// Universal: skip block editor if explicitly disabled (e.g. CIAB parent page already runs AM).
-		if ( $this->is_block_editor() && ! apply_filters( 'agents_manager_enqueue_in_block_editor', true ) ) {
+		if ( self::is_block_editor() && ! apply_filters( 'agents_manager_enqueue_in_block_editor', true ) ) {
 			return null;
 		}
 
-		// CIAB/Next Admin: always load. No is_enabled() gating — CIAB manages its own AI experience.
-		if ( $this->is_ciab_environment() ) {
+		// CIAB: Load either the connected or disconnected variants if enabled.
+		if ( $this->is_ciab_environment() && self::is_enabled() ) {
 			return $this->is_jetpack_disconnected() ? 'ciab-disconnected' : 'ciab';
 		}
 
@@ -315,6 +315,17 @@ class Agents_Manager {
 	 * @return bool
 	 */
 	public static function is_enabled() {
+		// CIAB: Agents Manager is the default AI experience — enabled unless explicitly
+		// disabled via filter (e.g. for debugging or gradual rollout).
+		if ( (bool) did_action( 'next_admin_init' ) ) {
+			/**
+			 * Filter whether Agents Manager is enabled in CIAB (Next Admin) environments.
+			 *
+			 * @param bool $enabled Whether Agents Manager should load. Default true.
+			 */
+			return apply_filters( 'agents_manager_enabled_in_ciab', true );
+		}
+
 		// Full unified experience: Agents Manager with support guides, Help Center takeover, etc.
 		if ( apply_filters( 'agents_manager_use_unified_experience', false ) ) {
 			return true;
@@ -325,7 +336,6 @@ class Agents_Manager {
 			return true;
 		}
 
-		// Note: CIAB environments bypass is_enabled() entirely — see get_variant().
 		return false;
 	}
 
