@@ -153,9 +153,6 @@ function register_block() {
 	// Hide existing comments
 	add_filter( 'get_comment', __NAMESPACE__ . '\maybe_gate_existing_comments' );
 
-	// Gate the excerpt for a post
-	add_filter( 'get_the_excerpt', __NAMESPACE__ . '\jetpack_filter_excerpt_for_newsletter', 10, 2 );
-
 	// Add a 'Newsletter' column to the Edit posts page
 	// We only display the "Newsletter" column if we have configured the paid newsletter plan
 	if ( defined( 'WP_ADMIN' ) && WP_ADMIN && Jetpack_Memberships::has_configured_plans_jetpack_recurring_payments( 'newsletter' ) ) {
@@ -980,36 +977,6 @@ function render_email( $block_content, array $parsed_block, $rendering_context )
 		$button_parsed_block,
 		$rendering_context
 	);
-}
-
-/**
- * Filter excerpts looking for subscription data.
- *
- * @param string   $excerpt The extrapolated excerpt string.
- * @param \WP_Post $post    The current post being processed (in `get_the_excerpt`).
- *
- * @return mixed
- */
-function jetpack_filter_excerpt_for_newsletter( $excerpt, $post = null ) {
-	// Only gate paid posts where the viewer cannot access the content.
-	if ( ! is_paid_post() ) {
-		return $excerpt;
-	}
-
-	require_once JETPACK__PLUGIN_DIR . 'modules/memberships/class-jetpack-memberships.php';
-
-	$post_id = null;
-	if ( $post instanceof \WP_Post ) {
-		$post_id = $post->ID;
-	}
-
-	if ( Jetpack_Memberships::user_can_view_post( $post_id ) ) {
-		return $excerpt;
-	}
-
-	$excerpt .= get_paywall_blocks();
-
-	return $excerpt;
 }
 
 /**
