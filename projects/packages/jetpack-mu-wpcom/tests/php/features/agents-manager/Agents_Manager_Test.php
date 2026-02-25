@@ -1370,7 +1370,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		set_current_screen( 'post' );
 		$screen = get_current_screen();
 
-		// Use reflection to set the block_editor property.
+		// Use reflection to set the is_block_editor property.
 		$reflection = new \ReflectionClass( $screen );
 		$property   = $reflection->getProperty( 'is_block_editor' );
 		if ( PHP_VERSION_ID < 80100 ) {
@@ -1380,7 +1380,8 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 
 		$_SERVER['REQUEST_URI'] = '/wp-admin/post.php';
 
-		// Enable unified experience so the test reaches the filter check.
+		// Enable unified experience so should_enqueue_script() would otherwise return true,
+		// ensuring this test actually exercises the agents_manager_enqueue_in_block_editor filter.
 		add_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
 		// Disable enqueue in block editor via the new filter.
 		add_filter( 'agents_manager_enqueue_in_block_editor', '__return_false' );
