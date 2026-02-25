@@ -151,7 +151,12 @@ const OptionEdit = ( {
 						<ToggleControl
 							label={ __( '"Other" option', 'jetpack-forms' ) }
 							checked={ !! isOther }
-							onChange={ value => setAttributes( { isOther: value } ) }
+							onChange={ value =>
+								setAttributes( {
+									isOther: value,
+									label: value ? '' : label,
+								} )
+							}
 							help={ __(
 								'Show as "Other" option with a text input field below it.',
 								'jetpack-forms'
@@ -169,7 +174,7 @@ const OptionEdit = ( {
 					tagName="div"
 					className="wp-block"
 					value={ labelValue }
-					placeholder={ __( 'Add option…', 'jetpack-forms' ) }
+					placeholder={ placeholderValue }
 					__unstableDisableFormats
 					onChange={ newLabel => setAttributes( { label: newLabel } ) }
 					onMerge={ mergeBlocks }
