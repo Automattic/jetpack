@@ -1,6 +1,20 @@
-# Jetpack Stats Admin Package
+# AGENTS.md
 
-This package provides the Stats Dashboard UI for WordPress admin.
+This file provides guidance to AI coding agents when working with code in this repository.
+
+## Essential Documentation
+
+**Primary Reference**: [Stats Admin README.md](./README.md) - Package overview and installation
+
+**Additional Resources**:
+
+- [Automated Testing Overview](../../../docs/automated-testing.md) - Testing patterns and strategies
+- [Coding Standards & Guidelines](../../../docs/coding-guidelines.md) - Development best practices
+- [Jetpack CLI Documentation](../../../tools/cli/README.md) - CLI commands and workflows
+
+## Project Overview
+
+This package provides the Stats Dashboard UI infrastructure for WordPress admin.
 
 - **Namespace**: `Automattic\Jetpack\Stats_Admin`
 - **Text Domain**: `jetpack-stats-admin`
@@ -29,8 +43,8 @@ composer test-php
 # Run specific test file
 composer phpunit -- --filter Dashboard_Test
 
-# Lint PHP
-composer phpcs
+# Lint PHP (run from the monorepo root)
+jetpack lint-php
 ```
 
 ## Dependencies
@@ -47,8 +61,8 @@ This package depends on several Jetpack packages:
 ## Architectural Decisions
 
 - **Odyssey Dashboard**: The main stats dashboard uses the Odyssey React app loaded from Calypso (`stats.wp.com`). This package provides the PHP wrapper and config data.
-- **REST API**: Proxies requests to WPCOM stats endpoints. Caches responses using transients with prefix `STATS_REST_RESP_`. `wpcom/v1` endpionts are forwarded to WPCOM directed rather than through the stats package.
-- **Relationship with `stats` package**: This package handles admin UI but is not the UI; the `stats` package handles backend tracking and data fetching. They are separate but related.
+- **REST API**: Proxies requests to WordPress.com stats APIs via the internal `WPCOM_Client`. Responses are cached using transients with prefix `STATS_REST_RESP_`.
+- **Relationship with `stats` package**: This package provides the WordPress admin UI infrastructure (PHP wrapper and integration for the Odyssey dashboard), while the `stats` package handles backend tracking and data fetching. They are separate but related.
 
 ## Common Pitfalls
 
