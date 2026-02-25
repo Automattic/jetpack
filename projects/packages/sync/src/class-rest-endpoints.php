@@ -840,7 +840,7 @@ class REST_Endpoints {
 	public static function clear_queue( $request ) {
 		$queue_name = $request->get_param( 'queue' );
 
-		if ( ! in_array( $queue_name, array( 'sync', 'full_sync' ), true ) ) {
+		if ( ! in_array( $queue_name, array( 'sync' ), true ) ) {
 			return new WP_Error( 'invalid_queue', 'Queue name should be sync or full_sync', array( 'status' => 400 ) );
 		}
 

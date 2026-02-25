@@ -284,7 +284,7 @@ class REST_Endpoints_Test extends TestCase {
 	}
 
 	/**
-	 * Testing the `POST /jetpack/v4/sync/clear-queue` endpoint rejects queue names other than sync and full_sync.
+	 * Testing the `POST /jetpack/v4/sync/clear-queue` endpoint rejects queue names other than sync.
 	 *
 	 * @param string $queue_name Queue name to test.
 	 * @dataProvider clear_queue_invalid_queue_provider
@@ -314,6 +314,7 @@ class REST_Endpoints_Test extends TestCase {
 	 */
 	public static function clear_queue_invalid_queue_provider() {
 		return array(
+			array( 'full_sync' ),
 			array( 'immediate' ),
 			array( 'invalid_queue' ),
 		);
