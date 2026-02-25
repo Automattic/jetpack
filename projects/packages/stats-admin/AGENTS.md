@@ -60,7 +60,7 @@ This package depends on several Jetpack packages:
 
 ## Architectural Decisions
 
-- **Odyssey Dashboard**: The main stats dashboard uses the Odyssey React app loaded from Calypso (`stats.wp.com`). This package provides the PHP wrapper and config data.
+- **Odyssey Dashboard**: The main stats dashboard uses the Odyssey React app built in Calypso (wp-calypso repo) and loaded via the CDN at `https://widgets.wp.com/odyssey-stats/`. This package provides the PHP wrapper and config data.
 - **REST API**: Proxies requests to WordPress.com stats APIs via the internal `WPCOM_Client`. Responses are cached using transients with prefix `STATS_REST_RESP_`.
 - **Relationship with `stats` package**: This package provides the WordPress admin UI infrastructure (PHP wrapper and integration for the Odyssey dashboard), while the `stats` package handles backend tracking and data fetching. They are separate but related.
 
