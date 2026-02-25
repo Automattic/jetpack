@@ -302,13 +302,12 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 	const prefersReducedMotion = usePrefersReducedMotion();
 
 	if ( ! isValid ) {
+		const errorWidth = Math.min( propWidth || 400, ( propHeight || ( propWidth || 400 ) / 2 ) * 2 );
+		const errorHeight = errorWidth / 2;
+
 		return (
 			<div className={ styles[ 'pie-semi-circle-chart' ] }>
-				<svg
-					width={ propWidth || 400 }
-					height={ ( propWidth || 400 ) / 2 }
-					data-testid="pie-chart-svg"
-				>
+				<svg width={ errorWidth } height={ errorHeight } data-testid="pie-chart-svg">
 					<text x="50%" y="50%" textAnchor="middle" className={ styles.error }>
 						{ message }
 					</text>
