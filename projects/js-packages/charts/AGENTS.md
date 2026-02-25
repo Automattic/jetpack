@@ -17,7 +17,7 @@ This file provides AI coding agents with specific instructions and context for w
 
 ```bash
 # Development
-pnpm run build:dev          # Development build with source maps
+pnpm run build              # Build the package
 pnpm run storybook          # Start Storybook development server
 pnpm run typecheck          # TypeScript type checking
 
