@@ -269,7 +269,10 @@ class REST_Endpoints_Test extends TestCase {
 		$user = wp_get_current_user();
 		$user->add_cap( 'manage_options' );
 
-		$request  = new WP_REST_Request( 'POST', '/jetpack/v4/sync/clear-queue' );
+		set_transient( Sender::TEMP_SYNC_DISABLE_TRANSIENT_NAME, time() );
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/sync/clear-queue' );
+		$request->set_header( 'Content-Type', 'application/json' );
 		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
 
@@ -278,6 +281,7 @@ class REST_Endpoints_Test extends TestCase {
 		$this->assertEquals( 200, $response->get_status() );
 		$this->assertTrue( $data['success'] );
 		$this->assertEquals( 'sync', $data['queue'] );
+		$this->assertFalse( get_transient( Sender::TEMP_SYNC_DISABLE_TRANSIENT_NAME ) );
 	}
 
 	/**
@@ -301,7 +305,7 @@ class REST_Endpoints_Test extends TestCase {
 			array( 'sync/data-check', 'GET', null ),
 			array( 'sync/data-histogram', 'POST', null ),
 			array( 'sync/locks', 'DELETE', null ),
-			array( 'sync/clear-queue', 'POST', '{ "queue": "sync" }' ),
+			array( 'sync/clear-queue', 'POST', null ),
 		);
 	}
 
