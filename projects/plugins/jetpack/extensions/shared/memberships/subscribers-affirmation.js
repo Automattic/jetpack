@@ -3,7 +3,7 @@ import { isComingSoon } from '@automattic/jetpack-shared-extension-utils';
 import { Animate } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
-import { createInterpolateElement, useRef, useEffect } from '@wordpress/element';
+import { createInterpolateElement, useRef, useLayoutEffect } from '@wordpress/element';
 import { sprintf, __, _n } from '@wordpress/i18n';
 import paywallBlockMetadata from '../../blocks/paywall/block.json';
 import {
@@ -410,7 +410,7 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 		[ status, postId ]
 	);
 
-	useEffect( () => {
+	useLayoutEffect( () => {
 		if ( status === 'publish' ) {
 			if ( wasPublishedOnLoad.current === undefined ) {
 				wasPublishedOnLoad.current = true;
@@ -429,6 +429,17 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 		}
 		prevStatusRef.current = status;
 	}, [ status, postId, postEmailSentState?.email_sent_at, dispatch, postMeta ] );
+
+	useLayoutEffect( () => {
+		if (
+			postId &&
+			status === 'publish' &&
+			transitionedToPublishInSession.current &&
+			postEmailSentState?.email_sent_at != null
+		) {
+			dispatch( setRepublishedAlreadySentPostInSession( postId ) );
+		}
+	}, [ postId, status, postEmailSentState?.email_sent_at, dispatch ] );
 
 	if ( ! hasFinishedLoading ) {
 		return (
@@ -457,7 +468,8 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 			publishedWithEmailEnabledInSession ||
 			( wasPublishedOnLoad.current &&
 				publishDate &&
-				publishDate.getTime() >= Date.now() - SENDING_IN_PROGRESS_WINDOW_MS ) );
+				publishDate.getTime() >= Date.now() - SENDING_IN_PROGRESS_WINDOW_MS ) ||
+			( publishDate && publishDate.getTime() >= Date.now() - SENDING_IN_PROGRESS_WINDOW_MS ) );
 	const isPublishedNotSent =
 		status === 'publish' && isSendEmailEnabled() && emailSentAt == null && ! isSendingInProgress;
 
