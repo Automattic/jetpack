@@ -59,16 +59,13 @@ class McpCard extends Component {
 		return (
 			<SettingsCard
 				{ ...this.props }
-				header={ _x( 'AI', 'Settings header', 'jetpack' ) }
+				header={ _x( 'MCP access', 'Settings header', 'jetpack' ) }
 				hideButton
 			>
 				<SettingsGroup hasChild>
 					{ ! hasAbilities && (
 						<p className="jp-form-setting-explanation">
-							{ __(
-								'MCP (Model Context Protocol) abilities are not available on this site.',
-								'jetpack'
-							) }
+							{ __( 'Enable MCP access for external AI assistants.', 'jetpack' ) }
 						</p>
 					) }
 					{ hasAbilities && (
