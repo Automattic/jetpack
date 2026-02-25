@@ -898,8 +898,6 @@ const variations = [
 						'core/button',
 						{
 							tagName: 'button',
-							uniqueId: 'previous-step',
-							customVariant: 'previous',
 							text: __( '← Back', 'jetpack-forms' ),
 							className: 'is-style-outline form-button-previous is-previous',
 							metadata: { name: __( 'Previous button', 'jetpack-forms' ) },
@@ -909,8 +907,6 @@ const variations = [
 						'core/button',
 						{
 							tagName: 'button',
-							uniqueId: 'next-step',
-							customVariant: 'next',
 							className: 'form-button-next is-next',
 							text: __( 'Next →', 'jetpack-forms' ),
 							metadata: { name: __( 'Next button', 'jetpack-forms' ) },
@@ -920,8 +916,6 @@ const variations = [
 						'core/button',
 						{
 							tagName: 'button',
-							uniqueId: 'submit-step',
-							customVariant: 'submit',
 							className: 'form-button-submit is-submit',
 							type: 'submit',
 							text: __( 'Submit', 'jetpack-forms' ),
