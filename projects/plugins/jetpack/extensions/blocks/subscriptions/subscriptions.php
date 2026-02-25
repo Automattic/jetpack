@@ -991,21 +991,23 @@ function render_email( $block_content, array $parsed_block, $rendering_context )
  * @return mixed
  */
 function jetpack_filter_excerpt_for_newsletter( $excerpt, $post = null ) {
-	// Only modify excerpts when rendering a newsletter email.
-	if ( ! defined( 'IS_HTML_EMAIL' ) && ! defined( 'IS_WC_EMAIL' ) ) {
+	// Only gate paid posts where the viewer cannot access the content.
+	if ( ! is_paid_post() ) {
 		return $excerpt;
 	}
 
-	// The blogmagazine theme is overriding WP core `get_the_excerpt` filter and only passing the excerpt
-	// TODO: Until this is fixed, return the excerpt without gating. See https://github.com/Automattic/jetpack/pull/28102#issuecomment-1369161116
-	if ( $post instanceof \WP_Post && has_block( 'jetpack/subscriptions', $post ) ) {
-		$excerpt .= '<br/><br/>';
-		$excerpt .= sprintf(
-			// translators: %s is the permalink url to the current post.
-			__( "<p><a href='%s'>View post</a> to subscribe to the site's newsletter.</p>", 'jetpack' ),
-			get_post_permalink()
-		);
+	require_once JETPACK__PLUGIN_DIR . 'modules/memberships/class-jetpack-memberships.php';
+
+	$post_id = null;
+	if ( $post instanceof \WP_Post ) {
+		$post_id = $post->ID;
 	}
+
+	if ( Jetpack_Memberships::user_can_view_post( $post_id ) ) {
+		return $excerpt;
+	}
+
+	$excerpt .= get_paywall_blocks();
 
 	return $excerpt;
 }
