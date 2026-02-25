@@ -498,7 +498,8 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 		} else if ( status === 'publish' ) {
 			text = __(
 				"This post was published without sending an email. To send, move the post to draft, enable 'Post and email,' and republish.",
-				'jetpack'
+				'jetpack',
+				0 // dummy arg to avoid bad minification - https://github.com/Automattic/i18n-check-webpack-plugin?tab=readme-ov-file#conditional-function-call-compaction
 			);
 		} else {
 			text = __( 'Not sent via email.', 'jetpack' );
