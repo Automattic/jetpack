@@ -209,6 +209,16 @@
 			margin: unset;
 		}
 	}
+
+	/* Fixes notices styling when gutenberg is not there */
+	.components-notice {
+		margin-top: 8px;
+
+		.components-notice__action.components-button {
+			margin-left: 0;
+			margin-top: 8px;
+		}
+	}
 }
 
 .jetpack-contact-form .components-placeholder {
@@ -1105,19 +1115,6 @@
 :where(.is-style-outlined .jetpack-contact-form .jetpack-field .notched-label__trailing) {
 	border: var(--jetpack--contact-form--border);
 	background-color: var(--jetpack--contact-form--input-background);
-}
-
-.wp-block-jetpack-contact-form
-.components-notice.jetpack-contact-form-widget-editor-readonly-notice
-.components-notice__actions
-.components-button {
-	margin-left: 0;
-	margin-top: 12px;
-}
-
-.wp-block-jetpack-contact-form
-.components-notice.jetpack-contact-form-widget-editor-readonly-notice {
-	margin-top: 8px;
 }
 
 :where(.wp-block-jetpack-contact-form.is-style-outlined) {
