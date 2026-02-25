@@ -1,7 +1,7 @@
 import { getAdminUrl } from '@automattic/jetpack-script-data';
 import { isComingSoon } from '@automattic/jetpack-shared-extension-utils';
 import { Animate } from '@wordpress/components';
-import { useSelect } from '@wordpress/data';
+import { useDispatch, useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { createInterpolateElement, useRef, useEffect } from '@wordpress/element';
 import { sprintf, __, _n } from '@wordpress/i18n';
@@ -12,6 +12,10 @@ import {
 } from '../../shared/memberships/constants';
 import { getReachForAccessLevelKey } from '../../shared/memberships/settings';
 import { store as membershipProductsStore } from '../../store/membership-products';
+import {
+	setPublishedWithEmailEnabledInSession,
+	setRepublishedAlreadySentPostInSession,
+} from '../../store/membership-products/actions';
 
 /**
  * Get the formatted list of categories for a post.
@@ -342,23 +346,12 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 		}
 	);
 
-	useEffect( () => {
-		if ( status === 'publish' ) {
-			if ( wasPublishedOnLoad.current === undefined ) {
-				wasPublishedOnLoad.current = true;
-			}
-			if ( prevStatusRef.current !== null && prevStatusRef.current !== 'publish' ) {
-				transitionedToPublishInSession.current = true;
-			}
-		}
-		prevStatusRef.current = status;
-	}, [ status ] );
-
 	const isSendEmailEnabled = () => {
 		return ! postMeta?.[ META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS ];
 	};
 
 	const blogId = window.Jetpack_Editor_Initial_State?.wpcomBlogId;
+	const dispatch = useDispatch( membershipProductsStore );
 	const {
 		emailSubscribersCount,
 		hasFinishedLoading,
@@ -367,6 +360,8 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 		newsletterCategorySubscriberCount,
 		paidSubscribersCount,
 		postEmailSentState,
+		republishedAlreadySentInSession,
+		publishedWithEmailEnabledInSession,
 	} = useSelect(
 		select => {
 			const {
@@ -374,14 +369,16 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 				getNewsletterCategoriesEnabled,
 				getNewsletterCategoriesSubscriptionsCount,
 				getPostEmailSentState,
+				getPublishedWithEmailEnabledInSession,
+				getRepublishedAlreadySentPostInSession,
 				getSubscriberCounts,
 				hasFinishedResolution,
 			} = select( membershipProductsStore );
 
 			const { emailSubscribers, paidSubscribers } = getSubscriberCounts();
 
-			// Trigger fetch when post is published so we have email_sent_at / stats_on_send
-			if ( status === 'publish' && postId ) {
+			// Trigger fetch when we have a postId so we have email_sent_at / stats_on_send (including for draft)
+			if ( postId ) {
 				getPostEmailSentState( postId );
 			}
 
@@ -401,11 +398,37 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 				newsletterCategoriesEnabled: getNewsletterCategoriesEnabled(),
 				newsletterCategorySubscriberCount: getNewsletterCategoriesSubscriptionsCount(),
 				paidSubscribersCount: paidSubscribers,
-				postEmailSentState: status === 'publish' && postId ? getPostEmailSentState( postId ) : null,
+				postEmailSentState: postId ? getPostEmailSentState( postId ) : null,
+				republishedAlreadySentInSession: postId
+					? getRepublishedAlreadySentPostInSession( postId )
+					: false,
+				publishedWithEmailEnabledInSession: postId
+					? getPublishedWithEmailEnabledInSession( postId )
+					: false,
 			};
 		},
 		[ status, postId ]
 	);
+
+	useEffect( () => {
+		if ( status === 'publish' ) {
+			if ( wasPublishedOnLoad.current === undefined ) {
+				wasPublishedOnLoad.current = true;
+			}
+			if ( prevStatusRef.current !== null && prevStatusRef.current !== 'publish' ) {
+				transitionedToPublishInSession.current = true;
+				if ( postId ) {
+					if ( postEmailSentState?.email_sent_at != null ) {
+						dispatch( setRepublishedAlreadySentPostInSession( postId ) );
+					}
+					if ( ! postMeta?.[ META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS ] ) {
+						dispatch( setPublishedWithEmailEnabledInSession( postId ) );
+					}
+				}
+			}
+		}
+		prevStatusRef.current = status;
+	}, [ status, postId, postEmailSentState?.email_sent_at, dispatch, postMeta ] );
 
 	if ( ! hasFinishedLoading ) {
 		return (
@@ -431,6 +454,7 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 		isSendEmailEnabled() &&
 		emailSentAt == null &&
 		( transitionedToPublishInSession.current ||
+			publishedWithEmailEnabledInSession ||
 			( wasPublishedOnLoad.current &&
 				publishDate &&
 				publishDate.getTime() >= Date.now() - SENDING_IN_PROGRESS_WINDOW_MS ) );
@@ -471,6 +495,11 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 				),
 				formatSentDate( emailSentAt, null )
 			);
+		} else if ( status === 'publish' ) {
+			text = __(
+				"This post was published without sending an email. To send, move the post to draft, enable 'Post and email,' and republish.",
+				'jetpack'
+			);
 		} else {
 			text = __( 'Not sent via email.', 'jetpack' );
 		}
@@ -503,7 +532,7 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 				dateStr
 			);
 		}
-		if ( transitionedToPublishInSession.current ) {
+		if ( transitionedToPublishInSession.current || republishedAlreadySentInSession ) {
 			append = __( 'Updating or republishing does not send a new email.', 'jetpack' );
 		}
 		const statsAccess = statsOnSend?.access_level;

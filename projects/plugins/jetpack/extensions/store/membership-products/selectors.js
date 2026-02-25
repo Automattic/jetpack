@@ -44,6 +44,16 @@ export const getPostEmailSentState = ( state, postId ) => {
 	return state.postEmailSentState || { email_sent_at: null, stats_on_send: null };
 };
 
+export const getRepublishedAlreadySentPostInSession = ( state, postId ) =>
+	!! (
+		state.republishedAlreadySentPostInSession && state.republishedAlreadySentPostInSession[ postId ]
+	);
+
+export const getPublishedWithEmailEnabledInSession = ( state, postId ) =>
+	!! (
+		state.publishedWithEmailEnabledInSession && state.publishedWithEmailEnabledInSession[ postId ]
+	);
+
 export const hasInvalidProducts = ( state, selectedProductIds ) => {
 	return (
 		!! selectedProductIds &&

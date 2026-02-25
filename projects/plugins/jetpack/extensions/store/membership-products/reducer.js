@@ -20,6 +20,8 @@ export const DEFAULT_STATE = {
 		email_sent_at: null,
 		stats_on_send: null,
 	},
+	republishedAlreadySentPostInSession: {},
+	publishedWithEmailEnabledInSession: {},
 };
 
 export default function reducer( state = DEFAULT_STATE, action ) {
@@ -56,6 +58,22 @@ export default function reducer( state = DEFAULT_STATE, action ) {
 			return {
 				...state,
 				postEmailSentState: action.payload,
+			};
+		case 'SET_REPUBLISHED_ALREADY_SENT_POST_IN_SESSION':
+			return {
+				...state,
+				republishedAlreadySentPostInSession: {
+					...state.republishedAlreadySentPostInSession,
+					[ action.postId ]: true,
+				},
+			};
+		case 'SET_PUBLISHED_WITH_EMAIL_ENABLED_IN_SESSION':
+			return {
+				...state,
+				publishedWithEmailEnabledInSession: {
+					...state.publishedWithEmailEnabledInSession,
+					[ action.postId ]: true,
+				},
 			};
 	}
 	return state;
