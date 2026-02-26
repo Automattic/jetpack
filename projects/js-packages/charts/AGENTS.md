@@ -89,6 +89,7 @@ For docs-heavy tasks with many repeated steps, agents may use the optional skill
 
 - Use Jest + Testing Library patterns already present in this package.
 - Add focused behavioral tests for changed behavior (interaction, rendering state, accessibility behavior).
+- For behavior or UI changes, verify in Storybook using browser automation (browser MCP) against relevant stories/states, not only unit tests.
 - Avoid speculative tests for behavior not implemented in code.
 
 ### PR and Changelog
