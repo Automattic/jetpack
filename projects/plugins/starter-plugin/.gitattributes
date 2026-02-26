@@ -31,6 +31,12 @@ package.json                                    production-exclude
 README.md                                       production-exclude
 src/js/**                                       production-exclude
 tests/**                                        production-exclude
+/jetpack_vendor/automattic/**/*.scss            production-exclude
+/jetpack_vendor/automattic/**/*.ts              production-exclude
+/jetpack_vendor/automattic/**/*.tsx             production-exclude
+/vendor/automattic/**/*.scss                    production-exclude
+/vendor/automattic/**/*.ts                      production-exclude
+/vendor/automattic/**/*.tsx                     production-exclude
 /vendor/automattic/jetpack-autoloader/**        production-exclude
 /vendor/automattic/jetpack-changelogger/**      production-exclude
 /vendor/automattic/jetpack-composer-plugin/**   production-exclude

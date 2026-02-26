@@ -11,6 +11,12 @@ vendor/jetpack-autoloader/**                production-include
 # Files not needed in the production build.
 /changelog/**                               production-exclude
 /composer.lock                              production-exclude
+/jetpack_vendor/automattic/**/*.scss        production-exclude
+/jetpack_vendor/automattic/**/*.ts          production-exclude
+/jetpack_vendor/automattic/**/*.tsx         production-exclude
+/vendor/automattic/**/*.scss                production-exclude
+/vendor/automattic/**/*.ts                  production-exclude
+/vendor/automattic/**/*.tsx                 production-exclude
 /vendor/automattic/jetpack-autoloader/**    production-exclude
 /vendor/automattic/jetpack-changelogger/**  production-exclude
 .phpcs.dir.xml   production-exclude

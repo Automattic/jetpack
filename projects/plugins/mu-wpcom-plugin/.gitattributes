@@ -25,3 +25,9 @@ vendor/symfony/polyfill-mbstring/**  production-include
 .gitignore        production-exclude
 changelog/**      production-exclude
 tests/**          production-exclude
+/jetpack_vendor/automattic/**/*.scss    production-exclude
+/jetpack_vendor/automattic/**/*.ts      production-exclude
+/jetpack_vendor/automattic/**/*.tsx     production-exclude
+/vendor/automattic/**/*.scss            production-exclude
+/vendor/automattic/**/*.ts              production-exclude
+/vendor/automattic/**/*.tsx             production-exclude

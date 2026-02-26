@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Exclude vendor .ts, .tsx, and .scss source files from production builds.

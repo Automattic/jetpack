@@ -32,5 +32,11 @@ vendor/jetpack-autoloader/**                    production-include
 /testbed/**                                     production-exclude
 /tests/**                                       production-exclude
 /tsconfig.json                                  production-exclude
+/jetpack_vendor/automattic/**/*.scss            production-exclude
+/jetpack_vendor/automattic/**/*.ts              production-exclude
+/jetpack_vendor/automattic/**/*.tsx             production-exclude
+/vendor/automattic/**/*.scss                    production-exclude
+/vendor/automattic/**/*.ts                      production-exclude
+/vendor/automattic/**/*.tsx                     production-exclude
 /vendor/automattic/jetpack-autoloader/**        production-exclude
 /vendor/automattic/jetpack-composer-plugin/**   production-exclude
