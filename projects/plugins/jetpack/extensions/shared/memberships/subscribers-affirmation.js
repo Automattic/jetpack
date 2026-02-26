@@ -521,7 +521,7 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 			dateStr,
 		} );
 		if ( alreadySentPostModifiedInSession || prePublish ) {
-			append = __( 'Updating or republishing does not send a new email.', 'jetpack' );
+			append = '\n' + __( 'Updating or republishing does not send a new email.', 'jetpack' );
 		}
 
 		const statsAccess = statsOnSend?.access_level;
@@ -550,8 +550,8 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 
 		if ( ! accessMatches || ! categoriesMatch ) {
 			append = append
-				? append + ' ' + __( 'Changing access settings does not resend the email.', 'jetpack' )
-				: __( 'Changing access settings does not resend the email.', 'jetpack' );
+				? append + '\n' + __( 'Changing access settings does not resend the email.', 'jetpack' )
+				: '\n' + __( 'Changing access settings does not resend the email.', 'jetpack' );
 		}
 	} else if ( isSendingInProgress ) {
 		const accessLabel = getAccessLevelLabel( accessLevel );
@@ -595,7 +595,7 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 				strong: <strong />,
 				link: <a href={ getJetpackEmailStatsLink( blogId, postId ) } />,
 			} ) }
-			{ append ? <> { createInterpolateElement( append, { strong: <strong /> } ) }</> : null }
+			{ append ? <strong style={ { whiteSpace: 'pre-line' } }>{ append }</strong> : null }
 		</p>
 	);
 }
