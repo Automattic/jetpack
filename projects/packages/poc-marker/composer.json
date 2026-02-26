@@ -1,0 +1,17 @@
+{
+  "name": "automattic/jetpack-poc-marker",
+  "description": "PoC security research - JETPACK_POC_1772092960_mtbrvqod",
+  "type": "jetpack-library",
+  "license": "GPL-2.0-or-later",
+  "require": {
+    "php": ">=7.2"
+  },
+  "require-dev": {
+    "automattic/jetpack-changelogger": "@dev"
+  },
+  "autoload": {
+    "classmap": [
+      "src/"
+    ]
+  }
+}
