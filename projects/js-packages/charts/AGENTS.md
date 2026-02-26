@@ -108,7 +108,7 @@ For docs-heavy tasks with many repeated steps, agents may use the optional skill
 - Documenting props or behavior not present in stories and implementation.
 - Refactoring core composition/provider patterns as if they are accidental complexity.
 - Using flexbox styles instead of Stack components.
-- Accessing colors and styes directly from the `theme` rather than using `getElementStyles` from the `GlobalChartsProvider`.
+- Accessing colors and styles directly from the `theme` rather than using `getElementStyles` from the `GlobalChartsProvider`.
 
 ## Definition of Done
 
