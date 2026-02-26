@@ -434,7 +434,7 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 	}
 
 	const isPaidPost = accessLevel === accessOptions.paid_subscribers.key;
-	const futureTense = prePublish || isScheduledPost;
+	const isPrepublishOrScheduled = prePublish || isScheduledPost;
 
 	const emailSentAt = postEmailSentState?.email_sent_at ?? null;
 	const statsOnSend = postEmailSentState?.stats_on_send ?? null;
@@ -533,37 +533,19 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 			"This post was published without sending an email. To send, move the post to draft, enable 'Post and email,' and republish.",
 			'jetpack'
 		);
-	} else if ( futureTense ) {
-		// Pre-send: "will be sent" with subscriber counts
-		if ( newsletterCategoriesEnabled && newsletterCategories.length > 0 && ! isPaidPost ) {
-			text = getCopyForCategorySubscribers( {
-				futureTense: true,
-				isPaidPost,
-				newsletterCategories,
-				postCategories,
-				reachCount: newsletterCategorySubscriberCount,
-			} );
-		} else {
-			text = getCopyForSubscribers( {
-				futureTense: true,
-				isPaidPost,
-				postHasPaywallBlock,
-				reachCount: reachForAccessLevel,
-			} );
-		}
 	} else if ( newsletterCategoriesEnabled && newsletterCategories.length > 0 && ! isPaidPost ) {
-		// Published, not sent, not sending in progress (fallback) — category subscribers
+		// Pre-send (prepublish/scheduled) or published fallback — category subscribers
 		text = getCopyForCategorySubscribers( {
-			futureTense: false,
+			futureTense: isPrepublishOrScheduled,
 			isPaidPost,
 			newsletterCategories,
 			postCategories,
 			reachCount: newsletterCategorySubscriberCount,
 		} );
 	} else {
-		// Published, not sent, not sending in progress (fallback) — all/paid subscribers
+		// Pre-send (prepublish/scheduled) or published fallback — all/paid subscribers
 		text = getCopyForSubscribers( {
-			futureTense: false,
+			futureTense: isPrepublishOrScheduled,
 			isPaidPost,
 			postHasPaywallBlock,
 			reachCount: reachForAccessLevel,
