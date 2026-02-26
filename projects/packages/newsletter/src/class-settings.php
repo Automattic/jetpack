@@ -68,6 +68,12 @@ class Settings {
 	 * Subscribe to necessary hooks.
 	 */
 	public function init_hooks() {
+		// Add the Reading settings notice regardless of the new UI feature flag,
+		// as long as subscriptions are active.
+		if ( $this->is_subscriptions_active() ) {
+			add_action( 'admin_init', array( $this, 'add_reading_page_notice' ) );
+		}
+
 		if ( ! $this->expose_to_users() ) {
 			return;
 		}
@@ -284,6 +290,83 @@ class Settings {
 	public function render() {
 		?>
 		<div id="newsletter-settings-root"></div>
+		<?php
+	}
+
+	/**
+	 * Register a notice on the Reading settings page to clarify that the RSS
+	 * excerpt setting does not control newsletter emails.
+	 *
+	 * @since $$next-version$$
+	 */
+	public function add_reading_page_notice() {
+		add_settings_field(
+			'jetpack_newsletter_reading_notice',
+			'',
+			array( $this, 'render_reading_page_notice' ),
+			'reading',
+			'default'
+		);
+	}
+
+	/**
+	 * Render the clarifying notice on the Reading settings page.
+	 *
+	 * Uses JavaScript to relocate the notice next to the "For each post in a feed"
+	 * (rss_use_excerpt) setting.
+	 *
+	 * @since $$next-version$$
+	 */
+	public function render_reading_page_notice() {
+		/*
+		 * Filter the settings page URL so it points to the correct settings page
+		 * regardless of whether the new newsletter UI is enabled.
+		 */
+		/* This filter is already documented in projects/plugins/jetpack/class.jetpack.php */
+		$newsletter_url = apply_filters(
+			'jetpack_module_configuration_url_subscriptions',
+			admin_url( 'admin.php?page=jetpack#/newsletter' )
+		);
+
+		printf(
+			'<p class="description" id="jetpack-newsletter-reading-notice">%s</p>',
+			sprintf(
+				wp_kses(
+					/* translators: %s is a link to the Newsletter settings page. */
+					__( 'To control what’s included in newsletter emails, visit your <a href="%s">Newsletter settings</a>.', 'jetpack-newsletter' ),
+					array(
+						'a' => array(
+							'href' => array(),
+						),
+					)
+				),
+				esc_url( $newsletter_url )
+			)
+		);
+		?>
+		<script type="text/javascript">
+			document.addEventListener( 'DOMContentLoaded', function() {
+				var notice = document.getElementById( 'jetpack-newsletter-reading-notice' );
+				var excerptInput = document.querySelector( 'input[name="rss_use_excerpt"]' );
+				var excerptRow = excerptInput ? excerptInput.closest( 'tr' ) : null;
+
+				if ( ! notice || ! excerptRow ) {
+					return;
+				}
+
+				// Remember the original parent before moving the notice.
+				var originalTable = notice.closest( 'table' );
+				var excerptTable = excerptRow.closest( 'table' );
+
+				// Move the notice into the rss_use_excerpt row's fieldset.
+				excerptRow.querySelector( 'td' ).appendChild( notice );
+
+				// Remove the now-empty original table (if it's different from the excerpt's table).
+				if ( originalTable && originalTable !== excerptTable ) {
+					originalTable.remove();
+				}
+			} );
+		</script>
 		<?php
 	}
 }
