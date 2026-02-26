@@ -25,12 +25,14 @@ interface UseCreateSyncedFormOnInsertionProps {
 }
 
 /**
- * Get the variation name from attributes or inner blocks structure.
- * Returns undefined if the form doesn't match a known variation template.
+ * Get the variation title from attributes or inner blocks structure.
+ * If the form matches a known variation template, returns that variation's title.
+ * If the form has inner blocks but doesn't match a known template, returns a generic "Form" title.
+ * If the form has no inner blocks, returns undefined.
  *
  * @param {Record<string, unknown>} attributes  - Block attributes.
  * @param {Block[]}                 innerBlocks - Inner blocks of the form.
- * @return {string | undefined} The variation title, or undefined if not found.
+ * @return {string | undefined} The variation title, a generic "Form" title, or undefined when there are no inner blocks.
  */
 function getVariationTitleFromAttributes(
 	attributes: Record< string, unknown >,
