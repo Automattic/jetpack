@@ -696,11 +696,21 @@ jobs:
             echo "args=--all" >> "$GITHUB_OUTPUT"
             echo "Phan config changed, analyzing all projects"
           else
-            # Get changed projects for PRs
-            CHANGED=$( .github/files/list-changed-projects.sh | jq -r 'keys[]' | tr '\n' ' ' )
-            if [[ -n "$CHANGED" ]]; then
-              echo "args=$CHANGED" >> "$GITHUB_OUTPUT"
-              echo "Analyzing changed projects: $CHANGED"
+            # Get changed projects for PRs. Validate slugs match the expected
+            # directory pattern to avoid passing unexpected values to the shell.
+            CHANGED=()
+            while IFS= read -r slug; do
+              [[ -z "$slug" ]] && continue
+              if [[ ! "$slug" =~ ^[a-zA-Z0-9._-]+/[a-zA-Z0-9._-]+$ ]]; then
+                echo "::warning::Unexpected project slug '$slug', falling back to --all"
+                CHANGED=()
+                break
+              fi
+              CHANGED+=( "$slug" )
+            done < <( .github/files/list-changed-projects.sh | jq -r 'keys[]' )
+            if [[ ${#CHANGED[@]} -gt 0 ]]; then
+              echo "args=${CHANGED[*]}" >> "$GITHUB_OUTPUT"
+              echo "Analyzing changed projects: ${CHANGED[*]}"
             else
               echo "args=--all" >> "$GITHUB_OUTPUT"
               echo "No specific projects detected, analyzing all"
