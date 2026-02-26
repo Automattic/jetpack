@@ -150,7 +150,17 @@ Description and use case:
 <Source language="tsx" code={ `example-code` } />
 ```
 
-### 7. Styling and Customization
+### 7. Interactive Features
+
+Always include an Interactive Features section. Document the chart's interactive capabilities:
+
+- **Tooltips**: How to enable tooltips with `withTooltips`, custom rendering with `renderTooltip`, and crosshair options where supported
+- **Pointer Events**: Custom event handlers (`onPointerDown`, `onPointerMove`) if supported
+- **Keyboard Navigation**: Standard keyboard interactions (Tab, Arrow Keys, Enter/Space, Escape)
+
+See the `feature-documentation.mdx.template` for the complete section structure.
+
+### 8. Styling and Customization
 
 ```mdx
 ## Styling and Customization
@@ -215,7 +225,7 @@ End the section with a link to the Responsive Design section in the introduction
 See the `feature-documentation.mdx.template` for the complete section structure.
 ```
 
-### 8. Advanced Usage
+### 9. Advanced Usage
 
 Document complex functionality with practical examples. All usage examples, including advanced patterns, should be in the main documentation file, NOT in the API reference:
 
@@ -241,7 +251,7 @@ More advanced usage patterns with code examples:
 - Common pitfalls to avoid
 ```
 
-### 9. Accessibility Section
+### 10. Accessibility Section
 
 Always include accessibility information:
 
@@ -262,7 +272,7 @@ Always include accessibility information:
 - Focus behavior and visual indicators
 ```
 
-### 10. Migration
+### 11. Migration
 
 ```mdx
 ## Migration from [Legacy/Previous API]
