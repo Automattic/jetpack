@@ -72,8 +72,6 @@ Use `direction="neutral"` for unchanged values. The indicator displays in gray w
 - **`className`**: Additional CSS class name
 - **`style`**: Inline CSS styles
 
-## Styling and Customization
-
 ### Without Icon
 
 Hide the directional icon when you only need color-coded text:
@@ -83,25 +81,6 @@ Hide the directional icon when you only need color-coded text:
 <Source
 	language="tsx"
 	code={`<TrendIndicator direction="up" value="+14%" showIcon={false} />`}
-/>
-
-### Custom Styling
-
-Apply custom styles using the `className` or `style` props:
-
-<Source
-	language="tsx"
-	code={`<TrendIndicator
-	direction="up"
-	value="+25%"
-	style={{ fontSize: '1.5rem', fontWeight: 700 }}
-/>
-
-<TrendIndicator
-	direction="down"
-	value="-10%"
-	className="my-custom-trend"
-/>`}
 />
 
 ### Value Formats
@@ -121,6 +100,25 @@ The `value` prop accepts any string or number format:
 // Numbers
 <TrendIndicator direction="up" value={42} />
 <TrendIndicator direction="up" value="2.5k" />`}
+/>
+
+## Styling and Customization
+
+Apply custom styles using the `className` or `style` props:
+
+<Source
+	language="tsx"
+	code={`<TrendIndicator
+	direction="up"
+	value="+25%"
+	style={{ fontSize: '1.5rem', fontWeight: 700 }}
+/>
+
+<TrendIndicator
+	direction="down"
+	value="-10%"
+	className="my-custom-trend"
+/>`}
 />
 
 ## Theming
