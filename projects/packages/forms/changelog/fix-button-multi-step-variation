@@ -1,4 +1,4 @@
 Significance: patch
-Type: changed
+Type: fixed
 
-Add CSS class names to multi-step form buttons for improved styling control
+Multi-step Form: Fix navigation button styling to support granular CSS customization.
