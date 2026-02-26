@@ -22,7 +22,7 @@ use Jetpack_Tracks_Client;
  */
 class Settings {
 
-	const PACKAGE_VERSION = '0.5.0';
+	const PACKAGE_VERSION = '0.5.1';
 	/**
 	 * Whether the class has been initialized
 	 *
@@ -300,7 +300,7 @@ class Settings {
 	 * Register a notice on the Reading settings page to clarify that the RSS
 	 * excerpt setting does not control newsletter emails.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.5.1
 	 */
 	public function add_reading_page_notice() {
 		add_settings_field(
@@ -318,7 +318,7 @@ class Settings {
 	 * Uses JavaScript to relocate the notice next to the "For each post in a feed"
 	 * (rss_use_excerpt) setting.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.5.1
 	 */
 	public function render_reading_page_notice() {
 		/*

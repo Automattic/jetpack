@@ -824,7 +824,7 @@ class REST_Endpoints {
 	/**
 	 * Clear the Sync queue.
 	 *
-	 * @since $$next-version$$
+	 * @since 4.30.0
 	 *
 	 * @return \WP_REST_Response
 	 */
