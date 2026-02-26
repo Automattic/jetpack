@@ -150,16 +150,6 @@ fi
 
   mkdir -p "$DOCKER_DATA_DIR"
 
-  # In worktrees, node_modules is missing (gitignored). Wrap the command to
-  # auto-install dependencies on first run so hooks and build scripts work.
-  # (verifyDepsBeforeRun in pnpm-workspace.yaml covers pnpm commands, but
-  # non-pnpm commands like git hooks need this.)
-  if [[ "$IS_WORKTREE" = "1" ]]; then
-      INSTALL_PREFIX='if [ ! -d /workspace/node_modules ]; then echo "Installing dependencies (first run in worktree)..." && pnpm install --frozen-lockfile; fi && '
-      WRAPPED_CMD="${INSTALL_PREFIX}$*"
-      set -- sh -c "$WRAPPED_CMD"
-  fi
-
   docker run --rm $TTY_FLAG \
     -v "$MONOREPO_ROOT:/workspace" \
     -v "$DOCKER_DATA_DIR:/root" \
