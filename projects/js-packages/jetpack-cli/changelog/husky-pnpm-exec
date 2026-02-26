@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Remove Docker auto-install wrapper for worktrees; husky hooks now use pnpm exec for automatic dependency installation via verifyDepsBeforeRun.
