@@ -181,20 +181,12 @@ const UploaderProgress = ( {
 	/**
 	 * Auto-complete the upload when the user hasn't made edits.
 	 * If the user edited the title or poster, show the "Done" button instead.
-	 *
-	 * The 2500ms delay gives the VideoPress backend time to be ready to serve
-	 * oEmbed responses, preventing a race condition where saving the post
-	 * immediately after upload caches a failed oEmbed response. See #28727.
 	 */
 	useEffect( () => {
 		if ( uploadedVideoData && ! hasUserEdits && ! hasAutoCompleted.current ) {
 			hasAutoCompleted.current = true;
-			debug( 'Auto-completing upload in 2500ms (no user edits detected)...' );
-			const timer = setTimeout( () => {
-				debug( 'Auto-completing upload now...' );
-				handleDoneUpload();
-			}, 2500 );
-			return () => clearTimeout( timer );
+			debug( 'Auto-completing upload (no user edits detected)...' );
+			handleDoneUpload();
 		}
 	}, [ uploadedVideoData, hasUserEdits, handleDoneUpload ] );
 
