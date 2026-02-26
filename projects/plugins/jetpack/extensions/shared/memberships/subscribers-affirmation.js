@@ -500,7 +500,7 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 				dateStr
 			);
 		}
-		if ( republishedAlreadySentInSession ) {
+		if ( republishedAlreadySentInSession || prePublish ) {
 			append = __( 'Updating or republishing does not send a new email.', 'jetpack' );
 		}
 		const statsAccess = statsOnSend?.access_level;
