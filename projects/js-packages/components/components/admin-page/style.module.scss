@@ -9,6 +9,13 @@
 		background-color: var(--jp-white);
 	}
 
+	// Remove the admin-ui header border. Scoped to .admin-page so this only
+	// applies within our component. Ideally admin-ui would expose a prop or
+	// CSS custom property for this — revisit if the upstream API changes.
+	:global(.admin-ui-page__header) {
+		border-bottom: none;
+	}
+
 	.admin-page-header {
 		display: flex;
 		align-items: center;
