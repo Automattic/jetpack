@@ -17,6 +17,7 @@
 		z-index: 1;
 		padding-inline-start: 2rem;
 		margin-block-end: -1px;
+		box-sizing: content-box;
 
 		@media (max-width: gb.$break-medium ) {
 			padding-inline-start: 0.5rem;
