@@ -107,7 +107,7 @@ When contributing to the Sync package, follow the Jetpack monorepo's standard PR
 ### Common Pitfalls
 
 **Whitelisted here ≠ retained on WPcom**
-Adding a new item to the whitelist in this package controls whether it gets *sent* to WPcom. For it to be *retained*, it also needs to be whitelisted in the WPcom receiving codebase's sync defaults. Without the WPcom-side entry, data may arrive temporarily via incremental sync but will be removed during checksum verification or full sync. Exception: if the item is already natively available on WPcom, only the package-side entry may be needed.
+Adding a new item to the whitelist in this package controls whether it gets sent to WPcom. For it to be stored, it must also be whitelisted in WPcom's shadow replicastore. Without the WPcom-side entry, data arrives but will be removed during checksum verification or full sync — it is never persisted. Both sides filter independently; WPcom does not trust the package to filter correctly.
 
 **Custom post types must be registered via sync**
 Custom post types must be registered through callables/config sync, or posts will land in `jps_non-reg` status on the cache site.
@@ -125,27 +125,27 @@ Remote users exist in shadow tables — `WP_User` lookups behave differently. `p
 
 ### The WPcom Receiving Side
 
-This package handles the Jetpack (sending) side only. On WPcom, incoming sync data is processed via the `jetpack_sync_remote_action` WordPress action, which fires for each received event with parameters: `$action_name`, `$args`, `$user_id`, `$silent`, `$occurred_timestamp`, `$sent_timestamp`, `$queue_id`, `$token`, and `$actor`. The WPcom receiving side is a separate codebase — changes here do not automatically propagate there.
+This package handles the Jetpack (sending) side only. The WPcom receiving side is a separate codebase — changes here do not automatically propagate there.
+
+`src/class-server.php` in this repo fires `jetpack_sync_remote_action` with 8 parameters. WPcom's event processor fires the same action with 13 parameters (adding `$actor`, `$queue_size`, `$sync_storage_type`, `$sync_flow_type` `$endpoint_type`). Handlers hooking this action may receive different arguments depending on which side they run on.
 
 All incoming data is treated as untrusted — options, meta values, and other synced fields may contain unexpected values from misbehaving plugins or themes and are sanitized before use on WPcom.
 
 ### The Processing Pipeline
 
 **Incremental sync**
-Events enqueued by the Listener are sent to WPcom via HTTP and applied to the shadow replicastore in the order they were received. WPcom independently monitors queue health on the remote site and may trigger remediation (such as forcing a queue flush or initiating a full sync) when issues are detected. The queue ID for incremental sync events is `'sync'`.
+Events enqueued by the Listener are sent to WPcom via the WPcom REST API (when enabled) or XML-RPC (legacy fallback), and applied to the shadow replicastore in the order they were received. WPcom independently monitors queue health on the remote site and may trigger remediation (such as forcing a queue flush or initiating a full sync) when issues are detected. The queue ID for incremental sync events is `'sync'`.
 
 **Full sync**
 A full sync is a bulk re-send of all (or a subset of) site content. It can be triggered from WPcom directly, or automatically in response to detected data loss. Two special events mark its boundaries — `jetpack_full_sync_start` and `jetpack_full_sync_end` — which are received and processed like any other sync event. Incremental and full sync events travel through the same event processor pipeline on WPcom; the queue ID differentiates them (`'sync'` for incremental, `'immediate-send'` for full sync via the current `Full_Sync_Immediately` implementation), but the receive/decode/apply path is identical.
 
-Note: `jetpack_full_sync_end` includes a `$checksum` parameter that is deprecated and unused since Jetpack 7.3 — full sync does not validate checksums on completion.
-
 **Background jobs**
 WPcom schedules background jobs in response to sync events and queue state. If queue lag on the remote site grows too large, WPcom will schedule a `jetpack_sync_pull` job to force the site to flush its queue, or a `jetpack_full_sync_pull` to trigger a full sync pull. Post-sync cleanup jobs may also run to reconcile stale records or remove users no longer present on the remote site.
 
-This means clearing a queue on the Jetpack side does not stop an in-progress sync — if WPcom has already scheduled a pull job, the queue will be refilled shortly after being cleared.
+Clearing a queue on the Jetpack side means those events won't reach WPcom through normal sync. The gap will persist until checksum validation detects the divergence and triggers a full sync to reconcile.
 
 **Checksums**
-Checksums are a separate, externally-triggered audit mechanism — not part of the sync event stream. The checksum process compares the state of the remote site against WPcom's shadow replicastore across posts, postmeta, comments, commentmeta, terms, term taxonomy, and term relationships (plus WooCommerce HPOS tables on supported versions).
+Checksums are a separate, externally-triggered audit mechanism — not part of the sync event stream. The checksum process compares the state of the remote site against WPcom's shadow replicastore across posts, postmeta, comments, commentmeta, terms, term taxonomy, term relationships, termmeta, users, and usermeta (plus WooCommerce order and HPOS tables on supported versions).
 
 Differences are located using a histogram-based binary search: both sides produce checksums over ID ranges, differing ranges are subdivided recursively until individual mismatched IDs are found. Differences fall into three categories: missing from WPcom, missing from the remote site, or different values.
 
@@ -156,9 +156,9 @@ How mismatches are resolved depends on scale:
 This is why the dual whitelist requirement matters: an item not whitelisted in the WPcom receiving codebase's sync defaults will appear as "missing from WPcom" on every checksum run. For small numbers of items this may silently self-heal; at scale it will repeatedly trigger full syncs.
 
 **Elasticsearch (Jetpack Search)**
-Sync is the data pipeline for Jetpack Search. When post, postmeta, term, and taxonomy data arrives on WPcom via sync, it is indexed into Elasticsearch to power search on the remote site. This creates a second whitelist concern beyond the shadow replicastore: postmeta keys and custom taxonomies must also be explicitly listed in `Jetpack_Sync_Module_Search` to be included in the ES index.
+Sync is the data pipeline for Jetpack Search. When sync data arrives on WPcom, it is indexed into Elasticsearch to power search on the remote site. The search module ( `Jetpack_Sync_Module_Search` ) extends the sync postmeta whitelist with its own keys and maintains a separate list of indexable postmeta keys and taxonomies that controls what enters the ES index.
 
-The practical consequence: adding a new postmeta key to the sync whitelist makes it available in the replicastore, but it will not be searchable unless it is also added to the search module's allowlist.
+The practical consequence: adding a new postmeta key to the sync whitelist makes it available in the replicastore, but it will not be searchable unless the search module also includes it.
 
 ## Debugging Tools
 
