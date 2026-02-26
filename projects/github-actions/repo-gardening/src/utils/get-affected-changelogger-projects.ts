@@ -1,6 +1,7 @@
 import fs from 'fs';
 import { glob } from 'glob';
 import getPrWorkspace from './get-pr-workspace.ts';
+import { safeJsonParse, safeReadFileSync } from './safe-read-file.ts';
 
 /**
  * Returns a list of Projects that use changelogger package.
@@ -9,9 +10,15 @@ import getPrWorkspace from './get-pr-workspace.ts';
  */
 function getChangeloggerProjects(): string[] {
 	const projects: string[] = [];
-	const composerFiles = glob.sync( getPrWorkspace() + '/projects/*/*/composer.json' );
+	const workspace = getPrWorkspace();
+	const composerFiles = glob
+		.sync( workspace + '/projects/*/*/composer.json' )
+		.filter( file => ! fs.lstatSync( file ).isSymbolicLink() );
 	composerFiles.forEach( file => {
-		const json = JSON.parse( fs.readFileSync( file ).toString() );
+		const json = safeJsonParse( safeReadFileSync( file, workspace ), file ) as Record<
+			string,
+			Record< string, unknown >
+		>;
 		if (
 			// include changelogger package and any other packages that use changelogger package.
 			file.endsWith( '/projects/packages/changelogger/composer.json' ) ||
