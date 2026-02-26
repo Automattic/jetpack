@@ -22,6 +22,15 @@ class ActivityPubTest extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Tests that false is returned unchanged when a previous filter aborted.
+	 */
+	public function test_returns_false_when_previous_filter_aborted() {
+		$result = wpcomsh_activitypub_sync_plugin_activation( false );
+
+		$this->assertFalse( $result );
+	}
+
+	/**
 	 * Tests that args are returned unchanged when the plugin is not ActivityPub.
 	 */
 	public function test_returns_args_unchanged_for_other_plugins() {
