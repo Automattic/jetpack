@@ -1,90 +1,60 @@
-@use "../../scss/functions/rem";
-@use "../../scss/calypso-colors";
-@use "../../scss/mixins/breakpoints";
 @use "../../scss/variables/colors";
 
 .jp-masthead {
 	background-color: colors.$white;
-	text-align: center;
-
-	@media (max-width: rem.convert( 782px ) ) {
-		padding: 0 rem.convert(24px);
-
-		.jetpack-masterbar & {
-			padding-left: rem.convert(64px);
-		}
-	}
+	padding: 16px 24px;
+	position: sticky;
+	top: 0;
+	z-index: 1;
 }
 
 .jp-masthead__inside-container {
 	display: flex;
-	flex-wrap: wrap;
-	width: 100%;
-	padding-bottom: rem.convert(6px);
+	align-items: center;
+	justify-content: space-between;
+	gap: 8px;
 }
 
-.jp-masthead-middle .jp-masthead__inside-container {
-	margin: 0 auto;
-	max-width: rem.convert(1040px);
-
-	@media (max-width: 1360px) {
-		max-width: 95%;
-	}
-}
-
-.jp-masthead__logo-container {
-	flex-grow: 0;
-	flex-shrink: 0;
-	padding: rem.convert(40px) 0 rem.convert(20px) 0;
-
-	@include breakpoints.breakpoint( "<480px" ) {
-		padding: rem.convert(11px) 0 0;
-		margin-right: rem.convert(16px);
-	}
+.jp-masthead__title-container {
+	display: flex;
+	align-items: center;
+	gap: 8px;
 }
 
 .jp-masthead__logo-link {
-	display: inline-block;
+	display: inline-flex;
 	outline: none;
-	vertical-align: middle;
+	line-height: 0;
 
 	&:focus {
-		line-height: 0; // fixes rectangle gap
 		box-shadow: 0 0 0 2px colors.$blue-light;
-	}
-
-	+ code {
-		margin: 0 10px;
-		padding: 5px 9px;
 		border-radius: 2px;
-		background: #e6ecf1;
-		color: #647a88;
 	}
+}
+
+.jp-masthead__title {
+	font-family: -apple-system, system-ui, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+	font-size: 20px;
+	font-weight: 500;
+	line-height: 1.4;
+	margin: 0;
+	color: #1e1e1e;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
 }
 
 .jp-masthead__nav {
 	display: flex;
 	flex-wrap: nowrap;
-	flex-grow: 1;
 	flex-shrink: 0;
-	text-align: right;
-	margin-top: rem.convert(6px);
-	padding: rem.convert(4px) 0;
 
 	.dops-button-group {
-		flex-grow: 1;
 		align-self: center;
 
 		/* This fixes an unwanted space between the buttons in the
 		 * network settings caused by a line break. */
-
-		/* Fixed here to keep PHP code readable. It's safe:
-		 * .dops-button and .dops-button.is-compact specify a font size. */
 		font-size: 0;
-	}
-
-	@include breakpoints.breakpoint( "<480px" ) {
-		text-align: left;
 	}
 
 	.dops-button {
