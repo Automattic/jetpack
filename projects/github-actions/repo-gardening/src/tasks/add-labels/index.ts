@@ -326,6 +326,16 @@ async function addLabels( payload: PullRequestEvent, octokit: OctokitClient ): P
 		return;
 	}
 
+	// For fork PRs, only add labels that already exist in the repo
+	// to avoid creating new labels from untrusted sources.
+	const isFork = head.repo?.full_name !== base.repo?.full_name;
+	if ( isFork ) {
+		debug( 'add-labels: PR is from a fork. Filtering to only existing repo labels.' );
+		const availableLabels = await getAvailableLabels( octokit, owner.login, name );
+		const availableLabelNames = new Set( availableLabels.map( label => label.name ) );
+		labelsToAdd = labelsToAdd.filter( label => availableLabelNames.has( label ) );
+	}
+
 	// Determine how many labels can safely be added.
 	let maxLabelsToAdd = Math.max( 0, maxLabels - currentLabels.length );
 
@@ -361,16 +371,6 @@ async function addLabels( payload: PullRequestEvent, octokit: OctokitClient ): P
 	if ( labelsToAdd.length > maxLabelsToAdd ) {
 		debug( `add-labels: Limiting to the first ${ maxLabels }.` );
 		labelsToAdd.splice( maxLabelsToAdd );
-	}
-
-	// For fork PRs, only add labels that already exist in the repo
-	// to avoid creating new labels from untrusted sources.
-	const isFork = head.repo?.full_name !== base.repo?.full_name;
-	if ( isFork ) {
-		debug( 'add-labels: PR is from a fork. Filtering to only existing repo labels.' );
-		const availableLabels = await getAvailableLabels( octokit, owner.login, name );
-		const availableLabelNames = new Set( availableLabels.map( label => label.name ) );
-		labelsToAdd = labelsToAdd.filter( label => availableLabelNames.has( label ) );
 	}
 
 	// Check again, as all the above may have cleared out the labels we were going to add.
