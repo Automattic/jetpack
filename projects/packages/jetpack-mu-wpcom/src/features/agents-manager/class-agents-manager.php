@@ -176,9 +176,11 @@ class Agents_Manager {
 			wp_dequeue_style( 'help-center-style' );
 		}
 
-		// For non-Gutenberg environments, add to admin bar
-		// Gutenberg doesn't have an admin bar, so JS will handle UI insertion
-		if ( ! $is_gutenberg ) {
+		// For non-Gutenberg, non-CIAB environments, add to admin bar.
+		// Gutenberg doesn't have an admin bar, so JS will handle UI insertion.
+		// CIAB hides the classic admin bar and uses its own Site Hub — the JS variant handles UI there.
+		$is_ciab = $this->is_ciab_environment();
+		if ( ! $is_gutenberg && ! $is_ciab ) {
 			add_action(
 				'admin_bar_menu',
 				function ( $wp_admin_bar ) use ( $use_disconnected ) {
@@ -271,12 +273,9 @@ class Agents_Manager {
 	 * @return string|null The variant name, or null if scripts should not be loaded.
 	 */
 	private function get_variant() {
-		// CIAB/Next Admin: only load when disconnected (connected CIAB is handled by Help Center).
-		if ( $this->is_ciab_environment() ) {
-			if ( self::is_enabled() && $this->is_jetpack_disconnected() ) {
-				return 'ciab-disconnected';
-			}
-			return null;
+		// CIAB: Load either the connected or disconnected variants if enabled.
+		if ( $this->is_ciab_environment() && self::is_enabled() ) {
+			return $this->is_jetpack_disconnected() ? 'ciab-disconnected' : 'ciab';
 		}
 
 		// Frontend: load disconnected variant for eligible logged-in editors.
@@ -311,6 +310,17 @@ class Agents_Manager {
 	 * @return bool
 	 */
 	public static function is_enabled() {
+		// CIAB: Agents Manager is the default AI experience — enabled unless explicitly
+		// disabled via filter (e.g. for debugging or gradual rollout).
+		if ( self::is_ciab_environment() ) {
+			/**
+			 * Filter whether Agents Manager is enabled in CIAB (Next Admin) environments.
+			 *
+			 * @param bool $enabled Whether Agents Manager should load. Default true.
+			 */
+			return apply_filters( 'agents_manager_enabled_in_ciab', true );
+		}
+
 		// Full unified experience: Agents Manager with support guides, Help Center takeover, etc.
 		if ( apply_filters( 'agents_manager_use_unified_experience', false ) ) {
 			return true;
@@ -725,7 +735,7 @@ class Agents_Manager {
 	 *
 	 * @return bool True if CIAB/Next Admin environment.
 	 */
-	private function is_ciab_environment() {
+	private static function is_ciab_environment() {
 		return (bool) did_action( 'next_admin_init' );
 	}
 
