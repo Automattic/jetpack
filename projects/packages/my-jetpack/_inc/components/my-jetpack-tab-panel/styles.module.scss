@@ -1,10 +1,6 @@
 @use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
 
 .tab-panel {
-
-	max-width: var(--max-container-width);
-	margin: 0 auto;
-
 	// Make all the links green
 	a,
 	:global(.components-external-link),
@@ -15,13 +11,8 @@
 	:global(.components-tab-panel__tabs) {
 		position: relative;
 		z-index: 1;
-		padding-inline-start: 2rem;
 		margin-block-end: -1px;
 		box-sizing: content-box;
-
-		@media (max-width: gb.$break-medium ) {
-			padding-inline-start: 0.5rem;
-		}
 	}
 
 	// Make all the toggles green
@@ -32,18 +23,31 @@
 }
 
 .tab-content-wrapper {
-	padding-block-start: 2.5rem;
-	padding-inline: 3rem;
-
-	@media (max-width: gb.$break-medium ) {
-		padding-inline: 1.5rem;
-	}
+	--_padding-block-start: 2.5rem;
+	padding-block-start: var(--_padding-block-start);
+	background: transparent;
+	z-index: 0;
 
 	h2 {
 
 		@include gb.heading-2x-large;
 		margin-top: 0;
 		margin-bottom: 0.5rem;
+	}
+
+	position: relative;
+
+	&::before {
+		margin-block-start: calc(var(--_padding-block-start) * -1);
+		z-index: -1;
+		content: "";
+		display: block;
+		background-color: #fcfcfc;
+		width: 100vw;
+		height: 100%;
+		position: absolute;
+		inset-inline-start: 50%;
+		margin-inline-start: -50vw;
 	}
 }
 
@@ -55,27 +59,27 @@
 	margin-inline-start: -50vw;
 }
 
-@mixin full-width-container {
-	max-width: var(--max-container-width);
-	margin: 0 auto;
-}
-
 .my-jetpack-tab-panel--full-width {
 	width: 100%;
 	max-width: none;
 	margin: 0;
+}
 
-	:global(.components-tab-panel__tabs) {
 
-		@include full-width-container;
-	}
+.my-jetpack-tab-panel-footer {
+	position: relative;
+	padding-inline: 0;
+	z-index: 0;
 
-	:global(.components-tab-panel__tab-content) {
-		background-color: #fcfcfc;
-
-		.my-jetpack-tab-panel-inner {
-
-			@include full-width-container;
-		}
+	&::before {
+		content: "";
+		display: block;
+		z-index: -1;
+		background: var(--studio-white, #fff);
+		width: 100vw;
+		height: 100%;
+		position: absolute;
+		inset-inline-start: 50%;
+		margin-inline-start: -50vw;
 	}
 }

@@ -1,3 +1,4 @@
+import { Col, Container } from '@automattic/jetpack-components';
 import { TabPanel } from '@wordpress/components';
 import clsx from 'clsx';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -86,17 +87,21 @@ export function MyJetpackTabPanel() {
 	const tabs = useMemo( () => getMyJetpackSections(), [] );
 
 	return (
-		<TabPanel
-			key={ tabKey }
-			className={ clsx(
-				styles[ 'tab-panel' ],
-				styles[ 'my-jetpack-tab-panel--full-width' ],
-				'jetpack-my-jetpack-tab-panel'
-			) }
-			initialTabName={ currentTab }
-			onSelect={ onTabSelect }
-			children={ tabRenderer }
-			tabs={ tabs }
-		/>
+		<Container horizontalSpacing={ 0 }>
+			<Col>
+				<TabPanel
+					key={ tabKey }
+					className={ clsx(
+						styles[ 'tab-panel' ],
+						styles[ 'my-jetpack-tab-panel--full-width' ],
+						'jetpack-my-jetpack-tab-panel'
+					) }
+					initialTabName={ currentTab }
+					onSelect={ onTabSelect }
+					children={ tabRenderer }
+					tabs={ tabs }
+				/>
+			</Col>
+		</Container>
 	);
 }

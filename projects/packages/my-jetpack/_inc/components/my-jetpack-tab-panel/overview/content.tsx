@@ -1,8 +1,9 @@
-import { Col, Container } from '@automattic/jetpack-components';
+import { Col } from '@automattic/jetpack-components';
 import { currentUserCan } from '@automattic/jetpack-script-data';
 import ConnectionsSection from '../../connections-section';
 import PlansSection from '../../plans-section';
 import ProductCardsSection from '../../product-cards-section';
+import { MyJetpackTabPanelFooter } from '../footer';
 import { FullWidthSeparator } from '../full-width-separator';
 import { A4AUpsell } from './a4a-upsell';
 import styles from './styles.module.scss';
@@ -26,19 +27,14 @@ export function OverviewContent() {
 			) : null }
 
 			<FullWidthSeparator />
-			<div className={ styles.footer }>
-				{ /* Needed to show different background colour */ }
-				<div className={ styles[ 'footer-inner' ] }>
-					<Container horizontalSpacing={ 0 } className={ styles[ 'footer-container' ] }>
-						<Col sm={ 4 } md={ 4 } lg={ 6 }>
-							<PlansSection />
-						</Col>
-						<Col sm={ 4 } md={ 4 } lg={ 6 }>
-							<ConnectionsSection />
-						</Col>
-					</Container>
-				</div>
-			</div>
+			<MyJetpackTabPanelFooter>
+				<Col sm={ 4 } md={ 4 } lg={ 6 }>
+					<PlansSection />
+				</Col>
+				<Col sm={ 4 } md={ 4 } lg={ 6 }>
+					<ConnectionsSection />
+				</Col>
+			</MyJetpackTabPanelFooter>
 		</div>
 	);
 }
