@@ -894,6 +894,11 @@ class Contact_Form_Block {
 	 * it runs after Jetpack_Gutenberg registers extensions at priority 10.
 	 */
 	public static function maybe_load_ai_integration() {
+		// Bail if the user cannot manage the block — jp-forms-blocks won't be registered.
+		if ( ! self::can_manage_block() ) {
+			return;
+		}
+
 		// Check if central form management is enabled.
 		if ( ! Contact_Form_Plugin::has_editor_feature_flag( 'central-form-management' ) ) {
 			return;

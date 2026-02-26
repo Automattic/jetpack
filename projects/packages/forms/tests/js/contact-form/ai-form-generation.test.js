@@ -155,6 +155,41 @@ describe( 'AI Form Generation Plugin', () => {
 			expect( mockUpdateBlockAttributes ).toHaveBeenCalledWith( 'client-123', { ref: 789 } );
 		} );
 
+		it( 'should not set ref if block gained a ref during async form creation', async () => {
+			// First call: block has no ref (pre-async)
+			// Second call: block gained a ref while createSyncedForm was in flight
+			mockGetBlock
+				.mockReturnValueOnce( {
+					attributes: {},
+					innerBlocks: [ { name: 'jetpack/field-text' } ],
+				} )
+				.mockReturnValueOnce( {
+					attributes: { ref: 999 },
+					innerBlocks: [ { name: 'jetpack/field-text' } ],
+				} );
+			mockCreateSyncedForm.mockResolvedValue( 789 );
+
+			await handleAiGenerationComplete( 'client-123', 'jetpack/contact-form' );
+
+			expect( mockCreateSyncedForm ).toHaveBeenCalled();
+			expect( mockUpdateBlockAttributes ).not.toHaveBeenCalled();
+		} );
+
+		it( 'should not set ref if block was removed during async form creation', async () => {
+			mockGetBlock
+				.mockReturnValueOnce( {
+					attributes: {},
+					innerBlocks: [ { name: 'jetpack/field-text' } ],
+				} )
+				.mockReturnValueOnce( null );
+			mockCreateSyncedForm.mockResolvedValue( 789 );
+
+			await handleAiGenerationComplete( 'client-123', 'jetpack/contact-form' );
+
+			expect( mockCreateSyncedForm ).toHaveBeenCalled();
+			expect( mockUpdateBlockAttributes ).not.toHaveBeenCalled();
+		} );
+
 		it( 'should use default title when post title is empty', async () => {
 			mockGetBlock.mockReturnValue( {
 				attributes: {},
@@ -167,7 +202,7 @@ describe( 'AI Form Generation Plugin', () => {
 
 			expect( mockCreateSyncedForm ).toHaveBeenCalledWith(
 				expect.anything(),
-				'AI Generated Form',
+				'Generated Form',
 				123
 			);
 		} );
@@ -196,7 +231,7 @@ describe( 'AI Form Generation Plugin', () => {
 
 			expect( console ).toHaveErrored( 'Failed to create synced form:', networkError );
 			expect( mockCreateErrorNotice ).toHaveBeenCalledWith(
-				'Failed to save the AI-generated form. Your form is still available but not synced.',
+				'Failed to save the Generated form. Your form is still available but not synced.',
 				{ type: 'snackbar' }
 			);
 			expect( mockUpdateBlockAttributes ).not.toHaveBeenCalled();

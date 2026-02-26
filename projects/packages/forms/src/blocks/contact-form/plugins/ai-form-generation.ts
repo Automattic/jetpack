@@ -75,6 +75,13 @@ export async function handleAiGenerationComplete(
 			return;
 		}
 
+		// Re-fetch the block after the async operation to ensure it still exists
+		// and hasn't been modified (e.g., by user edits, undo/redo, or another sync).
+		const updatedBlock = blockEditorSelectors.getBlock( clientId );
+		if ( ! updatedBlock || updatedBlock.attributes?.ref ) {
+			return;
+		}
+
 		// Set the ref attribute to link to the synced form.
 		dispatch( blockEditorStore ).updateBlockAttributes( clientId, { ref: formId } );
 	} catch ( error ) {
