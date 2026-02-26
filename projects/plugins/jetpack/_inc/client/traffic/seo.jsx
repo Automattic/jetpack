@@ -185,6 +185,7 @@ export const SEO = withModuleSettingsFormHelpers(
 					hideButton={ hasConflictingSeoPlugin }
 				>
 					<SettingsGroup
+						hasChild
 						disableInOfflineMode
 						module={ { module: 'seo-tools' } }
 						support={ {
@@ -248,6 +249,26 @@ export const SEO = withModuleSettingsFormHelpers(
 								/>
 							</FormFieldset>
 						) }
+						<ModuleToggle
+							slug="canonical-urls"
+							activated={ this.props.getOptionValue( 'canonical-urls' ) }
+							toggling={ this.props.isSavingAnyOption( 'canonical-urls' ) }
+							disabled={
+								this.props.isSavingAnyOption( this.constants.moduleOptionsArray ) ||
+								hasConflictingSeoPlugin
+							}
+							toggleModule={ this.props.toggleModuleNow }
+						>
+							<span className="jp-form-toggle-explanation">
+								{ __( 'Add canonical URLs to archive pages', 'jetpack' ) }
+							</span>
+						</ModuleToggle>
+						<p className="jp-form-setting-explanation">
+							{ __(
+								'Adds a rel="canonical" link to archive pages, helping search engines identify the preferred URL and avoid indexing duplicate content.',
+								'jetpack'
+							) }
+						</p>
 					</SettingsGroup>
 					{ isSeoActive &&
 						! isFetchingPluginsData( this.props.state ) &&
