@@ -107,8 +107,15 @@ For docs-heavy tasks with many repeated steps, agents may use the optional skill
 - Not checking CSF file references in `.docs.mdx` when changing or removing stories.
 - Documenting props or behavior not present in stories and implementation.
 - Refactoring core composition/provider patterns as if they are accidental complexity.
-- Using flexbox styles instead of Stack components.
+- Using ad-hoc flexbox layouts where established shared layout primitives/patterns (for example, `Stack`) should be preferred.
 - Accessing colors and styles directly from the `theme` rather than using `getElementStyles` from the `GlobalChartsProvider`.
+- Defining new chart prop interfaces that diverge from established base chart contracts (for example, not aligning with `BaseChartProps` when appropriate).
+- Implementing responsive wrappers that conflict with component sizing semantics (fixed-height charts, resize behavior, or aspect-ratio assumptions).
+- Adding stories that do not visibly demonstrate the documented behavior/props, or stories that render clipped due to container sizing.
+- Tooltip styles/positioning that only work on default backgrounds or fail at chart edges (for example, shadows fading to opaque white instead of transparent).
+- Using mock/placeholder series data in production code.
+- Introducing avoidable multi-pass data transformations in render paths when a single pass is sufficient.
+- Adding CSS layout/overflow workarounds without documenting why the workaround is needed.
 
 ## Definition of Done
 
