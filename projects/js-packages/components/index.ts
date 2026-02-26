@@ -34,8 +34,6 @@ export { default as NumberSlider } from './components/number-slider/index.tsx';
 export { default as AdminSection } from './components/admin-section/basic/index.tsx';
 export { default as AdminSectionHero } from './components/admin-section/hero/index.tsx';
 export { default as AdminPage } from './components/admin-page/index.tsx';
-export { default as AdminHeader } from './components/admin-header/index.tsx';
-export type { AdminHeaderProps } from './components/admin-header/types.ts';
 export { default as DecorativeCard } from './components/decorative-card/index.tsx';
 export { default as Col } from './components/layout/col/index.tsx';
 export { default as Testimonials } from './components/testimonials/index.tsx';

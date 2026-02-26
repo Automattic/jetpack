@@ -25,7 +25,7 @@ export type AdminPageProps = {
 
 	/**
 	 * Product title displayed in the unified header (e.g. "Social", "Backup").
-	 * When provided, renders the new AdminHeader instead of the legacy header slot.
+	 * When provided, renders the admin-ui Page header instead of the legacy header slot.
 	 */
 	title?: string;
 
