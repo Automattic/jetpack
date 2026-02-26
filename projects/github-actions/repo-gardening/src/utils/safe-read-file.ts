@@ -18,8 +18,13 @@ export function safeReadFileSync( filePath: string, boundaryDir: string ): strin
 	// Resolve the full chain and verify the result stays within the boundary.
 	// This catches symlinks on intermediate directory components.
 	const realPath = fs.realpathSync( filePath );
-	const normalizedBoundary = fs.realpathSync( boundaryDir ) + path.sep;
-	if ( ! realPath.startsWith( normalizedBoundary ) ) {
+	const realBoundary = fs.realpathSync( boundaryDir );
+	const relative = path.relative( realBoundary, realPath );
+	if (
+		relative.startsWith( '..' + path.sep ) ||
+		relative === '..' ||
+		path.isAbsolute( relative )
+	) {
 		throw new Error( `Path escapes workspace boundary: ${ filePath }` );
 	}
 

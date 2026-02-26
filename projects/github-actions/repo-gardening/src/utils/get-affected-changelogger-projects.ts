@@ -1,4 +1,4 @@
-import fs from 'fs';
+import { warning } from '@actions/core';
 import { glob } from 'glob';
 import getPrWorkspace from './get-pr-workspace.ts';
 import { safeJsonParse, safeReadFileSync } from './safe-read-file.ts';
@@ -11,14 +11,18 @@ import { safeJsonParse, safeReadFileSync } from './safe-read-file.ts';
 function getChangeloggerProjects(): string[] {
 	const projects: string[] = [];
 	const workspace = getPrWorkspace();
-	const composerFiles = glob
-		.sync( workspace + '/projects/*/*/composer.json' )
-		.filter( file => ! fs.lstatSync( file ).isSymbolicLink() );
+	const composerFiles = glob.sync( workspace + '/projects/*/*/composer.json' );
 	composerFiles.forEach( file => {
-		const json = safeJsonParse( safeReadFileSync( file, workspace ), file ) as Record<
-			string,
-			Record< string, unknown >
-		>;
+		let json: Record< string, Record< string, unknown > >;
+		try {
+			json = safeJsonParse( safeReadFileSync( file, workspace ), file ) as Record<
+				string,
+				Record< string, unknown >
+			>;
+		} catch ( err ) {
+			warning( `Skipping ${ file }: ${ ( err as Error ).message }` );
+			return;
+		}
 		if (
 			// include changelogger package and any other packages that use changelogger package.
 			file.endsWith( '/projects/packages/changelogger/composer.json' ) ||
