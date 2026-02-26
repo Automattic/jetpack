@@ -399,7 +399,7 @@ My PR adds *x* and *y*.
 		) }\`
 
 Use [the Jetpack CLI tool](https://github.com/Automattic/jetpack/blob/trunk/docs/monorepo.md#first-time) to generate changelog entries by running the following command: \`jetpack changelog add\`.
-Alternatively, check the "Generate changelog entries" checkbox in the PR description to have them auto-generated.
+Alternatively, if this PR was opened from the main Jetpack repository (not a fork), you can check the "Generate changelog entries" checkbox in the PR description to have them auto-generated.
 Guidelines: [/docs/writing-a-good-changelog-entry.md](https://github.com/Automattic/jetpack/blob/trunk/docs/writing-a-good-changelog-entry.md)
 `,
 	};
