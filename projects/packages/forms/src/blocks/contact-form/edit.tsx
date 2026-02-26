@@ -1022,13 +1022,6 @@ function JetpackContactFormEdit( {
 
 		return (
 			<div { ...blockProps }>
-				<BlockControls>
-					<ConvertFormToolbar
-						clientId={ clientId }
-						attributes={ attributes }
-						onBeforeNavigate={ flushPendingSave }
-					/>
-				</BlockControls>
 				<Notice
 					status="info"
 					isDismissible={ false }
@@ -1045,7 +1038,6 @@ function JetpackContactFormEdit( {
 						'jetpack-forms'
 					) }
 				</Notice>
-
 				<Disabled>
 					<div { ...innerBlocksProps } />
 				</Disabled>
