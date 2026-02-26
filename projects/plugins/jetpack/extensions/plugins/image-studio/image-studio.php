@@ -43,17 +43,28 @@ function is_image_studio_enabled() {
 /**
  * Check whether AI features are available.
  *
- * On wpcom / atomic, checks the Big Sky feature flag. On self-hosted, checks
- * whether the AI Assistant extension is available.
+ * - wpcom simple: always available.
+ * - Atomic: requires Big Sky or AI Assistant feature flags.
+ * - Self-hosted: requires a connected owner with AI not disabled
+ *   (same conditions the AI Assistant plugin uses to register).
  *
  * @return bool
  */
 function has_ai_features() {
-	if ( ( new \Automattic\Jetpack\Status\Host() )->is_wpcom_platform() ) {
-		return function_exists( 'wpcom_site_has_feature' ) && wpcom_site_has_feature( 'big-sky' );
-	} else {
-		return \Jetpack_Gutenberg::is_available( 'ai-assistant-plugin' );
+	$host = new \Automattic\Jetpack\Status\Host();
+
+	if ( $host->is_wpcom_simple() ) {
+		return true;
 	}
+
+	if ( $host->is_woa_site() ) {
+		return function_exists( 'wpcom_site_has_feature' )
+			&& ( wpcom_site_has_feature( 'big-sky' ) || wpcom_site_has_feature( 'ai-assistant' ) );
+	}
+
+	return ( new \Automattic\Jetpack\Connection\Manager( 'jetpack' ) )->has_connected_owner()
+		&& ! ( new \Automattic\Jetpack\Status() )->is_offline_mode()
+		&& apply_filters( 'jetpack_ai_enabled', true );
 }
 
 /**
@@ -112,9 +123,7 @@ function register_plugin() {
 
 	\Jetpack_Gutenberg::set_extension_available( FEATURE_NAME );
 }
-// Priority 11 ensures this runs after the AI Assistant plugin registers at priority 10,
-// so that is_available( 'ai-assistant-plugin' ) returns the correct value.
-add_action( 'jetpack_register_gutenberg_extensions', __NAMESPACE__ . '\register_plugin', 11 );
+add_action( 'jetpack_register_gutenberg_extensions', __NAMESPACE__ . '\register_plugin' );
 
 /**
  * Fetch and cache the remote asset manifest.
