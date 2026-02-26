@@ -337,7 +337,6 @@ Before considering documentation complete, verify both main docs and API referen
 - [ ] Code examples are complete and runnable in main docs
 - [ ] Accessibility considerations covered in main docs
 - [ ] Animation section included if chart supports animation (check for `animation` prop)
-- [ ] Browser compatibility notes included where relevant
 - [ ] Both documents created using appropriate templates
 
 ### Accuracy
@@ -402,8 +401,7 @@ The `annotation.docs.mdx` file exemplifies these patterns:
 3. **Complete API docs**: Comprehensive prop tables with types
 4. **Practical guidance**: Real-world usage scenarios and best practices
 5. **Accessibility focus**: Dedicated section covering keyboard, screen reader, and focus behavior
-6. **Browser considerations**: Honest discussion of Safari limitations
-7. **Migration support**: Clear guidance for upgrading from legacy API
+6. **Migration support**: Clear guidance for upgrading from legacy API
 
 Follow this structure and level of detail for all chart component documentation to ensure consistency and usefulness across the entire charts library. Examples and stories are accessible through the Storybook UI, so they don't need to be listed in the documentation.
 
