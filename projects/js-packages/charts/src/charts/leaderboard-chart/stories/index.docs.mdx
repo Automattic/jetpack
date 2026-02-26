@@ -207,151 +207,6 @@ Handle different value ranges with conditional formatting:
 	/>` }
 />
 
-## Styling and Customization
-
-### Custom Colors
-
-Override default theme colors with custom primary and secondary colors:
-
-<Canvas of={ LeaderboardChartStories.CustomColors } />
-
-<Source
-	language="tsx"
-	code={ `<LeaderboardChart
-		data={data}
-		withComparison={true}
-		primaryColor="red"
-		secondaryColor="green"
-	/>` }
-/>
-
-### Custom Labels
-
-Use React components as labels for rich content display:
-
-<Canvas of={ LeaderboardChartStories.CustomLabel } />
-
-<Source
-	language="tsx"
-	code={ `const CustomLabelComponent = ({ label, imageColor }) => (
-		<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-			<img
-				src={\`data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='50' height='50'><rect width='50' height='50' fill='\${encodeURIComponent(imageColor)}'/></svg>\`}
-				alt="icon"
-				style={{ width: '28px', height: '28px', borderRadius: '4px' }}
-			/>
-			<span>{label}</span>
-		</div>
-	);
-
-	<LeaderboardChart
-		data={dataWithImages.map(entry => ({
-			...entry,
-			label: <CustomLabelComponent label={entry.label} imageColor={entry.imageColor} />
-		}))}
-	/>` }
-/>
-
-### Overlay Labels
-
-Position labels on top of bars for a more compact display:
-
-<Canvas of={ LeaderboardChartStories.WithOverlayLabel } />
-
-<Source
-	language="tsx"
-	code={ `<LeaderboardChart
-		data={data}
-		withOverlayLabel={true}
-	/>` }
-/>
-
-### Advanced Overlay Styling
-
-Combine overlay labels with custom styling and transparent colors:
-
-<Canvas of={ LeaderboardChartStories.OverlayLabelWithImage } />
-
-<Source
-	language="tsx"
-	code={ `<LeaderboardChart
-		data={richLabelData}
-		withComparison={true}
-		withOverlayLabel={true}
-		primaryColor="rgba(56, 88, 233, 0.08)" // Semi-transparent
-		style={{
-			'--a8c--charts--leaderboard--bar--border-radius': '4px',
-			fontFamily: '"SF Pro Text", sans-serif',
-		}}
-	/>` }
-/>
-
-### CSS Custom Properties
-
-The component supports CSS custom properties for advanced styling:
-
-<Source
-	language="tsx"
-	code={ `<LeaderboardChart
-		data={data}
-		style={{
-			'--a8c--charts--leaderboard--bar--border-radius': '8px',
-		}}
-		className="myCustomChart"
-	/>` }
-/>
-
-<Source
-	language="css"
-	code={ `.myCustomChart {
-		--a8c--charts--leaderboard--bar--border-radius: 8px;
-		font-family: "Custom Font", sans-serif;
-	}` }
-/>
-
-## Legend Configuration
-
-### Basic Legend
-
-Display a legend to help users understand the data visualization:
-
-<Canvas of={ LeaderboardChartStories.WithLegend } />
-
-<Source
-	language="tsx"
-	code={ `<LeaderboardChart
-		data={data}
-		withComparison={true}
-		showLegend={true}
-	/>` }
-/>
-
-### Custom Legend Labels
-
-Customize legend labels with specific date ranges or descriptive text:
-
-<Canvas of={ LeaderboardChartStories.CustomLegendLabels } />
-
-<Source
-	language="tsx"
-	code={ `<LeaderboardChart
-		data={data}
-		withComparison={true}
-		showLegend={true}
-		legendLabels={{
-			primary: 'Aug 11-Sep 9, 2025',
-			comparison: 'Jul 11-Aug 11, 2025',
-		}}
-	/>` }
-/>
-
-**Legend Configuration Options:**
-- Control legend positioning, alignment, and visual appearance
-- Customize legend shapes and sizes
-- Add custom labels for different time periods or data series
-
-See the [API Reference](./?path=/docs/js-packages-charts-library-charts-leaderboard-chart-api-reference--docs) for detailed prop information.
-
 ## Data States
 
 ### Loading State
@@ -457,6 +312,151 @@ Calculate the `currentShare` and `previousShare` values to determine bar widths:
 	}));` }
 />
 
+## Legend Configuration
+
+### Basic Legend
+
+Display a legend to help users understand the data visualization:
+
+<Canvas of={ LeaderboardChartStories.WithLegend } />
+
+<Source
+	language="tsx"
+	code={ `<LeaderboardChart
+		data={data}
+		withComparison={true}
+		showLegend={true}
+	/>` }
+/>
+
+### Custom Legend Labels
+
+Customize legend labels with specific date ranges or descriptive text:
+
+<Canvas of={ LeaderboardChartStories.CustomLegendLabels } />
+
+<Source
+	language="tsx"
+	code={ `<LeaderboardChart
+		data={data}
+		withComparison={true}
+		showLegend={true}
+		legendLabels={{
+			primary: 'Aug 11-Sep 9, 2025',
+			comparison: 'Jul 11-Aug 11, 2025',
+		}}
+	/>` }
+/>
+
+**Legend Configuration Options:**
+- Control legend positioning, alignment, and visual appearance
+- Customize legend shapes and sizes
+- Add custom labels for different time periods or data series
+
+See the [API Reference](./?path=/docs/js-packages-charts-library-charts-leaderboard-chart-api-reference--docs) for detailed prop information.
+
+## Styling and Customization
+
+### Custom Colors
+
+Override default theme colors with custom primary and secondary colors:
+
+<Canvas of={ LeaderboardChartStories.CustomColors } />
+
+<Source
+	language="tsx"
+	code={ `<LeaderboardChart
+		data={data}
+		withComparison={true}
+		primaryColor="red"
+		secondaryColor="green"
+	/>` }
+/>
+
+### Custom Labels
+
+Use React components as labels for rich content display:
+
+<Canvas of={ LeaderboardChartStories.CustomLabel } />
+
+<Source
+	language="tsx"
+	code={ `const CustomLabelComponent = ({ label, imageColor }) => (
+		<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+			<img
+				src={\`data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='50' height='50'><rect width='50' height='50' fill='\${encodeURIComponent(imageColor)}'/></svg>\`}
+				alt="icon"
+				style={{ width: '28px', height: '28px', borderRadius: '4px' }}
+			/>
+			<span>{label}</span>
+		</div>
+	);
+
+	<LeaderboardChart
+		data={dataWithImages.map(entry => ({
+			...entry,
+			label: <CustomLabelComponent label={entry.label} imageColor={entry.imageColor} />
+		}))}
+	/>` }
+/>
+
+### Overlay Labels
+
+Position labels on top of bars for a more compact display:
+
+<Canvas of={ LeaderboardChartStories.WithOverlayLabel } />
+
+<Source
+	language="tsx"
+	code={ `<LeaderboardChart
+		data={data}
+		withOverlayLabel={true}
+	/>` }
+/>
+
+### Advanced Overlay Styling
+
+Combine overlay labels with custom styling and transparent colors:
+
+<Canvas of={ LeaderboardChartStories.OverlayLabelWithImage } />
+
+<Source
+	language="tsx"
+	code={ `<LeaderboardChart
+		data={richLabelData}
+		withComparison={true}
+		withOverlayLabel={true}
+		primaryColor="rgba(56, 88, 233, 0.08)" // Semi-transparent
+		style={{
+			'--a8c--charts--leaderboard--bar--border-radius': '4px',
+			fontFamily: '"SF Pro Text", sans-serif',
+		}}
+	/>` }
+/>
+
+### CSS Custom Properties
+
+The component supports CSS custom properties for advanced styling:
+
+<Source
+	language="tsx"
+	code={ `<LeaderboardChart
+		data={data}
+		style={{
+			'--a8c--charts--leaderboard--bar--border-radius': '8px',
+		}}
+		className="myCustomChart"
+	/>` }
+/>
+
+<Source
+	language="css"
+	code={ `.myCustomChart {
+		--a8c--charts--leaderboard--bar--border-radius: 8px;
+		font-family: "Custom Font", sans-serif;
+	}` }
+/>
+
 ## Theming Integration
 
 Leaderboard Charts integrate seamlessly with the chart theming system. The default theme has neutral colors and styling, and is automatically applied to all charts unless a custom theme is provided. A custom theme can be provided by wrapping your chart in `GlobalChartsProvider` and passing a custom theme object with the properties you want to override to the `theme` prop:
@@ -497,14 +497,6 @@ The Leaderboard Chart component supports an optional entry animation that create
 
 **Note**: The animation plays once when the chart initially renders and does not repeat.
 
-## Accessibility
-
-- Built with semantic WordPress components (`Grid`, `VStack`, `Text`)
-- Screen reader accessible through proper text content
-- Color information supplemented with text values (not color-dependent)
-- Responsive design that adapts to system font size preferences
-- No interactive elements - functions as a display-only component
-
 ## Examples
 
 ### E-commerce Sales Channels
@@ -531,3 +523,11 @@ The Leaderboard Chart component supports an optional entry animation that create
 
 	<LeaderboardChart data={trafficData} withComparison={true} />
 ` } />
+
+## Accessibility
+
+- Built with semantic WordPress components (`Grid`, `VStack`, `Text`)
+- Screen reader accessible through proper text content
+- Color information supplemented with text values (not color-dependent)
+- Responsive design that adapts to system font size preferences
+- No interactive elements - functions as a display-only component
