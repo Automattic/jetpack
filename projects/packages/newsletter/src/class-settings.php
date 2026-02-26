@@ -314,23 +314,61 @@ class Settings {
 	/**
 	 * Render the clarifying notice on the Reading settings page.
 	 *
+	 * Uses JavaScript to relocate the notice next to the "For each post in a feed"
+	 * (rss_use_excerpt) setting.
+	 *
 	 * @since $$next-version$$
 	 */
 	public function render_reading_page_notice() {
-		// Use the filtered URL so it points to the correct settings page
-		// regardless of whether the new newsletter UI is enabled.
+		/*
+		 * Filter the settings page URL so it points to the correct settings page
+		 * regardless of whether the new newsletter UI is enabled.
+		 */
+		/* This filter is already documented in projects/plugins/jetpack/class.jetpack.php */
 		$newsletter_url = apply_filters(
 			'jetpack_module_configuration_url_subscriptions',
 			admin_url( 'admin.php?page=jetpack#/newsletter' )
 		);
 
 		printf(
-			'<p class="description">%s</p>',
+			'<p class="description" id="jetpack-newsletter-reading-notice">%s</p>',
 			sprintf(
-				/* translators: %s is a link to the Newsletter settings page. */
-				esc_html__( 'This setting controls your RSS feed only. To control what\'s included in newsletter emails sent to subscribers, visit your %s.', 'jetpack-newsletter' ),
-				'<a href="' . esc_url( $newsletter_url ) . '">' . esc_html__( 'Newsletter settings', 'jetpack-newsletter' ) . '</a>'
+				wp_kses(
+					/* translators: %s is a link to the Newsletter settings page. */
+					__( 'To control what’s included in newsletter emails, visit your <a href="%s">Newsletter settings</a>.', 'jetpack-newsletter' ),
+					array(
+						'a' => array(
+							'href' => array(),
+						),
+					)
+				),
+				esc_url( $newsletter_url )
 			)
 		);
+		?>
+		<script type="text/javascript">
+			document.addEventListener( 'DOMContentLoaded', function() {
+				var notice = document.getElementById( 'jetpack-newsletter-reading-notice' );
+				var excerptInput = document.querySelector( 'input[name="rss_use_excerpt"]' );
+				var excerptRow = excerptInput ? excerptInput.closest( 'tr' ) : null;
+
+				if ( ! notice || ! excerptRow ) {
+					return;
+				}
+
+				// Remember the original parent before moving the notice.
+				var originalTable = notice.closest( 'table' );
+				var excerptTable = excerptRow.closest( 'table' );
+
+				// Move the notice into the rss_use_excerpt row's fieldset.
+				excerptRow.querySelector( 'td' ).appendChild( notice );
+
+				// Remove the now-empty original table (if it's different from the excerpt's table).
+				if ( originalTable && originalTable !== excerptTable ) {
+					originalTable.remove();
+				}
+			} );
+		</script>
+		<?php
 	}
 }
