@@ -156,6 +156,7 @@ fi
   # 2. node_modules points to a different pnpm store (store migration)
   if [[ "$IS_WORKTREE" = "1" ]]; then
       read -r -d '' INSTALL_CHECK <<'INSTALLEOF'
+install_args=""
 needs_install=0
 if [ ! -d /workspace/node_modules ]; then
     echo "Installing dependencies (first run in worktree)..."
@@ -165,10 +166,11 @@ elif [ -f /workspace/node_modules/.modules.yaml ]; then
     if [ -n "$current_store" ] && [ "$current_store" != "$npm_config_store_dir" ]; then
         echo "Migrating pnpm store from $current_store to $npm_config_store_dir..."
         needs_install=1
+        install_args="--force"
     fi
 fi
 if [ "$needs_install" = "1" ]; then
-    pnpm install --frozen-lockfile
+    pnpm install --frozen-lockfile $install_args
 fi
 INSTALLEOF
       WRAPPED_CMD="${INSTALL_CHECK} && $*"
