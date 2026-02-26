@@ -312,7 +312,7 @@ class Agents_Manager {
 	public static function is_enabled() {
 		// CIAB: Agents Manager is the default AI experience — enabled unless explicitly
 		// disabled via filter (e.g. for debugging or gradual rollout).
-		if ( (bool) did_action( 'next_admin_init' ) ) {
+		if ( self::is_ciab_environment() ) {
 			/**
 			 * Filter whether Agents Manager is enabled in CIAB (Next Admin) environments.
 			 *
@@ -735,7 +735,7 @@ class Agents_Manager {
 	 *
 	 * @return bool True if CIAB/Next Admin environment.
 	 */
-	private function is_ciab_environment() {
+	private static function is_ciab_environment() {
 		return (bool) did_action( 'next_admin_init' );
 	}
 
