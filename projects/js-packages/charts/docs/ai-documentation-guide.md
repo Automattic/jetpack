@@ -200,6 +200,19 @@ When documenting animation:
 - Note that animation plays once on initial render and does not repeat
 
 See the `feature-documentation.mdx.template` for the complete section structure.
+
+## Responsive Behavior
+
+Always include a Responsive Behavior section. Charts are responsive by default and fill their parent container's dimensions. Document:
+
+- Default behavior (fills parent container, parent needs explicit height)
+- `aspectRatio` prop usage (height calculated from width)
+- Fixed `width`/`height` dimensions
+- Any chart-specific responsive nuances (e.g., aspect ratio constraints)
+
+End the section with a link to the Responsive Design section in the introduction.
+
+See the `feature-documentation.mdx.template` for the complete section structure.
 ```
 
 ### 8. Advanced Usage
