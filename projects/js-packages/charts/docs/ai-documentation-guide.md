@@ -404,5 +404,3 @@ The `annotation.docs.mdx` file exemplifies these patterns:
 6. **Migration support**: Clear guidance for upgrading from legacy API
 
 Follow this structure and level of detail for all chart component documentation to ensure consistency and usefulness across the entire charts library. Examples and stories are accessible through the Storybook UI, so they don't need to be listed in the documentation.
-
-**Important**: When documenting performance considerations, only include optimizations and limitations that are actually implemented, documented, or evidenced in the codebase. Avoid general web development best practices unless they are specifically relevant and tested for the chart components.

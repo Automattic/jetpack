@@ -673,20 +673,6 @@ The chart gracefully handles various error states and edge cases:
 - Logical tab order through interactive elements
 - Focus restoration after modal interactions
 
-## Performance Considerations
-
-### Built-in Optimizations
-
-- **No animations**: Animations have been removed from chart components to improve performance and reduce overhead
-- **Efficient rendering**: Built on `@visx/xychart` for optimized SVG rendering and chart performance
-- **Responsive behavior**: Uses `ResizeObserver` for efficient chart resizing without polling
-
-### Implementation Notes
-
-- Chart components are optimized for typical dashboard and analytics use cases
-- The underlying `@visx` libraries provide efficient data-to-visual mappings
-- Consider your specific data volume and update frequency when implementing real-time charts
-
 ## Theming Integration
 
 Line Charts integrate seamlessly with the chart theming system. The default theme has neutral colors and styling, and is automatically applied to all charts unless a custom theme is provided. A custom theme can be provided by wrapping your chart in `GlobalChartsProvider` and passing a custom theme object with the properties you want to override to the `theme` prop:
