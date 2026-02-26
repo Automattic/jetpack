@@ -227,42 +227,6 @@ Donut charts inherit the same robust data validation from PieChart:
 	</PieChart>` }
 />
 
-## Animation
-
-Donut charts support an optional entry animation that creates a smooth reveal effect when the chart first renders:
-
-<Canvas of={ DonutStories.Animation } />
-
-<Source
-	language="jsx"
-	code={ `<PieChart
-		thickness={ 0.5 }
-		gapScale={ 0.03 }
-		cornerScale={ 0.03 }
-		withTooltips={ true }
-		data={ data }
-		animation={ true }
-	>
-		<Group>
-			<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 24 } y={ -16 }>
-				User Activity
-			</Text>
-			<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 18 } y={ 16 }>
-				Total: 100K Users
-			</Text>
-		</Group>
-	</PieChart>` }
-/>
-
-### Animation Behavior
-
-- **Opt-in**: Animation is disabled by default and must be explicitly enabled with the `animation` prop
-- **Accessibility**: Automatically respects the user's `prefers-reduced-motion` system setting - animation will not play for users who prefer reduced motion
-- **Effect**: Creates a radial wipe reveal effect that sweeps clockwise from the top, progressively revealing the donut segments
-- **Duration**: 1000ms (1 second)
-
-**Note**: The animation plays once when the chart initially renders and does not repeat. Since donuts are created using PieChart, they use the same animation system.
-
 ## Responsive Behavior
 
 The donut chart supports responsive sizing by omitting the `size` prop:
@@ -299,27 +263,41 @@ The donut chart supports responsive sizing by omitting the `size` prop:
 
 For more details on responsive behavior, see the [Responsive Design section](./?path=/docs/js-packages-charts-library-introduction--docs#responsive-design) in the introduction.
 
-## Accessibility
+## Animation
 
-### Screen Reader Support
+Donut charts support an optional entry animation that creates a smooth reveal effect when the chart first renders:
 
-Center content in donut charts should be properly announced:
+<Canvas of={ DonutStories.Animation } />
 
 <Source
 	language="jsx"
-	code={ `<PieChart thickness={ 0.5 } data={ data }>
+	code={ `<PieChart
+		thickness={ 0.5 }
+		gapScale={ 0.03 }
+		cornerScale={ 0.03 }
+		withTooltips={ true }
+		data={ data }
+		animation={ true }
+	>
 		<Group>
-			<Text
-				textAnchor="middle"
-				verticalAnchor="middle"
-				role="img"
-				aria-label="Total users: 100,000"
-			>
-				100K
+			<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 24 } y={ -16 }>
+				User Activity
+			</Text>
+			<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 18 } y={ 16 }>
+				Total: 100K Users
 			</Text>
 		</Group>
 	</PieChart>` }
 />
+
+### Animation Behavior
+
+- **Opt-in**: Animation is disabled by default and must be explicitly enabled with the `animation` prop
+- **Accessibility**: Automatically respects the user's `prefers-reduced-motion` system setting - animation will not play for users who prefer reduced motion
+- **Effect**: Creates a radial wipe reveal effect that sweeps clockwise from the top, progressively revealing the donut segments
+- **Duration**: 1000ms (1 second)
+
+**Note**: The animation plays once when the chart initially renders and does not repeat. Since donuts are created using PieChart, they use the same animation system.
 
 ## Common Use Cases
 
@@ -372,6 +350,28 @@ Display resource distribution with totals:
 			</Text>
 			<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 14 } y={ 20 }>
 				Total Budget
+			</Text>
+		</Group>
+	</PieChart>` }
+/>
+
+## Accessibility
+
+### Screen Reader Support
+
+Center content in donut charts should be properly announced:
+
+<Source
+	language="jsx"
+	code={ `<PieChart thickness={ 0.5 } data={ data }>
+		<Group>
+			<Text
+				textAnchor="middle"
+				verticalAnchor="middle"
+				role="img"
+				aria-label="Total users: 100,000"
+			>
+				100K
 			</Text>
 		</Group>
 	</PieChart>` }
