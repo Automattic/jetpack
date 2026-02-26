@@ -26,6 +26,7 @@ function wpcomsh_activitypub_sync_plugin_activation( $args ) {
 		return $args;
 	}
 
+	// @phan-suppress-next-line PhanUndeclaredClassMethod We're checking the class exists above, and that class exists in the ActivityPub plugin.
 	$blog_actor = Activitypub\Collection\Actors::get_by_id( 0 );
 	if ( ! is_wp_error( $blog_actor ) ) {
 		$args[] = array( 'actor' => $blog_actor->get_id() );
