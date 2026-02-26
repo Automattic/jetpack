@@ -126,8 +126,8 @@ export const setPostEmailSentState = ( { email_sent_at, stats_on_send } ) => ( {
 	payload: { email_sent_at, stats_on_send },
 } );
 
-export const setRepublishedAlreadySentPostInSession = postId => ( {
-	type: 'SET_REPUBLISHED_ALREADY_SENT_POST_IN_SESSION',
+export const setAlreadySentPostModifiedInSession = postId => ( {
+	type: 'SET_ALREADY_SENT_POST_MODIFIED_IN_SESSION',
 	postId,
 } );
 

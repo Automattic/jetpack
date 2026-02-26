@@ -37,9 +37,9 @@ import { NewsletterTestEmailModal } from './email-preview';
 import './panel.scss';
 
 /**
- * Tracks status transitions and dispatches Redux flags so SubscribersAffirmation
- * can show the republish blurb even when the post-publish panel remounts.
- * Stays mounted for the editor session, so it sees draft→publish transitions.
+ * Tracks status transitions and save completions, dispatching Redux flags so
+ * SubscribersAffirmation can show the republish/modify blurb even when the
+ * post-publish panel remounts. Stays mounted for the editor session.
  *
  * @return {null} Renders nothing.
  */
@@ -48,10 +48,10 @@ function NewsletterRepublishTracker() {
 	const transitionedToPublishPostIdRef = useRef( null );
 	const {
 		setPublishedWithEmailEnabledInSession: dispatchPublishedWithEmail,
-		setRepublishedAlreadySentPostInSession: dispatchRepublishedAlreadySent,
+		setAlreadySentPostModifiedInSession: dispatchModifiedAlreadySent,
 	} = useDispatch( membershipProductsStore );
 
-	const { postId, postMeta, postEmailSentState, status } = useSelect( select => {
+	const { postId, postMeta, postEmailSentState, status, isSavingPost } = useSelect( select => {
 		const { getCurrentPost, getEditedPostAttribute } = select( editorStore );
 		const { getPostEmailSentState } = select( membershipProductsStore );
 		const post = getCurrentPost();
@@ -64,6 +64,7 @@ function NewsletterRepublishTracker() {
 			postMeta: getEditedPostAttribute( 'meta' ),
 			postEmailSentState: id ? getPostEmailSentState( id ) : null,
 			status: post?.status,
+			isSavingPost: select( editorStore ).isSavingPost(),
 		};
 	}, [] );
 
@@ -80,17 +81,21 @@ function NewsletterRepublishTracker() {
 				transitionedToPublishPostIdRef.current === postId &&
 				postEmailSentState?.email_sent_at != null
 			) {
-				dispatchRepublishedAlreadySent( postId );
+				dispatchModifiedAlreadySent( postId );
+			}
+			if ( isSavingPost && postEmailSentState?.email_sent_at != null ) {
+				dispatchModifiedAlreadySent( postId );
 			}
 		}
 		prevStatusRef.current = status;
 	}, [
 		status,
 		postId,
+		isSavingPost,
 		postEmailSentState?.email_sent_at,
 		postMeta,
 		dispatchPublishedWithEmail,
-		dispatchRepublishedAlreadySent,
+		dispatchModifiedAlreadySent,
 	] );
 
 	return null;

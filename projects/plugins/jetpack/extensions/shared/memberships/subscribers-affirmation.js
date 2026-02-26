@@ -372,7 +372,7 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 		newsletterCategorySubscriberCount,
 		paidSubscribersCount,
 		postEmailSentState,
-		republishedAlreadySentInSession,
+		alreadySentPostModifiedInSession,
 		publishedWithEmailEnabledInSession,
 	} = useSelect(
 		select => {
@@ -382,7 +382,7 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 				getNewsletterCategoriesSubscriptionsCount,
 				getPostEmailSentState,
 				getPublishedWithEmailEnabledInSession,
-				getRepublishedAlreadySentPostInSession,
+				getAlreadySentPostModifiedInSession,
 				getSubscriberCounts,
 				hasFinishedResolution,
 			} = select( membershipProductsStore );
@@ -410,8 +410,8 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 				newsletterCategorySubscriberCount: getNewsletterCategoriesSubscriptionsCount(),
 				paidSubscribersCount: paidSubscribers,
 				postEmailSentState: postId ? getPostEmailSentState( postId ) : null,
-				republishedAlreadySentInSession: postId
-					? getRepublishedAlreadySentPostInSession( postId )
+				alreadySentPostModifiedInSession: postId
+					? getAlreadySentPostModifiedInSession( postId )
 					: false,
 				publishedWithEmailEnabledInSession: postId
 					? getPublishedWithEmailEnabledInSession( postId )
@@ -499,7 +499,7 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 			pastTense: true,
 			dateStr,
 		} );
-		if ( republishedAlreadySentInSession || prePublish ) {
+		if ( alreadySentPostModifiedInSession || prePublish ) {
 			append = __( 'Updating or republishing does not send a new email.', 'jetpack' );
 		}
 		const statsAccess = statsOnSend?.access_level;
