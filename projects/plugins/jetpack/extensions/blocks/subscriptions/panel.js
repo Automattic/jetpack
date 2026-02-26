@@ -32,10 +32,6 @@ import {
 	MisconfigurationWarning,
 } from '../../shared/memberships/utils';
 import { store as membershipProductsStore } from '../../store/membership-products';
-import {
-	setPublishedWithEmailEnabledInSession,
-	setRepublishedAlreadySentPostInSession,
-} from '../../store/membership-products/actions';
 import { NewsletterTestEmailModal } from './email-preview';
 
 import './panel.scss';
@@ -50,7 +46,10 @@ import './panel.scss';
 function NewsletterRepublishTracker() {
 	const prevStatusRef = useRef( null );
 	const transitionedToPublishPostIdRef = useRef( null );
-	const dispatch = useDispatch( membershipProductsStore );
+	const {
+		setPublishedWithEmailEnabledInSession: dispatchPublishedWithEmail,
+		setRepublishedAlreadySentPostInSession: dispatchRepublishedAlreadySent,
+	} = useDispatch( membershipProductsStore );
 
 	const { postId, postMeta, postEmailSentState, status } = useSelect( select => {
 		const { getCurrentPost, getEditedPostAttribute } = select( editorStore );
@@ -74,18 +73,25 @@ function NewsletterRepublishTracker() {
 			if ( didTransition ) {
 				transitionedToPublishPostIdRef.current = postId;
 				if ( ! postMeta?.[ META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS ] ) {
-					dispatch( setPublishedWithEmailEnabledInSession( postId ) );
+					dispatchPublishedWithEmail( postId );
 				}
 			}
 			if (
 				transitionedToPublishPostIdRef.current === postId &&
 				postEmailSentState?.email_sent_at != null
 			) {
-				dispatch( setRepublishedAlreadySentPostInSession( postId ) );
+				dispatchRepublishedAlreadySent( postId );
 			}
 		}
 		prevStatusRef.current = status;
-	}, [ status, postId, postEmailSentState?.email_sent_at, postMeta, dispatch ] );
+	}, [
+		status,
+		postId,
+		postEmailSentState?.email_sent_at,
+		postMeta,
+		dispatchPublishedWithEmail,
+		dispatchRepublishedAlreadySent,
+	] );
 
 	return null;
 }
