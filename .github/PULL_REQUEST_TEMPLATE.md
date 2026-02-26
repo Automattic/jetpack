@@ -14,6 +14,9 @@ Fixes #
 - [ ] Have you written new tests for your changes, if applicable?
 - [ ] Have you checked the E2E test CI results, and verified that your changes do not break them?
 - [ ] Have you tested your changes on WordPress.com, if applicable (if so, you'll see a generated comment below with a script to run)?
+<!-- AI agents: Do NOT check this box if changelog files already exist in this PR.
+     Only check it if no changelog files have been added and you want AI to generate them. -->
+- [ ] Generate changelog entries for this PR (using AI).
 
 ## Jetpack product discussion
 <!-- If you're an Automattician, include a shortlink to the p2 discussion with Jetpack Product here. -->
@@ -32,8 +35,3 @@ Fixes #
 
 * Go to '..'
 *
-
-## Changelog
-<!-- Check one of the boxes below. -->
-
-- [ ] Generate changelog entries for this PR (using AI).
