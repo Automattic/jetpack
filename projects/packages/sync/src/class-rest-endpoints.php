@@ -672,8 +672,7 @@ class REST_Endpoints {
 		}
 
 		if ( ! $use_memory_limit ) {
-			$number_of_items = $args['number_of_items'];
-			if ( $number_of_items < 1 || $number_of_items > 100 ) {
+			if ( empty( $args['number_of_items'] ) || $args['number_of_items'] < 1 || $args['number_of_items'] > 100 ) {
 				return new WP_Error( 'invalid_number_of_items', 'Number of items needs to be an integer that is larger than 0 and less than 100', 400 );
 			}
 		}

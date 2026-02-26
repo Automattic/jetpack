@@ -212,9 +212,9 @@ class REST_Endpoints_Test extends TestCase {
 		$this->assertEquals( 200, $response->get_status() );
 	}
 
-		/**
-		 * Testing the `/jetpack/v4/sync/checkout` endpoint with use_memory_limit skips number_of_items validation.
-		 */
+	/**
+	 * Testing the `/jetpack/v4/sync/checkout` endpoint with use_memory_limit skips number_of_items validation.
+	 */
 	public function test_sync_checkout_with_memory_limit_skips_number_of_items_validation() {
 
 		$user = wp_get_current_user();
