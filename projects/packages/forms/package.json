@@ -21,7 +21,8 @@
 		"build:contact-form": "webpack --config ./tools/webpack.config.contact-form.js",
 		"build:dashboard": "webpack --config ./tools/webpack.config.dashboard.js",
 		"build:form-editor": "webpack --config ./tools/webpack.config.form-editor.js",
-		"build:wp-build": "wp-build",
+		"build:polyfills": "build-polyfills",
+		"build:wp-build": "pnpm run build:polyfills && wp-build",
 		"build-production": "NODE_ENV=production BABEL_ENV=production pnpm run build && pnpm run validate",
 		"clean": "rm -rf dist/ build/ .cache/",
 		"extract-icons": "node tools/extract-icons.mjs",
@@ -35,7 +36,7 @@
 		"validate": "pnpm exec validate-es --no-error-on-unmatched-pattern dist/",
 		"watch": "concurrently 'pnpm:build:blocks --watch' 'pnpm:build:contact-form --watch' 'pnpm:build:dashboard --watch' 'pnpm:module:watch' 'pnpm:build:form-editor --watch' 'pnpm:watch:wp-build' 'pnpm:watch:icons'",
 		"watch:icons": "node tools/watch-icons.mjs",
-		"watch:wp-build": "wp-build --watch"
+		"watch:wp-build": "pnpm run build:polyfills && wp-build --watch"
 	},
 	"browserslist": [
 		"extends @wordpress/browserslist-config"
@@ -99,6 +100,7 @@
 		"@automattic/color-studio": "4.1.0",
 		"@automattic/jetpack-base-styles": "workspace:*",
 		"@automattic/jetpack-webpack-config": "workspace:*",
+		"@automattic/jetpack-wp-build-polyfills": "workspace:*",
 		"@automattic/remove-asset-webpack-plugin": "workspace:*",
 		"@babel/core": "7.29.0",
 		"@babel/runtime": "7.28.6",

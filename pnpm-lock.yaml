@@ -2558,6 +2558,9 @@ importers:
       '@automattic/jetpack-webpack-config':
         specifier: workspace:*
         version: link:../../js-packages/webpack-config
+      '@automattic/jetpack-wp-build-polyfills':
+        specifier: workspace:*
+        version: link:../wp-build-polyfills
       '@automattic/remove-asset-webpack-plugin':
         specifier: workspace:*
         version: link:../../js-packages/remove-asset-webpack-plugin
