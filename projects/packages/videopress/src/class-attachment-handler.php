@@ -44,6 +44,9 @@ class Attachment_Handler {
 		add_action( 'pre_get_posts', array( __CLASS__, 'media_list_table_query' ) );
 
 		add_filter( 'user_has_cap', array( __CLASS__, 'disable_delete_if_disconnected' ), 10, 3 );
+
+		add_action( 'admin_print_scripts-upload.php', array( __CLASS__, 'enqueue_media_library_poll' ) );
+		add_filter( 'heartbeat_received', array( __CLASS__, 'heartbeat_received' ), 10, 2 );
 	}
 
 	/**
@@ -199,6 +202,10 @@ class Attachment_Handler {
 			if ( $guid ) {
 				$post['videopress_guid'] = $guid;
 			}
+			$status = get_post_meta( $post['id'], 'videopress_status', true );
+			if ( $status ) {
+				$post['videopress_status'] = $status;
+			}
 		}
 		return $post;
 	}
@@ -291,5 +298,53 @@ class Attachment_Handler {
 		}
 
 		return $allcaps;
+	}
+
+	/**
+	 * Enqueues the script that hooks into WP Heartbeat to refresh
+	 * processing VideoPress video data in the media library grid.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	public static function enqueue_media_library_poll() {
+		wp_enqueue_script(
+			'videopress-media-library-poll',
+			plugins_url( 'js/media-library-poll.js', __FILE__ ),
+			array( 'jquery', 'heartbeat', 'media-grid' ),
+			Package_Version::PACKAGE_VERSION,
+			true
+		);
+	}
+
+	/**
+	 * Heartbeat API handler that checks the processing status of VideoPress videos.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $response The Heartbeat response.
+	 * @param array $data     The data sent with the Heartbeat request.
+	 * @return array
+	 */
+	public static function heartbeat_received( $response, $data ) {
+		if ( empty( $data['videopress_processing_ids'] ) || ! is_array( $data['videopress_processing_ids'] ) ) {
+			return $response;
+		}
+
+		$statuses = array();
+		foreach ( $data['videopress_processing_ids'] as $id ) {
+			$id     = (int) $id;
+			$status = get_post_meta( $id, 'videopress_status', true );
+			if ( $status ) {
+				$statuses[ $id ] = $status;
+			}
+		}
+
+		if ( ! empty( $statuses ) ) {
+			$response['videopress_processing_status'] = $statuses;
+		}
+
+		return $response;
 	}
 }

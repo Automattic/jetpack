@@ -1,0 +1,172 @@
+<?php
+/**
+ * Tests for Automattic\Jetpack\VideoPress\Attachment_Handler
+ *
+ * @package automattic/jetpack-videopress
+ */
+
+namespace Automattic\Jetpack\VideoPress;
+
+use WorDBless\BaseTestCase;
+
+/**
+ * Class Attachment_Handler_Test
+ */
+class Attachment_Handler_Test extends BaseTestCase {
+
+	/**
+	 * Clean up after each test.
+	 */
+	public function tear_down() {
+		\WorDBless\Posts::init()->clear_all_posts();
+		parent::tear_down();
+	}
+
+	/**
+	 * Test that prepare_attachment_for_js includes videopress_status when set.
+	 */
+	public function test_prepare_attachment_for_js_includes_videopress_status() {
+		$post_id = wp_insert_post(
+			array(
+				'post_type'      => 'attachment',
+				'post_mime_type' => 'video/videopress',
+				'post_title'     => 'Test video',
+			)
+		);
+		add_post_meta( $post_id, 'videopress_guid', 'abc123' );
+		add_post_meta( $post_id, 'videopress_status', 'processing' );
+
+		$post   = array(
+			'id'   => $post_id,
+			'type' => 'video',
+		);
+		$result = Attachment_Handler::prepare_attachment_for_js( $post );
+
+		$this->assertSame( 'abc123', $result['videopress_guid'] );
+		$this->assertSame( 'processing', $result['videopress_status'] );
+	}
+
+	/**
+	 * Test that prepare_attachment_for_js omits videopress_status when empty.
+	 */
+	public function test_prepare_attachment_for_js_omits_empty_videopress_status() {
+		$post_id = wp_insert_post(
+			array(
+				'post_type'      => 'attachment',
+				'post_mime_type' => 'video/videopress',
+				'post_title'     => 'Test video',
+			)
+		);
+		add_post_meta( $post_id, 'videopress_guid', 'abc123' );
+
+		$post   = array(
+			'id'   => $post_id,
+			'type' => 'video',
+		);
+		$result = Attachment_Handler::prepare_attachment_for_js( $post );
+
+		$this->assertSame( 'abc123', $result['videopress_guid'] );
+		$this->assertArrayNotHasKey( 'videopress_status', $result );
+	}
+
+	/**
+	 * Test that prepare_attachment_for_js skips non-video attachments.
+	 */
+	public function test_prepare_attachment_for_js_skips_non_video() {
+		$post = array(
+			'id'   => 1,
+			'type' => 'image',
+		);
+
+		$result = Attachment_Handler::prepare_attachment_for_js( $post );
+
+		$this->assertArrayNotHasKey( 'videopress_guid', $result );
+		$this->assertArrayNotHasKey( 'videopress_status', $result );
+	}
+
+	/**
+	 * Test that heartbeat_received returns statuses for requested IDs.
+	 */
+	public function test_heartbeat_received_returns_statuses() {
+		$post_id = wp_insert_post(
+			array(
+				'post_type'      => 'attachment',
+				'post_mime_type' => 'video/videopress',
+				'post_title'     => 'Test video',
+			)
+		);
+		add_post_meta( $post_id, 'videopress_status', 'complete' );
+
+		$result = Attachment_Handler::heartbeat_received(
+			array(),
+			array( 'videopress_processing_ids' => array( $post_id ) )
+		);
+
+		$this->assertArrayHasKey( 'videopress_processing_status', $result );
+		$this->assertSame( 'complete', $result['videopress_processing_status'][ $post_id ] );
+	}
+
+	/**
+	 * Test that heartbeat_received returns unchanged response when no IDs provided.
+	 */
+	public function test_heartbeat_received_ignores_missing_ids() {
+		$result = Attachment_Handler::heartbeat_received( array( 'existing' => true ), array() );
+
+		$this->assertArrayNotHasKey( 'videopress_processing_status', $result );
+		$this->assertTrue( $result['existing'] );
+	}
+
+	/**
+	 * Test that heartbeat_received rejects non-array IDs.
+	 */
+	public function test_heartbeat_received_rejects_non_array_ids() {
+		$result = Attachment_Handler::heartbeat_received(
+			array(),
+			array( 'videopress_processing_ids' => 'not-an-array' )
+		);
+
+		$this->assertArrayNotHasKey( 'videopress_processing_status', $result );
+	}
+
+	/**
+	 * Test that heartbeat_received casts IDs to integers.
+	 */
+	public function test_heartbeat_received_casts_ids_to_int() {
+		$post_id = wp_insert_post(
+			array(
+				'post_type'      => 'attachment',
+				'post_mime_type' => 'video/videopress',
+				'post_title'     => 'Test video',
+			)
+		);
+		add_post_meta( $post_id, 'videopress_status', 'processing' );
+
+		$result = Attachment_Handler::heartbeat_received(
+			array(),
+			array( 'videopress_processing_ids' => array( (string) $post_id ) )
+		);
+
+		$this->assertArrayHasKey( $post_id, $result['videopress_processing_status'] );
+		$this->assertSame( 'processing', $result['videopress_processing_status'][ $post_id ] );
+	}
+
+	/**
+	 * Test that heartbeat_received omits IDs with no status meta.
+	 */
+	public function test_heartbeat_received_omits_ids_without_status() {
+		$post_id = wp_insert_post(
+			array(
+				'post_type'      => 'attachment',
+				'post_mime_type' => 'video/videopress',
+				'post_title'     => 'Test video',
+			)
+		);
+
+		$result = Attachment_Handler::heartbeat_received(
+			array(),
+			array( 'videopress_processing_ids' => array( $post_id ) )
+		);
+
+		$this->assertArrayNotHasKey( 'videopress_processing_status', $result );
+	}
+}
