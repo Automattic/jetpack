@@ -200,40 +200,6 @@ Donut charts with center content need special attention for responsiveness:
 	};` }
 />
 
-### Responsive Behavior
-
-The donut chart supports responsive sizing by omitting the `size` prop:
-
-<Source
-	language="jsx"
-	code={ `// Responsive donut - fills parent container
-	<PieChart
-		thickness={ 0.4 }
-		data={ data }
-		maxWidth={ 600 }
-		aspectRatio={ 1 }
-	>
-		<Group>
-			<Text textAnchor="middle" verticalAnchor="middle">
-				Responsive Content
-			</Text>
-		</Group>
-	</PieChart>
-
-	// Fixed size donut
-	<PieChart
-		size={ 400 }
-		thickness={ 0.4 }
-		data={ data }
-	>
-		<Group>
-			<Text textAnchor="middle" verticalAnchor="middle">
-				Fixed Content
-			</Text>
-		</Group>
-	</PieChart>` }
-/>
-
 ### Data Validation and Error Handling
 
 Donut charts inherit the same robust data validation from PieChart:
@@ -296,6 +262,42 @@ Donut charts support an optional entry animation that creates a smooth reveal ef
 - **Duration**: 1000ms (1 second)
 
 **Note**: The animation plays once when the chart initially renders and does not repeat. Since donuts are created using PieChart, they use the same animation system.
+
+## Responsive Behavior
+
+The donut chart supports responsive sizing by omitting the `size` prop:
+
+<Source
+	language="jsx"
+	code={ `// Responsive donut - fills parent container
+	<PieChart
+		thickness={ 0.4 }
+		data={ data }
+		maxWidth={ 600 }
+		aspectRatio={ 1 }
+	>
+		<Group>
+			<Text textAnchor="middle" verticalAnchor="middle">
+				Responsive Content
+			</Text>
+		</Group>
+	</PieChart>
+
+	// Fixed size donut
+	<PieChart
+		size={ 400 }
+		thickness={ 0.4 }
+		data={ data }
+	>
+		<Group>
+			<Text textAnchor="middle" verticalAnchor="middle">
+				Fixed Content
+			</Text>
+		</Group>
+	</PieChart>` }
+/>
+
+For more details on responsive behavior, see the [Responsive Design section](./?path=/docs/js-packages-charts-library-introduction--docs#responsive-design) in the introduction.
 
 ## Accessibility Considerations
 
