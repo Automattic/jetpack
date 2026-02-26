@@ -5,6 +5,8 @@
  * @package wpcomsh
  */
 
+use Automattic\Jetpack\Connection\Manager;
+
 /**
  * Pass extra data to WordPress.com when the ActivityPub plugin is activated.
  *
@@ -13,7 +15,7 @@
  * already expanded the original positional args into the three-element array below.
  *
  * When the activated plugin is ActivityPub, this function appends a fourth element
- * containing the blog-level actor URI so it can be synced to WordPress.com.
+ * containing the Jetpack connection owner's ActivityPub actor URI so it can be synced to WordPress.com.
  *
  * @param array|false $args {
  *     Positional activated_plugin hook arguments. False if a previous filter aborted.
@@ -22,7 +24,7 @@
  *     @type bool   $1 Whether the plugin was network-activated. Default false.
  *     @type array  $2 Plugin header data added by `expand_plugin_data()` (keys: 'name', 'version').
  *     @type array  $3 Optional. Added by this function when the plugin is ActivityPub.
- *                     Contains 'actor' — the blog-level ActivityPub actor URI.
+ *                     Contains 'actor' — the Jetpack connection owner's ActivityPub actor URI.
  * }
  *
  * @return array|false The (possibly augmented) args, or false if a previous filter aborted.
@@ -41,10 +43,15 @@ function wpcomsh_activitypub_sync_plugin_activation( $args ) {
 		return $args;
 	}
 
+	$connection_owner_id = ( new Manager() )->get_connection_owner_id();
+	if ( ! $connection_owner_id ) {
+		return $args;
+	}
+
 	// @phan-suppress-next-line PhanUndeclaredClassMethod We're checking the class exists above, and that class exists in the ActivityPub plugin.
-	$blog_actor = Activitypub\Collection\Actors::get_by_id( 0 );
-	if ( ! is_wp_error( $blog_actor ) ) {
-		$args[] = array( 'actor' => $blog_actor->get_id() );
+	$actor = Activitypub\Collection\Actors::get_by_id( $connection_owner_id );
+	if ( ! is_wp_error( $actor ) ) {
+		$args[] = array( 'actor' => $actor->get_id() );
 	}
 
 	return $args;
