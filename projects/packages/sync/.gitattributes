@@ -7,5 +7,5 @@
 /changelog/**    production-exclude
 /tests/**        production-exclude
 .phpcs.dir.xml   production-exclude
-AGENTS.MD        production-exclude
-CLAUDE.MD        production-exclude
+AGENTS.md        production-exclude
+CLAUDE.md        production-exclude
