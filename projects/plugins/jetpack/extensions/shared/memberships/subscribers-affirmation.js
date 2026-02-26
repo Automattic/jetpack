@@ -10,6 +10,7 @@ import paywallBlockMetadata from '../../blocks/paywall/block.json';
 import {
 	accessOptions,
 	META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS,
+	META_NAME_FOR_POST_TIER_ID_SETTINGS,
 } from '../../shared/memberships/constants';
 import { getReachForAccessLevelKey } from '../../shared/memberships/settings';
 import { store as membershipProductsStore } from '../../store/membership-products';
@@ -230,13 +231,32 @@ function getCategoryNamesFromStats( postCategories, newsletterCategories ) {
 }
 
 /**
- * Get access level label for "was emailed to X" copy from stats access_level string.
- * Stats meta appends tier name after ': ' when a tier is selected (e.g. paid_subscribers: Premium).
+ * Parse access level string into base key and optional tier name.
+ * Stats format: paid_subscribers: Premium. Editor: paid_subscribers (tier in separate meta).
+ *
+ * @param {string} accessLevelStr - e.g. 'paid_subscribers', 'paid_subscribers: Premium'
+ * @return {{ base: string, tierName: string|null }} Base access key and optional tier name.
+ */
+function parseAccessLevel( accessLevelStr ) {
+	if ( ! accessLevelStr ) return { base: 'everybody', tierName: null };
+	const tierMatch = accessLevelStr.match( /^paid_subscribers:\s*(.+)$/ );
+	if ( tierMatch ) {
+		return { base: 'paid_subscribers', tierName: tierMatch[ 1 ].trim() };
+	}
+	const base = accessLevelStr.startsWith( 'paid_subscribers' )
+		? 'paid_subscribers'
+		: accessLevelStr;
+	return { base, tierName: null };
+}
+
+/**
+ * Get access level label for display. Works with any access level string (from stats or current editor).
+ * Stats format appends tier name after ': ' when a tier is selected (e.g. paid_subscribers: Premium).
  *
  * @param {string} accessLevel - e.g. 'everybody', 'subscribers', 'paid_subscribers', 'paid_subscribers: Premium'
  * @return {string} Access level label for display (e.g. "all subscribers", "paid subscribers (Premium)").
  */
-function getAccessLevelLabelFromStats( accessLevel ) {
+function getAccessLevelLabel( accessLevel ) {
 	if ( ! accessLevel ) return __( 'all subscribers', 'jetpack' );
 	const key = accessLevel.startsWith( 'paid_subscribers' ) ? 'paid_subscribers' : accessLevel;
 	const tierMatch = accessLevel.match( /^paid_subscribers:\s*(.+)$/ );
@@ -372,6 +392,7 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 		newsletterCategorySubscriberCount,
 		paidSubscribersCount,
 		postEmailSentState,
+		tierProducts,
 		alreadySentPostModifiedInSession,
 		publishedWithEmailEnabledInSession,
 	} = useSelect(
@@ -380,6 +401,7 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 				getNewsletterCategories,
 				getNewsletterCategoriesEnabled,
 				getNewsletterCategoriesSubscriptionsCount,
+				getNewsletterTierProducts,
 				getPostEmailSentState,
 				getPublishedWithEmailEnabledInSession,
 				getAlreadySentPostModifiedInSession,
@@ -416,6 +438,7 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 				publishedWithEmailEnabledInSession: postId
 					? getPublishedWithEmailEnabledInSession( postId )
 					: false,
+				tierProducts: getNewsletterTierProducts(),
 			};
 		},
 		[ postId ]
@@ -442,9 +465,7 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 	const dateStr =
 		emailSentAt != null ? formatSentDate( emailSentAt, statsOnSend?.timestamp ?? null ) : '';
 
-	const sentAccessLabel = statsOnSend
-		? getAccessLevelLabelFromStats( statsOnSend.access_level )
-		: '';
+	const sentAccessLabel = statsOnSend ? getAccessLevelLabel( statsOnSend.access_level ) : '';
 	const sentCategoryNames = statsOnSend
 		? getCategoryNamesFromStats( statsOnSend.post_categories, newsletterCategories )
 		: '';
@@ -502,22 +523,38 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 		if ( alreadySentPostModifiedInSession || prePublish ) {
 			append = __( 'Updating or republishing does not send a new email.', 'jetpack' );
 		}
+
 		const statsAccess = statsOnSend?.access_level;
 		const statsCats = statsOnSend?.post_categories ?? [];
-		const accessMatches =
-			! statsAccess || statsAccess === accessLevel || statsAccess.startsWith( accessLevel );
+		const statsAccessParsed = parseAccessLevel( statsAccess );
+		const statsBase = statsAccessParsed.base;
+		const statsTierName = statsAccessParsed.tierName;
+
+		const tierId = postMeta?.[ META_NAME_FOR_POST_TIER_ID_SETTINGS ];
+		const currentTierName =
+			accessLevel === accessOptions.paid_subscribers.key && tierId
+				? tierProducts?.find( p => String( p.id ) === String( tierId ) )?.title ?? null
+				: null;
+
+		const baseMatches = ! statsAccess || statsBase === accessLevel;
+		const tierMatches =
+			( ! statsTierName && ! currentTierName ) ||
+			( statsTierName && currentTierName && statsTierName === currentTierName );
+		const accessMatches = baseMatches && tierMatches;
+
 		const categoriesMatch =
 			! statsOnSend?.has_newsletter_categories ||
 			( Array.isArray( postCategories ) &&
 				statsCats.length === postCategories.length &&
 				statsCats.every( ( id, i ) => postCategories[ i ] === id ) );
+
 		if ( ! accessMatches || ! categoriesMatch ) {
 			append = append
 				? append + ' ' + __( 'Changing access settings does not resend the email.', 'jetpack' )
 				: __( 'Changing access settings does not resend the email.', 'jetpack' );
 		}
 	} else if ( isSendingInProgress ) {
-		const accessLabel = getAccessLevelLabelFromStats( accessLevel );
+		const accessLabel = getAccessLevelLabel( accessLevel );
 		const categoryNames =
 			newsletterCategoriesEnabled && newsletterCategories?.length && postCategories?.length
 				? getFormattedCategories( postCategories, newsletterCategories )
