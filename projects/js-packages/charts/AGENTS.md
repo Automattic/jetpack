@@ -1,173 +1,126 @@
 # AGENTS.md
 
-This file provides AI coding agents with specific instructions and context for working on the @automattic/charts library.
+This file is the package-specific source of truth for AI coding agents working in `projects/js-packages/charts`.
 
-## Project Overview
+## Project Scope
 
-**@automattic/charts** is a React/TypeScript charting library built for interactive data visualizations within Automattic products. The library is built on visx and emphasizes accessibility, responsiveness, and developer experience through a component composition API.
+`@automattic/charts` is a React + TypeScript charting library used across Automattic products.
 
-**Key Technologies:**
+Key implementation details agents usually miss:
 
-- React 18+ with TypeScript (strict mode)
-- visx for chart primitives
-- PostCSS/Sass with BEM naming convention
-- Jest + Testing Library for testing
-- Storybook for documentation and development
+- Build system is `tsup`.
+- Package exports are explicit subpath exports in `package.json`.
+- Styling is primarily Sass-based CSS Modules (`*.module.scss`) compiled via tsup plugins.
+- The docs workflow uses paired Storybook docs files (`.docs.mdx` + `.api.mdx`).
 
-## Essential Commands
+## CRITICAL Rules
+
+- CRITICAL: Keep this file focused on package-specific facts and workflows that are hard to infer from code search.
+- CRITICAL: Do not invent behavior in docs. If unsure, verify implementation and stories first.
+- CRITICAL: Do not assume wildcard exports. Follow the explicit exports in `projects/js-packages/charts/package.json`.
+
+## Commands
+
+Run these from `projects/js-packages/charts` unless noted otherwise.
 
 ```bash
-# Development
-pnpm run build              # Build the package
-pnpm run storybook          # Start Storybook development server
-pnpm run typecheck          # TypeScript type checking
+# Build + type safety
+pnpm run build
+pnpm run typecheck
 
-# Testing & Quality
-pnpm run test               # Run Jest test suite (TZ=UTC)
-pnpm run test-coverage      # Run tests with coverage report
+# Tests
+pnpm run test
+pnpm run test-coverage
 
-# Production
-pnpm run build:prod         # Production tsup build
+# Storybook (delegates to ../storybook)
+pnpm run storybook
 ```
 
-## Documentation Standards
+Changelog command (run from monorepo root):
 
-**IMPORTANT:** This project has comprehensive documentation standards. Before creating or modifying any components, agents must reference:
+```bash
+jp changelog add js-packages/charts -s patch -t changed -e "Charts: <user-facing change>."
+```
 
-- **[docs/ai-documentation-guide.md](docs/ai-documentation-guide.md)** - Comprehensive guide covering documentation standards, writing patterns, and quality requirements for chart components
-- **[docs/feature-documentation.mdx.template](docs/feature-documentation.mdx.template)** - Standard MDX template for new component documentation
-- **[Storybook Documentation](https://automattic.github.io/jetpack-storybook/?path=/docs/js-packages-charts)** - Live examples and API references
+## Architecture Decisions (Do Not "Fix" These)
 
-## Code Standards & Architecture
+- Charts are built around composition patterns (for example, chart components with attached subcomponents).
+- Theme values and chart element styles flow through `GlobalChartsProvider` and related provider hooks.
+- Accessibility behavior (keyboard navigation, accessible tooltips) is part of chart behavior, not optional polish.
+- CSS Modules are intentionally used for scoped styles and stable local class handling.
+- Charts are responsive by default.
 
-### Component Architecture
+## Documentation Workflow
 
-- **Compound Components**: Follow established patterns where parent components provide context and child components handle specific functionality
-- **Theme System**: Use the centralized theme system for colors, spacing, and styling
-- **Accessibility First**: Ensure WCAG 2.1 AA compliance for all chart components
+Before changing chart docs or stories, read:
 
-### TypeScript Standards
+- `projects/js-packages/charts/docs/ai-documentation-guide.md`
+- `projects/js-packages/charts/docs/feature-documentation.mdx.template`
+- `projects/js-packages/charts/docs/feature-api-documentation.mdx.template`
 
-- Strict TypeScript mode enabled
-- Export types for all public APIs
-- Use proper generic constraints for data types
-- Define clear prop interfaces with JSDoc comments
+Docs standards:
 
-### Styling Standards
+- MUST create/maintain paired files for documented features:
+  - `[feature-name].stories.tsx`
+  - `[feature-name].docs.mdx` (usage, examples, behavior, accessibility)
+  - `[feature-name].api.mdx` (API reference only; no usage examples)
+- MUST keep props/types in docs aligned with implementation.
+- MUST include animation docs only when the component actually supports an `animation` prop.
 
-- **BEM CSS naming convention** (per global guidelines)
-- PostCSS with Sass support
-- CSS custom properties for theming
-- **Never use `!important`** (per global guidelines)
-- Responsive design patterns
+For docs-heavy tasks with many repeated steps, agents may use the optional skill:
 
-### Testing Requirements
+- `.agents/skills/charts-docs.md`
 
-- Jest configuration: `tests/jest.config.cjs`
-- UTC timezone for consistent test results
-- @testing-library/react for component testing
-- Test both interaction and visual rendering
-- Maintain existing coverage standards
+## Conventions
 
-## Development Workflow
+### Code and APIs
 
-### For New Components
+- Preserve backward compatibility for existing public APIs unless a breaking change is explicitly requested.
+- Prefer extending existing chart components/patterns over introducing new surface area.
+- Reuse existing hooks/providers/utilities before adding new abstractions.
 
-1. **Check existing components** - Determine if functionality can be added to existing components rather than creating new ones
-2. **Use the template** - Start with `docs/feature-documentation.mdx.template`
-3. **Follow compound patterns** - Study existing chart components for composition patterns
-4. **Integrate with providers** - Ensure compatibility with existing context providers
+### Styling
 
-### For Component Modifications
+- Follow existing CSS Module + Sass patterns.
+- Use existing chart theme integration patterns instead of ad-hoc color/style logic.
+- Avoid `!important` unless there is no viable alternative and the rationale is documented.
 
-1. **Study surrounding code** - Understand existing patterns and conventions
-2. **Maintain backward compatibility** - Breaking changes to public APIs only when necessary
-3. **Update documentation** - Follow the ai-documentation-guide.md standards
-4. **Test thoroughly** - Verify existing functionality remains intact
+### Testing
 
-### For New Chart Types
+- Use Jest + Testing Library patterns already present in this package.
+- Add focused behavioral tests for changed behavior (interaction, rendering state, accessibility behavior).
+- Avoid speculative tests for behavior not implemented in code.
 
-1. **Use visx primitives** - Build on established visx patterns
-2. **Follow theme system** - Integrate with existing color and styling systems
-3. **Accessibility review** - Ensure screen reader compatibility and keyboard navigation
+### PR and Changelog
 
-## Build System
+- Prefer charts-scoped PR titles consistent with current repo patterns (e.g. `Charts: ...`, `CHARTS-###: ...`).
+- Include a changelog entry for user-facing changes under `projects/js-packages/charts/changelog/`.
+- Include test steps and outcomes in PR descriptions.
+- Include visual evidence (screenshots/GIFs) for visible UI changes.
 
-- **Rollup** for production builds (CJS/ESM/Types)
-- **Multiple export patterns** in package.json:
-  - `./` - Main library entry
-  - `./*` - Individual components
-  - `./providers/*` - Context providers
-  - `./visx/*` - visx-related utilities
+## Common Pitfalls
 
-## Security & Compliance
+- Claiming Rollup is used for charts builds.
+- Referring to non-existent wildcard exports like `./*` or `./providers/*`.
+- Updating `.docs.mdx` without the corresponding `.api.mdx` when API docs are affected.
+- Not checking CSF file references in `.docs.mdx` when changing or removing stories.
+- Documenting props or behavior not present in stories and implementation.
+- Refactoring core composition/provider patterns as if they are accidental complexity.
+- Using flexbox styles instead of Stack components.
+- Accessing colors and styes directly from the `theme` rather than using `getElementStyles` from the `GlobalChartsProvider`.
 
-- GPL-2.0-or-later license
-- No secrets or sensitive data in components
-- WordPress security standards where applicable
-- Report security issues via [automattic.com/security](https://automattic.com/security)
+## Definition of Done
 
-## Pull Request Guidelines
+Before handing off, verify:
 
-When contributing to the Charts library, follow the Jetpack monorepo's standard PR process:
+- Guidelines: changes follow this file, root monorepo guidance, and charts docs standards.
+- Build/tests: `pnpm run typecheck` and relevant tests pass for modified behavior.
+- Behavior verification: changed chart behavior is validated in Storybook and/or tests, not only by static checks.
+- Safe scope: edits remain in package boundaries and avoid unrelated refactors.
 
-### Required Elements
+## References
 
-- **PR Title**: Use format "Charts: [clear description of change]"
-- **Changelog Entry**: Run `pnpm changelog add` in the charts directory
-- **Testing Instructions**: Include specific steps for testing chart components
-- **Visual Changes**: Provide screenshots/GIFs for any UI modifications
-
-### Charts-Specific Considerations
-
-- **Storybook Links**: Include links to new/modified component stories
-- **Accessibility Notes**: Document accessibility features and testing approach
-- **Performance Impact**: Note any considerations for large datasets or complex visualizations
-- **Browser Compatibility**: Highlight any browser-specific concerns
-- **Theme Integration**: Verify changes work across different theme configurations
-
-### Reference Documentation
-
-- [Jetpack Contributing Guide](../../../../docs/CONTRIBUTING.md) - Main contribution standards
-- [PR Lifecycle Documentation](../../../../docs/pull-request.md) - Detailed PR process
-- [Changelog Guidelines](../../../../docs/writing-a-good-changelog-entry.md) - Required changelog format
-
-**Note**: All PRs automatically use the monorepo-wide PR template from `.github/PULL_REQUEST_TEMPLATE.md`.
-
-## Agent-Specific Guidelines
-
-### Charts Skills
-
-- For chart documentation workflows, use `.agents/skills/charts-docs.md`.
-
-### Before Making Changes
-
-- Read existing component documentation and stories
-- Check Storybook for usage patterns and examples
-- Verify TypeScript types compile without errors
-- Run tests to ensure no regressions
-
-### When Adding Features
-
-- Prefer extending existing components over creating new ones
-- Use established theme and provider patterns
-- Follow the documentation template for new features
-- Consider performance impact on large datasets
-
-### Quality Checklist
-
-- [ ] TypeScript compiles without errors (`pnpm run typecheck`)
-- [ ] Tests pass (`pnpm run test`)
-- [ ] Documentation follows ai-documentation-guide.md standards
-- [ ] Component works with existing providers and themes
-- [ ] Accessibility requirements met
-- [ ] Storybook stories updated/created
-
-## Getting Help
-
-- **Documentation**: Start with `docs/ai-documentation-guide.md`
-- **Examples**: Review existing chart components and their stories
-- **Build Issues**: Check package.json scripts and build configurations
-- **Testing**: Follow patterns in existing test files
-
-This library prioritizes maintainability, accessibility, and developer experience. Always consider how changes affect the broader ecosystem and existing users.
+- Root repo guidance: `AGENTS.md`
+- Package docs guide: `projects/js-packages/charts/docs/ai-documentation-guide.md`
+- Package readme: `projects/js-packages/charts/README.md`
+- Published Storybook docs: `https://automattic.github.io/jetpack-storybook/?path=/docs/js-packages-charts-library`
