@@ -36,7 +36,18 @@ class Dashboard {
 					: 'inbox';
 
 				wp_safe_redirect( self::get_forms_admin_url( $default_tab ) );
+
 				exit;
+			}
+
+			// Register polyfills for WP < 7.0 (must run before build.php).
+			if ( class_exists( \Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills::class ) ) {
+				$forms_root = dirname( __DIR__, 2 );
+
+				\Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills::register(
+					$forms_root,
+					$forms_root . '/build/polyfills/modules/boot/index.min.js'
+				);
 			}
 
 			$wp_build_index = dirname( __DIR__, 2 ) . '/build/build.php';
