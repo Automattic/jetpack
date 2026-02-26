@@ -61,7 +61,7 @@ export async function handleAiGenerationComplete(
 	const currentPostId = editorSelectors.getCurrentPostId() || 0;
 	const postTitle =
 		( editorSelectors.getEditedPostAttribute( 'title' ) as string ) ||
-		__( 'AI Generated Form', 'jetpack-forms' );
+		__( 'Generated Form', 'jetpack-forms' );
 
 	try {
 		// Create the synced form
@@ -83,7 +83,7 @@ export async function handleAiGenerationComplete(
 		console.error( 'Failed to create synced form:', error );
 		dispatch( noticesStore ).createErrorNotice(
 			__(
-				'Failed to save the AI-generated form. Your form is still available but not synced.',
+				'Failed to save the Generated form. Your form is still available but not synced.',
 				'jetpack-forms'
 			),
 			{ type: 'snackbar' }
