@@ -53,13 +53,11 @@ Actions are applied to the cache site in the **same order** they occurred on the
 | `src/class-defaults.php` | `Defaults` | Defines default whitelists for options, callables, constants, etc. |
 | `src/class-rest-endpoints.php` | `REST_Endpoints` | REST API endpoints for triggering full sync, checking status, etc. |
 
-### Two Queues
+### Queues
 
-There are two distinct queues:
-- **`sync` queue** — incremental sync of individual WP events (post saves, option updates, etc.)
-- **`full_sync` queue** — used during a full site sync to batch-send all existing data
+The **`sync` queue** handles incremental sync of individual WP events (post saves, option updates, etc.).
 
-They are independent and both must be considered when changing queue logic.
+Full sync no longer uses a separate queue. The current primary implementation (`Full_Sync_Immediately`) sends full sync actions directly without enqueuing them — using `'immediate-send'` as the queue ID rather than `'full_sync'`. A legacy `Full_Sync` module that uses a `full_sync` queue still exists in the codebase but is not the active implementation.
 
 ## Testing
 
@@ -103,7 +101,7 @@ When contributing to the Sync package, follow the Jetpack monorepo's standard PR
 ### Quality Checklist
 - [ ] Tests pass: `jetpack test php packages/sync` and `jetpack test php plugins/jetpack --testsuite=sync`
 - [ ] Both sender paths (regular + dedicated) considered
-- [ ] Both queues (sync + full_sync) considered where relevant
+- [ ] Queue logic changes consider both the `sync` queue and the full sync path (`Full_Sync_Immediately` sends without a queue)
 - [ ] No changes to what data is silently dropped without explicit justification
 
 ### Common Pitfalls
@@ -134,10 +132,10 @@ All incoming data is treated as untrusted — options, meta values, and other sy
 ### The Processing Pipeline
 
 **Incremental sync**
-Events enqueued by the Listener are sent to WPcom via HTTP and applied to the shadow replicastore in the order they were received. WPcom independently monitors queue lag on the remote site — if lag grows too large, WPcom will schedule a pull job to force the site to flush its queue, or eventually trigger a full sync.
+Events enqueued by the Listener are sent to WPcom via HTTP and applied to the shadow replicastore in the order they were received. WPcom independently monitors queue health on the remote site and may trigger remediation (such as forcing a queue flush or initiating a full sync) when issues are detected. The queue ID for incremental sync events is `'sync'`.
 
 **Full sync**
-A full sync is a bulk re-send of all (or a subset of) site content. It can be triggered from WPcom directly, or automatically in response to detected data loss. Two special events mark its boundaries — `jetpack_full_sync_start` and `jetpack_full_sync_end` — which are received and processed like any other sync event. Incremental and full sync events travel through the same event processor pipeline on WPcom; the queue ID (`sync` vs `full_sync`) differentiates them, but the receive/decode/apply path is identical.
+A full sync is a bulk re-send of all (or a subset of) site content. It can be triggered from WPcom directly, or automatically in response to detected data loss. Two special events mark its boundaries — `jetpack_full_sync_start` and `jetpack_full_sync_end` — which are received and processed like any other sync event. Incremental and full sync events travel through the same event processor pipeline on WPcom; the queue ID differentiates them (`'sync'` for incremental, `'immediate-send'` for full sync via the current `Full_Sync_Immediately` implementation), but the receive/decode/apply path is identical.
 
 Note: `jetpack_full_sync_end` includes a `$checksum` parameter that is deprecated and unused since Jetpack 7.3 — full sync does not validate checksums on completion.
 
