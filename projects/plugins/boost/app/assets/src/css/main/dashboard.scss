@@ -24,22 +24,27 @@
 
 .jb-container,
 %jb-container {
-	width: 87.5%;
-	max-width: 1320px;
+	--_padding: 16px;
+
+	@include mixins.breakpoint( md ) {
+		--_padding: 24px;
+	}
+
+	padding: var(--_padding);
+
+	width: 100%;
+	max-width: calc(1040px + 2 * var(--_padding));
 	margin-left: auto;
 	margin-right: auto;
 
 	&--narrow {
 
 		@extend %jb-container;
-		max-width: 744px;
 	}
 
 	&--fixed {
-		max-width: 1176px;
-		width: auto;
-		padding-left: 24px;
-		padding-right: 24px;
+
+		@extend %jb-container;
 	}
 }
 

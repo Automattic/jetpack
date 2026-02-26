@@ -28,7 +28,7 @@
 @mixin hero-section {
 	display: flex;
 	justify-content: space-between;
-	max-width: 1128px;
+	max-width: 1040px;
 	margin: 0 auto;
 	flex-wrap: wrap;
 	gap: calc(var(--spacing-base) * 6);
@@ -162,7 +162,7 @@
  * Section wrapper - standard width content container
  */
 @mixin section-wrapper {
-	max-width: 744px;
+	max-width: 1040px;
 	margin: 0 auto;
 
 	@media only screen and (max-width: 1366px) {
@@ -175,7 +175,7 @@
  * Section wrapper wide - wider content container
  */
 @mixin section-wrapper-wide {
-	max-width: 1128px;
+	max-width: 1040px;
 	margin: 0 auto;
 
 	@media only screen and (max-width: 1366px) {

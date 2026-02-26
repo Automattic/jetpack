@@ -52,7 +52,6 @@ $wp-gray-dark: #23282d;
 	display: flex;
 	align-items: center;
 	flex-wrap: wrap;
-	max-width: 1128px;
 	margin: 0 auto;
 }
 
@@ -70,7 +69,7 @@ $wp-gray-dark: #23282d;
 
 	@include for-tablet-up {
 		grid-template-columns: repeat(12, 1fr);
-		max-width: 1128px;
+		max-width: 1040px;
 		margin: 0 24px;
 	}
 }

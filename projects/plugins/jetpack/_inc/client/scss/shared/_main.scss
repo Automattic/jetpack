@@ -99,16 +99,16 @@
 	max-width: rem.convert(1040px);
 
 	&.jp-licensing-screen {
-		max-width: rem.convert(1128px);
+		max-width: rem.convert(1040px);
 	}
 
 	&.jp-main-connect-screen,
 	&.jp-user-connect-screen, {
-		max-width: rem.convert(1128px);
+		max-width: rem.convert(1040px);
 		box-sizing: content-box;
 	}
 
-	@media (max-width: 1250px) {
+	@media (max-width: 1360px) {
 		max-width: 95%;
 	}
 
