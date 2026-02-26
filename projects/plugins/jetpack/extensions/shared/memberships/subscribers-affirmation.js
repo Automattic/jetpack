@@ -267,13 +267,23 @@ function getAccessLevelLabelFromStats( accessLevel ) {
  * Build "was sent" or "is being sent" copy for access + categories.
  *
  * @param {object}  opts
- * @param {string}  opts.accessLabel   - "all subscribers" or "paid subscribers"
+ * @param {string}  opts.accessLabel   - "all subscribers" or "paid subscribers" (may be empty for date-only case)
  * @param {string}  opts.categoryNames - Formatted category list (or empty)
  * @param {boolean} opts.pastTense     - "was emailed" vs "is being emailed"
  * @param {string}  opts.dateStr       - For past tense only
  * @return {string} Formatted sentence for "was sent" or "is being sent" copy.
  */
 function getSentCopyLine( { accessLabel, categoryNames, pastTense, dateStr } ) {
+	if ( pastTense && dateStr && ! accessLabel ) {
+		return sprintf(
+			/* translators: %s: formatted date */
+			__(
+				'This post was emailed on %s. View delivery details on <link>your email stats page</link>.',
+				'jetpack'
+			),
+			dateStr
+		);
+	}
 	if ( categoryNames ) {
 		if ( pastTense ) {
 			return sprintf(
@@ -429,6 +439,16 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 	const emailSentAt = postEmailSentState?.email_sent_at ?? null;
 	const statsOnSend = postEmailSentState?.stats_on_send ?? null;
 
+	const dateStr =
+		emailSentAt != null ? formatSentDate( emailSentAt, statsOnSend?.timestamp ?? null ) : '';
+
+	const sentAccessLabel = statsOnSend
+		? getAccessLevelLabelFromStats( statsOnSend.access_level )
+		: '';
+	const sentCategoryNames = statsOnSend
+		? getCategoryNamesFromStats( statsOnSend.post_categories, newsletterCategories )
+		: '';
+
 	const isAlreadySent = emailSentAt != null;
 	const isSendingInProgress =
 		status === 'publish' &&
@@ -451,28 +471,13 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 
 	if ( ! isSendEmailEnabled() ) {
 		// "Post only" but already emailed: show "was sent" copy, not "Not sent via email"
-		if ( isAlreadySent && statsOnSend ) {
-			const dateStr = formatSentDate( emailSentAt, statsOnSend.timestamp );
-			const accessLabel = getAccessLevelLabelFromStats( statsOnSend.access_level );
-			const categoryNames = getCategoryNamesFromStats(
-				statsOnSend.post_categories,
-				newsletterCategories
-			);
+		if ( isAlreadySent ) {
 			text = getSentCopyLine( {
-				accessLabel,
-				categoryNames,
+				accessLabel: sentAccessLabel,
+				categoryNames: sentCategoryNames,
 				pastTense: true,
 				dateStr,
 			} );
-		} else if ( isAlreadySent ) {
-			text = sprintf(
-				/* translators: %s: formatted date */
-				__(
-					'This post was emailed on %s. View delivery details on <link>your email stats page</link>.',
-					'jetpack'
-				),
-				formatSentDate( emailSentAt, null )
-			);
 		} else if ( status === 'publish' ) {
 			text = __(
 				"This post was published without sending an email. To send, move the post to draft, enable 'Post and email,' and republish.",
@@ -488,29 +493,12 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 			'jetpack'
 		);
 	} else if ( isAlreadySent ) {
-		const dateStr = formatSentDate( emailSentAt, statsOnSend?.timestamp ?? null );
-		if ( statsOnSend ) {
-			const accessLabel = getAccessLevelLabelFromStats( statsOnSend.access_level );
-			const categoryNames = getCategoryNamesFromStats(
-				statsOnSend.post_categories,
-				newsletterCategories
-			);
-			text = getSentCopyLine( {
-				accessLabel,
-				categoryNames,
-				pastTense: true,
-				dateStr,
-			} );
-		} else {
-			text = sprintf(
-				/* translators: %s: formatted date */
-				__(
-					'This post was emailed on %s. View delivery details on <link>your email stats page</link>.',
-					'jetpack'
-				),
-				dateStr
-			);
-		}
+		text = getSentCopyLine( {
+			accessLabel: sentAccessLabel,
+			categoryNames: sentCategoryNames,
+			pastTense: true,
+			dateStr,
+		} );
 		if ( republishedAlreadySentInSession || prePublish ) {
 			append = __( 'Updating or republishing does not send a new email.', 'jetpack' );
 		}
