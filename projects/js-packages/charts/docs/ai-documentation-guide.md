@@ -162,7 +162,20 @@ Document the chart's interactive capabilities:
 
 See the `feature-documentation.mdx.template` for the complete section structure.
 
-### 8. Styling and Customization
+### 8. Legends
+
+Only include this section if the chart supports legends. Remove this section entirely if the chart has no legend capabilities.
+
+Document legend features including:
+
+- **Basic Legend**: How to enable with `showLegend`, orientation, alignment, and position props
+- **Custom Legend Shapes**: Shape options and custom glyphs if supported
+- **Composition API**: Using `<[Component].Legend />` as a child component for flexible positioning, if supported
+- **Interactive Legends**: Toggling series visibility with `legendInteractive`, requirements (`GlobalChartsProvider`, `chartId`), keyboard support, and visual feedback
+
+See the `feature-documentation.mdx.template` for the complete section structure.
+
+### 9. Styling and Customization
 
 ```mdx
 ## Styling and Customization
@@ -227,7 +240,7 @@ End the section with a link to the Responsive Design section in the introduction
 See the `feature-documentation.mdx.template` for the complete section structure.
 ```
 
-### 9. Advanced Usage
+### 10. Advanced Usage
 
 Document complex functionality with practical examples. All usage examples, including advanced patterns, should be in the main documentation file, NOT in the API reference:
 
@@ -253,7 +266,7 @@ More advanced usage patterns with code examples:
 - Common pitfalls to avoid
 ```
 
-### 10. Accessibility Section
+### 11. Accessibility Section
 
 Always include accessibility information:
 
@@ -274,7 +287,7 @@ Always include accessibility information:
 - Focus behavior and visual indicators
 ```
 
-### 11. Migration
+### 12. Migration
 
 ```mdx
 ## Migration from [Legacy/Previous API]

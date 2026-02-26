@@ -124,6 +124,43 @@ Charts are fully keyboard accessible:
 - **Enter/Space**: Activate tooltips
 - **Escape**: Close active tooltips
 
+## Legends
+
+[Only include this section if the chart supports legends. Remove this section entirely if the chart has no legend capabilities.]
+
+### Basic Legend
+
+[Description of how to display a legend with automatic color matching]:
+
+<Source
+	language="tsx"
+	code={ `<[Component]
+		data={ data }
+		showLegend={ true }
+		legendOrientation="horizontal"
+		legendAlignment="center"
+		legendPosition="bottom"
+	/>` }
+/>
+
+### Interactive Legends
+
+[If supported, show how to enable interactive legends that toggle series visibility]:
+
+<Source
+	language="tsx"
+	code={ `import { GlobalChartsProvider, [Component] } from '@automattic/charts';
+
+	<GlobalChartsProvider>
+		<[Component]
+			data={ data }
+			chartId="[unique-chart-id]"
+			showLegend={ true }
+			legendInteractive={ true }
+		/>
+	</GlobalChartsProvider>` }
+/>
+
 ## Styling and Customization
 
 ### Custom [Styling Aspect]
