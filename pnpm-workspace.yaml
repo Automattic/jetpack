@@ -44,6 +44,8 @@ minimumReleaseAgeExclude:
   - minimatch@10.2.1
   # Renovate security update: swiper@12.1.2
   - swiper@12.1.2
+  # Renovate security update: rollup@3.30.0
+  - rollup@3.30.0
 trustPolicy: no-downgrade
 trustPolicyExclude:
   # https://github.com/paulmillr/chokidar/issues/1440
