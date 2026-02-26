@@ -198,10 +198,11 @@ Controls [what this category affects]:
 
 - `property`: Description and possible values
 - `anotherProperty`: Description
+```
 
-## Theming Integration
+### 10. Theming Integration
 
-For the Theming Integration section, use the standardized format from the `feature-documentation.mdx.template`. This section should be a top-level `##` heading (not nested under Styling) and include:
+Use the standardized format from the `feature-documentation.mdx.template`. This section should be a top-level `##` heading (not nested under Styling) and include:
 
 - A description explaining that the chart integrates seamlessly with the theming system
 - An explanation that the default theme has neutral colors and styling
@@ -209,7 +210,7 @@ For the Theming Integration section, use the standardized format from the `featu
 
 See the template for the complete section structure.
 
-## Animation
+### 11. Animation
 
 Only include this section if the chart component supports animation (check the implementation for an `animation` prop). If animation is not supported, remove this section entirely.
 
@@ -226,7 +227,7 @@ When documenting animation:
 
 See the `feature-documentation.mdx.template` for the complete section structure.
 
-## Responsive Behavior
+### 12. Responsive Behavior
 
 Always include a Responsive Behavior section. Charts are responsive by default and fill their parent container's dimensions. Document:
 
@@ -238,9 +239,8 @@ Always include a Responsive Behavior section. Charts are responsive by default a
 End the section with a link to the Responsive Design section in the introduction.
 
 See the `feature-documentation.mdx.template` for the complete section structure.
-```
 
-### 10. Advanced Usage
+### 13. Advanced Usage
 
 Document complex functionality with practical examples. All usage examples, including advanced patterns, should be in the main documentation file, NOT in the API reference:
 
@@ -266,7 +266,7 @@ More advanced usage patterns with code examples:
 - Common pitfalls to avoid
 ```
 
-### 11. Accessibility Section
+### 14. Accessibility Section
 
 Always include accessibility information:
 
@@ -287,7 +287,7 @@ Always include accessibility information:
 - Focus behavior and visual indicators
 ```
 
-### 12. Migration
+### 15. Migration
 
 ```mdx
 ## Migration from [Legacy/Previous API]
