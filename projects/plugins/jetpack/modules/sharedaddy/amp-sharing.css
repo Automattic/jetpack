@@ -93,14 +93,6 @@ amp-social-share[type="linkedin"]::before {
 	content: "\f207";
 }
 
-amp-social-share[type="pocket"] {
-	background: #ee4056;
-}
-
-amp-social-share[type="pocket"]::before {
-	content: "\f224";
-}
-
 amp-social-share[type="reddit"] {
 	background: #cee3f8;
 	color: #555;

@@ -41,7 +41,7 @@ const getLabel = ( status: Status, count: number ): JSX.Element => {
 	return (
 		<span>
 			{ label }
-			<Badge intent="default" className="jp-forms-count-badge">
+			<Badge intent="default" className="jp-forms-badge">
 				{ formatNumberCompact( count || 0 ) }
 			</Badge>
 		</span>

@@ -3,10 +3,10 @@ import userEvent from '@testing-library/user-event';
 import { GlobalChartsProvider } from '../../../providers';
 import BarChart from '../bar-chart';
 
-// Mock useElementHeight to return a non-zero height in jsdom so charts render
+// Mock useElementSize to return non-zero dimensions in jsdom so charts render
 const mockRefCallback = jest.fn();
-jest.mock( '../../../hooks/use-element-height', () => ( {
-	useElementHeight: () => [ mockRefCallback, 300 ], // Return test height to allow chart rendering
+jest.mock( '../../../hooks/use-element-size', () => ( {
+	useElementSize: () => [ mockRefCallback, 500, 300 ],
 } ) );
 
 describe( 'BarChart', () => {

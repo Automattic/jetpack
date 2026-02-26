@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Dashboard: Fix flash of unstyled response data in the inspector sidebar on initial page load.

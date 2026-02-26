@@ -27,7 +27,7 @@ Projects define build steps in `composer.json`:
 
 ## Jetpack CLI (`jp`)
 
-The `jp` command runs `pnpm jetpack` inside the monorepo Docker container. Install globally: `npm install -g @automattic/jetpack-cli`
+The `jp` command runs `pnpm jetpack` inside the monorepo Docker container. Install globally: `npm install -g @automattic/jetpack-cli` (this is a global install, safe to run even inside a Jetpack checkout). `jp` commands work from git worktrees — the CLI resolves to the monorepo root automatically.
 
 ### Common Commands
 
@@ -105,6 +105,27 @@ The `$$next-version$$` placeholder is automatically replaced with the correct ve
 jp test php <project> -v    # PHPUnit tests (verbose)
 jp test js <project>        # Jest tests
 jp test coverage <project>  # Generate coverage report
+```
+
+### Testing Prerequisites
+
+- **Packages** (`jp test php packages/...`, `jp test js packages/...`): Work immediately with no extra setup. The monorepo Docker container handles everything.
+- **Plugins**: Some plugins use mocked WordPress environments (WorDBless/Brain Monkey) and their tests work immediately. Others (notably `plugins/jetpack`) require a full WordPress test environment:
+  1. `jp docker up -d` — Start Docker WordPress containers
+  2. `jp docker install` — Install WordPress in Docker
+  Then run: `jp test php plugins/jetpack`
+- If you've modified package versions or dependencies between monorepo packages, run `tools/fixup-project-versions.sh` to update lock files before testing.
+- If a project's `composer.json` doesn't define `test-js`, the JS test step is skipped automatically — this is normal, not an error.
+
+### What to Test
+
+After modifying a project, run its tests and static analysis:
+
+```bash
+jp test php <project>           # PHP tests
+jp test js <project>            # JS tests (skipped if not defined)
+jp phan <project>               # Static analysis
+jp test coverage <project>      # Generate coverage report (optional)
 ```
 
 ### PHP Testing

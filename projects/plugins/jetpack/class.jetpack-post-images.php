@@ -505,6 +505,13 @@ class Jetpack_PostImages {
 	private static function get_images_from_block_attributes( $block_type, $attributes, $html_info, $width, $height ) {
 		$images = array();
 
+		// Skip blocks marked with the jetpack-ignore-thumbnail CSS class
+		// (set via the block editor's "Advanced > Additional CSS class" panel).
+		$class_name = $attributes['className'] ?? '';
+		if ( str_contains( $class_name, 'jetpack-ignore-thumbnail' ) ) {
+			return $images;
+		}
+
 		switch ( $block_type ) {
 			case 'core/image':
 			case 'core/media-text':
@@ -512,6 +519,10 @@ class Jetpack_PostImages {
 				if ( ! empty( $attributes[ $id_key ] ) ) {
 					$image = self::get_attachment_data( $attributes[ $id_key ], $html_info['post_url'], $width, $height );
 					if ( false !== $image ) {
+						/** This filter is documented in class.jetpack-post-images.php */
+						if ( apply_filters( 'jetpack_postimages_exclude_image', false, $image ) ) {
+							break;
+						}
 						$images[] = $image;
 					}
 				}
@@ -524,6 +535,10 @@ class Jetpack_PostImages {
 					foreach ( $attributes['ids'] as $img_id ) {
 						$image = self::get_attachment_data( $img_id, $html_info['post_url'], $width, $height );
 						if ( false !== $image ) {
+							/** This filter is documented in class.jetpack-post-images.php */
+							if ( apply_filters( 'jetpack_postimages_exclude_image', false, $image ) ) {
+								continue;
+							}
 							$images[] = $image;
 						}
 					}
@@ -536,6 +551,10 @@ class Jetpack_PostImages {
 						if ( ! empty( $media_file['id'] ) ) {
 							$image = self::get_attachment_data( $media_file['id'], $html_info['post_url'], $width, $height );
 							if ( false !== $image ) {
+								/** This filter is documented in class.jetpack-post-images.php */
+								if ( apply_filters( 'jetpack_postimages_exclude_image', false, $image ) ) {
+									continue;
+								}
 								$images[] = $image;
 							}
 						}
@@ -609,6 +628,11 @@ class Jetpack_PostImages {
 				continue;
 			}
 
+			// Allow users to exclude images by adding a CSS class to the img tag.
+			if ( str_contains( $image_tag->getAttribute( 'class' ) ?? '', 'jetpack-ignore-thumbnail' ) ) {
+				continue;
+			}
+
 			// First try to get the width and height from the img attributes, but if they are not set, check to see if they are specified in the url. WordPress automatically names files like foo-1024x768.jpg during the upload process
 			$width  = (int) $image_tag->getAttribute( 'width' );
 			$height = (int) $image_tag->getAttribute( 'height' );
@@ -675,6 +699,33 @@ class Jetpack_PostImages {
 			if ( ! empty( $meta['alt_text'] ) ) {
 				$image['alt_text'] = $meta['alt_text'];
 			}
+
+			/**
+			 * Filters whether to exclude a specific image from post image discovery.
+			 *
+			 * This filter runs inside Jetpack_PostImages, which powers image selection
+			 * for Related Posts, Open Graph tags, and other features. Returning a truthy
+			 * value causes the image to be skipped.
+			 *
+			 * @since 15.6
+			 *
+			 * @param bool  $exclude Whether to exclude the image. Default false.
+			 * @param array $image   {
+			 *     Image data.
+			 *
+			 *     @type string $type       The type of the image (always 'image').
+			 *     @type string $from       The source method ('html', 'attachment', 'thumbnail', etc.).
+			 *     @type string $src        The image URL.
+			 *     @type int    $src_width  The image width in pixels.
+			 *     @type int    $src_height The image height in pixels.
+			 *     @type string $href       The permalink of the post containing the image.
+			 *     @type string $alt_text   The image alt text, if available.
+			 * }
+			 */
+			if ( apply_filters( 'jetpack_postimages_exclude_image', false, $image ) ) {
+				continue;
+			}
+
 			$images[] = $image;
 		}
 		return $images;

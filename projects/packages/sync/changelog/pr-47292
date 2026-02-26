@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Full Sync: Store last_item in status to avoid re-running an expensive query on every invocation.

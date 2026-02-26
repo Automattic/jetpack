@@ -23,10 +23,10 @@
 		"layout": {
 			"default": {
 				"type": "flex",
-				"flexWrap": "nowrap",
-				"orientation": "vertical",
+				"flexWrap": "wrap",
+				"orientation": "horizontal",
 				"justifyContent": "left",
-				"verticalAlignment": "bottom"
+				"verticalAlignment": "top"
 			},
 			"allowSwitching": false,
 			"allowEditing": true,
@@ -34,6 +34,18 @@
 			"allowVerticalAlignment": true,
 			"allowJustification": true,
 			"allowWrap": false
+		},
+		"__experimentalBorder": {
+			"color": true,
+			"radius": true,
+			"style": true,
+			"width": true,
+			"__experimentalDefaultControls": {
+				"color": true,
+				"radius": true,
+				"style": true,
+				"width": true
+			}
 		}
 	},
 	"attributes": {},

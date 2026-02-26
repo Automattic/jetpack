@@ -1557,6 +1557,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			'blogId'                         => get_current_blog_id(),
 			'gdriveConnectSupportURL'        => esc_url( Redirect::get_url( 'jetpack-support-contact-form-export' ) ),
 			'pluginAssetsURL'                => Jetpack_Forms::assets_url(),
+			'fileIconsUrl'                   => Jetpack_Forms::plugin_url() . 'contact-form/images/file-icons/',
 			'siteURL'                        => ( new Status() )->get_site_suffix(),
 			'hasFeedback'                    => ( new Forms_Dashboard() )->has_feedback(),
 			'isNotesEnabled'                 => Forms_Dashboard::is_notes_enabled(),

@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Add Shortcodes class with methods to extract media identifiers from shortcode attributes (YouTube, Vimeo, TED, VideoPress, Hulu, Archive.org).

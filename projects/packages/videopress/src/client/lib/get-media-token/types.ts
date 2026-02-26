@@ -51,5 +51,6 @@ declare global {
 		};
 		ajaxurl?: string;
 		__guidsToPlanIds?: object;
+		GBKit?: object;
 	}
 }

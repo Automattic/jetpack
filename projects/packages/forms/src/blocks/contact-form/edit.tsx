@@ -28,12 +28,13 @@ import { useInstanceId } from '@wordpress/compose';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
-import { useRef, useEffect, useCallback, lazy, Suspense } from '@wordpress/element';
+import { useRef, useEffect, useCallback, lazy, Suspense, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 /*
  * Internal dependencies
  */
+import { PANEL_STATE_STORE } from '../../form-editor/store/panel-state.ts';
 import useConfigValue from '../../hooks/use-config-value.ts';
 import { store as singleStepStore } from '../../store/form-step-preview.js';
 import {
@@ -307,6 +308,34 @@ function JetpackContactFormEdit( {
 		}
 	}, [ submitButton ] );
 
+	// Panel state management for pre-publish panel navigation
+	const activePanel = useSelect(
+		select => {
+			// Only subscribe to panel state in the form editor
+			if ( ! isJetpackFormEditor ) {
+				return null;
+			}
+			const panelStore = select( PANEL_STATE_STORE ) as {
+				getActivePanel: () => string | null;
+			};
+			return panelStore?.getActivePanel?.() ?? null;
+		},
+		[ isJetpackFormEditor ]
+	);
+	const { closePanel } = useDispatch( PANEL_STATE_STORE );
+
+	// Track open state for each panel - panels open when activePanel matches, then stay open
+	const [ openPanels, setOpenPanels ] = useState< Record< string, boolean > >( {} );
+
+	// When activePanel changes, open that panel and clear the store
+	useEffect( () => {
+		if ( activePanel ) {
+			setOpenPanels( prev => ( { ...prev, [ activePanel ]: true } ) );
+			// Clear the active panel from the store so it doesn't reopen on re-render
+			closePanel();
+		}
+	}, [ activePanel, closePanel ] );
+
 	const { isSingleStep, isFirstStep, isLastStep, currentStepClientId } = useSelect(
 		select => {
 			const { getCurrentStepInfo, isSingleStepMode, getActiveStepId } = select( singleStepStore );
@@ -336,7 +365,8 @@ function JetpackContactFormEdit( {
 		'jetpack-contact-form',
 		isFirstStep && 'is-first-step',
 		isLastStep && 'is-last-step',
-		variationName === 'multistep' && isSingleStep && 'is-previewing-step'
+		variationName === 'multistep' && isSingleStep && 'is-previewing-step',
+		attributes?.layout ? 'has-jetpack-form-layout' : 'has-no-jetpack-form-layout'
 	);
 	const innerBlocksProps = useInnerBlocksProps(
 		{
@@ -494,7 +524,7 @@ function JetpackContactFormEdit( {
 
 	// Effect to sync field widths when layout orientation changes
 	useEffect( () => {
-		const orientation = layout?.orientation ?? 'vertical';
+		const orientation = layout?.orientation ?? 'horizontal';
 
 		// Skip initial render, only react to actual orientation changes
 		if ( prevOrientationRef.current !== null && prevOrientationRef.current !== orientation ) {
@@ -1025,6 +1055,13 @@ function JetpackContactFormEdit( {
 					<PanelBody
 						title={ __( 'Action after submit', 'jetpack-forms' ) }
 						initialOpen={ false }
+						opened={ openPanels[ 'action-after-submit' ] }
+						onToggle={ () =>
+							setOpenPanels( prev => ( {
+								...prev,
+								'action-after-submit': ! prev[ 'action-after-submit' ],
+							} ) )
+						}
 						className="jetpack-contact-form__panel"
 					>
 						<RadioControl
@@ -1098,6 +1135,13 @@ function JetpackContactFormEdit( {
 					<PanelBody
 						title={ __( 'Form notifications', 'jetpack-forms' ) }
 						initialOpen={ false }
+						opened={ openPanels[ 'form-notifications' ] }
+						onToggle={ () =>
+							setOpenPanels( prev => ( {
+								...prev,
+								'form-notifications': ! prev[ 'form-notifications' ],
+							} ) )
+						}
 						className="jetpack-contact-form__panel"
 					>
 						<NotificationsSettings
@@ -1132,6 +1176,13 @@ function JetpackContactFormEdit( {
 						title={ __( 'Responses storage', 'jetpack-forms' ) }
 						className="jetpack-contact-form__panel jetpack-contact-form__responses-storage-panel"
 						initialOpen={ false }
+						opened={ openPanels[ 'responses-storage' ] }
+						onToggle={ () =>
+							setOpenPanels( prev => ( {
+								...prev,
+								'responses-storage': ! prev[ 'responses-storage' ],
+							} ) )
+						}
 					>
 						<JetpackManageResponsesSettings
 							attributes={ attributes }

@@ -118,14 +118,14 @@ jobs:
           repository: ${{ github.event.pull_request.head.repo.full_name }}
           # DO NOT run any code in this checkout. Not even an `npm install`.
           path: ./pr-checkout
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.API_TOKEN_GITHUB }}
 
       - name: Generate changelog entries with Claude
         if: steps.checkbox.outputs.checked == 'true' && steps.check.outputs.needed == 'true'
         uses: anthropics/claude-code-action@v1
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{ secrets.API_TOKEN_GITHUB }}
           prompt: |
             You are generating changelog entries for a Jetpack monorepo PR.
 

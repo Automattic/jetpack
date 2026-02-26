@@ -45,13 +45,13 @@ class Contact_Form_Block {
 				'render_email_callback' => array( __CLASS__, 'render_email' ),
 				'render_callback'       => array( __CLASS__, 'gutenblock_render_form' ),
 				'supports'              => array(
-					'layout' => array(
+					'layout'               => array(
 						'default'                => array(
 							'type'              => 'flex',
-							'flexWrap'          => 'nowrap',
-							'orientation'       => 'vertical',
+							'flexWrap'          => 'wrap',
+							'orientation'       => 'horizontal',
 							'justifyContent'    => 'left',
-							'verticalAlignment' => 'bottom',
+							'verticalAlignment' => 'top',
 						),
 						'allowSwitching'         => false,
 						'allowEditing'           => true,
@@ -59,6 +59,18 @@ class Contact_Form_Block {
 						'allowVerticalAlignment' => true,
 						'allowJustification'     => true,
 						'allowWrap'              => false,
+					),
+					'__experimentalBorder' => array(
+						'color'                         => true,
+						'radius'                        => true,
+						'style'                         => true,
+						'width'                         => true,
+						'__experimentalDefaultControls' => array(
+							'color'  => true,
+							'radius' => true,
+							'style'  => true,
+							'width'  => true,
+						),
 					),
 				),
 				'style_handles'         => array( 'jetpack-forms-layout' ),

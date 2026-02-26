@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.30.7 - 2026-02-23
+### Added
+- Register `STATS_REST_RESP_` transient prefix for cleanup by the stats package transient cleanup cron. [#47213]
+
 ## 0.30.6 - 2026-02-02
 ### Changed
 - Update dependencies. [#44736]

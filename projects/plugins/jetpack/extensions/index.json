@@ -74,7 +74,8 @@
 		"ai-response-feedback",
 		"ai-assistant-image-extension",
 		"ai-seo-enhancer",
-		"paypal-payment-buttons"
+		"paypal-payment-buttons",
+		"image-studio"
 	],
 	"beta": [
 		"google-docs-embed",

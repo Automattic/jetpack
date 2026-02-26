@@ -1,5 +1,36 @@
 @use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
 
+:where(.jetpack-contact-form) {
+	border-width: 0;
+}
+
+:where(.is-classic-layout) .jetpack-contact-form,
+.jetpack-contact-form.has-no-jetpack-form-layout {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: flex-start;
+	gap: var(--wp--style--block-gap, 1.5rem);
+
+	.wp-block {
+		flex: 0 0 100%;
+		margin-top: 0;
+		margin-bottom: 0;
+		max-width: 100%;
+	}
+
+	> div {
+		flex: 1 1 100%;
+	}
+
+	&.is-nowrap {
+		flex-wrap: nowrap;
+	}
+
+	.wp-block-jetpack-button {
+		align-self: flex-end;
+	}
+}
+
 .wp-block-jetpack-contact-form {
 	box-sizing: border-box;
 
@@ -47,25 +78,6 @@
 
 		// not horizontal or vertical means a form created
 		// before layout support was added
-		&:not(.is-horizontal, .is-vertical) {
-
-			display: flex;
-			flex-wrap: wrap;
-			justify-content: flex-start;
-			gap: var(--wp--style--block-gap, 1.5rem);
-
-			> div {
-				flex: 1 1 100%;
-			}
-
-			&.is-nowrap {
-				flex-wrap: nowrap;
-			}
-
-			.wp-block-jetpack-button {
-				align-self: flex-end;
-			}
-		}
 
 		.wp-block {
 			margin-top: 0;
@@ -1240,4 +1252,9 @@
 /* Status notice for synced forms with non-publish status */
 .jetpack-contact-form__status-notice {
 	margin-bottom: 16px;
+}
+
+/* "Other" option text input styles */
+.jetpack-other-text-input-wrapper {
+	margin-left: 1.5em;
 }

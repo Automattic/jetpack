@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Improved prompt to have more explicit exclusion criteria for when doc updates are needed.

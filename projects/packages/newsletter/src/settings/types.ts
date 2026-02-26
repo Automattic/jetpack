@@ -3,7 +3,7 @@
  */
 
 /**
- * Type definitions for newsletter settings data
+ * Type definitions for newsletter settings data from the API
  */
 export interface NewsletterSettings {
 	subscriptions: boolean;
@@ -29,30 +29,31 @@ export interface NewsletterSettings {
 		welcome: string;
 		comment_follow: string;
 	};
+	newsletter_has_active_plan: boolean;
 	[ key: string ]: unknown;
 }
 
 /**
- * Type definitions for Jetpack Newsletter settings passed from PHP
+ * Newsletter-specific data added to JetpackScriptData via the jetpack_admin_js_script_data filter.
+ * Common data like admin_url, rest_nonce, title, is_wpcom_platform, and
+ * user.current_user.display_name are provided by Script_Data defaults.
  */
-export interface JetpackNewsletterSettings {
+export interface NewsletterScriptData {
 	isBlockTheme: boolean;
-	siteAdminUrl: string;
 	themeStylesheet: string;
-	blogID: number;
 	email: string;
 	gravatar: string;
-	displayName: string;
 	dateExample: string;
 	subscriberManagementUrl: string;
 	isSubscriptionSiteEditSupported: boolean;
 	setupPaymentPlansUrl: string;
 	isSitePublic: boolean;
-	isWpcomPlatform: boolean;
-	isWpcomSimple: boolean;
-	restApiRoot: string;
-	restApiNonce: string;
-	siteName: string;
+	tracksUserData?:
+		| {
+				userid: number;
+				username: string;
+		  }
+		| false;
 }
 
 /**
