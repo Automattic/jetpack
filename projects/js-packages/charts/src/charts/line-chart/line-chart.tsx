@@ -14,7 +14,7 @@ import {
 	useXYChartTheme,
 	useChartDataTransform,
 	useChartMargin,
-	useElementHeight,
+	useElementSize,
 	useHasLegendChild,
 	usePrefersReducedMotion,
 } from '../../hooks';
@@ -288,7 +288,7 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 		const providerTheme = useGlobalChartsTheme();
 		const theme = useXYChartTheme( data );
 		const chartId = useChartId( providedChartId );
-		const [ svgWrapperRef, svgWrapperHeight ] = useElementHeight< HTMLDivElement >();
+		const [ svgWrapperRef, , svgWrapperHeight ] = useElementSize< HTMLDivElement >();
 		const chartRef = useRef< HTMLDivElement >( null );
 		const [ selectedIndex, setSelectedIndex ] = useState< number | undefined >( undefined );
 		const [ isNavigating, setIsNavigating ] = useState( false );

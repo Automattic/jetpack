@@ -7,12 +7,12 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import { getNewsletterScriptData } from '../script-data';
 import type { NewsletterSettings } from '../types';
 
 interface EmailContentSectionProps {
 	data: NewsletterSettings;
 	onChange: ( updates: Partial< NewsletterSettings > ) => void;
-	isSitePublic: boolean;
 	isNewsletterEnabled: boolean;
 }
 
@@ -27,9 +27,9 @@ interface EmailContentSectionProps {
 export function EmailContentSection( {
 	data,
 	onChange,
-	isSitePublic,
 	isNewsletterEnabled,
 }: EmailContentSectionProps ): JSX.Element {
+	const isSitePublic = getNewsletterScriptData()?.isSitePublic ?? true;
 	const fields: Field< NewsletterSettings >[] = [
 		{
 			id: 'wpcom_featured_image_in_email',
@@ -68,7 +68,7 @@ export function EmailContentSection( {
 				{ ! isSitePublic && (
 					<Notice status="warning" isDismissible={ false }>
 						{ __(
-							'Featured images will not be used in your emails while the site is private, because access to the images is restricted to your site only.',
+							'Featured images will not be used in your emails until the site is public, because access to the images is restricted to your site only.',
 							'jetpack-newsletter'
 						) }
 					</Notice>

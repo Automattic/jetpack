@@ -3,11 +3,12 @@ import { Pie } from '@visx/shape';
 import { Text } from '@visx/text';
 import { useTooltip, useTooltipInPortal } from '@visx/tooltip';
 import { __ } from '@wordpress/i18n';
+import { Stack } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useCallback, useContext, useMemo } from 'react';
 import { Legend, useChartLegendItems } from '../../components/legend';
 import { BaseTooltip } from '../../components/tooltip';
-import { useElementHeight, useInteractiveLegendData, usePrefersReducedMotion } from '../../hooks';
+import { useElementSize, useInteractiveLegendData, usePrefersReducedMotion } from '../../hooks';
 import {
 	GlobalChartsProvider,
 	useChartId,
@@ -52,10 +53,13 @@ const renderDefaultPieSemiCircleTooltip = ( {
 };
 
 const PAD_ANGLE = 0.03; // Padding between segments
+const DEFAULT_WIDTH = 400;
 
 export interface PieSemiCircleChartProps extends BaseChartProps< DataPointPercentage[] > {
 	/**
-	 * Width of the chart in pixels; height would be half of this value calculated automatically.
+	 * Explicit width of the chart container in pixels.
+	 * When omitted, the chart fills its parent container's width.
+	 * The chart always maintains a 2:1 width-to-height ratio, constrained by available space.
 	 */
 	width?: number;
 
@@ -157,7 +161,8 @@ const validateData = ( data: DataPointPercentage[] ) => {
 const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 	data,
 	chartId: providedChartId,
-	width = 400,
+	width: propWidth,
+	height: propHeight,
 	thickness = 0.4,
 	clockwise = true,
 	withTooltips = false,
@@ -179,9 +184,11 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 	tooltipOffsetX = 0,
 	tooltipOffsetY = -15,
 	renderTooltip = renderDefaultPieSemiCircleTooltip,
+	gap = 'md',
 } ) => {
 	const chartId = useChartId( providedChartId );
-	const [ legendRef, legendHeight ] = useElementHeight< HTMLDivElement >();
+	// Measure the SVG wrapper to calculate constrained dimensions
+	const [ svgWrapperRef, svgWrapperWidth, svgWrapperHeight ] = useElementSize< HTMLDivElement >();
 	const { tooltipOpen, tooltipLeft, tooltipTop, tooltipData, hideTooltip, showTooltip } =
 		useTooltip< DataPointPercentage >();
 
@@ -295,10 +302,17 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 
 	const prefersReducedMotion = usePrefersReducedMotion();
 
+	const effectiveWidth = propWidth || DEFAULT_WIDTH;
+
 	if ( ! isValid ) {
+		const errorWidth = propHeight
+			? Math.min( propWidth || propHeight * 2, propHeight * 2 )
+			: effectiveWidth;
+		const errorHeight = errorWidth / 2;
+
 		return (
 			<div className={ styles[ 'pie-semi-circle-chart' ] }>
-				<svg width={ width } height={ width / 2 } data-testid="pie-chart-svg">
+				<svg width={ errorWidth } height={ errorHeight } data-testid="pie-chart-svg">
 					<text x="50%" y="50%" textAnchor="middle" className={ styles.error }>
 						{ message }
 					</text>
@@ -307,12 +321,16 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 		);
 	}
 
-	// Calculate chart dimensions
-	// TODO: we might want to accept height as a prop in the future, because the height of container might not always be enough.
+	// Calculate chart dimensions maintaining the 2:1 width-to-height ratio.
+	// Use measured SVG wrapper dimensions to respect height constraints, falling back
+	// to explicit props during initial render before measurement is available.
+	const availableWidth = svgWrapperWidth > 0 ? svgWrapperWidth : effectiveWidth;
+	const availableHeight =
+		svgWrapperHeight > 0 ? svgWrapperHeight : propHeight || effectiveWidth / 2;
+	// Constrain width so that height (= width / 2) never exceeds the available height
+	const width = Math.min( availableWidth, availableHeight * 2 );
 	const height = width / 2;
-	// The chart only takes the height minus the legend height.
-	const chartHeight = height - ( showLegend && legendPosition === 'top' ? legendHeight : 0 );
-	const radius = Math.min( width / 2, chartHeight );
+	const radius = height; // For a semi-circle, radius equals the SVG height
 	const innerRadius = radius * ( 1 - thickness );
 
 	// Map data with index for color assignment
@@ -329,119 +347,144 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 	const startAngle = clockwise ? -Math.PI / 2 : Math.PI / 2;
 	const endAngle = clockwise ? Math.PI / 2 : -Math.PI / 2;
 
+	const legendElement = showLegend && (
+		<Legend
+			orientation={ legendOrientation }
+			position={ legendPosition }
+			alignment={ legendAlignment }
+			maxWidth={ legendMaxWidth }
+			textOverflow={ legendTextOverflow }
+			legendItemClassName={ legendItemClassName }
+			shape={ legendShape }
+			chartId={ chartId }
+			interactive={ legendInteractive }
+		/>
+	);
+
 	return (
 		<SingleChartContext.Provider
 			value={ {
 				chartId,
 				chartWidth: width,
-				chartHeight: radius,
+				chartHeight: height,
 			} }
 		>
-			<div
+			<Stack
 				ref={ containerRef }
+				direction="column"
+				gap={ gap }
 				className={ clsx(
 					'pie-semi-circle-chart',
 					styles[ 'pie-semi-circle-chart' ],
 					{
-						[ styles[ 'pie-semi-circle-chart--legend-top' ] ]:
-							showLegend && legendPosition === 'top',
+						[ styles[ 'pie-semi-circle-chart--responsive' ] ]: ! propWidth && ! propHeight,
 					},
 					className
 				) }
+				style={ {
+					width: propWidth || undefined,
+					height: propHeight || undefined,
+				} }
 				data-testid="pie-chart-container"
 			>
-				<svg
-					width={ width }
-					height={ radius }
-					viewBox={ `0 0 ${ width } ${ chartHeight }` }
-					data-testid="pie-chart-svg"
-				>
-					<defs>
-						<RadialWipeAnimation
-							id={ `radial-wipe-${ chartId }` }
-							radius={ radius }
-							innerRadius={ innerRadius }
-							startAngle="-180deg"
-							wipePercentage={ 50 }
-						/>
-					</defs>
+				{ legendPosition === 'top' && legendElement }
 
-					{ /* Main chart group centered horizontally and positioned at bottom */ }
-					<Group
-						top={ chartHeight }
-						left={ width / 2 }
-						mask={ animation && ! prefersReducedMotion ? `url(#radial-wipe-${ chartId })` : null }
+				<div ref={ svgWrapperRef } className={ styles[ 'pie-semi-circle-chart__svg-wrapper' ] }>
+					<svg
+						width={ width }
+						height={ height }
+						viewBox={ `0 0 ${ width } ${ height }` }
+						data-testid="pie-chart-svg"
 					>
-						{ allSegmentsHidden ? (
-							<text
-								textAnchor="middle"
-								y={ -radius / 2 }
-								fill="#ccc"
-								fontSize="14"
-								fontFamily="-apple-system,BlinkMacSystemFont,Roboto,Helvetica Neue,sans-serif"
-							>
-								{ __(
-									'All segments are hidden. Click legend items to show data.',
-									'jetpack-charts'
-								) }
-							</text>
-						) : (
-							<>
-								{ /* Pie chart */ }
-								<Pie< DataPointPercentage & { index: number } >
-									data={ dataWithIndex }
-									pieValue={ accessors.value }
-									outerRadius={ radius }
-									innerRadius={ innerRadius }
-									cornerRadius={ 3 }
-									padAngle={ PAD_ANGLE }
-									startAngle={ startAngle }
-									endAngle={ endAngle }
-									pieSort={ accessors.sort }
+						<defs>
+							<RadialWipeAnimation
+								id={ `radial-wipe-${ chartId }` }
+								radius={ radius }
+								innerRadius={ innerRadius }
+								startAngle="-180deg"
+								wipePercentage={ 50 }
+							/>
+						</defs>
+
+						{ /* Main chart group centered horizontally and positioned at bottom */ }
+						<Group
+							top={ height }
+							left={ width / 2 }
+							mask={ animation && ! prefersReducedMotion ? `url(#radial-wipe-${ chartId })` : null }
+						>
+							{ allSegmentsHidden ? (
+								<text
+									textAnchor="middle"
+									y={ -radius / 2 }
+									fill="#ccc"
+									fontSize="14"
+									fontFamily="-apple-system,BlinkMacSystemFont,Roboto,Helvetica Neue,sans-serif"
 								>
-									{ pie => {
-										return pie.arcs.map( arc => (
-											<g
-												key={ arc.data.label }
-												onMouseMove={ withTooltips ? handleArcMouseMove( arc ) : undefined }
-												onMouseLeave={ withTooltips ? handleMouseLeave : undefined }
-											>
-												<path
-													d={ pie.path( arc ) || '' }
-													fill={ accessors.fill( arc.data ) }
-													data-testid="pie-segment"
-												/>
-											</g>
-										) );
-									} }
-								</Pie>
-
-								{ /* Label and note text */ }
-								<Group>
-									<Text
-										textAnchor="middle"
-										verticalAnchor="start"
-										y={ -40 } // Position above the chart with space for note
-										className={ styles.label }
+									{ __(
+										'All segments are hidden. Click legend items to show data.',
+										'jetpack-charts'
+									) }
+								</text>
+							) : (
+								<>
+									{ /* Pie chart */ }
+									<Pie< DataPointPercentage & { index: number } >
+										data={ dataWithIndex }
+										pieValue={ accessors.value }
+										outerRadius={ radius }
+										innerRadius={ innerRadius }
+										cornerRadius={ 3 }
+										padAngle={ PAD_ANGLE }
+										startAngle={ startAngle }
+										endAngle={ endAngle }
+										pieSort={ accessors.sort }
 									>
-										{ label }
-									</Text>
-									<Text
-										textAnchor="middle"
-										verticalAnchor="start"
-										y={ -20 } // Position between label and chart
-										className={ styles.note }
-									>
-										{ note }
-									</Text>
-								</Group>
+										{ pie => {
+											return pie.arcs.map( arc => (
+												<g
+													key={ arc.data.label }
+													onMouseMove={ withTooltips ? handleArcMouseMove( arc ) : undefined }
+													onMouseLeave={ withTooltips ? handleMouseLeave : undefined }
+												>
+													<path
+														d={ pie.path( arc ) || '' }
+														fill={ accessors.fill( arc.data ) }
+														data-testid="pie-segment"
+													/>
+												</g>
+											) );
+										} }
+									</Pie>
 
-								{ /* Render SVG children from composition API */ }
-								{ ! allSegmentsHidden && svgChildren }
-							</>
-						) }
-					</Group>
-				</svg>
+									{ /* Label and note text */ }
+									<Group>
+										<Text
+											textAnchor="middle"
+											verticalAnchor="start"
+											y={ -40 } // Position above the chart with space for note
+											className={ styles.label }
+										>
+											{ label }
+										</Text>
+										<Text
+											textAnchor="middle"
+											verticalAnchor="start"
+											y={ -20 } // Position between label and chart
+											className={ styles.note }
+										>
+											{ note }
+										</Text>
+									</Group>
+
+									{ /* Render SVG children from composition API */ }
+									{ ! allSegmentsHidden && svgChildren }
+								</>
+							) }
+						</Group>
+					</svg>
+				</div>
+
+				{ legendPosition !== 'top' && legendElement }
 
 				{ withTooltips && tooltipOpen && tooltipData && (
 					<TooltipInPortal top={ tooltipTop || 0 } left={ tooltipLeft || 0 }>
@@ -449,27 +492,12 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 					</TooltipInPortal>
 				) }
 
-				{ showLegend && (
-					<Legend
-						orientation={ legendOrientation }
-						position={ legendPosition }
-						alignment={ legendAlignment }
-						maxWidth={ legendMaxWidth }
-						textOverflow={ legendTextOverflow }
-						legendItemClassName={ legendItemClassName }
-						shape={ legendShape }
-						ref={ legendRef }
-						chartId={ chartId }
-						interactive={ legendInteractive }
-					/>
-				) }
-
 				{ /* Render HTML children from composition API */ }
 				{ htmlChildren }
 
 				{ /* Render any other children that aren't compound components */ }
 				{ otherChildren }
-			</div>
+			</Stack>
 		</SingleChartContext.Provider>
 	);
 };

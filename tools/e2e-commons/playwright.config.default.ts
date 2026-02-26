@@ -87,13 +87,15 @@ export const setupProjects = [
 	},
 ];
 
+const defaultWorkers = Number( process.env.PLAYWRIGHT_WORKERS ) || 1;
+
 const playwrightConfig = defineConfig( {
 	timeout: 300000,
 	expect: {
 		timeout: 20000,
 	},
 	retries: process.env.CI ? 1 : 0,
-	workers: 1,
+	workers: defaultWorkers,
 	outputDir: config.get( 'dirs.results' ),
 	reporter,
 	forbidOnly: !! process.env.CI,

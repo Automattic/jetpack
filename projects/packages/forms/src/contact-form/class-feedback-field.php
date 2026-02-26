@@ -682,7 +682,7 @@ class Feedback_Field {
 		if ( ! empty( $file_url ) ) {
 			$download_icon_url = Jetpack_Forms::plugin_url() . 'contact-form/images/file-icons/download@2x.png';
 			$download_icon     = sprintf(
-				'<a href="%1$s" target="_blank" style="text-decoration: none;"><img src="%2$s" width="20" height="20" alt="%3$s" style="display: block; width: 20px; height: 20px;" /></a>',
+				'<a href="%1$s" target="_blank" style="text-decoration: none;"><img src="%2$s" width="20" height="20" alt="%3$s" style="display: block; width: 20px; height: 20px; -webkit-user-select: none; user-select: none;" /></a>',
 				esc_url( $file_url ),
 				esc_url( $download_icon_url ),
 				esc_attr__( 'Download', 'jetpack-forms' )
@@ -734,7 +734,7 @@ class Feedback_Field {
 
 		return sprintf(
 			'<img src="%1$s" width="24" height="24" alt=""
-				style="padding: 8px; border-radius: 50%%; width: 24px; height: 24px; background-color: #f0f0f0;" />',
+				style="padding: 8px; border-radius: 50%%; width: 24px; height: 24px; background-color: #f0f0f0; -webkit-user-select: none; user-select: none;" />',
 			esc_url( $icon_url )
 		);
 	}

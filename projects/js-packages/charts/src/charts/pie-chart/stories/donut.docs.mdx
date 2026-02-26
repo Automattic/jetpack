@@ -9,7 +9,7 @@ Donut Charts are circular charts with a hollow center, perfect for displaying pr
 
 **Important:** There is no separate DonutChart component. Donuts are created by configuring the PieChart component with `thickness < 1`. This means all PieChart props, features, and styling options are available for donut charts.
 
-<Canvas of={ DonutStories.Doughnut } />
+<Canvas of={ DonutStories.Default } />
 
 ## API Reference
 
@@ -28,15 +28,17 @@ Create a donut chart by setting the `thickness` prop to a value between 0 and 1:
 <Source
 	language="jsx"
 	code={ `<PieChart
-		size={ 400 }
-		thickness={ 0.4 }
+		thickness={ 0.5 }
+		gapScale={ 0.03 }
+		cornerScale={ 0.03 }
+		withTooltips={ true }
 		data={[
 			{ label: 'Active Users', value: 65000, percentage: 65 },
 			{ label: 'Inactive Users', value: 35000, percentage: 35 },
 		]}
 	>
 		<Group>
-			<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 24 }>
+			<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 24 } y={ -16 }>
 				User Activity
 			</Text>
 			<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 18 } y={ 16 }>
@@ -73,60 +75,16 @@ Create a thin ring by using a low thickness value:
 	language="jsx"
 	code={ `<PieChart
 		thickness={ 0.2 }
+		gapScale={ 0.01 }
+		showLabels={ false }
 		data={ data }
 	>
 		<Group>
-			<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 32 } fontWeight="bold">
-				85%
+			<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 24 } y={ -16 }>
+				Thin Donut
 			</Text>
-			<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 14 } y={ 20 }>
-				Completion Rate
-			</Text>
-		</Group>
-	</PieChart>` }
-/>
-
-### Thick Donut
-
-Use a higher thickness value for more substantial donut rings:
-
-<Canvas of={ DonutStories.Default } />
-
-<Source
-	language="jsx"
-	code={ `<PieChart
-		thickness={ 0.8 }
-		data={ data }
-	>
-		<Group>
-			<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 16 }>
-				Summary
-			</Text>
-		</Group>
-	</PieChart>` }
-/>
-
-### Styled Donut with Gaps
-
-Combine thickness with gaps and rounded corners for modern appearance:
-
-<Canvas of={ DonutStories.Doughnut } />
-
-<Source
-	language="jsx"
-	code={ `<PieChart
-		size={ 400 }
-		thickness={ 0.6 }
-		gapScale={ 0.05 }
-		cornerScale={ 0.1 }
-		data={ data }
-	>
-		<Group>
-			<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 24 } fontWeight="bold">
-				$1.2M
-			</Text>
-			<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 16 } y={ 20 }>
-				Total Revenue
+			<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 18 } y={ 16 }>
+				Thickness: 20%
 			</Text>
 		</Group>
 	</PieChart>` }
@@ -138,18 +96,24 @@ Combine thickness with gaps and rounded corners for modern appearance:
 
 Tooltips work seamlessly with donut charts:
 
-<Canvas of={ DonutStories.WithTooltipsDoughnut } />
+<Canvas of={ DonutStories.WithTooltips } />
 
 <Source
 	language="jsx"
 	code={ `<PieChart
 		thickness={ 0.5 }
+		gapScale={ 0.03 }
+		cornerScale={ 0.03 }
+		showLabels={ false }
 		withTooltips={ true }
 		data={ data }
 	>
 		<Group>
-			<Text textAnchor="middle" verticalAnchor="middle">
-				Hover segments
+			<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 14 } y={ -10 }>
+				Hover over segments
+			</Text>
+			<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 14 } y={ 10 }>
+				to see tooltips
 			</Text>
 		</Group>
 	</PieChart>` }
@@ -159,21 +123,24 @@ Tooltips work seamlessly with donut charts:
 
 Combine legends with donut charts for comprehensive data presentation:
 
-<Canvas of={ DonutStories.CustomLegendPositioning } />
+<Canvas of={ DonutStories.WithLegend } />
 
 <Source
 	language="jsx"
 	code={ `<PieChart
-		thickness={ 0.4 }
+		thickness={ 0.5 }
+		gapScale={ 0.03 }
+		cornerScale={ 0.03 }
+		withTooltips={ true }
 		showLegend={ true }
-		legendOrientation="vertical"
-		legendAlignment="start"
-		legendPosition="top"
 		data={ data }
 	>
 		<Group>
-			<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 18 }>
-				Distribution
+			<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 24 } y={ -16 }>
+				User Activity
+			</Text>
+			<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 18 } y={ 16 }>
+				Total: 100K Users
 			</Text>
 		</Group>
 	</PieChart>` }
@@ -303,14 +270,19 @@ Donut charts support an optional entry animation that creates a smooth reveal ef
 <Source
 	language="jsx"
 	code={ `<PieChart
-		size={ 400 }
-		thickness={ 0.4 }
+		thickness={ 0.5 }
+		gapScale={ 0.03 }
+		cornerScale={ 0.03 }
+		withTooltips={ true }
 		data={ data }
 		animation={ true }
 	>
 		<Group>
-			<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 24 }>
-				Animated Donut
+			<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 24 } y={ -16 }>
+				User Activity
+			</Text>
+			<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 18 } y={ 16 }>
+				Total: 100K Users
 			</Text>
 		</Group>
 	</PieChart>` }

@@ -7,6 +7,7 @@ import type { LegendShape } from '@visx/legend/lib/types';
 import type { ScaleInput, ScaleType } from '@visx/scale';
 import type { TextProps } from '@visx/text/lib/Text';
 import type { EventHandlerParams, GlyphProps, GridStyles, LineStyles } from '@visx/xychart';
+import type { GapSize } from '@wordpress/theme';
 import type { CSSProperties, PointerEvent, ReactNode } from 'react';
 import type { GoogleDataTableColumn, GoogleDataTableRow } from 'react-google-charts';
 
@@ -364,15 +365,17 @@ export type BaseChartProps< T = DataPoint | DataPointDate | LeaderboardEntry > =
 	 */
 	className?: string;
 	/**
-	 * Width of the chart in pixels
+	 * Width of the chart container in pixels. When omitted, the chart fills its parent's width.
 	 */
 	width?: number;
 	/**
-	 * Height of the chart in pixels
+	 * Height of the chart container in pixels. When omitted, the chart fills its parent's height.
 	 */
 	height?: number;
 	/**
-	 * Size of the chart in pixels for pie and donut charts
+	 * Maximum diameter of the pie in pixels (pie and donut charts only).
+	 * The pie will shrink if the container is smaller than this value.
+	 * When omitted, the pie fills the available space.
 	 */
 	size?: number;
 	/**
@@ -456,6 +459,13 @@ export type BaseChartProps< T = DataPoint | DataPointDate | LeaderboardEntry > =
 	 * Whether to show chart animation on initial render or not
 	 */
 	animation?: boolean;
+
+	/**
+	 * Gap between chart elements (SVG, legend, children).
+	 * Uses WordPress design system tokens.
+	 * @default 'md'
+	 */
+	gap?: GapSize;
 
 	/**
 	 * More options for the chart.

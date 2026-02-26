@@ -13,7 +13,7 @@
 	},
 	"devDependencies": {
 		"@jest/globals": "^30.0.0",
-		"@types/node": "^20.4.2",
+		"@types/node": "^22.19.11",
 		"_jetpack-e2e-commons": "workspace:*",
 		"axios": "1.13.5",
 		"cheerio": "1.2.0",

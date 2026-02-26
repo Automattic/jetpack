@@ -12,7 +12,7 @@ import type { ButtonProps } from './types.ts';
  * @param {ButtonProps} props - Component Props
  * @return {ReactNode} Rendered button
  */
-const Button = forwardRef< HTMLInputElement, ButtonProps >( ( props, ref ) => {
+const Button = forwardRef< HTMLElement, ButtonProps >( ( props, ref ) => {
 	const {
 		children,
 		variant = 'primary',

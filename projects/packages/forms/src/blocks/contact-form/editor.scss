@@ -1,5 +1,9 @@
 @use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
 
+:where(.jetpack-contact-form) {
+	border-width: 0;
+}
+
 :where(.is-classic-layout) .jetpack-contact-form,
 .jetpack-contact-form.has-no-jetpack-form-layout {
 	display: flex;
@@ -1248,4 +1252,9 @@
 /* Status notice for synced forms with non-publish status */
 .jetpack-contact-form__status-notice {
 	margin-bottom: 16px;
+}
+
+/* "Other" option text input styles */
+.jetpack-other-text-input-wrapper {
+	margin-left: 1.5em;
 }

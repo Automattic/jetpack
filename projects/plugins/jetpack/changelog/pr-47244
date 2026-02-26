@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Internal: Add unit tests for MCP actor fields in sync listener.

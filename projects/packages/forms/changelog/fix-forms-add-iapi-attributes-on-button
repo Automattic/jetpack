@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Forms: button locator on multi-step-navigation was aiming at the wrong element (block parent container instead of button element)

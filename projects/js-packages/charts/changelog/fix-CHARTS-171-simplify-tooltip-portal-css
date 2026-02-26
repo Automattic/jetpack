@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Simplify relocated portal positioning with CSS inset shorthand
