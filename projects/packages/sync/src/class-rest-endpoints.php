@@ -498,14 +498,18 @@ class REST_Endpoints {
 				$sync_queue    = Listener::get_instance()->get_sync_queue();
 				$queue_size    = $sync_queue->size();
 				$queue_lag     = $sync_queue->lag();
-				$queue_healthy = ( $queue_size < Settings::get_setting( 'max_queue_size' ) )
-					&& ( $queue_lag < Settings::get_setting( 'max_queue_lag' ) );
+				$queue_healthy = Health::is_queue_healthy(
+					$queue_size,
+					$queue_lag,
+					Settings::get_setting( 'max_queue_size' ),
+					Settings::get_setting( 'max_queue_lag' )
+				);
 				if ( ! $queue_healthy ) {
 					Health::update_status( Health::STATUS_OUT_OF_SYNC );
 					return rest_ensure_response(
 						array(
 							'success'    => Health::get_status(),
-							'message'    => 'Sync queue is not healthy (size or lag over limit). Status not set to in_sync.',
+							'message'    => 'Sync queue is not healthy (size and lag over limit). Status not set to in_sync.',
 							'queue_size' => $queue_size,
 							'queue_lag'  => $queue_lag,
 						)
