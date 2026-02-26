@@ -1,5 +1,5 @@
 import { Page } from '@wordpress/admin-ui';
-import './admin-ui-styles.css';
+import '@wordpress/admin-ui/build-style/style.css';
 import {
 	__experimentalHeading as Heading, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
