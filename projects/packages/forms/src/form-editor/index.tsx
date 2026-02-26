@@ -17,6 +17,7 @@ import {
 	JETPACK_FORM_PRE_PUBLISH_PANEL,
 } from './plugins/form-pre-publish-panel';
 import { FormTitleModal } from './plugins/form-title-modal';
+import { HeaderActions, HEADER_ACTIONS_PLUGIN } from './plugins/header-actions';
 import {
 	activateBlockCategoryOverrides,
 	deactivateBlockCategoryOverrides,
@@ -358,11 +359,18 @@ const setupFormEditorSubscription = () => {
 					} );
 
 					registerPlugin( JETPACK_FORM_PRE_PUBLISH_PANEL, { render: FormPrePublishPanel } );
+					// Register the header actions plugin
+					registerPlugin( HEADER_ACTIONS_PLUGIN, {
+						render: HeaderActions,
+					} );
 				} else {
 					// We just left the form editor.
 					document.body.classList.remove( 'post-type-jetpack_form' );
 					if ( getPlugin( NEW_FORMS_MODAL_PLUGIN ) ) {
 						unregisterPlugin( NEW_FORMS_MODAL_PLUGIN );
+					}
+					if ( getPlugin( HEADER_ACTIONS_PLUGIN ) ) {
+						unregisterPlugin( HEADER_ACTIONS_PLUGIN );
 					}
 
 					if ( getPlugin( JETPACK_FORM_PRE_PUBLISH_PANEL ) ) {

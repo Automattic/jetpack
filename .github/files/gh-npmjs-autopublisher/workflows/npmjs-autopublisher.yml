@@ -26,4 +26,4 @@ jobs:
       - name: Publish
         run: |
           npm install -g npm@latest
-          NPM_CONFIG_PROVENANCE=false npm publish --access public
+          npm publish --access public

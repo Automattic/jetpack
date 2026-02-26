@@ -2,17 +2,16 @@
  * External dependencies
  */
 import analytics from '@automattic/jetpack-analytics';
+import { getSiteType } from '@automattic/jetpack-script-data';
 import { Button } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { getSiteType } from '../utils';
-import type { JetpackNewsletterSettings } from '../types';
+import { getNewsletterScriptData } from '../script-data';
 
 interface PaidNewsletterSectionProps {
-	jetpackSettings: JetpackNewsletterSettings | undefined;
 	isNewsletterEnabled: boolean;
 	hasActivePlan?: boolean;
 }
@@ -24,11 +23,11 @@ interface PaidNewsletterSectionProps {
  * @return {JSX.Element | null} The paid newsletter section or null if URL not available
  */
 export function PaidNewsletterSection( {
-	jetpackSettings,
 	isNewsletterEnabled,
 	hasActivePlan = false,
 }: PaidNewsletterSectionProps ): JSX.Element | null {
-	const siteType = getSiteType( jetpackSettings );
+	const siteType = getSiteType();
+	const newsletterScriptData = getNewsletterScriptData();
 
 	// Track paid plans button click
 	const handlePaidPlansClick = useCallback( () => {
@@ -38,7 +37,7 @@ export function PaidNewsletterSection( {
 		} );
 	}, [ hasActivePlan, siteType ] );
 
-	if ( ! jetpackSettings?.setupPaymentPlansUrl ) {
+	if ( ! newsletterScriptData?.setupPaymentPlansUrl ) {
 		return null;
 	}
 
@@ -61,7 +60,7 @@ export function PaidNewsletterSection( {
 			<fieldset className="newsletter-settings__section-content" disabled={ ! isNewsletterEnabled }>
 				<Button
 					variant="primary"
-					href={ jetpackSettings.setupPaymentPlansUrl }
+					href={ newsletterScriptData.setupPaymentPlansUrl }
 					target="_blank"
 					rel="noopener noreferrer"
 					disabled={ ! isNewsletterEnabled }

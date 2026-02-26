@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix "Other" option toggle not updating the option label in the editor

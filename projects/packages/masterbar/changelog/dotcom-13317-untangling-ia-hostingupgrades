@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Admin Menu: move Upgrades menu registration to jetpack-mu-wpcom for all admin interfaces.

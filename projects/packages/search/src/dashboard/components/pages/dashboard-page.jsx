@@ -226,14 +226,12 @@ const MockedSearchInterface = ( { supportsInstantSearch, supportsOnlyClassicSear
 				<div className=" lg-col-span-6 md-col-span-1 sm-col-span-0"></div>
 			</div>
 			<div className="jp-search-dashboard-row" aria-hidden="true">
-				<div className="lg-col-span-1 md-col-span-1 sm-col-span-0"></div>
-				<div className="jp-search-dashboard-top__mocked-search-interface lg-col-span-10 md-col-span-6 sm-col-span-4">
+				<div className="jp-search-dashboard-top__mocked-search-interface lg-col-span-12 md-col-span-6 sm-col-span-4">
 					<MockedSearch
 						supportsInstantSearch={ supportsInstantSearch }
 						supportsOnlyClassicSearch={ supportsOnlyClassicSearch }
 					/>
 				</div>
-				<div className="lg-col-span-1 md-col-span-1 sm-col-span-0"></div>
 			</div>
 		</div>
 	);

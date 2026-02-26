@@ -131,9 +131,6 @@ function wpcomsh_activate_nav_unification() {
 }
 add_filter( 'jetpack_load_admin_menu_class', 'wpcomsh_activate_nav_unification' );
 
-// Enables the Upgrades -> Emails menu item in the sidebar for all users (temporary hotfix due to Jetpack monthly release cycle)
-add_filter( 'jetpack_show_wpcom_upgrades_email_menu', '__return_true' );
-
 /**
  * Checks if site sticker is toggled on/off.
  * For further information/context on Atomic_Persistent_Data and site_stickers please also see this diff: D66496-code

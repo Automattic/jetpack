@@ -176,9 +176,11 @@ class Agents_Manager {
 			wp_dequeue_style( 'help-center-style' );
 		}
 
-		// For non-Gutenberg environments, add to admin bar
-		// Gutenberg doesn't have an admin bar, so JS will handle UI insertion
-		if ( ! $is_gutenberg ) {
+		// For non-Gutenberg, non-CIAB environments, add to admin bar.
+		// Gutenberg doesn't have an admin bar, so JS will handle UI insertion.
+		// CIAB hides the classic admin bar and uses its own Site Hub — the JS variant handles UI there.
+		$is_ciab = $this->is_ciab_environment();
+		if ( ! $is_gutenberg && ! $is_ciab ) {
 			add_action(
 				'admin_bar_menu',
 				function ( $wp_admin_bar ) use ( $use_disconnected ) {
@@ -271,17 +273,14 @@ class Agents_Manager {
 	 * @return string|null The variant name, or null if scripts should not be loaded.
 	 */
 	private function get_variant() {
-		// CIAB/Next Admin: only load when disconnected (connected CIAB is handled by Help Center).
-		if ( $this->is_ciab_environment() ) {
-			if ( $this->is_enabled() && $this->is_jetpack_disconnected() ) {
-				return 'ciab-disconnected';
-			}
-			return null;
+		// CIAB: Load either the connected or disconnected variants if enabled.
+		if ( $this->is_ciab_environment() && self::is_enabled() ) {
+			return $this->is_jetpack_disconnected() ? 'ciab-disconnected' : 'ciab';
 		}
 
 		// Frontend: load disconnected variant for eligible logged-in editors.
 		if ( ! is_admin() ) {
-			if ( $this->is_loading_on_frontend() && $this->is_enabled() ) {
+			if ( $this->is_loading_on_frontend() && self::is_enabled() ) {
 				return 'wp-admin-disconnected';
 			}
 			return null;
@@ -292,7 +291,7 @@ class Agents_Manager {
 			return null;
 		}
 
-		if ( ! $this->is_enabled() ) {
+		if ( ! self::is_enabled() ) {
 			return null;
 		}
 
@@ -308,17 +307,27 @@ class Agents_Manager {
 	/**
 	 * Returns true if the Agents Manager should be loaded in the current context.
 	 *
-	 * True when the unified experience filter is enabled, or when the block editor
-	 * has the unified Big Sky flag active.
-	 *
 	 * @return bool
 	 */
-	private function is_enabled() {
+	public static function is_enabled() {
+		// CIAB: Agents Manager is the default AI experience — enabled unless explicitly
+		// disabled via filter (e.g. for debugging or gradual rollout).
+		if ( self::is_ciab_environment() ) {
+			/**
+			 * Filter whether Agents Manager is enabled in CIAB (Next Admin) environments.
+			 *
+			 * @param bool $enabled Whether Agents Manager should load. Default true.
+			 */
+			return apply_filters( 'agents_manager_enabled_in_ciab', true );
+		}
+
+		// Full unified experience: Agents Manager with support guides, Help Center takeover, etc.
 		if ( apply_filters( 'agents_manager_use_unified_experience', false ) ) {
 			return true;
 		}
 
-		if ( $this->is_block_editor() && class_exists( 'Big_Sky' ) && $this->has_unified_big_sky_flag() ) {
+		// Block editor only: Agents Manager replaces Big Sky's native UI. Hooked by Big Sky.
+		if ( self::is_block_editor() && apply_filters( 'agents_manager_enabled_in_block_editor', false ) ) {
 			return true;
 		}
 
@@ -709,7 +718,7 @@ class Agents_Manager {
 	 *
 	 * @return bool True if the current screen is the block editor.
 	 */
-	private function is_block_editor() {
+	private static function is_block_editor() {
 		if ( ! function_exists( 'get_current_screen' ) ) {
 			return false;
 		}
@@ -726,7 +735,7 @@ class Agents_Manager {
 	 *
 	 * @return bool True if CIAB/Next Admin environment.
 	 */
-	private function is_ciab_environment() {
+	private static function is_ciab_environment() {
 		return (bool) did_action( 'next_admin_init' );
 	}
 
@@ -747,22 +756,6 @@ class Agents_Manager {
 
 		if ( true === apply_filters( 'is_jetpack_site', false, $blog_id ) ) {
 			return ! ( new Connection_Manager( 'jetpack' ) )->is_user_connected( $user_id );
-		}
-
-		return false;
-	}
-
-	/**
-	 * Determine if the user should use unified experience for Big Sky.
-	 */
-	private function has_unified_big_sky_flag() {
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- This is a feature flag check, not a form submission.
-		if ( isset( $_GET['flags'] ) ) {
-			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- This is a feature flag check, not a form submission.
-			$flags = explode( ',', sanitize_text_field( wp_unslash( $_GET['flags'] ) ) );
-			if ( in_array( 'unified-big-sky', $flags, true ) ) {
-				return true;
-			}
 		}
 
 		return false;

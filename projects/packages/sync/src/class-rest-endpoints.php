@@ -332,6 +332,17 @@ class REST_Endpoints {
 				'permission_callback' => __CLASS__ . '::verify_default_permissions',
 			)
 		);
+
+		// Clear Sync queue.
+		register_rest_route(
+			'jetpack/v4',
+			'/sync/clear-queue',
+			array(
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => __CLASS__ . '::clear_queue',
+				'permission_callback' => __CLASS__ . '::verify_default_permissions',
+			)
+		);
 	}
 
 	/**
@@ -802,6 +813,27 @@ class REST_Endpoints {
 	 */
 	public static function reset_locks() {
 		Actions::reset_sync_locks();
+
+		return rest_ensure_response(
+			array(
+				'success' => true,
+			)
+		);
+	}
+
+	/**
+	 * Clear the Sync queue.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return \WP_REST_Response
+	 */
+	public static function clear_queue() {
+		$queue = new Queue( 'sync' );
+		$queue->reset();
+
+		// Re-enable sending in case it was temporarily disabled during a pull.
+		delete_transient( Sender::TEMP_SYNC_DISABLE_TRANSIENT_NAME );
 
 		return rest_ensure_response(
 			array(

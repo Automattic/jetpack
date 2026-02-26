@@ -11,6 +11,7 @@ import useSigPreview from '../../../hooks/use-sig-preview';
 const mockUpdateJetpackSocialOptions = jest.fn();
 const mockRecordEvent = jest.fn();
 const mockOpenUnifiedModal = jest.fn();
+const mockApplyFilters = jest.fn();
 
 // Mock the social store to prevent importing @wordpress/editor
 jest.mock( '../../../social-store', () => ( {
@@ -87,8 +88,12 @@ jest.mock( '../../../utils', () => ( {
 } ) );
 
 jest.mock( '@automattic/jetpack-ai-client', () => ( {
-	GeneralPurposeImage: () => null,
+	GeneralPurposeImage: () => <div data-testid="ai-image-modal">AI Image Modal</div>,
 	AiSVG: 'svg',
+} ) );
+
+jest.mock( '@wordpress/hooks', () => ( {
+	applyFilters: ( ...args: unknown[] ) => mockApplyFilters( ...args ),
 } ) );
 
 jest.mock( '@wordpress/block-editor', () => ( {
@@ -393,6 +398,131 @@ describe( 'MediaSectionV2', () => {
 
 			expect( screen.getByRole( 'button', { name: 'Replace' } ) ).toBeDisabled();
 			expect( screen.getByRole( 'button', { name: 'Remove' } ) ).toBeDisabled();
+		} );
+	} );
+
+	describe( 'imageGenerationHandler filter', () => {
+		it( 'should call applyFilters with correct arguments', () => {
+			mockApplyFilters.mockReturnValue( null );
+
+			render( <MediaSectionV2 /> );
+
+			expect( mockApplyFilters ).toHaveBeenCalledWith(
+				'jetpack.ai.imageGenerationHandler',
+				null,
+				expect.objectContaining( {
+					entryPoint: 'social-media',
+					onImageSelect: expect.any( Function ),
+				} )
+			);
+		} );
+
+		it( 'should open default AI modal when no filter handler is registered', async () => {
+			const user = userEvent.setup();
+			mockApplyFilters.mockReturnValue( null );
+
+			render( <MediaSectionV2 /> );
+
+			// Modal should not be visible initially
+			expect( screen.queryByTestId( 'ai-image-modal' ) ).not.toBeInTheDocument();
+
+			// Open dropdown
+			await user.click( screen.getByRole( 'button', { name: 'Replace' } ) );
+
+			// Click Generate image option
+			await user.click( screen.getByRole( 'menuitem', { name: 'Generate image' } ) );
+
+			// The GeneralPurposeImage modal should now be rendered
+			expect( screen.getByTestId( 'ai-image-modal' ) ).toBeInTheDocument();
+		} );
+
+		it( 'should call custom handler when filter provides one', async () => {
+			const user = userEvent.setup();
+			const mockCustomHandler = jest.fn();
+			mockApplyFilters.mockReturnValue( mockCustomHandler );
+
+			render( <MediaSectionV2 /> );
+
+			// Open dropdown
+			await user.click( screen.getByRole( 'button', { name: 'Replace' } ) );
+
+			// Click Generate image option
+			await user.click( screen.getByRole( 'menuitem', { name: 'Generate image' } ) );
+
+			expect( mockCustomHandler ).toHaveBeenCalled();
+		} );
+
+		it( 'should update media options when filter handler calls onImageSelect', () => {
+			let capturedOnImageSelect:
+				| ( ( image: { id: number; url: string; mime?: string } ) => void )
+				| null = null;
+
+			mockApplyFilters.mockImplementation(
+				(
+					filterName: string,
+					defaultValue: unknown,
+					args: { onImageSelect: ( image: { id: number; url: string; mime?: string } ) => void }
+				) => {
+					if ( filterName === 'jetpack.ai.imageGenerationHandler' ) {
+						capturedOnImageSelect = args.onImageSelect;
+					}
+					return null;
+				}
+			);
+
+			render( <MediaSectionV2 /> );
+
+			// Simulate external handler calling onImageSelect
+			if ( capturedOnImageSelect ) {
+				capturedOnImageSelect( {
+					id: 999,
+					url: 'https://example.com/ai-generated.png',
+					mime: 'image/png',
+				} );
+			}
+
+			expect( mockUpdateJetpackSocialOptions ).toHaveBeenCalledWith( {
+				media_source: 'media-library',
+				attached_media: [
+					{ id: 999, url: 'https://example.com/ai-generated.png', type: 'image/png' },
+				],
+				image_generator_settings: { enabled: false },
+			} );
+		} );
+
+		it( 'should default to image/png mime type when not provided', () => {
+			let capturedOnImageSelect:
+				| ( ( image: { id: number; url: string; mime?: string } ) => void )
+				| null = null;
+
+			mockApplyFilters.mockImplementation(
+				(
+					filterName: string,
+					defaultValue: unknown,
+					args: { onImageSelect: ( image: { id: number; url: string; mime?: string } ) => void }
+				) => {
+					if ( filterName === 'jetpack.ai.imageGenerationHandler' ) {
+						capturedOnImageSelect = args.onImageSelect;
+					}
+					return null;
+				}
+			);
+
+			render( <MediaSectionV2 /> );
+
+			// Simulate external handler calling onImageSelect without mime
+			if ( capturedOnImageSelect ) {
+				capturedOnImageSelect( {
+					id: 888,
+					url: 'https://example.com/no-mime.png',
+				} );
+			}
+
+			expect( mockUpdateJetpackSocialOptions ).toHaveBeenCalledWith( {
+				media_source: 'media-library',
+				attached_media: [ { id: 888, url: 'https://example.com/no-mime.png', type: 'image/png' } ],
+				image_generator_settings: { enabled: false },
+			} );
 		} );
 	} );
 } );

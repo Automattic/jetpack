@@ -13,7 +13,10 @@ Main component for rendering pie and donut charts.
 | Prop | Type | Default | Description |
 | ---- | ---- | ------- | ----------- |
 | `data` | `DataPointPercentage[]` | - | **Required.** Array of data objects with label, value, and percentage |
-| `size` | `number` | - | Diameter of the chart in pixels (omit for responsive behavior) |
+| `width` | `number` | - | Width of the chart container in pixels. When omitted, fills parent width |
+| `height` | `number` | - | Height of the chart container in pixels. When omitted, fills parent height |
+| `size` | `number` | - | Maximum diameter of the pie in pixels. The pie shrinks if the container is smaller. When omitted, fills available space |
+| `gap` | `GapSize` | `'md'` | Gap between chart elements (SVG, legend, children). Uses WordPress design system tokens |
 | `thickness` | `number` | `1` | Thickness of the pie chart segments (0-1). Values less than 1 create donut charts |
 | `padding` | `number` | `20` | Padding around the chart in pixels |
 | `gapScale` | `number` | `0` | Scale of gaps between segments (0-1) |
