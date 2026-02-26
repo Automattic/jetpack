@@ -1,9 +1,9 @@
 import { getAdminUrl } from '@automattic/jetpack-script-data';
 import { isComingSoon } from '@automattic/jetpack-shared-extension-utils';
 import { Animate } from '@wordpress/components';
-import { useDispatch, useSelect } from '@wordpress/data';
+import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
-import { createInterpolateElement, useRef, useLayoutEffect } from '@wordpress/element';
+import { createInterpolateElement } from '@wordpress/element';
 import { sprintf, __, _n } from '@wordpress/i18n';
 import paywallBlockMetadata from '../../blocks/paywall/block.json';
 import {
@@ -12,11 +12,6 @@ import {
 } from '../../shared/memberships/constants';
 import { getReachForAccessLevelKey } from '../../shared/memberships/settings';
 import { store as membershipProductsStore } from '../../store/membership-products';
-import {
-	setPublishedWithEmailEnabledInSession,
-	setRepublishedAlreadySentPostInSession,
-} from '../../store/membership-products/actions';
-
 /**
  * Get the formatted list of categories for a post.
  * @param {Array} postCategories       - list of category IDs for the post
@@ -316,10 +311,6 @@ function getSentCopyLine( { accessLabel, categoryNames, pastTense, dateStr } ) {
  * Determines copy to show in pre/post-publish panels to confirm number and type of subscribers receiving the post as email.
  */
 function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
-	const wasPublishedOnLoad = useRef( undefined );
-	const transitionedToPublishInSession = useRef( false );
-	const prevStatusRef = useRef( null );
-
 	const postHasPaywallBlock = useSelect( select =>
 		select( 'core/block-editor' )
 			.getBlocks()
@@ -351,7 +342,6 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 	};
 
 	const blogId = window.Jetpack_Editor_Initial_State?.wpcomBlogId;
-	const dispatch = useDispatch( membershipProductsStore );
 	const {
 		emailSubscribersCount,
 		hasFinishedLoading,
@@ -410,37 +400,6 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 		[ status, postId ]
 	);
 
-	useLayoutEffect( () => {
-		if ( status === 'publish' ) {
-			if ( wasPublishedOnLoad.current === undefined ) {
-				wasPublishedOnLoad.current = true;
-			}
-			if ( prevStatusRef.current !== null && prevStatusRef.current !== 'publish' ) {
-				transitionedToPublishInSession.current = true;
-				if ( postId ) {
-					if ( postEmailSentState?.email_sent_at != null ) {
-						dispatch( setRepublishedAlreadySentPostInSession( postId ) );
-					}
-					if ( ! postMeta?.[ META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS ] ) {
-						dispatch( setPublishedWithEmailEnabledInSession( postId ) );
-					}
-				}
-			}
-		}
-		prevStatusRef.current = status;
-	}, [ status, postId, postEmailSentState?.email_sent_at, dispatch, postMeta ] );
-
-	useLayoutEffect( () => {
-		if (
-			postId &&
-			status === 'publish' &&
-			transitionedToPublishInSession.current &&
-			postEmailSentState?.email_sent_at != null
-		) {
-			dispatch( setRepublishedAlreadySentPostInSession( postId ) );
-		}
-	}, [ postId, status, postEmailSentState?.email_sent_at, dispatch ] );
-
 	if ( ! hasFinishedLoading ) {
 		return (
 			<Animate type="loading">
@@ -464,11 +423,7 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 		status === 'publish' &&
 		isSendEmailEnabled() &&
 		emailSentAt == null &&
-		( transitionedToPublishInSession.current ||
-			publishedWithEmailEnabledInSession ||
-			( wasPublishedOnLoad.current &&
-				publishDate &&
-				publishDate.getTime() >= Date.now() - SENDING_IN_PROGRESS_WINDOW_MS ) ||
+		( publishedWithEmailEnabledInSession ||
 			( publishDate && publishDate.getTime() >= Date.now() - SENDING_IN_PROGRESS_WINDOW_MS ) );
 	const isPublishedNotSent =
 		status === 'publish' && isSendEmailEnabled() && emailSentAt == null && ! isSendingInProgress;
@@ -545,7 +500,7 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 				dateStr
 			);
 		}
-		if ( transitionedToPublishInSession.current || republishedAlreadySentInSession ) {
+		if ( republishedAlreadySentInSession ) {
 			append = __( 'Updating or republishing does not send a new email.', 'jetpack' );
 		}
 		const statsAccess = statsOnSend?.access_level;
