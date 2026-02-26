@@ -76,7 +76,7 @@ export const getNewsletterSettingsUrl = (
 		return `${ adminUrl }admin.php?page=jetpack-newsletter`;
 	}
 
-	return `${ adminUrl }admin.php?page=jetpack#newsletter`;
+	return `${ adminUrl }admin.php?page=jetpack#/newsletter`;
 };
 
 /**

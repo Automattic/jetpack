@@ -53,6 +53,7 @@ class Jetpack_Newsletter_Dashboard_Widget {
 			'showHeader'                         => false,
 			'showChart'                          => false,
 			'isWidgetVisible'                    => false,
+			/* This filter is documented in projects/packages/newsletter/src/class-settings.php */
 			'isWpAdminNewsletterSettingsEnabled' => apply_filters( 'jetpack_wp_admin_newsletter_settings_enabled', false ),
 		);
 

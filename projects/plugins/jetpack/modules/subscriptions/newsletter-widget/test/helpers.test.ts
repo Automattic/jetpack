@@ -26,7 +26,7 @@ describe( 'helpers', () => {
 
 		it( 'returns WP-admin URL for self-hosted sites', () => {
 			const url = getNewsletterSettingsUrl( testSite, false, testAdminUrl );
-			expect( url ).toBe( `${ testAdminUrl }admin.php?page=jetpack#newsletter` );
+			expect( url ).toBe( `${ testAdminUrl }admin.php?page=jetpack#/newsletter` );
 		} );
 
 		it( 'returns new newsletter settings URL when isWpAdminNewsletterSettingsEnabled is true', () => {

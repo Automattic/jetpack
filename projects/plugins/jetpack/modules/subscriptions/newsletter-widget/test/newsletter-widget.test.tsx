@@ -139,7 +139,7 @@ describe( 'NewsletterWidget', () => {
 			},
 			{
 				text: 'Newsletter settings',
-				href: `https://${ defaultProps.site }/wp-admin/admin.php?page=jetpack#newsletter`,
+				href: `https://${ defaultProps.site }/wp-admin/admin.php?page=jetpack#/newsletter`,
 			},
 		];
 

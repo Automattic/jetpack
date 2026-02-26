@@ -248,7 +248,7 @@ class Jetpack_Redux_State_Helper {
 			'subscriptionSiteEditSupported'        => $current_theme->is_block_theme(),
 			/* This filter is already documented in jetpack/modules/subscriptions.php */
 			'isWpAdminSubscriberManagementEnabled' => apply_filters( 'jetpack_wp_admin_subscriber_management_enabled', false ),
-			/* This filter is documented in jetpack-newsletter/src/class-settings.php */
+			/* This filter is documented in projects/packages/newsletter/src/class-settings.php */
 			'isWpAdminNewsletterSettingsEnabled'   => apply_filters( 'jetpack_wp_admin_newsletter_settings_enabled', false ),
 		);
 	}
