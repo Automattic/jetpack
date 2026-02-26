@@ -628,9 +628,13 @@ class REST_Endpoints {
 			return $queue_name;
 		}
 
-		$number_of_items = $args['number_of_items'];
-		if ( $number_of_items < 1 || $number_of_items > 100 ) {
-			return new WP_Error( 'invalid_number_of_items', 'Number of items needs to be an integer that is larger than 0 and less then 100', 400 );
+		$use_memory_limit = ! empty( $args['use_memory_limit'] );
+
+		if ( ! $use_memory_limit ) {
+			$number_of_items = $args['number_of_items'];
+			if ( $number_of_items < 1 || $number_of_items > 100 ) {
+				return new WP_Error( 'invalid_number_of_items', 'Number of items needs to be an integer that is larger than 0 and less then 100', 400 );
+			}
 		}
 
 		// REST Sender.
@@ -640,7 +644,8 @@ class REST_Endpoints {
 			return rest_ensure_response( $sender->immediate_full_sync_pull() );
 		}
 
-		$response = $sender->queue_pull( $queue_name, $number_of_items, $args );
+		$number_of_items = $use_memory_limit ? null : $args['number_of_items'];
+		$response        = $sender->queue_pull( $queue_name, $number_of_items, $args );
 		// Disable sending while pulling.
 		if ( ! is_wp_error( $response ) ) {
 			set_transient( Sender::TEMP_SYNC_DISABLE_TRANSIENT_NAME, time(), Sender::TEMP_SYNC_DISABLE_TRANSIENT_EXPIRY );
