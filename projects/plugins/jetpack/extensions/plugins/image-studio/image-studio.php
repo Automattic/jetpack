@@ -18,6 +18,7 @@ const ASSET_CSS_URL           = 'https://' . ASSET_BASE_PATH . 'image-studio.css
 const ASSET_RTL_URL           = 'https://' . ASSET_BASE_PATH . 'image-studio.rtl.css';
 const ASSET_JSON_URL          = 'https://' . ASSET_BASE_PATH . 'image-studio.asset.json';
 const ASSET_JSON_PATH         = ASSET_BASE_PATH . 'image-studio.asset.json';
+const ASSET_TRANSLATIONS_URL  = 'https://' . ASSET_BASE_PATH . 'languages/';
 const ASSET_TRANSIENT         = 'jetpack_image_studio_asset';
 const HEADLESS_AGENT_PROVIDER = 'image-studio/headless-agent-provider';
 
@@ -177,6 +178,28 @@ function get_asset_data_from_remote() {
 }
 
 /**
+ * Determine the ISO 639 locale code for the current user.
+ *
+ * @return string The ISO 639 language code, defaulting to 'en'.
+ */
+function determine_iso_639_locale() {
+	$language = get_user_locale();
+	$language = strtolower( $language );
+
+	if ( in_array( $language, array( 'pt_br', 'pt-br', 'zh_tw', 'zh-tw', 'zh_cn', 'zh-cn' ), true ) ) {
+		$language = str_replace( '_', '-', $language );
+	} else {
+		$language = preg_replace( '/([-_].*)$/i', '', $language );
+	}
+
+	if ( empty( $language ) ) {
+		return 'en';
+	}
+
+	return $language;
+}
+
+/**
  * Enqueue Image Studio script and style assets.
  *
  * @return void
@@ -193,6 +216,20 @@ function do_enqueue_assets() {
 
 	$version      = $asset_data['version'] ?? false;
 	$dependencies = $asset_data['dependencies'] ?? array();
+	$locale       = determine_iso_639_locale();
+
+	if ( 'en' !== $locale ) {
+		// Load translations from widgets.wp.com.
+		wp_enqueue_script(
+			'image-studio-translations',
+			ASSET_TRANSLATIONS_URL . $locale . '-v1.js',
+			array( 'wp-i18n' ),
+			$version,
+			true
+		);
+
+		$dependencies[] = 'image-studio-translations';
+	}
 
 	wp_enqueue_script(
 		FEATURE_NAME,

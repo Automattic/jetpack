@@ -13,7 +13,8 @@ Main component for rendering semi-circular pie charts.
 | Prop | Type | Default | Description |
 | ---- | ---- | ------- | ----------- |
 | `data` | `DataPointPercentage[]` | - | **Required.** Array of data points to display |
-| `width` | `number` | `400` | Width of the chart in pixels (height is automatically half of width) |
+| `width` | `number` | responsive | Width constraint in pixels. By default the chart fills its parent container. When provided, constrains the chart to this width while maintaining the 2:1 aspect ratio |
+| `height` | `number` | responsive | Height constraint in pixels. By default the chart fills its parent container. When provided, the chart will reduce its width if needed so that height (= width / 2) does not exceed this value |
 | `thickness` | `number` | `0.4` | Thickness of the pie segments (0-1, where 1 is full thickness) |
 | `clockwise` | `boolean` | `true` | Direction of segment rendering |
 | `label` | `string` | - | Text displayed above the chart |
@@ -28,6 +29,7 @@ Main component for rendering semi-circular pie charts.
 | `legendPosition` | `'top' \| 'bottom'` | `'bottom'` | Legend position (where the legend appears) |
 | `legendShape` | `'circle' \| 'rect' \| 'line'` | `'circle'` | Shape of legend indicators |
 | `className` | `string` | - | Additional CSS class for the container |
+| `gap` | `GapSize` | `'md'` | Gap between chart elements (SVG, legend, children). Uses WordPress design system tokens |
 | `chartId` | `string` | - | Optional unique identifier (auto-generated if not provided) |
 
 ## PieSemiCircleChartRenderTooltipParams Type

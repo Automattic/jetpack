@@ -45,8 +45,8 @@ jest.mock( '../../../utils', () => {
 	};
 } );
 
-const mockUseDispatch = useDispatch as jest.MockedFunction< typeof useDispatch >;
-const mockUseSelect = useSelect as jest.MockedFunction< typeof useSelect >;
+const mockUseDispatch = useDispatch as jest.Mock;
+const mockUseSelect = useSelect as jest.Mock;
 
 const createMockSelect = ( meta: Record< string, unknown > = {} ) => {
 	return () => ( {

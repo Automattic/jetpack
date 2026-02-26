@@ -2,6 +2,7 @@
  * External dependencies
  */
 import analytics from '@automattic/jetpack-analytics';
+import { getSiteType } from '@automattic/jetpack-script-data';
 import { ExternalLink } from '@wordpress/components';
 import { DataForm, type Field } from '@wordpress/dataviews/wp';
 import { useCallback, useRef } from '@wordpress/element';
@@ -9,12 +10,11 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { getSiteType } from '../utils';
-import type { NewsletterSettings, JetpackNewsletterSettings } from '../types';
+import { getNewsletterScriptData } from '../script-data';
+import type { NewsletterSettings } from '../types';
 
 interface NewsletterSectionProps {
 	data: NewsletterSettings;
-	jetpackSettings: JetpackNewsletterSettings | undefined;
 	onChange: ( updates: Partial< NewsletterSettings > ) => void;
 }
 
@@ -24,12 +24,9 @@ interface NewsletterSectionProps {
  * @param {NewsletterSectionProps} props - Component props
  * @return {JSX.Element} The newsletter section
  */
-export function NewsletterSection( {
-	data,
-	jetpackSettings,
-	onChange,
-}: NewsletterSectionProps ): JSX.Element {
-	const siteType = getSiteType( jetpackSettings );
+export function NewsletterSection( { data, onChange }: NewsletterSectionProps ): JSX.Element {
+	const newsletterScriptData = getNewsletterScriptData();
+	const siteType = getSiteType();
 	const previousSubscriptionsValue = useRef( data.subscriptions );
 
 	// Wrap onChange to track module toggle
@@ -87,10 +84,10 @@ export function NewsletterSection( {
 					} }
 					onChange={ handleChange }
 				/>
-				{ data.subscriptions && jetpackSettings && (
+				{ data.subscriptions && newsletterScriptData && (
 					<div>
 						<ExternalLink
-							href={ jetpackSettings.subscriberManagementUrl }
+							href={ newsletterScriptData.subscriberManagementUrl }
 							onClick={ handleManageSubscribersClick }
 						>
 							{ __( 'Manage all subscribers', 'jetpack-newsletter' ) }

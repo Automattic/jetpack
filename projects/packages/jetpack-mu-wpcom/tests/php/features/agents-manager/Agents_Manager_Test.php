@@ -1983,6 +1983,143 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Tests that is_enabled returns false by default when no filters are active.
+	 */
+	public function test_is_enabled_returns_false_by_default() {
+		// Ensure no block editor context.
+		$this->assertFalse( is_admin() );
+
+		$result = Agents_Manager::is_enabled();
+
+		$this->assertFalse( $result );
+	}
+
+	/**
+	 * Tests that is_enabled returns true when the unified experience filter returns true.
+	 */
+	public function test_is_enabled_returns_true_when_unified_experience_enabled() {
+		add_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+
+		$result = Agents_Manager::is_enabled();
+
+		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+
+		$this->assertTrue( $result );
+	}
+
+	/**
+	 * Tests that is_enabled returns true when in block editor and agents_manager_enabled_in_block_editor filter is true.
+	 */
+	public function test_is_enabled_returns_true_in_block_editor_when_block_editor_filter_enabled() {
+		require_once ABSPATH . 'wp-admin/includes/screen.php';
+
+		// Set up block editor context.
+		set_current_screen( 'post' );
+		$screen = get_current_screen();
+
+		$reflection = new \ReflectionClass( $screen );
+		$property   = $reflection->getProperty( 'is_block_editor' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
+		$property->setValue( $screen, true );
+
+		add_filter( 'agents_manager_enabled_in_block_editor', '__return_true' );
+
+		$result = Agents_Manager::is_enabled();
+
+		remove_filter( 'agents_manager_enabled_in_block_editor', '__return_true' );
+
+		$this->assertTrue( $result );
+	}
+
+	/**
+	 * Tests that is_enabled returns false when in block editor but block editor filter is not enabled.
+	 */
+	public function test_is_enabled_returns_false_in_block_editor_when_block_editor_filter_disabled() {
+		require_once ABSPATH . 'wp-admin/includes/screen.php';
+
+		// Set up block editor context.
+		set_current_screen( 'post' );
+		$screen = get_current_screen();
+
+		$reflection = new \ReflectionClass( $screen );
+		$property   = $reflection->getProperty( 'is_block_editor' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
+		$property->setValue( $screen, true );
+
+		// Do not add agents_manager_enabled_in_block_editor filter — default is false.
+		$result = Agents_Manager::is_enabled();
+
+		$this->assertFalse( $result );
+	}
+
+	/**
+	 * Tests that is_enabled returns false when not in block editor even if block editor filter is true.
+	 */
+	public function test_is_enabled_returns_false_when_not_in_block_editor_even_if_block_editor_filter_enabled() {
+		// Set to a non-block-editor admin screen.
+		$this->set_admin_context();
+
+		add_filter( 'agents_manager_enabled_in_block_editor', '__return_true' );
+
+		$result = Agents_Manager::is_enabled();
+
+		remove_filter( 'agents_manager_enabled_in_block_editor', '__return_true' );
+
+		$this->assertFalse( $result );
+	}
+
+	/**
+	 * Tests that is_enabled returns false for widgets screen even if block editor filter is true.
+	 *
+	 * The widgets screen has the block editor flag but is excluded from is_block_editor().
+	 */
+	public function test_is_enabled_returns_false_for_widgets_screen_with_block_editor_filter() {
+		require_once ABSPATH . 'wp-admin/includes/screen.php';
+
+		// Set up widgets screen with block editor flag.
+		set_current_screen( 'widgets' );
+		$screen = get_current_screen();
+
+		$reflection = new \ReflectionClass( $screen );
+		$property   = $reflection->getProperty( 'is_block_editor' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
+		$property->setValue( $screen, true );
+
+		add_filter( 'agents_manager_enabled_in_block_editor', '__return_true' );
+
+		$result = Agents_Manager::is_enabled();
+
+		remove_filter( 'agents_manager_enabled_in_block_editor', '__return_true' );
+
+		$this->assertFalse( $result );
+	}
+
+	/**
+	 * Tests that is_enabled prioritises the unified experience filter over the block editor filter.
+	 *
+	 * When the unified experience filter is true, is_enabled should return true
+	 * regardless of block editor state.
+	 */
+	public function test_is_enabled_unified_experience_takes_priority_over_block_editor() {
+		// Not in block editor context.
+		$this->assertFalse( is_admin() );
+
+		add_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+
+		$result = Agents_Manager::is_enabled();
+
+		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+
+		$this->assertTrue( $result );
+	}
+
+	/**
 	 * Tests that should_enqueue_script returns false on WooCommerce Admin home page.
 	 *
 	 * This verifies the WooCommerce Admin exclusion to avoid UI conflicts,

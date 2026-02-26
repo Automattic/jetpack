@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Charts: fix PieSemiCircleChart height and size calculations to be responsive by default, maintaining 2:1 width-to-height ratio.

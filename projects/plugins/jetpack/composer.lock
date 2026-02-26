@@ -793,11 +793,12 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/classic-theme-helper",
-                "reference": "f845c60c1f7aa13f5b66b488712dcdd816ad19db"
+                "reference": "2a0ad5d46ab475954e8ec3d2d633234c06316b91"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
                 "automattic/jetpack-blocks": "@dev",
+                "automattic/jetpack-post-media": "@dev",
                 "php": ">=7.2"
             },
             "require-dev": {

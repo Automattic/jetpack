@@ -2,6 +2,12 @@
  * External dependencies
  */
 import analytics from '@automattic/jetpack-analytics';
+import {
+	getAdminUrl,
+	getSiteData,
+	getSiteType,
+	isWpcomPlatformSite,
+} from '@automattic/jetpack-script-data';
 import { WpcomSupportLink } from '@automattic/jetpack-shared-extension-utils/components';
 import { Button, ExternalLink, Notice } from '@wordpress/components';
 import { DataForm, type Field, useFormValidity } from '@wordpress/dataviews/wp';
@@ -11,8 +17,7 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import { fetchCategories } from '../api';
-import { getSiteType } from '../utils';
-import type { NewsletterSettings, JetpackNewsletterSettings, WordPressCategory } from '../types';
+import type { NewsletterSettings, WordPressCategory } from '../types';
 
 interface NewsletterCategoriesSectionProps {
 	data: NewsletterSettings;
@@ -20,7 +25,6 @@ interface NewsletterCategoriesSectionProps {
 	onSave: () => void;
 	isSaving: boolean;
 	hasChanges: boolean;
-	jetpackSettings: JetpackNewsletterSettings | undefined;
 	isNewsletterEnabled: boolean;
 }
 
@@ -36,10 +40,9 @@ export function NewsletterCategoriesSection( {
 	onSave,
 	isSaving,
 	hasChanges,
-	jetpackSettings,
 	isNewsletterEnabled,
 }: NewsletterCategoriesSectionProps ): JSX.Element {
-	const siteType = getSiteType( jetpackSettings );
+	const siteType = getSiteType();
 	const [ categories, setCategories ] = useState< WordPressCategory[] >( [] );
 	const [ isFetchingCategories, setIsFetchingCategories ] = useState( true );
 	const [ categoriesError, setCategoriesError ] = useState< string | null >( null );
@@ -55,7 +58,7 @@ export function NewsletterCategoriesSection( {
 
 	// Fetch WordPress categories on mount
 	useEffect( () => {
-		fetchCategories( jetpackSettings )
+		fetchCategories()
 			.then( fetchedCategories => {
 				// Convert category IDs to strings
 				setCategories(
@@ -72,7 +75,7 @@ export function NewsletterCategoriesSection( {
 				);
 				setIsFetchingCategories( false );
 			} );
-	}, [ jetpackSettings ] );
+	}, [] );
 
 	// Define fields
 	const fields: Field< NewsletterSettings >[] = [
@@ -138,13 +141,14 @@ export function NewsletterCategoriesSection( {
 	const saveText = __( 'Save', 'jetpack-newsletter' );
 
 	// Build subscribe block documentation URL and component
-	const subscribeBlockUrl = jetpackSettings?.isWpcomPlatform
+	const isWpcom = isWpcomPlatformSite();
+	const subscribeBlockUrl = isWpcom
 		? 'https://wordpress.com/support/wordpress-editor/blocks/subscribe-block/'
 		: `https://jetpack.com/redirect/?source=jetpack-support-subscribe-block&site=${
-				jetpackSettings?.blogID || ''
+				getSiteData()?.wpcom?.blog_id || ''
 		  }`;
 
-	const SubscribeBlockLink = jetpackSettings?.isWpcomPlatform ? (
+	const SubscribeBlockLink = isWpcom ? (
 		<WpcomSupportLink supportLink={ subscribeBlockUrl } supportPostId={ 170164 } />
 	) : (
 		<ExternalLink href={ subscribeBlockUrl } children={ null } />
@@ -183,10 +187,12 @@ export function NewsletterCategoriesSection( {
 					validity={ validity }
 				/>
 
-				{ data.wpcom_newsletter_categories_enabled && jetpackSettings?.siteAdminUrl && (
+				{ data.wpcom_newsletter_categories_enabled && (
 					<div className="newsletter-settings__link">
 						<ExternalLink
-							href={ `${ jetpackSettings.siteAdminUrl }edit-tags.php?taxonomy=category&referer=newsletter-categories` }
+							href={ getAdminUrl(
+								'edit-tags.php?taxonomy=category&referer=newsletter-categories'
+							) }
 						>
 							{ __( 'Add New Category', 'jetpack-newsletter' ) }
 						</ExternalLink>

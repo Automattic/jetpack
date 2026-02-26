@@ -88,7 +88,9 @@ class Settings {
 		}
 
 		// Add admin menu item.
-		add_action( 'admin_menu', array( $this, 'add_wp_admin_menu' ), 1000 );
+		// Use priority 999 to ensure menu items are queued BEFORE Admin_Menu::admin_menu_hook_callback
+		// runs at priority 1000 to process all queued items.
+		add_action( 'admin_menu', array( $this, 'add_wp_admin_menu' ), 999 );
 
 		// Hijack the config URLs to point to our settings page.
 		// Customize the configuration URL to lead to the Subscriptions settings.
@@ -184,7 +186,50 @@ class Settings {
 	 * Admin init actions.
 	 */
 	public function admin_init() {
+		add_filter( 'jetpack_admin_js_script_data', array( $this, 'add_script_data' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'load_admin_scripts' ) );
+	}
+
+	/**
+	 * Add newsletter-specific data to the global JetpackScriptData object.
+	 *
+	 * @param array $data The existing script data.
+	 * @return array The modified script data.
+	 */
+	public function add_script_data( $data ) {
+		$current_user = wp_get_current_user();
+		$theme        = wp_get_theme();
+
+		$site_url     = get_site_url();
+		$site_raw_url = preg_replace( '(^https?://)', '', $site_url );
+
+		$host                   = new Host();
+		$blog_id                = (int) $host->get_wpcom_site_id();
+		$is_wpcom_simple        = $host->is_wpcom_simple();
+		$setup_payment_plan_url = ( $is_wpcom_simple ? 'https://wordpress.com/earn/payments/' : 'https://cloud.jetpack.com/monetize/payments/' ) . rawurlencode( $site_raw_url );
+
+		$wp_admin_subscriber_management_enabled = apply_filters( 'jetpack_wp_admin_subscriber_management_enabled', false );
+
+		// Populate blog_id which is needed for API calls on Simple sites.
+		$data['site']['wpcom']['blog_id'] = $blog_id;
+
+		// Add newsletter-specific data.
+		// Note: Common data like admin_url, rest_nonce, rest_root, title, is_wpcom_platform,
+		// and user.current_user.display_name are already provided by Script_Data.
+		$data['newsletter'] = array(
+			'isBlockTheme'                    => wp_is_block_theme(),
+			'themeStylesheet'                 => $theme->get_stylesheet(),
+			'email'                           => $current_user->user_email,
+			'gravatar'                        => get_avatar_url( $current_user->ID ),
+			'dateExample'                     => gmdate( get_option( 'date_format' ), time() ),
+			'subscriberManagementUrl'         => $this->get_subscriber_management_url( $wp_admin_subscriber_management_enabled, $is_wpcom_simple, $site_raw_url, $blog_id ),
+			'isSubscriptionSiteEditSupported' => wp_is_block_theme(),
+			'setupPaymentPlansUrl'            => $setup_payment_plan_url,
+			'isSitePublic'                    => (int) get_option( 'blog_public' ) === 1,
+			'tracksUserData'                  => Jetpack_Tracks_Client::get_connected_user_tracks_identity(),
+		);
+
+		return $data;
 	}
 
 	/**
@@ -196,16 +241,11 @@ class Settings {
 			'../build/newsletter.js',
 			__FILE__,
 			array(
-				'in_footer'  => true,
-				'textdomain' => 'jetpack-newsletter',
-				'enqueue'    => true,
+				'in_footer'    => true,
+				'textdomain'   => 'jetpack-newsletter',
+				'enqueue'      => true,
+				'dependencies' => array( 'jetpack-script-data' ),
 			)
-		);
-
-		wp_add_inline_script(
-			'jetpack-newsletter',
-			'window.jetpackNewsletterSettings = ' . wp_json_encode( $this->get_settings_data(), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ';',
-			'before'
 		);
 
 		// Enqueue the Tracks script for analytics.
@@ -241,48 +281,6 @@ class Settings {
 		return Redirect::get_url(
 			'jetpack-settings-jetpack-manage-subscribers',
 			array( 'site' => $site_id )
-		);
-	}
-
-	/**
-	 * Get the data to be passed to the newsletter settings page.
-	 *
-	 * @return array
-	 */
-	private function get_settings_data() {
-		$current_user = wp_get_current_user();
-		$theme        = wp_get_theme();
-
-		$site_url     = get_site_url();
-		$site_raw_url = preg_replace( '(^https?://)', '', $site_url );
-
-		$host                   = new Host();
-		$blog_id                = (int) $host->get_wpcom_site_id();
-		$is_wpcom               = $host->is_wpcom_platform();
-		$is_wpcom_simple        = $host->is_wpcom_simple();
-		$setup_payment_plan_url = ( $is_wpcom_simple ? 'https://wordpress.com/earn/payments/' : 'https://cloud.jetpack.com/monetize/payments/' ) . rawurlencode( $site_raw_url );
-
-		$wp_admin_subscriber_management_enabled = apply_filters( 'jetpack_wp_admin_subscriber_management_enabled', false );
-
-		return array(
-			'isBlockTheme'                    => wp_is_block_theme(),
-			'siteAdminUrl'                    => admin_url(),
-			'themeStylesheet'                 => $theme->get_stylesheet(),
-			'blogID'                          => $blog_id,
-			'email'                           => $current_user->user_email,
-			'gravatar'                        => get_avatar_url( $current_user->ID ),
-			'displayName'                     => $current_user->display_name,
-			'dateExample'                     => gmdate( get_option( 'date_format' ), time() ),
-			'subscriberManagementUrl'         => $this->get_subscriber_management_url( $wp_admin_subscriber_management_enabled, $is_wpcom_simple, $site_raw_url, $blog_id ),
-			'isSubscriptionSiteEditSupported' => wp_is_block_theme(),
-			'setupPaymentPlansUrl'            => $setup_payment_plan_url,
-			'isSitePublic'                    => (int) get_option( 'blog_public' ) === 1,
-			'isWpcomPlatform'                 => $is_wpcom,
-			'isWpcomSimple'                   => $is_wpcom_simple,
-			'restApiRoot'                     => esc_url_raw( rest_url() ),
-			'restApiNonce'                    => wp_create_nonce( 'wp_rest' ),
-			'siteName'                        => get_bloginfo( 'name' ),
-			'tracksUserData'                  => Jetpack_Tracks_Client::get_connected_user_tracks_identity(),
 		);
 	}
 
