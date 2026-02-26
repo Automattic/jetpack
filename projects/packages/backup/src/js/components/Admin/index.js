@@ -22,7 +22,7 @@ import { BackupConnectionScreen } from '../backup-connection-screen';
 import { BackupSecondaryAdminConnectionScreen } from '../backup-connection-screen/secondary-admin';
 import BackupStorageSpace from '../backup-storage-space';
 import ReviewRequest from '../review-request';
-import Header from './header';
+import HeaderActions from './header-actions';
 import {
 	useIsFullyConnected,
 	useIsSecondaryAdminNotConnected,
@@ -79,7 +79,8 @@ const Admin = () => {
 			showHeader
 			showFooter
 			moduleName={ __( 'VaultPress Backup', 'jetpack-backup-pkg' ) }
-			header={ <Header /> }
+			title={ __( 'VaultPress Backup', 'jetpack-backup-pkg' ) }
+			actions={ <HeaderActions /> }
 			useInternalLinks={ shouldUseInternalLinks() }
 		>
 			<div id="jetpack-backup-admin-container" className="jp-content">

@@ -1,4 +1,3 @@
-import { JetpackVaultPressBackupLogo } from '@automattic/jetpack-components';
 import { useSelect } from '@wordpress/data';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -10,22 +9,23 @@ import { useShowBackUpNow } from '../back-up-now/hooks';
 import { BackupNowButton } from '../back-up-now/index';
 import { useIsFullyConnected } from './hooks';
 
-const Header = () => {
+const HeaderActions = () => {
 	const showActivateLicenseLink = useShowActivateLicenseLink();
 	const showBackUpNowButton = useShowBackUpNow();
 
+	if ( ! showActivateLicenseLink && ! showBackUpNowButton ) {
+		return null;
+	}
+
 	return (
-		<div className="jetpack-admin-page__header">
-			<span className="jetpack-admin-page__logo">
-				<JetpackVaultPressBackupLogo />
-			</span>
+		<>
 			{ showActivateLicenseLink && <ActivateLicenseLink /> }
 			{ showBackUpNowButton && (
 				<BackupNowButton variant="primary" tracksEventName="jetpack_backup_plugin_backup_now">
 					{ __( 'Back up now', 'jetpack-backup-pkg' ) }
 				</BackupNowButton>
 			) }
-		</div>
+		</>
 	);
 };
 
@@ -78,4 +78,4 @@ const ActivateLicenseLink = () => {
 	);
 };
 
-export default Header;
+export default HeaderActions;
