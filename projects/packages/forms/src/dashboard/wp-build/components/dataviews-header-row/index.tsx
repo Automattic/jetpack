@@ -98,7 +98,7 @@ export default function DataViewsHeaderRow( {
 								<Tabs.Tab value="forms">
 									<span>
 										{ __( 'Forms', 'jetpack-forms' ) }
-										<Badge intent="default" className="jp-forms-count-badge">
+										<Badge intent="default" className="jp-forms-badge">
 											{ formatNumberCompact( formsCount || 0 ) }
 										</Badge>
 									</span>
@@ -106,7 +106,7 @@ export default function DataViewsHeaderRow( {
 								<Tabs.Tab value="responses">
 									<span>
 										{ __( 'Responses', 'jetpack-forms' ) }
-										<Badge intent="default" className="jp-forms-count-badge">
+										<Badge intent="default" className="jp-forms-badge">
 											{ formatNumberCompact( responsesInboxCount || 0 ) }
 										</Badge>
 									</span>
