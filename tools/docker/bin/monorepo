@@ -135,7 +135,6 @@ fi
   # Set pnpm store directory.
   # For worktrees: use /root/.pnpm-store (shared across all worktrees via DOCKER_DATA_DIR).
   # For non-worktrees: use /workspace/.pnpm-store (same mount as node_modules, preserves hardlinks).
-  # Note: pnpm 10.x ignores PNPM_STORE_DIR; npm_config_store_dir is the correct env var.
   if [[ "$IS_WORKTREE" = "1" ]]; then
       PNPM_STORE_DIR_CONTAINER="/root/.pnpm-store"
   else
@@ -151,29 +150,13 @@ fi
 
   mkdir -p "$DOCKER_DATA_DIR"
 
-  # In worktrees, auto-install dependencies when:
-  # 1. node_modules is missing (first run in worktree)
-  # 2. node_modules points to a different pnpm store (store migration)
+  # In worktrees, node_modules is missing (gitignored). Wrap the command to
+  # auto-install dependencies on first run so hooks and build scripts work.
+  # (verifyDepsBeforeRun in pnpm-workspace.yaml covers pnpm commands, but
+  # non-pnpm commands like git hooks need this.)
   if [[ "$IS_WORKTREE" = "1" ]]; then
-      read -r -d '' INSTALL_CHECK <<'INSTALLEOF'
-install_args=""
-needs_install=0
-if [ ! -d /workspace/node_modules ]; then
-    echo "Installing dependencies (first run in worktree)..."
-    needs_install=1
-elif [ -f /workspace/node_modules/.modules.yaml ]; then
-    current_store=$(grep '^storeDir:' /workspace/node_modules/.modules.yaml | sed 's/^storeDir: *//' | sed 's|/v[0-9]*$||')
-    if [ -n "$current_store" ] && [ "$current_store" != "$npm_config_store_dir" ]; then
-        echo "Migrating pnpm store from $current_store to $npm_config_store_dir..."
-        needs_install=1
-        install_args="--force"
-    fi
-fi
-if [ "$needs_install" = "1" ]; then
-    pnpm install --frozen-lockfile $install_args
-fi
-INSTALLEOF
-      WRAPPED_CMD="${INSTALL_CHECK} && $*"
+      INSTALL_PREFIX='if [ ! -d /workspace/node_modules ]; then echo "Installing dependencies (first run in worktree)..." && pnpm install --frozen-lockfile; fi && '
+      WRAPPED_CMD="${INSTALL_PREFIX}$*"
       set -- sh -c "$WRAPPED_CMD"
   fi
 
