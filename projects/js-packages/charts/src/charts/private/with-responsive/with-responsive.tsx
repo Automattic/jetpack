@@ -86,10 +86,11 @@ export function withResponsive< T extends Exclude< BaseChartProps< unknown >, 'o
 			aspectRatio,
 		} );
 
-		// Use measured dimensions, but fall back to explicit props if measurement returns 0
-		// (e.g., during initial render or in test environments without DOM measurement)
-		const effectiveWidth = measuredWidth || size || width || 0;
-		const effectiveHeight = measuredHeight || size || height || 0;
+		// Use measured dimensions, but fall back to explicit width/height props if measurement returns 0
+		// (e.g., during initial render or in test environments without DOM measurement).
+		// Do not use size here — size controls chart element dimensions (e.g. pie diameter), not container dimensions.
+		const effectiveWidth = measuredWidth || width || 0;
+		const effectiveHeight = measuredHeight || height || 0;
 
 		const defaultHeight = hasAspectRatio ? 'auto' : '100%';
 
@@ -99,14 +100,14 @@ export function withResponsive< T extends Exclude< BaseChartProps< unknown >, 'o
 				data-testid="responsive-wrapper"
 				className={ styles.container }
 				style={ {
-					width: size ?? width ?? '100%',
-					height: size ?? height ?? defaultHeight,
+					width: width ?? '100%',
+					height: height ?? defaultHeight,
 				} }
 			>
 				<WrappedComponent
 					width={ effectiveWidth }
 					height={ effectiveHeight }
-					size={ effectiveWidth }
+					size={ size }
 					{ ...( chartProps as T ) }
 				/>
 			</div>

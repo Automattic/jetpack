@@ -605,6 +605,10 @@
 	max-width: inherit;
 }
 
+:where(.jetpack-contact-form-container) {
+	border-width: 0;
+}
+
 /* Added circa Nov 2022: container class assigned to topmost block div */
 .jetpack-contact-form-container.alignfull .wp-block-jetpack-contact-form {
 	padding-inline: 0;
@@ -641,7 +645,6 @@
 		min-height: var(--jetpack--contact-form--input-height, auto);
 		padding-top: var(--jetpack--contact-form--input-padding-top);
 		padding-bottom: var(--jetpack--contact-form--input-padding-top);
-		border-color: currentColor;
 	}
 }
 
@@ -1633,13 +1636,21 @@ on production builds, the attributes are being reordered, causing side-effects
 		background-color: #fcf9e8;
 		border-inline-start: 4px solid #dba617;
 		color: #1e1e1e;
-
-
 	}
 
 	&--info {
 		background-color: #e7f5fe;
 		border-inline-start: 4px solid #0675c4;
 		color: #1e1e1e;
+	}
+}
+
+/* "Other" option text input styles */
+.jetpack-other-text-input-wrapper {
+	display: none;
+	margin-left: 1.5em;
+
+	&.is-visible {
+		display: block;
 	}
 }

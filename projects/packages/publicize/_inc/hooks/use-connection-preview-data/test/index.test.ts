@@ -64,7 +64,7 @@ import type { Connection } from '../../../social-store/types';
 
 const mockSiteHasFeature = jest.requireMock( '@automattic/jetpack-script-data' )
 	.siteHasFeature as jest.Mock;
-const mockUseSelect = useSelect as jest.MockedFunction< typeof useSelect >;
+const mockUseSelect = useSelect as jest.Mock;
 const mockUsePerNetworkCustomization = usePerNetworkCustomization as jest.MockedFunction<
 	typeof usePerNetworkCustomization
 >;

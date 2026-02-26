@@ -156,7 +156,7 @@ class Functions_Compat_Test extends WP_UnitTestCase {
 
 	/**
 	 * @author mehmoodak
-	 * @since $$next-version$$
+	 * @since 15.6
 	 */
 	public function test_jetpack_youtube_sanitize_url_with_shorts_url() {
 		$sanitized_url = jetpack_youtube_sanitize_url( 'https://www.youtube.com/shorts/VIDEO_ID' );
@@ -194,7 +194,7 @@ class Functions_Compat_Test extends WP_UnitTestCase {
 
 	/**
 	 * @author mehmoodak
-	 * @since $$next-version$$
+	 * @since 15.6
 	 */
 	public function test_jetpack_get_youtube_id_with_shorts_url() {
 		$youtube_id = jetpack_get_youtube_id( 'https://www.youtube.com/shorts/VIDEO_ID' );

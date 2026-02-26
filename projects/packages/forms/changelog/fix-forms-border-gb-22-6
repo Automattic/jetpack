@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Forms: Fix unwanted border appearing in Gutenberg 22.6.0.

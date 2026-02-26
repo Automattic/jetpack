@@ -2,6 +2,7 @@
  * External dependencies
  */
 import analytics from '@automattic/jetpack-analytics';
+import { getSiteType } from '@automattic/jetpack-script-data';
 import { Button } from '@wordpress/components';
 import { DataForm, type Field } from '@wordpress/dataviews/wp';
 import { useCallback } from '@wordpress/element';
@@ -10,8 +11,8 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import { ToggleWithEditorLink } from '../components/toggle-with-link';
-import { getSiteType } from '../utils';
-import type { NewsletterSettings, JetpackNewsletterSettings } from '../types';
+import { getNewsletterScriptData } from '../script-data';
+import type { NewsletterSettings } from '../types';
 
 interface FieldRenderProps {
 	data: NewsletterSettings;
@@ -21,7 +22,6 @@ interface FieldRenderProps {
 
 interface SubscriptionsSectionProps {
 	data: NewsletterSettings;
-	jetpackSettings: JetpackNewsletterSettings | undefined;
 	onChange: ( updates: Partial< NewsletterSettings > ) => void;
 	onSave: () => void;
 	isSaving: boolean;
@@ -37,14 +37,14 @@ interface SubscriptionsSectionProps {
  */
 export function SubscriptionsSection( {
 	data,
-	jetpackSettings,
 	onChange,
 	onSave,
 	isSaving,
 	hasChanges,
 	isNewsletterEnabled,
 }: SubscriptionsSectionProps ): JSX.Element {
-	const siteType = getSiteType( jetpackSettings );
+	const siteType = getSiteType();
+	const newsletterScriptData = getNewsletterScriptData();
 
 	// Translation strings for save button
 	const savingText = __( 'Saving…', 'jetpack-newsletter' );
@@ -61,15 +61,11 @@ export function SubscriptionsSection( {
 
 	// Helper to check if we can show editor links for block theme features
 	const canShowBlockThemeEditorLinks =
-		jetpackSettings?.isBlockTheme &&
-		jetpackSettings?.siteAdminUrl &&
-		jetpackSettings?.themeStylesheet;
+		newsletterScriptData?.isBlockTheme && newsletterScriptData?.themeStylesheet;
 
 	// Helper to check if we can show editor links for subscription site edit features
 	const canShowSubscriptionEditorLinks =
-		jetpackSettings?.isSubscriptionSiteEditSupported &&
-		jetpackSettings?.siteAdminUrl &&
-		jetpackSettings?.themeStylesheet;
+		newsletterScriptData?.isSubscriptionSiteEditSupported && newsletterScriptData?.themeStylesheet;
 
 	const fields: Field< NewsletterSettings >[] = [
 		{
@@ -82,8 +78,7 @@ export function SubscriptionsSection( {
 							data={ formData }
 							field={ field }
 							onChange={ fieldOnChange }
-							siteAdminUrl={ jetpackSettings.siteAdminUrl }
-							themeStylesheet={ jetpackSettings.themeStylesheet }
+							themeStylesheet={ newsletterScriptData.themeStylesheet }
 							postType="wp_template"
 							templateId="single"
 							siteType={ siteType }
@@ -101,8 +96,7 @@ export function SubscriptionsSection( {
 							data={ formData }
 							field={ field }
 							onChange={ fieldOnChange }
-							siteAdminUrl={ jetpackSettings.siteAdminUrl }
-							themeStylesheet={ jetpackSettings.themeStylesheet }
+							themeStylesheet={ newsletterScriptData.themeStylesheet }
 							postType="wp_template_part"
 							templateId="jetpack-subscribe-modal"
 							siteType={ siteType }
@@ -120,8 +114,7 @@ export function SubscriptionsSection( {
 							data={ formData }
 							field={ field }
 							onChange={ fieldOnChange }
-							siteAdminUrl={ jetpackSettings.siteAdminUrl }
-							themeStylesheet={ jetpackSettings.themeStylesheet }
+							themeStylesheet={ newsletterScriptData.themeStylesheet }
 							postType="wp_template_part"
 							templateId="jetpack-subscribe-overlay"
 							siteType={ siteType }
@@ -139,8 +132,7 @@ export function SubscriptionsSection( {
 							data={ formData }
 							field={ field }
 							onChange={ fieldOnChange }
-							siteAdminUrl={ jetpackSettings.siteAdminUrl }
-							themeStylesheet={ jetpackSettings.themeStylesheet }
+							themeStylesheet={ newsletterScriptData.themeStylesheet }
 							postType="wp_template_part"
 							templateId="jetpack-subscribe-floating-button"
 							siteType={ siteType }
@@ -158,8 +150,7 @@ export function SubscriptionsSection( {
 							data={ formData }
 							field={ field }
 							onChange={ fieldOnChange }
-							siteAdminUrl={ jetpackSettings.siteAdminUrl }
-							themeStylesheet={ jetpackSettings.themeStylesheet }
+							themeStylesheet={ newsletterScriptData.themeStylesheet }
 							postType="wp_template"
 							templateId="index"
 							siteType={ siteType }
@@ -177,8 +168,7 @@ export function SubscriptionsSection( {
 							data={ formData }
 							field={ field }
 							onChange={ fieldOnChange }
-							siteAdminUrl={ jetpackSettings.siteAdminUrl }
-							themeStylesheet={ jetpackSettings.themeStylesheet }
+							themeStylesheet={ newsletterScriptData.themeStylesheet }
 							postType="wp_template"
 							templateId="index"
 							siteType={ siteType }

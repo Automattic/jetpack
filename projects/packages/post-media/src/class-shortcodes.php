@@ -13,7 +13,7 @@ namespace Automattic\Jetpack;
 /**
  * Extracts media identifiers from shortcode attributes.
  *
- * @since $$next-version$$
+ * @since 0.1.0
  */
 class Shortcodes {
 
@@ -24,7 +24,7 @@ class Shortcodes {
 	 * e.g. ted and hulu use a named 'id' attribute, while wpvideo and
 	 * videopress use the first positional attribute.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.1.0
 	 *
 	 * @param array      $atts Shortcode attributes.
 	 * @param string|int $key  The attribute key to look up. Defaults to 0 (first positional attribute).
@@ -39,7 +39,7 @@ class Shortcodes {
 	 *
 	 * Handles youtu.be short links, /v/ paths, /shorts/ paths, playlist URLs, and encoded ampersands.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.1.0
 	 *
 	 * @param string|array $url YouTube URL, or an array with a 'url' key.
 	 * @return string|false The normalized URL, or false if input is invalid.
@@ -74,7 +74,7 @@ class Shortcodes {
 	/**
 	 * Extract a YouTube video or playlist ID from shortcode attributes.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.1.0
 	 *
 	 * @param string|array $atts Shortcode attributes. Can be just the URL string or the full $atts array.
 	 * @return string|false The YouTube video or playlist ID, or false on failure.
@@ -122,7 +122,7 @@ class Shortcodes {
 	 * Supports numeric IDs and various Vimeo URL formats including
 	 * groups, albums, channels, and player URLs.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.1.0
 	 *
 	 * @param array $atts Shortcode attributes.
 	 * @return int The Vimeo video ID, or 0 if not found.
@@ -157,7 +157,7 @@ class Shortcodes {
 	/**
 	 * Get the unique ID of a TED video from shortcode attributes.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.1.0
 	 *
 	 * @param array $atts Shortcode attributes.
 	 * @return string|int The TED video ID, or 0 if not found.
@@ -169,7 +169,7 @@ class Shortcodes {
 	/**
 	 * Get a VideoPress ID from wpvideo shortcode attributes.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.1.0
 	 *
 	 * @param array $atts Shortcode attributes.
 	 * @return string|int The VideoPress ID, or 0 if not found.
@@ -181,7 +181,7 @@ class Shortcodes {
 	/**
 	 * Get a VideoPress ID from videopress shortcode attributes.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.1.0
 	 *
 	 * @param array $atts Shortcode attributes.
 	 * @return string|int The VideoPress ID, or 0 if not found.
@@ -193,7 +193,7 @@ class Shortcodes {
 	/**
 	 * Get a Hulu video ID from shortcode attributes.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.1.0
 	 *
 	 * @param array $atts Shortcode attributes.
 	 * @return string|int The Hulu video ID, or 0 if not found.
@@ -208,7 +208,7 @@ class Shortcodes {
 	 * Extracts the identifier from an Archive.org details or embed URL,
 	 * or uses the raw attribute value if it is not a URL.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.1.0
 	 *
 	 * @param array $atts Shortcode attributes.
 	 * @return string|int The Archive.org identifier, the raw attribute value
@@ -233,7 +233,7 @@ class Shortcodes {
 	 * Extracts the identifier from an Archive.org stream URL,
 	 * or uses the raw attribute value if it is not a URL.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.1.0
 	 *
 	 * @param array $atts Shortcode attributes.
 	 * @return string|int The Archive.org book identifier, the raw attribute value

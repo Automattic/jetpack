@@ -6,6 +6,7 @@
  */
 
 use Automattic\Jetpack\Device_Detection\User_Agent_Info;
+use Automattic\Jetpack\Post_Media\Images;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
@@ -2709,11 +2710,9 @@ class Share_Pinterest extends Sharing_Source {
 	 * @return string
 	 */
 	public function get_image( $post ) {
-		if ( class_exists( 'Jetpack_PostImages' ) ) {
-			$image = Jetpack_PostImages::get_image( $post->ID, array( 'fallback_to_avatars' => true ) );
-			if ( ! empty( $image ) ) {
-				return $image['src'];
-			}
+		$image = Images::get_image( $post->ID, array( 'fallback_to_avatars' => true ) );
+		if ( ! empty( $image ) ) {
+			return $image['src'];
 		}
 
 		/**

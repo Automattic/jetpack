@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Listener: Replace redundant filter_var with sanitize_text_field for user agent sanitization.

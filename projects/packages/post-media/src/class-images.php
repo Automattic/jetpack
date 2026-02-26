@@ -709,7 +709,7 @@ class Images {
 			 * for Related Posts, Open Graph tags, and other features. Returning a truthy
 			 * value causes the image to be skipped.
 			 *
-			 * @since $$next-version$$
+			 * @since 0.1.0
 			 *
 			 * @param bool  $exclude Whether to exclude the image. Default false.
 			 * @param array $image   {

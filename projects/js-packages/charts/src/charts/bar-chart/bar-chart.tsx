@@ -12,7 +12,7 @@ import {
 	useChartDataTransform,
 	useZeroValueDisplay,
 	useChartMargin,
-	useElementHeight,
+	useElementSize,
 	useHasLegendChild,
 	usePrefersReducedMotion,
 } from '../../hooks';
@@ -32,7 +32,6 @@ import { useBarChartOptions } from './private';
 import type { BaseChartProps, DataPointDate, SeriesData, Optional } from '../../types';
 import type { ResponsiveConfig } from '../private/with-responsive';
 import type { RenderTooltipParams } from '@visx/xychart/lib/components/Tooltip';
-import type { GapSize } from '@wordpress/theme';
 import type { FC, ReactNode, ComponentType } from 'react';
 
 export interface BarChartProps extends BaseChartProps< SeriesData[] > {
@@ -42,12 +41,6 @@ export interface BarChartProps extends BaseChartProps< SeriesData[] > {
 	showZeroValues?: boolean;
 	legendInteractive?: boolean;
 	children?: ReactNode;
-	/**
-	 * Gap between chart elements (SVG, legend, children).
-	 * Uses WordPress design system tokens.
-	 * @default 'md'
-	 */
-	gap?: GapSize;
 }
 
 // Base props type with optional responsive properties
@@ -125,7 +118,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	const legendItems = useChartLegendItems( dataSorted );
 	const chartOptions = useBarChartOptions( dataWithVisibleZeros, horizontal, options );
 	const defaultMargin = useChartMargin( height, chartOptions, dataSorted, theme, horizontal );
-	const [ svgWrapperRef, svgWrapperHeight ] = useElementHeight< HTMLDivElement >();
+	const [ svgWrapperRef, , svgWrapperHeight ] = useElementSize< HTMLDivElement >();
 	const chartRef = useRef< HTMLDivElement >( null );
 
 	// Check if children contain a Legend component (composition pattern)

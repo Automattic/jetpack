@@ -59,6 +59,7 @@ RUN --mount=type=cache,target=/var/lib/apt/lists/,sharing=private \
         "php${PHP_VERSION}-xml" \
         "php${PHP_VERSION}-zip" \
         rsync \
+        socat \
         locales \
         "nodejs$(apt-cache show nodejs | sed -n "/^Version: ${NODE_VERSION}-/ { s/^Version: /=/p; q }" )" \
     # Cleanup

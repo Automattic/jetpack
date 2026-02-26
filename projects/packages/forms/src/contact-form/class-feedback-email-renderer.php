@@ -428,9 +428,9 @@ class Feedback_Email_Renderer {
 		// Build the field row as a table with icon + content.
 		$html  = '<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="border-bottom: 1px solid #F0F0F0; padding: 0; margin: 0;">';
 		$html .= '<tr>';
-		$html .= '<td width="24" valign="top" style="padding: 18px 16px 20px 0; width: 24px; vertical-align: top;">';
+		$html .= '<td class="field-icon-cell" width="24" valign="top" style="padding: 18px 16px 20px 0; width: 24px; vertical-align: top; -webkit-user-select: none; user-select: none;">';
 		$html .= sprintf(
-			'<img src="%s" width="24" height="24" alt="" style="display: block; width: 24px; height: 24px;" />',
+			'<img src="%s" width="24" height="24" alt="" style="display: block; width: 24px; height: 24px; -webkit-user-select: none; user-select: none;" />',
 			esc_url( $icon_url )
 		);
 		$html .= '</td>';
@@ -497,8 +497,11 @@ class Feedback_Email_Renderer {
 	public static function add_plain_text_alternative( $phpmailer ) {
 		// phpcs:disable WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 
+		// Remove the preheader (hidden email preview text) so it doesn't duplicate the title in plain text.
+		$alt_body = preg_replace( '/<span class="preheader">.*?<\/span>/s', '', $phpmailer->Body );
+
 		// Add an extra break so that the extra space above the <p> is preserved after the <p> is stripped out.
-		$alt_body = str_replace( '<p>', '<p><br />', $phpmailer->Body );
+		$alt_body = str_replace( '<p>', '<p><br />', $alt_body );
 
 		// Convert <br> to \n breaks, to preserve the space between lines that we want to keep.
 		$alt_body = str_replace( array( '<br>', '<br />' ), "\n", $alt_body );
@@ -559,6 +562,7 @@ class Feedback_Email_Renderer {
 		 *
 		 * @param string the filename of the HTML template used for response emails to the form owner.
 		 */
+		$print_style = null; // May be set by the template file loaded below.
 		require apply_filters( 'jetpack_forms_response_email_template', __DIR__ . '/templates/email-response.php' );
 
 		/**
@@ -581,7 +585,7 @@ class Feedback_Email_Renderer {
 				<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" class="powered-by-table" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; margin-top: 24px;">
 					<tr>
 						<td align="center" class="powered-by" style="padding: 24px 0 0 0; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Oxygen-Sans, Ubuntu, Cantarell, \'Helvetica Neue\', sans-serif;">
-							<img src="' . esc_url( $logo_url ) . '" alt="Jetpack" width="20" height="20" style="vertical-align: middle; margin-right: 6px; border: 0; outline: none; text-decoration: none;">
+							<img src="' . esc_url( $logo_url ) . '" alt="Jetpack" width="20" height="20" style="vertical-align: middle; margin-right: 6px; border: 0; outline: none; text-decoration: none; -webkit-user-select: none; user-select: none;">
 							<span style="font-size: ' . self::FONT_SIZE_METADATA . '; color: #50575e; line-height: 20px;">' .
 					sprintf(
 						// translators: %1$s is a link to the Jetpack Forms page.
@@ -599,6 +603,10 @@ class Feedback_Email_Renderer {
 
 		// Generate metadata HTML.
 		$metadata_html = self::generate_metadata_html( $metadata );
+
+		// Minify CSS to stay under Gmail's 8,192-char limit for style blocks.
+		// The template file keeps readable formatting; we strip it here at render time.
+		$style = self::minify_css( $style );
 
 		$html_message = sprintf(
 			// The tabs are just here so that the raw code is correctly formatted for developers
@@ -620,6 +628,14 @@ class Feedback_Email_Renderer {
 			$respondent_html,
 			$metadata_html
 		);
+
+		// Inject print styles into <body> for Outlook.com compatibility (it strips <head> styles
+		// but preserves <body> styles). The same styles are already in <head> for Gmail and others.
+		// This is done after sprintf to avoid % signs in CSS being interpreted as format specifiers.
+		// @phan-suppress-next-line PhanRedundantCondition -- $print_style is set by the template file loaded via require above.
+		if ( ! empty( $print_style ) ) {
+			$html_message = str_replace( '</body>', '<style type="text/css">' . $print_style . '</style></body>', $html_message );
+		}
 
 		return $html_message;
 	}
@@ -658,14 +674,14 @@ class Feedback_Email_Renderer {
 
 		// Avatar content - either image or initials.
 		$avatar_content = ! empty( $avatar )
-			? '<img src="' . $avatar . '" alt="" width="48" height="48" style="border-radius: 24px;">'
+			? '<img src="' . $avatar . '" alt="" width="48" height="48" style="border-radius: 24px; vertical-align: middle;">'
 			: esc_html( $initials );
 
 		// Use table layout for maximum email client compatibility.
 		$html = '
 		<table role="presentation" border="0" cellpadding="0" cellspacing="0" class="respondent-table" width="100%" style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; margin-bottom: 16px;">
 			<tr>
-				<td class="respondent-avatar-cell" style="width: 64px; vertical-align: top; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Oxygen-Sans, Ubuntu, Cantarell, \'Helvetica Neue\', sans-serif;">
+				<td class="respondent-avatar-cell" style="width: 64px; vertical-align: middle; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Oxygen-Sans, Ubuntu, Cantarell, \'Helvetica Neue\', sans-serif;">
 					<!--[if mso]>
 					<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="48" height="48" style="width: 48px; height: 48px;">
 					<tr>
@@ -759,5 +775,29 @@ class Feedback_Email_Renderer {
 				<td class="metadata-label" style="color: #50575e; width: 100px; padding: 4px 12px 4px 0; font-size: ' . self::FONT_SIZE_METADATA . '; vertical-align: top; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Oxygen-Sans, Ubuntu, Cantarell, \'Helvetica Neue\', sans-serif; line-height: 1.4;">' . esc_html( $label ) . ':</td>
 				<td class="metadata-value" style="color: #1e1e1e; padding: 4px 0; font-size: ' . self::FONT_SIZE_METADATA . '; vertical-align: top; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Oxygen-Sans, Ubuntu, Cantarell, \'Helvetica Neue\', sans-serif; line-height: 1.4;">' . $value . '</td>
 			</tr>';
+	}
+
+	/**
+	 * Minify a CSS string by removing comments, collapsing whitespace,
+	 * and stripping unnecessary characters.
+	 *
+	 * Gmail imposes an 8,192-character limit across all <style> blocks.
+	 * This keeps the template file readable while fitting under the limit.
+	 *
+	 * @param string $css The CSS string (may include <style> tags).
+	 * @return string The minified CSS string.
+	 */
+	private static function minify_css( $css ) {
+		// Remove CSS comments.
+		$css = preg_replace( '/\/\*.*?\*\//s', '', $css );
+		// Collapse all whitespace (tabs, newlines, spaces) into single spaces.
+		$css = preg_replace( '/\s+/', ' ', $css );
+		// Remove spaces around CSS punctuation: { } ; : ,
+		$css = preg_replace( '/\s*([{};,])\s*/', '$1', $css );
+		// Remove space after colons in all contexts.
+		$css = preg_replace( '/:\s+/', ':', $css );
+		// Remove trailing semicolons before closing braces.
+		$css = str_replace( ';}', '}', $css );
+		return trim( $css );
 	}
 }

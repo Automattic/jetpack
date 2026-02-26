@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Twitter Cards: Use Automattic\Jetpack\Post_Media\Twitter_Cards instead of Jetpack_Twitter_Cards.

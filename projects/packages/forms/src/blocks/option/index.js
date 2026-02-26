@@ -62,6 +62,14 @@ const settings = {
 			type: 'boolean',
 			default: false,
 		},
+		isOther: {
+			type: 'boolean',
+			default: false,
+		},
+		otherPlaceholder: {
+			type: 'string',
+			default: __( 'Please specify…', 'jetpack-forms' ),
+		},
 	},
 	usesContext: [
 		'jetpack/field-default-value',
@@ -71,6 +79,11 @@ const settings = {
 	],
 	edit,
 	save,
+	__experimentalLabel: ( { isOther: isOtherOption } ) => {
+		const otherLabel = __( 'Option (other)', 'jetpack-forms' );
+		const defaultLabel = __( 'Option', 'jetpack-forms' );
+		return isOtherOption ? otherLabel : defaultLabel;
+	},
 };
 
 export default {

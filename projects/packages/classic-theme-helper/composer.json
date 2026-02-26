@@ -6,7 +6,8 @@
 	"require": {
 		"php": ">=7.2",
 		"automattic/jetpack-assets": "@dev",
-		"automattic/jetpack-blocks": "@dev"
+		"automattic/jetpack-blocks": "@dev",
+		"automattic/jetpack-post-media": "@dev"
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "^4.0.0",

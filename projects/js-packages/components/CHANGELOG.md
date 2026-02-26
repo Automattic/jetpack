@@ -2,6 +2,10 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## [1.4.15] - 2026-02-23
+### Changed
+- Update dependencies.
+
 ## [1.4.14] - 2026-02-18
 ### Changed
 - Set `.repository.url` in `package.json` to the mirror repo rather than the monorepo. [#47149]
@@ -1659,6 +1663,7 @@
 ### Changed
 - Update node version requirement to 14.16.1
 
+[1.4.15]: https://github.com/Automattic/jetpack-components/compare/1.4.14...1.4.15
 [1.4.14]: https://github.com/Automattic/jetpack-components/compare/1.4.13...1.4.14
 [1.4.13]: https://github.com/Automattic/jetpack-components/compare/1.4.12...1.4.13
 [1.4.12]: https://github.com/Automattic/jetpack-components/compare/1.4.11...1.4.12

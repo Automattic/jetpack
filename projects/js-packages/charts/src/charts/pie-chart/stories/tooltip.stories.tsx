@@ -45,11 +45,9 @@ const Template: StoryFn< typeof PieChart > = args => <PieChart { ...args } />;
 const tooltipStoryArgs = {
 	...sharedThemeArgs,
 	data,
-	size: 400,
 	withTooltips: true,
 	containerWidth: '432px',
 	containerHeight: '432px',
-	resize: 'none' as const,
 };
 
 export const Default: StoryObj< typeof PieChart > = Template.bind( {} );
@@ -261,13 +259,13 @@ export const TooltipOffset: StoryObj< typeof PieChart > = {
 			>
 				<div>
 					<h3>Default Offset (0, -15)</h3>
-					<PieChart { ...tooltipStoryArgs } size={ 300 } />
+					<PieChart { ...tooltipStoryArgs } height={ 300 } />
 				</div>
 				<div>
 					<h3>Custom Offset (20, -30)</h3>
 					<PieChart
 						{ ...tooltipStoryArgs }
-						size={ 300 }
+						height={ 300 }
 						tooltipOffsetX={ 20 }
 						tooltipOffsetY={ -30 }
 					/>
