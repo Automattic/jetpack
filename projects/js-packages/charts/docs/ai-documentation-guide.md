@@ -152,7 +152,9 @@ Description and use case:
 
 ### 7. Interactive Features
 
-Always include an Interactive Features section. Document the chart's interactive capabilities:
+Only include this section if the chart supports interactive features (e.g., tooltips, pointer events). Remove this section entirely if the chart has no interactive capabilities.
+
+Document the chart's interactive capabilities:
 
 - **Tooltips**: How to enable tooltips with `withTooltips`, custom rendering with `renderTooltip`, and crosshair options where supported
 - **Pointer Events**: Custom event handlers (`onPointerDown`, `onPointerMove`) if supported

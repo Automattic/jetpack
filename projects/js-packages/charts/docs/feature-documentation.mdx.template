@@ -97,6 +97,8 @@ For detailed information about all optional props, see the [[Component] [Feature
 
 ## Interactive Features
 
+[Only include this section if the chart supports interactive features such as tooltips or pointer events. Remove this section entirely if the chart has no interactive capabilities.]
+
 ### Tooltips
 
 Enable interactive tooltips that display data information on hover:
