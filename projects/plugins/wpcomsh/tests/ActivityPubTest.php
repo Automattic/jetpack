@@ -12,6 +12,30 @@ class ActivityPubTest extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
 	/**
+	 * Set up the mock connection owner ID before each test.
+	 */
+	public function set_up() {
+		parent::set_up();
+
+		// Set the memoized connection_owner_id to a valid user ID
+		// so tests reach the Actors::get_by_id() code path.
+		$prop = new \ReflectionProperty( \Automattic\Jetpack\Connection\Manager::class, 'connection_owner_id' );
+		$prop->setAccessible( true );
+		$prop->setValue( null, 1 );
+	}
+
+	/**
+	 * Reset the mock connection owner ID after each test.
+	 */
+	public function tear_down() {
+		$prop = new \ReflectionProperty( \Automattic\Jetpack\Connection\Manager::class, 'connection_owner_id' );
+		$prop->setAccessible( true );
+		$prop->setValue( null, null );
+
+		parent::tear_down();
+	}
+
+	/**
 	 * Tests that the filter hook is registered.
 	 */
 	public function test_filter_is_registered() {
@@ -37,6 +61,21 @@ class ActivityPubTest extends WP_UnitTestCase {
 		$args   = array( 'some-other-plugin/some-other-plugin.php', false );
 		$result = wpcomsh_activitypub_sync_plugin_activation( $args );
 
+		$this->assertSame( $args, $result );
+	}
+
+	/**
+	 * Tests that args are returned unchanged when there is no Jetpack connection owner.
+	 */
+	public function test_returns_args_unchanged_when_no_connection_owner() {
+		$prop = new \ReflectionProperty( \Automattic\Jetpack\Connection\Manager::class, 'connection_owner_id' );
+		$prop->setAccessible( true );
+		$prop->setValue( null, 0 );
+
+		$args   = array( 'activitypub/activitypub.php', false );
+		$result = wpcomsh_activitypub_sync_plugin_activation( $args );
+
+		$this->assertCount( 2, $result );
 		$this->assertSame( $args, $result );
 	}
 
