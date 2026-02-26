@@ -1,8 +1,4 @@
-import {
-	AdminPage as JetpackAdminPage,
-	Container,
-	JetpackProtectLogo,
-} from '@automattic/jetpack-components';
+import { AdminPage as JetpackAdminPage, Container } from '@automattic/jetpack-components';
 import { useConnection } from '@automattic/jetpack-connection';
 import { __, sprintf } from '@wordpress/i18n';
 import { useEffect } from 'react';
@@ -37,7 +33,7 @@ const AdminPage = ( { children } ) => {
 	return (
 		<JetpackAdminPage
 			moduleName={ __( 'Jetpack Protect', 'jetpack-protect' ) }
-			header={ <JetpackProtectLogo /> }
+			title={ __( 'Protect', 'jetpack-protect' ) }
 		>
 			{ notice && <Notice floating={ true } dismissable={ true } { ...notice } /> }
 			<Container horizontalSpacing={ 0 }>
