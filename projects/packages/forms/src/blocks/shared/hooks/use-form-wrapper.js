@@ -89,6 +89,19 @@ export function shouldWrapFieldInForm( currentPostType, parentForms ) {
 }
 
 /**
+ * Derives a form title from a block type name.
+ * Returns the block type's registered title (e.g. "Name field"),
+ * or a fallback "Untitled" string when the block type is not registered.
+ *
+ * @param {string} blockName - The registered block name (e.g. "jetpack-forms/name").
+ * @return {string} The derived form title.
+ */
+export function getFormTitleFromBlockType( blockName ) {
+	const blockType = getBlockType( blockName );
+	return blockType?.title || __( 'Untitled', 'jetpack-forms' );
+}
+
+/**
  *
  * Custom hook to wrap a field block in a form block when conditions are met.
  *
@@ -136,8 +149,7 @@ export default function useFormWrapper( { attributes, clientId, name } ) {
 		hasAttemptedWrap.current = true;
 
 		// Use block type title (e.g., "Name field") for the form title
-		const blockType = getBlockType( name );
-		const formTitle = blockType?.title || __( 'Untitled', 'jetpack-forms' );
+		const formTitle = getFormTitleFromBlockType( name );
 
 		const innerBlocks = getBlocks( clientId );
 
