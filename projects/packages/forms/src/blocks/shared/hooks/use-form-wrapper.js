@@ -1,5 +1,5 @@
 import { store as blockEditorStore } from '@wordpress/block-editor';
-import { createBlock } from '@wordpress/blocks';
+import { createBlock, getBlockType } from '@wordpress/blocks';
 import { store as coreStore } from '@wordpress/core-data';
 import { resolveSelect, useDispatch, useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
@@ -38,7 +38,7 @@ export function createFormBlockStructure( fieldBlockName, fieldAttributes, field
  * @param {object}   formBlock                     - The form block to convert.
  * @param {object}   fieldBlock                    - The field block inside the form.
  * @param {object}   submitButton                  - The submit button block.
- * @param {string}   postTitle                     - The title of the current post.
+ * @param {string}   formTitle                     - The title for the new form post.
  * @param {number}   currentPostId                 - The ID of the current post.
  * @param {Function} updateBlockAttributes         - Function to update block attributes.
  * @param {Function} markNextChangeAsNotPersistent - Function to mark changes as not persistent.
@@ -47,7 +47,7 @@ export async function convertFormToSynced(
 	formBlock,
 	fieldBlock,
 	submitButton,
-	postTitle,
+	formTitle,
 	currentPostId,
 	updateBlockAttributes,
 	markNextChangeAsNotPersistent
@@ -57,7 +57,7 @@ export async function convertFormToSynced(
 			attributes: {},
 			innerBlocks: [ fieldBlock, submitButton ],
 		},
-		postTitle,
+		formTitle,
 		currentPostId
 	);
 
@@ -105,22 +105,20 @@ export default function useFormWrapper( { attributes, clientId, name } ) {
 	// Feature flag for central form management
 	const isCentralFormManagementEnabled = useConfigValue( 'isCentralFormManagementEnabled' );
 
-	const { parentForms, postTitle, currentPostId, currentPostType, wasBlockJustInserted } =
-		useSelect(
-			select => {
-				return {
-					parentForms: select( blockEditorStore ).getBlockParentsByBlockName(
-						clientId,
-						FORM_BLOCK_NAME
-					),
-					postTitle: select( editorStore ).getEditedPostAttribute( 'title' ) || 'Untitled',
-					currentPostId: select( editorStore ).getEditedPostAttribute( 'id' ),
-					currentPostType: select( editorStore ).getCurrentPostType(),
-					wasBlockJustInserted: select( blockEditorStore ).wasBlockJustInserted( clientId ),
-				};
-			},
-			[ clientId ]
-		);
+	const { parentForms, currentPostId, currentPostType, wasBlockJustInserted } = useSelect(
+		select => {
+			return {
+				parentForms: select( blockEditorStore ).getBlockParentsByBlockName(
+					clientId,
+					FORM_BLOCK_NAME
+				),
+				currentPostId: select( editorStore ).getEditedPostAttribute( 'id' ),
+				currentPostType: select( editorStore ).getCurrentPostType(),
+				wasBlockJustInserted: select( blockEditorStore ).wasBlockJustInserted( clientId ),
+			};
+		},
+		[ clientId ]
+	);
 
 	// Guard against StrictMode double-invocation and re-renders
 	const hasAttemptedWrap = useRef( false );
@@ -137,10 +135,16 @@ export default function useFormWrapper( { attributes, clientId, name } ) {
 
 		hasAttemptedWrap.current = true;
 
+		// Use block type title (e.g., "Name field") for the form title
+		const blockType = getBlockType( name );
+		const formTitle = blockType?.title || __( 'Untitled', 'jetpack-forms' );
+
+		const innerBlocks = getBlocks( clientId );
+
 		const { formBlock, fieldBlock, submitButton } = createFormBlockStructure(
 			name,
 			attributes,
-			getBlocks( clientId )
+			innerBlocks
 		);
 
 		// Replace field with form (immediate visual feedback)
@@ -154,7 +158,7 @@ export default function useFormWrapper( { attributes, clientId, name } ) {
 				formBlock,
 				fieldBlock,
 				submitButton,
-				postTitle,
+				formTitle,
 				currentPostId,
 				updateBlockAttributes,
 				__unstableMarkNextChangeAsNotPersistent
