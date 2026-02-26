@@ -385,8 +385,7 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 			}
 
 			const postEmailResolved =
-				status !== 'publish' ||
-				( !! postId && hasFinishedResolution( 'getPostEmailSentState', [ postId ] ) );
+				! postId || hasFinishedResolution( 'getPostEmailSentState', [ postId ] );
 
 			return {
 				hasFinishedLoading: [
@@ -409,7 +408,7 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 					: false,
 			};
 		},
-		[ status, postId ]
+		[ postId ]
 	);
 
 	if ( ! hasFinishedLoading ) {
