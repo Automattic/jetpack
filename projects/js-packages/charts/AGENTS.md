@@ -102,7 +102,7 @@ For docs-heavy tasks with many repeated steps, agents may use the optional skill
 ## Common Pitfalls
 
 - Claiming Rollup is used for charts builds.
-- Referring to non-existent wildcard exports like `./*` or `./providers/*`.
+- Referring to wildcard exports like `./*` or `./providers/*` (which don't exist). Use explicit exports like `./providers` instead.
 - Updating `.docs.mdx` without the corresponding `.api.mdx` when API docs are affected.
 - Not checking CSF file references in `.docs.mdx` when changing or removing stories.
 - Documenting props or behavior not present in stories and implementation.
