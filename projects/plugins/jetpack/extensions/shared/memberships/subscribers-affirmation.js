@@ -233,23 +233,36 @@ function getCategoryNamesFromStats( postCategories, newsletterCategories ) {
 
 /**
  * Get access level label for "was emailed to X" copy from stats access_level string.
+ * Stats meta appends tier name after ': ' when a tier is selected (e.g. paid_subscribers: Premium).
  *
- * @param {string} accessLevel - e.g. 'everybody', 'subscribers', 'paid_subscribers'
- * @return {string} Access level label for display (e.g. "all subscribers", "paid subscribers").
+ * @param {string} accessLevel - e.g. 'everybody', 'subscribers', 'paid_subscribers', 'paid_subscribers: Premium'
+ * @return {string} Access level label for display (e.g. "all subscribers", "paid subscribers (Premium)").
  */
 function getAccessLevelLabelFromStats( accessLevel ) {
 	if ( ! accessLevel ) return __( 'all subscribers', 'jetpack' );
 	const key = accessLevel.startsWith( 'paid_subscribers' ) ? 'paid_subscribers' : accessLevel;
+	const tierMatch = accessLevel.match( /^paid_subscribers:\s*(.+)$/ );
+	const tierName = tierMatch ? tierMatch[ 1 ].trim() : null;
+
+	let label;
 	switch ( key ) {
 		case 'everybody':
-			return __( 'all subscribers', 'jetpack' );
+			label = __( 'all subscribers', 'jetpack' );
+			break;
 		case 'subscribers':
-			return __( 'all subscribers', 'jetpack' );
+			label = __( 'all subscribers', 'jetpack' );
+			break;
 		case 'paid_subscribers':
-			return __( 'paid subscribers', 'jetpack' );
+			label = __( 'paid subscribers', 'jetpack' );
+			break;
 		default:
-			return __( 'all subscribers', 'jetpack' );
+			label = __( 'all subscribers', 'jetpack' );
 	}
+
+	if ( tierName && key === 'paid_subscribers' ) {
+		return `${ label } (${ tierName })`;
+	}
+	return label;
 }
 
 /**
