@@ -112,6 +112,42 @@ For more control, you can use LineChart with minimal chrome. This is what Sparkl
 	/>` }
 />
 
+## Dashboard Integration
+
+### Metric Cards
+
+Sparklines work great alongside metrics in dashboard cards:
+
+<Canvas of={ SparklineStories.Dashboard } />
+
+<Source
+	language="jsx"
+	code={ `const metrics = [
+		{ label: 'Speeding up', value: 28, data: [10, 15, 12, 18, 22, 25, 23, 28], color: '#4CAF50' },
+		{ label: 'Efficient', value: 90, data: [80, 82, 85, 83, 87, 90, 88, 92], color: '#2196F3' },
+		{ label: 'Unstable', value: 65, data: [50, 75, 45, 80, 40, 85, 55, 65], color: '#FF9800' },
+	];
+
+	return (
+		<div style={{ display: 'flex', gap: '24px' }}>
+			{metrics.map(metric => (
+				<div key={metric.label} className="metric-card">
+					<div className="metric-header">
+						<span>{metric.label}</span>
+						<span>{metric.value}</span>
+					</div>
+					<Sparkline
+						data={metric.data}
+						width={180}
+						height={48}
+						color={metric.color}
+					/>
+				</div>
+			))}
+		</div>
+	);` }
+/>
+
 ## Styling and Customization
 
 ### Trend Colors
@@ -149,42 +185,6 @@ Disable the gradient for a cleaner line-only appearance, or customize it:
 	/>` }
 />
 
-## Dashboard Integration
-
-### Metric Cards
-
-Sparklines work great alongside metrics in dashboard cards:
-
-<Canvas of={ SparklineStories.Dashboard } />
-
-<Source
-	language="jsx"
-	code={ `const metrics = [
-		{ label: 'Speeding up', value: 28, data: [10, 15, 12, 18, 22, 25, 23, 28], color: '#4CAF50' },
-		{ label: 'Efficient', value: 90, data: [80, 82, 85, 83, 87, 90, 88, 92], color: '#2196F3' },
-		{ label: 'Unstable', value: 65, data: [50, 75, 45, 80, 40, 85, 55, 65], color: '#FF9800' },
-	];
-
-	return (
-		<div style={{ display: 'flex', gap: '24px' }}>
-			{metrics.map(metric => (
-				<div key={metric.label} className="metric-card">
-					<div className="metric-header">
-						<span>{metric.label}</span>
-						<span>{metric.value}</span>
-					</div>
-					<Sparkline
-						data={metric.data}
-						width={180}
-						height={48}
-						color={metric.color}
-					/>
-				</div>
-			))}
-		</div>
-	);` }
-/>
-
 ## Theming Integration
 
 Sparklines integrate seamlessly with the chart theming system. The default theme has neutral colors and styling, and is automatically applied to all charts unless a custom theme is provided. A custom theme can be provided by wrapping your chart in `GlobalChartsProvider` and passing a custom theme object with the properties you want to override to the `theme` prop:
@@ -201,6 +201,27 @@ Sparklines integrate seamlessly with the chart theming system. The default theme
 		<Sparkline data={[10, 15, 12, 18]} />
 	</GlobalChartsProvider>` }
 />
+
+## Responsive Behavior
+
+The default `Sparkline` export includes responsive behavior. By default, it **fills its parent container's dimensions**:
+
+<Canvas of={ SparklineStories.Responsive } />
+
+<Source
+	language="jsx"
+	code={ `// Fill parent container (default) - parent needs explicit height
+	<div style={{ width: '200px', height: '60px' }}>
+		<Sparkline data={[10, 15, 12, 18, 22, 25]} color="#9C27B0" />
+	</div>
+
+	// Use aspect ratio - height calculated from width
+	<div style={{ width: '100%', maxWidth: '200px' }}>
+		<Sparkline data={[10, 15, 12, 18, 22, 25]} color="#9C27B0" aspectRatio={0.3} />
+	</div>` }
+/>
+
+For more details on responsive behavior, see the [Responsive Design section](./?path=/docs/js-packages-charts-library-introduction--docs#responsive-design) in the introduction.
 
 ## Animation
 
@@ -227,27 +248,6 @@ The Sparkline component supports an optional entry animation that creates a smoo
 - **Duration**: 1000ms (1 second) with ease-out timing
 
 **Note**: The animation plays once when the chart initially renders and does not repeat.
-
-## Responsive Behavior
-
-The default `Sparkline` export includes responsive behavior. By default, it **fills its parent container's dimensions**:
-
-<Canvas of={ SparklineStories.Responsive } />
-
-<Source
-	language="jsx"
-	code={ `// Fill parent container (default) - parent needs explicit height
-	<div style={{ width: '200px', height: '60px' }}>
-		<Sparkline data={[10, 15, 12, 18, 22, 25]} color="#9C27B0" />
-	</div>
-
-	// Use aspect ratio - height calculated from width
-	<div style={{ width: '100%', maxWidth: '200px' }}>
-		<Sparkline data={[10, 15, 12, 18, 22, 25]} color="#9C27B0" aspectRatio={0.3} />
-	</div>` }
-/>
-
-For more details on responsive behavior, see the [Responsive Design section](./?path=/docs/js-packages-charts-library-introduction--docs#responsive-design) in the introduction.
 
 ## Edge Cases
 

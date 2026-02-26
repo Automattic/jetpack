@@ -210,7 +210,20 @@ Use the standardized format from the `feature-documentation.mdx.template`. This 
 
 See the template for the complete section structure.
 
-### 11. Animation
+### 11. Responsive Behavior
+
+Always include a Responsive Behavior section. Charts are responsive by default and fill their parent container's dimensions. Document:
+
+- Default behavior (fills parent container, parent needs explicit height)
+- `aspectRatio` prop usage (height calculated from width)
+- Fixed `width`/`height` dimensions
+- Any chart-specific responsive nuances (e.g., aspect ratio constraints)
+
+End the section with a link to the Responsive Design section in the introduction.
+
+See the `feature-documentation.mdx.template` for the complete section structure.
+
+### 12. Animation
 
 Only include this section if the chart component supports animation (check the implementation for an `animation` prop). If animation is not supported, remove this section entirely.
 
@@ -224,19 +237,6 @@ When documenting animation:
   - Effect description (e.g., "radial wipe reveal effect")
   - Duration in milliseconds
 - Note that animation plays once on initial render and does not repeat
-
-See the `feature-documentation.mdx.template` for the complete section structure.
-
-### 12. Responsive Behavior
-
-Always include a Responsive Behavior section. Charts are responsive by default and fill their parent container's dimensions. Document:
-
-- Default behavior (fills parent container, parent needs explicit height)
-- `aspectRatio` prop usage (height calculated from width)
-- Fixed `width`/`height` dimensions
-- Any chart-specific responsive nuances (e.g., aspect ratio constraints)
-
-End the section with a link to the Responsive Design section in the introduction.
 
 See the `feature-documentation.mdx.template` for the complete section structure.
 
