@@ -7,8 +7,6 @@
 
 use Automattic\Jetpack\Extensions\ImageStudio;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\PreserveGlobalState;
-use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 
 require_once JETPACK__PLUGIN_DIR . '/extensions/plugins/image-studio/image-studio.php';
 require_once JETPACK__PLUGIN_DIR . '/extensions/plugins/ai-assistant-plugin/ai-assistant-plugin.php';
@@ -238,6 +236,25 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	}
 
 	// -------------------------------------------------------------------------
+	// has_ai_features() tests
+	// -------------------------------------------------------------------------
+
+	/**
+	 * No AI features when AI Assistant isn't available.
+	 */
+	public function test_has_ai_features_false_without_ai_assistant() {
+		$this->assertFalse( ImageStudio\has_ai_features() );
+	}
+
+	/**
+	 * AI features available when AI Assistant is registered.
+	 */
+	public function test_has_ai_features_true_with_ai_assistant() {
+		$this->enable_jp_ai_assistant();
+		$this->assertTrue( ImageStudio\has_ai_features() );
+	}
+
+	// -------------------------------------------------------------------------
 	// is_image_studio_enabled() tests
 	// -------------------------------------------------------------------------
 
@@ -298,22 +315,6 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 		$this->reset_availability();
 		$this->enable_unified_experience();
 		$this->assertFalse( ImageStudio\is_image_studio_enabled() );
-	}
-
-	/**
-	 * Enabled via filter when Big Sky is active.
-	 *
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
-	 */
-	#[PreserveGlobalState( false )]
-	#[RunInSeparateProcess]
-	public function test_is_enabled_via_filter_with_big_sky() {
-		require_once JETPACK__PLUGIN_DIR . '/extensions/plugins/image-studio/image-studio.php';
-		require_once __DIR__ . '/mocks/class-big-sky.php';
-
-		add_filter( 'jetpack_image_studio_enabled', '__return_true' );
-		$this->assertTrue( ImageStudio\is_image_studio_enabled() );
 	}
 
 	/**

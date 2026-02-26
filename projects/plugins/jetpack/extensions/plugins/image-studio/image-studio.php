@@ -41,13 +41,19 @@ function is_image_studio_enabled() {
 }
 
 /**
- * Check whether AI features are available (Big Sky or AI Assistant).
+ * Check whether AI features are available.
+ *
+ * On wpcom / atomic, checks the Big Sky feature flag. On self-hosted, checks
+ * whether the AI Assistant extension is available.
  *
  * @return bool
  */
 function has_ai_features() {
-	return ( class_exists( 'Big_Sky' ) && \Big_Sky::$enabled )
-		|| \Jetpack_Gutenberg::is_available( 'ai-assistant-plugin' );
+	if ( ( new \Automattic\Jetpack\Status\Host() )->is_wpcom_platform() ) {
+		return function_exists( 'wpcom_site_has_feature' ) && wpcom_site_has_feature( 'big-sky' );
+	} else {
+		return \Jetpack_Gutenberg::is_available( 'ai-assistant-plugin' );
+	}
 }
 
 /**
