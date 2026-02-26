@@ -20,7 +20,10 @@ class ActivityPubTest extends WP_UnitTestCase {
 		// Set the memoized connection_owner_id to a valid user ID
 		// so tests reach the Actors::get_by_id() code path.
 		$prop = new \ReflectionProperty( \Automattic\Jetpack\Connection\Manager::class, 'connection_owner_id' );
-		$prop->setAccessible( true );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$prop->setAccessible( true );
+		}
 		$prop->setValue( null, 1 );
 	}
 
@@ -29,7 +32,10 @@ class ActivityPubTest extends WP_UnitTestCase {
 	 */
 	public function tear_down() {
 		$prop = new \ReflectionProperty( \Automattic\Jetpack\Connection\Manager::class, 'connection_owner_id' );
-		$prop->setAccessible( true );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$prop->setAccessible( true );
+		}
 		$prop->setValue( null, null );
 
 		parent::tear_down();
@@ -69,7 +75,10 @@ class ActivityPubTest extends WP_UnitTestCase {
 	 */
 	public function test_returns_args_unchanged_when_no_connection_owner() {
 		$prop = new \ReflectionProperty( \Automattic\Jetpack\Connection\Manager::class, 'connection_owner_id' );
-		$prop->setAccessible( true );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$prop->setAccessible( true );
+		}
 		$prop->setValue( null, 0 );
 
 		$args   = array( 'activitypub/activitypub.php', false );
