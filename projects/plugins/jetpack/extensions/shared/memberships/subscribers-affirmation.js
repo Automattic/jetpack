@@ -349,6 +349,7 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 	);
 
 	const isSendEmailEnabled = () => {
+		// Meta value is negated, "don't send", but toggle is truthy when enabled "send"
 		return ! postMeta?.[ META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS ];
 	};
 
