@@ -315,6 +315,8 @@ class Contact_Form extends Contact_Form_Shortcode {
 			return '';
 		}
 
+		wp_enqueue_style( 'jetpack-form-status-notice' );
+
 		$config     = $status_config[ $status ];
 		$type_class = 'info' === $config['type'] ? 'jetpack-form-status-notice--info' : 'jetpack-form-status-notice--warning';
 		$edit_url   = get_edit_post_link( $synced_form->ID, 'raw' );
@@ -1564,13 +1566,34 @@ class Contact_Form extends Contact_Form_Shortcode {
 			$is_submit_by_class = $p->has_class( 'is-submit' ) || $p->has_class( 'form-button-submit' );
 
 			if ( $is_submit_by_type || $is_submit_by_class ) {
-				$p->set_attribute( 'data-wp-class--is-submitting', 'state.isSubmitting' );
-				$p->set_attribute( 'data-wp-bind--aria-disabled', 'state.isAriaDisabled' );
-				$p->set_attribute( 'data-wp-bind--disabled', 'state.isAriaDisabled' );
+				self::add_submit_button_interactivity_attributes( $p );
 			}
 		}
 
 		return $p->get_updated_html();
+	}
+
+	/**
+	 * Adds Interactivity API attributes to the current element in a WP_HTML_Tag_Processor.
+	 *
+	 * Sets data-wp-class, data-wp-bind--aria-disabled, and data-wp-bind--disabled
+	 * on the submit button so the Interactivity API can toggle visual feedback
+	 * (spinner class, disabled state) while the form is submitting.
+	 *
+	 * Called from both single-step forms (prepare_submit_button) and multi-step
+	 * forms (gutenblock_render_form_step_navigation) to keep the attribute list
+	 * in one place.
+	 *
+	 * @param \WP_HTML_Tag_Processor $processor Tag processor positioned on a <button> element.
+	 * @return void
+	 */
+	public static function add_submit_button_interactivity_attributes( $processor ) {
+		if ( ! $processor || ! is_a( $processor, \WP_HTML_Tag_Processor::class ) ) {
+			return;
+		}
+		$processor->set_attribute( 'data-wp-class--is-submitting', 'state.isSubmitting' );
+		$processor->set_attribute( 'data-wp-bind--aria-disabled', 'state.isAriaDisabled' );
+		$processor->set_attribute( 'data-wp-bind--disabled', 'state.isAriaDisabled' );
 	}
 
 	/**

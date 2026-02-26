@@ -545,6 +545,7 @@ function StageInner() {
 
 	const {
 		breadcrumbs,
+		badges,
 		subtitle,
 		actions: headerActions,
 	} = usePageHeaderDetails( {
@@ -570,6 +571,7 @@ function StageInner() {
 		<Page
 			showSidebarToggle={ false }
 			breadcrumbs={ breadcrumbs }
+			badges={ badges }
 			subTitle={ subtitle }
 			actions={ headerActions }
 			hasPadding={ false }

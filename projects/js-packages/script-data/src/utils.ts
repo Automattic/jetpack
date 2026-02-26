@@ -1,4 +1,4 @@
-import { CurrentUserData } from './types.ts';
+import { CurrentUserData, SiteType } from './types.ts';
 
 /**
  * Get the script data from the window object.
@@ -109,6 +109,24 @@ export function isWpcomPlatformSite() {
  */
 export function isJetpackSelfHostedSite() {
 	return getScriptData()?.site?.host === 'unknown';
+}
+
+/**
+ * Get the site type category.
+ * Useful for analytics tracking and conditional UI logic.
+ *
+ * @return {SiteType} The site type: 'simple', 'woa', or 'jetpack'.
+ */
+export function getSiteType(): SiteType {
+	if ( isSimpleSite() ) {
+		return 'simple';
+	}
+
+	if ( isWoASite() ) {
+		return 'woa';
+	}
+
+	return 'jetpack';
 }
 
 /**

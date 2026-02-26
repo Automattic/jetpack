@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Use the new Post_Media Images class instead of Jetpack_PostImages for featured image fallbacks.

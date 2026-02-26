@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Listener: Add per-request in-memory cache to avoid repeated get_transient calls when checking queue state.

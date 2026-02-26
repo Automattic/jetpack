@@ -340,6 +340,58 @@ class Jetpack_Sync_Listener_Test extends Jetpack_Sync_TestBase {
 		}
 	}
 
+	public function test_request_cache_reduces_get_transient_calls() {
+		$transient_calls = 0;
+		add_filter(
+			'pre_transient_jetpack_sync_last_checked_queue_state_sync',
+			function ( $pre ) use ( &$transient_calls ) {
+				$transient_calls++;
+				return $pre;
+			},
+			0
+		);
+
+		add_action( 'my_action', array( $this->listener, 'action_handler' ) );
+		$this->listener->force_recheck_queue_limit();
+
+		do_action( 'my_action' );
+		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement - intentional for testing.
+		do_action( 'my_action' );
+		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement - intentional for testing.
+		do_action( 'my_action' );
+
+		remove_action( 'my_action', array( $this->listener, 'action_handler' ) );
+
+		$this->assertSame( 1, $transient_calls );
+	}
+
+	public function test_request_cache_invalidates_after_threshold() {
+		$transient_calls = 0;
+		add_filter(
+			'pre_transient_jetpack_sync_last_checked_queue_state_sync',
+			function ( $pre ) use ( &$transient_calls ) {
+				$transient_calls++;
+				return $pre;
+			},
+			0
+		);
+
+		add_action( 'my_action', array( $this->listener, 'action_handler' ) );
+		$this->listener->force_recheck_queue_limit();
+
+		// Fire one more than the invalidation threshold: the first item causes a transient
+		// read, items 2–50 hit the in-memory cache, and item 51 causes a second
+		// transient read after the cache is invalidated at the 50-item threshold.
+		$threshold = \Automattic\Jetpack\Sync\Listener::REQUEST_STATE_CACHE_INVALIDATE_AFTER;
+		for ( $i = 0; $i < $threshold + 1; $i++ ) {
+			do_action( 'my_action' );
+		}
+
+		remove_action( 'my_action', array( $this->listener, 'action_handler' ) );
+
+		$this->assertSame( 2, $transient_calls );
+	}
+
 	public function get_page_url() {
 		return 'http' . ( isset( $_SERVER['HTTPS'] ) ? 's' : '' ) . '://' . "{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}";
 	}

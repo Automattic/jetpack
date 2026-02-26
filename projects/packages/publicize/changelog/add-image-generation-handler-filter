@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Social: Add `jetpack.ai.imageGenerationHandler` filter to allow external plugins (e.g. Image Studio) to replace the built-in AI image generation flow for the "Generate image" entry point.

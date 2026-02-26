@@ -1,0 +1,13 @@
+/**
+ * Inline icon in a menu title
+ */
+.inline-icon {
+	font-size: 16px;
+	opacity: 0.8;
+	position: absolute;
+	right: 8px;
+}
+
+body.is-nav-unification .inline-icon {
+	right: 16px;
+}
