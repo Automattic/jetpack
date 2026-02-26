@@ -14,6 +14,7 @@ const mockBatch = jest.fn( callback => callback() );
 let mockHasFeatureFlag = true;
 let mockCurrentPostType = 'post';
 let mockCurrentPostId = 123;
+let mockWasBlockJustInserted = true;
 
 await jest.unstable_mockModule( '@automattic/jetpack-shared-extension-utils', () => ( {
 	hasFeatureFlag: flag => {
@@ -22,6 +23,10 @@ await jest.unstable_mockModule( '@automattic/jetpack-shared-extension-utils', ()
 		}
 		return false;
 	},
+} ) );
+
+await jest.unstable_mockModule( '@wordpress/block-editor', () => ( {
+	store: 'core/block-editor',
 } ) );
 
 await jest.unstable_mockModule( '@wordpress/blocks', () => ( {
@@ -44,10 +49,20 @@ await jest.unstable_mockModule( '@wordpress/data', () => ( {
 	useSelect: selector => {
 		// The selector function expects to receive a `select` function
 		// that takes a store name and returns selectors for that store
-		const select = () => ( {
-			getCurrentPostType: () => mockCurrentPostType,
-			getCurrentPostId: () => mockCurrentPostId,
-		} );
+		const select = store => {
+			if ( store === 'core/editor' ) {
+				return {
+					getCurrentPostType: () => mockCurrentPostType,
+					getCurrentPostId: () => mockCurrentPostId,
+				};
+			}
+			if ( store === 'core/block-editor' ) {
+				return {
+					wasBlockJustInserted: () => mockWasBlockJustInserted,
+				};
+			}
+			return {};
+		};
 		return selector( select );
 	},
 	useDispatch: store => {
@@ -120,6 +135,7 @@ const { useCreateSyncedFormOnInsertion } = await import(
 
 describe( 'useCreateSyncedFormOnInsertion', () => {
 	const defaultProps = {
+		clientId: 'test-client-id',
 		ref: undefined,
 		innerBlocks: [
 			{ name: 'jetpack/field-name', innerBlocks: [] },
@@ -136,6 +152,7 @@ describe( 'useCreateSyncedFormOnInsertion', () => {
 		mockHasFeatureFlag = true;
 		mockCurrentPostType = 'post';
 		mockCurrentPostId = 123;
+		mockWasBlockJustInserted = true;
 		mockCreateSyncedForm.mockResolvedValue( 42 );
 	} );
 
@@ -260,117 +277,46 @@ describe( 'useCreateSyncedFormOnInsertion', () => {
 		consoleSpy.mockRestore();
 	} );
 
-	it( 'identifies feedback form by rating field', async () => {
-		const feedbackProps = {
+	it( 'does not create synced form when block was not just inserted', async () => {
+		mockWasBlockJustInserted = false;
+
+		renderHook( () => useCreateSyncedFormOnInsertion( defaultProps ) );
+
+		// Wait a bit to ensure no async calls
+		await new Promise( resolve => setTimeout( resolve, 100 ) );
+
+		expect( mockCreateSyncedForm ).not.toHaveBeenCalled();
+	} );
+
+	it( 'uses variationName attribute to get form title', async () => {
+		const propsWithVariationName = {
 			...defaultProps,
-			innerBlocks: [
-				{ name: 'jetpack/field-name', innerBlocks: [] },
-				{ name: 'jetpack/field-email', innerBlocks: [] },
-				{ name: 'jetpack/field-rating', innerBlocks: [] },
-				{ name: 'core/button', innerBlocks: [] },
-			],
-			attributes: {},
+			attributes: { variationName: 'default' },
 		};
 
-		renderHook( () => useCreateSyncedFormOnInsertion( feedbackProps ) );
+		renderHook( () => useCreateSyncedFormOnInsertion( propsWithVariationName ) );
 
 		await waitFor( () => {
 			expect( mockCreateSyncedForm ).toHaveBeenCalledWith(
 				expect.anything(),
-				'Feedback Form',
+				'Contact Form',
 				expect.anything()
 			);
 		} );
 	} );
 
-	it( 'identifies appointment form by date field', async () => {
-		const appointmentProps = {
+	it( 'falls back to generic Form title when no variationName', async () => {
+		const propsWithoutVariationName = {
 			...defaultProps,
-			innerBlocks: [
-				{ name: 'jetpack/field-name', innerBlocks: [] },
-				{ name: 'jetpack/field-email', innerBlocks: [] },
-				{ name: 'jetpack/field-date', innerBlocks: [] },
-				{ name: 'core/button', innerBlocks: [] },
-			],
 			attributes: {},
 		};
 
-		renderHook( () => useCreateSyncedFormOnInsertion( appointmentProps ) );
+		renderHook( () => useCreateSyncedFormOnInsertion( propsWithoutVariationName ) );
 
 		await waitFor( () => {
 			expect( mockCreateSyncedForm ).toHaveBeenCalledWith(
 				expect.anything(),
-				'Appointment Form',
-				expect.anything()
-			);
-		} );
-	} );
-
-	it( 'identifies RSVP form by radio field without phone', async () => {
-		const rsvpProps = {
-			...defaultProps,
-			innerBlocks: [
-				{ name: 'jetpack/field-name', innerBlocks: [] },
-				{ name: 'jetpack/field-email', innerBlocks: [] },
-				{ name: 'jetpack/field-radio', innerBlocks: [] },
-				{ name: 'core/button', innerBlocks: [] },
-			],
-			attributes: {},
-		};
-
-		renderHook( () => useCreateSyncedFormOnInsertion( rsvpProps ) );
-
-		await waitFor( () => {
-			expect( mockCreateSyncedForm ).toHaveBeenCalledWith(
-				expect.anything(),
-				'RSVP Form',
-				expect.anything()
-			);
-		} );
-	} );
-
-	it( 'identifies registration form by phone and select fields', async () => {
-		const registrationProps = {
-			...defaultProps,
-			innerBlocks: [
-				{ name: 'jetpack/field-name', innerBlocks: [] },
-				{ name: 'jetpack/field-email', innerBlocks: [] },
-				{ name: 'jetpack/field-telephone', innerBlocks: [] },
-				{ name: 'jetpack/field-select', innerBlocks: [] },
-				{ name: 'core/button', innerBlocks: [] },
-			],
-			attributes: {},
-		};
-
-		renderHook( () => useCreateSyncedFormOnInsertion( registrationProps ) );
-
-		await waitFor( () => {
-			expect( mockCreateSyncedForm ).toHaveBeenCalledWith(
-				expect.anything(),
-				'Registration Form',
-				expect.anything()
-			);
-		} );
-	} );
-
-	it( 'identifies lead capture form by consent field', async () => {
-		const leadCaptureProps = {
-			...defaultProps,
-			innerBlocks: [
-				{ name: 'jetpack/field-name', innerBlocks: [] },
-				{ name: 'jetpack/field-email', innerBlocks: [] },
-				{ name: 'jetpack/field-consent', innerBlocks: [] },
-				{ name: 'core/button', innerBlocks: [] },
-			],
-			attributes: {},
-		};
-
-		renderHook( () => useCreateSyncedFormOnInsertion( leadCaptureProps ) );
-
-		await waitFor( () => {
-			expect( mockCreateSyncedForm ).toHaveBeenCalledWith(
-				expect.anything(),
-				'Lead capture',
+				'Form',
 				expect.anything()
 			);
 		} );

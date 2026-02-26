@@ -7,6 +7,7 @@
  */
 
 import { hasFeatureFlag } from '@automattic/jetpack-shared-extension-utils';
+import { store as blockEditorStore } from '@wordpress/block-editor';
 import { createBlock, type Block } from '@wordpress/blocks';
 import { useSelect, useDispatch, useRegistry } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
@@ -18,6 +19,7 @@ import { createSyncedForm } from '../util/create-synced-form.ts';
 import variations from '../variations.js';
 
 interface UseCreateSyncedFormOnInsertionProps {
+	clientId: string;
 	ref: number | undefined;
 	innerBlocks: Block[];
 	attributes: Record< string, unknown >;
@@ -25,91 +27,22 @@ interface UseCreateSyncedFormOnInsertionProps {
 }
 
 /**
- * Get the variation title from attributes or inner blocks structure.
- * If the form matches a known variation template, returns that variation's title.
- * If the form has inner blocks but doesn't match a known template, returns a generic "Form" title.
- * If the form has no inner blocks, returns undefined.
+ * Get the variation title from the variationName attribute.
  *
- * @param {Record<string, unknown>} attributes  - Block attributes.
- * @param {Block[]}                 innerBlocks - Inner blocks of the form.
- * @return {string | undefined} The variation title, a generic "Form" title, or undefined when there are no inner blocks.
+ * @param {Record<string, unknown>} attributes - Block attributes.
+ * @return {string | undefined} The variation title, or undefined if no variationName.
  */
-function getVariationTitleFromAttributes(
-	attributes: Record< string, unknown >,
-	innerBlocks: Block[]
-): string | undefined {
-	// First check if there's a variationName attribute that matches a known variation
+function getVariationTitle( attributes: Record< string, unknown > ): string | undefined {
 	const variationName = attributes.variationName as string | undefined;
-	if ( variationName ) {
-		const matchingVariation = variations.find( v => {
-			// Check if the variation's attributes include this variationName
-			return (
-				v.attributes?.variationName === variationName ||
-				( v.name === 'contact-form' && variationName === 'default' )
-			);
-		} );
-		if ( matchingVariation ) {
-			return matchingVariation.title;
-		}
-	}
-
-	// If no variationName, try to match by inner blocks structure
-	// This is a simple heuristic based on the number and types of inner blocks
-	if ( innerBlocks.length === 0 ) {
+	if ( ! variationName ) {
 		return undefined;
 	}
 
-	// Look for specific patterns that identify variations
-	const blockNames = innerBlocks.map( b => b.name );
+	const matchingVariation = variations.find(
+		v => v.attributes?.variationName === variationName || v.name === variationName
+	);
 
-	// Rating field is unique to feedback form
-	if ( blockNames.includes( 'jetpack/field-rating' ) ) {
-		const feedbackVariation = variations.find( v => v.name === 'feedback-form' );
-		return feedbackVariation?.title;
-	}
-
-	// Date field is unique to appointment form
-	if ( blockNames.includes( 'jetpack/field-date' ) ) {
-		const appointmentVariation = variations.find( v => v.name === 'appointment-form' );
-		return appointmentVariation?.title;
-	}
-
-	// Radio field with name/email suggests RSVP (no date/phone)
-	if (
-		blockNames.includes( 'jetpack/field-radio' ) &&
-		! blockNames.includes( 'jetpack/field-telephone' )
-	) {
-		const rsvpVariation = variations.find( v => v.name === 'rsvp-form' );
-		return rsvpVariation?.title;
-	}
-
-	// Phone + select suggests registration form
-	if (
-		blockNames.includes( 'jetpack/field-telephone' ) &&
-		blockNames.includes( 'jetpack/field-select' )
-	) {
-		const registrationVariation = variations.find( v => v.name === 'registration-form' );
-		return registrationVariation?.title;
-	}
-
-	// Consent field suggests lead capture
-	if ( blockNames.includes( 'jetpack/field-consent' ) ) {
-		const leadCaptureVariation = variations.find( v => v.name === 'lead-capture-form' );
-		return leadCaptureVariation?.title;
-	}
-
-	// Default to contact form for name/email/textarea pattern
-	if (
-		blockNames.includes( 'jetpack/field-name' ) &&
-		blockNames.includes( 'jetpack/field-email' ) &&
-		blockNames.includes( 'jetpack/field-textarea' )
-	) {
-		const contactVariation = variations.find( v => v.name === 'contact-form' );
-		return contactVariation?.title;
-	}
-
-	// Fallback to generic form title
-	return __( 'Form', 'jetpack-forms' );
+	return matchingVariation?.title;
 }
 
 /**
@@ -118,6 +51,7 @@ function getVariationTitleFromAttributes(
  * @param {UseCreateSyncedFormOnInsertionProps} props - Hook properties.
  */
 export function useCreateSyncedFormOnInsertion( {
+	clientId,
 	ref,
 	innerBlocks,
 	attributes,
@@ -129,19 +63,28 @@ export function useCreateSyncedFormOnInsertion( {
 
 	const isCentralFormManagementEnabled = hasFeatureFlag( 'central-form-management' );
 
-	const { currentPostType, currentPostId } = useSelect( select => {
-		const { getCurrentPostType, getCurrentPostId } = select( editorStore );
-		return {
-			currentPostType: getCurrentPostType(),
-			currentPostId: getCurrentPostId(),
-		};
-	}, [] );
+	const { currentPostType, currentPostId, wasBlockJustInserted } = useSelect(
+		select => {
+			const { getCurrentPostType, getCurrentPostId } = select( editorStore );
+			return {
+				currentPostType: getCurrentPostType(),
+				currentPostId: getCurrentPostId(),
+				wasBlockJustInserted: select( blockEditorStore ).wasBlockJustInserted( clientId ),
+			};
+		},
+		[ clientId ]
+	);
 
 	const isEditingJetpackFormPost = currentPostType === FORM_POST_TYPE;
 
 	useEffect( () => {
 		// Only run this effect once
 		if ( hasAttemptedCreation.current ) {
+			return;
+		}
+
+		// Skip if block was not just inserted
+		if ( ! wasBlockJustInserted ) {
 			return;
 		}
 
@@ -175,7 +118,7 @@ export function useCreateSyncedFormOnInsertion( {
 		const createForm = async () => {
 			try {
 				// Get the variation title for naming the form
-				const formTitle = getVariationTitleFromAttributes( attributes, innerBlocks );
+				const formTitle = getVariationTitle( attributes );
 
 				// Create a block with the current attributes and inner blocks
 				const formBlock = createBlock(
@@ -219,6 +162,7 @@ export function useCreateSyncedFormOnInsertion( {
 		ref,
 		innerBlocks,
 		attributes,
+		wasBlockJustInserted,
 		isEditingJetpackFormPost,
 		isCentralFormManagementEnabled,
 		currentPostId,

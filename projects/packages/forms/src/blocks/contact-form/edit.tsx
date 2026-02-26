@@ -428,6 +428,7 @@ function JetpackContactFormEdit( {
 
 	// Create synced form when a variation is inserted via the block inserter
 	useCreateSyncedFormOnInsertion( {
+		clientId,
 		ref,
 		innerBlocks: currentInnerBlocks,
 		attributes,
