@@ -234,6 +234,36 @@ Before introducing new dependencies:
 - **Reuse monorepo packages** before adding external dependencies — check `projects/packages/` and `projects/js-packages/` first
 - **Git merge conflicts**: after resolving, use `git commit --no-edit --no-verify` — pre-commit hooks can make unintended changes to merge commit files
 
+## Cursor Cloud specific instructions
+
+### System Dependencies
+
+The VM requires PHP 8.4 (with mbstring, xml, zip, curl, mysql extensions), Composer 2.9.x, and Docker (with `fuse-overlayfs` storage driver and `iptables-legacy`). These are pre-installed by the environment snapshot.
+
+### Quick Reference
+
+| Task | Command |
+|------|---------|
+| Install JS deps | `pnpm install` |
+| Install root PHP deps | `composer install` |
+| JS lint | `pnpm lint-file <path>` |
+| PHP lint (PHPCS) | `composer phpcs:lint` |
+| PHP test (package) | `pnpm jetpack test php packages/<name>` |
+| JS test (package) | `pnpm jetpack test js js-packages/<name>` |
+| Build a plugin | `pnpm jetpack build plugins/<name> --deps` |
+| Start WordPress Docker | `pnpm jetpack docker up -d` |
+| Install WordPress | `pnpm jetpack docker install` |
+
+### Gotchas
+
+- **Jetpack CLI analytics prompt**: The first run of `pnpm jetpack` prompts for analytics tracking. Pipe `echo "n"` into the command or answer interactively. After the first run, the preference is saved.
+- **Docker socket permissions**: After installing Docker, run `sudo chmod 666 /var/run/docker.sock` before using Docker commands.
+- **Docker daemon startup**: The Docker daemon must be started manually with `sudo dockerd &>/tmp/dockerd.log &` and given a few seconds to initialize before running Docker commands.
+- **`pnpm jetpack install --root`** only installs root-level composer and pnpm deps. Individual project deps are installed on-demand when you build or test a project (via `pnpm jetpack build` or `pnpm jetpack test`).
+- **WordPress credentials**: The Docker WordPress site uses `jp_docker_acct` / `jp_docker_pass` by default. The site runs at `http://localhost/`.
+- **Jetpack offline mode**: When running locally at `localhost`, Jetpack auto-enables offline mode (features requiring WordPress.com connection are disabled). This is expected behavior for local development.
+- Use `pnpm jetpack` instead of `jp` or `jetpack` in the cloud environment (the global CLI link is not set up).
+
 ## Maintaining This File
 
 If you discover a pattern or pitfall not covered here, mention it to the developer so they can decide whether to update this file.
