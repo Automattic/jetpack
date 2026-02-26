@@ -174,12 +174,18 @@ class REST_Endpoints_Test extends TestCase {
 
 	/**
 	 * Testing the `/jetpack/v4/sync/health` endpoint when the queue is unhealthy.
-	 * Setting IN_SYNC should be blocked and the status should be set to OUT_OF_SYNC.
+	 * Setting IN_SYNC should be blocked and the status should be set to OUT_OF_SYNC
+	 * only when both size AND lag are over their limits.
 	 */
 	public function test_sync_health_blocked_when_queue_unhealthy() {
 
 		Health::update_status( Health::STATUS_IN_SYNC );
-		Settings::update_settings( array( 'max_queue_size' => 0 ) );
+		Settings::update_settings(
+			array(
+				'max_queue_size' => 0,
+				'max_queue_lag'  => 0,
+			)
+		);
 
 		$user = wp_get_current_user();
 		$user->add_cap( 'manage_options' );
@@ -197,6 +203,58 @@ class REST_Endpoints_Test extends TestCase {
 		$this->assertEquals( Health::STATUS_OUT_OF_SYNC, $data['success'] );
 		$this->assertEquals( Health::STATUS_OUT_OF_SYNC, Health::get_status() );
 		$this->assertArrayHasKey( 'message', $data );
+	}
+
+	/**
+	 * Testing the `/jetpack/v4/sync/health` endpoint when only queue size is over the limit.
+	 * Setting IN_SYNC should be allowed because lag is still within limits (queue is still draining).
+	 */
+	public function test_sync_health_allowed_when_only_queue_size_over_limit() {
+
+		Health::update_status( Health::STATUS_OUT_OF_SYNC );
+		Settings::update_settings( array( 'max_queue_size' => 0 ) );
+
+		$user = wp_get_current_user();
+		$user->add_cap( 'manage_options' );
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/sync/health' );
+		$request->set_header( 'Content-Type', 'application/json' );
+		$request->set_body( '{ "status": "' . Health::STATUS_IN_SYNC . '" }' );
+
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+
+		$user->remove_cap( 'manage_options' );
+
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertEquals( Health::STATUS_IN_SYNC, $data['success'] );
+		$this->assertEquals( Health::STATUS_IN_SYNC, Health::get_status() );
+	}
+
+	/**
+	 * Testing the `/jetpack/v4/sync/health` endpoint when only queue lag is over the limit.
+	 * Setting IN_SYNC should be allowed because size is still within limits.
+	 */
+	public function test_sync_health_allowed_when_only_queue_lag_over_limit() {
+
+		Health::update_status( Health::STATUS_OUT_OF_SYNC );
+		Settings::update_settings( array( 'max_queue_lag' => 0 ) );
+
+		$user = wp_get_current_user();
+		$user->add_cap( 'manage_options' );
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/sync/health' );
+		$request->set_header( 'Content-Type', 'application/json' );
+		$request->set_body( '{ "status": "' . Health::STATUS_IN_SYNC . '" }' );
+
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+
+		$user->remove_cap( 'manage_options' );
+
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertEquals( Health::STATUS_IN_SYNC, $data['success'] );
+		$this->assertEquals( Health::STATUS_IN_SYNC, Health::get_status() );
 	}
 
 	/**
