@@ -3,6 +3,15 @@ import userEvent from '@testing-library/user-event';
 import { GlobalChartsProvider } from '../../../providers';
 import PieSemiCircleChart from '../pie-semi-circle-chart';
 
+// Mock useParentSize so the responsive wrapper returns predictable dimensions in tests
+jest.mock( '@visx/responsive', () => ( {
+	useParentSize: jest.fn( () => ( {
+		parentRef: { current: null },
+		width: 400,
+		height: 200,
+	} ) ),
+} ) );
+
 // Mock data for testing
 const mockData = [
 	{
@@ -167,15 +176,15 @@ describe( 'PieSemiCircleChart', () => {
 		expect( thinPathD ).not.toBe( thickPathD );
 	} );
 
-	it( 'renders with correct dimensions', () => {
-		const width = 400;
-		render( <PieSemiCircleChart data={ mockData } width={ width } /> );
+	it( 'renders with correct dimensions from measured container', () => {
+		// Mock returns width:400, height:200 — chart should render at 400×200 (2:1 ratio)
+		render( <PieSemiCircleChart data={ mockData } /> );
 
 		const svg = screen.getByTestId( 'pie-chart-svg' );
 
-		expect( svg ).toHaveAttribute( 'width', width.toString() );
-		expect( svg ).toHaveAttribute( 'height', ( width / 2 ).toString() );
-		expect( svg ).toHaveAttribute( 'viewBox', `0 0 ${ width } ${ width / 2 }` );
+		expect( svg ).toHaveAttribute( 'width', '400' );
+		expect( svg ).toHaveAttribute( 'height', '200' );
+		expect( svg ).toHaveAttribute( 'viewBox', '0 0 400 200' );
 	} );
 
 	describe( 'Data Validation', () => {
@@ -213,6 +222,37 @@ describe( 'PieSemiCircleChart', () => {
 			expect(
 				screen.getByText( 'Invalid data: Negative values are not allowed' )
 			).toBeInTheDocument();
+		} );
+	} );
+
+	describe( 'Responsive wrapper', () => {
+		it( 'fills parent container (height:100%) by default', () => {
+			render( <PieSemiCircleChart data={ mockData } /> );
+			const wrapper = screen.getByTestId( 'responsive-wrapper' );
+			expect( wrapper ).toHaveStyle( { height: '100%' } );
+		} );
+
+		it( 'constrains chart to 2:1 ratio from measured dimensions', () => {
+			// Mock returns width:400, height:200, so chart renders at 400×200 (2:1 ratio)
+			render( <PieSemiCircleChart data={ mockData } /> );
+			const svg = screen.getByTestId( 'pie-chart-svg' );
+			expect( svg ).toHaveAttribute( 'width', '400' );
+			expect( svg ).toHaveAttribute( 'height', '200' );
+		} );
+
+		it( 'constrains chart width when container height is shorter than 2:1 ratio', () => {
+			// If parent height is 100px, chart should be at most 200×100 (not 400×200)
+			const { useParentSize } = jest.requireMock( '@visx/responsive' );
+			useParentSize.mockReturnValueOnce( {
+				parentRef: { current: null },
+				width: 400,
+				height: 100,
+			} );
+			render( <PieSemiCircleChart data={ mockData } /> );
+			const svg = screen.getByTestId( 'pie-chart-svg' );
+			// chartWidth = min(400, 100*2) = 200, chartHeight = 100
+			expect( svg ).toHaveAttribute( 'width', '200' );
+			expect( svg ).toHaveAttribute( 'height', '100' );
 		} );
 	} );
 
