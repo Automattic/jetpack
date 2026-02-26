@@ -98,12 +98,6 @@ When adding new behaviour, **always add a corresponding test**. Sync has no UI â
 
 When contributing to the Sync package, follow the Jetpack monorepo's standard PR process.
 
-### Reference Documentation
-- [Jetpack Contributing Guide](../../../../docs/CONTRIBUTING.md)
-- [PR Lifecycle Documentation](../../../../docs/pull-request.md)
-- [Changelog Guidelines](../../../../docs/writing-a-good-changelog-entry.md)
-- [README](./README.md) â€” configuration options and data settings API
-
 ## Agent-Specific Guidelines
 
 ### Quality Checklist
