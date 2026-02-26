@@ -329,7 +329,7 @@ const LoadedState = ( {
 
 	if ( ! capabilitiesLoaded ) {
 		return (
-			<Container horizontalSpacing={ 5 } fluid>
+			<Container horizontalSpacing={ 5 }>
 				<Col>
 					<div className="jp-wrap jp-content backup-panel">
 						<BackupsLoadingPlaceholder />
@@ -341,7 +341,7 @@ const LoadedState = ( {
 
 	if ( hasBackupPlan ) {
 		return (
-			<Container horizontalSpacing={ 5 } fluid>
+			<Container horizontalSpacing={ 5 }>
 				<Col>
 					<Backups />
 				</Col>
