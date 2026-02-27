@@ -194,7 +194,8 @@ class Attachment_Handler {
 	/**
 	 * Make sure that any Video that has a VideoPress GUID passes that data back.
 	 *
-	 * @param WP_Post $post Attachment object.
+	 * @param array $post Attachment data array.
+	 * @return array
 	 */
 	public static function prepare_attachment_for_js( $post ) {
 		if ( 'video' === $post['type'] ) {
