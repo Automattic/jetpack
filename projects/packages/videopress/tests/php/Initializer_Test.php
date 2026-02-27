@@ -37,13 +37,26 @@ class Initializer_Test extends BaseTestCase {
 	/**
 	 * Render the VideoPress block with the given attributes.
 	 *
+	 * Uses pre_oembed_result to force oEmbed failure so the fallback path
+	 * is always exercised, regardless of external service availability.
+	 *
 	 * @param array $attributes Block attributes.
 	 * @return string Rendered block markup.
 	 */
 	private function render( $attributes = array() ) {
 		$attributes = array_merge( self::$default_attributes, $attributes );
 		$block      = array( 'context' => array() );
-		return VideoPress_Initializer::render_videopress_video_block( $attributes, '', $block );
+
+		$force_failure = function () {
+			return false;
+		};
+		add_filter( 'pre_oembed_result', $force_failure );
+
+		$html = VideoPress_Initializer::render_videopress_video_block( $attributes, '', $block );
+
+		remove_filter( 'pre_oembed_result', $force_failure );
+
+		return $html;
 	}
 
 	/**
@@ -102,9 +115,11 @@ class Initializer_Test extends BaseTestCase {
 
 	/** Tests that the fallback filter is cleaned up after rendering. */
 	public function test_fallback_filter_removed_after_render() {
+		$before = has_filter( 'embed_maybe_make_link' );
+
 		$this->render();
 
-		$this->assertFalse( has_filter( 'embed_maybe_make_link' ) );
+		$this->assertSame( $before, has_filter( 'embed_maybe_make_link' ) );
 	}
 
 	/** Tests that recent {{unknown}} cache entries are cleared. */
