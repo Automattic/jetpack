@@ -25,6 +25,9 @@ describe( 'Message content', () => {
 		${ 'pull_request' }        | ${ true }  | ${ undefined }    | ${ { text: `:x:	Tests failed for pull request *#${ prNumber }*` } }
 		${ 'repository_dispatch' } | ${ true }  | ${ undefined }    | ${ { text: `:x:	Tests failed for event _*${ action }*_` } }
 		${ 'repository_dispatch' } | ${ false } | ${ 'test-suite' } | ${ { text: `:white_check_mark:	_*test-suite*_ tests passed for event _*${ action }*_` } }
+		${ 'workflow_dispatch' }   | ${ false } | ${ undefined }    | ${ { text: `:white_check_mark:	Tests passed for manual run on ${ refType } _*${ refName }*_` } }
+		${ 'workflow_dispatch' }   | ${ true }  | ${ undefined }    | ${ { text: `:x:	Tests failed for manual run on ${ refType } _*${ refName }*_` } }
+		${ 'workflow_dispatch' }   | ${ true }  | ${ 'suite name' } | ${ { text: `:x:	_*suite name*_ tests failed for manual run on ${ refType } _*${ refName }*_` } }
 		${ 'unsupported' }         | ${ true }  | ${ undefined }    | ${ { text: `:x:	Tests failed for ${ sha }` } }
 	`(
 		`Message text is correct for $eventName and workflow failed=$isFailure and suiteName=$suiteName`,
@@ -114,6 +117,7 @@ describe( 'Message content', () => {
 		${ 'push' }
 		${ 'schedule' }
 		${ 'workflow_run' }
+		${ 'workflow_dispatch' }
 		${ 'repository_dispatch' }
 		${ 'unsupported' }
 	`( 'There are no empty blocks elements lists for $eventName event', async ( { eventName } ) => {
@@ -155,6 +159,32 @@ describe( 'Message content', () => {
 				},
 				eventName: 'repository_dispatch',
 			} );
+
+			const { createMessage } = await import( '../src/message.js' );
+			const { mainMsgBlocks } = await createMessage( true );
+
+			expect( mainMsgBlocks[ 1 ].elements ).toHaveLength( expectedContextLength );
+			expect( mainMsgBlocks[ 2 ].elements ).toHaveLength( expectedButtonsLength );
+		}
+	);
+
+	test.each`
+		description                                      | inputs                                                 | expectedContextLength | expectedButtonsLength
+		${ 'upstream sha, upstream repository' }         | ${ { sha: '123456789', repository: 'upstream/repo' } } | ${ 2 }                | ${ 2 }
+		${ 'upstream sha, missing upstream repository' } | ${ { sha: '123456789' } }                              | ${ 2 }                | ${ 1 }
+		${ 'missing upstream sha' }                      | ${ {} }                                                | ${ 2 }                | ${ 2 }
+		${ 'no inputs' }                                 | ${ undefined }                                         | ${ 2 }                | ${ 2 }
+	`(
+		`Workflow dispatch blocks for #description`,
+		async ( { inputs, expectedContextLength, expectedButtonsLength } ) => {
+			await mockGitHubContext( {
+				payload: {
+					inputs,
+				},
+				sha,
+				eventName: 'workflow_dispatch',
+			} );
+			mockContextExtras( { repository, refType, refName } );
 
 			const { createMessage } = await import( '../src/message.js' );
 			const { mainMsgBlocks } = await createMessage( true );
