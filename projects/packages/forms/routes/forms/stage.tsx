@@ -1,7 +1,6 @@
 /**
  * External dependencies
  */
-import { formatNumber } from '@automattic/number-formatters';
 import { Badge } from '@automattic/ui';
 import { Page } from '@wordpress/admin-ui';
 import {
@@ -260,8 +259,8 @@ function StageInner() {
 			{
 				id: 'entries',
 				label: __( 'Responses', 'jetpack-forms' ),
+				type: 'integer',
 				getValue: ( { item }: { item: FormListItem } ) => item.entriesCount ?? 0,
-				render: ( { item }: { item: FormListItem } ) => formatNumber( item.entriesCount ?? 0 ),
 				enableSorting: false,
 			},
 			{
