@@ -9,6 +9,11 @@
 
 import { FORM_CATEGORIES, type FormCategory } from './form-categories';
 
+/**
+ * Categories to hide in the form editor since they are not relevant.
+ */
+const HIDDEN_CATEGORIES_IN_FORM_EDITOR = [ 'jetpack', 'monetize', 'grow' ];
+
 export interface Category {
 	slug: string;
 	title?: string;
@@ -106,4 +111,17 @@ export function registerFormCategories( categories: Category[] ): Category[] {
 export function unregisterFormCategories( categories: Category[] ): Category[] {
 	const formCategorySlugs = FORM_CATEGORIES.map( ( cat: FormCategory ) => cat.slug );
 	return categories.filter( cat => ! formCategorySlugs.includes( cat.slug ) );
+}
+
+/**
+ * Removes categories that are not relevant in the form editor context.
+ *
+ * Categories like 'jetpack', 'monetize', and 'grow' are not useful when
+ * editing a form, so we hide them from the block inserter.
+ *
+ * @param categories - Array of block categories
+ * @return New array with non-form categories removed
+ */
+export function removeNonFormCategories( categories: Category[] ): Category[] {
+	return categories.filter( cat => ! HIDDEN_CATEGORIES_IN_FORM_EDITOR.includes( cat.slug ) );
 }

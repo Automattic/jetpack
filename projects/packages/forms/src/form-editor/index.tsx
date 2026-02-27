@@ -29,6 +29,7 @@ import {
 	moveContactFormCategoryToBack as moveCategoryToBack,
 	registerFormCategories,
 	unregisterFormCategories,
+	removeNonFormCategories,
 } from './utils/category-utils';
 import { getAllowedBlocks } from './utils/get-allowed-blocks';
 import type { WPPlugin } from '@wordpress/plugins';
@@ -60,6 +61,7 @@ const setupFormEditorCategories = (): unknown[] => {
 
 	// Register form categories first so they exist when blocks are reassigned
 	let categories = getCategories();
+	categories = removeNonFormCategories( categories );
 	categories = registerFormCategories( categories );
 	categories = moveCategoryToFront( categories );
 	setCategories( categories );

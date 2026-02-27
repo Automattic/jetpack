@@ -1,6 +1,7 @@
 import {
 	registerFormCategories,
 	unregisterFormCategories,
+	removeNonFormCategories,
 } from '../../../../src/form-editor/utils/category-utils';
 import { getFormCategorySlug } from '../../../../src/form-editor/utils/form-categories';
 
@@ -81,6 +82,42 @@ describe( 'category-utils', () => {
 			const unregistered = unregisterFormCategories( registered );
 
 			expect( unregistered ).toEqual( mockCategories );
+		} );
+	} );
+
+	describe( 'removeNonFormCategories', () => {
+		it( 'should remove jetpack, monetize, and grow categories', () => {
+			const categories = [
+				{ slug: 'text', title: 'Text' },
+				{ slug: 'jetpack', title: 'Jetpack' },
+				{ slug: 'media', title: 'Media' },
+				{ slug: 'monetize', title: 'Monetize' },
+				{ slug: 'grow', title: 'Grow' },
+				{ slug: 'design', title: 'Design' },
+			];
+
+			const result = removeNonFormCategories( categories );
+
+			expect( result ).toHaveLength( 3 );
+			expect( result.map( c => c.slug ) ).toEqual( [ 'text', 'media', 'design' ] );
+		} );
+
+		it( 'should not mutate the original array', () => {
+			const categories = [
+				{ slug: 'text', title: 'Text' },
+				{ slug: 'jetpack', title: 'Jetpack' },
+			];
+			const original = [ ...categories ];
+
+			removeNonFormCategories( categories );
+
+			expect( categories ).toEqual( original );
+		} );
+
+		it( 'should return all categories if none match the hidden list', () => {
+			const result = removeNonFormCategories( mockCategories );
+
+			expect( result ).toEqual( mockCategories );
 		} );
 	} );
 
