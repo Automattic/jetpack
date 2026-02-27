@@ -1,4 +1,4 @@
-/* PingHubIframeBridge — parent-side bridge to rest-proxy iframe with binary framing */
+/* PingHubIframeBridge — parent-side bridge to rest-proxy iframe (text frames + base64 for backend compatibility) */
 
 export interface PingHubBridge {
 	connect( path: string ): Promise< void >;
@@ -21,7 +21,7 @@ interface ProxyResponseBody {
 	code?: number;
 	reason?: string;
 	text?: string;
-	data?: ArrayBuffer | Blob;
+	data?: ArrayBuffer | Blob | string;
 }
 
 /**
@@ -33,38 +33,88 @@ interface NormalizedResponse {
 	callback: string;
 }
 
-// --- Binary frame encoding (path + payload for postMessage) ---
-
+// --- Base64 for text-frame transport ---
 /**
- * Encode path and payload into a single ArrayBuffer for postMessage.
+ * Encode a Uint8Array into a base64 string for text-frame transport.
  *
- * @param path    - The path to encode.
- * @param payload - The payload to encode.
- * @return The encoded binary frame.
+ * @param u8 - Bytes to encode.
+ * @return Base64-encoded string.
  */
-function encodePathFrame( path: string, payload: Uint8Array ): ArrayBuffer {
-	const pathBytes = new TextEncoder().encode( path );
-	const buf = new ArrayBuffer( 2 + pathBytes.byteLength + payload.byteLength );
-	const view = new DataView( buf );
-	view.setUint16( 0, pathBytes.byteLength );
-	new Uint8Array( buf, 2, pathBytes.byteLength ).set( pathBytes );
-	new Uint8Array( buf, 2 + pathBytes.byteLength ).set( payload );
-	return buf;
+function uint8ArrayToBase64( u8: Uint8Array ): string {
+	let binary = '';
+	for ( let i = 0; i < u8.length; i++ ) binary += String.fromCharCode( u8[ i ] );
+	return btoa( binary );
 }
 
 /**
- * Decode path and payload from an ArrayBuffer received via postMessage.
+ * Decode a base64 string back into a Uint8Array.
  *
- * @param buffer - The encoded frame.
- * @return Decoded path and payload.
+ * @param base64 - Base64-encoded string.
+ * @return Decoded bytes.
  */
-function decodePathFrame( buffer: ArrayBuffer ): { path: string; payload: Uint8Array } {
-	const view = new DataView( buffer );
-	const pathLen = view.getUint16( 0 );
-	const path = new TextDecoder().decode( new Uint8Array( buffer, 2, pathLen ) );
-	const payload = new Uint8Array( buffer, 2 + pathLen );
-	return { path, payload };
+function base64ToUint8Array( base64: string ): Uint8Array {
+	const binary = atob( base64 );
+	const u8 = new Uint8Array( binary.length );
+	for ( let i = 0; i < binary.length; i++ ) u8[ i ] = binary.charCodeAt( i );
+	return u8;
 }
+
+// --- Chunking for message size limits ---
+
+const CHUNK_MAGIC = 0xfe;
+const CHUNK_HEADER_LEN = 5; // magic(1) + msgId(2) + totalChunks(1) + chunkIndex(1)
+/** Messages larger than this are split into chunks so each frame stays under backend limits. */
+const MAX_PAYLOAD_BEFORE_CHUNK = 256;
+
+/* eslint-disable jsdoc/require-jsdoc */
+/*
+ * Build a single chunk buffer: [CHUNK_MAGIC, msgIdHi, msgIdLo, totalChunks, chunkIndex, ...payload].
+ *
+ * @param msgId - Message identifier (per path).
+ * @param totalChunks - Total chunks for this message.
+ * @param chunkIndex - Zero-based index of this chunk.
+ * @param payload - Slice of the original payload for this chunk.
+ * @return Encoded chunk including header and payload.
+ */
+function buildChunk(
+	msgId: number,
+	totalChunks: number,
+	chunkIndex: number,
+	payload: Uint8Array
+): Uint8Array {
+	const out = new Uint8Array( CHUNK_HEADER_LEN + payload.length );
+	out[ 0 ] = CHUNK_MAGIC;
+	// eslint-disable-next-line no-bitwise
+	out[ 1 ] = ( msgId >> 8 ) & 0xff;
+	// eslint-disable-next-line no-bitwise
+	out[ 2 ] = msgId & 0xff;
+	out[ 3 ] = totalChunks;
+	out[ 4 ] = chunkIndex;
+	out.set( payload, CHUNK_HEADER_LEN );
+	return out;
+}
+
+/*
+ * Parse chunk header. Returns null if not a chunk or invalid.
+ *
+ * @param data - Candidate frame bytes.
+ * @return Parsed header and payload, or null if not a chunk.
+ */
+function parseChunkHeader( data: Uint8Array ): {
+	msgId: number;
+	totalChunks: number;
+	chunkIndex: number;
+	payload: Uint8Array;
+} | null {
+	if ( data.length < CHUNK_HEADER_LEN || data[ 0 ] !== CHUNK_MAGIC ) return null;
+	return {
+		msgId: data[ 1 ] * 256 + data[ 2 ],
+		totalChunks: data[ 3 ],
+		chunkIndex: data[ 4 ],
+		payload: data.subarray( CHUNK_HEADER_LEN ),
+	};
+}
+/* eslint-enable jsdoc/require-jsdoc */
 
 // --- Proxy message normalization ---
 // Proxy sends either: array [ body, code, headers?, callback ] (supports_args) or legacy object with .callback and .body.
@@ -167,6 +217,13 @@ export class PingHubIframeBridge implements PingHubBridge {
 		string,
 		Array< { resolve: () => void; reject: ( err: Error ) => void } >
 	>();
+	/** Per-path message id for chunked sends. */
+	private chunkMsgIdByPath = new Map< string, number >();
+	/** Reassembly buffer: key = path + ':' + msgId, value = { totalChunks, chunks } */
+	private chunkBuffers = new Map<
+		string,
+		{ totalChunks: number; chunks: Map< number, Uint8Array > }
+	>();
 
 	constructor() {
 		const existing = document.querySelector(
@@ -208,14 +265,7 @@ export class PingHubIframeBridge implements PingHubBridge {
 			return;
 		}
 
-		// 2) Binary frame (from us to proxy – we don't receive these from proxy for WS; keep for symmetry)
-		if ( data instanceof ArrayBuffer ) {
-			const { path, payload } = decodePathFrame( data );
-			this.messageHandlers.get( path )?.forEach( h => h( payload ) );
-			return;
-		}
-
-		// 3) Proxy JSON response (array or object)
+		// 2) Proxy JSON response (array or object)
 		const raw = parseRaw( data );
 		const response = normalizeProxyResponse( raw );
 		if ( response ) this.handleProxyResponse( response );
@@ -253,7 +303,7 @@ export class PingHubIframeBridge implements PingHubBridge {
 				if ( resolvePending ) resolvePending( true );
 				break;
 			case 'message':
-				if ( path && body.data ) this.dispatchToHandlers( path, body.data );
+				if ( path && body.data !== undefined ) this.dispatchToHandlers( path, body.data );
 				break;
 			case 'error':
 				// Proxy returns 444 "already subscribed" when we connect the same path twice – treat as success.
@@ -274,16 +324,75 @@ export class PingHubIframeBridge implements PingHubBridge {
 		}
 	}
 
-	private dispatchToHandlers( path: string, data: ArrayBuffer | Blob ): void {
+	/*
+	 * Dispatches received data to path handlers.
+	 *
+	 * Incoming frames may be:
+	 * - Base64 string (text frame): decoded to Uint8Array, then treated as chunk or whole message.
+	 * - Chunk (first byte CHUNK_MAGIC): buffered by path+msgId; when all chunks received, reassembled
+	 *   in order (chunk 0, 1, …) and passed once to handlers. Non-chunk messages are passed through.
+	 *
+	 * @param path - PingHub path for the message.
+	 * @param data - Raw payload from the proxy.
+	 */
+	private dispatchToHandlers( path: string, data: ArrayBuffer | Blob | string ): void {
 		const handlers = this.messageHandlers.get( path );
 		if ( ! handlers?.size ) return;
 
-		const run = ( u8: Uint8Array ) => handlers.forEach( h => h( u8 ) );
-		if ( data instanceof ArrayBuffer ) {
+		const run = ( u8: Uint8Array ) => {
+			const parsed = parseChunkHeader( u8 );
+			if ( parsed ) {
+				this.reassembleChunk( path, parsed, handlers );
+				return;
+			}
+			handlers.forEach( h => h( u8 ) );
+		};
+		if ( typeof data === 'string' ) {
+			try {
+				run( base64ToUint8Array( data ) );
+			} catch {
+				// Fallback: treat as raw bytes (e.g. proxy sent non-base64 text)
+				const u8 = new Uint8Array( data.length );
+				for ( let i = 0; i < data.length; i++ ) {
+					// eslint-disable-next-line no-bitwise
+					u8[ i ] = data.charCodeAt( i ) & 0xff;
+				}
+				run( u8 );
+			}
+		} else if ( data instanceof ArrayBuffer ) {
 			run( new Uint8Array( data ) );
 		} else if ( data instanceof Blob ) {
 			data.arrayBuffer().then( ab => run( new Uint8Array( ab ) ) );
 		}
+	}
+
+	private reassembleChunk(
+		path: string,
+		parsed: { msgId: number; totalChunks: number; chunkIndex: number; payload: Uint8Array },
+		handlers: Set< ( data: Uint8Array ) => void >
+	): void {
+		const key = `${ path }:${ parsed.msgId }`;
+		let buf = this.chunkBuffers.get( key );
+		if ( ! buf ) {
+			buf = { totalChunks: parsed.totalChunks, chunks: new Map() };
+			this.chunkBuffers.set( key, buf );
+		}
+		buf.chunks.set( parsed.chunkIndex, parsed.payload );
+		if ( buf.chunks.size !== buf.totalChunks ) return;
+
+		this.chunkBuffers.delete( key );
+		const parts: Uint8Array[] = [];
+		for ( let i = 0; i < buf.totalChunks; i++ ) {
+			parts.push( buf.chunks.get( i )! );
+		}
+		const totalLen = parts.reduce( ( s, p ) => s + p.length, 0 );
+		const reassembled = new Uint8Array( totalLen );
+		let offset = 0;
+		for ( const p of parts ) {
+			reassembled.set( p, offset );
+			offset += p.length;
+		}
+		handlers.forEach( h => h( reassembled ) );
 	}
 
 	// --- Public API ---
@@ -332,7 +441,7 @@ export class PingHubIframeBridge implements PingHubBridge {
 			path,
 			callback,
 			supports_args: true,
-			binary: true,
+			binary: false,
 		} );
 
 		return new Promise( ( resolve, reject ) => {
@@ -361,9 +470,32 @@ export class PingHubIframeBridge implements PingHubBridge {
 	}
 
 	send( path: string, data: Uint8Array ): void {
-		const win = this.iframe.contentWindow;
-		if ( ! win ) return;
-		const frame = encodePathFrame( path, data );
-		win.postMessage( frame, PROXY_ORIGIN, [ frame ] );
+		if ( ! this.iframe.contentWindow ) return;
+
+		const sendOne = ( payload: Uint8Array ) => {
+			this.postToProxy( {
+				type: 'pinghub-proxy',
+				action: 'send',
+				path,
+				message: uint8ArrayToBase64( payload ),
+			} );
+		};
+
+		if ( data.length <= MAX_PAYLOAD_BEFORE_CHUNK ) {
+			sendOne( data );
+			return;
+		}
+
+		// eslint-disable-next-line no-bitwise
+		const msgId = ( this.chunkMsgIdByPath.get( path ) ?? 0 ) & 0xffff;
+		this.chunkMsgIdByPath.set( path, msgId + 1 );
+		const chunkSize = MAX_PAYLOAD_BEFORE_CHUNK - CHUNK_HEADER_LEN;
+		const totalChunks = Math.ceil( data.length / chunkSize );
+		for ( let i = 0; i < totalChunks; i++ ) {
+			const start = i * chunkSize;
+			const payload = data.subarray( start, Math.min( start + chunkSize, data.length ) );
+			const chunk = buildChunk( msgId, totalChunks, i, payload );
+			sendOne( chunk );
+		}
 	}
 }

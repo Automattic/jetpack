@@ -1,23 +1,19 @@
 /* createPingHubProvider — Yjs provider over PingHub via PingHubIframeBridge */
-/**
- * The PingHub server MUST send Yjs/sync payloads as WebSocket **binary** frames (opcode 0x2).
- * If it sends binary data in a **text** frame (opcode 0x1), the browser will fail with
- * "Could not decode a text frame as UTF-8" and close the connection (code 1006).
- */
 
-import { Y, Awareness } from '@wordpress/sync';
+import { Awareness } from '@wordpress/sync';
 import * as decoding from 'lib0/decoding';
 import * as encoding from 'lib0/encoding';
 import * as awarenessProtocol from 'y-protocols/awareness';
 import * as syncProtocol from 'y-protocols/sync';
 import type { PingHubBridge } from './pinghub-bridge';
+import type {
+	ProviderCreator,
+	ProviderCreatorResult,
+	ConnectionStatus,
+	ProviderOn,
+} from '@wordpress/sync';
 
-export type ProviderCreator = ( config: {
-	objectType: string;
-	objectId: string | null;
-	ydoc: Y.Doc;
-	awareness?: Awareness;
-} ) => Promise< { destroy: () => Promise< void > } >;
+export type { ProviderCreator } from '@wordpress/sync';
 
 const MSG_SYNC = 0x00;
 const MSG_AWARENESS = 0x01;
@@ -85,6 +81,18 @@ export function createPingHubProvider( bridge: PingHubBridge ): ProviderCreator 
 		let connected = false;
 		let destroyed = false;
 
+		const statusListeners = new Set< ( status: ConnectionStatus ) => void >();
+
+		const emitStatus = ( status: ConnectionStatus ) => {
+			statusListeners.forEach( listener => listener( status ) );
+		};
+
+		const on: ProviderOn = ( event, callback ) => {
+			if ( event === 'status' ) {
+				statusListeners.add( callback as ( status: ConnectionStatus ) => void );
+			}
+		};
+
 		const aw = awareness ?? new Awareness( ydoc );
 
 		const send = ( u8: Uint8Array ) => bridge.send( path, u8 );
@@ -92,6 +100,7 @@ export function createPingHubProvider( bridge: PingHubBridge ): ProviderCreator 
 		const onWsOpen = () => {
 			if ( destroyed ) return;
 			connected = true;
+			emitStatus( { status: 'connected' } );
 
 			const enc = encoding.createEncoder();
 			encoding.writeVarUint( enc, MSG_SYNC );
@@ -107,6 +116,13 @@ export function createPingHubProvider( bridge: PingHubBridge ): ProviderCreator 
 
 			const dec = decoding.createDecoder( data );
 			const msgType = decoding.readVarUint( dec );
+
+			// eslint-disable-next-line no-console -- Debug logging for PingHub incoming messages.
+			console.log( '[PingHub recv]', {
+				path,
+				msgType,
+				bytes: data.length,
+			} );
 
 			switch ( msgType ) {
 				case MSG_SYNC: {
@@ -168,6 +184,7 @@ export function createPingHubProvider( bridge: PingHubBridge ): ProviderCreator 
 		const onClose = async () => {
 			connected = false;
 			if ( destroyed ) return;
+			emitStatus( { status: 'disconnected' } );
 
 			// Exponential backoff: start at 2s, cap at 30s, stop after 5 minutes total.
 			let delay = 2000;
@@ -197,25 +214,31 @@ export function createPingHubProvider( bridge: PingHubBridge ): ProviderCreator 
 		aw.on( 'change', onAwarenessChange );
 		ydoc.on( 'updateV2', onDocUpdate );
 
+		emitStatus( { status: 'connecting' } );
 		await bridge.connect( path );
 
-		return {
-			/**
-			 * Disconnects from the bridge and cleans up event handlers.
-			 *
-			 * @return Promise that resolves when disconnect is complete.
-			 */
-			destroy: async () => {
-				destroyed = true;
+		const destroy: ProviderCreatorResult[ 'destroy' ] = () => {
+			destroyed = true;
 
-				awarenessProtocol.removeAwarenessStates( aw, [ ydoc.clientID ], 'provider-destroy' );
+			awarenessProtocol.removeAwarenessStates( aw, [ ydoc.clientID ], 'provider-destroy' );
 
-				aw.off( 'change', onAwarenessChange );
-				ydoc.off( 'updateV2', onDocUpdate );
+			aw.off( 'change', onAwarenessChange );
+			ydoc.off( 'updateV2', onDocUpdate );
 
+			statusListeners.clear();
+			emitStatus( { status: 'disconnected' } );
+
+			void ( async () => {
 				await bridge.disconnect( path );
 				connected = false;
-			},
+			} )();
 		};
+
+		const result: ProviderCreatorResult = {
+			destroy,
+			on,
+		};
+
+		return result;
 	};
 }
