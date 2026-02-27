@@ -786,8 +786,8 @@ importers:
         specifier: 1.0.1
         version: 1.0.1
       playwright:
-        specifier: 1.55.1
-        version: 1.55.1
+        specifier: 1.58.2
+        version: 1.58.2
       playwright-core:
         specifier: ^1.45.1
         version: 1.58.2
@@ -1583,8 +1583,8 @@ importers:
         specifier: 7.28.6
         version: 7.28.6
       '@playwright/test':
-        specifier: 1.55.1
-        version: 1.55.1
+        specifier: 1.58.2
+        version: 1.58.2
       '@storybook/addon-a11y':
         specifier: 10.2.11
         version: 10.2.11(storybook@10.2.11(@testing-library/dom@10.4.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))
@@ -2841,8 +2841,8 @@ importers:
         specifier: 1.8.0
         version: 1.8.0
       '@playwright/test':
-        specifier: 1.55.1
-        version: 1.55.1
+        specifier: 1.58.2
+        version: 1.58.2
       '@tsconfig/strictest':
         specifier: 2.0.5
         version: 2.0.5
@@ -4278,8 +4278,8 @@ importers:
   projects/plugins/automattic-for-agencies-client/tests/e2e:
     devDependencies:
       '@playwright/test':
-        specifier: 1.55.1
-        version: 1.55.1
+        specifier: 1.58.2
+        version: 1.58.2
       _jetpack-e2e-commons:
         specifier: workspace:*
         version: link:../../../../../tools/e2e-commons
@@ -4438,8 +4438,8 @@ importers:
   projects/plugins/boost/tests/e2e:
     devDependencies:
       '@playwright/test':
-        specifier: 1.55.1
-        version: 1.55.1
+        specifier: 1.58.2
+        version: 1.58.2
       '@types/node':
         specifier: ^22.19.11
         version: 22.19.11
@@ -4538,8 +4538,8 @@ importers:
   projects/plugins/classic-theme-helper-plugin/tests/e2e:
     devDependencies:
       '@playwright/test':
-        specifier: 1.55.1
-        version: 1.55.1
+        specifier: 1.58.2
+        version: 1.58.2
       '@types/node':
         specifier: ^22.19.11
         version: 22.19.11
@@ -5168,8 +5168,8 @@ importers:
   projects/plugins/jetpack/tests/e2e:
     devDependencies:
       '@playwright/test':
-        specifier: 1.55.1
-        version: 1.55.1
+        specifier: 1.58.2
+        version: 1.58.2
       '@types/node':
         specifier: ^22.19.11
         version: 22.19.11
@@ -5249,8 +5249,8 @@ importers:
   projects/plugins/paypal-payment-buttons/tests/e2e:
     devDependencies:
       '@playwright/test':
-        specifier: 1.55.1
-        version: 1.55.1
+        specifier: 1.58.2
+        version: 1.58.2
       _jetpack-e2e-commons:
         specifier: workspace:*
         version: link:../../../../../tools/e2e-commons
@@ -5373,8 +5373,8 @@ importers:
   projects/plugins/protect/tests/e2e:
     devDependencies:
       '@playwright/test':
-        specifier: 1.55.1
-        version: 1.55.1
+        specifier: 1.58.2
+        version: 1.58.2
       '@types/node':
         specifier: ^22.19.11
         version: 22.19.11
@@ -5399,8 +5399,8 @@ importers:
   projects/plugins/search/tests/e2e:
     devDependencies:
       '@playwright/test':
-        specifier: 1.55.1
-        version: 1.55.1
+        specifier: 1.58.2
+        version: 1.58.2
       '@types/node':
         specifier: ^22.19.11
         version: 22.19.11
@@ -5429,8 +5429,8 @@ importers:
   projects/plugins/social/tests/e2e:
     devDependencies:
       '@playwright/test':
-        specifier: 1.55.1
-        version: 1.55.1
+        specifier: 1.58.2
+        version: 1.58.2
       '@types/node':
         specifier: ^22.19.11
         version: 22.19.11
@@ -5526,8 +5526,8 @@ importers:
   projects/plugins/starter-plugin/tests/e2e:
     devDependencies:
       '@playwright/test':
-        specifier: 1.55.1
-        version: 1.55.1
+        specifier: 1.58.2
+        version: 1.58.2
       '@types/node':
         specifier: ^22.19.11
         version: 22.19.11
@@ -5652,8 +5652,8 @@ importers:
   projects/plugins/videopress/tests/e2e:
     devDependencies:
       '@playwright/test':
-        specifier: 1.55.1
-        version: 1.55.1
+        specifier: 1.58.2
+        version: 1.58.2
       '@types/node':
         specifier: ^22.19.11
         version: 22.19.11
@@ -5779,8 +5779,8 @@ importers:
   tools/e2e-commons:
     devDependencies:
       '@playwright/test':
-        specifier: 1.55.1
-        version: 1.55.1
+        specifier: 1.58.2
+        version: 1.58.2
       '@slack/web-api':
         specifier: 7.12.0
         version: 7.12.0
@@ -5792,7 +5792,7 @@ importers:
         version: 22.19.11
       '@wordpress/e2e-test-utils-playwright':
         specifier: 1.40.0
-        version: 1.40.0(@playwright/test@1.55.1)(@types/node@22.19.11)
+        version: 1.40.0(@playwright/test@1.58.2)(@types/node@22.19.11)
       allure-playwright:
         specifier: 2.15.1
         version: 2.15.1
@@ -6026,7 +6026,7 @@ importers:
         version: 16.6.1
       playwright:
         specifier: ^1.48.0
-        version: 1.55.1
+        version: 1.58.2
 
 packages:
 
@@ -8664,8 +8664,8 @@ packages:
     resolution: {integrity: sha512-QNqXyfVS2wm9hweSYD2O7F0G06uurj9kZ96TRQE5Y9hU7+tgdZwIkbAKc5Ocy1HxEY2kuDQa6cQ1WRs/O5LFKA==}
     engines: {node: ^12.20.0 || ^14.18.0 || >=16.0.0}
 
-  '@playwright/test@1.55.1':
-    resolution: {integrity: sha512-IVAh/nOJaw6W9g+RJVlIQJ6gSiER+ae6mKQ5CX1bERzQgbC1VSeBlwdvczT7pxb0GWiyrxH4TGKbMfDb4Sq/ig==}
+  '@playwright/test@1.58.2':
+    resolution: {integrity: sha512-akea+6bHYBBfA9uQqSYmlJXn61cTa+jbO87xVLCWbTqbWadRVmhxlXATaOjOgcBaWU4ePo0wB41KMFv3o35IXA==}
     engines: {node: '>=18'}
     hasBin: true
 
@@ -15405,11 +15405,6 @@ packages:
     resolution: {integrity: sha512-+KD8hJtqQMYoTuL1bbGOqxb4z+nZkTAwVdNtWwe8Tc2xNbEmdJYIYoc6Qt0uF55e6YW6KuTHw1DjQ18gMhzepw==}
     engines: {node: '>=16.0.0'}
 
-  playwright-core@1.55.1:
-    resolution: {integrity: sha512-Z6Mh9mkwX+zxSlHqdr5AOcJnfp+xUWLCt9uKV18fhzA8eyxUd8NUWzAjxUh55RZKSYwDGX0cfaySdhZJGMoJ+w==}
-    engines: {node: '>=18'}
-    hasBin: true
-
   playwright-core@1.58.2:
     resolution: {integrity: sha512-yZkEtftgwS8CsfYo7nm0KE8jsvm6i/PTgVtB8DL726wNf6H2IMsDuxCpJj59KDaxCtSnrWan2AeDqM7JBaultg==}
     engines: {node: '>=18'}
@@ -15418,8 +15413,8 @@ packages:
   playwright-ctrf-json-reporter@0.0.26:
     resolution: {integrity: sha512-3BtV0R5Vstwu02ARwAlegdCwMhBJC3GYm+0CVBrHOryQACk+TraqD+ZZxLMPhUnlddGFwkHcU57KxPiZb6/k1A==}
 
-  playwright@1.55.1:
-    resolution: {integrity: sha512-cJW4Xd/G3v5ovXtJJ52MAOclqeac9S/aGGgRzLabuF8TnIb6xHvMzKIa6JmrRzUkeXJgfL1MhukP0NK6l39h3A==}
+  playwright@1.58.2:
+    resolution: {integrity: sha512-vA30H8Nvkq/cPBnNw4Q8TWz1EJyqgpuinBcHET0YVJVFldr8JDNiU9LaWAE1KqSkRYazuaBhTpB5ZzShOezQ6A==}
     engines: {node: '>=18'}
     hasBin: true
 
@@ -21358,9 +21353,9 @@ snapshots:
 
   '@pkgr/core@0.2.9': {}
 
-  '@playwright/test@1.55.1':
+  '@playwright/test@1.58.2':
     dependencies:
-      playwright: 1.55.1
+      playwright: 1.58.2
 
   '@pmmmwh/react-refresh-webpack-plugin@0.6.2(react-refresh@0.17.0)(webpack-dev-server@5.2.3)(webpack@5.105.2)':
     dependencies:
@@ -22385,7 +22380,7 @@ snapshots:
       jest-serializer-html: 7.1.0
       jest-watch-typeahead: 3.0.1(jest@30.2.0)
       nyc: 15.1.0
-      playwright: 1.55.1
+      playwright: 1.58.2
       playwright-core: 1.58.2
       rimraf: 3.0.2
       storybook: 10.2.11(@testing-library/dom@10.4.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -24567,9 +24562,9 @@ snapshots:
     dependencies:
       '@wordpress/deprecated': 4.40.0
 
-  '@wordpress/e2e-test-utils-playwright@1.40.0(@playwright/test@1.55.1)(@types/node@22.19.11)':
+  '@wordpress/e2e-test-utils-playwright@1.40.0(@playwright/test@1.58.2)(@types/node@22.19.11)':
     dependencies:
-      '@playwright/test': 1.55.1
+      '@playwright/test': 1.58.2
       '@types/node': 22.19.11
       change-case: 4.1.2
       get-port: 5.1.1
@@ -31522,15 +31517,13 @@ snapshots:
       pvutils: 1.1.5
       tslib: 2.8.1
 
-  playwright-core@1.55.1: {}
-
   playwright-core@1.58.2: {}
 
   playwright-ctrf-json-reporter@0.0.26: {}
 
-  playwright@1.55.1:
+  playwright@1.58.2:
     dependencies:
-      playwright-core: 1.55.1
+      playwright-core: 1.58.2
     optionalDependencies:
       fsevents: 2.3.2
 
