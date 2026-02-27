@@ -180,6 +180,7 @@ export default function MyJetpackScreen() {
 			sandboxedDomain={ sandboxedDomain }
 			apiRoot={ apiRoot }
 			apiNonce={ apiNonce }
+			title={ __( 'Jetpack', 'jetpack-my-jetpack' ) }
 			optionalMenuItems={ isDevVersion && userIsAdmin ? [ resetOptionsMenuItem ] : [] }
 			useInternalLinks={ shouldUseInternalLinks() }
 			className={ styles[ 'my-jetpack-screen' ] }
