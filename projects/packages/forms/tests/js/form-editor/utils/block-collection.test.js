@@ -7,10 +7,12 @@ const mockGetCollections = jest.fn();
 const mockRemoveBlockCollection = jest.fn();
 const mockAddBlockCollection = jest.fn();
 
+const mockSelect = jest.fn( () => ( {
+	getCollections: mockGetCollections,
+} ) );
+
 jest.mock( '@wordpress/data', () => ( {
-	select: () => ( {
-		getCollections: mockGetCollections,
-	} ),
+	select: ( ...args ) => mockSelect( ...args ),
 	dispatch: () => ( {
 		removeBlockCollection: mockRemoveBlockCollection,
 		addBlockCollection: mockAddBlockCollection,
@@ -20,9 +22,15 @@ jest.mock( '@wordpress/data', () => ( {
 describe( 'block-collection', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
+		mockSelect.mockImplementation( () => ( {
+			getCollections: mockGetCollections,
+		} ) );
 		// Reset module state between tests by restoring any saved collection
 		restoreJetpackBlockCollection();
 		jest.clearAllMocks();
+		mockSelect.mockImplementation( () => ( {
+			getCollections: mockGetCollections,
+		} ) );
 	} );
 
 	describe( 'removeJetpackBlockCollection', () => {
@@ -45,20 +53,12 @@ describe( 'block-collection', () => {
 		} );
 
 		it( 'should not call removeBlockCollection when getCollections is unavailable', () => {
-			mockGetCollections.mockImplementation( () => {
-				throw new Error( 'not a function' );
-			} );
-
-			// Override select to return an object without getCollections
-			const dataModule = require( '@wordpress/data' );
-			const originalSelect = dataModule.select;
-			dataModule.select = () => ( {} );
+			// Return a store object without getCollections
+			mockSelect.mockReturnValue( {} );
 
 			removeJetpackBlockCollection();
 
 			expect( mockRemoveBlockCollection ).not.toHaveBeenCalled();
-
-			dataModule.select = originalSelect;
 		} );
 	} );
 
