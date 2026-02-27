@@ -85,6 +85,15 @@ class Attachment_Handler_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Test that enqueue_media_library_poll registers the script.
+	 */
+	public function test_enqueue_media_library_poll_registers_script() {
+		Attachment_Handler::enqueue_media_library_poll();
+
+		$this->assertTrue( wp_script_is( 'videopress-media-library-poll', 'enqueued' ) );
+	}
+
+	/**
 	 * Test that heartbeat_received returns statuses for requested IDs.
 	 */
 	public function test_heartbeat_received_returns_statuses() {
