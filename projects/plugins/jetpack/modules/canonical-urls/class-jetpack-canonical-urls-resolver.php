@@ -58,9 +58,9 @@ class Jetpack_Canonical_Urls_Resolver {
 				$url = '';
 			}
 		} elseif ( is_author() ) {
-			$author = get_queried_object();
-			if ( $author instanceof WP_User ) {
-				$url = get_author_posts_url( $author->ID );
+			$author_id = (int) get_query_var( 'author' );
+			if ( $author_id ) {
+				$url = get_author_posts_url( $author_id );
 			}
 		} elseif ( is_year() ) {
 			$url = get_year_link( get_query_var( 'year' ) );

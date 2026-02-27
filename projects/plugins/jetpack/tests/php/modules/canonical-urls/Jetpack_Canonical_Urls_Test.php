@@ -200,6 +200,7 @@ class Jetpack_Canonical_Urls_Test extends WP_UnitTestCase {
 		$user_id = self::factory()->user->create( array( 'role' => 'author' ) );
 		self::factory()->post->create( array( 'post_author' => $user_id ) );
 		$this->go_to( get_author_posts_url( $user_id ) );
+		$this->assertTrue( is_author(), 'Expected is_author() after go_to author archive URL' );
 
 		$url = Jetpack_Canonical_Urls_Resolver::get_canonical_url();
 
@@ -413,6 +414,7 @@ class Jetpack_Canonical_Urls_Test extends WP_UnitTestCase {
 				get_author_posts_url( $user_id )
 			)
 		);
+		$this->assertTrue( is_author(), 'Expected is_author() after go_to author archive URL' );
 
 		$url = Jetpack_Canonical_Urls_Resolver::get_canonical_url();
 
