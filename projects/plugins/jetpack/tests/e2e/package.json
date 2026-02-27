@@ -26,7 +26,7 @@
 	},
 	"browserslist": [],
 	"devDependencies": {
-		"@playwright/test": "1.55.1",
+		"@playwright/test": "1.58.2",
 		"@types/node": "^22.19.11",
 		"_jetpack-e2e-commons": "workspace:*",
 		"allure-playwright": "2.15.1",
