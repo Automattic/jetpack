@@ -32,7 +32,7 @@ class Dashboard {
 				$forms_root = dirname( __DIR__, 2 );
 				\Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills::register(
 					$forms_root,
-					$forms_root . '/build/polyfills/modules/boot/index.min.js'
+					$forms_root . '/composer.json' // Used only for plugins_url() computation, as it is a known file.
 				);
 			}
 
