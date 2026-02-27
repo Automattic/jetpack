@@ -607,8 +607,6 @@ class Functions_OpenGraph_Test extends Jetpack_Attachment_TestCase {
 
 	/**
 	 * Test that jetpack_og_get_fallback_social_image returns early in offline mode.
-	 *
-	 * @since 15.0
 	 */
 	public function test_jetpack_og_get_fallback_social_image_returns_early_in_offline_mode() {
 		// Simulate offline mode.
@@ -631,8 +629,6 @@ class Functions_OpenGraph_Test extends Jetpack_Attachment_TestCase {
 	/**
 	 * Test that jetpack_og_get_fallback_social_image skips dynamic image generation in offline mode
 	 * even when a social image token would be available.
-	 *
-	 * @since 15.0
 	 */
 	public function test_jetpack_og_get_fallback_social_image_skips_generation_in_offline_mode() {
 		// Simulate offline mode.
