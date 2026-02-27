@@ -176,8 +176,8 @@ class MailPoet_Integration {
 		$subscriber_data = array();
 		foreach ( $form->fields as $field ) {
 			$type  = strtolower( (string) $field->get_attribute( 'type' ) );
-			$id    = strtolower( str_replace( array( ' ', '_' ), '', $field->get_attribute( 'id' ) ) );
-			$label = strtolower( str_replace( array( ' ', '_' ), '', $field->get_attribute( 'label' ) ) );
+			$id    = strtolower( str_replace( array( ' ', '_' ), '', (string) $field->get_attribute( 'id' ) ) );
+			$label = strtolower( str_replace( array( ' ', '_' ), '', (string) $field->get_attribute( 'label' ) ) );
 
 			// If value is not a string, we already know it's not a valid name or email.
 			if ( ! is_string( $field->value ) ) {
