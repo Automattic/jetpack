@@ -197,7 +197,7 @@ class Jetpack_Canonical_Urls_Test extends WP_UnitTestCase {
 	 * Test resolver returns the author posts URL for an author archive.
 	 */
 	public function test_resolver_author() {
-		$user_id = self::factory()->user->create();
+		$user_id = self::factory()->user->create( array( 'role' => 'author' ) );
 		self::factory()->post->create( array( 'post_author' => $user_id ) );
 		$this->go_to( get_author_posts_url( $user_id ) );
 
@@ -401,7 +401,7 @@ class Jetpack_Canonical_Urls_Test extends WP_UnitTestCase {
 	 * Test that visiting an author archive with multiple tracking args returns clean URL.
 	 */
 	public function test_resolver_author_with_tracking_args() {
-		$user_id = self::factory()->user->create();
+		$user_id = self::factory()->user->create( array( 'role' => 'author' ) );
 		self::factory()->post->create( array( 'post_author' => $user_id ) );
 		$this->go_to(
 			add_query_arg(
