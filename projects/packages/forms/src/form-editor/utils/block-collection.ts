@@ -68,12 +68,14 @@ export const restoreJetpackBlockCollection = () => {
 		addBlockCollection?: ( namespace: string, title: string, icon?: unknown ) => void;
 	};
 
-	if ( typeof blocksDispatch.addBlockCollection === 'function' ) {
-		blocksDispatch.addBlockCollection(
-			JETPACK_COLLECTION_NAMESPACE,
-			savedCollection.title,
-			savedCollection.icon
-		);
+	if ( typeof blocksDispatch.addBlockCollection !== 'function' ) {
+		return;
 	}
+
+	blocksDispatch.addBlockCollection(
+		JETPACK_COLLECTION_NAMESPACE,
+		savedCollection.title,
+		savedCollection.icon
+	);
 	savedCollection = null;
 };
