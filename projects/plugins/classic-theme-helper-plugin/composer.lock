@@ -847,7 +847,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/post-media",
-                "reference": "28b5f5b5b8ca9858e6c5ce23a4e852c756713960"
+                "reference": "bdce23b214ce6e4f0877f40f3d7e6694cec84810"
             },
             "require": {
                 "automattic/block-delimiter": "@dev",
@@ -874,10 +874,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-post-media/compare/v${old}...v${new}"
                 },
                 "mirror-repo": "Automattic/jetpack-post-media",
-                "textdomain": "jetpack-post-media",
-                "version-constants": {
-                    "::PACKAGE_VERSION": "src/class-post-media.php"
-                }
+                "textdomain": "jetpack-post-media"
             },
             "autoload": {
                 "classmap": [
