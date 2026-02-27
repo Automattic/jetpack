@@ -24,6 +24,8 @@ interface UseSyncedFormResult {
 	syncedForm: JetpackForm | null;
 }
 
+const EMPTY_FORM = { syncedAttributes: null, syncedInnerBlocks: null };
+
 /**
  * Custom hook to load a synced form from jetpack_form post type
  * When a form block has a `ref` attribute, this hook loads the full block content
@@ -33,11 +35,13 @@ interface UseSyncedFormResult {
  * @return {UseSyncedFormResult} Object containing loading state and parsed block data
  */
 export function useSyncedForm( ref: number | undefined ): UseSyncedFormResult {
-	const { record, isResolving, hasEdits } = useEntityRecord< JetpackForm >(
+	const { record, isResolving, status, hasEdits } = useEntityRecord< JetpackForm >(
 		'postType',
 		FORM_POST_TYPE,
 		ref,
-		{ enabled: !! ref }
+		{
+			enabled: !! ref,
+		}
 	);
 
 	// Get the actual pending edits object to see exactly what's being changed
@@ -99,20 +103,20 @@ export function useSyncedForm( ref: number | undefined ): UseSyncedFormResult {
 
 		// Fall back to saved record content
 		if ( ! record?.content?.raw ) {
-			return { syncedAttributes: null, syncedInnerBlocks: null };
+			return EMPTY_FORM;
 		}
 
 		const parsedBlocks = parse( record.content.raw );
 
 		if ( ! parsedBlocks || parsedBlocks.length === 0 ) {
-			return { syncedAttributes: null, syncedInnerBlocks: null };
+			return EMPTY_FORM;
 		}
 
 		// Get the first block (should be the contact-form block)
 		const formBlock = parsedBlocks[ 0 ];
 
 		if ( formBlock.name !== 'jetpack/contact-form' ) {
-			return { syncedAttributes: null, syncedInnerBlocks: null };
+			return EMPTY_FORM;
 		}
 
 		// Get attributes and add 'ref' (lock is stripped via destructuring)
@@ -136,6 +140,16 @@ export function useSyncedForm( ref: number | undefined ): UseSyncedFormResult {
 			syncedAttributes: null,
 			syncedInnerBlocks: null,
 			syncedForm: null,
+		};
+	}
+
+	// IDLE Status is when we haven't started the loading process just yet.
+	if ( status === 'IDLE' ) {
+		return {
+			isLoading: true,
+			syncedAttributes,
+			syncedInnerBlocks,
+			syncedForm: record,
 		};
 	}
 

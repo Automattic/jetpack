@@ -290,7 +290,7 @@ function JetpackContactFormEdit( {
 
 			return {
 				postTitle: title,
-				hasAnyInnerBlocks: innerBlocksData.length > 0,
+				hasAnyInnerBlocks: innerBlocksData.length > 0 || syncedFormBlocks?.length > 0,
 				postAuthorEmail: authorEmail,
 				selectedBlockClientId: selectedStepBlockId,
 				onlySubmitBlock: isSingleButtonBlock,
@@ -298,7 +298,7 @@ function JetpackContactFormEdit( {
 				hasChildSelected: hasSelectedInnerBlock( clientId, true ),
 			};
 		},
-		[ clientId ]
+		[ clientId, syncedFormBlocks ]
 	);
 
 	useEffect( () => {

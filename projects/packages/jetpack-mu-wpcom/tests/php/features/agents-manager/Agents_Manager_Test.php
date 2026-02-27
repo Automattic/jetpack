@@ -61,6 +61,13 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	private $original_current_screen;
 
 	/**
+	 * Original next_admin_init action count to restore after tests.
+	 *
+	 * @var int
+	 */
+	private $original_next_admin_init_count;
+
+	/**
 	 * Set up test fixtures.
 	 */
 	public function set_up() {
@@ -77,6 +84,10 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 
 		// Save original current_screen global.
 		$this->original_current_screen = $GLOBALS['current_screen'] ?? null;
+
+		// Save original next_admin_init action count (CIAB detection).
+		global $wp_actions;
+		$this->original_next_admin_init_count = $wp_actions['next_admin_init'] ?? 0;
 	}
 
 	/**
@@ -121,6 +132,14 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 
 		// Log out any logged-in user.
 		wp_set_current_user( 0 );
+
+		// Restore next_admin_init action count (CIAB detection).
+		global $wp_actions;
+		if ( $this->original_next_admin_init_count === 0 ) {
+			unset( $wp_actions['next_admin_init'] );
+		} else {
+			$wp_actions['next_admin_init'] = $this->original_next_admin_init_count;
+		}
 
 		// Clear the status cache and constants.
 		Cache::clear();
@@ -1740,7 +1759,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * Tests that enqueue_scripts includes sectionName as ciab-disconnected in CIAB environment
-	 * when unified experience is enabled but Jetpack is disconnected.
+	 * when Jetpack is disconnected.
 	 */
 	public function test_enqueue_scripts_includes_section_name_ciab_disconnected() {
 		// Set admin context - scripts only enqueue in admin.
@@ -1750,8 +1769,9 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		global $wp_actions;
 		$original_action_count = $wp_actions['next_admin_init'] ?? 0;
 
-		// Simulate CIAB environment by firing the next_admin_init action.
-		do_action( 'next_admin_init' );
+		// Simulate CIAB environment by incrementing the action counter directly
+		// (avoids side effects from firing the action, which would trigger enqueue_scripts).
+		$wp_actions['next_admin_init'] = ( $wp_actions['next_admin_init'] ?? 0 ) + 1;
 
 		// Reset the script registry.
 		global $wp_scripts;
@@ -1759,8 +1779,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 
 		wp_register_script( 'agents-manager', 'https://example.com/agents-manager.js', array(), '1.0', true );
 
-		// Enable unified experience and simulate a Jetpack site with a disconnected user.
-		add_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+		// Simulate a Jetpack site with a disconnected user.
 		add_filter( 'is_jetpack_site', '__return_true', 20 );
 		// Do not connect the user - is_user_connected() will return false by default.
 
@@ -1772,8 +1791,48 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertStringContainsString( '"sectionName":"ciab-disconnected"', $inline_script );
 
-		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
 		remove_filter( 'is_jetpack_site', '__return_true', 20 );
+
+		// Restore the original did_action counter to prevent test order dependencies.
+		if ( $original_action_count === 0 ) {
+			unset( $wp_actions['next_admin_init'] );
+		} else {
+			$wp_actions['next_admin_init'] = $original_action_count;
+		}
+	}
+
+	/**
+	 * Tests that enqueue_scripts includes sectionName as ciab in CIAB environment
+	 * when is_jetpack_disconnected() returns false (non-Jetpack site or connected user).
+	 */
+	public function test_enqueue_scripts_includes_section_name_ciab_connected() {
+		// Set admin context - scripts only enqueue in admin.
+		$this->set_admin_context();
+
+		// Save the current did_action counter for next_admin_init to restore later.
+		global $wp_actions;
+		$original_action_count = $wp_actions['next_admin_init'] ?? 0;
+
+		// Simulate CIAB environment by incrementing the action counter directly
+		// (avoids side effects from firing the action, which would trigger enqueue_scripts).
+		$wp_actions['next_admin_init'] = ( $wp_actions['next_admin_init'] ?? 0 ) + 1;
+
+		// Reset the script registry.
+		global $wp_scripts;
+		$wp_scripts = null;
+
+		wp_register_script( 'agents-manager', 'https://example.com/agents-manager.js', array(), '1.0', true );
+
+		// Do NOT simulate a Jetpack disconnected site.
+		// is_jetpack_disconnected() returns false for non-Jetpack sites.
+
+		$this->agents_manager->enqueue_scripts();
+
+		$this->assertNotNull( $wp_scripts, 'wp_scripts should be initialized after enqueue_scripts' );
+		$inline_scripts = $wp_scripts->registered['agents-manager']->extra['before'] ?? array();
+		$inline_script  = implode( "\n", array_filter( $inline_scripts ) );
+
+		$this->assertStringContainsString( '"sectionName":"ciab"', $inline_script );
 
 		// Restore the original did_action counter to prevent test order dependencies.
 		if ( $original_action_count === 0 ) {
@@ -1952,25 +2011,19 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Tests that should_enqueue_script returns false in CIAB environment when Jetpack is connected.
-	 *
-	 * Connected CIAB is handled by Help Center; Agents Manager should not load.
+	 * Tests that get_variant returns ciab in CIAB environment
+	 * when is_jetpack_disconnected() returns false (non-Jetpack site or connected user).
 	 */
-	public function test_should_enqueue_script_returns_false_in_ciab_when_connected() {
+	public function test_get_variant_returns_ciab_in_ciab_when_connected() {
 		$this->set_admin_context();
 
 		// Save and simulate CIAB environment.
 		global $wp_actions;
-		$original_action_count = $wp_actions['next_admin_init'] ?? 0;
-		do_action( 'next_admin_init' );
+		$original_action_count         = $wp_actions['next_admin_init'] ?? 0;
+		$wp_actions['next_admin_init'] = ( $wp_actions['next_admin_init'] ?? 0 ) + 1;
 
-		// Enable unified experience but do NOT simulate a Jetpack disconnected site.
 		// is_jetpack_disconnected() returns false for non-Jetpack sites.
-		add_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
-
-		$result = $this->call_should_enqueue_script();
-
-		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+		$result = $this->call_get_variant();
 
 		// Restore did_action counter.
 		if ( $original_action_count === 0 ) {
@@ -1979,7 +2032,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 			$wp_actions['next_admin_init'] = $original_action_count;
 		}
 
-		$this->assertFalse( $result );
+		$this->assertSame( 'ciab', $result );
 	}
 
 	/**
@@ -2117,6 +2170,34 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
 
 		$this->assertTrue( $result );
+	}
+
+	/**
+	 * Tests that get_variant returns null in CIAB when agents_manager_enabled_in_ciab filter returns false.
+	 */
+	public function test_get_variant_returns_null_in_ciab_when_disabled_by_filter() {
+		$this->set_admin_context();
+
+		// Save and simulate CIAB environment.
+		global $wp_actions;
+		$original_action_count         = $wp_actions['next_admin_init'] ?? 0;
+		$wp_actions['next_admin_init'] = ( $wp_actions['next_admin_init'] ?? 0 ) + 1;
+
+		// Disable AM in CIAB via filter.
+		add_filter( 'agents_manager_enabled_in_ciab', '__return_false', 20 );
+
+		$result = $this->call_get_variant();
+
+		remove_filter( 'agents_manager_enabled_in_ciab', '__return_false', 20 );
+
+		// Restore did_action counter.
+		if ( $original_action_count === 0 ) {
+			unset( $wp_actions['next_admin_init'] );
+		} else {
+			$wp_actions['next_admin_init'] = $original_action_count;
+		}
+
+		$this->assertNull( $result );
 	}
 
 	/**
