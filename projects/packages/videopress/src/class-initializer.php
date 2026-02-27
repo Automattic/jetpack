@@ -350,13 +350,9 @@ class Initializer {
 				: get_the_ID();
 
 			if ( $post_id ) {
-				$embed_attr      = wp_embed_defaults( $videopress_url );
-				$key_suffix      = md5( $videopress_url . serialize( $embed_attr ) ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize -- Matching WP_Embed cache key format.
-				$oembed_meta_key = '_oembed_' . $key_suffix;
-				$oembed_time_key = '_oembed_time_' . $key_suffix;
-
-				$oembed_value = get_post_meta( $post_id, $oembed_meta_key, true );
-				$oembed_time  = (int) get_post_meta( $post_id, $oembed_time_key, true );
+				$key_suffix   = md5( $videopress_url . serialize( wp_embed_defaults( $videopress_url ) ) ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize -- Matching WP_Embed cache key format.
+				$oembed_value = get_post_meta( $post_id, '_oembed_' . $key_suffix, true );
+				$oembed_time  = (int) get_post_meta( $post_id, '_oembed_time_' . $key_suffix, true );
 
 				/*
 				 * Only clear the '{{unknown}}' cache entry when it is recent, to avoid
@@ -366,8 +362,8 @@ class Initializer {
 					'{{unknown}}' === $oembed_value
 					&& ( ! $oembed_time || ( time() - $oembed_time ) < MINUTE_IN_SECONDS )
 				) {
-					delete_post_meta( $post_id, $oembed_meta_key );
-					delete_post_meta( $post_id, $oembed_time_key );
+					delete_post_meta( $post_id, '_oembed_' . $key_suffix );
+					delete_post_meta( $post_id, '_oembed_time_' . $key_suffix );
 				}
 			}
 		}
