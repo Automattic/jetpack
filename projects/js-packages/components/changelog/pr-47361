@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+AdminPage: Remove header border-bottom for a cleaner unified header appearance.
