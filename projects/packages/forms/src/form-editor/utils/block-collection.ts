@@ -41,15 +41,16 @@ export const removeJetpackBlockCollection = () => {
 		return;
 	}
 
-	savedCollection = jetpackCollection;
-
 	const blocksDispatch = dispatch( 'core/blocks' ) as {
 		removeBlockCollection?: ( namespace: string ) => void;
 	};
 
-	if ( typeof blocksDispatch.removeBlockCollection === 'function' ) {
-		blocksDispatch.removeBlockCollection( JETPACK_COLLECTION_NAMESPACE );
+	if ( typeof blocksDispatch.removeBlockCollection !== 'function' ) {
+		return;
 	}
+
+	savedCollection = jetpackCollection;
+	blocksDispatch.removeBlockCollection( JETPACK_COLLECTION_NAMESPACE );
 };
 
 /**
