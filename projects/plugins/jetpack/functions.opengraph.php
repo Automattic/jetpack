@@ -610,7 +610,6 @@ function jetpack_og_get_available_templates() {
  * @return string|WP_Error The social image token, or a WP_Error if the token could not be generated.
  */
 function jetpack_og_get_social_image_token( $site_title, $image_url, $template ) {
-
 	// Let's check if we have a cached token.
 	$cache_key      = wp_hash( $site_title . $image_url . $template );
 	$transient_name = 'jetpack_og_social_image_token_' . $cache_key;
