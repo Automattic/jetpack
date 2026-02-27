@@ -315,7 +315,7 @@ class Initializer {
 			 * This prevents the published page from showing a bare link.
 			 */
 			$fallback = function ( $output, $url ) use ( $videopress_url ) {
-				if ( $url !== html_entity_decode( $videopress_url ) ) {
+				if ( $url !== html_entity_decode( $videopress_url, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 ) ) {
 					return $output;
 				}
 
