@@ -7,6 +7,10 @@
 
 namespace Automattic\Jetpack\Extensions\ImageStudio;
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Status\Host;
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
 }
@@ -25,14 +29,41 @@ const HEADLESS_AGENT_PROVIDER = 'image-studio/headless-agent-provider';
 /**
  * Check if Image Studio is enabled.
  *
- * Returns true if either the unified chat experience or the
- * jetpack_image_studio_enabled filter is active.
+ * Requires AI features (Big Sky or AI Assistant) plus at least one of:
+ * - The unified chat experience (agents_manager_use_unified_experience).
+ * - The jetpack_image_studio_enabled filter.
  *
  * @return bool
  */
 function is_image_studio_enabled() {
+	if ( ! has_ai_features() ) {
+		return false;
+	}
+
 	return apply_filters( 'agents_manager_use_unified_experience', false )
 		|| apply_filters( 'jetpack_image_studio_enabled', false );
+}
+
+/**
+ * Check whether AI features are available.
+ *
+ * - wpcom simple: always available.
+ * - Atomic: requires Big Sky or AI Assistant feature flags.
+ * - Self-hosted: requires a connected owner with AI not disabled
+ *   (same conditions the AI Assistant plugin uses to register).
+ *
+ * @return bool
+ */
+function has_ai_features() {
+	$host = new Host();
+
+	if ( $host->is_wpcom_simple() ) {
+		return true;
+	}
+
+	return ( new Connection_Manager( 'jetpack' ) )->has_connected_owner()
+		&& ! ( new Status() )->is_offline_mode()
+		&& apply_filters( 'jetpack_ai_enabled', true );
 }
 
 /**
@@ -332,7 +363,7 @@ add_action( 'jetpack_register_gutenberg_extensions', __NAMESPACE__ . '\disable_j
 
 /**
  * Enable the agents manager unified experience on self-hosted sites
- * when jetpack_image_studio_enabled is true.
+ * when Image Studio is enabled with AI capabilities.
  *
  * This ensures the agents manager loads and can host the headless agent
  * even when the unified chat experience is not otherwise enabled.
@@ -345,7 +376,7 @@ function enable_agents_manager_for_image_studio( $use_unified_experience ) {
 		return true;
 	}
 
-	return (bool) apply_filters( 'jetpack_image_studio_enabled', false );
+	return has_ai_features() && (bool) apply_filters( 'jetpack_image_studio_enabled', false );
 }
 add_filter( 'agents_manager_use_unified_experience', __NAMESPACE__ . '\enable_agents_manager_for_image_studio' );
 
