@@ -36,7 +36,7 @@ const AdminPage = ( { children } ) => {
 			title={ __( 'Protect', 'jetpack-protect' ) }
 			subTitle={ __( 'Automated malware scanning and firewall protection.', 'jetpack-protect' ) }
 			tabs={
-				<Tabs>
+				<Tabs className={ styles.navigation }>
 					<Tab
 						link="/scan"
 						label={
