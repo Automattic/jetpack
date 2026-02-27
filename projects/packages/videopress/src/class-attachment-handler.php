@@ -317,6 +317,23 @@ class Attachment_Handler {
 			Package_Version::PACKAGE_VERSION,
 			true
 		);
+
+		add_filter( 'heartbeat_settings', array( __CLASS__, 'heartbeat_settings' ) );
+	}
+
+	/**
+	 * Lowers the Heartbeat minimum interval on the media library page
+	 * so the polling script can request a faster tick rate.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $settings Heartbeat settings.
+	 * @return array
+	 */
+	public static function heartbeat_settings( $settings ) {
+		$settings['minimalInterval'] = 10;
+
+		return $settings;
 	}
 
 	/**

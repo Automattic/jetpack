@@ -33,6 +33,9 @@
 		const ids = getProcessingVideoIds();
 		if ( ids.length ) {
 			data.videopress_processing_ids = ids;
+			wp.heartbeat.interval( 'fast' );
+		} else {
+			wp.heartbeat.interval( 'standard' );
 		}
 	} );
 

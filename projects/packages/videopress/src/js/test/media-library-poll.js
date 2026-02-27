@@ -55,6 +55,7 @@ beforeEach( () => {
 	global.wp = {
 		media: { frame: null },
 		ajax: { send: jest.fn() },
+		heartbeat: { interval: jest.fn() },
 	};
 } );
 
@@ -121,6 +122,38 @@ describe( 'heartbeat-send', () => {
 		handlers[ 'heartbeat-send' ]( {}, data );
 
 		expect( data.videopress_processing_ids ).toBeUndefined();
+	} );
+
+	it( 'speeds up heartbeat when videos are processing', () => {
+		setupLibrary( [
+			createAttachment( {
+				id: 10,
+				type: 'video',
+				subtype: 'videopress',
+				videopress_status: 'processing',
+			} ),
+		] );
+		loadScript();
+
+		handlers[ 'heartbeat-send' ]( {}, {} );
+
+		expect( global.wp.heartbeat.interval ).toHaveBeenCalledWith( 'fast' );
+	} );
+
+	it( 'restores standard heartbeat when no videos are processing', () => {
+		setupLibrary( [
+			createAttachment( {
+				id: 10,
+				type: 'video',
+				subtype: 'videopress',
+				videopress_status: 'complete',
+			} ),
+		] );
+		loadScript();
+
+		handlers[ 'heartbeat-send' ]( {}, {} );
+
+		expect( global.wp.heartbeat.interval ).toHaveBeenCalledWith( 'standard' );
 	} );
 
 	it( 'handles missing media frame gracefully', () => {

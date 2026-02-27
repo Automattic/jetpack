@@ -94,6 +94,15 @@ class Attachment_Handler_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Test that heartbeat_settings lowers the minimal interval.
+	 */
+	public function test_heartbeat_settings_lowers_minimal_interval() {
+		$settings = Attachment_Handler::heartbeat_settings( array() );
+
+		$this->assertSame( 10, $settings['minimalInterval'] );
+	}
+
+	/**
 	 * Test that heartbeat_received returns statuses for requested IDs.
 	 */
 	public function test_heartbeat_received_returns_statuses() {
