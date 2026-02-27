@@ -990,8 +990,7 @@ function JetpackContactFormEdit( {
 
 	let elt;
 
-	// Show loading state when resolving synced form
-	if ( ref && isResolvingSyncedForm ) {
+	if ( ref && isResolvingSyncedForm && ! hasAnyInnerBlocks ) {
 		return (
 			<div { ...blockProps }>
 				<ContactFormSkeletonLoader />
