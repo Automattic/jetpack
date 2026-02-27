@@ -54,6 +54,7 @@
 /jetpack_vendor/automattic/**/*.scss                     production-exclude
 /jetpack_vendor/automattic/**/*.ts                       production-exclude
 /jetpack_vendor/automattic/**/*.tsx                      production-exclude
+/jetpack_vendor/automattic/**/*.jsx                      production-exclude
 /jetpack_vendor/automattic/**/composer.json              production-exclude
 /modules/**/test/**                                      production-exclude
 /modules/subscriptions/newsletter-widget/src/**          production-exclude
@@ -70,6 +71,7 @@
 /vendor/automattic/**/*.scss                             production-exclude
 /vendor/automattic/**/*.ts                               production-exclude
 /vendor/automattic/**/*.tsx                              production-exclude
+/vendor/automattic/**/*.jsx                              production-exclude
 /vendor/automattic/**/composer.json                      production-exclude
 /vendor/automattic/jetpack-autoloader/**                 production-exclude
 /vendor/automattic/jetpack-changelogger/**               production-exclude
