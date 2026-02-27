@@ -8,30 +8,37 @@ const mockSelect = jest.fn( () => ( {
 	getCollections: mockGetCollections,
 } ) );
 
+const mockDispatch = jest.fn( () => ( {
+	removeBlockCollection: mockRemoveBlockCollection,
+	addBlockCollection: mockAddBlockCollection,
+} ) );
+
 await jest.unstable_mockModule( '@wordpress/data', () => ( {
 	select: ( ...args ) => mockSelect( ...args ),
-	dispatch: () => ( {
-		removeBlockCollection: mockRemoveBlockCollection,
-		addBlockCollection: mockAddBlockCollection,
-	} ),
+	dispatch: ( ...args ) => mockDispatch( ...args ),
 } ) );
 
 const { removeJetpackBlockCollection, restoreJetpackBlockCollection } = await import(
 	'../../../../src/form-editor/utils/block-collection'
 );
 
+const resetMocks = () => {
+	jest.clearAllMocks();
+	mockSelect.mockImplementation( () => ( {
+		getCollections: mockGetCollections,
+	} ) );
+	mockDispatch.mockImplementation( () => ( {
+		removeBlockCollection: mockRemoveBlockCollection,
+		addBlockCollection: mockAddBlockCollection,
+	} ) );
+};
+
 describe( 'block-collection', () => {
 	beforeEach( () => {
-		jest.clearAllMocks();
-		mockSelect.mockImplementation( () => ( {
-			getCollections: mockGetCollections,
-		} ) );
+		resetMocks();
 		// Reset module state between tests by restoring any saved collection
 		restoreJetpackBlockCollection();
-		jest.clearAllMocks();
-		mockSelect.mockImplementation( () => ( {
-			getCollections: mockGetCollections,
-		} ) );
+		resetMocks();
 	} );
 
 	describe( 'removeJetpackBlockCollection', () => {
@@ -54,12 +61,26 @@ describe( 'block-collection', () => {
 		} );
 
 		it( 'should not call removeBlockCollection when getCollections is unavailable', () => {
-			// Return a store object without getCollections
 			mockSelect.mockReturnValue( {} );
 
 			removeJetpackBlockCollection();
 
 			expect( mockRemoveBlockCollection ).not.toHaveBeenCalled();
+		} );
+
+		it( 'should not save state when removeBlockCollection is unavailable', () => {
+			mockGetCollections.mockReturnValue( {
+				jetpack: { title: 'Jetpack', icon: 'jetpack-icon' },
+			} );
+			// dispatch returns object without removeBlockCollection
+			mockDispatch.mockReturnValue( {} );
+
+			removeJetpackBlockCollection();
+			resetMocks();
+
+			// Restore should be a no-op since nothing was actually saved
+			restoreJetpackBlockCollection();
+			expect( mockAddBlockCollection ).not.toHaveBeenCalled();
 		} );
 	} );
 
@@ -95,6 +116,26 @@ describe( 'block-collection', () => {
 			restoreJetpackBlockCollection();
 
 			expect( mockAddBlockCollection ).toHaveBeenCalledTimes( 1 );
+		} );
+
+		it( 'should preserve savedCollection when addBlockCollection is unavailable', () => {
+			mockGetCollections.mockReturnValue( {
+				jetpack: { title: 'Jetpack', icon: 'jetpack-icon' },
+			} );
+			removeJetpackBlockCollection();
+			jest.clearAllMocks();
+
+			// dispatch returns object without addBlockCollection
+			mockDispatch.mockReturnValue( {} );
+			restoreJetpackBlockCollection();
+
+			expect( mockAddBlockCollection ).not.toHaveBeenCalled();
+
+			// Restore the full dispatch mock — restore should still work
+			resetMocks();
+			restoreJetpackBlockCollection();
+
+			expect( mockAddBlockCollection ).toHaveBeenCalledWith( 'jetpack', 'Jetpack', 'jetpack-icon' );
 		} );
 	} );
 
