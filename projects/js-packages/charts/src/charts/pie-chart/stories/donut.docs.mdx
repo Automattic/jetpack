@@ -63,6 +63,58 @@ All optional props from [PieChart](./?path=/docs/js-packages-charts-library-char
 - **Thickness control**: Adjustable ring thickness determines the size of the hollow center
 - **Center content**: Support for custom content in the center area using `children` prop
 
+### Thickness Guidelines
+
+The `thickness` prop controls the relationship between the inner and outer radius:
+
+Choose thickness values based on your content needs:
+
+- **0.1 - 0.3**: Thin rings, good for progress indicators and KPI displays
+- **0.4 - 0.6**: Balanced donuts, versatile for most use cases with ample center space
+- **0.7 - 0.9**: Thick donuts, when center content is minimal or when you want emphasis on the chart data
+
+**Formula**: `innerRadius = outerRadius × (1 - thickness)`
+- thickness 0.5 means the inner radius is 50% of the outer radius
+- thickness 0.8 means the inner radius is 20% of the outer radius
+
+### Center Content Guidelines
+
+**Typography Hierarchy:**
+- Use larger font sizes for primary metrics
+- Smaller font sizes for labels and descriptions
+- Consider font weight to establish visual hierarchy
+
+**Content Length:**
+- Keep text concise to fit comfortably in the center
+- Use abbreviations for large numbers (e.g., "1.2M" instead of "1,200,000")
+- Break long labels into multiple lines
+
+### Responsive Center Content
+
+Donut charts with center content need special attention for responsiveness:
+
+<Source
+	language="jsx"
+	code={ `// Responsive text sizing
+	const ResponsiveDonut = ({ size }) => {
+		const fontSize = Math.max(12, size * 0.06); // Scale with chart size
+
+		return (
+			<PieChart thickness={ 0.5 } data={ data }>
+				<Group>
+					<Text
+						textAnchor="middle"
+						verticalAnchor="middle"
+						fontSize={ fontSize }
+					>
+						{ totalValue }
+					</Text>
+				</Group>
+			</PieChart>
+		);
+	};` }
+/>
+
 ## Donut Variations
 
 ### Thin Ring Donut
@@ -119,6 +171,8 @@ Tooltips work seamlessly with donut charts:
 	</PieChart>` }
 />
 
+## Legends
+
 ### Donut with Legend
 
 Combine legends with donut charts for comprehensive data presentation:
@@ -146,61 +200,34 @@ Combine legends with donut charts for comprehensive data presentation:
 	</PieChart>` }
 />
 
-## Styling and Best Practices
+### Data Validation and Error Handling
 
-### Thickness Guidelines
-
-The `thickness` prop controls the relationship between the inner and outer radius:
-
-Choose thickness values based on your content needs:
-
-- **0.1 - 0.3**: Thin rings, good for progress indicators and KPI displays
-- **0.4 - 0.6**: Balanced donuts, versatile for most use cases with ample center space
-- **0.7 - 0.9**: Thick donuts, when center content is minimal or when you want emphasis on the chart data
-
-**Formula**: `innerRadius = outerRadius × (1 - thickness)`
-- thickness 0.5 means the inner radius is 50% of the outer radius
-- thickness 0.8 means the inner radius is 20% of the outer radius
-
-### Center Content Guidelines
-
-**Typography Hierarchy:**
-- Use larger font sizes for primary metrics
-- Smaller font sizes for labels and descriptions
-- Consider font weight to establish visual hierarchy
-
-**Content Length:**
-- Keep text concise to fit comfortably in the center
-- Use abbreviations for large numbers (e.g., "1.2M" instead of "1,200,000")
-- Break long labels into multiple lines
-
-### Responsive Considerations
-
-Donut charts with center content need special attention for responsiveness:
+Donut charts inherit the same robust data validation from PieChart:
 
 <Source
 	language="jsx"
-	code={ `// Responsive text sizing
-	const ResponsiveDonut = ({ size }) => {
-		const fontSize = Math.max(12, size * 0.06); // Scale with chart size
+	code={ `// The chart validates:
+	// - Empty data: Shows appropriate message when no data is provided
+	// - Percentage totals: Ensures percentages sum to 100%
+	// - Negative values: Prevents invalid negative values
+	// - Single data points: Handles edge cases gracefully
 
-		return (
-			<PieChart thickness={ 0.5 } data={ data }>
-				<Group>
-					<Text
-						textAnchor="middle"
-						verticalAnchor="middle"
-						fontSize={ fontSize }
-					>
-						{ totalValue }
-					</Text>
-				</Group>
-			</PieChart>
-		);
-	};` }
+	// Invalid data example - will show error message
+	const invalidData = [
+		{ label: 'A', value: 50, percentage: 60 }, // Percentages don't sum to 100
+		{ label: 'B', value: 30, percentage: 30 },
+	];
+
+	<PieChart thickness={ 0.4 } data={ invalidData }>
+		<Group>
+			<Text textAnchor="middle" verticalAnchor="middle">
+				This won't render
+			</Text>
+		</Group>
+	</PieChart>` }
 />
 
-### Responsive Behavior
+## Responsive Behavior
 
 The donut chart supports responsive sizing by omitting the `size` prop:
 
@@ -234,32 +261,7 @@ The donut chart supports responsive sizing by omitting the `size` prop:
 	</PieChart>` }
 />
 
-### Data Validation and Error Handling
-
-Donut charts inherit the same robust data validation from PieChart:
-
-<Source
-	language="jsx"
-	code={ `// The chart validates:
-	// - Empty data: Shows appropriate message when no data is provided
-	// - Percentage totals: Ensures percentages sum to 100%
-	// - Negative values: Prevents invalid negative values
-	// - Single data points: Handles edge cases gracefully
-
-	// Invalid data example - will show error message
-	const invalidData = [
-		{ label: 'A', value: 50, percentage: 60 }, // Percentages don't sum to 100
-		{ label: 'B', value: 30, percentage: 30 },
-	];
-
-	<PieChart thickness={ 0.4 } data={ invalidData }>
-		<Group>
-			<Text textAnchor="middle" verticalAnchor="middle">
-				This won't render
-			</Text>
-		</Group>
-	</PieChart>` }
-/>
+For more details on responsive behavior, see the [Responsive Design section](./?path=/docs/js-packages-charts-library-introduction--docs#responsive-design) in the introduction.
 
 ## Animation
 
@@ -296,28 +298,6 @@ Donut charts support an optional entry animation that creates a smooth reveal ef
 - **Duration**: 1000ms (1 second)
 
 **Note**: The animation plays once when the chart initially renders and does not repeat. Since donuts are created using PieChart, they use the same animation system.
-
-## Accessibility Considerations
-
-### Screen Reader Support
-
-Center content in donut charts should be properly announced:
-
-<Source
-	language="jsx"
-	code={ `<PieChart thickness={ 0.5 } data={ data }>
-		<Group>
-			<Text
-				textAnchor="middle"
-				verticalAnchor="middle"
-				role="img"
-				aria-label="Total users: 100,000"
-			>
-				100K
-			</Text>
-		</Group>
-	</PieChart>` }
-/>
 
 ## Common Use Cases
 
@@ -370,6 +350,28 @@ Display resource distribution with totals:
 			</Text>
 			<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 14 } y={ 20 }>
 				Total Budget
+			</Text>
+		</Group>
+	</PieChart>` }
+/>
+
+## Accessibility
+
+### Screen Reader Support
+
+Center content in donut charts should be properly announced:
+
+<Source
+	language="jsx"
+	code={ `<PieChart thickness={ 0.5 } data={ data }>
+		<Group>
+			<Text
+				textAnchor="middle"
+				verticalAnchor="middle"
+				role="img"
+				aria-label="Total users: 100,000"
+			>
+				100K
 			</Text>
 		</Group>
 	</PieChart>` }

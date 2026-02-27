@@ -60,10 +60,11 @@ Before changing chart docs or stories, read:
 
 Docs standards:
 
-- MUST create/maintain paired files for documented features:
+- For public chart/component docs, maintain the standard docs set when applicable:
   - `[feature-name].stories.tsx`
   - `[feature-name].docs.mdx` (usage, examples, behavior, accessibility)
   - `[feature-name].api.mdx` (API reference only; no usage examples)
+- Some docs are intentionally guide-only or scope-specific (for example introduction, provider docs, or focused feature guides) and may not use the full triplet.
 - MUST keep props/types in docs aligned with implementation.
 - MUST include animation docs only when the component actually supports an `animation` prop.
 
