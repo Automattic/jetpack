@@ -50,6 +50,8 @@ class Block_Notes_Test extends \WP_UnitTestCase {
 		remove_all_filters( 'agents_manager_use_unified_experience' );
 		remove_all_filters( 'agents_manager_agent_providers' );
 		remove_all_filters( 'pre_http_request' );
+		remove_filter( 'get_avatar_data', 'Automattic\Jetpack\Extensions\BlockNotes\customize_ai_avatar', 10 );
+		unregister_meta_key( 'comment', 'bigsky_ai_processed_date' );
 		$GLOBALS['current_screen'] = $this->saved_screen;
 		$GLOBALS['wp_scripts']     = $this->saved_wp_scripts;
 		parent::tear_down();

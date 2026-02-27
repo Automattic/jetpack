@@ -197,12 +197,12 @@ function do_enqueue_assets() {
 /**
  * Enqueue Block Notes assets in the post editor.
  *
- * Only loads on the block editor for the 'post' post type.
+ * Only loads when should_load_on_current_screen() returns true.
  *
  * @return void
  */
 function enqueue_block_notes() {
-	if ( ! is_post_editor() ) {
+	if ( ! should_load_on_current_screen() ) {
 		return;
 	}
 
