@@ -11,11 +11,7 @@ import { DataViews } from '@wordpress/dataviews';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useNavigate } from '@wordpress/route';
-import { Stack } from '@wordpress/ui';
-/**
- * Internal dependencies
- */
-import * as Tabs from '../../../components/tabs';
+import { Stack, Tabs } from '@wordpress/ui';
 import { NON_TRASH_FORM_STATUSES } from '../../../constants.ts';
 import useFormsData from '../../../hooks/use-forms-data.ts';
 import { store as dashboardStore } from '../../../store/index.js';
@@ -94,7 +90,7 @@ export default function DataViewsHeaderRow( {
 						/>
 					) : (
 						<Tabs.Root value={ activeTab } onValueChange={ onTabChange }>
-							<Tabs.List density="compact">
+							<Tabs.List variant="minimal">
 								<Tabs.Tab value="forms">
 									<span>
 										{ __( 'Forms', 'jetpack-forms' ) }

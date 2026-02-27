@@ -5,10 +5,7 @@ import { formatNumberCompact } from '@automattic/number-formatters';
 import { Badge } from '@automattic/ui';
 import { useCallback, useMemo } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
-/**
- * Internal dependencies
- */
-import * as Tabs from '../../../components/tabs';
+import { Tabs } from '@wordpress/ui';
 
 type Status = 'inbox' | 'spam' | 'trash';
 
@@ -83,7 +80,7 @@ export default function InboxStatusToggle( {
 
 	return (
 		<Tabs.Root value={ activeStatus } onValueChange={ handleChange }>
-			<Tabs.List density="compact">
+			<Tabs.List variant="minimal">
 				{ statusTabs.map( option => (
 					<Tabs.Tab key={ option.value } value={ option.value }>
 						{ option.label }
