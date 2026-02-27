@@ -1,7 +1,4 @@
-import {
-	removeJetpackBlockCollection,
-	restoreJetpackBlockCollection,
-} from '../../../../src/form-editor/utils/block-collection';
+import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 
 const mockGetCollections = jest.fn();
 const mockRemoveBlockCollection = jest.fn();
@@ -11,13 +8,17 @@ const mockSelect = jest.fn( () => ( {
 	getCollections: mockGetCollections,
 } ) );
 
-jest.mock( '@wordpress/data', () => ( {
+await jest.unstable_mockModule( '@wordpress/data', () => ( {
 	select: ( ...args ) => mockSelect( ...args ),
 	dispatch: () => ( {
 		removeBlockCollection: mockRemoveBlockCollection,
 		addBlockCollection: mockAddBlockCollection,
 	} ),
 } ) );
+
+const { removeJetpackBlockCollection, restoreJetpackBlockCollection } = await import(
+	'../../../../src/form-editor/utils/block-collection'
+);
 
 describe( 'block-collection', () => {
 	beforeEach( () => {
