@@ -22,6 +22,7 @@ const SetupRoute = () => {
 		<JetpackAdminPage
 			moduleName={ __( 'Jetpack Protect', 'jetpack-protect' ) }
 			title={ __( 'Protect', 'jetpack-protect' ) }
+			subTitle={ __( 'Automated malware scanning and firewall protection.', 'jetpack-protect' ) }
 			actions={
 				<Text variant="body-small">
 					{ createInterpolateElement(
