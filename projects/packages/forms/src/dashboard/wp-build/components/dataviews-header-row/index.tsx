@@ -90,7 +90,7 @@ export default function DataViewsHeaderRow( {
 						/>
 					) : (
 						<Tabs.Root value={ activeTab } onValueChange={ onTabChange }>
-							<Tabs.List density="compact">
+							<Tabs.List variant="minimal">
 								<Tabs.Tab value="forms">
 									<span>
 										{ __( 'Forms', 'jetpack-forms' ) }
