@@ -172,7 +172,7 @@ function vimeo_shortcode( $atts ) {
 	);
 
 	if ( isset( $atts[0] ) ) {
-		$attr['id'] = jetpack_shortcode_get_vimeo_id( $atts );
+		$attr['id'] = \Automattic\Jetpack\Post_Media\Shortcodes::get_vimeo_id( $atts );
 	}
 
 	if ( ! $attr['id'] ) {

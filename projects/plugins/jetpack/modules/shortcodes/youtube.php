@@ -14,6 +14,8 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Post_Media\Shortcodes;
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
 }
@@ -167,13 +169,13 @@ endif;
  * @param string $url Youtube URL.
  */
 function jetpack_youtube_id( $url ) {
-	$id = jetpack_get_youtube_id( $url );
+	$id = Shortcodes::get_youtube_id( $url );
 
 	if ( ! $id ) {
 		return sprintf( '<!--%s-->', esc_html__( 'YouTube Error: bad URL entered', 'jetpack' ) );
 	}
 
-	$url = jetpack_youtube_sanitize_url( $url );
+	$url = Shortcodes::sanitize_youtube_url( $url );
 	$url = wp_parse_url( $url );
 
 	$thumbnail = "https://i.ytimg.com/vi/$id/hqdefault.jpg";

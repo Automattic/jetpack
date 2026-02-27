@@ -69,7 +69,7 @@ class Jetpack_Media_Meta_Extractor {
 	 *
 	 * @param string $content HTML content.
 	 * @param array  $image_list Array of already found images.
-	 * @param string $extract_alt_text Whether or not to extract the alt text.
+	 * @param bool   $extract_alt_text Whether or not to extract the alt text.
 	 *
 	 * @return array|array[] Array of images.
 	 */

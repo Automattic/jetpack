@@ -43,7 +43,7 @@ function jetpack_archiveorg_shortcode( $atts ) {
 	global $content_width;
 
 	if ( isset( $atts[0] ) && empty( $atts['id'] ) ) {
-		$atts['id'] = jetpack_shortcode_get_archiveorg_id( $atts );
+		$atts['id'] = \Automattic\Jetpack\Post_Media\Shortcodes::get_archiveorg_id( $atts );
 	}
 
 	$atts = shortcode_atts(

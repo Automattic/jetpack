@@ -7,6 +7,7 @@
 
 use Automattic\Jetpack\Image_CDN\Image_CDN_Core;
 use Automattic\Jetpack\Post_Media\Meta_Extractor;
+use Automattic\Jetpack\Post_Media\Shortcodes;
 
 /**
  * Class Jetpack_Media_Summary
@@ -195,13 +196,13 @@ class Jetpack_Media_Summary {
 						$return['video']           = 'http://' . $embed;
 						$return['secure']['video'] = self::https( $return['video'] );
 						if ( str_contains( $embed, 'youtube' ) ) {
-							$return['image']           = self::get_video_poster( 'youtube', jetpack_get_youtube_id( $return['video'] ) );
+							$return['image']           = self::get_video_poster( 'youtube', Shortcodes::get_youtube_id( $return['video'] ) );
 							$return['secure']['image'] = self::https( $return['image'] );
 						} elseif ( str_contains( $embed, 'youtu.be' ) ) {
-							$youtube_id                = jetpack_get_youtube_id( $return['video'] );
+							$youtube_id                = Shortcodes::get_youtube_id( $return['video'] );
 							$return['video']           = 'http://youtube.com/watch?v=' . $youtube_id . '&feature=youtu.be';
 							$return['secure']['video'] = self::https( $return['video'] );
-							$return['image']           = self::get_video_poster( 'youtube', jetpack_get_youtube_id( $return['video'] ) );
+							$return['image']           = self::get_video_poster( 'youtube', Shortcodes::get_youtube_id( $return['video'] ) );
 							$return['secure']['image'] = self::https( $return['image'] );
 						} elseif ( str_contains( $embed, 'vimeo' ) ) {
 							$poster_image = get_post_meta( $post_id, 'vimeo_poster_image', true );

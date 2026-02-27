@@ -6,6 +6,7 @@
  */
 
 use Automattic\Jetpack\Post_Media\Images;
+use Automattic\Jetpack\Post_Media\Shortcodes;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
@@ -161,7 +162,7 @@ function enhanced_og_video( $tags ) {
 
 	if ( preg_match( '/((youtube|vimeo)\.com|youtu.be)/', $video_url ) ) {
 		if ( strstr( $video_url, 'youtube' ) ) {
-			$id               = jetpack_get_youtube_id( $video_url );
+			$id               = Shortcodes::get_youtube_id( $video_url );
 			$video_url        = 'http://www.youtube.com/embed/' . $id;
 			$secure_video_url = 'https://www.youtube.com/embed/' . $id;
 		} elseif ( strstr( $video_url, 'vimeo' ) ) {
