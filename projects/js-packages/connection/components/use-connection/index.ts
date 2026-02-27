@@ -2,23 +2,26 @@ import restApi from '@automattic/jetpack-api';
 import { getScriptData } from '@automattic/jetpack-script-data';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { useEffect } from 'react';
-import { STORE_ID } from '../../state/store';
+import { STORE_ID } from '../../state/store.jsx';
+import type {
+	RegistrationError,
+	UserConnectionData,
+	UseConnectionProps,
+	UseConnectionReturn,
+} from './types.ts';
 
-const initialState = window?.JP_CONNECTION_INITIAL_STATE || getScriptData()?.connection || {};
+type StoreSelector = ( storeId: string ) => Record< string, ( ...args: unknown[] ) => unknown >;
+
+const initialState =
+	window?.JP_CONNECTION_INITIAL_STATE ||
+	getScriptData()?.connection ||
+	( {} as Record< string, string > );
 
 /**
  * Hook to handle the connection process.
  *
- * @param {object}  [props]                    - The props.
- * @param {string}  [props.registrationNonce]  - The registration nonce.
- * @param {string}  [props.apiRoot]            - The API root URL.
- * @param {string}  [props.apiNonce]           - The API nonce.
- * @param {string}  [props.redirectUri]        - The redirect URI.
- * @param {boolean} [props.autoTrigger]        - Whether to auto-trigger the connection process.
- * @param {string}  [props.from]               - Value that represents the redirect origin.
- * @param {boolean} [props.skipUserConnection] - Whether to skip user connection.
- * @param {boolean} [props.skipPricingPage]    - Whether to skip the pricing page.
- * @return {object} The connection state and handlers.
+ * @param {UseConnectionProps} props - The props.
+ * @return {UseConnectionReturn} The connection state and handlers.
  */
 export default function useConnection( {
 	registrationNonce = initialState.registrationNonce,
@@ -29,10 +32,14 @@ export default function useConnection( {
 	from,
 	skipUserConnection,
 	skipPricingPage,
-} = {} ) {
+}: UseConnectionProps = {} ): UseConnectionReturn {
 	const { registerSite, connectUser, refreshConnectedPlugins } = useDispatch( STORE_ID );
 
-	const registrationError = useSelect( select => select( STORE_ID ).getRegistrationError() );
+	const registrationError = useSelect(
+		( select: StoreSelector ) =>
+			select( STORE_ID ).getRegistrationError() as RegistrationError | false,
+		[]
+	);
 	const {
 		siteIsRegistering,
 		userIsConnecting,
@@ -43,26 +50,34 @@ export default function useConnection( {
 		isUserConnected,
 		hasConnectedOwner,
 		isOfflineMode,
-	} = useSelect( select => ( {
-		siteIsRegistering: select( STORE_ID ).getSiteIsRegistering(),
-		userIsConnecting: select( STORE_ID ).getUserIsConnecting(),
-		userConnectionData: select( STORE_ID ).getUserConnectionData(),
-		connectedPlugins: select( STORE_ID ).getConnectedPlugins(),
-		connectionErrors: select( STORE_ID ).getConnectionErrors(),
-		isOfflineMode: select( STORE_ID ).getIsOfflineMode(),
-		...select( STORE_ID ).getConnectionStatus(),
-	} ) );
+	} = useSelect( ( select: StoreSelector ) => {
+		const connectionStatus = select( STORE_ID ).getConnectionStatus() as Record< string, unknown >;
+		return {
+			siteIsRegistering: select( STORE_ID ).getSiteIsRegistering() as boolean,
+			userIsConnecting: select( STORE_ID ).getUserIsConnecting() as boolean,
+			userConnectionData: ( select( STORE_ID ).getUserConnectionData() ||
+				{} ) as UserConnectionData,
+			connectedPlugins: select( STORE_ID ).getConnectedPlugins() as
+				| Record< string, unknown >
+				| unknown[],
+			connectionErrors: select( STORE_ID ).getConnectionErrors() as Array< string | object >,
+			isOfflineMode: select( STORE_ID ).getIsOfflineMode() as boolean,
+			isRegistered: ( connectionStatus.isRegistered ?? false ) as boolean,
+			isUserConnected: ( connectionStatus.isUserConnected ?? false ) as boolean,
+			hasConnectedOwner: ( connectionStatus.hasConnectedOwner ?? false ) as boolean,
+		};
+	}, [] );
 
 	/**
 	 * User register process handler.
 	 *
-	 * @return {Promise} - Promise which resolves when the product status is activated.
+	 * @return Promise when running the user connection process. Otherwise, nothing.
 	 */
-	const handleConnectUser = () => {
+	const handleConnectUser = (): Promise< unknown > => {
 		if ( ! skipUserConnection ) {
 			return connectUser( { from, redirectUri, skipPricingPage } );
 		} else if ( redirectUri ) {
-			window.location = redirectUri;
+			window.location.href = redirectUri;
 			return Promise.resolve( redirectUri );
 		}
 
@@ -79,9 +94,9 @@ export default function useConnection( {
 	 * the site was successfully registered.
 	 *
 	 * @param {Event} [e] - Event that dispatched handleRegisterSite
-	 * @return {Promise}   Promise when running the registration process. Otherwise, nothing.
+	 * @return Promise when running the site connection process. Otherwise, nothing.
 	 */
-	const handleRegisterSite = e => {
+	const handleRegisterSite = ( e?: Event ): Promise< unknown > => {
 		e && e.preventDefault();
 
 		if ( isRegistered ) {
