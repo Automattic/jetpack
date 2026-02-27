@@ -72,13 +72,7 @@ p.jp-form-search-settings-group__toggle-explanation {
 	min-height: 2.5em;
 	padding: 0.5em 1.5em;
 	text-align: center;
-
 	font-size: 1em;
-
-	&:disabled,
-	&[disabled] {
-		cursor: not-allowed;
-	}
 }
 
 .jp-search-dashboard-cut {
