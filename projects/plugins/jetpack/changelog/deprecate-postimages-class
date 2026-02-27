@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Mark all methods in the Jetpack_PostImages class as deprecated in favor of the Post_Media package's Images class.
