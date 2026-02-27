@@ -49,7 +49,7 @@ class MailPoet_Integration {
 			try {
 				$lists = $mailpoet_api->getLists();
 				foreach ( $lists as $list ) {
-					if ( $list['id'] === $list_id && empty( $list['deleted_at'] ) ) {
+					if ( (string) $list['id'] === (string) $list_id && empty( $list['deleted_at'] ) ) {
 						return $list['id'];
 					}
 				}
@@ -175,6 +175,7 @@ class MailPoet_Integration {
 
 		$subscriber_data = array();
 		foreach ( $form->fields as $field ) {
+			$type  = strtolower( (string) $field->get_attribute( 'type' ) );
 			$id    = strtolower( str_replace( array( ' ', '_' ), '', $field->get_attribute( 'id' ) ) );
 			$label = strtolower( str_replace( array( ' ', '_' ), '', $field->get_attribute( 'label' ) ) );
 
@@ -185,7 +186,7 @@ class MailPoet_Integration {
 
 			$value = trim( $field->value );
 
-			if ( ( $id === 'email' || $label === 'email' ) && ! empty( $value ) ) {
+			if ( ( $type === 'email' || $id === 'email' || $label === 'email' ) && ! empty( $value ) ) {
 				$subscriber_data['email'] = $value;
 			} elseif ( ( $id === 'firstname' || $label === 'firstname' ) && ! empty( $value ) ) {
 				$subscriber_data['first_name'] = $value;
