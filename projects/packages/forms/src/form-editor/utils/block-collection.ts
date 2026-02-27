@@ -72,10 +72,14 @@ export const restoreJetpackBlockCollection = () => {
 		return;
 	}
 
-	blocksDispatch.addBlockCollection(
-		JETPACK_COLLECTION_NAMESPACE,
-		savedCollection.title,
-		savedCollection.icon
-	);
-	savedCollection = null;
+	try {
+		blocksDispatch.addBlockCollection(
+			JETPACK_COLLECTION_NAMESPACE,
+			savedCollection.title,
+			savedCollection.icon
+		);
+		savedCollection = null;
+	} catch {
+		// If re-registration fails, keep savedCollection so it can be retried later.
+	}
 };
