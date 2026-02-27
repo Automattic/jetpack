@@ -71,21 +71,7 @@ describe( 'safeJsonParse', () => {
 
 	test( 'throws sanitized error for invalid JSON', () => {
 		expect( () => safeJsonParse( 'SECRET_KEY=abc123', 'composer.json' ) ).toThrow(
-			'Invalid JSON in composer.json'
+			/^Invalid JSON in composer\.json$/
 		);
-	} );
-
-	test( 'error message does not contain the input content', () => {
-		const thrownError = ( () => {
-			try {
-				safeJsonParse( 'SECRET_KEY=abc123', 'composer.json' );
-			} catch ( error ) {
-				return error as Error;
-			}
-			return null;
-		} )();
-		expect( thrownError ).not.toBeNull();
-		expect( thrownError!.message ).not.toContain( 'SECRET_KEY' );
-		expect( thrownError!.message ).not.toContain( 'abc123' );
 	} );
 } );
