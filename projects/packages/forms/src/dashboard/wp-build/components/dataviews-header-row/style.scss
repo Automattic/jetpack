@@ -31,11 +31,7 @@
 	padding-block: variables.$grid-unit * 1.5;
 }
 
-// Temporary hard-coded styles for tab count badges in wp-build dashboard.
 .jp-forms-tabs-count {
-	background-color: var(--wpds-color-bg-surface-neutral-weak, #f0f0f0);
-	border-radius: 0;
-	color: var(--wpds-color-fg-content-neutral, #1e1e1e);
 	margin-inline-start: 4px;
 	vertical-align: middle;
 }
