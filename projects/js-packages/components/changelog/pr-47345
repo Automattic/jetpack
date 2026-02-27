@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+AdminPage: Remove admin-ui header border via scoped CSS to support unified admin-ui Page layout.
