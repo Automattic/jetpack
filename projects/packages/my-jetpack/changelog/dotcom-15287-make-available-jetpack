@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Newsletter: Use new settings page URL when wp-admin newsletter settings are enabled.
+Newsletter: Updated to use centralized URL utility from newsletter package for settings URL.

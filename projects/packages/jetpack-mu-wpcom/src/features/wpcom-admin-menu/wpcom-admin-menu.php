@@ -351,14 +351,14 @@ function wpcom_add_jetpack_submenu() {
 		// When the new wp-admin newsletter settings page is enabled, the menu item is added
 		// by the newsletter package's Settings::add_wp_admin_menu() for Atomic sites.
 		// Otherwise, link to Calypso for atomic Personal/Premium sites.
-		/** This filter is documented in projects/packages/newsletter/src/class-settings.php */
+		/** This filter is documented in projects/packages/newsletter/src/class-urls.php */
 		if ( ! apply_filters( 'jetpack_wp_admin_newsletter_settings_enabled', false ) ) {
 			add_submenu_page(
 				'jetpack',
 				esc_attr__( 'Newsletter', 'jetpack-mu-wpcom' ),
 				__( 'Newsletter', 'jetpack-mu-wpcom' ),
 				'manage_options',
-				'https://wordpress.com/settings/newsletter/' . $domain,
+				\Automattic\Jetpack\Newsletter\Urls::get_newsletter_settings_url( $domain, true ),
 				null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 			);
 		}
@@ -428,6 +428,7 @@ function wpcom_add_jetpack_submenu() {
 
 	if ( $is_simple_site ) {
 		// Jetpack > Newsletter.
+		/** This filter is documented in projects/packages/newsletter/src/class-urls.php */
 		if ( apply_filters( 'jetpack_wp_admin_newsletter_settings_enabled', false ) ) {
 			// When enabled, call Newsletter Settings to add the in-admin settings page.
 			// This must be done here (at priority 999999) because the Jetpack menu
@@ -440,7 +441,7 @@ function wpcom_add_jetpack_submenu() {
 				__( 'Newsletter', 'jetpack-mu-wpcom' ),
 				__( 'Newsletter', 'jetpack-mu-wpcom' ),
 				'manage_options',
-				'https://wordpress.com/settings/newsletter/' . $domain,
+				\Automattic\Jetpack\Newsletter\Urls::get_newsletter_settings_url( $domain ),
 				null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 			);
 		}

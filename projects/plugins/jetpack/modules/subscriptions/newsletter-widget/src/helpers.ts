@@ -1,5 +1,4 @@
 import analytics from '@automattic/jetpack-analytics';
-import { getRedirectUrl } from '@automattic/jetpack-components';
 import { dateI18n } from '@wordpress/date';
 import { SubscriberTotalsByDate, ChartSubscriptionDataPoint } from './types';
 
@@ -51,32 +50,6 @@ export const buildJPRedirectSource = ( url: string, isWpcomSite: boolean = true 
  */
 export const getSubscriberStatsUrl = ( site: string, adminUrl: string ): string => {
 	return `${ adminUrl }admin.php?page=stats#!/stats/subscribers/${ site }`;
-};
-
-/**
- * Generates the URL for newsletter settings based on site context.
- *
- * @param {string}  site                               - The site identifier
- * @param {boolean} isWpcomSite                        - Whether the site is on WordPress.com
- * @param {string}  adminUrl                           - The admin URL for self-hosted sites
- * @param {boolean} isWpAdminNewsletterSettingsEnabled - Whether the new wp-admin newsletter settings page is enabled
- * @returns {string} The appropriate newsletter settings URL
- */
-export const getNewsletterSettingsUrl = (
-	site: string,
-	isWpcomSite: boolean,
-	adminUrl: string,
-	isWpAdminNewsletterSettingsEnabled: boolean = false
-): string => {
-	if ( isWpcomSite ) {
-		return getRedirectUrl( buildJPRedirectSource( 'settings/newsletter/' + site ) );
-	}
-
-	if ( isWpAdminNewsletterSettingsEnabled ) {
-		return `${ adminUrl }admin.php?page=jetpack-newsletter`;
-	}
-
-	return `${ adminUrl }admin.php?page=jetpack#/newsletter`;
 };
 
 /**

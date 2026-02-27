@@ -10,7 +10,6 @@ import {
 	buildJPRedirectSource,
 	formatNumber,
 	getSubscriberStatsUrl,
-	getNewsletterSettingsUrl,
 	createTracksEventHandler,
 } from '../helpers';
 import { DashboardLink } from './dashboard-link';
@@ -28,7 +27,7 @@ export interface NewsletterWidgetProps {
 	subscriberTotalsByDate?: SubscriberTotalsByDate;
 	showHeader?: boolean;
 	showChart?: boolean;
-	isWpAdminNewsletterSettingsEnabled?: boolean;
+	newsletterSettingsUrl?: string;
 }
 
 export const NewsletterWidget = ( {
@@ -42,7 +41,7 @@ export const NewsletterWidget = ( {
 	subscriberTotalsByDate = {},
 	showHeader,
 	showChart,
-	isWpAdminNewsletterSettingsEnabled = false,
+	newsletterSettingsUrl,
 }: NewsletterWidgetProps ) => {
 	const { tracks } = useAnalytics();
 
@@ -182,19 +181,16 @@ export const NewsletterWidget = ( {
 								__( 'Monetize', 'jetpack' )
 							) }
 						</li>
-						<li>
-							{ DashboardLink(
-								true,
-								getNewsletterSettingsUrl(
-									site,
-									isWpcomSite,
-									adminUrl,
-									isWpAdminNewsletterSettingsEnabled
-								),
-								'newsletter_settings_click',
-								__( 'Newsletter settings', 'jetpack' )
-							) }
-						</li>
+						{ newsletterSettingsUrl && (
+							<li>
+								{ DashboardLink(
+									true,
+									newsletterSettingsUrl,
+									'newsletter_settings_click',
+									__( 'Newsletter settings', 'jetpack' )
+								) }
+							</li>
+						) }
 					</ul>
 				</div>
 			</div>

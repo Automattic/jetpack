@@ -13,7 +13,7 @@ declare global {
 			isStatsModuleActive?: boolean;
 			showHeader?: boolean;
 			showChart?: boolean;
-			isWpAdminNewsletterSettingsEnabled?: boolean;
+			newsletterSettingsUrl?: string;
 		};
 	}
 }
@@ -33,7 +33,7 @@ document.addEventListener( 'DOMContentLoaded', () => {
 		isStatsModuleActive,
 		showHeader,
 		showChart,
-		isWpAdminNewsletterSettingsEnabled,
+		newsletterSettingsUrl,
 	} = window.jetpackNewsletterWidgetConfigData || {};
 	const { suffix: site } = jpDataUtils.getSiteData();
 	const adminUrl = jpDataUtils.getAdminUrl();
@@ -56,7 +56,7 @@ document.addEventListener( 'DOMContentLoaded', () => {
 			subscriberTotalsByDate={ subscriberTotalsByDate }
 			showHeader={ showHeader }
 			showChart={ showChart }
-			isWpAdminNewsletterSettingsEnabled={ isWpAdminNewsletterSettingsEnabled }
+			newsletterSettingsUrl={ newsletterSettingsUrl }
 		/>
 	);
 } );

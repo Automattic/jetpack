@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Launchpad: Use new newsletter settings page URL when wp-admin newsletter settings are enabled.
+Updated newsletter settings links in Launchpad and admin menu to use centralized URL utility from newsletter package.

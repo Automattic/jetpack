@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Added centralized URL utility (Urls::get_newsletter_settings_url) for generating newsletter settings URLs based on site context.
