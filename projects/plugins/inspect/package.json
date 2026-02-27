@@ -21,7 +21,7 @@
 		"build-production": "pnpm build-production-js",
 		"build-production-js": "rollup -c rollup.config.js",
 		"clean": "rm -rf app-ui/build/",
-		"typecheck": "tsc --noEmit"
+		"typecheck": "tsgo --noEmit"
 	},
 	"devDependencies": {
 		"@babel/core": "7.29.0",
@@ -30,6 +30,7 @@
 		"@rollup/plugin-node-resolve": "15.3.0",
 		"@rollup/plugin-terser": "0.4.3",
 		"@rollup/plugin-typescript": "12.1.0",
+		"@typescript/native-preview": "7.0.0-dev.20260225.1",
 		"@wordpress/i18n": "6.13.0",
 		"postcss": "8.5.6",
 		"rollup": "3.30.0",

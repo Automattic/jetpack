@@ -22,7 +22,7 @@
 		"clean": "rm -rf src/build/ src/build-module/",
 		"e2e-tests": "playwright test --config src/features/verbum-comments/playwright.config.ts",
 		"sync:newspack-blocks": "./bin/sync-newspack-blocks.sh",
-		"typecheck": "tsc --build",
+		"typecheck": "tsgo --build",
 		"watch": "pnpm run build-production-js && pnpm webpack watch"
 	},
 	"dependencies": {
@@ -111,11 +111,11 @@
 		"@types/node": "^22.19.11",
 		"@types/react": "^18.3.28",
 		"@types/react-dom": "18.3.7",
+		"@typescript/native-preview": "7.0.0-dev.20260225.1",
 		"babel-plugin-transform-rename-properties": "0.1.0",
 		"package-directory": "^8.1.0",
 		"sass-embedded": "1.97.2",
 		"sass-loader": "16.0.5",
-		"typescript": "5.9.3",
 		"wait-for-expect": "3.0.2",
 		"webpack": "5.105.2",
 		"webpack-cli": "6.0.1"

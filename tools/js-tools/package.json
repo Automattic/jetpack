@@ -23,6 +23,7 @@
 		"@octokit/rest": "22.0.1",
 		"@tanstack/eslint-plugin-query": "5.91.2",
 		"@testing-library/jest-dom": "6.9.1",
+		"@typescript/native-preview": "7.0.0-dev.20260225.1",
 		"@wordpress/eslint-plugin": "24.2.0",
 		"@wordpress/jest-console": "8.40.0",
 		"@wordpress/stylelint-config": "23.32.0",
