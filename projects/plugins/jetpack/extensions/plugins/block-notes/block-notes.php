@@ -11,12 +11,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
 }
 
-const FEATURE_NAME    = 'block-notes';
-const ASSET_BASE_PATH = 'widgets.wp.com/agents-manager/';
-const ASSET_JS_URL    = 'https://' . ASSET_BASE_PATH . 'block-notes.min.js';
-const ASSET_JSON_URL  = 'https://' . ASSET_BASE_PATH . 'block-notes.asset.json';
-const ASSET_JSON_PATH = ASSET_BASE_PATH . 'block-notes.asset.json';
-const ASSET_TRANSIENT = 'jetpack_block_notes_asset';
+const FEATURE_NAME            = 'block-notes';
+const ASSET_BASE_PATH         = 'widgets.wp.com/agents-manager/';
+const ASSET_JS_URL            = 'https://' . ASSET_BASE_PATH . 'block-notes.min.js';
+const ASSET_JSON_URL          = 'https://' . ASSET_BASE_PATH . 'block-notes.asset.json';
+const ASSET_JSON_PATH         = ASSET_BASE_PATH . 'block-notes.asset.json';
+const ASSET_TRANSIENT         = 'jetpack_block_notes_asset';
+const HEADLESS_AGENT_PROVIDER = 'block-notes/headless-agent-provider';
 
 /**
  * Check if Block Notes is enabled.
@@ -229,6 +230,25 @@ function enable_agents_manager_for_block_notes( $use_unified_experience ) {
 add_filter( 'agents_manager_use_unified_experience', __NAMESPACE__ . '\enable_agents_manager_for_block_notes' );
 
 /**
+ * Register the Block Notes headless agent provider with the agents manager.
+ *
+ * When Block Notes is enabled, adds the Block Notes headless
+ * agent provider module so the agents manager can load it.
+ *
+ * @param array $providers Existing agent provider module IDs.
+ * @return array Modified array of provider module IDs.
+ */
+function register_headless_agent_provider( $providers ) {
+	if ( ! is_block_notes_enabled() ) {
+		return $providers;
+	}
+
+	$providers[] = HEADLESS_AGENT_PROVIDER;
+	return $providers;
+}
+add_filter( 'agents_manager_agent_providers', __NAMESPACE__ . '\register_headless_agent_provider' );
+
+/**
  * Register Block Notes meta fields and filters.
  *
  * Registers the comment meta field used to track AI processing, and hooks
@@ -237,6 +257,10 @@ add_filter( 'agents_manager_use_unified_experience', __NAMESPACE__ . '\enable_ag
  * @return void
  */
 function register_meta_fields() {
+	if ( ! is_block_notes_enabled() ) {
+		return;
+	}
+
 	register_meta(
 		'comment',
 		'bigsky_ai_processed_date',

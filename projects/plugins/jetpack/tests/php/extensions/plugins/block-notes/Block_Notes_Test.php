@@ -48,6 +48,7 @@ class Block_Notes_Test extends \WP_UnitTestCase {
 		delete_transient( BlockNotes\ASSET_TRANSIENT );
 		remove_all_filters( 'jetpack_block_notes_enabled' );
 		remove_all_filters( 'agents_manager_use_unified_experience' );
+		remove_all_filters( 'agents_manager_agent_providers' );
 		remove_all_filters( 'pre_http_request' );
 		$GLOBALS['current_screen'] = $this->saved_screen;
 		$GLOBALS['wp_scripts']     = $this->saved_wp_scripts;
@@ -898,13 +899,72 @@ class Block_Notes_Test extends \WP_UnitTestCase {
 	}
 
 	// -------------------------------------------------------------------------
+	// register_headless_agent_provider() tests
+	// -------------------------------------------------------------------------
+
+	/**
+	 * Test that agents_manager_agent_providers includes Block Notes provider
+	 * when jetpack_block_notes_enabled is true.
+	 */
+	public function test_agent_providers_includes_block_notes_when_enabled() {
+		$this->enable_block_notes();
+
+		$providers = BlockNotes\register_headless_agent_provider( array() );
+
+		$this->assertContains( BlockNotes\HEADLESS_AGENT_PROVIDER, $providers );
+	}
+
+	/**
+	 * Test that agents_manager_agent_providers does NOT include Block Notes
+	 * provider when jetpack_block_notes_enabled is false.
+	 */
+	public function test_agent_providers_excludes_block_notes_when_disabled() {
+		$this->disable_block_notes();
+
+		$providers = BlockNotes\register_headless_agent_provider( array() );
+
+		$this->assertNotContains( BlockNotes\HEADLESS_AGENT_PROVIDER, $providers );
+	}
+
+	/**
+	 * Test that agents_manager_agent_providers does NOT include Block Notes
+	 * provider when no filter is set (default false).
+	 */
+	public function test_agent_providers_excludes_block_notes_by_default() {
+		$providers = BlockNotes\register_headless_agent_provider( array() );
+
+		$this->assertNotContains( BlockNotes\HEADLESS_AGENT_PROVIDER, $providers );
+	}
+
+	/**
+	 * Test that register_headless_agent_provider preserves existing providers.
+	 */
+	public function test_agent_providers_preserves_existing_providers() {
+		$this->enable_block_notes();
+
+		$existing  = array( 'some-other/provider' );
+		$providers = BlockNotes\register_headless_agent_provider( $existing );
+
+		$this->assertContains( 'some-other/provider', $providers );
+		$this->assertContains( BlockNotes\HEADLESS_AGENT_PROVIDER, $providers );
+	}
+
+	/**
+	 * Test HEADLESS_AGENT_PROVIDER constant value.
+	 */
+	public function test_headless_agent_provider_constant() {
+		$this->assertEquals( 'block-notes/headless-agent-provider', BlockNotes\HEADLESS_AGENT_PROVIDER );
+	}
+
+	// -------------------------------------------------------------------------
 	// register_meta_fields() tests
 	// -------------------------------------------------------------------------
 
 	/**
-	 * Test that register_meta_fields registers the bigsky_ai_processed_date comment meta.
+	 * Test that register_meta_fields registers the bigsky_ai_processed_date comment meta when enabled.
 	 */
-	public function test_register_meta_fields_registers_comment_meta() {
+	public function test_register_meta_fields_registers_comment_meta_when_enabled() {
+		$this->enable_block_notes();
 		BlockNotes\register_meta_fields();
 
 		$registered = get_registered_meta_keys( 'comment' );
@@ -915,6 +975,18 @@ class Block_Notes_Test extends \WP_UnitTestCase {
 		$this->assertEquals( 'string', $meta['type'] );
 		$this->assertTrue( $meta['single'] );
 		$this->assertTrue( $meta['show_in_rest'] );
+	}
+
+	/**
+	 * Test that register_meta_fields does not register comment meta when disabled.
+	 */
+	public function test_register_meta_fields_skipped_when_disabled() {
+		$this->disable_block_notes();
+		BlockNotes\register_meta_fields();
+
+		$registered = get_registered_meta_keys( 'comment' );
+
+		$this->assertArrayNotHasKey( 'bigsky_ai_processed_date', $registered );
 	}
 
 	// -------------------------------------------------------------------------
