@@ -146,9 +146,9 @@ class Jetpack_PostImages {
 	 *
 	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Post_Media\Images::from_gravatar() instead.
 	 *
-	 * @param int    $post_id The post ID to check.
-	 * @param int    $size The size of the avatar to get.
-	 * @param string $default The default image to use.
+	 * @param int          $post_id The post ID to check.
+	 * @param int          $size The size of the avatar to get.
+	 * @param string|false $default The default image to use.
 	 * @return array containing details of the image, or empty array if none.
 	 */
 	public static function from_gravatar( $post_id, $size = 96, $default = false ) {
