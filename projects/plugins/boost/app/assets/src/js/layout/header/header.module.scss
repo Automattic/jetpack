@@ -1,6 +1,25 @@
 .header {
 	background-color: var(--primary-white);
 	padding: 16px 24px 0;
+
+	// Nested under .header for specificity over .jb-dashboard h2 global reset.
+	.title {
+		font-family: -apple-system, system-ui, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+		font-size: 20px;
+		font-weight: 500;
+		line-height: 1.4;
+		margin: 0;
+		color: #1e1e1e;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	.subtitle {
+		font-size: 13px;
+		color: #757575;
+		margin: 4px 0 0;
+	}
 }
 
 .masthead {
@@ -28,24 +47,6 @@
 		border-radius: 2px;
 		outline: none;
 	}
-}
-
-.title {
-	font-family: -apple-system, system-ui, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
-	font-size: 20px;
-	font-weight: 500;
-	line-height: 1.4;
-	margin: 0;
-	color: #1e1e1e;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	white-space: nowrap;
-}
-
-.subtitle {
-	font-size: 13px;
-	color: #757575;
-	margin: 4px 0 0;
 }
 
 .chevron {
