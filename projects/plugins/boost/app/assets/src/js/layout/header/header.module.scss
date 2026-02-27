@@ -1,36 +1,54 @@
 .header {
 	background-color: var(--primary-white);
-	overflow: auto;
+	padding: 16px 24px 0;
 }
 
 .masthead {
 	display: flex;
 	justify-content: space-between;
-	margin-top: 40px;
-	margin-bottom: 20px;
 	align-items: center;
 	flex-wrap: wrap;
-	gap: 24px;
+	gap: 8px;
 }
 
 .nav-area {
 	display: flex;
 	align-items: center;
 	flex-direction: row;
+	gap: 8px;
 }
 
 .logo {
 	cursor: pointer;
+	display: inline-flex;
+	line-height: 0;
 
-	:global(svg) {
-		height: 42px;
-		width: 100%;
+	&:focus {
+		box-shadow: 0 0 0 2px var(--jp-blue, #3858e9);
+		border-radius: 2px;
+		outline: none;
 	}
 }
 
+.title {
+	font-family: -apple-system, system-ui, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+	font-size: 20px;
+	font-weight: 500;
+	line-height: 1.4;
+	margin: 0;
+	color: #1e1e1e;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.subtitle {
+	font-size: 13px;
+	color: #757575;
+	margin: 4px 0 0;
+}
+
 .chevron {
-	margin-left: 16px;
-	margin-right: 16px;
 	width: 24px;
 	height: 24px;
 	padding-top: 2px;
