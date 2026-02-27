@@ -3,7 +3,6 @@
  */
 import { useBreakpointMatch } from '@automattic/jetpack-components';
 import JetpackLogo from '@automattic/jetpack-components/jetpack-logo';
-import { Badge } from '@automattic/ui';
 import { Breadcrumbs } from '@wordpress/admin-ui';
 import { DropdownMenu, Button } from '@wordpress/components';
 import { store as coreDataStore } from '@wordpress/core-data';
@@ -12,7 +11,7 @@ import { useMemo } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __, sprintf } from '@wordpress/i18n';
 import { moreVertical } from '@wordpress/icons';
-import { Stack } from '@wordpress/ui';
+import { Badge, Stack } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
@@ -145,11 +144,7 @@ export default function usePageHeaderDetails(
 		if ( ! isSingleFormScreen || ! formStatus || formStatus === 'publish' ) {
 			return undefined;
 		}
-		return (
-			<Badge className="jp-forms-badge" intent="default">
-				{ statusLabel }
-			</Badge>
-		);
+		return <Badge intent="draft">{ statusLabel }</Badge>;
 	}, [ isSingleFormScreen, formStatus, statusLabel ] );
 
 	const { duplicateForm, previewForm, copyEmbed, copyShortcode } = useFormItemActions();

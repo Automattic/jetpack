@@ -1,7 +1,6 @@
 /**
  * External dependencies
  */
-import { Badge } from '@automattic/ui';
 import { Page } from '@wordpress/admin-ui';
 import {
 	__experimentalConfirmDialog as ConfirmDialog, // eslint-disable-line @wordpress/no-unsafe-wp-apis
@@ -16,6 +15,7 @@ import { useEffect, useMemo, useState, useCallback, useRef } from '@wordpress/el
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
 import { useSearch, useNavigate } from '@wordpress/route';
+import { Badge } from '@wordpress/ui';
 import * as React from 'react';
 /**
  * Internal dependencies
@@ -268,9 +268,7 @@ function StageInner() {
 				label: __( 'Status', 'jetpack-forms' ),
 				getValue: ( { item }: { item: FormListItem } ) => item.status,
 				render: ( { item }: { item: FormListItem } ) => (
-					<Badge intent="default" className="jp-forms-badge">
-						{ statusLabel( item.status ) }
-					</Badge>
+					<Badge intent="draft">{ statusLabel( item.status ) }</Badge>
 				),
 				elements: [
 					{ label: __( 'All', 'jetpack-forms' ), value: 'all' },

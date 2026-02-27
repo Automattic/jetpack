@@ -2,7 +2,6 @@
  * External dependencies
  */
 import { formatNumberCompact } from '@automattic/number-formatters';
-import { Badge } from '@automattic/ui';
 /**
  * WordPress dependencies
  */
@@ -11,7 +10,7 @@ import { DataViews } from '@wordpress/dataviews';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useNavigate } from '@wordpress/route';
-import { Stack, Tabs } from '@wordpress/ui';
+import { Badge, Stack, Tabs } from '@wordpress/ui';
 import { NON_TRASH_FORM_STATUSES } from '../../../constants.ts';
 import useFormsData from '../../../hooks/use-forms-data.ts';
 import { store as dashboardStore } from '../../../store/index.js';
@@ -94,7 +93,7 @@ export default function DataViewsHeaderRow( {
 								<Tabs.Tab value="forms">
 									<span>
 										{ __( 'Forms', 'jetpack-forms' ) }
-										<Badge intent="default" className="jp-forms-badge">
+										<Badge intent="draft" className="jp-forms-tabs-count">
 											{ formatNumberCompact( formsCount || 0 ) }
 										</Badge>
 									</span>
@@ -102,7 +101,7 @@ export default function DataViewsHeaderRow( {
 								<Tabs.Tab value="responses">
 									<span>
 										{ __( 'Responses', 'jetpack-forms' ) }
-										<Badge intent="default" className="jp-forms-badge">
+										<Badge intent="draft" className="jp-forms-tabs-count">
 											{ formatNumberCompact( responsesInboxCount || 0 ) }
 										</Badge>
 									</span>

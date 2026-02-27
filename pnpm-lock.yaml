@@ -2377,9 +2377,6 @@ importers:
       '@automattic/request-external-access':
         specifier: 1.0.1
         version: 1.0.1
-      '@automattic/ui':
-        specifier: 1.0.2
-        version: 1.0.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@gravatar-com/hovercards':
         specifier: 0.15.0
         version: 0.15.0
