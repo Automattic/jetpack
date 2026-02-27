@@ -2377,9 +2377,6 @@ importers:
       '@automattic/request-external-access':
         specifier: 1.0.1
         version: 1.0.1
-      '@automattic/ui':
-        specifier: 1.0.2
-        version: 1.0.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@gravatar-com/hovercards':
         specifier: 0.15.0
         version: 0.15.0
@@ -23532,7 +23529,7 @@ snapshots:
       webpack: 5.105.2(webpack-cli@6.0.1)
       webpack-cli: 6.0.1(webpack-dev-server@5.2.3)(webpack@5.105.2)
     optionalDependencies:
-      webpack-dev-server: 5.2.3(webpack-cli@6.0.1)(webpack@5.105.2)
+      webpack-dev-server: 5.2.3(debug@4.4.3)(webpack-cli@6.0.1)(webpack@5.105.2)
 
   '@webpack-cli/serve@3.0.1(webpack-cli@6.0.1)(webpack@5.105.2)':
     dependencies:
@@ -34212,7 +34209,7 @@ snapshots:
       webpack: 5.105.2(webpack-cli@6.0.1)
       webpack-merge: 6.0.1
     optionalDependencies:
-      webpack-dev-server: 5.2.3(webpack-cli@6.0.1)(webpack@5.105.2)
+      webpack-dev-server: 5.2.3(debug@4.4.3)(webpack-cli@6.0.1)(webpack@5.105.2)
 
   webpack-cli@6.0.1(webpack@5.105.2):
     dependencies:
