@@ -315,14 +315,14 @@ class Initializer {
 			 * This prevents the published page from showing a bare link.
 			 */
 			$fallback = function ( $output, $url ) use ( $videopress_url ) {
-				if ( $url !== $videopress_url ) {
+				if ( $url !== html_entity_decode( $videopress_url ) ) {
 					return $output;
 				}
 
 				return sprintf(
 					'<iframe title="%1$s" aria-label="%1$s" src="%2$s" width="640" height="360" allowfullscreen data-resize-to-parent="true" allow="clipboard-write"></iframe>',
 					esc_attr__( 'VideoPress Video Player', 'jetpack-videopress-pkg' ),
-					esc_url( preg_replace( '#/v/#', '/embed/', $videopress_url, 1 ) )
+					esc_url( preg_replace( '#/v/#', '/embed/', $url, 1 ) )
 				);
 			};
 
@@ -340,17 +340,34 @@ class Initializer {
 			/*
 			 * Self-heal failed oEmbed cache for VideoPress URLs.
 			 *
-			 * When VideoPress backend isn't ready for a fresh upload, WordPress caches
-			 * '{{unknown}}' in post meta indefinitely. Clear it so the next render retries
-			 * and the fallback iframe above is only used temporarily.
+			 * When the VideoPress backend isn't ready for a freshly uploaded video,
+			 * WordPress caches '{{unknown}}' in post meta with a TTL that is too long
+			 * for this use case. Clear recent failures so the next page render retries
+			 * oEmbed discovery, keeping the fallback iframe above temporary.
 			 */
-			$post_id = get_the_ID();
-			if ( $post_id ) {
-				$key_suffix = md5( $videopress_url . serialize( array() ) ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize -- Matching WP_Embed cache key format.
+			$post_id = ( $block instanceof \WP_Block && ! empty( $block->context['postId'] ) )
+				? (int) $block->context['postId']
+				: get_the_ID();
 
-				if ( '{{unknown}}' === get_post_meta( $post_id, '_oembed_' . $key_suffix, true ) ) {
-					delete_post_meta( $post_id, '_oembed_' . $key_suffix );
-					delete_post_meta( $post_id, '_oembed_time_' . $key_suffix );
+			if ( $post_id ) {
+				$embed_attr      = wp_embed_defaults( $videopress_url );
+				$key_suffix      = md5( $videopress_url . serialize( $embed_attr ) ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize -- Matching WP_Embed cache key format.
+				$oembed_meta_key = '_oembed_' . $key_suffix;
+				$oembed_time_key = '_oembed_time_' . $key_suffix;
+
+				$oembed_value = get_post_meta( $post_id, $oembed_meta_key, true );
+				$oembed_time  = (int) get_post_meta( $post_id, $oembed_time_key, true );
+
+				/*
+				 * Only clear the '{{unknown}}' cache entry when it is recent, to avoid
+				 * disabling WordPress's oEmbed backoff for persistent provider failures.
+				 */
+				if (
+					'{{unknown}}' === $oembed_value
+					&& ( ! $oembed_time || ( time() - $oembed_time ) < MINUTE_IN_SECONDS )
+				) {
+					delete_post_meta( $post_id, $oembed_meta_key );
+					delete_post_meta( $post_id, $oembed_time_key );
 				}
 			}
 		}
