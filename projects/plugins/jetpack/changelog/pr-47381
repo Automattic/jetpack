@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Forms: Use integer format for response count in dataviews.

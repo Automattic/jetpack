@@ -3203,7 +3203,7 @@ class Contact_Form_Plugin {
 		$post_id = wp_insert_post(
 			array(
 				'post_type'    => 'page',
-				'post_title'   => esc_html__( 'Jetpack Forms', 'jetpack-forms' ),
+				'post_title'   => '',
 				'post_content' => $pattern_content,
 			)
 		);

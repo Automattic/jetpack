@@ -481,21 +481,53 @@ class REST_Endpoints {
 	/**
 	 * Update Sync health.
 	 *
+	 * IN_SYNC is only set if the incremental queue is within size and lag limits.
+	 *
 	 * @since 1.23.1
 	 *
 	 * @param \WP_REST_Request $request The request sent to the WP REST API.
 	 *
-	 * @return \WP_REST_Response
+	 * @return \WP_REST_Response|WP_Error
 	 */
 	public static function sync_health( $request ) {
+		$requested_status = $request->get_param( 'status' );
 
-		switch ( $request->get_param( 'status' ) ) {
+		switch ( $requested_status ) {
 			case Health::STATUS_IN_SYNC:
+				// Only allow setting IN_SYNC if the incremental queue is healthy.
+				$sync_queue    = Listener::get_instance()->get_sync_queue();
+				$queue_size    = $sync_queue->size();
+				$queue_lag     = $sync_queue->lag();
+				$queue_healthy = Health::is_queue_healthy(
+					$queue_size,
+					$queue_lag,
+					Settings::get_setting( 'max_queue_size' ),
+					Settings::get_setting( 'max_queue_lag' )
+				);
+				if ( ! $queue_healthy ) {
+					Health::update_status( Health::STATUS_OUT_OF_SYNC );
+					return rest_ensure_response(
+						array(
+							'success'    => Health::get_status(),
+							'message'    => 'Sync queue is not healthy (size and lag over limit). Status not set to in_sync.',
+							'queue_size' => $queue_size,
+							'queue_lag'  => $queue_lag,
+						)
+					);
+				}
+				Health::update_status( $requested_status );
+				break;
 			case Health::STATUS_OUT_OF_SYNC:
-				Health::update_status( $request->get_param( 'status' ) );
+				Health::update_status( $requested_status );
 				break;
 			default:
-				return new WP_Error( 'invalid_status', 'Invalid Sync Status Provided.' );
+				return new WP_Error(
+					'invalid_status',
+					'Invalid Sync Status Provided.',
+					array(
+						'status' => 400,
+					)
+				);
 		}
 
 		// re-fetch so we see what's really being stored.

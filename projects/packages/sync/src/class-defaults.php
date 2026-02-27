@@ -824,6 +824,7 @@ class Defaults {
 		'hc_foreign_user_id',
 		'hc_post_as',
 		'hc_wpcom_id_sig',
+		'protocol',
 	);
 
 	/**
