@@ -28,9 +28,7 @@
 /.phpcs.dir.xml                                          production-exclude
 /.sass-cache/**                                          production-exclude
 /.wp-env.json                                            production-exclude
-/CHANGELOG.md                                            production-exclude
 /LICENSE.txt                                             production-exclude
-/SECURITY.md                                             production-exclude
 /_inc/build/*.css.map                                    production-exclude
 /_inc/build/*.js.map                                     production-exclude
 /_inc/build/maps/**                                      production-exclude
@@ -55,7 +53,6 @@
 /jetpack_vendor/automattic/**/.babelrc                   production-exclude
 /jetpack_vendor/automattic/**/.gitignore                 production-exclude
 /jetpack_vendor/automattic/**/*.jsx                      production-exclude
-/jetpack_vendor/automattic/**/*.map                      production-exclude
 /jetpack_vendor/automattic/**/*.scss                     production-exclude
 /jetpack_vendor/automattic/**/*.ts                       production-exclude
 /jetpack_vendor/automattic/**/*.tsx                      production-exclude
@@ -85,7 +82,6 @@
 /vendor/automattic/**/.babelrc                           production-exclude
 /vendor/automattic/**/.gitignore                         production-exclude
 /vendor/automattic/**/*.jsx                              production-exclude
-/vendor/automattic/**/*.map                              production-exclude
 /vendor/automattic/**/*.scss                             production-exclude
 /vendor/automattic/**/*.ts                               production-exclude
 /vendor/automattic/**/*.tsx                              production-exclude
@@ -105,6 +101,4 @@
 /vendor/automattic/jetpack-changelogger/**               production-exclude
 /vendor/automattic/jetpack-composer-plugin/**            production-exclude
 /vendor/composer/installed.json                          production-exclude
-/vendor/composer/LICENSE                                 production-exclude
-/vendor/wikimedia/**/LICENSE                             production-exclude
 /wp-cli-templates/**                                     production-exclude

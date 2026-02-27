@@ -41,7 +41,6 @@ composer.lock                                 production-exclude
 /jetpack_vendor/automattic/**/*.ts            production-exclude
 /jetpack_vendor/automattic/**/*.tsx           production-exclude
 /jetpack_vendor/automattic/**/*.jsx           production-exclude
-/jetpack_vendor/automattic/**/*.map           production-exclude
 /jetpack_vendor/automattic/**/CHANGELOG.md    production-exclude
 /jetpack_vendor/automattic/**/LICENSE.txt     production-exclude
 /jetpack_vendor/automattic/**/SECURITY.md     production-exclude
@@ -62,7 +61,6 @@ composer.lock                                 production-exclude
 /vendor/automattic/**/*.ts                    production-exclude
 /vendor/automattic/**/*.tsx                   production-exclude
 /vendor/automattic/**/*.jsx                   production-exclude
-/vendor/automattic/**/*.map                   production-exclude
 /vendor/automattic/**/CHANGELOG.md            production-exclude
 /vendor/automattic/**/LICENSE.txt             production-exclude
 /vendor/automattic/**/SECURITY.md             production-exclude
