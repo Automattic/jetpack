@@ -2,6 +2,27 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 15.6-a.7 - 2026-02-26
+### Enhancements
+- Forms: Allow customizing other option in radio field. [#46461]
+- SEO: Add Canonical URLs module for archive pages to prevent duplicate content in search engines. [#47234]
+- Sync: Add `clear-queue` REST endpoint to allow clearing a Sync queue. [#47303]
+
+### Bug fixes
+- Forms: Fix duplicate title in plain text form submission notification emails. [#47291]
+- Full Sync: Fix chunk size adjustment when sync is stuck to correctly preserve adjusted chunk size and stuck count across invocations. [#47293]
+- Social: Fix Threads social preview for posts with gallery. [#47322]
+- Subscriptions: Stop appending the “View post … subscribe” message to post excerpts in subscription emails. [#47311]
+- Subscriptions Block: Make excerpt filter more broad. [#46599]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Admin Menu: Add `inlineIcon` support to the admin-menu REST endpoint. [#47146]
+- Image Studio: Enqueue string translations for non-English locales. [#47215]
+- Replace `Jetpack_PostImages` usage with the new `Post_Media` `Images` class. [#47249]
+- Sync: Add per-request in-memory cache in the Listener to reduce `get_transient` calls during action queue checks. [#47282]
+- Sync: Store `last_item` in status to improve Full Sync performance. [#47292]
+- Update package dependencies. [#47285] [#47288] [#47300]
+
 ## 15.6-a.5 - 2026-02-23
 ### Enhancements
 - AI Sidebar: Add `jetpack.ai.imageGenerationHandler` filter to allow external plugins (e.g. Image Studio) to replace the built-in AI image generation flow for the "Get Featured Image" entry point. [#47124]

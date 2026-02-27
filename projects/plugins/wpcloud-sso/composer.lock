@@ -832,7 +832,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-                "reference": "51c171a98acb56b2fe69a2e4035e101864f5aa0a"
+                "reference": "2cd024d124bda4c371d63fd84ec4b3bb599e131e"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -866,7 +866,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-sync/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "4.29.x-dev"
+                    "dev-trunk": "4.30.x-dev"
                 },
                 "dependencies": {
                     "test-only": [

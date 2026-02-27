@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Prevent decorative icons from being included when copy/pasting form response emails.

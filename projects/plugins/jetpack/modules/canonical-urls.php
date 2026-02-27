@@ -26,7 +26,7 @@ add_filter( 'jetpack_disable_canonical_urls', 'jetpack_canonical_urls_check_conf
  *
  * @module canonical-urls
  *
- * @since $$next-version$$
+ * @since 15.6
  *
  * @param bool $disabled Whether canonical URL output is disabled. Defaults to false.
  */
@@ -38,7 +38,7 @@ if ( ! apply_filters( 'jetpack_disable_canonical_urls', false ) ) {
 /**
  * Check if a conflicting SEO plugin is active and disable canonical URL output.
  *
- * @since $$next-version$$
+ * @since 15.6
  *
  * @param bool $disabled Whether canonical URL output is already disabled.
  * @return bool Whether canonical URL output should be disabled.
@@ -77,7 +77,7 @@ function jetpack_canonical_urls_check_conflicts( $disabled ) {
  * WordPress core handles singular posts/pages via rel_canonical(),
  * so this function only outputs canonical tags for archive pages.
  *
- * @since $$next-version$$
+ * @since 15.6
  */
 function jetpack_canonical_urls_output_tag() {
 	if ( is_singular() ) {

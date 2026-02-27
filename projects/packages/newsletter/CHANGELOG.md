@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.1] - 2026-02-26
+### Added
+- Add clarifying note to Reading settings page linking to Newsletter settings for email content control. [#47299]
+
+### Changed
+- Refactor settings to use `@automattic/jetpack-script-data` utilities for site info and admin URLs. [#47259]
+- Update package dependencies. [#47285] [#47300]
+- Use `Status` class methods for `isSitePublic` check (filterable and handles coming soon state). [#47321]
+
 ## [0.5.0] - 2026-02-23
 ### Added
 - Add Tracks analytics to track user interactions on the newsletter settings page. [#47100]
@@ -75,6 +84,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Update package dependencies. [#46143]
 
+[0.5.1]: https://github.com/Automattic/jetpack-newsletter/compare/v0.5.0...v0.5.1
 [0.5.0]: https://github.com/Automattic/jetpack-newsletter/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/Automattic/jetpack-newsletter/compare/v0.3.2...v0.4.0
 [0.3.2]: https://github.com/Automattic/jetpack-newsletter/compare/v0.3.1...v0.3.2
