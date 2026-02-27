@@ -7,7 +7,9 @@
 
 namespace Automattic\Jetpack\My_Jetpack\Products;
 
+use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\My_Jetpack\Hybrid_Product;
+use Automattic\Jetpack\My_Jetpack\Products;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
 use Automattic\Jetpack\VideoPress\Stats as VideoPress_Stats;
 use WP_Error;
@@ -91,11 +93,56 @@ class Videopress extends Hybrid_Product {
 	 */
 	public static $feature_identifying_paid_plan = 'videopress';
 
-		/**
-		 * Setup VideoPress REST API endpoints
-		 *
-		 * @return void
-		 */
+	/**
+	 * Checks whether the product is active.
+	 *
+	 * On WoA, the VideoPress free tier is not available on all plans.
+	 * Current_Plan::supports() handles this: on WoA it delegates to
+	 * wpcom_site_has_feature(), on self-hosted it returns true (free tier).
+	 *
+	 * When the platform does not support the feature (e.g. WoA Personal),
+	 * requires an actual paid plan instead of falling through to the
+	 * free-offering path in the parent class.
+	 *
+	 * @return boolean
+	 */
+	public static function is_active(): bool {
+		if ( static::$has_free_offering && ! Current_Plan::supports( static::$feature_identifying_paid_plan ) ) {
+			return static::is_plugin_active() && static::is_module_active() && static::has_any_plan_for_product();
+		}
+
+		return parent::is_active();
+	}
+
+	/**
+	 * Gets the product status.
+	 *
+	 * On WoA without the 'videopress' feature (e.g. Personal plans), the
+	 * parent returns STATUS_NEEDS_ACTIVATION because $has_free_offering is
+	 * true. This override corrects that to STATUS_NEEDS_PLAN, since the
+	 * free tier is not actually available on these plans.
+	 *
+	 * @return string
+	 */
+	public static function get_status(): string {
+		$status = parent::get_status();
+
+		if ( ! static::$has_free_offering || Current_Plan::supports( static::$feature_identifying_paid_plan ) ) {
+			return $status;
+		}
+
+		if ( Products::STATUS_NEEDS_ACTIVATION === $status ) {
+			return Products::STATUS_NEEDS_PLAN;
+		}
+
+		return $status;
+	}
+
+	/**
+	 * Setup VideoPress REST API endpoints
+	 *
+	 * @return void
+	 */
 	public static function register_endpoints(): void {
 		parent::register_endpoints();
 		// Get Jetpack VideoPress data.
