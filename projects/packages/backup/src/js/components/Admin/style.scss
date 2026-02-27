@@ -174,15 +174,3 @@
 .jetpack-connection-verified-error {
 	margin: 25px 0;
 }
-
-.jetpack-admin-page__header {
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	flex-wrap: wrap;
-	gap: calc(var(--horizontal-spacing) * 3);
-
-	.jetpack-admin-page__logo {
-		flex-shrink: 0;
-	}
-}
