@@ -7,7 +7,7 @@ import { Breadcrumbs } from '@wordpress/admin-ui';
 import { DropdownMenu, Button } from '@wordpress/components';
 import { store as coreDataStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
-import { useMemo } from '@wordpress/element';
+import { useCallback, useMemo, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __, sprintf } from '@wordpress/i18n';
 import { moreVertical } from '@wordpress/icons';
@@ -23,6 +23,7 @@ import EmptyTrashButton from '../../components/empty-trash-button';
 import EmptyTrashConfirmationModal from '../../components/empty-trash-button/confirmation-modal';
 import ExportResponsesButton from '../../components/export-responses/button';
 import ExportResponsesModal from '../../components/export-responses/modal';
+import { FormNameModal } from '../../components/form-name-modal';
 import useCreateForm from '../../hooks/use-create-form';
 import useEmptySpam from '../../hooks/use-empty-spam';
 import useEmptyTrash from '../../hooks/use-empty-trash';
@@ -149,6 +150,30 @@ export default function usePageHeaderDetails(
 
 	const { duplicateForm, previewForm, copyEmbed, copyShortcode } = useFormItemActions();
 
+	// Modal state for mobile "Create a form" dropdown action
+	const [ isCreateFormModalOpen, setIsCreateFormModalOpen ] = useState( false );
+	const [ createFormShowPatterns, setCreateFormShowPatterns ] = useState( false );
+
+	const handleOpenCreateFormModal = useCallback( ( showPatterns: boolean ) => {
+		setCreateFormShowPatterns( showPatterns );
+		setIsCreateFormModalOpen( true );
+	}, [] );
+
+	const handleCreateFormModalSave = useCallback(
+		async ( newFormTitle: string ) => {
+			await openNewForm( {
+				showPatterns: createFormShowPatterns,
+				formTitle: newFormTitle,
+			} );
+		},
+		[ openNewForm, createFormShowPatterns ]
+	);
+
+	const handleCreateFormModalClose = useCallback( () => {
+		setIsCreateFormModalOpen( false );
+		openNewForm( { showPatterns: createFormShowPatterns } );
+	}, [ openNewForm, createFormShowPatterns ] );
+
 	const formItemControls = useMemo( () => {
 		if ( ! sourceIdNumber ) {
 			return [];
@@ -251,7 +276,7 @@ export default function usePageHeaderDetails(
 				}
 
 				dropdownControls.push( {
-					onClick: () => openNewForm( {} ),
+					onClick: () => handleOpenCreateFormModal( false ),
 					title: __( 'Create a form', 'jetpack-forms' ),
 				} );
 			} else if ( isSingleFormScreen ) {
@@ -300,7 +325,7 @@ export default function usePageHeaderDetails(
 
 				if ( statusView === 'inbox' ) {
 					dropdownControls.push( {
-						onClick: () => openNewForm( { showPatterns: false } ),
+						onClick: () => handleOpenCreateFormModal( false ),
 						title: __( 'Create a form', 'jetpack-forms' ),
 					} );
 				}
@@ -375,6 +400,16 @@ export default function usePageHeaderDetails(
 							/>,
 					  ]
 					: [] ),
+				<FormNameModal
+					key="create-form-modal"
+					isOpen={ isCreateFormModalOpen }
+					onClose={ handleCreateFormModalClose }
+					onSave={ handleCreateFormModalSave }
+					title={ __( 'Create form', 'jetpack-forms' ) }
+					primaryButtonLabel={ __( 'Create', 'jetpack-forms' ) }
+					secondaryButtonLabel={ __( 'Skip', 'jetpack-forms' ) }
+					placeholder={ __( 'Enter form name', 'jetpack-forms' ) }
+				/>,
 			];
 		}
 
@@ -447,7 +482,10 @@ export default function usePageHeaderDetails(
 		isSingleFormScreen,
 		formItemControls,
 		statusView,
-		openNewForm,
+		handleOpenCreateFormModal,
+		isCreateFormModalOpen,
+		handleCreateFormModalClose,
+		handleCreateFormModalSave,
 		openExportModal,
 		showExportModal,
 		closeExportModal,

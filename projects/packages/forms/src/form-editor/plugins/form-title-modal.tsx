@@ -8,7 +8,7 @@
 import { store as coreStore } from '@wordpress/core-data';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
-import { useState, useCallback, useEffect, useRef } from '@wordpress/element';
+import { useState, useCallback, useEffect, useMemo, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
 import { FORM_POST_TYPE } from '../../blocks/shared/util/constants.js';
@@ -70,6 +70,12 @@ export const FormTitleModal = () => {
 	const isNewForm =
 		! currentPostTitle || currentPostTitle === __( 'Untitled Form', 'jetpack-forms' );
 
+	// Check for formTitle URL parameter (set by the dashboard's Create Form modal)
+	const urlFormTitle = useMemo( () => {
+		const params = new URLSearchParams( window.location.search );
+		return params.get( 'formTitle' );
+	}, [] );
+
 	const handleClose = useCallback( () => {
 		setIsOpen( false );
 	}, [] );
@@ -117,13 +123,46 @@ export const FormTitleModal = () => {
 		]
 	);
 
-	// Show modal on first render if this is a new placeholder form in the form editor
+	// If formTitle URL param is present, apply it directly and skip the modal
 	useEffect( () => {
-		if ( isFormEditor && ! hasInnerBlocks && isNewForm && ! hasShown ) {
+		if ( isFormEditor && isNewForm && urlFormTitle && currentPostId && ! hasShown ) {
+			setHasShown( true );
+			editEntityRecord( 'postType', FORM_POST_TYPE, currentPostId, {
+				title: urlFormTitle,
+			} );
+			saveEditedEntityRecord( 'postType', FORM_POST_TYPE, currentPostId ).then(
+				() => {
+					createSuccessNotice( __( 'Form created.', 'jetpack-forms' ), {
+						type: 'snackbar',
+					} );
+				},
+				() => {
+					createErrorNotice( __( 'Failed to set form name.', 'jetpack-forms' ), {
+						type: 'snackbar',
+					} );
+				}
+			);
+		}
+	}, [
+		isFormEditor,
+		isNewForm,
+		urlFormTitle,
+		currentPostId,
+		hasShown,
+		editEntityRecord,
+		saveEditedEntityRecord,
+		createSuccessNotice,
+		createErrorNotice,
+	] );
+
+	// Show modal on first render if this is a new placeholder form in the form editor
+	// (only when no formTitle URL param was provided)
+	useEffect( () => {
+		if ( isFormEditor && ! hasInnerBlocks && isNewForm && ! hasShown && ! urlFormTitle ) {
 			setIsOpen( true );
 			setHasShown( true );
 		}
-	}, [ isFormEditor, hasInnerBlocks, isNewForm, hasShown ] );
+	}, [ isFormEditor, hasInnerBlocks, isNewForm, hasShown, urlFormTitle ] );
 
 	// Don't render anything if not in the form editor
 	if ( ! isFormEditor ) {

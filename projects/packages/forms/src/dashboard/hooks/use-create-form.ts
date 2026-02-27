@@ -23,6 +23,7 @@ const openFormLink = ( url: string ) => {
 
 type ClickHandlerProps = {
 	formPattern?: string;
+	formTitle?: string;
 	showPatterns?: boolean;
 	analyticsEvent?: ( { formPattern }: { formPattern: string } ) => void;
 };
@@ -73,14 +74,17 @@ export default function useCreateForm(): CreateFormReturn {
 	);
 
 	const openNewForm = useCallback(
-		async ( { formPattern, showPatterns, analyticsEvent }: ClickHandlerProps ) => {
+		async ( { formPattern, formTitle, showPatterns, analyticsEvent }: ClickHandlerProps ) => {
 			try {
 				// When centralized form management is enabled, create a jetpack_form post via wp-admin.
 				// Keep existing behavior when disabled (or not yet loaded).
 				if ( isCentralFormManagementEnabled === true ) {
 					analyticsEvent?.( { formPattern: formPattern ?? '' } );
 					// Use config adminUrl to build full URL for external admin contexts.
-					const url = `${ adminUrl || '' }post-new.php?post_type=jetpack_form`;
+					let url = `${ adminUrl || '' }post-new.php?post_type=jetpack_form`;
+					if ( formTitle ) {
+						url += `&formTitle=${ encodeURIComponent( formTitle ) }`;
+					}
 					openFormLink( url );
 					return;
 				}
@@ -90,9 +94,12 @@ export default function useCreateForm(): CreateFormReturn {
 				if ( postUrl ) {
 					analyticsEvent?.( { formPattern } );
 
-					const url = `${ postUrl }${
+					let url = `${ postUrl }${
 						showPatterns && ! formPattern ? '&showJetpackFormsPatterns' : ''
 					}`;
+					if ( formTitle ) {
+						url += `&formTitle=${ encodeURIComponent( formTitle ) }`;
+					}
 					openFormLink( url );
 				}
 			} catch ( error ) {

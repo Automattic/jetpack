@@ -3,13 +3,14 @@
  */
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { Button } from '@wordpress/components';
-import { useCallback } from '@wordpress/element';
+import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { plus } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
 import useCreateForm from '../../hooks/use-create-form.ts';
+import { FormNameModal } from '../form-name-modal';
 
 type CreateFormButtonProps = {
 	label?: string;
@@ -35,29 +36,57 @@ export default function CreateFormButton( {
 	showIcon = true,
 }: CreateFormButtonProps ): JSX.Element {
 	const { openNewForm } = useCreateForm();
+	const [ isModalOpen, setIsModalOpen ] = useState( false );
 
-	const onButtonClickHandler = useCallback(
-		() =>
-			openNewForm( {
+	const analyticsEvent = useCallback( () => {
+		jetpackAnalytics.tracks.recordEvent( 'jetpack_wpa_forms_landing_page_cta_click', {
+			button: 'forms',
+		} );
+	}, [] );
+
+	const handleModalSave = useCallback(
+		async ( formTitle: string ) => {
+			await openNewForm( {
 				showPatterns,
-				analyticsEvent: () => {
-					jetpackAnalytics.tracks.recordEvent( 'jetpack_wpa_forms_landing_page_cta_click', {
-						button: 'forms',
-					} );
-				},
-			} ),
-		[ openNewForm, showPatterns ]
+				formTitle,
+				analyticsEvent,
+			} );
+		},
+		[ openNewForm, showPatterns, analyticsEvent ]
 	);
 
+	const handleModalClose = useCallback( () => {
+		setIsModalOpen( false );
+		openNewForm( {
+			showPatterns,
+			analyticsEvent,
+		} );
+	}, [ openNewForm, showPatterns, analyticsEvent ] );
+
+	const handleButtonClick = useCallback( () => {
+		setIsModalOpen( true );
+	}, [] );
+
 	return (
-		<Button
-			size="compact"
-			variant={ variant }
-			onClick={ onButtonClickHandler }
-			icon={ showIcon ? plus : undefined }
-			className="create-form-button"
-		>
-			{ label }
-		</Button>
+		<>
+			<Button
+				size="compact"
+				variant={ variant }
+				onClick={ handleButtonClick }
+				icon={ showIcon ? plus : undefined }
+				className="create-form-button"
+			>
+				{ label }
+			</Button>
+			<FormNameModal
+				isOpen={ isModalOpen }
+				onClose={ handleModalClose }
+				onSave={ handleModalSave }
+				title={ __( 'Create form', 'jetpack-forms' ) }
+				primaryButtonLabel={ __( 'Create', 'jetpack-forms' ) }
+				secondaryButtonLabel={ __( 'Skip', 'jetpack-forms' ) }
+				placeholder={ __( 'Enter form name', 'jetpack-forms' ) }
+			/>
+		</>
 	);
 }
