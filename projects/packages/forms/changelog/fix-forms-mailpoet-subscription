@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix MailPoet subscriber not created on form submission due to list ID type mismatch and email field not detected by type attribute.
