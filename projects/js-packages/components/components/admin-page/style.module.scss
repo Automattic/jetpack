@@ -14,6 +14,7 @@
 	// CSS custom property for this — revisit if the upstream API changes.
 	:global(.admin-ui-page__header) {
 		border-bottom: none;
+		position: relative;
 	}
 
 	.admin-page-header {
