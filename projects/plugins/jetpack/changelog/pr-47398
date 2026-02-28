@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Modules page: Update PHP-rendered admin header to use bolt icon, dynamic page title, and semantic header element.
