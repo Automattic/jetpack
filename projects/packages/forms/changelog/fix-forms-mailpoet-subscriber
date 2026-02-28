@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Forms: fix MailPoet integration silently skipping subscribers when enabledForForm flag is missing from block attributes.

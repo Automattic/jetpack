@@ -260,7 +260,23 @@ class MailPoet_Integration {
 			return;
 		}
 
-		if ( empty( $form->attributes['mailpoet']['enabledForForm'] ?? null ) ) {
+		$mailpoet_config = $form->attributes['mailpoet'] ?? null;
+		if ( ! is_array( $mailpoet_config ) ) {
+			return;
+		}
+
+		// If the user explicitly disabled the toggle, respect that.
+		if ( array_key_exists( 'enabledForForm', $mailpoet_config ) && ! $mailpoet_config['enabledForForm'] ) {
+			return;
+		}
+
+		// Otherwise, consider MailPoet enabled if explicitly flagged or if a list was configured
+		// (covers patterns/legacy forms where enabledForForm is absent from block attributes).
+		$is_enabled = ! empty( $mailpoet_config['enabledForForm'] )
+			|| ! empty( $mailpoet_config['listId'] )
+			|| ! empty( $mailpoet_config['listName'] );
+
+		if ( ! $is_enabled ) {
 			return;
 		}
 
@@ -301,9 +317,8 @@ class MailPoet_Integration {
 		}
 
 		// Get listId and listName from the mailpoet attribute
-		$mailpoet_attr = is_array( $form->attributes['mailpoet'] ) ? $form->attributes['mailpoet'] : array();
-		$list_id       = $mailpoet_attr['listId'] ?? null;
-		$list_name     = $mailpoet_attr['listName'] ?? null;
+		$list_id   = $mailpoet_config['listId'] ?? null;
+		$list_name = $mailpoet_config['listName'] ?? null;
 
 		$list_id = self::get_or_create_list_id( $mailpoet_api, $list_id, $list_name );
 		if ( ! $list_id ) {
