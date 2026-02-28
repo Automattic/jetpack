@@ -100,7 +100,12 @@ export default function usePageHeaderDetails(
 	const closeCreateFormModal = useCallback( () => setIsCreateFormModalOpen( false ), [] );
 	const handleCreateFormSave = useCallback(
 		async ( formName: string ) => {
-			await openNewForm( { formTitle: formName } );
+			const trimmedName = formName.trim();
+			if ( trimmedName ) {
+				await openNewForm( { formTitle: trimmedName } );
+			} else {
+				await openNewForm( {} );
+			}
 		},
 		[ openNewForm ]
 	);

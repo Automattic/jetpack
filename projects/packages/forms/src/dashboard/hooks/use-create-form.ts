@@ -82,8 +82,9 @@ export default function useCreateForm(): CreateFormReturn {
 					analyticsEvent?.( { formPattern: formPattern ?? '' } );
 					// Use config adminUrl to build full URL for external admin contexts.
 					let url = `${ adminUrl || '' }post-new.php?post_type=jetpack_form`;
-					if ( formTitle ) {
-						url += `&post_title=${ encodeURIComponent( formTitle ) }`;
+					const trimmedFormTitle = formTitle?.trim();
+					if ( trimmedFormTitle ) {
+						url += `&post_title=${ encodeURIComponent( trimmedFormTitle ) }`;
 					}
 					openFormLink( url );
 					return;
