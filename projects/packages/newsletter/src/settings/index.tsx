@@ -16,7 +16,6 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import { fetchSettings, updateSettings } from './api';
-import { Header } from './components/header';
 import {
 	EmailContentSection,
 	EmailBylineSection,
@@ -340,7 +339,14 @@ function NewsletterSettingsApp(): JSX.Element | null {
 
 	if ( isLoading ) {
 		return (
-			<AdminPage moduleName={ MODULE_NAME } header={ <Header /> }>
+			<AdminPage
+				moduleName={ MODULE_NAME }
+				title={ __( 'Newsletter Settings', 'jetpack-newsletter' ) }
+				subTitle={ __(
+					'Transform your blog posts into newsletters to easily reach your subscribers.',
+					'jetpack-newsletter'
+				) }
+			>
 				<Container horizontalSpacing={ 3 }>
 					<Col>
 						<div className="newsletter-settings">
@@ -354,7 +360,14 @@ function NewsletterSettingsApp(): JSX.Element | null {
 
 	if ( error ) {
 		return (
-			<AdminPage moduleName={ MODULE_NAME } header={ <Header /> }>
+			<AdminPage
+				moduleName={ MODULE_NAME }
+				title={ __( 'Newsletter Settings', 'jetpack-newsletter' ) }
+				subTitle={ __(
+					'Transform your blog posts into newsletters to easily reach your subscribers.',
+					'jetpack-newsletter'
+				) }
+			>
 				<Container horizontalSpacing={ 3 }>
 					<Col>
 						<div className="newsletter-settings newsletter-settings--error">
@@ -378,7 +391,14 @@ function NewsletterSettingsApp(): JSX.Element | null {
 	const hasWelcomeEmailChanges = Object.keys( welcomeEmailChanges ).length > 0;
 
 	return (
-		<AdminPage moduleName={ MODULE_NAME } header={ <Header /> }>
+		<AdminPage
+			moduleName={ MODULE_NAME }
+			title={ __( 'Newsletter Settings', 'jetpack-newsletter' ) }
+			subTitle={ __(
+				'Transform your blog posts into newsletters to easily reach your subscribers.',
+				'jetpack-newsletter'
+			) }
+		>
 			<Container horizontalSpacing={ 3 }>
 				<Col>
 					<div className="newsletter-settings">
