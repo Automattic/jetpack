@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Forms: Align wp-build dashboard header with unified admin-ui pattern, using the title prop for main screens and breadcrumbs only for drill-down screens.
