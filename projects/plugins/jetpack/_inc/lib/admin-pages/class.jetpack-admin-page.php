@@ -282,8 +282,11 @@ abstract class Jetpack_Admin_Page {
 						<h2 class="jp-masthead__title">
 							<?php
 							// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- View logic only.
-							if ( isset( $_GET['page'] ) && 'jetpack_modules' === $_GET['page'] ) {
+							$page = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : '';
+							if ( 'jetpack_modules' === $page ) {
 								esc_html_e( 'Modules', 'jetpack' );
+							} elseif ( 'jetpack_about' === $page ) {
+								esc_html_e( 'About', 'jetpack' );
 							} else {
 								esc_html_e( 'Jetpack', 'jetpack' );
 							}
