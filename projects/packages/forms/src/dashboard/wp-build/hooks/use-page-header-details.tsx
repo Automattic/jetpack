@@ -156,34 +156,30 @@ export default function usePageHeaderDetails(
 		return controls;
 	}, [ sourceIdNumber, formTitle, duplicateForm, previewForm, copyEmbed, copyShortcode ] );
 
-	// Main screens: use title (matches unified header pattern — bolt icon + text).
-	// Single-form drill-down: use breadcrumbs for navigation ("Forms > Form Name").
-	const title = useMemo( () => {
-		if ( isSingleFormScreen ) {
-			return undefined;
-		}
-		return (
+	// Title is always present — renders at the Header's Heading size (level 3, ~20px).
+	const title = useMemo(
+		() => (
 			<Stack align="center" gap="xs">
 				<JetpackLogo showText={ false } width={ 20 } />
 				{ __( 'Forms', 'jetpack-forms' ) }
 			</Stack>
-		);
-	}, [ isSingleFormScreen ] );
+		),
+		[]
+	);
 
+	// On drill-down screens, add breadcrumbs for sub-navigation context.
+	// Starts from the screen level ("Responses") so the trail doesn't duplicate the title.
 	const breadcrumbs = useMemo( () => {
 		if ( ! isSingleFormScreen ) {
 			return undefined;
 		}
 		return (
-			<Stack align="center" gap="xs">
-				<JetpackLogo showText={ false } width={ 20 } />
-				<Breadcrumbs
-					items={ [
-						{ label: __( 'Forms', 'jetpack-forms' ), to: '/forms' },
-						{ label: formTitle || __( 'Form responses', 'jetpack-forms' ) },
-					] }
-				/>
-			</Stack>
+			<Breadcrumbs
+				items={ [
+					{ label: __( 'All forms', 'jetpack-forms' ), to: '/' },
+					{ label: formTitle || __( 'Form responses', 'jetpack-forms' ) },
+				] }
+			/>
 		);
 	}, [ formTitle, isSingleFormScreen ] );
 
