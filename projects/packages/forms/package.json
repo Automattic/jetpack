@@ -59,7 +59,7 @@
 		"@wordpress/compose": "7.40.0",
 		"@wordpress/core-data": "7.40.1",
 		"@wordpress/data": "10.40.0",
-		"@wordpress/dataviews": "11.3.0",
+		"@wordpress/dataviews": "12.0.0",
 		"@wordpress/dom": "4.40.0",
 		"@wordpress/dom-ready": "4.40.0",
 		"@wordpress/editor": "14.40.1",
