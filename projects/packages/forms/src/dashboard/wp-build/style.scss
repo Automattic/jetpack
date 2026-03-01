@@ -21,10 +21,6 @@ body.jetpack-forms-responses {
 	.admin-ui-breadcrumbs__list li {
 		margin-bottom: 0;
 
-		&:first-of-type {
-			margin-inline-start: 4px;
-		}
-
 		a {
 			color: var(--wp-components-color-foreground, #1e1e1e);
 			font-weight: 600;

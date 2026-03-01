@@ -46,7 +46,8 @@ type UsePageHeaderDetailsProps = {
 };
 
 type UsePageHeaderDetailsReturn = {
-	breadcrumbs: ReactNode;
+	title?: ReactNode;
+	breadcrumbs?: ReactNode;
 	subtitle: ReactNode;
 	actions?: ReactNode;
 };
@@ -155,25 +156,36 @@ export default function usePageHeaderDetails(
 		return controls;
 	}, [ sourceIdNumber, formTitle, duplicateForm, previewForm, copyEmbed, copyShortcode ] );
 
-	const breadcrumbsItems = useMemo( () => {
+	// Main screens: use title (matches unified header pattern — bolt icon + text).
+	// Single-form drill-down: use breadcrumbs for navigation ("Forms > Form Name").
+	const title = useMemo( () => {
 		if ( isSingleFormScreen ) {
-			return [
-				{ label: __( 'Forms', 'jetpack-forms' ), to: '/forms' },
-				{ label: formTitle || __( 'Form responses', 'jetpack-forms' ) },
-			];
+			return undefined;
 		}
-
-		return [ { label: __( 'Forms', 'jetpack-forms' ) } ];
-	}, [ formTitle, isSingleFormScreen ] );
-
-	const breadcrumbs = useMemo( () => {
 		return (
 			<Stack align="center" gap="xs">
 				<JetpackLogo showText={ false } width={ 20 } />
-				<Breadcrumbs items={ breadcrumbsItems } />
+				{ __( 'Forms', 'jetpack-forms' ) }
 			</Stack>
 		);
-	}, [ breadcrumbsItems ] );
+	}, [ isSingleFormScreen ] );
+
+	const breadcrumbs = useMemo( () => {
+		if ( ! isSingleFormScreen ) {
+			return undefined;
+		}
+		return (
+			<Stack align="center" gap="xs">
+				<JetpackLogo showText={ false } width={ 20 } />
+				<Breadcrumbs
+					items={ [
+						{ label: __( 'Forms', 'jetpack-forms' ), to: '/forms' },
+						{ label: formTitle || __( 'Form responses', 'jetpack-forms' ) },
+					] }
+				/>
+			</Stack>
+		);
+	}, [ formTitle, isSingleFormScreen ] );
 
 	const subtitle = useMemo( () => {
 		if ( isFormsScreen ) {
@@ -446,5 +458,5 @@ export default function usePageHeaderDetails(
 		emptySpam.selectedResponsesCount,
 	] );
 
-	return { breadcrumbs, subtitle, actions };
+	return { title, breadcrumbs, subtitle, actions };
 }
