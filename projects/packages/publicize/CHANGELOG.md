@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.73.1] - 2026-03-02
+### Changed
+- Update dependencies. [#46383]
+
 ## [0.73.0] - 2026-02-26
 ### Added
 - Social: Add `jetpack.ai.imageGenerationHandler` filter to allow external plugins (e.g. Image Studio) to replace the built-in AI image generation flow for the "Generate image" entry point. [#47180]
@@ -1305,6 +1309,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update package.json metadata.
 
+[0.73.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.73.0...v0.73.1
 [0.73.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.72.6...v0.73.0
 [0.72.6]: https://github.com/Automattic/jetpack-publicize/compare/v0.72.5...v0.72.6
 [0.72.5]: https://github.com/Automattic/jetpack-publicize/compare/v0.72.4...v0.72.5

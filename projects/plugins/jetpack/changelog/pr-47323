@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Sync: Fix sync health check to verify queue size and lag before allowing status to be set to in_sync.

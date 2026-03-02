@@ -1,4 +1,0 @@
-Significance: patch
-Type: enhancement
-
-AI Assistant: Add jetpack_ai_assistant_generation_complete action hook for cross-package communication

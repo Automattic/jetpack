@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.31.0] - 2026-03-02
+### Added
+- Add `protocol` to the comment meta whitelist for syncing. [#47379]
+
+### Changed
+- Documentation: Update variable type in docblock to match reality. [#47346]
+
+### Fixed
+- `REST_Endpoints`: Fix sync health check to verify queue size and lag before allowing status to be set to `in_sync`. [#47323]
+
 ## [4.30.0] - 2026-02-26
 ### Added
 - REST_Endpoints: Add `clear-queue` endpoint to allow clearing a Sync queue via REST API. [#47303]
@@ -1675,6 +1685,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Packages: Move sync to a classmapped package
 
+[4.31.0]: https://github.com/Automattic/jetpack-sync/compare/v4.30.0...v4.31.0
 [4.30.0]: https://github.com/Automattic/jetpack-sync/compare/v4.29.0...v4.30.0
 [4.29.0]: https://github.com/Automattic/jetpack-sync/compare/v4.28.0...v4.29.0
 [4.28.0]: https://github.com/Automattic/jetpack-sync/compare/v4.27.0...v4.28.0

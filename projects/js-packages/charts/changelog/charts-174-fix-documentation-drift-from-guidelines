@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Standardize chart documentation structure: add Responsive Behavior and Legends as standard sections, remove Browser Compatibility and Performance Considerations sections, and align all chart docs to established template.
