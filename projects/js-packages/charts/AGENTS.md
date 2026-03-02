@@ -55,4 +55,6 @@ jp changelog add js-packages/charts -s patch -t changed -e "Charts: <user-facing
 - Behavior verified in Storybook and/or tests, not only by static checks.
 - Edits remain in package boundaries; avoid unrelated refactors.
 
-Published Storybook: `https://automattic.github.io/jetpack-storybook/?path=/docs/js-packages-charts-library`
+## References
+
+- Published Storybook: `https://automattic.github.io/jetpack-storybook/?path=/docs/js-packages-charts-library`
