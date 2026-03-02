@@ -66,7 +66,7 @@ jobs:
           echo "::endgroup::"
 
       - name: Store artifact
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: wpcomsh
           path: wpcomsh.tar.xz
@@ -81,7 +81,7 @@ jobs:
     if: needs.build.outputs.wpcomsh == 'true'
     steps:
       - name: Download build artifact
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: wpcomsh
 
