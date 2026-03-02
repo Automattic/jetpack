@@ -326,18 +326,16 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 15.6-a.7 - 2026-02-26
+### 15.6-beta - 2026-03-02
 #### Enhancements
-- Forms: Allow customizing other option in radio field.
-- SEO: Add Canonical URLs module for archive pages to prevent duplicate content in search engines.
-- Sync: Add `clear-queue` REST endpoint to allow clearing a Sync queue.
+- AI Assistant: Add `jetpack_ai_assistant_generation_complete` action hook for cross-package communication.
+- Forms: Use integer format for response count in dataviews.
 
 #### Bug fixes
-- Forms: Fix duplicate title in plain text form submission notification emails.
-- Full Sync: Fix chunk size adjustment when sync is stuck to correctly preserve adjusted chunk size and stuck count across invocations.
-- Social: Fix Threads social preview for posts with gallery.
-- Subscriptions: Stop appending the “View post … subscribe” message to post excerpts in subscription emails.
-- Subscriptions Block: Make excerpt filter more broad.
+- Forms: Create new form pages without a placeholder title.
+- Forms: Fix extra margin on badges in the forms dashboard.
+- Image Studio: Fix console warnings.
+- Sync: Fix sync health check to verify queue size and lag before allowing status to be set to `in_sync`.
 
 --------
 

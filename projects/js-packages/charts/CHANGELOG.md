@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.56.7] - 2026-03-02
+### Changed
+- Improve AI agent documentation and validation workflow for chart development. [#47334]
+- Standardize chart documentation structure: add Responsive Behavior and Legends as standard sections, remove Browser Compatibility and Performance Considerations sections, and align all chart docs to established template. [#47363]
+
 ## [0.56.6] - 2026-02-26
 ### Changed
 - Simplify relocated portal positioning with CSS inset shorthand. [#47220]
@@ -708,6 +713,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed lints following ESLint rule changes for TS [#40584]
 - Fixing a bug in Chart storybook data. [#40640]
 
+[0.56.7]: https://github.com/Automattic/charts/compare/v0.56.6...v0.56.7
 [0.56.6]: https://github.com/Automattic/charts/compare/v0.56.5...v0.56.6
 [0.56.5]: https://github.com/Automattic/charts/compare/v0.56.4...v0.56.5
 [0.56.4]: https://github.com/Automattic/charts/compare/v0.56.3...v0.56.4
