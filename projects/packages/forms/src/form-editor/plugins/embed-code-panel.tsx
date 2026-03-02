@@ -9,7 +9,7 @@ import { __ } from '@wordpress/i18n';
  */
 import { CopyCodeRow } from './copy-code-row';
 
-export const EMBED_CODE_PANEL_PLUGIN = 'jetpack-forms-embedcode-panel';
+export const EMBED_CODE_PANEL_PLUGIN = 'jetpack-form-embed-code-panel';
 
 /**
  * Embed Code Panel component.
@@ -31,7 +31,7 @@ export const EmbedCodePanel = () => {
 		};
 	} );
 
-	// Don't show for drafts or auto-drafts since they don't have a stable ID yet.
+	// Don't show for auto-drafts since they don't have a stable ID yet.
 	if ( postStatus === 'auto-draft' ) {
 		return null;
 	}
