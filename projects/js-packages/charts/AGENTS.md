@@ -113,6 +113,7 @@ For docs-heavy tasks with many repeated steps, agents may use the optional skill
 - Defining new chart prop interfaces that diverge from established base chart contracts (for example, not aligning with `BaseChartProps` when appropriate).
 - Implementing responsive wrappers that conflict with component sizing semantics (fixed-height charts, resize behavior, or aspect-ratio assumptions).
 - Adding stories that do not visibly demonstrate the documented behavior/props, or stories that render clipped due to container sizing.
+- Breaking MDX `<Source code={\`...\` } />` rendering by using malformed/flattened indentation inside multiline template literals; keep consistent indentation and formatting in code blocks so docs render correctly.
 - Tooltip styles/positioning that only work on default backgrounds or fail at chart edges (for example, shadows fading to opaque white instead of transparent).
 - Using mock/placeholder series data in production code.
 - Introducing avoidable multi-pass data transformations in render paths when a single pass is sufficient.

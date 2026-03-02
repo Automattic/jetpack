@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Charts: Fix leaderboard chart height calculation to include legend layout and keep responsive sizing by default.

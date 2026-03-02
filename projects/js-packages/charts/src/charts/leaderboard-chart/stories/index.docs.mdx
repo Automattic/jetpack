@@ -5,13 +5,13 @@ import * as LeaderboardChartStories from './index.stories';
 
 # Leaderboard Chart
 
-A flexible and accessible leaderboard chart component for displaying ranked data with WordPress ProgressBar components and optional comparison values.
+A flexible and accessible leaderboard chart component for displaying ranked data with optional comparison values and legend support.
 
 <Canvas of={ LeaderboardChartStories.Default } />
 
 ## Overview
 
-The Leaderboard Chart component provides a clean, responsive visualization for displaying ranked data with optional comparison values. Built with WordPress components, it supports customizable colors, flexible formatting, and comprehensive accessibility features:
+The Leaderboard Chart component provides a clean, responsive visualization for displaying ranked data with optional comparison values. Built with WordPress components, it supports customizable colors, flexible formatting, and accessibility-friendly defaults.
 
 <Source
 	language="tsx"
@@ -83,6 +83,8 @@ The simplest leaderboard chart requires only a `data` prop with pre-processed le
 - **`loading`**: Whether the chart is in loading state - `false` by default
 - **`className`**: Additional CSS class name for the chart container
 - **`style`**: Custom styling including CSS custom properties for border radius
+- **`width` / `height`**: Optional fixed chart container dimensions
+- **`gap`**: Spacing between legend and chart content (Stack gap token/value)
 
 For detailed prop information, type definitions, and examples, see the [Leaderboard Chart API Reference](./?path=/docs/js-packages-charts-library-charts-leaderboard-chart-api-reference--docs).
 
@@ -101,12 +103,6 @@ Display both current and previous period data with delta indicators:
 		withComparison={true}
 	/>` }
 />
-
-### Without Comparison
-
-Focus on current period data only:
-
-<Canvas of={ LeaderboardChartStories.WithoutComparison } />
 
 ### Negative Growth Handling
 
@@ -237,6 +233,12 @@ Gracefully handle empty data arrays:
 	/>` }
 />
 
+### Empty Data with Children
+
+Children passed to the composition API still render in empty-data state:
+
+<Canvas of={ LeaderboardChartStories.EmptyDataWithChildren } />
+
 ### Small Datasets
 
 Handle minimal datasets effectively:
@@ -348,10 +350,23 @@ Customize legend labels with specific date ranges or descriptive text:
 	/>` }
 />
 
+### Composition API Legend
+
+Use the composition API for explicit legend placement:
+
+<Canvas of={ LeaderboardChartStories.WithCompositionLegend } />
+
+### Interactive Legends
+
+Enable interactive legend items to toggle visibility of current and comparison series:
+
+<Canvas of={ LeaderboardChartStories.InteractiveLegend } />
+
 **Legend Configuration Options:**
 - Control legend positioning, alignment, and visual appearance
 - Customize legend shapes and sizes
 - Add custom labels for different time periods or data series
+- Control legend/content spacing with the chart-level `gap` prop
 
 See the [API Reference](./?path=/docs/js-packages-charts-library-charts-leaderboard-chart-api-reference--docs) for detailed prop information.
 
@@ -474,6 +489,30 @@ Leaderboard Charts integrate seamlessly with the chart theming system. The defau
 	</GlobalChartsProvider>` }
 />
 
+## Responsive Behavior
+
+By default, leaderboard charts fill their parent container dimensions. The parent must provide an explicit height for constrained layouts:
+
+<Source
+	language="tsx"
+	code={ `// Responsive by default (fills parent container)
+		<div style={{ width: '100%', height: '320px' }}>
+			<LeaderboardChart data={ data } showLegend={ true } />
+		</div>
+
+		// Fixed-size exception
+		<LeaderboardChart
+			data={ data }
+			width={ 300 }
+			height={ 400 }
+			showLegend={ true }
+		/>` }
+/>
+
+When content is taller than the available area, the content region scrolls and the legend remains visible without overlap.
+
+For more details on responsive behavior, see the [Responsive Design section](./?path=/docs/js-packages-charts-library-introduction--docs#responsive-design) in the introduction.
+
 ## Animation
 
 The Leaderboard Chart component supports an optional entry animation that creates a smooth reveal effect when the chart first renders:
@@ -497,7 +536,7 @@ The Leaderboard Chart component supports an optional entry animation that create
 
 **Note**: The animation plays once when the chart initially renders and does not repeat.
 
-## Examples
+## Advanced Usage
 
 ### E-commerce Sales Channels
 
@@ -526,8 +565,18 @@ The Leaderboard Chart component supports an optional entry animation that create
 
 ## Accessibility
 
-- Built with semantic WordPress components (`Grid`, `VStack`, `Text`)
-- Screen reader accessible through proper text content
-- Color information supplemented with text values (not color-dependent)
-- Responsive design that adapts to system font size preferences
-- No interactive elements - functions as a display-only component
+### Keyboard Navigation
+
+- Interactive legends are keyboard accessible when `legendInteractive` is enabled.
+- Legend items can be toggled via keyboard using standard button interaction.
+
+### Screen Reader Support
+
+- Uses semantic text content for labels and values.
+- Legend items expose visible labels and state when interactive.
+- Value and delta text supplement color-based feedback.
+
+### Focus Management
+
+- Interactive legend items use standard focus behavior and visible focus indicators from the shared legend component.
+- The chart content area scrolls in constrained layouts, keeping focused legend controls visible and non-overlapping.

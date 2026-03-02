@@ -2,6 +2,17 @@ import { render, screen } from '@testing-library/react';
 import LeaderboardChart from '../leaderboard-chart';
 import type { LeaderboardEntry } from '../../../types';
 
+const mockDefaultParentSize = () => ( {
+	parentRef: { current: null },
+	width: 400,
+	height: 300,
+} );
+
+// Mock useParentSize so the responsive wrapper returns predictable dimensions in tests
+jest.mock( '@visx/responsive', () => ( {
+	useParentSize: jest.fn( () => mockDefaultParentSize() ),
+} ) );
+
 const mockData: LeaderboardEntry[] = [
 	{
 		id: 'direct',
@@ -40,6 +51,11 @@ const testValueFormatter = ( value: number ) => `${ value }$`;
 const testDeltaFormatter = ( value: number ) => `${ value }delta`;
 
 describe( 'LeaderboardChart', () => {
+	afterEach( () => {
+		const { useParentSize } = jest.requireMock( '@visx/responsive' );
+		useParentSize.mockImplementation( () => mockDefaultParentSize() );
+	} );
+
 	it( 'renders leaderboard entries', () => {
 		render( <LeaderboardChart data={ mockData } /> );
 
@@ -337,6 +353,28 @@ describe( 'LeaderboardChart', () => {
 			expect( screen.getByText( '8.8K' ) ).toBeInTheDocument();
 			expect( screen.getByText( '+25%' ) ).toBeInTheDocument();
 			expect( screen.getByText( '-8%' ) ).toBeInTheDocument();
+		} );
+	} );
+
+	describe( 'Responsive wrapper', () => {
+		it( 'fills parent container (height:100%) by default', () => {
+			render( <LeaderboardChart data={ mockData } /> );
+			const wrapper = screen.getByTestId( 'responsive-wrapper' );
+			expect( wrapper ).toHaveStyle( { height: '100%' } );
+		} );
+
+		it( 'applies explicit width and height to chart container', () => {
+			const { useParentSize } = jest.requireMock( '@visx/responsive' );
+			useParentSize.mockReturnValue( {
+				parentRef: { current: null },
+				width: 0,
+				height: 0,
+			} );
+
+			render( <LeaderboardChart data={ mockData } width={ 500 } height={ 240 } /> );
+			const chartContainer = screen.getByTestId( 'leaderboard-chart-container' );
+
+			expect( chartContainer ).toHaveStyle( { width: '500px', height: '240px' } );
 		} );
 	} );
 } );
