@@ -55,7 +55,7 @@
 	font-size: rem.convert(12px);
 	font-style: italic;
 	color: colors.$gray;
-	border-bottom: 1px color.adjust(colors.$gray, $lightness: 30%) solid;
+	border-bottom: none;
 
 	@include breakpoints.breakpoint( "<660px" ) {
 		display: none;
