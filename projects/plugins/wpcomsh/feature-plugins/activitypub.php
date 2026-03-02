@@ -54,7 +54,6 @@ function wpcomsh_activitypub_sync_plugin_activation( $args ) {
 	if ( ! is_wp_error( $actor ) ) {
 		$args[] = array(
 			'actor'     => $actor->get_id(),
-			// @phan-suppress-next-line PhanUndeclaredClassMethod
 			'webfinger' => $actor->get_webfinger(),
 		);
 	}
