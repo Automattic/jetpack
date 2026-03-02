@@ -36,6 +36,7 @@ import {
 	unregisterFormCategories,
 } from './utils/category-utils';
 import { getAllowedBlocks } from './utils/get-allowed-blocks';
+import { shouldAutoOpenInserter } from './utils/inserter-utils';
 import type { WPPlugin } from '@wordpress/plugins';
 
 type PluginSettings = Omit< WPPlugin, 'name' >;
@@ -343,6 +344,7 @@ const enforceBlockNesting = () => {
 
 let unsubscribe: ( () => void ) | null = null;
 let requestAnimationFrameId: number | null = null;
+let inserterAnimationFrameId: number | null = null;
 
 /**
  * Sets up a subscription to monitor editor state changes and enforce form editor behavior.
@@ -411,6 +413,10 @@ const setupFormEditorSubscription = () => {
 					if ( requestAnimationFrameId ) {
 						cancelAnimationFrame( requestAnimationFrameId );
 						requestAnimationFrameId = null;
+					}
+					if ( inserterAnimationFrameId ) {
+						cancelAnimationFrame( inserterAnimationFrameId );
+						inserterAnimationFrameId = null;
 					}
 
 					state.formBlockClientId = null;
@@ -483,32 +489,25 @@ const setupFormEditorSubscription = () => {
 
 			// 5. Auto-open the block inserter (once) after blocks are ready
 			if ( ! state.hasOpenedInserter && state.formBlockClientId ) {
-				const { getBlock: getBlockForInserter } = select( 'core/block-editor' );
-				const currentFormBlock = getBlockForInserter( state.formBlockClientId );
+				const currentFormBlock = select( 'core/block-editor' ).getBlock( state.formBlockClientId );
 				const hasAnyInnerBlocks = currentFormBlock && currentFormBlock.innerBlocks.length > 0;
 
 				if ( hasAnyInnerBlocks ) {
 					state.hasOpenedInserter = true;
 
-					// Skip on mobile — inserter takes over the full screen.
-					const isDesktop = window.innerWidth >= 782;
+					const { get: getPreference } = select( 'core/preferences' ) as {
+						get: ( scope: string, name: string ) => boolean;
+					};
 
-					// Skip if user prefers the list view sidebar (same slot).
-					const showListView = (
-						select( 'core/preferences' ) as {
-							get: ( scope: string, name: string ) => boolean;
-						}
-					 ).get( 'core', 'showListViewByDefault' );
-
-					// Skip in distraction-free mode — Gutenberg hides the inserter.
-					const distractionFree = (
-						select( 'core/preferences' ) as {
-							get: ( scope: string, name: string ) => boolean;
-						}
-					 ).get( 'core', 'distractionFree' );
-
-					if ( isDesktop && ! showListView && ! distractionFree ) {
-						requestAnimationFrame( () => {
+					if (
+						shouldAutoOpenInserter( {
+							viewportWidth: window.innerWidth,
+							showListViewByDefault: getPreference( 'core', 'showListViewByDefault' ),
+							distractionFree: getPreference( 'core', 'distractionFree' ),
+						} )
+					) {
+						inserterAnimationFrameId = requestAnimationFrame( () => {
+							inserterAnimationFrameId = null;
 							if ( ! state.isFormEditor ) {
 								return;
 							}
@@ -557,6 +556,10 @@ const setupFormEditorSubscription = () => {
 		if ( requestAnimationFrameId ) {
 			cancelAnimationFrame( requestAnimationFrameId );
 			requestAnimationFrameId = null;
+		}
+		if ( inserterAnimationFrameId ) {
+			cancelAnimationFrame( inserterAnimationFrameId );
+			inserterAnimationFrameId = null;
 		}
 		window.removeEventListener( 'beforeunload', handleUnload );
 	};
