@@ -21,25 +21,17 @@ class WP_Build_Polyfills {
 	 *
 	 * Call this early (e.g. during plugin load) — it hooks into wp_default_scripts
 	 * at priority 20 so Core (default) and Gutenberg (priority 10) register first.
-	 *
-	 * @param string $base_dir  Absolute path to directory containing build/polyfills/.
-	 * @param string $base_file File path for plugins_url() computation.
 	 */
-	public static function register( $base_dir, $base_file ) {
-		$polyfills_dir = $base_dir . '/build/polyfills';
+	public static function register() {
+		$package_root = dirname( __DIR__ );
+		$build_dir    = $package_root . '/build';
+		$base_file    = $package_root . '/composer.json';
 
 		add_action(
 			'wp_default_scripts',
-			function ( $scripts ) use ( $polyfills_dir, $base_file ) {
-				self::register_scripts( $scripts, $polyfills_dir, $base_file );
-			},
-			20
-		);
-
-		add_action(
-			'wp_default_scripts',
-			function () use ( $polyfills_dir, $base_file ) {
-				self::register_modules( $polyfills_dir, $base_file );
+			function ( $scripts ) use ( $build_dir, $base_file ) {
+				self::register_scripts( $scripts, $build_dir, $base_file );
+				self::register_modules( $build_dir, $base_file );
 			},
 			20
 		);
@@ -48,28 +40,37 @@ class WP_Build_Polyfills {
 	/**
 	 * Register polyfill classic scripts.
 	 *
-	 * @param \WP_Scripts $scripts       The WP_Scripts instance.
-	 * @param string      $polyfills_dir Absolute path to the polyfills build directory.
-	 * @param string      $base_file     File path for plugins_url() computation.
+	 * @param \WP_Scripts $scripts   The WP_Scripts instance.
+	 * @param string      $build_dir Absolute path to the build directory.
+	 * @param string      $base_file File path for plugins_url() computation.
 	 */
-	private static function register_scripts( $scripts, $polyfills_dir, $base_file ) {
+	private static function register_scripts( $scripts, $build_dir, $base_file ) {
 		$polyfills = array(
+			'wp-notices'      => array(
+				'path'  => 'notices',
+				// Only force-replace on WP < 7.0: older Core versions ship
+				// notices without SnackbarNotices and InlineNotices component
+				// exports that @wordpress/boot depends on.
+				'force' => version_compare( $GLOBALS['wp_version'] ?? '0', '7.0-dev', '<' ),
+			),
 			'wp-private-apis' => array(
 				'path'  => 'private-apis',
-				'deps'  => array(),
-				// Always replace: older Core versions ship private-apis with an
-				// incomplete allowlist that rejects @wordpress/theme and @wordpress/route.
+				// Only force-replace on WP < 7.0: older Core versions ship
+				// private-apis with an incomplete allowlist that rejects
+				// @wordpress/theme and @wordpress/route.
 				// Our version is a strict superset (same API, larger allowlist).
-				'force' => true,
+				'force' => version_compare( $GLOBALS['wp_version'] ?? '0', '7.0-dev', '<' ),
 			),
 			'wp-theme'        => array(
 				'path' => 'theme',
-				'deps' => array( 'wp-element', 'wp-private-apis' ),
 			),
 		);
 
+		$use_minified = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? false : true;
+		$file_name    = $use_minified ? 'index.min' : 'index';
+
 		foreach ( $polyfills as $handle => $data ) {
-			$asset_file = $polyfills_dir . '/scripts/' . $data['path'] . '/index.min.asset.php';
+			$asset_file = $build_dir . '/scripts/' . $data['path'] . '/' . $file_name . '.asset.php';
 
 			if ( ! file_exists( $asset_file ) ) {
 				continue;
@@ -90,9 +91,9 @@ class WP_Build_Polyfills {
 
 			$scripts->add(
 				$handle,
-				plugins_url( 'build/polyfills/scripts/' . $data['path'] . '/index.min.js', $base_file ),
-				$asset['dependencies'] ?? $data['deps'],
-				$asset['version'] ?? false
+				plugins_url( 'build/scripts/' . $data['path'] . '/' . $file_name . '.js', $base_file ),
+				$asset['dependencies'],
+				$asset['version']
 			);
 		}
 	}
@@ -103,19 +104,22 @@ class WP_Build_Polyfills {
 	 * Call to wp_register_script_module() silently ignores duplicate registrations (first wins),
 	 * so no explicit is_registered check is needed.
 	 *
-	 * @param string $polyfills_dir Absolute path to the polyfills build directory.
-	 * @param string $base_file     File path for plugins_url() computation.
+	 * @param string $build_dir Absolute path to the build directory.
+	 * @param string $base_file File path for plugins_url() computation.
 	 */
-	private static function register_modules( $polyfills_dir, $base_file ) {
+	private static function register_modules( $build_dir, $base_file ) {
 		if ( ! function_exists( 'wp_register_script_module' ) ) {
 			return;
 		}
 
 		$modules = array( 'boot', 'route', 'a11y' );
 
+		$use_minified = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? false : true;
+		$file_name    = $use_minified ? 'index.min' : 'index';
+
 		foreach ( $modules as $name ) {
 			$module_id  = '@wordpress/' . $name;
-			$asset_file = $polyfills_dir . '/modules/' . $name . '/index.min.asset.php';
+			$asset_file = $build_dir . '/modules/' . $name . '/' . $file_name . '.asset.php';
 
 			if ( ! file_exists( $asset_file ) ) {
 				continue;
@@ -125,9 +129,9 @@ class WP_Build_Polyfills {
 
 			wp_register_script_module(
 				$module_id,
-				plugins_url( 'build/polyfills/modules/' . $name . '/index.min.js', $base_file ),
+				plugins_url( 'build/modules/' . $name . '/' . $file_name . '.js', $base_file ),
 				$asset['module_dependencies'] ?? array(),
-				$asset['version'] ?? false
+				$asset['version']
 			);
 		}
 	}
