@@ -243,14 +243,12 @@ const PlanUsageSection = ( { isFreePlan, planInfo, sendPaidPlanToCart, isPlanJus
 	return (
 		<div className="jp-search-dashboard-wrap jp-search-dashboard-meter-wrap">
 			<div className="jp-search-dashboard-row">
-				<div className="lg-col-span-2 md-col-span-1 sm-col-span-0"></div>
-				<div className="jp-search-dashboard-meter-wrap__content lg-col-span-8 md-col-span-6 sm-col-span-4">
+				<div className="jp-search-dashboard-meter-wrap__content lg-col-span-12 md-col-span-6 sm-col-span-4">
 					<PlanSummary isFreePlan={ isFreePlan } planInfo={ planInfo } />
 					<UsageMeters usageInfo={ usageInfo } isPlanJustUpgraded={ isPlanJustUpgraded } />
 					<UpgradeTrigger upgradeMessage={ upgradeMessage } ctaCallback={ sendPaidPlanToCart } />
 					<AboutPlanLimits />
 				</div>
-				<div className="lg-col-span-2 md-col-span-1 sm-col-span-0"></div>
 			</div>
 		</div>
 	);

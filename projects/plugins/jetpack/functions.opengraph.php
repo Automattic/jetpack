@@ -14,6 +14,7 @@
 use Automattic\Block_Scanner;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Current_Plan;
+use Automattic\Jetpack\Post_Media\Images;
 use Automattic\Jetpack\Status\Host;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -332,12 +333,12 @@ function jetpack_og_get_image( $width = 200, $height = 200, $deprecated = null )
 		// Grab obvious image if post is an attachment page for an image.
 		if ( is_attachment( get_the_ID() ) && str_starts_with( get_post_mime_type(), 'image' ) ) {
 			$image['src']      = wp_get_attachment_url( get_the_ID() );
-			$image['alt_text'] = Jetpack_PostImages::get_alt_text( get_the_ID() );
+			$image['alt_text'] = Images::get_alt_text( get_the_ID() );
 		}
 
 		// Attempt to find something good for this post using our generalized PostImages code.
-		if ( empty( $image ) && class_exists( 'Jetpack_PostImages' ) ) {
-			$post_image = Jetpack_PostImages::get_image(
+		if ( empty( $image ) ) {
+			$post_image = Images::get_image(
 				get_the_ID(),
 				array(
 					'width'  => $width,
@@ -528,7 +529,7 @@ function jetpack_og_get_site_image( $width, $height ) {
 				'src'      => $sl_details[0],
 				'width'    => $sl_details[1],
 				'height'   => $sl_details[2],
-				'alt_text' => Jetpack_PostImages::get_alt_text( $custom_logo_id ),
+				'alt_text' => Images::get_alt_text( $custom_logo_id ),
 			);
 		}
 	}

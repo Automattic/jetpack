@@ -2,6 +2,15 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## [1.4.16] - 2026-02-26
+### Changed
+- Container: Adjust maximum width to 1040px. [#47308]
+- Update package dependencies. [#47285] [#47300] [#47309]
+
+### Fixed
+- Button: Loosen `ref` type from `HTMLInputElement` to `HTMLElement`. [#47300]
+- NavigatorModal: Guard against WordPress Modal dismisser mechanism to prevent the modal from being closed when an external modal (e.g. Image Studio) opens. [#47180]
+
 ## [1.4.15] - 2026-02-23
 ### Changed
 - Update dependencies.
@@ -1663,6 +1672,7 @@
 ### Changed
 - Update node version requirement to 14.16.1
 
+[1.4.16]: https://github.com/Automattic/jetpack-components/compare/1.4.15...1.4.16
 [1.4.15]: https://github.com/Automattic/jetpack-components/compare/1.4.14...1.4.15
 [1.4.14]: https://github.com/Automattic/jetpack-components/compare/1.4.13...1.4.14
 [1.4.13]: https://github.com/Automattic/jetpack-components/compare/1.4.12...1.4.13

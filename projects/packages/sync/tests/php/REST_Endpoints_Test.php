@@ -173,6 +173,91 @@ class REST_Endpoints_Test extends TestCase {
 	}
 
 	/**
+	 * Testing the `/jetpack/v4/sync/health` endpoint when the queue is unhealthy.
+	 * Setting IN_SYNC should be blocked and the status should be set to OUT_OF_SYNC
+	 * only when both size AND lag are over their limits.
+	 */
+	public function test_sync_health_blocked_when_queue_unhealthy() {
+
+		Health::update_status( Health::STATUS_IN_SYNC );
+		Settings::update_settings(
+			array(
+				'max_queue_size' => 0,
+				'max_queue_lag'  => 0,
+			)
+		);
+
+		$user = wp_get_current_user();
+		$user->add_cap( 'manage_options' );
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/sync/health' );
+		$request->set_header( 'Content-Type', 'application/json' );
+		$request->set_body( '{ "status": "' . Health::STATUS_IN_SYNC . '" }' );
+
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+
+		$user->remove_cap( 'manage_options' );
+
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertEquals( Health::STATUS_OUT_OF_SYNC, $data['success'] );
+		$this->assertEquals( Health::STATUS_OUT_OF_SYNC, Health::get_status() );
+		$this->assertArrayHasKey( 'message', $data );
+	}
+
+	/**
+	 * Testing the `/jetpack/v4/sync/health` endpoint when only queue size is over the limit.
+	 * Setting IN_SYNC should be allowed because lag is still within limits (queue is still draining).
+	 */
+	public function test_sync_health_allowed_when_only_queue_size_over_limit() {
+
+		Health::update_status( Health::STATUS_OUT_OF_SYNC );
+		Settings::update_settings( array( 'max_queue_size' => 0 ) );
+
+		$user = wp_get_current_user();
+		$user->add_cap( 'manage_options' );
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/sync/health' );
+		$request->set_header( 'Content-Type', 'application/json' );
+		$request->set_body( '{ "status": "' . Health::STATUS_IN_SYNC . '" }' );
+
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+
+		$user->remove_cap( 'manage_options' );
+
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertEquals( Health::STATUS_IN_SYNC, $data['success'] );
+		$this->assertEquals( Health::STATUS_IN_SYNC, Health::get_status() );
+	}
+
+	/**
+	 * Testing the `/jetpack/v4/sync/health` endpoint when only queue lag is over the limit.
+	 * Setting IN_SYNC should be allowed because size is still within limits.
+	 */
+	public function test_sync_health_allowed_when_only_queue_lag_over_limit() {
+
+		Health::update_status( Health::STATUS_OUT_OF_SYNC );
+		Settings::update_settings( array( 'max_queue_lag' => 0 ) );
+
+		$user = wp_get_current_user();
+		$user->add_cap( 'manage_options' );
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/sync/health' );
+		$request->set_header( 'Content-Type', 'application/json' );
+		$request->set_body( '{ "status": "' . Health::STATUS_IN_SYNC . '" }' );
+
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+
+		$user->remove_cap( 'manage_options' );
+
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertEquals( Health::STATUS_IN_SYNC, $data['success'] );
+		$this->assertEquals( Health::STATUS_IN_SYNC, Health::get_status() );
+	}
+
+	/**
 	 * Testing the `/jetpack/v4/sync/now` endpoint.
 	 */
 	public function test_sync_now() {
@@ -210,6 +295,86 @@ class REST_Endpoints_Test extends TestCase {
 		$user->remove_cap( 'manage_options' );
 
 		$this->assertEquals( 200, $response->get_status() );
+	}
+
+	/**
+	 * Testing the `/jetpack/v4/sync/checkout` endpoint with use_memory_limit skips number_of_items validation.
+	 */
+	public function test_sync_checkout_with_memory_limit_skips_number_of_items_validation() {
+
+		$user = wp_get_current_user();
+		$user->add_cap( 'manage_options' );
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/sync/checkout' );
+		$request->set_header( 'Content-Type', 'application/json' );
+		$request->set_body( '{ "queue": "sync", "use_memory_limit": true }' );
+
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+		$user->remove_cap( 'manage_options' );
+
+		// Should not get invalid_number_of_items error. queue_size is expected since the queue is empty.
+		$this->assertNotEquals( 'invalid_number_of_items', $data['code'] ?? null );
+		$this->assertEquals( 'queue_size', $data['code'] ?? null );
+	}
+
+	/**
+	 * Testing the `/jetpack/v4/sync/checkout` endpoint returns error for invalid number_of_items.
+	 */
+	public function test_sync_checkout_invalid_number_of_items() {
+
+		$user = wp_get_current_user();
+		$user->add_cap( 'manage_options' );
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/sync/checkout' );
+		$request->set_header( 'Content-Type', 'application/json' );
+		$request->set_body( '{ "queue": "sync", "number_of_items": 0 }' );
+
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+		$user->remove_cap( 'manage_options' );
+
+		$this->assertEquals( 'invalid_number_of_items', $data['code'] );
+	}
+
+	/**
+	 * Testing the `/jetpack/v4/sync/checkout` endpoint with use_memory_limit ignores invalid number_of_items.
+	 */
+	public function test_sync_checkout_with_memory_limit_ignores_invalid_number_of_items() {
+
+		$user = wp_get_current_user();
+		$user->add_cap( 'manage_options' );
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/sync/checkout' );
+		$request->set_header( 'Content-Type', 'application/json' );
+		$request->set_body( '{ "queue": "sync", "use_memory_limit": true, "number_of_items": 0 }' );
+
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+		$user->remove_cap( 'manage_options' );
+
+		// With use_memory_limit, the invalid number_of_items should be ignored.
+		// We expect queue_size (empty queue), not invalid_number_of_items.
+		$this->assertEquals( 'queue_size', $data['code'] ?? null );
+	}
+
+	/**
+	 * Testing the `/jetpack/v4/sync/checkout` endpoint rejects pop with use_memory_limit.
+	 */
+	public function test_sync_checkout_pop_with_memory_limit_rejected() {
+
+		$user = wp_get_current_user();
+		$user->add_cap( 'manage_options' );
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/sync/checkout' );
+		$request->set_header( 'Content-Type', 'application/json' );
+		$request->set_body( '{ "queue": "sync", "pop": true, "use_memory_limit": true }' );
+
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+		$user->remove_cap( 'manage_options' );
+
+		$this->assertEquals( 'invalid_args', $data['code'] );
 	}
 
 	/**
@@ -263,6 +428,27 @@ class REST_Endpoints_Test extends TestCase {
 	}
 
 	/**
+	 * Testing the `POST /jetpack/v4/sync/clear-queue` endpoint clears the sync queue.
+	 */
+	public function test_sync_clear_queue() {
+		$user = wp_get_current_user();
+		$user->add_cap( 'manage_options' );
+
+		set_transient( Sender::TEMP_SYNC_DISABLE_TRANSIENT_NAME, time() );
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/sync/clear-queue' );
+		$request->set_header( 'Content-Type', 'application/json' );
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+
+		$user->remove_cap( 'manage_options' );
+
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertTrue( $data['success'] );
+		$this->assertFalse( get_transient( Sender::TEMP_SYNC_DISABLE_TRANSIENT_NAME ) );
+	}
+
+	/**
 	 * Array of Sync Endpoints and method.
 	 *
 	 * @return int[][]
@@ -283,6 +469,7 @@ class REST_Endpoints_Test extends TestCase {
 			array( 'sync/data-check', 'GET', null ),
 			array( 'sync/data-histogram', 'POST', null ),
 			array( 'sync/locks', 'DELETE', null ),
+			array( 'sync/clear-queue', 'POST', null ),
 		);
 	}
 
