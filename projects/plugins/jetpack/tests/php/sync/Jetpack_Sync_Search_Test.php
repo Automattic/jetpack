@@ -96,18 +96,6 @@ class Jetpack_Sync_Search_Test extends Jetpack_Sync_TestBase {
 			$params[] = array( $keys[ $k ] );
 		}
 
-		// Force "author" taxonomy to always be included to reproduce the leak.
-		$has_author = false;
-		foreach ( $params as $p ) {
-			if ( $p[0] === 'author' ) {
-				$has_author = true;
-				break;
-			}
-		}
-		if ( ! $has_author ) {
-			$params[] = array( 'author' );
-		}
-
 		return $params;
 	}
 
