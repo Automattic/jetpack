@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Convert useConnection hook to TypeScript.

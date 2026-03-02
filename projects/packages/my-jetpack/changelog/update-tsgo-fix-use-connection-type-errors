@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix JS tests following the change in useConnection.
