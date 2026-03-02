@@ -298,6 +298,86 @@ class REST_Endpoints_Test extends TestCase {
 	}
 
 	/**
+	 * Testing the `/jetpack/v4/sync/checkout` endpoint with use_memory_limit skips number_of_items validation.
+	 */
+	public function test_sync_checkout_with_memory_limit_skips_number_of_items_validation() {
+
+		$user = wp_get_current_user();
+		$user->add_cap( 'manage_options' );
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/sync/checkout' );
+		$request->set_header( 'Content-Type', 'application/json' );
+		$request->set_body( '{ "queue": "sync", "use_memory_limit": true }' );
+
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+		$user->remove_cap( 'manage_options' );
+
+		// Should not get invalid_number_of_items error. queue_size is expected since the queue is empty.
+		$this->assertNotEquals( 'invalid_number_of_items', $data['code'] ?? null );
+		$this->assertEquals( 'queue_size', $data['code'] ?? null );
+	}
+
+	/**
+	 * Testing the `/jetpack/v4/sync/checkout` endpoint returns error for invalid number_of_items.
+	 */
+	public function test_sync_checkout_invalid_number_of_items() {
+
+		$user = wp_get_current_user();
+		$user->add_cap( 'manage_options' );
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/sync/checkout' );
+		$request->set_header( 'Content-Type', 'application/json' );
+		$request->set_body( '{ "queue": "sync", "number_of_items": 0 }' );
+
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+		$user->remove_cap( 'manage_options' );
+
+		$this->assertEquals( 'invalid_number_of_items', $data['code'] );
+	}
+
+	/**
+	 * Testing the `/jetpack/v4/sync/checkout` endpoint with use_memory_limit ignores invalid number_of_items.
+	 */
+	public function test_sync_checkout_with_memory_limit_ignores_invalid_number_of_items() {
+
+		$user = wp_get_current_user();
+		$user->add_cap( 'manage_options' );
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/sync/checkout' );
+		$request->set_header( 'Content-Type', 'application/json' );
+		$request->set_body( '{ "queue": "sync", "use_memory_limit": true, "number_of_items": 0 }' );
+
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+		$user->remove_cap( 'manage_options' );
+
+		// With use_memory_limit, the invalid number_of_items should be ignored.
+		// We expect queue_size (empty queue), not invalid_number_of_items.
+		$this->assertEquals( 'queue_size', $data['code'] ?? null );
+	}
+
+	/**
+	 * Testing the `/jetpack/v4/sync/checkout` endpoint rejects pop with use_memory_limit.
+	 */
+	public function test_sync_checkout_pop_with_memory_limit_rejected() {
+
+		$user = wp_get_current_user();
+		$user->add_cap( 'manage_options' );
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/sync/checkout' );
+		$request->set_header( 'Content-Type', 'application/json' );
+		$request->set_body( '{ "queue": "sync", "pop": true, "use_memory_limit": true }' );
+
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+		$user->remove_cap( 'manage_options' );
+
+		$this->assertEquals( 'invalid_args', $data['code'] );
+	}
+
+	/**
 	 * Testing the `/jetpack/v4/sync/unlock` endpoint.
 	 */
 	public function test_sync_unlock() {
