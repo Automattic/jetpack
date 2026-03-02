@@ -2,7 +2,13 @@
  * External dependencies
  */
 import analytics from '@automattic/jetpack-analytics';
-import { AdminPage, GlobalNotices, useGlobalNotices } from '@automattic/jetpack-components';
+import {
+	AdminPage,
+	Col,
+	Container,
+	GlobalNotices,
+	useGlobalNotices,
+} from '@automattic/jetpack-components';
 import { getSiteType, isSimpleSite } from '@automattic/jetpack-script-data';
 import { Notice, Disabled } from '@wordpress/components';
 import { createRoot, useCallback, useEffect, useState, useMemo } from '@wordpress/element';
@@ -332,9 +338,13 @@ function NewsletterSettingsApp(): JSX.Element | null {
 					'jetpack-newsletter'
 				) }
 			>
-				<div className="newsletter-settings">
-					<p>{ __( 'Loading newsletter settings…', 'jetpack-newsletter' ) }</p>
-				</div>
+				<Container horizontalSpacing={ 3 }>
+					<Col>
+						<div className="newsletter-settings">
+							<p>{ __( 'Loading newsletter settings…', 'jetpack-newsletter' ) }</p>
+						</div>
+					</Col>
+				</Container>
 			</AdminPage>
 		);
 	}
@@ -348,11 +358,15 @@ function NewsletterSettingsApp(): JSX.Element | null {
 					'jetpack-newsletter'
 				) }
 			>
-				<div className="newsletter-settings newsletter-settings--error">
-					<Notice status="error" isDismissible={ false }>
-						{ error }
-					</Notice>
-				</div>
+				<Container horizontalSpacing={ 3 }>
+					<Col>
+						<div className="newsletter-settings newsletter-settings--error">
+							<Notice status="error" isDismissible={ false }>
+								{ error }
+							</Notice>
+						</div>
+					</Col>
+				</Container>
 			</AdminPage>
 		);
 	}
@@ -374,74 +388,78 @@ function NewsletterSettingsApp(): JSX.Element | null {
 				'jetpack-newsletter'
 			) }
 		>
-			<Stack gap="md" direction="column" className="newsletter-settings">
-				{ ! isSimpleSite() && <NewsletterSection data={ data } onChange={ handleAutoSave } /> }
+			<Container horizontalSpacing={ 3 }>
+				<Col>
+					<Stack gap="md" direction="column" className="newsletter-settings">
+						{ ! isSimpleSite() && <NewsletterSection data={ data } onChange={ handleAutoSave } /> }
 
-				<Disabled isDisabled={ ! data.subscriptions }>
-					<Stack gap="md" direction="column">
-						<SubscriptionsSection
-							data={ data }
-							onChange={ handleSubscriptionChange }
-							onSave={ saveSubscriptionSettings }
-							isSaving={ isSavingSubscriptions }
-							hasChanges={ hasSubscriptionChanges }
-							isNewsletterEnabled={ data.subscriptions }
-						/>
+						<Disabled isDisabled={ ! data.subscriptions }>
+							<Stack gap="md" direction="column">
+								<SubscriptionsSection
+									data={ data }
+									onChange={ handleSubscriptionChange }
+									onSave={ saveSubscriptionSettings }
+									isSaving={ isSavingSubscriptions }
+									hasChanges={ hasSubscriptionChanges }
+									isNewsletterEnabled={ data.subscriptions }
+								/>
 
-						<PaidNewsletterSection
-							isNewsletterEnabled={ data.subscriptions }
-							hasActivePlan={ data.newsletter_has_active_plan }
-						/>
+								<PaidNewsletterSection
+									isNewsletterEnabled={ data.subscriptions }
+									hasActivePlan={ data.newsletter_has_active_plan }
+								/>
 
-						<NewsletterCategoriesSection
-							data={ data }
-							onChange={ handleNewsletterCategoriesChange }
-							onSave={ saveNewsletterCategories }
-							isSaving={ isSavingNewsletterCategories }
-							hasChanges={ hasNewsletterCategoriesChanges }
-							isNewsletterEnabled={ data.subscriptions }
-						/>
+								<NewsletterCategoriesSection
+									data={ data }
+									onChange={ handleNewsletterCategoriesChange }
+									onSave={ saveNewsletterCategories }
+									isSaving={ isSavingNewsletterCategories }
+									hasChanges={ hasNewsletterCategoriesChanges }
+									isNewsletterEnabled={ data.subscriptions }
+								/>
 
-						<EmailContentSection
-							data={ data }
-							onChange={ handleAutoSave }
-							isNewsletterEnabled={ data.subscriptions }
-						/>
+								<EmailContentSection
+									data={ data }
+									onChange={ handleAutoSave }
+									isNewsletterEnabled={ data.subscriptions }
+								/>
 
-						<EmailBylineSection
-							data={ data }
-							onChange={ handleAutoSave }
-							isNewsletterEnabled={ data.subscriptions }
-						/>
+								<EmailBylineSection
+									data={ data }
+									onChange={ handleAutoSave }
+									isNewsletterEnabled={ data.subscriptions }
+								/>
 
-						<EmailSenderSettingsSection
-							data={ data }
-							onChange={ handleSenderNameChange }
-							onSave={ saveSenderName }
-							isSaving={ isSavingSenderName }
-							hasChanges={ hasSenderNameChanges }
-							isNewsletterEnabled={ data.subscriptions }
-						/>
+								<EmailSenderSettingsSection
+									data={ data }
+									onChange={ handleSenderNameChange }
+									onSave={ saveSenderName }
+									isSaving={ isSavingSenderName }
+									hasChanges={ hasSenderNameChanges }
+									isNewsletterEnabled={ data.subscriptions }
+								/>
 
-						<EmailReplyToSettingsSection
-							data={ data }
-							onChange={ handleAutoSave }
-							isNewsletterEnabled={ data.subscriptions }
-						/>
+								<EmailReplyToSettingsSection
+									data={ data }
+									onChange={ handleAutoSave }
+									isNewsletterEnabled={ data.subscriptions }
+								/>
 
-						<WelcomeEmailSection
-							data={ data }
-							onChange={ handleWelcomeEmailChange }
-							onSave={ saveWelcomeEmail }
-							isSaving={ isSavingWelcomeEmail }
-							hasChanges={ hasWelcomeEmailChanges }
-							isNewsletterEnabled={ data.subscriptions }
-						/>
+								<WelcomeEmailSection
+									data={ data }
+									onChange={ handleWelcomeEmailChange }
+									onSave={ saveWelcomeEmail }
+									isSaving={ isSavingWelcomeEmail }
+									hasChanges={ hasWelcomeEmailChanges }
+									isNewsletterEnabled={ data.subscriptions }
+								/>
+							</Stack>
+						</Disabled>
 					</Stack>
-				</Disabled>
-			</Stack>
 
-			<GlobalNotices />
+					<GlobalNotices />
+				</Col>
+			</Container>
 		</AdminPage>
 	);
 }
