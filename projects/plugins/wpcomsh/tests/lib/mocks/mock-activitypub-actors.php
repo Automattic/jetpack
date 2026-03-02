@@ -22,7 +22,7 @@ if ( ! class_exists( 'Activitypub\Collection\Actors' ) ) {
 		private $id;
 
 		/**
-		 * Webfinger handle.
+		 * WebFinger handle.
 		 *
 		 * @var string|null
 		 */
@@ -49,7 +49,7 @@ if ( ! class_exists( 'Activitypub\Collection\Actors' ) ) {
 		}
 
 		/**
-		 * Get the webfinger handle.
+		 * Get the WebFinger handle.
 		 *
 		 * @return string|null
 		 */

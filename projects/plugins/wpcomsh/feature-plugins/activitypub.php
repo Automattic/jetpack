@@ -15,7 +15,7 @@ use Automattic\Jetpack\Connection\Manager;
  * already expanded the original positional args into the three-element array below.
  *
  * When the activated plugin is ActivityPub, this function appends a fourth element
- * containing the Jetpack connection owner's ActivityPub actor URI and webfinger handle
+ * containing the Jetpack connection owner's ActivityPub actor URI and WebFinger handle
  * so they can be synced to WordPress.com.
  *
  * @param array|false $args {
@@ -25,7 +25,7 @@ use Automattic\Jetpack\Connection\Manager;
  *     @type bool   $1 Whether the plugin was network-activated. Default false.
  *     @type array  $2 Plugin header data added by `expand_plugin_data()` (keys: 'name', 'version').
  *     @type array  $3 Optional. Added by this function when the plugin is ActivityPub.
- *                     Contains 'actor' (URI) and 'webfinger' (acct handle).
+ *                     Contains 'actor' (URI) and 'WebFinger' (acct handle).
  * }
  *
  * @return array|false The (possibly augmented) args, or false if a previous filter aborted.
