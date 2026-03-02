@@ -11,12 +11,15 @@
 	},
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
-	"bin": {
-		"build-polyfills": "bin/build-polyfills.mjs"
+	"scripts": {
+		"build": "pnpm run clean && node bin/build-polyfills.mjs",
+		"build-production": "NODE_ENV=production BABEL_ENV=production pnpm run build",
+		"clean": "rm -rf build/"
 	},
 	"devDependencies": {
 		"@wordpress/a11y": "^4.40.0",
 		"@wordpress/boot": "^0.7.1",
+		"@wordpress/notices": "^5.40.0",
 		"@wordpress/private-apis": "^1.40.0",
 		"@wordpress/route": "^0.6.0",
 		"@wordpress/theme": "^0.7.0",

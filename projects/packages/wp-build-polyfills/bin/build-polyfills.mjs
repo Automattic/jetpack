@@ -1,11 +1,14 @@
-#!/usr/bin/env node
-
 /**
  * Build script for Core package polyfills.
  *
  * Bundles `@wordpress` packages that are not available in WordPress Core < 7.0
  * (private-apis, theme, boot, route, a11y) so that plugins using
  * wp-build can conditionally register them when Core/Gutenberg doesn't provide them.
+ *
+ * Uses esbuild rather than webpack because these are infrastructure packages
+ * without translatable strings, so i18n / translate.wordpress.org support is not
+ * needed. The `.asset.php` metadata generation is minimal and handled directly
+ * here — there is no equivalent outside webpack's dependency-extraction plugin.
  *
  * Uses the same externals strategy as wp-build's wordpress-externals-plugin:
  * - Classic scripts (IIFE): `@wordpress/*` → window.wp.{camelCase}, vendor → globals
@@ -17,24 +20,16 @@ import { createHash } from 'crypto';
 import { readFileSync, writeFileSync, mkdirSync } from 'fs';
 import { createRequire } from 'module';
 import path from 'path';
-import { fileURLToPath } from 'url';
-import { parseArgs } from 'util';
+import process from 'process';
 import { build } from 'esbuild';
 
 // Resolve packages from this package's own node_modules, not the consumer's.
-const __dirname = path.dirname( fileURLToPath( import.meta.url ) );
-const packageRoot = path.resolve( __dirname, '..' );
+const __dirname = import.meta.dirname;
+const packageRoot = path.dirname( __dirname );
 const require = createRequire( path.join( packageRoot, 'package.json' ) );
 
-// Parse CLI arguments.
-const { values: args } = parseArgs( {
-	options: {
-		'output-dir': { type: 'string', default: 'build/polyfills' },
-	},
-	strict: false,
-} );
-
-const outputBase = path.resolve( args[ 'output-dir' ] );
+const isProduction = process.env.NODE_ENV === 'production';
+const outputBase = path.join( packageRoot, 'build' );
 
 // ── Vendor externals (same as wp-build) ──────────────────────────────────────
 
@@ -310,6 +305,12 @@ function resolvePackageEntry( packageName, subEntry = null ) {
 
 const classicScriptPolyfills = [
 	{
+		name: 'notices',
+		packageName: '@wordpress/notices',
+		globalName: 'wp.notices',
+		entry: resolvePackageEntry( '@wordpress/notices' ),
+	},
+	{
 		name: 'private-apis',
 		packageName: '@wordpress/private-apis',
 		globalName: 'wp.privateApis',
@@ -361,7 +362,7 @@ for ( const polyfill of classicScriptPolyfills ) {
 			target,
 			platform: 'browser',
 			minify: true,
-			sourcemap: true,
+			sourcemap: isProduction,
 			plugins: [ polyfillExternalsPlugin( 'iife', polyfill.packageName ) ],
 		} )
 	);
@@ -377,7 +378,7 @@ for ( const polyfill of classicScriptPolyfills ) {
 			target,
 			platform: 'browser',
 			minify: false,
-			sourcemap: true,
+			sourcemap: ! isProduction,
 			plugins: [ polyfillExternalsPlugin( 'iife', polyfill.packageName ) ],
 		} )
 	);
@@ -398,7 +399,7 @@ for ( const polyfill of scriptModulePolyfills ) {
 			target,
 			platform: 'browser',
 			minify: true,
-			sourcemap: true,
+			sourcemap: isProduction,
 			plugins: [ polyfillExternalsPlugin( 'esm', polyfill.packageName ) ],
 		} )
 	);
@@ -413,7 +414,7 @@ for ( const polyfill of scriptModulePolyfills ) {
 			target,
 			platform: 'browser',
 			minify: false,
-			sourcemap: true,
+			sourcemap: ! isProduction,
 			plugins: [ polyfillExternalsPlugin( 'esm', polyfill.packageName ) ],
 		} )
 	);
