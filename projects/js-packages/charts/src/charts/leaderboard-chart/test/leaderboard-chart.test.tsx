@@ -53,7 +53,7 @@ const testDeltaFormatter = ( value: number ) => `${ value }delta`;
 describe( 'LeaderboardChart', () => {
 	afterEach( () => {
 		const { useParentSize } = jest.requireMock( '@visx/responsive' );
-		useParentSize.mockReturnValue( mockDefaultParentSize() );
+		useParentSize.mockImplementation( () => mockDefaultParentSize() );
 	} );
 
 	it( 'renders leaderboard entries', () => {
