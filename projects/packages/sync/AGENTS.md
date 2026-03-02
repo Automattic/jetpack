@@ -107,7 +107,7 @@ When contributing to the Sync package, follow the Jetpack monorepo's standard PR
 ### Common Pitfalls
 
 **Whitelisted here ≠ retained on WPcom**
-Adding a new item to the whitelist in this package controls whether it gets sent to WPcom. For it to be stored, it must also be whitelisted in WPcom's shadow replicastore. Without the WPcom-side entry, data arrives but will be removed during checksum verification or full sync — it is never persisted. Both sides filter independently; WPcom does not trust the package to filter correctly.
+Adding a new item to the whitelist in this package controls whether it gets sent to WPcom. For it to be stored, it must also be whitelisted in WPcom's shadow replicastore. Without the WPcom-side entry, data arrives but will not be processed. Both sides filter independently; WPcom does not trust the package to filter correctly.
 
 **Custom post types must be registered via sync**
 Custom post types must be registered through callables/config sync, or posts will land in `jps_non-reg` status on the cache site.
@@ -147,13 +147,8 @@ Clearing a queue on the Jetpack side means those events won't reach WPcom throug
 **Checksums**
 Checksums are a separate, externally-triggered audit mechanism — not part of the sync event stream. The checksum process compares the state of the remote site against WPcom's shadow replicastore across posts, postmeta, comments, commentmeta, terms, term taxonomy, term relationships, termmeta, users, and usermeta (plus WooCommerce order and HPOS tables on supported versions).
 
-Differences are located using a histogram-based binary search: both sides produce checksums over ID ranges, differing ranges are subdivided recursively until individual mismatched IDs are found. Differences fall into three categories: missing from WPcom, missing from the remote site, or different values.
+Differences are located by recursively comparing checksums over progressively smaller ID ranges until individual mismatched items are identified. Differences fall into three categories: missing from WPcom, missing from the remote site, or different values.
 
-How mismatches are resolved depends on scale:
-- **Small differences** (≤100 different, ≤500 missing from WPcom): WPcom self-heals by fetching those specific objects from the remote API and re-syncing them directly — no full sync needed
-- **Large differences** (above those thresholds): WPcom falls back to triggering a full sync
-
-This is why the dual whitelist requirement matters: an item not whitelisted in the WPcom receiving codebase's sync defaults will appear as "missing from WPcom" on every checksum run. For small numbers of items this may silently self-heal; at scale it will repeatedly trigger full syncs.
 
 **Elasticsearch (Jetpack Search)**
 Sync is the data pipeline for Jetpack Search. When sync data arrives on WPcom, it is indexed into Elasticsearch to power search on the remote site. The search module ( `Jetpack_Sync_Module_Search` ) extends the sync postmeta whitelist with its own keys and maintains a separate list of indexable postmeta keys and taxonomies that controls what enters the ES index.
