@@ -1,6 +1,9 @@
 .header {
 	background-color: var(--primary-white);
 	padding: 16px 24px;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
 
 	// Nested under .header for specificity over .jb-dashboard h2 global reset.
 	.title {
@@ -18,7 +21,8 @@
 	.subtitle {
 		font-size: 13px;
 		color: #757575;
-		margin: 4px 0 0;
+		margin: 0;
+		padding-block-end: 8px;
 	}
 }
 
