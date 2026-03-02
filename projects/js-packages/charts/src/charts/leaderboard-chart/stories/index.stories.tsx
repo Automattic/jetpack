@@ -1,3 +1,4 @@
+import { Stack } from '@wordpress/ui';
 import { defaultTheme, useGlobalChartsContext } from '../../../providers';
 import {
 	chartDecorator,
@@ -226,6 +227,21 @@ export const EmptyData: Story = {
 		withComparison: true,
 		loading: false,
 	},
+};
+
+export const EmptyDataWithChildren: Story = {
+	args: {
+		data: [],
+		withComparison: true,
+		loading: false,
+	},
+	render: args => (
+		<LeaderboardChart { ...args }>
+			<Stack direction="row" gap="xs" align="center" justify="center">
+				Child element
+			</Stack>
+		</LeaderboardChart>
+	),
 };
 
 export const LargeValues: Story = {

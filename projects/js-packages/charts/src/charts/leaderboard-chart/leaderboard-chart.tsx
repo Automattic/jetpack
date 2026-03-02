@@ -270,6 +270,7 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 						{ [ styles[ 'leaderboardChart--loading' ] ]: loading },
 						className
 					) }
+					gap={ gap }
 					style={ {
 						...style,
 						width: propWidth || undefined,
