@@ -122,6 +122,7 @@ const state = {
 	lastRootBlockIds: '',
 	lastSelectedBlockId: null as string | null | undefined,
 	isFormBlockLocked: false,
+	hasOpenedInserter: false,
 };
 
 const BLOCK_DIRECTORY_PLUGIN_NAME = 'block-directory';
@@ -223,6 +224,16 @@ const enforceBlockSelection = () => {
 	if ( hasMultiSelection() ) {
 		return;
 	}
+
+	// Don't force-select when the inserter is open — selecting a block
+	// can close the inserter or change its context.
+	const { isInserterOpened } = select( 'core/editor' ) as {
+		isInserterOpened: () => boolean;
+	};
+	if ( isInserterOpened() ) {
+		return;
+	}
+
 	const selectedBlockId = getSelectedBlockClientId();
 	if ( ! selectedBlockId ) {
 		const { selectBlock } = dispatch( 'core/block-editor' ) as {
@@ -406,6 +417,7 @@ const setupFormEditorSubscription = () => {
 					state.lastRootBlockIds = '';
 					state.lastSelectedBlockId = null;
 					state.isFormBlockLocked = false;
+					state.hasOpenedInserter = false;
 				}
 			}
 
@@ -469,7 +481,47 @@ const setupFormEditorSubscription = () => {
 				enforceBlockNesting();
 			}
 
-			// 5. React to selection changes
+			// 5. Auto-open the block inserter (once) after blocks are ready
+			if ( ! state.hasOpenedInserter && state.formBlockClientId ) {
+				const { getBlock: getBlockForInserter } = select( 'core/block-editor' );
+				const currentFormBlock = getBlockForInserter( state.formBlockClientId );
+				const hasAnyInnerBlocks = currentFormBlock && currentFormBlock.innerBlocks.length > 0;
+
+				if ( hasAnyInnerBlocks ) {
+					state.hasOpenedInserter = true;
+
+					// Skip on mobile — inserter takes over the full screen.
+					const isDesktop = window.innerWidth >= 782;
+
+					// Skip if user prefers the list view sidebar (same slot).
+					const showListView = (
+						select( 'core/preferences' ) as {
+							get: ( scope: string, name: string ) => boolean;
+						}
+					 ).get( 'core', 'showListViewByDefault' );
+
+					// Skip in distraction-free mode — Gutenberg hides the inserter.
+					const distractionFree = (
+						select( 'core/preferences' ) as {
+							get: ( scope: string, name: string ) => boolean;
+						}
+					 ).get( 'core', 'distractionFree' );
+
+					if ( isDesktop && ! showListView && ! distractionFree ) {
+						requestAnimationFrame( () => {
+							if ( ! state.isFormEditor ) {
+								return;
+							}
+							const { setIsInserterOpened } = dispatch( 'core/editor' ) as {
+								setIsInserterOpened: ( isOpened: boolean ) => void;
+							};
+							setIsInserterOpened( true );
+						} );
+					}
+				}
+			}
+
+			// 6. React to selection changes
 			const { getSelectedBlockClientId } = select( 'core/block-editor' );
 			const currentSelectedBlockId = getSelectedBlockClientId();
 			if ( currentSelectedBlockId !== state.lastSelectedBlockId ) {
@@ -477,7 +529,7 @@ const setupFormEditorSubscription = () => {
 				enforceBlockSelection();
 			}
 
-			// 6. Ensure form block is locked
+			// 7. Ensure form block is locked
 			if ( ! state.isFormBlockLocked && state.formBlockClientId ) {
 				lockFormBlock();
 				const { getBlock } = select( 'core/block-editor' );
