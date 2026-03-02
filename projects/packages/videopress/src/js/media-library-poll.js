@@ -83,6 +83,9 @@
 		$.each( data.videopress_processing_status, function ( id, status ) {
 			const attachment = library.get( id );
 			if ( attachment && status === 'complete' ) {
+				// Prevent duplicate fetches on subsequent ticks.
+				attachment.set( 'videopress_status', 'complete' );
+
 				wp.ajax
 					.send( 'get-attachment', {
 						data: { id: id },

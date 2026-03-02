@@ -260,6 +260,7 @@ describe( 'heartbeat-tick', () => {
 			}
 		);
 
+		expect( attachment.set ).toHaveBeenCalledWith( 'videopress_status', 'complete' );
 		expect( global.wp.ajax.send ).toHaveBeenCalledWith( 'get-attachment', {
 			data: { id: '10' },
 		} );
