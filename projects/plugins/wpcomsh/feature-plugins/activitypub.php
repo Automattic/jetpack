@@ -15,7 +15,8 @@ use Automattic\Jetpack\Connection\Manager;
  * already expanded the original positional args into the three-element array below.
  *
  * When the activated plugin is ActivityPub, this function appends a fourth element
- * containing the Jetpack connection owner's ActivityPub actor URI so it can be synced to WordPress.com.
+ * containing the Jetpack connection owner's ActivityPub actor URI and WebFinger handle
+ * so they can be synced to WordPress.com.
  *
  * @param array|false $args {
  *     Positional activated_plugin hook arguments. False if a previous filter aborted.
@@ -24,7 +25,7 @@ use Automattic\Jetpack\Connection\Manager;
  *     @type bool   $1 Whether the plugin was network-activated. Default false.
  *     @type array  $2 Plugin header data added by `expand_plugin_data()` (keys: 'name', 'version').
  *     @type array  $3 Optional. Added by this function when the plugin is ActivityPub.
- *                     Contains 'actor' — the Jetpack connection owner's ActivityPub actor URI.
+ *                     Contains 'actor' (URI) and 'WebFinger' (acct handle).
  * }
  *
  * @return array|false The (possibly augmented) args, or false if a previous filter aborted.
@@ -51,7 +52,10 @@ function wpcomsh_activitypub_sync_plugin_activation( $args ) {
 	// @phan-suppress-next-line PhanUndeclaredClassMethod We're checking the class exists above, and that class exists in the ActivityPub plugin.
 	$actor = Activitypub\Collection\Actors::get_by_id( $connection_owner_id );
 	if ( ! is_wp_error( $actor ) ) {
-		$args[] = array( 'actor' => $actor->get_id() );
+		$args[] = array(
+			'actor'     => $actor->get_id(),
+			'webfinger' => $actor->get_webfinger(),
+		);
 	}
 
 	return $args;

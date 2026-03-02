@@ -93,10 +93,11 @@ class ActivityPubTest extends WP_UnitTestCase {
 	 * and the actor is found successfully.
 	 */
 	public function test_appends_actor_data_when_actor_is_found() {
-		$actor_id = 'https://example.com/author/test';
+		$actor_id  = 'https://example.com/author/test';
+		$webfinger = 'test@example.com';
 
 		\Activitypub\Collection\Actors::set_mock_return(
-			new \Activitypub\Collection\Actor( $actor_id )
+			new \Activitypub\Collection\Actor( $actor_id, $webfinger )
 		);
 
 		$args   = array( 'activitypub/activitypub.php', false );
@@ -105,7 +106,13 @@ class ActivityPubTest extends WP_UnitTestCase {
 		$this->assertCount( 3, $result );
 		$this->assertSame( 'activitypub/activitypub.php', $result[0] );
 		$this->assertFalse( $result[1] );
-		$this->assertSame( array( 'actor' => $actor_id ), $result[2] );
+		$this->assertSame(
+			array(
+				'actor'     => $actor_id,
+				'webfinger' => $webfinger,
+			),
+			$result[2]
+		);
 	}
 
 	/**

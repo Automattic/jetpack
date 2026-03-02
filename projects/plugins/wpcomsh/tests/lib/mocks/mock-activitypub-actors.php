@@ -22,12 +22,21 @@ if ( ! class_exists( 'Activitypub\Collection\Actors' ) ) {
 		private $id;
 
 		/**
+		 * WebFinger handle.
+		 *
+		 * @var string|null
+		 */
+		private $webfinger;
+
+		/**
 		 * Constructor.
 		 *
-		 * @param string $id Actor ID.
+		 * @param string      $id        Actor ID.
+		 * @param string|null $webfinger Webfinger handle.
 		 */
-		public function __construct( $id ) {
-			$this->id = $id;
+		public function __construct( $id, $webfinger = null ) {
+			$this->id        = $id;
+			$this->webfinger = $webfinger;
 		}
 
 		/**
@@ -37,6 +46,15 @@ if ( ! class_exists( 'Activitypub\Collection\Actors' ) ) {
 		 */
 		public function get_id() {
 			return $this->id;
+		}
+
+		/**
+		 * Get the WebFinger handle.
+		 *
+		 * @return string|null
+		 */
+		public function get_webfinger() {
+			return $this->webfinger;
 		}
 	}
 
