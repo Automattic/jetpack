@@ -125,9 +125,8 @@ jobs:
     if: github.event.workflow_run.conclusion == 'success'
     timeout-minutes: 2  # 2025-11-20: Takes a few seconds.
     outputs:
-      build_url: ${{ steps.run.outputs.build_url }}
-      build_digest: ${{ steps.run.outputs.build_digest }}
-      zip_url: ${{ steps.run.outputs.zip_url }}
+      artifact_name: ${{ steps.run.outputs.artifact_name }}
+      artifact_filename: ${{ steps.run.outputs.artifact_filename }}
       any_plugins: ${{ steps.run.outputs.any_plugins }}
     steps:
       - uses: actions/checkout@v6
@@ -138,6 +137,8 @@ jobs:
           TOKEN: ${{ github.token }}
           URL: ${{ github.event.workflow_run.artifacts_url }}
         run: |
+          ARTIFACT_NAME=
+          ARTIFACT_FILENAME=
           for (( i=1; i<=5; i++ )); do
             [[ $i -gt 1 ]] && sleep 10
             echo "::group::Fetch list of artifacts (attempt $i/5)"
@@ -151,20 +152,21 @@ jobs:
             PLUGINS="$(jq -r '.artifacts[] | select( .name == "plugins.tsv" )' <<<"$JSON")"
 
             # 2026-03-02: Temporarily look for both old and new artifacts.
-            BUILDURL="$(jq -r '.artifacts | map( select( .name == "jetpack-build.tar.xz" ) ) | sort_by( .created_at ) | last | .archive_download_url // empty' <<<"$JSON")"
-            BUILDSHA="$(jq -r '.artifacts | map( select( .name == "jetpack-build.tar.xz" ) ) | sort_by( .created_at ) | last | .digest // empty' <<<"$JSON")"
-            ZIPURL="$(jq -r '.artifacts | map( select( .name == "jetpack-build" ) ) | sort_by( .created_at ) | last | .archive_download_url // empty' <<<"$JSON")"
-            if [[ -n "$ZIPURL" || -n "$BUILDURL" && -n "$BUILDSHA" ]]; then
+            if jq -e '.artifacts | map( select( .name == "jetpack-build.tar.xz" ) )' <<<"$JSON" &>/dev/null; then
+              ARTIFACT_NAME=jetpack-build.tar.xz
+              ARTIFACT_FILENAME=jetpack-build.tar.xz
+              break
+            fi
+            if jq -e '.artifacts | map( select( .name == "jetpack-build" ) )' <<<"$JSON" &>/dev/null; then
+              ARTIFACT_NAME=jetpack-build
+              ARTIFACT_FILENAME=build.tar.xz
               break
             fi
           done
-          [[ -z "$ZIPURL" && -z "$BUILDURL" ]] && { echo "::error::Failed to find artifact."; exit 1; }
-          echo "Build URL: $BUILDURL"
-          echo "build_url=${BUILDURL}" >> "$GITHUB_OUTPUT"
-          echo "Build digest: $BUILDSHA"
-          echo "build_digest=${BUILDSHA}" >> "$GITHUB_OUTPUT"
-          echo "Zip URL: $ZIPURL"
-          echo "zip_url=${ZIPURL}" >> "$GITHUB_OUTPUT"
+          [[ -z "$ARTIFACT_NAME" ]] && { echo "::error::Failed to find artifact."; exit 1; }
+          echo "Artifact name: $ARTIFACT_NAME"
+          echo "artifact_name=${ARTIFACT_NAME}" >> "$GITHUB_OUTPUT"
+          echo "artifact_filename=${ARTIFACT_FILENAME}" >> "$GITHUB_OUTPUT"
           if [[ -z "$PLUGINS" ]]; then
             echo "Any plugins? No"
             echo "any_plugins=false" >> "$GITHUB_OUTPUT"
@@ -279,56 +281,17 @@ jobs:
             See run [#${{ github.run_id }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) for details.
           token: ${{ steps.get_token.outputs.token }}
 
-      # 2026-03-02: Temporarily try both old and new methods for downloading the artifact.
-      - name: Download build artifact (old)
-        if: needs.find_artifact.outputs.build_url == ''
+      - name: Download build artifact
+        uses: actions/download-artifact@v8
+        with:
+          name: ${{ needs.find_artifact.outputs.artifact_name }}
+          run-id: ${{ github.event.workflow_run.id }}
+
+      - name: Extract build artifact
         env:
-          TOKEN: ${{ github.token }}
-          ZIPURL: ${{ needs.find_artifact.outputs.zip_url }}
+          ARTIFACT_FILENAME: ${{ needs.find_artifact.outputs.artifact_filename }}
         shell: bash
-        run: |
-          for (( i=1; i<=2; i++ )); do
-            [[ $i -gt 1 ]] && sleep 10
-            echo "::group::Downloading artifact (attempt $i/2)"
-            curl -v -L --get \
-              --header "Authorization: token $TOKEN" \
-              --url "$ZIPURL" \
-              --output "artifact.zip"
-            echo "::endgroup::"
-            if [[ -e "artifact.zip" ]] && zipinfo artifact.zip &>/dev/null; then
-              break
-            fi
-          done
-          [[ ! -e "artifact.zip" ]] && { echo "::error::Failed to download artifact."; exit 1; }
-          unzip artifact.zip
-          tar --xz -xvvf build.tar.xz build/plugins.tsv
-      - name: Download build artifact (new)
-        if: needs.find_artifact.outputs.build_url != ''
-        env:
-          TOKEN: ${{ github.token }}
-          BUILDURL: ${{ needs.find_artifact.outputs.build_url }}
-          BUILDSHA: ${{ needs.find_artifact.outputs.build_digest }}
-        shell: bash
-        run: |
-          for (( i=1; i<=2; i++ )); do
-            [[ $i -gt 1 ]] && sleep 10
-            echo "::group::Downloading artifact (attempt $i/2)"
-            curl -v -L --get \
-              --header "Authorization: token $TOKEN" \
-              --url "$BUILDURL" \
-              --output "jetpack-build.tar.xz"
-            echo "::endgroup::"
-            if [[ -e jetpack-build.tar.xz ]]; then
-              SHA="sha256:$( sha256sum jetpack-build.tar.xz | sed 's/ .*//' )"
-              if [[ "$SHA" == "$BUILDSHA" ]]; then
-                break
-              fi
-              echo "Downloaded file digest $SHA != $BUILDSHA"
-              rm jetpack-build.tar.xz
-            fi
-          done
-          [[ ! -e jetpack-build.tar.xz ]] && { echo "::error::Failed to download artifact."; exit 1; }
-          tar --xz -xvvf build.tar.xz build/plugins.tsv
+        run: tar --xz -xvvf "$ARTIFACT_FILENAME" build/plugins.tsv
 
       - name: Prepare matrix
         id: matrix
@@ -384,56 +347,17 @@ jobs:
           ref: ${{ github.event.workflow_run.head_commit.id }}
           path: commit
 
-      # 2026-03-02: Temporarily try both old and new methods for downloading the artifact.
-      - name: Download build artifact (old)
-        if: needs.find_artifact.outputs.build_url == ''
+      - name: Download build artifact
+        uses: actions/download-artifact@v8
+        with:
+          name: ${{ needs.find_artifact.outputs.artifact_name }}
+          run-id: ${{ github.event.workflow_run.id }}
+
+      - name: Extract build artifact
         env:
-          TOKEN: ${{ github.token }}
-          ZIPURL: ${{ needs.find_artifact.outputs.zip_url }}
+          ARTIFACT_FILENAME: ${{ needs.find_artifact.outputs.artifact_filename }}
         shell: bash
-        run: |
-          for (( i=1; i<=2; i++ )); do
-            [[ $i -gt 1 ]] && sleep 10
-            echo "::group::Downloading artifact (attempt $i/2)"
-            curl -v -L --get \
-              --header "Authorization: token $TOKEN" \
-              --url "$ZIPURL" \
-              --output "artifact.zip"
-            echo "::endgroup::"
-            if [[ -e "artifact.zip" ]] && zipinfo artifact.zip &>/dev/null; then
-              break
-            fi
-          done
-          [[ ! -e "artifact.zip" ]] && { echo "::error::Failed to download artifact."; exit 1; }
-          unzip artifact.zip
-          tar --xz -xvvf build.tar.xz build
-      - name: Download build artifact (new)
-        if: needs.find_artifact.outputs.build_url != ''
-        env:
-          TOKEN: ${{ github.token }}
-          BUILDURL: ${{ needs.find_artifact.outputs.build_url }}
-          BUILDSHA: ${{ needs.find_artifact.outputs.build_digest }}
-        shell: bash
-        run: |
-          for (( i=1; i<=2; i++ )); do
-            [[ $i -gt 1 ]] && sleep 10
-            echo "::group::Downloading artifact (attempt $i/2)"
-            curl -v -L --get \
-              --header "Authorization: token $TOKEN" \
-              --url "$BUILDURL" \
-              --output "jetpack-build.tar.xz"
-            echo "::endgroup::"
-            if [[ -e jetpack-build.tar.xz ]]; then
-              SHA="sha256:$( sha256sum jetpack-build.tar.xz | sed 's/ .*//' )"
-              if [[ "$SHA" == "$BUILDSHA" ]]; then
-                break
-              fi
-              echo "Downloaded file digest $SHA != $BUILDSHA"
-              rm jetpack-build.tar.xz
-            fi
-          done
-          [[ ! -e jetpack-build.tar.xz ]] && { echo "::error::Failed to download artifact."; exit 1; }
-          tar --xz -xvvf build.tar.xz build
+        run: tar --xz -xvvf "$ARTIFACT_FILENAME" build
 
       - name: Setup WordPress
         run: trunk/.github/files/test-plugin-update/setup.sh
@@ -510,56 +434,17 @@ jobs:
             See run [#${{ github.run_id }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) for details.
           token: ${{ steps.get_token.outputs.token }}
 
-      # 2026-03-02: Temporarily try both old and new methods for downloading the artifact.
-      - name: Download build artifact (old)
-        if: needs.find_artifact.outputs.build_url == ''
+      - name: Download build artifact
+        uses: actions/download-artifact@v8
+        with:
+          name: ${{ needs.find_artifact.outputs.artifact_name }}
+          run-id: ${{ github.event.workflow_run.id }}
+
+      - name: Extract build artifact
         env:
-          TOKEN: ${{ github.token }}
-          ZIPURL: ${{ needs.find_artifact.outputs.zip_url }}
+          ARTIFACT_FILENAME: ${{ needs.find_artifact.outputs.artifact_filename }}
         shell: bash
-        run: |
-          for (( i=1; i<=2; i++ )); do
-            [[ $i -gt 1 ]] && sleep 10
-            echo "::group::Downloading artifact (attempt $i/2)"
-            curl -v -L --get \
-              --header "Authorization: token $TOKEN" \
-              --url "$ZIPURL" \
-              --output "artifact.zip"
-            echo "::endgroup::"
-            if [[ -e "artifact.zip" ]] && zipinfo artifact.zip &>/dev/null; then
-              break
-            fi
-          done
-          [[ ! -e "artifact.zip" ]] && { echo "::error::Failed to download artifact."; exit 1; }
-          unzip artifact.zip
-          tar --xz -xvvf build.tar.xz build
-      - name: Download build artifact (new)
-        if: needs.find_artifact.outputs.build_url != ''
-        env:
-          TOKEN: ${{ github.token }}
-          BUILDURL: ${{ needs.find_artifact.outputs.build_url }}
-          BUILDSHA: ${{ needs.find_artifact.outputs.build_digest }}
-        shell: bash
-        run: |
-          for (( i=1; i<=2; i++ )); do
-            [[ $i -gt 1 ]] && sleep 10
-            echo "::group::Downloading artifact (attempt $i/2)"
-            curl -v -L --get \
-              --header "Authorization: token $TOKEN" \
-              --url "$BUILDURL" \
-              --output "jetpack-build.tar.xz"
-            echo "::endgroup::"
-            if [[ -e jetpack-build.tar.xz ]]; then
-              SHA="sha256:$( sha256sum jetpack-build.tar.xz | sed 's/ .*//' )"
-              if [[ "$SHA" == "$BUILDSHA" ]]; then
-                break
-              fi
-              echo "Downloaded file digest $SHA != $BUILDSHA"
-              rm jetpack-build.tar.xz
-            fi
-          done
-          [[ ! -e jetpack-build.tar.xz ]] && { echo "::error::Failed to download artifact."; exit 1; }
-          tar --xz -xvvf build.tar.xz build
+        run: tar --xz -xvvf "$ARTIFACT_FILENAME" build
 
       - name: Test filename restrictions
         id: tests
