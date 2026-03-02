@@ -19,7 +19,7 @@ class Jetpack_Canonical_Urls_Resolver {
 	 *
 	 * Routes to the correct URL based on the current query conditionals.
 	 *
-	 * @since $$next-version$$
+	 * @since 15.6
 	 *
 	 * @return string The canonical URL, or empty string if none should be output.
 	 */
@@ -80,7 +80,7 @@ class Jetpack_Canonical_Urls_Resolver {
 		 *
 		 * @module canonical-urls
 		 *
-		 * @since $$next-version$$
+		 * @since 15.6
 		 *
 		 * @param string $url The canonical URL for the current page.
 		 */
@@ -90,7 +90,7 @@ class Jetpack_Canonical_Urls_Resolver {
 	/**
 	 * Append pagination to the canonical URL for paged views.
 	 *
-	 * @since $$next-version$$
+	 * @since 15.6
 	 *
 	 * @param string $url The base canonical URL.
 	 * @return string The URL with pagination appended if applicable.

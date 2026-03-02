@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Add print-friendly styles to form submission emails: hide decorative field icons, tighten spacing, and remove non-essential elements when printing. Minify email CSS to stay under Gmail's 8,192-character style block limit.

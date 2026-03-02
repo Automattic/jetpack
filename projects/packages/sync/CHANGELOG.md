@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.30.0] - 2026-02-26
+### Added
+- REST_Endpoints: Add `clear-queue` endpoint to allow clearing a Sync queue via REST API. [#47303]
+
+### Changed
+- Full Sync: Store `last_item` in status to avoid re-running an expensive query on every invocation. [#47292]
+- Listener: Add per-request in-memory cache to avoid repeated `get_transient` calls when checking queue state. [#47282]
+
+### Fixed
+- Full Sync: Fix chunk size adjustment when sync is stuck to correctly preserve adjusted chunk size and stuck count across invocations. [#47293]
+
 ## [4.29.0] - 2026-02-23
 ### Added
 - Add MCP information to the actor. [#47223]
@@ -1664,6 +1675,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Packages: Move sync to a classmapped package
 
+[4.30.0]: https://github.com/Automattic/jetpack-sync/compare/v4.29.0...v4.30.0
 [4.29.0]: https://github.com/Automattic/jetpack-sync/compare/v4.28.0...v4.29.0
 [4.28.0]: https://github.com/Automattic/jetpack-sync/compare/v4.27.0...v4.28.0
 [4.27.0]: https://github.com/Automattic/jetpack-sync/compare/v4.26.0...v4.27.0

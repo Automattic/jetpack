@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Exclude AGENTS.md and CLAUDE.md from production builds.
