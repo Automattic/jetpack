@@ -8,7 +8,6 @@ import {
 } from '@automattic/jetpack-components';
 import { useConnection } from '@automattic/jetpack-connection';
 import {
-	getMyJetpackUrl,
 	isJetpackSelfHostedSite,
 	isSimpleSite,
 	siteHasFeature,
@@ -16,13 +15,13 @@ import {
 } from '@automattic/jetpack-script-data';
 import { shouldUseInternalLinks } from '@automattic/jetpack-shared-extension-utils';
 import { useSelect } from '@wordpress/data';
-import { createInterpolateElement, useState, useCallback } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { useState, useCallback } from '@wordpress/element';
 import { store as socialStore } from '../../social-store';
 import { features, getSocialScriptData, hasSocialPaidFeatures } from '../../utils';
 import ConnectionScreen from './connection-screen';
 import Header from './header';
 import InfoSection from './info-section';
+import AdminPageHeader from './page-header';
 import './styles.module.scss';
 import PricingPage from './pricing-page';
 import SupportSection from './support-section';
@@ -66,8 +65,7 @@ export const SocialAdminPage = () => {
 		return (
 			<AdminPage
 				moduleName={ moduleName }
-				title={ 'Social' /** "Social" is a product name, do not translate. */ }
-				subTitle={ __( 'Publish once. Share everywhere.', 'jetpack-publicize-pkg' ) }
+				showHeader={ false }
 				showBackground={ false }
 				useInternalLinks={ shouldUseInternalLinks() }
 			>
@@ -80,25 +78,10 @@ export const SocialAdminPage = () => {
 		);
 	}
 
-	const licenseAction =
-		! hasSocialPaidFeatures() && isJetpackSite
-			? createInterpolateElement(
-					__(
-						'Already have an existing plan or license key? <a>Click here to get started</a>',
-						'jetpack-publicize-pkg'
-					),
-					{
-						a: <a href={ getMyJetpackUrl( '#/add-license' ) } />,
-					}
-			  )
-			: null;
-
 	return (
 		<AdminPage
 			moduleName={ moduleName }
-			title={ 'Social' /** "Social" is a product name, do not translate. */ }
-			subTitle={ __( 'Publish once. Share everywhere.', 'jetpack-publicize-pkg' ) }
-			actions={ licenseAction }
+			header={ <AdminPageHeader /> }
 			showFooter={ isJetpackSite }
 			useInternalLinks={ shouldUseInternalLinks() }
 		>

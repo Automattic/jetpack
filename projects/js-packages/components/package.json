@@ -53,7 +53,6 @@
 		"@automattic/jetpack-script-data": "workspace:*",
 		"@automattic/number-formatters": "workspace:*",
 		"@babel/runtime": "^7",
-		"@wordpress/admin-ui": "1.8.0",
 		"@wordpress/browserslist-config": "6.40.0",
 		"@wordpress/components": "32.2.0",
 		"@wordpress/compose": "7.40.0",

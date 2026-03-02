@@ -1,6 +1,6 @@
 import {
-	AdminPage,
 	JetpackFooter,
+	JetpackSearchLogo,
 	Button,
 	Container,
 	Col,
@@ -107,79 +107,68 @@ export default function DashboardPage( { isLoading = false } ) {
 
 	return (
 		<>
+			<Container horizontalSpacing={ 0 }>
+				<Col>
+					<div id="jp-admin-notices" className="jetpack-search-jitm-card" />
+				</Col>
+			</Container>
 			{ isPageLoading && <Loading /> }
 			{ ! isPageLoading && (
 				<div className="jp-search-dashboard-page">
-					<AdminPage
-						title={ 'Search' /** "Search" is a product name, do not translate. */ }
-						subTitle={ __(
-							'Help your visitors find exactly what they are looking for.',
-							'jetpack-search-pkg'
-						) }
-						actions={
-							( ( isNewPricing && isFreePlan ) || ! supportsInstantSearch ) && (
-								<Button variant="link" onClick={ sendPaidPlanToCart }>
-									{ __( 'Upgrade Jetpack Search', 'jetpack-search-pkg' ) }
-								</Button>
-							)
-						}
-						className="uses-new-admin-ui"
-						showFooter={ false }
-					>
-						<Container horizontalSpacing={ 0 } horizontalGap={ 3 }>
-							{ hasConnectionError && (
-								<Col lg={ 12 } md={ 12 } sm={ 12 }>
-									<ConnectionError />
-								</Col>
-							) }
-							<Col>
-								<div id="jp-admin-notices" className="jetpack-search-jitm-card" />
+					<Header
+						isUpgradable={ ( isNewPricing && isFreePlan ) || ! supportsInstantSearch }
+						sendPaidPlanToCart={ sendPaidPlanToCart }
+					/>
+					{ hasConnectionError && (
+						<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
+							<Col lg={ 12 } md={ 12 } sm={ 12 }>
+								<ConnectionError />
 							</Col>
 						</Container>
-						<MockedSearchInterface
-							supportsInstantSearch={ supportsInstantSearch }
+					) }
+					<MockedSearchInterface
+						supportsInstantSearch={ supportsInstantSearch }
+						supportsOnlyClassicSearch={ supportsOnlyClassicSearch }
+					/>
+					{ isNewPricing && supportsInstantSearch && (
+						<PlanInfo
+							hasIndex={ postCount !== 0 }
+							recordMeterInfo={ recordMeterInfo }
+							isFreePlan={ isFreePlan }
+							sendPaidPlanToCart={ sendPaidPlanToCart }
+						/>
+					) }
+					{ ! isNewPricing && supportsInstantSearch && (
+						<RecordMeter
+							postCount={ postCount }
+							postTypeBreakdown={ postTypeBreakdown }
+							tierMaximumRecords={ tierMaximumRecords }
+							lastIndexedDate={ lastIndexedDate }
+							postTypes={ postTypes }
+						/>
+					) }
+					<div className="jp-search-dashboard-bottom">
+						<ModuleControl
+							siteAdminUrl={ siteAdminUrl }
+							updateOptions={ updateOptions }
+							domain={ domain }
+							isDisabledFromOverLimit={ isOverLimit }
+							isInstantSearchPromotionActive={ isInstantSearchPromotionActive }
 							supportsOnlyClassicSearch={ supportsOnlyClassicSearch }
+							supportsSearch={ supportsSearch }
+							supportsInstantSearch={ supportsInstantSearch }
+							isModuleEnabled={ isModuleEnabled }
+							isInstantSearchEnabled={ isInstantSearchEnabled }
+							isSavingEitherOption={ isSavingEitherOption }
+							isTogglingModule={ isTogglingModule }
+							isTogglingInstantSearch={ isTogglingInstantSearch }
 						/>
-						{ isNewPricing && supportsInstantSearch && (
-							<PlanInfo
-								hasIndex={ postCount !== 0 }
-								recordMeterInfo={ recordMeterInfo }
-								isFreePlan={ isFreePlan }
-								sendPaidPlanToCart={ sendPaidPlanToCart }
-							/>
-						) }
-						{ ! isNewPricing && supportsInstantSearch && (
-							<RecordMeter
-								postCount={ postCount }
-								postTypeBreakdown={ postTypeBreakdown }
-								tierMaximumRecords={ tierMaximumRecords }
-								lastIndexedDate={ lastIndexedDate }
-								postTypes={ postTypes }
-							/>
-						) }
-						<div className="jp-search-dashboard-bottom">
-							<ModuleControl
-								siteAdminUrl={ siteAdminUrl }
-								updateOptions={ updateOptions }
-								domain={ domain }
-								isDisabledFromOverLimit={ isOverLimit }
-								isInstantSearchPromotionActive={ isInstantSearchPromotionActive }
-								supportsOnlyClassicSearch={ supportsOnlyClassicSearch }
-								supportsSearch={ supportsSearch }
-								supportsInstantSearch={ supportsInstantSearch }
-								isModuleEnabled={ isModuleEnabled }
-								isInstantSearchEnabled={ isInstantSearchEnabled }
-								isSavingEitherOption={ isSavingEitherOption }
-								isTogglingModule={ isTogglingModule }
-								isTogglingInstantSearch={ isTogglingInstantSearch }
-							/>
-						</div>
-						<Footer />
-						<NoticesList
-							notices={ notices }
-							handleLocalNoticeDismissClick={ handleLocalNoticeDismissClick }
-						/>
-					</AdminPage>
+					</div>
+					<Footer />
+					<NoticesList
+						notices={ notices }
+						handleLocalNoticeDismissClick={ handleLocalNoticeDismissClick }
+					/>
 				</div>
 			) }
 		</>
@@ -253,9 +242,31 @@ const Footer = () => {
 		<div className="jp-search-dashboard-footer jp-search-dashboard-wrap">
 			<div className="jp-search-dashboard-row">
 				<JetpackFooter
+					moduleName={ __( 'Jetpack Search', 'jetpack-search-pkg' ) }
 					className="lg-col-span-12 md-col-span-8 sm-col-span-4"
 					useInternalLinks={ shouldUseInternalLinks() }
 				/>
+			</div>
+		</div>
+	);
+};
+
+const Header = ( { isUpgradable, sendPaidPlanToCart } ) => {
+	const buttonLinkArgs = {
+		children: __( 'Upgrade Jetpack Search', 'jetpack-search-pkg' ),
+		variant: 'link',
+		onClick: sendPaidPlanToCart,
+	};
+
+	return (
+		<div className="jp-search-dashboard-header jp-search-dashboard-wrap">
+			<div className="jp-search-dashboard-row">
+				<div className="lg-col-span-12 md-col-span-8 sm-col-span-4">
+					<div className="jp-search-dashboard-header__logo-container">
+						<JetpackSearchLogo className="jp-search-dashboard-header__masthead" />
+						{ isUpgradable && <Button { ...buttonLinkArgs } /> }
+					</div>
+				</div>
 			</div>
 		</div>
 	);

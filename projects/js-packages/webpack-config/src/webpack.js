@@ -143,12 +143,6 @@ const defaultRequestMap = {
 		external: 'JetpackConnection',
 		handle: 'jetpack-connection',
 	},
-	// Bundle admin-ui CSS with our assets. The JS side is already handled by the
-	// DependencyExtractionPlugin's BUNDLED_PACKAGES list, but the CSS subpath import
-	// doesn't match that exact-match check and would be incorrectly externalized.
-	'@wordpress/admin-ui/build-style/style.css': {
-		external: false,
-	},
 };
 
 const DependencyExtractionPlugin = ( { requestMap, ...options } = {} ) => {

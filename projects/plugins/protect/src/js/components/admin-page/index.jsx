@@ -1,4 +1,8 @@
-import { AdminPage as JetpackAdminPage } from '@automattic/jetpack-components';
+import {
+	AdminPage as JetpackAdminPage,
+	Container,
+	JetpackProtectLogo,
+} from '@automattic/jetpack-components';
 import { useConnection } from '@automattic/jetpack-connection';
 import { __, sprintf } from '@wordpress/i18n';
 import { useEffect } from 'react';
@@ -32,9 +36,11 @@ const AdminPage = ( { children } ) => {
 
 	return (
 		<JetpackAdminPage
-			title={ 'Protect' /** "Protect" is a product name, do not translate. */ }
-			subTitle={ __( 'Automated malware scanning and firewall protection.', 'jetpack-protect' ) }
-			tabs={
+			moduleName={ __( 'Jetpack Protect', 'jetpack-protect' ) }
+			header={ <JetpackProtectLogo /> }
+		>
+			{ notice && <Notice floating={ true } dismissable={ true } { ...notice } /> }
+			<Container horizontalSpacing={ 0 }>
 				<Tabs className={ styles.navigation }>
 					<Tab
 						link="/scan"
@@ -59,9 +65,7 @@ const AdminPage = ( { children } ) => {
 						label={ <span className={ styles.tab }>{ __( 'Settings', 'jetpack-protect' ) }</span> }
 					/>
 				</Tabs>
-			}
-		>
-			{ notice && <Notice floating={ true } dismissable={ true } { ...notice } /> }
+			</Container>
 			{ children }
 		</JetpackAdminPage>
 	);

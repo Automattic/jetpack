@@ -358,11 +358,7 @@ export class DashStats extends Component {
 		if ( 'inactive' === this.props.getModuleOverride( 'stats' ) ) {
 			return (
 				<div>
-					<ModuleOverriddenBanner
-						moduleName={
-							'Jetpack Stats' /** "Jetpack Stats" is a product name, do not translate. */
-						}
-					/>
+					<ModuleOverriddenBanner moduleName={ __( 'Jetpack Stats', 'jetpack' ) } />
 				</div>
 			);
 		}

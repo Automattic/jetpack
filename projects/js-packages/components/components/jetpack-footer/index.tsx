@@ -33,7 +33,7 @@ const ExternalIcon: FC = () => (
  * @return {ReactNode} JetpackFooter component.
  */
 const JetpackFooter: FC< JetpackFooterProps > = ( {
-	moduleName = 'Jetpack' /** "Jetpack" is a product name, do not translate. */,
+	moduleName = __( 'Jetpack', 'jetpack-components' ),
 	className,
 	moduleNameHref = 'https://jetpack.com',
 	menu,

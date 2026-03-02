@@ -845,8 +845,8 @@ class Main extends Component {
 
 				{ showHeader && (
 					<div className="jp-top">
-						{ this.shouldShowMasthead() && <Masthead location={ this.props.location } /> }
 						<div className="jp-top-inside">
+							{ this.shouldShowMasthead() && <Masthead location={ this.props.location } /> }
 							{ this.shouldShowRewindStatus() && <QueryRewindStatus /> }
 							{ mainNav }
 						</div>

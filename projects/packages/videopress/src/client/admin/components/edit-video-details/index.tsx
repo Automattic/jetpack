@@ -278,6 +278,7 @@ const EditVideoDetails = () => {
 			) }
 
 			<AdminPage
+				moduleName={ __( 'Jetpack VideoPress', 'jetpack-videopress-pkg' ) }
 				header={
 					<>
 						<div id="jp-admin-notices" className={ styles[ 'jetpack-videopress-jitm-card' ] } />

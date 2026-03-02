@@ -50,7 +50,7 @@ async function main() {
 		return;
 	}
 
-	for await ( const filePath of fs.glob( '**/*.{scss,css}', {
+	for await ( const filePath of fs.glob( '**/*.scss', {
 		cwd: packageRoot,
 		exclude: Array.from( IGNORED_DIRS, dir => `**/${ dir }/**` ),
 	} ) ) {
