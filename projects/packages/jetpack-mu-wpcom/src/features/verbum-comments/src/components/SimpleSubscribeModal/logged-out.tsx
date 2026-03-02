@@ -43,7 +43,7 @@ export const SimpleSubscribeModalLoggedOut = ( {
 			if ( data && data.action === 'close' ) {
 				window.removeEventListener( 'message', handleIframeResult );
 				closeModalHandler();
-				setHasIframe( false );
+				setHasIframe?.( false );
 				setIframeUrl( '' );
 			}
 		}
@@ -58,13 +58,13 @@ export const SimpleSubscribeModalLoggedOut = ( {
 			return;
 		}
 
-		setSubscribeState( 'SUBSCRIBING' );
-		setHasIframe( true );
+		setSubscribeState?.( 'SUBSCRIBING' );
+		setHasIframe?.( true );
 		const subscribeData = {
 			email: userEmail,
-			post_id: VerbumComments.postId.toString(),
+			post_id: String( VerbumComments.postId ?? '' ),
 			plan: 'newsletter',
-			blog: VerbumComments.siteId.toString(),
+			blog: String( VerbumComments.siteId ?? '' ),
 			source: 'jetpack_subscribe',
 			display: 'alternate',
 			app_source: 'verbum-subscription-modal',
@@ -99,7 +99,7 @@ export const SimpleSubscribeModalLoggedOut = ( {
 	return (
 		<SubscriptionModal
 			userEmail={ userEmail }
-			subscribeState={ subscribeState }
+			subscribeState={ subscribeState ?? '' }
 			handleOnSubscribeClick={ handleOnSubscribeClick }
 			onInput={ setSubscriptionEmail }
 			disabled={ false }
