@@ -31,7 +31,9 @@ const Header = ( { subPageTitle = '', children }: HeaderProps ) => {
 					>
 						<JetpackLogo showText={ false } height={ 20 } />
 					</div>
-					<h2 className={ clsx( styles.title ) }>{ __( 'Boost', 'jetpack-boost' ) }</h2>
+					<h2 className={ clsx( styles.title ) }>
+						{ 'Boost' /** "Boost" is a product name, do not translate. */ }
+					</h2>
 
 					{ subPageTitle !== '' && (
 						<>

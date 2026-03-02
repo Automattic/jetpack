@@ -1,6 +1,6 @@
 .header {
 	background-color: var(--primary-white);
-	padding: 16px 24px 0;
+	padding: 16px 24px;
 
 	// Nested under .header for specificity over .jb-dashboard h2 global reset.
 	.title {
