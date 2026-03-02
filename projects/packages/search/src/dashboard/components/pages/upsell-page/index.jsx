@@ -112,7 +112,7 @@ export default function UpsellPage( { isLoading = false } ) {
 					moduleName={ __( 'Jetpack Search', 'jetpack-search-pkg' ) }
 					title={ __( 'Search', 'jetpack-search-pkg' ) }
 					subTitle={ __(
-						'Help you visitors find exactly what they are looking for.',
+						'Help your visitors find exactly what they are looking for.',
 						'jetpack-search-pkg'
 					) }
 					actions={ licenseAction }
