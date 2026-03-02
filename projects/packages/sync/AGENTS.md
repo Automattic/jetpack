@@ -44,7 +44,7 @@ Actions are applied to the cache site in the **same order** they occurred on the
 | `src/class-main.php` | `Main` | Entry point; sets up event handlers and hooks Sync into WordPress |
 | `src/class-actions.php` | `Actions` | Hooks the Sync subsystem into WordPress — when to listen, when to send, when to full sync, cron scheduling |
 | `src/class-listener.php` | `Listener` | Hooks into WP actions, serializes events, adds them to the queue |
-| `src/class-sender.php` | `Sender` | Sends items to WPcom via XMLRPC/REST |
+| `src/class-sender.php` | `Sender` | Sends items to WPcom via XML-RPC/REST |
 | `src/class-dedicated-sender.php` | `Dedicated_Sender` | Spawns a separate HTTP request to run the Sender outside of normal request shutdown |
 | `src/class-queue.php` | `Queue` | Persistent, locking queue; uses options table or custom table storage |
 | `src/class-modules.php` | `Modules` | Registry for all sync modules; manages loading and initialization |
