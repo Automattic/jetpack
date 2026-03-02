@@ -8,6 +8,7 @@ import {
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { usePostMeta } from '../use-post-meta';
+import type { PublicizeConfig } from './types';
 
 const republicizeFeatureName = 'republicize';
 
@@ -15,10 +16,10 @@ const republicizeFeatureName = 'republicize';
  * Hook that provides various elements of Publicize configuration,
  * whether it's enabled, and whether resharing is available.
  *
- * @return { object } The various flags and togglePublicizeFeature,
+ * @return The various flags and togglePublicizeFeature,
  * for toggling support for the current post.
  */
-export default function usePublicizeConfig() {
+export default function usePublicizeConfig(): PublicizeConfig {
 	const isJetpackSite = ! isWpcomPlatformSite();
 	const isRePublicizeFeatureAvailable =
 		isJetpackSite || getJetpackExtensionAvailability( republicizeFeatureName )?.available;
@@ -87,7 +88,9 @@ export default function usePublicizeConfig() {
 		isRePublicizeUpgradableViaUpsell,
 		hidePublicizeFeature,
 		isPostAlreadyShared,
-		isSocialImageGeneratorEnabled: !! getJetpackData()?.social?.isSocialImageGeneratorEnabled,
+		isSocialImageGeneratorEnabled: !! (
+			getJetpackData() as { social?: { isSocialImageGeneratorEnabled?: boolean } } | null
+		 )?.social?.isSocialImageGeneratorEnabled,
 		needsUserConnection,
 	};
 }
