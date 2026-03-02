@@ -191,11 +191,11 @@ class Initializer {
 	 *
 	 * @global \WP_Embed $wp_embed WordPress embed handler.
 	 *
-	 * @param array    $block_attributes - Block attributes.
-	 * @param string   $content          - Current block markup.
-	 * @param WP_Block $block            - Current block.
+	 * @param array          $block_attributes Block attributes.
+	 * @param string         $content          Current block markup.
+	 * @param WP_Block|array $block            Current block.
 	 *
-	 * @return string                    Block markup.
+	 * @return string Block markup.
 	 */
 	public static function render_videopress_video_block( $block_attributes, $content, $block ) {
 		global $wp_embed;

@@ -47,14 +47,11 @@ class Initializer_Test extends BaseTestCase {
 		$attributes = array_merge( self::$default_attributes, $attributes );
 		$block      = array( 'context' => array() );
 
-		$force_failure = function () {
-			return false;
-		};
-		add_filter( 'pre_oembed_result', $force_failure );
+		add_filter( 'pre_oembed_result', '__return_false' );
 
 		$html = VideoPress_Initializer::render_videopress_video_block( $attributes, '', $block );
 
-		remove_filter( 'pre_oembed_result', $force_failure );
+		remove_filter( 'pre_oembed_result', '__return_false' );
 
 		return $html;
 	}
