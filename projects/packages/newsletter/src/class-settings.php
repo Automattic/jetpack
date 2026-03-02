@@ -292,7 +292,15 @@ class Settings {
 	 */
 	public function render() {
 		?>
-		<div id="newsletter-settings-root"></div>
+		<style>
+			/* Admin menu indicators */
+			ul#adminmenu a.wp-has-current-submenu::after,
+			ul#adminmenu > li.current > a.current::after {
+				border-right-color: #fff;
+			}
+			body { background: #fff; }
+		</style>
+		<div id="jetpack-newsletter-wp-admin-app"></div>
 		<?php
 	}
 

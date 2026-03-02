@@ -121,6 +121,7 @@ export default {
 				requestMap: {
 					// Bundle the package with our assets until WP core exposes wp-admin-ui.
 					'@wordpress/admin-ui': { external: false },
+					'@wordpress/admin-ui/build-style/style.css': { external: false },
 				},
 			},
 		} ),

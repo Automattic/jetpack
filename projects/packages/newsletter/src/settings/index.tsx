@@ -3,21 +3,21 @@
  */
 import analytics from '@automattic/jetpack-analytics';
 import {
-	AdminPage,
-	Col,
-	Container,
+	JetpackLogo,
 	GlobalNotices,
 	useGlobalNotices,
+	JetpackFooter,
 } from '@automattic/jetpack-components';
 import { getSiteType, isSimpleSite } from '@automattic/jetpack-script-data';
-import { Notice } from '@wordpress/components';
+import { Page } from '@wordpress/admin-ui';
+import { Disabled, Spinner, Notice } from '@wordpress/components';
 import { createRoot, useCallback, useEffect, useState, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Stack } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
 import { fetchSettings, updateSettings } from './api';
-import { Header } from './components/header';
 import { getNewsletterScriptData } from './script-data';
 import {
 	EmailContentSection,
@@ -32,8 +32,6 @@ import {
 } from './sections';
 import type { NewsletterSettings } from './types';
 import './style.scss';
-
-const MODULE_NAME = __( 'Jetpack Newsletter', 'jetpack-newsletter' );
 
 /**
  * Normalize settings from API response
@@ -52,6 +50,37 @@ function normalizeSettings( settings: Record< string, unknown > ): NewsletterSet
 			Number( settings.wpcom_subscription_emails_use_excerpt ) || 0
 		),
 	};
+}
+
+/**
+ * Newsletter page container
+ *
+ * @param {React.ReactNode} children - The children to render inside the page
+ * @return {JSX.Element} The newsletter page container
+ */
+function NewsletterPage( { children }: { children: React.ReactNode } ): JSX.Element {
+	return (
+		<div className="jetpack-page-container">
+			<Page
+				title={
+					<Stack gap="xs" align="center" justify="start" direction="row">
+						<JetpackLogo showText={ false } width={ 20 } />
+						{ /** "Newsletter" is a product name, do not translate. */ }
+						<span>Newsletter</span>
+					</Stack>
+				}
+				subTitle={ __(
+					'Transform your blog posts into newsletters to easily reach your subscribers.',
+					'jetpack-newsletter'
+				) }
+			>
+				<Stack gap="md" direction="column" className="jetpack-newsletter-settings">
+					{ children }
+				</Stack>
+				<JetpackFooter />
+			</Page>
+		</div>
+	);
 }
 
 /**
@@ -333,36 +362,22 @@ function NewsletterSettingsApp(): JSX.Element | null {
 
 	if ( isLoading ) {
 		return (
-			<AdminPage moduleName={ MODULE_NAME } header={ <Header /> }>
-				<Container horizontalSpacing={ 3 }>
-					<Col>
-						<div className="newsletter-settings">
-							<p>{ __( 'Loading newsletter settings…', 'jetpack-newsletter' ) }</p>
-						</div>
-					</Col>
-				</Container>
-			</AdminPage>
+			<NewsletterPage>
+				<Stack justify="center" align="center" style={ { minHeight: '100%' } }>
+					<Spinner />
+				</Stack>
+			</NewsletterPage>
 		);
 	}
 
-	if ( error ) {
+	if ( error || ! data ) {
 		return (
-			<AdminPage moduleName={ MODULE_NAME } header={ <Header /> }>
-				<Container horizontalSpacing={ 3 }>
-					<Col>
-						<div className="newsletter-settings newsletter-settings--error">
-							<Notice status="error" isDismissible={ false }>
-								{ error }
-							</Notice>
-						</div>
-					</Col>
-				</Container>
-			</AdminPage>
+			<NewsletterPage>
+				<Notice status="error" isDismissible={ false }>
+					{ error || __( 'Failed to load settings.', 'jetpack-newsletter' ) }
+				</Notice>
+			</NewsletterPage>
 		);
-	}
-
-	if ( ! data ) {
-		return null;
 	}
 
 	const hasSubscriptionChanges = Object.keys( subscriptionChanges ).length > 0;
@@ -371,12 +386,12 @@ function NewsletterSettingsApp(): JSX.Element | null {
 	const hasWelcomeEmailChanges = Object.keys( welcomeEmailChanges ).length > 0;
 
 	return (
-		<AdminPage moduleName={ MODULE_NAME } header={ <Header /> }>
-			<Container horizontalSpacing={ 3 }>
-				<Col>
-					<div className="newsletter-settings">
-						{ ! isSimpleSite() && <NewsletterSection data={ data } onChange={ handleAutoSave } /> }
+		<NewsletterPage>
+			<Stack gap="md" direction="column" className="jetpack-newsletter-settings">
+				{ ! isSimpleSite() && <NewsletterSection data={ data } onChange={ handleAutoSave } /> }
 
+				<Disabled isDisabled={ ! data.subscriptions }>
+					<Stack gap="md" direction="column">
 						<SubscriptionsSection
 							data={ data }
 							onChange={ handleSubscriptionChange }
@@ -435,16 +450,15 @@ function NewsletterSettingsApp(): JSX.Element | null {
 							hasChanges={ hasWelcomeEmailChanges }
 							isNewsletterEnabled={ data.subscriptions }
 						/>
-
-						<GlobalNotices />
-					</div>
-				</Col>
-			</Container>
-		</AdminPage>
+					</Stack>
+				</Disabled>
+			</Stack>
+			<GlobalNotices />
+		</NewsletterPage>
 	);
 }
 
-const container = document.getElementById( 'newsletter-settings-root' );
+const container = document.getElementById( 'jetpack-newsletter-wp-admin-app' );
 if ( container ) {
 	const root = createRoot( container );
 	root.render( <NewsletterSettingsApp /> );
