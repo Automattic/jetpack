@@ -36,8 +36,10 @@ $content-max-width: 1040px;
 
 // Sections
 .newsletter-settings {
-	max-width: $content-max-width;
-	margin: 20px auto;
+	box-sizing: border-box;
+	margin: 0 auto;
+	max-width: 660px;
+	padding: 32px 20px;
 
 	// Card-based sections
 	&__section {
