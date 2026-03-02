@@ -74,7 +74,7 @@ function NewsletterPage( { children }: { children: React.ReactNode } ): JSX.Elem
 					'jetpack-newsletter'
 				) }
 			>
-				<Stack gap="md" direction="column" className="jetpack-newsletter-settings">
+				<Stack gap="md" direction="column" className="newsletter-settings">
 					{ children }
 				</Stack>
 				<JetpackFooter />
@@ -387,7 +387,7 @@ function NewsletterSettingsApp(): JSX.Element | null {
 
 	return (
 		<NewsletterPage>
-			<Stack gap="md" direction="column" className="jetpack-newsletter-settings">
+			<Stack gap="md" direction="column" className="newsletter-settings">
 				{ ! isSimpleSite() && <NewsletterSection data={ data } onChange={ handleAutoSave } /> }
 
 				<Disabled isDisabled={ ! data.subscriptions }>
