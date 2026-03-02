@@ -320,7 +320,7 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 					},
 					className
 				) }
-				gap={ showLegend ? gap : undefined }
+				gap={ gap }
 				style={ {
 					...style,
 					width: propWidth || undefined,
@@ -357,7 +357,7 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 
 										<Stack
 											direction="row"
-											gap={ 1 }
+											gap="xs"
 											className={ clsx( styles.valueContainer, {
 												[ styles.overlayLabel ]: withOverlayLabel,
 											} ) }
