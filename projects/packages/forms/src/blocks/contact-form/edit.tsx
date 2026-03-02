@@ -28,12 +28,13 @@ import { useInstanceId } from '@wordpress/compose';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
-import { useRef, useEffect, useCallback, lazy, Suspense } from '@wordpress/element';
+import { useRef, useEffect, useCallback, lazy, Suspense, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 /*
  * Internal dependencies
  */
+import { PANEL_STATE_STORE } from '../../form-editor/store/panel-state.ts';
 import useConfigValue from '../../hooks/use-config-value.ts';
 import { store as singleStepStore } from '../../store/form-step-preview.js';
 import {
@@ -289,7 +290,7 @@ function JetpackContactFormEdit( {
 
 			return {
 				postTitle: title,
-				hasAnyInnerBlocks: innerBlocksData.length > 0,
+				hasAnyInnerBlocks: innerBlocksData.length > 0 || syncedFormBlocks?.length > 0,
 				postAuthorEmail: authorEmail,
 				selectedBlockClientId: selectedStepBlockId,
 				onlySubmitBlock: isSingleButtonBlock,
@@ -297,7 +298,7 @@ function JetpackContactFormEdit( {
 				hasChildSelected: hasSelectedInnerBlock( clientId, true ),
 			};
 		},
-		[ clientId ]
+		[ clientId, syncedFormBlocks ]
 	);
 
 	useEffect( () => {
@@ -306,6 +307,34 @@ function JetpackContactFormEdit( {
 			submitButton.attributes.lock = lock;
 		}
 	}, [ submitButton ] );
+
+	// Panel state management for pre-publish panel navigation
+	const activePanel = useSelect(
+		select => {
+			// Only subscribe to panel state in the form editor
+			if ( ! isJetpackFormEditor ) {
+				return null;
+			}
+			const panelStore = select( PANEL_STATE_STORE ) as {
+				getActivePanel: () => string | null;
+			};
+			return panelStore?.getActivePanel?.() ?? null;
+		},
+		[ isJetpackFormEditor ]
+	);
+	const { closePanel } = useDispatch( PANEL_STATE_STORE );
+
+	// Track open state for each panel - panels open when activePanel matches, then stay open
+	const [ openPanels, setOpenPanels ] = useState< Record< string, boolean > >( {} );
+
+	// When activePanel changes, open that panel and clear the store
+	useEffect( () => {
+		if ( activePanel ) {
+			setOpenPanels( prev => ( { ...prev, [ activePanel ]: true } ) );
+			// Clear the active panel from the store so it doesn't reopen on re-render
+			closePanel();
+		}
+	}, [ activePanel, closePanel ] );
 
 	const { isSingleStep, isFirstStep, isLastStep, currentStepClientId } = useSelect(
 		select => {
@@ -961,8 +990,7 @@ function JetpackContactFormEdit( {
 
 	let elt;
 
-	// Show loading state when resolving synced form
-	if ( ref && isResolvingSyncedForm ) {
+	if ( ref && isResolvingSyncedForm && ! hasAnyInnerBlocks ) {
 		return (
 			<div { ...blockProps }>
 				<ContactFormSkeletonLoader />
@@ -1026,6 +1054,13 @@ function JetpackContactFormEdit( {
 					<PanelBody
 						title={ __( 'Action after submit', 'jetpack-forms' ) }
 						initialOpen={ false }
+						opened={ openPanels[ 'action-after-submit' ] }
+						onToggle={ () =>
+							setOpenPanels( prev => ( {
+								...prev,
+								'action-after-submit': ! prev[ 'action-after-submit' ],
+							} ) )
+						}
 						className="jetpack-contact-form__panel"
 					>
 						<RadioControl
@@ -1099,6 +1134,13 @@ function JetpackContactFormEdit( {
 					<PanelBody
 						title={ __( 'Form notifications', 'jetpack-forms' ) }
 						initialOpen={ false }
+						opened={ openPanels[ 'form-notifications' ] }
+						onToggle={ () =>
+							setOpenPanels( prev => ( {
+								...prev,
+								'form-notifications': ! prev[ 'form-notifications' ],
+							} ) )
+						}
 						className="jetpack-contact-form__panel"
 					>
 						<NotificationsSettings
@@ -1133,6 +1175,13 @@ function JetpackContactFormEdit( {
 						title={ __( 'Responses storage', 'jetpack-forms' ) }
 						className="jetpack-contact-form__panel jetpack-contact-form__responses-storage-panel"
 						initialOpen={ false }
+						opened={ openPanels[ 'responses-storage' ] }
+						onToggle={ () =>
+							setOpenPanels( prev => ( {
+								...prev,
+								'responses-storage': ! prev[ 'responses-storage' ],
+							} ) )
+						}
 					>
 						<JetpackManageResponsesSettings
 							attributes={ attributes }

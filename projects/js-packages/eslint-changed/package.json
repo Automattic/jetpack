@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/eslint-changed",
-	"version": "2.1.5",
+	"version": "2.1.6",
 	"description": "Run eslint on files, but only report warnings and errors from lines that were changed.",
 	"keywords": [
 		"eslint",
@@ -19,6 +19,9 @@
 	"type": "module",
 	"bin": {
 		"eslint-changed": "bin/eslint-changed.js"
+	},
+	"exports": {
+		"./package.json": "./package.json"
 	},
 	"scripts": {
 		"test": "NODE_OPTIONS=--experimental-vm-modules jest --config=tests/jest.config.cjs",

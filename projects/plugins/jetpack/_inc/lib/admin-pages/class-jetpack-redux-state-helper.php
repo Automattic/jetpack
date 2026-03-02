@@ -186,6 +186,7 @@ class Jetpack_Redux_State_Helper {
 				'showPromotions'             => apply_filters( 'jetpack_show_promotions', true ),
 				'plan'                       => Jetpack_Plan::get(),
 				'showBackups'                => Jetpack::show_backups_ui(),
+				'showScan'                   => Jetpack::show_scan_ui(),
 				'showRecommendations'        => Jetpack_Recommendations::is_enabled(),
 				/** This filter is documented in my-jetpack/src/class-initializer.php */
 				'showMyJetpack'              => My_Jetpack_Initializer::should_initialize(),

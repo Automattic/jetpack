@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.2.44] - 2026-03-02
+### Changed
+- Update dependencies. [#46758]
+
+## [4.2.43] - 2026-02-26
+### Changed
+- Update package dependencies. [#47285] [#47300] [#47309]
+
+## [4.2.42] - 2026-02-23
+### Changed
+- Convert testimonial and connection screen images from PNG to WebP. [#47085]
+- Update package dependencies. [#47173]
+
+### Removed
+- Remove outdated "Restore points created with every edit" notice from the Backup admin page. [#47216]
+
 ## [4.2.41] - 2026-02-16
 ### Changed
 - Update package dependencies. [#47099]
@@ -1029,6 +1045,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add API endpoints and Jetpack Backup package for managing Help…
 
+[4.2.44]: https://github.com/Automattic/jetpack-backup/compare/v4.2.43...v4.2.44
+[4.2.43]: https://github.com/Automattic/jetpack-backup/compare/v4.2.42...v4.2.43
+[4.2.42]: https://github.com/Automattic/jetpack-backup/compare/v4.2.41...v4.2.42
 [4.2.41]: https://github.com/Automattic/jetpack-backup/compare/v4.2.40...v4.2.41
 [4.2.40]: https://github.com/Automattic/jetpack-backup/compare/v4.2.39...v4.2.40
 [4.2.39]: https://github.com/Automattic/jetpack-backup/compare/v4.2.38...v4.2.39

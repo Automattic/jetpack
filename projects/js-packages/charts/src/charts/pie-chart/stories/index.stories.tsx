@@ -35,7 +35,8 @@ const meta: Meta< StoryArgs > = {
 				step: 10,
 				default: 400,
 			},
-			description: 'Diameter of the pie chart in pixels',
+			description:
+				'Maximum diameter of the pie in pixels. The pie shrinks if the container is smaller. When omitted, fills available space.',
 			table: { category: 'Dimensions' },
 		},
 		thickness: {
@@ -125,10 +126,23 @@ export const Default: Story = {
 		cornerScale: 0,
 		withTooltips: false,
 		data,
-		resize: 'none',
-		size: 400,
 		containerWidth: '432px',
 		containerHeight: '432px',
+	},
+};
+
+export const WithSize: Story = {
+	args: {
+		...Default.args,
+		size: 200,
+	},
+};
+
+export const FixedDimensions: Story = {
+	args: {
+		...Default.args,
+		width: 300,
+		height: 300,
 	},
 };
 
@@ -157,51 +171,23 @@ export const WithLegend: Story = {
 	args: {
 		...Default.args,
 		showLegend: true,
-		containerHeight: '500px',
 	},
 };
 
 export const WithCompositionLegend: Story = {
 	render: args => (
-		<div
-			style={ {
-				display: 'grid',
-				gap: '2rem',
-				gridTemplateColumns: 'repeat(2, 1fr)',
-				alignItems: 'center',
-			} }
-		>
-			<div>
-				<h3>Traditional Props-based Legend</h3>
-				<PieChart
-					size={ 300 }
-					data={ args.data }
-					showLegend={ true }
-					legendPosition={ args.legendPosition || 'bottom' }
-					legendOrientation={ args.legendOrientation || 'horizontal' }
-					legendAlignment={ args.legendAlignment || 'center' }
-					legendMaxWidth={ args.legendMaxWidth }
-					legendTextOverflow={ args.legendTextOverflow || 'wrap' }
-					legendValueDisplay={ args.legendValueDisplay }
-				/>
-			</div>
-			<div>
-				<h3>Composition API with Legend Component</h3>
-				<PieChart size={ 300 } data={ args.data } legendValueDisplay={ args.legendValueDisplay }>
-					<PieChart.Legend
-						position={ args.legendPosition || 'bottom' }
-						orientation={ args.legendOrientation || 'horizontal' }
-						alignment={ args.legendAlignment || 'center' }
-						maxWidth={ args.legendMaxWidth }
-						textOverflow={ args.legendTextOverflow || 'wrap' }
-					/>
-				</PieChart>
-			</div>
-		</div>
+		<PieChart size={ 300 } data={ args.data } legendValueDisplay={ args.legendValueDisplay }>
+			<PieChart.Legend
+				position={ args.legendPosition || 'bottom' }
+				orientation={ args.legendOrientation || 'horizontal' }
+				alignment={ args.legendAlignment || 'center' }
+				maxWidth={ args.legendMaxWidth }
+				textOverflow={ args.legendTextOverflow || 'wrap' }
+			/>
+		</PieChart>
 	),
 	args: {
 		data,
-		containerHeight: '500px',
 	},
 	argTypes: {
 		legendInteractive: {
@@ -221,30 +207,27 @@ export const WithCompositionLegend: Story = {
 export const InteractiveLegend: Story = {
 	render: args => (
 		<GlobalChartsProvider>
-			<div style={ { padding: '20px' } }>
-				<h3>Interactive Legend</h3>
-				<p style={ { marginBottom: '20px', color: '#666' } }>
+			<PieChartUnresponsive
+				chartId="interactive-pie-chart"
+				size={ args.size }
+				data={ args.data }
+				showLegend={ true }
+				legendInteractive={ true }
+				legendPosition={ args.legendPosition || 'bottom' }
+				legendOrientation={ args.legendOrientation || 'horizontal' }
+				legendAlignment={ args.legendAlignment || 'center' }
+				legendValueDisplay={ args.legendValueDisplay }
+			>
+				<p style={ { color: '#666' } }>
 					Click legend items to show/hide segments. Percentages recalculate automatically for
 					visible segments.
 				</p>
-				<PieChartUnresponsive
-					chartId="interactive-pie-chart"
-					size={ args.size || 400 }
-					data={ args.data }
-					showLegend={ true }
-					legendInteractive={ true }
-					legendPosition={ args.legendPosition || 'bottom' }
-					legendOrientation={ args.legendOrientation || 'horizontal' }
-					legendAlignment={ args.legendAlignment || 'center' }
-					legendValueDisplay={ args.legendValueDisplay }
-				/>
-			</div>
+			</PieChartUnresponsive>
 		</GlobalChartsProvider>
 	),
 	args: {
 		data,
 		size: 400,
-		containerHeight: '600px',
 	},
 	parameters: {
 		docs: {
@@ -290,27 +273,13 @@ export const CustomLegendPositioning: Story = {
 		legendShape: 'circle',
 		size: 400,
 		containerWidth: '432px',
-		containerHeight: '480px',
-		resize: 'none',
+		containerHeight: '432px',
 	},
 	parameters: {
 		docs: {
 			description: {
 				story:
 					'Pie chart with top-end positioned vertical legend. This demonstrates non-default legend positioning to showcase different legend placement possibilities with device usage data.',
-			},
-		},
-	},
-};
-
-const responsiveArgs = { ...Default.args, resize: 'both' as const };
-delete responsiveArgs.size;
-export const Responsiveness: Story = {
-	args: responsiveArgs,
-	parameters: {
-		docs: {
-			description: {
-				story: 'Pie chart with responsive behavior. Uses size prop instead of width/height.',
 			},
 		},
 	},
@@ -437,7 +406,6 @@ export const CustomLabelColors: Story = {
 		labelTextColor: '#FFFFFF', // White text for contrast against dark background
 		labelBackgroundColor: 'rgba(0, 0, 0, 0.75)', // Dark semi-transparent background
 		size: 400,
-		containerHeight: '500px',
 	},
 	parameters: {
 		docs: {
@@ -461,12 +429,11 @@ export const ErrorStates: Story = {
 		<div style={ { display: 'grid', gap: '2rem', gridTemplateColumns: 'repeat(2, 1fr)' } }>
 			<div>
 				<h3>Empty Data</h3>
-				<PieChart size={ 300 } data={ [] } />
+				<PieChart data={ [] } />
 			</div>
 			<div>
 				<h3>Invalid Percentage Total</h3>
 				<PieChart
-					size={ 300 }
 					data={ [
 						{ label: 'A', value: 30, percentage: 30 },
 						{ label: 'B', value: 40, percentage: 40 },
@@ -476,7 +443,6 @@ export const ErrorStates: Story = {
 			<div>
 				<h3>Negative Values</h3>
 				<PieChart
-					size={ 300 }
 					data={ [
 						{ label: 'A', value: -30, percentage: -30 },
 						{ label: 'B', value: 130, percentage: 130 },
@@ -485,10 +451,13 @@ export const ErrorStates: Story = {
 			</div>
 			<div>
 				<h3>Single Data Point</h3>
-				<PieChart size={ 300 } data={ [ { label: 'A', value: 100, percentage: 100 } ] } />
+				<PieChart height={ 300 } data={ [ { label: 'A', value: 100, percentage: 100 } ] } />
 			</div>
 		</div>
 	),
+	args: {
+		containerHeight: '600px',
+	},
 	parameters: {
 		docs: {
 			description: {

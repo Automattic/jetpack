@@ -231,16 +231,6 @@ export function PostPreview( { connection }: PostPreviewProps ) {
 				caption = getCombinedText( title, excerpt );
 			}
 
-			const captionLength =
-				// 500 characters
-				500 -
-				// Number of characters in the article URL
-				url.length -
-				// 2 characters for line break
-				2;
-
-			caption = decodeEntities( caption ).slice( 0, captionLength );
-
 			caption += `\n\n${ url }`;
 
 			return (

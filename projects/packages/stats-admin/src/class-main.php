@@ -22,7 +22,7 @@ class Main {
 	/**
 	 * Stats version.
 	 */
-	const VERSION = '0.30.6';
+	const VERSION = '0.30.8';
 
 	/**
 	 * Singleton Main instance.
@@ -65,6 +65,20 @@ class Main {
 			10,
 			2
 		);
+
+		// Register stats-admin transient prefix for cleanup by the stats package.
+		add_filter( 'jetpack_stats_transient_cleanup_prefixes', array( $this, 'register_transient_cleanup_prefix' ) );
+	}
+
+	/**
+	 * Register the stats-admin transient prefix for cleanup.
+	 *
+	 * @param array $prefixes List of transient prefixes to clean up.
+	 * @return array Modified list of prefixes.
+	 */
+	public function register_transient_cleanup_prefix( $prefixes ) {
+		$prefixes[] = WPCOM_Client::CACHE_TRANSIENT_PREFIX;
+		return $prefixes;
 	}
 
 	/**

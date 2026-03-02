@@ -11,7 +11,7 @@ import { useMemo } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __, sprintf } from '@wordpress/i18n';
 import { moreVertical } from '@wordpress/icons';
-import { Stack } from '@wordpress/ui';
+import { Badge, Stack } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
@@ -47,6 +47,7 @@ type UsePageHeaderDetailsProps = {
 
 type UsePageHeaderDetailsReturn = {
 	breadcrumbs: ReactNode;
+	badges?: ReactNode;
 	subtitle: ReactNode;
 	actions?: ReactNode;
 };
@@ -110,7 +111,7 @@ export default function usePageHeaderDetails(
 						'postType',
 						'jetpack_form',
 						sourceIdNumber
-				  ) as { title?: { rendered?: string } } | undefined )
+				  ) as { title?: { rendered?: string }; status?: string } | undefined )
 				: undefined,
 		[ sourceIdNumber ]
 	);
@@ -119,6 +120,32 @@ export default function usePageHeaderDetails(
 		const rendered = formRecord?.title?.rendered || '';
 		return decodeEntities( rendered );
 	}, [ formRecord?.title?.rendered ] );
+
+	const formStatus = formRecord?.status;
+
+	const statusLabel = useMemo( () => {
+		switch ( formStatus ) {
+			case 'publish':
+				return __( 'Published', 'jetpack-forms' );
+			case 'draft':
+				return __( 'Draft', 'jetpack-forms' );
+			case 'pending':
+				return __( 'Pending review', 'jetpack-forms' );
+			case 'future':
+				return __( 'Scheduled', 'jetpack-forms' );
+			case 'private':
+				return __( 'Private', 'jetpack-forms' );
+			default:
+				return formStatus;
+		}
+	}, [ formStatus ] );
+
+	const badges = useMemo( () => {
+		if ( ! isSingleFormScreen || ! formStatus || formStatus === 'publish' ) {
+			return undefined;
+		}
+		return <Badge intent="draft">{ statusLabel }</Badge>;
+	}, [ isSingleFormScreen, formStatus, statusLabel ] );
 
 	const { duplicateForm, previewForm, copyEmbed, copyShortcode } = useFormItemActions();
 
@@ -206,7 +233,7 @@ export default function usePageHeaderDetails(
 			return __( 'View responses for this form.', 'jetpack-forms' );
 		}
 
-		return __( 'View and manage all your form submissions in one place.', 'jetpack-forms' );
+		return __( 'View and manage all your form responses in one place.', 'jetpack-forms' );
 	}, [ formTitle, isFormsScreen, isSingleFormScreen, onOpenFormsHelp, formsCount ] );
 
 	const actions = useMemo( () => {
@@ -311,6 +338,7 @@ export default function usePageHeaderDetails(
 					controls={ dropdownControls }
 					icon={ moreVertical }
 					label={ __( 'More actions', 'jetpack-forms' ) }
+					toggleProps={ { size: 'compact' } }
 				/>,
 				// Include modals when on mobile
 				...( showExportModal
@@ -379,6 +407,7 @@ export default function usePageHeaderDetails(
 								controls={ formItemControls }
 								icon={ moreVertical }
 								label={ __( 'More actions', 'jetpack-forms' ) }
+								toggleProps={ { size: 'compact' } }
 							/>,
 					  ]
 					: [] ),
@@ -444,5 +473,5 @@ export default function usePageHeaderDetails(
 		emptySpam.selectedResponsesCount,
 	] );
 
-	return { breadcrumbs, subtitle, actions };
+	return { breadcrumbs, badges, subtitle, actions };
 }

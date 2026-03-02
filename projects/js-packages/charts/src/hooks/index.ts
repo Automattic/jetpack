@@ -3,7 +3,7 @@ export { useChartMouseHandler } from './use-chart-mouse-handler';
 export { useXYChartTheme } from './use-xychart-theme';
 export { useChartDataTransform } from './use-chart-data-transform';
 export { useChartMargin } from './use-chart-margin';
-export { useElementHeight } from './use-element-height';
+export { useElementSize } from './use-element-size';
 export { useHasLegendChild } from './use-has-legend-child';
 export { useTextTruncation } from './use-text-truncation';
 export { useZeroValueDisplay } from './use-zero-value-display';

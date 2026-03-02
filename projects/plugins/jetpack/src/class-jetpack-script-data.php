@@ -24,7 +24,7 @@ class Jetpack_Script_Data {
 	/**
 	 * Add Jetpack-plugin-specific data to the consolidated JetpackScriptData object.
 	 *
-	 * @since $$next-version$$
+	 * @since 15.6
 	 *
 	 * @param array $data The script data.
 	 * @return array
@@ -33,7 +33,7 @@ class Jetpack_Script_Data {
 		/**
 		 * Whether to show the Jetpack branding in editor panels (e.g., SEO, AI Assistant).
 		 *
-		 * @since $$next-version$$
+		 * @since 15.6
 		 *
 		 * @param bool $show Whether to show the Jetpack editor panel branding. Defaults to true.
 		 */

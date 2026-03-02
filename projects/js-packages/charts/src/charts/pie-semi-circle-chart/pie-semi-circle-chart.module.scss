@@ -1,21 +1,27 @@
 .pie-semi-circle-chart {
-	display: flex;
-	flex-direction: column;
-	text-align: center;
-	gap: 20px;
+	// Fill parent when no explicit width/height provided
+	&--responsive {
+		height: 100%;
+		width: 100%;
+	}
 
-	&--legend-top {
-		flex-direction: column-reverse;
+	// Flex wrapper that fills remaining Stack space and measures the SVG area
+	&__svg-wrapper {
+		flex: 1;
+		min-height: 0; // Required for flex shrinking
+		min-width: 0; // Required for flex shrinking
+		width: 100%;
+		display: flex;
+		align-items: center;
+		justify-content: center;
 	}
 
 	.label {
-		margin-bottom: 0; // Add space between label and pie chart
-		font-weight: 600; // Make label more prominent than note
-		font-size: 16px; // Set explicit font size
+		font-weight: 600;
+		font-size: 16px;
 	}
 
 	.note {
-		margin-top: 0; // Add space between pie chart and note
-		font-size: 14px; // Slightly smaller text for hierarchy
+		font-size: 14px;
 	}
 }

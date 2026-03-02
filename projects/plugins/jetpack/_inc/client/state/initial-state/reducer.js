@@ -538,6 +538,17 @@ export function showBackups( state ) {
 }
 
 /**
+ * Check if scan UI should be displayed.
+ *
+ * @param {object} state - Global state tree
+ *
+ * @return {boolean} True if scan UI should be displayed.
+ */
+export function showScan( state ) {
+	return state.jetpack.initialState.siteData?.showScan ?? true;
+}
+
+/**
  * Determines if the Jetpack Recommendations should be displayed
  *
  * @param {object} state - Global state tree

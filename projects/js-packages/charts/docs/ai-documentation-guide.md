@@ -150,7 +150,32 @@ Description and use case:
 <Source language="tsx" code={ `example-code` } />
 ```
 
-### 7. Styling and Customization
+### 7. Interactive Features
+
+Only include this section if the chart supports interactive features (e.g., tooltips, pointer events). Remove this section entirely if the chart has no interactive capabilities.
+
+Document the chart's interactive capabilities:
+
+- **Tooltips**: How to enable tooltips with `withTooltips`, custom rendering with `renderTooltip`, and crosshair options where supported
+- **Pointer Events**: Custom event handlers (`onPointerDown`, `onPointerMove`) if supported
+- **Keyboard Navigation**: Standard keyboard interactions (Tab, Arrow Keys, Enter/Space, Escape)
+
+See the `feature-documentation.mdx.template` for the complete section structure.
+
+### 8. Legends
+
+Only include this section if the chart supports legends. Remove this section entirely if the chart has no legend capabilities.
+
+Document legend features including:
+
+- **Basic Legend**: How to enable with `showLegend`, orientation, alignment, and position props
+- **Custom Legend Shapes**: Shape options and custom glyphs if supported
+- **Composition API**: Using `<[Component].Legend />` as a child component for flexible positioning, if supported
+- **Interactive Legends**: Toggling series visibility with `legendInteractive`, requirements (`GlobalChartsProvider`, `chartId`), keyboard support, and visual feedback
+
+See the `feature-documentation.mdx.template` for the complete section structure.
+
+### 9. Styling and Customization
 
 ```mdx
 ## Styling and Customization
@@ -173,10 +198,11 @@ Controls [what this category affects]:
 
 - `property`: Description and possible values
 - `anotherProperty`: Description
+```
 
-## Theming Integration
+### 10. Theming Integration
 
-For the Theming Integration section, use the standardized format from the `feature-documentation.mdx.template`. This section should be a top-level `##` heading (not nested under Styling) and include:
+Use the standardized format from the `feature-documentation.mdx.template`. This section should be a top-level `##` heading (not nested under Styling) and include:
 
 - A description explaining that the chart integrates seamlessly with the theming system
 - An explanation that the default theme has neutral colors and styling
@@ -184,7 +210,20 @@ For the Theming Integration section, use the standardized format from the `featu
 
 See the template for the complete section structure.
 
-## Animation
+### 11. Responsive Behavior
+
+Always include a Responsive Behavior section. Charts are responsive by default and fill their parent container's dimensions. Document:
+
+- Default behavior (fills parent container, parent needs explicit height)
+- `aspectRatio` prop usage (height calculated from width)
+- Fixed `width`/`height` dimensions
+- Any chart-specific responsive nuances (e.g., aspect ratio constraints)
+
+End the section with a link to the Responsive Design section in the introduction.
+
+See the `feature-documentation.mdx.template` for the complete section structure.
+
+### 12. Animation
 
 Only include this section if the chart component supports animation (check the implementation for an `animation` prop). If animation is not supported, remove this section entirely.
 
@@ -200,9 +239,8 @@ When documenting animation:
 - Note that animation plays once on initial render and does not repeat
 
 See the `feature-documentation.mdx.template` for the complete section structure.
-```
 
-### 8. Advanced Usage
+### 13. Advanced Usage
 
 Document complex functionality with practical examples. All usage examples, including advanced patterns, should be in the main documentation file, NOT in the API reference:
 
@@ -228,7 +266,7 @@ More advanced usage patterns with code examples:
 - Common pitfalls to avoid
 ```
 
-### 9. Accessibility Section
+### 14. Accessibility Section
 
 Always include accessibility information:
 
@@ -249,7 +287,7 @@ Always include accessibility information:
 - Focus behavior and visual indicators
 ```
 
-### 10. Migration
+### 15. Migration
 
 ```mdx
 ## Migration from [Legacy/Previous API]
@@ -337,7 +375,6 @@ Before considering documentation complete, verify both main docs and API referen
 - [ ] Code examples are complete and runnable in main docs
 - [ ] Accessibility considerations covered in main docs
 - [ ] Animation section included if chart supports animation (check for `animation` prop)
-- [ ] Browser compatibility notes included where relevant
 - [ ] Both documents created using appropriate templates
 
 ### Accuracy
@@ -402,9 +439,6 @@ The `annotation.docs.mdx` file exemplifies these patterns:
 3. **Complete API docs**: Comprehensive prop tables with types
 4. **Practical guidance**: Real-world usage scenarios and best practices
 5. **Accessibility focus**: Dedicated section covering keyboard, screen reader, and focus behavior
-6. **Browser considerations**: Honest discussion of Safari limitations
-7. **Migration support**: Clear guidance for upgrading from legacy API
+6. **Migration support**: Clear guidance for upgrading from legacy API
 
 Follow this structure and level of detail for all chart component documentation to ensure consistency and usefulness across the entire charts library. Examples and stories are accessible through the Storybook UI, so they don't need to be listed in the documentation.
-
-**Important**: When documenting performance considerations, only include optimizations and limitations that are actually implemented, documented, or evidenced in the codebase. Avoid general web development best practices unless they are specifically relevant and tested for the chart components.

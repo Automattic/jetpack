@@ -172,6 +172,11 @@
 	.wp-block-jetpack-slideshow_button-next,
 	.amp-carousel-button-next {
 		background-image: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjUiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNSAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48bWFzayBpZD0ibWFza05leHQiIG1hc2stdHlwZT0iYWxwaGEiIG1hc2tVbml0cz0idXNlclNwYWNlT25Vc2UiIHg9IjgiIHk9IjYiIHdpZHRoPSI4IiBoZWlnaHQ9IjEyIj48cGF0aCBkPSJNOC41OTgxNCAxNi41OUwxMy4xNTU3IDEyTDguNTk4MTQgNy40MUwxMC4wMDEyIDZMMTUuOTcxOCAxMkwxMC4wMDEyIDE4TDguNTk4MTQgMTYuNTlaIiBmaWxsPSJ3aGl0ZSIvPjwvbWFzaz48ZyBtYXNrPSJ1cmwoI21hc2tOZXh0KSI+PHJlY3QgeD0iMC4zNDM3NSIgd2lkdGg9IjIzLjg4MjIiIGhlaWdodD0iMjQiIGZpbGw9IiMwMDAwMDAiLz48L2c+PC9zdmc+);
+
+		// Hide swiper's own arrows.
+		> svg {
+			visibility: hidden;
+		}
 	}
 
 	&.swiper-rtl .swiper-button-next.swiper-button-white,
@@ -180,6 +185,11 @@
 	.wp-block-jetpack-slideshow_button-prev,
 	.amp-carousel-button-prev {
 		background-image: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjUiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNSAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48bWFzayBpZD0ibWFza1ByZXYiIG1hc2stdHlwZT0iYWxwaGEiIG1hc2tVbml0cz0idXNlclNwYWNlT25Vc2UiIHg9IjgiIHk9IjYiIHdpZHRoPSI5IiBoZWlnaHQ9IjEyIj48cGF0aCBkPSJNMTYuMjA3MiAxNi41OUwxMS42NDk2IDEyTDE2LjIwNzIgNy40MUwxNC44MDQxIDZMOC44MzM1IDEyTDE0LjgwNDEgMThMMTYuMjA3MiAxNi41OVoiIGZpbGw9IndoaXRlIi8+PC9tYXNrPjxnIG1hc2s9InVybCgjbWFza1ByZXYpIj48cmVjdCB4PSIwLjU3OTEwMiIgd2lkdGg9IjIzLjg4MjMiIGhlaWdodD0iMjQiIGZpbGw9IiMwMDAwMDAiLz48L2c+PC9zdmc+);
+
+		// Hide swiper's own arrows.
+		> svg {
+			visibility: hidden;
+		}
 	}
 
 	.wp-block-jetpack-slideshow_button-play,

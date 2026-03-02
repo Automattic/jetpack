@@ -25,7 +25,7 @@ jest.mock( '../utils', () => ( {
 	getPostImageUrl: jest.fn(),
 } ) );
 
-const mockUseSelect = useSelect as jest.MockedFunction< typeof useSelect >;
+const mockUseSelect = useSelect as jest.Mock;
 const mockGetSigImageUrl = getSigImageUrl as jest.MockedFunction< typeof getSigImageUrl >;
 const mockGetMediaSourceUrl = getMediaSourceUrl as jest.MockedFunction< typeof getMediaSourceUrl >;
 const mockGetPostImageUrl = getPostImageUrl as jest.MockedFunction< typeof getPostImageUrl >;

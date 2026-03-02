@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.73.1] - 2026-03-02
+### Changed
+- Update dependencies. [#46383]
+
+## [0.73.0] - 2026-02-26
+### Added
+- Social: Add `jetpack.ai.imageGenerationHandler` filter to allow external plugins (e.g. Image Studio) to replace the built-in AI image generation flow for the "Generate image" entry point. [#47180]
+
+### Changed
+- Update package dependencies. [#47285] [#47288] [#47300] [#47309]
+
+### Fixed
+- Fix Threads social preview for posts with gallery. [#47322]
+- Social admin: Expand toggle sections width to fill container. [#47308]
+
+## [0.72.6] - 2026-02-23
+### Changed
+- Twitter Cards: Use `Automattic\Jetpack\Post_Media\Twitter_Cards` instead of `Jetpack_Twitter_Cards`. [#47169]
+
 ## [0.72.5] - 2026-02-19
 ### Added
 - Add visual dot to active connection in preview modal. [#47218]
@@ -1290,6 +1309,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update package.json metadata.
 
+[0.73.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.73.0...v0.73.1
+[0.73.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.72.6...v0.73.0
+[0.72.6]: https://github.com/Automattic/jetpack-publicize/compare/v0.72.5...v0.72.6
 [0.72.5]: https://github.com/Automattic/jetpack-publicize/compare/v0.72.4...v0.72.5
 [0.72.4]: https://github.com/Automattic/jetpack-publicize/compare/v0.72.3...v0.72.4
 [0.72.3]: https://github.com/Automattic/jetpack-publicize/compare/v0.72.2...v0.72.3
