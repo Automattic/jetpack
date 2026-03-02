@@ -18,7 +18,7 @@ export class Onboarding extends JetpackOnboarding {
 	 * @param {{ admin: Admin; baseURL: string }} options - The options for connecting the account.
 	 */
 	async connect( { admin, baseURL }: { admin: Admin; baseURL: string } ) {
-		await admin.visitAdminPage( 'admin.php?page=jetpack-social' );
+		await admin.visitAdminPage( 'admin.php', 'page=jetpack-social' );
 
 		await this.onboardUser( baseURL );
 

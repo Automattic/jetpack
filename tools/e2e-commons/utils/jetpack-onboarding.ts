@@ -60,7 +60,7 @@ export class JetpackOnboarding {
 	/**
 	 * Start the onboarding process by clicking the CTA button.
 	 *
-	 * @return A promise that resolves when the site connection is completed.
+	 * @return A promise that resolves after the CTA button is clicked.
 	 */
 	async start() {
 		logger.info( `Click on "${ this.config.CTALabel }" button to start onboarding` );
@@ -132,10 +132,11 @@ export class JetpackOnboarding {
 	 * @return A promise that resolves when the redirect from the wp.com connect page is completed.
 	 */
 	async waitForRedirectFromWpcom( baseURL?: string ) {
+		const baseOrigin = baseURL ? new URL( baseURL ).origin : undefined;
 		return await this.page.waitForURL(
 			url => {
 				return (
-					( ! baseURL || url.origin === baseURL ) &&
+					( ! baseOrigin || url.origin === baseOrigin ) &&
 					url.pathname.includes( 'wp-admin/admin.php' ) &&
 					url.searchParams.get( 'page' ) === this.config.adminPageSlug
 				);
@@ -145,7 +146,7 @@ export class JetpackOnboarding {
 	}
 
 	/**
-	 * Approves the user connection by clicking on the "Connect account" button.
+	 * Approves the user connection by clicking on the approve button.
 	 * It assumes that
 	 * - the user is already logged in to wp.com.
 	 * - we are on the wp.com connect page.
@@ -154,9 +155,7 @@ export class JetpackOnboarding {
 	 * @return A promise that resolves when the connect account button is clicked.
 	 */
 	async approveConnection() {
-		logger.info(
-			'Click on "Connect account" button and wait for redirect from wp.com connect page'
-		);
+		logger.info( 'Click on the approve button and wait for redirect from wp.com connect page' );
 
 		await this.page
 			.getByRole( 'button', { name: this.config.wpcomApproveButtonLabel, exact: true } )
@@ -174,16 +173,16 @@ export class JetpackOnboarding {
 	async onboardUser( baseURL?: string ) {
 		await Promise.all( [
 			// Start onboarding and wait for site connection to complete
-			this.waitForSiteConnection(),
 			this.start(),
+			this.waitForSiteConnection(),
 		] );
 
 		await this.waitForRedirectToWpcom();
 
 		await Promise.all( [
 			// Approve connection and wait for redirect back to the site
-			this.waitForRedirectFromWpcom( baseURL ),
 			this.approveConnection(),
+			this.waitForRedirectFromWpcom( baseURL ),
 		] );
 	}
 }
