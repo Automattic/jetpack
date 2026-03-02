@@ -107,11 +107,6 @@ export default function DashboardPage( { isLoading = false } ) {
 
 	return (
 		<>
-			<Container horizontalSpacing={ 0 }>
-				<Col>
-					<div id="jp-admin-notices" className="jetpack-search-jitm-card" />
-				</Col>
-			</Container>
 			{ isPageLoading && <Loading /> }
 			{ ! isPageLoading && (
 				<div className="jp-search-dashboard-page">
@@ -131,13 +126,16 @@ export default function DashboardPage( { isLoading = false } ) {
 						className="uses-new-admin-ui"
 						showFooter={ false }
 					>
-						{ hasConnectionError && (
-							<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
+						<Container horizontalSpacing={ 0 } horizontalGap={ 3 }>
+							{ hasConnectionError && (
 								<Col lg={ 12 } md={ 12 } sm={ 12 }>
 									<ConnectionError />
 								</Col>
-							</Container>
-						) }
+							) }
+							<Col>
+								<div id="jp-admin-notices" className="jetpack-search-jitm-card" />
+							</Col>
+						</Container>
 						<MockedSearchInterface
 							supportsInstantSearch={ supportsInstantSearch }
 							supportsOnlyClassicSearch={ supportsOnlyClassicSearch }
