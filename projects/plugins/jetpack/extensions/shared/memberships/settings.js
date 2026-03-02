@@ -297,6 +297,20 @@ export function NewsletterEmailDocumentSettings() {
 	const { saveEditedEntityRecord } = useDispatch( coreDataStore );
 	const [ postMeta, setPostMeta ] = useEntityProp( 'postType', postType, 'meta' );
 	const postId = useEntityId( 'postType', postType );
+
+	const postEmailSentState = useSelect(
+		select => {
+			const { getPostEmailSentState } = select( membershipProductsStore );
+			if ( postId ) {
+				getPostEmailSentState( postId );
+			}
+			return postId ? getPostEmailSentState( postId ) : null;
+		},
+		[ postId ]
+	);
+
+	const isAlreadySent = postEmailSentState?.email_sent_at != null;
+
 	const toggleSendEmail = value => {
 		const postMetaUpdate = {
 			...postMeta,
@@ -312,6 +326,10 @@ export function NewsletterEmailDocumentSettings() {
 		// Meta value is negated, "don't send", but toggle is truthy when enabled "send"
 		return meta?.[ META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS ] ? 'post-only' : 'post-and-email';
 	} );
+
+	if ( isAlreadySent ) {
+		return null;
+	}
 
 	return (
 		<PostVisibilityCheck
