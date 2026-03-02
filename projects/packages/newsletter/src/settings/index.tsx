@@ -32,8 +32,6 @@ import {
 import type { NewsletterSettings } from './types';
 import './style.scss';
 
-const MODULE_NAME = __( 'Jetpack Newsletter', 'jetpack-newsletter' );
-
 /**
  * Normalize settings from API response
  *
@@ -333,7 +331,6 @@ function NewsletterSettingsApp(): JSX.Element | null {
 	if ( isLoading ) {
 		return (
 			<AdminPage
-				moduleName={ MODULE_NAME }
 				title={ 'Newsletter' /** "Newsletter" is a product name, do not translate. */ }
 				subTitle={ __(
 					'Transform your blog posts into newsletters to easily reach your subscribers.',
@@ -354,7 +351,6 @@ function NewsletterSettingsApp(): JSX.Element | null {
 	if ( error ) {
 		return (
 			<AdminPage
-				moduleName={ MODULE_NAME }
 				title={ 'Newsletter' /** "Newsletter" is a product name, do not translate. */ }
 				subTitle={ __(
 					'Transform your blog posts into newsletters to easily reach your subscribers.',
@@ -385,7 +381,6 @@ function NewsletterSettingsApp(): JSX.Element | null {
 
 	return (
 		<AdminPage
-			moduleName={ MODULE_NAME }
 			title={ 'Newsletter' /** "Newsletter" is a product name, do not translate. */ }
 			subTitle={ __(
 				'Transform your blog posts into newsletters to easily reach your subscribers.',

@@ -288,7 +288,7 @@ abstract class Jetpack_Admin_Page {
 							} elseif ( 'jetpack_about' === $page ) {
 								esc_html_e( 'About', 'jetpack' );
 							} else {
-								esc_html_e( 'Jetpack', 'jetpack' );
+								echo 'Jetpack'; // "Jetpack" is a product name, do not translate.
 							}
 							?>
 						</h2>
