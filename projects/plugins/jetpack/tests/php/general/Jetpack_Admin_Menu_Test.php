@@ -45,6 +45,7 @@ class Jetpack_Admin_Menu_Test extends WP_UnitTestCase {
 
 	/**
 	 * Test the order of many of the Jetpack admin menu items.
+	 * External links (those that open in new windows) should appear after internal links.
 	 *
 	 * @see https://github.com/Automattic/jetpack-roadmap/issues/856#issuecomment-2308599496
 	 */
@@ -77,13 +78,15 @@ class Jetpack_Admin_Menu_Test extends WP_UnitTestCase {
 		$search_submenu_position     = array_search( 'Jetpack Search', $submenu_names, true );
 		$settings_submenu_position   = array_search( 'Settings', $submenu_names, true );
 
-		if ( in_array( 'Activity Log', $submenu_names, true ) ) {
-			$activity_log_submenu_position = array_search( 'Activity Log', $submenu_names, true );
-			$this->assertLessThan( $search_submenu_position, $activity_log_submenu_position, 'Activity Log should be above Search in the submenu order.' );
-			$this->assertLessThan( $activity_log_submenu_position, $backup_submenu_position, 'Jetpack VaultPress Backup should be above Activity Log in the submenu order.' );
-		}
+		// Test internal link ordering (should appear before Settings).
 		$this->assertLessThan( $backup_submenu_position, $videopress_submenu_position, 'Jetpack VideoPress should be above Jetpack VaultPress Backup in the submenu order.' );
 		$this->assertLessThan( $search_submenu_position, $backup_submenu_position, 'Jetpack VaultPress Backup should be above Search in the submenu order.' );
 		$this->assertLessThan( $settings_submenu_position, $search_submenu_position, 'Search should be above Settings in the submenu order.' );
+
+		// Test that external links (those that open in new windows) appear after Settings.
+		if ( in_array( 'Activity Log', $submenu_names, true ) ) {
+			$activity_log_submenu_position = array_search( 'Activity Log', $submenu_names, true );
+			$this->assertLessThan( $activity_log_submenu_position, $settings_submenu_position, 'Settings should be above Activity Log in the submenu order (external links should be last).' );
+		}
 	}
 }
