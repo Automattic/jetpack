@@ -3,22 +3,15 @@ import { Icon, Notice, Path, SVG } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
 import styles from './styles.module.scss';
+import type { ConnectionErrorNoticeProps } from './types';
 
-/**
- * The RNA Connection Error Notice component.
- *
- * @param {object} props -- The properties.
- * @return {import('react').Component} The `ConnectionErrorNotice` component.
- */
-const ConnectionErrorNotice = props => {
-	const {
-		message,
-		isRestoringConnection,
-		restoreConnectionCallback,
-		restoreConnectionError,
-		actions = [], // New prop for custom actions
-	} = props;
-
+const ConnectionErrorNotice = ( {
+	message,
+	isRestoringConnection,
+	restoreConnectionCallback,
+	restoreConnectionError,
+	actions = [],
+}: ConnectionErrorNoticeProps ) => {
 	const wrapperClassName = styles.notice;
 
 	const icon = (

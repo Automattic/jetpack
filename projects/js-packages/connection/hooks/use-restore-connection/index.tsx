@@ -8,6 +8,11 @@ import { STORE_ID } from '../../state/store';
 const { apiRoot, apiNonce } =
 	window?.JP_CONNECTION_INITIAL_STATE || getScriptData()?.connection || {};
 
+interface ConnectionStoreDispatch {
+	disconnectUserSuccess: () => void;
+	setConnectionErrors: ( errors: Record< string, unknown > ) => void;
+}
+
 /**
  * Restore connection hook.
  * It will initiate an API request attempting to restore the connection, or reconnect if it cannot be restored.
@@ -16,9 +21,11 @@ const { apiRoot, apiNonce } =
  */
 export default function useRestoreConnection() {
 	const [ isRestoringConnection, setIsRestoringConnection ] = useState( false );
-	const [ restoreConnectionError, setRestoreConnectionError ] = useState( null );
+	const [ restoreConnectionError, setRestoreConnectionError ] = useState< string | null >( null );
 
-	const { disconnectUserSuccess, setConnectionErrors } = useDispatch( STORE_ID );
+	const { disconnectUserSuccess, setConnectionErrors } = useDispatch(
+		STORE_ID
+	) as ConnectionStoreDispatch;
 
 	const USER_CONNECTION_URL = getUserConnectionUrl();
 
@@ -34,7 +41,7 @@ export default function useRestoreConnection() {
 
 		return restApi
 			.reconnect()
-			.then( connectionStatusData => {
+			.then( ( connectionStatusData: { status: string } ) => {
 				// status 'in_progress' means the user needs to re-connect their WP.com account.
 				if ( 'in_progress' === connectionStatusData.status ) {
 					disconnectUserSuccess();
@@ -48,7 +55,7 @@ export default function useRestoreConnection() {
 
 				return connectionStatusData;
 			} )
-			.catch( error => {
+			.catch( ( error: string ) => {
 				setRestoreConnectionError( error );
 				setIsRestoringConnection( false );
 
