@@ -496,17 +496,17 @@ By default, leaderboard charts fill their parent container dimensions. The paren
 <Source
 	language="tsx"
 	code={ `// Responsive by default (fills parent container)
-<div style={{ width: '100%', height: '320px' }}>
-	<LeaderboardChart data={ data } showLegend={ true } />
-</div>
+		<div style={{ width: '100%', height: '320px' }}>
+			<LeaderboardChart data={ data } showLegend={ true } />
+		</div>
 
-// Fixed-size exception
-<LeaderboardChart
-	data={ data }
-	width={ 300 }
-	height={ 400 }
-	showLegend={ true }
-/>` }
+		// Fixed-size exception
+		<LeaderboardChart
+			data={ data }
+			width={ 300 }
+			height={ 400 }
+			showLegend={ true }
+		/>` }
 />
 
 When content is taller than the available area, the content region scrolls and the legend remains visible without overlap.
