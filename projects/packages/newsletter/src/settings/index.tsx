@@ -334,7 +334,7 @@ function NewsletterSettingsApp(): JSX.Element | null {
 		return (
 			<AdminPage
 				moduleName={ MODULE_NAME }
-				title={ __( 'Newsletter Settings', 'jetpack-newsletter' ) }
+				title={ 'Newsletter' /** "Newsletter" is a product name, do not translate. */ }
 				subTitle={ __(
 					'Transform your blog posts into newsletters to easily reach your subscribers.',
 					'jetpack-newsletter'
@@ -355,7 +355,7 @@ function NewsletterSettingsApp(): JSX.Element | null {
 		return (
 			<AdminPage
 				moduleName={ MODULE_NAME }
-				title={ __( 'Newsletter Settings', 'jetpack-newsletter' ) }
+				title={ 'Newsletter' /** "Newsletter" is a product name, do not translate. */ }
 				subTitle={ __(
 					'Transform your blog posts into newsletters to easily reach your subscribers.',
 					'jetpack-newsletter'
