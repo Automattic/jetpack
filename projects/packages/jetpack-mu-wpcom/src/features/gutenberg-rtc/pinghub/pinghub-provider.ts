@@ -3,29 +3,17 @@
 import { Awareness } from '@wordpress/sync';
 import * as decoding from 'lib0/decoding';
 import * as encoding from 'lib0/encoding';
+import { ObservableV2 } from 'lib0/observable';
 import * as awarenessProtocol from 'y-protocols/awareness';
 import * as syncProtocol from 'y-protocols/sync';
 import type { PingHubBridge } from './pinghub-bridge';
-import type {
-	ProviderCreator,
-	ProviderCreatorResult,
-	ConnectionStatus,
-	ProviderOn,
-} from '@wordpress/sync';
+import type { ProviderCreator, ProviderCreatorResult, ConnectionStatus } from '@wordpress/sync';
+import type * as Y from 'yjs';
 
 export type { ProviderCreator } from '@wordpress/sync';
 
 const MSG_SYNC = 0x00;
 const MSG_AWARENESS = 0x01;
-
-/**
- * Sleep for a given number of milliseconds.
- * @param ms - The number of milliseconds to sleep.
- * @return A promise that resolves after the sleep.
- */
-function sleep( ms: number ) {
-	return new Promise( r => setTimeout( r, ms ) );
-}
 
 /**
  * Get the blog ID from the WordPress globals.
@@ -69,176 +57,238 @@ async function makePath( objectType: string, objectId: string | null ): Promise<
 	return `/pinghub/wpcom/rtc/${ blogId }/${ t }-${ id }`;
 }
 
+type PingHubEvents = {
+	status: ( status: ConnectionStatus ) => void;
+};
+
 /**
- * Create a PingHub provider.
- * @param bridge - The PingHub bridge to use.
- * @return A provider creator function.
+ * Yjs provider that uses PingHub over the PingHubIframeBridge for real-time
+ * synchronization. Mirrors the HttpPollingProvider shape: one logical channel
+ * per room/path, status events via ObservableV2, and awareness + doc updates
+ * flowing over the same transport.
  */
-export function createPingHubProvider( bridge: PingHubBridge ): ProviderCreator {
-	return async ( { objectType, objectId, ydoc, awareness } ) => {
-		const path = await makePath( objectType, objectId );
+class PingHubProvider extends ObservableV2< PingHubEvents > {
+	private readonly awareness: Awareness;
+	private status: ConnectionStatus[ 'status' ] = 'disconnected';
+	private connected = false;
+	private destroyed = false;
+	private readonly ydoc: Y.Doc;
+	private readonly bridge: PingHubBridge;
+	private readonly path: string;
 
-		let connected = false;
-		let destroyed = false;
+	public constructor( {
+		awareness,
+		bridge,
+		path,
+		ydoc,
+	}: {
+		awareness?: Awareness;
+		bridge: PingHubBridge;
+		path: string;
+		ydoc: Y.Doc;
+	} ) {
+		super();
+		this.bridge = bridge;
+		this.path = path;
+		this.ydoc = ydoc;
+		this.awareness = awareness ?? new Awareness( ydoc );
 
-		const statusListeners = new Set< ( status: ConnectionStatus ) => void >();
+		this.registerListeners();
+		this.emitStatus( { status: 'connecting' } );
+		void this.connect();
+	}
 
-		const emitStatus = ( status: ConnectionStatus ) => {
-			statusListeners.forEach( listener => listener( status ) );
-		};
+	private registerListeners(): void {
+		this.awareness.on( 'change', this.onAwarenessChange );
+		this.ydoc.on( 'update', this.onDocUpdate );
 
-		const on: ProviderOn = ( event, callback ) => {
-			if ( event === 'status' ) {
-				statusListeners.add( callback as ( status: ConnectionStatus ) => void );
-			}
-		};
+		this.bridge.onOpen( this.path, this.onWsOpen );
+		this.bridge.onClose( this.path, this.onWsClose );
+		this.bridge.onMessage( this.path, this.onWsMessage );
+	}
 
-		const aw = awareness ?? new Awareness( ydoc );
+	private async connect(): Promise< void > {
+		try {
+			await this.bridge.connect( this.path );
+		} catch {
+			this.emitStatus( { status: 'disconnected' } );
+		}
+	}
 
-		const send = ( u8: Uint8Array ) => bridge.send( path, u8 );
-
-		const onWsOpen = () => {
-			if ( destroyed ) return;
-			connected = true;
-			emitStatus( { status: 'connected' } );
-
-			const enc = encoding.createEncoder();
-			encoding.writeVarUint( enc, MSG_SYNC );
-			syncProtocol.writeSyncStep1( enc, ydoc );
-			send( encoding.toUint8Array( enc ) );
-
-			const changed: number[] = Array.from( aw.getStates().keys() );
-			if ( changed.length ) broadcastAwareness( changed );
-		};
-
-		const onWsMessage = ( data: Uint8Array ) => {
-			if ( destroyed ) return;
-
-			const dec = decoding.createDecoder( data );
-			const msgType = decoding.readVarUint( dec );
-
-			// eslint-disable-next-line no-console -- Debug logging for PingHub incoming messages.
-			console.log( '[PingHub recv]', {
-				path,
-				msgType,
-				bytes: data.length,
-			} );
-
-			switch ( msgType ) {
-				case MSG_SYNC: {
-					const enc = encoding.createEncoder();
-					encoding.writeVarUint( enc, MSG_SYNC );
-					syncProtocol.readSyncMessage( dec, enc, ydoc, 'pinghub-remote' );
-
-					const reply = encoding.toUint8Array( enc );
-					if ( reply.length > 1 ) send( reply );
-
-					return;
-				}
-
-				case MSG_AWARENESS: {
-					const update = decoding.readVarUint8Array( dec );
-					awarenessProtocol.applyAwarenessUpdate( aw, update, 'pinghub-remote' );
-					break;
-				}
-
-				default:
-					break;
-			}
-		};
-
-		const onAwarenessChange = ( {
-			added,
-			updated,
-			removed,
-		}: {
-			added: number[];
-			updated: number[];
-			removed: number[];
-		} ) => {
-			if ( ! connected ) return;
-			broadcastAwareness( added.concat( updated ).concat( removed ) );
-		};
-
-		/**
-		 * Broadcasts awareness state for the given client IDs over the bridge.
-		 *
-		 * @param clientIds - Client IDs whose awareness state to broadcast.
-		 */
-		function broadcastAwareness( clientIds: number[] ) {
-			const enc = encoding.createEncoder();
-			encoding.writeVarUint( enc, MSG_AWARENESS );
-			encoding.writeVarUint8Array( enc, awarenessProtocol.encodeAwarenessUpdate( aw, clientIds ) );
-			send( encoding.toUint8Array( enc ) );
+	/*
+	 * Emit connection status, mirroring HttpPollingProvider semantics:
+	 * - Avoid duplicate emissions for the same status (unless there is an error).
+	 * - Only emit `connecting` when transitioning from `disconnected`.
+	 */
+	private emitStatus = ( { error, status }: ConnectionStatus ): void => {
+		if ( this.status === status && ! error ) {
+			return;
+		}
+		if ( status === 'connecting' && this.status !== 'disconnected' ) {
+			return;
 		}
 
-		const onDocUpdate = ( update: Uint8Array, origin: unknown ) => {
-			if ( origin === 'pinghub-remote' || ! connected ) return;
+		this.status = status;
+		this.emit( 'status', [ { error, status } ] );
+	};
 
-			const enc = encoding.createEncoder();
-			encoding.writeVarUint( enc, MSG_SYNC );
-			syncProtocol.writeUpdate( enc, update );
-			send( encoding.toUint8Array( enc ) );
-		};
+	private readonly send = ( u8: Uint8Array ): void => {
+		this.bridge.send( this.path, u8 );
+	};
 
-		const onClose = async () => {
-			connected = false;
-			if ( destroyed ) return;
-			emitStatus( { status: 'disconnected' } );
+	private readonly onWsOpen = (): void => {
+		if ( this.destroyed ) {
+			return;
+		}
+		this.connected = true;
+		this.emitStatus( { status: 'connected' } );
 
-			// Exponential backoff: start at 2s, cap at 30s, stop after 5 minutes total.
-			let delay = 2000;
-			let total = 0;
-			const maxTotal = 5 * 60 * 1000;
+		const enc = encoding.createEncoder();
+		encoding.writeVarUint( enc, MSG_SYNC );
+		syncProtocol.writeSyncStep1( enc, this.ydoc );
+		this.send( encoding.toUint8Array( enc ) );
 
-			while ( ! destroyed && ! connected && total < maxTotal ) {
-				await sleep( delay );
-				total += delay;
-				delay = Math.min( delay * 2, 30000 );
+		const changed: number[] = Array.from( this.awareness.getStates().keys() );
+		if ( changed.length ) {
+			this.broadcastAwareness( changed );
+		}
+	};
 
-				if ( destroyed ) return;
-				try {
-					await bridge.connect( path );
-					// Resolved: open handler will set connected = true and break the loop.
-					break;
-				} catch {
-					// Connect failed (e.g. proxy error); keep retrying with backoff.
+	private readonly onWsMessage = ( data: Uint8Array ): void => {
+		if ( this.destroyed ) {
+			return;
+		}
+
+		const dec = decoding.createDecoder( data );
+		const msgType = decoding.readVarUint( dec );
+
+		switch ( msgType ) {
+			case MSG_SYNC: {
+				const enc = encoding.createEncoder();
+				encoding.writeVarUint( enc, MSG_SYNC );
+				syncProtocol.readSyncMessage( dec, enc, this.ydoc, 'pinghub-remote' );
+
+				const reply = encoding.toUint8Array( enc );
+				if ( reply.length > 1 ) {
+					this.send( reply );
 				}
+				return;
 			}
+			case MSG_AWARENESS: {
+				const update = decoding.readVarUint8Array( dec );
+				awarenessProtocol.applyAwarenessUpdate( this.awareness, update, 'pinghub-remote' );
+				break;
+			}
+			default:
+				break;
+		}
+	};
+
+	private readonly onAwarenessChange = ( {
+		added,
+		updated,
+		removed,
+	}: {
+		added: number[];
+		updated: number[];
+		removed: number[];
+	} ): void => {
+		if ( ! this.connected ) {
+			return;
+		}
+		this.broadcastAwareness( added.concat( updated ).concat( removed ) );
+	};
+
+	private broadcastAwareness( clientIds: number[] ): void {
+		const enc = encoding.createEncoder();
+		encoding.writeVarUint( enc, MSG_AWARENESS );
+		encoding.writeVarUint8Array(
+			enc,
+			awarenessProtocol.encodeAwarenessUpdate( this.awareness, clientIds )
+		);
+		this.send( encoding.toUint8Array( enc ) );
+	}
+
+	private readonly onDocUpdate = ( update: Uint8Array, origin: unknown ): void => {
+		if ( origin === 'pinghub-remote' || ! this.connected ) {
+			return;
+		}
+
+		const enc = encoding.createEncoder();
+		encoding.writeVarUint( enc, MSG_SYNC );
+		syncProtocol.writeUpdate( enc, update );
+		this.send( encoding.toUint8Array( enc ) );
+	};
+
+	private readonly onWsClose = async (): Promise< void > => {
+		this.connected = false;
+		if ( this.destroyed ) {
+			return;
+		}
+		this.emitStatus( { status: 'disconnected' } );
+	};
+
+	public override destroy(): void {
+		if ( this.destroyed ) {
+			return;
+		}
+		this.destroyed = true;
+
+		awarenessProtocol.removeAwarenessStates(
+			this.awareness,
+			[ this.ydoc.clientID ],
+			'provider-destroy'
+		);
+
+		this.awareness.off( 'change', this.onAwarenessChange );
+		this.ydoc.off( 'update', this.onDocUpdate );
+
+		void ( async () => {
+			await this.bridge.disconnect( this.path );
+			this.connected = false;
+		} )();
+
+		this.emitStatus( { status: 'disconnected' } );
+		super.destroy();
+	}
+}
+
+/**
+ * Create a PingHub-based provider creator function, mirroring the shape of
+ * `createHttpPollingProvider` in the Gutenberg repo while using the existing
+ * PingHub bridge as the single transport channel.
+ *
+ * @param bridge - Bridge used to talk to the PingHub rest-proxy iframe.
+ * @return Provider creator compatible with the sync manager.
+ */
+export function createPingHubProvider( bridge: PingHubBridge ): ProviderCreator {
+	return async ( { objectType, objectId, ydoc, awareness } ): Promise< ProviderCreatorResult > => {
+		// Only use PingHub for individual posts. Other entity types (collections,
+		// comments, patterns, etc.) will not open a PingHub channel.
+		// Core passes values like "postType/post", "root/comment", "taxonomy/wp_pattern_category", etc.
+		if ( objectType !== 'postType/post' || objectId === null ) {
+			return {
+				destroy: () => {},
+				on: () => {},
+			};
+		}
+
+		const path = await makePath( objectType, objectId );
+		const provider = new PingHubProvider( {
+			awareness,
+			bridge,
+			path,
+			ydoc,
+		} );
+
+		return {
+			destroy: () => provider.destroy(),
+			on: ( event, callback ) => {
+				provider.on(
+					event as keyof PingHubEvents,
+					callback as ( status: ConnectionStatus ) => void
+				);
+			},
 		};
-
-		bridge.onOpen( path, onWsOpen );
-		bridge.onClose( path, onClose );
-		bridge.onMessage( path, onWsMessage );
-
-		aw.on( 'change', onAwarenessChange );
-		ydoc.on( 'updateV2', onDocUpdate );
-
-		emitStatus( { status: 'connecting' } );
-		await bridge.connect( path );
-
-		const destroy: ProviderCreatorResult[ 'destroy' ] = () => {
-			destroyed = true;
-
-			awarenessProtocol.removeAwarenessStates( aw, [ ydoc.clientID ], 'provider-destroy' );
-
-			aw.off( 'change', onAwarenessChange );
-			ydoc.off( 'updateV2', onDocUpdate );
-
-			statusListeners.clear();
-			emitStatus( { status: 'disconnected' } );
-
-			void ( async () => {
-				await bridge.disconnect( path );
-				connected = false;
-			} )();
-		};
-
-		const result: ProviderCreatorResult = {
-			destroy,
-			on,
-		};
-
-		return result;
 	};
 }
