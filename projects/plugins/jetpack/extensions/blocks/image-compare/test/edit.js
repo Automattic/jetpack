@@ -39,8 +39,12 @@ describe( 'ImageCompareEdit', () => {
 	test( 'applies correct attributes to block wrapper', () => {
 		const { container } = render( <ImageCompareEdit { ...defaultProps } /> );
 
+		// The juxtapose wrapper div (not the figure) receives clientId for the library to identify the slider.
 		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
-		expect( container.querySelector( 'figure' ) ).toHaveAttribute( 'id', defaultProps.clientId );
+		expect( container.querySelector( `[id="${ defaultProps.clientId }"]` ) ).toHaveAttribute(
+			'id',
+			defaultProps.clientId
+		);
 	} );
 
 	test( 'applies juxtapose classes when images present', () => {
