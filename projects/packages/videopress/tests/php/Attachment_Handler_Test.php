@@ -94,6 +94,22 @@ class Attachment_Handler_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Test that enqueue_media_library_styles adds inline CSS to media-views.
+	 */
+	public function test_enqueue_media_library_styles_adds_inline_css() {
+		wp_register_style( 'media-views', false, array(), '1.0' );
+
+		Attachment_Handler::enqueue_media_library_styles();
+
+		$data = wp_styles()->get_data( 'media-views', 'after' );
+		$this->assertIsArray( $data );
+		$this->assertStringContainsString( 'max-width: 100%', $data[0] );
+		$this->assertStringContainsString( 'max-height: 100%', $data[0] );
+
+		wp_deregister_style( 'media-views' );
+	}
+
+	/**
 	 * Test that heartbeat_settings lowers the minimal interval.
 	 */
 	public function test_heartbeat_settings_lowers_minimal_interval() {

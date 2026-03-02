@@ -1,6 +1,6 @@
 let handlers;
 let mockLibrary;
-let libraryListeners;
+let queueListeners;
 
 /**
  * Creates a mock Backbone attachment model.
@@ -21,15 +21,11 @@ function createAttachment( attrs ) {
  * @param {Array} attachments - Array of mock attachment models.
  */
 function setupLibrary( attachments ) {
-	libraryListeners = {};
 	mockLibrary = {
 		each: jest.fn( cb => attachments.forEach( cb ) ),
 		get: jest.fn( id => {
 			// Backbone's collection.get coerces types; $.each object keys are strings.
 			return attachments.find( a => String( a.get( 'id' ) ) === String( id ) ) || null;
-		} ),
-		on: jest.fn( ( event, cb ) => {
-			libraryListeners[ event ] = cb;
 		} ),
 	};
 
@@ -45,6 +41,7 @@ beforeEach( () => {
 	jest.useFakeTimers();
 
 	handlers = {};
+	queueListeners = {};
 
 	// Mock jQuery: capture event handlers registered via $(document).on().
 	const $ = jest.fn( () => ( {
@@ -57,11 +54,18 @@ beforeEach( () => {
 	};
 	global.jQuery = $;
 
-	// Mock wp global.
+	// Mock wp global with Uploader queue.
 	global.wp = {
 		media: { frame: null },
 		ajax: { send: jest.fn() },
-		heartbeat: { interval: jest.fn() },
+		heartbeat: { interval: jest.fn(), connectNow: jest.fn() },
+		Uploader: {
+			queue: {
+				on: jest.fn( ( event, cb ) => {
+					queueListeners[ event ] = cb;
+				} ),
+			},
+		},
 	};
 } );
 
@@ -77,24 +81,22 @@ function loadScript() {
 }
 
 describe( 'upload detection', () => {
-	it( 'speeds up heartbeat when a video upload is added to the library', () => {
-		setupLibrary( [] );
+	it( 'speeds up heartbeat and connects immediately on video upload', () => {
 		loadScript();
-		jest.advanceTimersByTime( 500 );
 
-		libraryListeners.add( createAttachment( { type: 'video' } ) );
+		queueListeners.add( createAttachment( { file: { type: 'video/mp4' } } ) );
 
 		expect( global.wp.heartbeat.interval ).toHaveBeenCalledWith( 'fast' );
+		expect( global.wp.heartbeat.connectNow ).toHaveBeenCalled();
 	} );
 
 	it( 'ignores non-video uploads', () => {
-		setupLibrary( [] );
 		loadScript();
-		jest.advanceTimersByTime( 500 );
 
-		libraryListeners.add( createAttachment( { type: 'image' } ) );
+		queueListeners.add( createAttachment( { file: { type: 'image/jpeg' } } ) );
 
 		expect( global.wp.heartbeat.interval ).not.toHaveBeenCalled();
+		expect( global.wp.heartbeat.connectNow ).not.toHaveBeenCalled();
 	} );
 
 	it( 'sets fast heartbeat when processing videos exist at load', () => {
