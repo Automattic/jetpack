@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Added 'protocol' to the comment meta whitelist for syncing.

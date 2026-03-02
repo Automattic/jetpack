@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.1] - 2026-02-26
+### Changed
+- Update package dependencies. [#47300]
+
 ## [1.5.0] - 2026-02-23
 ### Changed
 - Update `JetpackEditorPanelLogo` to respect the `jetpack_show_editor_panel_branding` PHP filter. [#47094]
@@ -878,6 +882,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Core: prepare utility for release
 
+[1.5.1]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.5.0...1.5.1
 [1.5.0]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.4.13...1.5.0
 [1.4.13]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.4.12...1.4.13
 [1.4.12]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.4.11...1.4.12

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fixed synced form loading state to correctly report loading during initial IDLE status

@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Forms: Fix extra margin on badges in the forms dashboard.

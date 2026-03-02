@@ -6,8 +6,10 @@
  */
 
 use Automattic\Jetpack\Extensions\ImageStudio;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 require_once JETPACK__PLUGIN_DIR . '/extensions/plugins/image-studio/image-studio.php';
+require_once JETPACK__PLUGIN_DIR . '/extensions/plugins/ai-assistant-plugin/ai-assistant-plugin.php';
 
 /**
  * Image Studio extension tests.
@@ -58,6 +60,7 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 		$GLOBALS['wp_scripts']  = new WP_Scripts();
 		$GLOBALS['wp_styles']   = new WP_Styles();
 		$this->reset_availability();
+		$this->simulate_connected_owner();
 		unset( $_GET['enable_image_studio'] );
 		$this->saved_screen = $GLOBALS['current_screen'] ?? null;
 	}
@@ -71,6 +74,9 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 		remove_all_filters( 'agents_manager_use_unified_experience' );
 		remove_all_filters( 'agents_manager_agent_providers' );
 		remove_all_filters( 'pre_http_request' );
+		remove_all_filters( 'locale' );
+		remove_all_filters( 'jetpack_ai_enabled' );
+		( new \Automattic\Jetpack\Connection\Manager( 'jetpack' ) )->reset_connection_status();
 		unset( $_GET['enable_image_studio'] );
 		$GLOBALS['current_screen'] = $this->saved_screen;
 		$GLOBALS['wp_scripts']     = $this->saved_wp_scripts;
@@ -89,10 +95,30 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	}
 
 	/**
+	 * Simulate a connected Jetpack owner so has_ai_features() returns true.
+	 *
+	 * Called in set_up() so every test starts with AI features available.
+	 * Tests that need AI features off should use disable_ai_features() instead.
+	 */
+	private function simulate_connected_owner() {
+		$user_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
+		\Jetpack_Options::update_option( 'master_user', $user_id );
+		\Jetpack_Options::update_option( 'user_tokens', array( $user_id => 'token.secret.' . $user_id ) );
+		( new \Automattic\Jetpack\Connection\Manager( 'jetpack' ) )->reset_connection_status();
+	}
+
+	/**
 	 * Enable Image Studio via jetpack_image_studio_enabled filter.
 	 */
 	private function enable_image_studio() {
 		add_filter( 'jetpack_image_studio_enabled', '__return_true' );
+	}
+
+	/**
+	 * Disable AI features via the jetpack_ai_enabled kill switch.
+	 */
+	private function disable_ai_features() {
+		add_filter( 'jetpack_ai_enabled', '__return_false' );
 	}
 
 	/**
@@ -222,11 +248,30 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	}
 
 	// -------------------------------------------------------------------------
+	// has_ai_features() tests
+	// -------------------------------------------------------------------------
+
+	/**
+	 * AI features available by default in the test environment.
+	 */
+	public function test_has_ai_features_true_by_default() {
+		$this->assertTrue( ImageStudio\has_ai_features() );
+	}
+
+	/**
+	 * AI features disabled via jetpack_ai_enabled kill switch.
+	 */
+	public function test_has_ai_features_false_when_ai_disabled() {
+		$this->disable_ai_features();
+		$this->assertFalse( ImageStudio\has_ai_features() );
+	}
+
+	// -------------------------------------------------------------------------
 	// is_image_studio_enabled() tests
 	// -------------------------------------------------------------------------
 
 	/**
-	 * Test is_image_studio_enabled returns true when jetpack_image_studio_enabled is true.
+	 * Enabled when jetpack_image_studio_enabled filter is true and AI features exist.
 	 */
 	public function test_is_enabled_via_jetpack_filter() {
 		$this->enable_image_studio();
@@ -234,7 +279,7 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Test is_image_studio_enabled returns true when unified experience is true.
+	 * Enabled when unified experience is true and AI features exist.
 	 */
 	public function test_is_enabled_via_unified_experience() {
 		$this->enable_unified_experience();
@@ -242,19 +287,52 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Test is_image_studio_enabled returns false when both filters are false.
+	 * Not enabled when neither filter is set.
 	 */
 	public function test_is_not_enabled_when_both_filters_false() {
 		$this->assertFalse( ImageStudio\is_image_studio_enabled() );
 	}
 
 	/**
-	 * Test is_image_studio_enabled returns true when both filters are true.
+	 * Enabled when both filters are true.
 	 */
 	public function test_is_enabled_when_both_filters_true() {
 		$this->enable_image_studio();
 		$this->enable_unified_experience();
 		$this->assertTrue( ImageStudio\is_image_studio_enabled() );
+	}
+
+	/**
+	 * AI features alone aren't enough; a filter must also be set.
+	 */
+	public function test_is_not_enabled_with_ai_features_but_no_filter() {
+		$this->assertFalse( ImageStudio\is_image_studio_enabled() );
+	}
+
+	/**
+	 * Enabled via filter with AI features available.
+	 */
+	public function test_is_enabled_via_filter_with_ai_features() {
+		add_filter( 'jetpack_image_studio_enabled', '__return_true' );
+		$this->assertTrue( ImageStudio\is_image_studio_enabled() );
+	}
+
+	/**
+	 * Unified experience alone isn't enough; AI features must also exist.
+	 */
+	public function test_is_not_enabled_via_unified_experience_without_ai_features() {
+		$this->enable_unified_experience();
+		$this->disable_ai_features();
+		$this->assertFalse( ImageStudio\is_image_studio_enabled() );
+	}
+
+	/**
+	 * Filter alone isn't enough; AI features must also exist.
+	 */
+	public function test_is_not_enabled_via_filter_without_ai_features() {
+		add_filter( 'jetpack_image_studio_enabled', '__return_true' );
+		$this->disable_ai_features();
+		$this->assertFalse( ImageStudio\is_image_studio_enabled() );
 	}
 
 	// -------------------------------------------------------------------------
@@ -1200,109 +1278,106 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	}
 
 	// -------------------------------------------------------------------------
-	// Headless agent loading tests
+	// determine_iso_639_locale() tests
 	// -------------------------------------------------------------------------
 
 	/**
-	 * Test that agents_manager_agent_providers includes Image Studio provider
-	 * when jetpack_image_studio_enabled is true.
+	 * Test locale detection returns expected ISO 639 codes.
+	 *
+	 * @dataProvider provide_locale_mappings
+	 *
+	 * @param string $wp_locale     The WordPress locale to set.
+	 * @param string $expected_code The expected ISO 639 code.
 	 */
-	public function test_agent_providers_includes_image_studio_when_enabled() {
-		$this->enable_image_studio();
+	#[DataProvider( 'provide_locale_mappings' )]
+	public function test_determine_iso_639_locale( $wp_locale, $expected_code ) {
+		add_filter(
+			'locale',
+			function () use ( $wp_locale ) {
+				return $wp_locale;
+			}
+		);
 
-		$providers = ImageStudio\register_headless_agent_provider( array() );
-
-		$this->assertContains( ImageStudio\HEADLESS_AGENT_PROVIDER, $providers );
+		$this->assertSame( $expected_code, ImageStudio\determine_iso_639_locale() );
 	}
 
 	/**
-	 * Test that agents_manager_agent_providers does NOT include Image Studio
-	 * provider when jetpack_image_studio_enabled is false.
+	 * Data provider for locale mapping tests.
+	 *
+	 * Covers: simple strip (fr_FR), compound preserve (pt_BR, zh_TW),
+	 * bare code (en), and empty fallback.
+	 *
+	 * @return array[] [ WordPress locale, expected ISO 639 code ].
 	 */
-	public function test_agent_providers_excludes_image_studio_when_disabled() {
-		$this->disable_image_studio();
+	public static function provide_locale_mappings() {
+		return array(
+			'simple strip' => array( 'fr_FR', 'fr' ),
+			'pt_BR kept'   => array( 'pt_BR', 'pt-br' ),
+			'zh_TW kept'   => array( 'zh_TW', 'zh-tw' ),
+			'bare code'    => array( 'en', 'en' ),
+			'empty'        => array( '', 'en' ),
+		);
+	}
 
-		$providers = ImageStudio\register_headless_agent_provider( array() );
+	// -------------------------------------------------------------------------
+	// Translation enqueue tests
+	// -------------------------------------------------------------------------
 
-		$this->assertNotContains( ImageStudio\HEADLESS_AGENT_PROVIDER, $providers );
+	/**
+	 * Test that no translation script is enqueued for English locale.
+	 */
+	public function test_no_translation_script_for_english() {
+		add_filter(
+			'locale',
+			function () {
+				return 'en_US';
+			}
+		);
+		$this->enable_and_enqueue_block_editor();
+
+		$this->assertFalse( wp_script_is( 'image-studio-translations', 'enqueued' ) );
+
+		$script = $GLOBALS['wp_scripts']->registered[ ImageStudio\FEATURE_NAME ];
+		$this->assertNotContains( 'image-studio-translations', $script->deps );
 	}
 
 	/**
-	 * Test that agents_manager_agent_providers does NOT include Image Studio
-	 * provider when no filter is set (default false).
+	 * Test that translation script is enqueued for non-English locale
+	 * with correct URL and wired as a dependency of the main script.
 	 */
-	public function test_agent_providers_excludes_image_studio_by_default() {
-		$providers = ImageStudio\register_headless_agent_provider( array() );
+	public function test_translation_script_enqueued_for_non_english() {
+		add_filter(
+			'locale',
+			function () {
+				return 'fr_FR';
+			}
+		);
+		$this->enable_and_enqueue_block_editor();
 
-		$this->assertNotContains( ImageStudio\HEADLESS_AGENT_PROVIDER, $providers );
+		$this->assertTrue( wp_script_is( 'image-studio-translations', 'enqueued' ) );
+
+		$tr_script = $GLOBALS['wp_scripts']->registered['image-studio-translations'];
+		$this->assertStringContainsString( 'languages/fr-v1.js', $tr_script->src );
+		$this->assertContains( 'wp-i18n', $tr_script->deps );
+
+		$main_script = $GLOBALS['wp_scripts']->registered[ ImageStudio\FEATURE_NAME ];
+		$this->assertContains( 'image-studio-translations', $main_script->deps );
 	}
 
 	/**
-	 * Test that register_headless_agent_provider preserves existing providers.
+	 * Test that compound locales produce the correct translation URL.
 	 */
-	public function test_agent_providers_preserves_existing_providers() {
-		$this->enable_image_studio();
+	public function test_translation_script_url_for_compound_locale() {
+		add_filter(
+			'locale',
+			function () {
+				return 'pt_BR';
+			}
+		);
+		$this->enable_and_enqueue_block_editor();
 
-		$existing  = array( 'some-other/provider' );
-		$providers = ImageStudio\register_headless_agent_provider( $existing );
-
-		$this->assertContains( 'some-other/provider', $providers );
-		$this->assertContains( ImageStudio\HEADLESS_AGENT_PROVIDER, $providers );
-	}
-
-	/**
-	 * Test that enable_agents_manager_for_image_studio returns true
-	 * when jetpack_image_studio_enabled is true.
-	 */
-	public function test_enable_agents_manager_returns_true_when_image_studio_enabled() {
-		$this->enable_image_studio();
-
-		$result = ImageStudio\enable_agents_manager_for_image_studio( false );
-
-		$this->assertTrue( $result );
-	}
-
-	/**
-	 * Test that enable_agents_manager_for_image_studio returns false
-	 * when jetpack_image_studio_enabled is false and input is false.
-	 */
-	public function test_enable_agents_manager_returns_false_when_image_studio_disabled() {
-		$this->disable_image_studio();
-
-		$result = ImageStudio\enable_agents_manager_for_image_studio( false );
-
-		$this->assertFalse( $result );
-	}
-
-	/**
-	 * Test that enable_agents_manager_for_image_studio does not override
-	 * when agents_manager_use_unified_experience is already true.
-	 */
-	public function test_enable_agents_manager_preserves_existing_true() {
-		// Even without image studio enabled, if already true, stay true.
-		$result = ImageStudio\enable_agents_manager_for_image_studio( true );
-
-		$this->assertTrue( $result );
-	}
-
-	/**
-	 * Test that enable_agents_manager_for_image_studio preserves true
-	 * when both unified experience and image studio are enabled (no double-registration).
-	 */
-	public function test_enable_agents_manager_no_double_registration() {
-		$this->enable_image_studio();
-
-		// Already true — should return early without re-evaluating jetpack_image_studio_enabled.
-		$result = ImageStudio\enable_agents_manager_for_image_studio( true );
-
-		$this->assertTrue( $result );
-	}
-
-	/**
-	 * Test HEADLESS_AGENT_PROVIDER constant value.
-	 */
-	public function test_headless_agent_provider_constant() {
-		$this->assertEquals( 'image-studio/headless-agent-provider', ImageStudio\HEADLESS_AGENT_PROVIDER );
+		$script = $GLOBALS['wp_scripts']->registered['image-studio-translations'];
+		$this->assertStringContainsString( 'languages/pt-br-v1.js', $script->src );
 	}
 
 	// -------------------------------------------------------------------------
@@ -1354,5 +1429,29 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	 */
 	public function test_asset_transient_constant() {
 		$this->assertEquals( 'jetpack_image_studio_asset', ImageStudio\ASSET_TRANSIENT );
+	}
+
+	// -------------------------------------------------------------------------
+	// Hook priority tests
+	// -------------------------------------------------------------------------
+
+	/**
+	 * Disable_jetpack_ai_image_extensions must run after AI extensions register.
+	 */
+	public function test_disable_ai_extensions_priority_after_ai_assistant() {
+		$hook = 'jetpack_register_gutenberg_extensions';
+
+		$jp_ai_priority   = has_action(
+			$hook,
+			'Automattic\Jetpack\Extensions\AiAssistantPlugin\register_plugin'
+		);
+		$disable_priority = has_action(
+			$hook,
+			'Automattic\Jetpack\Extensions\ImageStudio\disable_jetpack_ai_image_extensions'
+		);
+
+		$this->assertNotFalse( $jp_ai_priority, 'AI Assistant register_plugin should be hooked.' );
+		$this->assertNotFalse( $disable_priority, 'disable_jetpack_ai_image_extensions should be hooked.' );
+		$this->assertGreaterThan( $jp_ai_priority, $disable_priority );
 	}
 }

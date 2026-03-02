@@ -394,11 +394,12 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/classic-theme-helper",
-                "reference": "f845c60c1f7aa13f5b66b488712dcdd816ad19db"
+                "reference": "2a0ad5d46ab475954e8ec3d2d633234c06316b91"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
                 "automattic/jetpack-blocks": "@dev",
+                "automattic/jetpack-post-media": "@dev",
                 "php": ">=7.2"
             },
             "require-dev": {
@@ -886,6 +887,67 @@
                 "GPL-2.0-or-later"
             ],
             "description": "Set up Google Analytics without touching a line of code.",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "automattic/jetpack-image-cdn",
+            "version": "dev-trunk",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/image-cdn",
+                "reference": "79b4ce2978edf4a5f586ceab9c2058a6cfcbef94"
+            },
+            "require": {
+                "automattic/jetpack-assets": "@dev",
+                "automattic/jetpack-status": "@dev",
+                "php": ">=7.2"
+            },
+            "require-dev": {
+                "automattic/jetpack-changelogger": "@dev",
+                "automattic/jetpack-test-environment": "@dev",
+                "automattic/phpunit-select-config": "@dev",
+                "yoast/phpunit-polyfills": "^4.0.0"
+            },
+            "suggest": {
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
+            },
+            "type": "jetpack-library",
+            "extra": {
+                "mirror-repo": "Automattic/jetpack-image-cdn",
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-image-cdn/compare/v${old}...v${new}"
+                },
+                "autotagger": true,
+                "branch-alias": {
+                    "dev-trunk": "0.7.x-dev"
+                },
+                "textdomain": "jetpack-image-cdn",
+                "version-constants": {
+                    "::PACKAGE_VERSION": "src/class-image-cdn.php"
+                }
+            },
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "phpunit": [
+                    "phpunit-select-config phpunit.#.xml.dist --colors=always"
+                ],
+                "test-coverage": [
+                    "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
+                ],
+                "test-php": [
+                    "@composer phpunit"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Serve images through Jetpack's powerful CDN",
             "transport-options": {
                 "relative": true
             }
@@ -1447,6 +1509,74 @@
             }
         },
         {
+            "name": "automattic/jetpack-post-media",
+            "version": "dev-trunk",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/post-media",
+                "reference": "28b5f5b5b8ca9858e6c5ce23a4e852c756713960"
+            },
+            "require": {
+                "automattic/block-delimiter": "@dev",
+                "automattic/jetpack-connection": "@dev",
+                "automattic/jetpack-image-cdn": "@dev",
+                "php": ">=7.2"
+            },
+            "require-dev": {
+                "automattic/jetpack-changelogger": "@dev",
+                "automattic/jetpack-test-environment": "@dev",
+                "automattic/phpunit-select-config": "@dev",
+                "yoast/phpunit-polyfills": "^4.0.0"
+            },
+            "suggest": {
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
+            },
+            "type": "jetpack-library",
+            "extra": {
+                "autotagger": true,
+                "branch-alias": {
+                    "dev-trunk": "0.1.x-dev"
+                },
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-post-media/compare/v${old}...v${new}"
+                },
+                "mirror-repo": "Automattic/jetpack-post-media",
+                "textdomain": "jetpack-post-media",
+                "version-constants": {
+                    "::PACKAGE_VERSION": "src/class-post-media.php"
+                }
+            },
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "build-development": [
+                    "echo 'Add your build step to composer.json, please!'"
+                ],
+                "build-production": [
+                    "echo 'Add your build step to composer.json, please!'"
+                ],
+                "phpunit": [
+                    "phpunit-select-config phpunit.#.xml.dist --colors=always"
+                ],
+                "test-coverage": [
+                    "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
+                ],
+                "test-php": [
+                    "@composer phpunit"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Tools to extract useful information and meta data from WordPress posts.",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
             "name": "automattic/jetpack-redirect",
             "version": "dev-trunk",
             "dist": {
@@ -1843,7 +1973,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-                "reference": "51c171a98acb56b2fe69a2e4035e101864f5aa0a"
+                "reference": "2cd024d124bda4c371d63fd84ec4b3bb599e131e"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -1877,7 +2007,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-sync/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "4.29.x-dev"
+                    "dev-trunk": "4.30.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
