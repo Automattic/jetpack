@@ -5778,6 +5778,9 @@ importers:
       '@slack/web-api':
         specifier: 7.12.0
         version: 7.12.0
+      '@types/config':
+        specifier: 3.3.5
+        version: 3.3.5
       '@types/lodash-es':
         specifier: 4.17.12
         version: 4.17.12
@@ -9713,6 +9716,9 @@ packages:
 
   '@types/clean-css@4.2.11':
     resolution: {integrity: sha512-Y8n81lQVTAfP2TOdtJJEsCoYl1AnOkqDqMvXb9/7pfgZZ7r8YrEyurrAvAoAjHOGXKRybay+5CsExqIH6liccw==}
+
+  '@types/config@3.3.5':
+    resolution: {integrity: sha512-itq2HtXQBrNUKwMNZnb9mBRE3T99VYCdl1gjST9rq+9kFaB1iMMGuDeZnP88qid73DnpAMKH9ZolqDpS1Lz7+w==}
 
   '@types/connect-history-api-fallback@1.5.4':
     resolution: {integrity: sha512-n6Cr2xS1h4uAulPRdlw6Jl6s1oG8KrVilPN2yUITEs+K48EzMJJ3W1xy8K5eWuFvjp3R74AOIGSmp2UfBJ8HFw==}
@@ -22717,6 +22723,8 @@ snapshots:
     dependencies:
       '@types/node': 22.19.11
       source-map: 0.6.1
+
+  '@types/config@3.3.5': {}
 
   '@types/connect-history-api-fallback@1.5.4':
     dependencies:
