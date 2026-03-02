@@ -1,5 +1,7 @@
 # AGENTS.md
 
+Package-specific guidance for AI agents working in `projects/js-packages/charts`.
+
 ## CRITICAL Rules
 
 - Do not invent behavior in docs. If unsure, verify implementation and stories first.
@@ -32,6 +34,7 @@ jp changelog add js-packages/charts -s patch -t changed -e "Charts: <user-facing
 - Avoid `!important` unless there is no viable alternative and the rationale is documented.
 - Add focused behavioral tests for changed behavior; avoid speculative tests for unimplemented behavior.
 - Verify behavior/UI changes in Storybook using browser automation, not only unit tests.
+- Prefer charts-scoped PR titles (e.g. `Charts: ...`, `CHARTS-###: ...`).
 - Include test steps and visual evidence (screenshots/GIFs) in PR descriptions for UI changes.
 
 ## Common Pitfalls
@@ -43,6 +46,8 @@ jp changelog add js-packages/charts -s patch -t changed -e "Charts: <user-facing
 - Using ad-hoc flexbox layouts where established layout primitives (e.g. `Stack`) should be preferred.
 - Accessing colors/styles directly from `theme` rather than using `getElementStyles` from `GlobalChartsProvider`.
 - Responsive wrappers that conflict with component sizing semantics (fixed-height charts, resize behavior, aspect-ratio assumptions).
+- Updating `.docs.mdx` without the corresponding `.api.mdx` when API docs are affected.
+- Not checking CSF file references in `.docs.mdx` when changing or removing stories.
 - Stories that don't visibly demonstrate documented behavior/props, or render clipped due to container sizing.
 - Breaking MDX `<Source code={\`...\` } />` rendering by malformed/flattened indentation inside template literals.
 - Tooltip styles/positioning that only work on default backgrounds or fail at chart edges.
