@@ -1,5 +1,4 @@
 Significance: patch
-Type: other
-Comment: Add debugging for unexpected test failure.
+Type: bugfix
 
-
+Canonical URLs: Fix author archive resolution when is_tax() is spuriously true.

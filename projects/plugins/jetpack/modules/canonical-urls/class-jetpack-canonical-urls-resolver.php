@@ -44,6 +44,11 @@ class Jetpack_Canonical_Urls_Resolver {
 			if ( $shop_page_id ) {
 				$url = get_permalink( $shop_page_id );
 			}
+		} elseif ( is_author() ) {
+			$author_id = (int) get_query_var( 'author' );
+			if ( $author_id ) {
+				$url = get_author_posts_url( $author_id );
+			}
 		} elseif ( is_category() || is_tag() || is_tax() ) {
 			$term = get_queried_object();
 			if ( $term instanceof WP_Term ) {
@@ -56,11 +61,6 @@ class Jetpack_Canonical_Urls_Resolver {
 			$url = get_post_type_archive_link( get_query_var( 'post_type' ) );
 			if ( false === $url ) {
 				$url = '';
-			}
-		} elseif ( is_author() ) {
-			$author_id = (int) get_query_var( 'author' );
-			if ( $author_id ) {
-				$url = get_author_posts_url( $author_id );
 			}
 		} elseif ( is_year() ) {
 			$url = get_year_link( get_query_var( 'year' ) );
