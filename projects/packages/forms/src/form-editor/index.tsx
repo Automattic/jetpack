@@ -12,12 +12,12 @@ import { subscribe, select, dispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { getPlugin, registerPlugin, unregisterPlugin } from '@wordpress/plugins';
 import { FORM_POST_TYPE } from '../blocks/shared/util/constants.js';
+import { EmbedCodePanel, EMBED_CODE_PANEL_PLUGIN } from './plugins/embed-code-panel';
 import {
 	FormPrePublishPanel,
 	JETPACK_FORM_PRE_PUBLISH_PANEL,
 } from './plugins/form-pre-publish-panel';
 import { FormTitleModal } from './plugins/form-title-modal';
-import { EmbedCodePanel, EMBED_CODE_PANEL_PLUGIN } from './plugins/embed-code-panel';
 import { HeaderActions, HEADER_ACTIONS_PLUGIN } from './plugins/header-actions';
 import {
 	activateBlockCategoryOverrides,
