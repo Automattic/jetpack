@@ -105,8 +105,7 @@ const Admin = () => {
 	return (
 		<AdminPage
 			showFooter
-			moduleName={ __( 'VaultPress Backup', 'jetpack-backup-pkg' ) }
-			title={ __( 'Backup', 'jetpack-backup-pkg' ) }
+			title={ 'Backup' /** "Backup" is a product name, do not translate. */ }
 			subTitle={ __(
 				'Save changes and restore quickly with one-click recovery.',
 				'jetpack-backup-pkg'
@@ -414,7 +413,7 @@ const LoadedState = ( {
 };
 
 const SecondaryAdminConnectionLayout = ( { children } ) => (
-	<AdminPage showHeader={ false } moduleName={ __( 'VaultPress Backup', 'jetpack-backup-pkg' ) }>
+	<AdminPage showHeader={ false }>
 		<Container horizontalSpacing={ 8 } horizontalGap={ 0 }>
 			<Col>{ children }</Col>
 		</Container>

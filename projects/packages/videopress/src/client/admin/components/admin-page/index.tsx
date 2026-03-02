@@ -192,8 +192,7 @@ const Admin = () => {
 
 	return (
 		<AdminPage
-			moduleName={ __( 'Jetpack VideoPress', 'jetpack-videopress-pkg' ) }
-			title={ __( 'VideoPress', 'jetpack-videopress-pkg' ) }
+			title={ 'VideoPress' /** "VideoPress" is a product name, do not translate. */ }
 			subTitle={ __( 'Professional quality, ad-free video hosting.', 'jetpack-videopress-pkg' ) }
 			useInternalLinks={ shouldUseInternalLinks() }
 		>

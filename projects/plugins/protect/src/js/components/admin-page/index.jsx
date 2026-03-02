@@ -32,8 +32,7 @@ const AdminPage = ( { children } ) => {
 
 	return (
 		<JetpackAdminPage
-			moduleName={ __( 'Jetpack Protect', 'jetpack-protect' ) }
-			title={ __( 'Protect', 'jetpack-protect' ) }
+			title={ 'Protect' /** "Protect" is a product name, do not translate. */ }
 			subTitle={ __( 'Automated malware scanning and firewall protection.', 'jetpack-protect' ) }
 			tabs={
 				<Tabs className={ styles.navigation }>

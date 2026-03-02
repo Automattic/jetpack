@@ -27,7 +27,7 @@ import type { FC, ReactNode } from 'react';
 const AdminPage: FC< AdminPageProps > = ( {
 	children,
 	className,
-	moduleName = __( 'Jetpack', 'jetpack-components' ),
+	moduleName = 'Jetpack' /** "Jetpack" is a product name, do not translate. */,
 	moduleNameHref,
 	showHeader = true,
 	showFooter = true,

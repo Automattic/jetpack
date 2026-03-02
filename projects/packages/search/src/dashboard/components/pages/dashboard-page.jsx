@@ -111,7 +111,7 @@ export default function DashboardPage( { isLoading = false } ) {
 			{ ! isPageLoading && (
 				<div className="jp-search-dashboard-page">
 					<AdminPage
-						title={ __( 'Search', 'jetpack-search-pkg' ) }
+						title={ 'Search' /** "Search" is a product name, do not translate. */ }
 						subTitle={ __(
 							'Help your visitors find exactly what they are looking for.',
 							'jetpack-search-pkg'
@@ -253,7 +253,6 @@ const Footer = () => {
 		<div className="jp-search-dashboard-footer jp-search-dashboard-wrap">
 			<div className="jp-search-dashboard-row">
 				<JetpackFooter
-					moduleName={ __( 'Jetpack Search', 'jetpack-search-pkg' ) }
 					className="lg-col-span-12 md-col-span-8 sm-col-span-4"
 					useInternalLinks={ shouldUseInternalLinks() }
 				/>

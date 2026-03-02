@@ -109,8 +109,7 @@ export default function UpsellPage( { isLoading = false } ) {
 			{ isPageLoading && <Loading /> }
 			{ ! isPageLoading && (
 				<AdminPage
-					moduleName={ __( 'Jetpack Search', 'jetpack-search-pkg' ) }
-					title={ __( 'Search', 'jetpack-search-pkg' ) }
+					title={ 'Search' /** "Search" is a product name, do not translate. */ }
 					subTitle={ __(
 						'Help your visitors find exactly what they are looking for.',
 						'jetpack-search-pkg'
