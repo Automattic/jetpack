@@ -99,7 +99,7 @@ class Attachment_Handler_Test extends BaseTestCase {
 	public function test_heartbeat_settings_lowers_minimal_interval() {
 		$settings = Attachment_Handler::heartbeat_settings( array() );
 
-		$this->assertSame( 10, $settings['minimalInterval'] );
+		$this->assertSame( 5, $settings['minimalInterval'] );
 	}
 
 	/**

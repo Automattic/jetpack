@@ -347,7 +347,7 @@ class Attachment_Handler {
 	 * @return array
 	 */
 	public static function heartbeat_settings( $settings ) {
-		$settings['minimalInterval'] = 10;
+		$settings['minimalInterval'] = 5;
 
 		return $settings;
 	}
