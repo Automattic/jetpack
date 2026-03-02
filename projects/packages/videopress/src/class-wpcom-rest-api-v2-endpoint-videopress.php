@@ -105,7 +105,7 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 			array(
 				'args' => array(
 					'video_guid' => array(
-						'description' => __( 'The VideoPress GUID.', 'jetpack-videopress-pkg' ),
+						'description' => __( 'The VideoPress GUID.', 'jetpack-videopress-pkg' ), // @phan-suppress-current-line PhanPluginMixedKeyNoKey
 						'type'        => 'string',
 						'required'    => true,
 						'pattern'     => '[a-zA-Z0-9]{8}',
@@ -149,7 +149,7 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 			array(
 				'args' => array(
 					'video_guid' => array(
-						'description' => __( 'The VideoPress GUID.', 'jetpack-videopress-pkg' ),
+						'description' => __( 'The VideoPress GUID.', 'jetpack-videopress-pkg' ), // @phan-suppress-current-line PhanPluginMixedKeyNoKey
 						'type'        => 'string',
 						'required'    => true,
 						'pattern'     => '[a-zA-Z0-9]{8}',
