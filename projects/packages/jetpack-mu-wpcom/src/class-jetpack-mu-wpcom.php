@@ -294,6 +294,18 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/wpcom-widgets/wpcom-widgets.php';
 		require_once __DIR__ . '/features/wpcom-wpadmin-page-view/wpcom-wpadmin-page-view.php';
 
+		/*
+		 * Temporarily disable client-side media processing.
+		 *
+		 * Client-side media processing enables cross-origin isolation (COEP/COOP headers)
+		 * which can break authenticated API requests. This should be removed once client-side
+		 * media processing is compatible with Dotcom's infrastructure.
+		 *
+		 * @see gutenberg_set_up_cross_origin_isolation() in Gutenberg's lib/media/load.php
+		 * @see https://a8c.slack.com/archives/CBTN58FTJ/p1771950744814189
+		 */
+		add_filter( 'wp_client_side_media_processing_enabled', '__return_false' );
+
 		// Initializers, if needed.
 		\Marketplace_Products_Updater::init();
 		\Automattic\Jetpack\Code_Editor::setup();
