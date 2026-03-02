@@ -319,6 +319,12 @@ class Attachment_Handler {
 		);
 
 		add_filter( 'heartbeat_settings', array( __CLASS__, 'heartbeat_settings' ) );
+
+		// Constrain poster images so they fit within the media library grid cell.
+		wp_add_inline_style(
+			'media-views',
+			'.attachment-preview.type-video .thumbnail .centered img.thumbnail { max-width: 100%; max-height: 100%; }'
+		);
 	}
 
 	/**

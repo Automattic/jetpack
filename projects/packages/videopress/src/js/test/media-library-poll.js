@@ -1,5 +1,6 @@
 let handlers;
 let mockLibrary;
+let libraryListeners;
 
 /**
  * Creates a mock Backbone attachment model.
@@ -20,11 +21,15 @@ function createAttachment( attrs ) {
  * @param {Array} attachments - Array of mock attachment models.
  */
 function setupLibrary( attachments ) {
+	libraryListeners = {};
 	mockLibrary = {
 		each: jest.fn( cb => attachments.forEach( cb ) ),
 		get: jest.fn( id => {
 			// Backbone's collection.get coerces types; $.each object keys are strings.
 			return attachments.find( a => String( a.get( 'id' ) ) === String( id ) ) || null;
+		} ),
+		on: jest.fn( ( event, cb ) => {
+			libraryListeners[ event ] = cb;
 		} ),
 	};
 
@@ -37,6 +42,7 @@ function setupLibrary( attachments ) {
 
 beforeEach( () => {
 	jest.resetModules();
+	jest.useFakeTimers();
 
 	handlers = {};
 
@@ -59,12 +65,109 @@ beforeEach( () => {
 	};
 } );
 
+afterEach( () => {
+	jest.useRealTimers();
+} );
+
 /**
  * Loads the media-library-poll script, triggering the IIFE.
  */
 function loadScript() {
 	require( '../media-library-poll' );
 }
+
+describe( 'boot check', () => {
+	it( 'sets fast heartbeat when processing videos exist at load', () => {
+		setupLibrary( [
+			createAttachment( {
+				id: 10,
+				type: 'video',
+				subtype: 'videopress',
+				videopress_status: 'processing',
+			} ),
+		] );
+		loadScript();
+
+		jest.advanceTimersByTime( 500 );
+
+		expect( global.wp.heartbeat.interval ).toHaveBeenCalledWith( 'fast' );
+	} );
+
+	it( 'does not set fast heartbeat when no videos are processing', () => {
+		setupLibrary( [
+			createAttachment( {
+				id: 10,
+				type: 'video',
+				subtype: 'videopress',
+				videopress_status: 'complete',
+			} ),
+		] );
+		loadScript();
+
+		jest.advanceTimersByTime( 500 );
+
+		expect( global.wp.heartbeat.interval ).not.toHaveBeenCalled();
+	} );
+
+	it( 'waits for media frame before checking', () => {
+		loadScript();
+
+		// Frame not yet available — heartbeat should not be called.
+		jest.advanceTimersByTime( 500 );
+		expect( global.wp.heartbeat.interval ).not.toHaveBeenCalled();
+
+		// Frame becomes available with a processing video.
+		setupLibrary( [
+			createAttachment( {
+				id: 10,
+				type: 'video',
+				subtype: 'videopress',
+				videopress_status: 'processing',
+			} ),
+		] );
+		jest.advanceTimersByTime( 500 );
+
+		expect( global.wp.heartbeat.interval ).toHaveBeenCalledWith( 'fast' );
+	} );
+
+	it( 'speeds up heartbeat when a processing upload is added to the library', () => {
+		setupLibrary( [] );
+		loadScript();
+
+		jest.advanceTimersByTime( 500 );
+		expect( global.wp.heartbeat.interval ).not.toHaveBeenCalled();
+
+		// Simulate a new upload landing in the library.
+		libraryListeners.add(
+			createAttachment( {
+				id: 30,
+				type: 'video',
+				subtype: 'videopress',
+				videopress_status: 'processing',
+			} )
+		);
+
+		expect( global.wp.heartbeat.interval ).toHaveBeenCalledWith( 'fast' );
+	} );
+
+	it( 'ignores non-processing uploads added to the library', () => {
+		setupLibrary( [] );
+		loadScript();
+
+		jest.advanceTimersByTime( 500 );
+
+		libraryListeners.add(
+			createAttachment( {
+				id: 30,
+				type: 'image',
+				subtype: 'jpeg',
+				videopress_status: undefined,
+			} )
+		);
+
+		expect( global.wp.heartbeat.interval ).not.toHaveBeenCalled();
+	} );
+} );
 
 describe( 'heartbeat-send', () => {
 	it( 'adds processing video IDs to heartbeat data', () => {
