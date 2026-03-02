@@ -22,6 +22,10 @@ import {
 	activateBlockCategoryOverrides,
 	deactivateBlockCategoryOverrides,
 } from './utils/block-category-override';
+import {
+	removeJetpackBlockCollection,
+	restoreJetpackBlockCollection,
+} from './utils/block-collection';
 import { determineBlockNestingAction } from './utils/block-nesting-logic';
 import { BlockLock, findFormBlock, shouldLockBlock, getBlocksToMove } from './utils/block-utils';
 import {
@@ -382,6 +386,7 @@ const setupFormEditorSubscription = () => {
 						restoreOriginalCategories( state.previousCategories || [] );
 					}
 					restoreBlockDirectory();
+					restoreJetpackBlockCollection();
 					restoreAllowedBlocks();
 					if ( requestAnimationFrameId ) {
 						cancelAnimationFrame( requestAnimationFrameId );
@@ -401,12 +406,13 @@ const setupFormEditorSubscription = () => {
 				return;
 			}
 
-			// 3. One-time category setup and block directory disable
+			// 3. One-time category setup, block directory disable, and collection removal
 			if ( ! state.categoriesSetUp ) {
 				state.categoriesSetUp = true;
 				state.previousCategories = setupFormEditorCategories();
 
 				disableBlockDirectory();
+				removeJetpackBlockCollection();
 			}
 
 			// 4. React to root block changes (locate, select, nest)
