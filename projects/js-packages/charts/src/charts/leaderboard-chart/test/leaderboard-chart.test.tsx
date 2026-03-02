@@ -2,13 +2,15 @@ import { render, screen } from '@testing-library/react';
 import LeaderboardChart from '../leaderboard-chart';
 import type { LeaderboardEntry } from '../../../types';
 
+const getDefaultParentSize = () => ( {
+	parentRef: { current: null },
+	width: 400,
+	height: 300,
+} );
+
 // Mock useParentSize so the responsive wrapper returns predictable dimensions in tests
 jest.mock( '@visx/responsive', () => ( {
-	useParentSize: jest.fn( () => ( {
-		parentRef: { current: null },
-		width: 400,
-		height: 300,
-	} ) ),
+	useParentSize: jest.fn( () => getDefaultParentSize() ),
 } ) );
 
 const mockData: LeaderboardEntry[] = [
@@ -49,6 +51,11 @@ const testValueFormatter = ( value: number ) => `${ value }$`;
 const testDeltaFormatter = ( value: number ) => `${ value }delta`;
 
 describe( 'LeaderboardChart', () => {
+	afterEach( () => {
+		const { useParentSize } = jest.requireMock( '@visx/responsive' );
+		useParentSize.mockReturnValue( getDefaultParentSize() );
+	} );
+
 	it( 'renders leaderboard entries', () => {
 		render( <LeaderboardChart data={ mockData } /> );
 
@@ -358,7 +365,7 @@ describe( 'LeaderboardChart', () => {
 
 		it( 'applies explicit width and height to chart container', () => {
 			const { useParentSize } = jest.requireMock( '@visx/responsive' );
-			useParentSize.mockReturnValueOnce( {
+			useParentSize.mockReturnValue( {
 				parentRef: { current: null },
 				width: 0,
 				height: 0,
