@@ -127,7 +127,7 @@ Remote users exist in shadow tables — `WP_User` lookups behave differently. `p
 
 This package handles the Jetpack (sending) side only. The WPcom receiving side is a separate codebase — changes here do not automatically propagate there.
 
-`src/class-server.php` in this repo fires `jetpack_sync_remote_action` with 8 parameters. WPcom's event processor fires the same action with 13 parameters (adding `$actor`, `$queue_size`, `$sync_storage_type`, `$sync_flow_type` `$endpoint_type`). Handlers hooking this action may receive different arguments depending on which side they run on.
+`src/class-server.php` in this repo fires `jetpack_sync_remote_action` with 8 parameters. WPcom's event processor fires the same action with 13 parameters (adding `$actor`, `$queue_size`, `$sync_storage_type`, `$sync_flow_type`, and `$endpoint_type`). Handlers hooking this action may receive different arguments depending on which side they run on.
 
 All incoming data is treated as untrusted — options, meta values, and other synced fields may contain unexpected values from misbehaving plugins or themes and are sanitized before use on WPcom.
 
