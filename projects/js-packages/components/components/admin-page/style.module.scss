@@ -17,6 +17,12 @@
 		position: relative;
 	}
 
+	// Normalize admin headers: implementation of admin-ui needs to
+	// comprehend old wp-admin floating containers, such as Hello Dolly.
+	:global(.admin-ui-page) {
+		clear: both;
+	}
+
 	.admin-page-header {
 		display: flex;
 		align-items: center;
@@ -33,4 +39,9 @@
 		cursor: pointer;
 		color: #fff;
 	}
+}
+
+// Make Hello Dolly background white for Jetpack admin pages.
+:global(.jetpack-admin-page #dolly) {
+	background-color: #fff;
 }
