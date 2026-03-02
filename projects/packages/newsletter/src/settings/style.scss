@@ -18,22 +18,10 @@ $content-max-width: 1040px;
 		width: auto;
 	}
 
-	/**
-	 * When used with Boot package,
-	 * Page is inside relatively positioned containers.
-	 */
+	// @TODO: Temporarily disable sticky header. Remove once we've reviewed
+	// all pages are compatible with Sticky header.
 	.admin-ui-page__header {
-		// On Mobile header scrolls with content, `top: 0` is fine.
-
-		// On medium screens masterbar is bigger
-		@media (min-width: 600px) {
-			top: 46px;
-		}
-
-		// On bigger screens masterbar is smaller
-		@media (min-width: 782px) {
-			top: 32px;
-		}
+		position: relative;
 	}
 }
 
