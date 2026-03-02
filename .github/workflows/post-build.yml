@@ -285,6 +285,7 @@ jobs:
         uses: actions/download-artifact@v8
         with:
           name: ${{ needs.find_artifact.outputs.artifact_name }}
+          github-token: ${{ github.token }}
           run-id: ${{ github.event.workflow_run.id }}
 
       - name: Extract build artifact
@@ -351,6 +352,7 @@ jobs:
         uses: actions/download-artifact@v8
         with:
           name: ${{ needs.find_artifact.outputs.artifact_name }}
+          github-token: ${{ github.token }}
           run-id: ${{ github.event.workflow_run.id }}
 
       - name: Extract build artifact
@@ -438,6 +440,7 @@ jobs:
         uses: actions/download-artifact@v8
         with:
           name: ${{ needs.find_artifact.outputs.artifact_name }}
+          github-token: ${{ github.token }}
           run-id: ${{ github.event.workflow_run.id }}
 
       - name: Extract build artifact
