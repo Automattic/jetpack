@@ -1,7 +1,6 @@
 import { useConnection } from '@automattic/jetpack-connection';
 import { isWpcomPlatformSite, isSimpleSite } from '@automattic/jetpack-script-data';
 import {
-	getJetpackData,
 	getJetpackExtensionAvailability,
 	isUpgradable,
 } from '@automattic/jetpack-shared-extension-utils';
@@ -80,7 +79,6 @@ export default function usePublicizeConfig(): PublicizeConfig {
 	const needsUserConnection = ! isUserConnected && ! isSimpleSite();
 
 	return {
-		isPublicizeEnabledMeta,
 		isPublicizeEnabled,
 		togglePublicizeFeature,
 		isPublicizeDisabledBySitePlan,
@@ -88,9 +86,6 @@ export default function usePublicizeConfig(): PublicizeConfig {
 		isRePublicizeUpgradableViaUpsell,
 		hidePublicizeFeature,
 		isPostAlreadyShared,
-		isSocialImageGeneratorEnabled: !! (
-			getJetpackData() as { social?: { isSocialImageGeneratorEnabled?: boolean } } | null
-		 )?.social?.isSocialImageGeneratorEnabled,
 		needsUserConnection,
 	};
 }
