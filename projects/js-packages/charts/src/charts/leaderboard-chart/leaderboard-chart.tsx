@@ -132,6 +132,7 @@ const BarWithLabel = ( {
  * @param props.legendShapeHeight - Height of legend shapes in pixels
  * @param props.legendLabels      - Custom labels for legend items
  * @param props.legendInteractive - Whether legend items are interactive (clickable to toggle series visibility)
+ * @param props.gap               - Spacing between legend and chart content
  * @param props.children          - Child components for composition API
  * @param props.className         - Additional CSS class name
  * @param props.style             - Custom styling for the chart container
@@ -159,6 +160,7 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 	legendShapeHeight = 8,
 	legendLabels,
 	legendInteractive = false,
+	gap = 'md',
 	className,
 	style,
 	children,
@@ -315,10 +317,10 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 					{
 						[ styles[ 'leaderboardChart--responsive' ] ]: ! propWidth && ! propHeight,
 						[ styles[ 'leaderboardChart--loading' ] ]: loading,
-						[ styles[ 'leaderboardChart--with-legend' ] ]: showLegend,
 					},
 					className
 				) }
+				gap={ showLegend ? gap : undefined }
 				style={ {
 					...style,
 					width: propWidth || undefined,
