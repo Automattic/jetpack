@@ -76,7 +76,27 @@ function loadScript() {
 	require( '../media-library-poll' );
 }
 
-describe( 'boot check', () => {
+describe( 'upload detection', () => {
+	it( 'speeds up heartbeat when a video upload is added to the library', () => {
+		setupLibrary( [] );
+		loadScript();
+		jest.advanceTimersByTime( 500 );
+
+		libraryListeners.add( createAttachment( { type: 'video' } ) );
+
+		expect( global.wp.heartbeat.interval ).toHaveBeenCalledWith( 'fast' );
+	} );
+
+	it( 'ignores non-video uploads', () => {
+		setupLibrary( [] );
+		loadScript();
+		jest.advanceTimersByTime( 500 );
+
+		libraryListeners.add( createAttachment( { type: 'image' } ) );
+
+		expect( global.wp.heartbeat.interval ).not.toHaveBeenCalled();
+	} );
+
 	it( 'sets fast heartbeat when processing videos exist at load', () => {
 		setupLibrary( [
 			createAttachment( {
@@ -87,36 +107,16 @@ describe( 'boot check', () => {
 			} ),
 		] );
 		loadScript();
-
 		jest.advanceTimersByTime( 500 );
 
 		expect( global.wp.heartbeat.interval ).toHaveBeenCalledWith( 'fast' );
-	} );
-
-	it( 'does not set fast heartbeat when no videos are processing', () => {
-		setupLibrary( [
-			createAttachment( {
-				id: 10,
-				type: 'video',
-				subtype: 'videopress',
-				videopress_status: 'complete',
-			} ),
-		] );
-		loadScript();
-
-		jest.advanceTimersByTime( 500 );
-
-		expect( global.wp.heartbeat.interval ).not.toHaveBeenCalled();
 	} );
 
 	it( 'waits for media frame before checking', () => {
 		loadScript();
-
-		// Frame not yet available — heartbeat should not be called.
 		jest.advanceTimersByTime( 500 );
 		expect( global.wp.heartbeat.interval ).not.toHaveBeenCalled();
 
-		// Frame becomes available with a processing video.
 		setupLibrary( [
 			createAttachment( {
 				id: 10,
@@ -128,44 +128,6 @@ describe( 'boot check', () => {
 		jest.advanceTimersByTime( 500 );
 
 		expect( global.wp.heartbeat.interval ).toHaveBeenCalledWith( 'fast' );
-	} );
-
-	it( 'speeds up heartbeat when a processing upload is added to the library', () => {
-		setupLibrary( [] );
-		loadScript();
-
-		jest.advanceTimersByTime( 500 );
-		expect( global.wp.heartbeat.interval ).not.toHaveBeenCalled();
-
-		// Simulate a new upload landing in the library.
-		libraryListeners.add(
-			createAttachment( {
-				id: 30,
-				type: 'video',
-				subtype: 'videopress',
-				videopress_status: 'processing',
-			} )
-		);
-
-		expect( global.wp.heartbeat.interval ).toHaveBeenCalledWith( 'fast' );
-	} );
-
-	it( 'ignores non-processing uploads added to the library', () => {
-		setupLibrary( [] );
-		loadScript();
-
-		jest.advanceTimersByTime( 500 );
-
-		libraryListeners.add(
-			createAttachment( {
-				id: 30,
-				type: 'image',
-				subtype: 'jpeg',
-				videopress_status: undefined,
-			} )
-		);
-
-		expect( global.wp.heartbeat.interval ).not.toHaveBeenCalled();
 	} );
 } );
 

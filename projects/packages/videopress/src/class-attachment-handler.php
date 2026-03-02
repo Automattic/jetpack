@@ -46,6 +46,7 @@ class Attachment_Handler {
 		add_filter( 'user_has_cap', array( __CLASS__, 'disable_delete_if_disconnected' ), 10, 3 );
 
 		add_action( 'admin_print_scripts-upload.php', array( __CLASS__, 'enqueue_media_library_poll' ) );
+		add_action( 'admin_print_styles-upload.php', array( __CLASS__, 'enqueue_media_library_styles' ) );
 		add_filter( 'heartbeat_received', array( __CLASS__, 'heartbeat_received' ), 10, 2 );
 	}
 
@@ -319,7 +320,16 @@ class Attachment_Handler {
 		);
 
 		add_filter( 'heartbeat_settings', array( __CLASS__, 'heartbeat_settings' ) );
+	}
 
+	/**
+	 * Adds inline styles for the media library grid on the upload page.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	public static function enqueue_media_library_styles() {
 		// Constrain poster images so they fit within the media library grid cell.
 		wp_add_inline_style(
 			'media-views',

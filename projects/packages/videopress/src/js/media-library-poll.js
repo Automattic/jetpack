@@ -49,9 +49,11 @@
 		}
 	} );
 
-	// Speed up heartbeat as soon as a processing video is uploaded.
+	// Speed up heartbeat when a video upload completes so processing status
+	// is detected quickly. The heartbeat-send handler reverts to 'standard'
+	// once no processing videos remain.
 	const bootCheck = setInterval( function () {
-		if ( ! wp.media.frame ) {
+		if ( ! wp.media.frame || ! wp.media.frame.state() ) {
 			return;
 		}
 		clearInterval( bootCheck );
@@ -62,12 +64,11 @@
 		}
 
 		library.on( 'add', function ( attachment ) {
-			if ( isProcessingVideo( attachment ) ) {
+			if ( attachment.get( 'type' ) === 'video' ) {
 				wp.heartbeat.interval( 'fast' );
 			}
 		} );
 
-		// Also kick off fast polling if videos were already processing on page load.
 		if ( getProcessingVideoIds().length ) {
 			wp.heartbeat.interval( 'fast' );
 		}
