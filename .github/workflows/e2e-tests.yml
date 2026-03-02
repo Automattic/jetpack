@@ -96,6 +96,7 @@ jobs:
           COMPOSER_ROOT_VERSION: "dev-trunk"
           BUILD_DIR: ./build-output
           PROJECT_PATH: ${{ matrix.path }}
+          BUILD_GROUP: ${{ matrix.buildGroup }}
         run: |
           find . -path ./.github -prune -o -type f -print | sort > /tmp/before.txt
           find . -path ./.github -prune -o -type l -print | sort > /tmp/beforel.txt
@@ -130,17 +131,17 @@ jobs:
           echo "::endgroup::"
 
           echo "::group::Creating artifact"
-          sed 's!^!./!' /tmp/changed.txt /tmp/changedl.txt | tar -cvvf build-cache.tar.xz --verbatim-files-from --files-from=-
+          sed 's!^!./!' /tmp/changed.txt /tmp/changedl.txt | tar -cvvf "$BUILD_GROUP.tar.xz" --verbatim-files-from --files-from=-
           echo "::endgroup::"
 
       - name: Save ${{ matrix.buildGroup }} build cache
         uses: actions/upload-artifact@v7
         with:
-          name: ${{ matrix.buildGroup }}
-          path: build-cache.tar.xz
+          path: ${{ matrix.buildGroup }}.tar.xz
           retention-days: 1
           # Already compressed.
           compression-level: 0
+          archive: false
 
   e2e-tests:
     name: "${{ matrix.project }} e2e tests"
@@ -165,11 +166,13 @@ jobs:
         uses: actions/download-artifact@v8
         if: needs.build-projects.result == 'success' && ! startsWith( matrix.suite, 'atomic' )
         with:
-          name: ${{ matrix.buildGroup }}
+          name: ${{ matrix.buildGroup }}.tar.xz
       - name: Extract ${{ matrix.buildGroup }} build cache
         if: needs.build-projects.result == 'success' && ! startsWith( matrix.suite, 'atomic' )
+        env:
+          BUILD_GROUP: ${{ matrix.buildGroup }}
         run: |
-          tar -xvvf build-cache.tar.xz .
+          tar -xvvf "$BUILD_GROUP.tar.xz" .
 
       - name: Setup tools
         uses: ./.github/actions/tool-setup

@@ -68,11 +68,11 @@ jobs:
       - name: Store artifact
         uses: actions/upload-artifact@v7
         with:
-          name: wpcomsh
           path: wpcomsh.tar.xz
           retention-days: 1
           # Already compressed.
           compression-level: 0
+          archive: false
 
   deploy:
     name: Run PHPUnit on the WP Cloud test site
@@ -83,7 +83,7 @@ jobs:
       - name: Download build artifact
         uses: actions/download-artifact@v8
         with:
-          name: wpcomsh
+          name: wpcomsh.tar.xz
 
       - name: Configure Github to be able to SSH to the WP Cloud site
         run: |
