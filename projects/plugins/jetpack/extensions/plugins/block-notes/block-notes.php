@@ -297,7 +297,7 @@ function meta_auth_callback() {
 function customize_ai_avatar( $args, $id_or_email ) {
 	if ( is_object( $id_or_email ) && isset( $id_or_email->comment_author ) ) {
 		if ( 'AI [experimental]' === $id_or_email->comment_author ) {
-			$args['url'] = plugins_url( 'big-sky.svg', __FILE__ );
+			$args['url'] = plugins_url( 'images/big-sky.svg', JETPACK__PLUGIN_FILE );
 		}
 	}
 	return $args;
