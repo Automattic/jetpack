@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/react';
 import LeaderboardChart from '../leaderboard-chart';
 import type { LeaderboardEntry } from '../../../types';
 
-const getDefaultParentSize = () => ( {
+const mockDefaultParentSize = () => ( {
 	parentRef: { current: null },
 	width: 400,
 	height: 300,
@@ -10,7 +10,7 @@ const getDefaultParentSize = () => ( {
 
 // Mock useParentSize so the responsive wrapper returns predictable dimensions in tests
 jest.mock( '@visx/responsive', () => ( {
-	useParentSize: jest.fn( () => getDefaultParentSize() ),
+	useParentSize: jest.fn( () => mockDefaultParentSize() ),
 } ) );
 
 const mockData: LeaderboardEntry[] = [
@@ -53,7 +53,7 @@ const testDeltaFormatter = ( value: number ) => `${ value }delta`;
 describe( 'LeaderboardChart', () => {
 	afterEach( () => {
 		const { useParentSize } = jest.requireMock( '@visx/responsive' );
-		useParentSize.mockReturnValue( getDefaultParentSize() );
+		useParentSize.mockReturnValue( mockDefaultParentSize() );
 	} );
 
 	it( 'renders leaderboard entries', () => {
