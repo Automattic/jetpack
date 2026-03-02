@@ -1,0 +1,35 @@
+.jetpack-form-embed-code__popover .components-popover__content {
+	padding: 4px 8px;
+}
+
+.jetpack-form-embed-code {
+	width: 100%;
+
+	.jetpack-form-embed-code__rows {
+		display: flex;
+		flex-direction: column;
+		gap: 8px;
+		width: 100%;
+	}
+
+	.jetpack-form-embed-code__container {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		width: 100%;
+		border: 1px solid #ddd;
+		border-radius: 4px;
+		padding: 8px 8px 8px 12px;
+		gap: 8px;
+	}
+
+	.jetpack-form-embed-code__text {
+		font-family: monospace;
+		font-size: 12px;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+		flex: 1;
+		min-width: 0;
+	}
+}
