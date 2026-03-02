@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-Comment: Fix sync search test leaking a registered "author" taxonomy that caused flaky canonical URL tests.
-
