@@ -5,5 +5,5 @@ import { addFilter } from '@wordpress/hooks';
 	if ( typeof window === 'undefined' ) {
 		return;
 	}
-	addFilter( 'sync.providers', 'wpcom/pinghub-provider', () => [] );
+	addFilter( 'sync.providers', 'wpcom/pinghub-provider', () => window.wpcomGutenbergRTC.providers );
 } )();
