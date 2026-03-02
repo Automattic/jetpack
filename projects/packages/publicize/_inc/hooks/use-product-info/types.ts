@@ -10,8 +10,8 @@ export type ProductInfo = {
 
 export type PricingInfo = {
 	full_price: number;
-	currency_code?: string;
+	currency_code?: string | null;
 	introductory_offer?: {
 		cost_per_interval: number;
-	};
+	} | null;
 };

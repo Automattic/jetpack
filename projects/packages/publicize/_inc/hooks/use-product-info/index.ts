@@ -31,7 +31,7 @@ export default function useProductInfo(): [ ProductInfo | null ] {
 	const getAsyncInfo = useCallback( async () => {
 		try {
 			const socialPromotedProductInfo = await apiFetch<
-				Record< string, { pricing_for_ui: PricingInfo } >
+				Partial< Record< string, { pricing_for_ui?: PricingInfo } > >
 			>( {
 				path: addQueryArgs( '/my-jetpack/v1/site/products', { products: 'social' } ),
 			} );
