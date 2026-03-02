@@ -18,9 +18,36 @@ export type AdminPageProps = {
 	showHeader?: boolean;
 
 	/**
-	 * Custom header. Optional
+	 * Custom header. Optional.
+	 * @deprecated Use `title` and `subTitle` props instead for the unified header.
 	 */
 	header?: ReactNode;
+
+	/**
+	 * Product title displayed in the unified header (e.g. "Social", "Backup").
+	 * When provided, renders the admin-ui Page header instead of the legacy header slot.
+	 */
+	title?: string;
+
+	/**
+	 * Optional tagline displayed below the title in the unified header.
+	 */
+	subTitle?: string;
+
+	/**
+	 * Custom logo element for the unified header. Defaults to JetpackLogo icon.
+	 */
+	logo?: ReactNode;
+
+	/**
+	 * Action elements displayed on the right side of the unified header.
+	 */
+	actions?: ReactNode;
+
+	/**
+	 * Tab navigation displayed below the title/tagline in the unified header.
+	 */
+	tabs?: ReactNode;
 
 	/**
 	 * Whether or not to display the Footer

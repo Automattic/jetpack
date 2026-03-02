@@ -17,7 +17,6 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import { fetchSettings, updateSettings } from './api';
-import { Header } from './components/header';
 import { getNewsletterScriptData } from './script-data';
 import {
 	EmailContentSection,
@@ -32,8 +31,6 @@ import {
 } from './sections';
 import type { NewsletterSettings } from './types';
 import './style.scss';
-
-const MODULE_NAME = __( 'Jetpack Newsletter', 'jetpack-newsletter' );
 
 /**
  * Normalize settings from API response
@@ -333,7 +330,13 @@ function NewsletterSettingsApp(): JSX.Element | null {
 
 	if ( isLoading ) {
 		return (
-			<AdminPage moduleName={ MODULE_NAME } header={ <Header /> }>
+			<AdminPage
+				title={ 'Newsletter' /** "Newsletter" is a product name, do not translate. */ }
+				subTitle={ __(
+					'Transform your blog posts into newsletters to easily reach your subscribers.',
+					'jetpack-newsletter'
+				) }
+			>
 				<Container horizontalSpacing={ 3 }>
 					<Col>
 						<div className="newsletter-settings">
@@ -347,7 +350,13 @@ function NewsletterSettingsApp(): JSX.Element | null {
 
 	if ( error ) {
 		return (
-			<AdminPage moduleName={ MODULE_NAME } header={ <Header /> }>
+			<AdminPage
+				title={ 'Newsletter' /** "Newsletter" is a product name, do not translate. */ }
+				subTitle={ __(
+					'Transform your blog posts into newsletters to easily reach your subscribers.',
+					'jetpack-newsletter'
+				) }
+			>
 				<Container horizontalSpacing={ 3 }>
 					<Col>
 						<div className="newsletter-settings newsletter-settings--error">
@@ -371,7 +380,13 @@ function NewsletterSettingsApp(): JSX.Element | null {
 	const hasWelcomeEmailChanges = Object.keys( welcomeEmailChanges ).length > 0;
 
 	return (
-		<AdminPage moduleName={ MODULE_NAME } header={ <Header /> }>
+		<AdminPage
+			title={ 'Newsletter' /** "Newsletter" is a product name, do not translate. */ }
+			subTitle={ __(
+				'Transform your blog posts into newsletters to easily reach your subscribers.',
+				'jetpack-newsletter'
+			) }
+		>
 			<Container horizontalSpacing={ 3 }>
 				<Col>
 					<div className="newsletter-settings">

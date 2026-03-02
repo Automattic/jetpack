@@ -9,6 +9,20 @@
 		background-color: var(--jp-white);
 	}
 
+	// Remove the admin-ui header border. Scoped to .admin-page so this only
+	// applies within our component. Ideally admin-ui would expose a prop or
+	// CSS custom property for this — revisit if the upstream API changes.
+	:global(.admin-ui-page__header) {
+		border-bottom: none;
+		position: relative;
+	}
+
+	// Normalize admin headers: implementation of admin-ui needs to
+	// comprehend old wp-admin floating containers, such as Hello Dolly.
+	:global(.admin-ui-page) {
+		clear: both;
+	}
+
 	.admin-page-header {
 		display: flex;
 		align-items: center;
@@ -25,4 +39,9 @@
 		cursor: pointer;
 		color: #fff;
 	}
+}
+
+// Make Hello Dolly background white for Jetpack admin pages.
+:global(.jetpack-admin-page #dolly) {
+	background-color: #fff;
 }

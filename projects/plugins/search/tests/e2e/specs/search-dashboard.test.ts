@@ -60,8 +60,8 @@ test.describe( 'Search Dashboard', () => {
 			await expect( instantSearchToggle, 'Instant search toggle should be visible' ).toBeVisible();
 
 			await expect(
-				page.getByRole( 'img', { name: 'Jetpack Search Logo' } ),
-				'Header logo should be visible'
+				page.getByRole( 'img', { name: 'Jetpack Logo' } ),
+				'Jetpack header logo should be visible'
 			).toBeVisible();
 
 			await expect(
