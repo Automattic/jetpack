@@ -73,10 +73,11 @@ class Jetpack_Admin_Menu_Test extends WP_UnitTestCase {
 
 		$submenu_names = array_column( $submenu['jetpack'], 3 );
 		// Capture the positions of these submenu items.
-		$videopress_submenu_position = array_search( 'Jetpack VideoPress', $submenu_names, true );
-		$backup_submenu_position     = array_search( 'Jetpack Backup', $submenu_names, true );
-		$search_submenu_position     = array_search( 'Jetpack Search', $submenu_names, true );
-		$settings_submenu_position   = array_search( 'Settings', $submenu_names, true );
+		$videopress_submenu_position   = array_search( 'Jetpack VideoPress', $submenu_names, true );
+		$backup_submenu_position       = array_search( 'Jetpack Backup', $submenu_names, true );
+		$search_submenu_position       = array_search( 'Jetpack Search', $submenu_names, true );
+		$settings_submenu_position     = array_search( 'Settings', $submenu_names, true );
+		$activity_log_submenu_position = array_search( 'Activity Log', $submenu_names, true );
 
 		// Test internal link ordering (should appear before Settings).
 		$this->assertLessThan( $backup_submenu_position, $videopress_submenu_position, 'Jetpack VideoPress should be above Jetpack VaultPress Backup in the submenu order.' );
@@ -84,9 +85,6 @@ class Jetpack_Admin_Menu_Test extends WP_UnitTestCase {
 		$this->assertLessThan( $settings_submenu_position, $search_submenu_position, 'Search should be above Settings in the submenu order.' );
 
 		// Test that external links (those that open in new windows) appear after Settings.
-		if ( in_array( 'Activity Log', $submenu_names, true ) ) {
-			$activity_log_submenu_position = array_search( 'Activity Log', $submenu_names, true );
-			$this->assertLessThan( $settings_submenu_position, $activity_log_submenu_position, 'Settings should be above Activity Log in the submenu order (external links should be last).' );
-		}
+		$this->assertLessThan( $activity_log_submenu_position, $settings_submenu_position, 'Settings should be above Activity Log in the submenu order (external links should be last).' );
 	}
 }
