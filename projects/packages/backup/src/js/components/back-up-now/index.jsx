@@ -107,7 +107,7 @@ BackupNowButton.propTypes = {
 	children: PropTypes.node,
 	tooltipText: PropTypes.string,
 	tracksEventName: PropTypes.string,
-	variant: PropTypes.oneOf( [ 'primary', 'secondary', 'tertiary' ] ),
+	variant: PropTypes.oneOf( [ 'solid', 'outline', 'minimal', 'unstyled' ] ),
 	onClick: PropTypes.func,
 };
 
