@@ -15,6 +15,100 @@ export type { ProviderCreator } from '@wordpress/sync';
 const MSG_SYNC = 0x00;
 const MSG_AWARENESS = 0x01;
 
+const RECONNECT_BASE_DELAY_MS = 1000;
+const RECONNECT_MAX_DELAY_MS = 30 * 1000;
+
+/**
+ * How often to re-send sync_step1 while connected.
+ *
+ * PingHub is a fire-and-forget broadcast channel with no persistence.
+ * Messages sent before a peer subscribes are permanently lost, and any
+ * update dropped in transit causes silent divergence. The only way to
+ * recover is to periodically re-announce our state vector so peers can
+ * respond with whatever we're missing.
+ */
+const RESYNC_INTERVAL_MS = 5000;
+
+// ── Module-level lifecycle management ──────────────────────────────────
+//
+// A registry of active PingHubProvider instances with shared window-event
+// handlers, mirroring the pattern used by Gutenberg's HTTP polling manager
+// to prevent duplicate awareness entries on page reload.
+
+const activeProviders = new Set< PingHubProvider >();
+let windowListenersRegistered = false;
+
+/**
+ * Set when `beforeunload` fires. Lets `onWsClose` distinguish a
+ * connection drop caused by navigation from a genuine server error,
+ * preventing a brief "disconnected" flash before the new page loads.
+ *
+ * Reset at the start of the next visibility change in case the user
+ * cancels the unload (e.g. dismisses a "Leave page?" dialog).
+ */
+let isUnloadPending = false;
+
+/**
+ * Mark that a page unload has been requested so `onWsClose` can suppress
+ * the disconnected status flash during navigation.
+ */
+function handleBeforeUnload(): void {
+	isUnloadPending = true;
+}
+
+/**
+ * Broadcast an awareness removal for every active provider so peers
+ * immediately learn this client has left. Fires on `pagehide`, which
+ * is the last reliable event before the browser tears down the page.
+ */
+function handlePageHide(): void {
+	for ( const provider of activeProviders ) {
+		provider.broadcastAwarenessRemoval();
+	}
+}
+
+/**
+ * When the tab returns to the foreground, reconnect any providers whose
+ * WebSocket was dropped while backgrounded and reset the unload flag.
+ */
+function handleVisibilityChange(): void {
+	if ( document.visibilityState !== 'visible' ) {
+		return;
+	}
+	isUnloadPending = false;
+	for ( const provider of activeProviders ) {
+		provider.reconnectIfDisconnected();
+	}
+}
+
+/**
+ * Register shared window-level event listeners once, when the first
+ * PingHubProvider is created.
+ */
+function addWindowListeners(): void {
+	if ( windowListenersRegistered ) {
+		return;
+	}
+	window.addEventListener( 'beforeunload', handleBeforeUnload );
+	window.addEventListener( 'pagehide', handlePageHide );
+	document.addEventListener( 'visibilitychange', handleVisibilityChange );
+	windowListenersRegistered = true;
+}
+
+/**
+ * Remove shared window-level event listeners once the last
+ * PingHubProvider has been destroyed.
+ */
+function removeWindowListeners(): void {
+	if ( ! windowListenersRegistered || activeProviders.size > 0 ) {
+		return;
+	}
+	window.removeEventListener( 'beforeunload', handleBeforeUnload );
+	window.removeEventListener( 'pagehide', handlePageHide );
+	document.removeEventListener( 'visibilitychange', handleVisibilityChange );
+	windowListenersRegistered = false;
+}
+
 /**
  * Get the blog ID from the WordPress globals.
  * @return The blog ID or null if it cannot be determined.
@@ -76,6 +170,10 @@ class PingHubProvider extends ObservableV2< PingHubEvents > {
 	private readonly bridge: PingHubBridge;
 	private readonly path: string;
 
+	private reconnectTimer: ReturnType< typeof setTimeout > | null = null;
+	private reconnectDelay = RECONNECT_BASE_DELAY_MS;
+	private resyncTimer: ReturnType< typeof setInterval > | null = null;
+
 	public constructor( {
 		awareness,
 		bridge,
@@ -93,7 +191,39 @@ class PingHubProvider extends ObservableV2< PingHubEvents > {
 		this.ydoc = ydoc;
 		this.awareness = awareness ?? new Awareness( ydoc );
 
+		activeProviders.add( this );
+		addWindowListeners();
+
 		this.registerListeners();
+		this.emitStatus( { status: 'connecting' } );
+		void this.connect();
+	}
+
+	/**
+	 * Broadcast an awareness removal (null state) for this client so peers
+	 * immediately drop it. Called from the `pagehide` handler; the bridge's
+	 * `send()` uses synchronous `postMessage` which survives page teardown.
+	 */
+	broadcastAwarenessRemoval(): void {
+		if ( ! this.connected || this.destroyed ) {
+			return;
+		}
+		awarenessProtocol.removeAwarenessStates( this.awareness, [ this.ydoc.clientID ], 'page-hide' );
+	}
+
+	/**
+	 * Reconnect immediately if the WebSocket was dropped (e.g. while the
+	 * tab was backgrounded). Called from the `visibilitychange` handler.
+	 */
+	reconnectIfDisconnected(): void {
+		if ( this.destroyed || this.connected ) {
+			return;
+		}
+		if ( this.reconnectTimer !== null ) {
+			clearTimeout( this.reconnectTimer );
+			this.reconnectTimer = null;
+		}
+		this.reconnectDelay = RECONNECT_BASE_DELAY_MS;
 		this.emitStatus( { status: 'connecting' } );
 		void this.connect();
 	}
@@ -101,10 +231,15 @@ class PingHubProvider extends ObservableV2< PingHubEvents > {
 	private registerListeners(): void {
 		this.awareness.on( 'change', this.onAwarenessChange );
 		this.ydoc.on( 'update', this.onDocUpdate );
-
 		this.bridge.onOpen( this.path, this.onWsOpen );
 		this.bridge.onClose( this.path, this.onWsClose );
 		this.bridge.onMessage( this.path, this.onWsMessage );
+	}
+
+	private unregisterBridgeListeners(): void {
+		this.bridge.offOpen( this.path, this.onWsOpen );
+		this.bridge.offClose( this.path, this.onWsClose );
+		this.bridge.offMessage( this.path, this.onWsMessage );
 	}
 
 	private async connect(): Promise< void > {
@@ -136,17 +271,39 @@ class PingHubProvider extends ObservableV2< PingHubEvents > {
 		this.bridge.send( this.path, u8 );
 	};
 
+	private sendSyncStep1(): void {
+		const enc = encoding.createEncoder();
+		encoding.writeVarUint( enc, MSG_SYNC );
+		syncProtocol.writeSyncStep1( enc, this.ydoc );
+		this.send( encoding.toUint8Array( enc ) );
+	}
+
+	private startResyncTimer(): void {
+		this.stopResyncTimer();
+		this.resyncTimer = setInterval( () => {
+			if ( this.connected && ! this.destroyed ) {
+				this.sendSyncStep1();
+			}
+		}, RESYNC_INTERVAL_MS );
+	}
+
+	private stopResyncTimer(): void {
+		if ( this.resyncTimer !== null ) {
+			clearInterval( this.resyncTimer );
+			this.resyncTimer = null;
+		}
+	}
+
 	private readonly onWsOpen = (): void => {
 		if ( this.destroyed ) {
 			return;
 		}
 		this.connected = true;
+		this.reconnectDelay = RECONNECT_BASE_DELAY_MS;
 		this.emitStatus( { status: 'connected' } );
 
-		const enc = encoding.createEncoder();
-		encoding.writeVarUint( enc, MSG_SYNC );
-		syncProtocol.writeSyncStep1( enc, this.ydoc );
-		this.send( encoding.toUint8Array( enc ) );
+		this.sendSyncStep1();
+		this.startResyncTimer();
 
 		const changed: number[] = Array.from( this.awareness.getStates().keys() );
 		if ( changed.length ) {
@@ -210,7 +367,7 @@ class PingHubProvider extends ObservableV2< PingHubEvents > {
 	}
 
 	private readonly onDocUpdate = ( update: Uint8Array, origin: unknown ): void => {
-		if ( origin === 'pinghub-remote' || ! this.connected ) {
+		if ( this.destroyed || origin === 'pinghub-remote' || ! this.connected ) {
 			return;
 		}
 
@@ -220,13 +377,35 @@ class PingHubProvider extends ObservableV2< PingHubEvents > {
 		this.send( encoding.toUint8Array( enc ) );
 	};
 
-	private readonly onWsClose = async (): Promise< void > => {
+	private readonly onWsClose = (): void => {
 		this.connected = false;
+		this.stopResyncTimer();
 		if ( this.destroyed ) {
 			return;
 		}
-		this.emitStatus( { status: 'disconnected' } );
+
+		// Don't report disconnected status when the connection was dropped
+		// due to page unload (e.g. during a refresh) to avoid briefly
+		// flashing the disconnect indicator before the new page loads.
+		if ( ! isUnloadPending ) {
+			this.emitStatus( { status: 'disconnected' } );
+		}
+		this.scheduleReconnect();
 	};
+
+	private scheduleReconnect(): void {
+		if ( this.destroyed || this.reconnectTimer !== null ) {
+			return;
+		}
+		this.reconnectTimer = setTimeout( () => {
+			this.reconnectTimer = null;
+			if ( ! this.destroyed ) {
+				this.emitStatus( { status: 'connecting' } );
+				void this.connect();
+			}
+		}, this.reconnectDelay );
+		this.reconnectDelay = Math.min( this.reconnectDelay * 2, RECONNECT_MAX_DELAY_MS );
+	}
 
 	public override destroy(): void {
 		if ( this.destroyed ) {
@@ -234,19 +413,33 @@ class PingHubProvider extends ObservableV2< PingHubEvents > {
 		}
 		this.destroyed = true;
 
+		activeProviders.delete( this );
+		removeWindowListeners();
+
+		if ( this.reconnectTimer !== null ) {
+			clearTimeout( this.reconnectTimer );
+			this.reconnectTimer = null;
+		}
+		this.stopResyncTimer();
+
+		// Stop sending doc updates first so nothing new is enqueued while we tear down.
+		this.ydoc.off( 'update', this.onDocUpdate );
+
+		// Broadcast a final awareness removal so other peers learn we have left.
+		// This intentionally fires onAwarenessChange one last time before we
+		// unregister the awareness listener below.
 		awarenessProtocol.removeAwarenessStates(
 			this.awareness,
 			[ this.ydoc.clientID ],
 			'provider-destroy'
 		);
 
+		// Unregister all remaining listeners so no further events can fire.
 		this.awareness.off( 'change', this.onAwarenessChange );
-		this.ydoc.off( 'update', this.onDocUpdate );
+		this.unregisterBridgeListeners();
 
-		void ( async () => {
-			await this.bridge.disconnect( this.path );
-			this.connected = false;
-		} )();
+		this.connected = false;
+		void this.bridge.disconnect( this.path );
 
 		this.emitStatus( { status: 'disconnected' } );
 		super.destroy();

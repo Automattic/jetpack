@@ -7,7 +7,9 @@ export interface PingHubBridge {
 	onMessage( path: string, handler: ( data: Uint8Array ) => void ): void;
 	offMessage( path: string, handler: ( data: Uint8Array ) => void ): void;
 	onOpen( path: string, handler: () => void ): void;
+	offOpen( path: string, handler: () => void ): void;
 	onClose( path: string, handler: ( code: number, reason: string ) => void ): void;
+	offClose( path: string, handler: ( code: number, reason: string ) => void ): void;
 }
 
 const IFRAME_SRC_BASE = 'https://public-api.wordpress.com/wp-admin/rest-proxy/';
@@ -311,9 +313,15 @@ export class PingHubIframeBridge implements PingHubBridge {
 		if ( ! this.openHandlers.has( path ) ) this.openHandlers.set( path, new Set() );
 		this.openHandlers.get( path )!.add( handler );
 	}
+	offOpen( path: string, handler: () => void ): void {
+		this.openHandlers.get( path )?.delete( handler );
+	}
 	onClose( path: string, handler: ( code: number, reason: string ) => void ): void {
 		if ( ! this.closeHandlers.has( path ) ) this.closeHandlers.set( path, new Set() );
 		this.closeHandlers.get( path )!.add( handler );
+	}
+	offClose( path: string, handler: ( code: number, reason: string ) => void ): void {
+		this.closeHandlers.get( path )?.delete( handler );
 	}
 
 	async connect( path: string ): Promise< void > {
