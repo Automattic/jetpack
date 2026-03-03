@@ -16,10 +16,7 @@ export const DEFAULT_STATE = {
 		enabled: false,
 		categories: [],
 	},
-	postEmailSentState: {
-		email_sent_at: null,
-		stats_on_send: null,
-	},
+	postEmailSentState: {},
 	alreadySentPostModifiedInSession: {},
 	publishedWithEmailEnabledInSession: {},
 };
@@ -62,7 +59,13 @@ export default function reducer( state = DEFAULT_STATE, action ) {
 		case 'SET_POST_EMAIL_SENT_STATE':
 			return {
 				...state,
-				postEmailSentState: action.payload,
+				postEmailSentState: {
+					...state.postEmailSentState,
+					[ action.postId ]: {
+						email_sent_at: action.payload.email_sent_at ?? null,
+						stats_on_send: action.payload.stats_on_send ?? null,
+					},
+				},
 			};
 		case 'SET_ALREADY_SENT_POST_MODIFIED_IN_SESSION':
 			return {

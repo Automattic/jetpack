@@ -126,8 +126,9 @@ export const setNewsletterCategoriesSubscriptionsCount =
 		newsletterCategoriesSubscriptionsCount,
 	} );
 
-export const setPostEmailSentState = ( { email_sent_at, stats_on_send } ) => ( {
+export const setPostEmailSentState = ( postId, { email_sent_at, stats_on_send } ) => ( {
 	type: 'SET_POST_EMAIL_SENT_STATE',
+	postId,
 	payload: { email_sent_at, stats_on_send },
 } );
 

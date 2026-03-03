@@ -3,6 +3,7 @@ import {
 	getNewsletterCategoriesEnabled,
 	getNewsletterTierProducts,
 	getNewsletterCategoriesSubscriptionsCount,
+	getPostEmailSentState,
 	getProducts,
 	getTotalEmailsSentCount,
 } from '../selectors';
@@ -64,5 +65,47 @@ describe( 'Membership Products Selectors', () => {
 		};
 
 		expect( getTotalEmailsSentCount( state ) ).toStrictEqual( state.totalEmailsSentCount );
+	} );
+
+	test( 'getPostEmailSentState returns post-specific state when present', () => {
+		const state = {
+			postEmailSentState: {
+				5: {
+					email_sent_at: 1234567890,
+					stats_on_send: { access_level: 'subscribers' },
+				},
+			},
+		};
+
+		expect( getPostEmailSentState( state, 5 ) ).toStrictEqual( {
+			email_sent_at: 1234567890,
+			stats_on_send: { access_level: 'subscribers' },
+		} );
+	} );
+
+	test( 'getPostEmailSentState returns default when postId is missing or falsy', () => {
+		const state = {
+			postEmailSentState: {
+				5: { email_sent_at: 123, stats_on_send: null },
+			},
+		};
+		const defaultValue = { email_sent_at: null, stats_on_send: null };
+
+		expect( getPostEmailSentState( state, null ) ).toStrictEqual( defaultValue );
+		expect( getPostEmailSentState( state, undefined ) ).toStrictEqual( defaultValue );
+		expect( getPostEmailSentState( state, 0 ) ).toStrictEqual( defaultValue );
+	} );
+
+	test( 'getPostEmailSentState returns default when postId is not in state', () => {
+		const state = {
+			postEmailSentState: {
+				5: { email_sent_at: 123, stats_on_send: null },
+			},
+		};
+
+		expect( getPostEmailSentState( state, 99 ) ).toStrictEqual( {
+			email_sent_at: null,
+			stats_on_send: null,
+		} );
 	} );
 } );

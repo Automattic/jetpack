@@ -388,7 +388,7 @@ export const getPostEmailSentState =
 		try {
 			const response = await fetchPostEmailSentState( postId );
 			dispatch(
-				setPostEmailSentState( {
+				setPostEmailSentState( postId, {
 					email_sent_at: response.email_sent_at ?? null,
 					stats_on_send: response.stats_on_send ?? null,
 				} )

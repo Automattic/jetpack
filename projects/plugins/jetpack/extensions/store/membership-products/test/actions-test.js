@@ -11,6 +11,7 @@ import {
 	setConnectedAccountDefaultCurrency,
 	setNewsletterCategories,
 	setNewsletterCategoriesSubscriptionsCount,
+	setPostEmailSentState,
 	setTotalEmailsSentCount,
 } from '../actions';
 import * as utils from '../utils';
@@ -341,5 +342,21 @@ describe( 'Membership Products Actions', () => {
 		const result = setTotalEmailsSentCount( ANY_VALID_DATA );
 
 		expect( result ).toStrictEqual( anyValidTotalEmailsSentCountWithType );
+	} );
+
+	test( 'setPostEmailSentState works as expected with postId and payload', () => {
+		const postId = 42;
+		const payload = {
+			email_sent_at: 1234567890,
+			stats_on_send: { access_level: 'subscribers' },
+		};
+
+		const result = setPostEmailSentState( postId, payload );
+
+		expect( result ).toStrictEqual( {
+			type: 'SET_POST_EMAIL_SENT_STATE',
+			postId,
+			payload,
+		} );
 	} );
 } );

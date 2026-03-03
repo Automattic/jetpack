@@ -40,10 +40,11 @@ export const getNewsletterCategoriesSubscriptionsCount = state =>
 	state.newsletterCategoriesSubscriptionsCount;
 
 export const getPostEmailSentState = ( state, postId ) => {
-	if ( ! postId ) {
-		return { email_sent_at: null, stats_on_send: null };
-	}
-	return state.postEmailSentState || { email_sent_at: null, stats_on_send: null };
+	const sent = postId ? state.postEmailSentState?.[ postId ] : null;
+	return {
+		email_sent_at: sent?.email_sent_at ?? null,
+		stats_on_send: sent?.stats_on_send ?? null,
+	};
 };
 
 export const getAlreadySentPostModifiedInSession = ( state, postId ) =>
