@@ -16,6 +16,59 @@ use PHPUnit\Framework\TestCase;
 class Admin_Menu_Test extends TestCase {
 
 	/**
+	 * Administrator user ID created once for the test class.
+	 *
+	 * @var int
+	 */
+	private static $admin_user_id;
+
+	/**
+	 * Editor user ID created once for the test class.
+	 *
+	 * @var int
+	 */
+	private static $editor_user_id;
+
+	/**
+	 * Create shared users once for the test class.
+	 *
+	 * @return void
+	 */
+	public static function setUpBeforeClass(): void {
+		parent::setUpBeforeClass();
+
+		self::$admin_user_id = wp_insert_user(
+			array(
+				'user_login' => 'upgrade_test_admin',
+				'user_pass'  => 'pass',
+				'user_email' => 'upgrade_admin@example.com',
+				'role'       => 'administrator',
+			)
+		);
+
+		self::$editor_user_id = wp_insert_user(
+			array(
+				'user_login' => 'upgrade_test_editor',
+				'user_pass'  => 'pass',
+				'user_email' => 'upgrade_editor@example.com',
+				'role'       => 'editor',
+			)
+		);
+	}
+
+	/**
+	 * Reset shared state before each test.
+	 *
+	 * @return void
+	 */
+	public function setUp(): void {
+		parent::setUp();
+		global $submenu;
+		$submenu = array();
+		delete_option( 'jetpack_active_plan' );
+	}
+
+	/**
 	 * Tests whether the page_suffix we return in our method will match the page_suffix returned by the native WP methods
 	 *
 	 * The idea of this test is to make sure our returned value for the page suffix always matches the value that will be returned
@@ -77,7 +130,7 @@ class Admin_Menu_Test extends TestCase {
 	}
 
 	/**
-	 * Undocumented function
+	 * Tests that the first registered menu item is returned correctly.
 	 *
 	 * @return void
 	 */
@@ -94,5 +147,138 @@ class Admin_Menu_Test extends TestCase {
 		$first = Admin_Menu::get_top_level_menu_item_slug();
 
 		$this->assertSame( 'menu_2', $first );
+	}
+
+	/**
+	 * Upgrade item appears in the submenu for an administrator on a free plan.
+	 *
+	 * @return void
+	 */
+	public function test_upgrade_menu_item_shown_for_free_plan_admin() {
+		wp_set_current_user( self::$admin_user_id );
+
+		Admin_Menu::init();
+		do_action( 'admin_menu' );
+
+		$this->assertUpgradeMenuItemPresent();
+	}
+
+	/**
+	 * Upgrade item is absent when the site has a paid plan.
+	 *
+	 * @return void
+	 */
+	public function test_upgrade_menu_item_hidden_for_paid_plan() {
+		wp_set_current_user( self::$admin_user_id );
+		update_option( 'jetpack_active_plan', array( 'class' => 'security' ) );
+
+		Admin_Menu::init();
+		do_action( 'admin_menu' );
+
+		$this->assertUpgradeMenuItemAbsent();
+	}
+
+	/**
+	 * Upgrade item is absent for users without manage_options capability.
+	 *
+	 * @return void
+	 */
+	public function test_upgrade_menu_item_hidden_for_non_admin() {
+		wp_set_current_user( self::$editor_user_id );
+
+		Admin_Menu::init();
+		do_action( 'admin_menu' );
+
+		$this->assertUpgradeMenuItemAbsent();
+	}
+
+	/**
+	 * CSS styles are output for a free-plan admin on a Jetpack screen.
+	 *
+	 * @return void
+	 */
+	public function test_upgrade_menu_item_styles_output_for_free_plan() {
+		wp_set_current_user( self::$admin_user_id );
+		set_current_screen( 'jetpack' );
+
+		ob_start();
+		Admin_Menu::add_upgrade_menu_item_styles();
+		$output = ob_get_clean();
+
+		set_current_screen( 'front' );
+
+		$this->assertStringContainsString( 'jetpack-upgrade-menu__icon', $output );
+		$this->assertStringContainsString( '#069e08', $output );
+	}
+
+	/**
+	 * No CSS output when the site has a paid plan, even on a Jetpack screen.
+	 *
+	 * @return void
+	 */
+	public function test_upgrade_menu_item_styles_no_output_for_paid_plan() {
+		wp_set_current_user( self::$admin_user_id );
+		update_option( 'jetpack_active_plan', array( 'class' => 'premium' ) );
+		set_current_screen( 'jetpack' );
+
+		ob_start();
+		Admin_Menu::add_upgrade_menu_item_styles();
+		$output = ob_get_clean();
+
+		set_current_screen( 'front' );
+
+		$this->assertSame( '', $output );
+	}
+
+	/**
+	 * No CSS output when viewing a non-Jetpack admin screen, even on a free plan.
+	 *
+	 * @return void
+	 */
+	public function test_upgrade_menu_item_styles_no_output_outside_jetpack_screens() {
+		wp_set_current_user( self::$admin_user_id );
+		set_current_screen( 'dashboard' );
+
+		ob_start();
+		Admin_Menu::add_upgrade_menu_item_styles();
+		$output = ob_get_clean();
+
+		set_current_screen( 'front' );
+
+		$this->assertSame( '', $output );
+	}
+
+	/**
+	 * Asserts the upgrade submenu item is present under the jetpack top-level menu.
+	 *
+	 * @return void
+	 */
+	private function assertUpgradeMenuItemPresent() {
+		global $submenu;
+		$slugs = array_column( $submenu['jetpack'] ?? array(), 2 );
+		$found = array_filter(
+			$slugs,
+			function ( $slug ) {
+				return false !== strpos( $slug, Admin_Menu::UPGRADE_MENU_SLUG );
+			}
+		);
+		$this->assertNotEmpty( $found, 'Expected the upgrade menu item to be registered.' );
+	}
+
+	/**
+	 * Asserts the upgrade submenu item is absent from the jetpack top-level menu.
+	 *
+	 * @return void
+	 */
+	private function assertUpgradeMenuItemAbsent() {
+		global $submenu;
+		$slugs = array_column( $submenu['jetpack'] ?? array(), 2 );
+		$found = array_filter(
+			$slugs,
+			function ( $slug ) {
+				return false !== strpos( $slug, Admin_Menu::UPGRADE_MENU_SLUG );
+			}
+		);
+		$this->assertEmpty( $found, 'Expected the upgrade menu item to be absent.' );
 	}
 }

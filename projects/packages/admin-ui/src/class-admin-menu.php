@@ -16,6 +16,20 @@ class Admin_Menu {
 	const PACKAGE_VERSION = '0.5.11';
 
 	/**
+	 * Redirect source slug used as the upgrade URL identifier and CSS class.
+	 *
+	 * @var string
+	 */
+	const UPGRADE_MENU_SLUG = 'jetpack-upgrade-menu';
+
+	/**
+	 * Fallback upgrade URL when the Redirect class is unavailable.
+	 *
+	 * @var string
+	 */
+	const UPGRADE_MENU_FALLBACK_URL = 'https://jetpack.com/upgrade/';
+
+	/**
 	 * Whether this class has been initialized
 	 *
 	 * @var boolean
@@ -40,6 +54,7 @@ class Admin_Menu {
 			self::handle_akismet_menu();
 			add_action( 'admin_menu', array( __CLASS__, 'admin_menu_hook_callback' ), 1000 ); // Jetpack uses 998.
 			add_action( 'network_admin_menu', array( __CLASS__, 'admin_menu_hook_callback' ), 1000 ); // Jetpack uses 998.
+			add_action( 'admin_head', array( __CLASS__, 'add_upgrade_menu_item_styles' ) );
 		}
 	}
 
@@ -140,6 +155,8 @@ class Admin_Menu {
 		if ( ! $can_see_toplevel_menu ) {
 			remove_menu_page( 'jetpack' );
 		}
+
+		self::maybe_add_upgrade_menu_item();
 	}
 
 	/**
@@ -224,5 +241,101 @@ class Admin_Menu {
 
 		$url = $fallback ? $fallback : admin_url();
 		return $url;
+	}
+
+	/**
+	 * Checks whether the current site is on a free Jetpack plan with no active paid license.
+	 *
+	 * @return bool True if the site has no paid plan.
+	 */
+	private static function is_free_plan() {
+		if ( class_exists( '\Automattic\Jetpack\Current_Plan' ) ) {
+			$plan = \Automattic\Jetpack\Current_Plan::get();
+			return 'free' === ( $plan['class'] ?? 'free' );
+		}
+
+		$plan = get_option( 'jetpack_active_plan', array() );
+		return 'free' === ( $plan['class'] ?? 'free' );
+	}
+
+	/**
+	 * Conditionally adds an "Upgrade to Pro" submenu item for free-plan sites.
+	 *
+	 * The item is only added when the Jetpack top-level menu is visible and the
+	 * site has not yet purchased a paid Jetpack plan or license.
+	 *
+	 * @return void
+	 */
+	private static function maybe_add_upgrade_menu_item() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
+
+		if ( ! self::is_free_plan() ) {
+			return;
+		}
+
+		$upgrade_url = class_exists( '\Automattic\Jetpack\Redirect' )
+			? \Automattic\Jetpack\Redirect::get_url( self::UPGRADE_MENU_SLUG )
+			: self::UPGRADE_MENU_FALLBACK_URL;
+
+		$menu_title = '<span class="dashicons dashicons-star-filled jetpack-upgrade-menu__icon" aria-hidden="true"></span>'
+			. esc_html__( 'Upgrade to Pro', 'jetpack-admin-ui' );
+
+		add_submenu_page(
+			'jetpack',
+			__( 'Upgrade to Pro', 'jetpack-admin-ui' ),
+			$menu_title,
+			'manage_options',
+			esc_url( $upgrade_url ),
+			null,
+			999
+		);
+
+		// Add a CSS class to the <li> element so styles can target it precisely.
+		global $submenu;
+		if ( ! empty( $submenu['jetpack'] ) ) {
+			foreach ( $submenu['jetpack'] as $index => $item ) {
+				if ( isset( $item[2] ) && false !== strpos( $item[2], self::UPGRADE_MENU_SLUG ) ) {
+					// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+					$submenu['jetpack'][ $index ][4] = ( ! empty( $item[4] ) ? $item[4] . ' ' : '' ) . self::UPGRADE_MENU_SLUG;
+					break;
+				}
+			}
+		}
+	}
+
+	/**
+	 * Outputs inline CSS to style the "Upgrade to Pro" menu item in Jetpack green.
+	 *
+	 * Only outputs on Jetpack admin pages and only for free-plan sites.
+	 *
+	 * @return void
+	 */
+	public static function add_upgrade_menu_item_styles() {
+		$screen = get_current_screen();
+		if ( ! $screen || false === strpos( $screen->id, 'jetpack' ) ) {
+			return;
+		}
+
+		if ( ! self::is_free_plan() ) {
+			return;
+		}
+		?>
+		<style>
+			#adminmenu .jetpack-upgrade-menu__icon {
+				color: #069e08;
+				font-size: 16px;
+				line-height: 1;
+				vertical-align: middle;
+				margin-inline-end: 4px;
+			}
+			#adminmenu li.<?php echo esc_attr( self::UPGRADE_MENU_SLUG ); ?> > a,
+			#adminmenu li.<?php echo esc_attr( self::UPGRADE_MENU_SLUG ); ?> > a:hover {
+				color: #069e08;
+				font-weight: 600;
+			}
+		</style>
+		<?php
 	}
 }
