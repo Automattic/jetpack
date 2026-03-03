@@ -14,6 +14,7 @@ import {
 } from '../../shared/memberships/constants';
 import { getReachForAccessLevelKey } from '../../shared/memberships/settings';
 import { store as membershipProductsStore } from '../../store/membership-products';
+
 /**
  * Get the formatted list of categories for a post.
  * @param {Array} postCategories       - list of category IDs for the post
@@ -284,6 +285,57 @@ function getAccessLevelLabel( accessLevel ) {
 }
 
 /**
+ * Determine if we should show the "won't resend" message for an already-sent post.
+ * Returns true when the post was modified in-session, we're in pre-publish view,
+ * or access/category settings no longer match what was used when the email was sent.
+ *
+ * @param {object}  opts                                  - Options.
+ * @param {object}  opts.statsOnSend                      - Stats from when the email was sent.
+ * @param {object}  opts.postMeta                         - Current post meta.
+ * @param {string}  opts.accessLevel                      - Current access level.
+ * @param {Array}   opts.tierProducts                     - Tier products for matching.
+ * @param {Array}   opts.postCategories                   - Current post categories.
+ * @param {boolean} opts.alreadySentPostModifiedInSession - Whether post was modified since send.
+ * @param {boolean} opts.prePublish                       - Whether we're in pre-publish context.
+ * @return {boolean} True if the "won't resend" message should be shown.
+ */
+function shouldShowWontResendMessage( {
+	statsOnSend,
+	postMeta,
+	accessLevel,
+	tierProducts,
+	postCategories,
+	alreadySentPostModifiedInSession,
+	prePublish,
+} ) {
+	const statsAccess = statsOnSend?.access_level;
+	const statsCats = statsOnSend?.post_categories ?? [];
+	const statsAccessParsed = parseAccessLevel( statsAccess );
+	const statsBase = statsAccessParsed.base;
+	const statsTierName = statsAccessParsed.tierName;
+
+	const tierId = postMeta?.[ META_NAME_FOR_POST_TIER_ID_SETTINGS ];
+	const currentTierName =
+		accessLevel === accessOptions.paid_subscribers.key && tierId
+			? tierProducts?.find( p => String( p.id ) === String( tierId ) )?.title ?? null
+			: null;
+
+	const baseMatches = ! statsAccess || statsBase === accessLevel;
+	const tierMatches =
+		( ! statsTierName && ! currentTierName ) ||
+		( statsTierName && currentTierName && statsTierName === currentTierName );
+	const accessMatches = baseMatches && tierMatches;
+
+	const categoriesMatch =
+		! statsOnSend?.has_newsletter_categories ||
+		( Array.isArray( postCategories ) &&
+			statsCats.length === postCategories.length &&
+			statsCats.every( id => postCategories.includes( id ) ) );
+
+	return alreadySentPostModifiedInSession || prePublish || ! accessMatches || ! categoriesMatch;
+}
+
+/**
  * Build "was sent" or "is being sent" copy for access + categories.
  *
  * @param {object}  opts
@@ -475,8 +527,8 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 		emailSentAt == null &&
 		( publishedWithEmailEnabledInSession ||
 			( publishDate && publishDate.getTime() >= Date.now() - SENDING_IN_PROGRESS_WINDOW_MS ) );
-	const isPublishedNotSent =
-		status === 'publish' && isSendEmailEnabled() && emailSentAt == null && ! isSendingInProgress;
+	const isPublishedWithoutEmail =
+		status === 'publish' && emailSentAt == null && ! isSendingInProgress;
 
 	const reachForAccessLevel = getReachForAccessLevelKey( {
 		accessLevel,
@@ -488,32 +540,7 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 	let text;
 	let showWontResendMessage = false;
 
-	if ( ! isSendEmailEnabled() ) {
-		// "Post only" but already emailed: show "was sent" copy, not "Not sent via email"
-		if ( isStatsOnlyFallback ) {
-			text = __( 'This post was emailed. View <link>delivery details</link>.', 'jetpack' );
-		} else if ( isAlreadySent ) {
-			text = getSentCopyLine( {
-				accessLabel: sentAccessLabel,
-				categoryNames: sentCategoryNames,
-				pastTense: true,
-				dateStr,
-			} );
-		} else if ( status === 'publish' ) {
-			text = __(
-				"This post was published without sending an email. To send, move the post to draft, enable 'Post and email,' and republish.",
-				'jetpack',
-				0 // dummy arg to avoid bad minification - https://github.com/Automattic/i18n-check-webpack-plugin?tab=readme-ov-file#conditional-function-call-compaction
-			);
-		} else {
-			text = __( 'Not sent via email.', 'jetpack' );
-		}
-	} else if ( isComingSoon() ) {
-		text = __(
-			'Your site is in Coming Soon mode. Emails are sent only when your site is public.',
-			'jetpack'
-		);
-	} else if ( isAlreadySent ) {
+	if ( isAlreadySent ) {
 		text = getSentCopyLine( {
 			accessLabel: sentAccessLabel,
 			categoryNames: sentCategoryNames,
@@ -521,34 +548,27 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 			dateStr,
 		} );
 
-		const statsAccess = statsOnSend?.access_level;
-		const statsCats = statsOnSend?.post_categories ?? [];
-		const statsAccessParsed = parseAccessLevel( statsAccess );
-		const statsBase = statsAccessParsed.base;
-		const statsTierName = statsAccessParsed.tierName;
-
-		const tierId = postMeta?.[ META_NAME_FOR_POST_TIER_ID_SETTINGS ];
-		const currentTierName =
-			accessLevel === accessOptions.paid_subscribers.key && tierId
-				? tierProducts?.find( p => String( p.id ) === String( tierId ) )?.title ?? null
-				: null;
-
-		const baseMatches = ! statsAccess || statsBase === accessLevel;
-		const tierMatches =
-			( ! statsTierName && ! currentTierName ) ||
-			( statsTierName && currentTierName && statsTierName === currentTierName );
-		const accessMatches = baseMatches && tierMatches;
-
-		const categoriesMatch =
-			! statsOnSend?.has_newsletter_categories ||
-			( Array.isArray( postCategories ) &&
-				statsCats.length === postCategories.length &&
-				statsCats.every( id => postCategories.includes( id ) ) );
-
-		showWontResendMessage =
-			alreadySentPostModifiedInSession || prePublish || ! accessMatches || ! categoriesMatch;
+		if ( isSendEmailEnabled() ) {
+			showWontResendMessage = shouldShowWontResendMessage( {
+				statsOnSend,
+				postMeta,
+				accessLevel,
+				tierProducts,
+				postCategories,
+				alreadySentPostModifiedInSession,
+				prePublish,
+			} );
+		}
 	} else if ( isStatsOnlyFallback ) {
-		text = __( 'This post was emailed. View <link>delivery details</link>.', 'jetpack' );
+		text = __(
+			'This post was emailed to subscribers. View <link>delivery details</link>.',
+			'jetpack'
+		);
+	} else if ( isComingSoon() ) {
+		text = __(
+			'Your site is in Coming Soon mode. Emails are sent only when your site is public.',
+			'jetpack'
+		);
 	} else if ( isSendingInProgress ) {
 		const accessLabel = getAccessLevelLabel( accessLevel );
 		const categoryNames =
@@ -561,11 +581,13 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 			pastTense: false,
 			dateStr: '',
 		} );
-	} else if ( isPublishedNotSent ) {
+	} else if ( isPublishedWithoutEmail ) {
 		text = __(
 			"This post was published without sending an email. To send, move the post to draft, enable 'Post and email,' and republish.",
 			'jetpack'
 		);
+	} else if ( ! isSendEmailEnabled() ) {
+		text = __( 'Not sent via email.', 'jetpack' );
 	} else if ( newsletterCategoriesEnabled && newsletterCategories.length > 0 && ! isPaidPost ) {
 		// Pre-send (prepublish/scheduled) or published fallback — category subscribers
 		text = getCopyForCategorySubscribers( {
