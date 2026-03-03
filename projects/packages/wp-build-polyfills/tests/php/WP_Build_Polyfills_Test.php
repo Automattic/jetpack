@@ -1,0 +1,425 @@
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+/**
+ * Tests for WP_Build_Polyfills.
+ *
+ * @package automattic/jetpack-wp-build-polyfills
+ */
+
+namespace Automattic\Jetpack\WP_Build_Polyfills\Tests;
+
+use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
+use PHPUnit\Framework\Attributes\After;
+use PHPUnit\Framework\Attributes\Before;
+use WorDBless\BaseTestCase;
+
+/**
+ * Tests for the WP_Build_Polyfills class.
+ */
+class WP_Build_Polyfills_Test extends BaseTestCase {
+
+	/**
+	 * Temporary build directory for fake asset files.
+	 *
+	 * @var string
+	 */
+	private $build_dir;
+
+	/**
+	 * Original wp_version value.
+	 *
+	 * @var string
+	 */
+	private $original_wp_version;
+
+	/**
+	 * Original wp_script_modules global.
+	 *
+	 * @var mixed
+	 */
+	private $original_wp_script_modules;
+
+	/**
+	 * Set up test fixtures.
+	 *
+	 * @before
+	 */
+	#[Before]
+	public function set_up() {
+		parent::set_up();
+
+		$this->build_dir = sys_get_temp_dir() . '/wp-build-polyfills-test-' . uniqid();
+		mkdir( $this->build_dir . '/scripts/notices', 0755, true ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_mkdir
+		mkdir( $this->build_dir . '/scripts/private-apis', 0755, true ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_mkdir
+		mkdir( $this->build_dir . '/scripts/theme', 0755, true ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_mkdir
+		mkdir( $this->build_dir . '/modules/boot', 0755, true ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_mkdir
+		mkdir( $this->build_dir . '/modules/route', 0755, true ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_mkdir
+		mkdir( $this->build_dir . '/modules/a11y', 0755, true ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_mkdir
+
+		$this->original_wp_version        = $GLOBALS['wp_version'];
+		$this->original_wp_script_modules = $GLOBALS['wp_script_modules'] ?? null;
+	}
+
+	/**
+	 * Tear down test fixtures.
+	 *
+	 * @after
+	 */
+	#[After]
+	public function tear_down() {
+		$GLOBALS['wp_version'] = $this->original_wp_version; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+
+		if ( null === $this->original_wp_script_modules ) {
+			unset( $GLOBALS['wp_script_modules'] );
+		} else {
+			$GLOBALS['wp_script_modules'] = $this->original_wp_script_modules; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		}
+
+		$this->recursive_rmdir( $this->build_dir );
+
+		parent::tear_down();
+	}
+
+	/**
+	 * Create a fake asset file.
+	 *
+	 * @param string $path    Relative path within the build dir (e.g. "scripts/notices/index.asset.php").
+	 * @param array  $deps    Dependencies array.
+	 * @param string $version Version string.
+	 * @param array  $extra   Extra keys to merge into the asset array.
+	 */
+	private function create_asset_file( $path, $deps = array(), $version = '1.0.0', $extra = array() ) {
+		$data     = array_merge(
+			array(
+				'dependencies' => $deps,
+				'version'      => $version,
+			),
+			$extra
+		);
+		$contents = '<?php return ' . var_export( $data, true ) . ";\n"; // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_var_export
+		file_put_contents( $this->build_dir . '/' . $path, $contents ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+	}
+
+	/**
+	 * Create a WP_Scripts instance with polyfill handles removed.
+	 *
+	 * WP_Scripts::__construct() fires wp_default_scripts which registers core
+	 * scripts. We remove the three handles under test so tests start clean.
+	 *
+	 * @return \WP_Scripts
+	 */
+	private function create_clean_scripts() {
+		$scripts = new \WP_Scripts();
+		$scripts->remove( 'wp-notices' );
+		$scripts->remove( 'wp-private-apis' );
+		$scripts->remove( 'wp-theme' );
+		return $scripts;
+	}
+
+	/**
+	 * Invoke the private register_scripts method.
+	 *
+	 * @param \WP_Scripts $scripts WP_Scripts instance.
+	 */
+	private function invoke_register_scripts( $scripts ) {
+		$method = new \ReflectionMethod( WP_Build_Polyfills::class, 'register_scripts' );
+		$method->setAccessible( true );
+		$method->invoke( null, $scripts, $this->build_dir, __FILE__ );
+	}
+
+	/**
+	 * Invoke the private register_modules method.
+	 */
+	private function invoke_register_modules() {
+		$method = new \ReflectionMethod( WP_Build_Polyfills::class, 'register_modules' );
+		$method->setAccessible( true );
+		$method->invoke( null, $this->build_dir, __FILE__ );
+	}
+
+	/**
+	 * Check if a script module is registered.
+	 *
+	 * @param string $id Module ID.
+	 * @return bool
+	 */
+	private function is_module_registered( $id ) {
+		$registered = $this->get_registered_modules();
+		return isset( $registered[ $id ] );
+	}
+
+	/**
+	 * Get data for a registered module.
+	 *
+	 * @param string $id Module ID.
+	 * @return array|null
+	 */
+	private function get_module_data( $id ) {
+		$registered = $this->get_registered_modules();
+		return $registered[ $id ] ?? null;
+	}
+
+	/**
+	 * Get the private $registered property from WP_Script_Modules.
+	 *
+	 * @return array
+	 */
+	private function get_registered_modules() {
+		$instance = wp_script_modules();
+		$prop     = new \ReflectionProperty( $instance, 'registered' );
+		$prop->setAccessible( true );
+		return $prop->getValue( $instance );
+	}
+
+	/**
+	 * Recursively remove a directory.
+	 *
+	 * @param string $dir Directory path.
+	 */
+	private function recursive_rmdir( $dir ) {
+		if ( ! is_dir( $dir ) ) {
+			return;
+		}
+		$items = new \RecursiveIteratorIterator(
+			new \RecursiveDirectoryIterator( $dir, \RecursiveDirectoryIterator::SKIP_DOTS ),
+			\RecursiveIteratorIterator::CHILD_FIRST
+		);
+		foreach ( $items as $item ) {
+			if ( $item->isDir() ) {
+				rmdir( $item->getRealPath() ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir
+			} else {
+				unlink( $item->getRealPath() ); // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink
+			}
+		}
+		rmdir( $dir ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir
+	}
+
+	/**
+	 * Test that all scripts are registered when all asset files exist.
+	 */
+	public function test_register_scripts_registers_all_when_asset_files_exist() {
+		$this->create_asset_file( 'scripts/notices/index.asset.php' );
+		$this->create_asset_file( 'scripts/private-apis/index.asset.php' );
+		$this->create_asset_file( 'scripts/theme/index.asset.php' );
+
+		$scripts = $this->create_clean_scripts();
+		$this->invoke_register_scripts( $scripts );
+
+		$this->assertNotFalse( $scripts->query( 'wp-notices', 'registered' ) );
+		$this->assertNotFalse( $scripts->query( 'wp-private-apis', 'registered' ) );
+		$this->assertNotFalse( $scripts->query( 'wp-theme', 'registered' ) );
+	}
+
+	/**
+	 * Test that no scripts are registered when asset files are missing.
+	 */
+	public function test_register_scripts_skips_when_asset_files_missing() {
+		$scripts = $this->create_clean_scripts();
+		$this->invoke_register_scripts( $scripts );
+
+		$this->assertFalse( $scripts->query( 'wp-notices', 'registered' ) );
+		$this->assertFalse( $scripts->query( 'wp-private-apis', 'registered' ) );
+		$this->assertFalse( $scripts->query( 'wp-theme', 'registered' ) );
+	}
+
+	/**
+	 * Test that only scripts with asset files are registered.
+	 */
+	public function test_register_scripts_registers_only_scripts_with_asset_files() {
+		$this->create_asset_file( 'scripts/notices/index.asset.php' );
+		// No asset file for private-apis or theme.
+
+		$scripts = $this->create_clean_scripts();
+		$this->invoke_register_scripts( $scripts );
+
+		$this->assertNotFalse( $scripts->query( 'wp-notices', 'registered' ) );
+		$this->assertFalse( $scripts->query( 'wp-private-apis', 'registered' ) );
+		$this->assertFalse( $scripts->query( 'wp-theme', 'registered' ) );
+	}
+
+	/**
+	 * Test that wp-theme (non-force) keeps existing registration.
+	 */
+	public function test_register_scripts_skips_wp_theme_when_already_registered() {
+		$this->create_asset_file( 'scripts/theme/index.asset.php', array(), '2.0.0' );
+
+		$scripts = $this->create_clean_scripts();
+		$scripts->add( 'wp-theme', 'https://example.com/original-theme.js', array(), '1.0.0-original' );
+
+		$this->invoke_register_scripts( $scripts );
+
+		$registered = $scripts->query( 'wp-theme', 'registered' );
+		$this->assertNotFalse( $registered );
+		$this->assertSame( '1.0.0-original', $registered->ver );
+	}
+
+	/**
+	 * Test that wp-notices is force-replaced on WP < 7.0.
+	 */
+	public function test_register_scripts_force_replaces_wp_notices_on_old_wp() {
+		$GLOBALS['wp_version'] = '6.8'; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$this->create_asset_file( 'scripts/notices/index.asset.php', array(), '9.9.9' );
+
+		$scripts = $this->create_clean_scripts();
+		$scripts->add( 'wp-notices', 'https://example.com/old-notices.js', array(), '1.0.0-old' );
+
+		$this->invoke_register_scripts( $scripts );
+
+		$registered = $scripts->query( 'wp-notices', 'registered' );
+		$this->assertNotFalse( $registered );
+		$this->assertSame( '9.9.9', $registered->ver );
+	}
+
+	/**
+	 * Test that wp-private-apis is force-replaced on WP < 7.0.
+	 */
+	public function test_register_scripts_force_replaces_wp_private_apis_on_old_wp() {
+		$GLOBALS['wp_version'] = '6.8'; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$this->create_asset_file( 'scripts/private-apis/index.asset.php', array(), '9.9.9' );
+
+		$scripts = $this->create_clean_scripts();
+		$scripts->add( 'wp-private-apis', 'https://example.com/old-private-apis.js', array(), '1.0.0-old' );
+
+		$this->invoke_register_scripts( $scripts );
+
+		$registered = $scripts->query( 'wp-private-apis', 'registered' );
+		$this->assertNotFalse( $registered );
+		$this->assertSame( '9.9.9', $registered->ver );
+	}
+
+	/**
+	 * Test that neither wp-notices nor wp-private-apis is force-replaced on WP >= 7.0.
+	 */
+	public function test_register_scripts_does_not_force_replace_on_wp_7() {
+		$GLOBALS['wp_version'] = '7.0'; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$this->create_asset_file( 'scripts/notices/index.asset.php', array(), '9.9.9' );
+		$this->create_asset_file( 'scripts/private-apis/index.asset.php', array(), '9.9.9' );
+
+		$scripts = $this->create_clean_scripts();
+		$scripts->add( 'wp-notices', 'https://example.com/core-notices.js', array(), '1.0.0-core' );
+		$scripts->add( 'wp-private-apis', 'https://example.com/core-private-apis.js', array(), '1.0.0-core' );
+
+		$this->invoke_register_scripts( $scripts );
+
+		$notices = $scripts->query( 'wp-notices', 'registered' );
+		$this->assertSame( '1.0.0-core', $notices->ver );
+
+		$private_apis = $scripts->query( 'wp-private-apis', 'registered' );
+		$this->assertSame( '1.0.0-core', $private_apis->ver );
+	}
+
+	/**
+	 * Test that force scripts register fine even when not pre-existing.
+	 */
+	public function test_register_scripts_force_registers_fresh_on_old_wp() {
+		$GLOBALS['wp_version'] = '6.8'; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$this->create_asset_file( 'scripts/notices/index.asset.php', array(), '9.9.9' );
+		$this->create_asset_file( 'scripts/private-apis/index.asset.php', array(), '8.8.8' );
+
+		$scripts = $this->create_clean_scripts();
+		$this->invoke_register_scripts( $scripts );
+
+		$notices = $scripts->query( 'wp-notices', 'registered' );
+		$this->assertNotFalse( $notices );
+		$this->assertSame( '9.9.9', $notices->ver );
+
+		$private_apis = $scripts->query( 'wp-private-apis', 'registered' );
+		$this->assertNotFalse( $private_apis );
+		$this->assertSame( '8.8.8', $private_apis->ver );
+	}
+
+	/**
+	 * Test that dependencies from asset files are passed through correctly.
+	 */
+	public function test_register_scripts_has_correct_dependencies() {
+		$this->create_asset_file( 'scripts/notices/index.asset.php', array( 'wp-element', 'wp-data' ) );
+
+		$scripts = $this->create_clean_scripts();
+		$this->invoke_register_scripts( $scripts );
+
+		$registered = $scripts->query( 'wp-notices', 'registered' );
+		$this->assertNotFalse( $registered );
+		$this->assertSame( array( 'wp-element', 'wp-data' ), $registered->deps );
+	}
+
+	/**
+	 * Test that all modules are registered when asset files exist.
+	 */
+	public function test_register_modules_registers_all_when_asset_files_exist() {
+		// Reset the script modules global so we start fresh.
+		$GLOBALS['wp_script_modules'] = new \WP_Script_Modules(); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+
+		$this->create_asset_file(
+			'modules/boot/index.asset.php',
+			array(),
+			'1.0.0',
+			array( 'module_dependencies' => array() )
+		);
+		$this->create_asset_file(
+			'modules/route/index.asset.php',
+			array(),
+			'1.0.0',
+			array( 'module_dependencies' => array() )
+		);
+		$this->create_asset_file(
+			'modules/a11y/index.asset.php',
+			array(),
+			'1.0.0',
+			array( 'module_dependencies' => array() )
+		);
+
+		$this->invoke_register_modules();
+
+		$this->assertTrue( $this->is_module_registered( '@wordpress/boot' ) );
+		$this->assertTrue( $this->is_module_registered( '@wordpress/route' ) );
+		$this->assertTrue( $this->is_module_registered( '@wordpress/a11y' ) );
+	}
+
+	/**
+	 * Test that no modules are registered when asset files are missing.
+	 */
+	public function test_register_modules_skips_when_asset_files_missing() {
+		$GLOBALS['wp_script_modules'] = new \WP_Script_Modules(); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+
+		$this->invoke_register_modules();
+
+		$this->assertFalse( $this->is_module_registered( '@wordpress/boot' ) );
+		$this->assertFalse( $this->is_module_registered( '@wordpress/route' ) );
+		$this->assertFalse( $this->is_module_registered( '@wordpress/a11y' ) );
+	}
+
+	/**
+	 * Test that pre-registered modules are not replaced (first-wins semantics).
+	 */
+	public function test_register_modules_does_not_replace_existing() {
+		$GLOBALS['wp_script_modules'] = new \WP_Script_Modules(); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+
+		// Pre-register @wordpress/boot.
+		wp_register_script_module( '@wordpress/boot', 'https://example.com/core-boot.js', array(), '1.0.0-core' );
+
+		$this->create_asset_file(
+			'modules/boot/index.asset.php',
+			array(),
+			'9.9.9',
+			array( 'module_dependencies' => array() )
+		);
+
+		$this->invoke_register_modules();
+
+		$module = $this->get_module_data( '@wordpress/boot' );
+		$this->assertNotNull( $module );
+		$this->assertSame( '1.0.0-core', $module['version'] );
+	}
+
+	/**
+	 * Test that register() hooks into wp_default_scripts at priority 20.
+	 */
+	public function test_register_hooks_into_wp_default_scripts() {
+		// Remove any existing hooks so we can verify the exact priority.
+		remove_all_filters( 'wp_default_scripts' );
+
+		WP_Build_Polyfills::register();
+
+		global $wp_filter;
+		$this->assertArrayHasKey( 'wp_default_scripts', $wp_filter );
+		$this->assertArrayHasKey( 20, $wp_filter['wp_default_scripts']->callbacks );
+	}
+}
