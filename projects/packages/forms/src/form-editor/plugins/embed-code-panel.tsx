@@ -15,7 +15,8 @@ export const EMBED_CODE_PANEL_PLUGIN = 'jetpack-form-embed-code-panel';
  * Embed Code Panel component.
  *
  * Adds post status info rows with the embed code and shortcode, each with a copy button.
- * Only renders when editing a jetpack_form post type.
+ * Rendered only in the jetpack_form post editor; post-type scoping is handled by
+ * registration logic in form-editor/index.tsx.
  *
  * @return {JSX.Element|null} The embed code panel or null.
  */
