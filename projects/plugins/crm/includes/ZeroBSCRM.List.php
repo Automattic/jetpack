@@ -544,7 +544,6 @@ class zeroBSCRM_list {
 
 			// this assumes is contact for now, just sends to prefill - perhaps later add mailto: optional (wh wants lol)
 			var zbsObjectEmailLinkPrefix = '<?php echo jpcrm_esc_link( 'email', -1, 'zerobs_customer', true ); ?>';
-			
 			var zbsObjectViewLinkPrefixCustomer = '<?php echo jpcrm_esc_link( 'view', -1, 'zerobs_customer', true ); ?>';
 			var zbsObjectViewLinkPrefixCompany = '<?php echo jpcrm_esc_link( 'view', -1, 'zerobs_company', true ); ?>';
 			var zbsObjectViewLinkPrefixQuote = '<?php echo jpcrm_esc_link( 'edit', -1, 'zerobs_quote', true ); ?>';
