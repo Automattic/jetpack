@@ -5,7 +5,7 @@ import './copy-code-row.scss';
 import { Button, Popover } from '@wordpress/components';
 import { useCopyToClipboard } from '@wordpress/compose';
 import { useState, useEffect, useRef, useCallback } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, isRTL } from '@wordpress/i18n';
 import { copySmall, check } from '@wordpress/icons';
 
 type CopyCodeRowProps = {
@@ -86,7 +86,7 @@ export const CopyCodeRow = ( { text, label }: CopyCodeRowProps ) => {
 						label={ __( 'Copied!', 'jetpack-forms' ) }
 					>
 						<Popover
-							placement="top"
+							placement={ isRTL() ? 'top-start' : 'top-end' }
 							noArrow={ false }
 							focusOnMount={ false }
 							className="jetpack-form-embed-code__popover"
