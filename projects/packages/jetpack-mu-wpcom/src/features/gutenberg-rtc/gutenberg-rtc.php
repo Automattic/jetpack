@@ -10,10 +10,21 @@
  */
 
 /**
+ * Check whether Gutenberg RTC is enabled or not
+ */
+function wpcom_is_gutenberg_rtc_enabled() {
+	return apply_filters( 'wpcom_is_gutenberg_rtc_enabled', false );
+}
+
+/**
  * Get WPCOM RTC providers.
  */
 function wpcom_get_gutenberg_rtc_providers() {
-	return array();
+	if ( ! wpcom_is_gutenberg_rtc_enabled() ) {
+		return array();
+	}
+
+	return apply_filters( 'wpcom_gutenberg_rtc_providers', array() );
 }
 
 /**
