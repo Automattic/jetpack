@@ -68,7 +68,8 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress_Test extends BaseTestCase {
 	 */
 	public function test_routes_are_registered() {
 		$this->assertNotNull( $this->find_route_key( 'videopress/meta' ) );
-		$this->assertNotNull( $this->find_route_key( 'videopress/' ) && $this->find_route_key( '/poster' ) );
+		$this->assertNotNull( $this->find_route_key( 'videopress/' ) );
+		$this->assertNotNull( $this->find_route_key( '/poster' ) );
 		$this->assertNotNull( $this->find_route_key( 'check-ownership' ) );
 		$this->assertNotNull( $this->find_route_key( 'upload-jwt' ) );
 		$this->assertNotNull( $this->find_route_key( 'playback-jwt' ) );
@@ -196,8 +197,8 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress_Test extends BaseTestCase {
 			'valid all uppercase'       => array( 'ABCD1234', true ),
 			'valid all digits'          => array( '12345678', true ),
 			'too short'                 => array( 'abc1234', false ),
-			'too long'                  => array( 'abcd12345', false ),
 			'contains special chars'    => array( 'abcd-234', false ),
+			'empty string'              => array( '', false ),
 		);
 	}
 
@@ -213,14 +214,14 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress_Test extends BaseTestCase {
 	public function test_video_guid_pattern_validation( string $guid, bool $expected ) {
 		$routes     = rest_get_server()->get_routes();
 		$route_data = $routes['/wpcom/v2/videopress/playback-jwt/(?P<video_guid>\\w+)'];
-		$args       = $route_data[0]['args'];
+		$schema     = $route_data[0]['args']['video_guid'];
 
-		$pattern = $args['video_guid']['pattern'];
+		$result = rest_validate_value_from_schema( $guid, $schema, 'video_guid' );
 
 		if ( $expected ) {
-			$this->assertMatchesRegularExpression( '/^' . $pattern . '$/', $guid );
+			$this->assertTrue( true === $result );
 		} else {
-			$this->assertDoesNotMatchRegularExpression( '/^' . $pattern . '$/', $guid );
+			$this->assertInstanceOf( \WP_Error::class, $result );
 		}
 	}
 

@@ -326,7 +326,7 @@ class Initializer {
 			$maybe_premium_script = '<script>' . $script_content . '</script>';
 		}
 
-		// $id_attribute, $video_wrapper, $figcaption properly escaped earlier on the code.
+		// $id_attribute, $video_wrapper, $figcaption properly escaped earlier in the code.
 		return sprintf(
 			$figure_template,
 			esc_attr( $classes ),
