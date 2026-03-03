@@ -355,15 +355,26 @@ function getSentCopyLine( { accessLabel, categoryNames, pastTense, dateStr } ) {
 	}
 	if ( categoryNames ) {
 		if ( pastTense ) {
+			if ( dateStr ) {
+				return sprintf(
+					/* translators: %1$s: access (e.g. "all subscribers"), %2$s: category list, %3$s: date */
+					__(
+						'This post was emailed to %1$s of %2$s on %3$s. View <link>delivery details</link>.',
+						'jetpack'
+					),
+					accessLabel,
+					categoryNames,
+					dateStr
+				);
+			}
 			return sprintf(
-				/* translators: %1$s: access (e.g. "all subscribers"), %2$s: category list, %3$s: date */
+				/* translators: %1$s: access (e.g. "all subscribers"), %2$s: category list */
 				__(
-					'This post was emailed to %1$s of %2$s on %3$s. View <link>delivery details</link>.',
+					'This post was emailed to %1$s of %2$s. View <link>delivery details</link>.',
 					'jetpack'
 				),
 				accessLabel,
-				categoryNames,
-				dateStr
+				categoryNames
 			);
 		}
 		return sprintf(
@@ -377,11 +388,21 @@ function getSentCopyLine( { accessLabel, categoryNames, pastTense, dateStr } ) {
 		);
 	}
 	if ( pastTense ) {
+		if ( dateStr ) {
+			return sprintf(
+				/* translators: %1$s: access, %2$s: date */
+				__(
+					'This post was emailed to %1$s on %2$s. View <link>delivery details</link>.',
+					'jetpack'
+				),
+				accessLabel,
+				dateStr
+			);
+		}
 		return sprintf(
-			/* translators: %1$s: access, %2$s: date */
-			__( 'This post was emailed to %1$s on %2$s. View <link>delivery details</link>.', 'jetpack' ),
-			accessLabel,
-			dateStr
+			/* translators: %s: access */
+			__( 'This post was emailed to %s. View <link>delivery details</link>.', 'jetpack' ),
+			accessLabel
 		);
 	}
 	return sprintf(
