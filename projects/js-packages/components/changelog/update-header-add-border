@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+AdminPage: Hide header border only when tabs prop is provided.
