@@ -482,7 +482,7 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 	} );
 
 	let text;
-	let append = '';
+	let showWontResendMessage = false;
 
 	if ( ! isSendEmailEnabled() ) {
 		// "Post only" but already emailed: show "was sent" copy, not "Not sent via email"
@@ -514,9 +514,6 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 			pastTense: true,
 			dateStr,
 		} );
-		if ( alreadySentPostModifiedInSession || prePublish ) {
-			append = '\n' + __( 'Updating or republishing does not send a new email.', 'jetpack' );
-		}
 
 		const statsAccess = statsOnSend?.access_level;
 		const statsCats = statsOnSend?.post_categories ?? [];
@@ -542,11 +539,8 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 				statsCats.length === postCategories.length &&
 				statsCats.every( ( id, i ) => postCategories[ i ] === id ) );
 
-		if ( ! accessMatches || ! categoriesMatch ) {
-			append = append
-				? append + '\n' + __( 'Changing access settings does not resend the email.', 'jetpack' )
-				: '\n' + __( 'Changing access settings does not resend the email.', 'jetpack' );
-		}
+		showWontResendMessage =
+			alreadySentPostModifiedInSession || prePublish || ! accessMatches || ! categoriesMatch;
 	} else if ( isSendingInProgress ) {
 		const accessLabel = getAccessLevelLabel( accessLevel );
 		const categoryNames =
@@ -584,13 +578,25 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 	}
 
 	return (
-		<p>
-			{ createInterpolateElement( text, {
-				strong: <strong />,
-				link: <a href={ getJetpackEmailStatsLink( blogId, postId ) } />,
-			} ) }
-			{ append ? <strong style={ { whiteSpace: 'pre-line' } }>{ append }</strong> : null }
-		</p>
+		<>
+			<p>
+				{ createInterpolateElement( text, {
+					strong: <strong />,
+					link: <a href={ getJetpackEmailStatsLink( blogId, postId ) } />,
+				} ) }
+			</p>
+			{ showWontResendMessage && (
+				<p>
+					{ createInterpolateElement(
+						__(
+							"Updating, republishing, or changing access settings <strong>won't</strong> resend the email.",
+							'jetpack'
+						),
+						{ strong: <strong /> }
+					) }
+				</p>
+			) }
+		</>
 	);
 }
 
