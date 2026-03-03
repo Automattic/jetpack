@@ -297,10 +297,7 @@ function getSentCopyLine( { accessLabel, categoryNames, pastTense, dateStr } ) {
 	if ( pastTense && dateStr && ! accessLabel ) {
 		return sprintf(
 			/* translators: %s: formatted date */
-			__(
-				'This post was emailed on %s. View delivery details on <link>your email stats page</link>.',
-				'jetpack'
-			),
+			__( 'This post was emailed on %s. View <link>delivery details</link>.', 'jetpack' ),
 			dateStr
 		);
 	}
@@ -309,7 +306,7 @@ function getSentCopyLine( { accessLabel, categoryNames, pastTense, dateStr } ) {
 			return sprintf(
 				/* translators: %1$s: access (e.g. "all subscribers"), %2$s: category list, %3$s: date */
 				__(
-					'This post was emailed to %1$s of %2$s on %3$s. View delivery details on <link>your email stats page</link>.',
+					'This post was emailed to %1$s of %2$s on %3$s. View <link>delivery details</link>.',
 					'jetpack'
 				),
 				accessLabel,
@@ -330,10 +327,7 @@ function getSentCopyLine( { accessLabel, categoryNames, pastTense, dateStr } ) {
 	if ( pastTense ) {
 		return sprintf(
 			/* translators: %1$s: access, %2$s: date */
-			__(
-				'This post was emailed to %1$s on %2$s. View delivery details on <link>your email stats page</link>.',
-				'jetpack'
-			),
+			__( 'This post was emailed to %1$s on %2$s. View <link>delivery details</link>.', 'jetpack' ),
 			accessLabel,
 			dateStr
 		);
