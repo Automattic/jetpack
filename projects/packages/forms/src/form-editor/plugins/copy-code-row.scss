@@ -44,5 +44,7 @@
 		white-space: nowrap;
 		flex: 1;
 		min-width: 0;
+		cursor: text;
+		user-select: all;
 	}
 }

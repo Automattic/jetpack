@@ -4,7 +4,7 @@
 import './copy-code-row.scss';
 import { Button, Popover } from '@wordpress/components';
 import { useCopyToClipboard } from '@wordpress/compose';
-import { useState, useEffect, useRef } from '@wordpress/element';
+import { useState, useEffect, useRef, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { copySmall, check } from '@wordpress/icons';
 
@@ -22,6 +22,29 @@ type CopyCodeRowProps = {
 export const CopyCodeRow = ( { text, label }: CopyCodeRowProps ) => {
 	const [ showCopyConfirmation, setShowCopyConfirmation ] = useState( false );
 	const timeoutIdRef = useRef< number | null >( null );
+	const textRef = useRef< HTMLSpanElement >( null );
+
+	const handleTextClick = useCallback( () => {
+		if ( ! textRef.current ) {
+			return;
+		}
+		const selection = textRef.current.ownerDocument.defaultView?.getSelection();
+		if ( selection ) {
+			const range = document.createRange();
+			range.selectNodeContents( textRef.current );
+			selection.removeAllRanges();
+			selection.addRange( range );
+		}
+	}, [] );
+
+	const handleKeyDown = useCallback(
+		( event: React.KeyboardEvent ) => {
+			if ( event.key === 'Enter' || event.key === ' ' ) {
+				handleTextClick();
+			}
+		},
+		[ handleTextClick ]
+	);
 
 	const ref = useCopyToClipboard( text, () => {
 		setShowCopyConfirmation( true );
@@ -45,7 +68,16 @@ export const CopyCodeRow = ( { text, label }: CopyCodeRowProps ) => {
 		<div className="jetpack-form-embed-code__row">
 			<span className="jetpack-form-embed-code__label">{ label }</span>
 			<div className="jetpack-form-embed-code__container">
-				<span className="jetpack-form-embed-code__text">{ text }</span>
+				<span
+					ref={ textRef }
+					className="jetpack-form-embed-code__text"
+					onClick={ handleTextClick }
+					role="textbox"
+					tabIndex={ 0 }
+					onKeyDown={ handleKeyDown }
+				>
+					{ text }
+				</span>
 				{ showCopyConfirmation ? (
 					<Button
 						ref={ ref }
