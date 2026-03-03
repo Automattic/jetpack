@@ -5569,6 +5569,9 @@ importers:
       '@types/node':
         specifier: ^22.19.11
         version: 22.19.11
+      '@types/shell-escape':
+        specifier: 0.2.3
+        version: 0.2.3
       _jetpack-e2e-commons:
         specifier: workspace:*
         version: link:../../../../../tools/e2e-commons
@@ -9960,6 +9963,9 @@ packages:
 
   '@types/serve-static@1.15.10':
     resolution: {integrity: sha512-tRs1dB+g8Itk72rlSI2ZrW6vZg0YrLI81iQSTkMmOqnqCaNr/8Ek4VwWcN5vZgCYWbg/JJSGBlUaYGAOP73qBw==}
+
+  '@types/shell-escape@0.2.3':
+    resolution: {integrity: sha512-xZWkMuQkn1I20gEzhYRa4/t1pwZ8XiIkqGA1Iee1D2IgAUIRLr57nrgJgF2QmHEfkfVzOM59gi/4xp6V+Aq+4A==}
 
   '@types/shimmer@1.2.0':
     resolution: {integrity: sha512-UE7oxhQLLd9gub6JKIAhDq06T0F6FnztwMNRvYgjeQSBeMc1ZG/tA47EwfduvkuQS8apbkM/lpLpWsaCeYsXVg==}
@@ -22975,6 +22981,8 @@ snapshots:
       '@types/http-errors': 2.0.5
       '@types/node': 22.19.11
       '@types/send': 0.17.6
+
+  '@types/shell-escape@0.2.3': {}
 
   '@types/shimmer@1.2.0': {}
 

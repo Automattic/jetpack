@@ -17,7 +17,7 @@ test.afterEach( async ( { requestUtils } ) => {
 	// https://developer.wordpress.org/rest-api/reference/posts/#delete-a-post
 	// "/wp/v2/feedback" does not yet support batch requests.
 	await Promise.all(
-		feedbackSubmissions.map( feedback =>
+		feedbackSubmissions.map( ( feedback: { id: number } ) =>
 			requestUtils.rest( {
 				method: 'DELETE',
 				path: `/wp/v2/feedback/${ feedback.id }`,

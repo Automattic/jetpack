@@ -14,7 +14,7 @@ test( 'Jetpack Social connection', async ( { page, admin, requestUtils } ) => {
 	await test.step( 'Connect wordpress.com account to Jetpack Social', async () => {
 		await onboarding.connect( {
 			admin,
-			baseURL: requestUtils.baseURL,
+			baseURL: requestUtils.baseURL!,
 		} );
 	} );
 

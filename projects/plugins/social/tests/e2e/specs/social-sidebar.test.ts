@@ -14,7 +14,7 @@ test( 'Jetpack Social sidebar', async ( { page, admin, editor, requestUtils } ) 
 	await test.step( 'Connect wordpress.com account', async () => {
 		await onboarding.connect( {
 			admin,
-			baseURL: requestUtils.baseURL,
+			baseURL: requestUtils.baseURL!,
 		} );
 	} );
 

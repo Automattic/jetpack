@@ -400,13 +400,13 @@ const test = baseTest.extend< object, { searchUtils: SearchUtils } >( {
 
 			if ( category ) {
 				body.results = body.results.filter(
-					( v: { categories: string | string[] } ) => v?.categories?.includes( category )
+					( v: { categories?: string | string[] } ) => v?.categories?.includes( category )
 				);
 			}
 
 			if ( tag ) {
 				body.results = body.results.filter(
-					( v: { tags: string | string[] } ) => v?.tags?.includes( tag )
+					( v: { tags?: string | string[] } ) => v?.tags?.includes( tag )
 				);
 			}
 
