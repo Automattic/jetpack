@@ -18,8 +18,8 @@ let mockPostId = 42;
 let mockPostStatus = 'publish';
 
 await jest.unstable_mockModule( '@wordpress/data', () => ( {
-	useSelect: jest.fn( ( callback ) => {
-		const mockSelect = ( storeName ) => {
+	useSelect: jest.fn( callback => {
+		const mockSelect = storeName => {
 			expect( storeName ).toBe( 'core/editor' );
 			return {
 				getCurrentPostId: () => mockPostId,
