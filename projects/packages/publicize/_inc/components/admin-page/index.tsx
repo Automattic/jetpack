@@ -23,8 +23,8 @@ import { features, getSocialScriptData, hasSocialPaidFeatures } from '../../util
 import ConnectionScreen from './connection-screen';
 import Header from './header';
 import InfoSection from './info-section';
-import './styles.module.scss';
 import PricingPage from './pricing-page';
+import styles from './styles.module.scss';
 import SupportSection from './support-section';
 import SocialImageGeneratorToggle from './toggles/social-image-generator-toggle';
 import SocialModuleToggle from './toggles/social-module-toggle';
@@ -81,8 +81,9 @@ export const SocialAdminPage = () => {
 	}
 
 	const licenseAction =
-		! hasSocialPaidFeatures() && isJetpackSite
-			? createInterpolateElement(
+		! hasSocialPaidFeatures() && isJetpackSite ? (
+			<div className={ styles[ 'mobile-action-container' ] }>
+				{ createInterpolateElement(
 					__(
 						'Already have an existing plan or license key? <a>Click here to get started</a>',
 						'jetpack-publicize-pkg'
@@ -90,8 +91,9 @@ export const SocialAdminPage = () => {
 					{
 						a: <a href={ getMyJetpackUrl( '#/add-license' ) } />,
 					}
-			  )
-			: null;
+				) }
+			</div>
+		) : null;
 
 	return (
 		<AdminPage
