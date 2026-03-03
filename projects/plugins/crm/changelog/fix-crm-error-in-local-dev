@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fixed issue with list rendering in local dev.

@@ -166,7 +166,7 @@ class zeroBSCRM_list {
 			$sort = sanitize_text_field( $_GET['sort'] );
 		}
 		$sortOrder = false;
-		if ( isset( $_GET['sortdirection'] ) && ( $_GET['sortdirection'] == 'asc' || $_GET['sortdirection'] == 'desc' ) ) {
+		if ( isset( $_GET['sortdirection'] ) && ( $_GET['sortdirection'] === 'asc' || $_GET['sortdirection'] === 'desc' ) ) {
 			$sortOrder = sanitize_text_field( $_GET['sortdirection'] );
 		}
 
@@ -188,7 +188,7 @@ class zeroBSCRM_list {
 		if ( isset( $customViews ) && isset( $customViews[ $this->objType ] ) ) {
 			$currentColumns = $customViews[ $this->objType ];
 		}
-		if ( $currentColumns == false ) {
+		if ( $currentColumns === false ) {
 			$currentColumns = $defaultColumns;
 		}
 
@@ -270,7 +270,7 @@ class zeroBSCRM_list {
 										if ( ! array_key_exists( $colKey, $currentColumns ) ) {
 
 											// split em up
-											if ( isset( $col[2] ) && $col[2] == 'basefield' ) {
+											if ( isset( $col[2] ) && $col[2] === 'basefield' ) {
 												$allColumnsSorted['basefields'][ $colKey ] = $col;
 												$hasMultiColumnGroups                      = true;
 											} else {
@@ -334,7 +334,7 @@ class zeroBSCRM_list {
 									}
 
 									// if NONE output, we need to always have smt to drop to, so put empty:
-									if ( $colGroupCount == 0 ) {
+									if ( $colGroupCount === 0 ) {
 										echo '<div class="zbs-column-manager-connected">';
 										echo '</div>';
 									}
@@ -426,7 +426,7 @@ class zeroBSCRM_list {
 
 			<?php
 
-			$allowinlineedits = ( zeroBSCRM_getSetting( 'allowinlineedits' ) == '1' );
+			$allowinlineedits = ( zeroBSCRM_getSetting( 'allowinlineedits' ) === '1' );
 			$inlineEditStr    = array();
 			$columns          = array();
 
@@ -440,7 +440,7 @@ class zeroBSCRM_list {
 					// overrides
 
 					// Invoicing: Ref
-					if ( $this->objType == 'invoice' && $colKey == 'ref' ) {
+					if ( $this->objType === 'invoice' && $colKey === 'ref' ) {
 						$column_title = $zbs->settings->get( 'reflabel' );
 					}
 
@@ -542,14 +542,9 @@ class zeroBSCRM_list {
 			var zbsDrawListViewColUpdateBlocker = false;
 			var zbsDrawListViewColUpdateAJAXBlocker = false;
 
-			var zbsObjectEmailLinkPrefix = '
-			<?php
-
-				// this assumes is contact for now, just sends to prefill - perhaps later add mailto: optional (wh wants lol)
-				echo jpcrm_esc_link( 'email', -1, 'zerobs_customer', true );
-
-			?>
-			';
+			// this assumes is contact for now, just sends to prefill - perhaps later add mailto: optional (wh wants lol)
+			var zbsObjectEmailLinkPrefix = '<?php echo jpcrm_esc_link( 'email', -1, 'zerobs_customer', true ); ?>';
+			
 			var zbsObjectViewLinkPrefixCustomer = '<?php echo jpcrm_esc_link( 'view', -1, 'zerobs_customer', true ); ?>';
 			var zbsObjectViewLinkPrefixCompany = '<?php echo jpcrm_esc_link( 'view', -1, 'zerobs_company', true ); ?>';
 			var zbsObjectViewLinkPrefixQuote = '<?php echo jpcrm_esc_link( 'edit', -1, 'zerobs_quote', true ); ?>';
@@ -639,12 +634,12 @@ class zeroBSCRM_list {
 				// make simplified
 				$simple_tags = array();
 				if ( is_array( $tags ) && count( $tags ) > 0 ) {
-					foreach ( $tags as $t ) {
-						$simple_tags[] = array(
-							'id'   => $t['id'],
-							'name' => $t['name'],
-							'slug' => $t['slug'],
-						);
+				foreach ( $tags as $t ) {
+					$simple_tags[] = array(
+						'id'   => $t['id'],
+						'name' => $t['name'],
+						'slug' => $t['slug'],
+					);
 					}
 				}
 
@@ -664,9 +659,9 @@ class zeroBSCRM_list {
 							// phpcs:disable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 							global $zbsCustomerFields;
 							if ( is_array( $zbsCustomerFields['status'][3] ) ) {
-								echo wp_json_encode( $zbsCustomerFields['status'][3] );
+							echo wp_json_encode( $zbsCustomerFields['status'][3] );
 							} else {
-								echo '[]';
+							echo '[]';
 							}
 							// phpcs:enable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 						?>
@@ -678,9 +673,9 @@ class zeroBSCRM_list {
 						// hardcoded customer perms atm
 						$possible_owners = zeroBS_getPossibleOwners( array( 'zerobs_admin', 'zerobs_customermgr' ), true );
 						if ( ! is_array( $possible_owners ) ) {
-							echo wp_json_encode( array() );
+						echo wp_json_encode( array() );
 						} else {
-							echo wp_json_encode( $possible_owners );
+						echo wp_json_encode( $possible_owners );
 						}
 
 					?>
