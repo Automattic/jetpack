@@ -79,11 +79,7 @@
 - Sync: Add per-request in-memory cache in the Listener to reduce `get_transient` calls during action queue checks. [#47282]
 - Sync: Store `last_item` in status to improve Full Sync performance. [#47292]
 - Twitter Cards: Deprecate `Jetpack_Twitter_Cards` class in favor of `Automattic\Jetpack\Post_Media\Twitter_Cards`. [#47169]
-- Update package dependencies. [#46936] [#47002] [#47021]
-- Update package dependencies. [#47099]
-- Update package dependencies. [#47131] [#47173] [#47247]
-- Update package dependencies. [#47285] [#47288] [#47300]
-- Update package dependencies. [#47371]
+- Update package dependencies. [#46936] [#47002] [#47021] [#47099] [#47131] [#47173] [#47247] [#47285] [#47288] [#47300] [#47371]
 - VideoPress: Improve attachment details display with proper i18n support and WordPress core styling. [#46458]
 - WordPress.com Reader: Load feature in new module. [#46783]
 
