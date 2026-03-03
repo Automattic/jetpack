@@ -7,8 +7,6 @@
 
 namespace Automattic\Jetpack\VideoPress;
 
-use WP_Block;
-
 /**
  * Initialized the VideoPress package
  */
@@ -191,9 +189,9 @@ class Initializer {
 	 *
 	 * @global \WP_Embed $wp_embed WordPress embed handler.
 	 *
-	 * @param array          $block_attributes Block attributes.
-	 * @param string         $content          Current block markup.
-	 * @param WP_Block|array $block            Current block.
+	 * @param array     $block_attributes Block attributes.
+	 * @param string    $content          Current block markup.
+	 * @param \WP_Block $block            Current block.
 	 *
 	 * @return string Block markup.
 	 */
@@ -345,9 +343,7 @@ class Initializer {
 			 * for this use case. Clear recent failures so the next page render retries
 			 * oEmbed discovery, keeping the fallback iframe above temporary.
 			 */
-			$post_id = ( $block instanceof \WP_Block && ! empty( $block->context['postId'] ) )
-				? (int) $block->context['postId']
-				: get_the_ID();
+			$post_id = $block->context['postId'] ?? get_the_ID();
 
 			if ( $post_id ) {
 				$key_suffix   = md5( $videopress_url . serialize( wp_embed_defaults( $videopress_url ) ) ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize -- Matching WP_Embed cache key format.

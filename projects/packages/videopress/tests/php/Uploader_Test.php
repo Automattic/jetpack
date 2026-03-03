@@ -80,7 +80,7 @@ class Uploader_Test extends BaseTestCase {
 		);
 
 		$content = 'some content';
-		$block   = array( 'context' => array() );
+		$block   = new \WP_Block( array( 'blockName' => 'videopress/video' ) );
 
 		$rendered_block = VideoPress_Initializer::render_videopress_video_block( $attributes, $content, $block );
 
@@ -102,7 +102,7 @@ class Uploader_Test extends BaseTestCase {
 			'useAverageColor'     => false,
 		);
 
-		$block   = array( 'context' => array() );
+		$block   = new \WP_Block( array( 'blockName' => 'videopress/video' ) );
 		$content = 'some content';
 
 		$rendered_block = VideoPress_Initializer::render_videopress_video_block( $attributes, $content, $block );

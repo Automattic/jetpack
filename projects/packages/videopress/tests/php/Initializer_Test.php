@@ -45,7 +45,7 @@ class Initializer_Test extends BaseTestCase {
 	 */
 	private function render( $attributes = array() ) {
 		$attributes = array_merge( self::$default_attributes, $attributes );
-		$block      = array( 'context' => array() );
+		$block      = new \WP_Block( array( 'blockName' => 'videopress/video' ) );
 
 		add_filter( 'pre_oembed_result', '__return_false' );
 
