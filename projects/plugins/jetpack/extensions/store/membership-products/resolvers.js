@@ -191,7 +191,7 @@ const fetchPostEmailSentState = async postId => {
 	}
 
 	const response = await apiFetch( {
-		path: `/wpcom/v2/newsletter-email-sent-status?post_id=${ postId }`,
+		path: addQueryArgs( '/wpcom/v2/newsletter-email-sent-status', { post_id: postId } ),
 		method: 'GET',
 	} );
 
