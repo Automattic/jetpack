@@ -1,0 +1,35 @@
+diff --git a/build-types/utils.d.ts b/build-types/utils.d.ts
+index 16555add6792388ec57f942828805c84d566d3f5..90d5fec9259ec2ed1fcd83c90424b0a1df381bd4 100644
+--- a/build-types/utils.d.ts
++++ b/build-types/utils.d.ts
+@@ -4,8 +4,9 @@
+ import { type EffectCallback, type Inputs } from 'preact/hooks';
+ declare global {
+     interface Window {
+-        scheduler?: {
+-            readonly yield?: () => Promise<void>;
++        scheduler: {
++            postTask: (callback: () => unknown, options?: object) => Promise<unknown>;
++            yield: () => Promise<void>;
+         };
+     }
+ }
+diff --git a/src/utils.ts b/src/utils.ts
+index 9c5095ffe6b29f51e32c506462f302dc83eba859..3ee839e3ab7418876e7f9a17eebc63c55133d176 100644
+--- a/src/utils.ts
++++ b/src/utils.ts
+@@ -24,8 +24,12 @@ interface Flusher {
+ 
+ declare global {
+ 	interface Window {
+-		scheduler?: {
+-			readonly yield?: () => Promise< void >;
++		scheduler: {
++			postTask: (
++				callback: () => unknown,
++				options?: object
++			) => Promise< unknown >;
++			yield: () => Promise< void >;
+ 		};
+ 	}
+ }
