@@ -86,7 +86,7 @@ class Related_Posts_Abilities {
 	 */
 	private static function register_get_related_ability() {
 		wp_register_ability(
-			'jetpack-related-posts/get-related',
+			'jetpack/get-related-posts',
 			array(
 				'label'               => __( 'Get related posts', 'jetpack' ),
 				'description'         => __( 'Find posts related to a given post. Returns related post data including title, URL, excerpt, date, author, and contextual relevance. Uses Elasticsearch via the WordPress.com API.', 'jetpack' ),
