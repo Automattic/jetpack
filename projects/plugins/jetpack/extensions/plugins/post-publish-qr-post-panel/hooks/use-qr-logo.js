@@ -4,35 +4,50 @@ import { useState } from '@wordpress/element';
 import { applyFilters } from '@wordpress/hooks';
 
 /**
- * React hook that returns the site logo data.
+ * React hook that returns the optimal logo for QR code display.
+ * Prioritizes site icon (favicon) over site logo, as site icons are always square
+ * and render better in the small QR code center area.
  *
  * @param {object}  params                 - Hook parameters.
  * @param {boolean} params.generateDataUrl - Whether to convert the data URL to a blob. Default: false.
- * @return {object} Site Logo object data.
+ * @return {object} Logo object data with dataUrl, id, mediaId, url, alt properties.
  */
-export default function useSiteLogo( { generateDataUrl = false } = {} ) {
+export default function useQRLogo( { generateDataUrl = false } = {} ) {
 	const [ dataUrl, setDataUrl ] = useState();
-	const { id, mediaItemData } = useSelect( select => {
+	const { id, mediaItemData, source } = useSelect( select => {
 		const { canUser, getEntityRecord, getEditedEntityRecord } = select( coreStore );
 		const siteSettings = getEditedEntityRecord( 'root', 'site' );
 		const siteData = getEntityRecord( 'root', '__unstableBase' );
+		const canUserEdit = canUser( 'update', 'settings' );
+
+		// Prioritize site icon (favicon) - always square, ideal for QR codes
+		const siteIcon = siteSettings?.site_icon;
+		const readOnlySiteIcon = siteData?.site_icon;
+		const siteIconId = canUserEdit ? siteIcon : readOnlySiteIcon;
+
+		// Fallback to site logo if no site icon
 		const siteLogo = siteSettings?.site_logo;
 		const readOnlyLogo = siteData?.site_logo;
-		const canUserEdit = canUser( 'update', 'settings' );
 		const siteLogoId = canUserEdit ? siteLogo : readOnlyLogo;
+
+		// Use site icon if available, otherwise fall back to site logo
+		const logoId = siteIconId || siteLogoId;
+		const logoSource = siteIconId ? 'site_icon' : 'site_logo';
+
 		const mediaItem =
-			siteLogoId &&
-			select( coreStore ).getEntityRecord( 'postType', 'attachment', siteLogoId, {
+			logoId &&
+			select( coreStore ).getEntityRecord( 'postType', 'attachment', logoId, {
 				context: 'view',
 			} );
 
 		return {
-			id: siteLogoId,
+			id: logoId,
 			mediaItemData: mediaItem && {
 				mediaId: mediaItem.id,
 				url: mediaItem.source_url,
 				alt: mediaItem.alt_text,
 			},
+			source: logoSource,
 		};
 	}, [] );
 
@@ -41,7 +56,7 @@ export default function useSiteLogo( { generateDataUrl = false } = {} ) {
 	}
 
 	if ( ! generateDataUrl ) {
-		return { id, ...mediaItemData };
+		return { id, ...mediaItemData, source };
 	}
 
 	const image = new Image();
@@ -95,5 +110,5 @@ export default function useSiteLogo( { generateDataUrl = false } = {} ) {
 
 	image.src = mediaItemData.url;
 
-	return { id, ...mediaItemData, dataUrl };
+	return { id, ...mediaItemData, dataUrl, source };
 }
