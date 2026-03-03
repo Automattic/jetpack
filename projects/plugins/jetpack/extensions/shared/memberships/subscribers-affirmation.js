@@ -543,7 +543,7 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 			! statsOnSend?.has_newsletter_categories ||
 			( Array.isArray( postCategories ) &&
 				statsCats.length === postCategories.length &&
-				statsCats.every( ( id, i ) => postCategories[ i ] === id ) );
+				statsCats.every( id => postCategories.includes( id ) ) );
 
 		showWontResendMessage =
 			alreadySentPostModifiedInSession || prePublish || ! accessMatches || ! categoriesMatch;
