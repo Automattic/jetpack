@@ -486,6 +486,10 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 			const postEmailResolved =
 				! postId || hasFinishedResolution( 'getPostEmailSentState', [ postId ] );
 
+			const _postEmailSentState = postId ? getPostEmailSentState( postId ) : null;
+			const emailSentAt = _postEmailSentState?.email_sent_at ?? null;
+			const shouldFetchTotalEmails = postId && blogId && postEmailResolved && emailSentAt == null;
+
 			return {
 				hasFinishedLoading: [
 					hasFinishedResolution( 'getSubscriberCounts' ),
@@ -498,7 +502,7 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 				newsletterCategoriesEnabled: getNewsletterCategoriesEnabled(),
 				newsletterCategorySubscriberCount: getNewsletterCategoriesSubscriptionsCount(),
 				paidSubscribersCount: paidSubscribers,
-				postEmailSentState: postId ? getPostEmailSentState( postId ) : null,
+				postEmailSentState: _postEmailSentState,
 				alreadySentPostModifiedInSession: postId
 					? getAlreadySentPostModifiedInSession( postId )
 					: false,
@@ -506,7 +510,9 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 					? getPublishedWithEmailEnabledInSession( postId )
 					: false,
 				tierProducts: getNewsletterTierProducts(),
-				totalEmailsSentCount: postId ? getTotalEmailsSentCount( blogId, postId ) : null,
+				totalEmailsSentCount: shouldFetchTotalEmails
+					? getTotalEmailsSentCount( blogId, postId )
+					: null,
 			};
 		},
 		[ postId, blogId ]
