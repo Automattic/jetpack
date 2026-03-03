@@ -27,7 +27,7 @@ function wpcom_get_gutenberg_rtc_providers() {
 		return array();
 	}
 
-	return apply_filters( 'wpcom_gutenberg_rtc_providers', array() );
+	return apply_filters( 'wpcom_gutenberg_rtc_providers', array( 'pinghub' ) );
 }
 
 /**

@@ -1,9 +1,32 @@
+import domReady from '@wordpress/dom-ready';
 import { addFilter } from '@wordpress/hooks';
+import { createPingHubProvider, PingHubIframeBridge } from './providers/pinghub';
 
-// Register providers (e.g. PingHub) supplied by the server, and disable HTTP polling by returning only this provider.
-( function register() {
-	if ( typeof window === 'undefined' ) {
-		return;
-	}
-	addFilter( 'sync.providers', 'wpcom/pinghub-provider', () => window.wpcomGutenbergRTC.providers );
-} )();
+/**
+ * Register providers (e.g. PingHub) supplied by the server, and disable HTTP polling by returning only this provider.
+ */
+function registerWpcomGutenbergProviders() {
+	const getProviders = () => {
+		if ( ! window.wpcomGutenbergRTC?.providers ) {
+			return [];
+		}
+
+		return window.wpcomGutenbergRTC.providers
+			.map( ( provider: string ) => {
+				switch ( provider ) {
+					case 'pinghub': {
+						return createPingHubProvider( new PingHubIframeBridge() );
+					}
+					default:
+						return null;
+				}
+			} )
+			.filter( Boolean );
+	};
+
+	addFilter( 'sync.providers', 'wpcom/gutenberg-rtc-providers', () => getProviders() );
+}
+
+domReady( () => {
+	registerWpcomGutenbergProviders();
+} );
