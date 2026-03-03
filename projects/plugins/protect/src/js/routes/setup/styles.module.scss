@@ -1,0 +1,8 @@
+@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+
+.mobile-action-container {
+
+	@media ( max-width: gb.$break-medium ) {
+		max-width: 40vw;
+	}
+}
