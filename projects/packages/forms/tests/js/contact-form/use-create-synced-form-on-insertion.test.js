@@ -3,14 +3,14 @@
  */
 
 import { afterAll, beforeEach, describe, expect, it, jest } from '@jest/globals';
-import { renderHook, waitFor } from '@testing-library/react';
+import { renderHook, act, waitFor } from '@testing-library/react';
 
 // Mock dependencies
 const mockCreateSyncedForm = jest.fn();
 const mockCreateSuccessNotice = jest.fn();
 const mockCreateErrorNotice = jest.fn();
 const mockSetAttributes = jest.fn();
-const mockBatch = jest.fn( callback => callback() );
+const mockGetEntityRecord = jest.fn().mockResolvedValue( {} );
 let mockHasFeatureFlag = true;
 let mockCurrentPostType = 'post';
 let mockCurrentPostId = 123;
@@ -45,6 +45,10 @@ await jest.unstable_mockModule( '@wordpress/notices', () => ( {
 	store: 'core/notices',
 } ) );
 
+await jest.unstable_mockModule( '@wordpress/core-data', () => ( {
+	store: 'core',
+} ) );
+
 await jest.unstable_mockModule( '@wordpress/data', () => ( {
 	useSelect: selector => {
 		// The selector function expects to receive a `select` function
@@ -74,8 +78,8 @@ await jest.unstable_mockModule( '@wordpress/data', () => ( {
 		}
 		return {};
 	},
-	useRegistry: () => ( {
-		batch: mockBatch,
+	resolveSelect: () => ( {
+		getEntityRecord: mockGetEntityRecord,
 	} ),
 } ) );
 
@@ -154,6 +158,7 @@ describe( 'useCreateSyncedFormOnInsertion', () => {
 		mockCurrentPostId = 123;
 		mockWasBlockJustInserted = true;
 		mockCreateSyncedForm.mockResolvedValue( 42 );
+		mockGetEntityRecord.mockResolvedValue( {} );
 	} );
 
 	afterAll( () => {
@@ -202,8 +207,8 @@ describe( 'useCreateSyncedFormOnInsertion', () => {
 
 		renderHook( () => useCreateSyncedFormOnInsertion( propsWithRef ) );
 
-		// Wait a bit to ensure no async calls
-		await new Promise( resolve => setTimeout( resolve, 100 ) );
+		// Flush microtasks to ensure no async calls fire
+		await act( () => Promise.resolve() );
 
 		expect( mockCreateSyncedForm ).not.toHaveBeenCalled();
 	} );
@@ -213,8 +218,8 @@ describe( 'useCreateSyncedFormOnInsertion', () => {
 
 		renderHook( () => useCreateSyncedFormOnInsertion( propsWithoutInnerBlocks ) );
 
-		// Wait a bit to ensure no async calls
-		await new Promise( resolve => setTimeout( resolve, 100 ) );
+		// Flush microtasks to ensure no async calls fire
+		await act( () => Promise.resolve() );
 
 		expect( mockCreateSyncedForm ).not.toHaveBeenCalled();
 	} );
@@ -224,8 +229,8 @@ describe( 'useCreateSyncedFormOnInsertion', () => {
 
 		renderHook( () => useCreateSyncedFormOnInsertion( defaultProps ) );
 
-		// Wait a bit to ensure no async calls
-		await new Promise( resolve => setTimeout( resolve, 100 ) );
+		// Flush microtasks to ensure no async calls fire
+		await act( () => Promise.resolve() );
 
 		expect( mockCreateSyncedForm ).not.toHaveBeenCalled();
 	} );
@@ -235,8 +240,8 @@ describe( 'useCreateSyncedFormOnInsertion', () => {
 
 		renderHook( () => useCreateSyncedFormOnInsertion( defaultProps ) );
 
-		// Wait a bit to ensure no async calls
-		await new Promise( resolve => setTimeout( resolve, 100 ) );
+		// Flush microtasks to ensure no async calls fire
+		await act( () => Promise.resolve() );
 
 		expect( mockCreateSyncedForm ).not.toHaveBeenCalled();
 	} );
@@ -253,8 +258,8 @@ describe( 'useCreateSyncedFormOnInsertion', () => {
 		// Rerender with same props
 		rerender( defaultProps );
 
-		// Wait a bit and verify it wasn't called again
-		await new Promise( resolve => setTimeout( resolve, 100 ) );
+		// Flush microtasks to ensure it wasn't called again
+		await act( () => Promise.resolve() );
 
 		expect( mockCreateSyncedForm ).toHaveBeenCalledTimes( 1 );
 	} );
@@ -282,8 +287,8 @@ describe( 'useCreateSyncedFormOnInsertion', () => {
 
 		renderHook( () => useCreateSyncedFormOnInsertion( defaultProps ) );
 
-		// Wait a bit to ensure no async calls
-		await new Promise( resolve => setTimeout( resolve, 100 ) );
+		// Flush microtasks to ensure no async calls fire
+		await act( () => Promise.resolve() );
 
 		expect( mockCreateSyncedForm ).not.toHaveBeenCalled();
 	} );

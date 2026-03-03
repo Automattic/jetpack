@@ -9,7 +9,8 @@
 import { hasFeatureFlag } from '@automattic/jetpack-shared-extension-utils';
 import { store as blockEditorStore } from '@wordpress/block-editor';
 import { createBlock, type Block } from '@wordpress/blocks';
-import { useSelect, useDispatch, useRegistry } from '@wordpress/data';
+import { store as coreStore } from '@wordpress/core-data';
+import { useSelect, useDispatch, resolveSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { useEffect, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -29,8 +30,11 @@ interface UseCreateSyncedFormOnInsertionProps {
 /**
  * Get the variation title from the variationName attribute.
  *
+ * Returns the matching variation's title if variationName is set and matches a known variation.
+ * Returns undefined if variationName is not set or doesn't match any known variation.
+ *
  * @param {Record<string, unknown>} attributes - Block attributes.
- * @return {string | undefined} The variation title, or undefined if no variationName.
+ * @return {string | undefined} The variation title, or undefined.
  */
 function getVariationTitle( attributes: Record< string, unknown > ): string | undefined {
 	const variationName = attributes.variationName as string | undefined;
@@ -58,7 +62,6 @@ export function useCreateSyncedFormOnInsertion( {
 	setAttributes,
 }: UseCreateSyncedFormOnInsertionProps ): void {
 	const hasAttemptedCreation = useRef( false );
-	const registry = useRegistry();
 	const { createSuccessNotice, createErrorNotice } = useDispatch( noticesStore );
 
 	const isCentralFormManagementEnabled = hasFeatureFlag( 'central-form-management' );
@@ -134,10 +137,11 @@ export function useCreateSyncedFormOnInsertion( {
 					currentPostId
 				);
 
-				// Set the ref attribute to link to the synced form
-				registry.batch( () => {
-					setAttributes( { ref: formId } );
-				} );
+				// Preload the entity record into the cache before setting ref
+				// to prevent the form from showing a loading skeleton.
+				await resolveSelect( coreStore ).getEntityRecord( 'postType', FORM_POST_TYPE, formId );
+
+				setAttributes( { ref: formId } );
 
 				createSuccessNotice( __( 'New form created.', 'jetpack-forms' ), {
 					type: 'snackbar',
@@ -158,17 +162,6 @@ export function useCreateSyncedFormOnInsertion( {
 		};
 
 		createForm();
-	}, [
-		ref,
-		innerBlocks,
-		attributes,
-		wasBlockJustInserted,
-		isEditingJetpackFormPost,
-		isCentralFormManagementEnabled,
-		currentPostId,
-		setAttributes,
-		registry,
-		createSuccessNotice,
-		createErrorNotice,
-	] );
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [] );
 }
