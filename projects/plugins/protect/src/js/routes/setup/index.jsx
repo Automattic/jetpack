@@ -9,6 +9,7 @@ import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import ConnectedPricingTable from '../../components/pricing-table';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
+import styles from './styles.module.scss';
 
 const ACTIVATE_LICENSE_URL = 'admin.php?page=my-jetpack#/add-license';
 
@@ -23,7 +24,7 @@ const SetupRoute = () => {
 			title={ 'Protect' /** "Protect" is a product name, do not translate. */ }
 			subTitle={ __( 'Automated malware scanning and firewall protection.', 'jetpack-protect' ) }
 			actions={
-				<Text variant="body-small">
+				<Text variant="body-small" className={ styles[ 'mobile-action-container' ] }>
 					{ createInterpolateElement(
 						__(
 							'Already have an existing plan or license key? <a>Click here to get started</a>',
