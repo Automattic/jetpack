@@ -17,11 +17,13 @@ use WP_REST_Server;
 class WPCOM_REST_API_V2_Endpoint_VideoPress_Test extends BaseTestCase {
 
 	/**
-	 * REST server instance.
-	 *
-	 * @var WP_REST_Server
+	 * Full route keys used across tests.
 	 */
-	private $server;
+	private const ROUTE_META            = '/wpcom/v2/videopress/meta';
+	private const ROUTE_POSTER          = '/wpcom/v2/videopress/(?P<video_guid>[A-Za-z0-9]{8})/poster';
+	private const ROUTE_CHECK_OWNERSHIP = '/wpcom/v2/videopress/(?P<video_guid>[A-Za-z0-9]{8})/check-ownership/(?P<post_id>\d+)';
+	private const ROUTE_UPLOAD_JWT      = '/wpcom/v2/videopress/upload-jwt';
+	private const ROUTE_PLAYBACK_JWT    = '/wpcom/v2/videopress/playback-jwt/(?P<video_guid>[A-Za-z0-9]{8})';
 
 	/**
 	 * Set up the test environment.
@@ -31,7 +33,6 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress_Test extends BaseTestCase {
 
 		global $wp_rest_server;
 		$wp_rest_server = new WP_REST_Server();
-		$this->server   = $wp_rest_server;
 
 		new WPCOM_REST_API_V2_Endpoint_VideoPress();
 		do_action( 'rest_api_init' );
@@ -48,31 +49,16 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Helper to find a route key containing a substring.
-	 *
-	 * @param string $substring The substring to search for.
-	 * @return string|null The full route key, or null if not found.
-	 */
-	private function find_route_key( string $substring ): ?string {
-		$routes = rest_get_server()->get_routes();
-		foreach ( array_keys( $routes ) as $key ) {
-			if ( str_contains( $key, $substring ) ) {
-				return $key;
-			}
-		}
-		return null;
-	}
-
-	/**
 	 * Test that all expected REST routes are registered.
 	 */
 	public function test_routes_are_registered() {
-		$this->assertNotNull( $this->find_route_key( 'videopress/meta' ) );
-		$this->assertNotNull( $this->find_route_key( 'videopress/' ) );
-		$this->assertNotNull( $this->find_route_key( '/poster' ) );
-		$this->assertNotNull( $this->find_route_key( 'check-ownership' ) );
-		$this->assertNotNull( $this->find_route_key( 'upload-jwt' ) );
-		$this->assertNotNull( $this->find_route_key( 'playback-jwt' ) );
+		$routes = rest_get_server()->get_routes();
+
+		$this->assertArrayHasKey( self::ROUTE_META, $routes );
+		$this->assertArrayHasKey( self::ROUTE_POSTER, $routes );
+		$this->assertArrayHasKey( self::ROUTE_CHECK_OWNERSHIP, $routes );
+		$this->assertArrayHasKey( self::ROUTE_UPLOAD_JWT, $routes );
+		$this->assertArrayHasKey( self::ROUTE_PLAYBACK_JWT, $routes );
 	}
 
 	/**
@@ -89,7 +75,7 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test that valid privacy_setting values pass schema validation.
+	 * Test that valid privacy_setting values pass the registered schema validation.
 	 *
 	 * @param int $value The privacy setting value.
 	 *
@@ -97,17 +83,10 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress_Test extends BaseTestCase {
 	 */
 	#[DataProvider( 'valid_privacy_settings_provider' )]
 	public function test_privacy_setting_accepts_valid_values( int $value ) {
-		$schema = array(
-			'type' => 'integer',
-			'enum' => array(
-				\VIDEOPRESS_PRIVACY::IS_PUBLIC,
-				\VIDEOPRESS_PRIVACY::IS_PRIVATE,
-				\VIDEOPRESS_PRIVACY::SITE_DEFAULT,
-			),
-		);
+		$routes = rest_get_server()->get_routes();
+		$schema = $routes[ self::ROUTE_META ][0]['args']['privacy_setting'];
 
-		$valid = rest_validate_value_from_schema( $value, $schema, 'privacy_setting' );
-		$this->assertTrue( $valid );
+		$this->assertTrue( rest_validate_value_from_schema( $value, $schema, 'privacy_setting' ) );
 	}
 
 	/**
@@ -124,7 +103,7 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test that invalid privacy_setting values fail schema validation.
+	 * Test that invalid privacy_setting values fail the registered schema validation.
 	 *
 	 * @param int $value The privacy setting value.
 	 *
@@ -132,144 +111,68 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress_Test extends BaseTestCase {
 	 */
 	#[DataProvider( 'invalid_privacy_settings_provider' )]
 	public function test_privacy_setting_rejects_invalid_values( int $value ) {
-		$schema = array(
-			'type' => 'integer',
-			'enum' => array(
-				\VIDEOPRESS_PRIVACY::IS_PUBLIC,
-				\VIDEOPRESS_PRIVACY::IS_PRIVATE,
-				\VIDEOPRESS_PRIVACY::SITE_DEFAULT,
-			),
-		);
+		$routes = rest_get_server()->get_routes();
+		$schema = $routes[ self::ROUTE_META ][0]['args']['privacy_setting'];
 
-		$valid = rest_validate_value_from_schema( $value, $schema, 'privacy_setting' );
-		$this->assertInstanceOf( \WP_Error::class, $valid );
-	}
-
-	/**
-	 * Test that the privacy_setting schema includes enum constraint.
-	 */
-	public function test_privacy_setting_has_enum_in_schema() {
-		$routes     = rest_get_server()->get_routes();
-		$route_data = $routes['/wpcom/v2/videopress/meta'];
-		$args       = $route_data[0]['args'];
-
-		$this->assertArrayHasKey( 'enum', $args['privacy_setting'] );
-		$this->assertSame(
-			array(
-				\VIDEOPRESS_PRIVACY::IS_PUBLIC,
-				\VIDEOPRESS_PRIVACY::IS_PRIVATE,
-				\VIDEOPRESS_PRIVACY::SITE_DEFAULT,
-			),
-			$args['privacy_setting']['enum']
-		);
-		$this->assertEquals( 'integer', $args['privacy_setting']['type'] );
+		$this->assertInstanceOf( \WP_Error::class, rest_validate_value_from_schema( $value, $schema, 'privacy_setting' ) );
 	}
 
 	/**
 	 * Test that meta route args besides 'id' are optional.
 	 */
 	public function test_meta_route_args_are_optional() {
-		$routes     = rest_get_server()->get_routes();
-		$route_data = $routes['/wpcom/v2/videopress/meta'];
-		$args       = $route_data[0]['args'];
+		$routes = rest_get_server()->get_routes();
+		$args   = $routes[ self::ROUTE_META ][0]['args'];
 
 		$this->assertTrue( $args['id']['required'] );
 
 		$optional_args = array( 'title', 'description', 'caption', 'rating', 'display_embed', 'allow_download', 'privacy_setting' );
 		foreach ( $optional_args as $arg_name ) {
 			$this->assertArrayHasKey( $arg_name, $args, "Arg '{$arg_name}' should be registered." );
-			$this->assertFalse(
-				! empty( $args[ $arg_name ]['required'] ),
-				"Arg '{$arg_name}' should be optional."
-			);
+			$this->assertEmpty( $args[ $arg_name ]['required'] ?? false, "Arg '{$arg_name}' should be optional." );
 		}
 	}
 
 	/**
-	 * Data provider for video_guid pattern validation.
-	 *
-	 * @return array[] Test cases.
+	 * Test that poster route has video_guid arg with correct type.
 	 */
-	public static function video_guid_provider(): array {
-		return array(
-			'valid 8-char alphanumeric' => array( 'AbCd1234', true ),
-			'valid all lowercase'       => array( 'abcd1234', true ),
-			'valid all uppercase'       => array( 'ABCD1234', true ),
-			'valid all digits'          => array( '12345678', true ),
-			'too short'                 => array( 'abc1234', false ),
-			'contains special chars'    => array( 'abcd-234', false ),
-			'empty string'              => array( '', false ),
-		);
+	public function test_poster_route_has_video_guid_schema() {
+		$routes = rest_get_server()->get_routes();
+		$args   = $routes[ self::ROUTE_POSTER ][0]['args'];
+
+		$this->assertArrayHasKey( 'video_guid', $args );
+		$this->assertSame( 'string', $args['video_guid']['type'] );
 	}
 
 	/**
-	 * Test that video_guid pattern validation works on the playback-jwt route.
-	 *
-	 * @param string $guid     The GUID to test.
-	 * @param bool   $expected Whether validation should pass.
-	 *
-	 * @dataProvider video_guid_provider
+	 * Test that the route regex rejects invalid video GUIDs.
 	 */
-	#[DataProvider( 'video_guid_provider' )]
-	public function test_video_guid_pattern_validation( string $guid, bool $expected ) {
-		$routes     = rest_get_server()->get_routes();
-		$route_data = $routes['/wpcom/v2/videopress/playback-jwt/(?P<video_guid>\\w+)'];
-		$schema     = $route_data[0]['args']['video_guid'];
-
-		$result = rest_validate_value_from_schema( $guid, $schema, 'video_guid' );
-
-		if ( $expected ) {
-			$this->assertTrue( true === $result );
-		} else {
-			$this->assertInstanceOf( \WP_Error::class, $result );
-		}
+	public function test_route_rejects_invalid_video_guid() {
+		$request  = new \WP_REST_Request( 'POST', '/wpcom/v2/videopress/playback-jwt/too-long-guid' );
+		$response = rest_get_server()->dispatch( $request );
+		$this->assertSame( 404, $response->get_status() );
 	}
 
 	/**
-	 * Test that poster route has explicit video_guid arg definition.
+	 * Test that the route regex accepts a valid video GUID.
 	 */
-	public function test_poster_route_has_explicit_video_guid_arg() {
-		$routes     = rest_get_server()->get_routes();
-		$route_data = $routes['/wpcom/v2/videopress/(?P<video_guid>\\w+)/poster'];
-
-		// Shared args are in the route-level 'args' key.
-		// Check that at least one endpoint has video_guid defined.
-		$has_video_guid = false;
-		foreach ( $route_data as $endpoint ) {
-			if ( isset( $endpoint['args']['video_guid'] ) ) {
-				$has_video_guid = true;
-				$this->assertEquals( 'string', $endpoint['args']['video_guid']['type'] );
-				$this->assertNotEmpty( $endpoint['args']['video_guid']['pattern'] );
-				break;
-			}
-		}
-		$this->assertTrue( $has_video_guid, 'Poster route should have explicit video_guid arg.' );
+	public function test_route_accepts_valid_video_guid() {
+		$request  = new \WP_REST_Request( 'POST', '/wpcom/v2/videopress/playback-jwt/AbCd1234' );
+		$response = rest_get_server()->dispatch( $request );
+		$this->assertNotEquals( 404, $response->get_status() );
 	}
 
 	/**
-	 * Test that check-ownership route has explicit args for both path params.
+	 * Test that check-ownership route has schemas for both path params.
 	 */
-	public function test_check_ownership_route_has_explicit_args() {
-		$route_key = $this->find_route_key( 'check-ownership' );
-		$this->assertNotNull( $route_key, 'Check-ownership route should be registered.' );
+	public function test_check_ownership_route_has_path_param_schemas() {
+		$routes = rest_get_server()->get_routes();
+		$args   = $routes[ self::ROUTE_CHECK_OWNERSHIP ][0]['args'];
 
-		$routes     = rest_get_server()->get_routes();
-		$route_data = $routes[ $route_key ];
+		$this->assertArrayHasKey( 'video_guid', $args );
+		$this->assertSame( 'string', $args['video_guid']['type'] );
 
-		$has_video_guid = false;
-		$has_post_id    = false;
-		foreach ( $route_data as $endpoint ) {
-			if ( isset( $endpoint['args']['video_guid'] ) ) {
-				$has_video_guid = true;
-				$this->assertEquals( 'string', $endpoint['args']['video_guid']['type'] );
-				$this->assertNotEmpty( $endpoint['args']['video_guid']['pattern'] );
-			}
-			if ( isset( $endpoint['args']['post_id'] ) ) {
-				$has_post_id = true;
-				$this->assertEquals( 'integer', $endpoint['args']['post_id']['type'] );
-			}
-		}
-		$this->assertTrue( $has_video_guid, 'Check-ownership route should have explicit video_guid arg.' );
-		$this->assertTrue( $has_post_id, 'Check-ownership route should have explicit post_id arg.' );
+		$this->assertArrayHasKey( 'post_id', $args );
+		$this->assertSame( 'integer', $args['post_id']['type'] );
 	}
 }

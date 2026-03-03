@@ -101,14 +101,13 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 		// Poster Route.
 		register_rest_route(
 			$this->namespace,
-			$this->rest_base . '/(?P<video_guid>\w+)/poster',
+			$this->rest_base . '/(?P<video_guid>[A-Za-z0-9]{8})/poster',
 			array(
 				'args' => array(
 					'video_guid' => array(
 						'description' => __( 'The VideoPress GUID.', 'jetpack-videopress-pkg' ), // @phan-suppress-current-line PhanPluginMixedKeyNoKey
 						'type'        => 'string',
 						'required'    => true,
-						'pattern'     => '[a-zA-Z0-9]{8}',
 					),
 				),
 				array(
@@ -145,14 +144,13 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 		// Endpoint to know if the video metadata is editable.
 		register_rest_route(
 			$this->namespace,
-			$this->rest_base . '/(?P<video_guid>\w+)/check-ownership/(?P<post_id>\d+)/',
+			$this->rest_base . '/(?P<video_guid>[A-Za-z0-9]{8})/check-ownership/(?P<post_id>\d+)/',
 			array(
 				'args' => array(
 					'video_guid' => array(
 						'description' => __( 'The VideoPress GUID.', 'jetpack-videopress-pkg' ), // @phan-suppress-current-line PhanPluginMixedKeyNoKey
 						'type'        => 'string',
 						'required'    => true,
-						'pattern'     => '[a-zA-Z0-9]{8}',
 					),
 					'post_id'    => array(
 						'description' => __( 'The post id for the attachment.', 'jetpack-videopress-pkg' ),
@@ -186,14 +184,13 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 		// Playback Token Route.
 		register_rest_route(
 			$this->namespace,
-			$this->rest_base . '/playback-jwt/(?P<video_guid>\w+)',
+			$this->rest_base . '/playback-jwt/(?P<video_guid>[A-Za-z0-9]{8})',
 			array(
 				'args'                => array(
 					'video_guid' => array(
 						'description' => __( 'The VideoPress GUID.', 'jetpack-videopress-pkg' ),
 						'type'        => 'string',
 						'required'    => true,
-						'pattern'     => '[a-zA-Z0-9]{8}',
 					),
 				),
 				'methods'             => \WP_REST_Server::EDITABLE,
