@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Bundle fast-deep-equal as a non-external dependency to fix compatibility with webpack strict ESM mode.
