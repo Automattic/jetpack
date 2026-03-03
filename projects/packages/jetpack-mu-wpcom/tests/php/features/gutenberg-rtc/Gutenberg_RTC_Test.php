@@ -30,9 +30,27 @@ use PHPUnit\Framework\Attributes\CoversFunction;
 class Gutenberg_RTC_Test extends \WorDBless\BaseTestCase {
 
 	/**
-	 * Clean up filters after each test.
+	 * Original value of $wp_settings_fields to restore after each test.
+	 *
+	 * @var mixed
+	 */
+	private $original_wp_settings_fields;
+
+	/**
+	 * Save global state before each test.
+	 */
+	public function set_up(): void {
+		parent::set_up();
+		global $wp_settings_fields;
+		$this->original_wp_settings_fields = $wp_settings_fields;
+	}
+
+	/**
+	 * Clean up filters and restore global state after each test.
 	 */
 	public function tear_down(): void {
+		global $wp_settings_fields;
+		$wp_settings_fields = $this->original_wp_settings_fields; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		remove_all_filters( 'wpcom_is_gutenberg_rtc_enabled' );
 		remove_all_filters( 'wpcom_gutenberg_rtc_providers' );
 		parent::tear_down();
