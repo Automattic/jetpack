@@ -2,7 +2,7 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
-## 15.6-beta - 2026-03-02
+## 15.6 - 2026-03-03
 ### Enhancements
 - AI Assistant: Add `jetpack_ai_assistant_generation_complete` action hook for cross-package communication. [#47267]
 - Forms: Use integer format for response count in dataviews. [#47381]
