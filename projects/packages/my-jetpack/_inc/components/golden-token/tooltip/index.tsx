@@ -14,25 +14,29 @@ import './style.global.scss';
  * We created this one because <IconTooltip> is (at the time of writing)
  * hardcoded to only support Grid icons, and we're on a rather tight deadline.
  *
- * @param {object} props             - Component properties.
- * @param {string} props.productName - A product/plan name.
- * @param {string} props.giftedDate  - The date the product/plan was gifted.
- * @return {object} - A Golden Token Tooltip.
+ * @param {{productName: string;giftedDate: string}} props - Component properties.
+ * @return A Golden Token Tooltip.
  */
-export function GoldenTokenTooltip( { productName, giftedDate } ) {
+export function GoldenTokenTooltip( {
+	productName,
+	giftedDate,
+}: {
+	productName: string;
+	giftedDate: string;
+} ) {
 	const [ isVisible, setIsVisible ] = useState( false );
 	const showTooltip = useCallback( () => setIsVisible( true ), [ setIsVisible ] );
 	const hideTooltip = useCallback( () => setIsVisible( false ), [ setIsVisible ] );
 
 	const popoverArgs = {
-		position: 'top center',
-		placement: 'top',
+		position: 'top center' as const,
+		placement: 'top' as const,
 		animate: true,
 		noArrow: false,
 		resize: false,
 		flip: false,
 		offset: 6, // The distance (in px) between the anchor and the popover.
-		focusOnMount: 'container',
+		focusOnMount: 'firstElement' as const,
 		onClose: hideTooltip,
 		className: styles.container,
 	};

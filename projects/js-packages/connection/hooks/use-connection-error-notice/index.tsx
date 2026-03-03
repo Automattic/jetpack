@@ -1,7 +1,17 @@
 import { __ } from '@wordpress/i18n';
 import ConnectionErrorNotice from '../../components/connection-error-notice';
 import useConnection from '../../components/use-connection';
-import useRestoreConnection from '../../hooks/use-restore-connection/index.jsx';
+import useRestoreConnection from '../../hooks/use-restore-connection';
+import type {
+	Action,
+	ConnectionErrorData,
+	ConnectionErrorMap,
+	ConnectionErrorObject,
+	ConnectionErrorProps,
+} from './types';
+import type { ReactElement } from 'react';
+
+export type { ConnectionErrorData, ConnectionErrorMap, ConnectionErrorObject } from './types';
 
 /**
  * Connection error notice hook.
@@ -12,13 +22,15 @@ import useRestoreConnection from '../../hooks/use-restore-connection/index.jsx';
  */
 export default function useConnectionErrorNotice() {
 	const { connectionErrors } = useConnection( {} );
-	const connectionErrorList = Object.values( connectionErrors ).shift();
-	const firstError =
-		connectionErrorList &&
-		Object.values( connectionErrorList ).length &&
-		Object.values( connectionErrorList ).shift();
+	// connectionErrors is typed as Array<string|object> but is actually a nested object at runtime.
+	const errorMap = connectionErrors as unknown as ConnectionErrorMap;
+	const connectionErrorList = Object.values( errorMap ).shift();
+	const firstError: ConnectionErrorObject | undefined =
+		connectionErrorList && Object.values( connectionErrorList ).length
+			? Object.values( connectionErrorList ).shift()
+			: undefined;
 
-	const connectionErrorMessage = firstError && firstError.error_message;
+	const connectionErrorMessage = firstError?.error_message;
 
 	// Return all connection errors
 	const hasConnectionError = Boolean( connectionErrorMessage );
@@ -27,15 +39,15 @@ export default function useConnectionErrorNotice() {
 		hasConnectionError,
 		connectionErrorMessage,
 		connectionError: firstError, // Full error object with error_type, etc.
-		connectionErrors, // All errors for advanced use cases
+		connectionErrors: errorMap, // All errors for advanced use cases
 	};
 }
 
 export const ConnectionError = ( {
-	actionHandlers = {}, // Handlers for specific actions like { create_missing_account: () => {}, custom_action: () => {} }
-	trackingCallback = null, // Custom tracking function
-	customActions = null, // Function that returns custom actions based on error (takes precedence)
-} = {} ) => {
+	actionHandlers = {},
+	trackingCallback = null,
+	customActions = null,
+}: ConnectionErrorProps = {} ): ReactElement | null => {
 	const { hasConnectionError, connectionErrorMessage, connectionError } =
 		useConnectionErrorNotice();
 	const { restoreConnection, isRestoringConnection, restoreConnectionError } =
@@ -46,21 +58,24 @@ export const ConnectionError = ( {
 	}
 
 	// Build actions array based on error data
-	let actions = [];
+	let actions: Action[] = [];
 
 	if ( customActions ) {
 		// Use provided custom actions function
 		try {
-			actions = customActions( connectionError, { restoreConnection, isRestoringConnection } );
+			actions = customActions( connectionError as ConnectionErrorObject, {
+				restoreConnection,
+				isRestoringConnection,
+			} );
 		} catch {
 			// Silently fall back to default behavior if customActions fails
 			actions = [];
 		}
 	} else {
 		// Get action info from error data
-		const errorData = connectionError?.error_data || {};
+		const errorData = connectionError?.error_data || ( {} as ConnectionErrorData );
 		const suggestedAction = errorData.action;
-		const actionHandler = actionHandlers[ suggestedAction ];
+		const actionHandler = suggestedAction ? actionHandlers[ suggestedAction ] : undefined;
 
 		if ( suggestedAction && actionHandler ) {
 			// Use action data from the error
@@ -76,7 +91,7 @@ export const ConnectionError = ( {
 							if ( trackingCallback && trackingEvent ) {
 								trackingCallback( trackingEvent, {} );
 							}
-							actionHandler( connectionError );
+							actionHandler( connectionError as ConnectionErrorObject );
 						} catch {
 							// Silently fail if action handler throws
 						}
@@ -98,7 +113,7 @@ export const ConnectionError = ( {
 							if ( trackingCallback && trackingEvent ) {
 								trackingCallback( trackingEvent, {} );
 							}
-							window.location.href = errorData.action_url;
+							window.location.href = errorData.action_url as string;
 						} catch {
 							// Silently fail if navigation throws
 						}
@@ -130,7 +145,9 @@ export const ConnectionError = ( {
 		// Add secondary action if available (only for custom errors, not default restore)
 		if ( actions.length > 0 && ( suggestedAction || errorData.action_url ) ) {
 			const secondaryAction = errorData.secondary_action;
-			const secondaryActionHandler = actionHandlers[ secondaryAction ];
+			const secondaryActionHandler = secondaryAction
+				? actionHandlers[ secondaryAction ]
+				: undefined;
 			const secondaryActionUrl = errorData.secondary_action_url;
 			const secondaryActionLabel = errorData.secondary_action_label;
 
@@ -146,7 +163,7 @@ export const ConnectionError = ( {
 							if ( trackingCallback && secondaryTrackingEvent ) {
 								trackingCallback( secondaryTrackingEvent, {} );
 							}
-							secondaryActionHandler( connectionError );
+							secondaryActionHandler( connectionError as ConnectionErrorObject );
 						} catch {
 							// Silently fail if secondary action handler throws
 						}
@@ -186,7 +203,7 @@ export const ConnectionError = ( {
 		<ConnectionErrorNotice
 			isRestoringConnection={ isRestoringConnection }
 			restoreConnectionError={ restoreConnectionError }
-			restoreConnectionCallback={ actions.length === 0 ? restoreConnection : null } // Fallback for backward compatibility
+			restoreConnectionCallback={ actions.length === 0 ? restoreConnection : null }
 			message={ connectionErrorMessage }
 			actions={ actions }
 		/>

@@ -9,7 +9,7 @@ import icon from './icon.svg';
  *
  * @param {object}  props                 - Component props.
  * @param {boolean} props.isAgencyAccount - Whether users account is an Agency account or not.
- * @return {object} The rendered component.
+ * @return The rendered component.
  */
 const A4ABanner = props => {
 	const { isAgencyAccount = false } = props;

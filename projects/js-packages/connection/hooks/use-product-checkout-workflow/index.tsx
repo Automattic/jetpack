@@ -6,6 +6,7 @@ import { useEffect, useState, useMemo } from 'react';
 import { getCalypsoOrigin } from '@automattic/jetpack-connection';
 import useConnection from '../../components/use-connection';
 import { STORE_ID } from '../../state/store.jsx';
+import type { UseProductCheckoutWorkflowProps } from './types';
 
 const debug = debugFactory( 'jetpack:connection:useProductCheckoutWorkflow' );
 
@@ -16,35 +17,31 @@ const {
 	siteSuffix: defaultSiteSuffix,
 } = window?.JP_CONNECTION_INITIAL_STATE || getScriptData()?.connection || {};
 const defaultAdminUrl = () =>
-	typeof window !== 'undefined' ? window?.myJetpackInitialState?.adminUrl : null;
+	typeof window !== 'undefined'
+		? ( window as Window & { myJetpackInitialState?: { adminUrl?: string } } )
+				?.myJetpackInitialState?.adminUrl
+		: null;
 
 /**
  * Custom hook that performs the needed steps
  * to concrete the checkout workflow.
  *
- * @param {object}   props                                  - The props passed to the hook.
- * @param {string}   props.productSlug                      - The WordPress product slug.
- * @param {string}   props.redirectUrl                      - The URI to redirect to after checkout.
- * @param {string}   [props.siteSuffix]                     - The site suffix.
- * @param {string}   [props.adminUrl]                       - The site wp-admin url.
- * @param {boolean}  [props.connectAfterCheckout]           - Whether or not to conect after checkout if not connected (default false - connect before).
- * @param {Function} [props.siteProductAvailabilityHandler] - The function used to check whether the site already has the requested product. This will be checked after registration and the checkout page will be skipped if the promise returned resloves true.
- * @param {string}   props.from                             - The plugin slug initiated the flow.
- * @param {number}   [props.quantity]                       - The quantity of the product to purchase.
- * @param {boolean}  [props.useBlogIdSuffix]                - Use blog ID instead of site suffix in the checkout URL.
- * @return {object}                                      The useEffect hook.
+ * @param {UseProductCheckoutWorkflowProps} props - The checkout workflow properties.
+ * @return The checkout workflow hook data.
  */
-export default function useProductCheckoutWorkflow( {
-	productSlug,
-	redirectUrl,
-	siteSuffix = defaultSiteSuffix,
-	adminUrl = defaultAdminUrl(),
-	connectAfterCheckout = false,
-	siteProductAvailabilityHandler = null,
-	quantity = null,
-	from,
-	useBlogIdSuffix = false,
-} = {} ) {
+export default function useProductCheckoutWorkflow(
+	{
+		productSlug,
+		redirectUrl,
+		siteSuffix = defaultSiteSuffix,
+		adminUrl = defaultAdminUrl(),
+		connectAfterCheckout = false,
+		siteProductAvailabilityHandler = null,
+		quantity = null,
+		from,
+		useBlogIdSuffix = false,
+	}: UseProductCheckoutWorkflowProps = {} as UseProductCheckoutWorkflowProps
+) {
 	debug( 'productSlug is %s', productSlug );
 	debug( 'redirectUrl is %s', redirectUrl );
 	debug( 'siteSuffix is %s', siteSuffix );
@@ -52,7 +49,10 @@ export default function useProductCheckoutWorkflow( {
 	const [ hasCheckoutStarted, setCheckoutStarted ] = useState( false );
 	const { registerSite } = useDispatch( STORE_ID );
 
-	const blogID = useSelect( select => select( STORE_ID ).getBlogId(), [] );
+	const blogID = useSelect(
+		select => ( select( STORE_ID ) as { getBlogId: () => string } ).getBlogId(),
+		[]
+	);
 	debug( 'blogID is %s', blogID ?? 'undefined' );
 
 	useBlogIdSuffix = useBlogIdSuffix && !! blogID;
@@ -78,7 +78,7 @@ export default function useProductCheckoutWorkflow( {
 		);
 
 		if ( shouldConnectAfterCheckout ) {
-			productCheckoutUrl.searchParams.set( 'connect_after_checkout', true );
+			productCheckoutUrl.searchParams.set( 'connect_after_checkout', 'true' );
 			productCheckoutUrl.searchParams.set( 'admin_url', adminUrl );
 			/**
 			 * `from_site_slug` is the Jetpack site slug (siteSuffix) passed 'from the site' via url
@@ -135,7 +135,7 @@ export default function useProductCheckoutWorkflow( {
 				'handleAfterRegistration: Site does not have a product associated. Redirecting to checkout %s',
 				checkoutUrl
 			);
-			window.location.href = checkoutUrl;
+			window.location.href = checkoutUrl.toString();
 		} );
 	};
 
@@ -146,17 +146,18 @@ export default function useProductCheckoutWorkflow( {
 
 		debug( 'Redirecting to connectAfterCheckout flow: %s', checkoutUrl );
 
-		window.location.href = checkoutUrl;
+		window.location.href = checkoutUrl.toString();
 	};
 
 	/**
 	 * Handler to run the checkout workflow.
 	 *
-	 * @param {Event}  [event]  - Event that dispatched run
-	 * @param {string} redirect - A possible redirect URL to go to after the checkout
-	 * @return {void}          Nothing.
+	 * @param {object}   [event]              - Event that dispatched run.
+	 * @param {Function} event.preventDefault - Prevents the default event behavior.
+	 * @param {string}   redirect             - A possible redirect URL to go to after the checkout.
+	 * @return {void} Nothing.
 	 */
-	const run = ( event, redirect = null ) => {
+	const run = ( event?: { preventDefault: () => void }, redirect: string | null = null ) => {
 		event && event.preventDefault();
 		setCheckoutStarted( true );
 		// By default we will connect first prior to checkout unless `props.connectAfterCheckout`
