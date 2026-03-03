@@ -3,6 +3,7 @@ import clsx from 'clsx';
 import { useEffect, useRef, useState } from 'preact/hooks';
 import getHovercard from '../quick-editor';
 import { CommentUser } from './profile-get';
+import type { GravatarQuickEditorCore } from '@gravatar-com/quick-editor';
 
 const getAvatarUrl = ( profile: CommentUser, cacheBuster: number ) => {
 	if ( ! profile.avatarUrl ) {
@@ -12,11 +13,11 @@ const getAvatarUrl = ( profile: CommentUser, cacheBuster: number ) => {
 	return `${ profile.avatarUrl }?v=${ cacheBuster }`;
 };
 
-const ProfileImage = ( { profile } ) => {
-	const profileImageRef = useRef( null );
-	const quickEditorRef = useRef( null );
-	const hovercardRef = useRef( null );
-	const timerRef = useRef( null );
+const ProfileImage = ( { profile }: { profile: CommentUser } ) => {
+	const profileImageRef = useRef< HTMLImageElement >( null );
+	const quickEditorRef = useRef< GravatarQuickEditorCore | null >( null );
+	const hovercardRef = useRef< Hovercards | null >( null );
+	const timerRef = useRef< ReturnType< typeof setTimeout > | null >( null );
 	const [ isLoading, setIsLoading ] = useState( false );
 	const [ cacheBuster, setCacheBuster ] = useState( new Date().getTime() );
 

@@ -5,7 +5,7 @@ window.addEventListener( 'DOMContentLoaded', function () {
 	if ( commentForm ) {
 		// only load Verbum if the comment field is visible or the browser doesn't support IntersectionObserver
 		if ( window.IntersectionObserver ) {
-			new IntersectionObserver( function ( entries ) {
+			const observer = new IntersectionObserver( entries => {
 				for ( const el of entries ) {
 					if ( el.isIntersecting ) {
 						const startedLoadingAt = Date.now();
@@ -15,11 +15,12 @@ window.addEventListener( 'DOMContentLoaded', function () {
 
 							VerbumComments.fullyLoadedTime = finishedLoadingAt - startedLoadingAt;
 						} );
-						this.disconnect();
+						observer.disconnect();
 						return;
 					}
 				}
-			} ).observe( commentForm );
+			} );
+			observer.observe( commentForm );
 		} else {
 			WP_Enqueue_Dynamic_Script.loadScript( 'verbum' );
 		}

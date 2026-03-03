@@ -1,16 +1,18 @@
 import { Fragment } from 'preact';
 import './style.scss';
 
+type DeliveryFrequency = 'instantly' | 'daily' | 'weekly';
+
 type FrequencyToggleProps = {
 	initialOptions: Option[];
-	onChange?: ( deliveryFrequency: string ) => void;
+	onChange?: ( deliveryFrequency: DeliveryFrequency ) => void;
 	selectedOption: string;
 	disabled?: boolean;
 	name: string;
 };
 
 type Option = {
-	value: string;
+	value: DeliveryFrequency;
 	checked: boolean;
 	label: string;
 };
@@ -45,7 +47,7 @@ export function FrequencyToggle( {
 							id={ option.value }
 							value={ option.value }
 							checked={ option.value === selectedOption }
-							onChange={ () => onChange( option.value ) }
+							onChange={ () => onChange?.( option.value ) }
 							disabled={ disabled }
 						/>
 						<label aria-label={ option.value } htmlFor={ option.value } className="label-wrapper">
