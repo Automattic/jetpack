@@ -45,3 +45,7 @@
 :global(.jetpack-admin-page #dolly) {
 	background-color: #fff;
 }
+
+:global(.jetpack-admin-page .admin-ui-page__header-subtitle) {
+	padding-bottom: 0;
+}
