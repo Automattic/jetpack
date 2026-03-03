@@ -348,37 +348,26 @@ const scriptModulePolyfills = [
 const target = [ 'es2020' ];
 const builds = [];
 
+// Production builds produce minified files (index.min.js);
+// development builds produce unminified files (index.js).
+// The PHP registration class selects the appropriate file at runtime
+// via SCRIPT_DEBUG, and skips registration if the file doesn't exist.
+const outFileName = isProduction ? 'index.min.js' : 'index.js';
+
 for ( const polyfill of classicScriptPolyfills ) {
 	const outputDir = path.join( outputBase, 'scripts', polyfill.name );
 
-	// Minified
 	builds.push(
 		build( {
 			entryPoints: [ polyfill.entry ],
-			outfile: path.join( outputDir, 'index.min.js' ),
+			outfile: path.join( outputDir, outFileName ),
 			bundle: true,
 			format: 'iife',
 			globalName: polyfill.globalName,
 			target,
 			platform: 'browser',
-			minify: true,
-			sourcemap: isProduction,
-			plugins: [ polyfillExternalsPlugin( 'iife', polyfill.packageName ) ],
-		} )
-	);
-
-	// Non-minified
-	builds.push(
-		build( {
-			entryPoints: [ polyfill.entry ],
-			outfile: path.join( outputDir, 'index.js' ),
-			bundle: true,
-			format: 'iife',
-			globalName: polyfill.globalName,
-			target,
-			platform: 'browser',
-			minify: false,
-			sourcemap: ! isProduction,
+			minify: isProduction,
+			sourcemap: true,
 			plugins: [ polyfillExternalsPlugin( 'iife', polyfill.packageName ) ],
 		} )
 	);
@@ -387,34 +376,16 @@ for ( const polyfill of classicScriptPolyfills ) {
 for ( const polyfill of scriptModulePolyfills ) {
 	const outputDir = path.join( outputBase, 'modules', polyfill.name );
 
-	const entryPoint = polyfill.entry;
-
-	// Minified
 	builds.push(
 		build( {
-			entryPoints: [ entryPoint ],
-			outfile: path.join( outputDir, 'index.min.js' ),
+			entryPoints: [ polyfill.entry ],
+			outfile: path.join( outputDir, outFileName ),
 			bundle: true,
 			format: 'esm',
 			target,
 			platform: 'browser',
-			minify: true,
-			sourcemap: isProduction,
-			plugins: [ polyfillExternalsPlugin( 'esm', polyfill.packageName ) ],
-		} )
-	);
-
-	// Non-minified
-	builds.push(
-		build( {
-			entryPoints: [ entryPoint ],
-			outfile: path.join( outputDir, 'index.js' ),
-			bundle: true,
-			format: 'esm',
-			target,
-			platform: 'browser',
-			minify: false,
-			sourcemap: ! isProduction,
+			minify: isProduction,
+			sourcemap: true,
 			plugins: [ polyfillExternalsPlugin( 'esm', polyfill.packageName ) ],
 		} )
 	);
