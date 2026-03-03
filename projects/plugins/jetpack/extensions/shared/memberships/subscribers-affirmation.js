@@ -570,7 +570,6 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 		// Pre-send (prepublish/scheduled) or published fallback — category subscribers
 		text = getCopyForCategorySubscribers( {
 			futureTense: isPrepublishOrScheduled,
-			isPaidPost,
 			newsletterCategories,
 			postCategories,
 			reachCount: newsletterCategorySubscriberCount,
