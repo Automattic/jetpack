@@ -75,7 +75,7 @@ add_action( 'admin_init', 'wpcom_unregister_rtc_setting', 11 );
  * Disable the `wp_enable_real_time_collaboration` option if there are no RTC providers.
  *
  * @param mixed $pre_option The value to return instead of the option value.
- * @return string Filtered wp_enable_real_time_collaboration option
+ * @return string|false Filtered wp_enable_real_time_collaboration option
  */
 function wpcom_disable_rtc_option( $pre_option ) {
 	$providers = wpcom_get_gutenberg_rtc_providers();
