@@ -51,6 +51,7 @@ const AdminPage: FC< AdminPageProps > = ( {
 
 	const rootClassName = clsx( styles[ 'admin-page' ], className, {
 		[ styles.background ]: showBackground,
+		[ styles[ 'has-tabs' ] ]: tabs,
 	} );
 
 	const testConnection = useCallback( async () => {

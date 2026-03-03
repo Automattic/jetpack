@@ -9,6 +9,14 @@
 		background-color: var(--jp-white);
 	}
 
+	// Remove the admin-ui header border when tabs are present. Scoped to
+	// .admin-page.has-tabs so this only applies when tabs prop is used.
+	// Ideally admin-ui would expose a prop or CSS custom property for this.
+	&.has-tabs :global(.admin-ui-page__header) {
+		border-bottom: none;
+		position: relative;
+	}
+
 	// Normalize admin headers: implementation of admin-ui needs to
 	// comprehend old wp-admin floating containers, such as Hello Dolly.
 	:global(.admin-ui-page) {
