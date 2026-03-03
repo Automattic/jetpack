@@ -7,7 +7,10 @@
 		"php": ">=7.2"
 	},
 	"require-dev": {
-		"automattic/jetpack-changelogger": "@dev"
+		"automattic/jetpack-changelogger": "@dev",
+		"automattic/jetpack-test-environment": "@dev",
+		"automattic/phpunit-select-config": "@dev",
+		"yoast/phpunit-polyfills": "^4.0.0"
 	},
 	"autoload": {
 		"classmap": [
@@ -29,7 +32,21 @@
 		],
 		"build-development": [
 			"pnpm run build"
+		],
+		"phpunit": [
+			"phpunit-select-config phpunit.#.xml.dist --colors=always"
+		],
+		"test-coverage": [
+			"php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
+		],
+		"test-php": [
+			"@composer phpunit"
 		]
+	},
+	"config": {
+		"allow-plugins": {
+			"roots/wordpress-core-installer": true
+		}
 	},
 	"minimum-stability": "dev",
 	"prefer-stable": true,
