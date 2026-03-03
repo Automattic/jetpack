@@ -9,13 +9,7 @@ import useAnalytics from '../../hooks/useAnalytics';
 import useBackupsState from '../../hooks/useBackupsState.js';
 import { STORE_ID } from '../../store';
 
-export const BackupNowButton = ( {
-	children,
-	tooltipText,
-	tracksEventName,
-	variant = 'solid',
-	onClick,
-} ) => {
+export const BackupNowButton = ( { children, tooltipText, tracksEventName, onClick } ) => {
 	const { tracks } = useAnalytics();
 	const [ buttonContent, setButtonContent ] = useState( children );
 	const [ currentTooltip, setCurrentTooltip ] = useState( tooltipText );
@@ -89,11 +83,13 @@ export const BackupNowButton = ( {
 	const button = (
 		<div>
 			<Button
-				size="compact"
-				variant={ variant }
-				onClick={ onClickHandler }
+				__next40pxDefaultSize
+				accessibleWhenDisabled
 				disabled={ disabled }
 				isBusy={ isEnqueuing || backupCurrentlyInProgress }
+				onClick={ onClickHandler }
+				size="compact"
+				variant="primary"
 			>
 				{ buttonContent }
 			</Button>
@@ -107,7 +103,6 @@ BackupNowButton.propTypes = {
 	children: PropTypes.node,
 	tooltipText: PropTypes.string,
 	tracksEventName: PropTypes.string,
-	variant: PropTypes.oneOf( [ 'solid', 'outline', 'minimal', 'unstyled' ] ),
 	onClick: PropTypes.func,
 };
 
