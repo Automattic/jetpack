@@ -312,6 +312,20 @@ class PolyfillModulePlugin {
 const esmConfigs = modulePolyfills.map( polyfill => ( {
 	name: `module-${ polyfill.name }`,
 	...sharedConfig,
+	module: {
+		rules: [
+			...sharedConfig.module.rules,
+			// Preserve native dynamic imports in @wordpress/boot so the
+			// browser can resolve route module IDs via the import map.
+			// Without this, webpack replaces `import(variable)` calls with
+			// context-module stubs that always throw "Cannot find module".
+			{
+				test: /[\\/]@wordpress[\\/]boot[\\/]/,
+				enforce: 'post',
+				loader: path.resolve( packageRoot, 'preserve-dynamic-imports-loader.js' ),
+			},
+		],
+	},
 	entry: {
 		index: resolveEntry( polyfill.packageName, polyfill.subEntry ),
 	},
