@@ -29,6 +29,15 @@ module.exports = [
 		},
 		optimization: {
 			...jetpackWebpackConfig.optimization,
+			minimizer: [
+				jetpackWebpackConfig.TerserPlugin( {
+					terserOptions: {
+						enclose: true,
+					},
+				} ),
+				jetpackWebpackConfig.CssMinimizerPlugin(),
+			],
+
 			splitChunks: {
 				minChunks: 2,
 			},
