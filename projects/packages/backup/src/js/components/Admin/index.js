@@ -446,7 +446,7 @@ const ActivateLicenseLink = () => {
 	}, [] );
 
 	return (
-		<p>
+		<p className="jetpack-backup-activate-license">
 			{ createInterpolateElement(
 				__(
 					'Already have an existing plan or license key? <a>Click here to get started</a>',
