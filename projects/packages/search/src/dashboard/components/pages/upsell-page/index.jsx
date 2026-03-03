@@ -92,31 +92,28 @@ export default function UpsellPage( { isLoading = false } ) {
 		[ isLoading, hasCheckoutStartedPaid, hasCheckoutStartedFree ]
 	);
 
-	const licenseAction = ! isWpcom ? (
-		<div className="jetpack-search-activate-license">
-			{ createInterpolateElement(
-				__(
-					'Already have an existing plan or license key? <a>Click here to get started</a>',
-					'jetpack-search-pkg'
-				),
-				{
-					a: <a href={ activateLicenseUrl } />,
-				}
-			) }
-		</div>
-	) : null;
-
 	return (
 		<>
 			{ isPageLoading && <Loading /> }
 			{ ! isPageLoading && (
 				<AdminPage
 					title={ 'Search' /** "Search" is a product name, do not translate. */ }
-					subTitle={ __(
-						'Help your visitors find exactly what they are looking for.',
-						'jetpack-search-pkg'
-					) }
-					actions={ licenseAction }
+					subTitle={
+						<>
+							{ __(
+								'Help your visitors find exactly what they are looking for.',
+								'jetpack-search-pkg'
+							) }
+							{ ! isWpcom && (
+								<>
+									{ ' ' }
+									<a href={ activateLicenseUrl }>
+										{ __( 'Activate your license', 'jetpack-search-pkg' ) }
+									</a>
+								</>
+							) }
+						</>
+					}
 					moduleNameHref={ JETPACK_SEARCH__LINK }
 					useInternalLinks={ shouldUseInternalLinks() }
 				>
