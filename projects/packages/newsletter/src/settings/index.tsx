@@ -10,7 +10,7 @@ import {
 	useGlobalNotices,
 } from '@automattic/jetpack-components';
 import { getSiteType, isSimpleSite } from '@automattic/jetpack-script-data';
-import { Notice, Disabled } from '@wordpress/components';
+import { Notice, Disabled, Spinner } from '@wordpress/components';
 import { createRoot, useCallback, useEffect, useState, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Stack } from '@wordpress/ui';
@@ -341,7 +341,7 @@ function NewsletterSettingsApp(): JSX.Element | null {
 				<Container horizontalSpacing={ 3 }>
 					<Col>
 						<div className="newsletter-settings">
-							<p>{ __( 'Loading newsletter settings…', 'jetpack-newsletter' ) }</p>
+							<Spinner />
 						</div>
 					</Col>
 				</Container>
