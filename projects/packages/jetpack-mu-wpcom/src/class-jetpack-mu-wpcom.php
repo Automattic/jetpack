@@ -413,6 +413,7 @@ class Jetpack_Mu_Wpcom {
 			return;
 		}
 
+		require_once __DIR__ . '/features/gutenberg-rtc/gutenberg-rtc.php';
 		require_once __DIR__ . '/features/jetpack-global-styles/class-global-styles.php';
 		require_once __DIR__ . '/features/mailerlite/subscriber-popup.php';
 		require_once __DIR__ . '/features/wpcom-fse/wpcom-fse.php';
@@ -425,7 +426,6 @@ class Jetpack_Mu_Wpcom {
 		if ( ( isset( $pagenow ) && in_array( $pagenow, $allowed_pages, true ) ) || ! is_admin() ) {
 			require_once __DIR__ . '/features/block-editor/custom-line-height.php';
 			require_once __DIR__ . '/features/block-inserter-modifications/block-inserter-modifications.php';
-			require_once __DIR__ . '/features/gutenberg-rtc/gutenberg-rtc.php';
 			require_once __DIR__ . '/features/hide-homepage-title/hide-homepage-title.php';
 			require_once __DIR__ . '/features/override-preview-button-url/override-preview-button-url.php';
 			require_once __DIR__ . '/features/paragraph-block-placeholder/paragraph-block-placeholder.php';
