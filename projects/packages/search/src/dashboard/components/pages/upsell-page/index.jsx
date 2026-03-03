@@ -92,8 +92,9 @@ export default function UpsellPage( { isLoading = false } ) {
 		[ isLoading, hasCheckoutStartedPaid, hasCheckoutStartedFree ]
 	);
 
-	const licenseAction = ! isWpcom
-		? createInterpolateElement(
+	const licenseAction = ! isWpcom ? (
+		<div className="jetpack-search-activate-license">
+			{ createInterpolateElement(
 				__(
 					'Already have an existing plan or license key? <a>Click here to get started</a>',
 					'jetpack-search-pkg'
@@ -101,8 +102,9 @@ export default function UpsellPage( { isLoading = false } ) {
 				{
 					a: <a href={ activateLicenseUrl } />,
 				}
-		  )
-		: null;
+			) }
+		</div>
+	) : null;
 
 	return (
 		<>
