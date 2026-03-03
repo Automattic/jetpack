@@ -124,7 +124,7 @@ export async function tokenBridgeHandler(
 			guid,
 			requestId,
 		},
-		{ targetOrigin: '*' }
+		{ targetOrigin: event.origin }
 	);
 
 	if ( isRetry ) {
@@ -147,7 +147,7 @@ export async function tokenBridgeHandler(
 				guid: event.data.guid,
 				requestId,
 			} as VideopressAjaxPostMessageEventProps,
-			{ targetOrigin: '*' }
+			{ targetOrigin: event.origin }
 		);
 		return;
 	}
@@ -156,11 +156,11 @@ export async function tokenBridgeHandler(
 	tokenRequester.postMessage(
 		{
 			event: 'videopress_token_received',
-			guid: guid,
+			guid,
 			jwt: tokenData.token,
 			requestId,
 		} as VideopressAjaxPostMessageEventProps,
-		{ targetOrigin: '*' }
+		{ targetOrigin: event.origin }
 	);
 }
 

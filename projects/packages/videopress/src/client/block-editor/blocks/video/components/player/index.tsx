@@ -138,6 +138,11 @@ export default function Player( {
 	 * provided by the videopress player through the bridge.
 	 */
 	const videoPlayerEventsHandler = useCallback( ( ev: MessageEvent ) => {
+		const allowedOrigins = [ 'https://videopress.com', 'https://video.wordpress.com' ];
+		if ( ! allowedOrigins.includes( ev.origin ) ) {
+			return;
+		}
+
 		const { data: eventData } = ev || {};
 		const { event: eventName } = eventData;
 		if ( eventName === 'videopress_loading_state' ) {

@@ -57,6 +57,11 @@ const useVideoPlayer = (
 	 * @param {MessageEvent} event - Message event
 	 */
 	function listenEventsHandler( event: MessageEvent ) {
+		const allowedOrigins = [ 'https://videopress.com', 'https://video.wordpress.com' ];
+		if ( ! allowedOrigins.includes( event.origin ) ) {
+			return;
+		}
+
 		const { data: eventData = {}, source } = event;
 		const { event: eventName } = event?.data || {};
 

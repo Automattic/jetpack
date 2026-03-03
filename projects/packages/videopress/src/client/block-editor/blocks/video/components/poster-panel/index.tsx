@@ -266,10 +266,13 @@ function VideoFramePicker( {
 	const onTimestampDebounceChange = useCallback(
 		iframeTimePosition => {
 			const sandboxIFrameWindow = getIframeWindowFromRef( playerWrapperRef );
-			sandboxIFrameWindow?.postMessage( {
-				event: 'videopress_action_set_currenttime',
-				currentTime: iframeTimePosition / 1000,
-			} );
+			sandboxIFrameWindow?.postMessage(
+				{
+					event: 'videopress_action_set_currenttime',
+					currentTime: iframeTimePosition / 1000,
+				},
+				'*'
+			);
 			onVideoFrameSelect( iframeTimePosition );
 		},
 		[ getIframeWindowFromRef, onVideoFrameSelect ]
