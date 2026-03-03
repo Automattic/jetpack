@@ -317,7 +317,7 @@ function getSentCopyLine( { accessLabel, categoryNames, pastTense, dateStr } ) {
 		return sprintf(
 			/* translators: %1$s: access, %2$s: category list */
 			__(
-				'This post is being emailed to %1$s of %2$s. Delivery details can be seen on <link>your email stats page</link> shortly.',
+				'This post is being emailed to %1$s of %2$s. <link>Delivery details</link> will be available shortly.',
 				'jetpack'
 			),
 			accessLabel,
