@@ -12,18 +12,20 @@
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
 	"scripts": {
-		"build": "pnpm run clean && node bin/build-polyfills.mjs",
+		"build": "pnpm run clean && webpack",
 		"build-production": "NODE_ENV=production BABEL_ENV=production pnpm run build",
 		"clean": "rm -rf build/"
 	},
 	"devDependencies": {
+		"@automattic/jetpack-webpack-config": "workspace:*",
 		"@wordpress/a11y": "^4.40.0",
 		"@wordpress/boot": "^0.7.1",
 		"@wordpress/notices": "^5.40.0",
 		"@wordpress/private-apis": "^1.40.0",
 		"@wordpress/route": "^0.6.0",
 		"@wordpress/theme": "^0.7.0",
-		"esbuild": "^0.27.0"
+		"webpack": "^5.104.1",
+		"webpack-cli": "^6.0.1"
 	},
 	"optionalDependencies": {
 		"react": "18.3.1",
