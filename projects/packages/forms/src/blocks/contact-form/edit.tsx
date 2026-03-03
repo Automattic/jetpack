@@ -1017,12 +1017,13 @@ function JetpackContactFormEdit( {
 	else if ( isWidgetEditorWithRef ) {
 		const handleEditForm = () => {
 			flushPendingSave();
-			navigateToForm( ref, 'widget' );
+			navigateToForm( ref as number, 'widget' );
 		};
 
 		return (
 			<div { ...blockProps }>
 				<Notice
+					className="jetpack-contact-form-widget-readonly-notice"
 					status="info"
 					isDismissible={ false }
 					actions={ [
