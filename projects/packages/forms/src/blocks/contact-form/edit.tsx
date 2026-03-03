@@ -1039,9 +1039,13 @@ function JetpackContactFormEdit( {
 						'jetpack-forms'
 					) }
 				</Notice>
-				<Disabled>
-					<div { ...innerBlocksProps } />
-				</Disabled>
+				{ isResolvingSyncedForm ? (
+					<ContactFormSkeletonLoader />
+				) : (
+					<Disabled>
+						<div { ...innerBlocksProps } />
+					</Disabled>
+				) }
 			</div>
 		);
 	} else if ( ! isModuleActive ) {
