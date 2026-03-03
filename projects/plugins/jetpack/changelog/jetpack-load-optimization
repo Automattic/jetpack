@@ -1,0 +1,9 @@
+Significance: minor
+Type: enhancement
+
+Admin Dashboard: Reduce initial JavaScript payload by lazily loading route-level components (at-a-glance, settings, recommendations, my-plan, product-descriptions) as separate async chunks.
+Build: Add splitChunks optimization to deduplicate shared vendor code across lazy-loaded admin chunks and per-block view scripts.
+Admin Dashboard: Add defer loading strategy and CSS preload hints to improve admin page resource loading order.
+Copy Post: Skip loading PHP class on frontend requests; the module is admin-only.
+Post List: Skip loading on frontend requests; the module is admin-only.
+Build: Remove duplicate newsletter widget build from the modules webpack config; only the standalone build is used at runtime.

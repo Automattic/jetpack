@@ -299,7 +299,27 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			plugins_url( '_inc/build/admin.js', JETPACK__PLUGIN_FILE ),
 			$script_dependencies,
 			$version,
-			true
+			array(
+				'strategy'  => 'defer',
+				'in_footer' => true,
+			)
+		);
+
+		// Preload the admin CSS bundles so the browser can start fetching them
+		// while it is still parsing the page, reducing render-blocking time.
+		add_action(
+			'admin_head',
+			function () {
+				$rtl     = is_rtl() ? '.rtl' : '';
+				$version = JETPACK__VERSION;
+				printf(
+					'<link rel="preload" href="%1$s" as="style" />
+			<link rel="preload" href="%2$s" as="style" />',
+					esc_url( plugins_url( "_inc/build/admin{$rtl}.css", JETPACK__PLUGIN_FILE ) . '?ver=' . $version ),
+					esc_url( plugins_url( "_inc/build/style.min{$rtl}.css", JETPACK__PLUGIN_FILE ) . '?ver=' . $version )
+				);
+			},
+			1
 		);
 
 		if ( ! $is_offline_mode && Jetpack::is_connection_ready() ) {
