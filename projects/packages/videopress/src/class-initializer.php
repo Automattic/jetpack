@@ -327,11 +327,8 @@ class Initializer {
 			};
 
 			add_filter( 'embed_maybe_make_link', $fallback, 10, 2 );
-			try {
-				$oembed_html = apply_filters( 'video_embed_html', $wp_embed->shortcode( array(), $videopress_url ) );
-			} finally {
-				remove_filter( 'embed_maybe_make_link', $fallback );
-			}
+			$oembed_html = apply_filters( 'video_embed_html', $wp_embed->shortcode( array(), $videopress_url ) );
+			remove_filter( 'embed_maybe_make_link', $fallback );
 
 			$video_wrapper = sprintf(
 				'<div class="%s">%s %s</div>',

@@ -49,7 +49,7 @@ class Uploader_Test extends BaseTestCase {
 		$mock->expects( 'enqueue_jwt_token_bridge' )->once();
 
 		$cache_value    = 'some-markup';
-		$cache_returned = VideoPress_Initializer::video_enqueue_bridge_when_oembed_present( $cache_value, $url, null, null );
+		$cache_returned = VideoPress_Initializer::video_enqueue_bridge_when_oembed_present( $cache_value, $url, array(), 0 );
 		$this->assertEquals( $cache_value, $cache_returned );
 	}
 
@@ -59,7 +59,7 @@ class Uploader_Test extends BaseTestCase {
 		$mock->expects( 'enqueue_jwt_token_bridge' )->never();
 
 		$cache_value    = 'some-markup';
-		$cache_returned = VideoPress_Initializer::video_enqueue_bridge_when_oembed_present( $cache_value, 'https://www.some-site.com', null, null );
+		$cache_returned = VideoPress_Initializer::video_enqueue_bridge_when_oembed_present( $cache_value, 'https://www.some-site.com', array(), 0 );
 		$this->assertEquals( $cache_value, $cache_returned );
 	}
 
