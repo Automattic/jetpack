@@ -13,6 +13,8 @@ import {
 	setNewsletterCategoriesSubscriptionsCount,
 	setPostEmailSentState,
 	setTotalEmailsSentCount,
+	setAlreadySentPostModifiedInSession,
+	setPublishedWithEmailEnabledInSession,
 } from '../actions';
 import * as utils from '../utils';
 
@@ -357,6 +359,26 @@ describe( 'Membership Products Actions', () => {
 			type: 'SET_POST_EMAIL_SENT_STATE',
 			postId,
 			payload,
+		} );
+	} );
+
+	test( 'setAlreadySentPostModifiedInSession works as expected', () => {
+		const postId = 42;
+		const result = setAlreadySentPostModifiedInSession( postId );
+
+		expect( result ).toStrictEqual( {
+			type: 'SET_ALREADY_SENT_POST_MODIFIED_IN_SESSION',
+			postId,
+		} );
+	} );
+
+	test( 'setPublishedWithEmailEnabledInSession works as expected', () => {
+		const postId = 42;
+		const result = setPublishedWithEmailEnabledInSession( postId );
+
+		expect( result ).toStrictEqual( {
+			type: 'SET_PUBLISHED_WITH_EMAIL_ENABLED_IN_SESSION',
+			postId,
 		} );
 	} );
 } );

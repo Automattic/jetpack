@@ -6,6 +6,8 @@ import {
 	getPostEmailSentState,
 	getProducts,
 	getTotalEmailsSentCount,
+	getAlreadySentPostModifiedInSession,
+	getPublishedWithEmailEnabledInSession,
 } from '../selectors';
 
 describe( 'Membership Products Selectors', () => {
@@ -107,5 +109,46 @@ describe( 'Membership Products Selectors', () => {
 			email_sent_at: null,
 			stats_on_send: null,
 		} );
+	} );
+
+	test( 'getAlreadySentPostModifiedInSession returns true when postId is in state', () => {
+		const state = {
+			alreadySentPostModifiedInSession: { 5: true },
+		};
+
+		expect( getAlreadySentPostModifiedInSession( state, 5 ) ).toBe( true );
+	} );
+
+	test( 'getAlreadySentPostModifiedInSession returns false when postId is not in state', () => {
+		const state = {
+			alreadySentPostModifiedInSession: {},
+		};
+
+		expect( getAlreadySentPostModifiedInSession( state, 5 ) ).toBe( false );
+		expect(
+			getAlreadySentPostModifiedInSession( { alreadySentPostModifiedInSession: { 10: true } }, 5 )
+		).toBe( false );
+	} );
+
+	test( 'getPublishedWithEmailEnabledInSession returns true when postId is in state', () => {
+		const state = {
+			publishedWithEmailEnabledInSession: { 5: true },
+		};
+
+		expect( getPublishedWithEmailEnabledInSession( state, 5 ) ).toBe( true );
+	} );
+
+	test( 'getPublishedWithEmailEnabledInSession returns false when postId is not in state', () => {
+		const state = {
+			publishedWithEmailEnabledInSession: {},
+		};
+
+		expect( getPublishedWithEmailEnabledInSession( state, 5 ) ).toBe( false );
+		expect(
+			getPublishedWithEmailEnabledInSession(
+				{ publishedWithEmailEnabledInSession: { 10: true } },
+				5
+			)
+		).toBe( false );
 	} );
 } );
