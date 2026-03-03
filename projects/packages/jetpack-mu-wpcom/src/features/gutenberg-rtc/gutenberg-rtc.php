@@ -10,7 +10,10 @@
  */
 
 /**
- * Check whether Gutenberg RTC is enabled or not
+ * Determines whether Gutenberg RTC is enabled.
+ *
+ * Disabled by default until the PingHub provider is ready
+ * and we are confident in proceeding with the rollout.
  */
 function wpcom_is_gutenberg_rtc_enabled() {
 	return apply_filters( 'wpcom_is_gutenberg_rtc_enabled', false );
@@ -70,14 +73,17 @@ add_action( 'admin_init', 'wpcom_unregister_rtc_setting', 11 );
 
 /**
  * Disable the `wp_enable_real_time_collaboration` option if there are no RTC providers.
+ *
+ * @param mixed $pre_option The value to return instead of the option value.
+ * @return string Filtered wp_enable_real_time_collaboration option
  */
-function wpcom_disable_rtc_option() {
+function wpcom_disable_rtc_option( $pre_option ) {
 	$providers = wpcom_get_gutenberg_rtc_providers();
 	if ( count( $providers ) === 0 ) {
 		return '0';
 	}
 
-	return false;
+	return $pre_option;
 }
 add_filter( 'pre_option_wp_enable_real_time_collaboration', 'wpcom_disable_rtc_option' );
 add_filter( 'pre_option_enable_real_time_collaboration', 'wpcom_disable_rtc_option' ); // TODO: Clean up the old name. See https://github.com/WordPress/gutenberg/pull/75837.

@@ -1,6 +1,6 @@
 import { addFilter } from '@wordpress/hooks';
 
-// Register PingHub provider and disable Http polling by returning only this provider.
+// Register providers (e.g. PingHub) supplied by the server, and disable HTTP polling by returning only this provider.
 ( function register() {
 	if ( typeof window === 'undefined' ) {
 		return;

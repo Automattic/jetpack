@@ -115,13 +115,13 @@ class Gutenberg_RTC_Test extends \WorDBless\BaseTestCase {
 	 * Tests that wpcom_disable_rtc_option returns '0' when no providers.
 	 */
 	public function test_wpcom_disable_rtc_option_returns_zero_when_no_providers() {
-		$this->assertSame( '0', wpcom_disable_rtc_option() );
+		$this->assertSame( '0', wpcom_disable_rtc_option( false ) );
 	}
 
 	/**
-	 * Tests that wpcom_disable_rtc_option returns false when providers exist (allowing the real option value through).
+	 * Tests that wpcom_disable_rtc_option passes through the pre_option value when providers exist.
 	 */
-	public function test_wpcom_disable_rtc_option_returns_false_when_providers_exist() {
+	public function test_wpcom_disable_rtc_option_passes_through_when_providers_exist() {
 		add_filter( 'wpcom_is_gutenberg_rtc_enabled', '__return_true' );
 		add_filter(
 			'wpcom_gutenberg_rtc_providers',
@@ -130,7 +130,8 @@ class Gutenberg_RTC_Test extends \WorDBless\BaseTestCase {
 			}
 		);
 
-		$this->assertFalse( wpcom_disable_rtc_option() );
+		$this->assertFalse( wpcom_disable_rtc_option( false ) );
+		$this->assertSame( '1', wpcom_disable_rtc_option( '1' ) );
 	}
 
 	/**
