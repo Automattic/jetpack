@@ -1,4 +1,4 @@
-Significance: patch
+Significance: minor
 Type: added
 
-Added centralized URL utility (Urls::get_newsletter_settings_url) for generating newsletter settings URLs based on site context.
+Add jetpack_show_newsletter_menu_item filter to show menu regardless of subscriptions module state.

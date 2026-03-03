@@ -1,4 +1,4 @@
-Significance: patch
-Type: other
+Significance: minor
+Type: enhancement
 
-Newsletter: Updated dashboard widget to use centralized URL utility for newsletter settings links.
+Newsletter: Hide settings tab and redirect to new settings page when wp-admin newsletter settings are enabled.

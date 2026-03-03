@@ -66,6 +66,26 @@ class Settings {
 	}
 
 	/**
+	 * Determine whether to show the Newsletter menu item.
+	 * When true, shown regardless of subscriptions module state.
+	 *
+	 * @return bool
+	 */
+	private function should_show_menu_item() {
+		/**
+		 * Filter to control Newsletter menu item visibility.
+		 * Defaults to true.
+		 *
+		 * @since $$next-version$$
+		 * @param bool $show Whether to show the menu item.
+		 */
+		return apply_filters(
+			'jetpack_show_newsletter_menu_item',
+			true
+		);
+	}
+
+	/**
 	 * Subscribe to necessary hooks.
 	 */
 	public function init_hooks() {
@@ -118,14 +138,14 @@ class Settings {
 			return;
 		}
 
-		$host             = new Host();
-		$is_module_active = $this->is_subscriptions_active();
+		$host = new Host();
 
-		// Show in Jetpack menu if module active, hidden page if inactive.
-		$parent_slug = $is_module_active ? 'jetpack' : '';
+		// When new settings are enabled, should_show_menu_item() controls visibility.
+		$show_menu   = $this->should_show_menu_item();
+		$parent_slug = $show_menu ? 'jetpack' : '';
 
-		// On Atomic, use add_submenu_page. On standalone Jetpack, use Admin_Menu when active.
-		$use_jetpack_menu = ! $host->is_woa_site() && $is_module_active;
+		// On Atomic, use add_submenu_page. On standalone Jetpack, use Admin_Menu when showing in menu.
+		$use_jetpack_menu = ! $host->is_woa_site() && $show_menu;
 
 		// Register menu item.
 		if ( $use_jetpack_menu ) {
