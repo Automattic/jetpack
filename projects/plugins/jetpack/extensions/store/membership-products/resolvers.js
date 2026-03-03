@@ -394,7 +394,6 @@ export const getPostEmailSentState =
 				} )
 			);
 		} catch ( error ) {
-			dispatch( setApiState( API_STATE_NOTCONNECTED ) );
 			onError( error.message, registry );
 		} finally {
 			executionLock.release( lock );
