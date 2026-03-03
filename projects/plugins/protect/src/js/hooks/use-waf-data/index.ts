@@ -7,7 +7,7 @@ import useAnalyticsTracks from '../use-analytics-tracks';
 /**
  * Use WAF Data Hook
  *
- * @return {object} WAF data and methods for interacting with it.
+ * @return WAF data and methods for interacting with it.
  */
 const useWafData = () => {
 	const { recordEvent } = useAnalyticsTracks();
@@ -21,7 +21,7 @@ const useWafData = () => {
 	 * Flips the switch on the WAF module, and then refreshes the data.
 	 */
 	const toggleWaf = useCallback( async () => {
-		toggleWafMutation.mutate();
+		toggleWafMutation.mutate( undefined );
 	}, [ toggleWafMutation ] );
 
 	/**
@@ -131,7 +131,10 @@ const useWafData = () => {
 	 */
 	const toggleShareData = useCallback( async () => {
 		const value = ! waf.config.jetpackWafShareData;
-		const mutationObj = { jetpack_waf_share_data: value };
+		const mutationObj: {
+			jetpack_waf_share_data: boolean;
+			jetpack_waf_share_debug_data?: boolean;
+		} = { jetpack_waf_share_data: value };
 		if ( ! value ) {
 			mutationObj.jetpack_waf_share_debug_data = false;
 		}
@@ -148,7 +151,10 @@ const useWafData = () => {
 	 */
 	const toggleShareDebugData = useCallback( async () => {
 		const value = ! waf.config.jetpackWafShareDebugData;
-		const mutationObj = { jetpack_waf_share_debug_data: value };
+		const mutationObj: {
+			jetpack_waf_share_debug_data: boolean;
+			jetpack_waf_share_data?: boolean;
+		} = { jetpack_waf_share_debug_data: value };
 		if ( value ) {
 			mutationObj.jetpack_waf_share_data = true;
 		}

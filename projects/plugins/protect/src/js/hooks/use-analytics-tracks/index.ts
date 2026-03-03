@@ -2,12 +2,19 @@ import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { useConnection } from '@automattic/jetpack-connection';
 import { useCallback, useEffect } from 'react';
 
+type AnalyticsTracksOptions = {
+	pageViewEventName?: string;
+	pageViewNamespace?: string;
+	pageViewSuffix?: string;
+	pageViewEventProperties?: Record< string, unknown >;
+};
+
 const useAnalyticsTracks = ( {
 	pageViewEventName,
 	pageViewNamespace = 'jetpack',
 	pageViewSuffix = 'page_view',
 	pageViewEventProperties = {},
-} = {} ) => {
+}: AnalyticsTracksOptions = {} ) => {
 	const { isUserConnected, isRegistered, userConnectionData } = useConnection();
 	const { login, ID } = userConnectionData.currentUser?.wpcomUser || {};
 
@@ -16,14 +23,18 @@ const useAnalyticsTracks = ( {
 	const { recordEvent } = tracks;
 
 	const recordEventAsync = useCallback(
-		async ( event, properties ) => {
+		async ( event: string, properties?: Record< string, unknown > ) => {
 			recordEvent( event, properties );
 		},
 		[ recordEvent ]
 	);
 
 	const recordEventHandler = useCallback(
-		( eventName, properties, callback = () => {} ) => {
+		(
+			eventName: string,
+			properties?: Record< string, unknown > | VoidFunction,
+			callback = () => {}
+		) => {
 			/*
 			 * `properties` is optional,
 			 * meaning it can be actually the `callback`.
