@@ -106,7 +106,15 @@ const output = {
 const optimization = {
 	minimize: isProduction,
 	minimizer: [ TerserPlugin(), CssMinimizerPlugin() ],
+	// `mangleExports: false` because I18nSafeMangleExportsPlugin handles export
+	// mangling in an i18n-aware way (preserving __ / _n / _x call sites).
 	mangleExports: false,
+	// `concatenateModules: false` because scope hoisting can inline module
+	// namespaces in ways that cause Terser to mangle WordPress i18n function
+	// names (__/_n/_x), breaking translation extraction.
+	// See: https://github.com/Automattic/jetpack/issues/21204
+	// Re-enabling would require verifying that I18nCheckPlugin and
+	// I18nLoaderPlugin are fully compatible with scope-hoisted output.
 	concatenateModules: false,
 	moduleIds: isProduction ? false : 'named',
 	emitOnErrors: true,

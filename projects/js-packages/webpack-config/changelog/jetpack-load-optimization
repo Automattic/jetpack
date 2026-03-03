@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Document why `concatenateModules` is set to `false` and what conditions would need to be met to re-enable scope hoisting safely.
