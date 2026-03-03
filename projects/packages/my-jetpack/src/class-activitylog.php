@@ -46,7 +46,7 @@ class Activitylog {
 		}
 
 		return Admin_Menu::add_menu(
-		/** "Activity Log" is a product name, do not translate. */
+			/** "Activity Log" is a product name, do not translate. */
 			'Activity Log',
 			'Activity Log <span aria-hidden="true">↗</span>',
 			'manage_options',
