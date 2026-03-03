@@ -122,7 +122,9 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 	 */
 	private function invoke_register_scripts( $scripts ) {
 		$method = new \ReflectionMethod( WP_Build_Polyfills::class, 'register_scripts' );
-		$method->setAccessible( true );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
 		$method->invoke( null, $scripts, $this->build_dir, __FILE__ );
 	}
 
@@ -131,7 +133,9 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 	 */
 	private function invoke_register_modules() {
 		$method = new \ReflectionMethod( WP_Build_Polyfills::class, 'register_modules' );
-		$method->setAccessible( true );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
 		$method->invoke( null, $this->build_dir, __FILE__ );
 	}
 
@@ -165,7 +169,9 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 	private function get_registered_modules() {
 		$instance = wp_script_modules();
 		$prop     = new \ReflectionProperty( $instance, 'registered' );
-		$prop->setAccessible( true );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$prop->setAccessible( true );
+		}
 		return $prop->getValue( $instance );
 	}
 
