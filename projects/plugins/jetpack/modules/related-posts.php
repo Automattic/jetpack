@@ -71,6 +71,10 @@ class Jetpack_RelatedPosts_Module {
 		if ( class_exists( WP_Customize_Manager::class ) && class_exists( WP_Customize_Control::class ) ) {
 			require_once __DIR__ . '/related-posts/class.related-posts-customize.php';
 		}
+
+		// Initialize abilities registration for WordPress Abilities API (WP 6.9+)
+		require_once __DIR__ . '/related-posts/class-related-posts-abilities.php';
+		Related_Posts_Abilities::init();
 	}
 }
 
