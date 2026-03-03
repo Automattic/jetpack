@@ -27,9 +27,10 @@ class Urls {
 	 *
 	 * @param string|null $site_slug              The site slug for Calypso URLs (e.g., 'example.com').
 	 * @param bool        $force_calypso_fallback Force Calypso URL as fallback (e.g., for Personal/Premium Atomic).
+	 * @param bool        $relative_calypso_path  Return relative path for Calypso URLs (e.g., '/settings/newsletter/...').
 	 * @return string The newsletter settings URL.
 	 */
-	public static function get_newsletter_settings_url( $site_slug = null, $force_calypso_fallback = false ) {
+	public static function get_newsletter_settings_url( $site_slug = null, $force_calypso_fallback = false, $relative_calypso_path = false ) {
 		/**
 		 * Enables the new in-development newsletter settings UI in wp-admin.
 		 *
@@ -41,16 +42,17 @@ class Urls {
 			return admin_url( 'admin.php?page=jetpack-newsletter' );
 		}
 
-		$host = new Host();
+		$host         = new Host();
+		$calypso_path = '/settings/newsletter/' . $site_slug;
 
 		// Simple sites always use Calypso.
 		if ( $host->is_wpcom_simple() ) {
-			return 'https://wordpress.com/settings/newsletter/' . $site_slug;
+			return $relative_calypso_path ? $calypso_path : 'https://wordpress.com' . $calypso_path;
 		}
 
 		// Force Calypso fallback (e.g., for Personal/Premium Atomic).
 		if ( $force_calypso_fallback ) {
-			return 'https://wordpress.com/settings/newsletter/' . $site_slug;
+			return $relative_calypso_path ? $calypso_path : 'https://wordpress.com' . $calypso_path;
 		}
 
 		// WoA: check interface preference.
@@ -58,7 +60,7 @@ class Urls {
 			if ( get_option( 'wpcom_admin_interface' ) === 'wp-admin' ) {
 				return admin_url( 'admin.php?page=jetpack#/newsletter' );
 			}
-			return 'https://wordpress.com/settings/newsletter/' . $site_slug;
+			return $relative_calypso_path ? $calypso_path : 'https://wordpress.com' . $calypso_path;
 		}
 
 		// Self-hosted Jetpack.
