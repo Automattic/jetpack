@@ -52,7 +52,7 @@ class Activitylog {
 			'manage_options',
 			esc_url( Redirect::get_url( 'cloud-activity-log-wp-menu', $args ) ),
 			null,
-			8
+			14
 		);
 	}
 }

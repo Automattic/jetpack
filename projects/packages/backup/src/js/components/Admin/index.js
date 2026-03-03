@@ -70,11 +70,7 @@ const Admin = () => {
 		}
 		if ( showBackUpNowButton ) {
 			items.push(
-				<BackupNowButton
-					key="backup"
-					variant="primary"
-					tracksEventName="jetpack_backup_plugin_backup_now"
-				>
+				<BackupNowButton key="backup" tracksEventName="jetpack_backup_plugin_backup_now">
 					{ __( 'Back up now', 'jetpack-backup-pkg' ) }
 				</BackupNowButton>
 			);
