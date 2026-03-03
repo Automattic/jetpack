@@ -20,7 +20,7 @@ class Admin_Menu {
 	 *
 	 * @var string
 	 */
-	const UPGRADE_MENU_SLUG = 'jetpack-upgrade-menu';
+	const UPGRADE_MENU_SLUG = 'jetpack-wpadmin-sidebar-free-plan-upsell-menu-item';
 
 	/**
 	 * Fallback upgrade URL when the Redirect class is unavailable.
