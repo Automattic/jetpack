@@ -326,7 +326,7 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 15.6-beta - 2026-03-02
+### 15.6 - 2026-03-03
 #### Enhancements
 - AI Assistant: Add `jetpack_ai_assistant_generation_complete` action hook for cross-package communication.
 - AI Sidebar: Add `jetpack.ai.imageGenerationHandler` filter to allow external plugins (e.g. Image Studio) to replace the built-in AI image generation flow for the "Get Featured Image" entry point.
