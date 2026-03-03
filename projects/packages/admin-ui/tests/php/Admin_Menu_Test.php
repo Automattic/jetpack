@@ -193,57 +193,32 @@ class Admin_Menu_Test extends TestCase {
 	}
 
 	/**
-	 * CSS styles are output for a free-plan admin on a Jetpack screen.
+	 * CSS styles are output for a free-plan site on any admin screen.
+	 *
+	 * The sidebar is visible everywhere in wp-admin, so styles must load globally.
 	 *
 	 * @return void
 	 */
 	public function test_upgrade_menu_item_styles_output_for_free_plan() {
-		wp_set_current_user( self::$admin_user_id );
-		set_current_screen( 'jetpack' );
-
 		ob_start();
 		Admin_Menu::add_upgrade_menu_item_styles();
 		$output = ob_get_clean();
-
-		set_current_screen( 'front' );
 
 		$this->assertStringContainsString( 'jetpack-upgrade-menu__icon', $output );
 		$this->assertStringContainsString( '#069e08', $output );
 	}
 
 	/**
-	 * No CSS output when the site has a paid plan, even on a Jetpack screen.
+	 * No CSS output when the site has a paid plan.
 	 *
 	 * @return void
 	 */
 	public function test_upgrade_menu_item_styles_no_output_for_paid_plan() {
-		wp_set_current_user( self::$admin_user_id );
 		update_option( 'jetpack_active_plan', array( 'class' => 'premium' ) );
-		set_current_screen( 'jetpack' );
 
 		ob_start();
 		Admin_Menu::add_upgrade_menu_item_styles();
 		$output = ob_get_clean();
-
-		set_current_screen( 'front' );
-
-		$this->assertSame( '', $output );
-	}
-
-	/**
-	 * No CSS output when viewing a non-Jetpack admin screen, even on a free plan.
-	 *
-	 * @return void
-	 */
-	public function test_upgrade_menu_item_styles_no_output_outside_jetpack_screens() {
-		wp_set_current_user( self::$admin_user_id );
-		set_current_screen( 'dashboard' );
-
-		ob_start();
-		Admin_Menu::add_upgrade_menu_item_styles();
-		$output = ob_get_clean();
-
-		set_current_screen( 'front' );
 
 		$this->assertSame( '', $output );
 	}

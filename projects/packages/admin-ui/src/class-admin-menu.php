@@ -280,7 +280,8 @@ class Admin_Menu {
 			: self::UPGRADE_MENU_FALLBACK_URL;
 
 		$menu_title = '<span class="dashicons dashicons-star-filled jetpack-upgrade-menu__icon" aria-hidden="true"></span>'
-			. esc_html__( 'Upgrade to Pro', 'jetpack-admin-ui' );
+			. esc_html__( 'Upgrade to Pro', 'jetpack-admin-ui' )
+			. ' <span aria-hidden="true">↗</span>';
 
 		add_submenu_page(
 			'jetpack',
@@ -308,16 +309,12 @@ class Admin_Menu {
 	/**
 	 * Outputs inline CSS to style the "Upgrade to Pro" menu item in Jetpack green.
 	 *
-	 * Only outputs on Jetpack admin pages and only for free-plan sites.
+	 * The sidebar menu is visible on every admin page, so styles must load globally.
+	 * Only outputs for free-plan sites.
 	 *
 	 * @return void
 	 */
 	public static function add_upgrade_menu_item_styles() {
-		$screen = get_current_screen();
-		if ( ! $screen || false === strpos( $screen->id, 'jetpack' ) ) {
-			return;
-		}
-
 		if ( ! self::is_free_plan() ) {
 			return;
 		}
@@ -325,10 +322,10 @@ class Admin_Menu {
 		<style>
 			#adminmenu .jetpack-upgrade-menu__icon {
 				color: #069e08;
-				font-size: 16px;
+				font-size: 15px;
 				line-height: 1;
 				vertical-align: middle;
-				margin-inline-end: 4px;
+				margin-inline-start: -3px;
 			}
 			#adminmenu li.<?php echo esc_attr( self::UPGRADE_MENU_SLUG ); ?> > a,
 			#adminmenu li.<?php echo esc_attr( self::UPGRADE_MENU_SLUG ); ?> > a:hover {
