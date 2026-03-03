@@ -5,7 +5,7 @@ import './copy-code-row.scss';
 import { Button, Popover } from '@wordpress/components';
 import { useCopyToClipboard } from '@wordpress/compose';
 import { useState, useEffect, useRef, useCallback } from '@wordpress/element';
-import { __, isRTL } from '@wordpress/i18n';
+import { __, isRTL, sprintf } from '@wordpress/i18n';
 import { copySmall, check } from '@wordpress/icons';
 
 type CopyCodeRowProps = {
@@ -30,7 +30,7 @@ export const CopyCodeRow = ( { text, label }: CopyCodeRowProps ) => {
 		}
 		const selection = textRef.current.ownerDocument.defaultView?.getSelection();
 		if ( selection ) {
-			const range = document.createRange();
+			const range = textRef.current.ownerDocument.createRange();
 			range.selectNodeContents( textRef.current );
 			selection.removeAllRanges();
 			selection.addRange( range );
@@ -40,6 +40,8 @@ export const CopyCodeRow = ( { text, label }: CopyCodeRowProps ) => {
 	const handleKeyDown = useCallback(
 		( event: React.KeyboardEvent ) => {
 			if ( event.key === 'Enter' || event.key === ' ' ) {
+				event.preventDefault();
+				event.stopPropagation();
 				handleTextClick();
 			}
 		},
@@ -73,6 +75,7 @@ export const CopyCodeRow = ( { text, label }: CopyCodeRowProps ) => {
 					className="jetpack-form-embed-code__text"
 					onClick={ handleTextClick }
 					role="textbox"
+					aria-readonly="true"
 					tabIndex={ 0 }
 					onKeyDown={ handleKeyDown }
 				>
@@ -95,7 +98,13 @@ export const CopyCodeRow = ( { text, label }: CopyCodeRowProps ) => {
 						</Popover>
 					</Button>
 				) : (
-					<Button ref={ ref } icon={ copySmall } size="compact" label={ label } />
+					<Button
+						ref={ ref }
+						icon={ copySmall }
+						size="compact"
+						/* translators: %s: label for the code row (e.g. "Embed code", "Shortcode") */
+						label={ sprintf( __( 'Copy %s', 'jetpack-forms' ), label.toLowerCase() ) }
+					/>
 				) }
 			</div>
 		</div>
