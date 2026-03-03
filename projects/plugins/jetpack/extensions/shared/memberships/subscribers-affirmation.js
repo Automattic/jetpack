@@ -252,19 +252,17 @@ function parseAccessLevel( accessLevelStr ) {
 
 /**
  * Get access level label for display. Works with any access level string (from stats or current editor).
- * Stats format appends tier name after ': ' when a tier is selected (e.g. paid_subscribers: Premium).
+ * Uses parseAccessLevel for consistent parsing of the paid_subscribers: TierName format.
  *
  * @param {string} accessLevel - e.g. 'everybody', 'subscribers', 'paid_subscribers', 'paid_subscribers: Premium'
  * @return {string} Access level label for display (e.g. "all subscribers", "paid subscribers (Premium)").
  */
 function getAccessLevelLabel( accessLevel ) {
 	if ( ! accessLevel ) return __( 'all subscribers', 'jetpack' );
-	const key = accessLevel.startsWith( 'paid_subscribers' ) ? 'paid_subscribers' : accessLevel;
-	const tierMatch = accessLevel.match( /^paid_subscribers:\s*(.+)$/ );
-	const tierName = tierMatch ? tierMatch[ 1 ].trim() : null;
+	const { base, tierName } = parseAccessLevel( accessLevel );
 
 	let label;
-	switch ( key ) {
+	switch ( base ) {
 		case 'everybody':
 			label = __( 'all subscribers', 'jetpack' );
 			break;
@@ -278,7 +276,7 @@ function getAccessLevelLabel( accessLevel ) {
 			label = __( 'all subscribers', 'jetpack' );
 	}
 
-	if ( tierName && key === 'paid_subscribers' ) {
+	if ( tierName && base === 'paid_subscribers' ) {
 		return `${ label } (${ tierName })`;
 	}
 	return label;
