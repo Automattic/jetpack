@@ -540,7 +540,7 @@ class Main extends Component {
 			case '/newsletter':
 				if ( this.props.isWpAdminNewsletterSettingsEnabled ) {
 					window.location.href = `${ this.props.siteAdminUrl }admin.php?page=jetpack-newsletter`;
-					return null;
+					break;
 				}
 				pageComponent = (
 					<SearchableSettings

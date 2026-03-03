@@ -129,9 +129,8 @@ class Settings {
 	 * Note: This method is NOT called on wpcom Simple sites. Simple sites use
 	 * add_wp_admin_submenu() called from wpcom-admin-menu.php instead.
 	 *
-	 * Menu visibility rules:
-	 * - wpcom Atomic: Show under 'jetpack' if module active, hidden if inactive.
-	 * - Standalone Jetpack: Show under 'jetpack' if module active, hidden if inactive.
+	 * Menu visibility is controlled by the jetpack_show_newsletter_menu_item filter
+	 * (defaults to true). Set to false to hide the menu while keeping page accessible.
 	 */
 	public function add_wp_admin_menu() {
 		if ( ! $this->expose_to_users() ) {

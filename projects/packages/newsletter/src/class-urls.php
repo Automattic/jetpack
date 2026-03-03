@@ -33,7 +33,7 @@ class Urls {
 		/**
 		 * Enables the new in-development newsletter settings UI in wp-admin.
 		 *
-		 * @since 0.1.0
+		 * @since $$next-version$$
 		 *
 		 * @param bool $enabled Whether the new settings UI is enabled. Default false.
 		 */
