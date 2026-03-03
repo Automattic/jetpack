@@ -9,9 +9,9 @@
 		background-color: var(--jp-white);
 	}
 
-	// Remove the admin-ui header border when tabs are present. Scoped to
-	// .admin-page.has-tabs so this only applies when tabs prop is used.
-	// Ideally admin-ui would expose a prop or CSS custom property for this.
+	// Remove the admin-ui header border when tabs are present,
+	// or when showBottomBorder is false.
+	// Ideally admin-ui would expose a prop or CSS custom property for this:
 	// https://github.com/WordPress/gutenberg/issues/75428
 	&.without-bottom-border :global(.admin-ui-page__header) {
 		border-bottom: none;
