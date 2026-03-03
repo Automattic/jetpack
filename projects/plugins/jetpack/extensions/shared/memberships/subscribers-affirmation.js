@@ -387,6 +387,7 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 		paidSubscribersCount,
 		postEmailSentState,
 		tierProducts,
+		totalEmailsSentCount,
 		alreadySentPostModifiedInSession,
 		publishedWithEmailEnabledInSession,
 	} = useSelect(
@@ -400,6 +401,7 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 				getPublishedWithEmailEnabledInSession,
 				getAlreadySentPostModifiedInSession,
 				getSubscriberCounts,
+				getTotalEmailsSentCount,
 				hasFinishedResolution,
 			} = select( membershipProductsStore );
 
@@ -433,9 +435,10 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 					? getPublishedWithEmailEnabledInSession( postId )
 					: false,
 				tierProducts: getNewsletterTierProducts(),
+				totalEmailsSentCount: postId ? getTotalEmailsSentCount( blogId, postId ) : null,
 			};
 		},
-		[ postId ]
+		[ postId, blogId ]
 	);
 
 	if ( ! hasFinishedLoading ) {
@@ -465,6 +468,7 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 		: '';
 
 	const isAlreadySent = emailSentAt != null;
+	const isStatsOnlyFallback = ! isAlreadySent && ( totalEmailsSentCount ?? 0 ) > 0;
 	const isSendingInProgress =
 		status === 'publish' &&
 		isSendEmailEnabled() &&
@@ -486,7 +490,9 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 
 	if ( ! isSendEmailEnabled() ) {
 		// "Post only" but already emailed: show "was sent" copy, not "Not sent via email"
-		if ( isAlreadySent ) {
+		if ( isStatsOnlyFallback ) {
+			text = __( 'This post was emailed. View <link>delivery details</link>.', 'jetpack' );
+		} else if ( isAlreadySent ) {
 			text = getSentCopyLine( {
 				accessLabel: sentAccessLabel,
 				categoryNames: sentCategoryNames,
@@ -541,6 +547,8 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 
 		showWontResendMessage =
 			alreadySentPostModifiedInSession || prePublish || ! accessMatches || ! categoriesMatch;
+	} else if ( isStatsOnlyFallback ) {
+		text = __( 'This post was emailed. View <link>delivery details</link>.', 'jetpack' );
 	} else if ( isSendingInProgress ) {
 		const accessLabel = getAccessLevelLabel( accessLevel );
 		const categoryNames =
