@@ -5,6 +5,10 @@ import { usePrevious } from '@wordpress/compose';
 import debugFactory from 'debug';
 import { useEffect, useRef, useState, useCallback } from 'react';
 /**
+ * Internal dependencies
+ */
+import { isAllowedOrigin } from '../../../lib/videopress-allowed-origins';
+/**
  * Types
  */
 import type { PlayerStateProp, UseVideoPlayerOptions, UseVideoPlayer } from './types';
@@ -57,8 +61,8 @@ const useVideoPlayer = (
 	 * @param {MessageEvent} event - Message event
 	 */
 	function listenEventsHandler( event: MessageEvent ) {
-		const allowedOrigins = [ 'https://videopress.com', 'https://video.wordpress.com' ];
-		if ( ! allowedOrigins.includes( event.origin ) ) {
+		if ( ! isAllowedOrigin( event.origin ) ) {
+			debug( 'ignoring message from untrusted origin: %s', event.origin );
 			return;
 		}
 

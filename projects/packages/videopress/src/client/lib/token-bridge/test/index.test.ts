@@ -218,7 +218,7 @@ describe( 'tokenBridgeHandler', () => {
 		}
 	} );
 
-	it( 'passes correct options to getMediaToken', async () => {
+	it( 'passes correct options to getMediaToken with isRetry', async () => {
 		mockGetMediaToken.mockResolvedValue( { token: 'jwt-token' } );
 		const source = { postMessage: jest.fn() };
 		const event = createMessageEvent( {
@@ -234,6 +234,93 @@ describe( 'tokenBridgeHandler', () => {
 			subscriptionPlanId: 0,
 			adminAjaxAPI: '/wp-admin/admin-ajax.php',
 			flushToken: true,
+		} );
+	} );
+
+	it( 'does not flush token when isRetry is absent', async () => {
+		mockGetMediaToken.mockResolvedValue( { token: 'jwt-token' } );
+		const source = { postMessage: jest.fn() };
+		const event = createMessageEvent( {
+			data: validData,
+			source,
+		} );
+
+		await tokenBridgeHandler( event );
+
+		expect( mockGetMediaToken ).toHaveBeenCalledWith(
+			'playback',
+			expect.objectContaining( { flushToken: undefined } )
+		);
+	} );
+
+	it( 'passes subscriptionPlanId from __guidsToPlanIds when available', async () => {
+		window.__guidsToPlanIds = { abc123: 999 };
+		mockGetMediaToken.mockResolvedValue( { token: 'jwt-token' } );
+		const source = { postMessage: jest.fn() };
+		const event = createMessageEvent( {
+			data: validData,
+			source,
+		} );
+
+		await tokenBridgeHandler( event );
+
+		expect( mockGetMediaToken ).toHaveBeenCalledWith(
+			'playback',
+			expect.objectContaining( { subscriptionPlanId: 999 } )
+		);
+	} );
+
+	it( 'rejects messages whose source is a MessagePort', async () => {
+		const port = new MessagePort();
+		const event = createMessageEvent( {
+			data: validData,
+			source: port as unknown as { postMessage: jest.Mock },
+		} );
+
+		await tokenBridgeHandler( event );
+
+		expect( mockGetMediaToken ).not.toHaveBeenCalled();
+	} );
+
+	it( 'sends error when getMediaToken rejects', async () => {
+		mockGetMediaToken.mockRejectedValue( new Error( 'network error' ) );
+		const source = { postMessage: jest.fn() };
+		const origin = 'https://videopress.com';
+		const event = createMessageEvent( {
+			data: validData,
+			origin,
+			source,
+		} );
+
+		await tokenBridgeHandler( event );
+
+		// Should send ack, then error (not throw).
+		const errorCall = source.postMessage.mock.calls[ 1 ];
+		expect( errorCall[ 0 ] ).toMatchObject( {
+			event: 'videopress_token_error',
+			guid: 'abc123',
+			requestId: 'req1',
+		} );
+		expect( errorCall[ 1 ] ).toEqual( { targetOrigin: origin } );
+	} );
+
+	it( 'sends error when token data has no token field', async () => {
+		mockGetMediaToken.mockResolvedValue( {} );
+		const source = { postMessage: jest.fn() };
+		const origin = 'https://videopress.com';
+		const event = createMessageEvent( {
+			data: validData,
+			origin,
+			source,
+		} );
+
+		await tokenBridgeHandler( event );
+
+		const errorCall = source.postMessage.mock.calls[ 1 ];
+		expect( errorCall[ 0 ] ).toMatchObject( {
+			event: 'videopress_token_error',
+			guid: 'abc123',
+			requestId: 'req1',
 		} );
 	} );
 } );

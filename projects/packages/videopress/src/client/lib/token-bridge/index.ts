@@ -3,9 +3,13 @@
  */
 import debugFactory from 'debug';
 /**
- * Types
+ * Internal dependencies
  */
 import getMediaToken from '../get-media-token';
+import { isAllowedOrigin } from '../videopress-allowed-origins';
+/**
+ * Types
+ */
 import type { VideoGUID } from '../../block-editor/blocks/video/types';
 
 const debug = debugFactory( 'videopress:token-bridge' );
@@ -17,8 +21,6 @@ type VideopressAjaxPostMessageEventProps = {
 	jwt?: string;
 };
 
-type Origin = 'https://videopress.com' | 'https://video.wordpress.com';
-
 const { videopressAjax } = window;
 
 type TokenBrigeEventProps = {
@@ -26,7 +28,6 @@ type TokenBrigeEventProps = {
 	guid: VideoGUID;
 	subscriptionPlanId?: number;
 	requestId: string;
-	origin: Origin;
 	isRetry?: boolean;
 };
 
@@ -90,11 +91,7 @@ export async function tokenBridgeHandler(
 	const postId = window?.videopressAjax.post_id || 0;
 	const subscriptionPlanId = await getSubscriberPlanIdIfExists( guid );
 
-	const allowed_origins: Array< Origin > = [
-		'https://videopress.com',
-		'https://video.wordpress.com',
-	];
-	if ( -1 === allowed_origins.indexOf( event.origin as Origin ) ) {
+	if ( ! isAllowedOrigin( event.origin ) ) {
 		debug( '(%s) Invalid origin', context );
 		return;
 	}
@@ -131,20 +128,25 @@ export async function tokenBridgeHandler(
 		debug( '(%s) client retrying request. Flush the token.', context );
 	}
 
-	const tokenData = await getMediaToken( 'playback', {
-		id: Number( postId ),
-		guid,
-		subscriptionPlanId,
-		adminAjaxAPI: videopressAjax.ajaxUrl,
-		flushToken: isRetry, // flush the token if it's a retry
-	} );
+	let tokenData;
+	try {
+		tokenData = await getMediaToken( 'playback', {
+			id: Number( postId ),
+			guid,
+			subscriptionPlanId,
+			adminAjaxAPI: videopressAjax.ajaxUrl,
+			flushToken: isRetry, // flush the token if it's a retry
+		} );
+	} catch ( error ) {
+		debug( '(%s) Unexpected error getting token: %o', context, error );
+	}
 
 	if ( ! tokenData?.token ) {
 		debug( '(%s) Error getting token', context );
 		tokenRequester.postMessage(
 			{
 				event: 'videopress_token_error',
-				guid: event.data.guid,
+				guid,
 				requestId,
 			} as VideopressAjaxPostMessageEventProps,
 			{ targetOrigin: event.origin }

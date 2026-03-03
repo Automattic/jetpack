@@ -3,11 +3,13 @@
  */
 import debugFactory from 'debug';
 /**
+ * Internal dependencies
+ */
+import { isAllowedOrigin } from '../videopress-allowed-origins';
+/**
  * Types
  */
 import type { VideoGUID } from '../../block-editor/blocks/video/types';
-
-type Origin = 'https://videopress.com' | 'https://video.wordpress.com';
 
 const debug = debugFactory( 'videopress:player-bridge' );
 
@@ -33,9 +35,10 @@ const VIDEOPRESS_ALLOWED_EMITTING_EVENTS = [
 ] as const;
 
 type PlayerBrigeEventProps = {
-	event: ( typeof VIDEOPRESS_ALLOWED_LISTENING_EVENTS )[ number ];
+	event:
+		| ( typeof VIDEOPRESS_ALLOWED_LISTENING_EVENTS )[ number ]
+		| ( typeof VIDEOPRESS_ALLOWED_EMITTING_EVENTS )[ number ];
 	id: VideoGUID;
-	origin: Origin;
 };
 
 /**
@@ -53,12 +56,7 @@ export async function playerBridgeHandler(
 	// Propagate only allowed events.
 	if ( VIDEOPRESS_ALLOWED_LISTENING_EVENTS.indexOf( eventName ) !== -1 ) {
 		// Only relay player status events from trusted VideoPress origins.
-		const allowed_origins: Array< Origin > = [
-			'https://videopress.com',
-			'https://video.wordpress.com',
-		];
-
-		if ( -1 !== allowed_origins.indexOf( event.origin as Origin ) ) {
+		if ( isAllowedOrigin( event.origin ) ) {
 			debug( 'broadcast %o event: %o', eventName, data );
 			window.top.postMessage( event.data, '*' );
 		}
