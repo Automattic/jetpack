@@ -173,7 +173,7 @@ const backupUndoEvent = (
 				actorRole: activity.actor?.role ?? '',
 				actorType: activity.actor?.type ?? '',
 				isMcpAgent: activity.actor?.is_mcp_agent ?? false,
-				mcpClient: activity.actor?.mcp_client ?? '',
+				mcpClient: activity.actor?.mcp_client ?? activity.actor?.mcp_client_name ?? '',
 				activityDate: activity.published ?? '',
 				activityId: activity.activity_id,
 				activityName: activity.name,
