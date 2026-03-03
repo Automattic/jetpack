@@ -98,4 +98,10 @@ export type AdminPageProps = {
 	 * Class name to be applied to the root element of the component.
 	 */
 	className?: string;
+
+	/**
+	 * Show bottom border of the header. Defaults to true.
+	 * Hidden when `tabs` is used.
+	 */
+	showBottomBorder?: boolean;
 };

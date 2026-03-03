@@ -12,8 +12,12 @@
 	// Remove the admin-ui header border when tabs are present. Scoped to
 	// .admin-page.has-tabs so this only applies when tabs prop is used.
 	// Ideally admin-ui would expose a prop or CSS custom property for this.
-	&.has-tabs :global(.admin-ui-page__header) {
+	// https://github.com/WordPress/gutenberg/issues/75428
+	&.without-bottom-border :global(.admin-ui-page__header) {
 		border-bottom: none;
+	}
+
+	:global(.admin-ui-page__header) {
 		position: relative;
 	}
 
