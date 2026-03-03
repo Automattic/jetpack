@@ -66,11 +66,8 @@ class WP_Build_Polyfills {
 			),
 		);
 
-		$use_minified = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? false : true;
-		$file_name    = $use_minified ? 'index.min' : 'index';
-
 		foreach ( $polyfills as $handle => $data ) {
-			$asset_file = $build_dir . '/scripts/' . $data['path'] . '/' . $file_name . '.asset.php';
+			$asset_file = $build_dir . '/scripts/' . $data['path'] . '/index.asset.php';
 
 			if ( ! file_exists( $asset_file ) ) {
 				continue;
@@ -91,7 +88,7 @@ class WP_Build_Polyfills {
 
 			$scripts->add(
 				$handle,
-				plugins_url( 'build/scripts/' . $data['path'] . '/' . $file_name . '.js', $base_file ),
+				plugins_url( 'build/scripts/' . $data['path'] . '/index.js', $base_file ),
 				$asset['dependencies'],
 				$asset['version']
 			);
@@ -114,12 +111,9 @@ class WP_Build_Polyfills {
 
 		$modules = array( 'boot', 'route', 'a11y' );
 
-		$use_minified = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? false : true;
-		$file_name    = $use_minified ? 'index.min' : 'index';
-
 		foreach ( $modules as $name ) {
 			$module_id  = '@wordpress/' . $name;
-			$asset_file = $build_dir . '/modules/' . $name . '/' . $file_name . '.asset.php';
+			$asset_file = $build_dir . '/modules/' . $name . '/index.asset.php';
 
 			if ( ! file_exists( $asset_file ) ) {
 				continue;
@@ -129,7 +123,7 @@ class WP_Build_Polyfills {
 
 			wp_register_script_module(
 				$module_id,
-				plugins_url( 'build/modules/' . $name . '/' . $file_name . '.js', $base_file ),
+				plugins_url( 'build/modules/' . $name . '/index.js', $base_file ),
 				$asset['module_dependencies'] ?? array(),
 				$asset['version']
 			);
