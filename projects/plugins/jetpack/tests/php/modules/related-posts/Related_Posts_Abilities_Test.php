@@ -8,7 +8,7 @@
 
 // @phan-file-suppress PhanUndeclaredFunction, PhanUndeclaredClassMethod @phan-suppress-current-line UnusedSuppression -- Ability API added in WP 6.9, but then we need a suppression for the WP 6.8 compat run. @todo Remove this line when we drop WP <6.9.
 
-require __DIR__ . '/../../../../modules/related-posts.php';
+require_once __DIR__ . '/../../../../modules/related-posts.php';
 
 /**
  * Unit tests for Related Posts Abilities registration and execution.
