@@ -17,6 +17,8 @@
 		border-bottom: none;
 	}
 
+	// Disable sticky header until we make it work better across all pages.
+	// JETPACK-1386
 	:global(.admin-ui-page__header) {
 		position: relative;
 	}
