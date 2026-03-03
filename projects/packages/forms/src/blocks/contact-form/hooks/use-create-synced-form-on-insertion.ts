@@ -28,28 +28,6 @@ interface UseCreateSyncedFormOnInsertionProps {
 }
 
 /**
- * Get the variation title from the variationName attribute.
- *
- * Returns the matching variation's title if variationName is set and matches a known variation.
- * Returns undefined if variationName is not set or doesn't match any known variation.
- *
- * @param {Record<string, unknown>} attributes - Block attributes.
- * @return {string | undefined} The variation title, or undefined.
- */
-function getVariationTitle( attributes: Record< string, unknown > ): string | undefined {
-	const variationName = attributes.variationName as string | undefined;
-	if ( ! variationName ) {
-		return undefined;
-	}
-
-	const matchingVariation = variations.find(
-		v => v.attributes?.variationName === variationName || v.name === variationName
-	);
-
-	return matchingVariation?.title;
-}
-
-/**
  * Hook to create a synced form when a form variation is inserted via the block inserter.
  *
  * @param {UseCreateSyncedFormOnInsertionProps} props - Hook properties.
@@ -66,76 +44,48 @@ export function useCreateSyncedFormOnInsertion( {
 
 	const isCentralFormManagementEnabled = hasFeatureFlag( 'central-form-management' );
 
-	const { currentPostType, currentPostId, wasBlockJustInserted } = useSelect(
+	// Short-circuit store queries after creation has been attempted.
+	const { currentPostId, shouldCreate } = useSelect(
 		select => {
+			if ( hasAttemptedCreation.current ) {
+				return { currentPostId: 0, shouldCreate: false };
+			}
+
 			const { getCurrentPostType, getCurrentPostId } = select( editorStore );
+
 			return {
-				currentPostType: getCurrentPostType(),
 				currentPostId: getCurrentPostId(),
-				wasBlockJustInserted: select( blockEditorStore ).wasBlockJustInserted( clientId ),
+				shouldCreate:
+					isCentralFormManagementEnabled &&
+					select( blockEditorStore ).wasBlockJustInserted( clientId ) &&
+					! ref &&
+					innerBlocks?.length > 0 &&
+					getCurrentPostType() !== FORM_POST_TYPE,
 			};
 		},
-		[ clientId ]
+		[ clientId, ref, innerBlocks, isCentralFormManagementEnabled ]
 	);
 
-	const isEditingJetpackFormPost = currentPostType === FORM_POST_TYPE;
-
 	useEffect( () => {
-		// Only run this effect once
-		if ( hasAttemptedCreation.current ) {
+		if ( hasAttemptedCreation.current || ! shouldCreate ) {
 			return;
 		}
 
-		// Skip if block was not just inserted
-		if ( ! wasBlockJustInserted ) {
-			return;
-		}
-
-		// Skip if we already have a ref (already synced)
-		if ( ref ) {
-			hasAttemptedCreation.current = true;
-			return;
-		}
-
-		// Skip if no inner blocks (empty form, will show VariationPicker)
-		if ( ! innerBlocks || innerBlocks.length === 0 ) {
-			return;
-		}
-
-		// Skip if editing a jetpack_form post directly
-		if ( isEditingJetpackFormPost ) {
-			hasAttemptedCreation.current = true;
-			return;
-		}
-
-		// Skip if central form management is disabled
-		if ( ! isCentralFormManagementEnabled ) {
-			hasAttemptedCreation.current = true;
-			return;
-		}
-
-		// Mark that we've attempted creation
 		hasAttemptedCreation.current = true;
 
-		// Create the synced form
-		const createForm = async () => {
+		( async () => {
 			try {
-				// Get the variation title for naming the form
-				const formTitle = getVariationTitle( attributes );
+				const name = attributes.variationName as string | undefined;
+				const formTitle =
+					variations.find( v => v.name === name )?.title || __( 'Form', 'jetpack-forms' );
 
-				// Create a block with the current attributes and inner blocks
 				const formBlock = createBlock(
 					'jetpack/contact-form',
 					attributes as Record< string, unknown >,
 					innerBlocks
 				);
 
-				// Create the synced form post
-				const formId = await createSyncedForm(
-					formBlock,
-					formTitle || __( 'Form', 'jetpack-forms' ),
-					currentPostId
-				);
+				const formId = await createSyncedForm( formBlock, formTitle, currentPostId );
 
 				// Preload the entity record into the cache before setting ref
 				// to prevent the form from showing a loading skeleton.
@@ -157,11 +107,8 @@ export function useCreateSyncedFormOnInsertion( {
 						isDismissible: true,
 					}
 				);
-				// Form will remain as inline form (no ref)
 			}
-		};
-
-		createForm();
+		} )();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [] );
 }

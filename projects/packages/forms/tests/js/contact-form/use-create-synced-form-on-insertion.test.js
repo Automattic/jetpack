@@ -51,8 +51,6 @@ await jest.unstable_mockModule( '@wordpress/core-data', () => ( {
 
 await jest.unstable_mockModule( '@wordpress/data', () => ( {
 	useSelect: selector => {
-		// The selector function expects to receive a `select` function
-		// that takes a store name and returns selectors for that store
 		const select = store => {
 			if ( store === 'core/editor' ) {
 				return {
@@ -103,32 +101,10 @@ await jest.unstable_mockModule( '../../../src/blocks/contact-form/variations.js'
 		{
 			name: 'contact-form',
 			title: 'Contact Form',
-			attributes: { variationName: 'default' },
-		},
-		{
-			name: 'feedback-form',
-			title: 'Feedback Form',
-			attributes: {},
-		},
-		{
-			name: 'appointment-form',
-			title: 'Appointment Form',
-			attributes: {},
 		},
 		{
 			name: 'rsvp-form',
 			title: 'RSVP Form',
-			attributes: {},
-		},
-		{
-			name: 'registration-form',
-			title: 'Registration Form',
-			attributes: {},
-		},
-		{
-			name: 'lead-capture-form',
-			title: 'Lead capture',
-			attributes: {},
 		},
 	],
 } ) );
@@ -147,7 +123,7 @@ describe( 'useCreateSyncedFormOnInsertion', () => {
 			{ name: 'jetpack/field-textarea', innerBlocks: [] },
 			{ name: 'core/button', innerBlocks: [] },
 		],
-		attributes: { variationName: 'default' },
+		attributes: { variationName: 'contact-form' },
 		setAttributes: mockSetAttributes,
 	};
 
@@ -207,7 +183,6 @@ describe( 'useCreateSyncedFormOnInsertion', () => {
 
 		renderHook( () => useCreateSyncedFormOnInsertion( propsWithRef ) );
 
-		// Flush microtasks to ensure no async calls fire
 		await act( () => Promise.resolve() );
 
 		expect( mockCreateSyncedForm ).not.toHaveBeenCalled();
@@ -218,7 +193,6 @@ describe( 'useCreateSyncedFormOnInsertion', () => {
 
 		renderHook( () => useCreateSyncedFormOnInsertion( propsWithoutInnerBlocks ) );
 
-		// Flush microtasks to ensure no async calls fire
 		await act( () => Promise.resolve() );
 
 		expect( mockCreateSyncedForm ).not.toHaveBeenCalled();
@@ -229,7 +203,6 @@ describe( 'useCreateSyncedFormOnInsertion', () => {
 
 		renderHook( () => useCreateSyncedFormOnInsertion( defaultProps ) );
 
-		// Flush microtasks to ensure no async calls fire
 		await act( () => Promise.resolve() );
 
 		expect( mockCreateSyncedForm ).not.toHaveBeenCalled();
@@ -240,7 +213,6 @@ describe( 'useCreateSyncedFormOnInsertion', () => {
 
 		renderHook( () => useCreateSyncedFormOnInsertion( defaultProps ) );
 
-		// Flush microtasks to ensure no async calls fire
 		await act( () => Promise.resolve() );
 
 		expect( mockCreateSyncedForm ).not.toHaveBeenCalled();
@@ -255,10 +227,8 @@ describe( 'useCreateSyncedFormOnInsertion', () => {
 			expect( mockCreateSyncedForm ).toHaveBeenCalledTimes( 1 );
 		} );
 
-		// Rerender with same props
 		rerender( defaultProps );
 
-		// Flush microtasks to ensure it wasn't called again
 		await act( () => Promise.resolve() );
 
 		expect( mockCreateSyncedForm ).toHaveBeenCalledTimes( 1 );
@@ -267,7 +237,6 @@ describe( 'useCreateSyncedFormOnInsertion', () => {
 	it( 'shows error notice when synced form creation fails', async () => {
 		mockCreateSyncedForm.mockRejectedValue( new Error( 'Failed to create' ) );
 
-		// Suppress the console.error from the rejected promise
 		const consoleSpy = jest.spyOn( console, 'error' ).mockImplementation( () => {} );
 
 		renderHook( () => useCreateSyncedFormOnInsertion( defaultProps ) );
@@ -287,36 +256,35 @@ describe( 'useCreateSyncedFormOnInsertion', () => {
 
 		renderHook( () => useCreateSyncedFormOnInsertion( defaultProps ) );
 
-		// Flush microtasks to ensure no async calls fire
 		await act( () => Promise.resolve() );
 
 		expect( mockCreateSyncedForm ).not.toHaveBeenCalled();
 	} );
 
-	it( 'uses variationName attribute to get form title', async () => {
-		const propsWithVariationName = {
-			...defaultProps,
-			attributes: { variationName: 'default' },
-		};
-
-		renderHook( () => useCreateSyncedFormOnInsertion( propsWithVariationName ) );
+	it( 'uses variation name to get form title', async () => {
+		renderHook( () =>
+			useCreateSyncedFormOnInsertion( {
+				...defaultProps,
+				attributes: { variationName: 'rsvp-form' },
+			} )
+		);
 
 		await waitFor( () => {
 			expect( mockCreateSyncedForm ).toHaveBeenCalledWith(
 				expect.anything(),
-				'Contact Form',
+				'RSVP Form',
 				expect.anything()
 			);
 		} );
 	} );
 
 	it( 'falls back to generic Form title when no variationName', async () => {
-		const propsWithoutVariationName = {
-			...defaultProps,
-			attributes: {},
-		};
-
-		renderHook( () => useCreateSyncedFormOnInsertion( propsWithoutVariationName ) );
+		renderHook( () =>
+			useCreateSyncedFormOnInsertion( {
+				...defaultProps,
+				attributes: {},
+			} )
+		);
 
 		await waitFor( () => {
 			expect( mockCreateSyncedForm ).toHaveBeenCalledWith(
