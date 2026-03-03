@@ -13,7 +13,7 @@ import { deleteCacheDirectory, readPluginFile } from './plugin-tools';
  *
  * @param {...any} command - The command to run.
  */
-export async function wpcli( ...command ) {
+export async function wpcli( ...command: string[] ) {
 	return dockerExec( 'wp', ...command );
 }
 
