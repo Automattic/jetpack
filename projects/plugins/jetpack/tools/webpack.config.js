@@ -118,7 +118,6 @@ module.exports = [
 		...sharedWebpackConfig,
 		entry: {
 			...moduleEntries,
-			'newsletter-widget': './modules/subscriptions/newsletter-widget/src/index.tsx',
 		},
 		plugins: [
 			...sharedWebpackConfig.plugins,
@@ -129,7 +128,11 @@ module.exports = [
 			filename: '[name].min.js', // @todo: Fix this.
 		},
 	},
-	// Build the newsletter widget separately to support translatable strings.
+	// Build the newsletter widget separately to support translatable strings via
+	// I18nLoaderWebpackPlugin. The PHP side loads this build (newsletter-widget.js
+	// + newsletter-widget.asset.php) and sets translations via wp_set_script_translations.
+	// The .min.js variant produced by the modules build above is unused (the PHP
+	// load_admin_scripts() call uses load_minified_js: false), so we only need this one.
 	{
 		...sharedWebpackConfig,
 		entry: {
@@ -154,6 +157,24 @@ module.exports = [
 				},
 			},
 			'plugins-page': path.join( __dirname, '../_inc/client', 'plugins-entry.js' ),
+		},
+		optimization: {
+			...sharedWebpackConfig.optimization,
+			// Extract shared modules from async (lazy-loaded) route chunks into a dedicated
+			// vendor chunk so common @automattic/* dependencies are not duplicated across the
+			// at-a-glance, settings, recommendations, my-plan, and product-descriptions chunks.
+			splitChunks: {
+				chunks: 'async',
+				cacheGroups: {
+					adminVendors: {
+						test: /[\\/]node_modules[\\/]/,
+						name: 'admin-vendors',
+						chunks: 'async',
+						minChunks: 2,
+						priority: 10,
+					},
+				},
+			},
 		},
 		plugins: [
 			...sharedWebpackConfig.plugins,

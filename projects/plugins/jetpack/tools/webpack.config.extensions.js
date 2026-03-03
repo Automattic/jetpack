@@ -113,6 +113,36 @@ const sharedWebpackConfig = {
 	},
 	optimization: {
 		...jetpackWebpackConfig.optimization,
+		// Extract shared node_modules code that appears in two or more per-block
+		// view/admin scripts into a single `blocks-view-vendors` chunk. When a page
+		// contains multiple blocks (e.g. VideoPress + Subscriptions), this prevents
+		// the shared @automattic/* libraries from being downloaded twice.
+		// The monolithic editor.js bundles are not affected (no async imports).
+		//
+		// Future work: migrate each block's editor code to a per-block editorScript
+		// registered via block.json so the ~5 MB monolithic editor bundles can be
+		// replaced with per-block async chunks, eliminating the large up-front
+		// download in the block editor. That requires:
+		//   1. A webpack entry per block (e.g. extensions/blocks/<name>/editor.js)
+		//   2. A registered WP script handle per block pointing to that entry
+		//   3. `editorScript: "jetpack/<name>-editor"` in each block's block.json
+		//   4. Removing the manual enqueue in class.jetpack-gutenberg.php
+		splitChunks: {
+			chunks: 'all',
+			cacheGroups: {
+				blockViewVendors: {
+					test: /[\\/]node_modules[\\/]/,
+					name: 'blocks-view-vendors',
+					// Only extract a shared chunk from the per-block view/admin entries,
+					// not the monolithic editor bundles (those are mutually exclusive).
+					chunks: chunk =>
+						!! chunk.name &&
+						( chunk.name.endsWith( '/view' ) || chunk.name.endsWith( '/admin' ) ),
+					minChunks: 2,
+					priority: 10,
+				},
+			},
+		},
 	},
 	resolve: {
 		...jetpackWebpackConfig.resolve,

@@ -8,10 +8,9 @@ import { isWoASite } from '@automattic/jetpack-script-data';
 import { withDispatch } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
 import jQuery from 'jquery';
-import { Component } from 'react';
+import { Component, lazy, Suspense } from 'react';
 import { connect } from 'react-redux';
 import { useLocation, useNavigate } from 'react-router';
-import AtAGlance from 'at-a-glance/index.jsx';
 import AdminNotices from 'components/admin-notices';
 import AppsCard from 'components/apps-card';
 import ContextualizedConnection from 'components/contextualized-connection';
@@ -27,11 +26,7 @@ import SupportCard from 'components/support-card';
 import Tracker from 'components/tracker';
 import { imagePath } from 'constants/urls';
 import analytics from 'lib/analytics';
-import MyPlan from 'my-plan/index.jsx';
-import ProductDescriptions from 'product-descriptions';
 import { productDescriptionRoutes } from 'product-descriptions/constants';
-import { Recommendations } from 'recommendations';
-import SearchableSettings from 'settings/index.jsx';
 import {
 	getSiteConnectionStatus,
 	getConnectedWpComUser,
@@ -88,6 +83,27 @@ import {
 	fetchSitePurchases as fetchSitePurchasesAction,
 } from 'state/site';
 import JetpackManageBanner from './components/jetpack-manage-banner';
+
+/*
+ * Heavy route-level components are loaded lazily so webpack emits separate async
+ * chunks. Only the code for the current route is downloaded on initial page load,
+ * significantly reducing the initial admin.js payload.
+ */
+const AtAGlance = lazy(
+	() => import( /* webpackChunkName: "at-a-glance" */ 'at-a-glance/index.jsx' )
+);
+const MyPlan = lazy( () => import( /* webpackChunkName: "my-plan" */ 'my-plan/index.jsx' ) );
+const ProductDescriptions = lazy(
+	() => import( /* webpackChunkName: "product-descriptions" */ 'product-descriptions' )
+);
+const Recommendations = lazy( () =>
+	import( /* webpackChunkName: "recommendations" */ 'recommendations' ).then( m => ( {
+		default: m.Recommendations,
+	} ) )
+);
+const SearchableSettings = lazy(
+	() => import( /* webpackChunkName: "settings" */ 'settings/index.jsx' )
+);
 
 const recommendationsRoutes = [
 	'/recommendations',
@@ -858,7 +874,9 @@ class Main extends Component {
 					<JetpackNotices />
 					{ this.shouldConnectUser() && this.connectUser() }
 
-					{ this.renderMainContent( this.props.location.pathname ) }
+					<Suspense fallback={ <div className="jp-route-loading" /> }>
+						{ this.renderMainContent( this.props.location.pathname ) }
+					</Suspense>
 					{ this.shouldShowJetpackManageBanner() && (
 						<JetpackManageBanner
 							path={ this.props.location.pathname }
