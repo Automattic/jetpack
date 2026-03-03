@@ -18,6 +18,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
 }
 
+// This module only registers an admin_init hook and has no frontend functionality.
+if ( ! is_admin() ) {
+	return;
+}
+
 /**
  * Initialize the post-list module.
  */

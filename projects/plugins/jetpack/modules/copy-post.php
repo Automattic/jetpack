@@ -19,6 +19,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
 }
 
+// This module is purely admin-facing. Skip loading on frontend requests to avoid
+// unnecessary PHP class parsing and memory allocation on every page view.
+if ( ! is_admin() ) {
+	return;
+}
+
 // phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
 
 /**
