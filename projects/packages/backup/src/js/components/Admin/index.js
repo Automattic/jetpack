@@ -63,20 +63,21 @@ const Admin = () => {
 	const showActivateLicenseLink = useShowActivateLicenseLink();
 	const showBackUpNowButton = useShowBackUpNow();
 
+	const activateLicenseUrl = useSelect( select => {
+		const wpAdminUrl = select( STORE_ID ).getSiteData().adminUrl;
+		return `${ wpAdminUrl }admin.php?page=my-jetpack#/add-license`;
+	}, [] );
+
 	const headerActions = useMemo( () => {
-		const items = [];
-		if ( showActivateLicenseLink ) {
-			items.push( <ActivateLicenseLink key="license" /> );
-		}
 		if ( showBackUpNowButton ) {
-			items.push(
-				<BackupNowButton key="backup" tracksEventName="jetpack_backup_plugin_backup_now">
+			return (
+				<BackupNowButton tracksEventName="jetpack_backup_plugin_backup_now">
 					{ __( 'Back up now', 'jetpack-backup-pkg' ) }
 				</BackupNowButton>
 			);
 		}
-		return items.length > 0 ? items : null;
-	}, [ showActivateLicenseLink, showBackUpNowButton ] );
+		return null;
+	}, [ showBackUpNowButton ] );
 
 	// If the user is a secondary admin not connected and the site has a backup product,
 	// let's show the login screen.
@@ -102,10 +103,22 @@ const Admin = () => {
 		<AdminPage
 			showFooter
 			title={ 'Backup' /** "Backup" is a product name, do not translate. */ }
-			subTitle={ __(
-				'Save changes and restore quickly with one-click recovery.',
-				'jetpack-backup-pkg'
-			) }
+			subTitle={
+				<>
+					{ __(
+						'Save changes and restore quickly with one-click recovery.',
+						'jetpack-backup-pkg'
+					) }
+					{ showActivateLicenseLink && (
+						<>
+							{ ' ' }
+							<a href={ activateLicenseUrl }>
+								{ __( 'Activate your license', 'jetpack-backup-pkg' ) }
+							</a>
+						</>
+					) }
+				</>
+			}
 			actions={ headerActions }
 			useInternalLinks={ shouldUseInternalLinks() }
 		>
@@ -437,27 +450,6 @@ const useShowActivateLicenseLink = () => {
 
 		return ! hasBackupPlan;
 	}, [ connectionStatus, isFullyConnected, hasBackupPlan, capabilitiesLoaded ] );
-};
-
-const ActivateLicenseLink = () => {
-	const activateLicenseUrl = useSelect( select => {
-		const wpAdminUrl = select( STORE_ID ).getSiteData().adminUrl;
-		return `${ wpAdminUrl }admin.php?page=my-jetpack#/add-license`;
-	}, [] );
-
-	return (
-		<p className="jetpack-backup-activate-license">
-			{ createInterpolateElement(
-				__(
-					'Already have an existing plan or license key? <a>Click here to get started</a>',
-					'jetpack-backup-pkg'
-				),
-				{
-					a: <a href={ activateLicenseUrl } />,
-				}
-			) }
-		</p>
-	);
 };
 
 export default Admin;
