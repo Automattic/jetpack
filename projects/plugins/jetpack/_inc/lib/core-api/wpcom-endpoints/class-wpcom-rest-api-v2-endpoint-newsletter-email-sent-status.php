@@ -75,7 +75,7 @@ class WPCOM_REST_API_V2_Endpoint_Newsletter_Email_Sent_Status extends WP_REST_Co
 	 * @return bool|WP_Error
 	 */
 	public function permission_check() {
-		if ( current_user_can( 'edit_posts' ) || current_user_can( 'manage_options' ) ) {
+		if ( current_user_can( 'manage_options' ) || current_user_can( 'view_stats' ) || current_user_can( 'edit_posts' ) ) {
 			return true;
 		}
 		return new WP_Error(
