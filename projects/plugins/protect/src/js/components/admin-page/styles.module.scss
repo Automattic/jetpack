@@ -1,8 +1,11 @@
+@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+
 .tab {
 	white-space: nowrap;
 }
 
 .navigation {
+	border-bottom: 1px solid gb.$gray-100;
 	padding-inline: 24px;
 }
 
