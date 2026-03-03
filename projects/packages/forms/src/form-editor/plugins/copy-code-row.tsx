@@ -2,7 +2,7 @@
  * External dependencies
  */
 import './copy-code-row.scss';
-import { Button, Popover, Tooltip } from '@wordpress/components';
+import { Button, Popover } from '@wordpress/components';
 import { useCopyToClipboard } from '@wordpress/compose';
 import { useState, useEffect, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -10,7 +10,7 @@ import { copySmall, check } from '@wordpress/icons';
 
 type CopyCodeRowProps = {
 	text: string;
-	tooltipLabel: string;
+	label: string;
 };
 
 /**
@@ -19,7 +19,7 @@ type CopyCodeRowProps = {
  * @param {CopyCodeRowProps} props - The component props.
  * @return {JSX.Element} The copy code row component.
  */
-export const CopyCodeRow = ( { text, tooltipLabel }: CopyCodeRowProps ) => {
+export const CopyCodeRow = ( { text, label }: CopyCodeRowProps ) => {
 	const [ showCopyConfirmation, setShowCopyConfirmation ] = useState( false );
 	const timeoutIdRef = useRef< number | null >( null );
 
@@ -42,29 +42,30 @@ export const CopyCodeRow = ( { text, tooltipLabel }: CopyCodeRowProps ) => {
 	}, [] );
 
 	return (
-		<div className="jetpack-form-embed-code__container">
-			<span className="jetpack-form-embed-code__text">{ text }</span>
-			{ showCopyConfirmation ? (
-				<Button
-					ref={ ref }
-					icon={ check }
-					size="compact"
-					label={ __( 'Copied!', 'jetpack-forms' ) }
-				>
-					<Popover
-						placement="top"
-						noArrow={ false }
-						focusOnMount={ false }
-						className="jetpack-form-embed-code__popover"
+		<div className="jetpack-form-embed-code__row">
+			<span className="jetpack-form-embed-code__label">{ label }</span>
+			<div className="jetpack-form-embed-code__container">
+				<span className="jetpack-form-embed-code__text">{ text }</span>
+				{ showCopyConfirmation ? (
+					<Button
+						ref={ ref }
+						icon={ check }
+						size="compact"
+						label={ __( 'Copied!', 'jetpack-forms' ) }
 					>
-						{ __( 'Copied!', 'jetpack-forms' ) }
-					</Popover>
-				</Button>
-			) : (
-				<Tooltip text={ tooltipLabel }>
-					<Button ref={ ref } icon={ copySmall } size="compact" label={ tooltipLabel } />
-				</Tooltip>
-			) }
+						<Popover
+							placement="top"
+							noArrow={ false }
+							focusOnMount={ false }
+							className="jetpack-form-embed-code__popover"
+						>
+							{ __( 'Copied!', 'jetpack-forms' ) }
+						</Popover>
+					</Button>
+				) : (
+					<Button ref={ ref } icon={ copySmall } size="compact" label={ label } />
+				) }
+			</div>
 		</div>
 	);
 };

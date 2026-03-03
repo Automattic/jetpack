@@ -47,8 +47,8 @@ export const EmbedCodePanel = () => {
 	return (
 		<PluginPostStatusInfo className="jetpack-form-embed-code">
 			<div className="jetpack-form-embed-code__rows">
-				<CopyCodeRow text={ embedCode } tooltipLabel={ __( 'Copy embed code', 'jetpack-forms' ) } />
-				<CopyCodeRow text={ shortcode } tooltipLabel={ __( 'Copy shortcode', 'jetpack-forms' ) } />
+				<CopyCodeRow text={ embedCode } label={ __( 'Embed code', 'jetpack-forms' ) } />
+				<CopyCodeRow text={ shortcode } label={ __( 'Shortcode', 'jetpack-forms' ) } />
 			</div>
 		</PluginPostStatusInfo>
 	);

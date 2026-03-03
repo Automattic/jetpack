@@ -41,9 +41,9 @@ await jest.unstable_mockModule( '@wordpress/editor', () => ( {
 // Mock CopyCodeRow to capture text props
 const copyCodeRowTexts = [];
 await jest.unstable_mockModule( '../../../../src/form-editor/plugins/copy-code-row', () => ( {
-	CopyCodeRow: ( { text, tooltipLabel } ) => {
+	CopyCodeRow: ( { text, label } ) => {
 		copyCodeRowTexts.push( text );
-		return <div data-testid="copy-code-row">{ tooltipLabel }</div>;
+		return <div data-testid="copy-code-row">{ label }</div>;
 	},
 } ) );
 
@@ -66,8 +66,8 @@ describe( 'EmbedCodePanel', () => {
 	it( 'renders embed code and shortcode rows for published posts', () => {
 		render( <EmbedCodePanel /> );
 
-		expect( screen.getByText( 'Copy embed code' ) ).toBeInTheDocument();
-		expect( screen.getByText( 'Copy shortcode' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Embed code' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Shortcode' ) ).toBeInTheDocument();
 	} );
 
 	it( 'returns null for auto-draft posts', () => {
@@ -83,7 +83,7 @@ describe( 'EmbedCodePanel', () => {
 
 		render( <EmbedCodePanel /> );
 
-		expect( screen.getByText( 'Copy embed code' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Embed code' ) ).toBeInTheDocument();
 	} );
 
 	it( 'uses the correct post ID in embed code and shortcode', () => {
