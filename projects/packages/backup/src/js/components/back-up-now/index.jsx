@@ -88,7 +88,6 @@ export const BackupNowButton = ( { children, tooltipText, tracksEventName, onCli
 				disabled={ disabled }
 				isBusy={ isEnqueuing || backupCurrentlyInProgress }
 				onClick={ onClickHandler }
-				size="compact"
 				variant="primary"
 			>
 				{ buttonContent }
