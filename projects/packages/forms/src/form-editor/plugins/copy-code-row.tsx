@@ -65,6 +65,8 @@ export const CopyCodeRow = ( { text, label }: CopyCodeRowProps ) => {
 			}
 		};
 	}, [] );
+	/* translators: %s: label for the code row (e.g. "Embed code", "Shortcode") */
+	const buttonLabel = __( 'Copy %s', 'jetpack-forms' );
 
 	return (
 		<div className="jetpack-form-embed-code__row">
@@ -102,8 +104,7 @@ export const CopyCodeRow = ( { text, label }: CopyCodeRowProps ) => {
 						ref={ ref }
 						icon={ copySmall }
 						size="compact"
-						/* translators: %s: label for the code row (e.g. "Embed code", "Shortcode") */
-						label={ sprintf( __( 'Copy %s', 'jetpack-forms' ), label.toLowerCase() ) }
+						label={ sprintf( buttonLabel, label.toLowerCase() ) }
 					/>
 				) }
 			</div>
