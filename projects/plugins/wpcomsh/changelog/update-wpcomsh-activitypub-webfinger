@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+ActivityPub: include WebFinger handle alongside actor URI in plugin activation sync data.

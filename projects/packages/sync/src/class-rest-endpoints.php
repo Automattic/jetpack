@@ -175,6 +175,43 @@ class REST_Endpoints {
 				'methods'             => WP_REST_Server::EDITABLE,
 				'callback'            => __CLASS__ . '::checkout',
 				'permission_callback' => __CLASS__ . '::verify_default_permissions',
+				'args'                => array(
+					'queue'            => array(
+						'description' => __( 'Name of Sync queue.', 'jetpack-sync' ),
+						'type'        => 'string',
+						'required'    => false,
+					),
+					'number_of_items'  => array(
+						'description' => __( 'Number of items to checkout from the queue.', 'jetpack-sync' ),
+						'type'        => 'integer',
+						'required'    => false,
+					),
+					'pop'              => array(
+						'description'       => __( 'Pop items from the queue instead of checking out.', 'jetpack-sync' ),
+						'type'              => 'boolean',
+						'required'          => false,
+						'sanitize_callback' => 'rest_sanitize_boolean',
+					),
+					'force'            => array(
+						'description'       => __( 'Force unlock the queue before checkout.', 'jetpack-sync' ),
+						'type'              => 'boolean',
+						'required'          => false,
+						'sanitize_callback' => 'rest_sanitize_boolean',
+					),
+					'encode'           => array(
+						'description'       => __( 'Encode the items before sending.', 'jetpack-sync' ),
+						'type'              => 'boolean',
+						'required'          => false,
+						'default'           => true,
+						'sanitize_callback' => 'rest_sanitize_boolean',
+					),
+					'use_memory_limit' => array(
+						'description'       => __( 'Use memory-based checkout instead of fixed item count.', 'jetpack-sync' ),
+						'type'              => 'boolean',
+						'required'          => false,
+						'sanitize_callback' => 'rest_sanitize_boolean',
+					),
+				),
 			)
 		);
 
@@ -332,6 +369,17 @@ class REST_Endpoints {
 				'permission_callback' => __CLASS__ . '::verify_default_permissions',
 			)
 		);
+
+		// Clear Sync queue.
+		register_rest_route(
+			'jetpack/v4',
+			'/sync/clear-queue',
+			array(
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => __CLASS__ . '::clear_queue',
+				'permission_callback' => __CLASS__ . '::verify_default_permissions',
+			)
+		);
 	}
 
 	/**
@@ -470,21 +518,53 @@ class REST_Endpoints {
 	/**
 	 * Update Sync health.
 	 *
+	 * IN_SYNC is only set if the incremental queue is within size and lag limits.
+	 *
 	 * @since 1.23.1
 	 *
 	 * @param \WP_REST_Request $request The request sent to the WP REST API.
 	 *
-	 * @return \WP_REST_Response
+	 * @return \WP_REST_Response|WP_Error
 	 */
 	public static function sync_health( $request ) {
+		$requested_status = $request->get_param( 'status' );
 
-		switch ( $request->get_param( 'status' ) ) {
+		switch ( $requested_status ) {
 			case Health::STATUS_IN_SYNC:
+				// Only allow setting IN_SYNC if the incremental queue is healthy.
+				$sync_queue    = Listener::get_instance()->get_sync_queue();
+				$queue_size    = $sync_queue->size();
+				$queue_lag     = $sync_queue->lag();
+				$queue_healthy = Health::is_queue_healthy(
+					$queue_size,
+					$queue_lag,
+					Settings::get_setting( 'max_queue_size' ),
+					Settings::get_setting( 'max_queue_lag' )
+				);
+				if ( ! $queue_healthy ) {
+					Health::update_status( Health::STATUS_OUT_OF_SYNC );
+					return rest_ensure_response(
+						array(
+							'success'    => Health::get_status(),
+							'message'    => 'Sync queue is not healthy (size and lag over limit). Status not set to in_sync.',
+							'queue_size' => $queue_size,
+							'queue_lag'  => $queue_lag,
+						)
+					);
+				}
+				Health::update_status( $requested_status );
+				break;
 			case Health::STATUS_OUT_OF_SYNC:
-				Health::update_status( $request->get_param( 'status' ) );
+				Health::update_status( $requested_status );
 				break;
 			default:
-				return new WP_Error( 'invalid_status', 'Invalid Sync Status Provided.' );
+				return new WP_Error(
+					'invalid_status',
+					'Invalid Sync Status Provided.',
+					array(
+						'status' => 400,
+					)
+				);
 		}
 
 		// re-fetch so we see what's really being stored.
@@ -617,9 +697,16 @@ class REST_Endpoints {
 			return $queue_name;
 		}
 
-		$number_of_items = $args['number_of_items'];
-		if ( $number_of_items < 1 || $number_of_items > 100 ) {
-			return new WP_Error( 'invalid_number_of_items', 'Number of items needs to be an integer that is larger than 0 and less then 100', 400 );
+		$use_memory_limit = ! empty( $args['use_memory_limit'] );
+
+		if ( $use_memory_limit && ! empty( $args['pop'] ) ) {
+			return new WP_Error( 'invalid_args', 'pop cannot be used with use_memory_limit', 400 );
+		}
+
+		if ( ! $use_memory_limit ) {
+			if ( empty( $args['number_of_items'] ) || $args['number_of_items'] < 1 || $args['number_of_items'] > 100 ) {
+				return new WP_Error( 'invalid_number_of_items', 'Number of items needs to be an integer that is larger than 0 and up to 100', 400 );
+			}
 		}
 
 		// REST Sender.
@@ -629,7 +716,8 @@ class REST_Endpoints {
 			return rest_ensure_response( $sender->immediate_full_sync_pull() );
 		}
 
-		$response = $sender->queue_pull( $queue_name, $number_of_items, $args );
+		$number_of_items = $use_memory_limit ? null : $args['number_of_items'];
+		$response        = $sender->queue_pull( $queue_name, $number_of_items, $args );
 		// Disable sending while pulling.
 		if ( ! is_wp_error( $response ) ) {
 			set_transient( Sender::TEMP_SYNC_DISABLE_TRANSIENT_NAME, time(), Sender::TEMP_SYNC_DISABLE_TRANSIENT_EXPIRY );
@@ -802,6 +890,27 @@ class REST_Endpoints {
 	 */
 	public static function reset_locks() {
 		Actions::reset_sync_locks();
+
+		return rest_ensure_response(
+			array(
+				'success' => true,
+			)
+		);
+	}
+
+	/**
+	 * Clear the Sync queue.
+	 *
+	 * @since 4.30.0
+	 *
+	 * @return \WP_REST_Response
+	 */
+	public static function clear_queue() {
+		$queue = new Queue( 'sync' );
+		$queue->reset();
+
+		// Re-enable sending in case it was temporarily disabled during a pull.
+		delete_transient( Sender::TEMP_SYNC_DISABLE_TRANSIENT_NAME );
 
 		return rest_ensure_response(
 			array(

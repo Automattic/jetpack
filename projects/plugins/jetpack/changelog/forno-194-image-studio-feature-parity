@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Image Studio: Add an "Edit with AI" row action in the Media Library list view and disable overlapping Jetpack AI image extensions globally when Image Studio is available.

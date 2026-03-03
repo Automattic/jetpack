@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Full Sync: Fix chunk size adjustment when sync is stuck to correctly preserve adjusted chunk size and stuck count across invocations.

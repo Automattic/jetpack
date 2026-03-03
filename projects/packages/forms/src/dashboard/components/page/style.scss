@@ -26,7 +26,7 @@
 	flex-direction: column;
 }
 
-.admin-ui-page__header {
+.admin-ui-page .admin-ui-page__header {
 	padding: variables.$grid-unit-10 variables.$grid-unit * 2.5;
 	position: sticky;
 	top: 0;
@@ -34,11 +34,7 @@
 	transition: padding ease-out 0.1s;
 	flex-shrink: 0;
 	z-index: 10;
-
-	&.has-tabs {
-		padding-block-end: 0;
-		border-bottom: 1px solid var(--wpds-color-stroke-surface-neutral-weak);
-	}
+	border-bottom: none;
 
 	@container (max-width: 430px) {
 		padding: variables.$grid-unit-15 variables.$grid-unit-30;

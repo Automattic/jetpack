@@ -1,4 +1,5 @@
 @use "@automattic/jetpack-base-styles/style" as jpbs;
+@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
 @use "../masthead/calypso-mixins";
 
 .jp-header,
@@ -150,6 +151,13 @@
 	}
 }
 
+.jetpack-backup-activate-license {
+
+	@media ( max-width: gb.$break-medium ) {
+		max-width: 40vw;
+	}
+}
+
 .jp-dashboard-footer {
 	padding: 40px 0;
 }
@@ -173,16 +181,4 @@
 
 .jetpack-connection-verified-error {
 	margin: 25px 0;
-}
-
-.jetpack-admin-page__header {
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	flex-wrap: wrap;
-	gap: calc(var(--horizontal-spacing) * 3);
-
-	.jetpack-admin-page__logo {
-		flex-shrink: 0;
-	}
 }

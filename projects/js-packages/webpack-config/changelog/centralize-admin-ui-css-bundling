@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Centralize admin-ui CSS bundling: add subpath to defaultRequestMap and mark CSS imports as sideEffects to prevent incorrect externalization and tree-shaking.

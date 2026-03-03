@@ -55,7 +55,7 @@
 	font-size: rem.convert(12px);
 	font-style: italic;
 	color: colors.$gray;
-	border-bottom: 1px color.adjust(colors.$gray, $lightness: 30%) solid;
+	border-bottom: none;
 
 	@include breakpoints.breakpoint( "<660px" ) {
 		display: none;
@@ -76,12 +76,7 @@
 	width: 100%;
 
 	.jp-top-inside {
-		max-width: rem.convert(1040px);
-		margin: 0 auto;
-
-		@media (max-width: 1360px) {
-			max-width: 95%;
-		}
+		padding-inline: 24px;
 
 		.jitm-banner.jitm-card {
 			margin: 0 0 24px;

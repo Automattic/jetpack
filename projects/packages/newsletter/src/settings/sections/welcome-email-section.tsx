@@ -2,6 +2,7 @@
  * External dependencies
  */
 import analytics from '@automattic/jetpack-analytics';
+import { getSiteType } from '@automattic/jetpack-script-data';
 import { Button } from '@wordpress/components';
 import { DataForm, type Field } from '@wordpress/dataviews/wp';
 import { useCallback, useMemo } from '@wordpress/element';
@@ -9,8 +10,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { getSiteType } from '../utils';
-import type { NewsletterSettings, JetpackNewsletterSettings } from '../types';
+import type { NewsletterSettings } from '../types';
 
 interface WelcomeEmailSectionProps {
 	data: NewsletterSettings;
@@ -19,7 +19,6 @@ interface WelcomeEmailSectionProps {
 	isSaving: boolean;
 	hasChanges: boolean;
 	isNewsletterEnabled: boolean;
-	jetpackSettings?: JetpackNewsletterSettings;
 }
 
 // Flattened data structure for DataForm
@@ -42,9 +41,8 @@ export function WelcomeEmailSection( {
 	isSaving,
 	hasChanges,
 	isNewsletterEnabled,
-	jetpackSettings,
 }: WelcomeEmailSectionProps ): JSX.Element {
-	const siteType = getSiteType( jetpackSettings );
+	const siteType = getSiteType();
 
 	// Flatten data for DataForm
 	const formData: WelcomeEmailFormData = useMemo(

@@ -99,9 +99,8 @@ class Twitter_Cards {
 		$card_type = 'summary';
 
 		// Try to give priority to featured images.
-		// @todo Jetpack_PostImages is defined in the Jetpack plugin. It should be moved to this package.
-		if ( class_exists( 'Jetpack_PostImages' ) && ! empty( $post_id ) ) {
-			$post_image = \Jetpack_PostImages::get_image( // @phan-suppress-current-line PhanUndeclaredClassMethod -- Guarded by class_exists().
+		if ( ! empty( $post_id ) ) {
+			$post_image = Images::get_image(
 				$post_id,
 				array(
 					'width'  => 144,

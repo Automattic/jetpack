@@ -1,14 +1,8 @@
-.protect-header {
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	flex-wrap: wrap;
-	width: 100%;
-}
+@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
 
-.get-started-button {
+.mobile-action-container {
 
-	&:focus:not(:disabled) {
-		box-shadow: none;
+	@media ( max-width: gb.$break-medium ) {
+		max-width: 40vw;
 	}
 }

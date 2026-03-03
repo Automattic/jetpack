@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Sync: Add per-request in-memory cache in the Listener to reduce get_transient calls during action queue checks.

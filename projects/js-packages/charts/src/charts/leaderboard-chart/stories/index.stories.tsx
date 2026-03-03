@@ -1,3 +1,4 @@
+import { Stack } from '@wordpress/ui';
 import { defaultTheme, useGlobalChartsContext } from '../../../providers';
 import {
 	chartDecorator,
@@ -157,6 +158,21 @@ export const Default: Story = {
 	},
 };
 
+export const FixedDimensions: Story = {
+	args: {
+		...Default.args,
+		width: 300,
+		height: 400,
+	},
+};
+
+export const AspectRatio: Story = {
+	args: {
+		...Default.args,
+		aspectRatio: 0.4,
+	},
+};
+
 export const WithoutComparison: Story = {
 	args: {
 		data: sampleData,
@@ -211,6 +227,21 @@ export const EmptyData: Story = {
 		withComparison: true,
 		loading: false,
 	},
+};
+
+export const EmptyDataWithChildren: Story = {
+	args: {
+		data: [],
+		withComparison: true,
+		loading: false,
+	},
+	render: args => (
+		<LeaderboardChart { ...args }>
+			<Stack direction="row" gap="xs" align="center" justify="center">
+				Child element
+			</Stack>
+		</LeaderboardChart>
+	),
 };
 
 export const LargeValues: Story = {
@@ -386,32 +417,9 @@ export const CustomLegendLabels: Story = {
 
 export const WithCompositionLegend: Story = {
 	render: args => (
-		<div
-			style={ {
-				display: 'grid',
-				gap: '2rem',
-				gridTemplateColumns: 'repeat(2, 1fr)',
-				alignItems: 'start',
-			} }
-		>
-			<div>
-				<h3 style={ { marginTop: 0, marginBottom: '1rem' } }>Traditional Props-based Legend</h3>
-				<LeaderboardChart { ...args } showLegend={ true } />
-			</div>
-			<div>
-				<h3 style={ { marginTop: 0, marginBottom: '1rem' } }>
-					Composition API with Legend Component
-				</h3>
-				<LeaderboardChart { ...args }>
-					<LeaderboardChart.Legend
-						shape="circle"
-						shapeWidth={ 8 }
-						shapeHeight={ 8 }
-						style={ { marginTop: '16px' } }
-					/>
-				</LeaderboardChart>
-			</div>
-		</div>
+		<LeaderboardChart { ...args }>
+			<LeaderboardChart.Legend shape="circle" shapeWidth={ 8 } shapeHeight={ 8 } />
+		</LeaderboardChart>
 	),
 	args: {
 		data: sampleData,

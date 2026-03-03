@@ -26,7 +26,6 @@ import styles from './pie-chart.module.scss';
 import type { LegendValueDisplay } from '../../components/legend';
 import type { BaseChartProps, DataPointPercentage, Optional } from '../../types';
 import type { ChartComponentWithComposition } from '../private/chart-composition';
-import type { GapSize } from '@wordpress/theme';
 import type { SVGProps, MouseEvent, ReactNode, FC } from 'react';
 
 /**
@@ -121,13 +120,6 @@ export interface PieChartProps extends BaseChartProps< DataPointPercentage[] > {
 	 * When provided, replaces the default BaseTooltip with custom content.
 	 */
 	renderTooltip?: ( params: PieChartRenderTooltipParams ) => ReactNode;
-
-	/**
-	 * Gap between chart elements (SVG, legend, children).
-	 * Uses WordPress design system tokens.
-	 * @default 'md'
-	 */
-	gap?: GapSize;
 }
 
 // Base props type with optional responsive properties

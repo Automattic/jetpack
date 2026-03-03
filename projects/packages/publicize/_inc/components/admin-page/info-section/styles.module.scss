@@ -2,7 +2,6 @@
 	grid-column: span 12;
 
 	.is-viewport-medium & {
-		grid-column: 2 / span 6;
 		display: grid;
 		grid-template-columns: auto 1fr auto 1fr;
 		column-gap: calc(var(--spacing-base) * 3);
@@ -18,10 +17,6 @@
 				margin-top: 0;
 			}
 		}
-	}
-
-	.is-viewport-large & {
-		grid-column: 3 / span 8;
 	}
 }
 

@@ -15,7 +15,7 @@
 	:global(.components-tab-panel__tabs) {
 		position: relative;
 		z-index: 1;
-		padding-inline-start: 2rem;
+		padding-inline-start: 24px;
 		margin-block-end: -1px;
 
 		@media (max-width: gb.$break-medium ) {
@@ -65,8 +65,7 @@
 	margin: 0;
 
 	:global(.components-tab-panel__tabs) {
-
-		@include full-width-container;
+		padding-inline-start: 24px;
 	}
 
 	:global(.components-tab-panel__tab-content) {

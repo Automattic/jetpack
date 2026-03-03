@@ -209,6 +209,16 @@
 			margin: unset;
 		}
 	}
+
+	/* Fixes notices styling when Gutenberg is not there */
+	.jetpack-contact-form-widget-readonly-notice {
+		margin: 8px 0 4px;
+
+		.components-notice__action.components-button {
+			margin-left: 0;
+			margin-top: 8px;
+		}
+	}
 }
 
 .jetpack-contact-form .components-placeholder {
@@ -1252,4 +1262,9 @@
 /* Status notice for synced forms with non-publish status */
 .jetpack-contact-form__status-notice {
 	margin-bottom: 16px;
+}
+
+/* "Other" option text input styles */
+.jetpack-other-text-input-wrapper {
+	margin-left: 1.5em;
 }

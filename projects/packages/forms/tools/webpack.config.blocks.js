@@ -19,6 +19,10 @@ const sharedWebpackConfig = {
 	devtool: jetpackWebpackConfig.devtool,
 	entry: {
 		editor: './src/blocks/contact-form/editor.ts',
+		'ai-form-plugin': {
+			import: './src/blocks/contact-form/plugins/ai-form-generation.ts',
+			dependOn: 'editor',
+		},
 		view: './src/blocks/contact-form/view.ts',
 		'form-progress-indicator/style': './src/blocks/form-progress-indicator/style.scss',
 		'form-step-navigation/style': './src/blocks/form-step-navigation/style.scss',

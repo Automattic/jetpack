@@ -31,6 +31,7 @@ p {
 	flex-direction: column;
 	position: relative;
 	background-color: #f9f9f6;
+	clear: both;
 
 
 	&--main {
@@ -109,4 +110,12 @@ p {
 .jetpack_page_jetpack-boost #wpcontent {
 	padding-left: 0;
 	min-height: 100vh;
+}
+
+.jetpack_page_jetpack-boost #jb-admin-settings {
+	background: #fff;
+}
+
+.jetpack_page_jetpack-boost #dolly {
+	background: #fff;
 }
