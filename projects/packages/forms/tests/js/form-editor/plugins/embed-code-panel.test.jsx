@@ -40,15 +40,12 @@ await jest.unstable_mockModule( '@wordpress/editor', () => ( {
 
 // Mock CopyCodeRow to capture text props
 const copyCodeRowTexts = [];
-await jest.unstable_mockModule(
-	'../../../../src/form-editor/plugins/copy-code-row',
-	() => ( {
-		CopyCodeRow: ( { text, tooltipLabel } ) => {
-			copyCodeRowTexts.push( text );
-			return <div data-testid="copy-code-row">{ tooltipLabel }</div>;
-		},
-	} )
-);
+await jest.unstable_mockModule( '../../../../src/form-editor/plugins/copy-code-row', () => ( {
+	CopyCodeRow: ( { text, tooltipLabel } ) => {
+		copyCodeRowTexts.push( text );
+		return <div data-testid="copy-code-row">{ tooltipLabel }</div>;
+	},
+} ) );
 
 // Import component after mocks
 const { EmbedCodePanel, EMBED_CODE_PANEL_PLUGIN } = await import(
