@@ -1,19 +1,20 @@
 import { JetpackLogo } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
-import type { ReactNode } from 'react';
 import styles from './header.module.scss';
 import { BackButton } from '$features/ui';
+import { isWoaHosting } from '$lib/utils/hosting';
 import ChevronRight from '$svg/chevron-right';
 import { useNavigate } from 'react-router';
 
 type HeaderProps = {
 	subPageTitle?: string;
-	children?: ReactNode;
 };
 
-const Header = ( { subPageTitle = '', children }: HeaderProps ) => {
+const Header = ( { subPageTitle = '' }: HeaderProps ) => {
 	const navigate = useNavigate();
+	const activateLicenseUrl = 'admin.php?page=my-jetpack#/add-license';
+
 	return (
 		<div className={ clsx( styles.header ) }>
 			<div className={ clsx( styles.masthead ) }>
@@ -44,13 +45,17 @@ const Header = ( { subPageTitle = '', children }: HeaderProps ) => {
 						</>
 					) }
 				</div>
-
-				{ children }
 			</div>
 
 			{ ! subPageTitle && (
 				<p className={ clsx( styles.subtitle ) }>
 					{ __( 'Optimize your site performance and loading speed.', 'jetpack-boost' ) }
+					{ ! isWoaHosting() && (
+						<>
+							{ ' ' }
+							<a href={ activateLicenseUrl }>{ __( 'Activate your license', 'jetpack-boost' ) }</a>
+						</>
+					) }
 				</p>
 			) }
 
