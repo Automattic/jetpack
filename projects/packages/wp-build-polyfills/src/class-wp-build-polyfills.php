@@ -21,16 +21,19 @@ class WP_Build_Polyfills {
 	 *
 	 * Call this early (e.g. during plugin load) — it hooks into wp_default_scripts
 	 * at priority 20 so Core (default) and Gutenberg (priority 10) register first.
+	 *
+	 * @param string $wp_version_threshold The WordPress version below which force-replacements
+	 *                                     are applied. Defaults to '7.0'.
 	 */
-	public static function register() {
+	public static function register( $wp_version_threshold = '7.0' ) {
 		$package_root = dirname( __DIR__ );
 		$build_dir    = $package_root . '/build';
 		$base_file    = $package_root . '/composer.json';
 
 		add_action(
 			'wp_default_scripts',
-			function ( $scripts ) use ( $build_dir, $base_file ) {
-				self::register_scripts( $scripts, $build_dir, $base_file );
+			function ( $scripts ) use ( $build_dir, $base_file, $wp_version_threshold ) {
+				self::register_scripts( $scripts, $build_dir, $base_file, $wp_version_threshold );
 				self::register_modules( $build_dir, $base_file );
 			},
 			20
@@ -40,26 +43,29 @@ class WP_Build_Polyfills {
 	/**
 	 * Register polyfill classic scripts.
 	 *
-	 * @param \WP_Scripts $scripts   The WP_Scripts instance.
-	 * @param string      $build_dir Absolute path to the build directory.
-	 * @param string      $base_file File path for plugins_url() computation.
+	 * @param \WP_Scripts $scripts               The WP_Scripts instance.
+	 * @param string      $build_dir             Absolute path to the build directory.
+	 * @param string      $base_file             File path for plugins_url() computation.
+	 * @param string      $wp_version_threshold  WP version below which force-replacements apply.
 	 */
-	private static function register_scripts( $scripts, $build_dir, $base_file ) {
+	private static function register_scripts( $scripts, $build_dir, $base_file, $wp_version_threshold ) {
+		$force_replace = version_compare( $GLOBALS['wp_version'] ?? '0', $wp_version_threshold, '<' );
+
 		$polyfills = array(
 			'wp-notices'      => array(
 				'path'  => 'notices',
-				// Only force-replace on WP < 7.0: older Core versions ship
+				// Only force-replace on older WP: older Core versions ship
 				// notices without SnackbarNotices and InlineNotices component
 				// exports that @wordpress/boot depends on.
-				'force' => version_compare( $GLOBALS['wp_version'] ?? '0', '7.0-dev', '<' ),
+				'force' => $force_replace,
 			),
 			'wp-private-apis' => array(
 				'path'  => 'private-apis',
-				// Only force-replace on WP < 7.0: older Core versions ship
+				// Only force-replace on older WP: older Core versions ship
 				// private-apis with an incomplete allowlist that rejects
 				// @wordpress/theme and @wordpress/route.
 				// Our version is a strict superset (same API, larger allowlist).
-				'force' => version_compare( $GLOBALS['wp_version'] ?? '0', '7.0-dev', '<' ),
+				'force' => $force_replace,
 			),
 			'wp-theme'        => array(
 				'path' => 'theme',
