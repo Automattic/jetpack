@@ -584,11 +584,51 @@ export class StyleAST {
 	}
 
 	/**
+	 * Percent-encode special characters in SVG data URIs to ensure compatibility
+	 * with CSS generators and HTML contexts.
+	 *
+	 * This works around csstree/csstree#340 where the CSS generator does not
+	 * properly quote data URIs containing special characters, and also prevents
+	 * SVG tags from being stripped by PHP's wp_strip_all_tags().
+	 */
+	private encodeSvgDataUris(): void {
+		csstree.walk( this.ast, {
+			visit: 'Url',
+			enter: url => {
+				if (
+					typeof url.value === 'string' &&
+					url.value.startsWith( 'data:image/svg+xml' ) &&
+					! url.value.includes( ';base64,' ) &&
+					url.value.includes( '<' )
+				) {
+					const commaIndex = url.value.indexOf( ',' );
+					if ( commaIndex === -1 ) {
+						return;
+					}
+
+					const prefix = url.value.substring( 0, commaIndex + 1 );
+					const svgContent = url.value.substring( commaIndex + 1 );
+
+					url.value =
+						prefix +
+						svgContent
+							.replace( /#/g, '%23' )
+							.replace( /</g, '%3C' )
+							.replace( />/g, '%3E' )
+							.replace( /"/g, '%22' )
+							.replace( /'/g, '%27' );
+				}
+			},
+		} );
+	}
+
+	/**
 	 * Returns this AST converted to CSS.
 	 *
 	 * @return {string} this AST represented in CSS.
 	 */
 	toCSS(): string {
+		this.encodeSvgDataUris();
 		return csstree.generate( this.ast );
 	}
 

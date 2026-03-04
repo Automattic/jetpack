@@ -107,11 +107,33 @@ class Display_Critical_CSS {
 
 		echo '<style id="jetpack-boost-critical-css">';
 
-		// Ensure no </style> tag (or any HTML tags) in output.
+		// Sanitize CSS for safe output inside a <style> element.
+		// Uses targeted sanitization instead of wp_strip_all_tags() to preserve
+		// SVG data URIs embedded in CSS properties (e.g. background-image).
 		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-		echo wp_strip_all_tags( $critical_css );
+		echo self::sanitize_css_for_style_element( $critical_css );
 
 		echo '</style>';
+	}
+
+	/**
+	 * Sanitize CSS for safe output within a style element.
+	 *
+	 * Unlike wp_strip_all_tags(), this preserves content like SVG data URIs
+	 * while preventing injection attacks that could close the style element.
+	 *
+	 * In a <style> element (an HTML raw text element), the parser only exits
+	 * when it encounters </style (case-insensitive). All other HTML-like tags
+	 * are treated as CSS text and cannot execute. Removing </style patterns
+	 * prevents breaking out of the style element.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $css The CSS to sanitize.
+	 * @return string The sanitized CSS.
+	 */
+	private static function sanitize_css_for_style_element( $css ) {
+		return preg_replace( '/<\s*\/\s*style\b/i', '', $css );
 	}
 
 	/**

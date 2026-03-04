@@ -70,19 +70,67 @@ class Display_Critical_CSS_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test display_critical_css() strips HTML tags.
+	 * Test display_critical_css() prevents style element breakout.
+	 *
+	 * The sanitization removes </style patterns to prevent breaking out of the
+	 * style element. Other HTML tags are harmless inside <style> as the browser
+	 * treats them as CSS text.
 	 */
-	public function test_display_critical_css_strips_html() {
-		$css_with_html = 'body { color: red; }</style><script>alert("xss")</script>';
-		$instance      = new Display_Critical_CSS( $css_with_html );
+	public function test_display_critical_css_prevents_style_breakout() {
+		$css_with_injection = 'body { color: red; }</style><script>alert("xss")</script>';
+		$instance           = new Display_Critical_CSS( $css_with_injection );
 
 		ob_start();
 		$instance->display_critical_css();
 		$output = ob_get_clean();
 
-		$this->assertStringNotContainsString( '<script>', $output );
-		$this->assertStringNotContainsString( 'alert', $output );
+		// The </style> injection is neutralized, so the output should have exactly
+		// one </style> tag (the legitimate closing tag we echo).
 		$this->assertSame( 1, substr_count( $output, '</style>' ) );
+	}
+
+	/**
+	 * Test display_critical_css() prevents style breakout with whitespace variations.
+	 */
+	public function test_display_critical_css_prevents_style_breakout_with_whitespace() {
+		$css_with_injection = 'body { color: red; }< / STYLE ><script>alert("xss")</script>';
+		$instance           = new Display_Critical_CSS( $css_with_injection );
+
+		ob_start();
+		$instance->display_critical_css();
+		$output = ob_get_clean();
+
+		$this->assertSame( 1, substr_count( $output, '</style>' ) );
+	}
+
+	/**
+	 * Test display_critical_css() preserves percent-encoded SVG data URIs.
+	 */
+	public function test_display_critical_css_preserves_encoded_svg_data_uri() {
+		$css_with_svg = '.icon { background: url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27%3E%3Cpath d=%27M0 0%27/%3E%3C/svg%3E") no-repeat; }';
+		$instance     = new Display_Critical_CSS( $css_with_svg );
+
+		ob_start();
+		$instance->display_critical_css();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( $css_with_svg, $output );
+	}
+
+	/**
+	 * Test display_critical_css() preserves literal SVG tags in data URIs.
+	 */
+	public function test_display_critical_css_preserves_literal_svg_in_data_uri() {
+		$css_with_svg = ".icon { background: url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg'><path d='M0 0'/></svg>\") no-repeat; }";
+		$instance     = new Display_Critical_CSS( $css_with_svg );
+
+		ob_start();
+		$instance->display_critical_css();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( '<svg', $output );
+		$this->assertStringContainsString( '<path', $output );
+		$this->assertStringContainsString( '</svg>', $output );
 	}
 
 	/**

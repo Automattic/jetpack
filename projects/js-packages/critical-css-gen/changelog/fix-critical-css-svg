@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Percent-encode SVG data URIs to prevent issues with CSS generation and HTML sanitization.

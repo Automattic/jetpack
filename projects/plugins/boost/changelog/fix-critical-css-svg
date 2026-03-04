@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Critical CSS: Preserve inline SVG data URIs in critical CSS output.

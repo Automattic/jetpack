@@ -77,9 +77,10 @@ class CSS_Proxy {
 
 		if ( $css ) {
 			header( 'Content-type: text/css' );
-			// Outputting proxied CSS contents unescaped.
+			// Sanitize CSS: remove </style patterns to prevent breaking out of
+			// a style element context, while preserving SVG data URIs.
 			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-			echo wp_strip_all_tags( $css );
+			echo preg_replace( '/<\s*\/\s*style\b/i', '', $css );
 			die( 0 );
 		}
 	}
