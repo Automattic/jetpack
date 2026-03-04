@@ -301,9 +301,6 @@ export function NewsletterEmailDocumentSettings() {
 	const postEmailSentState = useSelect(
 		select => {
 			const { getPostEmailSentState } = select( membershipProductsStore );
-			if ( postId ) {
-				getPostEmailSentState( postId );
-			}
 			return postId ? getPostEmailSentState( postId ) : null;
 		},
 		[ postId ]
