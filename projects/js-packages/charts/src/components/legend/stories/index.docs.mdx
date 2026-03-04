@@ -189,7 +189,7 @@ Interactive legends allow users to toggle series visibility by clicking or using
 
 ### Basic Interactive Legend
 
-Enable interactive legends by setting the `legendInteractive` prop on the chart. The Legend component will automatically become interactive when connected via `chartId`:
+Enable interactive legends by setting the `legendInteractive` prop on the chart. When `showLegend` is enabled, the chart's built-in legend will automatically become interactive:
 
 <Canvas of={ LegendStories.InteractiveLegend } />
 
@@ -206,7 +206,7 @@ Enable interactive legends by setting the `legendInteractive` prop on the chart.
 
 ### Standalone Interactive Legend
 
-Interactive legends also work with standalone Legend components. Set `legendInteractive` on the chart so it filters visible series, and `interactive` on the Legend so it renders clickable toggle controls:
+Interactive legends also work with standalone Legend components. Set `legendInteractive` on the chart so it filters visible series, and `interactive` on the Legend so it renders clickable toggle controls. `chartId` is also required for this to work.
 
 <Source
 	language="tsx"
