@@ -7,6 +7,8 @@ export const CustomLoadingSpinner = () => {
 				height="16"
 				viewBox="0 0 100 100"
 				xmlns="http://www.w3.org/2000/svg"
+				aria-hidden="true"
+				focusable="false"
 			>
 				<circle cx="50" cy="50" r="46" fill="none" stroke="#ddd" strokeWidth="8" />
 				<path
