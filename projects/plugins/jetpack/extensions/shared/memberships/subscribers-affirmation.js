@@ -2,7 +2,6 @@ import { getAdminUrl } from '@automattic/jetpack-script-data';
 import { isComingSoon } from '@automattic/jetpack-shared-extension-utils';
 import { Animate } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
-import { dateI18n, getDate, getSettings as getDateSettings } from '@wordpress/date';
 import { store as editorStore } from '@wordpress/editor';
 import { createInterpolateElement } from '@wordpress/element';
 import { sprintf, __, _n } from '@wordpress/i18n';
@@ -18,7 +17,7 @@ import { store as membershipProductsStore } from '../../store/membership-product
 /**
  * Get the formatted list of categories for a post.
  * @param {Array}   postCategories                 - list of category IDs for the post (from editor or stats_on_send)
- * @param {Array}   newsletterCategories           - list of the site's newsletter categories (or stats_on_send.newsletter_categories)
+ * @param {Array}   newsletterCategories           - list of the site's newsletter categories
  * @param {boolean} [fallbackToUncategorized=true] - if false and empty, return ''; if true, treat empty as [1]
  * @return {string} - formatted list of categories
  */
@@ -174,27 +173,6 @@ export const getCopyForSubscribers = ( {
 };
 
 const SENDING_IN_PROGRESS_WINDOW_MS = 15 * 60 * 1000;
-
-/**
- * Format sent date from Unix timestamp or MySQL timestamp string.
- *
- * @param {number|null} emailSentAt    - Unix timestamp from email_notification meta
- * @param {string|null} statsTimestamp - MySQL timestamp from stats_on_send
- * @return {string} Formatted date string
- */
-export function formatSentDate( emailSentAt, statsTimestamp ) {
-	let date = null;
-	if ( emailSentAt ) {
-		date = new Date( emailSentAt * 1000 );
-	} else if ( statsTimestamp ) {
-		date = getDate( statsTimestamp );
-	}
-	if ( ! date || isNaN( date.getTime() ) ) {
-		return '';
-	}
-	const dateSettings = getDateSettings();
-	return dateI18n( dateSettings.formats.date, date );
-}
 
 /**
  * Parse access level string into base key and optional tier name.
@@ -502,7 +480,7 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 	const statsOnSend = postEmailSentState?.stats_on_send ?? null;
 
 	const dateStr =
-		emailSentAt != null ? formatSentDate( emailSentAt, statsOnSend?.timestamp ?? null ) : '';
+		postEmailSentState?.email_sent_at ?? postEmailSentState?.stats_on_send?.timestamp ?? '';
 
 	const sentAccessLabel = statsOnSend ? getAccessLevelLabel( statsOnSend.access_level ) : '';
 	const sentCategoryNames = statsOnSend

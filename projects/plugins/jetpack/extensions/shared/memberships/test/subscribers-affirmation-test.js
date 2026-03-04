@@ -1,22 +1,4 @@
-import {
-	getFormattedCategories,
-	formatSentDate,
-	getCopyForSubscribers,
-} from '../subscribers-affirmation';
-
-jest.mock( '@wordpress/date', () => ( {
-	dateI18n: jest.fn( ( format, date ) => ( date ? '2024-03-15' : '' ) ),
-	getDate: jest.fn( str => {
-		if ( ! str ) return new Date( 0 );
-		const d = new Date( str.replace( ' ', 'T' ) );
-		return isNaN( d.getTime() ) ? null : d;
-	} ),
-	getSettings: jest.fn( () => ( {
-		formats: { date: 'F j, Y' },
-		l10n: { startOfWeek: 0 },
-		timezone: { offset: 0, string: '' },
-	} ) ),
-} ) );
+import { getFormattedCategories, getCopyForSubscribers } from '../subscribers-affirmation';
 
 describe( 'getFormattedCategories', () => {
 	const newsletterCategories = [
@@ -69,44 +51,6 @@ describe( 'getFormattedCategories', () => {
 
 	test( 'handles undefined postCategories with optional chaining when fallback is false', () => {
 		expect( getFormattedCategories( undefined, newsletterCategories, false ) ).toBe( '' );
-	} );
-} );
-
-describe( 'formatSentDate', () => {
-	beforeEach( () => {
-		jest.clearAllMocks();
-		const { getDate, getSettings, dateI18n } = require( '@wordpress/date' );
-		getDate.mockImplementation( str => {
-			if ( ! str ) return new Date( 0 );
-			const d = new Date( str.replace( ' ', 'T' ) );
-			return isNaN( d.getTime() ) ? null : d;
-		} );
-		getSettings.mockReturnValue( { formats: { date: 'F j, Y' } } );
-		dateI18n.mockReturnValue( '2024-03-15' );
-	} );
-
-	test( 'returns formatted date for valid emailSentAt (Unix seconds)', () => {
-		const result = formatSentDate( 1710460800, null );
-		expect( result ).toBe( '2024-03-15' );
-	} );
-
-	test( 'returns formatted date for statsTimestamp (MySQL string) via getDate', () => {
-		const { getDate } = require( '@wordpress/date' );
-		const result = formatSentDate( null, '2024-03-15 12:00:00' );
-		expect( getDate ).toHaveBeenCalledWith( '2024-03-15 12:00:00' );
-		expect( result ).toBe( '2024-03-15' );
-	} );
-
-	test( 'returns empty string when both inputs are null/empty', () => {
-		expect( formatSentDate( null, null ) ).toBe( '' );
-		expect( formatSentDate( null, '' ) ).toBe( '' );
-	} );
-
-	test( 'returns empty string for invalid date', () => {
-		const { getDate } = require( '@wordpress/date' );
-		getDate.mockReturnValue( new Date( 'invalid' ) );
-		const result = formatSentDate( null, 'invalid-date' );
-		expect( result ).toBe( '' );
 	} );
 } );
 

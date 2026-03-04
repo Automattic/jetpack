@@ -85,18 +85,26 @@ class WPCOM_REST_API_V2_Endpoint_Newsletter_Email_Sent_Status extends WP_REST_Co
 		$email_notification = get_post_meta( $post_id, 'email_notification', true );
 		$email_sent_at      = null;
 		if ( ! empty( $email_notification ) && is_numeric( $email_notification ) ) {
-			$email_sent_at = (int) $email_notification;
+			$unix_ts       = (int) $email_notification;
+			$email_sent_at = wp_date( get_option( 'date_format' ), $unix_ts );
 		}
 
 		$stats_meta    = get_post_meta( $post_id, '_wpcom_newsletter_stats_on_email_send', true );
 		$stats_on_send = null;
 		if ( ! empty( $stats_meta ) && is_array( $stats_meta ) && isset( $stats_meta[0] ) ) {
-			$first         = $stats_meta[0];
+			$first = $stats_meta[0];
+			$ts    = $first['timestamp'] ?? null;
+			if ( ! empty( $ts ) ) {
+				$unix_ts = strtotime( $ts );
+				$ts      = ( false !== $unix_ts ) ? wp_date( get_option( 'date_format' ), $unix_ts ) : null;
+			} else {
+				$ts = null;
+			}
 			$stats_on_send = array(
 				'access_level'              => $first['access_level'] ?? null,
 				'post_categories'           => isset( $first['post_categories'] ) && is_array( $first['post_categories'] ) ? $first['post_categories'] : array(),
 				'has_newsletter_categories' => ! empty( $first['has_newsletter_categories'] ),
-				'timestamp'                 => $first['timestamp'] ?? null,
+				'timestamp'                 => $ts,
 			);
 		}
 
