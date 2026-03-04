@@ -1,7 +1,7 @@
 import { useBlockEditingMode } from '@wordpress/block-editor';
 import { Disabled, Notice } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { navigateToForm } from './convert-form-toolbar.tsx';
+import { navigateToForm } from '../util/navigate-to-form.ts';
 import ContactFormSkeletonLoader from './jetpack-contact-form-skeleton-loader.js';
 import './widget-editor-readonly-view.scss';
 
