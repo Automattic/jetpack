@@ -240,6 +240,8 @@ function StageInner() {
 				return __( 'Scheduled', 'jetpack-forms' );
 			case 'private':
 				return __( 'Private', 'jetpack-forms' );
+			case 'trash':
+				return __( 'Trash', 'jetpack-forms' );
 			default:
 				return status;
 		}
