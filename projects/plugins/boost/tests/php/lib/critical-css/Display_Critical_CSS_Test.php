@@ -104,6 +104,54 @@ class Display_Critical_CSS_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Test display_critical_css() prevents style breakout with tab character after tag name.
+	 *
+	 * Per HTML spec, </style followed by tab (U+0009) is a valid end tag opener.
+	 */
+	public function test_display_critical_css_prevents_style_breakout_with_tab() {
+		$css_with_injection = "body { color: red; }</style\t><script>alert('xss')</script>";
+		$instance           = new Display_Critical_CSS( $css_with_injection );
+
+		ob_start();
+		$instance->display_critical_css();
+		$output = ob_get_clean();
+
+		$this->assertSame( 1, substr_count( $output, '</style>' ) );
+	}
+
+	/**
+	 * Test display_critical_css() prevents style breakout with newline after tag name.
+	 *
+	 * Per HTML spec, </style followed by line feed (U+000A) is a valid end tag opener.
+	 */
+	public function test_display_critical_css_prevents_style_breakout_with_newline() {
+		$css_with_injection = "body { color: red; }</style\n><script>alert('xss')</script>";
+		$instance           = new Display_Critical_CSS( $css_with_injection );
+
+		ob_start();
+		$instance->display_critical_css();
+		$output = ob_get_clean();
+
+		$this->assertSame( 1, substr_count( $output, '</style>' ) );
+	}
+
+	/**
+	 * Test display_critical_css() prevents style breakout with slash after tag name.
+	 *
+	 * Per HTML spec, </style/> is a valid self-closing end tag.
+	 */
+	public function test_display_critical_css_prevents_style_breakout_with_slash() {
+		$css_with_injection = 'body { color: red; }</style/><script>alert("xss")</script>';
+		$instance           = new Display_Critical_CSS( $css_with_injection );
+
+		ob_start();
+		$instance->display_critical_css();
+		$output = ob_get_clean();
+
+		$this->assertSame( 1, substr_count( $output, '</style>' ) );
+	}
+
+	/**
 	 * Test display_critical_css() preserves percent-encoded SVG data URIs.
 	 */
 	public function test_display_critical_css_preserves_encoded_svg_data_uri() {

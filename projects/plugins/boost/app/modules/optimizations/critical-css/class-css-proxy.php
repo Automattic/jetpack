@@ -77,6 +77,7 @@ class CSS_Proxy {
 
 		if ( $css ) {
 			header( 'Content-type: text/css' );
+			header( 'X-Content-Type-Options: nosniff' );
 			// Sanitize CSS: remove </style patterns to prevent breaking out of
 			// a style element context, while preserving SVG data URIs.
 			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
