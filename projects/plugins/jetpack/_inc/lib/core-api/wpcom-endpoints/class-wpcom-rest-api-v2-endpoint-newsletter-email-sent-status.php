@@ -93,10 +93,10 @@ class WPCOM_REST_API_V2_Endpoint_Newsletter_Email_Sent_Status extends WP_REST_Co
 		if ( ! empty( $stats_meta ) && is_array( $stats_meta ) && isset( $stats_meta[0] ) ) {
 			$first         = $stats_meta[0];
 			$stats_on_send = array(
-				'access_level'              => isset( $first['access_level'] ) ? $first['access_level'] : null,
+				'access_level'              => $first['access_level'] ?? null,
 				'post_categories'           => isset( $first['post_categories'] ) && is_array( $first['post_categories'] ) ? $first['post_categories'] : array(),
 				'has_newsletter_categories' => ! empty( $first['has_newsletter_categories'] ),
-				'timestamp'                 => isset( $first['timestamp'] ) ? $first['timestamp'] : null,
+				'timestamp'                 => $first['timestamp'] ?? null,
 			);
 		}
 
