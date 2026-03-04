@@ -278,3 +278,5 @@ export default function SubscribePanels() {
 		</>
 	);
 }
+
+export { NewsletterRepublishTracker };

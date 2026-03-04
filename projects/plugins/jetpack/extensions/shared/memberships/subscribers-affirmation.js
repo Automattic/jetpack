@@ -18,11 +18,11 @@ import { store as membershipProductsStore } from '../../store/membership-product
 /**
  * Get the formatted list of categories for a post.
  * @param {Array}   postCategories                 - list of category IDs for the post (from editor or stats_on_send)
- * @param {Array}   newsletterCategories           - list of the site's newsletter categories
+ * @param {Array}   newsletterCategories           - list of the site's newsletter categories (or stats_on_send.newsletter_categories)
  * @param {boolean} [fallbackToUncategorized=true] - if false and empty, return ''; if true, treat empty as [1]
  * @return {string} - formatted list of categories
  */
-const getFormattedCategories = (
+export const getFormattedCategories = (
 	postCategories,
 	newsletterCategories,
 	fallbackToUncategorized = true
@@ -182,7 +182,7 @@ const SENDING_IN_PROGRESS_WINDOW_MS = 15 * 60 * 1000;
  * @param {string|null} statsTimestamp - MySQL timestamp from stats_on_send
  * @return {string} Formatted date string
  */
-function formatSentDate( emailSentAt, statsTimestamp ) {
+export function formatSentDate( emailSentAt, statsTimestamp ) {
 	let date = null;
 	if ( emailSentAt ) {
 		date = new Date( emailSentAt * 1000 );
