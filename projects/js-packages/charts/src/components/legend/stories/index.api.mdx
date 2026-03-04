@@ -54,7 +54,7 @@ type LegendLabelStyles = Pick< CSSProperties, 'justifyContent' | 'flex' | 'margi
 	maxWidth?: string;                    // CSS value (e.g. '200px', '50%', '10rem')
 	textOverflow?: 'ellipsis' | 'wrap';   // Default: 'wrap'
 };
-// Other defaults: { justifyContent: 'left', flex: '0 0 auto', margin: '0 4px' }
+// Other defaults: { justifyContent: 'flex-start', flex: '0 0 auto', margin: '0 4px' }
 ```
 
 - **`maxWidth`**: Maximum width for legend label text. When set, text overflow behavior is controlled by `textOverflow`.

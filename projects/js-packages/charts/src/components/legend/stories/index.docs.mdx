@@ -88,7 +88,7 @@ For detailed information about all optional props, see the [Legend API Reference
 
 - When both `items` and `chartId` are provided, `items` takes precedence
 - The `render` prop provides complete control over legend rendering, bypassing the default layout
-- Text overflow features require both `maxWidth` and `textOverflow` to be set in `labelStyles`
+- Text overflow is enabled by setting `labelStyles.maxWidth`; `textOverflow` is optional and defaults to `'wrap'`
 - The component uses visx LegendOrdinal internally but provides a simplified, more flexible API
 
 ## Integration with Charts
