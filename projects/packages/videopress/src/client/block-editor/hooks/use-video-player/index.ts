@@ -67,6 +67,10 @@ const useVideoPlayer = (
 		}
 
 		const { data: eventData = {}, source } = event;
+		if ( ! source || ! ( 'postMessage' in source ) ) {
+			return;
+		}
+
 		const { event: eventName } = event?.data || {};
 
 		// Detect when the video has been loaded.
