@@ -21,9 +21,9 @@ type OmittedStylingProps =
 
 export type LegendItemStyles = {
 	/** Margin around each legend item. */
-	margin?: string | number;
+	margin?: CSSProperties[ 'margin' ];
 	/** Flex direction for items within each legend entry. */
-	flexDirection?: 'row' | 'column';
+	flexDirection?: 'row' | 'row-reverse' | 'column' | 'column-reverse';
 };
 
 export type LegendLabelStyles = Pick< CSSProperties, 'justifyContent' | 'flex' | 'margin' > & {
@@ -46,7 +46,7 @@ export type LegendShapeStyles = {
 	/** Height of the legend shape in pixels. */
 	height?: number;
 	/** Margin around the legend shape. */
-	margin?: string | number;
+	margin?: CSSProperties[ 'margin' ];
 };
 
 export type BaseLegendProps = Omit< LegendOrdinalProps, OmittedStylingProps > & {
