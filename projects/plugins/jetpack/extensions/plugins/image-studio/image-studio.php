@@ -28,9 +28,10 @@ const ASSET_TRANSIENT        = 'jetpack_image_studio_asset';
 /**
  * Check if Image Studio is enabled.
  *
- * Requires AI features (Big Sky or AI Assistant) plus at least one of:
+ * Requires AI features plus at least one of:
  * - The unified chat experience (agents_manager_use_unified_experience).
  * - The jetpack_image_studio_enabled filter.
+ * - Big Sky plugin is active and enabled.
  *
  * @return bool
  */
@@ -40,7 +41,17 @@ function is_image_studio_enabled() {
 	}
 
 	return apply_filters( 'agents_manager_use_unified_experience', false )
-		|| apply_filters( 'jetpack_image_studio_enabled', false );
+		|| apply_filters( 'jetpack_image_studio_enabled', false )
+		|| is_big_sky_enabled();
+}
+
+/**
+ * Check if the Big Sky plugin is active and enabled.
+ *
+ * @return bool
+ */
+function is_big_sky_enabled() {
+	return class_exists( 'Big_Sky' ) && get_option( 'big_sky_enable', '1' );
 }
 
 /**
