@@ -86,7 +86,6 @@ export const Default: Story = {
 			{ label: 'Desktop', value: '65%', color: '#3858E9' },
 			{ label: 'Mobile', value: '35%', color: '#80C8FF' },
 		],
-		orientation: 'horizontal',
 	},
 };
 
