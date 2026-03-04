@@ -17,13 +17,20 @@ import { store as membershipProductsStore } from '../../store/membership-product
 
 /**
  * Get the formatted list of categories for a post.
- * @param {Array} postCategories       - list of category IDs for the post
- * @param {Array} newsletterCategories - list of the site's newsletter categories
+ * @param {Array}   postCategories                 - list of category IDs for the post (from editor or stats_on_send)
+ * @param {Array}   newsletterCategories           - list of the site's newsletter categories
+ * @param {boolean} [fallbackToUncategorized=true] - if false and empty, return ''; if true, treat empty as [1]
  * @return {string} - formatted list of categories
  */
-const getFormattedCategories = ( postCategories, newsletterCategories ) => {
+const getFormattedCategories = (
+	postCategories,
+	newsletterCategories,
+	fallbackToUncategorized = true
+) => {
+	if ( ! fallbackToUncategorized && ! postCategories?.length ) return '';
+
 	// If the post has no categories, then it's going to have the 'Uncategorized' category
-	const updatedPostCategories = postCategories.length ? postCategories : [ 1 ];
+	const updatedPostCategories = postCategories?.length ? postCategories : [ 1 ];
 
 	// If the post has a non newsletter category, then it's going to be sent to 'All content' subscribers
 	const hasNonNewsletterCategory = updatedPostCategories.some( postCategory => {
@@ -187,48 +194,6 @@ function formatSentDate( emailSentAt, statsTimestamp ) {
 	}
 	const dateSettings = getDateSettings();
 	return dateI18n( dateSettings.formats.date, date );
-}
-
-/**
- * Get category names from stats post_categories (term IDs) using newsletter categories list.
- *
- * @param {Array} postCategories       - Term IDs from stats_on_send
- * @param {Array} newsletterCategories - Site newsletter categories with id, name
- * @return {string} Formatted category list (e.g. "Category A and Category B" or "All content")
- */
-function getCategoryNamesFromStats( postCategories, newsletterCategories ) {
-	if ( ! postCategories?.length ) {
-		return '';
-	}
-	const categoryNames = postCategories
-		.map( termId => {
-			const cat = newsletterCategories.find( c => c.id === termId );
-			return cat ? cat.name : null;
-		} )
-		.filter( Boolean );
-	const hasUnknown = postCategories.some(
-		termId => ! newsletterCategories.some( c => c.id === termId )
-	);
-	if ( hasUnknown ) {
-		categoryNames.push( __( 'All content', 'jetpack' ) );
-	}
-	const formatted = categoryNames.map( n => `<strong>${ n }</strong>` );
-	if ( formatted.length === 1 ) return formatted[ 0 ];
-	if ( formatted.length === 2 ) {
-		return sprintf(
-			/* translators: %1$s: first category, %2$s: second category */
-			__( '%1$s and %2$s', 'jetpack' ),
-			formatted[ 0 ],
-			formatted[ 1 ]
-		);
-	}
-	const allButLast = formatted.slice( 0, -1 ).join( `${ __( ',', 'jetpack' ) } ` );
-	return sprintf(
-		/* translators: %1$s: comma-separated categories, %2$s: last category */
-		__( '%1$s, and %2$s', 'jetpack' ),
-		allButLast,
-		formatted[ formatted.length - 1 ]
-	);
 }
 
 /**
@@ -541,7 +506,7 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 
 	const sentAccessLabel = statsOnSend ? getAccessLevelLabel( statsOnSend.access_level ) : '';
 	const sentCategoryNames = statsOnSend
-		? getCategoryNamesFromStats( statsOnSend.post_categories, newsletterCategories )
+		? getFormattedCategories( statsOnSend.post_categories, newsletterCategories, false )
 		: '';
 
 	const isAlreadySent = emailSentAt != null;
