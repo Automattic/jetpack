@@ -24,6 +24,7 @@ import ConnectionScreen from './connection-screen';
 import Header from './header';
 import InfoSection from './info-section';
 import PricingPage from './pricing-page';
+import './styles.module.scss';
 import SupportSection from './support-section';
 import SocialImageGeneratorToggle from './toggles/social-image-generator-toggle';
 import SocialModuleToggle from './toggles/social-module-toggle';
