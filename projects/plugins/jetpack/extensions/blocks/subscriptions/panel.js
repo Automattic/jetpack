@@ -45,7 +45,6 @@ import './panel.scss';
  */
 function NewsletterRepublishTracker() {
 	const prevStatusRef = useRef( null );
-	const transitionedToPublishPostIdRef = useRef( null );
 	const {
 		setPublishedWithEmailEnabledInSession: dispatchPublishedWithEmail,
 		setAlreadySentPostModifiedInSession: dispatchModifiedAlreadySent,
@@ -69,19 +68,14 @@ function NewsletterRepublishTracker() {
 	}, [] );
 
 	useLayoutEffect( () => {
-		if ( status === 'publish' && postId ) {
-			const didTransition = prevStatusRef.current !== null && prevStatusRef.current !== 'publish';
-			if ( didTransition ) {
-				transitionedToPublishPostIdRef.current = postId;
-				if ( ! postMeta?.[ META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS ] ) {
-					dispatchPublishedWithEmail( postId );
+		if ( postId ) {
+			if ( status === 'publish' ) {
+				const didTransition = prevStatusRef.current !== null && prevStatusRef.current !== 'publish';
+				if ( didTransition ) {
+					if ( ! postMeta?.[ META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS ] ) {
+						dispatchPublishedWithEmail( postId );
+					}
 				}
-			}
-			if (
-				transitionedToPublishPostIdRef.current === postId &&
-				postEmailSentState?.email_sent_at != null
-			) {
-				dispatchModifiedAlreadySent( postId );
 			}
 			if ( isSavingPost && postEmailSentState?.email_sent_at != null ) {
 				dispatchModifiedAlreadySent( postId );
