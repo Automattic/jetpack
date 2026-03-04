@@ -85,7 +85,7 @@ const AdminPage: FC< AdminPageProps > = ( {
 		<HStack spacing={ 2 } justify="left">
 			{ logo || (
 				<Tooltip text={ __( 'My Jetpack', 'jetpack-components' ) }>
-					<a href={ getMyJetpackUrl() }>
+					<a href={ getMyJetpackUrl() } style={ { lineHeight: 1, height: '20px' } }>
 						<JetpackLogo showText={ false } height={ 20 } />
 					</a>
 				</Tooltip>
