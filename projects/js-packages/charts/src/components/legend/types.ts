@@ -2,7 +2,10 @@ import { LegendOrdinal } from '@visx/legend';
 import type { GlyphProps, LineStyles } from '@visx/xychart';
 import type { ComponentProps, CSSProperties, ReactNode } from 'react';
 
-type LegendOrdinalProps = Omit< ComponentProps< typeof LegendOrdinal >, 'scale' | 'direction' >;
+type LegendOrdinalProps = Omit<
+	ComponentProps< typeof LegendOrdinal >,
+	'scale' | 'direction' | 'children'
+>;
 
 type OmittedStylingProps =
 	| 'shapeStyle'

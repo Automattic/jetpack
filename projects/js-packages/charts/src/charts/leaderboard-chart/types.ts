@@ -1,5 +1,6 @@
 import { type ReactNode } from 'react';
 import { BaseChartProps, LeaderboardEntry } from '../../types';
+import type { LegendShapeStyles } from '../../components/legend';
 
 export interface LeaderboardChartProps
 	extends Pick<
@@ -64,11 +65,7 @@ export interface LeaderboardChartProps
 	/**
 	 * Styles for legend shapes (width, height, margin).
 	 */
-	legendShapeStyles?: {
-		width?: number;
-		height?: number;
-		margin?: string | number;
-	};
+	legendShapeStyles?: LegendShapeStyles;
 
 	/**
 	 * Custom labels for legend items
