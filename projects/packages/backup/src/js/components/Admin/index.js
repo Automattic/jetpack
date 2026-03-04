@@ -10,7 +10,7 @@ import {
 import { useConnectionErrorNotice, ConnectionError } from '@automattic/jetpack-connection';
 import { shouldUseInternalLinks } from '@automattic/jetpack-shared-extension-utils';
 import apiFetch from '@wordpress/api-fetch';
-import { ExternalLink } from '@wordpress/components';
+import { Button, ExternalLink } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import {
 	createInterpolateElement,
@@ -69,15 +69,26 @@ const Admin = () => {
 	}, [] );
 
 	const headerActions = useMemo( () => {
+		const buttons = [];
+
+		if ( showActivateLicenseLink ) {
+			buttons.push(
+				<Button key="activate-license" variant="secondary" href={ activateLicenseUrl }>
+					{ __( 'Use license key', 'jetpack-backup-pkg' ) }
+				</Button>
+			);
+		}
+
 		if ( showBackUpNowButton ) {
-			return (
-				<BackupNowButton tracksEventName="jetpack_backup_plugin_backup_now">
+			buttons.push(
+				<BackupNowButton key="backup-now" tracksEventName="jetpack_backup_plugin_backup_now">
 					{ __( 'Back up now', 'jetpack-backup-pkg' ) }
 				</BackupNowButton>
 			);
 		}
-		return null;
-	}, [ showBackUpNowButton ] );
+
+		return buttons.length > 0 ? <>{ buttons }</> : null;
+	}, [ showBackUpNowButton, showActivateLicenseLink, activateLicenseUrl ] );
 
 	// If the user is a secondary admin not connected and the site has a backup product,
 	// let's show the login screen.
@@ -103,23 +114,10 @@ const Admin = () => {
 		<AdminPage
 			showFooter
 			title={ 'Backup' /** "Backup" is a product name, do not translate. */ }
-			subTitle={
-				<>
-					{ __(
-						'Save changes and restore quickly with one-click recovery.',
-						'jetpack-backup-pkg'
-					) }
-					{ showActivateLicenseLink && (
-						<>
-							{ ' ' }
-							{ createInterpolateElement(
-								__( 'Own a plan already? <a>Activate your license</a>', 'jetpack-backup-pkg' ),
-								{ a: <a href={ activateLicenseUrl } /> }
-							) }
-						</>
-					) }
-				</>
-			}
+			subTitle={ __(
+				'Save changes and restore quickly with one-click recovery.',
+				'jetpack-backup-pkg'
+			) }
 			actions={ headerActions }
 			useInternalLinks={ shouldUseInternalLinks() }
 		>

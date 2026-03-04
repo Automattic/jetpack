@@ -15,8 +15,9 @@ import {
 	currentUserCan,
 } from '@automattic/jetpack-script-data';
 import { shouldUseInternalLinks } from '@automattic/jetpack-shared-extension-utils';
+import { Button } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
-import { createInterpolateElement, useState, useCallback } from '@wordpress/element';
+import { useState, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { store as socialStore } from '../../social-store';
 import { features, getSocialScriptData, hasSocialPaidFeatures } from '../../utils';
@@ -80,19 +81,12 @@ export const SocialAdminPage = () => {
 		);
 	}
 
-	const subTitle = (
-		<>
-			{ __( 'Publish once. Share everywhere.', 'jetpack-publicize-pkg' ) }
-			{ ! hasSocialPaidFeatures() && isJetpackSite && (
-				<>
-					{ ' ' }
-					{ createInterpolateElement(
-						__( 'Own a plan already? <a>Activate your license</a>', 'jetpack-publicize-pkg' ),
-						{ a: <a href={ getMyJetpackUrl( '#/add-license' ) } /> }
-					) }
-				</>
-			) }
-		</>
+	const subTitle = __( 'Publish once. Share everywhere.', 'jetpack-publicize-pkg' );
+
+	const licenseAction = ! hasSocialPaidFeatures() && isJetpackSite && (
+		<Button variant="secondary" href={ getMyJetpackUrl( '#/add-license' ) }>
+			{ __( 'Use license key', 'jetpack-publicize-pkg' ) }
+		</Button>
 	);
 
 	return (
@@ -100,6 +94,7 @@ export const SocialAdminPage = () => {
 			moduleName={ moduleName }
 			title={ 'Social' /** "Social" is a product name, do not translate. */ }
 			subTitle={ subTitle }
+			actions={ licenseAction }
 			showFooter={ isJetpackSite }
 			useInternalLinks={ shouldUseInternalLinks() }
 		>

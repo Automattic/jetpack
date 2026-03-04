@@ -12,12 +12,13 @@ import {
 	PricingTableHeader,
 	PricingTableItem,
 	IconTooltip,
-	Button,
+	Button as JetpackButton,
 	ThemeProvider,
 } from '@automattic/jetpack-components';
 import { ConnectionError, useConnectionErrorNotice } from '@automattic/jetpack-connection';
 import { shouldUseInternalLinks } from '@automattic/jetpack-shared-extension-utils';
 import { formatNumberCompact } from '@automattic/number-formatters';
+import { Button } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
@@ -98,22 +99,16 @@ export default function UpsellPage( { isLoading = false } ) {
 			{ ! isPageLoading && (
 				<AdminPage
 					title={ 'Search' /** "Search" is a product name, do not translate. */ }
-					subTitle={
-						<>
-							{ __(
-								'Help your visitors find exactly what they are looking for.',
-								'jetpack-search-pkg'
-							) }
-							{ ! isWpcom && (
-								<>
-									{ ' ' }
-									{ createInterpolateElement(
-										__( 'Own a plan already? <a>Activate your license</a>', 'jetpack-search-pkg' ),
-										{ a: <a href={ activateLicenseUrl } /> }
-									) }
-								</>
-							) }
-						</>
+					subTitle={ __(
+						'Help your visitors find exactly what they are looking for.',
+						'jetpack-search-pkg'
+					) }
+					actions={
+						! isWpcom && (
+							<Button variant="secondary" href={ activateLicenseUrl }>
+								{ __( 'Use license key', 'jetpack-search-pkg' ) }
+							</Button>
+						)
 					}
 					moduleNameHref={ JETPACK_SEARCH__LINK }
 					useInternalLinks={ shouldUseInternalLinks() }
@@ -274,9 +269,9 @@ const NewPricingComponent = ( { sendToCartPaid, sendToCartFree } ) => {
 										</IconTooltip>
 									</div>
 								</ProductPrice>
-								<Button onClick={ sendToCartPaid } fullWidth>
+								<JetpackButton onClick={ sendToCartPaid } fullWidth>
 									{ __( 'Get Search', 'jetpack-search-pkg' ) }
-								</Button>
+								</JetpackButton>
 							</PricingTableHeader>
 							<PricingTableItem
 								isIncluded={ true }
@@ -320,9 +315,9 @@ const NewPricingComponent = ( { sendToCartPaid, sendToCartFree } ) => {
 									currency={ priceCurrencyCode }
 									hidePriceFraction
 								/>
-								<Button onClick={ sendToCartFree } variant="secondary" fullWidth>
+								<JetpackButton onClick={ sendToCartFree } variant="secondary" fullWidth>
 									{ __( 'Start for free', 'jetpack-search-pkg' ) }
-								</Button>
+								</JetpackButton>
 							</PricingTableHeader>
 							<PricingTableItem
 								isIncluded={ true }
