@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Legend: consolidate styling props into itemStyles, labelStyles, and shapeStyles objects.
