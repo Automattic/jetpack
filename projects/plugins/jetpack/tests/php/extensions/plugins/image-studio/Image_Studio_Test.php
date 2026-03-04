@@ -61,6 +61,9 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 		$GLOBALS['wp_styles']   = new WP_Styles();
 		$this->reset_availability();
 		$this->simulate_connected_owner();
+		// Ensure Big Sky is disabled by default so tests aren't affected by the
+		// Big_Sky class persisting across tests once simulate_big_sky_class() runs.
+		update_option( 'big_sky_enable', '0' );
 		unset( $_GET['enable_image_studio'] );
 		$this->saved_screen = $GLOBALS['current_screen'] ?? null;
 	}
@@ -78,6 +81,7 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 		remove_all_filters( 'jetpack_ai_enabled' );
 		( new \Automattic\Jetpack\Connection\Manager( 'jetpack' ) )->reset_connection_status();
 		unset( $_GET['enable_image_studio'] );
+		delete_option( 'big_sky_enable' );
 		$GLOBALS['current_screen'] = $this->saved_screen;
 		$GLOBALS['wp_scripts']     = $this->saved_wp_scripts;
 		$GLOBALS['wp_styles']      = $this->saved_wp_styles;
@@ -126,6 +130,20 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	 */
 	private function disable_image_studio() {
 		add_filter( 'jetpack_image_studio_enabled', '__return_false' );
+	}
+
+	/**
+	 * Simulate the Big_Sky class existing (as if the Big Sky plugin were active).
+	 *
+	 * The class is declared in the global namespace once and persists for the
+	 * rest of the PHP process, but test isolation is achieved through the
+	 * big_sky_enable option, which is cleaned up in tear_down().
+	 */
+	private function simulate_big_sky_class() {
+		if ( ! class_exists( 'Big_Sky' ) ) {
+			// phpcs:ignore Generic.Files.OneObjectStructurePerFile.MultipleFound, Generic.Classes.DuplicateClassName.Found
+			eval( 'class Big_Sky {}' ); // @codingStandardsIgnoreLine — minimal stub for unit test isolation.
+		}
 	}
 
 	/**
@@ -1570,6 +1588,125 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 
 		$this->assertSame( $original_actions, $actions );
 		$this->assertArrayNotHasKey( 'edit-with-ai', $actions );
+	}
+
+	// -------------------------------------------------------------------------
+	// is_big_sky_enabled() tests
+	// -------------------------------------------------------------------------
+
+	/**
+	 * Test is_big_sky_enabled returns false when Big_Sky class does not exist.
+	 */
+	public function test_is_big_sky_enabled_false_when_class_missing() {
+		$this->assertFalse( ImageStudio\is_big_sky_enabled() );
+	}
+
+	/**
+	 * Test is_big_sky_enabled returns true when Big_Sky class exists and option defaults to '1'.
+	 */
+	public function test_is_big_sky_enabled_true_with_class_and_default_option() {
+		$this->simulate_big_sky_class();
+		// Remove the option so get_option falls back to the default '1'.
+		delete_option( 'big_sky_enable' );
+		$this->assertTrue( ImageStudio\is_big_sky_enabled() );
+	}
+
+	/**
+	 * Test is_big_sky_enabled returns true when Big_Sky class exists and option is '1'.
+	 */
+	public function test_is_big_sky_enabled_true_with_class_and_option_enabled() {
+		$this->simulate_big_sky_class();
+		update_option( 'big_sky_enable', '1' );
+		$this->assertTrue( ImageStudio\is_big_sky_enabled() );
+	}
+
+	/**
+	 * Test is_big_sky_enabled returns false when Big_Sky class exists but option is empty string.
+	 */
+	public function test_is_big_sky_enabled_false_with_class_and_option_empty() {
+		$this->simulate_big_sky_class();
+		update_option( 'big_sky_enable', '' );
+		$this->assertFalse( ImageStudio\is_big_sky_enabled() );
+	}
+
+	/**
+	 * Test is_big_sky_enabled returns false when Big_Sky class exists but option is '0'.
+	 */
+	public function test_is_big_sky_enabled_false_with_class_and_option_zero() {
+		$this->simulate_big_sky_class();
+		update_option( 'big_sky_enable', '0' );
+		$this->assertFalse( ImageStudio\is_big_sky_enabled() );
+	}
+
+	// -------------------------------------------------------------------------
+	// is_image_studio_enabled() + Big Sky integration tests
+	// -------------------------------------------------------------------------
+
+	/**
+	 * Enabled via Big Sky when class exists, option enabled, and AI features available.
+	 */
+	public function test_is_enabled_via_big_sky() {
+		$this->simulate_big_sky_class();
+		update_option( 'big_sky_enable', '1' );
+		$this->assertTrue( ImageStudio\is_image_studio_enabled() );
+	}
+
+	/**
+	 * Not enabled via Big Sky when AI features are disabled.
+	 */
+	public function test_is_not_enabled_via_big_sky_without_ai_features() {
+		$this->simulate_big_sky_class();
+		update_option( 'big_sky_enable', '1' );
+		$this->disable_ai_features();
+		$this->assertFalse( ImageStudio\is_image_studio_enabled() );
+	}
+
+	/**
+	 * Not enabled via Big Sky when Big_Sky class exists but option is disabled.
+	 */
+	public function test_is_not_enabled_via_big_sky_when_option_disabled() {
+		$this->simulate_big_sky_class();
+		update_option( 'big_sky_enable', '' );
+		$this->assertFalse( ImageStudio\is_image_studio_enabled() );
+	}
+
+	/**
+	 * Enabled when Big Sky is active and another filter also enables it.
+	 */
+	public function test_is_enabled_via_big_sky_and_filter() {
+		$this->simulate_big_sky_class();
+		update_option( 'big_sky_enable', '1' );
+		$this->enable_image_studio();
+		$this->assertTrue( ImageStudio\is_image_studio_enabled() );
+	}
+
+	/**
+	 * Register plugin sets extension available via Big Sky.
+	 */
+	public function test_register_plugin_sets_available_via_big_sky() {
+		$this->simulate_big_sky_class();
+		update_option( 'big_sky_enable', '1' );
+		ImageStudio\register_plugin();
+		$this->assertTrue( \Jetpack_Gutenberg::is_available( ImageStudio\FEATURE_NAME ) );
+	}
+
+	/**
+	 * AI extensions disabled when Image Studio enabled via Big Sky.
+	 */
+	public function test_ai_extensions_disabled_when_enabled_via_big_sky() {
+		$this->simulate_big_sky_class();
+		update_option( 'big_sky_enable', '1' );
+		ImageStudio\register_plugin();
+		$this->make_ai_extensions_available();
+
+		ImageStudio\disable_jetpack_ai_image_extensions();
+
+		foreach ( self::get_ai_image_extensions() as $ext ) {
+			$this->assertFalse(
+				\Jetpack_Gutenberg::is_available( $ext ),
+				"Extension $ext should be unavailable when Image Studio is enabled via Big Sky."
+			);
+		}
 	}
 
 	// -------------------------------------------------------------------------
