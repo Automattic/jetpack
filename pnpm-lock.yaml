@@ -1912,6 +1912,9 @@ importers:
       '@wordpress/i18n':
         specifier: 6.13.0
         version: 6.13.0
+      '@wordpress/icons':
+        specifier: 11.7.0
+        version: 11.7.0(react@18.3.1)
       moment:
         specifier: 2.30.1
         version: 2.30.1
