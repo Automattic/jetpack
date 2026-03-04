@@ -74,7 +74,7 @@ const pieChartData: DataPointPercentage[] = [
 ];
 
 // Basic standalone legends
-export const Horizontal: Story = {
+export const Default: Story = {
 	render: args => {
 		// eslint-disable-next-line @typescript-eslint/no-unused-vars
 		const { themeName, accentColor, ...legendProps } = args;
@@ -170,6 +170,22 @@ const StandaloneLegendWithChartIdComponent = () => {
 
 export const StandaloneLegendWithChartId: Story = {
 	render: () => <StandaloneLegendWithChartIdComponent />,
+};
+
+const InteractiveLegendComponent = () => (
+	<LineChart
+		chartId="interactive-legend-demo"
+		data={ lineChartData }
+		showLegend={ true }
+		width={ 600 }
+		height={ 300 }
+		withGradientFill={ false }
+		withLegendGlyph={ false }
+		legendInteractive={ true }
+	/>
+);
+export const InteractiveLegend: Story = {
+	render: () => <InteractiveLegendComponent />,
 };
 
 // Story showing a real-world dashboard layout with centralized legends
