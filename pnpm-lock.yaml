@@ -3178,6 +3178,12 @@ importers:
       '@wordpress/notices':
         specifier: 5.40.0
         version: 5.40.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@wordpress/theme':
+        specifier: 0.7.0
+        version: 0.7.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@16.26.1)
+      '@wordpress/ui':
+        specifier: 0.7.0
+        version: 0.7.0(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@16.26.1)
       '@wordpress/url':
         specifier: 4.40.0
         version: 4.40.0

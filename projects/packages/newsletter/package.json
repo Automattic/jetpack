@@ -43,6 +43,8 @@
 		"@wordpress/element": "6.40.0",
 		"@wordpress/i18n": "6.13.0",
 		"@wordpress/notices": "5.40.0",
+		"@wordpress/theme": "0.7.0",
+		"@wordpress/ui": "0.7.0",
 		"@wordpress/url": "4.40.0",
 		"debug": "4.4.3"
 	},
