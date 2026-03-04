@@ -29,16 +29,44 @@ The Legend component displays chart legends with support for both standalone usa
 | `size`                | `(item: LegendItem) => string \| number` | `valueOrIdentityString` | Function that returns the size for each legend shape.                                                                                                                                      |
 | `labelFormat`         | `(item: unknown) => unknown`             | `valueOrIdentity`       | Function to format legend labels.                                                                                                                                                          |
 | `labelTransform`      | `(label: LegendItem) => LegendItem`      | `labelTransformFactory` | Function to transform legend label objects.                                                                                                                                                |
-| `shapeWidth`          | `number`                                 | `16`                    | Width of the legend shape in pixels.                                                                                                                                                       |
-| `shapeHeight`         | `number`                                 | `16`                    | Height of the legend shape in pixels.                                                                                                                                                      |
-| `shapeMargin`         | `string \| number`                       | `'2px 4px 2px 0'`       | Margin around the legend shape.                                                                                                                                                            |
-| `labelAlign`          | `string`                                 | `'left'`                | Text alignment within the label.                                                                                                                                                           |
-| `labelFlex`           | `string`                                 | `'0 0 auto'`            | CSS flex property for the label. Default uses natural width instead of expanding to fill space.                                                                                            |
-| `labelMargin`         | `string \| number`                       | `'0 4px'`               | Margin around the legend label.                                                                                                                                                            |
-| `itemMargin`          | `string \| number`                       | `'0'`                   | Margin around each legend item.                                                                                                                                                            |
-| `itemDirection`       | `'row' \| 'column'`                      | `'row'`                 | Flex direction for items within each legend entry.                                                                                                                                         |
-| `legendLabelProps`    | `object`                                 | -                       | Additional props to pass to the underlying LegendLabel component from visx.                                                                                                                |
+| `itemStyles`          | `LegendItemStyles`                       | see below               | CSS styles for each legend item. See `LegendItemStyles` type below.                                                                                                                        |
+| `labelStyles`         | `LegendLabelStyles`                      | see below               | CSS styles for legend labels. See `LegendLabelStyles` type below.                                                                                                                          |
+| `shapeStyles`         | `LegendShapeStyles`                      | see below               | Styles for legend shapes. See `LegendShapeStyles` type below.                                                                                                                              |
 | `interactive`         | `boolean`                                | `false`                 | Enable interactive legend items that can toggle series visibility. Requires `chartId` and `GlobalChartsProvider`.                                                                          |
+
+## Style Types
+
+### LegendItemStyles
+
+Styles applied to each legend item.
+
+```typescript
+type LegendItemStyles = {
+	margin?: string | number;        // Default: '0'
+	flexDirection?: 'row' | 'column'; // Default: 'row'
+};
+```
+
+### LegendLabelStyles
+
+Styles applied to legend labels. Uses standard CSS property names.
+
+```typescript
+type LegendLabelStyles = Pick< CSSProperties, 'justifyContent' | 'flex' | 'margin' >;
+// Defaults: { justifyContent: 'left', flex: '0 0 auto', margin: '0 4px' }
+```
+
+### LegendShapeStyles
+
+Styles for legend shapes (glyphs).
+
+```typescript
+type LegendShapeStyles = {
+	width?: number;                  // Default: 16
+	height?: number;                 // Default: 16
+	margin?: string | number;        // Default: '2px 4px 2px 0'
+};
+```
 
 ## BaseLegendItem Type
 

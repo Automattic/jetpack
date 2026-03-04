@@ -62,14 +62,13 @@ export interface LeaderboardChartProps
 	};
 
 	/**
-	 * Width of legend shapes in pixels
+	 * Styles for legend shapes (width, height, margin).
 	 */
-	legendShapeWidth?: number;
-
-	/**
-	 * Height of legend shapes in pixels
-	 */
-	legendShapeHeight?: number;
+	legendShapeStyles?: {
+		width?: number;
+		height?: number;
+		margin?: string | number;
+	};
 
 	/**
 	 * Custom labels for legend items

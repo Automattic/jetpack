@@ -170,8 +170,7 @@ describe( 'LeaderboardChart', () => {
 					withComparison={ true }
 					showLegend={ true }
 					legendShape="rect"
-					legendShapeWidth={ 10 }
-					legendShapeHeight={ 6 }
+					legendShapeStyles={ { width: 10, height: 6 } }
 				/>
 			);
 
@@ -220,7 +219,7 @@ describe( 'LeaderboardChart', () => {
 		it( 'renders LeaderboardChart.Legend as child component', () => {
 			render(
 				<LeaderboardChart data={ mockData } withComparison={ true }>
-					<LeaderboardChart.Legend data-testid="composition-legend-item" />
+					<LeaderboardChart.Legend />
 				</LeaderboardChart>
 			);
 
@@ -228,8 +227,8 @@ describe( 'LeaderboardChart', () => {
 			expect( screen.getByText( 'Direct' ) ).toBeInTheDocument();
 			expect( screen.getByText( 'Social Media' ) ).toBeInTheDocument();
 
-			// Composition legend should render - each legend item gets its own element
-			expect( screen.getAllByTestId( 'composition-legend-item' ) ).toHaveLength( 2 );
+			// Composition legend should render
+			expect( screen.getAllByTestId( 'legend-item' ) ).toHaveLength( 2 );
 			expect( screen.getByText( 'Current period' ) ).toBeInTheDocument();
 			expect( screen.getByText( 'Previous period' ) ).toBeInTheDocument();
 		} );
@@ -237,15 +236,12 @@ describe( 'LeaderboardChart', () => {
 		it( 'renders composition legend regardless of showLegend value', () => {
 			render(
 				<LeaderboardChart data={ mockData } withComparison={ true } showLegend={ false }>
-					<LeaderboardChart.Legend data-testid="composition-legend-item" />
+					<LeaderboardChart.Legend />
 				</LeaderboardChart>
 			);
 
-			// No built-in legend should be rendered when showLegend is false
-			expect( screen.queryByTestId( 'legend-item' ) ).not.toBeInTheDocument();
-
-			// Composition legend should still render regardless of showLegend value
-			expect( screen.getAllByTestId( 'composition-legend-item' ) ).toHaveLength( 2 );
+			// Composition legend should render regardless of showLegend value
+			expect( screen.getAllByTestId( 'legend-item' ) ).toHaveLength( 2 );
 			expect( screen.getByText( 'Current period' ) ).toBeInTheDocument();
 			expect( screen.getByText( 'Previous period' ) ).toBeInTheDocument();
 		} );
@@ -253,42 +249,29 @@ describe( 'LeaderboardChart', () => {
 		it( 'supports both built-in and composition legends simultaneously', () => {
 			render(
 				<LeaderboardChart data={ mockData } withComparison={ true } showLegend={ true }>
-					<LeaderboardChart.Legend data-testid="composition-legend-item" />
+					<LeaderboardChart.Legend />
 				</LeaderboardChart>
 			);
 
-			// Built-in legend should render (with legend-item test IDs)
-			expect( screen.getAllByTestId( 'legend-item' ) ).toHaveLength( 2 );
-
-			// Composition legend should also render
-			expect( screen.getAllByTestId( 'composition-legend-item' ) ).toHaveLength( 2 );
+			// Both built-in and composition legends should render (2 items each = 4 total)
+			expect( screen.getAllByTestId( 'legend-item' ) ).toHaveLength( 4 );
 
 			// Should have legend items from both legends
 			const currentPeriodItems = screen.getAllByText( 'Current period' );
 			const previousPeriodItems = screen.getAllByText( 'Previous period' );
-			expect( currentPeriodItems ).toHaveLength( 2 ); // One from each legend
-			expect( previousPeriodItems ).toHaveLength( 2 ); // One from each legend
+			expect( currentPeriodItems ).toHaveLength( 2 );
+			expect( previousPeriodItems ).toHaveLength( 2 );
 		} );
 
 		it( 'passes props correctly to composition legend', () => {
 			render(
 				<LeaderboardChart data={ mockData } withComparison={ true }>
-					<LeaderboardChart.Legend
-						data-testid="composition-legend-item"
-						shape="circle"
-						shapeWidth={ 12 }
-						shapeHeight={ 12 }
-						style={ { marginTop: '20px' } }
-					/>
+					<LeaderboardChart.Legend shape="circle" shapeStyles={ { width: 12, height: 12 } } />
 				</LeaderboardChart>
 			);
 
-			const legendItems = screen.getAllByTestId( 'composition-legend-item' );
+			const legendItems = screen.getAllByTestId( 'legend-item' );
 			expect( legendItems ).toHaveLength( 2 );
-			// Check that each legend item has the custom style applied
-			legendItems.forEach( item => {
-				expect( item ).toHaveStyle( { marginTop: '20px' } );
-			} );
 		} );
 
 		it( 'renders chart content when using composition API', () => {

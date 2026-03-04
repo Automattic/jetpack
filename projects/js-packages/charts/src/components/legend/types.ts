@@ -2,10 +2,39 @@ import { LegendOrdinal } from '@visx/legend';
 import type { GlyphProps, LineStyles } from '@visx/xychart';
 import type { ComponentProps, CSSProperties, ReactNode } from 'react';
 
-// See https://airbnb.io/visx/docs/legend#Ordinal for more details.
 type LegendOrdinalProps = Omit< ComponentProps< typeof LegendOrdinal >, 'scale' | 'direction' >;
 
-export type BaseLegendProps = Omit< LegendOrdinalProps, 'shapeStyle' > & {
+type OmittedStylingProps =
+	| 'shapeStyle'
+	| 'shapeWidth'
+	| 'shapeHeight'
+	| 'shapeMargin'
+	| 'labelAlign'
+	| 'labelFlex'
+	| 'labelMargin'
+	| 'itemMargin'
+	| 'itemDirection'
+	| 'legendLabelProps';
+
+export type LegendItemStyles = {
+	/** Margin around each legend item. */
+	margin?: string | number;
+	/** Flex direction for items within each legend entry. */
+	flexDirection?: 'row' | 'column';
+};
+
+export type LegendLabelStyles = Pick< CSSProperties, 'justifyContent' | 'flex' | 'margin' >;
+
+export type LegendShapeStyles = {
+	/** Width of the legend shape in pixels. */
+	width?: number;
+	/** Height of the legend shape in pixels. */
+	height?: number;
+	/** Margin around the legend shape. */
+	margin?: string | number;
+};
+
+export type BaseLegendProps = Omit< LegendOrdinalProps, OmittedStylingProps > & {
 	items: BaseLegendItem[];
 	orientation?: 'horizontal' | 'vertical';
 	/**
@@ -29,6 +58,12 @@ export type BaseLegendProps = Omit< LegendOrdinalProps, 'shapeStyle' > & {
 	 * This allows consumers to customize individual legend item styling.
 	 */
 	legendItemClassName?: string;
+	/** CSS styles for each legend item (margin, flexDirection). */
+	itemStyles?: LegendItemStyles;
+	/** CSS styles for legend labels (justifyContent, flex, margin). */
+	labelStyles?: LegendLabelStyles;
+	/** Styles for legend shapes (width, height, margin). */
+	shapeStyles?: LegendShapeStyles;
 	/**
 	 * Function for rendering a custom legend layout.
 	 */

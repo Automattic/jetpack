@@ -76,23 +76,28 @@ export const BaseLegend: ForwardRefExoticComponent<
 			size = valueOrIdentityString,
 			labelFormat = valueOrIdentity,
 			labelTransform = labelTransformFactory,
-			shapeWidth = 16,
-			shapeHeight = 16,
-			shapeMargin = '2px 4px 2px 0',
-			labelAlign = 'left',
-			labelFlex = '0 0 auto', // Use natural width instead of expanding to fill space
-			labelMargin = '0 4px',
-			itemMargin = '0',
-			itemDirection = 'row',
-			legendLabelProps,
+			itemStyles,
+			labelStyles,
+			shapeStyles,
 			legendItemClassName,
 			render,
 			interactive = false,
 			chartId,
-			...legendItemProps
 		},
 		ref
 	) => {
+		const { margin: itemMargin = '0', flexDirection: itemDirection = 'row' } = itemStyles ?? {};
+		const {
+			justifyContent: labelJustifyContent = 'left',
+			flex: labelFlex = '0 0 auto',
+			margin: labelMargin = '0 4px',
+		} = labelStyles ?? {};
+		const {
+			width: shapeWidth = 16,
+			height: shapeHeight = 16,
+			margin: shapeMargin = '2px 4px 2px 0',
+		} = shapeStyles ?? {};
+
 		const theme = useGlobalChartsTheme();
 		const context = useContext( GlobalChartsContext );
 
@@ -211,7 +216,6 @@ export const BaseLegend: ForwardRefExoticComponent<
 											? `${ label.text }: ${ visible ? 'visible' : 'hidden' }. Toggle visibility.`
 											: undefined
 									}
-									{ ...legendItemProps }
 								>
 									{ items[ i ]?.renderGlyph ? (
 										<svg
@@ -248,12 +252,11 @@ export const BaseLegend: ForwardRefExoticComponent<
 									<LegendLabel
 										className={ clsx( 'visx-legend-label', styles[ 'legend-item-label' ] ) }
 										style={ {
-											justifyContent: labelAlign,
+											justifyContent: labelJustifyContent,
 											flex: labelFlex,
 											margin: labelMargin,
 											...theme.legend?.labelStyles,
 										} }
-										{ ...legendLabelProps }
 									>
 										<LegendText
 											text={ label.text }
