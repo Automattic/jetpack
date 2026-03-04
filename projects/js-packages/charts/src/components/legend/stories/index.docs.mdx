@@ -229,6 +229,44 @@ By default, legends use rectangular shapes, but you can customize the glyph shap
 
 Available shapes: `'rect'` (default), `'circle'`, `'line'`
 
+### Theme Integration
+
+The legend's appearance can be customized globally through the `legend` property on the chart theme. This applies consistent styling to all legends rendered within a `GlobalChartsProvider`:
+
+<Source
+	language="tsx"
+	code={ `import { GlobalChartsProvider, LineChart } from '@automattic/charts';
+
+	<GlobalChartsProvider theme={ {
+		legend: {
+			// Styles applied to every legend label
+			labelStyles: {
+				color: '#1e3a5f',
+				fontWeight: 600,
+			},
+			// Styles applied to the legend container
+			containerStyles: {
+				gap: '12px',
+			},
+			// Per-index styles applied to legend shapes
+			shapeStyles: [
+				{ fill: '#3858E9', rx: 4 },
+				{ fill: '#80C8FF', rx: 4 },
+			],
+		},
+	} }>
+		<LineChart data={ data } />
+	</GlobalChartsProvider>` }
+/>
+
+#### Theme Legend Properties
+
+| Property | Type | Description |
+| --- | --- | --- |
+| `legend.labelStyles` | `CSSProperties` | CSS styles spread onto every legend label element. |
+| `legend.containerStyles` | `CSSProperties` | CSS styles spread onto the legend container element. |
+| `legend.shapeStyles` | `Record<string, unknown>[]` | Per-index styles applied to legend shape glyphs. Used as a fallback when series data does not provide its own `legendShapeStyle`. |
+
 ## Advanced Usage
 
 ### Custom Rendering with Render Prop

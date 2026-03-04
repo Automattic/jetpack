@@ -210,14 +210,17 @@ export type ChartTheme = {
 	xAxisLineStyles?: LineStyles;
 	/** Styles for series lines */
 	seriesLineStyles?: LineStyles[];
-	/** Styles for legend shapes */
-	legendShapeStyles?: Record< string, unknown >[];
 	/** Array of render functions for glyphs */
 	glyphs?: Array< < Datum extends object >( props: GlyphProps< Datum > ) => ReactNode >;
-	/** Styles for legend labels */
-	legendLabelStyles?: CSSProperties;
-	/** Styles for legend container */
-	legendContainerStyles?: CSSProperties;
+	/** Legend specific settings */
+	legend?: {
+		/** Styles for legend shapes */
+		shapeStyles?: Record< string, unknown >[];
+		/** Styles for legend labels */
+		labelStyles?: CSSProperties;
+		/** Styles for legend container */
+		containerStyles?: CSSProperties;
+	};
 	/** Styles for small SVG text (eg. axis tick labels), passed through to the XYChart theme. */
 	svgLabelSmall?: TextProps;
 	annotationStyles?: AnnotationStyles;
@@ -287,6 +290,7 @@ export type CompleteChartTheme = Required< ChartTheme > & {
 	lineChart: {
 		lineStyles: Record< NonNullable< SeriesDataOptions[ 'type' ] >, LineStyles >;
 	};
+	legend: Required< NonNullable< ChartTheme[ 'legend' ] > >;
 	sparkline: Required< NonNullable< ChartTheme[ 'sparkline' ] > > & {
 		margin: Required< NonNullable< ChartTheme[ 'sparkline' ] >[ 'margin' ] >;
 	};
