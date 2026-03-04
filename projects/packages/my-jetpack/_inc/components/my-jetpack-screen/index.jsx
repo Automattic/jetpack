@@ -184,6 +184,7 @@ export default function MyJetpackScreen() {
 			optionalMenuItems={ isDevVersion && userIsAdmin ? [ resetOptionsMenuItem ] : [] }
 			useInternalLinks={ shouldUseInternalLinks() }
 			className={ styles[ 'my-jetpack-screen' ] }
+			showBottomBorder={ false }
 		>
 			<h1 className="screen-reader-text">{ __( 'My Jetpack', 'jetpack-my-jetpack' ) }</h1>
 
