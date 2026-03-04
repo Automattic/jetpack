@@ -1,4 +1,4 @@
-import { useBlockEditingMode } from '@wordpress/block-editor';
+import { useBlockEditingMode, useBlockProps, useInnerBlocksProps } from '@wordpress/block-editor';
 import { Disabled, Notice } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { navigateToForm } from '../util/navigate-to-form.ts';
@@ -12,8 +12,8 @@ export default function WidgetEditorReadonlyView( {
 	formRef,
 	flushPendingSave,
 }: {
-	blockProps: Record< string, unknown >;
-	innerBlocksProps: Record< string, unknown >;
+	blockProps: ReturnType< typeof useBlockProps >;
+	innerBlocksProps: ReturnType< typeof useInnerBlocksProps >;
 	isResolvingSyncedForm: boolean;
 	formRef: number;
 	flushPendingSave: () => void;
