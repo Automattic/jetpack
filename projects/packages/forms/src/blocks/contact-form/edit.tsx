@@ -465,7 +465,9 @@ function JetpackContactFormEdit( {
 			const submitButtonIndex = currentInnerBlocks.findIndex(
 				block =>
 					( block.name === 'core/button' || block.name === 'jetpack/button' ) &&
-					( block.attributes?.customVariant === 'submit' || block.attributes?.element === 'button' )
+					( block.attributes?.customVariant === 'submit' ||
+						block.attributes?.element === 'button' ||
+						block.attributes?.tagName === 'button' )
 			);
 
 			// If there's a submit button and it's not the last block, reorder
