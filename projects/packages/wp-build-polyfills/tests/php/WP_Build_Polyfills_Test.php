@@ -125,7 +125,7 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 		if ( PHP_VERSION_ID < 80100 ) {
 			$method->setAccessible( true );
 		}
-		$method->invoke( null, $scripts, $this->build_dir, __FILE__ );
+		$method->invoke( null, $scripts, $this->build_dir, __FILE__, '7.0' );
 	}
 
 	/**
