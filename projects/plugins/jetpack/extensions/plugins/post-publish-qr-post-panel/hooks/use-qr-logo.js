@@ -14,7 +14,7 @@ import { applyFilters } from '@wordpress/hooks';
  */
 export default function useQRLogo( { generateDataUrl = false } = {} ) {
 	const [ dataUrl, setDataUrl ] = useState();
-	const { id, mediaItemData, source } = useSelect( select => {
+	const { id, mediaItemData } = useSelect( select => {
 		const { canUser, getEntityRecord, getEditedEntityRecord } = select( coreStore );
 		const siteSettings = getEditedEntityRecord( 'root', 'site' );
 		const siteData = getEntityRecord( 'root', '__unstableBase' );
@@ -32,7 +32,6 @@ export default function useQRLogo( { generateDataUrl = false } = {} ) {
 
 		// Use site icon if available, otherwise fall back to site logo
 		const logoId = siteIconId || siteLogoId;
-		const logoSource = siteIconId ? 'site_icon' : 'site_logo';
 
 		const mediaItem =
 			logoId &&
@@ -47,7 +46,6 @@ export default function useQRLogo( { generateDataUrl = false } = {} ) {
 				url: mediaItem.source_url,
 				alt: mediaItem.alt_text,
 			},
-			source: logoSource,
 		};
 	}, [] );
 
@@ -56,7 +54,7 @@ export default function useQRLogo( { generateDataUrl = false } = {} ) {
 	}
 
 	if ( ! generateDataUrl ) {
-		return { id, ...mediaItemData, source };
+		return { id, ...mediaItemData };
 	}
 
 	const image = new Image();
@@ -110,5 +108,5 @@ export default function useQRLogo( { generateDataUrl = false } = {} ) {
 
 	image.src = mediaItemData.url;
 
-	return { id, ...mediaItemData, dataUrl, source };
+	return { id, ...mediaItemData, dataUrl };
 }
