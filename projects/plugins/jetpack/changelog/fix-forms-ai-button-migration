@@ -1,4 +1,4 @@
 Significance: patch
-Type: fixed
+Type: bugfix
 
 Update AI form assistant to detect and create core/button blocks instead of jetpack/button.
