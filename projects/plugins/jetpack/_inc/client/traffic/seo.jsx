@@ -50,12 +50,20 @@ export const conflictingSeoPluginsList = [
 		slug: 'wp-seopress-pro/seopress-pro.php',
 	},
 	{
+		name: 'Rank Math',
+		slug: 'seo-by-rank-math/rank-math.php',
+	},
+	{
 		name: 'SEOKEY',
 		slug: 'seo-key/seo-key.php',
 	},
 	{
 		name: 'SEOKEY Pro',
 		slug: 'seo-key-pro/seo-key.php',
+	},
+	{
+		name: 'Slim SEO',
+		slug: 'slim-seo/slim-seo.php',
 	},
 	{
 		name: 'The SEO Framework',
