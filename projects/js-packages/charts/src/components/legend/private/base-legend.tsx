@@ -86,7 +86,7 @@ export const BaseLegend: ForwardRefExoticComponent<
 	) => {
 		const { margin: itemMargin = '0', flexDirection: itemDirection = 'row' } = itemStyles ?? {};
 		const {
-			justifyContent: labelJustifyContent = 'left',
+			justifyContent: labelJustifyContent = 'flex-start',
 			flex: labelFlex = '0 0 auto',
 			margin: labelMargin = '0 4px',
 			maxWidth,
