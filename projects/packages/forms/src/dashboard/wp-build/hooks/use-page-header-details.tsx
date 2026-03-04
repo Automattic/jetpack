@@ -23,6 +23,7 @@ import EmptyTrashButton from '../../components/empty-trash-button';
 import EmptyTrashConfirmationModal from '../../components/empty-trash-button/confirmation-modal';
 import ExportResponsesButton from '../../components/export-responses/button';
 import ExportResponsesModal from '../../components/export-responses/modal';
+import { getFormStatusLabel } from '../../constants';
 import useCreateForm from '../../hooks/use-create-form';
 import useEmptySpam from '../../hooks/use-empty-spam';
 import useEmptyTrash from '../../hooks/use-empty-trash';
@@ -123,22 +124,7 @@ export default function usePageHeaderDetails(
 
 	const formStatus = formRecord?.status;
 
-	const statusLabel = useMemo( () => {
-		switch ( formStatus ) {
-			case 'publish':
-				return __( 'Published', 'jetpack-forms' );
-			case 'draft':
-				return __( 'Draft', 'jetpack-forms' );
-			case 'pending':
-				return __( 'Pending review', 'jetpack-forms' );
-			case 'future':
-				return __( 'Scheduled', 'jetpack-forms' );
-			case 'private':
-				return __( 'Private', 'jetpack-forms' );
-			default:
-				return formStatus;
-		}
-	}, [ formStatus ] );
+	const statusLabel = formStatus ? getFormStatusLabel( formStatus ) : undefined;
 
 	const badges = useMemo( () => {
 		if ( ! isSingleFormScreen || ! formStatus || formStatus === 'publish' ) {
