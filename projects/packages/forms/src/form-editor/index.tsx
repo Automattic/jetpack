@@ -297,6 +297,7 @@ const enforceBlockNesting = () => {
 		// Form was empty, add a submit button after the moved blocks
 		const submitButton = createBlock( 'core/button', {
 			tagName: 'button',
+			type: 'submit',
 			text: __( 'Submit', 'jetpack-forms' ),
 			lock: { move: false, remove: true },
 		} );
