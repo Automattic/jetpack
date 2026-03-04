@@ -1,9 +1,11 @@
 import restApi from '@automattic/jetpack-api';
+import { getMyJetpackUrl } from '@automattic/jetpack-script-data';
 import { Page } from '@wordpress/admin-ui';
 import '@wordpress/admin-ui/build-style/style.css';
 import {
 	__experimentalHeading as Heading, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+	Tooltip,
 } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
@@ -81,7 +83,13 @@ const AdminPage: FC< AdminPageProps > = ( {
 	// here and pass the plain HStack with a string child.
 	const composedTitle = title ? (
 		<HStack spacing={ 2 } justify="left">
-			{ logo || <JetpackLogo showText={ false } height={ 20 } /> }
+			{ logo || (
+				<Tooltip text={ __( 'My Jetpack', 'jetpack-components' ) }>
+					<a href={ getMyJetpackUrl() }>
+						<JetpackLogo showText={ false } height={ 20 } />
+					</a>
+				</Tooltip>
+			) }
 			<Heading as="h2" level={ 3 } weight={ 500 } truncate>
 				{ title }
 			</Heading>
