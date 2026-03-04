@@ -99,6 +99,7 @@ export async function tokenBridgeHandler(
 	const { source: tokenRequester } = event;
 	// Check the source of the message
 	if (
+		! tokenRequester ||
 		tokenRequester instanceof MessagePort ||
 		( typeof ServiceWorker !== 'undefined' && tokenRequester instanceof ServiceWorker )
 	) {

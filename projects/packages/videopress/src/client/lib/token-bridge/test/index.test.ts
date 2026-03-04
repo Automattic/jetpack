@@ -122,15 +122,22 @@ describe( 'tokenBridgeHandler', () => {
 	it( 'accepts messages from video.wordpress.com', async () => {
 		mockGetMediaToken.mockResolvedValue( { token: 'jwt-token' } );
 		const source = { postMessage: jest.fn() };
+		const origin = 'https://video.wordpress.com';
 		const event = createMessageEvent( {
 			data: validData,
-			origin: 'https://video.wordpress.com',
+			origin,
 			source,
 		} );
 
 		await tokenBridgeHandler( event );
 
-		expect( source.postMessage ).toHaveBeenCalled();
+		// Ack + token delivery = 2 calls.
+		expect( source.postMessage ).toHaveBeenCalledTimes( 2 );
+		expect( source.postMessage.mock.calls[ 1 ][ 0 ] ).toMatchObject( {
+			event: 'videopress_token_received',
+			jwt: 'jwt-token',
+		} );
+		expect( source.postMessage.mock.calls[ 1 ][ 1 ] ).toEqual( { targetOrigin: origin } );
 	} );
 
 	it( 'sends ack with validated origin, not wildcard', async () => {
@@ -268,6 +275,17 @@ describe( 'tokenBridgeHandler', () => {
 			'playback',
 			expect.objectContaining( { subscriptionPlanId: 999 } )
 		);
+	} );
+
+	it( 'does not crash when event.source is null', async () => {
+		const event = createMessageEvent( {
+			data: validData,
+			source: null,
+		} );
+
+		await tokenBridgeHandler( event );
+
+		expect( mockGetMediaToken ).not.toHaveBeenCalled();
 	} );
 
 	it( 'rejects messages whose source is a MessagePort', async () => {
