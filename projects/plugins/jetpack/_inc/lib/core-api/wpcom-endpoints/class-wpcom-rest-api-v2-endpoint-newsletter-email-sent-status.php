@@ -3,8 +3,8 @@
  * REST API endpoint for post-level newsletter email-sent state.
  *
  * On Jetpack sites, registers the route and proxies requests to WordPress.com.
- * On WordPress.com Simple sites, the a8c-sandbox rest-api-plugins endpoint
- * handles this natively—this file does nothing there.
+ * On WordPress.com Simple sites (when required via jetpack-endpoints), handles
+ * the request locally by reading WPCom-only post meta.
  *
  * GET /wpcom/v2/newsletter-email-sent-status?post_id=<id>
  *
@@ -16,11 +16,6 @@ use Automattic\Jetpack\Status\Host;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
-}
-
-// Simple sites: a8c-sandbox rest-api-plugins handles this. No need to register.
-if ( ( new Host() )->is_wpcom_simple() ) {
-	return;
 }
 
 /**
@@ -53,7 +48,7 @@ class WPCOM_REST_API_V2_Endpoint_Newsletter_Email_Sent_Status extends WP_REST_Co
 			array(
 				'show_in_index'       => true,
 				'methods'             => 'GET',
-				'callback'            => array( $this, 'proxy_request_to_wpcom_as_user' ),
+				'callback'            => ( ( new Host() )->is_wpcom_simple() ) ? array( $this, 'get_email_sent_status' ) : array( $this, 'proxy_request_to_wpcom_as_user' ),
 				'permission_callback' => array( $this, 'permission_check' ),
 				'args'                => array(
 					'post_id' => array(
@@ -65,6 +60,50 @@ class WPCOM_REST_API_V2_Endpoint_Newsletter_Email_Sent_Status extends WP_REST_Co
 						},
 					),
 				),
+			)
+		);
+	}
+
+	/**
+	 * Get email-sent state for a post (WPCom-only meta).
+	 *
+	 * @param WP_REST_Request $request Request object with post_id.
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public function get_email_sent_status( $request ) {
+		$post_id = $request->get_param( 'post_id' );
+
+		$post = get_post( $post_id );
+		if ( ! $post || $post->post_type !== 'post' ) {
+			return new WP_Error(
+				'post_not_found',
+				__( 'Post not found.', 'jetpack' ),
+				array( 'status' => 404 )
+			);
+		}
+
+		$email_notification = get_post_meta( $post_id, 'email_notification', true );
+		$email_sent_at      = null;
+		if ( ! empty( $email_notification ) && is_numeric( $email_notification ) ) {
+			$email_sent_at = (int) $email_notification;
+		}
+
+		$stats_meta    = get_post_meta( $post_id, '_wpcom_newsletter_stats_on_email_send', true );
+		$stats_on_send = null;
+		if ( ! empty( $stats_meta ) && is_array( $stats_meta ) && isset( $stats_meta[0] ) ) {
+			$first         = $stats_meta[0];
+			$stats_on_send = array(
+				'access_level'              => isset( $first['access_level'] ) ? $first['access_level'] : null,
+				'post_categories'           => isset( $first['post_categories'] ) && is_array( $first['post_categories'] ) ? $first['post_categories'] : array(),
+				'has_newsletter_categories' => ! empty( $first['has_newsletter_categories'] ),
+				'timestamp'                 => isset( $first['timestamp'] ) ? $first['timestamp'] : null,
+			);
+		}
+
+		return rest_ensure_response(
+			array(
+				'email_sent_at' => $email_sent_at,
+				'stats_on_send' => $stats_on_send,
 			)
 		);
 	}
