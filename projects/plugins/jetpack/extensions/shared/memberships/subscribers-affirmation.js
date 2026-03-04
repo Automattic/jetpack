@@ -2,7 +2,7 @@ import { getAdminUrl } from '@automattic/jetpack-script-data';
 import { isComingSoon } from '@automattic/jetpack-shared-extension-utils';
 import { Animate } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
-import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
+import { dateI18n, getSettings as getDateSettings, getDate } from '@wordpress/date';
 import { store as editorStore } from '@wordpress/editor';
 import { createInterpolateElement } from '@wordpress/element';
 import { sprintf, __, _n } from '@wordpress/i18n';
@@ -180,7 +180,7 @@ function formatSentDate( emailSentAt, statsTimestamp ) {
 	if ( emailSentAt ) {
 		date = new Date( emailSentAt * 1000 );
 	} else if ( statsTimestamp ) {
-		date = new Date( statsTimestamp );
+		date = getDate( statsTimestamp );
 	}
 	if ( ! date || isNaN( date.getTime() ) ) {
 		return '';
