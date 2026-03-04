@@ -74,7 +74,7 @@ const pieChartData: DataPointPercentage[] = [
 ];
 
 // Basic standalone legends
-export const Horizontal: Story = {
+export const Default: Story = {
 	render: args => {
 		// eslint-disable-next-line @typescript-eslint/no-unused-vars
 		const { themeName, accentColor, ...legendProps } = args;
@@ -86,7 +86,6 @@ export const Horizontal: Story = {
 			{ label: 'Desktop', value: '65%', color: '#3858E9' },
 			{ label: 'Mobile', value: '35%', color: '#80C8FF' },
 		],
-		orientation: 'horizontal',
 	},
 };
 
@@ -172,6 +171,22 @@ export const StandaloneLegendWithChartId: Story = {
 	render: () => <StandaloneLegendWithChartIdComponent />,
 };
 
+const InteractiveLegendComponent = () => (
+	<LineChart
+		chartId="interactive-legend-demo"
+		data={ lineChartData }
+		showLegend={ true }
+		width={ 600 }
+		height={ 300 }
+		withGradientFill={ false }
+		withLegendGlyph={ false }
+		legendInteractive={ true }
+	/>
+);
+export const InteractiveLegend: Story = {
+	render: () => <InteractiveLegendComponent />,
+};
+
 // Story showing a real-world dashboard layout with centralized legends
 const DashboardWithCentralizedLegend = () => {
 	return (
@@ -193,28 +208,49 @@ const DashboardWithCentralizedLegend = () => {
 						chartId="dashboard-revenue"
 						data={ lineChartData }
 						showLegend={ false }
-						width={ 600 }
-						height={ 200 }
+						height={ 300 }
 						withGradientFill={ false }
 						withLegendGlyph={ false }
 					/>
 				</div>
 
-				<div style={ { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' } }>
-					<div style={ { backgroundColor: 'white', padding: '20px', borderRadius: '4px' } }>
+				<div
+					style={ {
+						display: 'grid',
+						gridTemplateColumns: '1fr 1fr',
+						gap: '20px',
+					} }
+				>
+					<div
+						style={ {
+							backgroundColor: 'white',
+							padding: '20px',
+							borderRadius: '4px',
+						} }
+					>
 						<h3 style={ { margin: '0 0 20px 0' } }>Sales by Quarter</h3>
 						<BarChart
 							chartId="dashboard-sales"
 							data={ barChartData }
 							showLegend={ false }
-							width={ 280 }
-							height={ 200 }
+							height={ 300 }
 						/>
 					</div>
 
-					<div style={ { backgroundColor: 'white', padding: '20px', borderRadius: '4px' } }>
+					<div
+						style={ {
+							backgroundColor: 'white',
+							padding: '20px',
+							borderRadius: '4px',
+						} }
+					>
 						<h3 style={ { margin: '0 0 20px 0' } }>Device Distribution</h3>
-						<PieChart chartId="dashboard-devices" data={ pieChartData } showLegend={ false } />
+						<PieChart
+							chartId="dashboard-devices"
+							data={ pieChartData }
+							showLegend={ false }
+							height={ 300 }
+						/>
 					</div>
 				</div>
 			</div>
