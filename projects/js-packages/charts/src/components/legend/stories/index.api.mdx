@@ -19,8 +19,6 @@ The Legend component displays chart legends with support for both standalone usa
 | `orientation`         | `'horizontal' \| 'vertical'`             | `'horizontal'`          | Controls the layout direction of legend items.                                                                                                                                             |
 | `position`            | `'top' \| 'bottom'`                      | `'bottom'`              | Vertical position of the legend. Note: 'left' and 'right' positioning support planned for future implementation.                                                                           |
 | `alignment`           | `'start' \| 'center' \| 'end'`           | `'center'`              | Horizontal alignment of legend items within the legend container.                                                                                                                          |
-| `maxWidth`            | `string`                                 | -                       | Maximum width for legend items as a CSS value (e.g., '200px', '50%', '10rem'). When set, text overflow behavior is controlled by `textOverflow` prop.                                      |
-| `textOverflow`        | `'ellipsis' \| 'wrap'`                   | `'wrap'`                | Controls how text behaves when it exceeds maxWidth. 'ellipsis' truncates with ellipsis (ideal for widgets/small devices), 'wrap' wraps text to multiple lines (ideal for larger displays). |
 | `legendItemClassName` | `string`                                 | -                       | Additional CSS class name for legend items. Allows consumers to customize individual legend item styling.                                                                                  |
 | `render`              | `(items: BaseLegendItem[]) => ReactNode` | -                       | Function for rendering a custom legend layout. Receives the legend items array and returns custom JSX.                                                                                     |
 | `className`           | `string`                                 | -                       | Additional CSS class name for the legend container.                                                                                                                                        |
@@ -49,12 +47,18 @@ type LegendItemStyles = {
 
 ### LegendLabelStyles
 
-Styles applied to legend labels. Uses standard CSS property names.
+Styles and text overflow behavior for legend labels.
 
 ```typescript
-type LegendLabelStyles = Pick< CSSProperties, 'justifyContent' | 'flex' | 'margin' >;
-// Defaults: { justifyContent: 'left', flex: '0 0 auto', margin: '0 4px' }
+type LegendLabelStyles = Pick< CSSProperties, 'justifyContent' | 'flex' | 'margin' > & {
+	maxWidth?: string;                    // CSS value (e.g. '200px', '50%', '10rem')
+	textOverflow?: 'ellipsis' | 'wrap';   // Default: 'wrap'
+};
+// Other defaults: { justifyContent: 'left', flex: '0 0 auto', margin: '0 4px' }
 ```
+
+- **`maxWidth`**: Maximum width for legend label text. When set, text overflow behavior is controlled by `textOverflow`.
+- **`textOverflow`**: `'ellipsis'` truncates with ellipsis (ideal for widgets/small devices), `'wrap'` wraps text to multiple lines (default, ideal for larger displays).
 
 ### LegendShapeStyles
 

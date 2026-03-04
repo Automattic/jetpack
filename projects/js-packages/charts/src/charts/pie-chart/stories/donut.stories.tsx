@@ -227,8 +227,10 @@ export const WithCompositionLegend: Story = {
 				position={ args.legendPosition || 'bottom' }
 				orientation={ args.legendOrientation || 'horizontal' }
 				alignment={ args.legendAlignment || 'center' }
-				maxWidth={ args.legendMaxWidth }
-				textOverflow={ args.legendTextOverflow || 'wrap' }
+				labelStyles={ {
+					maxWidth: args.legendMaxWidth,
+					textOverflow: args.legendTextOverflow || 'wrap',
+				} }
 			/>
 		</PieChart>
 	),

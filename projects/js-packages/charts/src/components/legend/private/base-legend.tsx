@@ -69,8 +69,6 @@ export const BaseLegend: ForwardRefExoticComponent<
 			orientation = 'horizontal',
 			position = 'bottom',
 			alignment = 'center',
-			maxWidth,
-			textOverflow = 'wrap',
 			shape = 'rect',
 			fill = valueOrIdentityString,
 			size = valueOrIdentityString,
@@ -91,6 +89,8 @@ export const BaseLegend: ForwardRefExoticComponent<
 			justifyContent: labelJustifyContent = 'left',
 			flex: labelFlex = '0 0 auto',
 			margin: labelMargin = '0 4px',
+			maxWidth,
+			textOverflow = 'wrap',
 		} = labelStyles ?? {};
 		const {
 			width: shapeWidth = 16,

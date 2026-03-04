@@ -265,8 +265,10 @@ export const WithCompositionLegend: StoryObj< typeof BarChart > = {
 				orientation={ args.legendOrientation || 'horizontal' }
 				alignment={ args.legendAlignment || 'center' }
 				position={ args.legendPosition || 'bottom' }
-				maxWidth={ args.legendMaxWidth }
-				textOverflow={ args.legendTextOverflow || 'wrap' }
+				labelStyles={ {
+					maxWidth: args.legendMaxWidth,
+					textOverflow: args.legendTextOverflow || 'wrap',
+				} }
 			/>
 		</BarChart>
 	),
