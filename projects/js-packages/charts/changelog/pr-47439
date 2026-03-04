@@ -1,4 +1,4 @@
-Significance: major
+Significance: minor
 Type: changed
 
-Legend: Consolidate top-level legend theme properties (`legendShapeStyles`, `legendLabelStyles`, `legendContainerStyles`) into a nested `legend` object (`legend.shapeStyles`, `legend.labelStyles`, `legend.containerStyles`) in `ChartTheme`.
+Breaking: Legend theme properties (`legendShapeStyles`, `legendLabelStyles`, `legendContainerStyles`) are now nested under a `legend` object (`legend.shapeStyles`, `legend.labelStyles`, `legend.containerStyles`) in `ChartTheme`.

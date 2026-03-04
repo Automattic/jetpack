@@ -450,7 +450,7 @@ export type BaseChartProps< T = DataPoint | DataPointDate | LeaderboardEntry > =
 	legendItemClassName?: string;
 	/**
 	 * Enable interactive legend items that can toggle series visibility.
-	 * Supported for LineChart, PieChart, and PieSemiCircleChart.
+	 * Supported for all chart types that render series.
 	 * Requires chartId and GlobalChartsProvider.
 	 * For pie charts, percentages are recalculated so visible segments total 100%.
 	 */
