@@ -193,28 +193,49 @@ const DashboardWithCentralizedLegend = () => {
 						chartId="dashboard-revenue"
 						data={ lineChartData }
 						showLegend={ false }
-						width={ 600 }
-						height={ 200 }
+						height={ 300 }
 						withGradientFill={ false }
 						withLegendGlyph={ false }
 					/>
 				</div>
 
-				<div style={ { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' } }>
-					<div style={ { backgroundColor: 'white', padding: '20px', borderRadius: '4px' } }>
+				<div
+					style={ {
+						display: 'grid',
+						gridTemplateColumns: '1fr 1fr',
+						gap: '20px',
+					} }
+				>
+					<div
+						style={ {
+							backgroundColor: 'white',
+							padding: '20px',
+							borderRadius: '4px',
+						} }
+					>
 						<h3 style={ { margin: '0 0 20px 0' } }>Sales by Quarter</h3>
 						<BarChart
 							chartId="dashboard-sales"
 							data={ barChartData }
 							showLegend={ false }
-							width={ 280 }
-							height={ 200 }
+							height={ 300 }
 						/>
 					</div>
 
-					<div style={ { backgroundColor: 'white', padding: '20px', borderRadius: '4px' } }>
+					<div
+						style={ {
+							backgroundColor: 'white',
+							padding: '20px',
+							borderRadius: '4px',
+						} }
+					>
 						<h3 style={ { margin: '0 0 20px 0' } }>Device Distribution</h3>
-						<PieChart chartId="dashboard-devices" data={ pieChartData } showLegend={ false } />
+						<PieChart
+							chartId="dashboard-devices"
+							data={ pieChartData }
+							showLegend={ false }
+							height={ 300 }
+						/>
 					</div>
 				</div>
 			</div>
