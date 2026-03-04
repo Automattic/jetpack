@@ -546,6 +546,7 @@ function StageInner() {
 		breadcrumbs,
 		badges,
 		subtitle,
+		title,
 		actions: headerActions,
 	} = usePageHeaderDetails( {
 		screen: 'responses',
@@ -571,6 +572,7 @@ function StageInner() {
 			showSidebarToggle={ false }
 			breadcrumbs={ breadcrumbs }
 			badges={ badges }
+			title={ title }
 			subTitle={ subtitle }
 			actions={ headerActions }
 			hasPadding={ false }

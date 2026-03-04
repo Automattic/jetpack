@@ -508,6 +508,7 @@ function StageInner() {
 	}, [] );
 
 	const {
+		title,
 		breadcrumbs,
 		subtitle,
 		actions: headerActions,
@@ -531,6 +532,7 @@ function StageInner() {
 		<Page
 			showSidebarToggle={ false }
 			breadcrumbs={ breadcrumbs }
+			title={ title }
 			subTitle={ subtitle }
 			actions={ headerActions }
 			hasPadding={ false }
