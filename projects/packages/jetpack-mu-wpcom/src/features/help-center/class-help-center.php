@@ -646,7 +646,7 @@ class Help_Center {
 
 			$experiment_variation = null;
 			if ( function_exists( '\ExPlat\assign_maybe_anon_user' ) ) {
-				$experiment_variation = \ExPlat\assign_maybe_anon_user( 'wpcom_ai_on_logged_out_support_pages_v2' );
+				$experiment_variation = \ExPlat\assign_maybe_anon_user( 'wpcom_ai_on_logged_out_support_pages_v3' );
 			} else {
 				log2logstash(
 					array(
