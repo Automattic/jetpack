@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Cleaned up REST API endpoint schemas to use proper JSON Schema types and constraints.
