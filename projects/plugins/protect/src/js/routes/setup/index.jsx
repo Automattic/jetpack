@@ -4,6 +4,7 @@ import {
 	Col,
 	Container,
 } from '@automattic/jetpack-components';
+import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import ConnectedPricingTable from '../../components/pricing-table';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
@@ -22,7 +23,10 @@ const SetupRoute = () => {
 			subTitle={
 				<>
 					{ __( 'Automated malware scanning and firewall protection.', 'jetpack-protect' ) }{ ' ' }
-					<a href={ ACTIVATE_LICENSE_URL }>{ __( 'Activate your license', 'jetpack-protect' ) }</a>
+					{ createInterpolateElement(
+						__( 'Own a plan already? <a>Activate your license</a>', 'jetpack-protect' ),
+						{ a: <a href={ ACTIVATE_LICENSE_URL } /> }
+					) }
 				</>
 			}
 		>

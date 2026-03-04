@@ -1,4 +1,5 @@
 import { JetpackLogo } from '@automattic/jetpack-components';
+import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import styles from './header.module.scss';
@@ -54,7 +55,10 @@ const Header = ( { subPageTitle = '', showActivateLicense = true }: HeaderProps 
 					{ showActivateLicense && ! isWoaHosting() && (
 						<>
 							{ ' ' }
-							<a href={ activateLicenseUrl }>{ __( 'Activate your license', 'jetpack-boost' ) }</a>
+							{ createInterpolateElement(
+								__( 'Own a plan already? <a>Activate your license</a>', 'jetpack-boost' ),
+								{ a: <a href={ activateLicenseUrl } /> } // eslint-disable-line jsx-a11y/anchor-has-content
+							) }
 						</>
 					) }
 				</p>

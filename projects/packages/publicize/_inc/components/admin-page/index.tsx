@@ -16,7 +16,7 @@ import {
 } from '@automattic/jetpack-script-data';
 import { shouldUseInternalLinks } from '@automattic/jetpack-shared-extension-utils';
 import { useSelect } from '@wordpress/data';
-import { useState, useCallback } from '@wordpress/element';
+import { createInterpolateElement, useState, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { store as socialStore } from '../../social-store';
 import { features, getSocialScriptData, hasSocialPaidFeatures } from '../../utils';
@@ -86,9 +86,10 @@ export const SocialAdminPage = () => {
 			{ ! hasSocialPaidFeatures() && isJetpackSite && (
 				<>
 					{ ' ' }
-					<a href={ getMyJetpackUrl( '#/add-license' ) }>
-						{ __( 'Activate your license', 'jetpack-publicize-pkg' ) }
-					</a>
+					{ createInterpolateElement(
+						__( 'Own a plan already? <a>Activate your license</a>', 'jetpack-publicize-pkg' ),
+						{ a: <a href={ getMyJetpackUrl( '#/add-license' ) } /> }
+					) }
 				</>
 			) }
 		</>

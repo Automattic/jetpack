@@ -112,9 +112,10 @@ const Admin = () => {
 					{ showActivateLicenseLink && (
 						<>
 							{ ' ' }
-							<a href={ activateLicenseUrl }>
-								{ __( 'Activate your license', 'jetpack-backup-pkg' ) }
-							</a>
+							{ createInterpolateElement(
+								__( 'Own a plan already? <a>Activate your license</a>', 'jetpack-backup-pkg' ),
+								{ a: <a href={ activateLicenseUrl } /> }
+							) }
 						</>
 					) }
 				</>

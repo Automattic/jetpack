@@ -107,9 +107,10 @@ export default function UpsellPage( { isLoading = false } ) {
 							{ ! isWpcom && (
 								<>
 									{ ' ' }
-									<a href={ activateLicenseUrl }>
-										{ __( 'Activate your license', 'jetpack-search-pkg' ) }
-									</a>
+									{ createInterpolateElement(
+										__( 'Own a plan already? <a>Activate your license</a>', 'jetpack-search-pkg' ),
+										{ a: <a href={ activateLicenseUrl } /> }
+									) }
 								</>
 							) }
 						</>
