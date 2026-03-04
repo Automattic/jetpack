@@ -19,15 +19,14 @@ const RECONNECT_BASE_DELAY_MS = 1000;
 const RECONNECT_MAX_DELAY_MS = 30 * 1000;
 
 /**
- * How often to re-send sync_step1 while connected.
+ * Safety-net interval for re-sending sync_step1.
  *
- * PingHub is a fire-and-forget broadcast channel with no persistence.
- * Messages sent before a peer subscribes are permanently lost, and any
- * update dropped in transit causes silent divergence. The only way to
- * recover is to periodically re-announce our state vector so peers can
- * respond with whatever we're missing.
+ * The primary sync mechanism is the one-shot handshake triggered when we
+ * first see a peer's sync_step1.  This timer exists only as a fallback
+ * for edge cases where a message is silently lost between PingHub relay
+ * nodes.  30 seconds keeps overhead negligible.
  */
-const RESYNC_INTERVAL_MS = 5000;
+const RESYNC_INTERVAL_MS = 30 * 1000;
 
 // ── Module-level lifecycle management ──────────────────────────────────
 //
@@ -173,6 +172,7 @@ class PingHubProvider extends ObservableV2< PingHubEvents > {
 	private reconnectTimer: ReturnType< typeof setTimeout > | null = null;
 	private reconnectDelay = RECONNECT_BASE_DELAY_MS;
 	private resyncTimer: ReturnType< typeof setInterval > | null = null;
+	private syncRequestSent = false;
 
 	public constructor( {
 		awareness,
@@ -268,7 +268,10 @@ class PingHubProvider extends ObservableV2< PingHubEvents > {
 	};
 
 	private readonly send = ( u8: Uint8Array ): void => {
-		this.bridge.send( this.path, u8 );
+		const enc = encoding.createEncoder();
+		encoding.writeVarUint( enc, this.ydoc.clientID );
+		encoding.writeUint8Array( enc, u8 );
+		this.bridge.send( this.path, encoding.toUint8Array( enc ) );
 	};
 
 	private sendSyncStep1(): void {
@@ -299,11 +302,12 @@ class PingHubProvider extends ObservableV2< PingHubEvents > {
 			return;
 		}
 		this.connected = true;
+		this.syncRequestSent = false;
 		this.reconnectDelay = RECONNECT_BASE_DELAY_MS;
 		this.emitStatus( { status: 'connected' } );
 
 		this.sendSyncStep1();
-		this.startResyncTimer();
+		// this.startResyncTimer();
 
 		const changed: number[] = Array.from( this.awareness.getStates().keys() );
 		if ( changed.length ) {
@@ -317,10 +321,20 @@ class PingHubProvider extends ObservableV2< PingHubEvents > {
 		}
 
 		const dec = decoding.createDecoder( data );
+		const senderClientID = decoding.readVarUint( dec );
+
+		if ( senderClientID === this.ydoc.clientID ) {
+			return;
+		}
+
 		const msgType = decoding.readVarUint( dec );
 
 		switch ( msgType ) {
 			case MSG_SYNC: {
+				// Peek at the inner sync message type (single-byte varint for
+				// values 0-2) before readSyncMessage advances the decoder.
+				const innerType = dec.arr[ dec.pos ];
+
 				const enc = encoding.createEncoder();
 				encoding.writeVarUint( enc, MSG_SYNC );
 				syncProtocol.readSyncMessage( dec, enc, this.ydoc, 'pinghub-remote' );
@@ -328,6 +342,15 @@ class PingHubProvider extends ObservableV2< PingHubEvents > {
 				const reply = encoding.toUint8Array( enc );
 				if ( reply.length > 1 ) {
 					this.send( reply );
+				}
+
+				// On a pub/sub channel our initial sync_step1 (sent in
+				// onWsOpen) is lost if no peer is subscribed yet. When we
+				// see a peer's sync_step1 for the first time, also send
+				// ours so they can respond with their sync_step2.
+				if ( innerType === syncProtocol.messageYjsSyncStep1 && ! this.syncRequestSent ) {
+					this.syncRequestSent = true;
+					this.sendSyncStep1();
 				}
 				return;
 			}
