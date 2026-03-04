@@ -1,10 +1,5 @@
-import {
-	BoostScoreGraph,
-	Button,
-	Gridicon,
-	Popover,
-	Spinner,
-} from '@automattic/jetpack-components';
+import { BoostScoreGraph, Button, Gridicon, Popover } from '@automattic/jetpack-components';
+import { Spinner } from '@wordpress/components';
 import InterstitialModalCTA from '$features/upgrade-cta/interstitial-modal-cta';
 import { __ } from '@wordpress/i18n';
 import styles from './graph-component.module.scss';
@@ -42,7 +37,7 @@ const GraphComponent = ( {
 	if ( isLoading ) {
 		return (
 			<div className={ styles.dummy }>
-				<Spinner color="#000000" />
+				<Spinner />
 			</div>
 		);
 	}

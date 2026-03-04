@@ -1,8 +1,8 @@
+import { Spinner } from '@wordpress/components';
 import { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import Footer from 'components/footer';
-import LoadingPlaceholder from 'components/loading-placeholder';
 import Masthead from 'components/masthead';
 import { setInitialState } from 'state/initial-state';
 
@@ -19,7 +19,9 @@ class StaticMain extends Component {
 						<Masthead { ...this.props } />
 					</div>
 				</div>
-				<LoadingPlaceholder { ...this.props } />
+				<div className="jp-loading-placeholder">
+					<Spinner />
+				</div>
 				<Footer { ...this.props } />
 				<style type="text/css">{ '.vp-deactivated{ display: none; }' }</style>
 			</div>

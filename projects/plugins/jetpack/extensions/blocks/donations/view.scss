@@ -1,20 +1,8 @@
-@use "sass:math";
 @use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
 @use "common";
 @use "../../shared/memberships";
 
 .wp-block-jetpack-donations {
-
-	@keyframes spinner {
-
-		from {
-			transform: rotate(0deg);
-		}
-
-		to {
-			transform: rotate(360deg);
-		}
-	}
 
 	.donations__container:not(.loaded) {
 		width: 100%;
@@ -27,30 +15,15 @@
 
 		&::before {
 			content: "";
-			background-color: gb.$gray-600;
-			width: gb.$spinner-size;
-			height: gb.$spinner-size;
-			opacity: 0.7;
-			border-radius: 100%;
+			width: 28px;
+			height: 28px;
 			position: absolute;
 			top: 50%;
 			inset-inline-start: 50%;
 			transform: translate(-50%, -50%);
-		}
-
-		&::after {
-			content: "";
-			background-color: gb.$white;
-			width: math.div(gb.$spinner-size, 4.5);
-			height: math.div(gb.$spinner-size, 4.5);
-			border-radius: 100%;
-			position: absolute;
-			top: 50%;
-			inset-inline-start: 50%;
-			margin-inline-start: math.div(-(gb.$spinner-size), 3);
-			margin-top: math.div(-(gb.$spinner-size), 3);
-			transform-origin: math.div(gb.$spinner-size, 3) math.div(gb.$spinner-size, 3);
-			animation: spinner 1s infinite linear;
+			background-image: url("data:image/svg+xml,%3Csvg class='jetpack-spinner' width='24' height='24' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='50' cy='50' r='46' fill='none' stroke='%23ddd' stroke-width='8'/%3E%3Cpath d='M 50 4 A 46 46 0 0 1 96 50' fill='none' stroke='%23333' stroke-width='8' stroke-linecap='round'%3E%3CanimateTransform attributeName='transform' type='rotate' dur='1.4s' from='0 50 50' to='360 50 50' repeatCount='indefinite'/%3E%3C/path%3E%3C/svg%3E");
+			background-repeat: no-repeat;
+			background-size: contain;
 		}
 	}
 
