@@ -112,7 +112,8 @@ export class JetpackFormHandler extends BlockHandler {
 			 * - if it does not exist, create one (unless there's a navigation block).
 			 */
 			const isButtonBlock = ( block: ( typeof validBlocks )[ number ] ) =>
-				block.name === 'core/button' || block.name === 'jetpack/button';
+				block.name === 'jetpack/button' ||
+				( block.name === 'core/button' && block.attributes?.tagName === 'button' );
 
 			const allButtonBlocks = validBlocks.filter( isButtonBlock );
 			const hasNavigationBlock = validBlocks.some(

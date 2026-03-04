@@ -250,7 +250,9 @@ function JetpackContactFormEdit( {
 	);
 
 	const findButtonsBlock = useCallback(
-		block => block.name === 'core/button' || block.name === 'jetpack/button',
+		block =>
+			block.name === 'jetpack/button' ||
+			( block.name === 'core/button' && block.attributes?.tagName === 'button' ),
 		[]
 	);
 	const submitButton = useFindBlockRecursively( clientId, findButtonsBlock );
@@ -289,8 +291,9 @@ function JetpackContactFormEdit( {
 
 			const isSingleButtonBlock =
 				innerBlocksData.length === 1 &&
-				( innerBlocksData[ 0 ].name === 'core/button' ||
-					innerBlocksData[ 0 ].name === 'jetpack/button' );
+				( innerBlocksData[ 0 ].name === 'jetpack/button' ||
+					( innerBlocksData[ 0 ].name === 'core/button' &&
+						innerBlocksData[ 0 ].attributes?.tagName === 'button' ) );
 
 			const title = getEditedPostAttribute( 'title' );
 			const authorId = getEditedPostAttribute( 'author' );
@@ -643,7 +646,9 @@ function JetpackContactFormEdit( {
 		// Helper functions
 		const findButtonBlock = () => {
 			const buttonIndex = currentInnerBlocks.findIndex(
-				block => block.name === 'core/button' || block.name === 'jetpack/button'
+				block =>
+					block.name === 'jetpack/button' ||
+					( block.name === 'core/button' && block.attributes?.tagName === 'button' )
 			);
 			return buttonIndex !== -1
 				? {
