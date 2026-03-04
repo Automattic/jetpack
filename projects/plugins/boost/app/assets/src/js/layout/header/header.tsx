@@ -9,9 +9,10 @@ import { useNavigate } from 'react-router';
 
 type HeaderProps = {
 	subPageTitle?: string;
+	showActivateLicense?: boolean;
 };
 
-const Header = ( { subPageTitle = '' }: HeaderProps ) => {
+const Header = ( { subPageTitle = '', showActivateLicense = true }: HeaderProps ) => {
 	const navigate = useNavigate();
 	const activateLicenseUrl = 'admin.php?page=my-jetpack#/add-license';
 
@@ -50,7 +51,7 @@ const Header = ( { subPageTitle = '' }: HeaderProps ) => {
 			{ ! subPageTitle && (
 				<p className={ clsx( styles.subtitle ) }>
 					{ __( 'Optimize your site performance and loading speed.', 'jetpack-boost' ) }
-					{ ! isWoaHosting() && (
+					{ showActivateLicense && ! isWoaHosting() && (
 						<>
 							{ ' ' }
 							<a href={ activateLicenseUrl }>{ __( 'Activate your license', 'jetpack-boost' ) }</a>
