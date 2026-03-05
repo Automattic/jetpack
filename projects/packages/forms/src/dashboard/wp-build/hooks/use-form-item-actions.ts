@@ -18,7 +18,7 @@ import useDuplicateForm from './use-duplicate-form';
  */
 import type { FormListItem } from '../../hooks/use-forms-data.ts';
 
-type FormItem = Pick< FormListItem, 'id' > & Partial< Pick< FormListItem, 'title' > >;
+type FormItem = Pick< FormListItem, 'id' > & Partial< Pick< FormListItem, 'title' | 'status' > >;
 
 type UpdateStatusOptions = {
 	invalidateQueries?: Array< Record< string, unknown > >;
@@ -130,6 +130,8 @@ export default function useFormItemActions(): UseFormItemActionsReturn {
 			isUpdatingStatusRef.current = true;
 			setIsUpdatingStatus( true );
 			try {
+				// Capture each item's current status before updating so undo can restore it.
+				const previousStatuses = new Map( items.map( item => [ item.id, item.status ] ) );
 				const promises = await Promise.allSettled(
 					items.map( item =>
 						saveEntityRecord(
@@ -162,14 +164,52 @@ export default function useFormItemActions(): UseFormItemActionsReturn {
 									),
 									updatedCount
 							  );
-					const previousStatus = nextStatus === 'publish' ? 'draft' : 'publish';
+					const fallbackStatus = nextStatus === 'publish' ? 'draft' : 'publish';
 					createSuccessNotice( message, {
 						type: 'snackbar',
 						actions: [
 							{
 								label: __( 'Undo', 'jetpack-forms' ),
-								onClick: () => {
-									updateStatus( items, previousStatus, options );
+								onClick: async () => {
+									if ( isUpdatingStatusRef.current ) {
+										return;
+									}
+									isUpdatingStatusRef.current = true;
+									setIsUpdatingStatus( true );
+									try {
+										await Promise.allSettled(
+											items.map( item =>
+												saveEntityRecord(
+													'postType',
+													FORM_POST_TYPE,
+													{
+														id: item.id,
+														status: previousStatuses.get( item.id ) || fallbackStatus,
+													},
+													{ throwOnError: true }
+												)
+											)
+										);
+										items.forEach( item => {
+											invalidateResolution( 'getEntityRecord', [
+												'postType',
+												FORM_POST_TYPE,
+												item.id,
+											] );
+										} );
+										const undoQueries = options.invalidateQueries?.length
+											? options.invalidateQueries
+											: [
+													getFormsListQuery( 1, 20, '', NON_TRASH_FORM_STATUSES ) as Record<
+														string,
+														unknown
+													>,
+											  ];
+										undoQueries.forEach( invalidateListQuery );
+									} finally {
+										isUpdatingStatusRef.current = false;
+										setIsUpdatingStatus( false );
+									}
 								},
 							},
 						],
