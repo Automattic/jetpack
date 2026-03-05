@@ -78,7 +78,7 @@ addFilter( 'sync.providers', 'my-plugin/pinghub', ( providers ) => {
 } );
 ```
 
-The sync manager calls the provider creator for each entity being edited. Currently only `postType/post` entities with a non-null `objectId` get a PingHub channel; all other entity types receive a no-op provider.
+The sync manager calls the provider creator for each entity being edited. Currently only `postType/post` and `postType/page` entities with a non-null `objectId` get a PingHub channel; all other entity types receive a no-op provider.
 
 #### 3. Listen for connection status
 
@@ -129,7 +129,7 @@ await bridge.disconnect( path );
 
 When the editor loads, `gutenberg-rtc.ts` checks `window.wpcomGutenbergRTC.providers` for enabled providers. If `"pinghub"` is present, it creates a shared `PingHubIframeBridge` and registers a `ProviderCreator` via the `sync.providers` filter.
 
-Gutenberg's sync manager calls the provider creator for each entity being edited. Currently only `postType/post` entities with a non-null `objectId` get a PingHub channel; all other entity types (collections, patterns, etc.) receive a no-op provider.
+Gutenberg's sync manager calls the provider creator for each entity being edited. Currently only `postType/post` and `postType/page` entities with a non-null `objectId` get a PingHub channel; all other entity types (collections, patterns, etc.) receive a no-op provider.
 
 ### 2. Channel Path
 
@@ -145,17 +145,73 @@ The blog ID is resolved from WordPress globals (`_currentSiteId`, `wpcomGutenber
 
 ### 3. Iframe Bridge
 
-The bridge embeds a hidden iframe from the WordPress.com REST proxy (`https://public-api.wordpress.com/wp-admin/rest-proxy/`). All WebSocket traffic flows through this iframe via `postMessage`, which handles authentication via cookie-auth without exposing credentials to the parent page.
+#### Why an iframe?
 
-#### Iframe Communication
+PingHub is a WebSocket service on `public-api.wordpress.com`, and the user's auth cookies are scoped to that domain. The editor page runs on a different origin (e.g., `wordpress.com/post/...` or a custom site domain), so it **cannot directly open a WebSocket** to PingHub — the browser won't attach the cookies.
 
-| Direction | Format | Description |
-| --- | --- | --- |
-| Parent → Iframe | JSON `postMessage` | `{ type: 'pinghub-proxy', action: 'connect' \| 'disconnect' \| 'send', path, ... }` |
-| Iframe → Parent | `"ready"` string | Iframe initialized |
-| Iframe → Parent | JSON (array or object) | Proxy responses: open, close, message, error — identified by callback ID |
+The solution is the **REST proxy iframe pattern** already used elsewhere in WordPress.com:
 
-The bridge sends binary payloads as **base64-encoded strings** in the JSON `message` field. Incoming message data arrives as base64 strings (decoded to `Uint8Array`), `ArrayBuffer`, or `Blob`.
+```
+Editor page (origin A)              Hidden iframe (origin B = public-api.wordpress.com)
+┌──────────────────┐                ┌──────────────────────────┐
+│                  │  postMessage   │                          │
+│  PingHubIframe-  │ ─────────────→ | REST proxy page          │
+│  Bridge (JS)     │ ←───────────── | ● Has auth cookies       │
+│                  │  postMessage   │ ● Opens real WebSocket   │
+└──────────────────┘                └──────────────────────────┘
+```
+
+The iframe loads a page from `public-api.wordpress.com`, so the browser attaches the user's cookies. The iframe internally opens the real WebSocket to PingHub. The editor communicates with the iframe via `postMessage`, which works cross-origin by design.
+
+#### Iframe setup
+
+On construction, the bridge either reuses an existing REST-proxy iframe already in the DOM or creates a new hidden one (1×1 px, off-screen). When the proxy page inside the iframe loads, it posts `"ready"` back to the parent. The bridge queues any `connect`/`send` calls until this ready signal arrives.
+
+#### Connect flow
+
+```
+Editor (Bridge)                 Iframe (REST proxy)             PingHub server
+  │                                │                                │
+  │ postMessage({                  │                                │
+  │   action: 'connect',           │                                │
+  │   path: '/pinghub/…',          │                                │
+  │   callback: '1'                │                                │
+  │ })                             │                                │
+  │ ──────────────────────────────→│                                │
+  │                                │  WebSocket.open(path)          │
+  │                                │ ──────────────────────────────→│
+  │                                │                                │
+  │                                │  onopen                        │
+  │                                │ ←──────────────────────────────│
+  │  postMessage(                  │                                │
+  │    [{type:'open'}, 200, '1']   │                                │
+  │  )                             │                                │
+  │ ←──────────────────────────────│                                │
+  │                                │                                │
+  │  connect() Promise resolves    │                                │
+```
+
+The `callback` ID links each response back to the original request. The bridge maintains `callbackToPath` / `pathToCallback` maps to route incoming messages to the right path handlers.
+
+#### Message transport
+
+**Sending:** Provider calls `bridge.send(path, Uint8Array)` → bridge base64-encodes the bytes (because `postMessage` JSON can't carry binary) → posts `{ action: 'send', path, message: '<base64>' }` to iframe → iframe forwards over the real WebSocket.
+
+**Receiving:** PingHub pushes a message to the WebSocket inside the iframe → iframe posts it back as `[{type:'message', data:'<base64>'}, 200, callbackId]` → bridge decodes base64 to `Uint8Array` and invokes registered `onMessage` handlers for that path.
+
+#### Multiplexing
+
+One iframe serves **all** PingHub channels. Each channel is identified by its `path` string. The bridge maintains per-path handler sets (`openHandlers`, `closeHandlers`, `messageHandlers`), so multiple `PingHubProvider` instances (one per open post) share the same bridge and iframe, each listening on their own path.
+
+#### Edge cases
+
+| Scenario | How the bridge handles it |
+| --- | --- |
+| **Already connected** | If `connectedPaths` has the path, fires open handlers immediately without sending another connect |
+| **Duplicate connect in flight** | Subsequent `connect()` calls for the same path join the existing waiter list instead of opening a second socket |
+| **Already subscribed (444)** | Proxy returns status 444 — bridge treats it as a successful open |
+| **Non-base64 text frames** | Falls back to `textToBytes()` if base64 decode throws |
+| **Blob data** | Converts asynchronously via `blob.arrayBuffer()` |
 
 #### Chunking
 
