@@ -208,7 +208,7 @@ Changes to internal JavaScript/TypeScript component APIs, themes, or configurati
 These are consumed by developers building with Jetpack packages, not by site owners in wp-admin.
 
 ## WHEN IN DOUBT — DEFAULT TO NOT FLAGGING
-
+When a change is ambiguous or borderline, assume it does not require user-facing documentation and do not flag it.
 ## KEYWORD PATTERNS THAT USUALLY INDICATE NON-DOC-WORTHY CHANGES
 
 If the PR title or description contains these patterns, examine very carefully before flagging:
