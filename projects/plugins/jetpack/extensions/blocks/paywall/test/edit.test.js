@@ -134,7 +134,6 @@ describe( 'PaywallEdit', () => {
 		mockGetBlocks.mockReturnValue( [] ); // No paywall block
 
 		const { unmount } = render( <PaywallEdit /> );
-		mockSetAccess.mockClear();
 		unmount();
 
 		expect( mockSetAccess ).toHaveBeenCalledWith( accessOptions.everybody.key );
