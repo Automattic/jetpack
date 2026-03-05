@@ -359,6 +359,31 @@ class Dashboard {
 	}
 
 	/**
+	 * Returns true if there are any posts or pages containing a Jetpack form block or shortcode.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return boolean
+	 */
+	public function has_form_blocks() {
+		global $wpdb;
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+		$result = $wpdb->get_var(
+			"SELECT 1 FROM {$wpdb->posts}
+			WHERE post_status IN ('publish', 'draft', 'pending', 'future', 'private')
+			AND post_type IN ('post', 'page')
+			AND (
+				post_content LIKE '%<!-- wp:jetpack/contact-form%'
+				OR post_content LIKE '%[contact-form%'
+			)
+			LIMIT 1"
+		);
+
+		return (bool) $result;
+	}
+
+	/**
 	 * Returns url of forms admin page.
 	 *
 	 * @param string|null $tab Tab to open in the forms admin page.
