@@ -30,6 +30,13 @@ class Help_Center {
 	private $is_support_site = false;
 
 	/**
+	 * Whether the current site is a forum site.
+	 *
+	 * @var bool
+	 */
+	private $is_forum_site = false;
+
+	/**
 	 * The purchases of the current site.
 	 *
 	 * @var array
@@ -45,6 +52,7 @@ class Help_Center {
 		}
 
 		$blog_id               = get_current_blog_id();
+		$this->is_forum_site   = defined( 'WPCOM_FORUM_BLOG_IDS' ) && in_array( $blog_id, (array) WPCOM_FORUM_BLOG_IDS, true );
 		$this->is_support_site = ( defined( 'WPCOM_SUPPORT_BLOG_IDS' ) && in_array( $blog_id, (array) WPCOM_SUPPORT_BLOG_IDS, true ) ) || ( defined( 'WPCOM_FORUM_BLOG_IDS' ) && in_array( $blog_id, (array) WPCOM_FORUM_BLOG_IDS, true ) );
 
 		// Always register REST API endpoints.
@@ -289,7 +297,7 @@ class Help_Center {
 						'isProxied'        => boolval( self::is_proxied() ),
 						'isSU'             => defined( 'WPCOM_SUPPORT_SESSION' ) && WPCOM_SUPPORT_SESSION,
 						'isSSP'            => isset( $_COOKIE['ssp'] ),
-						'sectionName'      => $this->is_support_site ? 'wp.com/support' : $variant,
+						'sectionName'      => $this->is_forum_site ? 'wp.com/forums' : ( $this->is_support_site ? 'wp.com/support' : $variant ),
 						'isCommerceGarden' => $is_commerce_garden,
 						'currentUser'      => array(
 							'ID'           => $user_id,
