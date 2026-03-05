@@ -519,13 +519,13 @@ export default function usePageHeaderDetails(
 			const longMessage = __( 'View and manage all your forms in one place.', 'jetpack-forms' );
 
 			const shouldShowFormsHelpLink =
-				!! onOpenFormsHelp && ( typeof formsCount !== 'number' || formsCount < 5 );
+				!! onOpenFormsHelp && typeof formsCount === 'number' && formsCount > 0 && formsCount < 5;
 
 			return shouldShowFormsHelpLink ? (
 				<>
 					{ shortMessage }{ ' ' }
 					<Button variant="link" onClick={ onOpenFormsHelp }>
-						{ __( 'Missing forms?', 'jetpack-forms' ) }
+						{ __( 'Not seeing all your forms?', 'jetpack-forms' ) }
 					</Button>
 				</>
 			) : (

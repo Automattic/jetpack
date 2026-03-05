@@ -5,8 +5,6 @@ import { formatNumber } from '@automattic/number-formatters';
 import { Page } from '@wordpress/admin-ui';
 import {
 	__experimentalConfirmDialog as ConfirmDialog, // eslint-disable-line @wordpress/no-unsafe-wp-apis
-	Button,
-	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useDispatch, useSelect } from '@wordpress/data';
@@ -635,16 +633,11 @@ function StageInner() {
 								'jetpack-forms'
 							) }
 							actions={
-								<HStack justify="center" spacing="2">
-									<CreateFormButton
-										label={ __( 'Create a new form', 'jetpack-forms' ) }
-										variant="primary"
-										showIcon={ false }
-									/>
-									<Button size="compact" variant="secondary" onClick={ openFormsHelpModal }>
-										{ __( 'Missing forms?', 'jetpack-forms' ) }
-									</Button>
-								</HStack>
+								<CreateFormButton
+									label={ __( 'Create a new form', 'jetpack-forms' ) }
+									variant="primary"
+									showIcon={ false }
+								/>
 							}
 						/>
 					)
