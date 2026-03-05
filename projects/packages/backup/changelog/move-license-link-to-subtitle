@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Move license activation link into the header subtitle instead of the actions area.
+Replace license activation link with a "Use license key" button in the header actions area.
