@@ -28,8 +28,10 @@ module.exports = {
 			},
 		],
 	},
-	// Unignore uplot css for packages/components. Globally because the monorepo build recompiles in every consumer.
-	transformIgnorePatterns: [ '/node_modules/(?!.*uplot.*\\.css)' ],
+	// Unignore certain node_modules CSS so the asset-stub transform can handle them.
+	// - uplot: for packages/components
+	// - @wordpress/admin-ui: for the unified admin page header styles
+	transformIgnorePatterns: [ '/node_modules/(?!.*uplot.*\\.css|.*@wordpress/admin-ui/.*\\.css)' ],
 	moduleNameMapper: {
 		jetpackConfig: path.join( __dirname, 'jest-jetpack-config.js' ),
 	},

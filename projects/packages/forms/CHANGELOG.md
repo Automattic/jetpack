@@ -5,6 +5,44 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [7.11.0] - 2026-03-02
+### Added
+- Auto-create synced form when AI generates form fields with central form management enabled. [#47267]
+- Forms Dashboard: Display form status badge in the single form view header. [#47328]
+
+### Changed
+- Replace `Badge` component from `@automattic/ui` with `@wordpress/ui` `Badge`, fixing extra margin on badges in the forms dashboard. [#47377]
+- Use integer format for response count in dataviews. [#47381]
+- Update package dependencies. [#47294]
+- Use block type title instead of post title for synced form naming. [#47336]
+- Use `Tabs` component from `@wordpress/ui`. [#46985]
+
+### Fixed
+- Fix synced form loading state to correctly report loading during initial `IDLE` status. [#47327]
+- Fix MailPoet subscriber not created on form submission due to list ID type mismatch and email field not detected by type attribute. [#47394]
+- Create new form pages without a placeholder title. [#47383]
+- Multi-step Form: Fix navigation button styling to support granular CSS customization. [#47324]
+
+## [7.10.0] - 2026-02-26
+### Added
+- Add 'Other' option support for radio fields with custom text input, including ARIA accessibility, proper validation, and metadata storage for form submissions. [#46461]
+- Add print-friendly styles to form submission emails: hide decorative field icons, tighten spacing, and remove non-essential elements when printing. Minify email CSS to stay under Gmail's 8,192-character style block limit. [#47287]
+- Add View Responses button and More Actions dropdown to form editor header. [#47175]
+- Forms block: Add border styling support. [#47274]
+
+### Changed
+- Optimize CSS loading by moving status notice styles to separate file loaded only when needed. [#47273]
+- Revert https://github.com/Automattic/jetpack/pull/47097 - restore button border colors to previous state. [#47260]
+- Update package dependencies. [#47285] [#47295] [#47300]
+
+### Fixed
+- Fix "Other" option toggle not updating the option label in the editor. [#47316]
+- Fix duplicate title in plain text email by removing the preheader element before generating plain text alternative. [#47291]
+- Fix infinite loop in Name field block when initializing `fieldVariant` attribute. [#47266]
+- Button locator on `multi-step-navigation` was aiming at the wrong element (block parent container instead of button element). [#47286]
+- Fix unwanted border appearing in Gutenberg 22.6.0. [#47275]
+- Prevent decorative icons from being included when copy/pasting form response emails. [#47279]
+
 ## [7.9.0] - 2026-02-23
 ### Added
 - Dashboard: Add "Duplicate" action to the wp-build forms list. [#47171]
@@ -2253,6 +2291,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a new jetpack/forms package [#28409]
 - Added a public load_contact_form method for initializing the contact form module. [#28416]
 
+[7.11.0]: https://github.com/automattic/jetpack-forms/compare/v7.10.0...v7.11.0
+[7.10.0]: https://github.com/automattic/jetpack-forms/compare/v7.9.0...v7.10.0
 [7.9.0]: https://github.com/automattic/jetpack-forms/compare/v7.8.0...v7.9.0
 [7.8.0]: https://github.com/automattic/jetpack-forms/compare/v7.7.0...v7.8.0
 [7.7.0]: https://github.com/automattic/jetpack-forms/compare/v7.6.0...v7.7.0

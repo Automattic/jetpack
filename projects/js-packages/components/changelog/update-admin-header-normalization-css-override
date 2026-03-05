@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+AdminPage: override admin-ui header position so it's not sticky

@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-webpack-config",
-	"version": "3.7.25",
+	"version": "3.7.26",
 	"private": true,
 	"description": "Library of pieces for webpack config in Jetpack projects.",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/webpack-config/#readme",
@@ -51,6 +51,7 @@
 	"devDependencies": {
 		"@babel/core": "7.29.0",
 		"@babel/runtime": "7.28.6",
+		"@typescript/native-preview": "7.0.0-dev.20260225.1",
 		"typescript": "5.9.3",
 		"webpack": "5.105.2",
 		"webpack-cli": "6.0.1",

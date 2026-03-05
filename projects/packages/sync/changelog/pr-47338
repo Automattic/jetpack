@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+REST_Endpoints: Add use_memory_limit argument to the checkout endpoint, enabling memory-based queue checkout that skips item count validation.

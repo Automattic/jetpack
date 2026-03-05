@@ -48,8 +48,11 @@ export async function getAuthCookie(): Promise< string > {
 	expect( response.status ).toBe( 200 );
 
 	const cookies = response.headers[ 'set-cookie' ];
+	if ( ! cookies ) {
+		throw new Error( 'No set-cookie header found in response' );
+	}
 
-	return cookies.map( c => c.replace( ' HttpOnly', '' ) ).join( '; ' );
+	return cookies.map( ( c: string ) => c.replace( ' HttpOnly', '' ) ).join( '; ' );
 }
 
 /**
@@ -64,7 +67,7 @@ export async function authenticatedRequest(
 	authCookie: string,
 	method: Method,
 	url: string,
-	data: Record< string, string > = undefined
+	data: Record< string, string > | undefined = undefined
 ): Promise< string > {
 	const response = await axios( url, {
 		method,

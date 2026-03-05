@@ -3,6 +3,7 @@ import { getInput } from '@actions/core';
 import cleanName from '../../utils/clean-name.ts';
 import debug from '../../utils/debug.ts';
 import getFiles from '../../utils/get-files.ts';
+import getAvailableLabels from '../../utils/labels/get-available-labels.ts';
 import getLabels from '../../utils/labels/get-labels.ts';
 import type { OctokitClient, PullRequestEvent } from '../../types.ts';
 
@@ -290,7 +291,7 @@ async function getFileDerivedLabels(
 async function addLabels( payload: PullRequestEvent, octokit: OctokitClient ): Promise< void > {
 	const { number, repository, pull_request } = payload;
 	const { owner, name } = repository;
-	const { draft, title } = pull_request;
+	const { draft, title, head, base } = pull_request;
 
 	// GitHub allows 100 labels on a PR.
 	// Limit to less than that to allow a buffer for future manual labels.
@@ -323,6 +324,16 @@ async function addLabels( payload: PullRequestEvent, octokit: OctokitClient ): P
 	if ( labelsToAdd.length === 0 ) {
 		debug( 'add-labels: No new labels to add to that PR. Aborting.' );
 		return;
+	}
+
+	// For fork PRs, only add labels that already exist in the repo
+	// to avoid creating new labels from untrusted sources.
+	const isFork = head.repo?.full_name !== base.repo?.full_name;
+	if ( isFork ) {
+		debug( 'add-labels: PR is from a fork. Filtering to only existing repo labels.' );
+		const availableLabels = await getAvailableLabels( octokit, owner.login, name );
+		const availableLabelNames = new Set( availableLabels.map( label => label.name ) );
+		labelsToAdd = labelsToAdd.filter( label => availableLabelNames.has( label ) );
 	}
 
 	// Determine how many labels can safely be added.

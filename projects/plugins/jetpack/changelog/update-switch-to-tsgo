@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Switch to Native TypeScript compiler based on Go.

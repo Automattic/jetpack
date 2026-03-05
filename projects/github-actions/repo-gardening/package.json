@@ -16,7 +16,7 @@
 		"build": "ncc build src/index.ts -o dist --source-map --license licenses.txt -t",
 		"test": "NODE_OPTIONS=--experimental-vm-modules jest --config=tests/jest.config.cjs --verbose",
 		"test-coverage": "pnpm run test --coverage",
-		"typecheck": "tsc --noEmit"
+		"typecheck": "tsgo --noEmit"
 	},
 	"dependencies": {
 		"@actions/core": "3.0.0",
@@ -34,6 +34,7 @@
 		"@babel/preset-typescript": "7.28.5",
 		"@octokit/webhooks-types": "7.6.1",
 		"@types/node": "^22.19.11",
+		"@typescript/native-preview": "7.0.0-dev.20260225.1",
 		"@vercel/ncc": "0.36.1",
 		"babel-jest": "30.2.0",
 		"jest": "30.2.0",

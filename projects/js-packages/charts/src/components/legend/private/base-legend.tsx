@@ -176,7 +176,7 @@ export const BaseLegend: ForwardRefExoticComponent<
 						) }
 						style={ {
 							flexDirection: orientationToFlexDirection[ orientation ],
-							...theme.legendContainerStyles,
+							...theme.legend?.containerStyles,
 						} }
 					>
 						{ labels.map( ( label, i ) => {
@@ -251,7 +251,7 @@ export const BaseLegend: ForwardRefExoticComponent<
 											justifyContent: labelAlign,
 											flex: labelFlex,
 											margin: labelMargin,
-											...theme.legendLabelStyles,
+											...theme.legend?.labelStyles,
 										} }
 										{ ...legendLabelProps }
 									>

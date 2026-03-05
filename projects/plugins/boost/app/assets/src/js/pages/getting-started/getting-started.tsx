@@ -3,7 +3,6 @@ import { Snackbar } from '@wordpress/components';
 import { getUpgradeURL, useConnection } from '$lib/stores/connection';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import { BoostPricingTable } from '$features/boost-pricing-table/boost-pricing-table';
-import ActivateLicense from '$features/activate-license/activate-license';
 import Footer from '$layout/footer/footer';
 import Header from '$layout/header/header';
 import styles from './getting-started.module.scss';
@@ -83,9 +82,7 @@ const GettingStarted: FC = () => {
 
 	return (
 		<div id="jb-dashboard" className="jb-dashboard jb-dashboard--main">
-			<Header>
-				<ActivateLicense />
-			</Header>
+			<Header />
 
 			<div className="jb-section jb-section--alt">
 				<div className="jb-container">

@@ -2,8 +2,24 @@
  * External dependencies
  */
 import analytics from '@automattic/jetpack-analytics';
+import {
+	getAdminUrl,
+	getSiteData,
+	getSiteType,
+	isWpcomPlatformSite,
+} from '@automattic/jetpack-script-data';
 import { WpcomSupportLink } from '@automattic/jetpack-shared-extension-utils/components';
-import { Button, ExternalLink, Notice } from '@wordpress/components';
+import {
+	Button,
+	Card,
+	CardHeader,
+	CardBody,
+	CardFooter,
+	ExternalLink,
+	Notice,
+	__experimentalText as Text, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+	__experimentalHeading as Heading, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+} from '@wordpress/components';
 import { DataForm, type Field, useFormValidity } from '@wordpress/dataviews/wp';
 import { createInterpolateElement, useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -11,8 +27,7 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import { fetchCategories } from '../api';
-import { getSiteType } from '../utils';
-import type { NewsletterSettings, JetpackNewsletterSettings, WordPressCategory } from '../types';
+import type { NewsletterSettings, WordPressCategory } from '../types';
 
 interface NewsletterCategoriesSectionProps {
 	data: NewsletterSettings;
@@ -20,7 +35,6 @@ interface NewsletterCategoriesSectionProps {
 	onSave: () => void;
 	isSaving: boolean;
 	hasChanges: boolean;
-	jetpackSettings: JetpackNewsletterSettings | undefined;
 	isNewsletterEnabled: boolean;
 }
 
@@ -36,10 +50,9 @@ export function NewsletterCategoriesSection( {
 	onSave,
 	isSaving,
 	hasChanges,
-	jetpackSettings,
 	isNewsletterEnabled,
 }: NewsletterCategoriesSectionProps ): JSX.Element {
-	const siteType = getSiteType( jetpackSettings );
+	const siteType = getSiteType();
 	const [ categories, setCategories ] = useState< WordPressCategory[] >( [] );
 	const [ isFetchingCategories, setIsFetchingCategories ] = useState( true );
 	const [ categoriesError, setCategoriesError ] = useState< string | null >( null );
@@ -55,7 +68,7 @@ export function NewsletterCategoriesSection( {
 
 	// Fetch WordPress categories on mount
 	useEffect( () => {
-		fetchCategories( jetpackSettings )
+		fetchCategories()
 			.then( fetchedCategories => {
 				// Convert category IDs to strings
 				setCategories(
@@ -72,7 +85,7 @@ export function NewsletterCategoriesSection( {
 				);
 				setIsFetchingCategories( false );
 			} );
-	}, [ jetpackSettings ] );
+	}, [] );
 
 	// Define fields
 	const fields: Field< NewsletterSettings >[] = [
@@ -84,8 +97,9 @@ export function NewsletterCategoriesSection( {
 		},
 		{
 			id: 'wpcom_newsletter_categories',
-			label: __(
-				'Which categories will you use for newsletter subscribers? Select all that apply:',
+			label: __( 'Newsletter categories', 'jetpack-newsletter' ),
+			description: __(
+				'Which categories will you use for newsletter subscribers? Select all that apply.',
 				'jetpack-newsletter'
 			),
 			type: 'array' as const,
@@ -138,78 +152,81 @@ export function NewsletterCategoriesSection( {
 	const saveText = __( 'Save', 'jetpack-newsletter' );
 
 	// Build subscribe block documentation URL and component
-	const subscribeBlockUrl = jetpackSettings?.isWpcomPlatform
+	const isWpcom = isWpcomPlatformSite();
+	const subscribeBlockUrl = isWpcom
 		? 'https://wordpress.com/support/wordpress-editor/blocks/subscribe-block/'
 		: `https://jetpack.com/redirect/?source=jetpack-support-subscribe-block&site=${
-				jetpackSettings?.blogID || ''
+				getSiteData()?.wpcom?.blog_id || ''
 		  }`;
 
-	const SubscribeBlockLink = jetpackSettings?.isWpcomPlatform ? (
+	const SubscribeBlockLink = isWpcom ? (
 		<WpcomSupportLink supportLink={ subscribeBlockUrl } supportPostId={ 170164 } />
 	) : (
 		<ExternalLink href={ subscribeBlockUrl } children={ null } />
 	);
 
 	return (
-		<div className="newsletter-settings__section">
-			<h3 className="newsletter-settings__section-title">
-				{ __( 'Newsletter categories', 'jetpack-newsletter' ) }
-			</h3>
-			<p className="newsletter-settings__section-description">
-				{ createInterpolateElement(
-					__(
-						"Newsletter categories let you select the content that's emailed to subscribers. When enabled, only posts in the selected categories will be sent as newsletters. By default, subscribers can choose from your selected categories, or you can pre-select categories using the <link>subscribe block</link>. When you add a new category, your existing subscribers will be automatically subscribed to it.",
-						'jetpack-newsletter'
-					),
-					{
-						link: SubscribeBlockLink,
+		<Card>
+			<CardHeader>
+				<Heading level={ 4 }>{ __( 'Newsletter categories', 'jetpack-newsletter' ) }</Heading>
+			</CardHeader>
+			<CardBody>
+				<p>
+					<Text>
+						{ createInterpolateElement(
+							__(
+								"Newsletter categories let you select the content that's emailed to subscribers. When enabled, only posts in the selected categories will be sent as newsletters. By default, subscribers can choose from your selected categories, or you can pre-select categories using the <link>subscribe block</link>. When you add a new category, your existing subscribers will be automatically subscribed to it.",
+								'jetpack-newsletter'
+							),
+							{
+								link: SubscribeBlockLink,
+							}
+						) }
+					</Text>
+				</p>
+				{ categoriesError && (
+					<Notice status="error" isDismissible={ false }>
+						{ categoriesError }
+					</Notice>
+				) }
+				<fieldset disabled={ ! isNewsletterEnabled || !! categoriesError }>
+					<DataForm
+						data={ data }
+						fields={ newsletterCategoriesFields }
+						form={ newsletterCategoriesForm }
+						onChange={ onChange }
+						validity={ validity }
+					/>
+
+					{ data.wpcom_newsletter_categories_enabled && (
+						<p>
+							<ExternalLink
+								href={ getAdminUrl(
+									'edit-tags.php?taxonomy=category&referer=newsletter-categories'
+								) }
+							>
+								{ __( 'Add New Category', 'jetpack-newsletter' ) }
+							</ExternalLink>
+						</p>
+					) }
+				</fieldset>
+			</CardBody>
+			<CardFooter>
+				<Button
+					variant="primary"
+					onClick={ handleSave }
+					disabled={
+						! isNewsletterEnabled ||
+						isSaving ||
+						! hasChanges ||
+						isFetchingCategories ||
+						( data.wpcom_newsletter_categories_enabled && ! isValid )
 					}
-				) }
-			</p>
-			{ categoriesError && (
-				<Notice status="error" isDismissible={ false }>
-					{ categoriesError }
-				</Notice>
-			) }
-			<fieldset
-				className="newsletter-settings__section-content"
-				disabled={ ! isNewsletterEnabled || !! categoriesError }
-			>
-				<DataForm
-					data={ data }
-					fields={ newsletterCategoriesFields }
-					form={ newsletterCategoriesForm }
-					onChange={ onChange }
-					validity={ validity }
-				/>
-
-				{ data.wpcom_newsletter_categories_enabled && jetpackSettings?.siteAdminUrl && (
-					<div className="newsletter-settings__link">
-						<ExternalLink
-							href={ `${ jetpackSettings.siteAdminUrl }edit-tags.php?taxonomy=category&referer=newsletter-categories` }
-						>
-							{ __( 'Add New Category', 'jetpack-newsletter' ) }
-						</ExternalLink>
-					</div>
-				) }
-
-				<div className="newsletter-settings__section-actions">
-					<Button
-						variant="primary"
-						onClick={ handleSave }
-						disabled={
-							! isNewsletterEnabled ||
-							isSaving ||
-							! hasChanges ||
-							isFetchingCategories ||
-							( data.wpcom_newsletter_categories_enabled && ! isValid )
-						}
-						isBusy={ isSaving }
-					>
-						{ isSaving ? savingText : saveText }
-					</Button>
-				</div>
-			</fieldset>
-		</div>
+					isBusy={ isSaving }
+				>
+					{ isSaving ? savingText : saveText }
+				</Button>
+			</CardFooter>
+		</Card>
 	);
 }

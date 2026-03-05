@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Replace @automattic/jetpack-components Button with @wordpress/components Button in BackupNowButton component.

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix Hello Dolly banner z-index to prevent overlap on the My Jetpack page.

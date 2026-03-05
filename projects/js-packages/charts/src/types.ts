@@ -7,6 +7,7 @@ import type { LegendShape } from '@visx/legend/lib/types';
 import type { ScaleInput, ScaleType } from '@visx/scale';
 import type { TextProps } from '@visx/text/lib/Text';
 import type { EventHandlerParams, GlyphProps, GridStyles, LineStyles } from '@visx/xychart';
+import type { GapSize } from '@wordpress/theme';
 import type { CSSProperties, PointerEvent, ReactNode } from 'react';
 import type { GoogleDataTableColumn, GoogleDataTableRow } from 'react-google-charts';
 
@@ -209,14 +210,17 @@ export type ChartTheme = {
 	xAxisLineStyles?: LineStyles;
 	/** Styles for series lines */
 	seriesLineStyles?: LineStyles[];
-	/** Styles for legend shapes */
-	legendShapeStyles?: Record< string, unknown >[];
 	/** Array of render functions for glyphs */
 	glyphs?: Array< < Datum extends object >( props: GlyphProps< Datum > ) => ReactNode >;
-	/** Styles for legend labels */
-	legendLabelStyles?: CSSProperties;
-	/** Styles for legend container */
-	legendContainerStyles?: CSSProperties;
+	/** Legend specific settings */
+	legend?: {
+		/** Styles for legend shapes */
+		shapeStyles?: Record< string, unknown >[];
+		/** Styles for legend labels */
+		labelStyles?: CSSProperties;
+		/** Styles for legend container */
+		containerStyles?: CSSProperties;
+	};
 	/** Styles for small SVG text (eg. axis tick labels), passed through to the XYChart theme. */
 	svgLabelSmall?: TextProps;
 	annotationStyles?: AnnotationStyles;
@@ -286,6 +290,7 @@ export type CompleteChartTheme = Required< ChartTheme > & {
 	lineChart: {
 		lineStyles: Record< NonNullable< SeriesDataOptions[ 'type' ] >, LineStyles >;
 	};
+	legend: Required< NonNullable< ChartTheme[ 'legend' ] > >;
 	sparkline: Required< NonNullable< ChartTheme[ 'sparkline' ] > > & {
 		margin: Required< NonNullable< ChartTheme[ 'sparkline' ] >[ 'margin' ] >;
 	};
@@ -445,7 +450,7 @@ export type BaseChartProps< T = DataPoint | DataPointDate | LeaderboardEntry > =
 	legendItemClassName?: string;
 	/**
 	 * Enable interactive legend items that can toggle series visibility.
-	 * Supported for LineChart, PieChart, and PieSemiCircleChart.
+	 * Supported for all chart types that render series.
 	 * Requires chartId and GlobalChartsProvider.
 	 * For pie charts, percentages are recalculated so visible segments total 100%.
 	 */
@@ -458,6 +463,13 @@ export type BaseChartProps< T = DataPoint | DataPointDate | LeaderboardEntry > =
 	 * Whether to show chart animation on initial render or not
 	 */
 	animation?: boolean;
+
+	/**
+	 * Gap between chart elements (SVG, legend, children).
+	 * Uses WordPress design system tokens.
+	 * @default 'md'
+	 */
+	gap?: GapSize;
 
 	/**
 	 * More options for the chart.

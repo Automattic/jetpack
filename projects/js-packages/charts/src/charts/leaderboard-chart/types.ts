@@ -15,6 +15,7 @@ export interface LeaderboardChartProps
 		| 'width'
 		| 'height'
 		| 'size'
+		| 'gap'
 		| 'legendInteractive'
 		| 'animation'
 	> {
