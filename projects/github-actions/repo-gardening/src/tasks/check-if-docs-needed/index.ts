@@ -166,8 +166,7 @@ Key test: If the docs describe "X happens when you do Y" and this PR makes X act
 - Changes scoped entirely to Calypso, WordPress.com, or WooCommerce (not jetpack.com/support)
 - Changes to packages that are only consumed internally and not exposed to users
 - Error message text changes that are not referenced in support docs
-
-
+- Accessibility improvements that don't change documented workflows or behavior described in support docs
 ## CRITICAL: DEVELOPER-FACING CHANGES ARE NOT USER-FACING
 
 The following are changes aimed at developers/themers who extend Jetpack programmatically. They are NEVER documented on jetpack.com/support and must ALWAYS be classified as is_user_facing = false, regardless of which feature area they touch:
