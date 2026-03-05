@@ -1596,8 +1596,15 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 
 	/**
 	 * Test is_big_sky_enabled returns false when Big_Sky class does not exist.
+	 *
+	 * NOTE: This test assumes that the Big_Sky class has not yet been defined in
+	 * the current PHP process. Because class definitions are permanent for
+	 * the lifetime of the process, it will be skipped if Big_Sky already exists.
 	 */
 	public function test_is_big_sky_enabled_false_when_class_missing() {
+		if ( class_exists( 'Big_Sky' ) ) {
+			$this->markTestSkipped( 'Big_Sky class already defined; this test must run before any call to simulate_big_sky_class().' );
+		}
 		$this->assertFalse( ImageStudio\is_big_sky_enabled() );
 	}
 
