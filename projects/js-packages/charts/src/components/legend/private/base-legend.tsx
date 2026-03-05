@@ -75,10 +75,9 @@ export const BaseLegend: ForwardRefExoticComponent<
 			labelFormat = valueOrIdentity,
 			labelTransform = labelTransformFactory,
 			itemStyles,
-			itemProps,
 			itemClassName,
 			labelStyles,
-			labelProps,
+			labelClassName,
 			shapeStyles,
 			render,
 			interactive = false,
@@ -218,7 +217,6 @@ export const BaseLegend: ForwardRefExoticComponent<
 											? `${ label.text }: ${ visible ? 'visible' : 'hidden' }. Toggle visibility.`
 											: undefined
 									}
-									{ ...itemProps }
 								>
 									{ items[ i ]?.renderGlyph ? (
 										<svg
@@ -253,14 +251,18 @@ export const BaseLegend: ForwardRefExoticComponent<
 										/>
 									) }
 									<LegendLabel
-										className={ clsx( 'visx-legend-label', styles[ 'legend-item-label' ] ) }
+										data-testid="legend-label"
+										className={ clsx(
+											'visx-legend-label',
+											styles[ 'legend-item-label' ],
+											labelClassName
+										) }
 										style={ {
 											justifyContent: labelJustifyContent,
 											flex: labelFlex,
 											margin: labelMargin,
 											...theme.legend?.labelStyles,
 										} }
-										{ ...labelProps }
 									>
 										<LegendText
 											text={ label.text }

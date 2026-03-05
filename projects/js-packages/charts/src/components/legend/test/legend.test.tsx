@@ -60,6 +60,20 @@ describe( 'BaseLegend', () => {
 		} );
 	} );
 
+	test( 'applies labelClassName to legend labels', () => {
+		render(
+			<BaseLegend
+				items={ defaultItems }
+				orientation="horizontal"
+				labelClassName="custom-legend-label"
+			/>
+		);
+		const labels = screen.getAllByTestId( 'legend-label' );
+		labels.forEach( label => {
+			expect( label ).toHaveClass( 'custom-legend-label' );
+		} );
+	} );
+
 	test( 'handles missing values', () => {
 		const itemsWithoutValues = [
 			{ label: 'Item 1', color: '#ff0000', value: undefined },
