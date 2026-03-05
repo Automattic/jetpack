@@ -121,6 +121,26 @@ Seeing a slightly different header layout or a video thumbnail that now auto-ref
 - Connection or onboarding flow changed
 - Default behavior of a feature changed in a way users would notice
 
+### KEYWORD PATTERNS THAT INDICATE DOC-WORTHY CHANGES
+
+If the PR title or description contains these patterns, it likely needs documentation review:
+
+- "add [panel/option/preview/button/field type/control]" → New UI element introducing new functionality
+- "remove [service/feature/module/sharing option]" → Users lose access to documented functionality
+- "use [X] instead of [Y]" for user-visible output → Feature fundamentally changes what it produces or uses
+- "automatically enable", "enable by default" → Default behavior change affecting new users/connections
+- "add support for" or "add [X] option to" → New user-configurable capability in blocks/forms
+
+**Key distinction from visual polish:**
+These changes give users NEW capabilities, REMOVE existing ones, or fundamentally change WHAT a feature does—rather than changing how existing capabilities look, perform, or are organized internally.
+
+Examples that WOULD need docs:
+- "Add pre-publish panel with settings summary" → New panel with new functionality
+- "Add 'Other' option support to radio fields" → New user-facing option in forms
+- "Remove Pocket Sharing Service" → Documented feature removed
+- "Use site icon instead of site logo" → Changes what the feature outputs
+- "Automatically enable on newly connected sites" → Default behavior change
+
 
 ## Do NOT flag (is_user_facing = false):
 
@@ -167,6 +187,7 @@ Key test: If the docs describe "X happens when you do Y" and this PR makes X act
 - Changes to packages that are only consumed internally and not exposed to users
 - Error message text changes that are not referenced in support docs
 - Accessibility improvements that don't change documented workflows or behavior described in support docs
+
 ## CRITICAL: DEVELOPER-FACING CHANGES ARE NOT USER-FACING
 
 The following are changes aimed at developers/themers who extend Jetpack programmatically. They are NEVER documented on jetpack.com/support and must ALWAYS be classified as is_user_facing = false, regardless of which feature area they touch:
@@ -207,18 +228,8 @@ Changes to internal JavaScript/TypeScript component APIs, themes, or configurati
 These are consumed by developers building with Jetpack packages, not by site owners in wp-admin.
 
 ## WHEN IN DOUBT — DEFAULT TO NOT FLAGGING
+
 When a change is ambiguous or borderline, assume it does not require user-facing documentation and do not flag it.
-## KEYWORD PATTERNS THAT USUALLY INDICATE NON-DOC-WORTHY CHANGES
-
-If the PR title or description contains these patterns, examine very carefully before flagging:
-
-- "migrate", "migration", "unified", "normalize", "unify" → Usually internal refactoring
-- "fix height", "fix width", "fix calculation", "fix layout" → Usually bug fixes
-- "refresh", "update automatically", "heartbeat" → Usually UX improvements, not new features
-- "align", "alignment", "left-align", "center" → Usually visual polish
-- "header", "footer", "wrapper", "component" + "migrate"/"unify" → Usually internal refactoring
-- "remove placeholder", "remove default" → Usually minor UX cleanup
-- "hide when", "show only when", "unregister when", "remove when" → Usually edge case handling, not workflow changes
 
 Apply this additional filter before flagging:
 
