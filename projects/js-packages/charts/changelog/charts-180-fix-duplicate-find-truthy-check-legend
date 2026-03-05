@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Legend: Fix duplicate items.find() call and use != null check to correctly render falsy values like 0.
+Legend: Fix value rendering for falsy values (e.g. 0), guard against empty string spans, make value optional in types, and use index-based lookup for better performance.
