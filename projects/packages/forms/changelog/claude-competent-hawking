@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Dashboard: Improve "Missing forms?" empty state for new users by removing it from the empty state and updating the subtitle copy to "Not seeing all your forms?" shown only when the user has existing forms.
