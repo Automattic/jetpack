@@ -354,12 +354,11 @@ class Settings {
 
 	/**
 	 * Returns escaped SQL for allowed post types (all registered minus blacklist).
-	 * Prefer this over get_blacklisted_post_types_sql() for better performance when many post types exist.
 	 *
 	 * @access public
 	 * @static
 	 *
-	 * @return string SQL WHERE clause (post_type IN (...)).
+	 * @return string SQL WHERE clause (post_type IN).
 	 */
 	public static function get_allowed_post_types_sql() {
 		$allowed = static::get_allowed_post_types_for_checksum();
