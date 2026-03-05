@@ -82,6 +82,24 @@ class WPCOM_REST_API_V2_Endpoint_Agent_Guidelines_AI extends WP_REST_Controller 
 						'required' => false,
 						'default'  => array(),
 					),
+					'filters'          => array(
+						'description' => __( 'Optional content filters to narrow the analyzed content.', 'jetpack' ),
+						'type'        => 'object',
+						'required'    => false,
+						'default'     => array(),
+						'properties'  => array(
+							'authors'    => array(
+								'description' => __( 'Limit to posts by these author IDs.', 'jetpack' ),
+								'type'        => 'array',
+								'items'       => array( 'type' => 'integer' ),
+							),
+							'categories' => array(
+								'description' => __( 'Limit to posts in these category IDs.', 'jetpack' ),
+								'type'        => 'array',
+								'items'       => array( 'type' => 'integer' ),
+							),
+						),
+					),
 				),
 			)
 		);
@@ -112,6 +130,11 @@ class WPCOM_REST_API_V2_Endpoint_Agent_Guidelines_AI extends WP_REST_Controller 
 		$existing_content = $request->get_param( 'existing_content' );
 		if ( ! empty( $existing_content ) ) {
 			$body['existing_content'] = $existing_content;
+		}
+
+		$filters = $request->get_param( 'filters' );
+		if ( ! empty( $filters ) ) {
+			$body['filters'] = $filters;
 		}
 
 		$response = Client::wpcom_json_api_request_as_blog(
