@@ -51,7 +51,7 @@ export type LegendProps = Omit< BaseLegendProps, 'items' > & {
 
 export type BaseLegendItem = {
 	label: string;
-	value: number | string;
+	value?: number | string;
 	color: string;
 	glyphSize?: number;
 	renderGlyph?: < Datum extends object >( props: GlyphProps< Datum > ) => ReactNode;

@@ -50,7 +50,7 @@ type BaseLegendItem = {
 	label: string;
 
 	/** Value to display next to the label (e.g., percentage, count) */
-	value: number | string;
+	value?: number | string;
 
 	/** Color for the legend glyph */
 	color: string;
@@ -69,7 +69,7 @@ type BaseLegendItem = {
 ### BaseLegendItem Properties
 
 - **`label`** (required): The text displayed for this legend entry
-- **`value`** (required): The value shown next to the label (often a percentage or count)
+- **`value`** (optional): The value shown next to the label (often a percentage or count)
 - **`color`** (required): The color used for the legend glyph/shape
 - **`glyphSize`** (optional): Custom size for the glyph in pixels. When provided, the glyph will be rendered at `glyphSize * 2` dimensions
 - **`renderGlyph`** (optional): Custom function to render the glyph. Receives GlyphProps and returns a React node. Useful for custom symbols or complex glyphs
