@@ -261,7 +261,7 @@ export const BaseLegend: ForwardRefExoticComponent<
 											textOverflow={ textOverflow }
 											maxWidth={ maxWidth }
 										/>
-										{ matchedItem?.value != null && (
+										{ matchedItem?.value != null && matchedItem.value !== '' && (
 											<span className={ styles[ 'legend-item-value' ] }>
 												{ '\u00A0' }
 												{ matchedItem.value }

@@ -62,12 +62,23 @@ describe( 'BaseLegend', () => {
 
 	test( 'handles missing values', () => {
 		const itemsWithoutValues = [
-			{ label: 'Item 1', color: '#ff0000', value: undefined },
-			{ label: 'Item 2', color: '#00ff00', value: undefined },
+			{ label: 'Item 1', color: '#ff0000' },
+			{ label: 'Item 2', color: '#00ff00' },
 		];
 		render( <BaseLegend items={ itemsWithoutValues } orientation="horizontal" /> );
 		expect( screen.getByText( 'Item 1' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'Item 2' ) ).toBeInTheDocument();
+	} );
+
+	test( 'does not render value span for empty string values', () => {
+		const itemsWithEmptyValues = [
+			{ label: 'Item 1', color: '#ff0000', value: '' },
+			{ label: 'Item 2', color: '#00ff00', value: '' },
+		];
+		render( <BaseLegend items={ itemsWithEmptyValues } orientation="horizontal" /> );
+		expect( screen.getByText( 'Item 1' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Item 2' ) ).toBeInTheDocument();
+		expect( screen.queryByText( '\u00A0' ) ).not.toBeInTheDocument();
 	} );
 
 	test( 'renders numeric value of 0 without hiding it', () => {
