@@ -17,7 +17,6 @@ import {
 	FormPrePublishPanel,
 	JETPACK_FORM_PRE_PUBLISH_PANEL,
 } from './plugins/form-pre-publish-panel';
-import { FormTitleModal } from './plugins/form-title-modal';
 import { HeaderActions, HEADER_ACTIONS_PLUGIN } from './plugins/header-actions';
 import {
 	activateBlockCategoryOverrides,
@@ -39,8 +38,6 @@ import { getAllowedBlocks } from './utils/get-allowed-blocks';
 import type { WPPlugin } from '@wordpress/plugins';
 
 type PluginSettings = Omit< WPPlugin, 'name' >;
-
-const NEW_FORMS_MODAL_PLUGIN = 'jetpack-form-title-modal';
 
 import './style.scss';
 
@@ -359,10 +356,6 @@ const setupFormEditorSubscription = () => {
 				if ( isFormEditor ) {
 					// We just entered the form editor.
 					document.body.classList.add( 'post-type-jetpack_form' );
-					// Register the form title modal plugin
-					registerPlugin( NEW_FORMS_MODAL_PLUGIN, {
-						render: FormTitleModal,
-					} );
 
 					registerPlugin( JETPACK_FORM_PRE_PUBLISH_PANEL, { render: FormPrePublishPanel } );
 					// Register the header actions plugin
@@ -375,9 +368,6 @@ const setupFormEditorSubscription = () => {
 				} else {
 					// We just left the form editor.
 					document.body.classList.remove( 'post-type-jetpack_form' );
-					if ( getPlugin( NEW_FORMS_MODAL_PLUGIN ) ) {
-						unregisterPlugin( NEW_FORMS_MODAL_PLUGIN );
-					}
 					if ( getPlugin( HEADER_ACTIONS_PLUGIN ) ) {
 						unregisterPlugin( HEADER_ACTIONS_PLUGIN );
 					}
