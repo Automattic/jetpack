@@ -1,6 +1,6 @@
 import domReady from '@wordpress/dom-ready';
 import { addFilter } from '@wordpress/hooks';
-import { createPingHubProvider, PingHubIframeBridge } from './providers/pinghub';
+import { createPingHubProvider } from './providers/pinghub';
 
 /**
  * Register providers (e.g. PingHub) supplied by the server, and disable HTTP polling by returning only this provider.
@@ -15,7 +15,7 @@ function registerWpcomGutenbergProviders() {
 			.map( ( provider: string ) => {
 				switch ( provider ) {
 					case 'pinghub': {
-						return createPingHubProvider( new PingHubIframeBridge() );
+						return createPingHubProvider();
 					}
 					default:
 						return null;
