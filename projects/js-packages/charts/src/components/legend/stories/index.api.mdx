@@ -41,7 +41,7 @@ Styles applied to each legend item.
 
 ```typescript
 type LegendItemStyles = {
-	margin?: string | number;        // Default: '0'
+	margin?: CSSProperties['margin'];  // Default: '0'
 	flexDirection?: 'row' | 'row-reverse' | 'column' | 'column-reverse'; // Default: 'row'
 };
 ```
@@ -67,9 +67,9 @@ Styles for legend shapes (glyphs).
 
 ```typescript
 type LegendShapeStyles = {
-	width?: number;                  // Default: 16
-	height?: number;                 // Default: 16
-	margin?: string | number;        // Default: '2px 4px 2px 0'
+	width?: number;                      // Default: 16
+	height?: number;                     // Default: 16
+	margin?: CSSProperties['margin'];    // Default: '2px 4px 2px 0'
 };
 ```
 
