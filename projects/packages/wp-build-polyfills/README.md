@@ -40,16 +40,27 @@ Script modules use "first-wins" semantics — if Core or Gutenberg already regis
 
 ## Usage
 
-Call `register()` early in your plugin — for example, during the main plugin file load:
+Call `register()` early in your plugin, specifying a consumer name and the polyfills you need:
 
 ```php
-\Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills::register();
+use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
+
+WP_Build_Polyfills::register( 'my-plugin', array(
+    'wp-notices',
+    'wp-private-apis',
+    '@wordpress/boot',
+    '@wordpress/route',
+) );
 ```
 
-The version threshold for force-replacements can be overridden:
+Available handles are listed in `WP_Build_Polyfills::SCRIPT_HANDLES` and `WP_Build_Polyfills::MODULE_IDS`.
+
+Multiple plugins can call `register()` — the hook is only added once, and all requested polyfills are merged. You can inspect which consumers requested which polyfills via `WP_Build_Polyfills::get_consumers()`.
+
+The version threshold for force-replacements can be overridden with a third parameter:
 
 ```php
-\Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills::register( '7.1' );
+WP_Build_Polyfills::register( 'my-plugin', array( 'wp-notices' ), '7.1' );
 ```
 
 ## Development
