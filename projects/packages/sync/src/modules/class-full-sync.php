@@ -332,7 +332,7 @@ class Full_Sync extends Module {
 			case 'posts':
 				$table     = $wpdb->posts;
 				$id        = 'ID';
-				$where_sql = Settings::get_blacklisted_post_types_sql();
+				$where_sql = Settings::get_allowed_post_types_sql();
 
 				break;
 			case 'comments':

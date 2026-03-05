@@ -298,7 +298,7 @@ class Posts extends Module {
 	 * @return string WHERE SQL clause, or `null` if no comments are specified in the module config.
 	 */
 	public function get_where_sql( $config ) {
-		$where_sql = Settings::get_blacklisted_post_types_sql();
+		$where_sql = Settings::get_allowed_post_types_sql();
 
 		// Config is a list of post IDs to sync.
 		if ( is_array( $config ) && ! empty( $config ) ) {

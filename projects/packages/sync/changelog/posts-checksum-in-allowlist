@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Sync: Use post_type IN (allowed types) instead of NOT IN (blacklist) for the posts checksum query, for improved performance.

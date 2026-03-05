@@ -24,6 +24,11 @@ class Settings {
 	const SETTINGS_OPTION_PREFIX = 'jetpack_sync_settings_';
 
 	/**
+	 * SQL expression that matches no rows (always false). Use when a WHERE clause is required but no rows should match.
+	 */
+	const SQL_IMPOSSIBLE = '1 = 0';
+
+	/**
 	 * A whitelist of valid settings.
 	 *
 	 * @access public
@@ -338,16 +343,20 @@ class Settings {
 	}
 
 	/**
-	 * Returns escaped SQL for blacklisted post types.
-	 * Can be injected directly into a WHERE clause.
+	 * Returns escaped SQL for allowed post types (all registered minus blacklist).
+	 * Prefer this over get_blacklisted_post_types_sql() for better performance when many post types exist.
 	 *
 	 * @access public
 	 * @static
 	 *
-	 * @return string SQL WHERE clause.
+	 * @return string SQL WHERE clause (post_type IN (...)).
 	 */
-	public static function get_blacklisted_post_types_sql() {
-		return 'post_type NOT IN (\'' . implode( '\', \'', array_map( 'esc_sql', static::get_setting( 'post_types_blacklist' ) ) ) . '\')';
+	public static function get_allowed_post_types_sql() {
+		$allowed = static::get_allowed_post_types_for_checksum();
+		if ( empty( $allowed ) ) {
+			return '1 = 0'; // This is an SQL condition that is always false.
+		}
+		return 'post_type IN (\'' . implode( '\', \'', array_map( 'esc_sql', $allowed ) ) . '\')';
 	}
 
 	/**
@@ -365,6 +374,19 @@ class Settings {
 				'values'   => array_map( 'esc_sql', static::get_setting( 'post_types_blacklist' ) ),
 			),
 		);
+	}
+
+	/**
+	 * Get allowed post types for the posts checksum (all registered minus blacklist).
+	 * Used so the checksum query can use IN (allowed) instead of NOT IN (blacklist).
+	 *
+	 * @return array Allowed post type names (no DB query; get_post_types() is used).
+	 */
+	public static function get_allowed_post_types_for_checksum() {
+		$all_types = get_post_types( array(), 'names' );
+		$blacklist = static::get_setting( 'post_types_blacklist' );
+		$allowed   = array_diff( $all_types, $blacklist );
+		return array_values( $allowed );
 	}
 
 	/**

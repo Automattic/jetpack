@@ -190,7 +190,12 @@ class Table_Checksum {
 				'range_field'               => 'ID',
 				'key_fields'                => array( 'ID' ),
 				'checksum_fields'           => array( 'post_modified_gmt' ),
-				'filter_values'             => Sync\Settings::get_disallowed_post_types_structured(),
+				'filter_values'             => array(
+					'post_type' => array(
+						'operator' => 'IN',
+						'values'   => Sync\Settings::get_allowed_post_types_for_checksum(),
+					),
+				),
 				'is_table_enabled_callback' => function () {
 					return false !== Sync\Modules::get_module( 'posts' );
 				},
@@ -543,7 +548,7 @@ class Table_Checksum {
 	}
 
 	/**
-	 * Build the filter query baased off range fields and values and the additional sql.
+	 * Build the filter query based off range fields and values and the additional sql.
 	 *
 	 * @param int|null   $range_from    Start of the range.
 	 * @param int|null   $range_to      End of the range.
