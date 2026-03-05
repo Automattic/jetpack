@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fixed dashboard loading styles to prevent rounded corners and grey background flash caused by WordPress boot view-transitions.
