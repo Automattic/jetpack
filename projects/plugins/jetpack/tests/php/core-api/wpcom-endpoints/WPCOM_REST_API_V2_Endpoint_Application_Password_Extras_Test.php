@@ -64,7 +64,6 @@ class WPCOM_REST_API_V2_Endpoint_Application_Password_Extras_Test extends Jetpac
 
 		$this->assertArrayHasKey( '/wpcom/v2/application-password-extras/abilities', $routes );
 		$this->assertArrayHasKey( '/wpcom/v2/application-password-extras/admin-ajax', $routes );
-		$this->assertArrayHasKey( '/wpcom/v2/application-password-extras/post-previews', $routes );
 	}
 
 	/**
@@ -106,9 +105,7 @@ class WPCOM_REST_API_V2_Endpoint_Application_Password_Extras_Test extends Jetpac
 		$this->assertEquals( 200, $response->get_status() );
 		$this->assertIsArray( $data );
 		$this->assertArrayHasKey( 'admin-ajax', $data );
-		$this->assertArrayHasKey( 'post-previews', $data );
 		$this->assertTrue( $data['admin-ajax'] );
-		$this->assertTrue( $data['post-previews'] );
 	}
 
 	/**
@@ -118,9 +115,8 @@ class WPCOM_REST_API_V2_Endpoint_Application_Password_Extras_Test extends Jetpac
 	 */
 	public static function endpoint_provider() {
 		return array(
-			'abilities endpoint'     => array( '/wpcom/v2/application-password-extras/abilities' ),
-			'admin-ajax endpoint'    => array( '/wpcom/v2/application-password-extras/admin-ajax' ),
-			'post-previews endpoint' => array( '/wpcom/v2/application-password-extras/post-previews' ),
+			'abilities endpoint'  => array( '/wpcom/v2/application-password-extras/abilities' ),
+			'admin-ajax endpoint' => array( '/wpcom/v2/application-password-extras/admin-ajax' ),
 		);
 	}
 
@@ -141,7 +137,6 @@ class WPCOM_REST_API_V2_Endpoint_Application_Password_Extras_Test extends Jetpac
 		$this->assertEquals( 200, $response->get_status() );
 		$this->assertIsArray( $data );
 		$this->assertArrayHasKey( 'admin-ajax', $data );
-		$this->assertArrayHasKey( 'post-previews', $data );
 	}
 
 	/**

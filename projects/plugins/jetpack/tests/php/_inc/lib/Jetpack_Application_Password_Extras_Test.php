@@ -48,9 +48,6 @@ class Jetpack_Application_Password_Extras_Test extends Jetpack_REST_TestCase {
 	 */
 	public function tear_down() {
 		parent::tear_down();
-		unset( $_GET['p'] );
-		unset( $_GET['page_id'] );
-		unset( $_GET['preview'] );
 		unset( $_REQUEST['action'] );
 		unset( $GLOBALS['wp_current_filter'] );
 	}
@@ -190,55 +187,13 @@ class Jetpack_Application_Password_Extras_Test extends Jetpack_REST_TestCase {
 	}
 
 	/**
-	 * Test that post preview requests are allowed.
-	 */
-	public function test_post_preview_request_allowed() {
-		$_GET['p']       = '123';
-		$_GET['preview'] = 'true';
-
-		$result = Jetpack_Application_Password_Extras::application_password_extras( false );
-
-		$this->assertTrue( $result, 'Post preview requests should be allowed' );
-	}
-
-	/**
-	 * Test that page preview requests are allowed.
-	 */
-	public function test_page_preview_request_allowed() {
-		$_GET['page_id'] = '456';
-		$_GET['preview'] = 'true';
-
-		$result = Jetpack_Application_Password_Extras::application_password_extras( false );
-
-		$this->assertTrue( $result, 'Page preview requests should be allowed' );
-	}
-
-	/**
-	 * Test multiple conditions at once.
-	 */
-	public function test_multiple_conditions_prioritize_first_match() {
-		set_current_screen( 'dashboard' );
-		add_filter( 'wp_doing_ajax', '__return_true' );
-		$_REQUEST['action'] = 'videopress-get-upload-token';
-		$_GET['p']          = '123';
-		$_GET['preview']    = 'true';
-
-		$result = Jetpack_Application_Password_Extras::application_password_extras( false );
-
-		remove_filter( 'wp_doing_ajax', '__return_true' );
-
-		$this->assertTrue( $result, 'Should return true when any condition matches' );
-	}
-
-	/**
 	 * Test that get_abilities returns all expected abilities.
 	 */
 	public function test_get_abilities_complete() {
 		$abilities = Jetpack_Application_Password_Extras::get_abilities();
 
 		$expected_abilities = array(
-			'admin-ajax'    => true,
-			'post-previews' => true,
+			'admin-ajax' => true,
 		);
 
 		$this->assertEquals( $expected_abilities, $abilities, 'get_abilities should return all expected abilities' );

@@ -50,13 +50,6 @@ class Jetpack_Application_Password_Extras {
 			return true;
 		}
 
-		// Allow access to post/page previews
-		$is_preview_request = isset( $_GET['preview'] ) && 'true' === $_GET['preview']; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$has_post_id        = isset( $_GET['p'] ) || isset( $_GET['page_id'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		if ( $is_preview_request && $has_post_id ) {
-			return true;
-		}
-
 		return $original_value;
 	}
 
@@ -83,8 +76,7 @@ class Jetpack_Application_Password_Extras {
 	 */
 	public static function get_abilities() {
 		return array(
-			'admin-ajax'    => true,
-			'post-previews' => true,
+			'admin-ajax' => true,
 		);
 	}
 }

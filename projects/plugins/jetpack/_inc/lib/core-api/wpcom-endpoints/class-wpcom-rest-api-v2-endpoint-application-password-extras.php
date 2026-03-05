@@ -49,18 +49,6 @@ class WPCOM_REST_API_V2_Endpoint_Application_Password_Extras extends WP_REST_Con
 				),
 			)
 		);
-
-		register_rest_route(
-			$this->namespace,
-			$this->rest_base . '/post-previews',
-			array(
-				array(
-					'methods'             => WP_REST_Server::READABLE,
-					'callback'            => array( $this, 'get_abilities' ),
-					'permission_callback' => array( $this, 'get_item_permissions_check' ),
-				),
-			)
-		);
 	}
 
 	/**
