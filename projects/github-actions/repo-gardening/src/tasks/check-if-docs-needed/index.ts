@@ -114,7 +114,7 @@ Seeing a slightly different header layout or a video thumbnail that now auto-ref
 - A new user-facing feature or setting was added to a documented area
 - An existing setting, toggle, or option was renamed, moved, added, or removed
 - A user-facing workflow changed (different steps to accomplish a task)
-- UI layout of a documented screen changed substantially (not minor polish)
+- UI layout changed such that existing documentation screenshots or instructions would lead users to the wrong place (e.g., a setting moved from one screen/tab to another, not just repositioned within the same screen)
 - Plan or pricing gating for a feature changed (e.g., feature moved from paid to free or vice versa)
 - A feature or module was deprecated or removed
 - New Jetpack block added, or existing block got new user-facing controls
