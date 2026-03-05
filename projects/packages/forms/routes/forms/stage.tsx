@@ -401,6 +401,14 @@ function StageInner() {
 				},
 			} );
 		}
+		const currentListQuery = getFormsListQuery(
+			view.page ?? 1,
+			view.perPage ?? 20,
+			view.search ?? '',
+			statusQuery
+		) as Record< string, unknown >;
+		const statusUpdateOptions = { invalidateQueries: [ currentListQuery ] };
+
 		actionsList.push( {
 			id: 'publish-form',
 			isPrimary: false,
@@ -415,14 +423,8 @@ function StageInner() {
 				if ( ! eligibleItems.length ) {
 					return;
 				}
-				const query = getFormsListQuery(
-					view.page ?? 1,
-					view.perPage ?? 20,
-					view.search ?? '',
-					statusQuery
-				) as Record< string, unknown >;
 				try {
-					await publishForms( eligibleItems, { invalidateQueries: [ query ] } );
+					await publishForms( eligibleItems, statusUpdateOptions );
 				} finally {
 					setSelection( [] );
 				}
@@ -443,14 +445,8 @@ function StageInner() {
 				if ( ! eligibleItems.length ) {
 					return;
 				}
-				const query = getFormsListQuery(
-					view.page ?? 1,
-					view.perPage ?? 20,
-					view.search ?? '',
-					statusQuery
-				) as Record< string, unknown >;
 				try {
-					await setFormsToDraft( eligibleItems, { invalidateQueries: [ query ] } );
+					await setFormsToDraft( eligibleItems, statusUpdateOptions );
 				} finally {
 					setSelection( [] );
 				}
