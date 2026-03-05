@@ -17,15 +17,61 @@ namespace Automattic\Jetpack\WP_Build_Polyfills;
 class WP_Build_Polyfills {
 
 	/**
+	 * Available polyfill handles for classic scripts.
+	 */
+	const SCRIPT_HANDLES = array( 'wp-notices', 'wp-private-apis', 'wp-theme' );
+
+	/**
+	 * Available polyfill module IDs.
+	 */
+	const MODULE_IDS = array( '@wordpress/boot', '@wordpress/route', '@wordpress/a11y' );
+
+	/**
+	 * Tracks which polyfills have been requested and by which consumers.
+	 *
+	 * Keys are polyfill handles/module IDs, values are arrays of consumer names.
+	 *
+	 * @var array<string, string[]>
+	 */
+	private static $requested = array();
+
+	/**
+	 * Whether the wp_default_scripts hook has already been added.
+	 *
+	 * @var bool
+	 */
+	private static $hooked = false;
+
+	/**
 	 * Register polyfill scripts and modules.
 	 *
 	 * Call this early (e.g. during plugin load) — it hooks into wp_default_scripts
 	 * at priority 20 so Core (default) and Gutenberg (priority 10) register first.
 	 *
-	 * @param string $wp_version_threshold The WordPress version below which force-replacements
-	 *                                     are applied. Defaults to '7.0'.
+	 * @param string   $consumer             A unique identifier for the consumer (e.g. plugin slug).
+	 * @param string[] $polyfills             List of polyfill handles/module IDs to register.
+	 *                                        Use class constants SCRIPT_HANDLES and MODULE_IDS for reference.
+	 * @param string   $wp_version_threshold  The WordPress version below which force-replacements
+	 *                                        are applied. Defaults to '7.0'.
 	 */
-	public static function register( $wp_version_threshold = '7.0' ) {
+	public static function register( $consumer, $polyfills, $wp_version_threshold = '7.0' ) {
+		foreach ( $polyfills as $handle ) {
+			if ( ! in_array( $handle, self::SCRIPT_HANDLES, true ) && ! in_array( $handle, self::MODULE_IDS, true ) ) {
+				continue;
+			}
+			if ( ! isset( self::$requested[ $handle ] ) ) {
+				self::$requested[ $handle ] = array();
+			}
+			if ( ! in_array( $consumer, self::$requested[ $handle ], true ) ) {
+				self::$requested[ $handle ][] = $consumer;
+			}
+		}
+
+		if ( self::$hooked ) {
+			return;
+		}
+		self::$hooked = true;
+
 		$package_root = dirname( __DIR__ );
 		$build_dir    = $package_root . '/build';
 		$base_file    = $package_root . '/composer.json';
@@ -38,6 +84,15 @@ class WP_Build_Polyfills {
 			},
 			20
 		);
+	}
+
+	/**
+	 * Get the map of requested polyfills and their consumers.
+	 *
+	 * @return array<string, string[]> Keys are polyfill handles/module IDs, values are consumer names.
+	 */
+	public static function get_consumers() {
+		return self::$requested;
 	}
 
 	/**
@@ -73,6 +128,10 @@ class WP_Build_Polyfills {
 		);
 
 		foreach ( $polyfills as $handle => $data ) {
+			if ( ! isset( self::$requested[ $handle ] ) ) {
+				continue;
+			}
+
 			$asset_file = $build_dir . '/scripts/' . $data['path'] . '/index.asset.php';
 
 			if ( ! file_exists( $asset_file ) ) {
@@ -118,7 +177,12 @@ class WP_Build_Polyfills {
 		$modules = array( 'boot', 'route', 'a11y' );
 
 		foreach ( $modules as $name ) {
-			$module_id  = '@wordpress/' . $name;
+			$module_id = '@wordpress/' . $name;
+
+			if ( ! isset( self::$requested[ $module_id ] ) ) {
+				continue;
+			}
+
 			$asset_file = $build_dir . '/modules/' . $name . '/index.asset.php';
 
 			if ( ! file_exists( $asset_file ) ) {

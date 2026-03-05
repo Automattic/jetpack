@@ -74,6 +74,19 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 			$GLOBALS['wp_script_modules'] = $this->original_wp_script_modules; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		}
 
+		// Reset static state.
+		$requested = new \ReflectionProperty( WP_Build_Polyfills::class, 'requested' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$requested->setAccessible( true );
+		}
+		$requested->setValue( null, array() );
+
+		$hooked = new \ReflectionProperty( WP_Build_Polyfills::class, 'hooked' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$hooked->setAccessible( true );
+		}
+		$hooked->setValue( null, false );
+
 		$this->recursive_rmdir( $this->build_dir );
 
 		parent::tear_down();
@@ -116,11 +129,42 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Request all available polyfills for a test consumer.
+	 *
+	 * Populates the static $requested property so register_scripts/register_modules
+	 * will process all handles. Uses register() but prevents the hook from firing
+	 * by resetting $hooked afterwards.
+	 *
+	 * @param string[] $polyfills Optional specific polyfills to request. Defaults to all.
+	 */
+	private function request_polyfills( $polyfills = null ) {
+		if ( null === $polyfills ) {
+			$polyfills = array_merge( WP_Build_Polyfills::SCRIPT_HANDLES, WP_Build_Polyfills::MODULE_IDS );
+		}
+
+		// Directly set the $requested static property via reflection.
+		$requested = new \ReflectionProperty( WP_Build_Polyfills::class, 'requested' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$requested->setAccessible( true );
+		}
+		$current = $requested->getValue( null );
+		foreach ( $polyfills as $handle ) {
+			if ( ! isset( $current[ $handle ] ) ) {
+				$current[ $handle ] = array();
+			}
+			$current[ $handle ][] = 'test';
+		}
+		$requested->setValue( null, $current );
+	}
+
+	/**
 	 * Invoke the private register_scripts method.
 	 *
 	 * @param \WP_Scripts $scripts WP_Scripts instance.
 	 */
 	private function invoke_register_scripts( $scripts ) {
+		$this->request_polyfills( WP_Build_Polyfills::SCRIPT_HANDLES );
+
 		$method = new \ReflectionMethod( WP_Build_Polyfills::class, 'register_scripts' );
 		if ( PHP_VERSION_ID < 80100 ) {
 			$method->setAccessible( true );
@@ -132,6 +176,8 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 	 * Invoke the private register_modules method.
 	 */
 	private function invoke_register_modules() {
+		$this->request_polyfills( WP_Build_Polyfills::MODULE_IDS );
+
 		$method = new \ReflectionMethod( WP_Build_Polyfills::class, 'register_modules' );
 		if ( PHP_VERSION_ID < 80100 ) {
 			$method->setAccessible( true );
@@ -422,10 +468,49 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 		// Remove any existing hooks so we can verify the exact priority.
 		remove_all_filters( 'wp_default_scripts' );
 
-		WP_Build_Polyfills::register();
+		WP_Build_Polyfills::register( 'test-plugin', array( 'wp-notices' ) );
 
 		global $wp_filter;
 		$this->assertArrayHasKey( 'wp_default_scripts', $wp_filter );
 		$this->assertArrayHasKey( 20, $wp_filter['wp_default_scripts']->callbacks );
+	}
+
+	/**
+	 * Test that get_consumers returns the correct consumer map.
+	 */
+	public function test_get_consumers_tracks_polyfill_consumers() {
+		WP_Build_Polyfills::register( 'plugin-a', array( 'wp-notices', '@wordpress/boot' ) );
+		WP_Build_Polyfills::register( 'plugin-b', array( 'wp-notices', 'wp-theme' ) );
+
+		$consumers = WP_Build_Polyfills::get_consumers();
+
+		$this->assertSame( array( 'plugin-a', 'plugin-b' ), $consumers['wp-notices'] );
+		$this->assertSame( array( 'plugin-a' ), $consumers['@wordpress/boot'] );
+		$this->assertSame( array( 'plugin-b' ), $consumers['wp-theme'] );
+		$this->assertArrayNotHasKey( 'wp-private-apis', $consumers );
+	}
+
+	/**
+	 * Test that only requested polyfills are registered.
+	 */
+	public function test_register_scripts_only_registers_requested_handles() {
+		$this->create_asset_file( 'scripts/notices/index.asset.php' );
+		$this->create_asset_file( 'scripts/private-apis/index.asset.php' );
+		$this->create_asset_file( 'scripts/theme/index.asset.php' );
+
+		// Only request wp-notices.
+		$this->request_polyfills( array( 'wp-notices' ) );
+
+		$scripts = $this->create_clean_scripts();
+
+		$method = new \ReflectionMethod( WP_Build_Polyfills::class, 'register_scripts' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+		$method->invoke( null, $scripts, $this->build_dir, __FILE__, '7.0' );
+
+		$this->assertNotFalse( $scripts->query( 'wp-notices', 'registered' ) );
+		$this->assertFalse( $scripts->query( 'wp-private-apis', 'registered' ) );
+		$this->assertFalse( $scripts->query( 'wp-theme', 'registered' ) );
 	}
 }
