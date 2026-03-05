@@ -23,10 +23,12 @@ type NormalizedProxyResponse = {
 const IFRAME_SRC_BASE = 'https://public-api.wordpress.com/wp-admin/rest-proxy/';
 const PROXY_ORIGIN = 'https://public-api.wordpress.com';
 const PROXY_ALREADY_SUBSCRIBED = 444;
+const PROXY_READY_TIMEOUT_MS = 30 * 1000;
 
 const CHUNK_MAGIC = 0xfe;
 const CHUNK_HEADER_LEN = 5; // magic(1) + msgId(2) + totalChunks(1) + chunkIndex(1)
 const MAX_PAYLOAD_BEFORE_CHUNK = 256;
+const MAX_CHUNK_BUFFERS = 64;
 
 /**
  * Encode a Uint8Array into a base64 string for text-frame transport.
@@ -329,7 +331,14 @@ export class PingHubBridge {
 		if ( this.ready ) {
 			return Promise.resolve();
 		}
-		return new Promise( resolve => this.readyResolvers.push( resolve ) );
+		return new Promise( ( resolve, reject ) => {
+			this.readyResolvers.push( resolve );
+			setTimeout( () => {
+				if ( ! this.ready ) {
+					reject( new Error( 'PingHub proxy iframe did not become ready in time' ) );
+				}
+			}, PROXY_READY_TIMEOUT_MS );
+		} );
 	}
 
 	/**
@@ -424,6 +433,9 @@ export class PingHubBridge {
 						this.pathToCallback.delete( path );
 					}
 					this.settleConnectWaiters( path, false );
+					if ( resolvePending ) {
+						resolvePending();
+					}
 				}
 				break;
 			default:
@@ -490,6 +502,13 @@ export class PingHubBridge {
 		const key = `${ path }:${ parsed.msgId }`;
 		let buf = this.chunkBuffers.get( key );
 		if ( ! buf ) {
+			// Drop oldest incomplete buffers when the cap is reached.
+			if ( this.chunkBuffers.size >= MAX_CHUNK_BUFFERS ) {
+				const oldest = this.chunkBuffers.keys().next().value;
+				if ( oldest !== undefined ) {
+					this.chunkBuffers.delete( oldest );
+				}
+			}
 			buf = { totalChunks: parsed.totalChunks, chunks: new Map() };
 			this.chunkBuffers.set( key, buf );
 		}
@@ -501,7 +520,12 @@ export class PingHubBridge {
 		this.chunkBuffers.delete( key );
 		const parts: Uint8Array[] = [];
 		for ( let i = 0; i < buf.totalChunks; i++ ) {
-			parts.push( buf.chunks.get( i )! );
+			const chunk = buf.chunks.get( i );
+			if ( ! chunk ) {
+				// Missing chunk index — discard the incomplete message.
+				return;
+			}
+			parts.push( chunk );
 		}
 		const totalLen = parts.reduce( ( s, p ) => s + p.length, 0 );
 		const reassembled = new Uint8Array( totalLen );

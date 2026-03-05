@@ -1,4 +1,3 @@
-import domReady from '@wordpress/dom-ready';
 import { addFilter } from '@wordpress/hooks';
 import { createPingHubProvider } from './providers/pinghub';
 
@@ -27,6 +26,4 @@ function registerWpcomGutenbergProviders() {
 	addFilter( 'sync.providers', 'wpcom/gutenberg-rtc-providers', () => getProviders() );
 }
 
-domReady( () => {
-	registerWpcomGutenbergProviders();
-} );
+registerWpcomGutenbergProviders();

@@ -135,6 +135,17 @@ function getRoom( objectType: string, objectId: string | null ): string {
  */
 export function createPingHubProvider(): ProviderCreator {
 	return async ( { awareness, objectType, objectId, ydoc } ): Promise< ProviderCreatorResult > => {
+		/**
+		 * Only post-like entities with a concrete ID are supported now.
+		 */
+		const SUPPORTED_OBJECT_TYPES = new Set( [ 'postType/post', 'postType/page' ] );
+		if ( ! SUPPORTED_OBJECT_TYPES.has( objectType ) || ! objectId ) {
+			return {
+				destroy: () => {},
+				on: () => {},
+			};
+		}
+
 		const room = getRoom( objectType, objectId );
 		const provider = new PingHubProvider( {
 			awareness,

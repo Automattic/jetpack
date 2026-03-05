@@ -1,10 +1,9 @@
-import { Awareness } from '@wordpress/sync';
 import * as decoding from 'lib0/decoding';
 import * as encoding from 'lib0/encoding';
 import * as awarenessProtocol from 'y-protocols/awareness';
 import * as syncProtocol from 'y-protocols/sync';
 import { PingHubBridge } from './pinghub-bridge';
-import type { ConnectionStatus } from '@wordpress/sync';
+import type { Awareness, ConnectionStatus } from '@wordpress/sync';
 import type * as Y from 'yjs';
 
 const MSG_SYNC = 0x00;
@@ -40,7 +39,7 @@ class PingHubConnection {
 	private readonly onSync: () => void;
 
 	public connected = false;
-	private syncRequestSent = false;
+	private syncStep1RepliedTo = new Set< number >();
 	public reconnectTimer: ReturnType< typeof setTimeout > | null = null;
 	public reconnectDelay = RECONNECT_BASE_DELAY_MS;
 
@@ -168,7 +167,7 @@ class PingHubConnection {
 			return;
 		}
 		this.connected = true;
-		this.syncRequestSent = false;
+		this.syncStep1RepliedTo.clear();
 		this.reconnectDelay = RECONNECT_BASE_DELAY_MS;
 		this.onStatusChange( { status: 'connected' } );
 
@@ -228,8 +227,11 @@ class PingHubConnection {
 					this.send( reply );
 				}
 
-				if ( innerType === syncProtocol.messageYjsSyncStep1 && ! this.syncRequestSent ) {
-					this.syncRequestSent = true;
+				if (
+					innerType === syncProtocol.messageYjsSyncStep1 &&
+					! this.syncStep1RepliedTo.has( senderClientID )
+				) {
+					this.syncStep1RepliedTo.add( senderClientID );
 					this.sendSyncStep1();
 				}
 				return;
