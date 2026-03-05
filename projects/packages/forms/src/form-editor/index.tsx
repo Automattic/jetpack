@@ -35,6 +35,7 @@ import {
 	unregisterFormCategories,
 } from './utils/category-utils';
 import { getAllowedBlocks } from './utils/get-allowed-blocks';
+import { shouldAutoOpenInserter } from './utils/inserter-utils';
 import type { WPPlugin } from '@wordpress/plugins';
 
 type PluginSettings = Omit< WPPlugin, 'name' >;
@@ -119,6 +120,7 @@ const state = {
 	lastRootBlockIds: '',
 	lastSelectedBlockId: null as string | null | undefined,
 	isFormBlockLocked: false,
+	hasOpenedInserter: false,
 };
 
 const BLOCK_DIRECTORY_PLUGIN_NAME = 'block-directory';
@@ -220,6 +222,16 @@ const enforceBlockSelection = () => {
 	if ( hasMultiSelection() ) {
 		return;
 	}
+
+	// Don't force-select when the inserter is open — selecting a block
+	// can close the inserter or change its context.
+	const { isInserterOpened } = select( 'core/editor' ) as {
+		isInserterOpened: () => boolean;
+	};
+	if ( isInserterOpened() ) {
+		return;
+	}
+
 	const selectedBlockId = getSelectedBlockClientId();
 	if ( ! selectedBlockId ) {
 		const { selectBlock } = dispatch( 'core/block-editor' ) as {
@@ -329,6 +341,7 @@ const enforceBlockNesting = () => {
 
 let unsubscribe: ( () => void ) | null = null;
 let requestAnimationFrameId: number | null = null;
+let inserterAnimationFrameId: number | null = null;
 
 /**
  * Sets up a subscription to monitor editor state changes and enforce form editor behavior.
@@ -391,11 +404,16 @@ const setupFormEditorSubscription = () => {
 						cancelAnimationFrame( requestAnimationFrameId );
 						requestAnimationFrameId = null;
 					}
+					if ( inserterAnimationFrameId ) {
+						cancelAnimationFrame( inserterAnimationFrameId );
+						inserterAnimationFrameId = null;
+					}
 
 					state.formBlockClientId = null;
 					state.lastRootBlockIds = '';
 					state.lastSelectedBlockId = null;
 					state.isFormBlockLocked = false;
+					state.hasOpenedInserter = false;
 				}
 			}
 
@@ -459,7 +477,40 @@ const setupFormEditorSubscription = () => {
 				enforceBlockNesting();
 			}
 
-			// 5. React to selection changes
+			// 5. Auto-open the block inserter (once) after blocks are ready
+			if ( ! state.hasOpenedInserter && state.formBlockClientId ) {
+				const currentFormBlock = select( 'core/block-editor' ).getBlock( state.formBlockClientId );
+				const hasAnyInnerBlocks = currentFormBlock && currentFormBlock.innerBlocks.length > 0;
+
+				if ( hasAnyInnerBlocks ) {
+					state.hasOpenedInserter = true;
+
+					const { get: getPreference } = select( 'core/preferences' ) as {
+						get: ( scope: string, name: string ) => boolean;
+					};
+
+					if (
+						shouldAutoOpenInserter( {
+							viewportWidth: window.innerWidth,
+							showListViewByDefault: getPreference( 'core', 'showListViewByDefault' ),
+							distractionFree: getPreference( 'core', 'distractionFree' ),
+						} )
+					) {
+						inserterAnimationFrameId = requestAnimationFrame( () => {
+							inserterAnimationFrameId = null;
+							if ( ! state.isFormEditor ) {
+								return;
+							}
+							const { setIsInserterOpened } = dispatch( 'core/editor' ) as {
+								setIsInserterOpened: ( isOpened: boolean ) => void;
+							};
+							setIsInserterOpened( true );
+						} );
+					}
+				}
+			}
+
+			// 6. React to selection changes
 			const { getSelectedBlockClientId } = select( 'core/block-editor' );
 			const currentSelectedBlockId = getSelectedBlockClientId();
 			if ( currentSelectedBlockId !== state.lastSelectedBlockId ) {
@@ -467,7 +518,7 @@ const setupFormEditorSubscription = () => {
 				enforceBlockSelection();
 			}
 
-			// 6. Ensure form block is locked
+			// 7. Ensure form block is locked
 			if ( ! state.isFormBlockLocked && state.formBlockClientId ) {
 				lockFormBlock();
 				const { getBlock } = select( 'core/block-editor' );
@@ -495,6 +546,10 @@ const setupFormEditorSubscription = () => {
 		if ( requestAnimationFrameId ) {
 			cancelAnimationFrame( requestAnimationFrameId );
 			requestAnimationFrameId = null;
+		}
+		if ( inserterAnimationFrameId ) {
+			cancelAnimationFrame( inserterAnimationFrameId );
+			inserterAnimationFrameId = null;
 		}
 		window.removeEventListener( 'beforeunload', handleUnload );
 	};
