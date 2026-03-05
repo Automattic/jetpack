@@ -445,7 +445,8 @@ export function createPingHubProvider( bridge: PingHubBridge ): ProviderCreator 
 		// Only use PingHub for individual posts. Other entity types (collections,
 		// comments, patterns, etc.) will not open a PingHub channel.
 		// Core passes values like "postType/post", "root/comment", "taxonomy/wp_pattern_category", etc.
-		if ( objectType !== 'postType/post' || objectId === null ) {
+		const allowedObjectTypes = [ 'postType/post', 'postType/page' ];
+		if ( ! allowedObjectTypes.includes( objectType ) || objectId === null ) {
 			return {
 				destroy: () => {},
 				on: () => {},
