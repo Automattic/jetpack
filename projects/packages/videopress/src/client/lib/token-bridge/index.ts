@@ -88,9 +88,6 @@ export async function tokenBridgeHandler(
 		return;
 	}
 
-	const postId = window?.videopressAjax.post_id || 0;
-	const subscriptionPlanId = await getSubscriberPlanIdIfExists( guid );
-
 	if ( ! isAllowedOrigin( event.origin ) ) {
 		debug( '(%s) Invalid origin', context );
 		return;
@@ -106,6 +103,9 @@ export async function tokenBridgeHandler(
 		debug( '(%s) Invalid source', context );
 		return;
 	}
+
+	const postId = window?.videopressAjax.post_id || 0;
+	const subscriptionPlanId = await getSubscriberPlanIdIfExists( guid );
 
 	debug( '(%s) Token request accepted: %o | %o | %o', context, guid, postId, requestId );
 
