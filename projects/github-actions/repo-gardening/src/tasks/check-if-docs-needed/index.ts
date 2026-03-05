@@ -103,7 +103,7 @@ Only flag a PR if ALL THREE conditions are true:
    - A different sequence of steps to accomplish a task
    - A new feature they need to learn about to use
    - A setting that moved and they need to find
-3. **The existing documentation would give incorrect instructions** — if a user followed the current docs, would they fail or be confused? If the docs are silent on this aspect, it's probably not doc-worthy.
+3. **The existing documentation would give incorrect instructions** — if a user followed the current docs, would they fail or be confused? If the docs are silent on this aspect, it's probably not doc-worthy — unless this PR introduces an entirely new user-facing feature that isn't documented anywhere yet.
 
 Note: Hiding a setting when it has no effect (e.g., removing an option when no providers are available) is NOT a workflow change — it's cleaning up UI that shouldn't have been shown in the first place.
 
