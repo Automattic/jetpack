@@ -175,37 +175,17 @@ export const getCopyForSubscribers = ( {
 const SENDING_IN_PROGRESS_WINDOW_MS = 15 * 60 * 1000;
 
 /**
- * Parse access level string into base key and optional tier name.
- * Stats format: paid_subscribers: Premium. Editor: paid_subscribers (tier in separate meta).
+ * Get access level label for display. Accepts base access level and optional tier name.
  *
- * @param {string} accessLevelStr - e.g. 'paid_subscribers', 'paid_subscribers: Premium'
- * @return {{ base: string, tierName: string|null }} Base access key and optional tier name.
- */
-function parseAccessLevel( accessLevelStr ) {
-	if ( ! accessLevelStr ) return { base: 'everybody', tierName: null };
-	const tierMatch = accessLevelStr.match( /^paid_subscribers:\s*(.+)$/ );
-	if ( tierMatch ) {
-		return { base: 'paid_subscribers', tierName: tierMatch[ 1 ].trim() };
-	}
-	const base = accessLevelStr.startsWith( 'paid_subscribers' )
-		? 'paid_subscribers'
-		: accessLevelStr;
-	return { base, tierName: null };
-}
-
-/**
- * Get access level label for display. Works with any access level string (from stats or current editor).
- * Uses parseAccessLevel for consistent parsing of the paid_subscribers: TierName format.
- *
- * @param {string} accessLevel - e.g. 'everybody', 'subscribers', 'paid_subscribers', 'paid_subscribers: Premium'
+ * @param {string}      accessLevel - Base key e.g. 'everybody', 'subscribers', 'paid_subscribers'.
+ * @param {string|null} [tierName]  - Optional tier name for paid subscribers (e.g. "Premium").
  * @return {string} Access level label for display (e.g. "all subscribers", "paid subscribers (Premium)").
  */
-function getAccessLevelLabel( accessLevel ) {
+function getAccessLevelLabel( accessLevel, tierName = null ) {
 	if ( ! accessLevel ) return __( 'all subscribers', 'jetpack' );
-	const { base, tierName } = parseAccessLevel( accessLevel );
 
 	let label;
-	switch ( base ) {
+	switch ( accessLevel ) {
 		case 'everybody':
 			label = __( 'all subscribers', 'jetpack' );
 			break;
@@ -219,7 +199,7 @@ function getAccessLevelLabel( accessLevel ) {
 			label = __( 'all subscribers', 'jetpack' );
 	}
 
-	if ( tierName && base === 'paid_subscribers' ) {
+	if ( tierName && accessLevel === 'paid_subscribers' ) {
 		return sprintf(
 			// translators: %1$s: access level label (e.g. "paid subscribers"), %2$s: tier name (e.g. "Premium")
 			__( '%1$s (%2$s)', 'jetpack' ),
@@ -228,6 +208,21 @@ function getAccessLevelLabel( accessLevel ) {
 		);
 	}
 	return label;
+}
+
+/**
+ * Get the current tier name from editor post meta and tier products.
+ *
+ * @param {string} accessLevel  - Current access level (e.g. 'paid_subscribers').
+ * @param {object} postMeta     - Post meta including tier ID.
+ * @param {Array}  tierProducts - Newsletter tier products.
+ * @return {string|null} Tier name when paid subscribers with a tier is selected, null otherwise.
+ */
+function getCurrentTierName( accessLevel, postMeta, tierProducts ) {
+	const tierId = postMeta?.[ META_NAME_FOR_POST_TIER_ID_SETTINGS ];
+	return accessLevel === accessOptions.paid_subscribers.key && tierId
+		? tierProducts?.find( p => String( p.id ) === String( tierId ) )?.title ?? null
+		: null;
 }
 
 /**
@@ -254,19 +249,12 @@ function shouldShowWontResendMessage( {
 	alreadySentPostModifiedInSession,
 	prePublish,
 } ) {
-	const statsAccess = statsOnSend?.access_level;
+	const statsBase = statsOnSend?.access_level;
+	const statsTierName = statsOnSend?.paid_tier ?? null;
 	const statsCats = statsOnSend?.post_categories ?? [];
-	const statsAccessParsed = parseAccessLevel( statsAccess );
-	const statsBase = statsAccessParsed.base;
-	const statsTierName = statsAccessParsed.tierName;
+	const currentTierName = getCurrentTierName( accessLevel, postMeta, tierProducts );
 
-	const tierId = postMeta?.[ META_NAME_FOR_POST_TIER_ID_SETTINGS ];
-	const currentTierName =
-		accessLevel === accessOptions.paid_subscribers.key && tierId
-			? tierProducts?.find( p => String( p.id ) === String( tierId ) )?.title ?? null
-			: null;
-
-	const baseMatches = ! statsAccess || statsBase === accessLevel;
+	const baseMatches = ! statsBase || statsBase === accessLevel;
 	const tierMatches =
 		( ! statsTierName && ! currentTierName ) ||
 		( statsTierName && currentTierName && statsTierName === currentTierName );
@@ -487,7 +475,9 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 	const dateStr =
 		postEmailSentState?.email_sent_at ?? postEmailSentState?.stats_on_send?.timestamp ?? '';
 
-	const sentAccessLabel = statsOnSend ? getAccessLevelLabel( statsOnSend.access_level ) : '';
+	const sentAccessLabel = statsOnSend
+		? getAccessLevelLabel( statsOnSend.access_level, statsOnSend.paid_tier )
+		: '';
 	const sentCategoryNames = statsOnSend
 		? getFormattedCategories( statsOnSend.post_categories, newsletterCategories, false )
 		: '';
@@ -544,7 +534,8 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 			'jetpack'
 		);
 	} else if ( isSendingInProgress ) {
-		const accessLabel = getAccessLevelLabel( accessLevel );
+		const currentTierName = getCurrentTierName( accessLevel, postMeta, tierProducts );
+		const accessLabel = getAccessLevelLabel( accessLevel, currentTierName );
 		const categoryNames =
 			newsletterCategoriesEnabled && newsletterCategories?.length && postCategories?.length
 				? getFormattedCategories( postCategories, newsletterCategories )

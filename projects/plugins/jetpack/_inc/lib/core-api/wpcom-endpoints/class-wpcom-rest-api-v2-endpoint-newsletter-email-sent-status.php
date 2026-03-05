@@ -100,8 +100,18 @@ class WPCOM_REST_API_V2_Endpoint_Newsletter_Email_Sent_Status extends WP_REST_Co
 			} else {
 				$ts = null;
 			}
+
+			$access_level_raw = $first['access_level'] ?? null;
+			$access_level     = $access_level_raw;
+			$paid_tier        = null;
+			if ( is_string( $access_level_raw ) && preg_match( '/^paid_subscribers:\s*(.+)$/', $access_level_raw, $m ) ) {
+				$access_level = 'paid_subscribers';
+				$paid_tier    = trim( $m[1] );
+			}
+
 			$stats_on_send = array(
-				'access_level'              => $first['access_level'] ?? null,
+				'access_level'              => $access_level,
+				'paid_tier'                 => $paid_tier,
 				'post_categories'           => isset( $first['post_categories'] ) && is_array( $first['post_categories'] ) ? $first['post_categories'] : array(),
 				'has_newsletter_categories' => ! empty( $first['has_newsletter_categories'] ),
 				'timestamp'                 => $ts,
