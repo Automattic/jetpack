@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Forms: add print response REST API endpoint and link in email notifications.

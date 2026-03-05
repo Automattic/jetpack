@@ -77,6 +77,131 @@ class Feedback_Email_Renderer {
 	public const FONT_SIZE_SMALL = '12px';
 
 	/**
+	 * Generate HTML for a form response suitable for print or email.
+	 *
+	 * @param int  $post_id         The feedback post ID.
+	 * @param bool $include_print_link Whether to include the print response link (for email).
+	 * @return string HTML content.
+	 */
+	public static function get_response_html( $post_id, $include_print_link = true ) {
+		$response = Feedback::get( $post_id );
+		if ( ! $response ) {
+			return '';
+		}
+
+		$feedback_post = get_post( $post_id );
+		if ( ! $feedback_post ) {
+			return '';
+		}
+
+		$time = get_the_date( 'c', $post_id );
+
+		$context_data = array(
+			'time'                 => $time,
+			'url'                  => $response->get_entry_permalink(),
+			'comment_author'       => $response->get_author(),
+			'comment_author_email' => $response->get_author_email(),
+			'comment_author_ip'    => $response->get_ip_address(),
+			'is_spam'              => $feedback_post->post_status === 'spam',
+			'feedback_status'      => $feedback_post->post_status,
+			'include_print_link'   => $include_print_link,
+		);
+
+		// Build the content similar to build_email_content
+		$title   = __( 'Form Response', 'jetpack-forms' );
+		$message = self::get_compiled_form_for_email( $post_id, null );
+
+		$comment_author       = $context_data['comment_author'];
+		$comment_author_email = $context_data['comment_author_email'];
+		$comment_author_ip    = $context_data['comment_author_ip'];
+		$url                  = $context_data['url'];
+
+		$footer_time = sprintf(
+			/* translators: Placeholder is the date and time when a form was submitted. */
+			esc_html__( 'Time: %1$s', 'jetpack-forms' ),
+			$time
+		);
+
+		$footer_ip = null;
+		if ( $comment_author_ip ) {
+			$comment_author_ip_with_flag = ( $response->get_country_flag() ? $response->get_country_flag() . ' ' : '' ) . esc_html( $comment_author_ip );
+			$footer_ip                   = sprintf(
+				/* translators: Placeholder is the IP address of the person who submitted a form. */
+				esc_html__( 'IP Address: %1$s', 'jetpack-forms' ),
+				$comment_author_ip_with_flag
+			);
+		}
+
+		$footer_browser = null;
+		if ( $response->get_browser() ) {
+			$footer_browser = sprintf(
+				/* translators: Placeholder is the browser and platform used to submit a form. */
+				esc_html__( 'Browser: %1$s', 'jetpack-forms' ),
+				$response->get_browser()
+			) . '<br />';
+		}
+
+		$footer_url = sprintf(
+			/* translators: Placeholder is the URL of the page where a form was submitted. */
+			__( 'Source URL: %1$s', 'jetpack-forms' ),
+			esc_url( $url )
+		);
+
+		$footer_parts = array_filter(
+			array(
+				'<span style="font-size: ' . self::FONT_SIZE_SMALL . '">',
+				$footer_time . '<br />',
+				$footer_ip ? $footer_ip . '<br />' : null,
+				$footer_browser ? $footer_browser . '<br />' : null,
+				$footer_url . '<br />',
+			)
+		);
+
+		// Add print response link only for email
+		if ( $include_print_link ) {
+			$print_url      = rest_url( 'wp/v2/feedback/' . $post_id . '/print' );
+			$footer_parts[] = sprintf(
+				'<a href="%1$s" target="_blank" rel="noopener noreferrer">%2$s</a><br />',
+				esc_url( $print_url ),
+				__( 'Print response', 'jetpack-forms' )
+			);
+		}
+
+		$footer_parts[] = '</span>';
+		$footer         = implode( '', $footer_parts );
+
+		// Build respondent info
+		$respondent_info = array(
+			'name'   => $comment_author,
+			'email'  => $comment_author_email,
+			'avatar' => $response->get_author_avatar(),
+		);
+
+		// Build metadata
+		$metadata = array(
+			'date'       => $time,
+			'source'     => $response->get_entry_title(),
+			'source_url' => $url,
+			'device'     => $response->get_browser(),
+			'ip'         => $comment_author_ip,
+			'ip_flag'    => $response->get_country_flag(),
+		);
+
+		$message = implode( '', $message );
+
+		// Wrap in HTML template
+		$html = self::wrap_message_in_html_tags( $title, $message, $footer, '', $respondent_info, $metadata );
+
+		// For print view, add window.print() JavaScript
+		if ( ! $include_print_link ) {
+			$print_script = '<script type="text/javascript">window.onload = function() { window.print(); };</script>';
+			$html         = str_replace( '</body>', $print_script . '</body>', $html );
+		}
+
+		return $html;
+	}
+
+	/**
 	 * Build the complete email content for a form submission.
 	 *
 	 * Assembles the email title, compiled form fields, footer, actions,
@@ -177,6 +302,14 @@ class Feedback_Email_Renderer {
 			);
 		}
 
+		// Add print response link
+		$print_url    = rest_url( 'wp/v2/feedback/' . $post_id . '/print' );
+		$footer_print = sprintf(
+			'<a href="%1$s" target="_blank" rel="noopener noreferrer">%2$s</a><br />',
+			esc_url( $print_url ),
+			__( 'Print response', 'jetpack-forms' )
+		);
+
 		$footer = implode(
 			'',
 			/**
@@ -196,7 +329,9 @@ class Feedback_Email_Renderer {
 						$footer_time . '<br />',
 						$footer_ip ? $footer_ip . '<br />' : null,
 						$footer_browser ? $footer_browser . '<br />' : null,
-						$footer_url . '<br /><br />',
+						$footer_url . '<br />',
+						$footer_print,
+						'<br />',
 						$footer_mark_as_spam_url ? $footer_mark_as_spam_url . '<br />' : null,
 						$sent_by_text,
 						'</span>',

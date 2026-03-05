@@ -351,6 +351,26 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 				),
 			)
 		);
+
+		// Print response endpoint.
+		register_rest_route(
+			$this->namespace,
+			$this->rest_base . '/(?P<id>\d+)/print',
+			array(
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'get_print_response' ),
+				'permission_callback' => array( $this, 'get_item_permissions_check' ),
+				'args'                => array(
+					'id' => array(
+						'description'       => 'Unique identifier for the feedback.',
+						'type'              => 'integer',
+						'required'          => true,
+						'sanitize_callback' => 'absint',
+						'validate_callback' => 'rest_validate_request_arg',
+					),
+				),
+			)
+		);
 	}
 	/**
 	 * Get source array from post IDs
@@ -1579,5 +1599,34 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 		);
 
 		return rest_ensure_response( $config );
+	}
+
+	/**
+	 * Get HTML for printing a form response.
+	 *
+	 * Returns a print-optimized HTML page for a form response that automatically
+	 * opens the browser's print dialog.
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 * @return WP_REST_Response Response with HTML content.
+	 */
+	public function get_print_response( $request ) {
+		$post_id = $request->get_param( 'id' );
+
+		$response = Feedback::get( $post_id );
+		if ( ! $response ) {
+			return new WP_Error(
+				'rest_post_invalid_id',
+				__( 'Invalid feedback ID.', 'jetpack-forms' ),
+				array( 'status' => 404 )
+			);
+		}
+
+		$html = Feedback_Email_Renderer::get_response_html( $post_id, false );
+
+		$response = new WP_REST_Response( $html );
+		$response->header( 'Content-Type', 'text/html; charset=UTF-8' );
+
+		return $response;
 	}
 }
