@@ -362,19 +362,6 @@ function StageInner() {
 		} );
 
 		actionsList.push( {
-			id: 'duplicate-form',
-			isPrimary: false,
-			label: __( 'Duplicate', 'jetpack-forms' ),
-			supportsBulk: false,
-			async callback( items: FormListItem[] ) {
-				const [ item ] = items;
-				if ( item ) {
-					await duplicateForm( item );
-				}
-			},
-		} );
-
-		actionsList.push( {
 			id: 'preview-form',
 			isPrimary: false,
 			label: __( 'Preview', 'jetpack-forms' ),
@@ -481,6 +468,19 @@ function StageInner() {
 					return;
 				}
 				openRenameModal( item );
+			},
+		} );
+
+		actionsList.push( {
+			id: 'duplicate-form',
+			isPrimary: false,
+			label: __( 'Duplicate', 'jetpack-forms' ),
+			supportsBulk: false,
+			async callback( items: FormListItem[] ) {
+				const [ item ] = items;
+				if ( item ) {
+					await duplicateForm( item );
+				}
 			},
 		} );
 
