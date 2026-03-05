@@ -220,8 +220,12 @@ function getAccessLevelLabel( accessLevel ) {
 	}
 
 	if ( tierName && base === 'paid_subscribers' ) {
-		// translators: %1$s: access level label (e.g. "paid subscribers"), %2$s: tier name (e.g. "Premium")
-		return sprintf( __( '%1$s (%2$s)', 'jetpack' ), label, tierName );
+		return sprintf(
+			// translators: %1$s: access level label (e.g. "paid subscribers"), %2$s: tier name (e.g. "Premium")
+			__( '%1$s (%2$s)', 'jetpack' ),
+			label,
+			tierName
+		);
 	}
 	return label;
 }
