@@ -61,10 +61,6 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 		$GLOBALS['wp_styles']   = new WP_Styles();
 		$this->reset_availability();
 		$this->simulate_connected_owner();
-		// Ensure Big Sky is disabled by default so tests aren't affected by the
-		// Big_Sky class persisting across tests once simulate_big_sky_class() runs.
-		update_option( 'big_sky_enable', '0' );
-		unset( $_GET['enable_image_studio'] );
 		$this->saved_screen = $GLOBALS['current_screen'] ?? null;
 	}
 
@@ -74,14 +70,10 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	public function tear_down() {
 		delete_transient( ImageStudio\ASSET_TRANSIENT );
 		remove_all_filters( 'jetpack_image_studio_enabled' );
-		remove_all_filters( 'agents_manager_use_unified_experience' );
-		remove_all_filters( 'agents_manager_agent_providers' );
 		remove_all_filters( 'pre_http_request' );
 		remove_all_filters( 'locale' );
 		remove_all_filters( 'jetpack_ai_enabled' );
 		( new \Automattic\Jetpack\Connection\Manager( 'jetpack' ) )->reset_connection_status();
-		unset( $_GET['enable_image_studio'] );
-		delete_option( 'big_sky_enable' );
 		$GLOBALS['current_screen'] = $this->saved_screen;
 		$GLOBALS['wp_scripts']     = $this->saved_wp_scripts;
 		$GLOBALS['wp_styles']      = $this->saved_wp_styles;
@@ -112,45 +104,10 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Enable Image Studio via jetpack_image_studio_enabled filter.
-	 */
-	private function enable_image_studio() {
-		add_filter( 'jetpack_image_studio_enabled', '__return_true' );
-	}
-
-	/**
 	 * Disable AI features via the jetpack_ai_enabled kill switch.
 	 */
 	private function disable_ai_features() {
 		add_filter( 'jetpack_ai_enabled', '__return_false' );
-	}
-
-	/**
-	 * Disable Image Studio via filter.
-	 */
-	private function disable_image_studio() {
-		add_filter( 'jetpack_image_studio_enabled', '__return_false' );
-	}
-
-	/**
-	 * Simulate the Big_Sky class existing (as if the Big Sky plugin were active).
-	 *
-	 * The class is declared in the global namespace once and persists for the
-	 * rest of the PHP process, but test isolation is achieved through the
-	 * big_sky_enable option, which is cleaned up in tear_down().
-	 */
-	private function simulate_big_sky_class() {
-		if ( ! class_exists( 'Big_Sky' ) ) {
-			// phpcs:ignore Generic.Files.OneObjectStructurePerFile.MultipleFound, Generic.Classes.DuplicateClassName.Found
-			eval( 'class Big_Sky {}' ); // @codingStandardsIgnoreLine — minimal stub for unit test isolation.
-		}
-	}
-
-	/**
-	 * Enable unified chat experience filter.
-	 */
-	private function enable_unified_experience() {
-		add_filter( 'agents_manager_use_unified_experience', '__return_true' );
 	}
 
 	/**
@@ -178,9 +135,7 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Enable Image Studio, cache asset data, and enqueue via block editor path.
-	 *
-	 * Sets up block editor screen before enqueuing.
+	 * Cache asset data, set block editor screen, register plugin, and enqueue.
 	 *
 	 * @param array|null $asset_data The asset data to cache.
 	 */
@@ -191,7 +146,6 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 				'dependencies' => array(),
 			);
 		}
-		$this->enable_image_studio();
 		$this->set_block_editor_screen();
 		ImageStudio\register_plugin();
 		set_transient( ImageStudio\ASSET_TRANSIENT, $asset_data, HOUR_IN_SECONDS );
@@ -199,7 +153,7 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Enable Image Studio, cache asset data, and enqueue via Media Library path.
+	 * Cache asset data, set Media Library screen, register plugin, and enqueue.
 	 *
 	 * @param array|null $asset_data The asset data to cache.
 	 */
@@ -210,7 +164,6 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 				'dependencies' => array(),
 			);
 		}
-		$this->enable_image_studio();
 		$this->set_media_library_screen();
 		ImageStudio\register_plugin();
 		set_transient( ImageStudio\ASSET_TRANSIENT, $asset_data, HOUR_IN_SECONDS );
@@ -252,7 +205,7 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	 * @param string $body         The response body.
 	 * @param string $content_type The Content-Type header value.
 	 */
-	private function mock_remote_asset_with_status( $status_code, $body = '', $content_type = 'application/json' ) {
+	private function mock_remote_asset_with_status( $status_code, $body, $content_type = 'application/json' ) {
 		add_filter(
 			'pre_http_request',
 			function () use ( $status_code, $body, $content_type ) {
@@ -289,68 +242,39 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	// -------------------------------------------------------------------------
 
 	/**
-	 * Enabled when jetpack_image_studio_enabled filter is true and AI features exist.
+	 * Enabled when AI features are available (connected owner, AI not disabled).
 	 */
-	public function test_is_enabled_via_jetpack_filter() {
-		$this->enable_image_studio();
+	public function test_is_enabled_when_ai_features_available() {
 		$this->assertTrue( ImageStudio\is_image_studio_enabled() );
 	}
 
 	/**
-	 * Enabled when unified experience is true and AI features exist.
+	 * Not enabled when AI features are disabled.
 	 */
-	public function test_is_enabled_via_unified_experience() {
-		$this->enable_unified_experience();
-		$this->assertTrue( ImageStudio\is_image_studio_enabled() );
-	}
-
-	/**
-	 * Not enabled when neither filter is set.
-	 */
-	public function test_is_not_enabled_when_both_filters_false() {
-		$this->assertFalse( ImageStudio\is_image_studio_enabled() );
-	}
-
-	/**
-	 * Enabled when both filters are true.
-	 */
-	public function test_is_enabled_when_both_filters_true() {
-		$this->enable_image_studio();
-		$this->enable_unified_experience();
-		$this->assertTrue( ImageStudio\is_image_studio_enabled() );
-	}
-
-	/**
-	 * AI features alone aren't enough; a filter must also be set.
-	 */
-	public function test_is_not_enabled_with_ai_features_but_no_filter() {
-		$this->assertFalse( ImageStudio\is_image_studio_enabled() );
-	}
-
-	/**
-	 * Enabled via filter with AI features available.
-	 */
-	public function test_is_enabled_via_filter_with_ai_features() {
-		add_filter( 'jetpack_image_studio_enabled', '__return_true' );
-		$this->assertTrue( ImageStudio\is_image_studio_enabled() );
-	}
-
-	/**
-	 * Unified experience alone isn't enough; AI features must also exist.
-	 */
-	public function test_is_not_enabled_via_unified_experience_without_ai_features() {
-		$this->enable_unified_experience();
+	public function test_is_not_enabled_when_ai_features_disabled() {
 		$this->disable_ai_features();
 		$this->assertFalse( ImageStudio\is_image_studio_enabled() );
 	}
 
+	// -------------------------------------------------------------------------
+	// signal_image_studio_active() tests
+	// -------------------------------------------------------------------------
+
 	/**
-	 * Filter alone isn't enough; AI features must also exist.
+	 * Test signal_image_studio_active adds the jetpack_image_studio_enabled filter when enabled.
 	 */
-	public function test_is_not_enabled_via_filter_without_ai_features() {
-		add_filter( 'jetpack_image_studio_enabled', '__return_true' );
+	public function test_signal_adds_filter_when_enabled() {
+		ImageStudio\signal_image_studio_active();
+		$this->assertTrue( apply_filters( 'jetpack_image_studio_enabled', false ) );
+	}
+
+	/**
+	 * Test signal_image_studio_active does NOT add filter when AI features are disabled.
+	 */
+	public function test_signal_does_not_add_filter_when_disabled() {
 		$this->disable_ai_features();
-		$this->assertFalse( ImageStudio\is_image_studio_enabled() );
+		ImageStudio\signal_image_studio_active();
+		$this->assertFalse( apply_filters( 'jetpack_image_studio_enabled', false ) );
 	}
 
 	// -------------------------------------------------------------------------
@@ -466,28 +390,18 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	// -------------------------------------------------------------------------
 
 	/**
-	 * Test that register_plugin sets extension available when jetpack_image_studio_enabled is true.
+	 * Test that register_plugin sets extension available when AI features are available.
 	 */
 	public function test_register_plugin_sets_available_when_enabled() {
-		$this->enable_image_studio();
 		ImageStudio\register_plugin();
 		$this->assertTrue( \Jetpack_Gutenberg::is_available( ImageStudio\FEATURE_NAME ) );
 	}
 
 	/**
-	 * Test that register_plugin sets extension available when unified experience is true.
-	 */
-	public function test_register_plugin_sets_available_when_unified_experience() {
-		$this->enable_unified_experience();
-		ImageStudio\register_plugin();
-		$this->assertTrue( \Jetpack_Gutenberg::is_available( ImageStudio\FEATURE_NAME ) );
-	}
-
-	/**
-	 * Test that register_plugin does not set extension available when both filters are false.
+	 * Test that register_plugin does not set extension available when AI features are disabled.
 	 */
 	public function test_register_plugin_not_available_when_disabled() {
-		$this->disable_image_studio();
+		$this->disable_ai_features();
 		ImageStudio\register_plugin();
 		$this->assertFalse( \Jetpack_Gutenberg::is_available( ImageStudio\FEATURE_NAME ) );
 	}
@@ -498,8 +412,6 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	 * Screen-level gating happens at enqueue time, not registration.
 	 */
 	public function test_register_plugin_available_regardless_of_screen() {
-		$this->enable_image_studio();
-
 		// Block editor - still registers.
 		$this->set_block_editor_screen();
 		ImageStudio\register_plugin();
@@ -543,10 +455,9 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Test block editor enqueue does not require query param.
+	 * Test block editor enqueue works without any special query param.
 	 */
 	public function test_block_editor_enqueued_without_query_param() {
-		$this->enable_image_studio();
 		$this->set_block_editor_screen();
 		ImageStudio\register_plugin();
 		set_transient(
@@ -568,7 +479,6 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	 * Test nothing enqueued when not on block editor screen.
 	 */
 	public function test_nothing_enqueued_on_non_block_editor() {
-		$this->enable_image_studio();
 		set_current_screen( 'dashboard' );
 		ImageStudio\register_plugin();
 		set_transient(
@@ -619,7 +529,6 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	 * Test nothing enqueued when asset file is unavailable.
 	 */
 	public function test_nothing_enqueued_when_asset_unavailable() {
-		$this->enable_image_studio();
 		$this->set_block_editor_screen();
 		ImageStudio\register_plugin();
 		$this->mock_remote_asset( false );
@@ -649,10 +558,10 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Test nothing enqueued when extension is not available (disabled).
+	 * Test nothing enqueued when AI features are disabled.
 	 */
-	public function test_nothing_enqueued_when_extension_not_available() {
-		$this->disable_image_studio();
+	public function test_nothing_enqueued_when_ai_features_disabled() {
+		$this->disable_ai_features();
 		$this->set_block_editor_screen();
 		ImageStudio\register_plugin();
 		set_transient(
@@ -752,7 +661,6 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	 * Test nothing enqueued on non-Media Library screen via admin hook.
 	 */
 	public function test_media_library_nothing_enqueued_on_other_screen() {
-		$this->enable_image_studio();
 		set_current_screen( 'dashboard' );
 		ImageStudio\register_plugin();
 		set_transient(
@@ -770,10 +678,10 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Test nothing enqueued on Media Library when Image Studio is disabled.
+	 * Test nothing enqueued on Media Library when AI features are disabled.
 	 */
 	public function test_media_library_nothing_enqueued_when_disabled() {
-		$this->disable_image_studio();
+		$this->disable_ai_features();
 		$this->set_media_library_screen();
 		ImageStudio\register_plugin();
 		set_transient(
@@ -949,7 +857,6 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	 * Test AI image extensions are disabled when Image Studio is available.
 	 */
 	public function test_ai_extensions_disabled_when_available() {
-		$this->enable_image_studio();
 		ImageStudio\register_plugin();
 		$this->make_ai_extensions_available();
 		$this->set_block_editor_screen();
@@ -965,29 +872,10 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Test AI image extensions are disabled when unified experience is enabled.
-	 */
-	public function test_ai_extensions_disabled_when_unified_experience() {
-		$this->enable_unified_experience();
-		ImageStudio\register_plugin();
-		$this->make_ai_extensions_available();
-		$this->set_block_editor_screen();
-
-		ImageStudio\disable_jetpack_ai_image_extensions();
-
-		foreach ( self::get_ai_image_extensions() as $ext ) {
-			$this->assertFalse(
-				\Jetpack_Gutenberg::is_available( $ext ),
-				"Extension $ext should be unavailable when unified experience is enabled."
-			);
-		}
-	}
-
-	/**
 	 * Test AI image extensions are NOT disabled when Image Studio is not available.
 	 */
 	public function test_ai_extensions_not_disabled_when_not_available() {
-		$this->disable_image_studio();
+		$this->disable_ai_features();
 		ImageStudio\register_plugin();
 		$this->make_ai_extensions_available();
 
@@ -1009,7 +897,6 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	 * Test AI extensions ARE disabled on block editor.
 	 */
 	public function test_ai_extensions_disabled_on_block_editor() {
-		$this->enable_image_studio();
 		ImageStudio\register_plugin();
 		$this->make_ai_extensions_available();
 
@@ -1028,7 +915,6 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	 * Test AI extensions ARE disabled on Media Library.
 	 */
 	public function test_ai_extensions_disabled_on_media_library() {
-		$this->enable_image_studio();
 		ImageStudio\register_plugin();
 		$this->make_ai_extensions_available();
 
@@ -1046,11 +932,10 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	/**
 	 * Test AI extensions ARE disabled on dashboard when Image Studio is available.
 	 *
-	 * Since the screen guard was removed, AI extensions are disabled globally
-	 * when Image Studio is available, regardless of screen.
+	 * AI extensions are disabled globally when Image Studio is available,
+	 * regardless of screen.
 	 */
 	public function test_ai_extensions_disabled_on_dashboard() {
-		$this->enable_image_studio();
 		ImageStudio\register_plugin();
 		$this->make_ai_extensions_available();
 
@@ -1068,11 +953,10 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	/**
 	 * Test AI extensions ARE disabled when no screen is available.
 	 *
-	 * Since the screen guard was removed, AI extensions are disabled globally
-	 * when Image Studio is available, regardless of screen availability.
+	 * AI extensions are disabled globally when Image Studio is available,
+	 * regardless of screen availability.
 	 */
 	public function test_ai_extensions_disabled_when_no_screen() {
-		$this->enable_image_studio();
 		ImageStudio\register_plugin();
 		$this->make_ai_extensions_available();
 
@@ -1588,132 +1472,6 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 
 		$this->assertSame( $original_actions, $actions );
 		$this->assertArrayNotHasKey( 'edit-with-ai', $actions );
-	}
-
-	// -------------------------------------------------------------------------
-	// is_big_sky_enabled() tests
-	// -------------------------------------------------------------------------
-
-	/**
-	 * Test is_big_sky_enabled returns false when Big_Sky class does not exist.
-	 *
-	 * NOTE: This test assumes that the Big_Sky class has not yet been defined in
-	 * the current PHP process. Because class definitions are permanent for
-	 * the lifetime of the process, it will be skipped if Big_Sky already exists.
-	 */
-	public function test_is_big_sky_enabled_false_when_class_missing() {
-		if ( class_exists( 'Big_Sky' ) ) {
-			$this->markTestSkipped( 'Big_Sky class already defined; this test must run before any call to simulate_big_sky_class().' );
-		}
-		$this->assertFalse( ImageStudio\is_big_sky_enabled() );
-	}
-
-	/**
-	 * Test is_big_sky_enabled returns true when Big_Sky class exists and option defaults to '1'.
-	 */
-	public function test_is_big_sky_enabled_true_with_class_and_default_option() {
-		$this->simulate_big_sky_class();
-		// Remove the option so get_option falls back to the default '1'.
-		delete_option( 'big_sky_enable' );
-		$this->assertTrue( ImageStudio\is_big_sky_enabled() );
-	}
-
-	/**
-	 * Test is_big_sky_enabled returns true when Big_Sky class exists and option is '1'.
-	 */
-	public function test_is_big_sky_enabled_true_with_class_and_option_enabled() {
-		$this->simulate_big_sky_class();
-		update_option( 'big_sky_enable', '1' );
-		$this->assertTrue( ImageStudio\is_big_sky_enabled() );
-	}
-
-	/**
-	 * Test is_big_sky_enabled returns false when Big_Sky class exists but option is empty string.
-	 */
-	public function test_is_big_sky_enabled_false_with_class_and_option_empty() {
-		$this->simulate_big_sky_class();
-		update_option( 'big_sky_enable', '' );
-		$this->assertFalse( ImageStudio\is_big_sky_enabled() );
-	}
-
-	/**
-	 * Test is_big_sky_enabled returns false when Big_Sky class exists but option is '0'.
-	 */
-	public function test_is_big_sky_enabled_false_with_class_and_option_zero() {
-		$this->simulate_big_sky_class();
-		update_option( 'big_sky_enable', '0' );
-		$this->assertFalse( ImageStudio\is_big_sky_enabled() );
-	}
-
-	// -------------------------------------------------------------------------
-	// is_image_studio_enabled() + Big Sky integration tests
-	// -------------------------------------------------------------------------
-
-	/**
-	 * Enabled via Big Sky when class exists, option enabled, and AI features available.
-	 */
-	public function test_is_enabled_via_big_sky() {
-		$this->simulate_big_sky_class();
-		update_option( 'big_sky_enable', '1' );
-		$this->assertTrue( ImageStudio\is_image_studio_enabled() );
-	}
-
-	/**
-	 * Not enabled via Big Sky when AI features are disabled.
-	 */
-	public function test_is_not_enabled_via_big_sky_without_ai_features() {
-		$this->simulate_big_sky_class();
-		update_option( 'big_sky_enable', '1' );
-		$this->disable_ai_features();
-		$this->assertFalse( ImageStudio\is_image_studio_enabled() );
-	}
-
-	/**
-	 * Not enabled via Big Sky when Big_Sky class exists but option is disabled.
-	 */
-	public function test_is_not_enabled_via_big_sky_when_option_disabled() {
-		$this->simulate_big_sky_class();
-		update_option( 'big_sky_enable', '' );
-		$this->assertFalse( ImageStudio\is_image_studio_enabled() );
-	}
-
-	/**
-	 * Enabled when Big Sky is active and another filter also enables it.
-	 */
-	public function test_is_enabled_via_big_sky_and_filter() {
-		$this->simulate_big_sky_class();
-		update_option( 'big_sky_enable', '1' );
-		$this->enable_image_studio();
-		$this->assertTrue( ImageStudio\is_image_studio_enabled() );
-	}
-
-	/**
-	 * Register plugin sets extension available via Big Sky.
-	 */
-	public function test_register_plugin_sets_available_via_big_sky() {
-		$this->simulate_big_sky_class();
-		update_option( 'big_sky_enable', '1' );
-		ImageStudio\register_plugin();
-		$this->assertTrue( \Jetpack_Gutenberg::is_available( ImageStudio\FEATURE_NAME ) );
-	}
-
-	/**
-	 * AI extensions disabled when Image Studio enabled via Big Sky.
-	 */
-	public function test_ai_extensions_disabled_when_enabled_via_big_sky() {
-		$this->simulate_big_sky_class();
-		update_option( 'big_sky_enable', '1' );
-		ImageStudio\register_plugin();
-		$this->make_ai_extensions_available();
-
-		ImageStudio\disable_jetpack_ai_image_extensions();
-
-		foreach ( self::get_ai_image_extensions() as $ext ) {
-			$this->assertFalse(
-				\Jetpack_Gutenberg::is_available( $ext ),
-				"Extension $ext should be unavailable when Image Studio is enabled via Big Sky."
-			);
-		}
 	}
 
 	// -------------------------------------------------------------------------

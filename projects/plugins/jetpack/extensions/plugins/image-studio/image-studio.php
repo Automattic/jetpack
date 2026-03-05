@@ -28,31 +28,29 @@ const ASSET_TRANSIENT        = 'jetpack_image_studio_asset';
 /**
  * Check if Image Studio is enabled.
  *
- * Requires AI features plus at least one of:
- * - The unified chat experience (agents_manager_use_unified_experience).
- * - The jetpack_image_studio_enabled filter.
- * - Big Sky plugin is active and enabled.
+ * Enabled whenever AI features are available.
  *
  * @return bool
  */
 function is_image_studio_enabled() {
-	if ( ! has_ai_features() ) {
-		return false;
-	}
-
-	return apply_filters( 'agents_manager_use_unified_experience', false )
-		|| apply_filters( 'jetpack_image_studio_enabled', false )
-		|| is_big_sky_enabled();
+	return has_ai_features();
 }
 
 /**
- * Check if the Big Sky plugin is active and enabled.
+ * Signal to Big Sky that Jetpack is handling Image Studio.
  *
- * @return bool
+ * Sets the jetpack_image_studio_enabled filter to true so that
+ * Big Sky skips its own Image Studio loading when Jetpack has
+ * AI features available.
+ *
+ * @return void
  */
-function is_big_sky_enabled() {
-	return class_exists( 'Big_Sky' ) && get_option( 'big_sky_enable', '1' );
+function signal_image_studio_active() {
+	if ( is_image_studio_enabled() ) {
+		add_filter( 'jetpack_image_studio_enabled', '__return_true', 5 );
+	}
 }
+add_action( 'init', __NAMESPACE__ . '\signal_image_studio_active' );
 
 /**
  * Check whether AI features are available.
