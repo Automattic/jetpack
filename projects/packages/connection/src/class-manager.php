@@ -189,6 +189,8 @@ class Manager {
 
 		// Initial Partner management.
 		Partner::init();
+
+		Wpcom_Id_Page::init();
 	}
 
 	/**

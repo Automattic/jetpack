@@ -33,7 +33,8 @@
 			"legacy",
 			"src/",
 			"src/webhooks",
-			"src/identity-crisis"
+			"src/identity-crisis",
+			"src/wpcom-id-page"
 		]
 	},
 	"scripts": {

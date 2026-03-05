@@ -1,0 +1,75 @@
+.wpcom-id-page {
+	max-width: 800px;
+	margin-top: 20px;
+
+	&__section {
+		background: #fff;
+		border: 1px solid #c3c4c7;
+		padding: 16px 20px;
+		margin-bottom: 20px;
+
+		h2 {
+			margin-top: 0;
+			padding: 0;
+			font-size: 1.15em;
+		}
+	}
+
+	&__kv-table {
+		width: 100%;
+		border-collapse: collapse;
+
+		th,
+		td {
+			padding: 8px 10px;
+			text-align: left;
+			border-bottom: 1px solid #f0f0f1;
+		}
+
+		th {
+			width: 180px;
+			font-weight: 600;
+			color: #1d2327;
+		}
+
+		td {
+			color: #50575e;
+		}
+	}
+
+	&__user-card {
+		display: flex;
+		align-items: center;
+		gap: 16px;
+		margin-bottom: 16px;
+
+		img {
+			border-radius: 50%;
+		}
+	}
+
+	&__user-info {
+
+		dt {
+			font-weight: 600;
+			color: #1d2327;
+			margin-bottom: 2px;
+		}
+
+		dd {
+			margin: 0 0 8px;
+			color: #50575e;
+		}
+	}
+
+	&__actions {
+		display: flex;
+		gap: 8px;
+		margin-top: 12px;
+	}
+
+	&__placeholder-text {
+		color: #787c82;
+		font-style: italic;
+	}
+}
