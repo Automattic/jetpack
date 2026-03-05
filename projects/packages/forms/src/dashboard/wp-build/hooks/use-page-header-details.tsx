@@ -149,7 +149,7 @@ export default function usePageHeaderDetails(
 		}
 
 		const formItem = { id: sourceIdNumber, title: formTitle };
-		const controls: Array< { title: string; onClick: () => void; isDisabled?: boolean } > = [
+		const controls: Array< { title: string; onClick: () => void } > = [
 			{
 				title: __( 'Duplicate', 'jetpack-forms' ),
 				onClick: () => duplicateForm( formItem ),
@@ -176,14 +176,20 @@ export default function usePageHeaderDetails(
 		if ( formRecord?.status === 'publish' ) {
 			controls.push( {
 				title: __( 'Unpublish', 'jetpack-forms' ),
-				onClick: () => setFormsToDraft( [ formItem ] ),
-				isDisabled: isUpdatingStatus,
+				onClick: () => {
+					if ( ! isUpdatingStatus ) {
+						setFormsToDraft( [ formItem ] );
+					}
+				},
 			} );
 		} else {
 			controls.push( {
 				title: __( 'Publish', 'jetpack-forms' ),
-				onClick: () => publishForms( [ formItem ] ),
-				isDisabled: isUpdatingStatus,
+				onClick: () => {
+					if ( ! isUpdatingStatus ) {
+						publishForms( [ formItem ] );
+					}
+				},
 			} );
 		}
 
