@@ -123,7 +123,7 @@ Seeing a slightly different header layout or a video thumbnail that now auto-ref
 
 ### KEYWORD PATTERNS THAT INDICATE DOC-WORTHY CHANGES
 
-If the PR title or description contains these patterns, it likely needs documentation review:
+These are secondary signals that a PR likely needs documentation review:
 
 - "add [panel/option/preview/button/field type/control]" → New UI element introducing new functionality
 - "remove [service/feature/module/sharing option]" → Users lose access to documented functionality
