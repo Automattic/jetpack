@@ -86,6 +86,16 @@ class Settings {
 	public static $is_doing_cron;
 
 	/**
+	 * Per-request cache for allowed post types (checksum). Cleared when post_types_blacklist is updated.
+	 *
+	 * @access private
+	 * @static
+	 *
+	 * @var array|null
+	 */
+	private static $cached_allowed_post_types_for_checksum = null;
+
+	/**
 	 * Whether we're currently syncing.
 	 *
 	 * @access public
@@ -293,6 +303,11 @@ class Settings {
 				$updated = update_option( self::SETTINGS_OPTION_PREFIX . $setting, $value, true );
 			}
 
+			// Invalidate allowlist cache when post types blacklist changes.
+			if ( 'post_types_blacklist' === $setting ) {
+				self::$cached_allowed_post_types_for_checksum = null;
+			}
+
 			// If we set the disabled option to true, clear the queues.
 			if ( ( 'disable' === $setting || 'network_disable' === $setting ) && (bool) $value ) {
 				$listener = Listener::get_instance();
@@ -375,13 +390,19 @@ class Settings {
 	 * Get allowed post types for the posts checksum (all registered minus blacklist).
 	 * Used so the checksum query can use IN (allowed) instead of NOT IN (blacklist).
 	 *
+	 * Result is cached for the request to prevent unnecessary get_post_types() calls.
+	 *
 	 * @return array Allowed post type names (no DB query; get_post_types() is used).
 	 */
 	public static function get_allowed_post_types_for_checksum() {
-		$all_types = get_post_types( array(), 'names' );
-		$blacklist = static::get_setting( 'post_types_blacklist' );
-		$allowed   = array_diff( $all_types, $blacklist );
-		return array_values( $allowed );
+		if ( null !== self::$cached_allowed_post_types_for_checksum ) {
+			return self::$cached_allowed_post_types_for_checksum;
+		}
+		$all_types                                    = get_post_types( array(), 'names' );
+		$blacklist                                    = static::get_setting( 'post_types_blacklist' );
+		$allowed                                      = array_diff( $all_types, $blacklist );
+		self::$cached_allowed_post_types_for_checksum = array_values( $allowed );
+		return self::$cached_allowed_post_types_for_checksum;
 	}
 
 	/**
