@@ -72,7 +72,7 @@ export const getFormattedCategories = (
 	return formattedCategories;
 };
 
-const getCopyForCategorySubscribers = ( {
+export const getCopyForCategorySubscribers = ( {
 	futureTense,
 	newsletterCategories,
 	postCategories,
@@ -181,7 +181,7 @@ const SENDING_IN_PROGRESS_WINDOW_MS = 15 * 60 * 1000;
  * @param {string|null} [tierName]  - Optional tier name for paid subscribers (e.g. "Premium").
  * @return {string} Access level label for display (e.g. "all subscribers", "paid subscribers (Premium)").
  */
-function getAccessLevelLabel( accessLevel, tierName = null ) {
+export function getAccessLevelLabel( accessLevel, tierName = null ) {
 	if ( ! accessLevel ) return __( 'all subscribers', 'jetpack' );
 
 	let label;
@@ -218,7 +218,7 @@ function getAccessLevelLabel( accessLevel, tierName = null ) {
  * @param {Array}  tierProducts - Newsletter tier products.
  * @return {string|null} Tier name when paid subscribers with a tier is selected, null otherwise.
  */
-function getCurrentTierName( accessLevel, postMeta, tierProducts ) {
+export function getCurrentTierName( accessLevel, postMeta, tierProducts ) {
 	const tierId = postMeta?.[ META_NAME_FOR_POST_TIER_ID_SETTINGS ];
 	return accessLevel === accessOptions.paid_subscribers.key && tierId
 		? tierProducts?.find( p => String( p.id ) === String( tierId ) )?.title ?? null
@@ -240,7 +240,7 @@ function getCurrentTierName( accessLevel, postMeta, tierProducts ) {
  * @param {boolean} opts.prePublish                       - Whether we're in pre-publish context.
  * @return {boolean} True if the "won't resend" message should be shown.
  */
-function shouldShowWontResendMessage( {
+export function shouldShowWontResendMessage( {
 	statsOnSend,
 	postMeta,
 	accessLevel,
@@ -279,7 +279,7 @@ function shouldShowWontResendMessage( {
  * @param {string}  opts.dateStr       - For past tense only
  * @return {string} Formatted sentence for "was sent" or "is being sent" copy.
  */
-function getSentCopyLine( { accessLabel, categoryNames, pastTense, dateStr } ) {
+export function getSentCopyLine( { accessLabel, categoryNames, pastTense, dateStr } ) {
 	if ( pastTense && dateStr && ! accessLabel ) {
 		return sprintf(
 			/* translators: %s: formatted date */
@@ -602,7 +602,7 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
  *
  * @return {string} - The Jetpack email stats link for the given post.
  */
-function getJetpackEmailStatsLink( blogId, postId ) {
+export function getJetpackEmailStatsLink( blogId, postId ) {
 	return getAdminUrl( `admin.php?page=stats#!/stats/email/opens/day/${ postId }/${ blogId }` );
 }
 

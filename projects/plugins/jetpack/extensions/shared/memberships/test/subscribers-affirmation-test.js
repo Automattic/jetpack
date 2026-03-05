@@ -1,4 +1,19 @@
-import { getFormattedCategories, getCopyForSubscribers } from '../subscribers-affirmation';
+import { getAdminUrl } from '@automattic/jetpack-script-data';
+import { META_NAME_FOR_POST_TIER_ID_SETTINGS, accessOptions } from '../constants';
+import {
+	getFormattedCategories,
+	getCopyForSubscribers,
+	getCopyForCategorySubscribers,
+	getAccessLevelLabel,
+	getCurrentTierName,
+	shouldShowWontResendMessage,
+	getSentCopyLine,
+	getJetpackEmailStatsLink,
+} from '../subscribers-affirmation';
+
+jest.mock( '@automattic/jetpack-script-data', () => ( {
+	getAdminUrl: jest.fn( path => `https://admin.example.com/${ path }` ),
+} ) );
 
 describe( 'getFormattedCategories', () => {
 	const newsletterCategories = [
@@ -103,5 +118,312 @@ describe( 'getCopyForSubscribers', () => {
 		expect( singular ).toContain( 'subscriber' );
 		expect( singular ).not.toContain( 'subscribers' );
 		expect( plural ).toContain( 'subscribers' );
+	} );
+} );
+
+const newsletterCategories = [
+	{ id: 1, name: 'Uncategorized' },
+	{ id: 2, name: 'Tech' },
+	{ id: 3, name: 'News' },
+];
+
+describe( 'getCopyForCategorySubscribers', () => {
+	test( 'future tense returns "will be sent to everyone subscribed to" copy', () => {
+		const result = getCopyForCategorySubscribers( {
+			futureTense: true,
+			newsletterCategories,
+			postCategories: [ 2 ],
+			reachCount: 5,
+		} );
+		expect( result ).toContain( 'will be sent' );
+		expect( result ).toContain( 'Tech' );
+		expect( result ).toContain( '5' );
+	} );
+
+	test( 'past tense returns "was sent to everyone subscribed to" with link placeholder', () => {
+		const result = getCopyForCategorySubscribers( {
+			futureTense: false,
+			newsletterCategories,
+			postCategories: [ 2 ],
+			reachCount: 10,
+		} );
+		expect( result ).toContain( 'was sent' );
+		expect( result ).toContain( '<link>' );
+		expect( result ).toContain( 'Tech' );
+	} );
+
+	test( 'reachCount undefined uses "0"', () => {
+		const result = getCopyForCategorySubscribers( {
+			futureTense: true,
+			newsletterCategories,
+			postCategories: [ 2 ],
+			reachCount: undefined,
+		} );
+		expect( result ).toContain( '0' );
+	} );
+
+	test( 'pluralizes subscriber correctly', () => {
+		const singular = getCopyForCategorySubscribers( {
+			futureTense: true,
+			newsletterCategories,
+			postCategories: [ 2 ],
+			reachCount: 1,
+		} );
+		const plural = getCopyForCategorySubscribers( {
+			futureTense: true,
+			newsletterCategories,
+			postCategories: [ 2 ],
+			reachCount: 2,
+		} );
+		expect( singular ).toContain( 'subscriber' );
+		expect( singular ).not.toContain( 'subscribers' );
+		expect( plural ).toContain( 'subscribers' );
+	} );
+} );
+
+describe( 'getAccessLevelLabel', () => {
+	test( 'empty or falsy accessLevel returns "all subscribers"', () => {
+		expect( getAccessLevelLabel( '' ) ).toBe( 'all subscribers' );
+		expect( getAccessLevelLabel( null ) ).toBe( 'all subscribers' );
+		expect( getAccessLevelLabel( undefined ) ).toBe( 'all subscribers' );
+	} );
+
+	test( 'everybody and subscribers return "all subscribers"', () => {
+		expect( getAccessLevelLabel( 'everybody' ) ).toBe( 'all subscribers' );
+		expect( getAccessLevelLabel( 'subscribers' ) ).toBe( 'all subscribers' );
+	} );
+
+	test( 'unknown accessLevel defaults to "all subscribers"', () => {
+		expect( getAccessLevelLabel( 'unknown' ) ).toBe( 'all subscribers' );
+	} );
+
+	test( 'paid_subscribers returns "paid subscribers"', () => {
+		expect( getAccessLevelLabel( 'paid_subscribers' ) ).toBe( 'paid subscribers' );
+	} );
+
+	test( 'paid_subscribers with tierName returns "paid subscribers (Premium)"', () => {
+		expect( getAccessLevelLabel( 'paid_subscribers', 'Premium' ) ).toBe(
+			'paid subscribers (Premium)'
+		);
+	} );
+} );
+
+describe( 'getCurrentTierName', () => {
+	test( 'accessLevel not paid_subscribers returns null', () => {
+		expect(
+			getCurrentTierName( 'subscribers', { [ META_NAME_FOR_POST_TIER_ID_SETTINGS ]: 1 }, [] )
+		).toBeNull();
+	} );
+
+	test( 'paid_subscribers but no tierId in postMeta returns null', () => {
+		expect(
+			getCurrentTierName( accessOptions.paid_subscribers.key, {}, [ { id: 1, title: 'Premium' } ] )
+		).toBeNull();
+	} );
+
+	test( 'paid_subscribers with tierId and matching product returns product title', () => {
+		const tierProducts = [ { id: 1, title: 'Premium' } ];
+		expect(
+			getCurrentTierName(
+				accessOptions.paid_subscribers.key,
+				{ [ META_NAME_FOR_POST_TIER_ID_SETTINGS ]: 1 },
+				tierProducts
+			)
+		).toBe( 'Premium' );
+	} );
+
+	test( 'paid_subscribers with tierId but no matching product returns null', () => {
+		const tierProducts = [ { id: 2, title: 'Basic' } ];
+		expect(
+			getCurrentTierName(
+				accessOptions.paid_subscribers.key,
+				{ [ META_NAME_FOR_POST_TIER_ID_SETTINGS ]: 1 },
+				tierProducts
+			)
+		).toBeNull();
+	} );
+} );
+
+describe( 'shouldShowWontResendMessage', () => {
+	test( 'alreadySentPostModifiedInSession true returns true', () => {
+		expect(
+			shouldShowWontResendMessage( {
+				statsOnSend: { access_level: 'subscribers' },
+				postMeta: {},
+				accessLevel: 'subscribers',
+				tierProducts: [],
+				postCategories: [],
+				alreadySentPostModifiedInSession: true,
+				prePublish: false,
+			} )
+		).toBe( true );
+	} );
+
+	test( 'prePublish true returns true', () => {
+		expect(
+			shouldShowWontResendMessage( {
+				statsOnSend: { access_level: 'subscribers' },
+				postMeta: {},
+				accessLevel: 'subscribers',
+				tierProducts: [],
+				postCategories: [],
+				alreadySentPostModifiedInSession: false,
+				prePublish: true,
+			} )
+		).toBe( true );
+	} );
+
+	test( 'accessMatches and categoriesMatch returns false', () => {
+		expect(
+			shouldShowWontResendMessage( {
+				statsOnSend: {
+					access_level: 'subscribers',
+					paid_tier: null,
+					post_categories: [ 1, 2 ],
+					has_newsletter_categories: true,
+				},
+				postMeta: {},
+				accessLevel: 'subscribers',
+				tierProducts: [],
+				postCategories: [ 1, 2 ],
+				alreadySentPostModifiedInSession: false,
+				prePublish: false,
+			} )
+		).toBe( false );
+	} );
+
+	test( 'accessLevel mismatch returns true', () => {
+		expect(
+			shouldShowWontResendMessage( {
+				statsOnSend: { access_level: 'paid_subscribers', paid_tier: null },
+				postMeta: {},
+				accessLevel: 'subscribers',
+				tierProducts: [],
+				postCategories: [],
+				alreadySentPostModifiedInSession: false,
+				prePublish: false,
+			} )
+		).toBe( true );
+	} );
+
+	test( 'categories mismatch returns true', () => {
+		expect(
+			shouldShowWontResendMessage( {
+				statsOnSend: {
+					access_level: 'subscribers',
+					post_categories: [ 1, 2 ],
+					has_newsletter_categories: true,
+				},
+				postMeta: {},
+				accessLevel: 'subscribers',
+				tierProducts: [],
+				postCategories: [ 1 ],
+				alreadySentPostModifiedInSession: false,
+				prePublish: false,
+			} )
+		).toBe( true );
+	} );
+} );
+
+describe( 'getSentCopyLine', () => {
+	test( 'pastTense with dateStr and no accessLabel returns date-only format', () => {
+		const result = getSentCopyLine( {
+			accessLabel: '',
+			categoryNames: '',
+			pastTense: true,
+			dateStr: 'Jan 15, 2024',
+		} );
+		expect( result ).toContain( 'emailed on' );
+		expect( result ).toContain( 'Jan 15, 2024' );
+		expect( result ).toContain( 'delivery details' );
+	} );
+
+	test( 'pastTense with categoryNames and dateStr returns "was emailed to X of Y on Z"', () => {
+		const result = getSentCopyLine( {
+			accessLabel: 'all subscribers',
+			categoryNames: 'Tech',
+			pastTense: true,
+			dateStr: 'Jan 15, 2024',
+		} );
+		expect( result ).toContain( 'was emailed to' );
+		expect( result ).toContain( 'all subscribers' );
+		expect( result ).toContain( 'Tech' );
+		expect( result ).toContain( 'Jan 15, 2024' );
+	} );
+
+	test( 'pastTense with categoryNames, no dateStr returns "was emailed to X of Y"', () => {
+		const result = getSentCopyLine( {
+			accessLabel: 'all subscribers',
+			categoryNames: 'Tech',
+			pastTense: true,
+			dateStr: '',
+		} );
+		expect( result ).toContain( 'was emailed to' );
+		expect( result ).toContain( 'all subscribers' );
+		expect( result ).toContain( 'Tech' );
+	} );
+
+	test( 'future tense with categoryNames returns "is being emailed to X of Y"', () => {
+		const result = getSentCopyLine( {
+			accessLabel: 'all subscribers',
+			categoryNames: 'Tech',
+			pastTense: false,
+			dateStr: '',
+		} );
+		expect( result ).toContain( 'is being emailed' );
+		expect( result ).toContain( 'all subscribers' );
+		expect( result ).toContain( 'Tech' );
+	} );
+
+	test( 'pastTense with accessLabel and dateStr returns "was emailed to X on Y"', () => {
+		const result = getSentCopyLine( {
+			accessLabel: 'all subscribers',
+			categoryNames: '',
+			pastTense: true,
+			dateStr: 'Jan 15, 2024',
+		} );
+		expect( result ).toContain( 'was emailed to' );
+		expect( result ).toContain( 'all subscribers' );
+		expect( result ).toContain( 'Jan 15, 2024' );
+	} );
+
+	test( 'pastTense with accessLabel only returns "was emailed to X"', () => {
+		const result = getSentCopyLine( {
+			accessLabel: 'all subscribers',
+			categoryNames: '',
+			pastTense: true,
+			dateStr: '',
+		} );
+		expect( result ).toContain( 'was emailed to' );
+		expect( result ).toContain( 'all subscribers' );
+		expect( result ).toContain( 'delivery details' );
+	} );
+
+	test( 'future tense with accessLabel returns "is being emailed to X"', () => {
+		const result = getSentCopyLine( {
+			accessLabel: 'all subscribers',
+			categoryNames: '',
+			pastTense: false,
+			dateStr: '',
+		} );
+		expect( result ).toContain( 'is being emailed' );
+		expect( result ).toContain( 'all subscribers' );
+	} );
+} );
+
+describe( 'getJetpackEmailStatsLink', () => {
+	beforeEach( () => {
+		getAdminUrl.mockClear();
+	} );
+
+	test( 'calls getAdminUrl with correct path and returns result', () => {
+		const result = getJetpackEmailStatsLink( 123, 456 );
+
+		expect( getAdminUrl ).toHaveBeenCalledWith(
+			'admin.php?page=stats#!/stats/email/opens/day/456/123'
+		);
+		expect( result ).toBe(
+			'https://admin.example.com/admin.php?page=stats#!/stats/email/opens/day/456/123'
+		);
 	} );
 } );
