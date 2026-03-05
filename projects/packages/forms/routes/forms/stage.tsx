@@ -345,62 +345,6 @@ function StageInner() {
 		}
 
 		actionsList.push( {
-			id: 'publish-form',
-			isPrimary: false,
-			label: __( 'Publish', 'jetpack-forms' ),
-			isEligible: ( item: FormListItem ) => item.status !== 'publish',
-			supportsBulk: true,
-			async callback( items: FormListItem[] ) {
-				if ( isDeleting || isUpdatingStatus ) {
-					return;
-				}
-				const eligibleItems = ( items || [] ).filter( item => item.status !== 'publish' );
-				if ( ! eligibleItems.length ) {
-					return;
-				}
-				const query = getFormsListQuery(
-					view.page ?? 1,
-					view.perPage ?? 20,
-					view.search ?? '',
-					statusQuery
-				) as Record< string, unknown >;
-				try {
-					await publishForms( eligibleItems, { invalidateQueries: [ query ] } );
-				} finally {
-					setSelection( [] );
-				}
-			},
-		} );
-
-		actionsList.push( {
-			id: 'unpublish-form',
-			isPrimary: false,
-			label: __( 'Unpublish', 'jetpack-forms' ),
-			isEligible: ( item: FormListItem ) => item.status === 'publish',
-			supportsBulk: true,
-			async callback( items: FormListItem[] ) {
-				if ( isDeleting || isUpdatingStatus ) {
-					return;
-				}
-				const eligibleItems = ( items || [] ).filter( item => item.status === 'publish' );
-				if ( ! eligibleItems.length ) {
-					return;
-				}
-				const query = getFormsListQuery(
-					view.page ?? 1,
-					view.perPage ?? 20,
-					view.search ?? '',
-					statusQuery
-				) as Record< string, unknown >;
-				try {
-					await setFormsToDraft( eligibleItems, { invalidateQueries: [ query ] } );
-				} finally {
-					setSelection( [] );
-				}
-			},
-		} );
-
-		actionsList.push( {
 			id: 'edit-form',
 			isPrimary: true,
 			label: __( 'Edit', 'jetpack-forms' ),
@@ -470,6 +414,62 @@ function StageInner() {
 				},
 			} );
 		}
+		actionsList.push( {
+			id: 'publish-form',
+			isPrimary: false,
+			label: __( 'Publish', 'jetpack-forms' ),
+			isEligible: ( item: FormListItem ) => item.status !== 'publish',
+			supportsBulk: true,
+			async callback( items: FormListItem[] ) {
+				if ( isDeleting || isUpdatingStatus ) {
+					return;
+				}
+				const eligibleItems = ( items || [] ).filter( item => item.status !== 'publish' );
+				if ( ! eligibleItems.length ) {
+					return;
+				}
+				const query = getFormsListQuery(
+					view.page ?? 1,
+					view.perPage ?? 20,
+					view.search ?? '',
+					statusQuery
+				) as Record< string, unknown >;
+				try {
+					await publishForms( eligibleItems, { invalidateQueries: [ query ] } );
+				} finally {
+					setSelection( [] );
+				}
+			},
+		} );
+
+		actionsList.push( {
+			id: 'unpublish-form',
+			isPrimary: false,
+			label: __( 'Unpublish', 'jetpack-forms' ),
+			isEligible: ( item: FormListItem ) => item.status === 'publish',
+			supportsBulk: true,
+			async callback( items: FormListItem[] ) {
+				if ( isDeleting || isUpdatingStatus ) {
+					return;
+				}
+				const eligibleItems = ( items || [] ).filter( item => item.status === 'publish' );
+				if ( ! eligibleItems.length ) {
+					return;
+				}
+				const query = getFormsListQuery(
+					view.page ?? 1,
+					view.perPage ?? 20,
+					view.search ?? '',
+					statusQuery
+				) as Record< string, unknown >;
+				try {
+					await setFormsToDraft( eligibleItems, { invalidateQueries: [ query ] } );
+				} finally {
+					setSelection( [] );
+				}
+			},
+		} );
+
 		actionsList.push( {
 			id: 'rename-form',
 			isPrimary: false,
