@@ -190,13 +190,9 @@ export default function useFormItemActions(): UseFormItemActionsReturn {
 												)
 											)
 										);
-										items.forEach( item => {
-											invalidateResolution( 'getEntityRecord', [
-												'postType',
-												FORM_POST_TYPE,
-												item.id,
-											] );
-										} );
+										// Invalidate list queries to refetch with updated statuses.
+										// Individual entity invalidation is unnecessary since saveEntityRecord
+										// already updates the record in the store.
 										const undoQueries = options.invalidateQueries?.length
 											? options.invalidateQueries
 											: [
@@ -243,10 +239,6 @@ export default function useFormItemActions(): UseFormItemActionsReturn {
 					} );
 				}
 
-				items.forEach( item => {
-					invalidateResolution( 'getEntityRecord', [ 'postType', FORM_POST_TYPE, item.id ] );
-				} );
-
 				const invalidateQueries = options.invalidateQueries?.length
 					? options.invalidateQueries
 					: [
@@ -258,13 +250,7 @@ export default function useFormItemActions(): UseFormItemActionsReturn {
 				setIsUpdatingStatus( false );
 			}
 		},
-		[
-			createErrorNotice,
-			createSuccessNotice,
-			invalidateListQuery,
-			invalidateResolution,
-			saveEntityRecord,
-		]
+		[ createErrorNotice, createSuccessNotice, invalidateListQuery, saveEntityRecord ]
 	);
 
 	const publishForms = useCallback(
