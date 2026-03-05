@@ -266,12 +266,20 @@ describe( 'LeaderboardChart', () => {
 		it( 'passes props correctly to composition legend', () => {
 			render(
 				<LeaderboardChart data={ mockData } withComparison={ true }>
-					<LeaderboardChart.Legend shape="circle" shapeStyles={ { width: 12, height: 12 } } />
+					<LeaderboardChart.Legend shape="circle" shapeStyles={ { margin: '4px 8px' } } />
 				</LeaderboardChart>
 			);
 
 			const legendItems = screen.getAllByTestId( 'legend-item' );
 			expect( legendItems ).toHaveLength( 2 );
+
+			// Verify custom shape styles are applied within each legend item.
+			// Direct DOM access is needed because visx legend shapes lack accessible attributes and we cannot pass a test id to them.
+			legendItems.forEach( item => {
+				// eslint-disable-next-line testing-library/no-node-access
+				const shape = item.querySelector( '.visx-legend-shape' );
+				expect( shape ).toHaveStyle( { margin: '4px 8px' } );
+			} );
 		} );
 
 		it( 'renders chart content when using composition API', () => {
