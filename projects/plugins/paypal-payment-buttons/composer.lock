@@ -384,7 +384,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "fbfecf17448a94378be8b34d3803dc4cc7e1bb46"
+                "reference": "6c0dd671eeb559c97d0d0c016babd81a269f12f7"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
@@ -437,7 +437,8 @@
                     "legacy",
                     "src/",
                     "src/webhooks",
-                    "src/identity-crisis"
+                    "src/identity-crisis",
+                    "src/wpcom-id-page"
                 ]
             },
             "scripts": {
