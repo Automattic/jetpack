@@ -24,11 +24,6 @@ class Settings {
 	const SETTINGS_OPTION_PREFIX = 'jetpack_sync_settings_';
 
 	/**
-	 * SQL expression that matches no rows (always false). Use when a WHERE clause is required but no rows should match.
-	 */
-	const SQL_IMPOSSIBLE = '1 = 0';
-
-	/**
 	 * A whitelist of valid settings.
 	 *
 	 * @access public
