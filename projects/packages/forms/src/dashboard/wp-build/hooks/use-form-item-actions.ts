@@ -143,10 +143,29 @@ export default function useFormItemActions(): UseFormItemActionsReturn {
 				const failedCount = promises.length - updatedCount;
 
 				if ( updatedCount ) {
-					createSuccessNotice( __( 'Status updated.', 'jetpack-forms' ), { type: 'snackbar' } );
+					const message =
+						nextStatus === 'publish'
+							? __( 'Form published.', 'jetpack-forms' )
+							: __( 'Form set to draft.', 'jetpack-forms' );
+					const previousStatus = nextStatus === 'publish' ? 'draft' : 'publish';
+					createSuccessNotice( message, {
+						type: 'snackbar',
+						actions: [
+							{
+								label: __( 'Undo', 'jetpack-forms' ),
+								onClick: () => {
+									updateStatus( items, previousStatus, options );
+								},
+							},
+						],
+					} );
 				}
 				if ( failedCount ) {
-					createErrorNotice( __( 'Could not update status.', 'jetpack-forms' ), {
+					const errorMessage =
+						nextStatus === 'publish'
+							? __( 'Could not publish form.', 'jetpack-forms' )
+							: __( 'Could not set form to draft.', 'jetpack-forms' );
+					createErrorNotice( errorMessage, {
 						type: 'snackbar',
 					} );
 				}
