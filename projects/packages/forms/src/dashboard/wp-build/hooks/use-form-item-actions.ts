@@ -3,7 +3,7 @@
  */
 import apiFetch from '@wordpress/api-fetch';
 import { useDispatch } from '@wordpress/data';
-import { useCallback, useState } from '@wordpress/element';
+import { useCallback, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
 /**
@@ -48,6 +48,7 @@ export default function useFormItemActions(): UseFormItemActionsReturn {
 	const { createSuccessNotice, createErrorNotice } = useDispatch( noticesStore );
 	const { duplicateForm, isDuplicating } = useDuplicateForm();
 	const [ isUpdatingStatus, setIsUpdatingStatus ] = useState( false );
+	const isUpdatingStatusRef = useRef( false );
 	const { saveEntityRecord, invalidateResolution } = useDispatch( 'core' ) as {
 		saveEntityRecord: (
 			kind: string,
@@ -122,10 +123,11 @@ export default function useFormItemActions(): UseFormItemActionsReturn {
 			nextStatus: 'publish' | 'draft',
 			options: UpdateStatusOptions = {}
 		) => {
-			if ( isUpdatingStatus || ! items?.length ) {
+			if ( isUpdatingStatusRef.current || ! items?.length ) {
 				return;
 			}
 
+			isUpdatingStatusRef.current = true;
 			setIsUpdatingStatus( true );
 			try {
 				const promises = await Promise.allSettled(
@@ -181,6 +183,7 @@ export default function useFormItemActions(): UseFormItemActionsReturn {
 					  ];
 				invalidateQueries.forEach( invalidateListQuery );
 			} finally {
+				isUpdatingStatusRef.current = false;
 				setIsUpdatingStatus( false );
 			}
 		},
@@ -189,7 +192,6 @@ export default function useFormItemActions(): UseFormItemActionsReturn {
 			createSuccessNotice,
 			invalidateListQuery,
 			invalidateResolution,
-			isUpdatingStatus,
 			saveEntityRecord,
 		]
 	);
