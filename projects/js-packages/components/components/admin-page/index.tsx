@@ -106,6 +106,7 @@ const AdminPage: FC< AdminPageProps > = ( {
 		return (
 			<div className={ rootClassName }>
 				<Page
+					ariaLabel={ title }
 					title={ composedTitle }
 					subTitle={ subTitle }
 					actions={ actions }
