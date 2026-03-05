@@ -120,7 +120,7 @@ describe( 'BaseLegend', () => {
 			{ label: 'Another Long Label for Testing', value: '30%', color: '#00ff00' },
 		];
 
-		test( 'renders with maxWidth constraint', () => {
+		test( 'applies maxWidth and minWidth styles to label text', () => {
 			render(
 				<BaseLegend
 					items={ longLabelItems }
@@ -128,11 +128,13 @@ describe( 'BaseLegend', () => {
 					orientation="horizontal"
 				/>
 			);
-			const legendItems = screen.getAllByTestId( 'legend-item' );
-			expect( legendItems ).toHaveLength( 2 );
+			const labels = screen.getAllByText( /Long Label/ );
+			labels.forEach( label => {
+				expect( label ).toHaveStyle( { maxWidth: '150px', minWidth: 0 } );
+			} );
 		} );
 
-		test( 'renders with maxWidth as string', () => {
+		test( 'supports different CSS units for maxWidth', () => {
 			render(
 				<BaseLegend
 					items={ longLabelItems }
@@ -140,17 +142,21 @@ describe( 'BaseLegend', () => {
 					orientation="horizontal"
 				/>
 			);
-			const legendItems = screen.getAllByTestId( 'legend-item' );
-			expect( legendItems ).toHaveLength( 2 );
+			const labels = screen.getAllByText( /Long Label/ );
+			labels.forEach( label => {
+				expect( label ).toHaveStyle( { maxWidth: '10rem' } );
+			} );
 		} );
 
-		test( 'renders correctly with and without maxWidth', () => {
+		test( 'does not apply maxWidth styles when omitted', () => {
 			const { rerender } = render(
 				<BaseLegend items={ longLabelItems } orientation="horizontal" />
 			);
 
-			let legendItems = screen.getAllByTestId( 'legend-item' );
-			expect( legendItems ).toHaveLength( 2 );
+			let labels = screen.getAllByText( /Long Label/ );
+			labels.forEach( label => {
+				expect( label ).not.toHaveStyle( { maxWidth: '150px' } );
+			} );
 
 			rerender(
 				<BaseLegend
@@ -159,11 +165,13 @@ describe( 'BaseLegend', () => {
 					orientation="horizontal"
 				/>
 			);
-			legendItems = screen.getAllByTestId( 'legend-item' );
-			expect( legendItems ).toHaveLength( 2 );
+			labels = screen.getAllByText( /Long Label/ );
+			labels.forEach( label => {
+				expect( label ).toHaveStyle( { maxWidth: '150px', minWidth: 0 } );
+			} );
 		} );
 
-		test( 'renders with different textOverflow values', () => {
+		test( 'applies maxWidth styles for both textOverflow modes', () => {
 			const { rerender } = render(
 				<BaseLegend
 					items={ longLabelItems }
@@ -172,7 +180,9 @@ describe( 'BaseLegend', () => {
 				/>
 			);
 			let labels = screen.getAllByText( /Long Label/ );
-			expect( labels ).toHaveLength( 2 );
+			labels.forEach( label => {
+				expect( label ).toHaveStyle( { maxWidth: '150px', minWidth: 0 } );
+			} );
 
 			rerender(
 				<BaseLegend
@@ -182,36 +192,12 @@ describe( 'BaseLegend', () => {
 				/>
 			);
 			labels = screen.getAllByText( /Long Label/ );
-			expect( labels ).toHaveLength( 2 );
+			labels.forEach( label => {
+				expect( label ).toHaveStyle( { maxWidth: '150px', minWidth: 0 } );
+			} );
 		} );
 
-		test( 'renders ellipsis mode without errors', () => {
-			render(
-				<BaseLegend
-					items={ longLabelItems }
-					labelStyles={ { maxWidth: '50px', textOverflow: 'ellipsis' } }
-					orientation="horizontal"
-				/>
-			);
-
-			const labels = screen.getAllByText( /Long Label/ );
-			expect( labels ).toHaveLength( 2 );
-		} );
-
-		test( 'renders wrap mode without errors', () => {
-			render(
-				<BaseLegend
-					items={ longLabelItems }
-					labelStyles={ { maxWidth: '50px', textOverflow: 'wrap' } }
-					orientation="horizontal"
-				/>
-			);
-
-			const labels = screen.getAllByText( /Long Label/ );
-			expect( labels ).toHaveLength( 2 );
-		} );
-
-		test( 'handles maxWidth=0px correctly', () => {
+		test( 'applies maxWidth=0px correctly', () => {
 			render(
 				<BaseLegend
 					items={ longLabelItems }
@@ -219,9 +205,10 @@ describe( 'BaseLegend', () => {
 					orientation="horizontal"
 				/>
 			);
-
-			const legendItems = screen.getAllByTestId( 'legend-item' );
-			expect( legendItems ).toHaveLength( 2 );
+			const labels = screen.getAllByText( /Long Label/ );
+			labels.forEach( label => {
+				expect( label ).toHaveStyle( { maxWidth: '0px', minWidth: 0 } );
+			} );
 		} );
 	} );
 
