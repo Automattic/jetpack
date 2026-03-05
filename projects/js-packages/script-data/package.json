@@ -17,9 +17,9 @@
 		".": "./src/index.ts"
 	},
 	"scripts": {
-		"typecheck": "tsc --noEmit"
+		"typecheck": "tsgo --noEmit"
 	},
 	"devDependencies": {
-		"typescript": "5.9.3"
+		"@typescript/native-preview": "7.0.0-dev.20260225.1"
 	}
 }

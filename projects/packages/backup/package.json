@@ -20,7 +20,7 @@
 		"clean": "rm -rf build/",
 		"test": "jest --config=tests/jest.config.js",
 		"test-coverage": "pnpm run test --coverage",
-		"typecheck": "tsc --noEmit",
+		"typecheck": "tsgo --noEmit",
 		"validate": "pnpm exec validate-es build/",
 		"watch": "pnpm run build && webpack watch"
 	},
@@ -56,13 +56,13 @@
 		"@testing-library/react": "16.3.0",
 		"@testing-library/user-event": "14.6.1",
 		"@types/react": "18.3.28",
+		"@typescript/native-preview": "7.0.0-dev.20260225.1",
 		"@wordpress/browserslist-config": "6.40.0",
 		"concurrently": "9.2.1",
 		"jest": "30.2.0",
 		"sass-embedded": "1.97.2",
 		"sass-loader": "16.0.5",
 		"storybook": "10.2.11",
-		"typescript": "5.9.3",
 		"webpack": "5.105.2",
 		"webpack-cli": "6.0.1"
 	}

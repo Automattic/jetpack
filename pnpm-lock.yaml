@@ -82,6 +82,9 @@ importers:
       '@types/node':
         specifier: ^22.19.11
         version: 22.19.11
+      '@typescript/native-preview':
+        specifier: 7.0.0-dev.20260225.1
+        version: 7.0.0-dev.20260225.1
       '@vercel/ncc':
         specifier: 0.36.1
         version: 0.36.1
@@ -246,7 +249,7 @@ importers:
         version: 10.2.11(@types/react@18.3.28)(storybook@10.2.11(@testing-library/dom@10.4.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))
       '@storybook/react':
         specifier: 10.2.11
-        version: 10.2.11(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(storybook@10.2.11(@testing-library/dom@10.4.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(typescript@5.9.3)
+        version: 10.2.11(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(storybook@10.2.11(@testing-library/dom@10.4.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))
       '@testing-library/dom':
         specifier: 10.4.1
         version: 10.4.1
@@ -256,15 +259,15 @@ importers:
       '@types/turndown':
         specifier: 5.0.6
         version: 5.0.6
+      '@typescript/native-preview':
+        specifier: 7.0.0-dev.20260225.1
+        version: 7.0.0-dev.20260225.1
       jest:
         specifier: 30.2.0
         version: 30.2.0
       storybook:
         specifier: 10.2.11
         version: 10.2.11(@testing-library/dom@10.4.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      typescript:
-        specifier: 5.9.3
-        version: 5.9.3
 
   projects/js-packages/analytics:
     devDependencies:
@@ -322,12 +325,12 @@ importers:
       '@automattic/jetpack-webpack-config':
         specifier: workspace:*
         version: link:../webpack-config
+      '@typescript/native-preview':
+        specifier: 7.0.0-dev.20260225.1
+        version: 7.0.0-dev.20260225.1
       jest:
         specifier: 30.2.0
         version: 30.2.0
-      typescript:
-        specifier: 5.9.3
-        version: 5.9.3
       webpack:
         specifier: 5.105.2
         version: 5.105.2(webpack-cli@6.0.1)
@@ -464,6 +467,9 @@ importers:
       '@types/react-dom':
         specifier: 18.3.7
         version: 18.3.7(@types/react@18.3.28)
+      '@typescript/native-preview':
+        specifier: 7.0.0-dev.20260225.1
+        version: 7.0.0-dev.20260225.1
       '@visx/glyph':
         specifier: 3.12.0
         version: 3.12.0(react@18.3.1)
@@ -608,7 +614,7 @@ importers:
         version: 10.2.11(@types/react@18.3.28)(storybook@10.2.11(@testing-library/dom@10.4.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(webpack@5.105.2)
       '@storybook/react':
         specifier: 10.2.11
-        version: 10.2.11(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(storybook@10.2.11(@testing-library/dom@10.4.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(typescript@5.9.3)
+        version: 10.2.11(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(storybook@10.2.11(@testing-library/dom@10.4.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))
       '@testing-library/dom':
         specifier: 10.4.1
         version: 10.4.1
@@ -630,6 +636,9 @@ importers:
       '@types/react-slider':
         specifier: 1.3.6
         version: 1.3.6
+      '@typescript/native-preview':
+        specifier: 7.0.0-dev.20260225.1
+        version: 7.0.0-dev.20260225.1
       jest:
         specifier: 30.2.0
         version: 30.2.0
@@ -648,9 +657,6 @@ importers:
       ts-dedent:
         specifier: 2.2.0
         version: 2.2.0
-      typescript:
-        specifier: 5.9.3
-        version: 5.9.3
       webpack:
         specifier: 5.105.2
         version: 5.105.2(webpack-cli@6.0.1)
@@ -736,6 +742,9 @@ importers:
       '@types/react':
         specifier: 18.3.28
         version: 18.3.28
+      '@typescript/native-preview':
+        specifier: 7.0.0-dev.20260225.1
+        version: 7.0.0-dev.20260225.1
       jest:
         specifier: 30.2.0
         version: 30.2.0
@@ -748,9 +757,6 @@ importers:
       storybook:
         specifier: 10.2.11
         version: 10.2.11(@testing-library/dom@10.4.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      typescript:
-        specifier: 5.9.3
-        version: 5.9.3
 
   projects/js-packages/critical-css-gen:
     dependencies:
@@ -782,6 +788,9 @@ importers:
       '@types/node':
         specifier: ^22.19.11
         version: 22.19.11
+      '@typescript/native-preview':
+        specifier: 7.0.0-dev.20260225.1
+        version: 7.0.0-dev.20260225.1
       express:
         specifier: 4.22.0
         version: 4.22.0
@@ -809,9 +818,6 @@ importers:
       tslib:
         specifier: 2.8.1
         version: 2.8.1
-      typescript:
-        specifier: 5.9.3
-        version: 5.9.3
       webpack:
         specifier: 5.105.2
         version: 5.105.2(webpack-cli@6.0.1)
@@ -1000,6 +1006,9 @@ importers:
       '@rollup/plugin-typescript':
         specifier: 12.1.0
         version: 12.1.0(rollup@3.30.0)(tslib@2.8.1)(typescript@5.9.3)
+      '@typescript/native-preview':
+        specifier: 7.0.0-dev.20260225.1
+        version: 7.0.0-dev.20260225.1
       concurrently:
         specifier: 9.2.1
         version: 9.2.1
@@ -1103,6 +1112,9 @@ importers:
       '@types/react':
         specifier: 18.3.28
         version: 18.3.28
+      '@typescript/native-preview':
+        specifier: 7.0.0-dev.20260225.1
+        version: 7.0.0-dev.20260225.1
       babel-jest:
         specifier: 30.2.0
         version: 30.2.0(@babel/core@7.29.0)
@@ -1115,9 +1127,6 @@ importers:
       react-dom:
         specifier: 18.3.1
         version: 18.3.1(react@18.3.1)
-      typescript:
-        specifier: 5.9.3
-        version: 5.9.3
 
   projects/js-packages/number-formatters:
     dependencies:
@@ -1146,6 +1155,9 @@ importers:
       '@types/jest':
         specifier: 30.0.0
         version: 30.0.0
+      '@typescript/native-preview':
+        specifier: 7.0.0-dev.20260225.1
+        version: 7.0.0-dev.20260225.1
       jest:
         specifier: 30.2.0
         version: 30.2.0
@@ -1192,6 +1204,9 @@ importers:
       '@testing-library/user-event':
         specifier: 14.6.1
         version: 14.6.1(@testing-library/dom@10.4.1)
+      '@typescript/native-preview':
+        specifier: 7.0.0-dev.20260225.1
+        version: 7.0.0-dev.20260225.1
       '@wordpress/base-styles':
         specifier: 6.16.0
         version: 6.16.0
@@ -1225,6 +1240,9 @@ importers:
       '@tanstack/react-query-devtools':
         specifier: 5.90.2
         version: 5.90.2(@tanstack/react-query@5.90.8(react@18.3.1))(react@18.3.1)
+      '@typescript/native-preview':
+        specifier: 7.0.0-dev.20260225.1
+        version: 7.0.0-dev.20260225.1
       jest:
         specifier: 30.2.0
         version: 30.2.0
@@ -1237,9 +1255,6 @@ importers:
       tslib:
         specifier: 2.8.1
         version: 2.8.1
-      typescript:
-        specifier: 5.9.3
-        version: 5.9.3
       webpack:
         specifier: 5.105.2
         version: 5.105.2(webpack-cli@6.0.1)
@@ -1310,7 +1325,7 @@ importers:
         version: 10.2.11(@types/react@18.3.28)(storybook@10.2.11(@testing-library/dom@10.4.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))
       '@storybook/react':
         specifier: 10.2.11
-        version: 10.2.11(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(storybook@10.2.11(@testing-library/dom@10.4.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(typescript@5.9.3)
+        version: 10.2.11(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(storybook@10.2.11(@testing-library/dom@10.4.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))
       '@testing-library/dom':
         specifier: 10.4.1
         version: 10.4.1
@@ -1323,6 +1338,9 @@ importers:
       '@types/react':
         specifier: 18.3.28
         version: 18.3.28
+      '@typescript/native-preview':
+        specifier: 7.0.0-dev.20260225.1
+        version: 7.0.0-dev.20260225.1
       jest:
         specifier: 30.2.0
         version: 30.2.0
@@ -1335,15 +1353,12 @@ importers:
       storybook:
         specifier: 10.2.11
         version: 10.2.11(@testing-library/dom@10.4.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      typescript:
-        specifier: 5.9.3
-        version: 5.9.3
 
   projects/js-packages/script-data:
     devDependencies:
-      typescript:
-        specifier: 5.9.3
-        version: 5.9.3
+      '@typescript/native-preview':
+        specifier: 7.0.0-dev.20260225.1
+        version: 7.0.0-dev.20260225.1
 
   projects/js-packages/shared-extension-utils:
     dependencies:
@@ -1435,6 +1450,9 @@ importers:
       '@testing-library/user-event':
         specifier: 14.6.1
         version: 14.6.1(@testing-library/dom@10.4.1)
+      '@typescript/native-preview':
+        specifier: 7.0.0-dev.20260225.1
+        version: 7.0.0-dev.20260225.1
       babel-jest:
         specifier: 30.2.0
         version: 30.2.0(@babel/core@7.29.0)
@@ -1450,9 +1468,6 @@ importers:
       react-dom:
         specifier: 18.3.1
         version: 18.3.1(react@18.3.1)
-      typescript:
-        specifier: 5.9.3
-        version: 5.9.3
 
   projects/js-packages/social-logos:
     dependencies:
@@ -1466,6 +1481,9 @@ importers:
       '@types/react-dom':
         specifier: 18.3.7
         version: 18.3.7(@types/react@18.3.28)
+      '@typescript/native-preview':
+        specifier: 7.0.0-dev.20260225.1
+        version: 7.0.0-dev.20260225.1
       glob:
         specifier: 13.0.0
         version: 13.0.0
@@ -1487,9 +1505,6 @@ importers:
       svgstore:
         specifier: ^3.0.1
         version: 3.0.1
-      typescript:
-        specifier: 5.9.3
-        version: 5.9.3
       wawoff2:
         specifier: ^2.0.1
         version: 2.0.1
@@ -1536,6 +1551,9 @@ importers:
       '@types/react-dom':
         specifier: 18.3.7
         version: 18.3.7(@types/react@18.3.28)
+      '@typescript/native-preview':
+        specifier: 7.0.0-dev.20260225.1
+        version: 7.0.0-dev.20260225.1
       babel-jest:
         specifier: 30.2.0
         version: 30.2.0(@babel/core@7.29.0)
@@ -1615,6 +1633,9 @@ importers:
       '@types/react':
         specifier: 18.3.28
         version: 18.3.28
+      '@typescript/native-preview':
+        specifier: 7.0.0-dev.20260225.1
+        version: 7.0.0-dev.20260225.1
       '@wordpress/base-styles':
         specifier: 6.16.0
         version: 6.16.0
@@ -1717,15 +1738,15 @@ importers:
       '@types/jest':
         specifier: 30.0.0
         version: 30.0.0
+      '@typescript/native-preview':
+        specifier: 7.0.0-dev.20260225.1
+        version: 7.0.0-dev.20260225.1
       jest:
         specifier: 30.2.0
         version: 30.2.0
       tslib:
         specifier: 2.8.1
         version: 2.8.1
-      typescript:
-        specifier: 5.9.3
-        version: 5.9.3
       webpack:
         specifier: 5.105.2
         version: 5.105.2(webpack-cli@6.0.1)
@@ -1820,6 +1841,9 @@ importers:
       '@babel/runtime':
         specifier: 7.28.6
         version: 7.28.6
+      '@typescript/native-preview':
+        specifier: 7.0.0-dev.20260225.1
+        version: 7.0.0-dev.20260225.1
       typescript:
         specifier: 5.9.3
         version: 5.9.3
@@ -1952,6 +1976,9 @@ importers:
       '@types/react':
         specifier: 18.3.28
         version: 18.3.28
+      '@typescript/native-preview':
+        specifier: 7.0.0-dev.20260225.1
+        version: 7.0.0-dev.20260225.1
       '@wordpress/browserslist-config':
         specifier: 6.40.0
         version: 6.40.0
@@ -1970,9 +1997,6 @@ importers:
       storybook:
         specifier: 10.2.11
         version: 10.2.11(@testing-library/dom@10.4.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      typescript:
-        specifier: 5.9.3
-        version: 5.9.3
       webpack:
         specifier: 5.105.2
         version: 5.105.2(webpack-cli@6.0.1)
@@ -2186,15 +2210,15 @@ importers:
       '@types/node':
         specifier: ^22.19.11
         version: 22.19.11
+      '@typescript/native-preview':
+        specifier: 7.0.0-dev.20260225.1
+        version: 7.0.0-dev.20260225.1
       concurrently:
         specifier: 9.2.1
         version: 9.2.1
       jest:
         specifier: 30.2.0
         version: 30.2.0(@types/node@22.19.11)
-      typescript:
-        specifier: 5.9.3
-        version: 5.9.3
       webpack:
         specifier: 5.105.2
         version: 5.105.2(webpack-cli@6.0.1)
@@ -2338,6 +2362,9 @@ importers:
       '@babel/preset-react':
         specifier: 7.28.5
         version: 7.28.5(@babel/core@7.29.0)
+      '@typescript/native-preview':
+        specifier: 7.0.0-dev.20260225.1
+        version: 7.0.0-dev.20260225.1
       jetpack-js-tools:
         specifier: workspace:*
         version: link:../../../tools/js-tools
@@ -2347,9 +2374,6 @@ importers:
       sass-loader:
         specifier: 16.0.5
         version: 16.0.5(sass-embedded@1.97.2)(webpack@5.105.2)
-      typescript:
-        specifier: 5.9.3
-        version: 5.9.3
       webpack:
         specifier: 5.105.2
         version: 5.105.2(webpack-cli@6.0.1)
@@ -2539,7 +2563,7 @@ importers:
         version: 7.28.6
       '@svgr/webpack':
         specifier: 8.1.0
-        version: 8.1.0(typescript@5.9.3)
+        version: 8.1.0
       '@tanstack/react-router':
         specifier: ^1.139.12
         version: 1.158.4(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -2561,6 +2585,9 @@ importers:
       '@types/react-dom':
         specifier: 18.3.7
         version: 18.3.7(@types/react@18.3.28)
+      '@typescript/native-preview':
+        specifier: 7.0.0-dev.20260225.1
+        version: 7.0.0-dev.20260225.1
       '@wordpress/api-fetch':
         specifier: 7.40.0
         version: 7.40.0
@@ -2596,7 +2623,7 @@ importers:
         version: 8.5.6
       postcss-loader:
         specifier: 8.2.0
-        version: 8.2.0(postcss@8.5.6)(typescript@5.9.3)(webpack@5.105.2)
+        version: 8.2.0(postcss@8.5.6)(webpack@5.105.2)
       postcss-modules:
         specifier: ^6.0.0
         version: 6.0.1(postcss@8.5.6)
@@ -2609,9 +2636,6 @@ importers:
       sharp:
         specifier: 0.33.5
         version: 0.33.5
-      typescript:
-        specifier: 5.9.3
-        version: 5.9.3
     optionalDependencies:
       react:
         specifier: 18.3.1
@@ -2870,6 +2894,9 @@ importers:
       '@types/react-dom':
         specifier: 18.3.7
         version: 18.3.7(@types/react@18.3.28)
+      '@typescript/native-preview':
+        specifier: 7.0.0-dev.20260225.1
+        version: 7.0.0-dev.20260225.1
       babel-plugin-transform-rename-properties:
         specifier: 0.1.0
         version: 0.1.0(@babel/core@7.29.0)
@@ -2882,9 +2909,6 @@ importers:
       sass-loader:
         specifier: 16.0.5
         version: 16.0.5(sass-embedded@1.97.2)(webpack@5.105.2)
-      typescript:
-        specifier: 5.9.3
-        version: 5.9.3
       wait-for-expect:
         specifier: 3.0.2
         version: 3.0.2
@@ -3084,7 +3108,7 @@ importers:
         version: 10.2.11(@types/react@18.3.28)(storybook@10.2.11(@testing-library/dom@10.4.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(webpack@5.105.2)
       '@storybook/react':
         specifier: 10.2.11
-        version: 10.2.11(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(storybook@10.2.11(@testing-library/dom@10.4.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(typescript@5.9.3)
+        version: 10.2.11(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(storybook@10.2.11(@testing-library/dom@10.4.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))
       '@testing-library/dom':
         specifier: 10.4.1
         version: 10.4.1
@@ -3106,6 +3130,9 @@ importers:
       '@types/react':
         specifier: 18.3.28
         version: 18.3.28
+      '@typescript/native-preview':
+        specifier: 7.0.0-dev.20260225.1
+        version: 7.0.0-dev.20260225.1
       concurrently:
         specifier: 9.2.1
         version: 9.2.1
@@ -3130,9 +3157,6 @@ importers:
       storybook:
         specifier: 10.2.11
         version: 10.2.11(@testing-library/dom@10.4.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      typescript:
-        specifier: 5.9.3
-        version: 5.9.3
       webpack:
         specifier: 5.105.2
         version: 5.105.2(webpack-cli@6.0.1)
@@ -3209,6 +3233,9 @@ importers:
       '@types/react-dom':
         specifier: 18.3.7
         version: 18.3.7(@types/react@18.3.28)
+      '@typescript/native-preview':
+        specifier: 7.0.0-dev.20260225.1
+        version: 7.0.0-dev.20260225.1
       '@wordpress/browserslist-config':
         specifier: 6.40.0
         version: 6.40.0
@@ -3224,9 +3251,6 @@ importers:
       sass-loader:
         specifier: 16.0.5
         version: 16.0.5(sass-embedded@1.97.2)(webpack@5.105.2)
-      typescript:
-        specifier: 5.9.3
-        version: 5.9.3
       webpack:
         specifier: 5.105.2
         version: 5.105.2(webpack-cli@6.0.1)
@@ -3381,6 +3405,9 @@ importers:
       '@automattic/jetpack-webpack-config':
         specifier: workspace:*
         version: link:../../js-packages/webpack-config
+      '@typescript/native-preview':
+        specifier: 7.0.0-dev.20260225.1
+        version: 7.0.0-dev.20260225.1
       sass-embedded:
         specifier: 1.97.2
         version: 1.97.2
@@ -3390,9 +3417,6 @@ importers:
       tslib:
         specifier: 2.8.1
         version: 2.8.1
-      typescript:
-        specifier: 5.9.3
-        version: 5.9.3
       webpack:
         specifier: 5.105.2
         version: 5.105.2(webpack-cli@6.0.1)
@@ -3571,7 +3595,7 @@ importers:
         version: 4.0.0(postcss@8.5.6)
       '@storybook/react':
         specifier: 10.2.11
-        version: 10.2.11(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(storybook@10.2.11(@testing-library/dom@10.4.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(typescript@5.9.3)
+        version: 10.2.11(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(storybook@10.2.11(@testing-library/dom@10.4.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))
       '@testing-library/dom':
         specifier: 10.4.1
         version: 10.4.1
@@ -3587,6 +3611,9 @@ importers:
       '@types/react':
         specifier: 18.3.28
         version: 18.3.28
+      '@typescript/native-preview':
+        specifier: 7.0.0-dev.20260225.1
+        version: 7.0.0-dev.20260225.1
       '@wordpress/browserslist-config':
         specifier: 6.40.0
         version: 6.40.0
@@ -3610,7 +3637,7 @@ importers:
         version: 12.1.11(postcss@8.5.6)
       postcss-loader:
         specifier: 8.2.0
-        version: 8.2.0(postcss@8.5.6)(typescript@5.9.3)(webpack@5.105.2)
+        version: 8.2.0(postcss@8.5.6)(webpack@5.105.2)
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -3626,9 +3653,6 @@ importers:
       storybook:
         specifier: 10.2.11
         version: 10.2.11(@testing-library/dom@10.4.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      typescript:
-        specifier: 5.9.3
-        version: 5.9.3
       webpack:
         specifier: 5.105.2
         version: 5.105.2(webpack-cli@6.0.1)
@@ -3870,6 +3894,9 @@ importers:
       '@types/jest':
         specifier: 30.0.0
         version: 30.0.0
+      '@typescript/native-preview':
+        specifier: 7.0.0-dev.20260225.1
+        version: 7.0.0-dev.20260225.1
       concurrently:
         specifier: 9.2.1
         version: 9.2.1
@@ -3888,9 +3915,6 @@ importers:
       sass-loader:
         specifier: 16.0.5
         version: 16.0.5(sass-embedded@1.97.2)(webpack@5.105.2)
-      typescript:
-        specifier: 5.9.3
-        version: 5.9.3
       webpack:
         specifier: 5.105.2
         version: 5.105.2(webpack-cli@6.0.1)
@@ -4031,7 +4055,7 @@ importers:
         version: 10.2.11(@types/react@18.3.28)(storybook@10.2.11(@testing-library/dom@10.4.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(webpack@5.105.2)
       '@storybook/react':
         specifier: 10.2.11
-        version: 10.2.11(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(storybook@10.2.11(@testing-library/dom@10.4.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(typescript@5.9.3)
+        version: 10.2.11(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(storybook@10.2.11(@testing-library/dom@10.4.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))
       '@testing-library/dom':
         specifier: 10.4.1
         version: 10.4.1
@@ -4053,6 +4077,9 @@ importers:
       '@types/react-dom':
         specifier: 18.3.7
         version: 18.3.7(@types/react@18.3.28)
+      '@typescript/native-preview':
+        specifier: 7.0.0-dev.20260225.1
+        version: 7.0.0-dev.20260225.1
       '@wordpress/browserslist-config':
         specifier: 6.40.0
         version: 6.40.0
@@ -4076,7 +4103,7 @@ importers:
         version: 12.1.11(postcss@8.5.6)
       postcss-loader:
         specifier: 8.2.0
-        version: 8.2.0(postcss@8.5.6)(typescript@5.9.3)(webpack@5.105.2)
+        version: 8.2.0(postcss@8.5.6)(webpack@5.105.2)
       require-from-string:
         specifier: 2.0.2
         version: 2.0.2
@@ -4089,9 +4116,6 @@ importers:
       storybook:
         specifier: 10.2.11
         version: 10.2.11(@testing-library/dom@10.4.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      typescript:
-        specifier: 5.9.3
-        version: 5.9.3
       webpack:
         specifier: 5.105.2
         version: 5.105.2(webpack-cli@6.0.1)
@@ -4123,15 +4147,15 @@ importers:
       '@types/jquery':
         specifier: 3.5.33
         version: 3.5.33
+      '@typescript/native-preview':
+        specifier: 7.0.0-dev.20260225.1
+        version: 7.0.0-dev.20260225.1
       '@wordpress/browserslist-config':
         specifier: 6.40.0
         version: 6.40.0
       jest:
         specifier: 30.2.0
         version: 30.2.0
-      typescript:
-        specifier: 5.9.3
-        version: 5.9.3
       webpack:
         specifier: 5.105.2
         version: 5.105.2(webpack-cli@6.0.1)
@@ -4391,7 +4415,7 @@ importers:
         version: 7.28.5(@babel/core@7.29.0)
       '@storybook/react':
         specifier: 10.2.11
-        version: 10.2.11(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(storybook@10.2.11(@testing-library/dom@10.4.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(typescript@5.9.3)
+        version: 10.2.11(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(storybook@10.2.11(@testing-library/dom@10.4.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))
       '@testing-library/dom':
         specifier: 10.4.1
         version: 10.4.1
@@ -4401,6 +4425,9 @@ importers:
       '@types/jquery':
         specifier: 3.5.33
         version: 3.5.33
+      '@typescript/native-preview':
+        specifier: 7.0.0-dev.20260225.1
+        version: 7.0.0-dev.20260225.1
       '@wordpress/browserslist-config':
         specifier: 6.40.0
         version: 6.40.0
@@ -4443,9 +4470,6 @@ importers:
       tslib:
         specifier: 2.8.1
         version: 2.8.1
-      typescript:
-        specifier: 5.9.3
-        version: 5.9.3
       webpack:
         specifier: 5.105.2
         version: 5.105.2(webpack-cli@6.0.1)
@@ -4461,6 +4485,9 @@ importers:
       '@types/node':
         specifier: ^22.19.11
         version: 22.19.11
+      '@typescript/native-preview':
+        specifier: 7.0.0-dev.20260225.1
+        version: 7.0.0-dev.20260225.1
       _jetpack-e2e-commons:
         specifier: workspace:*
         version: link:../../../../../tools/e2e-commons
@@ -4473,9 +4500,6 @@ importers:
       playwright-ctrf-json-reporter:
         specifier: ^0.0.26
         version: 0.0.26
-      typescript:
-        specifier: 5.9.3
-        version: 5.9.3
 
   projects/plugins/classic-theme-helper-plugin:
     dependencies:
@@ -4561,6 +4585,9 @@ importers:
       '@types/node':
         specifier: ^22.19.11
         version: 22.19.11
+      '@typescript/native-preview':
+        specifier: 7.0.0-dev.20260225.1
+        version: 7.0.0-dev.20260225.1
       _jetpack-e2e-commons:
         specifier: workspace:*
         version: link:../../../../../tools/e2e-commons
@@ -4573,9 +4600,6 @@ importers:
       playwright-ctrf-json-reporter:
         specifier: ^0.0.26
         version: 0.0.26
-      typescript:
-        specifier: 5.9.3
-        version: 5.9.3
 
   projects/plugins/crm:
     dependencies:
@@ -4664,6 +4688,9 @@ importers:
       '@types/react-dom':
         specifier: 18.3.7
         version: 18.3.7(@types/react@18.3.28)
+      '@typescript/native-preview':
+        specifier: 7.0.0-dev.20260225.1
+        version: 7.0.0-dev.20260225.1
       chart.js:
         specifier: 4.5.0
         version: 4.5.0
@@ -4718,9 +4745,6 @@ importers:
       typeahead.js:
         specifier: 0.11.1
         version: 0.11.1
-      typescript:
-        specifier: 5.9.3
-        version: 5.9.3
       webpack:
         specifier: 5.105.2
         version: 5.105.2(webpack-cli@6.0.1)
@@ -4748,6 +4772,9 @@ importers:
       '@rollup/plugin-typescript':
         specifier: 12.1.0
         version: 12.1.0(rollup@3.30.0)(tslib@2.8.1)(typescript@5.9.3)
+      '@typescript/native-preview':
+        specifier: 7.0.0-dev.20260225.1
+        version: 7.0.0-dev.20260225.1
       '@wordpress/i18n':
         specifier: 6.13.0
         version: 6.13.0
@@ -5084,7 +5111,7 @@ importers:
         version: 4.0.0(postcss@8.5.6)
       '@svgr/webpack':
         specifier: 8.1.0
-        version: 8.1.0(typescript@5.9.3)
+        version: 8.1.0
       '@testing-library/dom':
         specifier: 10.4.1
         version: 10.4.1
@@ -5103,6 +5130,9 @@ importers:
       '@types/wordpress__block-editor':
         specifier: 15.0.3
         version: 15.0.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@typescript/native-preview':
+        specifier: 7.0.0-dev.20260225.1
+        version: 7.0.0-dev.20260225.1
       '@wordpress/api-fetch':
         specifier: 7.40.0
         version: 7.40.0
@@ -5165,16 +5195,13 @@ importers:
         version: 8.5.6
       postcss-loader:
         specifier: 8.2.0
-        version: 8.2.0(postcss@8.5.6)(typescript@5.9.3)(webpack@5.105.2)
+        version: 8.2.0(postcss@8.5.6)(webpack@5.105.2)
       regenerator-runtime:
         specifier: 0.13.9
         version: 0.13.9
       sass-loader:
         specifier: 16.0.5
         version: 16.0.5(sass-embedded@1.97.2)(webpack@5.105.2)
-      typescript:
-        specifier: 5.9.3
-        version: 5.9.3
     optionalDependencies:
       react:
         specifier: 18.3.1
@@ -5191,6 +5218,9 @@ importers:
       '@types/node':
         specifier: ^22.19.11
         version: 22.19.11
+      '@typescript/native-preview':
+        specifier: 7.0.0-dev.20260225.1
+        version: 7.0.0-dev.20260225.1
       _jetpack-e2e-commons:
         specifier: workspace:*
         version: link:../../../../../tools/e2e-commons
@@ -5203,9 +5233,6 @@ importers:
       playwright-ctrf-json-reporter:
         specifier: ^0.0.26
         version: 0.0.26
-      typescript:
-        specifier: 5.9.3
-        version: 5.9.3
 
   projects/plugins/mu-wpcom-plugin: {}
 
@@ -5366,6 +5393,9 @@ importers:
       '@types/react':
         specifier: 18.3.28
         version: 18.3.28
+      '@typescript/native-preview':
+        specifier: 7.0.0-dev.20260225.1
+        version: 7.0.0-dev.20260225.1
       '@wordpress/browserslist-config':
         specifier: 6.40.0
         version: 6.40.0
@@ -5378,9 +5408,6 @@ importers:
       sass-loader:
         specifier: 16.0.5
         version: 16.0.5(sass-embedded@1.97.2)(webpack@5.105.2)
-      typescript:
-        specifier: 5.9.3
-        version: 5.9.3
       webpack:
         specifier: 5.105.2
         version: 5.105.2(webpack-cli@6.0.1)
@@ -5396,6 +5423,9 @@ importers:
       '@types/node':
         specifier: ^22.19.11
         version: 22.19.11
+      '@typescript/native-preview':
+        specifier: 7.0.0-dev.20260225.1
+        version: 7.0.0-dev.20260225.1
       _jetpack-e2e-commons:
         specifier: workspace:*
         version: link:../../../../../tools/e2e-commons
@@ -5408,9 +5438,6 @@ importers:
       playwright-ctrf-json-reporter:
         specifier: ^0.0.26
         version: 0.0.26
-      typescript:
-        specifier: 5.9.3
-        version: 5.9.3
 
   projects/plugins/search: {}
 
@@ -5422,6 +5449,9 @@ importers:
       '@types/node':
         specifier: ^22.19.11
         version: 22.19.11
+      '@typescript/native-preview':
+        specifier: 7.0.0-dev.20260225.1
+        version: 7.0.0-dev.20260225.1
       _jetpack-e2e-commons:
         specifier: workspace:*
         version: link:../../../../../tools/e2e-commons
@@ -5434,9 +5464,6 @@ importers:
       playwright-ctrf-json-reporter:
         specifier: ^0.0.26
         version: 0.0.26
-      typescript:
-        specifier: 5.9.3
-        version: 5.9.3
 
   projects/plugins/social:
     devDependencies:
@@ -5452,6 +5479,9 @@ importers:
       '@types/node':
         specifier: ^22.19.11
         version: 22.19.11
+      '@typescript/native-preview':
+        specifier: 7.0.0-dev.20260225.1
+        version: 7.0.0-dev.20260225.1
       _jetpack-e2e-commons:
         specifier: workspace:*
         version: link:../../../../../tools/e2e-commons
@@ -5464,9 +5494,6 @@ importers:
       playwright-ctrf-json-reporter:
         specifier: ^0.0.26
         version: 0.0.26
-      typescript:
-        specifier: 5.9.3
-        version: 5.9.3
 
   projects/plugins/starter-plugin:
     dependencies:
@@ -5549,6 +5576,9 @@ importers:
       '@types/node':
         specifier: ^22.19.11
         version: 22.19.11
+      '@typescript/native-preview':
+        specifier: 7.0.0-dev.20260225.1
+        version: 7.0.0-dev.20260225.1
       _jetpack-e2e-commons:
         specifier: workspace:*
         version: link:../../../../../tools/e2e-commons
@@ -5561,9 +5591,6 @@ importers:
       playwright-ctrf-json-reporter:
         specifier: ^0.0.26
         version: 0.0.26
-      typescript:
-        specifier: 5.9.3
-        version: 5.9.3
 
   projects/plugins/super-cache: {}
 
@@ -5578,6 +5605,9 @@ importers:
       '@types/shell-escape':
         specifier: 0.2.3
         version: 0.2.3
+      '@typescript/native-preview':
+        specifier: 7.0.0-dev.20260225.1
+        version: 7.0.0-dev.20260225.1
       _jetpack-e2e-commons:
         specifier: workspace:*
         version: link:../../../../../tools/e2e-commons
@@ -5678,6 +5708,9 @@ importers:
       '@types/node':
         specifier: ^22.19.11
         version: 22.19.11
+      '@typescript/native-preview':
+        specifier: 7.0.0-dev.20260225.1
+        version: 7.0.0-dev.20260225.1
       _jetpack-e2e-commons:
         specifier: workspace:*
         version: link:../../../../../tools/e2e-commons
@@ -5690,9 +5723,6 @@ importers:
       playwright-ctrf-json-reporter:
         specifier: ^0.0.26
         version: 0.0.26
-      typescript:
-        specifier: 5.9.3
-        version: 5.9.3
 
   projects/plugins/wpcomsh:
     devDependencies:
@@ -5787,6 +5817,9 @@ importers:
         specifier: 18.0.0
         version: 18.0.0
     devDependencies:
+      '@typescript/native-preview':
+        specifier: 7.0.0-dev.20260225.1
+        version: 7.0.0-dev.20260225.1
       jest:
         specifier: 30.2.0
         version: 30.2.0
@@ -5814,6 +5847,9 @@ importers:
       '@types/node':
         specifier: ^22.19.11
         version: 22.19.11
+      '@typescript/native-preview':
+        specifier: 7.0.0-dev.20260225.1
+        version: 7.0.0-dev.20260225.1
       '@wordpress/e2e-test-utils-playwright':
         specifier: 1.40.0
         version: 1.40.0(@playwright/test@1.58.2)(@types/node@22.19.11)
@@ -5841,9 +5877,6 @@ importers:
       shell-escape:
         specifier: 0.2.0
         version: 0.2.0
-      typescript:
-        specifier: 5.9.3
-        version: 5.9.3
       winston:
         specifier: 3.17.0
         version: 3.17.0
@@ -5895,6 +5928,9 @@ importers:
       '@testing-library/jest-dom':
         specifier: 6.9.1
         version: 6.9.1
+      '@typescript/native-preview':
+        specifier: 7.0.0-dev.20260225.1
+        version: 7.0.0-dev.20260225.1
       '@wordpress/eslint-plugin':
         specifier: 24.2.0
         version: 24.2.0(@babel/core@7.29.0)(eslint-config-prettier@10.1.8(eslint@9.39.3))(eslint-plugin-import@2.32.0)(eslint-plugin-jest@29.15.0(eslint@9.39.3)(jest@30.2.0)(typescript@5.9.3))(eslint-plugin-jsdoc@62.7.0(eslint@9.39.3))(eslint-plugin-jsx-a11y@6.10.2(eslint@9.39.3))(eslint-plugin-playwright@2.7.0(eslint@9.39.3))(eslint-plugin-prettier@5.5.5(eslint-config-prettier@10.1.8(eslint@9.39.3))(eslint@9.39.3)(wp-prettier@3.0.3))(eslint-plugin-react-hooks@7.0.1(eslint@9.39.3))(eslint-plugin-react@7.37.5(eslint@9.39.3))(eslint@9.39.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@16.26.1(typescript@5.9.3))(typescript@5.9.3)(wp-prettier@3.0.3)
@@ -10079,6 +10115,45 @@ packages:
   '@typescript-eslint/visitor-keys@8.56.0':
     resolution: {integrity: sha512-q+SL+b+05Ud6LbEE35qe4A99P+htKTKVbyiNEe45eCbJFyh/HVK9QXwlrbz+Q4L8SOW4roxSVwXYj4DMBT7Ieg==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
+
+  '@typescript/native-preview-darwin-arm64@7.0.0-dev.20260225.1':
+    resolution: {integrity: sha512-3qSsqv7FmM4z09wEpEXdhmgMfiJF/OMOZa41AdgMsXTTRpX2/38hDg2KGhi3fc24M2T3MnLPLTqw6HyTOBaV1Q==}
+    cpu: [arm64]
+    os: [darwin]
+
+  '@typescript/native-preview-darwin-x64@7.0.0-dev.20260225.1':
+    resolution: {integrity: sha512-F8ZCCX2UESHcbxvnkd1Dn5PTnOOgpGddFHYgn4usyWRMzNZLPP+YjyGALZe9zdR/D8L0uraND0Haok+TPq8xYg==}
+    cpu: [x64]
+    os: [darwin]
+
+  '@typescript/native-preview-linux-arm64@7.0.0-dev.20260225.1':
+    resolution: {integrity: sha512-Up8Z/QNcwce5C4rWnbLNW5w7lRARdyKZcNbB1NMnaswaGOBdeDmdP0wbVsOgJMoDp6vnun+EkvrSft8hWLLhIg==}
+    cpu: [arm64]
+    os: [linux]
+
+  '@typescript/native-preview-linux-arm@7.0.0-dev.20260225.1':
+    resolution: {integrity: sha512-Iu5rnCmqwGIMUu//BXkl9VQaxAAsqVvFhU4mJoNexNkMxPqVcu9quqYAouY7tN/95WcKzUsPpyRfkThdbNFO/g==}
+    cpu: [arm]
+    os: [linux]
+
+  '@typescript/native-preview-linux-x64@7.0.0-dev.20260225.1':
+    resolution: {integrity: sha512-WWjIfHCWlcriempYYc/sPJ3HFt6znNZKp60nvDNih0+wmxNqEfT5Yzu5zAY0awIe7XLelFSY+bolkpzMYVWEIQ==}
+    cpu: [x64]
+    os: [linux]
+
+  '@typescript/native-preview-win32-arm64@7.0.0-dev.20260225.1':
+    resolution: {integrity: sha512-lmfQO+HdmPMk0dtPoNo8dZereTUYNQuapsAI7nFHCP8F25I8eGKKXY2nD1R8W1hp/LmVtske1pqKFNN6IOCt5g==}
+    cpu: [arm64]
+    os: [win32]
+
+  '@typescript/native-preview-win32-x64@7.0.0-dev.20260225.1':
+    resolution: {integrity: sha512-e4eJyzR9ne0XreqYgQNqfX7SNuaePxggnUtVrLERgBv25QKwdQl72GnSXDhdxZHzrb97YwumiXWMQQJj9h8NCg==}
+    cpu: [x64]
+    os: [win32]
+
+  '@typescript/native-preview@7.0.0-dev.20260225.1':
+    resolution: {integrity: sha512-mUf1aON+eZLupLorX4214n4W6uWIz/lvNv81ErzjJylD/GyJPEJkvDLmgIK3bbvLpMwTRWdVJLhpLCah5Qe8iA==}
+    hasBin: true
 
   '@ungap/structured-clone@1.3.0':
     resolution: {integrity: sha512-WmoN8qaIAo7WTYWbAZuG8PYEhn5fkz7dZrqTBZ7dtt//lL2Gwms1IcnQ5yHqjDfX8Ft5j4YzDM23f87zBfDe9g==}
@@ -22348,6 +22423,17 @@ snapshots:
       - uglify-js
       - webpack-cli
 
+  '@storybook/react@10.2.11(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(storybook@10.2.11(@testing-library/dom@10.4.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))':
+    dependencies:
+      '@storybook/global': 5.0.0
+      '@storybook/react-dom-shim': 10.2.11(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(storybook@10.2.11(@testing-library/dom@10.4.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))
+      react: 18.3.1
+      react-docgen: 8.0.2
+      react-dom: 18.3.1(react@18.3.1)
+      storybook: 10.2.11(@testing-library/dom@10.4.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+    transitivePeerDependencies:
+      - supports-color
+
   '@storybook/react@10.2.11(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(storybook@10.2.11(@testing-library/dom@10.4.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(typescript@5.9.3)':
     dependencies:
       '@storybook/global': 5.0.0
@@ -22450,12 +22536,12 @@ snapshots:
       '@svgr/babel-plugin-transform-react-native-svg': 8.1.0(@babel/core@7.29.0)
       '@svgr/babel-plugin-transform-svg-component': 8.0.0(@babel/core@7.29.0)
 
-  '@svgr/core@8.1.0(typescript@5.9.3)':
+  '@svgr/core@8.1.0':
     dependencies:
       '@babel/core': 7.29.0
       '@svgr/babel-preset': 8.1.0(@babel/core@7.29.0)
       camelcase: 6.3.0
-      cosmiconfig: 8.3.6(typescript@5.9.3)
+      cosmiconfig: 8.3.6
       snake-case: 3.0.4
     transitivePeerDependencies:
       - supports-color
@@ -22466,35 +22552,35 @@ snapshots:
       '@babel/types': 7.29.0
       entities: 4.5.0
 
-  '@svgr/plugin-jsx@8.1.0(@svgr/core@8.1.0(typescript@5.9.3))':
+  '@svgr/plugin-jsx@8.1.0(@svgr/core@8.1.0)':
     dependencies:
       '@babel/core': 7.29.0
       '@svgr/babel-preset': 8.1.0(@babel/core@7.29.0)
-      '@svgr/core': 8.1.0(typescript@5.9.3)
+      '@svgr/core': 8.1.0
       '@svgr/hast-util-to-babel-ast': 8.0.0
       svg-parser: 2.0.4
     transitivePeerDependencies:
       - supports-color
 
-  '@svgr/plugin-svgo@8.1.0(@svgr/core@8.1.0(typescript@5.9.3))(typescript@5.9.3)':
+  '@svgr/plugin-svgo@8.1.0(@svgr/core@8.1.0)':
     dependencies:
-      '@svgr/core': 8.1.0(typescript@5.9.3)
-      cosmiconfig: 8.3.6(typescript@5.9.3)
+      '@svgr/core': 8.1.0
+      cosmiconfig: 8.3.6
       deepmerge: 4.3.1
       svgo: 3.3.2
     transitivePeerDependencies:
       - typescript
 
-  '@svgr/webpack@8.1.0(typescript@5.9.3)':
+  '@svgr/webpack@8.1.0':
     dependencies:
       '@babel/core': 7.29.0
       '@babel/plugin-transform-react-constant-elements': 7.27.1(@babel/core@7.29.0)
       '@babel/preset-env': 7.29.0(@babel/core@7.29.0)
       '@babel/preset-react': 7.28.5(@babel/core@7.29.0)
       '@babel/preset-typescript': 7.28.5(@babel/core@7.29.0)
-      '@svgr/core': 8.1.0(typescript@5.9.3)
-      '@svgr/plugin-jsx': 8.1.0(@svgr/core@8.1.0(typescript@5.9.3))
-      '@svgr/plugin-svgo': 8.1.0(@svgr/core@8.1.0(typescript@5.9.3))(typescript@5.9.3)
+      '@svgr/core': 8.1.0
+      '@svgr/plugin-jsx': 8.1.0(@svgr/core@8.1.0)
+      '@svgr/plugin-svgo': 8.1.0(@svgr/core@8.1.0)
     transitivePeerDependencies:
       - supports-color
       - typescript
@@ -23150,6 +23236,37 @@ snapshots:
     dependencies:
       '@typescript-eslint/types': 8.56.0
       eslint-visitor-keys: 5.0.1
+
+  '@typescript/native-preview-darwin-arm64@7.0.0-dev.20260225.1':
+    optional: true
+
+  '@typescript/native-preview-darwin-x64@7.0.0-dev.20260225.1':
+    optional: true
+
+  '@typescript/native-preview-linux-arm64@7.0.0-dev.20260225.1':
+    optional: true
+
+  '@typescript/native-preview-linux-arm@7.0.0-dev.20260225.1':
+    optional: true
+
+  '@typescript/native-preview-linux-x64@7.0.0-dev.20260225.1':
+    optional: true
+
+  '@typescript/native-preview-win32-arm64@7.0.0-dev.20260225.1':
+    optional: true
+
+  '@typescript/native-preview-win32-x64@7.0.0-dev.20260225.1':
+    optional: true
+
+  '@typescript/native-preview@7.0.0-dev.20260225.1':
+    optionalDependencies:
+      '@typescript/native-preview-darwin-arm64': 7.0.0-dev.20260225.1
+      '@typescript/native-preview-darwin-x64': 7.0.0-dev.20260225.1
+      '@typescript/native-preview-linux-arm': 7.0.0-dev.20260225.1
+      '@typescript/native-preview-linux-arm64': 7.0.0-dev.20260225.1
+      '@typescript/native-preview-linux-x64': 7.0.0-dev.20260225.1
+      '@typescript/native-preview-win32-arm64': 7.0.0-dev.20260225.1
+      '@typescript/native-preview-win32-x64': 7.0.0-dev.20260225.1
 
   '@ungap/structured-clone@1.3.0': {}
 
@@ -27095,6 +27212,13 @@ snapshots:
       parse-json: 5.2.0
       path-type: 4.0.0
       yaml: 1.10.2
+
+  cosmiconfig@8.3.6:
+    dependencies:
+      import-fresh: 3.3.1
+      js-yaml: 4.1.1
+      parse-json: 5.2.0
+      path-type: 4.0.0
 
   cosmiconfig@8.3.6(typescript@5.9.3):
     dependencies:
