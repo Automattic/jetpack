@@ -8,6 +8,18 @@ This package provides some of the newsletter functionality for Jetpack, includin
 
 Other functionality remains in the subscriptions module of Jetpack itself.
 
+## Initialization
+
+Both `Settings` and `Reader_Link` use singleton-style initialization. Call their `init()` methods early (e.g., on `plugins_loaded`):
+
+```php
+use Automattic\Jetpack\Newsletter\Settings;
+use Automattic\Jetpack\Newsletter\Reader_Link;
+
+Settings::init();
+Reader_Link::init();
+```
+
 ## Settings page
 
 The settings page is gated behind the `jetpack_wp_admin_newsletter_settings_enabled` filter (defaults to `false`). When enabled, it registers a `Jetpack > Newsletter` submenu page in wp-admin with a React-based settings UI.
@@ -42,9 +54,31 @@ add_filter( 'jetpack_show_newsletter_menu_item', '__return_false' );
 
 On WoW and Simple sites, the menu item when `settings_enabled = false` is added by `jetpack-mu-wpcom`'s `wpcom-admin-menu.php`, not by this package.
 
+### Reading page notice
+
+When the subscriptions module is active, a notice is added to the wp-admin **Settings → Reading** page next to the "For each post in a feed" option. It clarifies that the RSS excerpt setting does not control newsletter emails and links to the Newsletter settings page.
+
 ## URL helper
 
 `Urls::get_newsletter_settings_url()` returns the appropriate newsletter settings URL based on site type and filter state. When the settings page is enabled, it always returns the wp-admin URL. Otherwise, it returns the Calypso or Jetpack Settings URL depending on site type and interface preference.
+
+```php
+Urls::get_newsletter_settings_url( $site_slug, $force_calypso_fallback, $relative_calypso_path );
+```
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `$site_slug` | `string\|null` | `null` | Site slug for Calypso URLs (e.g., `example.com`). Use `( new Status() )->get_site_suffix()`. |
+| `$force_calypso_fallback` | `bool` | `false` | Force Calypso URL as fallback (e.g., for Personal/Premium Atomic plans). |
+| `$relative_calypso_path` | `bool` | `false` | Return a relative Calypso path (`/settings/newsletter/...`) instead of a full URL. |
+
+On WoA sites when the new settings page is not enabled, the returned URL depends on the `wpcom_admin_interface` option — `wp-admin` returns the Jetpack Settings URL, while a Calypso preference returns the Calypso URL.
+
+## Reader link
+
+### `activate_on_connection()`
+
+`Reader_Link::activate_on_connection()` auto-activates the `wpcom-reader` module when a site is first connected to WordPress.com. It skips activation if modules were previously initialized (e.g., the user disconnected and reconnected), respecting prior module choices.
 
 ## Using this package in your WordPress plugin
 
