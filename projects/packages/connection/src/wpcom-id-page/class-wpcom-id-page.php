@@ -68,10 +68,17 @@ class Wpcom_Id_Page {
 	 * Register the submenu page under WordPress Tools.
 	 */
 	public static function add_menu() {
+		$menu_title = __( 'WordPress.com ID', 'jetpack-connection' );
+
+		$error_count = static::get_error_count();
+		if ( $error_count > 0 ) {
+			$menu_title .= sprintf( ' <span class="awaiting-mod">%d</span>', $error_count );
+		}
+
 		$page_suffix = add_submenu_page(
 			'tools.php',
 			__( 'WordPress.com ID', 'jetpack-connection' ),
-			__( 'WordPress.com ID', 'jetpack-connection' ),
+			$menu_title,
 			'manage_options',
 			'wpcom-id',
 			array( static::class, 'render' )
@@ -80,6 +87,28 @@ class Wpcom_Id_Page {
 		if ( $page_suffix ) {
 			add_action( 'load-' . $page_suffix, array( static::class, 'admin_init' ) );
 		}
+	}
+
+	/**
+	 * Get the count of displayable connection errors.
+	 *
+	 * @return int Number of connection errors.
+	 */
+	private static function get_error_count() {
+		$errors = Error_Handler::get_instance()->get_displayable_errors();
+
+		if ( ! is_array( $errors ) || empty( $errors ) ) {
+			return 0;
+		}
+
+		$count = 0;
+		foreach ( $errors as $user_errors ) {
+			if ( is_array( $user_errors ) ) {
+				$count += count( $user_errors );
+			}
+		}
+
+		return $count;
 	}
 
 	/**
