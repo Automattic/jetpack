@@ -1,6 +1,6 @@
 import { LegendOrdinal } from '@visx/legend';
 import type { GlyphProps, LineStyles } from '@visx/xychart';
-import type { ComponentProps, CSSProperties, ReactNode } from 'react';
+import type { ComponentProps, CSSProperties, HTMLAttributes, ReactNode } from 'react';
 
 type LegendOrdinalProps = Omit<
 	ComponentProps< typeof LegendOrdinal >,
@@ -57,15 +57,16 @@ export type BaseLegendProps = Omit< LegendOrdinalProps, OmittedStylingProps > & 
 	 */
 	position?: 'top' | 'bottom';
 	alignment?: 'start' | 'center' | 'end';
-	/**
-	 * Additional CSS class name for legend items.
-	 * This allows consumers to customize individual legend item styling.
-	 */
-	legendItemClassName?: string;
+	/** Additional CSS class name for legend items. */
+	itemClassName?: string;
 	/** CSS styles for each legend item (margin, flexDirection). */
 	itemStyles?: LegendItemStyles;
+	/** Additional HTML attributes to spread onto each rendered LegendItem element. */
+	itemProps?: HTMLAttributes< HTMLDivElement >;
 	/** CSS styles for legend labels (justifyContent, flex, margin). */
 	labelStyles?: LegendLabelStyles;
+	/** Additional HTML attributes to spread onto each rendered LegendLabel element. */
+	labelProps?: HTMLAttributes< HTMLDivElement >;
 	/** Styles for legend shapes (width, height, margin). */
 	shapeStyles?: LegendShapeStyles;
 	/**

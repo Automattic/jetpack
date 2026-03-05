@@ -46,12 +46,12 @@ describe( 'BaseLegend', () => {
 		expect( legendItems ).toHaveLength( 0 );
 	} );
 
-	test( 'applies legendItemClassName to legend items', () => {
+	test( 'applies itemClassName to legend items', () => {
 		render(
 			<BaseLegend
 				items={ defaultItems }
 				orientation="horizontal"
-				legendItemClassName="custom-legend-item"
+				itemClassName="custom-legend-item"
 			/>
 		);
 		const legendItems = screen.getAllByTestId( 'legend-item' );

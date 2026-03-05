@@ -75,9 +75,11 @@ export const BaseLegend: ForwardRefExoticComponent<
 			labelFormat = valueOrIdentity,
 			labelTransform = labelTransformFactory,
 			itemStyles,
+			itemProps,
+			itemClassName,
 			labelStyles,
+			labelProps,
 			shapeStyles,
-			legendItemClassName,
 			render,
 			interactive = false,
 			chartId,
@@ -196,7 +198,7 @@ export const BaseLegend: ForwardRefExoticComponent<
 										styles[ 'legend-item' ],
 										interactive && styles[ 'legend-item--interactive' ],
 										! visible && styles[ 'legend-item--inactive' ],
-										legendItemClassName
+										itemClassName
 									) }
 									data-testid="legend-item"
 									key={ `legend-${ label.text }-${ i }` }
@@ -216,6 +218,7 @@ export const BaseLegend: ForwardRefExoticComponent<
 											? `${ label.text }: ${ visible ? 'visible' : 'hidden' }. Toggle visibility.`
 											: undefined
 									}
+									{ ...itemProps }
 								>
 									{ items[ i ]?.renderGlyph ? (
 										<svg
@@ -257,6 +260,7 @@ export const BaseLegend: ForwardRefExoticComponent<
 											margin: labelMargin,
 											...theme.legend?.labelStyles,
 										} }
+										{ ...labelProps }
 									>
 										<LegendText
 											text={ label.text }
