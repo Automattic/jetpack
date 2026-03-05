@@ -4,7 +4,7 @@
 import apiFetch from '@wordpress/api-fetch';
 import { useDispatch } from '@wordpress/data';
 import { useCallback, useRef, useState } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
 /**
  * Internal dependencies
@@ -147,8 +147,21 @@ export default function useFormItemActions(): UseFormItemActionsReturn {
 				if ( updatedCount ) {
 					const message =
 						nextStatus === 'publish'
-							? __( 'Form published.', 'jetpack-forms' )
-							: __( 'Form set to draft.', 'jetpack-forms' );
+							? sprintf(
+									/* translators: %d: number of forms */
+									_n( '%d form published.', '%d forms published.', updatedCount, 'jetpack-forms' ),
+									updatedCount
+							  )
+							: sprintf(
+									/* translators: %d: number of forms */
+									_n(
+										'%d form set to draft.',
+										'%d forms set to draft.',
+										updatedCount,
+										'jetpack-forms'
+									),
+									updatedCount
+							  );
 					const previousStatus = nextStatus === 'publish' ? 'draft' : 'publish';
 					createSuccessNotice( message, {
 						type: 'snackbar',
@@ -165,8 +178,26 @@ export default function useFormItemActions(): UseFormItemActionsReturn {
 				if ( failedCount ) {
 					const errorMessage =
 						nextStatus === 'publish'
-							? __( 'Could not publish form.', 'jetpack-forms' )
-							: __( 'Could not set form to draft.', 'jetpack-forms' );
+							? sprintf(
+									/* translators: %d: number of forms */
+									_n(
+										'Could not publish %d form.',
+										'Could not publish %d forms.',
+										failedCount,
+										'jetpack-forms'
+									),
+									failedCount
+							  )
+							: sprintf(
+									/* translators: %d: number of forms */
+									_n(
+										'Could not set %d form to draft.',
+										'Could not set %d forms to draft.',
+										failedCount,
+										'jetpack-forms'
+									),
+									failedCount
+							  );
 					createErrorNotice( errorMessage, {
 						type: 'snackbar',
 					} );
