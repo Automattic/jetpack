@@ -39,12 +39,12 @@ export const getNewsletterCategoriesEnabled = state => state.newsletterCategorie
 export const getNewsletterCategoriesSubscriptionsCount = state =>
 	state.newsletterCategoriesSubscriptionsCount;
 
+const DEFAULT_POST_EMAIL_SENT_STATE = { email_sent_at: null, stats_on_send: null };
 export const getPostEmailSentState = ( state, postId ) => {
-	const sent = postId ? state.postEmailSentState?.[ postId ] : null;
-	return {
-		email_sent_at: sent?.email_sent_at ?? null,
-		stats_on_send: sent?.stats_on_send ?? null,
-	};
+	if ( ! postId ) {
+		return DEFAULT_POST_EMAIL_SENT_STATE;
+	}
+	return state.postEmailSentState?.[ postId ] ?? DEFAULT_POST_EMAIL_SENT_STATE;
 };
 
 export const getAlreadySentPostModifiedInSession = ( state, postId ) =>
