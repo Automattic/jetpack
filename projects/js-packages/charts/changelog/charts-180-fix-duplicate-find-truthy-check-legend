@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Legend: Fix duplicate items.find() call and use != null check to correctly render falsy values like 0.

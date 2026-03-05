@@ -70,6 +70,16 @@ describe( 'BaseLegend', () => {
 		expect( screen.getByText( 'Item 2' ) ).toBeInTheDocument();
 	} );
 
+	test( 'renders numeric value of 0 without hiding it', () => {
+		const itemsWithZeroValue = [
+			{ label: 'Item 1', color: '#ff0000', value: 0 },
+			{ label: 'Item 2', color: '#00ff00', value: '0%' },
+		];
+		render( <BaseLegend items={ itemsWithZeroValue } orientation="horizontal" /> );
+		expect( screen.getByText( '0' ) ).toBeInTheDocument();
+		expect( screen.getByText( '0%' ) ).toBeInTheDocument();
+	} );
+
 	test( 'applies custom className', () => {
 		render(
 			<BaseLegend items={ defaultItems } className="custom-legend" orientation="horizontal" />
