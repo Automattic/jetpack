@@ -147,7 +147,7 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 		if ( PHP_VERSION_ID < 80100 ) {
 			$requested->setAccessible( true );
 		}
-		$current = $requested->getValue( null );
+		$current = $requested->getValue();
 		foreach ( $polyfills as $handle ) {
 			if ( ! isset( $current[ $handle ] ) ) {
 				$current[ $handle ] = array();
