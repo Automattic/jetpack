@@ -22,6 +22,11 @@
 	--jp-forms-z-modal: 10010;
 }
 
+
+#wpwrap {
+	background-color: #fff !important;
+}
+
 body[class*="_page_jetpack-forms"],
 body.jetpack_page_jetpack-forms-admin {
 
@@ -31,6 +36,14 @@ body.jetpack_page_jetpack-forms-admin {
 
 	#wpfooter {
 		display: none;
+	}
+
+	.boot-layout__inspector,
+	.boot-layout__stage {
+		border-radius: 0 !important;
+		// Disable view-transition animations that apply border-radius: 8px
+		// on ::view-transition-new/old pseudo-elements from @wordpress/boot.
+		view-transition-name: none !important;
 	}
 }
 
