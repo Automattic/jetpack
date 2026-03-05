@@ -430,12 +430,13 @@ function wpcom_add_jetpack_submenu() {
 		// Jetpack > Newsletter.
 		/** This filter is documented in projects/packages/newsletter/src/class-settings.php */
 		if ( apply_filters( 'jetpack_wp_admin_newsletter_settings_enabled', false ) ) {
-			// When enabled, call Newsletter Settings to add the in-admin settings page.
-			// This must be done here (at priority 999999) because the Jetpack menu
-			// is created by this function and doesn't exist at earlier priorities.
+			// Register the in-admin Newsletter settings page (with its own render callback
+			// and admin hooks). This must be done here (at priority 999999) because the
+			// Jetpack menu is created by this function and doesn't exist at earlier priorities.
 			$newsletter_settings = new Newsletter_Settings();
 			$newsletter_settings->add_wp_admin_submenu();
 		} else {
+			// No local settings page — just add a menu link that points to Calypso.
 			add_submenu_page(
 				'jetpack',
 				__( 'Newsletter', 'jetpack-mu-wpcom' ),

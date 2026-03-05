@@ -187,8 +187,9 @@ class Settings {
 			return;
 		}
 
+		$parent_slug = $this->should_show_menu_item() ? 'jetpack' : '';
 		$page_suffix = add_submenu_page(
-			'jetpack',
+			$parent_slug,
 			/** "Newsletter" is a product name, do not translate. */
 			'Newsletter',
 			'Newsletter',
