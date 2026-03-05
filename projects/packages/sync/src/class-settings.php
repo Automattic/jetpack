@@ -582,6 +582,7 @@ class Settings {
 		foreach ( $valid_settings as $option => $value ) {
 			delete_option( self::SETTINGS_OPTION_PREFIX . $option );
 		}
+		self::$cached_allowed_post_types_for_checksum = null;
 		self::set_importing( null );
 		self::set_doing_cron( null );
 		self::set_is_syncing( null );
