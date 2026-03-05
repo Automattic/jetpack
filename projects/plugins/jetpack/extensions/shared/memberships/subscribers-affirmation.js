@@ -492,11 +492,12 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 		? getFormattedCategories( statsOnSend.post_categories, newsletterCategories, false )
 		: '';
 
-	const isAlreadySent = emailSentAt != null;
+	const isAlreadySent = emailSentAt != null || statsOnSend;
 	const isStatsOnlyFallback = ! isAlreadySent && ( totalEmailsSentCount ?? 0 ) > 0;
 	const isSendingInProgress =
 		status === 'publish' &&
 		isSendEmailEnabled() &&
+		// emailSentAt (email_notification meta) is what prevents duplicate sends, regardless of statsOnSend or stats count fallbacks.
 		emailSentAt == null &&
 		( publishedWithEmailEnabledInSession ||
 			( publishDate && publishDate.getTime() >= Date.now() - SENDING_IN_PROGRESS_WINDOW_MS ) );
@@ -521,7 +522,7 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 			dateStr,
 		} );
 
-		if ( isSendEmailEnabled() ) {
+		if ( isSendEmailEnabled() && emailSentAt !== null ) {
 			showWontResendMessage = shouldShowWontResendMessage( {
 				statsOnSend,
 				postMeta,
