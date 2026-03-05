@@ -1,5 +1,4 @@
 @use "@automattic/jetpack-base-styles/style" as jpbs;
-@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
 @use "../masthead/calypso-mixins";
 
 .jp-header,
@@ -148,13 +147,6 @@
 
 	.jitm-card {
 		margin-right: 0;
-	}
-}
-
-.jetpack-backup-activate-license {
-
-	@media ( max-width: gb.$break-medium ) {
-		max-width: 40vw;
 	}
 }
 

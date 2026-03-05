@@ -1,12 +1,4 @@
 @use "scss/variables";
-@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
-
-.jetpack-search-activate-license {
-
-	@media ( max-width: gb.$break-medium ) {
-		max-width: 40vw;
-	}
-}
 
 .price-tip {
 	display: flex;
