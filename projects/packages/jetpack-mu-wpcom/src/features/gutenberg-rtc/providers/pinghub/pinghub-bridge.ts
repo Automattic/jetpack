@@ -236,19 +236,13 @@ function normalizeProxyResponse( raw: unknown ): NormalizedProxyResponse | null 
  * @return The blog ID or null if it cannot be determined.
  */
 function getBlogId(): number | null {
-	// @ts-expect-error - _currentSiteId is a WordPress global not declared on Window
 	if ( typeof window._currentSiteId === 'number' ) {
-		// @ts-expect-error - _currentSiteId is a WordPress global not declared on Window
 		return window._currentSiteId;
 	}
-	// @ts-expect-error - wpcomGutenberg is a WordPress global not declared on Window
 	if ( typeof window.wpcomGutenberg?.blogId === 'number' ) {
-		// @ts-expect-error - wpcomGutenberg is a WordPress global not declared on Window
 		return window.wpcomGutenberg.blogId;
 	}
-	// @ts-expect-error - currentBlogId is a WordPress global not declared on Window
 	if ( typeof window.currentBlogId === 'number' ) {
-		// @ts-expect-error - currentBlogId is a WordPress global not declared on Window
 		return window.currentBlogId;
 	}
 	return null;
