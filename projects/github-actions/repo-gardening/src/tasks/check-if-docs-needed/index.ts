@@ -93,12 +93,21 @@ https://jetpack.com/support documents these Jetpack features and products for en
 
 The docs are written for non-technical WordPress site owners. They explain how to enable, configure, and use features via the WordPress dashboard (wp-admin) or the WordPress.com dashboard (cloud.jetpack.com).
 
-## TWO-PART TEST
+## THREE-PART TEST (All must be true)
 
-Only flag a PR if BOTH conditions are true:
+Only flag a PR if ALL THREE conditions are true:
 
-1. **The PR changes a feature listed above** (or introduces an entirely new user-facing feature that would need a new support page).
-2. **A site owner following the existing support docs would encounter something different** — for example: a setting was added/removed/renamed, a workflow changed, a UI screen looks substantially different, a new feature was launched, plan/pricing gating changed, or a feature was deprecated/removed.
+1. **The PR changes a feature listed above** (or introduces an entirely new user-facing feature)
+2. **A site owner would need to DO something differently** — not just SEE something differently. Examples:
+   - A new setting they need to configure
+   - A different sequence of steps to accomplish a task
+   - A new feature they need to learn about to use
+   - A setting that moved and they need to find
+3. **The existing documentation would give incorrect instructions** — if a user followed the current docs, would they fail or be confused? If the docs are silent on this aspect, it's probably not doc-worthy.
+
+Note: Hiding a setting when it has no effect (e.g., removing an option when no providers are available) is NOT a workflow change — it's cleaning up UI that shouldn't have been shown in the first place.
+
+Seeing a slightly different header layout or a video thumbnail that now auto-refreshes does NOT require documentation updates.
 
 ## Flag as needing docs review (is_user_facing = true):
 
@@ -112,24 +121,52 @@ Only flag a PR if BOTH conditions are true:
 - Connection or onboarding flow changed
 - Default behavior of a feature changed in a way users would notice
 
+
 ## Do NOT flag (is_user_facing = false):
 
+### Code & Infrastructure
 - Internal refactoring, code cleanup, or restructuring with no user-visible change
 - Test file changes (adding, modifying, or removing tests)
 - CI/CD, build tooling, GitHub Actions, or linting configuration
 - Dependency/package version bumps with no behavior change
+- Changelog file edits or version bump commits
+- Internal logging, tracking, or analytics instrumentation changes
+- Translation/i18n string changes or locale updates
+
+### Developer-Facing
 - Developer-facing changes (REST API internals, hooks, filters, PHP docblocks)
 - Changes to developer.jetpack.com docs (that is a different site)
-- Changelog file edits or version bump commits
-- Performance optimizations with no visible behavior change
+- New or modified PHP filters, actions, or hooks
+- New or modified REST API endpoints or parameters
+- Internal component API changes (new props, restructured theme objects, type changes)
+- Changes to internal JavaScript packages/utilities
+
+### Visual & Polish
 - Minor CSS tweaks, spacing adjustments, or color fine-tuning
-- Bug fixes that restore already-documented behavior (the docs are already correct)
-- Error message text changes that are not referenced in support docs
-- Internal logging, tracking, or analytics instrumentation changes
+- UI layout/header/component migrations to unified patterns (internal refactoring)
+- Tab alignment, element positioning, or visual hierarchy changes
+- Branding text updates (adding/changing product names in existing UI)
+- Height, width, or sizing adjustments to existing elements
+
+### BUG FIXES AND UX IMPROVEMENTS ARE NOT DOC-WORTHY
+
+Bug fixes restore *already-documented* intended behavior. UX improvements make existing features work *better* without changing workflows. Both should be classified as is_user_facing = false:
+
+- Fixes that make something work correctly (the docs describe the intended behavior, not the bug)
+- Automatic refresh/update behaviors that eliminate manual steps users shouldn't have needed anyway
+- Performance improvements, faster loading, or smoother interactions
+- Fixes to calculations, sizing, or rendering issues
+- Edge case handling where UI is hidden when not applicable (e.g., hiding a setting when it has no effect)
+- Reliability improvements (retries, better error handling, more robust processing)
+
+Key test: If the docs describe "X happens when you do Y" and this PR makes X actually happen (when it was broken before), that's a bug fix, not a doc update.
+
+### Out of Scope
+
 - Changes scoped entirely to Calypso, WordPress.com, or WooCommerce (not jetpack.com/support)
 - Changes to packages that are only consumed internally and not exposed to users
-- Accessibility improvements that don't change documented workflows
-- Translation/i18n string changes or locale updates
+- Error message text changes that are not referenced in support docs
+
 
 ## CRITICAL: DEVELOPER-FACING CHANGES ARE NOT USER-FACING
 
@@ -158,7 +195,31 @@ Would NOT need a docs update (developer-facing):
 - "Only intercept video uploads when VideoPress is available" - Bug fix restoring correct behavior, docs already accurate
 - "Changed default form layout from vertical to horizontal" - Minor visual default change, not a new workflow or setting
 
+## INTERNAL COMPONENT APIS AND PACKAGE CHANGES
+
+Changes to internal JavaScript/TypeScript component APIs, themes, or configuration objects are developer-facing, not user-facing:
+
+- Adding/restructuring properties in theme objects (e.g., ChartTheme, BlockTheme)
+- New props on internal React components (width, height, gap, etc.)
+- Changes to internal package exports or interfaces
+- Restructuring configuration objects (nesting properties, renaming internal keys)
+- Type definition changes
+
+These are consumed by developers building with Jetpack packages, not by site owners in wp-admin.
+
 ## WHEN IN DOUBT — DEFAULT TO NOT FLAGGING
+
+## KEYWORD PATTERNS THAT USUALLY INDICATE NON-DOC-WORTHY CHANGES
+
+If the PR title or description contains these patterns, examine very carefully before flagging:
+
+- "migrate", "migration", "unified", "normalize", "unify" → Usually internal refactoring
+- "fix height", "fix width", "fix calculation", "fix layout" → Usually bug fixes
+- "refresh", "update automatically", "heartbeat" → Usually UX improvements, not new features
+- "align", "alignment", "left-align", "center" → Usually visual polish
+- "header", "footer", "wrapper", "component" + "migrate"/"unify" → Usually internal refactoring
+- "remove placeholder", "remove default" → Usually minor UX cleanup
+- "hide when", "show only when", "unregister when", "remove when" → Usually edge case handling, not workflow changes
 
 Apply this additional filter before flagging:
 
