@@ -20,17 +20,16 @@ class Urls {
 	 * Logic:
 	 * - If jetpack_wp_admin_newsletter_settings_enabled filter is true → new settings URL
 	 * - Simple sites → Calypso
-	 * - WoA with $force_calypso_fallback → Calypso (for Personal/Premium plans)
+	 * - WoA Personal/Premium plans → Calypso (Jetpack Settings page is hidden)
 	 * - WoA with wp-admin interface preference → old Jetpack settings
 	 * - WoA with Calypso interface preference → Calypso
 	 * - Self-hosted Jetpack → old Jetpack settings
 	 *
-	 * @param string|null $site_slug              The site slug for Calypso URLs (e.g., 'example.com').
-	 * @param bool        $force_calypso_fallback Force Calypso URL as fallback (e.g., for Personal/Premium Atomic).
-	 * @param bool        $relative_calypso_path  Return relative path for Calypso URLs (e.g., '/settings/newsletter/...').
+	 * @param string|null $site_slug            The site slug for Calypso URLs (e.g., 'example.com').
+	 * @param bool        $relative_calypso_path Return relative path for Calypso URLs (e.g., '/settings/newsletter/...').
 	 * @return string The newsletter settings URL.
 	 */
-	public static function get_newsletter_settings_url( $site_slug = null, $force_calypso_fallback = false, $relative_calypso_path = false ) {
+	public static function get_newsletter_settings_url( $site_slug = null, $relative_calypso_path = false ) {
 		/**
 		 * Enables the new in-development newsletter settings UI in wp-admin.
 		 *
@@ -50,13 +49,14 @@ class Urls {
 			return $relative_calypso_path ? $calypso_path : 'https://wordpress.com' . $calypso_path;
 		}
 
-		// Force Calypso fallback (e.g., for Personal/Premium Atomic).
-		if ( $force_calypso_fallback ) {
-			return $relative_calypso_path ? $calypso_path : 'https://wordpress.com' . $calypso_path;
-		}
-
-		// WoA: check interface preference.
+		// WoA sites.
 		if ( $host->is_woa_site() ) {
+			// On Personal/Premium Atomic, the Jetpack Settings page is hidden,
+			// so always use Calypso.
+			if ( self::is_personal_or_premium_plan() ) {
+				return $relative_calypso_path ? $calypso_path : 'https://wordpress.com' . $calypso_path;
+			}
+
 			if ( get_option( 'wpcom_admin_interface' ) === 'wp-admin' ) {
 				return admin_url( 'admin.php?page=jetpack#/newsletter' );
 			}
@@ -65,5 +65,16 @@ class Urls {
 
 		// Self-hosted Jetpack.
 		return admin_url( 'admin.php?page=jetpack#/newsletter' );
+	}
+
+	/**
+	 * Check if the current site is on a Personal or Premium plan.
+	 *
+	 * @return bool
+	 */
+	private static function is_personal_or_premium_plan() {
+		$current_plan = \Automattic\Jetpack\Current_Plan::get();
+		$plan_class   = $current_plan['class'] ?? '';
+		return in_array( $plan_class, array( 'personal', 'premium' ), true );
 	}
 }

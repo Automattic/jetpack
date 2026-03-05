@@ -473,7 +473,7 @@ function wpcom_launchpad_get_task_definitions() {
 			},
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
-				$url = \Automattic\Jetpack\Newsletter\Urls::get_newsletter_settings_url( $data['site_slug_encoded'], false, true );
+				$url = \Automattic\Jetpack\Newsletter\Urls::get_newsletter_settings_url( $data['site_slug_encoded'], true );
 				// Add anchor for Calypso messages section (relative paths start with /settings/).
 				if ( str_starts_with( $url, '/settings/' ) ) {
 					$url .= '#messages';
@@ -487,7 +487,7 @@ function wpcom_launchpad_get_task_definitions() {
 			},
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
-				return \Automattic\Jetpack\Newsletter\Urls::get_newsletter_settings_url( $data['site_slug_encoded'], false, true );
+				return \Automattic\Jetpack\Newsletter\Urls::get_newsletter_settings_url( $data['site_slug_encoded'], true );
 			},
 		),
 		'add_10_email_subscribers'        => array(
@@ -641,7 +641,7 @@ function wpcom_launchpad_get_task_definitions() {
 			'is_complete_callback' => 'wpcom_launchpad_has_added_subscribe_block',
 			'is_visible_callback'  => 'wpcom_launchpad_is_add_subscribe_block_visible',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
-				return \Automattic\Jetpack\Newsletter\Urls::get_newsletter_settings_url( $data['site_slug_encoded'], false, true );
+				return \Automattic\Jetpack\Newsletter\Urls::get_newsletter_settings_url( $data['site_slug_encoded'], true );
 			},
 		),
 		'mobile_app_installed'            => array(

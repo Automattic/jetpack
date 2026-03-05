@@ -11,7 +11,6 @@ use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Modules;
-use Automattic\Jetpack\Paths;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
@@ -99,6 +98,15 @@ class Settings {
 			return;
 		}
 
+		// Hijack the config URLs to point to our settings page.
+		// Customize the configuration URL to lead to the Subscriptions settings.
+		add_filter(
+			'jetpack_module_configuration_url_subscriptions',
+			function () {
+				return Urls::get_newsletter_settings_url( ( new Status() )->get_site_suffix() );
+			}
+		);
+
 		$host = new Host();
 
 		// On wpcom Simple, the Jetpack menu is created at priority 999999 by wpcom-admin-menu.php,
@@ -112,15 +120,6 @@ class Settings {
 		// Use priority 999 to ensure menu items are queued BEFORE Admin_Menu::admin_menu_hook_callback
 		// runs at priority 1000 to process all queued items.
 		add_action( 'admin_menu', array( $this, 'add_wp_admin_menu' ), 999 );
-
-		// Hijack the config URLs to point to our settings page.
-		// Customize the configuration URL to lead to the Subscriptions settings.
-		add_filter(
-			'jetpack_module_configuration_url_subscriptions',
-			function () {
-				return ( new Paths() )->admin_url( array( 'page' => 'jetpack-newsletter' ) );
-			}
-		);
 	}
 
 	/**
@@ -341,15 +340,7 @@ class Settings {
 	 * @since 0.5.1
 	 */
 	public function render_reading_page_notice() {
-		/*
-		 * Filter the settings page URL so it points to the correct settings page
-		 * regardless of whether the new newsletter UI is enabled.
-		 */
-		/* This filter is already documented in projects/plugins/jetpack/class.jetpack.php */
-		$newsletter_url = apply_filters(
-			'jetpack_module_configuration_url_subscriptions',
-			admin_url( 'admin.php?page=jetpack#/newsletter' )
-		);
+		$newsletter_url = Urls::get_newsletter_settings_url( ( new Status() )->get_site_suffix() );
 
 		printf(
 			'<p class="description" id="jetpack-newsletter-reading-notice">%s</p>',

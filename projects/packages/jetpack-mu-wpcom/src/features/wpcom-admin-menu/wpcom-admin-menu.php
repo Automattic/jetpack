@@ -358,7 +358,7 @@ function wpcom_add_jetpack_submenu() {
 				esc_attr__( 'Newsletter', 'jetpack-mu-wpcom' ),
 				__( 'Newsletter', 'jetpack-mu-wpcom' ),
 				'manage_options',
-				\Automattic\Jetpack\Newsletter\Urls::get_newsletter_settings_url( $domain, true ),
+				\Automattic\Jetpack\Newsletter\Urls::get_newsletter_settings_url( $domain ),
 				null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 			);
 		}

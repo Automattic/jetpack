@@ -60,19 +60,7 @@ When the subscriptions module is active, a notice is added to the wp-admin **Set
 
 ## URL helper
 
-`Urls::get_newsletter_settings_url()` returns the appropriate newsletter settings URL based on site type and filter state. When the settings page is enabled, it always returns the wp-admin URL. Otherwise, it returns the Calypso or Jetpack Settings URL depending on site type and interface preference.
-
-```php
-Urls::get_newsletter_settings_url( $site_slug, $force_calypso_fallback, $relative_calypso_path );
-```
-
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `$site_slug` | `string\|null` | `null` | Site slug for Calypso URLs (e.g., `example.com`). Use `( new Status() )->get_site_suffix()`. |
-| `$force_calypso_fallback` | `bool` | `false` | Force Calypso URL as fallback (e.g., for Personal/Premium Atomic plans). |
-| `$relative_calypso_path` | `bool` | `false` | Return a relative Calypso path (`/settings/newsletter/...`) instead of a full URL. |
-
-On WoA sites when the new settings page is not enabled, the returned URL depends on the `wpcom_admin_interface` option — `wp-admin` returns the Jetpack Settings URL, while a Calypso preference returns the Calypso URL.
+`Urls::get_newsletter_settings_url()` returns the appropriate newsletter settings URL based on site type and filter state.
 
 ## Reader link
 
