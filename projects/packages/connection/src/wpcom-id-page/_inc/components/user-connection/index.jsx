@@ -91,6 +91,8 @@ export default function UserConnection( { initialState, connectionState } ) {
 	}, [ setConnectionStatus ] );
 
 	const isConnecting = siteIsRegistering || userIsConnecting;
+	const connectLabel = __( 'Connect', 'jetpack-connection' );
+	const connectingLabel = __( 'Connecting…', 'jetpack-connection' );
 
 	return (
 		<div className="wpcom-id-page__section">
@@ -146,9 +148,7 @@ export default function UserConnection( { initialState, connectionState } ) {
 						onClick={ handleConnect }
 						disabled={ isConnecting }
 					>
-						{ isConnecting
-							? __( 'Connecting…', 'jetpack-connection' )
-							: __( 'Connect', 'jetpack-connection' ) }
+						{ isConnecting ? connectingLabel : connectLabel }
 					</button>
 				) }
 				{ registrationError && (
