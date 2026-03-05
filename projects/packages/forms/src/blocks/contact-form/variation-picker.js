@@ -182,7 +182,8 @@ export default function VariationPicker( { blockName, setAttributes, clientId, c
 							{ label: __( 'Select a form…', 'jetpack-forms' ), value: '' },
 							...jetpackForms.map( form => ( {
 								label:
-									decodeEntities( form.title?.rendered ) || __( '(Untitled)', 'jetpack-forms' ),
+									decodeEntities( form.title?.rendered || '' ) ||
+									__( '(Untitled)', 'jetpack-forms' ),
 								value: form.id.toString(),
 							} ) ),
 						] }
