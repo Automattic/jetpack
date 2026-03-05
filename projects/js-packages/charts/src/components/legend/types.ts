@@ -2,10 +2,22 @@ import { LegendOrdinal } from '@visx/legend';
 import type { GlyphProps, LineStyles } from '@visx/xychart';
 import type { ComponentProps, CSSProperties, ReactNode } from 'react';
 
-type VisxLegendProps = Pick<
+type LegendOrdinalProps = Omit<
 	ComponentProps< typeof LegendOrdinal >,
-	'className' | 'shape' | 'fill' | 'size' | 'labelFormat' | 'labelTransform'
+	'scale' | 'direction' | 'children'
 >;
+
+type OmittedStylingProps =
+	| 'shapeStyle'
+	| 'shapeWidth'
+	| 'shapeHeight'
+	| 'shapeMargin'
+	| 'labelAlign'
+	| 'labelFlex'
+	| 'labelMargin'
+	| 'itemMargin'
+	| 'itemDirection'
+	| 'legendLabelProps';
 
 export type LegendItemStyles = {
 	/** Margin around each legend item. */
@@ -37,7 +49,7 @@ export type LegendShapeStyles = {
 	margin?: CSSProperties[ 'margin' ];
 };
 
-export type BaseLegendProps = VisxLegendProps & {
+export type BaseLegendProps = Omit< LegendOrdinalProps, OmittedStylingProps > & {
 	items: BaseLegendItem[];
 	orientation?: 'horizontal' | 'vertical';
 	/**
