@@ -183,7 +183,7 @@ export const BaseLegend: ForwardRefExoticComponent<
 							const visible = isSeriesVisible( label.text );
 							const handleClick = createClickHandler( label.text );
 							const handleKeyDown = createKeyDownHandler( label.text );
-							const matchedItem = items.find( item => item.label === label.text );
+							const matchedItem = items[ i ];
 
 							return (
 								<LegendItem

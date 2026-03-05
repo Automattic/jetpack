@@ -91,6 +91,20 @@ describe( 'BaseLegend', () => {
 		expect( screen.getByText( '0%' ) ).toBeInTheDocument();
 	} );
 
+	test( 'renders each value next to its corresponding label by index', () => {
+		const itemsWithDistinctValues = [
+			{ label: 'Alpha', value: '100', color: '#ff0000' },
+			{ label: 'Beta', value: '200', color: '#00ff00' },
+			{ label: 'Gamma', value: '300', color: '#0000ff' },
+		];
+		render( <BaseLegend items={ itemsWithDistinctValues } orientation="horizontal" /> );
+		const legendItems = screen.getAllByTestId( 'legend-item' );
+		expect( legendItems ).toHaveLength( 3 );
+		expect( legendItems[ 0 ] ).toHaveTextContent( /Alpha.*100/ );
+		expect( legendItems[ 1 ] ).toHaveTextContent( /Beta.*200/ );
+		expect( legendItems[ 2 ] ).toHaveTextContent( /Gamma.*300/ );
+	} );
+
 	test( 'applies custom className', () => {
 		render(
 			<BaseLegend items={ defaultItems } className="custom-legend" orientation="horizontal" />
