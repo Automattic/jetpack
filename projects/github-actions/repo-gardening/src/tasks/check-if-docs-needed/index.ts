@@ -132,9 +132,9 @@ These are secondary signals that a PR likely needs documentation review:
 - "add support for" or "add [X] option to" → New user-configurable capability in blocks/forms
 
 **Key distinction from visual polish:**
-These changes give users NEW capabilities, REMOVE existing ones, or fundamentally change WHAT a feature does—rather than changing how existing capabilities look, perform, or are organized internally.
+	These changes give users NEW capabilities, REMOVE existing ones, or fundamentally change WHAT a feature does — rather than changing how existing capabilities look, perform, or are organized internally.
 
-Examples that WOULD need docs:
+	Examples that WOULD need docs:
 - "Add pre-publish panel with settings summary" → New panel with new functionality
 - "Add 'Other' option support to radio fields" → New user-facing option in forms
 - "Remove Pocket Sharing Service" → Documented feature removed
