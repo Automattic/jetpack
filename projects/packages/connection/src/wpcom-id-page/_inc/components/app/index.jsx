@@ -1,3 +1,4 @@
+import { ConnectionError } from '@automattic/jetpack-connection';
 import { __ } from '@wordpress/i18n';
 import ConnectedPlugins from '../connected-plugins';
 import DiagnosticTools from '../diagnostic-tools';
@@ -26,6 +27,8 @@ export default function App() {
 					'jetpack-connection'
 				) }
 			</p>
+
+			<ConnectionError />
 
 			<SiteConnection initialState={ initialState } connectionState={ connectionState } />
 
