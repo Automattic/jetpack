@@ -4,15 +4,19 @@ import { BlockControls, InspectorControls, useBlockProps } from '@wordpress/bloc
 import { MenuGroup, MenuItem, PanelBody, ToolbarDropdownMenu } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
-import { useEffect, useState } from '@wordpress/element';
+import { useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { arrowDown, Icon, people, check } from '@wordpress/icons';
 import ConnectBanner from '../../shared/components/connect-banner';
 import PlansSetupDialog from '../../shared/components/plans-setup-dialog';
-import { accessOptions } from '../../shared/memberships/constants';
+import {
+	accessOptions,
+	META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS,
+} from '../../shared/memberships/constants';
 import { useAccessLevel } from '../../shared/memberships/edit';
 import { NewsletterAccessRadioButtons, useSetAccess } from '../../shared/memberships/settings';
 import useIsUserConnected from '../../shared/use-is-user-connected';
+import paywallBlockMetadata from './block.json';
 
 function PaywallEdit() {
 	const blockProps = useBlockProps();
@@ -20,16 +24,6 @@ function PaywallEdit() {
 	const accessLevel = useAccessLevel( postType );
 	const isUserConnected = useIsUserConnected();
 	const setAccess = useSetAccess();
-
-	// Add cleanup effect to reset access level when paywall is removed
-	useEffect( () => {
-		// This function will run when the component unmounts
-		return () => {
-			// Reset access level to "everybody" when the paywall block is removed
-			setAccess( accessOptions.everybody.key );
-		};
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [] );
 
 	const { stripeConnectUrl, hasTierPlans } = useSelect( select => {
 		const { getNewsletterTierProducts, getConnectUrl } = select( 'jetpack/membership-products' );
@@ -42,11 +36,33 @@ function PaywallEdit() {
 	const [ showDialog, setShowDialog ] = useState( false );
 	const closeDialog = () => setShowDialog( false );
 
+	const hasSetDefaultAccess = useRef( false );
+	const savedAccessLevel = useSelect( select => {
+		const meta = select( editorStore ).getCurrentPostAttribute( 'meta' );
+		return meta ? meta[ META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS ] : undefined;
+	} );
 	useEffect( () => {
-		if ( ! accessLevel || accessLevel === accessOptions.everybody.key ) {
-			setAccess( accessOptions.subscribers.key );
+		// Only set default access level if data is loaded and not already set.
+		if ( hasSetDefaultAccess.current === false && savedAccessLevel !== undefined ) {
+			// Set to "subscribers" if access is "everybody" (paywall + everybody doesn't make sense)
+			if ( savedAccessLevel === accessOptions.everybody.key ) {
+				setAccess( accessOptions.subscribers.key );
+			}
+
+			hasSetDefaultAccess.current = true;
 		}
-	}, [ accessLevel, setAccess ] );
+
+		return () => {
+			// Reset to access level "everybody" when paywall block is removed
+			const { getBlocks } = window.wp.data.select( 'core/block-editor' );
+			const hasPaywallBlock = getBlocks().some( block => block.name === paywallBlockMetadata.name );
+
+			if ( ! hasPaywallBlock ) {
+				setAccess( accessOptions.everybody.key );
+				hasSetDefaultAccess.current = false;
+			}
+		};
+	}, [ setAccess, savedAccessLevel ] );
 
 	function selectAccess( value ) {
 		if ( accessOptions.paid_subscribers.key === value && ( stripeConnectUrl || ! hasTierPlans ) ) {
