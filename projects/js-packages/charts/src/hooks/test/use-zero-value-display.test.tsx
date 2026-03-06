@@ -26,33 +26,63 @@ describe( 'useZeroValueDisplay', () => {
 		expect( result.current ).toBe( mockData );
 	} );
 
-	test( 'adds visualValue for zero values when enabled', () => {
+	test( 'adds visualValue for zero values', () => {
 		const { result } = renderHook( () =>
 			useZeroValueDisplay( mockData, { enabled: true, valueAxisLength: 100 } )
 		);
 
 		const enhancedData = result.current;
-		expect( enhancedData ).not.toBe( mockData );
 		expect( enhancedData[ 0 ].data[ 0 ] ).toHaveProperty( 'visualValue' );
 		expect(
 			( enhancedData[ 0 ].data[ 0 ] as { visualValue?: number } ).visualValue
 		).toBeGreaterThan( 0 );
 	} );
 
-	test( 'does not add visualValue for non-zero values', () => {
+	test( 'adds visualValue for near-zero values that would render below minimum', () => {
+		const data: SeriesData[] = [
+			{
+				label: 'Series 1',
+				data: [
+					{ label: 'A', value: 1 }, // Would render as 1px (below 3px minimum)
+					{ label: 'B', value: 100 },
+				],
+			},
+		];
+
+		// With axis=100 and max=100, 3px threshold = 3
+		// Value of 1 < 3, so it gets boosted
 		const { result } = renderHook( () =>
-			useZeroValueDisplay( mockData, { enabled: true, valueAxisLength: 100 } )
+			useZeroValueDisplay( data, { enabled: true, valueAxisLength: 100 } )
 		);
 
 		const enhancedData = result.current;
-		expect( enhancedData[ 0 ].data[ 1 ] ).not.toHaveProperty( 'visualValue' );
-		expect( enhancedData[ 0 ].data[ 2 ] ).not.toHaveProperty( 'visualValue' );
+		expect( enhancedData[ 0 ].data[ 0 ] ).toHaveProperty( 'visualValue' );
+		expect( ( enhancedData[ 0 ].data[ 0 ] as { visualValue?: number } ).visualValue ).toBe( 3 );
 	} );
 
-	test( 'calculates visualValue as 3px equivalent, capped at min value', () => {
-		// mockData has values [0, 100, 200]
-		// pixelBasedValue = (3 / 100) * 200 = 6
-		// But min non-zero value is 100, so visualValue = min(6, 100) = 6
+	test( 'does not add visualValue for values above minimum threshold', () => {
+		const data: SeriesData[] = [
+			{
+				label: 'Series 1',
+				data: [
+					{ label: 'A', value: 10 }, // Would render as 10px (above 3px minimum)
+					{ label: 'B', value: 100 },
+				],
+			},
+		];
+
+		const { result } = renderHook( () =>
+			useZeroValueDisplay( data, { enabled: true, valueAxisLength: 100 } )
+		);
+
+		const enhancedData = result.current;
+		expect( enhancedData[ 0 ].data[ 0 ] ).not.toHaveProperty( 'visualValue' );
+		expect( enhancedData[ 0 ].data[ 1 ] ).not.toHaveProperty( 'visualValue' );
+	} );
+
+	test( 'calculates visualValue as 3px equivalent', () => {
+		// mockData has values [0, 100, 200], max = 200
+		// minVisibleValue = (3 / 100) * 200 = 6
 		const { result } = renderHook( () =>
 			useZeroValueDisplay( mockData, { enabled: true, valueAxisLength: 100 } )
 		);
@@ -61,31 +91,7 @@ describe( 'useZeroValueDisplay', () => {
 		expect( visualValue ).toBe( 6 );
 	} );
 
-	test( 'caps visualValue at smallest non-zero value', () => {
-		// When 3px equivalent would exceed the smallest bar, cap it
-		const data: SeriesData[] = [
-			{
-				label: 'Series 1',
-				data: [
-					{ label: 'A', value: 0 },
-					{ label: 'B', value: 2 }, // small value
-					{ label: 'C', value: 100 },
-				],
-			},
-		];
-
-		// pixelBasedValue = (3 / 100) * 100 = 3
-		// minAbsoluteValue = 2
-		// visualValue = min(3, 2) = 2 (capped so zero doesn't exceed smallest bar)
-		const { result } = renderHook( () =>
-			useZeroValueDisplay( data, { enabled: true, valueAxisLength: 100 } )
-		);
-
-		const visualValue = ( result.current[ 0 ].data[ 0 ] as { visualValue?: number } ).visualValue;
-		expect( visualValue ).toBe( 2 );
-	} );
-
-	test( 'scales visualValue based on axis length', () => {
+	test( 'scales minVisibleValue based on axis length', () => {
 		const data: SeriesData[] = [
 			{
 				label: 'Series 1',
@@ -96,11 +102,11 @@ describe( 'useZeroValueDisplay', () => {
 			},
 		];
 
-		// Small axis = larger pixelBasedValue, but capped at minValue (100)
+		// Small axis = larger minVisibleValue (to ensure 3px)
 		const { result: smallAxis } = renderHook( () =>
 			useZeroValueDisplay( data, { enabled: true, valueAxisLength: 50 } )
 		);
-		// Large axis = smaller visualValue
+		// Large axis = smaller minVisibleValue
 		const { result: largeAxis } = renderHook( () =>
 			useZeroValueDisplay( data, { enabled: true, valueAxisLength: 200 } )
 		);
@@ -110,8 +116,7 @@ describe( 'useZeroValueDisplay', () => {
 		const largeAxisValue = ( largeAxis.current[ 0 ].data[ 0 ] as { visualValue?: number } )
 			.visualValue;
 
-		// 3/50 * 100 = 6, but capped at 100 (only non-zero value) → 6
-		// 3/200 * 100 = 1.5, capped at 100 → 1.5
+		// 3/50 * 100 = 6 vs 3/200 * 100 = 1.5
 		expect( smallAxisValue ).toBe( 6 );
 		expect( largeAxisValue ).toBe( 1.5 );
 	} );
@@ -131,7 +136,7 @@ describe( 'useZeroValueDisplay', () => {
 			useZeroValueDisplay( zeroOnlyData, { enabled: true, valueAxisLength: 100 } )
 		);
 
-		// Should return original data since there are no non-zero values
+		// Should return original data since there are no non-zero values to calculate from
 		expect( result.current ).toBe( zeroOnlyData );
 	} );
 } );
