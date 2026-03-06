@@ -1,3 +1,0 @@
-Significance: patch
-Type: other
-Comment: Remove proxy speed module activation/deactivation calls, now handled by the woocommerce-analytics package.
