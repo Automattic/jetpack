@@ -93,7 +93,7 @@ class Settings {
 	 *
 	 * @var array|null
 	 */
-	private static $cached_allowed_post_types_for_checksum = null;
+	private static $cached_allowed_post_types = null;
 
 	/**
 	 * Whether we're currently syncing.
@@ -305,7 +305,7 @@ class Settings {
 
 			// Invalidate allowlist cache when post types blacklist changes.
 			if ( 'post_types_blacklist' === $setting ) {
-				self::$cached_allowed_post_types_for_checksum = null;
+				self::$cached_allowed_post_types = null;
 			}
 
 			// If we set the disabled option to true, clear the queues.
@@ -376,7 +376,7 @@ class Settings {
 	 * @return string SQL WHERE clause (post_type IN).
 	 */
 	public static function get_allowed_post_types_sql() {
-		$allowed = static::get_allowed_post_types_for_checksum();
+		$allowed = static::get_allowed_post_types();
 		if ( empty( $allowed ) ) {
 			return '1 = 0'; // This is an SQL condition that is always false.
 		}
@@ -401,22 +401,33 @@ class Settings {
 	}
 
 	/**
-	 * Get allowed post types for the posts checksum (all registered minus blacklist).
-	 * Used so the checksum query can use IN (allowed) instead of NOT IN (blacklist).
+	 * Get allowed post types (all registered minus blacklist).
 	 *
 	 * Result is cached for the request to prevent unnecessary get_post_types() calls.
 	 *
 	 * @return array Allowed post type names (no DB query; get_post_types() is used).
 	 */
-	public static function get_allowed_post_types_for_checksum() {
-		if ( null !== self::$cached_allowed_post_types_for_checksum ) {
-			return self::$cached_allowed_post_types_for_checksum;
+	public static function get_allowed_post_types() {
+		if ( null !== self::$cached_allowed_post_types ) {
+			return self::$cached_allowed_post_types;
 		}
-		$all_types                                    = get_post_types( array(), 'names' );
-		$blacklist                                    = static::get_setting( 'post_types_blacklist' );
-		$allowed                                      = array_diff( $all_types, $blacklist );
-		self::$cached_allowed_post_types_for_checksum = array_values( $allowed );
-		return self::$cached_allowed_post_types_for_checksum;
+		$all_types                       = get_post_types( array(), 'names' );
+		$blacklist                       = static::get_setting( 'post_types_blacklist' );
+		$allowed                         = array_diff( $all_types, $blacklist );
+		self::$cached_allowed_post_types = array_values( $allowed );
+		return self::$cached_allowed_post_types;
+	}
+
+	/**
+	 * Get allowed post types for the posts checksum (all registered minus blacklist).
+	 *
+	 * @deprecated $$next-version$$ Use get_allowed_post_types() instead.
+	 *
+	 * @return array Allowed post type names.
+	 */
+	public static function get_allowed_post_types_for_checksum() {
+		_deprecated_function( __METHOD__, '$$next-version$$', 'get_allowed_post_types' );
+		return static::get_allowed_post_types();
 	}
 
 	/**
@@ -596,7 +607,7 @@ class Settings {
 		foreach ( $valid_settings as $option => $value ) {
 			delete_option( self::SETTINGS_OPTION_PREFIX . $option );
 		}
-		self::$cached_allowed_post_types_for_checksum = null;
+		self::$cached_allowed_post_types = null;
 		self::set_importing( null );
 		self::set_doing_cron( null );
 		self::set_is_syncing( null );

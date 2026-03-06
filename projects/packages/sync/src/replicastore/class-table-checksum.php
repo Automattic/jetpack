@@ -193,7 +193,7 @@ class Table_Checksum {
 				'filter_values'             => array(
 					'post_type' => array(
 						'operator' => 'IN',
-						'values'   => Sync\Settings::get_allowed_post_types_for_checksum(),
+						'values'   => Sync\Settings::get_allowed_post_types(),
 					),
 				),
 				'is_table_enabled_callback' => function () {
