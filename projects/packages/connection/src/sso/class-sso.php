@@ -931,7 +931,37 @@ class SSO {
 			 *
 			 * @see https://github.com/WordPress/two-factor/issues/811
 			 */
-			if ( ! empty( $user_data->two_step_enabled ) && class_exists( 'Two_Factor_Core' ) ) {
+			if (
+				! empty( $user_data->two_step_enabled )
+				&& class_exists( 'Two_Factor_Core' )
+				/**
+				 * Filter whether to accept WordPress.com 2FA in place of a local
+				 * Two-Factor prompt during SSO login.
+				 *
+				 * Return false to always require the local Two-Factor prompt,
+				 * even when the user has completed 2FA on WordPress.com.
+				 *
+				 * @since $$next-version$$
+				 * @module sso
+				 *
+				 * @param bool    $accept    Whether to accept WP.com 2FA. Default true.
+				 * @param object  $user_data WordPress.com user data from SSO validation.
+				 * @param WP_User $user      The local WordPress user.
+				 */
+				&& apply_filters( 'jetpack_sso_accept_wpcom_2fa', true, $user_data, $user )
+			) {
+				add_filter(
+					'attach_session_information',
+					function ( $session, $user_id ) use ( $user ) {
+						if ( $user->ID === $user_id ) {
+							$session['two-factor-login'] = time();
+						}
+						return $session;
+					},
+					10,
+					2
+				);
+
 				remove_action( 'wp_login', array( 'Two_Factor_Core', 'wp_login' ), PHP_INT_MAX );
 			}
 
