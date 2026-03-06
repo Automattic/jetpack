@@ -197,9 +197,11 @@ class PingHubConnection {
 
 		this.sendSyncStep1();
 
-		const clientIds = Array.from( this.awareness.getStates().keys() );
-		if ( clientIds.length ) {
-			const update = awarenessProtocol.encodeAwarenessUpdate( this.awareness, clientIds );
+		// Only broadcast our own awareness state. Other peers will
+		// announce themselves; re-broadcasting their states could
+		// resurrect stale entries and cause duplicate peers.
+		if ( this.awareness.getLocalState() ) {
+			const update = awarenessProtocol.encodeAwarenessUpdate( this.awareness, [ this.clientId ] );
 			this.broadcastAwareness( update );
 		}
 	};
@@ -257,6 +259,11 @@ class PingHubConnection {
 				) {
 					this.syncStep1RepliedTo.add( senderClientID );
 					this.sendSyncStep1();
+					// Send our awareness so the new peer sees us immediately.
+					const awarenessUpdate = awarenessProtocol.encodeAwarenessUpdate( this.awareness, [
+						this.clientId,
+					] );
+					this.broadcastAwareness( awarenessUpdate );
 				}
 				return;
 			}
