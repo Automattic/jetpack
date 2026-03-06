@@ -53,7 +53,7 @@ class Help_Center {
 
 		$blog_id               = get_current_blog_id();
 		$this->is_forum_site   = defined( 'WPCOM_FORUM_BLOG_IDS' ) && in_array( $blog_id, (array) WPCOM_FORUM_BLOG_IDS, true );
-		$this->is_support_site = ( defined( 'WPCOM_SUPPORT_BLOG_IDS' ) && in_array( $blog_id, (array) WPCOM_SUPPORT_BLOG_IDS, true ) ) || ( defined( 'WPCOM_FORUM_BLOG_IDS' ) && in_array( $blog_id, (array) WPCOM_FORUM_BLOG_IDS, true ) );
+		$this->is_support_site = ( defined( 'WPCOM_SUPPORT_BLOG_IDS' ) && in_array( $blog_id, (array) WPCOM_SUPPORT_BLOG_IDS, true ) ) || $this->is_forum_site;
 
 		// Always register REST API endpoints.
 		add_action( 'rest_api_init', array( $this, 'register_rest_api' ) );
