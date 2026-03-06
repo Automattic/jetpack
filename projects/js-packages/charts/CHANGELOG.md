@@ -5,10 +5,6 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
-### Fixed
-- Legend: Fix composition API legend position so it respects the `position` prop (top/bottom) across LineChart, BarChart, PieChart, PieSemiCircleChart, and LeaderboardChart.
-
 ## [0.56.7] - 2026-03-02
 ### Changed
 - Improve AI agent documentation and validation workflow for chart development. [#47334]
