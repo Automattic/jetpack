@@ -33,20 +33,25 @@ export const useZeroValueDisplay = (
 	return useMemo( () => {
 		if ( ! enabled || ! valueAxisLength || valueAxisLength <= 0 ) return data;
 
-		// Find max absolute value to calculate the 3px equivalent
+		// Find max and min absolute values
 		let maxAbsoluteValue = 0;
+		let minAbsoluteValue = Infinity;
 		for ( const series of data ) {
 			for ( const point of series.data ) {
 				if ( point.value !== null && point.value !== 0 ) {
-					maxAbsoluteValue = Math.max( maxAbsoluteValue, Math.abs( point.value ) );
+					const absValue = Math.abs( point.value );
+					maxAbsoluteValue = Math.max( maxAbsoluteValue, absValue );
+					minAbsoluteValue = Math.min( minAbsoluteValue, absValue );
 				}
 			}
 		}
 
 		if ( maxAbsoluteValue === 0 ) return data;
 
-		// Calculate the value that renders as MIN_PIXEL_HEIGHT pixels
-		const minVisibleValue = ( MIN_PIXEL_HEIGHT / valueAxisLength ) * maxAbsoluteValue;
+		// Calculate the value that renders as MIN_PIXEL_HEIGHT pixels,
+		// but never exceed the smallest actual value (so zero bars don't appear larger than real data)
+		const pixelBasedValue = ( MIN_PIXEL_HEIGHT / valueAxisLength ) * maxAbsoluteValue;
+		const minVisibleValue = Math.min( pixelBasedValue, minAbsoluteValue );
 
 		return data.map( series => ( {
 			...series,
