@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix submit button layout in flex containers by adding flex-basis and inline-flex display properties.
