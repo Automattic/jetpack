@@ -463,6 +463,7 @@ class WPCOM_Features {
 	public const PRIORITY_SUPPORT                  = 'priority_support';
 	public const PRIVATE_WHOIS                     = 'private_whois';
 	public const REAL_TIME_BACKUPS                 = 'real-time-backups';
+	public const REAL_TIME_COLLABORATION           = 'real-time-collaboration';
 	public const RECURRING_PAYMENTS                = 'recurring-payments';
 	public const REDUCED_ATOMIC_EMAIL_PRIORITY     = 'reduced-email-priority';
 	public const REPUBLICIZE                       = 'republicize';
@@ -1161,6 +1162,14 @@ class WPCOM_Features {
 			self::WPCOM_PRO_PLANS,
 			self::WPCOM_FLEX_CACHE_SITE_FREE_PLANS,
 		),
+
+		self::REAL_TIME_COLLABORATION           => array(
+			array(
+				'required_sticker' => 'wpcom-features-edge',
+				self::WPCOM_PERSONAL_AND_HIGHER_PLANS,
+			),
+		),
+
 		self::RECURRING_PAYMENTS                => array(
 			array(
 				'sticker_not_present' => 'gating-business-q1',
