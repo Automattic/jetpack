@@ -130,10 +130,22 @@ class Dashboard_Test extends BaseTestCase {
 		$ref = new \ReflectionClass( WP_Build_Polyfills::class );
 
 		$requested = $ref->getProperty( 'requested' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$requested->setAccessible( true );
+		}
 		$requested->setValue( null, array() );
 
 		$hooked = $ref->getProperty( 'hooked' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$hooked->setAccessible( true );
+		}
 		$hooked->setValue( null, false );
+
+		$threshold = $ref->getProperty( 'wp_version_threshold' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$threshold->setAccessible( true );
+		}
+		$threshold->setValue( null, '7.0' );
 	}
 
 	/**
@@ -146,7 +158,10 @@ class Dashboard_Test extends BaseTestCase {
 
 		$ref       = new \ReflectionClass( WP_Build_Polyfills::class );
 		$requested = $ref->getProperty( 'requested' );
-		$value     = $requested->getValue();
+		if ( PHP_VERSION_ID < 80100 ) {
+			$requested->setAccessible( true );
+		}
+		$value = $requested->getValue();
 
 		$expected_handles = array_merge( WP_Build_Polyfills::SCRIPT_HANDLES, WP_Build_Polyfills::MODULE_IDS );
 
@@ -169,7 +184,10 @@ class Dashboard_Test extends BaseTestCase {
 
 		$ref       = new \ReflectionClass( WP_Build_Polyfills::class );
 		$requested = $ref->getProperty( 'requested' );
-		$value     = $requested->getValue();
+		if ( PHP_VERSION_ID < 80100 ) {
+			$requested->setAccessible( true );
+		}
+		$value = $requested->getValue();
 
 		$this->assertEmpty( $value, 'No polyfills should be registered when on a different page.' );
 
@@ -187,7 +205,10 @@ class Dashboard_Test extends BaseTestCase {
 
 		$ref       = new \ReflectionClass( WP_Build_Polyfills::class );
 		$requested = $ref->getProperty( 'requested' );
-		$value     = $requested->getValue();
+		if ( PHP_VERSION_ID < 80100 ) {
+			$requested->setAccessible( true );
+		}
+		$value = $requested->getValue();
 
 		$this->assertEmpty( $value, 'No polyfills should be registered when no page is set.' );
 

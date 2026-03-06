@@ -43,10 +43,22 @@ class WP_Build_Polyfills {
 	private static $hooked = false;
 
 	/**
+	 * The WordPress version below which force-replacements are applied.
+	 * When multiple consumers call register() with different thresholds,
+	 * the highest threshold wins (most conservative approach).
+	 *
+	 * @var string
+	 */
+	private static $wp_version_threshold = '7.0';
+
+	/**
 	 * Register polyfill scripts and modules.
 	 *
 	 * Call this early (e.g. during plugin load) — it hooks into wp_default_scripts
 	 * at priority 20 so Core (default) and Gutenberg (priority 10) register first.
+	 *
+	 * When multiple consumers call this method with different thresholds, the
+	 * highest threshold wins (most conservative — polyfills active on more versions).
 	 *
 	 * @param string   $consumer             A unique identifier for the consumer (e.g. plugin slug).
 	 * @param string[] $polyfills             List of polyfill handles/module IDs to register.
@@ -67,6 +79,10 @@ class WP_Build_Polyfills {
 			}
 		}
 
+		if ( version_compare( $wp_version_threshold, self::$wp_version_threshold, '>' ) ) {
+			self::$wp_version_threshold = $wp_version_threshold;
+		}
+
 		if ( self::$hooked ) {
 			return;
 		}
@@ -78,8 +94,8 @@ class WP_Build_Polyfills {
 
 		add_action(
 			'wp_default_scripts',
-			function ( $scripts ) use ( $build_dir, $base_file, $wp_version_threshold ) {
-				self::register_scripts( $scripts, $build_dir, $base_file, $wp_version_threshold );
+			function ( $scripts ) use ( $build_dir, $base_file ) {
+				self::register_scripts( $scripts, $build_dir, $base_file, self::$wp_version_threshold );
 				self::register_modules( $build_dir, $base_file );
 			},
 			20

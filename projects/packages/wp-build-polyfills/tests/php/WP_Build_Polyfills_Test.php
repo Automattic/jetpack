@@ -87,6 +87,12 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 		}
 		$hooked->setValue( null, false );
 
+		$threshold = new \ReflectionProperty( WP_Build_Polyfills::class, 'wp_version_threshold' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$threshold->setAccessible( true );
+		}
+		$threshold->setValue( null, '7.0' );
+
 		$this->recursive_rmdir( $this->build_dir );
 
 		parent::tear_down();
