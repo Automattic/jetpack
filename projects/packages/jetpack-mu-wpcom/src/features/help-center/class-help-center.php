@@ -290,6 +290,14 @@ class Help_Center {
 			$avatar_url         = $user_data ? ( function_exists( 'wpcom_get_avatar_url' ) ? wpcom_get_avatar_url( $user_email, 64, '', true )[0] : get_avatar_url( $user_id ) ) : null;
 			$is_commerce_garden = defined( 'IS_COMMERCE_GARDEN' );
 
+			if ( $this->is_forum_site ) {
+				$section_name = 'wp.com/forums';
+			} elseif ( $this->is_support_site ) {
+				$section_name = 'wp.com/support';
+			} else {
+				$section_name = $variant;
+			}
+
 			wp_add_inline_script(
 				'help-center',
 				'const helpCenterData = ' . wp_json_encode(
@@ -297,7 +305,7 @@ class Help_Center {
 						'isProxied'        => boolval( self::is_proxied() ),
 						'isSU'             => defined( 'WPCOM_SUPPORT_SESSION' ) && WPCOM_SUPPORT_SESSION,
 						'isSSP'            => isset( $_COOKIE['ssp'] ),
-						'sectionName'      => $this->is_forum_site ? 'wp.com/forums' : ( $this->is_support_site ? 'wp.com/support' : $variant ),
+						'sectionName'      => $section_name,
 						'isCommerceGarden' => $is_commerce_garden,
 						'currentUser'      => array(
 							'ID'           => $user_id,
