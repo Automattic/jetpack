@@ -24,11 +24,11 @@
 	line-height: 1.5;
 	text-decoration: none;
 	padding: 8px 0;
-	margin-right: 32px;
+	margin-inline-end: 32px;
 	white-space: nowrap;
 
 	&:last-child {
-		margin-right: 0;
+		margin-inline-end: 0;
 	}
 
 	&:hover,

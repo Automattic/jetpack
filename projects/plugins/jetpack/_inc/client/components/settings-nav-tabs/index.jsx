@@ -1,4 +1,6 @@
+import { isWoASite as _isWoASite } from '@automattic/jetpack-script-data';
 import { __, _x } from '@wordpress/i18n';
+import { useCallback, useMemo } from 'react';
 import { connect } from 'react-redux';
 import { NavLink, useLocation } from 'react-router';
 import QuerySitePlugins from 'components/data/query-site-plugins';
@@ -34,6 +36,7 @@ const SettingsNavTabs = props => {
 	const {
 		userCanManageModules,
 		isSubscriber,
+		isWoASite,
 		userCanPublishPosts,
 		hasSecurityFeature,
 		hasPerformanceFeature,
@@ -52,14 +55,17 @@ const SettingsNavTabs = props => {
 		} );
 	};
 
-	const doSearch = keywords => {
-		const splitUrl = window.location.href.split( '#' ),
-			splitHash = splitUrl[ 1 ].split( '?' );
+	const doSearch = useCallback(
+		keywords => {
+			const splitUrl = window.location.href.split( '#' ),
+				splitHash = splitUrl[ 1 ].split( '?' );
 
-		searchForTerm( keywords );
-		const searchURL = '#' + splitHash[ 0 ] + ( keywords ? '?term=' + keywords : '' );
-		window.location.href = searchURL;
-	};
+			searchForTerm( keywords );
+			const searchURL = '#' + splitHash[ 0 ] + ( keywords ? '?term=' + keywords : '' );
+			window.location.href = searchURL;
+		},
+		[ searchForTerm ]
+	);
 
 	let tabs;
 
@@ -124,6 +130,13 @@ const SettingsNavTabs = props => {
 						onClick={ () => trackNavClick( 'newsletter' ) }
 					/>
 				) }
+				{ hasModules( [ 'wpcom-reader' ] ) && ! isWoASite && (
+					<Tab
+						to="/reader"
+						label={ _x( 'Reader', 'Navigation item.', 'jetpack' ) }
+						onClick={ () => trackNavClick( 'reader' ) }
+					/>
+				) }
 				{ hasModules( [ 'wordads' ] ) && (
 					<Tab
 						to="/earn"
@@ -158,16 +171,10 @@ const SettingsNavTabs = props => {
 		);
 	}
 
-	// Handle search term from URL on initial load.
-	const searchFromUrl = ( () => {
-		const search = location.search || '';
-		const pairs = search.substr( 1 ).split( '&' );
-		const term = pairs.filter( item => 0 === item.indexOf( 'term=' ) );
-		if ( term.length > 0 ) {
-			return decodeURIComponent( term[ 0 ].split( '=' )[ 1 ] );
-		}
-		return '';
-	} )();
+	const searchFromUrl = useMemo(
+		() => new URLSearchParams( location.search ).get( 'term' ) || '',
+		[ location.search ]
+	);
 
 	return (
 		<div className="jp-settings-nav">
@@ -194,6 +201,7 @@ export default connect(
 	state => ( {
 		userCanManageModules: _userCanManageModules( state ),
 		isSubscriber: _userIsSubscriber( state ),
+		isWoASite: _isWoASite( state ),
 		userCanPublishPosts: userCanPublish( state ),
 		hasSecurityFeature: hasAnySecurityFeature( state ),
 		hasPerformanceFeature: hasAnyPerformanceFeature( state ),

@@ -119,7 +119,6 @@ const SettingsAdminPage = props => {
 			title={ __( 'Settings', 'jetpack' ) }
 			apiRoot={ apiRoot }
 			apiNonce={ apiNonce }
-			showFooter={ true }
 			showBackground={ true }
 			tabs={ tabs }
 			optionalMenuItems={ footerMenuItems }
