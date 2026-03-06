@@ -2804,7 +2804,6 @@ p {
 			self::disconnect();
 			Jetpack_Options::delete_option( 'version' );
 		}
-
 	}
 
 	/**
