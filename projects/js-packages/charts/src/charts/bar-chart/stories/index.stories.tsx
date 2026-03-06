@@ -401,6 +401,66 @@ export const ZeroValueComparison: StoryObj< typeof BarChart > = {
 	},
 };
 
+// Data with zero values and large range to demonstrate visibility in small charts
+const dataWithZeroValuesLargeRange = [
+	{
+		group: 'Series A',
+		label: 'Series A',
+		data: [
+			{ label: 'Jan', value: 0 },
+			{ label: 'Feb', value: 500 },
+			{ label: 'Mar', value: 0 },
+			{ label: 'Apr', value: 8000 },
+			{ label: 'May', value: 0 },
+		],
+	},
+];
+
+export const ZeroValueSmallChart: StoryObj< typeof BarChart > = {
+	render: () => (
+		<div style={ { display: 'grid', gap: '40px' } }>
+			<div>
+				<h3>Small Chart Height (100px) with Zero Values</h3>
+				<p style={ { marginBottom: '20px', color: '#666' } }>
+					Zero-value bars remain visible even in small charts. The minimum pixel height ensures bars
+					are at least 3 pixels tall regardless of data range.
+				</p>
+				<div style={ { width: '400px', height: '100px', border: '1px solid #e0e0e0' } }>
+					<BarChart
+						data={ dataWithZeroValuesLargeRange }
+						showZeroValues={ true }
+						withTooltips={ true }
+						gridVisibility="x"
+					/>
+				</div>
+			</div>
+
+			<div>
+				<h3>Normal Chart Height (200px) for Comparison</h3>
+				<p style={ { marginBottom: '20px', color: '#666' } }>
+					Same data in a taller chart. Zero-value bars scale proportionally.
+				</p>
+				<div style={ { width: '400px', height: '200px', border: '1px solid #e0e0e0' } }>
+					<BarChart
+						data={ dataWithZeroValuesLargeRange }
+						showZeroValues={ true }
+						withTooltips={ true }
+						gridVisibility="x"
+					/>
+				</div>
+			</div>
+		</div>
+	),
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Demonstrates that zero-value bars remain visible in small chart heights. The minimum pixel height calculation ensures visibility regardless of chart dimensions or data range.',
+			},
+		},
+	},
+};
+
 // Data with long categorical labels to demonstrate overlapping issue
 const longLabelData = [
 	{

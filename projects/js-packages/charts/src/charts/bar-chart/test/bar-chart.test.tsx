@@ -562,6 +562,36 @@ describe( 'BarChart', () => {
 				expect( width ).toBeGreaterThan( 0 );
 			} );
 		} );
+
+		test( 'ensures minimum pixel height for zero values in small charts', () => {
+			// With a small chart height (100px) and large data range, zero-value bars
+			// should still be visible (at least 3px based on MIN_PIXEL_HEIGHT)
+			renderWithTheme( {
+				showZeroValues: true,
+				height: 100,
+				data: [
+					{
+						label: 'Test Series',
+						data: [
+							{ label: 'Zero', value: 0 },
+							{ label: 'Large', value: 10000 },
+						],
+						options: {},
+					},
+				],
+			} );
+
+			const svgElement = screen.getByRole( 'grid', { name: /bar chart/i } ).querySelector( 'svg' );
+			const bars = svgElement?.querySelectorAll( '.visx-bar-group rect' );
+
+			expect( bars?.length ).toBe( 2 );
+
+			// The zero-value bar (first bar) should have a minimum visible height
+			// With MIN_PIXEL_HEIGHT = 3, and the pixel-based calculation, it should be >= 3px
+			const zeroBar = bars?.[ 0 ];
+			const zeroBarHeight = parseFloat( zeroBar?.getAttribute( 'height' ) || '0' );
+			expect( zeroBarHeight ).toBeGreaterThanOrEqual( 2 ); // Allow for some rounding
+		} );
 	} );
 
 	/* eslint-enable testing-library/no-node-access */

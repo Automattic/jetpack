@@ -110,8 +110,10 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	const dataSorted = useChartDataTransform( data );
 
 	// Transform data to add a small value for zero bars to make them visible
+	// For vertical bars, height determines bar pixel height; for horizontal bars, width does
 	const dataWithVisibleZeros = useZeroValueDisplay( dataSorted, {
 		enabled: showZeroValues,
+		chartHeight: horizontal ? width : height,
 	} );
 
 	// Create legend items using the reusable hook
