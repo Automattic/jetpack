@@ -10,6 +10,7 @@ const MSG_SYNC = 0x00;
 const MSG_AWARENESS = 0x01;
 const RECONNECT_BASE_DELAY_MS = 1000;
 const RECONNECT_MAX_DELAY_MS = 30 * 1000;
+const PINGHUB_MANAGER_ORIGIN = 'pinghub-manager';
 
 interface RegisterRoomOptions {
 	room: string;
@@ -23,6 +24,7 @@ const rooms: Map< string, PingHubConnection > = new Map();
 let bridge: PingHubBridge | null = null;
 let isUnloadPending = false;
 let areListenersRegistered = false;
+let keepaliveWorker: Worker | null = null;
 
 /**
  * Manages a single room's real-time synchronization via PingHub.
@@ -104,6 +106,28 @@ class PingHubConnection {
 	 */
 	public removeAwareness( reason: string ): void {
 		awarenessProtocol.removeAwarenessStates( this.awareness, [ this.clientId ], reason );
+	}
+
+	/**
+	 * Re-broadcast local awareness state to peers.
+	 *
+	 * Called periodically by the keepalive worker to prevent the y-protocols
+	 * awareness timeout (30s) from removing this client on remote peers.
+	 */
+	public broadcastLocalAwareness(): void {
+		if ( ! this.connected ) {
+			return;
+		}
+		const localState = this.awareness.getLocalState();
+		if ( localState ) {
+			// setLocalState updates the clock and lastUpdated in meta, but
+			// does NOT emit 'change' when the state is deep-equal to the
+			// previous one. We call it to bump the meta, then manually
+			// encode and broadcast so the update reaches remote peers.
+			this.awareness.setLocalState( localState );
+			const update = awarenessProtocol.encodeAwarenessUpdate( this.awareness, [ this.clientId ] );
+			this.broadcastAwareness( update );
+		}
 	}
 
 	/**
@@ -219,7 +243,7 @@ class PingHubConnection {
 
 				const enc = encoding.createEncoder();
 				encoding.writeVarUint( enc, MSG_SYNC );
-				syncProtocol.readSyncMessage( dec, enc, this.doc, 'pinghub-manager' );
+				syncProtocol.readSyncMessage( dec, enc, this.doc, PINGHUB_MANAGER_ORIGIN );
 				this.onSync();
 
 				const reply = encoding.toUint8Array( enc );
@@ -238,7 +262,7 @@ class PingHubConnection {
 			}
 			case MSG_AWARENESS: {
 				const update = decoding.readVarUint8Array( dec );
-				awarenessProtocol.applyAwarenessUpdate( this.awareness, update, 'pinghub-manager' );
+				awarenessProtocol.applyAwarenessUpdate( this.awareness, update, PINGHUB_MANAGER_ORIGIN );
 				break;
 			}
 			default:
@@ -253,7 +277,7 @@ class PingHubConnection {
 	 * @param origin - Origin of the update.
 	 */
 	private handleDocUpdate = ( update: Uint8Array, origin: unknown ): void => {
-		if ( ! rooms.has( this.room ) || origin === 'pinghub-manager' || ! this.connected ) {
+		if ( ! rooms.has( this.room ) || origin === PINGHUB_MANAGER_ORIGIN || ! this.connected ) {
 			return;
 		}
 
@@ -287,6 +311,31 @@ class PingHubConnection {
 		const update = awarenessProtocol.encodeAwarenessUpdate( this.awareness, changed );
 		this.broadcastAwareness( update );
 	};
+}
+
+/**
+ * Create a Web Worker that sends periodic 'tick' messages for awareness keepalive.
+ *
+ * @return Worker
+ */
+function createKeepaliveWorker(): Worker {
+	const worker = new Worker( new URL( './keepalive-worker', import.meta.url ) );
+	worker.onmessage = () => {
+		for ( const [ , connection ] of rooms ) {
+			connection.broadcastLocalAwareness();
+		}
+	};
+	return worker;
+}
+
+/**
+ * Tear down the keepalive worker.
+ */
+function destroyKeepaliveWorker(): void {
+	if ( keepaliveWorker ) {
+		keepaliveWorker.terminate();
+		keepaliveWorker = null;
+	}
 }
 
 /**
@@ -361,6 +410,10 @@ function registerRoom( options: RegisterRoomOptions ): void {
 		areListenersRegistered = true;
 	}
 
+	if ( ! keepaliveWorker ) {
+		keepaliveWorker = createKeepaliveWorker();
+	}
+
 	connection.connect();
 }
 
@@ -378,11 +431,14 @@ function unregisterRoom( room: string ): void {
 	connection.destroy();
 	rooms.delete( room );
 
-	if ( rooms.size === 0 && areListenersRegistered ) {
-		window.removeEventListener( 'beforeunload', handleBeforeUnload );
-		window.removeEventListener( 'pagehide', handlePageHide );
-		document.removeEventListener( 'visibilitychange', handleVisibilityChange );
-		areListenersRegistered = false;
+	if ( rooms.size === 0 ) {
+		if ( areListenersRegistered ) {
+			window.removeEventListener( 'beforeunload', handleBeforeUnload );
+			window.removeEventListener( 'pagehide', handlePageHide );
+			document.removeEventListener( 'visibilitychange', handleVisibilityChange );
+			areListenersRegistered = false;
+		}
+		destroyKeepaliveWorker();
 	}
 }
 
