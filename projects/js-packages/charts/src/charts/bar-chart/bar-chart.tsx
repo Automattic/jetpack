@@ -4,7 +4,7 @@ import { Axis, BarSeries, BarGroup, Grid, XYChart } from '@visx/xychart';
 import { __ } from '@wordpress/i18n';
 import { Stack } from '@wordpress/ui';
 import clsx from 'clsx';
-import { useCallback, useContext, useState, useRef, useMemo } from 'react';
+import { useCallback, useContext, useState, useRef, useMemo, Fragment } from 'react';
 import { Legend, useChartLegendItems } from '../../components/legend';
 import { AccessibleTooltip, useKeyboardNavigation } from '../../components/tooltip';
 import {
@@ -13,7 +13,6 @@ import {
 	useZeroValueDisplay,
 	useChartMargin,
 	useElementSize,
-	useHasLegendChild,
 	usePrefersReducedMotion,
 } from '../../hooks';
 import {
@@ -25,6 +24,7 @@ import {
 	GlobalChartsContext,
 } from '../../providers';
 import { attachSubComponents } from '../../utils';
+import { useChartChildren } from '../private/chart-composition';
 import { SingleChartContext } from '../private/single-chart-context';
 import { withResponsive } from '../private/with-responsive';
 import styles from './bar-chart.module.scss';
@@ -121,8 +121,9 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	const [ svgWrapperRef, , svgWrapperHeight ] = useElementSize< HTMLDivElement >();
 	const chartRef = useRef< HTMLDivElement >( null );
 
-	// Check if children contain a Legend component (composition pattern)
-	const hasLegendChild = useHasLegendChild( children );
+	// Process children for composition API (Legend, etc.)
+	const { legendChildren, otherChildren } = useChartChildren( children, 'BarChart' );
+	const hasLegendChild = legendChildren.length > 0;
 
 	// Use the measured SVG wrapper height, falling back to the passed height if provided.
 	// When there's a legend (via prop or composition), we must wait for measurement because
@@ -368,6 +369,11 @@ const BarChartInternal: FC< BarChartProps > = ( {
 				data-chart-id={ `bar-chart-${ chartId }` }
 			>
 				{ legendPosition === 'top' && legendElement }
+				{ legendChildren
+					.filter( l => l.position === 'top' )
+					.map( ( l, i ) => (
+						<Fragment key={ `legend-top-${ i }` }>{ l.element }</Fragment>
+					) ) }
 
 				<div
 					className={ styles[ 'bar-chart__svg-wrapper' ] }
@@ -481,8 +487,13 @@ const BarChartInternal: FC< BarChartProps > = ( {
 				</div>
 
 				{ legendPosition === 'bottom' && legendElement }
+				{ legendChildren
+					.filter( l => l.position === 'bottom' )
+					.map( ( l, i ) => (
+						<Fragment key={ `legend-bottom-${ i }` }>{ l.element }</Fragment>
+					) ) }
 
-				{ children }
+				{ otherChildren }
 			</Stack>
 		</SingleChartContext.Provider>
 	);

@@ -168,7 +168,7 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 	const legendShapeStyles = { width: 8, height: 8, ...legendShapeStylesProp };
 
 	// Process children to extract compound components
-	const { otherChildren } = useChartChildren( children, 'LeaderboardChart' );
+	const { legendChildren, otherChildren } = useChartChildren( children, 'LeaderboardChart' );
 	const {
 		labelSpacing,
 		rowGap,
@@ -276,11 +276,21 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 						height: propHeight || undefined,
 					} }
 				>
+					{ legendChildren
+						.filter( l => l.position === 'top' )
+						.map( ( l, i ) => (
+							<Fragment key={ `legend-top-${ i }` }>{ l.element }</Fragment>
+						) ) }
 					<div className={ styles.emptyState }>
 						{ loading
 							? __( 'Loading…', 'jetpack-charts' )
 							: __( 'No data available', 'jetpack-charts' ) }
 					</div>
+					{ legendChildren
+						.filter( l => l.position === 'bottom' )
+						.map( ( l, i ) => (
+							<Fragment key={ `legend-bottom-${ i }` }>{ l.element }</Fragment>
+						) ) }
 					{ /* Render children from composition API */ }
 					{ otherChildren }
 				</Stack>
@@ -327,6 +337,11 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 				} }
 			>
 				{ legendPosition === 'top' && legendElement }
+				{ legendChildren
+					.filter( l => l.position === 'top' )
+					.map( ( l, i ) => (
+						<Fragment key={ `legend-top-${ i }` }>{ l.element }</Fragment>
+					) ) }
 
 				<div className={ styles.leaderboardChart__content }>
 					{ allSeriesHidden ? (
@@ -377,6 +392,11 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 				</div>
 
 				{ legendPosition === 'bottom' && legendElement }
+				{ legendChildren
+					.filter( l => l.position === 'bottom' )
+					.map( ( l, i ) => (
+						<Fragment key={ `legend-bottom-${ i }` }>{ l.element }</Fragment>
+					) ) }
 
 				{ /* Render children from composition API */ }
 				{ otherChildren }

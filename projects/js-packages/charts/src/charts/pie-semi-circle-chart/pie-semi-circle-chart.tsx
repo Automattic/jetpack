@@ -5,7 +5,7 @@ import { useTooltip, useTooltipInPortal } from '@visx/tooltip';
 import { __ } from '@wordpress/i18n';
 import { Stack } from '@wordpress/ui';
 import clsx from 'clsx';
-import { useCallback, useContext, useMemo } from 'react';
+import { useCallback, useContext, useMemo, Fragment } from 'react';
 import { Legend, useChartLegendItems } from '../../components/legend';
 import { BaseTooltip } from '../../components/tooltip';
 import { useElementSize, useInteractiveLegendData, usePrefersReducedMotion } from '../../hooks';
@@ -277,7 +277,7 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 	const legendItems = useChartLegendItems( legendData, legendOptions );
 
 	// Process children to extract compound components
-	const { svgChildren, htmlChildren, otherChildren } = useChartChildren(
+	const { svgChildren, htmlChildren, legendChildren, otherChildren } = useChartChildren(
 		children,
 		'PieSemiCircleChart'
 	);
@@ -387,6 +387,11 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 				data-testid="pie-chart-container"
 			>
 				{ legendPosition === 'top' && legendElement }
+				{ legendChildren
+					.filter( l => l.position === 'top' )
+					.map( ( l, i ) => (
+						<Fragment key={ `legend-top-${ i }` }>{ l.element }</Fragment>
+					) ) }
 
 				<div ref={ svgWrapperRef } className={ styles[ 'pie-semi-circle-chart__svg-wrapper' ] }>
 					<svg
@@ -484,6 +489,11 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 				</div>
 
 				{ legendPosition !== 'top' && legendElement }
+				{ legendChildren
+					.filter( l => l.position === 'bottom' )
+					.map( ( l, i ) => (
+						<Fragment key={ `legend-bottom-${ i }` }>{ l.element }</Fragment>
+					) ) }
 
 				{ withTooltips && tooltipOpen && tooltipData && (
 					<TooltipInPortal top={ tooltipTop || 0 } left={ tooltipLeft || 0 }>

@@ -7,7 +7,15 @@ import { __ } from '@wordpress/i18n';
 import { Stack } from '@wordpress/ui';
 import clsx from 'clsx';
 import { differenceInHours, differenceInYears } from 'date-fns';
-import { useMemo, useContext, forwardRef, useImperativeHandle, useState, useRef } from 'react';
+import {
+	useMemo,
+	useContext,
+	forwardRef,
+	useImperativeHandle,
+	useState,
+	useRef,
+	Fragment,
+} from 'react';
 import { Legend, useChartLegendItems } from '../../components/legend';
 import { AccessibleTooltip, useKeyboardNavigation } from '../../components/tooltip';
 import {
@@ -15,7 +23,6 @@ import {
 	useChartDataTransform,
 	useChartMargin,
 	useElementSize,
-	useHasLegendChild,
 	usePrefersReducedMotion,
 } from '../../hooks';
 import {
@@ -27,6 +34,7 @@ import {
 	useGlobalChartsTheme,
 } from '../../providers';
 import { attachSubComponents } from '../../utils';
+import { useChartChildren } from '../private/chart-composition';
 import { DefaultGlyph } from '../private/default-glyph';
 import { SingleChartContext, type SingleChartRef } from '../private/single-chart-context';
 import { withResponsive } from '../private/with-responsive';
@@ -294,8 +302,9 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 		const [ isNavigating, setIsNavigating ] = useState( false );
 		const internalChartRef = useRef< SingleChartRef >( null );
 
-		// Check if children contain a Legend component (composition pattern)
-		const hasLegendChild = useHasLegendChild( children );
+		// Process children for composition API (Legend, etc.)
+		const { legendChildren, otherChildren } = useChartChildren( children, 'LineChart' );
+		const hasLegendChild = legendChildren.length > 0;
 
 		// Use the measured SVG wrapper height, falling back to the passed height if provided.
 		// When there's a legend (via prop or composition), we must wait for measurement because
@@ -492,6 +501,11 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 					} }
 				>
 					{ legendPosition === 'top' && legendElement }
+					{ legendChildren
+						.filter( l => l.position === 'top' )
+						.map( ( l, i ) => (
+							<Fragment key={ `legend-top-${ i }` }>{ l.element }</Fragment>
+						) ) }
 
 					<div
 						className={ styles[ 'line-chart__svg-wrapper' ] }
@@ -654,8 +668,13 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 					</div>
 
 					{ legendPosition === 'bottom' && legendElement }
+					{ legendChildren
+						.filter( l => l.position === 'bottom' )
+						.map( ( l, i ) => (
+							<Fragment key={ `legend-bottom-${ i }` }>{ l.element }</Fragment>
+						) ) }
 
-					{ children }
+					{ otherChildren }
 				</Stack>
 			</SingleChartContext.Provider>
 		);

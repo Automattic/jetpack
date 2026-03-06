@@ -4,7 +4,7 @@ import { useTooltip, useTooltipInPortal } from '@visx/tooltip';
 import { __ } from '@wordpress/i18n';
 import { Stack } from '@wordpress/ui';
 import clsx from 'clsx';
-import { useCallback, useContext, useMemo } from 'react';
+import { useCallback, useContext, useMemo, Fragment } from 'react';
 import { Legend, useChartLegendItems } from '../../components/legend';
 import { BaseTooltip } from '../../components/tooltip';
 import { useElementSize, useInteractiveLegendData, usePrefersReducedMotion } from '../../hooks';
@@ -236,7 +236,10 @@ const PieChartInternal = ( {
 	const { isValid, message } = validateData( data );
 
 	// Process children to extract compound components
-	const { svgChildren, htmlChildren, otherChildren } = useChartChildren( children, 'PieChart' );
+	const { svgChildren, htmlChildren, legendChildren, otherChildren } = useChartChildren(
+		children,
+		'PieChart'
+	);
 
 	// Memoize metadata to prevent unnecessary re-registration
 	const chartMetadata = useMemo(
@@ -350,6 +353,11 @@ const PieChartInternal = ( {
 				} }
 			>
 				{ legendPosition === 'top' && legendElement }
+				{ legendChildren
+					.filter( l => l.position === 'top' )
+					.map( ( l, i ) => (
+						<Fragment key={ `legend-top-${ i }` }>{ l.element }</Fragment>
+					) ) }
 
 				<div className={ styles[ 'pie-chart__svg-wrapper' ] } ref={ svgWrapperRef }>
 					<svg
@@ -482,6 +490,11 @@ const PieChartInternal = ( {
 				</div>
 
 				{ legendPosition === 'bottom' && legendElement }
+				{ legendChildren
+					.filter( l => l.position === 'bottom' )
+					.map( ( l, i ) => (
+						<Fragment key={ `legend-bottom-${ i }` }>{ l.element }</Fragment>
+					) ) }
 
 				{ withTooltips && tooltipOpen && tooltipData && (
 					<TooltipInPortal top={ tooltipTop || 0 } left={ tooltipLeft || 0 }>

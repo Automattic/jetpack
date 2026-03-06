@@ -1,5 +1,6 @@
 import { renderHook } from '@testing-library/react';
 import { Group } from '@visx/group';
+import { Legend } from '../../../../components/legend';
 import { ChartSVG, ChartHTML } from '../index';
 import { useChartChildren } from '../use-chart-children';
 
@@ -22,6 +23,7 @@ describe( 'useChartChildren', () => {
 
 		expect( result.current.svgChildren ).toHaveLength( 1 );
 		expect( result.current.htmlChildren ).toHaveLength( 0 );
+		expect( result.current.legendChildren ).toHaveLength( 0 );
 		expect( result.current.otherChildren ).toHaveLength( 0 );
 	} );
 
@@ -58,7 +60,31 @@ describe( 'useChartChildren', () => {
 
 		expect( result.current.svgChildren ).toHaveLength( 1 );
 		expect( result.current.htmlChildren ).toHaveLength( 1 );
+		expect( result.current.legendChildren ).toHaveLength( 0 );
 		expect( result.current.otherChildren ).toHaveLength( 0 );
+	} );
+
+	it( 'should extract Legend children and exclude from otherChildren', () => {
+		const children = <Legend items={ [ { label: 'Series 1', color: '#000', value: 10 } ] } />;
+
+		const { result } = renderHook( () => useChartChildren( children, 'TestChart' ) );
+
+		expect( result.current.svgChildren ).toHaveLength( 0 );
+		expect( result.current.htmlChildren ).toHaveLength( 0 );
+		expect( result.current.legendChildren ).toHaveLength( 1 );
+		expect( result.current.legendChildren[ 0 ].position ).toBe( 'bottom' );
+		expect( result.current.otherChildren ).toHaveLength( 0 );
+	} );
+
+	it( 'should extract Legend with position="top"', () => {
+		const children = (
+			<Legend items={ [ { label: 'Series 1', color: '#000', value: 10 } ] } position="top" />
+		);
+
+		const { result } = renderHook( () => useChartChildren( children, 'TestChart' ) );
+
+		expect( result.current.legendChildren ).toHaveLength( 1 );
+		expect( result.current.legendChildren[ 0 ].position ).toBe( 'top' );
 	} );
 
 	it( 'should maintain backward compatibility with Group components', () => {
@@ -112,6 +138,7 @@ describe( 'useChartChildren', () => {
 
 		expect( result.current.svgChildren ).toHaveLength( 0 );
 		expect( result.current.htmlChildren ).toHaveLength( 0 );
+		expect( result.current.legendChildren ).toHaveLength( 0 );
 		expect( result.current.otherChildren ).toHaveLength( 0 );
 	} );
 
@@ -127,5 +154,39 @@ describe( 'useChartChildren', () => {
 		const { result } = renderHook( () => useChartChildren( children, 'TestChart' ) );
 
 		expect( result.current.svgChildren ).toHaveLength( 3 );
+	} );
+
+	it( 'should extract Legend children to legendChildren with default position bottom', () => {
+		const children = <Legend />;
+
+		const { result } = renderHook( () => useChartChildren( children, 'TestChart' ) );
+
+		expect( result.current.legendChildren ).toHaveLength( 1 );
+		expect( result.current.legendChildren[ 0 ].position ).toBe( 'bottom' );
+		expect( result.current.otherChildren ).toHaveLength( 0 );
+	} );
+
+	it( 'should extract Legend children with position top', () => {
+		const children = <Legend position="top" />;
+
+		const { result } = renderHook( () => useChartChildren( children, 'TestChart' ) );
+
+		expect( result.current.legendChildren ).toHaveLength( 1 );
+		expect( result.current.legendChildren[ 0 ].position ).toBe( 'top' );
+		expect( result.current.otherChildren ).toHaveLength( 0 );
+	} );
+
+	it( 'should extract multiple Legend children by position', () => {
+		const children = [
+			<Legend key="top" position="top" />,
+			<Legend key="bottom" position="bottom" />,
+		];
+
+		const { result } = renderHook( () => useChartChildren( children, 'TestChart' ) );
+
+		expect( result.current.legendChildren ).toHaveLength( 2 );
+		expect( result.current.legendChildren[ 0 ].position ).toBe( 'top' );
+		expect( result.current.legendChildren[ 1 ].position ).toBe( 'bottom' );
+		expect( result.current.otherChildren ).toHaveLength( 0 );
 	} );
 } );

@@ -1,10 +1,17 @@
 import { Group } from '@visx/group';
 import { useMemo, Children, isValidElement } from 'react';
-import type { ReactNode } from 'react';
+import { Legend } from '../../../components/legend';
+import type { ReactElement, ReactNode } from 'react';
+
+export type LegendChild = {
+	element: ReactElement;
+	position: 'top' | 'bottom';
+};
 
 interface ChartChildren {
 	svgChildren: ReactNode[];
 	htmlChildren: ReactNode[];
+	legendChildren: LegendChild[];
 	otherChildren: ReactNode[];
 }
 
@@ -21,10 +28,18 @@ export function useChartChildren( children: ReactNode, chartType: string ): Char
 	return useMemo( () => {
 		const svg: ReactNode[] = [];
 		const html: ReactNode[] = [];
+		const legend: LegendChild[] = [];
 		const other: ReactNode[] = [];
 
 		Children.forEach( children, child => {
 			if ( isValidElement( child ) ) {
+				// Extract Legend children for position-based slot rendering
+				if ( child.type === Legend ) {
+					const position = ( child.props?.position ?? 'bottom' ) as 'top' | 'bottom';
+					legend.push( { element: child as ReactElement, position } );
+					return;
+				}
+
 				// Check displayName for compound components
 				const childType = child.type as { displayName?: string };
 				const displayName = childType?.displayName;
@@ -53,6 +68,11 @@ export function useChartChildren( children: ReactNode, chartType: string ): Char
 			}
 		} );
 
-		return { svgChildren: svg, htmlChildren: html, otherChildren: other };
+		return {
+			svgChildren: svg,
+			htmlChildren: html,
+			legendChildren: legend,
+			otherChildren: other,
+		};
 	}, [ children, chartType ] );
 }
