@@ -140,6 +140,24 @@ module.exports = [
 			...jetpackWebpackConfig.DependencyExtractionPlugin(),
 		],
 	},
+	// Build Content Guidelines AI SlotFill (standalone, loaded outside block editor).
+	{
+		...sharedWebpackConfig,
+		entry: {
+			'content-guidelines-ai': path.join(
+				__dirname,
+				'../extensions/plugins/content-guidelines-ai/index.js'
+			),
+		},
+		plugins: [
+			...sharedWebpackConfig.plugins,
+			...jetpackWebpackConfig.DependencyExtractionPlugin(),
+		],
+		output: {
+			...sharedWebpackConfig.output,
+			filename: '[name].min.js',
+		},
+	},
 	// Build admin page JS.
 	{
 		...sharedWebpackConfig,
