@@ -145,14 +145,33 @@ class Woocommerce_Analytics_Test extends BaseTestCase {
 	 * Test that update is skipped when version matches current package version.
 	 */
 	public function test_maybe_update_proxy_speed_module_skips_when_version_matches(): void {
+		// Enable the feature flag so the update path is checked.
+		add_filter( 'woocommerce_analytics_auto_install_proxy_speed_module', '__return_true' );
+
 		// Set version to match current.
 		update_option( Woocommerce_Analytics::PROXY_SPEED_MODULE_VERSION_OPTION, Woocommerce_Analytics::PACKAGE_VERSION );
 
 		// Call the method.
 		Woocommerce_Analytics::maybe_update_proxy_speed_module();
 
-		// Version should remain the same.
+		// Version should remain the same (no update needed).
 		$this->assertSame( Woocommerce_Analytics::PACKAGE_VERSION, get_option( Woocommerce_Analytics::PROXY_SPEED_MODULE_VERSION_OPTION ) );
+
+		remove_filter( 'woocommerce_analytics_auto_install_proxy_speed_module', '__return_true' );
+	}
+
+	/**
+	 * Test that MU-plugin is removed when feature flag is disabled and version exists.
+	 */
+	public function test_maybe_update_proxy_speed_module_removes_when_flag_disabled(): void {
+		// Set a version to simulate existing installation.
+		update_option( Woocommerce_Analytics::PROXY_SPEED_MODULE_VERSION_OPTION, Woocommerce_Analytics::PACKAGE_VERSION );
+
+		// Feature flag is off by default — no filter needed.
+		Woocommerce_Analytics::maybe_update_proxy_speed_module();
+
+		// Version option should be deleted (MU-plugin removal cleans it up).
+		$this->assertFalse( get_option( Woocommerce_Analytics::PROXY_SPEED_MODULE_VERSION_OPTION ) );
 	}
 
 	/**
@@ -170,15 +189,21 @@ class Woocommerce_Analytics_Test extends BaseTestCase {
 	 * Test that filter can enable auto-installation.
 	 */
 	public function test_maybe_add_proxy_speed_module_respects_filter(): void {
-		// Add filter to enable auto-install.
-		add_filter( 'woocommerce_analytics_auto_install_proxy_speed_module', '__return_true' );
+		$filter_called = false;
+		$filter_cb     = function () use ( &$filter_called ) {
+			$filter_called = true;
+			return true;
+		};
+
+		add_filter( 'woocommerce_analytics_auto_install_proxy_speed_module', $filter_cb );
 
 		// Call the method - it will proceed past the filter check but may stop at other checks
 		// (e.g., filesystem init, WPMU_PLUGIN_DIR). The point is the filter is respected.
 		Woocommerce_Analytics::maybe_add_proxy_speed_module();
 
-		// Clean up filter.
-		remove_filter( 'woocommerce_analytics_auto_install_proxy_speed_module', '__return_true' );
+		$this->assertTrue( $filter_called, 'The auto_install_proxy_speed_module filter should be checked.' );
+
+		remove_filter( 'woocommerce_analytics_auto_install_proxy_speed_module', $filter_cb );
 	}
 
 	/**
