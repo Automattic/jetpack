@@ -26,8 +26,7 @@ Main chart component for displaying ranked data with optional comparison values.
 | `legendAlignment` | `'start' \| 'center' \| 'end'` | `'center'` | Alignment within position |
 | `legendOrientation` | `'horizontal' \| 'vertical'` | `'horizontal'` | Layout direction of legend items |
 | `legendShape` | `LegendShape` | `'circle'` | Shape of legend markers |
-| `legendShapeWidth` | `number` | `8` | Width of legend shapes in pixels |
-| `legendShapeHeight` | `number` | `8` | Height of legend shapes in pixels |
+| `legendShapeStyles` | `LegendShapeStyles` | `{ width: 8, height: 8 }` | Styles for legend shapes (width, height, margin) |
 | `legendLabels` | `{ primary?: string; comparison?: string }` | `undefined` | Custom labels for legend items |
 | `legendInteractive` | `boolean` | `false` | Whether legend items are interactive (clickable to toggle series visibility). **Note:** For props-based legends, use `showLegend={true}`. For composition API, render an interactive legend child (for example, `<LeaderboardChart.Legend interactive />`) so it can use chart context. |
 | `width` | `number` | `undefined` | Optional fixed width of the chart container in pixels |

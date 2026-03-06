@@ -88,7 +88,7 @@ For detailed information about all optional props, see the [Legend API Reference
 
 - When both `items` and `chartId` are provided, `items` takes precedence
 - The `render` prop provides complete control over legend rendering, bypassing the default layout
-- Text overflow features require both `maxWidth` and `textOverflow` props to be set
+- Text overflow is enabled by setting `labelStyles.maxWidth`; `textOverflow` is optional and defaults to `'wrap'`
 - The component uses visx LegendOrdinal internally but provides a simplified, more flexible API
 
 ## Integration with Charts
@@ -264,22 +264,21 @@ The Legend component provides comprehensive text overflow handling for long labe
 
 #### Text Overflow Modes
 
-- **Wrap** (default): Text wraps naturally to multiple lines when it exceeds maxWidth
+- **Wrap** (default): Text wraps naturally to multiple lines when it exceeds `maxWidth`
 - **Ellipsis**: Truncates text with ellipsis (...) and shows tooltip on hover
 
 #### Use Cases
 
-- **Widgets/Dashboards**: Use ellipsis mode with small maxWidth values
-- **Full Displays**: Use wrap mode with larger maxWidth values
-- **Mobile**: Use vertical orientation with appropriate maxWidth
+- **Widgets/Dashboards**: Use ellipsis mode with small `maxWidth` values
+- **Full Displays**: Use wrap mode with larger `maxWidth` values
+- **Mobile**: Use vertical orientation with appropriate `maxWidth`
 
 <Source
 	language="tsx"
 	code={ `<Legend
 		items={ items }
 		orientation="horizontal"
-		maxWidth="150px"
-		textOverflow="ellipsis"
+		labelStyles={ { maxWidth: '150px', textOverflow: 'ellipsis' } }
 		alignment="center"
 	/>` }
 />

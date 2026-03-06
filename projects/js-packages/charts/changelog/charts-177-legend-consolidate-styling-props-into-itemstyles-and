@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+BREAKING: Legend: Replace individual visx styling props with itemStyles, labelStyles, shapeStyles objects, rename legendItemClassName to itemClassName, add labelClassName, and move maxWidth/textOverflow into labelStyles. LeaderboardChart: replace legendShapeWidth/legendShapeHeight with legendShapeStyles.
