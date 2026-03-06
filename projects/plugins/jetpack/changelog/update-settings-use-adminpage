@@ -1,4 +1,4 @@
 Significance: patch
-Type: changed
+Type: enhancement
 
 Migrated the Settings page header and navigation to use the shared AdminPage component, replacing the legacy Masthead and Calypso SectionNav with a standardized layout matching other Jetpack admin pages.
