@@ -177,7 +177,7 @@ CustomLegendPositioning.parameters = {
 // Story showing use with LineChart using composition API
 export const WithCompositionLegend: StoryObj< typeof LineChart > = {
 	render: args => (
-		<LineChart { ...Default.args }>
+		<LineChart { ...Default.args } { ...args }>
 			<LineChart.Legend
 				orientation={ args.legendOrientation || 'horizontal' }
 				alignment={ args.legendAlignment || 'center' }
