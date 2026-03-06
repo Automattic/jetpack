@@ -11,8 +11,6 @@ export interface EnhancedSeriesData extends Omit< SeriesData, 'data' > {
 
 export interface UseZeroValueDisplayOptions {
 	enabled: boolean;
-	minValueRatio?: number;
-	maxValueRatio?: number;
 	/**
 	 * The pixel length of the value axis (height for vertical charts, width for
 	 * horizontal charts). Used to calculate a minimum visible value that ensures
@@ -30,47 +28,25 @@ export const useZeroValueDisplay = (
 	data: SeriesData[],
 	options: UseZeroValueDisplayOptions = { enabled: false }
 ): SeriesData[] | EnhancedSeriesData[] => {
-	const { enabled, minValueRatio = 0.6, maxValueRatio = 0.008, valueAxisLength } = options;
+	const { enabled, valueAxisLength } = options;
 
 	return useMemo( () => {
-		if ( ! enabled ) return data;
+		if ( ! enabled || ! valueAxisLength || valueAxisLength <= 0 ) return data;
 
-		// Collect all non-zero, non-null values (both positive and negative)
-		const nonZeroValues: number[] = [];
-
+		// Find max absolute value to calculate the 3px equivalent
+		let maxAbsoluteValue = 0;
 		for ( const series of data ) {
 			for ( const point of series.data ) {
 				if ( point.value !== null && point.value !== 0 ) {
-					nonZeroValues.push( point.value );
+					maxAbsoluteValue = Math.max( maxAbsoluteValue, Math.abs( point.value ) );
 				}
 			}
 		}
 
-		if ( nonZeroValues.length === 0 ) return data;
+		if ( maxAbsoluteValue === 0 ) return data;
 
-		// Convert to absolute values to find the range
-		const absoluteValues = nonZeroValues.map( Math.abs );
-
-		// Calculate min and max based on absolute values
-		const minAbsoluteValue = Math.min( ...absoluteValues );
-		const maxAbsoluteValue = Math.max( ...absoluteValues );
-
-		// Calculate minimum visible value using absolute range
-		let minVisibleValue = Math.min(
-			minAbsoluteValue * minValueRatio,
-			maxAbsoluteValue * maxValueRatio
-		);
-
-		// Ensure minimum pixel height when valueAxisLength is provided.
-		// Calculate the value that would result in MIN_PIXEL_HEIGHT pixels,
-		// but never exceed the maximum absolute value to avoid distorting the chart.
-		if ( valueAxisLength && valueAxisLength > 0 ) {
-			const minPixelBasedValue = Math.min(
-				( MIN_PIXEL_HEIGHT / valueAxisLength ) * maxAbsoluteValue,
-				maxAbsoluteValue
-			);
-			minVisibleValue = Math.max( minVisibleValue, minPixelBasedValue );
-		}
+		// Calculate the value that renders as MIN_PIXEL_HEIGHT pixels
+		const minVisibleValue = ( MIN_PIXEL_HEIGHT / valueAxisLength ) * maxAbsoluteValue;
 
 		return data.map( series => ( {
 			...series,
@@ -85,5 +61,5 @@ export const useZeroValueDisplay = (
 				return point;
 			} ),
 		} ) );
-	}, [ data, enabled, minValueRatio, maxValueRatio, valueAxisLength ] );
+	}, [ data, enabled, valueAxisLength ] );
 };

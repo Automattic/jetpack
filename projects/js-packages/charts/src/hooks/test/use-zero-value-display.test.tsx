@@ -15,12 +15,21 @@ describe( 'useZeroValueDisplay', () => {
 	];
 
 	test( 'returns original data when disabled', () => {
-		const { result } = renderHook( () => useZeroValueDisplay( mockData, { enabled: false } ) );
+		const { result } = renderHook( () =>
+			useZeroValueDisplay( mockData, { enabled: false, valueAxisLength: 100 } )
+		);
+		expect( result.current ).toBe( mockData );
+	} );
+
+	test( 'returns original data when valueAxisLength is not provided', () => {
+		const { result } = renderHook( () => useZeroValueDisplay( mockData, { enabled: true } ) );
 		expect( result.current ).toBe( mockData );
 	} );
 
 	test( 'adds visualValue for zero values when enabled', () => {
-		const { result } = renderHook( () => useZeroValueDisplay( mockData, { enabled: true } ) );
+		const { result } = renderHook( () =>
+			useZeroValueDisplay( mockData, { enabled: true, valueAxisLength: 100 } )
+		);
 
 		const enhancedData = result.current;
 		expect( enhancedData ).not.toBe( mockData );
@@ -31,94 +40,55 @@ describe( 'useZeroValueDisplay', () => {
 	} );
 
 	test( 'does not add visualValue for non-zero values', () => {
-		const { result } = renderHook( () => useZeroValueDisplay( mockData, { enabled: true } ) );
+		const { result } = renderHook( () =>
+			useZeroValueDisplay( mockData, { enabled: true, valueAxisLength: 100 } )
+		);
 
 		const enhancedData = result.current;
 		expect( enhancedData[ 0 ].data[ 1 ] ).not.toHaveProperty( 'visualValue' );
 		expect( enhancedData[ 0 ].data[ 2 ] ).not.toHaveProperty( 'visualValue' );
 	} );
 
-	describe( 'valueAxisLength-based minimum visibility', () => {
-		test( 'ensures minimum pixel height when valueAxisLength is provided', () => {
-			// With a small axis length, the pixel-based calculation should
-			// result in a larger visualValue than the ratio-based calculation
-			const dataWithLargeRange: SeriesData[] = [
-				{
-					label: 'Series 1',
-					data: [
-						{ label: 'A', value: 0 },
-						{ label: 'B', value: 10000 },
-					],
-				},
-			];
+	test( 'calculates visualValue as 3px equivalent of max value', () => {
+		// With valueAxisLength=100 and maxValue=100:
+		// minVisibleValue = (3 / 100) * 100 = 3
+		const { result } = renderHook( () =>
+			useZeroValueDisplay( mockData, { enabled: true, valueAxisLength: 100 } )
+		);
 
-			const { result: withoutLength } = renderHook( () =>
-				useZeroValueDisplay( dataWithLargeRange, { enabled: true } )
-			);
+		const visualValue = ( result.current[ 0 ].data[ 0 ] as { visualValue?: number } ).visualValue;
+		// 3px / 100px * 200 (max value) = 6
+		expect( visualValue ).toBe( 6 );
+	} );
 
-			const { result: withSmallLength } = renderHook( () =>
-				useZeroValueDisplay( dataWithLargeRange, { enabled: true, valueAxisLength: 50 } )
-			);
+	test( 'scales visualValue based on axis length', () => {
+		const data: SeriesData[] = [
+			{
+				label: 'Series 1',
+				data: [
+					{ label: 'A', value: 0 },
+					{ label: 'B', value: 100 },
+				],
+			},
+		];
 
-			const visualValueWithoutLength = (
-				withoutLength.current[ 0 ].data[ 0 ] as { visualValue?: number }
-			 ).visualValue;
-			const visualValueWithSmallLength = (
-				withSmallLength.current[ 0 ].data[ 0 ] as { visualValue?: number }
-			 ).visualValue;
+		// Small axis = larger visualValue (to ensure 3px)
+		const { result: smallAxis } = renderHook( () =>
+			useZeroValueDisplay( data, { enabled: true, valueAxisLength: 50 } )
+		);
+		// Large axis = smaller visualValue
+		const { result: largeAxis } = renderHook( () =>
+			useZeroValueDisplay( data, { enabled: true, valueAxisLength: 200 } )
+		);
 
-			// With small axis length, the pixel-based minimum should be larger
-			expect( visualValueWithSmallLength ).toBeGreaterThan( visualValueWithoutLength! );
-		} );
+		const smallAxisValue = ( smallAxis.current[ 0 ].data[ 0 ] as { visualValue?: number } )
+			.visualValue;
+		const largeAxisValue = ( largeAxis.current[ 0 ].data[ 0 ] as { visualValue?: number } )
+			.visualValue;
 
-		test( 'calculates minimum visible value based on MIN_PIXEL_HEIGHT', () => {
-			const data: SeriesData[] = [
-				{
-					label: 'Series 1',
-					data: [
-						{ label: 'A', value: 0 },
-						{ label: 'B', value: 100 },
-					],
-				},
-			];
-
-			// With valueAxisLength=100 and maxValue=100:
-			// minPixelBasedValue = (3 / 100) * 100 = 3
-			const { result } = renderHook( () =>
-				useZeroValueDisplay( data, { enabled: true, valueAxisLength: 100 } )
-			);
-
-			const visualValue = ( result.current[ 0 ].data[ 0 ] as { visualValue?: number } ).visualValue;
-
-			// The visualValue should be at least 3% of the max value (100 * 0.03 = 3)
-			// to ensure 3 pixels in a 100px axis
-			expect( visualValue ).toBeGreaterThanOrEqual( 3 );
-		} );
-
-		test( 'uses ratio-based calculation when it produces larger value', () => {
-			const data: SeriesData[] = [
-				{
-					label: 'Series 1',
-					data: [
-						{ label: 'A', value: 0 },
-						{ label: 'B', value: 10 },
-					],
-				},
-			];
-
-			// With valueAxisLength=1000 and maxValue=10:
-			// minPixelBasedValue = (3 / 1000) * 10 = 0.03
-			// ratioBasedValue = min(10 * 0.6, 10 * 0.008) = min(6, 0.08) = 0.08
-			// Result should be max(0.03, 0.08) = 0.08 (ratio-based wins)
-			const { result } = renderHook( () =>
-				useZeroValueDisplay( data, { enabled: true, valueAxisLength: 1000 } )
-			);
-
-			const visualValue = ( result.current[ 0 ].data[ 0 ] as { visualValue?: number } ).visualValue;
-
-			// Ratio-based calculation: min(10 * 0.6, 10 * 0.008) = 0.08
-			expect( visualValue ).toBeCloseTo( 0.08, 2 );
-		} );
+		// 3/50 * 100 = 6 vs 3/200 * 100 = 1.5
+		expect( smallAxisValue ).toBe( 6 );
+		expect( largeAxisValue ).toBe( 1.5 );
 	} );
 
 	test( 'handles data with only zero values', () => {
@@ -132,9 +102,11 @@ describe( 'useZeroValueDisplay', () => {
 			},
 		];
 
-		const { result } = renderHook( () => useZeroValueDisplay( zeroOnlyData, { enabled: true } ) );
+		const { result } = renderHook( () =>
+			useZeroValueDisplay( zeroOnlyData, { enabled: true, valueAxisLength: 100 } )
+		);
 
-		// Should return original data since there are no non-zero values to base the calculation on
+		// Should return original data since there are no non-zero values
 		expect( result.current ).toBe( zeroOnlyData );
 	} );
 } );
