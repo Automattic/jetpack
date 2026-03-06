@@ -189,6 +189,7 @@ export const BaseLegend: ForwardRefExoticComponent<
 							const visible = isSeriesVisible( label.text );
 							const handleClick = createClickHandler( label.text );
 							const handleKeyDown = createKeyDownHandler( label.text );
+							const matchedItem = items[ i ];
 
 							return (
 								<LegendItem
@@ -269,10 +270,10 @@ export const BaseLegend: ForwardRefExoticComponent<
 											textOverflow={ textOverflow }
 											maxWidth={ maxWidth }
 										/>
-										{ items.find( item => item.label === label.text )?.value && (
+										{ matchedItem?.value != null && matchedItem.value !== '' && (
 											<span className={ styles[ 'legend-item-value' ] }>
 												{ '\u00A0' }
-												{ items.find( item => item.label === label.text )?.value }
+												{ matchedItem.value }
 											</span>
 										) }
 									</LegendLabel>

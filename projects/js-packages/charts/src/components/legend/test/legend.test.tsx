@@ -76,12 +76,47 @@ describe( 'BaseLegend', () => {
 
 	test( 'handles missing values', () => {
 		const itemsWithoutValues = [
-			{ label: 'Item 1', color: '#ff0000', value: undefined },
-			{ label: 'Item 2', color: '#00ff00', value: undefined },
+			{ label: 'Item 1', color: '#ff0000' },
+			{ label: 'Item 2', color: '#00ff00' },
 		];
 		render( <BaseLegend items={ itemsWithoutValues } orientation="horizontal" /> );
 		expect( screen.getByText( 'Item 1' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'Item 2' ) ).toBeInTheDocument();
+	} );
+
+	test( 'does not render value span for empty string values', () => {
+		const itemsWithEmptyValues = [
+			{ label: 'Item 1', color: '#ff0000', value: '' },
+			{ label: 'Item 2', color: '#00ff00', value: '' },
+		];
+		render( <BaseLegend items={ itemsWithEmptyValues } orientation="horizontal" /> );
+		expect( screen.getByText( 'Item 1' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Item 2' ) ).toBeInTheDocument();
+		expect( screen.queryByText( '\u00A0' ) ).not.toBeInTheDocument();
+	} );
+
+	test( 'renders numeric value of 0 without hiding it', () => {
+		const itemsWithZeroValue = [
+			{ label: 'Item 1', color: '#ff0000', value: 0 },
+			{ label: 'Item 2', color: '#00ff00', value: '0%' },
+		];
+		render( <BaseLegend items={ itemsWithZeroValue } orientation="horizontal" /> );
+		expect( screen.getByText( '0' ) ).toBeInTheDocument();
+		expect( screen.getByText( '0%' ) ).toBeInTheDocument();
+	} );
+
+	test( 'renders each value next to its corresponding label by index', () => {
+		const itemsWithDistinctValues = [
+			{ label: 'Alpha', value: '100', color: '#ff0000' },
+			{ label: 'Beta', value: '200', color: '#00ff00' },
+			{ label: 'Gamma', value: '300', color: '#0000ff' },
+		];
+		render( <BaseLegend items={ itemsWithDistinctValues } orientation="horizontal" /> );
+		const legendItems = screen.getAllByTestId( 'legend-item' );
+		expect( legendItems ).toHaveLength( 3 );
+		expect( legendItems[ 0 ] ).toHaveTextContent( /Alpha.*100/ );
+		expect( legendItems[ 1 ] ).toHaveTextContent( /Beta.*200/ );
+		expect( legendItems[ 2 ] ).toHaveTextContent( /Gamma.*300/ );
 	} );
 
 	test( 'applies custom className', () => {
