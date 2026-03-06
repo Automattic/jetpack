@@ -61,6 +61,9 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 		$GLOBALS['wp_styles']   = new WP_Styles();
 		$this->reset_availability();
 		$this->simulate_connected_owner();
+		// Ensure Big Sky is disabled by default so tests aren't affected by the
+		// Big_Sky class persisting across tests once simulate_big_sky_class() runs.
+		update_option( 'big_sky_enable', '0' );
 		$this->saved_screen = $GLOBALS['current_screen'] ?? null;
 	}
 
@@ -74,6 +77,7 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 		remove_all_filters( 'locale' );
 		remove_all_filters( 'jetpack_ai_enabled' );
 		( new \Automattic\Jetpack\Connection\Manager( 'jetpack' ) )->reset_connection_status();
+		delete_option( 'big_sky_enable' );
 		$GLOBALS['current_screen'] = $this->saved_screen;
 		$GLOBALS['wp_scripts']     = $this->saved_wp_scripts;
 		$GLOBALS['wp_styles']      = $this->saved_wp_styles;
@@ -108,6 +112,28 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	 */
 	private function disable_ai_features() {
 		add_filter( 'jetpack_ai_enabled', '__return_false' );
+	}
+
+	/**
+	 * Simulate the Big_Sky class existing (as if the Big Sky plugin were active).
+	 *
+	 * The class is declared in the global namespace once and persists for the
+	 * rest of the PHP process, but test isolation is achieved through the
+	 * big_sky_enable option, which is cleaned up in tear_down().
+	 */
+	private function simulate_big_sky_class() {
+		if ( ! class_exists( 'Big_Sky' ) ) {
+			// phpcs:ignore Generic.Files.OneObjectStructurePerFile.MultipleFound, Generic.Classes.DuplicateClassName.Found
+			eval( 'class Big_Sky {}' ); // @codingStandardsIgnoreLine — minimal stub for unit test isolation.
+		}
+	}
+
+	/**
+	 * Enable Big Sky by simulating the class and setting the option.
+	 */
+	private function enable_big_sky() {
+		$this->simulate_big_sky_class();
+		update_option( 'big_sky_enable', '1' );
 	}
 
 	/**
@@ -146,6 +172,7 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 				'dependencies' => array(),
 			);
 		}
+		$this->enable_big_sky();
 		$this->set_block_editor_screen();
 		ImageStudio\register_plugin();
 		set_transient( ImageStudio\ASSET_TRANSIENT, $asset_data, HOUR_IN_SECONDS );
@@ -164,6 +191,7 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 				'dependencies' => array(),
 			);
 		}
+		$this->enable_big_sky();
 		$this->set_media_library_screen();
 		ImageStudio\register_plugin();
 		set_transient( ImageStudio\ASSET_TRANSIENT, $asset_data, HOUR_IN_SECONDS );
@@ -242,17 +270,35 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	// -------------------------------------------------------------------------
 
 	/**
-	 * Enabled when AI features are available (connected owner, AI not disabled).
+	 * Not enabled when AI features exist but neither automattician nor Big Sky.
 	 */
-	public function test_is_enabled_when_ai_features_available() {
+	public function test_is_not_enabled_with_ai_features_but_no_gate() {
+		$this->assertFalse( ImageStudio\is_image_studio_enabled() );
+	}
+
+	/**
+	 * Enabled when AI features available and Big Sky is active.
+	 */
+	public function test_is_enabled_via_big_sky() {
+		$this->enable_big_sky();
 		$this->assertTrue( ImageStudio\is_image_studio_enabled() );
 	}
 
 	/**
-	 * Not enabled when AI features are disabled.
+	 * Not enabled when AI features are disabled, even with Big Sky active.
 	 */
 	public function test_is_not_enabled_when_ai_features_disabled() {
+		$this->enable_big_sky();
 		$this->disable_ai_features();
+		$this->assertFalse( ImageStudio\is_image_studio_enabled() );
+	}
+
+	/**
+	 * Not enabled via Big Sky when Big_Sky class exists but option is disabled.
+	 */
+	public function test_is_not_enabled_via_big_sky_when_option_disabled() {
+		$this->simulate_big_sky_class();
+		update_option( 'big_sky_enable', '' );
 		$this->assertFalse( ImageStudio\is_image_studio_enabled() );
 	}
 
@@ -264,6 +310,7 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	 * Test signal_image_studio_active adds the jetpack_image_studio_enabled filter when enabled.
 	 */
 	public function test_signal_adds_filter_when_enabled() {
+		$this->enable_big_sky();
 		ImageStudio\signal_image_studio_active();
 		$this->assertTrue( apply_filters( 'jetpack_image_studio_enabled', false ) );
 	}
@@ -390,9 +437,10 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	// -------------------------------------------------------------------------
 
 	/**
-	 * Test that register_plugin sets extension available when AI features are available.
+	 * Test that register_plugin sets extension available when enabled via Big Sky.
 	 */
 	public function test_register_plugin_sets_available_when_enabled() {
+		$this->enable_big_sky();
 		ImageStudio\register_plugin();
 		$this->assertTrue( \Jetpack_Gutenberg::is_available( ImageStudio\FEATURE_NAME ) );
 	}
@@ -407,11 +455,21 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	}
 
 	/**
+	 * Test that register_plugin does not set extension available when no gate is active.
+	 */
+	public function test_register_plugin_not_available_when_no_gate() {
+		ImageStudio\register_plugin();
+		$this->assertFalse( \Jetpack_Gutenberg::is_available( ImageStudio\FEATURE_NAME ) );
+	}
+
+	/**
 	 * Test that register_plugin registers unconditionally regardless of screen.
 	 *
 	 * Screen-level gating happens at enqueue time, not registration.
 	 */
 	public function test_register_plugin_available_regardless_of_screen() {
+		$this->enable_big_sky();
+
 		// Block editor - still registers.
 		$this->set_block_editor_screen();
 		ImageStudio\register_plugin();
@@ -458,6 +516,7 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	 * Test block editor enqueue works without any special query param.
 	 */
 	public function test_block_editor_enqueued_without_query_param() {
+		$this->enable_big_sky();
 		$this->set_block_editor_screen();
 		ImageStudio\register_plugin();
 		set_transient(
@@ -479,6 +538,7 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	 * Test nothing enqueued when not on block editor screen.
 	 */
 	public function test_nothing_enqueued_on_non_block_editor() {
+		$this->enable_big_sky();
 		set_current_screen( 'dashboard' );
 		ImageStudio\register_plugin();
 		set_transient(
@@ -529,6 +589,7 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	 * Test nothing enqueued when asset file is unavailable.
 	 */
 	public function test_nothing_enqueued_when_asset_unavailable() {
+		$this->enable_big_sky();
 		$this->set_block_editor_screen();
 		ImageStudio\register_plugin();
 		$this->mock_remote_asset( false );
@@ -561,6 +622,7 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	 * Test nothing enqueued when AI features are disabled.
 	 */
 	public function test_nothing_enqueued_when_ai_features_disabled() {
+		$this->enable_big_sky();
 		$this->disable_ai_features();
 		$this->set_block_editor_screen();
 		ImageStudio\register_plugin();
@@ -661,6 +723,7 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	 * Test nothing enqueued on non-Media Library screen via admin hook.
 	 */
 	public function test_media_library_nothing_enqueued_on_other_screen() {
+		$this->enable_big_sky();
 		set_current_screen( 'dashboard' );
 		ImageStudio\register_plugin();
 		set_transient(
@@ -681,6 +744,7 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	 * Test nothing enqueued on Media Library when AI features are disabled.
 	 */
 	public function test_media_library_nothing_enqueued_when_disabled() {
+		$this->enable_big_sky();
 		$this->disable_ai_features();
 		$this->set_media_library_screen();
 		ImageStudio\register_plugin();
@@ -857,6 +921,7 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	 * Test AI image extensions are disabled when Image Studio is available.
 	 */
 	public function test_ai_extensions_disabled_when_available() {
+		$this->enable_big_sky();
 		ImageStudio\register_plugin();
 		$this->make_ai_extensions_available();
 		$this->set_block_editor_screen();
@@ -875,6 +940,7 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	 * Test AI image extensions are NOT disabled when Image Studio is not available.
 	 */
 	public function test_ai_extensions_not_disabled_when_not_available() {
+		$this->enable_big_sky();
 		$this->disable_ai_features();
 		ImageStudio\register_plugin();
 		$this->make_ai_extensions_available();
@@ -897,6 +963,7 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	 * Test AI extensions ARE disabled on block editor.
 	 */
 	public function test_ai_extensions_disabled_on_block_editor() {
+		$this->enable_big_sky();
 		ImageStudio\register_plugin();
 		$this->make_ai_extensions_available();
 
@@ -915,6 +982,7 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	 * Test AI extensions ARE disabled on Media Library.
 	 */
 	public function test_ai_extensions_disabled_on_media_library() {
+		$this->enable_big_sky();
 		ImageStudio\register_plugin();
 		$this->make_ai_extensions_available();
 
@@ -936,6 +1004,7 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	 * regardless of screen.
 	 */
 	public function test_ai_extensions_disabled_on_dashboard() {
+		$this->enable_big_sky();
 		ImageStudio\register_plugin();
 		$this->make_ai_extensions_available();
 
@@ -957,6 +1026,7 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	 * regardless of screen availability.
 	 */
 	public function test_ai_extensions_disabled_when_no_screen() {
+		$this->enable_big_sky();
 		ImageStudio\register_plugin();
 		$this->make_ai_extensions_available();
 
@@ -1472,6 +1542,76 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 
 		$this->assertSame( $original_actions, $actions );
 		$this->assertArrayNotHasKey( 'edit-with-ai', $actions );
+	}
+
+	// -------------------------------------------------------------------------
+	// is_big_sky_enabled() tests
+	// -------------------------------------------------------------------------
+
+	/**
+	 * Test is_big_sky_enabled returns false when Big_Sky class does not exist.
+	 */
+	public function test_is_big_sky_enabled_false_when_class_missing() {
+		$this->assertFalse( ImageStudio\is_big_sky_enabled() );
+	}
+
+	/**
+	 * Test is_big_sky_enabled returns true when Big_Sky class exists and option defaults to '1'.
+	 */
+	public function test_is_big_sky_enabled_true_with_class_and_default_option() {
+		$this->simulate_big_sky_class();
+		// Remove the option so get_option falls back to the default '1'.
+		delete_option( 'big_sky_enable' );
+		$this->assertTrue( ImageStudio\is_big_sky_enabled() );
+	}
+
+	/**
+	 * Test is_big_sky_enabled returns true when Big_Sky class exists and option is '1'.
+	 */
+	public function test_is_big_sky_enabled_true_with_class_and_option_enabled() {
+		$this->simulate_big_sky_class();
+		update_option( 'big_sky_enable', '1' );
+		$this->assertTrue( ImageStudio\is_big_sky_enabled() );
+	}
+
+	/**
+	 * Test is_big_sky_enabled returns false when Big_Sky class exists but option is empty string.
+	 */
+	public function test_is_big_sky_enabled_false_with_class_and_option_empty() {
+		$this->simulate_big_sky_class();
+		update_option( 'big_sky_enable', '' );
+		$this->assertFalse( ImageStudio\is_big_sky_enabled() );
+	}
+
+	/**
+	 * Test is_big_sky_enabled returns false when Big_Sky class exists but option is '0'.
+	 */
+	public function test_is_big_sky_enabled_false_with_class_and_option_zero() {
+		$this->simulate_big_sky_class();
+		update_option( 'big_sky_enable', '0' );
+		$this->assertFalse( ImageStudio\is_big_sky_enabled() );
+	}
+
+	// -------------------------------------------------------------------------
+	// is_image_studio_enabled() + Big Sky integration tests
+	// -------------------------------------------------------------------------
+
+	/**
+	 * AI extensions disabled when Image Studio enabled via Big Sky.
+	 */
+	public function test_ai_extensions_disabled_when_enabled_via_big_sky() {
+		$this->enable_big_sky();
+		ImageStudio\register_plugin();
+		$this->make_ai_extensions_available();
+
+		ImageStudio\disable_jetpack_ai_image_extensions();
+
+		foreach ( self::get_ai_image_extensions() as $ext ) {
+			$this->assertFalse(
+				\Jetpack_Gutenberg::is_available( $ext ),
+				"Extension $ext should be unavailable when Image Studio is enabled via Big Sky."
+			);
+		}
 	}
 
 	// -------------------------------------------------------------------------
