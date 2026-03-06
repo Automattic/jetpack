@@ -113,7 +113,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	// For vertical bars, height determines bar pixel height; for horizontal bars, width does
 	const dataWithVisibleZeros = useZeroValueDisplay( dataSorted, {
 		enabled: showZeroValues,
-		chartHeight: horizontal ? width : height,
+		valueAxisLength: horizontal ? width : height,
 	} );
 
 	// Create legend items using the reusable hook

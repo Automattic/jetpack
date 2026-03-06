@@ -38,9 +38,9 @@ describe( 'useZeroValueDisplay', () => {
 		expect( enhancedData[ 0 ].data[ 2 ] ).not.toHaveProperty( 'visualValue' );
 	} );
 
-	describe( 'chartHeight-based minimum visibility', () => {
-		test( 'ensures minimum pixel height when chartHeight is provided', () => {
-			// With a small chart height, the pixel-based calculation should
+	describe( 'valueAxisLength-based minimum visibility', () => {
+		test( 'ensures minimum pixel height when valueAxisLength is provided', () => {
+			// With a small axis length, the pixel-based calculation should
 			// result in a larger visualValue than the ratio-based calculation
 			const dataWithLargeRange: SeriesData[] = [
 				{
@@ -52,23 +52,23 @@ describe( 'useZeroValueDisplay', () => {
 				},
 			];
 
-			const { result: withoutHeight } = renderHook( () =>
+			const { result: withoutLength } = renderHook( () =>
 				useZeroValueDisplay( dataWithLargeRange, { enabled: true } )
 			);
 
-			const { result: withSmallHeight } = renderHook( () =>
-				useZeroValueDisplay( dataWithLargeRange, { enabled: true, chartHeight: 50 } )
+			const { result: withSmallLength } = renderHook( () =>
+				useZeroValueDisplay( dataWithLargeRange, { enabled: true, valueAxisLength: 50 } )
 			);
 
-			const visualValueWithoutHeight = (
-				withoutHeight.current[ 0 ].data[ 0 ] as { visualValue?: number }
+			const visualValueWithoutLength = (
+				withoutLength.current[ 0 ].data[ 0 ] as { visualValue?: number }
 			 ).visualValue;
-			const visualValueWithSmallHeight = (
-				withSmallHeight.current[ 0 ].data[ 0 ] as { visualValue?: number }
+			const visualValueWithSmallLength = (
+				withSmallLength.current[ 0 ].data[ 0 ] as { visualValue?: number }
 			 ).visualValue;
 
-			// With small chart height, the pixel-based minimum should be larger
-			expect( visualValueWithSmallHeight ).toBeGreaterThan( visualValueWithoutHeight! );
+			// With small axis length, the pixel-based minimum should be larger
+			expect( visualValueWithSmallLength ).toBeGreaterThan( visualValueWithoutLength! );
 		} );
 
 		test( 'calculates minimum visible value based on MIN_PIXEL_HEIGHT', () => {
@@ -82,16 +82,16 @@ describe( 'useZeroValueDisplay', () => {
 				},
 			];
 
-			// With chartHeight=100 and maxValue=100:
+			// With valueAxisLength=100 and maxValue=100:
 			// minPixelBasedValue = (3 / 100) * 100 = 3
 			const { result } = renderHook( () =>
-				useZeroValueDisplay( data, { enabled: true, chartHeight: 100 } )
+				useZeroValueDisplay( data, { enabled: true, valueAxisLength: 100 } )
 			);
 
 			const visualValue = ( result.current[ 0 ].data[ 0 ] as { visualValue?: number } ).visualValue;
 
 			// The visualValue should be at least 3% of the max value (100 * 0.03 = 3)
-			// to ensure 3 pixels in a 100px chart
+			// to ensure 3 pixels in a 100px axis
 			expect( visualValue ).toBeGreaterThanOrEqual( 3 );
 		} );
 
@@ -106,12 +106,12 @@ describe( 'useZeroValueDisplay', () => {
 				},
 			];
 
-			// With chartHeight=1000 and maxValue=10:
+			// With valueAxisLength=1000 and maxValue=10:
 			// minPixelBasedValue = (3 / 1000) * 10 = 0.03
 			// ratioBasedValue = min(10 * 0.6, 10 * 0.008) = min(6, 0.08) = 0.08
 			// Result should be max(0.03, 0.08) = 0.08 (ratio-based wins)
 			const { result } = renderHook( () =>
-				useZeroValueDisplay( data, { enabled: true, chartHeight: 1000 } )
+				useZeroValueDisplay( data, { enabled: true, valueAxisLength: 1000 } )
 			);
 
 			const visualValue = ( result.current[ 0 ].data[ 0 ] as { visualValue?: number } ).visualValue;

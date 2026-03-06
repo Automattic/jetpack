@@ -586,11 +586,11 @@ describe( 'BarChart', () => {
 
 			expect( bars?.length ).toBe( 2 );
 
-			// The zero-value bar (first bar) should have a minimum visible height
-			// With MIN_PIXEL_HEIGHT = 3, and the pixel-based calculation, it should be >= 3px
+			// The zero-value bar (first bar) should have a minimum visible height.
+			// We check for >= 2px to allow for rounding in the pixel calculation.
 			const zeroBar = bars?.[ 0 ];
 			const zeroBarHeight = parseFloat( zeroBar?.getAttribute( 'height' ) || '0' );
-			expect( zeroBarHeight ).toBeGreaterThanOrEqual( 2 ); // Allow for some rounding
+			expect( zeroBarHeight ).toBeGreaterThanOrEqual( 2 );
 		} );
 	} );
 

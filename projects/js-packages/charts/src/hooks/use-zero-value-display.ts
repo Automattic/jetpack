@@ -14,10 +14,11 @@ export interface UseZeroValueDisplayOptions {
 	minValueRatio?: number;
 	maxValueRatio?: number;
 	/**
-	 * The height of the chart in pixels. Used to calculate a minimum visible value
-	 * that ensures zero-value bars are at least MIN_PIXEL_HEIGHT pixels tall.
+	 * The pixel length of the value axis (height for vertical charts, width for
+	 * horizontal charts). Used to calculate a minimum visible value that ensures
+	 * zero-value bars are at least MIN_PIXEL_HEIGHT pixels tall along that axis.
 	 */
-	chartHeight?: number;
+	valueAxisLength?: number;
 }
 
 /**
@@ -29,7 +30,7 @@ export const useZeroValueDisplay = (
 	data: SeriesData[],
 	options: UseZeroValueDisplayOptions = { enabled: false }
 ): SeriesData[] | EnhancedSeriesData[] => {
-	const { enabled, minValueRatio = 0.6, maxValueRatio = 0.008, chartHeight } = options;
+	const { enabled, minValueRatio = 0.6, maxValueRatio = 0.008, valueAxisLength } = options;
 
 	return useMemo( () => {
 		if ( ! enabled ) return data;
@@ -60,10 +61,14 @@ export const useZeroValueDisplay = (
 			maxAbsoluteValue * maxValueRatio
 		);
 
-		// Ensure minimum pixel height when chartHeight is provided
-		// Calculate the value that would result in MIN_PIXEL_HEIGHT pixels
-		if ( chartHeight && chartHeight > 0 ) {
-			const minPixelBasedValue = ( MIN_PIXEL_HEIGHT / chartHeight ) * maxAbsoluteValue;
+		// Ensure minimum pixel height when valueAxisLength is provided.
+		// Calculate the value that would result in MIN_PIXEL_HEIGHT pixels,
+		// but never exceed the maximum absolute value to avoid distorting the chart.
+		if ( valueAxisLength && valueAxisLength > 0 ) {
+			const minPixelBasedValue = Math.min(
+				( MIN_PIXEL_HEIGHT / valueAxisLength ) * maxAbsoluteValue,
+				maxAbsoluteValue
+			);
 			minVisibleValue = Math.max( minVisibleValue, minPixelBasedValue );
 		}
 
@@ -80,5 +85,5 @@ export const useZeroValueDisplay = (
 				return point;
 			} ),
 		} ) );
-	}, [ data, enabled, minValueRatio, maxValueRatio, chartHeight ] );
+	}, [ data, enabled, minValueRatio, maxValueRatio, valueAxisLength ] );
 };
