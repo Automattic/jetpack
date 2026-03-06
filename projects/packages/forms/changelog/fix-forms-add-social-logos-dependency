@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Add missing social-logos dependency to fix wp-build failure
