@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Newsletter: Hide settings tab and redirect to new settings page when wp-admin newsletter settings are enabled.

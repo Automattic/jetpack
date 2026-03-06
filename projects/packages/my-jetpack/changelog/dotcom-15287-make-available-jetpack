@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Newsletter: Updated manage URL to redirect to new settings page when wp-admin newsletter settings are enabled.
