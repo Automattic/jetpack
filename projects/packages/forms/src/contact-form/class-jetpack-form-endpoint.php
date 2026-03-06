@@ -58,6 +58,47 @@ class Jetpack_Form_Endpoint extends \WP_REST_Posts_Controller {
 				),
 			)
 		);
+
+		// Get form status counts.
+		register_rest_route(
+			$this->namespace,
+			'/' . $this->rest_base . '/status-counts',
+			array(
+				'methods'             => \WP_REST_Server::READABLE,
+				'permission_callback' => array( $this, 'get_items_permissions_check' ),
+				'callback'            => array( $this, 'get_status_counts' ),
+			)
+		);
+	}
+
+	/**
+	 * Retrieves per-status counts for the jetpack_form post type.
+	 *
+	 * Uses wp_count_posts() which returns all status counts in a single query.
+	 *
+	 * @return \WP_REST_Response Response object with status counts.
+	 */
+	public function get_status_counts() {
+		$counts = wp_count_posts( Contact_Form::POST_TYPE );
+
+		$publish = (int) ( $counts->publish ?? 0 );
+		$draft   = (int) ( $counts->draft ?? 0 );
+		$pending = (int) ( $counts->pending ?? 0 );
+		$future  = (int) ( $counts->future ?? 0 );
+		$private = (int) ( $counts->{'private'} ?? 0 );
+		$trash   = (int) ( $counts->trash ?? 0 );
+
+		return rest_ensure_response(
+			array(
+				'all'     => $publish + $draft + $pending + $future + $private,
+				'publish' => $publish,
+				'draft'   => $draft,
+				'pending' => $pending,
+				'future'  => $future,
+				'private' => $private,
+				'trash'   => $trash,
+			)
+		);
 	}
 
 	/**

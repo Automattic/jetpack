@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add per-status form counts REST endpoint and display counts in Forms dashboard status filters.

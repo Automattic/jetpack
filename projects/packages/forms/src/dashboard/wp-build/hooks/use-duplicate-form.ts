@@ -10,6 +10,7 @@ import { store as noticesStore } from '@wordpress/notices';
  */
 import { FORM_SOURCE_META_KEY } from '../../../blocks/shared/util/constants.js';
 import useConfigValue from '../../../hooks/use-config-value';
+import { store as dashboardStore } from '../../store/index.js';
 /**
  * Types
  */
@@ -44,6 +45,7 @@ export default function useDuplicateForm(): UseDuplicateFormReturn {
 	const [ isDuplicating, setIsDuplicating ] = useState( false );
 	const { createSuccessNotice, createErrorNotice } = useDispatch( noticesStore );
 	const { saveEntityRecord } = useDispatch( 'core' ) as unknown as CoreDispatch;
+	const { invalidateFormStatusCounts } = useDispatch( dashboardStore );
 	const adminUrl = useConfigValue( 'adminUrl' ) || '';
 
 	const duplicateForm = useCallback(
@@ -124,9 +126,17 @@ export default function useDuplicateForm(): UseDuplicateFormReturn {
 				} );
 			} finally {
 				setIsDuplicating( false );
+				invalidateFormStatusCounts();
 			}
 		},
-		[ createErrorNotice, createSuccessNotice, adminUrl, isDuplicating, saveEntityRecord ]
+		[
+			createErrorNotice,
+			createSuccessNotice,
+			adminUrl,
+			invalidateFormStatusCounts,
+			isDuplicating,
+			saveEntityRecord,
+		]
 	);
 
 	return { duplicateForm, isDuplicating };
