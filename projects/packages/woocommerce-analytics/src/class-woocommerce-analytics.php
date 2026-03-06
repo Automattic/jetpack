@@ -44,9 +44,6 @@ class Woocommerce_Analytics {
 	 * @return void
 	 */
 	public static function init() {
-		// Admin hooks are registered early, regardless of tracking status.
-		self::register_admin_hooks();
-
 		if ( ! self::should_track_store() || did_action( 'woocommerce_analytics_init' ) ) {
 			return;
 		}
@@ -111,6 +108,8 @@ class Woocommerce_Analytics {
 			include_once WC_ABSPATH . 'includes/tracks/class-wc-tracks-event.php';
 			include_once WC_ABSPATH . 'includes/tracks/class-wc-tracks-client.php';
 		}
+
+		add_action( 'admin_init', array( __CLASS__, 'maybe_update_proxy_speed_module' ) );
 
 		// Tracking only Site pages.
 		if ( is_admin() || wp_doing_ajax() || wp_is_xml_request() || is_login() || is_feed() || ( defined( 'WP_CLI' ) && WP_CLI ) ) {
@@ -323,12 +322,5 @@ class Woocommerce_Analytics {
 		ob_end_clean();
 
 		return $initialized;
-	}
-
-	/**
-	 * Register admin hooks for MU-plugin management.
-	 */
-	public static function register_admin_hooks() {
-		add_action( 'admin_init', array( __CLASS__, 'maybe_update_proxy_speed_module' ) );
 	}
 }
