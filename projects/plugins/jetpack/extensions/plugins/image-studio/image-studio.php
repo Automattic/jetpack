@@ -28,12 +28,26 @@ const ASSET_TRANSIENT        = 'jetpack_image_studio_asset';
 /**
  * Check if Image Studio is enabled.
  *
- * Enabled whenever AI features are available.
+ * Enabled when AI features are available and either the request is from an
+ * Automattician or the Big Sky plugin is active and enabled.
  *
  * @return bool
  */
 function is_image_studio_enabled() {
-	return has_ai_features();
+	if ( ! has_ai_features() ) {
+		return false;
+	}
+	return is_automattician()
+		|| is_big_sky_enabled();
+}
+
+/**
+ * Check if the Big Sky plugin is active and enabled.
+ *
+ * @return bool
+ */
+function is_big_sky_enabled() {
+	return class_exists( 'Big_Sky' ) && get_option( 'big_sky_enable', '1' );
 }
 
 /**
@@ -72,6 +86,24 @@ function has_ai_features() {
 	return ( new Connection_Manager( 'jetpack' ) )->has_connected_owner()
 		&& ! ( new Status() )->is_offline_mode()
 		&& apply_filters( 'jetpack_ai_enabled', true );
+}
+
+/**
+ * Check if the current request is from a proxied Automattician.
+ *
+ * Uses wpcom's is_proxied_automattician() when available (Simple sites),
+ * falls back to AT_PROXIED_REQUEST constant (Atomic/self-hosted).
+ *
+ * IMPORTANT: Only use for feature gating, not authorization.
+ *
+ * @return bool
+ */
+function is_automattician() {
+	if ( function_exists( '\is_automattician' ) ) {
+		return \is_automattician( get_current_user_id() );
+	}
+
+	return defined( 'AT_PROXIED_REQUEST' ) && AT_PROXIED_REQUEST;
 }
 
 /**
