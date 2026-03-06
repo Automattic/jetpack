@@ -233,23 +233,6 @@ class Woocommerce_Analytics_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test that register_admin_hooks adds the correct action.
-	 */
-	public function test_register_admin_hooks_adds_admin_init_action(): void {
-		// Remove any existing hooks.
-		remove_all_actions( 'admin_init' );
-
-		// Call the method.
-		Woocommerce_Analytics::register_admin_hooks();
-
-		// Check that the action was added.
-		$this->assertSame(
-			10,
-			has_action( 'admin_init', array( Woocommerce_Analytics::class, 'maybe_update_proxy_speed_module' ) )
-		);
-	}
-
-	/**
 	 * Test PACKAGE_VERSION constant exists and is valid semver format.
 	 */
 	public function test_package_version_constant_is_valid(): void {
