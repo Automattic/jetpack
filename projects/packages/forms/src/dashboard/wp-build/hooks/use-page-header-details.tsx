@@ -182,7 +182,7 @@ export default function usePageHeaderDetails(
 			return formTitle || __( 'Form responses', 'jetpack-forms' );
 		}
 		// "Forms" is a product name, do not translate.
-		return 'Forms';
+		return 'Jetpack Forms';
 	}, [ isSingleFormScreen, formTitle ] );
 
 	const title = useMemo( () => {
