@@ -109,17 +109,19 @@ function buildFooterMenuItems( props ) {
 }
 
 const SettingsAdminPage = props => {
-	const { apiRoot, apiNonce, siteConnectionStatus, location, children } = props;
+	const { apiRoot, apiNonce, siteConnectionStatus, location, tabs, children } = props;
 
 	const footerMenuItems = buildFooterMenuItems( props );
 
 	return (
 		<AdminPage
+			className="jp-settings-admin-page"
 			title={ __( 'Settings', 'jetpack' ) }
 			apiRoot={ apiRoot }
 			apiNonce={ apiNonce }
 			showFooter={ true }
-			showBackground={ false }
+			showBackground={ true }
+			tabs={ tabs }
 			optionalMenuItems={ footerMenuItems }
 			moduleNameHref={ getRedirectUrl( 'jetpack' ) }
 			useInternalLinks={ !! siteConnectionStatus }

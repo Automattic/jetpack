@@ -24,6 +24,7 @@ import NavigationSettings from 'components/navigation-settings';
 import NonAdminView from 'components/non-admin-view';
 import ReconnectModal from 'components/reconnect-modal';
 import SettingsAdminPage from 'components/settings-admin-page';
+import SettingsNavTabs from 'components/settings-nav-tabs';
 import SupportCard from 'components/support-card';
 import Tracker from 'components/tracker';
 import { imagePath } from 'constants/urls';
@@ -849,8 +850,7 @@ class Main extends Component {
 					{ this.shouldShowReconnectModal() && (
 						<ReconnectModal show={ true } onHide={ this.closeReconnectModal } />
 					) }
-					<SettingsAdminPage location={ this.props.location }>
-						<div className="jp-top-inside">{ mainNav }</div>
+					<SettingsAdminPage location={ this.props.location } tabs={ <SettingsNavTabs /> }>
 						<div className={ jpClasses.join( ' ' ) }>
 							<AdminNotices />
 							<JetpackNotices />
