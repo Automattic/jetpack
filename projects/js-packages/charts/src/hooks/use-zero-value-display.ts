@@ -20,9 +20,14 @@ export interface UseZeroValueDisplayOptions {
 }
 
 /**
- * Minimum pixel height/width for bars to ensure visibility.
+ * Minimum pixel size for near-zero bars (non-zero values that would render too small).
  */
 const MIN_PIXEL_SIZE = 3;
+
+/**
+ * Pixel size for zero-value bars (1px less than near-zero to be visually distinguishable).
+ */
+const ZERO_PIXEL_SIZE = MIN_PIXEL_SIZE - 1;
 
 export const useZeroValueDisplay = (
 	data: SeriesData[],
@@ -45,19 +50,28 @@ export const useZeroValueDisplay = (
 
 		if ( maxAbsoluteValue === 0 ) return data;
 
-		// Calculate the minimum value that renders as MIN_PIXEL_SIZE pixels
-		const minVisibleValue = ( MIN_PIXEL_SIZE / valueAxisLength ) * maxAbsoluteValue;
+		// Calculate values that render as specific pixel sizes
+		const minNonZeroValue = ( MIN_PIXEL_SIZE / valueAxisLength ) * maxAbsoluteValue;
+		const zeroVisualValue = ( ZERO_PIXEL_SIZE / valueAxisLength ) * maxAbsoluteValue;
 
 		return data.map( series => ( {
 			...series,
 			data: series.data.map( ( point: DataPointDate ): EnhancedDataPoint => {
-				const absValue = Math.abs( point.value ?? 0 );
-
-				// Boost any value that would render smaller than MIN_PIXEL_SIZE
-				if ( absValue < minVisibleValue ) {
+				// Zero values get a smaller visual representation (2px)
+				if ( point.value === 0 ) {
 					return {
 						...point,
-						visualValue: minVisibleValue,
+						visualValue: zeroVisualValue,
+					};
+				}
+
+				const absValue = Math.abs( point.value ?? 0 );
+
+				// Near-zero values that would render below MIN_PIXEL_SIZE get boosted to 3px
+				if ( absValue < minNonZeroValue ) {
+					return {
+						...point,
+						visualValue: minNonZeroValue,
 					};
 				}
 

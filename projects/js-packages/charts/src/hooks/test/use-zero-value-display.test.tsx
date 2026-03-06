@@ -80,45 +80,61 @@ describe( 'useZeroValueDisplay', () => {
 		expect( enhancedData[ 0 ].data[ 1 ] ).not.toHaveProperty( 'visualValue' );
 	} );
 
-	test( 'calculates visualValue as 3px equivalent', () => {
+	test( 'zero values get 2px equivalent (1px less than near-zero)', () => {
 		// mockData has values [0, 100, 200], max = 200
-		// minVisibleValue = (3 / 100) * 200 = 6
+		// zeroVisualValue = (2 / 100) * 200 = 4
 		const { result } = renderHook( () =>
 			useZeroValueDisplay( mockData, { enabled: true, valueAxisLength: 100 } )
 		);
 
 		const visualValue = ( result.current[ 0 ].data[ 0 ] as { visualValue?: number } ).visualValue;
-		expect( visualValue ).toBe( 6 );
+		expect( visualValue ).toBe( 4 ); // 2px equivalent
 	} );
 
-	test( 'scales minVisibleValue based on axis length', () => {
+	test( 'near-zero values get 3px equivalent', () => {
 		const data: SeriesData[] = [
 			{
 				label: 'Series 1',
 				data: [
-					{ label: 'A', value: 0 },
+					{ label: 'A', value: 1 }, // Would render as 1px
 					{ label: 'B', value: 100 },
 				],
 			},
 		];
 
-		// Small axis = larger minVisibleValue (to ensure 3px)
-		const { result: smallAxis } = renderHook( () =>
-			useZeroValueDisplay( data, { enabled: true, valueAxisLength: 50 } )
-		);
-		// Large axis = smaller minVisibleValue
-		const { result: largeAxis } = renderHook( () =>
-			useZeroValueDisplay( data, { enabled: true, valueAxisLength: 200 } )
+		// minNonZeroValue = (3 / 100) * 100 = 3
+		const { result } = renderHook( () =>
+			useZeroValueDisplay( data, { enabled: true, valueAxisLength: 100 } )
 		);
 
-		const smallAxisValue = ( smallAxis.current[ 0 ].data[ 0 ] as { visualValue?: number } )
-			.visualValue;
-		const largeAxisValue = ( largeAxis.current[ 0 ].data[ 0 ] as { visualValue?: number } )
+		const visualValue = ( result.current[ 0 ].data[ 0 ] as { visualValue?: number } ).visualValue;
+		expect( visualValue ).toBe( 3 ); // 3px equivalent
+	} );
+
+	test( 'zeros and near-zeros have 1px visual difference', () => {
+		const data: SeriesData[] = [
+			{
+				label: 'Series 1',
+				data: [
+					{ label: 'Zero', value: 0 },
+					{ label: 'NearZero', value: 1 },
+					{ label: 'Max', value: 100 },
+				],
+			},
+		];
+
+		const { result } = renderHook( () =>
+			useZeroValueDisplay( data, { enabled: true, valueAxisLength: 100 } )
+		);
+
+		const zeroVisual = ( result.current[ 0 ].data[ 0 ] as { visualValue?: number } ).visualValue;
+		const nearZeroVisual = ( result.current[ 0 ].data[ 1 ] as { visualValue?: number } )
 			.visualValue;
 
-		// 3/50 * 100 = 6 vs 3/200 * 100 = 1.5
-		expect( smallAxisValue ).toBe( 6 );
-		expect( largeAxisValue ).toBe( 1.5 );
+		// Zero = 2px equivalent (2), near-zero = 3px equivalent (3)
+		expect( zeroVisual ).toBe( 2 );
+		expect( nearZeroVisual ).toBe( 3 );
+		expect( nearZeroVisual! - zeroVisual! ).toBe( 1 ); // 1px difference
 	} );
 
 	test( 'handles data with only zero values', () => {
