@@ -533,6 +533,10 @@ class Table_Checksum {
 				case 'IN':
 				case 'NOT IN':
 					$filter_values_count = is_countable( $filter['values'] ) ? count( $filter['values'] ) : 0;
+					if ( 0 === $filter_values_count ) {
+						$result[] = 'IN' === $filter['operator'] ? '1 = 0' : '1 = 1';
+						break;
+					}
 					$values_placeholders = implode( ',', array_fill( 0, $filter_values_count, '%s' ) );
 					$statement           = "{$key} {$filter['operator']} ( $values_placeholders )";
 
