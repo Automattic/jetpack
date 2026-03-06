@@ -11,13 +11,23 @@ Instructions:
    - If no changelog exists, run `/jetpack-changelog` first to create one
    - If changes are only to .claude/, docs, or non-project files, skip changelog check
 3. Ensure the branch is pushed to remote (push if needed)
-4. Prepare the PR content using the sections from .github/PULL_REQUEST_TEMPLATE.md:
+4. CRITICAL: Read the file `.github/PULL_REQUEST_TEMPLATE.md` using the Read tool. You MUST read this file every time — do not rely on memory for the template structure.
+5. Prepare the PR body following the EXACT section structure from the template you just read:
    - Title: Clear summary of changes
    - Fixes #: Link to issue if applicable (or remove if none)
    - Proposed changes: Bullet points of functional changes
    - Testing instructions: Step-by-step how to test the changes
-5. Create the PR using `gh pr create`, providing the prepared content for the title and body (e.g., with `--title` and `--body` flags)
-6. Add required labels:
+   - Include ALL sections from the template, filling in what's relevant and leaving defaults for the rest
+6. Create the PR using `gh pr create`:
+   - IMPORTANT: To avoid bash escaping issues, ALWAYS use `--body-file` instead of `--body`
+   - First, use Bash with a heredoc to write the PR body to `/tmp/pr-body.md`:
+     ```bash
+     cat > /tmp/pr-body.md << 'EOF'
+     [PR body content here]
+     EOF
+     ```
+   - Then run: `gh pr create --title "..." --body-file /tmp/pr-body.md --label "..." --assignee @me`
+7. Add required labels:
    - `[Status] *` - use `[Status] In Progress` by default, or `[Status] Needs Review` if ready for review
 
-When using `--title` and `--body` with `gh pr create`, the template is not auto-filled; you must format the PR body to match the template structure yourself. Alternatively, omit `--body` to open an editor with the template pre-filled. Deduce all information from git history and code changes - do not ask the user for input.
+Deduce all information from git history and code changes - do not ask the user for input.
