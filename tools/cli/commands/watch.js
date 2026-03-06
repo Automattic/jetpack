@@ -80,12 +80,12 @@ export async function watchCli( options ) {
 /**
  * Fires off watch command.
  *
- * @param {string}  project     - The project.
- * @param {object}  packageJson - The project's package.json file, parsed.
- * @param {boolean} hot         - Whether to use HMR watch mode.
+ * @param {string}  project      - The project.
+ * @param {object}  composerJson - The project's composer.json file, parsed.
+ * @param {boolean} hot          - Whether to use HMR watch mode.
  */
-export async function watch( project, packageJson, hot = false ) {
-	const command = hasWatchStep( project, packageJson, hot );
+export async function watch( project, composerJson, hot = false ) {
+	const command = hasWatchStep( project, composerJson, hot );
 	if ( command === false ) {
 		return;
 	}
@@ -93,7 +93,7 @@ export async function watch( project, packageJson, hot = false ) {
 	// Determine which script to run
 	let scriptName = 'watch';
 	if ( hot ) {
-		if ( packageJson.scripts && packageJson.scripts[ 'watch-hot' ] ) {
+		if ( composerJson.scripts && composerJson.scripts[ 'watch-hot' ] ) {
 			scriptName = 'watch-hot';
 		} else {
 			console.log(
