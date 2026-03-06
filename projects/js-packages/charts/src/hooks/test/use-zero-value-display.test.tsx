@@ -43,21 +43,21 @@ describe( 'useZeroValueDisplay', () => {
 			{
 				label: 'Series 1',
 				data: [
-					{ label: 'A', value: 1 }, // Would render as 1px (below 3px minimum)
+					{ label: 'A', value: 1 }, // Would render as 1px (below 2px minimum)
 					{ label: 'B', value: 100 },
 				],
 			},
 		];
 
-		// With axis=100 and max=100, 3px threshold = 3
-		// Value of 1 < 3, so it gets boosted
+		// With axis=100 and max=100, 2px threshold = 2
+		// Value of 1 < 2, so it gets boosted
 		const { result } = renderHook( () =>
 			useZeroValueDisplay( data, { enabled: true, valueAxisLength: 100 } )
 		);
 
 		const enhancedData = result.current;
 		expect( enhancedData[ 0 ].data[ 0 ] ).toHaveProperty( 'visualValue' );
-		expect( ( enhancedData[ 0 ].data[ 0 ] as { visualValue?: number } ).visualValue ).toBe( 3 );
+		expect( ( enhancedData[ 0 ].data[ 0 ] as { visualValue?: number } ).visualValue ).toBe( 2 );
 	} );
 
 	test( 'does not add visualValue for values above minimum threshold', () => {
@@ -65,7 +65,7 @@ describe( 'useZeroValueDisplay', () => {
 			{
 				label: 'Series 1',
 				data: [
-					{ label: 'A', value: 10 }, // Would render as 10px (above 3px minimum)
+					{ label: 'A', value: 10 }, // Would render as 10px (above 2px minimum)
 					{ label: 'B', value: 100 },
 				],
 			},
@@ -80,18 +80,18 @@ describe( 'useZeroValueDisplay', () => {
 		expect( enhancedData[ 0 ].data[ 1 ] ).not.toHaveProperty( 'visualValue' );
 	} );
 
-	test( 'zero values get 2px equivalent (1px less than near-zero)', () => {
+	test( 'zero values get 1px equivalent (1px less than near-zero)', () => {
 		// mockData has values [0, 100, 200], max = 200
-		// zeroVisualValue = (2 / 100) * 200 = 4
+		// zeroVisualValue = (1 / 100) * 200 = 2
 		const { result } = renderHook( () =>
 			useZeroValueDisplay( mockData, { enabled: true, valueAxisLength: 100 } )
 		);
 
 		const visualValue = ( result.current[ 0 ].data[ 0 ] as { visualValue?: number } ).visualValue;
-		expect( visualValue ).toBe( 4 ); // 2px equivalent
+		expect( visualValue ).toBe( 2 ); // 1px equivalent
 	} );
 
-	test( 'near-zero values get 3px equivalent', () => {
+	test( 'near-zero values get 2px equivalent', () => {
 		const data: SeriesData[] = [
 			{
 				label: 'Series 1',
@@ -102,13 +102,13 @@ describe( 'useZeroValueDisplay', () => {
 			},
 		];
 
-		// minNonZeroValue = (3 / 100) * 100 = 3
+		// minNonZeroValue = (2 / 100) * 100 = 2
 		const { result } = renderHook( () =>
 			useZeroValueDisplay( data, { enabled: true, valueAxisLength: 100 } )
 		);
 
 		const visualValue = ( result.current[ 0 ].data[ 0 ] as { visualValue?: number } ).visualValue;
-		expect( visualValue ).toBe( 3 ); // 3px equivalent
+		expect( visualValue ).toBe( 2 ); // 2px equivalent
 	} );
 
 	test( 'zeros and near-zeros have 1px visual difference', () => {
@@ -131,9 +131,9 @@ describe( 'useZeroValueDisplay', () => {
 		const nearZeroVisual = ( result.current[ 0 ].data[ 1 ] as { visualValue?: number } )
 			.visualValue;
 
-		// Zero = 2px equivalent (2), near-zero = 3px equivalent (3)
-		expect( zeroVisual ).toBe( 2 );
-		expect( nearZeroVisual ).toBe( 3 );
+		// Zero = 1px equivalent (1), near-zero = 2px equivalent (2)
+		expect( zeroVisual ).toBe( 1 );
+		expect( nearZeroVisual ).toBe( 2 );
 		expect( nearZeroVisual! - zeroVisual! ).toBe( 1 ); // 1px difference
 	} );
 
