@@ -231,6 +231,7 @@
 	},
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
+		"identity-obj-proxy": "3.0.0",
 		"@babel/core": "7.29.0",
 		"@babel/preset-react": "7.28.5",
 		"@babel/preset-typescript": "7.28.5",

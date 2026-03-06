@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Add identity-obj-proxy to enable CSS module class assertions in tests.
