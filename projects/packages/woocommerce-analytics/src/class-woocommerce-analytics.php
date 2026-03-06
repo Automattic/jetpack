@@ -189,31 +189,27 @@ class Woocommerce_Analytics {
 			return;
 		}
 
-		// Set the transient regardless of whether an update is needed to prevent checking on every admin_init.
-		set_transient( self::PROXY_SPEED_MODULE_VERSION_CHECK_TRANSIENT, 1, DAY_IN_SECONDS );
-
 		$version = get_option( self::PROXY_SPEED_MODULE_VERSION_OPTION, false );
 
-		// Only update the proxy speed module if the stored version differs from the current version and the version is not false.
-		if ( $version !== false && $version !== self::PACKAGE_VERSION ) {
+		// If the feature flag is off but a previous version exists, remove the MU-plugin
+		// to clean up sites that had it installed before the flag was disabled.
+		if ( $version !== false && ! \Automattic\Woocommerce_Analytics\Features::is_proxy_speed_module_enabled() ) {
+			self::maybe_remove_proxy_speed_module();
+		} elseif ( $version !== false && $version !== self::PACKAGE_VERSION ) {
+			// Only trigger an update if a previous version exists but differs from the current package version.
 			self::maybe_add_proxy_speed_module();
 		}
+
+		// Set the transient after the update attempt to prevent checking on every admin_init.
+		// If the update failed, it will be retried after the transient expires (1 day).
+		set_transient( self::PROXY_SPEED_MODULE_VERSION_CHECK_TRANSIENT, 1, DAY_IN_SECONDS );
 	}
 
 	/**
 	 * Maybe add proxy speed module.
 	 */
 	public static function maybe_add_proxy_speed_module() {
-		/**
-		 * Filter to control auto-installation of the proxy speed module mu-plugin.
-		 *
-		 * When this filter returns false, the mu-plugin file can't be added automatically.
-		 *
-		 * @since 0.15.0
-		 *
-		 * @param bool $auto_install Whether to auto-install the mu-plugin. Default true.
-		 */
-		if ( ! apply_filters( 'woocommerce_analytics_auto_install_proxy_speed_module', true ) ) {
+		if ( ! \Automattic\Woocommerce_Analytics\Features::is_proxy_speed_module_enabled() ) {
 			return;
 		}
 
@@ -278,7 +274,7 @@ class Woocommerce_Analytics {
 
 		if ( ! $wp_filesystem->put_contents( $mu_plugin_dest_file, $content ) ) {
 			if ( function_exists( 'wc_get_logger' ) ) {
-				wc_get_logger()->error( 'Failed to copy the WooCommerce Analytics proxy speed module file.', array( 'source' => 'woocommerce-analytics' ) );
+				wc_get_logger()->error( 'Failed to write the WooCommerce Analytics proxy speed module file.', array( 'source' => 'woocommerce-analytics' ) );
 			}
 			return;
 		}
@@ -302,7 +298,10 @@ class Woocommerce_Analytics {
 		$file_path = trailingslashit( WPMU_PLUGIN_DIR ) . 'woocommerce-analytics-proxy-speed-module.php';
 
 		if ( $wp_filesystem->exists( $file_path ) && $wp_filesystem->is_writable( $file_path ) ) {
-			$wp_filesystem->delete( $file_path );
+			$deleted = $wp_filesystem->delete( $file_path );
+			if ( ! $deleted && function_exists( 'wc_get_logger' ) ) {
+				wc_get_logger()->error( 'Failed to delete WooCommerce Analytics proxy speed module file. The MU-plugin may continue running.', array( 'source' => 'woocommerce-analytics' ) );
+			}
 		}
 
 		delete_option( self::PROXY_SPEED_MODULE_VERSION_OPTION );

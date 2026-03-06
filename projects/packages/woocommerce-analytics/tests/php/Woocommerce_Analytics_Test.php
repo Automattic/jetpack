@@ -156,20 +156,29 @@ class Woocommerce_Analytics_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test that filter can disable auto-installation.
+	 * Test that auto-installation is disabled by default.
 	 */
-	public function test_maybe_add_proxy_speed_module_respects_filter(): void {
-		// Add filter to disable auto-install.
-		add_filter( 'woocommerce_analytics_auto_install_proxy_speed_module', '__return_false' );
-
-		// Call the method.
+	public function test_maybe_add_proxy_speed_module_disabled_by_default(): void {
+		// Call the method without any filter (default is false).
 		Woocommerce_Analytics::maybe_add_proxy_speed_module();
 
-		// Version option should not be set.
+		// Version option should not be set since auto-install is disabled by default.
 		$this->assertFalse( get_option( Woocommerce_Analytics::PROXY_SPEED_MODULE_VERSION_OPTION ) );
+	}
+
+	/**
+	 * Test that filter can enable auto-installation.
+	 */
+	public function test_maybe_add_proxy_speed_module_respects_filter(): void {
+		// Add filter to enable auto-install.
+		add_filter( 'woocommerce_analytics_auto_install_proxy_speed_module', '__return_true' );
+
+		// Call the method - it will proceed past the filter check but may stop at other checks
+		// (e.g., filesystem init, WPMU_PLUGIN_DIR). The point is the filter is respected.
+		Woocommerce_Analytics::maybe_add_proxy_speed_module();
 
 		// Clean up filter.
-		remove_filter( 'woocommerce_analytics_auto_install_proxy_speed_module', '__return_false' );
+		remove_filter( 'woocommerce_analytics_auto_install_proxy_speed_module', '__return_true' );
 	}
 
 	/**

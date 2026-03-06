@@ -68,10 +68,9 @@ class WooCommerceAnalyticsProxySpeed {
 			return false;
 		}
 
-		$request_uri = $this->get_request_uri();
-		$path        = wp_parse_url( $request_uri, PHP_URL_PATH );
+		$path = $this->get_request_path();
 
-		if ( ! is_string( $path ) || '' === $path ) {
+		if ( '' === $path ) {
 			return false;
 		}
 
@@ -98,15 +97,28 @@ class WooCommerceAnalyticsProxySpeed {
 
 		// Validate the path was properly injected (not still a placeholder).
 		if ( strpos( $autoload_path, '{{' ) !== false ) {
+			error_log( 'WooCommerce Analytics Proxy Speed Module: Autoloader path placeholder was not replaced during installation.' );
 			return false;
 		}
 
-		if ( file_exists( $autoload_path ) ) {
-			require_once $autoload_path;
-			return class_exists( '\Automattic\Woocommerce_Analytics\WC_Analytics_Tracking' );
+		if ( ! file_exists( $autoload_path ) ) {
+			error_log( 'WooCommerce Analytics Proxy Speed Module: Autoloader file not found at: ' . $autoload_path );
+			return false;
 		}
 
-		return false;
+		try {
+			require_once $autoload_path;
+		} catch ( \Throwable $e ) {
+			error_log( 'WooCommerce Analytics Proxy Speed Module: Failed to load autoloader: ' . $e->getMessage() );
+			return false;
+		}
+
+		if ( ! class_exists( '\Automattic\Woocommerce_Analytics\WC_Analytics_Tracking' ) ) {
+			error_log( 'WooCommerce Analytics Proxy Speed Module: WC_Analytics_Tracking class not found after loading autoloader.' );
+			return false;
+		}
+
+		return true;
 	}
 
 	/**
@@ -118,18 +130,36 @@ class WooCommerceAnalyticsProxySpeed {
 	 * @return void
 	 */
 	private function handle_proxy_request() {
-		// Set headers for JSON response.
 		if ( ! headers_sent() ) {
 			header( 'Content-Type: application/json; charset=utf-8' );
 			header( 'Cache-Control: no-cache, must-revalidate' );
 		}
 
-		// Apply magic quotes to the $_COOKIE superglobal so it's compatible with the regular API flow.
+		try {
+			$this->process_proxy_request();
+		} catch ( \Throwable $e ) {
+			error_log( 'WooCommerce Analytics Proxy Speed Module: Uncaught error in handle_proxy_request: ' . $e->getMessage() );
+			$this->send_json_response(
+				array(
+					'success' => false,
+					'error'   => 'Internal server error while processing analytics events.',
+				),
+				500
+			);
+		}
+	}
+
+	/**
+	 * Process the proxy request body: parse events, record them, and send the response.
+	 *
+	 * @return void
+	 */
+	private function process_proxy_request() {
+		// Apply magic quotes to superglobals ($_GET, $_POST, $_COOKIE, $_REQUEST) for compatibility with the regular API flow.
 		if ( function_exists( 'wp_magic_quotes' ) ) {
 			wp_magic_quotes();
 		}
 
-		// Parse the request body.
 		$body = file_get_contents( 'php://input' );
 		if ( empty( $body ) ) {
 			$this->send_json_response(
@@ -154,17 +184,15 @@ class WooCommerceAnalyticsProxySpeed {
 			return;
 		}
 
-		// Normalize single event to array.
+		// Normalize: wrap a single event object or unexpected scalar in an array.
 		if ( ! is_array( $events ) || isset( $events['event_name'] ) ) {
 			$events = array( $events );
 		}
 
-		// Process events.
 		$results    = array();
 		$has_errors = false;
 
 		foreach ( $events as $index => $event ) {
-			// Validate event structure.
 			if ( empty( $event ) || ! is_array( $event ) ) {
 				$results[ $index ] = array(
 					'success' => false,
@@ -174,7 +202,6 @@ class WooCommerceAnalyticsProxySpeed {
 				continue;
 			}
 
-			// Validate event name and properties.
 			$event_name = $event['event_name'] ?? null;
 			$properties = $event['properties'] ?? array();
 
@@ -187,7 +214,6 @@ class WooCommerceAnalyticsProxySpeed {
 				continue;
 			}
 
-			// Record the event.
 			$result = \Automattic\Woocommerce_Analytics\WC_Analytics_Tracking::record_event( $event_name, $properties );
 
 			if ( is_wp_error( $result ) ) {
@@ -202,10 +228,8 @@ class WooCommerceAnalyticsProxySpeed {
 			$results[ $index ] = array( 'success' => true );
 		}
 
-		// Flush any batched pixels before exiting.
 		\Automattic\Woocommerce_Analytics\WC_Analytics_Tracking::send_batched_pixels();
 
-		// Send response.
 		$this->send_json_response(
 			array(
 				'success'               => ! $has_errors,
@@ -229,14 +253,14 @@ class WooCommerceAnalyticsProxySpeed {
 	}
 
 	/**
-	 * Helper method to retrieve Request URI.
+	 * Helper method to retrieve the request path.
 	 *
-	 * Returns a normalized and validated path component derived from
-	 * $_SERVER['REQUEST_URI'] for safe internal matching.
+	 * Extracts and validates the path component from $_SERVER['REQUEST_URI']
+	 * for safe internal matching.
 	 *
-	 * @return string
+	 * @return string The validated path, or empty string on failure.
 	 */
-	private function get_request_uri() {
+	private function get_request_path() {
 		$raw_uri = isset( $_SERVER['REQUEST_URI'] ) ? wp_unslash( $_SERVER['REQUEST_URI'] ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 
 		if ( ! is_string( $raw_uri ) ) {
