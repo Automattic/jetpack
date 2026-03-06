@@ -50,9 +50,16 @@ export const useZeroValueDisplay = (
 
 		if ( maxAbsoluteValue === 0 ) return data;
 
-		// Calculate values that render as specific pixel sizes
-		const minNonZeroValue = ( MIN_PIXEL_SIZE / valueAxisLength ) * maxAbsoluteValue;
-		const zeroVisualValue = ( ZERO_PIXEL_SIZE / valueAxisLength ) * maxAbsoluteValue;
+		// Calculate values that render as specific pixel sizes, clamped to maxAbsoluteValue
+		// to prevent visual distortion when valueAxisLength is very small
+		const minNonZeroValue = Math.min(
+			( MIN_PIXEL_SIZE / valueAxisLength ) * maxAbsoluteValue,
+			maxAbsoluteValue
+		);
+		const zeroVisualValue = Math.min(
+			( ZERO_PIXEL_SIZE / valueAxisLength ) * maxAbsoluteValue,
+			maxAbsoluteValue
+		);
 
 		return data.map( series => ( {
 			...series,
