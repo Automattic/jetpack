@@ -25,13 +25,6 @@ class Woocommerce_Analytics_Test extends BaseTestCase {
 	private $temp_mu_plugin_dir;
 
 	/**
-	 * Original WPMU_PLUGIN_DIR value.
-	 *
-	 * @var string|null
-	 */
-	private $original_wpmu_plugin_dir;
-
-	/**
 	 * Set up test environment.
 	 */
 	public function set_up(): void {
@@ -40,9 +33,6 @@ class Woocommerce_Analytics_Test extends BaseTestCase {
 		// Create a temporary directory for MU-plugins.
 		$this->temp_mu_plugin_dir = sys_get_temp_dir() . '/wc-analytics-test-mu-plugins-' . uniqid();
 		mkdir( $this->temp_mu_plugin_dir, 0755, true );
-
-		// Store and override WPMU_PLUGIN_DIR.
-		$this->original_wpmu_plugin_dir = defined( 'WPMU_PLUGIN_DIR' ) ? WPMU_PLUGIN_DIR : null;
 
 		// Clean up any existing options/transients.
 		delete_option( Woocommerce_Analytics::PROXY_SPEED_MODULE_VERSION_OPTION );
