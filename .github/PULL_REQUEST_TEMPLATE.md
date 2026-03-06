@@ -17,7 +17,7 @@ Fixes #
 <!-- Please include detailed testing steps, explaining how to test your change. -->
 <!-- Bear in mind that context you are working on is not obvious for everyone.  -->
 <!-- Adding relevant configuration steps will help reviewers to get to your PR as quickly as possible. -->
-<!-- "Before"/"After" screenshots can helpful when the change is visual. -->
+<!-- "Before"/"After" screenshots can be helpful when the change is visual. -->
 
 * Go to '..'
 *
