@@ -102,11 +102,7 @@ export async function watch( project, composerJson, hot = false ) {
 		}
 	}
 
-	console.log(
-		chalkJetpackGreen(
-			`Hell yeah! It is time to watch ${ project }!\n` + 'Go forth and write more code.'
-		)
-	);
+	console.log( chalkJetpackGreen( `Watching '${ project }'...\n` + 'Go write some code.' ) );
 	child_process.spawnSync( 'composer', [ scriptName ], {
 		cwd: path.resolve( `projects/${ project }` ),
 		shell: true,
