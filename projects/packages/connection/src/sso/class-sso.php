@@ -724,6 +724,8 @@ class SSO {
 				true
 			);
 		}
+
+		delete_transient( self::BROKER_URL_TRANSIENT );
 	}
 
 	/**
@@ -735,7 +737,15 @@ class SSO {
 		if ( ( new Manager() )->is_user_connected() ) {
 			Helpers::delete_connection_for_user( get_current_user_id() );
 		}
+		delete_transient( self::BROKER_URL_TRANSIENT );
 	}
+
+	/**
+	 * Transient key for caching the SSO broker URL server-side.
+	 *
+	 * @var string
+	 */
+	const BROKER_URL_TRANSIENT = 'jetpack_sso_broker_url';
 
 	/**
 	 * Retrieves nonce used for SSO form.
@@ -755,7 +765,25 @@ class SSO {
 				return new WP_Error( $xml->getErrorCode(), $xml->getErrorMessage() );
 			}
 
-			$nonce = sanitize_key( $xml->getResponse() );
+			$response = $xml->getResponse();
+
+			// The response may be a plain nonce string (default) or an associative
+			// array containing 'nonce' and 'broker_url' for sites that use an
+			// external SSO broker (e.g. CIAB stores).
+			if ( is_array( $response ) && isset( $response['nonce'] ) ) {
+				$nonce = sanitize_key( $response['nonce'] );
+
+				if ( ! empty( $response['broker_url'] ) ) {
+					$broker_url = esc_url_raw( $response['broker_url'] );
+					$url_parts  = wp_parse_url( $broker_url );
+
+					if ( $url_parts && 'https' === ( $url_parts['scheme'] ?? '' ) ) {
+						set_transient( self::BROKER_URL_TRANSIENT, $broker_url, 10 * MINUTE_IN_SECONDS );
+					}
+				}
+			} else {
+				$nonce = sanitize_key( $response );
+			}
 
 			setcookie(
 				'jetpack_sso_nonce',
@@ -769,6 +797,31 @@ class SSO {
 		}
 
 		return $nonce;
+	}
+
+	/**
+	 * Retrieves the SSO broker URL if one has been set by WP.com for this site.
+	 *
+	 * The broker URL is returned by the jetpack.sso.requestNonce XML-RPC call
+	 * for sites that use an external SSO broker (e.g. CIAB stores). It is cached
+	 * in a server-side transient to prevent browser-side tampering.
+	 *
+	 * @return string|false The broker URL, or false if not set.
+	 */
+	public static function get_broker_url() {
+		$broker_url = get_transient( self::BROKER_URL_TRANSIENT );
+
+		if ( ! $broker_url ) {
+			return false;
+		}
+
+		$url_parts = wp_parse_url( $broker_url );
+		if ( ! $url_parts || 'https' !== ( $url_parts['scheme'] ?? '' ) ) {
+			delete_transient( self::BROKER_URL_TRANSIENT );
+			return false;
+		}
+
+		return $broker_url;
 	}
 
 	/**
@@ -1086,6 +1139,23 @@ class SSO {
 	}
 
 	/**
+	 * Returns the base URL for SSO authentication.
+	 *
+	 * If a broker URL has been set by WP.com (e.g. for CIAB stores using an
+	 * external SSO broker like the MSD), that URL is used. Otherwise falls back
+	 * to the default WordPress.com login URL.
+	 *
+	 * @return string The base SSO URL.
+	 */
+	public static function get_sso_base_url() {
+		$broker_url = self::get_broker_url();
+		if ( $broker_url ) {
+			return $broker_url;
+		}
+		return 'https://wordpress.com/wp-login.php';
+	}
+
+	/**
 	 * Build WordPress.com SSO URL with appropriate query parameters.
 	 *
 	 * @param array $args Optional query parameters.
@@ -1106,7 +1176,7 @@ class SSO {
 			return $sso_nonce;
 		}
 
-		return add_query_arg( $args, 'https://wordpress.com/wp-login.php' );
+		return add_query_arg( $args, self::get_sso_base_url() );
 	}
 
 	/**
@@ -1145,7 +1215,7 @@ class SSO {
 			return $args['sso_nonce'];
 		}
 
-		return add_query_arg( $args, 'https://wordpress.com/wp-login.php' );
+		return add_query_arg( $args, self::get_sso_base_url() );
 	}
 
 	/**
