@@ -1,0 +1,43 @@
+// AdminPage uses margin-left: -20px to neutralize #wpcontent's default 20px
+// padding. But Jetpack's own CSS zeros out that padding (admin-static.scss,
+// _main.scss), so the -20px just shifts everything into the sidebar. Reset it.
+// Double class for specificity over the CSS module rule.
+.jp-settings-admin-page.jp-settings-admin-page {
+	margin-left: 0;
+}
+
+.jp-settings-nav {
+	display: flex;
+	align-items: center;
+	border-bottom: 1px solid #f0f0f0;
+	padding-inline: 24px;
+}
+
+.jp-settings-nav__tabs {
+	display: flex;
+	flex: 1;
+}
+
+.jp-settings-nav__tab {
+	color: #1e1e1e;
+	font-size: 16px;
+	line-height: 1.5;
+	text-decoration: none;
+	padding: 8px 0;
+	margin-right: 32px;
+	white-space: nowrap;
+
+	&:last-child {
+		margin-right: 0;
+	}
+
+	&:hover,
+	&:focus {
+		box-shadow: none;
+		color: #069e08;
+	}
+
+	&--active {
+		border-bottom: 2px solid #1e1e1e;
+	}
+}
