@@ -191,13 +191,12 @@ class Woocommerce_Analytics {
 
 		$version = get_option( self::PROXY_SPEED_MODULE_VERSION_OPTION, false );
 
-		// If the feature flag is off but a previous version exists, remove the MU-plugin
-		// to clean up sites that had it installed before the flag was disabled.
-		if ( $version !== false && ! \Automattic\Woocommerce_Analytics\Features::is_proxy_speed_module_enabled() ) {
+		if ( \Automattic\Woocommerce_Analytics\Features::is_proxy_speed_module_enabled() ) {
+			if ( $version !== self::PACKAGE_VERSION ) {
+				self::maybe_add_proxy_speed_module();
+			}
+		} elseif ( $version !== false ) {
 			self::maybe_remove_proxy_speed_module();
-		} elseif ( $version !== false && $version !== self::PACKAGE_VERSION ) {
-			// Only trigger an update if a previous version exists but differs from the current package version.
-			self::maybe_add_proxy_speed_module();
 		}
 
 		// Set the transient after the update attempt to prevent checking on every admin_init.
