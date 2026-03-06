@@ -353,6 +353,21 @@ class Settings {
 	}
 
 	/**
+	 * Returns escaped SQL for blacklisted post types.
+	 * Can be injected directly into a WHERE clause.
+	 *
+	 * @access public
+	 * @static
+	 * @deprecated $$next-version$$ Use get_allowed_post_types_sql() instead.
+	 *
+	 * @return string SQL WHERE clause.
+	 */
+	public static function get_blacklisted_post_types_sql() {
+		_deprecated_function( __METHOD__, '$$next-version$$', 'get_allowed_post_types_sql' );
+		return static::get_allowed_post_types_sql();
+	}
+
+	/**
 	 * Returns escaped SQL for allowed post types (all registered minus blacklist).
 	 *
 	 * @access public
