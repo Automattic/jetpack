@@ -2539,6 +2539,9 @@ importers:
       semver:
         specifier: 7.7.3
         version: 7.7.3
+      social-logos:
+        specifier: workspace:*
+        version: link:../../js-packages/social-logos
       webpack:
         specifier: 5.105.2
         version: 5.105.2(webpack-cli@6.0.1)
