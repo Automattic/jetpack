@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Forms\Dashboard;
 
+use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 use PHPUnit\Framework\Attributes\CoversClass;
 use WorDBless\BaseTestCase;
 
@@ -120,6 +121,77 @@ class Dashboard_Test extends BaseTestCase {
 		$this->assertEquals( $expected, Dashboard::get_forms_admin_url( 'responses/inbox' ) );
 
 		remove_filter( 'jetpack_forms_alpha', '__return_true' );
+	}
+
+	/**
+	 * Reset WP_Build_Polyfills static state between tests.
+	 */
+	private function reset_wp_build_polyfills() {
+		$ref = new \ReflectionClass( WP_Build_Polyfills::class );
+
+		$requested = $ref->getProperty( 'requested' );
+		$requested->setValue( null, array() );
+
+		$hooked = $ref->getProperty( 'hooked' );
+		$hooked->setValue( null, false );
+	}
+
+	/**
+	 * Test load_wp_build registers polyfills when on the wp-build admin page.
+	 */
+	public function test_load_wp_build_registers_polyfills_on_wpbuild_page() {
+		$_GET['page'] = Dashboard::FORMS_WPBUILD_ADMIN_SLUG;
+
+		Dashboard::load_wp_build();
+
+		$ref       = new \ReflectionClass( WP_Build_Polyfills::class );
+		$requested = $ref->getProperty( 'requested' );
+		$value     = $requested->getValue();
+
+		$expected_handles = array_merge( WP_Build_Polyfills::SCRIPT_HANDLES, WP_Build_Polyfills::MODULE_IDS );
+
+		foreach ( $expected_handles as $handle ) {
+			$this->assertArrayHasKey( $handle, $value, "Polyfill handle '$handle' should be registered." );
+			$this->assertContains( 'jetpack-forms', $value[ $handle ], "Consumer 'jetpack-forms' should be registered for '$handle'." );
+		}
+
+		$this->reset_wp_build_polyfills();
+		unset( $_GET['page'] );
+	}
+
+	/**
+	 * Test load_wp_build does not register polyfills when on a different admin page.
+	 */
+	public function test_load_wp_build_does_not_register_polyfills_on_other_page() {
+		$_GET['page'] = 'some-other-page';
+
+		Dashboard::load_wp_build();
+
+		$ref       = new \ReflectionClass( WP_Build_Polyfills::class );
+		$requested = $ref->getProperty( 'requested' );
+		$value     = $requested->getValue();
+
+		$this->assertEmpty( $value, 'No polyfills should be registered when on a different page.' );
+
+		$this->reset_wp_build_polyfills();
+		unset( $_GET['page'] );
+	}
+
+	/**
+	 * Test load_wp_build does not register polyfills when no page is set.
+	 */
+	public function test_load_wp_build_does_not_register_polyfills_without_page() {
+		unset( $_GET['page'] );
+
+		Dashboard::load_wp_build();
+
+		$ref       = new \ReflectionClass( WP_Build_Polyfills::class );
+		$requested = $ref->getProperty( 'requested' );
+		$value     = $requested->getValue();
+
+		$this->assertEmpty( $value, 'No polyfills should be registered when no page is set.' );
+
+		$this->reset_wp_build_polyfills();
 	}
 
 	/**
