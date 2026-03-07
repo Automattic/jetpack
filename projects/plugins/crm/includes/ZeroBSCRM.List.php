@@ -683,9 +683,9 @@ class zeroBSCRM_list {
 							// phpcs:disable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 							global $zbsCustomerFields;
 							if ( is_array( $zbsCustomerFields['status'][3] ) ) {
-							echo wp_json_encode( $zbsCustomerFields['status'][3] );
+								echo wp_json_encode( $zbsCustomerFields['status'][3] );
 							} else {
-							echo '[]';
+								echo '[]';
 							}
 							// phpcs:enable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 						?>
@@ -697,9 +697,9 @@ class zeroBSCRM_list {
 						// hardcoded customer perms atm
 						$possible_owners = zeroBS_getPossibleOwners( array( 'zerobs_admin', 'zerobs_customermgr' ), true );
 						if ( ! is_array( $possible_owners ) ) {
-						echo wp_json_encode( array() );
+							echo wp_json_encode( array() );
 						} else {
-						echo wp_json_encode( $possible_owners );
+							echo wp_json_encode( $possible_owners );
 						}
 
 					?>
