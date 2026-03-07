@@ -20,6 +20,15 @@ use WorDBless\BaseTestCase;
 class Dashboard_Test extends BaseTestCase {
 
 	/**
+	 * Clean up after each test.
+	 */
+	public function tear_down() {
+		$this->reset_wp_build_polyfills();
+		unset( $_GET['page'] );
+		parent::tear_down();
+	}
+
+	/**
 	 * Test get_forms_admin_url without tab parameter
 	 */
 	public function test_get_forms_admin_url_without_tab() {
@@ -169,9 +178,6 @@ class Dashboard_Test extends BaseTestCase {
 			$this->assertArrayHasKey( $handle, $value, "Polyfill handle '$handle' should be registered." );
 			$this->assertContains( 'jetpack-forms', $value[ $handle ], "Consumer 'jetpack-forms' should be registered for '$handle'." );
 		}
-
-		$this->reset_wp_build_polyfills();
-		unset( $_GET['page'] );
 	}
 
 	/**
@@ -190,9 +196,6 @@ class Dashboard_Test extends BaseTestCase {
 		$value = $requested->getValue();
 
 		$this->assertEmpty( $value, 'No polyfills should be registered when on a different page.' );
-
-		$this->reset_wp_build_polyfills();
-		unset( $_GET['page'] );
 	}
 
 	/**
@@ -211,8 +214,6 @@ class Dashboard_Test extends BaseTestCase {
 		$value = $requested->getValue();
 
 		$this->assertEmpty( $value, 'No polyfills should be registered when no page is set.' );
-
-		$this->reset_wp_build_polyfills();
 	}
 
 	/**

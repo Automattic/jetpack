@@ -18,3 +18,4 @@ phpunit.*.xml.dist  production-exclude
 .phpcs.dir.xml    production-exclude
 tests/**          production-exclude
 .phpcsignore      production-exclude
+preserve-dynamic-imports-loader.js  production-exclude
