@@ -6,7 +6,7 @@
  * "Cannot find module". This is because webpack can't statically determine what
  * module will be loaded at runtime.
  *
- * For packages like `@wordpress`/boot that rely on the browser's import map to
+ * For packages like `@wordpress/boot` that rely on the browser's import map to
  * resolve module IDs at runtime, these dynamic imports must be preserved as
  * native `import()` calls. This loader adds `webpackIgnore: true` magic comments
  * to such imports, telling webpack to leave them as-is.

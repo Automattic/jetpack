@@ -2,7 +2,7 @@
 /**
  * Polyfill registration for Core packages not available in WordPress < 7.0.
  *
- * Conditionally registers wp-private-apis, wp-theme (classic scripts) and
+ * Conditionally registers wp-notices, wp-private-apis, wp-theme (classic scripts) and
  * `@wordpress/boot`, `@wordpress/route`, `@wordpress/a11y` (script modules)
  * ONLY when they are not already provided by Core or Gutenberg.
  *
