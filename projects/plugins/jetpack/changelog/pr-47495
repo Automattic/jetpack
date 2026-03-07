@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Performance: Add early-return guard conditions to Gravatar Hovercards, Likes, Subscribe Floating Button, Subscribe Overlay, Milestone Widget, WooCommerce Analytics, and WordAds modules to skip loading scripts and styles on pages where they are not needed.
