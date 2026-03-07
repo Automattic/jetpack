@@ -12,7 +12,7 @@
  * to such imports, telling webpack to leave them as-is.
  *
  * Only import() calls with variable arguments are affected. String-literal
- * imports like `import("`@wordpress`/a11y")` are left untouched so that webpack's
+ * imports like `import("@wordpress/a11y")` are left untouched so that webpack's
  * externals plugin can handle them normally. Dynamic imports with leading
  * comments (e.g. `import(/* webpackChunkName: ... *\/ variable)`) are also
  * handled correctly.
@@ -20,8 +20,28 @@
  * @return {string} - The processed source code.
  */
 module.exports = function preserveDynamicImports( source ) {
-	return source.replace(
-		/\bimport\(\s*(?!(?:\/\/[^\n]*\n|\/\*[\s\S]*?\*\/|\s)*['"`])/g,
-		'import(/* webpackIgnore: true */ '
-	);
+	return source.replace( /\bimport\(/g, ( match, offset ) => {
+		// Scan past whitespace and comments to find the first meaningful character.
+		let i = offset + match.length;
+		while ( i < source.length ) {
+			if ( source[ i ] === '/' && source[ i + 1 ] === '*' ) {
+				const end = source.indexOf( '*/', i + 2 );
+				i = end === -1 ? source.length : end + 2;
+			} else if ( source[ i ] === '/' && source[ i + 1 ] === '/' ) {
+				const end = source.indexOf( '\n', i + 2 );
+				i = end === -1 ? source.length : end + 1;
+			} else if ( /\s/.test( source[ i ] ) ) {
+				i++;
+			} else {
+				break;
+			}
+		}
+
+		// String-literal imports are left for webpack's externals plugin.
+		if ( i < source.length && /['"`]/.test( source[ i ] ) ) {
+			return match;
+		}
+
+		return 'import(/* webpackIgnore: true */ ';
+	} );
 };
