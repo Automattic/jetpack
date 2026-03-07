@@ -160,6 +160,11 @@ class Jetpack_Likes {
 	 * Load scripts and styles for front end.
 	 */
 	public function load_styles_register_scripts() {
+		// Likes are only rendered on singular views and the blog home/front page.
+		if ( ! is_singular() && ! is_home() && ! is_front_page() ) {
+			return;
+		}
+
 		$style_url = Assets::get_file_url_for_environment(
 			'_inc/build/likes/style.min.css',
 			'modules/likes/style.css'

@@ -112,6 +112,11 @@ class Jetpack_WooCommerce_Analytics {
 	 * Place script to call s.js, Store Analytics.
 	 */
 	public function enqueue_tracking_script() {
+		// No store activity to track on 404 pages.
+		if ( is_404() ) {
+			return;
+		}
+
 		$url = sprintf(
 			'https://stats.wp.com/s-%d.js',
 			gmdate( 'YW' )

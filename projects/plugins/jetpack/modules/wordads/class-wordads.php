@@ -328,6 +328,11 @@ class WordAds {
 	 * @since 4.5.0
 	 */
 	public function enqueue_scripts() {
+		// Ads are never shown on 404 or search results pages.
+		if ( is_404() || is_search() ) {
+			return;
+		}
+
 		wp_enqueue_style(
 			'wordads',
 			WORDADS_URL . 'css/style.css',
