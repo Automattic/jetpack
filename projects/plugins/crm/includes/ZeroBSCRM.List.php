@@ -395,15 +395,15 @@ class zeroBSCRM_list {
 					$doc_links      = array(
 						'transaction' => array(
 							'url'  => 'https://kb.jetpackcrm.com/knowledge-base/how-do-i-create-a-transaction/',
-							'text' => __( 'Learn more about <a href="%1$s">how to create a transaction</a>.', 'zero-bs-crm' ),
+							'text' => __( 'Learn more about <a href="%1$s" target="_blank">how to create a transaction</a>.', 'zero-bs-crm' ),
 						),
 						'invoice'     => array(
 							'url'  => 'https://kb.jetpackcrm.com/knowledge-base/how-to-use-the-invoice-builder/',
-							'text' => __( 'Learn more about <a href="%1$s">how to create an invoice</a>.', 'zero-bs-crm' ),
+							'text' => __( 'Learn more about <a href="%1$s" target="_blank">how to create an invoice</a>.', 'zero-bs-crm' ),
 						),
 						'quote'       => array(
 							'url'  => 'https://kb.jetpackcrm.com/knowledge-base/how-do-i-create-a-quote/',
-							'text' => __( 'Learn more about <a href="%1$s">how to create a quote</a>.', 'zero-bs-crm' ),
+							'text' => __( 'Learn more about <a href="%1$s" target="_blank">how to create a quote</a>.', 'zero-bs-crm' ),
 						),
 					);
 					// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
