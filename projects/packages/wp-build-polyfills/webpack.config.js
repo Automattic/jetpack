@@ -263,6 +263,7 @@ class PolyfillModulePlugin {
 				{
 					name: 'PolyfillModulePlugin',
 					stage: webpack.Compilation.PROCESS_ASSETS_STAGE_ANALYSE,
+					additionalAssets: true,
 				},
 				() => {
 					for ( const [ , entrypoint ] of compilation.entrypoints ) {
