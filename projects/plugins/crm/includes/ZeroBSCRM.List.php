@@ -658,12 +658,12 @@ class zeroBSCRM_list {
 				// make simplified
 				$simple_tags = array();
 				if ( is_array( $tags ) && count( $tags ) > 0 ) {
-				foreach ( $tags as $t ) {
-					$simple_tags[] = array(
-						'id'   => $t['id'],
-						'name' => $t['name'],
-						'slug' => $t['slug'],
-					);
+					foreach ( $tags as $t ) {
+						$simple_tags[] = array(
+							'id'   => $t['id'],
+							'name' => $t['name'],
+							'slug' => $t['slug'],
+						);
 					}
 				}
 
