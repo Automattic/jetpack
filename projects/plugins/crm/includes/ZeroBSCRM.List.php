@@ -392,12 +392,24 @@ class zeroBSCRM_list {
 					echo zeroBSCRM_UI2_messageHTML( 'warning hidden', sprintf( __( 'Error updating columns %s', 'zero-bs-crm' ), $this->plural ), __( 'There has been a problem saving your column configuration. If this issue persists, please contact support.', 'zero-bs-crm' ), 'disabled warning sign', 'zbsCantSaveCols' );
 					echo zeroBSCRM_UI2_messageHTML( 'warning hidden', sprintf( __( 'Error updating columns %s', 'zero-bs-crm' ), $this->plural ), __( 'There has been a problem saving your filter button configuration. If this issue persists, please contact support.', 'zero-bs-crm' ), 'disabled warning sign', 'zbsCantSaveButtons' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 					$no_results_msg = sprintf( __( 'There are no %1$s here. Do you want to <a href="%2$s">create one</a>?', 'zero-bs-crm' ), $this->plural, jpcrm_esc_link( 'create', -1, $this->postType ) );
-					if ( $this->objType === 'transaction' ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-						$no_results_msg .= ' ' . sprintf( __( 'Learn more about <a href="%1$s">how to create a transaction</a>.', 'zero-bs-crm' ), esc_url( 'https://kb.jetpackcrm.com/knowledge-base/how-do-i-create-a-transaction/' ) );
-					} elseif ( $this->objType === 'invoice' ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-						$no_results_msg .= ' ' . sprintf( __( 'Learn more about <a href="%1$s">how to create an invoice</a>.', 'zero-bs-crm' ), esc_url( 'https://kb.jetpackcrm.com/knowledge-base/how-to-use-the-invoice-builder/' ) );
-					} elseif ( $this->objType === 'quote' ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-						$no_results_msg .= ' ' . sprintf( __( 'Learn more about <a href="%1$s">how to create a quote</a>.', 'zero-bs-crm' ), esc_url( 'https://kb.jetpackcrm.com/knowledge-base/how-do-i-create-a-quote/' ) );
+					$doc_links      = array(
+						'transaction' => array(
+							'url'  => 'https://kb.jetpackcrm.com/knowledge-base/how-do-i-create-a-transaction/',
+							'text' => __( 'Learn more about <a href="%1$s">how to create a transaction</a>.', 'zero-bs-crm' ),
+						),
+						'invoice'     => array(
+							'url'  => 'https://kb.jetpackcrm.com/knowledge-base/how-to-use-the-invoice-builder/',
+							'text' => __( 'Learn more about <a href="%1$s">how to create an invoice</a>.', 'zero-bs-crm' ),
+						),
+						'quote'       => array(
+							'url'  => 'https://kb.jetpackcrm.com/knowledge-base/how-do-i-create-a-quote/',
+							'text' => __( 'Learn more about <a href="%1$s">how to create a quote</a>.', 'zero-bs-crm' ),
+						),
+					);
+					// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+					if ( isset( $doc_links[ $this->objType ] ) ) {
+						$link            = $doc_links[ $this->objType ];
+						$no_results_msg .= ' ' . sprintf( $link['text'], esc_url( $link['url'] ) );
 					}
 					echo zeroBSCRM_UI2_messageHTML( 'info hidden', sprintf( __( 'No %s Found', 'zero-bs-crm' ), $this->plural ), $no_results_msg, 'disabled warning sign', 'zbsNoResults' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 					// any additional messages?
