@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Charts: Fix Legend position prop in the composition API so that legends render in the correct top or bottom slot.

@@ -1,4 +1,4 @@
-Significance: patch
-Type: fixed
+Significance: minor
+Type: changed
 
-Charts: Fix Legend position prop in the composition API so that legends render in the correct top or bottom slot.
+Charts: Fix Legend position prop in the composition API so that legends render in the correct top or bottom slot. Remove useHasLegendChild hook from @automattic/charts/hooks (charts now derive legend presence from useChartChildren).
