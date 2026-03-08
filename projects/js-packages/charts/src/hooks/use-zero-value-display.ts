@@ -21,9 +21,9 @@ export interface UseZeroValueDisplayOptions {
 
 /**
  * Minimum pixel size for near-zero bars (non-zero values that would render too small).
- * Using 2px to be visible but not misleading - larger values might look like actual data.
+ * Using 3px to be visible but not misleading - larger values might look like actual data.
  */
-const MIN_PIXEL_SIZE = 2;
+const MIN_PIXEL_SIZE = 3;
 
 /**
  * Pixel size for zero-value bars (1px less than near-zero to be visually distinguishable).
