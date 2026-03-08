@@ -1001,8 +1001,8 @@ importers:
         specifier: 5.0.2
         version: 5.0.2(rollup@3.30.0)
       '@rollup/plugin-terser':
-        specifier: 0.4.3
-        version: 0.4.3(rollup@3.30.0)
+        specifier: 1.0.0
+        version: 1.0.0(rollup@3.30.0)
       '@rollup/plugin-typescript':
         specifier: 12.1.0
         version: 12.1.0(rollup@3.30.0)(tslib@2.8.1)(typescript@5.9.3)
@@ -4767,8 +4767,8 @@ importers:
         specifier: 15.3.0
         version: 15.3.0(rollup@3.30.0)
       '@rollup/plugin-terser':
-        specifier: 0.4.3
-        version: 0.4.3(rollup@3.30.0)
+        specifier: 1.0.0
+        version: 1.0.0(rollup@3.30.0)
       '@rollup/plugin-typescript':
         specifier: 12.1.0
         version: 12.1.0(rollup@3.30.0)(tslib@2.8.1)(typescript@5.9.3)
@@ -9045,11 +9045,11 @@ packages:
       rollup:
         optional: true
 
-  '@rollup/plugin-terser@0.4.3':
-    resolution: {integrity: sha512-EF0oejTMtkyhrkwCdg0HJ0IpkcaVg1MMSf2olHb2Jp+1mnLM04OhjpJWGma4HobiDTF0WCyViWuvadyE9ch2XA==}
-    engines: {node: '>=14.0.0'}
+  '@rollup/plugin-terser@1.0.0':
+    resolution: {integrity: sha512-FnCxhTBx6bMOYQrar6C8h3scPt8/JwIzw3+AJ2K++6guogH5fYaIFia+zZuhqv0eo1RN7W1Pz630SyvLbDjhtQ==}
+    engines: {node: '>=20.0.0'}
     peerDependencies:
-      rollup: ^2.x || ^3.x
+      rollup: ^2.0.0||^3.0.0||^4.0.0
     peerDependenciesMeta:
       rollup:
         optional: true
@@ -16649,6 +16649,10 @@ packages:
   serialize-javascript@6.0.2:
     resolution: {integrity: sha512-Saa1xPByTTq2gdeFZYLLo+RFE35NHZkAbqZeWNd3BpzppeVisAqpDjcp8dyf6uIvEqJRd46jemmyA4iFIeVk8g==}
 
+  serialize-javascript@7.0.4:
+    resolution: {integrity: sha512-DuGdB+Po43Q5Jxwpzt1lhyFSYKryqoNjQSA9M92tyw0lyHIOur+XCalOUe0KTJpyqzT8+fQ5A0Jf7vCx/NKmIg==}
+    engines: {node: '>=20.0.0'}
+
   seroval-plugins@1.5.0:
     resolution: {integrity: sha512-EAHqADIQondwRZIdeW2I636zgsODzoBDwb3PT/+7TLDWyw1Dy/Xv7iGUIEXXav7usHDE9HVhOU61irI3EnyyHA==}
     engines: {node: '>=10'}
@@ -21911,9 +21915,9 @@ snapshots:
     optionalDependencies:
       rollup: 3.30.0
 
-  '@rollup/plugin-terser@0.4.3(rollup@3.30.0)':
+  '@rollup/plugin-terser@1.0.0(rollup@3.30.0)':
     dependencies:
-      serialize-javascript: 6.0.2
+      serialize-javascript: 7.0.4
       smob: 1.5.0
       terser: 5.46.0
     optionalDependencies:
@@ -32912,6 +32916,8 @@ snapshots:
   serialize-javascript@6.0.2:
     dependencies:
       randombytes: 2.1.0
+
+  serialize-javascript@7.0.4: {}
 
   seroval-plugins@1.5.0(seroval@1.5.0):
     dependencies:
