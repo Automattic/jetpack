@@ -73,13 +73,19 @@ export const useZeroValueDisplay = (
 					};
 				}
 
-				const absValue = Math.abs( point.value ?? 0 );
+				// Null values should remain untouched
+				if ( point.value === null ) {
+					return point;
+				}
+
+				const absValue = Math.abs( point.value );
 
 				// Near-zero values that would render below MIN_PIXEL_SIZE get boosted to 3px
+				// Preserve the sign for negative values
 				if ( absValue < minNonZeroValue ) {
 					return {
 						...point,
-						visualValue: minNonZeroValue,
+						visualValue: Math.sign( point.value ) * minNonZeroValue,
 					};
 				}
 
