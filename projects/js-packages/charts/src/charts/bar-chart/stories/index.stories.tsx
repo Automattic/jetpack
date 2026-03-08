@@ -407,14 +407,14 @@ export const ZeroValueComparison: StoryObj< typeof BarChart > = {
 			</div>
 		</div>
 	),
+	args: {
+		containerHeight: '1600px', // Extra height to demonstrate zero-value bars in small chart height scenario
+	},
 	parameters: {
 		docs: {
 			description: {
 				story:
 					'Comparison showing the difference between disabled and enabled zero value display modes. The feature preserves data integrity by keeping the original value for tooltips while providing visual feedback through minimum bar heights. Zero-value bars remain visible even in small chart heights.',
-			},
-			story: {
-				height: '1600px',
 			},
 		},
 	},
