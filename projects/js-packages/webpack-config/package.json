@@ -41,7 +41,7 @@
 		"browserslist": "4.28.1",
 		"core-js": "3.38.1",
 		"css-loader": "6.11.0",
-		"css-minimizer-webpack-plugin": "7.0.3",
+		"css-minimizer-webpack-plugin": "8.0.0",
 		"fork-ts-checker-webpack-plugin": "9.0.2",
 		"mini-css-extract-plugin": "2.9.4",
 		"react-refresh": "0.17.0",
