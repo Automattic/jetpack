@@ -45,7 +45,7 @@
 		"fork-ts-checker-webpack-plugin": "9.0.2",
 		"mini-css-extract-plugin": "2.9.4",
 		"react-refresh": "0.17.0",
-		"terser-webpack-plugin": "5.3.14",
+		"terser-webpack-plugin": "5.3.17",
 		"thread-loader": "4.0.4"
 	},
 	"devDependencies": {
