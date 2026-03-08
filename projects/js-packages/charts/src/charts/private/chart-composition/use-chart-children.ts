@@ -1,11 +1,11 @@
 import { Group } from '@visx/group';
 import { useMemo, Children, isValidElement } from 'react';
-import { Legend } from '../../../components/legend';
+import { Legend, type LegendProps } from '../../../components/legend';
 import type { ReactElement, ReactNode } from 'react';
 
 export type LegendChild = {
 	element: ReactElement;
-	position: 'top' | 'bottom';
+	position: NonNullable< LegendProps[ 'position' ] >;
 };
 
 interface ChartChildren {
@@ -35,7 +35,9 @@ export function useChartChildren( children: ReactNode, chartType: string ): Char
 			if ( isValidElement( child ) ) {
 				// Extract Legend children for position-based slot rendering
 				if ( child.type === Legend ) {
-					const position = ( child.props?.position ?? 'bottom' ) as 'top' | 'bottom';
+					const position = ( child.props?.position ?? 'bottom' ) as NonNullable<
+						LegendProps[ 'position' ]
+					>;
 					legend.push( { element: child as ReactElement, position } );
 					return;
 				}
