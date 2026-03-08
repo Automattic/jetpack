@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Charts: Fix zero-value bars not visible in small chart heights by ensuring minimum pixel-based value.

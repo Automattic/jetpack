@@ -389,13 +389,32 @@ export const ZeroValueComparison: StoryObj< typeof BarChart > = {
 					/>
 				</div>
 			</div>
+
+			<div>
+				<h3>Small Chart Height (100px)</h3>
+				<p style={ { marginBottom: '20px', color: '#666' } }>
+					Zero-value bars remain visible even in small charts. The minimum pixel height ensures bars
+					are at least 2 pixels tall regardless of chart dimensions.
+				</p>
+				<div style={ { width: '600px', height: '100px', border: '1px solid #e0e0e0' } }>
+					<BarChart
+						data={ dataWithZeroValues }
+						showZeroValues={ true }
+						withTooltips={ true }
+						gridVisibility="x"
+					/>
+				</div>
+			</div>
 		</div>
 	),
+	args: {
+		containerHeight: '1600px', // Extra height to demonstrate zero-value bars in small chart height scenario
+	},
 	parameters: {
 		docs: {
 			description: {
 				story:
-					'Comparison showing the difference between disabled and enabled zero value display modes. The feature preserves data integrity by keeping the original value for tooltips while providing visual feedback through minimum bar heights.',
+					'Comparison showing the difference between disabled and enabled zero value display modes. The feature preserves data integrity by keeping the original value for tooltips while providing visual feedback through minimum bar heights. Zero-value bars remain visible even in small chart heights.',
 			},
 		},
 	},
