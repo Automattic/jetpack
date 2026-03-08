@@ -52,7 +52,7 @@
 		"@types/react-dom": "18.3.7",
 		"@typescript/native-preview": "7.0.0-dev.20260225.1",
 		"chart.js": "4.5.0",
-		"copy-webpack-plugin": "13.0.1",
+		"copy-webpack-plugin": "14.0.0",
 		"css-loader": "6.11.0",
 		"daterangepicker": "3.1.0",
 		"font-awesome": "4.7.0",

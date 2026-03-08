@@ -78,7 +78,7 @@
 		"@wordpress/ui": "0.7.0",
 		"@wordpress/url": "4.40.0",
 		"clsx": "2.1.1",
-		"copy-webpack-plugin": "13.0.1",
+		"copy-webpack-plugin": "14.0.0",
 		"debug": "4.4.3",
 		"email-validator": "2.0.4",
 		"gridicons": "3.4.2",
