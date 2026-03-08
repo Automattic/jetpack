@@ -152,12 +152,12 @@ jobs:
             PLUGINS="$(jq -r '.artifacts[] | select( .name == "plugins.tsv" )' <<<"$JSON")"
 
             # 2026-03-02: Temporarily look for both old and new artifacts.
-            if jq -e '.artifacts | map( select( .name == "jetpack-build.tar.xz" ) )' <<<"$JSON" &>/dev/null; then
+            if jq -e '.artifacts[] | select( .name == "jetpack-build.tar.xz" )' <<<"$JSON" &>/dev/null; then
               ARTIFACT_NAME=jetpack-build.tar.xz
               ARTIFACT_FILENAME=jetpack-build.tar.xz
               break
             fi
-            if jq -e '.artifacts | map( select( .name == "jetpack-build" ) )' <<<"$JSON" &>/dev/null; then
+            if jq -e '.artifacts[] | select( .name == "jetpack-build" )' <<<"$JSON" &>/dev/null; then
               ARTIFACT_NAME=jetpack-build
               ARTIFACT_FILENAME=build.tar.xz
               break
