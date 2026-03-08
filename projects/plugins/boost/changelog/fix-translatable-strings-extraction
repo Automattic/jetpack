@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+I18N: Fix translatable strings extraction
