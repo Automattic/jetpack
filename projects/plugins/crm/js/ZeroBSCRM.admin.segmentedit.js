@@ -426,7 +426,7 @@ function zeroBSCRMJS_segment_buildConditionCascadesForEle( ele ) {
 			// add in as a 'disabled' option (so saving doesn't remove it, but user can remove it/not edit it)
 			html +=
 				'<input type="text" disabled="disabled" class="zbs-segment-edit-var-condition-operator segment-condition-errored" value="' +
-				original_value +
+				jpcrm.esc_attr( original_value ) +
 				'" />';
 		}
 
