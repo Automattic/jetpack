@@ -5,7 +5,7 @@ import { useTooltip, useTooltipInPortal } from '@visx/tooltip';
 import { __ } from '@wordpress/i18n';
 import { Stack } from '@wordpress/ui';
 import clsx from 'clsx';
-import { useCallback, useContext, useMemo, Fragment } from 'react';
+import { useCallback, useContext, useMemo } from 'react';
 import { Legend, useChartLegendItems } from '../../components/legend';
 import { BaseTooltip } from '../../components/tooltip';
 import { useElementSize, useInteractiveLegendData, usePrefersReducedMotion } from '../../hooks';
@@ -17,7 +17,12 @@ import {
 	GlobalChartsContext,
 } from '../../providers';
 import { attachSubComponents } from '../../utils';
-import { ChartSVG, ChartHTML, useChartChildren } from '../private/chart-composition';
+import {
+	ChartSVG,
+	ChartHTML,
+	useChartChildren,
+	renderLegendSlot,
+} from '../private/chart-composition';
 import { RadialWipeAnimation } from '../private/radial-wipe-animation';
 import { SingleChartContext } from '../private/single-chart-context';
 import { withResponsive } from '../private/with-responsive';
@@ -387,11 +392,7 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 				data-testid="pie-chart-container"
 			>
 				{ legendPosition === 'top' && legendElement }
-				{ legendChildren
-					.filter( l => l.position === 'top' )
-					.map( ( l, i ) => (
-						<Fragment key={ `legend-top-${ i }` }>{ l.element }</Fragment>
-					) ) }
+				{ renderLegendSlot( legendChildren, 'top' ) }
 
 				<div ref={ svgWrapperRef } className={ styles[ 'pie-semi-circle-chart__svg-wrapper' ] }>
 					<svg
@@ -489,11 +490,7 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 				</div>
 
 				{ legendPosition !== 'top' && legendElement }
-				{ legendChildren
-					.filter( l => l.position === 'bottom' )
-					.map( ( l, i ) => (
-						<Fragment key={ `legend-bottom-${ i }` }>{ l.element }</Fragment>
-					) ) }
+				{ renderLegendSlot( legendChildren, 'bottom' ) }
 
 				{ withTooltips && tooltipOpen && tooltipData && (
 					<TooltipInPortal top={ tooltipTop || 0 } left={ tooltipLeft || 0 }>

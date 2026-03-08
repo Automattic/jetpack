@@ -16,7 +16,7 @@ import {
 	useGlobalChartsTheme,
 } from '../../providers';
 import { formatMetricValue, attachSubComponents } from '../../utils';
-import { useChartChildren } from '../private/chart-composition';
+import { useChartChildren, renderLegendSlot } from '../private/chart-composition';
 import { SingleChartContext } from '../private/single-chart-context';
 import { withResponsive } from '../private/with-responsive';
 import { useLeaderboardLegendItems } from './hooks';
@@ -276,21 +276,13 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 						height: propHeight || undefined,
 					} }
 				>
-					{ legendChildren
-						.filter( l => l.position === 'top' )
-						.map( ( l, i ) => (
-							<Fragment key={ `legend-top-${ i }` }>{ l.element }</Fragment>
-						) ) }
+					{ renderLegendSlot( legendChildren, 'top' ) }
 					<div className={ styles.emptyState }>
 						{ loading
 							? __( 'Loading…', 'jetpack-charts' )
 							: __( 'No data available', 'jetpack-charts' ) }
 					</div>
-					{ legendChildren
-						.filter( l => l.position === 'bottom' )
-						.map( ( l, i ) => (
-							<Fragment key={ `legend-bottom-${ i }` }>{ l.element }</Fragment>
-						) ) }
+					{ renderLegendSlot( legendChildren, 'bottom' ) }
 					{ /* Render children from composition API */ }
 					{ otherChildren }
 				</Stack>
@@ -337,11 +329,7 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 				} }
 			>
 				{ legendPosition === 'top' && legendElement }
-				{ legendChildren
-					.filter( l => l.position === 'top' )
-					.map( ( l, i ) => (
-						<Fragment key={ `legend-top-${ i }` }>{ l.element }</Fragment>
-					) ) }
+				{ renderLegendSlot( legendChildren, 'top' ) }
 
 				<div className={ styles.leaderboardChart__content }>
 					{ allSeriesHidden ? (
@@ -392,11 +380,7 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 				</div>
 
 				{ legendPosition === 'bottom' && legendElement }
-				{ legendChildren
-					.filter( l => l.position === 'bottom' )
-					.map( ( l, i ) => (
-						<Fragment key={ `legend-bottom-${ i }` }>{ l.element }</Fragment>
-					) ) }
+				{ renderLegendSlot( legendChildren, 'bottom' ) }
 
 				{ /* Render children from composition API */ }
 				{ otherChildren }

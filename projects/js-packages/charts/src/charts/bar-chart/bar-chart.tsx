@@ -4,7 +4,7 @@ import { Axis, BarSeries, BarGroup, Grid, XYChart } from '@visx/xychart';
 import { __ } from '@wordpress/i18n';
 import { Stack } from '@wordpress/ui';
 import clsx from 'clsx';
-import { useCallback, useContext, useState, useRef, useMemo, Fragment } from 'react';
+import { useCallback, useContext, useState, useRef, useMemo } from 'react';
 import { Legend, useChartLegendItems } from '../../components/legend';
 import { AccessibleTooltip, useKeyboardNavigation } from '../../components/tooltip';
 import {
@@ -24,7 +24,7 @@ import {
 	GlobalChartsContext,
 } from '../../providers';
 import { attachSubComponents } from '../../utils';
-import { useChartChildren } from '../private/chart-composition';
+import { useChartChildren, renderLegendSlot } from '../private/chart-composition';
 import { SingleChartContext } from '../private/single-chart-context';
 import { withResponsive } from '../private/with-responsive';
 import styles from './bar-chart.module.scss';
@@ -369,11 +369,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 				data-chart-id={ `bar-chart-${ chartId }` }
 			>
 				{ legendPosition === 'top' && legendElement }
-				{ legendChildren
-					.filter( l => l.position === 'top' )
-					.map( ( l, i ) => (
-						<Fragment key={ `legend-top-${ i }` }>{ l.element }</Fragment>
-					) ) }
+				{ renderLegendSlot( legendChildren, 'top' ) }
 
 				<div
 					className={ styles[ 'bar-chart__svg-wrapper' ] }
@@ -487,11 +483,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 				</div>
 
 				{ legendPosition === 'bottom' && legendElement }
-				{ legendChildren
-					.filter( l => l.position === 'bottom' )
-					.map( ( l, i ) => (
-						<Fragment key={ `legend-bottom-${ i }` }>{ l.element }</Fragment>
-					) ) }
+				{ renderLegendSlot( legendChildren, 'bottom' ) }
 
 				{ otherChildren }
 			</Stack>
