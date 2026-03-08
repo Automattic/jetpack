@@ -141,7 +141,6 @@
 		"@babel/preset-env": "7.29.0",
 		"@babel/runtime": "7.28.6",
 		"@csstools/postcss-global-data": "4.0.0",
-		"@svgr/webpack": "8.1.0",
 		"@testing-library/dom": "10.4.1",
 		"@testing-library/react": "16.3.0",
 		"@testing-library/user-event": "14.6.1",
