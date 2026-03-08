@@ -48,7 +48,7 @@
 		"@rollup/plugin-json": "6.1.0",
 		"@rollup/plugin-node-resolve": "15.3.0",
 		"@rollup/plugin-replace": "5.0.2",
-		"@rollup/plugin-terser": "0.4.3",
+		"@rollup/plugin-terser": "1.0.0",
 		"@rollup/plugin-typescript": "12.1.0",
 		"@typescript/native-preview": "7.0.0-dev.20260225.1",
 		"concurrently": "9.2.1",
