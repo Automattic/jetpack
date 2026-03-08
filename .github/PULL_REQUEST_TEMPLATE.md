@@ -5,7 +5,7 @@ Fixes #
 * 
 
 ## Related product discussion/links
-<!-- If you're an Automattician, include a shortlink to the P2 and/or Slack discussions here. -->
+<!-- If you're an Automattician, include a shortlink to the P2, Slack, and/or Linear discussions here. -->
 * 
 
 ## Does this pull request change what data or activity we track or use?
