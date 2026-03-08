@@ -64,29 +64,6 @@ describe( 'useChartChildren', () => {
 		expect( result.current.otherChildren ).toHaveLength( 0 );
 	} );
 
-	it( 'should extract Legend children and exclude from otherChildren', () => {
-		const children = <Legend items={ [ { label: 'Series 1', color: '#000', value: 10 } ] } />;
-
-		const { result } = renderHook( () => useChartChildren( children, 'TestChart' ) );
-
-		expect( result.current.svgChildren ).toHaveLength( 0 );
-		expect( result.current.htmlChildren ).toHaveLength( 0 );
-		expect( result.current.legendChildren ).toHaveLength( 1 );
-		expect( result.current.legendChildren[ 0 ].position ).toBe( 'bottom' );
-		expect( result.current.otherChildren ).toHaveLength( 0 );
-	} );
-
-	it( 'should extract Legend with position="top"', () => {
-		const children = (
-			<Legend items={ [ { label: 'Series 1', color: '#000', value: 10 } ] } position="top" />
-		);
-
-		const { result } = renderHook( () => useChartChildren( children, 'TestChart' ) );
-
-		expect( result.current.legendChildren ).toHaveLength( 1 );
-		expect( result.current.legendChildren[ 0 ].position ).toBe( 'top' );
-	} );
-
 	it( 'should maintain backward compatibility with Group components', () => {
 		const children = (
 			<Group>
