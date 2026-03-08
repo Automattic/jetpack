@@ -9,6 +9,7 @@ use Automattic\Jetpack\Extensions\ImageStudio;
 use PHPUnit\Framework\Attributes\DataProvider;
 
 require_once JETPACK__PLUGIN_DIR . '/extensions/plugins/image-studio/image-studio.php';
+require_once JETPACK__PLUGIN_DIR . '/extensions/plugins/ai-assistant-plugin/ai-assistant-plugin.php';
 
 /**
  * Image Studio extension tests.
@@ -59,6 +60,7 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 		$GLOBALS['wp_scripts']  = new WP_Scripts();
 		$GLOBALS['wp_styles']   = new WP_Styles();
 		$this->reset_availability();
+		$this->simulate_connected_owner();
 		unset( $_GET['enable_image_studio'] );
 		$this->saved_screen = $GLOBALS['current_screen'] ?? null;
 	}
@@ -73,6 +75,8 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 		remove_all_filters( 'agents_manager_agent_providers' );
 		remove_all_filters( 'pre_http_request' );
 		remove_all_filters( 'locale' );
+		remove_all_filters( 'jetpack_ai_enabled' );
+		( new \Automattic\Jetpack\Connection\Manager( 'jetpack' ) )->reset_connection_status();
 		unset( $_GET['enable_image_studio'] );
 		$GLOBALS['current_screen'] = $this->saved_screen;
 		$GLOBALS['wp_scripts']     = $this->saved_wp_scripts;
@@ -91,10 +95,30 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	}
 
 	/**
+	 * Simulate a connected Jetpack owner so has_ai_features() returns true.
+	 *
+	 * Called in set_up() so every test starts with AI features available.
+	 * Tests that need AI features off should use disable_ai_features() instead.
+	 */
+	private function simulate_connected_owner() {
+		$user_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
+		\Jetpack_Options::update_option( 'master_user', $user_id );
+		\Jetpack_Options::update_option( 'user_tokens', array( $user_id => 'token.secret.' . $user_id ) );
+		( new \Automattic\Jetpack\Connection\Manager( 'jetpack' ) )->reset_connection_status();
+	}
+
+	/**
 	 * Enable Image Studio via jetpack_image_studio_enabled filter.
 	 */
 	private function enable_image_studio() {
 		add_filter( 'jetpack_image_studio_enabled', '__return_true' );
+	}
+
+	/**
+	 * Disable AI features via the jetpack_ai_enabled kill switch.
+	 */
+	private function disable_ai_features() {
+		add_filter( 'jetpack_ai_enabled', '__return_false' );
 	}
 
 	/**
@@ -224,11 +248,30 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	}
 
 	// -------------------------------------------------------------------------
+	// has_ai_features() tests
+	// -------------------------------------------------------------------------
+
+	/**
+	 * AI features available by default in the test environment.
+	 */
+	public function test_has_ai_features_true_by_default() {
+		$this->assertTrue( ImageStudio\has_ai_features() );
+	}
+
+	/**
+	 * AI features disabled via jetpack_ai_enabled kill switch.
+	 */
+	public function test_has_ai_features_false_when_ai_disabled() {
+		$this->disable_ai_features();
+		$this->assertFalse( ImageStudio\has_ai_features() );
+	}
+
+	// -------------------------------------------------------------------------
 	// is_image_studio_enabled() tests
 	// -------------------------------------------------------------------------
 
 	/**
-	 * Test is_image_studio_enabled returns true when jetpack_image_studio_enabled is true.
+	 * Enabled when jetpack_image_studio_enabled filter is true and AI features exist.
 	 */
 	public function test_is_enabled_via_jetpack_filter() {
 		$this->enable_image_studio();
@@ -236,7 +279,7 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Test is_image_studio_enabled returns true when unified experience is true.
+	 * Enabled when unified experience is true and AI features exist.
 	 */
 	public function test_is_enabled_via_unified_experience() {
 		$this->enable_unified_experience();
@@ -244,19 +287,52 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Test is_image_studio_enabled returns false when both filters are false.
+	 * Not enabled when neither filter is set.
 	 */
 	public function test_is_not_enabled_when_both_filters_false() {
 		$this->assertFalse( ImageStudio\is_image_studio_enabled() );
 	}
 
 	/**
-	 * Test is_image_studio_enabled returns true when both filters are true.
+	 * Enabled when both filters are true.
 	 */
 	public function test_is_enabled_when_both_filters_true() {
 		$this->enable_image_studio();
 		$this->enable_unified_experience();
 		$this->assertTrue( ImageStudio\is_image_studio_enabled() );
+	}
+
+	/**
+	 * AI features alone aren't enough; a filter must also be set.
+	 */
+	public function test_is_not_enabled_with_ai_features_but_no_filter() {
+		$this->assertFalse( ImageStudio\is_image_studio_enabled() );
+	}
+
+	/**
+	 * Enabled via filter with AI features available.
+	 */
+	public function test_is_enabled_via_filter_with_ai_features() {
+		add_filter( 'jetpack_image_studio_enabled', '__return_true' );
+		$this->assertTrue( ImageStudio\is_image_studio_enabled() );
+	}
+
+	/**
+	 * Unified experience alone isn't enough; AI features must also exist.
+	 */
+	public function test_is_not_enabled_via_unified_experience_without_ai_features() {
+		$this->enable_unified_experience();
+		$this->disable_ai_features();
+		$this->assertFalse( ImageStudio\is_image_studio_enabled() );
+	}
+
+	/**
+	 * Filter alone isn't enough; AI features must also exist.
+	 */
+	public function test_is_not_enabled_via_filter_without_ai_features() {
+		add_filter( 'jetpack_image_studio_enabled', '__return_true' );
+		$this->disable_ai_features();
+		$this->assertFalse( ImageStudio\is_image_studio_enabled() );
 	}
 
 	// -------------------------------------------------------------------------
@@ -852,10 +928,11 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	// -------------------------------------------------------------------------
 
 	/**
-	 * Test AI image extensions are disabled when Image Studio is enabled.
+	 * Test AI image extensions are disabled when Image Studio is available.
 	 */
-	public function test_ai_extensions_disabled_when_enabled() {
+	public function test_ai_extensions_disabled_when_available() {
 		$this->enable_image_studio();
+		ImageStudio\register_plugin();
 		$this->make_ai_extensions_available();
 		$this->set_block_editor_screen();
 
@@ -864,7 +941,7 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 		foreach ( self::get_ai_image_extensions() as $ext ) {
 			$this->assertFalse(
 				\Jetpack_Gutenberg::is_available( $ext ),
-				"Extension $ext should be unavailable when Image Studio is enabled."
+				"Extension $ext should be unavailable when Image Studio is available."
 			);
 		}
 	}
@@ -874,6 +951,7 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	 */
 	public function test_ai_extensions_disabled_when_unified_experience() {
 		$this->enable_unified_experience();
+		ImageStudio\register_plugin();
 		$this->make_ai_extensions_available();
 		$this->set_block_editor_screen();
 
@@ -888,10 +966,11 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Test AI image extensions are NOT disabled when Image Studio is disabled.
+	 * Test AI image extensions are NOT disabled when Image Studio is not available.
 	 */
-	public function test_ai_extensions_not_disabled_when_disabled() {
+	public function test_ai_extensions_not_disabled_when_not_available() {
 		$this->disable_image_studio();
+		ImageStudio\register_plugin();
 		$this->make_ai_extensions_available();
 
 		ImageStudio\disable_jetpack_ai_image_extensions();
@@ -913,6 +992,7 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	 */
 	public function test_ai_extensions_disabled_on_block_editor() {
 		$this->enable_image_studio();
+		ImageStudio\register_plugin();
 		$this->make_ai_extensions_available();
 
 		$this->set_block_editor_screen();
@@ -931,6 +1011,7 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	 */
 	public function test_ai_extensions_disabled_on_media_library() {
 		$this->enable_image_studio();
+		ImageStudio\register_plugin();
 		$this->make_ai_extensions_available();
 
 		$this->set_media_library_screen();
@@ -945,40 +1026,45 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Test AI extensions are NOT disabled on non-editor, non-media screen.
+	 * Test AI extensions ARE disabled on dashboard when Image Studio is available.
+	 *
+	 * Since the screen guard was removed, AI extensions are disabled globally
+	 * when Image Studio is available, regardless of screen.
 	 */
-	public function test_ai_extensions_not_disabled_on_dashboard() {
+	public function test_ai_extensions_disabled_on_dashboard() {
 		$this->enable_image_studio();
+		ImageStudio\register_plugin();
 		$this->make_ai_extensions_available();
 
 		set_current_screen( 'dashboard' );
 		ImageStudio\disable_jetpack_ai_image_extensions();
 
 		foreach ( self::get_ai_image_extensions() as $ext ) {
-			$this->assertTrue(
+			$this->assertFalse(
 				\Jetpack_Gutenberg::is_available( $ext ),
-				"Extension $ext should stay available on dashboard."
+				"Extension $ext should be disabled on dashboard when Image Studio is available."
 			);
 		}
 	}
 
 	/**
-	 * Test AI extensions remain available when no screen is available.
+	 * Test AI extensions ARE disabled when no screen is available.
 	 *
-	 * When get_current_screen() is not available (early in module load),
-	 * Image Studio won't load either, so AI extensions remain available.
+	 * Since the screen guard was removed, AI extensions are disabled globally
+	 * when Image Studio is available, regardless of screen availability.
 	 */
-	public function test_ai_extensions_not_disabled_when_no_screen() {
+	public function test_ai_extensions_disabled_when_no_screen() {
 		$this->enable_image_studio();
+		ImageStudio\register_plugin();
 		$this->make_ai_extensions_available();
 
 		$GLOBALS['current_screen'] = null;
 		ImageStudio\disable_jetpack_ai_image_extensions();
 
 		foreach ( self::get_ai_image_extensions() as $ext ) {
-			$this->assertTrue(
+			$this->assertFalse(
 				\Jetpack_Gutenberg::is_available( $ext ),
-				"Extension $ext should remain available when no screen is available (Image Studio won't load)."
+				"Extension $ext should be disabled when no screen is available."
 			);
 		}
 	}
@@ -1202,112 +1288,6 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	}
 
 	// -------------------------------------------------------------------------
-	// Headless agent loading tests
-	// -------------------------------------------------------------------------
-
-	/**
-	 * Test that agents_manager_agent_providers includes Image Studio provider
-	 * when jetpack_image_studio_enabled is true.
-	 */
-	public function test_agent_providers_includes_image_studio_when_enabled() {
-		$this->enable_image_studio();
-
-		$providers = ImageStudio\register_headless_agent_provider( array() );
-
-		$this->assertContains( ImageStudio\HEADLESS_AGENT_PROVIDER, $providers );
-	}
-
-	/**
-	 * Test that agents_manager_agent_providers does NOT include Image Studio
-	 * provider when jetpack_image_studio_enabled is false.
-	 */
-	public function test_agent_providers_excludes_image_studio_when_disabled() {
-		$this->disable_image_studio();
-
-		$providers = ImageStudio\register_headless_agent_provider( array() );
-
-		$this->assertNotContains( ImageStudio\HEADLESS_AGENT_PROVIDER, $providers );
-	}
-
-	/**
-	 * Test that agents_manager_agent_providers does NOT include Image Studio
-	 * provider when no filter is set (default false).
-	 */
-	public function test_agent_providers_excludes_image_studio_by_default() {
-		$providers = ImageStudio\register_headless_agent_provider( array() );
-
-		$this->assertNotContains( ImageStudio\HEADLESS_AGENT_PROVIDER, $providers );
-	}
-
-	/**
-	 * Test that register_headless_agent_provider preserves existing providers.
-	 */
-	public function test_agent_providers_preserves_existing_providers() {
-		$this->enable_image_studio();
-
-		$existing  = array( 'some-other/provider' );
-		$providers = ImageStudio\register_headless_agent_provider( $existing );
-
-		$this->assertContains( 'some-other/provider', $providers );
-		$this->assertContains( ImageStudio\HEADLESS_AGENT_PROVIDER, $providers );
-	}
-
-	/**
-	 * Test that enable_agents_manager_for_image_studio returns true
-	 * when jetpack_image_studio_enabled is true.
-	 */
-	public function test_enable_agents_manager_returns_true_when_image_studio_enabled() {
-		$this->enable_image_studio();
-
-		$result = ImageStudio\enable_agents_manager_for_image_studio( false );
-
-		$this->assertTrue( $result );
-	}
-
-	/**
-	 * Test that enable_agents_manager_for_image_studio returns false
-	 * when jetpack_image_studio_enabled is false and input is false.
-	 */
-	public function test_enable_agents_manager_returns_false_when_image_studio_disabled() {
-		$this->disable_image_studio();
-
-		$result = ImageStudio\enable_agents_manager_for_image_studio( false );
-
-		$this->assertFalse( $result );
-	}
-
-	/**
-	 * Test that enable_agents_manager_for_image_studio does not override
-	 * when agents_manager_use_unified_experience is already true.
-	 */
-	public function test_enable_agents_manager_preserves_existing_true() {
-		// Even without image studio enabled, if already true, stay true.
-		$result = ImageStudio\enable_agents_manager_for_image_studio( true );
-
-		$this->assertTrue( $result );
-	}
-
-	/**
-	 * Test that enable_agents_manager_for_image_studio preserves true
-	 * when both unified experience and image studio are enabled (no double-registration).
-	 */
-	public function test_enable_agents_manager_no_double_registration() {
-		$this->enable_image_studio();
-
-		// Already true — should return early without re-evaluating jetpack_image_studio_enabled.
-		$result = ImageStudio\enable_agents_manager_for_image_studio( true );
-
-		$this->assertTrue( $result );
-	}
-
-	/**
-	 * Test HEADLESS_AGENT_PROVIDER constant value.
-	 */
-	public function test_headless_agent_provider_constant() {
-		$this->assertEquals( 'image-studio/headless-agent-provider', ImageStudio\HEADLESS_AGENT_PROVIDER );
-	}
-
-	// -------------------------------------------------------------------------
 	// determine_iso_639_locale() tests
 	// -------------------------------------------------------------------------
 
@@ -1411,6 +1391,188 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	}
 
 	// -------------------------------------------------------------------------
+	// add_image_studio_row_action() tests
+	// -------------------------------------------------------------------------
+
+	/**
+	 * Create a mock attachment post with a given MIME type.
+	 *
+	 * @param string $mime_type The MIME type for the attachment.
+	 * @return \WP_Post
+	 */
+	private function create_attachment_post( $mime_type = 'image/jpeg' ) {
+		$attachment_id = self::factory()->attachment->create(
+			array(
+				'post_mime_type' => $mime_type,
+				'post_type'      => 'attachment',
+			)
+		);
+		return get_post( $attachment_id );
+	}
+
+	/**
+	 * Test row action is added for supported JPEG image.
+	 */
+	public function test_row_action_added_for_jpeg() {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
+		$post    = $this->create_attachment_post( 'image/jpeg' );
+		$actions = ImageStudio\add_image_studio_row_action( array( 'edit' => '<a>Edit</a>' ), $post );
+
+		$this->assertArrayHasKey( 'edit-with-ai', $actions );
+		$this->assertStringContainsString( 'Edit with AI', $actions['edit-with-ai'] );
+		$this->assertStringContainsString( 'big-sky-image-studio-link', $actions['edit-with-ai'] );
+		$this->assertStringContainsString( 'data-attachment-id="' . $post->ID . '"', $actions['edit-with-ai'] );
+	}
+
+	/**
+	 * Test row action is added for supported PNG image.
+	 */
+	public function test_row_action_added_for_png() {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
+		$post    = $this->create_attachment_post( 'image/png' );
+		$actions = ImageStudio\add_image_studio_row_action( array( 'edit' => '<a>Edit</a>' ), $post );
+
+		$this->assertArrayHasKey( 'edit-with-ai', $actions );
+	}
+
+	/**
+	 * Test row action is added for supported WebP image.
+	 */
+	public function test_row_action_added_for_webp() {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
+		$post    = $this->create_attachment_post( 'image/webp' );
+		$actions = ImageStudio\add_image_studio_row_action( array( 'edit' => '<a>Edit</a>' ), $post );
+
+		$this->assertArrayHasKey( 'edit-with-ai', $actions );
+	}
+
+	/**
+	 * Test row action is added for supported JPG image.
+	 */
+	public function test_row_action_added_for_jpg() {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
+		$post    = $this->create_attachment_post( 'image/jpg' );
+		$actions = ImageStudio\add_image_studio_row_action( array( 'edit' => '<a>Edit</a>' ), $post );
+
+		$this->assertArrayHasKey( 'edit-with-ai', $actions );
+	}
+
+	/**
+	 * Test row action is added for supported BMP image.
+	 */
+	public function test_row_action_added_for_bmp() {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
+		$post    = $this->create_attachment_post( 'image/bmp' );
+		$actions = ImageStudio\add_image_studio_row_action( array( 'edit' => '<a>Edit</a>' ), $post );
+
+		$this->assertArrayHasKey( 'edit-with-ai', $actions );
+	}
+
+	/**
+	 * Test row action is added for supported TIFF image.
+	 */
+	public function test_row_action_added_for_tiff() {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
+		$post    = $this->create_attachment_post( 'image/tiff' );
+		$actions = ImageStudio\add_image_studio_row_action( array( 'edit' => '<a>Edit</a>' ), $post );
+
+		$this->assertArrayHasKey( 'edit-with-ai', $actions );
+	}
+
+	/**
+	 * Test row action is NOT added for unsupported MIME type (PDF).
+	 */
+	public function test_row_action_not_added_for_pdf() {
+		$post    = $this->create_attachment_post( 'application/pdf' );
+		$actions = ImageStudio\add_image_studio_row_action( array( 'edit' => '<a>Edit</a>' ), $post );
+
+		$this->assertArrayNotHasKey( 'edit-with-ai', $actions );
+	}
+
+	/**
+	 * Test row action is NOT added for unsupported MIME type (video).
+	 */
+	public function test_row_action_not_added_for_video() {
+		$post    = $this->create_attachment_post( 'video/mp4' );
+		$actions = ImageStudio\add_image_studio_row_action( array( 'edit' => '<a>Edit</a>' ), $post );
+
+		$this->assertArrayNotHasKey( 'edit-with-ai', $actions );
+	}
+
+	/**
+	 * Test row action is inserted before the 'edit' action.
+	 */
+	public function test_row_action_inserted_before_edit() {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
+		$post    = $this->create_attachment_post( 'image/jpeg' );
+		$actions = ImageStudio\add_image_studio_row_action(
+			array(
+				'trash' => '<a>Trash</a>',
+				'edit'  => '<a>Edit</a>',
+				'view'  => '<a>View</a>',
+			),
+			$post
+		);
+
+		$keys = array_keys( $actions );
+		$this->assertSame( array( 'trash', 'edit-with-ai', 'edit', 'view' ), $keys );
+	}
+
+	/**
+	 * Test row action is appended when 'edit' action is not present.
+	 */
+	public function test_row_action_appended_when_no_edit_action() {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
+		$post    = $this->create_attachment_post( 'image/jpeg' );
+		$actions = ImageStudio\add_image_studio_row_action(
+			array(
+				'trash' => '<a>Trash</a>',
+				'view'  => '<a>View</a>',
+			),
+			$post
+		);
+
+		$keys = array_keys( $actions );
+		$this->assertSame( array( 'trash', 'view', 'edit-with-ai' ), $keys );
+	}
+
+	/**
+	 * Test row action preserves all existing actions.
+	 */
+	public function test_row_action_preserves_existing_actions() {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
+		$post    = $this->create_attachment_post( 'image/jpeg' );
+		$actions = ImageStudio\add_image_studio_row_action(
+			array(
+				'edit'  => '<a>Edit</a>',
+				'trash' => '<a>Trash</a>',
+			),
+			$post
+		);
+
+		$this->assertArrayHasKey( 'edit', $actions );
+		$this->assertArrayHasKey( 'trash', $actions );
+		$this->assertArrayHasKey( 'edit-with-ai', $actions );
+	}
+
+	/**
+	 * Test row action is not added when user cannot edit the attachment.
+	 */
+	public function test_row_action_not_added_without_edit_permission() {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'subscriber' ) ) );
+
+		$post             = $this->create_attachment_post( 'image/jpeg' );
+		$original_actions = array(
+			'trash' => '<a>Trash</a>',
+		);
+
+		$actions = ImageStudio\add_image_studio_row_action( $original_actions, $post );
+
+		$this->assertSame( $original_actions, $actions );
+		$this->assertArrayNotHasKey( 'edit-with-ai', $actions );
+	}
+
+	// -------------------------------------------------------------------------
 	// Constants tests
 	// -------------------------------------------------------------------------
 
@@ -1459,5 +1621,29 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	 */
 	public function test_asset_transient_constant() {
 		$this->assertEquals( 'jetpack_image_studio_asset', ImageStudio\ASSET_TRANSIENT );
+	}
+
+	// -------------------------------------------------------------------------
+	// Hook priority tests
+	// -------------------------------------------------------------------------
+
+	/**
+	 * Disable_jetpack_ai_image_extensions must run after AI extensions register.
+	 */
+	public function test_disable_ai_extensions_priority_after_ai_assistant() {
+		$hook = 'jetpack_register_gutenberg_extensions';
+
+		$jp_ai_priority   = has_action(
+			$hook,
+			'Automattic\Jetpack\Extensions\AiAssistantPlugin\register_plugin'
+		);
+		$disable_priority = has_action(
+			$hook,
+			'Automattic\Jetpack\Extensions\ImageStudio\disable_jetpack_ai_image_extensions'
+		);
+
+		$this->assertNotFalse( $jp_ai_priority, 'AI Assistant register_plugin should be hooked.' );
+		$this->assertNotFalse( $disable_priority, 'disable_jetpack_ai_image_extensions should be hooked.' );
+		$this->assertGreaterThan( $jp_ai_priority, $disable_priority );
 	}
 }

@@ -11,7 +11,6 @@ use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Modules;
-use Automattic\Jetpack\Paths;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
@@ -22,7 +21,7 @@ use Jetpack_Tracks_Client;
  */
 class Settings {
 
-	const PACKAGE_VERSION = '0.5.0';
+	const PACKAGE_VERSION = '0.5.2';
 	/**
 	 * Whether the class has been initialized
 	 *
@@ -66,6 +65,26 @@ class Settings {
 	}
 
 	/**
+	 * Determine whether to show the Newsletter menu item.
+	 * When true, shown regardless of subscriptions module state.
+	 *
+	 * @return bool
+	 */
+	private function should_show_menu_item() {
+		/**
+		 * Filter to control Newsletter menu item visibility.
+		 * Defaults to true.
+		 *
+		 * @since $$next-version$$
+		 * @param bool $show Whether to show the menu item.
+		 */
+		return apply_filters(
+			'jetpack_show_newsletter_menu_item',
+			true
+		);
+	}
+
+	/**
 	 * Subscribe to necessary hooks.
 	 */
 	public function init_hooks() {
@@ -78,6 +97,15 @@ class Settings {
 		if ( ! $this->expose_to_users() ) {
 			return;
 		}
+
+		// Hijack the config URLs to point to our settings page.
+		// Customize the configuration URL to lead to the Subscriptions settings.
+		add_filter(
+			'jetpack_module_configuration_url_subscriptions',
+			function () {
+				return Urls::get_newsletter_settings_url( ( new Status() )->get_site_suffix() );
+			}
+		);
 
 		$host = new Host();
 
@@ -92,15 +120,6 @@ class Settings {
 		// Use priority 999 to ensure menu items are queued BEFORE Admin_Menu::admin_menu_hook_callback
 		// runs at priority 1000 to process all queued items.
 		add_action( 'admin_menu', array( $this, 'add_wp_admin_menu' ), 999 );
-
-		// Hijack the config URLs to point to our settings page.
-		// Customize the configuration URL to lead to the Subscriptions settings.
-		add_filter(
-			'jetpack_module_configuration_url_subscriptions',
-			function () {
-				return ( new Paths() )->admin_url( array( 'page' => 'jetpack-newsletter' ) );
-			}
-		);
 	}
 
 	/**
@@ -109,23 +128,22 @@ class Settings {
 	 * Note: This method is NOT called on wpcom Simple sites. Simple sites use
 	 * add_wp_admin_submenu() called from wpcom-admin-menu.php instead.
 	 *
-	 * Menu visibility rules:
-	 * - wpcom Atomic: Show under 'jetpack' if module active, hidden if inactive.
-	 * - Standalone Jetpack: Show under 'jetpack' if module active, hidden if inactive.
+	 * Menu visibility is controlled by the jetpack_show_newsletter_menu_item filter
+	 * (defaults to true). Set to false to hide the menu while keeping page accessible.
 	 */
 	public function add_wp_admin_menu() {
 		if ( ! $this->expose_to_users() ) {
 			return;
 		}
 
-		$host             = new Host();
-		$is_module_active = $this->is_subscriptions_active();
+		$host = new Host();
 
-		// Show in Jetpack menu if module active, hidden page if inactive.
-		$parent_slug = $is_module_active ? 'jetpack' : '';
+		// When new settings are enabled, should_show_menu_item() controls visibility.
+		$show_menu   = $this->should_show_menu_item();
+		$parent_slug = $show_menu ? 'jetpack' : '';
 
-		// On Atomic, use add_submenu_page. On standalone Jetpack, use Admin_Menu when active.
-		$use_jetpack_menu = ! $host->is_woa_site() && $is_module_active;
+		// On Atomic, use add_submenu_page. On standalone Jetpack, use Admin_Menu when showing in menu.
+		$use_jetpack_menu = ! $host->is_woa_site() && $show_menu;
 
 		// Register menu item.
 		if ( $use_jetpack_menu ) {
@@ -168,8 +186,9 @@ class Settings {
 			return;
 		}
 
+		$parent_slug = $this->should_show_menu_item() ? 'jetpack' : '';
 		$page_suffix = add_submenu_page(
-			'jetpack',
+			$parent_slug,
 			/** "Newsletter" is a product name, do not translate. */
 			'Newsletter',
 			'Newsletter',
@@ -300,7 +319,7 @@ class Settings {
 	 * Register a notice on the Reading settings page to clarify that the RSS
 	 * excerpt setting does not control newsletter emails.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.5.1
 	 */
 	public function add_reading_page_notice() {
 		add_settings_field(
@@ -318,18 +337,10 @@ class Settings {
 	 * Uses JavaScript to relocate the notice next to the "For each post in a feed"
 	 * (rss_use_excerpt) setting.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.5.1
 	 */
 	public function render_reading_page_notice() {
-		/*
-		 * Filter the settings page URL so it points to the correct settings page
-		 * regardless of whether the new newsletter UI is enabled.
-		 */
-		/* This filter is already documented in projects/plugins/jetpack/class.jetpack.php */
-		$newsletter_url = apply_filters(
-			'jetpack_module_configuration_url_subscriptions',
-			admin_url( 'admin.php?page=jetpack#/newsletter' )
-		);
+		$newsletter_url = Urls::get_newsletter_settings_url( ( new Status() )->get_site_suffix() );
 
 		printf(
 			'<p class="description" id="jetpack-newsletter-reading-notice">%s</p>',

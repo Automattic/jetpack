@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Sync: Store last_item in status to improve Full Sync performance.

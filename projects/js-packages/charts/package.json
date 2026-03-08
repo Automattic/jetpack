@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/charts",
-	"version": "0.56.5",
+	"version": "0.56.7",
 	"description": "Display charts within Automattic products.",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/charts/#readme",
 	"bugs": {
@@ -196,7 +196,7 @@
 		"storybook": "cd ../storybook && pnpm run storybook:dev",
 		"test": "TZ=UTC jest --config=tests/jest.config.cjs",
 		"test-coverage": "pnpm run test --coverage",
-		"typecheck": "tsc --noEmit"
+		"typecheck": "tsgo --noEmit"
 	},
 	"dependencies": {
 		"@automattic/number-formatters": "workspace:*",
@@ -243,6 +243,7 @@
 		"@types/jest": "^30.0.0",
 		"@types/react": "18.3.28",
 		"@types/react-dom": "18.3.7",
+		"@typescript/native-preview": "7.0.0-dev.20260225.1",
 		"@visx/glyph": "3.12.0",
 		"@wordpress/components": "32.2.0",
 		"@wordpress/element": "6.40.0",
@@ -257,7 +258,7 @@
 		"postcss-modules": "6.0.1",
 		"react": "18.3.1",
 		"react-dom": "18.3.1",
-		"sass-embedded": "1.97.2",
+		"sass-embedded": "1.97.3",
 		"storybook": "10.2.11",
 		"tsup": "8.5.1",
 		"typescript": "5.9.3"

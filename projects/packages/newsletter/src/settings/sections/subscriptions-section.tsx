@@ -3,7 +3,15 @@
  */
 import analytics from '@automattic/jetpack-analytics';
 import { getSiteType } from '@automattic/jetpack-script-data';
-import { Button } from '@wordpress/components';
+import {
+	Button,
+	Card,
+	CardHeader,
+	CardBody,
+	CardFooter,
+	__experimentalText as Text, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+	__experimentalHeading as Heading, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+} from '@wordpress/components';
 import { DataForm, type Field } from '@wordpress/dataviews/wp';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -197,65 +205,68 @@ export function SubscriptionsSection( {
 	];
 
 	return (
-		<div className="newsletter-settings__section">
-			<h3 className="newsletter-settings__section-title">
-				{ __( 'Subscriptions', 'jetpack-newsletter' ) }
-			</h3>
-			<p className="newsletter-settings__section-description">
-				{ __(
-					'Automatically add subscription forms to your site and turn visitors into subscribers.',
-					'jetpack-newsletter'
-				) }
-			</p>
-			<fieldset className="newsletter-settings__section-content" disabled={ ! isNewsletterEnabled }>
-				<DataForm
-					data={ data }
-					fields={ fields }
-					form={ {
-						layout: {
-							type: 'regular',
-							labelPosition: 'top',
-						},
-						fields: [
-							{
-								id: 'homepage_and_posts',
-								label: __( 'Homepage and posts', 'jetpack-newsletter' ),
-								children: [
-									'jetpack_subscriptions_subscribe_post_end_enabled',
-									'sm_enabled',
-									'jetpack_subscribe_overlay_enabled',
-									'jetpack_subscribe_floating_button_enabled',
-								],
+		<Card>
+			<CardHeader>
+				<Heading level={ 4 }>{ __( 'Subscriptions', 'jetpack-newsletter' ) }</Heading>
+			</CardHeader>
+			<CardBody>
+				<p>
+					<Text>
+						{ __(
+							'Automatically add subscription forms to your site and turn visitors into subscribers.',
+							'jetpack-newsletter'
+						) }
+					</Text>
+				</p>
+				<fieldset disabled={ ! isNewsletterEnabled }>
+					<DataForm
+						data={ data }
+						fields={ fields }
+						form={ {
+							layout: {
+								type: 'regular',
+								labelPosition: 'top',
 							},
-							{
-								id: 'navigation',
-								label: __( 'Navigation', 'jetpack-newsletter' ),
-								children: [
-									'jetpack_subscriptions_subscribe_navigation_enabled',
-									'jetpack_subscriptions_login_navigation_enabled',
-								],
-							},
-							{
-								id: 'comments',
-								label: __( 'Comments', 'jetpack-newsletter' ),
-								children: [ 'stb_enabled', 'stc_enabled' ],
-							},
-						],
-					} }
-					onChange={ onChange }
-				/>
-
-				<div className="newsletter-settings__section-actions">
-					<Button
-						variant="primary"
-						onClick={ handleSave }
-						disabled={ ! isNewsletterEnabled || isSaving || ! hasChanges }
-						isBusy={ isSaving }
-					>
-						{ isSaving ? savingText : saveText }
-					</Button>
-				</div>
-			</fieldset>
-		</div>
+							fields: [
+								{
+									id: 'homepage_and_posts',
+									label: __( 'Homepage and posts', 'jetpack-newsletter' ),
+									children: [
+										'jetpack_subscriptions_subscribe_post_end_enabled',
+										'sm_enabled',
+										'jetpack_subscribe_overlay_enabled',
+										'jetpack_subscribe_floating_button_enabled',
+									],
+								},
+								{
+									id: 'navigation',
+									label: __( 'Navigation', 'jetpack-newsletter' ),
+									children: [
+										'jetpack_subscriptions_subscribe_navigation_enabled',
+										'jetpack_subscriptions_login_navigation_enabled',
+									],
+								},
+								{
+									id: 'comments',
+									label: __( 'Comments', 'jetpack-newsletter' ),
+									children: [ 'stb_enabled', 'stc_enabled' ],
+								},
+							],
+						} }
+						onChange={ onChange }
+					/>
+				</fieldset>
+			</CardBody>
+			<CardFooter>
+				<Button
+					variant="primary"
+					onClick={ handleSave }
+					disabled={ ! isNewsletterEnabled || isSaving || ! hasChanges }
+					isBusy={ isSaving }
+				>
+					{ isSaving ? savingText : saveText }
+				</Button>
+			</CardFooter>
+		</Card>
 	);
 }

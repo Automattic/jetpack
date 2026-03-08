@@ -74,7 +74,7 @@ const pieChartData: DataPointPercentage[] = [
 ];
 
 // Basic standalone legends
-export const Horizontal: Story = {
+export const Default: Story = {
 	render: args => {
 		// eslint-disable-next-line @typescript-eslint/no-unused-vars
 		const { themeName, accentColor, ...legendProps } = args;
@@ -86,7 +86,6 @@ export const Horizontal: Story = {
 			{ label: 'Desktop', value: '65%', color: '#3858E9' },
 			{ label: 'Mobile', value: '35%', color: '#80C8FF' },
 		],
-		orientation: 'horizontal',
 	},
 };
 
@@ -172,6 +171,22 @@ export const StandaloneLegendWithChartId: Story = {
 	render: () => <StandaloneLegendWithChartIdComponent />,
 };
 
+const InteractiveLegendComponent = () => (
+	<LineChart
+		chartId="interactive-legend-demo"
+		data={ lineChartData }
+		showLegend={ true }
+		width={ 600 }
+		height={ 300 }
+		withGradientFill={ false }
+		withLegendGlyph={ false }
+		legendInteractive={ true }
+	/>
+);
+export const InteractiveLegend: Story = {
+	render: () => <InteractiveLegendComponent />,
+};
+
 // Story showing a real-world dashboard layout with centralized legends
 const DashboardWithCentralizedLegend = () => {
 	return (
@@ -193,28 +208,49 @@ const DashboardWithCentralizedLegend = () => {
 						chartId="dashboard-revenue"
 						data={ lineChartData }
 						showLegend={ false }
-						width={ 600 }
-						height={ 200 }
+						height={ 300 }
 						withGradientFill={ false }
 						withLegendGlyph={ false }
 					/>
 				</div>
 
-				<div style={ { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' } }>
-					<div style={ { backgroundColor: 'white', padding: '20px', borderRadius: '4px' } }>
+				<div
+					style={ {
+						display: 'grid',
+						gridTemplateColumns: '1fr 1fr',
+						gap: '20px',
+					} }
+				>
+					<div
+						style={ {
+							backgroundColor: 'white',
+							padding: '20px',
+							borderRadius: '4px',
+						} }
+					>
 						<h3 style={ { margin: '0 0 20px 0' } }>Sales by Quarter</h3>
 						<BarChart
 							chartId="dashboard-sales"
 							data={ barChartData }
 							showLegend={ false }
-							width={ 280 }
-							height={ 200 }
+							height={ 300 }
 						/>
 					</div>
 
-					<div style={ { backgroundColor: 'white', padding: '20px', borderRadius: '4px' } }>
+					<div
+						style={ {
+							backgroundColor: 'white',
+							padding: '20px',
+							borderRadius: '4px',
+						} }
+					>
 						<h3 style={ { margin: '0 0 20px 0' } }>Device Distribution</h3>
-						<PieChart chartId="dashboard-devices" data={ pieChartData } showLegend={ false } />
+						<PieChart
+							chartId="dashboard-devices"
+							data={ pieChartData }
+							showLegend={ false }
+							height={ 300 }
+						/>
 					</div>
 				</div>
 			</div>
@@ -290,7 +326,9 @@ export const AlignmentOptions: Story = {
 export const TextOverflow: Story = {
 	render: args => {
 		// eslint-disable-next-line @typescript-eslint/no-unused-vars
-		const { themeName, maxWidth, ...restProps } = args;
+		const { themeName, accentColor, ...legendProps } = args;
+		const maxWidth = args.labelStyles?.maxWidth;
+		const textOverflow = args.labelStyles?.textOverflow;
 		const containerStyle =
 			args.orientation === 'horizontal'
 				? { width: '600px', border: '1px solid #ddd', padding: '20px' }
@@ -298,14 +336,14 @@ export const TextOverflow: Story = {
 
 		const titleText = maxWidth
 			? `Legend with ${
-					args.textOverflow === 'ellipsis' ? 'Ellipsis' : 'Text Wrapping'
+					textOverflow === 'ellipsis' ? 'Ellipsis' : 'Text Wrapping'
 			  } (maxWidth: ${ maxWidth })`
 			: 'Legend without maxWidth constraint';
 
 		return (
 			<div style={ containerStyle }>
 				<h4 style={ { marginBottom: '10px' } }>{ titleText }</h4>
-				<Legend { ...restProps } maxWidth={ maxWidth } />
+				<Legend { ...legendProps } />
 			</div>
 		);
 	},
@@ -325,8 +363,7 @@ export const TextOverflow: Story = {
 			{ label: 'Medium Length Label Text', value: '25%', color: '#FFC107' },
 		],
 		orientation: 'horizontal',
-		maxWidth: 150,
-		textOverflow: 'wrap',
+		labelStyles: { maxWidth: '150px', textOverflow: 'wrap' },
 		position: 'bottom',
 		alignment: 'center',
 	},
@@ -335,12 +372,8 @@ export const TextOverflow: Story = {
 			control: { type: 'radio' },
 			options: [ 'horizontal', 'vertical' ],
 		},
-		maxWidth: {
-			control: { type: 'range', min: 0, max: 300, step: 10 },
-		},
-		textOverflow: {
-			control: { type: 'radio' },
-			options: [ 'wrap', 'ellipsis' ],
+		labelStyles: {
+			control: 'object',
 		},
 		position: {
 			control: { type: 'radio' },

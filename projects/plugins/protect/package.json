@@ -18,7 +18,7 @@
 		"build-concurrently": "pnpm run clean && concurrently 'pnpm:build-client'",
 		"build-production-concurrently": "pnpm run clean && concurrently 'NODE_ENV=production BABEL_ENV=production pnpm run build-client' && pnpm run validate",
 		"clean": "rm -rf build/",
-		"typecheck": "tsc --noEmit",
+		"typecheck": "tsgo --noEmit",
 		"validate": "pnpm exec validate-es build/",
 		"watch": "pnpm run build && webpack watch"
 	},
@@ -55,11 +55,11 @@
 		"@babel/preset-env": "7.29.0",
 		"@babel/runtime": "7.28.6",
 		"@types/react": "18.3.28",
+		"@typescript/native-preview": "7.0.0-dev.20260225.1",
 		"@wordpress/browserslist-config": "6.40.0",
 		"concurrently": "9.2.1",
-		"sass-embedded": "1.97.2",
+		"sass-embedded": "1.97.3",
 		"sass-loader": "16.0.5",
-		"typescript": "5.9.3",
 		"webpack": "5.105.2",
 		"webpack-cli": "6.0.1"
 	}

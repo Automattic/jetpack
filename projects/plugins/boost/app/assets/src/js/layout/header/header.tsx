@@ -1,21 +1,25 @@
+import { JetpackLogo } from '@automattic/jetpack-components';
+import { Button } from '@wordpress/components';
+import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
-import type { ReactNode } from 'react';
 import styles from './header.module.scss';
 import { BackButton } from '$features/ui';
+import { isWoaHosting } from '$lib/utils/hosting';
 import ChevronRight from '$svg/chevron-right';
-import Logo from '$svg/logo';
 import { useNavigate } from 'react-router';
 
 type HeaderProps = {
 	subPageTitle?: string;
-	children?: ReactNode;
+	showActivateLicense?: boolean;
 };
 
-const Header = ( { subPageTitle = '', children }: HeaderProps ) => {
+const Header = ( { subPageTitle = '', showActivateLicense = true }: HeaderProps ) => {
 	const navigate = useNavigate();
+	const activateLicenseUrl = 'admin.php?page=my-jetpack#/add-license';
+
 	return (
 		<div className={ clsx( styles.header ) }>
-			<div className={ clsx( 'jb-container', styles.masthead ) }>
+			<div className={ clsx( styles.masthead ) }>
 				<div className={ clsx( styles[ 'nav-area' ] ) }>
 					<div
 						className={ clsx( styles.logo ) }
@@ -28,8 +32,11 @@ const Header = ( { subPageTitle = '', children }: HeaderProps ) => {
 						role="button"
 						tabIndex={ 0 }
 					>
-						<Logo />
+						<JetpackLogo showText={ false } height={ 20 } />
 					</div>
+					<h2 className={ clsx( styles.title ) }>
+						{ 'Boost' /** "Boost" is a product name, do not translate. */ }
+					</h2>
 
 					{ subPageTitle !== '' && (
 						<>
@@ -40,9 +47,18 @@ const Header = ( { subPageTitle = '', children }: HeaderProps ) => {
 						</>
 					) }
 				</div>
-
-				{ children }
+				{ showActivateLicense && ! isWoaHosting() && (
+					<Button variant="secondary" href={ activateLicenseUrl }>
+						{ __( 'Use license key', 'jetpack-boost' ) }
+					</Button>
+				) }
 			</div>
+
+			{ ! subPageTitle && (
+				<p className={ clsx( styles.subtitle ) }>
+					{ __( 'Optimize your site performance and loading speed.', 'jetpack-boost' ) }
+				</p>
+			) }
 
 			{ subPageTitle !== '' && (
 				<div className="jb-container">

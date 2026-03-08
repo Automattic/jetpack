@@ -10,6 +10,7 @@ import { store as coreStore } from '@wordpress/core-data';
 import { useDispatch, useRegistry, useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { useEffect, useState } from '@wordpress/element';
+import { decodeEntities } from '@wordpress/html-entities';
 import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
 import clsx from 'clsx';
@@ -180,7 +181,9 @@ export default function VariationPicker( { blockName, setAttributes, clientId, c
 						options={ [
 							{ label: __( 'Select a form…', 'jetpack-forms' ), value: '' },
 							...jetpackForms.map( form => ( {
-								label: form.title?.rendered || __( '(Untitled)', 'jetpack-forms' ),
+								label:
+									decodeEntities( form.title?.rendered || '' ) ||
+									__( '(Untitled)', 'jetpack-forms' ),
 								value: form.id.toString(),
 							} ) ),
 						] }

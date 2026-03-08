@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Add missing 'Trash' status label in stage component.

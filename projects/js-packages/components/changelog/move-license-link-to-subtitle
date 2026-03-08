@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Widen AdminPage subTitle prop type from string to ReactNode.

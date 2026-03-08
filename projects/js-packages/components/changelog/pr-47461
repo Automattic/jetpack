@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+AdminPage: Fix aria-label attribute by passing a string value to the Page component.

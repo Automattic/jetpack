@@ -78,7 +78,7 @@ const ConnectScreen: FC< Props > = ( {
 
 	const displayButtonError = Boolean( registrationError );
 	const buttonIsLoading = siteIsRegistering || userIsConnecting;
-	const errorCode = registrationError?.response?.code;
+	const errorCode = registrationError ? registrationError.response?.code : undefined;
 
 	return (
 		<ConnectScreenVisual

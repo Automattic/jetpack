@@ -1,4 +1,0 @@
-Significance: minor
-Type: enhancement
-
-Sync: Add clear-queue REST endpoint to allow clearing a Sync queue.

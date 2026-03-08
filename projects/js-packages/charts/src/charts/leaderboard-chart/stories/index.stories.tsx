@@ -1,3 +1,4 @@
+import { Stack } from '@wordpress/ui';
 import { defaultTheme, useGlobalChartsContext } from '../../../providers';
 import {
 	chartDecorator,
@@ -98,22 +99,13 @@ const meta: Meta< StoryArgs > = {
 				defaultValue: { summary: 'false' },
 			},
 		},
-		legendShapeWidth: {
-			control: 'number',
-			description: 'Width of legend shapes in pixels',
+		legendShapeStyles: {
+			control: 'object',
+			description: 'Styles for legend shapes (width, height, margin)',
 			table: {
 				category: 'Legend',
-				type: { summary: 'number' },
-				defaultValue: { summary: '8' },
-			},
-		},
-		legendShapeHeight: {
-			control: 'number',
-			description: 'Height of legend shapes in pixels',
-			table: {
-				category: 'Legend',
-				type: { summary: 'number' },
-				defaultValue: { summary: '8' },
+				type: { summary: '{ width?: number; height?: number; margin?: string | number }' },
+				defaultValue: { summary: '{ width: 8, height: 8 }' },
 			},
 		},
 		legendLabels: {
@@ -138,8 +130,6 @@ const meta: Meta< StoryArgs > = {
 		legendAlignment: 'center',
 		legendOrientation: 'horizontal',
 		legendShape: 'circle',
-		legendShapeWidth: 8,
-		legendShapeHeight: 8,
 		withOverlayLabel: false,
 	},
 	decorators: [ chartDecorator ],
@@ -154,6 +144,21 @@ export const Default: Story = {
 		data: sampleData,
 		withComparison: true,
 		loading: false,
+	},
+};
+
+export const FixedDimensions: Story = {
+	args: {
+		...Default.args,
+		width: 300,
+		height: 400,
+	},
+};
+
+export const AspectRatio: Story = {
+	args: {
+		...Default.args,
+		aspectRatio: 0.4,
 	},
 };
 
@@ -211,6 +216,21 @@ export const EmptyData: Story = {
 		withComparison: true,
 		loading: false,
 	},
+};
+
+export const EmptyDataWithChildren: Story = {
+	args: {
+		data: [],
+		withComparison: true,
+		loading: false,
+	},
+	render: args => (
+		<LeaderboardChart { ...args }>
+			<Stack direction="row" gap="xs" align="center" justify="center">
+				Child element
+			</Stack>
+		</LeaderboardChart>
+	),
 };
 
 export const LargeValues: Story = {
@@ -386,32 +406,9 @@ export const CustomLegendLabels: Story = {
 
 export const WithCompositionLegend: Story = {
 	render: args => (
-		<div
-			style={ {
-				display: 'grid',
-				gap: '2rem',
-				gridTemplateColumns: 'repeat(2, 1fr)',
-				alignItems: 'start',
-			} }
-		>
-			<div>
-				<h3 style={ { marginTop: 0, marginBottom: '1rem' } }>Traditional Props-based Legend</h3>
-				<LeaderboardChart { ...args } showLegend={ true } />
-			</div>
-			<div>
-				<h3 style={ { marginTop: 0, marginBottom: '1rem' } }>
-					Composition API with Legend Component
-				</h3>
-				<LeaderboardChart { ...args }>
-					<LeaderboardChart.Legend
-						shape="circle"
-						shapeWidth={ 8 }
-						shapeHeight={ 8 }
-						style={ { marginTop: '16px' } }
-					/>
-				</LeaderboardChart>
-			</div>
-		</div>
+		<LeaderboardChart { ...args }>
+			<LeaderboardChart.Legend shape="circle" shapeStyles={ { width: 8, height: 8 } } />
+		</LeaderboardChart>
 	),
 	args: {
 		data: sampleData,

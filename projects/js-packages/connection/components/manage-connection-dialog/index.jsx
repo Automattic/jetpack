@@ -15,7 +15,7 @@ import { useCallback, useEffect, useState, useMemo } from 'react';
 /**
  * Internal dependencies
  */
-import ConnectionErrorNotice from '../connection-error-notice/index.jsx';
+import ConnectionErrorNotice from '../connection-error-notice';
 import DisconnectDialog from '../disconnect-dialog';
 import OwnerDisconnectDialog from '../owner-disconnect-dialog';
 import './style.scss';

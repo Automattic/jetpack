@@ -33,7 +33,7 @@
 		"@babel/runtime": "7.28.6",
 		"@wordpress/browserslist-config": "6.40.0",
 		"concurrently": "9.2.1",
-		"sass-embedded": "1.97.2",
+		"sass-embedded": "1.97.3",
 		"sass-loader": "16.0.5",
 		"webpack": "5.105.2",
 		"webpack-cli": "6.0.1"

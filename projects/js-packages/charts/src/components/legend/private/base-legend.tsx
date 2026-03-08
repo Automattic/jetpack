@@ -69,30 +69,36 @@ export const BaseLegend: ForwardRefExoticComponent<
 			orientation = 'horizontal',
 			position = 'bottom',
 			alignment = 'center',
-			maxWidth,
-			textOverflow = 'wrap',
 			shape = 'rect',
 			fill = valueOrIdentityString,
 			size = valueOrIdentityString,
 			labelFormat = valueOrIdentity,
 			labelTransform = labelTransformFactory,
-			shapeWidth = 16,
-			shapeHeight = 16,
-			shapeMargin = '2px 4px 2px 0',
-			labelAlign = 'left',
-			labelFlex = '0 0 auto', // Use natural width instead of expanding to fill space
-			labelMargin = '0 4px',
-			itemMargin = '0',
-			itemDirection = 'row',
-			legendLabelProps,
-			legendItemClassName,
+			itemStyles,
+			itemClassName,
+			labelStyles,
+			labelClassName,
+			shapeStyles,
 			render,
 			interactive = false,
 			chartId,
-			...legendItemProps
 		},
 		ref
 	) => {
+		const { margin: itemMargin = '0', flexDirection: itemDirection = 'row' } = itemStyles ?? {};
+		const {
+			justifyContent: labelJustifyContent = 'flex-start',
+			flex: labelFlex = '0 0 auto',
+			margin: labelMargin = '0 4px',
+			maxWidth,
+			textOverflow = 'wrap',
+		} = labelStyles ?? {};
+		const {
+			width: shapeWidth = 16,
+			height: shapeHeight = 16,
+			margin: shapeMargin = '2px 4px 2px 0',
+		} = shapeStyles ?? {};
+
 		const theme = useGlobalChartsTheme();
 		const context = useContext( GlobalChartsContext );
 
@@ -176,13 +182,14 @@ export const BaseLegend: ForwardRefExoticComponent<
 						) }
 						style={ {
 							flexDirection: orientationToFlexDirection[ orientation ],
-							...theme.legendContainerStyles,
+							...theme.legend?.containerStyles,
 						} }
 					>
 						{ labels.map( ( label, i ) => {
 							const visible = isSeriesVisible( label.text );
 							const handleClick = createClickHandler( label.text );
 							const handleKeyDown = createKeyDownHandler( label.text );
+							const matchedItem = items[ i ];
 
 							return (
 								<LegendItem
@@ -191,7 +198,7 @@ export const BaseLegend: ForwardRefExoticComponent<
 										styles[ 'legend-item' ],
 										interactive && styles[ 'legend-item--interactive' ],
 										! visible && styles[ 'legend-item--inactive' ],
-										legendItemClassName
+										itemClassName
 									) }
 									data-testid="legend-item"
 									key={ `legend-${ label.text }-${ i }` }
@@ -211,7 +218,6 @@ export const BaseLegend: ForwardRefExoticComponent<
 											? `${ label.text }: ${ visible ? 'visible' : 'hidden' }. Toggle visibility.`
 											: undefined
 									}
-									{ ...legendItemProps }
 								>
 									{ items[ i ]?.renderGlyph ? (
 										<svg
@@ -246,24 +252,28 @@ export const BaseLegend: ForwardRefExoticComponent<
 										/>
 									) }
 									<LegendLabel
-										className={ clsx( 'visx-legend-label', styles[ 'legend-item-label' ] ) }
+										data-testid="legend-label"
+										className={ clsx(
+											'visx-legend-label',
+											styles[ 'legend-item-label' ],
+											labelClassName
+										) }
 										style={ {
-											justifyContent: labelAlign,
+											justifyContent: labelJustifyContent,
 											flex: labelFlex,
 											margin: labelMargin,
-											...theme.legendLabelStyles,
+											...theme.legend?.labelStyles,
 										} }
-										{ ...legendLabelProps }
 									>
 										<LegendText
 											text={ label.text }
 											textOverflow={ textOverflow }
 											maxWidth={ maxWidth }
 										/>
-										{ items.find( item => item.label === label.text )?.value && (
+										{ matchedItem?.value != null && matchedItem.value !== '' && (
 											<span className={ styles[ 'legend-item-value' ] }>
 												{ '\u00A0' }
-												{ items.find( item => item.label === label.text )?.value }
+												{ matchedItem.value }
 											</span>
 										) }
 									</LegendLabel>

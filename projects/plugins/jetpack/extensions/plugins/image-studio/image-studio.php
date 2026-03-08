@@ -7,32 +7,62 @@
 
 namespace Automattic\Jetpack\Extensions\ImageStudio;
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Status\Host;
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
 }
 
-const FEATURE_NAME            = 'image-studio';
-const ASSET_BASE_PATH         = 'widgets.wp.com/agents-manager/';
-const ASSET_JS_URL            = 'https://' . ASSET_BASE_PATH . 'image-studio.min.js';
-const ASSET_CSS_URL           = 'https://' . ASSET_BASE_PATH . 'image-studio.css';
-const ASSET_RTL_URL           = 'https://' . ASSET_BASE_PATH . 'image-studio.rtl.css';
-const ASSET_JSON_URL          = 'https://' . ASSET_BASE_PATH . 'image-studio.asset.json';
-const ASSET_JSON_PATH         = ASSET_BASE_PATH . 'image-studio.asset.json';
-const ASSET_TRANSLATIONS_URL  = 'https://' . ASSET_BASE_PATH . 'languages/';
-const ASSET_TRANSIENT         = 'jetpack_image_studio_asset';
-const HEADLESS_AGENT_PROVIDER = 'image-studio/headless-agent-provider';
+const FEATURE_NAME           = 'image-studio';
+const ASSET_BASE_PATH        = 'widgets.wp.com/agents-manager/';
+const ASSET_JS_URL           = 'https://' . ASSET_BASE_PATH . 'image-studio.min.js';
+const ASSET_CSS_URL          = 'https://' . ASSET_BASE_PATH . 'image-studio.css';
+const ASSET_RTL_URL          = 'https://' . ASSET_BASE_PATH . 'image-studio.rtl.css';
+const ASSET_JSON_URL         = 'https://' . ASSET_BASE_PATH . 'image-studio.asset.json';
+const ASSET_JSON_PATH        = ASSET_BASE_PATH . 'image-studio.asset.json';
+const ASSET_TRANSLATIONS_URL = 'https://' . ASSET_BASE_PATH . 'languages/';
+const ASSET_TRANSIENT        = 'jetpack_image_studio_asset';
 
 /**
  * Check if Image Studio is enabled.
  *
- * Returns true if either the unified chat experience or the
- * jetpack_image_studio_enabled filter is active.
+ * Requires AI features (Big Sky or AI Assistant) plus at least one of:
+ * - The unified chat experience (agents_manager_use_unified_experience).
+ * - The jetpack_image_studio_enabled filter.
  *
  * @return bool
  */
 function is_image_studio_enabled() {
+	if ( ! has_ai_features() ) {
+		return false;
+	}
+
 	return apply_filters( 'agents_manager_use_unified_experience', false )
 		|| apply_filters( 'jetpack_image_studio_enabled', false );
+}
+
+/**
+ * Check whether AI features are available.
+ *
+ * - wpcom simple: always available.
+ * - Atomic: requires Big Sky or AI Assistant feature flags.
+ * - Self-hosted: requires a connected owner with AI not disabled
+ *   (same conditions the AI Assistant plugin uses to register).
+ *
+ * @return bool
+ */
+function has_ai_features() {
+	$host = new Host();
+
+	if ( $host->is_wpcom_simple() ) {
+		return true;
+	}
+
+	return ( new Connection_Manager( 'jetpack' ) )->has_connected_owner()
+		&& ! ( new Status() )->is_offline_mode()
+		&& apply_filters( 'jetpack_ai_enabled', true );
 }
 
 /**
@@ -282,6 +312,71 @@ function enqueue_image_studio_admin() {
 add_action( 'admin_enqueue_scripts', __NAMESPACE__ . '\enqueue_image_studio_admin' );
 
 /**
+ * Adds an "Edit with AI" row action for supported image types in the media library list view.
+ *
+ * Inserts the action before the default "Edit" link so it's prominently visible.
+ * Only appears for image MIME types that Image Studio supports.
+ *
+ * @param array    $actions Row actions array.
+ * @param \WP_Post $post    The attachment post object.
+ * @return array Modified row actions.
+ */
+function add_image_studio_row_action( $actions, $post ) {
+	// Keep in sync with IMAGE_STUDIO_SUPPORTED_MIME_TYPES in wp-calypso/packages/image-studio/src/types/index.ts.
+	$supported_mime_types = array(
+		'image/jpeg',
+		'image/jpg',
+		'image/png',
+		'image/webp',
+		'image/bmp',
+		'image/tiff',
+	);
+
+	if ( ! in_array( $post->post_mime_type, $supported_mime_types, true ) ) {
+		return $actions;
+	}
+
+	if ( ! current_user_can( 'edit_post', $post->ID ) ) {
+		return $actions;
+	}
+
+	$link = sprintf(
+		'<a href="#" class="big-sky-image-studio-link" data-attachment-id="%d">%s</a>',
+		absint( $post->ID ),
+		esc_html__( 'Edit with AI', 'jetpack' )
+	);
+
+	// Insert before the 'edit' action, or append if 'edit' is not present.
+	$new_actions = array();
+	foreach ( $actions as $key => $value ) {
+		if ( 'edit' === $key ) {
+			$new_actions['edit-with-ai'] = $link;
+		}
+		$new_actions[ $key ] = $value;
+	}
+
+	if ( ! isset( $new_actions['edit-with-ai'] ) ) {
+		$new_actions['edit-with-ai'] = $link;
+	}
+
+	return $new_actions;
+}
+
+/**
+ * Register the "Edit with AI" row action on the Media Library screen.
+ *
+ * @return void
+ */
+function register_row_action() {
+	if ( ! is_image_studio_enabled() || ! is_media_library() ) {
+		return;
+	}
+
+	add_filter( 'media_row_actions', __NAMESPACE__ . '\add_image_studio_row_action', 10, 2 );
+}
+add_action( 'current_screen', __NAMESPACE__ . '\register_row_action' );
+
+/**
  * Get the list of AI image extensions that conflict with Image Studio.
  *
  * @return array
@@ -296,30 +391,15 @@ function get_ai_image_extensions() {
 }
 
 /**
- * Disable Jetpack AI image extensions when Image Studio is active on the current screen.
+ * Disable Jetpack AI image extensions when Image Studio is available.
  *
- * This hook fires on `jetpack_register_gutenberg_extensions` which may run multiple
- * times: once during initial module load (before get_current_screen() is available)
- * and again inside Jetpack_Gutenberg::get_availability() during enqueue (where the
- * screen IS available).
- *
- * Only disables AI extensions when we can confirm Image Studio will actually load
- * on the current screen (i.e. screen is available and should_load_on_current_screen()
- * returns true). If the screen is not available or Image Studio won't load on this
- * screen, AI extensions remain enabled.
- *
- * This ensures AI extensions are available on screens where Image Studio won't load
- * (e.g. dashboard, other non-editor screens, or early initialization).
+ * When Image Studio is available (via Jetpack_Gutenberg::is_available), AI image
+ * extensions are disabled globally to avoid duplicate functionality.
  *
  * @return void
  */
 function disable_jetpack_ai_image_extensions() {
-	if ( ! is_image_studio_enabled() ) {
-		return;
-	}
-
-	// Only disable if screen is available and Image Studio will actually load.
-	if ( ! function_exists( 'get_current_screen' ) || ! get_current_screen() || ! should_load_on_current_screen() ) {
+	if ( ! \Jetpack_Gutenberg::is_available( FEATURE_NAME ) ) {
 		return;
 	}
 
@@ -329,41 +409,3 @@ function disable_jetpack_ai_image_extensions() {
 }
 // Priority 99 ensures this runs after all AI extensions are registered at default priority.
 add_action( 'jetpack_register_gutenberg_extensions', __NAMESPACE__ . '\disable_jetpack_ai_image_extensions', 99 );
-
-/**
- * Enable the agents manager unified experience on self-hosted sites
- * when jetpack_image_studio_enabled is true.
- *
- * This ensures the agents manager loads and can host the headless agent
- * even when the unified chat experience is not otherwise enabled.
- *
- * @param bool $use_unified_experience Current value of the filter.
- * @return bool
- */
-function enable_agents_manager_for_image_studio( $use_unified_experience ) {
-	if ( $use_unified_experience ) {
-		return true;
-	}
-
-	return (bool) apply_filters( 'jetpack_image_studio_enabled', false );
-}
-add_filter( 'agents_manager_use_unified_experience', __NAMESPACE__ . '\enable_agents_manager_for_image_studio' );
-
-/**
- * Register the Image Studio headless agent provider with the agents manager.
- *
- * When Image Studio is enabled, adds the Image Studio headless
- * agent provider module so the agents manager can load it.
- *
- * @param array $providers Existing agent provider module IDs.
- * @return array Modified array of provider module IDs.
- */
-function register_headless_agent_provider( $providers ) {
-	if ( ! is_image_studio_enabled() ) {
-		return $providers;
-	}
-
-	$providers[] = HEADLESS_AGENT_PROVIDER;
-	return $providers;
-}
-add_filter( 'agents_manager_agent_providers', __NAMESPACE__ . '\register_headless_agent_provider' );

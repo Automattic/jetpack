@@ -1,7 +1,6 @@
 /**
  * External dependencies
  */
-import { Badge } from '@automattic/ui';
 import { Page } from '@wordpress/admin-ui';
 import {
 	__experimentalConfirmDialog as ConfirmDialog, // eslint-disable-line @wordpress/no-unsafe-wp-apis
@@ -16,6 +15,7 @@ import { useEffect, useMemo, useState, useCallback, useRef } from '@wordpress/el
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
 import { useSearch, useNavigate } from '@wordpress/route';
+import { Badge } from '@wordpress/ui';
 import * as React from 'react';
 /**
  * Internal dependencies
@@ -25,7 +25,7 @@ import { FORM_POST_TYPE } from '../../src/blocks/shared/util/constants.js';
 import CreateFormButton from '../../src/dashboard/components/create-form-button/index.tsx';
 import { EmptyWrapper } from '../../src/dashboard/components/empty-responses/index.tsx';
 import { FormNameModal } from '../../src/dashboard/components/form-name-modal';
-import { NON_TRASH_FORM_STATUSES } from '../../src/dashboard/constants';
+import { NON_TRASH_FORM_STATUSES, getFormStatusLabel } from '../../src/dashboard/constants';
 import useDeleteForm from '../../src/dashboard/hooks/use-delete-form.ts';
 import useFormsData from '../../src/dashboard/hooks/use-forms-data.ts';
 import WpRouteDashboardSearchParamsProvider from '../../src/dashboard/router/wp-route-dashboard-search-params-provider.tsx';
@@ -228,23 +228,6 @@ function StageInner() {
 		[ renameFormItem, saveEntityRecord, createSuccessNotice, createErrorNotice ]
 	);
 
-	const statusLabel = useCallback( ( status: string ) => {
-		switch ( status ) {
-			case 'publish':
-				return __( 'Published', 'jetpack-forms' );
-			case 'draft':
-				return __( 'Draft', 'jetpack-forms' );
-			case 'pending':
-				return __( 'Pending review', 'jetpack-forms' );
-			case 'future':
-				return __( 'Scheduled', 'jetpack-forms' );
-			case 'private':
-				return __( 'Private', 'jetpack-forms' );
-			default:
-				return status;
-		}
-	}, [] );
-
 	const fields = useMemo(
 		() => [
 			{
@@ -259,8 +242,8 @@ function StageInner() {
 			{
 				id: 'entries',
 				label: __( 'Responses', 'jetpack-forms' ),
+				type: 'integer',
 				getValue: ( { item }: { item: FormListItem } ) => item.entriesCount ?? 0,
-				render: ( { item }: { item: FormListItem } ) => item.entriesCount ?? 0,
 				enableSorting: false,
 			},
 			{
@@ -268,9 +251,7 @@ function StageInner() {
 				label: __( 'Status', 'jetpack-forms' ),
 				getValue: ( { item }: { item: FormListItem } ) => item.status,
 				render: ( { item }: { item: FormListItem } ) => (
-					<Badge intent="default" className="jp-forms-badge">
-						{ statusLabel( item.status ) }
-					</Badge>
+					<Badge intent="draft">{ getFormStatusLabel( item.status ) }</Badge>
 				),
 				elements: [
 					{ label: __( 'All', 'jetpack-forms' ), value: 'all' },
@@ -293,7 +274,7 @@ function StageInner() {
 				enableSorting: false,
 			},
 		],
-		[ dateSettings.formats.datetime, statusLabel ]
+		[ dateSettings.formats.datetime ]
 	);
 
 	const openSingleFormView = useCallback(
@@ -510,6 +491,7 @@ function StageInner() {
 	}, [] );
 
 	const {
+		title,
 		breadcrumbs,
 		subtitle,
 		actions: headerActions,
@@ -533,6 +515,7 @@ function StageInner() {
 		<Page
 			showSidebarToggle={ false }
 			breadcrumbs={ breadcrumbs }
+			title={ title }
 			subTitle={ subtitle }
 			actions={ headerActions }
 			hasPadding={ false }

@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-components",
-	"version": "1.4.15",
+	"version": "1.4.16",
 	"description": "Jetpack Components Package",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/components/#readme",
 	"bugs": {
@@ -37,11 +37,11 @@
 	"scripts": {
 		"build": "pnpm run clean && pnpm run compile-ts && pnpm run copy-scss",
 		"clean": "rm -rf build/",
-		"compile-ts": "tsc --pretty --project tsconfig.build.json",
+		"compile-ts": "tsgo --pretty --project tsconfig.build.json",
 		"copy-scss": "node ./tools/copy-scss-to-build.mjs",
 		"test": "NODE_OPTIONS=--experimental-vm-modules jest",
 		"test-coverage": "pnpm run test --coverage",
-		"typecheck": "tsc --noEmit"
+		"typecheck": "tsgo --noEmit"
 	},
 	"browserslist": [
 		"extends @wordpress/browserslist-config"
@@ -53,6 +53,7 @@
 		"@automattic/jetpack-script-data": "workspace:*",
 		"@automattic/number-formatters": "workspace:*",
 		"@babel/runtime": "^7",
+		"@wordpress/admin-ui": "1.9.0",
 		"@wordpress/browserslist-config": "6.40.0",
 		"@wordpress/components": "32.2.0",
 		"@wordpress/compose": "7.40.0",
@@ -84,13 +85,13 @@
 		"@types/react": "18.3.28",
 		"@types/react-dom": "18.3.7",
 		"@types/react-slider": "1.3.6",
+		"@typescript/native-preview": "7.0.0-dev.20260225.1",
 		"jest": "30.2.0",
 		"react": "18.3.1",
 		"react-dom": "18.3.1",
 		"require-from-string": "2.0.2",
 		"storybook": "10.2.11",
 		"ts-dedent": "2.2.0",
-		"typescript": "5.9.3",
 		"webpack": "5.105.2",
 		"webpack-cli": "6.0.1"
 	},
