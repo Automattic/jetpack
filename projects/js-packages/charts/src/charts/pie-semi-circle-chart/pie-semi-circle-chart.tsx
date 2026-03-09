@@ -489,7 +489,7 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 					</svg>
 				</div>
 
-				{ legendPosition !== 'top' && legendElement }
+				{ legendPosition === 'bottom' && legendElement }
 				{ renderLegendSlot( legendChildren, 'bottom' ) }
 
 				{ withTooltips && tooltipOpen && tooltipData && (
