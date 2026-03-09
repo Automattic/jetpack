@@ -1,3 +1,4 @@
+import type { LegendPosition } from './components/legend';
 import type { CircleSubjectProps } from '@visx/annotation/lib/components/CircleSubject';
 import type { ConnectorProps } from '@visx/annotation/lib/components/Connector';
 import type { LabelProps } from '@visx/annotation/lib/components/Label';
@@ -423,11 +424,8 @@ export type BaseChartProps< T = DataPoint | DataPointDate | LeaderboardEntry > =
 	 * Legend shape
 	 */
 	legendShape?: LegendShape< T, number >;
-	/**
-	 * Legend position (where the legend appears)
-	 * TODO: Add 'left' | 'right' positioning support in future implementation
-	 */
-	legendPosition?: 'top' | 'bottom';
+	/** Legend position (where the legend appears). */
+	legendPosition?: LegendPosition;
 	/**
 	 * Legend alignment within its position
 	 */

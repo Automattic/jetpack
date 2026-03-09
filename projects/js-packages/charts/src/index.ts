@@ -39,6 +39,7 @@ export type {
 export type { GeoChartProps, GeoRegion, GeoResolution } from './charts/geo-chart';
 export type {
 	LegendValueDisplay,
+	LegendPosition,
 	BaseLegendItem,
 	LegendItemStyles,
 	LegendLabelStyles,

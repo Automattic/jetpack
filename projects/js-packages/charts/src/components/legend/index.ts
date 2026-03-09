@@ -2,6 +2,7 @@ export { Legend } from './legend';
 export { useChartLegendItems } from './hooks/use-chart-legend-items';
 export type {
 	LegendProps,
+	LegendPosition,
 	BaseLegendProps,
 	BaseLegendItem,
 	LegendItemStyles,
