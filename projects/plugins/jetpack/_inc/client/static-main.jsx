@@ -1,4 +1,3 @@
-import { Spinner } from '@wordpress/components';
 import { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -20,7 +19,7 @@ class StaticMain extends Component {
 					</div>
 				</div>
 				<div className="jp-loading-placeholder">
-					<Spinner />
+					<span className="spinner is-active" style={ { float: 'none' } } />
 				</div>
 				<Footer { ...this.props } />
 				<style type="text/css">{ '.vp-deactivated{ display: none; }' }</style>
