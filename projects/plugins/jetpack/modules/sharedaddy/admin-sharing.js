@@ -243,7 +243,7 @@
 		}
 
 		function save_services() {
-			$( '#enabled-services h3 img' ).show();
+			$( '#enabled-services h3 .spinner' ).addClass( 'is-active' );
 
 			// Toggle various dividers/help texts
 			if ( $( '#enabled-services ul.services-enabled li.service' ).length > 0 ) {
@@ -292,7 +292,7 @@
 
 			// Save it
 			$( '#save-enabled-shares' ).ajaxSubmit( function () {
-				$( '#enabled-services h3 img' ).hide();
+				$( '#enabled-services h3 .spinner' ).removeClass( 'is-active' );
 			} );
 		}
 
