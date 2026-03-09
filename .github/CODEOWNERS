@@ -3,6 +3,47 @@
 #  or disavow any section of the codebase. #
 ############################################
 
+# Stuff that affects the whole monorepo
+
+/.github @Automattic/jetpack-monorepo
+/.gitattributes @Automattic/jetpack-monorepo
+/.gitignore @Automattic/jetpack-monorepo
+/.phpcs.config.xml @Automattic/jetpack-monorepo
+/.phpcs.xml.dist @Automattic/jetpack-monorepo
+/.phpcsignore @Automattic/jetpack-monorepo
+/.prettierrc.js @Automattic/jetpack-monorepo
+/.stylelintignore @Automattic/jetpack-monorepo
+/composer.json @Automattic/jetpack-monorepo
+/eslint.config.mjs @Automattic/jetpack-monorepo
+/package.json @Automattic/jetpack-monorepo
+/pnpm-lock.yaml @Automattic/jetpack-monorepo
+/pnpm-workspace.yaml @Automattic/jetpack-monorepo
+/projects/github-actions/pr-is-up-to-date @Automattic/jetpack-monorepo
+/projects/github-actions/push-to-mirrors @Automattic/jetpack-monorepo
+/projects/github-actions/required-review @Automattic/jetpack-monorepo
+/projects/github-actions/test-results-to-slack @Automattic/jetpack-monorepo
+/projects/js-packages/babel-plugin-replace-textdomain @Automattic/jetpack-monorepo
+/projects/js-packages/eslint-changed @Automattic/jetpack-monorepo
+/projects/js-packages/eslint-config-target-es @Automattic/jetpack-monorepo
+/projects/js-packages/i18n-check-webpack-plugin @Automattic/jetpack-monorepo
+/projects/js-packages/i18n-loader-webpack-plugin @Automattic/jetpack-monorepo
+/projects/js-packages/remove-asset-webpack-plugin @Automattic/jetpack-monorepo
+/projects/js-packages/webpack-config @Automattic/jetpack-monorepo
+/projects/packages/changelogger @Automattic/jetpack-monorepo
+/projects/packages/codesniffer @Automattic/jetpack-monorepo
+/projects/packages/composer-plugin @Automattic/jetpack-monorepo
+/projects/packages/ignorefile @Automattic/jetpack-monorepo
+/projects/packages/patch-redefine-exit @Automattic/jetpack-monorepo
+/projects/packages/phan-plugins @Automattic/jetpack-monorepo
+/projects/packages/phpcs-filter @Automattic/jetpack-monorepo
+/projects/packages/phpunit-select-config @Automattic/jetpack-monorepo
+/projects/packages/stub-generator @Automattic/jetpack-monorepo
+/projects/plugins/beta @Automattic/jetpack-monorepo
+/projects/plugins/starter-plugin @Automattic/jetpack-monorepo
+/stylelint.config.mjs @Automattic/jetpack-monorepo
+/tools @Automattic/jetpack-monorepo
+/tools/e2e-commons
+
 # Actions
 
 /projects/github-actions/repo-gardening/ @jeherve
