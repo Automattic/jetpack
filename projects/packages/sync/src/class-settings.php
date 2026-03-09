@@ -358,24 +358,31 @@ class Settings {
 	 *
 	 * @access public
 	 * @static
-	 * @deprecated $$next-version$$ Use get_allowed_post_types_sql() instead.
 	 *
 	 * @return string SQL WHERE clause.
 	 */
 	public static function get_blacklisted_post_types_sql() {
-		_deprecated_function( __METHOD__, '$$next-version$$', 'get_allowed_post_types_sql' );
-		return static::get_allowed_post_types_sql();
+		return 'post_type NOT IN (\'' . implode( '\', \'', array_map( 'esc_sql', static::get_setting( 'post_types_blacklist' ) ) ) . '\')';
 	}
 
 	/**
-	 * Returns escaped SQL for allowed post types (all registered minus blacklist).
+	 * Returns escaped SQL for allowed post types.
+	 *
+	 * When jetpack_sync_post_type_whitelist_enabled is true, uses a whitelist (IN) of all
+	 * registered post types minus the blacklist, excluding non-registered post types.
+	 * Otherwise delegates to get_blacklisted_post_types_sql() (the original behaviour).
 	 *
 	 * @access public
 	 * @static
 	 *
-	 * @return string SQL WHERE clause (post_type IN).
+	 * @return string SQL WHERE clause.
 	 */
 	public static function get_allowed_post_types_sql() {
+		/** This filter is documented in modules/class-posts.php */
+		if ( ! apply_filters( 'jetpack_sync_post_type_whitelist_enabled', false ) ) {
+			return static::get_blacklisted_post_types_sql();
+		}
+
 		$allowed = static::get_allowed_post_types();
 		if ( empty( $allowed ) ) {
 			return '1 = 0'; // This is an SQL condition that is always false.

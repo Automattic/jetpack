@@ -190,12 +190,15 @@ class Table_Checksum {
 				'range_field'               => 'ID',
 				'key_fields'                => array( 'ID' ),
 				'checksum_fields'           => array( 'post_modified_gmt' ),
-				'filter_values'             => array(
+				'filter_values'             => /** This filter is documented in modules/class-posts.php */
+				apply_filters( 'jetpack_sync_post_type_whitelist_enabled', false )
+				? array(
 					'post_type' => array(
 						'operator' => 'IN',
 						'values'   => Sync\Settings::get_allowed_post_types(),
 					),
-				),
+				)
+				: Sync\Settings::get_disallowed_post_types_structured(),
 				'is_table_enabled_callback' => function () {
 					return false !== Sync\Modules::get_module( 'posts' );
 				},

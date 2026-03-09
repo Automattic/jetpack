@@ -474,6 +474,20 @@ class Posts extends Module {
 			return false;
 		}
 
+		/**
+		 * When enabled, non-registered post types are excluded from incremental sync,
+		 * keeping it consistent with checksum and full sync behaviour.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param bool $enabled Whether to exclude non-registered post types from incremental sync. Default false.
+		 */
+		if ( apply_filters( 'jetpack_sync_post_type_whitelist_enabled', false ) ) {
+			if ( empty( get_post_type_object( $post->post_type ) ) ) {
+				return false;
+			}
+		}
+
 		return array( (int) $post_id, $this->filter_post_content_and_add_links( $post ), $update, $previous_state );
 	}
 
