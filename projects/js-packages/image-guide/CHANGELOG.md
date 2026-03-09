@@ -9,12 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Set `.repository.url` in `package.json` to the mirror repo rather than the monorepo. Required for enabling provenance. [#47149]
 - Switch to Native TypeScript compiler based on Go. [#47375]
-- Update package dependencies. [#47002]
-- Update package dependencies. [#47099]
-- Update package dependencies. [#47173]
-- Update package dependencies. [#47229]
-- Update package dependencies. [#47337]
-- Update package dependencies. [#47498]
+- Update package dependencies. [#47002] [#47099] [#47173] [#47229] [#47337] [#47498]
 
 ## [1.0.12] - 2026-01-26
 ### Changed

@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [4.32.0] - 2026-03-09
 ### Added
-- REST_Endpoints: Add use_memory_limit argument to the checkout endpoint, enabling memory-based queue checkout that skips item count validation. [#47338]
+- `REST_Endpoints`: Add `use_memory_limit` argument to the checkout endpoint, enabling memory-based queue checkout that skips item count validation. [#47338]
 
 ## [4.31.0] - 2026-03-02
 ### Added

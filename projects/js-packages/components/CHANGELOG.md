@@ -7,7 +7,7 @@
 - Add AdminHeader component wrapping @wordpress/admin-ui Page for unified admin page headers. [#47313]
 
 ### Changed
-- AdminPage: override admin-ui header position so it's not sticky [#47313]
+- AdminPage: Override admin-ui header position so it's not sticky. [#47313]
 - AdminPage: Remove admin-ui header border via scoped CSS to support unified admin-ui Page layout. [#47313]
 - AdminPage: Remove header border-bottom for a cleaner unified header appearance. [#47313]
 - Remove padding from admin page header subtitle for consistent spacing. [#47417]
