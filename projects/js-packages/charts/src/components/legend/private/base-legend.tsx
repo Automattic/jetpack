@@ -67,7 +67,8 @@ export const BaseLegend: ForwardRefExoticComponent<
 			items,
 			className,
 			orientation = 'horizontal',
-			position = 'bottom',
+			// Position is read by chart composition for slot placement; no styling in BaseLegend
+			position = 'bottom', // eslint-disable-line @typescript-eslint/no-unused-vars
 			alignment = 'center',
 			shape = 'rect',
 			fill = valueOrIdentityString,
@@ -177,7 +178,6 @@ export const BaseLegend: ForwardRefExoticComponent<
 							styles.legend,
 							styles[ `legend--${ orientation }` ],
 							styles[ `legend--alignment-${ alignment }` ],
-							styles[ `legend--position-${ position }` ],
 							className
 						) }
 						style={ {
