@@ -20,6 +20,12 @@ export default [
 				...restAttributes,
 				min: min != null && min !== '' ? parseFloat( min ) : undefined,
 				max: max != null && max !== '' ? parseFloat( max ) : undefined,
+			const parsedMin = parseFloat( min );
+			const parsedMax = parseFloat( max );
+			return {
+				...restAttributes,
+				min: Number.isFinite( parsedMin ) ? parsedMin : undefined,
+				max: Number.isFinite( parsedMax ) ? parsedMax : undefined,
 			};
 		},
 		isEligible: attributes => {
