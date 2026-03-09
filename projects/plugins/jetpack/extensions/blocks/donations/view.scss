@@ -1,3 +1,4 @@
+@use "sass:math";
 @use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
 @use "common";
 @use "../../shared/memberships";
@@ -15,29 +16,30 @@
 
 		&::before {
 			content: "";
-			width: 28px;
-			height: 28px;
+			background-color: gb.$gray-600;
+			width: gb.$spinner-size;
+			height: gb.$spinner-size;
+			opacity: 0.7;
+			border-radius: 100%;
 			position: absolute;
 			top: 50%;
 			inset-inline-start: 50%;
 			transform: translate(-50%, -50%);
-			background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='50' cy='50' r='46' fill='none' stroke='%23ddd' stroke-width='8'/%3E%3C/svg%3E");
-			background-repeat: no-repeat;
-			background-size: contain;
 		}
 
 		&::after {
 			content: "";
-			width: 28px;
-			height: 28px;
+			background-color: gb.$white;
+			width: math.div(gb.$spinner-size, 4.5);
+			height: math.div(gb.$spinner-size, 4.5);
+			border-radius: 100%;
 			position: absolute;
 			top: 50%;
 			inset-inline-start: 50%;
-			transform: translate(-50%, -50%);
-			background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M 50 4 A 46 46 0 0 1 96 50' fill='none' stroke='%23333' stroke-width='8' stroke-linecap='round'/%3E%3C/svg%3E");
-			background-repeat: no-repeat;
-			background-size: contain;
-			animation: jetpack-donations-spinner 1.4s linear infinite;
+			margin-inline-start: math.div(-(gb.$spinner-size), 3);
+			margin-top: math.div(-(gb.$spinner-size), 3);
+			transform-origin: math.div(gb.$spinner-size, 3) math.div(gb.$spinner-size, 3);
+			animation: spinner 1s infinite linear;
 		}
 	}
 
@@ -97,16 +99,5 @@
 	.donations__donate-button.is-disabled {
 		pointer-events: none;
 		opacity: 0.2;
-	}
-}
-
-@keyframes jetpack-donations-spinner {
-
-	from {
-		transform: translate(-50%, -50%) rotate(0deg);
-	}
-
-	to {
-		transform: translate(-50%, -50%) rotate(360deg);
 	}
 }

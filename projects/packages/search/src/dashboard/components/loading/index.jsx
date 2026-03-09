@@ -1,4 +1,4 @@
-import { Spinner } from '@wordpress/components';
+import { Spinner } from '@automattic/jetpack-components';
 
 import './style.scss';
 
