@@ -106,7 +106,7 @@ const InputEdit = ( { attributes, clientId, isSelected, name, setAttributes, con
 							value={ min }
 							onChange={ value => {
 								const parsed = parseFloat( value );
-								setAttributes( { min: Number.isNaN( parsed ) ? undefined : parsed } );
+								setAttributes( { min: Number.isFinite( parsed ) ? parsed : undefined } );
 							} }
 							max={ max }
 							__nextHasNoMarginBottom={ true }
