@@ -17,7 +17,6 @@
 /composer.json @Automattic/jetpack-monorepo
 /eslint.config.mjs @Automattic/jetpack-monorepo
 /package.json @Automattic/jetpack-monorepo
-/pnpm-lock.yaml @Automattic/jetpack-monorepo
 /pnpm-workspace.yaml @Automattic/jetpack-monorepo
 /projects/github-actions/pr-is-up-to-date @Automattic/jetpack-monorepo
 /projects/github-actions/push-to-mirrors @Automattic/jetpack-monorepo
