@@ -4,6 +4,10 @@ const baseConfig = require( 'jetpack-js-tools/jest/config.base.js' );
 module.exports = {
 	...baseConfig,
 	rootDir: path.join( __dirname, '..' ),
+	moduleNameMapper: {
+		...baseConfig.moduleNameMapper,
+		'\\.module\\.scss$': 'identity-obj-proxy',
+	},
 	transform: {
 		...baseConfig.transform,
 		'\\.[jt]sx?$': require( 'jetpack-js-tools/jest/babel-jest-config-factory.js' )(
