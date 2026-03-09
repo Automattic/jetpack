@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Simple Payments widget: Prevent unsafe image URLs and harden email validation in the Customizer form.

@@ -249,6 +249,52 @@
 	}
 
 	/**
+	 * Sanitize image source URLs before rendering.
+	 *
+	 * @param {string} imageSrc - Candidate image URL
+	 * @return {string} Safe image URL or an empty string
+	 */
+	function sanitizeImageSource( imageSrc ) {
+		if ( typeof imageSrc !== 'string' || ! imageSrc ) {
+			return '';
+		}
+
+		var parsedImageUrl;
+
+		try {
+			parsedImageUrl = new URL( imageSrc, window.location.href );
+		} catch {
+			return '';
+		}
+
+		if ( parsedImageUrl.protocol !== 'http:' && parsedImageUrl.protocol !== 'https:' ) {
+			return '';
+		}
+
+		return parsedImageUrl.href;
+	}
+
+	/**
+	 * Check whether the email field is valid.
+	 *
+	 * @param {jQuery} emailField - The email input field
+	 * @return {boolean} Whether the email value is valid
+	 */
+	function isEmailFieldValid( emailField ) {
+		var fieldElement = emailField && emailField.length ? emailField.get( 0 ) : null;
+
+		if ( ! fieldElement ) {
+			return false;
+		}
+
+		if ( typeof fieldElement.checkValidity === 'function' ) {
+			return fieldElement.checkValidity();
+		}
+
+		return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test( fieldElement.value );
+	}
+
+	/**
 	 * Handle image selection
 	 *
 	 * @param {jQuery} widgetForm - The jQuery object containing the widget form
@@ -269,11 +315,21 @@
 
 			mediaFrame.on( 'select', function () {
 				var selection = mediaFrame.state().get( 'selection' ).first().toJSON();
+				var safeImageSrc = sanitizeImageSource( selection.url );
+
+				if ( ! safeImageSrc ) {
+					widgetForm.find( '.jetpack-simple-payments-image-fieldset .placeholder' ).show();
+					widgetForm.find( '.jetpack-simple-payments-image' ).hide();
+					widgetForm.find( '.jetpack-simple-payments-form-image-id' ).val( '' ).change();
+					imageContainer.find( 'img' ).removeAttr( 'src' ).hide();
+					return;
+				}
+
 				//hide placeholder
 				widgetForm.find( '.jetpack-simple-payments-image-fieldset .placeholder' ).hide();
 
 				//load image from media library
-				imageContainer.find( 'img' ).attr( 'src', selection.url ).show();
+				imageContainer.find( 'img' ).attr( 'src', safeImageSrc ).show();
 
 				//show image and remove button
 				widgetForm.find( '.jetpack-simple-payments-image' ).show();
@@ -317,14 +373,16 @@
 			widgetForm.find( '.jetpack-simple-payments-form-image-id' ).val(),
 			10
 		);
-		var newImageSrc = widgetForm.find( '.jetpack-simple-payments-form-image-src' ).val();
+		var safeImageSrc = sanitizeImageSource(
+			widgetForm.find( '.jetpack-simple-payments-form-image-src' ).val()
+		);
 
 		var placeholder = widgetForm.find( '.jetpack-simple-payments-image-fieldset .placeholder' );
 		var image = widgetForm.find( '.jetpack-simple-payments-image > img' );
 		var imageControls = widgetForm.find( '.jetpack-simple-payments-image' );
 
-		if ( newImageId && newImageSrc ) {
-			image.attr( 'src', newImageSrc );
+		if ( newImageId && safeImageSrc ) {
+			image.attr( 'src', safeImageSrc );
 			placeholder.hide();
 			imageControls.show();
 		} else {
@@ -381,12 +439,9 @@
 			errors = true;
 		}
 
-		var productEmail = widgetForm.find( '.jetpack-simple-payments-form-product-email' ).val();
-		var isProductEmailValid =
-			// eslint-disable-next-line no-control-regex
-			/^((([a-z]|\d|[!#$%&'*+\-/=?^_`{|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+(\.([a-z]|\d|[!#$%&'*+\-/=?^_`{|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+)*)|((\x22)((((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(([\x01-\x08\x0b\x0c\x0e-\x1f\x7f]|\x21|[\x23-\x5b]|[\x5d-\x7e]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(\\([\x01-\x09\x0b\x0c\x0d-\x7f]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]))))*(((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(\x22)))@((([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.)+(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.?$/i.test(
-				productEmail
-			);
+		var productEmailField = widgetForm.find( '.jetpack-simple-payments-form-product-email' );
+		var productEmail = productEmailField.val();
+		var isProductEmailValid = productEmail && isEmailFieldValid( productEmailField );
 		if ( ! productEmail || ! isProductEmailValid ) {
 			widgetForm.find( '.jetpack-simple-payments-form-product-email' ).addClass( 'invalid' );
 			errors = true;
