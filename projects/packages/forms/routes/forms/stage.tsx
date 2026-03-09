@@ -272,6 +272,7 @@ function StageInner() {
 				render: ( { item }: { item: FormListItem } ) =>
 					dateI18n( dateSettings.formats.datetime, item.modified ),
 				enableSorting: false,
+				filterBy: false,
 			},
 		],
 		[ dateSettings.formats.datetime ]

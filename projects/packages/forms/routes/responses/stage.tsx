@@ -479,6 +479,7 @@ function StageInner() {
 				),
 				...( isSingleFormView ? {} : { filterBy: { operators: [ 'is' ] as Operator[] } } ),
 				enableSorting: false,
+				filterBy: false,
 			},
 			{
 				id: 'read_status',
