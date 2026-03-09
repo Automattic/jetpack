@@ -1,8 +1,7 @@
-import { Spinner } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useLayoutEffect, useEffect, useState, useRef } from '@wordpress/element';
 import clsx from 'clsx';
-import { Media } from './components';
+import { Media, CalypsoSpinner } from './components';
 import waitMediaReady from './lib/wait-media-ready';
 
 export const Slide = ( {
@@ -65,7 +64,7 @@ export const Slide = ( {
 						'semi-transparent': uploading || ( ! playing && buffering ),
 					} ) }
 				>
-					<Spinner />
+					<CalypsoSpinner />
 				</div>
 			) }
 			<div
