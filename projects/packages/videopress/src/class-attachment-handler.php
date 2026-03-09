@@ -306,7 +306,7 @@ class Attachment_Handler {
 	 * Enqueues the script that hooks into WP Heartbeat to refresh
 	 * processing VideoPress video data in the media library grid.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.35.4
 	 *
 	 * @return void
 	 */
@@ -325,7 +325,7 @@ class Attachment_Handler {
 	/**
 	 * Adds inline styles for the media library grid on the upload page.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.35.4
 	 *
 	 * @return void
 	 */
@@ -341,7 +341,7 @@ class Attachment_Handler {
 	 * Lowers the Heartbeat minimum interval on the media library page
 	 * so the polling script can request a faster tick rate.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.35.4
 	 *
 	 * @param array $settings Heartbeat settings.
 	 * @return array
@@ -355,7 +355,7 @@ class Attachment_Handler {
 	/**
 	 * Heartbeat API handler that checks the processing status of VideoPress videos.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.35.4
 	 *
 	 * @param array $response The Heartbeat response.
 	 * @param array $data     The data sent with the Heartbeat request.

@@ -1526,7 +1526,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/newsletter",
-                "reference": "5f329fb797387a63fefa810456c03b00c9aa812d"
+                "reference": "c03c4b7ef544cbf31110ead6858b9569f0aad13c"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -1552,7 +1552,7 @@
                 "autotagger": true,
                 "mirror-repo": "Automattic/jetpack-newsletter",
                 "branch-alias": {
-                    "dev-trunk": "0.5.x-dev"
+                    "dev-trunk": "0.6.x-dev"
                 },
                 "textdomain": "jetpack-newsletter",
                 "version-constants": {
