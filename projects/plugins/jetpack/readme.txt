@@ -340,7 +340,7 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 - Admin Page: Restore border on header component.
 - Canonical URLs: Fix flaky author archive canonical URL resolution on WordPress trunk.
 - SEO: Restore the Optimize SEO panel to the Jetpack sidebar alongside document settings.
-- Settings: Add bottom border to the masthead header for visual consistency.
+- Settings: Add bottom border to the masthead header.
 - Social: Fix slow page loads due to Social Image generation.
 - Update AI form assistant to detect and create `core/button` blocks instead of `jetpack/button`.
 
