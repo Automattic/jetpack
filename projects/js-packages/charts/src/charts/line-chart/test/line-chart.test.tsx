@@ -53,13 +53,15 @@ describe( 'LineChart', () => {
 		],
 	};
 
-	const renderWithTheme = ( props = {}, themeName = 'default' ) => {
+	const renderWithTheme = ( props = {}, themeName = 'default', children = undefined ) => {
 		const theme = THEME_MAP[ themeName ];
 
 		return render(
 			<GlobalChartsProvider theme={ theme }>
 				{ /* @ts-expect-error TODO Fix the missing props */ }
-				<LineChart { ...defaultProps } { ...props } />
+				<LineChart { ...defaultProps } { ...props }>
+					{ children }
+				</LineChart>
 			</GlobalChartsProvider>
 		);
 	};
@@ -130,35 +132,55 @@ describe( 'LineChart', () => {
 	} );
 
 	describe( 'Legend', () => {
+		const multiSeriesData = [
+			{
+				label: 'Series A',
+				data: [ { date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' } ],
+			},
+			{
+				label: 'Series B',
+				data: [ { date: new Date( '2024-01-01' ), value: 20, label: 'Jan 1' } ],
+			},
+		];
+
 		test( 'shows legend when showLegend is true', () => {
-			renderWithTheme( {
-				showLegend: true,
-				data: [
-					{
-						label: 'Series A',
-						data: [ { date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' } ],
-					},
-					{
-						label: 'Series B',
-						data: [ { date: new Date( '2024-01-01' ), value: 20, label: 'Jan 1' } ],
-					},
-				],
-			} );
+			renderWithTheme( { showLegend: true, data: multiSeriesData } );
 			expect( screen.getByText( 'Series A' ) ).toBeInTheDocument();
 			expect( screen.getByText( 'Series B' ) ).toBeInTheDocument();
 		} );
 
 		test( 'hides legend when showLegend is false', () => {
-			renderWithTheme( {
-				showLegend: false,
-				data: [
-					{
-						label: 'Series A',
-						data: [ { date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' } ],
-					},
-				],
-			} );
+			renderWithTheme( { showLegend: false, data: multiSeriesData } );
 			expect( screen.queryByText( 'Series A' ) ).not.toBeInTheDocument();
+		} );
+
+		test( 'renders composition legend as child component', () => {
+			renderWithTheme( { data: multiSeriesData }, 'default', <LineChart.Legend /> );
+
+			expect( screen.getAllByTestId( 'legend-item' ) ).toHaveLength( 2 );
+			expect( screen.getByText( 'Series A' ) ).toBeInTheDocument();
+			expect( screen.getByText( 'Series B' ) ).toBeInTheDocument();
+		} );
+
+		test( 'renders composition legend regardless of showLegend value', () => {
+			renderWithTheme(
+				{ data: multiSeriesData, showLegend: false },
+				'default',
+				<LineChart.Legend />
+			);
+
+			expect( screen.getAllByTestId( 'legend-item' ) ).toHaveLength( 2 );
+		} );
+
+		test( 'renders composition legend in top position', () => {
+			renderWithTheme( { data: multiSeriesData }, 'default', <LineChart.Legend position="top" /> );
+
+			// Legend should appear before the chart content in DOM order
+			expect( screen.getAllByTestId( 'legend-item' ) ).toHaveLength( 2 );
+			const html = document.body.innerHTML;
+			expect( html.indexOf( 'data-testid="legend-horizontal"' ) ).toBeLessThan(
+				html.indexOf( 'role="grid"' )
+			);
 		} );
 	} );
 
