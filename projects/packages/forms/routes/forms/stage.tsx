@@ -503,6 +503,14 @@ function StageInner() {
 		onOpenIntegrations: openIntegrationsModal,
 		onOpenFormsHelp: openFormsHelpModal,
 	} );
+	const hasActiveFilters = useMemo( () => {
+		if ( view.search ) {
+			return true;
+		}
+		const statusFilterValue = view.filters?.find( filter => filter.field === 'status' )?.value;
+		return !! statusFilterValue && statusFilterValue !== 'all';
+	}, [ view.search, view.filters ] );
+
 	const getItemId = useCallback( ( item: FormListItem ) => String( item.id ), [] );
 	const onClickItem = useCallback(
 		( item: FormListItem ) => {
@@ -527,25 +535,35 @@ function StageInner() {
 				data={ records || [] }
 				isLoading={ isLoading }
 				empty={
-					<EmptyWrapper
-						heading={ __( "You're set up. No forms yet.", 'jetpack-forms' ) }
-						body={ __(
-							'Create a shared form pattern to manage and reuse it across your site.',
-							'jetpack-forms'
-						) }
-						actions={
-							<HStack justify="center" spacing="2">
-								<CreateFormButton
-									label={ __( 'Create a new form', 'jetpack-forms' ) }
-									variant="primary"
-									showIcon={ false }
-								/>
-								<Button size="compact" variant="secondary" onClick={ openFormsHelpModal }>
-									{ __( 'Missing forms?', 'jetpack-forms' ) }
-								</Button>
-							</HStack>
-						}
-					/>
+					hasActiveFilters ? (
+						<EmptyWrapper
+							heading={ __( 'No results found', 'jetpack-forms' ) }
+							body={ __(
+								"Try adjusting your search or filters to find what you're looking for.",
+								'jetpack-forms'
+							) }
+						/>
+					) : (
+						<EmptyWrapper
+							heading={ __( "You're set up. No forms yet.", 'jetpack-forms' ) }
+							body={ __(
+								'Create a shared form pattern to manage and reuse it across your site.',
+								'jetpack-forms'
+							) }
+							actions={
+								<HStack justify="center" spacing="2">
+									<CreateFormButton
+										label={ __( 'Create a new form', 'jetpack-forms' ) }
+										variant="primary"
+										showIcon={ false }
+									/>
+									<Button size="compact" variant="secondary" onClick={ openFormsHelpModal }>
+										{ __( 'Missing forms?', 'jetpack-forms' ) }
+									</Button>
+								</HStack>
+							}
+						/>
+					)
 				}
 				view={ view }
 				onChangeView={ onChangeView }
