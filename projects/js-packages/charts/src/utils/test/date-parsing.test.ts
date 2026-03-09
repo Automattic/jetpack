@@ -270,13 +270,13 @@ describe( 'parseAsLocalDate', () => {
 
 	describe( 'ReDoS resilience', () => {
 		test( 'should handle adversarial input without catastrophic backtracking', () => {
-			const malicious = 'T' + 'a'.repeat( 50000 ) + 'X';
+			const malicious = 'T' + 'a'.repeat( 8000000 ) + 'X';
 			const start = performance.now();
 			const result = parseAsLocalDate( malicious );
 			const elapsed = performance.now() - start;
 
 			expect( isNaN( result.getTime() ) ).toBe( true );
-			expect( elapsed ).toBeLessThan( 1000 );
+			expect( elapsed ).toBeLessThan( 50 );
 		} );
 	} );
 
