@@ -37,7 +37,7 @@ function is_image_studio_enabled() {
 	if ( ! has_ai_features() ) {
 		return false;
 	}
-	return is_automattician()
+	return is_dev_mode()
 		|| is_big_sky_enabled();
 }
 
@@ -89,21 +89,54 @@ function has_ai_features() {
 }
 
 /**
- * Check if the current request is from a proxied Automattician.
+ * Check if the current request is from a development environment.
  *
- * Uses wpcom's is_proxied_automattician() when available (Simple sites),
- * falls back to AT_PROXIED_REQUEST constant (Atomic/self-hosted).
+ * Matches the same checks as Agents_Manager::is_dev_mode():
+ * - Known local environments (localhost, jurassic.tube, jurassic.ninja)
+ * - Proxied A8C requests
+ * - Allowed Atomic client IDs
  *
  * IMPORTANT: Only use for feature gating, not authorization.
  *
  * @return bool
  */
-function is_automattician() {
-	if ( function_exists( '\is_automattician' ) ) {
-		return \is_automattician( get_current_user_id() );
+function is_dev_mode() {
+	// Known local environments.
+	$domain = wp_parse_url( get_site_url(), PHP_URL_HOST );
+	if (
+		$domain === 'localhost' ||
+		'.jurassic.tube' === stristr( $domain, '.jurassic.tube' ) ||
+		'.jurassic.ninja' === stristr( $domain, '.jurassic.ninja' )
+	) {
+		return true;
 	}
 
-	return defined( 'AT_PROXIED_REQUEST' ) && AT_PROXIED_REQUEST;
+	// Proxied A8C request via function.
+	if ( function_exists( 'wpcom_is_proxied_request' ) && wpcom_is_proxied_request() ) {
+		return true;
+	}
+
+	// Proxied A8C request via server variable or constant.
+	if (
+		( isset( $_SERVER['A8C_PROXIED_REQUEST'] ) && (bool) sanitize_text_field( wp_unslash( $_SERVER['A8C_PROXIED_REQUEST'] ) ) ) ||
+		( defined( 'A8C_PROXIED_REQUEST' ) && A8C_PROXIED_REQUEST )
+	) {
+		return true;
+	}
+
+	// Allowed Atomic client IDs.
+	if ( defined( 'AT_PROXIED_REQUEST' ) && AT_PROXIED_REQUEST && defined( 'ATOMIC_CLIENT_ID' ) ) {
+		switch ( ATOMIC_CLIENT_ID ) {
+			case 1:
+			case 2:
+			case 3: // Pressable
+			case 32:
+			case 118: // Commerce garden client (ciab)
+				return true;
+		}
+	}
+
+	return false;
 }
 
 /**
