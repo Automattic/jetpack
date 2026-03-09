@@ -190,8 +190,8 @@ class Table_Checksum {
 				'range_field'               => 'ID',
 				'key_fields'                => array( 'ID' ),
 				'checksum_fields'           => array( 'post_modified_gmt' ),
-				'filter_values'             => /** This filter is documented in modules/class-posts.php */
-				apply_filters( 'jetpack_sync_post_type_whitelist_enabled', false )
+				/* This filter is documented in modules/class-posts.php */
+				'filter_values'             => apply_filters( 'jetpack_sync_post_type_whitelist_enabled', false )
 				? array(
 					'post_type' => array(
 						'operator' => 'IN',

@@ -86,7 +86,7 @@ class Settings {
 	public static $is_doing_cron;
 
 	/**
-	 * Per-request cache for allowed post types (checksum). Cleared when post_types_blacklist is updated.
+	 * Per-request cache for allowed post types. Cleared when post_types_blacklist is updated.
 	 *
 	 * @access private
 	 * @static
