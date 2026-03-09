@@ -503,13 +503,14 @@ function StageInner() {
 		onOpenIntegrations: openIntegrationsModal,
 		onOpenFormsHelp: openFormsHelpModal,
 	} );
-	const hasActiveFilters = useMemo( () => {
-		if ( view.search ) {
-			return true;
-		}
-		const statusFilterValue = view.filters?.find( filter => filter.field === 'status' )?.value;
-		return !! statusFilterValue && statusFilterValue !== 'all';
-	}, [ view.search, view.filters ] );
+	const hasActiveFilters =
+		!! view.search ||
+		( () => {
+			const statusFilterValue = view.filters?.find(
+				( filter ) => filter.field === 'status'
+			)?.value;
+			return !! statusFilterValue && statusFilterValue !== 'all';
+		} )();
 
 	const getItemId = useCallback( ( item: FormListItem ) => String( item.id ), [] );
 	const onClickItem = useCallback(
