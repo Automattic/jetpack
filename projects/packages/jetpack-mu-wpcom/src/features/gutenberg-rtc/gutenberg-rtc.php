@@ -27,13 +27,35 @@ function wpcom_get_gutenberg_rtc_providers() {
 		return array();
 	}
 
-	return apply_filters( 'wpcom_gutenberg_rtc_providers', array( 'pinghub' ) );
+	$allowed_providers = array( 'http-polling', 'pinghub' );
+	$providers         = apply_filters( 'wpcom_gutenberg_rtc_providers', array( 'pinghub' ) );
+	if ( ! is_array( $providers ) ) {
+		return array();
+	}
+
+	return array_values(
+		array_filter(
+			$providers,
+			function ( $provider ) use ( $allowed_providers ) {
+				return in_array( $provider, $allowed_providers, true );
+			}
+		)
+	);
 }
 
 /**
  * Enqueue block editor assets for Gutenberg RTC customizations.
  */
 function wpcom_enqueue_gutenberg_rtc_assets() {
+	$providers = wpcom_get_gutenberg_rtc_providers();
+
+	// If HTTP polling (Gutenberg’s built-in default provider when this script isn’t enqueued)
+	// is the only provider being used, then we don’t need to inject any assets since that’s
+	// already the default behavior.
+	if ( count( $providers ) === 1 && in_array( 'http-polling', $providers, true ) ) {
+		return;
+	}
+
 	$handle = jetpack_mu_wpcom_enqueue_assets( 'gutenberg-rtc', array( 'js' ) );
 
 	$data = wp_json_encode(
