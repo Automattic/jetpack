@@ -1168,7 +1168,7 @@ class SSO {
 	 * Build WordPress.com SSO URL with appropriate query parameters.
 	 *
 	 * @param array $args Optional query parameters.
-	 * @return string|WP_Error WordPress.com SSO URL
+	 * @return string|WP_Error Redirect URL for SSO authentication.
 	 */
 	public function build_sso_url( $args = array() ) {
 		$sso_nonce = ! empty( $args['sso_nonce'] ) ? $args['sso_nonce'] : self::request_initial_nonce();
@@ -1194,7 +1194,7 @@ class SSO {
 	 * on WordPress.com.
 	 *
 	 * @param array $args Optional query parameters.
-	 * @return string|WP_Error WordPress.com SSO URL
+	 * @return string|WP_Error Redirect URL for SSO authentication.
 	 */
 	public function build_reauth_and_sso_url( $args = array() ) {
 		$sso_nonce = ! empty( $args['sso_nonce'] ) ? $args['sso_nonce'] : self::request_initial_nonce();
