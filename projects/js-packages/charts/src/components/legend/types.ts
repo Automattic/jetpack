@@ -37,10 +37,7 @@ export type LegendShapeStyles = {
 	margin?: CSSProperties[ 'margin' ];
 };
 
-/**
- * Vertical position of the legend.
- * TODO: Add 'left' | 'right' positioning support in future implementation
- */
+/** Position of the legend relative to chart content. */
 export type LegendPosition = 'top' | 'bottom';
 
 export type BaseLegendProps = VisxLegendProps & {
