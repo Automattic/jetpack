@@ -583,6 +583,41 @@ class Jetpack_Sync_Checksum_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test that an empty filter values array produces valid SQL and does not error.
+	 *
+	 * This can happen when jetpack_sync_post_type_whitelist_enabled is enabled but
+	 * get_allowed_post_types() returns empty. An empty IN list should produce `1 = 0`
+	 * (no rows) and an empty NOT IN list should produce `1 = 1` (all rows).
+	 *
+	 * filter_values is set directly on the instance to isolate this from the filter itself.
+	 */
+	public function test_checksum_empty_filter_values() {
+		self::factory()->post->create();
+
+		$tc = new Table_Checksum( 'posts' );
+
+		// Empty IN → 1 = 0.
+		$tc->filter_values = array(
+			'post_type' => array(
+				'operator' => 'IN',
+				'values'   => array(),
+			),
+		);
+		$this->assertStringContainsString( '1 = 0', $tc->build_filter_statement() );
+		$this->assertFalse( is_wp_error( $tc->calculate_checksum() ) );
+
+		// Empty NOT IN → 1 = 1.
+		$tc->filter_values = array(
+			'post_type' => array(
+				'operator' => 'NOT IN',
+				'values'   => array(),
+			),
+		);
+		$this->assertStringContainsString( '1 = 1', $tc->build_filter_statement() );
+		$this->assertFalse( is_wp_error( $tc->calculate_checksum() ) );
+	}
+
+	/**
 	 * Test that Checksum generates consistently.
 	 *
 	 * Note that php's crc32 does not match MySQL's crc32 so this is a test of consistency.

@@ -426,18 +426,6 @@ class Settings {
 	}
 
 	/**
-	 * Get allowed post types for the posts checksum (all registered minus blacklist).
-	 *
-	 * @deprecated $$next-version$$ Use get_allowed_post_types() instead.
-	 *
-	 * @return array Allowed post type names.
-	 */
-	public static function get_allowed_post_types_for_checksum() {
-		_deprecated_function( __METHOD__, '$$next-version$$', 'get_allowed_post_types' );
-		return static::get_allowed_post_types();
-	}
-
-	/**
 	 * Returns escaped SQL for blacklisted taxonomies.
 	 * Can be injected directly into a WHERE clause.
 	 *
