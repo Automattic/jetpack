@@ -19,8 +19,8 @@ See the [Quick Start guide](docs/quick-start.md) or [Development Environment gui
 Most tasks use the Jetpack CLI. There are two options:
 
 - **`jetpack`**: runs in your local environment. See [tools/cli/README.md](tools/cli/README.md) for details.
-  - You can always invoke it as `pnpm jetpack` from anywhere in the monorepo without any setup.
-  - Optionally, link it to your path so you can just type `jetpack`: `pnpm install && pnpm jetpack cli link`
+  - You can invoke it as `pnpm jetpack` from within the monorepo.
+  - Optionally, you can link it to your path so you can just type `jetpack` (`pnpm install && pnpm jetpack cli link`).
 - **`jp`**: runs commands inside Docker, avoiding local version mismatches. Install globally with `npm install -g @automattic/jetpack-cli`. See [projects/js-packages/jetpack-cli/README.md](projects/js-packages/jetpack-cli/README.md).
 
 The examples below use `jetpack`; prefix with `pnpm` if you haven't linked it or use `jp` as desired.
@@ -44,8 +44,8 @@ jetpack watch <project>           # watch and rebuild on changes
 
 ## Tests
 ```sh
-jetpack test php <project>    # PHP tests (PHPUnit)
-jetpack test js <project>     # JS tests (Jest)
+jetpack test php <project>    # PHP tests (e.g. PHPUnit)
+jetpack test js <project>     # JS tests (e.g. Jest)
 ```
 
 See [Automated Testing](docs/automated-testing.md) for full details and setup requirements.
