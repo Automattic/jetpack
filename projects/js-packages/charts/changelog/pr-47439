@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Breaking: Legend theme properties (`legendShapeStyles`, `legendLabelStyles`, `legendContainerStyles`) are now nested under a `legend` object (`legend.shapeStyles`, `legend.labelStyles`, `legend.containerStyles`) in `ChartTheme`.

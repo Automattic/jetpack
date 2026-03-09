@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.57.0] - 2026-03-09
+### Added
+- Add identity-obj-proxy to enable CSS module class assertions in tests. [#47476]
+
+### Changed
+- BREAKING: Legend: Replace individual visx styling props with itemStyles, labelStyles, shapeStyles objects, rename legendItemClassName to itemClassName, add labelClassName, and move maxWidth/textOverflow into labelStyles. LeaderboardChart: replace legendShapeWidth/legendShapeHeight with legendShapeStyles. [#47454]
+- Breaking: Legend theme properties (`legendShapeStyles`, `legendLabelStyles`, `legendContainerStyles`) are now nested under a `legend` object (`legend.shapeStyles`, `legend.labelStyles`, `legend.containerStyles`) in `ChartTheme`. [#47439]
+- Switch to Native TypeScript compiler based on Go. [#47375]
+- Update package dependencies. [#47496]
+
+### Fixed
+- Charts: Fix leaderboard chart height calculation to include legend layout and keep responsive sizing by default. [#47369]
+- Charts: Fix zero-value bars not visible in small chart heights by ensuring minimum pixel-based value. [#47477]
+- Legend: Fix value rendering for falsy values (e.g. 0), guard against empty string spans, make value optional in types, and use index-based lookup for better performance. [#47459]
+
 ## [0.56.7] - 2026-03-02
 ### Changed
 - Improve AI agent documentation and validation workflow for chart development. [#47334]
@@ -713,6 +728,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed lints following ESLint rule changes for TS [#40584]
 - Fixing a bug in Chart storybook data. [#40640]
 
+[0.57.0]: https://github.com/Automattic/charts/compare/v0.56.7...v0.57.0
 [0.56.7]: https://github.com/Automattic/charts/compare/v0.56.6...v0.56.7
 [0.56.6]: https://github.com/Automattic/charts/compare/v0.56.5...v0.56.6
 [0.56.5]: https://github.com/Automattic/charts/compare/v0.56.4...v0.56.5
