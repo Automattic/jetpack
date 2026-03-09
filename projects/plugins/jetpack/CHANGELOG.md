@@ -5,10 +5,10 @@
 ## 15.7-a.1 - 2026-03-09
 ### Enhancements
 - Admin Menu: Reorder menu items so that links opening in new windows appear last. [#47417]
-- Backup: use core components for storage popover. [#47448]
-- Block Notes: Add Block Notes as a standalone Jetpack extension plugin, migrated from big-sky-plugin. [#47296]
+- Backup: Use core components for storage popover. [#47448]
+- Block Notes: Add Block Notes as a standalone Jetpack extension plugin. [#47296]
 - Donations: Use the core WordPress spinner component. [#47467]
-- Forms: Use title header on top-level dashboard pages for consistency with other Jetpack pages. [#47446]
+- Forms: Use title header on top-level dashboard pages. [#47446]
 - Newsletter: Hide settings tab and redirect to new settings page when wp-admin newsletter settings are enabled. [#47347]
 - QR Post Code: Use site icon (favicon) instead of site logo for better rendering in the QR code center area. [#47433]
 
@@ -16,16 +16,15 @@
 - Admin Page: Restore border on header component. [#47425]
 - Canonical URLs: Fix flaky author archive canonical URL resolution on WordPress trunk. [#47384]
 - SEO: Restore the Optimize SEO panel to the Jetpack sidebar alongside document settings. [#47318]
-- Settings: Add bottom border to the masthead header for visual consistency. [#47425]
+- Settings: Add bottom border to the masthead header. [#47425]
 - Social: Fix slow page loads due to Social Image generation. [#45863]
 - Update AI form assistant to detect and create `core/button` blocks instead of `jetpack/button`. [#47438]
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
 - Extract the Onboarding E2E utility for re-usability. [#47407]
 - Fix flakiness in tests. [#47410]
-- Fix phpdoc type for deprecated `videopress_prepare_attachment_for_js` wrapper. [#47358]
-- Fix TS errors detected by `tsgo`. [#47426]
-- Fix TS type errors detected by `tsgo`. [#47423]
+- Fix PHPDoc type for deprecated `videopress_prepare_attachment_for_js` wrapper. [#47358]
+- Fix TypeScript errors detected by `tsgo`. [#47426] [#47423]
 - Forms: Fix admin page header CSS specificity to prevent style conflicts. [#47313]
 - Mark all methods in the `Jetpack_PostImages` class as deprecated in favor of the Post_Media package's `Images` class. [#47376]
 - Migrate Settings page header to unified header pattern and left-align navigation tabs. [#47313]
