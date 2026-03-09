@@ -18,8 +18,8 @@ export default [
 			const { min, max, ...restAttributes } = attributes;
 			return {
 				...restAttributes,
-				min: min ? parseFloat( min ) : undefined,
-				max: max ? parseFloat( max ) : undefined,
+				min: min != null && min !== '' ? parseFloat( min ) : undefined,
+				max: max != null && max !== '' ? parseFloat( max ) : undefined,
 			};
 		},
 		isEligible: attributes => {
