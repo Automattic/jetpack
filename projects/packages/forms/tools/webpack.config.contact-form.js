@@ -132,10 +132,13 @@ const RenamerPlugin = {
 export default [
 	{
 		...sharedWebpackConfig,
-		entry: glob.sync( path.join( scriptSrcDir, '*.{js,ts,tsx}' ) ).reduce( ( acc, filepath ) => {
-			acc[ 'js/' + path.parse( filepath ).name ] = filepath;
-			return acc;
-		}, {} ),
+		entry: glob
+			.sync( path.join( scriptSrcDir, '*.{js,ts,tsx}' ) )
+			.filter( filepath => ! filepath.endsWith( '/grunion.js' ) )
+			.reduce( ( acc, filepath ) => {
+				acc[ 'js/' + path.parse( filepath ).name ] = filepath;
+				return acc;
+			}, {} ),
 	},
 	{
 		...sharedWebpackConfig,
