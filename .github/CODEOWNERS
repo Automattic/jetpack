@@ -21,7 +21,6 @@
 /projects/github-actions/pr-is-up-to-date @Automattic/jetpack-monorepo
 /projects/github-actions/push-to-mirrors @Automattic/jetpack-monorepo
 /projects/github-actions/required-review @Automattic/jetpack-monorepo
-/projects/github-actions/test-results-to-slack @Automattic/jetpack-monorepo
 /projects/js-packages/babel-plugin-replace-textdomain @Automattic/jetpack-monorepo
 /projects/js-packages/eslint-changed @Automattic/jetpack-monorepo
 /projects/js-packages/eslint-config-target-es @Automattic/jetpack-monorepo
