@@ -215,7 +215,7 @@ function wpcom_has_blog_sticker( $blog_sticker, $blog_id ) {
 }
 
 /**
- * Enable the newsletter settings package for sites with the newsletter-package-202503 sticker.
+ * Enable the newsletter settings package for sites with the newsletter-package-202603 sticker.
  *
  * This allows opt-in testing of the newsletter settings package on wpcom infrastructure.
  *
@@ -228,5 +228,5 @@ function wpcom_maybe_enable_newsletter_settings( $enabled ) {
 	}
 
 	// Stickered sites (will always be simple, as we don't sync this sticker. WoW sites can just add their own mu-plugin/snippet)
-	return function_exists( 'has_blog_sticker' ) && has_blog_sticker( 'newsletter-package-202503' );
+	return function_exists( 'has_blog_sticker' ) && has_blog_sticker( 'newsletter-package-202603' );
 }
