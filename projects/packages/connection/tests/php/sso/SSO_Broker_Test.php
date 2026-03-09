@@ -59,6 +59,23 @@ class SSO_Broker_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Test get_broker_url rejects a non-string transient value.
+	 */
+	public function test_get_broker_url_rejects_non_string_transient() {
+		set_transient( SSO::BROKER_URL_TRANSIENT, array( 'not' => 'a string' ), 600 );
+		$this->assertFalse( SSO::get_broker_url() );
+	}
+
+	/**
+	 * Test get_broker_url rejects a URL with no host.
+	 */
+	public function test_get_broker_url_rejects_url_without_host() {
+		set_transient( SSO::BROKER_URL_TRANSIENT, 'https:///path-only', 600 );
+		$this->assertFalse( SSO::get_broker_url() );
+		$this->assertFalse( get_transient( SSO::BROKER_URL_TRANSIENT ) );
+	}
+
+	/**
 	 * Test get_sso_base_url returns wordpress.com when no broker is set.
 	 */
 	public function test_get_sso_base_url_defaults_to_wpcom() {

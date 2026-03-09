@@ -769,20 +769,29 @@ class SSO {
 
 			// The response may be a plain nonce string (default) or an associative
 			// array containing 'nonce' and 'broker_url' for sites that use an
-			// external SSO broker (e.g. CIAB stores).
-			if ( is_array( $response ) && isset( $response['nonce'] ) ) {
+			// external SSO broker (e.g. CIAB stores via the MSD).
+			if ( is_array( $response ) ) {
+				if ( empty( $response['nonce'] ) ) {
+					return new WP_Error( 'invalid_response', __( 'Invalid nonce response from WordPress.com.', 'jetpack-connection' ) );
+				}
+
 				$nonce = sanitize_key( $response['nonce'] );
 
 				if ( ! empty( $response['broker_url'] ) ) {
 					$broker_url = esc_url_raw( $response['broker_url'] );
 					$url_parts  = wp_parse_url( $broker_url );
 
-					if ( $url_parts && 'https' === ( $url_parts['scheme'] ?? '' ) ) {
+					if ( $url_parts && 'https' === ( $url_parts['scheme'] ?? '' ) && ! empty( $url_parts['host'] ) ) {
 						set_transient( self::BROKER_URL_TRANSIENT, $broker_url, 10 * MINUTE_IN_SECONDS );
+					} else {
+						delete_transient( self::BROKER_URL_TRANSIENT );
 					}
+				} else {
+					delete_transient( self::BROKER_URL_TRANSIENT );
 				}
 			} else {
 				$nonce = sanitize_key( $response );
+				delete_transient( self::BROKER_URL_TRANSIENT );
 			}
 
 			setcookie(
@@ -811,12 +820,12 @@ class SSO {
 	public static function get_broker_url() {
 		$broker_url = get_transient( self::BROKER_URL_TRANSIENT );
 
-		if ( ! $broker_url ) {
+		if ( ! $broker_url || ! is_string( $broker_url ) ) {
 			return false;
 		}
 
 		$url_parts = wp_parse_url( $broker_url );
-		if ( ! $url_parts || 'https' !== ( $url_parts['scheme'] ?? '' ) ) {
+		if ( ! $url_parts || 'https' !== ( $url_parts['scheme'] ?? '' ) || empty( $url_parts['host'] ) ) {
 			delete_transient( self::BROKER_URL_TRANSIENT );
 			return false;
 		}
