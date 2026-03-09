@@ -1085,8 +1085,11 @@ function ZeroBSCRM_accept_quote() {
 				wp_send_json_error( array( 'access' => 1 ), 403 );
 			}
 		}
-	} elseif ( ! zeroBSCRM_quotes_getFromHash( $quoteHash )['success'] ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-		wp_send_json_error( array( 'hash' => 1 ), 403 );
+	} else {
+		$quote_from_hash = zeroBSCRM_quotes_getFromHash( $quoteHash );
+		if ( ! $quote_from_hash['success'] || $quoteID !== $quote_from_hash['data']['ID'] ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+			wp_send_json_error( array( 'hash' => 1 ), 403 );
+		}
 	}
 
 	// We can accept the quote
