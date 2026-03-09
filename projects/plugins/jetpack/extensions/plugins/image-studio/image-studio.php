@@ -28,9 +28,8 @@ const ASSET_TRANSIENT        = 'jetpack_image_studio_asset';
 /**
  * Check if Image Studio is enabled.
  *
- * Requires AI features (Big Sky or AI Assistant) plus at least one of:
- * - The unified chat experience (agents_manager_use_unified_experience).
- * - The jetpack_image_studio_enabled filter.
+ * Enabled when AI features are available and either the request is from an
+ * Automattician or the Big Sky plugin is active and enabled.
  *
  * @return bool
  */
@@ -38,10 +37,34 @@ function is_image_studio_enabled() {
 	if ( ! has_ai_features() ) {
 		return false;
 	}
-
-	return apply_filters( 'agents_manager_use_unified_experience', false )
-		|| apply_filters( 'jetpack_image_studio_enabled', false );
+	return is_automattician()
+		|| is_big_sky_enabled();
 }
+
+/**
+ * Check if the Big Sky plugin is active and enabled.
+ *
+ * @return bool
+ */
+function is_big_sky_enabled() {
+	return class_exists( 'Big_Sky' ) && get_option( 'big_sky_enable', '1' );
+}
+
+/**
+ * Signal to Big Sky that Jetpack is handling Image Studio.
+ *
+ * Sets the jetpack_image_studio_enabled filter to true so that
+ * Big Sky skips its own Image Studio loading when Jetpack has
+ * AI features available.
+ *
+ * @return void
+ */
+function signal_image_studio_active() {
+	if ( is_image_studio_enabled() ) {
+		add_filter( 'jetpack_image_studio_enabled', '__return_true', 5 );
+	}
+}
+add_action( 'init', __NAMESPACE__ . '\signal_image_studio_active' );
 
 /**
  * Check whether AI features are available.
@@ -63,6 +86,24 @@ function has_ai_features() {
 	return ( new Connection_Manager( 'jetpack' ) )->has_connected_owner()
 		&& ! ( new Status() )->is_offline_mode()
 		&& apply_filters( 'jetpack_ai_enabled', true );
+}
+
+/**
+ * Check if the current request is from a proxied Automattician.
+ *
+ * Uses wpcom's is_proxied_automattician() when available (Simple sites),
+ * falls back to AT_PROXIED_REQUEST constant (Atomic/self-hosted).
+ *
+ * IMPORTANT: Only use for feature gating, not authorization.
+ *
+ * @return bool
+ */
+function is_automattician() {
+	if ( function_exists( '\is_automattician' ) ) {
+		return \is_automattician( get_current_user_id() );
+	}
+
+	return defined( 'AT_PROXIED_REQUEST' ) && AT_PROXIED_REQUEST;
 }
 
 /**
