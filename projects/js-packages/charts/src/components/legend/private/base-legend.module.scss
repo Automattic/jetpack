@@ -1,4 +1,5 @@
 .legend {
+	align-self: stretch;
 
 	&--horizontal {
 		display: flex;
@@ -11,51 +12,36 @@
 		display: flex;
 		flex-direction: column;
 		gap: 8px;
-
-		&.legend--alignment-start {
-			align-items: flex-start;
-		}
-
-		&.legend--alignment-center {
-			align-items: center;
-		}
-
-		&.legend--alignment-end {
-			align-items: flex-end;
-		}
 	}
 
-	// Position-based styles
-	&--position-top {
-		position: relative;
-
-		&.legend--alignment-start {
-			justify-content: flex-start;
-		}
-
-		&.legend--alignment-center {
-			justify-content: center;
-		}
-
-		&.legend--alignment-end {
-			justify-content: flex-end;
-		}
+	&--alignment-start {
+		justify-content: flex-start;
 	}
 
+	&--alignment-center {
+		justify-content: center;
+	}
+
+	&--alignment-end {
+		justify-content: flex-end;
+	}
+
+	// Vertical legends align on the cross-axis instead
+	&--vertical.legend--alignment-start {
+		align-items: flex-start;
+	}
+
+	&--vertical.legend--alignment-center {
+		align-items: center;
+	}
+
+	&--vertical.legend--alignment-end {
+		align-items: flex-end;
+	}
+
+	&--position-top,
 	&--position-bottom {
 		position: relative;
-
-		&.legend--alignment-start {
-			justify-content: flex-start;
-		}
-
-		&.legend--alignment-center {
-			justify-content: center;
-		}
-
-		&.legend--alignment-end {
-			justify-content: flex-end;
-		}
 	}
 }
 
