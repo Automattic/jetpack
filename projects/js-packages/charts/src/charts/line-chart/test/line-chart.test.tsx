@@ -1200,7 +1200,7 @@ describe( 'LineChart', () => {
 						{ ...defaultProps }
 						withGradientFill={ false }
 						showLegend={ true }
-						legendInteractive={ true }
+						legend={ { interactive: true } }
 						chartId="test-interactive-chart"
 					/>
 				</GlobalChartsProvider>
@@ -1222,7 +1222,7 @@ describe( 'LineChart', () => {
 						{ ...defaultProps }
 						withGradientFill={ false }
 						showLegend={ true }
-						legendInteractive={ false }
+						legend={ { interactive: false } }
 						chartId="test-non-interactive-chart"
 					/>
 				</GlobalChartsProvider>
@@ -1240,7 +1240,7 @@ describe( 'LineChart', () => {
 						{ ...defaultProps }
 						withGradientFill={ false }
 						showLegend={ true }
-						legendInteractive={ true }
+						legend={ { interactive: true } }
 						// No chartId provided
 					/>
 				</GlobalChartsProvider>

@@ -151,21 +151,19 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 	animation,
 	loading = false,
 	showLegend = false,
-	legendOrientation = 'horizontal',
-	legendPosition = 'bottom',
-	legendAlignment = 'center',
-	legendShape = 'circle',
-	legendShapeStyles: legendShapeStylesProp,
+	legend = {},
 	legendLabels,
-	legendInteractive = false,
 	gap = 'md',
 	className,
 	style,
 	children,
 } ) => {
+	const legendInteractive = legend.interactive ?? false;
+	const legendPosition = legend.position ?? 'bottom';
+
 	const chartId = useChartId( providedChartId );
 	const { leaderboardChart: leaderboardChartSettings } = useGlobalChartsTheme();
-	const legendShapeStyles = { width: 8, height: 8, ...legendShapeStylesProp };
+	const legendShapeStyles = { width: 8, height: 8, ...legend.shapeStyles };
 
 	// Process children to extract compound components
 	const { legendChildren, nonLegendChildren } = useChartChildren( children, 'LeaderboardChart' );
@@ -290,10 +288,10 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 
 	const legendElement = showLegend && (
 		<Legend
-			orientation={ legendOrientation }
+			orientation={ legend.orientation ?? 'horizontal' }
 			position={ legendPosition }
-			alignment={ legendAlignment }
-			shape={ legendShape }
+			alignment={ legend.alignment ?? 'center' }
+			shape={ legend.shape ?? 'circle' }
 			shapeStyles={ legendShapeStyles }
 			chartId={ chartId }
 			interactive={ legendInteractive }

@@ -240,7 +240,7 @@ export const WithInteractiveLegend: Story = {
 	args: {
 		...Default.args,
 		showLegend: true,
-		legendInteractive: true,
+		legend: { interactive: true },
 		chartId: 'bar-chart-with-interactive-legend',
 	},
 	parameters: {
@@ -262,18 +262,15 @@ export const WithCompositionLegend: StoryObj< typeof BarChart > = {
 			gridVisibility="x"
 		>
 			<BarChart.Legend
-				orientation={ args.legendOrientation || 'horizontal' }
-				alignment={ args.legendAlignment || 'center' }
-				position={ args.legendPosition || 'bottom' }
-				labelStyles={ {
-					maxWidth: args.legendMaxWidth,
-					textOverflow: args.legendTextOverflow || 'wrap',
-				} }
+				orientation={ args.legend?.orientation || 'horizontal' }
+				alignment={ args.legend?.alignment || 'center' }
+				position={ args.legend?.position || 'bottom' }
+				labelStyles={ args.legend?.labelStyles }
 			/>
 		</BarChart>
 	),
 	argTypes: {
-		legendInteractive: {
+		'legend.interactive': {
 			table: { disable: true },
 		},
 	},
@@ -298,9 +295,11 @@ export const CustomLegendPositioning: Story = {
 		containerHeight: '400px',
 		// showLegend defaults to false, explicitly enabling for demonstration
 		showLegend: true,
-		legendOrientation: 'vertical',
-		legendAlignment: 'start',
-		legendPosition: 'top',
+		legend: {
+			orientation: 'vertical',
+			alignment: 'start',
+			position: 'top',
+		},
 	},
 	parameters: {
 		docs: {

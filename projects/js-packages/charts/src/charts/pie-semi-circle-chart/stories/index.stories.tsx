@@ -135,13 +135,10 @@ export const WithCompositionLegend: Story = {
 	render: args => (
 		<PieSemiCircleChart data={ args.data } label="Performance Metrics" note="Q4 2023 Results">
 			<PieSemiCircleChart.Legend
-				position={ args.legendPosition || 'bottom' }
-				orientation={ args.legendOrientation || 'horizontal' }
-				alignment={ args.legendAlignment || 'center' }
-				labelStyles={ {
-					maxWidth: args.legendMaxWidth,
-					textOverflow: args.legendTextOverflow || 'wrap',
-				} }
+				position={ args.legend?.position || 'bottom' }
+				orientation={ args.legend?.orientation || 'horizontal' }
+				alignment={ args.legend?.alignment || 'center' }
+				labelStyles={ args.legend?.labelStyles }
 			/>
 		</PieSemiCircleChart>
 	),
@@ -149,7 +146,7 @@ export const WithCompositionLegend: Story = {
 		data,
 	},
 	argTypes: {
-		legendInteractive: {
+		'legend.interactive': {
 			table: { disable: true },
 		},
 	},
@@ -172,10 +169,12 @@ export const InteractiveLegend: Story = {
 				label="Performance Metrics"
 				note="Click legend to filter"
 				showLegend={ true }
-				legendInteractive={ true }
-				legendPosition={ args.legendPosition || 'bottom' }
-				legendOrientation={ args.legendOrientation || 'horizontal' }
-				legendAlignment={ args.legendAlignment || 'center' }
+				legend={ {
+					interactive: true,
+					position: args.legend?.position || 'bottom',
+					orientation: args.legend?.orientation || 'horizontal',
+					alignment: args.legend?.alignment || 'center',
+				} }
 			>
 				<p style={ { marginBottom: '20px', color: '#666' } }>
 					Click legend items to show/hide segments. Percentages adjust automatically.
@@ -223,10 +222,12 @@ export const CustomLegendPositioning: Story = {
 		note: 'Windows +10%',
 		withTooltips: true,
 		showLegend: true,
-		legendOrientation: 'vertical',
-		legendAlignment: 'end',
-		legendPosition: 'top',
-		legendShape: 'circle',
+		legend: {
+			orientation: 'vertical',
+			alignment: 'end',
+			position: 'top',
+			shape: 'circle',
+		},
 	},
 	parameters: {
 		docs: {
@@ -421,7 +422,7 @@ export const CompositionAPI: Story = {
 		containerWidth: '1000px',
 	},
 	argTypes: {
-		legendInteractive: {
+		'legend.interactive': {
 			table: { disable: true },
 		},
 	},

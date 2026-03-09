@@ -178,13 +178,10 @@ export const WithCompositionLegend: Story = {
 	render: args => (
 		<PieChart size={ 300 } data={ args.data } legendValueDisplay={ args.legendValueDisplay }>
 			<PieChart.Legend
-				position={ args.legendPosition || 'bottom' }
-				orientation={ args.legendOrientation || 'horizontal' }
-				alignment={ args.legendAlignment || 'center' }
-				labelStyles={ {
-					maxWidth: args.legendMaxWidth,
-					textOverflow: args.legendTextOverflow || 'wrap',
-				} }
+				position={ args.legend?.position || 'bottom' }
+				orientation={ args.legend?.orientation || 'horizontal' }
+				alignment={ args.legend?.alignment || 'center' }
+				labelStyles={ args.legend?.labelStyles }
 			/>
 		</PieChart>
 	),
@@ -192,7 +189,7 @@ export const WithCompositionLegend: Story = {
 		data,
 	},
 	argTypes: {
-		legendInteractive: {
+		'legend.interactive': {
 			table: { disable: true },
 		},
 	},
@@ -214,10 +211,12 @@ export const InteractiveLegend: Story = {
 				size={ args.size }
 				data={ args.data }
 				showLegend={ true }
-				legendInteractive={ true }
-				legendPosition={ args.legendPosition || 'bottom' }
-				legendOrientation={ args.legendOrientation || 'horizontal' }
-				legendAlignment={ args.legendAlignment || 'center' }
+				legend={ {
+					interactive: true,
+					position: args.legend?.position || 'bottom',
+					orientation: args.legend?.orientation || 'horizontal',
+					alignment: args.legend?.alignment || 'center',
+				} }
 				legendValueDisplay={ args.legendValueDisplay }
 			>
 				<p style={ { color: '#666' } }>
@@ -269,10 +268,12 @@ export const CustomLegendPositioning: Story = {
 		cornerScale: 0.03,
 		withTooltips: true,
 		showLegend: true,
-		legendOrientation: 'vertical',
-		legendAlignment: 'center',
-		legendPosition: 'top',
-		legendShape: 'circle',
+		legend: {
+			orientation: 'vertical',
+			alignment: 'center',
+			position: 'top',
+			shape: 'circle',
+		},
 		size: 400,
 		containerWidth: '432px',
 		containerHeight: '432px',
@@ -356,7 +357,7 @@ export const CompositionAPI: Story = {
 		containerWidth: '600px',
 	},
 	argTypes: {
-		legendInteractive: {
+		'legend.interactive': {
 			table: { disable: true },
 		},
 	},

@@ -60,7 +60,7 @@ describe( 'PieChart', () => {
 		test( 'renders legend when showLegend is true', () => {
 			renderWithTheme( {
 				showLegend: true,
-				legendPosition: 'top',
+				legend: { position: 'top' },
 			} );
 
 			// Check that legend container is rendered using accessible queries
@@ -72,7 +72,7 @@ describe( 'PieChart', () => {
 		test( 'renders correct number of legend items', () => {
 			renderWithTheme( {
 				showLegend: true,
-				legendPosition: 'top',
+				legend: { position: 'top' },
 			} );
 
 			// Use getAllByTestId to find legend items
@@ -83,7 +83,7 @@ describe( 'PieChart', () => {
 		test( 'chart renders with legend at top position', () => {
 			renderWithTheme( {
 				showLegend: true,
-				legendPosition: 'top',
+				legend: { position: 'top' },
 			} );
 
 			// Verify the chart renders without errors when legend is at top
@@ -98,7 +98,7 @@ describe( 'PieChart', () => {
 		test( 'chart renders with legend at bottom position', () => {
 			renderWithTheme( {
 				showLegend: true,
-				legendPosition: 'bottom',
+				legend: { position: 'bottom' },
 			} );
 
 			// Verify the chart renders without errors when legend is at bottom
@@ -379,7 +379,7 @@ describe( 'PieChart', () => {
 			renderWithTheme( {
 				data: testData,
 				showLegend: true,
-				legendInteractive: true,
+				legend: { interactive: true },
 				chartId: 'test-interactive-pie-chart',
 			} );
 
@@ -411,7 +411,7 @@ describe( 'PieChart', () => {
 			renderWithTheme( {
 				data: testData,
 				showLegend: true,
-				legendInteractive: true,
+				legend: { interactive: true },
 				chartId: 'test-all-hidden-pie-chart',
 			} );
 
@@ -450,7 +450,7 @@ describe( 'PieChart', () => {
 			renderWithTheme( {
 				data: testData,
 				showLegend: true,
-				legendInteractive: false,
+				legend: { interactive: false },
 				chartId: 'test-non-interactive-pie-chart',
 			} );
 
@@ -474,7 +474,7 @@ describe( 'PieChart', () => {
 			renderWithTheme( {
 				data: testData,
 				showLegend: true,
-				legendInteractive: true,
+				legend: { interactive: true },
 				chartId: 'test-color-consistency-pie-chart',
 			} );
 
@@ -506,7 +506,7 @@ describe( 'PieChart', () => {
 			renderWithTheme( {
 				data: testData,
 				showLegend: true,
-				legendInteractive: true,
+				legend: { interactive: true },
 				legendValueDisplay: 'percentage',
 				chartId: 'test-percentage-recalc-pie-chart',
 			} );

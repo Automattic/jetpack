@@ -143,7 +143,7 @@ WithInteractiveLegend.args = {
 	...lineChartStoryArgs,
 	chartId: 'interactive-legend-demo',
 	showLegend: true,
-	legendInteractive: true,
+	legend: { interactive: true },
 };
 
 WithInteractiveLegend.parameters = {
@@ -159,9 +159,11 @@ export const CustomLegendPositioning: StoryObj< typeof LineChart > = Template.bi
 CustomLegendPositioning.args = {
 	...lineChartStoryArgs,
 	showLegend: true,
-	legendAlignment: 'start',
-	legendPosition: 'top',
-	legendOrientation: 'horizontal',
+	legend: {
+		alignment: 'start',
+		position: 'top',
+		orientation: 'horizontal',
+	},
 	withLegendGlyph: true,
 };
 
@@ -179,18 +181,15 @@ export const WithCompositionLegend: StoryObj< typeof LineChart > = {
 	render: args => (
 		<LineChart { ...Default.args } { ...args }>
 			<LineChart.Legend
-				orientation={ args.legendOrientation || 'horizontal' }
-				alignment={ args.legendAlignment || 'center' }
-				position={ args.legendPosition || 'bottom' }
-				labelStyles={ {
-					maxWidth: args.legendMaxWidth,
-					textOverflow: args.legendTextOverflow || 'wrap',
-				} }
+				orientation={ args.legend?.orientation || 'horizontal' }
+				alignment={ args.legend?.alignment || 'center' }
+				position={ args.legend?.position || 'bottom' }
+				labelStyles={ args.legend?.labelStyles }
 			/>
 		</LineChart>
 	),
 	argTypes: {
-		legendInteractive: {
+		'legend.interactive': {
 			table: { disable: true },
 		},
 	},

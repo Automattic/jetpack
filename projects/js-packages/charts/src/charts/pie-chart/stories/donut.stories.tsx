@@ -224,13 +224,10 @@ export const WithCompositionLegend: Story = {
 				</Text>
 			</Group>
 			<PieChart.Legend
-				position={ args.legendPosition || 'bottom' }
-				orientation={ args.legendOrientation || 'horizontal' }
-				alignment={ args.legendAlignment || 'center' }
-				labelStyles={ {
-					maxWidth: args.legendMaxWidth,
-					textOverflow: args.legendTextOverflow || 'wrap',
-				} }
+				position={ args.legend?.position || 'bottom' }
+				orientation={ args.legend?.orientation || 'horizontal' }
+				alignment={ args.legend?.alignment || 'center' }
+				labelStyles={ args.legend?.labelStyles }
 			/>
 		</PieChart>
 	),
@@ -239,7 +236,7 @@ export const WithCompositionLegend: Story = {
 		thickness: 0.5,
 	},
 	argTypes: {
-		legendInteractive: {
+		'legend.interactive': {
 			table: { disable: true },
 		},
 	},
@@ -262,10 +259,12 @@ export const InteractiveLegend: Story = {
 				data={ args.data }
 				thickness={ 0.5 }
 				showLegend={ true }
-				legendInteractive={ true }
-				legendPosition={ args.legendPosition || 'bottom' }
-				legendOrientation={ args.legendOrientation || 'horizontal' }
-				legendAlignment={ args.legendAlignment || 'center' }
+				legend={ {
+					interactive: true,
+					position: args.legend?.position || 'bottom',
+					orientation: args.legend?.orientation || 'horizontal',
+					alignment: args.legend?.alignment || 'center',
+				} }
 				legendValueDisplay={ args.legendValueDisplay }
 			>
 				<Group>
@@ -301,9 +300,11 @@ export const CustomLegendPositioning: Story = {
 		...Default.args,
 		thickness: 0.4,
 		showLegend: true,
-		legendOrientation: 'vertical',
-		legendAlignment: 'start',
-		legendPosition: 'top',
+		legend: {
+			orientation: 'vertical',
+			alignment: 'start',
+			position: 'top',
+		},
 		containerHeight: '450px',
 		data: [
 			{

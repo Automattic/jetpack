@@ -1,4 +1,3 @@
-import type { LegendPosition } from './components/legend';
 import type { CircleSubjectProps } from '@visx/annotation/lib/components/CircleSubject';
 import type { ConnectorProps } from '@visx/annotation/lib/components/Connector';
 import type { LabelProps } from '@visx/annotation/lib/components/Label';
@@ -11,6 +10,12 @@ import type { EventHandlerParams, GlyphProps, GridStyles, LineStyles } from '@vi
 import type { GapSize } from '@wordpress/theme';
 import type { CSSProperties, PointerEvent, ReactNode } from 'react';
 import type { GoogleDataTableColumn, GoogleDataTableRow } from 'react-google-charts';
+import type {
+	LegendItemStyles,
+	LegendLabelStyles,
+	LegendPosition,
+	LegendShapeStyles,
+} from './components/legend';
 
 type ValueOf< T > = T[ keyof T ];
 
@@ -354,6 +359,53 @@ export type ScaleOptions = {
 };
 
 /**
+ * Configuration object for chart legend appearance and behavior.
+ * Consolidates all legend styling and layout props into a single structured object.
+ */
+export type ChartLegendConfig< T = DataPoint | DataPointDate | LeaderboardEntry > = {
+	/**
+	 * Layout direction of legend items.
+	 */
+	orientation?: 'horizontal' | 'vertical';
+	/**
+	 * Position of the legend relative to the chart.
+	 * TODO: Add 'left' | 'right' positioning support in future implementation
+	 */
+	position?: LegendPosition;
+	/**
+	 * Alignment of the legend within its position.
+	 */
+	alignment?: 'start' | 'center' | 'end';
+	/**
+	 * Shape of the legend marker icon.
+	 */
+	shape?: LegendShape< T, number >;
+	/**
+	 * Enable interactive legend items that can toggle series visibility.
+	 * Supported for all chart types that render series.
+	 * Requires chartId and GlobalChartsProvider.
+	 * For pie charts, percentages are recalculated so visible segments total 100%.
+	 */
+	interactive?: boolean;
+	/**
+	 * Additional CSS class name for legend items.
+	 */
+	className?: string;
+	/**
+	 * CSS styles for each legend item (margin, flexDirection).
+	 */
+	itemStyles?: LegendItemStyles;
+	/**
+	 * CSS styles for legend labels (maxWidth, textOverflow, justifyContent, flex, margin).
+	 */
+	labelStyles?: LegendLabelStyles;
+	/**
+	 * Styles for legend shapes (width, height, margin).
+	 */
+	shapeStyles?: LegendShapeStyles;
+};
+
+/**
  * Base properties shared across all chart components
  */
 export type BaseChartProps< T = DataPoint | DataPointDate | LeaderboardEntry > = {
@@ -417,42 +469,10 @@ export type BaseChartProps< T = DataPoint | DataPointDate | LeaderboardEntry > =
 	 */
 	showLegend?: boolean;
 	/**
-	 * Legend orientation
+	 * Legend configuration object for controlling legend appearance and behavior.
+	 * Includes orientation, position, alignment, shape, styling, and interactivity options.
 	 */
-	legendOrientation?: 'horizontal' | 'vertical';
-	/**
-	 * Legend shape
-	 */
-	legendShape?: LegendShape< T, number >;
-	/** Legend position (where the legend appears). */
-	legendPosition?: LegendPosition;
-	/**
-	 * Legend alignment within its position
-	 */
-	legendAlignment?: 'start' | 'center' | 'end';
-	/**
-	 * Maximum width for legend items. When set, text overflow behavior is controlled by legendTextOverflow.
-	 * Should be a CSS value string (e.g. '200px', '50%', '10rem')
-	 */
-	legendMaxWidth?: string;
-	/**
-	 * Controls how text behaves when it exceeds legendMaxWidth.
-	 * - 'ellipsis': Truncate with ellipsis (ideal for widgets/small devices)
-	 * - 'wrap': Wrap text to multiple lines (default, ideal for larger displays)
-	 */
-	legendTextOverflow?: 'ellipsis' | 'wrap';
-	/**
-	 * Additional CSS class name for legend items.
-	 * This allows consumers to customize individual legend item styling.
-	 */
-	legendItemClassName?: string;
-	/**
-	 * Enable interactive legend items that can toggle series visibility.
-	 * Supported for all chart types that render series.
-	 * Requires chartId and GlobalChartsProvider.
-	 * For pie charts, percentages are recalculated so visible segments total 100%.
-	 */
-	legendInteractive?: boolean;
+	legend?: ChartLegendConfig< T >;
 	/**
 	 * Grid visibility. x is default when orientation is vertical. y is default when orientation is horizontal.
 	 */

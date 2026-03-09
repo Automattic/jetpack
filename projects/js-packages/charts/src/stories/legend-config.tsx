@@ -8,25 +8,25 @@ export const legendArgTypes = {
 		description: 'Show or hide the legend',
 		table: { category: 'Legend' },
 	},
-	legendPosition: {
+	'legend.position': {
 		control: { type: 'select' as const },
 		options: [ 'top', 'bottom' ],
 		description: 'Position of the legend relative to the chart',
 		table: { category: 'Legend' },
 	},
-	legendAlignment: {
+	'legend.alignment': {
 		control: { type: 'select' as const },
 		options: [ 'start', 'center', 'end' ],
 		description: 'Horizontal alignment of the legend within its position',
 		table: { category: 'Legend' },
 	},
-	legendOrientation: {
+	'legend.orientation': {
 		control: { type: 'select' as const },
 		options: [ 'horizontal', 'vertical' ],
 		description: 'Layout direction of legend items',
 		table: { category: 'Legend' },
 	},
-	legendShape: {
+	'legend.shape': {
 		control: { type: 'select' as const },
 		options: [ 'circle', 'rect' ],
 		description: 'Shape of the legend marker icon',
@@ -44,26 +44,26 @@ export const legendArgTypes = {
 		description:
 			'What type of value to display in the legend when showValues is true. Note: Enable "showLegend" to see the effect of this control.',
 	},
-	legendMaxWidth: {
+	'legend.labelStyles.maxWidth': {
 		control: { type: 'text' as const },
 		table: { category: 'Legend' },
 		description:
-			'Maximum width for legend items as CSS value (e.g. "200px", "50%", "10rem"). When set, text overflow behavior is controlled by legendTextOverflow.',
+			'Maximum width for legend items as CSS value (e.g. "200px", "50%", "10rem"). When set, text overflow behavior is controlled by legend.labelStyles.textOverflow.',
 	},
-	legendTextOverflow: {
+	'legend.labelStyles.textOverflow': {
 		control: { type: 'select' as const },
 		options: [ 'wrap', 'ellipsis' ],
 		table: { category: 'Legend' },
 		description:
-			'Controls how text behaves when it exceeds legendMaxWidth. "ellipsis" truncates with ... (ideal for widgets), "wrap" allows text to wrap to multiple lines.',
+			'Controls how text behaves when it exceeds maxWidth. "ellipsis" truncates with ... (ideal for widgets), "wrap" allows text to wrap to multiple lines.',
 	},
-	legendItemClassName: {
+	'legend.className': {
 		control: { type: 'text' as const },
 		table: { category: 'Legend' },
 		description:
 			'Additional CSS class name for legend items. This allows consumers to customize individual legend item styling.',
 	},
-	legendInteractive: {
+	'legend.interactive': {
 		control: { type: 'boolean' as const },
 		table: { category: 'Legend' },
 		description:

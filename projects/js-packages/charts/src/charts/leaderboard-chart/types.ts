@@ -1,6 +1,5 @@
 import { type ReactNode } from 'react';
 import { BaseChartProps, LeaderboardEntry } from '../../types';
-import type { LegendShapeStyles } from '../../components/legend';
 
 export interface LeaderboardChartProps
 	extends Pick<
@@ -8,16 +7,12 @@ export interface LeaderboardChartProps
 		| 'className'
 		| 'data'
 		| 'showLegend'
-		| 'legendOrientation'
-		| 'legendPosition'
-		| 'legendAlignment'
-		| 'legendShape'
+		| 'legend'
 		| 'chartId'
 		| 'width'
 		| 'height'
 		| 'size'
 		| 'gap'
-		| 'legendInteractive'
 		| 'animation'
 	> {
 	/**
@@ -61,11 +56,6 @@ export interface LeaderboardChartProps
 	style?: React.CSSProperties & {
 		'--a8c--charts--leaderboard--bar--border-radius'?: string;
 	};
-
-	/**
-	 * Styles for legend shapes (width, height, margin).
-	 */
-	legendShapeStyles?: LegendShapeStyles;
 
 	/**
 	 * Custom labels for legend items

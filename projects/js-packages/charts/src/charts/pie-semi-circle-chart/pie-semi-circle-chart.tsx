@@ -104,13 +104,6 @@ export interface PieSemiCircleChartProps extends BaseChartProps< DataPointPercen
 	legendValueDisplay?: LegendValueDisplay;
 
 	/**
-	 * Enable interactive legend items that can toggle segment visibility.
-	 * Requires chartId and GlobalChartsProvider.
-	 * When segments are hidden, percentages are recalculated so visible segments total 100%.
-	 */
-	legendInteractive?: boolean;
-
-	/**
 	 * Horizontal offset for tooltip positioning in pixels (default: 0)
 	 */
 	tooltipOffsetX?: number;
@@ -172,15 +165,8 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 	clockwise = true,
 	withTooltips = false,
 	showLegend = false,
-	legendOrientation = 'horizontal',
-	legendPosition = 'bottom',
-	legendAlignment = 'center',
-	legendMaxWidth,
-	legendTextOverflow = 'wrap',
-	legendItemClassName,
-	legendShape = 'circle',
+	legend = {},
 	legendValueDisplay = 'percentage',
-	legendInteractive = false,
 	label,
 	animation,
 	note,
@@ -191,6 +177,9 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 	renderTooltip = renderDefaultPieSemiCircleTooltip,
 	gap = 'md',
 } ) => {
+	const legendInteractive = legend.interactive ?? false;
+	const legendPosition = legend.position ?? 'bottom';
+
 	const chartId = useChartId( providedChartId );
 	// Measure the SVG wrapper to calculate constrained dimensions
 	const [ svgWrapperRef, svgWrapperWidth, svgWrapperHeight ] = useElementSize< HTMLDivElement >();
@@ -354,12 +343,12 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 
 	const legendElement = showLegend && (
 		<Legend
-			orientation={ legendOrientation }
+			orientation={ legend.orientation ?? 'horizontal' }
 			position={ legendPosition }
-			alignment={ legendAlignment }
-			labelStyles={ { maxWidth: legendMaxWidth, textOverflow: legendTextOverflow } }
-			itemClassName={ legendItemClassName }
-			shape={ legendShape }
+			alignment={ legend.alignment ?? 'center' }
+			labelStyles={ legend.labelStyles }
+			itemClassName={ legend.className }
+			shape={ legend.shape ?? 'circle' }
 			chartId={ chartId }
 			interactive={ legendInteractive }
 		/>
