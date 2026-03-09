@@ -276,14 +276,12 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 						height: propHeight || undefined,
 					} }
 				>
-					{ renderLegendSlot( legendChildren, 'top' ) }
 					<div className={ styles.emptyState }>
 						{ loading
 							? __( 'Loading…', 'jetpack-charts' )
 							: __( 'No data available', 'jetpack-charts' ) }
 					</div>
-					{ renderLegendSlot( legendChildren, 'bottom' ) }
-					{ /* Render children from composition API */ }
+
 					{ otherChildren }
 				</Stack>
 			</SingleChartContext.Provider>
@@ -382,7 +380,6 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 				{ legendPosition === 'bottom' && legendElement }
 				{ renderLegendSlot( legendChildren, 'bottom' ) }
 
-				{ /* Render children from composition API */ }
 				{ otherChildren }
 			</Stack>
 		</SingleChartContext.Provider>
