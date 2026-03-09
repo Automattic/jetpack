@@ -108,7 +108,6 @@ patchedDependencies:
   # uuid up to v11 had CommonJS files with ESM content too.
   # No bug report, because it's already fixed in the latest versions.
   "uuid@<11": .pnpm-patches/uuid.patch
-
-  # @wordpress/interactivity@6.40.0 emitted an incomplete Window.scheduler type
-  # Upstream fix: https://github.com/WordPress/gutenberg/pull/76070
-  "@wordpress/interactivity@6.40.0": .pnpm-patches/@wordpress__interactivity@6.40.0.patch
+  # @wordpress/interactivity@6.41.0 declares Window.scheduler as optional, but tsgo's DOM lib
+  # requires it. Upstream fix: https://github.com/WordPress/gutenberg/pull/76070 needs another fix.
+  "@wordpress/interactivity@6.41.0": .pnpm-patches/@wordpress__interactivity@6.41.0.patch
