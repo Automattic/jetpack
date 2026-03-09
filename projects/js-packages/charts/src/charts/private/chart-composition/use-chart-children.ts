@@ -35,7 +35,9 @@ export function useChartChildren( children: ReactNode, chartType: string ): Char
 			if ( isValidElement( child ) ) {
 				// Extract Legend children for position-based slot rendering
 				if ( child.type === Legend ) {
-					const position = child.props?.position ?? 'bottom';
+					const rawPosition = child.props?.position;
+					const position =
+						rawPosition === 'top' || rawPosition === 'bottom' ? rawPosition : 'bottom';
 
 					legend.push( { element: child as ReactElement, position } );
 

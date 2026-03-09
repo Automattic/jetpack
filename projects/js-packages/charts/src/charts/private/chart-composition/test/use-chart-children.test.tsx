@@ -153,6 +153,16 @@ describe( 'useChartChildren', () => {
 		expect( result.current.otherChildren ).toHaveLength( 0 );
 	} );
 
+	it( 'should default to bottom for invalid position values', () => {
+		// @ts-expect-error -- testing invalid runtime value
+		const children = <Legend position="left" />;
+
+		const { result } = renderHook( () => useChartChildren( children, 'TestChart' ) );
+
+		expect( result.current.legendChildren ).toHaveLength( 1 );
+		expect( result.current.legendChildren[ 0 ].position ).toBe( 'bottom' );
+	} );
+
 	it( 'should extract multiple Legend children by position', () => {
 		const children = [
 			<Legend key="top" position="top" />,
