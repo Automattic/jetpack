@@ -116,12 +116,8 @@ const InputEdit = ( { attributes, clientId, isSelected, name, setAttributes, con
 						<NumberControl
 							key="max"
 							label={ __( 'Maximum value', 'jetpack-forms' ) }
-							value={ attributes.max }
-							onChange={ value =>
-								setAttributes( {
-									max: value,
-								} )
-							}
+							value={ max }
+							onChange={ value => setAttributes( { max: value } ) }
 							min={ min }
 							__nextHasNoMarginBottom={ true }
 							__next40pxDefaultSize={ true }
