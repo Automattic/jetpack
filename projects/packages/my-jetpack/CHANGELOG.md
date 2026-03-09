@@ -8,10 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [5.31.9] - 2026-03-09
 ### Changed
 - Migrate admin page header to use unified AdminHeader component. [#47313]
-- Newsletter: Updated manage URL to redirect to new settings page when wp-admin newsletter settings are enabled. [#47347]
+- Newsletter: Update manage URL to redirect to new settings page when wp-admin newsletter settings are enabled. [#47347]
 - Reorder admin menu items so external links appear last. [#47417]
 - Switch to Native TypeScript compiler based on Go. [#47375]
-- Unified Header: add back border to the header. [#47425]
+- Unified Header: Add back border to the header. [#47425]
 - Update package dependencies. [#47496]
 
 ### Fixed

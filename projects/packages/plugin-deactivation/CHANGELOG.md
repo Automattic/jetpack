@@ -8,9 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.3.25] - 2026-03-09
 ### Changed
 - Switch to Native TypeScript compiler based on Go. [#47375]
-- Update package dependencies. [#47002]
-- Update package dependencies. [#47173]
-- Update package dependencies. [#47496]
+- Update package dependencies. [#47002] [#47173] [#47496]
 
 ## [0.3.24] - 2026-02-03
 ### Changed

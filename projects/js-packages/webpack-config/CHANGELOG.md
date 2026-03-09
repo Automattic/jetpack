@@ -9,8 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Centralize admin-ui CSS bundling: add subpath to defaultRequestMap and mark CSS imports as sideEffects to prevent incorrect externalization and tree-shaking. [#47313]
 - Switch to Native TypeScript compiler based on Go. [#47375]
-- Update package dependencies. [#47497]
-- Update package dependencies. [#47500]
+- Update package dependencies. [#47497] [#47500]
 
 ## 3.7.26 - 2026-02-26
 ### Changed

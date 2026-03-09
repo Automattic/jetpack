@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Remove header border-bottom from the admin page for a cleaner unified header appearance. [#47313]
-- Replaced the large Jetpack Boost logo header with a compact unified header pattern (Jetpack icon + title + subtitle) for consistent product identity. [#47313]
+- Replace the large Jetpack Boost logo header with a compact unified header pattern (Jetpack icon + title + subtitle) for consistent product identity. [#47313]
 - Replace license activation link with a "Use license key" button in the header actions area. [#47434]
 - Switch to Native TypeScript compiler based on Go. [#47375]
 
@@ -20,7 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Compatibility: Clean up deprecated CSS. [#47067]
 - Fix Hello Dolly banner background color and clear floats in admin layout. [#47313]
 - Fix TS errors detected by tsgo. [#47426]
-- I18N: Fix translatable strings extraction [#47432]
+- I18N: Fix translatable strings extraction. [#47432]
 
 ## [4.5.7] - 2026-02-04
 

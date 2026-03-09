@@ -16,8 +16,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Update package dependencies. [#47496]
 
 ### Fixed
-- Charts: Fix leaderboard chart height calculation to include legend layout and keep responsive sizing by default. [#47369]
-- Charts: Fix zero-value bars not visible in small chart heights by ensuring minimum pixel-based value. [#47477]
+- Fix leaderboard chart height calculation to include legend layout and keep responsive sizing by default. [#47369]
+- Fix zero-value bars not visible in small chart heights by ensuring minimum pixel-based value. [#47477]
 - Legend: Fix value rendering for falsy values (e.g. 0), guard against empty string spans, make value optional in types, and use index-based lookup for better performance. [#47459]
 
 ## [0.56.7] - 2026-03-02
