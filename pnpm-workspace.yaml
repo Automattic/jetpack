@@ -30,8 +30,25 @@ minimumReleaseAgeExclude:
   - '@automattic/*'
   - '@woocommerce/*'
   - '@wordpress/*'
-  # Renovate security update: svgo@4.0.1
-  - svgo@4.0.1
+  # GHSA-7h2j-956f-4vf2
+  - '@isaacs/brace-expansion@5.0.1'
+  # Renovate security update: webpack@5.104.1
+  - webpack@5.104.1
+  # Renovate security update: axios@1.13.5
+  - axios@1.13.5
+  # Renovate security update: qs@6.14.2
+  - qs@6.14.2
+  # Renovate security update: markdown-it@14.1.1
+  - markdown-it@14.1.1
+  # Renovate security update: minimatch@10.2.1
+  - minimatch@10.2.1
+  # Renovate security update: swiper@12.1.2
+  - swiper@12.1.2
+  # Renovate security update: rollup@3.30.0
+  - rollup@3.30.0
+  # Renovate security update: svelte@5.53.5 (also needs devalue@5.6.3)
+  - svelte@5.53.5
+  - devalue@5.6.3
 trustPolicy: no-downgrade
 trustPolicyExclude:
   # https://github.com/paulmillr/chokidar/issues/1440

@@ -37,20 +37,38 @@ class Gutenberg_RTC_Test extends \WorDBless\BaseTestCase {
 	private $original_wp_settings_fields;
 
 	/**
+	 * Original WP_Scripts instance to restore after each test.
+	 *
+	 * @var \WP_Scripts|null
+	 */
+	private $original_wp_scripts;
+
+	/**
+	 * Original WP_Styles instance to restore after each test.
+	 *
+	 * @var \WP_Styles|null
+	 */
+	private $original_wp_styles;
+
+	/**
 	 * Save global state before each test.
 	 */
 	public function set_up(): void {
 		parent::set_up();
-		global $wp_settings_fields;
+		global $wp_settings_fields, $wp_scripts, $wp_styles;
 		$this->original_wp_settings_fields = $wp_settings_fields;
+		$this->original_wp_scripts         = $wp_scripts;
+		$this->original_wp_styles          = $wp_styles;
 	}
 
 	/**
 	 * Clean up filters and restore global state after each test.
 	 */
 	public function tear_down(): void {
-		global $wp_settings_fields;
+		global $wp_settings_fields, $wp_scripts, $wp_styles;
 		$wp_settings_fields = $this->original_wp_settings_fields; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$wp_scripts         = $this->original_wp_scripts; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$wp_styles          = $this->original_wp_styles; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		remove_all_filters( 'wpcom_is_gutenberg_rtc_enabled' );
 		remove_all_filters( 'wpcom_gutenberg_rtc_providers' );
 		parent::tear_down();
@@ -127,6 +145,129 @@ class Gutenberg_RTC_Test extends \WorDBless\BaseTestCase {
 		);
 
 		$this->assertSame( array( 'pinghub' ), wpcom_get_gutenberg_rtc_providers() );
+	}
+
+	/**
+	 * Tests that unknown providers are filtered out by the allowlist.
+	 */
+	public function test_wpcom_get_gutenberg_rtc_providers_filters_unknown_providers() {
+		add_filter( 'wpcom_is_gutenberg_rtc_enabled', '__return_true' );
+		add_filter(
+			'wpcom_gutenberg_rtc_providers',
+			function () {
+				return array( 'pinghub', 'unknown-provider', 'http-polling' );
+			}
+		);
+
+		$this->assertSame( array( 'pinghub', 'http-polling' ), wpcom_get_gutenberg_rtc_providers() );
+	}
+
+	/**
+	 * Tests that a non-array filter return is handled gracefully.
+	 */
+	public function test_wpcom_get_gutenberg_rtc_providers_handles_non_array_filter() {
+		add_filter( 'wpcom_is_gutenberg_rtc_enabled', '__return_true' );
+		add_filter(
+			'wpcom_gutenberg_rtc_providers',
+			function () {
+				return 'pinghub';
+			}
+		);
+
+		$this->assertSame( array(), wpcom_get_gutenberg_rtc_providers() );
+	}
+
+	/**
+	 * Tests that all unknown providers are removed and result is re-indexed.
+	 */
+	public function test_wpcom_get_gutenberg_rtc_providers_reindexes_after_filtering() {
+		add_filter( 'wpcom_is_gutenberg_rtc_enabled', '__return_true' );
+		add_filter(
+			'wpcom_gutenberg_rtc_providers',
+			function () {
+				return array( 'unknown', 'pinghub' );
+			}
+		);
+
+		// array_values should re-index so 'pinghub' is at index 0, not 1.
+		$result = wpcom_get_gutenberg_rtc_providers();
+		$this->assertSame( array( 'pinghub' ), $result );
+		$this->assertSame( 0, array_key_first( $result ) );
+	}
+
+	/**
+	 * Tests that an empty array from filter is handled.
+	 */
+	public function test_wpcom_get_gutenberg_rtc_providers_handles_empty_filter() {
+		add_filter( 'wpcom_is_gutenberg_rtc_enabled', '__return_true' );
+		add_filter(
+			'wpcom_gutenberg_rtc_providers',
+			function () {
+				return array();
+			}
+		);
+
+		$this->assertSame( array(), wpcom_get_gutenberg_rtc_providers() );
+	}
+
+	/**
+	 * Tests that the default providers (without filter override) pass the allowlist.
+	 */
+	public function test_wpcom_get_gutenberg_rtc_providers_default_passes_allowlist() {
+		add_filter( 'wpcom_is_gutenberg_rtc_enabled', '__return_true' );
+
+		$this->assertSame( array( 'pinghub' ), wpcom_get_gutenberg_rtc_providers() );
+	}
+
+	/**
+	 * Tests that enqueue skips when http-polling is the only provider.
+	 */
+	public function test_wpcom_enqueue_gutenberg_rtc_assets_skips_http_polling_only() {
+		add_filter( 'wpcom_is_gutenberg_rtc_enabled', '__return_true' );
+		add_filter(
+			'wpcom_gutenberg_rtc_providers',
+			function () {
+				return array( 'http-polling' );
+			}
+		);
+
+		wpcom_enqueue_gutenberg_rtc_assets();
+
+		$this->assertFalse( wp_script_is( 'jetpack-mu-wpcom-gutenberg-rtc', 'enqueued' ) );
+	}
+
+	/**
+	 * Tests that the script is enqueued when pinghub provider is active.
+	 */
+	public function test_wpcom_enqueue_gutenberg_rtc_assets_enqueues_when_pinghub() {
+		add_filter( 'wpcom_is_gutenberg_rtc_enabled', '__return_true' );
+		add_filter(
+			'wpcom_gutenberg_rtc_providers',
+			function () {
+				return array( 'pinghub' );
+			}
+		);
+
+		wpcom_enqueue_gutenberg_rtc_assets();
+
+		$this->assertTrue( wp_script_is( 'jetpack-mu-wpcom-gutenberg-rtc', 'enqueued' ) );
+	}
+
+	/**
+	 * Tests that the script is enqueued when multiple providers including non-http-polling are active.
+	 */
+	public function test_wpcom_enqueue_gutenberg_rtc_assets_enqueues_with_multiple_providers() {
+		add_filter( 'wpcom_is_gutenberg_rtc_enabled', '__return_true' );
+		add_filter(
+			'wpcom_gutenberg_rtc_providers',
+			function () {
+				return array( 'http-polling', 'pinghub' );
+			}
+		);
+
+		wpcom_enqueue_gutenberg_rtc_assets();
+
+		$this->assertTrue( wp_script_is( 'jetpack-mu-wpcom-gutenberg-rtc', 'enqueued' ) );
 	}
 
 	/**

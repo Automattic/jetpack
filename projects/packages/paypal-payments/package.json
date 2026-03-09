@@ -40,7 +40,7 @@
 		"@wordpress/i18n": "6.14.0",
 		"@wordpress/widgets": "4.41.0",
 		"clsx": "2.1.1",
-		"copy-webpack-plugin": "13.0.1",
+		"copy-webpack-plugin": "14.0.0",
 		"email-validator": "2.0.4",
 		"gridicons": "3.4.2",
 		"lodash": "4.17.23",
@@ -65,7 +65,7 @@
 		"jest": "30.2.0",
 		"postcss": "8.5.6",
 		"postcss-loader": "8.2.0",
-		"sass-embedded": "1.97.2",
+		"sass-embedded": "1.97.3",
 		"sass-loader": "16.0.5"
 	}
 }

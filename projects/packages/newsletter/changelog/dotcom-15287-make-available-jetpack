@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add jetpack_show_newsletter_menu_item filter to show menu regardless of subscriptions module state.
