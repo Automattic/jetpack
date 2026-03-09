@@ -91,10 +91,17 @@ export default function VariationPicker( { blockName, setAttributes, clientId, c
 			<BlockVariationPicker
 				icon={ blockType?.icon?.src }
 				label={ blockType?.title }
-				instructions={ __(
-					'Start by selecting one of these templates, browse patterns, or select an existing form below.',
-					'jetpack-forms'
-				) }
+				instructions={
+					isCentralFormManagementEnabled
+						? __(
+								'Start by selecting one of these templates or select an existing form below.',
+								'jetpack-forms'
+						  )
+						: __(
+								'Start by selecting one of these templates, browse patterns, or select an existing form below.',
+								'jetpack-forms'
+						  )
+				}
 				variations={ variations.filter( v => ! v.hiddenFromPicker ) }
 				onSelect={ async ( nextVariation = defaultVariation ) => {
 					// If we're editing a jetpack-form post directly, or central form management
@@ -164,15 +171,17 @@ export default function VariationPicker( { blockName, setAttributes, clientId, c
 					}
 				} }
 			/>
-			<div className="form-placeholder__shell">
-				<Button
-					__next40pxDefaultSize
-					variant="secondary"
-					onClick={ () => setIsPatternsModalOpen( true ) }
-				>
-					{ __( 'Browse form patterns', 'jetpack-forms' ) }
-				</Button>
-			</div>
+			{ ! isCentralFormManagementEnabled && (
+				<div className="form-placeholder__shell">
+					<Button
+						__next40pxDefaultSize
+						variant="secondary"
+						onClick={ () => setIsPatternsModalOpen( true ) }
+					>
+						{ __( 'Browse form patterns', 'jetpack-forms' ) }
+					</Button>
+				</div>
+			) }
 			{ ! isEditingJetpackFormPost && isCentralFormManagementEnabled && jetpackForms.length > 0 && (
 				<div className="form-placeholder__shell">
 					<SelectControl
