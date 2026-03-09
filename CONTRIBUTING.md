@@ -1,6 +1,8 @@
 # Contributing to Jetpack
 
-This is a quick reference for common development tasks. For broader contribution guidelines (e.g. bug reports, translations, licensing), see [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md).
+This is a quick reference for common commands used during development. For broader contribution guidelines, see [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md).
+
+Please keep detailed explanations and documentation in separate external files.
 
 ## Tooling
 
