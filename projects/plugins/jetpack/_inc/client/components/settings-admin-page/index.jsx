@@ -2,9 +2,10 @@ import { AdminPage, getRedirectUrl } from '@automattic/jetpack-components';
 import { isJetpackSelfHostedSite, isWoASite } from '@automattic/jetpack-script-data';
 import { __, _x, sprintf } from '@wordpress/i18n';
 import { connect } from 'react-redux';
+import DevCard from 'components/dev-card';
 import analytics from 'lib/analytics';
 import { getSiteConnectionStatus } from 'state/connection';
-import { enableDevCard, resetOptions } from 'state/dev-version';
+import { canDisplayDevCard, enableDevCard, resetOptions } from 'state/dev-version';
 import {
 	isDevVersion as _isDevVersion,
 	getCurrentVersion,
@@ -18,11 +19,6 @@ import { HeaderNav } from '../masthead/header-nav';
 
 /**
  * Build footer menu items matching the legacy Footer component.
- *
- * Note: The legacy Footer also rendered a DevCard component (a floating dev
- * panel toggled via "Dev Tools" in the footer). DevCard is NOT included here
- * because AdminPage's footer only supports menu item arrays. DevCard was a
- * dev-only diagnostic tool — if needed, it can be rendered separately.
  *
  * @param {object} props - Component props from Redux.
  * @return {Array} Footer menu items.
@@ -109,25 +105,37 @@ function buildFooterMenuItems( props ) {
 }
 
 const SettingsAdminPage = props => {
-	const { apiRoot, apiNonce, siteConnectionStatus, location, tabs, children } = props;
+	const {
+		apiRoot,
+		apiNonce,
+		isDevVersion,
+		displayDevCard,
+		siteConnectionStatus,
+		location,
+		tabs,
+		children,
+	} = props;
 
 	const footerMenuItems = buildFooterMenuItems( props );
 
 	return (
-		<AdminPage
-			className="jp-settings-admin-page"
-			title={ __( 'Settings', 'jetpack' ) }
-			apiRoot={ apiRoot }
-			apiNonce={ apiNonce }
-			showBackground={ true }
-			tabs={ tabs }
-			optionalMenuItems={ footerMenuItems }
-			moduleNameHref={ getRedirectUrl( 'jetpack' ) }
-			useInternalLinks={ !! siteConnectionStatus }
-			actions={ isWoASite() && <HeaderNav location={ location } /> }
-		>
-			{ children }
-		</AdminPage>
+		<>
+			<AdminPage
+				className="jp-settings-admin-page"
+				title={ __( 'Settings', 'jetpack' ) }
+				apiRoot={ apiRoot }
+				apiNonce={ apiNonce }
+				showBackground={ true }
+				tabs={ tabs }
+				optionalMenuItems={ footerMenuItems }
+				moduleNameHref={ getRedirectUrl( 'jetpack' ) }
+				useInternalLinks={ !! siteConnectionStatus }
+				actions={ isWoASite() && <HeaderNav location={ location } /> }
+			>
+				{ children }
+			</AdminPage>
+			{ isDevVersion && displayDevCard && <DevCard /> }
+		</>
 	);
 };
 
@@ -137,6 +145,7 @@ export default connect(
 		apiNonce: getApiNonce( state ),
 		currentVersion: getCurrentVersion( state ),
 		isDevVersion: _isDevVersion( state ),
+		displayDevCard: canDisplayDevCard( state ),
 		canManageOptions: userCanManageOptions( state ),
 		siteAdminUrl: getSiteAdminUrl( state ),
 		siteConnectionStatus: getSiteConnectionStatus( state ),

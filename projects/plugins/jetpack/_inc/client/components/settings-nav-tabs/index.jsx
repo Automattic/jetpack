@@ -1,6 +1,6 @@
 import { isWoASite as _isWoASite } from '@automattic/jetpack-script-data';
 import { __, _x } from '@wordpress/i18n';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import { connect } from 'react-redux';
 import { NavLink, useLocation } from 'react-router';
 import QuerySitePlugins from 'components/data/query-site-plugins';
@@ -19,18 +19,25 @@ import {
 } from 'state/modules';
 import { filterSearch, getSearchTerm } from 'state/search';
 
-const Tab = ( { to, label, onClick } ) => (
-	<NavLink
-		to={ to }
-		// eslint-disable-next-line react/jsx-no-bind
-		className={ ( { isActive } ) =>
-			isActive ? 'jp-settings-nav__tab jp-settings-nav__tab--active' : 'jp-settings-nav__tab'
-		}
-		onClick={ onClick }
-	>
-		{ label }
-	</NavLink>
-);
+const Tab = ( { to, label, onClick, alsoActiveFor } ) => {
+	const location = useLocation();
+	const extraActive = alsoActiveFor ? alsoActiveFor.includes( location.pathname ) : false;
+
+	return (
+		<NavLink
+			to={ to }
+			// eslint-disable-next-line react/jsx-no-bind
+			className={ ( { isActive } ) =>
+				isActive || extraActive
+					? 'jp-settings-nav__tab jp-settings-nav__tab--active'
+					: 'jp-settings-nav__tab'
+			}
+			onClick={ onClick }
+		>
+			{ label }
+		</NavLink>
+	);
+};
 
 const SettingsNavTabs = props => {
 	const {
@@ -78,6 +85,7 @@ const SettingsNavTabs = props => {
 						to="/security"
 						label={ _x( 'Security', 'Navigation item.', 'jetpack' ) }
 						onClick={ () => trackNavClick( 'security' ) }
+						alsoActiveFor={ [ '/settings' ] }
 					/>
 				) }
 				{ hasPerformanceFeature && (
@@ -88,7 +96,7 @@ const SettingsNavTabs = props => {
 					/>
 				) }
 				{ ( hasModules( [ 'markdown', 'post-by-email', 'infinite-scroll', 'copy-post' ] ) ||
-					window.CUSTOM_CONTENT_TYPE__INITIAL_STATE.active ) && (
+					window.CUSTOM_CONTENT_TYPE__INITIAL_STATE?.active ) && (
 					<Tab
 						to="/writing"
 						label={ _x( 'Writing', 'Navigation item.', 'jetpack' ) }
@@ -165,6 +173,7 @@ const SettingsNavTabs = props => {
 						to="/sharing"
 						label={ _x( 'Sharing', 'Navigation item.', 'jetpack' ) }
 						onClick={ () => trackNavClick( 'sharing' ) }
+						alsoActiveFor={ [ '/settings' ] }
 					/>
 				) }
 			</>
@@ -175,6 +184,12 @@ const SettingsNavTabs = props => {
 		() => new URLSearchParams( location.search ).get( 'term' ) || '',
 		[ location.search ]
 	);
+
+	// Sync URL search term to Redux on mount and route changes,
+	// matching the old NavigationSettings.onRouteChange behavior.
+	useEffect( () => {
+		searchForTerm( searchFromUrl );
+	}, [ searchFromUrl, searchForTerm ] );
 
 	return (
 		<div className="jp-settings-nav">

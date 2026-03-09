@@ -9,8 +9,21 @@
 .jp-settings-nav {
 	display: flex;
 	align-items: center;
+	position: relative;
 	border-bottom: 1px solid #f0f0f0;
 	padding-inline: 24px;
+
+	// The Search component uses position: absolute with fitsContainer, which
+	// positions relative to the padding edge (ignoring padding). Offset it to
+	// stay within the padded content area.
+	.dops-search.is-expanded-to-container {
+		right: 24px;
+
+		&.is-open {
+			left: 24px;
+			width: auto;
+		}
+	}
 }
 
 .jp-settings-nav__tabs {
