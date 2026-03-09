@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "0878b12512b5c0d49e152461c5fb055c",
+    "content-hash": "59fedb94a610bd98acd433500c14d7dd",
     "packages": [
         {
             "name": "automattic/at-pressable-podcasting",
@@ -2402,16 +2402,16 @@
         },
         {
             "name": "automattic/wc-calypso-bridge",
-            "version": "v2.11.4",
+            "version": "v2.11.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/wc-calypso-bridge.git",
-                "reference": "ab9c07ea45633064f7bc509242c367bc40a381bd"
+                "reference": "ba84191f18e919f3575d2257706e5f8eb9ff32af"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/wc-calypso-bridge/zipball/ab9c07ea45633064f7bc509242c367bc40a381bd",
-                "reference": "ab9c07ea45633064f7bc509242c367bc40a381bd",
+                "url": "https://api.github.com/repos/Automattic/wc-calypso-bridge/zipball/ba84191f18e919f3575d2257706e5f8eb9ff32af",
+                "reference": "ba84191f18e919f3575d2257706e5f8eb9ff32af",
                 "shasum": ""
             },
             "require-dev": {
@@ -2453,7 +2453,7 @@
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "time": "2026-01-22T17:44:30+00:00"
+            "time": "2026-03-06T14:17:08+00:00"
         },
         {
             "name": "league/uri",
