@@ -23,11 +23,7 @@ Main component for rendering semi-circular pie charts.
 | `renderTooltip` | `(params: PieSemiCircleChartRenderTooltipParams) => ReactNode` | - | Custom tooltip render function |
 | `animation` | `boolean` | `false` | Enable entry animation on initial render. Creates a radial wipe reveal effect. Automatically respects user's `prefers-reduced-motion` system setting |
 | `showLegend` | `boolean` | `false` | Display legend below the chart |
-| `legendInteractive` | `boolean` | `false` | Enable clickable legend items to show/hide segments. Requires `chartId` and `GlobalChartsProvider`. When segments are hidden, percentages recalculate so visible segments total 100% |
-| `legendOrientation` | `'horizontal' \| 'vertical'` | `'horizontal'` | Legend layout direction |
-| `legendAlignment` | `'start' \| 'center' \| 'end'` | `'center'` | Legend alignment within its position |
-| `legendPosition` | `'top' \| 'bottom'` | `'bottom'` | Legend position (where the legend appears) |
-| `legendShape` | `'circle' \| 'rect' \| 'line'` | `'circle'` | Shape of legend indicators |
+| `legend` | `ChartLegendConfig` | `undefined` | Legend configuration object. See [ChartLegendConfig](#chartlegendconfig-type). When `interactive` is enabled, requires `chartId` and `GlobalChartsProvider`. When segments are hidden, percentages recalculate so visible segments total 100% |
 | `className` | `string` | - | Additional CSS class for the container |
 | `gap` | `GapSize` | `'md'` | Gap between chart elements (SVG, legend, children). Uses WordPress design system tokens |
 | `chartId` | `string` | - | Optional unique identifier (auto-generated if not provided) |
@@ -55,5 +51,21 @@ type DataPointPercentage = {
 	percentage: number;
 	/** Optional custom color override */
 	color?: string;
+};
+```
+
+## ChartLegendConfig Type
+
+```typescript
+type ChartLegendConfig = {
+	orientation?: 'horizontal' | 'vertical';
+	position?: 'top' | 'bottom';
+	alignment?: 'start' | 'center' | 'end';
+	shape?: LegendShape;
+	interactive?: boolean;
+	className?: string;
+	itemStyles?: LegendItemStyles;
+	labelStyles?: LegendLabelStyles;
+	shapeStyles?: LegendShapeStyles;
 };
 ```
