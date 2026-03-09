@@ -326,56 +326,23 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 15.6 - 2026-03-03
+### 15.7-a.1 - 2026-03-09
 #### Enhancements
-- AI Assistant: Add `jetpack_ai_assistant_generation_complete` action hook for cross-package communication.
-- AI Sidebar: Add `jetpack.ai.imageGenerationHandler` filter to allow external plugins (e.g. Image Studio) to replace the built-in AI image generation flow for the "Get Featured Image" entry point.
-- Block Editor: Make Jetpack logo display behavior consistent across SEO and AI panels. Logo now appears in global contexts (document settings, pre-publish, post-publish) but not in the Jetpack sidebar.
-- Form Notifications: Add new HTML email template design with respondent info header, metadata section, and improved action buttons.
-- Forms: Allow Accordion, Details, and Icon blocks in forms, and Icon block to be added inside the file upload dropzone.
-- Forms: Allow customizing other option in radio field.
-- Forms: Allow filtering Forms dashboard URL.
-- Forms: Create new forms in same tab.
-- Forms: Render images from image select fields on email notifications.
-- Forms: Replace dashicon with SVG icon and add tooltip to admin bar "Form Responses" link.
-- Forms: Update response sidebar styles.
-- Forms: Use integer format for response count in dataviews.
-- Image Studio: Add Image Studio plugin support to block editor and media library.
-- Post Images: Add `jetpack-ignore-thumbnail` CSS class and `jetpack_postimages_exclude_image` filter to exclude specific images from post image discovery.
-- Reader: Add Discover card to Reader settings page to highlight feature benefits.
-- SEO: Add Canonical URLs module for archive pages to prevent duplicate content in search engines.
-- SEO: Add social link previews to the SEO tools UI.
-- Site: Ensure `is_garden` is included in default site fields for server-side rendering.
-- Social: Add visual dot to active connection in preview modal.
-- Sync: Add `clear-queue` REST endpoint to allow clearing a Sync queue.
-- Update external menu links to display an arrow indicator for improved performance and a more modern appearance.
-- VideoPress: Accept SRT subtitle files for upload alongside VTT.
-- WordPress.com Reader: Add new option to show a link to the WordPress.com Reader in the admin bar.
-- WordPress.com Reader: Automatically enable the admin bar link on sites newly connected to WordPress.com.
+- Admin Menu: Reorder menu items so that links opening in new windows appear last.
+- Backup: use core components for storage popover.
+- Block Notes: Add Block Notes as a standalone Jetpack extension plugin, migrated from big-sky-plugin.
+- Donations: Use the core WordPress spinner component.
+- Forms: Use title header on top-level dashboard pages for consistency with other Jetpack pages.
+- Newsletter: Hide settings tab and redirect to new settings page when wp-admin newsletter settings are enabled.
+- QR Post Code: Use site icon (favicon) instead of site logo for better rendering in the QR code center area.
 
 #### Bug fixes
-- AI Assistant: Restore Jetpack logo in pre-publish panel where branding is not otherwise apparent.
-- Block Editor Assets: Fix Gutenberg asset detection when assets are served from a CDN.
-- Forms: Create new form pages without a placeholder title.
-- Forms: Fix duplicate title in plain text form submission notification emails.
-- Forms: Fix extra margin on badges in the forms dashboard.
-- Forms: Fix IP address lookup link in response inspector.
-- Forms: Prevent fatal error when rendering image-select fields with invalid image payloads.
-- Full Sync: Fix chunk size adjustment when sync is stuck to correctly preserve adjusted chunk size and stuck count across invocations.
-- Image Studio: Fix console warnings.
-- Sharing: Fix LinkedIn sharing by updating to the current share URL endpoint.
-- Sharing: Remove Pocket sharing button.
-- Shortcode embeds: Improve handling of YouTube shorts in embeds.
-- Slideshow: Fix an issue with sizing when images are lazily loaded.
-- Slideshow: Fix doubled navigation arrows.
-- Slideshow block: Fix further issues with aspect ratio.
-- Social: Fix Threads social preview for posts with gallery.
-- Social: Fix Tumblr preview to prioritize custom message when it is set.
-- Social: Refresh plan features on post-checkout redirect.
-- Social Icons: Update documentation links for available icons.
-- Subscriptions: Stop appending the “View post … subscribe” message to post excerpts in subscription emails.
-- Subscriptions Block: Make excerpt filter more broad.
-- Sync: Fix sync health check to verify queue size and lag before allowing status to be set to `in_sync`.
+- Admin Page: Restore border on header component.
+- Canonical URLs: Fix flaky author archive canonical URL resolution on WordPress trunk.
+- SEO: Restore the Optimize SEO panel to the Jetpack sidebar alongside document settings.
+- Settings: Add bottom border to the masthead header for visual consistency.
+- Social: Fix slow page loads due to Social Image generation.
+- Update AI form assistant to detect and create `core/button` blocks instead of `jetpack/button`.
 
 --------
 

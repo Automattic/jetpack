@@ -18,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class Main {
 
-	const PACKAGE_VERSION = '0.14.16';
+	const PACKAGE_VERSION = '0.14.17';
 
 	/**
 	 * Modules to include.

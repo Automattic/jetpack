@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Convert hooks to TypeScript and fix JSDoc return types for tsgo compatibility

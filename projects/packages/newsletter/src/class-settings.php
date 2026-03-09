@@ -21,7 +21,7 @@ use Jetpack_Tracks_Client;
  */
 class Settings {
 
-	const PACKAGE_VERSION = '0.5.2';
+	const PACKAGE_VERSION = '0.6.0';
 	/**
 	 * Whether the class has been initialized
 	 *
@@ -75,7 +75,7 @@ class Settings {
 		 * Filter to control Newsletter menu item visibility.
 		 * Defaults to true.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.6.0
 		 * @param bool $show Whether to show the menu item.
 		 */
 		return apply_filters(

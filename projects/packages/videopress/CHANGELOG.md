@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.35.4] - 2026-03-09
+### Changed
+- Clean up REST API endpoint schemas to use proper JSON Schema types and constraints. [#47017]
+- Migrate main admin page header to use unified AdminHeader component from jetpack-components. [#47313]
+- Switch to Native TypeScript compiler based on Go. [#47375]
+- Update package dependencies. [#47496] [#47499]
+
+### Fixed
+- Automatically refresh VideoPress video thumbnails in the Media Library grid after transcoding completes, instead of requiring a page reload. [#47358]
+
 ## [0.35.3] - 2026-03-02
 ### Changed
 - Update dependencies. [#46758]
@@ -1863,6 +1873,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created empty package [#24952]
 
+[0.35.4]: https://github.com/Automattic/jetpack-videopress/compare/v0.35.3...v0.35.4
 [0.35.3]: https://github.com/Automattic/jetpack-videopress/compare/v0.35.2...v0.35.3
 [0.35.2]: https://github.com/Automattic/jetpack-videopress/compare/v0.35.1...v0.35.2
 [0.35.1]: https://github.com/Automattic/jetpack-videopress/compare/v0.35.0...v0.35.1
