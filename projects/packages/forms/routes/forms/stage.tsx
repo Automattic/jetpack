@@ -23,7 +23,7 @@ import * as React from 'react';
 import IntegrationsModal from '../../src/blocks/contact-form/components/jetpack-integrations-modal';
 import { FORM_POST_TYPE } from '../../src/blocks/shared/util/constants.js';
 import CreateFormButton from '../../src/dashboard/components/create-form-button/index.tsx';
-import { EmptyWrapper } from '../../src/dashboard/components/empty-responses/index.tsx';
+import { EmptyWrapper, NoResults } from '../../src/dashboard/components/empty-responses/index.tsx';
 import { FormNameModal } from '../../src/dashboard/components/form-name-modal';
 import { NON_TRASH_FORM_STATUSES, getFormStatusLabel } from '../../src/dashboard/constants';
 import useDeleteForm from '../../src/dashboard/hooks/use-delete-form.ts';
@@ -506,9 +506,7 @@ function StageInner() {
 	const hasActiveFilters =
 		!! view.search ||
 		( () => {
-			const statusFilterValue = view.filters?.find(
-				( filter ) => filter.field === 'status'
-			)?.value;
+			const statusFilterValue = view.filters?.find( filter => filter.field === 'status' )?.value;
 			return !! statusFilterValue && statusFilterValue !== 'all';
 		} )();
 
@@ -537,13 +535,7 @@ function StageInner() {
 				isLoading={ isLoading }
 				empty={
 					hasActiveFilters ? (
-						<EmptyWrapper
-							heading={ __( 'No results found', 'jetpack-forms' ) }
-							body={ __(
-								"Try adjusting your search or filters to find what you're looking for.",
-								'jetpack-forms'
-							) }
-						/>
+						<NoResults />
 					) : (
 						<EmptyWrapper
 							heading={ __( "You're set up. No forms yet.", 'jetpack-forms' ) }
