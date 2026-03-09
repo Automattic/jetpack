@@ -122,7 +122,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	const chartRef = useRef< HTMLDivElement >( null );
 
 	// Process children for composition API (Legend, etc.)
-	const { legendChildren, otherChildren } = useChartChildren( children, 'BarChart' );
+	const { legendChildren, nonLegendChildren } = useChartChildren( children, 'BarChart' );
 	const hasLegendChild = legendChildren.length > 0;
 
 	// Use the measured SVG wrapper height, falling back to the passed height if provided.
@@ -485,7 +485,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 				{ legendPosition === 'bottom' && legendElement }
 				{ renderLegendSlot( legendChildren, 'bottom' ) }
 
-				{ otherChildren }
+				{ nonLegendChildren }
 			</Stack>
 		</SingleChartContext.Provider>
 	);

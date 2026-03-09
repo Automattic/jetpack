@@ -13,6 +13,8 @@ interface ChartChildren {
 	htmlChildren: ReactNode[];
 	legendChildren: LegendChild[];
 	otherChildren: ReactNode[];
+	/** All children except Legend, in original order. */
+	nonLegendChildren: ReactNode[];
 }
 
 /**
@@ -30,6 +32,7 @@ export function useChartChildren( children: ReactNode, chartType: string ): Char
 		const html: ReactNode[] = [];
 		const legend: LegendChild[] = [];
 		const other: ReactNode[] = [];
+		const nonLegend: ReactNode[] = [];
 
 		Children.forEach( children, child => {
 			if ( isValidElement( child ) ) {
@@ -70,6 +73,9 @@ export function useChartChildren( children: ReactNode, chartType: string ): Char
 					other.push( child );
 				}
 			}
+
+			// Preserve original order of all non-Legend children
+			nonLegend.push( child );
 		} );
 
 		return {
@@ -77,6 +83,7 @@ export function useChartChildren( children: ReactNode, chartType: string ): Char
 			htmlChildren: html,
 			legendChildren: legend,
 			otherChildren: other,
+			nonLegendChildren: nonLegend,
 		};
 	}, [ children, chartType ] );
 }

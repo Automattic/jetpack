@@ -163,6 +163,49 @@ describe( 'useChartChildren', () => {
 		expect( result.current.legendChildren[ 0 ].position ).toBe( 'bottom' );
 	} );
 
+	it( 'should exclude Legend children from nonLegendChildren', () => {
+		const children = [
+			<Legend key="legend" position="top" />,
+			<div key="other">Other Content</div>,
+		];
+
+		const { result } = renderHook( () => useChartChildren( children, 'TestChart' ) );
+
+		expect( result.current.legendChildren ).toHaveLength( 1 );
+		expect( result.current.nonLegendChildren ).toHaveLength( 1 );
+	} );
+
+	it( 'should preserve original child order in nonLegendChildren', () => {
+		const children = [
+			<div key="first">First</div>,
+			<Legend key="legend" position="top" />,
+			<Group key="group">
+				<text>SVG</text>
+			</Group>,
+			<div key="last">Last</div>,
+		];
+
+		const { result } = renderHook( () => useChartChildren( children, 'TestChart' ) );
+
+		expect( result.current.nonLegendChildren ).toHaveLength( 3 );
+		// Verify order matches original (minus the Legend)
+		expect( ( result.current.nonLegendChildren[ 0 ] as React.ReactElement ).key ).toBe( 'first' );
+		expect( ( result.current.nonLegendChildren[ 1 ] as React.ReactElement ).key ).toBe( 'group' );
+		expect( ( result.current.nonLegendChildren[ 2 ] as React.ReactElement ).key ).toBe( 'last' );
+	} );
+
+	it( 'should return empty nonLegendChildren when all children are Legends', () => {
+		const children = [
+			<Legend key="top" position="top" />,
+			<Legend key="bottom" position="bottom" />,
+		];
+
+		const { result } = renderHook( () => useChartChildren( children, 'TestChart' ) );
+
+		expect( result.current.legendChildren ).toHaveLength( 2 );
+		expect( result.current.nonLegendChildren ).toHaveLength( 0 );
+	} );
+
 	it( 'should extract multiple Legend children by position', () => {
 		const children = [
 			<Legend key="top" position="top" />,

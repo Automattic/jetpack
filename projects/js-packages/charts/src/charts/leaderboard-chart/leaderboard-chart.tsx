@@ -168,7 +168,7 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 	const legendShapeStyles = { width: 8, height: 8, ...legendShapeStylesProp };
 
 	// Process children to extract compound components
-	const { legendChildren, otherChildren } = useChartChildren( children, 'LeaderboardChart' );
+	const { legendChildren, nonLegendChildren } = useChartChildren( children, 'LeaderboardChart' );
 	const {
 		labelSpacing,
 		rowGap,
@@ -282,7 +282,7 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 							: __( 'No data available', 'jetpack-charts' ) }
 					</div>
 
-					{ otherChildren }
+					{ nonLegendChildren }
 				</Stack>
 			</SingleChartContext.Provider>
 		);
@@ -380,7 +380,7 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 				{ legendPosition === 'bottom' && legendElement }
 				{ renderLegendSlot( legendChildren, 'bottom' ) }
 
-				{ otherChildren }
+				{ nonLegendChildren }
 			</Stack>
 		</SingleChartContext.Provider>
 	);

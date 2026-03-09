@@ -295,7 +295,7 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 		const internalChartRef = useRef< SingleChartRef >( null );
 
 		// Process children for composition API (Legend, etc.)
-		const { legendChildren, otherChildren } = useChartChildren( children, 'LineChart' );
+		const { legendChildren, nonLegendChildren } = useChartChildren( children, 'LineChart' );
 		const hasLegendChild = legendChildren.length > 0;
 
 		// Use the measured SVG wrapper height, falling back to the passed height if provided.
@@ -658,7 +658,7 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 					{ legendPosition === 'bottom' && legendElement }
 					{ renderLegendSlot( legendChildren, 'bottom' ) }
 
-					{ otherChildren }
+					{ nonLegendChildren }
 				</Stack>
 			</SingleChartContext.Provider>
 		);
