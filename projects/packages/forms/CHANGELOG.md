@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [7.12.0] - 2026-03-09
 ### Added
-- Add embed code panel to form editor for copying embed code. [#47238]
+- Form Editor: Show form embed code. [#47238]
 
 ### Changed
 - Form Editor: Auto-open the block inserter on load so form field blocks are immediately discoverable. [#47413]

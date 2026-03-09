@@ -329,7 +329,7 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 ### 15.7-a.1 - 2026-03-09
 #### Enhancements
 - Admin Menu: Reorder menu items so that links opening in new windows appear last.
-- Backup: use core components for storage popover.
+- Backup: Use core components for storage popover.
 - Block Notes: Add Block Notes as a standalone Jetpack extension plugin, migrated from big-sky-plugin.
 - Donations: Use the core WordPress spinner component.
 - Forms: Use title header on top-level dashboard pages for consistency with other Jetpack pages.

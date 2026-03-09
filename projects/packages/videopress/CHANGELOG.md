@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Update package dependencies. [#47496] [#47499]
 
 ### Fixed
-- Automatically refresh VideoPress video thumbnails in the Media Library grid after transcoding completes, instead of requiring a page reload. [#47358]
+- Refresh VideoPress video thumbnails in the Media Library grid automatically after transcoding completes. [#47358]
 
 ## [0.35.3] - 2026-03-02
 ### Changed
