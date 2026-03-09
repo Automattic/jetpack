@@ -1,22 +1,12 @@
 import { Button, ToggleControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { addQueryArgs } from '@wordpress/url';
+import { getResponsesUrl } from '../../../form-editor/plugins/utils';
 import { FULL_RESPONSES_PATH } from '../../../util/get-preferred-responses-view.js';
-
-const getResponsesHref = ref => {
-	const baseUrl = window.jpFormsBlocks?.defaults?.formsResponsesUrl || FULL_RESPONSES_PATH;
-
-	if ( ref ) {
-		return addQueryArgs( baseUrl, { p: `/responses/inbox?sourceId=${ ref }` } );
-	}
-
-	return baseUrl;
-};
 
 const JetpackManageResponsesSettings = ( { attributes, setAttributes } ) => {
 	const { saveResponses = true, ref } = attributes;
 
-	const responsesHref = getResponsesHref( ref );
+	const responsesHref = ref ? getResponsesUrl( ref ) : FULL_RESPONSES_PATH;
 
 	return (
 		<>
