@@ -685,6 +685,27 @@ class Jetpack_Sync_Post_Test extends Jetpack_Sync_TestBase {
 	}
 
 	/**
+	 * When the jetpack_sync_post_type_whitelist_enabled filter is enabled, posts with
+	 * non-registered post types should be blocked from incremental sync entirely,
+	 * rather than being synced with jetpack_sync_non_registered_post_type status.
+	 */
+	public function test_does_not_sync_non_registered_post_type_when_whitelist_enabled() {
+		add_filter( 'jetpack_sync_post_type_whitelist_enabled', '__return_true' );
+
+		register_post_type( 'unregister_post_type', array( 'public' => true ) );
+		add_action( 'wp_insert_post', array( $this, 'unregister_post_type' ), 9 );
+		$post_id = self::factory()->post->create( array( 'post_type' => 'unregister_post_type' ) );
+		remove_action( 'wp_insert_post', array( $this, 'unregister_post_type' ), 9 );
+
+		$this->sender->do_sync();
+		$synced_post = $this->server_replica_storage->get_post( $post_id );
+
+		$this->assertNull( $synced_post, 'Post with non-registered post type should not be synced when whitelist filter is enabled.' );
+
+		remove_filter( 'jetpack_sync_post_type_whitelist_enabled', '__return_true' );
+	}
+
+	/**
 	 * The purpose of this test is to ensure that when a post type is registered during
 	 * enqueueing Sync actions but not present when sending, we will still sync
 	 * the corresponding post with the correct post type.
