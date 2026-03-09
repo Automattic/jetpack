@@ -16,7 +16,10 @@
  * and we are confident in proceeding with the rollout.
  */
 function wpcom_is_gutenberg_rtc_enabled() {
-	return apply_filters( 'wpcom_is_gutenberg_rtc_enabled', false );
+	$blog_id    = get_wpcom_blog_id();
+	$is_enabled = wpcom_has_blog_sticker( 'wpcom-gutenberg-rtc-enabled', $blog_id );
+
+	return apply_filters( 'wpcom_is_gutenberg_rtc_enabled', $is_enabled );
 }
 
 /**
