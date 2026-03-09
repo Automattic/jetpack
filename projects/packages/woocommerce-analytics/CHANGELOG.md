@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Switch to Native TypeScript compiler based on Go. [#47375]
 
 ### Fixed
-- Fix TS type errors detected by `tsgo`. [#47423]
+- Fix TypeScipt type errors detected by `tsgo`. [#47423]
 
 ## [0.15.6] - 2026-02-26
 ### Changed
