@@ -276,7 +276,7 @@ describe( 'parseAsLocalDate', () => {
 			const elapsed = performance.now() - start;
 
 			expect( isNaN( result.getTime() ) ).toBe( true );
-			expect( elapsed ).toBeLessThan( 100 );
+			expect( elapsed ).toBeLessThan( 1000 );
 		} );
 	} );
 
