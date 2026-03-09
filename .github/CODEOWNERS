@@ -59,6 +59,6 @@
 # Plugins
 
 # Functionality that is important to our partners
-/projects/plugins/jetpack/class.jetpack-cli.php @automattic/jetpack-infinity
-/tools/partner-provision.sh @automattic/jetpack-infinity
-/tools/partner-cancel.sh @automattic/jetpack-infinity
+/projects/plugins/jetpack/class.jetpack-cli.php @Automattic/jetpack-infinity
+/tools/partner-provision.sh @Automattic/jetpack-infinity
+/tools/partner-cancel.sh @Automattic/jetpack-infinity
