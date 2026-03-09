@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Show 'No results found' empty state when search or filters are active in the forms list view instead of the onboarding empty state.
