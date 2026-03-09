@@ -1506,4 +1506,70 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 		$spam_meta = get_post_meta( $post_id, '_spam_status_changed_gmt', true );
 		$this->assertEmpty( $spam_meta, 'Spam meta should not be set for non-feedback posts' );
 	}
+
+	/**
+	 * Data provider for edge cache purge tests.
+	 */
+	public static function edge_cache_purge_cases() {
+		return array(
+			'published'              => array( 'publish', 'draft', Contact_Form::POST_TYPE, true ),
+			'updated while publish'  => array( 'publish', 'publish', Contact_Form::POST_TYPE, true ),
+			'unpublished'            => array( 'draft', 'publish', Contact_Form::POST_TYPE, true ),
+			'non-publish transition' => array( 'pending', 'draft', Contact_Form::POST_TYPE, false ),
+			'other post type'        => array( 'publish', 'draft', 'post', false ),
+		);
+	}
+
+	/**
+	 * Test edge cache purge behavior on form status changes.
+	 *
+	 * @dataProvider edge_cache_purge_cases
+	 */
+	#[DataProvider( 'edge_cache_purge_cases' )]
+	public function test_edge_cache_purge_on_form_status_change( $new_status, $old_status, $post_type, $expected ) {
+		$post_id = wp_insert_post(
+			array(
+				'post_type'   => $post_type,
+				'post_status' => $old_status,
+			)
+		);
+
+		$post   = get_post( $post_id );
+		$plugin = Contact_Form_Plugin::init();
+		$purged = false;
+
+		add_action(
+			'edge_cache_purge_domain',
+			function () use ( &$purged ) {
+				$purged = true;
+			}
+		);
+
+		$plugin->purge_edge_cache_on_form_status_change( $new_status, $old_status, $post );
+
+		$this->assertSame( $expected, $purged );
+
+		remove_all_actions( 'edge_cache_purge_domain' );
+	}
+
+	/**
+	 * Test edge cache purge handles null post gracefully.
+	 */
+	public function test_no_edge_cache_purge_for_null_post() {
+		$plugin = Contact_Form_Plugin::init();
+		$purged = false;
+
+		add_action(
+			'edge_cache_purge_domain',
+			function () use ( &$purged ) {
+				$purged = true;
+			}
+		);
+
+		$plugin->purge_edge_cache_on_form_status_change( 'publish', 'draft', null );
+
+		$this->assertFalse( $purged );
+
+		remove_all_actions( 'edge_cache_purge_domain' );
+	}
 }

@@ -326,6 +326,9 @@ class Contact_Form_Plugin {
 		// Track when post status changes to feedback posts types.
 		add_action( 'transition_post_status', array( $this, 'track_feedback_status_change' ), 10, 3 );
 
+		// Purge edge cache when a jetpack_form post is published, updated, or unpublished.
+		add_action( 'transition_post_status', array( $this, 'purge_edge_cache_on_form_status_change' ), 10, 3 );
+
 		// POST handler
 		if (
 			isset( $_SERVER['REQUEST_METHOD'] ) && 'POST' === strtoupper( sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ) ) )
@@ -3704,6 +3707,30 @@ class Contact_Form_Plugin {
 		}
 		$this->track_spam_status( $new_status, $old_status, $post->ID );
 		$this->track_recount_unread( $new_status, $old_status, $post );
+	}
+
+	/**
+	 * Purges the edge cache when a jetpack_form post is published, updated while published, or unpublished.
+	 *
+	 * @param string       $new_status The new post status.
+	 * @param string       $old_status The old post status.
+	 * @param WP_Post|null $post       The post object, when available.
+	 */
+	public function purge_edge_cache_on_form_status_change( $new_status, $old_status, ?WP_Post $post = null ) {
+		if ( ! $post instanceof WP_Post ) {
+			return;
+		}
+
+		if ( Contact_Form::POST_TYPE !== $post->post_type ) {
+			return;
+		}
+
+		if ( 'publish' === $new_status || 'publish' === $old_status ) {
+			/**
+			 * Fires when the edge cache for the entire domain should be purged.
+			 */
+			do_action( 'edge_cache_purge_domain' );
+		}
 	}
 
 	/**
