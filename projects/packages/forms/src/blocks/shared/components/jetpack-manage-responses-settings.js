@@ -1,6 +1,6 @@
 import { Button, ToggleControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { getResponsesUrl } from '../../../form-editor/plugins/utils';
+import { getResponsesUrl } from '../../../form-editor/plugins/utils.ts';
 import { FULL_RESPONSES_PATH } from '../../../util/get-preferred-responses-view.js';
 
 const JetpackManageResponsesSettings = ( { attributes, setAttributes } ) => {
