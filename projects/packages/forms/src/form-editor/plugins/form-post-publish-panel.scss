@@ -1,0 +1,23 @@
+.jetpack-form-post-publish-modal {
+	.jetpack-form-post-publish__content {
+		display: flex;
+		flex-direction: column;
+		gap: 16px;
+	}
+
+	.jetpack-form-post-publish__description {
+		margin: 0;
+		font-size: 13px;
+		color: #1e1e1e;
+	}
+
+	.jetpack-form-post-publish__action-button {
+		width: 100%;
+		justify-content: center;
+	}
+
+	.jetpack-form-post-publish__manual {
+		border-top: 1px solid #e0e0e0;
+		padding-top: 16px;
+	}
+}
