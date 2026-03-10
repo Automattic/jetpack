@@ -222,7 +222,7 @@ export function getQuestions( type ) {
 				},
 				{
 					message:
-						'This TypeScript package will contain pre-built code, built using tsc (no bundling or minification).',
+						'This TypeScript package will contain pre-built code, built using tsgo (no bundling or minification).',
 					value: 'ts-tsc',
 				},
 			],
