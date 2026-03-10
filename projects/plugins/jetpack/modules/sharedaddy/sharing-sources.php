@@ -1960,7 +1960,7 @@ class Share_Facebook extends Sharing_Source {
 	public function get_display( $post ) {
 		if ( $this->smart ) {
 			$share_url     = $this->get_share_url( $post->ID );
-			$fb_share_html = '<div class="fb-share-button" data-href="' . esc_attr( $share_url ) . '" data-layout="button_count"></div>';
+			$fb_share_html = '<div class="fb-share-button" data-href="' . esc_url( $share_url ) . '" data-layout="button_count"></div>';
 			/**
 			 * Filter the output of the Facebook Sharing button.
 			 *
@@ -2016,7 +2016,6 @@ class Share_Facebook extends Sharing_Source {
 	 * Add content specific to a service in the footer.
 	 */
 	public function display_footer() {
-		$this->js_dialog( $this->shortname );
 		if ( $this->smart ) {
 			$locale = $this->guess_locale_from_lang( get_locale() );
 			if ( ! $locale ) {
@@ -2030,14 +2029,14 @@ class Share_Facebook extends Sharing_Source {
 			 * @param int $fb_app_id Facebook App ID. Default to 249643311490 (WordPress.com's App ID).
 			 */
 			$fb_app_id = apply_filters( 'jetpack_sharing_facebook_app_id', '249643311490' );
+
+			$sdk_url = 'https://connect.facebook.net/' . rawurlencode( $locale ) . '/sdk.js#xfbml=1&version=v21.0';
 			if ( is_numeric( $fb_app_id ) ) {
-				$fb_app_id = '&appId=' . $fb_app_id;
-			} else {
-				$fb_app_id = '';
+				$sdk_url .= '&appId=' . rawurlencode( $fb_app_id );
 			}
 			?>
-			<div id="fb-root"></div>
-			<script>(function(d, s, id) { var js, fjs = d.getElementsByTagName(s)[0]; if (d.getElementById(id)) return; js = d.createElement(s); js.id = id; js.src = 'https://connect.facebook.net/<?php echo esc_attr( $locale ); ?>/sdk.js#xfbml=1<?php echo esc_attr( $fb_app_id ); ?>&version=v2.3'; fjs.parentNode.insertBefore(js, fjs); }(document, 'script', 'facebook-jssdk'));</script>
+			<div id="fb-root" data-sdk-url="<?php echo esc_url( $sdk_url ); ?>"></div>
+			<script>(function(d, s, id) { var js, fjs = d.getElementsByTagName(s)[0]; if (d.getElementById(id)) return; js = d.createElement(s); js.id = id; js.src = d.getElementById('fb-root').getAttribute('data-sdk-url'); fjs.parentNode.insertBefore(js, fjs); }(document, 'script', 'facebook-jssdk'));</script>
 			<script>
 			document.body.addEventListener( 'is.post-load', function() {
 				if ( 'undefined' !== typeof FB ) {
@@ -2046,6 +2045,8 @@ class Share_Facebook extends Sharing_Source {
 			} );
 			</script>
 			<?php
+		} else {
+			$this->js_dialog( $this->shortname );
 		}
 	}
 }

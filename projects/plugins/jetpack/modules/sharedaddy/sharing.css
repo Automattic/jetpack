@@ -500,8 +500,20 @@ body .sd-content ul li.share-custom.no-icon a span {
 	margin-right: 8px;
 }
 
+.sd-social-official .fb-share-button {
+	min-width: 110px;
+}
+
 .sd-social-official .fb-share-button > span {
 	vertical-align: top !important;
+	width: 96px !important;
+	height: 20px !important;
+	overflow: visible !important;
+}
+
+.sd-social-official .fb-share-button > span > iframe {
+	width: 96px !important;
+	height: 20px !important;
 }
 
 /* Individual official buttons */
