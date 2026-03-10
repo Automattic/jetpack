@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix sidebar unread counter updates in wp-build dashboard
