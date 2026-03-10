@@ -1512,11 +1512,11 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 	 */
 	public static function edge_cache_purge_cases() {
 		return array(
-			'published'              => array( 'publish', 'draft', Contact_Form::POST_TYPE, true ),
-			'updated while publish'  => array( 'publish', 'publish', Contact_Form::POST_TYPE, true ),
-			'unpublished'            => array( 'draft', 'publish', Contact_Form::POST_TYPE, true ),
-			'non-publish transition' => array( 'pending', 'draft', Contact_Form::POST_TYPE, false ),
-			'other post type'        => array( 'publish', 'draft', 'post', false ),
+			'published'               => array( 'publish', 'draft', Contact_Form::POST_TYPE, true ),
+			'updated while published' => array( 'publish', 'publish', Contact_Form::POST_TYPE, true ),
+			'unpublished'             => array( 'draft', 'publish', Contact_Form::POST_TYPE, true ),
+			'non-publish transition'  => array( 'pending', 'draft', Contact_Form::POST_TYPE, false ),
+			'other post type'         => array( 'publish', 'draft', 'post', false ),
 		);
 	}
 

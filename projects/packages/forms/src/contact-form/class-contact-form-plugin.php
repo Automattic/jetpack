@@ -3728,6 +3728,9 @@ class Contact_Form_Plugin {
 		if ( 'publish' === $new_status || 'publish' === $old_status ) {
 			/**
 			 * Fires when the edge cache for the entire domain should be purged.
+			 *
+			 * This action is handled by the WordPress.com hosting platform
+			 * and has no effect in self-hosted WordPress environments.
 			 */
 			do_action( 'edge_cache_purge_domain' );
 		}
