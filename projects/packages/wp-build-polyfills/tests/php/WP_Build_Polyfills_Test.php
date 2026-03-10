@@ -505,19 +505,36 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 	public function test_boot_asset_proxy_returns_real_asset_data() {
 		$package_root = dirname( __DIR__, 2 );
 		$asset_file   = $package_root . '/build/modules/boot/index.asset.php';
+		$created      = false;
 
+		// Create a fixture asset file if the build hasn't run, so the test
+		// executes deterministically regardless of environment.
 		if ( ! file_exists( $asset_file ) ) {
-			$this->markTestSkipped( 'Build asset file not present; run build first.' );
+			$dir = dirname( $asset_file );
+			if ( ! is_dir( $dir ) ) {
+				mkdir( $dir, 0755, true ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_mkdir
+			}
+			file_put_contents( // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+				$asset_file,
+				"<?php\nreturn array( 'dependencies' => array( 'wp-i18n' ), 'version' => 'fixture-1.0' );\n"
+			);
+			$created = true;
 		}
 
-		$proxy_file = $package_root . '/src/boot-module-asset-proxy.php';
-		$asset      = require $proxy_file;
+		try {
+			$proxy_file = $package_root . '/src/boot-module-asset-proxy.php';
+			$asset      = require $proxy_file;
 
-		$this->assertIsArray( $asset );
-		$this->assertArrayHasKey( 'dependencies', $asset );
-		$this->assertArrayHasKey( 'version', $asset );
-		$this->assertIsArray( $asset['dependencies'] );
-		$this->assertNotEmpty( $asset['version'] );
+			$this->assertIsArray( $asset );
+			$this->assertArrayHasKey( 'dependencies', $asset );
+			$this->assertArrayHasKey( 'version', $asset );
+			$this->assertIsArray( $asset['dependencies'] );
+			$this->assertNotEmpty( $asset['version'] );
+		} finally {
+			if ( $created ) {
+				unlink( $asset_file ); // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink
+			}
+		}
 	}
 
 	/**
@@ -531,13 +548,13 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 		$package_root = dirname( __DIR__, 2 );
 		$asset_file   = $package_root . '/build/modules/boot/index.asset.php';
 		$backup_file  = $asset_file . '.bak';
+		$backed_up    = false;
 
-		// Skip if the build hasn't run (asset file doesn't exist).
-		if ( ! file_exists( $asset_file ) ) {
-			$this->markTestSkipped( 'Build asset file not present; run build first.' );
+		// Ensure the asset file is absent — back it up if a build has run.
+		if ( file_exists( $asset_file ) ) {
+			rename( $asset_file, $backup_file ); // phpcs:ignore WordPress.WP.AlternativeFunctions.rename_rename
+			$backed_up = true;
 		}
-
-		rename( $asset_file, $backup_file ); // phpcs:ignore WordPress.WP.AlternativeFunctions.rename_rename
 
 		try {
 			// The proxy file uses `require` internally, but PHP caches the
@@ -552,7 +569,9 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 			$this->assertSame( array(), $asset['dependencies'] );
 			$this->assertSame( '', $asset['version'] );
 		} finally {
-			rename( $backup_file, $asset_file ); // phpcs:ignore WordPress.WP.AlternativeFunctions.rename_rename
+			if ( $backed_up ) {
+				rename( $backup_file, $asset_file ); // phpcs:ignore WordPress.WP.AlternativeFunctions.rename_rename
+			}
 		}
 	}
 
