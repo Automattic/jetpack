@@ -13,4 +13,8 @@
 .newsletter-settings {
 	max-width: 1200px;
 	margin-inline: auto;
+
+	.components-notice {
+		margin-block-end: var(--wpds-dimension-gap-lg, 24px);
+	}
 }
