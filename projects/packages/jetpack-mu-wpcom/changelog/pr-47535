@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Gutenberg RTC: Load wpcom-gutenberg-rtc script from widgets.wp.com instead of bundling it, enabling independent script deployments.
