@@ -1,3 +1,9 @@
+import type {
+	LegendItemStyles,
+	LegendLabelStyles,
+	LegendPosition,
+	LegendShapeStyles,
+} from './components/legend';
 import type { CircleSubjectProps } from '@visx/annotation/lib/components/CircleSubject';
 import type { ConnectorProps } from '@visx/annotation/lib/components/Connector';
 import type { LabelProps } from '@visx/annotation/lib/components/Label';
@@ -10,12 +16,6 @@ import type { EventHandlerParams, GlyphProps, GridStyles, LineStyles } from '@vi
 import type { GapSize } from '@wordpress/theme';
 import type { CSSProperties, PointerEvent, ReactNode } from 'react';
 import type { GoogleDataTableColumn, GoogleDataTableRow } from 'react-google-charts';
-import type {
-	LegendItemStyles,
-	LegendLabelStyles,
-	LegendPosition,
-	LegendShapeStyles,
-} from './components/legend';
 
 type ValueOf< T > = T[ keyof T ];
 
