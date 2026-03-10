@@ -99,15 +99,6 @@ const meta: Meta< StoryArgs > = {
 				defaultValue: { summary: 'false' },
 			},
 		},
-		legendShapeStyles: {
-			control: 'object',
-			description: 'Styles for legend shapes (width, height, margin)',
-			table: {
-				category: 'Legend',
-				type: { summary: '{ width?: number; height?: number; margin?: string | number }' },
-				defaultValue: { summary: '{ width: 8, height: 8 }' },
-			},
-		},
 		legendLabels: {
 			control: 'object',
 			description: 'Custom labels for legend items',

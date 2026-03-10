@@ -74,6 +74,14 @@ export const legendArgTypes = {
 		description:
 			'Enable interactive legend items that can toggle series visibility. Requires GlobalChartsProvider and chartId to be set.',
 	},
+	legendShapeStyles: {
+		control: { type: 'object' as const },
+		table: {
+			category: 'Legend',
+			type: { summary: '{ width?: number; height?: number; margin?: string | number }' },
+		},
+		description: 'Styles for legend shapes (width, height, margin).',
+	},
 };
 
 /**
@@ -95,6 +103,7 @@ export function extractLegendConfig< T = ChartLegendConfig >(
 		legendItemClassName,
 		legendMaxWidth,
 		legendTextOverflow,
+		legendShapeStyles,
 	} = args;
 
 	const hasAny =
@@ -105,7 +114,8 @@ export function extractLegendConfig< T = ChartLegendConfig >(
 		legendInteractive !== undefined ||
 		legendItemClassName !== undefined ||
 		legendMaxWidth !== undefined ||
-		legendTextOverflow !== undefined;
+		legendTextOverflow !== undefined ||
+		legendShapeStyles !== undefined;
 
 	if ( ! hasAny ) {
 		return undefined;
@@ -140,6 +150,9 @@ export function extractLegendConfig< T = ChartLegendConfig >(
 			config.labelStyles.textOverflow =
 				legendTextOverflow as ChartLegendConfig[ 'labelStyles' ][ 'textOverflow' ];
 		}
+	}
+	if ( legendShapeStyles !== undefined ) {
+		config.shapeStyles = legendShapeStyles as ChartLegendConfig[ 'shapeStyles' ];
 	}
 
 	return config as T;
