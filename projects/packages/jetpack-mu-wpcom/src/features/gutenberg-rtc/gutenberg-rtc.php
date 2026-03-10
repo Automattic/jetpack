@@ -25,10 +25,29 @@ function wpcom_is_gutenberg_rtc_enabled() {
 	return apply_filters( 'wpcom_is_gutenberg_rtc_enabled', $is_enabled );
 }
 
+// 218727760
+/**
+ * Determine if HTTP polling should be enforced for the current blog.
+ *
+ * @return bool True if HTTP polling should be enforced for the current blog, false otherwise.
+ */
+function should_enforce_http_polling_for_blog() {
+	$blog_id = get_wpcom_blog_id();
+
+	if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC && ( $blog_id % 100 === 1 ) ) {
+		return true;
+	}
+	return false;
+}
+
 /**
  * Get WPCOM RTC providers.
  */
 function wpcom_get_gutenberg_rtc_providers() {
+	if ( should_enforce_http_polling_for_blog() ) {
+		return array( 'http-polling' );
+	}
+
 	if ( ! wpcom_is_gutenberg_rtc_enabled() ) {
 		return array();
 	}
