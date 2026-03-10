@@ -183,12 +183,7 @@ export const WithCompositionLegend: StoryObj< typeof LineChart > = {
 		const legend = extractLegendConfig( args );
 		return (
 			<LineChart { ...Default.args } { ...args }>
-				<LineChart.Legend
-					orientation={ legend?.orientation || 'horizontal' }
-					alignment={ legend?.alignment || 'center' }
-					position={ legend?.position || 'bottom' }
-					labelStyles={ legend?.labelStyles }
-				/>
+				<LineChart.Legend { ...legend } />
 			</LineChart>
 		);
 	},

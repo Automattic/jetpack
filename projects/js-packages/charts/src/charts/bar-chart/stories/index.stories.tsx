@@ -265,12 +265,7 @@ export const WithCompositionLegend: StoryObj< typeof BarChart > = {
 				withTooltips={ true }
 				gridVisibility="x"
 			>
-				<BarChart.Legend
-					orientation={ legend?.orientation || 'horizontal' }
-					alignment={ legend?.alignment || 'center' }
-					position={ legend?.position || 'bottom' }
-					labelStyles={ legend?.labelStyles }
-				/>
+				<BarChart.Legend { ...legend } />
 			</BarChart>
 		);
 	},

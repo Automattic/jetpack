@@ -226,12 +226,7 @@ export const WithCompositionLegend: Story = {
 						100K Total
 					</Text>
 				</Group>
-				<PieChart.Legend
-					position={ legend?.position || 'bottom' }
-					orientation={ legend?.orientation || 'horizontal' }
-					alignment={ legend?.alignment || 'center' }
-					labelStyles={ legend?.labelStyles }
-				/>
+				<PieChart.Legend { ...legend } />
 			</PieChart>
 		);
 	},

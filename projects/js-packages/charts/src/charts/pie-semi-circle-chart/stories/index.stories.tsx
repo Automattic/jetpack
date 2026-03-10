@@ -137,12 +137,7 @@ export const WithCompositionLegend: Story = {
 		const legend = extractLegendConfig( args );
 		return (
 			<PieSemiCircleChart data={ args.data } label="Performance Metrics" note="Q4 2023 Results">
-				<PieSemiCircleChart.Legend
-					position={ legend?.position || 'bottom' }
-					orientation={ legend?.orientation || 'horizontal' }
-					alignment={ legend?.alignment || 'center' }
-					labelStyles={ legend?.labelStyles }
-				/>
+				<PieSemiCircleChart.Legend { ...legend } />
 			</PieSemiCircleChart>
 		);
 	},

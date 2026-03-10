@@ -12,7 +12,7 @@ import {
 	categorizedMetricsData as dataWithImageColor,
 	themeArgTypes,
 } from '../../../stories';
-import { legendArgTypes } from '../../../stories/legend-config';
+import { legendArgTypes, extractLegendConfig } from '../../../stories/legend-config';
 import { formatMetricValue, hexToRgba } from '../../../utils';
 import LeaderboardChart from '../leaderboard-chart';
 import type { Meta, StoryObj } from '@storybook/react';
@@ -405,17 +405,17 @@ export const CustomLegendLabels: Story = {
 };
 
 export const WithCompositionLegend: Story = {
-	render: args => (
-		<LeaderboardChart { ...args }>
-			<LeaderboardChart.Legend
-				shape="circle"
-				shapeStyles={ { width: 8, height: 8 } }
-				orientation={ args.legendOrientation || 'horizontal' }
-				alignment={ args.legendAlignment || 'center' }
-				position={ args.legendPosition || 'bottom' }
-			/>
-		</LeaderboardChart>
-	),
+	render: args => {
+		const legend = extractLegendConfig( args );
+		return (
+			<LeaderboardChart { ...args }>
+				<LeaderboardChart.Legend
+					{ ...legend }
+					shapeStyles={ { width: 8, height: 8, ...legend?.shapeStyles } }
+				/>
+			</LeaderboardChart>
+		);
+	},
 	args: {
 		data: sampleData,
 		withComparison: true,

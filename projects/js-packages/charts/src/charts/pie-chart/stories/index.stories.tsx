@@ -179,12 +179,7 @@ export const WithCompositionLegend: Story = {
 		const legend = extractLegendConfig( args );
 		return (
 			<PieChart size={ 300 } data={ args.data } legendValueDisplay={ args.legendValueDisplay }>
-				<PieChart.Legend
-					position={ legend?.position || 'bottom' }
-					orientation={ legend?.orientation || 'horizontal' }
-					alignment={ legend?.alignment || 'center' }
-					labelStyles={ legend?.labelStyles }
-				/>
+				<PieChart.Legend { ...legend } />
 			</PieChart>
 		);
 	},
