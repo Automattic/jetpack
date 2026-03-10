@@ -637,6 +637,12 @@ async function provideBootAssetProxy( t ) {
 		await Promise.all( candidates.map( f => fsExists( f ).then( ok => ok && f ) ) )
 	).find( Boolean );
 	if ( ! proxySource ) {
+		await t.output(
+			chalk.yellow(
+				'Warning: build/pages exists but wp-build-polyfills boot module asset proxy was not found.\n'
+			) +
+				chalk.yellow( 'Ensure automattic/jetpack-wp-build-polyfills is installed via Composer.\n' )
+		);
 		return;
 	}
 
