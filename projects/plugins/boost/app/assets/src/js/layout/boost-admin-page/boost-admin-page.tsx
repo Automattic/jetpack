@@ -8,9 +8,14 @@ import type { ReactNode } from 'react';
 type BoostAdminPageProps = {
 	children: ReactNode;
 	showActivateLicense?: boolean;
+	breadcrumbs?: ReactNode;
 };
 
-const BoostAdminPage = ( { children, showActivateLicense = true }: BoostAdminPageProps ) => {
+const BoostAdminPage = ( {
+	children,
+	showActivateLicense = true,
+	breadcrumbs,
+}: BoostAdminPageProps ) => {
 	const activateLicenseUrl = 'admin.php?page=my-jetpack#/add-license';
 	const premiumFeatures = usePremiumFeatures();
 	const hasPlan = premiumFeatures && premiumFeatures.length > 0;
@@ -24,8 +29,15 @@ const BoostAdminPage = ( { children, showActivateLicense = true }: BoostAdminPag
 
 	return (
 		<AdminPage
-			title={ 'Boost' /** "Boost" is a product name, do not translate. */ }
-			subTitle={ __( 'Optimize your site performance and loading speed.', 'jetpack-boost' ) }
+			title={
+				breadcrumbs ? undefined : 'Boost' /** "Boost" is a product name, do not translate. */
+			}
+			subTitle={
+				breadcrumbs
+					? undefined
+					: __( 'Optimize your site performance and loading speed.', 'jetpack-boost' )
+			}
+			breadcrumbs={ breadcrumbs }
 			actions={ licenseAction }
 			showFooter={ false }
 			showBackground={ false }
