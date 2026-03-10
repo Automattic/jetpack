@@ -14,6 +14,7 @@ import * as React from 'react';
  * Internal dependencies
  */
 import { notSpam, spam } from '../../src/dashboard/icons';
+import { optimisticallyUpdateUnreadCount } from '../../src/dashboard/inbox/stage/process-status-change';
 import { defaultView } from '../../src/dashboard/inbox/stage/views.js';
 import {
 	updateMenuCounter,
@@ -241,16 +242,7 @@ const processStatusChange = async ( {
 		updateCountsOptimistically( item.status, newStatus, 1, queryParams );
 
 		// Update sidebar unread counter when moving unread items between statuses
-		if ( item.is_unread ) {
-			if ( ( newStatus === 'spam' || newStatus === 'trash' ) && item.status === 'publish' ) {
-				updateMenuCounterOptimistically( -1 );
-			} else if (
-				newStatus === 'publish' &&
-				( item.status === 'spam' || item.status === 'trash' )
-			) {
-				updateMenuCounterOptimistically( 1 );
-			}
-		}
+		optimisticallyUpdateUnreadCount( newStatus, item.status, item.is_unread );
 	} );
 
 	// Call API with timeout
@@ -284,16 +276,7 @@ const processStatusChange = async ( {
 		updateCountsOptimistically( newStatus, originalStatus, 1, queryParams );
 
 		// Revert sidebar unread counter change
-		if ( item.is_unread ) {
-			if ( ( newStatus === 'spam' || newStatus === 'trash' ) && originalStatus === 'publish' ) {
-				updateMenuCounterOptimistically( 1 );
-			} else if (
-				newStatus === 'publish' &&
-				( originalStatus === 'spam' || originalStatus === 'trash' )
-			) {
-				updateMenuCounterOptimistically( -1 );
-			}
-		}
+		optimisticallyUpdateUnreadCount( originalStatus, newStatus, item.is_unread );
 	} );
 
 	return {

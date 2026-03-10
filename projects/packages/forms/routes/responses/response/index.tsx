@@ -29,6 +29,7 @@ import {
 	updateMenuCounter,
 	updateMenuCounterOptimistically,
 } from '../../../src/dashboard/inbox/utils';
+import { store as dashboardStore } from '../../../src/dashboard/store';
 import useConfigValue from '../../../src/hooks/use-config-value.ts';
 import { ResponseActions } from './actions';
 import { ResponseNavigation } from './navigation';
@@ -66,6 +67,7 @@ function SingleResponseView( {
 	const isNotesEnabled = useConfigValue( 'isNotesEnabled' ) ?? false;
 
 	const { editEntityRecord } = useDispatch( coreStore ) as unknown as DispatchActions;
+	const { invalidateCounts, markRecordsAsInvalid } = useDispatch( dashboardStore );
 	const navigate = useNavigate();
 	const searchParams = useSearch( { from: '/responses/$view' } );
 
@@ -182,6 +184,8 @@ function SingleResponseView( {
 				const { count } = result as { count: number };
 				// Update sidebar counter with accurate count from server
 				updateMenuCounter( count );
+				markRecordsAsInvalid( [ response.id ] );
+				invalidateCounts();
 			} )
 			.catch( () => {
 				editEntityRecord( 'postType', 'feedback', response.id, {
@@ -192,7 +196,7 @@ function SingleResponseView( {
 					updateMenuCounterOptimistically( 1 );
 				}
 			} );
-	}, [ response, editEntityRecord, hasMarkedAsRead ] );
+	}, [ response, editEntityRecord, hasMarkedAsRead, invalidateCounts, markRecordsAsInvalid ] );
 
 	const handleFilePreview = useCallback(
 		( file: { url: string; name: string } ) => () => {
