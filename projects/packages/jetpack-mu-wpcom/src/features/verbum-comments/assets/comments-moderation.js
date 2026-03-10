@@ -5,7 +5,7 @@
  */
 /* global VerbumComments, verbumBlockEditor */
 document.addEventListener( 'DOMContentLoaded', function () {
-	const embedContentCallback = embedUrl => {
+	const embedContentCallback = ( /** @type {string} */ embedUrl ) => {
 		return {
 			path: '/verbum/embed',
 			query: `embed_url=${ encodeURIComponent( embedUrl ) }&embed_nonce=${ encodeURIComponent(

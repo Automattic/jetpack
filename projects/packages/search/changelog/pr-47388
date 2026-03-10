@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Dashboard: Remove global CSS overrides and move admin notices inside the main container.

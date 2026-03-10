@@ -17,7 +17,12 @@ import {
 	GlobalChartsContext,
 } from '../../providers';
 import { attachSubComponents } from '../../utils';
-import { ChartSVG, ChartHTML, useChartChildren } from '../private/chart-composition';
+import {
+	ChartSVG,
+	ChartHTML,
+	useChartChildren,
+	renderLegendSlot,
+} from '../private/chart-composition';
 import { RadialWipeAnimation } from '../private/radial-wipe-animation';
 import { SingleChartContext } from '../private/single-chart-context';
 import { withResponsive } from '../private/with-responsive';
@@ -277,7 +282,7 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 	const legendItems = useChartLegendItems( legendData, legendOptions );
 
 	// Process children to extract compound components
-	const { svgChildren, htmlChildren, otherChildren } = useChartChildren(
+	const { svgChildren, htmlChildren, legendChildren, otherChildren } = useChartChildren(
 		children,
 		'PieSemiCircleChart'
 	);
@@ -352,9 +357,8 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 			orientation={ legendOrientation }
 			position={ legendPosition }
 			alignment={ legendAlignment }
-			maxWidth={ legendMaxWidth }
-			textOverflow={ legendTextOverflow }
-			legendItemClassName={ legendItemClassName }
+			labelStyles={ { maxWidth: legendMaxWidth, textOverflow: legendTextOverflow } }
+			itemClassName={ legendItemClassName }
 			shape={ legendShape }
 			chartId={ chartId }
 			interactive={ legendInteractive }
@@ -388,6 +392,7 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 				data-testid="pie-chart-container"
 			>
 				{ legendPosition === 'top' && legendElement }
+				{ renderLegendSlot( legendChildren, 'top' ) }
 
 				<div ref={ svgWrapperRef } className={ styles[ 'pie-semi-circle-chart__svg-wrapper' ] }>
 					<svg
@@ -484,7 +489,8 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 					</svg>
 				</div>
 
-				{ legendPosition !== 'top' && legendElement }
+				{ legendPosition === 'bottom' && legendElement }
+				{ renderLegendSlot( legendChildren, 'bottom' ) }
 
 				{ withTooltips && tooltipOpen && tooltipData && (
 					<TooltipInPortal top={ tooltipTop || 0 } left={ tooltipLeft || 0 }>

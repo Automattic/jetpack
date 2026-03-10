@@ -13,7 +13,7 @@ namespace Automattic\Jetpack\Admin_UI;
  */
 class Admin_Menu {
 
-	const PACKAGE_VERSION = '0.5.11';
+	const PACKAGE_VERSION = '0.5.12';
 
 	/**
 	 * Redirect source slug used as the upgrade URL identifier and CSS class.

@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Add AdminHeader component wrapping @wordpress/admin-ui Page for unified admin page headers.

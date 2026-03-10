@@ -105,16 +105,22 @@ function wpcom_get_calypso_origin() {
  */
 function jetpack_mu_wpcom_enqueue_assets( $asset_name, $asset_types = array() ) {
 	$asset_handle = "jetpack-mu-wpcom-$asset_name";
-	$asset_file   = include Jetpack_Mu_Wpcom::BASE_DIR . "build/$asset_name/$asset_name.asset.php";
+	$asset_path   = Jetpack_Mu_Wpcom::BASE_DIR . "build/$asset_name/$asset_name.asset.php";
+	$asset_file   = file_exists( $asset_path ) ? include $asset_path : array();
+	if ( ! is_array( $asset_file ) ) {
+		$asset_file = array();
+	}
 
 	if ( in_array( 'js', $asset_types, true ) ) {
 		$js_file      = "build/$asset_name/$asset_name.js";
+		$js_path      = Jetpack_Mu_Wpcom::BASE_DIR . $js_file;
 		$dependencies = $asset_file['dependencies'] ?? array();
+		$version      = $asset_file['version'] ?? ( file_exists( $js_path ) ? filemtime( $js_path ) : null );
 		wp_enqueue_script(
 			"jetpack-mu-wpcom-$asset_name",
 			plugins_url( $js_file, Jetpack_Mu_Wpcom::BASE_FILE ),
 			$dependencies,
-			$asset_file['version'] ?? filemtime( Jetpack_Mu_Wpcom::BASE_DIR . $js_file ),
+			$version,
 			true
 		);
 		if ( in_array( 'wp-i18n', $dependencies, true ) ) {
@@ -125,15 +131,69 @@ function jetpack_mu_wpcom_enqueue_assets( $asset_name, $asset_types = array() ) 
 	if ( in_array( 'css', $asset_types, true ) ) {
 		$css_ext  = is_rtl() ? 'rtl.css' : 'css';
 		$css_file = "build/$asset_name/$asset_name.$css_ext";
+		$css_path = Jetpack_Mu_Wpcom::BASE_DIR . $css_file;
 		wp_enqueue_style(
 			"jetpack-mu-wpcom-$asset_name",
 			plugins_url( $css_file, Jetpack_Mu_Wpcom::BASE_FILE ),
 			array(),
-			filemtime( Jetpack_Mu_Wpcom::BASE_DIR . $css_file )
+			file_exists( $css_path ) ? filemtime( $css_path ) : null
 		);
 	}
 
 	return $asset_handle;
+}
+
+/**
+ * Enqueue a Calypso app script hosted on widgets.wp.com.
+ *
+ * Fetches the asset file (dependencies + version) from widgets.wp.com,
+ * caches it with a transient, and enqueues the script.
+ *
+ * @param string $app_name The name of the app (used for handle, URL path, and asset file name).
+ * @param string $entry    The entry file name without extension. Defaults to $app_name.
+ *
+ * @return string|null The script handle, or null if the asset file could not be loaded.
+ */
+function jetpack_mu_wpcom_enqueue_calypso_app( $app_name, $entry = null ) {
+	if ( $entry === null ) {
+		$entry = $app_name;
+	}
+	$handle     = "jetpack-mu-wpcom-$app_name";
+	$cache_key  = $handle . '.asset.json';
+	$asset_file = get_transient( $cache_key );
+
+	if ( ! $asset_file ) {
+		$filepath            = "widgets.wp.com/$app_name/$app_name.asset.json";
+		$accessible_directly = file_exists( ABSPATH . '/' . $filepath );
+		if ( $accessible_directly ) {
+			$asset_file = json_decode( file_get_contents( ABSPATH . $filepath ), true ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+		} else {
+			$request = wp_remote_get( 'https://' . $filepath );
+			if ( is_wp_error( $request ) ) {
+				return null;
+			}
+			$asset_file = json_decode( wp_remote_retrieve_body( $request ), true );
+		}
+
+		if ( ! $asset_file ) {
+			return null;
+		}
+		set_transient( $cache_key, $asset_file, HOUR_IN_SECONDS );
+	}
+
+	$debug = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG;
+
+	wp_enqueue_script(
+		$handle,
+		$debug
+			? "//widgets.wp.com/$app_name/$entry.js?minify=false"
+			: "//widgets.wp.com/$app_name/$entry.min.js",
+		$asset_file['dependencies'] ?? array(),
+		$asset_file['version'] ?? gmdate( 'Ymd' ),
+		true
+	);
+
+	return $handle;
 }
 
 /**
@@ -205,4 +265,21 @@ function wpcom_has_blog_sticker( $blog_sticker, $blog_id ) {
 		return true;
 	}
 	return false;
+}
+
+/**
+ * Enable the newsletter settings package for sites with the newsletter-package-202603 sticker.
+ *
+ * This allows opt-in testing of the newsletter settings package on wpcom infrastructure.
+ *
+ * @param bool $enabled Whether the newsletter settings are enabled.
+ * @return bool
+ */
+function wpcom_maybe_enable_newsletter_settings( $enabled ) {
+	if ( $enabled ) {
+		return $enabled;
+	}
+
+	// Stickered sites (will always be simple, as we don't sync this sticker. WoW sites can just add their own mu-plugin/snippet)
+	return function_exists( 'has_blog_sticker' ) && has_blog_sticker( 'newsletter-package-202603' );
 }

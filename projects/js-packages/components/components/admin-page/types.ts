@@ -32,7 +32,7 @@ export type AdminPageProps = {
 	/**
 	 * Optional tagline displayed below the title in the unified header.
 	 */
-	subTitle?: string;
+	subTitle?: ReactNode;
 
 	/**
 	 * Custom logo element for the unified header. Defaults to JetpackLogo icon.
@@ -98,4 +98,10 @@ export type AdminPageProps = {
 	 * Class name to be applied to the root element of the component.
 	 */
 	className?: string;
+
+	/**
+	 * Show bottom border of the header. Defaults to true.
+	 * Hidden when `tabs` is used.
+	 */
+	showBottomBorder?: boolean;
 };

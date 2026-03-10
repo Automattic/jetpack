@@ -2,6 +2,13 @@
  * External dependencies
  */
 import { getAdminUrl, getScriptData } from '@automattic/jetpack-script-data';
+import {
+	Card,
+	CardHeader,
+	CardBody,
+	__experimentalText as Text, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+	__experimentalHeading as Heading, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+} from '@wordpress/components';
 import { DataForm, type Field } from '@wordpress/dataviews/wp';
 import { __ } from '@wordpress/i18n';
 /**
@@ -77,46 +84,49 @@ export function EmailBylineSection( {
 	];
 
 	return (
-		<div className="newsletter-settings__section">
-			<h3 className="newsletter-settings__section-title">
-				{ __( 'Email byline', 'jetpack-newsletter' ) }
-			</h3>
-			<p className="newsletter-settings__section-description">
-				{ __(
-					'Customize the information you want to display below your post title in emails.',
-					'jetpack-newsletter'
-				) }
-			</p>
-			<fieldset className="newsletter-settings__section-content" disabled={ ! isNewsletterEnabled }>
-				<DataForm
-					data={ data }
-					fields={ fields }
-					form={ {
-						layout: {
-							type: 'regular',
-							labelPosition: 'top',
-						},
-						fields: [
-							'jetpack_gravatar_in_email',
-							'jetpack_author_in_email',
-							'jetpack_post_date_in_email',
-						],
-					} }
-					onChange={ onChange }
-				/>
-
-				{ /* Byline Preview - positioned right after the toggles */ }
-				{ newsletterScriptData && (
-					<BylinePreview
-						isGravatarEnabled={ data.jetpack_gravatar_in_email }
-						isAuthorEnabled={ data.jetpack_author_in_email }
-						isPostDateEnabled={ data.jetpack_post_date_in_email }
-						gravatar={ newsletterScriptData.gravatar }
-						displayName={ getScriptData()?.user.current_user?.display_name ?? '' }
-						dateExample={ newsletterScriptData.dateExample }
+		<Card>
+			<CardHeader>
+				<Heading level={ 4 }>{ __( 'Email byline', 'jetpack-newsletter' ) }</Heading>
+			</CardHeader>
+			<CardBody>
+				<p>
+					<Text>
+						{ __(
+							'Customize the information you want to display below your post title in emails.',
+							'jetpack-newsletter'
+						) }
+					</Text>
+				</p>
+				<fieldset disabled={ ! isNewsletterEnabled }>
+					<DataForm
+						data={ data }
+						fields={ fields }
+						form={ {
+							layout: {
+								type: 'regular',
+								labelPosition: 'top',
+							},
+							fields: [
+								'jetpack_gravatar_in_email',
+								'jetpack_author_in_email',
+								'jetpack_post_date_in_email',
+							],
+						} }
+						onChange={ onChange }
 					/>
-				) }
-			</fieldset>
-		</div>
+
+					{ newsletterScriptData && (
+						<BylinePreview
+							isGravatarEnabled={ data.jetpack_gravatar_in_email }
+							isAuthorEnabled={ data.jetpack_author_in_email }
+							isPostDateEnabled={ data.jetpack_post_date_in_email }
+							gravatar={ newsletterScriptData.gravatar }
+							displayName={ getScriptData()?.user.current_user?.display_name ?? '' }
+							dateExample={ newsletterScriptData.dateExample }
+						/>
+					) }
+				</fieldset>
+			</CardBody>
+		</Card>
 	);
 }

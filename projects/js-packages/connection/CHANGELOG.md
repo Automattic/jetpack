@@ -2,6 +2,13 @@
 
 ### This is a list detailing changes for the Jetpack RNA Connection Component releases.
 
+## [1.4.39] - 2026-03-09
+### Changed
+- Switch to Native TypeScript compiler based on Go. [#47375]
+
+### Fixed
+- Fix TS errors detected by tsgo. [#47409]
+
 ## [1.4.38] - 2026-03-02
 ### Changed
 - Convert `useConnection` hook to TypeScript. [#47380]
@@ -1285,6 +1292,7 @@
 - `Main` and `ConnectUser` components added.
 - `JetpackRestApiClient` API client added.
 
+[1.4.39]: https://github.com/Automattic/jetpack-connection-js/compare/v1.4.38...v1.4.39
 [1.4.38]: https://github.com/Automattic/jetpack-connection-js/compare/v1.4.37...v1.4.38
 [1.4.37]: https://github.com/Automattic/jetpack-connection-js/compare/v1.4.36...v1.4.37
 [1.4.36]: https://github.com/Automattic/jetpack-connection-js/compare/v1.4.35...v1.4.36

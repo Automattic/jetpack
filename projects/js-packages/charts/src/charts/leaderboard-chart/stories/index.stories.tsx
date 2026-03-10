@@ -99,22 +99,13 @@ const meta: Meta< StoryArgs > = {
 				defaultValue: { summary: 'false' },
 			},
 		},
-		legendShapeWidth: {
-			control: 'number',
-			description: 'Width of legend shapes in pixels',
+		legendShapeStyles: {
+			control: 'object',
+			description: 'Styles for legend shapes (width, height, margin)',
 			table: {
 				category: 'Legend',
-				type: { summary: 'number' },
-				defaultValue: { summary: '8' },
-			},
-		},
-		legendShapeHeight: {
-			control: 'number',
-			description: 'Height of legend shapes in pixels',
-			table: {
-				category: 'Legend',
-				type: { summary: 'number' },
-				defaultValue: { summary: '8' },
+				type: { summary: '{ width?: number; height?: number; margin?: string | number }' },
+				defaultValue: { summary: '{ width: 8, height: 8 }' },
 			},
 		},
 		legendLabels: {
@@ -139,8 +130,6 @@ const meta: Meta< StoryArgs > = {
 		legendAlignment: 'center',
 		legendOrientation: 'horizontal',
 		legendShape: 'circle',
-		legendShapeWidth: 8,
-		legendShapeHeight: 8,
 		withOverlayLabel: false,
 	},
 	decorators: [ chartDecorator ],
@@ -418,7 +407,13 @@ export const CustomLegendLabels: Story = {
 export const WithCompositionLegend: Story = {
 	render: args => (
 		<LeaderboardChart { ...args }>
-			<LeaderboardChart.Legend shape="circle" shapeWidth={ 8 } shapeHeight={ 8 } />
+			<LeaderboardChart.Legend
+				shape="circle"
+				shapeStyles={ { width: 8, height: 8 } }
+				orientation={ args.legendOrientation || 'horizontal' }
+				alignment={ args.legendAlignment || 'center' }
+				position={ args.legendPosition || 'bottom' }
+			/>
 		</LeaderboardChart>
 	),
 	args: {

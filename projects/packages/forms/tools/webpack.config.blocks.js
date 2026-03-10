@@ -84,14 +84,6 @@ const sharedWebpackConfig = {
 				],
 			} ),
 
-			// Allow importing .svg files as React components via `?component` query.
-			{
-				test: /\.svg$/i,
-				issuer: /\.[jt]sx?$/,
-				resourceQuery: /component/,
-				use: [ '@svgr/webpack' ],
-			},
-
 			// Allow importing .svg files as raw HTML strings via `?raw` query.
 			{
 				test: /\.svg$/i,
@@ -99,10 +91,10 @@ const sharedWebpackConfig = {
 				type: 'asset/source',
 			},
 
-			// Handle images (exclude ?component and ?raw SVG imports).
+			// Handle images (exclude ?raw SVG imports).
 			{
 				...jetpackWebpackConfig.FileRule(),
-				resourceQuery: { not: [ /component/, /raw/ ] },
+				resourceQuery: { not: [ /raw/ ] },
 			},
 		],
 	},

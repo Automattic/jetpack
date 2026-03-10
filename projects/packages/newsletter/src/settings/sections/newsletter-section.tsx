@@ -3,7 +3,13 @@
  */
 import analytics from '@automattic/jetpack-analytics';
 import { getSiteType } from '@automattic/jetpack-script-data';
-import { ExternalLink } from '@wordpress/components';
+import {
+	Card,
+	CardHeader,
+	CardBody,
+	ExternalLink,
+	__experimentalHeading as Heading, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+} from '@wordpress/components';
 import { DataForm, type Field } from '@wordpress/dataviews/wp';
 import { useCallback, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -67,11 +73,11 @@ export function NewsletterSection( { data, onChange }: NewsletterSectionProps ):
 	];
 
 	return (
-		<div className="newsletter-settings__section">
-			<h3 className="newsletter-settings__section-title">
-				{ __( 'Newsletter', 'jetpack-newsletter' ) }
-			</h3>
-			<div className="newsletter-settings__section-content">
+		<Card>
+			<CardHeader>
+				<Heading level={ 4 }>{ __( 'Newsletter', 'jetpack-newsletter' ) }</Heading>
+			</CardHeader>
+			<CardBody>
 				<DataForm
 					data={ data }
 					fields={ fields }
@@ -94,7 +100,7 @@ export function NewsletterSection( { data, onChange }: NewsletterSectionProps ):
 						</ExternalLink>
 					</div>
 				) }
-			</div>
-		</div>
+			</CardBody>
+		</Card>
 	);
 }

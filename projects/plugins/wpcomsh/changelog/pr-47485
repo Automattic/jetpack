@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Gutenberg RTC: Add support for HTTP polling provider for real-time collaboration.

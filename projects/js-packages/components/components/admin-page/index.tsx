@@ -43,6 +43,7 @@ const AdminPage: FC< AdminPageProps > = ( {
 	logo,
 	actions,
 	tabs,
+	showBottomBorder = true,
 } ) => {
 	useEffect( () => {
 		restApi.setApiRoot( apiRoot );
@@ -51,6 +52,7 @@ const AdminPage: FC< AdminPageProps > = ( {
 
 	const rootClassName = clsx( styles[ 'admin-page' ], className, {
 		[ styles.background ]: showBackground,
+		[ styles[ 'without-bottom-border' ] ]: tabs || ! showBottomBorder,
 	} );
 
 	const testConnection = useCallback( async () => {
@@ -104,6 +106,7 @@ const AdminPage: FC< AdminPageProps > = ( {
 		return (
 			<div className={ rootClassName }>
 				<Page
+					ariaLabel={ title }
 					title={ composedTitle }
 					subTitle={ subTitle }
 					actions={ actions }

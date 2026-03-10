@@ -15,16 +15,17 @@ import {
 	currentUserCan,
 } from '@automattic/jetpack-script-data';
 import { shouldUseInternalLinks } from '@automattic/jetpack-shared-extension-utils';
+import { Button } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
-import { createInterpolateElement, useState, useCallback } from '@wordpress/element';
+import { useState, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { store as socialStore } from '../../social-store';
 import { features, getSocialScriptData, hasSocialPaidFeatures } from '../../utils';
 import ConnectionScreen from './connection-screen';
 import Header from './header';
 import InfoSection from './info-section';
-import './styles.module.scss';
 import PricingPage from './pricing-page';
+import './styles.module.scss';
 import SupportSection from './support-section';
 import SocialImageGeneratorToggle from './toggles/social-image-generator-toggle';
 import SocialModuleToggle from './toggles/social-module-toggle';
@@ -80,24 +81,19 @@ export const SocialAdminPage = () => {
 		);
 	}
 
-	const licenseAction =
-		! hasSocialPaidFeatures() && isJetpackSite
-			? createInterpolateElement(
-					__(
-						'Already have an existing plan or license key? <a>Click here to get started</a>',
-						'jetpack-publicize-pkg'
-					),
-					{
-						a: <a href={ getMyJetpackUrl( '#/add-license' ) } />,
-					}
-			  )
-			: null;
+	const subTitle = __( 'Publish once. Share everywhere.', 'jetpack-publicize-pkg' );
+
+	const licenseAction = ! hasSocialPaidFeatures() && isJetpackSite && (
+		<Button variant="secondary" href={ getMyJetpackUrl( '#/add-license' ) }>
+			{ __( 'Use license key', 'jetpack-publicize-pkg' ) }
+		</Button>
+	);
 
 	return (
 		<AdminPage
 			moduleName={ moduleName }
 			title={ 'Social' /** "Social" is a product name, do not translate. */ }
-			subTitle={ __( 'Publish once. Share everywhere.', 'jetpack-publicize-pkg' ) }
+			subTitle={ subTitle }
 			actions={ licenseAction }
 			showFooter={ isJetpackSite }
 			useInternalLinks={ shouldUseInternalLinks() }

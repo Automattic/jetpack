@@ -23,6 +23,7 @@ import EmptyTrashButton from '../../components/empty-trash-button';
 import EmptyTrashConfirmationModal from '../../components/empty-trash-button/confirmation-modal';
 import ExportResponsesButton from '../../components/export-responses/button';
 import ExportResponsesModal from '../../components/export-responses/modal';
+import { getFormStatusLabel } from '../../constants';
 import useCreateForm from '../../hooks/use-create-form';
 import useEmptySpam from '../../hooks/use-empty-spam';
 import useEmptyTrash from '../../hooks/use-empty-trash';
@@ -47,6 +48,7 @@ type UsePageHeaderDetailsProps = {
 
 type UsePageHeaderDetailsReturn = {
 	breadcrumbs: ReactNode;
+	title?: ReactNode;
 	badges?: ReactNode;
 	subtitle: ReactNode;
 	actions?: ReactNode;
@@ -123,22 +125,7 @@ export default function usePageHeaderDetails(
 
 	const formStatus = formRecord?.status;
 
-	const statusLabel = useMemo( () => {
-		switch ( formStatus ) {
-			case 'publish':
-				return __( 'Published', 'jetpack-forms' );
-			case 'draft':
-				return __( 'Draft', 'jetpack-forms' );
-			case 'pending':
-				return __( 'Pending review', 'jetpack-forms' );
-			case 'future':
-				return __( 'Scheduled', 'jetpack-forms' );
-			case 'private':
-				return __( 'Private', 'jetpack-forms' );
-			default:
-				return formStatus;
-		}
-	}, [ formStatus ] );
+	const statusLabel = formStatus ? getFormStatusLabel( formStatus ) : undefined;
 
 	const badges = useMemo( () => {
 		if ( ! isSingleFormScreen || ! formStatus || formStatus === 'publish' ) {
@@ -182,25 +169,37 @@ export default function usePageHeaderDetails(
 		return controls;
 	}, [ sourceIdNumber, formTitle, duplicateForm, previewForm, copyEmbed, copyShortcode ] );
 
-	const breadcrumbsItems = useMemo( () => {
-		if ( isSingleFormScreen ) {
-			return [
-				{ label: __( 'Forms', 'jetpack-forms' ), to: '/forms' },
-				{ label: formTitle || __( 'Form responses', 'jetpack-forms' ) },
-			];
-		}
+	const WrapWithJetpackLogo = ( { children }: { children: ReactNode } ) => (
+		<Stack align="center" gap="xs">
+			<JetpackLogo showText={ false } width={ 20 } />
+			{ children }
+		</Stack>
+	);
 
-		return [ { label: __( 'Forms', 'jetpack-forms' ) } ];
-	}, [ formTitle, isSingleFormScreen ] );
+	const title = useMemo( () => {
+		if ( isSingleFormScreen ) {
+			return null;
+		}
+		// "Forms" is a product name, do not translate.
+		return <WrapWithJetpackLogo>Forms</WrapWithJetpackLogo>;
+	}, [ isSingleFormScreen ] );
 
 	const breadcrumbs = useMemo( () => {
+		if ( ! isSingleFormScreen ) {
+			return null;
+		}
+
 		return (
-			<Stack align="center" gap="xs">
-				<JetpackLogo showText={ false } width={ 20 } />
-				<Breadcrumbs items={ breadcrumbsItems } />
-			</Stack>
+			<WrapWithJetpackLogo>
+				<Breadcrumbs
+					items={ [
+						{ label: __( 'Forms', 'jetpack-forms' ), to: '/forms' },
+						{ label: formTitle || __( 'Form responses', 'jetpack-forms' ) },
+					] }
+				/>
+			</WrapWithJetpackLogo>
 		);
-	}, [ breadcrumbsItems ] );
+	}, [ isSingleFormScreen, formTitle ] );
 
 	const subtitle = useMemo( () => {
 		if ( isFormsScreen ) {
@@ -473,5 +472,5 @@ export default function usePageHeaderDetails(
 		emptySpam.selectedResponsesCount,
 	] );
 
-	return { breadcrumbs, badges, subtitle, actions };
+	return { breadcrumbs, title, badges, subtitle, actions };
 }

@@ -26,10 +26,12 @@ describe( 'BarChart', () => {
 		],
 	};
 
-	const renderWithTheme = ( props = {} ) => {
+	const renderWithTheme = ( props = {}, children = undefined ) => {
 		return render(
 			<GlobalChartsProvider>
-				<BarChart { ...defaultProps } { ...props } />
+				<BarChart { ...defaultProps } { ...props }>
+					{ children }
+				</BarChart>
 			</GlobalChartsProvider>
 		);
 	};
@@ -123,38 +125,53 @@ describe( 'BarChart', () => {
 	} );
 
 	describe( 'Legend', () => {
+		const multiSeriesData = [
+			{
+				label: 'Series A',
+				data: [ { date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' } ],
+				options: {},
+			},
+			{
+				label: 'Series B',
+				data: [ { date: new Date( '2024-01-01' ), value: 20, label: 'Jan 1' } ],
+				options: {},
+			},
+		];
+
 		test( 'shows legend when showLegend is true', () => {
-			renderWithTheme( {
-				showLegend: true,
-				data: [
-					{
-						label: 'Series A',
-						data: [ { date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' } ],
-						options: {},
-					},
-					{
-						label: 'Series B',
-						data: [ { date: new Date( '2024-01-01' ), value: 20, label: 'Jan 1' } ],
-						options: {},
-					},
-				],
-			} );
+			renderWithTheme( { showLegend: true, data: multiSeriesData } );
 			expect( screen.getByText( 'Series A' ) ).toBeInTheDocument();
 			expect( screen.getByText( 'Series B' ) ).toBeInTheDocument();
 		} );
 
 		test( 'hides legend when showLegend is false', () => {
-			renderWithTheme( {
-				showLegend: false,
-				data: [
-					{
-						label: 'Series A',
-						data: [ { date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' } ],
-						options: {},
-					},
-				],
-			} );
+			renderWithTheme( { showLegend: false, data: multiSeriesData } );
 			expect( screen.queryByText( 'Series A' ) ).not.toBeInTheDocument();
+		} );
+
+		test( 'renders composition legend as child component', () => {
+			renderWithTheme( { data: multiSeriesData }, <BarChart.Legend /> );
+
+			expect( screen.getAllByTestId( 'legend-item' ) ).toHaveLength( 2 );
+			expect( screen.getByText( 'Series A' ) ).toBeInTheDocument();
+			expect( screen.getByText( 'Series B' ) ).toBeInTheDocument();
+		} );
+
+		test( 'renders composition legend regardless of showLegend value', () => {
+			renderWithTheme( { data: multiSeriesData, showLegend: false }, <BarChart.Legend /> );
+
+			expect( screen.getAllByTestId( 'legend-item' ) ).toHaveLength( 2 );
+		} );
+
+		test( 'renders composition legend in top position', () => {
+			renderWithTheme( { data: multiSeriesData }, <BarChart.Legend position="top" /> );
+
+			// Legend should appear before the chart content in DOM order
+			expect( screen.getAllByTestId( 'legend-item' ) ).toHaveLength( 2 );
+			const html = document.body.innerHTML;
+			expect( html.indexOf( 'data-testid="legend-horizontal"' ) ).toBeLessThan(
+				html.indexOf( 'role="grid"' )
+			);
 		} );
 	} );
 
@@ -561,6 +578,36 @@ describe( 'BarChart', () => {
 				const width = parseFloat( bar.getAttribute( 'width' ) || '0' );
 				expect( width ).toBeGreaterThan( 0 );
 			} );
+		} );
+
+		test( 'ensures minimum pixel height for zero values in small charts', () => {
+			// With a small chart height (100px) and large data range, zero-value bars
+			// should still be visible (at least 3px based on MIN_PIXEL_HEIGHT)
+			renderWithTheme( {
+				showZeroValues: true,
+				height: 100,
+				data: [
+					{
+						label: 'Test Series',
+						data: [
+							{ label: 'Zero', value: 0 },
+							{ label: 'Large', value: 10000 },
+						],
+						options: {},
+					},
+				],
+			} );
+
+			const svgElement = screen.getByRole( 'grid', { name: /bar chart/i } ).querySelector( 'svg' );
+			const bars = svgElement?.querySelectorAll( '.visx-bar-group rect' );
+
+			expect( bars?.length ).toBe( 2 );
+
+			// The zero-value bar (first bar) should have a minimum visible height.
+			// We check for >= 2px to allow for rounding in the pixel calculation.
+			const zeroBar = bars?.[ 0 ];
+			const zeroBarHeight = parseFloat( zeroBar?.getAttribute( 'height' ) || '0' );
+			expect( zeroBarHeight ).toBeGreaterThanOrEqual( 2 );
 		} );
 	} );
 

@@ -165,7 +165,7 @@ class Form_Editor {
 	 * collection label from appearing in the block inserter, since form field
 	 * blocks are organized into their own granular categories.
 	 *
-	 * @since $$next-version$$
+	 * @since 7.12.0
 	 *
 	 * @param \WP_Screen $screen The current screen object.
 	 */

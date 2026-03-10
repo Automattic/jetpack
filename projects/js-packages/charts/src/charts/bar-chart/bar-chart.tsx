@@ -13,7 +13,6 @@ import {
 	useZeroValueDisplay,
 	useChartMargin,
 	useElementSize,
-	useHasLegendChild,
 	usePrefersReducedMotion,
 } from '../../hooks';
 import {
@@ -25,6 +24,7 @@ import {
 	GlobalChartsContext,
 } from '../../providers';
 import { attachSubComponents } from '../../utils';
+import { useChartChildren, renderLegendSlot } from '../private/chart-composition';
 import { SingleChartContext } from '../private/single-chart-context';
 import { withResponsive } from '../private/with-responsive';
 import styles from './bar-chart.module.scss';
@@ -110,8 +110,10 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	const dataSorted = useChartDataTransform( data );
 
 	// Transform data to add a small value for zero bars to make them visible
+	// For vertical bars, height determines bar pixel height; for horizontal bars, width does
 	const dataWithVisibleZeros = useZeroValueDisplay( dataSorted, {
 		enabled: showZeroValues,
+		valueAxisLength: horizontal ? width : height,
 	} );
 
 	// Create legend items using the reusable hook
@@ -121,8 +123,9 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	const [ svgWrapperRef, , svgWrapperHeight ] = useElementSize< HTMLDivElement >();
 	const chartRef = useRef< HTMLDivElement >( null );
 
-	// Check if children contain a Legend component (composition pattern)
-	const hasLegendChild = useHasLegendChild( children );
+	// Process children for composition API (Legend, etc.)
+	const { legendChildren, nonLegendChildren } = useChartChildren( children, 'BarChart' );
+	const hasLegendChild = legendChildren.length > 0;
 
 	// Use the measured SVG wrapper height, falling back to the passed height if provided.
 	// When there's a legend (via prop or composition), we must wait for measurement because
@@ -330,9 +333,8 @@ const BarChartInternal: FC< BarChartProps > = ( {
 			orientation={ legendOrientation }
 			position={ legendPosition }
 			alignment={ legendAlignment }
-			maxWidth={ legendMaxWidth }
-			textOverflow={ legendTextOverflow }
-			legendItemClassName={ legendItemClassName }
+			labelStyles={ { maxWidth: legendMaxWidth, textOverflow: legendTextOverflow } }
+			itemClassName={ legendItemClassName }
 			className={ styles[ 'bar-chart__legend' ] }
 			shape={ legendShape }
 			chartId={ chartId }
@@ -369,6 +371,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 				data-chart-id={ `bar-chart-${ chartId }` }
 			>
 				{ legendPosition === 'top' && legendElement }
+				{ renderLegendSlot( legendChildren, 'top' ) }
 
 				<div
 					className={ styles[ 'bar-chart__svg-wrapper' ] }
@@ -482,8 +485,9 @@ const BarChartInternal: FC< BarChartProps > = ( {
 				</div>
 
 				{ legendPosition === 'bottom' && legendElement }
+				{ renderLegendSlot( legendChildren, 'bottom' ) }
 
-				{ children }
+				{ nonLegendChildren }
 			</Stack>
 		</SingleChartContext.Provider>
 	);

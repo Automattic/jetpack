@@ -16,7 +16,7 @@ import {
 	useGlobalChartsTheme,
 } from '../../providers';
 import { formatMetricValue, attachSubComponents } from '../../utils';
-import { useChartChildren } from '../private/chart-composition';
+import { useChartChildren, renderLegendSlot } from '../private/chart-composition';
 import { SingleChartContext } from '../private/single-chart-context';
 import { withResponsive } from '../private/with-responsive';
 import { useLeaderboardLegendItems } from './hooks';
@@ -128,8 +128,7 @@ const BarWithLabel = ( {
  * @param props.legendPosition    - Legend position
  * @param props.legendAlignment   - Legend alignment
  * @param props.legendShape       - Legend shape
- * @param props.legendShapeWidth  - Width of legend shapes in pixels
- * @param props.legendShapeHeight - Height of legend shapes in pixels
+ * @param props.legendShapeStyles - Styles for legend shapes (width, height, margin)
  * @param props.legendLabels      - Custom labels for legend items
  * @param props.legendInteractive - Whether legend items are interactive (clickable to toggle series visibility)
  * @param props.gap               - Spacing between legend and chart content
@@ -156,8 +155,7 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 	legendPosition = 'bottom',
 	legendAlignment = 'center',
 	legendShape = 'circle',
-	legendShapeWidth = 8,
-	legendShapeHeight = 8,
+	legendShapeStyles: legendShapeStylesProp,
 	legendLabels,
 	legendInteractive = false,
 	gap = 'md',
@@ -167,9 +165,10 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 } ) => {
 	const chartId = useChartId( providedChartId );
 	const { leaderboardChart: leaderboardChartSettings } = useGlobalChartsTheme();
+	const legendShapeStyles = { width: 8, height: 8, ...legendShapeStylesProp };
 
 	// Process children to extract compound components
-	const { otherChildren } = useChartChildren( children, 'LeaderboardChart' );
+	const { legendChildren, nonLegendChildren } = useChartChildren( children, 'LeaderboardChart' );
 	const {
 		labelSpacing,
 		rowGap,
@@ -282,8 +281,8 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 							? __( 'Loading…', 'jetpack-charts' )
 							: __( 'No data available', 'jetpack-charts' ) }
 					</div>
-					{ /* Render children from composition API */ }
-					{ otherChildren }
+
+					{ nonLegendChildren }
 				</Stack>
 			</SingleChartContext.Provider>
 		);
@@ -295,8 +294,7 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 			position={ legendPosition }
 			alignment={ legendAlignment }
 			shape={ legendShape }
-			shapeWidth={ legendShapeWidth }
-			shapeHeight={ legendShapeHeight }
+			shapeStyles={ legendShapeStyles }
 			chartId={ chartId }
 			interactive={ legendInteractive }
 		/>
@@ -329,6 +327,7 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 				} }
 			>
 				{ legendPosition === 'top' && legendElement }
+				{ renderLegendSlot( legendChildren, 'top' ) }
 
 				<div className={ styles.leaderboardChart__content }>
 					{ allSeriesHidden ? (
@@ -379,9 +378,9 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 				</div>
 
 				{ legendPosition === 'bottom' && legendElement }
+				{ renderLegendSlot( legendChildren, 'bottom' ) }
 
-				{ /* Render children from composition API */ }
-				{ otherChildren }
+				{ nonLegendChildren }
 			</Stack>
 		</SingleChartContext.Provider>
 	);

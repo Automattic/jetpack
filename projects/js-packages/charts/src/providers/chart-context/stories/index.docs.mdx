@@ -121,8 +121,10 @@ The Global Charts Context uses a comprehensive theme system that controls all vi
 		xAxisLineStyles: { stroke: '#DCDCDE', strokeWidth: 1 },
 
 		// Legend appearance
-		legendLabelStyles: {
-			color: 'var(--jp-gray-80, #2c3338)',
+		legend: {
+			labelStyles: {
+				color: 'var(--jp-gray-80, #2c3338)',
+			},
 		},
 
 		// Chart-specific theming
@@ -232,7 +234,7 @@ Access just the theme when you only need styling information:
 		return (
 			<div style={ {
 				backgroundColor: theme.backgroundColor,
-				color: theme.legendLabelStyles?.color
+				color: theme.legend?.labelStyles?.color
 			} }>
 				Styled using global chart theme
 			</div>
