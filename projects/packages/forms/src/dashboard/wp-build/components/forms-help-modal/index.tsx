@@ -17,6 +17,7 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import { CONFIG_STORE } from '../../../../store/config/index.ts';
+import CreateFormButton from '../../../components/create-form-button';
 
 type Props = {
 	isOpen: boolean;
@@ -59,23 +60,33 @@ export default function FormsHelpModal( { isOpen, onClose }: Props ) {
 		>
 			<VStack spacing="4">
 				<Text>
-					{ __( 'The Forms list shows reusable forms, not simple form blocks.', 'jetpack-forms' ) }
+					{ __(
+						'This page only lists forms created from the Forms dashboard. Forms added directly inside pages or posts with the form block won\u2019t appear here.',
+						'jetpack-forms'
+					) }
 				</Text>
 				<div>
 					<Text as="p" weight="500">
-						{ __( 'To convert a form block to a reusable form:', 'jetpack-forms' ) }
+						{ __( 'To bring an existing form here:', 'jetpack-forms' ) }
 					</Text>
 					<ol>
-						<li>
-							{ __( 'Open the page or post where your form block is embedded.', 'jetpack-forms' ) }
-						</li>
+						<li>{ __( 'Open the page or post that contains your form.', 'jetpack-forms' ) }</li>
 						<li>{ __( 'Select the form block.', 'jetpack-forms' ) }</li>
 						<li>
-							{ __( 'Click "Edit Form" in the block toolbar to convert it.', 'jetpack-forms' ) }
+							{ __(
+								'Click "Edit Form" in the toolbar \u2014 this converts it to a managed form.',
+								'jetpack-forms'
+							) }
 						</li>
 						<li>{ __( 'Save the page or post.', 'jetpack-forms' ) }</li>
 					</ol>
 				</div>
+				<Text variant="muted" size="12px">
+					{ __(
+						'Tip: New forms created from this dashboard are automatically listed here.',
+						'jetpack-forms'
+					) }
+				</Text>
 				<HStack justify="space-between" alignment="center">
 					<CheckboxControl
 						__nextHasNoMarginBottom
@@ -83,9 +94,13 @@ export default function FormsHelpModal( { isOpen, onClose }: Props ) {
 						checked={ dontShowAgain }
 						onChange={ setDontShowAgain }
 					/>
-					<Button variant="primary" onClick={ handleClose }>
+					<Button variant="primary" onClick={ onClose }>
 						{ __( 'Got it', 'jetpack-forms' ) }
 					</Button>
+					<CreateFormButton
+						label={ __( 'Create a new form', 'jetpack-forms' ) }
+						showIcon={ false }
+					/>
 				</HStack>
 			</VStack>
 		</Modal>
