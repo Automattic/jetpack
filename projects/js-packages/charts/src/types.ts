@@ -1,9 +1,3 @@
-import type {
-	LegendItemStyles,
-	LegendLabelStyles,
-	LegendPosition,
-	LegendShapeStyles,
-} from './components/legend';
 import type { CircleSubjectProps } from '@visx/annotation/lib/components/CircleSubject';
 import type { ConnectorProps } from '@visx/annotation/lib/components/Connector';
 import type { LabelProps } from '@visx/annotation/lib/components/Label';
@@ -371,7 +365,7 @@ export type ChartLegendConfig< T = DataPoint | DataPointDate | LeaderboardEntry 
 	 * Position of the legend relative to the chart.
 	 * TODO: Add 'left' | 'right' positioning support in future implementation
 	 */
-	position?: LegendPosition;
+	position?: 'top' | 'bottom';
 	/**
 	 * Alignment of the legend within its position.
 	 */
@@ -394,15 +388,25 @@ export type ChartLegendConfig< T = DataPoint | DataPointDate | LeaderboardEntry 
 	/**
 	 * CSS styles for each legend item (margin, flexDirection).
 	 */
-	itemStyles?: LegendItemStyles;
+	itemStyles?: {
+		margin?: CSSProperties[ 'margin' ];
+		flexDirection?: 'row' | 'row-reverse' | 'column' | 'column-reverse';
+	};
 	/**
 	 * CSS styles for legend labels (maxWidth, textOverflow, justifyContent, flex, margin).
 	 */
-	labelStyles?: LegendLabelStyles;
+	labelStyles?: Pick< CSSProperties, 'justifyContent' | 'flex' | 'margin' > & {
+		maxWidth?: string;
+		textOverflow?: 'ellipsis' | 'wrap';
+	};
 	/**
 	 * Styles for legend shapes (width, height, margin).
 	 */
-	shapeStyles?: LegendShapeStyles;
+	shapeStyles?: {
+		width?: number;
+		height?: number;
+		margin?: CSSProperties[ 'margin' ];
+	};
 };
 
 /**
