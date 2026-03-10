@@ -32,12 +32,13 @@ class Admin_Menu_Test extends TestCase {
 	/**
 	 * Create shared users once for the test class.
 	 *
+	 * @throws \Exception If test user creation fails.
 	 * @return void
 	 */
 	public static function setUpBeforeClass(): void {
 		parent::setUpBeforeClass();
 
-		self::$admin_user_id = wp_insert_user(
+		$admin_id = wp_insert_user(
 			array(
 				'user_login' => 'upgrade_test_admin',
 				'user_pass'  => 'pass',
@@ -46,7 +47,7 @@ class Admin_Menu_Test extends TestCase {
 			)
 		);
 
-		self::$editor_user_id = wp_insert_user(
+		$editor_id = wp_insert_user(
 			array(
 				'user_login' => 'upgrade_test_editor',
 				'user_pass'  => 'pass',
@@ -54,6 +55,29 @@ class Admin_Menu_Test extends TestCase {
 				'role'       => 'editor',
 			)
 		);
+
+		if ( is_wp_error( $admin_id ) || is_wp_error( $editor_id ) ) {
+			throw new \Exception( 'Failed to create test users' );
+		}
+
+		self::$admin_user_id  = $admin_id;
+		self::$editor_user_id = $editor_id;
+	}
+
+	/**
+	 * Clean up test users after all tests complete.
+	 *
+	 * @return void
+	 */
+	public static function tearDownAfterClass(): void {
+		parent::tearDownAfterClass();
+
+		if ( self::$admin_user_id ) {
+			wp_delete_user( self::$admin_user_id );
+		}
+		if ( self::$editor_user_id ) {
+			wp_delete_user( self::$editor_user_id );
+		}
 	}
 
 	/**
@@ -66,6 +90,20 @@ class Admin_Menu_Test extends TestCase {
 		global $submenu;
 		$submenu = array();
 		delete_option( 'jetpack_active_plan' );
+
+		$reflection = new \ReflectionClass( Admin_Menu::class );
+
+		if ( $reflection->hasProperty( 'menu_items' ) ) {
+			$menu_items = $reflection->getProperty( 'menu_items' );
+			$menu_items->setAccessible( true );
+			$menu_items->setValue( null, array() );
+		}
+
+		if ( $reflection->hasProperty( 'initialized' ) ) {
+			$initialized = $reflection->getProperty( 'initialized' );
+			$initialized->setAccessible( true );
+			$initialized->setValue( null, false );
+		}
 	}
 
 	/**

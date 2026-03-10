@@ -249,20 +249,23 @@ class Admin_Menu {
 	 * @return bool True if the site has no paid plan.
 	 */
 	private static function is_free_plan() {
-		if ( class_exists( '\Automattic\Jetpack\Current_Plan' ) ) {
-			$plan = \Automattic\Jetpack\Current_Plan::get();
-			return 'free' === ( $plan['class'] ?? 'free' );
+		static $is_free = null;
+
+		if ( null !== $is_free ) {
+			return $is_free;
 		}
 
-		$plan = get_option( 'jetpack_active_plan', array() );
-		return 'free' === ( $plan['class'] ?? 'free' );
+		$plan    = get_option( 'jetpack_active_plan', array() );
+		$is_free = 'free' === ( $plan['class'] ?? 'free' );
+
+		return $is_free;
 	}
 
 	/**
 	 * Conditionally adds an "Upgrade to Pro" submenu item for free-plan sites.
 	 *
-	 * The item is only added when the Jetpack top-level menu is visible and the
-	 * site has not yet purchased a paid Jetpack plan or license.
+	 * Only shown to users with manage_options capability on sites without
+	 * a paid Jetpack plan or license.
 	 *
 	 * @return void
 	 */
@@ -310,11 +313,15 @@ class Admin_Menu {
 	 * Outputs inline CSS to style the "Upgrade to Pro" menu item in Jetpack green.
 	 *
 	 * The sidebar menu is visible on every admin page, so styles must load globally.
-	 * Only outputs for free-plan sites.
+	 * Only outputs for free-plan sites with manage_options capability.
 	 *
 	 * @return void
 	 */
 	public static function add_upgrade_menu_item_styles() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
+
 		if ( ! self::is_free_plan() ) {
 			return;
 		}
