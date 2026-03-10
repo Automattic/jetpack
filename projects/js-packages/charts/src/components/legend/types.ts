@@ -8,8 +8,6 @@ import type {
 import type { GlyphProps, LineStyles } from '@visx/xychart';
 import type { ComponentProps, CSSProperties, ReactNode } from 'react';
 
-export type { LegendItemStyles, LegendLabelStyles, LegendPosition, LegendShapeStyles };
-
 type VisxLegendProps = Pick<
 	ComponentProps< typeof LegendOrdinal >,
 	'className' | 'shape' | 'fill' | 'size' | 'labelFormat' | 'labelTransform'
