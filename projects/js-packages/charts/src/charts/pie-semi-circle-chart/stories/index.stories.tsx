@@ -27,6 +27,13 @@ const meta: Meta< StoryArgs > = {
 		...sharedChartArgTypes,
 		...themeArgTypes,
 		...legendArgTypes,
+		legendValueDisplay: {
+			control: { type: 'select' as const },
+			options: [ 'percentage', 'value', 'valueDisplay', 'none' ],
+			table: { category: 'Legend' },
+			description:
+				'What type of value to display in the legend when showValues is true. Note: Enable "showLegend" to see the effect of this control.',
+		},
 		width: {
 			control: {
 				type: 'range',
@@ -144,11 +151,6 @@ export const WithCompositionLegend: Story = {
 	args: {
 		data,
 	},
-	argTypes: {
-		legendInteractive: {
-			table: { disable: true },
-		},
-	},
 	parameters: {
 		docs: {
 			description: {
@@ -169,6 +171,7 @@ export const InteractiveLegend: Story = {
 				note="Click legend to filter"
 				showLegend={ true }
 				legend={ extractLegendConfig( args ) }
+				legendValueDisplay={ args.legendValueDisplay }
 			>
 				<p style={ { marginBottom: '20px', color: '#666' } }>
 					Click legend items to show/hide segments. Percentages adjust automatically.
