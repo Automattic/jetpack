@@ -18,7 +18,12 @@ import {
 } from '../../providers';
 import { attachSubComponents } from '../../utils';
 import { getStringWidth } from '../../visx/text';
-import { ChartSVG, ChartHTML, useChartChildren } from '../private/chart-composition';
+import {
+	ChartSVG,
+	ChartHTML,
+	useChartChildren,
+	renderLegendSlot,
+} from '../private/chart-composition';
 import { RadialWipeAnimation } from '../private/radial-wipe-animation/';
 import { SingleChartContext } from '../private/single-chart-context';
 import { withResponsive, ResponsiveConfig } from '../private/with-responsive';
@@ -236,7 +241,10 @@ const PieChartInternal = ( {
 	const { isValid, message } = validateData( data );
 
 	// Process children to extract compound components
-	const { svgChildren, htmlChildren, otherChildren } = useChartChildren( children, 'PieChart' );
+	const { svgChildren, htmlChildren, legendChildren, otherChildren } = useChartChildren(
+		children,
+		'PieChart'
+	);
 
 	// Memoize metadata to prevent unnecessary re-registration
 	const chartMetadata = useMemo(
@@ -350,6 +358,7 @@ const PieChartInternal = ( {
 				} }
 			>
 				{ legendPosition === 'top' && legendElement }
+				{ renderLegendSlot( legendChildren, 'top' ) }
 
 				<div className={ styles[ 'pie-chart__svg-wrapper' ] } ref={ svgWrapperRef }>
 					<svg
@@ -482,6 +491,7 @@ const PieChartInternal = ( {
 				</div>
 
 				{ legendPosition === 'bottom' && legendElement }
+				{ renderLegendSlot( legendChildren, 'bottom' ) }
 
 				{ withTooltips && tooltipOpen && tooltipData && (
 					<TooltipInPortal top={ tooltipTop || 0 } left={ tooltipLeft || 0 }>

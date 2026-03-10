@@ -407,7 +407,13 @@ export const CustomLegendLabels: Story = {
 export const WithCompositionLegend: Story = {
 	render: args => (
 		<LeaderboardChart { ...args }>
-			<LeaderboardChart.Legend shape="circle" shapeStyles={ { width: 8, height: 8 } } />
+			<LeaderboardChart.Legend
+				shape="circle"
+				shapeStyles={ { width: 8, height: 8 } }
+				orientation={ args.legendOrientation || 'horizontal' }
+				alignment={ args.legendAlignment || 'center' }
+				position={ args.legendPosition || 'bottom' }
+			/>
 		</LeaderboardChart>
 	),
 	args: {

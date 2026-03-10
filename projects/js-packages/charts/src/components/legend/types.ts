@@ -37,13 +37,13 @@ export type LegendShapeStyles = {
 	margin?: CSSProperties[ 'margin' ];
 };
 
+/** Position of the legend relative to chart content. */
+export type LegendPosition = 'top' | 'bottom';
+
 export type BaseLegendProps = VisxLegendProps & {
 	items: BaseLegendItem[];
 	orientation?: 'horizontal' | 'vertical';
-	/**
-	 * TODO: Add 'left' | 'right' positioning support in future implementation
-	 */
-	position?: 'top' | 'bottom';
+	position?: LegendPosition;
 	alignment?: 'start' | 'center' | 'end';
 	/** Additional CSS class name for legend items. */
 	itemClassName?: string;
