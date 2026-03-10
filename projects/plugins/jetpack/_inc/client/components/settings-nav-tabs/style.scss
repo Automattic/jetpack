@@ -1,3 +1,10 @@
+// Colors sourced from @wordpress/admin-ui and Gutenberg's $gray-900/$gray-100.
+// Jetpack's own token scale (--jp-gray-*) uses an inverted numbering, so these
+// don't map cleanly. Defined here for single-source-of-truth within this file.
+$admin-ui-border-color: #f0f0f0; // Matches admin-ui Page header border
+$admin-ui-text-color: #1e1e1e; // Gutenberg $gray-900, standard WP body text
+$nav-inline-padding: 24px; // Matches admin-ui Page header padding
+
 // AdminPage uses margin-left: -20px to neutralize #wpcontent's default 20px
 // padding. But Jetpack's own CSS zeros out that padding (admin-static.scss,
 // _main.scss), so the -20px just shifts everything into the sidebar. Reset it.
@@ -10,17 +17,17 @@
 	display: flex;
 	align-items: center;
 	position: relative;
-	border-bottom: 1px solid #f0f0f0;
-	padding-inline: 24px;
+	border-bottom: 1px solid $admin-ui-border-color;
+	padding-inline: $nav-inline-padding;
 
 	// The Search component uses position: absolute with fitsContainer, which
 	// positions relative to the padding edge (ignoring padding). Offset it to
 	// stay within the padded content area.
 	.dops-search.is-expanded-to-container {
-		right: 24px;
+		right: $nav-inline-padding;
 
 		&.is-open {
-			left: 24px;
+			left: $nav-inline-padding;
 			width: auto;
 		}
 	}
@@ -32,12 +39,12 @@
 }
 
 .jp-settings-nav__tab {
-	color: #1e1e1e;
-	font-size: 16px;
+	color: $admin-ui-text-color;
+	font-size: var(--font-body);
 	line-height: 1.5;
 	text-decoration: none;
-	padding: 8px 0;
-	margin-inline-end: 32px;
+	padding: var(--jp-button-padding) 0;
+	margin-inline-end: var(--jp-modal-padding-large);
 	white-space: nowrap;
 
 	&:last-child {
@@ -47,10 +54,10 @@
 	&:hover,
 	&:focus {
 		box-shadow: none;
-		color: #069e08;
+		color: var(--jp-green);
 	}
 
 	&--active {
-		border-bottom: 2px solid #1e1e1e;
+		border-bottom: var(--jp-underline-thickness) solid $admin-ui-text-color;
 	}
 }
