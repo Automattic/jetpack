@@ -99,7 +99,7 @@ const meta: Meta< StoryArgs > = {
 				defaultValue: { summary: 'false' },
 			},
 		},
-		'legend.shapeStyles': {
+		legendShapeStyles: {
 			control: 'object',
 			description: 'Styles for legend shapes (width, height, margin)',
 			table: {
@@ -126,12 +126,10 @@ const meta: Meta< StoryArgs > = {
 		secondaryColor: undefined,
 		themeName: 'default',
 		showLegend: false,
-		legend: {
-			position: 'bottom',
-			alignment: 'center',
-			orientation: 'horizontal',
-			shape: 'circle',
-		},
+		legendPosition: 'bottom',
+		legendAlignment: 'center',
+		legendOrientation: 'horizontal',
+		legendShape: 'circle',
 		withOverlayLabel: false,
 	},
 	decorators: [ chartDecorator ],
@@ -428,7 +426,7 @@ export const WithCompositionLegend: Story = {
 		},
 	},
 	argTypes: {
-		'legend.interactive': {
+		legendInteractive: {
 			table: { disable: true },
 		},
 	},
@@ -448,7 +446,7 @@ export const InteractiveLegend: Story = {
 		withComparison: true,
 		loading: false,
 		showLegend: true,
-		legend: { interactive: true },
+		legendInteractive: true,
 		legendLabels: {
 			primary: 'Current period',
 			comparison: 'Previous period',

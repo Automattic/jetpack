@@ -11,6 +11,7 @@ import {
 	sharedChartArgTypes,
 	sharedThemeArgs,
 	ChartStoryArgs,
+	extractLegendConfig,
 	legendArgTypes,
 	themeArgTypes,
 } from '../../../stories';
@@ -208,35 +209,38 @@ export const WithLegend: Story = {
 };
 
 export const WithCompositionLegend: Story = {
-	render: args => (
-		<PieChart
-			size={ 300 }
-			data={ args.data }
-			thickness={ 0.5 }
-			legendValueDisplay={ args.legendValueDisplay }
-		>
-			<Group>
-				<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 16 } y={ -8 }>
-					User Stats
-				</Text>
-				<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 14 } y={ 12 } fill="#666">
-					100K Total
-				</Text>
-			</Group>
-			<PieChart.Legend
-				position={ args.legend?.position || 'bottom' }
-				orientation={ args.legend?.orientation || 'horizontal' }
-				alignment={ args.legend?.alignment || 'center' }
-				labelStyles={ args.legend?.labelStyles }
-			/>
-		</PieChart>
-	),
+	render: args => {
+		const legend = extractLegendConfig( args );
+		return (
+			<PieChart
+				size={ 300 }
+				data={ args.data }
+				thickness={ 0.5 }
+				legendValueDisplay={ args.legendValueDisplay }
+			>
+				<Group>
+					<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 16 } y={ -8 }>
+						User Stats
+					</Text>
+					<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 14 } y={ 12 } fill="#666">
+						100K Total
+					</Text>
+				</Group>
+				<PieChart.Legend
+					position={ legend?.position || 'bottom' }
+					orientation={ legend?.orientation || 'horizontal' }
+					alignment={ legend?.alignment || 'center' }
+					labelStyles={ legend?.labelStyles }
+				/>
+			</PieChart>
+		);
+	},
 	args: {
 		data,
 		thickness: 0.5,
 	},
 	argTypes: {
-		'legend.interactive': {
+		legendInteractive: {
 			table: { disable: true },
 		},
 	},
@@ -259,12 +263,7 @@ export const InteractiveLegend: Story = {
 				data={ args.data }
 				thickness={ 0.5 }
 				showLegend={ true }
-				legend={ {
-					interactive: true,
-					position: args.legend?.position || 'bottom',
-					orientation: args.legend?.orientation || 'horizontal',
-					alignment: args.legend?.alignment || 'center',
-				} }
+				legend={ extractLegendConfig( args ) }
 				legendValueDisplay={ args.legendValueDisplay }
 			>
 				<Group>
@@ -284,6 +283,7 @@ export const InteractiveLegend: Story = {
 	args: {
 		data,
 		thickness: 0.5,
+		legendInteractive: true,
 	},
 	parameters: {
 		docs: {
@@ -300,11 +300,9 @@ export const CustomLegendPositioning: Story = {
 		...Default.args,
 		thickness: 0.4,
 		showLegend: true,
-		legend: {
-			orientation: 'vertical',
-			alignment: 'start',
-			position: 'top',
-		},
+		legendOrientation: 'vertical',
+		legendAlignment: 'start',
+		legendPosition: 'top',
 		containerHeight: '450px',
 		data: [
 			{

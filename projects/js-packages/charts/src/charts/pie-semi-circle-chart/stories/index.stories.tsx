@@ -6,6 +6,7 @@ import {
 	sharedChartArgTypes,
 	sharedThemeArgs,
 	ChartStoryArgs,
+	extractLegendConfig,
 	legendArgTypes,
 	partialOsUsageData as data,
 	themeArgTypes,
@@ -132,21 +133,24 @@ export const WithLegend: Story = {
 };
 
 export const WithCompositionLegend: Story = {
-	render: args => (
-		<PieSemiCircleChart data={ args.data } label="Performance Metrics" note="Q4 2023 Results">
-			<PieSemiCircleChart.Legend
-				position={ args.legend?.position || 'bottom' }
-				orientation={ args.legend?.orientation || 'horizontal' }
-				alignment={ args.legend?.alignment || 'center' }
-				labelStyles={ args.legend?.labelStyles }
-			/>
-		</PieSemiCircleChart>
-	),
+	render: args => {
+		const legend = extractLegendConfig( args );
+		return (
+			<PieSemiCircleChart data={ args.data } label="Performance Metrics" note="Q4 2023 Results">
+				<PieSemiCircleChart.Legend
+					position={ legend?.position || 'bottom' }
+					orientation={ legend?.orientation || 'horizontal' }
+					alignment={ legend?.alignment || 'center' }
+					labelStyles={ legend?.labelStyles }
+				/>
+			</PieSemiCircleChart>
+		);
+	},
 	args: {
 		data,
 	},
 	argTypes: {
-		'legend.interactive': {
+		legendInteractive: {
 			table: { disable: true },
 		},
 	},
@@ -169,12 +173,7 @@ export const InteractiveLegend: Story = {
 				label="Performance Metrics"
 				note="Click legend to filter"
 				showLegend={ true }
-				legend={ {
-					interactive: true,
-					position: args.legend?.position || 'bottom',
-					orientation: args.legend?.orientation || 'horizontal',
-					alignment: args.legend?.alignment || 'center',
-				} }
+				legend={ extractLegendConfig( args ) }
 			>
 				<p style={ { marginBottom: '20px', color: '#666' } }>
 					Click legend items to show/hide segments. Percentages adjust automatically.
@@ -184,6 +183,7 @@ export const InteractiveLegend: Story = {
 	),
 	args: {
 		data,
+		legendInteractive: true,
 	},
 	parameters: {
 		docs: {
@@ -222,12 +222,10 @@ export const CustomLegendPositioning: Story = {
 		note: 'Windows +10%',
 		withTooltips: true,
 		showLegend: true,
-		legend: {
-			orientation: 'vertical',
-			alignment: 'end',
-			position: 'top',
-			shape: 'circle',
-		},
+		legendOrientation: 'vertical',
+		legendAlignment: 'end',
+		legendPosition: 'top',
+		legendShape: 'circle',
 	},
 	parameters: {
 		docs: {
@@ -422,7 +420,7 @@ export const CompositionAPI: Story = {
 		containerWidth: '1000px',
 	},
 	argTypes: {
-		'legend.interactive': {
+		legendInteractive: {
 			table: { disable: true },
 		},
 	},

@@ -4,7 +4,7 @@ import {
 	sharedChartArgTypes,
 	ChartStoryArgs,
 } from '../../../stories/chart-decorator';
-import { legendArgTypes } from '../../../stories/legend-config';
+import { extractLegendConfig, legendArgTypes } from '../../../stories/legend-config';
 import { osUsageData as data } from '../../../stories/sample-data';
 import { sharedThemeArgs, themeArgTypes } from '../../../stories/theme-config';
 import { PieChart } from '../index';
@@ -175,21 +175,24 @@ export const WithLegend: Story = {
 };
 
 export const WithCompositionLegend: Story = {
-	render: args => (
-		<PieChart size={ 300 } data={ args.data } legendValueDisplay={ args.legendValueDisplay }>
-			<PieChart.Legend
-				position={ args.legend?.position || 'bottom' }
-				orientation={ args.legend?.orientation || 'horizontal' }
-				alignment={ args.legend?.alignment || 'center' }
-				labelStyles={ args.legend?.labelStyles }
-			/>
-		</PieChart>
-	),
+	render: args => {
+		const legend = extractLegendConfig( args );
+		return (
+			<PieChart size={ 300 } data={ args.data } legendValueDisplay={ args.legendValueDisplay }>
+				<PieChart.Legend
+					position={ legend?.position || 'bottom' }
+					orientation={ legend?.orientation || 'horizontal' }
+					alignment={ legend?.alignment || 'center' }
+					labelStyles={ legend?.labelStyles }
+				/>
+			</PieChart>
+		);
+	},
 	args: {
 		data,
 	},
 	argTypes: {
-		'legend.interactive': {
+		legendInteractive: {
 			table: { disable: true },
 		},
 	},
@@ -211,12 +214,7 @@ export const InteractiveLegend: Story = {
 				size={ args.size }
 				data={ args.data }
 				showLegend={ true }
-				legend={ {
-					interactive: true,
-					position: args.legend?.position || 'bottom',
-					orientation: args.legend?.orientation || 'horizontal',
-					alignment: args.legend?.alignment || 'center',
-				} }
+				legend={ extractLegendConfig( args ) }
 				legendValueDisplay={ args.legendValueDisplay }
 			>
 				<p style={ { color: '#666' } }>
@@ -229,6 +227,7 @@ export const InteractiveLegend: Story = {
 	args: {
 		data,
 		size: 400,
+		legendInteractive: true,
 	},
 	parameters: {
 		docs: {
@@ -268,12 +267,10 @@ export const CustomLegendPositioning: Story = {
 		cornerScale: 0.03,
 		withTooltips: true,
 		showLegend: true,
-		legend: {
-			orientation: 'vertical',
-			alignment: 'center',
-			position: 'top',
-			shape: 'circle',
-		},
+		legendOrientation: 'vertical',
+		legendAlignment: 'center',
+		legendPosition: 'top',
+		legendShape: 'circle',
 		size: 400,
 		containerWidth: '432px',
 		containerHeight: '432px',
@@ -357,7 +354,7 @@ export const CompositionAPI: Story = {
 		containerWidth: '600px',
 	},
 	argTypes: {
-		'legend.interactive': {
+		legendInteractive: {
 			table: { disable: true },
 		},
 	},
