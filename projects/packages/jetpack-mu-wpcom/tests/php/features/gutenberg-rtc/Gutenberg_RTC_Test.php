@@ -69,6 +69,7 @@ class Gutenberg_RTC_Test extends \WorDBless\BaseTestCase {
 		$wp_settings_fields = $this->original_wp_settings_fields; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		$wp_scripts         = $this->original_wp_scripts; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		$wp_styles          = $this->original_wp_styles; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		delete_transient( 'jetpack-mu-wpcom-wpcom-gutenberg-rtc.asset.json' );
 		remove_all_filters( 'wpcom_is_gutenberg_rtc_enabled' );
 		remove_all_filters( 'wpcom_gutenberg_rtc_providers' );
 		parent::tear_down();
@@ -233,7 +234,7 @@ class Gutenberg_RTC_Test extends \WorDBless\BaseTestCase {
 
 		wpcom_enqueue_gutenberg_rtc_assets();
 
-		$this->assertFalse( wp_script_is( 'jetpack-mu-wpcom-gutenberg-rtc', 'enqueued' ) );
+		$this->assertFalse( wp_script_is( 'jetpack-mu-wpcom-wpcom-gutenberg-rtc', 'enqueued' ) );
 	}
 
 	/**
@@ -248,9 +249,17 @@ class Gutenberg_RTC_Test extends \WorDBless\BaseTestCase {
 			}
 		);
 
+		set_transient(
+			'jetpack-mu-wpcom-wpcom-gutenberg-rtc.asset.json',
+			array(
+				'dependencies' => array(),
+				'version'      => 'test',
+			)
+		);
+
 		wpcom_enqueue_gutenberg_rtc_assets();
 
-		$this->assertTrue( wp_script_is( 'jetpack-mu-wpcom-gutenberg-rtc', 'enqueued' ) );
+		$this->assertTrue( wp_script_is( 'jetpack-mu-wpcom-wpcom-gutenberg-rtc', 'enqueued' ) );
 	}
 
 	/**
@@ -265,9 +274,17 @@ class Gutenberg_RTC_Test extends \WorDBless\BaseTestCase {
 			}
 		);
 
+		set_transient(
+			'jetpack-mu-wpcom-wpcom-gutenberg-rtc.asset.json',
+			array(
+				'dependencies' => array(),
+				'version'      => 'test',
+			)
+		);
+
 		wpcom_enqueue_gutenberg_rtc_assets();
 
-		$this->assertTrue( wp_script_is( 'jetpack-mu-wpcom-gutenberg-rtc', 'enqueued' ) );
+		$this->assertTrue( wp_script_is( 'jetpack-mu-wpcom-wpcom-gutenberg-rtc', 'enqueued' ) );
 	}
 
 	/**

@@ -78,13 +78,11 @@
 		"@wordpress/private-apis": "^1.8.1",
 		"@wordpress/rich-text": "7.41.0",
 		"@wordpress/router": "^1.8.11",
-		"@wordpress/sync": "1.41.0",
 		"@wordpress/url": "4.41.0",
 		"canvas-confetti": "^1.9.4",
 		"clsx": "2.1.1",
 		"debug": "4.4.3",
 		"events": "^3.3.0",
-		"lib0": "0.2.99",
 		"lodash": "4.17.23",
 		"moment": "2.30.1",
 		"preact": "10.28.2",
@@ -94,9 +92,7 @@
 		"redux": "^4.2.1",
 		"redux-saga": "^1.3.0",
 		"swiper": "^12.0.0",
-		"wpcom-proxy-request": "^7.0.3",
-		"y-protocols": "^1.0.7",
-		"yjs": "13.6.29"
+		"wpcom-proxy-request": "^7.0.3"
 	},
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
