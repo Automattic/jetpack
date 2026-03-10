@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix JavaScript syntax error in list view caused by newline before PHP tag.
