@@ -25,7 +25,6 @@ function wpcom_is_gutenberg_rtc_enabled() {
 	return apply_filters( 'wpcom_is_gutenberg_rtc_enabled', $is_enabled );
 }
 
-// 218727760
 /**
  * Determine if HTTP polling should be enforced for the current blog.
  *
