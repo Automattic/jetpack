@@ -155,7 +155,9 @@ function jetpack_mu_wpcom_enqueue_assets( $asset_name, $asset_types = array() ) 
  * @return string|null The script handle, or null if the asset file could not be loaded.
  */
 function jetpack_mu_wpcom_enqueue_calypso_app( $app_name, $entry = null ) {
-	$entry      = $entry ?? $app_name;
+	if ( $entry === null ) {
+		$entry = $app_name;
+	}
 	$handle     = "jetpack-mu-wpcom-$app_name";
 	$cache_key  = $handle . '.asset.json';
 	$asset_file = get_transient( $cache_key );
