@@ -596,6 +596,56 @@ async function checkCollisions( basedir ) {
 }
 
 /**
+ * Provide the boot module asset proxy for packages using wp-build pages.
+ *
+ * When wp-build generates page templates, they reference a boot module asset
+ * file at build/modules/boot/index.min.asset.php. If the package depends on
+ * jetpack-wp-build-polyfills and has wp-build pages, this function copies the
+ * proxy file from the polyfills package to the expected location.
+ *
+ * @param {object} t - Task object.
+ */
+async function provideBootAssetProxy( t ) {
+	const pagesDir = npath.join( t.cwd, 'build', 'pages' );
+	const targetFile = npath.join( t.cwd, 'build', 'modules', 'boot', 'index.min.asset.php' );
+
+	// Only act if the package has wp-build pages and the file is missing.
+	if ( ! ( await fsExists( pagesDir ) ) || ( await fsExists( targetFile ) ) ) {
+		return;
+	}
+
+	// Look for the proxy in jetpack_vendor (production) or vendor (dev).
+	const candidates = [
+		npath.join(
+			t.cwd,
+			'jetpack_vendor',
+			'automattic',
+			'jetpack-wp-build-polyfills',
+			'src',
+			'boot-module-asset-proxy.php'
+		),
+		npath.join(
+			t.cwd,
+			'vendor',
+			'automattic',
+			'jetpack-wp-build-polyfills',
+			'src',
+			'boot-module-asset-proxy.php'
+		),
+	];
+	const proxySource = (
+		await Promise.all( candidates.map( f => fsExists( f ).then( ok => ok && f ) ) )
+	).find( Boolean );
+	if ( ! proxySource ) {
+		return;
+	}
+
+	await fs.mkdir( npath.dirname( targetFile ), { recursive: true } );
+	await fs.copyFile( proxySource, targetFile );
+	await t.output( 'Provided boot module asset proxy from wp-build-polyfills\n' );
+}
+
+/**
  * Build a project.
  *
  * @param {object} t - Task object.
@@ -795,6 +845,9 @@ async function buildProject( t ) {
 			buffer: false,
 		} );
 	}
+
+	// Provide the boot module asset proxy for packages using wp-build pages.
+	await provideBootAssetProxy( t );
 
 	// If we're not mirroring, the build is done. Mirroring has a bunch of stuff to do yet.
 	if ( ! t.argv.forMirrors ) {
