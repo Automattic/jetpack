@@ -23,7 +23,7 @@ import * as React from 'react';
 import IntegrationsModal from '../../src/blocks/contact-form/components/jetpack-integrations-modal';
 import { FORM_POST_TYPE } from '../../src/blocks/shared/util/constants.js';
 import CreateFormButton from '../../src/dashboard/components/create-form-button/index.tsx';
-import { EmptyWrapper } from '../../src/dashboard/components/empty-responses/index.tsx';
+import { EmptyWrapper, NoResults } from '../../src/dashboard/components/empty-responses/index.tsx';
 import { FormNameModal } from '../../src/dashboard/components/form-name-modal';
 import { NON_TRASH_FORM_STATUSES, getFormStatusLabel } from '../../src/dashboard/constants';
 import useDeleteForm from '../../src/dashboard/hooks/use-delete-form.ts';
@@ -503,6 +503,10 @@ function StageInner() {
 		onOpenIntegrations: openIntegrationsModal,
 		onOpenFormsHelp: openFormsHelpModal,
 	} );
+	const statusFilterValue = view.filters?.find( filter => filter.field === 'status' )?.value;
+	const hasActiveFilters =
+		!! view.search?.trim() || ( !! statusFilterValue && statusFilterValue !== 'all' );
+
 	const getItemId = useCallback( ( item: FormListItem ) => String( item.id ), [] );
 	const onClickItem = useCallback(
 		( item: FormListItem ) => {
@@ -527,25 +531,29 @@ function StageInner() {
 				data={ records || [] }
 				isLoading={ isLoading }
 				empty={
-					<EmptyWrapper
-						heading={ __( "You're set up. No forms yet.", 'jetpack-forms' ) }
-						body={ __(
-							'Create a shared form pattern to manage and reuse it across your site.',
-							'jetpack-forms'
-						) }
-						actions={
-							<HStack justify="center" spacing="2">
-								<CreateFormButton
-									label={ __( 'Create a new form', 'jetpack-forms' ) }
-									variant="primary"
-									showIcon={ false }
-								/>
-								<Button size="compact" variant="secondary" onClick={ openFormsHelpModal }>
-									{ __( 'Missing forms?', 'jetpack-forms' ) }
-								</Button>
-							</HStack>
-						}
-					/>
+					hasActiveFilters ? (
+						<NoResults />
+					) : (
+						<EmptyWrapper
+							heading={ __( "You're set up. No forms yet.", 'jetpack-forms' ) }
+							body={ __(
+								'Create a shared form pattern to manage and reuse it across your site.',
+								'jetpack-forms'
+							) }
+							actions={
+								<HStack justify="center" spacing="2">
+									<CreateFormButton
+										label={ __( 'Create a new form', 'jetpack-forms' ) }
+										variant="primary"
+										showIcon={ false }
+									/>
+									<Button size="compact" variant="secondary" onClick={ openFormsHelpModal }>
+										{ __( 'Missing forms?', 'jetpack-forms' ) }
+									</Button>
+								</HStack>
+							}
+						/>
+					)
 				}
 				view={ view }
 				onChangeView={ onChangeView }
