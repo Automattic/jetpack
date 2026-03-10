@@ -49,6 +49,13 @@ const meta: Meta< StoryArgs > = {
 		...sharedChartArgTypes,
 		...themeArgTypes,
 		...legendArgTypes,
+		legendValueDisplay: {
+			control: { type: 'select' as const },
+			options: [ 'percentage', 'value', 'valueDisplay', 'none' ],
+			table: { category: 'Legend' },
+			description:
+				'What type of value to display in the legend when showValues is true. Note: Enable "showLegend" to see the effect of this control.',
+		},
 		size: {
 			control: {
 				type: 'range',

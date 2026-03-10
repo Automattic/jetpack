@@ -42,13 +42,6 @@ export const legendArgTypes = {
 		table: { category: 'Legend' },
 		description: 'Show glyphs in legend (Line charts only)',
 	},
-	legendValueDisplay: {
-		control: { type: 'select' as const },
-		options: [ 'percentage', 'value', 'valueDisplay', 'none' ],
-		table: { category: 'Legend' },
-		description:
-			'What type of value to display in the legend when showValues is true. Note: Enable "showLegend" to see the effect of this control.',
-	},
 	legendMaxWidth: {
 		control: { type: 'text' as const },
 		table: { category: 'Legend' },
@@ -82,6 +75,17 @@ export const legendArgTypes = {
 		},
 		description: 'Styles for legend shapes (width, height, margin).',
 	},
+	legendItemStyles: {
+		control: { type: 'object' as const },
+		table: {
+			category: 'Legend',
+			type: {
+				summary:
+					'{ margin?: string | number; flexDirection?: "row" | "row-reverse" | "column" | "column-reverse" }',
+			},
+		},
+		description: 'Styles for each legend item (margin, flexDirection).',
+	},
 };
 
 /**
@@ -104,6 +108,7 @@ export function extractLegendConfig< T = ChartLegendConfig >(
 		legendMaxWidth,
 		legendTextOverflow,
 		legendShapeStyles,
+		legendItemStyles,
 	} = args;
 
 	const hasAny =
@@ -115,7 +120,8 @@ export function extractLegendConfig< T = ChartLegendConfig >(
 		legendItemClassName !== undefined ||
 		legendMaxWidth !== undefined ||
 		legendTextOverflow !== undefined ||
-		legendShapeStyles !== undefined;
+		legendShapeStyles !== undefined ||
+		legendItemStyles !== undefined;
 
 	if ( ! hasAny ) {
 		return undefined;
@@ -153,6 +159,9 @@ export function extractLegendConfig< T = ChartLegendConfig >(
 	}
 	if ( legendShapeStyles !== undefined ) {
 		config.shapeStyles = legendShapeStyles as ChartLegendConfig[ 'shapeStyles' ];
+	}
+	if ( legendItemStyles !== undefined ) {
+		config.itemStyles = legendItemStyles as ChartLegendConfig[ 'itemStyles' ];
 	}
 
 	return config as T;
