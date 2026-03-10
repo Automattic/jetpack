@@ -496,6 +496,66 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 		$this->assertArrayNotHasKey( 'wp-private-apis', $consumers );
 	}
 
+	// ── Boot module asset proxy tests ─────────────────────────────────────────
+
+	/**
+	 * Test that the boot asset proxy returns the real asset data when the class
+	 * is loaded and the build asset file exists.
+	 */
+	public function test_boot_asset_proxy_returns_real_asset_data() {
+		$package_root = dirname( __DIR__, 2 );
+		$asset_file   = $package_root . '/build/modules/boot/index.asset.php';
+
+		if ( ! file_exists( $asset_file ) ) {
+			$this->markTestSkipped( 'Build asset file not present; run build first.' );
+		}
+
+		$proxy_file = $package_root . '/src/boot-module-asset-proxy.php';
+		$asset      = require $proxy_file;
+
+		$this->assertIsArray( $asset );
+		$this->assertArrayHasKey( 'dependencies', $asset );
+		$this->assertArrayHasKey( 'version', $asset );
+		$this->assertIsArray( $asset['dependencies'] );
+		$this->assertNotEmpty( $asset['version'] );
+	}
+
+	/**
+	 * Test that the boot asset proxy returns fallback data when the build
+	 * asset file does not exist.
+	 *
+	 * Temporarily renames the real asset file, requires the proxy (which uses
+	 * ReflectionClass to find the build dir), then restores the original.
+	 */
+	public function test_boot_asset_proxy_returns_fallback_when_asset_missing() {
+		$package_root = dirname( __DIR__, 2 );
+		$asset_file   = $package_root . '/build/modules/boot/index.asset.php';
+		$backup_file  = $asset_file . '.bak';
+
+		// Skip if the build hasn't run (asset file doesn't exist).
+		if ( ! file_exists( $asset_file ) ) {
+			$this->markTestSkipped( 'Build asset file not present; run build first.' );
+		}
+
+		rename( $asset_file, $backup_file ); // phpcs:ignore WordPress.WP.AlternativeFunctions.rename_rename
+
+		try {
+			// The proxy file uses `require` internally, but PHP caches the
+			// return value per file path. Use a fresh include via a wrapper
+			// to avoid the cache.
+			$proxy_file = $package_root . '/src/boot-module-asset-proxy.php';
+			$asset      = ( static function ( $file ) {
+				return require $file;
+			} )( $proxy_file );
+
+			$this->assertIsArray( $asset );
+			$this->assertSame( array(), $asset['dependencies'] );
+			$this->assertSame( '', $asset['version'] );
+		} finally {
+			rename( $backup_file, $asset_file ); // phpcs:ignore WordPress.WP.AlternativeFunctions.rename_rename
+		}
+	}
+
 	/**
 	 * Test that only requested polyfills are registered.
 	 */
