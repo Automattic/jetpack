@@ -352,6 +352,39 @@ export type ScaleOptions = {
 	paddingOuter?: number;
 };
 
+export type LegendItemStyles = {
+	/** Margin around each legend item. */
+	margin?: CSSProperties[ 'margin' ];
+	/** Flex direction for items within each legend entry. */
+	flexDirection?: 'row' | 'row-reverse' | 'column' | 'column-reverse';
+};
+
+export type LegendLabelStyles = Pick< CSSProperties, 'justifyContent' | 'flex' | 'margin' > & {
+	/**
+	 * Maximum width for legend label text as a CSS value (e.g. '200px', '50%', '10rem').
+	 * When set, text overflow behavior is controlled by textOverflow.
+	 */
+	maxWidth?: string;
+	/**
+	 * Controls how text behaves when it exceeds maxWidth.
+	 * - 'ellipsis': Truncate with ellipsis (ideal for widgets/small devices)
+	 * - 'wrap': Wrap text to multiple lines (default, ideal for larger displays)
+	 */
+	textOverflow?: 'ellipsis' | 'wrap';
+};
+
+export type LegendShapeStyles = {
+	/** Width of the legend shape in pixels. */
+	width?: number;
+	/** Height of the legend shape in pixels. */
+	height?: number;
+	/** Margin around the legend shape. */
+	margin?: CSSProperties[ 'margin' ];
+};
+
+/** Position of the legend relative to chart content. */
+export type LegendPosition = 'top' | 'bottom';
+
 /**
  * Configuration object for chart legend appearance and behavior.
  * Consolidates all legend styling and layout props into a single structured object.
@@ -365,7 +398,7 @@ export type ChartLegendConfig< T = DataPoint | DataPointDate | LeaderboardEntry 
 	 * Position of the legend relative to the chart.
 	 * TODO: Add 'left' | 'right' positioning support in future implementation
 	 */
-	position?: 'top' | 'bottom';
+	position?: LegendPosition;
 	/**
 	 * Alignment of the legend within its position.
 	 */
@@ -388,25 +421,15 @@ export type ChartLegendConfig< T = DataPoint | DataPointDate | LeaderboardEntry 
 	/**
 	 * CSS styles for each legend item (margin, flexDirection).
 	 */
-	itemStyles?: {
-		margin?: CSSProperties[ 'margin' ];
-		flexDirection?: 'row' | 'row-reverse' | 'column' | 'column-reverse';
-	};
+	itemStyles?: LegendItemStyles;
 	/**
 	 * CSS styles for legend labels (maxWidth, textOverflow, justifyContent, flex, margin).
 	 */
-	labelStyles?: Pick< CSSProperties, 'justifyContent' | 'flex' | 'margin' > & {
-		maxWidth?: string;
-		textOverflow?: 'ellipsis' | 'wrap';
-	};
+	labelStyles?: LegendLabelStyles;
 	/**
 	 * Styles for legend shapes (width, height, margin).
 	 */
-	shapeStyles?: {
-		width?: number;
-		height?: number;
-		margin?: CSSProperties[ 'margin' ];
-	};
+	shapeStyles?: LegendShapeStyles;
 };
 
 /**
