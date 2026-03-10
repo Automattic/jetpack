@@ -239,6 +239,18 @@ const processStatusChange = async ( {
 
 		// Update counts optimistically
 		updateCountsOptimistically( item.status, newStatus, 1, queryParams );
+
+		// Update sidebar unread counter when moving unread items between statuses
+		if ( item.is_unread ) {
+			if ( ( newStatus === 'spam' || newStatus === 'trash' ) && item.status === 'publish' ) {
+				updateMenuCounterOptimistically( -1 );
+			} else if (
+				newStatus === 'publish' &&
+				( item.status === 'spam' || item.status === 'trash' )
+			) {
+				updateMenuCounterOptimistically( 1 );
+			}
+		}
 	} );
 
 	// Call API with timeout
@@ -270,6 +282,18 @@ const processStatusChange = async ( {
 
 		// Revert the count change
 		updateCountsOptimistically( newStatus, originalStatus, 1, queryParams );
+
+		// Revert sidebar unread counter change
+		if ( item.is_unread ) {
+			if ( ( newStatus === 'spam' || newStatus === 'trash' ) && originalStatus === 'publish' ) {
+				updateMenuCounterOptimistically( 1 );
+			} else if (
+				newStatus === 'publish' &&
+				( originalStatus === 'spam' || originalStatus === 'trash' )
+			) {
+				updateMenuCounterOptimistically( -1 );
+			}
+		}
 	} );
 
 	return {

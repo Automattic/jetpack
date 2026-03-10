@@ -25,6 +25,10 @@ import ResponseFieldsIterator from '../../../src/dashboard/components/inspector/
 import ResponseMeta from '../../../src/dashboard/components/inspector/response-meta';
 import useInboxData from '../../../src/dashboard/hooks/use-inbox-data.ts';
 import { useMarkAsSpam } from '../../../src/dashboard/hooks/use-mark-as-spam.ts';
+import {
+	updateMenuCounter,
+	updateMenuCounterOptimistically,
+} from '../../../src/dashboard/inbox/utils';
 import useConfigValue from '../../../src/hooks/use-config-value.ts';
 import { ResponseActions } from './actions';
 import { ResponseNavigation } from './navigation';
@@ -164,15 +168,30 @@ function SingleResponseView( {
 			is_unread: false,
 		} );
 
+		// Optimistically update sidebar unread counter
+		if ( response.status === 'publish' ) {
+			updateMenuCounterOptimistically( -1 );
+		}
+
 		apiFetch( {
 			path: `/wp/v2/feedback/${ response.id }/read`,
 			method: 'POST',
 			data: { is_unread: false },
-		} ).catch( () => {
-			editEntityRecord( 'postType', 'feedback', response.id, {
-				is_unread: true,
+		} )
+			.then( ( result: unknown ) => {
+				const { count } = result as { count: number };
+				// Update sidebar counter with accurate count from server
+				updateMenuCounter( count );
+			} )
+			.catch( () => {
+				editEntityRecord( 'postType', 'feedback', response.id, {
+					is_unread: true,
+				} );
+				// Revert sidebar counter
+				if ( response.status === 'publish' ) {
+					updateMenuCounterOptimistically( 1 );
+				}
 			} );
-		} );
 	}, [ response, editEntityRecord, hasMarkedAsRead ] );
 
 	const handleFilePreview = useCallback(
