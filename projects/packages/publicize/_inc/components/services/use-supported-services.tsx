@@ -159,6 +159,22 @@ export function useSupportedServices(): Array< SupportedService > {
 			],
 		},
 		{
+			...availableServices.x,
+			icon: props => <SocialServiceIcon serviceName="x" { ...props } />,
+			badges: [ badgeNew ],
+			description: __( 'Share posts to X.', 'jetpack-publicize-pkg' ),
+			examples: [
+				() => (
+					<>
+						{ __(
+							'Reach your audience by automatically sharing your posts to X when you publish.',
+							'jetpack-publicize-pkg'
+						) }
+					</>
+				),
+			],
+		},
+		{
 			...availableServices.linkedin,
 			icon: props => <SocialServiceIcon serviceName="linkedin" { ...props } />,
 			description: __( 'Share with your LinkedIn community.', 'jetpack-publicize-pkg' ),
