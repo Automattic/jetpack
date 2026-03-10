@@ -16,10 +16,6 @@ export default [
 		save: () => null,
 		migrate: attributes => {
 			const { min, max, ...restAttributes } = attributes;
-			return {
-				...restAttributes,
-				min: min != null && min !== '' ? parseFloat( min ) : undefined,
-				max: max != null && max !== '' ? parseFloat( max ) : undefined,
 			const parsedMin = parseFloat( min );
 			const parsedMax = parseFloat( max );
 			return {
