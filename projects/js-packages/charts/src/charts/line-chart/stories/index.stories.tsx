@@ -1,5 +1,6 @@
 import {
 	ChartStoryArgs,
+	extractLegendConfig,
 	temperatureData as sampleData,
 	largeValuesData,
 	trafficData as webTrafficData,
@@ -62,6 +63,7 @@ export default meta;
 const Template: StoryFn< typeof LineChart > = args => {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const { seriesCount, dimensionMode, crosshairMode, withTooltipCrosshairs, ...chartProps } = args;
+	const legend = extractLegendConfig( args );
 
 	// Determine data based on seriesCount control
 	let data = chartProps.data || lineChartStoryArgs.data;
@@ -94,6 +96,7 @@ const Template: StoryFn< typeof LineChart > = args => {
 			{ ...chartProps }
 			{ ...dimensions }
 			data={ data }
+			legend={ legend }
 			withTooltipCrosshairs={ crosshairConfig }
 		/>
 	);
@@ -143,7 +146,7 @@ WithInteractiveLegend.args = {
 	...lineChartStoryArgs,
 	chartId: 'interactive-legend-demo',
 	showLegend: true,
-	legend: { interactive: true },
+	legendInteractive: true,
 };
 
 WithInteractiveLegend.parameters = {
@@ -159,11 +162,9 @@ export const CustomLegendPositioning: StoryObj< typeof LineChart > = Template.bi
 CustomLegendPositioning.args = {
 	...lineChartStoryArgs,
 	showLegend: true,
-	legend: {
-		alignment: 'start',
-		position: 'top',
-		orientation: 'horizontal',
-	},
+	legendAlignment: 'start',
+	legendPosition: 'top',
+	legendOrientation: 'horizontal',
 	withLegendGlyph: true,
 };
 
@@ -178,18 +179,21 @@ CustomLegendPositioning.parameters = {
 
 // Story showing use with LineChart using composition API
 export const WithCompositionLegend: StoryObj< typeof LineChart > = {
-	render: args => (
-		<LineChart { ...Default.args } { ...args }>
-			<LineChart.Legend
-				orientation={ args.legend?.orientation || 'horizontal' }
-				alignment={ args.legend?.alignment || 'center' }
-				position={ args.legend?.position || 'bottom' }
-				labelStyles={ args.legend?.labelStyles }
-			/>
-		</LineChart>
-	),
+	render: args => {
+		const legend = extractLegendConfig( args );
+		return (
+			<LineChart { ...Default.args } { ...args }>
+				<LineChart.Legend
+					orientation={ legend?.orientation || 'horizontal' }
+					alignment={ legend?.alignment || 'center' }
+					position={ legend?.position || 'bottom' }
+					labelStyles={ legend?.labelStyles }
+				/>
+			</LineChart>
+		);
+	},
 	argTypes: {
-		'legend.interactive': {
+		legendInteractive: {
 			table: { disable: true },
 		},
 	},

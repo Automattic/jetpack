@@ -4,6 +4,7 @@ import {
 	sharedThemeArgs,
 	ChartStoryArgs,
 	legendArgTypes,
+	extractLegendConfig,
 	medalCountsData,
 	largeValuesData,
 	trafficData,
@@ -58,6 +59,7 @@ const meta: Meta< StoryArgs > = {
 	},
 	render: args => {
 		const { seriesCount, ...chartProps } = args;
+		const legend = extractLegendConfig( args );
 
 		// Determine data based on seriesCount control
 		let data = chartProps.data;
@@ -69,7 +71,7 @@ const meta: Meta< StoryArgs > = {
 			data = medalCountsData;
 		}
 
-		return <BarChart { ...chartProps } data={ data } />;
+		return <BarChart { ...chartProps } legend={ legend } data={ data } />;
 	},
 } satisfies Meta< StoryArgs >;
 
@@ -240,7 +242,7 @@ export const WithInteractiveLegend: Story = {
 	args: {
 		...Default.args,
 		showLegend: true,
-		legend: { interactive: true },
+		legendInteractive: true,
 		chartId: 'bar-chart-with-interactive-legend',
 	},
 	parameters: {
@@ -255,22 +257,25 @@ export const WithInteractiveLegend: Story = {
 
 // Story demonstrating composition API
 export const WithCompositionLegend: StoryObj< typeof BarChart > = {
-	render: args => (
-		<BarChart
-			data={ args.data || [ medalCountsData[ 0 ], medalCountsData[ 1 ], medalCountsData[ 2 ] ] }
-			withTooltips={ true }
-			gridVisibility="x"
-		>
-			<BarChart.Legend
-				orientation={ args.legend?.orientation || 'horizontal' }
-				alignment={ args.legend?.alignment || 'center' }
-				position={ args.legend?.position || 'bottom' }
-				labelStyles={ args.legend?.labelStyles }
-			/>
-		</BarChart>
-	),
+	render: args => {
+		const legend = extractLegendConfig( args );
+		return (
+			<BarChart
+				data={ args.data || [ medalCountsData[ 0 ], medalCountsData[ 1 ], medalCountsData[ 2 ] ] }
+				withTooltips={ true }
+				gridVisibility="x"
+			>
+				<BarChart.Legend
+					orientation={ legend?.orientation || 'horizontal' }
+					alignment={ legend?.alignment || 'center' }
+					position={ legend?.position || 'bottom' }
+					labelStyles={ legend?.labelStyles }
+				/>
+			</BarChart>
+		);
+	},
 	argTypes: {
-		'legend.interactive': {
+		legendInteractive: {
 			table: { disable: true },
 		},
 	},
@@ -295,11 +300,9 @@ export const CustomLegendPositioning: Story = {
 		containerHeight: '400px',
 		// showLegend defaults to false, explicitly enabling for demonstration
 		showLegend: true,
-		legend: {
-			orientation: 'vertical',
-			alignment: 'start',
-			position: 'top',
-		},
+		legendOrientation: 'vertical',
+		legendAlignment: 'start',
+		legendPosition: 'top',
 	},
 	parameters: {
 		docs: {
