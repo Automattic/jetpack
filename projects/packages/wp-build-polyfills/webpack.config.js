@@ -228,6 +228,11 @@ class PolyfillModulePlugin {
 		compiler.hooks.compilation.tap(
 			'PolyfillModulePlugin',
 			( compilation, { normalModuleFactory } ) => {
+				// Clear stale deps from previous compilations (watch mode).
+				scriptDeps.clear();
+				moduleDeps.clear();
+				dynamicImportRequests.clear();
+
 				const handler = parser => {
 					parser.hooks.importCall.tap( 'PolyfillModulePlugin', expr => {
 						// expr.source is the argument to import(). For string
