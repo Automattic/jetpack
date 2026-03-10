@@ -4174,9 +4174,18 @@ importers:
       '@wordpress/a11y':
         specifier: ^4.40.0
         version: 4.41.0
+      '@wordpress/admin-ui':
+        specifier: ^1.9.0
+        version: 1.9.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/boot':
         specifier: ^0.7.1
         version: 0.7.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@16.26.1)
+      '@wordpress/icons':
+        specifier: ^11.7.0
+        version: 11.8.0(react@18.3.1)
+      '@wordpress/lazy-editor':
+        specifier: ^1.6.1
+        version: 1.7.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@16.26.1)
       '@wordpress/notices':
         specifier: ^5.40.0
         version: 5.41.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)

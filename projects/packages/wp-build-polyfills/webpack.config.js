@@ -221,6 +221,31 @@ class PolyfillModulePlugin {
 		const scriptDeps = new Set();
 		const moduleDeps = new Map();
 
+		// Track dynamic import() requests via the parser so we can
+		// distinguish them from static imports in the externals callback
+		// (webpack 5's externals API reports 'esm' for both).
+		const dynamicImportRequests = new Set();
+		compiler.hooks.compilation.tap(
+			'PolyfillModulePlugin',
+			( compilation, { normalModuleFactory } ) => {
+				const handler = parser => {
+					parser.hooks.importCall.tap( 'PolyfillModulePlugin', expr => {
+						// expr.source is the argument to import(). For string
+						// literals, extract the value.
+						if ( expr.source && expr.source.type === 'Literal' ) {
+							dynamicImportRequests.add( expr.source.value );
+						}
+					} );
+				};
+				normalModuleFactory.hooks.parser
+					.for( 'javascript/auto' )
+					.tap( 'PolyfillModulePlugin', handler );
+				normalModuleFactory.hooks.parser
+					.for( 'javascript/esm' )
+					.tap( 'PolyfillModulePlugin', handler );
+			}
+		);
+
 		// Register externals.
 		new webpack.ExternalsPlugin( 'import', ( { request }, callback ) => {
 			// Don't externalize the package being polyfilled.
@@ -236,12 +261,22 @@ class PolyfillModulePlugin {
 
 				// Prefer script module for ESM builds.
 				if ( pkg && hasScriptModuleExport( pkg ) ) {
-					moduleDeps.set( request, 'static' );
+					const kind = dynamicImportRequests.has( request ) ? 'dynamic' : 'static';
+					if ( kind === 'static' || ! moduleDeps.has( request ) ) {
+						moduleDeps.set( request, kind );
+					}
 					return callback( null, `import ${ request }` );
 				}
 
-				// Classic script (or unresolvable — default to classic since
-				// most @wordpress/* packages are classic scripts).
+				// If package is resolved and has neither wpScriptModuleExports
+				// nor wpScript, let webpack bundle it (e.g. @wordpress/admin-ui,
+				// @wordpress/icons).
+				if ( pkg && ! pkg.wpScript ) {
+					return callback();
+				}
+
+				// Classic script (includes unresolvable packages, which default
+				// to classic since most @wordpress/* packages are classic scripts).
 				scriptDeps.add( `wp-${ shortName }` );
 				return callback( null, `var wp.${ camelCaseDash( shortName ) }` );
 			}
