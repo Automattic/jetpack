@@ -62,11 +62,11 @@ export const legendArgTypes = {
 		description:
 			'Controls how text behaves when it exceeds legendMaxWidth. "ellipsis" truncates with ... (ideal for widgets), "wrap" allows text to wrap to multiple lines.',
 	},
-	legendClassName: {
+	legendItemClassName: {
 		control: { type: 'text' as const },
 		table: { category: 'Legend' },
 		description:
-			'Additional CSS class name for legend items. This allows consumers to customize individual legend item styling.',
+			'Additional CSS class name for individual legend items. This allows consumers to customize legend item styling.',
 	},
 	legendInteractive: {
 		control: { type: 'boolean' as const },
@@ -92,7 +92,7 @@ export function extractLegendConfig< T = ChartLegendConfig >(
 		legendOrientation,
 		legendShape,
 		legendInteractive,
-		legendClassName,
+		legendItemClassName,
 		legendMaxWidth,
 		legendTextOverflow,
 	} = args;
@@ -103,7 +103,7 @@ export function extractLegendConfig< T = ChartLegendConfig >(
 		legendOrientation !== undefined ||
 		legendShape !== undefined ||
 		legendInteractive !== undefined ||
-		legendClassName !== undefined ||
+		legendItemClassName !== undefined ||
 		legendMaxWidth !== undefined ||
 		legendTextOverflow !== undefined;
 
@@ -128,8 +128,8 @@ export function extractLegendConfig< T = ChartLegendConfig >(
 	if ( legendInteractive !== undefined ) {
 		config.interactive = legendInteractive as boolean;
 	}
-	if ( legendClassName !== undefined ) {
-		config.className = legendClassName as string;
+	if ( legendItemClassName !== undefined ) {
+		config.itemClassName = legendItemClassName as string;
 	}
 	if ( legendMaxWidth !== undefined || legendTextOverflow !== undefined ) {
 		config.labelStyles = {};

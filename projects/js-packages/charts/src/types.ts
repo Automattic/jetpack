@@ -415,9 +415,9 @@ export type ChartLegendConfig< T = DataPoint | DataPointDate | LeaderboardEntry 
 	 */
 	interactive?: boolean;
 	/**
-	 * Additional CSS class name for legend items.
+	 * Additional CSS class name for individual legend items.
 	 */
-	className?: string;
+	itemClassName?: string;
 	/**
 	 * CSS styles for each legend item (margin, flexDirection).
 	 */
