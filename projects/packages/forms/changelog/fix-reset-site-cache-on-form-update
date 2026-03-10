@@ -1,4 +1,4 @@
 Significance: patch
-Type: added
+Type: fixed
 
 Purge edge cache when a jetpack_form post is published, updated, or unpublished.
