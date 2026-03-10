@@ -10,7 +10,7 @@
 /* eslint-disable jsdoc/require-param-type */
 /* eslint-disable jsdoc/require-param-description */
 /* eslint-disable jsdoc/require-description */
-/* global zbsCustomTagInitFunc, ajaxurl, swal, zbscrm_JS_addDirty */
+/* global zbsCustomTagInitFunc, ajaxurl, swal, zbscrm_JS_addDirty, jpcrm */
 
 /**
  * Build tags
@@ -58,14 +58,16 @@ function zeroBSCRMJS_buildTagsInput() {
  * @param tagID
  */
 function zbsJS_drawTag( tagStr, tagID ) {
-	const html =
-		'<div class="ui small basic label black" data-id="' +
-		tagID +
-		'"><i class="window close icon zbs-remove-tag"></i> <span>' +
-		tagStr +
-		'</span></div>';
-
-	jQuery( '#zbs-tags-wrap' ).append( html );
+	document
+		.getElementById( 'zbs-tags-wrap' )
+		.insertAdjacentHTML(
+			'beforeend',
+			'<div class="ui small basic label black" data-id="' +
+				jpcrm.esc_attr( tagID ) +
+				'"><i class="window close icon zbs-remove-tag"></i> <span>' +
+				jpcrm.esc_html( tagStr ) +
+				'</span></div>'
+		);
 
 	setTimeout( function () {
 		zbsJS_bindTags();
@@ -208,18 +210,25 @@ function zbsJS_bindTagManagerInit() {
 						jQuery( '#zbs-add-tag-value' ).val( '' );
 
 						// add to table
-						const tagTR =
-							'<tr><td><span class="ui large label">' +
-							ltag +
-							'</span></td><td>' +
-							newTagSlug +
-							'</td><td class="center aligned">0</td><td class="center aligned"><button type="button" class="ui mini button black zbs-delete-tag" data-tagid="' +
-							newTagID +
-							'"><i class="trash alternate icon"></i> ' +
-							window.zbsTagListLang.delete +
-							'</button></td></tr>';
-						jQuery( '#zbs-tag-manager tbody' ).append( tagTR );
-
+						document
+							.querySelector( '#zbs-tag-manager tbody' )
+							.insertAdjacentHTML(
+								'beforeend',
+								'<tr>' +
+									'<td><span class="ui large label">' +
+									jpcrm.esc_html( ltag ) +
+									'</span></td>' +
+									'<td>' +
+									jpcrm.esc_html( newTagSlug ) +
+									'</td>' +
+									'<td class="center aligned">0</td>' +
+									'<td class="center aligned"><button type="button" class="ui mini button black zbs-delete-tag" data-tagid="' +
+									jpcrm.esc_attr( newTagID ) +
+									'"><i class="trash alternate icon"></i> ' +
+									jpcrm.esc_html( window.zbsTagListLang.delete ) +
+									'</button></td>' +
+									'</tr>'
+							);
 						// rebind
 						setTimeout( function () {
 							zeroBSCRMJS_tagManager_bindTagEditButtons();
