@@ -500,4 +500,80 @@ class Gutenberg_RTC_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertStringContainsString( '"providers":[]', $inline );
 	}
+
+	/**
+	 * Tests that the collaborator limit filter is hooked.
+	 */
+	public function test_wpcom_rtc_limit_collaborators_hooked() {
+		$this->assertSame( 10, has_filter( 'rest_pre_dispatch', 'wpcom_rtc_limit_collaborators' ) );
+	}
+
+	/**
+	 * Tests that the default max collaborators is 0 (unlimited).
+	 */
+	public function test_wpcom_rtc_get_max_collaborators_default() {
+		$this->assertSame( 0, wpcom_rtc_get_max_collaborators() );
+	}
+
+	/**
+	 * Tests that max collaborators can be set via filter.
+	 */
+	public function test_wpcom_rtc_get_max_collaborators_via_filter() {
+		add_filter(
+			'wpcom_rtc_max_collaborators',
+			function () {
+				return 2;
+			}
+		);
+
+		$this->assertSame( 2, wpcom_rtc_get_max_collaborators() );
+	}
+
+	/**
+	 * Tests that the limit is skipped when HTTP polling is not enforced (e.g. PingHub sites).
+	 */
+	public function test_wpcom_rtc_limit_collaborators_skips_non_http_polling_sites() {
+		add_filter(
+			'wpcom_rtc_max_collaborators',
+			function () {
+				return 1;
+			}
+		);
+
+		$request = new WP_REST_Request( 'POST', '/wp-sync/v1/updates' );
+		$request->set_body_params(
+			array(
+				'rooms' => array(
+					array(
+						'room'      => 'postType/post:1',
+						'client_id' => 100,
+					),
+				),
+			)
+		);
+
+		// should_enforce_http_polling_for_blog() returns false in test env (no IS_ATOMIC).
+		$result = wpcom_rtc_limit_collaborators( null, new WP_REST_Server(), $request );
+		$this->assertNull( $result );
+	}
+
+	/**
+	 * Tests that the limit is not enforced for non-sync routes.
+	 */
+	public function test_wpcom_rtc_limit_collaborators_ignores_other_routes() {
+		$request = new WP_REST_Request( 'GET', '/wp/v2/posts' );
+		$result  = wpcom_rtc_limit_collaborators( null, new WP_REST_Server(), $request );
+		$this->assertNull( $result );
+	}
+
+	/**
+	 * Tests that already-resolved results are passed through.
+	 */
+	public function test_wpcom_rtc_limit_collaborators_passes_through_existing_result() {
+		$existing = new WP_REST_Response( array( 'ok' => true ) );
+		$request  = new WP_REST_Request( 'POST', '/wp-sync/v1/updates' );
+
+		$result = wpcom_rtc_limit_collaborators( $existing, new WP_REST_Server(), $request );
+		$this->assertSame( $existing, $result );
+	}
 }
