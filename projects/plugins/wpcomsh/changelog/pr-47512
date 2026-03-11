@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-Gutenberg RTC: Enable Real-Time Collaboration feature for sites with the wpcom-gutenberg-rtc-enabled blog sticker.
+Gutenberg RTC: Enable Real-Time Collaboration feature for sites with the REAL_TIME_COLLABORATION feature.
