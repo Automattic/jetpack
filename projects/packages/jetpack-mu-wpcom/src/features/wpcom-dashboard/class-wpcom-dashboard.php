@@ -16,7 +16,8 @@ use Automattic\Jetpack\Status\Host;
  */
 class Wpcom_Dashboard {
 
-	const EXPERIMENT_NAME = 'wpcom_custom_dashboard_holdout';
+	const EXPERIMENT_NAME                = 'wpcom_custom_dashboard_holdout'; // Temporary name!
+	const EXPERIMENT_TREATMENT_VARIATION = 'treatment';
 
 	/**
 	 * Initialize the feature.
@@ -45,9 +46,15 @@ class Wpcom_Dashboard {
 	 * On Atomic sites with a connected user, uses the REST API.
 	 * Caches the result in a transient for 1 hour.
 	 *
+	 * @param bool $is_treatment Whether the user is in the treatment group.
 	 * @return bool
 	 */
-	public static function is_holdout_treatment() {
+	public static function is_holdout_treatment( $is_treatment = false ) {
+		// Respect earlier filter overrides.
+		if ( $is_treatment ) {
+			return true;
+		}
+
 		$user_id = get_current_user_id();
 		if ( ! $user_id ) {
 			return false;
@@ -64,8 +71,7 @@ class Wpcom_Dashboard {
 
 		if ( ( new Host() )->is_wpcom_simple() ) {
 			if ( function_exists( '\ExPlat\assign_current_user' ) ) {
-				// In a holdout experiment, null = control group, non-null = treatment (held out).
-				$result = null !== \ExPlat\assign_current_user( self::EXPERIMENT_NAME );
+				$result = self::EXPERIMENT_TREATMENT_VARIATION === \ExPlat\assign_current_user( self::EXPERIMENT_NAME );
 			}
 		} elseif ( ( new Connection_Manager() )->is_user_connected() ) {
 			$request_path = '/experiments/0.1.0/assignments/wpcom';
@@ -77,8 +83,7 @@ class Wpcom_Dashboard {
 			if ( ! is_wp_error( $response ) && 200 === wp_remote_retrieve_response_code( $response ) ) {
 				$data = json_decode( wp_remote_retrieve_body( $response ), true );
 				if ( isset( $data['variations'][ self::EXPERIMENT_NAME ] ) ) {
-					// In a holdout experiment, null = control group, non-null = treatment (held out).
-					$result = null !== $data['variations'][ self::EXPERIMENT_NAME ];
+					$result = self::EXPERIMENT_TREATMENT_VARIATION === $data['variations'][ self::EXPERIMENT_NAME ];
 				}
 			}
 		}
@@ -113,21 +118,27 @@ class Wpcom_Dashboard {
 	 * Temporary dev aid — remove before shipping.
 	 */
 	public static function render_admin_notice() {
+		if ( ! self::is_active() ) {
+			return;
+		}
+
 		$screen = get_current_screen();
 		if ( ! $screen || 'dashboard' !== $screen->id ) {
 			return;
 		}
 
-		$is_active = self::is_active();
-		$status    = $is_active ? 'active' : 'inactive';
-		$type      = $is_active ? 'info' : 'warning';
+		/** This filter is documented in class-wpcom-dashboard.php */
+		$is_treatment = (bool) apply_filters( 'wpcom_dashboard_replacement_holdout_is_treatment', false );
+
+		$status = $is_treatment ? 'active/treatment' : 'active/control';
+		$type   = $is_treatment ? 'success' : 'info';
 
 		printf(
 			'<div class="notice notice-%s"><p>%s</p></div>',
 			esc_attr( $type ),
 			esc_html(
 				sprintf(
-					/* translators: %s is either "active" or "inactive". */
+					/* translators: %s is "active/treatment" or "active/control". */
 					__( 'Dashboard replacement: %s', 'jetpack-mu-wpcom' ),
 					$status
 				)
