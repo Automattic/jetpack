@@ -212,11 +212,12 @@ class Helpers {
 			}
 		}
 
-		$broker_url = SSO::get_broker_url();
-		if ( $broker_url ) {
-			$broker_parts = wp_parse_url( $broker_url );
-			if ( $broker_parts && ! empty( $broker_parts['host'] ) ) {
-				$hosts[] = $broker_parts['host'];
+		foreach ( array( SSO::get_broker_url(), SSO::get_broker_auth_url() ) as $broker_url ) {
+			if ( $broker_url ) {
+				$broker_parts = wp_parse_url( $broker_url );
+				if ( $broker_parts && ! empty( $broker_parts['host'] ) ) {
+					$hosts[] = $broker_parts['host'];
+				}
 			}
 		}
 

@@ -726,6 +726,7 @@ class SSO {
 		}
 
 		delete_transient( self::BROKER_URL_TRANSIENT );
+		delete_transient( self::BROKER_AUTH_URL_TRANSIENT );
 	}
 
 	/**
@@ -738,6 +739,7 @@ class SSO {
 			Helpers::delete_connection_for_user( get_current_user_id() );
 		}
 		delete_transient( self::BROKER_URL_TRANSIENT );
+		delete_transient( self::BROKER_AUTH_URL_TRANSIENT );
 	}
 
 	/**
@@ -746,6 +748,13 @@ class SSO {
 	 * @var string
 	 */
 	const BROKER_URL_TRANSIENT = 'jetpack_sso_broker_url';
+
+	/**
+	 * Transient key for caching the SSO broker authorization URL server-side.
+	 *
+	 * @var string
+	 */
+	const BROKER_AUTH_URL_TRANSIENT = 'jetpack_sso_broker_auth_url';
 
 	/**
 	 * Retrieves nonce used for SSO form.
@@ -768,7 +777,7 @@ class SSO {
 			$response = $xml->getResponse();
 
 			// The response may be a plain nonce string (default) or an associative
-			// array containing 'nonce' and 'broker_url' for sites that use an
+			// array containing 'nonce' and broker URLs for sites that use an
 			// external SSO broker (e.g. CIAB stores via the MSD).
 			if ( is_array( $response ) ) {
 				if ( empty( $response['nonce'] ) ) {
@@ -777,21 +786,12 @@ class SSO {
 
 				$nonce = sanitize_key( $response['nonce'] );
 
-				if ( ! empty( $response['broker_url'] ) ) {
-					$broker_url = esc_url_raw( $response['broker_url'] );
-					$url_parts  = wp_parse_url( $broker_url );
-
-					if ( $url_parts && 'https' === ( $url_parts['scheme'] ?? '' ) && ! empty( $url_parts['host'] ) ) {
-						set_transient( self::BROKER_URL_TRANSIENT, $broker_url, 10 * MINUTE_IN_SECONDS );
-					} else {
-						delete_transient( self::BROKER_URL_TRANSIENT );
-					}
-				} else {
-					delete_transient( self::BROKER_URL_TRANSIENT );
-				}
+				self::store_broker_url_from_response( self::BROKER_URL_TRANSIENT, $response['broker_url'] ?? '' );
+				self::store_broker_url_from_response( self::BROKER_AUTH_URL_TRANSIENT, $response['broker_auth_url'] ?? '' );
 			} else {
 				$nonce = sanitize_key( $response );
 				delete_transient( self::BROKER_URL_TRANSIENT );
+				delete_transient( self::BROKER_AUTH_URL_TRANSIENT );
 			}
 
 			setcookie(
@@ -809,6 +809,50 @@ class SSO {
 	}
 
 	/**
+	 * Validates and stores a broker URL from the nonce endpoint response.
+	 *
+	 * @param string $transient_key The transient key to store the URL under.
+	 * @param string $url           The URL to validate and store.
+	 */
+	private static function store_broker_url_from_response( $transient_key, $url ) {
+		if ( empty( $url ) ) {
+			delete_transient( $transient_key );
+			return;
+		}
+
+		$sanitized = esc_url_raw( $url );
+		$url_parts = wp_parse_url( $sanitized );
+
+		if ( $url_parts && 'https' === ( $url_parts['scheme'] ?? '' ) && ! empty( $url_parts['host'] ) ) {
+			set_transient( $transient_key, $sanitized, 10 * MINUTE_IN_SECONDS );
+		} else {
+			delete_transient( $transient_key );
+		}
+	}
+
+	/**
+	 * Retrieves a validated broker URL from a transient.
+	 *
+	 * @param string $transient_key The transient key to retrieve.
+	 * @return string|false The broker URL, or false if not set or invalid.
+	 */
+	private static function get_validated_broker_url( $transient_key ) {
+		$url = get_transient( $transient_key );
+
+		if ( ! $url || ! is_string( $url ) ) {
+			return false;
+		}
+
+		$url_parts = wp_parse_url( $url );
+		if ( ! $url_parts || 'https' !== ( $url_parts['scheme'] ?? '' ) || empty( $url_parts['host'] ) ) {
+			delete_transient( $transient_key );
+			return false;
+		}
+
+		return $url;
+	}
+
+	/**
 	 * Retrieves the SSO broker URL if one has been set by WP.com for this site.
 	 *
 	 * The broker URL is returned by the jetpack.sso.requestNonce XML-RPC call
@@ -818,19 +862,20 @@ class SSO {
 	 * @return string|false The broker URL, or false if not set.
 	 */
 	public static function get_broker_url() {
-		$broker_url = get_transient( self::BROKER_URL_TRANSIENT );
+		return self::get_validated_broker_url( self::BROKER_URL_TRANSIENT );
+	}
 
-		if ( ! $broker_url || ! is_string( $broker_url ) ) {
-			return false;
-		}
-
-		$url_parts = wp_parse_url( $broker_url );
-		if ( ! $url_parts || 'https' !== ( $url_parts['scheme'] ?? '' ) || empty( $url_parts['host'] ) ) {
-			delete_transient( self::BROKER_URL_TRANSIENT );
-			return false;
-		}
-
-		return $broker_url;
+	/**
+	 * Retrieves the SSO broker authorization URL if one has been set by WP.com.
+	 *
+	 * For broker sites, this URL replaces the Jetpack authorization endpoint
+	 * for establishing user connections. It is returned alongside the broker
+	 * SSO URL by the jetpack.sso.requestNonce XML-RPC call.
+	 *
+	 * @return string|false The broker authorization URL, or false if not set.
+	 */
+	public static function get_broker_auth_url() {
+		return self::get_validated_broker_url( self::BROKER_AUTH_URL_TRANSIENT );
 	}
 
 	/**
@@ -1020,6 +1065,22 @@ class SSO {
 				$authorize_json_api->store_json_api_authorization_token( $user->user_login, $user );
 
 			} elseif ( ! $is_user_connected ) {
+				$broker_auth_url = self::get_broker_auth_url();
+				if ( $broker_auth_url ) {
+					add_filter( 'allowed_redirect_hosts', array( Helpers::class, 'allowed_redirect_hosts' ) );
+					wp_safe_redirect(
+						add_query_arg(
+							array(
+								'action'                   => 'jetpack-sso',
+								'site_id'                  => Manager::get_site_id( true ),
+								'broker-sso-auth-redirect' => '1',
+							),
+							$broker_auth_url
+						)
+					);
+					exit( 0 );
+				}
+
 				wp_safe_redirect(
 					add_query_arg(
 						array(
