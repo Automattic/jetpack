@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Google Search Preview: Add optional siteIcon prop to allow passing a custom favicon URL.
