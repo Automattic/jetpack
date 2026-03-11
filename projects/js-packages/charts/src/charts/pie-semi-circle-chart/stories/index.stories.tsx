@@ -59,6 +59,10 @@ const meta: Meta< StoryArgs > = {
 			},
 		},
 	},
+	render: args => {
+		const legend = extractLegendConfig( args );
+		return <PieSemiCircleChart { ...args } legend={ legend } />;
+	},
 } satisfies Meta< StoryArgs >;
 
 export default meta;

@@ -103,7 +103,8 @@ const meta: Meta< StoryArgs > = {
 		},
 	},
 	render: ( { labelTextColor, labelBackgroundColor, ...chartProps } ) => {
-		const ChartComponent = <PieChart { ...chartProps } />;
+		const legend = extractLegendConfig( chartProps );
+		const ChartComponent = <PieChart { ...chartProps } legend={ legend } />;
 
 		if ( labelTextColor || labelBackgroundColor ) {
 			return (

@@ -124,6 +124,10 @@ const meta: Meta< StoryArgs > = {
 		withOverlayLabel: false,
 	},
 	decorators: [ chartDecorator ],
+	render: args => {
+		const legend = extractLegendConfig( args );
+		return <LeaderboardChart { ...args } legend={ legend } />;
+	},
 };
 
 export default meta;
