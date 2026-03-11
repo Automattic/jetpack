@@ -9,7 +9,6 @@ import { useNavigate } from 'react-router';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import {
 	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
-	__experimentalHeading as Heading, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
 
 const CacheDebugLog = () => {
@@ -26,7 +25,7 @@ const CacheDebugLog = () => {
 	};
 
 	const breadcrumbs = (
-		<nav aria-label={ __( 'Breadcrumbs', 'jetpack-boost' ) }>
+		<nav aria-label={ __( 'Breadcrumbs', 'jetpack-boost' ) } className={ styles.breadcrumbs }>
 			<HStack
 				as="ul"
 				className="admin-ui-breadcrumbs__list"
@@ -41,9 +40,9 @@ const CacheDebugLog = () => {
 					</a>
 				</li>
 				<li>
-					<Heading level={ 1 } truncate>
+					<h1 className={ styles[ 'breadcrumb-current' ] }>
 						{ __( 'Cache debug log', 'jetpack-boost' ) }
-					</Heading>
+					</h1>
 				</li>
 			</HStack>
 		</nav>

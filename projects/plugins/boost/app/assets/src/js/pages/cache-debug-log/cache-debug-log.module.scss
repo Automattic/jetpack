@@ -1,5 +1,25 @@
 @use "$css/main/variables";
 
+.breadcrumbs :global(.admin-ui-breadcrumbs__list) {
+	font-size: 20px;
+	line-height: 28px;
+	min-height: auto;
+
+	li {
+		display: flex;
+		align-items: center;
+		margin-bottom: 0;
+	}
+}
+
+.breadcrumb-current {
+	display: inline;
+	font-size: inherit;
+	font-weight: inherit;
+	line-height: inherit;
+	margin: 0;
+}
+
 .breadcrumb-link {
 	display: inline-flex;
 	align-items: center;
