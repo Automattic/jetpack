@@ -2809,6 +2809,9 @@ importers:
       '@wordpress/router':
         specifier: ^1.8.11
         version: 1.41.0(react@18.3.1)
+      '@wordpress/sync':
+        specifier: 1.41.0
+        version: 1.41.0
       '@wordpress/url':
         specifier: 4.41.0
         version: 4.41.0
@@ -2824,6 +2827,9 @@ importers:
       events:
         specifier: ^3.3.0
         version: 3.3.0
+      lib0:
+        specifier: 0.2.99
+        version: 0.2.99
       lodash:
         specifier: 4.17.23
         version: 4.17.23
@@ -2848,6 +2854,12 @@ importers:
       wpcom-proxy-request:
         specifier: ^7.0.3
         version: 7.0.7
+      y-protocols:
+        specifier: ^1.0.7
+        version: 1.0.7(yjs@13.6.29)
+      yjs:
+        specifier: 13.6.29
+        version: 13.6.29
     devDependencies:
       '@automattic/jetpack-webpack-config':
         specifier: workspace:*

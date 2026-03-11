@@ -144,59 +144,6 @@ function jetpack_mu_wpcom_enqueue_assets( $asset_name, $asset_types = array() ) 
 }
 
 /**
- * Enqueue a Calypso app script hosted on widgets.wp.com.
- *
- * Fetches the asset file (dependencies + version) from widgets.wp.com,
- * caches it with a transient, and enqueues the script.
- *
- * @param string $app_name The name of the app (used for handle, URL path, and asset file name).
- * @param string $entry    The entry file name without extension. Defaults to $app_name.
- *
- * @return string|null The script handle, or null if the asset file could not be loaded.
- */
-function jetpack_mu_wpcom_enqueue_calypso_app( $app_name, $entry = null ) {
-	if ( $entry === null ) {
-		$entry = $app_name;
-	}
-	$handle     = "jetpack-mu-wpcom-$app_name";
-	$cache_key  = $handle . '.asset.json';
-	$asset_file = get_transient( $cache_key );
-
-	if ( ! $asset_file ) {
-		$filepath            = "widgets.wp.com/$app_name/$app_name.asset.json";
-		$accessible_directly = file_exists( ABSPATH . '/' . $filepath );
-		if ( $accessible_directly ) {
-			$asset_file = json_decode( file_get_contents( ABSPATH . $filepath ), true ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
-		} else {
-			$request = wp_remote_get( 'https://' . $filepath );
-			if ( is_wp_error( $request ) ) {
-				return null;
-			}
-			$asset_file = json_decode( wp_remote_retrieve_body( $request ), true );
-		}
-
-		if ( ! $asset_file ) {
-			return null;
-		}
-		set_transient( $cache_key, $asset_file, HOUR_IN_SECONDS );
-	}
-
-	$debug = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG;
-
-	wp_enqueue_script(
-		$handle,
-		$debug
-			? "//widgets.wp.com/$app_name/$entry.js?minify=false"
-			: "//widgets.wp.com/$app_name/$entry.min.js",
-		$asset_file['dependencies'] ?? array(),
-		$asset_file['version'] ?? gmdate( 'Ymd' ),
-		true
-	);
-
-	return $handle;
-}
-
-/**
  * Returns the WP.com blog ID for the current site.
  *
  * @return int|false The WP.com blog ID, or false if the site does not have a WP.com blog ID.
