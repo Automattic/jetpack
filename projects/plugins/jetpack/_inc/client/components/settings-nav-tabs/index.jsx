@@ -195,7 +195,12 @@ const SettingsNavTabs = props => {
 	return (
 		<div className="jp-settings-nav">
 			<QuerySitePlugins />
-			<nav className="jp-settings-nav__tabs">{ tabs }</nav>
+			<nav
+				className="jp-settings-nav__tabs"
+				aria-label={ __( 'Jetpack settings sections', 'jetpack' ) }
+			>
+				{ tabs }
+			</nav>
 			{ userCanManageModules && (
 				<Search
 					pinned={ true }
