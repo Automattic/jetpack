@@ -39,7 +39,6 @@ export interface BarChartProps extends BaseChartProps< SeriesData[] > {
 	orientation?: 'horizontal' | 'vertical';
 	withPatterns?: boolean;
 	showZeroValues?: boolean;
-	legendInteractive?: boolean;
 	children?: ReactNode;
 }
 
@@ -85,24 +84,18 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	margin,
 	withTooltips = false,
 	showLegend = false,
-	legendOrientation = 'horizontal',
-	legendPosition = 'bottom',
-	legendAlignment = 'center',
-	legendMaxWidth,
-	legendTextOverflow = 'wrap',
-	legendItemClassName,
-	legendShape = 'rect',
+	legend = {},
 	gridVisibility: gridVisibilityProp,
 	renderTooltip,
 	options = {},
 	orientation = 'vertical',
 	withPatterns = false,
 	showZeroValues = false,
-	legendInteractive = false,
 	animation,
 	children,
 	gap = 'md',
 } ) => {
+	const legendInteractive = legend.interactive ?? false;
 	const horizontal = orientation === 'horizontal';
 	const chartId = useChartId( providedChartId );
 	const theme = useXYChartTheme( data );
@@ -328,15 +321,18 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	const gridVisibility = gridVisibilityProp ?? chartOptions.gridVisibility;
 	const highlightedBarStyle = createKeyboardHighlightStyle();
 
+	const legendPosition = legend.position ?? 'bottom';
 	const legendElement = showLegend && (
 		<Legend
-			orientation={ legendOrientation }
+			orientation={ legend.orientation ?? 'horizontal' }
 			position={ legendPosition }
-			alignment={ legendAlignment }
-			labelStyles={ { maxWidth: legendMaxWidth, textOverflow: legendTextOverflow } }
-			itemClassName={ legendItemClassName }
+			alignment={ legend.alignment ?? 'center' }
+			labelStyles={ legend.labelStyles }
+			itemClassName={ legend.itemClassName }
+			itemStyles={ legend.itemStyles }
+			shapeStyles={ legend.shapeStyles }
 			className={ styles[ 'bar-chart__legend' ] }
-			shape={ legendShape }
+			shape={ legend.shape ?? 'rect' }
 			chartId={ chartId }
 			interactive={ legendInteractive }
 		/>

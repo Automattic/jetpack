@@ -94,12 +94,8 @@ The simplest line chart requires only a `data` prop with time-series data:
 
 **Legend:**
 - **`showLegend`**: Display chart legend (`false` by default)
-- **`legendOrientation`**: Legend layout orientation (`'horizontal'` by default)
-- **`legendAlignment`**: Legend alignment within its position (`'center'` by default)
-- **`legendPosition`**: Legend position where the legend appears (`'bottom'` by default)
-- **`legendShape`**: Shape used in legend markers (`'line'` by default)
+- **`legend`**: Legend configuration object (`ChartLegendConfig`) for controlling orientation, position, alignment, shape, interactivity, and styling
 - **`withLegendGlyph`**: Use custom glyphs in legend (`false` by default)
-- **`legendInteractive`**: Enable interactive legend items that can toggle series visibility (`false` by default, requires `chartId` and `GlobalChartsProvider`)
 
 **Advanced:**
 - **`options`**: Advanced axis and scale configuration
@@ -523,9 +519,11 @@ Display series information with automatic color matching:
 	code={ `<LineChart
 		data={data}
 		showLegend={true}
-		legendOrientation="horizontal"
-		legendAlignment="center"
-		legendPosition="bottom"
+		legend={{
+			orientation: 'horizontal',
+			alignment: 'center',
+			position: 'bottom',
+		}}
 	/>` }
 />
 
@@ -538,9 +536,11 @@ Use different shapes and custom glyphs in legends:
 	code={ `<LineChart
 		data={data}
 		showLegend={true}
-		legendAlignment="end"
-		legendPosition="top"
-		legendShape="circle"
+		legend={{
+			alignment: 'end',
+			position: 'top',
+			shape: 'circle',
+		}}
 		withLegendGlyph={true}
 	/>` }
 />
@@ -558,7 +558,7 @@ Enable interactive legends that allow users to toggle series visibility by click
 			data={data}
 			chartId="sales-chart"
 			showLegend={true}
-			legendInteractive={true}
+			legend={{ interactive: true }}
 		/>
 	</GlobalChartsProvider>` }
 />
@@ -573,7 +573,7 @@ Enable interactive legends that allow users to toggle series visibility by click
 **Requirements:**
 - Must be wrapped in `GlobalChartsProvider`
 - Must provide a unique `chartId` prop
-- Set `legendInteractive={true}` and `showLegend={true}`
+- Set `legend={{ interactive: true }}` and `showLegend={true}`
 
 **Note:** Interactive legends are currently supported for both LineChart and BarChart. Support for additional chart types will be added in future releases.
 

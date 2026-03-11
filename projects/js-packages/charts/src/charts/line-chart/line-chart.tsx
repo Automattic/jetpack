@@ -256,15 +256,9 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 			withTooltips = true,
 			withTooltipCrosshairs,
 			showLegend = false,
-			legendOrientation = 'horizontal',
-			legendAlignment = 'center',
-			legendPosition = 'bottom',
-			legendMaxWidth,
-			legendTextOverflow = 'wrap',
-			legendItemClassName,
+			legend = {},
 			renderGlyph = defaultRenderGlyph,
 			glyphStyle = {},
-			legendShape = 'line',
 			withLegendGlyph = false,
 			withGradientFill = false,
 			smoothing = true,
@@ -272,7 +266,6 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 			renderTooltip = renderDefaultTooltip,
 			withStartGlyphs = false,
 			withEndGlyphs = false,
-			legendInteractive = false,
 			animation,
 			options = {},
 			onPointerDown = undefined,
@@ -285,6 +278,10 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 		},
 		ref
 	) => {
+		const legendInteractive = legend.interactive ?? false;
+		const legendShape = legend.shape ?? 'line';
+		const legendPosition = legend.position ?? 'bottom';
+
 		const providerTheme = useGlobalChartsTheme();
 		const theme = useXYChartTheme( data );
 		const chartId = useChartId( providedChartId );
@@ -455,11 +452,13 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 
 		const legendElement = showLegend && (
 			<Legend
-				orientation={ legendOrientation }
-				alignment={ legendAlignment }
+				orientation={ legend.orientation ?? 'horizontal' }
+				alignment={ legend.alignment ?? 'center' }
 				position={ legendPosition }
-				labelStyles={ { maxWidth: legendMaxWidth, textOverflow: legendTextOverflow } }
-				itemClassName={ legendItemClassName }
+				labelStyles={ legend.labelStyles }
+				itemClassName={ legend.itemClassName }
+				itemStyles={ legend.itemStyles }
+				shapeStyles={ legend.shapeStyles }
 				className={ styles[ 'line-chart__legend' ] }
 				shape={ legendShape }
 				chartId={ chartId }

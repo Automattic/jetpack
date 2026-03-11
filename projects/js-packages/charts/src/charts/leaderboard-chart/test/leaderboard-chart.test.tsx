@@ -169,8 +169,7 @@ describe( 'LeaderboardChart', () => {
 					data={ mockData }
 					withComparison={ true }
 					showLegend={ true }
-					legendShape="rect"
-					legendShapeStyles={ { width: 10, height: 6 } }
+					legend={ { shape: 'rect', shapeStyles: { width: 10, height: 6 } } }
 				/>
 			);
 
@@ -306,7 +305,7 @@ describe( 'LeaderboardChart', () => {
 					data={ mockData }
 					withComparison={ true }
 					showLegend={ true }
-					legendInteractive={ true }
+					legend={ { interactive: true } }
 				/>
 			);
 
@@ -320,7 +319,7 @@ describe( 'LeaderboardChart', () => {
 					data={ mockData }
 					withComparison={ true }
 					showLegend={ true }
-					legendInteractive={ false }
+					legend={ { interactive: false } }
 				/>
 			);
 
@@ -335,7 +334,7 @@ describe( 'LeaderboardChart', () => {
 					data={ mockData }
 					withComparison={ true }
 					showLegend={ true }
-					legendInteractive={ true }
+					legend={ { interactive: true } }
 				/>
 			);
 

@@ -295,7 +295,7 @@ describe( 'PieSemiCircleChart', () => {
 			renderPieChart( {
 				data: testData,
 				showLegend: true,
-				legendInteractive: true,
+				legend: { interactive: true },
 				chartId: 'test-interactive-semi-circle-chart',
 			} );
 
@@ -327,7 +327,7 @@ describe( 'PieSemiCircleChart', () => {
 			renderPieChart( {
 				data: testData,
 				showLegend: true,
-				legendInteractive: true,
+				legend: { interactive: true },
 				chartId: 'test-all-hidden-semi-circle-chart',
 			} );
 
@@ -354,7 +354,7 @@ describe( 'PieSemiCircleChart', () => {
 			renderPieChart( {
 				data: testData,
 				showLegend: true,
-				legendInteractive: false,
+				legend: { interactive: false },
 				chartId: 'test-non-interactive-semi-circle-chart',
 			} );
 
