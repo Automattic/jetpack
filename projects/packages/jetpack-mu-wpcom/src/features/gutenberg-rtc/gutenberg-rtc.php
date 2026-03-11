@@ -56,10 +56,7 @@ function wpcom_enqueue_gutenberg_rtc_assets() {
 		return;
 	}
 
-	$handle = jetpack_mu_wpcom_enqueue_calypso_app( 'wpcom-gutenberg-rtc' );
-	if ( ! $handle ) {
-		return;
-	}
+	$handle = jetpack_mu_wpcom_enqueue_assets( 'gutenberg-rtc', array( 'js' ) );
 
 	$data = wp_json_encode(
 		array(
