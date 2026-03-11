@@ -1,5 +1,9 @@
 @use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
 
+// --spacing-base is provided by admin-ui's ThemeProvider in some contexts,
+// but not guaranteed here. Define a local fallback.
+$spacing-base: var(--spacing-base, 8px);
+
 // AdminPage uses margin-left: -20px to neutralize #wpcontent's default 20px
 // padding. But Jetpack's own CSS zeros out that padding (admin-static.scss,
 // _main.scss), so the -20px just shifts everything into the sidebar. Reset it.
@@ -13,16 +17,16 @@
 	align-items: center;
 	position: relative;
 	border-bottom: 1px solid gb.$gray-100;
-	padding-inline: calc(var(--spacing-base) * 3); // 24px — matches admin-ui header
+	padding-inline: calc(#{$spacing-base} * 3); // 24px — matches admin-ui header
 
 	// The Search component uses position: absolute with fitsContainer, which
 	// positions relative to the padding edge (ignoring padding). Offset it to
 	// stay within the padded content area.
 	.dops-search.is-expanded-to-container {
-		right: calc(var(--spacing-base) * 3);
+		right: calc(#{$spacing-base} * 3);
 
 		&.is-open {
-			left: calc(var(--spacing-base) * 3);
+			left: calc(#{$spacing-base} * 3);
 			width: auto;
 		}
 	}
@@ -38,8 +42,8 @@
 	font-size: var(--font-body);
 	line-height: 1.5;
 	text-decoration: none;
-	padding: var(--spacing-base) 0;
-	margin-inline-end: calc(var(--spacing-base) * 4);
+	padding: #{$spacing-base} 0;
+	margin-inline-end: calc(#{$spacing-base} * 4);
 	white-space: nowrap;
 
 	&:last-child {
