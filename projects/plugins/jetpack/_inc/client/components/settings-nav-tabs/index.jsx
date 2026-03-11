@@ -68,7 +68,8 @@ const SettingsNavTabs = props => {
 				splitHash = splitUrl[ 1 ].split( '?' );
 
 			searchForTerm( keywords );
-			const searchURL = '#' + splitHash[ 0 ] + ( keywords ? '?term=' + keywords : '' );
+			const searchURL =
+				'#' + splitHash[ 0 ] + ( keywords ? '?term=' + encodeURIComponent( keywords ) : '' );
 			window.location.href = searchURL;
 		},
 		[ searchForTerm ]
