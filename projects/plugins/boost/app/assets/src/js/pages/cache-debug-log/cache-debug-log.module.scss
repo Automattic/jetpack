@@ -1,8 +1,6 @@
 @use "$css/main/variables";
 
 .breadcrumbs :global(.admin-ui-breadcrumbs__list) {
-	font-size: 20px;
-	line-height: 28px;
 	min-height: auto;
 
 	li {
