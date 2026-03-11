@@ -8,7 +8,6 @@ import {
 	themeArgTypes,
 	sharedThemeArgs,
 } from '../../../stories';
-import { useChartLegendItems } from '../hooks/use-chart-legend-items';
 import { Legend } from '../legend';
 import type { SeriesData, DataPointPercentage } from '../../../types';
 
@@ -106,45 +105,29 @@ export const Vertical: Story = {
 	},
 };
 
-// Story showing use with LineChart data
-const WithLineChartData = () => {
-	const legendItems = useChartLegendItems( lineChartData, {
-		showValues: false,
-	} );
-
-	return (
-		<div style={ { display: 'flex', flexDirection: 'column', gap: '20px' } }>
-			<LineChart
-				data={ lineChartData }
-				showLegend={ false }
-				width={ 600 }
-				height={ 300 }
-				withGradientFill={ false }
-				withLegendGlyph={ false }
-			/>
-			<Legend items={ legendItems } orientation="horizontal" shape="line" />
-		</div>
-	);
-};
-
+// Story showing composition API with LineChart
 export const WithLineChart: Story = {
-	render: () => <WithLineChartData />,
+	render: () => (
+		<LineChart
+			data={ lineChartData }
+			width={ 600 }
+			height={ 300 }
+			withGradientFill={ false }
+			withLegendGlyph={ false }
+			chartId="legend-line-chart"
+		>
+			<LineChart.Legend orientation="horizontal" />
+		</LineChart>
+	),
 };
 
-// Story showing use with BarChart data
-const WithBarChartData = () => {
-	const legendItems = useChartLegendItems( barChartData );
-
-	return (
-		<div style={ { display: 'flex', gap: '20px', alignItems: 'flex-start' } }>
-			<BarChart data={ barChartData } showLegend={ false } width={ 400 } height={ 300 } />
-			<Legend items={ legendItems } orientation="vertical" />
-		</div>
-	);
-};
-
+// Story showing composition API with BarChart
 export const WithBarChart: Story = {
-	render: () => <WithBarChartData />,
+	render: () => (
+		<BarChart data={ barChartData } width={ 400 } height={ 300 } chartId="legend-bar-chart">
+			<BarChart.Legend orientation="vertical" />
+		</BarChart>
+	),
 };
 
 // Story showing standalone legend using chartId to automatically get data from context

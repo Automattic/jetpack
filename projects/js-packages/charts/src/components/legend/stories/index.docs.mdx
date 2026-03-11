@@ -17,6 +17,12 @@ The Legend component offers multiple ways to display chart legends, from simple 
 	language="tsx"
 	code={ `import { Legend, LineChart } from '@automattic/charts';
 
+	// Composition API (recommended)
+
+	<LineChart data={ salesData } chartId="sales-chart">
+		<LineChart.Legend orientation="horizontal" />
+	</LineChart>
+
 	// Standalone usage with manual data
 
 	<Legend
@@ -25,12 +31,7 @@ The Legend component offers multiple ways to display chart legends, from simple 
 			{ label: 'Series 2', value: '35%', color: '#80C8FF' },
 		] }
 		orientation="horizontal"
-	/>
-
-	// Automatic data from chart context
-
-	<LineChart chartId="sales-chart" data={ salesData } showLegend={ false } />
-	<Legend chartId="sales-chart" orientation="vertical" />`
+	/>`
 } />
 
 ## API Reference
@@ -93,52 +94,44 @@ For detailed information about all optional props, see the [Legend API Reference
 
 ## Integration with Charts
 
-### Using with LineChart
+### Composition API (Recommended)
 
-Legends can be positioned independently from the chart, retrieving data automatically via hooks:
+The recommended way to add legends to charts is the composition API. Use the chart's `Legend` compound component as a child for explicit placement and configuration:
 
 <Canvas of={ LegendStories.WithLineChart } />
 
 <Source
 	language="tsx"
-	code={ `import { Legend, LineChart } from '@automattic/charts';
-	import { useChartLegendItems } from '@automattic/charts';
+	code={ `import { LineChart } from '@automattic/charts';
 
-	const legendItems = useChartLegendItems( lineChartData, {
-		showValues: false,
-	} );
-
-	<LineChart
-		data={ lineChartData }
-		showLegend={ false }
-		width={ 600 }
-		height={ 300 }
-	/>
-	<Legend items={ legendItems } orientation="horizontal" shape="line" />` }
+	<LineChart data={ lineChartData } chartId="sales-chart">
+		<LineChart.Legend orientation="horizontal" />
+	</LineChart>` }
 />
 
-### Using with BarChart
-
-Position legends vertically beside charts for a side-by-side layout:
+This works with all chart types that support legends:
 
 <Canvas of={ LegendStories.WithBarChart } />
 
 <Source
 	language="tsx"
-	code={ `import { Legend, BarChart } from '@automattic/charts';
-	import { useChartLegendItems } from '@automattic/charts';
+	code={ `import { BarChart } from '@automattic/charts';
 
-	const legendItems = useChartLegendItems( barChartData );
-
-	<div style={ { display: 'flex', gap: '20px', alignItems: 'flex-start' } }>
-		<BarChart data={ barChartData } showLegend={ false } width={ 400 } height={ 300 } />
-		<Legend items={ legendItems } orientation="vertical" />
-	</div>` }
+	<BarChart data={ barChartData } chartId="quarterly-sales">
+		<BarChart.Legend orientation="vertical" />
+	</BarChart>` }
 />
+
+#### Key Benefits
+
+- **Explicit Placement**: The legend is part of the chart's component tree, making placement clear and predictable
+- **Automatic Data**: Legend items are derived from the chart's data automatically
+- **Full Configuration**: Supports all legend props including `position`, `alignment`, `orientation`, `shape`, and `interactive`
+- **Type Safety**: Full TypeScript support with chart-specific legend types
 
 ### Standalone Legend with Chart Context
 
-The Legend component's most powerful feature is its ability to automatically retrieve data from charts using the chart context:
+For decoupled layouts such as dashboards, the Legend component can retrieve data from charts automatically using the chart context:
 
 <Canvas of={ LegendStories.StandaloneLegendWithChartId } />
 
@@ -169,13 +162,6 @@ The Legend component's most powerful feature is its ability to automatically ret
 2. **Data Retrieval**: The Legend component can then retrieve this data using the same `chartId`
 3. **Decoupled Display**: The legend can be placed anywhere in your layout, completely independent from the chart
 
-#### Key Benefits
-
-- **Flexible Layouts**: Create complex dashboard layouts with centralized legend areas
-- **Consistent Legends**: Multiple charts can share legend styles and positioning
-- **Dynamic Updates**: Legend automatically updates when chart data changes
-- **No Prop Drilling**: No need to pass legend data through multiple component levels
-
 #### Important Notes
 
 - The chart and legend must be wrapped in the same GlobalChartsProvider context
@@ -189,7 +175,7 @@ Interactive legends allow users to toggle series visibility by clicking or using
 
 ### Basic Interactive Legend
 
-Enable interactive legends by setting `legend.interactive` on the chart. When `showLegend` is enabled, the chart's built-in legend will automatically become interactive:
+Enable interactive legends using the composition API by passing `interactive` to the chart's Legend compound component:
 
 <Canvas of={ LegendStories.InteractiveLegend } />
 
@@ -197,8 +183,18 @@ Enable interactive legends by setting `legend.interactive` on the chart. When `s
 	language="tsx"
 	code={ `import { LineChart } from '@automattic/charts';
 
-	<LineChart
+	<LineChart data={ data } chartId="sales-chart">
+		<LineChart.Legend interactive={ true } />
+	</LineChart>` }
+/>
+
+Alternatively, use the props-based approach with `showLegend` and the `legend` config object:
+
+<Source
+	language="tsx"
+	code={ `<LineChart
 		data={ data }
+		chartId="sales-chart"
 		showLegend={ true }
 		legend={{ interactive: true }}
 	/>` }

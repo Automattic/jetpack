@@ -1,11 +1,3 @@
-/* eslint-disable @wordpress/no-unsafe-wp-apis */
-import {
-	__experimentalText as WPText,
-	__experimentalHStack as HStack,
-} from '@wordpress/components';
-import { Fragment } from 'react';
-import { BaseLegendItem } from '../../../components/legend/types';
-import { GlobalChartsProvider } from '../../../providers';
 import {
 	chartDecorator,
 	sharedChartArgTypes,
@@ -15,10 +7,9 @@ import {
 	legendArgTypes,
 	themeArgTypes,
 } from '../../../stories';
-import { customerRevenueData, customerRevenueLegendData } from '../../../stories/sample-data';
 import { Group } from '../../../visx/group';
 import { Text } from '../../../visx/text';
-import { PieChart, PieChartUnresponsive } from '../../pie-chart';
+import { PieChart } from '../../pie-chart';
 import type { Meta, StoryObj } from '@storybook/react';
 
 type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof PieChart > >;
@@ -217,6 +208,14 @@ export const WithLegend: Story = {
 		showLegend: true,
 		containerHeight: '500px',
 	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Props-based legend using `showLegend` and the `legend` config object. Use Storybook controls to adjust legend position, alignment, orientation, shape, and interactivity.',
+			},
+		},
+	},
 };
 
 export const WithCompositionLegend: Story = {
@@ -244,176 +243,9 @@ export const WithCompositionLegend: Story = {
 		docs: {
 			description: {
 				story:
-					'Demonstrates the donut chart composition API, allowing flexible combination of chart elements and legends.',
+					'Composition API using `<PieChart.Legend />` as a child component for explicit legend placement and configuration. This is the recommended approach for flexible legend positioning.',
 			},
 		},
 	},
 };
 
-export const InteractiveLegend: Story = {
-	render: args => (
-		<GlobalChartsProvider>
-			<PieChartUnresponsive
-				chartId="interactive-donut-chart"
-				size={ args.size }
-				data={ args.data }
-				thickness={ 0.5 }
-				showLegend={ true }
-				legend={ extractLegendConfig( args ) }
-				legendValueDisplay={ args.legendValueDisplay }
-			>
-				<Group>
-					<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 16 } y={ -8 }>
-						User Stats
-					</Text>
-					<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 14 } y={ 12 } fill="#666">
-						100K Total
-					</Text>
-				</Group>
-				<p style={ { color: '#666' } }>
-					Click legend items to show/hide segments. The total value updates dynamically.
-				</p>
-			</PieChartUnresponsive>
-		</GlobalChartsProvider>
-	),
-	args: {
-		data,
-		thickness: 0.5,
-		legendInteractive: true,
-	},
-	parameters: {
-		docs: {
-			description: {
-				story:
-					'Interactive donut chart with clickable legend. Segments can be hidden/shown, and percentages recalculate automatically. Requires chartId and GlobalChartsProvider.',
-			},
-		},
-	},
-};
-
-export const CustomLegendPositioning: Story = {
-	args: {
-		...Default.args,
-		thickness: 0.4,
-		showLegend: true,
-		legendOrientation: 'vertical',
-		legendAlignment: 'start',
-		legendPosition: 'top',
-		containerHeight: '450px',
-		data: [
-			{
-				label: 'Desktop',
-				value: 45000,
-				valueDisplay: '45K',
-				percentage: 45,
-			},
-			{
-				label: 'Mobile',
-				value: 35000,
-				valueDisplay: '35K',
-				percentage: 35,
-			},
-			{
-				label: 'Tablet',
-				value: 20000,
-				valueDisplay: '20K',
-				percentage: 20,
-			},
-		],
-		children: (
-			<Group>
-				<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 18 } y={ -8 }>
-					Distribution
-				</Text>
-			</Group>
-		),
-	},
-	parameters: {
-		docs: {
-			description: {
-				story: 'Donut chart with vertical legend positioned at the top left.',
-			},
-		},
-	},
-};
-
-const CustomPieLegend = ( {
-	chartItems,
-	items,
-	withComparison,
-}: {
-	chartItems: BaseLegendItem[];
-	items: { label: string; value: number; formattedValue: string; comparison: string }[];
-	withComparison: boolean;
-} ) => (
-	<div
-		style={ {
-			display: 'inline-grid',
-			gridTemplateColumns: '1fr auto auto',
-			gap: 'var(--wpds-dimension-gap-xs, 4px) var(--wpds-dimension-gap-sm, 8px)',
-		} }
-	>
-		{ items.map( ( item, index ) => {
-			const { color } = chartItems[ index ];
-
-			return (
-				<Fragment key={ index }>
-					<HStack direction="row" justify="flex-start" spacing={ 2 }>
-						<div
-							style={ {
-								width: '8px',
-								height: '8px',
-								borderRadius: '50%',
-								flexShrink: 0,
-								backgroundColor: color,
-							} }
-						/>
-						<WPText size="small">{ item.label }</WPText>
-					</HStack>
-					<WPText size="small" weight={ 600 } style={ { textAlign: 'right' } }>
-						{ item.formattedValue }
-					</WPText>
-					<WPText size="small" style={ { textAlign: 'right', color: '#008a20' } }>
-						{ withComparison && item.comparison }
-					</WPText>
-				</Fragment>
-			);
-		} ) }
-	</div>
-);
-
-export const CustomLegend: Story = {
-	render: args => (
-		<PieChartUnresponsive { ...args }>
-			<PieChartUnresponsive.Legend
-				// eslint-disable-next-line react/jsx-no-bind
-				render={ items => (
-					<CustomPieLegend
-						chartItems={ items }
-						items={ customerRevenueLegendData }
-						withComparison={ args.withComparison }
-					/>
-				) }
-			/>
-		</PieChartUnresponsive>
-	),
-	args: {
-		...Default.args,
-		data: customerRevenueData,
-		showLabels: false,
-		thickness: 0.3,
-		cornerScale: 0.03,
-		gapScale: 0.01,
-		size: 164,
-		withComparison: true,
-		withTooltips: false,
-		containerHeight: '300px',
-	},
-	parameters: {
-		docs: {
-			description: {
-				story: 'Demonstrates how to customize the legend using the render prop.',
-			},
-		},
-	},
-};

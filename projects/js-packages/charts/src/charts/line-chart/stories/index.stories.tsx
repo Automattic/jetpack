@@ -141,38 +141,17 @@ Animation.args = {
 	animation: true,
 };
 
-export const WithInteractiveLegend: StoryObj< typeof LineChart > = Template.bind( {} );
-WithInteractiveLegend.args = {
+export const WithLegend: StoryObj< typeof LineChart > = Template.bind( {} );
+WithLegend.args = {
 	...lineChartStoryArgs,
-	chartId: 'interactive-legend-demo',
 	showLegend: true,
-	legendInteractive: true,
 };
 
-WithInteractiveLegend.parameters = {
+WithLegend.parameters = {
 	docs: {
 		description: {
 			story:
-				'Line chart with interactive legend. Click or tap legend items to toggle series visibility. Use Tab to focus legend items, then Enter or Space to toggle. Series colors remain stable when toggling visibility.',
-		},
-	},
-};
-
-export const CustomLegendPositioning: StoryObj< typeof LineChart > = Template.bind( {} );
-CustomLegendPositioning.args = {
-	...lineChartStoryArgs,
-	showLegend: true,
-	legendAlignment: 'start',
-	legendPosition: 'top',
-	legendOrientation: 'horizontal',
-	withLegendGlyph: true,
-};
-
-CustomLegendPositioning.parameters = {
-	docs: {
-		description: {
-			story:
-				'Line chart with top-left positioned horizontal legend. This demonstrates non-default legend positioning to showcase different legend placement possibilities with temperature data for London, Canberra, and Mars.',
+				'Props-based legend using `showLegend` and the `legend` config object. Use Storybook controls to adjust legend position, alignment, orientation, shape, and interactivity.',
 		},
 	},
 };
@@ -190,7 +169,8 @@ export const WithCompositionLegend: StoryObj< typeof LineChart > = {
 	parameters: {
 		docs: {
 			description: {
-				story: 'Legend used with LineChart using the composition API, positioned below the chart.',
+				story:
+					'Composition API using `<LineChart.Legend />` as a child component for explicit legend placement and configuration. This is the recommended approach for flexible legend positioning.',
 			},
 		},
 	},

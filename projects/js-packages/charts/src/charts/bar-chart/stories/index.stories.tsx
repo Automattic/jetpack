@@ -238,18 +238,16 @@ SmartFormatting.parameters = {
 	},
 };
 
-export const WithInteractiveLegend: Story = {
+export const WithLegend: Story = {
 	args: {
 		...Default.args,
 		showLegend: true,
-		legendInteractive: true,
-		chartId: 'bar-chart-with-interactive-legend',
 	},
 	parameters: {
 		docs: {
 			description: {
 				story:
-					'Bar chart with interactive legend. Click on legend items to toggle series visibility. When all series are hidden, a message will be displayed prompting you to click legend items to show data again.',
+					'Props-based legend using `showLegend` and the `legend` config object. Use Storybook controls to adjust legend position, alignment, orientation, shape, and interactivity.',
 			},
 		},
 	},
@@ -269,32 +267,7 @@ export const WithCompositionLegend: StoryObj< typeof BarChart > = {
 		docs: {
 			description: {
 				story:
-					'Demonstrates using the composition API with `<BarChart.Legend />` as a child component. This provides the same functionality as the `showLegend` prop but allows for more flexible composition patterns.',
-			},
-		},
-	},
-};
-
-// Story showcasing legend customization controls
-export const CustomLegendPositioning: Story = {
-	args: {
-		withTooltips: true,
-		data: medalCountsData.slice( 0, 3 ), // Use first 3 series for cleaner legend
-		gridVisibility: 'x',
-		maxWidth: 1200,
-		resizeDebounceTime: 300,
-		containerHeight: '400px',
-		// showLegend defaults to false, explicitly enabling for demonstration
-		showLegend: true,
-		legendOrientation: 'vertical',
-		legendAlignment: 'start',
-		legendPosition: 'top',
-	},
-	parameters: {
-		docs: {
-			description: {
-				story:
-					'Bar chart with top-left positioned vertical legend. This demonstrates non-default legend positioning to showcase different legend placement possibilities.',
+					'Composition API using `<BarChart.Legend />` as a child component for explicit legend placement and configuration. This is the recommended approach for flexible legend positioning.',
 			},
 		},
 	},
