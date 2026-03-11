@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback } from 'react';
 import { SupportedService, useSupportedServices } from './use-supported-services';
 
 export interface GetService {
@@ -8,8 +8,6 @@ export interface GetService {
 	( service_name: string ): SupportedService;
 }
 
-export type SupportedServicesMap = Record< string, SupportedService >;
-
 /**
  * Returns the service object for a service name.
  *
@@ -18,17 +16,10 @@ export type SupportedServicesMap = Record< string, SupportedService >;
 export function useService() {
 	const supportedServices = useSupportedServices();
 
-	const servicesMap = useMemo( () => {
-		return supportedServices.reduce< SupportedServicesMap >( ( acc, service ) => {
-			acc[ service.id ] = service;
-			return acc;
-		}, {} );
-	}, [ supportedServices ] );
-
 	return useCallback< GetService >(
 		service_name => {
-			return servicesMap[ service_name ];
+			return supportedServices.find( service => service.id === service_name );
 		},
-		[ servicesMap ]
+		[ supportedServices ]
 	);
 }
