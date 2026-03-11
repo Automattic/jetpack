@@ -228,6 +228,7 @@ export const WithCompositionLegend: Story = {
 				data={ args.data }
 				thickness={ 0.5 }
 				legendValueDisplay={ args.legendValueDisplay }
+				chartId="composition-donut-chart"
 			>
 				<Group>
 					<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 16 } y={ -8 }>
@@ -244,11 +245,6 @@ export const WithCompositionLegend: Story = {
 	args: {
 		data,
 		thickness: 0.5,
-	},
-	argTypes: {
-		legendInteractive: {
-			table: { disable: true },
-		},
 	},
 	parameters: {
 		docs: {

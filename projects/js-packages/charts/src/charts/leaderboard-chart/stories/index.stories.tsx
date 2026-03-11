@@ -403,7 +403,7 @@ export const WithCompositionLegend: Story = {
 	render: args => {
 		const legend = extractLegendConfig( args );
 		return (
-			<LeaderboardChart { ...args }>
+			<LeaderboardChart { ...args } chartId="composition-leaderboard-chart">
 				<LeaderboardChart.Legend
 					{ ...legend }
 					shapeStyles={ { width: 8, height: 8, ...legend?.shapeStyles } }

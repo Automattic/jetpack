@@ -25,7 +25,7 @@ Main component for rendering pie and donut charts.
 | `renderTooltip` | `(params: PieChartRenderTooltipParams) => ReactNode` | - | Custom tooltip render function |
 | `animation` | `boolean` | `false` | Enable entry animation on initial render. Creates a radial wipe reveal effect. Automatically respects user's `prefers-reduced-motion` system setting |
 | `showLegend` | `boolean` | `false` | Display chart legend |
-| `legend` | `ChartLegendConfig` | `undefined` | Legend configuration object. See [ChartLegendConfig](#chartlegendconfig-type). When `interactive` is enabled, requires `chartId` and `GlobalChartsProvider`. When segments are hidden, percentages recalculate so visible segments total 100%. **Note:** Interactive legends only work with props-based legends (`showLegend={true}`), not with composition API (`<PieChart.Legend />`) |
+| `legend` | `ChartLegendConfig` | `undefined` | Legend configuration object. See [ChartLegendConfig](#chartlegendconfig-type). When `interactive` is enabled, requires `chartId` and `GlobalChartsProvider`. When segments are hidden, percentages recalculate so visible segments total 100%. |
 | `children` | `ReactNode` | - | Optional content to render inside chart center (useful for donut charts) |
 | `className` | `string` | - | Additional CSS class names |
 | `chartId` | `string` | - | Custom chart identifier for accessibility |

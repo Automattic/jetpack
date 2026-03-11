@@ -264,15 +264,11 @@ export const WithCompositionLegend: StoryObj< typeof BarChart > = {
 				data={ args.data || [ medalCountsData[ 0 ], medalCountsData[ 1 ], medalCountsData[ 2 ] ] }
 				withTooltips={ true }
 				gridVisibility="x"
+				chartId="composition-bar-chart"
 			>
 				<BarChart.Legend { ...legend } />
 			</BarChart>
 		);
-	},
-	argTypes: {
-		legendInteractive: {
-			table: { disable: true },
-		},
 	},
 	parameters: {
 		docs: {

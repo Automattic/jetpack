@@ -186,18 +186,18 @@ export const WithCompositionLegend: Story = {
 	render: args => {
 		const legend = extractLegendConfig( args );
 		return (
-			<PieChart size={ 300 } data={ args.data } legendValueDisplay={ args.legendValueDisplay }>
+			<PieChart
+				size={ 300 }
+				data={ args.data }
+				legendValueDisplay={ args.legendValueDisplay }
+				chartId="composition-pie-chart"
+			>
 				<PieChart.Legend { ...legend } />
 			</PieChart>
 		);
 	},
 	args: {
 		data,
-	},
-	argTypes: {
-		legendInteractive: {
-			table: { disable: true },
-		},
 	},
 	parameters: {
 		docs: {
@@ -355,11 +355,6 @@ export const CompositionAPI: Story = {
 		data,
 		containerHeight: '700px',
 		containerWidth: '600px',
-	},
-	argTypes: {
-		legendInteractive: {
-			table: { disable: true },
-		},
 	},
 	parameters: {
 		docs: {
