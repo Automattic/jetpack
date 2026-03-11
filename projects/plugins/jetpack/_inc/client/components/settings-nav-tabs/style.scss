@@ -56,6 +56,11 @@ $spacing-base: var(--spacing-base, 8px);
 		color: var(--jp-green);
 	}
 
+	&:focus-visible {
+		outline: 2px solid var(--jp-green);
+		outline-offset: -2px;
+	}
+
 	&--active {
 		border-bottom: var(--jp-underline-thickness) solid var(--jp-black);
 	}
