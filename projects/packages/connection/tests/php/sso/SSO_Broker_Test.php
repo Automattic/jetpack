@@ -21,6 +21,7 @@ class SSO_Broker_Test extends BaseTestCase {
 	 */
 	public function tear_down() {
 		delete_transient( SSO::BROKER_URL_TRANSIENT );
+		delete_transient( SSO::BROKER_AUTH_URL_TRANSIENT );
 		Constants::clear_constants();
 		parent::tear_down();
 	}
@@ -76,6 +77,51 @@ class SSO_Broker_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Test get_broker_auth_url returns false when no transient is set.
+	 */
+	public function test_get_broker_auth_url_returns_false_when_no_transient() {
+		$this->assertFalse( SSO::get_broker_auth_url() );
+	}
+
+	/**
+	 * Test get_broker_auth_url returns the URL when a valid HTTPS transient is set.
+	 */
+	public function test_get_broker_auth_url_returns_url_when_valid_https_transient() {
+		set_transient( SSO::BROKER_AUTH_URL_TRANSIENT, 'https://my.woo.ai/authorize', 600 );
+		$this->assertSame( 'https://my.woo.ai/authorize', SSO::get_broker_auth_url() );
+	}
+
+	/**
+	 * Test get_broker_auth_url rejects and deletes a non-HTTPS transient.
+	 */
+	public function test_get_broker_auth_url_rejects_http_url() {
+		set_transient( SSO::BROKER_AUTH_URL_TRANSIENT, 'http://my.woo.ai/authorize', 600 );
+		$this->assertFalse( SSO::get_broker_auth_url() );
+		$this->assertFalse( get_transient( SSO::BROKER_AUTH_URL_TRANSIENT ) );
+	}
+
+	/**
+	 * Test get_broker_auth_url rejects a non-string transient value.
+	 */
+	public function test_get_broker_auth_url_rejects_non_string_transient() {
+		set_transient( SSO::BROKER_AUTH_URL_TRANSIENT, array( 'not' => 'a string' ), 600 );
+		$this->assertFalse( SSO::get_broker_auth_url() );
+	}
+
+	/**
+	 * Test broker_url and broker_auth_url are independent.
+	 */
+	public function test_broker_urls_are_independent() {
+		set_transient( SSO::BROKER_URL_TRANSIENT, 'https://my.woo.ai/sso', 600 );
+		$this->assertSame( 'https://my.woo.ai/sso', SSO::get_broker_url() );
+		$this->assertFalse( SSO::get_broker_auth_url() );
+
+		set_transient( SSO::BROKER_AUTH_URL_TRANSIENT, 'https://my.woo.ai/authorize', 600 );
+		$this->assertSame( 'https://my.woo.ai/sso', SSO::get_broker_url() );
+		$this->assertSame( 'https://my.woo.ai/authorize', SSO::get_broker_auth_url() );
+	}
+
+	/**
 	 * Test get_sso_base_url returns wordpress.com when no broker is set.
 	 */
 	public function test_get_sso_base_url_defaults_to_wpcom() {
@@ -107,6 +153,30 @@ class SSO_Broker_Test extends BaseTestCase {
 
 		$hosts = Helpers::allowed_redirect_hosts( array() );
 		$this->assertContains( 'my.woo.ai', $hosts );
+	}
+
+	/**
+	 * Test allowed_redirect_hosts includes broker auth host when set.
+	 */
+	public function test_allowed_redirect_hosts_includes_broker_auth_host() {
+		set_transient( SSO::BROKER_AUTH_URL_TRANSIENT, 'https://auth.woo.ai/authorize', 600 );
+		Constants::set_constant( 'JETPACK__API_BASE', 'https://jetpack.wordpress.com/jetpack.' );
+
+		$hosts = Helpers::allowed_redirect_hosts( array() );
+		$this->assertContains( 'auth.woo.ai', $hosts );
+	}
+
+	/**
+	 * Test allowed_redirect_hosts includes both broker hosts when they differ.
+	 */
+	public function test_allowed_redirect_hosts_includes_both_broker_hosts() {
+		set_transient( SSO::BROKER_URL_TRANSIENT, 'https://my.woo.ai/sso', 600 );
+		set_transient( SSO::BROKER_AUTH_URL_TRANSIENT, 'https://auth.woo.ai/authorize', 600 );
+		Constants::set_constant( 'JETPACK__API_BASE', 'https://jetpack.wordpress.com/jetpack.' );
+
+		$hosts = Helpers::allowed_redirect_hosts( array() );
+		$this->assertContains( 'my.woo.ai', $hosts );
+		$this->assertContains( 'auth.woo.ai', $hosts );
 	}
 
 	/**
@@ -145,20 +215,24 @@ class SSO_Broker_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test disconnect clears the broker URL transient.
+	 * Test disconnect clears both broker transients.
 	 */
-	public function test_disconnect_clears_broker_transient() {
+	public function test_disconnect_clears_broker_transients() {
 		set_transient( SSO::BROKER_URL_TRANSIENT, 'https://my.woo.ai/sso', 600 );
+		set_transient( SSO::BROKER_AUTH_URL_TRANSIENT, 'https://my.woo.ai/authorize', 600 );
 		$this->assertNotFalse( get_transient( SSO::BROKER_URL_TRANSIENT ) );
+		$this->assertNotFalse( get_transient( SSO::BROKER_AUTH_URL_TRANSIENT ) );
 
 		SSO::disconnect();
 		$this->assertFalse( get_transient( SSO::BROKER_URL_TRANSIENT ) );
+		$this->assertFalse( get_transient( SSO::BROKER_AUTH_URL_TRANSIENT ) );
 	}
 
 	/**
-	 * Test the BROKER_URL_TRANSIENT constant value is stable.
+	 * Test the broker transient constant values are stable.
 	 */
-	public function test_broker_url_transient_constant_value() {
+	public function test_broker_transient_constant_values() {
 		$this->assertSame( 'jetpack_sso_broker_url', SSO::BROKER_URL_TRANSIENT );
+		$this->assertSame( 'jetpack_sso_broker_auth_url', SSO::BROKER_AUTH_URL_TRANSIENT );
 	}
 }
