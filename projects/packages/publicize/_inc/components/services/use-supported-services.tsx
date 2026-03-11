@@ -145,7 +145,6 @@ export function useSupportedServices(): Array< SupportedService > {
 			...availableServices.bluesky,
 			needsCustomInputs: true,
 			icon: props => <SocialServiceIcon serviceName="bluesky" { ...props } />,
-			badges: [ badgeNew ],
 			description: __( 'Share with your network.', 'jetpack-publicize-pkg' ),
 			examples: [
 				() => (
