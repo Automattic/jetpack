@@ -32,11 +32,7 @@ const BoostAdminPage = ( {
 			title={
 				breadcrumbs ? undefined : 'Boost' /** "Boost" is a product name, do not translate. */
 			}
-			subTitle={
-				breadcrumbs
-					? undefined
-					: __( 'Optimize your site performance and loading speed.', 'jetpack-boost' )
-			}
+			subTitle={ __( 'Optimize your site performance and loading speed.', 'jetpack-boost' ) }
 			breadcrumbs={ breadcrumbs }
 			actions={ licenseAction }
 			showFooter={ false }
