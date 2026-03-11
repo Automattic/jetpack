@@ -145,13 +145,28 @@ export function useSupportedServices(): Array< SupportedService > {
 			...availableServices.bluesky,
 			needsCustomInputs: true,
 			icon: props => <SocialServiceIcon serviceName="bluesky" { ...props } />,
-			badges: [ badgeNew ],
 			description: __( 'Share with your network.', 'jetpack-publicize-pkg' ),
 			examples: [
 				() => (
 					<>
 						{ __(
 							'To share to Bluesky please enter your Bluesky handle and app password below, then click connect.',
+							'jetpack-publicize-pkg'
+						) }
+					</>
+				),
+			],
+		},
+		{
+			...availableServices.x,
+			icon: props => <SocialServiceIcon serviceName="x" { ...props } />,
+			badges: [ badgeNew ],
+			description: __( 'Share posts to X.', 'jetpack-publicize-pkg' ),
+			examples: [
+				() => (
+					<>
+						{ __(
+							'Reach your audience by automatically sharing your posts to X when you publish.',
 							'jetpack-publicize-pkg'
 						) }
 					</>
