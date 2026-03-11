@@ -23,10 +23,10 @@ $spacing-base: var(--spacing-base, 8px);
 	// positions relative to the padding edge (ignoring padding). Offset it to
 	// stay within the padded content area.
 	.dops-search.is-expanded-to-container {
-		right: calc(#{$spacing-base} * 3);
+		inset-inline-end: calc(#{$spacing-base} * 3);
 
 		&.is-open {
-			left: calc(#{$spacing-base} * 3);
+			inset-inline-start: calc(#{$spacing-base} * 3);
 			width: auto;
 		}
 	}
