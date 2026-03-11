@@ -5,9 +5,9 @@ import { __, _x } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { store } from '../../social-store';
 import { KeyringResult } from '../../social-store/types';
-import { SupportedService } from '../services/use-supported-services';
 import { CustomInputs } from './custom-inputs';
 import styles from './style.module.scss';
+import { SupportedService } from './types';
 import { useRequestAccess } from './use-request-access';
 import type { FormEvent } from 'react';
 

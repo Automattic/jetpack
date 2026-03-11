@@ -1,5 +1,6 @@
 import { useCallback } from 'react';
-import { SupportedService, useSupportedServices } from './use-supported-services';
+import { SupportedService } from './types';
+import { useSupportedServices } from './use-supported-services';
 
 export interface GetService {
 	/**
@@ -11,7 +12,7 @@ export interface GetService {
 /**
  * Returns the service object for a service name.
  *
- * @return {GetService} - The service object.
+ * @return - The service object.
  */
 export function useService() {
 	const supportedServices = useSupportedServices();
