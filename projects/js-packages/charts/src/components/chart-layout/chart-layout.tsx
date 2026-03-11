@@ -8,7 +8,7 @@ import type { LegendPosition } from '../../types';
 import type { GapSize } from '@wordpress/theme';
 import type { CSSProperties, ReactNode } from 'react';
 
-interface ChartLayoutProps {
+export interface ChartLayoutProps {
 	/** Position for the prop-based legend element */
 	legendPosition: LegendPosition;
 	/** The legend element rendered via the showLegend prop (false when hidden) */
