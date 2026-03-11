@@ -59,13 +59,25 @@ export function useLinkPreviewPostData(): LinkPreviewData {
 		return imageUrl;
 	}, [] );
 
-	const siteTitle = useSelect( select => {
+	const { siteTitle, siteIcon } = useSelect( select => {
 		const site = select( coreStore ).getSite(
 			// The id param is optional
 			undefined
 		);
 
-		return site?.title || '';
+		const { getEntityRecord } = select( coreStore );
+
+		const siteIconId = site?.site_icon;
+		let siteIconUrl = '';
+
+		if ( siteIconId ) {
+			siteIconUrl = getMediaSourceUrl( getEntityRecord( 'postType', 'attachment', siteIconId ) );
+		}
+
+		return {
+			siteTitle: site?.title || '',
+			siteIcon: siteIconUrl,
+		};
 	}, [] );
 
 	const title = useSelect( select => {
@@ -86,9 +98,10 @@ export function useLinkPreviewPostData(): LinkPreviewData {
 		return {
 			description: decodeEntities( description ),
 			image,
+			siteIcon,
 			siteTitle: decodeEntities( siteTitle ),
 			title: decodeEntities( title ),
 			url,
 		};
-	}, [ description, image, siteTitle, title, url ] );
+	}, [ description, image, siteIcon, siteTitle, title, url ] );
 }
