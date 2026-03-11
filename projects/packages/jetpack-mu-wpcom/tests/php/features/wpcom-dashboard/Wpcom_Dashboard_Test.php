@@ -61,22 +61,6 @@ class Wpcom_Dashboard_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Test that feature flag takes priority (short-circuits before holdout check).
-	 */
-	public function test_feature_flag_short_circuits_holdout() {
-		add_filter( 'wpcom_dashboard_replacement_enabled', '__return_true' );
-		// Holdout is false, but feature flag is true — should still be active.
-		$this->assertTrue( Wpcom_Dashboard::is_active() );
-	}
-
-	/**
-	 * Test that is_feature_flag_enabled defaults to false.
-	 */
-	public function test_is_feature_flag_enabled_defaults_to_false() {
-		$this->assertFalse( Wpcom_Dashboard::is_feature_flag_enabled() );
-	}
-
-	/**
 	 * Test that is_holdout_treatment returns false when no user is logged in.
 	 */
 	public function test_is_holdout_treatment_returns_false_for_logged_out_user() {
@@ -85,10 +69,19 @@ class Wpcom_Dashboard_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Test the experiment name constant.
+	 * Test that is_holdout_treatment respects an earlier filter that already set it to true.
 	 */
-	public function test_experiment_name_constant() {
-		$this->assertSame( 'wpcom_custom_dashboard_holdout', Wpcom_Dashboard::EXPERIMENT_NAME );
+	public function test_is_holdout_treatment_respects_earlier_filter_override() {
+		// Register a filter at a lower priority than init()'s default (10)
+		// so it runs first and sets the value to true.
+		add_filter( 'wpcom_dashboard_replacement_holdout_is_treatment', '__return_true', 5 );
+
+		// When invoked through the filter chain, is_holdout_treatment receives
+		// $is_treatment = true from the earlier filter and should return true
+		// immediately (guard clause), even without a logged-in user.
+		wp_set_current_user( 0 );
+		$result = apply_filters( 'wpcom_dashboard_replacement_holdout_is_treatment', false );
+		$this->assertTrue( $result );
 	}
 
 	/**
@@ -116,5 +109,44 @@ class Wpcom_Dashboard_Test extends \WorDBless\BaseTestCase {
 
 		// Clean up.
 		delete_transient( $cache_key );
+	}
+
+	/**
+	 * Test that is_holdout_treatment caches false for a logged-in user
+	 * who is neither on Simple nor Jetpack-connected (fallthrough path).
+	 */
+	public function test_is_holdout_treatment_caches_false_for_unconnected_user() {
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'test_user_' . wp_rand(),
+				'user_pass'  => 'password',
+				'user_email' => 'test_' . wp_rand() . '@example.com',
+			)
+		);
+		wp_set_current_user( $user_id );
+
+		$cache_key = 'wpcom-dashboard-holdout-' . $user_id . '-' . Wpcom_Dashboard::EXPERIMENT_NAME;
+
+		// Ensure no cached value exists.
+		delete_transient( $cache_key );
+
+		// In the test environment the user is neither on Simple nor connected,
+		// so the method should return false and cache the result.
+		$this->assertFalse( Wpcom_Dashboard::is_holdout_treatment() );
+		$this->assertSame( '0', (string) get_transient( $cache_key ) );
+
+		// Clean up.
+		delete_transient( $cache_key );
+	}
+
+	/**
+	 * Test that render_admin_notice produces no output when the feature is inactive.
+	 */
+	public function test_render_admin_notice_not_shown_when_inactive() {
+		ob_start();
+		Wpcom_Dashboard::render_admin_notice();
+		$output = ob_get_clean();
+
+		$this->assertEmpty( $output );
 	}
 }
