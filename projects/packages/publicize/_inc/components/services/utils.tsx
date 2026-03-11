@@ -10,6 +10,7 @@ import connectionsLinkedin from '../../assets/connections-linkedin.webp';
 import connectionsNextdoor from '../../assets/connections-nextdoor.webp';
 import connectionsThreads from '../../assets/connections-threads.webp';
 import connectionsTumblr from '../../assets/connections-tumblr.webp';
+import { ConnectionService } from '../../types';
 import { ServiceUiDetails } from './types';
 
 /**
@@ -19,7 +20,7 @@ import { ServiceUiDetails } from './types';
  *
  * @return The UI details for the service.
  */
-export function getServiceUiDetails( id: string ): ServiceUiDetails {
+export function getServiceUiDetails( id: ConnectionService[ 'id' ] ): ServiceUiDetails {
 	const badgeNew = <Badge intent="info">{ __( 'New', 'jetpack-publicize-pkg' ) }</Badge>;
 
 	switch ( id ) {

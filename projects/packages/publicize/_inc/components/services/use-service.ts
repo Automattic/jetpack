@@ -1,12 +1,13 @@
 import { useCallback } from 'react';
+import { ConnectionService } from '../../types';
 import { SupportedService } from './types';
 import { useSupportedServices } from './use-supported-services';
 
 export interface GetService {
 	/**
-	 * @param {string} service_name - The name of the service.
+	 * @param service_name - The name of the service.
 	 */
-	( service_name: string ): SupportedService;
+	( service_name: ConnectionService[ 'id' ] ): SupportedService;
 }
 
 /**
