@@ -17,6 +17,18 @@ const NOOP_RESULT: ProviderCreatorResult = {
 	on: () => {},
 };
 
+/** Tear down every wrapped provider once the room limit is breached. */
+export function triggerRoomLimitBreach(): void {
+	if ( breached ) {
+		return;
+	}
+	breached = true;
+	for ( const fn of teardowns ) {
+		fn();
+	}
+	teardowns.length = 0;
+}
+
 /**
  * Count unique WordPress user IDs in the room, excluding the local user.
  *
