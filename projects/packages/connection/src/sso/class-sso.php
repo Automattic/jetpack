@@ -724,9 +724,6 @@ class SSO {
 				true
 			);
 		}
-
-		delete_transient( self::BROKER_URL_TRANSIENT );
-		delete_transient( self::BROKER_AUTH_URL_TRANSIENT );
 	}
 
 	/**
@@ -815,7 +812,7 @@ class SSO {
 	 * @param string $url           The URL to validate and store.
 	 */
 	private static function store_broker_url_from_response( $transient_key, $url ) {
-		if ( empty( $url ) ) {
+		if ( empty( $url ) || ! is_string( $url ) ) {
 			delete_transient( $transient_key );
 			return;
 		}
