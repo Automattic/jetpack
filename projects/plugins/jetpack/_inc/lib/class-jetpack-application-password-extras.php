@@ -46,7 +46,7 @@ class Jetpack_Application_Password_Extras {
 		}
 
 		// Allow Application Password access to admin-ajax.php for VideoPress actions only
-		if ( is_admin() && wp_doing_ajax() && self::is_videopress_ajax_action() ) {
+		if ( is_admin() && wp_doing_ajax() && self::is_ajax_action_allowed() ) {
 			return true;
 		}
 
@@ -54,11 +54,11 @@ class Jetpack_Application_Password_Extras {
 	}
 
 	/**
-	 * Check if the current AJAX request is for a VideoPress action.
+	 * Check if the current AJAX action is allowed for Application Password authentication.
 	 *
-	 * @return bool True if the action starts with 'videopress-', false otherwise.
+	 * @return bool True if the action is allowed, false otherwise.
 	 */
-	private static function is_videopress_ajax_action() {
+	private static function is_ajax_action_allowed() {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- We're only checking the action name, not processing the request.
 		$action = isset( $_REQUEST['action'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['action'] ) ) : '';
 
