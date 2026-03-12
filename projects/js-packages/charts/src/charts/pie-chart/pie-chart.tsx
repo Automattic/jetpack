@@ -294,8 +294,9 @@ const PieChartInternal = ( {
 	);
 
 	return (
-		<ChartLayout
-			ref={ containerRef }
+		<SingleChartContext.Provider value={ { chartId, chartWidth: 0, chartHeight: 0 } }>
+			<ChartLayout
+				ref={ containerRef }
 				legendPosition={ legendPosition }
 				legendElement={ legendElement }
 				legendChildren={ legendChildren }
@@ -354,171 +355,144 @@ const PieChartInternal = ( {
 						>
 							<div className={ styles[ 'pie-chart__svg-wrapper' ] } ref={ measureRef }>
 								<svg
-								viewBox={ `0 0 ${ width } ${ height }` }
-								preserveAspectRatio="xMidYMid meet"
-								width={ width }
-								height={ height }
-							>
-								<defs>
-									<RadialWipeAnimation
-										id={ `radial-wipe-${ chartId }` }
-										radius={ outerRadius }
-										innerRadius={ innerRadius }
-									/>
-								</defs>
-
-								<Group
-									top={ centerY }
-									left={ centerX }
-									mask={
-										animation && ! prefersReducedMotion
-											? `url(#radial-wipe-${ chartId })`
-											: null
-									}
+									viewBox={ `0 0 ${ width } ${ height }` }
+									preserveAspectRatio="xMidYMid meet"
+									width={ width }
+									height={ height }
 								>
-									{ allSegmentsHidden ? (
-										<text
-											textAnchor="middle"
-											dy=".33em"
-											fill={ providerTheme.gridColor || '#ccc' }
-											fontSize="14"
-											fontFamily="-apple-system,BlinkMacSystemFont,Roboto,Helvetica Neue,sans-serif"
-										>
-											{ __(
-												'All segments are hidden. Click legend items to show data.',
-												'jetpack-charts'
-											) }
-										</text>
-									) : (
-										<Pie< DataPointPercentage & { index: number } >
-											data={ dataWithIndex }
-											pieValue={ accessors.value }
-											outerRadius={ outerRadius }
+									<defs>
+										<RadialWipeAnimation
+											id={ `radial-wipe-${ chartId }` }
+											radius={ outerRadius }
 											innerRadius={ innerRadius }
-											padAngle={ padAngle }
-											cornerRadius={ cornerRadius }
-										>
-											{ pie => {
-												return pie.arcs.map( ( arc, index ) => {
-													const [ centroidX, centroidY ] = pie.path.centroid( arc );
-													const hasSpaceForLabel =
-														arc.endAngle - arc.startAngle >= 0.25;
-													const handleMouseMove = (
-														event: MouseEvent< SVGElement >
-													) => {
-														if ( ! withTooltips ) {
-															return;
+										/>
+									</defs>
+
+									<Group
+										top={ centerY }
+										left={ centerX }
+										mask={
+											animation && ! prefersReducedMotion ? `url(#radial-wipe-${ chartId })` : null
+										}
+									>
+										{ allSegmentsHidden ? (
+											<text
+												textAnchor="middle"
+												dy=".33em"
+												fill={ providerTheme.gridColor || '#ccc' }
+												fontSize="14"
+												fontFamily="-apple-system,BlinkMacSystemFont,Roboto,Helvetica Neue,sans-serif"
+											>
+												{ __(
+													'All segments are hidden. Click legend items to show data.',
+													'jetpack-charts'
+												) }
+											</text>
+										) : (
+											<Pie< DataPointPercentage & { index: number } >
+												data={ dataWithIndex }
+												pieValue={ accessors.value }
+												outerRadius={ outerRadius }
+												innerRadius={ innerRadius }
+												padAngle={ padAngle }
+												cornerRadius={ cornerRadius }
+											>
+												{ pie => {
+													return pie.arcs.map( ( arc, index ) => {
+														const [ centroidX, centroidY ] = pie.path.centroid( arc );
+														const hasSpaceForLabel = arc.endAngle - arc.startAngle >= 0.25;
+														const handleMouseMove = ( event: MouseEvent< SVGElement > ) => {
+															if ( ! withTooltips ) {
+																return;
+															}
+
+															// Don't show tooltip until container bounds are measured
+															if ( containerBounds.width === 0 || containerBounds.height === 0 ) {
+																return;
+															}
+
+															// Use clientX/Y and subtract containerBounds to cancel out any stale offset.
+															// TooltipInPortal calculates: tooltipLeft + containerBounds.left + scrollX
+															// By passing (clientX - containerBounds.left), we get:
+															// (clientX - containerBounds.left) + containerBounds.left + scrollX = clientX + scrollX
+															// This gives correct page coordinates regardless of stale bounds.
+															showTooltip( {
+																tooltipData: arc.data,
+																tooltipLeft: event.clientX - containerBounds.left + tooltipOffsetX,
+																tooltipTop: event.clientY - containerBounds.top + tooltipOffsetY,
+															} );
+														};
+
+														const pathProps: SVGProps< SVGPathElement > & {
+															'data-testid'?: string;
+														} = {
+															d: pie.path( arc ) || '',
+															fill: accessors.fill( arc.data ),
+															'data-testid': 'pie-segment',
+														};
+
+														const groupProps: SVGProps< SVGGElement > = {};
+														if ( withTooltips ) {
+															groupProps.onMouseMove = handleMouseMove;
+															groupProps.onMouseLeave = onMouseLeave;
 														}
 
-														// Don't show tooltip until container bounds are measured
-														if (
-															containerBounds.width === 0 ||
-															containerBounds.height === 0
-														) {
-															return;
-														}
-
-														// Use clientX/Y and subtract containerBounds to cancel out any stale offset.
-														// TooltipInPortal calculates: tooltipLeft + containerBounds.left + scrollX
-														// By passing (clientX - containerBounds.left), we get:
-														// (clientX - containerBounds.left) + containerBounds.left + scrollX = clientX + scrollX
-														// This gives correct page coordinates regardless of stale bounds.
-														showTooltip( {
-															tooltipData: arc.data,
-															tooltipLeft:
-																event.clientX -
-																containerBounds.left +
-																tooltipOffsetX,
-															tooltipTop:
-																event.clientY -
-																containerBounds.top +
-																tooltipOffsetY,
+														// Estimate text width more accurately for background sizing
+														const fontSize = 12;
+														const estimatedTextWidth = getStringWidth( arc.data.label, {
+															fontSize,
 														} );
-													};
+														const labelPadding = 6;
+														const backgroundWidth = estimatedTextWidth + labelPadding * 2;
+														const backgroundHeight = fontSize + labelPadding * 2;
 
-													const pathProps: SVGProps< SVGPathElement > & {
-														'data-testid'?: string;
-													} = {
-														d: pie.path( arc ) || '',
-														fill: accessors.fill( arc.data ),
-														'data-testid': 'pie-segment',
-													};
-
-													const groupProps: SVGProps< SVGGElement > = {};
-													if ( withTooltips ) {
-														groupProps.onMouseMove = handleMouseMove;
-														groupProps.onMouseLeave = onMouseLeave;
-													}
-
-													// Estimate text width more accurately for background sizing
-													const fontSize = 12;
-													const estimatedTextWidth = getStringWidth(
-														arc.data.label,
-														{ fontSize }
-													);
-													const labelPadding = 6;
-													const backgroundWidth =
-														estimatedTextWidth + labelPadding * 2;
-													const backgroundHeight =
-														fontSize + labelPadding * 2;
-
-													return (
-														<g key={ `arc-${ index }` } { ...groupProps }>
-															<path { ...pathProps } />
-															{ showLabels && hasSpaceForLabel && (
-																<g>
-																	{ providerTheme.labelBackgroundColor && (
-																		<rect
-																			x={
-																				centroidX -
-																				backgroundWidth / 2
-																			}
-																			y={
-																				centroidY -
-																				backgroundHeight / 2
-																			}
-																			width={ backgroundWidth }
-																			height={ backgroundHeight }
-																			fill={
-																				providerTheme.labelBackgroundColor
-																			}
-																			rx={ 4 }
-																			ry={ 4 }
+														return (
+															<g key={ `arc-${ index }` } { ...groupProps }>
+																<path { ...pathProps } />
+																{ showLabels && hasSpaceForLabel && (
+																	<g>
+																		{ providerTheme.labelBackgroundColor && (
+																			<rect
+																				x={ centroidX - backgroundWidth / 2 }
+																				y={ centroidY - backgroundHeight / 2 }
+																				width={ backgroundWidth }
+																				height={ backgroundHeight }
+																				fill={ providerTheme.labelBackgroundColor }
+																				rx={ 4 }
+																				ry={ 4 }
+																				pointerEvents="none"
+																			/>
+																		) }
+																		<text
+																			x={ centroidX }
+																			y={ centroidY }
+																			dy=".33em"
+																			fill={ providerTheme.labelTextColor || '#333' }
+																			fontSize={ fontSize }
+																			textAnchor="middle"
 																			pointerEvents="none"
-																		/>
-																	) }
-																	<text
-																		x={ centroidX }
-																		y={ centroidY }
-																		dy=".33em"
-																		fill={
-																			providerTheme.labelTextColor ||
-																			'#333'
-																		}
-																		fontSize={ fontSize }
-																		textAnchor="middle"
-																		pointerEvents="none"
-																	>
-																		{ arc.data.label }
-																	</text>
-																</g>
-															) }
-														</g>
-													);
-												} );
-											} }
-										</Pie>
-									) }
+																		>
+																			{ arc.data.label }
+																		</text>
+																	</g>
+																) }
+															</g>
+														);
+													} );
+												} }
+											</Pie>
+										) }
 
-									{ /* Render SVG children (like Group, Text) inside the SVG */ }
-									{ ! allSegmentsHidden && svgChildren }
-								</Group>
-							</svg>
+										{ /* Render SVG children (like Group, Text) inside the SVG */ }
+										{ ! allSegmentsHidden && svgChildren }
+									</Group>
+								</svg>
 							</div>
 						</SingleChartContext.Provider>
 					);
 				} }
 			</ChartLayout>
+		</SingleChartContext.Provider>
 	);
 };
 
