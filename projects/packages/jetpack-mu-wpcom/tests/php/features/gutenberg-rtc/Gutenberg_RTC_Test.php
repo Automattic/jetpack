@@ -19,14 +19,12 @@ use PHPUnit\Framework\Attributes\CoversFunction;
  * @covers ::wpcom_disable_rtc_option
  * @covers ::wpcom_enqueue_gutenberg_rtc_assets
  * @covers ::wpcom_get_gutenberg_rtc_providers
- * @covers ::wpcom_gutenberg_rtc_get_pinghub_jwt
  * @covers ::wpcom_is_gutenberg_rtc_enabled
  * @covers ::wpcom_unregister_rtc_setting
  */
 #[CoversFunction( 'wpcom_is_gutenberg_rtc_enabled' )]
 #[CoversFunction( 'wpcom_get_gutenberg_rtc_providers' )]
 #[CoversFunction( 'wpcom_enqueue_gutenberg_rtc_assets' )]
-#[CoversFunction( 'wpcom_gutenberg_rtc_get_pinghub_jwt' )]
 #[CoversFunction( 'wpcom_unregister_rtc_setting' )]
 #[CoversFunction( 'wpcom_disable_rtc_option' )]
 class Gutenberg_RTC_Test extends \WorDBless\BaseTestCase {
@@ -335,36 +333,9 @@ class Gutenberg_RTC_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Tests that wpcom_gutenberg_rtc_get_pinghub_jwt returns null when no user is logged in.
+	 * Tests that the inline script data does not include pinghubJWTToken when assets are enqueued.
 	 */
-	public function test_wpcom_gutenberg_rtc_get_pinghub_jwt_returns_null_when_no_user() {
-		wp_set_current_user( 0 );
-		$this->assertNull( wpcom_gutenberg_rtc_get_pinghub_jwt() );
-	}
-
-	/**
-	 * Tests that wpcom_gutenberg_rtc_get_pinghub_jwt returns null when no blog ID is available.
-	 */
-	public function test_wpcom_gutenberg_rtc_get_pinghub_jwt_returns_null_when_no_blog_id() {
-		$user_id = wp_insert_user(
-			array(
-				'user_login' => 'rtc_test_user',
-				'user_pass'  => 'password',
-				'user_email' => 'rtc_test@example.com',
-			)
-		);
-		wp_set_current_user( $user_id );
-
-		// Without IS_WPCOM and without Jetpack Connection Client, should return null.
-		$this->assertNull( wpcom_gutenberg_rtc_get_pinghub_jwt() );
-
-		wp_delete_user( $user_id );
-	}
-
-	/**
-	 * Tests that the inline script data includes the pinghubJWTToken key when assets are enqueued.
-	 */
-	public function test_wpcom_enqueue_gutenberg_rtc_assets_includes_jwt_token_key() {
+	public function test_wpcom_enqueue_gutenberg_rtc_assets_does_not_include_jwt_token() {
 		add_filter( 'wpcom_is_gutenberg_rtc_enabled', '__return_true' );
 		add_filter(
 			'wpcom_gutenberg_rtc_providers',
@@ -378,9 +349,9 @@ class Gutenberg_RTC_Test extends \WorDBless\BaseTestCase {
 		$handle = 'jetpack-mu-wpcom-gutenberg-rtc';
 		$this->assertTrue( wp_script_is( $handle, 'enqueued' ) );
 
-		// Check that the inline script contains the pinghubJWTToken key.
+		// Ensure the inline script does NOT contain pinghubJWTToken.
 		$inline_script = wp_scripts()->get_inline_script_data( $handle, 'before' );
-		$this->assertStringContainsString( 'pinghubJWTToken', $inline_script );
+		$this->assertStringNotContainsString( 'pinghubJWTToken', $inline_script );
 	}
 
 	/**

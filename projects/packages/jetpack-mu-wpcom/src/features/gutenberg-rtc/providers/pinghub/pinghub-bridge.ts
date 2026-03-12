@@ -1,3 +1,5 @@
+import apiFetch from '@wordpress/api-fetch';
+
 type BridgeEventMap = {
 	open: () => void;
 	close: ( code: number, reason: string ) => void;
@@ -119,14 +121,7 @@ function getBlogId(): number | null {
 	return null;
 }
 
-/**
- * Read the pre-generated pinghub JWT token embedded by the server.
- *
- * @return JWT string, or null if absent.
- */
-function getPinghubJwt(): string | null {
-	return window.wpcomGutenbergRTC?.pinghubJWTToken ?? null;
-}
+const JWT_CACHE_TTL_MS = 60 * 1000; // 1 minute
 
 let detectedBrowser: string | null = null;
 
@@ -193,6 +188,9 @@ export class PingHubBridge {
 	>();
 	/** Per-room message ID for chunked sends. */
 	private chunkMsgIdByRoom = new Map< string, number >();
+	/** Cached JWT for PingHub authentication. */
+	private cachedJwt: string | null = null;
+	private cachedJwtTimestamp = 0;
 	/** Reassembly buffer: key = room + ':' + msgId, value = { totalChunks, chunks } */
 	private chunkBuffers = new Map<
 		string,
@@ -321,17 +319,40 @@ export class PingHubBridge {
 	}
 
 	/**
+	 * Fetch a short-lived JWT for PingHub authentication via the REST endpoint.
+	 * Caches the token for 1 minute to avoid redundant requests on reconnects.
+	 *
+	 * @return JWT string, or null on failure.
+	 */
+	private async fetchPinghubJwt(): Promise< string | null > {
+		if ( this.cachedJwt && Date.now() - this.cachedJwtTimestamp < JWT_CACHE_TTL_MS ) {
+			return this.cachedJwt;
+		}
+		try {
+			const response = await apiFetch< { token: string } >( {
+				path: '/wpcom/v2/gutenberg-rtc/pinghub-token',
+				method: 'POST',
+			} );
+			this.cachedJwt = response?.token ?? null;
+			this.cachedJwtTimestamp = Date.now();
+			return this.cachedJwt;
+		} catch {
+			return null;
+		}
+	}
+
+	/**
 	 * Open a direct WebSocket connection to PingHub for the given room.
 	 *
-	 * Appends the JWT pre-generated server-side (wpcomGutenbergRTC.pinghubJWTToken)
-	 * as ?jwt=<token> so pinghub-auth.php can authenticate the connection when
+	 * Fetches a short-lived JWT from the REST endpoint and appends it as
+	 * ?jwt=<token> so pinghub-auth.php can authenticate the connection when
 	 * WPCOM cookies are absent (third-party cookie blocking on custom-domain
 	 * Jetpack/Atomic sites).
 	 *
 	 * @param room - Room name.
 	 * @return Promise
 	 */
-	connect( room: string ): Promise< void > {
+	async connect( room: string ): Promise< void > {
 		// Already open: fire open handlers and return.
 		const existing = this.sockets.get( room );
 		if ( existing?.readyState === WebSocket.OPEN ) {
@@ -348,11 +369,11 @@ export class PingHubBridge {
 		const waiters: Array< { resolve: () => void; reject: ( err: Error ) => void } > = [];
 		this.connectingWaiters.set( room, waiters );
 
-		// Use the JWT pre-generated server-side (gutenberg-rtc.php) so the
-		// connection authenticates even when WPCOM cookies are absent
-		// (third-party cookie blocking on custom-domain Jetpack/Atomic sites).
+		// Fetch a short-lived JWT so the connection authenticates even when
+		// WPCOM cookies are absent (third-party cookie blocking on
+		// custom-domain Jetpack/Atomic sites).
 		let wsUrl = this.fullPath( room );
-		const jwt = getPinghubJwt();
+		const jwt = await this.fetchPinghubJwt();
 		if ( jwt ) {
 			wsUrl += '?jwt=' + encodeURIComponent( jwt );
 		}
