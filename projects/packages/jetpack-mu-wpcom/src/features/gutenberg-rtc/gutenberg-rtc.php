@@ -217,11 +217,58 @@ function wpcom_rtc_get_max_collaborators() {
 }
 
 /**
+ * Count active collaborators in a room, excluding the current collaborator.
+ *
+ * Uses `user_id` as the primary identity signal (matching frontend semantics)
+ * and falls back to `client_id` when `user_id` is unavailable.
+ *
+ * @param array<int, array<string, mixed>> $awareness_state Awareness entries for the room.
+ * @param int                              $current_user_id Current WordPress user ID.
+ * @param int                              $current_client_id Current client ID from the request.
+ * @param int                              $now Current Unix timestamp.
+ * @return int Number of active collaborators other than the requester.
+ */
+function wpcom_rtc_count_active_other_collaborators( array $awareness_state, $current_user_id, $current_client_id, $now ) {
+	$seen_user_ids          = array();
+	$seen_legacy_client_ids = array();
+
+	foreach ( $awareness_state as $entry ) {
+		$entry_updated_at = isset( $entry['updated_at'] ) ? (int) $entry['updated_at'] : 0;
+		// Only count clients within the awareness timeout (30s).
+		if ( ( $now - $entry_updated_at ) >= 30 ) {
+			continue;
+		}
+
+		$entry_client_id = isset( $entry['client_id'] ) ? (int) $entry['client_id'] : 0;
+		if ( $entry_client_id > 0 && $entry_client_id === $current_client_id ) {
+			continue;
+		}
+
+		$entry_user_id = isset( $entry['user_id'] ) ? (int) $entry['user_id'] : 0;
+		// Prefer counting by WordPress user ID to match frontend semantics.
+		if ( $entry_user_id > 0 ) {
+			if ( $entry_user_id === $current_user_id || isset( $seen_user_ids[ $entry_user_id ] ) ) {
+				continue;
+			}
+			$seen_user_ids[ $entry_user_id ] = true;
+			continue;
+		}
+
+		// Fallback for entries without `user_id`.
+		if ( $entry_client_id > 0 && ! isset( $seen_legacy_client_ids[ $entry_client_id ] ) ) {
+			$seen_legacy_client_ids[ $entry_client_id ] = true;
+		}
+	}
+
+	return count( $seen_user_ids ) + count( $seen_legacy_client_ids );
+}
+
+/**
  * Limit the number of simultaneous RTC collaborators per room.
  *
  * Hooks into `rest_pre_dispatch` to check the current awareness state before
- * allowing a new client to join a sync room. If the number of active
- * collaborators (excluding the requesting client) meets or exceeds the limit,
+ * allowing a new collaborator to join a sync room. If the number of active
+ * collaborators (excluding the requesting user) meets or exceeds the limit,
  * a 429 error is returned.
  *
  * @param mixed           $result  Response to replace the requested version with. Can be anything
@@ -259,27 +306,18 @@ function wpcom_rtc_limit_collaborators( $result, $server, $request ) {
 		return $result;
 	}
 
-	$storage = new WP_Sync_Post_Meta_Storage(); // @phan-suppress-current-line PhanUndeclaredClassMethod -- Guarded by class_exists() above.
-	$now     = time();
+	$storage         = new WP_Sync_Post_Meta_Storage(); // @phan-suppress-current-line PhanUndeclaredClassMethod -- Guarded by class_exists() above.
+	$now             = time();
+	$current_user_id = get_current_user_id();
 
 	foreach ( $rooms as $room_request ) {
 		$room      = $room_request['room'] ?? '';
 		$client_id = $room_request['client_id'] ?? 0;
 
-		$existing = $storage->get_awareness_state( $room ); // @phan-suppress-current-line PhanUndeclaredClassMethod
-		$active   = array_filter(
-			$existing,
-			function ( $entry ) use ( $client_id, $now ) {
-				// Exclude the current client (reconnection case).
-				if ( $entry['client_id'] === $client_id ) {
-					return false;
-				}
-				// Only count clients within the awareness timeout (30s).
-				return ( $now - $entry['updated_at'] ) < 30;
-			}
-		);
+		$existing      = $storage->get_awareness_state( $room ); // @phan-suppress-current-line PhanUndeclaredClassMethod
+		$active_others = wpcom_rtc_count_active_other_collaborators( $existing, $current_user_id, $client_id, $now );
 
-		if ( count( $active ) >= $max_collaborators ) {
+		if ( $active_others >= $max_collaborators ) {
 			return new WP_Error(
 				'rest_sync_connection_limit_exceeded',
 				__( 'Too many editors connected.', 'jetpack-mu-wpcom' ),

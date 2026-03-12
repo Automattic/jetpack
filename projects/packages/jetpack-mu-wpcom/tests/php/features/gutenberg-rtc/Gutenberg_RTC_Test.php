@@ -509,10 +509,10 @@ class Gutenberg_RTC_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Tests that the default max collaborators is 0 (unlimited).
+	 * Tests that the default max collaborators is 2.
 	 */
 	public function test_wpcom_rtc_get_max_collaborators_default() {
-		$this->assertSame( 0, wpcom_rtc_get_max_collaborators() );
+		$this->assertSame( 2, wpcom_rtc_get_max_collaborators() );
 	}
 
 	/**
@@ -527,6 +527,68 @@ class Gutenberg_RTC_Test extends \WorDBless\BaseTestCase {
 		);
 
 		$this->assertSame( 2, wpcom_rtc_get_max_collaborators() );
+	}
+
+	/**
+	 * Tests that active collaborators are counted by unique user ID.
+	 */
+	public function test_wpcom_rtc_count_active_other_collaborators_counts_unique_users() {
+		$now = time();
+
+		$awareness_state = array(
+			array(
+				'client_id'  => 101,
+				'user_id'    => 11,
+				'updated_at' => $now - 1,
+			),
+			array(
+				'client_id'  => 102,
+				'user_id'    => 12,
+				'updated_at' => $now - 2,
+			),
+			array(
+				'client_id'  => 103,
+				'user_id'    => 12,
+				'updated_at' => $now - 3,
+			),
+			array(
+				'client_id'  => 104,
+				'user_id'    => 99,
+				'updated_at' => $now - 4,
+			),
+		);
+
+		$count = wpcom_rtc_count_active_other_collaborators( $awareness_state, 99, 200, $now );
+		$this->assertSame( 2, $count );
+	}
+
+	/**
+	 * Tests that fallback counting deduplicates legacy entries by client ID.
+	 */
+	public function test_wpcom_rtc_count_active_other_collaborators_fallbacks_to_client_id() {
+		$now = time();
+
+		$awareness_state = array(
+			array(
+				'client_id'  => 100,
+				'updated_at' => $now - 1,
+			),
+			array(
+				'client_id'  => 200,
+				'updated_at' => $now - 2,
+			),
+			array(
+				'client_id'  => 200,
+				'updated_at' => $now - 3,
+			),
+			array(
+				'client_id'  => 300,
+				'updated_at' => $now - 40,
+			),
+		);
+
+		$count = wpcom_rtc_count_active_other_collaborators( $awareness_state, 0, 100, $now );
+		$this->assertSame( 1, $count );
 	}
 
 	/**
