@@ -483,15 +483,13 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 					data-testid="line-chart"
 					trailingContent={ nonLegendChildren }
 				>
-					{ ( { contentRef: measureRef, contentHeight } ) => {
+					{ ( { contentHeight } ) => {
 						// Use the measured height, falling back to the passed height if provided.
 						const chartHeight = contentHeight > 0 ? contentHeight : height;
 						const isWaitingForMeasurement = hasLegend ? contentHeight === 0 : ! chartHeight;
 
 						return (
 							<div
-								className={ styles[ 'line-chart__svg-wrapper' ] }
-								ref={ measureRef }
 								role="grid"
 								aria-label={ __( 'Line chart', 'jetpack-charts' ) }
 								tabIndex={ 0 }

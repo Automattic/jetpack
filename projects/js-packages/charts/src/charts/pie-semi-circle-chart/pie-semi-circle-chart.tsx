@@ -3,6 +3,7 @@ import { Pie } from '@visx/shape';
 import { Text } from '@visx/text';
 import { useTooltip, useTooltipInPortal } from '@visx/tooltip';
 import { __ } from '@wordpress/i18n';
+import { Stack } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useCallback, useContext, useMemo } from 'react';
 import { ChartLayout } from '../../components/chart-layout';
@@ -370,7 +371,7 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 					</>
 				}
 			>
-				{ ( { contentRef: measureRef, contentWidth, contentHeight } ) => {
+				{ ( { contentWidth, contentHeight } ) => {
 					// Calculate chart dimensions maintaining the 2:1 width-to-height ratio.
 					// Use measured dimensions to respect height constraints, falling back
 					// to explicit props during initial render before measurement is available.
@@ -384,7 +385,7 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 					const innerRadius = radius * ( 1 - thickness );
 
 					return (
-						<div ref={ measureRef } className={ styles[ 'pie-semi-circle-chart__svg-wrapper' ] }>
+						<Stack align="center" justify="center" style={ { width: '100%', height: '100%' } }>
 							<svg
 								width={ width }
 								height={ height }
@@ -479,7 +480,7 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 									) }
 								</Group>
 							</svg>
-						</div>
+						</Stack>
 					);
 				} }
 			</ChartLayout>

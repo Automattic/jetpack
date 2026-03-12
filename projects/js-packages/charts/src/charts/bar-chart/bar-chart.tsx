@@ -357,14 +357,12 @@ const BarChartInternal: FC< BarChartProps > = ( {
 				data-chart-id={ `bar-chart-${ chartId }` }
 				trailingContent={ nonLegendChildren }
 			>
-				{ ( { contentRef: measureRef, contentHeight } ) => {
+				{ ( { contentHeight } ) => {
 					const chartHeight = contentHeight > 0 ? contentHeight : height;
 					const isWaitingForMeasurement = hasLegend ? contentHeight === 0 : ! chartHeight;
 
 					return (
 						<div
-							className={ styles[ 'bar-chart__svg-wrapper' ] }
-							ref={ measureRef }
 							role="grid"
 							aria-label={ __( 'Bar chart', 'jetpack-charts' ) }
 							tabIndex={ 0 }

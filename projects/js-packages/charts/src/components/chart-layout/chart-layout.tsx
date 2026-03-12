@@ -1,5 +1,4 @@
 import { Stack } from '@wordpress/ui';
-import clsx from 'clsx';
 import { forwardRef } from 'react';
 import { renderLegendSlot } from '../../charts/private/chart-composition';
 import { useElementSize } from '../../hooks';
@@ -13,8 +12,6 @@ import type { CSSProperties, ReactNode } from 'react';
  * Measurements provided to the render prop when ChartLayout handles resize listening.
  */
 export interface ContentMeasurements {
-	/** Ref callback to attach to the content element being measured */
-	contentRef: ( node: HTMLDivElement | null ) => void;
 	/** Measured width of the content area in pixels */
 	contentWidth: number;
 	/** Measured height of the content area in pixels */
@@ -84,17 +81,17 @@ export const ChartLayout = forwardRef< HTMLDivElement, ChartLayoutProps >(
 			};
 		}
 
-		const renderedChildren =
-			typeof children === 'function'
-				? children( { contentRef, contentWidth, contentHeight, isMeasured } )
-				: children;
+		const isRenderProp = typeof children === 'function';
+		const renderedChildren = isRenderProp
+			? children( { contentWidth, contentHeight, isMeasured } )
+			: children;
 
 		return (
 			<Stack
 				ref={ ref }
 				direction="column"
 				gap={ gap }
-				className={ clsx( styles[ 'chart-layout' ], className ) }
+				className={ className }
 				style={ { ...style, ...visibilityStyle } }
 				data-testid={ dataTestId }
 				data-chart-id={ dataChartId }
@@ -102,7 +99,13 @@ export const ChartLayout = forwardRef< HTMLDivElement, ChartLayoutProps >(
 				{ legendPosition === 'top' && legendElement }
 				{ renderLegendSlot( legendChildren, 'top' ) }
 
-				{ renderedChildren }
+				{ isRenderProp ? (
+					<div ref={ contentRef } className={ styles[ 'chart-layout__content' ] }>
+						{ renderedChildren }
+					</div>
+				) : (
+					renderedChildren
+				) }
 
 				{ legendPosition === 'bottom' && legendElement }
 				{ renderLegendSlot( legendChildren, 'bottom' ) }

@@ -2,6 +2,7 @@ import { Group } from '@visx/group';
 import { Pie } from '@visx/shape';
 import { useTooltip, useTooltipInPortal } from '@visx/tooltip';
 import { __ } from '@wordpress/i18n';
+import { Stack } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useCallback, useContext, useMemo } from 'react';
 import { ChartLayout } from '../../components/chart-layout';
@@ -324,7 +325,7 @@ const PieChartInternal = ( {
 					</>
 				}
 			>
-				{ ( { contentRef: measureRef, contentWidth, contentHeight } ) => {
+				{ ( { contentWidth, contentHeight } ) => {
 					const availableWidth = contentWidth > 0 ? contentWidth : 300;
 					const availableHeight = contentHeight > 0 ? contentHeight : 300;
 					const availableSize = Math.min( availableWidth, availableHeight );
@@ -346,7 +347,7 @@ const PieChartInternal = ( {
 						: 0;
 
 					return (
-						<div className={ styles[ 'pie-chart__svg-wrapper' ] } ref={ measureRef }>
+						<Stack align="center" justify="center" style={ { width: '100%', height: '100%' } }>
 							<svg
 								viewBox={ `0 0 ${ width } ${ height }` }
 								preserveAspectRatio="xMidYMid meet"
@@ -480,7 +481,7 @@ const PieChartInternal = ( {
 									{ ! allSegmentsHidden && svgChildren }
 								</Group>
 							</svg>
-						</div>
+						</Stack>
 					);
 				} }
 			</ChartLayout>

@@ -1,5 +1,7 @@
-// Intentionally minimal — ChartLayout is a structural wrapper.
-// Chart-specific styles remain in each chart's own SCSS module.
-.chart-layout {
-	// Base styles if needed in future. Currently the Stack handles layout.
+// Shared content area for charts using the render prop.
+// Wraps render prop output and handles measurement.
+.chart-layout__content {
+	flex: 1;
+	min-height: 0;
+	min-width: 0;
 }
