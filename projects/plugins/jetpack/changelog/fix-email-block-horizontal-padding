@@ -1,4 +1,4 @@
 Significance: patch
 Type: bugfix
 
-Email blocks: Apply horizontal padding from email_attrs for tiled-gallery, button, and subscriptions blocks.
+Email blocks: Apply horizontal padding from email_attrs for tiled-gallery, button, subscriptions, and payment-buttons blocks.

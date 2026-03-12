@@ -10,6 +10,7 @@
 namespace Automattic\Jetpack\Extensions\PaymentButtons;
 
 use Automattic\Jetpack\Blocks;
+use function Automattic\Jetpack\Extensions\Shared\apply_email_horizontal_padding;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
@@ -100,13 +101,6 @@ function render_block_email( $block_content, array $parsed_block, $rendering_con
 	$html = $flex_layout_renderer->render_inner_blocks_in_layout( $parsed_block, $rendering_context );
 
 	// Wrap in div with horizontal padding from distributed root padding
-	$email_attrs = $parsed_block['email_attrs'] ?? array();
-	if ( ! empty( $email_attrs ) && class_exists( '\WP_Style_Engine' ) ) {
-		$padding_style = \WP_Style_Engine::compile_css( array_intersect_key( $email_attrs, array_flip( array( 'padding-left', 'padding-right' ) ) ), '' ) ?? '';
-		if ( ! empty( $padding_style ) ) {
-			$html = '<div style="' . esc_attr( $padding_style ) . '">' . $html . '</div>';
-		}
-	}
-
-	return $html;
+	require_once __DIR__ . '/../../shared/email-utils.php';
+	return apply_email_horizontal_padding( $html, $parsed_block['email_attrs'] ?? array() );
 }

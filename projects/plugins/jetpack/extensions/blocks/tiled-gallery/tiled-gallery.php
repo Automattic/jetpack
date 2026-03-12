@@ -238,15 +238,12 @@ class Tiled_Gallery {
 		}
 
 		// Get spacing from email_attrs for better consistency with core blocks
-		$email_attrs         = $parsed_block['email_attrs'] ?? array();
-		$table_margin_style  = '';
-		$table_padding_style = '';
+		$email_attrs        = $parsed_block['email_attrs'] ?? array();
+		$table_margin_style = '';
 
 		if ( ! empty( $email_attrs ) && class_exists( '\WP_Style_Engine' ) ) {
 			// Get margin for table styling
 			$table_margin_style = \WP_Style_Engine::compile_css( array_intersect_key( $email_attrs, array_flip( array( 'margin' ) ) ), '' ) ?? '';
-			// Get horizontal padding from distributed root padding
-			$table_padding_style = \WP_Style_Engine::compile_css( array_intersect_key( $email_attrs, array_flip( array( 'padding-left', 'padding-right' ) ) ), '' ) ?? '';
 		}
 
 		// Email cell padding
@@ -285,11 +282,8 @@ class Tiled_Gallery {
 		$html = \Automattic\WooCommerce\EmailEditor\Integrations\Utils\Table_Wrapper_Helper::render_table_wrapper( $grid_content, $image_table_attrs );
 
 		// Wrap in div with horizontal padding — tables ignore padding in email clients
-		if ( ! empty( $table_padding_style ) ) {
-			$html = '<div style="' . esc_attr( $table_padding_style ) . '">' . $html . '</div>';
-		}
-
-		return $html;
+		require_once __DIR__ . '/../../shared/email-utils.php';
+		return \Automattic\Jetpack\Extensions\Shared\apply_email_horizontal_padding( $html, $email_attrs );
 	}
 
 	/**
