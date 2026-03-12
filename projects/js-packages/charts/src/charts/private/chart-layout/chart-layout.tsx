@@ -33,8 +33,6 @@ export interface ChartLayoutProps {
 	trailingContent?: ReactNode;
 	/** When true, hides the layout until content measurement is available */
 	waitForMeasurement?: boolean;
-	/** @deprecated Use waitForMeasurement instead */
-	isWaitingForMeasurement?: boolean;
 	/** Gap between Stack items */
 	gap?: GapSize;
 	/** Additional class names */
@@ -56,7 +54,6 @@ export const ChartLayout = forwardRef< HTMLDivElement, ChartLayoutProps >(
 			children,
 			trailingContent,
 			waitForMeasurement,
-			isWaitingForMeasurement,
 			gap,
 			className,
 			style,
@@ -68,17 +65,10 @@ export const ChartLayout = forwardRef< HTMLDivElement, ChartLayoutProps >(
 		const [ contentRef, contentWidth, contentHeight ] = useElementSize< HTMLDivElement >();
 		const isMeasured = contentHeight > 0;
 
-		// Determine visibility: new waitForMeasurement prop takes precedence over legacy isWaitingForMeasurement
 		let visibilityStyle: { visibility?: 'hidden' | 'visible' } = {};
 		if ( waitForMeasurement !== undefined ) {
-			// New API: hide until measured
 			const isHidden = waitForMeasurement && ! isMeasured;
 			visibilityStyle = { visibility: isHidden ? 'hidden' : 'visible' };
-		} else if ( isWaitingForMeasurement !== undefined ) {
-			// Legacy API
-			visibilityStyle = {
-				visibility: isWaitingForMeasurement ? 'hidden' : 'visible',
-			};
 		}
 
 		const isRenderProp = typeof children === 'function';

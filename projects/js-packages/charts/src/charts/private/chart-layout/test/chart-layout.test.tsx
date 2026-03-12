@@ -68,12 +68,12 @@ describe( 'ChartLayout', () => {
 		expect( mockRenderLegendSlot ).toHaveBeenCalledWith( legendChildren, 'bottom' );
 	} );
 
-	it( 'applies visibility hidden when isWaitingForMeasurement is true', () => {
+	it( 'applies visibility hidden when waitForMeasurement is true and not yet measured', () => {
 		render(
 			<ChartLayout
 				legendPosition="bottom"
 				legendChildren={ [] }
-				isWaitingForMeasurement={ true }
+				waitForMeasurement={ true }
 				data-testid="layout"
 			>
 				<div>Chart</div>
@@ -82,27 +82,12 @@ describe( 'ChartLayout', () => {
 		expect( screen.getByTestId( 'layout' ) ).toHaveStyle( { visibility: 'hidden' } );
 	} );
 
-	it( 'applies visibility visible when isWaitingForMeasurement is false', () => {
-		render(
-			<ChartLayout
-				legendPosition="bottom"
-				legendChildren={ [] }
-				isWaitingForMeasurement={ false }
-				data-testid="layout"
-			>
-				<div>Chart</div>
-			</ChartLayout>
-		);
-		expect( screen.getByTestId( 'layout' ) ).toHaveStyle( { visibility: 'visible' } );
-	} );
-
-	it( 'does not set visibility in inline style when isWaitingForMeasurement is undefined', () => {
+	it( 'does not set visibility when waitForMeasurement is not provided', () => {
 		render(
 			<ChartLayout legendPosition="bottom" legendChildren={ [] } data-testid="layout">
 				<div>Chart</div>
 			</ChartLayout>
 		);
-		// When isWaitingForMeasurement is not provided, visibility should not be set in inline style
 		const layoutStyle = screen.getByTestId( 'layout' ).getAttribute( 'style' ) ?? '';
 		expect( layoutStyle ).not.toContain( 'visibility' );
 	} );
@@ -163,24 +148,6 @@ describe( 'ChartLayout', () => {
 				isMeasured: expect.any( Boolean ),
 			} )
 		);
-	} );
-
-	it( 'gives waitForMeasurement precedence over isWaitingForMeasurement', () => {
-		render(
-			<ChartLayout
-				legendPosition="bottom"
-				legendChildren={ [] }
-				isWaitingForMeasurement={ false }
-				waitForMeasurement={ true }
-				data-testid="layout"
-			>
-				<div>Chart</div>
-			</ChartLayout>
-		);
-
-		// waitForMeasurement=true with no measurement yet should hide,
-		// even though isWaitingForMeasurement=false would show
-		expect( screen.getByTestId( 'layout' ) ).toHaveStyle( { visibility: 'hidden' } );
 	} );
 
 	it( 'renders trailing content after bottom legend', () => {
