@@ -74,7 +74,7 @@ class WPCOM_REST_API_V2_Endpoint_Newsletter_Email_Sent_Status extends WP_REST_Co
 		$post_id = $request->get_param( 'post_id' );
 
 		$post = get_post( $post_id );
-		if ( ! $post || $post->post_type !== 'post' ) {
+		if ( ! $post instanceof \WP_Post || 'post' !== $post->post_type ) {
 			return new WP_Error(
 				'post_not_found',
 				__( 'Post not found.', 'jetpack' ),
