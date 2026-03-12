@@ -13,7 +13,6 @@ import * as React from 'react';
 /**
  * Internal dependencies
  */
-import { invalidateFormsDataResolutions } from '../../src/dashboard/hooks/forms-data-cache.ts';
 import { notSpam, spam } from '../../src/dashboard/icons';
 import { defaultView } from '../../src/dashboard/inbox/stage/views.js';
 import {
@@ -81,8 +80,8 @@ const invalidateCacheAndNavigate = (
 	// Invalidate counts to ensure accurate totals
 	registry.dispatch( dashboardStore ).invalidateCounts();
 
-	// Invalidate jetpack_form entity records so the entries_count on the Forms list is refreshed.
-	invalidateFormsDataResolutions( registry.dispatch( coreStore ) );
+	// Invalidate all entity record resolutions so the Forms list entries_count is refreshed.
+	registry.dispatch( coreStore ).invalidateResolutionForStoreSelector( 'getEntityRecords' );
 
 	// Navigate to correct page if current page will be invalid
 	const { getTrashCount, getSpamCount, getInboxCount } = registry.select( dashboardStore );

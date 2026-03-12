@@ -13,12 +13,7 @@ import { store as noticesStore } from '@wordpress/notices';
  * Internal dependencies
  */
 import { store as dashboardStore } from '../store/index';
-import { invalidateFormsDataResolutions } from './forms-data-cache';
 import useInboxData from './use-inbox-data';
-
-type CoreStore = typeof coreStore & {
-	invalidateResolutionForStoreSelector: ( selector: string ) => void;
-};
 
 type UseEmptyTrashReturn = {
 	isConfirmDialogOpen: boolean;
@@ -47,7 +42,7 @@ export default function useEmptyTrash( {
 	const [ isEmptying, setIsEmptying ] = useState( false );
 	const [ isEmpty, setIsEmpty ] = useState( true );
 	const { createSuccessNotice, createErrorNotice } = useDispatch( noticesStore );
-	const coreStoreDispatch = useDispatch( coreStore ) as unknown as CoreStore;
+	const { invalidateResolutionForStoreSelector } = useDispatch( coreStore );
 	const { invalidateCounts } = useDispatch( dashboardStore );
 
 	// Use props if provided, otherwise use hook
@@ -105,13 +100,13 @@ export default function useEmptyTrash( {
 				// invalidate counts to refresh the counts across all status tabs
 				invalidateCounts();
 				// invalidate all entity record resolutions (feedback items, forms list entries_count, etc.)
-				invalidateFormsDataResolutions( coreStoreDispatch );
+				invalidateResolutionForStoreSelector( 'getEntityRecords' );
 			} );
 	}, [
 		closeConfirmDialog,
 		createErrorNotice,
 		createSuccessNotice,
-		coreStoreDispatch,
+		invalidateResolutionForStoreSelector,
 		invalidateCounts,
 		isEmpty,
 		isEmptying,

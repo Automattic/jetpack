@@ -1,10 +1,6 @@
 import { useEntityRecords } from '@wordpress/core-data';
 import { useMemo } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
-import { getFormsListQuery } from './forms-data-cache';
-
-// Re-export for consumers
-export { getFormsListQuery } from './forms-data-cache';
 
 export type FormListItem = {
 	id: number;
@@ -30,6 +26,34 @@ type UseFormsDataReturn = {
 	totalItems: number;
 	totalPages: number;
 };
+
+/**
+ * Build the query object for fetching Forms list records from core-data.
+ *
+ * @param page    - Current page number.
+ * @param perPage - Items per page.
+ * @param search  - Search term.
+ * @param status  - REST `status` query param (comma-separated list or single status).
+ *
+ * @return Query params for useEntityRecords / core-data.
+ */
+export function getFormsListQuery( page: number, perPage: number, search: string, status: string ) {
+	const queryParams: Record< string, unknown > = {
+		context: 'edit',
+		jetpack_forms_context: 'dashboard',
+		order: 'desc',
+		orderby: 'modified',
+		page,
+		per_page: perPage,
+		status,
+	};
+
+	if ( search ) {
+		queryParams.search = search;
+	}
+
+	return queryParams;
+}
 
 /**
  * Fetch Forms list records for the Forms dashboard table.
