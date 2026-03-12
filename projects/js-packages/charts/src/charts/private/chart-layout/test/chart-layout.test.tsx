@@ -1,10 +1,10 @@
 import { render, screen } from '@testing-library/react';
-import { renderLegendSlot } from '../../../charts/private/chart-composition';
+import { renderLegendSlot } from '../../chart-composition';
 import { ChartLayout } from '../chart-layout';
-import type { LegendChild } from '../../../charts/private/chart-composition/use-chart-children';
+import type { LegendChild } from '../../chart-composition/use-chart-children';
 
 // Mock renderLegendSlot since we test it separately
-jest.mock( '../../../charts/private/chart-composition', () => ( {
+jest.mock( '../../chart-composition', () => ( {
 	renderLegendSlot: jest.fn( () => [] ),
 } ) );
 

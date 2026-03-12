@@ -1,10 +1,10 @@
 import { Stack } from '@wordpress/ui';
 import { forwardRef } from 'react';
-import { renderLegendSlot } from '../../charts/private/chart-composition';
-import { useElementSize } from '../../hooks';
+import { useElementSize } from '../../../hooks';
+import { renderLegendSlot } from '../chart-composition';
 import styles from './chart-layout.module.scss';
-import type { LegendChild } from '../../charts/private/chart-composition/use-chart-children';
-import type { LegendPosition } from '../../types';
+import type { LegendPosition } from '../../../types';
+import type { LegendChild } from '../chart-composition/use-chart-children';
 import type { GapSize } from '@wordpress/theme';
 import type { CSSProperties, ReactNode } from 'react';
 

@@ -4,7 +4,6 @@ import { Axis, BarSeries, BarGroup, Grid, XYChart } from '@visx/xychart';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useCallback, useContext, useState, useRef, useMemo } from 'react';
-import { ChartLayout } from '../../components/chart-layout';
 import { Legend, useChartLegendItems } from '../../components/legend';
 import { AccessibleTooltip, useKeyboardNavigation } from '../../components/tooltip';
 import {
@@ -24,6 +23,7 @@ import {
 } from '../../providers';
 import { attachSubComponents } from '../../utils';
 import { useChartChildren } from '../private/chart-composition';
+import { ChartLayout } from '../private/chart-layout';
 import { SingleChartContext } from '../private/single-chart-context';
 import { withResponsive } from '../private/with-responsive';
 import styles from './bar-chart.module.scss';

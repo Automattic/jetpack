@@ -7,7 +7,6 @@ import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { differenceInHours, differenceInYears } from 'date-fns';
 import { useMemo, useContext, forwardRef, useImperativeHandle, useState, useRef } from 'react';
-import { ChartLayout } from '../../components/chart-layout';
 import { Legend, useChartLegendItems } from '../../components/legend';
 import { AccessibleTooltip, useKeyboardNavigation } from '../../components/tooltip';
 import {
@@ -26,6 +25,7 @@ import {
 } from '../../providers';
 import { attachSubComponents } from '../../utils';
 import { useChartChildren } from '../private/chart-composition';
+import { ChartLayout } from '../private/chart-layout';
 import { DefaultGlyph } from '../private/default-glyph';
 import { SingleChartContext, type SingleChartRef } from '../private/single-chart-context';
 import { withResponsive } from '../private/with-responsive';

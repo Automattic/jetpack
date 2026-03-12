@@ -5,7 +5,6 @@ import { __ } from '@wordpress/i18n';
 import { Stack } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useContext, useMemo, type FC } from 'react';
-import { ChartLayout } from '../../components/chart-layout';
 import { Legend } from '../../components/legend';
 import { usePrefersReducedMotion } from '../../hooks';
 import {
@@ -18,6 +17,7 @@ import {
 } from '../../providers';
 import { formatMetricValue, attachSubComponents } from '../../utils';
 import { useChartChildren } from '../private/chart-composition';
+import { ChartLayout } from '../private/chart-layout';
 import { SingleChartContext } from '../private/single-chart-context';
 import { withResponsive } from '../private/with-responsive';
 import { useLeaderboardLegendItems } from './hooks';
