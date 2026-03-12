@@ -208,6 +208,15 @@ function wpcom_override_rtc_setting_default() {
 add_action( 'admin_init', 'wpcom_override_rtc_setting_default', 20 );
 
 /**
+ * Get the maximum number of simultaneous RTC collaborators allowed per room.
+ *
+ * @return int Maximum collaborator count. 0 means unlimited.
+ */
+function wpcom_rtc_get_max_collaborators() {
+	return (int) apply_filters( 'wpcom_rtc_max_collaborators', 2 );
+}
+
+/**
  * Limit the number of simultaneous RTC collaborators per room.
  *
  * Hooks into `rest_pre_dispatch` to check the current awareness state before
