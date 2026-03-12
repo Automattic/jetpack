@@ -73,10 +73,10 @@ export const ChartLayout = forwardRef< HTMLDivElement, ChartLayoutProps >(
 			isRenderProp && ! isMeasured ? { visibility: 'hidden' } : {};
 
 		useEffect( () => {
-			if ( onContentHeightChange ) {
+			if ( isRenderProp && onContentHeightChange ) {
 				onContentHeightChange( contentHeight );
 			}
-		}, [ contentHeight, onContentHeightChange ] );
+		}, [ isRenderProp, contentHeight, onContentHeightChange ] );
 		const renderedChildren = isRenderProp
 			? children( { contentWidth, contentHeight, isMeasured } )
 			: children;
