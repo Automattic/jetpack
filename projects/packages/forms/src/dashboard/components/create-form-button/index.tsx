@@ -61,10 +61,10 @@ export default function CreateFormButton( {
 	}, [] );
 
 	const handleModalSave = useCallback(
-		async ( formName: string ) => {
+		async ( formTitle: string ) => {
 			await openNewForm( {
 				showPatterns,
-				formTitle: formName,
+				formTitle,
 				analyticsEvent: () => {
 					jetpackAnalytics.tracks.recordEvent( 'jetpack_wpa_forms_landing_page_cta_click', {
 						button: 'forms',
@@ -93,7 +93,7 @@ export default function CreateFormButton( {
 				title={ __( 'Create form', 'jetpack-forms' ) }
 				primaryButtonLabel={ __( 'Create', 'jetpack-forms' ) }
 				secondaryButtonLabel={ __( 'Cancel', 'jetpack-forms' ) }
-				placeholder={ __( 'Enter form name', 'jetpack-forms' ) }
+				placeholder={ __( 'Enter form title', 'jetpack-forms' ) }
 			/>
 		</>
 	);

@@ -371,7 +371,7 @@ export default function usePageHeaderDetails(
 								title={ __( 'Create form', 'jetpack-forms' ) }
 								primaryButtonLabel={ __( 'Create', 'jetpack-forms' ) }
 								secondaryButtonLabel={ __( 'Cancel', 'jetpack-forms' ) }
-								placeholder={ __( 'Enter form name', 'jetpack-forms' ) }
+								placeholder={ __( 'Enter form title', 'jetpack-forms' ) }
 							/>,
 					  ]
 					: [] ),
