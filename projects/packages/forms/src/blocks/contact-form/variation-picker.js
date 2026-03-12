@@ -92,22 +92,32 @@ export default function VariationPicker( { blockName, setAttributes, clientId, c
 		! isEditingJetpackFormPost && isCentralFormManagementEnabled && hasExistingForms;
 
 	const getInstructions = () => {
+		// Each translated string is assigned to a variable to prevent the minifier
+		// from collapsing them into a single __() call with a ternary argument,
+		// which breaks the i18n string literal requirement.
 		if ( isCentralFormManagementEnabled && showFormPicker ) {
-			return __(
+			const msg = __(
 				'Start by selecting one of these templates or select an existing form below.',
 				'jetpack-forms'
 			);
+			return msg;
 		}
 		if ( isCentralFormManagementEnabled ) {
-			return __( 'Start by selecting one of these templates.', 'jetpack-forms' );
+			const msg = __( 'Start by selecting one of these templates.', 'jetpack-forms' );
+			return msg;
 		}
 		if ( hasExistingForms ) {
-			return __(
+			const msg = __(
 				'Start by selecting one of these templates, browse patterns, or select an existing form below.',
 				'jetpack-forms'
 			);
+			return msg;
 		}
-		return __( 'Start by selecting one of these templates or browse patterns.', 'jetpack-forms' );
+		const msg = __(
+			'Start by selecting one of these templates or browse patterns.',
+			'jetpack-forms'
+		);
+		return msg;
 	};
 
 	return (
