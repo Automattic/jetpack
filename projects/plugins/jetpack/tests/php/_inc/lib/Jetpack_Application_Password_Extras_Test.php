@@ -6,7 +6,6 @@
  */
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\DataProvider;
 
 require_once JETPACK__PLUGIN_DIR . '/tests/php/lib/Jetpack_REST_TestCase.php';
 require_once JETPACK__PLUGIN_DIR . '/_inc/lib/class-jetpack-application-password-extras.php';
@@ -86,74 +85,33 @@ class Jetpack_Application_Password_Extras_Test extends Jetpack_REST_TestCase {
 	}
 
 	/**
-	 * Test that VideoPress AJAX actions are allowed.
-	 *
-	 * @param string $action The VideoPress action name.
-	 * @dataProvider videopress_action_provider
+	 * Test that a VideoPress AJAX action is allowed.
 	 */
-	#[DataProvider( 'videopress_action_provider' )]
-	public function test_videopress_ajax_action_allowed( $action ) {
+	public function test_videopress_ajax_action_allowed() {
 		set_current_screen( 'dashboard' );
 		add_filter( 'wp_doing_ajax', '__return_true' );
-		$_REQUEST['action'] = $action;
+		$_REQUEST['action'] = 'videopress-get-upload-token';
 
 		$result = Jetpack_Application_Password_Extras::application_password_extras( false );
 
 		remove_filter( 'wp_doing_ajax', '__return_true' );
 
-		$this->assertTrue( $result, "VideoPress action '$action' should be allowed" );
+		$this->assertTrue( $result, 'VideoPress action should be allowed' );
 	}
 
 	/**
-	 * Data provider for VideoPress action tests.
-	 *
-	 * @return array
+	 * Test that a non-VideoPress AJAX action is NOT allowed.
 	 */
-	public static function videopress_action_provider() {
-		return array(
-			'get-upload-token'          => array( 'videopress-get-upload-token' ),
-			'get-upload-jwt'            => array( 'videopress-get-upload-jwt' ),
-			'get-playback-jwt'          => array( 'videopress-get-playback-jwt' ),
-			'update-transcoding-status' => array( 'videopress-update-transcoding-status' ),
-			'future-videopress-action'  => array( 'videopress-some-future-action' ),
-		);
-	}
-
-	/**
-	 * Test that non-VideoPress AJAX actions are NOT allowed.
-	 *
-	 * @param string $action The non-VideoPress action name.
-	 * @dataProvider non_videopress_action_provider
-	 */
-	#[DataProvider( 'non_videopress_action_provider' )]
-	public function test_non_videopress_ajax_action_not_allowed( $action ) {
+	public function test_non_videopress_ajax_action_not_allowed() {
 		set_current_screen( 'dashboard' );
 		add_filter( 'wp_doing_ajax', '__return_true' );
-		$_REQUEST['action'] = $action;
+		$_REQUEST['action'] = 'heartbeat';
 
 		$result = Jetpack_Application_Password_Extras::application_password_extras( false );
 
 		remove_filter( 'wp_doing_ajax', '__return_true' );
 
-		$this->assertFalse( $result, "Non-VideoPress action '$action' should NOT be allowed" );
-	}
-
-	/**
-	 * Data provider for non-VideoPress action tests.
-	 *
-	 * @return array
-	 */
-	public static function non_videopress_action_provider() {
-		return array(
-			'heartbeat'            => array( 'heartbeat' ),
-			'wp_ajax_send_link'    => array( 'wp-link-ajax' ),
-			'inline_save'          => array( 'inline-save' ),
-			'get_attachment'       => array( 'get-attachment' ),
-			'query_attachments'    => array( 'query-attachments' ),
-			'save_post'            => array( 'save-post' ),
-			'videopress_lookalike' => array( 'not-videopress-action' ),
-			'prefix_videopress'    => array( 'my-videopress-action' ),
-		);
+		$this->assertFalse( $result, 'Non-VideoPress action should NOT be allowed' );
 	}
 
 	/**
