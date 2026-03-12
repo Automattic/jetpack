@@ -93,14 +93,24 @@ export default function VariationPicker( { blockName, setAttributes, clientId, c
 				label={ blockType?.title }
 				instructions={
 					isCentralFormManagementEnabled
-						? __(
-								'Start by selecting one of these templates or select an existing form below.',
-								'jetpack-forms'
-						  )
-						: __(
-								'Start by selecting one of these templates, browse patterns, or select an existing form below.',
-								'jetpack-forms'
-						  )
+						? ( jetpackForms && jetpackForms.length > 0
+								? __(
+										'Start by selecting one of these templates or select an existing form below.',
+										'jetpack-forms'
+								  )
+								: __(
+										'Start by selecting one of these templates.',
+										'jetpack-forms'
+								  ) )
+						: ( jetpackForms && jetpackForms.length > 0
+								? __(
+										'Start by selecting one of these templates, browse patterns, or select an existing form below.',
+										'jetpack-forms'
+								  )
+								: __(
+										'Start by selecting one of these templates or browse patterns.',
+										'jetpack-forms'
+								  ) )
 				}
 				variations={ variations.filter( v => ! v.hiddenFromPicker ) }
 				onSelect={ async ( nextVariation = defaultVariation ) => {
