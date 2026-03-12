@@ -144,6 +144,45 @@ describe( 'ChartLayout', () => {
 		expect( ref ).toHaveBeenCalledWith( expect.any( HTMLElement ) );
 	} );
 
+	it( 'calls function-as-children with measurement props', () => {
+		const childFn = jest.fn().mockReturnValue( <div data-testid="chart-content">Chart</div> );
+
+		render(
+			<ChartLayout legendPosition="bottom" legendChildren={ [] }>
+				{ childFn }
+			</ChartLayout>
+		);
+
+		expect( childFn ).toHaveBeenCalled();
+		const firstCallArg = childFn.mock.calls[ 0 ][ 0 ];
+
+		expect( firstCallArg ).toEqual(
+			expect.objectContaining( {
+				contentWidth: expect.any( Number ),
+				contentHeight: expect.any( Number ),
+				isMeasured: expect.any( Boolean ),
+			} )
+		);
+	} );
+
+	it( 'gives waitForMeasurement precedence over isWaitingForMeasurement', () => {
+		render(
+			<ChartLayout
+				legendPosition="bottom"
+				legendChildren={ [] }
+				isWaitingForMeasurement={ false }
+				waitForMeasurement={ true }
+				data-testid="layout"
+			>
+				<div>Chart</div>
+			</ChartLayout>
+		);
+
+		// waitForMeasurement=true with no measurement yet should hide,
+		// even though isWaitingForMeasurement=false would show
+		expect( screen.getByTestId( 'layout' ) ).toHaveStyle( { visibility: 'hidden' } );
+	} );
+
 	it( 'renders trailing content after bottom legend', () => {
 		render(
 			<ChartLayout
