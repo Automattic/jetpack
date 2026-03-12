@@ -247,7 +247,7 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 	// Handle empty or undefined data
 	if ( ! data || data.length === 0 ) {
 		return (
-			<SingleChartContext.Provider value={ { chartId, chartWidth: 0, chartHeight: 0 } }>
+			<SingleChartContext.Provider value={ { chartId } }>
 				<ChartLayout
 					legendPosition={ legendPosition }
 					legendElement={ false }
@@ -291,7 +291,7 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 	);
 
 	return (
-		<SingleChartContext.Provider value={ { chartId, chartWidth: 0, chartHeight: 0 } }>
+		<SingleChartContext.Provider value={ { chartId } }>
 			<ChartLayout
 				legendPosition={ legendPosition }
 				legendElement={ legendElement }

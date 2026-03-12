@@ -339,7 +339,7 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 	);
 
 	return (
-		<SingleChartContext.Provider value={ { chartId, chartWidth: 0, chartHeight: 0 } }>
+		<SingleChartContext.Provider value={ { chartId } }>
 			<ChartLayout
 				ref={ containerRef }
 				legendPosition={ legendPosition }
