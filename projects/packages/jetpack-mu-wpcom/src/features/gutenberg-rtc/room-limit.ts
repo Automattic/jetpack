@@ -1,15 +1,54 @@
 import type { ProviderCreator, ProviderCreatorResult } from '@wordpress/sync';
+import type { Awareness } from 'y-protocols/awareness';
+
+/*
+ * Module-level state shared across all `withRoomLimit` wrappers.
+ *
+ * The polling manager in `@wordpress/sync` is a singleton that sends a single
+ * HTTP request for every registered room. To fully stop polling when the
+ * room limit is reached we must destroy *all* wrapped providers — entity
+ * rooms AND collection rooms — in one shot.
+ */
+let breached = false;
+const teardowns: Array< () => void > = [];
+
+const NOOP_RESULT: ProviderCreatorResult = {
+	destroy: () => {},
+	on: () => {},
+};
+
+/**
+ * Count unique WordPress user IDs in the room, excluding the local user.
+ *
+ * @param awareness - The Yjs awareness instance.
+ * @return Number of other unique users, or -1 when the local user is not identifiable yet.
+ */
+function countOtherUsers( awareness: Awareness ): number {
+	const localUserId = awareness.getLocalState()?.collaboratorInfo?.id;
+	if ( typeof localUserId !== 'number' ) {
+		return -1;
+	}
+
+	const ids = new Set< number >();
+	for ( const [ , state ] of awareness.getStates() ) {
+		const uid = state?.collaboratorInfo?.id;
+		if ( typeof uid === 'number' && uid !== localUserId ) {
+			ids.add( uid );
+		}
+	}
+	return ids.size;
+}
 
 /**
  * Wraps a provider creator to enforce a per-room user limit.
  *
  * On every awareness change the wrapper counts unique WordPress user IDs
- * (from `collaboratorInfo.id`) excluding the local user. When the count
- * reaches the given limit the inner provider is destroyed.
- * When `roomUserLimit` is undefined or ≤ 0 the limit is not enforced.
+ * (via `collaboratorInfo.id`) excluding the local user. When the count
+ * reaches the given limit every provider created through `withRoomLimit`
+ * is destroyed, which causes the shared polling manager to stop entirely.
  *
  * @param creator       - The provider creator to wrap.
- * @param roomUserLimit - Max other unique users before disabling.
+ * @param roomUserLimit - Max other unique users allowed. Undefined or ≤ 0 disables enforcement.
  * @return Wrapped provider creator.
  */
 export function withRoomLimit( creator: ProviderCreator, roomUserLimit?: number ): ProviderCreator {
@@ -20,51 +59,54 @@ export function withRoomLimit( creator: ProviderCreator, roomUserLimit?: number 
 	const limit = roomUserLimit;
 
 	return async ( options ): Promise< ProviderCreatorResult > => {
+		if ( breached ) {
+			return NOOP_RESULT;
+		}
+
 		const { awareness } = options;
 		const innerProvider = await creator( options );
-		let isDestroyed = false;
+		let destroyed = false;
 
-		/** Check awareness states and destroy the provider when the limit is reached. */
-		function checkRoomLimit(): void {
-			if ( isDestroyed || ! awareness ) {
+		/** Tear down this single provider and detach the awareness listener. */
+		function destroy(): void {
+			if ( destroyed ) {
+				return;
+			}
+			destroyed = true;
+			awareness?.off( 'change', onAwarenessChange );
+			innerProvider.destroy();
+		}
+
+		/** React to awareness changes and trigger a global teardown when the limit is reached. */
+		function onAwarenessChange(): void {
+			if ( destroyed || ! awareness ) {
 				return;
 			}
 
-			const localState = awareness.getLocalState();
-			const localUserId = localState?.collaboratorInfo?.id;
-			if ( typeof localUserId !== 'number' ) {
-				return;
-			}
-
-			const states = awareness.getStates();
-			const otherUserIds = new Set< number >();
-
-			for ( const [ , state ] of states ) {
-				const userId = state?.collaboratorInfo?.id;
-				if ( typeof userId === 'number' && userId !== localUserId ) {
-					otherUserIds.add( userId );
+			const others = countOtherUsers( awareness );
+			if ( others >= 0 && others >= limit ) {
+				breached = true;
+				for ( const fn of teardowns ) {
+					fn();
 				}
-			}
-
-			if ( otherUserIds.size >= limit ) {
-				isDestroyed = true;
-				awareness.off( 'change', checkRoomLimit );
-				innerProvider.destroy();
+				teardowns.length = 0;
 			}
 		}
 
+		teardowns.push( destroy );
+
 		if ( awareness ) {
-			awareness.on( 'change', checkRoomLimit );
-			checkRoomLimit();
+			awareness.on( 'change', onAwarenessChange );
+			onAwarenessChange();
 		}
 
 		return {
 			destroy: () => {
-				if ( ! isDestroyed ) {
-					isDestroyed = true;
-					awareness?.off( 'change', checkRoomLimit );
-					innerProvider.destroy();
+				const idx = teardowns.indexOf( destroy );
+				if ( idx >= 0 ) {
+					teardowns.splice( idx, 1 );
 				}
+				destroy();
 			},
 			on: innerProvider.on.bind( innerProvider ),
 		};
