@@ -16,7 +16,7 @@ export interface ContentMeasurements {
 	contentWidth: number;
 	/** Measured height of the content area in pixels */
 	contentHeight: number;
-	/** True once the content area has been measured. Always true when waitForMeasurement is not set. */
+	/** True when a non-zero contentHeight measurement is available */
 	isMeasured: boolean;
 }
 
