@@ -36,6 +36,7 @@ function PaywallEdit() {
 	const [ showDialog, setShowDialog ] = useState( false );
 	const closeDialog = () => setShowDialog( false );
 
+	// Set default access.
 	const hasSetDefaultAccess = useRef( false );
 	const savedAccessLevel = useSelect( select => {
 		const meta = select( editorStore ).getCurrentPostAttribute( 'meta' );
@@ -45,15 +46,17 @@ function PaywallEdit() {
 		// Only set default access level if data is loaded and not already set.
 		if ( hasSetDefaultAccess.current === false && savedAccessLevel !== undefined ) {
 			// Set to "subscribers" if access is "everybody" (paywall + everybody doesn't make sense)
-			if ( ! savedAccessLevel || savedAccessLevel === accessOptions.everybody.key ) {
+			if ( savedAccessLevel === '' || savedAccessLevel === accessOptions.everybody.key ) {
 				setAccess( accessOptions.subscribers.key );
 			}
 
 			hasSetDefaultAccess.current = true;
 		}
+	}, [ setAccess, savedAccessLevel ] );
 
+	// Cleanup on unmount only.
+	useEffect( () => {
 		return () => {
-			// Reset to access level "everybody" when paywall block is removed
 			const { getBlocks } = window.wp.data.select( 'core/block-editor' );
 			const hasPaywallBlock = getBlocks().some( block => block.name === paywallBlockMetadata.name );
 
@@ -62,7 +65,7 @@ function PaywallEdit() {
 				hasSetDefaultAccess.current = false;
 			}
 		};
-	}, [ setAccess, savedAccessLevel ] );
+	}, [] ); // eslint-disable-line react-hooks/exhaustive-deps
 
 	function selectAccess( value ) {
 		if ( accessOptions.paid_subscribers.key === value && ( stripeConnectUrl || ! hasTierPlans ) ) {
