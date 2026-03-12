@@ -6,7 +6,15 @@ import { XYChart, AreaSeries, Grid, Axis, DataContext } from '@visx/xychart';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { differenceInHours, differenceInYears } from 'date-fns';
-import { useMemo, useContext, forwardRef, useImperativeHandle, useState, useRef } from 'react';
+import {
+	useMemo,
+	useContext,
+	forwardRef,
+	useImperativeHandle,
+	useState,
+	useRef,
+	useCallback,
+} from 'react';
 import { Legend, useChartLegendItems } from '../../components/legend';
 import { AccessibleTooltip, useKeyboardNavigation } from '../../components/tooltip';
 import {
@@ -296,6 +304,16 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 		const hasLegend = showLegend || hasLegendChild;
 		const [ measuredChartHeight, setMeasuredChartHeight ] = useState< number | undefined >();
 
+		// Callback for ChartLayout to notify us when the measured content height changes.
+		// We compute chartHeight the same way the render prop does so the context stays in sync.
+		const handleContentHeightChange = useCallback(
+			( contentHeight: number ) => {
+				const chartHeight = contentHeight > 0 ? contentHeight : height;
+				setMeasuredChartHeight( chartHeight );
+			},
+			[ height ]
+		);
+
 		// Forward the external ref to the internal ref
 		useImperativeHandle(
 			ref,
@@ -483,16 +501,12 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 					style={ { width, height } }
 					data-testid="line-chart"
 					trailingContent={ nonLegendChildren }
+					onContentHeightChange={ handleContentHeightChange }
 				>
 					{ ( { contentHeight } ) => {
 						// Use the measured height, falling back to the passed height if provided.
 						const chartHeight = contentHeight > 0 ? contentHeight : height;
 						const isWaitingForMeasurement = hasLegend ? contentHeight === 0 : ! chartHeight;
-
-						// Update the measured chart height for context consumers (e.g. AnnotationsOverlay)
-						if ( chartHeight !== measuredChartHeight ) {
-							setMeasuredChartHeight( chartHeight );
-						}
 
 						return (
 							<div

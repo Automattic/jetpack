@@ -1,5 +1,5 @@
 import { Stack } from '@wordpress/ui';
-import { forwardRef } from 'react';
+import { forwardRef, useEffect } from 'react';
 import { useElementSize } from '../../../hooks';
 import { renderLegendSlot } from '../chart-composition';
 import styles from './chart-layout.module.scss';
@@ -33,6 +33,8 @@ export interface ChartLayoutProps {
 	trailingContent?: ReactNode;
 	/** When true, hides the layout until content measurement is available */
 	waitForMeasurement?: boolean;
+	/** Called when the measured content height changes (for render-prop mode) */
+	onContentHeightChange?: ( height: number ) => void;
 	/** Gap between Stack items */
 	gap?: GapSize;
 	/** Additional class names */
@@ -54,6 +56,7 @@ export const ChartLayout = forwardRef< HTMLDivElement, ChartLayoutProps >(
 			children,
 			trailingContent,
 			waitForMeasurement,
+			onContentHeightChange,
 			gap,
 			className,
 			style,
@@ -70,6 +73,12 @@ export const ChartLayout = forwardRef< HTMLDivElement, ChartLayoutProps >(
 			const isHidden = waitForMeasurement && ! isMeasured;
 			visibilityStyle = { visibility: isHidden ? 'hidden' : 'visible' };
 		}
+
+		useEffect( () => {
+			if ( onContentHeightChange ) {
+				onContentHeightChange( contentHeight );
+			}
+		}, [ contentHeight, onContentHeightChange ] );
 
 		const isRenderProp = typeof children === 'function';
 		const renderedChildren = isRenderProp
