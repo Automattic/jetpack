@@ -31,12 +31,6 @@ export interface ChartLayoutProps {
 	children: ReactNode | ( ( measurements: ContentMeasurements ) => ReactNode );
 	/** Content rendered after the bottom legend (e.g., nonLegendChildren, htmlChildren, tooltips) */
 	trailingContent?: ReactNode;
-	/**
-	 * When true, hides the layout until content measurement is available.
-	 * Only works with render-prop children — contentRef is not attached for plain ReactNode children,
-	 * so isMeasured would stay false and the layout would remain permanently hidden.
-	 */
-	waitForMeasurement?: boolean;
 	/** Called when the measured content height changes (for render-prop mode) */
 	onContentHeightChange?: ( height: number ) => void;
 	/** Gap between Stack items */
@@ -59,7 +53,6 @@ export const ChartLayout = forwardRef< HTMLDivElement, ChartLayoutProps >(
 			legendChildren,
 			children,
 			trailingContent,
-			waitForMeasurement,
 			onContentHeightChange,
 			gap,
 			className,
@@ -70,21 +63,20 @@ export const ChartLayout = forwardRef< HTMLDivElement, ChartLayoutProps >(
 		ref
 	) => {
 		const [ contentRef, contentWidth, contentHeight ] = useElementSize< HTMLDivElement >();
+		const isRenderProp = typeof children === 'function';
 		const isMeasured = contentHeight > 0;
 
-		let visibilityStyle: { visibility?: 'hidden' | 'visible' } = {};
-		if ( waitForMeasurement !== undefined ) {
-			const isHidden = waitForMeasurement && ! isMeasured;
-			visibilityStyle = { visibility: isHidden ? 'hidden' : 'visible' };
-		}
+		// When using render-prop children, hide the layout until measurement is available
+		// to prevent layout shift. Plain ReactNode children don't need this since they
+		// don't depend on measured dimensions.
+		const visibilityStyle: { visibility?: 'hidden' | 'visible' } =
+			isRenderProp && ! isMeasured ? { visibility: 'hidden' } : {};
 
 		useEffect( () => {
 			if ( onContentHeightChange ) {
 				onContentHeightChange( contentHeight );
 			}
 		}, [ contentHeight, onContentHeightChange ] );
-
-		const isRenderProp = typeof children === 'function';
 		const renderedChildren = isRenderProp
 			? children( { contentWidth, contentHeight, isMeasured } )
 			: children;

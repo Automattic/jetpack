@@ -68,21 +68,18 @@ describe( 'ChartLayout', () => {
 		expect( mockRenderLegendSlot ).toHaveBeenCalledWith( legendChildren, 'bottom' );
 	} );
 
-	it( 'applies visibility hidden when waitForMeasurement is true and not yet measured', () => {
+	it( 'hides layout until measured when using render-prop children', () => {
+		const childFn = jest.fn().mockReturnValue( <div>Chart</div> );
 		render(
-			<ChartLayout
-				legendPosition="bottom"
-				legendChildren={ [] }
-				waitForMeasurement={ true }
-				data-testid="layout"
-			>
-				<div>Chart</div>
+			<ChartLayout legendPosition="bottom" legendChildren={ [] } data-testid="layout">
+				{ childFn }
 			</ChartLayout>
 		);
+		// Before ResizeObserver fires, contentHeight is 0 so layout should be hidden
 		expect( screen.getByTestId( 'layout' ) ).toHaveStyle( { visibility: 'hidden' } );
 	} );
 
-	it( 'does not set visibility when waitForMeasurement is not provided', () => {
+	it( 'does not hide layout when using plain ReactNode children', () => {
 		render(
 			<ChartLayout legendPosition="bottom" legendChildren={ [] } data-testid="layout">
 				<div>Chart</div>
