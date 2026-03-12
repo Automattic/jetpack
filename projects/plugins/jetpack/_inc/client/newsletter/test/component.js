@@ -23,7 +23,9 @@ describe( 'Newsletter', () => {
 		wpAdminSubscriberManagementEnabled: true,
 		siteAdminUrl: 'https://example.org/wp-admin/',
 		getOptionValue: () => true,
+		newsletterSendDefault: true,
 		updateOptions: jest.fn().mockResolvedValue( {} ),
+		updateFormStateAndSaveOptionValue: jest.fn(),
 		refreshSettings: jest.fn(),
 	};
 
@@ -114,6 +116,40 @@ describe( 'Newsletter', () => {
 				screen.getByText( 'Newsletter' ).closest( '.dops-section-header' )
 			).toBeInTheDocument();
 			expect( screen.getByRole( 'link', { name: 'Manage all subscribers' } ) ).toBeInTheDocument();
+		} );
+	} );
+
+	describe( 'Send newsletter by default toggle', () => {
+		it( 'renders the toggle', () => {
+			render( <Newsletter { ...defaultProps } />, { initialState } );
+			expect( screen.getByText( 'Send newsletter by default' ) ).toBeInTheDocument();
+		} );
+
+		it( 'is checked when newsletterSendDefault is true', () => {
+			render( <Newsletter { ...defaultProps } />, { initialState } );
+			const toggle = screen.getByLabelText( 'Send newsletter by default' );
+			expect( toggle ).toBeChecked();
+		} );
+
+		it( 'is unchecked when newsletterSendDefault is false', () => {
+			const propsWithSendDefaultFalse = {
+				...defaultProps,
+				getOptionValue: option => ( option === 'wpcom_newsletter_send_default' ? false : true ),
+			};
+			render( <Newsletter { ...propsWithSendDefaultFalse } />, { initialState } );
+			const toggle = screen.getByLabelText( 'Send newsletter by default' );
+			expect( toggle ).not.toBeChecked();
+		} );
+
+		it( 'is disabled and unchecked when subscriptions are inactive', () => {
+			const propsWithSubscriptionsInactive = {
+				...defaultProps,
+				getOptionValue: option => ( option === 'subscriptions' ? false : true ),
+			};
+			render( <Newsletter { ...propsWithSubscriptionsInactive } />, { initialState } );
+			const toggle = screen.getByLabelText( 'Send newsletter by default' );
+			expect( toggle ).not.toBeChecked();
+			expect( toggle ).toBeDisabled();
 		} );
 	} );
 } );
