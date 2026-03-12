@@ -347,7 +347,7 @@ const PieChartInternal = ( {
 						: 0;
 
 					return (
-						<Stack align="center" justify="center">
+						<Stack align="center" justify="center" style={ { width: '100%', height: '100%' } }>
 							<svg
 								viewBox={ `0 0 ${ width } ${ height }` }
 								preserveAspectRatio="xMidYMid meet"
