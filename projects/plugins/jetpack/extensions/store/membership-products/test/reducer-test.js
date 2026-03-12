@@ -163,4 +163,115 @@ describe( 'Membership products reducer testing', () => {
 			totalEmailsSentCount: anyTotalEmailsSentCount,
 		} );
 	} );
+
+	test( 'SET_POST_EMAIL_SENT_STATE stores payload under postEmailSentState for the given postId.', () => {
+		const postId = 5;
+		const payload = {
+			email_sent_at: 1234567890,
+			stats_on_send: { access_level: 'subscribers', post_categories: [ 1 ] },
+		};
+		const action = {
+			type: 'SET_POST_EMAIL_SENT_STATE',
+			postId,
+			payload,
+		};
+
+		const returnedState = reducer( DEFAULT_STATE, action );
+
+		expect( returnedState.postEmailSentState ).toStrictEqual( {
+			[ postId ]: {
+				email_sent_at: payload.email_sent_at,
+				stats_on_send: payload.stats_on_send,
+			},
+		} );
+	} );
+
+	test( 'SET_POST_EMAIL_SENT_STATE preserves other postIds when adding a new one.', () => {
+		const stateWithPost123 = {
+			...DEFAULT_STATE,
+			postEmailSentState: {
+				123: { email_sent_at: 111, stats_on_send: null },
+			},
+		};
+		const action = {
+			type: 'SET_POST_EMAIL_SENT_STATE',
+			postId: 456,
+			payload: { email_sent_at: 222, stats_on_send: null },
+		};
+
+		const returnedState = reducer( stateWithPost123, action );
+
+		expect( returnedState.postEmailSentState ).toStrictEqual( {
+			123: { email_sent_at: 111, stats_on_send: null },
+			456: { email_sent_at: 222, stats_on_send: null },
+		} );
+	} );
+
+	test( 'SET_ALREADY_SENT_POST_MODIFIED_IN_SESSION stores true for the given postId.', () => {
+		const postId = 10;
+		const action = {
+			type: 'SET_ALREADY_SENT_POST_MODIFIED_IN_SESSION',
+			postId,
+		};
+
+		const returnedState = reducer( DEFAULT_STATE, action );
+
+		expect( returnedState.alreadySentPostModifiedInSession ).toStrictEqual( {
+			[ postId ]: true,
+		} );
+	} );
+
+	test( 'SET_ALREADY_SENT_POST_MODIFIED_IN_SESSION preserves other postIds when adding a new one.', () => {
+		const stateWithPost123 = {
+			...DEFAULT_STATE,
+			alreadySentPostModifiedInSession: {
+				123: true,
+			},
+		};
+		const action = {
+			type: 'SET_ALREADY_SENT_POST_MODIFIED_IN_SESSION',
+			postId: 456,
+		};
+
+		const returnedState = reducer( stateWithPost123, action );
+
+		expect( returnedState.alreadySentPostModifiedInSession ).toStrictEqual( {
+			123: true,
+			456: true,
+		} );
+	} );
+
+	test( 'SET_PUBLISHED_WITH_EMAIL_ENABLED_IN_SESSION stores true for the given postId.', () => {
+		const postId = 10;
+		const action = {
+			type: 'SET_PUBLISHED_WITH_EMAIL_ENABLED_IN_SESSION',
+			postId,
+		};
+
+		const returnedState = reducer( DEFAULT_STATE, action );
+
+		expect( returnedState.publishedWithEmailEnabledInSession ).toStrictEqual( {
+			[ postId ]: true,
+		} );
+	} );
+
+	test( 'SET_PUBLISHED_WITH_EMAIL_ENABLED_IN_SESSION preserves other postIds when adding a new one.', () => {
+		const stateWithPost123 = {
+			...DEFAULT_STATE,
+			publishedWithEmailEnabledInSession: {
+				123: true,
+			},
+		};
+		const action = {
+			type: 'SET_PUBLISHED_WITH_EMAIL_ENABLED_IN_SESSION',
+			postId: 456,
+		};
+
+		const returnedState = reducer( stateWithPost123, action );
+
+		expect( returnedState.publishedWithEmailEnabledInSession ).toStrictEqual( {
+			123: true,
+			456: true,
+		} );
+	} );
 } );
