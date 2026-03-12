@@ -11,22 +11,6 @@ export type FormListItem = {
 	editUrl?: string;
 };
 
-type JetpackFormRestItem = {
-	id: number;
-	title?: { rendered?: string };
-	status: string;
-	modified: string;
-	entries_count?: number;
-	edit_url?: string;
-};
-
-type UseFormsDataReturn = {
-	records: FormListItem[];
-	isLoading: boolean;
-	totalItems: number;
-	totalPages: number;
-};
-
 /**
  * Build the query object for fetching Forms list records from core-data.
  *
@@ -55,6 +39,22 @@ export function getFormsListQuery( page: number, perPage: number, search: string
 	return queryParams;
 }
 
+type JetpackFormRestItem = {
+	id: number;
+	title?: { rendered?: string };
+	status: string;
+	modified: string;
+	entries_count?: number;
+	edit_url?: string;
+};
+
+type UseFormsDataReturn = {
+	records: FormListItem[];
+	isLoading: boolean;
+	totalItems: number;
+	totalPages: number;
+};
+
 /**
  * Fetch Forms list records for the Forms dashboard table.
  *
@@ -71,10 +71,9 @@ export default function useFormsData(
 	search: string,
 	status: string
 ): UseFormsDataReturn {
-	const query = useMemo(
-		() => getFormsListQuery( page, perPage, search, status ),
-		[ page, perPage, search, status ]
-	);
+	const query = useMemo( () => {
+		return getFormsListQuery( page, perPage, search, status );
+	}, [ page, perPage, search, status ] );
 
 	const {
 		records: rawRecords,
