@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Added a form name modal to the wp-build forms dashboard, prompting users to name their form before entering the editor.
