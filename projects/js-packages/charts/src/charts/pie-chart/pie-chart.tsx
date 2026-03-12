@@ -2,9 +2,9 @@ import { Group } from '@visx/group';
 import { Pie } from '@visx/shape';
 import { useTooltip, useTooltipInPortal } from '@visx/tooltip';
 import { __ } from '@wordpress/i18n';
-import { Stack } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useCallback, useContext, useMemo } from 'react';
+import { ChartLayout } from '../../components/chart-layout';
 import { Legend, useChartLegendItems } from '../../components/legend';
 import { BaseTooltip } from '../../components/tooltip';
 import { useElementSize, useInteractiveLegendData, usePrefersReducedMotion } from '../../hooks';
@@ -18,12 +18,7 @@ import {
 } from '../../providers';
 import { attachSubComponents } from '../../utils';
 import { getStringWidth } from '../../visx/text';
-import {
-	ChartSVG,
-	ChartHTML,
-	useChartChildren,
-	renderLegendSlot,
-} from '../private/chart-composition';
+import { ChartSVG, ChartHTML, useChartChildren } from '../private/chart-composition';
 import { RadialWipeAnimation } from '../private/radial-wipe-animation/';
 import { SingleChartContext } from '../private/single-chart-context';
 import { withResponsive, ResponsiveConfig } from '../private/with-responsive';
@@ -332,9 +327,11 @@ const PieChartInternal = ( {
 				chartHeight: height,
 			} }
 		>
-			<Stack
+			<ChartLayout
 				ref={ containerRef }
-				direction="column"
+				legendPosition={ legendPosition }
+				legendElement={ legendElement }
+				legendChildren={ legendChildren }
 				gap={ gap }
 				className={ clsx(
 					'pie-chart',
@@ -347,10 +344,18 @@ const PieChartInternal = ( {
 					width: propWidth || undefined,
 					height: propHeight || undefined,
 				} }
+				trailingContent={
+					<>
+						{ withTooltips && tooltipOpen && tooltipData && (
+							<TooltipInPortal top={ tooltipTop || 0 } left={ tooltipLeft || 0 }>
+								<div role="tooltip">{ renderTooltip( { tooltipData } ) }</div>
+							</TooltipInPortal>
+						) }
+						{ htmlChildren }
+						{ otherChildren }
+					</>
+				}
 			>
-				{ legendPosition === 'top' && legendElement }
-				{ renderLegendSlot( legendChildren, 'top' ) }
-
 				<div className={ styles[ 'pie-chart__svg-wrapper' ] } ref={ svgWrapperRef }>
 					<svg
 						viewBox={ `0 0 ${ width } ${ height }` }
@@ -480,22 +485,7 @@ const PieChartInternal = ( {
 						</Group>
 					</svg>
 				</div>
-
-				{ legendPosition === 'bottom' && legendElement }
-				{ renderLegendSlot( legendChildren, 'bottom' ) }
-
-				{ withTooltips && tooltipOpen && tooltipData && (
-					<TooltipInPortal top={ tooltipTop || 0 } left={ tooltipLeft || 0 }>
-						<div role="tooltip">{ renderTooltip( { tooltipData } ) }</div>
-					</TooltipInPortal>
-				) }
-
-				{ /* Render HTML component children from PieChart.HTML */ }
-				{ htmlChildren }
-
-				{ /* Render other React children for backward compatibility */ }
-				{ otherChildren }
-			</Stack>
+			</ChartLayout>
 		</SingleChartContext.Provider>
 	);
 };
