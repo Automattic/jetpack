@@ -328,4 +328,77 @@ class Gutenberg_RTC_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertSame( array(), $wp_settings_fields );
 	}
+
+	/**
+	 * Tests that the script is always enqueued, even when RTC is disabled.
+	 */
+	public function test_wpcom_enqueue_gutenberg_rtc_assets_always_enqueues() {
+		wpcom_enqueue_gutenberg_rtc_assets();
+
+		$this->assertTrue( wp_script_is( 'jetpack-mu-wpcom-gutenberg-rtc', 'enqueued' ) );
+	}
+
+	/**
+	 * Retrieve the inline script attached before the gutenberg-rtc handle.
+	 *
+	 * @return string The concatenated inline script content.
+	 */
+	private function get_inline_script(): string {
+		global $wp_scripts;
+		$extra = $wp_scripts->registered['jetpack-mu-wpcom-gutenberg-rtc']->extra['before'] ?? array();
+		return implode( "\n", array_filter( $extra ) );
+	}
+
+	/**
+	 * Tests that the inline script data includes roomUserLimit.
+	 */
+	public function test_wpcom_enqueue_gutenberg_rtc_assets_includes_room_user_limit() {
+		wpcom_enqueue_gutenberg_rtc_assets();
+
+		$inline = $this->get_inline_script();
+
+		$this->assertStringContainsString( 'wpcomGutenbergRTC', $inline );
+		$this->assertStringContainsString( '"roomUserLimit":', $inline );
+	}
+
+	/**
+	 * Tests that the inline script data includes providers array.
+	 */
+	public function test_wpcom_enqueue_gutenberg_rtc_assets_includes_providers() {
+		wpcom_enqueue_gutenberg_rtc_assets();
+
+		$inline = $this->get_inline_script();
+
+		$this->assertStringContainsString( '"providers":', $inline );
+	}
+
+	/**
+	 * Tests that the inline script data contains the correct providers when RTC is enabled.
+	 */
+	public function test_wpcom_enqueue_gutenberg_rtc_assets_inline_data_matches_providers() {
+		add_filter( 'wpcom_is_gutenberg_rtc_enabled', '__return_true' );
+		add_filter(
+			'wpcom_gutenberg_rtc_providers',
+			function () {
+				return array( 'pinghub' );
+			}
+		);
+
+		wpcom_enqueue_gutenberg_rtc_assets();
+
+		$inline = $this->get_inline_script();
+
+		$this->assertStringContainsString( '"providers":["pinghub"]', $inline );
+	}
+
+	/**
+	 * Tests that the inline script data contains an empty providers array when RTC is disabled.
+	 */
+	public function test_wpcom_enqueue_gutenberg_rtc_assets_inline_data_empty_providers_when_disabled() {
+		wpcom_enqueue_gutenberg_rtc_assets();
+
+		$inline = $this->get_inline_script();
+
+		$this->assertStringContainsString( '"providers":[]', $inline );
+	}
 }
