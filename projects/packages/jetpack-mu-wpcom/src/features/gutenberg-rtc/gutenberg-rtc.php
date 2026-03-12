@@ -17,7 +17,7 @@
  */
 function wpcom_is_gutenberg_rtc_enabled() {
 	$is_enabled = false;
-	if ( function_exists( 'wpcom_site_has_feature' ) && class_exists( 'WPCOM_Features' ) ) {
+	if ( function_exists( 'wpcom_site_has_feature' ) && class_exists( 'WPCOM_Features' ) && defined( 'WPCOM_Features::REAL_TIME_COLLABORATION' ) ) {
 		$blog_id    = get_wpcom_blog_id();
 		$is_enabled = wpcom_site_has_feature( WPCOM_Features::REAL_TIME_COLLABORATION, $blog_id );
 	}
