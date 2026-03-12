@@ -1,4 +1,4 @@
-import { getRedirectUrl } from '@automattic/jetpack-components';
+import { getRedirectUrl, ToggleControl } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import { useCallback } from 'react';
 import { connect } from 'react-redux';
@@ -18,6 +18,8 @@ import {
 import { isWpAdminSubscriberManagementEnabled, getSiteAdminUrl } from 'state/initial-state';
 import { getModule } from 'state/modules';
 import { SUBSCRIPTIONS_MODULE_NAME } from './constants';
+
+const NEWSLETTER_SEND_DEFAULT_OPTION = 'wpcom_newsletter_send_default';
 
 const trackViewSubsClick = () => {
 	analytics.tracks.recordJetpackClick( 'manage-subscribers' );
@@ -41,7 +43,9 @@ function Newsletter( props ) {
 		siteHasConnectedUser,
 		wpAdminSubscriberManagementEnabled,
 		siteAdminUrl,
+		newsletterSendDefault,
 		updateOptions,
+		updateFormStateAndSaveOptionValue,
 		getOptionValue,
 		refreshSettings,
 	} = props;
@@ -70,6 +74,14 @@ function Newsletter( props ) {
 			</Card>
 		);
 	};
+
+	const handleEmailPostToSubsDefaultToggle = useCallback( () => {
+		const newValue = ! newsletterSendDefault;
+		updateFormStateAndSaveOptionValue( NEWSLETTER_SEND_DEFAULT_OPTION, newValue );
+		analytics.tracks.recordEvent( 'jetpack_newsletter_set_send_default', {
+			enabled: newValue,
+		} );
+	}, [ newsletterSendDefault, updateFormStateAndSaveOptionValue ] );
 
 	const toggleModule = useCallback(
 		module => {
@@ -129,6 +141,39 @@ function Newsletter( props ) {
 				</ModuleToggle>
 			</SettingsGroup>
 
+			<SettingsGroup
+				hasChild
+				disableInOfflineMode
+				disableInSiteConnectionMode={ ! siteHasConnectedUser }
+				module={ subscriptions }
+				support={ {
+					text: __(
+						'When on, the newsletter option will be pre-selected each time you publish. You can change it before publishing any post.',
+						'jetpack'
+					),
+					link: getRedirectUrl( 'jetpack-support-subscriptions', {
+						anchor: 'post-email-vs-post-only-options',
+					} ),
+				} }
+			>
+				<ToggleControl
+					checked={ isSubscriptionsActive && !! newsletterSendDefault }
+					disabled={
+						! isSubscriptionsActive ||
+						! siteHasConnectedUser ||
+						unavailableInOfflineMode ||
+						isSavingAnyOption( [ SUBSCRIPTIONS_MODULE_NAME, NEWSLETTER_SEND_DEFAULT_OPTION ] )
+					}
+					toggling={ isSavingAnyOption( [ NEWSLETTER_SEND_DEFAULT_OPTION ] ) }
+					onChange={ handleEmailPostToSubsDefaultToggle }
+					label={
+						<span className="jp-form-toggle-explanation">
+							{ __( 'Send newsletter by default', 'jetpack' ) }
+						</span>
+					}
+				/>
+			</SettingsGroup>
+
 			{ getSubClickableCard() }
 		</SettingsCard>
 	);
@@ -145,6 +190,7 @@ export default withModuleSettingsFormHelpers(
 			siteHasConnectedUser: hasConnectedOwner( state ),
 			wpAdminSubscriberManagementEnabled: isWpAdminSubscriberManagementEnabled( state ),
 			siteAdminUrl: getSiteAdminUrl( state ),
+			newsletterSendDefault: ownProps.getOptionValue( NEWSLETTER_SEND_DEFAULT_OPTION ),
 		};
 	} )( Newsletter )
 );
