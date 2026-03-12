@@ -91,6 +91,22 @@ describe( 'PaywallEdit', () => {
 		mockGetBlocks.mockReturnValue( [ { name: 'jetpack/paywall' } ] );
 	} );
 
+	test( 'does not set access saved access is undefined', () => {
+		mockSavedAccessLevel = undefined;
+
+		render( <PaywallEdit /> );
+
+		expect( mockSetAccess ).not.toHaveBeenCalled();
+	} );
+
+	test( 'sets access to "subscribers" when saved access is ""', () => {
+		mockSavedAccessLevel = '';
+
+		render( <PaywallEdit /> );
+
+		expect( mockSetAccess ).toHaveBeenCalledWith( accessOptions.subscribers.key );
+	} );
+
 	test( 'sets access to "subscribers" when saved access is "everybody"', () => {
 		mockSavedAccessLevel = 'everybody';
 

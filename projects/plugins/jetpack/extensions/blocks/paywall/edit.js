@@ -45,7 +45,7 @@ function PaywallEdit() {
 		// Only set default access level if data is loaded and not already set.
 		if ( hasSetDefaultAccess.current === false && savedAccessLevel !== undefined ) {
 			// Set to "subscribers" if access is "everybody" (paywall + everybody doesn't make sense)
-			if ( savedAccessLevel === accessOptions.everybody.key ) {
+			if ( ! savedAccessLevel || savedAccessLevel === accessOptions.everybody.key ) {
 				setAccess( accessOptions.subscribers.key );
 			}
 
