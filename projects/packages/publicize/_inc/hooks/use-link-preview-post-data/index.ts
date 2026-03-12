@@ -60,23 +60,12 @@ export function useLinkPreviewPostData(): LinkPreviewData {
 	}, [] );
 
 	const { siteTitle, siteIcon } = useSelect( select => {
-		const site = select( coreStore ).getSite(
-			// The id param is optional
-			undefined
-		);
-
-		const { getEntityRecord } = select( coreStore );
-
-		const siteIconId = site?.site_icon;
-		let siteIconUrl = '';
-
-		if ( siteIconId ) {
-			siteIconUrl = getMediaSourceUrl( getEntityRecord( 'postType', 'attachment', siteIconId ) );
-		}
+		const { getUnstableBase } = select( coreStore );
+		const base = getUnstableBase( undefined );
 
 		return {
-			siteTitle: site?.title || '',
-			siteIcon: siteIconUrl,
+			siteTitle: base?.name || '',
+			siteIcon: base?.site_icon_url || '',
 		};
 	}, [] );
 
