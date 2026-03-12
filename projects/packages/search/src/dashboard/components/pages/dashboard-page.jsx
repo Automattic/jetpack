@@ -34,21 +34,6 @@ export default function DashboardPage( { isLoading = false } ) {
 	useSelect( select => select( STORE_ID ).getSearchModuleStatus(), [] );
 	useSelect( select => select( STORE_ID ).getSearchStats(), [] );
 
-	// The JITM JS may run before React mounts, placing .jitm-card in #wpbody-content
-	// instead of #jp-admin-notices. Move any stray JITMs into the correct container.
-	useEffect( () => {
-		if ( isPageLoading ) {
-			return;
-		}
-		const target = document.getElementById( 'jp-admin-notices' );
-		if ( ! target ) {
-			return;
-		}
-		document.querySelectorAll( '#wpbody-content > .jitm-card' ).forEach( card => {
-			target.appendChild( card );
-		} );
-	}, [ isPageLoading ] );
-
 	const domain = useSelect( select => select( STORE_ID ).getCalypsoSlug() );
 	const blogID = useSelect( select => select( STORE_ID ).getBlogId() );
 	const siteAdminUrl = useSelect( select => select( STORE_ID ).getSiteAdminUrl() );
@@ -76,6 +61,21 @@ export default function DashboardPage( { isLoading = false } ) {
 			isLoading,
 		[ isLoading ]
 	);
+
+	// The JITM JS may run before React mounts, placing .jitm-card in #wpbody-content
+	// instead of #jp-admin-notices. Move any stray JITMs into the correct container.
+	useEffect( () => {
+		if ( isPageLoading ) {
+			return;
+		}
+		const target = document.getElementById( 'jp-admin-notices' );
+		if ( ! target ) {
+			return;
+		}
+		document.querySelectorAll( '#wpbody-content > .jitm-card' ).forEach( card => {
+			target.appendChild( card );
+		} );
+	}, [ isPageLoading ] );
 
 	// Introduce the gate for new pricing with URL parameter `new_pricing_202208=1`
 	const isNewPricing = useSelect( select => select( STORE_ID ).isNewPricing202208(), [] );
