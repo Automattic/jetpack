@@ -43,7 +43,6 @@ await jest.unstable_mockModule( '@wordpress/data', () => {
 	const mockDispatch = {
 		createSuccessNotice: jest.fn(),
 		createErrorNotice: jest.fn(),
-		invalidateResolution: jest.fn(),
 		invalidateResolutionForStoreSelector: jest.fn(),
 		invalidateCounts: jest.fn(),
 	};
@@ -58,7 +57,6 @@ await jest.unstable_mockModule( '@wordpress/data', () => {
 			}
 			if ( store === 'core' ) {
 				return {
-					invalidateResolution: mockDispatch.invalidateResolution,
 					invalidateResolutionForStoreSelector: mockDispatch.invalidateResolutionForStoreSelector,
 				};
 			}
@@ -157,13 +155,12 @@ describe( 'useEmptyTrash', () => {
 		} );
 
 		// Verify cache invalidation
+		const coreDispatch = useDispatch( 'core' );
+		const dashboardDispatch = useDispatch( 'dashboard' );
 		await waitFor( () => {
-			const coreDispatch = useDispatch( 'core' );
 			expect( coreDispatch.invalidateResolutionForStoreSelector ).toHaveBeenCalledWith(
 				'getEntityRecords'
 			);
-
-			const dashboardDispatch = useDispatch( 'dashboard' );
 			expect( dashboardDispatch.invalidateCounts ).toHaveBeenCalled();
 		} );
 	} );

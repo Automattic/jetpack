@@ -77,7 +77,6 @@ await jest.unstable_mockModule( '@wordpress/data', () => {
 	const mockDispatch = {
 		createSuccessNotice: jest.fn(),
 		createErrorNotice: jest.fn(),
-		invalidateResolution: jest.fn(),
 		setCounts: jest.fn(),
 		setCurrentQuery: jest.fn(),
 		setSelectedResponses: jest.fn(),
@@ -104,7 +103,6 @@ await jest.unstable_mockModule( '@wordpress/data', () => {
 			}
 			if ( store === 'core' ) {
 				return {
-					invalidateResolution: mockDispatch.invalidateResolution,
 					invalidateResolutionForStoreSelector: jest.fn(),
 				};
 			}
