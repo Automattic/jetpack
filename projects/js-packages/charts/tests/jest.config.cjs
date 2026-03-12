@@ -18,7 +18,6 @@ module.exports = {
 	transformIgnorePatterns: [ '/node_modules/(?!(\\.pnpm/(d3-|internmap)|d3-|internmap))' ],
 	setupFilesAfterEnv: [
 		...( baseConfig.setupFilesAfterEnv || [] ),
-		path.join( __dirname, 'setup-visx-tooltip-mock.js' ),
 		path.join( __dirname, 'setup-element-size-mock.js' ),
 	],
 };
