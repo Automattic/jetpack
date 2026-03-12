@@ -86,32 +86,33 @@ export default function VariationPicker( { blockName, setAttributes, clientId, c
 		} );
 	};
 
+	const hasExistingForms = jetpackForms && jetpackForms.length > 0;
+
+	const getInstructions = () => {
+		if ( isCentralFormManagementEnabled && hasExistingForms ) {
+			return __(
+				'Start by selecting one of these templates or select an existing form below.',
+				'jetpack-forms'
+			);
+		}
+		if ( isCentralFormManagementEnabled ) {
+			return __( 'Start by selecting one of these templates.', 'jetpack-forms' );
+		}
+		if ( hasExistingForms ) {
+			return __(
+				'Start by selecting one of these templates, browse patterns, or select an existing form below.',
+				'jetpack-forms'
+			);
+		}
+		return __( 'Start by selecting one of these templates or browse patterns.', 'jetpack-forms' );
+	};
+
 	return (
 		<div className={ clsx( classNames, 'is-placeholder' ) }>
 			<BlockVariationPicker
 				icon={ blockType?.icon?.src }
 				label={ blockType?.title }
-				instructions={
-					isCentralFormManagementEnabled
-						? ( jetpackForms && jetpackForms.length > 0
-								? __(
-										'Start by selecting one of these templates or select an existing form below.',
-										'jetpack-forms'
-								  )
-								: __(
-										'Start by selecting one of these templates.',
-										'jetpack-forms'
-								  ) )
-						: ( jetpackForms && jetpackForms.length > 0
-								? __(
-										'Start by selecting one of these templates, browse patterns, or select an existing form below.',
-										'jetpack-forms'
-								  )
-								: __(
-										'Start by selecting one of these templates or browse patterns.',
-										'jetpack-forms'
-								  ) )
-				}
+				instructions={ getInstructions() }
 				variations={ variations.filter( v => ! v.hiddenFromPicker ) }
 				onSelect={ async ( nextVariation = defaultVariation ) => {
 					// If we're editing a jetpack-form post directly, or central form management
