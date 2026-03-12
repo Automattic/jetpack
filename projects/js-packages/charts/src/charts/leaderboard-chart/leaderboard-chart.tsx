@@ -252,7 +252,14 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 					legendPosition={ legendPosition }
 					legendElement={ false }
 					legendChildren={ legendChildren }
-					className={ clsx( styles.leaderboardChart, className ) }
+					className={ clsx(
+						styles.leaderboardChart,
+						{
+							[ styles[ 'leaderboardChart--responsive' ] ]: ! propWidth && ! propHeight,
+							[ styles[ 'leaderboardChart--loading' ] ]: loading,
+						},
+						className
+					) }
 					gap={ gap }
 					style={ { ...style, width: propWidth || undefined, height: propHeight || undefined } }
 					data-testid="leaderboard-chart-container"
