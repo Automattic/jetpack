@@ -69,14 +69,25 @@ describe( 'ChartLayout', () => {
 	} );
 
 	it( 'hides layout until measured when using render-prop children', () => {
+		// Override the global getBoundingClientRect mock to return zero (unmeasured state)
+		// for elements inside this test. This simulates the initial state before
+		// ResizeObserver provides real dimensions in a browser.
+		const originalGetBoundingClientRect = Element.prototype.getBoundingClientRect;
+		Element.prototype.getBoundingClientRect = function () {
+			return { width: 0, height: 0, top: 0, left: 0, bottom: 0, right: 0, x: 0, y: 0 } as DOMRect;
+		};
+
 		const childFn = jest.fn().mockReturnValue( <div>Chart</div> );
 		render(
 			<ChartLayout legendPosition="bottom" legendChildren={ [] } data-testid="layout">
 				{ childFn }
 			</ChartLayout>
 		);
-		// Before ResizeObserver fires, contentHeight is 0 so layout should be hidden
+		// When contentHeight is 0, layout should be hidden to prevent layout shift
 		expect( screen.getByTestId( 'layout' ) ).toHaveStyle( { visibility: 'hidden' } );
+
+		// Restore the global mock
+		Element.prototype.getBoundingClientRect = originalGetBoundingClientRect;
 	} );
 
 	it( 'does not hide layout when using plain ReactNode children', () => {
