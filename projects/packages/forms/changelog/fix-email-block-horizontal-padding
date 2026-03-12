@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Email rendering: Apply horizontal padding from email_attrs to contact form fallback.
