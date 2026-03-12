@@ -42,7 +42,9 @@ export default function useEmptySpam( {
 	const [ isEmptying, setIsEmptying ] = useState( false );
 	const [ isEmpty, setIsEmpty ] = useState( true );
 	const { createSuccessNotice, createErrorNotice } = useDispatch( noticesStore );
-	const { invalidateResolutionForStoreSelector } = useDispatch( coreStore );
+	const { invalidateResolutionForStoreSelector } = useDispatch( coreStore ) as unknown as {
+		invalidateResolutionForStoreSelector: ( selector: string ) => void;
+	};
 	const { invalidateCounts } = useDispatch( dashboardStore );
 
 	// Use props if provided, otherwise use hook
