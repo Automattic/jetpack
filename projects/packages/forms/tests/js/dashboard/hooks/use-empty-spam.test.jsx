@@ -44,6 +44,7 @@ await jest.unstable_mockModule( '@wordpress/data', () => {
 		createSuccessNotice: jest.fn(),
 		createErrorNotice: jest.fn(),
 		invalidateResolution: jest.fn(),
+		invalidateResolutionForStoreSelector: jest.fn(),
 		invalidateCounts: jest.fn(),
 	};
 
@@ -56,7 +57,10 @@ await jest.unstable_mockModule( '@wordpress/data', () => {
 				};
 			}
 			if ( store === 'core' ) {
-				return { invalidateResolution: mockDispatch.invalidateResolution };
+				return {
+					invalidateResolution: mockDispatch.invalidateResolution,
+					invalidateResolutionForStoreSelector: mockDispatch.invalidateResolutionForStoreSelector,
+				};
 			}
 			if ( store === 'dashboard' ) {
 				return { invalidateCounts: mockDispatch.invalidateCounts };
@@ -151,6 +155,15 @@ describe( 'useEmptySpam', () => {
 				{ type: 'snackbar', id: 'empty-spam' }
 			);
 		} );
+
+		// Verify cache invalidation
+		const coreDispatch = useDispatch( 'core' );
+		expect( coreDispatch.invalidateResolutionForStoreSelector ).toHaveBeenCalledWith(
+			'getEntityRecords'
+		);
+
+		const dashboardDispatch = useDispatch( 'dashboard' );
+		expect( dashboardDispatch.invalidateCounts ).toHaveBeenCalled();
 	} );
 
 	it( 'does not call API when isEmpty is true', async () => {

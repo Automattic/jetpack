@@ -103,7 +103,10 @@ await jest.unstable_mockModule( '@wordpress/data', () => {
 				return mockDispatch;
 			}
 			if ( store === 'core' ) {
-				return { invalidateResolution: mockDispatch.invalidateResolution };
+				return {
+					invalidateResolution: mockDispatch.invalidateResolution,
+					invalidateResolutionForStoreSelector: jest.fn(),
+				};
 			}
 			if ( store === 'dashboard' ) {
 				return {
