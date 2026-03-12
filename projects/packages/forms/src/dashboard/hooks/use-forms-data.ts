@@ -4,7 +4,7 @@ import { decodeEntities } from '@wordpress/html-entities';
 import { getFormsListQuery } from './forms-data-cache';
 
 // Re-export for consumers
-export { invalidateFormsDataResolutions, getFormsListQuery } from './forms-data-cache';
+export { getFormsListQuery } from './forms-data-cache';
 
 export type FormListItem = {
 	id: number;

@@ -157,13 +157,15 @@ describe( 'useEmptyTrash', () => {
 		} );
 
 		// Verify cache invalidation
-		const coreDispatch = useDispatch( 'core' );
-		expect( coreDispatch.invalidateResolutionForStoreSelector ).toHaveBeenCalledWith(
-			'getEntityRecords'
-		);
+		await waitFor( () => {
+			const coreDispatch = useDispatch( 'core' );
+			expect( coreDispatch.invalidateResolutionForStoreSelector ).toHaveBeenCalledWith(
+				'getEntityRecords'
+			);
 
-		const dashboardDispatch = useDispatch( 'dashboard' );
-		expect( dashboardDispatch.invalidateCounts ).toHaveBeenCalled();
+			const dashboardDispatch = useDispatch( 'dashboard' );
+			expect( dashboardDispatch.invalidateCounts ).toHaveBeenCalled();
+		} );
 	} );
 
 	it( 'does not call API when isEmpty is true', async () => {
