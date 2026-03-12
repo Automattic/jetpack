@@ -31,7 +31,11 @@ export interface ChartLayoutProps {
 	children: ReactNode | ( ( measurements: ContentMeasurements ) => ReactNode );
 	/** Content rendered after the bottom legend (e.g., nonLegendChildren, htmlChildren, tooltips) */
 	trailingContent?: ReactNode;
-	/** When true, hides the layout until content measurement is available */
+	/**
+	 * When true, hides the layout until content measurement is available.
+	 * Only works with render-prop children — contentRef is not attached for plain ReactNode children,
+	 * so isMeasured would stay false and the layout would remain permanently hidden.
+	 */
 	waitForMeasurement?: boolean;
 	/** Called when the measured content height changes (for render-prop mode) */
 	onContentHeightChange?: ( height: number ) => void;
