@@ -95,7 +95,7 @@ function register_block() {
 		'post',
 		META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS,
 		array(
-			'default'       => (bool) $dont_email_default,
+			'default'       => $dont_email_default,
 			'show_in_rest'  => true,
 			'single'        => true,
 			'type'          => 'boolean',
