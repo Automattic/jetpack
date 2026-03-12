@@ -778,6 +778,8 @@ class SSO {
 			// external SSO broker (e.g. CIAB stores via the MSD).
 			if ( is_array( $response ) ) {
 				if ( empty( $response['nonce'] ) ) {
+					delete_transient( self::BROKER_URL_TRANSIENT );
+					delete_transient( self::BROKER_AUTH_URL_TRANSIENT );
 					return new WP_Error( 'invalid_response', __( 'Invalid nonce response from WordPress.com.', 'jetpack-connection' ) );
 				}
 
@@ -836,7 +838,12 @@ class SSO {
 	private static function get_validated_broker_url( $transient_key ) {
 		$url = get_transient( $transient_key );
 
-		if ( ! $url || ! is_string( $url ) ) {
+		if ( ! $url ) {
+			return false;
+		}
+
+		if ( ! is_string( $url ) ) {
+			delete_transient( $transient_key );
 			return false;
 		}
 
@@ -1247,9 +1254,8 @@ class SSO {
 	}
 
 	/**
-	 * Build WordPress.com SSO URL with appropriate query parameters,
-	 * including the parameters necessary to force the user to reauthenticate
-	 * on WordPress.com.
+	 * Build SSO URL with appropriate query parameters, including the
+	 * parameters necessary to force the user to reauthenticate.
 	 *
 	 * @param array $args Optional query parameters.
 	 * @return string|WP_Error Redirect URL for SSO authentication.
