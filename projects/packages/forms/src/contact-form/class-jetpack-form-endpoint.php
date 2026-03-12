@@ -100,10 +100,11 @@ class Jetpack_Form_Endpoint extends \WP_REST_Posts_Controller {
 		);
 
 		$params['has_responses'] = array(
-			'description' => __( 'Filter forms by whether they have responses. "true" returns only forms with responses, "false" returns only forms without.', 'jetpack-forms' ),
-			'type'        => 'string',
-			'enum'        => array( '', 'true', 'false' ),
-			'default'     => '',
+			'description'       => __( 'Filter forms by whether they have responses. "true" returns only forms with responses, "false" returns only forms without.', 'jetpack-forms' ),
+			'type'              => 'string',
+			'enum'              => array( '', 'true', 'false' ),
+			'default'           => '',
+			'sanitize_callback' => 'sanitize_key',
 		);
 
 		return $params;
@@ -121,13 +122,13 @@ class Jetpack_Form_Endpoint extends \WP_REST_Posts_Controller {
 		$has_responses = (string) $request->get_param( 'has_responses' );
 		if ( '' !== $has_responses ) {
 			$this->has_responses_filter = ( 'true' === $has_responses );
-			add_filter( 'posts_clauses', array( $this, 'filter_by_responses' ) );
+			add_filter( 'posts_clauses', array( $this, 'filter_by_responses' ), 10, 2 );
 		}
 
 		$response = parent::get_items( $request );
 
 		if ( '' !== $has_responses ) {
-			remove_filter( 'posts_clauses', array( $this, 'filter_by_responses' ) );
+			remove_filter( 'posts_clauses', array( $this, 'filter_by_responses' ), 10 );
 		}
 
 		if ( is_wp_error( $response ) ) {
@@ -219,11 +220,17 @@ class Jetpack_Form_Endpoint extends \WP_REST_Posts_Controller {
 	/**
 	 * Filter posts_clauses to include/exclude forms that have feedback responses.
 	 *
-	 * @param array $clauses SQL clauses.
+	 * @param array     $clauses SQL clauses.
+	 * @param \WP_Query $query   The current WP_Query instance.
 	 * @return array Modified clauses.
 	 */
-	public function filter_by_responses( $clauses ) {
+	public function filter_by_responses( $clauses, $query ) {
 		global $wpdb;
+
+		// Only modify the query for jetpack_form post type.
+		if ( $query->get( 'post_type' ) !== $this->post_type ) {
+			return $clauses;
+		}
 
 		$feedback_type = Feedback::POST_TYPE;
 		$operator      = $this->has_responses_filter ? 'EXISTS' : 'NOT EXISTS';

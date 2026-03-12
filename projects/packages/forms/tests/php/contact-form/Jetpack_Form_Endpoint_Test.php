@@ -326,6 +326,17 @@ class Jetpack_Form_Endpoint_Test extends TestCase {
 	}
 
 	/**
+	 * Create a WP_Query instance targeting the jetpack_form post type, for use in filter_by_responses tests.
+	 *
+	 * @return \WP_Query
+	 */
+	private function get_jetpack_form_query(): \WP_Query {
+		$query = new \WP_Query();
+		$query->set( 'post_type', Contact_Form::POST_TYPE );
+		return $query;
+	}
+
+	/**
 	 * Test that the has_responses REST parameter is registered in collection params.
 	 */
 	public function test_has_responses_param_is_registered() {
@@ -350,7 +361,7 @@ class Jetpack_Form_Endpoint_Test extends TestCase {
 		$endpoint = new Jetpack_Form_Endpoint();
 		$this->set_has_responses_filter( $endpoint, true );
 
-		$clauses = $endpoint->filter_by_responses( array( 'where' => '' ) );
+		$clauses = $endpoint->filter_by_responses( array( 'where' => '' ), $this->get_jetpack_form_query() );
 
 		$this->assertStringContainsString( 'EXISTS', $clauses['where'] );
 		$this->assertStringNotContainsString( 'NOT EXISTS', $clauses['where'] );
@@ -367,7 +378,7 @@ class Jetpack_Form_Endpoint_Test extends TestCase {
 		$endpoint = new Jetpack_Form_Endpoint();
 		$this->set_has_responses_filter( $endpoint, false );
 
-		$clauses = $endpoint->filter_by_responses( array( 'where' => '' ) );
+		$clauses = $endpoint->filter_by_responses( array( 'where' => '' ), $this->get_jetpack_form_query() );
 
 		$this->assertStringContainsString( 'NOT EXISTS', $clauses['where'] );
 		$this->assertStringContainsString( 'feedback', $clauses['where'] );
@@ -383,7 +394,7 @@ class Jetpack_Form_Endpoint_Test extends TestCase {
 		$endpoint = new Jetpack_Form_Endpoint();
 		$this->set_has_responses_filter( $endpoint, true );
 
-		$clauses = $endpoint->filter_by_responses( array( 'where' => '' ) );
+		$clauses = $endpoint->filter_by_responses( array( 'where' => '' ), $this->get_jetpack_form_query() );
 
 		$this->assertStringContainsString( "'publish'", $clauses['where'] );
 		$this->assertStringContainsString( "'draft'", $clauses['where'] );
@@ -399,7 +410,7 @@ class Jetpack_Form_Endpoint_Test extends TestCase {
 		$this->set_has_responses_filter( $endpoint, true );
 
 		$existing_where = "AND post_type = 'jetpack_form'";
-		$clauses        = $endpoint->filter_by_responses( array( 'where' => $existing_where ) );
+		$clauses        = $endpoint->filter_by_responses( array( 'where' => $existing_where ), $this->get_jetpack_form_query() );
 
 		$this->assertStringContainsString( $existing_where, $clauses['where'] );
 		$this->assertStringContainsString( 'EXISTS', $clauses['where'] );

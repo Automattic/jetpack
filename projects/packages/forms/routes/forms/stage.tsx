@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { formatNumber } from '@automattic/number-formatters';
 import { Page } from '@wordpress/admin-ui';
 import {
 	__experimentalConfirmDialog as ConfirmDialog, // eslint-disable-line @wordpress/no-unsafe-wp-apis
@@ -256,7 +257,7 @@ function StageInner() {
 				label: __( 'Responses', 'jetpack-forms' ),
 				getValue: ( { item }: { item: FormListItem } ) =>
 					( item.entriesCount ?? 0 ) > 0 ? 'has_responses' : 'no_responses',
-				render: ( { item }: { item: FormListItem } ) => item.entriesCount ?? 0,
+				render: ( { item }: { item: FormListItem } ) => formatNumber( item.entriesCount ?? 0 ),
 				elements: [
 					{ label: __( 'Has responses', 'jetpack-forms' ), value: 'has_responses' },
 					{ label: __( 'No responses', 'jetpack-forms' ), value: 'no_responses' },
