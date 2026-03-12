@@ -294,6 +294,7 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 		const hasLegendChild = legendChildren.length > 0;
 
 		const hasLegend = showLegend || hasLegendChild;
+		const [ measuredChartHeight, setMeasuredChartHeight ] = useState< number | undefined >();
 
 		// Forward the external ref to the internal ref
 		useImperativeHandle(
@@ -465,7 +466,7 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 					chartId,
 					chartRef: internalChartRef,
 					chartWidth: width,
-					chartHeight: height || 0,
+					chartHeight: measuredChartHeight || 0,
 				} }
 			>
 				<ChartLayout
@@ -487,6 +488,11 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 						// Use the measured height, falling back to the passed height if provided.
 						const chartHeight = contentHeight > 0 ? contentHeight : height;
 						const isWaitingForMeasurement = hasLegend ? contentHeight === 0 : ! chartHeight;
+
+						// Update the measured chart height for context consumers (e.g. AnnotationsOverlay)
+						if ( chartHeight !== measuredChartHeight ) {
+							setMeasuredChartHeight( chartHeight );
+						}
 
 						return (
 							<div
