@@ -78,7 +78,7 @@ function Newsletter( props ) {
 	const handleEmailPostToSubsDefaultToggle = useCallback( () => {
 		const newValue = ! newsletterSendDefault;
 		updateFormStateAndSaveOptionValue( NEWSLETTER_SEND_DEFAULT_OPTION, newValue );
-		analytics.tracks.recordEvent( 'jetpack_newsletter_set_send_default', {
+		analytics.tracks.recordEvent( 'jetpack_set_wpcom_newsletter_send_default', {
 			enabled: newValue,
 		} );
 	}, [ newsletterSendDefault, updateFormStateAndSaveOptionValue ] );
@@ -148,7 +148,7 @@ function Newsletter( props ) {
 				module={ subscriptions }
 				support={ {
 					text: __(
-						'When on, the newsletter option will be pre-selected each time you publish. You can change it before publishing any post.',
+						'When on, the newsletter option will be pre-selected each time you publish. You can change it in the newsletter panel in the editor before publishing any post.',
 						'jetpack'
 					),
 					link: getRedirectUrl( 'jetpack-support-subscriptions', {

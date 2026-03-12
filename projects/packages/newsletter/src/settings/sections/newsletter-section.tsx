@@ -78,7 +78,7 @@ export function NewsletterSection( { data, onChange }: NewsletterSectionProps ):
 			type: 'boolean' as const,
 			Edit: 'toggle' as const,
 			description: __(
-				'When on, the newsletter option will be pre-selected each time you publish. You can change it before publishing any post.',
+				'When on, the newsletter option will be pre-selected each time you publish. You can change it in the newsletter panel in the editor before publishing any post.',
 				'jetpack-newsletter'
 			),
 		},
