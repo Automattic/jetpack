@@ -90,7 +90,7 @@ const AdminPage: FC< AdminPageProps > = ( {
 	) : undefined;
 
 	const footer = showFooter && (
-		<Container horizontalSpacing={ 5 }>
+		<Container className={ styles[ 'admin-page-footer' ] } horizontalSpacing={ 5 }>
 			<Col>
 				<JetpackFooter
 					moduleName={ moduleName }
