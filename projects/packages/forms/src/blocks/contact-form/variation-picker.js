@@ -88,8 +88,11 @@ export default function VariationPicker( { blockName, setAttributes, clientId, c
 
 	const hasExistingForms = jetpackForms && jetpackForms.length > 0;
 
+	const showFormPicker =
+		! isEditingJetpackFormPost && isCentralFormManagementEnabled && hasExistingForms;
+
 	const getInstructions = () => {
-		if ( isCentralFormManagementEnabled && hasExistingForms ) {
+		if ( isCentralFormManagementEnabled && showFormPicker ) {
 			return __(
 				'Start by selecting one of these templates or select an existing form below.',
 				'jetpack-forms'
@@ -193,7 +196,7 @@ export default function VariationPicker( { blockName, setAttributes, clientId, c
 					</Button>
 				</div>
 			) }
-			{ ! isEditingJetpackFormPost && isCentralFormManagementEnabled && jetpackForms.length > 0 && (
+			{ showFormPicker && (
 				<div className="form-placeholder__shell">
 					<SelectControl
 						__next40pxDefaultSize
