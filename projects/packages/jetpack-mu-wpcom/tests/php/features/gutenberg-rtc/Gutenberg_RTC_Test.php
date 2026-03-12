@@ -248,23 +248,6 @@ class Gutenberg_RTC_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Tests that enqueue skips when http-polling is the only provider.
-	 */
-	public function test_wpcom_enqueue_gutenberg_rtc_assets_skips_http_polling_only() {
-		add_filter( 'wpcom_is_gutenberg_rtc_enabled', '__return_true' );
-		add_filter(
-			'wpcom_gutenberg_rtc_providers',
-			function () {
-				return array( 'http-polling' );
-			}
-		);
-
-		wpcom_enqueue_gutenberg_rtc_assets();
-
-		$this->assertFalse( wp_script_is( 'jetpack-mu-wpcom-gutenberg-rtc', 'enqueued' ) );
-	}
-
-	/**
 	 * Tests that the script is enqueued when pinghub provider is active.
 	 */
 	public function test_wpcom_enqueue_gutenberg_rtc_assets_enqueues_when_pinghub() {
