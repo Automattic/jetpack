@@ -187,7 +187,6 @@ export const WithCompositionLegend: Story = {
 		const legend = extractLegendConfig( args );
 		return (
 			<PieChart
-				size={ 300 }
 				data={ args.data }
 				legendValueDisplay={ args.legendValueDisplay }
 				chartId="composition-pie-chart"
@@ -403,7 +402,6 @@ export const CustomLabelColors: Story = {
 		],
 		labelTextColor: '#FFFFFF', // White text for contrast against dark background
 		labelBackgroundColor: 'rgba(0, 0, 0, 0.75)', // Dark semi-transparent background
-		size: 400,
 	},
 	parameters: {
 		docs: {

@@ -385,7 +385,7 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 					const innerRadius = radius * ( 1 - thickness );
 
 					return (
-						<Stack align="center" justify="center" style={ { width: '100%', height: '100%' } }>
+						<Stack align="center" justify="center">
 							<svg
 								width={ width }
 								height={ height }
