@@ -219,18 +219,15 @@ function wpcom_rtc_get_max_collaborators() {
 /**
  * Count active collaborators in a room, excluding the current collaborator.
  *
- * Uses `user_id` as the primary identity signal (matching frontend semantics)
- * and falls back to `client_id` when `user_id` is unavailable.
+ * Uses awareness `state.collaboratorInfo.id` (matching frontend semantics).
  *
  * @param array<int, array<string, mixed>> $awareness_state Awareness entries for the room.
  * @param int                              $current_user_id Current WordPress user ID.
- * @param int                              $current_client_id Current client ID from the request.
  * @param int                              $now Current Unix timestamp.
  * @return int Number of active collaborators other than the requester.
  */
-function wpcom_rtc_count_active_other_collaborators( array $awareness_state, $current_user_id, $current_client_id, $now ) {
-	$seen_user_ids          = array();
-	$seen_legacy_client_ids = array();
+function wpcom_rtc_count_active_other_collaborators( array $awareness_state, $current_user_id, $now ) {
+	$seen_user_ids = array();
 
 	foreach ( $awareness_state as $entry ) {
 		$entry_updated_at = isset( $entry['updated_at'] ) ? (int) $entry['updated_at'] : 0;
@@ -238,29 +235,16 @@ function wpcom_rtc_count_active_other_collaborators( array $awareness_state, $cu
 		if ( ( $now - $entry_updated_at ) >= 30 ) {
 			continue;
 		}
-
-		$entry_client_id = isset( $entry['client_id'] ) ? (int) $entry['client_id'] : 0;
-		if ( $entry_client_id > 0 && $entry_client_id === $current_client_id ) {
-			continue;
-		}
-
-		$entry_user_id = isset( $entry['user_id'] ) ? (int) $entry['user_id'] : 0;
-		// Prefer counting by WordPress user ID to match frontend semantics.
+		$entry_user_id = isset( $entry['state']['collaboratorInfo']['id'] ) ? (int) $entry['state']['collaboratorInfo']['id'] : 0;
 		if ( $entry_user_id > 0 ) {
 			if ( $entry_user_id === $current_user_id || isset( $seen_user_ids[ $entry_user_id ] ) ) {
 				continue;
 			}
 			$seen_user_ids[ $entry_user_id ] = true;
-			continue;
-		}
-
-		// Fallback for entries without `user_id`.
-		if ( $entry_client_id > 0 && ! isset( $seen_legacy_client_ids[ $entry_client_id ] ) ) {
-			$seen_legacy_client_ids[ $entry_client_id ] = true;
 		}
 	}
 
-	return count( $seen_user_ids ) + count( $seen_legacy_client_ids );
+	return count( $seen_user_ids );
 }
 
 /**
@@ -311,11 +295,10 @@ function wpcom_rtc_limit_collaborators( $result, $server, $request ) {
 	$current_user_id = get_current_user_id();
 
 	foreach ( $rooms as $room_request ) {
-		$room      = $room_request['room'] ?? '';
-		$client_id = $room_request['client_id'] ?? 0;
+		$room = $room_request['room'] ?? '';
 
 		$existing      = $storage->get_awareness_state( $room ); // @phan-suppress-current-line PhanUndeclaredClassMethod
-		$active_others = wpcom_rtc_count_active_other_collaborators( $existing, $current_user_id, $client_id, $now );
+		$active_others = wpcom_rtc_count_active_other_collaborators( $existing, $current_user_id, $now );
 
 		if ( $active_others >= $max_collaborators ) {
 			return new WP_Error(

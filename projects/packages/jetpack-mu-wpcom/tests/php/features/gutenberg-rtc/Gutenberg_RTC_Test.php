@@ -538,56 +538,86 @@ class Gutenberg_RTC_Test extends \WorDBless\BaseTestCase {
 		$awareness_state = array(
 			array(
 				'client_id'  => 101,
-				'user_id'    => 11,
+				'state'      => array(
+					'collaboratorInfo' => array(
+						'id' => 11,
+					),
+				),
 				'updated_at' => $now - 1,
 			),
 			array(
 				'client_id'  => 102,
-				'user_id'    => 12,
+				'state'      => array(
+					'collaboratorInfo' => array(
+						'id' => 12,
+					),
+				),
 				'updated_at' => $now - 2,
 			),
 			array(
 				'client_id'  => 103,
-				'user_id'    => 12,
+				'state'      => array(
+					'collaboratorInfo' => array(
+						'id' => 12,
+					),
+				),
 				'updated_at' => $now - 3,
 			),
 			array(
 				'client_id'  => 104,
-				'user_id'    => 99,
+				'state'      => array(
+					'collaboratorInfo' => array(
+						'id' => 99,
+					),
+				),
 				'updated_at' => $now - 4,
 			),
 		);
 
-		$count = wpcom_rtc_count_active_other_collaborators( $awareness_state, 99, 200, $now );
+		$count = wpcom_rtc_count_active_other_collaborators( $awareness_state, 99, $now );
 		$this->assertSame( 2, $count );
 	}
 
 	/**
-	 * Tests that fallback counting deduplicates legacy entries by client ID.
+	 * Tests that entries without collaboratorInfo.id are ignored.
 	 */
-	public function test_wpcom_rtc_count_active_other_collaborators_fallbacks_to_client_id() {
+	public function test_wpcom_rtc_count_active_other_collaborators_ignores_entries_without_user_id() {
 		$now = time();
 
 		$awareness_state = array(
 			array(
 				'client_id'  => 100,
+				'state'      => array(),
 				'updated_at' => $now - 1,
 			),
 			array(
 				'client_id'  => 200,
+				'state'      => array(
+					'collaboratorInfo' => array(),
+				),
 				'updated_at' => $now - 2,
 			),
 			array(
-				'client_id'  => 200,
+				'client_id'  => 201,
+				'state'      => array(
+					'collaboratorInfo' => array(
+						'id' => 7,
+					),
+				),
 				'updated_at' => $now - 3,
 			),
 			array(
 				'client_id'  => 300,
+				'state'      => array(
+					'collaboratorInfo' => array(
+						'id' => 8,
+					),
+				),
 				'updated_at' => $now - 40,
 			),
 		);
 
-		$count = wpcom_rtc_count_active_other_collaborators( $awareness_state, 0, 100, $now );
+		$count = wpcom_rtc_count_active_other_collaborators( $awareness_state, 99, $now );
 		$this->assertSame( 1, $count );
 	}
 
