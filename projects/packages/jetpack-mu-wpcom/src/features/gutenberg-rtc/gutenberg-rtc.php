@@ -77,7 +77,7 @@ function wpcom_gutenberg_rtc_get_pinghub_jwt() {
 		}
 
 		$data = $response->get_data();
-		return isset( $data['jwt'] ) ? $data['jwt'] : null;
+		return $data['jwt'] ?? null;
 	}
 
 	// Jetpack/Atomic: call the WPCOM endpoint over the Jetpack connection.
