@@ -12,7 +12,6 @@ import {
 	useChartDataTransform,
 	useZeroValueDisplay,
 	useChartMargin,
-	useElementSize,
 	usePrefersReducedMotion,
 } from '../../hooks';
 import {
@@ -113,19 +112,12 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	const legendItems = useChartLegendItems( dataSorted );
 	const chartOptions = useBarChartOptions( dataWithVisibleZeros, horizontal, options );
 	const defaultMargin = useChartMargin( height, chartOptions, dataSorted, theme, horizontal );
-	const [ svgWrapperRef, , svgWrapperHeight ] = useElementSize< HTMLDivElement >();
 	const chartRef = useRef< HTMLDivElement >( null );
 
 	// Process children for composition API (Legend, etc.)
 	const { legendChildren, nonLegendChildren } = useChartChildren( children, 'BarChart' );
 	const hasLegendChild = legendChildren.length > 0;
-
-	// Use the measured SVG wrapper height, falling back to the passed height if provided.
-	// When there's a legend (via prop or composition), we must wait for measurement because
-	// the legend takes space and the svg-wrapper height will be less than the total height.
-	const chartHeight = svgWrapperHeight > 0 ? svgWrapperHeight : height;
 	const hasLegend = showLegend || hasLegendChild;
-	const isWaitingForMeasurement = hasLegend ? svgWrapperHeight === 0 : ! chartHeight;
 	const [ selectedIndex, setSelectedIndex ] = useState< number | undefined >( undefined );
 	const [ isNavigating, setIsNavigating ] = useState( false );
 
@@ -343,14 +335,13 @@ const BarChartInternal: FC< BarChartProps > = ( {
 			value={ {
 				chartId,
 				chartWidth: width,
-				chartHeight,
+				chartHeight: height || 0,
 			} }
 		>
 			<ChartLayout
 				legendPosition={ legendPosition }
 				legendElement={ legendElement }
 				legendChildren={ legendChildren }
-				isWaitingForMeasurement={ isWaitingForMeasurement }
 				gap={ gap }
 				className={ clsx(
 					'bar-chart',
@@ -366,116 +357,125 @@ const BarChartInternal: FC< BarChartProps > = ( {
 				data-chart-id={ `bar-chart-${ chartId }` }
 				trailingContent={ nonLegendChildren }
 			>
-				<div
-					className={ styles[ 'bar-chart__svg-wrapper' ] }
-					ref={ svgWrapperRef }
-					role="grid"
-					aria-label={ __( 'Bar chart', 'jetpack-charts' ) }
-					tabIndex={ 0 }
-					onKeyDown={ onChartKeyDown }
-					onFocus={ onChartFocus }
-					onBlur={ onChartBlur }
-				>
-					{ ! isWaitingForMeasurement && (
-						<div ref={ chartRef }>
-							<XYChart
-								theme={ theme }
-								width={ width }
-								height={ chartHeight }
-								margin={ {
-									...defaultMargin,
-									...margin,
-								} }
-								xScale={ chartOptions.xScale }
-								yScale={ chartOptions.yScale }
-								horizontal={ horizontal }
-								pointerEventsDataKey="nearest"
-							>
-								<Grid
-									columns={ gridVisibility.includes( 'y' ) }
-									rows={ gridVisibility.includes( 'x' ) }
-									numTicks={ 4 }
-								/>
+				{ ( { contentRef: measureRef, contentHeight } ) => {
+					const chartHeight = contentHeight > 0 ? contentHeight : height;
+					const isWaitingForMeasurement = hasLegend ? contentHeight === 0 : ! chartHeight;
 
-								{ withPatterns && (
-									<>
-										<defs data-testid="bar-chart-patterns">
-											{ dataSorted.map( ( seriesData, index ) =>
-												renderPattern(
-													index,
-													getElementStyles( { data: seriesData, index } ).color
-												)
-											) }
-										</defs>
-										<style>
-											{ dataSorted.map( ( seriesData, index ) =>
-												createPatternBorderStyle(
-													index,
-													getElementStyles( { data: seriesData, index } ).color
-												)
-											) }
-										</style>
-									</>
-								) }
-
-								{ highlightedBarStyle && <style>{ highlightedBarStyle }</style> }
-
-								{ allSeriesHidden ? (
-									<text
-										x={ width / 2 }
-										y={ chartHeight / 2 }
-										textAnchor="middle"
-										fill={ providerTheme.gridStyles?.stroke || '#ccc' }
-										fontSize="14"
-										fontFamily="-apple-system,BlinkMacSystemFont,Roboto,Helvetica Neue,sans-serif"
+					return (
+						<div
+							className={ styles[ 'bar-chart__svg-wrapper' ] }
+							ref={ measureRef }
+							role="grid"
+							aria-label={ __( 'Bar chart', 'jetpack-charts' ) }
+							tabIndex={ 0 }
+							onKeyDown={ onChartKeyDown }
+							onFocus={ onChartFocus }
+							onBlur={ onChartBlur }
+						>
+							{ ! isWaitingForMeasurement && (
+								<div ref={ chartRef }>
+									<XYChart
+										theme={ theme }
+										width={ width }
+										height={ chartHeight }
+										margin={ {
+											...defaultMargin,
+											...margin,
+										} }
+										xScale={ chartOptions.xScale }
+										yScale={ chartOptions.yScale }
+										horizontal={ horizontal }
+										pointerEventsDataKey="nearest"
 									>
-										{ __(
-											'All series are hidden. Click legend items to show data.',
-											'jetpack-charts'
+										<Grid
+											columns={ gridVisibility.includes( 'y' ) }
+											rows={ gridVisibility.includes( 'x' ) }
+											numTicks={ 4 }
+										/>
+
+										{ withPatterns && (
+											<>
+												<defs data-testid="bar-chart-patterns">
+													{ dataSorted.map( ( seriesData, index ) =>
+														renderPattern(
+															index,
+															getElementStyles( { data: seriesData, index } ).color
+														)
+													) }
+												</defs>
+												<style>
+													{ dataSorted.map( ( seriesData, index ) =>
+														createPatternBorderStyle(
+															index,
+															getElementStyles( { data: seriesData, index } ).color
+														)
+													) }
+												</style>
+											</>
 										) }
-									</text>
-								) : null }
 
-								<BarGroup padding={ chartOptions.barGroup.padding }>
-									{ seriesWithVisibility.map( ( { series: seriesData, index, isVisible } ) => {
-										// Skip rendering invisible series
-										if ( ! isVisible ) {
-											return null;
-										}
+										{ highlightedBarStyle && <style>{ highlightedBarStyle }</style> }
 
-										return (
-											<BarSeries
-												key={ seriesData?.label }
-												dataKey={ seriesData?.label }
-												data={ seriesData.data as DataPointDate[] }
-												yAccessor={ chartOptions.accessors.yAccessor }
-												xAccessor={ chartOptions.accessors.xAccessor }
-												colorAccessor={ getBarBackground( index ) }
+										{ allSeriesHidden ? (
+											<text
+												x={ width / 2 }
+												y={ chartHeight / 2 }
+												textAnchor="middle"
+												fill={ providerTheme.gridStyles?.stroke || '#ccc' }
+												fontSize="14"
+												fontFamily="-apple-system,BlinkMacSystemFont,Roboto,Helvetica Neue,sans-serif"
+											>
+												{ __(
+													'All series are hidden. Click legend items to show data.',
+													'jetpack-charts'
+												) }
+											</text>
+										) : null }
+
+										<BarGroup padding={ chartOptions.barGroup.padding }>
+											{ seriesWithVisibility.map( ( { series: seriesData, index, isVisible } ) => {
+												// Skip rendering invisible series
+												if ( ! isVisible ) {
+													return null;
+												}
+
+												return (
+													<BarSeries
+														key={ seriesData?.label }
+														dataKey={ seriesData?.label }
+														data={ seriesData.data as DataPointDate[] }
+														yAccessor={ chartOptions.accessors.yAccessor }
+														xAccessor={ chartOptions.accessors.xAccessor }
+														colorAccessor={ getBarBackground( index ) }
+													/>
+												);
+											} ) }
+										</BarGroup>
+
+										<Axis { ...chartOptions.axis.x } />
+										<Axis { ...chartOptions.axis.y } />
+
+										{ withTooltips && (
+											<AccessibleTooltip
+												detectBounds
+												snapTooltipToDatumX
+												snapTooltipToDatumY
+												renderTooltip={ renderTooltip || renderDefaultTooltip }
+												selectedIndex={ selectedIndex }
+												tooltipRef={ tooltipRef }
+												keyboardFocusedClassName={
+													styles[ 'bar-chart__tooltip--keyboard-focused' ]
+												}
+												series={ data }
+												mode="individual"
 											/>
-										);
-									} ) }
-								</BarGroup>
-
-								<Axis { ...chartOptions.axis.x } />
-								<Axis { ...chartOptions.axis.y } />
-
-								{ withTooltips && (
-									<AccessibleTooltip
-										detectBounds
-										snapTooltipToDatumX
-										snapTooltipToDatumY
-										renderTooltip={ renderTooltip || renderDefaultTooltip }
-										selectedIndex={ selectedIndex }
-										tooltipRef={ tooltipRef }
-										keyboardFocusedClassName={ styles[ 'bar-chart__tooltip--keyboard-focused' ] }
-										series={ data }
-										mode="individual"
-									/>
-								) }
-							</XYChart>
+										) }
+									</XYChart>
+								</div>
+							) }
 						</div>
-					) }
-				</div>
+					);
+				} }
 			</ChartLayout>
 		</SingleChartContext.Provider>
 	);
