@@ -26,6 +26,7 @@ class Wpcom_Dashboard {
 		add_filter( 'screen_layout_columns', array( __CLASS__, 'limit_dashboard_columns' ) );
 		add_filter( 'get_user_option_screen_layout_dashboard', array( __CLASS__, 'cap_dashboard_column_preference' ) );
 		add_filter( 'get_user_option_meta-box-order_dashboard', array( __CLASS__, 'redistribute_meta_box_order' ) );
+		add_action( 'admin_head-index.php', array( __CLASS__, 'render_dashboard_styles' ) );
 	}
 
 	/**
@@ -90,6 +91,49 @@ class Wpcom_Dashboard {
 		set_transient( $cache_key, $result ? 1 : 0, HOUR_IN_SECONDS );
 
 		return $result;
+	}
+
+	/**
+	 * Output responsive dashboard column styles.
+	 *
+	 * Overrides the default equal-width float layout with flexbox so that
+	 * the primary column is roughly 2x the sidebar column, both columns
+	 * have a 350px minimum, and the sidebar wraps below when space is tight.
+	 */
+	public static function render_dashboard_styles() {
+		if ( ! self::is_treatment() ) {
+			return;
+		}
+		?>
+		<style>
+			#dashboard-widgets.columns-2 {
+				display: flex;
+				flex-wrap: wrap;
+				max-width: 1200px;
+				margin: 0 auto;
+			}
+
+			#dashboard-widgets.columns-2 #postbox-container-1,
+			#dashboard-widgets.columns-2 #postbox-container-2 {
+				float: none;
+				width: auto;
+				min-width: 350px;
+			}
+
+			#dashboard-widgets.columns-2 #postbox-container-1 {
+				flex: 2 1 350px;
+			}
+
+			#dashboard-widgets.columns-2 #postbox-container-2 {
+				flex: 0 1 350px;
+			}
+
+			#dashboard-widgets.columns-2 #postbox-container-3,
+			#dashboard-widgets.columns-2 #postbox-container-4 {
+				display: none;
+			}
+		</style>
+		<?php
 	}
 
 	/**
