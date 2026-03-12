@@ -117,6 +117,7 @@ function wpcom_enqueue_gutenberg_rtc_assets() {
 	$data = wp_json_encode(
 		array(
 			'providers'       => wpcom_get_gutenberg_rtc_providers(),
+			// TODO: We need the endpoint on Jetpack site for client to refresh the token per hour.
 			'pinghubJWTToken' => wpcom_gutenberg_rtc_get_pinghub_jwt(),
 		),
 		JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
