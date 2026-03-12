@@ -9,6 +9,7 @@ import {
 import { useConnectionErrorNotice, ConnectionError } from '@automattic/jetpack-connection';
 import { shouldUseInternalLinks } from '@automattic/jetpack-shared-extension-utils';
 import { useSelect, useDispatch } from '@wordpress/data';
+import { useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import NoticesList from 'components/global-notices';
 import Loading from 'components/loading';
@@ -32,6 +33,21 @@ export default function DashboardPage( { isLoading = false } ) {
 	useSelect( select => select( STORE_ID ).getSearchPlanInfo(), [] );
 	useSelect( select => select( STORE_ID ).getSearchModuleStatus(), [] );
 	useSelect( select => select( STORE_ID ).getSearchStats(), [] );
+
+	// The JITM JS may run before React mounts, placing .jitm-card in #wpbody-content
+	// instead of #jp-admin-notices. Move any stray JITMs into the correct container.
+	useEffect( () => {
+		if ( isPageLoading ) {
+			return;
+		}
+		const target = document.getElementById( 'jp-admin-notices' );
+		if ( ! target ) {
+			return;
+		}
+		document.querySelectorAll( '#wpbody-content > .jitm-card' ).forEach( card => {
+			target.appendChild( card );
+		} );
+	}, [ isPageLoading ] );
 
 	const domain = useSelect( select => select( STORE_ID ).getCalypsoSlug() );
 	const blogID = useSelect( select => select( STORE_ID ).getBlogId() );
@@ -126,6 +142,10 @@ export default function DashboardPage( { isLoading = false } ) {
 						className="uses-new-admin-ui"
 						showFooter={ false }
 					>
+						<MockedSearchInterface
+							supportsInstantSearch={ supportsInstantSearch }
+							supportsOnlyClassicSearch={ supportsOnlyClassicSearch }
+						/>
 						<Container horizontalSpacing={ 0 } horizontalGap={ 3 }>
 							{ hasConnectionError && (
 								<Col lg={ 12 } md={ 12 } sm={ 12 }>
@@ -136,10 +156,6 @@ export default function DashboardPage( { isLoading = false } ) {
 								<div id="jp-admin-notices" className="jetpack-search-jitm-card" />
 							</Col>
 						</Container>
-						<MockedSearchInterface
-							supportsInstantSearch={ supportsInstantSearch }
-							supportsOnlyClassicSearch={ supportsOnlyClassicSearch }
-						/>
 						{ isNewPricing && supportsInstantSearch && (
 							<PlanInfo
 								hasIndex={ postCount !== 0 }

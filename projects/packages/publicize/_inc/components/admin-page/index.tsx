@@ -6,7 +6,11 @@ import {
 	Col,
 	GlobalNotices,
 } from '@automattic/jetpack-components';
-import { useConnection } from '@automattic/jetpack-connection';
+import {
+	ConnectionError,
+	useConnection,
+	useConnectionErrorNotice,
+} from '@automattic/jetpack-connection';
 import {
 	getMyJetpackUrl,
 	isJetpackSelfHostedSite,
@@ -38,6 +42,7 @@ export const SocialAdminPage = () => {
 	const isJetpackSite = isJetpackSelfHostedSite();
 
 	const { isUserConnected, isRegistered } = useConnection();
+	const { hasConnectionError } = useConnectionErrorNotice();
 	const showConnectionCard = ! isSimple && ( ! isRegistered || ! isUserConnected );
 
 	const [ pricingPageDismissed, setPricingPageDismissed ] = useState( false );
@@ -112,6 +117,16 @@ export const SocialAdminPage = () => {
 					<AdminSectionHero>
 						<Header />
 					</AdminSectionHero>
+					<Container horizontalSpacing={ 0 }>
+						{ hasConnectionError && (
+							<Col className="jetpack-social-connection-error-col">
+								<ConnectionError />
+							</Col>
+						) }
+						<Col>
+							<div id="jp-admin-notices" className="jetpack-social-jitm-card" />
+						</Col>
+					</Container>
 					<AdminSection>
 						<SocialModuleToggle />
 						{ canManageOptions && (
