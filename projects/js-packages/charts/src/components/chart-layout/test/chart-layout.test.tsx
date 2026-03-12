@@ -1,4 +1,3 @@
-/* eslint-disable no-bitwise, jest/expect-expect */
 import { render, screen } from '@testing-library/react';
 import { renderLegendSlot } from '../../../charts/private/chart-composition';
 import { ChartLayout } from '../chart-layout';
@@ -10,18 +9,6 @@ jest.mock( '../../../charts/private/chart-composition', () => ( {
 } ) );
 
 const mockRenderLegendSlot = renderLegendSlot as jest.Mock;
-
-/**
- * Asserts that `earlier` appears before `later` in DOM order.
- *
- * @param {HTMLElement} earlier - Element expected to appear first
- * @param {HTMLElement} later   - Element expected to appear second
- */
-function expectDomOrder( earlier: HTMLElement, later: HTMLElement ) {
-	expect(
-		earlier.compareDocumentPosition( later ) & Node.DOCUMENT_POSITION_FOLLOWING
-	).toBeTruthy();
-}
 
 describe( 'ChartLayout', () => {
 	beforeEach( () => {
@@ -44,8 +31,9 @@ describe( 'ChartLayout', () => {
 				<div data-testid="chart-content">Chart</div>
 			</ChartLayout>
 		);
-		// Legend should come before content in DOM order
-		expectDomOrder( screen.getByTestId( 'legend' ), screen.getByTestId( 'chart-content' ) );
+		const legend = screen.getByTestId( 'legend' );
+		const content = screen.getByTestId( 'chart-content' );
+		expect( legend.compareDocumentPosition( content ) ).toBe( Node.DOCUMENT_POSITION_FOLLOWING );
 	} );
 
 	it( 'renders legend element at bottom when legendPosition is bottom', () => {
@@ -55,8 +43,9 @@ describe( 'ChartLayout', () => {
 				<div data-testid="chart-content">Chart</div>
 			</ChartLayout>
 		);
-		// Content should come before legend in DOM order
-		expectDomOrder( screen.getByTestId( 'chart-content' ), screen.getByTestId( 'legend' ) );
+		const content = screen.getByTestId( 'chart-content' );
+		const legend = screen.getByTestId( 'legend' );
+		expect( content.compareDocumentPosition( legend ) ).toBe( Node.DOCUMENT_POSITION_FOLLOWING );
 	} );
 
 	it( 'does not render legend element when it is false/null', () => {
@@ -166,6 +155,8 @@ describe( 'ChartLayout', () => {
 				<div data-testid="chart-content">Chart</div>
 			</ChartLayout>
 		);
-		expectDomOrder( screen.getByTestId( 'legend' ), screen.getByTestId( 'trailing' ) );
+		const legend = screen.getByTestId( 'legend' );
+		const trailing = screen.getByTestId( 'trailing' );
+		expect( legend.compareDocumentPosition( trailing ) ).toBe( Node.DOCUMENT_POSITION_FOLLOWING );
 	} );
 } );
