@@ -128,6 +128,58 @@ function getPinghubJwt(): string | null {
 	return window.wpcomGutenbergRTC?.pinghubJWTToken ?? null;
 }
 
+let detectedBrowser: string | null = null;
+
+/**
+ * Detect the current browser for analytics tagging.
+ *
+ * @return Browser name string.
+ */
+function detectBrowser(): string {
+	if ( detectedBrowser ) {
+		return detectedBrowser;
+	}
+
+	const ua = navigator.userAgent;
+	if ( /OPR\//.test( ua ) ) {
+		detectedBrowser = 'opera';
+	} else if ( /Firefox\//.test( ua ) ) {
+		detectedBrowser = 'firefox';
+	} else if ( /^((?!chrome|android).)*safari/i.test( ua ) ) {
+		detectedBrowser = 'safari';
+	} else if ( /Chrome\//.test( ua ) && ! /Edg\//.test( ua ) ) {
+		detectedBrowser = 'chrome';
+	} else if ( /Edg\//.test( ua ) ) {
+		detectedBrowser = 'edge';
+	} else {
+		detectedBrowser = 'unknown';
+	}
+
+	return detectedBrowser;
+}
+
+/**
+ * Send an analytics pixel event for PingHub connection tracking.
+ *
+ * @param key   - Dot-delimited metric key.
+ * @param value - Metric value.
+ * @param unit  - Unit indicator ('ms' for milliseconds, 'c' for counter).
+ */
+function pixel( key: string, value: string | number, unit: string ): void {
+	new Image().src =
+		'https://pixel.wp.com/boom.gif?' +
+		'v=0.9&u=https://public-api.wordpress.com/pinghub&' +
+		'json={"beacons":["' +
+		key +
+		'.' +
+		detectBrowser() +
+		':' +
+		value +
+		'|' +
+		unit +
+		'"]}';
+}
+
 export class PingHubBridge {
 	private openHandlers = new Map< string, Set< () => void > >();
 	private closeHandlers = new Map< string, Set< ( code: number, reason: string ) => void > >();
@@ -309,13 +361,17 @@ export class PingHubBridge {
 		ws.binaryType = 'arraybuffer';
 		this.sockets.set( room, ws );
 
+		const start = Date.now();
+
 		ws.addEventListener( 'open', () => {
+			pixel( 'pinghub.conn_open', Date.now() - start, 'ms' );
 			this.connectingWaiters.delete( room );
 			waiters.splice( 0 ).forEach( ( { resolve } ) => resolve() );
 			this.openHandlers.get( room )?.forEach( h => h() );
 		} );
 
 		ws.addEventListener( 'close', event => {
+			pixel( 'pinghub.conn_close_code.' + event.code, Date.now() - start, 'ms' );
 			this.sockets.delete( room );
 			if ( this.connectingWaiters.has( room ) ) {
 				this.connectingWaiters.delete( room );
@@ -323,6 +379,10 @@ export class PingHubBridge {
 				waiters.splice( 0 ).forEach( ( { reject } ) => reject( err ) );
 			}
 			this.closeHandlers.get( room )?.forEach( h => h( event.code, event.reason ) );
+		} );
+
+		ws.addEventListener( 'error', () => {
+			pixel( 'pinghub.conn_err', Date.now() - start, 'ms' );
 		} );
 
 		ws.addEventListener( 'message', event => {
