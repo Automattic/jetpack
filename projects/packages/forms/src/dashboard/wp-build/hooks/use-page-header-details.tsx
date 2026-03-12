@@ -47,6 +47,7 @@ type UsePageHeaderDetailsProps = {
 };
 
 type UsePageHeaderDetailsReturn = {
+	ariaLabel: string;
 	breadcrumbs: ReactNode;
 	title?: ReactNode;
 	badges?: ReactNode;
@@ -175,6 +176,14 @@ export default function usePageHeaderDetails(
 			{ children }
 		</Stack>
 	);
+
+	const ariaLabel = useMemo( () => {
+		if ( isSingleFormScreen ) {
+			return formTitle || __( 'Form responses', 'jetpack-forms' );
+		}
+		// "Forms" is a product name, do not translate.
+		return 'Jetpack Forms';
+	}, [ isSingleFormScreen, formTitle ] );
 
 	const title = useMemo( () => {
 		if ( isSingleFormScreen ) {
@@ -472,5 +481,5 @@ export default function usePageHeaderDetails(
 		emptySpam.selectedResponsesCount,
 	] );
 
-	return { breadcrumbs, title, badges, subtitle, actions };
+	return { ariaLabel, breadcrumbs, title, badges, subtitle, actions };
 }
