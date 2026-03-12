@@ -28,20 +28,12 @@ class WPCOM_REST_API_V2_Endpoint_Application_Password_Extras_Test extends Jetpac
 	private static $user_id = 0;
 
 	/**
-	 * Mock editor user ID.
-	 *
-	 * @var int
-	 */
-	private static $editor_id = 0;
-
-	/**
 	 * Create shared database fixtures.
 	 *
 	 * @param WP_UnitTest_Factory $factory Fixture factory.
 	 */
 	public static function wpSetUpBeforeClass( $factory ) {
-		static::$user_id   = $factory->user->create( array( 'role' => 'administrator' ) );
-		static::$editor_id = $factory->user->create( array( 'role' => 'editor' ) );
+		static::$user_id = $factory->user->create( array( 'role' => 'administrator' ) );
 	}
 
 	/**
@@ -159,7 +151,8 @@ class WPCOM_REST_API_V2_Endpoint_Application_Password_Extras_Test extends Jetpac
 	 * Test that editor users can access abilities.
 	 */
 	public function test_editor_can_access_abilities() {
-		wp_set_current_user( static::$editor_id );
+		$editor_id = self::factory()->user->create( array( 'role' => 'editor' ) );
+		wp_set_current_user( $editor_id );
 
 		$request  = new WP_REST_Request( Requests::GET, '/wpcom/v2/application-password-extras/abilities' );
 		$response = $this->server->dispatch( $request );
