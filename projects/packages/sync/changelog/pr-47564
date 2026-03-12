@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Add wpcom_newsletter_send_default option to the sync options whitelist.
