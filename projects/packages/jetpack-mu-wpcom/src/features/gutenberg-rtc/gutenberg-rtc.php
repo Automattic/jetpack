@@ -55,6 +55,11 @@ function wpcom_get_gutenberg_rtc_providers() {
 add_action(
 	'rest_api_init',
 	function () {
+		$providers = wpcom_get_gutenberg_rtc_providers();
+		if ( ! in_array( 'pinghub', $providers, true ) ) {
+			return;
+		}
+
 		require_once __DIR__ . '/class-wp-rest-gutenberg-rtc.php';
 		( new WP_REST_Gutenberg_RTC() )->register_routes();
 	}
