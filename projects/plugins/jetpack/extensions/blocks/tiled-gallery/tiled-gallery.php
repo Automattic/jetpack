@@ -277,15 +277,17 @@ class Tiled_Gallery {
 		} else {
 			$table_style = 'margin: 16px 0; ' . $table_style;
 		}
-		if ( ! empty( $table_padding_style ) ) {
-			$table_style .= ' ' . $table_padding_style;
-		}
 
 		$image_table_attrs = array(
 			'style' => $table_style,
 		);
 
 		$html = \Automattic\WooCommerce\EmailEditor\Integrations\Utils\Table_Wrapper_Helper::render_table_wrapper( $grid_content, $image_table_attrs );
+
+		// Wrap in div with horizontal padding — tables ignore padding in email clients
+		if ( ! empty( $table_padding_style ) ) {
+			$html = '<div style="' . esc_attr( $table_padding_style ) . '">' . $html . '</div>';
+		}
 
 		return $html;
 	}
