@@ -299,9 +299,6 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 
 		// Process children for composition API (Legend, etc.)
 		const { legendChildren, nonLegendChildren } = useChartChildren( children, 'LineChart' );
-		const hasLegendChild = legendChildren.length > 0;
-
-		const hasLegend = showLegend || hasLegendChild;
 		const [ measuredChartHeight, setMeasuredChartHeight ] = useState< number | undefined >();
 
 		// Callback for ChartLayout to notify us when the measured content height changes.
@@ -506,7 +503,6 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 					{ ( { contentHeight } ) => {
 						// Use the measured height, falling back to the passed height if provided.
 						const chartHeight = contentHeight > 0 ? contentHeight : height;
-						const isWaitingForMeasurement = hasLegend ? contentHeight === 0 : ! chartHeight;
 
 						return (
 							<div
@@ -517,7 +513,7 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 								onFocus={ onChartFocus }
 								onBlur={ onChartBlur }
 							>
-								{ ! isWaitingForMeasurement && (
+								{ chartHeight > 0 && (
 									<div ref={ chartRef }>
 										<XYChart
 											theme={ theme }

@@ -116,8 +116,6 @@ const BarChartInternal: FC< BarChartProps > = ( {
 
 	// Process children for composition API (Legend, etc.)
 	const { legendChildren, nonLegendChildren } = useChartChildren( children, 'BarChart' );
-	const hasLegendChild = legendChildren.length > 0;
-	const hasLegend = showLegend || hasLegendChild;
 	const [ measuredChartHeight, setMeasuredChartHeight ] = useState< number | undefined >();
 
 	const handleContentHeightChange = useCallback(
@@ -369,7 +367,6 @@ const BarChartInternal: FC< BarChartProps > = ( {
 			>
 				{ ( { contentHeight } ) => {
 					const chartHeight = contentHeight > 0 ? contentHeight : height;
-					const isWaitingForMeasurement = hasLegend ? contentHeight === 0 : ! chartHeight;
 
 					return (
 						<div
@@ -380,7 +377,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 							onFocus={ onChartFocus }
 							onBlur={ onChartBlur }
 						>
-							{ ! isWaitingForMeasurement && (
+							{ chartHeight > 0 && (
 								<div ref={ chartRef }>
 									<XYChart
 										theme={ theme }
