@@ -45,12 +45,7 @@ class Jetpack_Application_Password_Extras {
 			return true;
 		}
 
-		// Allow Application Password access to admin-ajax.php for VideoPress actions only
-		if ( is_admin() && wp_doing_ajax() && self::is_ajax_action_allowed() ) {
-			return true;
-		}
-
-		return $original_value;
+		return is_admin() && wp_doing_ajax() && self::is_ajax_action_allowed();
 	}
 
 	/**
