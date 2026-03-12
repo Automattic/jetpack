@@ -23,40 +23,35 @@ class Wpcom_Dashboard {
 	 * Initialize the feature.
 	 */
 	public static function init() {
-		add_filter( 'wpcom_dashboard_replacement_enabled', array( __CLASS__, 'is_feature_flag_enabled' ) );
-		add_filter( 'wpcom_dashboard_replacement_holdout_is_treatment', array( __CLASS__, 'is_holdout_treatment' ) );
-		add_action( 'admin_notices', array( __CLASS__, 'render_admin_notice' ) );
-
 		add_filter( 'screen_layout_columns', array( __CLASS__, 'limit_dashboard_columns' ) );
 		add_filter( 'get_user_option_screen_layout_dashboard', array( __CLASS__, 'cap_dashboard_column_preference' ) );
 		add_filter( 'get_user_option_meta-box-order_dashboard', array( __CLASS__, 'redistribute_meta_box_order' ) );
 	}
 
 	/**
-	 * Feature flag filter callback. Defaults to false.
-	 * Override this filter to true to force-enable for testing.
+	 * Whether the current user is in the holdout treatment group.
 	 *
-	 * @param bool $enabled Whether the feature is enabled.
-	 * @return bool
-	 */
-	public static function is_feature_flag_enabled( $enabled = false ) {
-		return (bool) $enabled;
-	}
-
-	/**
-	 * Check whether the current user is in the holdout treatment group.
-	 *
-	 * On Simple sites, uses \ExPlat\assign_current_user() directly.
-	 * On Atomic sites with a connected user, uses the REST API.
+	 * Checks the ExPlat experiment assignment. On Simple sites, uses
+	 * \ExPlat\assign_current_user() directly. On Atomic sites with a
+	 * connected user, uses the REST API.
 	 * Caches the result in a transient for 1 hour.
 	 *
-	 * @param bool $is_treatment Whether the user is in the treatment group.
+	 * The result can be overridden via the
+	 * {@see 'wpcom_dashboard_override_is_treatment'} filter.
+	 *
 	 * @return bool
 	 */
-	public static function is_holdout_treatment( $is_treatment = false ) {
-		// Respect earlier filter overrides.
-		if ( $is_treatment ) {
-			return true;
+	public static function is_treatment() {
+		/**
+		 * Overrides the holdout experiment assignment.
+		 * Return true to force-enable the treatment for testing.
+		 *
+		 * @param bool|null $override Return a bool to override, or null to use the experiment value.
+		 */
+		$override = apply_filters( 'wpcom_dashboard_override_is_treatment', null );
+
+		if ( null !== $override ) {
+			return (bool) $override;
 		}
 
 		$user_id = get_current_user_id();
@@ -95,73 +90,6 @@ class Wpcom_Dashboard {
 		set_transient( $cache_key, $result ? 1 : 0, HOUR_IN_SECONDS );
 
 		return $result;
-	}
-
-	/**
-	 * Whether the dashboard replacement is active.
-	 *
-	 * Returns true if the feature flag is enabled OR the holdout experiment
-	 * assigns the user to the treatment group.
-	 *
-	 * @return bool
-	 */
-	public static function is_active() {
-		/** This filter is documented in class-wpcom-dashboard.php */
-		$feature_flag = apply_filters( 'wpcom_dashboard_replacement_enabled', false );
-
-		if ( $feature_flag ) {
-			return true;
-		}
-
-		/** This filter is documented in class-wpcom-dashboard.php */
-		return (bool) apply_filters( 'wpcom_dashboard_replacement_holdout_is_treatment', false );
-	}
-
-	/**
-	 * Render an admin notice on the Dashboard page showing the current state.
-	 * Temporary dev aid — remove before shipping.
-	 */
-	public static function render_admin_notice() {
-		if ( ! self::is_active() ) {
-			return;
-		}
-
-		$screen = get_current_screen();
-		if ( ! $screen || 'dashboard' !== $screen->id ) {
-			return;
-		}
-
-		/** This filter is documented in class-wpcom-dashboard.php */
-		$is_treatment = (bool) apply_filters( 'wpcom_dashboard_replacement_holdout_is_treatment', false );
-
-		$status = $is_treatment ? 'active/treatment' : 'active/control';
-		$type   = $is_treatment ? 'success' : 'info';
-
-		printf(
-			'<div class="notice notice-%s"><p>%s</p></div>',
-			esc_attr( $type ),
-			esc_html(
-				sprintf(
-					/* translators: %s is "active/treatment" or "active/control". */
-					__( 'Dashboard replacement: %s', 'jetpack-mu-wpcom' ),
-					$status
-				)
-			)
-		);
-	}
-
-	/**
-	 * Whether the current user is in the treatment group.
-	 *
-	 * Unlike is_active(), this returns false for control-group users even
-	 * when the feature flag is on, so that only treatment users receive
-	 * the actual dashboard changes.
-	 *
-	 * @return bool
-	 */
-	public static function is_treatment() {
-		/** This filter is documented in class-wpcom-dashboard.php */
-		return (bool) apply_filters( 'wpcom_dashboard_replacement_holdout_is_treatment', false );
 	}
 
 	/**
