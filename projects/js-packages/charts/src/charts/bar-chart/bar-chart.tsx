@@ -118,6 +118,15 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	const { legendChildren, nonLegendChildren } = useChartChildren( children, 'BarChart' );
 	const hasLegendChild = legendChildren.length > 0;
 	const hasLegend = showLegend || hasLegendChild;
+	const [ measuredChartHeight, setMeasuredChartHeight ] = useState< number | undefined >();
+
+	const handleContentHeightChange = useCallback(
+		( contentHeight: number ) => {
+			const chartHeight = contentHeight > 0 ? contentHeight : height;
+			setMeasuredChartHeight( chartHeight );
+		},
+		[ height ]
+	);
 	const [ selectedIndex, setSelectedIndex ] = useState< number | undefined >( undefined );
 	const [ isNavigating, setIsNavigating ] = useState( false );
 
@@ -335,7 +344,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 			value={ {
 				chartId,
 				chartWidth: width,
-				chartHeight: height || 0,
+				chartHeight: measuredChartHeight || 0,
 			} }
 		>
 			<ChartLayout
@@ -356,6 +365,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 				data-testid="bar-chart"
 				data-chart-id={ `bar-chart-${ chartId }` }
 				trailingContent={ nonLegendChildren }
+				onContentHeightChange={ handleContentHeightChange }
 			>
 				{ ( { contentHeight } ) => {
 					const chartHeight = contentHeight > 0 ? contentHeight : height;
