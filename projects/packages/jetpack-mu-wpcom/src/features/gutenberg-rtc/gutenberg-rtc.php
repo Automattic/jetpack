@@ -50,6 +50,56 @@ function wpcom_get_gutenberg_rtc_providers() {
 }
 
 /**
+ * Generate a short-lived JWT for authenticating PingHub WebSocket connections.
+ *
+ * On simple WordPress.com sites sign_JWT() is called directly — the REST
+ * endpoint files are not loaded in the admin context so rest_do_request
+ * cannot be used. On Jetpack/Atomic sites it is fetched from the WPCOM API
+ * over the Jetpack connection.
+ *
+ * @return string|null Signed JWT, or null on failure.
+ */
+function wpcom_gutenberg_rtc_get_pinghub_jwt() {
+	$user_id = get_current_user_id();
+	$blog_id = get_wpcom_blog_id();
+
+	if ( ! $user_id || ! $blog_id ) {
+		return null;
+	}
+
+	// Simple WordPress.com sites: use the internal REST endpoint.
+	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+		$request  = new \WP_REST_Request( 'POST', "/wpcom/v2/sites/$blog_id/jetpack-pinghub/jwt/sign" );
+		$response = rest_do_request( $request );
+
+		if ( $response->is_error() ) {
+			return null;
+		}
+
+		$data = $response->get_data();
+		return isset( $data['jwt'] ) ? $data['jwt'] : null;
+	}
+
+	// Jetpack/Atomic: call the WPCOM endpoint over the Jetpack connection.
+	if ( ! class_exists( 'Automattic\Jetpack\Connection\Client' ) ) {
+		return null;
+	}
+
+	$response = \Automattic\Jetpack\Connection\Client::wpcom_json_api_request_as_user(
+		"/sites/$blog_id/jetpack-pinghub/jwt/sign",
+		'2',
+		array( 'method' => 'POST' )
+	);
+
+	if ( is_wp_error( $response ) ) {
+		return null;
+	}
+
+	$body = json_decode( wp_remote_retrieve_body( $response ), true );
+	return $body['jwt'] ?? null;
+}
+
+/**
  * Enqueue block editor assets for Gutenberg RTC customizations.
  */
 function wpcom_enqueue_gutenberg_rtc_assets() {
@@ -66,7 +116,8 @@ function wpcom_enqueue_gutenberg_rtc_assets() {
 
 	$data = wp_json_encode(
 		array(
-			'providers' => wpcom_get_gutenberg_rtc_providers(),
+			'providers'       => wpcom_get_gutenberg_rtc_providers(),
+			'pinghubJWTToken' => wpcom_gutenberg_rtc_get_pinghub_jwt(),
 		),
 		JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 	);
