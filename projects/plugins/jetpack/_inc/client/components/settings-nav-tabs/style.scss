@@ -4,28 +4,21 @@
 // but not guaranteed here. Define a local fallback.
 $spacing-base: var(--spacing-base, 8px);
 
-// AdminPage uses margin-left: -20px to neutralize #wpcontent's
-// default 20px padding. Jetpack zeros that padding
-// (admin-static.scss, _main.scss), so the negative margin just
-// shifts into the sidebar. Reset it.
+// AdminPage uses margin-left: -20px to neutralize #wpcontent's default 20px
+// padding. But Jetpack's own CSS zeros out that padding (admin-static.scss,
+// _main.scss), so the -20px just shifts everything into the sidebar. Reset it.
 // Double class for specificity over the CSS module rule.
 .jp-settings-admin-page.jp-settings-admin-page {
 	margin-left: 0;
-	// Prevent the footer Container (non-fluid, max-width 1088px
-	// + padding) from causing horizontal scroll on narrow
-	// viewports.
-	overflow-x: hidden;
-	// Use #FCFCFC (admin-ui token equivalent) instead of
-	// AdminPage's --jp-white, and fill the viewport so the
-	// wp-admin beige body doesn't bleed through.
-	background-color: #fcfcfc;
-	min-height: calc(100vh - 32px);
-}
 
-// Override the beige #wpbody-content background so it doesn't
-// bleed through around the Settings page edges.
-#wpbody-content:has(.jp-settings-admin-page) {
-	background-color: #fcfcfc;
+	// Override AdminPage's --jp-white background with the
+	// admin-ui token equivalent (#fcfcfc) and fill the viewport
+	// so the wp-admin beige body doesn't bleed through.
+	&:global(.background) {
+		background-color: #fcfcfc;
+		// 32px = wpadminbar height, 32px = wp-admin footer estimate
+		min-height: calc(100vh - 32px);
+	}
 }
 
 .jp-settings-nav {
