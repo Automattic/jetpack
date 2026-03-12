@@ -26,6 +26,10 @@ class Wpcom_Dashboard {
 		add_filter( 'wpcom_dashboard_replacement_enabled', array( __CLASS__, 'is_feature_flag_enabled' ) );
 		add_filter( 'wpcom_dashboard_replacement_holdout_is_treatment', array( __CLASS__, 'is_holdout_treatment' ) );
 		add_action( 'admin_notices', array( __CLASS__, 'render_admin_notice' ) );
+
+		add_filter( 'screen_layout_columns', array( __CLASS__, 'limit_dashboard_columns' ) );
+		add_filter( 'get_user_option_screen_layout_dashboard', array( __CLASS__, 'cap_dashboard_column_preference' ) );
+		add_filter( 'get_user_option_meta-box-order_dashboard', array( __CLASS__, 'redistribute_meta_box_order' ) );
 	}
 
 	/**
@@ -144,5 +148,104 @@ class Wpcom_Dashboard {
 				)
 			)
 		);
+	}
+
+	/**
+	 * Whether the current user is in the treatment group.
+	 *
+	 * Unlike is_active(), this returns false for control-group users even
+	 * when the feature flag is on, so that only treatment users receive
+	 * the actual dashboard changes.
+	 *
+	 * @return bool
+	 */
+	public static function is_treatment() {
+		/** This filter is documented in class-wpcom-dashboard.php */
+		return (bool) apply_filters( 'wpcom_dashboard_replacement_holdout_is_treatment', false );
+	}
+
+	/**
+	 * Limit the dashboard screen to a maximum of 2 columns.
+	 *
+	 * @param array $columns Screen layout columns keyed by screen ID.
+	 * @return array
+	 */
+	public static function limit_dashboard_columns( $columns ) {
+		if ( ! self::is_treatment() ) {
+			return $columns;
+		}
+
+		$columns['dashboard'] = 2;
+
+		return $columns;
+	}
+
+	/**
+	 * Cap the user's saved dashboard column preference to 2.
+	 *
+	 * @param int|false $value The user's saved column count, or false if not set.
+	 * @return int|false
+	 */
+	public static function cap_dashboard_column_preference( $value ) {
+		if ( ! self::is_treatment() ) {
+			return $value;
+		}
+
+		if ( false !== $value && (int) $value > 2 ) {
+			return 2;
+		}
+
+		return $value;
+	}
+
+	/**
+	 * Move widgets from columns 3 and 4 into columns 1 and 2.
+	 *
+	 * WordPress stores the dashboard meta box order as an array with keys:
+	 * 'normal' (column 1), 'side' (column 2), 'column3', 'column4'.
+	 *
+	 * @param array|false $order The saved meta box order, or false if not set.
+	 * @return array|false
+	 */
+	public static function redistribute_meta_box_order( $order ) {
+		if ( ! self::is_treatment() || ! is_array( $order ) ) {
+			return $order;
+		}
+
+		// Append column3 widgets to normal (column 1).
+		if ( ! empty( $order['column3'] ) ) {
+			$order['normal']  = self::merge_widget_lists( $order['normal'] ?? '', $order['column3'] );
+			$order['column3'] = '';
+		}
+
+		// Append column4 widgets to side (column 2).
+		if ( ! empty( $order['column4'] ) ) {
+			$order['side']    = self::merge_widget_lists( $order['side'] ?? '', $order['column4'] );
+			$order['column4'] = '';
+		}
+
+		return $order;
+	}
+
+	/**
+	 * Merge two comma-separated widget ID lists.
+	 *
+	 * @param string $target Existing comma-separated list.
+	 * @param string $source List to append.
+	 * @return string
+	 */
+	private static function merge_widget_lists( $target, $source ) {
+		$target = trim( $target, ',' );
+		$source = trim( $source, ',' );
+
+		if ( '' === $target ) {
+			return $source;
+		}
+
+		if ( '' === $source ) {
+			return $target;
+		}
+
+		return $target . ',' . $source;
 	}
 }
