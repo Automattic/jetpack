@@ -3,9 +3,9 @@ import { Pie } from '@visx/shape';
 import { Text } from '@visx/text';
 import { useTooltip, useTooltipInPortal } from '@visx/tooltip';
 import { __ } from '@wordpress/i18n';
-import { Stack } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useCallback, useContext, useMemo } from 'react';
+import { ChartLayout } from '../../components/chart-layout';
 import { Legend, useChartLegendItems } from '../../components/legend';
 import { BaseTooltip } from '../../components/tooltip';
 import { useElementSize, useInteractiveLegendData, usePrefersReducedMotion } from '../../hooks';
@@ -17,12 +17,7 @@ import {
 	GlobalChartsContext,
 } from '../../providers';
 import { attachSubComponents } from '../../utils';
-import {
-	ChartSVG,
-	ChartHTML,
-	useChartChildren,
-	renderLegendSlot,
-} from '../private/chart-composition';
+import { ChartSVG, ChartHTML, useChartChildren } from '../private/chart-composition';
 import { RadialWipeAnimation } from '../private/radial-wipe-animation';
 import { SingleChartContext } from '../private/single-chart-context';
 import { withResponsive } from '../private/with-responsive';
@@ -364,9 +359,11 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 				chartHeight: height,
 			} }
 		>
-			<Stack
+			<ChartLayout
 				ref={ containerRef }
-				direction="column"
+				legendPosition={ legendPosition }
+				legendElement={ legendElement }
+				legendChildren={ legendChildren }
 				gap={ gap }
 				className={ clsx(
 					'pie-semi-circle-chart',
@@ -381,10 +378,18 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 					height: propHeight || undefined,
 				} }
 				data-testid="pie-chart-container"
+				trailingContent={
+					<>
+						{ withTooltips && tooltipOpen && tooltipData && (
+							<TooltipInPortal top={ tooltipTop || 0 } left={ tooltipLeft || 0 }>
+								<div role="tooltip">{ renderTooltip( { tooltipData } ) }</div>
+							</TooltipInPortal>
+						) }
+						{ htmlChildren }
+						{ otherChildren }
+					</>
+				}
 			>
-				{ legendPosition === 'top' && legendElement }
-				{ renderLegendSlot( legendChildren, 'top' ) }
-
 				<div ref={ svgWrapperRef } className={ styles[ 'pie-semi-circle-chart__svg-wrapper' ] }>
 					<svg
 						width={ width }
@@ -479,22 +484,7 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 						</Group>
 					</svg>
 				</div>
-
-				{ legendPosition === 'bottom' && legendElement }
-				{ renderLegendSlot( legendChildren, 'bottom' ) }
-
-				{ withTooltips && tooltipOpen && tooltipData && (
-					<TooltipInPortal top={ tooltipTop || 0 } left={ tooltipLeft || 0 }>
-						<div role="tooltip">{ renderTooltip( { tooltipData } ) }</div>
-					</TooltipInPortal>
-				) }
-
-				{ /* Render HTML children from composition API */ }
-				{ htmlChildren }
-
-				{ /* Render any other children that aren't compound components */ }
-				{ otherChildren }
-			</Stack>
+			</ChartLayout>
 		</SingleChartContext.Provider>
 	);
 };
