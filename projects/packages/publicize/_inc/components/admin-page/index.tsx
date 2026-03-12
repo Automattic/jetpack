@@ -106,6 +106,16 @@ export const SocialAdminPage = () => {
 			<GlobalNotices />
 			{ isJetpackSite && ! hasSocialPaidFeatures() && showPricingPage && ! pricingPageDismissed ? (
 				<AdminSectionHero>
+					<Container horizontalSpacing={ 0 }>
+						{ hasConnectionError && (
+							<Col className={ styles[ 'connection-error-col' ] }>
+								<ConnectionError />
+							</Col>
+						) }
+						<Col>
+							<div id="jp-admin-notices" className="jetpack-social-jitm-card" />
+						</Col>
+					</Container>
 					<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
 						<Col>
 							<PricingPage onDismiss={ onPricingPageDismiss } />
