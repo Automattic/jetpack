@@ -2,11 +2,26 @@ import { Stack } from '@wordpress/ui';
 import clsx from 'clsx';
 import { forwardRef } from 'react';
 import { renderLegendSlot } from '../../charts/private/chart-composition';
+import { useElementSize } from '../../hooks';
 import styles from './chart-layout.module.scss';
 import type { LegendChild } from '../../charts/private/chart-composition/use-chart-children';
 import type { LegendPosition } from '../../types';
 import type { GapSize } from '@wordpress/theme';
 import type { CSSProperties, ReactNode } from 'react';
+
+/**
+ * Measurements provided to the render prop when ChartLayout handles resize listening.
+ */
+export interface ContentMeasurements {
+	/** Ref callback to attach to the content element being measured */
+	contentRef: ( node: HTMLDivElement | null ) => void;
+	/** Measured width of the content area in pixels */
+	contentWidth: number;
+	/** Measured height of the content area in pixels */
+	contentHeight: number;
+	/** True once the content area has been measured. Always true when waitForMeasurement is not set. */
+	isMeasured: boolean;
+}
 
 export interface ChartLayoutProps {
 	/** Position for the prop-based legend element */
@@ -15,11 +30,13 @@ export interface ChartLayoutProps {
 	legendElement?: ReactNode;
 	/** Legend children from the composition API */
 	legendChildren: LegendChild[];
-	/** Chart content rendered between legend slots */
-	children: ReactNode;
+	/** Chart content — either a ReactNode or a render prop receiving content measurements */
+	children: ReactNode | ( ( measurements: ContentMeasurements ) => ReactNode );
 	/** Content rendered after the bottom legend (e.g., nonLegendChildren, htmlChildren, tooltips) */
 	trailingContent?: ReactNode;
-	/** When true, sets visibility: hidden on the container. Used by charts that need measurement before rendering. */
+	/** When true, hides the layout until content measurement is available */
+	waitForMeasurement?: boolean;
+	/** @deprecated Use waitForMeasurement instead */
 	isWaitingForMeasurement?: boolean;
 	/** Gap between Stack items */
 	gap?: GapSize;
@@ -41,6 +58,7 @@ export const ChartLayout = forwardRef< HTMLDivElement, ChartLayoutProps >(
 			legendChildren,
 			children,
 			trailingContent,
+			waitForMeasurement,
 			isWaitingForMeasurement,
 			gap,
 			className,
@@ -50,10 +68,26 @@ export const ChartLayout = forwardRef< HTMLDivElement, ChartLayoutProps >(
 		},
 		ref
 	) => {
-		const visibilityStyle =
-			isWaitingForMeasurement !== undefined
-				? { visibility: ( isWaitingForMeasurement ? 'hidden' : 'visible' ) as const }
-				: {};
+		const [ contentRef, contentWidth, contentHeight ] = useElementSize< HTMLDivElement >();
+		const isMeasured = contentHeight > 0;
+
+		// Determine visibility: new waitForMeasurement prop takes precedence over legacy isWaitingForMeasurement
+		let visibilityStyle: { visibility?: 'hidden' | 'visible' } = {};
+		if ( waitForMeasurement !== undefined ) {
+			// New API: hide until measured
+			const isHidden = waitForMeasurement && ! isMeasured;
+			visibilityStyle = { visibility: isHidden ? 'hidden' : 'visible' };
+		} else if ( isWaitingForMeasurement !== undefined ) {
+			// Legacy API
+			visibilityStyle = {
+				visibility: isWaitingForMeasurement ? 'hidden' : 'visible',
+			};
+		}
+
+		const renderedChildren =
+			typeof children === 'function'
+				? children( { contentRef, contentWidth, contentHeight, isMeasured } )
+				: children;
 
 		return (
 			<Stack
@@ -68,7 +102,7 @@ export const ChartLayout = forwardRef< HTMLDivElement, ChartLayoutProps >(
 				{ legendPosition === 'top' && legendElement }
 				{ renderLegendSlot( legendChildren, 'top' ) }
 
-				{ children }
+				{ renderedChildren }
 
 				{ legendPosition === 'bottom' && legendElement }
 				{ renderLegendSlot( legendChildren, 'bottom' ) }
