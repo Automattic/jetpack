@@ -446,6 +446,74 @@ class Contact_Form_Block_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Test render_email applies horizontal padding from email_attrs.
+	 */
+	public function test_render_email_with_email_attrs_padding() {
+		// Create a test post to get a valid permalink
+		$post_id = wp_insert_post(
+			array(
+				'post_title'   => 'Test Post',
+				'post_content' => 'Test content',
+				'post_status'  => 'publish',
+			)
+		);
+		global $post;
+		$post = get_post( $post_id );
+
+		$parsed_block = array(
+			'attrs'       => array( 'className' => 'test-class' ),
+			'email_attrs' => array(
+				'padding-left'  => '20px',
+				'padding-right' => '20px',
+			),
+		);
+
+		$mock_context = (object) array();
+
+		$result = Contact_Form_Block::render_email( '', $parsed_block, $mock_context );
+
+		// Should wrap output with horizontal padding
+		$this->assertStringContainsString( 'padding-left', $result );
+		$this->assertStringContainsString( 'padding-right', $result );
+		$this->assertStringContainsString( '20px', $result );
+		$this->assertStringContainsString( 'Submit a form.', $result );
+
+		// Cleanup
+		wp_delete_post( $post_id, true );
+	}
+
+	/**
+	 * Test render_email without email_attrs does not add padding wrapper.
+	 */
+	public function test_render_email_without_email_attrs_no_padding() {
+		$post_id = wp_insert_post(
+			array(
+				'post_title'   => 'Test Post',
+				'post_content' => 'Test content',
+				'post_status'  => 'publish',
+			)
+		);
+		global $post;
+		$post = get_post( $post_id );
+
+		$parsed_block = array(
+			'attrs' => array( 'className' => 'test-class' ),
+		);
+
+		$mock_context = (object) array();
+
+		$result = Contact_Form_Block::render_email( '', $parsed_block, $mock_context );
+
+		// Should not contain padding styles when no email_attrs
+		$this->assertStringNotContainsString( 'padding-left', $result );
+		$this->assertStringNotContainsString( 'padding-right', $result );
+		$this->assertStringContainsString( 'Submit a form.', $result );
+
+		// Cleanup
+		wp_delete_post( $post_id, true );
+	}
+
+	/**
 	 * Test render_email with empty attrs.
 	 */
 	public function test_render_email_with_empty_attrs() {

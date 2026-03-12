@@ -788,7 +788,18 @@ class Contact_Form_Block {
 	public static function render_email( $block_content, array $parsed_block, $rendering_context ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$atts = $parsed_block['attrs'] ?? array();
 
-		return self::render_fallback( $atts );
+		$html = self::render_fallback( $atts );
+
+		// Apply horizontal padding from distributed root padding
+		$email_attrs = $parsed_block['email_attrs'] ?? array();
+		if ( ! empty( $email_attrs ) && class_exists( '\WP_Style_Engine' ) ) {
+			$padding_style = \WP_Style_Engine::compile_css( array_intersect_key( $email_attrs, array_flip( array( 'padding-left', 'padding-right' ) ) ), '' ) ?? '';
+			if ( ! empty( $padding_style ) ) {
+				$html = '<div style="' . esc_attr( $padding_style ) . '">' . $html . '</div>';
+			}
+		}
+
+		return $html;
 	}
 
 	/**

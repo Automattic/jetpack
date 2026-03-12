@@ -140,8 +140,9 @@ function render_email( $block_content, array $parsed_block, $rendering_context )
 
 	// Create a mock parsed block that WooCommerce's button renderer can handle
 	$mock_parsed_block = array(
-		'innerHTML' => $inner_html,
-		'attrs'     => $formatted_attributes,
+		'innerHTML'   => $inner_html,
+		'attrs'       => $formatted_attributes,
+		'email_attrs' => $parsed_block['email_attrs'] ?? array(),
 	);
 
 	// Use WooCommerce's core button renderer

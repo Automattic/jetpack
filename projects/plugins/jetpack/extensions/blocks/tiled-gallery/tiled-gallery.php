@@ -238,12 +238,15 @@ class Tiled_Gallery {
 		}
 
 		// Get spacing from email_attrs for better consistency with core blocks
-		$email_attrs        = $parsed_block['email_attrs'] ?? array();
-		$table_margin_style = '';
+		$email_attrs         = $parsed_block['email_attrs'] ?? array();
+		$table_margin_style  = '';
+		$table_padding_style = '';
 
 		if ( ! empty( $email_attrs ) && class_exists( '\WP_Style_Engine' ) ) {
 			// Get margin for table styling
 			$table_margin_style = \WP_Style_Engine::compile_css( array_intersect_key( $email_attrs, array_flip( array( 'margin' ) ) ), '' ) ?? '';
+			// Get horizontal padding from distributed root padding
+			$table_padding_style = \WP_Style_Engine::compile_css( array_intersect_key( $email_attrs, array_flip( array( 'padding-left', 'padding-right' ) ) ), '' ) ?? '';
 		}
 
 		// Email cell padding
@@ -268,11 +271,14 @@ class Tiled_Gallery {
 		$grid_content = self::build_email_layout_content( $images, $layout_info, $email_cell_padding, $attr );
 
 		// Use Table_Wrapper_Helper for consistent email rendering
-		$table_style = sprintf( 'width: 100%%; max-width: %dpx; padding: 0; border-collapse: collapse;', $target_width );
+		$table_style = sprintf( 'width: 100%%; max-width: %dpx; border-collapse: collapse;', $target_width );
 		if ( ! empty( $table_margin_style ) ) {
 			$table_style = $table_margin_style . '; ' . $table_style;
 		} else {
 			$table_style = 'margin: 16px 0; ' . $table_style;
+		}
+		if ( ! empty( $table_padding_style ) ) {
+			$table_style .= ' ' . $table_padding_style;
 		}
 
 		$image_table_attrs = array(
