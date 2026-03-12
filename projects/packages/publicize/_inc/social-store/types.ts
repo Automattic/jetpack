@@ -1,3 +1,4 @@
+import { ConnectionService } from '../types';
 import { AttachedMedia, MediaSourceValue, SHARING_ACTIVITY_TABS } from '../utils';
 
 export type ConnectionStatus = 'ok' | 'broken' | 'must_reauth';
@@ -21,7 +22,7 @@ export type Connection = Partial< EditorConnection > & {
 	profile_link: string;
 	profile_picture: string;
 	service_label: string;
-	service_name: string;
+	service_name: ConnectionService[ 'id' ];
 	shared: boolean;
 	status: ConnectionStatus;
 	wpcom_user_id: number;

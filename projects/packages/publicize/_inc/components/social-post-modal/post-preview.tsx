@@ -8,6 +8,7 @@ import {
 	NextdoorPostPreview,
 	ThreadsPostPreview,
 	TumblrPostPreview,
+	TwitterPostPreview,
 } from '@automattic/social-previews';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
@@ -256,7 +257,29 @@ export function PostPreview( { connection }: PostPreviewProps ) {
 			);
 		}
 
+		case 'x': {
+			let text = title;
+
+			if ( message ) {
+				text = message;
+			} else if ( title && excerpt ) {
+				text = getCombinedText( title, excerpt );
+			}
+
+			text += `\n\n${ url }`;
+
+			return (
+				<TwitterPostPreview
+					{ ...commonProps }
+					description={ description }
+					text={ text }
+					screenName={ user.externalName }
+					name={ user.displayName }
+				/>
+			);
+		}
+
 		default:
-			return null;
+			return <div>{ __( 'Preview not available.', 'jetpack-publicize-pkg' ) }</div>;
 	}
 }
