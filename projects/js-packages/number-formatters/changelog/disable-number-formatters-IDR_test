@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Tests: Disable test incompatible with newer Node versions (22.22.1+).
