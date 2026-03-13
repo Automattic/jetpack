@@ -79,6 +79,151 @@
 }
 
 // ---------------------------------------------------------------
+// Connection Wizard
+// ---------------------------------------------------------------
+
+.jetpack-paypal-wizard__step-indicator {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0;
+	margin-bottom: 20px;
+}
+
+.jetpack-paypal-wizard__step {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 28px;
+	height: 28px;
+	border-radius: 50%;
+	font-size: 13px;
+	font-weight: 600;
+	background: #e0e0e0;
+	color: #757575;
+
+	&.is-active {
+		background: #0675c4;
+		color: #fff;
+	}
+}
+
+.jetpack-paypal-wizard__step-line {
+	display: inline-block;
+	width: 32px;
+	height: 2px;
+	background: #e0e0e0;
+}
+
+.jetpack-paypal-wizard__welcome,
+.jetpack-paypal-wizard__dashboard,
+.jetpack-paypal-wizard__credentials,
+.jetpack-paypal-wizard__success {
+
+	h3 {
+		margin-top: 0;
+		margin-bottom: 8px;
+	}
+
+	p {
+		color: #757575;
+		margin-bottom: 12px;
+	}
+}
+
+.jetpack-paypal-wizard__instructions {
+	margin: 0 0 16px;
+	padding-left: 20px;
+	color: #1e1e1e;
+
+	li {
+		margin-bottom: 6px;
+		line-height: 1.5;
+	}
+}
+
+.jetpack-paypal-wizard__actions {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	margin-top: 4px;
+	margin-bottom: 12px;
+}
+
+.jetpack-paypal-wizard__nav {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	margin-top: 12px;
+}
+
+.jetpack-paypal-wizard__subtitle {
+	color: #1e1e1e !important;
+	font-weight: 500;
+}
+
+.jetpack-paypal-wizard__secret-field {
+	position: relative;
+
+	.jetpack-paypal-wizard__toggle-secret {
+		position: absolute;
+		top: 0;
+		right: 0;
+		font-size: 12px;
+		padding: 0 4px;
+		min-height: auto;
+		line-height: 1;
+	}
+}
+
+.jetpack-paypal-wizard__env-toggle {
+	margin-top: 8px;
+	font-size: 12px;
+
+	.components-button.is-link {
+		font-size: 12px;
+	}
+}
+
+.jetpack-paypal-wizard__success {
+	text-align: center;
+}
+
+.jetpack-paypal-wizard__success-icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 48px;
+	height: 48px;
+	border-radius: 50%;
+	background: #00a32a;
+	color: #fff;
+	font-size: 24px;
+	margin-bottom: 12px;
+}
+
+// Field warning (soft validation — yellow instead of red).
+.jetpack-paypal-payment-buttons__field-warning {
+	margin: -8px 0 12px;
+	padding: 0;
+	font-size: 12px;
+	color: #996800;
+	line-height: 1.4;
+}
+
+.has-warning {
+
+	.components-text-control__input {
+		border-color: #dba617;
+
+		&:focus {
+			border-color: #dba617;
+			box-shadow: 0 0 0 1px #dba617;
+		}
+	}
+}
+
+// ---------------------------------------------------------------
 // Create / Edit Form
 // ---------------------------------------------------------------
 

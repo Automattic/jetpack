@@ -209,7 +209,7 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 
 	// Connection state.
 	const [ isConnected, setIsConnected ] = useState( false );
-	const [ environment, setEnvironment ] = useState( 'sandbox' );
+	const [ environment, setEnvironment ] = useState( 'production' );
 	const [ connectionLoading, setConnectionLoading ] = useState( true );
 
 	// Form state.
@@ -225,6 +225,10 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 	const [ clientSecret, setClientSecret ] = useState( '' );
 	const [ connectError, setConnectError ] = useState( null );
 	const [ isConnecting, setIsConnecting ] = useState( false );
+
+	// Wizard step state: 'welcome' | 'dashboard' | 'credentials' | 'success'
+	const [ wizardStep, setWizardStep ] = useState( 'welcome' );
+	const [ showSecretField, setShowSecretField ] = useState( false );
 
 	// Inline validation state — track which fields have been touched.
 	const [ touchedFields, setTouchedFields ] = useState( {} );
@@ -279,6 +283,50 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 	}, [] );
 
 	/**
+	 * Handle Client ID paste — auto-trim whitespace.
+	 *
+	 * @param {string} value - Pasted or typed value.
+	 */
+	const handleClientIdChange = useCallback( value => {
+		setClientId( value.trim() );
+	}, [] );
+
+	/**
+	 * Handle Client Secret paste — auto-trim whitespace.
+	 *
+	 * @param {string} value - Pasted or typed value.
+	 */
+	const handleClientSecretChange = useCallback( value => {
+		setClientSecret( value.trim() );
+	}, [] );
+
+	/**
+	 * Validate Client ID format.
+	 * PayPal Client IDs typically start with 'A' and are ~80 characters.
+	 *
+	 * @param {string} value - The Client ID.
+	 * @return {string|null} Warning message or null.
+	 */
+	const clientIdWarning = useMemo( () => {
+		if ( ! clientId ) {
+			return null;
+		}
+		if ( clientId.length < 20 ) {
+			return __(
+				'This looks too short for a Client ID. Make sure you copied the full value.',
+				'jetpack-paypal-payments'
+			);
+		}
+		if ( ! /^A[A-Za-z0-9_-]+$/.test( clientId ) ) {
+			return __(
+				'PayPal Client IDs usually start with "A". Double-check you copied the Client ID, not the app name.',
+				'jetpack-paypal-payments'
+			);
+		}
+		return null;
+	}, [ clientId ] );
+
+	/**
 	 * Handle PayPal OAuth connection.
 	 */
 	const handleConnect = useCallback( () => {
@@ -299,6 +347,7 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 				setEnvironment( response.environment );
 				setClientId( '' );
 				setClientSecret( '' );
+				setWizardStep( 'success' );
 			} )
 			.catch( err => {
 				setConnectError( getUserFriendlyError( err ) );
@@ -546,59 +595,218 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 		);
 	}
 
-	// Not connected — show connection form.
+	// Not connected — show guided connection wizard.
 	if ( ! isConnected ) {
 		return (
 			<div { ...blockProps }>
 				<div className="jetpack-paypal-payment-buttons__connect">
-					<h3>{ __( 'Connect PayPal', 'jetpack-paypal-payments' ) }</h3>
-					<p>
-						{ __(
-							'Enter your PayPal API credentials to create buttons directly in the editor. You can find these in your PayPal Developer Dashboard under Apps & Credentials.',
-							'jetpack-paypal-payments'
-						) }
-					</p>
-
-					{ connectError && (
-						<Notice status="error" isDismissible onDismiss={ () => setConnectError( null ) }>
-							{ connectError }
-						</Notice>
+					{ /* Step indicator */ }
+					{ wizardStep !== 'welcome' && wizardStep !== 'success' && (
+						<div className="jetpack-paypal-wizard__step-indicator">
+							<span
+								className={ `jetpack-paypal-wizard__step ${
+									wizardStep === 'dashboard' || wizardStep === 'credentials' ? 'is-active' : ''
+								}` }
+							>
+								{ __( '1', 'jetpack-paypal-payments' ) }
+							</span>
+							<span className="jetpack-paypal-wizard__step-line" />
+							<span
+								className={ `jetpack-paypal-wizard__step ${
+									wizardStep === 'credentials' ? 'is-active' : ''
+								}` }
+							>
+								{ __( '2', 'jetpack-paypal-payments' ) }
+							</span>
+							<span className="jetpack-paypal-wizard__step-line" />
+							<span className="jetpack-paypal-wizard__step">
+								{ __( '3', 'jetpack-paypal-payments' ) }
+							</span>
+						</div>
 					) }
 
-					<TextControl
-						label={ __( 'Client ID', 'jetpack-paypal-payments' ) }
-						value={ clientId }
-						onChange={ setClientId }
-						help={ __(
-							'From PayPal Developer Dashboard → Apps & Credentials.',
-							'jetpack-paypal-payments'
-						) }
-					/>
-					<TextControl
-						label={ __( 'Client Secret', 'jetpack-paypal-payments' ) }
-						value={ clientSecret }
-						onChange={ setClientSecret }
-						type="password"
-					/>
-					<SelectControl
-						label={ __( 'Environment', 'jetpack-paypal-payments' ) }
-						value={ environment }
-						options={ [
-							{ label: __( 'Sandbox (Testing)', 'jetpack-paypal-payments' ), value: 'sandbox' },
-							{ label: __( 'Production (Live)', 'jetpack-paypal-payments' ), value: 'production' },
-						] }
-						onChange={ setEnvironment }
-					/>
-					<Button
-						variant="primary"
-						onClick={ handleConnect }
-						isBusy={ isConnecting }
-						disabled={ isConnecting || ! clientId || ! clientSecret }
-					>
-						{ isConnecting
-							? __( 'Connecting…', 'jetpack-paypal-payments' )
-							: __( 'Connect PayPal', 'jetpack-paypal-payments' ) }
-					</Button>
+					{ /* Step 1: Welcome */ }
+					{ wizardStep === 'welcome' && (
+						<div className="jetpack-paypal-wizard__welcome">
+							<h3>{ __( 'Connect PayPal', 'jetpack-paypal-payments' ) }</h3>
+							<p>
+								{ __(
+									'Accept payments with PayPal by connecting your PayPal Developer account.',
+									'jetpack-paypal-payments'
+								) }
+							</p>
+							<p>
+								{ __(
+									"You'll need your API credentials — we'll walk you through finding them.",
+									'jetpack-paypal-payments'
+								) }
+							</p>
+							<Button variant="primary" onClick={ () => setWizardStep( 'dashboard' ) }>
+								{ __( 'Get Started', 'jetpack-paypal-payments' ) }
+							</Button>
+						</div>
+					) }
+
+					{ /* Step 2: Open PayPal Dashboard */ }
+					{ wizardStep === 'dashboard' && (
+						<div className="jetpack-paypal-wizard__dashboard">
+							<h3>{ __( 'Step 1 of 3: Open PayPal Dashboard', 'jetpack-paypal-payments' ) }</h3>
+							<ol className="jetpack-paypal-wizard__instructions">
+								<li>
+									{ __(
+										'Click the button below to open the PayPal Developer Dashboard',
+										'jetpack-paypal-payments'
+									) }
+								</li>
+								<li>
+									{ __( 'Log in with your PayPal Business account', 'jetpack-paypal-payments' ) }
+								</li>
+								<li>{ __( 'Go to Apps & Credentials', 'jetpack-paypal-payments' ) }</li>
+								<li>{ __( 'Select your app (or create one)', 'jetpack-paypal-payments' ) }</li>
+							</ol>
+							<div className="jetpack-paypal-wizard__actions">
+								<Button
+									variant="primary"
+									href="https://developer.paypal.com/dashboard/applications/"
+									target="_blank"
+									rel="noopener noreferrer"
+								>
+									{ __( 'Open PayPal Dashboard', 'jetpack-paypal-payments' ) }
+								</Button>
+							</div>
+							<div className="jetpack-paypal-wizard__nav">
+								<Button variant="secondary" onClick={ () => setWizardStep( 'credentials' ) }>
+									{ __( 'I have my credentials', 'jetpack-paypal-payments' ) }
+								</Button>
+								<Button variant="tertiary" onClick={ () => setWizardStep( 'welcome' ) }>
+									{ __( 'Back', 'jetpack-paypal-payments' ) }
+								</Button>
+							</div>
+						</div>
+					) }
+
+					{ /* Step 3: Enter Credentials */ }
+					{ wizardStep === 'credentials' && (
+						<div className="jetpack-paypal-wizard__credentials">
+							<h3>{ __( 'Step 2 of 3: Enter Credentials', 'jetpack-paypal-payments' ) }</h3>
+							<p className="jetpack-paypal-wizard__subtitle">
+								{ __(
+									'Copy these from your app in the PayPal Developer Dashboard:',
+									'jetpack-paypal-payments'
+								) }
+							</p>
+
+							{ connectError && (
+								<Notice status="error" isDismissible onDismiss={ () => setConnectError( null ) }>
+									{ connectError }
+								</Notice>
+							) }
+
+							{ environment === 'sandbox' && (
+								<Notice status="warning" isDismissible={ false }>
+									{ __(
+										'Sandbox mode — buttons will use test credentials.',
+										'jetpack-paypal-payments'
+									) }
+								</Notice>
+							) }
+
+							<TextControl
+								label={ __( 'Client ID', 'jetpack-paypal-payments' ) }
+								value={ clientId }
+								onChange={ handleClientIdChange }
+								help={
+									clientIdWarning
+										? undefined
+										: __( 'Found under your app name in the dashboard.', 'jetpack-paypal-payments' )
+								}
+								className={ clientIdWarning ? 'has-warning' : undefined }
+								autoComplete="off"
+							/>
+							{ clientIdWarning && (
+								<p className="jetpack-paypal-payment-buttons__field-warning">{ clientIdWarning }</p>
+							) }
+
+							<div className="jetpack-paypal-wizard__secret-field">
+								<TextControl
+									label={ __( 'Client Secret', 'jetpack-paypal-payments' ) }
+									value={ clientSecret }
+									onChange={ handleClientSecretChange }
+									type={ showSecretField ? 'text' : 'password' }
+									help={ __(
+										'Click "Show" in PayPal to reveal it, then copy.',
+										'jetpack-paypal-payments'
+									) }
+									autoComplete="off"
+								/>
+								<Button
+									variant="tertiary"
+									className="jetpack-paypal-wizard__toggle-secret"
+									onClick={ () => setShowSecretField( ! showSecretField ) }
+									aria-label={
+										showSecretField
+											? __( 'Hide client secret', 'jetpack-paypal-payments' )
+											: __( 'Show client secret', 'jetpack-paypal-payments' )
+									}
+								>
+									{ showSecretField
+										? __( 'Hide', 'jetpack-paypal-payments' )
+										: __( 'Show', 'jetpack-paypal-payments' ) }
+								</Button>
+							</div>
+
+							<div className="jetpack-paypal-wizard__actions">
+								<Button
+									variant="primary"
+									onClick={ handleConnect }
+									isBusy={ isConnecting }
+									disabled={ isConnecting || ! clientId || ! clientSecret }
+								>
+									{ isConnecting
+										? __( 'Connecting…', 'jetpack-paypal-payments' )
+										: __( 'Connect', 'jetpack-paypal-payments' ) }
+								</Button>
+								<Button
+									variant="tertiary"
+									onClick={ () => setWizardStep( 'dashboard' ) }
+									disabled={ isConnecting }
+								>
+									{ __( 'Back', 'jetpack-paypal-payments' ) }
+								</Button>
+							</div>
+
+							<p className="jetpack-paypal-wizard__env-toggle">
+								{ environment === 'production' ? (
+									<Button variant="link" onClick={ () => setEnvironment( 'sandbox' ) }>
+										{ __( 'Use Sandbox for testing', 'jetpack-paypal-payments' ) }
+									</Button>
+								) : (
+									<Button variant="link" onClick={ () => setEnvironment( 'production' ) }>
+										{ __( 'Switch to Production (Live)', 'jetpack-paypal-payments' ) }
+									</Button>
+								) }
+							</p>
+						</div>
+					) }
+
+					{ /* Step 4: Success */ }
+					{ wizardStep === 'success' && (
+						<div className="jetpack-paypal-wizard__success">
+							<div className="jetpack-paypal-wizard__success-icon">
+								<span>&#10003;</span>
+							</div>
+							<h3>{ __( 'PayPal account connected!', 'jetpack-paypal-payments' ) }</h3>
+							<p>
+								{ __(
+									"You're ready to create payment buttons. Fill in your product details below.",
+									'jetpack-paypal-payments'
+								) }
+							</p>
+							<Button variant="primary" onClick={ () => setIsConnected( true ) }>
+								{ __( 'Create Your First Button', 'jetpack-paypal-payments' ) }
+							</Button>
+						</div>
+					) }
 				</div>
 			</div>
 		);
