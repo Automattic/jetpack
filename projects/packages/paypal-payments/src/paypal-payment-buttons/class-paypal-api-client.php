@@ -99,6 +99,9 @@ class PayPal_API_Client {
 			return $result;
 		}
 
+		// Extract payment_link from HATEOAS links array to top-level field.
+		$result = self::extract_payment_link( $result );
+
 		// Validate payment_link domain if present.
 		if ( ! empty( $result['payment_link'] ) ) {
 			$validation = self::validate_paypal_url( $result['payment_link'] );
@@ -154,6 +157,9 @@ class PayPal_API_Client {
 			return $result;
 		}
 
+		// Extract payment_link from HATEOAS links array to top-level field.
+		$result = self::extract_payment_link( $result );
+
 		// Validate payment_link domain if present.
 		if ( ! empty( $result['payment_link'] ) ) {
 			$validation = self::validate_paypal_url( $result['payment_link'] );
@@ -188,6 +194,9 @@ class PayPal_API_Client {
 		if ( is_wp_error( $result ) ) {
 			return $result;
 		}
+
+		// Extract payment_link from HATEOAS links array to top-level field.
+		$result = self::extract_payment_link( $result );
 
 		// Validate payment_link domain if present.
 		if ( ! empty( $result['payment_link'] ) ) {
@@ -578,6 +587,29 @@ class PayPal_API_Client {
 		}
 
 		return true;
+	}
+
+	/**
+	 * Extract the payment link URL from a PayPal API response's links array.
+	 *
+	 * PayPal returns HATEOAS links as an array of objects with rel/href/method.
+	 * The payment link has rel="payment_link". This method finds it and promotes
+	 * it to a top-level `payment_link` field on the response array.
+	 *
+	 * @param array $result The decoded PayPal API response.
+	 * @return array The response with `payment_link` added as a top-level field.
+	 */
+	private static function extract_payment_link( $result ) {
+		if ( ! empty( $result['links'] ) && is_array( $result['links'] ) ) {
+			foreach ( $result['links'] as $link ) {
+				if ( isset( $link['rel'] ) && 'payment_link' === $link['rel'] && ! empty( $link['href'] ) ) {
+					$result['payment_link'] = $link['href'];
+					break;
+				}
+			}
+		}
+
+		return $result;
 	}
 
 	/**

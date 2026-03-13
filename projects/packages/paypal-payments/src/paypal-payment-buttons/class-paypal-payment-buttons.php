@@ -102,7 +102,7 @@ class PayPal_Payment_Buttons {
 	 * @return string|void The rendered block HTML.
 	 */
 	public static function render_block( $attributes, $content ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		$api_managed = ! empty( $attributes['apiManaged'] );
+		$api_managed = ! empty( $attributes['isApiManaged'] );
 
 		// ─── V2: API-managed button ───
 		if ( $api_managed ) {
@@ -126,11 +126,11 @@ class PayPal_Payment_Buttons {
 	 */
 	private static function render_api_managed_button( $attributes ) {
 		$resource_id  = $attributes['resourceId'] ?? '';
-		$payment_url  = $attributes['paymentUrl'] ?? '';
+		$payment_url  = $attributes['paymentLink'] ?? '';
 		$product_name = $attributes['productName'] ?? '';
 		$price        = $attributes['price'] ?? '';
-		$currency     = $attributes['currency'] ?? 'USD';
-		$button_label = $attributes['buttonLabel'] ?? __( 'Buy Now', 'jetpack-paypal-payments' );
+		$currency     = $attributes['currencyCode'] ?? 'USD';
+		$button_label = $attributes['buttonText'] ?? __( 'Buy Now', 'jetpack-paypal-payments' );
 
 		if ( empty( $resource_id ) || empty( $payment_url ) ) {
 			return;

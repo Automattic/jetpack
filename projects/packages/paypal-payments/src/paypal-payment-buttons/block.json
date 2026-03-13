@@ -14,7 +14,7 @@
 		"align": [ "wide", "full" ]
 	},
 	"attributes": {
-		"apiManaged": {
+		"isApiManaged": {
 			"type": "boolean",
 			"default": false
 		},
@@ -22,7 +22,7 @@
 			"type": "string",
 			"default": ""
 		},
-		"paymentUrl": {
+		"paymentLink": {
 			"type": "string",
 			"default": ""
 		},
@@ -34,7 +34,7 @@
 			"type": "string",
 			"default": ""
 		},
-		"currency": {
+		"currencyCode": {
 			"type": "string",
 			"default": "USD"
 		},
@@ -42,13 +42,14 @@
 			"type": "string",
 			"default": ""
 		},
-		"buttonLabel": {
+		"buttonText": {
 			"type": "string",
-			"default": "Buy Now"
+			"default": "Pay Now"
 		},
 		"buttonType": {
 			"type": "string",
-			"default": ""
+			"enum": [ "stacked", "single" ],
+			"default": "stacked"
 		},
 		"scriptSrc": {
 			"type": "string",
@@ -58,11 +59,12 @@
 			"type": "string",
 			"default": ""
 		},
-		"buttonText": {
+		"returnUrl": {
 			"type": "string",
 			"default": ""
 		}
 	},
 	"editorScript": "file:../../dist/paypal-payment-buttons/editor.js",
-	"editorStyle": "file:../../dist/paypal-payment-buttons/editor.css"
+	"editorStyle": "file:../../dist/paypal-payment-buttons/editor.css",
+	"style": "file:../../dist/paypal-payment-buttons/editor.css"
 }
