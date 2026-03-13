@@ -1,10 +1,4 @@
-<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
-/**
- * Tests for WP_Build_Polyfills.
- *
- * @package automattic/jetpack-wp-build-polyfills
- */
-
+<?php
 namespace Automattic\Jetpack\WP_Build_Polyfills\Tests;
 
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
@@ -20,7 +14,7 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 	/**
 	 * Temporary build directory for fake asset files.
 	 *
-	 * @var string
+	 * @var ?string
 	 */
 	private $build_dir;
 
@@ -42,18 +36,32 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 	 * Set up test fixtures.
 	 *
 	 * @before
+	 * @throws \RuntimeException If a temporary directory cannot be created.
 	 */
 	#[Before]
 	public function set_up() {
 		parent::set_up();
 
-		$this->build_dir = sys_get_temp_dir() . '/wp-build-polyfills-test-' . uniqid();
-		mkdir( $this->build_dir . '/scripts/notices', 0755, true ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_mkdir
-		mkdir( $this->build_dir . '/scripts/private-apis', 0755, true ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_mkdir
-		mkdir( $this->build_dir . '/scripts/theme', 0755, true ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_mkdir
-		mkdir( $this->build_dir . '/modules/boot', 0755, true ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_mkdir
-		mkdir( $this->build_dir . '/modules/route', 0755, true ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_mkdir
-		mkdir( $this->build_dir . '/modules/a11y', 0755, true ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_mkdir
+		$this->build_dir = null;
+		$base            = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'wp-build-polyfills-test-';
+		for ( $i = 0; $i < 1000; $i++ ) {
+			$tmpdir = $base . uniqid();
+			// Atomic mkdir prevents symlink race (TOCTOU).
+			if ( @mkdir( $tmpdir, 0700 ) ) { // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+				$this->build_dir = $tmpdir;
+				break;
+			}
+		}
+		if ( null === $this->build_dir ) {
+			throw new \RuntimeException( 'Failed to create temporary directory' );
+		}
+
+		mkdir( $this->build_dir . '/scripts/notices', 0755, true );
+		mkdir( $this->build_dir . '/scripts/private-apis', 0755, true );
+		mkdir( $this->build_dir . '/scripts/theme', 0755, true );
+		mkdir( $this->build_dir . '/modules/boot', 0755, true );
+		mkdir( $this->build_dir . '/modules/route', 0755, true );
+		mkdir( $this->build_dir . '/modules/a11y', 0755, true );
 
 		$this->original_wp_version        = $GLOBALS['wp_version'];
 		$this->original_wp_script_modules = $GLOBALS['wp_script_modules'] ?? null;
@@ -66,13 +74,11 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 	 */
 	#[After]
 	public function tear_down() {
-		$GLOBALS['wp_version'] = $this->original_wp_version; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-
+		$GLOBALS['wp_version'] = $this->original_wp_version;
 		if ( null === $this->original_wp_script_modules ) {
 			unset( $GLOBALS['wp_script_modules'] );
 		} else {
-			$GLOBALS['wp_script_modules'] = $this->original_wp_script_modules; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-		}
+			$GLOBALS['wp_script_modules'] = $this->original_wp_script_modules;      }
 
 		// Reset static state.
 		$requested = new \ReflectionProperty( WP_Build_Polyfills::class, 'requested' );
@@ -114,9 +120,8 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 			),
 			$extra
 		);
-		$contents = '<?php return ' . var_export( $data, true ) . ";\n"; // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_var_export
-		file_put_contents( $this->build_dir . '/' . $path, $contents ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
-	}
+		$contents = '<?php return ' . var_export( $data, true ) . ";\n";
+		file_put_contents( $this->build_dir . '/' . $path, $contents ); }
 
 	/**
 	 * Create a WP_Scripts instance with polyfill handles removed.
@@ -137,9 +142,9 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 	/**
 	 * Request all available polyfills for a test consumer.
 	 *
-	 * Populates the static $requested property so register_scripts/register_modules
-	 * will process all handles. Uses register() but prevents the hook from firing
-	 * by resetting $hooked afterwards.
+	 * Populates the static $requested property via reflection so
+	 * register_scripts/register_modules will process all handles,
+	 * without triggering the wp_default_scripts hook.
 	 *
 	 * @param string[] $polyfills Optional specific polyfills to request. Defaults to all.
 	 */
@@ -242,13 +247,10 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 		);
 		foreach ( $items as $item ) {
 			if ( $item->isDir() ) {
-				rmdir( $item->getRealPath() ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir
-			} else {
-				unlink( $item->getRealPath() ); // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink
-			}
+				rmdir( $item->getRealPath() );          } else {
+				unlink( $item->getRealPath() );         }
 		}
-		rmdir( $dir ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir
-	}
+		rmdir( $dir );  }
 
 	/**
 	 * Test that all scripts are registered when all asset files exist.
@@ -313,7 +315,7 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 	 * Test that wp-notices is force-replaced on WP < 7.0.
 	 */
 	public function test_register_scripts_force_replaces_wp_notices_on_old_wp() {
-		$GLOBALS['wp_version'] = '6.8'; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$GLOBALS['wp_version'] = '6.8';
 		$this->create_asset_file( 'scripts/notices/index.asset.php', array(), '9.9.9' );
 
 		$scripts = $this->create_clean_scripts();
@@ -330,7 +332,7 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 	 * Test that wp-private-apis is force-replaced on WP < 7.0.
 	 */
 	public function test_register_scripts_force_replaces_wp_private_apis_on_old_wp() {
-		$GLOBALS['wp_version'] = '6.8'; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$GLOBALS['wp_version'] = '6.8';
 		$this->create_asset_file( 'scripts/private-apis/index.asset.php', array(), '9.9.9' );
 
 		$scripts = $this->create_clean_scripts();
@@ -347,7 +349,7 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 	 * Test that neither wp-notices nor wp-private-apis is force-replaced on WP >= 7.0.
 	 */
 	public function test_register_scripts_does_not_force_replace_on_wp_7() {
-		$GLOBALS['wp_version'] = '7.0'; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$GLOBALS['wp_version'] = '7.0';
 		$this->create_asset_file( 'scripts/notices/index.asset.php', array(), '9.9.9' );
 		$this->create_asset_file( 'scripts/private-apis/index.asset.php', array(), '9.9.9' );
 
@@ -368,7 +370,7 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 	 * Test that force scripts register fine even when not pre-existing.
 	 */
 	public function test_register_scripts_force_registers_fresh_on_old_wp() {
-		$GLOBALS['wp_version'] = '6.8'; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$GLOBALS['wp_version'] = '6.8';
 		$this->create_asset_file( 'scripts/notices/index.asset.php', array(), '9.9.9' );
 		$this->create_asset_file( 'scripts/private-apis/index.asset.php', array(), '8.8.8' );
 
@@ -403,8 +405,7 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 	 */
 	public function test_register_modules_registers_all_when_asset_files_exist() {
 		// Reset the script modules global so we start fresh.
-		$GLOBALS['wp_script_modules'] = new \WP_Script_Modules(); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-
+		$GLOBALS['wp_script_modules'] = new \WP_Script_Modules();
 		$this->create_asset_file(
 			'modules/boot/index.asset.php',
 			array(),
@@ -435,8 +436,7 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 	 * Test that no modules are registered when asset files are missing.
 	 */
 	public function test_register_modules_skips_when_asset_files_missing() {
-		$GLOBALS['wp_script_modules'] = new \WP_Script_Modules(); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-
+		$GLOBALS['wp_script_modules'] = new \WP_Script_Modules();
 		$this->invoke_register_modules();
 
 		$this->assertFalse( $this->is_module_registered( '@wordpress/boot' ) );
@@ -448,8 +448,7 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 	 * Test that pre-registered modules are not replaced (first-wins semantics).
 	 */
 	public function test_register_modules_does_not_replace_existing() {
-		$GLOBALS['wp_script_modules'] = new \WP_Script_Modules(); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-
+		$GLOBALS['wp_script_modules'] = new \WP_Script_Modules();
 		// Pre-register @wordpress/boot.
 		wp_register_script_module( '@wordpress/boot', 'https://example.com/core-boot.js', array(), '1.0.0-core' );
 
@@ -512,9 +511,8 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 		if ( ! file_exists( $asset_file ) ) {
 			$dir = dirname( $asset_file );
 			if ( ! is_dir( $dir ) ) {
-				mkdir( $dir, 0755, true ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_mkdir
-			}
-			file_put_contents( // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+				mkdir( $dir, 0755, true );          }
+			file_put_contents(
 				$asset_file,
 				"<?php\nreturn array( 'dependencies' => array( 'wp-i18n' ), 'version' => 'fixture-1.0' );\n"
 			);
@@ -532,8 +530,7 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 			$this->assertNotEmpty( $asset['version'] );
 		} finally {
 			if ( $created ) {
-				unlink( $asset_file ); // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink
-			}
+				unlink( $asset_file );          }
 		}
 	}
 
@@ -552,7 +549,7 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 
 		// Ensure the asset file is absent — back it up if a build has run.
 		if ( file_exists( $asset_file ) ) {
-			rename( $asset_file, $backup_file ); // phpcs:ignore WordPress.WP.AlternativeFunctions.rename_rename
+			rename( $asset_file, $backup_file );
 			$backed_up = true;
 		}
 
@@ -570,8 +567,7 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 			$this->assertSame( '', $asset['version'] );
 		} finally {
 			if ( $backed_up ) {
-				rename( $backup_file, $asset_file ); // phpcs:ignore WordPress.WP.AlternativeFunctions.rename_rename
-			}
+				rename( $backup_file, $asset_file ); }
 		}
 	}
 
