@@ -279,14 +279,6 @@ export default function usePageHeaderDetails(
 		const formItem = { id: sourceIdNumber, title: formTitle };
 		const controls: Array< { title: string; onClick: () => void } > = [
 			{
-				title: __( 'Rename', 'jetpack-forms' ),
-				onClick: () => setRenameFormItem( formItem ),
-			},
-			{
-				title: __( 'Duplicate', 'jetpack-forms' ),
-				onClick: () => duplicateForm( formItem ),
-			},
-			{
 				title: __( 'Preview', 'jetpack-forms' ),
 				onClick: () => previewForm( formItem ),
 			},
@@ -325,10 +317,20 @@ export default function usePageHeaderDetails(
 			} );
 		}
 
-		controls.push( {
-			title: __( 'Move to trash', 'jetpack-forms' ),
-			onClick: () => trashForm( formItem ),
-		} );
+		controls.push(
+			{
+				title: __( 'Rename', 'jetpack-forms' ),
+				onClick: () => setRenameFormItem( formItem ),
+			},
+			{
+				title: __( 'Duplicate', 'jetpack-forms' ),
+				onClick: () => duplicateForm( formItem ),
+			},
+			{
+				title: __( 'Trash', 'jetpack-forms' ),
+				onClick: () => trashForm( formItem ),
+			}
+		);
 
 		return controls;
 	}, [
