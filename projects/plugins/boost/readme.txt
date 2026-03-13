@@ -1,11 +1,11 @@
 === Jetpack Boost - Website Speed, Performance and Critical CSS  ===
-Contributors: automattic, xwp, adnan007, bjorsch, danwalmsley, davidlonjon, dilirity, donncha, ebinnion, exelero, jeherve, jpolakovic, karthikbhatb, kraftbj, lsarsfield, luchad0res, pyronaur, rheinardkorf, scruffian, thingalon
+Contributors: automattic, xwp, adnan007, bjorsch, danwalmsley, davidlonjon, dilirity, donncha, ebinnion, exelero, jeherve, jpolakovic, karthikbhatb, kraftbj, lsarsfield, luchad0res, pyronaur, rheinardkorf, scruffian, thingalon, dlocc
 Donate link: https://automattic.com
 Tags: performance, speed, web vitals, critical css, cache
-Requires at least: 6.7
-Tested up to: 6.8
+Requires at least: 6.8
+Tested up to: 6.9
 Requires PHP: 7.2
-Stable tag: 4.2.1
+Stable tag: 4.5.8-beta
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -183,26 +183,22 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 4.3.0-beta - 2025-08-05
-#### Added
-- Page Cache: Ignore Yandex parameters so those visitors are served from the cache.
+### 4.5.8-beta - 2026-03-09
 
 #### Changed
-- Image CDN: Ignore images from openlibrary.org.
-- Misc: Speed up uninstall process.
-- My Jetpack: Unify the user connection flow with a unified screen.
 
-#### Removed
-- Image Size Analysis: feature has been removed. Filter will no longer enable the ISA.
+- Remove header border-bottom from the admin page for a cleaner unified header appearance.
+- Replaced the large Jetpack Boost logo header with a compact unified header pattern (Jetpack icon + title + subtitle) for consistent product identity.
+- Replace license activation link with a "Use license key" button in the header actions area.
+- Switch to Native TypeScript compiler based on Go.
 
 #### Fixed
-- Cornerstone Pages: Fix default pages including cornerpages from Yoast, when Yoast was inactive.
-- Cornerstone Pages: Fix refreshing speed scores after updating the list if Critical CSS was disabled.
-- LCP Optimization: Ensure pending Optimization message appears immediately when enabling Optimize LCP Images
-- My Jetpack: Fixing footer alignment for diconnected accounts.
-- My Jetpack: Prevent expiration alerts for products covered by active bundles
-- My Jetpack: Restoring plan purchase link.
-- Page Cache: Fix php warnings related to opcache calls when API is disabled.
+
+- Admin Page: Restore border on header component.
+- Compatibility: Clean up deprecated CSS.
+- Fix Hello Dolly banner background color and clear floats in admin layout.
+- Fix TS errors detected by tsgo.
+- I18N: Fix translatable strings extraction
 
 --------
 

@@ -358,6 +358,17 @@ export function getSiteIcon( state ) {
 }
 
 /**
+ * Returns the site representative image as an image URL.
+ *
+ * @param {object} state - Global state tree
+ *
+ * @return {string}        the URL of the representative image
+ */
+export function getSiteRepresentativeImage( state ) {
+	return state.jetpack.initialState.siteData?.representativeImage;
+}
+
+/**
  * Check whether the site is accessible by search engines or not. It's true by default in an initial WP installation.
  *
  * @param {object} state - Global state tree
@@ -524,6 +535,17 @@ export function currentThemeIsBlockTheme( state ) {
  */
 export function showBackups( state ) {
 	return state.jetpack.initialState.siteData?.showBackups ?? true;
+}
+
+/**
+ * Check if scan UI should be displayed.
+ *
+ * @param {object} state - Global state tree
+ *
+ * @return {boolean} True if scan UI should be displayed.
+ */
+export function showScan( state ) {
+	return state.jetpack.initialState.siteData?.showScan ?? true;
 }
 
 /**
@@ -837,6 +859,16 @@ export function isWpAdminSubscriberManagementEnabled( state ) {
 }
 
 /**
+ * Returns true if the wp-admin Newsletter settings page is enabled.
+ *
+ * @param {object} state - Global state tree.
+ * @return {boolean} True if the Newsletter settings page is enabled.
+ */
+export function isWpAdminNewsletterSettingsEnabled( state ) {
+	return !! state.jetpack.initialState.isWpAdminNewsletterSettingsEnabled;
+}
+
+/**
  * Check if the Sharing block is available on the site.
  *
  * @param {object} state - Global state tree.
@@ -844,6 +876,16 @@ export function isWpAdminSubscriberManagementEnabled( state ) {
  */
 export function isSharingBlockAvailable( state ) {
 	return !! state.jetpack.initialState.siteData.isSharingBlockAvailable;
+}
+
+/**
+ * Check if the Like block is available on the site.
+ *
+ * @param {object} state - Global state tree.
+ * @return {boolean} True if the Like block is available on the site.
+ */
+export function isLikeBlockAvailable( state ) {
+	return !! state.jetpack.initialState.siteData.isLikeBlockAvailable;
 }
 
 /**

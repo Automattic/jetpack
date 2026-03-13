@@ -12,6 +12,10 @@
  * @package automattic/jetpack
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 add_shortcode( 'ustream', 'ustream_shortcode' );
 add_shortcode( 'ustreamsocial', 'ustreamsocial_shortcode' );
 

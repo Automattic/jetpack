@@ -17,6 +17,10 @@
 
 use Automattic\Jetpack\Connection\SSO;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 SSO::get_instance();
 
 add_action(

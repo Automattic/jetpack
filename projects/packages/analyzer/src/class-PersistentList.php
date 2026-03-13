@@ -79,7 +79,8 @@ class PersistentList {
 						return $item->to_map();
 					},
 					$this->items
-				)
+				),
+				JSON_UNESCAPED_SLASHES
 			)
 		);
 	}

@@ -4,7 +4,6 @@ import {
 	PanelRow,
 	CheckboxControl,
 	ToggleControl,
-	Tooltip,
 	Card,
 	CardBody,
 	CardFooter,
@@ -12,7 +11,6 @@ import {
 import { compose, useDebounce } from '@wordpress/compose';
 import { useDispatch, useSelect, withSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-import { Icon, help } from '@wordpress/icons';
 import { useState, useEffect, useCallback } from 'react';
 import features from './features';
 import calculateFleschKincaid from './utils/flesch-kincaid-utils';
@@ -136,14 +134,9 @@ const Controls = ( { blocks, disabledFeatures } ) => {
 									{ __( 'Write to see your grade level.', 'jetpack' ) }
 								</p>
 							) : (
-								<>
-									<div className="jetpack-ai-proofread__grade-label">
-										{ gradeLevel } { __( 'Reading grade score', 'jetpack' ) }
-									</div>
-									<Tooltip text={ __( 'To make it easy to read, aim for level 8–12', 'jetpack' ) }>
-										<Icon icon={ help } size={ 20 } />
-									</Tooltip>
-								</>
+								<div className="jetpack-ai-proofread__grade-label">
+									{ gradeLevel } { __( 'Reading grade score', 'jetpack' ) }
+								</div>
 							) }
 						</CardFooter>
 					</Card>

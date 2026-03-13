@@ -12,6 +12,10 @@ use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Status;
 use WP_Error;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * To get and set Search module settings
  */
@@ -92,7 +96,7 @@ class Module_Control {
 	public function activate() {
 		$is_wpcom = defined( 'IS_WPCOM' ) && IS_WPCOM;
 		if ( ( new Status() )->is_offline_mode() ) {
-			return new WP_Error( 'site_offline', __( 'Jetpack Search can not be used in offline mode.', 'jetpack-search-pkg' ) );
+			return new WP_Error( 'site_offline', __( 'Jetpack Search cannot be used in offline mode.', 'jetpack-search-pkg' ) );
 		}
 		if ( ! $is_wpcom && ! $this->connection_manager->is_connected() ) {
 			return new WP_Error( 'connection_required', __( 'Connect your site to use Jetpack Search.', 'jetpack-search-pkg' ) );

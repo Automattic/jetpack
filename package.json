@@ -30,28 +30,15 @@
 		"version-packages": "bash ./tools/version-packages.sh"
 	},
 	"devDependencies": {
-		"eslint": "9.32.0",
+		"eslint": "9.39.3",
 		"husky": "9.1.7",
 		"jetpack-cli": "workspace:*",
 		"jetpack-js-tools": "workspace:*",
-		"stylelint": "16.19.1"
+		"stylelint": "16.26.1"
 	},
-	"packageManager": "pnpm@10.4.0",
+	"packageManager": "pnpm@10.28.2",
 	"engines": {
-		"node": "^22.12.0",
-		"pnpm": "^10.4.0"
-	},
-	"pnpm": {
-		"patchedDependencies": {
-			"@wordpress/dataviews": ".pnpm-patches/@wordpress__dataviews@4.12.0.patch"
-		},
-		"ignoredBuiltDependencies": [
-			"@swc/core",
-			"core-js",
-			"esbuild",
-			"svelte-preprocess",
-			"swiper",
-			"unrs-resolver"
-		]
+		"node": "^22.19.0",
+		"pnpm": "^10.28.2"
 	}
 }

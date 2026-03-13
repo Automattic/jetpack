@@ -12,7 +12,15 @@ class Cornerstone_Utils {
 	 * @return string[] The relative URLs of all the cornerstone pages.
 	 */
 	public static function get_list() {
-		return array_merge( self::get_predefined_list(), self::get_custom_list() );
+		/**
+		 * Filters the list of cornerstone pages. This list includes the predefined and custom pages.
+		 * If you want to change the list of custom pages, use `jetpack_boost_cornerstone_pages_list` instead.
+		 *
+		 * @since 4.4.0-beta1
+		 *
+		 * @param string[] $urls The absolute URLs of all the cornerstone pages.
+		 */
+		return apply_filters( 'jetpack_boost_cornerstone_pages_list_complete', array_merge( self::get_predefined_list(), self::get_custom_list() ) );
 	}
 
 	/**

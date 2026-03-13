@@ -27,6 +27,7 @@ Extensions in the `extensions/` folder loosely follow this structure:
 .
 ├── blocks/
 │   └── block-name/
+│		├── admin. js                ← script loaded only in admin screens
 │		├── editor.js                ← script loaded only in the editor
 │		├── editor.scss              ← styles loaded only in the editor
 │		├── view.js                  ← script loaded on the frontend
@@ -56,7 +57,7 @@ If your block depends on another block, place them all in one folder:
 	└── block-name/
 		└── sub-blockname/
 ```
-To ensure that the child blog is properly registered, include its php block registration file in the parent php file. 
+To ensure that the child blog is properly registered, include its php block registration file in the parent php file.
 Also, you would need to adjust the front-end block registration in the parent as follows:
 ```js
 import registerJetpackBlock from '../../shared/register-jetpack-block';
@@ -359,25 +360,6 @@ The build pipeline also supports [Color studio](https://github.com/Automattic/co
 ### Icons
 
 Please use outline versions of [Material icons](https://material.io/tools/icons/?style=outline) to stay in line with Gutenberg. Don't rely on icons used in WordPress core to avoid visual mixing up with core blocks.
-
-### SVG files
-
-When an svg (or other asset) file is imported into js, by default webpack transforms the import into a url for the file. If you would like to import an svg file as a React component (using the [svgr library](https://react-svgr.com/)), append `?component` to the import source. This is particularly useful for [block icons](https://developer.wordpress.org/block-editor/reference-guides/block-api/block-registration/#icon-optional), which need to be either svg markup or a React component.
-
-```js
-// index.js for a block
-import { getIconColor } from '../../shared/block-icons';
-import Icon from './icon.svg?component';
-
-export const settings = {
-	...
-	icon: {
-		src: Icon,
-		foreground: getIconColor(),
-	},
-	...
-};
-```
 
 ## Native support
 

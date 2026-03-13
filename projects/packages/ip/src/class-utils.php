@@ -12,7 +12,7 @@ namespace Automattic\Jetpack\IP;
  */
 class Utils {
 
-	const PACKAGE_VERSION = '0.4.9';
+	const PACKAGE_VERSION = '0.4.10';
 
 	/**
 	 * Get the current user's IP address.
@@ -87,8 +87,8 @@ class Utils {
 	/**
 	 * Checks an IP to see if it is within a private range.
 	 *
-	 * @param int $ip IP address.
-	 * @return bool True if IP address is private, false otherwise.
+	 * @param string $ip IP address.
+	 * @return bool  True if IP address is private, false otherwise.
 	 */
 	public static function ip_is_private( $ip ) {
 		// We are dealing with ipv6, so we can simply rely on filter_var.

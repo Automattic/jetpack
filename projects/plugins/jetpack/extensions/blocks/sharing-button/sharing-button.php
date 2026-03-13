@@ -15,6 +15,10 @@ use Automattic\Jetpack\Status\Host;
 use Jetpack_Gutenberg;
 use WP_Block_Template;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 require_once __DIR__ . '/class-sharing-source-block.php';
 require_once __DIR__ . '/components/social-icons.php';
 
@@ -81,7 +85,7 @@ function render_block( $attr, $content, $block ) {
 
 	$accessible_name = sprintf(
 		/* translators: %s refers to a string representation of sharing service, e.g. Facebook */
-		esc_html__( 'Click to share on %s', 'jetpack' ),
+		esc_html__( 'Share on %s', 'jetpack' ),
 		esc_html( $title )
 	);
 
@@ -166,7 +170,6 @@ function get_services() {
 		'twitter'   => Share_Twitter_Block::class,
 		'tumblr'    => Share_Tumblr_Block::class,
 		'pinterest' => Share_Pinterest_Block::class,
-		'pocket'    => Share_Pocket_Block::class,
 		'telegram'  => Share_Telegram_Block::class,
 		'threads'   => Share_Threads_Block::class,
 		'whatsapp'  => Jetpack_Share_WhatsApp_Block::class,
@@ -199,9 +202,7 @@ function sharing_process_requests() {
 		}
 
 		$service = new $services[ ( $service_name ) ]( $service_name, array() ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		if ( $service ) {
-			$service->process_request( $post, $_POST ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
-		}
+		$service->process_request( $post, $_POST ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
 	}
 }
 

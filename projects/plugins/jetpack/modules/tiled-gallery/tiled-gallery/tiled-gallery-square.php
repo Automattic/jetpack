@@ -1,4 +1,9 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 require_once __DIR__ . '/tiled-gallery-layout.php';
 require_once __DIR__ . '/tiled-gallery-item.php';
 

@@ -19,7 +19,7 @@ use Symfony\Component\Console\Question\ConfirmationQuestion;
  */
 class Application extends SymfonyApplication {
 
-	const VERSION = '6.0.5';
+	const VERSION = '6.0.14';
 
 	/**
 	 * Constructor.
@@ -38,7 +38,7 @@ class Application extends SymfonyApplication {
 	 */
 	public function doRun( InputInterface $input, OutputInterface $output ): int {
 		$output->getFormatter()->setStyle( 'warning', new OutputFormatterStyle( 'black', 'yellow' ) );
-		// @phan-suppress-next-line PhanUndeclaredMethodInCallable,PhanUndeclaredMethod -- Being checked before being called. See also https://github.com/phan/phan/issues/1204.
+		// @phan-suppress-next-line PhanUndeclaredMethod -- Being checked before being called. See also https://github.com/phan/phan/issues/1204.
 		$errout = is_callable( array( $output, 'getErrorOutput' ) ) ? $output->getErrorOutput() : $output;
 
 		// Try to find a composer.json, if COMPOSER isn't set.

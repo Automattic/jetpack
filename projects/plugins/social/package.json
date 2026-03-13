@@ -24,6 +24,6 @@
 		"watch": "echo 'Not implemented'"
 	},
 	"devDependencies": {
-		"concurrently": "7.6.0"
+		"concurrently": "9.2.1"
 	}
 }

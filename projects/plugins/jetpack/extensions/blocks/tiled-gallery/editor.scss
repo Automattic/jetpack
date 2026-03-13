@@ -6,15 +6,11 @@
 @keyframes tiled-gallery-img-placeholder {
 
 	0% {
-		background-color: var(--color-neutral-0);
-	}
-
-	50% {
-		background-color: color-mix(in sRGB, var(--color-neutral-0) 50%, transparent);
+		background-color: rgb(from var(--color-neutral-0) r g b / 1);
 	}
 
 	100% {
-		background-color: var(--color-neutral-0);
+		background-color: rgb(from var(--color-neutral-0) r g b / 0.5);
 	}
 }
 
@@ -60,9 +56,9 @@
 			outline: none;
 		}
 
-		> img {
+		&.is-loading > img {
 			// Inspired by Calypso's placeholder mixin
-			animation: tiled-gallery-img-placeholder 1.6s ease-in-out infinite;
+			animation: tiled-gallery-img-placeholder 0.8s ease-in-out infinite alternate;
 		}
 
 		&.is-selected {

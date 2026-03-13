@@ -1,0 +1,515 @@
+/**
+ * External dependencies
+ */
+import { useBreakpointMatch } from '@automattic/jetpack-components';
+import JetpackLogo from '@automattic/jetpack-components/jetpack-logo';
+import { Breadcrumbs } from '@wordpress/admin-ui';
+import { DropdownMenu, Button } from '@wordpress/components';
+import { store as coreDataStore } from '@wordpress/core-data';
+import { useSelect } from '@wordpress/data';
+import { useMemo, useState, useCallback } from '@wordpress/element';
+import { decodeEntities } from '@wordpress/html-entities';
+import { __, sprintf } from '@wordpress/i18n';
+import { moreVertical } from '@wordpress/icons';
+import { Badge, Stack } from '@wordpress/ui';
+/**
+ * Internal dependencies
+ */
+import CreateFormButton from '../../components/create-form-button';
+import EditFormButton from '../../components/edit-form-button';
+import EmptySpamButton from '../../components/empty-spam-button';
+import EmptySpamConfirmationModal from '../../components/empty-spam-button/confirmation-modal';
+import EmptyTrashButton from '../../components/empty-trash-button';
+import EmptyTrashConfirmationModal from '../../components/empty-trash-button/confirmation-modal';
+import ExportResponsesButton from '../../components/export-responses/button';
+import ExportResponsesModal from '../../components/export-responses/modal';
+import { FormNameModal } from '../../components/form-name-modal';
+import { getFormStatusLabel } from '../../constants';
+import useCreateForm from '../../hooks/use-create-form';
+import useEmptySpam from '../../hooks/use-empty-spam';
+import useEmptyTrash from '../../hooks/use-empty-trash';
+import useExportResponses from '../../hooks/use-export-responses';
+import useInboxData from '../../hooks/use-inbox-data';
+import ManageIntegrationsButton from '../components/manage-integrations-button';
+import useFormItemActions from './use-form-item-actions';
+import type { ReactNode } from 'react';
+
+type ResponsesStatusView = 'inbox' | 'spam' | 'trash';
+
+type UsePageHeaderDetailsProps = {
+	screen: 'forms' | 'responses';
+	statusView?: ResponsesStatusView;
+	sourceId?: string | number;
+	formsCount?: number;
+	isIntegrationsEnabled: boolean;
+	showDashboardIntegrations: boolean;
+	onOpenIntegrations: () => void;
+	onOpenFormsHelp?: () => void;
+};
+
+type UsePageHeaderDetailsReturn = {
+	ariaLabel: string;
+	breadcrumbs: ReactNode;
+	title?: ReactNode;
+	badges?: ReactNode;
+	subtitle: ReactNode;
+	actions?: ReactNode;
+};
+
+/**
+ * Build wp-build page header details (breadcrumbs, subtitle, actions).
+ *
+ * This hook is intentionally scoped to just what is passed into the wp-build `<Page />`
+ * component to keep route files readable.
+ *
+ * @param props - Props.
+ * @return Page header details.
+ */
+export default function usePageHeaderDetails(
+	props: UsePageHeaderDetailsProps
+): UsePageHeaderDetailsReturn {
+	const {
+		screen,
+		sourceId,
+		formsCount,
+		isIntegrationsEnabled,
+		showDashboardIntegrations,
+		onOpenIntegrations,
+		onOpenFormsHelp,
+	} = props;
+	const statusView: ResponsesStatusView = props.statusView ?? 'inbox';
+	const sourceIdNumber = useMemo( () => {
+		const value = sourceId;
+		const numberValue = typeof value === 'number' ? value : Number( value );
+		return Number.isFinite( numberValue ) && numberValue > 0 ? numberValue : null;
+	}, [ sourceId ] );
+
+	// Detect mobile viewport
+	const [ isSm ] = useBreakpointMatch( 'sm' );
+
+	// Mutually-exclusive screen flags.
+	const isFormsScreen = screen === 'forms';
+	const isSingleFormScreen = screen === 'responses' && sourceIdNumber !== null;
+
+	// Hooks for mobile dropdown menu actions
+	const { openNewForm } = useCreateForm();
+	const [ isCreateFormModalOpen, setIsCreateFormModalOpen ] = useState( false );
+	const handleCreateFormClick = useCallback( () => {
+		setIsCreateFormModalOpen( true );
+	}, [] );
+	const closeCreateFormModal = useCallback( () => setIsCreateFormModalOpen( false ), [] );
+	const handleCreateFormSave = useCallback(
+		async ( formName: string ) => {
+			await openNewForm( { formTitle: formName } );
+		},
+		[ openNewForm ]
+	);
+	const {
+		showExportModal,
+		openModal: openExportModal,
+		closeModal: closeExportModal,
+		onExport,
+		autoConnectGdrive,
+		exportLabel,
+	} = useExportResponses();
+	const { totalItems, isLoadingData } = useInboxData();
+	const hasResponses = ! isLoadingData && totalItems > 0;
+
+	// Empty spam/trash hooks
+	const emptySpam = useEmptySpam();
+	const emptyTrash = useEmptyTrash();
+
+	const formRecord = useSelect(
+		select =>
+			sourceIdNumber
+				? ( select( coreDataStore ).getEntityRecord(
+						'postType',
+						'jetpack_form',
+						sourceIdNumber
+				  ) as { title?: { rendered?: string }; status?: string } | undefined )
+				: undefined,
+		[ sourceIdNumber ]
+	);
+
+	const formTitle = useMemo( () => {
+		const rendered = formRecord?.title?.rendered || '';
+		return decodeEntities( rendered );
+	}, [ formRecord?.title?.rendered ] );
+
+	const formStatus = formRecord?.status;
+
+	const statusLabel = formStatus ? getFormStatusLabel( formStatus ) : undefined;
+
+	const badges = useMemo( () => {
+		if ( ! isSingleFormScreen || ! formStatus || formStatus === 'publish' ) {
+			return undefined;
+		}
+		return <Badge intent="draft">{ statusLabel }</Badge>;
+	}, [ isSingleFormScreen, formStatus, statusLabel ] );
+
+	const { duplicateForm, previewForm, copyEmbed, copyShortcode } = useFormItemActions();
+
+	const formItemControls = useMemo( () => {
+		if ( ! sourceIdNumber ) {
+			return [];
+		}
+
+		const formItem = { id: sourceIdNumber, title: formTitle };
+		const controls: Array< { title: string; onClick: () => void } > = [
+			{
+				title: __( 'Duplicate', 'jetpack-forms' ),
+				onClick: () => duplicateForm( formItem ),
+			},
+			{
+				title: __( 'Preview', 'jetpack-forms' ),
+				onClick: () => previewForm( formItem ),
+			},
+		];
+
+		if ( navigator?.clipboard ) {
+			controls.push(
+				{
+					title: __( 'Copy embed', 'jetpack-forms' ),
+					onClick: () => copyEmbed( formItem ),
+				},
+				{
+					title: __( 'Copy shortcode', 'jetpack-forms' ),
+					onClick: () => copyShortcode( formItem ),
+				}
+			);
+		}
+
+		return controls;
+	}, [ sourceIdNumber, formTitle, duplicateForm, previewForm, copyEmbed, copyShortcode ] );
+
+	const WrapWithJetpackLogo = ( { children }: { children: ReactNode } ) => (
+		<Stack align="center" gap="xs">
+			<JetpackLogo showText={ false } width={ 20 } />
+			{ children }
+		</Stack>
+	);
+
+	const ariaLabel = useMemo( () => {
+		if ( isSingleFormScreen ) {
+			return formTitle || __( 'Form responses', 'jetpack-forms' );
+		}
+		// "Forms" is a product name, do not translate.
+		return 'Jetpack Forms';
+	}, [ isSingleFormScreen, formTitle ] );
+
+	const title = useMemo( () => {
+		if ( isSingleFormScreen ) {
+			return null;
+		}
+		// "Forms" is a product name, do not translate.
+		return <WrapWithJetpackLogo>Forms</WrapWithJetpackLogo>;
+	}, [ isSingleFormScreen ] );
+
+	const breadcrumbs = useMemo( () => {
+		if ( ! isSingleFormScreen ) {
+			return null;
+		}
+
+		return (
+			<WrapWithJetpackLogo>
+				<Breadcrumbs
+					items={ [
+						{ label: __( 'Forms', 'jetpack-forms' ), to: '/forms' },
+						{ label: formTitle || __( 'Form responses', 'jetpack-forms' ) },
+					] }
+				/>
+			</WrapWithJetpackLogo>
+		);
+	}, [ isSingleFormScreen, formTitle ] );
+
+	const subtitle = useMemo( () => {
+		if ( isFormsScreen ) {
+			const shortMessage = __( 'View and manage all your forms.', 'jetpack-forms' );
+			const longMessage = __( 'View and manage all your forms in one place.', 'jetpack-forms' );
+
+			const shouldShowFormsHelpLink =
+				!! onOpenFormsHelp && ( typeof formsCount !== 'number' || formsCount < 5 );
+
+			return shouldShowFormsHelpLink ? (
+				<>
+					{ shortMessage }{ ' ' }
+					<Button variant="link" onClick={ onOpenFormsHelp }>
+						{ __( 'Missing forms?', 'jetpack-forms' ) }
+					</Button>
+				</>
+			) : (
+				longMessage
+			);
+		}
+
+		if ( isSingleFormScreen ) {
+			if ( formTitle ) {
+				return sprintf(
+					/* translators: %s: form name */
+					__( 'View responses for %s.', 'jetpack-forms' ),
+					formTitle
+				);
+			}
+			return __( 'View responses for this form.', 'jetpack-forms' );
+		}
+
+		return __( 'View and manage all your form responses in one place.', 'jetpack-forms' );
+	}, [ formTitle, isFormsScreen, isSingleFormScreen, onOpenFormsHelp, formsCount ] );
+
+	const actions = useMemo( () => {
+		// Mobile: show dropdown menu with actions
+		if ( isSm ) {
+			const dropdownControls = [];
+
+			if ( isFormsScreen ) {
+				// Forms screen: Manage integrations, Create a form
+				if ( isIntegrationsEnabled && showDashboardIntegrations ) {
+					dropdownControls.push( {
+						onClick: onOpenIntegrations,
+						title: __( 'Manage integrations', 'jetpack-forms' ),
+					} );
+				}
+
+				dropdownControls.push( {
+					onClick: handleCreateFormClick,
+					title: __( 'Create a form', 'jetpack-forms' ),
+				} );
+			} else if ( isSingleFormScreen ) {
+				// Single form screen: Edit form (not in trash/spam), Export, Empty trash/spam
+				if ( statusView === 'inbox' && sourceIdNumber ) {
+					dropdownControls.push( {
+						onClick: () => {
+							const fallbackEditUrl = `post.php?post=${ sourceIdNumber }&action=edit&post_type=jetpack_form`;
+							const url = new URL( fallbackEditUrl, window.location.origin );
+							window.location.href = url.toString();
+						},
+						title: __( 'Edit form', 'jetpack-forms' ),
+					} );
+				}
+				dropdownControls.push( {
+					onClick: openExportModal,
+					title: exportLabel,
+					isDisabled: ! hasResponses,
+				} );
+
+				if ( statusView === 'trash' ) {
+					dropdownControls.push( {
+						onClick: emptyTrash.openConfirmDialog,
+						title: __( 'Empty trash', 'jetpack-forms' ),
+						isDisabled: emptyTrash.isEmpty || emptyTrash.isEmptying,
+					} );
+				}
+
+				if ( statusView === 'spam' ) {
+					dropdownControls.push( {
+						onClick: emptySpam.openConfirmDialog,
+						title: __( 'Delete spam', 'jetpack-forms' ),
+						isDisabled: emptySpam.isEmpty || emptySpam.isEmptying,
+					} );
+				}
+
+				dropdownControls.push( ...formItemControls );
+			} else {
+				// Responses list screen: Manage integrations (inbox only), Create a form (inbox only), Export, Empty trash/spam
+				if ( statusView === 'inbox' && isIntegrationsEnabled && showDashboardIntegrations ) {
+					dropdownControls.push( {
+						onClick: onOpenIntegrations,
+						title: __( 'Manage integrations', 'jetpack-forms' ),
+					} );
+				}
+
+				if ( statusView === 'inbox' ) {
+					dropdownControls.push( {
+						onClick: handleCreateFormClick,
+						title: __( 'Create a form', 'jetpack-forms' ),
+					} );
+				}
+
+				dropdownControls.push( {
+					onClick: openExportModal,
+					title: exportLabel,
+					isDisabled: ! hasResponses,
+				} );
+
+				if ( statusView === 'trash' ) {
+					dropdownControls.push( {
+						onClick: emptyTrash.openConfirmDialog,
+						title: __( 'Empty trash', 'jetpack-forms' ),
+						isDisabled: emptyTrash.isEmpty || emptyTrash.isEmptying,
+					} );
+				}
+
+				if ( statusView === 'spam' ) {
+					dropdownControls.push( {
+						onClick: emptySpam.openConfirmDialog,
+						title: __( 'Delete spam', 'jetpack-forms' ),
+						isDisabled: emptySpam.isEmpty || emptySpam.isEmptying,
+					} );
+				}
+			}
+
+			if ( dropdownControls.length === 0 ) {
+				return null;
+			}
+
+			return [
+				<DropdownMenu
+					key="actions-menu"
+					controls={ dropdownControls }
+					icon={ moreVertical }
+					label={ __( 'More actions', 'jetpack-forms' ) }
+					toggleProps={ { size: 'compact' } }
+				/>,
+				// Include modals when on mobile
+				...( isCreateFormModalOpen
+					? [
+							<FormNameModal
+								key="create-form-modal"
+								isOpen={ isCreateFormModalOpen }
+								onClose={ closeCreateFormModal }
+								onSave={ handleCreateFormSave }
+								title={ __( 'Create form', 'jetpack-forms' ) }
+								primaryButtonLabel={ __( 'Create', 'jetpack-forms' ) }
+								secondaryButtonLabel={ __( 'Cancel', 'jetpack-forms' ) }
+								placeholder={ __( 'Enter form title', 'jetpack-forms' ) }
+							/>,
+					  ]
+					: [] ),
+				...( showExportModal
+					? [
+							<ExportResponsesModal
+								key="export-modal"
+								onRequestClose={ closeExportModal }
+								onExport={ onExport }
+								autoConnectGdrive={ autoConnectGdrive }
+							/>,
+					  ]
+					: [] ),
+				...( emptyTrash.isConfirmDialogOpen
+					? [
+							<EmptyTrashConfirmationModal
+								key="empty-trash-confirm"
+								isOpen={ emptyTrash.isConfirmDialogOpen }
+								onCancel={ emptyTrash.closeConfirmDialog }
+								onConfirm={ emptyTrash.onConfirmEmptying }
+								totalItemsTrash={ emptyTrash.totalItemsTrash }
+								selectedResponsesCount={ emptyTrash.selectedResponsesCount }
+							/>,
+					  ]
+					: [] ),
+				...( emptySpam.isConfirmDialogOpen
+					? [
+							<EmptySpamConfirmationModal
+								key="empty-spam-confirm"
+								isOpen={ emptySpam.isConfirmDialogOpen }
+								onCancel={ emptySpam.closeConfirmDialog }
+								onConfirm={ emptySpam.onConfirmEmptying }
+								totalItemsSpam={ emptySpam.totalItemsSpam }
+								selectedResponsesCount={ emptySpam.selectedResponsesCount }
+							/>,
+					  ]
+					: [] ),
+			];
+		}
+
+		// Desktop: show individual buttons
+		if ( isFormsScreen ) {
+			return [
+				...( isIntegrationsEnabled && showDashboardIntegrations
+					? [ <ManageIntegrationsButton key="integrations" onClick={ onOpenIntegrations } /> ]
+					: [] ),
+				<CreateFormButton key="create" variant="primary" showIcon={ false } showNameModal />,
+			];
+		}
+
+		if ( isSingleFormScreen ) {
+			return [
+				...( sourceIdNumber
+					? [ <EditFormButton key="edit-form" formId={ sourceIdNumber } /> ]
+					: [] ),
+				<ExportResponsesButton
+					key="export"
+					isPrimary={ statusView === 'inbox' }
+					showIcon={ false }
+				/>,
+				...( statusView === 'trash' ? [ <EmptyTrashButton key="empty-trash" /> ] : [] ),
+				...( statusView === 'spam' ? [ <EmptySpamButton key="empty-spam" /> ] : [] ),
+				...( formItemControls.length > 0
+					? [
+							<DropdownMenu
+								key="form-actions-menu"
+								controls={ formItemControls }
+								icon={ moreVertical }
+								label={ __( 'More actions', 'jetpack-forms' ) }
+								toggleProps={ { size: 'compact' } }
+							/>,
+					  ]
+					: [] ),
+			];
+		}
+
+		// Responses list screen.
+		return [
+			...( statusView === 'inbox' && isIntegrationsEnabled && showDashboardIntegrations
+				? [ <ManageIntegrationsButton key="integrations" onClick={ onOpenIntegrations } /> ]
+				: [] ),
+			...( statusView === 'inbox'
+				? [
+						<CreateFormButton
+							key="create"
+							variant="secondary"
+							showPatterns={ false }
+							showIcon={ false }
+							showNameModal
+						/>,
+				  ]
+				: [] ),
+			<ExportResponsesButton
+				key="export"
+				isPrimary={ statusView === 'inbox' }
+				showIcon={ false }
+			/>,
+			...( statusView === 'trash' ? [ <EmptyTrashButton key="empty-trash" /> ] : [] ),
+			...( statusView === 'spam' ? [ <EmptySpamButton key="empty-spam" /> ] : [] ),
+		];
+	}, [
+		isSm,
+		isIntegrationsEnabled,
+		onOpenIntegrations,
+		showDashboardIntegrations,
+		sourceIdNumber,
+		isFormsScreen,
+		isSingleFormScreen,
+		formItemControls,
+		statusView,
+		handleCreateFormClick,
+		isCreateFormModalOpen,
+		closeCreateFormModal,
+		handleCreateFormSave,
+		openExportModal,
+		showExportModal,
+		closeExportModal,
+		onExport,
+		autoConnectGdrive,
+		hasResponses,
+		exportLabel,
+		emptyTrash.openConfirmDialog,
+		emptyTrash.isEmpty,
+		emptyTrash.isEmptying,
+		emptyTrash.isConfirmDialogOpen,
+		emptyTrash.closeConfirmDialog,
+		emptyTrash.onConfirmEmptying,
+		emptyTrash.totalItemsTrash,
+		emptyTrash.selectedResponsesCount,
+		emptySpam.openConfirmDialog,
+		emptySpam.isEmpty,
+		emptySpam.isEmptying,
+		emptySpam.isConfirmDialogOpen,
+		emptySpam.closeConfirmDialog,
+		emptySpam.onConfirmEmptying,
+		emptySpam.totalItemsSpam,
+		emptySpam.selectedResponsesCount,
+	] );
+
+	return { ariaLabel, breadcrumbs, title, badges, subtitle, actions };
+}

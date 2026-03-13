@@ -1,10 +1,11 @@
-import { Gridicon, ConfettiAnimation } from '@automattic/components';
+import { Gridicon } from '@automattic/jetpack-components';
 import { Button, Modal, Tooltip } from '@wordpress/components';
 import { useCopyToClipboard } from '@wordpress/compose';
 import { useState, useEffect, createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Icon, copy } from '@wordpress/icons';
 import { wpcomTrackEvent } from '../../../common/tracks';
+import ConfettiAnimation from './confetti-animation';
 
 import './celebrate-launch-modal.scss';
 

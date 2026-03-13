@@ -3,12 +3,21 @@ import { createBlock, getDefaultBlockName } from '@wordpress/blocks';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
 
-export default function ( clientId ) {
+export default function ( clientId, isParent = false ) {
 	const { fieldParentId, parentIndex, formParentId } = useSelect(
 		select => {
 			const blockEditor = select( blockEditorStore );
 			const parentClientIds = blockEditor.getBlockParents( clientId );
 			const parentId = parentClientIds[ parentClientIds.length - 1 ];
+
+			// If this is a parent field, we need to find the correct form parent ID.
+			if ( isParent ) {
+				return {
+					fieldParentId: clientId,
+					parentIndex: blockEditor.getBlockIndex( clientId ),
+					formParentId: parentClientIds[ parentClientIds.length - 1 ],
+				};
+			}
 
 			return {
 				fieldParentId: parentId,
@@ -16,7 +25,7 @@ export default function ( clientId ) {
 				formParentId: parentClientIds[ parentClientIds.length - 2 ],
 			};
 		},
-		[ clientId ]
+		[ clientId, isParent ]
 	);
 
 	const { insertBlock } = useDispatch( blockEditorStore );

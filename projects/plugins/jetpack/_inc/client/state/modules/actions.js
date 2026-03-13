@@ -77,7 +77,7 @@ export const activateModule = ( slug, reloadAfter = false ) => {
 			createNotice(
 				'is-info',
 				sprintf(
-					/* translators: placeholder is a feature name, such as "Image CDN". */
+					/* translators: %s: a feature name, such as "Image CDN". */
 					__( 'Activating %s…', 'jetpack' ),
 					getModule( getState(), slug ).name
 				),
@@ -97,7 +97,7 @@ export const activateModule = ( slug, reloadAfter = false ) => {
 					createNotice(
 						'is-success',
 						sprintf(
-							/* translators: placeholder is a feature name, such as "Image CDN". */
+							/* translators: %s: a feature name, such as "Image CDN". */
 							__( '%s has been activated.', 'jetpack' ),
 							getModule( getState(), slug ).name
 						),
@@ -143,7 +143,7 @@ export const deactivateModule = ( slug, reloadAfter = false ) => {
 			createNotice(
 				'is-info',
 				sprintf(
-					/* translators: placeholder is a feature name, such as "Image CDN". */
+					/* translators: %s: a feature name, such as "Image CDN". */
 					__( 'Deactivating %s…', 'jetpack' ),
 					getModule( getState(), slug ).name
 				),
@@ -163,7 +163,7 @@ export const deactivateModule = ( slug, reloadAfter = false ) => {
 					createNotice(
 						'is-success',
 						sprintf(
-							/* translators: placeholder is a feature name, such as "Image CDN". */
+							/* translators: %s: a feature name, such as "Image CDN". */
 							__( '%s has been deactivated.', 'jetpack' ),
 							getModule( getState(), slug ).name
 						),
@@ -212,7 +212,7 @@ export const updateModuleOptions = ( module, newOptionValues ) => {
 			createNotice(
 				'is-info',
 				sprintf(
-					/* translators: placeholder is a feature name, such as "Image CDN". */
+					/* translators: %s: a feature name, such as "Image CDN". */
 					__( 'Updating %s settings…', 'jetpack' ),
 					getModule( getState(), slug ).name
 				),
@@ -233,7 +233,7 @@ export const updateModuleOptions = ( module, newOptionValues ) => {
 					createNotice(
 						'is-success',
 						sprintf(
-							/* translators: placeholder is a feature name, such as "Image CDN". */
+							/* translators: %s: a feature name, such as "Image CDN". */
 							__( 'Updated %s settings.', 'jetpack' ),
 							getModule( getState(), slug ).name
 						),
@@ -283,7 +283,7 @@ export const regeneratePostByEmailAddress = () => {
 			createNotice(
 				'is-info',
 				sprintf(
-					/* translators: placeholder is a feature name, such as "Post By Email". */
+					/* translators: %s: a feature name, such as "Post By Email". */
 					__( 'Updating %s address…', 'jetpack' ),
 					getModule( getState(), slug ).name
 				),
@@ -307,7 +307,7 @@ export const regeneratePostByEmailAddress = () => {
 					createNotice(
 						'is-success',
 						sprintf(
-							/* translators: placeholder is a feature name, such as "Post By Email". */
+							/* translators: %s: a feature name, such as "Post By Email". */
 							__( 'Regenerated %s address.', 'jetpack' ),
 							getModule( getState(), slug ).name
 						),
@@ -341,13 +341,20 @@ export const regeneratePostByEmailAddress = () => {
 };
 
 /**
- * Reload the page if the option values are jetpack_testimonial or jetpack_portfolio.
+ * Option values that require a page reload to take effect.
+ */
+export const RELOAD_FOR_OPTION_VALUES = [
+	'jetpack_testimonial',
+	'jetpack_portfolio',
+	'wpcom-reader',
+];
+
+/**
+ * Reload the page if the option values are jetpack_testimonial, jetpack_portfolio, or wpcom-reader.
  * @param { object } newOptionValue - The new option value.
  */
 export function maybeReloadAfterAction( newOptionValue ) {
-	const reloadForOptionValues = [ 'jetpack_testimonial', 'jetpack_portfolio' ];
-
-	if ( reloadForOptionValues.some( optionValue => optionValue in newOptionValue ) ) {
+	if ( RELOAD_FOR_OPTION_VALUES.some( optionValue => optionValue in newOptionValue ) ) {
 		window.location.reload();
 	}
 }

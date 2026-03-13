@@ -1,6 +1,5 @@
 <?php
 /*
-!
  * Jetpack CRM
  * https://jetpackcrm.com
  * V1.1.19
@@ -474,7 +473,7 @@ $zbsFieldSorts = array();
 				'essential' => true,
 			),
 
-			// NOTE! 'no' should now be ignored, (deprecated), moved to seperate meta 'zbsid'
+			// NOTE! 'no' should now be ignored, (deprecated), moved to separate meta 'zbsid'
 
 			// NOTE WH: when I hit this with column manager, loads didn't need to be shown
 			// so plz leave ,'nocolumn'=>true in tact :)

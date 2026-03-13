@@ -1,4 +1,5 @@
-import { expect, test } from '_jetpack-e2e-commons/fixtures/base-test.ts';
+import { Response } from '@playwright/test';
+import { expect, test } from '_jetpack-e2e-commons/fixtures/base-test';
 
 test.afterEach( async ( { requestUtils } ) => {
 	// List all feedback submissions.
@@ -16,7 +17,7 @@ test.afterEach( async ( { requestUtils } ) => {
 	// https://developer.wordpress.org/rest-api/reference/posts/#delete-a-post
 	// "/wp/v2/feedback" does not yet support batch requests.
 	await Promise.all(
-		feedbackSubmissions.map( feedback =>
+		feedbackSubmissions.map( ( feedback: { id: number } ) =>
 			requestUtils.rest( {
 				method: 'DELETE',
 				path: `/wp/v2/feedback/${ feedback.id }`,
@@ -28,9 +29,26 @@ test.afterEach( async ( { requestUtils } ) => {
 	);
 } );
 
+/**
+ * Checks whether the given response is a form submission response.
+ *
+ * @param response - The response to check.
+ * @return Whether the response is a form submission response.
+ */
+function isFormSubmissionResponse( response: Response ) {
+	const url = new URL( response.url() );
+
+	return (
+		url.pathname.includes( '/wp-admin/admin-ajax.php' ) &&
+		response.request().method() === 'POST' &&
+		url.searchParams.get( 'action' ) === 'grunion-contact-form'
+	);
+}
+
 test.describe( 'Forms: Submission', () => {
-	test( 'Submits a simple contact form', async ( { admin, editor, page } ) => {
+	test( 'Submits a simple contact form', async ( { admin, editor } ) => {
 		const formTitle = 'E2E Test Form';
+
 		await test.step( 'Visit the block editor and insert a form', async () => {
 			await admin.createNewPost();
 			await editor.insertBlock( {
@@ -44,17 +62,19 @@ test.describe( 'Forms: Submission', () => {
 		} );
 
 		await test.step( 'Visit the post on the frontend and submit the form', async () => {
-			const editorPage = page;
-			const previewPage = await editor.openPreviewPage( editorPage );
+			const previewPage = await editor.openPreviewPage();
 
 			const form = previewPage.getByRole( 'form', { name: formTitle } );
 			await form.getByRole( 'textbox', { name: 'Name' } ).fill( 'John Doe' );
 			await form.getByRole( 'textbox', { name: 'Email' } ).fill( 'john@doe.com' );
 			await form.getByRole( 'textbox', { name: 'Message' } ).fill( 'Hello, world!' );
+			// Wait for the form submission to complete.
+			const submissionPromise = previewPage.waitForResponse( isFormSubmissionResponse );
 			await form.getByRole( 'button', { name: 'Contact Us' } ).click();
+			await submissionPromise;
 
 			await expect(
-				previewPage.getByRole( 'heading', { name: 'Your message has been sent' } )
+				previewPage.getByRole( 'heading', { name: 'Thank you for your response.' } )
 			).toBeVisible();
 
 			// The form should disappear after submission.
@@ -65,16 +85,27 @@ test.describe( 'Forms: Submission', () => {
 			await expect( successWrapper ).toBeVisible();
 
 			// The form contents should be visible in the success wrapper.
-			await expect( successWrapper.getByText( 'John Doe' ) ).toBeVisible();
-			await expect( successWrapper.getByText( 'john@doe.com' ) ).toBeVisible();
-			await expect( successWrapper.getByText( 'Hello, world!' ) ).toBeVisible();
+			// Use locator with :visible to avoid matching both hidden and visible elements
+			// (the template has both .field-value and .field-url with the same text content).
+			await expect(
+				successWrapper.locator( '.field-value:visible, .field-url:visible' ).getByText( 'John Doe' )
+			).toBeVisible();
+			await expect(
+				successWrapper
+					.locator( '.field-value:visible, .field-url:visible' )
+					.getByText( 'john@doe.com' )
+			).toBeVisible();
+			await expect(
+				successWrapper
+					.locator( '.field-value:visible, .field-url:visible' )
+					.getByText( 'Hello, world!' )
+			).toBeVisible();
 		} );
 	} );
 
 	test( 'Submits the correct from when multiple forms are on the same page', async ( {
 		admin,
 		editor,
-		page,
 	} ) => {
 		const contactFormInnerBlocks = [
 			{
@@ -117,25 +148,27 @@ test.describe( 'Forms: Submission', () => {
 		} );
 
 		await test.step( 'Visit the post on the frontend and submit one of the forms', async () => {
-			const editorPage = page;
-			const previewPage = await editor.openPreviewPage( editorPage );
+			const previewPage = await editor.openPreviewPage();
 
 			const formToSubmit = previewPage.getByRole( 'form', { name: 'Submit this form' } );
 			// Get the form ID from the wrapping element, this will allow us to check the contents
 			// of the exact form that was submitted after submission.
 			const formId = await previewPage
-				.locator( '.wp-block-jetpack-contact-form-container' )
+				.locator( '.jetpack-contact-form-container' )
 				.filter( { has: formToSubmit } )
 				.getAttribute( 'id' );
 			await formToSubmit.getByRole( 'textbox', { name: 'Name' } ).fill( 'John Doe' );
 			await formToSubmit.getByRole( 'textbox', { name: 'Email' } ).fill( 'john@doe.com' );
 			await formToSubmit.getByRole( 'textbox', { name: 'Message' } ).fill( 'Hello, world!' );
+			// Wait for the form submission to complete.
+			const submissionPromise = previewPage.waitForResponse( isFormSubmissionResponse );
 			await formToSubmit.getByRole( 'button', { name: 'Contact Us' } ).click();
+			await submissionPromise;
 
 			// Check the correct form was submitted.
 			const submittedFormWrapper = previewPage.locator( `#${ formId }` );
 			await expect(
-				submittedFormWrapper.getByRole( 'heading', { name: 'Your message has been sent' } )
+				submittedFormWrapper.getByRole( 'heading', { name: 'Thank you for your response.' } )
 			).toBeVisible();
 
 			const submittedForm = submittedFormWrapper.getByRole( 'form', { name: 'Submit this form' } );
@@ -147,9 +180,19 @@ test.describe( 'Forms: Submission', () => {
 			const successWrapper = submittedFormWrapper.locator( '.contact-form-submission' );
 			await expect( successWrapper ).toBeVisible();
 
-			await expect( successWrapper.getByText( 'John Doe' ) ).toBeVisible();
-			await expect( successWrapper.getByText( 'john@doe.com' ) ).toBeVisible();
-			await expect( successWrapper.getByText( 'Hello, world!' ) ).toBeVisible();
+			await expect(
+				successWrapper.locator( '.field-value:visible, .field-url:visible' ).getByText( 'John Doe' )
+			).toBeVisible();
+			await expect(
+				successWrapper
+					.locator( '.field-value:visible, .field-url:visible' )
+					.getByText( 'john@doe.com' )
+			).toBeVisible();
+			await expect(
+				successWrapper
+					.locator( '.field-value:visible, .field-url:visible' )
+					.getByText( 'Hello, world!' )
+			).toBeVisible();
 
 			// Check the other forms were not submitted.
 			const firstForm = previewPage.getByRole( 'form', { name: 'First form' } );

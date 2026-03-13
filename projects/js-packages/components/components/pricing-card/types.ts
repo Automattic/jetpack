@@ -1,8 +1,7 @@
 /**
  * External dependencies
  */
-import type { Button } from '@wordpress/components';
-import type { ComponentProps, ReactNode } from 'react';
+import type { ReactNode } from 'react';
 
 export type PricingCardProps = {
 	/**
@@ -36,7 +35,7 @@ export type PricingCardProps = {
 	/**
 	 * The CTA callback to be called on click.
 	 */
-	onCtaClick?: ComponentProps< typeof Button >[ 'onClick' ];
+	onCtaClick?: React.MouseEventHandler< HTMLButtonElement >;
 	/**
 	 * Optional informative text.
 	 */

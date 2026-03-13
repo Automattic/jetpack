@@ -57,6 +57,7 @@ class WP_REST_Help_Center_Search extends \WP_REST_Controller {
 		$query   = $request['query'];
 		$locale  = $request['locale'];
 		$section = $request['section'];
+		$source  = $request['source'];
 
 		$query_parameters = array(
 			'query'  => $query,
@@ -67,8 +68,12 @@ class WP_REST_Help_Center_Search extends \WP_REST_Controller {
 			$query_parameters['section'] = $section;
 		}
 
+		if ( ! empty( $source ) ) {
+			$query_parameters['source'] = $source;
+		}
+
 		$body = Client::wpcom_json_api_request_as_user(
-			'/help/search/wpcom?' . http_build_query( $query_parameters )
+			'/help/search?' . http_build_query( $query_parameters )
 		);
 
 		if ( is_wp_error( $body ) ) {

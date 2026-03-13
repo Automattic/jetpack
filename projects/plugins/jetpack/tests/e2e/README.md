@@ -79,69 +79,65 @@ pnpm tunnel:reset
 
 ## Running tests
 
-Once your target WP environment is running on `localhost:8889` you can run the tests.
-
-Run all tests: `pnpm test:run`
-
-Playwright runs headless by default (i.e. browser is not visible). When developing or debugging tests it's usually useful to see what's happening. Playwright's [UI Mode](https://playwright.dev/docs/test-ui-mode) is a good option, it allows running individual or groups of tests, watching tests and has handy time travel feature. To launch it use the `--ui` flag:
+Ensure your WP environment is running on `localhost:8889` before running tests.
 
 ```bash
+# Run all tests
+pnpm test:run
+
+# Run specific test file
+pnpm test:run ./specs/sync/sync.test.ts
+
+# Run tests with UI mode (recommended for development and debugging)
 pnpm test:run --ui
+
+# Run tests matching a pattern
+pnpm test:run --grep "connection"
+
+# Debug specific test
+pnpm test:run ./specs/forms/submission.test.ts --debug
 ```
 
-To run in debug mode, use the `--debug` flag. Debug mode uses a headed browser and opens the [Playwright inspector](https://playwright.dev/docs/inspector/).
-
-```bash
-pnpm test:run --debug
-```
-
-A simpler option is `headed` mode, which runs tests in your regular browser window:
-
-```bash
-pnpm test:run --headed
-```
-
-To run an individual test, use the direct path to the spec. This can be done in conjunction with any of the previously mentioned flags. For example:
-
-```bash
-pnpm test:run ./specs/dummy.test.js
-```
-
-### Selecting tests to run
-
-```bash
-# One test file
-pnpm test:run ./specs/some.test.js
-
-# All tests having 'connection' in their name
-pnpm test:run connection
-
-# Run only run tests matching a regular expression.
-pnpm test:run --grep "mailchimp"
-pnpm test:run -g "mailchimp"
-
-# Run only run tests NOT matching a regular expression.
-pnpm test:run --grep-invert "mailchimp"
-```
+For more options and detailed documentation, see [Playwright's official docs](https://playwright.dev/docs/running-tests).
 
 ## Tests Architecture
 
 ### Specs
 
 Tests are kept in `/specs` folder. Every file represents a test suite, which is designed around specific feature under test.
-Every test suite is responsible for setting up the environment configuration for the suite. [e2e-commons' prerequisites APIs](../../../../../tools/e2e-commons/env/prerequisites.js) provide an abstraction to set up the site the way is needed.
 
-Some specs require an active Jetpack connection.
-Its logic can be found in the [jetpack-connect.js](../../../../../tools/e2e-commons/flows/jetpack-connect.js).
+Some specs require an active Jetpack connection. The connection is established automatically through global Playwright projects configured as prerequisites:
+- `global authentication` - Authenticates both local WordPress user and WordPress.com user
+- `connection setup` - Establishes Jetpack connection between local site and WordPress.com
+
+These global projects run once before all tests and create a shared state that subsequent tests inherit. See the [e2e-commons README](../../../../../tools/e2e-commons/README.md) for more details on global projects and prerequisite setup.
+
+### Fixtures
+
+The tests should extend the base test fixture from e2e-commons (`tools/e2e-commons/fixtures/base-test.ts`) which provides pre-configured utilities for Jetpack testing. This base fixture extends Playwright's test with WordPress-specific utilities from `@wordpress/e2e-test-utils-playwright` and adds Jetpack-specific enhancements.
+
+Available fixtures include:
+- `admin` - WordPress admin page utilities (inherited from WordPress test utils)
+- `editor` - EditorPage instance for block editor interactions
+- `sidebar` - Sidebar instance for WordPress admin navigation
+- `testUtils` - Worker-scoped utilities for WordPress CLI commands and API operations
+- `pageUtils`, `requestUtils` - Additional utilities inherited from WordPress test utils
+
+Import the test fixture in your specs:
+```javascript
+import { test } from '_jetpack-e2e-commons/fixtures/base-test';
+```
 
 ### Pages
 
-The tests are using the `PageObject` pattern, which is a way to separate test logic from implementation. Page objects are basically abstractions around specific pages and page components.
-Most common pages are already modeled in [e2e-commons' pages module](../../../../../tools/e2e-commons/pages).
+The tests use the `PageObject` pattern to separate test logic from implementation. Page objects are abstractions around specific pages and page components.
 
-If you need to add a new page, please add it in the `pages` folder.
-Each page should extend e2e-commons's [`WpPage`](../../../../../tools/e2e-commons/pages/wp-page.js) or [`PageActions`](../../../../../tools/e2e-commons/pages/page-actions.js).
-`WpPage` should be extended by all page objects that represent full pages. Rule of thumb: if it has a URL it should extend `WpPage`. Otherwise, it's probably representing a page component (like a block) and should directly extend `PageActions`.
+**Important:** Avoid over-abstraction. Only create page objects for pages that are used across multiple tests. For single-use interactions, write the logic directly in your test spec to keep things simple and maintainable. Use your best judgment to balance reusability with simplicity.
+
+Common pages are already available through fixtures:
+- `admin` - WordPress admin page utilities
+- `editor` - Block editor interactions
+- `sidebar` - WordPress admin sidebar navigation
 
 ## CI Configuration
 

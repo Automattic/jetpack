@@ -1,8 +1,8 @@
 import { getScriptData } from '@automattic/jetpack-script-data';
 import { __ } from '@wordpress/i18n';
+import { JETPACK_PRODUCTS_NOT_FOR_MULTISITE } from '../../../constants';
 import { ProductCamelCase } from '../../../data/types';
-import { MyJetpackModule } from '../../types';
-import { JETPACK_PRODUCTS_NOT_FOR_MULTISITE } from './constants';
+import { MyJetpackModule } from '../../../types';
 import { ProductFilter, ProductSection } from './types';
 
 /**
@@ -57,6 +57,16 @@ export function getSectionTitle( section: string ) {
 	const option = getProductsFilterChoices().find( item => item.value === section );
 
 	return option?.label;
+}
+
+/**
+ * Check if a string is a valid ProductFilter.
+ *
+ * @param {string | null} value - The value to check.
+ * @return True if the value is a valid ProductFilter.
+ */
+export function isValidFilter( value: string | null ): value is ProductFilter {
+	return getProductsFilterChoices().some( item => item.value === value );
 }
 
 /**
@@ -127,7 +137,7 @@ export function getProductStatus( product: ProductCamelCase ) {
 	// If the product is not supported on multisite, we set the available to false and provide a reason.
 	if ( getScriptData().site.is_multisite ) {
 		if (
-			! JETPACK_PRODUCTS_NOT_FOR_MULTISITE.includes(
+			JETPACK_PRODUCTS_NOT_FOR_MULTISITE.includes(
 				product.slug as ( typeof JETPACK_PRODUCTS_NOT_FOR_MULTISITE )[ number ]
 			)
 		) {

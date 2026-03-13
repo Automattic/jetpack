@@ -10,6 +10,10 @@ namespace Automattic\Jetpack;
 
 use Automattic\Jetpack\Status\Host;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 add_action( 'plugins_loaded', __NAMESPACE__ . '\load_3rd_party_compat_filters', 11 );
 /**
  * Loads the individual 3rd-party compat functions.

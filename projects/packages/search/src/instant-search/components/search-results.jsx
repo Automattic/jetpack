@@ -188,6 +188,7 @@ class SearchResults extends Component {
 								isMultiSite={ isMultiSite }
 								showPostDate={ this.props.showPostDate }
 								overlayOptions={ this.props.overlayOptions }
+								showProductPrice={ this.props.showProductPrice }
 							/>
 						) ) }
 					</ol>

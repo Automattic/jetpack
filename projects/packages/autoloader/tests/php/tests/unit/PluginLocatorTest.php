@@ -9,16 +9,16 @@
 namespace Automattic\Jetpack\Autoloader\jpCurrent;
 
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
-use PHPUnit\Framework\Attributes\RunClassInSeparateProcess;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use PHPUnit\Framework\TestCase;
 
 /**
  * Test suite class for the Autoloader part that handles active plugin guessing.
  *
- * @runClassInSeparateProcess
+ * @runTestsInSeparateProcesses
  * @preserveGlobalState disabled
  */
-#[RunClassInSeparateProcess]
+#[RunTestsInSeparateProcesses]
 #[PreserveGlobalState( false )]
 class PluginLocatorTest extends TestCase {
 
@@ -208,6 +208,8 @@ class PluginLocatorTest extends TestCase {
 	 * Tests that plugins in request parameters are not discovered if a nonce is not set.
 	 */
 	public function test_using_request_action_returns_nothing_without_nonce() {
+		$this->path_processor->expects( $this->never() )->method( 'find_directory_with_autoloader' );
+
 		$_REQUEST['action'] = 'activate';
 		$_REQUEST['plugin'] = 'dummy_current/dummy_current.php';
 
@@ -237,6 +239,8 @@ class PluginLocatorTest extends TestCase {
 	 * Tests that plugins in the request action are not found if the action is not found.
 	 */
 	public function test_using_request_action_returns_nothing_without_action() {
+		$this->path_processor->expects( $this->never() )->method( 'find_directory_with_autoloader' );
+
 		$_REQUEST['_wpnonce'] = '123abc';
 		$_REQUEST['action']   = '';
 

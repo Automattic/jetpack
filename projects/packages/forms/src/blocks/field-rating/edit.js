@@ -1,19 +1,13 @@
-import {
-	useBlockProps,
-	useInnerBlocksProps,
-	InspectorControls,
-	BlockControls,
-} from '@wordpress/block-editor';
+import { useBlockProps, useInnerBlocksProps, BlockContextProvider } from '@wordpress/block-editor';
 import {
 	__experimentalNumberControl as NumberControl, // eslint-disable-line @wordpress/no-unsafe-wp-apis
-	PanelBody,
 	RangeControl,
 } from '@wordpress/components';
-import { useEffect, useCallback } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
-import JetpackFieldControls from '../shared/components/jetpack-field-controls';
-import RatingToolbar from '../shared/components/rating-toolbar';
-import useFormWrapper from '../shared/hooks/use-form-wrapper';
+import { useCallback } from '@wordpress/element';
+import { __, sprintf } from '@wordpress/i18n';
+import JetpackFieldControls from '../shared/components/jetpack-field-controls.js';
+import useFormWrapper from '../shared/hooks/use-form-wrapper.js';
+import { MAX_RATING_ICONS } from './rating-icons.js';
 
 /**
  * Rating Field Edit Component
@@ -26,13 +20,13 @@ import useFormWrapper from '../shared/hooks/use-form-wrapper';
  */
 export default function RatingFieldEdit( props ) {
 	const { attributes, setAttributes, clientId } = props;
-	const { max = 5, default: defaultValue = 0, required, id, width, className = '' } = attributes;
+	const { max = 5, default: defaultValue = 0, required, id, width } = attributes;
 
 	useFormWrapper( props );
 
 	// Direct update functions for rating attributes
 	const updateMax = newMax => {
-		const validatedMax = Math.min( Math.max( parseInt( newMax ) || 5, 2 ), 10 );
+		const validatedMax = Math.min( Math.max( parseInt( newMax ) || 5, 2 ), MAX_RATING_ICONS );
 		const validatedDefault = Math.min( defaultValue, validatedMax );
 		setAttributes( {
 			max: validatedMax,
@@ -48,14 +42,6 @@ export default function RatingFieldEdit( props ) {
 		[ max, setAttributes ]
 	);
 
-	useEffect( () => {
-		setAttributes( { onChangeDefault } );
-	}, [ onChangeDefault, setAttributes ] );
-
-	const updateClassName = newClassName => {
-		setAttributes( { className: newClassName } );
-	};
-
 	const blockProps = useBlockProps( {
 		className: `jetpack-field jetpack-field-rating${
 			width ? ` jetpack-field__width-${ width }` : ''
@@ -63,7 +49,7 @@ export default function RatingFieldEdit( props ) {
 	} );
 
 	const innerBlocksProps = useInnerBlocksProps( blockProps, {
-		allowedBlocks: [ 'jetpack/label', 'jetpack/rating-input' ],
+		allowedBlocks: [ 'jetpack/label', 'jetpack/input-rating' ],
 		template: [
 			[
 				'jetpack/label',
@@ -72,7 +58,7 @@ export default function RatingFieldEdit( props ) {
 					placeholder: __( 'Add label…', 'jetpack-forms' ),
 				},
 			],
-			[ 'jetpack/rating-input', {} ],
+			[ 'jetpack/input-rating', {} ],
 		],
 		templateLock: 'all',
 		__experimentalCaptureToolbars: true,
@@ -80,40 +66,16 @@ export default function RatingFieldEdit( props ) {
 
 	return (
 		<>
-			<BlockControls __experimentalShareWithChildBlocks>
-				<RatingToolbar
-					className={ className }
-					max={ max }
-					onUpdateClassName={ updateClassName }
-					onUpdateMax={ updateMax }
-				/>
-			</BlockControls>
-
-			<div { ...innerBlocksProps } />
-
-			<InspectorControls>
-				<PanelBody title={ __( 'Settings', 'jetpack-forms' ) }>
-					<NumberControl
-						__next40pxDefaultSize
-						__unstableInputWidth="50%"
-						help={ __( 'Highest rating users can select (2–10).', 'jetpack-forms' ) }
-						label={ __( 'Maximum rating', 'jetpack-forms' ) }
-						max={ 10 }
-						min={ 2 }
-						onChange={ updateMax }
-						spinControls="custom"
-						value={ max }
-					/>
-					<RangeControl
-						label={ __( 'Default rating', 'jetpack-forms' ) }
-						help={ __( 'Pre-selected rating value (0 for no selection)', 'jetpack-forms' ) }
-						min={ 0 }
-						max={ max }
-						value={ defaultValue }
-						onChange={ onChangeDefault }
-					/>
-				</PanelBody>
-			</InspectorControls>
+			<BlockContextProvider
+				value={ {
+					'jetpack/field-rating-max': max,
+					'jetpack/field-rating-default': defaultValue,
+					'jetpack/field-rating-iconStyle': attributes.iconStyle || 'stars',
+					'jetpack/field-rating-onChangeDefault': onChangeDefault,
+				} }
+			>
+				<div { ...innerBlocksProps } />
+			</BlockContextProvider>
 
 			<JetpackFieldControls
 				clientId={ clientId }
@@ -122,6 +84,38 @@ export default function RatingFieldEdit( props ) {
 				attributes={ attributes }
 				setAttributes={ setAttributes }
 				width={ width }
+				extraFieldSettings={ [
+					{
+						index: 1,
+						element: (
+							<div key="ratingFieldControls">
+								<NumberControl
+									__next40pxDefaultSize
+									__unstableInputWidth="50%"
+									help={ sprintf(
+										/* translators: %d: maximum rating value (e.g. 10) */
+										__( 'Highest rating users can select (2–%d).', 'jetpack-forms' ),
+										MAX_RATING_ICONS
+									) }
+									label={ __( 'Maximum rating', 'jetpack-forms' ) }
+									max={ MAX_RATING_ICONS }
+									min={ 2 }
+									onChange={ updateMax }
+									spinControls="custom"
+									value={ max }
+								/>
+								<RangeControl
+									label={ __( 'Default rating', 'jetpack-forms' ) }
+									help={ __( 'Pre-selected rating value (0 for no selection)', 'jetpack-forms' ) }
+									min={ 0 }
+									max={ max }
+									value={ defaultValue }
+									onChange={ onChangeDefault }
+								/>
+							</div>
+						),
+					},
+				] }
 			/>
 		</>
 	);

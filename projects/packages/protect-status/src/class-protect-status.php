@@ -20,6 +20,10 @@ use Automattic\Jetpack\Sync\Functions as Sync_Functions;
 use Jetpack_Options;
 use WP_Error;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Class that handles fetching and caching the Status of vulnerabilities check from the WPCOM servers
  */

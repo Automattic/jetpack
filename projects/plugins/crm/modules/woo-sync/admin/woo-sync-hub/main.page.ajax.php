@@ -1,9 +1,9 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.NotHyphenatedLowercase
 
 /**
  * Fired by AJAX on hub page (where still things to import, checks nonce and initiates import_orders)
  */
-function jpcrm_woosync_ajax_import_orders( ){
+function jpcrm_woosync_ajax_import_orders() {
 
 	global $zbs;
 
@@ -15,9 +15,7 @@ function jpcrm_woosync_ajax_import_orders( ){
 
 	// if something's returned, output via AJAX
 	// (Mostly `background_sync->sync_orders()` will do this automatically)
-	echo json_encode( $return );
-	exit( 0 );
-
+	wp_send_json( $return );
 }
 
 // import orders AJAX

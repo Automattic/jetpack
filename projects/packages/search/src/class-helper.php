@@ -11,6 +11,10 @@ use Automattic\Jetpack\Status;
 use GP_Locales;
 use Jetpack; // TODO: Remove this once migrated.
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Various helper functions for reuse throughout the Jetpack Search code.
  */
@@ -178,10 +182,54 @@ class Helper {
 				}
 
 				$type = ( isset( $widget_filter['type'] ) ) ? $widget_filter['type'] : '';
-				$key  = sprintf( '%s_%d', $type, count( $filters ) );
 
-				$filters[ $key ] = $widget_filter;
+				// If this is a product_attribute filter with no specific attribute, expand it to all global attributes.
+				if ( 'product_attribute' === $type && empty( $widget_filter['attribute'] ) ) {
+					$filters = self::expand_product_attribute_filters( $widget_filter, $filters );
+				} else {
+					$key             = sprintf( '%s_%d', $type, count( $filters ) );
+					$filters[ $key ] = $widget_filter;
+				}
 			}
+		}
+
+		return $filters;
+	}
+
+	/**
+	 * Expands a product_attribute filter into individual filters for each attribute.
+	 *
+	 * @since 5.8.0
+	 *
+	 * @param array $widget_filter The filter configuration.
+	 * @param array $filters The existing filters array.
+	 * @return array The filters array with expanded product attribute filters.
+	 */
+	private static function expand_product_attribute_filters( $widget_filter, $filters ) {
+		if ( ! function_exists( 'wc_get_attribute_taxonomies' ) || ! function_exists( 'wc_attribute_taxonomy_name' ) ) {
+			return $filters;
+		}
+
+		$product_attributes  = wc_get_attribute_taxonomies();
+		$included_attributes = isset( $widget_filter['included_attributes'] ) ? (array) $widget_filter['included_attributes'] : array();
+
+		// If no attributes are explicitly included, show all attributes (backward compatibility).
+		// Also optimize by treating "all selected" the same as "none selected" to avoid O(n²) in_array() checks.
+		$show_all = empty( $included_attributes ) || count( $included_attributes ) === count( $product_attributes );
+
+		foreach ( $product_attributes as $attribute ) {
+			$attribute_name = wc_attribute_taxonomy_name( $attribute->attribute_name );
+
+			if ( ! $show_all && ! in_array( $attribute_name, $included_attributes, true ) ) {
+				continue;
+			}
+
+			$key                          = sprintf( 'product_attribute_%d', count( $filters ) );
+			$expanded_filter              = $widget_filter;
+			$expanded_filter['attribute'] = $attribute_name;
+			$expanded_filter['name']      = $attribute->attribute_label;
+			unset( $expanded_filter['included_attributes'] );
+			$filters[ $key ] = $expanded_filter;
 		}
 
 		return $filters;
@@ -278,6 +326,11 @@ class Helper {
 					$name = $tax->labels->name;
 				}
 				break;
+
+			case 'product_attribute':
+				$name = _x( 'Product Attributes', 'label for filtering posts', 'jetpack-search-pkg' );
+				break;
+
 		}
 
 		return $name;
@@ -459,7 +512,7 @@ class Helper {
 			}
 		}
 
-		if ( empty( $action ) || empty( $widget ) ) {
+		if ( empty( $widget ) ) {
 			return false;
 		}
 
@@ -854,6 +907,7 @@ class Helper {
 				'enableInfScroll'             => get_option( $prefix . 'inf_scroll', '1' ) === '1',
 				'enableFilteringOpensOverlay' => get_option( $prefix . 'filtering_opens_overlay', '1' ) === '1',
 				'enablePostDate'              => get_option( $prefix . 'show_post_date', '1' ) === '1',
+				'enableProductPrice'          => get_option( $prefix . 'show_product_price', '1' ) === '1',
 				'enableSort'                  => get_option( $prefix . 'enable_sort', '1' ) === '1',
 				'highlightColor'              => get_option( $prefix . 'highlight_color', '#FFC' ),
 				'overlayTrigger'              => get_option( $prefix . 'overlay_trigger', Options::DEFAULT_OVERLAY_TRIGGER ),
@@ -900,6 +954,22 @@ class Helper {
 			 * @param bool Prevent cookie reset for automattic sites as default value.
 			 */
 			'preventTrackingCookiesReset' => apply_filters( 'jetpack_instant_search_prevent_tracking_cookies_reset', function_exists( 'is_automattic' ) && is_automattic() ),
+
+			/**
+			 * Whether to disable Tracks and TrainTracks analytics.
+			 *
+			 * This can be enabled via URL parameter (?disable_tracking=1) for testing,
+			 * or via the filter for permanent configuration. Useful for debugging issues
+			 * where tracking may interfere with search functionality, such as Safari's
+			 * advanced tracking protection.
+			 *
+			 * @module search
+			 *
+			 * @since 0.56.0
+			 *
+			 * @param bool $disable_tracking Whether to disable tracking. Default false.
+			 */
+			'disableTracking'             => self::is_tracking_disabled() || apply_filters( 'jetpack_instant_search_disable_tracking', false ),
 		);
 
 		/**
@@ -986,5 +1056,17 @@ class Helper {
 		$referrer = wp_get_referer();
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash
 		return ( isset( $_GET['new_pricing_202208'] ) && $_GET['new_pricing_202208'] ) || $referrer && strpos( $referrer, 'new_pricing_202208=1' ) !== false;
+	}
+
+	/**
+	 * Returns true if tracking should be disabled via URL parameter, which is used for testing purposes.
+	 *
+	 * @since 0.56.0
+	 *
+	 * @return bool
+	 */
+	public static function is_tracking_disabled() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash
+		return isset( $_GET['disable_tracking'] ) && $_GET['disable_tracking'];
 	}
 }

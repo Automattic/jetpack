@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.7.2 - 2025-11-20
+### Added
+- Tested up to WordPress 6.9. [#45571]
+
+### Changed
+- Update dependencies. [#45488]
+- Update package dependencies. [#45478] [#45676] [#45756] [#45915] [#45958]
+
+## 0.7.1 - 2025-10-09
+### Changed
+- Update package dependencies. [#44677] [#44701] [#44725] [#45027] [#45096] [#45173] [#45200] [#45229] [#45298] [#45299] [#45334]
+
+## 0.7.0 - 2025-08-06
+### Changed
+- My Jetpack: Unify the user connection flow with a unified screen. [#44469]
+- Sync: Ignore the ActivityPub Outbox CPT. [#44222]
+- Update dependencies. [#43796]
+- Update package dependencies. [#43839] [#44020] [#44148] [#44151] [#44206] [#44217] [#44356]
+
 ## 0.6.0 - 2025-06-04
 ### Changed
 - Code: First pass of style coding standards. [#42734]

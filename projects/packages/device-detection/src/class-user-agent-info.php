@@ -87,7 +87,29 @@ class User_Agent_Info {
 	const BROWSER_EDGE             = 'edge';
 	const BROWSER_OPERA            = 'opera';
 	const BROWSER_IE               = 'ie';
+	const BROWSER_SAMSUNG          = 'samsung';
+	const BROWSER_UC               = 'uc';
+	const BROWSER_YANDEX           = 'yandex';
+	const BROWSER_VIVALDI          = 'vivaldi';
+	const BROWSER_MIUI             = 'miui';
+	const BROWSER_SILK             = 'silk';
 	const OTHER                    = 'other';
+
+	const BROWSER_DISPLAY_NAME_MAP = array(
+		self::BROWSER_CHROME  => 'Chrome',
+		self::BROWSER_FIREFOX => 'Firefox',
+		self::BROWSER_SAFARI  => 'Safari',
+		self::BROWSER_EDGE    => 'Edge',
+		self::BROWSER_OPERA   => 'Opera',
+		self::BROWSER_IE      => 'Internet Explorer',
+		self::BROWSER_SAMSUNG => 'Samsung Browser',
+		self::BROWSER_UC      => 'UC Browser',
+		self::BROWSER_YANDEX  => 'Yandex Browser',
+		self::BROWSER_VIVALDI => 'Vivaldi',
+		self::BROWSER_MIUI    => 'MIUI Browser',
+		self::BROWSER_SILK    => 'Amazon Silk',
+		self::OTHER           => 'Other',
+	);
 
 	/**
 	 * A list of dumb-phone user agent parts.
@@ -152,7 +174,7 @@ class User_Agent_Info {
 		if ( $ua ) {
 			$this->useragent = $ua;
 		} elseif ( ! empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
-			$this->useragent = strtolower( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This class is all about validating.
+			$this->useragent = wp_unslash( $_SERVER['HTTP_USER_AGENT'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This class is all about validating.
 		}
 	}
 
@@ -242,24 +264,25 @@ class User_Agent_Info {
 	 */
 	public function get_platform() {
 		if ( isset( $this->platform ) ) {
-				return $this->platform;
+			return $this->platform;
 		}
 
 		if ( empty( $this->useragent ) ) {
 			return false;
 		}
 
-		if ( strpos( $this->useragent, 'windows phone' ) !== false ) {
-				$this->platform = self::PLATFORM_WINDOWS;
-		} elseif ( strpos( $this->useragent, 'windows ce' ) !== false ) {
+		$ua = strtolower( $this->useragent );
+		if ( strpos( $ua, 'windows phone' ) !== false ) {
 			$this->platform = self::PLATFORM_WINDOWS;
-		} elseif ( strpos( $this->useragent, 'ipad' ) !== false ) {
+		} elseif ( strpos( $ua, 'windows ce' ) !== false ) {
+			$this->platform = self::PLATFORM_WINDOWS;
+		} elseif ( strpos( $ua, 'ipad' ) !== false ) {
 			$this->platform = self::PLATFORM_IPAD;
-		} elseif ( strpos( $this->useragent, 'ipod' ) !== false ) {
+		} elseif ( strpos( $ua, 'ipod' ) !== false ) {
 			$this->platform = self::PLATFORM_IPOD;
-		} elseif ( strpos( $this->useragent, 'iphone' ) !== false ) {
+		} elseif ( strpos( $ua, 'iphone' ) !== false ) {
 			$this->platform = self::PLATFORM_IPHONE;
-		} elseif ( strpos( $this->useragent, 'android' ) !== false ) {
+		} elseif ( strpos( $ua, 'android' ) !== false ) {
 			if ( static::is_android_tablet() ) {
 				$this->platform = self::PLATFORM_ANDROID_TABLET;
 			} else {
@@ -269,7 +292,7 @@ class User_Agent_Info {
 			$this->platform = self::PLATFORM_ANDROID_TABLET;
 		} elseif ( static::is_blackberry_10() ) {
 			$this->platform = self::PLATFORM_BLACKBERRY_10;
-		} elseif ( strpos( $this->useragent, 'blackberry' ) !== false ) {
+		} elseif ( strpos( $ua, 'blackberry' ) !== false ) {
 			$this->platform = self::PLATFORM_BLACKBERRY;
 		} elseif ( static::is_blackberry_tablet() ) {
 			$this->platform = self::PLATFORM_BLACKBERRY;
@@ -300,13 +323,13 @@ class User_Agent_Info {
 		}
 		$platform = self::OTHER;
 
-		if ( static::is_linux_desktop() ) {
+		if ( static::is_linux_desktop( $ua ) ) {
 			$platform = self::PLATFORM_DESKTOP_LINUX;
-		} elseif ( static::is_mac_desktop() ) {
+		} elseif ( static::is_mac_desktop( $ua ) ) {
 			$platform = self::PLATFORM_DESKTOP_MAC;
-		} elseif ( static::is_windows_desktop() ) {
+		} elseif ( static::is_windows_desktop( $ua ) ) {
 			$platform = self::PLATFORM_DESKTOP_WINDOWS;
-		} elseif ( static::is_chrome_desktop() ) {
+		} elseif ( static::is_chrome_desktop( $ua ) ) {
 			$platform = self::PLATFORM_DESKTOP_CHROME;
 		}
 		return $platform;
@@ -323,20 +346,46 @@ class User_Agent_Info {
 			return self::OTHER;
 		}
 
-		if ( static::is_opera_mini() || static::is_opera_mobile() || static::is_opera_desktop() || static::is_opera_mini_dumb() ) {
+		// Check for browsers based on Chromium BEFORE checking for Chrome itself,
+		// as they all include "Chrome" in their user agent string.
+		// Order matters - most specific checks first!
+
+		if ( static::is_samsung_browser( $ua ) ) {
+			return self::BROWSER_SAMSUNG;
+		} elseif ( static::is_yandex_browser( $ua ) ) {
+			return self::BROWSER_YANDEX;
+		} elseif ( static::is_vivaldi_browser( $ua ) ) {
+			return self::BROWSER_VIVALDI;
+		} elseif ( static::is_uc_browser( $ua ) ) {
+			return self::BROWSER_UC;
+		} elseif ( static::is_miui_browser( $ua ) ) {
+			return self::BROWSER_MIUI;
+		} elseif ( static::is_silk_browser( $ua ) ) {
+			return self::BROWSER_SILK;
+		} elseif ( static::is_opera_mini( $ua ) || static::is_opera_mobile( $ua ) || static::is_opera_desktop( $ua ) || static::is_opera_mini_dumb( $ua ) ) {
 			return self::BROWSER_OPERA;
-		} elseif ( static::is_edge_browser() ) {
+		} elseif ( static::is_edge_browser( $ua ) ) {
 			return self::BROWSER_EDGE;
-		} elseif ( static::is_chrome_desktop() || self::is_chrome_for_iOS() ) {
+		} elseif ( static::is_chrome_desktop( $ua ) || self::is_chrome_for_iOS( $ua ) ) {
 			return self::BROWSER_CHROME;
-		} elseif ( static::is_safari_browser() ) {
+		} elseif ( static::is_safari_browser( $ua ) ) {
 			return self::BROWSER_SAFARI;
-		} elseif ( static::is_firefox_mobile() || static::is_firefox_desktop() ) {
+		} elseif ( static::is_firefox_mobile( $ua ) || static::is_firefox_desktop( $ua ) ) {
 			return self::BROWSER_FIREFOX;
-		} elseif ( static::is_ie_browser() ) {
+		} elseif ( static::is_ie_browser( $ua ) ) {
 			return self::BROWSER_IE;
 		}
 		return self::OTHER;
+	}
+
+	/**
+	 * Get the display name of the browser.
+	 *
+	 * @return string
+	 */
+	public function get_browser_display_name() {
+		$browser = $this->get_browser();
+		return self::BROWSER_DISPLAY_NAME_MAP[ $browser ] ?? $browser;
 	}
 
 	/**
@@ -483,13 +532,14 @@ class User_Agent_Info {
 	 * @return bool
 	 */
 	public function is_tablet() {
+		$ua = $this->useragent;
 		return ( 0 // Never true, but makes it easier to manage our list of tablet conditions.
-				|| self::is_ipad()
-				|| self::is_android_tablet()
-				|| self::is_blackberry_tablet()
-				|| self::is_kindle_fire()
-				|| self::is_MaemoTablet()
-				|| self::is_TouchPad()
+				|| self::is_ipad( $ua )
+				|| self::is_android_tablet( $ua )
+				|| self::is_blackberry_tablet( $ua )
+				|| self::is_kindle_fire( $ua )
+				|| self::is_MaemoTablet( $ua )
+				|| self::is_TouchPad( $ua )
 		);
 	}
 
@@ -516,6 +566,23 @@ class User_Agent_Info {
 	}
 
 	/**
+	 * Retrieves the user agent from the server if not provided.
+	 *
+	 * @param string|null $user_agent Optional. User agent string to check. If not provided, uses $_SERVER['HTTP_USER_AGENT'].
+	 * @return string|false The user agent string or false if not available.
+	 */
+	private static function maybe_get_user_agent_from_server( $user_agent = null ) {
+		if ( null !== $user_agent ) {
+			return $user_agent;
+		}
+
+		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
+			return false;
+		}
+		return wp_unslash( $_SERVER['HTTP_USER_AGENT'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
+	}
+
+	/**
 	 *  Detects if the current UA is iPhone Mobile Safari or another iPhone or iPod Touch Browser.
 	 *
 	 *  They type can check for any iPhone, an iPhone using Safari, or an iPhone using something other than Safari.
@@ -524,14 +591,17 @@ class User_Agent_Info {
 	 *  you should put the check condition before the check for 'iphone-any' or 'iphone-not-safari'.
 	 *  Otherwise those browsers will be 'catched' by the iphone string.
 	 *
-	 * @param string $type Type of iPhone detection.
+	 * @param string      $type       Type of iPhone detection.
+	 * @param string|null $user_agent Optional. User agent string to check. If not provided, uses $_SERVER['HTTP_USER_AGENT'].
 	 */
-	public static function is_iphone_or_ipod( $type = 'iphone-any' ) {
-		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
+	public static function is_iphone_or_ipod( $type = 'iphone-any', $user_agent = null ) {
+
+		$user_agent = self::maybe_get_user_agent_from_server( $user_agent );
+		if ( empty( $user_agent ) ) {
 			return false;
 		}
 
-		$ua        = strtolower( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
+		$ua        = strtolower( wp_unslash( $user_agent ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
 		$is_iphone = ( strpos( $ua, 'iphone' ) !== false ) || ( strpos( $ua, 'ipod' ) !== false );
 		$is_safari = ( false !== strpos( $ua, 'safari' ) );
 
@@ -549,17 +619,20 @@ class User_Agent_Info {
 	 *
 	 *  The User-Agent string in Chrome for iOS is the same as the Mobile Safari User-Agent, with CriOS/<ChromeRevision> instead of Version/<VersionNum>.
 	 *  - Mozilla/5.0 (iPhone; U; CPU iPhone OS 5_1_1 like Mac OS X; en) AppleWebKit/534.46.0 (KHTML, like Gecko) CriOS/19.0.1084.60 Mobile/9B206 Safari/7534.48.3
+	 *
+	 * @param string|null $user_agent Optional. User agent string to check. If not provided, uses $_SERVER['HTTP_USER_AGENT'].
 	 */
-	public static function is_chrome_for_iOS() {
-		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
+	public static function is_chrome_for_iOS( $user_agent = null ) {
+		$user_agent = self::maybe_get_user_agent_from_server( $user_agent );
+		if ( empty( $user_agent ) ) {
 			return false;
 		}
 
-		if ( self::is_iphone_or_ipod( 'iphone-safari' ) === false ) {
+		if ( self::is_iphone_or_ipod( 'iphone-safari', $user_agent ) === false ) {
 			return false;
 		}
 
-		$ua = strtolower( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
+		$ua = strtolower( wp_unslash( $user_agent ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
 
 		if ( strpos( $ua, 'crios/' ) !== false ) {
 			return true;
@@ -573,13 +646,16 @@ class User_Agent_Info {
 	 *
 	 * Mozilla/5.0 (iPhone; U; CPU iPhone OS 4_3_5 like Mac OS X; nb-no) AppleWebKit/533.17.9 (KHTML, like Gecko) Mobile/8L1 Twitter for iPhone
 	 * Mozilla/5.0 (iPhone; CPU iPhone OS 5_1_1 like Mac OS X) AppleWebKit/534.46 (KHTML, like Gecko) Mobile/9B206 Twitter for iPhone
+	 *
+	 * @param string|null $user_agent Optional. User agent string to check. If not provided, uses $_SERVER['HTTP_USER_AGENT'].
 	 */
-	public static function is_twitter_for_iphone() {
-		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
+	public static function is_twitter_for_iphone( $user_agent = null ) {
+		$user_agent = self::maybe_get_user_agent_from_server( $user_agent );
+		if ( empty( $user_agent ) ) {
 			return false;
 		}
 
-		$ua = strtolower( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
+		$ua = strtolower( wp_unslash( $user_agent ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
 
 		if ( strpos( $ua, 'ipad' ) !== false ) {
 			return false;
@@ -597,13 +673,16 @@ class User_Agent_Info {
 	 *
 	 * Old version 4.X - Mozilla/5.0 (iPad; U; CPU OS 4_3_5 like Mac OS X; en-us) AppleWebKit/533.17.9 (KHTML, like Gecko) Mobile/8L1 Twitter for iPad
 	 * Ver 5.0 or Higher - Mozilla/5.0 (iPad; CPU OS 5_1_1 like Mac OS X) AppleWebKit/534.46 (KHTML, like Gecko) Mobile/9B206 Twitter for iPhone
+	 *
+	 * @param string|null $user_agent Optional. User agent string to check. If not provided, uses $_SERVER['HTTP_USER_AGENT'].
 	 */
-	public static function is_twitter_for_ipad() {
-		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
+	public static function is_twitter_for_ipad( $user_agent = null ) {
+		$user_agent = self::maybe_get_user_agent_from_server( $user_agent );
+		if ( empty( $user_agent ) ) {
 			return false;
 		}
 
-		$ua = strtolower( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
+		$ua = strtolower( wp_unslash( $user_agent ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
 
 		if ( strpos( $ua, 'twitter for ipad' ) !== false ) {
 			return true;
@@ -619,13 +698,16 @@ class User_Agent_Info {
 	 * - Facebook 4020.0 (iPhone; iPhone OS 5.0.1; fr_FR)
 	 * - Mozilla/5.0 (iPhone; U; CPU iPhone OS 5_0 like Mac OS X; en_US) AppleWebKit (KHTML, like Gecko) Mobile [FBAN/FBForIPhone;FBAV/4.0.2;FBBV/4020.0;FBDV/iPhone3,1;FBMD/iPhone;FBSN/iPhone OS;FBSV/5.0;FBSS/2; FBCR/O2;FBID/phone;FBLC/en_US;FBSF/2.0]
 	 * - Mozilla/5.0 (iPhone; CPU iPhone OS 5_1_1 like Mac OS X) AppleWebKit/534.46 (KHTML, like Gecko) Mobile/9B206 [FBAN/FBIOS;FBAV/5.0;FBBV/47423;FBDV/iPhone3,1;FBMD/iPhone;FBSN/iPhone OS;FBSV/5.1.1;FBSS/2; FBCR/3ITA;FBID/phone;FBLC/en_US]
+	 *
+	 * @param string|null $user_agent Optional. User agent string to check. If not provided, uses $_SERVER['HTTP_USER_AGENT'].
 	 */
-	public static function is_facebook_for_iphone() {
-		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
+	public static function is_facebook_for_iphone( $user_agent = null ) {
+		$user_agent = self::maybe_get_user_agent_from_server( $user_agent );
+		if ( empty( $user_agent ) ) {
 			return false;
 		}
 
-		$ua = strtolower( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
+		$ua = strtolower( wp_unslash( $user_agent ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
 
 		if ( false === strpos( $ua, 'iphone' ) ) {
 			return false;
@@ -647,13 +729,16 @@ class User_Agent_Info {
 	 * - Facebook 4020.0 (iPad; iPhone OS 5.0.1; en_US)
 	 * - Mozilla/5.0 (iPad; U; CPU iPhone OS 5_0 like Mac OS X; en_US) AppleWebKit (KHTML, like Gecko) Mobile [FBAN/FBForIPhone;FBAV/4.0.2;FBBV/4020.0;FBDV/iPad2,1;FBMD/iPad;FBSN/iPhone OS;FBSV/5.0;FBSS/1; FBCR/;FBID/tablet;FBLC/en_US;FBSF/1.0]
 	 * - Mozilla/5.0 (iPad; CPU OS 6_0 like Mac OS X) AppleWebKit/536.26 (KHTML, like Gecko) Mobile/10A403 [FBAN/FBIOS;FBAV/5.0;FBBV/47423;FBDV/iPad2,1;FBMD/iPad;FBSN/iPhone OS;FBSV/6.0;FBSS/1; FBCR/;FBID/tablet;FBLC/en_US]
+	 *
+	 * @param string|null $user_agent Optional. User agent string to check. If not provided, uses $_SERVER['HTTP_USER_AGENT'].
 	 */
-	public static function is_facebook_for_ipad() {
-		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
+	public static function is_facebook_for_ipad( $user_agent = null ) {
+		$user_agent = self::maybe_get_user_agent_from_server( $user_agent );
+		if ( empty( $user_agent ) ) {
 			return false;
 		}
 
-		$ua = strtolower( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
+		$ua = strtolower( wp_unslash( $user_agent ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
 
 		if ( false === strpos( $ua, 'ipad' ) ) {
 			return false;
@@ -668,13 +753,16 @@ class User_Agent_Info {
 
 	/**
 	 *  Detects if the current UA is WordPress for iOS
+	 *
+	 * @param string|null $user_agent Optional. User agent string to check. If not provided, uses $_SERVER['HTTP_USER_AGENT'].
 	 */
-	public static function is_wordpress_for_ios() {
-		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
+	public static function is_wordpress_for_ios( $user_agent = null ) {
+		$user_agent = self::maybe_get_user_agent_from_server( $user_agent );
+		if ( empty( $user_agent ) ) {
 			return false;
 		}
 
-		$ua = strtolower( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
+		$ua = strtolower( wp_unslash( $user_agent ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
 		if ( false !== strpos( $ua, 'wp-iphone' ) ) {
 			return true;
 		} else {
@@ -690,15 +778,16 @@ class User_Agent_Info {
 	 * you should put the check condition before the check for 'iphone-any' or 'iphone-not-safari'.
 	 * Otherwise those browsers will be 'catched' by the ipad string.
 	 *
-	 * @param string $type iPad type.
+	 * @param string      $type       iPad type.
+	 * @param string|null $user_agent Optional. User agent string to check. If not provided, uses $_SERVER['HTTP_USER_AGENT'].
 	 */
-	public static function is_ipad( $type = 'ipad-any' ) {
-
-		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
+	public static function is_ipad( $type = 'ipad-any', $user_agent = null ) {
+		$user_agent = self::maybe_get_user_agent_from_server( $user_agent );
+		if ( empty( $user_agent ) ) {
 			return false;
 		}
 
-		$ua = strtolower( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
+		$ua = strtolower( wp_unslash( $user_agent ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
 
 		$is_ipad   = ( false !== strpos( $ua, 'ipad' ) );
 		$is_safari = ( false !== strpos( $ua, 'safari' ) );
@@ -718,14 +807,16 @@ class User_Agent_Info {
 	 * See http://www.useragentstring.com/pages/Fennec/
 	 * Mozilla/5.0 (Windows NT 6.1; WOW64; rv:2.1.1) Gecko/20110415 Firefox/4.0.2pre Fennec/4.0.1
 	 * Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.1b2pre) Gecko/20081015 Fennec/1.0a1
+	 *
+	 * @param string|null $user_agent Optional. User agent string to check. If not provided, uses $_SERVER['HTTP_USER_AGENT'].
 	 */
-	public static function is_firefox_mobile() {
-
-		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
+	public static function is_firefox_mobile( $user_agent = null ) {
+		$user_agent = self::maybe_get_user_agent_from_server( $user_agent );
+		if ( empty( $user_agent ) ) {
 			return false;
 		}
 
-		$ua = strtolower( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
+		$ua = strtolower( wp_unslash( $user_agent ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
 
 		if ( strpos( $ua, 'fennec' ) !== false ) {
 			return true;
@@ -740,14 +831,16 @@ class User_Agent_Info {
 	 * See https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/User-Agent/Firefox
 	 * Mozilla/5.0 (platform; rv:geckoversion) Gecko/geckotrail Firefox/firefoxversion
 	 * The platform section will include 'Mobile' for phones and 'Tablet' for tablets.
+	 *
+	 * @param string|null $user_agent Optional. User agent string to check. If not provided, uses $_SERVER['HTTP_USER_AGENT'].
 	 */
-	public static function is_firefox_desktop() {
-
-		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
+	public static function is_firefox_desktop( $user_agent = null ) {
+		$user_agent = self::maybe_get_user_agent_from_server( $user_agent );
+		if ( empty( $user_agent ) ) {
 			return false;
 		}
 
-		$ua = strtolower( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
+		$ua = strtolower( wp_unslash( $user_agent ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
 
 		if ( false !== strpos( $ua, 'firefox' ) && false === strpos( $ua, 'mobile' ) && false === strpos( $ua, 'tablet' ) ) {
 			return true;
@@ -760,14 +853,16 @@ class User_Agent_Info {
 	 * Detects if the current browser is FirefoxOS Native browser
 	 *
 	 * Mozilla/5.0 (Mobile; rv:14.0) Gecko/14.0 Firefox/14.0
+	 *
+	 * @param string|null $user_agent Optional. User agent string to check. If not provided, uses $_SERVER['HTTP_USER_AGENT'].
 	 */
-	public static function is_firefox_os() {
-
-		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
+	public static function is_firefox_os( $user_agent = null ) {
+		$user_agent = self::maybe_get_user_agent_from_server( $user_agent );
+		if ( empty( $user_agent ) ) {
 			return false;
 		}
 
-		$ua = strtolower( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
+		$ua = strtolower( wp_unslash( $user_agent ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
 
 		if ( strpos( $ua, 'mozilla' ) !== false && strpos( $ua, 'mobile' ) !== false && strpos( $ua, 'gecko' ) !== false && strpos( $ua, 'firefox' ) !== false ) {
 			return true;
@@ -778,12 +873,16 @@ class User_Agent_Info {
 
 	/**
 	 * Detect Safari browser
+	 *
+	 * @param string|null $user_agent Optional. User agent string to check. If not provided, uses $_SERVER['HTTP_USER_AGENT'].
 	 */
-	public static function is_safari_browser() {
-		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
+	public static function is_safari_browser( $user_agent = null ) {
+		$user_agent = self::maybe_get_user_agent_from_server( $user_agent );
+		if ( empty( $user_agent ) ) {
 			return false;
 		}
-		if ( false === strpos( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ), 'Safari' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
+
+		if ( false === strpos( wp_unslash( $user_agent ), 'Safari' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
 			return false;
 		}
 		return true;
@@ -791,25 +890,36 @@ class User_Agent_Info {
 
 	/**
 	 * Detect Edge browser
+	 *
+	 * @param string|null $user_agent Optional. User agent string to check. If not provided, uses $_SERVER['HTTP_USER_AGENT'].
 	 */
-	public static function is_edge_browser() {
-		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
+	public static function is_edge_browser( $user_agent = null ) {
+		$user_agent = self::maybe_get_user_agent_from_server( $user_agent );
+		if ( empty( $user_agent ) ) {
 			return false;
 		}
-		if ( false === strpos( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ), 'Edge' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
+
+		$ua = wp_unslash( $user_agent ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
+
+		// Check for both legacy Edge ("Edge/") and modern Chromium-based Edge ("Edg/")
+		if ( false === strpos( $ua, 'Edge' ) && false === strpos( $ua, 'Edg/' ) ) {
 			return false;
 		}
 		return true;
 	}
 
 	/**
-	 * Detect Edge browser
+	 * Detect IE browser
+	 *
+	 * @param string|null $user_agent Optional. User agent string to check. If not provided, uses $_SERVER['HTTP_USER_AGENT'].
 	 */
-	public static function is_ie_browser() {
-		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
+	public static function is_ie_browser( $user_agent = null ) {
+		$user_agent = self::maybe_get_user_agent_from_server( $user_agent );
+		if ( empty( $user_agent ) ) {
 			return false;
 		}
-		$ua = wp_unslash( $_SERVER['HTTP_USER_AGENT'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
+
+		$ua = wp_unslash( $user_agent ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
 		if ( false === ( strpos( $ua, 'MSIE' ) || strpos( $ua, 'Trident/7' ) ) ) {
 			return false;
 		}
@@ -822,13 +932,16 @@ class User_Agent_Info {
 	 * Mozilla/5.0 (Macintosh; Intel Mac OS X 11_2_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.182 Safari/537.36 OPR/74.0.3911.203
 	 *
 	 * Looking for "OPR/" specifically.
+	 *
+	 * @param string|null $user_agent Optional. User agent string to check. If not provided, uses $_SERVER['HTTP_USER_AGENT'].
 	 */
-	public static function is_opera_desktop() {
-		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
+	public static function is_opera_desktop( $user_agent = null ) {
+		$user_agent = self::maybe_get_user_agent_from_server( $user_agent );
+		if ( empty( $user_agent ) ) {
 			return false;
 		}
 
-		if ( false === strpos( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ), 'OPR/' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
+		if ( false === strpos( wp_unslash( $user_agent ), 'OPR/' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
 			return false;
 		}
 
@@ -846,13 +959,16 @@ class User_Agent_Info {
 	 *
 	 * Opera/9.80 (Windows NT 6.1; Opera Mobi/14316; U; en) Presto/2.7.81 Version/11.00"
 	 * Opera/9.50 (Nintendo DSi; Opera/507; U; en-US)
+	 *
+	 * @param string|null $user_agent Optional. User agent string to check. If not provided, uses $_SERVER['HTTP_USER_AGENT'].
 	 */
-	public static function is_opera_mobile() {
-		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
+	public static function is_opera_mobile( $user_agent = null ) {
+		$user_agent = self::maybe_get_user_agent_from_server( $user_agent );
+		if ( empty( $user_agent ) ) {
 			return false;
 		}
 
-		$ua = strtolower( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
+		$ua = strtolower( wp_unslash( $user_agent ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
 
 		if ( strpos( $ua, 'opera' ) !== false && strpos( $ua, 'mobi' ) !== false ) {
 			return true;
@@ -873,13 +989,16 @@ class User_Agent_Info {
 	 * Opera/9.80 (J2ME/iPhone;Opera Mini/5.0.019802/886; U; ja) Presto/2.4.15
 	 * Opera/9.80 (Series 60; Opera Mini/5.1.22783/23.334; U; en) Presto/2.5.25 Version/10.54
 	 * Opera/9.80 (BlackBerry; Opera Mini/5.1.22303/22.387; U; en) Presto/2.5.25 Version/10.54
+	 *
+	 * @param string|null $user_agent Optional. User agent string to check. If not provided, uses $_SERVER['HTTP_USER_AGENT'].
 	 */
-	public static function is_opera_mini() {
-		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
+	public static function is_opera_mini( $user_agent = null ) {
+		$user_agent = self::maybe_get_user_agent_from_server( $user_agent );
+		if ( empty( $user_agent ) ) {
 			return false;
 		}
 
-		$ua = strtolower( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
+		$ua = strtolower( wp_unslash( $user_agent ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
 
 		if ( strpos( $ua, 'opera' ) !== false && strpos( $ua, 'mini' ) !== false ) {
 			return true;
@@ -891,14 +1010,18 @@ class User_Agent_Info {
 	/**
 	 * Detects if the current browser is Opera Mini, but not on a smart device OS(Android, iOS, etc)
 	 * Used to send users on dumb devices to m.wor
+	 *
+	 * @param string|null $user_agent Optional. User agent string to check. If not provided, uses $_SERVER['HTTP_USER_AGENT'].
 	 */
-	public static function is_opera_mini_dumb() {
-		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
+	public static function is_opera_mini_dumb( $user_agent = null ) {
+		$user_agent = self::maybe_get_user_agent_from_server( $user_agent );
+		if ( empty( $user_agent ) ) {
 			return false;
 		}
-		$ua = strtolower( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
 
-		if ( self::is_opera_mini() ) {
+		$ua = strtolower( wp_unslash( $user_agent ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
+
+		if ( self::is_opera_mini( $user_agent ) ) {
 			if ( strpos( $ua, 'android' ) !== false || strpos( $ua, 'iphone' ) !== false || strpos( $ua, 'ipod' ) !== false
 			|| strpos( $ua, 'ipad' ) !== false || strpos( $ua, 'blackberry' ) !== false ) {
 				return false;
@@ -911,19 +1034,130 @@ class User_Agent_Info {
 	}
 
 	/**
-	 * Detects if the current browser is a Windows Phone 7 device.
-	 * ex: Mozilla/4.0 (compatible; MSIE 7.0; Windows Phone OS 7.0; Trident/3.1; IEMobile/7.0; LG; GW910)
+	 * Detects if the current browser is Samsung Internet for Android.
+	 *
+	 * Samsung Internet is the default browser on Samsung devices.
+	 * User agent contains: SamsungBrowser
+	 *
+	 * @param string|null $user_agent Optional user agent string.
+	 * @return bool
 	 */
-	public static function is_WindowsPhone7() {
-		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
+	public static function is_samsung_browser( $user_agent = null ) {
+		$user_agent = self::maybe_get_user_agent_from_server( $user_agent );
+		if ( empty( $user_agent ) ) {
 			return false;
 		}
 
-		$ua = strtolower( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
+		return false !== stripos( $user_agent, 'SamsungBrowser' );
+	}
+
+	/**
+	 * Detects if the current browser is UC Browser.
+	 *
+	 * UC Browser is popular in Asia and emerging markets.
+	 * User agent contains: UCBrowser or UCWEB
+	 *
+	 * @param string|null $user_agent Optional user agent string.
+	 * @return bool
+	 */
+	public static function is_uc_browser( $user_agent = null ) {
+		$user_agent = self::maybe_get_user_agent_from_server( $user_agent );
+		if ( empty( $user_agent ) ) {
+			return false;
+		}
+
+		return false !== stripos( $user_agent, 'UCBrowser' ) || false !== stripos( $user_agent, 'UCWEB' );
+	}
+
+	/**
+	 * Detects if the current browser is Yandex Browser.
+	 *
+	 * Yandex Browser is popular in Russia and CIS countries.
+	 * User agent contains: YaBrowser
+	 *
+	 * @param string|null $user_agent Optional user agent string.
+	 * @return bool
+	 */
+	public static function is_yandex_browser( $user_agent = null ) {
+		$user_agent = self::maybe_get_user_agent_from_server( $user_agent );
+		if ( empty( $user_agent ) ) {
+			return false;
+		}
+
+		return false !== stripos( $user_agent, 'YaBrowser' );
+	}
+
+	/**
+	 * Detects if the current browser is Vivaldi.
+	 *
+	 * Vivaldi is a feature-rich browser for power users.
+	 * User agent contains: Vivaldi
+	 *
+	 * @param string|null $user_agent Optional user agent string.
+	 * @return bool
+	 */
+	public static function is_vivaldi_browser( $user_agent = null ) {
+		$user_agent = self::maybe_get_user_agent_from_server( $user_agent );
+		if ( empty( $user_agent ) ) {
+			return false;
+		}
+
+		return false !== stripos( $user_agent, 'Vivaldi' );
+	}
+
+	/**
+	 * Detects if the current browser is MIUI Browser.
+	 *
+	 * MIUI Browser is the default browser on Xiaomi devices.
+	 * User agent contains: MiuiBrowser or XiaoMi
+	 *
+	 * @param string|null $user_agent Optional user agent string.
+	 * @return bool
+	 */
+	public static function is_miui_browser( $user_agent = null ) {
+		$user_agent = self::maybe_get_user_agent_from_server( $user_agent );
+		if ( empty( $user_agent ) ) {
+			return false;
+		}
+
+		return false !== stripos( $user_agent, 'MiuiBrowser' ) || false !== stripos( $user_agent, 'XiaoMi' );
+	}
+
+	/**
+	 * Detects if the current browser is Amazon Silk.
+	 *
+	 * Amazon Silk is the browser on Kindle Fire and Echo devices.
+	 * User agent contains: Silk or Silk-Accelerated
+	 *
+	 * @param string|null $user_agent Optional user agent string.
+	 * @return bool
+	 */
+	public static function is_silk_browser( $user_agent = null ) {
+		$user_agent = self::maybe_get_user_agent_from_server( $user_agent );
+		if ( empty( $user_agent ) ) {
+			return false;
+		}
+
+		return false !== stripos( $user_agent, 'Silk' );
+	}
+
+	/**
+	 * Detects if the current browser is a Windows Phone 7 device.
+	 * ex: Mozilla/4.0 (compatible; MSIE 7.0; Windows Phone OS 7.0; Trident/3.1; IEMobile/7.0; LG; GW910)
+	 *
+	 * @param string|null $user_agent Optional. User agent string to check. If not provided, uses $_SERVER['HTTP_USER_AGENT'].
+	 */
+	public static function is_WindowsPhone7( $user_agent = null ) {
+		$user_agent = self::maybe_get_user_agent_from_server( $user_agent );
+		if ( empty( $user_agent ) ) {
+			return false;
+		}
+
+		$ua = strtolower( wp_unslash( $user_agent ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
 
 		if ( false === strpos( $ua, 'windows phone os 7' ) ) {
 			return false;
-		} elseif ( self::is_opera_mini() || self::is_opera_mobile() || self::is_firefox_mobile() ) {
+		} elseif ( self::is_opera_mini( $user_agent ) || self::is_opera_mobile( $user_agent ) || self::is_firefox_mobile( $user_agent ) ) {
 			return false;
 		} else {
 			return true;
@@ -933,13 +1167,16 @@ class User_Agent_Info {
 	/**
 	 * Detects if the current browser is a Windows Phone 8 device.
 	 * ex: Mozilla/5.0 (compatible; MSIE 10.0; Windows Phone 8.0; Trident/6.0; ARM; Touch; IEMobile/10.0; <Manufacturer>; <Device> [;<Operator>])
+	 *
+	 * @param string|null $user_agent Optional. User agent string to check. If not provided, uses $_SERVER['HTTP_USER_AGENT'].
 	 */
-	public static function is_windows_phone_8() {
-		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
+	public static function is_windows_phone_8( $user_agent = null ) {
+		$user_agent = self::maybe_get_user_agent_from_server( $user_agent );
+		if ( empty( $user_agent ) ) {
 			return false;
 		}
 
-		$ua = strtolower( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
+		$ua = strtolower( wp_unslash( $user_agent ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
 		if ( strpos( $ua, 'windows phone 8' ) === false ) {
 			return false;
 		} else {
@@ -952,17 +1189,20 @@ class User_Agent_Info {
 	 *
 	 * Ex1: Mozilla/5.0 (webOS/1.4.0; U; en-US) AppleWebKit/532.2 (KHTML, like Gecko) Version/1.0 Safari/532.2 Pre/1.1
 	 * Ex2: Mozilla/5.0 (webOS/1.4.0; U; en-US) AppleWebKit/532.2 (KHTML, like Gecko) Version/1.0 Safari/532.2 Pixi/1.1
+	 *
+	 * @param string|null $user_agent Optional. User agent string to check. If not provided, uses $_SERVER['HTTP_USER_AGENT'].
 	 */
-	public static function is_PalmWebOS() {
-		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
+	public static function is_PalmWebOS( $user_agent = null ) {
+		$user_agent = self::maybe_get_user_agent_from_server( $user_agent );
+		if ( empty( $user_agent ) ) {
 			return false;
 		}
 
-		$ua = strtolower( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
+		$ua = strtolower( wp_unslash( $user_agent ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
 
 		if ( false === strpos( $ua, 'webos' ) ) {
 			return false;
-		} elseif ( self::is_opera_mini() || self::is_opera_mobile() || self::is_firefox_mobile() ) {
+		} elseif ( self::is_opera_mini( $user_agent ) || self::is_opera_mobile( $user_agent ) || self::is_firefox_mobile( $user_agent ) ) {
 			return false;
 		} else {
 			return true;
@@ -974,15 +1214,18 @@ class User_Agent_Info {
 	 *
 	 * TouchPad Emulator: Mozilla/5.0 (hp-desktop; Linux; hpwOS/2.0; U; it-IT) AppleWebKit/534.6 (KHTML, like Gecko) wOSBrowser/233.70 Safari/534.6 Desktop/1.0
 	 * TouchPad: Mozilla/5.0 (hp-tablet; Linux; hpwOS/3.0.0; U; en-US) AppleWebKit/534.6 (KHTML, like Gecko) wOSBrowser/233.70 Safari/534.6 TouchPad/1.0
+	 *
+	 * @param string|null $user_agent Optional. User agent string to check. If not provided, uses $_SERVER['HTTP_USER_AGENT'].
 	 */
-	public static function is_TouchPad() {
-		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
+	public static function is_TouchPad( $user_agent = null ) {
+		$user_agent = self::maybe_get_user_agent_from_server( $user_agent );
+		if ( empty( $user_agent ) ) {
 			return false;
 		}
 
-		$http_user_agent = strtolower( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
+		$http_user_agent = strtolower( wp_unslash( $user_agent ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
 		if ( false !== strpos( $http_user_agent, 'hp-tablet' ) || false !== strpos( $http_user_agent, 'hpwos' ) || false !== strpos( $http_user_agent, 'touchpad' ) ) {
-			if ( self::is_opera_mini() || self::is_opera_mobile() || self::is_firefox_mobile() ) {
+			if ( self::is_opera_mini( $user_agent ) || self::is_opera_mobile( $user_agent ) || self::is_firefox_mobile( $user_agent ) ) {
 				return false;
 			} else {
 				return true;
@@ -1000,15 +1243,17 @@ class User_Agent_Info {
 	 * 7.0 Browser (Nokia 5800 XpressMusic (v21.0.025)) : Mozilla/5.0 (SymbianOS/9.4; U; Series60/5.0 Nokia5800d-1/21.0.025; Profile/MIDP-2.1 Configuration/CLDC-1.1 ) AppleWebKit/413 (KHTML, like Gecko) Safari/413
 	 *
 	 * Browser 7.1 (Nokia N97 (v12.0.024)) : Mozilla/5.0 (SymbianOS/9.4; Series60/5.0 NokiaN97-1/12.0.024; Profile/MIDP-2.1 Configuration/CLDC-1.1; en-us) AppleWebKit/525 (KHTML, like Gecko) BrowserNG/7.1.12344
+	 *
+	 * @param string|null $user_agent Optional. User agent string to check. If not provided, uses $_SERVER['HTTP_USER_AGENT'].
 	 */
-	public static function is_S60_OSSBrowser() {
-
-		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
+	public static function is_S60_OSSBrowser( $user_agent = null ) {
+		$user_agent = self::maybe_get_user_agent_from_server( $user_agent );
+		if ( empty( $user_agent ) ) {
 			return false;
 		}
 
-		$agent = strtolower( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
-		if ( self::is_opera_mini() || self::is_opera_mobile() || self::is_firefox_mobile() ) {
+		$agent = strtolower( wp_unslash( $user_agent ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
+		if ( self::is_opera_mini( $user_agent ) || self::is_opera_mobile( $user_agent ) || self::is_firefox_mobile( $user_agent ) ) {
 			return false;
 		}
 
@@ -1031,14 +1276,16 @@ class User_Agent_Info {
 
 	/**
 	 * Detects if the device platform is the Symbian Series 60.
+	 *
+	 * @param string|null $user_agent Optional. User agent string to check. If not provided, uses $_SERVER['HTTP_USER_AGENT'].
 	 */
-	public static function is_symbian_platform() {
-
-		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
+	public static function is_symbian_platform( $user_agent = null ) {
+		$user_agent = self::maybe_get_user_agent_from_server( $user_agent );
+		if ( empty( $user_agent ) ) {
 			return false;
 		}
 
-		$agent = strtolower( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
+		$agent = strtolower( wp_unslash( $user_agent ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
 
 		$pos_webkit = strpos( $agent, 'webkit' );
 		if ( false !== $pos_webkit ) {
@@ -1065,14 +1312,16 @@ class User_Agent_Info {
 	 * Detects if the device platform is the Symbian Series 40.
 	 * Nokia Browser for Series 40 is a proxy based browser, previously known as Ovi Browser.
 	 * This browser will report 'NokiaBrowser' in the header, however some older version will also report 'OviBrowser'.
+	 *
+	 * @param string|null $user_agent Optional. User agent string to check. If not provided, uses $_SERVER['HTTP_USER_AGENT'].
 	 */
-	public static function is_symbian_s40_platform() {
-
-		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
+	public static function is_symbian_s40_platform( $user_agent = null ) {
+		$user_agent = self::maybe_get_user_agent_from_server( $user_agent );
+		if ( empty( $user_agent ) ) {
 			return false;
 		}
 
-		$agent = strtolower( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
+		$agent = strtolower( wp_unslash( $user_agent ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
 
 		if ( strpos( $agent, 'series40' ) !== false ) {
 			if ( strpos( $agent, 'nokia' ) !== false || strpos( $agent, 'ovibrowser' ) !== false || strpos( $agent, 'nokiabrowser' ) !== false ) {
@@ -1086,15 +1335,17 @@ class User_Agent_Info {
 	/**
 	 * Returns if the device belongs to J2ME capable family.
 	 *
+	 * @param string|null $user_agent Optional. User agent string to check. If not provided, uses $_SERVER['HTTP_USER_AGENT'].
+	 *
 	 * @return bool
 	 */
-	public static function is_J2ME_platform() {
-
-		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
+	public static function is_J2ME_platform( $user_agent = null ) {
+		$user_agent = self::maybe_get_user_agent_from_server( $user_agent );
+		if ( empty( $user_agent ) ) {
 			return false;
 		}
 
-		$agent = strtolower( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
+		$agent = strtolower( wp_unslash( $user_agent ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
 
 		if ( strpos( $agent, 'j2me/midp' ) !== false ) {
 			return true;
@@ -1106,14 +1357,16 @@ class User_Agent_Info {
 
 	/**
 	 * Detects if the current UA is on one of the Maemo-based Nokia Internet Tablets.
+	 *
+	 * @param string|null $user_agent Optional. User agent string to check. If not provided, uses $_SERVER['HTTP_USER_AGENT'].
 	 */
-	public static function is_MaemoTablet() {
-
-		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
+	public static function is_MaemoTablet( $user_agent = null ) {
+		$user_agent = self::maybe_get_user_agent_from_server( $user_agent );
+		if ( empty( $user_agent ) ) {
 			return false;
 		}
 
-		$agent = strtolower( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
+		$agent = strtolower( wp_unslash( $user_agent ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
 
 		$pos_maemo = strpos( $agent, 'maemo' );
 		if ( false === $pos_maemo ) {
@@ -1122,7 +1375,7 @@ class User_Agent_Info {
 
 		// Must be Linux + Tablet, or else it could be something else.
 		if ( strpos( $agent, 'tablet' ) !== false && strpos( $agent, 'linux' ) !== false ) {
-			if ( self::is_opera_mini() || self::is_opera_mobile() || self::is_firefox_mobile() ) {
+			if ( self::is_opera_mini( $user_agent ) || self::is_opera_mobile( $user_agent ) || self::is_firefox_mobile( $user_agent ) ) {
 				return false;
 			} else {
 				return true;
@@ -1134,18 +1387,20 @@ class User_Agent_Info {
 
 	/**
 	 * Detects if the current UA is a MeeGo device (Nokia Smartphone).
+	 *
+	 * @param string|null $user_agent Optional. User agent string to check. If not provided, uses $_SERVER['HTTP_USER_AGENT'].
 	 */
-	public static function is_MeeGo() {
-
-		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
+	public static function is_MeeGo( $user_agent = null ) {
+		$user_agent = self::maybe_get_user_agent_from_server( $user_agent );
+		if ( empty( $user_agent ) ) {
 			return false;
 		}
 
-		$ua = strtolower( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
+		$ua = strtolower( wp_unslash( $user_agent ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
 
 		if ( false === strpos( $ua, 'meego' ) ) {
 			return false;
-		} elseif ( self::is_opera_mini() || self::is_opera_mobile() || self::is_firefox_mobile() ) {
+		} elseif ( self::is_opera_mini( $user_agent ) || self::is_opera_mobile( $user_agent ) || self::is_firefox_mobile( $user_agent ) ) {
 			return false;
 		} else {
 			return true;
@@ -1154,14 +1409,16 @@ class User_Agent_Info {
 
 	/**
 	 * The is_webkit() method can be used to check the User Agent for an webkit generic browser.
+	 *
+	 * @param string|null $user_agent Optional. User agent string to check. If not provided, uses $_SERVER['HTTP_USER_AGENT'].
 	 */
-	public static function is_webkit() {
-
-		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
+	public static function is_webkit( $user_agent = null ) {
+		$user_agent = self::maybe_get_user_agent_from_server( $user_agent );
+		if ( empty( $user_agent ) ) {
 			return false;
 		}
 
-		$agent = strtolower( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
+		$agent = strtolower( wp_unslash( $user_agent ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
 
 		$pos_webkit = strpos( $agent, 'webkit' );
 
@@ -1175,17 +1432,20 @@ class User_Agent_Info {
 	/**
 	 * Detects if the current browser is the Native Android browser.
 	 *
+	 * @param string|null $user_agent Optional. User agent string to check. If not provided, uses $_SERVER['HTTP_USER_AGENT'].
+	 *
 	 * @return boolean true if the browser is Android otherwise false
 	 */
-	public static function is_android() {
-		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
+	public static function is_android( $user_agent = null ) {
+		$user_agent = self::maybe_get_user_agent_from_server( $user_agent );
+		if ( empty( $user_agent ) ) {
 			return false;
 		}
 
-		$agent       = strtolower( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
+		$agent       = strtolower( wp_unslash( $user_agent ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
 		$pos_android = strpos( $agent, 'android' );
 		if ( false !== $pos_android ) {
-			if ( self::is_opera_mini() || self::is_opera_mobile() || self::is_firefox_mobile() ) {
+			if ( self::is_opera_mini( $user_agent ) || self::is_opera_mobile( $user_agent ) || self::is_firefox_mobile( $user_agent ) ) {
 				return false;
 			} else {
 				return true;
@@ -1199,21 +1459,24 @@ class User_Agent_Info {
 	 * Detects if the current browser is the Native Android Tablet browser.
 	 * Assumes 'Android' should be in the user agent, but not 'mobile'
 	 *
+	 * @param string|null $user_agent Optional. User agent string to check. If not provided, uses $_SERVER['HTTP_USER_AGENT'].
+	 *
 	 * @return boolean true if the browser is Android and not 'mobile' otherwise false
 	 */
-	public static function is_android_tablet() {
-		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
+	public static function is_android_tablet( $user_agent = null ) {
+		$user_agent = self::maybe_get_user_agent_from_server( $user_agent );
+		if ( empty( $user_agent ) ) {
 			return false;
 		}
 
-		$agent = strtolower( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
+		$agent = strtolower( wp_unslash( $user_agent ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
 
 		$pos_android      = strpos( $agent, 'android' );
 		$pos_mobile       = strpos( $agent, 'mobile' );
 		$post_android_app = strpos( $agent, 'wp-android' );
 
 		if ( false !== $pos_android && false === $pos_mobile && false === $post_android_app ) {
-			if ( self::is_opera_mini() || self::is_opera_mobile() || self::is_firefox_mobile() ) {
+			if ( self::is_opera_mini( $user_agent ) || self::is_opera_mobile( $user_agent ) || self::is_firefox_mobile( $user_agent ) ) {
 				return false;
 			} else {
 				return true;
@@ -1229,14 +1492,17 @@ class User_Agent_Info {
 	 * Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_3; en-us; Silk/1.1.0-84) AppleWebKit/533.16 (KHTML, like Gecko) Version/5.0 Safari/533.16 Silk-Accelerated=true
 	 * Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_3; en-us; Silk/1.1.0-84) AppleWebKit/533.16 (KHTML, like Gecko) Version/5.0 Safari/533.16 Silk-Accelerated=false
 	 *
+	 * @param string|null $user_agent Optional. User agent string to check. If not provided, uses $_SERVER['HTTP_USER_AGENT'].
+	 *
 	 * @return boolean true if the browser is Kindle Fire Native browser otherwise false
 	 */
-	public static function is_kindle_fire() {
-		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
+	public static function is_kindle_fire( $user_agent = null ) {
+		$user_agent = self::maybe_get_user_agent_from_server( $user_agent );
+		if ( empty( $user_agent ) ) {
 			return false;
 		}
 
-		$agent        = strtolower( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
+		$agent        = strtolower( wp_unslash( $user_agent ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
 		$pos_silk     = strpos( $agent, 'silk/' );
 		$pos_silk_acc = strpos( $agent, 'silk-accelerated=' );
 		if ( false !== $pos_silk && false !== $pos_silk_acc ) {
@@ -1251,15 +1517,19 @@ class User_Agent_Info {
 	 *
 	 * Mozilla/5.0 (X11; U; Linux armv7l like Android; en-us) AppleWebKit/531.2+ (KHTML, like Gecko) Version/5.0 Safari/533.2+ Kindle/3.0+
 	 *
+	 * @param string|null $user_agent Optional. User agent string to check. If not provided, uses $_SERVER['HTTP_USER_AGENT'].
+	 *
 	 * @return boolean true if the browser is Kindle monochrome Native browser otherwise false
 	 */
-	public static function is_kindle_touch() {
-		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
+	public static function is_kindle_touch( $user_agent = null ) {
+		$user_agent = self::maybe_get_user_agent_from_server( $user_agent );
+		if ( empty( $user_agent ) ) {
 			return false;
 		}
-		$agent            = strtolower( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
+
+		$agent            = strtolower( wp_unslash( $user_agent ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
 		$pos_kindle_touch = strpos( $agent, 'kindle/3.0+' );
-		if ( false !== $pos_kindle_touch && false === self::is_kindle_fire() ) {
+		if ( false !== $pos_kindle_touch && false === self::is_kindle_fire( $user_agent ) ) {
 			return true;
 		} else {
 			return false;
@@ -1268,13 +1538,16 @@ class User_Agent_Info {
 
 	/**
 	 * Detect if user agent is the WordPress.com Windows 8 app (used ONLY on the custom oauth stylesheet)
+	 *
+	 * @param string|null $user_agent Optional. User agent string to check. If not provided, uses $_SERVER['HTTP_USER_AGENT'].
 	 */
-	public static function is_windows8_auth() {
-		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
+	public static function is_windows8_auth( $user_agent = null ) {
+		$user_agent = self::maybe_get_user_agent_from_server( $user_agent );
+		if ( empty( $user_agent ) ) {
 			return false;
 		}
 
-		$agent = strtolower( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
+		$agent = strtolower( wp_unslash( $user_agent ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
 		$pos   = strpos( $agent, 'msauthhost' );
 		if ( false !== $pos ) {
 			return true;
@@ -1285,13 +1558,16 @@ class User_Agent_Info {
 
 	/**
 	 * Detect if user agent is the WordPress.com Windows 8 app.
+	 *
+	 * @param string|null $user_agent Optional. User agent string to check. If not provided, uses $_SERVER['HTTP_USER_AGENT'].
 	 */
-	public static function is_wordpress_for_win8() {
-		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
+	public static function is_wordpress_for_win8( $user_agent = null ) {
+		$user_agent = self::maybe_get_user_agent_from_server( $user_agent );
+		if ( empty( $user_agent ) ) {
 			return false;
 		}
 
-		$agent = strtolower( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
+		$agent = strtolower( wp_unslash( $user_agent ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
 		$pos   = strpos( $agent, 'wp-windows8' );
 		if ( false !== $pos ) {
 			return true;
@@ -1302,13 +1578,16 @@ class User_Agent_Info {
 
 	/**
 	 * Detect if user agent is the WordPress.com Desktop app.
+	 *
+	 * @param string|null $user_agent Optional. User agent string to check. If not provided, uses $_SERVER['HTTP_USER_AGENT'].
 	 */
-	public static function is_wordpress_desktop_app() {
-		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
+	public static function is_wordpress_desktop_app( $user_agent = null ) {
+		$user_agent = self::maybe_get_user_agent_from_server( $user_agent );
+		if ( empty( $user_agent ) ) {
 			return false;
 		}
 
-		$agent = strtolower( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
+		$agent = strtolower( wp_unslash( $user_agent ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
 		$pos   = strpos( $agent, 'WordPressDesktop' );
 		if ( false !== $pos ) {
 			return true;
@@ -1321,14 +1600,16 @@ class User_Agent_Info {
 	 * The is_blackberry_tablet() method can be used to check the User Agent for a RIM blackberry tablet.
 	 * The user agent of the BlackBerry® Tablet OS follows a format similar to the following:
 	 * Mozilla/5.0 (PlayBook; U; RIM Tablet OS 1.0.0; en-US) AppleWebKit/534.8+ (KHTML, like Gecko) Version/0.0.1 Safari/534.8+
+	 *
+	 * @param string|null $user_agent Optional. User agent string to check. If not provided, uses $_SERVER['HTTP_USER_AGENT'].
 	 */
-	public static function is_blackberry_tablet() {
-
-		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
+	public static function is_blackberry_tablet( $user_agent = null ) {
+		$user_agent = self::maybe_get_user_agent_from_server( $user_agent );
+		if ( empty( $user_agent ) ) {
 			return false;
 		}
 
-		$agent          = strtolower( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
+		$agent          = strtolower( wp_unslash( $user_agent ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
 		$pos_playbook   = stripos( $agent, 'PlayBook' );
 		$pos_rim_tablet = stripos( $agent, 'RIM Tablet' );
 
@@ -1342,17 +1623,20 @@ class User_Agent_Info {
 	/**
 	 * The is_blackbeberry() method can be used to check the User Agent for a blackberry device.
 	 * Note that opera mini on BB matches this rule.
+	 *
+	 * @param string|null $user_agent Optional. User agent string to check. If not provided, uses $_SERVER['HTTP_USER_AGENT'].
 	 */
-	public static function is_blackbeberry() {
-		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
+	public static function is_blackbeberry( $user_agent = null ) {
+		$user_agent = self::maybe_get_user_agent_from_server( $user_agent );
+		if ( empty( $user_agent ) ) {
 			return false;
 		}
 
-		$agent = strtolower( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
+		$agent = strtolower( wp_unslash( $user_agent ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
 
 		$pos_blackberry = strpos( $agent, 'blackberry' );
 		if ( false !== $pos_blackberry ) {
-			if ( self::is_opera_mini() || self::is_opera_mobile() || self::is_firefox_mobile() ) {
+			if ( self::is_opera_mini( $user_agent ) || self::is_opera_mobile( $user_agent ) || self::is_firefox_mobile( $user_agent ) ) {
 				return false;
 			} else {
 				return true;
@@ -1364,25 +1648,33 @@ class User_Agent_Info {
 
 	/**
 	 * The is_blackberry_10() method can be used to check the User Agent for a BlackBerry 10 device.
+	 *
+	 * @param string|null $user_agent Optional. User agent string to check. If not provided, uses $_SERVER['HTTP_USER_AGENT'].
 	 */
-	public static function is_blackberry_10() {
-		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
+	public static function is_blackberry_10( $user_agent = null ) {
+		$user_agent = self::maybe_get_user_agent_from_server( $user_agent );
+		if ( empty( $user_agent ) ) {
 			return false;
 		}
-		$agent = strtolower( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
+
+		$agent = strtolower( wp_unslash( $user_agent ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
 		return ( strpos( $agent, 'bb10' ) !== false ) && ( strpos( $agent, 'mobile' ) !== false );
 	}
 
 	/**
 	 * Determines whether a desktop platform is Linux OS
 	 *
+	 * @param string|null $user_agent Optional. User agent string to check. If not provided, uses $_SERVER['HTTP_USER_AGENT'].
+	 *
 	 * @return bool
 	 */
-	public static function is_linux_desktop() {
-		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
+	public static function is_linux_desktop( $user_agent = null ) {
+		$user_agent = self::maybe_get_user_agent_from_server( $user_agent );
+		if ( empty( $user_agent ) ) {
 			return false;
 		}
-		if ( ! preg_match( '/linux/i', wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
+
+		if ( ! preg_match( '/linux/i', wp_unslash( $user_agent ) ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
 			return false;
 		}
 		return true;
@@ -1391,13 +1683,17 @@ class User_Agent_Info {
 	/**
 	 * Determines whether a desktop platform is Mac OS
 	 *
+	 * @param string|null $user_agent Optional. User agent string to check. If not provided, uses $_SERVER['HTTP_USER_AGENT'].
+	 *
 	 * @return bool
 	 */
-	public static function is_mac_desktop() {
-		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
+	public static function is_mac_desktop( $user_agent = null ) {
+		$user_agent = self::maybe_get_user_agent_from_server( $user_agent );
+		if ( empty( $user_agent ) ) {
 			return false;
 		}
-		if ( ! preg_match( '/macintosh|mac os x/i', wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
+
+		if ( ! preg_match( '/macintosh|mac os x/i', wp_unslash( $user_agent ) ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
 			return false;
 		}
 		return true;
@@ -1406,13 +1702,17 @@ class User_Agent_Info {
 	/**
 	 * Determines whether a desktop platform is Windows OS
 	 *
+	 * @param string|null $user_agent Optional. User agent string to check. If not provided, uses $_SERVER['HTTP_USER_AGENT'].
+	 *
 	 * @return bool
 	 */
-	public static function is_windows_desktop() {
-		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
+	public static function is_windows_desktop( $user_agent = null ) {
+		$user_agent = self::maybe_get_user_agent_from_server( $user_agent );
+		if ( empty( $user_agent ) ) {
 			return false;
 		}
-		if ( ! preg_match( '/windows|win32/i', wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
+
+		if ( ! preg_match( '/windows|win32/i', wp_unslash( $user_agent ) ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
 			return false;
 		}
 		return true;
@@ -1421,13 +1721,17 @@ class User_Agent_Info {
 	/**
 	 * Determines whether a desktop platform is Chrome OS
 	 *
+	 * @param string|null $user_agent Optional. User agent string to check. If not provided, uses $_SERVER['HTTP_USER_AGENT'].
+	 *
 	 * @return bool
 	 */
-	public static function is_chrome_desktop() {
-		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
+	public static function is_chrome_desktop( $user_agent = null ) {
+		$user_agent = self::maybe_get_user_agent_from_server( $user_agent );
+		if ( empty( $user_agent ) ) {
 			return false;
 		}
-		if ( ! preg_match( '/chrome/i', wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
+
+		if ( ! preg_match( '/chrome/i', wp_unslash( $user_agent ) ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
 			return false;
 		}
 		return true;
@@ -1446,20 +1750,22 @@ class User_Agent_Info {
 	 * - blackberry-4.6
 	 * - blackberry-4.5
 	 *
+	 * @param string|null $user_agent Optional. User agent string to check. If not provided, uses $_SERVER['HTTP_USER_AGENT'].
+	 *
 	 * @return string Version of the BB OS.
 	 * If version is not found, get_blackbeberry_OS_version will return boolean false.
 	 */
-	public static function get_blackbeberry_OS_version() {
-
-		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
+	public static function get_blackbeberry_OS_version( $user_agent = null ) {
+		$user_agent = self::maybe_get_user_agent_from_server( $user_agent );
+		if ( empty( $user_agent ) ) {
 			return false;
 		}
 
-		if ( self::is_blackberry_10() ) {
+		if ( self::is_blackberry_10( $user_agent ) ) {
 			return 'blackberry-10';
 		}
 
-		$agent = strtolower( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
+		$agent = strtolower( wp_unslash( $user_agent ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
 
 		$pos_blackberry = stripos( $agent, 'blackberry' );
 		if ( false === $pos_blackberry ) {
@@ -1531,18 +1837,20 @@ class User_Agent_Info {
 	 * - blackberry-4.7
 	 * - blackberry-4.6
 	 *
+	 * @param string|null $user_agent Optional. User agent string to check. If not provided, uses $_SERVER['HTTP_USER_AGENT'].
+	 *
 	 * @return string Type of the BB browser.
 	 * If browser's version is not found, detect_blackbeberry_browser_version will return boolean false.
 	 */
-	public static function detect_blackberry_browser_version() {
-
-		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
+	public static function detect_blackberry_browser_version( $user_agent = null ) {
+		$user_agent = self::maybe_get_user_agent_from_server( $user_agent );
+		if ( empty( $user_agent ) ) {
 			return false;
 		}
 
-		$agent = strtolower( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
+		$agent = strtolower( wp_unslash( $user_agent ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
 
-		if ( self::is_blackberry_10() ) {
+		if ( self::is_blackberry_10( $user_agent ) ) {
 			return 'blackberry-10';
 		}
 
@@ -1586,15 +1894,17 @@ class User_Agent_Info {
 	/**
 	 * Checks if a visitor is coming from one of the WordPress mobile apps.
 	 *
+	 * @param string|null $user_agent Optional. User agent string to check. If not provided, uses $_SERVER['HTTP_USER_AGENT'].
+	 *
 	 * @return bool
 	 */
-	public static function is_mobile_app() {
-
-		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
+	public static function is_mobile_app( $user_agent = null ) {
+		$user_agent = self::maybe_get_user_agent_from_server( $user_agent );
+		if ( empty( $user_agent ) ) {
 			return false;
 		}
 
-		$agent = strtolower( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
+		$agent = strtolower( wp_unslash( $user_agent ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
 
 		if ( isset( $_SERVER['X_USER_AGENT'] ) && preg_match( '|wp-webos|', $_SERVER['X_USER_AGENT'] ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- This is validating.
 			return true; // Wp4webos 1.1 or higher.
@@ -1620,13 +1930,16 @@ class User_Agent_Info {
 	 *
 	 * Example: Mozilla/5.0 (Nintendo 3DS; U; ; en) Version/1.7498.US
 	 * can differ in language, version and region
+	 *
+	 * @param string|null $user_agent Optional. User agent string to check. If not provided, uses $_SERVER['HTTP_USER_AGENT'].
 	 */
-	public static function is_Nintendo_3DS() {
-		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
+	public static function is_Nintendo_3DS( $user_agent = null ) {
+		$user_agent = self::maybe_get_user_agent_from_server( $user_agent );
+		if ( empty( $user_agent ) ) {
 			return false;
 		}
 
-		$ua = strtolower( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
+		$ua = strtolower( wp_unslash( $user_agent ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
 		if ( strpos( $ua, 'nintendo 3ds' ) !== false ) {
 			return true;
 		}
@@ -1636,20 +1949,32 @@ class User_Agent_Info {
 	/**
 	 * Was the current request made by a known bot?
 	 *
+	 * @param string|null $user_agent Optional. User agent string to check. If not provided, uses $_SERVER['HTTP_USER_AGENT'].
+	 *
 	 * @return boolean
 	 */
-	public static function is_bot() {
+	public static function is_bot( $user_agent = null ) {
 		static $is_bot = null;
 
-		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
+		if ( null === $user_agent ) {
+			if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
+				return false;
+			}
+			$user_agent = wp_unslash( $_SERVER['HTTP_USER_AGENT'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
+
+			// Use cached result only when using the default $_SERVER['HTTP_USER_AGENT'].
+			if ( $is_bot === null ) {
+				$is_bot = self::is_bot_user_agent( $user_agent );
+			}
+			return $is_bot;
+		}
+
+		if ( empty( $user_agent ) ) {
 			return false;
 		}
 
-		if ( $is_bot === null ) {
-			$is_bot = self::is_bot_user_agent( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
-		}
-
-		return $is_bot;
+		// Don't use cache when a custom user agent is provided.
+		return self::is_bot_user_agent( $user_agent );
 	}
 
 	/**
@@ -1666,86 +1991,395 @@ class User_Agent_Info {
 			return false;
 		}
 
+		// Some sourced via
+		// https://github.com/ua-parser/uap-core/blob/432e95f6767cc8bab4c20c255784cd6f7e93bc15/regexes.yaml#L151
 		$bot_agents = array(
+			// Microsoft/Bing https://www.bing.com/webmasters/help/which-crawlers-does-bing-use-8c184ec0
+			'bingbot', // Bing/Copilot
+			'adidxbot', // Bing Ads
+			'bingpreview', // Generates page snapshots for Bing
+			'bingvideopreview', // Generates previews of videos for Bing
+			'microsoft',
+
+			// Google https://developers.google.com/search/docs/crawling-indexing/google-common-crawlers
+			'adsbot-google',
+			'appengine-google',
+			'feedfetcher-google',
+			'mediapartners-google',
+			'storebot-google', // https://developers.google.com/search/docs/crawling-indexing/google-common-crawlers#google-storebot
+			'google sketchup',
+			'google-cloudbertexbot', // https://developers.google.com/search/docs/crawling-indexing/google-common-crawlers#google-cloudvertexbot
+			'google-extended', // Gemini https://developers.google.com/search/docs/crawling-indexing/google-common-crawlers#google-extended
+			'google-inspectiontool', // https://developers.google.com/search/docs/crawling-indexing/google-common-crawlers
+			'google-safety;', // https://www.google.com/bot.html
+			'googlebot-mobile',
+			'googlebot', // and googlebot-[image,video,news,] https://developers.google.com/search/docs/crawling-indexing/google-common-crawlers#googlebot
+			'googleother', // and googleother-[video,image] https://developers.google.com/search/docs/crawling-indexing/google-common-crawlers#googleother
+
+			// OpenAI https://platform.openai.com/docs/bots
+			'gptbot', // Crawler
+			'chatgpt-user', // ChatGPT on behalf of user
+			'oai-searchbot', // ChatGPT search features
+
+			// Anthropic
+			'claudebot', // chat citation fetch https://support.anthropic.com/en/articles/8896518
+			'claude-web', // web-focused crawl https://darkvisitors.com/agents/claude-web
+			'anthropic-ai', // bulk model training https://darkvisitors.com/agents/anthropic-ai
+
+			// Perplexity
+			'perplexitybot', // index builder https://docs.perplexity.ai/guides/bots
+			'perplexity-user', // human-triggered visit https://docs.perplexity.ai/guides/bots
+
+			// Meta https://developers.facebook.com/docs/sharing/webmasters/web-crawlers/
+			'facebookbot', // AI data scraper https://darkvisitors.com/agents/facebookbot
+			'facebookexternalhit', // shares https://developers.facebook.com/docs/sharing/webmasters/web-crawlers/#identify
+			'facebookcatalog', // shares https://developers.facebook.com/docs/sharing/webmasters/web-crawlers/#identify
+			'meta-webindexer', // Meta AI search indexer https://developers.facebook.com/docs/sharing/webmasters/web-crawlers/#meta-webindexer
+			'meta-externalads', // web crawler improving ads https://developers.facebook.com/docs/sharing/webmasters/web-crawlers/#meta-externalads
+			'meta-externalagent', // training AI models https://developers.facebook.com/docs/sharing/webmasters/web-crawlers/#identify-2
+			'meta-externalfetcher', // user-initiated fetches, may skip robots.txt https://developers.facebook.com/docs/sharing/webmasters/web-crawlers/#identify-3
+
+			// Semrush https://www.semrush.com/bot/
+			'semrushbot',
+			'siteauditbot',
+
+			// Other bots (alphabetized list)
+			'123metaspider-bot',
+			'1470.net crawler',
+			'50.nu',
+			'8bo crawler bot',
+			'aboundex',
+			'ahrefsbot',
+			'ai2bot', // AI2 crawler for LLMm training https://allenai.org/crawler
 			'alexa',
 			'altavista',
+			'amazonbot', // https://developer.amazon.com/amazonbot
+			'applebot', // https://support.apple.com/en-ca/HT204683
+			'arcgis hub indexer',
+			'archive.org_bot', // http://archive.org/details/archive.org_bot
+			'archiver',
 			'ask jeeves',
 			'attentio',
 			'baiduspider',
-			'bingbot',
+			'blexbot',
+			'blitzbot',
+			'blogbridge',
+			'bloglovin',
+			'bne.es_bot', // https://www.bne.es/es/colecciones/archivo-web-espanola/aviso-webmasters
+			'boardreader blog indexer',
+			'boardreader favicon fetcher',
+			'boitho.com-dc',
+			'botseer',
+			'bubing',
+			'bytespider', // ByteDance (owner of TikTok) to train LLMs for Doubao https://darkvisitors.com/agents/bytespider
+			'catchpoint',
+			'ccbot', // CommonCrawl non-profit https://commoncrawl.org/ccbot
+			'charlotte',
+			'checklinks',
 			'chtml generic',
+			'cityreview robot',
+			'cloudflare-alwaysonline',
+			'clumboot',
+			'coccocbot', // Coc Coc https://darkvisitors.com/agents/coccocbot-web
+			'cohere-ai', // Cohere AI https://darkvisitors.com/agents/cohere-ai
+			'comodo http',
+			'comodo-webinspector-crawler',
+			'converacrawler',
+			'cookieinformationscanner', // Internal ref p1699315886066389-slack-C0438NHCLSY
+			'crawl-e',
+			'crawlconvera',
+			'crawldaddy',
 			'crawler',
+			'crawlfire',
+			'csimplespider',
+			'dataforseobot', // https://www.dataforseo.com/dataforseo-bot
+			'daumoa',
+			'diffbot', // https://docs.diffbot.com/docs/how-to-use-custom-user-agents-with-extract-apis & https://darkvisitors.com/agents/diffbot
+			'domaintunocrawler',
+			'dotbot', // https://darkvisitors.com/agents/dotbot
+			'duckassistbot', // DuckDuckGo AI Assistant https://darkvisitors.com/agents/duckassistbot
+			'elisabot',
+			'ezlynxbot', // https://www.ezoic.com/bot
 			'fastmobilecrawl',
-			'feedfetcher-google',
+			'feed seeker bot',
+			'feedbin',
+			'feedburner',
+			'finderbots',
+			'findlinks',
 			'firefly',
+			'flamingo_searchengine',
+			'followsite bot',
 			'froogle',
+			'furlbot',
+			'genieo',
+			'germcrawler',
 			'gigabot',
-			'googlebot',
-			'googlebot-mobile',
+			'gomezagent',
+			'gonzo1',
+			'grapeshotcrawler',
+			'grokkit-crawler',
+			'grub-client',
+			'gsa-crawler',
 			'heritrix',
+			'hiddenmarket',
+			'holmes',
+			'hoowwwer',
+			'htdig',
 			'httrack',
 			'ia_archiver',
-			'irlbot',
+			'icarus6j',
+			'icc-crawler',
+			'ichiro',
+			'iconsurf',
 			'iescholar',
+			'iltrovatore',
+			'index crawler',
 			'infoseek',
+			'infuzapp',
+			'innovazion crawler',
+			'internetarchive',
+			'irlbot',
+			'jbot',
+			'job roboter',
 			'jumpbot',
+			'kaloogabot',
+			'kiwistatus spider',
+			'kraken',
+			'kurzor',
+			'larbin',
+			'leia',
+			'lesnikbot',
+			'lijit crawler',
+			'linguee bot',
+			'linkaider',
 			'linkcheck',
+			'linkdexbot',
+			'linkedinbot',
+			'linkfluence', // http://linkfluence.com/
+			'linkwalker', // https://www.linkwalker.com/
+			'lite bot',
+			'livelapbot',
+			'llaut',
 			'lycos',
+			'mail.ru_bot',
+			'masidani_bot',
+			'masscan',
 			'mediapartners',
 			'mediobot',
+			'mj12bot',
+			'mogimogi',
+			'mojeekbot', // https://www.mojeek.com/bot.html
 			'motionbot',
-			'msnbot',
+			'mozdex',
 			'mshots',
+			'msnbot',
+			'msrbot',
+			'mtps feed aggregation system',
+			'netresearch',
+			'netvibes',
+			'newsgator',
+			'ning',
+			'nutch',
+			'nymesis',
+			'objectssearch',
+			'ogscrper',
+			'omgili', // Webz.io web crawler for a data seller https://darkvisitors.com/agents/omgili
+			'oozbot',
 			'openbot',
+			'openhosebot',
+			'orbiter',
+			'pagepeeker',
+			'pagesinventory',
+			'paxleframework',
+			'peeplo screenshot bot',
+			'phpcrawl',
+			'pingdom.com_bot',
+			'plantynet_webrobot',
+			'pompos',
 			'pss-webkit-request',
 			'pythumbnail',
+			'queryseekersp ider',
+			'queryseekerspider',
+			'qwantify',
+			'read%20later',
+			'reaper',
+			'redcarpet',
+			'retreiver',
+			'riddler',
+			'rival iq',
+			'scollspider',
 			'scooter',
+			'scrapy',
+			'scrubby',
+			'searchsight',
+			'seekbot',
+			'semanticdiscovery',
+			'seostats',
+			'simplepie',
+			'simplerss',
+			'simpy',
+			'sitecat webbot',
+			'sitecon',
+			'slack-imgproxy',
+			'slackbot-linkexpanding',
 			'slurp',
 			'snapbot',
+			'snapchat', // https://developers.snap.com/robots
+			'snappy',
+			'speedy spider',
 			'spider',
+			'squrl java',
+			'stringer',
 			'taptubot',
 			'technoratisnoop',
 			'teoma',
+			'theusefulbot',
+			'thumbshots.ru',
+			'thumbshotsbot',
+			'timpibot', // LLM trainer https://darkvisitors.com/agents/timpibot
+			'tiny tiny rss',
+			'trendictionbot',  // http://www.trendiction.de/bot;
+			'trends crawler',
+			'tweetmemebot',
 			'twiceler',
+			'twitterbot', // https://developer.x.com/en/docs/x-for-websites/cards/guides/getting-started#crawling
+			'url2png',
+			'usyd-nlp-spider',
+			'vagabondo',
+			'voilabot',
+			'vortex',
+			'votay bot',
+			'voyager',
+			'wasalive.bot',
+			'web-sniffer',
+			'webthumb',
+			'wesee',
+			'whatsapp',
+			'whatweb',
+			'wire',
+			'wordpress',
+			'wotbox',
+			'wp-e2e-tests', // WordPress e2e tests
+			'www.almaden.ibm.com',
+			'xenu',
+			'yacybot', // http://yacy.net/bot.html
+			'yahoo! slurp',
 			'yahooseeker',
 			'yahooysmcm',
 			'yammybot',
-			'ahrefsbot',
-			'pingdom.com_bot',
-			'kraken',
 			'yandexbot',
-			'twitterbot',
-			'tweetmemebot',
-			'openhosebot',
-			'queryseekerspider',
-			'linkdexbot',
-			'grokkit-crawler',
-			'livelapbot',
-			'germcrawler',
-			'domaintunocrawler',
-			'grapeshotcrawler',
-			'cloudflare-alwaysonline',
-			'cookieinformationscanner', // p1699315886066389-slack-C0438NHCLSY
-			'facebookexternalhit', // https://www.facebook.com/externalhit_uatext.php
-			'feedburner',
-			'yacybot', // http://yacy.net/bot.html
-			'trendictionbot',  // http://www.trendiction.de/bot;
-			'elisabot',
-			'linkfluence', // http://linkfluence.com/
-			'semrushbot', // https://www.semrush.com/bot/
-			'archive.org_bot', // http://archive.org/details/archive.org_bot
-			'ezlynxbot', // https://www.ezoic.com/bot
-			'siteauditbot', // https://www.semrush.com/bot/
-			'snapchat', // https://developers.snap.com/robots
-			'applebot', // https://support.apple.com/en-ca/HT204683
-			'bne.es_bot', // https://www.bne.es/es/colecciones/archivo-web-espanola/aviso-webmasters
-			'google-safety;', // https://www.google.com/bot.html
-			'mojeekbot', // https://www.mojeek.com/bot.html
-			'linkwalker', // https://www.linkwalker.com/
+			'yottaamonitor',
+			'youbot', // You.com AI assistant https://darkvisitors.com/agents/youbot
+			'yowedo',
+			'zao-crawler',
+			'zao',
+			'zebot_www.ze.bz',
+			'zoombot', // SEOZOom https://darkvisitors.com/agents/zoombot
+			'zooshot',
+			'zyborg',
 		);
 
 		foreach ( $bot_agents as $bot_agent ) {
 			if ( false !== stripos( $ua, $bot_agent ) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Is the current request from an agent?
+	 *
+	 * Detects bots, crawlers, AI assistants, and programmatic HTTP clients.
+	 * Useful for showing machine-readable hints or alternative content to non-browser clients.
+	 *
+	 * @param string|null $user_agent Optional. User agent string to check. If not provided, uses $_SERVER['HTTP_USER_AGENT'].
+	 *
+	 * @return bool True if the request appears to be from an agent.
+	 */
+	public static function is_agent( $user_agent = null ) {
+		static $cached_ua     = null;
+		static $cached_result = null;
+
+		if ( null === $user_agent ) {
+			if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
+				// Empty User-Agent is likely programmatic - real browsers always send one.
+				return true;
+			}
+			$user_agent = wp_unslash( $_SERVER['HTTP_USER_AGENT'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This is validating.
+
+			// Use cache for default user agent, but invalidate if UA changed.
+			if ( $cached_ua === $user_agent && null !== $cached_result ) {
+				return $cached_result;
+			}
+
+			$cached_ua     = $user_agent;
+			$cached_result = self::is_agent_user_agent( $user_agent );
+
+			/** This filter is documented below. */
+			if ( function_exists( 'apply_filters' ) ) {
+				$cached_result = apply_filters( 'jetpack_is_agent', $cached_result, $user_agent );
+			}
+			return $cached_result;
+		}
+
+		if ( empty( $user_agent ) ) {
+			// Empty User-Agent is likely programmatic.
+			return true;
+		}
+
+		$result = self::is_agent_user_agent( $user_agent );
+
+		/**
+		 * Filter to customize agent detection.
+		 *
+		 * @param bool   $is_agent   Whether the request is from an agent.
+		 * @param string $user_agent The user agent string.
+		 */
+		if ( function_exists( 'apply_filters' ) ) {
+			$result = apply_filters( 'jetpack_is_agent', $result, $user_agent );
+		}
+		return $result;
+	}
+
+	/**
+	 * Is the given user-agent from an agent?
+	 *
+	 * @param string $ua A user-agent string.
+	 *
+	 * @return bool True if the user-agent appears to be from an agent.
+	 */
+	private static function is_agent_user_agent( $ua ) {
+		if ( self::is_bot_user_agent( $ua ) ) {
+			return true;
+		}
+
+		// HTTP libraries and programmatic clients (alphabetized).
+		$http_clients = array(
+			'aiohttp',
+			'axios',
+			'curl/',
+			'go-http-client',
+			'got/',
+			'guzzlehttp',
+			'httpie',
+			'httpx',
+			'insomnia',
+			'java/',
+			'libwww-perl',
+			'node-fetch',
+			'okhttp',
+			'postman',
+			'python-requests',
+			'python-urllib',
+			'ruby',
+			'undici',
+			'wget/',
+		);
+
+		foreach ( $http_clients as $client ) {
+			if ( false !== stripos( $ua, $client ) ) {
 				return true;
 			}
 		}

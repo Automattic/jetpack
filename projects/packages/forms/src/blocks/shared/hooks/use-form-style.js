@@ -1,7 +1,7 @@
 import { store as blockEditorStore } from '@wordpress/block-editor';
 import { useSelect } from '@wordpress/data';
-import { FORM_BLOCK_NAME, FORM_STYLE } from '../util/constants';
-import getBlockStyle from '../util/get-block-style';
+import { FORM_BLOCK_NAME, FORM_STYLE } from '../util/constants.js';
+import getBlockStyle from '../util/get-block-style.js';
 
 const useFormStyle = clientId => {
 	const formBlockAttributes = useSelect( select => {

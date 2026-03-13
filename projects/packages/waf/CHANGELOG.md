@@ -5,6 +5,54 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.28.1] - 2026-02-23
+### Changed
+- Update dependencies. [#39263]
+
+## [0.28.0] - 2026-02-16
+### Added
+- Enable support for ModSecurity's `MATCHED_VAR*` family of targets. [#47012]
+
+## [0.27.11] - 2026-02-10
+### Fixed
+- Fix mishandling of empty Content-Type headers. [#46986]
+
+## [0.27.10] - 2026-02-02
+### Changed
+- Update dependencies. [#39263]
+
+## [0.27.9] - 2025-12-15
+### Changed
+- Internal updates.
+
+## [0.27.8] - 2025-12-08
+### Fixed
+- Ensure proper flags are used with `json_encode()`. [#46092]
+
+## [0.27.7] - 2025-11-17
+### Changed
+- Internal updates.
+
+## [0.27.6] - 2025-11-03
+### Fixed
+- Phan: Address PhanRedundantCondition, PhanRedundantArrayValuesCall, and PhanPluginRedundantAssignment violations. [#45681]
+
+## [0.27.5] - 2025-10-20
+### Changed
+- Internal updates.
+
+## [0.27.4] - 2025-09-15
+### Changed
+- Internal updates.
+
+## [0.27.3] - 2025-09-08
+### Fixed
+- WAF: Prevent PHP warnings when the BFP transient is not set or when the hook data for the WAF update flag is not as expected. [#45088]
+
+## [0.27.2] - 2025-08-11
+### Changed
+- Internal updates.
+
 ## [0.27.1] - 2025-07-21
 ### Changed
 - Internal updates.
@@ -477,6 +525,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Core: do not ship .phpcs.dir.xml in production builds.
 
+[0.28.1]: https://github.com/Automattic/jetpack-waf/compare/v0.28.0...v0.28.1
+[0.28.0]: https://github.com/Automattic/jetpack-waf/compare/v0.27.11...v0.28.0
+[0.27.11]: https://github.com/Automattic/jetpack-waf/compare/v0.27.10...v0.27.11
+[0.27.10]: https://github.com/Automattic/jetpack-waf/compare/v0.27.9...v0.27.10
+[0.27.9]: https://github.com/Automattic/jetpack-waf/compare/v0.27.8...v0.27.9
+[0.27.8]: https://github.com/Automattic/jetpack-waf/compare/v0.27.7...v0.27.8
+[0.27.7]: https://github.com/Automattic/jetpack-waf/compare/v0.27.6...v0.27.7
+[0.27.6]: https://github.com/Automattic/jetpack-waf/compare/v0.27.5...v0.27.6
+[0.27.5]: https://github.com/Automattic/jetpack-waf/compare/v0.27.4...v0.27.5
+[0.27.4]: https://github.com/Automattic/jetpack-waf/compare/v0.27.3...v0.27.4
+[0.27.3]: https://github.com/Automattic/jetpack-waf/compare/v0.27.2...v0.27.3
+[0.27.2]: https://github.com/Automattic/jetpack-waf/compare/v0.27.1...v0.27.2
 [0.27.1]: https://github.com/Automattic/jetpack-waf/compare/v0.27.0...v0.27.1
 [0.27.0]: https://github.com/Automattic/jetpack-waf/compare/v0.26.0...v0.27.0
 [0.26.0]: https://github.com/Automattic/jetpack-waf/compare/v0.25.0...v0.26.0

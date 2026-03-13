@@ -130,14 +130,21 @@ tests_add_filter(
 );
 
 /** Activates this plugin in WordPress so it can be tested. */
-function _manually_load_plugin() {
-	if ( '1' === getenv( 'JETPACK_TEST_WOOCOMMERCE' ) ) {
-		require JETPACK_WOOCOMMERCE_INSTALL_DIR . '/woocommerce.php';
-	}
+if ( ! function_exists( '_manually_load_plugin' ) ) {
+	function _manually_load_plugin() {
+		if ( '1' === getenv( 'JETPACK_TEST_WOOCOMMERCE' ) ) {
+			require JETPACK_WOOCOMMERCE_INSTALL_DIR . '/woocommerce.php';
 
-	require __DIR__ . '/../../jetpack.php';
-	$jetpack = Jetpack::init();
-	$jetpack->configure();
+			// Action Scheduler is needed early on since 10.4.0.
+			$as_file = JETPACK_WOOCOMMERCE_INSTALL_DIR . '/packages/action-scheduler/action-scheduler.php';
+			require_once JETPACK_WOOCOMMERCE_INSTALL_DIR . '/packages/action-scheduler/classes/abstracts/ActionScheduler.php';
+			ActionScheduler::init( $as_file );
+		}
+
+		require __DIR__ . '/../../jetpack.php';
+		$jetpack = Jetpack::init();
+		$jetpack->configure();
+	}
 }
 
 function _manually_install_woocommerce() {
@@ -217,6 +224,20 @@ if ( false !== getenv( 'WP_TESTS_CONFIG_FILE_PATH' ) ) {
 
 // Load trait for WP_UnitTestCase PHPUnit 10 compat.
 require_once __DIR__ . '/WP_UnitTestCase_Fix.php';
+
+// Suppress PHP 8.5 deprecation warnings from WordPress core.
+// See here: https://core.trac.wordpress.org/ticket/63061
+// @todo: Remove this when resolved in WP core.
+if ( PHP_VERSION_ID >= 80500 ) {
+	set_error_handler(
+		function ( $errno, $errstr, $errfile = '' ) {
+			return E_DEPRECATED === $errno
+				&& $errstr === 'Using null as an array offset is deprecated, use an empty string instead'
+				&& str_ends_with( $errfile, 'wp-includes/theme.php' );
+		},
+		E_ALL
+	);
+}
 
 require $test_root . '/includes/bootstrap.php';
 

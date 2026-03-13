@@ -14,6 +14,10 @@
  * @package automattic/jetpack
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Replaces YouTube embeds with YouTube shortcodes.
  *
@@ -106,7 +110,10 @@ function jetpack_youtube_embed_to_short_code( $content ) {
 
 	return $content;
 }
-add_filter( 'pre_kses', 'jetpack_youtube_embed_to_short_code' );
+
+if ( jetpack_shortcodes_should_hook_pre_kses() ) {
+	add_filter( 'pre_kses', 'jetpack_youtube_embed_to_short_code' );
+}
 
 /**
  * Replaces plain-text links to YouTube videos with YouTube embeds.
@@ -151,7 +158,7 @@ if ( ! function_exists( 'jetpack_youtube_sanitize_url' ) ) :
 
 		$url = trim( $url, ' "' );
 		$url = trim( $url );
-		$url = str_replace( array( 'youtu.be/', '/v/', '#!v=', '&amp;', '&#038;', 'playlist' ), array( 'youtu.be/?v=', '/?v=', '?v=', '&', '&', 'videoseries' ), $url );
+		$url = str_replace( array( 'youtu.be/', '/v/', '/shorts/', '#!v=', '&amp;', '&#038;', 'playlist' ), array( 'youtu.be/?v=', '/?v=', '/watch?v=', '?v=', '&', '&', 'videoseries' ), $url );
 
 		// Replace any extra question marks with ampersands - the result of a URL like "https://www.youtube.com/v/dQw4w9WgXcQ?fs=1&hl=en_US" being passed in.
 		$query_string_start = strpos( $url, '?' );
@@ -467,10 +474,10 @@ function jetpack_shortcode_youtube_dimensions( $query_args ) {
 
 	// If we have $content_width, use it.
 	if ( ! empty( $content_width ) ) {
-		$default_width = $content_width;
+		$default_width = (int) $content_width;
 	} else {
 		// Otherwise get default width from the old, now deprecated embed_size_w option.
-		$default_width = get_option( 'embed_size_w' );
+		$default_width = (int) get_option( 'embed_size_w' );
 	}
 
 	// If we don't know those 2 values use a hardcoded width.
@@ -546,10 +553,6 @@ function wpcom_youtube_get_regex() {
  * Add a new handler to automatically transform custom Youtube URLs (like playlists) into embeds.
  */
 function wpcom_youtube_embed_crazy_url_init() {
-	if ( ! defined( 'REST_API_REQUEST' ) ) {
-		return;
-	}
-
 	// Register the custom handler to provide the better support for the private video.
 	wp_embed_register_handler( 'wpcom_youtube_embed_crazy_url', wpcom_youtube_get_regex(), 'wpcom_youtube_embed_crazy_url' );
 }

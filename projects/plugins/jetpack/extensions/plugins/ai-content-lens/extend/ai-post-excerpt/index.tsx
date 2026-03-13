@@ -16,7 +16,7 @@ import {
 	PostTypeSupportCheck,
 	PluginDocumentSettingPanel,
 } from '@wordpress/editor';
-import { useState, useEffect, useCallback } from '@wordpress/element';
+import { useState, useEffect, useCallback, useRef } from '@wordpress/element';
 import { __, sprintf, _n } from '@wordpress/i18n';
 import { count } from '@wordpress/wordcount';
 /**
@@ -46,6 +46,7 @@ type ContentLensMessageContextProps = {
 };
 
 function AiPostExcerpt() {
+	const timelapse = useRef( null );
 	const { excerpt, postId } = useSelect( select => {
 		const { getEditedPostAttribute, getCurrentPostId } = select( editorStore );
 
@@ -72,17 +73,17 @@ function AiPostExcerpt() {
 	const { request, stopSuggestion, suggestion, requestingState, error, reset, model } =
 		useAiSuggestions( {
 			onDone: useCallback(
-				( _content, skipRequestCount, modelUsed ) => {
+				( _content, modelUsed ) => {
 					/*
 					 * Increase the AI Suggestion counter.
 					 * @todo: move this at store level.
 					 */
-					if ( ! skipRequestCount ) {
-						increaseAiAssistantRequestsCount();
-					}
+					increaseAiAssistantRequestsCount();
 					tracks.recordEvent( 'jetpack_ai_assistant_block_generate', {
 						feature: 'jetpack-ai-content-lens',
 						model: modelUsed,
+						generation_time:
+							timelapse.current !== null ? window?.performance?.now?.() - timelapse.current : null,
 					} );
 				},
 				[ increaseAiAssistantRequestsCount, tracks ]
@@ -106,14 +107,9 @@ function AiPostExcerpt() {
 				},
 				[ increaseAiAssistantRequestsCount ]
 			),
-			onAllErrors: useCallback(
-				( _suggestionError, skipRequestCount ) => {
-					if ( ! skipRequestCount ) {
-						increaseAiAssistantRequestsCount();
-					}
-				},
-				[ increaseAiAssistantRequestsCount ]
-			),
+			onAllErrors: useCallback( () => {
+				increaseAiAssistantRequestsCount();
+			}, [ increaseAiAssistantRequestsCount ] ),
 		} );
 
 	// Cancel and reset AI suggestion when the component is unmounted
@@ -143,8 +139,8 @@ function AiPostExcerpt() {
 	const currentExcerpt = suggestion || excerpt;
 	const numberOfWords = count( currentExcerpt, 'words' );
 	const helpNumberOfWords = sprintf(
-		// Translators: %1$s is the number of words in the excerpt.
-		_n( '%1$s word', '%1$s words', numberOfWords, 'jetpack' ),
+		// Translators: %1$d is the number of words in the excerpt.
+		_n( '%1$d word', '%1$d words', numberOfWords, 'jetpack' ),
 		numberOfWords
 	);
 
@@ -171,7 +167,7 @@ function AiPostExcerpt() {
 		const messageContext: ContentLensMessageContextProps = {
 			type: 'ai-content-lens',
 			contentType: 'post-excerpt',
-			postId,
+			postId: Number( postId ),
 			words: excerptWordsNumber,
 			language,
 			tone,
@@ -193,6 +189,12 @@ ${ postContent }
 		 * when performing a new AI suggestion request.
 		 */
 		dequeueAiAssistantFeatureAsyncRequest();
+		tracks.recordEvent( 'jetpack_ai_assistant_block_request', {
+			feature: 'jetpack-ai-content-lens',
+			model: model,
+		} );
+
+		timelapse.current = window?.performance?.now?.() || null;
 		request( prompt, { feature: 'jetpack-ai-content-lens', model } );
 	}
 

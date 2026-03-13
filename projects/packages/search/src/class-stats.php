@@ -10,6 +10,10 @@ namespace Automattic\Jetpack\Search;
 use Automattic\Jetpack\Connection\Client;
 use Jetpack_Options;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Search stats (e.g. post count, post type breakdown)
  */

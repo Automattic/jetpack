@@ -2,6 +2,10 @@
 
 use Automattic\Jetpack\Assets;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Embed recipe 'cards' in post, with basic styling and print functionality
  *
@@ -113,18 +117,18 @@ class Jetpack_Recipes {
 			return;
 		}
 
-		wp_enqueue_script(
-			'jetpack-recipes-printthis',
-			Assets::get_file_url_for_environment( '_inc/build/shortcodes/js/recipes-printthis.min.js', 'modules/shortcodes/js/recipes-printthis.js' ),
+		wp_register_script(
+			'jetpack-shortcode-deps',
+			plugins_url( '_inc/build/shortcodes/js/dependencies.min.js', JETPACK__PLUGIN_FILE ),
 			array( 'jquery' ),
-			'20170202',
-			false
+			'20250905',
+			true
 		);
 
 		wp_enqueue_script(
 			'jetpack-recipes-js',
 			Assets::get_file_url_for_environment( '_inc/build/shortcodes/js/recipes.min.js', 'modules/shortcodes/js/recipes.js' ),
-			array( 'jquery', 'jetpack-recipes-printthis' ),
+			array( 'jquery', 'jetpack-shortcode-deps' ),
 			'20131230',
 			false
 		);

@@ -12,6 +12,10 @@
  * @package automattic/jetpack
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Get ID of requested archive.org embed.
  *
@@ -159,4 +163,6 @@ function jetpack_archiveorg_embed_to_shortcode( $content ) {
 	return $content;
 }
 
-add_filter( 'pre_kses', 'jetpack_archiveorg_embed_to_shortcode' );
+if ( jetpack_shortcodes_should_hook_pre_kses() ) {
+	add_filter( 'pre_kses', 'jetpack_archiveorg_embed_to_shortcode' );
+}

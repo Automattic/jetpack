@@ -1,6 +1,5 @@
 <?php
 /*
-!
  * Jetpack CRM
  * https://jetpackcrm.com
  * V3.0
@@ -221,7 +220,7 @@ if ( ! empty( $orderid ) ) {
 	// wp_send_json($json_params);
 
 	// thorough much? lol.
-	if ( ! empty( $trans ) && $trans !== false && $trans !== -1 ) {
+	if ( ! empty( $trans ) && $trans !== -1 ) {
 
 		// return what was passed...
 		// this is legacy funk.. not ideal at all, should probs reload.

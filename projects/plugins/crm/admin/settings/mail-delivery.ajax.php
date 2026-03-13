@@ -1,6 +1,5 @@
 <?php
 /*
-!
  * Admin Page: Settings: Mail Delivery method wizard AJAX
  */
 
@@ -227,7 +226,7 @@ function zeroBSCRM_AJAX_mailDelivery_validateWPMail() {
 
 	// } Perms?
 	if ( ! zeroBSCRM_permsMailCampaigns() ) {
-		exit( '{permserror:1}' );
+		wp_send_json( array( 'permserror' => 1 ) );
 	}
 
 	// } Retrieve...
@@ -302,7 +301,7 @@ function zeroBSCRM_AJAX_mailDelivery_validateWPMail() {
 					if ( ! isset( $existing_mail_delivery_methods[ $settingsKey ] ) ) {
 						$existing_mail_delivery_methods[ $settingsKey ] = $settingsArr;
 					} else {
-						exit( '{keyerror:1}' );
+						wp_send_json( array( 'keyerror' => 1 ) );
 					}
 
 					// } Update
@@ -318,35 +317,24 @@ function zeroBSCRM_AJAX_mailDelivery_validateWPMail() {
 
 			} else {
 
-					// send error
-				if ( ! isset( $res['errors'] ) || ! is_array( $res['errors'] ) ) {
-					$res['errors'] = array();
-				}
-					$res['errors']['senderror'] = 1;
+				// send error
+				$res['errors'] = array( 'senderror' => 1 );
 
 			}
 		} else {
 
 			// no good email
-			if ( ! isset( $res['errors'] ) || ! is_array( $res['errors'] ) ) {
-				$res['errors'] = array();
-			}
-			$res['errors']['bademail'] = 1;
+			$res['errors'] = array( 'bademail' => 1 );
 
 		}
 	} else {
 
 		// no name?
-		if ( ! isset( $res['errors'] ) || ! is_array( $res['errors'] ) ) {
-			$res['errors'] = array();
-		}
-		$res['errors']['nameempty'] = 1;
+		$res['errors'] = array( 'nameempty' => 1 );
 
 	}
 
-	header( 'Content-Type: application/json' );
-	echo json_encode( $res );
-	exit( 0 );
+	wp_send_json( $res );
 }
 
 // } Attempts to validate mail delivery SMTP settings, send test email, & save's if validated
@@ -443,7 +431,15 @@ function zeroBSCRM_AJAX_mailDelivery_validateSMTP() {
 						if ( ! isset( $existing_mail_delivery_methods[ $settingsKey ] ) ) {
 							$existing_mail_delivery_methods[ $settingsKey ] = $settingsArr;
 						} else {
-							exit( '{errors:[{keyerrors:1}]}' );
+							wp_send_json(
+								array(
+									'errors' => array(
+										array(
+											'keyerrors' => 1,
+										),
+									),
+								)
+							);
 						}
 
 						// } Update
@@ -460,10 +456,7 @@ function zeroBSCRM_AJAX_mailDelivery_validateSMTP() {
 				} else {
 
 						// send seemed to succeed, but func didn't give settings back?!?!
-					if ( ! isset( $res['errors'] ) || ! is_array( $res['errors'] ) ) {
-						$res['errors'] = array();
-					}
-						$res['errors']['settingspasserror'] = 1;
+					$res['errors'] = array( 'settingspasserror' => 1 );
 
 						// add debugs to response (2.94.2 - help debugging)
 					if ( isset( $attemptedSend['debugs'] ) && is_array( $attemptedSend['debugs'] ) ) {
@@ -473,10 +466,7 @@ function zeroBSCRM_AJAX_mailDelivery_validateSMTP() {
 			} else {
 
 					// send error
-				if ( ! isset( $res['errors'] ) || ! is_array( $res['errors'] ) ) {
-					$res['errors'] = array();
-				}
-					$res['errors']['senderror'] = 1;
+				$res['errors'] = array( 'senderror' => 1 );
 
 					// add debugs to response (2.94.2 - help debugging)
 				if ( isset( $attemptedSend['debugs'] ) && is_array( $attemptedSend['debugs'] ) ) {
@@ -486,25 +476,17 @@ function zeroBSCRM_AJAX_mailDelivery_validateSMTP() {
 		} else {
 
 			// no good email
-			if ( ! isset( $res['errors'] ) || ! is_array( $res['errors'] ) ) {
-				$res['errors'] = array();
-			}
-			$res['errors']['bademail'] = 1;
+			$res['errors'] = array( 'bademail' => 1 );
 
 		}
 	} else {
 
 		// no name?
-		if ( ! isset( $res['errors'] ) || ! is_array( $res['errors'] ) ) {
-			$res['errors'] = array();
-		}
-		$res['errors']['nameempty'] = 1;
+		$res['errors'] = array( 'nameempty' => 1 );
 
 	}
 
-	header( 'Content-Type: application/json' );
-	echo wp_json_encode( $res, JSON_UNESCAPED_UNICODE );
-	exit( 0 );
+	wp_send_json( $res, JSON_UNESCAPED_UNICODE );
 }
 
 // } quickly checks if ports are open (pre smtp check)
@@ -572,9 +554,7 @@ function zeroBSCRM_AJAX_mailDelivery_validateSMTPPorts() {
 	}
 
 	$res['open'] = $okay;
-	header( 'Content-Type: application/json' );
-	echo wp_json_encode( $res, JSON_UNESCAPED_UNICODE );
-	exit( 0 );
+	wp_send_json( $res, JSON_UNESCAPED_UNICODE );
 }
 
 /*
@@ -590,7 +570,7 @@ function jpcrm_ajax_mail_delivery_validate_api_oauth() {
 
 	// Permission check
 	if ( ! zeroBSCRM_permsMailCampaigns() ) {
-		exit( '{permserror:1}' );
+		wp_send_json( array( 'permserror' => 1 ) );
 	}
 
 	// return
@@ -726,9 +706,7 @@ function jpcrm_ajax_mail_delivery_validate_api_oauth() {
 	}
 
 	// return
-	header( 'Content-Type: application/json' );
-	echo json_encode( $return );
-	exit( 0 );
+	wp_send_json( $return );
 }
 
 // } Attempts to send a test email from a stored mail delivery method
@@ -758,9 +736,8 @@ function zeroBSCRM_AJAX_mailDelivery_testEmail() {
 
 	// validate the email
 	if ( ! zeroBSCRM_validateEmail( $sendToEmail ) ) {
-		$r['message'] = 'Not a valid email';
-		echo json_encode( $r );
-		die( 0 );
+		$res['message'] = 'Not a valid email';
+		wp_send_json( $res );
 	}
 
 	// } Check id + perms + em
@@ -798,20 +775,13 @@ function zeroBSCRM_AJAX_mailDelivery_testEmail() {
 	// sends to itself to test
 	$sent = zeroBSCRM_mailDelivery_sendMessage( $mailDeliveryIndxKey, $mailArray );
 	if ( is_array( $sent ) && $sent[0] ) {
-
 		// fini
-		zeroBSCRM_sendJSONSuccess( $res );
-
-	} else {
-
-		// error
-		if ( ! isset( $res['errors'] ) || ! is_array( $res['errors'] ) ) {
-			$res['errors'] = array();
-		}
-		$res['errors']['sendfail'] = 1;
-		zeroBSCRM_sendJSONError( $res );
-
+		wp_send_json( $res );
 	}
+
+	// error
+	$res['errors'] = array( 'sendfail' => 1 );
+	wp_send_json_error( $res, 500 );
 }
 
 // } Attempts to remove a delivery route
@@ -888,16 +858,11 @@ function zeroBSCRM_AJAX_mailDelivery_removeMailDelivery() {
 	if ( ! isset( $res['success'] ) ) {
 
 		// error
-		if ( ! isset( $res['errors'] ) || ! is_array( $res['errors'] ) ) {
-			$res['errors'] = array();
-		}
-		$res['errors']['sendfail'] = 1;
+		$res['errors'] = array( 'sendfail' => 1 );
 
 	}
 
-	header( 'Content-Type: application/json' );
-	echo json_encode( $res );
-	exit( 0 );
+	wp_send_json( $res );
 }
 
 // } Attempts to set a delivery route default
@@ -933,7 +898,5 @@ function zeroBSCRM_AJAX_mailDelivery_setMailDeliveryAsDefault() {
 	// fini - lazy nocheck
 	$res['success'] = 1;
 
-	header( 'Content-Type: application/json' );
-	echo json_encode( $res );
-	exit( 0 );
+	echo wp_json_encode( $res );
 }

@@ -3,7 +3,7 @@
  * Plugin Name: WP Super Cache
  * Plugin URI: https://wordpress.org/plugins/wp-super-cache/
  * Description: Very fast caching plugin for WordPress.
- * Version: 3.0.1
+ * Version: 3.0.3
  * Author: Automattic
  * Author URI: https://automattic.com/
  * License: GPL2+
@@ -12,21 +12,20 @@
  */
 
 /*
-    Copyright Automattic and many other contributors.
+Copyright Automattic and many other contributors.
 
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or
-    (at your option) any later version.
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+You should have received a copy of the GNU General Public License
+along with this program; if not, see <https://www.gnu.org/licenses/>.
 */
 
 define( 'WPSC_VERSION_ID', '1.12.1' );
@@ -378,18 +377,18 @@ function wpsc_ajax_activate_boost() {
 	check_ajax_referer( 'activate-boost' );
 
 	if ( ! isset( $_POST['source'] ) ) {
-		wp_send_json_error( 'no source specified' );
+		wp_send_json_error( 'no source specified', null, JSON_UNESCAPED_SLASHES );
 	}
 
 	$source = sanitize_text_field( wp_unslash( $_POST['source'] ) );
 	$result = activate_plugin( 'jetpack-boost/jetpack-boost.php' );
 	if ( is_wp_error( $result ) ) {
-		wp_send_json_error( $result->get_error_message() );
+		wp_send_json_error( $result->get_error_message(), null, JSON_UNESCAPED_SLASHES );
 	}
 
 	wpsc_notify_migration_to_boost( $source );
 
-	wp_send_json_success();
+	wp_send_json_success( null, null, JSON_UNESCAPED_SLASHES );
 }
 add_action( 'wp_ajax_wpsc_activate_boost', 'wpsc_ajax_activate_boost' );
 
@@ -471,10 +470,12 @@ function wp_cache_manager_error_checks() {
 		return false;
 	}
 
+	// phpcs:ignore PHPCompatibility.IniDirectives.RemovedIniDirectives.safe_modeDeprecatedRemoved -- Version is checked before access.
 	if ( PHP_VERSION_ID < 50300 && ( ini_get( 'safe_mode' ) === '1' || strtolower( ini_get( 'safe_mode' ) ) === 'on' ) ) { // @codingStandardsIgnoreLine
 		echo '<div class="notice notice-error"><h4>' . esc_html__( 'Warning! PHP Safe Mode Enabled!', 'wp-super-cache' ) . '</h4>';
 		echo '<p>' . esc_html__( 'You may experience problems running this plugin because SAFE MODE is enabled.', 'wp-super-cache' ) . '<br />';
 
+		// phpcs:ignore PHPCompatibility.IniDirectives.RemovedIniDirectives.safe_mode_gidDeprecatedRemoved -- Version is checked before access.
 		if ( ! ini_get( 'safe_mode_gid' ) ) { // @codingStandardsIgnoreLine
 			esc_html_e( 'Your server is set up to check the owner of PHP scripts before allowing them to read and write files.', 'wp-super-cache' );
 			echo '<br />';
@@ -718,10 +719,9 @@ function wp_cache_manager_error_checks() {
 	} elseif ( !isset( $dismiss_htaccess_warning ) ) {
 		$dismiss_htaccess_warning = 0;
 	}
-	if ( isset( $disable_supercache_htaccess_warning ) == false )
-		$disable_supercache_htaccess_warning = false;
-	if ( ! $is_nginx && $dismiss_htaccess_warning == 0 && $wp_cache_mod_rewrite && $super_cache_enabled && $disable_supercache_htaccess_warning == false && get_option( 'siteurl' ) != get_option( 'home' ) ) {
-		?><div class="notice notice-info"><h4><?php _e( '.htaccess file may need to be moved', 'wp-super-cache' ); ?></h4>
+	if ( ! $is_nginx && $dismiss_htaccess_warning == 0 && $wp_cache_mod_rewrite && $super_cache_enabled && get_option( 'siteurl' ) != get_option( 'home' ) ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual,Universal.Operators.StrictComparisons.LooseNotEqual
+		?>
+		<div class="notice notice-info"><h4><?php esc_html_e( '.htaccess file may need to be moved', 'wp-super-cache' ); ?></h4>
 		<p><?php _e( 'It appears you have WordPress installed in a sub directory as described <a href="https://codex.wordpress.org/Giving_WordPress_Its_Own_Directory">here</a>. Unfortunately, WordPress writes to the .htaccess in the install directory, not where your site is served from.<br />When you update the rewrite rules in this plugin you will have to copy the file to where your site is hosted. This will be fixed in the future.', 'wp-super-cache' ); ?></p>
 		<form action="" method="POST">
 		<input type="hidden" name="action" value="dismiss_htaccess_warning" />
@@ -745,7 +745,7 @@ function wp_cache_manager_updates() {
 		return false;
 
 	if ( false == isset( $cache_page_secret ) ) {
-		$cache_page_secret = md5( date( 'H:i:s' ) . mt_rand() );
+		$cache_page_secret = md5( gmdate( 'H:i:s' ) . wp_rand() );
 		wp_cache_replace_line('^ *\$cache_page_secret', "\$cache_page_secret = '" . $cache_page_secret . "';", $wp_cache_config_file);
 	}
 
@@ -2991,7 +2991,7 @@ add_action( 'admin_notices', 'wp_cache_admin_notice' );
 function wp_cache_check_site() {
 	global $wp_super_cache_front_page_check, $wp_super_cache_front_page_clear, $wp_super_cache_front_page_text, $wp_super_cache_front_page_notification, $wpdb;
 
-	if ( !isset( $wp_super_cache_front_page_check ) || ( isset( $wp_super_cache_front_page_check ) && $wp_super_cache_front_page_check == 0 ) ) {
+	if ( empty( $wp_super_cache_front_page_check ) ) {
 		return false;
 	}
 
@@ -3048,7 +3048,9 @@ function update_cached_mobile_ua_list( $mobile_browsers, $mobile_prefixes = 0, $
 
 function wpsc_update_htaccess() {
 	extract( wpsc_get_htaccess_info() ); // $document_root, $apache_root, $home_path, $home_root, $home_root_lc, $inst_root, $wprules, $scrules, $condition_rules, $rules, $gziprules
+	// @phan-suppress-next-line PhanTypeSuspiciousStringExpression -- $home_path is set via extract()
 	wpsc_remove_marker( $home_path.'.htaccess', 'WordPress' ); // remove original WP rules so SuperCache rules go on top
+	// @phan-suppress-next-line PhanTypeSuspiciousStringExpression -- $home_path is set via extract()
 	if( insert_with_markers( $home_path.'.htaccess', 'WPSuperCache', explode( "\n", $rules ) ) && insert_with_markers( $home_path.'.htaccess', 'WordPress', explode( "\n", $wprules ) ) ) {
 		return true;
 	} else {
@@ -3061,6 +3063,7 @@ function wpsc_update_htaccess_form( $short_form = true ) {
 
 	$admin_url = admin_url( 'options-general.php?page=wpsupercache' );
 	extract( wpsc_get_htaccess_info() ); // $document_root, $apache_root, $home_path, $home_root, $home_root_lc, $inst_root, $wprules, $scrules, $condition_rules, $rules, $gziprules
+	// @phan-suppress-next-line PhanTypeSuspiciousStringExpression -- $home_path is set via extract()
 	if( !is_writeable_ACLSafe( $home_path . ".htaccess" ) ) {
 		echo "<div style='padding:0 8px;color:#9f6000;background-color:#feefb3;border:1px solid #9f6000;'><h5>" . __( 'Cannot update .htaccess', 'wp-super-cache' ) . "</h5><p>" . sprintf( __( 'The file <code>%s.htaccess</code> cannot be modified by the web server. Please correct this using the chmod command or your ftp client.', 'wp-super-cache' ), $home_path ) . "</p><p>" . __( 'Refresh this page when the file permissions have been modified.' ) . "</p><p>" . sprintf( __( 'Alternatively, you can edit your <code>%s.htaccess</code> file manually and add the following code (before any WordPress rules):', 'wp-super-cache' ), $home_path ) . "</p>";
 		echo "<p><pre># BEGIN WPSuperCache\n" . esc_html( $rules ) . "# END WPSuperCache</pre></p></div>";
@@ -3306,7 +3309,7 @@ function clear_post_supercache( $post_id ) {
  */
 function wpsc_ajax_get_preload_status() {
 	$preload_status = wpsc_get_preload_status( true );
-	wp_send_json_success( $preload_status );
+	wp_send_json_success( $preload_status, null, JSON_UNESCAPED_SLASHES );
 }
 add_action( 'wp_ajax_wpsc_get_preload_status', 'wpsc_ajax_get_preload_status' );
 
@@ -3379,7 +3382,7 @@ function wpsc_update_active_preload( $group = null, $progress = null, $url = nul
 
 	$filename = wpsc_get_preload_status_file_path();
 	// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
-	if ( false === file_put_contents( $filename, wp_json_encode( $preload_status ) ) ) {
+	if ( false === file_put_contents( $filename, wp_json_encode( $preload_status, JSON_UNESCAPED_SLASHES ) ) ) {
 		wp_cache_debug( "wpsc_update_active_preload: failed to write to $filename" );
 	}
 }
@@ -3399,7 +3402,7 @@ function wpsc_update_idle_preload( $finish_time = null ) {
 
 	$filename = wpsc_get_preload_status_file_path();
 	// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
-	if ( false === file_put_contents( $filename, wp_json_encode( $preload_status ) ) ) {
+	if ( false === file_put_contents( $filename, wp_json_encode( $preload_status, JSON_UNESCAPED_SLASHES ) ) ) {
 		wp_cache_debug( "wpsc_update_idle_preload: failed to write to $filename" );
 	}
 }
@@ -3795,6 +3798,7 @@ function wp_cache_disable_plugin( $delete_config_file = true ) {
 		}
 	}
 	extract( wpsc_get_htaccess_info() ); // $document_root, $apache_root, $home_path, $home_root, $home_root_lc, $inst_root, $wprules, $scrules, $condition_rules, $rules, $gziprules
+	// @phan-suppress-next-line PhanTypeSuspiciousStringExpression -- $home_path is set via extract()
 	if ( $scrules != '' && insert_with_markers( $home_path.'.htaccess', 'WPSuperCache', array() ) ) {
 		$wp_rewrite->flush_rules();
 	} elseif( $scrules != '' ) {
@@ -4199,7 +4203,7 @@ function update_mod_rewrite_rules( $add_rules = true ) {
 		return false;
 	}
 
-	$backup_filename = $cache_path . 'htaccess.' . mt_rand() . ".php";
+	$backup_filename      = $cache_path . 'htaccess.' . wp_rand() . '.php';
 	$backup_file_contents = file_get_contents( $home_path . '.htaccess' );
 	file_put_contents( $backup_filename, "<" . "?php die(); ?" . ">" . $backup_file_contents );
 	$existing_gzip_rules = implode( "\n", extract_from_markers( $cache_path . '.htaccess', 'supercache' ) );
@@ -4272,8 +4276,8 @@ function wpsc_get_plugin_list() {
 			$list[ $t ][ 'enabled' ] = false;
 		}
 
-		$list[ $t ][ 'desc' ]  = strip_tags( $list[ $t ][ 'desc' ] );
-		$list[ $t ][ 'title' ] = strip_tags( $list[ $t ][ 'title' ] );
+		$list[ $t ]['desc']  = strip_tags( $list[ $t ]['desc'] ?? '' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.strip_tags_strip_tags
+		$list[ $t ]['title'] = strip_tags( $list[ $t ]['title'] ?? '' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.strip_tags_strip_tags
 	}
 	return $list;
 }

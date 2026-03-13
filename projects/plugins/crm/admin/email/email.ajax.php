@@ -20,7 +20,7 @@ function zeroBSCRM_star_email_thread() {
 	check_ajax_referer( 'zbscrmjs-glob-ajax-nonce', 'sec' );
 
 	if ( ! zeroBSCRM_permsSendEmailContacts() ) {
-		exit( '{processed:-1}' );
+		wp_send_json( array( 'processed' => -1 ) );
 	}
 
 	global $wpdb, $ZBSCRM_t; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
@@ -28,8 +28,7 @@ function zeroBSCRM_star_email_thread() {
 	$sql        = $wpdb->prepare( 'UPDATE ' . $ZBSCRM_t['system_mail_hist'] . ' SET zbsmail_starred = 1 WHERE zbsmail_sender_thread = %d', $the_thread ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 	$wpdb->query( $sql );
 	$m = array( 'message' => 'success' );
-	echo wp_json_encode( $m );
-	die( 0 );
+	wp_send_json( $m );
 }
 add_action( 'wp_ajax_zbs_email_star_thread', 'zeroBSCRM_star_email_thread' );
 
@@ -42,7 +41,7 @@ function zeroBSCRM_unstar_email_thread() {
 	check_ajax_referer( 'zbscrmjs-glob-ajax-nonce', 'sec' );
 
 	if ( ! zeroBSCRM_permsSendEmailContacts() ) {
-		exit( '{processed:-1}' );
+		wp_send_json( array( 'processed' => -1 ) );
 	}
 
 	global $wpdb, $ZBSCRM_t; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
@@ -50,8 +49,7 @@ function zeroBSCRM_unstar_email_thread() {
 	$sql        = $wpdb->prepare( 'UPDATE ' . $ZBSCRM_t['system_mail_hist'] . ' SET zbsmail_starred = 0 WHERE zbsmail_sender_thread = %d', $the_thread ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 	$wpdb->query( $sql );
 	$m = array( 'message' => 'success' );
-	echo wp_json_encode( $m );
-	die( 0 );
+	wp_send_json( $m );
 }
 add_action( 'wp_ajax_zbs_email_unstar_thread', 'zeroBSCRM_unstar_email_thread' );
 
@@ -63,7 +61,7 @@ function zeroBSCRM_delete_email_thread() {
 	check_ajax_referer( 'zbscrmjs-glob-ajax-nonce', 'sec' );
 
 	if ( ! zeroBSCRM_permsSendEmailContacts() ) {
-		exit( '{processed:-1}' );
+		wp_send_json( array( 'processed' => -1 ) );
 	}
 
 	global $wpdb, $ZBSCRM_t; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
@@ -71,8 +69,7 @@ function zeroBSCRM_delete_email_thread() {
 	$sql        = $wpdb->prepare( 'DELETE FROM ' . $ZBSCRM_t['system_mail_hist'] . ' WHERE zbsmail_sender_thread = %d', $the_thread ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 	$wpdb->query( $sql );
 	$m = array( 'message' => 'success' );
-	echo wp_json_encode( $m );
-	die( 0 );
+	wp_send_json( $m );
 }
 add_action( 'wp_ajax_zbs_delete_email_thread', 'zeroBSCRM_delete_email_thread' );
 
@@ -86,7 +83,7 @@ function zeroBSCRM_send_email_thread_ajax() {
 
 	// check permissions
 	if ( ! zeroBSCRM_permsSendEmailContacts() ) {
-		exit( '{processed:-1}' );
+		wp_send_json( array( 'processed' => -1 ) );
 	}
 
 	global $wpdb, $ZBSCRM_t; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
@@ -126,7 +123,7 @@ function zeroBSCRM_emails_customer_panel() {
 	check_ajax_referer( 'zbscrmjs-glob-ajax-nonce', 'sec' );
 
 	if ( ! zeroBSCRM_permsSendEmailContacts() ) {
-		exit( '{processed:-1}' );
+		wp_send_json( array( 'processed' => -1 ) );
 	}
 
 	$contact_id = ( empty( $_POST['cid'] ) ? -1 : (int) $_POST['cid'] );
@@ -174,8 +171,7 @@ function zeroBSCRM_emails_customer_panel() {
 
 	$ret['email'] = $email_ret;
 
-	echo wp_json_encode( $ret, true );
-	die( 0 );
+	wp_send_json( $ret, true );
 }
 add_action( 'wp_ajax_zbs_email_customer_panel', 'zeroBSCRM_emails_customer_panel' );
 
@@ -208,7 +204,7 @@ function jpcrm_send_single_email_from_box( $send_to_email = '', $thread_id = -1,
 	// check permissions
 	if ( ! zeroBSCRM_permsSendEmailContacts() ) {
 		if ( $exit_json ) {
-			exit( '{processed:-1}' );
+			wp_send_json( array( 'processed' => -1 ) );
 		} else {
 			exit( 0 );
 		}
@@ -357,13 +353,9 @@ function jpcrm_send_single_email_from_box( $send_to_email = '', $thread_id = -1,
 
 	if ( $exit_json ) {
 
-		echo wp_json_encode( $m );
-		exit( 0 );
-
-	} else {
-
-		return $result;
+		wp_send_json( $m );
 
 	}
+	return $result;
 }
 // phpcs:enable WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.NamingConventions.ValidFunctionName.FunctionNameInvalid

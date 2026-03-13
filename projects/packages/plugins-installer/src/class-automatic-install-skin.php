@@ -11,6 +11,10 @@ use Automatic_Upgrader_Skin;
 use WP_Error;
 use WP_Upgrader;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Include required files from wp-admin.
  */

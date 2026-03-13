@@ -1,6 +1,5 @@
 <?php
 /*
-!
  * Jetpack CRM
  * https://jetpackcrm.com
  * V1.20
@@ -107,7 +106,7 @@ function zeroBSCRM_improvedPostMsgsCompanies( $messages ) {
 		6  => sprintf( __( jpcrm_label_company() . ' added. <a href="%s">Back to ' . jpcrm_label_company( true ) . '</a>', 'zero-bs-crm' ), esc_url( 'edit.php?post_type=zerobs_company&page=manage-companies' ) ), // get_permalink($post_ID) ) ),//esc_url( get_permalink($post_ID) ) ),
 		7  => __( jpcrm_label_company() . ' saved.', 'zero-bs-crm' ),
 		8  => sprintf( __( jpcrm_label_company() . ' submitted. <a target="_blank" href="%s">Back to ' . jpcrm_label_company( true ) . '</a>', 'zero-bs-crm' ), esc_url( 'edit.php?post_type=zerobs_company&page=manage-companies' ) ), // esc_url( add_query_arg( 'preview', 'true', get_permalink($post_ID) ) ) ),
-		9  => '', // sprintf( ), //get_permalink($post_ID) ) ),//esc_url( get_permalink($post_ID) ) ),
+		9  => '',
 		10 => sprintf( __( jpcrm_label_company() . ' draft updated. <a target="_blank" href="%s">Back to ' . jpcrm_label_company( true ) . '</a>', 'zero-bs-crm' ), esc_url( 'edit.php?post_type=zerobs_customer&page=manage-companies' ) ), // get_permalink($post_ID) ) ),//esc_url( add_query_arg( 'preview', 'true', get_permalink($post_ID) ) ) ),
 	);
 
@@ -126,7 +125,7 @@ function zeroBSCRM_improvedPostMsgsInvoices( $messages ) {
 		6  => sprintf( __( 'Invoice added. <a href="%s">Back to Invoices</a>', 'zero-bs-crm' ), esc_url( 'edit.php?post_type=zerobs_invoice&page=manage-invoices' ) ), // get_permalink($post_ID) ) ),//esc_url( get_permalink($post_ID) ) ),
 		7  => __( 'Invoice saved.', 'zero-bs-crm' ),
 		8  => sprintf( __( 'Invoice submitted. <a target="_blank" href="%s">Back to Invoices</a>', 'zero-bs-crm' ), esc_url( 'edit.php?post_type=zerobs_invoice&page=manage-invoices' ) ), // esc_url( add_query_arg( 'preview', 'true', get_permalink($post_ID) ) ) ),
-		9  => '', // sprintf( ), //get_permalink($post_ID) ) ),//esc_url( get_permalink($post_ID) ) ),
+		9  => '',
 		10 => sprintf( __( 'Invoice draft updated. <a target="_blank" href="%s">Back to Invoices</a>', 'zero-bs-crm' ), esc_url( 'edit.php?post_type=zerobs_invoice&page=manage-invoices' ) ), // get_permalink($post_ID) ) ),//esc_url( add_query_arg( 'preview', 'true', get_permalink($post_ID) ) ) ),
 	);
 
@@ -145,7 +144,7 @@ function zeroBSCRM_improvedPostMsgsQuotes( $messages ) {
 		6  => sprintf( __( 'Quote added. <a href="%s">Back to Quotes</a>', 'zero-bs-crm' ), esc_url( 'edit.php?post_type=zerobs_quote&page=manage-quotes' ) ), // get_permalink($post_ID) ) ),//esc_url( get_permalink($post_ID) ) ),
 		7  => __( 'Quote saved.', 'zero-bs-crm' ),
 		8  => sprintf( __( 'Quote submitted. <a target="_blank" href="%s">Back to Quotes</a>', 'zero-bs-crm' ), esc_url( 'edit.php?post_type=zerobs_quote&page=manage-quotes' ) ), // esc_url( add_query_arg( 'preview', 'true', get_permalink($post_ID) ) ) ),
-		9  => '', // sprintf( ), //get_permalink($post_ID) ) ),//esc_url( get_permalink($post_ID) ) ),
+		9  => '',
 		10 => sprintf( __( 'Quote draft updated. <a target="_blank" href="%s">Back to Quotes</a>', 'zero-bs-crm' ), esc_url( 'edit.php?post_type=zerobs_quote&page=manage-quotes' ) ), // get_permalink($post_ID) ) ),//esc_url( add_query_arg( 'preview', 'true', get_permalink($post_ID) ) ) ),
 	);
 
@@ -166,7 +165,7 @@ function zeroBSCRM_improvedPostMsgsTransactions( $messages ) {
 		6  => sprintf( __( 'Transaction added. <a href="%s">Back to Transactions</a>', 'zero-bs-crm' ), esc_url( 'admin.php?&page=' . $zbs->slugs['managetransactions'] ) ), // get_permalink($post_ID) ) ),//esc_url( get_permalink($post_ID) ) ),
 		7  => __( 'Transaction saved.', 'zero-bs-crm' ),
 		8  => sprintf( __( 'Transaction submitted. <a target="_blank" href="%s">Back to Transactions</a>', 'zero-bs-crm' ), esc_url( 'edit.php?post_type=zerobs_transaction' ) ), // esc_url( add_query_arg( 'preview', 'true', get_permalink($post_ID) ) ) ),
-		9  => '', // sprintf( ), //get_permalink($post_ID) ) ),//esc_url( get_permalink($post_ID) ) ),
+		9  => '',
 		10 => sprintf( __( 'Transaction draft updated. <a target="_blank" href="%s">Back to Transactions</a>', 'zero-bs-crm' ), esc_url( 'edit.php?post_type=zerobs_transaction' ) ), // get_permalink($post_ID) ) ),//esc_url( add_query_arg( 'preview', 'true', get_permalink($post_ID) ) ) ),
 	);
 
@@ -261,7 +260,7 @@ function zbs_color_grabber() {
 			background-color: <?php echo esc_html( $zbsadmincolors[1] ); ?> !important;
 		}
 		.zerobs_quote{
-			background-color: <?php echo esc_html( $zbsadmincolors[3] ); ?> !important;
+			background-color: <?php echo esc_html( $zbsadmincolors[3] ?? $zbsadmincolors[2] ); ?> !important;
 		}
 		.graph-box .view-me, .rev{
 			color: <?php echo esc_html( $zbsadmincolors[0] ); ?> !important;
@@ -322,7 +321,7 @@ function zeroBSCRM_catchDashboard() {
 			// $screen = get_current_screen();
 
 			// } Does:
-			global $pagenow,$zbs;
+			global $pagenow, $zbs;
 
 			if ( $pagenow == 'profile.php' || $pagenow == 'index.php' ) {// $screen->base == 'dashboard' ) {
 

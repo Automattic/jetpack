@@ -1,10 +1,10 @@
-import { Page, Locator } from '@playwright/test';
-import { test, expect } from '_jetpack-e2e-commons/fixtures/base-test.ts';
+import { test, expect } from '../fixtures/test';
 import {
 	enableInstantSearch,
 	disableInstantSearch,
 	clearSearchPlanInfo,
-} from '../utils/search-utils.ts';
+} from '../utils/search-utils';
+import type { Page, Locator } from '@playwright/test';
 
 const SEARCH_SETTING_API_PATTERN = /^https?:\/\/.*jetpack\/v4\/search\/settings/;
 
@@ -29,13 +29,13 @@ async function toggle( page: Page, toggleLocator: Locator ): Promise< void > {
 
 test.describe( 'Search Dashboard', () => {
 	test.beforeAll( async ( { testUtils } ) => {
-		clearSearchPlanInfo();
+		await clearSearchPlanInfo();
 		await testUtils.activateModule( 'search' );
-		enableInstantSearch();
+		await enableInstantSearch();
 	} );
 
 	test.afterAll( async () => {
-		disableInstantSearch();
+		await disableInstantSearch();
 	} );
 
 	test( 'Can manage search module and instant search.', async ( { page } ) => {
@@ -60,8 +60,8 @@ test.describe( 'Search Dashboard', () => {
 			await expect( instantSearchToggle, 'Instant search toggle should be visible' ).toBeVisible();
 
 			await expect(
-				page.getByRole( 'img', { name: 'Jetpack Search Logo' } ),
-				'Header logo should be visible'
+				page.getByRole( 'img', { name: 'Jetpack Logo' } ),
+				'Jetpack header logo should be visible'
 			).toBeVisible();
 
 			await expect(

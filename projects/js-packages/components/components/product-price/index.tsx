@@ -29,6 +29,7 @@ const ProductPrice: FC< ProductPriceProps > = ( {
 	isNotConvenientPrice = false,
 	hidePriceFraction = false,
 	children,
+	variant = 'default',
 } ) => {
 	if ( ( price == null && offPrice == null ) || ! currency ) {
 		return null;
@@ -44,6 +45,40 @@ const ProductPrice: FC< ProductPriceProps > = ( {
 	const showDiscountLabel = ! hideDiscountLabel && discount && discount > 0;
 
 	const discountElt = showDiscountLabel ? discount + __( '% off', 'jetpack-components' ) : null;
+
+	if ( variant === 'simple' ) {
+		return (
+			<div className={ styles.simple }>
+				<div className={ styles.currentPrice }>
+					<Price
+						value={ offPrice ?? price }
+						currency={ currency }
+						isOff={ ! isNotConvenientPrice }
+						hidePriceFraction={ hidePriceFraction }
+						inline={ true }
+					/>
+					<div>{ legend }</div>
+				</div>
+
+				{ showNotOffPrice && (
+					<div className={ styles.originalPrice }>
+						<Price
+							value={ price }
+							currency={ currency }
+							isOff={ false }
+							hidePriceFraction={ hidePriceFraction }
+							inline={ true }
+						/>
+						<div>
+							{ discount &&
+								discount > 0 &&
+								discount + __( '% off the first year', 'jetpack-components' ) }
+						</div>
+					</div>
+				) }
+			</div>
+		);
+	}
 
 	return (
 		<>

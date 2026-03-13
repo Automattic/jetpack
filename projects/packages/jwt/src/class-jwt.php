@@ -27,7 +27,7 @@ use UnexpectedValueException;
  */
 class JWT {
 
-	const PACKAGE_VERSION = '0.2.1';
+	const PACKAGE_VERSION = '0.2.2';
 	/**
 	 * When checking nbf, iat or expiration times,
 	 * we want to provide some extra leeway time to
@@ -339,7 +339,7 @@ class JWT {
 	 * @throws DomainException Provided object could not be encoded to valid JSON.
 	 */
 	public static function json_encode( $input ) {
-		$json  = \wp_json_encode( $input );
+		$json  = \wp_json_encode( $input, JSON_UNESCAPED_SLASHES );
 		$errno = json_last_error();
 
 		if ( $errno ) {

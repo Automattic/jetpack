@@ -18,6 +18,10 @@ use Automattic\Jetpack\Status\Request;
 use Jetpack_Gutenberg;
 use Jetpack_Top_Posts_Helper;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 if ( ! class_exists( 'Jetpack_Top_Posts_Helper' ) ) {
 	require_once JETPACK__PLUGIN_DIR . '/_inc/lib/class-jetpack-top-posts-helper.php';
 }

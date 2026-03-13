@@ -1,0 +1,35 @@
+@top blockOrComment { BlockDelimiter | HtmlComment { consumeToEnd } }
+
+BlockDelimiter { BlockCloser | VoidBlock | BlockOpener }
+
+BlockCloser { ClosingBlockStart blockType ws BlockEnd }
+VoidBlock { OpeningBlockStart blockType ws (JsonAttributes ws)? SelfClosingMark }
+BlockOpener[closedBy="BlockCloser"] { OpeningBlockStart blockType ws (JsonAttributes ws)? BlockEnd }
+
+blockType {
+    ( BlockNamespace { blockName ~name } "/" )?
+    BlockName { blockName ~name }
+}
+
+@external tokens ClosingBlockStart from "./block-delimiters-tokens.js" {
+    ClosingBlockStart
+}
+
+@external tokens OpeningBlockStart from "./block-delimiters-tokens.js" {
+    OpeningBlockStart
+}
+
+@external tokens JsonAttributes from "./block-delimiters-tokens.js" {
+    JsonAttributes
+}
+
+@external tokens consumeToEnd from "./block-delimiters-tokens.js" {
+    consumeToEnd
+}
+
+@tokens {
+    SelfClosingMark { "/-->" }
+    BlockEnd { "-->" }
+    blockName { $[a-z] $[a-z0-9_-]* }
+    ws { @whitespace+ }
+}

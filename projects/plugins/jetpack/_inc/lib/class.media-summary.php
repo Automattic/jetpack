@@ -30,17 +30,20 @@ class Jetpack_Media_Summary {
 	 *      Optional. An array of arguments.
 	 *      @type int $max_words Maximum number of words.
 	 *      @type int $max_chars Maximum number of characters.
+	 *      @type bool $include_excerpt Whether to compute the excerpt and return it. Default true.
+	 *      @type bool $include_counts  Whether to compute word/link counts. Default true.
 	 * }
 	 *
 	 * @return array|mixed|void
 	 */
 	public static function get( ?int $post_id, int $blog_id = 0, array $args = array() ) {
 		$post_id = (int) $post_id;
-		$blog_id = (int) $blog_id;
 
 		$defaults = array(
-			'max_words' => 16,
-			'max_chars' => 256,
+			'max_words'       => 16,
+			'max_chars'       => 256,
+			'include_excerpt' => true,
+			'include_counts'  => true,
 		);
 		$args     = wp_parse_args( $args, $defaults );
 
@@ -52,7 +55,8 @@ class Jetpack_Media_Summary {
 			$blog_id = get_current_blog_id();
 		}
 
-		$cache_key = "{$blog_id}_{$post_id}_{$args['max_words']}_{$args['max_chars']}";
+		$cache_key = "{$blog_id}_{$post_id}_{$args['max_words']}_{$args['max_chars']}_"
+			. (int) $args['include_excerpt'] . '_' . (int) $args['include_counts'];
 		if ( isset( self::$cache[ $cache_key ] ) ) {
 			if ( $switched ) {
 				restore_current_blog();
@@ -77,18 +81,26 @@ class Jetpack_Media_Summary {
 				'image' => '',
 			),
 			'count'      => array(
-				'image' => 0,
-				'video' => 0,
-				'word'  => 0,
-				'link'  => 0,
+				'image'          => 0,
+				'video'          => 0,
+				'word'           => 0,
+				'word_remaining' => 0,
+				'link'           => 0,
 			),
 		);
 
 		if ( $post instanceof WP_Post && empty( $post->post_password ) ) {
-			$return['excerpt']                 = self::get_excerpt( $post->post_content, $post->post_excerpt, $args['max_words'], $args['max_chars'], $post );
-			$return['count']['word']           = self::get_word_count( $post->post_content );
-			$return['count']['word_remaining'] = self::get_word_remaining_count( $post->post_content, $return['excerpt'] );
-			$return['count']['link']           = self::get_link_count( $post->post_content );
+			if ( $args['include_excerpt'] ) {
+				$return['excerpt'] = self::get_excerpt( $post->post_content, $post->post_excerpt, $args['max_words'], $args['max_chars'], $post );
+			}
+			if ( $args['include_counts'] ) {
+				$return['count']['word'] = self::get_word_count( $post->post_content );
+				$return['count']['link'] = self::get_link_count( $post->post_content );
+				// Only compute word_remaining if we have an excerpt. If not, leave the default of 0.
+				if ( $args['include_excerpt'] && '' !== $return['excerpt'] ) {
+					$return['count']['word_remaining'] = self::get_word_remaining_count( $post->post_content, $return['excerpt'] );
+				}
+			}
 		}
 
 		$extract = Jetpack_Media_Meta_Extractor::extract( $blog_id, $post_id, Jetpack_Media_Meta_Extractor::ALL );
@@ -265,13 +277,14 @@ class Jetpack_Media_Summary {
 					++$number_of_paragraphs;
 				}
 
-				if ( isset( $extract['image'][0]['url'] ) ) {
+				// @phan-suppress-next-line PhanTypeMismatchDimFetch -- Phan is understandably confused, as $extract has many forms, including this one.
+				if ( ! empty( $extract['image'][0]['url'] ) ) {
 					$return['image']           = $extract['image'][0]['url'];
 					$return['secure']['image'] = self::ssl_img( $return['image'] );
 					++$return['count']['image'];
 				}
 
-				if ( $number_of_paragraphs <= 2 && is_countable( $extract['image'] ) && 1 === count( $extract['image'] ) ) {  // @phan-suppress-current-line PhanTypePossiblyInvalidDimOffset -- We established the image offset exists with '! empty( $extract['has']['image']' earlier.
+				if ( $number_of_paragraphs <= 2 && is_countable( $extract['image'] ) && 1 === count( $extract['image'] ) ) {
 					// If we have lots of text or images, let's not treat it as an image post, but return its first image.
 					$return['type'] = 'image';
 				}
@@ -437,7 +450,7 @@ class Jetpack_Media_Summary {
 	 * @return int Word count.
 	 */
 	public static function get_word_count( $post_content ) {
-		return (int) count( self::split_content_in_words( self::clean_text( $post_content ) ) );
+		return count( self::split_content_in_words( self::clean_text( $post_content ) ) );
 	}
 
 	/**
@@ -452,7 +465,7 @@ class Jetpack_Media_Summary {
 		$content_word_count = count( self::split_content_in_words( self::clean_text( $post_content ) ) );
 		$excerpt_word_count = count( self::split_content_in_words( self::clean_text( $excerpt_content ) ) );
 
-		return (int) $content_word_count - $excerpt_word_count;
+		return $content_word_count - $excerpt_word_count;
 	}
 
 	/**

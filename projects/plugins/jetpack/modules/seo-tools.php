@@ -15,6 +15,10 @@
  * @package automattic/jetpack
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 // Suppress SEO Tools output if any of the following plugins is active.
 $jetpack_seo_conflicting_plugins = array(
 	'wordpress-seo/wp-seo.php',

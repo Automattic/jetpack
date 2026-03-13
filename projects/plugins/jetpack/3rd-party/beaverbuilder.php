@@ -9,6 +9,10 @@ namespace Automattic\Jetpack\Third_Party;
 
 use Automattic\Jetpack\Status\Host;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 add_action( 'init', __NAMESPACE__ . '\beaverbuilder_refresh' );
 
 /**

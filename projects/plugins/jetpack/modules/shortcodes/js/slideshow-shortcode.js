@@ -85,10 +85,11 @@ JetpackSlideshow.prototype.makeZeroWidthSpan = function () {
 
 JetpackSlideshow.prototype.finishInit_ = function () {
 	this.showLoadingImage( false );
-	this.renderControls_();
 
 	var self = this;
 	if ( this.images.length > 1 ) {
+		this.renderControls_();
+
 		// Initialize Cycle instance.
 		jQuery( this.element ).cycle( {
 			fx: this.transition,
@@ -126,9 +127,9 @@ JetpackSlideshow.prototype.finishInit_ = function () {
 				}
 			}
 		} );
-	} else {
-		this.element.children( ':first' ).show();
-		this.element.css( 'position', 'relative' );
+	} else if ( this.element.children.length ) {
+		this.element.children[ 0 ].style.display = 'block';
+		this.element.style.position = 'relative';
 	}
 	this.initialized_ = true;
 };

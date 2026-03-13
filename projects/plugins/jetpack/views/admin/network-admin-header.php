@@ -6,5 +6,9 @@
  * @package automattic/jetpack
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 Jetpack::init()->load_view( 'admin/network-activated-notice.php' );
 do_action( 'jetpack_notices' );

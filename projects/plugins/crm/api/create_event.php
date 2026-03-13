@@ -1,6 +1,5 @@
 <?php
 /*
-!
  * Jetpack CRM
  * https://jetpackcrm.com
  * V3.0
@@ -94,7 +93,7 @@ $task_result = zeroBS_integrations_addOrUpdateTask( $task_id, $task_fields, $tas
 // ^^ this'll be either: ID if added, no of rows if updated, or FALSE if failed to insert/update
 
 // thorough much? lol.
-if ( ! empty( $task_result ) && $task_result !== false && $task_result !== -1 ) {
+if ( ! empty( $task_result ) && $task_result !== -1 ) {
 
 	// return what was passed...
 	// this is legacy funk.. not ideal at all, should probs reload.

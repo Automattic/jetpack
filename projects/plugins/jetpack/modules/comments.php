@@ -15,6 +15,10 @@
 
 use Automattic\Jetpack\Assets;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 Assets::add_resource_hint(
 	array(
 		'//jetpack.wordpress.com',

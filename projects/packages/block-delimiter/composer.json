@@ -7,14 +7,23 @@
 		"php": ">=7.2"
 	},
 	"require-dev": {
-		"yoast/phpunit-polyfills": "^4.0.0",
+		"automattic/jetpack-test-environment": "@dev",
 		"automattic/jetpack-changelogger": "@dev",
-		"automattic/phpunit-select-config": "@dev"
+		"automattic/phpunit-select-config": "@dev",
+		"yoast/phpunit-polyfills": "^4.0.0"
 	},
 	"autoload": {
 		"classmap": [
 			"src/"
 		]
+	},
+	"autoload-dev": {
+		"classmap": [
+			"tests/php/lib/"
+		],
+		"psr-4": {
+			"Automattic\\Block_Delimiter\\Tests\\": "tests/php/"
+		}
 	},
 	"scripts": {
 		"phpunit": [

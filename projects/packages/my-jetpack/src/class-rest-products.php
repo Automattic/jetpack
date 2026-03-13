@@ -8,6 +8,9 @@
 namespace Automattic\Jetpack\My_Jetpack;
 
 use WP_Error;
+use WP_REST_Request;
+use WP_REST_Response;
+use WP_REST_Server;
 
 /**
  * Registers the REST routes for Products.
@@ -29,7 +32,7 @@ class REST_Products {
 					'permission_callback' => __CLASS__ . '::view_products_permissions_callback',
 					'args'                => array(
 						'products' => array(
-							'description'       => __( 'Comma seperated list of product slugs that should be retrieved.', 'jetpack-my-jetpack' ),
+							'description'       => __( 'Comma-separated list of product slugs that should be retrieved.', 'jetpack-my-jetpack' ),
 							'type'              => 'string',
 							'required'          => false,
 							'validate_callback' => __CLASS__ . '::check_products_string',
@@ -83,6 +86,39 @@ class REST_Products {
 
 		register_rest_route(
 			'my-jetpack/v1',
+			'site/products/interstitials',
+			array(
+				array(
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => array( self::class, 'get_interstitials_state' ),
+					'permission_callback' => array( self::class, 'edit_permissions_callback' ),
+				),
+				array(
+					'methods'             => WP_REST_Server::EDITABLE,
+					'callback'            => array( self::class, 'update_interstitials_state' ),
+					'permission_callback' => array( self::class, 'edit_permissions_callback' ),
+					'args'                => array(
+						'products' => array(
+							'description'          => __( 'Key-value pairs of product slugs and their interstitial states.', 'jetpack-my-jetpack' ),
+							'type'                 => 'object',
+							'required'             => true,
+							'properties'           => array_fill_keys(
+								Products::get_products_slugs(),
+								array(
+									'type' => 'boolean',
+								)
+							),
+							'additionalProperties' => false,
+							'minProperties'        => 1,
+						),
+					),
+				),
+				'schema' => array( self::class, 'get_interstitials_schema' ),
+			)
+		);
+
+		register_rest_route(
+			'my-jetpack/v1',
 			'site/products/deactivate',
 			array(
 				array(
@@ -124,6 +160,32 @@ class REST_Products {
 	}
 
 	/**
+	 * Get the schema for the interstitials endpoint
+	 *
+	 * @return array
+	 */
+	public static function get_interstitials_schema() {
+		return array(
+			'$schema'    => 'http://json-schema.org/draft-04/schema#',
+			'title'      => 'Products interstitials',
+			'type'       => 'object',
+			'properties' => array(
+				'products' => array(
+					'type'        => 'object',
+					'description' => __( 'Key-value pairs of product slugs and their interstitial states.', 'jetpack-my-jetpack' ),
+					'properties'  => array_fill_keys(
+						Products::get_products_slugs(),
+						array(
+							'description' => __( 'Interstitial state for the product. True means that the user has seen the interstitial for the product.', 'jetpack-my-jetpack' ),
+							'type'        => 'boolean',
+						)
+					),
+				),
+			),
+		);
+	}
+
+	/**
 	 * Check user capability to access the endpoint.
 	 *
 	 * @access public
@@ -145,7 +207,7 @@ class REST_Products {
 	}
 
 	/**
-	 * Check Products string (comma separated string).
+	 * Check Products string (comma-separated string).
 	 *
 	 * @access public
 	 * @static
@@ -360,5 +422,44 @@ class REST_Products {
 		}
 
 		return rest_ensure_response( Products::get_products( $products_array ) );
+	}
+
+	/**
+	 * Get interstitials state for the products
+	 *
+	 * @return WP_REST_Response
+	 */
+	public static function get_interstitials_state() {
+
+		return rest_ensure_response(
+			array(
+				'products' => Products::get_interstitials_state(),
+			)
+		);
+	}
+
+	/**
+	 * Update interstitials state for the products
+	 *
+	 * @param WP_REST_Request $request The request object.
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public static function update_interstitials_state( WP_REST_Request $request ) {
+
+		$success = Products::update_interstitials_state( $request->get_param( 'products' ) );
+
+		if ( ! $success ) {
+			return new WP_Error(
+				'my_jetpack_interstitials_update_error',
+				__( 'Failed to update interstitials state.', 'jetpack-my-jetpack' ),
+				array( 'status' => 500 )
+			);
+		}
+
+		return rest_ensure_response(
+			array(
+				'products' => Products::get_interstitials_state(),
+			)
+		);
 	}
 }

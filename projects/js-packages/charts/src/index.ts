@@ -1,35 +1,47 @@
 // Charts
-export { BarChart } from './components/bar-chart';
-export { LineChart } from './components/line-chart';
-export { PieChart } from './components/pie-chart';
-export { PieSemiCircleChart } from './components/pie-semi-circle-chart';
-export { BarListChart } from './components/bar-list-chart';
-export { LeaderboardChart } from './components/leaderboard-chart';
+export { BarChart, BarChartUnresponsive } from './charts/bar-chart';
+export { BarListChart, BarListChartUnresponsive } from './charts/bar-list-chart';
+export { ConversionFunnelChart } from './charts/conversion-funnel-chart';
+export { GeoChart, GeoChartUnresponsive } from './charts/geo-chart';
+export { LeaderboardChart, LeaderboardChartUnresponsive } from './charts/leaderboard-chart';
+export { LineChart, LineChartUnresponsive } from './charts/line-chart';
+export { PieChart, PieChartUnresponsive } from './charts/pie-chart';
+export { PieSemiCircleChart, PieSemiCircleChartUnresponsive } from './charts/pie-semi-circle-chart';
+export { Sparkline, SparklineUnresponsive } from './charts/sparkline';
 
-// Chart components
+// Components
 export { BaseTooltip } from './components/tooltip';
-export { Legend, BaseLegend, useChartLegendData } from './components/legend';
+export { Legend, useChartLegendItems } from './components/legend';
+export { TrendIndicator } from './components/trend-indicator';
 
-// Visx components
-export { Text, getStringWidth, useText } from './visx/text';
-export { Group } from './visx/group';
-export { LineShape, CircleShape, RectShape } from './visx/legend';
+// Compositions
 
 // Themes
-export { ThemeProvider } from './providers/theme';
-export { defaultTheme, jetpackTheme, wooTheme } from './providers/theme/themes';
+export { GlobalChartsProvider as ThemeProvider } from './providers';
 
-// Hooks
-export { default as useChartMouseHandler } from './hooks/use-chart-mouse-handler';
-
-// LeaderboardChart utilities
-export { formatMetricValue } from './components/leaderboard-chart';
+// Global context
+export {
+	GlobalChartsProvider,
+	useGlobalChartsContext,
+	useGlobalChartsTheme,
+	GlobalChartsContext,
+	defaultTheme,
+} from './providers';
 
 // Types
 export type * from './types';
 export type * from './visx/types';
-
+export type { PieChartProps, PieChartRenderTooltipParams } from './charts/pie-chart';
+export type {
+	PieSemiCircleChartProps,
+	PieSemiCircleChartRenderTooltipParams,
+} from './charts/pie-semi-circle-chart';
+export type { GeoChartProps, GeoRegion, GeoResolution } from './charts/geo-chart';
+export type { LegendValueDisplay, BaseLegendItem } from './components/legend';
+export type { TrendIndicatorProps, TrendDirection } from './components/trend-indicator';
 export type { LineStyles, GridStyles, EventHandlerParams } from '@visx/xychart';
-
-export type { RenderLineStartGlyphProps } from './components/line-chart/line-chart';
-export type { LegendProps, BaseLegendProps, ChartLegendOptions } from './components/legend';
+export type {
+	GoogleDataTableColumn,
+	GoogleDataTableRow,
+	GoogleDataTableColumnRoleType,
+} from 'react-google-charts';

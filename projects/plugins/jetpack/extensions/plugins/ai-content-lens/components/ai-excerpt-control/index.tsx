@@ -125,6 +125,7 @@ export function AiExcerptControl( {
 				showTooltip={ false }
 				disabled={ disabled }
 				__next40pxDefaultSize
+				__nextHasNoMarginBottom={ true }
 			/>
 		</div>
 	);

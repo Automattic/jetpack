@@ -9,6 +9,10 @@
 
 use Automattic\Jetpack\Image_CDN\Image_CDN;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 // Priority 11 needed to ensure sharing_display is loaded.
 add_action( 'init', 'jetpack_bbpress_compat', 11 );
 

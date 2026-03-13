@@ -66,8 +66,8 @@ function jpcrm_woosync_bind_add_connection() {
 					// hide all notices each try
 					jQuery( '.jpcrm-woosync-add-connection-errors > div' ).addClass( 'hidden' );
 
-					// disallow empty string
-					if ( site_url === '' ) {
+					// disallow empty string or emptyish URL
+					if ( site_url === '' || site_url === 'https:' ) {
 						// error, show notice
 						jQuery( '#jpcrm-woosync-connect-to-store-invalid-url-empty' ).removeClass( 'hidden' );
 						reject();

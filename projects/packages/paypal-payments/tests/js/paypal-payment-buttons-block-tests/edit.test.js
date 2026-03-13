@@ -230,7 +230,7 @@ describe( 'Edit', () => {
 		fireEvent.change( inputs[ 1 ], {
 			target: {
 				value:
-					'paypal.HostedButtons({ hostedButtonId: "ABC123DEF", }).render("#paypal-container-ABC123DEF")',
+					'(window.paypal_payment_buttons || window.paypal).HostedButtons({ hostedButtonId: "ABC123DEF", }).render("#paypal-container-ABC123DEF")',
 			},
 		} );
 
@@ -263,6 +263,419 @@ describe( 'Edit', () => {
 		expect( setAttributes ).toHaveBeenCalledWith( {
 			hostedButtonId: '9J2U2LUWM4SUY',
 			buttonText: 'Pay Now',
+		} );
+	} );
+
+	describe( 'PayPal Code Snippet Parsing', () => {
+		it( 'parses original PayPal single button snippet correctly', () => {
+			const setAttributes = jest.fn();
+			render(
+				<Edit
+					attributes={ { ...defaultProps.attributes, buttonType: 'single' } }
+					setAttributes={ setAttributes }
+					isSelected={ true }
+				/>
+			);
+
+			const originalSnippet = `<style>.pp-HLDQA6NDL5TLG{text-align:center;border:none;border-radius:0.25rem;min-width:11.625rem;padding:0 2rem;height:2.625rem;font-weight:bold;background-color:#FFD140;color:#000000;font-family:"Helvetica Neue",Arial,sans-serif;font-size:1rem;line-height:1.25rem;cursor:pointer;}</style> <form action="https://www.paypal.com/ncp/payment/HLDQA6NDL5TLG" method="post" target="_blank" style="display:inline-grid;justify-items:center;align-content:start;gap:0.5rem;">   <input class="pp-HLDQA6NDL5TLG" type="submit" value="Buy Now" />   <img src=https://www.paypalobjects.com/images/Debit_Credit_APM.svg alt="cards" />   <section style="font-size: 0.75rem;"> Powered by <img src="https://www.paypalobjects.com/paypal-ui/logos/svg/paypal-wordmark-color.svg" alt="paypal" style="height:0.875rem;vertical-align:middle;"/></section> </form>`;
+
+			const inputs = screen.getAllByTestId( 'plain-text' );
+			// eslint-disable-next-line testing-library/prefer-user-event
+			fireEvent.change( inputs[ 0 ], {
+				target: { value: originalSnippet },
+			} );
+
+			expect( setAttributes ).toHaveBeenCalledWith( {
+				hostedButtonId: 'HLDQA6NDL5TLG',
+				buttonText: 'Buy Now',
+			} );
+		} );
+
+		it( 'parses PayPal snippet with query parameters and div wrapper', () => {
+			const setAttributes = jest.fn();
+			render(
+				<Edit
+					attributes={ { ...defaultProps.attributes, buttonType: 'single' } }
+					setAttributes={ setAttributes }
+					isSelected={ true }
+				/>
+			);
+
+			const snippetWithQueryParams = `<div><style>.pp-HLDQA6NDL5TLG{text-align:center;border:none;border-radius:0.25rem;min-width:11.625rem;padding:0 2rem;height:2.625rem;font-weight:bold;background-color:#FFD140;color:#000000;font-family:"Helvetica Neue",Arial,sans-serif;font-size:1rem;line-height:1.25rem;cursor:pointer;}</style><form action="https://www.paypal.com/ncp/payment/HLDQA6NDL5TLG?at_code=WooNCPS_Ecom_Wordpress" method="post" target="_blank" style="display:inline-grid;justify-items:center;align-content:start;gap:0.5rem;">
+  <input class="pp-HLDQA6NDL5TLG" type="submit" value="Buy Now">
+  <img src="https://www.paypalobjects.com/images/Debit_Credit_APM.svg" alt="cards">
+  <section style="font-size: 0.75rem;"> Powered by <img src="https://www.paypalobjects.com/paypal-ui/logos/svg/paypal-wordmark-color.svg" alt="paypal" style="height:0.875rem;vertical-align:middle;"></section>
+</form></div>`;
+
+			const inputs = screen.getAllByTestId( 'plain-text' );
+			// eslint-disable-next-line testing-library/prefer-user-event
+			fireEvent.change( inputs[ 0 ], {
+				target: { value: snippetWithQueryParams },
+			} );
+
+			expect( setAttributes ).toHaveBeenCalledWith( {
+				hostedButtonId: 'HLDQA6NDL5TLG',
+				buttonText: 'Buy Now',
+			} );
+		} );
+
+		it( 'parses non-self-terminating input tags correctly', () => {
+			const setAttributes = jest.fn();
+			render(
+				<Edit
+					attributes={ { ...defaultProps.attributes, buttonType: 'single' } }
+					setAttributes={ setAttributes }
+					isSelected={ true }
+				/>
+			);
+
+			const snippetNonSelfTerminating = `<form action="https://www.paypal.com/ncp/payment/ABC123DEF" method="post">
+				<input class="pp-ABC123DEF" type="submit" value="Purchase Item">
+			</form>`;
+
+			const inputs = screen.getAllByTestId( 'plain-text' );
+			// eslint-disable-next-line testing-library/prefer-user-event
+			fireEvent.change( inputs[ 0 ], {
+				target: { value: snippetNonSelfTerminating },
+			} );
+
+			expect( setAttributes ).toHaveBeenCalledWith( {
+				hostedButtonId: 'ABC123DEF',
+				buttonText: 'Purchase Item',
+			} );
+		} );
+
+		it( 'handles URL with multiple query parameters', () => {
+			const setAttributes = jest.fn();
+			render(
+				<Edit
+					attributes={ { ...defaultProps.attributes, buttonType: 'single' } }
+					setAttributes={ setAttributes }
+					isSelected={ true }
+				/>
+			);
+
+			const snippetMultipleParams = `<form action="https://www.paypal.com/ncp/payment/XYZ789GHI?at_code=WooNCPS_Ecom_Wordpress&utm_source=wordpress&campaign=test" method="post">
+				<input type="submit" value="Subscribe" />
+			</form>`;
+
+			const inputs = screen.getAllByTestId( 'plain-text' );
+			// eslint-disable-next-line testing-library/prefer-user-event
+			fireEvent.change( inputs[ 0 ], {
+				target: { value: snippetMultipleParams },
+			} );
+
+			expect( setAttributes ).toHaveBeenCalledWith( {
+				hostedButtonId: 'XYZ789GHI',
+				buttonText: 'Subscribe',
+			} );
+		} );
+
+		it( 'handles multi-line input with various formatting', () => {
+			const setAttributes = jest.fn();
+			render(
+				<Edit
+					attributes={ { ...defaultProps.attributes, buttonType: 'single' } }
+					setAttributes={ setAttributes }
+					isSelected={ true }
+				/>
+			);
+
+			const multiLineSnippet = `<style>
+				.pp-MULTILINE123 {
+					text-align: center;
+				}
+			</style>
+			<form
+				action="https://www.paypal.com/ncp/payment/MULTILINE123"
+				method="post"
+				target="_blank">
+				<input
+					class="pp-MULTILINE123"
+					type="submit"
+					value="Multi Line Button" />
+			</form>`;
+
+			const inputs = screen.getAllByTestId( 'plain-text' );
+			// eslint-disable-next-line testing-library/prefer-user-event
+			fireEvent.change( inputs[ 0 ], {
+				target: { value: multiLineSnippet },
+			} );
+
+			expect( setAttributes ).toHaveBeenCalledWith( {
+				hostedButtonId: 'MULTILINE123',
+				buttonText: 'Multi Line Button',
+			} );
+		} );
+	} );
+
+	describe( 'Edge Cases Handling', () => {
+		it( 'handles lowercase button IDs', () => {
+			const setAttributes = jest.fn();
+			render(
+				<Edit
+					attributes={ { ...defaultProps.attributes, buttonType: 'single' } }
+					setAttributes={ setAttributes }
+					isSelected={ true }
+				/>
+			);
+
+			const snippet = `<form action="https://www.paypal.com/ncp/payment/abc123def" method="post">
+				<input type="submit" value="Buy" />
+			</form>`;
+
+			const inputs = screen.getAllByTestId( 'plain-text' );
+			// eslint-disable-next-line testing-library/prefer-user-event
+			fireEvent.change( inputs[ 0 ], {
+				target: { value: snippet },
+			} );
+
+			expect( setAttributes ).toHaveBeenCalledWith( {
+				hostedButtonId: 'abc123def',
+				buttonText: 'Buy',
+			} );
+		} );
+
+		it( 'handles button IDs with hyphens and underscores', () => {
+			const setAttributes = jest.fn();
+			render(
+				<Edit
+					attributes={ { ...defaultProps.attributes, buttonType: 'single' } }
+					setAttributes={ setAttributes }
+					isSelected={ true }
+				/>
+			);
+
+			const snippet = `<style>.pp-ABC-123_DEF{}</style>
+				<form action="https://www.paypal.com/ncp/payment/ABC-123_DEF" method="post">
+					<input class="pp-ABC-123_DEF" type="submit" value="Purchase" />
+				</form>`;
+
+			const inputs = screen.getAllByTestId( 'plain-text' );
+			// eslint-disable-next-line testing-library/prefer-user-event
+			fireEvent.change( inputs[ 0 ], {
+				target: { value: snippet },
+			} );
+
+			expect( setAttributes ).toHaveBeenCalledWith( {
+				hostedButtonId: 'ABC-123_DEF',
+				buttonText: 'Purchase',
+			} );
+		} );
+
+		it( 'handles international PayPal domains', () => {
+			const setAttributes = jest.fn();
+			render(
+				<Edit
+					attributes={ { ...defaultProps.attributes, buttonType: 'single' } }
+					setAttributes={ setAttributes }
+					isSelected={ true }
+				/>
+			);
+
+			const snippetUK = `<form action="https://www.paypal.co.uk/ncp/payment/UK123ABC" method="post">
+				<input type="submit" value="Buy from UK" />
+			</form>`;
+
+			const inputs = screen.getAllByTestId( 'plain-text' );
+			// eslint-disable-next-line testing-library/prefer-user-event
+			fireEvent.change( inputs[ 0 ], {
+				target: { value: snippetUK },
+			} );
+
+			expect( setAttributes ).toHaveBeenCalledWith( {
+				hostedButtonId: 'UK123ABC',
+				buttonText: 'Buy from UK',
+			} );
+		} );
+
+		it( 'handles German PayPal domain', () => {
+			const setAttributes = jest.fn();
+			render(
+				<Edit
+					attributes={ { ...defaultProps.attributes, buttonType: 'single' } }
+					setAttributes={ setAttributes }
+					isSelected={ true }
+				/>
+			);
+
+			const snippetDE = `<form action="https://www.paypal.de/ncp/payment/DE789XYZ" method="post">
+				<input type="submit" value="Jetzt kaufen" />
+			</form>`;
+
+			const inputs = screen.getAllByTestId( 'plain-text' );
+			// eslint-disable-next-line testing-library/prefer-user-event
+			fireEvent.change( inputs[ 0 ], {
+				target: { value: snippetDE },
+			} );
+
+			expect( setAttributes ).toHaveBeenCalledWith( {
+				hostedButtonId: 'DE789XYZ',
+				buttonText: 'Jetzt kaufen',
+			} );
+		} );
+
+		it( 'handles sandbox PayPal domain', () => {
+			const setAttributes = jest.fn();
+			render(
+				<Edit
+					attributes={ { ...defaultProps.attributes, buttonType: 'single' } }
+					setAttributes={ setAttributes }
+					isSelected={ true }
+				/>
+			);
+
+			const snippetSandbox = `<style>.pp-FHK6SXBKZXM4A{text-align:center;border:none;border-radius:0.25rem;min-width:11.625rem;padding:0 2rem;height:2.625rem;font-weight:bold;background-color:#FFD140;color:#000000;font-family:"Helvetica Neue",Arial,sans-serif;font-size:1rem;line-height:1.25rem;cursor:pointer;}</style>
+<form action="https://www.sandbox.paypal.com/ncp/payment/FHK6SXBKZXM4A" method="post" target="_blank" style="display:inline-grid;justify-items:center;align-content:start;gap:0.5rem;">
+  <input class="pp-FHK6SXBKZXM4A" type="submit" value="Buy Now" />
+  <img src=https://www.paypalobjects.com/images/Debit_Credit_APM.svg alt="cards" />
+  <section style="font-size: 0.75rem;"> Powered by <img src="https://www.paypalobjects.com/paypal-ui/logos/svg/paypal-wordmark-color.svg" alt="paypal" style="height:0.875rem;vertical-align:middle;"/></section>
+</form>`;
+
+			const inputs = screen.getAllByTestId( 'plain-text' );
+			// eslint-disable-next-line testing-library/prefer-user-event
+			fireEvent.change( inputs[ 0 ], {
+				target: { value: snippetSandbox },
+			} );
+
+			expect( setAttributes ).toHaveBeenCalledWith( {
+				hostedButtonId: 'FHK6SXBKZXM4A',
+				buttonText: 'Buy Now',
+			} );
+		} );
+
+		it( 'handles spaces around equals sign in attributes', () => {
+			const setAttributes = jest.fn();
+			render(
+				<Edit
+					attributes={ { ...defaultProps.attributes, buttonType: 'single' } }
+					setAttributes={ setAttributes }
+					isSelected={ true }
+				/>
+			);
+
+			const snippet = `<form action = "https://www.paypal.com/ncp/payment/SPACES123" method="post">
+				<input type="submit" value = "Buy Now" />
+			</form>`;
+
+			const inputs = screen.getAllByTestId( 'plain-text' );
+			// eslint-disable-next-line testing-library/prefer-user-event
+			fireEvent.change( inputs[ 0 ], {
+				target: { value: snippet },
+			} );
+
+			expect( setAttributes ).toHaveBeenCalledWith( {
+				hostedButtonId: 'SPACES123',
+				buttonText: 'Buy Now',
+			} );
+		} );
+
+		it( 'trims whitespace from extracted values', () => {
+			const setAttributes = jest.fn();
+			render(
+				<Edit
+					attributes={ { ...defaultProps.attributes, buttonType: 'single' } }
+					setAttributes={ setAttributes }
+					isSelected={ true }
+				/>
+			);
+
+			const snippet = `<form action="https://www.paypal.com/ncp/payment/TRIM123  " method="post">
+				<input type="submit" value="  Buy Now  " />
+			</form>`;
+
+			const inputs = screen.getAllByTestId( 'plain-text' );
+			// eslint-disable-next-line testing-library/prefer-user-event
+			fireEvent.change( inputs[ 0 ], {
+				target: { value: snippet },
+			} );
+
+			expect( setAttributes ).toHaveBeenCalledWith( {
+				hostedButtonId: 'TRIM123',
+				buttonText: 'Buy Now',
+			} );
+		} );
+
+		it( 'handles multiple buttons - extracts only the first', () => {
+			const setAttributes = jest.fn();
+			render(
+				<Edit
+					attributes={ { ...defaultProps.attributes, buttonType: 'single' } }
+					setAttributes={ setAttributes }
+					isSelected={ true }
+				/>
+			);
+
+			const snippet = `<form action="https://www.paypal.com/ncp/payment/FIRST123" method="post">
+				<input type="submit" value="First Button" />
+			</form>
+			<form action="https://www.paypal.com/ncp/payment/SECOND456" method="post">
+				<input type="submit" value="Second Button" />
+			</form>`;
+
+			const inputs = screen.getAllByTestId( 'plain-text' );
+			// eslint-disable-next-line testing-library/prefer-user-event
+			fireEvent.change( inputs[ 0 ], {
+				target: { value: snippet },
+			} );
+
+			// Should extract only the first button
+			expect( setAttributes ).toHaveBeenCalledWith( {
+				hostedButtonId: 'FIRST123',
+				buttonText: 'First Button',
+			} );
+		} );
+
+		it( 'handles protocol-relative URLs', () => {
+			const setAttributes = jest.fn();
+			render(
+				<Edit
+					attributes={ { ...defaultProps.attributes, buttonType: 'single' } }
+					setAttributes={ setAttributes }
+					isSelected={ true }
+				/>
+			);
+
+			const snippet = `<form action="//www.paypal.com/ncp/payment/PROTOCOL123" method="post">
+				<input type="submit" value="Buy" />
+			</form>`;
+
+			const inputs = screen.getAllByTestId( 'plain-text' );
+			// eslint-disable-next-line testing-library/prefer-user-event
+			fireEvent.change( inputs[ 0 ], {
+				target: { value: snippet },
+			} );
+
+			expect( setAttributes ).toHaveBeenCalledWith( {
+				hostedButtonId: 'PROTOCOL123',
+				buttonText: 'Buy',
+			} );
+		} );
+
+		it( 'handles mixed case in domain names', () => {
+			const setAttributes = jest.fn();
+			render(
+				<Edit
+					attributes={ { ...defaultProps.attributes, buttonType: 'single' } }
+					setAttributes={ setAttributes }
+					isSelected={ true }
+				/>
+			);
+
+			const snippet = `<form action="https://www.PayPal.COM/ncp/payment/MIXEDCASE123" method="post">
+				<input type="submit" value="Buy" />
+			</form>`;
+
+			const inputs = screen.getAllByTestId( 'plain-text' );
+			// eslint-disable-next-line testing-library/prefer-user-event
+			fireEvent.change( inputs[ 0 ], {
+				target: { value: snippet },
+			} );
+
+			expect( setAttributes ).toHaveBeenCalledWith( {
+				hostedButtonId: 'MIXEDCASE123',
+				buttonText: 'Buy',
+			} );
 		} );
 	} );
 
@@ -307,7 +720,7 @@ describe( 'Edit', () => {
 					attributes={ {
 						buttonType: 'stacked',
 						scriptSrc: 'https://www.paypal.com/sdk/js?client-id=test',
-						hostedButtonId: 'invalid-button-id-123',
+						hostedButtonId: 'invalid@button#id!123', // Contains invalid characters
 					} }
 					setAttributes={ jest.fn() }
 					isSelected={ false }

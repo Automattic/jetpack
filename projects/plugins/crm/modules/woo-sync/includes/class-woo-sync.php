@@ -135,7 +135,7 @@ class Woo_Sync {
 	 * Note: This will effectively fire after core settings and modules loaded
 	 * ... effectively on tail end of `init`
 	 */
-	public function __construct( ) {
+	public function __construct() {
 
 		// Definitions
 		$this->definitions();
@@ -197,7 +197,7 @@ class Woo_Sync {
 	 * Initialise endpoints
 	 *  (previously on `init`)
 	 */
-	private function init_endpoints( ) {
+	private function init_endpoints() {
 
 		add_rewrite_endpoint('invoices', EP_PAGES );
 
@@ -206,7 +206,7 @@ class Woo_Sync {
 	/**
 	 * Initialise Settings
 	 */
-	private function init_settings( ) {
+	private function init_settings() {
 		
 		$this->settings = new \WHWPConfigExtensionsLib( $this->config_key, $this->default_settings() );
 
@@ -240,10 +240,10 @@ class Woo_Sync {
 	/**
 	 * Retrieve default mapped order status for a given object type
 	 *
-	 * @param int $obj_type_id Object type (e.g. ZBS_TYPE_CONTACT, ZBS_TYPE_INVOICE, or ZBS_TYPE_TRANSACTION).
-	 * @param str $order_status Woo order status.
+	 * @param int    $obj_type_id Object type (e.g. ZBS_TYPE_CONTACT, ZBS_TYPE_INVOICE, or ZBS_TYPE_TRANSACTION).
+	 * @param string $order_status Woo order status.
 	 *
-	 * @return str|bool Status string to use for object
+	 * @return string|bool Status string to use for object
 	 */
 	public function get_default_status_for_order_obj( $obj_type_id, $order_status ) {
 		global $zbs;
@@ -318,7 +318,7 @@ class Woo_Sync {
 	/**
 	 * Initialise Hooks
 	 */
-	private function init_hooks( ) {
+	private function init_hooks() {
 
 		// Add settings tab
 		add_filter( 'zbs_settings_tabs', array( $this, 'add_settings_tab' ) );
@@ -373,7 +373,7 @@ class Woo_Sync {
 	/**
 	 * Initialise Features
 	 */
-	private function init_features( ) {
+	private function init_features() {
 
 		// Contact Tabs
 		if ( zeroBSCRM_is_customer_view_page() ) {
@@ -420,7 +420,7 @@ class Woo_Sync {
 	/**
 	 * Autoload page AJAX
 	 */
-	private function load_ajax( ) {
+	private function load_ajax() {
 
 		$admin_page_directories = jpcrm_get_directories( JPCRM_WOO_SYNC_ROOT_PATH . 'admin' );
 
@@ -475,14 +475,14 @@ class Woo_Sync {
 
 		// is a Woo customer? (Could be copied/generalised for other ext sources)
 		if ( $quick_filter_key == 'woo_customer' ){
-	        $wheres['is_woo_customer'] = array(
-	            'ID','IN',
-	            '(SELECT DISTINCT zbss_objid FROM ' . $ZBSCRM_t['externalsources'] . " WHERE zbss_objtype = " . ZBS_TYPE_CONTACT . " AND zbss_source = %s)",
-	            array( 'woo' )
-	        );
-	    }
+			$wheres['is_woo_customer'] = array(
+				'ID','IN',
+				'(SELECT DISTINCT zbss_objid FROM ' . $ZBSCRM_t['externalsources'] . " WHERE zbss_objtype = " . ZBS_TYPE_CONTACT . " AND zbss_source = %s)",
+				array( 'woo' )
+			);
+		}
 
-	    return $wheres;
+		return $wheres;
 	}
 
 
@@ -496,14 +496,14 @@ class Woo_Sync {
 
 		// is a Woo customer? (Could be copied/generalised for other ext sources)
 		if ( $quick_filter_key == 'woo_invoice' ){
-	        $wheres['is_woo_invoice'] = array(
-	            'ID','IN',
-	            '(SELECT DISTINCT zbss_objid FROM ' . $ZBSCRM_t['externalsources'] . " WHERE zbss_objtype = " . ZBS_TYPE_INVOICE . " AND zbss_source = %s)",
-	            array( 'woo' )
-	        );
-	    }
+			$wheres['is_woo_invoice'] = array(
+				'ID','IN',
+				'(SELECT DISTINCT zbss_objid FROM ' . $ZBSCRM_t['externalsources'] . " WHERE zbss_objtype = " . ZBS_TYPE_INVOICE . " AND zbss_source = %s)",
+				array( 'woo' )
+			);
+		}
 
-	    return $wheres;
+		return $wheres;
 	}
 
 
@@ -517,14 +517,14 @@ class Woo_Sync {
 
 		// is a Woo customer? (Could be copied/generalised for other ext sources)
 		if ( $quick_filter_key == 'woo_transaction' ){
-	        $wheres['is_woo_transaction'] = array(
-	            'ID','IN',
-	            '(SELECT DISTINCT zbss_objid FROM ' . $ZBSCRM_t['externalsources'] . " WHERE zbss_objtype = " . ZBS_TYPE_TRANSACTION . " AND zbss_source = %s)",
-	            array( 'woo' )
-	        );
-	    }
+			$wheres['is_woo_transaction'] = array(
+				'ID','IN',
+				'(SELECT DISTINCT zbss_objid FROM ' . $ZBSCRM_t['externalsources'] . " WHERE zbss_objtype = " . ZBS_TYPE_TRANSACTION . " AND zbss_source = %s)",
+				array( 'woo' )
+			);
+		}
 
-	    return $wheres;
+		return $wheres;
 	}
 
 
@@ -535,17 +535,17 @@ class Woo_Sync {
 	 */
 	public function new_contact_log_override( $note_long_description, $source_key, $uid ) {
 
-        if ( $source_key == 'woo' ){
+		if ( $source_key == 'woo' ){
 
 			if ( !empty( $uid ) ){
-            	$note_long_description = sprintf( __( 'Created from WooCommerce Order #%s', 'zero-bs-crm' ), $uid ) . ' <i class="fa fa-shopping-cart"></i>';
-            } else {
-            	$note_long_description = __( 'Created from WooCommerce Order', 'zero-bs-crm' ) . ' <i class="fa fa-shopping-cart"></i>';
-            }
+				$note_long_description = sprintf( __( 'Created from WooCommerce Order #%s', 'zero-bs-crm' ), $uid ) . ' <i class="fa fa-shopping-cart"></i>';
+			} else {
+				$note_long_description = __( 'Created from WooCommerce Order', 'zero-bs-crm' ) . ' <i class="fa fa-shopping-cart"></i>';
+			}
 
-        }
+		}
 
-	    return $note_long_description;
+		return $note_long_description;
 	}
 
 	/**
@@ -1159,7 +1159,7 @@ class Woo_Sync {
 		$last_order_synced = $this->get_crm_woo_latest_woo_transaction_string();
 		$contacts_synced = zeroBSCRM_prettifyLongInts( $this->get_crm_woo_contact_count() );
 		$transactions_synced = zeroBSCRM_prettifyLongInts( $this->get_crm_woo_transaction_count() );
-		$transaction_total = zeroBSCRM_formatCurrency( $this->get_crm_woo_transaction_total( ) );
+		$transaction_total = zeroBSCRM_formatCurrency( $this->get_crm_woo_transaction_total() );
 
 		return array(
 			'last_order_synced'   => $last_order_synced,
@@ -1300,7 +1300,7 @@ class Woo_Sync {
 	 *	 
 	 * @return string URL
 	 */
-	public function get_local_woo_admin_url( ){
+	public function get_local_woo_admin_url() {
 
 		return site_url( '/wp-admin/admin.php?page=wc-admin' );
 
@@ -1364,11 +1364,11 @@ class Woo_Sync {
 		$callback_url = $zbs->listener->get_callback_url( 'woosync_add_store' );
 
 		$params = [
-		    'app_name' => $app_name,
-		    'scope' => 'read',
-		    'user_id' => $user_id,
-		    'return_url' => $return_url,
-		    'callback_url' => $callback_url
+			'app_name' => $app_name,
+			'scope' => 'read',
+			'user_id' => $user_id,
+			'return_url' => $return_url,
+			'callback_url' => $callback_url
 		];
 		$query_string = http_build_query( $params );
 
@@ -1543,6 +1543,7 @@ class Woo_Sync {
 		$woo_order_status_mapping = $this->woo_order_status_mapping( $obj_type_id );
 
 		if (
+			isset( $woo_order_status_mapping[ $order_status ] ) &&
 			! empty( $settings[ $woo_order_status_mapping[ $order_status ] ] )
 			&& 
 			( 
@@ -1657,19 +1658,19 @@ class Woo_Sync {
 				// build local sync record
 				$this->add_sync_site( array(
 
-        			'site_key'       => 'local',
-        			
-		            'mode'           => JPCRM_WOO_SYNC_MODE_LOCAL,
-		            'domain'         => site_url(),
-		            'key'            => '',
-		            'secret'         => '',
-		            'prefix'         => '',
+					'site_key'       => 'local',
+					
+					'mode'           => JPCRM_WOO_SYNC_MODE_LOCAL,
+					'domain'         => site_url(),
+					'key'            => '',
+					'secret'         => '',
+					'prefix'         => '',
 
-		            'paused'         => false, // default to enabled
+					'paused'         => false, // default to enabled
 
-		        ));
+				));
 
-		        // reload sync sites
+				// reload sync sites
 				$sync_sites = $this->settings->get( 'sync_sites' );
 
 			}
@@ -1814,6 +1815,7 @@ class Woo_Sync {
 
 		// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
 		// basic validation
+		$mode = (int) $mode;
 		if ( ! in_array( $mode, array( JPCRM_WOO_SYNC_MODE_LOCAL, JPCRM_WOO_SYNC_MODE_API ), true ) ) {
 			return false;
 		}
@@ -1888,72 +1890,74 @@ class Woo_Sync {
 	 */
 	public function update_sync_site( $args = array() ){
 
-        // ============ LOAD ARGS ===============
-        $defaultArgs = array(
+		// ============ LOAD ARGS ===============
+		$defaultArgs = array(
 
-        	'site_key'       => '',
+			'site_key'       => '',
 
-            'mode'           => -1,
-            'domain'         => '',
-            'key'            => '',
-            'secret'         => '',
-            'prefix'         => '',
+			'mode'           => -1,
+			'domain'         => '',
+			'key'            => '',
+			'secret'         => '',
+			'prefix'         => '',
 
-            'last_sync_fired'        => -1,
-            'resume_from_page'       => 1,
-            'total_order_count'      => 0,
-            'total_customer_count'   => 0,
-            'first_import_complete'  => false,
+			'last_sync_fired'        => -1,
+			'resume_from_page'       => 1,
+			'total_order_count'      => 0,
+			'total_customer_count'   => 0,
+			'first_import_complete'  => false,
 
-            'paused'                 => false, // if set to non-false site will not sync (typically pass timestamp of time paused)
-            
-            // meta
-            'site_connection_errors' => 0, // counts how many connection errors since last good connection (allows for pausing on 3x errors)
+			'paused'                 => false, // if set to non-false site will not sync (typically pass timestamp of time paused)
+			
+			// meta
+			'site_connection_errors' => 0, // counts how many connection errors since last good connection (allows for pausing on 3x errors)
 
-        ); foreach ($defaultArgs as $argK => $argV){ $$argK = $argV; if (is_array($args) && isset($args[$argK])) {  if (is_array($args[$argK])){ $newData = $$argK; if (!is_array($newData)) $newData = array(); foreach ($args[$argK] as $subK => $subV){ $newData[$subK] = $subV; }$$argK = $newData;} else { $$argK = $args[$argK]; } } }        
-        // ============ / LOAD ARGS =============
+		); foreach ($defaultArgs as $argK => $argV){ $$argK = $argV; if (is_array($args) && isset($args[$argK])) {  if (is_array($args[$argK])){ $newData = $$argK; if (!is_array($newData)) $newData = array(); foreach ($args[$argK] as $subK => $subV){ $newData[$subK] = $subV; }$$argK = $newData;} else { $$argK = $args[$argK]; } } }        
+		// ============ / LOAD ARGS =============
 
 		// get existing
 		$sync_sites = $this->get_active_sync_sites( 'default' );
 
-        // basic validation
-        if ( empty( $site_key ) ){
-        	return false;
-        }
-        if ( !in_array( $mode, array( JPCRM_WOO_SYNC_MODE_LOCAL, JPCRM_WOO_SYNC_MODE_API )) ){
-        	return false;
-        }
-        
-        // override
-        $sync_sites[ $site_key ] = array(
+		// basic validation
+		if ( empty( $site_key ) ){
+			return false;
+		}
 
-            'mode'           => $mode,
-            'domain'         => $domain,
-            'key'            => $key,
-            'secret'         => $secret,
-            'prefix'         => $prefix,
+		$mode = (int) $mode;
+		if ( !in_array( $mode, array( JPCRM_WOO_SYNC_MODE_LOCAL, JPCRM_WOO_SYNC_MODE_API )) ){
+			return false;
+		}
+		
+		// override
+		$sync_sites[ $site_key ] = array(
 
-            // tracking
-            'last_sync_fired'        => $last_sync_fired,
-            'resume_from_page'       => $resume_from_page,
-            'total_order_count'      => $total_order_count,
-            'total_customer_count'   => $total_customer_count,
-            'first_import_complete'  => $first_import_complete,
-            'site_connection_errors' => $site_connection_errors,
+			'mode'           => $mode,
+			'domain'         => $domain,
+			'key'            => $key,
+			'secret'         => $secret,
+			'prefix'         => $prefix,
 
-        );
+			// tracking
+			'last_sync_fired'        => $last_sync_fired,
+			'resume_from_page'       => $resume_from_page,
+			'total_order_count'      => $total_order_count,
+			'total_customer_count'   => $total_customer_count,
+			'first_import_complete'  => $first_import_complete,
+			'site_connection_errors' => $site_connection_errors,
 
-        // pause, if present
-        if ( $paused ){
+		);
 
-        	$sync_sites[ $site_key ][ 'paused' ] = $paused;
+		// pause, if present
+		if ( $paused ){
 
-        }
+			$sync_sites[ $site_key ][ 'paused' ] = $paused;
 
-        // save
-        $this->settings->update( 'sync_sites', $sync_sites );
+		}
 
-        // return
+		// save
+		$this->settings->update( 'sync_sites', $sync_sites );
+
+		// return
 		return $sync_sites[ $site_key ];
 
 	}
@@ -2031,18 +2035,18 @@ class Woo_Sync {
 		// get existing
 		$sync_sites = $this->get_active_sync_sites( 'default' );
 
-        // basic validation
-        if ( empty( $site_key ) || !isset( $sync_sites[ $site_key ] ) ){
-        	return false;
-        }
-        
-        // remove it
-        unset( $sync_sites[ $site_key ] );
+		// basic validation
+		if ( empty( $site_key ) || !isset( $sync_sites[ $site_key ] ) ){
+			return false;
+		}
+		
+		// remove it
+		unset( $sync_sites[ $site_key ] );
 
-        // save
-        $this->settings->update( 'sync_sites', $sync_sites );
+		// save
+		$this->settings->update( 'sync_sites', $sync_sites );
 
-        // return
+		// return
 		return true;
 
 	}
@@ -2138,7 +2142,7 @@ class Woo_Sync {
 				$missing[] = 'domain';
 			}
 
-	       	throw new Missing_Settings_Exception( 101, 'Failed to load WooCommerce API Library', array( 'missing' => $missing ) );
+		   	throw new Missing_Settings_Exception( 101, 'Failed to load WooCommerce API Library', array( 'missing' => $missing ) );
 
 		}
 
@@ -2191,67 +2195,67 @@ class Woo_Sync {
 				// only if we're not in local, pass the domain and keys.
 				// (we don't want to pass them if local because of the situation where a user may have previously 
 				// had an external site and then we'd end up with a local sync site record with remote domain)				
-			    if ( $settings['wcsetuptype'] == JPCRM_WOO_SYNC_MODE_LOCAL ){
+				if ( $settings['wcsetuptype'] == JPCRM_WOO_SYNC_MODE_LOCAL ){
 
-			    	$data = array(
+					$data = array(
 
-	        			'site_key'       => 'local',
-	        			
-			            'mode'           => JPCRM_WOO_SYNC_MODE_LOCAL,
-			            'domain'         => site_url(),
-			            'key'            => '',
-			            'secret'         => '',
-			            'prefix'         => ''
+						'site_key'       => 'local',
+						
+						'mode'           => JPCRM_WOO_SYNC_MODE_LOCAL,
+						'domain'         => site_url(),
+						'key'            => '',
+						'secret'         => '',
+						'prefix'         => ''
 
-			        );
+					);
 
-			    } else if ( $settings['wcsetuptype'] == JPCRM_WOO_SYNC_MODE_API ){
+				} else if ( $settings['wcsetuptype'] == JPCRM_WOO_SYNC_MODE_API ){
 
-			        $data = array(
+					$data = array(
 
-			    		'site_key'       => '', // let woosync generate it
+						'site_key'       => '', // let woosync generate it
 
-				        'mode'           => JPCRM_WOO_SYNC_MODE_API,
-				        'domain'         => $settings['wcdomain'],
-				        'key'            => $settings['wckey'],
-				        'secret'         => $settings['wcsecret'],
-				        'prefix'         => $settings['wcprefix'],
+						'mode'           => JPCRM_WOO_SYNC_MODE_API,
+						'domain'         => $settings['wcdomain'],
+						'key'            => $settings['wckey'],
+						'secret'         => $settings['wcsecret'],
+						'prefix'         => $settings['wcprefix'],
 
-				    );
+					);
 
-			    }
+				}
 
 				// add as new sync site record
 				$new_sync_site = $this->add_sync_site( $data );
 
-			    // verify
-			    if ( is_array( $new_sync_site ) && !empty( $new_sync_site['site_key'] ) && $this->get_active_sync_site( $new_sync_site['site_key'] ) ){
+				// verify
+				if ( is_array( $new_sync_site ) && !empty( $new_sync_site['site_key'] ) && $this->get_active_sync_site( $new_sync_site['site_key'] ) ){
 
-			    	// backup and remove old settings
-			    	update_option( 'jpcrm_woosync_52_mig_backup', $settings, false );
-			    	$this->settings->delete('wcsetuptype');
-			    	$this->settings->delete('wcdomain');
-			    	$this->settings->delete('wckey');
-			    	$this->settings->delete('wcsecret');
-			    	$this->settings->delete('wcprefix');
+					// backup and remove old settings
+					update_option( 'jpcrm_woosync_52_mig_backup', $settings, false );
+					$this->settings->delete('wcsetuptype');
+					$this->settings->delete('wcdomain');
+					$this->settings->delete('wckey');
+					$this->settings->delete('wcsecret');
+					$this->settings->delete('wcprefix');
 
-			    	// mark migrated
-			    	update_option( 'jpcrm_woosync_52_mig', time(), false );
+					// mark migrated
+					update_option( 'jpcrm_woosync_52_mig', time(), false );
 
-			    } else {
+				} else {
 
-			    	// failed migration... will keep trying to run ?
+					// failed migration... will keep trying to run ?
 
-			        // insert notification
-			        zeroBSCRM_notifyme_insert_notification( get_current_user_id(), -999, -1, 'woosync.5.2.migration', 'failed_importing_sync_site' );
-		        
+					// insert notification
+					zeroBSCRM_notifyme_insert_notification( get_current_user_id(), -999, -1, 'woosync.5.2.migration', 'failed_importing_sync_site' );
+				
 
-			    }
+				}
 
 			} else {
 
 				// no settings, fresh install with no past, simple.
-			    update_option( 'jpcrm_woosync_52_mig', time(), false );
+				update_option( 'jpcrm_woosync_52_mig', time(), false );
 
 			}
 
@@ -2293,11 +2297,11 @@ class Woo_Sync {
 	 */
 	public function add_segments_condition_category_positions( $positions = array() ) {
 
-	    global $zbs;
+		global $zbs;
 
-	    $positions['woosync'] = 10;
+		$positions['woosync'] = 10;
 
-	    return $positions;
+		return $positions;
 
 	}
 }

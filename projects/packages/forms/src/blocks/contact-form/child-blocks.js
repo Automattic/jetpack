@@ -1,37 +1,40 @@
-import {
-	hasFeatureFlag,
-	getJetpackBlocksVariation,
-} from '@automattic/jetpack-shared-extension-utils';
-import DeprecatedOptionCheckbox from '../deprecated/field-option-checkbox';
-import DeprecatedOptionRadio from '../deprecated/field-option-radio';
-import JetpackDropzone from '../dropzone';
-import JetpackCheckboxField from '../field-checkbox';
-import JetpackConsentField from '../field-consent/';
-import JetpackDateField from '../field-date';
-import JetpackEmailField from '../field-email';
-import JetpackFieldFile from '../field-file';
-import JetpackMultipleChoiceField from '../field-multiple-choice';
-import JetpackNameField from '../field-name';
-import JetpackNumberField from '../field-number';
-import JetpackRatingField from '../field-rating';
-import JetpackDropdownField from '../field-select';
-import JetpackSingleChoiceField from '../field-single-choice';
-import JetpackFieldSlider from '../field-slider';
-import JetpackTelephoneField from '../field-telephone';
-import JetpackTextField from '../field-text';
-import JetpackTextareaField from '../field-textarea';
-import JetpackUrlField from '../field-url';
-import JetpackProgressIndicator from '../form-progress-indicator';
-import JetpackStep from '../form-step';
-import JetpackStepContainer from '../form-step-container';
-import JetpackStepDivider from '../form-step-divider';
-import JetpackStepNavigation from '../form-step-navigation';
-import JetpackInput from '../input';
-import JetpackSliderInput from '../input-range';
-import JetpackRatingInput from '../input-rating';
-import JetpackLabel from '../label';
-import JetpackOption from '../option';
-import JetpackOptions from '../options';
+import { hasFeatureFlag } from '@automattic/jetpack-shared-extension-utils';
+import DeprecatedOptionCheckbox from '../deprecated/field-option-checkbox/index.js';
+import DeprecatedOptionRadio from '../deprecated/field-option-radio/index.js';
+import JetpackDropzone from '../dropzone/index.js';
+import JetpackCheckboxField from '../field-checkbox/index.js';
+import JetpackConsentField from '../field-consent/index.js';
+import JetpackDateField from '../field-date/index.js';
+import JetpackEmailField from '../field-email/index.js';
+import JetpackFieldFile from '../field-file/index.js';
+import JetpackHiddenField from '../field-hidden/index.js';
+import JetpackImageSelectField from '../field-image-select/index.tsx';
+import JetpackMultipleChoiceField from '../field-multiple-choice/index.js';
+import JetpackNameField from '../field-name/index.js';
+import JetpackNumberField from '../field-number/index.js';
+import JetpackRatingField from '../field-rating/index.js';
+import JetpackDropdownField from '../field-select/index.js';
+import JetpackSingleChoiceField from '../field-single-choice/index.js';
+import JetpackFieldSlider from '../field-slider/index.js';
+import JetpackTelephoneField from '../field-telephone/index.js';
+import JetpackTextField from '../field-text/index.js';
+import JetpackTextareaField from '../field-textarea/index.js';
+import JetpackTimeField from '../field-time/index.js';
+import JetpackUrlField from '../field-url/index.js';
+import JetpackImageOptionsFieldset from '../fieldset-image-options/index.tsx';
+import JetpackProgressIndicator from '../form-progress-indicator/index.js';
+import JetpackStep from '../form-step/index.js';
+import JetpackStepContainer from '../form-step-container/index.js';
+import JetpackStepDivider from '../form-step-divider/index.js';
+import JetpackStepNavigation from '../form-step-navigation/index.js';
+import JetpackInput from '../input/index.js';
+import JetpackImageOptionInput from '../input-image-option/index.tsx';
+import JetpackPhoneInput from '../input-phone/index.js';
+import JetpackSliderInput from '../input-range/index.js';
+import JetpackRatingInput from '../input-rating/index.js';
+import JetpackLabel from '../label/index.js';
+import JetpackOption from '../option/index.js';
+import JetpackOptions from '../options/index.js';
 
 export const childBlocks = [
 	JetpackLabel,
@@ -43,19 +46,26 @@ export const childBlocks = [
 	JetpackConsentField,
 	JetpackDateField,
 	JetpackDropdownField,
+	JetpackHiddenField,
 	JetpackEmailField,
 	JetpackMultipleChoiceField,
 	JetpackNameField,
 	JetpackNumberField,
+	JetpackPhoneInput,
 	JetpackSingleChoiceField,
 	JetpackTextField,
 	JetpackUrlField,
 	JetpackTelephoneField,
 	JetpackTextareaField,
+	JetpackTimeField,
 	JetpackFieldFile,
-	...( getJetpackBlocksVariation() === 'beta'
-		? [ JetpackRatingField, JetpackRatingInput, JetpackFieldSlider, JetpackSliderInput ]
-		: [] ),
+	JetpackRatingField,
+	JetpackRatingInput,
+	JetpackFieldSlider,
+	JetpackSliderInput,
+	JetpackImageSelectField,
+	JetpackImageOptionsFieldset,
+	JetpackImageOptionInput,
 
 	// The following are required for these blocks to be parsed correctly in block
 	// deprecations. They have been flagged with `supports.inserter: false` to

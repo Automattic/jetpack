@@ -43,7 +43,7 @@ const useConnectionErrorsNotice = ( actionHandlers = {} ) => {
 				<Col>
 					<Text mb={ 2 }>
 						{ sprintf(
-							/* translators: placeholder is the error. */
+							/* translators: %s: the error. */
 							__( 'There was an error reconnecting Jetpack. Error: %s', 'jetpack-my-jetpack' ),
 							restoreConnectionError
 						) }

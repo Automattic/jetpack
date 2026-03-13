@@ -608,7 +608,7 @@ class Jetpack_MediaExtractor_Test extends WP_UnitTestCase {
 	 * @since 3.2
 	 */
 	public function test_extract_image_from_html() {
-		$html = <<<EOT
+		$html = <<<'EOT'
 <p><a href="http://paulbernal.files.wordpress.com/2013/05/mr-gove-cover.jpeg"><img class="aligncenter size-full wp-image-1027" alt="Mr Gove Cover" src="http://paulbernal.files.wordpress.com/2013/05/mr-gove-cover.jpeg" width="612" height="547" /></a></p>
 <p>Mr Gove was extraordinarily arrogant.</p>
 <p>Painfully arrogant.</p>

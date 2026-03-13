@@ -1,5 +1,5 @@
-import logger from '../logger.js';
-import { TestUtils } from './index.ts';
+import logger from '../logger';
+import { TestUtils } from '.';
 
 /**
  * Set plan data using the e2e-plan-helper REST API endpoint

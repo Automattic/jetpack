@@ -13,6 +13,10 @@ use WP_Error;
 use WP_Post;
 use const Automattic\Jetpack\Extensions\Subscriptions\META_NAME_FOR_POST_TIER_ID_SETTINGS;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Class Abstract_Token_Subscription_Service
  *

@@ -11,6 +11,10 @@ namespace Automattic\Jetpack\Extensions\Paywall;
 
 use Automattic\Jetpack\Blocks;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 const FEATURE_NAME      = 'paywall';
 const BLOCK_NAME        = 'jetpack/' . FEATURE_NAME;
 const BLOCK_HTML        = '<!-- wp:' . BLOCK_NAME . ' /-->';

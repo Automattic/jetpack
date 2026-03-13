@@ -208,7 +208,10 @@ class Partner_Coupon_Test extends TestCase {
 		$instance = Partner_Coupon::get_instance();
 		$class    = new \ReflectionClass( $instance );
 		$method   = $class->getMethod( 'maybe_purge_coupon_by_added_date' );
-		$method->setAccessible( true );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
 		$method->invoke( $instance );
 
 		// Confirm assertion.
@@ -267,7 +270,7 @@ class Partner_Coupon_Test extends TestCase {
 		);
 
 		if ( isset( $mock_response['body'] ) ) {
-			$mock_response['body'] = wp_json_encode( $mock_response['body'] );
+			$mock_response['body'] = wp_json_encode( $mock_response['body'], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE );
 		}
 
 		$callback = $this->getMockBuilder( \CallableMock::class )->getMock();
@@ -276,7 +279,10 @@ class Partner_Coupon_Test extends TestCase {
 		$instance = new Partner_Coupon( $callback );
 		$class    = new \ReflectionClass( $instance );
 		$method   = $class->getMethod( 'maybe_purge_coupon_by_availability_check' );
-		$method->setAccessible( true );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
 		$status = $method->invoke( $instance );
 
 		$this->assertSame( $status, $expectation );

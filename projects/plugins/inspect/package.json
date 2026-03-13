@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-inspect",
-	"version": "2.0.0-a.5",
+	"version": "2.0.0-a.9",
 	"private": true,
 	"description": "A debugging plugin to inspect Jetpack interactions with WordPress.com.",
 	"homepage": "https://jetpack.com",
@@ -20,29 +20,28 @@
 		"build-js": "rollup -c rollup.config.js",
 		"build-production": "pnpm build-production-js",
 		"build-production-js": "rollup -c rollup.config.js",
-		"clean": "rm -rf app-ui/build/"
-	},
-	"dependencies": {
-		"tslib": "2.5.0"
+		"clean": "rm -rf app-ui/build/",
+		"typecheck": "tsgo --noEmit"
 	},
 	"devDependencies": {
-		"@babel/core": "7.28.0",
-		"@babel/preset-env": "7.28.0",
+		"@babel/core": "7.29.0",
+		"@babel/preset-env": "7.29.0",
 		"@rollup/plugin-commonjs": "26.0.1",
 		"@rollup/plugin-node-resolve": "15.3.0",
-		"@rollup/plugin-terser": "0.4.3",
+		"@rollup/plugin-terser": "1.0.0",
 		"@rollup/plugin-typescript": "12.1.0",
-		"@wordpress/i18n": "5.26.0",
-		"postcss": "8.4.47",
-		"rollup": "3.29.5",
+		"@typescript/native-preview": "7.0.0-dev.20260225.1",
+		"@wordpress/i18n": "6.14.0",
+		"postcss": "8.5.6",
+		"rollup": "3.30.0",
 		"rollup-plugin-livereload": "2.0.5",
 		"rollup-plugin-postcss": "4.0.2",
 		"rollup-plugin-svelte": "7.2.2",
-		"sass": "npm:sass-embedded@1.87.0",
-		"svelte": "4.2.19",
+		"sass": "npm:sass-embedded@^1.97.2",
+		"svelte": "5.53.5",
 		"svelte-preprocess": "6.0.2",
-		"tslib": "2.5.0",
-		"typescript": "5.8.3",
-		"zod": "3.22.3"
+		"tslib": "2.8.1",
+		"typescript": "5.9.3",
+		"zod": "3.25.76"
 	}
 }

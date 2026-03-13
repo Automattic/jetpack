@@ -24,7 +24,7 @@ class Url_Test extends Base_TestCase {
 		// Dumb, but functional remove_query_arg polyfill.
 		// @phan-suppress-next-line PhanPluginUnreachableCode
 		if ( ! function_exists( 'remove_query_arg' ) ) {
-			// phpcs:ignore MediaWiki.Usage.NestedFunctions.NestedFunction
+			// phpcs:ignore Squiz.PHP.InnerFunctions.NotAllowed
 			function remove_query_arg( $parameters, $url ) {
 				foreach ( $parameters as $parameter ) {
 					$url = preg_replace( sprintf( '~&?%s=[^&]+~', preg_quote( $parameter, '~' ) ), '', $url );
@@ -35,7 +35,7 @@ class Url_Test extends Base_TestCase {
 
 		// wp_parse_url in new PHP versions is the same as the native parse_url.
 		if ( ! function_exists( 'wp_parse_url' ) ) {
-			// phpcs:ignore MediaWiki.Usage.NestedFunctions.NestedFunction
+			// phpcs:ignore Squiz.PHP.InnerFunctions.NotAllowed
 			function wp_parse_url( $url ) {
 				return parse_url( $url );
 			}

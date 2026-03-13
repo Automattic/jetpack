@@ -1,3 +1,4 @@
+import { JetpackModuleSlug, JetpackProductWithCard } from '../../../types';
 import AntiSpamIcon from '../../products-table-view/icons/anti-spam';
 import BackupIcon from '../../products-table-view/icons/backup';
 import BoostIcon from '../../products-table-view/icons/boost';
@@ -8,7 +9,7 @@ import SearchIcon from '../../products-table-view/icons/search';
 import SocialIcon from '../../products-table-view/icons/social';
 import StatsIcon from '../../products-table-view/icons/stats';
 import VideopressIcon from '../../products-table-view/icons/videopress';
-import { JetpackModuleSlug, JetpackProductWithCard, ProductCategory } from './types';
+import { ProductCategory } from './types';
 import type { ComponentType } from 'react';
 
 export const CATEGORY_CARDS_AND_MODULES: {
@@ -33,6 +34,7 @@ export const CATEGORY_CARDS_AND_MODULES: {
 		cards: [ 'stats', 'social', 'jetpack-ai', 'crm' ],
 		modules: [
 			'blaze',
+			'canonical-urls',
 			'comment-likes',
 			'comments',
 			'contact-form',
@@ -45,6 +47,7 @@ export const CATEGORY_CARDS_AND_MODULES: {
 			'subscriptions',
 			'woocommerce-analytics',
 			'wordads',
+			'wpcom-reader',
 		],
 	},
 	performance: {
@@ -66,6 +69,7 @@ export const CATEGORY_CARDS_AND_MODULES: {
 		modules: [
 			'blocks',
 			'carousel',
+			'custom-content-types',
 			'google-fonts',
 			'gravatar-hovercards',
 			'infinite-scroll',

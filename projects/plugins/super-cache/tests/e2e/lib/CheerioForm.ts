@@ -1,5 +1,6 @@
 import { authenticatedRequest } from './plugin-tools';
-import type { AnyNode, Cheerio } from 'cheerio';
+import type { Cheerio } from 'cheerio';
+import type { AnyNode } from 'domhandler';
 
 /**
  * Helper class for reading, updating and submitting HTML forms from a Cheerio DOMs
@@ -21,7 +22,7 @@ export default class CheerioForm {
 	 */
 	public setCheckbox( name: string, value: boolean ): void {
 		if ( value ) {
-			this.fields[ name ] = this.element( name ).val().toString();
+			this.fields[ name ] = ( this.element( name ).val() ?? '' ).toString();
 		} else {
 			delete this.fields[ name ];
 		}
@@ -43,7 +44,7 @@ export default class CheerioForm {
 	 * @param {string} authCookie - Auth cookie for form submission.
 	 */
 	public async submit( authCookie: string ): Promise< void > {
-		await authenticatedRequest( authCookie, 'POST', this.form.attr( 'action' ), this.fields );
+		await authenticatedRequest( authCookie, 'POST', this.form.attr( 'action' )!, this.fields );
 	}
 
 	private element( name: string ): Cheerio< AnyNode > {

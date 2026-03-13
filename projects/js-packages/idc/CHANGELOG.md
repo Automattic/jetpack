@@ -2,6 +2,154 @@
 
 ### This is a list detailing changes for the Jetpack RNA IDC package releases.
 
+## 1.0.54 - 2026-03-09
+### Changed
+- Update dependencies. [#46035]
+
+## 1.0.53 - 2026-02-26
+### Changed
+- Update package dependencies. [#47300]
+
+## 1.0.52 - 2026-02-23
+### Changed
+- Update dependencies. [#46035]
+
+## 1.0.51 - 2026-02-18
+### Changed
+- Update dependencies. [#46035]
+
+## 1.0.50 - 2026-02-16
+### Changed
+- Update package dependencies. [#47099]
+
+## 1.0.49 - 2026-02-10
+### Changed
+- Update dependencies. [#46035]
+
+## 1.0.48 - 2026-02-04
+### Changed
+- Update dependencies. [#46035]
+
+## 1.0.47 - 2026-02-03
+### Changed
+- Update dependencies. [#46035]
+
+## 1.0.46 - 2026-02-02
+### Changed
+- Update package dependencies. [#46854]
+
+## 1.0.45 - 2026-01-26
+### Changed
+- Update dependencies. [#46035]
+
+## 1.0.44 - 2026-01-23
+### Changed
+- Update dependencies. [#46035]
+
+## 1.0.43 - 2026-01-19
+### Changed
+- Update package dependencies. [#46647]
+
+## 1.0.42 - 2026-01-14
+### Changed
+- Update dependencies. [#46035]
+
+## 1.0.41 - 2026-01-07
+### Changed
+- Update package dependencies. [#46456]
+
+## 1.0.40 - 2025-12-22
+### Changed
+- Internal updates.
+
+## 1.0.39 - 2025-12-15
+### Changed
+- Update dependencies. [#46035]
+
+## 1.0.38 - 2025-12-11
+### Changed
+- Update dependencies. [#46035]
+
+## 1.0.37 - 2025-12-08
+### Changed
+- Update dependencies. [#46035]
+
+## 1.0.36 - 2025-12-01
+### Changed
+- Update package dependencies. [#46143]
+
+## 1.0.35 - 2025-11-20
+### Changed
+- Update dependencies. [#46031]
+
+## 1.0.34 - 2025-11-18
+### Changed
+- Update dependencies. [#45493]
+
+## 1.0.33 - 2025-11-17
+### Changed
+- Update package dependencies. [#45915]
+
+## 1.0.32 - 2025-11-10
+### Changed
+- Update dependencies. [#45493]
+
+## 1.0.31 - 2025-11-03
+### Changed
+- Update dependencies. [#45493]
+
+## 1.0.30 - 2025-10-28
+### Changed
+- Update dependencies. [#45493]
+
+## 1.0.29 - 2025-10-14
+### Changed
+- Update dependencies. [#45488]
+
+## 1.0.28 - 2025-10-02
+### Changed
+- Update package dependencies. [#45334]
+
+## 1.0.27 - 2025-09-22
+### Changed
+- Update dependencies. [#44300]
+
+## 1.0.26 - 2025-09-19
+### Changed
+- Update package dependencies. [#45229]
+
+## 1.0.25 - 2025-09-08
+### Changed
+- Update package dependencies. [#45027]
+
+## 1.0.24 - 2025-09-01
+### Changed
+- Update dependencies. [#44300]
+
+## 1.0.23 - 2025-08-25
+### Changed
+- Update dependencies. [#44300]
+
+## 1.0.22 - 2025-08-25
+### Changed
+- Update dependencies. [#44300]
+
+## 1.0.21 - 2025-08-18
+### Changed
+- Update dependencies. [#44300]
+
+## 1.0.20 - 2025-08-14
+### Changed
+- Update dependencies. [#44300]
+
+## 1.0.19 - 2025-08-13
+### Changed
+- Update package dependencies. [#44701]
+
+## 1.0.18 - 2025-08-11
+### Changed
+- Update package dependencies. [#44677]
+
 ## 1.0.17 - 2025-08-04
 ### Changed
 - Internal updates.

@@ -1,9 +1,11 @@
-const fs = require( 'fs' );
-const core = require( '@actions/core' );
-const yaml = require( 'js-yaml' );
-const reporter = require( './reporter.js' );
-const requestReview = require( './request-review.js' );
-const Requirement = require( './requirement.js' );
+import fs from 'fs';
+import * as core from '@actions/core';
+import yaml from 'js-yaml';
+import { fetchPaths } from './paths.js';
+import * as reporter from './reporter.js';
+import { requestReview } from './request-review.js';
+import { Requirement } from './requirement.js';
+import { fetchReviewers } from './reviewers.js';
 
 /**
  * Load the requirements yaml file.
@@ -59,12 +61,12 @@ async function main() {
 		const requirements = await getRequirements();
 		core.startGroup( `Loaded ${ requirements.length } review requirement(s)` );
 
-		const reviewers = await require( './reviewers.js' )();
+		const reviewers = await fetchReviewers();
 		core.startGroup( `Found ${ reviewers.length } reviewer(s)` );
 		reviewers.forEach( r => core.info( r ) );
 		core.endGroup();
 
-		let paths = await require( './paths.js' )();
+		let paths = await fetchPaths();
 		core.startGroup( `PR affects ${ paths.length } file(s)` );
 		paths.forEach( p => core.info( p ) );
 		core.endGroup();
@@ -101,6 +103,8 @@ async function main() {
 				await requestReview( [ ...teamsNeededForReview ] );
 			}
 		}
+		core.setOutput( 'requirements-satisfied', teamsNeededForReview.size === 0 );
+		core.setOutput( 'teams-needed-for-review', [ ...teamsNeededForReview ] );
 	} catch ( error ) {
 		let err, state, description;
 		if ( error instanceof reporter.ReportError ) {
@@ -117,7 +121,9 @@ async function main() {
 		if ( core.getInput( 'token' ) && core.getInput( 'status' ) ) {
 			await reporter.status( state, description );
 		}
+		core.setOutput( 'requirements-satisfied', false );
+		core.setOutput( 'teams-needed-for-review', [] );
 	}
 }
 
-main();
+await main();

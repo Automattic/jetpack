@@ -136,7 +136,12 @@ if ( ! class_exists( 'Jetpack_EU_Cookie_Law_Widget' ) ) {
 				'position'           => $this->position_options[0],
 				'policy-link-text'   => esc_html__( 'Cookie Policy', 'jetpack' ),
 				'button'             => esc_html__( 'Close and accept', 'jetpack' ),
-				'default-text'       => esc_html__( "Privacy & Cookies: This site uses cookies. By continuing to use this website, you agree to their use. \r\nTo find out more, including how to control cookies, see here:", 'jetpack' ),
+				'default-text'       => esc_html__(
+					'Privacy & Cookies: This site uses cookies. By continuing to use this website, you agree to their use.
+
+To find out more, including how to control cookies, see here:',
+					'jetpack'
+				),
 			);
 		}
 
@@ -309,7 +314,10 @@ if ( ! class_exists( 'Jetpack_EU_Cookie_Law_Widget' ) ) {
 			}
 
 			// Show the banner again if a setting has been changed.
-			setcookie( self::$cookie_name, '', time() - 86400, '/', COOKIE_DOMAIN, is_ssl(), false ); // phpcs:ignore Jetpack.Functions.SetCookie -- Fine to have accessible.
+			// Sometimes plugins send headers already, so we can't set a cookie and any attempt will throw a warning.
+			if ( ! headers_sent() ) {
+				setcookie( self::$cookie_name, '', time() - 86400, '/', COOKIE_DOMAIN, is_ssl(), false ); // phpcs:ignore Jetpack.Functions.SetCookie -- Fine to have accessible.
+			}
 
 			return $instance;
 		}

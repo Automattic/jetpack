@@ -72,7 +72,7 @@ class ValidateCommand extends Command {
 			->addOption( 'no-strict', null, InputOption::VALUE_NONE, 'Do not exit with a failure code if only warnings are found.' )
 			->addArgument( 'files', InputArgument::OPTIONAL | InputArgument::IS_ARRAY, 'Files to check. By default, all change files in the changelog directory are checked.' )
 			->setHelp(
-				<<<EOF
+				<<<'EOF'
 The <info>validate</info> command validates change files.
 EOF
 			);

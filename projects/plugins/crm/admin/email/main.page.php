@@ -1,6 +1,5 @@
 <?php
 /*
-!
  * Main Email page: This is the main file which renders the (single-send) email layout
  * Jetpack CRM - https://jetpackcrm.com
  *
@@ -453,8 +452,8 @@ function zeroBSCRM_pages_admin_sendmail() {
 			<form autocomplete="<?php echo esc_attr( jpcrm_disable_browser_autocomplete() ); ?>" id="zbs-send-single-email" class="ui form" action="<?php echo esc_url( zeroBSCRM_getAdminURL( $zbs->slugs['emails'] ) ); ?>" method="POST">
 
 			<?php
-			if ( is_array( $customerMeta ) && array_key_exists( 'fname', $customerMeta ) ) {
-				$custName = $customerMeta['fname'] . ' ' . $customerMeta['lname'];
+			if ( is_array( $customerMeta ) && ! empty( $customerMeta ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+				$custName = ( $customerMeta['fname'] ?? '' ) . ' ' . ( $customerMeta['lname'] ?? '' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 				$toEmail  = $customerMeta['email'];
 			} else {
 				$custName = '';

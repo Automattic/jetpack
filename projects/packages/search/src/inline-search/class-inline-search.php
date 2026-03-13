@@ -291,11 +291,11 @@ class Inline_Search extends Classic_Search {
 			switch ( $aggregation['type'] ) {
 				case 'taxonomy':
 					if ( $aggregation['taxonomy'] === 'post_tag' ) {
-						$field = 'tag.slug';
+						$field = 'tag.slug_slash_name';
 					} elseif ( $aggregation['taxonomy'] === 'category' ) {
-						$field = 'category.slug';
+						$field = 'category.slug_slash_name';
 					} else {
-						$field = "taxonomy.{$aggregation['taxonomy']}.slug";
+						$field = "taxonomy.{$aggregation['taxonomy']}.slug_slash_name";
 					}
 					$aggregations[ $label ] = array(
 						'terms' => array(
@@ -329,6 +329,17 @@ class Inline_Search extends Classic_Search {
 							'min_doc_count'     => (int) ( $args['min_doc_count'] ?? 1 ),
 						),
 					);
+					break;
+				case 'product_attribute':
+					if ( ! empty( $aggregation['attribute'] ) ) {
+						$field                  = "taxonomy.{$aggregation['attribute']}.slug_slash_name";
+						$aggregations[ $label ] = array(
+							'terms' => array(
+								'field' => $field,
+								'size'  => $size,
+							),
+						);
+					}
 					break;
 			}
 		}

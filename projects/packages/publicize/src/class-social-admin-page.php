@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\Publicize;
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Publicize\Publicize_Utils as Utils;
 use Automattic\Jetpack\Status\Host;
 
@@ -50,10 +51,6 @@ class Social_Admin_Page {
 	 */
 	public function add_menu() {
 
-		if ( ! Publicize_Script_Data::has_feature_flag( 'admin-page' ) ) {
-			return;
-		}
-
 		// Remove the old Social menu item, if it exists.
 		Admin_Menu::remove_menu( 'jetpack-social' );
 
@@ -75,8 +72,9 @@ class Social_Admin_Page {
 		}
 
 		$page_suffix = Admin_Menu::add_menu(
-			__( 'Jetpack Social', 'jetpack-publicize-pkg' ),
-			_x( 'Social', 'The Jetpack Social product name, without the Jetpack prefix', 'jetpack-publicize-pkg' ),
+			/** "Jetpack Social" is a product name, do not translate. */
+			'Jetpack Social',
+			'Social',
 			'publish_posts',
 			'jetpack-social',
 			array( $this, 'render' ),
@@ -90,6 +88,13 @@ class Social_Admin_Page {
 	 * Initialize the admin resources.
 	 */
 	public function admin_init() {
+		// Refresh data if coming from purchase to ensure it is up to date
+		// without making API calls on every admin page load.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( isset( $_GET['refresh_plan_data'] ) ) {
+			Current_Plan::refresh_from_wpcom();
+		}
+
 		/**
 		 * Use priority 20 to ensure that we can dequeue the old Social assets.
 		 */

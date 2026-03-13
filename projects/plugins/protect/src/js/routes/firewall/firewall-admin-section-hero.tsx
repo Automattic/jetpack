@@ -1,5 +1,5 @@
 import { Status, Text } from '@automattic/jetpack-components';
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import { useMemo } from 'react';
 import AdminSectionHero from '../../components/admin-section-hero';
 import useWafData from '../../hooks/use-waf-data';
@@ -29,7 +29,7 @@ const FirewallAdminSectionHero = () => {
 		if ( status === 'on' ) {
 			return standaloneMode
 				? __( 'Standalone mode', 'jetpack-protect' )
-				: __( 'Active', 'jetpack-protect', 0 );
+				: _x( 'Active', 'The module status', 'jetpack-protect' );
 		}
 
 		return __( 'Inactive', 'jetpack-protect' );
@@ -43,10 +43,10 @@ const FirewallAdminSectionHero = () => {
 					{ wafSupported &&
 						( jetpackWafAutomaticRules
 							? __( 'Automatic firewall is on', 'jetpack-protect' )
-							: __(
+							: _x(
 									'Firewall is on',
-									'jetpack-protect',
-									/* dummy arg to avoid bad minification */ 0
+									'Explanatory text for firewall on status',
+									'jetpack-protect'
 							  ) ) }
 				</>
 			);
@@ -59,10 +59,10 @@ const FirewallAdminSectionHero = () => {
 					{ wafSupported &&
 						( automaticRulesAvailable
 							? __( 'Automatic firewall is off', 'jetpack-protect' )
-							: __(
+							: _x(
 									'Firewall is off',
-									'jetpack-protect',
-									/* dummy arg to avoid bad minification */ 0
+									'Explanatory text for firewall off status',
+									'jetpack-protect'
 							  ) ) }
 				</>
 			);

@@ -79,7 +79,8 @@ abstract class SAL_Site {
 	 * @return string
 	 */
 	public function get_name() {
-		return (string) htmlspecialchars_decode( get_bloginfo( 'name' ), ENT_QUOTES );
+		$name = get_bloginfo( 'name' );
+		return is_string( $name ) ? htmlspecialchars_decode( $name, ENT_QUOTES ) : '';
 	}
 
 	/**
@@ -88,7 +89,8 @@ abstract class SAL_Site {
 	 * @return string
 	 */
 	public function get_description() {
-		return (string) htmlspecialchars_decode( get_bloginfo( 'description' ), ENT_QUOTES );
+		$description = get_bloginfo( 'description' );
+		return is_string( $description ) ? htmlspecialchars_decode( $description, ENT_QUOTES ) : '';
 	}
 
 	/**
@@ -1013,7 +1015,7 @@ abstract class SAL_Site {
 	public function get_logo() {
 		// Set an empty response array.
 		$logo_setting = array(
-			'id'    => (int) 0,
+			'id'    => 0,
 			'sizes' => array(),
 			'url'   => '',
 		);
@@ -1254,7 +1256,7 @@ abstract class SAL_Site {
 			$blog_services          = $ss->get_blog_services();
 			$default_sharing_status = ! empty( $blog_services['visible'] );
 		}
-		return (bool) $default_sharing_status;
+		return $default_sharing_status;
 	}
 
 	/**
@@ -1518,16 +1520,16 @@ abstract class SAL_Site {
 	}
 
 	/**
-	 * Check if the site has the summer-special-2025 blog sticker.
+	 * Check if the site has the gating-business-q1 blog sticker.
 	 *
 	 * @return bool
 	 */
-	public function is_summer_special_2025() {
+	public function is_gating_business_q1() {
 		if ( function_exists( 'has_blog_sticker' ) ) {
-			return has_blog_sticker( 'summer-special-2025' );
+			return has_blog_sticker( 'gating-business-q1' );
 		} elseif ( function_exists( 'wpcomsh_is_site_sticker_active' ) ) {
 			// For atomic sites
-			return wpcomsh_is_site_sticker_active( 'summer-special-2025' );
+			return wpcomsh_is_site_sticker_active( 'gating-business-q1' );
 		}
 		return false;
 	}
@@ -1706,4 +1708,52 @@ abstract class SAL_Site {
 	 * @return bool
 	 */
 	abstract public function is_pending_plan();
+
+	/**
+	 * Detect whether the site is a Garden site.
+	 *
+	 * @return bool
+	 */
+	public function is_garden() {
+		return false;
+	}
+
+	/**
+	 * Get the Garden name.
+	 *
+	 * @return string
+	 */
+	public function garden_name() {
+		return null;
+	}
+
+	/**
+	 * Get the Garden partner.
+	 *
+	 * @return string
+	 */
+	public function garden_partner() {
+		return null;
+	}
+
+	/**
+	 * Detect whether the Garden site is provisioned.
+	 *
+	 * @return bool|null
+	 */
+	public function garden_is_provisioned() {
+		return null;
+	}
+
+	/**
+	 * Detect whether the site is a Flex site.
+	 *
+	 * @return bool
+	 */
+	public function is_wpcom_flex() {
+		if ( function_exists( 'has_blog_sticker' ) ) {
+			return has_blog_sticker( 'flex-cache-site' );
+		}
+		return false;
+	}
 }

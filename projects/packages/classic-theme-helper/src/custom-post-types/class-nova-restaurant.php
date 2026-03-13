@@ -1254,7 +1254,7 @@ if ( ! class_exists( __NAMESPACE__ . '\Nova_Restaurant' ) ) {
 			<p>
 			<?php
 			echo wp_kses(
-				__( 'Use the <kbd>TAB</kbd> key on your keyboard to move between colums and the <kbd>ENTER</kbd> or <kbd>RETURN</kbd> key to save each row and move on to the next.', 'jetpack-classic-theme-helper' ),
+				__( 'Use the <kbd>TAB</kbd> key on your keyboard to move between columns and the <kbd>ENTER</kbd> or <kbd>RETURN</kbd> key to save each row and move on to the next.', 'jetpack-classic-theme-helper' ),
 				array(
 					'kbd' => array(),
 				)
@@ -1403,7 +1403,7 @@ if ( ! class_exists( __NAMESPACE__ . '\Nova_Restaurant' ) ) {
 			);
 			$args['taxonomy'] = self::MENU_TAX;
 
-			$terms = get_terms( $args ); // @phan-suppress-current-line PhanAccessMethodInternal
+			$terms = get_terms( $args ); // @phan-suppress-current-line PhanAccessMethodInternal @phan-suppress-current-line UnusedSuppression -- Fixed in WP 6.9, but then we need a suppression for the WP 6.8 compat run. @todo Remove this suppression when we drop WP <6.9.
 			if ( ! $terms || is_wp_error( $terms ) ) {
 				return array();
 			}

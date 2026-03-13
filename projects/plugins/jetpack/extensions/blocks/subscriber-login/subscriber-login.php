@@ -18,6 +18,10 @@ use Jetpack_Gutenberg;
 use Jetpack_Memberships;
 use Jetpack_Options;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 require_once __DIR__ . '/class-jetpack-subscription-site.php';
 
 /**

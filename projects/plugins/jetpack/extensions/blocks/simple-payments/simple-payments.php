@@ -9,6 +9,10 @@
 
 use Automattic\Jetpack\PaypalPayments\SimplePayments\Block;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 // Register the block
 add_action( 'init', array( Block::class, 'register_block' ), 9 );
 

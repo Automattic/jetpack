@@ -16,6 +16,10 @@ use Automattic\Jetpack\PayPal_Payments;
 use PayPal_Payments_Currencies;
 use WP_Post;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Simple_Payments
  */
@@ -173,11 +177,11 @@ class Simple_Payments {
 		wp_add_inline_script(
 			'jetpack-paypal-express-checkout',
 			sprintf(
-				"try{PaypalExpressCheckout.renderButton( '%d', '%d', '%s', '%d' );}catch(e){}",
-				esc_js( (string) $this->get_blog_id() ),
-				esc_js( $id ),
-				esc_js( $dom_id ),
-				esc_js( $is_multiple ) /* @phan-suppress-current-line PhanTypeMismatchArgument */
+				"try{PaypalExpressCheckout.renderButton( '%d', '%d', %s, '%d' );}catch(e){}",
+				intval( $this->get_blog_id() ),
+				intval( $id ),
+				wp_json_encode( $dom_id, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ),
+				intval( $is_multiple )
 			)
 		);
 	}

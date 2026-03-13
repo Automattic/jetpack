@@ -7,6 +7,7 @@ import util from 'util';
 import chalk from 'chalk';
 import chokidar from 'chokidar';
 import Configstore from 'configstore';
+import { escapePath } from 'dot-prop';
 import enquirer from 'enquirer';
 import { execa } from 'execa';
 import pDebounce from 'p-debounce';
@@ -21,17 +22,6 @@ const rsyncConfigStore = new Configstore( 'automattic/jetpack-cli/rsync' );
 let isOpenrsync = false;
 
 /**
- * Escapes dots in a string. Useful when saving destination as key in Configstore. Otherwise it tries strings with dots
- * as nested objects.
- *
- * @param { string } key - String of the destination key.
- * @return { string } - Returns the key with escaped periods.
- */
-function escapeKey( key ) {
-	return key.replace( /\./g, '\\.' );
-}
-
-/**
  * Stores the destination in the configstore.
  * Takes an optional alias arg.
  *
@@ -40,7 +30,7 @@ function escapeKey( key ) {
  */
 function setRsyncDest( pluginDestPath, alias = false ) {
 	const key = alias || pluginDestPath;
-	rsyncConfigStore.set( escapeKey( key ), pluginDestPath );
+	rsyncConfigStore.set( escapePath( key ), pluginDestPath );
 }
 
 /**
@@ -301,7 +291,7 @@ async function promptToManageConfig() {
 				}
 			} );
 	};
-	const clearOne = key => rsyncConfigStore.delete( escapeKey( key ) );
+	const clearOne = key => rsyncConfigStore.delete( escapePath( key ) );
 	const configManage = await enquirer.prompt( {
 		type: 'select',
 		name: 'manageConfig',
@@ -584,7 +574,8 @@ async function rsyncToDest( source, dest ) {
 		// Some versions of openrsync partially work with --copy-unsafe-links, so do that for them.
 		const copyLinksOpt = isOpenrsync ? '--copy-unsafe-links' : '--copy-links';
 
-		await runCommand( 'rsync', [
+		// Build rsync arguments
+		const rsyncArgs = [
 			'-azKPv',
 			'--prune-empty-dirs',
 			'--delete',
@@ -592,9 +583,17 @@ async function rsyncToDest( source, dest ) {
 			'--delete-excluded',
 			copyLinksOpt,
 			`--include-from=${ tmpFile.name }`,
-			source,
-			dest,
-		] );
+		];
+
+		// When RSYNC_PROXY_SOCKET is set, use the rsh-proxy script to route SSH through the host
+		// This enables support for Secure Enclave SSH keys that can't be forwarded into Docker
+		if ( process.env.RSYNC_PROXY_SOCKET ) {
+			rsyncArgs.push( '--rsh=/workspace/tools/docker/bin/rsync-rsh-proxy.sh' );
+		}
+
+		rsyncArgs.push( source, dest );
+
+		await runCommand( 'rsync', rsyncArgs );
 		tmpFile.removeCallback();
 	} catch ( e ) {
 		console.log( e );
@@ -641,13 +640,13 @@ async function promptForSetAlias( pluginDestPath ) {
 		message: 'Enter an alias for easier reference? (Press enter to skip.)',
 	} );
 	const alias = aliasSetPrompt.alias || pluginDestPath;
-	if ( rsyncConfigStore.has( escapeKey( alias ) ) ) {
+	if ( rsyncConfigStore.has( escapePath( alias ) ) ) {
 		const alreadyFound = await enquirer.prompt( {
 			name: 'overwrite',
 			type: 'confirm',
 			initial: true,
 			// prettier-ignore
-			message: `This alias already exists for dest: ${ rsyncConfigStore.get( escapeKey( alias ) ) }. Overwrite it?`,
+			message: `This alias already exists for dest: ${ rsyncConfigStore.get( escapePath( alias ) ) }. Overwrite it?`,
 		} );
 		if ( ! alreadyFound.overwrite ) {
 			console.log( 'Okay!' );
@@ -666,9 +665,9 @@ async function promptForSetAlias( pluginDestPath ) {
  * @return {object} argv object with the project property.
  */
 async function maybePromptForDest( argv ) {
-	if ( rsyncConfigStore.has( argv.dest ) ) {
-		console.log( `Alias found, using dest: ${ rsyncConfigStore.get( argv.dest ) }` );
-		argv.dest = rsyncConfigStore.get( argv.dest );
+	if ( typeof argv.dest === 'string' && rsyncConfigStore.has( escapePath( argv.dest ) ) ) {
+		console.log( `Alias found, using dest: ${ rsyncConfigStore.get( escapePath( argv.dest ) ) }` );
+		argv.dest = rsyncConfigStore.get( escapePath( argv.dest ) );
 		return argv;
 	}
 	if ( argv.dest ) {
@@ -692,7 +691,7 @@ async function maybePromptForDest( argv ) {
 		if ( 'Create new' === response.dest ) {
 			argv.dest = await promptNewDest();
 		} else {
-			argv.dest = rsyncConfigStore.get( escapeKey( response.dest ) );
+			argv.dest = rsyncConfigStore.get( escapePath( response.dest ) );
 		}
 	}
 	return argv;

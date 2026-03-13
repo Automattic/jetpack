@@ -226,12 +226,12 @@ class Jetpack_Debug_Data {
 		);
 		$debug_info['blog_token']   = array(
 			'label'   => 'Blog Public Key',
-			'value'   => ( $blog_token ) ? $blog_key : 'Not set.',
+			'value'   => $blog_key ?? 'Not set.',
 			'private' => false,
 		);
 		$debug_info['user_token']   = array(
 			'label'   => 'User Public Key',
-			'value'   => ( $user_token ) ? $user_key : 'Not set.',
+			'value'   => $user_key ?? 'Not set.',
 			'private' => false,
 		);
 
@@ -285,7 +285,7 @@ class Jetpack_Debug_Data {
 
 		$debug_info['protect_header'] = array(
 			'label'   => 'Trusted IP',
-			'value'   => wp_json_encode( get_site_option( 'trusted_ip_header' ) ),
+			'value'   => wp_json_encode( get_site_option( 'trusted_ip_header' ), JSON_UNESCAPED_SLASHES ),
 			'private' => false,
 		);
 
@@ -302,7 +302,7 @@ class Jetpack_Debug_Data {
 			}
 			$debug_info['full_sync'] = array(
 				'label'   => 'Full Sync Status',
-				'value'   => wp_json_encode( $human_readable_sync_status ),
+				'value'   => wp_json_encode( $human_readable_sync_status, JSON_UNESCAPED_SLASHES ),
 				'private' => false,
 			);
 		}
@@ -347,12 +347,12 @@ class Jetpack_Debug_Data {
 
 		$debug_info['idc_urls']         = array(
 			'label'   => 'IDC URLs',
-			'value'   => wp_json_encode( $idc_urls ),
+			'value'   => wp_json_encode( $idc_urls, JSON_UNESCAPED_SLASHES ),
 			'private' => false,
 		);
 		$debug_info['idc_error_option'] = array(
 			'label'   => 'IDC Error Option',
-			'value'   => wp_json_encode( Jetpack_Options::get_option( 'sync_error_idc' ) ),
+			'value'   => wp_json_encode( Jetpack_Options::get_option( 'sync_error_idc' ), JSON_UNESCAPED_SLASHES ),
 			'private' => false,
 		);
 		$debug_info['idc_optin']        = array(
@@ -371,7 +371,7 @@ class Jetpack_Debug_Data {
 		if ( $cxn_tests->pass() ) {
 			$debug_info['cxn_tests']['value'] = 'All Pass.';
 		} else {
-			$debug_info['cxn_tests']['value'] = wp_json_encode( $cxn_tests->list_fails() );
+			$debug_info['cxn_tests']['value'] = wp_json_encode( $cxn_tests->list_fails(), JSON_UNESCAPED_SLASHES );
 		}
 
 		return $debug_info;
@@ -391,7 +391,7 @@ class Jetpack_Debug_Data {
 
 		$user = new WP_User( $master_user );
 
-		if ( ! $user ) {
+		if ( ! $user->exists() ) {
 			return __( 'Master user no longer exists. Please disconnect and reconnect Jetpack.', 'jetpack' );
 		}
 

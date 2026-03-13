@@ -1,6 +1,5 @@
 <?php
 /*
-!
  * Jetpack CRM
  * https://jetpackcrm.com
  * V1.20
@@ -82,40 +81,6 @@ function zeroBSCRM_CompanyTypeList( $jsCallbackFuncStr = '', $inputDefaultValue 
 		$extraClasses .= 'zbsbtypeaheadfullwidth';
 	}
 
-	// typeahead or select?
-	// turned off until JS bind's work
-	// #TODOCOLIST in /wdev/ZeroBSCRM/zerobs-core/js/ZeroBSCRM.admin.global.js
-	if ( isset( $neverGoingToBeSet ) && zeroBS_companyCount() < 50 ) {
-
-		// } Wrap
-		$ret .= '<div class="zbs-company-select ' . $extraClasses . '">';
-
-		// } Build input
-		$companies = zeroBS_getCompanies( true, 10000, 0 );
-		$ret      .= '<select class="zbs-company-select-input" autocomplete="' . esc_attr( jpcrm_disable_browser_autocomplete() ) . '" data-zbsopencallback="' . $jsCallbackFuncStr . '" data-zbschangecallback="' . $jsChangeCallbackFuncStr . '">'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-
-		if ( is_array( $companies ) ) {
-			foreach ( $companies as $co ) {
-
-				if ( isset( $co['name'] ) && $co['name'] !== 'Auto Draft' ) {
-
-					$ret .= '<option value="' . $co['id'] . '"';
-					if ( $co['name'] == $inputDefaultValue ) {
-						$ret .= ' selected="selected"';
-					}
-					$ret .= '>' . esc_html( $co['name'] ) . '</option>';
-
-				}
-			}
-		}
-
-			$ret .= '</select>';
-
-			// } close wrap
-			$ret .= '</div>';
-
-	} else {
-
 		// typeahead
 
 		// } Wrap
@@ -128,28 +93,26 @@ function zeroBSCRM_CompanyTypeList( $jsCallbackFuncStr = '', $inputDefaultValue 
 
 		// } Also need to make sure this is dumped out for js
 		global $haszbscrmBHURLCompaniesOut;
-		if ( ! isset( $haszbscrmBHURLCompaniesOut ) ) {
+	if ( ! isset( $haszbscrmBHURLCompaniesOut ) ) {
 
-			$nonce         = wp_create_nonce( 'wp_rest' );
-			$rest_base_url = get_rest_url();
+		$nonce         = wp_create_nonce( 'wp_rest' );
+		$rest_base_url = get_rest_url();
 
-			// handle bare permalink structure
-			if ( empty( get_option( 'permalink_structure' ) ) ) {
-				$param_separator = '&';
-			} else {
-				$param_separator = '?';
-			}
-			$rest_url = $rest_base_url . 'zbscrm/v1/companies' . $param_separator . '_wpnonce=' . $nonce;
-
-			$ret .= '<script type="text/javascript">var zbscrmBHURLCompanies = "' . $rest_url . '";</script>';
-
-			$haszbscrmBHURLCompaniesOut = true;
+		// handle bare permalink structure
+		if ( empty( get_option( 'permalink_structure' ) ) ) {
+			$param_separator = '&';
+		} else {
+			$param_separator = '?';
 		}
+		$rest_url = $rest_base_url . 'zbscrm/v1/companies' . $param_separator . '_wpnonce=' . $nonce;
+
+		$ret .= '<script type="text/javascript">var zbscrmBHURLCompanies = "' . $rest_url . '";</script>';
+
+		$haszbscrmBHURLCompaniesOut = true;
+	}
 
 		// } Global JS does the rest ;)
 		// } see zbscrm_JS_Bind_Typeaheads_Customers
-
-	}
 
 	return $ret;
 }
@@ -158,24 +121,18 @@ function zeroBSCRM_CompanyTypeList( $jsCallbackFuncStr = '', $inputDefaultValue 
 	// } Returns json representing the first 10k customers in db... brutal
 	// } MS NOTE: useful to return EMAIL in the response (for auto filling - WITHOUT getting ALL meta)?
 function zeroBSCRM_cjson() {
-
-	header( 'Content-Type: application/json' );
 	$ret = array();
 
 	if ( is_user_logged_in() && zeroBSCRM_permsCustomers() ) {
 		$ret = zeroBS_getCustomers( true, 10000, 0, false, false, '', false, false, false );
 	}
 
-	echo json_encode( $ret );
-
-	exit( 0 );
+	wp_send_json( $ret );
 }
 
 	// WH NOTE: WHY is this getting ALL of them and not s? param
 	// } Returns json representing the first 10k customers in db... brutal
 function zeroBSCRM_cojson() {
-
-	header( 'Content-Type: application/json' );
 	$ret = array();
 
 	if ( is_user_logged_in() && zeroBSCRM_permsCustomers() ) {
@@ -195,9 +152,7 @@ function zeroBSCRM_cojson() {
 
 	}
 
-	echo json_encode( $ret );
-
-	exit( 0 );
+	wp_send_json( $ret );
 }
 
 /*
@@ -275,7 +230,7 @@ function zbs_customerFiltersGetApplied( $srcArr = 'usepost', $requireEmail = fal
 			'postcode'    => array( 'str', 'postcode' ),
 
 		);
-		// } Tags dealt with seperately.
+		// } Tags dealt with separately.
 
 		foreach ( $possibleFilters as $key => $filter ) {
 
@@ -454,7 +409,7 @@ function zbs_customerFiltersRetrieveCustomers( $perPage = 10, $page = 1, $forceP
 	// $zbsQPI['retrieveCustomers1'] = zeroBSCRM_mtime_float();
 
 	// } Req.
-	global $zbs,$zbsCustomerFields, $zbsCustomerFiltersInEffect, $zbsCustomerFiltersCurrentList;
+	global $zbs, $zbsCustomerFields, $zbsCustomerFiltersInEffect, $zbsCustomerFiltersCurrentList;
 
 	// } Already cached?
 	if (
@@ -556,7 +511,7 @@ function zbs_customerFiltersRetrieveCustomers( $perPage = 10, $page = 1, $forceP
 					if ( isset( $appliedFilters['addedfrom'] ) && ! empty( $appliedFilters['addedfrom'] ) ) {
 
 						// } add holder if req
-						if ( ! isset( $args['date_query'] ) ) {
+						if ( ! $args['date_query'] ) {
 							$args['date_query'] = array();
 						}
 
@@ -572,7 +527,7 @@ function zbs_customerFiltersRetrieveCustomers( $perPage = 10, $page = 1, $forceP
 					}
 					if ( isset( $appliedFilters['addedto'] ) && ! empty( $appliedFilters['addedto'] ) ) {
 
-						// } add holder if req
+						// } ensure date_query array exists
 						if ( ! isset( $args['date_query'] ) ) {
 							$args['date_query'] = array();
 						}

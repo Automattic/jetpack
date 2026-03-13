@@ -170,7 +170,7 @@ function fetch_option_from_wpcom( $option ) {
 	}
 	$options = $jetpack->get_cloud_site_options( array( $option ) );
 
-	return $options[ $option ];
+	return $options[ $option ] ?? false;
 }
 
 /**
@@ -321,6 +321,10 @@ function register_additional_jetpack_xmlrpc_methods( $methods ) {
  * @return array|false
  */
 function get_closest_thumbnail_size_url( $args ) {
+	if ( ! isset( $args['url'] ) || ! isset( $args['width'] ) || ! isset( $args['height'] ) ) {
+		return false;
+	}
+
 	$id = attachment_url_to_postid( $args['url'] );
 	if ( ! $id ) {
 		return false;
@@ -394,7 +398,9 @@ function get_read_access_cookies( $args ) {
 function is_jetpack_admin_ajax_request() {
 	// phpcs:disable WordPress.Security
 	return (
+		isset( $_SERVER['REQUEST_URI'] ) &&
 		substr( $_SERVER['REQUEST_URI'], 0, 24 ) === '/wp-admin/admin-ajax.php' &&
+		isset( $_SERVER['HTTP_AUTHORIZATION'] ) &&
 		substr( $_SERVER['HTTP_AUTHORIZATION'], 0, 9 ) === 'X_JETPACK' &&
 		array_key_exists( 'action', $_POST ) &&
 		substr( $_POST['action'], 0, 8 ) === 'jetpack_'
@@ -419,7 +425,9 @@ function send_access_denied_error_response() {
 					'This site is private.',
 					'wpcomsh'
 				),
-			)
+			),
+			null, // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- It takes null, but its phpdoc only says int.
+			JSON_UNESCAPED_SLASHES
 		);
 	}
 
@@ -703,7 +711,22 @@ function access_denied_template_path() {
 		return __DIR__ . '/access-denied-preview-login-template.php';
 	}
 
-	if ( site_is_coming_soon() ) {
+	/*
+	 * Logged-out users coming from Calypso are likely authenticated in wordpress.com, so if we redirect them
+	 * straight away to the login page, the SSO module will try to automatically log them in into the site.
+	 */
+	$calypso_domains          = array(
+		'https://wordpress.com/',
+		'https://horizon.wordpress.com/',
+		'https://wpcalypso.wordpress.com/',
+		'http://calypso.localhost:3000/',
+		'http://127.0.0.1:41050/', // Desktop App.
+	);
+	$should_redirect_to_login = ( ! is_user_logged_in() ) && class_exists( 'Jetpack' ) && Jetpack::is_module_active( 'sso' ) && in_array( wp_get_referer(), $calypso_domains, true );
+	if ( $should_redirect_to_login ) {
+		wp_safe_redirect( wp_login_url( set_url_scheme( original_request_url() ) ) );
+		exit( 0 );
+	} elseif ( site_is_coming_soon() ) {
 		return __DIR__ . '/access-denied-coming-soon-template.php';
 	} else {
 		return __DIR__ . '/access-denied-private-site-template.php';
@@ -748,6 +771,41 @@ function private_robots_txt() {
 	// Purposefully overriding current output; we only want these rules.
 	return "User-agent: *\nDisallow: /\n";
 }
+
+// Dummy gettext calls to get strings in the catalog.
+/* translators: User role. */
+_x( 'Viewer', 'User role', 'wpcomsh' );
+
+/**
+ * Renames the "Subscriber" role to "Viewer".
+ *
+ * @param \WP_Roles $roles WP_Roles object.
+ */
+function rename_subscriber_role_to_viewer( $roles ) {
+	if ( site_is_private() && isset( $roles->roles['subscriber'] ) ) {
+		$roles->roles['subscriber']['name'] = 'Viewer';
+		$roles->role_names['subscriber']    = 'Viewer';
+	}
+}
+add_action( 'wp_roles_init', '\Private_Site\rename_subscriber_role_to_viewer' );
+
+/**
+ * Translate Viewer role using the wpcomsh textdomain.
+ *
+ * @param string $translation  Translated text.
+ * @param string $text         Text to translate.
+ * @param string $context      Context information for the translators.
+ * @param string $domain       Text domain. Unique identifier for retrieving translated strings.
+ * @return string
+ */
+function translate_viewer_role( $translation, $text, $context, $domain ) {
+	if ( 'User role' === $context && 'default' === $domain && 'Viewer' === $text ) {
+		return translate_user_role( $text, 'wpcomsh' );
+	}
+
+	return $translation;
+}
+add_filter( 'gettext_with_context', '\Private_Site\translate_viewer_role', 10, 4 );
 
 /**
  * Output the meta tag that tells Pinterest not to allow users to pin

@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.7] - 2026-02-04
+### Fixed
+- Fail the workflow if updating the GitHub status fails. [#46021]
+
+## [2.0.6] - 2025-09-08
+### Changed
+- Internal updates.
+
 ## [2.0.5] - 2025-05-13
 ### Changed
 - Update dependencies. [#42002]
@@ -62,6 +70,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial release.
 
+[2.0.7]: https://github.com/Automattic/action-pr-is-up-to-date/compare/v2.0.6...v2.0.7
+[2.0.6]: https://github.com/Automattic/action-pr-is-up-to-date/compare/v2.0.5...v2.0.6
 [2.0.5]: https://github.com/Automattic/action-pr-is-up-to-date/compare/v2.0.4...v2.0.5
 [2.0.4]: https://github.com/Automattic/action-pr-is-up-to-date/compare/v2.0.3...v2.0.4
 [2.0.3]: https://github.com/Automattic/action-pr-is-up-to-date/compare/v2.0.2...v2.0.3

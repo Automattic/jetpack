@@ -1,9 +1,8 @@
 {
 	"extends": "jetpack-js-tools/tsconfig.base.json",
 	"compilerOptions": {
-		"typeRoots": [ "./node_modules/@types/", "src/*" ]
+		"outDir": "dist",
+		"rootDir": "src"
 	},
-	// List all sources and source-containing subdirs.
-	"include": [ "./src" ],
-	"exclude": [ "node_modules", "dist" ]
+	"include": [ "src" ]
 }

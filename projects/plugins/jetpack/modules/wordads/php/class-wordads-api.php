@@ -8,6 +8,10 @@
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Status;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Methods for accessing data through the WPCOM REST API
  *

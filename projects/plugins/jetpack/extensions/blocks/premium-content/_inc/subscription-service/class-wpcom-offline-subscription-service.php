@@ -9,6 +9,10 @@ namespace Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service;
 
 use const Automattic\Jetpack\Extensions\Subscriptions\META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Class WPCOM_Offline_Subscription_Service
  * This subscription service is used when a subscriber is offline and a token is not available.

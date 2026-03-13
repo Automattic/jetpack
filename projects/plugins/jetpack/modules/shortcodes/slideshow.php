@@ -1,14 +1,17 @@
 <?php //phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
-
-use Automattic\Jetpack\Assets;
-use Automattic\Jetpack\Extensions\Slideshow;
-
 /**
  * Slideshow shortcode.
  * Adds a new "slideshow" gallery type when adding a gallery using the classic editor.
  *
  * @package automattic/jetpack
  */
+
+use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Extensions\Slideshow;
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
 
 /**
  * Slideshow shortcode usage: [gallery type="slideshow"] or the older [slideshow]
@@ -261,11 +264,18 @@ class Jetpack_Slideshow_Shortcode {
 	 */
 	public function enqueue_scripts() {
 
-		wp_enqueue_script( 'jquery-cycle', plugins_url( '/js/jquery.cycle.min.js', __FILE__ ), array( 'jquery' ), '20161231', true );
+		wp_register_script(
+			'jetpack-shortcode-deps',
+			plugins_url( '_inc/build/shortcodes/js/dependencies.min.js', JETPACK__PLUGIN_FILE ),
+			array( 'jquery' ),
+			'20250905',
+			true
+		);
+
 		wp_enqueue_script(
 			'jetpack-slideshow',
 			Assets::get_file_url_for_environment( '_inc/build/shortcodes/js/slideshow-shortcode.min.js', 'modules/shortcodes/js/slideshow-shortcode.js' ),
-			array( 'jquery', 'jquery-cycle' ),
+			array( 'jquery', 'jetpack-shortcode-deps' ),
 			'20160119.1',
 			true
 		);

@@ -83,6 +83,50 @@ For OAuth apps and classic access tokens, that's `repo:status` and `read:org`.
 
 For GitHub Apps and fine-grained access tokens, that's read and write for repository "Commit statuses" (`statuses`) and "Pull requests" (`pull-requests`), and read-only for organization "Members".
 
+### Outputs
+
+Ths action produces the following outputs:
+
+* `requirements-satisfied` is a boolean that is `true` if all requirements are satisfied, `false` otherwise.
+* `teams-needed-for-review` is a JSON-stringified array of team names that are needed to review the PR.
+
+These outputs can be used in subsequent steps in the workflow. Below is an example of commenting on the PR with the teams that are needed to review the PR.
+
+```yaml
+name: Required review check
+on:
+  pull_request_review:
+  pull_request:
+    types: [ opened, reopened, synchronize ]
+
+jobs:
+  check:
+    name: Checking required reviews
+    runs-on: ubuntu-latest
+
+    # GitHub should provide a "pull_request_review_target", but they don't and
+    # the action will fail if run on a forked PR.
+    if: github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name
+
+    steps:
+      - uses: Automattic/action-required-review@v3
+        id: review-check
+        with:
+          token: ${{ secrets.REQUIRED_REVIEWS_TOKEN }}
+          requirements: |
+            - paths: unmatched
+              teams:
+                - maintenance
+
+      - name: Comment on the PR
+        if: ${{ review-check.outputs.requirements-satisfied == 'false' }}
+        run: |
+          teams_needed_for_review=$(echo "$TEAMS_NEEDED_FOR_REVIEW" | jq -r '. | join(", ")')
+          gh pr comment ${{ github.event.pull_request.number }} -b "The following teams are needed to review the PR: $teams_needed_for_review"
+        env:
+          TEAMS_NEEDED_FOR_REVIEW: ${{ review-check.outputs.teams-needed-for-review }}
+```
+
 ## Requirements Format
 
 The requirements consist of an array of requirement objects. A requirement object has the following keys:

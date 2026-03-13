@@ -6,6 +6,10 @@
  * @package automattic/jetpack
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * A buffer for constructing sitemap xml files using XMLWriter.
  *
@@ -41,6 +45,15 @@ abstract class Jetpack_Sitemap_Buffer_XMLWriter {
 	protected $is_full_flag;
 
 	/**
+	 * Flag which detects when the buffer is empty.
+	 * Set true on construction and flipped to false only after a successful append.
+	 *
+	 * @since 15.0
+	 * @var bool
+	 */
+	protected $is_empty_flag = true;
+
+	/**
 	 * The most recent timestamp seen by the buffer.
 	 *
 	 * @access protected
@@ -68,13 +81,40 @@ abstract class Jetpack_Sitemap_Buffer_XMLWriter {
 	protected $finder;
 
 	/**
-	 * The XML content as a string.
+	 * The XML content chunks collected from XMLWriter.
+	 *
+	 * Collect chunks and join once at the end to reduce string reallocations
+	 * and improve performance on large sitemaps.
 	 *
 	 * @access protected
-	 * @since 14.6
-	 * @var string $content
+	 * @since 15.0
+	 * @var array $chunks
 	 */
-	protected $content = '';
+	protected $chunks = array();
+
+	/**
+	 * Tracks whether the root element has been started.
+	 *
+	 * @since 15.0
+	 * @var bool
+	 */
+	protected $root_started = false;
+
+	/**
+	 * Mirror DOMDocument built on-demand for jetpack_print_sitemap compatibility.
+	 *
+	 * @since 15.0
+	 * @var DOMDocument|null
+	 */
+	protected $dom_document = null;
+
+	/**
+	 * Tracks whether XMLWriter document has been finalized (closed and flushed).
+	 *
+	 * @since 15.0
+	 * @var bool
+	 */
+	protected $is_finalized = false;
 
 	/**
 	 * Construct a new Jetpack_Sitemap_Buffer_XMLWriter.
@@ -86,9 +126,10 @@ abstract class Jetpack_Sitemap_Buffer_XMLWriter {
 	 * @param string $time The initial datetime of the buffer. Must be in 'YYYY-MM-DD hh:mm:ss' format.
 	 */
 	public function __construct( $item_limit, $byte_limit, $time ) {
-		$this->is_full_flag = false;
-		$this->timestamp    = $time;
-		$this->finder       = new Jetpack_Sitemap_Finder();
+		$this->is_full_flag  = false;
+		$this->is_empty_flag = true;
+		$this->timestamp     = $time;
+		$this->finder        = new Jetpack_Sitemap_Finder();
 
 		$this->writer = new XMLWriter();
 		$this->writer->openMemory();
@@ -98,7 +139,17 @@ abstract class Jetpack_Sitemap_Buffer_XMLWriter {
 		$this->item_capacity = max( 1, (int) $item_limit );
 		$this->byte_capacity = max( 1, (int) $byte_limit );
 
+		// Capture and account the XML declaration bytes to mirror DOM behavior.
+		$declaration          = $this->writer->outputMemory( true );
+		$this->chunks[]       = $declaration;
+		$this->byte_capacity -= strlen( $declaration );
+
+		// Allow subclasses to write comments and processing instructions only.
 		$this->initialize_buffer();
+
+		// Capture pre-root bytes (comments/PI). Do not subtract from capacity.
+		$pre_root_output = $this->writer->outputMemory( true );
+		$this->chunks[]  = $pre_root_output;
 	}
 
 	/**
@@ -109,6 +160,53 @@ abstract class Jetpack_Sitemap_Buffer_XMLWriter {
 	 * @since 14.6
 	 */
 	abstract protected function initialize_buffer();
+
+	/**
+	 * Start the root element (e.g., urlset or sitemapindex) and write its attributes.
+	 * Implemented by subclasses.
+	 *
+	 * @since 15.0
+	 * @access protected
+	 * @return void
+	 */
+	abstract protected function start_root();
+
+	/**
+	 * Ensure the root element has been started and account its bytes once.
+	 *
+	 * @since 15.0
+	 * @access protected
+	 * @return void
+	 */
+	protected function ensure_root_started() {
+		if ( $this->root_started ) {
+			return;
+		}
+		$this->start_root();
+		$root_chunk           = $this->writer->outputMemory( true );
+		$this->chunks[]       = $root_chunk;
+		$this->byte_capacity -= strlen( $root_chunk );
+		$this->root_started   = true;
+	}
+
+	/**
+	 * Finalize writer output once by closing the root and document and flushing.
+	 *
+	 * @since 15.0
+	 * @access protected
+	 * @return void
+	 */
+	protected function finalize_writer_output() {
+		if ( $this->is_finalized ) {
+			return;
+		}
+		$this->ensure_root_started();
+		$this->writer->endElement(); // End root element (urlset/sitemapindex)
+		$this->writer->endDocument();
+		$final_content      = $this->writer->outputMemory( true );
+		$this->chunks[]     = $final_content;
+		$this->is_finalized = true;
+	}
 
 	/**
 	 * Append an item to the buffer.
@@ -132,19 +230,29 @@ abstract class Jetpack_Sitemap_Buffer_XMLWriter {
 			return false;
 		}
 
-		$current_content = $this->writer->outputMemory( true );
-		$this->content  .= $current_content;
+		// Ensure root is started on first append and account its bytes.
+		$this->ensure_root_started();
 
+		// Attempt to render the item. Subclasses may decide to skip writing
+		// if the input structure is invalid for that sitemap type.
 		$this->append_item( $array );
 
-		$new_content    = $this->writer->outputMemory( true );
-		$this->content .= $new_content;
+		// Capture only the bytes produced by this item.
+		$new_content = $this->writer->outputMemory( true );
 
-		// Update capacities after successful append
+		// If nothing was written, treat as a no-op: keep the buffer "empty"
+		// and do not consume item/byte capacities.
+		if ( '' === $new_content ) {
+			return true;
+		}
+
+		// Persist newly written bytes and update capacities.
+		$this->chunks[]       = $new_content;
 		$this->item_capacity -= 1;
 		$this->byte_capacity -= strlen( $new_content );
+		$this->is_empty_flag  = false;
 
-		// Check both capacity limits
+		// Check both capacity limits.
 		if ( 0 >= $this->item_capacity || $this->byte_capacity <= 0 ) {
 			$this->is_full_flag = true;
 		}
@@ -163,22 +271,45 @@ abstract class Jetpack_Sitemap_Buffer_XMLWriter {
 	abstract protected function append_item( $array );
 
 	/**
+	 * Recursively writes XML elements from an associative array.
+	 *
+	 * This method iterates through an array and writes XML elements using the XMLWriter instance.
+	 * If a value in the array is itself an array, it calls itself recursively.
+	 *
+	 * @access protected
+	 * @since 15.0
+	 *
+	 * @param array $data The array to convert to XML.
+	 */
+	protected function array_to_xml( $data ) {
+		foreach ( (array) $data as $tag => $value ) {
+			if ( is_array( $value ) ) {
+				$this->writer->startElement( $tag );
+				$this->array_to_xml( $value );
+				$this->writer->endElement();
+			} else {
+				// Write raw text; XMLWriter will escape XML-reserved chars, matching DOMDocument behavior.
+				$this->writer->writeElement( $tag, (string) $value );
+			}
+		}
+	}
+
+	/**
 	 * Retrieve the contents of the buffer.
 	 *
 	 * @since 14.6
 	 * @return string The contents of the buffer.
 	 */
 	public function contents() {
-		$this->writer->endElement(); // End root element (urlset/sitemapindex)
-		$this->writer->endDocument();
-		$final_content  = $this->writer->outputMemory( true );
-		$this->content .= $final_content;
-
-		if ( empty( $this->content ) ) {
+		$this->finalize_writer_output();
+		if ( $this->dom_document instanceof DOMDocument ) {
+			return $this->dom_document->saveXML();
+		}
+		if ( empty( $this->chunks ) ) {
 			// If buffer is empty, return a minimal valid XML structure
 			return "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\"></urlset>";
 		}
-		return $this->content;
+		return implode( '', $this->chunks );
 	}
 
 	/**
@@ -198,9 +329,7 @@ abstract class Jetpack_Sitemap_Buffer_XMLWriter {
 	 * @return bool True if the buffer is empty, false otherwise.
 	 */
 	public function is_empty() {
-		$current        = $this->writer->outputMemory( true );
-		$this->content .= $current;
-		return empty( $this->content );
+		return $this->is_empty_flag;
 	}
 
 	/**
@@ -228,9 +357,22 @@ abstract class Jetpack_Sitemap_Buffer_XMLWriter {
 	 * This is only here to satisfy the jetpack_print_sitemap filter.
 	 *
 	 * @since 14.6
-	 * @return null
+	 * @return DOMDocument DOM representation of the current sitemap contents.
 	 */
 	public function get_document() {
-		return null;
+		if ( $this->dom_document instanceof DOMDocument ) {
+			return $this->dom_document;
+		}
+
+		$this->finalize_writer_output();
+
+		$dom                     = new DOMDocument( '1.0', 'UTF-8' );
+		$dom->formatOutput       = true; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+		$dom->preserveWhiteSpace = false; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+		// Load current XML content into DOM for compatibility with filters.
+		@$dom->loadXML( implode( '', $this->chunks ) ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- Avoid fatal on unexpected content
+
+		$this->dom_document = $dom;
+		return $this->dom_document;
 	}
 }

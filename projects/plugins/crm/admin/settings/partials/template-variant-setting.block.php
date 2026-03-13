@@ -1,6 +1,5 @@
 <?php
 /*
-!
  * Admin Page Partial: Settings: Template variant block
  *
  * This block outputs a <select> for a template variant selector setting (e.g. invoice pdf template)
@@ -46,7 +45,8 @@ if ( is_array( $variants ) && count( $variants ) > 0 ) { ?>
 							>
 								<?php
 								if ( $default ) {
-									esc_html_e( 'Default Template:', 'zero-bs-crm' ) . ' ';}
+									echo esc_html( __( 'Default Template:', 'zero-bs-crm' ) . ' ' );
+								}
 								?>
 								<?php echo esc_html( $template_info['filename'] . ' (' . $template_info['origin'] . ')' ); ?>
 							</option>

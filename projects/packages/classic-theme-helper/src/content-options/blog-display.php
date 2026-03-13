@@ -5,6 +5,10 @@
  * @package automattic/jetpack-classic-theme-helper
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * If the theme doesn't support 'jetpack-content-options', don't continue.
  */

@@ -4,6 +4,10 @@ use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Image_CDN\Image_CDN;
 use Automattic\Jetpack\Status;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 // Include the class file containing methods for rounding constrained array elements.
 // Here the constrained array element is the dimension of a row, group or an image in the tiled gallery.
 require_once __DIR__ . '/math/class-constrained-array-rounding.php';

@@ -52,12 +52,18 @@ class Main_Test extends StatsBaseTestCase {
 
 		$reflected_class    = new \ReflectionClass( 'Automattic\Jetpack\Stats\Main' );
 		$reflected_property = $reflected_class->getProperty( 'instance' );
-		$reflected_property->setAccessible( true );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$reflected_property->setAccessible( true );
+		}
 		$reflected_property = $reflected_property->setValue( null, null );
 
 		$reflected_class    = new \ReflectionClass( 'Automattic\Jetpack\Stats\XMLRPC_Provider' );
 		$reflected_property = $reflected_class->getProperty( 'instance' );
-		$reflected_property->setAccessible( true );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$reflected_property->setAccessible( true );
+		}
 		$reflected_property = $reflected_property->setValue( null, null );
 	}
 

@@ -17,6 +17,10 @@
 
 use Automattic\Jetpack\Connection\REST_Connector;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Class WPCOM_REST_API_V3_Endpoint_JITM
  */

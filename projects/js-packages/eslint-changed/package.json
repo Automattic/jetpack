@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/eslint-changed",
-	"version": "2.1.1",
+	"version": "2.1.6",
 	"description": "Run eslint on files, but only report warnings and errors from lines that were changed.",
 	"keywords": [
 		"eslint",
@@ -12,8 +12,7 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/Automattic/jetpack.git",
-		"directory": "projects/js-packages/eslint-changed"
+		"url": "git+https://github.com/Automattic/eslint-changed.git"
 	},
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
@@ -21,17 +20,21 @@
 	"bin": {
 		"eslint-changed": "bin/eslint-changed.js"
 	},
+	"exports": {
+		"./package.json": "./package.json"
+	},
 	"scripts": {
 		"test": "NODE_OPTIONS=--experimental-vm-modules jest --config=tests/jest.config.cjs",
 		"test-coverage": "pnpm run test --coverage"
 	},
 	"dependencies": {
-		"chalk": "5.4.1",
+		"chalk": "5.6.2",
 		"commander": "13.0.0",
 		"parse-diff": "0.8.1"
 	},
 	"devDependencies": {
-		"jest": "30.0.4"
+		"eslint": ">=7.0.0",
+		"jest": "30.2.0"
 	},
 	"peerDependencies": {
 		"eslint": ">=7.0.0"

@@ -82,14 +82,7 @@ function wpcomsh_set_connected_user_data_as_user_options( $transient, $value ) {
 	}
 }
 
-// The `setted_transient` action was deprecated in WordPress 6.8 in favor of the new `set_transient` action.
-// @todo: Remove this conditional once we drop support for 6.7.
-global $wp_version;
-if ( version_compare( $wp_version, '6.8', '<' ) ) {
-	add_action( 'setted_transient', 'wpcomsh_set_connected_user_data_as_user_options', 10, 2 );
-} else {
-	add_action( 'set_transient', 'wpcomsh_set_connected_user_data_as_user_options', 10, 2 );
-}
+add_action( 'set_transient', 'wpcomsh_set_connected_user_data_as_user_options', 10, 2 );
 
 /**
  * Determines whether Nav Unification should be enabled (pbAPfg-Ou-p2).
@@ -137,9 +130,6 @@ function wpcomsh_activate_nav_unification() {
 	return true;
 }
 add_filter( 'jetpack_load_admin_menu_class', 'wpcomsh_activate_nav_unification' );
-
-// Enables the Upgrades -> Emails menu item in the sidebar for all users (temporary hotfix due to Jetpack monthly release cycle)
-add_filter( 'jetpack_show_wpcom_upgrades_email_menu', '__return_true' );
 
 /**
  * Checks if site sticker is toggled on/off.

@@ -7,6 +7,10 @@
 
 use Automattic\Jetpack\Search\REST_Controller;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Jetpack Search: Makes authenticated requests to the site search API using blog tokens.
  * This endpoint will only be used when trying to search private Jetpack and WordPress.com sites.

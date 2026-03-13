@@ -7,6 +7,10 @@
  * @author Automattic
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Number of seconds between sitemap and news sitemap updates in development code.
  * In production, sitemaps are cached for 12 hours.
@@ -148,7 +152,7 @@ if ( ! defined( 'JP_VIDEO_SITEMAP_INDEX_TYPE' ) ) {
  */
 function jp_sitemap_filename( $type, $number = null ) {
 	if ( $number === null ) {
-		return "error-not-int-$type-$number.xml";
+		return "error-not-int-$type-null.xml";
 	} elseif ( JP_MASTER_SITEMAP_TYPE === $type ) {
 		return 'sitemap.xml';
 	} elseif ( JP_PAGE_SITEMAP_TYPE === $type ) {

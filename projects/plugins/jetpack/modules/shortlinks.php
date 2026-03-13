@@ -13,6 +13,10 @@
  * @package automattic/jetpack
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 add_filter( 'pre_get_shortlink', 'wpme_get_shortlink_handler', 1, 4 );
 
 if ( ! function_exists( 'wpme_dec2sixtwo' ) ) {
@@ -33,7 +37,7 @@ if ( ! function_exists( 'wpme_dec2sixtwo' ) ) {
 		}
 
 		for ( $t = floor( log10( $num ) / log10( 62 ) ); $t >= 0; $t-- ) {
-			$a   = floor( $num / pow( 62, $t ) );
+			$a   = (int) floor( $num / pow( 62, $t ) );
 			$out = $out . substr( $index, $a, 1 );
 			$num = $num - ( $a * pow( 62, $t ) );
 		}

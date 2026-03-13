@@ -1,7 +1,7 @@
 import logger from '../logger';
-import { executeWpCommand } from '../utils/cli.ts';
-import { getDotComCredentials, getSiteCredentials } from './environment.ts';
-import { partnerProvisionConnection } from './partner-provision.ts';
+import { executeWpCommand } from './cli';
+import { getDotComCredentials, getSiteCredentials } from './environment';
+import { partnerProvisionConnection } from './partner-provision';
 import { TestUtils } from '.';
 
 /**

@@ -37,6 +37,9 @@
 		<exclude name="PHPCompatibility.Constants.NewConstants.curlopt_sslkey_blobFound" />
 		<exclude name="PHPCompatibility.Constants.NewConstants.img_avifFound" />
 		<exclude name="PHPCompatibility.Constants.NewConstants.img_webp_losslessFound" />
+		<exclude name="PHPCompatibility.Constants.NewConstants.mhash_murmur3aFound" />
+		<exclude name="PHPCompatibility.Constants.NewConstants.mhash_murmur3cFound" />
+		<exclude name="PHPCompatibility.Constants.NewConstants.mhash_murmur3fFound" />
 		<exclude name="PHPCompatibility.Constants.NewConstants.mysqli_refresh_replicaFound" />
 		<exclude name="PHPCompatibility.Constants.NewConstants.posix_rlimit_kqueuesFound" />
 		<exclude name="PHPCompatibility.Constants.NewConstants.posix_rlimit_nptsFound" />

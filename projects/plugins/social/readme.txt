@@ -1,10 +1,10 @@
 === Jetpack Social  ===
 Contributors: automattic, pabline, siddarthan, gmjuhasz, manzoorwanijk
 Tags: social media automation, social media scheduling, auto share, social sharing, social media marketing
-Requires at least: 6.7
+Requires at least: 6.8
 Requires PHP: 7.2
-Tested up to: 6.8
-Stable tag: 4.5.1
+Tested up to: 6.9
+Stable tag: 8.0.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -104,33 +104,12 @@ The easiest way is to use the Custom Message option in the publishing options bo
 6. Managing Social media accounts in the post editor
 
 == Changelog ==
-### 7.1.0 - 2025-08-05
+### 8.0.1 - 2026-02-19
 #### Added
-- Social Image Generator: Add font option.
-- My Jetpack: Add analytics for empty product search results.
-- Social Notes: Add a fallback title that can be customized via the `jetpack_social_notes_default_title` filter.
+- Add visual dot to active connection in preview modal.
 
 #### Changed
-- E2E tests: Remove redundant logic in test fixture and converted the fixture to Typscript.
-- Improve performance of WordPress.com comment likes by caching and minimizing API requests.
-- My Jetpack: Enable access to My Jetpack on WP Multisite.
-- My Jetpack: Hide backup failure notice when backups are deactivated.
-- My Jetpack: Unify the user connection flow with a unified screen.
-- My Jetpack: Update Stats card to include a chart for better analytics.
-- Sync: Ignore the ActivityPub Outbox CPT.
-- Update package dependencies.
-
-#### Fixed
-- Ensure images load in connections management when concatenating JS.
-- Fix image validation when images sizes are customised.
-- JITM: Fix ineffective caching due to expired plugin sync transient.
-- My Jetpack: Fix footer alignment for disconnected accounts.
-- My Jetpack: Prevent expiration alerts for products covered by active bundles.
-- My Jetpack: Restore plan purchase link in footer.
-- Social Image Generator: Do not use the latest post's Social Image as Open Graph Image tag on the home page.
-- Social Notes: Update filter name to match recent changes in WordPress.
-- Social Previews: Fix a bug with text overflowing with Mastodon.
-- Update JITMs to remove jQuery dependency.
+- Disable AI image option in the media UI when Jetpack plugin is not active.
 
 == Upgrade Notice ==
 

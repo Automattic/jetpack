@@ -1,6 +1,6 @@
 import { __ } from '@wordpress/i18n';
-import JetpackField from '../shared/components/jetpack-field';
-import useFormWrapper from '../shared/hooks/use-form-wrapper';
+import JetpackField from '../shared/components/jetpack-field.js';
+import useFormWrapper from '../shared/hooks/use-form-wrapper.js';
 
 export default function TextFieldEdit( props ) {
 	useFormWrapper( props );
@@ -12,6 +12,7 @@ export default function TextFieldEdit( props ) {
 			label={ __( 'Text', 'jetpack-forms' ) }
 			required={ props.attributes.required }
 			requiredText={ props.attributes.requiredText }
+			requiredIndicator={ props.attributes.requiredIndicator }
 			setAttributes={ props.setAttributes }
 			isSelected={ props.isSelected }
 			defaultValue={ props.attributes.defaultValue }

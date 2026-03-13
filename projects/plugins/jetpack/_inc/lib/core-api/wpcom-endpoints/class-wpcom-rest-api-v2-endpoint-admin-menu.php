@@ -8,6 +8,10 @@
 
 use Automattic\Jetpack\Status\Host;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Class WPCOM_REST_API_V2_Endpoint_Admin_Menu
  */
@@ -85,8 +89,16 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
 	 */
 	public function get_item( $request ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter, VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+
+		/*
+		 * Load the `Jetpack_Admin` class, since it's only loaded on admin requests (not on API requests), and this is where
+		 * many Jetpack menus are registered. We don't need to run this on WPCOM because we replicate an admin request there.
+		 *
+		 * @see https://github.com/Automattic/jetpack/blob/dcdeb8fe772215b514bbbd6c4ddb38f6446e7ea1/projects/plugins/jetpack/load-jetpack.php#L61-L64
+		 * @see https://github.com/Automattic/jetpack/blob/dcdeb8fe772215b514bbbd6c4ddb38f6446e7ea1/projects/plugins/wpcomsh/feature-plugins/masterbar.php#L29
+		 */
 		if ( ! ( new Host() )->is_wpcom_platform() ) {
-			require_once JETPACK__PLUGIN_DIR . 'jetpack_vendor/automattic/jetpack-masterbar/src/admin-menu/load.php';
+			require_once JETPACK__PLUGIN_DIR . 'class.jetpack-admin.php';
 		}
 
 		// All globals need to be declared for menu items to properly register.
@@ -170,6 +182,10 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 				),
 				'inlineText' => array(
 					'description' => 'Additional text to be added inline with the menu title.',
+					'type'        => 'string',
+				),
+				'inlineIcon' => array(
+					'description' => 'Dashicon slug to be displayed inline with the menu title.',
 					'type'        => 'string',
 				),
 				'badge'      => array(
@@ -438,6 +454,11 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 	 * @return array
 	 */
 	private function parse_menu_item( $title ) {
+		// Handle non-string input
+		if ( ! is_string( $title ) ) {
+			return array();
+		}
+
 		$item = array();
 
 		if (
@@ -464,6 +485,21 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 			if ( $text ) {
 				// Keep the text in the item array.
 				$item['inlineText'] = $text;
+			}
+
+			// Finally remove the markup.
+			$title = trim( str_replace( $matches[0], '', $title ) );
+		}
+
+		if (
+			str_contains( $title, 'inline-icon' )
+			&& preg_match( '/<span class="inline-icon dashicons (dashicons-[^"]+)"[^>]*><\/span>/', $title, $matches )
+		) {
+
+			$icon = $matches[1];
+			if ( $icon ) {
+				// Keep the dashicon slug in the item array.
+				$item['inlineIcon'] = $icon;
 			}
 
 			// Finally remove the markup.

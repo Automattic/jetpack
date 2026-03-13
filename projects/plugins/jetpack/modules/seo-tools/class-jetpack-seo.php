@@ -103,6 +103,9 @@ class Jetpack_SEO {
 		$authors = array();
 
 		foreach ( $wp_query->posts as $post ) {
+			if ( ! $post instanceof WP_Post ) {
+				continue;
+			}
 			$authors[] = get_the_author_meta( 'display_name', (int) $post->post_author );
 		}
 

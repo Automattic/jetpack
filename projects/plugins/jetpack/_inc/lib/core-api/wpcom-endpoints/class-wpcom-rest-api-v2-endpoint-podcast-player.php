@@ -6,6 +6,10 @@
  * @since 8.4.0
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Fetch podcast feeds and parse data for the Podcast Player block.
  *

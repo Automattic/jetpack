@@ -128,7 +128,7 @@ class Jetpack_XMLRPC_Server_Test extends WP_UnitTestCase {
 
 		$xml->expects( $this->once() )
 			->method( 'isError' )
-			->willReturn( empty( $error ) ? false : true );
+			->willReturn( false );
 
 		$xml->expects( $this->once() )
 			->method( 'getResponse' )

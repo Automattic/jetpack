@@ -20,7 +20,7 @@ header( 'Content-Type: ' . get_bloginfo( 'html_type' ) . '; charset=' . get_blog
 <head>
 	<meta http-equiv="Content-Type" content="<?php bloginfo( 'html_type' ); ?>; charset=<?php bloginfo( 'charset' ); ?>" />
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title><?php echo bloginfo( 'name' ); ?></title>
+	<title><?php bloginfo( 'name' ); ?></title>
 	<?php
 	// Use styles from wp-login.
 	wp_enqueue_style( 'login' );

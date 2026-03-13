@@ -1,6 +1,5 @@
 <?php
 /*
-!
  * Export Page
  * Jetpack CRM - https://jetpackcrm.com
  */

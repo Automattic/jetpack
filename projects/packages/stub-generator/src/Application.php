@@ -28,7 +28,7 @@ use Throwable;
  */
 class Application extends SingleCommandApplication {
 
-	const VERSION = '2.0.0';
+	const VERSION = '2.0.1';
 
 	/**
 	 * Exit code to use.
@@ -65,7 +65,7 @@ class Application extends SingleCommandApplication {
 			->addOption( 'json', null, InputOption::VALUE_NONE, 'Definition file is a JSON file.' )
 			->addOption( 'output', null, InputOption::VALUE_REQUIRED, 'Write output to this file rather than standard output.' )
 			->setHelp(
-				<<<EOF
+				<<<'EOF'
 				Generate stubs for specific functions/classes/etc from a codebase.
 
 				The <info>file</info> specifies which files to scan and which functions,
@@ -85,7 +85,7 @@ class Application extends SingleCommandApplication {
 	 */
 	protected function execute( InputInterface $input, OutputInterface $output ): int {
 		$output->getFormatter()->setStyle( 'warning', new OutputFormatterStyle( 'black', 'yellow' ) );
-		// @phan-suppress-next-line PhanUndeclaredMethod,PhanUndeclaredMethodInCallable -- Being checked before being called. See also https://github.com/phan/phan/issues/1204.
+		// @phan-suppress-next-line PhanUndeclaredMethod -- Being checked before being called. See also https://github.com/phan/phan/issues/1204.
 		$errout = is_callable( array( $output, 'getErrorOutput' ) ) ? $output->getErrorOutput() : $output;
 
 		$definition = $this->loadDefinition( $input, $errout );

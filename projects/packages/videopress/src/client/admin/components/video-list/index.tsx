@@ -4,7 +4,7 @@
 import { Text, useBreakpointMatch } from '@automattic/jetpack-components';
 import { Tooltip } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { Icon, info, warning } from '@wordpress/icons';
+import { Icon, info, cautionFilled as warning } from '@wordpress/icons';
 import clsx from 'clsx';
 import { useState } from 'react';
 /**

@@ -152,7 +152,7 @@ class Jetpack_Redux_State_Helper {
 			'getModules'                           => $modules,
 			'rawUrl'                               => ( new Status() )->get_site_suffix(),
 			'adminUrl'                             => esc_url( admin_url() ),
-			'siteTitle'                            => (string) htmlspecialchars_decode( get_option( 'blogname' ), ENT_QUOTES ),
+			'siteTitle'                            => htmlspecialchars_decode( get_option( 'blogname' ), ENT_QUOTES ),
 			'stats'                                => array(
 				// data is populated asynchronously on page load.
 				'data'  => array(
@@ -174,6 +174,7 @@ class Jetpack_Redux_State_Helper {
 				'icon'                       => has_site_icon()
 					? apply_filters( 'jetpack_photon_url', get_site_icon_url(), array( 'w' => 64 ) )
 					: '',
+				'representativeImage'        => self::get_site_image(),
 				'siteVisibleToSearchEngines' => '1' == get_option( 'blog_public' ), // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
 				/**
 				 * Whether promotions are visible or not.
@@ -185,14 +186,17 @@ class Jetpack_Redux_State_Helper {
 				'showPromotions'             => apply_filters( 'jetpack_show_promotions', true ),
 				'plan'                       => Jetpack_Plan::get(),
 				'showBackups'                => Jetpack::show_backups_ui(),
+				'showScan'                   => Jetpack::show_scan_ui(),
 				'showRecommendations'        => Jetpack_Recommendations::is_enabled(),
 				/** This filter is documented in my-jetpack/src/class-initializer.php */
 				'showMyJetpack'              => My_Jetpack_Initializer::should_initialize(),
 				'isMultisite'                => is_multisite(),
 				'dateFormat'                 => get_option( 'date_format' ),
 				'latestBoostSpeedScores'     => $speed_score_history->latest(),
-				'isSharingBlockAvailable'    => (bool) isset( $block_availability['sharing-buttons'] )
+				'isSharingBlockAvailable'    => isset( $block_availability['sharing-buttons'] )
 					&& $block_availability['sharing-buttons']['available'],
+				'isLikeBlockAvailable'       => isset( $block_availability['like'] )
+					&& $block_availability['like']['available'],
 			),
 			'themeData'                            => array(
 				'name'         => $current_theme->get( 'Name' ),
@@ -244,6 +248,8 @@ class Jetpack_Redux_State_Helper {
 			'subscriptionSiteEditSupported'        => $current_theme->is_block_theme(),
 			/* This filter is already documented in jetpack/modules/subscriptions.php */
 			'isWpAdminSubscriberManagementEnabled' => apply_filters( 'jetpack_wp_admin_subscriber_management_enabled', false ),
+			/* This filter is documented in projects/packages/newsletter/src/class-settings.php */
+			'isWpAdminNewsletterSettingsEnabled'   => apply_filters( 'jetpack_wp_admin_newsletter_settings_enabled', false ),
 		);
 	}
 
@@ -426,6 +432,19 @@ class Jetpack_Redux_State_Helper {
 	 */
 	public static function generate_purchase_token() {
 		return wp_generate_password( 12, false );
+	}
+
+	/**
+	 * Get a representative image for the site.
+	 *
+	 * @since 15.0
+	 *
+	 * @return string
+	 */
+	public static function get_site_image(): string {
+		// Get the dynamic image generated for the Open Graph Meta tags.
+		require_once JETPACK__PLUGIN_DIR . 'functions.opengraph.php';
+		return jetpack_og_get_fallback_social_image( 200, 200 )['src'];
 	}
 }
 

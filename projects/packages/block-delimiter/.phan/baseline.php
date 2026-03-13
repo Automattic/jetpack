@@ -11,15 +11,11 @@ return [
     // # Issue statistics:
     // PhanPossiblyUndeclaredVariable : 20+ occurrences
     // PhanPossiblyNullTypeMismatchProperty : 10+ occurrences
-    // PhanRedefinedClassReference : 9 occurrences
-    // PhanRedefineClass : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
         'src/class-block-delimiter.php' => ['PhanPossiblyNullTypeMismatchProperty', 'PhanPossiblyUndeclaredVariable'],
-        'src/class-block-scanner.php' => ['PhanPossiblyNullTypeMismatchProperty', 'PhanPossiblyUndeclaredVariable', 'PhanRedefinedClassReference'],
-        'tests/php/Block_Scanner_Test.php' => ['PhanRedefinedClassReference'],
-        'tests/stubs/class-wp-html-span.php' => ['PhanRedefineClass'],
+        'src/class-block-scanner.php' => ['PhanPossiblyNullTypeMismatchProperty', 'PhanPossiblyUndeclaredVariable'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.
     // (directory_suppressions will currently be ignored by subsequent calls to --save-baseline, but may be preserved in future Phan releases)

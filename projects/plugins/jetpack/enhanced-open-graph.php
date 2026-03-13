@@ -5,6 +5,12 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Post_Media\Images;
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 if ( ! class_exists( 'Jetpack_Media_Summary' ) ) {
 	require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.media-summary.php';
 }
@@ -31,7 +37,14 @@ function enhanced_og_image( $tags ) {
 		return $tags;
 	}
 
-	$summary = Jetpack_Media_Summary::get( $post->ID );
+	$summary = Jetpack_Media_Summary::get(
+		$post->ID,
+		0,
+		array(
+			'include_excerpt' => false,
+			'include_count'   => false,
+		)
+	);
 
 	if ( 'image' !== $summary['type'] ) {
 		return $tags;
@@ -66,7 +79,14 @@ function enhanced_og_gallery( $tags ) {
 		return $tags;
 	}
 
-	$summary = Jetpack_Media_Summary::get( $post->ID );
+	$summary = Jetpack_Media_Summary::get(
+		$post->ID,
+		0,
+		array(
+			'include_excerpt' => false,
+			'include_count'   => false,
+		)
+	);
 
 	if ( 'gallery' !== $summary['type'] ) {
 		return $tags;
@@ -113,7 +133,14 @@ function enhanced_og_video( $tags ) {
 		return $tags;
 	}
 
-	$summary = Jetpack_Media_Summary::get( $post->ID );
+	$summary = Jetpack_Media_Summary::get(
+		$post->ID,
+		0,
+		array(
+			'include_excerpt' => false,
+			'include_count'   => false,
+		)
+	);
 
 	if ( 'video' !== $summary['type'] ) {
 		if ( $summary['count']['video'] > 0 && $summary['count']['image'] < 1 ) {
@@ -166,5 +193,5 @@ add_filter( 'jetpack_open_graph_tags', 'enhanced_og_video' );
  * @return bool True if the post has a suitable featured image, false otherwise.
  */
 function enhanced_og_has_featured_image( $post_id ) {
-	return ! empty( Jetpack_PostImages::from_thumbnail( $post_id ) );
+	return ! empty( Images::from_thumbnail( $post_id ) );
 }

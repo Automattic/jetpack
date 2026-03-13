@@ -152,7 +152,8 @@ class Package_Version_Tracker {
 		$body = wp_json_encode(
 			array(
 				'package_versions' => $package_versions,
-			)
+			),
+			JSON_UNESCAPED_SLASHES
 		);
 
 		$response = Client::wpcom_json_api_request_as_blog(

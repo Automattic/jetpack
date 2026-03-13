@@ -117,7 +117,7 @@ export const Waf = class extends Component {
 				this.props.createNotice(
 					'is-error',
 					sprintf(
-						/* translators: placeholder is an error code or an error message. */
+						/* translators: %s: an error code or an error message. */
 						__( 'Error updating settings. %s', 'jetpack' ),
 						this.getCustomErrorMessage( error.response ) || error.message || error.code
 					),
@@ -342,7 +342,7 @@ export const Waf = class extends Component {
 						<li>
 							{ createInterpolateElement(
 								sprintf(
-									/* translators: Placeholder is the file path to the Firewall's bootstrap file. */
+									/* translators: %s: the file path to the Firewall's bootstrap file. */
 									__(
 										'To ensure the firewall can best protect your site, please update: <code>auto_prepend_file</code> PHP directive to point to <code>%s</code> Typically this is set either in an .htaccess file or in the global PHP configuration; contact your host for further assistance.',
 										'jetpack'
@@ -432,7 +432,7 @@ export const Waf = class extends Component {
 							}
 							name="ipBlockList"
 							placeholder={ sprintf(
-								/* translators: Placeholder is a list of example IP addresses. */
+								/* translators: %s: a list of example IP addresses. */
 								__( 'Example: %s', 'jetpack' ),
 								'\n12.12.12.1\n12.12.12.2'
 							) }

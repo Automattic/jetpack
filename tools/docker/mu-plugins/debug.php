@@ -151,7 +151,7 @@ function lo( $stuff ) {
  * @return false|string
  */
 function l_json_encode_pretty( $data ) {
-	return wp_json_encode( $data, JSON_PRETTY_PRINT );
+	return wp_json_encode( $data, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT );
 }
 
 /**

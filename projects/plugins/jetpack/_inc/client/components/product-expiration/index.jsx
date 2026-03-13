@@ -34,7 +34,7 @@ class ProductExpiration extends PureComponent {
 			const giftedDateObj = new Date( purchaseDate );
 			if ( giftedDateObj.toString() !== 'Invalid Date' ) {
 				return sprintf(
-					/* translators: placeholder is a date. */
+					/* translators: %s: the date it was gifted. */
 					__( 'Gifted on %s.', 'jetpack' ),
 					dateI18n( dateFormat, giftedDateObj )
 				);
@@ -48,7 +48,7 @@ class ProductExpiration extends PureComponent {
 			const purchaseDateObj = new Date( purchaseDate );
 			if ( purchaseDateObj.toString() !== 'Invalid Date' ) {
 				return sprintf(
-					/* translators: placeholder is a date. */
+					/* translators: %s: the date of purchase. */
 					__( 'Purchased on %s.', 'jetpack' ),
 					dateI18n( dateFormat, purchaseDateObj )
 				);
@@ -69,7 +69,7 @@ class ProductExpiration extends PureComponent {
 		if ( expiryStatus === 'expired' ) {
 			return createInterpolateElement(
 				sprintf(
-					/* translators: %d is a count of how many new (unread) recommendations are available. */
+					/* translators: %s: the date it expired. */
 					__( '<span>Expired on %s.</span> <renewLink />', 'jetpack' ),
 					dateI18n( dateFormat, expiryDateObj )
 				),
@@ -91,7 +91,7 @@ class ProductExpiration extends PureComponent {
 
 		// Lastly, return the renewal date.
 		return sprintf(
-			/* translators: placeholder is a date. */
+			/* translators: %s the renewal date. */
 			__( 'Renews on %s.', 'jetpack' ),
 			dateI18n( dateFormat, expiryDateObj )
 		);

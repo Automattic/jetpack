@@ -10,7 +10,6 @@ import {
 	buildJPRedirectSource,
 	formatNumber,
 	getSubscriberStatsUrl,
-	getNewsletterSettingsUrl,
 	createTracksEventHandler,
 } from '../helpers';
 import { DashboardLink } from './dashboard-link';
@@ -26,6 +25,9 @@ export interface NewsletterWidgetProps {
 	paidSubscribers?: number;
 	allSubscribers?: number;
 	subscriberTotalsByDate?: SubscriberTotalsByDate;
+	showHeader?: boolean;
+	showChart?: boolean;
+	newsletterSettingsUrl?: string;
 }
 
 export const NewsletterWidget = ( {
@@ -37,12 +39,10 @@ export const NewsletterWidget = ( {
 	paidSubscribers = 0,
 	allSubscribers = 0,
 	subscriberTotalsByDate = {},
+	showHeader,
+	showChart,
+	newsletterSettingsUrl,
 }: NewsletterWidgetProps ) => {
-	const showHeader = allSubscribers > 0 || paidSubscribers > 0;
-	const showChart = Object.values( subscriberTotalsByDate ).some(
-		day => day?.all >= 5 || day?.paid > 0
-	);
-
 	const { tracks } = useAnalytics();
 
 	useEffect( () => {
@@ -67,9 +67,6 @@ export const NewsletterWidget = ( {
 		formatNumber( paidSubscribers )
 	);
 
-	// For WordPress.com sites, links should always be considered internal.
-	const isInternalLink = isStatsModuleActive || isWpcomSite;
-
 	return (
 		<div className="newsletter-widget">
 			{ showHeader && (
@@ -82,8 +79,8 @@ export const NewsletterWidget = ( {
 							<span className="newsletter-widget__stat-content">
 								<span className="newsletter-widget__stat-label">
 									{ DashboardLink(
-										isInternalLink,
-										getSubscriberStatsUrl( site, isWpcomSite, adminUrl, isStatsModuleActive ),
+										true,
+										getSubscriberStatsUrl( site, adminUrl ),
 										'all_subscribers_click',
 										subscribersText
 									) }
@@ -97,8 +94,8 @@ export const NewsletterWidget = ( {
 							<span className="newsletter-widget__stat-content">
 								<span className="newsletter-widget__stat-label">
 									{ DashboardLink(
-										isInternalLink,
-										getSubscriberStatsUrl( site, isWpcomSite, adminUrl, isStatsModuleActive ),
+										true,
+										getSubscriberStatsUrl( site, adminUrl ),
 										'paid_subscribers_click',
 										paidSubscribersText
 									) }
@@ -143,14 +140,16 @@ export const NewsletterWidget = ( {
 								{ __( 'Publish your next post', 'jetpack' ) }
 							</a>
 						</li>
-						<li>
-							{ DashboardLink(
-								isInternalLink,
-								getSubscriberStatsUrl( site, isWpcomSite, adminUrl, isStatsModuleActive ),
-								'view_stats_click',
-								__( 'View subscriber stats', 'jetpack' )
-							) }
-						</li>
+						{ isStatsModuleActive && (
+							<li>
+								{ DashboardLink(
+									true,
+									getSubscriberStatsUrl( site, adminUrl ),
+									'view_stats_click',
+									__( 'View subscriber stats', 'jetpack' )
+								) }
+							</li>
+						) }
 						<li>
 							{ DashboardLink(
 								isWpcomSite,
@@ -182,14 +181,16 @@ export const NewsletterWidget = ( {
 								__( 'Monetize', 'jetpack' )
 							) }
 						</li>
-						<li>
-							{ DashboardLink(
-								true,
-								getNewsletterSettingsUrl( site, isWpcomSite, adminUrl ),
-								'newsletter_settings_click',
-								__( 'Newsletter settings', 'jetpack' )
-							) }
-						</li>
+						{ newsletterSettingsUrl && (
+							<li>
+								{ DashboardLink(
+									true,
+									newsletterSettingsUrl,
+									'newsletter_settings_click',
+									__( 'Newsletter settings', 'jetpack' )
+								) }
+							</li>
+						) }
 					</ul>
 				</div>
 			</div>

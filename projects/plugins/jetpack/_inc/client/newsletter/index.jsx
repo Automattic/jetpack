@@ -1,6 +1,12 @@
 import { __ } from '@wordpress/i18n';
 import { connect } from 'react-redux';
+import Button from 'components/button';
+import Card from 'components/card';
 import QuerySite from 'components/data/query-site';
+import {
+	getSiteAdminUrl,
+	isWpAdminNewsletterSettingsEnabled as isWpAdminNewsletterSettingsEnabledSelector,
+} from 'state/initial-state';
 import { getModule } from 'state/modules';
 import { isModuleFound as isModuleFoundSelector } from 'state/search';
 import { SUBSCRIPTIONS_MODULE_NAME } from './constants';
@@ -19,7 +25,15 @@ import './style.scss';
  * @return {import('react').Component} Newsletter settings component.
  */
 function Subscriptions( props ) {
-	const { active, isModuleFound, searchTerm, siteRawUrl, blogID } = props;
+	const {
+		active,
+		isModuleFound,
+		searchTerm,
+		siteRawUrl,
+		blogID,
+		isWpAdminNewsletterSettingsEnabled,
+		siteAdminUrl,
+	} = props;
 
 	if ( ! searchTerm && ! active ) {
 		return null;
@@ -29,6 +43,29 @@ function Subscriptions( props ) {
 
 	if ( ! foundSubscriptions ) {
 		return null;
+	}
+
+	// When the new newsletter settings page is enabled, show a notice instead of the old settings
+	if ( isWpAdminNewsletterSettingsEnabled ) {
+		const newsletterSettingsUrl = `${ siteAdminUrl }admin.php?page=jetpack-newsletter`;
+
+		return (
+			<div>
+				<h1 className="screen-reader-text">{ __( 'Jetpack Newsletter Settings', 'jetpack' ) }</h1>
+				<h2 className="jp-settings__section-title">{ __( 'Newsletter', 'jetpack' ) }</h2>
+				<Card>
+					<p>
+						{ __(
+							'Newsletter Settings have moved to a new location. Access it via Jetpack → Newsletter.',
+							'jetpack'
+						) }
+					</p>
+					<Button href={ newsletterSettingsUrl } primary rna>
+						{ __( 'Go to Newsletter Settings', 'jetpack' ) }
+					</Button>
+				</Card>
+			</div>
+		);
 	}
 
 	return (
@@ -62,5 +99,7 @@ export default connect( state => {
 	return {
 		module: module_name => getModule( state, module_name ),
 		isModuleFound: module_name => isModuleFoundSelector( state, module_name ),
+		isWpAdminNewsletterSettingsEnabled: isWpAdminNewsletterSettingsEnabledSelector( state ),
+		siteAdminUrl: getSiteAdminUrl( state ),
 	};
 } )( Subscriptions );

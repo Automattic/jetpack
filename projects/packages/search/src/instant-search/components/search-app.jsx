@@ -309,6 +309,7 @@ class SearchApp extends Component {
 							additionalBlogIds={ this.props.options.additionalBlogIds }
 							showPostDate={ this.state.overlayOptions.enablePostDate }
 							overlayOptions={ this.state.overlayOptions }
+							showProductPrice={ this.state.overlayOptions.enableProductPrice }
 						/>
 					</Overlay>,
 					document.body

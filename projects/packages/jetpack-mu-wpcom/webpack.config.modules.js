@@ -18,6 +18,11 @@ module.exports = {
 		'code-editor': './src/features/code-editor/code-editor/code-editor.tsx',
 		codemirror: './src/features/code-editor/codemirror/codemirror.ts',
 		'site-additional-css': './src/features/code-editor/site-additional-css/site-additional-css.ts',
+
+		'wpcom-blocks-code-block-front': './src/features/wpcom-blocks/code/block-front/block-front.ts',
+		'wpcom-blocks-code-edit-function':
+			'./src/features/wpcom-blocks/code/block-edit-function/block-edit-function.tsx',
+		'wpcom-blocks-code-worker': './src/features/wpcom-blocks/code/block-worker/block-worker.ts',
 	},
 	output: {
 		...output,
@@ -54,6 +59,12 @@ module.exports = {
 			jetpackWebpackConfig.TranspileRule( {
 				exclude: /node_modules\//,
 			} ),
+
+			// Process Lezer grammar files.
+			{
+				test: /\.grammar(\.parser|\.terms)?$/,
+				use: path.resolve( __dirname, 'lezer-loader.js' ),
+			},
 		],
 	},
 };

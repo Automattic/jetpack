@@ -6,6 +6,10 @@
  * @package automattic/jetpack
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Register a upcomingevents shortcode.
  * Most of the heavy lifting done in iCalendarReader class,

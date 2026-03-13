@@ -1,0 +1,194 @@
+import { Meta, Source } from '@storybook/addon-docs/blocks';
+
+<Meta title="JS Packages/Charts Library/Charts/Line Chart/API Reference" />
+
+# Line Chart API Reference
+
+## LineChart
+
+Main chart component with responsive behavior by default.
+
+**Props:**
+
+| Prop | Type | Default | Description |
+| ---- | ---- | ------- | ----------- |
+| `data` | `SeriesData[]` | - | **Required.** Array of data series to display |
+| `width` | `number?` | responsive | Chart width in pixels |
+| `height` | `number?` | responsive | Chart height in pixels |
+| `curveType` | `'smooth' \| 'linear' \| 'monotone'?` | `'smooth'` | Line curve interpolation type |
+| `withGradientFill` | `boolean` | `false` | Fill area under lines with gradient |
+| `withTooltips` | `boolean` | `true` | Enable interactive tooltips |
+| `withTooltipCrosshairs` | `{ showVertical?: boolean; showHorizontal?: boolean }?` | - | Show crosshair guides with tooltips |
+| `animation` | `boolean` | `false` | Enable entry animation on initial render. Creates a rising effect where lines scale up from the bottom. Automatically respects user's `prefers-reduced-motion` system setting |
+| `showLegend` | `boolean` | `false` | Display chart legend |
+| `legend` | `ChartLegendConfig` | `undefined` | Legend configuration object. See [ChartLegendConfig](#chartlegendconfig-type) |
+| `withStartGlyphs` | `boolean?` | `false` | Show markers at the first data point of each series |
+| `withLegendGlyph` | `boolean?` | `false` | Use custom glyphs in legend |
+| `renderGlyph` | `(props: GlyphProps) => ReactNode?` | - | Custom glyph render function |
+| `glyphStyle` | `SVGProps<SVGCircleElement>?` | `{}` | Styling for chart glyphs |
+| `renderTooltip` | `(params: RenderTooltipParams) => ReactNode?` | - | Custom tooltip render function |
+| `margin` | `{ top?: number; right?: number; bottom?: number; left?: number }?` | calculated | Chart margins |
+| `options` | `ChartOptions?` | `{}` | Advanced axis and scale configuration |
+| `onPointerDown` | `(event: EventHandlerParams) => void?` | - | Pointer down event handler |
+| `onPointerUp` | `(event: EventHandlerParams) => void?` | - | Pointer up event handler |
+| `onPointerMove` | `(event: EventHandlerParams) => void?` | - | Pointer move event handler |
+| `onPointerOut` | `(event: PointerEvent) => void?` | - | Pointer out event handler |
+| `children` | `ReactNode?` | - | Child components (e.g., annotations) |
+| `gap` | `GapSize` | `'md'` | Gap between chart elements (SVG, legend, children). Uses WordPress design system tokens |
+
+## LineChart.AnnotationsOverlay
+
+Container component that manages annotation rendering and chart synchronization.
+
+**Props:**
+
+- `children`: Annotation components
+
+## LineChart.Annotation
+
+Individual annotation component for highlighting specific data points or events.
+
+**Props:**
+
+| Prop | Type | Default | Description |
+| ---- | ---- | ------- | ----------- |
+| `datum` | `DataPointDate` | - | **Required.** Data point to annotate |
+| `title` | `string` | - | **Required.** Main annotation text |
+| `subtitle` | `string` | - | Additional descriptive text |
+| `subjectType` | `'circle' \| 'line-vertical' \| 'line-horizontal'` | `'circle'` | Visual annotation style |
+| `styles` | `AnnotationStyles` | - | Custom styling options |
+| `renderLabel` | `FC<{title: string, subtitle?: string}>` | - | Custom label component. **Disables smart positioning.** |
+| `renderLabelPopover` | `FC<{title: string, subtitle?: string}>` | - | Interactive popover content |
+| `testId` | `string` | - | Test identifier |
+
+## SeriesData Type
+
+```typescript
+type SeriesData = {
+	label: string;
+	data: DataPointDate[];
+	options?: {
+		gradient?: {
+			from?: string;
+			to?: string;
+			fromOpacity?: number;
+			toOpacity?: number;
+			stops?: Array<{
+				offset: string;
+				color?: string;
+				opacity?: number;
+			}>;
+		};
+		stroke?: string;
+		seriesLineStyle?: LineStyles;
+		legendShapeStyle?: CSSProperties;
+		type?: 'comparison'; // Semantic type for automatic theme styling
+	};
+};
+```
+
+### Gradient Options
+
+The `gradient` option in `SeriesData.options` accepts the following configuration:
+
+**Basic Gradient (Two-Color):**
+- `from`: Start color (hex, rgb, CSS variable) - defaults to series color
+- `to`: End color (hex, rgb, CSS variable) - defaults to transparent background
+- `fromOpacity`: Start opacity (0-1, default: 0.4)
+- `toOpacity`: End opacity (0-1, default: 0.1)
+
+**Advanced Gradient (Multi-Stop):**
+- `stops`: Array of gradient stops for complex gradients
+  - `offset`: Position along gradient (percentage string, e.g., '25%')
+  - `color`: Color at this stop (hex, rgb, CSS variable) - defaults to line color if omitted
+  - `opacity`: Opacity at this stop (0-1, default: 1)
+
+**Note**: When using `stops`, the `from`, `to`, `fromOpacity`, and `toOpacity` properties are ignored.
+
+## DataPointDate Type
+
+```typescript
+type DataPointDate = {
+	date?: Date;
+	dateString?: string; // Multiple formats supported
+	value: number | null;
+	label?: string;
+};
+```
+
+## AnnotationStyles Type
+
+```typescript
+type AnnotationStyles = {
+	circleSubject?: {
+		fill?: string;
+		stroke?: string;
+		radius?: number;
+		// ... other circle properties
+	};
+	lineSubject?: {
+		stroke?: string;
+		strokeWidth?: number;
+		// ... other line properties
+	};
+	connector?: {
+		stroke?: string;
+		strokeWidth?: number;
+		// ... other connector properties
+	};
+	label?: {
+		backgroundFill?: string;
+		fontColor?: string;
+		showAnchorLine?: boolean;
+		maxWidth?: number;
+		x?: number | 'start' | 'end';
+		y?: number | 'start' | 'end';
+		// ... other label properties
+	};
+};
+```
+
+## ChartOptions Type
+
+```typescript
+type ChartOptions = {
+	yScale?: {
+		type?: 'linear' | 'log';
+		zero?: boolean;
+		domain?: [number, number];
+		nice?: boolean;
+	};
+	xScale?: {
+		type?: 'time' | 'linear';
+		domain?: [Date, Date] | [number, number];
+	};
+	axis?: {
+		x?: {
+			orientation?: 'top' | 'bottom';
+			numTicks?: number;
+			tickFormat?: (value: any) => string;
+		};
+		y?: {
+			orientation?: 'left' | 'right';
+			numTicks?: number;
+			tickFormat?: (value: number) => string;
+		};
+	};
+};
+```
+
+## ChartLegendConfig Type
+
+```typescript
+type ChartLegendConfig = {
+	orientation?: 'horizontal' | 'vertical';
+	position?: 'top' | 'bottom';
+	alignment?: 'start' | 'center' | 'end';
+	shape?: LegendShape;
+	interactive?: boolean;
+	itemClassName?: string;
+	itemStyles?: LegendItemStyles;
+	labelStyles?: LegendLabelStyles;
+	shapeStyles?: LegendShapeStyles;
+};
+```

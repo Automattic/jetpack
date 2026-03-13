@@ -15,6 +15,7 @@ import { recordBoostEvent } from '$lib/utils/analytics';
 import { useRetryRegenerate } from '../lib/use-retry-regenerate';
 import RawError from '../raw-error/raw-error';
 import type { FC } from 'react';
+import styles from './show-stopper-error.module.scss';
 
 type ShowStopperErrorTypes = {
 	supportLink?: string;
@@ -73,7 +74,7 @@ const Description = ( { errorSet }: { errorSet: ErrorSet } ) => {
 					b: <b />,
 				} ) }
 			</p>
-			<p>
+			<p className={ styles.errorLinks }>
 				{ displayUrls.map( ( { href, label }, index ) => (
 					<a
 						onClick={ () => {

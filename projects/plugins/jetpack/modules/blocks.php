@@ -12,6 +12,10 @@
  * @package automattic/jetpack
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 add_action( 'jetpack_activate_module_blocks', 'jetpack_blocks_activate_module' );
 
 /**

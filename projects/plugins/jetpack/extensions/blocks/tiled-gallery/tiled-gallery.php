@@ -17,6 +17,10 @@ use Automattic\Jetpack\Status\Host;
 use Jetpack;
 use Jetpack_Gutenberg;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Jetpack Tiled Gallery Block class
  *
@@ -40,7 +44,8 @@ class Tiled_Gallery {
 			Blocks::jetpack_register_block(
 				__DIR__,
 				array(
-					'render_callback' => array( __CLASS__, 'render' ),
+					'render_callback'       => array( __CLASS__, 'render' ),
+					'render_email_callback' => array( __CLASS__, 'render_email' ),
 				)
 			);
 		}
@@ -211,6 +216,727 @@ class Tiled_Gallery {
 				'is-style-square' === $attr['className']
 				|| 'is-style-circle' === $attr['className']
 			);
+	}
+
+	/**
+	 * Render tiled gallery block for email.
+	 *
+	 * @since 15.0
+	 *
+	 * @param string $block_content     The original block HTML content.
+	 * @param array  $parsed_block      The parsed block data including attributes.
+	 * @param object $rendering_context Email rendering context.
+	 *
+	 * @return string
+	 */
+	public static function render_email( $block_content, array $parsed_block, $rendering_context ) {
+		// Validate input parameters and required dependencies
+		if ( ! isset( $parsed_block['attrs'] ) || ! is_array( $parsed_block['attrs'] ) ||
+			! class_exists( '\Automattic\WooCommerce\EmailEditor\Integrations\Utils\Styles_Helper' ) ||
+			! class_exists( '\Automattic\WooCommerce\EmailEditor\Integrations\Utils\Table_Wrapper_Helper' ) ) {
+			return '';
+		}
+
+		// Get spacing from email_attrs for better consistency with core blocks
+		$email_attrs        = $parsed_block['email_attrs'] ?? array();
+		$table_margin_style = '';
+
+		if ( ! empty( $email_attrs ) && class_exists( '\WP_Style_Engine' ) ) {
+			// Get margin for table styling
+			$table_margin_style = \WP_Style_Engine::compile_css( array_intersect_key( $email_attrs, array_flip( array( 'margin' ) ) ), '' ) ?? '';
+		}
+
+		// Email cell padding
+		$email_cell_padding = 2;  // Cell padding
+
+		$attr = $parsed_block['attrs'];
+
+		// Determine layout style and columns from attributes (needed for both image processing and layout building)
+		$layout_info = self::get_layout_style_from_attributes( $attr );
+
+		// Process images for email rendering
+		$images = self::process_tiled_gallery_images_for_email( $attr, $layout_info );
+
+		if ( empty( $images ) ) {
+			return '';
+		}
+
+		// Determine target width from the email layout if available
+		$target_width = self::get_email_target_width( $rendering_context );
+
+		// Build layout content based on style and columns
+		$grid_content = self::build_email_layout_content( $images, $layout_info, $email_cell_padding, $attr );
+
+		// Use Table_Wrapper_Helper for consistent email rendering
+		$table_style = sprintf( 'width: 100%%; max-width: %dpx; padding: 0; border-collapse: collapse;', $target_width );
+		if ( ! empty( $table_margin_style ) ) {
+			$table_style = $table_margin_style . '; ' . $table_style;
+		} else {
+			$table_style = 'margin: 16px 0; ' . $table_style;
+		}
+
+		$image_table_attrs = array(
+			'style' => $table_style,
+		);
+
+		$html = \Automattic\WooCommerce\EmailEditor\Integrations\Utils\Table_Wrapper_Helper::render_table_wrapper( $grid_content, $image_table_attrs );
+
+		return $html;
+	}
+
+	/**
+	 * Get target width for email rendering.
+	 *
+	 * @param object $rendering_context Email rendering context.
+	 * @return int Target width in pixels.
+	 */
+	private static function get_email_target_width( $rendering_context ) {
+		$target_width = 600; // Default
+
+		if ( ! empty( $rendering_context ) && is_object( $rendering_context ) && method_exists( $rendering_context, 'get_layout_width_without_padding' ) ) {
+			$layout_width_px = $rendering_context->get_layout_width_without_padding();
+			if ( is_string( $layout_width_px ) ) {
+				$parsed_width = \Automattic\WooCommerce\EmailEditor\Integrations\Utils\Styles_Helper::parse_value( $layout_width_px );
+				if ( $parsed_width > 0 ) {
+					$target_width = $parsed_width;
+				}
+			}
+		}
+
+		return $target_width;
+	}
+
+	/**
+	 * Process tiled gallery images for email rendering.
+	 *
+	 * @param array $attr Block attributes containing image data.
+	 * @param array $layout_info Layout information from get_layout_style_from_attributes.
+	 * @return array Processed image data for email rendering.
+	 */
+	private static function process_tiled_gallery_images_for_email( $attr, $layout_info ) {
+		$images = array();
+
+		// Determine if this is a squareish layout
+		$is_squareish = in_array( $layout_info['style'], array( 'square', 'circle' ), true );
+
+		// Get images from IDs (primary data source)
+		if ( ! empty( $attr['ids'] ) && is_array( $attr['ids'] ) ) {
+			foreach ( $attr['ids'] as $id ) {
+				// Validate ID is a positive integer and attachment exists
+				$id = absint( $id );
+				if ( ! $id || ! wp_attachment_is_image( $id ) ) {
+					continue;
+				}
+
+				// For square/circle layouts, get a high-quality square crop
+				if ( $is_squareish ) {
+					// Start with full size image for better quality when resizing
+					$image_url = wp_get_attachment_image_url( $id, 'full' );
+
+					// If we have Photon/Jetpack image processing, request high-quality square crop
+					if ( function_exists( 'jetpack_photon_url' ) && $image_url ) {
+						$image_url = add_query_arg(
+							array(
+								'resize' => '1300,1300', // High-quality square crop for email
+								'crop'   => '1',
+							),
+							$image_url
+						);
+					}
+				} else {
+					$image_url = wp_get_attachment_image_url( $id, 'large' );
+				}
+
+				// Sanitize alt text from post meta
+				$alt_text = get_post_meta( $id, '_wp_attachment_image_alt', true );
+				$alt_text = sanitize_text_field( $alt_text );
+
+				if ( $image_url ) {
+					$images[] = array(
+						'url' => $image_url,
+						'alt' => $alt_text,
+						'id'  => $id,
+					);
+				}
+			}
+		} elseif ( ! empty( $attr['images'] ) && is_array( $attr['images'] ) ) {
+			// Fall back to images array if IDs aren't available
+			foreach ( $attr['images'] as $image_data ) {
+				if ( ! empty( $image_data['url'] ) ) {
+					// Validate and sanitize URL
+					$url = esc_url_raw( $image_data['url'] );
+					if ( ! $url || ! wp_http_validate_url( $url ) ) {
+						continue;
+					}
+
+					// Sanitize alt text
+					$alt_text = ! empty( $image_data['alt'] ) ? sanitize_text_field( $image_data['alt'] ) : '';
+
+					// Validate ID if present
+					$id = ! empty( $image_data['id'] ) ? absint( $image_data['id'] ) : 0;
+
+					$images[] = array(
+						'url' => $url,
+						'alt' => $alt_text,
+						'id'  => $id,
+					);
+				}
+			}
+		}
+
+		return $images;
+	}
+
+	/**
+	 * Get layout style and columns from block attributes.
+	 *
+	 * @param array $attr Block attributes.
+	 * @return array Array with 'style', 'columns', and 'border_radius' keys.
+	 */
+	private static function get_layout_style_from_attributes( $attr ) {
+		$layout_info = array(
+			'style'         => 'rectangular', // Default to rectangular/mosaic layout
+			'columns'       => 3, // Default to 3 columns
+			'border_radius' => 0, // Default to no border radius
+		);
+
+		// Get number of columns from attributes with validation
+		if ( ! empty( $attr['columns'] ) && is_numeric( $attr['columns'] ) ) {
+			$columns = absint( $attr['columns'] );
+			// Clamp columns between 1 and 6 for reasonable layouts
+			$layout_info['columns'] = max( 1, min( 6, $columns ) );
+		}
+
+		// Get border radius from roundedCorners attribute (preferred method)
+		if ( ! empty( $attr['roundedCorners'] ) && is_numeric( $attr['roundedCorners'] ) ) {
+			$border_radius_value = absint( $attr['roundedCorners'] );
+			// Clamp value between 0 and 20
+			$layout_info['border_radius'] = max( 0, min( 20, $border_radius_value ) );
+		}
+
+		// Get layout style and border radius from className
+		if ( ! empty( $attr['className'] ) ) {
+			if ( str_contains( $attr['className'], 'is-style-square' ) ) {
+				$layout_info['style'] = 'square';
+			} elseif ( str_contains( $attr['className'], 'is-style-circle' ) ) {
+				$layout_info['style'] = 'circle';
+			} elseif ( str_contains( $attr['className'], 'is-style-columns' ) ) {
+				$layout_info['style'] = 'columns';
+			}
+
+			// Extract border radius from has-rounded-corners-{value} class (fallback method)
+			if ( $layout_info['border_radius'] === 0 && preg_match( '/has-rounded-corners-(\d+)/', $attr['className'], $matches ) ) {
+				$border_radius_value = absint( $matches[1] );
+					// Clamp value between 0 and 20
+				$layout_info['border_radius'] = max( 0, min( 20, $border_radius_value ) );
+			}
+		}
+
+		return $layout_info;
+	}
+
+	/**
+	 * Build email layout content based on layout style and columns.
+	 *
+	 * @param array $images Array of image data.
+	 * @param array $layout_info Array with 'style' and 'columns' keys.
+	 * @param int   $cell_padding Cell padding.
+	 * @param array $attr Block attributes.
+	 * @return string HTML content.
+	 */
+	private static function build_email_layout_content( $images, $layout_info, $cell_padding, $attr ) {
+		$layout_style  = $layout_info['style'];
+		$columns       = $layout_info['columns'];
+		$border_radius = $layout_info['border_radius'];
+
+		switch ( $layout_style ) {
+			case 'square':
+				return self::build_square_layout_content( $images, $cell_padding, $columns, 'square', $border_radius, $attr );
+			case 'circle':
+				return self::build_square_layout_content( $images, $cell_padding, $columns, 'circle', $border_radius, $attr );
+			case 'columns':
+				return self::build_columns_layout_content( $images, $cell_padding, $columns, $border_radius, $attr );
+			case 'rectangular':
+			default:
+				return self::build_mosaic_layout_content( $images, $cell_padding, $border_radius, $attr );
+		}
+	}
+
+	/**
+	 * Build square/circle layout content.
+	 *
+	 * @param array  $images Array of image data.
+	 * @param int    $cell_padding Cell padding.
+	 * @param int    $columns Number of columns for the layout.
+	 * @param string $style Layout style (square or circle).
+	 * @param int    $border_radius Border radius value (0-20).
+	 * @param array  $attr Block attributes.
+	 * @return string HTML content.
+	 */
+	private static function build_square_layout_content( $images, $cell_padding, $columns, $style = 'square', $border_radius = 0, $attr = array() ) {
+		$content_parts = array();
+
+		// Create rows of images with hierarchical chunks for square/circle layouts
+		$image_chunks = self::create_hierarchical_chunks( $images, $columns );
+
+		$border_radius_style = self::generate_border_radius_style( $style, $border_radius );
+
+		foreach ( $image_chunks as $row_images ) {
+			$images_in_row      = count( $row_images );
+			$cell_width_percent = ( 100 / $images_in_row );
+
+			// Build table cells for this row
+			$row_cells = '';
+			foreach ( $row_images as $image ) {
+				// Calculate cell attributes with consistent padding
+				$cell_attrs = array(
+					'style' => sprintf(
+						'width: %s%%; padding: %dpx; vertical-align: top; text-align: center;',
+						$cell_width_percent,
+						$cell_padding
+					),
+				);
+
+				$image_styles = self::generate_image_styles( false );
+
+				$cell_content = self::generate_image_html( $image, $image_styles, $border_radius_style, $attr );
+
+				$row_cells .= \Automattic\WooCommerce\EmailEditor\Integrations\Utils\Table_Wrapper_Helper::render_table_cell(
+					$cell_content,
+					$cell_attrs
+				);
+			}
+
+			// Use Table_Wrapper_Helper for email-compatible table rendering
+			$table_attrs = array(
+				'style' => 'width: 100%; border-collapse: collapse;',
+			);
+
+			$content_parts[] = \Automattic\WooCommerce\EmailEditor\Integrations\Utils\Table_Wrapper_Helper::render_table_wrapper(
+				$row_cells,
+				$table_attrs
+			);
+		}
+
+		// Use Table_Wrapper_Helper for consistent email rendering
+		$wrapper_attrs = array(
+			'style' => 'width: 100%; border-collapse: collapse;',
+		);
+
+		return \Automattic\WooCommerce\EmailEditor\Integrations\Utils\Table_Wrapper_Helper::render_table_wrapper(
+			implode( '', $content_parts ),
+			$wrapper_attrs
+		);
+	}
+
+	/**
+	 * Build columns layout content using mosaic logic organized into columns.
+	 *
+	 * @param array $images Array of image data.
+	 * @param int   $cell_padding Cell padding.
+	 * @param int   $columns Number of columns for the layout.
+	 * @param int   $border_radius Border radius value (0-20).
+	 * @param array $attr Block attributes.
+	 * @return string HTML content.
+	 */
+	private static function build_columns_layout_content( $images, $cell_padding, $columns, $border_radius = 0, $attr = array() ) {
+		$content_parts       = array();
+		$border_radius_style = self::generate_border_radius_style( '', $border_radius );
+
+		// Distribute images across columns using round-robin approach for better balance
+		$column_arrays = array_fill( 0, $columns, array() );
+		foreach ( $images as $index => $image ) {
+			$column_index                     = $index % $columns;
+			$column_arrays[ $column_index ][] = $image;
+		}
+
+		// Build table cells for columns layout
+		$row_cells = '';
+		foreach ( $column_arrays as $column_images ) {
+			if ( empty( $column_images ) ) {
+				// Add empty cell for balance
+				$cell_attrs = array(
+					'style' => sprintf(
+						'width: %s%%; padding: %dpx; vertical-align: top;',
+						( 100 / $columns ),
+						$cell_padding
+					),
+				);
+				$row_cells .= \Automattic\WooCommerce\EmailEditor\Integrations\Utils\Table_Wrapper_Helper::render_table_cell(
+					'',
+					$cell_attrs
+				);
+				continue;
+			}
+
+			// Calculate cell attributes
+			$cell_width_percent = ( 100 / $columns );
+			$cell_attrs         = array(
+				'style' => sprintf(
+					'width: %s%%; padding: %dpx; vertical-align: top;',
+					$cell_width_percent,
+					$cell_padding
+				),
+			);
+
+			// Generate mosaic-style groupings within this column
+			$column_rows = self::generate_column_mosaic_rows( $column_images );
+
+			$cell_content = '';
+			foreach ( $column_rows as $row_index => $row_images ) {
+				foreach ( $row_images as $image ) {
+					$image_styles = self::generate_image_styles( false );
+
+					// Add top margin to all images except the first one in the column
+					if ( $row_index > 0 || $cell_content !== '' ) {
+						$image_styles .= ' margin-top: ' . ( $cell_padding * 2 ) . 'px;';
+					}
+
+					$cell_content .= self::generate_image_html( $image, $image_styles, $border_radius_style, $attr );
+				}
+			}
+
+			$row_cells .= \Automattic\WooCommerce\EmailEditor\Integrations\Utils\Table_Wrapper_Helper::render_table_cell(
+				$cell_content,
+				$cell_attrs
+			);
+		}
+
+		// Use Table_Wrapper_Helper for email-compatible table rendering
+		$table_attrs = array(
+			'style' => 'width: 100%; border-collapse: collapse;',
+		);
+
+		$content_parts[] = \Automattic\WooCommerce\EmailEditor\Integrations\Utils\Table_Wrapper_Helper::render_table_wrapper(
+			$row_cells,
+			$table_attrs
+		);
+
+		// Use Table_Wrapper_Helper for consistent email rendering
+		$wrapper_attrs = array(
+			'style' => 'width: 100%; border-collapse: collapse;',
+		);
+
+		return \Automattic\WooCommerce\EmailEditor\Integrations\Utils\Table_Wrapper_Helper::render_table_wrapper(
+			implode( '', $content_parts ),
+			$wrapper_attrs
+		);
+	}
+
+	/**
+	 * Build mosaic layout content with flexible row/column structure.
+	 *
+	 * @param array $images Array of image data.
+	 * @param int   $cell_padding Cell padding.
+	 * @param int   $border_radius Border radius value (0-20).
+	 * @param array $attr Block attributes.
+	 * @return string HTML content.
+	 */
+	private static function build_mosaic_layout_content( $images, $cell_padding, $border_radius = 0, $attr = array() ) {
+		$border_radius_style = self::generate_border_radius_style( '', $border_radius );
+
+		// Generate mosaic layout rows
+		$rows = self::generate_mosaic_rows( $images );
+
+		// Determine the maximum number of columns to ensure consistent layout
+		$max_columns = 0;
+		foreach ( $rows as $row ) {
+			$max_columns = max( $max_columns, count( $row ) );
+		}
+
+		// Build each row as a separate table to match flexbox behavior
+		$content_parts = array();
+		foreach ( $rows as $row ) {
+			$images_in_row = count( $row );
+
+			// Calculate width for each cell in this row (like flexbox)
+			$cell_width_percent = ( 100 / $images_in_row );
+
+			// Build table cells for this row
+			$row_cells = '';
+			foreach ( $row as $image ) {
+				$cell_style = sprintf(
+					'width: %s%%; padding: %dpx; vertical-align: top; text-align: center;',
+					$cell_width_percent,
+					$cell_padding
+				);
+
+				// Set consistent height for all images in this row to ensure alignment
+				// Use progressive enhancement: object-fit for supported clients, natural layout for others
+				$image_styles = self::generate_image_styles( true );
+
+				$cell_content = self::generate_image_html( $image, $image_styles, $border_radius_style, $attr );
+
+				$row_cells .= sprintf(
+					'<td style="%s">%s</td>',
+					esc_attr( $cell_style ),
+					$cell_content
+				);
+			}
+
+			// Create a separate table for each row with flexible height for alignment
+			$row_table = sprintf(
+				'<table role="presentation" style="width: 100%%; border-collapse: collapse; table-layout: fixed;"><tr>%s</tr></table>',
+				$row_cells
+			);
+
+			$content_parts[] = $row_table;
+		}
+
+		// Use Table_Wrapper_Helper for the main container
+		$table_attrs = array(
+			'style' => 'width: 100%; border-collapse: collapse;',
+		);
+
+		return \Automattic\WooCommerce\EmailEditor\Integrations\Utils\Table_Wrapper_Helper::render_table_wrapper(
+			implode( '', $content_parts ),
+			$table_attrs
+		);
+	}
+
+	/**
+	 * Generate mosaic layout rows based on image count.
+	 *
+	 * @param array $images Array of image data.
+	 * @return array Array of rows, each containing images.
+	 */
+	private static function generate_mosaic_rows( $images ) {
+		$rows        = array();
+		$image_count = count( $images );
+
+		// More sophisticated mosaic algorithm based on image count
+		if ( $image_count <= 3 ) {
+			// For 3 or fewer images, use simple layout
+			$rows[] = $images;
+		} else {
+			// For more images, create varied row patterns
+			$patterns = array(
+				4 => array( 2, 2 ),      // 4 images: 2 + 2
+				5 => array( 2, 3 ),      // 5 images: 2 + 3
+				6 => array( 3, 3 ),      // 6 images: 3 + 3
+				7 => array( 3, 2, 2 ),   // 7 images: 3 + 2 + 2
+				8 => array( 3, 3, 2 ),   // 8 images: 3 + 3 + 2
+				9 => array( 3, 3, 3 ),   // 9 images: 3 + 3 + 3
+			);
+
+			if ( isset( $patterns[ $image_count ] ) ) {
+				// Use predefined pattern for 4-9 images
+				$pattern     = $patterns[ $image_count ];
+				$image_index = 0;
+
+				foreach ( $pattern as $images_in_row ) {
+					$row = array();
+					for ( $i = 0; $i < $images_in_row; $i++ ) {
+						$row[] = $images[ $image_index ];
+						++$image_index;
+					}
+					$rows[] = $row;
+				}
+			} else {
+				// For 10+ images, create rows of 3 with remainder handling
+				$full_rows = intval( $image_count / 3 );
+				$remainder = $image_count % 3;
+
+				$image_index = 0;
+
+				// Create full rows of 3
+				for ( $row = 0; $row < $full_rows; $row++ ) {
+					$rows[]       = array(
+						$images[ $image_index ],
+						$images[ $image_index + 1 ],
+						$images[ $image_index + 2 ],
+					);
+					$image_index += 3;
+				}
+
+				// Handle remainder
+				if ( $remainder > 0 ) {
+					$remaining = array_slice( $images, $image_index );
+					$rows[]    = $remaining;
+				}
+			}
+		}
+
+		return $rows;
+	}
+
+	/**
+	 * Generate mosaic-style rows within a single column for columns layout.
+	 *
+	 * @param array $images Array of image data for this column.
+	 * @return array Array of rows, each containing 1-2 images for variety.
+	 */
+	private static function generate_column_mosaic_rows( $images ) {
+		$rows        = array();
+		$image_count = count( $images );
+
+		if ( $image_count <= 2 ) {
+			// For 2 or fewer images, each gets its own row
+			foreach ( $images as $image ) {
+				$rows[] = array( $image );
+			}
+		} else {
+			// Create varied patterns: mix of single and paired images
+			$image_index = 0;
+
+			while ( $image_index < $image_count ) {
+				$remaining = $image_count - $image_index;
+
+				if ( $remaining === 1 ) {
+					// Last image - single row
+					$rows[] = array( $images[ $image_index ] );
+					++$image_index;
+				} elseif ( $remaining === 3 ) {
+					// 3 remaining - do 1 + 2 for better balance
+					$rows[] = array( $images[ $image_index ] );
+					++$image_index;
+					$rows[]       = array( $images[ $image_index ], $images[ $image_index + 1 ] );
+					$image_index += 2;
+				} else {
+					// 2 or more remaining - alternate between single and pairs
+					$use_pair = ( count( $rows ) % 2 === 1 ); // Alternate pattern
+
+					if ( $use_pair && $remaining >= 2 ) {
+						// Create a pair
+						$rows[]       = array( $images[ $image_index ], $images[ $image_index + 1 ] );
+						$image_index += 2;
+					} else {
+						// Single image
+						$rows[] = array( $images[ $image_index ] );
+						++$image_index;
+					}
+				}
+			}
+		}
+
+		return $rows;
+	}
+
+	/**
+	 * Generate border radius style based on layout style and border radius value.
+	 *
+	 * @param string $style Layout style (square, circle, etc.).
+	 * @param int    $border_radius Border radius value.
+	 * @return string CSS border-radius style.
+	 */
+	private static function generate_border_radius_style( $style, $border_radius ) {
+		if ( 'circle' === $style ) {
+			return 'border-radius:50%;';
+		} elseif ( $border_radius > 0 ) {
+			return 'border-radius:' . $border_radius . 'px;';
+		}
+		return '';
+	}
+
+	/**
+	 * Generate image styles for email rendering.
+	 *
+	 * @param bool $use_fixed_height Whether to use fixed height with object-fit.
+	 * @return string CSS style string.
+	 */
+	private static function generate_image_styles( $use_fixed_height = false ) {
+		$base_styles = 'margin: 0; width: 100%; max-width: 100%; display: block;';
+
+		if ( $use_fixed_height ) {
+			return $base_styles . ' height: 200px; object-fit: cover; object-position: center;';
+		}
+
+		return $base_styles . ' height: auto;';
+	}
+
+	/**
+	 * Generate image HTML with consistent styling.
+	 *
+	 * @param array  $image Image data array.
+	 * @param string $additional_styles Additional CSS styles.
+	 * @param string $border_radius_style Border radius CSS.
+	 * @param array  $attr Block attributes (optional, for link processing).
+	 * @return string Image HTML.
+	 */
+	private static function generate_image_html( $image, $additional_styles = '', $border_radius_style = '', $attr = array() ) {
+		$base_styles     = 'border:none;background-color:#0000001a;display:block;height:auto;max-width:100%;padding:0;';
+		$combined_styles = $base_styles . $additional_styles . $border_radius_style;
+
+		$img_html = sprintf(
+			'<img alt="%s" src="%s" style="%s" />',
+			esc_attr( $image['alt'] ),
+			esc_url( $image['url'] ),
+			$combined_styles
+		);
+
+		// Handle link settings for email
+		$link_to = ! empty( $attr['linkTo'] ) ? $attr['linkTo'] : 'none';
+		$href    = self::get_image_link_href( $image, $attr, $link_to );
+
+		if ( ! empty( $href ) ) {
+			return sprintf( '<a href="%s">%s</a>', esc_url( $href ), $img_html );
+		}
+
+		return $img_html;
+	}
+
+	/**
+	 * Get the href for an image based on link settings (used for email rendering).
+	 * Excludes custom links which email clients will replace with the image.
+	 *
+	 * @since 15.0
+	 *
+	 * @param array  $image Image data array.
+	 * @param array  $attr Block attributes.
+	 * @param string $link_to Link setting.
+	 * @return string The href URL or empty string.
+	 */
+	private static function get_image_link_href( $image, $attr, $link_to ) {
+		switch ( $link_to ) {
+			case 'media':
+				return ! empty( $image['url'] ) ? $image['url'] : '';
+
+			case 'attachment':
+				// For email, we need to generate the attachment page URL from the image ID
+				if ( ! empty( $image['id'] ) ) {
+					$attachment_url = get_permalink( $image['id'] );
+					return $attachment_url ? $attachment_url : '';
+				}
+				return '';
+			default:
+				return '';
+		}
+	}
+
+	/**
+	 * Create hierarchical chunks for square/circle layouts with larger items first.
+	 *
+	 * @param array $images Array of image data.
+	 * @param int   $columns Number of columns for the layout.
+	 * @return array Array of rows with different sized chunks.
+	 */
+	private static function create_hierarchical_chunks( $images, $columns ) {
+		$image_count = count( $images );
+		$chunks      = array();
+
+		if ( $image_count <= $columns ) {
+			// For column count or fewer, single row
+			$chunks[] = $images;
+		} else {
+			// Calculate remainder when dividing by columns
+			$remainder   = $image_count % $columns;
+			$start_index = 0;
+
+			// Handle all remainder cases to create proper hierarchy
+			if ( $remainder > 0 ) {
+				// Create a row with the remainder images (larger items first)
+				$chunks[]    = array_slice( $images, 0, $remainder );
+				$start_index = $remainder;
+			}
+			// If remainder === 0, start_index stays 0
+
+			// Rest in groups of $columns
+			$remaining        = array_slice( $images, $start_index );
+			$remaining_chunks = array_chunk( $remaining, $columns );
+			$chunks           = array_merge( $chunks, $remaining_chunks );
+		}
+
+		return $chunks;
 	}
 }
 

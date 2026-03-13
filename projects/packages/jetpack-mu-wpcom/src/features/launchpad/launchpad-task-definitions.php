@@ -6,7 +6,7 @@
  */
 
 // Type aliases used in a bunch of places in this file. Unfortunately Phan doesn't have a way to set these more globally than copy-pasting them into each file needing them.
-<<<PHAN
+<<<'PHAN'
 @phan-type Task = array{id:string, title?:string, get_title?:callable, id_map?:string, add_listener_callback?:callable, badge_text_callback?:callable, extra_data_callback?:callable, get_calypso_path?:callable, is_complete_callback?:callable, is_disabled_callback?:callable, isLaunchTask?:bool, is_visible_callback?:callable, target_repetitions?:int, repetition_count_callback?:callable, subtitle?:callable, completed?:bool}
 PHAN;
 
@@ -102,7 +102,7 @@ function wpcom_launchpad_get_task_definitions() {
 						return '/domains/manage/' . $data['site_slug_encoded'];
 				}
 
-				return '/setup/domain-upsell/domains?siteSlug=' . $data['site_slug_encoded'];
+				return '/setup/domain-and-plan/domains?siteSlug=' . $data['site_slug_encoded'];
 			},
 		),
 		'first_post_published'            => array(
@@ -120,7 +120,7 @@ function wpcom_launchpad_get_task_definitions() {
 
 				if ( is_int( $latest_draft_id ) ) {
 					// There is a draft post, redirect the user to the draft instead of making a fresh post.
-					return admin_url( 'post.php?action=edit&post=' . rawurlencode( $latest_draft_id ) );
+					return admin_url( 'post.php?action=edit&post=' . rawurlencode( (string) $latest_draft_id ) );
 				}
 
 				return admin_url( 'post-new.php' );
@@ -390,8 +390,9 @@ function wpcom_launchpad_get_task_definitions() {
 				return __( 'Drive traffic to your site', 'jetpack-mu-wpcom' );
 			},
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
-			'get_calypso_path'     => function ( $task, $default, $data ) {
-				return '/marketing/connections/' . $data['site_slug_encoded'];
+			'is_visible_callback'  => 'wpcom_launchpad_is_jetpack_social_available',
+			'get_calypso_path'     => function () {
+				return admin_url( 'admin.php?page=jetpack-social' );
 			},
 		),
 
@@ -472,10 +473,12 @@ function wpcom_launchpad_get_task_definitions() {
 			},
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
-				if ( wpcom_launchpad_should_use_wp_admin_link() ) {
-					return admin_url( 'admin.php?page=jetpack#/newsletter' );
+				$url = \Automattic\Jetpack\Newsletter\Urls::get_newsletter_settings_url( $data['site_slug_encoded'], true );
+				// Add anchor for Calypso messages section (relative paths start with /settings/).
+				if ( str_starts_with( $url, '/settings/' ) ) {
+					$url .= '#messages';
 				}
-				return '/settings/newsletter/' . $data['site_slug_encoded'] . '#messages';
+				return $url;
 			},
 		),
 		'enable_subscribers_modal'        => array(
@@ -484,10 +487,7 @@ function wpcom_launchpad_get_task_definitions() {
 			},
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
-				if ( wpcom_launchpad_should_use_wp_admin_link() ) {
-					return admin_url( 'admin.php?page=jetpack#/newsletter' );
-				}
-				return '/settings/newsletter/' . $data['site_slug_encoded'];
+				return \Automattic\Jetpack\Newsletter\Urls::get_newsletter_settings_url( $data['site_slug_encoded'], true );
 			},
 		),
 		'add_10_email_subscribers'        => array(
@@ -641,7 +641,7 @@ function wpcom_launchpad_get_task_definitions() {
 			'is_complete_callback' => 'wpcom_launchpad_has_added_subscribe_block',
 			'is_visible_callback'  => 'wpcom_launchpad_is_add_subscribe_block_visible',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
-				return '/settings/newsletter/' . $data['site_slug_encoded'];
+				return \Automattic\Jetpack\Newsletter\Urls::get_newsletter_settings_url( $data['site_slug_encoded'], true );
 			},
 		),
 		'mobile_app_installed'            => array(
@@ -658,8 +658,9 @@ function wpcom_launchpad_get_task_definitions() {
 				return __( 'Enable post sharing', 'jetpack-mu-wpcom' );
 			},
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
-			'get_calypso_path'     => function ( $task, $default, $data ) {
-				return '/marketing/connections/' . $data['site_slug_encoded'];
+			'is_visible_callback'  => 'wpcom_launchpad_is_jetpack_social_available',
+			'get_calypso_path'     => function () {
+				return admin_url( 'admin.php?page=jetpack-social' );
 			},
 		),
 		'front_page_updated'              => array(
@@ -1105,7 +1106,7 @@ function wpcom_launchpad_init_listeners( $task_definitions ) {
 						array(
 							'feature' => 'launchpad',
 							'message' => 'Launchpad failed to add listener callback.',
-							'extra'   => wp_json_encode( $data ),
+							'extra'   => wp_json_encode( $data, JSON_UNESCAPED_SLASHES ),
 						)
 					);
 				}
@@ -2613,8 +2614,8 @@ add_action( 'add_option_subscription_options', 'wpcom_launchpad_mark_customize_w
  * Mark the WooCommerce setup task as complete the setup task list is in
  * the completed list or in the hidden list.
  *
- * @param string $old_value The old value of the option.
- * @param string $value The new value of the option.
+ * @param array $old_value The old value of the option.
+ * @param array $value The new value of the option.
  *
  * @return void
  */
@@ -2791,7 +2792,8 @@ add_action( 'activate_product', 'wpcom_launchpad_mark_domain_tasks_complete', 10
 function wpcom_launchpad_mark_plan_tasks_complete( $blog_id ) {
 	require_once WP_CONTENT_DIR . '/admin-plugins/wpcom-billing.php';
 	$current_plan = WPCOM_Store_API::get_current_plan( $blog_id );
-	if ( $current_plan['is_free'] ) {
+
+	if ( $current_plan['is_free'] ?? true ) {
 		return;
 	}
 
@@ -2946,4 +2948,13 @@ function wpcom_launchpad_has_added_subscribe_block() {
 	}
 
 	return wpcom_launchpad_is_task_option_completed( array( 'id' => 'add_subscribe_block' ) );
+}
+
+/**
+ * Will return true if the user can set up social connections.
+ *
+ * @return bool
+ */
+function wpcom_launchpad_is_jetpack_social_available() {
+	return ! ( new Automattic\Jetpack\Status() )->is_private_site();
 }

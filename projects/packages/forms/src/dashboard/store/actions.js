@@ -7,7 +7,14 @@ import {
 	RECEIVE_FILTERS,
 	SET_CURRENT_QUERY,
 	INVALIDATE_FILTERS,
-} from './action-types';
+	SET_COUNTS,
+	UPDATE_COUNTS_OPTIMISTICALLY,
+	INVALIDATE_COUNTS,
+	MARK_RECORDS_AS_INVALID,
+	CLEAR_INVALID_RECORDS,
+	ADD_PENDING_ACTION,
+	REMOVE_PENDING_ACTION,
+} from './action-types.js';
 
 /**
  * Receive the available filters for the responses.
@@ -29,6 +36,15 @@ export const invalidateFilters = () => {
 };
 
 /**
+ * Invalidate the counts when responses are deleted.
+ *
+ * @return {object} Action object.
+ */
+export const invalidateCounts = () => {
+	return { type: INVALIDATE_COUNTS };
+};
+
+/**
  * Set the selected responses from current data set.
  *
  * @param {Array} selectedResponses - Selected responses.
@@ -41,14 +57,129 @@ export const setSelectedResponses = selectedResponses => ( {
 
 /**
  * Set the current DataViews query.
+ * If filters have changed, clears invalid records and invalidates entity records resolution.
  *
  * @param {object} currentQuery - The current DataViews query.
- * @return {object} Action object.
+ * @return {Function} Thunk action.
  */
 export function setCurrentQuery( currentQuery ) {
+	return ( { dispatch, select, registry } ) => {
+		const previousQuery = select.getCurrentQuery();
+
+		// Ensure fields_format is always included (for backwards compatibility with API)
+		const queryWithFormat = {
+			...currentQuery,
+			fields_format: currentQuery.fields_format ?? previousQuery.fields_format ?? 'collection',
+		};
+
+		// Check if filters changed (not just pagination)
+		const filtersChanged =
+			previousQuery.status !== queryWithFormat.status ||
+			previousQuery.search !== queryWithFormat.search ||
+			previousQuery.is_unread !== queryWithFormat.is_unread ||
+			previousQuery.parent !== queryWithFormat.parent ||
+			previousQuery.before !== queryWithFormat.before ||
+			previousQuery.after !== queryWithFormat.after;
+
+		// If filters changed, clear invalid records and refetch
+		if ( filtersChanged ) {
+			dispatch( clearInvalidRecords() );
+			// Only invalidate resolution if core store is available (it won't be in tests)
+			if ( registry && registry.dispatch( 'core' ) ) {
+				registry
+					.dispatch( 'core' )
+					.invalidateResolution( 'getEntityRecords', [ 'postType', 'feedback', queryWithFormat ] );
+			}
+		}
+
+		dispatch( {
+			type: SET_CURRENT_QUERY,
+			currentQuery: queryWithFormat,
+		} );
+	};
+}
+
+/**
+ * Set the status counts.
+ *
+ * @param {object} counts      - The counts object with inbox, spam, and trash.
+ * @param {object} queryParams - The query parameters used to fetch these counts.
+ * @return {object} Action object.
+ */
+export function setCounts( counts, queryParams = {} ) {
 	return {
-		type: SET_CURRENT_QUERY,
-		currentQuery,
+		type: SET_COUNTS,
+		counts,
+		queryParams,
+	};
+}
+
+/**
+ * Optimistically update counts when status changes.
+ *
+ * @param {string} fromStatus  - The status items are moving from.
+ * @param {string} toStatus    - The status items are moving to.
+ * @param {number} count       - Number of items being moved.
+ * @param {object} queryParams - The query parameters for the current view.
+ * @return {object} Action object.
+ */
+export function updateCountsOptimistically( fromStatus, toStatus, count = 1, queryParams = {} ) {
+	return {
+		type: UPDATE_COUNTS_OPTIMISTICALLY,
+		fromStatus,
+		toStatus,
+		count,
+		queryParams,
+	};
+}
+
+/**
+ * Mark records as invalid/stale without removing them from view.
+ *
+ * @param {number[]} recordIds - IDs of records to mark as invalid.
+ * @return {object} Action object.
+ */
+export function markRecordsAsInvalid( recordIds ) {
+	return {
+		type: MARK_RECORDS_AS_INVALID,
+		recordIds,
+	};
+}
+
+/**
+ * Clear all invalid record markers.
+ *
+ * @return {object} Action object.
+ */
+export function clearInvalidRecords() {
+	return {
+		type: CLEAR_INVALID_RECORDS,
+	};
+}
+
+/**
+ * Add a pending action to track optimistic updates in progress.
+ *
+ * @param {string} actionId - Unique identifier for the action.
+ * @return {object} Action object.
+ */
+export function addPendingAction( actionId ) {
+	return {
+		type: ADD_PENDING_ACTION,
+		actionId,
+	};
+}
+
+/**
+ * Remove a pending action when it completes.
+ *
+ * @param {string} actionId - Unique identifier for the action.
+ * @return {object} Action object.
+ */
+export function removePendingAction( actionId ) {
+	return {
+		type: REMOVE_PENDING_ACTION,
+		actionId,
 	};
 }
 

@@ -182,13 +182,29 @@ class Legacy {
 			window.dataLayer = window.dataLayer || [];
 			function gtag() { dataLayer.push( arguments ); }
 			gtag( 'js', new Date() );
-			gtag( 'config', <?php echo wp_json_encode( $tracking_id ); ?> );
+			gtag( 'config', <?php echo wp_json_encode( $tracking_id, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?> );
 			<?php
 			foreach ( $universal_commands as $command ) {
-				echo 'gtag( ' . implode( ', ', array_map( 'wp_json_encode', $command ) ) . " );\n";
+				echo 'gtag( ' . implode(
+					', ',
+					array_map( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped internally
+						function ( $c ) {
+							return wp_json_encode( $c, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP );
+						},
+						$command
+					)
+				) . " );\n";
 			}
 			foreach ( $custom_vars as $var ) {
-				echo 'gtag( ' . implode( ', ', array_map( 'wp_json_encode', $var ) ) . " );\n";
+				echo 'gtag( ' . implode(
+					', ',
+					array_map( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped internally
+						function ( $v ) {
+							return wp_json_encode( $v, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP );
+						},
+						$var
+					)
+				) . " );\n";
 			}
 			?>
 		</script>
@@ -263,7 +279,8 @@ class Legacy {
 								(string) $order->get_billing_city(),
 								(string) $order->get_billing_state(),
 								(string) $order->get_billing_country(),
-							)
+							),
+							JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 						)
 					)
 				);
@@ -287,7 +304,8 @@ class Legacy {
 										Utils::get_product_categories_concatenated( $product ),
 										(string) $order->get_item_total( $item ),
 										(string) $item['qty'],
-									)
+									),
+									JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 								)
 							)
 						);

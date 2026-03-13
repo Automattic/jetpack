@@ -3,15 +3,14 @@ import { hasFeatureFlag } from '@automattic/jetpack-shared-extension-utils';
 import { Path } from '@wordpress/components';
 import { __, _x } from '@wordpress/i18n';
 import { people } from '@wordpress/icons';
-import renderMaterialIcon from '../shared/components/render-material-icon';
-import { getIconColor } from '../shared/util/block-icons';
+import renderMaterialIcon from '../shared/components/render-material-icon.jsx';
+import { VERTICAL_LAYOUT } from '../shared/util/constants.js';
 
 const variations = [
 	{
 		name: 'regular-form',
 		title: __( 'Form', 'jetpack-forms' ),
 		icon: {
-			foreground: getIconColor(),
 			src: renderMaterialIcon(
 				<>
 					<Path d="m13 7.5 h 5 v 1.5 h -5 v -1.5z" />
@@ -24,6 +23,7 @@ const variations = [
 		},
 		attributes: {
 			variationName: 'default-empty',
+			layout: VERTICAL_LAYOUT,
 		},
 		scope: [ 'transform' ],
 		isActive: ( { variationName } ) => variationName !== 'multistep',
@@ -33,7 +33,6 @@ const variations = [
 		title: __( 'Contact Form', 'jetpack-forms' ),
 		description: __( 'Add a contact form to your page.', 'jetpack-forms' ),
 		icon: {
-			foreground: getIconColor(),
 			src: renderMaterialIcon(
 				<>
 					<Path
@@ -69,16 +68,17 @@ const variations = [
 				],
 			],
 			[
-				'jetpack/button',
+				'core/button',
 				{
-					text: __( 'Contact Us', 'jetpack-forms' ),
-					element: 'button',
-					lock: { remove: true },
+					text: __( 'Contact us', 'jetpack-forms' ),
+					tagName: 'button',
+					type: 'submit',
 				},
 			],
 		],
 		attributes: {
 			variationName: 'default',
+			layout: VERTICAL_LAYOUT,
 		},
 	},
 	{
@@ -86,7 +86,6 @@ const variations = [
 		title: __( 'RSVP Form', 'jetpack-forms' ),
 		description: __( 'Add an RSVP form to your page', 'jetpack-forms' ),
 		icon: {
-			foreground: getIconColor(),
 			src: renderMaterialIcon(
 				<>
 					<Path
@@ -149,16 +148,17 @@ const variations = [
 				],
 			],
 			[
-				'jetpack/button',
+				'core/button',
 				{
 					text: __( 'Send RSVP', 'jetpack-forms' ),
-					element: 'button',
-					lock: { remove: true },
+					tagName: 'button',
+					type: 'submit',
 				},
 			],
 		],
 		attributes: {
 			subject: __( 'A new RSVP from your website', 'jetpack-forms' ),
+			layout: VERTICAL_LAYOUT,
 		},
 		example: {
 			innerBlocks: [
@@ -216,10 +216,10 @@ const variations = [
 					],
 				},
 				{
-					name: 'jetpack/button',
+					name: 'core/button',
 					attributes: {
 						text: __( 'Send RSVP', 'jetpack-forms' ),
-						element: 'button',
+						tagName: 'button',
 						lock: { remove: true },
 					},
 				},
@@ -231,7 +231,6 @@ const variations = [
 		title: __( 'Registration Form', 'jetpack-forms' ),
 		description: __( 'Add a Registration form to your page', 'jetpack-forms' ),
 		icon: {
-			foreground: getIconColor(),
 			src: renderMaterialIcon(
 				<>
 					<Path
@@ -262,7 +261,10 @@ const variations = [
 			[
 				'jetpack/field-telephone',
 				{},
-				[ [ 'jetpack/label', { label: __( 'Phone', 'jetpack-forms' ) } ], [ 'jetpack/input' ] ],
+				[
+					[ 'jetpack/label', { label: __( 'Phone', 'jetpack-forms' ) } ],
+					[ 'jetpack/phone-input' ],
+				],
 			],
 			[
 				'jetpack/field-select',
@@ -300,16 +302,17 @@ const variations = [
 				],
 			],
 			[
-				'jetpack/button',
+				'core/button',
 				{
 					text: __( 'Send', 'jetpack-forms' ),
-					element: 'button',
-					lock: { remove: true },
+					tagName: 'button',
+					type: 'submit',
 				},
 			],
 		],
 		attributes: {
 			subject: __( 'A new registration from your website', 'jetpack-forms' ),
+			layout: VERTICAL_LAYOUT,
 		},
 		example: {
 			innerBlocks: [
@@ -347,7 +350,7 @@ const variations = [
 							attributes: { label: __( 'Phone', 'jetpack-forms' ) },
 						},
 						{
-							name: 'jetpack/input',
+							name: 'jetpack/phone-input',
 						},
 					],
 				},
@@ -396,10 +399,10 @@ const variations = [
 					],
 				},
 				{
-					name: 'jetpack/button',
+					name: 'core/button',
 					attributes: {
 						text: __( 'Send', 'jetpack-forms' ),
-						element: 'button',
+						tagName: 'button',
 						lock: { remove: true },
 					},
 				},
@@ -411,7 +414,6 @@ const variations = [
 		title: __( 'Appointment Form', 'jetpack-forms' ),
 		description: __( 'Add an Appointment booking form to your page', 'jetpack-forms' ),
 		icon: {
-			foreground: getIconColor(),
 			src: renderMaterialIcon(
 				<>
 					<Path d="M4 6C4 4.89543 4.89543 4 6 4H18C19.1046 4 20 4.89543 20 6V8H4V6Z" />
@@ -444,7 +446,10 @@ const variations = [
 			[
 				'jetpack/field-telephone',
 				{ required: true },
-				[ [ 'jetpack/label', { label: __( 'Phone', 'jetpack-forms' ) } ], [ 'jetpack/input' ] ],
+				[
+					[ 'jetpack/label', { label: __( 'Phone', 'jetpack-forms' ) } ],
+					[ 'jetpack/phone-input' ],
+				],
 			],
 			[
 				'jetpack/field-date',
@@ -487,16 +492,17 @@ const variations = [
 				],
 			],
 			[
-				'jetpack/button',
+				'core/button',
 				{
 					text: __( 'Book appointment', 'jetpack-forms' ),
-					element: 'button',
-					lock: { remove: true },
+					tagName: 'button',
+					type: 'submit',
 				},
 			],
 		],
 		attributes: {
 			subject: __( 'A new appointment booked from your website', 'jetpack-forms' ),
+			layout: VERTICAL_LAYOUT,
 		},
 		example: {
 			innerBlocks: [
@@ -521,7 +527,7 @@ const variations = [
 					attributes: { required: true },
 					innerBlocks: [
 						{ name: 'jetpack/label', attributes: { label: __( 'Phone', 'jetpack-forms' ) } },
-						{ name: 'jetpack/input' },
+						{ name: 'jetpack/phone-input' },
 					],
 				},
 				{
@@ -567,10 +573,10 @@ const variations = [
 					],
 				},
 				{
-					name: 'jetpack/button',
+					name: 'core/button',
 					attributes: {
 						text: __( 'Book appointment', 'jetpack-forms' ),
-						element: 'button',
+						tagName: 'button',
 						lock: { remove: true },
 					},
 				},
@@ -582,7 +588,6 @@ const variations = [
 		title: __( 'Feedback Form', 'jetpack-forms' ),
 		description: __( 'Add a feedback form to your page', 'jetpack-forms' ),
 		icon: {
-			foreground: getIconColor(),
 			src: renderMaterialIcon(
 				<>
 					<Path
@@ -621,52 +626,9 @@ const variations = [
 				[ [ 'jetpack/label', { label: __( 'Email', 'jetpack-forms' ) } ], [ 'jetpack/input' ] ],
 			],
 			[
-				'jetpack/field-radio',
-				{ required: true },
-				[
-					[ 'jetpack/label', { label: __( 'Please rate our website', 'jetpack-forms' ) } ],
-					[
-						'jetpack/options',
-						{ type: 'radio' },
-						[
-							[
-								'jetpack/option',
-								{
-									label: __( '1 - Very Bad', 'jetpack-forms' ),
-									placeholder: __( 'Add option…', 'jetpack-forms' ),
-								},
-							],
-							[
-								'jetpack/option',
-								{
-									label: __( '2 - Poor', 'jetpack-forms' ),
-									placeholder: __( 'Add option…', 'jetpack-forms' ),
-								},
-							],
-							[
-								'jetpack/option',
-								{
-									label: __( '3 - Average', 'jetpack-forms' ),
-									placeholder: __( 'Add option…', 'jetpack-forms' ),
-								},
-							],
-							[
-								'jetpack/option',
-								{
-									label: __( '4 - Good', 'jetpack-forms' ),
-									placeholder: __( 'Add option…', 'jetpack-forms' ),
-								},
-							],
-							[
-								'jetpack/option',
-								{
-									label: __( '5 - Excellent', 'jetpack-forms' ),
-									placeholder: __( 'Add option…', 'jetpack-forms' ),
-								},
-							],
-						],
-					],
-				],
+				'jetpack/field-rating',
+				{ required: true, max: 5 },
+				[ [ 'jetpack/label', { label: __( 'Rate your experience', 'jetpack-forms' ) } ] ],
 			],
 			[
 				'jetpack/field-textarea',
@@ -677,16 +639,17 @@ const variations = [
 				],
 			],
 			[
-				'jetpack/button',
+				'core/button',
 				{
-					text: __( 'Send Feedback', 'jetpack-forms' ),
-					element: 'button',
-					lock: { remove: true },
+					text: __( 'Send feedback', 'jetpack-forms' ),
+					tagName: 'button',
+					type: 'submit',
 				},
 			],
 		],
 		attributes: {
 			subject: __( 'New feedback received from your website', 'jetpack-forms' ),
+			layout: VERTICAL_LAYOUT,
 		},
 		example: {
 			innerBlocks: [
@@ -707,53 +670,12 @@ const variations = [
 					],
 				},
 				{
-					name: 'jetpack/field-radio',
-					attributes: { required: true },
+					name: 'jetpack/field-rating',
+					attributes: { required: true, max: 5 },
 					innerBlocks: [
 						{
 							name: 'jetpack/label',
-							attributes: { label: __( 'Please rate our website', 'jetpack-forms' ) },
-						},
-						{
-							name: 'jetpack/options',
-							attributes: { type: 'radio' },
-							innerBlocks: [
-								{
-									name: 'jetpack/option',
-									attributes: {
-										label: __( '1 - Very Bad', 'jetpack-forms' ),
-										placeholder: __( 'Add option…', 'jetpack-forms' ),
-									},
-								},
-								{
-									name: 'jetpack/option',
-									attributes: {
-										label: __( '2 - Poor', 'jetpack-forms' ),
-										placeholder: __( 'Add option…', 'jetpack-forms' ),
-									},
-								},
-								{
-									name: 'jetpack/option',
-									attributes: {
-										label: __( '3 - Average', 'jetpack-forms' ),
-										placeholder: __( 'Add option…', 'jetpack-forms' ),
-									},
-								},
-								{
-									name: 'jetpack/option',
-									attributes: {
-										label: __( '4 - Good', 'jetpack-forms' ),
-										placeholder: __( 'Add option…', 'jetpack-forms' ),
-									},
-								},
-								{
-									name: 'jetpack/option',
-									attributes: {
-										label: __( '5 - Excellent', 'jetpack-forms' ),
-										placeholder: __( 'Add option…', 'jetpack-forms' ),
-									},
-								},
-							],
+							attributes: { label: __( 'Rate your experience', 'jetpack-forms' ) },
 						},
 					],
 				},
@@ -768,10 +690,10 @@ const variations = [
 					],
 				},
 				{
-					name: 'jetpack/button',
+					name: 'core/button',
 					attributes: {
 						text: __( 'Send Feedback', 'jetpack-forms' ),
-						element: 'button',
+						tagName: 'button',
 						lock: { remove: true },
 					},
 				},
@@ -783,7 +705,6 @@ const variations = [
 		title: __( 'Multistep Form', 'jetpack-forms' ),
 		description: __( 'Create a form that spans multiple steps.', 'jetpack-forms' ),
 		icon: {
-			foreground: getIconColor(),
 			src: renderMaterialIcon(
 				<>
 					<Path
@@ -946,7 +867,7 @@ const variations = [
 								[
 									[ 'jetpack/label', { label: __( 'Phone Number', 'jetpack-forms' ) } ],
 									[
-										'jetpack/input',
+										'jetpack/phone-input',
 										{
 											placeholder: __(
 												"If you'd rather chat by phone, just leave your number here.",
@@ -974,34 +895,31 @@ const variations = [
 				{ layout: { type: 'flex', justifyContent: 'right' } },
 				[
 					[
-						'jetpack/button',
+						'core/button',
 						{
-							element: 'button',
-							uniqueId: 'previous-step',
-							customVariant: 'previous',
+							tagName: 'button',
 							text: __( '← Back', 'jetpack-forms' ),
-							className: 'is-style-outline',
-							metaName: __( 'Previous button', 'jetpack-forms' ),
+							className: 'is-style-outline form-button-previous is-previous',
+							metadata: { name: __( 'Previous button', 'jetpack-forms' ) },
 						},
 					],
 					[
-						'jetpack/button',
+						'core/button',
 						{
-							element: 'button',
-							uniqueId: 'next-step',
-							customVariant: 'next',
+							tagName: 'button',
+							className: 'form-button-next is-next',
 							text: __( 'Next →', 'jetpack-forms' ),
-							metaName: __( 'Next button', 'jetpack-forms' ),
+							metadata: { name: __( 'Next button', 'jetpack-forms' ) },
 						},
 					],
 					[
-						'jetpack/button',
+						'core/button',
 						{
-							element: 'button',
-							uniqueId: 'submit-step',
-							customVariant: 'submit',
+							tagName: 'button',
+							className: 'form-button-submit is-submit',
+							type: 'submit',
 							text: __( 'Submit', 'jetpack-forms' ),
-							metaName: __( 'Submit button', 'jetpack-forms' ),
+							metadata: { name: __( 'Submit button', 'jetpack-forms' ) },
 						},
 					],
 				],
@@ -1009,6 +927,7 @@ const variations = [
 		],
 		attributes: {
 			variationName: 'multistep',
+			layout: VERTICAL_LAYOUT,
 		},
 		scope: [ 'block', 'inserter', 'transform' ],
 		isActive: [ 'variationName' ],
@@ -1023,7 +942,6 @@ const variations = [
 			_x( 'signup', 'block search term', 'jetpack-forms' ),
 		],
 		icon: {
-			foreground: getIconColor(),
 			src: people,
 		},
 		innerBlocks: [
@@ -1043,15 +961,17 @@ const variations = [
 				[ [ 'jetpack/label' ], [ 'jetpack/input', { type: 'checkbox' } ] ],
 			],
 			[
-				'jetpack/button',
+				'core/button',
 				{
 					text: __( 'Subscribe', 'jetpack-forms' ),
-					element: 'button',
-					lock: { remove: true },
+					tagName: 'button',
+					type: 'submit',
 				},
 			],
 		],
-		attributes: {},
+		attributes: {
+			layout: VERTICAL_LAYOUT,
+		},
 		example: {
 			innerBlocks: [
 				{
@@ -1079,10 +999,10 @@ const variations = [
 					],
 				},
 				{
-					name: 'jetpack/button',
+					name: 'core/button',
 					attributes: {
 						text: __( 'Subscribe', 'jetpack-forms' ),
-						element: 'button',
+						tagName: 'button',
 						lock: { remove: true },
 					},
 				},

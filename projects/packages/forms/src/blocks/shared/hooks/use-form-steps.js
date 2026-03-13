@@ -1,5 +1,5 @@
 import { useSelect } from '@wordpress/data';
-import { useFindBlockRecursively } from './use-find-block-recursively';
+import { useFindBlockRecursively } from './use-find-block-recursively.js';
 
 /**
  * Custom hook to retrieve all 'jetpack/form-step' blocks within a given parent form block.

@@ -1,6 +1,6 @@
 import { useSelect } from '@wordpress/data';
-import { store as singleStepStore } from '../../../store/form-step-preview';
-import useParentFormClientId from './use-parent-form-client-id';
+import { store as singleStepStore } from '../../../store/form-step-preview.js';
+import useParentFormClientId from './use-parent-form-client-id.js';
 
 /**
  * A hook to determine if a step is active.

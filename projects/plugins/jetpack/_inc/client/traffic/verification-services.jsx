@@ -60,7 +60,7 @@ class VerificationServicesComponent extends Component {
 					title={ verification.name }
 					icon="cog"
 					description={ sprintf(
-						/* translators: placeholder is a feature name. */
+						/* translators: %s: the feature name. */
 						__( '%s has been disabled by a site administrator.', 'jetpack' ),
 						verification.name
 					) }

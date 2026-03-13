@@ -20,7 +20,7 @@ header( 'Content-Type: ' . get_bloginfo( 'html_type' ) . '; charset=' . get_blog
 <head>
 	<meta http-equiv="Content-Type" content="<?php bloginfo( 'html_type' ); ?>; charset=<?php bloginfo( 'charset' ); ?>" />
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title><?php echo bloginfo( 'name' ); ?></title>
+	<title><?php bloginfo( 'name' ); ?></title>
 
 	<?php
 	wp_enqueue_style( 'recoleta-font', '//s1.wp.com/i/fonts/recoleta/css/400.min.css', array(), WPCOMSH_VERSION );
@@ -47,7 +47,7 @@ header( 'Content-Type: ' . get_bloginfo( 'html_type' ) . '; charset=' . get_blog
 			<?php if ( ! is_user_logged_in() ) : ?>
 				<div class="marketing-copy">
 					<img src="https://s2.wp.com/wp-content/themes/a8c/domain-landing-page/wpcom-wmark-white.svg" alt="WordPress.com" class="logo" />
-					<p class="copy"><?php echo esc_html_e( 'Build a website. Sell your stuff. Write a blog. And so much more.', 'wpcomsh' ); ?></p>
+					<p class="copy"><?php esc_html_e( 'Build a website. Sell your stuff. Write a blog. And so much more.', 'wpcomsh' ); ?></p>
 				</div>
 				<div class="marketing-buttons">
 					<p><a class="button button-secondary" href="<?php echo esc_url( $login_link ); ?>"><?php esc_html_e( 'Log in', 'wpcomsh' ); ?></a></p>

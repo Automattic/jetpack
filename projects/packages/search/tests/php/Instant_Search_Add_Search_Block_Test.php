@@ -20,7 +20,7 @@ class Instant_Search_Add_Search_Block_Test extends TestCase {
 	 */
 	public function test_inject_search_widget_to_block_single_group() {
 		// 2022 theme.
-		$footer_content                   = <<<EOT
+		$footer_content                   = <<<'EOT'
 <!-- wp:group {"align":"wide","style":{"spacing":{"padding":{"top":"4rem","bottom":"4rem"}}},"layout":{"type":"flex","justifyContent":"space-between"}} -->
 <div class="wp-block-group alignwide" style="padding-top:4rem;padding-bottom:4rem">
 <!-- wp:site-title {"level":0} /-->
@@ -29,7 +29,7 @@ class Instant_Search_Add_Search_Block_Test extends TestCase {
 <!-- /wp:paragraph --></div>
 <!-- /wp:group -->
 EOT;
-		$footer_content_with_search_block = <<<EOT
+		$footer_content_with_search_block = <<<'EOT'
 <!-- wp:group {"align":"wide","style":{"spacing":{"padding":{"top":"4rem","bottom":"4rem"}}},"layout":{"type":"flex","justifyContent":"space-between"}} -->
 <div class="wp-block-group alignwide" style="padding-top:4rem;padding-bottom:4rem">
 
@@ -48,7 +48,7 @@ EOT;
 	 */
 	public function test_inject_search_widget_to_block_nested_group() {
 		// 2022 footer.
-		$footer_content                   = <<<EOT
+		$footer_content                   = <<<'EOT'
 <!-- wp:group {"align":"wide","style":{"spacing":{"padding":{"top":"4rem","bottom":"4rem"}}},"layout":{"type":"flex","justifyContent":"space-between"}} -->
 <div class="wp-block-group alignwide" style="padding-top:4rem;padding-bottom:4rem">
 <!-- wp:group -->
@@ -59,7 +59,7 @@ EOT;
 <!-- /wp:paragraph --></div></div>
 <!-- /wp:group -->
 EOT;
-		$footer_content_with_search_block = <<<EOT
+		$footer_content_with_search_block = <<<'EOT'
 <!-- wp:group {"align":"wide","style":{"spacing":{"padding":{"top":"4rem","bottom":"4rem"}}},"layout":{"type":"flex","justifyContent":"space-between"}} -->
 <div class="wp-block-group alignwide" style="padding-top:4rem;padding-bottom:4rem">
 <!-- wp:group -->
@@ -228,7 +228,10 @@ EOT;
 	 */
 	public function test_wp_pattern_block_replace() {
 		$method = new ReflectionMethod( 'Automattic\Jetpack\Search\Instant_Search', 'replace_block_patterns' );
-		$method->setAccessible( true );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
 		Instant_Search::initialize( 1 );
 		WP_Block_Patterns_Registry::get_instance()->register(
 			'jetpack-search/footer',

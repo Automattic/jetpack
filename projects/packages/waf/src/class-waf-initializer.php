@@ -17,7 +17,7 @@ use WP_Upgrader;
 class Waf_Initializer {
 
 	/**
-	 * Option for storing whether or not the WAF files are potentially out of date.
+	 * Option for storing whether the WAF files are potentially out of date.
 	 *
 	 * @var string NEEDS_UPDATE_OPTION_NAME
 	 */
@@ -132,6 +132,10 @@ class Waf_Initializer {
 		$jetpack_text_domains_with_waf = array( 'jetpack', 'jetpack-protect' );
 		$jetpack_plugins_with_waf      = array( 'jetpack/jetpack.php', 'jetpack-protect/jetpack-protect.php' );
 
+		$hook_extra['type']    = $hook_extra['type'] ?? null;
+		$hook_extra['action']  = $hook_extra['action'] ?? null;
+		$hook_extra['plugins'] = $hook_extra['plugins'] ?? array();
+
 		// Only run on upgrades affecting plugins
 		if ( 'plugin' !== $hook_extra['type'] ) {
 			return;
@@ -151,7 +155,7 @@ class Waf_Initializer {
 		}
 		if ( 'install' === $hook_extra['action'] &&
 			! empty( $upgrader->new_plugin_data['TextDomain'] ) &&
-			empty( in_array( $upgrader->new_plugin_data['TextDomain'], $jetpack_text_domains_with_waf, true ) )
+			empty( in_array( $upgrader->new_plugin_data['TextDomain'] ?? null, $jetpack_text_domains_with_waf, true ) )
 		) {
 			return;
 		}

@@ -21,11 +21,11 @@
 		"validate": "pnpm exec validate-es build/"
 	},
 	"dependencies": {
-		"@wordpress/i18n": "5.26.0"
+		"@wordpress/i18n": "6.14.0"
 	},
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
-		"webpack": "5.94.0",
+		"webpack": "5.105.2",
 		"webpack-cli": "6.0.1"
 	}
 }

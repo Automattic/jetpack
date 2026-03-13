@@ -9,7 +9,7 @@ import { executeJetpackCommand } from './cli';
 export async function activateModule( modules: string | string[] ): Promise< void > {
 	const moduleArray = Array.isArray( modules ) ? modules : [ modules ];
 	for ( const mod of moduleArray ) {
-		await executeJetpackCommand( `module activate ${ mod }`, true );
+		await executeJetpackCommand( `module activate ${ mod }` );
 	}
 }
 
@@ -22,7 +22,7 @@ export async function activateModule( modules: string | string[] ): Promise< voi
 export async function deactivateModule( modules: string | string[] ): Promise< void > {
 	const moduleArray = Array.isArray( modules ) ? modules : [ modules ];
 	for ( const mod of moduleArray ) {
-		await executeJetpackCommand( `module deactivate ${ mod }`, true );
+		await executeJetpackCommand( `module deactivate ${ mod }` );
 	}
 }
 

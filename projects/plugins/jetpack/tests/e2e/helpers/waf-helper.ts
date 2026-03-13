@@ -1,5 +1,5 @@
-import logger from '_jetpack-e2e-commons/logger.js';
-import { executeWpCommand } from '_jetpack-e2e-commons/utils/cli.ts';
+import logger from '_jetpack-e2e-commons/logger';
+import { executeWpCommand } from '_jetpack-e2e-commons/utils/cli';
 
 /**
  * Enable automatic rules
@@ -7,8 +7,8 @@ import { executeWpCommand } from '_jetpack-e2e-commons/utils/cli.ts';
  */
 export async function enableAutomaticRules(): Promise< void > {
 	logger.debug( 'Enabling automatic firewall rules' );
-	executeWpCommand( 'option update jetpack_waf_automatic_rules 1' );
-	executeWpCommand( 'jetpack-waf generate_rules' );
+	await executeWpCommand( 'option update jetpack_waf_automatic_rules 1' );
+	await generateRules();
 }
 
 /**

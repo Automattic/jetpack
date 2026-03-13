@@ -62,6 +62,7 @@ class Settings {
 		'dedicated_sync_enabled'                 => true,
 		'custom_queue_table_enabled'             => true,
 		'wpcom_rest_api_enabled'                 => true,
+		'sync_actions_blacklist'                 => true,
 	);
 
 	/**
@@ -283,6 +284,7 @@ class Settings {
 			/**
 			 * Regular option update and handling
 			 */
+			$updated = false;
 			if ( self::is_network_setting( $setting ) ) {
 				if ( is_multisite() && is_main_site() ) {
 					$updated = update_site_option( self::SETTINGS_OPTION_PREFIX . $setting, $value );
@@ -302,26 +304,21 @@ class Settings {
 			if ( 'dedicated_sync_enabled' === $setting && $updated && (bool) $value ) {
 				if ( ! Dedicated_Sender::can_spawn_dedicated_sync_request() ) {
 					update_option( self::SETTINGS_OPTION_PREFIX . $setting, 0, true );
-				}
-			}
+					$listener = Listener::get_instance();
+					// Remove the last two actions from the queue since we failed to enable Dedicated Sync.
+					// Those would be `updated_option` with `jetpack_sync_settings_dedicated_sync_enabled` set to 1 and then 0 again.
+					$queue = $listener->get_sync_queue();
+					$items = $queue->peek_newest( 2 );
+					$key   = 'jetpack_sync_settings_dedicated_sync_enabled';
 
-			// Do not enable wpcom rest api if we cannot send a test request.
-
-			if ( 'wpcom_rest_api_enabled' === $setting && $updated && (bool) $value ) {
-				$sender = Sender::get_instance();
-				$data   = array(
-					'timestamp' => microtime( true ),
-				);
-				$items  = $sender->send_action( 'jetpack_sync_wpcom_rest_api_enable_test', $data );
-				// If we can't send a test request, disable the setting and send action tolog the error.
-				if ( is_wp_error( $items ) ) {
-					update_option( self::SETTINGS_OPTION_PREFIX . $setting, 0, true );
-					$data = array(
-						'timestamp'     => microtime( true ),
-						'response_code' => $items->get_error_code(),
-						'response_body' => $items->get_error_message() ?? '',
-					);
-					$sender->send_action( 'jetpack_sync_wpcom_rest_api_enable_error', $data );
+					if (
+						isset( $items[0][1][0] )
+						&& isset( $items[1][1][0] )
+						&& $items[0][1][0] === $key
+						&& $items[1][1][0] === $key
+					) {
+						$queue->pop_newest( 2 );
+					}
 				}
 			}
 		}

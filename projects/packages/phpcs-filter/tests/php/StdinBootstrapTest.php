@@ -21,6 +21,7 @@ class StdinBootstrapTest extends TestCase {
 	private function runPhpcs( $args, $content ) {
 		$args = array_merge(
 			array(
+				'-q',
 				'--report=json',
 				'--bootstrap=' . __DIR__ . '/../../stdin-bootstrap.php',
 				'--filter=Automattic\\JetpackPhpcsFilter',
@@ -107,7 +108,7 @@ class StdinBootstrapTest extends TestCase {
 		$iter = new RecursiveIteratorIterator( new RecursiveDirectoryIterator( $dir, RecursiveDirectoryIterator::SKIP_DOTS | RecursiveDirectoryIterator::CURRENT_AS_PATHNAME ) );
 		foreach ( $iter as $path ) {
 			$file = substr( $path, $l );
-			if ( $file === 'excludedfile.php' || $file === 'exclude-pattern/excluded1.php' || substr( $file, -4 ) !== '.php' ) {
+			if ( $file === 'excludedfile.php' || $file === 'exclude-pattern/excludedfile.php' || $file === 'exclude-pattern/excluded1.php' || $file === 'exclude-pattern/excluded2.php' || substr( $file, -4 ) !== '.php' ) {
 				continue;
 			}
 			$contents = file_get_contents( $path );

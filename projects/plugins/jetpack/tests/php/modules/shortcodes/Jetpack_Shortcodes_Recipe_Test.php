@@ -40,7 +40,7 @@ class Jetpack_Shortcodes_Recipe_Test extends WP_UnitTestCase {
 	 */
 	public function tear_down() {
 		wp_dequeue_script( 'jetpack-recipes-js' );
-		wp_dequeue_script( 'jetpack-recipes-printthis' );
+		wp_dequeue_script( 'jetpack-shortcode-deps' );
 		parent::tear_down();
 	}
 
@@ -58,7 +58,7 @@ class Jetpack_Shortcodes_Recipe_Test extends WP_UnitTestCase {
 		$this->instance->add_scripts();
 
 		$this->assertTrue( wp_style_is( 'jetpack-recipes-style' ) );
-		$this->assertTrue( wp_script_is( 'jetpack-recipes-printthis' ) );
+		$this->assertTrue( wp_script_is( 'jetpack-shortcode-deps' ) );
 		$this->assertTrue( wp_script_is( 'jetpack-recipes-js' ) );
 	}
 
@@ -358,7 +358,7 @@ class Jetpack_Shortcodes_Recipe_Test extends WP_UnitTestCase {
 	 * @since 8.0.0
 	 */
 	public function test_shortcodes_recipe_nutrition() {
-		$content = <<<EOT
+		$content = <<<'EOT'
 [recipe-nutrition]
 - food 100%
 - taste 500mg
@@ -377,7 +377,7 @@ EOT;
 	 * @since 8.0.0
 	 */
 	public function test_shortcodes_recipe_kses_content() {
-		$tags = <<<EOT
+		$tags = <<<'EOT'
 <ol itemprop="" datetime=""></ol>
 <ul itemprop="" datetime="">
 	<li itemprop="" datetime=""></li>

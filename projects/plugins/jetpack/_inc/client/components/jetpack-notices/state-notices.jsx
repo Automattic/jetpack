@@ -74,7 +74,7 @@ class JetpackStateNotices extends Component {
 			case 'site_inaccessible':
 			case 'site_requires_authorization':
 				message = sprintf(
-					/* translators: placeholder is an error code and message. */
+					/* translators: %s: an error code and message. */
 					__( 'Your website needs to be publicly accessible to use Jetpack: %s', 'jetpack' ),
 					key
 				);
@@ -113,7 +113,7 @@ class JetpackStateNotices extends Component {
 			case 'register_http_request_failed':
 			case 'token_http_request_failed':
 				message = sprintf(
-					/* translators: placeholder is an error code and message. */
+					/* translators: %s: an error code and message. */
 					__(
 						'Jetpack could not contact WordPress.com: %s. This usually means something is incorrectly configured on your web host.',
 						'jetpack'
@@ -154,7 +154,7 @@ class JetpackStateNotices extends Component {
 			case 'verify_secrets_mismatch':
 				message = createInterpolateElement(
 					sprintf(
-						/* translators: placeholder is an error code and message. */
+						/* translators: %s: an error code and message. */
 						__(
 							'<s>Your Jetpack has a glitch.</s> We’re sorry for the inconvenience. Please try again later, if the issue continues please contact support with this message: %s',
 							'jetpack'
@@ -194,7 +194,7 @@ class JetpackStateNotices extends Component {
 				if ( isJetpackSelfHostedSite() ) {
 					message = createInterpolateElement(
 						sprintf(
-							/* translators: placeholder is a version number, like 8.8. */
+							/* translators: %s: a version number, like 8.8. */
 							__( 'Welcome to <s>Jetpack %s</s>!', 'jetpack' ),
 							this.props.currentVersion
 						),

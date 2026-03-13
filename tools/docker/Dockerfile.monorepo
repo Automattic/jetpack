@@ -59,6 +59,7 @@ RUN --mount=type=cache,target=/var/lib/apt/lists/,sharing=private \
         "php${PHP_VERSION}-xml" \
         "php${PHP_VERSION}-zip" \
         rsync \
+        socat \
         locales \
         "nodejs$(apt-cache show nodejs | sed -n "/^Version: ${NODE_VERSION}-/ { s/^Version: /=/p; q }" )" \
     # Cleanup
@@ -86,5 +87,9 @@ RUN locale-gen en_US.UTF-8 \
     && update-locale LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 \
     && find /var/ -name '*-old' -delete \
     && rm -rf /var/log/dpkg.log /var/log/alternatives.log /var/log/apt/ ~/.launchpadlib
+
+# Mark /workspace as a safe directory for git to avoid "dubious ownership" warnings
+# when the monorepo is mounted from the host with different ownership.
+RUN git config --system --add safe.directory /workspace
 
 CMD ["bash"]

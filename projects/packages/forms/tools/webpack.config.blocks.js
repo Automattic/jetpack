@@ -1,10 +1,15 @@
 /**
- *WARNING: No ES6 modules here. Not transpiled! ****
+ * Webpack config for blocks
  */
 
-const path = require( 'path' );
-const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
-const CopyWebpackPlugin = require( 'copy-webpack-plugin' );
+import path from 'path';
+import { fileURLToPath } from 'url';
+import jetpackWebpackConfig from '@automattic/jetpack-webpack-config/webpack';
+import autoprefixer from 'autoprefixer';
+import CopyWebpackPlugin from 'copy-webpack-plugin';
+
+const __filename = fileURLToPath( import.meta.url );
+const __dirname = path.dirname( __filename );
 
 /**
  * Internal variables
@@ -14,10 +19,16 @@ const sharedWebpackConfig = {
 	devtool: jetpackWebpackConfig.devtool,
 	entry: {
 		editor: './src/blocks/contact-form/editor.ts',
+		'ai-form-plugin': {
+			import: './src/blocks/contact-form/plugins/ai-form-generation.ts',
+			dependOn: 'editor',
+		},
 		view: './src/blocks/contact-form/view.ts',
 		'form-progress-indicator/style': './src/blocks/form-progress-indicator/style.scss',
 		'form-step-navigation/style': './src/blocks/form-step-navigation/style.scss',
 		'field-rating/style': './src/blocks/field-rating/style.scss',
+		'field-image-select/style': './src/blocks/field-image-select/style.scss',
+		'input-range/style': './src/blocks/input-range/style.scss',
 	},
 	output: {
 		...jetpackWebpackConfig.output,
@@ -66,20 +77,33 @@ const sharedWebpackConfig = {
 						loader: 'postcss-loader',
 						options: {
 							// postcssOptions: { config: path.join( __dirname, 'postcss.config.js' ) },
-							postcssOptions: { plugins: [ require( 'autoprefixer' ) ] },
+							postcssOptions: { plugins: [ autoprefixer ] },
 						},
 					},
 					{ loader: 'sass-loader', options: { api: 'modern-compiler' } },
 				],
 			} ),
 
-			// Handle images.
-			jetpackWebpackConfig.FileRule(),
+			// Allow importing .svg files as raw HTML strings via `?raw` query.
+			{
+				test: /\.svg$/i,
+				resourceQuery: /raw/,
+				type: 'asset/source',
+			},
+
+			// Handle images (exclude ?raw SVG imports).
+			{
+				...jetpackWebpackConfig.FileRule(),
+				resourceQuery: { not: [ /raw/ ] },
+			},
 		],
+	},
+	watchOptions: {
+		...jetpackWebpackConfig.watchOptions,
 	},
 };
 
-module.exports = [
+export default [
 	{
 		...sharedWebpackConfig,
 		plugins: [

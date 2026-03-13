@@ -12,6 +12,10 @@ namespace Automattic\Jetpack\Extensions\Calendly;
 use Automattic\Jetpack\Blocks;
 use Jetpack_Gutenberg;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Registers the block for use in Gutenberg
  * This is done via an action so that we can disable
@@ -94,7 +98,7 @@ function load_assets( $attr, $content ) {
 		if ( ! $is_amp_request ) {
 			wp_add_inline_script(
 				'jetpack-calendly-external-js',
-				sprintf( "calendly_attach_link_events( '%s' )", esc_js( $block_id ) )
+				sprintf( 'calendly_attach_link_events( %s )', wp_json_encode( $block_id, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) )
 			);
 		}
 	} elseif ( $is_amp_request ) { // Inline style.
@@ -102,7 +106,7 @@ function load_assets( $attr, $content ) {
 			'<div class="%1$s" id="%2$s"><a href="%3$s" role="button" target="_blank">%4$s</a></div>',
 			esc_attr( Blocks::classes( Blocks::get_block_feature( __DIR__ ), $attr ) ),
 			esc_attr( $block_id ),
-			esc_js( $url ),
+			esc_attr( $url ),
 			wp_kses_post( get_attribute( $attr, 'submitButtonText' ) )
 		);
 	} else {
@@ -111,7 +115,7 @@ function load_assets( $attr, $content ) {
 			esc_attr( $classes ),
 			esc_attr( $block_id )
 		);
-		$script            = <<<JS_END
+		$script            = <<<'JS_END'
 jetpackInitCalendly( %s, %s );
 JS_END;
 		$json_encode_flags = JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP;
@@ -258,7 +262,7 @@ function deprecated_render_button_v1( $attributes, $block_id, $classes, $url ) {
 		esc_attr( $classes ),
 		esc_attr( $block_id ),
 		! empty( $submit_button_classes ) ? esc_attr( $submit_button_classes ) : 'wp-block-button__link',
-		esc_js( $url ),
+		esc_attr( $url ),
 		wp_kses_post( $submit_button_text )
 	);
 }

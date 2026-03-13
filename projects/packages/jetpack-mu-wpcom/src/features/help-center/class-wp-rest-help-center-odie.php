@@ -28,7 +28,7 @@ class WP_REST_Help_Center_Odie extends \WP_REST_Controller {
 	public function register_rest_route() {
 		register_rest_route(
 			$this->namespace,
-			$this->rest_base . '/chat/(?P<bot_id>[a-zA-Z0-9-]+)/(?P<chat_id>\d+)',
+			$this->rest_base . '/chat/(?P<bot_id>[a-zA-Z0-9-_]+)/(?P<chat_id>\d+)',
 			array(
 				// Get a chat. Supports pagination of messages.
 				array(
@@ -99,7 +99,7 @@ class WP_REST_Help_Center_Odie extends \WP_REST_Controller {
 
 		register_rest_route(
 			$this->namespace,
-			$this->rest_base . '/chat/(?P<bot_id>[a-zA-Z0-9-]+)/(?P<chat_id>\d+)/(?P<message_id>\d+)/feedback',
+			$this->rest_base . '/chat/(?P<bot_id>[a-zA-Z0-9-_]+)/(?P<chat_id>\d+)/(?P<message_id>\d+)/feedback',
 			array(
 				array(
 					'methods'             => \WP_REST_Server::CREATABLE,
@@ -133,7 +133,7 @@ class WP_REST_Help_Center_Odie extends \WP_REST_Controller {
 
 		register_rest_route(
 			$this->namespace,
-			$this->rest_base . '/chat/(?P<bot_id>[a-zA-Z0-9-]+)',
+			$this->rest_base . '/chat/(?P<bot_id>[a-zA-Z0-9-_]+)',
 			array(
 				array(
 					'methods'             => \WP_REST_Server::CREATABLE,
@@ -167,7 +167,7 @@ class WP_REST_Help_Center_Odie extends \WP_REST_Controller {
 
 		register_rest_route(
 			$this->namespace,
-			$this->rest_base . '/conversations/(?P<bot_id>[a-zA-Z0-9-]+)',
+			$this->rest_base . '/conversations/(?P<bot_ids>[a-zA-Z0-9-_,\@]+)',
 			// Retrieve the latest conversations of a user with the specified bot (i.e. the last messages from each chat)
 			array(
 				array(
@@ -175,8 +175,8 @@ class WP_REST_Help_Center_Odie extends \WP_REST_Controller {
 					'callback'            => array( $this, 'get_conversations' ),
 					'permission_callback' => 'is_user_logged_in',
 					'args'                => array(
-						'bot_id'         => array(
-							'description' => __( 'The bot id to chat with.', 'jetpack-mu-wpcom' ),
+						'bot_ids'        => array(
+							'description' => __( 'The bot id(s) to get the conversations for, separated by commas.', 'jetpack-mu-wpcom' ),
 							'type'        => 'string',
 							'required'    => true,
 						),
@@ -300,7 +300,7 @@ class WP_REST_Help_Center_Odie extends \WP_REST_Controller {
 	 * @param \WP_REST_Request $request The request sent to the API.
 	 */
 	public function get_conversations( \WP_REST_Request $request ) {
-		$bot_name_slug     = $request->get_param( 'bot_id' );
+		$bot_ids           = $request->get_param( 'bot_ids' );
 		$page_number       = $request['page_number'];
 		$items_per_page    = $request['items_per_page'];
 		$truncation_method = $request['truncation_method'];
@@ -314,7 +314,7 @@ class WP_REST_Help_Center_Odie extends \WP_REST_Controller {
 		);
 
 		$body = Client::wpcom_json_api_request_as_user(
-			'/odie/conversations/' . $bot_name_slug . '?' . $url_query_params
+			'/odie/conversations/' . $bot_ids . '?' . $url_query_params
 		);
 
 		if ( is_wp_error( $body ) ) {

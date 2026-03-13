@@ -1,10 +1,8 @@
-import { getRedirectUrl } from '@automattic/jetpack-components';
 import {
 	formatAxisTickDate,
 	formatDate,
 	getXAxisTickValues,
 	transformData,
-	getNewsletterSettingsUrl,
 	buildJPRedirectSource,
 	getSubscriberStatsUrl,
 	formatNumber,
@@ -13,23 +11,6 @@ import {
 import type { SubscriberTotalsByDate, ChartSubscriptionDataPoint } from '../src/types';
 
 describe( 'helpers', () => {
-	describe( 'getNewsletterSettingsUrl', () => {
-		const testSite = 'example.com';
-		const testAdminUrl = 'https://example.com/wp-admin/';
-
-		it( 'returns WordPress.com URL for WordPress.com sites', () => {
-			const url = getNewsletterSettingsUrl( testSite, true, testAdminUrl );
-			expect( url ).toBe(
-				getRedirectUrl( 'https://wordpress.com/settings/newsletter/' + testSite )
-			);
-		} );
-
-		it( 'returns WP-admin URL for self-hosted sites', () => {
-			const url = getNewsletterSettingsUrl( testSite, false, testAdminUrl );
-			expect( url ).toBe( `${ testAdminUrl }admin.php?page=jetpack#newsletter` );
-		} );
-	} );
-
 	describe( 'formatDate', () => {
 		const testDate = new Date( '2025-03-01' );
 
@@ -156,21 +137,11 @@ describe( 'helpers', () => {
 		const testSite = 'example.com';
 		const testAdminUrl = 'https://example.com/wp-admin/';
 
-		it( 'returns WordPress.com URL for WordPress.com sites', () => {
-			const url = getSubscriberStatsUrl( testSite, true, testAdminUrl, true );
-			expect( url ).toBe( getRedirectUrl( 'https://wordpress.com/stats/subscribers/' + testSite ) );
-		} );
-
-		it( 'returns WP-admin URL for self-hosted sites when stats module is active', () => {
-			const url = getSubscriberStatsUrl( testSite, false, testAdminUrl, true );
+		it( 'returns WP-admin URL', () => {
+			const url = getSubscriberStatsUrl( testSite, testAdminUrl );
 			expect( url ).toBe(
 				`${ testAdminUrl }admin.php?page=stats#!/stats/subscribers/${ testSite }`
 			);
-		} );
-
-		it( 'returns WordPress.com URL for self-hosted sites when stats module is not active', () => {
-			const url = getSubscriberStatsUrl( testSite, false, testAdminUrl, false );
-			expect( url ).toBe( getRedirectUrl( 'https://wordpress.com/stats/subscribers/' + testSite ) );
 		} );
 	} );
 

@@ -1,5 +1,9 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 require_once JETPACK__PLUGIN_DIR . 'sal/class.json-api-date.php';
 
 /**
@@ -241,7 +245,7 @@ class Jetpack_Media {
 	 * @return array `revision_history` array
 	 */
 	public static function get_revision_history( $media_id ) {
-		return array_reverse( get_post_meta( $media_id, self::WP_REVISION_HISTORY ) );
+		return array_reverse( get_post_meta( $media_id, self::WP_REVISION_HISTORY, false ) );
 	}
 
 	/**

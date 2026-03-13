@@ -323,7 +323,7 @@ class Password_Checker {
 	}
 
 	/**
-	 * Returns the widely known user data that can not be used in the password to avoid
+	 * Returns the widely known user data that cannot be used in the password to avoid
 	 * predictable strings.
 	 *
 	 * @return array user data.

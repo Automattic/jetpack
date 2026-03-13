@@ -10,6 +10,10 @@ namespace Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Sync\Settings;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Class to handle sync for comments.
  */
@@ -504,6 +508,9 @@ class Comments extends Module {
 	 * @return array|boolean False if not whitelisted, the original hook args otherwise.
 	 */
 	public function filter_meta( $args ) {
+		if ( ! is_array( $args ) || count( $args ) < 3 ) {
+			return false;
+		}
 		if ( $this->is_comment_type_allowed( $args[1] ) && $this->is_whitelisted_comment_meta( $args[2] ) ) {
 			return $args;
 		}

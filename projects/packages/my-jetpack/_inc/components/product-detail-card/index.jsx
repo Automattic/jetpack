@@ -266,12 +266,12 @@ const ProductDetailCard = ( {
 	const defaultCtaLabel =
 		! isBundleUpsell && hasPaidPlanForProduct
 			? sprintf(
-					/* translators: placeholder is product name. */
+					/* translators: %s: product name. */
 					__( 'Install %s', 'jetpack-my-jetpack' ),
 					productMoniker
 			  )
 			: sprintf(
-					/* translators: placeholder is product name. */
+					/* translators: %s: the product name. */
 					__( 'Get %s', 'jetpack-my-jetpack' ),
 					productMoniker
 			  );
@@ -371,7 +371,7 @@ const ProductDetailCard = ( {
 							agreeButtonLabel={
 								hasTrialButton
 									? sprintf(
-											/* translators: placeholder is cta label. */
+											/* translators: %s: the call-to-action label. */
 											__( '%s or Start for free', 'jetpack-my-jetpack' ),
 											ctaLabel
 									  )

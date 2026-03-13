@@ -52,7 +52,7 @@ export default function usePlan( { redirectUrl }: { redirectUrl?: string } = {} 
 		siteProductAvailabilityHandler: API.checkPlan,
 		useBlogIdSuffix: true,
 		connectAfterCheckout: false,
-		from: () => 'protect',
+		from: 'protect',
 	} ) as unknown as {
 		run: ( event?: Event, redirect?: string ) => void;
 		isRegistered: boolean;

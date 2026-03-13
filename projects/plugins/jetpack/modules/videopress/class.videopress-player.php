@@ -1,6 +1,10 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 use Automattic\Jetpack\VideoPress\Jwt_Token_Bridge;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * VideoPress playback module markup generator.
  *
@@ -104,9 +108,7 @@ class VideoPress_Player {
 		}
 		if ( empty( $cached_video ) ) {
 			$video = new VideoPress_Video( $guid, $maxwidth );
-			if ( empty( $video ) ) {
-				return;
-			} elseif ( isset( $video->error ) ) {
+			if ( isset( $video->error ) ) {
 				$this->video = $video->error;
 				return;
 			} elseif ( is_wp_error( $video ) ) {
@@ -518,16 +520,16 @@ class VideoPress_Player {
 		unset( $locale );
 
 		$guid    = $this->video->guid;
-		$guid_js = wp_json_encode( $guid );
+		$guid_js = wp_json_encode( $guid, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP );
 		$html   .= '<script type="text/javascript">' . PHP_EOL;
 		$html   .= 'jQuery(document).ready(function() {';
 
-		$html .= 'if ( !jQuery.VideoPress.data[' . wp_json_encode( $guid ) . '] ) { jQuery.VideoPress.data[' . wp_json_encode( $guid ) . '] = new Array(); }' . PHP_EOL;
-		$html .= 'jQuery.VideoPress.data[' . wp_json_encode( $guid ) . '][' . self::$shown[ $guid ] . ']=' . wp_json_encode( $data ) . ';' . PHP_EOL;
+		$html .= 'if ( !jQuery.VideoPress.data[' . $guid_js . '] ) { jQuery.VideoPress.data[' . $guid_js . '] = new Array(); }' . PHP_EOL;
+		$html .= 'jQuery.VideoPress.data[' . $guid_js . '][' . self::$shown[ $guid ] . ']=' . wp_json_encode( $data, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ';' . PHP_EOL;
 		unset( $data );
 
-		$jq_container   = wp_json_encode( '#' . $this->video_container_id );
-		$jq_placeholder = wp_json_encode( '#' . $video_placeholder_id );
+		$jq_container   = wp_json_encode( '#' . $this->video_container_id, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP );
+		$jq_placeholder = wp_json_encode( '#' . $video_placeholder_id, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP );
 		$player_config  = "{width:{$width},height:{$height},";
 		if ( isset( $this->options['freedom'] ) && $this->options['freedom'] === true ) {
 			$player_config .= 'freedom:"true",';
@@ -547,9 +549,9 @@ class VideoPress_Player {
 				',',
 				array(
 					'jQuery.VideoPress.video.flash.player_uri',
-					wp_json_encode( $this->video_container_id ),
-					wp_json_encode( $width ),
-					wp_json_encode( $height ),
+					wp_json_encode( $this->video_container_id, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ),
+					wp_json_encode( $width, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ),
+					wp_json_encode( $height, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ),
 					'jQuery.VideoPress.video.flash.min_version',
 					'jQuery.VideoPress.video.flash.expressinstall', // attempt to upgrade the Flash player if less than min_version. requires a 310x137 container or larger but we will always try to include
 					'{guid:' . $guid_js . '}', // FlashVars
@@ -560,9 +562,9 @@ class VideoPress_Player {
 			) . ');';
 			$html .= '} else {' . PHP_EOL;
 			$html .= "if ( jQuery.VideoPress.video.prepare({$guid_js},{$player_config}," . self::$shown[ $guid ] . ') ) {' . PHP_EOL;
-			$html .= 'if ( jQuery(' . $jq_container . ').data( "player" ) === "flash" ){jQuery.VideoPress.video.play(jQuery(' . wp_json_encode( '#' . $this->video_container_id ) . '));}else{';
-			$html .= 'jQuery(' . $jq_placeholder . ').html(' . wp_json_encode( $this->html_age_date() ) . ');' . PHP_EOL;
-			$html .= 'jQuery(' . wp_json_encode( '#' . $video_placeholder_id . ' input[type="submit"]' ) . ').one("click", function(event){jQuery.VideoPress.requirements.isSufficientAge(jQuery(' . $jq_container . '),' . absint( $this->video->age_rating ) . ')});' . PHP_EOL;
+			$html .= 'if ( jQuery(' . $jq_container . ').data( "player" ) === "flash" ){jQuery.VideoPress.video.play(jQuery(' . wp_json_encode( '#' . $this->video_container_id, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . '));}else{';
+			$html .= 'jQuery(' . $jq_placeholder . ').html(' . wp_json_encode( $this->html_age_date(), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ');' . PHP_EOL;
+			$html .= 'jQuery(' . wp_json_encode( '#' . $video_placeholder_id . ' input[type="submit"]', JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ').one("click", function(event){jQuery.VideoPress.requirements.isSufficientAge(jQuery(' . $jq_container . '),' . absint( $this->video->age_rating ) . ')});' . PHP_EOL;
 			$html .= '}}}' . PHP_EOL;
 		} else {
 			$html .= "if ( jQuery.VideoPress.video.prepare({$guid_js}, {$player_config}," . self::$shown[ $guid ] . ') ) {' . PHP_EOL;
@@ -724,7 +726,7 @@ class VideoPress_Player {
 				. "<script src='" . esc_attr( $js_url ) . "'></script>";
 
 		} else {
-			$videopress_options = wp_json_encode( $videopress_options );
+			$videopress_options = wp_json_encode( $videopress_options, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP );
 			$js_url             = 'https://s0.wp.com/wp-content/plugins/video/assets/js/videojs/videopress.js';
 
 			return "<div id='{$video_container_id}'></div>
@@ -860,7 +862,7 @@ class VideoPress_Player {
 
 		$embed = array(
 			'id'     => $this->video_id,
-			'src'    => esc_url_raw( $this->video->players->swf->url . '&' . http_build_query( $this->get_flash_variables(), null, '&' ), array( 'http', 'https' ) ),
+			'src'    => esc_url_raw( $this->video->players->swf->url . '&' . http_build_query( $this->get_flash_variables(), '', '&' ), array( 'http', 'https' ) ),
 			'type'   => 'application/x-shockwave-flash',
 			'width'  => $this->video->calculated_width,
 			'height' => $this->video->calculated_height,
@@ -896,7 +898,7 @@ class VideoPress_Player {
 			$thumbnail_html .= esc_attr( $this->video->title );
 		}
 		$thumbnail_html .= '" src="' . esc_url( $this->video->poster_frame_uri, array( 'http', 'https' ) ) . '" width="' . $this->video->calculated_width . '" height="' . $this->video->calculated_height . '" />';
-		$flash_vars      = esc_attr( http_build_query( $this->get_flash_variables(), null, '&' ) );
+		$flash_vars      = esc_attr( http_build_query( $this->get_flash_variables(), '', '&' ) );
 		$flash_params    = '';
 		foreach ( $this->get_flash_parameters() as $attribute => $value ) {
 			$flash_params .= '<param name="' . esc_attr( $attribute ) . '" value="' . esc_attr( $value ) . '" />';

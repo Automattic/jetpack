@@ -14,4 +14,8 @@
  * @package automattic/jetpack
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 Automattic\Jetpack\Image_CDN\Image_CDN_Setup::load();

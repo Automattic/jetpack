@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-connection",
-	"version": "1.4.0",
+	"version": "1.4.39",
 	"description": "Jetpack Connection Component",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/connection/#readme",
 	"bugs": {
@@ -8,8 +8,7 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/Automattic/jetpack.git",
-		"directory": "projects/js-packages/connection"
+		"url": "git+https://github.com/Automattic/jetpack-connection-js.git"
 	},
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
@@ -20,11 +19,13 @@
 	],
 	"type": "module",
 	"exports": {
-		".": "./index.jsx"
+		".": "./index.jsx",
+		"./use-connection": "./components/use-connection/index.ts"
 	},
 	"scripts": {
 		"test": "NODE_OPTIONS=--experimental-vm-modules jest",
-		"test-coverage": "pnpm run test --coverage"
+		"test-coverage": "pnpm run test --coverage",
+		"typecheck": "tsgo --noEmit"
 	},
 	"dependencies": {
 		"@automattic/jetpack-analytics": "workspace:*",
@@ -32,31 +33,31 @@
 		"@automattic/jetpack-components": "workspace:*",
 		"@automattic/jetpack-config": "workspace:*",
 		"@automattic/jetpack-script-data": "workspace:*",
-		"@wordpress/base-styles": "6.2.0",
-		"@wordpress/browserslist-config": "6.26.0",
-		"@wordpress/components": "29.12.0",
-		"@wordpress/data": "10.26.0",
-		"@wordpress/element": "6.26.0",
-		"@wordpress/i18n": "5.26.0",
-		"@wordpress/icons": "10.26.0",
-		"@wordpress/url": "4.26.0",
+		"@wordpress/base-styles": "6.17.0",
+		"@wordpress/browserslist-config": "6.41.0",
+		"@wordpress/components": "32.3.0",
+		"@wordpress/data": "10.41.0",
+		"@wordpress/element": "6.41.0",
+		"@wordpress/i18n": "6.14.0",
+		"@wordpress/icons": "11.8.0",
+		"@wordpress/url": "4.41.0",
 		"clsx": "2.1.1",
-		"debug": "4.4.1",
+		"debug": "4.4.3",
 		"prop-types": "^15.7.2"
 	},
 	"devDependencies": {
 		"@automattic/jetpack-base-styles": "workspace:*",
-		"@babel/core": "7.28.0",
-		"@babel/preset-react": "7.27.1",
-		"@testing-library/dom": "10.4.0",
+		"@babel/core": "7.29.0",
+		"@babel/preset-react": "7.28.5",
+		"@testing-library/dom": "10.4.1",
 		"@testing-library/react": "16.3.0",
 		"@testing-library/user-event": "14.6.1",
-		"@types/react": "18.3.23",
-		"jest": "30.0.4",
-		"jest-environment-jsdom": "30.0.4",
+		"@types/react": "18.3.28",
+		"@typescript/native-preview": "7.0.0-dev.20260225.1",
+		"jest": "30.2.0",
 		"react": "18.3.1",
 		"react-dom": "18.3.1",
-		"storybook": "9.0.15"
+		"storybook": "10.2.11"
 	},
 	"peerDependencies": {
 		"react": "^18.0.0",

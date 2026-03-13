@@ -6,6 +6,10 @@
  * @package jetpack
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 // phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable -- HTML template, let Phan handle it.
 
 // Using JSON_HEX_AMP avoids breakage due to `esc_attr()` refusing to double-encode.

@@ -38,7 +38,7 @@ class Utils {
 		if ( is_object( $error ) ) {
 			return array(
 				'name'    => 'Error',
-				'message' => json_decode( wp_json_encode( $error ), ARRAY_A ),
+				'message' => json_decode( wp_json_encode( $error, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ), true ),
 			);
 		}
 
@@ -114,7 +114,7 @@ class Utils {
 			$endpoint,
 			'2',
 			array_merge( $default_args, empty( $args ) ? array() : $args ),
-			empty( $body ) ? null : wp_json_encode( $body ),
+			empty( $body ) ? null : wp_json_encode( $body, JSON_UNESCAPED_SLASHES ),
 			'wpcom'
 		);
 
@@ -124,7 +124,7 @@ class Utils {
 
 		// Check for HTTP errors.
 		$code = wp_remote_retrieve_response_code( $response );
-		$data = json_decode( wp_remote_retrieve_body( $response ), ARRAY_A );
+		$data = json_decode( wp_remote_retrieve_body( $response ), true );
 
 		if ( 200 !== $code ) {
 			$default_message = sprintf(

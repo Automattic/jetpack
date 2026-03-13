@@ -157,7 +157,7 @@ class Wpcom_Block_Patterns_From_Api_Test extends TestCase {
 	 */
 	public function multiple_route_pattern_registration( $patterns_from_api_mock, $test_routes ) {
 		foreach ( $test_routes as $route ) {
-			$request_mock = $this->createMock( \WP_REST_Request::class );
+			$request_mock = $this->createStub( \WP_REST_Request::class );
 			$request_mock->method( 'get_route' )->willReturn( $route );
 
 			$function = register_patterns_on_api_request(

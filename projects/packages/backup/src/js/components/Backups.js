@@ -307,7 +307,7 @@ const InProgressBackup = ( { isInitialBackup, progress, showProgressBar = true }
 						<div className="backup__progress-info">
 							<p>
 								{ sprintf(
-									/* translators: placeholder is the Site Title */
+									/* translators: %s: the Site Title */
 									__( 'Backing up %s', 'jetpack-backup-pkg' ),
 									siteTitle
 								) }

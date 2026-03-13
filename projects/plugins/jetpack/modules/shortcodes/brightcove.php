@@ -2,6 +2,10 @@
 
 use Automattic\Jetpack\Assets;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Brightcove shortcode.
  *
@@ -262,7 +266,7 @@ class Jetpack_Brightcove_Shortcode {
 				'brightcove-loader',
 				'brightcoveData',
 				array(
-					'tld' => esc_js( $js_tld ),
+					'tld' => $js_tld,
 				)
 			);
 

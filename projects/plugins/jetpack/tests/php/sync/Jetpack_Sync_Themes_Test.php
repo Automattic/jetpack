@@ -24,7 +24,10 @@ class Dummy_Sync_Test_WP_Upgrader {
 		$instance = $reflection->newInstanceWithoutConstructor();
 
 		$prop = $reflection->getProperty( 'stylesheet' );
-		$prop->setAccessible( true );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$prop->setAccessible( true );
+		}
 		$prop->setValue( $instance, 'foobar-theme' );
 		return $instance;
 	}
@@ -50,6 +53,8 @@ class Jetpack_Sync_Themes_Test extends Jetpack_Sync_TestBase {
 
 	/**
 	 * Move Dummy Themes to proper location for testing.
+	 *
+	 * @throws RuntimeException If locking is needed and fails.
 	 */
 	public static function set_up_before_class() {
 		parent::set_up_before_class();
@@ -71,8 +76,6 @@ class Jetpack_Sync_Themes_Test extends Jetpack_Sync_TestBase {
 	 * Remove Dummy Themes.
 	 */
 	public static function tear_down_after_class() {
-		parent::tear_down_after_class();
-
 		// Remove themes previously copied from tests/php/files/ to wp-content/themes.
 		foreach ( static::$themes as $theme ) {
 			$dest_dir = WP_CONTENT_DIR . '/themes/' . $theme;
@@ -83,6 +86,7 @@ class Jetpack_Sync_Themes_Test extends Jetpack_Sync_TestBase {
 
 			rmdir( $dest_dir );
 		}
+		parent::tear_down_after_class();
 	}
 
 	/**

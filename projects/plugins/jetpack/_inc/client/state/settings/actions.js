@@ -14,7 +14,7 @@ import {
 	JETPACK_SETTINGS_SET_UNSAVED_FLAG,
 	JETPACK_SETTINGS_CLEAR_UNSAVED_FLAG,
 } from 'state/action-types';
-import { maybeReloadAfterAction } from 'state/modules';
+import { maybeReloadAfterAction, RELOAD_FOR_OPTION_VALUES } from 'state/modules';
 
 export const setUnsavedSettingsFlag = () => {
 	return {
@@ -87,20 +87,17 @@ export const updateSettings = ( newOptionValues, noticeMessages = {} ) => {
 			// then we try to let Javascript stringify the error object.
 			error: error =>
 				sprintf(
-					/* translators: placeholder is an error code or an error message. */
+					/* translators: %s: an error code or an error message. */
 					__( 'Error updating settings. %s', 'jetpack' ),
 					error.message || error.code || error.name || error
 				),
 			...noticeMessages,
 		};
 
-		// For changes to these options we need to reload the page in order for them to take effect.
-		const reloadForOptionValues = [ 'jetpack_testimonial', 'jetpack_portfolio' ];
-
-		// Adapt message for above options, since it needs to reload.
+		// Adapt message for options that require a page reload to take effect.
 		if (
 			'object' === typeof newOptionValues &&
-			reloadForOptionValues.some( optionValue => optionValue in newOptionValues )
+			RELOAD_FOR_OPTION_VALUES.some( optionValue => optionValue in newOptionValues )
 		) {
 			messages.success = __( 'Updated settings. Refreshing page…', 'jetpack' );
 		}

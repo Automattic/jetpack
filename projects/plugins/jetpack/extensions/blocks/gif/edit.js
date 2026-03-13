@@ -25,10 +25,10 @@ function GifEdit( { attributes, setAttributes, isSelected } ) {
 	};
 
 	useEffect( () => {
-		if ( giphyData && giphyData[ 0 ] ) {
+		if ( ! giphyUrl && giphyData && giphyData[ 0 ] ) {
 			setAttributes( getSelectedGiphyAttributes( giphyData[ 0 ] ) );
 		}
-	}, [ giphyData, setAttributes ] );
+	}, [ giphyUrl, giphyData, setAttributes ] );
 
 	const onSubmit = async event => {
 		event.preventDefault();

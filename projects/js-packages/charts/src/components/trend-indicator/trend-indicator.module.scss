@@ -1,0 +1,30 @@
+.trend-indicator {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.125em;
+	font-size: 0.875rem;
+	font-weight: 500;
+	line-height: 1;
+
+	&--up {
+		color: var(--charts-trend-up-color, #1a8917);
+	}
+
+	&--down {
+		color: var(--charts-trend-down-color, #d63638);
+	}
+
+	&--neutral {
+		color: var(--charts-trend-neutral-color, #646970);
+	}
+
+	&__icon {
+		width: 1em;
+		height: 1em;
+		flex-shrink: 0;
+	}
+
+	&__value {
+		white-space: nowrap;
+	}
+}

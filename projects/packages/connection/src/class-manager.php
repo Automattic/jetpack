@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\Connection;
 use Automattic\Jetpack\A8c_Mc_Stats;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Heartbeat;
+use Automattic\Jetpack\Identity_Crisis;
 use Automattic\Jetpack\Partner;
 use Automattic\Jetpack\Roles;
 use Automattic\Jetpack\Status;
@@ -451,6 +452,13 @@ class Manager {
 			return false;
 		}
 
+		// Skip XML-RPC signature verification for OAuth authorization flow.
+		// OAuth uses GET requests without body-hash and has its own
+		// signature verification in Authorize_Json_Api class.
+		if ( isset( $_GET['action'] ) && $_GET['action'] === 'jetpack_json_api_authorization' ) {
+			return false;
+		}
+
 		$signature_details = array(
 			'token'     => isset( $_GET['token'] ) ? wp_unslash( $_GET['token'] ) : '',
 			'timestamp' => isset( $_GET['timestamp'] ) ? wp_unslash( $_GET['timestamp'] ) : '',
@@ -492,7 +500,7 @@ class Manager {
 			$user_id = (int) $user_id;
 
 			$user = new \WP_User( $user_id );
-			if ( ! $user || ! $user->exists() ) {
+			if ( ! $user->exists() ) {
 				return new \WP_Error(
 					'unknown_user',
 					sprintf( 'User %d does not exist', $user_id ),
@@ -1747,16 +1755,16 @@ class Manager {
 	 * @return array $amended arguments.
 	 */
 	public static function apply_activation_source_to_args( $args ) {
-		list( $activation_source_name, $activation_source_keyword ) = get_option( 'jetpack_activation_source' );
+		$activation_source = get_option( 'jetpack_activation_source' );
 
-		if ( $activation_source_name ) {
+		if ( ! empty( $activation_source[0] ) ) {
 			// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.urlencode_urlencode
-			$args['_as'] = urlencode( $activation_source_name );
+			$args['_as'] = urlencode( $activation_source[0] );
 		}
 
-		if ( $activation_source_keyword ) {
+		if ( ! empty( $activation_source[1] ) ) {
 			// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.urlencode_urlencode
-			$args['_ak'] = urlencode( $activation_source_keyword );
+			$args['_ak'] = urlencode( $activation_source[1] );
 		}
 
 		return $args;
@@ -2770,6 +2778,8 @@ class Manager {
 		}
 
 		$stats['jetpack_package_versions'] = apply_filters( 'jetpack_package_versions', array() );
+
+		$stats['identitycrisis'] = Identity_Crisis::check_identity_crisis() ? 'yes' : 'no';
 
 		return $stats;
 	}

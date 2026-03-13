@@ -5,9 +5,207 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [8.0.3] - 2026-03-09
+### Changed
+- Update package dependencies. [#47496]
+
+## [8.0.2] - 2026-03-02
+### Changed
+- Update dependencies. [#46383]
+
+## [8.0.1] - 2026-02-26
+### Changed
+- Update package dependencies. [#47300]
+
+## [8.0.0] - 2026-02-23
+### Removed
+- Remove deprecated methods and attributes. [#47251]
+
+## [7.1.1] - 2026-02-18
+### Changed
+- Update package dependencies. [#47173]
+
+## [7.1.0] - 2026-02-16
+### Added
+- Add `maybe_add_origin_site_id` method to the `Urls` class. [#46783]
+
+### Changed
+- Update package dependencies. [#47099]
+
+## [7.0.3] - 2026-02-10
+### Changed
+- Move IDC stats from Jetpack plugin to connection package. [#46967]
+- Update package dependencies. [#47002]
+
+## [7.0.2] - 2026-02-04
+### Changed
+- Update package dependencies. [#46936]
+
+## [7.0.1] - 2026-02-03
+### Changed
+- Update dependencies. [#46383]
+
+## [7.0.0] - 2026-02-02
+### Changed
+- Remove error handling methods for external storage and add host agnostic error reporting. [#46646]
+- Update package dependencies. [#46854]
+
+## [6.20.5] - 2026-01-26
+### Changed
+- Update dependencies. [#46383]
+
+## [6.20.4] - 2026-01-23
+### Added
+- IDC: Preserve re-validation parameters when new idc error is created. [#46613]
+
+## [6.20.3] - 2026-01-19
+### Changed
+- Update package dependencies. [#46647]
+
+## [6.20.2] - 2026-01-14
+### Changed
+- Update package dependencies. [#46552]
+
+## [6.20.1] - 2026-01-12
+### Changed
+- Add transients to prevent excessive remote calls. [#46503]
+
+## [6.20.0] - 2026-01-07
+### Added
+- IDC: Add revalidation for IDCs. [#46268]
+
+### Changed
+- Update package dependencies. [#46456]
+
+## [6.19.13] - 2025-12-22
+### Changed
+- Update dependencies. [#46381]
+
+## [6.19.12] - 2025-12-15
+### Changed
+- Internal updates.
+
+## [6.19.11] - 2025-12-11
+### Removed
+- Development Mode: removed references to previously removed code [#46231]
+
+## [6.19.10] - 2025-12-08
+### Fixed
+- Ensure proper flags are used with `json_encode()`. [#46092]
+
+## [6.19.9] - 2025-12-01
+### Changed
+- SSO: Revised copy for flagging external collaborators. [#46108]
+- Update package dependencies. [#46143]
+
+## [6.19.8] - 2025-11-20
+### Fixed
+- Phan: Address PhanPossiblyUndeclaredVariable violations. [#45911]
+
+## [6.19.7] - 2025-11-18
+### Changed
+- Update package dependencies. [#45961]
+
+## [6.19.6] - 2025-11-17
+### Changed
+- Update package dependencies. [#45915]
+
+## [6.19.5] - 2025-11-12
+### Fixed
+- OAuth: fix the 'body-hash' error triggered during app authorization. [#45820]
+
+## [6.19.4] - 2025-11-10
+### Changed
+- Tests: Improve compatibility with PHP 8.5. [#45769] [#45771]
+
+## [6.19.3] - 2025-11-03
+### Changed
+- Update dependencies. [#45493]
+
+## [6.19.2] - 2025-10-28
+### Changed
+- Update dependencies. [#45493]
+
+## [6.19.1] - 2025-10-27
+### Changed
+- Internal updates.
+
+## [6.19.0] - 2025-10-20
+### Added
+- Add Newspack and VIP check to `should_allow_error_filtering`. [#45481]
+
+## [6.18.14] - 2025-10-14
+### Changed
+- Update dependencies. [#45488]
+
+## [6.18.13] - 2025-10-09
+### Changed
+- Update error logging for external storage. [#45412]
+
+## [6.18.12] - 2025-10-02
+### Changed
+- Update package dependencies. [#45334]
+
+## [6.18.11] - 2025-09-29
+### Changed
+- Internal updates.
+
+## [6.18.10] - 2025-09-22
+### Changed
+- Update dependencies. [#44300]
+
+## [6.18.9] - 2025-09-19
+### Changed
+- Update package dependencies. [#45173] [#45229]
+
+## [6.18.8] - 2025-09-16
+### Fixed
+- Prevent PHP warnings when handling invalid user data. [#45198]
+
+## [6.18.7] - 2025-09-15
+### Changed
+- Internal updates.
+
+## [6.18.6] - 2025-09-08
+### Changed
+- Update package dependencies. [#45027]
+
+## [6.18.5] - 2025-09-01
+### Changed
+- Internal updates.
+
+## [6.18.4] - 2025-08-25
+### Changed
+- Update dependencies. [#44300]
+
+## [6.18.3] - 2025-08-25
+### Fixed
+- Code: Resolve PhanImpossibleCondition violations. [#44869]
+- Fix fatal for invalid structure of stored errors. [#44890]
+
+## [6.18.2] - 2025-08-21
+### Changed
+- Internal updates.
+
+## [6.18.1] - 2025-08-18
+### Changed
+- Internal updates.
+
+## [6.18.0] - 2025-08-14
+### Added
+- Create External_Storage class. [#44631]
+
+## [6.17.2] - 2025-08-13
+### Changed
+- Update package dependencies. [#44701]
+
+## [6.17.1] - 2025-08-11
+### Changed
+- Update package dependencies. [#44677]
+
 ## [6.17.0] - 2025-08-04
 ### Added
-- Extend get_option so it can work with external storage. [#44554]
+- Extend `get_option` so it can work with external storage. [#44554]
 
 ### Changed
 - Update connection webhooks to pass skip_pricing to authorization URL. [#44603]
@@ -1546,6 +1744,53 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Separate the connection library into its own package.
 
+[8.0.3]: https://github.com/Automattic/jetpack-connection/compare/v8.0.2...v8.0.3
+[8.0.2]: https://github.com/Automattic/jetpack-connection/compare/v8.0.1...v8.0.2
+[8.0.1]: https://github.com/Automattic/jetpack-connection/compare/v8.0.0...v8.0.1
+[8.0.0]: https://github.com/Automattic/jetpack-connection/compare/v7.1.1...v8.0.0
+[7.1.1]: https://github.com/Automattic/jetpack-connection/compare/v7.1.0...v7.1.1
+[7.1.0]: https://github.com/Automattic/jetpack-connection/compare/v7.0.3...v7.1.0
+[7.0.3]: https://github.com/Automattic/jetpack-connection/compare/v7.0.2...v7.0.3
+[7.0.2]: https://github.com/Automattic/jetpack-connection/compare/v7.0.1...v7.0.2
+[7.0.1]: https://github.com/Automattic/jetpack-connection/compare/v7.0.0...v7.0.1
+[7.0.0]: https://github.com/Automattic/jetpack-connection/compare/v6.20.5...v7.0.0
+[6.20.5]: https://github.com/Automattic/jetpack-connection/compare/v6.20.4...v6.20.5
+[6.20.4]: https://github.com/Automattic/jetpack-connection/compare/v6.20.3...v6.20.4
+[6.20.3]: https://github.com/Automattic/jetpack-connection/compare/v6.20.2...v6.20.3
+[6.20.2]: https://github.com/Automattic/jetpack-connection/compare/v6.20.1...v6.20.2
+[6.20.1]: https://github.com/Automattic/jetpack-connection/compare/v6.20.0...v6.20.1
+[6.20.0]: https://github.com/Automattic/jetpack-connection/compare/v6.19.13...v6.20.0
+[6.19.13]: https://github.com/Automattic/jetpack-connection/compare/v6.19.12...v6.19.13
+[6.19.12]: https://github.com/Automattic/jetpack-connection/compare/v6.19.11...v6.19.12
+[6.19.11]: https://github.com/Automattic/jetpack-connection/compare/v6.19.10...v6.19.11
+[6.19.10]: https://github.com/Automattic/jetpack-connection/compare/v6.19.9...v6.19.10
+[6.19.9]: https://github.com/Automattic/jetpack-connection/compare/v6.19.8...v6.19.9
+[6.19.8]: https://github.com/Automattic/jetpack-connection/compare/v6.19.7...v6.19.8
+[6.19.7]: https://github.com/Automattic/jetpack-connection/compare/v6.19.6...v6.19.7
+[6.19.6]: https://github.com/Automattic/jetpack-connection/compare/v6.19.5...v6.19.6
+[6.19.5]: https://github.com/Automattic/jetpack-connection/compare/v6.19.4...v6.19.5
+[6.19.4]: https://github.com/Automattic/jetpack-connection/compare/v6.19.3...v6.19.4
+[6.19.3]: https://github.com/Automattic/jetpack-connection/compare/v6.19.2...v6.19.3
+[6.19.2]: https://github.com/Automattic/jetpack-connection/compare/v6.19.1...v6.19.2
+[6.19.1]: https://github.com/Automattic/jetpack-connection/compare/v6.19.0...v6.19.1
+[6.19.0]: https://github.com/Automattic/jetpack-connection/compare/v6.18.14...v6.19.0
+[6.18.14]: https://github.com/Automattic/jetpack-connection/compare/v6.18.13...v6.18.14
+[6.18.13]: https://github.com/Automattic/jetpack-connection/compare/v6.18.12...v6.18.13
+[6.18.12]: https://github.com/Automattic/jetpack-connection/compare/v6.18.11...v6.18.12
+[6.18.11]: https://github.com/Automattic/jetpack-connection/compare/v6.18.10...v6.18.11
+[6.18.10]: https://github.com/Automattic/jetpack-connection/compare/v6.18.9...v6.18.10
+[6.18.9]: https://github.com/Automattic/jetpack-connection/compare/v6.18.8...v6.18.9
+[6.18.8]: https://github.com/Automattic/jetpack-connection/compare/v6.18.7...v6.18.8
+[6.18.7]: https://github.com/Automattic/jetpack-connection/compare/v6.18.6...v6.18.7
+[6.18.6]: https://github.com/Automattic/jetpack-connection/compare/v6.18.5...v6.18.6
+[6.18.5]: https://github.com/Automattic/jetpack-connection/compare/v6.18.4...v6.18.5
+[6.18.4]: https://github.com/Automattic/jetpack-connection/compare/v6.18.3...v6.18.4
+[6.18.3]: https://github.com/Automattic/jetpack-connection/compare/v6.18.2...v6.18.3
+[6.18.2]: https://github.com/Automattic/jetpack-connection/compare/v6.18.1...v6.18.2
+[6.18.1]: https://github.com/Automattic/jetpack-connection/compare/v6.18.0...v6.18.1
+[6.18.0]: https://github.com/Automattic/jetpack-connection/compare/v6.17.2...v6.18.0
+[6.17.2]: https://github.com/Automattic/jetpack-connection/compare/v6.17.1...v6.17.2
+[6.17.1]: https://github.com/Automattic/jetpack-connection/compare/v6.17.0...v6.17.1
 [6.17.0]: https://github.com/Automattic/jetpack-connection/compare/v6.16.2...v6.17.0
 [6.16.2]: https://github.com/Automattic/jetpack-connection/compare/v6.16.1...v6.16.2
 [6.16.1]: https://github.com/Automattic/jetpack-connection/compare/v6.16.0...v6.16.1

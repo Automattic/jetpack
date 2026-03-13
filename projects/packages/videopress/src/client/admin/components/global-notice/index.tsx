@@ -1,7 +1,7 @@
 import { useConnection } from '@automattic/jetpack-connection';
 import { Notice } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { Icon, warning, info, check } from '@wordpress/icons';
+import { Icon, cautionFilled as warning, info, check } from '@wordpress/icons';
 import clsx from 'clsx';
 import styles from './styles.module.scss';
 import type { ReactElement, ReactNode } from 'react';

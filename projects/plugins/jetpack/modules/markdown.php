@@ -13,6 +13,10 @@
  * @package automattic/jetpack
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 // Require the markdown class file.
 require __DIR__ . '/markdown/easy-markdown.php';
 

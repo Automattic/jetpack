@@ -9,6 +9,10 @@ use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Connection\Traits\WPCOM_REST_API_Proxy_Request;
 use Automattic\Jetpack\Status\Host;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Class WPCOM_REST_API_V2_Endpoint_Send_Email_Preview
  * Handles the sending of email previews via the WordPress.com REST API

@@ -1,8 +1,8 @@
 import { Path } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import renderMaterialIcon from '../shared/components/render-material-icon';
-import edit from './edit';
-import save from './save';
+import renderMaterialIcon from '../shared/components/render-material-icon.jsx';
+import edit from './edit.js';
+import save from './save.js';
 
 const name = 'label';
 const settings = {
@@ -21,12 +21,14 @@ const settings = {
 		'jetpack/field-multiple-choice',
 		'jetpack/field-name',
 		'jetpack/field-number',
+		'jetpack/field-rating',
 		'jetpack/field-select',
 		'jetpack/field-single-choice',
 		'jetpack/field-telephone',
 		'jetpack/field-text',
 		'jetpack/field-textarea',
-		'jetpack/field-rating',
+		'jetpack/field-time',
+		'jetpack/field-image-select',
 		// Do not include 'jetpack/field-file' since it prevents the label from being duplicated.
 	],
 	supports: {
@@ -50,6 +52,7 @@ const settings = {
 				fontSize: true,
 			},
 		},
+		blockVisibility: true,
 	},
 	attributes: {
 		label: {
@@ -63,6 +66,14 @@ const settings = {
 		requiredText: {
 			type: 'string',
 			default: '',
+		},
+		requiredIndicator: {
+			type: 'boolean',
+			default: true,
+		},
+		metadata: {
+			type: 'object',
+			default: {},
 		},
 	},
 	usesContext: [

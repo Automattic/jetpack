@@ -1,10 +1,10 @@
 === Automattic For Agencies Client ===
 Contributors: automattic, jeherve, njweller, rcanepa
 Tags: agency, dashboard, management, sites, monitoring
-Requires at least: 6.7
+Requires at least: 6.8
 Requires PHP: 7.2
-Tested up to: 6.8
-Stable tag: 0.2.1
+Tested up to: 6.9
+Stable tag: 0.7.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -44,19 +44,11 @@ Once connected, your site will display within Automattic for Agencies.
 1. Manage your connection to the agency dashboard from the Settings screen in your WordPress dashboard.
 
 == Changelog ==
-### 0.6.0 - 2025-06-04
+### 0.7.2 - 2025-11-20
+#### Added
+- Tested up to WordPress 6.9.
+
 #### Changed
-- Code: First pass of style coding standards.
-- Dashboard: Mark external link as external.
-- E2E Tests: Update config file encryption algorithm.
+- Update dependencies.
 - Update package dependencies.
-
-#### Removed
-- General: Update minimum WordPress version to 6.7.
-
-#### Fixed
-- Block editor: Fix layout issues with the Media Library modal buttons.
-- Code: Update stylesheets to use hex instead of named colors.
-- Linting: Do additional stylesheet cleanup.
-- Resolve parsing error that was resulting in a blank page.
 

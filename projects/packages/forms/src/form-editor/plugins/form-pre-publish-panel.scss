@@ -1,0 +1,107 @@
+// Styles scoped to the jetpack_form post type editor only.
+.post-type-jetpack_form {
+	// Hide the default WordPress "Visibility" and "Publish: Immediately" rows
+	// in the pre-publish sidebar — not relevant for forms.
+	.editor-post-publish-panel__prepublish > .components-panel__body:not(.jetpack-form-pre-publish-panel) {
+		display: none !important;
+	}
+
+	// Reorder the prepublish sidebar so the site info appears
+	// above the "Are you ready to publish?" text.
+	.editor-post-publish-panel__prepublish {
+		display: flex;
+		flex-direction: column;
+
+		// Site info section (typically the second child)
+		> div:not(.components-panel__body) {
+			order: -1;
+		}
+
+		// hides "Double-check your settings before publishing."
+		> p,
+		> .editor-post-publish-panel__prepublish-checks {
+			display: none !important;
+		}
+	}
+
+	.jetpack-form-pre-publish-panel {
+		// Hide the default PanelBody collapsible header (toggle arrow + title)
+		.components-panel__body-toggle {
+			display: none !important;
+		}
+
+		// Remove top border that PanelBody adds
+		&.components-panel__body {
+			border-top: none;
+		}
+
+		// Form identity card
+		.jetpack-form-pre-publish__form-card {
+			display: flex;
+			align-items: center;
+			gap: 12px;
+			padding: 4px 0 12px;
+		}
+
+		.jetpack-form-pre-publish__form-icon {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			width: 24px;
+			height: 24px;
+			color: #1e1e1e;
+
+			svg {
+				width: 24px;
+				height: 24px;
+			}
+		}
+
+		.jetpack-form-pre-publish__form-title {
+			font-size: 14px;
+			font-weight: 600;
+			color: #1e1e1e;
+			line-height: 24px;
+		}
+
+		// Preview button
+		.jetpack-form-pre-publish__preview-button {
+			width: 100%;
+			justify-content: center;
+			margin-bottom: 16px;
+		}
+
+		// Settings summary rows — uses WordPress's own .editor-post-panel__row
+		// classes for pixel-perfect matching with the Form tab sidebar.
+		// Override the default 38% label width so "Save responses" fits on one line
+		// and all values align at the same position.
+		.jetpack-form-pre-publish__settings {
+			display: flex;
+			flex-direction: column;
+			padding-bottom: 10px;
+
+			&:last-child {
+				padding-bottom: 0;
+			}
+
+			.editor-post-panel__row-label {
+				width: 50%;
+				white-space: nowrap;
+			}
+
+			.editor-post-panel__row-control {
+				display: flex;
+				justify-content: flex-end;
+				width: 50%;
+			}
+		}
+
+		// Integration icons row
+		.jetpack-form-pre-publish__integration-icons {
+			display: flex;
+			align-items: center;
+			gap: 4px;
+			margin-bottom: -2px;
+		}
+	}
+}

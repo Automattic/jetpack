@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Widgets: Prevent PHP warnings when variables are undefined or malformed.

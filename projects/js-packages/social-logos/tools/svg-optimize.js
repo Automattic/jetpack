@@ -12,12 +12,9 @@ const { optimize } = require( 'svgo' );
 const svgo_config = {
 	js2svg: { finalNewline: true }, // force EOF newline
 	plugins: [
-		{
-			name: 'preset-default',
-			params: {
-				overrides: {},
-			},
-		},
+		'preset-default',
+		'removeViewBox',
+		'removeTitle',
 		{
 			name: 'removeAttrs',
 			params: {

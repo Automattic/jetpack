@@ -43,7 +43,7 @@ class Dedicated_Sender {
 	 *
 	 * 5 seconds as default value seems sane, but we might want to adjust that in the future.
 	 */
-	const DEDICATED_SYNC_REQUEST_LOCK_TIMEOUT = 5;
+	const DEDICATED_SYNC_REQUEST_LOCK_TIMEOUT = 60;
 
 	/**
 	 * The query parameter name to use when passing the current lock id.
@@ -133,6 +133,10 @@ class Dedicated_Sender {
 			return new WP_Error( 'empty_queue_' . $queue->id );
 		}
 
+		if ( get_transient( Sender::TEMP_SYNC_DISABLE_TRANSIENT_NAME ) ) {
+			return new WP_Error( 'sender_temporarily_disabled_while_pulling' );
+		}
+
 		// Return early if we've gotten a retry-after header response that is not expired.
 		$retry_time = get_option( Actions::RETRY_AFTER_PREFIX . $queue->id );
 		if ( $retry_time && $retry_time >= microtime( true ) ) {
@@ -201,41 +205,50 @@ class Dedicated_Sender {
 	 * To avoid spawning multiple requests at the same time, we need to have a quick lock that will
 	 * allow only a single request to continue if we try to spawn multiple at the same time.
 	 *
-	 * @return false|mixed|string
+	 * @return string|false
 	 */
 	public static function try_lock_spawn_request() {
-		$current_microtime = (string) microtime( true );
+		$option_name  = self::DEDICATED_SYNC_REQUEST_LOCK_OPTION_NAME;
+		$expires_name = $option_name . '_expires';
+		$ttl          = self::DEDICATED_SYNC_REQUEST_LOCK_TIMEOUT;
+		$lock_id      = wp_generate_uuid4();
+		$now          = microtime( true );
 
+		// Fast path: external object cache is atomic.
 		if ( wp_using_ext_object_cache() ) {
-			if ( true !== wp_cache_add( self::DEDICATED_SYNC_REQUEST_LOCK_OPTION_NAME, $current_microtime, 'jetpack', self::DEDICATED_SYNC_REQUEST_LOCK_TIMEOUT ) ) {
-				// Cache lock has been claimed already.
-				return false;
+			if ( wp_cache_add( $option_name, $lock_id, 'jetpack', $ttl ) ) {
+				return $lock_id;
 			}
+			return false; // Worker already active
 		}
 
-		$current_lock_value = \Jetpack_Options::get_raw_option( self::DEDICATED_SYNC_REQUEST_LOCK_OPTION_NAME, null );
+		global $wpdb;
 
-		if ( ! empty( $current_lock_value ) ) {
-			// Check if time has passed to overwrite the lock - min 5s?
-			if ( is_numeric( $current_lock_value ) && ( ( $current_microtime - $current_lock_value ) < self::DEDICATED_SYNC_REQUEST_LOCK_TIMEOUT ) ) {
-				// Still in previous lock, quit
-				return false;
-			}
-
-			// If the value is not numeric (float/current time), we want to just overwrite it and continue.
+		// 1) Check & clear expired lock (best effort; failure here is harmless)
+		$expiry = (float) \Jetpack_Options::get_raw_option( $expires_name, 0 );
+		if ( ! $expiry || $expiry < $now ) {
+			// Either missing (edge case) or expired → clean up
+			\Jetpack_Options::delete_raw_option( $option_name );
+			\Jetpack_Options::delete_raw_option( $expires_name );
 		}
 
-		// Update. We don't want it to autoload, as we want to fetch it right before the checks.
-		\Jetpack_Options::update_raw_option( self::DEDICATED_SYNC_REQUEST_LOCK_OPTION_NAME, $current_microtime, false );
-		// Give some time for the update to happen
-		usleep( wp_rand( 1000, 3000 ) );
+		// 2) Atomic acquisition: INSERT IGNORE (succeeds only if the lock doesn't exist)
+		$inserted = $wpdb->query( // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching --- Ensure atomicity.
+			$wpdb->prepare(
+				"INSERT IGNORE INTO $wpdb->options ( option_name, option_value, autoload )
+	             VALUES ( %s, %s, 'no' )",
+				$option_name,
+				maybe_serialize( $lock_id )
+			)
+		);
 
-		$updated_value = \Jetpack_Options::get_raw_option( self::DEDICATED_SYNC_REQUEST_LOCK_OPTION_NAME, null );
-
-		if ( $updated_value === $current_microtime ) {
-			return $current_microtime;
+		if ( $inserted ) {
+			// 3) We own the lock — store expiry separately
+			\Jetpack_Options::update_raw_option( $expires_name, $now + $ttl, false );
+			return $lock_id; // Success
 		}
 
+		// Lock already present → normal state → do not spawn
 		return false;
 	}
 
@@ -253,18 +266,24 @@ class Dedicated_Sender {
 		}
 
 		// If it's still not a valid lock_id, throw an error and let the lock process figure it out.
-		if ( empty( $lock_id ) || ! is_numeric( $lock_id ) ) {
+		if ( empty( $lock_id ) ) {
 			return new WP_Error( 'dedicated_request_lock_invalid', 'Invalid lock_id supplied for unlock' );
 		}
 
 		if ( wp_using_ext_object_cache() ) {
-			if ( (string) $lock_id === wp_cache_get( self::DEDICATED_SYNC_REQUEST_LOCK_OPTION_NAME, 'jetpack', true ) ) {
+			$cached = wp_cache_get( self::DEDICATED_SYNC_REQUEST_LOCK_OPTION_NAME, 'jetpack', true );
+			if ( (string) $lock_id === $cached ) {
 				wp_cache_delete( self::DEDICATED_SYNC_REQUEST_LOCK_OPTION_NAME, 'jetpack' );
+
+				return true;
 			}
+
+			return false;
 		}
 
 		// If this is the flow that has the lock, let's release it so we can spawn other requests afterwards
 		$current_lock_value = \Jetpack_Options::get_raw_option( self::DEDICATED_SYNC_REQUEST_LOCK_OPTION_NAME, null );
+
 		if ( (string) $lock_id === $current_lock_value ) {
 			\Jetpack_Options::delete_raw_option( self::DEDICATED_SYNC_REQUEST_LOCK_OPTION_NAME );
 			return true;
@@ -280,7 +299,7 @@ class Dedicated_Sender {
 	 */
 	public static function get_request_lock_id_from_request() {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		if ( ! isset( $_GET[ self::DEDICATED_SYNC_REQUEST_LOCK_QUERY_PARAM_NAME ] ) || ! is_numeric( $_GET[ self::DEDICATED_SYNC_REQUEST_LOCK_QUERY_PARAM_NAME ] ) ) {
+		if ( ! isset( $_GET[ self::DEDICATED_SYNC_REQUEST_LOCK_QUERY_PARAM_NAME ] ) ) {
 			return null;
 		}
 
@@ -395,6 +414,13 @@ class Dedicated_Sender {
 				// Something happened and Dedicated Sync should not be automatically re-enabled.
 				return false;
 			}
+		}
+
+		$current_setting = Settings::is_dedicated_sync_enabled();
+
+		// No need to update if current setting matches header value.
+		if ( $current_setting === (bool) $dedicated_sync_enabled ) {
+			return $current_setting;
 		}
 
 		Settings::update_settings(

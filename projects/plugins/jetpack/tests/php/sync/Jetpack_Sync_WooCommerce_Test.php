@@ -102,33 +102,14 @@ class Jetpack_Sync_WooCommerce_Test extends Jetpack_Sync_TestBase {
 		$this->assertEquals( $order->get_id(), $create_order_item_event->args[2] );
 	}
 
-	public function test_updated_order_items_are_synced() {
-		$order       = $this->createOrderWithItem();
-		$order_items = $order->get_items();
-		$order_item  = reset( $order_items ); // first item
-
-		// trigger an update
-		$order_item->set_name( 'A new name' );
-		$order_item->save();
-
-		$this->sender->do_sync();
-
-		$update_order_item_event = $this->server_event_storage->get_most_recent_event( 'woocommerce_update_order_item' );
-
-		$this->assertTrue( (bool) $update_order_item_event );
-		$this->assertEquals( $order_item->get_id(), $update_order_item_event->args[0] );
-		$this->assertHasOrderItemProperties( $update_order_item_event->args[1], $order_item );
-		$this->assertEquals( $order->get_id(), $update_order_item_event->args[2] );
-	}
-
 	public function test_updated_order_item_meta_is_synced() {
 		$order       = $this->createOrderWithItem();
 		$order_items = $order->get_items();
 		$order_item  = reset( $order_items ); // first item
 
-		wc_add_order_item_meta( $order_item->get_id(), 'foo', 'bar', true );
-		wc_update_order_item_meta( $order_item->get_id(), 'foo', 'baz' );
-		wc_delete_order_item_meta( $order_item->get_id(), 'foo' );
+		wc_add_order_item_meta( $order_item->get_id(), '_qty', 1, true );
+		wc_update_order_item_meta( $order_item->get_id(), '_qty', 2 );
+		wc_delete_order_item_meta( $order_item->get_id(), '_qty' );
 
 		$this->sender->do_sync();
 
@@ -140,6 +121,35 @@ class Jetpack_Sync_WooCommerce_Test extends Jetpack_Sync_TestBase {
 
 		$deleted_order_item_meta_event = $this->server_event_storage->get_most_recent_event( 'deleted_order_item_meta' );
 		$this->assertTrue( (bool) $deleted_order_item_meta_event );
+	}
+
+	public function test_non_whitelisted_order_item_meta_is_not_synced() {
+		$this->server_event_storage->reset();
+		$order       = $this->createOrderWithItem();
+		$order_items = $order->get_items();
+		$order_item  = reset( $order_items ); // first item
+
+		wc_add_order_item_meta( $order_item->get_id(), 'foo', 'bar', true );
+		wc_update_order_item_meta( $order_item->get_id(), 'foo', 'baz' );
+		wc_delete_order_item_meta( $order_item->get_id(), 'foo' );
+
+		$this->sender->do_sync();
+
+		$added_events   = $this->server_event_storage->get_all_events( 'added_order_item_meta' );
+		$updated_events = $this->server_event_storage->get_all_events( 'updated_order_item_meta' );
+		$deleted_events = $this->server_event_storage->get_all_events( 'deleted_order_item_meta' );
+
+		// Merge all events
+		$meta_events = array_merge( $added_events, $updated_events, $deleted_events );
+
+		$foo_events = array_filter(
+			$meta_events,
+			function ( $event ) {
+				return isset( $event->args[2] ) && $event->args[2] === 'foo';
+			}
+		);
+
+		$this->assertEmpty( $foo_events );
 	}
 
 	public function test_approving_a_review_is_synced() {

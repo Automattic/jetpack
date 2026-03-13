@@ -5,6 +5,110 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 3.7.27 - 2026-03-09
+### Changed
+- Centralize admin-ui CSS bundling: add subpath to defaultRequestMap and mark CSS imports as sideEffects to prevent incorrect externalization and tree-shaking. [#47313]
+- Switch to Native TypeScript compiler based on Go. [#47375]
+- Update package dependencies. [#47497] [#47500]
+
+## 3.7.26 - 2026-02-26
+### Changed
+- Update package dependencies. [#47300]
+
+## 3.7.25 - 2026-02-18
+### Changed
+- Add WebP to default file extensions handled by `FileRule`. [#47085]
+- Update package dependencies. [#47173]
+
+## 3.7.24 - 2026-02-16
+### Changed
+- Update package dependencies. [#47130]
+
+## 3.7.23 - 2026-02-12
+### Changed
+- Added WebP to default file extensions handled by FileRule. [#47082]
+- Update package dependencies. [#47095]
+- Update package dependencies. [#47099]
+- Update package dependencies. [#47101]
+
+## 3.7.22 - 2026-02-10
+### Changed
+- Update package dependencies. [#47002]
+
+## 3.7.21 - 2026-02-02
+### Changed
+- Update package dependencies. [#46854]
+
+## 3.7.20 - 2026-01-26
+### Added
+- Add HMR support by setting up dev server. [#46686]
+
+## 3.7.19 - 2026-01-19
+### Changed
+- Remove unused `wp-theme-slug` fallback. It can be added back (everywhere in monorepo tooling) if we ever do have themes in the monorepo. [#46601]
+- Use `beta-plugin-slug` as a fallback for plugin textdomains if `wp-plugin-slug` isn't set. [#46601]
+- Update package dependencies. [#46647]
+
+## 3.7.18 - 2026-01-07
+### Changed
+- Update package dependencies. [#46456]
+
+## 3.7.17 - 2025-12-22
+### Added
+- Add local name for css module classes for development for easier debugging. [#46300]
+
+## 3.7.16 - 2025-12-11
+### Changed
+- Update package dependencies. [#46246] [#46248]
+
+### Fixed
+- Pass correct targets to `@babel/helper-compilation-targets`. [#46248]
+
+## 3.7.15 - 2025-12-08
+### Changed
+- Internal updates.
+
+## 3.7.14 - 2025-12-01
+### Changed
+- Update package dependencies. [#46143]
+
+## 3.7.13 - 2025-11-17
+### Changed
+- Update package dependencies. [#45915]
+
+## 3.7.12 - 2025-10-28
+### Changed
+- Update package dependencies. [#45652]
+
+## 3.7.11 - 2025-10-02
+### Changed
+- Update package dependencies. [#45334]
+
+## 3.7.10 - 2025-09-22
+
+Add `watchOptions` to shared config. [#45235]
+
+## 3.7.9 - 2025-09-19
+### Changed
+- Update package dependencies. [#45240]
+
+## 3.7.8 - 2025-09-19
+### Changed
+- Update package dependencies. [#45173]
+- Update package dependencies. [#45229]
+
+## 3.7.7 - 2025-09-08
+### Changed
+- Update package dependencies. [#45027] [#45097]
+
+## 3.7.6 - 2025-08-13
+### Changed
+- Update package dependencies. [#44701]
+
+## 3.7.5 - 2025-08-11
+### Changed
+- Update package dependencies. [#44677]
+
 ## 3.7.4 - 2025-08-01
 ### Changed
 - Internal updates.

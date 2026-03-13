@@ -25,6 +25,9 @@ module.exports = {
 	resolve: {
 		...jetpackWebpackConfig.resolve,
 	},
+	watchOptions: {
+		...jetpackWebpackConfig.watchOptions,
+	},
 	node: false,
 	plugins: [
 		...jetpackWebpackConfig.StandardPlugins(),
@@ -132,6 +135,35 @@ This is an object suitable for spreading some defaults into Webpack's `resolve` 
 * For `extensions`, we add `.jsx`, `.ts`, and `.tsx` to Webpack's defaults.
 * If `npm_config_jetpack_webpack_config_resolve_conditions` is set in the environment (e.g. by setting `jetpack-webpack-config-resolve-conditions` in `.npmrc`), [`conditionNames`](https://webpack.js.org/configuration/resolve/#resolveconditionnames) will be set to add the values (comma-separated) to Webpack's defaults.
 
+#### `watchOptions`
+
+`watchOptions` is an object suitable for spreading some defaults into Webpack's `watchOptions` setting. It sets the following:
+
+* `ignored`: `[ '**/node_modules', '**/dist', '**/vendor' ]`.
+
+#### `DevServer( options )`
+
+Creates a webpack `devServer` configuration for Hot Module Replacement (HMR). Returns `undefined` when not running `webpack serve`, so you can use it directly without conditional checks. Requires `webpack-dev-server` as a dev dependency.
+
+```js
+// webpack.config.js
+module.exports = {
+	devServer: jetpackWebpackConfig.DevServer( {
+		static: { directory: path.resolve( './build' ) },
+	} ),
+};
+```
+
+Options:
+- `hot`: true
+- `liveReload`: false
+- `writeToDisk`: true (for PHP compatibility)
+
+The following environment variables may be set to configure the dev server at runtime:
+- `JETPACK_WEBPACK_DEV_SERVER_HOST`: Host to listen on. Default 'localhost'.
+- `JETPACK_WEBPACK_DEV_SERVER_PORT`: Port to listen on. Default is 'auto', which will have webpack-dev-server select a free port.
+- `JETPACK_WEBPACK_DEV_SERVER_CLIENT_URL`: String for [`devServer.client.webSocketURL`](https://webpack.js.org/configuration/dev-server/#websocketurl), in case you are proxying the dev server.
+
 #### Plugins
 
 Note all plugins are provided as factory functions returning an array of Webpack plugins for consistency.
@@ -228,6 +260,12 @@ This provides an slightly modified instance of Webpack's built-in DeterministicM
 
 This provides an instance of [@automattic/webpack-rtl-plugin](https://www.npmjs.com/package/@automattic/webpack-rtl-plugin). The `options` are passed to the plugin.
 
+##### `ReactRefreshWebpackPlugin`
+
+Re-export of [@pmmmwh/react-refresh-webpack-plugin](https://www.npmjs.com/package/@pmmmwh/react-refresh-webpack-plugin) for React Fast Refresh. Automatically included in `StandardPlugins()` when `WEBPACK_SERVE=true` in development mode. Set `ReactRefreshWebpackPlugin: false` to disable.
+
+Requires WordPress's `wp-react-refresh-runtime` script to be enqueued.
+
 #### Module rules and loaders
 
 Note all rule sets are provided as factory functions returning a single rule.
@@ -268,7 +306,7 @@ This is a simple [asset module](https://webpack.js.org/guides/asset-modules/) ru
 
 Options are:
 - `filename`: Output filename pattern. Default is `images/[name]-[contenthash][ext]`.
-- `extensions`: Array of extensions to handle. Default is `[ 'gif', 'jpg', 'jpeg', 'png', 'svg' ]`.
+- `extensions`: Array of extensions to handle. Default is `[ 'gif', 'jpg', 'jpeg', 'png', 'svg', 'webp' ]`.
 - `maxInlineSize`: If set to a number greater than 0, files will be inlined if they are smaller than this. Default is 0.
 
 ### Babel
@@ -318,3 +356,4 @@ The options and corresponding components are:
   - `absoluteRuntime`: Set true, as otherwise transpilation of code symlinked in node_modules (i.e. everything when using pnpm) breaks.
   - `version`: Set to the version from `@babel/runtime`.
 - `pluginPreserveI18n`: Corresponds to [@automattic/babel-plugin-preserve-i18n](https://www.npmjs.com/package/@automattic/babel-plugin-preserve-i18n).
+- `pluginReactRefresh`: Corresponds to [react-refresh/babel](https://www.npmjs.com/package/react-refresh). Only included when `WEBPACK_SERVE=true` in development mode. Set to false to disable.

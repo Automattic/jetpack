@@ -1,0 +1,9 @@
+{
+	"$schema": "https://json.schemastore.org/tsconfig.json",
+	"extends": [ "./tsconfig.base.json" ],
+	"compilerOptions": {
+		"rootDir": "block-front"
+	},
+	"include": [ "block-front" ],
+	"references": [ { "path": "./tsconfig.common.json" } ]
+}

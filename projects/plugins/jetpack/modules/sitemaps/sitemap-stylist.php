@@ -8,6 +8,10 @@
  * @since 4.8.0
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Builds the XSL files required by Jetpack_Sitemap_Manager.
  *
@@ -709,7 +713,7 @@ XSL;
 	 * @return string The CSS.
 	 */
 	public static function sitemap_xsl_css() {
-		return <<<CSS
+		return <<<'CSS'
 		body {
 			font: 14px 'Open Sans', Helvetica, Arial, sans-serif;
 			margin: 0;

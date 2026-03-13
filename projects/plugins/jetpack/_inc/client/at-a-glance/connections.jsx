@@ -51,7 +51,7 @@ export class DashConnections extends Component {
 					) }
 					<div className="jp-connection-settings__text">
 						{ __(
-							'Your site is in Offline Mode, so it can not be connected to WordPress.com.',
+							'Your site is in Offline Mode, so it cannot be connected to WordPress.com.',
 							'jetpack'
 						) }
 					</div>
@@ -82,7 +82,7 @@ export class DashConnections extends Component {
 							{ ! this.props.isConnectionOwner && this.props.isConnectionOwnerName && (
 								<span className="jp-connection-settings__is-owner">
 									{ sprintf(
-										/* translators: Placeholder is the WordPress user login name. */
+										/* translators: %s: the WordPress user login name. */
 										__( 'The connection owner is %s.', 'jetpack' ),
 										this.props.isConnectionOwnerName
 									) }
@@ -139,7 +139,7 @@ export class DashConnections extends Component {
 					) }
 					<div className="jp-connection-settings__text">
 						{ __(
-							'The site is in Offline Mode, so you can not connect to WordPress.com.',
+							'The site is in Offline Mode, so you cannot connect to WordPress.com.',
 							'jetpack'
 						) }
 					</div>
@@ -177,7 +177,7 @@ export class DashConnections extends Component {
 						<div className="jp-connection-settings__text">
 							{ createInterpolateElement(
 								sprintf(
-									/* translators: Placeholder is the WordPress user login name. */
+									/* translators: %s: the WordPress user login name. */
 									__( 'Connected as <span>%s</span>', 'jetpack' ),
 									this.props.wpComConnectedUser.login
 								),

@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Forms\ContactForm;
 
+use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Device_Detection\User_Agent_Info;
 use WP_Post;
 /**
  * Handles the response for a contact form submission.
@@ -14,8 +16,23 @@ use WP_Post;
  * Feedback objects are there to help us interact with the form response data.
  */
 class Feedback {
+	use Country_Code_Utils;
 
 	const POST_TYPE = 'feedback';
+
+	/**
+	 * Comment status for unread feedback.
+	 *
+	 * @var string
+	 */
+	public const STATUS_UNREAD = 'open';
+
+	/**
+	 * Comment status for read feedback.
+	 *
+	 * @var string
+	 */
+	public const STATUS_READ = 'closed';
 
 	/**
 	 * The form field values.
@@ -55,6 +72,24 @@ class Feedback {
 	 * @var string|null
 	 */
 	protected $ip_address = null;
+
+	/**
+	 * The user agent of the user who submitted the feedback.
+	 *
+	 * This is only available on form submissions, and might not be available when retrieving existing feedback posts.
+	 *
+	 * @var string|null
+	 */
+	protected $user_agent = null;
+
+	/**
+	 * The country code derived from the IP address.
+	 *
+	 * This is derived from the IP address and stored for easier display.
+	 *
+	 * @var string|null
+	 */
+	protected $country_code = null;
 
 	/**
 	 * The subject of the feedback entry.
@@ -112,6 +147,20 @@ class Feedback {
 	protected $has_consent = false;
 
 	/**
+	 * Whether the feedback entry is unread.
+	 *
+	 * @var bool
+	 */
+	protected $is_unread = true;
+
+	/**
+	 * The post ID of the feedback entry.
+	 *
+	 * @var int|null
+	 */
+	protected $post_id = null;
+
+	/**
 	 * The entry object of the post that the feedback was submitted from.
 	 *
 	 * This is used to store the entry object of the post that the feedback was submitted from.
@@ -119,6 +168,20 @@ class Feedback {
 	 * @var Feedback_Source
 	 */
 	protected $source;
+
+	/**
+	 * The notification recipients of the feedback entry.
+	 *
+	 * @var array
+	 */
+	protected $notification_recipients = array();
+
+	/**
+	 * The jetpack_form post ID associated with this feedback, when available.
+	 *
+	 * @var int|null
+	 */
+	protected $form_id = null;
 
 	/**
 	 * Create a response object from a feedback post ID.
@@ -143,6 +206,17 @@ class Feedback {
 	}
 
 	/**
+	 * Clear the internal cache of feedback objects.
+	 *
+	 * Useful for testing or when feedback data needs to be reloaded fresh.
+	 *
+	 * @since 6.10.0
+	 */
+	public static function clear_cache() {
+		self::$feedback_fields = array();
+	}
+
+	/**
 	 * Create a Feedback object from a feedback post.
 	 *
 	 * @param WP_Post $feedback_post The feedback post object.
@@ -151,29 +225,60 @@ class Feedback {
 
 		$parsed_content = $this->parse_content( $feedback_post->post_content, $feedback_post->post_mime_type );
 
+		$this->post_id            = $feedback_post->ID;
 		$this->status             = $feedback_post->post_status;
 		$this->legacy_feedback_id = $feedback_post->post_name;
 		$this->feedback_time      = $feedback_post->post_date;
+		$this->is_unread          = $feedback_post->comment_status === self::STATUS_UNREAD;
 
 		$this->fields = $parsed_content['fields'] ?? array();
 
+		// Check if post_parent is a jetpack_form post
+		$potential_form_id = $feedback_post->post_parent;
+		if ( $potential_form_id > 0 ) {
+			$parent_post = get_post( $potential_form_id );
+			if ( $parent_post && $parent_post->post_type === 'jetpack_form' ) {
+				// New data: post_parent is form ID
+				$this->form_id = $potential_form_id;
+			}
+		}
+
+		// Determine the source ID for this feedback.
+		// Prefer the explicit source_id from parsed content when available,
+		// otherwise fall back to the legacy behavior where post_parent was
+		// used as the source post ID, but only when no explicit form_id exists.
+		$source_id = 0;
+		if ( isset( $parsed_content['source_id'] ) && null !== $parsed_content['source_id'] ) {
+			$source_id = (int) $parsed_content['source_id'];
+		} elseif ( $feedback_post->post_parent && ! $this->form_id ) {
+			$source_id = (int) $feedback_post->post_parent;
+		}
+
 		$this->source = new Feedback_Source(
-			$feedback_post->post_parent,
+			$source_id,
 			$parsed_content['entry_title'] ?? '',
-			$parsed_content['entry_page'] ?? 1
+			$parsed_content['entry_page'] ?? 1,
+			$parsed_content['source_type'] ?? 'single',
+			$parsed_content['request_url'] ?? ''
 		);
 
-		$this->ip_address = $parsed_content['ip'] ?? $this->get_first_field_of_type( 'ip' );
-		$this->subject    = $parsed_content['subject'] ?? $this->get_first_field_of_type( 'subject' );
+		$this->ip_address   = $parsed_content['ip'] ?? $this->get_first_field_of_type( 'ip' );
+		$this->country_code = $parsed_content['country_code'] ?? null;
+		$this->user_agent   = $parsed_content['user_agent'] ?? null;
+		$this->subject      = $parsed_content['subject'] ?? $this->get_first_field_of_type( 'subject' );
+
+		$this->notification_recipients = $parsed_content['notification_recipients'] ?? array();
 
 		$this->author_data = new Feedback_Author(
 			$this->get_first_field_of_type( 'name', 'pre_comment_author_name' ),
 			$this->get_first_field_of_type( 'email', 'pre_comment_author_email' ),
-			$this->get_first_field_of_type( 'url', 'pre_comment_author_url' )
+			$this->get_first_field_of_type( 'url', 'pre_comment_author_url' ),
+			$this->get_field_value_by_form_field_id( 'first-name' ),
+			$this->get_field_value_by_form_field_id( 'last-name' )
 		);
 
 		$this->comment_content = $this->get_first_field_of_type( 'textarea' );
-		$this->has_consent     = ( in_array( strtolower( $this->get_first_field_of_type( 'consent' ) ), array( 'yes', 'true', '1' ), true ) );
+		$this->has_consent     = (bool) $this->get_first_field_of_type( 'consent' );
 
 		$this->legacy_feedback_title = $feedback_post->post_title ? $feedback_post->post_title : $this->get_author() . ' - ' . $feedback_post->post_date;
 	}
@@ -195,6 +300,15 @@ class Feedback {
 	}
 
 	/**
+	 * Set the source of the feedback entry.
+	 *
+	 * @param Feedback_Source $source The source object.
+	 */
+	public function set_source( $source ) {
+		$this->source = $source;
+	}
+
+	/**
 	 * Load from Form Submission.
 	 *
 	 * @param array        $post_data The $_POST received during the form submission.
@@ -205,13 +319,24 @@ class Feedback {
 	private function load_from_submission( $post_data, $form, $current_post = null, $current_page_number = 1 ) {
 
 		$this->source = Feedback_Source::from_submission( $current_post, $current_page_number );
+
+		// Extract and validate form ID from POST data or ref attribute
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verification happens in process_form_submission()
+		$form_id_attribute = $post_data['contact-form-ref'] ?? $form->get_attribute( 'ref' );
+		$form_id_attribute = is_numeric( $form_id_attribute ) ? absint( $form_id_attribute ) : 0;
+		$this->form_id     = $form_id_attribute > 0 ? $form_id_attribute : null;
+
 		// If post_data is provided, use it to populate fields.
 		$this->fields          = $this->get_computed_fields( $post_data, $form );
 		$this->ip_address      = Contact_Form_Plugin::get_ip_address();
+		$this->country_code    = $this->get_country_code_from_ip( $this->ip_address );
+		$this->user_agent      = isset( $_SERVER['HTTP_USER_AGENT'] ) ? filter_var( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : null;
 		$this->subject         = $this->get_computed_subject( $post_data, $form );
 		$this->author_data     = Feedback_Author::from_submission( $post_data, $form );
 		$this->comment_content = $this->get_computed_comment_content( $post_data, $form );
 		$this->has_consent     = $this->get_computed_consent( $post_data, $form );
+
+		$this->notification_recipients = $this->get_computed_notification_recipients( $post_data, $form );
 
 		$this->feedback_time         = current_time( 'mysql' );
 		$this->legacy_feedback_title = "{$this->get_author()} - {$this->feedback_time}";
@@ -221,20 +346,166 @@ class Feedback {
 	/**
 	 * Get a sanitized value from the post data.
 	 *
-	 * @param string $key The key to look for in the post data.
-	 * @param array  $post_data The post data array, typically $_POST.
+	 * @param string      $key The key to look for in the post data.
+	 * @param array       $post_data The post data array, typically $_POST.
+	 * @param string|null $type The type of the field, if applicable (e.g., 'file').
 	 *
 	 * @return string|array The sanitized value, or an empty string if the key is not found.
 	 */
-	private function get_field_value( $key, $post_data ) {
+	private function get_field_value( $key, $post_data, $type = null ) {
+		if ( $type === 'file' ) {
+			if ( isset( $post_data[ $key ] ) ) {
+				return self::process_file_field_value( $post_data[ $key ] );
+			}
+			return array( 'files' => array() );
+		}
+
+		if ( $type === 'image-select' ) {
+			if ( isset( $post_data[ $key ] ) ) {
+				return self::process_image_select_field_value( $post_data[ $key ] );
+			}
+
+			return array(
+				'type'    => 'image-select',
+				'choices' => array(),
+			);
+		}
+
 		if ( isset( $post_data[ $key ] ) ) {
 			if ( is_array( $post_data[ $key ] ) ) {
-				return array_map( 'sanitize_text_field', wp_unslash( $post_data[ $key ] ) );
+				return array_map( 'sanitize_textarea_field', wp_unslash( $post_data[ $key ] ) );
 			} else {
-				return sanitize_text_field( wp_unslash( $post_data[ $key ] ) );
+				return sanitize_textarea_field( wp_unslash( $post_data[ $key ] ) );
 			}
 		}
 		return '';
+	}
+
+	/**
+	 * Process the file field value.
+	 *
+	 * @param array $raw_data The raw post data from the file field.
+	 *
+	 * @return array The processed file data.
+	 */
+	public static function process_file_field_value( $raw_data ) {
+		$file_data_array = is_array( $raw_data )
+			? array_map(
+				function ( $json_str ) {
+					$decoded = json_decode( stripslashes( $json_str ), true );
+					return array(
+						'file_id' => isset( $decoded['file_id'] ) ? sanitize_text_field( $decoded['file_id'] ) : '',
+						'name'    => isset( $decoded['name'] ) ? sanitize_text_field( $decoded['name'] ) : '',
+						'size'    => isset( $decoded['size'] ) ? absint( $decoded['size'] ) : 0,
+						'type'    => isset( $decoded['type'] ) ? sanitize_text_field( $decoded['type'] ) : '',
+					);
+				},
+				$raw_data
+			) : array();
+
+		if ( empty( $file_data_array ) ) {
+			return array(
+				'files' => array(),
+			);
+		}
+
+		return array(
+			'files' => $file_data_array,
+		);
+	}
+
+	/**
+	 * Process the image select field value.
+	 *
+	 * @param array $raw_data The raw post data from the image select field.
+	 *
+	 * @return array The processed image select data.
+	 */
+	public static function process_image_select_field_value( $raw_data ) {
+		$value = array(
+			'type'    => 'image-select',
+			'choices' => array(),
+		);
+
+		$selection_data_array = is_array( $raw_data )
+			? array_map(
+				function ( $json_str ) {
+					return json_decode( stripslashes( $json_str ), true );
+				},
+				$raw_data
+			) : array( json_decode( stripslashes( $raw_data ), true ) );
+
+		if ( ! empty( $selection_data_array ) ) {
+			$value['choices'] = $selection_data_array;
+		}
+
+		return $value;
+	}
+
+	/**
+	 * Process a radio field value to detect and extract "Other" option metadata.
+	 *
+	 * This method checks if a radio field value matches the "Other" pattern and combines
+	 * it with the corresponding text input value if present.
+	 *
+	 * @param string $value     The raw field value from the submission.
+	 * @param object $field     The field object from the form.
+	 * @param string $field_id  The field ID.
+	 * @param array  $post_data The POST data from the submission.
+	 *
+	 * @return array An array with 'value' and 'meta' keys.
+	 */
+	private function process_radio_field_value( $value, $field, $field_id, $post_data ) {
+		$meta        = array();
+		$allow_other = $field->get_attribute( 'allowother' );
+
+		if ( ! $allow_other || ! is_string( $value ) ) {
+			return array(
+				'value' => $value,
+				'meta'  => $meta,
+			);
+		}
+
+		$options_data = $field->get_attribute( 'optionsdata' );
+		$other_label  = null;
+
+		if ( ! empty( $options_data ) && is_array( $options_data ) ) {
+			foreach ( $options_data as $option ) {
+				if ( ! empty( $option['isOther'] ) ) {
+					$other_label = Contact_Form_Plugin::strip_tags( $option['label'] );
+					break;
+				}
+			}
+		}
+
+		if ( empty( $other_label ) ) {
+			return array(
+				'value' => $value,
+				'meta'  => $meta,
+			);
+		}
+
+		if ( $value === $other_label ) {
+			$other_text_key = $field_id . '-other-text';
+			$custom_text    = '';
+
+			if ( isset( $post_data[ $other_text_key ] ) ) {
+				$custom_text = sanitize_textarea_field( wp_unslash( $post_data[ $other_text_key ] ) );
+			}
+
+			$meta['is_other_option']  = true;
+			$meta['other_label']      = $other_label;
+			$meta['other_user_value'] = $custom_text;
+
+			if ( ! empty( $custom_text ) ) {
+				$value = $other_label . ': ' . $custom_text;
+			}
+		}
+
+		return array(
+			'value' => $value,
+			'meta'  => $meta,
+		);
 	}
 
 	/**
@@ -254,6 +525,7 @@ class Feedback {
 		}
 		return '';
 	}
+
 	/**
 	 * Get the value of the field based on the first type found.
 	 *
@@ -289,11 +561,26 @@ class Feedback {
 	}
 
 	/**
+	 * Check whether this feedback contains at least one field of a given type.
+	 *
+	 * @param string $type Field type to check for (e.g. 'consent', 'email', 'textarea').
+	 * @return bool True if a field of the given type exists; false otherwise.
+	 */
+	public function has_field_type( $type ) {
+		foreach ( $this->fields as $field ) {
+			if ( $field->get_type() === $type ) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
 	 * Get the values related to where the form was submitted from.
 	 *
 	 * @return array An array of entry values.
 	 */
-	private function get_entry_values() {
+	public function get_entry_values() {
 		// This is a convenience method to get the entry values in a simple array format.
 		$entry_values = array(
 			'email_marketing_consent' => (string) $this->has_consent ? 'yes' : 'no',
@@ -311,13 +598,86 @@ class Feedback {
 	/**
 	 * Get all values of the response.
 	 *
+	 * @param string $context The context in which the values are being retrieved.
+	 *
 	 * @return array An array of all values, including fields and entry values.
 	 */
-	public function get_all_values() {
+	public function get_all_values( $context = 'default' ) {
 		// This is a legacy method to maintain compatibility with older code.
-		return array_merge( $this->get_compiled_fields( 'default', 'key-value' ), $this->get_entry_values() );
+		return array_merge( $this->get_compiled_fields( $context, 'key-value' ), $this->get_entry_values() );
 	}
 
+	/**
+	 * Get the jetpack_form post ID associated with this feedback.
+	 *
+	 * @return int|null The form ID, or null if not submitted via reusable form.
+	 */
+	public function get_form_id() {
+		return $this->form_id;
+	}
+
+	/**
+	 * Get extra values.
+	 * This is a legacy method to maintain compatibility with older code.
+	 *
+	 * @param string $context The context in which the values are being retrieved.
+	 *
+	 * @return array An array of extra values, including entry values
+	 */
+	public function get_legacy_extra_values( $context = 'default' ) {
+		$count            = 1;
+		$_extra_fields    = array();
+		$special_fields   = array();
+		$non_extra_fields = array( 'email', 'name', 'url', 'subject', 'textarea', 'ip' );
+
+		// Create a map of special fields to check agains their values.
+		foreach ( $this->fields as $field ) {
+			if ( in_array( $field->get_type(), $non_extra_fields, true ) && $field->get_render_value( $context ) ) {
+				$special_fields[ $field->get_render_value( $context ) ] = true;
+			}
+		}
+
+		foreach ( $this->fields as $field ) {
+			if ( $field->compile_field( 'default' ) ) {
+				continue;
+			}
+			if ( $field->get_type() === 'basic' && isset( $special_fields[ $field->get_render_value() ] ) ) {
+				++$count;
+				continue; // Skip fields that are already present in the non-extra fields.
+			}
+			$_extra_fields[] = $field;
+			++$count; // Increment count to ensure unique keys for extra values.
+		}
+		$extra_values       = array();
+		$extra_fields_count = $count;
+		$is_present         = array(); // Used to store the value only once.
+
+		foreach ( $_extra_fields as $field ) {
+			if ( ! in_array( $field->get_type(), $non_extra_fields, true ) || isset( $is_present[ $field->get_type() ] ) ) {
+				$extra_values[ $extra_fields_count . '_' . $field->get_label() ] = $field->get_render_value( $context );
+				++$extra_fields_count; // Increment count to ensure unique keys for extra values.
+			} else {
+				$is_present[ $field->get_type() ] = true;
+			}
+		}
+		return $extra_values;
+	}
+
+	/**
+	 * Get all values of the response.
+	 *
+	 * @return array An array of all values, including fields and entry values.
+	 */
+	public function get_all_legacy_values() {
+		return array(
+			'_feedback_author'       => $this->get_author(),
+			'_feedback_author_email' => $this->get_author_email(),
+			'_feedback_author_url'   => $this->get_author_url(),
+			'_feedback_subject'      => $this->get_subject(),
+			'_feedback_ip'           => $this->get_ip_address(),
+			'_feedback_all_fields'   => $this->get_all_values(),
+		);
+	}
 	/**
 	 * Return the compiled fields for the given context.
 	 *
@@ -333,6 +693,13 @@ class Feedback {
 		foreach ( $this->fields as $field ) {
 			if ( $field->compile_field( $context ) ) {
 				continue; // Skip fields that are not meant to be rendered.
+			}
+
+			// Don't show the hidden fields in the user context.
+			if ( in_array( $context, array( 'web', 'ajax' ), true ) ) {
+				if ( $field->is_of_type( 'hidden' ) ) {
+					continue;
+				}
 			}
 
 			$label = $field->get_label( $context );
@@ -368,7 +735,20 @@ class Feedback {
 					$compiled_fields[ $field->get_key() ] = $field->get_render_value( $context );
 					break;
 				case 'label-value':
-						$compiled_fields[ $field->get_label( $context, $count_field_labels[ $label ] ) ] = $field->get_render_value( $context );
+					$compiled_fields[ $field->get_label( $context, $count_field_labels[ $label ] ) ] = $field->get_render_value( $context );
+					break;
+				case 'id-value':
+					$compiled_fields[ $field->get_form_field_id() ] = $field->get_render_value( $context );
+					break;
+				case 'collection':
+					$compiled_fields[] = array(
+						'label' => $label,
+						'value' => $field->get_render_value( $context ),
+						'type'  => $field->get_type(),
+						'id'    => $field->get_form_field_id(),
+						'key'   => $field->get_key(),
+						'meta'  => $field->get_meta(),
+					);
 					break;
 			}
 		}
@@ -428,7 +808,7 @@ class Feedback {
 
 			// Skip any fields that are just a choice from a pre-defined list. They wouldn't have any value
 			// from a spam-filtering point of view.
-			if ( in_array( $field->get_type(), array( 'select', 'checkbox', 'checkbox-multiple', 'radio', 'file' ), true ) ) {
+			if ( in_array( $field->get_type(), array( 'select', 'checkbox', 'checkbox-multiple', 'radio', 'file', 'image-select' ), true ) ) {
 				continue;
 			}
 
@@ -463,6 +843,33 @@ class Feedback {
 	 */
 	public function get_author() {
 		return $this->author_data->get_display_name();
+	}
+
+	/**
+	 * Get the author name of a feedback entry.
+	 *
+	 * @return string
+	 */
+	public function get_author_name() {
+		return $this->author_data->get_name();
+	}
+
+	/**
+	 * Get the author's first name of a feedback entry.
+	 *
+	 * @return string
+	 */
+	public function get_author_first_name() {
+		return $this->author_data->get_first_name();
+	}
+
+	/**
+	 * Get the author's last name of a feedback entry.
+	 *
+	 * @return string
+	 */
+	public function get_author_last_name() {
+		return $this->author_data->get_last_name();
 	}
 
 	/**
@@ -513,12 +920,178 @@ class Feedback {
 	}
 
 	/**
+	 * Get the user agent of the submitted feedback request.
+	 *
+	 * @return string|null
+	 */
+	public function get_user_agent() {
+		return $this->user_agent;
+	}
+
+	/**
+	 * Get the country code derived from the IP address.
+	 *
+	 * @return string|null
+	 */
+	public function get_country_code() {
+		return $this->country_code;
+	}
+
+	/**
+	 * Get the emoji flag for the country.
+	 *
+	 * @return string The emoji flag for the country code, or empty string if unavailable.
+	 */
+	public function get_country_flag() {
+		return self::country_code_to_emoji_flag( $this->country_code );
+	}
+
+	/**
+	 * Get country code from IP address.
+	 *
+	 * This method uses a filter to allow custom implementations of GeoIP lookup.
+	 * The filter should return a country code (e.g., 'US', 'GB', 'DE') or null.
+	 *
+	 * @param string|null $ip_address The IP address.
+	 * @return string|null The country code or null if unavailable.
+	 */
+	private function get_country_code_from_ip( $ip_address ) {
+		if ( ! $ip_address ) {
+			return null;
+		}
+		// This filter allows site owners to disable IP address storage entirely as well as GeoIP lookups.
+		// This filter is documented in src/contact-form/class-contact-form-plugin.php
+		if ( apply_filters( 'jetpack_contact_form_forget_ip_address', false ) ) {
+			return null;
+		}
+
+		/**
+		 * Filter to get country code from IP address.
+		 *
+		 * @since $$NEXT_VERSION$$
+		 *
+		 * @param string|null $country The country code (e.g., 'US', 'GB', 'DE') or null.
+		 * @param string      $ip_address The IP address to look up.
+		 * @param string      $context The context for the geolocation request.
+		 */
+		$country = apply_filters( 'jetpack_get_country_from_ip', null, $ip_address, 'form-response' );
+		if ( is_string( $country ) ) {
+			return strtoupper( $country );
+		}
+
+		$headers = array(
+			'MM_COUNTRY_CODE',
+			'GEOIP_COUNTRY_CODE',
+			'HTTP_CF_IPCOUNTRY',
+			'HTTP_X_COUNTRY_CODE',
+			'HTTP_X_APPENGINE_COUNTRY',
+			'HTTP_X_FORWARDED_FOR_COUNTRY',
+			'HTTP_CLOUDFRONT_VIEWER_COUNTRY',
+		);
+
+		// Check for headers from the server.
+		foreach ( $headers as $header ) {
+			if ( isset( $_SERVER[ $header ] ) ) {
+				$country = sanitize_text_field( wp_unslash( $_SERVER[ $header ] ) );
+				if ( ! empty( $country ) ) {
+					return strtoupper( $country );
+				}
+			}
+		}
+
+		if ( function_exists( 'geoip_country_code_by_name' ) ) {
+			$country = geoip_country_code_by_name( $ip_address );
+			if ( ! empty( $country ) ) {
+				return strtoupper( $country );
+			}
+		}
+
+		$country = self::geolocate_via_api( $ip_address );
+		if ( ! empty( $country ) ) {
+			return strtoupper( $country );
+		}
+
+		return null;
+	}
+
+	/**
+	 * Use APIs to Geolocate the IP address.
+	 *
+	 * @param  string $ip_address IP address.
+	 * @return string
+	 */
+	private static function geolocate_via_api( $ip_address ) {
+		$country_code = \get_transient( 'geoip_' . $ip_address );
+		if ( false === $country_code ) {
+			$response = Client::wpcom_json_api_request_as_blog(
+				'/ip-to-geo/' . $ip_address,
+				'2',
+				array( 'method' => 'GET' ),
+				null,
+				'wpcom'
+			);
+
+			if ( ! is_wp_error( $response ) && ! empty( $response['body'] ) ) {
+				$data         = json_decode( $response['body'] );
+				$country_code = $data->country_short ?? '';
+				$country_code = \sanitize_text_field( $country_code );
+				// Share the transient with woocommerce to avoid multiple lookups.
+				\set_transient( 'geoip_' . $ip_address, $country_code, DAY_IN_SECONDS );
+			}
+		}
+		return $country_code;
+	}
+
+	/**
+	 * Get the browser information from the user agent.
+	 *
+	 * Returns a formatted string like "Chrome (Desktop)" or "Safari (Mobile)".
+	 *
+	 * @return string|null Browser information or null if user agent is not available.
+	 */
+	public function get_browser() {
+		if ( empty( $this->user_agent ) ) {
+			return null;
+		}
+
+		// Use Jetpack Device Detection to parse the user agent.
+		$ua_info = new User_Agent_Info( $this->user_agent );
+
+		// Get browser name.
+		$browser_name = $ua_info->get_browser_display_name();
+
+		if ( $browser_name === User_Agent_Info::OTHER ) {
+			return __( 'Unknown browser', 'jetpack-forms' );
+		}
+
+		// Determine platform type (Mobile, Tablet, or Desktop).
+		$platform_type = 'Desktop';
+		if ( $ua_info->is_tablet() ) {
+			$platform_type = 'Tablet';
+		} elseif ( $ua_info->get_platform() ) {
+			// If there's a mobile platform detected (not false), it's mobile.
+			$platform_type = 'Mobile';
+		}
+
+		return sprintf( '%s (%s)', $browser_name, $platform_type );
+	}
+
+	/**
 	 * Get the email subject.
 	 *
 	 * @return string
 	 */
 	public function get_subject() {
 		return $this->subject;
+	}
+
+	/**
+	 * Gets the notification recipients of the feedback entry.
+	 *
+	 * @return array
+	 */
+	public function get_notification_recipients() {
+		return $this->notification_recipients;
 	}
 
 	/**
@@ -537,6 +1110,120 @@ class Feedback {
 	 */
 	public function has_file() {
 		return $this->has_file;
+	}
+
+	/**
+	 * Check if the feedback is unread.
+	 *
+	 * @return bool
+	 */
+	public function is_unread() {
+		return $this->is_unread;
+	}
+
+	/**
+	 * Mark the feedback as read.
+	 *
+	 * @return bool True on success, false on failure.
+	 */
+	public function mark_as_read() {
+		if ( ! $this->post_id ) {
+			return false;
+		}
+
+		$updated = wp_update_post(
+			array(
+				'ID'             => $this->post_id,
+				'comment_status' => self::STATUS_READ,
+			)
+		);
+
+		if ( ! is_wp_error( $updated ) && $updated ) {
+			$this->is_unread = false;
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Mark the feedback as unread.
+	 *
+	 * @return bool True on success, false on failure.
+	 */
+	public function mark_as_unread() {
+		if ( ! $this->post_id ) {
+			return false;
+		}
+
+		$updated = wp_update_post(
+			array(
+				'ID'             => $this->post_id,
+				'comment_status' => self::STATUS_UNREAD,
+			)
+		);
+
+		if ( ! is_wp_error( $updated ) && $updated ) {
+			$this->is_unread = true;
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Get the count of unread feedback entries.
+	 *
+	 * @return int
+	 */
+	public static function get_unread_count() {
+		$query = new \WP_Query(
+			array(
+				'post_type'      => self::POST_TYPE,
+				'post_status'    => 'publish',
+				'comment_status' => self::STATUS_UNREAD,
+				'posts_per_page' => -1,
+				'fields'         => 'ids',
+			)
+		);
+		return (int) $query->found_posts;
+	}
+
+	/**
+	 * Get the uploaded files from the feedback entry.
+	 *
+	 * @return array
+	 */
+	public function get_files() {
+		$files = array();
+		foreach ( $this->fields as $field ) {
+			if ( $field->get_type() === 'file' ) {
+				$field_value = $field->get_value();
+				if ( ! empty( $field_value['files'] ) && is_array( $field_value['files'] ) ) {
+					$field_value['files'] = array_filter(
+						$field_value['files'],
+						function ( $file ) {
+							if ( empty( $file['file_id'] ) ) {
+								return false;
+							}
+							if ( empty( $file['name'] ) ) {
+								return false;
+							}
+							if ( empty( $file['size'] ) ) {
+								return false;
+							}
+							if ( empty( $file['type'] ) ) {
+								return false;
+							}
+							return true;
+						}
+					);
+
+					$files = array_merge( $files, $field_value['files'] );
+				}
+			}
+		}
+		return $files;
 	}
 
 	/**
@@ -563,7 +1250,7 @@ class Feedback {
 	 *
 	 * This is the post ID of the post or page that the feedback was submitted from.
 	 *
-	 * @return int|null
+	 * @return int|string
 	 */
 	public function get_entry_id() {
 		return $this->source->get_id();
@@ -589,6 +1276,18 @@ class Feedback {
 	public function get_entry_permalink() {
 		return $this->source->get_permalink();
 	}
+
+	/**
+	 * Get the editor URL where the user can edit the form.
+	 *
+	 * @return string
+	 */
+	public function get_edit_form_url() {
+		if ( ! empty( $this->form_id ) ) {
+			return \get_edit_post_link( (int) $this->form_id, 'url' );
+		}
+		return $this->source->get_edit_form_url();
+	}
 	/**
 	 * Get the short permalink of a post.
 	 *
@@ -610,9 +1309,10 @@ class Feedback {
 				'post_title'     => $this->legacy_feedback_title,
 				'post_date'      => $this->feedback_time,
 				'post_name'      => $this->legacy_feedback_id,
-				'post_content'   => $this->serialize(),
-				'post_mime_type' => 'v2', // a way to help us identify what version of the data this is.
-				'post_parent'    => $this->source->get_id(),
+				'post_content'   => $this->serialize(), // In V3 we started to addslashes.
+				'post_mime_type' => 'v3', // a way to help us identify what version of the data this is.
+				'post_parent'    => $this->form_id ?? $this->source->get_id(),
+				'comment_status' => self::STATUS_UNREAD, // New feedback is unread by default.
 			)
 		);
 
@@ -629,8 +1329,11 @@ class Feedback {
 
 		$fields_to_serialize = array_merge(
 			array(
-				'subject' => $this->subject,
-				'ip'      => $this->ip_address,
+				'subject'                 => $this->subject,
+				'ip'                      => $this->ip_address,
+				'country_code'            => $this->country_code,
+				'user_agent'              => $this->user_agent,
+				'notification_recipients' => $this->notification_recipients,
 			),
 			$this->source->serialize()
 		);
@@ -640,12 +1343,13 @@ class Feedback {
 			$fields_to_serialize['fields'][] = $field->serialize();
 		}
 
-		// Check if the IP should be included.
+		// Check if the IP and country_code should be included.
 		if ( apply_filters( 'jetpack_contact_form_forget_ip_address', false, $this->ip_address ) ) {
-			$fields_to_serialize['ip'] = null;
+			$fields_to_serialize['ip']           = null;
+			$fields_to_serialize['country_code'] = null;
 		}
 
-		return wp_json_encode( $fields_to_serialize );
+		return addslashes( wp_json_encode( $fields_to_serialize, JSON_UNESCAPED_SLASHES ) );
 	}
 
 	/**
@@ -656,6 +1360,9 @@ class Feedback {
 	 * @return array Parsed fields.
 	 */
 	private function parse_content( $post_content = '', $version = null ) {
+		if ( $version === 'v3' ) {
+			return $this->parse_content_v3( $post_content );
+		}
 		if ( $version === 'v2' ) {
 			return $this->parse_content_v2( $post_content );
 		}
@@ -665,6 +1372,8 @@ class Feedback {
 	/**
 	 * Parse the content in the v2 format.
 	 *
+	 * V2 Format was a short lived format that accidently contains slash escaped unicode characters.
+	 *
 	 * @param string $post_content The post content to parse.
 	 *
 	 * @return array Parsed fields.
@@ -672,9 +1381,17 @@ class Feedback {
 	private function parse_content_v2( $post_content = '' ) {
 		$decoded_content = json_decode( $post_content, true );
 		if ( $decoded_content === null ) {
-			// If JSON decoding fails, try to decode the second try with stripslashes and trim.
-			// This is a workaround for some cases where the JSON data is not properly formatted.
+			// If JSON decoding still fails, try with stripslashes and trim as a fallback
+			// This is a workaround for some cases where the JSON data is not properly formatted
 			$decoded_content = json_decode( stripslashes( trim( $post_content ) ), true );
+		}
+
+		if ( $decoded_content === null ) {
+			// Final fallback: attempt to fix malformed JSON with unescaped quotes
+			// Apply stripslashes first, then fix remaining issues
+			$stripped_content = stripslashes( trim( $post_content ) );
+			$fixed_content    = self::fix_malformed_json( $stripped_content );
+			$decoded_content  = json_decode( $fixed_content, true );
 		}
 
 		if ( $decoded_content === null ) {
@@ -682,9 +1399,43 @@ class Feedback {
 		}
 		$fields = array();
 		foreach ( $decoded_content['fields'] as $field ) {
-			$fields[ $field['key'] ] = Feedback_Field::from_serialized( $field );
-			if ( ! $this->has_file && $fields[ $field['key'] ]->has_file() ) {
-				$this->has_file = true;
+			$feedback_field = Feedback_Field::from_serialized_v2( $field );
+			if ( $feedback_field instanceof Feedback_Field ) {
+				$fields[ $feedback_field->get_key() ] = $feedback_field;
+				if ( ! $this->has_file && $feedback_field->has_file() ) {
+					$this->has_file = true;
+				}
+			}
+		}
+		$decoded_content['fields'] = $fields;
+		return $decoded_content;
+	}
+
+	/**
+	 * Parse the content in the v3 format.
+	 *
+	 * @param string $post_content The post content to parse.
+	 *
+	 * @return array Parsed fields.
+	 */
+	private function parse_content_v3( $post_content = '' ) {
+		$decoded_content = json_decode( $post_content, true );
+		if ( $decoded_content === null ) {
+			// If JSON decoding fails, try to decode the second try with stripslashes and trim.
+			// This is a workaround for some cases where the JSON data is not properly formatted.
+			$decoded_content = json_decode( stripslashes( trim( $post_content ) ), true );
+		}
+		if ( $decoded_content === null ) {
+			return array();
+		}
+		$fields = array();
+		foreach ( $decoded_content['fields'] as $field ) {
+			$feedback_field = Feedback_Field::from_serialized( $field );
+			if ( $feedback_field instanceof Feedback_Field ) {
+				$fields[ $feedback_field->get_key() ] = $feedback_field;
+				if ( ! $this->has_file && $feedback_field->has_file() ) {
+					$this->has_file = true;
+				}
 			}
 		}
 		$decoded_content['fields'] = $fields;
@@ -719,6 +1470,104 @@ class Feedback {
 		$this->add_comment_content_field( $comment_content, $decoded_fields );
 
 		return $decoded_fields;
+	}
+
+	/**
+	 * Attempt to fix malformed JSON by escaping unescaped quotes in string values.
+	 *
+	 * This method handles cases where JSON contains unescaped quotes within string values,
+	 * which causes json_decode to fail.
+	 *
+	 * @param string $json malformed JSON string.
+	 * @return string The JSON string with escaped quotes.
+	 */
+	public static function fix_malformed_json( $json ) {
+
+		$find    = array();
+		$replace = array();
+
+		// Start of JSON object
+		$find[]    = '{\"';
+		$replace[] = '{"';
+
+		// Key-value separator
+		$find[]    = '\":\"';
+		$replace[] = '":"';
+
+		$find[]    = '\\\"';
+		$replace[] = '\"';
+
+		$find[]    = '\":[\"';
+		$replace[] = '":["';
+
+		$find[]    = '\"],';
+		$replace[] = '"],';
+
+		$find[]    = ',[\"';
+		$replace[] = ',["';
+
+		$find[]    = '\",\"';
+		$replace[] = '","';
+
+		$find[]    = ',\"';
+		$replace[] = ',"';
+
+		$find[]    = '\", \"';
+		$replace[] = '", "';
+
+		$find[]    = '\"],\"';
+		$replace[] = '"],"';
+
+		$find[]    = '\"],"';
+		$replace[] = '"],"';
+
+		$find[]    = '\":[]';
+		$replace[] = '":[]';
+
+		$find[]    = '\"]}';
+		$replace[] = '"]}';
+
+		$find[]    = '\":[';
+		$replace[] = '":[';
+
+		$find[]    = '\":{';
+		$replace[] = '":{';
+
+		$find[]    = '\":true';
+		$replace[] = '":true';
+
+		$find[]    = '\":false';
+		$replace[] = '":false';
+
+		$find[]    = '\":null';
+		$replace[] = '":null';
+
+		for ( $i = 0; $i <= 9; $i++ ) {
+			$find[]    = '\":' . $i;
+			$replace[] = '":' . $i;
+
+			$find[]    = '\",' . $i;
+			$replace[] = '",' . $i;
+		}
+
+		$find[]    = '\",true';
+		$replace[] = '",true';
+
+		$find[]    = '\",false';
+		$replace[] = '",false';
+
+		$find[]    = '\",null';
+		$replace[] = '",null';
+
+		$find[]    = "\'";
+		$replace[] = "'";
+
+		// End of Json object
+		$find[]    = '\"}';
+		$replace[] = '"}';
+
+		// Remove any slashes that are there to start a new string.
+		return str_replace( $find, $replace, addslashes( $json ) );
 	}
 
 	/**
@@ -788,7 +1637,17 @@ class Feedback {
 	 * @return array Parsed JSON data.
 	 */
 	private function parse_json_data( $field_content ) {
-		$chunks    = explode( "\nJSON_DATA", $field_content );
+		$chunks = explode( "\nJSON_DATA", $field_content );
+
+		if ( ! isset( $chunks[1] ) ) {
+			// Try with 'JSON_DATA' without the newline as a fallback.
+			$chunks = explode( 'JSON_DATA', $field_content );
+			if ( ! isset( $chunks[1] ) ) {
+				// If JSON_DATA is still not found, return an empty array.
+				return array();
+			}
+		}
+
 		$json_data = $chunks[1];
 
 		$all_values = json_decode( $json_data, true );
@@ -978,6 +1837,26 @@ class Feedback {
 	}
 
 	/**
+	 * Get field-specific metadata based on the field type.
+	 *
+	 * @param Contact_Form_Field $field The field object.
+	 * @param string             $type  The field type.
+	 * @return array Metadata array for the field.
+	 */
+	public static function get_field_meta( $field, $type ) {
+		$meta = array();
+
+		if ( $type === 'rating' ) {
+			$icon_style        = $field->get_attribute( 'iconstyle' );
+			$max               = $field->get_attribute( 'max' );
+			$meta['iconStyle'] = ! empty( $icon_style ) ? $icon_style : 'stars';
+			$meta['maxRating'] = is_numeric( $max ) && (int) $max > 0 ? (int) $max : 5;
+		}
+
+		return $meta;
+	}
+
+	/**
 	 * Get all the fields of the response, computed from the post data.
 	 *
 	 * @param array        $post_data The post data from the form submission.
@@ -998,11 +1877,19 @@ class Feedback {
 				continue;
 			}
 
-			$value = $this->get_field_value( $field_id, $post_data );
+			$value = $this->get_field_value( $field_id, $post_data, $type );
 			$label = wp_strip_all_tags( $field->get_attribute( 'label' ) );
 			$key   = $i . '_' . $label;
 
-			$fields[ $key ] = new Feedback_Field( $key, $label, $value, $type );
+			$meta = self::get_field_meta( $field, $type );
+
+			// Process radio fields to detect and extract "Other" option metadata
+			if ( $type === 'radio' ) {
+				$processed = $this->process_radio_field_value( $value, $field, $field_id, $post_data );
+				$value     = $processed['value'];
+				$meta      = array_merge( $meta, $processed['meta'] );
+			}
+			$fields[ $key ] = new Feedback_Field( $key, $label, $value, $type, $meta, $field_id );
 			if ( ! $this->has_file && $fields[ $key ]->has_file() ) {
 				$this->has_file = true;
 			}
@@ -1067,5 +1954,84 @@ class Feedback {
 		}
 
 		return false;
+	}
+
+	/**
+	 * Gets the computed notification recipients.
+	 *
+	 * @since 6.10.0
+	 *
+	 * @param array        $post_data The post data from the form submission.
+	 * @param Contact_Form $form The form object.
+	 * @return array
+	 */
+	private function get_computed_notification_recipients( $post_data, $form ) {
+		$notification_recipients = $form->get_attribute( 'notificationRecipients' );
+		return $this->validate_notification_recipients( $notification_recipients );
+	}
+
+	/**
+	 * Validates notification recipients have proper capabilities.
+	 *
+	 * Ensures each user ID corresponds to a real user with edit_posts or edit_pages capability.
+	 * Filters out invalid or unauthorized user IDs.
+	 *
+	 * @since 6.10.0
+	 *
+	 * @param array $recipients Array of user IDs.
+	 * @return array Array of validated user IDs.
+	 */
+	private function validate_notification_recipients( $recipients ) {
+		if ( ! is_array( $recipients ) ) {
+			return array();
+		}
+
+		$valid_recipients = array();
+		foreach ( $recipients as $user_id ) {
+			$user = get_userdata( $user_id );
+			// Only allow users with edit_posts or edit_pages capability
+			if ( $user && ( $user->has_cap( 'edit_posts' ) || $user->has_cap( 'edit_pages' ) ) ) {
+				$valid_recipients[] = $user_id;
+			}
+		}
+
+		return $valid_recipients;
+	}
+
+	/**
+	 * Get a field by its original form ID.
+	 *
+	 * @since 5.5.0
+	 *
+	 * @param string $id Original form field ID.
+	 * @return Feedback_Field|null
+	 */
+	public function get_field_by_form_field_id( $id ) {
+		if ( ! is_string( $id ) || $id === '' ) {
+			return null;
+		}
+		foreach ( $this->fields as $field ) {
+			if ( $field->get_form_field_id() === $id ) {
+				return $field;
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Get a field render value by its original form ID.
+	 *
+	 * @since 5.5.0
+	 *
+	 * @param string $id Original form field ID.
+	 * @param string $context Render context.
+	 * @return string
+	 */
+	public function get_field_value_by_form_field_id( $id, $context = 'default' ) {
+		$field = $this->get_field_by_form_field_id( $id );
+		if ( ! $field ) {
+			return '';
+		}
+		return (string) $field->get_render_value( $context );
 	}
 }

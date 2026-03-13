@@ -275,7 +275,7 @@ class SSO {
 			 * $_GET['jetpack-sso-default-form'] is used to provide a fallback in case JavaScript is not enabled.
 			 *
 			 * The default_to_sso_login() method allows us to dynamically decide whether we show the SSO login form or not.
-			 * The SSO module uses the method to display the default login form if we can not find a user to log in via SSO.
+			 * The SSO module uses the method to display the default login form if we cannot find a user to log in via SSO.
 			 * But, the method could be filtered by a site admin to always show the default login form if that is preferred.
 			 */
 			if ( empty( $_GET['jetpack-sso-show-default-form'] ) && Helpers::show_sso_login() ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
@@ -1188,7 +1188,7 @@ class SSO {
 		$redirect_after_auth = apply_filters( 'login_redirect', $redirect_to, $request_redirect_to, wp_get_current_user() );
 
 		/**
-		 * Since we are passing this redirect to WordPress.com and therefore can not use wp_safe_redirect(),
+		 * Since we are passing this redirect to WordPress.com and therefore cannot use wp_safe_redirect(),
 		 * let's sanitize it here to make sure it's safe. If the redirect is not safe, then use admin_url().
 		 */
 		$redirect_after_auth = wp_sanitize_redirect( $redirect_after_auth );

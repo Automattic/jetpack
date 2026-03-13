@@ -3,19 +3,23 @@ import {
 	BlockControls,
 	useBlockProps,
 	useInnerBlocksProps,
+	store as blockEditorStore,
 } from '@wordpress/block-editor';
 import { PanelBody, ToggleControl } from '@wordpress/components';
-import { useCallback } from '@wordpress/element';
+import { useDispatch } from '@wordpress/data';
+import { useCallback, useEffect, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import JetpackFieldWidth from '../shared/components/jetpack-field-width';
-import ToolbarRequiredGroup from '../shared/components/toolbar-required-group';
-import useFormWrapper from '../shared/hooks/use-form-wrapper';
-import useJetpackFieldStyles from '../shared/hooks/use-jetpack-field-styles';
-import { ALLOWED_INNER_BLOCKS } from '../shared/util/constants';
+import JetpackFieldWidth from '../shared/components/jetpack-field-width.js';
+import ToolbarRequiredGroup from '../shared/components/toolbar-required-group.js';
+import useFormWrapper from '../shared/hooks/use-form-wrapper.js';
+import useJetpackFieldStyles from '../shared/hooks/use-jetpack-field-styles.js';
+import { ALLOWED_INNER_BLOCKS } from '../shared/util/constants.js';
 
 export default function CheckboxFieldEdit( props ) {
 	const { setAttributes, attributes } = props;
-	const { defaultValue, required, width } = attributes;
+	const { defaultValue, required, width, className } = attributes;
+
+	const { __unstableMarkNextChangeAsNotPersistent } = useDispatch( blockEditorStore );
 
 	useFormWrapper( props );
 
@@ -58,6 +62,17 @@ export default function CheckboxFieldEdit( props ) {
 		[ setAttributes ]
 	);
 
+	const hasUpgradedToNewStyle = useRef( 1 );
+	// Ensure the className is set to 'is-style-list' if it is empty or not set.
+	// By updating the className on the second render, we can make sure that the block doesn't trigger a "Save" action.
+	useEffect( () => {
+		if ( ! className && hasUpgradedToNewStyle.current === 1 ) {
+			__unstableMarkNextChangeAsNotPersistent();
+			setAttributes( { className: 'is-style-list' } );
+			hasUpgradedToNewStyle.current = 2;
+		}
+	}, [ className, setAttributes, __unstableMarkNextChangeAsNotPersistent ] ); // This effect is a placeholder for any future side effects.
+
 	return (
 		<>
 			<div { ...innerBlocksProps } />
@@ -65,7 +80,10 @@ export default function CheckboxFieldEdit( props ) {
 				<ToolbarRequiredGroup required={ required } onClick={ onRequiredToggle } />
 			</BlockControls>
 			<InspectorControls>
-				<PanelBody title={ __( 'Checkbox settings', 'jetpack-forms' ) }>
+				<PanelBody
+					title={ __( 'Checkbox settings', 'jetpack-forms' ) }
+					className="jetpack-contact-form__panel"
+				>
 					<ToggleControl
 						label={ __( 'Checked by default', 'jetpack-forms' ) }
 						checked={ !! defaultValue }
@@ -75,7 +93,10 @@ export default function CheckboxFieldEdit( props ) {
 				</PanelBody>
 			</InspectorControls>
 			<InspectorControls>
-				<PanelBody title={ __( 'Field settings', 'jetpack-forms' ) }>
+				<PanelBody
+					title={ __( 'Field settings', 'jetpack-forms' ) }
+					className="jetpack-contact-form__panel"
+				>
 					<ToggleControl
 						label={ __( 'Field is required', 'jetpack-forms' ) }
 						checked={ required }

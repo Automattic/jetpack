@@ -1,0 +1,41 @@
+@use "style" as *;
+@use "../shared/styles/empty_image_option" as *;
+
+// Editor-only styles.
+
+// There is a high specificity flex rule for form fields
+// that we need to override to show the image options
+// in a grid.
+.wp-block-jetpack-contact-form
+.jetpack-contact-form
+.jetpack-fieldset-image-options__wrapper
+.jetpack-input-image-option {
+	flex-basis: unset;
+	flex-grow: 0;
+}
+
+.jetpack-contact-form .jetpack-input-image-option .components-placeholder.has-illustration {
+	overflow: hidden;
+	position: relative;
+
+	&::after {
+
+		@extend %empty-image-option-icon;
+	}
+
+	.components-placeholder__illustration {
+		display: none;
+	}
+}
+
+// There is no outer block in the editor, so we apply
+// the styles directly to the input image option.
+.jetpack-input-image-option {
+	display: flex;
+
+	@include image-select-responsive-width;
+}
+
+div.wp-block.jetpack-input-image-option.jetpack-field {
+	margin: 0;
+}

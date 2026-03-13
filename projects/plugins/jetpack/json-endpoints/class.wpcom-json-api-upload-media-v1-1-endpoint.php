@@ -119,7 +119,7 @@ class WPCOM_JSON_API_Upload_Media_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint 
 
 		// New Jetpack / VideoPress media upload processing.
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			if ( is_countable( $jetpack_media_files ) && count( $jetpack_media_files ) > 0 ) {
+			if ( count( $jetpack_media_files ) > 0 ) {
 				add_filter( 'upload_mimes', array( $this, 'allow_video_uploads' ) );
 
 				// get_space_used() checks blog upload directory storage,
@@ -142,7 +142,7 @@ class WPCOM_JSON_API_Upload_Media_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint 
 		}
 
 		// Normal WPCOM upload processing.
-		if ( ( is_countable( $other_media_files ) && count( $other_media_files ) > 0 ) || ( is_countable( $other_media_files ) && count( $media_urls ) > 0 ) ) {
+		if ( count( $other_media_files ) > 0 || count( $media_urls ) > 0 ) {
 			if ( is_multisite() ) { // Do not check for available space in non multisites.
 				add_filter( 'wp_handle_upload_prefilter', array( $this, 'check_upload_size' ), 9 ); // used for direct media uploads.
 				add_filter( 'wp_handle_sideload_prefilter', array( $this, 'check_upload_size' ), 9 ); // used for uploading media via url.

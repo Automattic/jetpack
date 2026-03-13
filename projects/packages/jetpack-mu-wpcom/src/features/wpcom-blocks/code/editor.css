@@ -1,0 +1,51 @@
+/*
+ * Add base monospace styling.
+ *
+ * In the frontend this is be handled by the user agent styles
+ * because a PRE element is used.
+ * The editor does not use PRE, so a base style is provided.
+ */
+:root :where(.block-editor-block-list__block.wp-block-code) {
+	font-family: monospace;
+}
+
+/*
+ * This includes a block-list class to target the block editor in cases
+ * where the editor styles may be loaded on the site frontend.
+ */
+.block-editor-block-list__block {
+
+	&.wp-block-code {
+
+		/* Override CodeMirror's font family to respect theme and editor settings. */
+		.cm-scroller {
+			font-family: inherit;
+		}
+
+		.cm-gutters {
+			color: oklch(from currentColor l c h / 0.6);
+			background-color: transparent;
+			border: none;
+		}
+
+		.cm-gutterElement {
+			backdrop-filter: blur(1em);
+		}
+
+		.cm-activeLine {
+			background-color: oklch(from currentColor l c h / 0.06);
+		}
+
+		/* Disable active line highlight on inactive blocks. */
+		&:not(.is-selected) .cm-activeLine {
+			background-color: transparent !important;
+		}
+	}
+
+	.a8c\/code__btn-copy {
+		text-transform: inherit;
+		font-style: inherit;
+		font-weight: inherit;
+		font-size: inherit;
+	}
+}

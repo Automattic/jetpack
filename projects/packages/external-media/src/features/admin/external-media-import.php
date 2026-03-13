@@ -12,6 +12,10 @@ namespace Automattic\Jetpack\External_Media;
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Whether the current user is connected to WordPress.com.
  */

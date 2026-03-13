@@ -5,12 +5,14 @@ const I18nSafeMangleExportsWebpackPlugin = require( '@automattic/i18n-check-webp
 const I18nLoaderWebpackPlugin = require( '@automattic/i18n-loader-webpack-plugin' );
 const WebpackRTLWebpackPlugin = require( '@automattic/webpack-rtl-plugin' );
 const DuplicatePackageCheckerWebpackPlugin = require( '@cerner/duplicate-package-checker-webpack-plugin' );
+const ReactRefreshWebpackPlugin = require( '@pmmmwh/react-refresh-webpack-plugin' );
 const DependencyExtractionWebpackPlugin = require( '@wordpress/dependency-extraction-webpack-plugin' );
 const CssMinimizerWebpackPlugin = require( 'css-minimizer-webpack-plugin' );
 const ForkTSCheckerWebpackPlugin = require( 'fork-ts-checker-webpack-plugin' );
 const MiniCssExtractWebpackPlugin = require( 'mini-css-extract-plugin' );
 const webpack = require( 'webpack' );
 const CssRule = require( './webpack/css-rule' );
+const DevServer = require( './webpack/dev-server' );
 const FileRule = require( './webpack/file-rule' );
 const MiniCSSWithRTLWebpackPlugin = require( './webpack/mini-css-with-rtl' );
 const PnpmDeterministicModuleIdsWebpackPlugin = require( './webpack/pnpm-deterministic-ids.js' );
@@ -34,8 +36,8 @@ let loadTextDomainFromComposerJson = () => {
 					ret = cfg.extra.textdomain;
 				} else if ( cfg.extra[ 'wp-plugin-slug' ] ) {
 					ret = cfg.extra[ 'wp-plugin-slug' ];
-				} else if ( cfg.extra[ 'wp-theme-slug' ] ) {
-					ret = cfg.extra[ 'wp-theme-slug' ];
+				} else if ( cfg.extra[ 'beta-plugin-slug' ] ) {
+					ret = cfg.extra[ 'beta-plugin-slug' ];
 				}
 			}
 			break;
@@ -118,6 +120,9 @@ const resolve = {
 		'...',
 	],
 };
+const watchOptions = {
+	ignored: [ '**/node_modules', '**/dist', '**/vendor' ],
+};
 
 /****** Plugins ******/
 
@@ -137,6 +142,12 @@ const defaultRequestMap = {
 	'@automattic/jetpack-connection': {
 		external: 'JetpackConnection',
 		handle: 'jetpack-connection',
+	},
+	// Bundle admin-ui CSS with our assets. The JS side is already handled by the
+	// DependencyExtractionPlugin's BUNDLED_PACKAGES list, but the CSS subpath import
+	// doesn't match that exact-match check and would be incorrectly externalized.
+	'@wordpress/admin-ui/build-style/style.css': {
+		external: false,
 	},
 };
 
@@ -283,6 +294,11 @@ const StandardPlugins = ( options = {} ) => {
 			? []
 			: PnpmDeterministicModuleIdsPlugin( options.PnpmDeterministicModuleIdsPlugin ) ),
 		...( options.WebpackRtlPlugin === false ? [] : WebpackRtlPlugin( options.WebpackRtlPlugin ) ),
+		...( options.ReactRefreshWebpackPlugin === false ||
+		process.env.WEBPACK_SERVE !== 'true' ||
+		isProduction
+			? []
+			: [ new ReactRefreshWebpackPlugin( options.ReactRefreshWebpackPlugin ) ] ),
 	];
 };
 
@@ -303,6 +319,8 @@ module.exports = {
 	TerserPlugin,
 	CssMinimizerPlugin,
 	resolve,
+	watchOptions,
+	DevServer,
 	// Plugins.
 	StandardPlugins,
 	DefinePlugin,
@@ -317,6 +335,7 @@ module.exports = {
 	MomentLocaleIgnorePlugin,
 	PnpmDeterministicModuleIdsPlugin,
 	WebpackRtlPlugin,
+	ReactRefreshWebpackPlugin,
 	// Module rules and loaders.
 	TranspileRule,
 	CssRule,

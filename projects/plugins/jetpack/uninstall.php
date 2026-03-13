@@ -9,6 +9,10 @@ use Automattic\Jetpack\Backup\V0005\Helper_Script_Manager;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Sync\Sender;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Uninstall script for Jetpack.
  */

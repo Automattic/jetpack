@@ -39,7 +39,7 @@ class Send_Request {
 		}
 
 		try {
-			return json_decode( $value, ARRAY_A, 512, JSON_THROW_ON_ERROR );
+			return json_decode( $value, true, 512, JSON_THROW_ON_ERROR );
 		} catch ( \Exception $e ) {
 			if ( '' === $value ) {
 				return array();

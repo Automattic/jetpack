@@ -74,7 +74,7 @@ While the script we use to deploy the package takes care of everything, we might
 3. Add an initial valid `composer.json` to the repository. You can copy it from your PR in the Jetpack repo.
 4. You'll want to update the repository settings to be just like the Autoloader repo; check the repository description, disable issues, set up branch protection rules for the `trunk` branch.
 5. Go to https://packagist.org/packages/submit and insert the URL of the GitHub repository.
-6. Upon submission, add Crew members as package maintainers, as well as the `automattic` account.
+6. Upon submission, add Monorepo members as package maintainers, as well as the `automattic` account.
 
 
 Once this is all done, you can merge your PR in the Jetpack repo. When you do so, the changes will be automatically pushed to the new package repo, and your changes will become available in the `dev-trunk` version of the package available to the public.

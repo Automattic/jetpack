@@ -1,0 +1,147 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title="JS Packages/Charts Library/Charts/Geo Chart/API Reference" />
+
+# Geo Chart API Reference
+
+## GeoChart
+
+Main component for rendering geographical data on an interactive world map using Google Charts.
+
+**Props:**
+
+| Prop | Type | Default | Description |
+| ---- | ---- | ------- | ----------- |
+| `data` | `GeoData` | - | **Required.** Data in Google Charts format. First row contains column headers, subsequent rows contain data. Countries can be identified by full name (e.g., 'United States') or ISO codes (e.g., 'US'). Full names are recommended for better readability in tooltips. |
+| `width` | `number` | - | **Required.** Width of the chart in pixels |
+| `height` | `number` | - | **Required.** Height of the chart in pixels |
+| `className` | `string` | - | Additional CSS class name for the chart container |
+| `chartId` | `string` | - | Custom chart identifier for accessibility |
+| `renderPlaceholder` | `() => React.ReactNode` | - | Optional render function for custom loading placeholder. Called while Google Charts is loading |
+
+## GeoChartProps Type
+
+```typescript
+interface GeoChartProps
+  extends Pick<BaseChartProps, 'className' | 'chartId' | 'width' | 'height'> {
+  data: GeoData;
+  renderPlaceholder?: () => React.ReactNode;
+}
+```
+
+## GeoData Type
+
+The `GeoData` type uses Google Charts native data format for maximum flexibility:
+
+```typescript
+type GeoData = [GoogleDataTableColumn[], ...GoogleDataTableRow[]];
+```
+
+Supports:
+- Full country names or ISO 3166-1 alpha-2 codes
+- Custom tooltips (text or HTML)
+- Formatted values (display format separate from actual value)
+- Multiple data columns
+- Cell-level properties and styling
+
+**Basic Example:**
+```typescript
+const data: GeoData = [
+  ['Country', 'Value'],
+  ['United States', 100],
+  ['Canada', 50],
+];
+```
+
+**With Custom Tooltips:**
+```typescript
+const data: GeoData = [
+  ['Country', 'Value', { type: 'string', role: 'tooltip', p: { html: true } }],
+  ['United States', 100, '<b>USA</b><br/>100 visitors'],
+  ['Canada', 50, '<b>Canada</b><br/>50 visitors'],
+];
+```
+
+## Theme Properties
+
+The following properties can be customized via the theme system:
+
+| Property | Type | Default | Description |
+| -------- | ---- | ------- | ----------- |
+| `colors[0]` | `string` | `'#98C8DF'` | Primary color used for data visualization (color axis range) |
+| `backgroundColor` | `string` | `'#FFFFFF'` | Background color of the map |
+| `geoChart.featureFillColor` | `string` | `'var(--jp-white, #ffffff)'` | Fill color for countries without data values |
+
+## Country Identification
+
+Countries can be identified in two ways:
+
+### Full Country Names (Recommended)
+
+Use full country names for better readability:
+
+| Country Name |
+| ------------ |
+| United States |
+| Canada |
+| United Kingdom |
+| Germany |
+| France |
+| Japan |
+| Australia |
+| Brazil |
+| India |
+| China |
+| Mexico |
+| Spain |
+| Italy |
+| Netherlands |
+| Russia |
+| South Korea |
+| South Africa |
+| Nigeria |
+| Argentina |
+| Saudi Arabia |
+
+### ISO 3166-1 Alpha-2 Codes
+
+Alternatively, use two-letter ISO country codes:
+
+| Code | Country |
+| ---- | ------- |
+| US | United States |
+| CA | Canada |
+| GB | United Kingdom |
+| DE | Germany |
+| FR | France |
+| JP | Japan |
+| AU | Australia |
+| BR | Brazil |
+
+For a complete list of ISO codes, refer to the [ISO 3166-1 alpha-2 codes](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2).
+
+## Map Projection
+
+The chart uses Google Charts' default **Mercator projection** for world map visualization. The map automatically scales to fit within the specified dimensions.
+
+## Color Scaling
+
+Colors are automatically scaled using Google Charts' `colorAxis` option:
+
+- **Colors**: Configured as a gradient from a light version of the theme's primary color to the full primary color
+- **Data mapping**: Countries with higher values appear with more saturated colors
+- **Dataless regions**: Countries without data use the `geoChart.featureFillColor` theme property
+
+## Google Charts Options
+
+The component configures the following Google Charts options internally:
+
+| Option | Value | Description |
+| ------ | ----- | ----------- |
+| `colorAxis.colors` | `[lightColor, fullColor]` | Gradient from lightened (80% blend with white) to full theme color |
+| `backgroundColor` | Theme value | Map background color |
+| `datalessRegionColor` | Theme value | Color for countries without data |
+| `defaultColor` | Theme value | Default region color |
+| `tooltip.trigger` | `'focus'` | Show tooltip on focus/hover |
+| `legend` | `'none'` | Hide the color legend |
+| `keepAspectRatio` | `true` | Maintain the map's aspect ratio within dimensions |

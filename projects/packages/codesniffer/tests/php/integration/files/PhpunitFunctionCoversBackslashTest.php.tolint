@@ -1,0 +1,22 @@
+<?php // phpcs:disable Squiz.Commenting.FileComment.Missing
+// phpcs:disable Generic.Commenting.DocComment.Missing, Generic.Commenting.DocComment.MissingShort
+// phpcs:disable Squiz.Commenting.FunctionComment.Missing
+
+use PHPUnit\Framework\Attributes\CoversFunction;
+use PHPUnit\Framework\Attributes\UsesFunction;
+use PHPUnit\Framework\TestCase;
+
+/**
+ * A test class
+ *
+ * @covers ::\foo
+ * @covers ::\baz
+ * @uses ::\oof
+ * @uses ::\zab
+ */
+#[CoversFunction( '\\bar' )]
+#[CoversFunction( '\\baz' )]
+#[UsesFunction( '\\rab' )]
+#[UsesFunction( '\\zab' )]
+class PhpunitFunctionCoversBackslashTest extends TestCase {
+}

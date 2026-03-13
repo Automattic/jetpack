@@ -13,6 +13,10 @@ use Automattic\Jetpack\My_Jetpack\Product;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
 use WP_Post;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Class responsible for handling the Jetpack AI product
  */
@@ -529,6 +533,26 @@ class Jetpack_Ai extends Product {
 	 */
 	public static function is_plugin_active() {
 		return (bool) static::is_jetpack_plugin_active();
+	}
+
+	/**
+	 * Checks whether the Product is active
+	 *
+	 * Overrides the parent method to respect the jetpack_ai_enabled filter.
+	 *
+	 * @return boolean
+	 */
+	public static function is_active() {
+		/**
+		 * Filter to enable/disable Jetpack AI.
+		 *
+		 * @since 5.28.3
+		 *
+		 * @param boolean $enabled True if Jetpack AI should be enabled, false otherwise. Default true.
+		 */
+		$is_enabled = apply_filters( 'jetpack_ai_enabled', true );
+
+		return $is_enabled && parent::is_active();
 	}
 
 	/**

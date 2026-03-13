@@ -1,5 +1,5 @@
-import { expect, test } from '_jetpack-e2e-commons/fixtures/base-test.ts';
-import logger from '_jetpack-e2e-commons/logger.js';
+import { expect, test } from '_jetpack-e2e-commons/fixtures/base-test';
+import logger from '_jetpack-e2e-commons/logger';
 
 test.describe( 'Editor sidebar: Social', () => {
 	test( 'Activation of publicize from the editor', async ( { admin, editor } ) => {
@@ -12,10 +12,10 @@ test.describe( 'Editor sidebar: Social', () => {
 		const settingsSidebar = editor.getEditorSettingsSidebar();
 
 		const socialPanel = settingsSidebar.getByRole( 'button', {
-			name: 'Share this post',
+			name: 'Share to social media',
 		} );
 
-		logger.debug( 'Expand "Share this post" panel' );
+		logger.debug( 'Expand "Share to social media" panel' );
 		await socialPanel.click();
 
 		const activateSocialLink = settingsSidebar.getByRole( 'link', {

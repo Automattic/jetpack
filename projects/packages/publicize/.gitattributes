@@ -13,3 +13,10 @@ build/**          production-include
 changelog/**      production-exclude
 .phpcs.dir.xml    production-exclude
 tests/**          production-exclude
+/_inc/**          production-exclude
+/jest-globals.js  production-exclude
+/jest.config.js   production-exclude
+/babel.config.js  production-exclude
+/package.json     production-exclude
+/postcss.config.js production-exclude
+/webpack.config.js production-exclude

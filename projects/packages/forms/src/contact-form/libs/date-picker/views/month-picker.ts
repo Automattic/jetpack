@@ -1,9 +1,9 @@
 /**
  * @file Manages the month-picker view.
  */
-import { IDatePicker } from '../interfaces';
-import { shiftMonth, setMonth, now } from '../lib/date';
-import { Key } from '../lib/dom';
+import { IDatePicker } from '../interfaces.ts';
+import { shiftMonth, setMonth, now } from '../lib/date.ts';
+import { Key } from '../lib/dom.ts';
 
 export default {
 	onKeyDown: keyDown,

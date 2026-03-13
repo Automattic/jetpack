@@ -323,12 +323,14 @@ class Brute_Force_Protection {
 		check_ajax_referer( 'jetpack_protect_multisite_banner_opt_out' );
 
 		if ( ! current_user_can( 'manage_network' ) ) {
-			wp_send_json_error( new WP_Error( 'insufficient_permissions' ) );
+			// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- It takes null, but its phpdoc only says int.
+			wp_send_json_error( new WP_Error( 'insufficient_permissions' ), null, JSON_UNESCAPED_SLASHES );
 		}
 
 		update_site_option( 'jetpack_dismissed_protect_multisite_banner', true );
 
-		wp_send_json_success();
+		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- It takes null, but its phpdoc only says int.
+		wp_send_json_success( null, null, JSON_UNESCAPED_SLASHES );
 	}
 
 	/**
@@ -547,11 +549,16 @@ class Brute_Force_Protection {
 		if ( isset( $_COOKIE['jpp_math_pass'] ) ) {
 
 			$transient = $this->get_transient( 'jpp_math_pass_' . sanitize_key( $_COOKIE['jpp_math_pass'] ) );
-			--$transient;
+			if ( is_int( $transient ) ) {
+				--$transient;
+			}
 
-			if ( ! $transient || $transient < 1 ) {
+			if ( ! is_int( $transient ) || $transient < 1 ) {
 				$this->delete_transient( 'jpp_math_pass_' . sanitize_key( $_COOKIE['jpp_math_pass'] ) );
-				setcookie( 'jpp_math_pass', 0, time() - DAY_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN, false, true );
+				// This is a cop out for the tests on some PHP versions
+				if ( ! headers_sent() ) {
+					setcookie( 'jpp_math_pass', '0', time() - DAY_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN, false, true );
+				}
 			} else {
 				$this->set_transient( 'jpp_math_pass_' . sanitize_key( $_COOKIE['jpp_math_pass'] ), $transient, DAY_IN_SECONDS );
 			}
@@ -1002,7 +1009,7 @@ class Brute_Force_Protection {
 		$request['action']            = $action;
 		$request['ip']                = IP_Utils::get_ip();
 		$request['host']              = $this->get_local_host();
-		$request['headers']           = wp_json_encode( $this->get_headers() );
+		$request['headers']           = wp_json_encode( $this->get_headers(), JSON_UNESCAPED_SLASHES );
 		$request['jetpack_version']   = null;
 		$request['wordpress_version'] = (string) $wp_version;
 		$request['api_key']           = $api_key;
@@ -1080,7 +1087,7 @@ class Brute_Force_Protection {
 	 */
 	public function get_transient_name() {
 		$headers     = $this->get_headers();
-		$header_hash = md5( wp_json_encode( $headers ) );
+		$header_hash = md5( wp_json_encode( $headers, JSON_UNESCAPED_SLASHES ) );
 
 		return 'jpp_li_' . $header_hash;
 	}

@@ -1,12 +1,14 @@
 #!/usr/bin/env node
 
-import { spawnSync } from 'child_process';
+import { spawn, spawnSync } from 'child_process';
 import fs, { readFileSync } from 'fs';
-import { dirname, resolve } from 'path';
+import net from 'net';
+import os from 'os';
+import { dirname, join, resolve } from 'path';
 import process from 'process';
 import { fileURLToPath } from 'url';
 import chalk from 'chalk';
-import dotenv from 'dotenv';
+import * as dotenv from 'dotenv';
 import prompts from 'prompts';
 import updateNotifier from 'update-notifier';
 
@@ -41,6 +43,37 @@ const isMonorepoRoot = dir => {
 		return false;
 	}
 };
+
+/**
+ * Check if the CLI is running from monorepo source (vs npm installed).
+ *
+ * @return {boolean} True if running from source
+ */
+const isRunningFromSource = () => {
+	let dir = __dirname;
+	let prevDir;
+	while ( dir !== prevDir ) {
+		if ( isMonorepoRoot( dir ) ) {
+			return true;
+		}
+		prevDir = dir;
+		dir = dirname( dir );
+	}
+	return false;
+};
+
+/**
+ * Compute development version by incrementing patch number.
+ *
+ * @return {string} Development version string (e.g., "1.0.3-alpha" for released "1.0.2")
+ */
+const computeDevVersion = () => {
+	const [ major, minor, patch ] = packageJson.version.split( '.' ).map( Number );
+	return `${ major }.${ minor }.${ patch + 1 }-alpha`;
+};
+
+// Version to display - dev version when running from source, package version otherwise
+const displayVersion = isRunningFromSource() ? computeDevVersion() : packageJson.version;
 
 /**
  * Find monorepo root from a starting directory.
@@ -82,6 +115,154 @@ const cloneMonorepo = async targetDir => {
 };
 
 /**
+ * Get list of git hooks from the .husky directory.
+ *
+ * @param {string} monorepoRoot - Path to the monorepo root
+ * @return {Array<string>} List of hook names
+ */
+const getHuskyHooks = monorepoRoot => {
+	const huskyDir = resolve( monorepoRoot, '.husky' );
+	if ( ! fs.existsSync( huskyDir ) ) {
+		return [];
+	}
+
+	// Filter for valid git hook names (lowercase letters and hyphens)
+	const hookPattern = /^[a-z][a-z-]*$/;
+	return fs.readdirSync( huskyDir ).filter( name => {
+		const fullPath = resolve( huskyDir, name );
+		return hookPattern.test( name ) && fs.statSync( fullPath ).isFile();
+	} );
+};
+
+/**
+ * Check if a husky hook file exists.
+ *
+ * @param {string} monorepoRoot - Path to the monorepo root
+ * @param {string} hookName     - Name of the hook
+ * @return {boolean} True if the hook exists
+ */
+const huskyHookExists = ( monorepoRoot, hookName ) => {
+	return fs.existsSync( resolve( monorepoRoot, '.husky', hookName ) );
+};
+
+/**
+ * Initialize git hooks that work with Docker.
+ *
+ * @param {string} monorepoRoot - Path to the monorepo root
+ * @throws {Error} If hook installation fails
+ */
+const initHooks = monorepoRoot => {
+	// Use git rev-parse --git-common-dir to find the hooks directory.
+	// In a regular repo this returns ".git"; in a worktree it returns the
+	// main repo's .git path. Hooks are shared across all worktrees.
+	const gitCommonDirResult = spawnSync( 'git', [ 'rev-parse', '--git-common-dir' ], {
+		cwd: monorepoRoot,
+		encoding: 'utf8',
+	} );
+
+	if ( gitCommonDirResult.status !== 0 || ! gitCommonDirResult.stdout.trim() ) {
+		throw new Error( 'Could not determine git directory. Is this a git repository?' );
+	}
+
+	const hooksDir = resolve( monorepoRoot, gitCommonDirResult.stdout.trim(), 'hooks' );
+
+	if ( ! fs.existsSync( hooksDir ) ) {
+		fs.mkdirSync( hooksDir, { recursive: true } );
+	}
+
+	console.log( chalk.blue( 'Setting up jp git hooks...' ) );
+
+	// Check if git is configured to use a custom hooks path (e.g., husky)
+	const hooksPathResult = spawnSync( 'git', [ 'config', 'core.hooksPath' ], {
+		cwd: monorepoRoot,
+		encoding: 'utf8',
+	} );
+
+	if ( hooksPathResult.stdout && hooksPathResult.stdout.trim() ) {
+		const currentHooksPath = hooksPathResult.stdout.trim();
+		console.log( chalk.yellow( `  Detected custom git hooks path: ${ currentHooksPath }` ) );
+		console.log( chalk.yellow( `  Resetting to use ${ hooksDir } for jp hooks` ) );
+
+		const unsetResult = spawnSync( 'git', [ 'config', '--unset', 'core.hooksPath' ], {
+			cwd: monorepoRoot,
+		} );
+
+		if ( unsetResult.status !== 0 ) {
+			throw new Error( 'Failed to unset core.hooksPath git configuration' );
+		}
+	}
+
+	const hooks = getHuskyHooks( monorepoRoot );
+	if ( hooks.length === 0 ) {
+		console.log( chalk.yellow( '  No hooks found in .husky/' ) );
+		return;
+	}
+
+	for ( const hookName of hooks ) {
+		const hookPath = resolve( hooksDir, hookName );
+		const hookContent = `#!/bin/sh
+# Jetpack CLI git hook
+# Runs the .husky hook in Docker to ensure consistent environment
+
+# Exit gracefully if the .husky hook was removed
+if [ ! -f .husky/${ hookName } ]; then
+	exit 0
+fi
+
+# Check if we're already in the Docker container
+if [ -n "$JETPACK_MONOREPO_ENV" ]; then
+	echo "✓ Using jp hooks (running in Docker)"
+	sh .husky/${ hookName } "$@"
+	exit $?
+fi
+
+# Not in Docker - delegate to jp to run in Docker
+echo "✓ Using jp hooks (delegating to Docker)"
+jp git-hook ${ hookName } "$@"
+exit $?
+`;
+
+		fs.writeFileSync( hookPath, hookContent, { mode: 0o755 } );
+		console.log( chalk.green( `  Created ${ hookName } hook` ) );
+	}
+
+	console.log(
+		chalk.green( '\n✓ Git hooks installed! Hooks will run automatically in Docker.\n' )
+	);
+};
+
+/**
+ * Run a git hook inside the Docker container.
+ *
+ * @param {string} monorepoRoot - Path to the monorepo root
+ * @param {string} hookName     - Name of the hook to run
+ * @param {Array}  hookArgs     - Arguments to pass to the hook
+ * @throws {Error} If hook execution fails
+ */
+const runGitHook = ( monorepoRoot, hookName, hookArgs ) => {
+	console.log( chalk.blue( `Running ${ hookName } hook in Docker...` ) );
+
+	if ( ! huskyHookExists( monorepoRoot, hookName ) ) {
+		throw new Error( `Unknown git hook: ${ hookName }` );
+	}
+
+	// Run the .husky hook directly through the monorepo script
+	// TTY detection is handled by the monorepo script itself (reconnects to /dev/tty if available)
+	const result = spawnSync(
+		resolve( monorepoRoot, 'tools/docker/bin/monorepo' ),
+		[ 'sh', `.husky/${ hookName }`, ...hookArgs ],
+		{
+			stdio: 'inherit',
+			cwd: monorepoRoot,
+		}
+	);
+
+	if ( result.status !== 0 ) {
+		throw new Error( `Git hook ${ hookName } failed with status ${ result.status }` );
+	}
+};
+
+/**
  * Initialize a new Jetpack development environment.
  *
  * @throws {Error} If initialization fails
@@ -109,6 +290,9 @@ const initJetpack = async () => {
 
 		console.log( chalk.green( '\nJetpack monorepo has been cloned successfully!' ) );
 
+		// Initialize git hooks
+		initHooks( targetDir );
+
 		console.log( '\nNext steps:' );
 
 		console.log( '1. cd', response.directory );
@@ -121,6 +305,201 @@ const initJetpack = async () => {
 	}
 };
 
+/**
+ * Run rsync command with SSH proxy via Unix domain socket.
+ * This allows rsync to run inside Docker while SSH connections are handled by the host,
+ * enabling support for Secure Enclave SSH keys (like AutoProxxy) that can't be forwarded into Docker.
+ *
+ * Architecture:
+ * 1. Host creates a Unix domain socket in a temp directory
+ * 2. Run rsync in Docker with the socket mounted into the container
+ * 3. When rsync needs SSH, the rsh-proxy script connects to the socket
+ * 4. rsh-proxy sends the SSH command as the first line, then proxies data
+ * 5. Host reads the command, spawns SSH, and proxies data bidirectionally
+ * 6. Data flows: rsync <-> Unix socket <-> host SSH <-> remote
+ *
+ * @param {string} monorepoRoot - Path to the monorepo root
+ * @param {Array}  args         - Command arguments (starting with 'rsync')
+ * @throws {Error} If rsync fails
+ */
+const runRsyncWithProxy = async ( monorepoRoot, args ) => {
+	let proxyServer = null;
+	let dockerProcess = null;
+	let cleanedUp = false;
+	const socketPath = join(
+		os.tmpdir(),
+		'jp-rsync-' + Math.floor( Math.random() * 2821109907456 ).toString( 36 )
+	);
+
+	/**
+	 * Clean up the proxy server and socket file.
+	 */
+	const cleanup = () => {
+		if ( cleanedUp ) {
+			return;
+		}
+		cleanedUp = true;
+
+		if ( proxyServer ) {
+			proxyServer.close();
+			proxyServer = null;
+		}
+		try {
+			fs.unlinkSync( socketPath );
+		} catch {
+			// Socket file may already be cleaned up
+		}
+	};
+
+	/**
+	 * Handle an incoming connection from the rsh-proxy script.
+	 * Protocol: first line is the SSH command, then bidirectional data proxy.
+	 *
+	 * @param {net.Socket} socket - The incoming connection
+	 */
+	const handleConnection = socket => {
+		const chunks = [];
+
+		const onReadable = () => {
+			let chunk;
+			while ( ( chunk = socket.read() ) !== null ) {
+				chunks.push( chunk );
+				const combined = Buffer.concat( chunks );
+				const newlineIndex = combined.indexOf( 0x0a ); // '\n'
+
+				if ( newlineIndex === -1 ) {
+					continue;
+				}
+
+				const commandLine = combined.subarray( 0, newlineIndex ).toString();
+				const remaining = combined.subarray( newlineIndex + 1 );
+
+				socket.off( 'readable', onReadable );
+
+				// Parse the JSON array of args from rsync-rsh-proxy.sh
+				let parsedArgs;
+				try {
+					parsedArgs = JSON.parse( commandLine );
+				} catch {
+					console.error( chalk.red( 'Invalid JSON received from proxy' ) );
+					socket.destroy();
+					return;
+				}
+
+				// Validate that this is an SSH command (security check)
+				if (
+					! Array.isArray( parsedArgs ) ||
+					parsedArgs.length === 0 ||
+					parsedArgs[ 0 ] !== 'ssh'
+				) {
+					console.error( chalk.red( 'Invalid command received: expected ssh command' ) );
+					socket.destroy();
+					return;
+				}
+
+				// Spawn SSH with parsed arguments
+				const sshProcess = spawn( 'ssh', parsedArgs.slice( 1 ), {
+					stdio: [ 'pipe', 'pipe', 'inherit' ],
+				} );
+
+				// Put back any data that arrived after the newline
+				if ( remaining.length > 0 ) {
+					socket.unshift( remaining );
+				}
+
+				// Bidirectional pipe handles backpressure and end propagation
+				sshProcess.stdout.pipe( socket );
+				socket.pipe( sshProcess.stdin );
+
+				sshProcess.on( 'error', err => {
+					console.error( chalk.yellow( `SSH process error: ${ err.message }` ) );
+					socket.destroy();
+				} );
+
+				socket.on( 'error', err => {
+					// Connection errors are expected when rsync closes the connection
+					if ( err.code !== 'ECONNRESET' ) {
+						console.error( chalk.yellow( `Socket error: ${ err.message }` ) );
+					}
+					sshProcess.kill();
+				} );
+
+				return;
+			}
+		};
+
+		socket.on( 'readable', onReadable );
+	};
+
+	// Set up cleanup handlers
+	const onSignal = signal => {
+		cleanup();
+		if ( dockerProcess ) {
+			dockerProcess.kill( signal );
+		}
+	};
+
+	process.on( 'SIGINT', () => {
+		onSignal( 'SIGINT' );
+		process.exit( 130 );
+	} );
+
+	process.on( 'SIGTERM', () => {
+		onSignal( 'SIGTERM' );
+		process.exit( 143 );
+	} );
+
+	process.on( 'exit', cleanup );
+
+	try {
+		// Create Unix domain socket server and wait for it to start listening
+		await new Promise( ( resolveListening, rejectListening ) => {
+			proxyServer = net.createServer( handleConnection );
+
+			proxyServer.on( 'error', err => {
+				rejectListening( err );
+			} );
+
+			proxyServer.listen( { path: socketPath }, () => {
+				resolveListening();
+			} );
+		} );
+
+		// Run the monorepo script with RSYNC_PROXY_SOCKET set
+		const result = await new Promise( ( resolvePromise, rejectPromise ) => {
+			dockerProcess = spawn(
+				resolve( monorepoRoot, 'tools/docker/bin/monorepo' ),
+				[ 'pnpm', 'jetpack', ...args ],
+				{
+					stdio: 'inherit',
+					cwd: monorepoRoot,
+					env: {
+						...process.env,
+						RSYNC_PROXY_SOCKET: socketPath,
+					},
+				}
+			);
+
+			dockerProcess.on( 'close', code => {
+				resolvePromise( { status: code } );
+			} );
+
+			dockerProcess.on( 'error', err => {
+				rejectPromise( err );
+			} );
+		} );
+
+		cleanup();
+
+		if ( result.status !== 0 ) {
+			throw new Error( `Command failed with status ${ result.status }` );
+		}
+	} catch ( err ) {
+		cleanup();
+		throw err;
+	}
+};
+
 // Main execution
 const main = async () => {
 	try {
@@ -128,7 +507,7 @@ const main = async () => {
 
 		// Handle version flag
 		if ( args[ 0 ] === '--version' || args[ 0 ] === '-v' ) {
-			console.log( chalk.green( packageJson.version ) );
+			console.log( chalk.green( displayVersion ) );
 			return;
 		}
 
@@ -152,6 +531,39 @@ const main = async () => {
 
 			console.log( '2. Navigate to an existing Jetpack monorepo directory' );
 			throw new Error( 'Monorepo not found' );
+		}
+
+		// Handle 'init-hooks' command
+		if ( args[ 0 ] === 'init-hooks' ) {
+			initHooks( monorepoRoot );
+			return;
+		}
+
+		// Handle 'git-hook' command
+		if ( args[ 0 ] === 'git-hook' ) {
+			const hookName = args[ 1 ];
+			const hookArgs = args.slice( 2 );
+
+			if ( ! hookName ) {
+				console.error( chalk.red( 'Error: git-hook command requires a hook name' ) );
+				console.log( 'Usage: jp git-hook <hook-name> [args...]' );
+				throw new Error( 'Missing hook name' );
+			}
+
+			runGitHook( monorepoRoot, hookName, hookArgs );
+			return;
+		}
+
+		// Handle rsync command with SSH proxy for Secure Enclave keys
+		// This allows rsync to run inside Docker while using host SSH authentication
+		if (
+			args[ 0 ] === 'rsync' &&
+			! args.includes( '--config' ) &&
+			! args.includes( '--help' ) &&
+			! args.includes( '-h' )
+		) {
+			await runRsyncWithProxy( monorepoRoot, args );
+			return;
 		}
 
 		// Handle docker commands that must run on the host machine
@@ -312,8 +724,7 @@ const main = async () => {
 			[ 'pnpm', 'jetpack', ...args ],
 			{
 				stdio: 'inherit',
-				shell: true,
-				cwd: monorepoRoot, // Ensure we're in the monorepo root when running commands
+				cwd: monorepoRoot,
 			}
 		);
 

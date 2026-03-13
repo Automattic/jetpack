@@ -10,6 +10,10 @@
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Image_CDN\Image_CDN_Core;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Jetpack_Gallery_Widget main class.
  */

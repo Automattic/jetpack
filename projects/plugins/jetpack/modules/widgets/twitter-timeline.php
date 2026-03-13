@@ -16,6 +16,10 @@
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Redirect;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Register the widget for use in Appearance -> Widgets
  */

@@ -18,17 +18,14 @@ return [
     // PhanUndeclaredClassConstant : 4 occurrences
     // PhanUndeclaredFunction : 4 occurrences
     // PhanPluginUseReturnValueInternalKnown : 2 occurrences
-    // PhanPossiblyUndeclaredVariable : 2 occurrences
-    // PhanTypeMismatchArgumentNullableInternal : 2 occurrences
     // PhanTypeMismatchPropertyDefault : 2 occurrences
     // PhanCoalescingNeverNull : 1 occurrence
     // PhanRedefineFunction : 1 occurrence
-    // PhanTypeInvalidUnaryOperandIncOrDec : 1 occurrence
+    // PhanTypeMismatchArgumentNullableInternal : 1 occurrence
     // PhanTypeMismatchProperty : 1 occurrence
     // PhanTypeMissingReturn : 1 occurrence
     // PhanUndeclaredClassMethod : 1 occurrence
     // PhanUndeclaredClassReference : 1 occurrence
-    // PhanUndeclaredFunctionInCallable : 1 occurrence
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
@@ -38,7 +35,7 @@ return [
         'app/lib/class-cli.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgument'],
         'app/lib/critical-css/class-critical-css-state.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeArraySuspiciousNullable'],
         'app/lib/minify/class-concatenate-css.php' => ['PhanPluginUseReturnValueInternalKnown', 'PhanTypeMismatchArgument'],
-        'app/lib/minify/class-concatenate-js.php' => ['PhanPluginUseReturnValueInternalKnown', 'PhanPossiblyUndeclaredVariable', 'PhanTypeInvalidUnaryOperandIncOrDec', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentNullableInternal'],
+        'app/lib/minify/class-concatenate-js.php' => ['PhanPluginUseReturnValueInternalKnown', 'PhanTypeMismatchArgument'],
         'app/lib/minify/class-dependency-path-mapping.php' => ['PhanUndeclaredConstant'],
         'app/lib/minify/functions-helpers.php' => ['PhanTypeMismatchArgumentNullableInternal', 'PhanUndeclaredClassMethod', 'PhanUndeclaredClassReference', 'PhanUndeclaredConstant'],
         'app/modules/image-guide/class-image-guide-proxy.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
@@ -48,7 +45,7 @@ return [
         'app/modules/optimizations/page-cache/pre-wordpress/class-request.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchPropertyDefault'],
         'app/modules/optimizations/render-blocking-js/class-render-blocking-js.php' => ['PhanTypeMismatchProperty', 'PhanTypeMismatchPropertyDefault'],
         'compatibility/elementor.php' => ['PhanUndeclaredClassConstant'],
-        'compatibility/page-optimize.php' => ['PhanUndeclaredFunction', 'PhanUndeclaredFunctionInCallable'],
+        'compatibility/page-optimize.php' => ['PhanUndeclaredFunction'],
         'compatibility/web-stories.php' => ['PhanUndeclaredClassConstant'],
         'compatibility/woocommerce.php' => ['PhanTypeArraySuspicious'],
         'tests/bootstrap.php' => ['PhanRedefineFunction', 'PhanTypeMismatchReturnProbablyReal'],

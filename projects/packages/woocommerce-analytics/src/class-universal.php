@@ -12,7 +12,7 @@ use WC_Order;
 use WC_Product;
 
 /**
- * Filters and Actions added to Store pages to perform analytics
+ * Filters and Actions added to Store pages to perform analytics.
  */
 class Universal {
 	/**
@@ -28,23 +28,14 @@ class Universal {
 		$this->additional_blocks_on_cart_page     = $this->get_additional_blocks_on_page( 'cart' );
 		$this->additional_blocks_on_checkout_page = $this->get_additional_blocks_on_page( 'checkout' );
 
-		// delayed events stored in session (can be add_to_carts, product_views...)
-		add_action( 'wp_head', array( $this, 'loop_session_events' ), 2 );
-
-		// Initialize session
-		add_action( 'template_redirect', array( $this, 'initialize_woocommerceanalytics_session' ) );
-
 		// Capture search
 		add_action( 'template_redirect', array( $this, 'capture_search_query' ), 11 );
 
 		// Capture cart events.
 		add_action( 'woocommerce_add_to_cart', array( $this, 'capture_add_to_cart' ), 10, 6 );
+		add_action( 'woocommerce_after_cart_item_quantity_update', array( $this, 'capture_cart_quantity_update' ), 10, 4 );
 		add_action( 'woocommerce_cart_item_removed', array( $this, 'capture_remove_from_cart' ), 10, 2 );
-		add_action( 'woocommerce_after_cart', array( $this, 'remove_from_cart' ) );
-		add_action( 'woocommerce_after_mini_cart', array( $this, 'remove_from_cart' ) );
-		add_action( 'wcct_before_cart_widget', array( $this, 'remove_from_cart' ) );
 		add_filter( 'woocommerce_cart_item_remove_link', array( $this, 'remove_from_cart_attributes' ), 10, 2 );
-		add_action( 'woocommerce_after_cart', array( $this, 'remove_from_cart_via_quantity' ), 10, 1 );
 
 		// Checkout.
 		// Send events after checkout template (shortcode).
@@ -52,8 +43,9 @@ class Universal {
 		// Send events after checkout block.
 		add_action( 'woocommerce_blocks_enqueue_checkout_block_scripts_after', array( $this, 'checkout_process' ) );
 
-		// order confirmed.
-		add_action( 'woocommerce_thankyou', array( $this, 'order_process' ), 10, 1 );
+		// order processed.
+		add_action( 'woocommerce_checkout_order_processed', array( $this, 'order_process' ), 10, 1 );
+		add_action( 'woocommerce_store_api_checkout_order_processed', array( $this, 'order_process' ), 10, 1 );
 
 		add_filter( 'woocommerce_checkout_posted_data', array( $this, 'save_checkout_post_data' ), 10, 1 );
 
@@ -72,91 +64,58 @@ class Universal {
 
 		// cart page view
 		add_action( 'wp_footer', array( $this, 'capture_cart_view' ), 11 );
+
+		// Enqueue events to track.
+		add_action( 'wp_footer', array( $this, 'inject_analytics_data' ), 999 );
 	}
 
 	/**
-	 * Set a UUID for the current session if is not yet loaded and record the session started event
+	 * Inject analytics data into the window object
 	 */
-	public function initialize_woocommerceanalytics_session() {
-		if ( ! isset( $_COOKIE['woocommerceanalytics_session'] ) ) {
-			$session_id         = wp_generate_uuid4();
-			$this->session_id   = $session_id;
-			$this->landing_page = sanitize_url( wp_unslash( ( empty( $_SERVER['HTTPS'] ) ? 'http' : 'https' ) . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]" ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidatedNotSanitized -- actually escaped with sanitize_url.
-			// Disabled the below temporarily to avoid caching issues.
-			// phpcs:disable Squiz.PHP.CommentedOutCode.Found
-			// setcookie(
-			// 'woocommerceanalytics_session',
-			// wp_json_encode(
-			// array(
-			// 'session_id'   => $this->session_id,
-			// 'landing_page' => $this->landing_page,
-			// )
-			// ),
-			// 0,
-			// COOKIEPATH,
-			// COOKIE_DOMAIN,
-			// is_ssl(),
-			// true
-			// );
-			// $this->record_event( 'woocommerceanalytics_session_started' );
-			// phpcs:enable Squiz.PHP.CommentedOutCode.Found
-		}
-	}
+	public function inject_analytics_data() {
+		$is_clickhouse_enabled     = Features::is_clickhouse_enabled();
+		$is_proxy_tracking_enabled = Features::is_proxy_tracking_enabled();
+		// When proxy tracking is enabled, we don't need to send the common properties to the client.
+		$common_properties = $is_proxy_tracking_enabled ? array() : $this->get_common_properties();
+		?>
+		<script type="text/javascript">
+			(function() {
+				window.wcAnalytics = window.wcAnalytics || {};
+				const wcAnalytics = window.wcAnalytics;
 
-	/**
-	 * On product lists or other non-product pages, add an event listener to "Add to Cart" button click
-	 */
-	public function loop_session_events() {
-		// Check for previous events queued in session data.
-		if ( is_object( WC()->session ) ) {
-			$data = WC()->session->get( 'wca_session_data' );
-			if ( ! empty( $data ) ) {
-				foreach ( $data as $data_instance ) {
-					$this->record_event(
-						$data_instance['event'],
-						array(
-							'pq' => $data_instance['quantity'],
-						),
-						$data_instance['product_id']
-					);
-				}
-				// Clear data, now that these events have been recorded.
-				WC()->session->set( 'wca_session_data', '' );
-			}
-		}
-	}
+				// Set the assets URL for webpack to find the split assets.
+				wcAnalytics.assets_url = '<?php echo esc_url( plugins_url( '../build/', __DIR__ . '/class-woocommerce-analytics.php' ) ); ?>';
 
-	/**
-	 * On the cart page, add an event listener for removal of product click
-	 */
-	public function remove_from_cart() {
-		$common_props = $this->render_properties_as_js(
-			$this->get_common_properties()
-		);
+				// Set the REST API tracking endpoint URL.
+				wcAnalytics.trackEndpoint = '<?php echo esc_url( rest_url( 'woocommerce-analytics/v1/track' ) ); ?>';
 
-		// We listen at div.woocommerce because the cart 'form' contents get forcibly
-		// updated and subsequent removals from cart would then not have this click
-		// handler attached.
-		wc_enqueue_js(
-			"jQuery( 'div.woocommerce' ).on( 'click', 'a.remove', function() {
-				var productID = jQuery( this ).data( 'product_id' );
-				var quantity = jQuery( this ).parent().parent().find( '.qty' ).val()
-				var productDetails = {
-					'id': productID,
-					'quantity': quantity ? quantity : '1',
+				// Set common properties for all events.
+				wcAnalytics.commonProps = <?php echo wp_json_encode( $common_properties, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
+
+				// Set the event queue.
+				wcAnalytics.eventQueue = <?php echo wp_json_encode( WC_Analytics_Tracking::get_event_queue(), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
+
+				// Features.
+				wcAnalytics.features = {
+					ch: <?php echo $is_clickhouse_enabled ? 'true' : 'false'; ?>,
+					sessionTracking: <?php echo $is_clickhouse_enabled ? 'true' : 'false'; ?>,
+					proxy: <?php echo $is_proxy_tracking_enabled ? 'true' : 'false'; ?>,
 				};
-				_wca.push( {
-					'_en': 'woocommerceanalytics_remove_from_cart',
-					'pi': productDetails.id,
-					'pq': productDetails.quantity, " .
-			$common_props . '
-				} );
-			} );'
-		);
+
+				wcAnalytics.breadcrumbs = <?php echo wp_json_encode( $this->get_breadcrumb_titles(), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
+
+				// Page context flags.
+				wcAnalytics.pages = {
+					isAccountPage: <?php echo is_account_page() ? 'true' : 'false'; ?>,
+					isCart: <?php echo is_cart() ? 'true' : 'false'; ?>,
+				};
+			})();
+		</script>
+		<?php
 	}
 
 	/**
-	 * Capture remove from cart events in mini-cart and cart blocls
+	 * Capture remove from cart events in mini-cart and cart blocks
 	 *
 	 * @param string   $cart_item_key The cart item removed.
 	 * @param \WC_Cart $cart The cart.
@@ -165,8 +124,56 @@ class Universal {
 	 */
 	public function capture_remove_from_cart( $cart_item_key, $cart ) {
 		$item = $cart->removed_cart_contents[ $cart_item_key ] ?? null;
-		$this->record_event( 'woocommerceanalytics_remove_from_cart' );
-		$this->capture_event_in_session_data( (int) $item['product_id'], (int) $item['quantity'], 'woocommerceanalytics_remove_from_cart' );
+
+		WC_Analytics_Tracking::record_event(
+			'remove_from_cart',
+			$this->get_cart_checkout_event_properties(
+				array(
+					'pi' => (int) $item['product_id'],
+					'pq' => (int) $item['quantity'],
+				)
+			)
+		);
+	}
+
+	/**
+	 * Capture remove/add from cart events using the Cart Controller
+	 *
+	 * @param string   $cart_item_key The cart item updated.
+	 * @param int      $quantity Contains the new quantity of the item.
+	 * @param int      $old_quantity Contains the old quantity of the item.
+	 * @param \WC_Cart $cart The cart.
+	 *
+	 * @return void
+	 */
+	public function capture_cart_quantity_update( $cart_item_key, $quantity, $old_quantity, $cart ) {
+		$product_id = $cart->cart_contents[ $cart_item_key ]['product_id'];
+		if ( $quantity > $old_quantity ) {
+			WC_Analytics_Tracking::record_event(
+				'add_to_cart',
+				$this->get_cart_checkout_event_properties(
+					array(
+						'pi' => $product_id,
+						'pq' => $quantity,
+					)
+				)
+			);
+			$this->lock_add_to_cart_events = true;
+			return;
+		}
+
+		if ( $quantity < $old_quantity ) {
+			WC_Analytics_Tracking::record_event(
+				'remove_from_cart',
+				$this->get_cart_checkout_event_properties(
+					array(
+						'pi' => $product_id,
+						'pq' => $quantity,
+					)
+				)
+			);
+			return;
+		}
 	}
 
 	/**
@@ -245,7 +252,7 @@ class Universal {
 		global $post;
 		$checkout_page_id    = wc_get_page_id( 'checkout' );
 		$cart                = WC()->cart->get_cart();
-		$is_in_checkout_page = $checkout_page_id === $post->ID ? 'Yes' : 'No';
+		$is_in_checkout_page = isset( $post->ID ) && $checkout_page_id === $post->ID ? 'Yes' : 'No';
 		$session             = WC()->session;
 		if ( is_object( $session ) ) {
 			$session->set( 'checkout_page_used', 'Yes' === $is_in_checkout_page );
@@ -275,22 +282,19 @@ class Universal {
 			}
 
 			$data['pq'] = $cart_item['quantity'];
-			$this->record_event( 'woocommerceanalytics_product_checkout', $data, $product->get_id() );
+			$this->enqueue_event( 'product_checkout', $this->get_cart_checkout_event_properties( $data ), $product->get_id() );
 		}
 	}
 
 	/**
-	 * After the checkout process, fire an event for each item in the order
+	 * After the order processed, fire an event for each item in the order
 	 *
-	 * @param string $order_id Order Id.
+	 * @param int|string|WC_Order $order_id_or_order Order Id or Order object.
 	 */
-	public function order_process( $order_id ) {
-		$order = wc_get_order( $order_id );
+	public function order_process( $order_id_or_order ) {
+		$order = wc_get_order( $order_id_or_order );
 
-		if (
-			! $order
-			|| ! $order instanceof WC_Order
-		) {
+		if ( ! $order ) {
 			return;
 		}
 
@@ -326,10 +330,8 @@ class Universal {
 
 		$order_source = $order->get_created_via();
 		if ( 'store-api' === $order_source ) {
-			$checkout_page_contains_checkout_block     = '1';
-			$checkout_page_contains_checkout_shortcode = '0';
+			$checkout_page_contains_checkout_block = '1';
 		} elseif ( 'checkout' === $order_source ) {
-			$checkout_page_contains_checkout_block     = '0';
 			$checkout_page_contains_checkout_shortcode = '1';
 		}
 
@@ -348,70 +350,34 @@ class Universal {
 			if ( is_array( $order_coupons ) ) {
 				$order_coupons_count = count( $order_coupons );
 			}
-			$this->record_event(
-				'woocommerceanalytics_product_purchase',
-				array(
-					'oi'                       => $order->get_order_number(),
-					'pq'                       => $order_item->get_quantity(),
-					'payment_option'           => $payment_option,
-					'create_account'           => $create_account,
-					'guest_checkout'           => $guest_checkout,
-					'delayed_account_creation' => $delayed_account_creation,
-					'express_checkout'         => $express_checkout,
-					'coupon_used'              => $order_coupons_count,
-					'products_count'           => $order_items_count,
-					'order_value'              => $order->get_subtotal(),
-					'order_total'              => $order->get_total(),
-					'total_discount'           => $order->get_discount_total(),
-					'total_taxes'              => $order->get_total_tax(),
-					'total_shipping'           => $order->get_shipping_total(),
-					'from_checkout'            => $checkout_page_used,
-					'checkout_page_contains_checkout_block' => $checkout_page_contains_checkout_block,
-					'checkout_page_contains_checkout_shortcode' => $checkout_page_contains_checkout_shortcode,
-				),
-				$product_id
+
+			WC_Analytics_Tracking::record_event(
+				'product_purchase',
+				$this->get_cart_checkout_event_properties(
+					array(
+						'oi'                       => $order->get_order_number(),
+						'pi'                       => $product_id,
+						'pq'                       => $order_item->get_quantity(),
+						'payment_option'           => $payment_option,
+						'create_account'           => $create_account,
+						'guest_checkout'           => $guest_checkout,
+						'delayed_account_creation' => $delayed_account_creation,
+						'express_checkout'         => $express_checkout,
+						'coupon_used'              => $order_coupons_count,
+						'products_count'           => $order_items_count,
+						'order_value'              => $order->get_subtotal(),
+						'order_total'              => $order->get_total(),
+						'total_discount'           => $order->get_discount_total(),
+						'total_taxes'              => $order->get_total_tax(),
+						'total_shipping'           => $order->get_shipping_total(),
+						'from_checkout'            => $checkout_page_used,
+						'checkout_page_contains_checkout_block' => $checkout_page_contains_checkout_block,
+						'checkout_page_contains_checkout_shortcode' => $checkout_page_contains_checkout_shortcode,
+					)
+				)
 			);
 		}
 	}
-
-	/**
-	 * Listen for clicks on the "Update Cart" button to know if an item has been removed by
-	 * updating its quantity to zero
-	 */
-	public function remove_from_cart_via_quantity() {
-		$common_props = $this->render_properties_as_js(
-			$this->get_common_properties()
-		);
-
-		wc_enqueue_js(
-			"
-			function trigger_cart_remove() {
-			    let cartItems = document.querySelectorAll( '.cart_item' );
-				[...cartItems].forEach( function( item ) {
-					let qtyInput = item.querySelector('input.qty');
-					if ( qtyInput && qtyInput.value === '0' ) {
-					    let productRemoveLink = item.querySelector('.product-remove a');
-						let productID = productRemoveLink ? productRemoveLink.dataset.product_id : null;
-						_wca.push( {
-							'_en': 'woocommerceanalytics_remove_from_cart',
-							'pi': productID, " .
-			$common_props . "
-						} );
-					}
-				} );
-			}
-
-	        document.querySelector( 'button[name=update_cart]' ).addEventListener( 'click', trigger_cart_remove );
-
-			// The duplicated listener is needed because updated_wc_div replaces all the DOM and then the initial listener stops working.
-			document.body.onupdated_wc_div = function () {
-		        document.querySelector( 'button[name=update_cart]' ).addEventListener( 'click', trigger_cart_remove );
-	        };
-
-			"
-		);
-	}
-
 	/**
 	 * Gets the inner blocks of a block.
 	 *
@@ -441,58 +407,53 @@ class Universal {
 	 * @param array  $cart_item_data Other cart data.
 	 */
 	public function capture_add_to_cart( $cart_item_key, $product_id, $quantity, $variation_id, $variation, $cart_item_data ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		$referer_postid = isset( $_SERVER['HTTP_REFERER'] ) ? url_to_postid( esc_url_raw( wp_unslash( $_SERVER['HTTP_REFERER'] ) ) ) : 0;
-		// if the referring post is not a product OR the product being added is not the same as post.
-		// (eg. related product list on single product page) then include a product view event.
-		$product_by_referer_postid = wc_get_product( $referer_postid );
-		if ( ! $product_by_referer_postid instanceof WC_Product || (int) $product_id !== $referer_postid ) {
-			$this->capture_event_in_session_data( $product_id, $quantity, 'woocommerceanalytics_product_view' );
-		}
-		// add cart event to the session data.
-		$this->capture_event_in_session_data( $product_id, $quantity, 'woocommerceanalytics_add_to_cart' );
-	}
-
-	/**
-	 * Track in-session data.
-	 *
-	 * @param int    $product_id Product ID.
-	 * @param int    $quantity Quantity.
-	 * @param string $event Fired event.
-	 */
-	public function capture_event_in_session_data( $product_id, $quantity, $event ) {
-
-		$product = wc_get_product( $product_id );
-		if ( ! $product instanceof WC_Product ) {
+		if ( $this->lock_add_to_cart_events ) {
 			return;
 		}
-
-		$quantity = ( 0 === $quantity ) ? 1 : $quantity;
-
-		// check for existing data.
-		if ( is_object( WC()->session ) ) {
-			$data = WC()->session->get( 'wca_session_data' );
-			if ( empty( $data ) || ! is_array( $data ) ) {
-				$data = array();
-			}
-		} else {
-			$data = array();
-		}
-
-		// extract new event data.
-		$new_data = array(
-			'event'      => $event,
-			'product_id' => (string) $product_id,
-			'quantity'   => (string) $quantity,
+		WC_Analytics_Tracking::record_event(
+			'add_to_cart',
+			$this->get_cart_checkout_event_properties(
+				array(
+					'pi' => $product_id,
+					'pq' => $quantity,
+				)
+			)
 		);
-
-		// append new data.
-		$data[] = $new_data;
-
-		WC()->session->set( 'wca_session_data', $data );
 	}
 
 	/**
-	 * Save createaccount post data to be used in $this->order_process.
+	 * Get the event properties for the cart and checkout events.
+	 *
+	 * @param array $event_properties Event properties.
+	 */
+	public function get_cart_checkout_event_properties( $event_properties = array() ) {
+		if ( isset( $event_properties['pq'] ) ) {
+			$event_properties['pq'] = 0 === $event_properties['pq'] ? 1 : $event_properties['pq'];
+			$event_properties['pq'] = (string) $event_properties['pq'];
+		}
+		$product         = isset( $event_properties['pi'] ) ? wc_get_product( $event_properties['pi'] ) : null;
+		$product_details = $product instanceof WC_Product ? $this->get_product_details( $product ) : array();
+
+		$checkout_cart_details = array(
+			'template_used'                      => $this->cart_checkout_templates_in_use ? '1' : '0',
+			'additional_blocks_on_cart_page'     => $this->additional_blocks_on_cart_page,
+			'additional_blocks_on_checkout_page' => $this->additional_blocks_on_checkout_page,
+			'order_value'                        => $this->get_cart_subtotal(),
+			'order_total'                        => $this->get_cart_total(),
+			'total_tax'                          => $this->get_cart_taxes(),
+			'total_discount'                     => $this->get_total_discounts(),
+			'total_shipping'                     => $this->get_cart_shipping_total(),
+			'products_count'                     => $this->get_cart_items_count(),
+		);
+		$cart_checkout_info    = $this->get_cart_checkout_info();
+
+		$event_properties = array_merge( $product_details, $checkout_cart_details, $cart_checkout_info, $event_properties ); // event properties should be last to allow for overrides
+
+		return $event_properties;
+	}
+
+	/**
+	 * Save create account post data to be used in $this->order_process.
 	 *
 	 * @param array|null $data Post data from the checkout page.
 	 *
@@ -543,12 +504,14 @@ class Universal {
 			$checkout_page_contains_checkout_block     = '1';
 			$checkout_page_contains_checkout_shortcode = '0';
 
-			$this->record_event(
-				'woocommerceanalytics_post_account_creation',
-				array(
-					'from_checkout' => $checkout_page_used,
-					'checkout_page_contains_checkout_block' => $checkout_page_contains_checkout_block,
-					'checkout_page_contains_checkout_shortcode' => $checkout_page_contains_checkout_shortcode,
+			$this->enqueue_event(
+				'post_account_creation',
+				$this->get_cart_checkout_event_properties(
+					array(
+						'from_checkout' => $checkout_page_used,
+						'checkout_page_contains_checkout_block' => $checkout_page_contains_checkout_block,
+						'checkout_page_contains_checkout_shortcode' => $checkout_page_contains_checkout_shortcode,
+					)
 				)
 			);
 		}
@@ -560,8 +523,8 @@ class Universal {
 	public function capture_search_query() {
 		if ( is_search() ) {
 			global $wp_query;
-			$this->record_event(
-				'woocommerceanalytics_search',
+			$this->enqueue_event(
+				'search',
 				array(
 					'search_query' => $wp_query->get( 's' ),
 					'qty'          => $wp_query->found_posts,
@@ -588,11 +551,10 @@ class Universal {
 			return;
 		}
 
-		$this->record_event(
-			'woocommerceanalytics_cart_view',
-			array_merge(
-				$this->get_cart_checkout_shared_data(),
-				array()
+		$this->enqueue_event(
+			'cart_view',
+			$this->get_cart_checkout_event_properties(
+				$this->get_cart_checkout_shared_data()
 			)
 		);
 	}
@@ -606,8 +568,8 @@ class Universal {
 			return;
 		}
 
-		$this->record_event(
-			'woocommerceanalytics_product_view',
+		$this->enqueue_event(
+			'product_view',
 			array(),
 			$product->get_id()
 		);
@@ -633,10 +595,8 @@ class Universal {
 		$checkout_page_contains_checkout_shortcode = '0';
 
 		if ( 'store-api' === $order_source ) {
-			$checkout_page_contains_checkout_block     = '1';
-			$checkout_page_contains_checkout_shortcode = '0';
+			$checkout_page_contains_checkout_block = '1';
 		} elseif ( 'checkout' === $order_source ) {
-			$checkout_page_contains_checkout_block     = '0';
 			$checkout_page_contains_checkout_shortcode = '1';
 		}
 
@@ -655,28 +615,30 @@ class Universal {
 		}
 
 		$delayed_account_creation = ucfirst( get_option( 'woocommerce_enable_delayed_account_creation', 'Yes' ) );
-		$this->record_event(
-			'woocommerceanalytics_order_confirmation_view',
-			array(
-				'coupon_used'                           => $coupon_used,
-				'create_account'                        => $create_account,
-				'express_checkout'                      => 'null', // TODO: not solved yet.
-				'guest_checkout'                        => $order->get_customer_id() ? 'No' : 'Yes',
-				'delayed_account_creation'              => $delayed_account_creation,
-				'oi'                                    => $order->get_id(),
-				'order_value'                           => $order->get_subtotal(),
-				'order_total'                           => $order->get_total(),
-				'products_count'                        => $order->get_item_count(),
-				'total_discount'                        => $order->get_discount_total(),
-				'total_shipping'                        => $order->get_shipping_total(),
-				'total_tax'                             => $order->get_total_tax(),
-				'payment_option'                        => $order->get_payment_method(),
-				'products'                              => $this->format_items_to_json( $order->get_items() ),
-				'order_note'                            => $order->get_customer_note(),
-				'shipping_option'                       => $order->get_shipping_method(),
-				'from_checkout'                         => $checkout_page_used,
-				'checkout_page_contains_checkout_block' => $checkout_page_contains_checkout_block,
-				'checkout_page_contains_checkout_shortcode' => $checkout_page_contains_checkout_shortcode,
+		$this->enqueue_event(
+			'order_confirmation_view',
+			$this->get_cart_checkout_event_properties(
+				array(
+					'coupon_used'              => $coupon_used,
+					'create_account'           => $create_account,
+					'express_checkout'         => 'null', // TODO: not solved yet.
+					'guest_checkout'           => $order->get_customer_id() ? 'No' : 'Yes',
+					'delayed_account_creation' => $delayed_account_creation,
+					'oi'                       => $order->get_id(),
+					'order_value'              => $order->get_subtotal(),
+					'order_total'              => $order->get_total(),
+					'products_count'           => $order->get_item_count(),
+					'total_discount'           => $order->get_discount_total(),
+					'total_shipping'           => $order->get_shipping_total(),
+					'total_tax'                => $order->get_total_tax(),
+					'payment_option'           => $order->get_payment_method(),
+					'products'                 => $this->format_items_to_json( $order->get_items() ),
+					'order_note'               => $order->get_customer_note(),
+					'shipping_option'          => $order->get_shipping_method(),
+					'from_checkout'            => $checkout_page_used,
+					'checkout_page_contains_checkout_block' => $checkout_page_contains_checkout_block,
+					'checkout_page_contains_checkout_shortcode' => $checkout_page_contains_checkout_shortcode,
+				)
 			)
 		);
 	}
@@ -702,7 +664,7 @@ class Universal {
 			return;
 		}
 
-		$is_in_checkout_page                       = $checkout_page_id === $post->ID ? 'Yes' : 'No';
+		$is_in_checkout_page                       = isset( $post->ID ) && $checkout_page_id === $post->ID ? 'Yes' : 'No';
 		$checkout_page_contains_checkout_block     = '0';
 		$checkout_page_contains_checkout_shortcode = '1';
 
@@ -722,14 +684,16 @@ class Universal {
 			return;
 		}
 
-		$this->record_event(
-			'woocommerceanalytics_checkout_view',
-			array_merge(
-				$this->get_cart_checkout_shared_data(),
-				array(
-					'from_checkout' => $is_in_checkout_page,
-					'checkout_page_contains_checkout_block' => $checkout_page_contains_checkout_block,
-					'checkout_page_contains_checkout_shortcode' => $checkout_page_contains_checkout_shortcode,
+		$this->enqueue_event(
+			'checkout_view',
+			$this->get_cart_checkout_event_properties(
+				array_merge(
+					$this->get_cart_checkout_shared_data(),
+					array(
+						'from_checkout' => $is_in_checkout_page,
+						'checkout_page_contains_checkout_block' => $checkout_page_contains_checkout_block,
+						'checkout_page_contains_checkout_shortcode' => $checkout_page_contains_checkout_shortcode,
+					)
 				)
 			)
 		);

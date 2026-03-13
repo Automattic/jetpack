@@ -1,9 +1,15 @@
-import type { AnnotationStyles } from './components/line-chart/line-chart-annotation';
+import type { CircleSubjectProps } from '@visx/annotation/lib/components/CircleSubject';
+import type { ConnectorProps } from '@visx/annotation/lib/components/Connector';
+import type { LabelProps } from '@visx/annotation/lib/components/Label';
+import type { LineSubjectProps } from '@visx/annotation/lib/components/LineSubject';
 import type { AxisScale, Orientation, TickFormatter, AxisRendererProps } from '@visx/axis';
 import type { LegendShape } from '@visx/legend/lib/types';
 import type { ScaleInput, ScaleType } from '@visx/scale';
+import type { TextProps } from '@visx/text/lib/Text';
 import type { EventHandlerParams, GlyphProps, GridStyles, LineStyles } from '@visx/xychart';
+import type { GapSize } from '@wordpress/theme';
 import type { CSSProperties, PointerEvent, ReactNode } from 'react';
+import type { GoogleDataTableColumn, GoogleDataTableRow } from 'react-google-charts';
 
 type ValueOf< T > = T[ keyof T ];
 
@@ -11,10 +17,53 @@ export type Optional< T, K extends keyof T > = Pick< Partial< T >, K > & Omit< T
 
 export type OrientationType = ValueOf< typeof Orientation >;
 
+export type AnnotationStyles = {
+	circleSubject?: Omit< CircleSubjectProps, 'x' | 'y' > & { fill?: string };
+	lineSubject?: Omit< LineSubjectProps, 'x' | 'y' >;
+	connector?: Omit< ConnectorProps, 'x' | 'y' | 'dx' | 'dy' >;
+	label?: Omit< LabelProps, 'title' | 'subtitle' | 'x' | 'y' > & {
+		x?: number | 'start' | 'end';
+		y?: number | 'start' | 'end';
+	};
+};
+
 export type DataPoint = {
 	label: string;
 	value: number;
 };
+
+/**
+ * Data format for GeoChart - uses Google Charts native data format for maximum flexibility.
+ * First element is the header row, subsequent elements are data rows.
+ *
+ * Country identifiers can be either full country names or ISO 3166-1 alpha-2 codes (e.g., 'United States' or 'US').
+ * Full names are recommended for better readability in tooltips.
+ *
+ * @example Basic usage with country names:
+ * [['Country', 'Value'], ['United States', 100], ['Canada', 50], ['United Kingdom', 75]]
+ *
+ * @example With custom HTML tooltips:
+ * [
+ *   ['Country', 'Value', { type: 'string', role: 'tooltip', p: { html: true } }],
+ *   ['United States', 100, '<b>United States</b><br/>100 visitors'],
+ *   ['Canada', 50, '<b>Canada</b><br/>50 visitors']
+ * ]
+ *
+ * @example With formatted values (v = value, f = formatted):
+ * [
+ *   ['Country', 'Value'],
+ *   ['United States', { v: 100, f: '100 visitors' }],
+ *   ['Canada', { v: 50, f: '50 visitors' }]
+ * ]
+ *
+ * @example With multiple columns:
+ * [
+ *   ['Country', 'Population', 'Area'],
+ *   ['United States', 331000000, 9834000],
+ *   ['Canada', 38000000, 9985000]
+ * ]
+ */
+export type GeoData = [ GoogleDataTableColumn[], ...GoogleDataTableRow[] ];
 
 export type DataPointDate = {
 	date?: Date;
@@ -34,16 +83,73 @@ export type DataPointDate = {
 	label?: string;
 };
 
+export type LeaderboardEntry = {
+	/**
+	 * Unique internal key (e.g., 'key-direct')
+	 */
+	id: string;
+
+	/**
+	 * Human-readable name (e.g., 'Direct') or a JSX element (e.g., <h4>Direct</h4>)
+	 */
+	label: string | JSX.Element;
+
+	/**
+	 * Value of the entry
+	 */
+	currentValue: number;
+
+	/**
+	 * Value of the entry in the previous period
+	 */
+	previousValue: number;
+
+	/**
+	 * Width of current bar, as % of the current value
+	 */
+	currentShare: number;
+
+	/**
+	 * Width of previous bar, as % of the current value
+	 */
+	previousShare: number;
+
+	/**
+	 * Delta of the entry
+	 */
+	delta: number;
+
+	/**
+	 * Optional color for the entry's image/icon
+	 */
+	imageColor?: string;
+};
+
+export type GradientStop = {
+	offset: string;
+	color?: string;
+	opacity?: number;
+};
+
+export type SeriesDataOptions = {
+	gradient?: {
+		from: string;
+		to: string;
+		fromOpacity?: number;
+		toOpacity?: number;
+		stops?: GradientStop[];
+	};
+	stroke?: string;
+	seriesLineStyle?: LineStyles;
+	legendShapeStyle?: CSSProperties;
+	type?: 'comparison';
+};
+
 export type SeriesData = {
 	group?: string;
 	label: string;
 	data: DataPointDate[] | DataPoint[];
-	options?: {
-		gradient?: { from: string; to: string; fromOpacity?: number; toOpacity?: number };
-		stroke?: string;
-		seriesLineStyle?: LineStyles;
-		legendShapeStyle?: CSSProperties;
-	};
+	options?: SeriesDataOptions;
 };
 
 export type MultipleDataPointsDate = {
@@ -72,16 +178,22 @@ export type DataPointPercentage = {
 	 * Color code for the segment, by default colours are taken from the theme but this property can overrides it
 	 */
 	color?: string;
+	/**
+	 * Group for the data point, used to match color with groups on other charts
+	 */
+	group?: string;
 };
 
 /**
- * Theme configuration for chart components
+ * Base theme configuration for chart components with optional properties
  */
 export type ChartTheme = {
 	/** Background color for chart components */
 	backgroundColor: string;
 	/** Background color for labels */
 	labelBackgroundColor?: string;
+	/** Text color for labels */
+	labelTextColor?: string;
 	/** Array of colors used for data visualization */
 	colors: string[];
 	/** Optional CSS styles for grid lines */
@@ -98,15 +210,25 @@ export type ChartTheme = {
 	xAxisLineStyles?: LineStyles;
 	/** Styles for series lines */
 	seriesLineStyles?: LineStyles[];
-	/** Styles for legend shapes */
-	legendShapeStyles?: CSSProperties[];
 	/** Array of render functions for glyphs */
 	glyphs?: Array< < Datum extends object >( props: GlyphProps< Datum > ) => ReactNode >;
-	/** Styles for legend labels */
-	legendLabelStyles?: CSSProperties;
-	/** Styles for legend container */
-	legendContainerStyles?: CSSProperties;
+	/** Legend specific settings */
+	legend?: {
+		/** Styles for legend shapes */
+		shapeStyles?: Record< string, unknown >[];
+		/** Styles for legend labels */
+		labelStyles?: CSSProperties;
+		/** Styles for legend container */
+		containerStyles?: CSSProperties;
+	};
+	/** Styles for small SVG text (eg. axis tick labels), passed through to the XYChart theme. */
+	svgLabelSmall?: TextProps;
 	annotationStyles?: AnnotationStyles;
+	/** GeoChart specific settings */
+	geoChart?: {
+		/** Default fill color for a geo chart feature (e.g. country) with no data */
+		featureFillColor?: string;
+	};
 	/** LeaderboardChart specific settings */
 	leaderboardChart?: {
 		/** Gap between rows in the leaderboard grid */
@@ -133,6 +255,45 @@ export type ChartTheme = {
 		/** Color for negative change indicators */
 		negativeChangeColor?: string;
 	};
+	lineChart?: {
+		lineStyles?: Partial< Record< NonNullable< SeriesDataOptions[ 'type' ] >, LineStyles > >;
+	};
+	/** Sparkline specific settings */
+	sparkline?: {
+		/** Margin around the sparkline chart */
+		margin?: {
+			top?: number;
+			right?: number;
+			bottom?: number;
+			left?: number;
+		};
+		/** Stroke width for the sparkline line */
+		strokeWidth?: number;
+	};
+};
+
+/**
+ * Theme configuration with all properties guaranteed to be defined.
+ * Useful for merged themes where defaults are provided for all optional properties.
+ */
+export type CompleteChartTheme = Required< ChartTheme > & {
+	leaderboardChart: Omit<
+		Required< NonNullable< ChartTheme[ 'leaderboardChart' ] > >,
+		'primaryColor' | 'secondaryColor'
+	> &
+		Pick< NonNullable< ChartTheme[ 'leaderboardChart' ] >, 'primaryColor' | 'secondaryColor' >;
+	conversionFunnelChart: Omit<
+		Required< NonNullable< ChartTheme[ 'conversionFunnelChart' ] > >,
+		'primaryColor'
+	> &
+		Pick< NonNullable< ChartTheme[ 'conversionFunnelChart' ] >, 'primaryColor' >;
+	lineChart: {
+		lineStyles: Record< NonNullable< SeriesDataOptions[ 'type' ] >, LineStyles >;
+	};
+	legend: Required< NonNullable< ChartTheme[ 'legend' ] > >;
+	sparkline: Required< NonNullable< ChartTheme[ 'sparkline' ] > > & {
+		margin: Required< NonNullable< ChartTheme[ 'sparkline' ] >[ 'margin' ] >;
+	};
 };
 
 declare type AxisOptions = {
@@ -144,9 +305,25 @@ declare type AxisOptions = {
 	tickClassName?: string;
 	tickFormat?: TickFormatter< ScaleInput< AxisScale > >;
 	/**
+	 * Whether to display this axis. Defaults to true.
+	 */
+	display?: boolean;
+	/**
 	 * For more control over rendering or to add event handlers to datum, pass a function as children.
 	 */
 	children?: ( renderProps: AxisRendererProps< AxisScale > ) => ReactNode;
+	/**
+	 * Controls tick label overflow (bar charts only):
+	 *
+	 * - 'ellipsis': Truncate with ellipsis and fit to available space. Labels show full text
+	 * on hover via native tooltip. Note: A minimum width (20px) is enforced for readability.
+	 * On very dense charts (bandwidth < 20px), adjacent labels may overlap. To mitigate, use `numTicks`
+	 * to reduce labels or `tickFormat` to abbreviate text.
+	 * - undefined: No truncation; labels may overlap.
+	 *
+	 * Default: No truncation; labels may overlap.
+	 */
+	labelOverflow?: 'ellipsis';
 };
 
 export type ScaleOptions = {
@@ -175,14 +352,94 @@ export type ScaleOptions = {
 	paddingOuter?: number;
 };
 
+export type LegendItemStyles = {
+	/** Margin around each legend item. */
+	margin?: CSSProperties[ 'margin' ];
+	/** Flex direction for items within each legend entry. */
+	flexDirection?: 'row' | 'row-reverse' | 'column' | 'column-reverse';
+};
+
+export type LegendLabelStyles = Pick< CSSProperties, 'justifyContent' | 'flex' | 'margin' > & {
+	/**
+	 * Maximum width for legend label text as a CSS value (e.g. '200px', '50%', '10rem').
+	 * When set, text overflow behavior is controlled by textOverflow.
+	 */
+	maxWidth?: string;
+	/**
+	 * Controls how text behaves when it exceeds maxWidth.
+	 * - 'ellipsis': Truncate with ellipsis (ideal for widgets/small devices)
+	 * - 'wrap': Wrap text to multiple lines (default, ideal for larger displays)
+	 */
+	textOverflow?: 'ellipsis' | 'wrap';
+};
+
+export type LegendShapeStyles = {
+	/** Width of the legend shape in pixels. */
+	width?: number;
+	/** Height of the legend shape in pixels. */
+	height?: number;
+	/** Margin around the legend shape. */
+	margin?: CSSProperties[ 'margin' ];
+};
+
+/** Position of the legend relative to chart content. */
+export type LegendPosition = 'top' | 'bottom';
+
+/**
+ * Configuration object for chart legend appearance and behavior.
+ * Consolidates all legend styling and layout props into a single structured object.
+ */
+export type ChartLegendConfig< T = DataPoint | DataPointDate | LeaderboardEntry > = {
+	/**
+	 * Layout direction of legend items.
+	 */
+	orientation?: 'horizontal' | 'vertical';
+	/**
+	 * Position of the legend relative to the chart.
+	 * TODO: Add 'left' | 'right' positioning support in future implementation
+	 */
+	position?: LegendPosition;
+	/**
+	 * Alignment of the legend within its position.
+	 */
+	alignment?: 'start' | 'center' | 'end';
+	/**
+	 * Shape of the legend marker icon.
+	 */
+	shape?: LegendShape< T, number >;
+	/**
+	 * Enable interactive legend items that can toggle series visibility.
+	 * Supported for all chart types that render series.
+	 * Requires chartId and GlobalChartsProvider.
+	 * For pie charts, percentages are recalculated so visible segments total 100%.
+	 */
+	interactive?: boolean;
+	/**
+	 * Additional CSS class name for individual legend items.
+	 */
+	itemClassName?: string;
+	/**
+	 * CSS styles for each legend item (margin, flexDirection).
+	 */
+	itemStyles?: LegendItemStyles;
+	/**
+	 * CSS styles for legend labels (maxWidth, textOverflow, justifyContent, flex, margin).
+	 */
+	labelStyles?: LegendLabelStyles;
+	/**
+	 * Styles for legend shapes (width, height, margin).
+	 */
+	shapeStyles?: LegendShapeStyles;
+};
+
 /**
  * Base properties shared across all chart components
  */
-export type BaseChartProps< T = DataPoint | DataPointDate > = {
+export type BaseChartProps< T = DataPoint | DataPointDate | LeaderboardEntry > = {
 	/**
 	 * Array of data points to display in the chart
 	 */
-	data: T extends DataPoint | DataPointDate ? T[] : T;
+	data: T extends DataPoint | DataPointDate | LeaderboardEntry ? T[] : T;
 	/**
 	 * Optional unique identifier for the chart (auto-generated if not provided)
 	 */
@@ -192,15 +449,17 @@ export type BaseChartProps< T = DataPoint | DataPointDate > = {
 	 */
 	className?: string;
 	/**
-	 * Width of the chart in pixels
+	 * Width of the chart container in pixels. When omitted, the chart fills its parent's width.
 	 */
 	width?: number;
 	/**
-	 * Height of the chart in pixels
+	 * Height of the chart container in pixels. When omitted, the chart fills its parent's height.
 	 */
 	height?: number;
 	/**
-	 * Size of the chart in pixels for pie and donut charts
+	 * Maximum diameter of the pie in pixels (pie and donut charts only).
+	 * The pie will shrink if the container is smaller than this value.
+	 * When omitted, the pie fills the available space.
 	 */
 	size?: number;
 	/**
@@ -237,25 +496,25 @@ export type BaseChartProps< T = DataPoint | DataPointDate > = {
 	 */
 	showLegend?: boolean;
 	/**
-	 * Legend orientation
+	 * Legend configuration object for controlling legend appearance and behavior.
+	 * Includes orientation, position, alignment, shape, styling, and interactivity options.
 	 */
-	legendOrientation?: 'horizontal' | 'vertical';
-	/**
-	 * Legend shape
-	 */
-	legendShape?: LegendShape< T, number >;
-	/**
-	 * Legend horizontal alignment
-	 */
-	legendAlignmentHorizontal?: 'left' | 'center' | 'right';
-	/**
-	 * Legend vertical alignment
-	 */
-	legendAlignmentVertical?: 'top' | 'bottom';
+	legend?: ChartLegendConfig< T >;
 	/**
 	 * Grid visibility. x is default when orientation is vertical. y is default when orientation is horizontal.
 	 */
 	gridVisibility?: 'x' | 'y' | 'xy' | 'none';
+	/**
+	 * Whether to show chart animation on initial render or not
+	 */
+	animation?: boolean;
+
+	/**
+	 * Gap between chart elements (SVG, legend, children).
+	 * Uses WordPress design system tokens.
+	 * @default 'md'
+	 */
+	gap?: GapSize;
 
 	/**
 	 * More options for the chart.
@@ -328,5 +587,3 @@ export interface ToggleEvent extends Event {
 	newState: 'open' | 'closed';
 	oldState: 'open' | 'closed';
 }
-// ConversionFunnelChart types
-export type { ConversionFunnelChartProps, FunnelStep } from './components/conversion-funnel-chart';

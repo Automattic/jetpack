@@ -1,0 +1,122 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title="JS Packages/Charts Library/Charts/Pie Chart/API Reference" />
+
+# Pie Chart API Reference
+
+## PieChart
+
+Main component for rendering pie and donut charts.
+
+**Props:**
+
+| Prop | Type | Default | Description |
+| ---- | ---- | ------- | ----------- |
+| `data` | `DataPointPercentage[]` | - | **Required.** Array of data objects with label, value, and percentage |
+| `width` | `number` | - | Width of the chart container in pixels. When omitted, fills parent width |
+| `height` | `number` | - | Height of the chart container in pixels. When omitted, fills parent height |
+| `size` | `number` | - | Maximum diameter of the pie in pixels. The pie shrinks if the container is smaller. When omitted, fills available space |
+| `gap` | `GapSize` | `'md'` | Gap between chart elements (SVG, legend, children). Uses WordPress design system tokens |
+| `thickness` | `number` | `1` | Thickness of the pie chart segments (0-1). Values less than 1 create donut charts |
+| `padding` | `number` | `20` | Padding around the chart in pixels |
+| `gapScale` | `number` | `0` | Scale of gaps between segments (0-1) |
+| `cornerScale` | `number` | `0` | Scale of corner rounding for segments (0-1) |
+| `withTooltips` | `boolean` | `false` | Enable interactive tooltips on hover |
+| `renderTooltip` | `(params: PieChartRenderTooltipParams) => ReactNode` | - | Custom tooltip render function |
+| `animation` | `boolean` | `false` | Enable entry animation on initial render. Creates a radial wipe reveal effect. Automatically respects user's `prefers-reduced-motion` system setting |
+| `showLegend` | `boolean` | `false` | Display chart legend |
+| `legend` | `ChartLegendConfig` | `undefined` | Legend configuration object. See [ChartLegendConfig](#chartlegendconfig-type). When `interactive` is enabled, requires `chartId` and `GlobalChartsProvider`. When segments are hidden, percentages recalculate so visible segments total 100%. |
+| `children` | `ReactNode` | - | Optional content to render inside chart center (useful for donut charts) |
+| `className` | `string` | - | Additional CSS class names |
+| `chartId` | `string` | - | Custom chart identifier for accessibility |
+| `maxWidth` | `number` | - | Maximum width for responsive charts |
+| `aspectRatio` | `number` | `1` | Aspect ratio for responsive charts |
+| `resizeDebounceTime` | `number` | `100` | Debounce time for resize events (ms) |
+
+## Theme Properties
+
+The following properties can be customized via the theme system:
+
+| Prop | Type | Default | Description |
+| ---- | ---- | ------- | ----------- |
+| `labelTextColor` | `string` | `'#FFFFFF'` | Color of text displayed on pie chart segments |
+| `labelBackgroundColor` | `string` | `'transparent'` | Background color for labels. Set to any color value to enable label backgrounds |
+
+## Compound Components
+
+### PieChart.SVG
+
+Container for SVG elements to be rendered inside the chart area.
+
+```jsx
+<PieChart.SVG>
+  <text x={0} y={0}>Center Text</text>
+</PieChart.SVG>
+```
+
+### PieChart.HTML
+
+Container for HTML elements to be rendered outside the SVG area.
+
+```jsx
+<PieChart.HTML>
+  <h3>Chart Title</h3>
+  <PieChart.Legend />
+</PieChart.HTML>
+```
+
+### PieChart.Legend
+
+The Legend component for displaying chart data labels. Can be used either as a prop or within composition:
+
+```jsx
+// As a prop
+<PieChart showLegend={true} legend={{ position: 'bottom' }} />
+
+// With composition
+<PieChart>
+  <PieChart.Legend position="bottom" orientation="horizontal" />
+</PieChart>
+```
+
+## PieChartRenderTooltipParams Type
+
+```typescript
+type PieChartRenderTooltipParams = {
+	/** The data point being hovered, including label, value, and percentage. */
+	tooltipData: DataPointPercentage;
+};
+```
+
+## DataPointPercentage Type
+
+```typescript
+type DataPointPercentage = {
+	/** Label for the data point */
+	label: string;
+	/** Numerical value */
+	value: number;
+	/** Formatted value for display */
+	valueDisplay?: string;
+	/** Percentage value (must sum to 100 across all data points) */
+	percentage: number;
+	/** Optional custom color override */
+	color?: string;
+};
+```
+
+## ChartLegendConfig Type
+
+```typescript
+type ChartLegendConfig = {
+	orientation?: 'horizontal' | 'vertical';
+	position?: 'top' | 'bottom';
+	alignment?: 'start' | 'center' | 'end';
+	shape?: LegendShape;
+	interactive?: boolean;
+	itemClassName?: string;
+	itemStyles?: LegendItemStyles;
+	labelStyles?: LegendLabelStyles;
+	shapeStyles?: LegendShapeStyles;
+};
+```

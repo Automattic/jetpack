@@ -96,7 +96,7 @@ export const useSeoRequests = () => {
 					},
 				],
 				{
-					postId,
+					postId: Number( postId ),
 					feature,
 				}
 			);

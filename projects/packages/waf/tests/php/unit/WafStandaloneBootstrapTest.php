@@ -6,6 +6,7 @@
  */
 
 use Automattic\Jetpack\Waf\Waf_Standalone_Bootstrap;
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 
 // phpcs:disable Generic.Files.OneObjectStructurePerFile.MultipleFound
@@ -21,6 +22,7 @@ interface WafStandaloneBootstrapTest_filesystem_mock {
 /**
  * Runtime test suite.
  */
+#[AllowMockObjectsWithoutExpectations /* getStubBuilder() (for partial stubs) doesn't exist until PHPUnit 12.5. */ ]
 final class WafStandaloneBootstrapTest extends PHPUnit\Framework\TestCase {
 
 	/**
@@ -68,7 +70,7 @@ final class WafStandaloneBootstrapTest extends PHPUnit\Framework\TestCase {
 		$mock_builder->onlyMethods( array( 'initialize_filesystem' ) );
 
 		$sut = $mock_builder->getMock();
-		$this->expectExceptionMessage( 'Can not work without the file system being initialized.' );
+		$this->expectExceptionMessage( 'Cannot work without the file system being initialized.' );
 		$sut->generate();
 	}
 

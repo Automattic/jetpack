@@ -1,4 +1,4 @@
-import { test, expect } from '_jetpack-e2e-commons/fixtures/base-test.ts';
+import { test, expect } from '_jetpack-e2e-commons/fixtures/base-test';
 import {
 	getAccountProtectionAuthCodeFromTransient,
 	getAccountProtectionTokenFromUrl,
@@ -6,7 +6,7 @@ import {
 	deleteTestUsers,
 	submitCredentials,
 	submitTheVerificationCode,
-} from '../../../helpers/account-protection-helper.ts';
+} from '../../../helpers/account-protection-helper';
 
 const PRIVILEGED_ROLES = [ 'administrator', 'editor', 'author' ];
 const NON_PRIVILEGED_ROLES = [ 'contributor', 'subscriber' ];

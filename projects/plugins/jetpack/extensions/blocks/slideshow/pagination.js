@@ -9,7 +9,7 @@ export function paginationCustomRender( swiper, current, total ) {
 			const active = i === current ? ' swiper-pagination-bullet-active' : '';
 			const cssClass = `swiper-pagination-bullet${ active }`;
 			const ariaLabel = sprintf(
-				/* translators: placeholder is the the video number to navigate to */
+				/* translators: %s: the slide number to navigate to */
 				__( 'Go to slide %s', 'jetpack' ),
 				i
 			);

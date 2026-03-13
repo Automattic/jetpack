@@ -169,11 +169,11 @@ class Connection_Notice {
 						}
 
 						fetch(
-							<?php echo wp_json_encode( esc_url_raw( get_rest_url() . 'jetpack/v4/connection/owner' ), JSON_HEX_TAG | JSON_HEX_AMP ); ?>,
+							<?php echo wp_json_encode( esc_url_raw( get_rest_url() . 'jetpack/v4/connection/owner' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>,
 							{
 								method: 'POST',
 								headers: {
-									'X-WP-Nonce': <?php echo wp_json_encode( wp_create_nonce( 'wp_rest' ), JSON_HEX_TAG | JSON_HEX_AMP ); ?>,
+									'X-WP-Nonce': <?php echo wp_json_encode( wp_create_nonce( 'wp_rest' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>,
 								},
 								body: new URLSearchParams( new FormData( this ) ),
 							}
@@ -182,7 +182,7 @@ class Connection_Notice {
 							.then( data => {
 								if ( data.hasOwnProperty( 'code' ) && data.code === 'success' ) {
 									// Owner successfully changed.
-									results.innerHTML = <?php echo wp_json_encode( esc_html__( 'Success!', 'jetpack-connection' ), JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
+									results.innerHTML = <?php echo wp_json_encode( esc_html__( 'Success!', 'jetpack-connection' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
 									setTimeout(function () {
 										document.getElementById( 'jetpack-notice-switch-connection-owner' ).style.display = 'none';
 									}, 1000);

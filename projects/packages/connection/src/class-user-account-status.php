@@ -30,7 +30,7 @@ class User_Account_Status {
 		if ( $has_mismatch ) {
 			$errors['mismatch'] = array(
 				'type'    => 'mismatch',
-				'message' => __( 'Your WordPress.com email also used by another user account. This won’t affect functionality but may cause confusion about which user account is connected.', 'jetpack-connection' ),
+				'message' => __( 'Your WordPress.com email is also used by another user account. This won’t affect functionality but may cause confusion about which user account is connected.', 'jetpack-connection' ),
 				'details' => array(
 					'site_email'  => $current_user_email,
 					'wpcom_email' => $wpcom_user_email,

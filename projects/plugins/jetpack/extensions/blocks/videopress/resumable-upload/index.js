@@ -154,12 +154,12 @@ export default function ResumableUpload( { file } ) {
 							{ /* valid-sprintf doesn't understand double percent escape */ }
 							{ hasPaused
 								? sprintf(
-										/* translators: Placeholder is an upload progress percenatage number, from 0-100. */
+										/* translators: %s: an upload progress percentage number, from 0-100. */
 										__( 'Paused (%s%%)', 'jetpack' ),
 										roundedProgress
 								  )
 								: sprintf(
-										/* translators: Placeholder is an upload progress percenatage number, from 0-100. */
+										/* translators: %s: an upload progress percentage number, from 0-100. */
 										__( 'Uploading (%s%%)', 'jetpack' ),
 										roundedProgress
 								  ) }

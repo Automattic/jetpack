@@ -68,7 +68,8 @@ function jetpack_docker_disable_delete_plugin( $plugin_file ) {
 	if ( ! jetpack_docker_can_update_delete_plugin( $plugin_file ) ) {
 		wp_send_json_error(
 			'Deleting plugin "' . $plugin_file . '" is disabled at mu-plugins/avoid-plugin-deletion.php',
-			403
+			403,
+			JSON_UNESCAPED_SLASHES
 		);
 	}
 }
@@ -81,7 +82,7 @@ add_action( 'delete_plugin', 'jetpack_docker_disable_delete_plugin', 10, 2 );
  */
 function jetpack_docker_disable_plugin_update( $plugins ) {
 	// No updates detected, so abort.
-	if ( ! is_object( $plugins ) || $plugins->response ) {
+	if ( ! is_object( $plugins ) || empty( $plugins->response ) ) {
 		return $plugins;
 	}
 

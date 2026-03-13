@@ -7,7 +7,14 @@ let premiumContentJWTTokenForCookie = '';
  */
 export function handleIframeResult( eventFromIframe ) {
 	if ( eventFromIframe.origin === 'https://subscribe.wordpress.com' && eventFromIframe.data ) {
-		const data = JSON.parse( eventFromIframe.data );
+		let data = eventFromIframe.data;
+		if ( typeof data === 'string' ) {
+			try {
+				data = JSON.parse( data );
+			} catch {
+				return;
+			}
+		}
 		if ( data && data.result && data.result.jwt_token ) {
 			// We save the token for now, doing nothing.
 			premiumContentJWTTokenForCookie = data.result.jwt_token;

@@ -7,6 +7,10 @@
 
 namespace Automattic\Jetpack\Search\Compatibility\Jetpack;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 add_filter( 'option_jetpack_search_overlay_trigger', __NAMESPACE__ . '\map_results_overlay_trigger', 10, 2 );
 
 /**

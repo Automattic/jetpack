@@ -5,13 +5,109 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.3.25] - 2026-03-09
+### Changed
+- Update package dependencies. [#47496]
+
+## [4.3.24] - 2026-02-26
+### Changed
+- Update package dependencies. [#47300]
+
+## [4.3.23] - 2026-02-23
+### Changed
+- Update dependencies. [#47157]
+
+## [4.3.22] - 2026-02-18
+### Changed
+- Update package dependencies. [#47173]
+
+## [4.3.21] - 2026-02-16
+### Changed
+- Update dependencies. [#47109]
+
+## [4.3.20] - 2026-02-10
+### Changed
+- Update package dependencies. [#47002]
+
+## [4.3.19] - 2026-02-03
+### Fixed
+- Fixed JITM REST endpoint query string parsing where the first parameter was corrupted. [#46906]
+
+## [4.3.18] - 2026-02-02
+### Changed
+- Update package dependencies. [#46854]
+
+## [4.3.17] - 2026-01-26
+### Changed
+- Update dependencies. [#46383]
+
+## [4.3.16] - 2026-01-19
+### Changed
+- Update package dependencies. [#46647]
+
+## [4.3.15] - 2026-01-14
+### Changed
+- Update package dependencies. [#46552]
+
+## [4.3.14] - 2026-01-07
+### Changed
+- Update package dependencies. [#46456]
+
+## [4.3.13] - 2025-12-22
+### Changed
+- Update dependencies. [#46381]
+
+## [4.3.12] - 2025-12-11
+### Changed
+- Update dependencies. [#45382]
+
+## [4.3.11] - 2025-12-08
+### Changed
+- Update dependencies. [#45382]
+
+## [4.3.10] - 2025-12-01
+### Changed
+- Update package dependencies. [#46143]
+
+## [4.3.9] - 2025-11-17
+### Changed
+- Update package dependencies. [#45915]
+
+## [4.3.8] - 2025-10-28
+### Changed
+- Update dependencies. [#45382]
+
+## [4.3.7] - 2025-10-06
+### Changed
+- Update dependencies. [#45349]
+
+## [4.3.6] - 2025-09-22
+### Changed
+- Update dependencies. [#44615]
+
+## [4.3.5] - 2025-09-19
+### Changed
+- Update package dependencies. [#45173] [#45229]
+
+## [4.3.4] - 2025-09-08
+### Changed
+- Update package dependencies. [#45027]
+
+## [4.3.3] - 2025-08-14
+### Changed
+- Update package dependencies. [#44701]
+
+## [4.3.2] - 2025-08-11
+### Changed
+- Update package dependencies. [#44677]
+
 ## [4.3.1] - 2025-08-04
 ### Changed
 - Update dependencies. [#44583]
 
 ## [4.3.0] - 2025-07-23
 ### Fixed
-- Update JITMs to remove jQuery dependency [#43783]
+- Update JITMs to remove jQuery dependency. [#43783]
 
 ## [4.2.29] - 2025-07-21
 ### Changed
@@ -970,6 +1066,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Update Jetpack to use new JITM package
 
+[4.3.25]: https://github.com/Automattic/jetpack-jitm/compare/v4.3.24...v4.3.25
+[4.3.24]: https://github.com/Automattic/jetpack-jitm/compare/v4.3.23...v4.3.24
+[4.3.23]: https://github.com/Automattic/jetpack-jitm/compare/v4.3.22...v4.3.23
+[4.3.22]: https://github.com/Automattic/jetpack-jitm/compare/v4.3.21...v4.3.22
+[4.3.21]: https://github.com/Automattic/jetpack-jitm/compare/v4.3.20...v4.3.21
+[4.3.20]: https://github.com/Automattic/jetpack-jitm/compare/v4.3.19...v4.3.20
+[4.3.19]: https://github.com/Automattic/jetpack-jitm/compare/v4.3.18...v4.3.19
+[4.3.18]: https://github.com/Automattic/jetpack-jitm/compare/v4.3.17...v4.3.18
+[4.3.17]: https://github.com/Automattic/jetpack-jitm/compare/v4.3.16...v4.3.17
+[4.3.16]: https://github.com/Automattic/jetpack-jitm/compare/v4.3.15...v4.3.16
+[4.3.15]: https://github.com/Automattic/jetpack-jitm/compare/v4.3.14...v4.3.15
+[4.3.14]: https://github.com/Automattic/jetpack-jitm/compare/v4.3.13...v4.3.14
+[4.3.13]: https://github.com/Automattic/jetpack-jitm/compare/v4.3.12...v4.3.13
+[4.3.12]: https://github.com/Automattic/jetpack-jitm/compare/v4.3.11...v4.3.12
+[4.3.11]: https://github.com/Automattic/jetpack-jitm/compare/v4.3.10...v4.3.11
+[4.3.10]: https://github.com/Automattic/jetpack-jitm/compare/v4.3.9...v4.3.10
+[4.3.9]: https://github.com/Automattic/jetpack-jitm/compare/v4.3.8...v4.3.9
+[4.3.8]: https://github.com/Automattic/jetpack-jitm/compare/v4.3.7...v4.3.8
+[4.3.7]: https://github.com/Automattic/jetpack-jitm/compare/v4.3.6...v4.3.7
+[4.3.6]: https://github.com/Automattic/jetpack-jitm/compare/v4.3.5...v4.3.6
+[4.3.5]: https://github.com/Automattic/jetpack-jitm/compare/v4.3.4...v4.3.5
+[4.3.4]: https://github.com/Automattic/jetpack-jitm/compare/v4.3.3...v4.3.4
+[4.3.3]: https://github.com/Automattic/jetpack-jitm/compare/v4.3.2...v4.3.3
+[4.3.2]: https://github.com/Automattic/jetpack-jitm/compare/v4.3.1...v4.3.2
 [4.3.1]: https://github.com/Automattic/jetpack-jitm/compare/v4.3.0...v4.3.1
 [4.3.0]: https://github.com/Automattic/jetpack-jitm/compare/v4.2.29...v4.3.0
 [4.2.29]: https://github.com/Automattic/jetpack-jitm/compare/v4.2.28...v4.2.29

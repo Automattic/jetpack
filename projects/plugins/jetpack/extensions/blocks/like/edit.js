@@ -85,7 +85,7 @@ function LikeEdit( { attributes, setAttributes } ) {
 						<a href="#" onClick={ preventDefault }>
 							{ createInterpolateElement(
 								sprintf(
-									// translators: %$1s: Number of likes
+									// translators: %1$d: Number of likes
 									__( '<span>%1$d</span> likes', 'jetpack' ),
 									avatars.length
 								),

@@ -1,0 +1,424 @@
+import { Meta, Canvas, Story, Source } from '@storybook/addon-docs/blocks';
+import * as LegendStories from './index.stories';
+
+<Meta title="JS Packages/Charts Library/Components/Legend" of={ LegendStories } />
+
+# Legend
+
+The Legend component provides a flexible way to display chart legends either as standalone components or integrated with charts through the chart context.
+
+<Canvas of={ LegendStories.Default } />
+
+## Overview
+
+The Legend component offers multiple ways to display chart legends, from simple standalone usage to advanced context-based integration:
+
+<Source
+	language="tsx"
+	code={ `import { Legend, LineChart } from '@automattic/charts';
+
+	// Standalone usage with manual data
+
+	<Legend
+		items={ [
+			{ label: 'Series 1', value: '25%', color: '#3858E9' },
+			{ label: 'Series 2', value: '35%', color: '#80C8FF' },
+		] }
+		orientation="horizontal"
+	/>
+
+	// Automatic data from chart context
+
+	<LineChart chartId="sales-chart" data={ salesData } showLegend={ false } />
+	<Legend chartId="sales-chart" orientation="vertical" />`
+} />
+
+## API Reference
+
+For detailed information about component props, types, and method signatures, see the [Legend API Reference](./?path=/docs/js-packages-charts-library-components-legend-api-reference--docs).
+
+## Basic Usage
+
+### Default Legend
+
+The default horizontal orientation displays legend items in a row, ideal for legends positioned above or below charts:
+
+<Canvas of={ LegendStories.Default } />
+
+<Source
+	language="tsx"
+	code={ `<Legend
+		items={ [
+			{ label: 'Desktop', value: '65%', color: '#3858E9' },
+			{ label: 'Mobile', value: '35%', color: '#80C8FF' },
+		] }
+	/>` }
+/>
+
+### Vertical Legend
+
+The vertical orientation displays legend items in a column, perfect for legends positioned beside charts:
+
+<Canvas of={ LegendStories.Vertical } />
+
+<Source
+	language="tsx"
+	code={ `<Legend
+		items={ [
+			{ label: 'Desktop', value: '65%', color: '#3858E9' },
+			{ label: 'Mobile', value: '35%', color: '#80C8FF' },
+			{ label: 'Tablet', value: '12%', color: '#44B556' },
+		] }
+		orientation="vertical"
+	/>` }
+/>
+
+### Required Props
+
+When using the Legend component in standalone mode, you need either:
+
+- **`items`**: Array of legend items with `label`, `color`, and optional `value` properties, OR
+- **`chartId`**: The ID of a chart whose legend data should be displayed
+
+### Optional Props
+
+For detailed information about all optional props, see the [Legend API Reference](./?path=/docs/js-packages-charts-library-components-legend-api-reference--docs).
+
+### Important Notes
+
+- When both `items` and `chartId` are provided, `items` takes precedence
+- The `render` prop provides complete control over legend rendering, bypassing the default layout
+- Text overflow is enabled by setting `labelStyles.maxWidth`; `textOverflow` is optional and defaults to `'wrap'`
+- The component uses visx LegendOrdinal internally but provides a simplified, more flexible API
+
+## Integration with Charts
+
+### Using with LineChart
+
+Legends can be positioned independently from the chart, retrieving data automatically via hooks:
+
+<Canvas of={ LegendStories.WithLineChart } />
+
+<Source
+	language="tsx"
+	code={ `import { Legend, LineChart } from '@automattic/charts';
+	import { useChartLegendItems } from '@automattic/charts';
+
+	const legendItems = useChartLegendItems( lineChartData, {
+		showValues: false,
+	} );
+
+	<LineChart
+		data={ lineChartData }
+		showLegend={ false }
+		width={ 600 }
+		height={ 300 }
+	/>
+	<Legend items={ legendItems } orientation="horizontal" shape="line" />` }
+/>
+
+### Using with BarChart
+
+Position legends vertically beside charts for a side-by-side layout:
+
+<Canvas of={ LegendStories.WithBarChart } />
+
+<Source
+	language="tsx"
+	code={ `import { Legend, BarChart } from '@automattic/charts';
+	import { useChartLegendItems } from '@automattic/charts';
+
+	const legendItems = useChartLegendItems( barChartData );
+
+	<div style={ { display: 'flex', gap: '20px', alignItems: 'flex-start' } }>
+		<BarChart data={ barChartData } showLegend={ false } width={ 400 } height={ 300 } />
+		<Legend items={ legendItems } orientation="vertical" />
+	</div>` }
+/>
+
+### Standalone Legend with Chart Context
+
+The Legend component's most powerful feature is its ability to automatically retrieve data from charts using the chart context:
+
+<Canvas of={ LegendStories.StandaloneLegendWithChartId } />
+
+<Source
+	language="tsx"
+	code={ `<div>
+		{/* Chart with legend hidden but still registering data */}
+		<LineChart
+			chartId="standalone-legend-chart"
+			data={ lineChartData }
+			showLegend={ false }
+			width={ 400 }
+			height={ 200 }
+		/>
+
+		{/* Standalone legend that automatically gets data from chart context */}
+		<Legend
+			chartId="standalone-legend-chart"
+			orientation="horizontal"
+		/>
+
+	</div>` }
+/>
+
+#### How It Works
+
+1. **Chart Registration**: When a chart is rendered with a `chartId`, it automatically registers its legend data in the chart context
+2. **Data Retrieval**: The Legend component can then retrieve this data using the same `chartId`
+3. **Decoupled Display**: The legend can be placed anywhere in your layout, completely independent from the chart
+
+#### Key Benefits
+
+- **Flexible Layouts**: Create complex dashboard layouts with centralized legend areas
+- **Consistent Legends**: Multiple charts can share legend styles and positioning
+- **Dynamic Updates**: Legend automatically updates when chart data changes
+- **No Prop Drilling**: No need to pass legend data through multiple component levels
+
+#### Important Notes
+
+- The chart and legend must be wrapped in the same GlobalChartsProvider context
+- The `chartId` must match exactly between chart and legend
+- Charts with `showLegend={false}` still register their legend data
+- If no chart with the given `chartId` exists, the legend will render nothing
+
+## Interactive Legends
+
+Interactive legends allow users to toggle series visibility by clicking or using keyboard navigation.
+
+### Basic Interactive Legend
+
+Enable interactive legends by setting `legend.interactive` on the chart. When `showLegend` is enabled, the chart's built-in legend will automatically become interactive:
+
+<Canvas of={ LegendStories.InteractiveLegend } />
+
+<Source
+	language="tsx"
+	code={ `import { LineChart } from '@automattic/charts';
+
+	<LineChart
+		data={ data }
+		showLegend={ true }
+		legend={{ interactive: true }}
+	/>` }
+/>
+
+### Standalone Interactive Legend
+
+Interactive legends also work with standalone Legend components. Set `legend.interactive` on the chart so it filters visible series, and `interactive` on the Legend so it renders clickable toggle controls. `chartId` is also required for this to work.
+
+<Source
+	language="tsx"
+	code={ `<GlobalChartsProvider>
+		<LineChart
+			chartId="sales-chart"
+			data={ salesData }
+			showLegend={ false }
+			legend={{ interactive: true }}
+		/>
+
+		<Legend
+			chartId="sales-chart"
+			orientation="horizontal"
+			interactive={ true }
+		/>
+	</GlobalChartsProvider>` }
+/>
+
+### Features
+
+- **Click/Tap Interaction**: Toggle series visibility by clicking on legend items
+- **Keyboard Support**: Use Tab to focus items, Enter or Space to toggle
+- **Visual Feedback**: Hidden series appear with reduced opacity and strikethrough text
+- **Color Stability**: Series colors remain consistent when toggling visibility
+- **Accessibility**: Full ARIA support with `role="button"`, `aria-pressed`, and descriptive `aria-label`
+
+### Requirements
+
+Interactive legends require:
+
+1. **GlobalChartsProvider**: Must wrap both chart and legend
+2. **chartId**: A unique identifier to connect chart and legend
+3. **legend.interactive**: Set to `true` in the chart's `legend` config object
+
+### Current Limitations
+
+- The `render` prop is not compatible with interactive legends (`legend.interactive` mode will be disabled)
+
+## Styling and Customization
+
+### Alignment Options
+
+Control the horizontal alignment of legend items within the legend container:
+
+<Canvas of={ LegendStories.AlignmentOptions } />
+
+Available alignment values: `'start'`, `'center'` (default), `'end'`
+
+### Text Overflow and Wrapping
+
+The Legend component provides comprehensive text overflow handling for long labels:
+
+<Canvas of={ LegendStories.TextOverflow } />
+
+#### Text Overflow Modes
+
+- **Wrap** (default): Text wraps naturally to multiple lines when it exceeds `maxWidth`
+- **Ellipsis**: Truncates text with ellipsis (...) and shows tooltip on hover
+
+#### Use Cases
+
+- **Widgets/Dashboards**: Use ellipsis mode with small `maxWidth` values
+- **Full Displays**: Use wrap mode with larger `maxWidth` values
+- **Mobile**: Use vertical orientation with appropriate `maxWidth`
+
+<Source
+	language="tsx"
+	code={ `<Legend
+		items={ items }
+		orientation="horizontal"
+		labelStyles={ { maxWidth: '150px', textOverflow: 'ellipsis' } }
+		alignment="center"
+	/>` }
+/>
+
+### Custom Shape
+
+By default, legends use rectangular shapes, but you can customize the glyph shape:
+
+<Canvas of={ LegendStories.CustomShape } />
+
+<Source
+	language="tsx"
+	code={ `<Legend
+		items={ items }
+		orientation="horizontal"
+		shape="circle"
+	/>` }
+/>
+
+Available shapes: `'rect'` (default), `'circle'`, `'line'`
+
+## Theming Integration
+
+The legend's appearance can be customized globally through the `legend` property on the chart theme. This applies consistent styling to all legends rendered within a `GlobalChartsProvider`:
+
+<Source
+	language="tsx"
+	code={ `import { GlobalChartsProvider, LineChart } from '@automattic/charts';
+
+	<GlobalChartsProvider theme={ {
+		legend: {
+			// Styles applied to every legend label
+			labelStyles: {
+				color: '#1e3a5f',
+				fontWeight: 600,
+			},
+			// Styles applied to the legend container
+			containerStyles: {
+				gap: '12px',
+			},
+			// Per-index styles applied to legend shapes
+			shapeStyles: [
+				{ fill: '#3858E9', rx: 4 },
+				{ fill: '#80C8FF', rx: 4 },
+			],
+		},
+	} }>
+		<LineChart data={ data } />
+	</GlobalChartsProvider>` }
+/>
+
+#### Theme Legend Properties
+
+| Property | Type | Description |
+| --- | --- | --- |
+| `legend.labelStyles` | `CSSProperties` | CSS styles spread onto every legend label element. |
+| `legend.containerStyles` | `CSSProperties` | CSS styles spread onto the legend container element. |
+| `legend.shapeStyles` | `Record<string, unknown>[]` | Per-index styles applied to legend shape glyphs. Used as a fallback when series data does not provide its own `legendShapeStyle`. |
+
+## Advanced Usage
+
+### Custom Rendering with Render Prop
+
+For complete control over legend rendering, use the `render` prop to provide a custom layout function. Here is an example of a custom layout where the item color is synced with the chart segment color by referencing the generated item in the global charts context:
+
+<Source
+	language="tsx"
+	code={ `<Legend
+		chartId="chart-with-custom-legend"
+		render={ ( items ) => (
+			<div className="custom-legend">
+				{ customLegendItems.map( ( customLegendItem, i ) => (
+					<div key={ i } className="custom-legend-item">
+						<span
+							className="legend-bullet"
+							style={ { backgroundColor: items[i].color } }
+							aria-hidden="true"
+						></span>
+						<span>{ customLegendItem.label }: { customLegendItem.value }</span>
+					</div>
+				) ) }
+			</div>
+		) }
+	/>` }
+/>
+
+The `render` prop receives the legend items array and allows you to create completely custom legend layouts, bypassing the default visx-based rendering.
+
+### Custom Glyphs
+
+Provide custom glyph rendering functions for unique symbols or complex visualizations:
+
+<Source
+	language="tsx"
+	code={ `const CustomGlyph = ( { color, size } ) => (
+		<circle fill={ color } r={ size } />
+	);
+
+	<Legend
+		items={ [
+			{
+				label: 'Series 1',
+				value: '42%',
+				color: '#3858E9',
+				glyphSize: 8,
+				renderGlyph: CustomGlyph,
+			},
+		] }
+	/>` }
+/>
+
+Custom glyphs should be centered at the provided `x` and `y` coordinates. The glyph will be rendered at `glyphSize * 2` dimensions.
+
+### Dashboard with Centralized Legends
+
+This example demonstrates a complete dashboard implementation using Legend with chart context integration:
+
+<Canvas of={ LegendStories.DashboardExample } />
+
+Key implementation details:
+
+1. **Chart Setup**: Each chart has a unique `chartId` and `showLegend={false}`
+2. **Centralized Legends**: All legends are placed in a dedicated sidebar
+3. **Automatic Data Sync**: Legends automatically retrieve data from their respective charts
+4. **Clean Layout**: Charts remain uncluttered while legends are easily accessible
+
+## Accessibility
+
+### Semantic HTML
+
+The Legend component renders as a semantic list (`role="list"`) with each legend item properly structured for screen readers.
+
+### Text Truncation
+
+When using ellipsis mode, truncated text automatically includes a `title` attribute for screen readers and displays a native tooltip on hover showing the complete text.
+
+### Keyboard Navigation
+
+Legend items are rendered as standard DOM elements and follow native accessibility patterns. When using interactive legends, keyboard navigation follows ARIA best practices:
+
+- **Tab**: Focus individual legend items
+- **Enter/Space**: Toggle series visibility
+- **Screen Reader**: Announces current visibility state ("visible" or "hidden")

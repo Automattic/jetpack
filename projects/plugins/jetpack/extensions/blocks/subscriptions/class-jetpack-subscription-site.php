@@ -304,7 +304,7 @@ HTML
 	<!-- wp:group {"layout":{"type":"constrained","contentSize":"480px"}} -->
 	<div class="wp-block-group">
 HTML;
-					$inner_content_end       = <<<HTML
+					$inner_content_end       = <<<'HTML'
 	</div>
 	<!-- /wp:group -->
 </div>

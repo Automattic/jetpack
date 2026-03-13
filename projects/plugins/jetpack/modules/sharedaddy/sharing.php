@@ -8,10 +8,12 @@
 // phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
 
 use Automattic\Jetpack\Assets;
-use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
-use Automattic\Jetpack\Status\Host;
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
 
 if ( ! defined( 'WP_SHARING_PLUGIN_URL' ) ) {
 	define( 'WP_SHARING_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
@@ -126,26 +128,17 @@ class Sharing_Admin {
 	}
 
 	/**
-	 * Register Sharing settings menu page in offline mode or when wp-admin interface is enabled.
+	 * Register Sharing settings menu page in Settings > Sharing.
 	 */
 	public function subscription_menu() {
-		$is_user_connected = ( new Connection_Manager() )->is_user_connected();
-
-		if (
-			( new Status() )->is_offline_mode()
-			// Always enable Settings > Sharing on Atomic and Simple.
-			|| ( new Host() )->is_wpcom_platform()
-			|| ! $is_user_connected
-		) {
-			add_submenu_page(
-				'options-general.php',
-				__( 'Sharing Settings', 'jetpack' ),
-				__( 'Sharing', 'jetpack' ),
-				'manage_options',
-				'sharing',
-				array( $this, 'wrapper_admin_page' )
-			);
-		}
+		add_submenu_page(
+			'options-general.php',
+			__( 'Sharing Settings', 'jetpack' ),
+			__( 'Sharing', 'jetpack' ),
+			'manage_options',
+			'sharing',
+			array( $this, 'wrapper_admin_page' )
+		);
 	}
 
 	/**
@@ -371,10 +364,8 @@ class Sharing_Admin {
 		?>
 
 		<?php
-			$block_availability = Jetpack_Gutenberg::get_cached_availability();
-			$is_block_available = (bool) isset( $block_availability['sharing-buttons'] ) && $block_availability['sharing-buttons']['available'];
-			$is_block_theme     = wp_is_block_theme();
-			$show_block_message = $is_block_available && $is_block_theme;
+			$is_simple_site     = defined( 'IS_WPCOM' ) && IS_WPCOM;
+			$show_block_message = $this->should_use_site_editor() && ! $is_simple_site;
 
 			// We either show old services config or the sharing block message.
 		if ( current_user_can( 'manage_options' ) ) :
@@ -384,7 +375,7 @@ class Sharing_Admin {
 	</div>
 
 	<script type="text/javascript">
-		var sharing_loading_icon = '<?php echo esc_js( admin_url( '/images/loading.gif' ) ); ?>';
+		var sharing_loading_icon = <?php echo wp_json_encode( admin_url( '/images/loading.gif' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
 		<?php
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- we handle the nonce on the PHP side.
 		if (
@@ -394,15 +385,27 @@ class Sharing_Admin {
 			?>
 		jQuery(document).ready(function() {
 			// Prefill new service box and then open it
-			jQuery( '#new_sharing_name' ).val( '<?php echo esc_js( sanitize_text_field( wp_unslash( $_GET['name'] ) ) ); ?>' );
-			jQuery( '#new_sharing_url' ).val( '<?php echo esc_js( sanitize_text_field( wp_unslash( $_GET['url'] ) ) ); ?>' );
-			jQuery( '#new_sharing_icon' ).val( '<?php echo esc_js( sanitize_text_field( wp_unslash( $_GET['icon'] ) ) ); ?>' );
+			jQuery( '#new_sharing_name' ).val( <?php echo wp_json_encode( sanitize_text_field( wp_unslash( $_GET['name'] ) ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?> );
+			jQuery( '#new_sharing_url' ).val( <?php echo wp_json_encode( sanitize_text_field( wp_unslash( $_GET['url'] ) ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?> );
+			jQuery( '#new_sharing_icon' ).val( <?php echo wp_json_encode( sanitize_text_field( wp_unslash( $_GET['icon'] ) ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?> );
 			jQuery( '#add-a-new-service' ).click();
 		});
 		<?php endif; ?>
 	</script>
 		<?php
 		// phpcs:enable WordPress.Security.NonceVerification.Recommended
+	}
+
+	/**
+	 * Check if we should encourage to use the site editor instead of the legacy sharing settings.
+	 *
+	 * @return boolean
+	 */
+	public function should_use_site_editor() {
+			$block_availability = Jetpack_Gutenberg::get_cached_availability();
+			$is_block_available = isset( $block_availability['sharing-buttons'] ) && $block_availability['sharing-buttons']['available'];
+			$is_block_theme     = wp_is_block_theme();
+			return $is_block_available && $is_block_theme;
 	}
 
 	/**
@@ -424,6 +427,20 @@ class Sharing_Admin {
 		<div class="share_manage_options">
 		<h2><?php esc_html_e( 'Sharing Buttons', 'jetpack' ); ?></h2>
 		<p><?php esc_html_e( 'Add sharing buttons to your blog and allow your visitors to share posts with their friends.', 'jetpack' ); ?></p>
+
+		<?php
+			$is_simple_site = defined( 'IS_WPCOM' ) && IS_WPCOM;
+		if ( $this->should_use_site_editor() && $is_simple_site ) :
+			$this->site_editor_prompt_display();
+			?>
+					<div class="notice notice-info inline">
+						<p>
+						<?php esc_html_e( 'You are using a block-based theme. We recommend that you disable the legacy sharing features below and add a sharing button block to your theme’s template instead.', 'jetpack' ); ?>
+						</p>
+					</div>
+				<?php
+			endif;
+		?>
 
 		<div id="services-config">
 			<table id="available-services">
@@ -750,14 +767,7 @@ class Sharing_Admin {
 			<div class="sharing-block-message__items-wrapper">
 				<div>
 					<p><?php esc_html_e( 'Add sharing buttons to your blog and allow your visitors to share posts with their friends.', 'jetpack' ); ?></p>
-					<div class="sharing-block-message__buttons-wrapper">
-						<a href="<?php echo esc_url( admin_url( 'site-editor.php?path=%2Fwp_template' ) ); ?>" class="button button-primary">
-							<?php esc_html_e( 'Go to the site editor', 'jetpack' ); ?>
-						</a>
-						<a href="<?php echo esc_url( Redirect::get_url( 'jetpack-support-sharing-block' ) ); ?>" class="button" target="_blank" rel="noopener noreferrer">
-							<?php esc_html_e( 'Learn how to add Sharing Buttons', 'jetpack' ); ?>
-						</a>
-					</div>
+					<?php $this->site_editor_prompt_display(); ?>
 				</div>
 				<div>
 					<p><?php esc_html_e( 'Sharing Buttons example:', 'jetpack' ); ?></p>
@@ -792,6 +802,34 @@ class Sharing_Admin {
 		</div>
 		<?php
 	}
+
+	/**
+	 * Display the "Go to the site editor" prompt.
+	 *
+	 * @return void
+	 */
+	public function site_editor_prompt_display() {
+		$host = new Status\Host();
+
+		$wpcom_link = 'https://wordpress.com/support/wordpress-editor/blocks/sharing-buttons-block/';
+
+		if ( function_exists( 'localized_wpcom_url' ) ) {
+			$wpcom_link = localized_wpcom_url( $wpcom_link );
+		}
+
+		$link = $host->is_wpcom_platform() ? $wpcom_link : Redirect::get_url( 'jetpack-support-sharing-block' );
+
+		?>
+			<div class="sharing-block-message__buttons-wrapper">
+				<a href="<?php echo esc_url( admin_url( 'site-editor.php?path=%2Fwp_template' ) ); ?>" class="button button-primary">
+					<?php esc_html_e( 'Go to the site editor', 'jetpack' ); ?>
+				</a>
+				<a data-target="wpcom-help-center" href="<?php echo esc_url( $link ); ?>" class="button" target="_blank" rel="noopener noreferrer">
+					<?php esc_html_e( 'Learn how to add Sharing Buttons', 'jetpack' ); ?>
+				</a>
+			</div>
+		<?php
+	}
 }
 
 /**
@@ -811,7 +849,7 @@ function jetpack_post_sharing_get_value( array $post ) {
 	}
 
 	// if sharing IS disabled on this post, enabled=false, so negate the meta
-	return (bool) ! get_post_meta( $post['id'], 'sharing_disabled', true );
+	return ! get_post_meta( $post['id'], 'sharing_disabled', true );
 }
 
 /**

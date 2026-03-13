@@ -35,6 +35,10 @@
 
 namespace Automattic\Jetpack\Search\WPES;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Query parser class.
  */

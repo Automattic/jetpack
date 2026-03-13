@@ -16,6 +16,10 @@ use Jetpack;
 use Jetpack_Gutenberg;
 use Jetpack_Mapbox_Helper;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 if ( ! class_exists( 'Jetpack_Mapbox_Helper' ) ) {
 	require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-mapbox-helper.php';
 }
@@ -58,7 +62,7 @@ function wpcom_load_event( $access_token_source ) {
 /**
  * Function to determine which map provider to choose
  *
- * @param array $html The block's HTML - needed for the class name.
+ * @param string $html The block's HTML - needed for the class name.
  *
  * @return string The name of the map provider.
  */
@@ -229,12 +233,12 @@ function map_block_from_geo_points( $points ) {
 		$points
 	);
 
-	$map_block  = '<!-- wp:jetpack/map ' . wp_json_encode( $map_block_data ) . ' -->' . PHP_EOL;
+	$map_block  = '<!-- wp:jetpack/map ' . wp_json_encode( $map_block_data, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ' -->' . PHP_EOL;
 	$map_block .= sprintf(
 		'<div class="wp-block-jetpack-map" data-map-style="default" data-map-details="true" data-points="%1$s" data-zoom="%2$d" data-map-center="%3$s" data-marker-color="red" data-show-fullscreen-button="true">',
-		esc_html( wp_json_encode( $map_block_data['points'] ) ),
-		(int) $map_block_data['zoom'],
-		esc_html( wp_json_encode( $map_block_data['mapCenter'] ) )
+		esc_attr( wp_json_encode( $map_block_data['points'], JSON_HEX_AMP | JSON_UNESCAPED_SLASHES ) ),
+		$map_block_data['zoom'],
+		esc_attr( wp_json_encode( $map_block_data['mapCenter'], JSON_HEX_AMP | JSON_UNESCAPED_SLASHES ) )
 	);
 	$map_block .= '<ul>' . implode( "\n", $list_items ) . '</ul>';
 	$map_block .= '</div>' . PHP_EOL;

@@ -3,7 +3,7 @@ import { BlockControls } from '@wordpress/block-editor';
 import { ExternalLink, MenuGroup, MenuItem, ToolbarDropdownMenu } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
-import { check, update, warning } from '@wordpress/icons';
+import { check, update, cautionFilled as warning } from '@wordpress/icons';
 import { store as membershipProductsStore } from '../../../store/membership-products';
 import { CUSTOMIZER_EDITOR, getEditorType } from '../../get-editor-type';
 import { useProductManagementContext } from './context';
@@ -30,7 +30,7 @@ function getProductDescription( product ) {
 			return amount;
 	}
 	return sprintf(
-		// translators: %s: amount, plan interval
+		// translators: %1$s: formatted price, %2$s: plan interval
 		__( '%1$s / %2$s', 'jetpack' ),
 		amount,
 		interval

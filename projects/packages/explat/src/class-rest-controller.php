@@ -64,6 +64,11 @@ class REST_Controller {
 					'as_connected_user' => array(
 						'type' => 'boolean',
 					),
+					'platform'          => array(
+						'type'    => 'string',
+						'enum'    => array( 'jetpack', 'calypso', 'wpcom' ),
+						'default' => 'jetpack',
+					),
 				),
 			)
 		);
@@ -78,7 +83,8 @@ class REST_Controller {
 	public function get_assignments( $request ) {
 		$response          = null;
 		$is_user_connected = ( new Jetpack_Connection() )->is_user_connected();
-		$request_path      = '/experiments/' . self::EXPLAT_API_VERSION . '/assignments/jetpack';
+		$platform          = $request->get_param( 'platform' );
+		$request_path      = '/experiments/' . self::EXPLAT_API_VERSION . '/assignments/' . $platform;
 		$args              = array(
 			'experiment_name' => $request['experiment_name'],
 			'anon_id'         => $request['anon_id'],

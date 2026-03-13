@@ -63,6 +63,13 @@ const PageError = ( { url, error }: PageErrorProps ) => {
 			);
 		}
 
+		if ( type === 'element-not-stable' ) {
+			return __(
+				"The main LCP element didn't remain visible long enough to analyze. This can occur with slideshows or animated sections.",
+				'jetpack-boost'
+			);
+		}
+
 		return sprintf(
 			/* translators: %s is the error type */
 			__(

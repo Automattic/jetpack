@@ -26,6 +26,12 @@
 	flex-wrap: wrap;
 	justify-content: space-between;
 	gap: calc(var(--horizontal-spacing) * 2);
+	background-color: var(--jp-white);
+	border-bottom: 1px solid var(--jp-gray);
+	padding: 3rem 3rem 2.5rem;
+	// Negative margins to counteract container padding
+	margin-top: -1.5rem;
+	margin-inline: -3rem;
 }
 
 .product-interstitial__license-activation-link {
@@ -36,6 +42,26 @@
 	}
 }
 
+.pricing-column {
+
+	h2 {
+		font-size: 2rem;
+	}
+}
+
 .not-strong {
 	font-weight: 400 !important;
+}
+
+.interstitialContainer {
+	--max-container-width: 100%;
+	padding: 48px;
+	background: #fcfcfc;
+}
+
+.spinner.spinner {
+	margin: 25px auto;
+	width: 30px;
+	height: 30px;
+	align-self: center;
 }

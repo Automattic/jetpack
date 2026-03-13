@@ -12,7 +12,7 @@ namespace Automattic\Jetpack\Image_CDN;
  */
 final class Image_CDN {
 
-	const PACKAGE_VERSION = '0.7.15';
+	const PACKAGE_VERSION = '0.7.24';
 
 	/**
 	 * Singleton.
@@ -60,7 +60,7 @@ final class Image_CDN {
 	 * @return object
 	 */
 	public static function instance() {
-		if ( ! is_a( self::$instance, self::class ) ) {
+		if ( ! self::$instance instanceof self ) {
 			self::$instance = new self();
 			self::$instance->setup();
 			self::$is_enabled = true;
@@ -325,14 +325,19 @@ final class Image_CDN {
 	/**
 	 * Identify images in post content, and if images are local (uploaded to the current site), pass through Photon.
 	 *
-	 * @param string $content The content.
+	 * @param string|mixed $content The content; should be a string but will convert to an empty string if not.
 	 *
 	 * @uses self::validate_image_url, apply_filters, Image_CDN_Core::cdn_url, esc_url
 	 * @filter the_content
 	 *
-	 * @return string
+	 * @return string The content.
 	 */
 	public static function filter_the_content( $content ) {
+		// Early return if content is empty or not a string.
+		if ( ! is_string( $content ) || '' === $content ) {
+			return '';
+		}
+
 		static $image_tags      = array( 'IMG', 'AMP-IMG', 'AMP-ANIM' );
 		$content_width          = null;
 		$image_sizes            = null;
@@ -358,8 +363,10 @@ final class Image_CDN {
 			}
 
 			// Identify image source.
-			$src_orig = $processor->get_attribute( 'src' );
-			$src      = $src_orig;
+			$src_orig             = $processor->get_attribute( 'src' );
+			$src                  = $src_orig;
+			$placeholder_src      = null;
+			$placeholder_src_orig = null;
 
 			/*
 			 * Only examine tags that are considered an image,
@@ -643,14 +650,12 @@ final class Image_CDN {
 					$processor->set_attribute( 'src', $photon_url );
 
 					// If Lazy Load is in use, pass placeholder image through Photon.
-					if ( isset( $placeholder_src ) && self::validate_image_url( $placeholder_src ) ) {
+					if ( $placeholder_src !== null && self::validate_image_url( $placeholder_src ) ) {
 						$placeholder_src = Image_CDN_Core::cdn_url( $placeholder_src );
 
 						if ( $placeholder_src !== $placeholder_src_orig ) {
 							$processor->set_attribute( $source_type, $placeholder_src );
 						}
-
-						unset( $placeholder_src );
 					}
 
 					// If we are not transforming the image with resize, fit, or letterbox (lb), then we should remove

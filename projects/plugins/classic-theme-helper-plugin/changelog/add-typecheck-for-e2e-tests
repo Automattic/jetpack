@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Added typecheck support for E2E tests.

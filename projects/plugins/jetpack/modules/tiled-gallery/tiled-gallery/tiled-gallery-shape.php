@@ -1,4 +1,9 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 // phpcs:disable Generic.Files.OneObjectStructurePerFile.MultipleFound
 /**
  * Jetpack tiled gallery shape class.

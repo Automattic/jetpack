@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Social: Fix image generator token reset on save resulting in font not being saved.

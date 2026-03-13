@@ -70,7 +70,7 @@ use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Lazy_Entry;
 
 final class Data_Sync {
 
-	const PACKAGE_VERSION = '0.6.7';
+	const PACKAGE_VERSION = '0.6.8';
 
 	/**
 	 * @var Registry

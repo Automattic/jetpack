@@ -76,6 +76,10 @@ class Main {
 
 		XMLRPC_Provider::init();
 		REST_Provider::init();
+		Transient_Cleanup::init();
+
+		// Clean up transient cron on module deactivation.
+		add_action( 'jetpack_deactivate_module_stats', array( Transient_Cleanup::class, 'unschedule_cleanup' ) );
 
 		// Set up package version hook.
 		add_filter( 'jetpack_package_versions', __NAMESPACE__ . '\Package_Version::send_package_version_to_tracker' );
@@ -120,8 +124,11 @@ class Main {
 	public static function map_meta_caps( $caps, $cap, $user_id ) {
 		// Map view_stats to exists.
 		if ( 'view_stats' === $cap ) {
-			$user        = new WP_User( $user_id );
-			$user_role   = array_shift( $user->roles );
+			$user = new WP_User( $user_id );
+			// WordPress 6.9 introduced lazy-loading of some WP_User properties, including `roles`.
+			// It also made said properties protected, so we can't modify keys directly.
+			$user_roles  = $user->roles;
+			$user_role   = array_shift( $user_roles ); // Work with the copy
 			$stats_roles = Options::get_option( 'roles' );
 
 			// Is the users role in the available stats roles?

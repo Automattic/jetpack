@@ -7,6 +7,10 @@
  * @author Automattic
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /* Include standard constants and librarian. */
 require_once __DIR__ . '/sitemap-constants.php';
 require_once __DIR__ . '/sitemap-librarian.php';

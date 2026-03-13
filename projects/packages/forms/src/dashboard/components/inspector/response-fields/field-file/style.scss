@@ -1,0 +1,86 @@
+@use "@wordpress/base-styles/breakpoints";
+@use "@wordpress/base-styles/colors";
+
+.jp-forms__inbox-response-field-file {
+	margin-top: 4px;
+}
+
+.jp-forms__inbox-response-file {
+	display: flex;
+	justify-content: space-between;
+	gap: 12px;
+}
+
+.jp-forms__inbox-response-file__icon {
+	width: 32px;
+	min-width: 32px;
+	height: 32px;
+	margin-top: 8px;
+	background-size: 18px;
+	border-radius: 50%;
+	background-color: colors.$gray-100;
+	background-image: url(../../../../../contact-form/images/file-icons/txt.svg);
+	background-repeat: no-repeat;
+	background-position: center;
+
+	@media (min-width: #{ (breakpoints.$break-medium + 1) }) {
+		width: 40px;
+		min-width: 40px;
+		height: 40px;
+		background-size: 24px;
+		margin-top: 0;
+	}
+
+	&.icon-cal {
+		background-image: url(../../../../../contact-form/images/file-icons/cal.svg);
+	}
+
+	&.icon-html {
+		background-image: url(../../../../../contact-form/images/file-icons/html.svg);
+	}
+
+	&.icon-mp3 {
+		background-image: url(../../../../../contact-form/images/file-icons/mp3.svg);
+	}
+
+	&.icon-mp4 {
+		background-image: url(../../../../../contact-form/images/file-icons/mp4.svg);
+	}
+
+	&.icon-pdf {
+		background-image: url(../../../../../contact-form/images/file-icons/pdf.svg);
+	}
+
+	&.icon-png {
+		background-image: url(../../../../../contact-form/images/file-icons/png.svg);
+	}
+
+	&.icon-ppt {
+		background-image: url(../../../../../contact-form/images/file-icons/ppt.svg);
+	}
+
+	&.icon-sql {
+		background-image: url(../../../../../contact-form/images/file-icons/sql.svg);
+	}
+
+	&.icon-txt {
+		background-image: url(../../../../../contact-form/images/file-icons/txt.svg);
+	}
+
+	&.icon-xls {
+		background-image: url(../../../../../contact-form/images/file-icons/xls.svg);
+	}
+
+	&.icon-zip {
+		background-image: url(../../../../../contact-form/images/file-icons/zip.svg);
+	}
+
+	&.has-thumbnail {
+		background-image: none;
+	}
+}
+
+.jp-forms__inbox-response-file__info {
+	display: flex;
+	gap: 12px;
+}

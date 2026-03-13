@@ -2,14 +2,15 @@ import { createBlock } from '@wordpress/blocks';
 import { __, sprintf } from '@wordpress/i18n';
 
 const textFields = [
-	'jetpack/field-text',
+	'jetpack/field-date',
 	'jetpack/field-email',
 	'jetpack/field-name',
-	'jetpack/field-url',
-	'jetpack/field-telephone',
-	'jetpack/field-textarea',
 	'jetpack/field-number',
-	'jetpack/field-date',
+	'jetpack/field-telephone',
+	'jetpack/field-text',
+	'jetpack/field-textarea',
+	'jetpack/field-time',
+	'jetpack/field-url',
 ];
 
 const choiceFields = [ 'jetpack/field-checkbox-multiple', 'jetpack/field-radio' ];
@@ -57,6 +58,11 @@ const fieldConfig = {
 		label: __( 'Date', 'jetpack-forms' ),
 		labelPlaceholder: __( 'Add label…', 'jetpack-forms' ),
 	},
+	'jetpack/field-time': {
+		type: 'time',
+		label: __( 'Time', 'jetpack-forms' ),
+		labelPlaceholder: __( 'Add label…', 'jetpack-forms' ),
+	},
 	'jetpack/field-select': {
 		type: 'dropdown',
 		label: '',
@@ -87,7 +93,7 @@ const fieldConfig = {
 		type: 'checkbox',
 		label: '',
 		labelPlaceholder: sprintf(
-			/* translators: placeholder is a type of consent: implicit or explicit */
+			/* translators: %s: a type of consent: implicit or explicit */
 			__( 'Add %s consent message…', 'jetpack-forms' ),
 			'implicit'
 		),
@@ -151,7 +157,8 @@ const createTextFieldInnerBlocks = ( blockName, existingInnerBlocks = [] ) => {
 	return [
 		createBlock( 'jetpack/label', {
 			...( existingLabel?.attributes || {} ),
-			label: config.label,
+			// Use new field label only if there wasn't label already
+			label: existingLabel?.attributes?.label || config.label,
 			placeholder: config.labelPlaceholder,
 		} ),
 		createBlock( 'jetpack/input', {
@@ -172,7 +179,8 @@ const createChoiceFieldInnerBlocks = ( blockName, existingInnerBlocks = [], attr
 
 	const label = createBlock( 'jetpack/label', {
 		...( existingLabel?.attributes || {} ),
-		label: config.label,
+		// Use new field label only if there wasn't label already
+		label: existingLabel?.attributes?.label || config.label,
 		placeholder: config.labelPlaceholder,
 	} );
 

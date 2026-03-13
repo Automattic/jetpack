@@ -5,7 +5,7 @@ import {
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 
-const PERCENTAGE_WIDTHS = [ 25, 33, 50, 75, 100 ];
+const PERCENTAGE_WIDTHS = [ 25, 33, 50, 75, 100, 'auto' ];
 
 export default function JetpackFieldWidth( { setAttributes, width } ) {
 	return (
@@ -29,7 +29,7 @@ export default function JetpackFieldWidth( { setAttributes, width } ) {
 					return (
 						<ToggleGroupControlOption
 							key={ widthValue }
-							label={ `${ widthValue }%` }
+							label={ widthValue === 'auto' ? __( 'Auto', 'jetpack-forms' ) : `${ widthValue }%` }
 							value={ widthValue }
 						/>
 					);

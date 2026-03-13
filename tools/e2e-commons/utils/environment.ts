@@ -1,7 +1,7 @@
 import fs from 'fs';
 import config from 'config';
-import logger from '../logger.js';
-import { executeCommand } from './cli.js';
+import logger from '../logger';
+import { executeCommand } from './cli';
 
 interface TestSite {
 	url: string;
@@ -29,7 +29,7 @@ const { TEST_SITE } = process.env;
 export function getConfigTestSite(): TestSite {
 	const testSite = TEST_SITE ? TEST_SITE : 'default';
 	logger.debug( `Using '${ testSite }' test site config` );
-	return config.get( `testSites.${ testSite }` );
+	return config.get< TestSite >( `testSites.${ testSite }` );
 }
 
 /**
@@ -69,16 +69,35 @@ export function resolveSiteUrl(): string {
 	let url: string | undefined;
 
 	if ( TEST_SITE ) {
-		const siteConfig = config.get( `testSites.${ TEST_SITE }` );
+		const siteConfig = config.get< { get?: ( key: string ) => string; url?: string } >(
+			`testSites.${ TEST_SITE }`
+		);
 		url = typeof siteConfig.get === 'function' ? siteConfig.get( 'url' ) : siteConfig.url;
-	} else {
-		logger.debug( 'Checking for existing tunnel url' );
-		const filePath = config.get( 'temp.tunnels' );
+	} else if ( process.env.USE_CLOUDFLARE_TUNNEL ) {
+		logger.debug( 'USE_CLOUDFLARE_TUNNEL is set, checking cloudflared tunnel file' );
+
+		const cloudflaredPath = config.get( 'dirs.temp' ) + '/cloudflared-url';
 		try {
-			url = fs.readFileSync( filePath, 'utf8' ).replace( 'http:', 'https:' );
-		} catch ( error ) {
-			if ( error.code === 'ENOENT' ) {
-				logger.warn( `"${ filePath }" file doesn't exist` );
+			url = fs.readFileSync( cloudflaredPath, 'utf8' ).replace( 'http:', 'https:' );
+			logger.debug( `Using cloudflared tunnel URL from file: ${ url }` );
+		} catch ( error: unknown ) {
+			if ( error instanceof Error && ( error as NodeJS.ErrnoException ).code === 'ENOENT' ) {
+				logger.warn( 'USE_CLOUDFLARE_TUNNEL is set but cloudflared tunnel file not found' );
+			} else {
+				logger.error( error );
+			}
+		}
+	} else {
+		logger.debug( 'Checking for localtunnel url' );
+
+		// Check localtunnel file first
+		const localtunnelPath = config.get( 'dirs.temp' ) + '/localtunnel-url';
+		try {
+			url = fs.readFileSync( localtunnelPath, 'utf8' ).replace( 'http:', 'https:' );
+			logger.debug( `Using localtunnel URL from file: ${ url }` );
+		} catch ( error: unknown ) {
+			if ( error instanceof Error && ( error as NodeJS.ErrnoException ).code === 'ENOENT' ) {
+				logger.warn( 'Localtunnel file not found' );
 			} else {
 				logger.error( error );
 			}
@@ -89,7 +108,7 @@ export function resolveSiteUrl(): string {
 		throw new Error( 'Site URL could not be resolved. Please check your configuration.' );
 	}
 
-	// Validate the URL
+	// Validate the URL. This will throw if the URL is invalid.
 	const validatedURL = new URL( url );
 	logger.debug( `Using site url: ${ validatedURL }` );
 	return validatedURL.toString().replace( /\/$/, '' ); // Remove trailing slash if present

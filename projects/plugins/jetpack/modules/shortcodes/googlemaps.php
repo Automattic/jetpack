@@ -10,6 +10,10 @@
  * @package automattic/jetpack
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Google maps iframe - transforms code that looks like that:
  * <iframe width="425" height="350" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" src="https://maps.google.com/maps?f=q&amp;source=s_q&amp;hl=bg&amp;geocode=&amp;q=%D0%9C%D0%BB%D0%B0%D0%B4%D0%BE%D1%81%D1%82+1,+%D0%A1%D0%BE%D1%84%D0%B8%D1%8F,+%D0%91%D1%8A%D0%BB%D0%B3%D0%B0%D1%80%D0%B8%D1%8F&amp;sll=37.0625,-95.677068&amp;sspn=40.545434,79.013672&amp;ie=UTF8&amp;hq=&amp;hnear=%D0%9C%D0%BB%D0%B0%D0%B4%D0%BE%D1%81%D1%82+1&amp;ll=42.654446,23.372061&amp;spn=0.036864,0.077162&amp;t=h&amp;z=14&amp;output=embed"></iframe><br /><small><a href="http://maps.google.com/maps?f=q&amp;source=embed&amp;hl=bg&amp;geocode=&amp;q=%D0%9C%D0%BB%D0%B0%D0%B4%D0%BE%D1%81%D1%82+1,+%D0%A1%D0%BE%D1%84%D0%B8%D1%8F,+%D0%91%D1%8A%D0%BB%D0%B3%D0%B0%D1%80%D0%B8%D1%8F&amp;sll=37.0625,-95.677068&amp;sspn=40.545434,79.013672&amp;ie=UTF8&amp;hq=&amp;hnear=%D0%9C%D0%BB%D0%B0%D0%B4%D0%BE%D1%81%D1%82+1&amp;ll=42.654446,23.372061&amp;spn=0.036864,0.077162&amp;t=h&amp;z=14" style="color:#0000FF;text-align:left">Вижте по-голяма карта</a></small>
@@ -68,7 +72,9 @@ function jetpack_googlemaps_embed_to_short_code_callback( $match ) {
 	return "[googlemaps $url]";
 }
 
-add_filter( 'pre_kses', 'jetpack_googlemaps_embed_to_short_code' );
+if ( jetpack_shortcodes_should_hook_pre_kses() ) {
+	add_filter( 'pre_kses', 'jetpack_googlemaps_embed_to_short_code' );
+}
 
 /**
  * Display the [googlemaps] shortcode

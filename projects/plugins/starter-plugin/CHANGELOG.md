@@ -5,6 +5,43 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.9.0 - 2026-01-09
+### Added
+- IDC: Add revalidation for IDCs. [#46268]
+- Tested up to WordPress 6.9 [#45571]
+
+### Changed
+- Update dependencies. [#45179]
+- Update package dependencies. [#45173] [#45200] [#45229] [#45298] [#45299] [#45334] [#45478] [#45652] [#45676] [#45756] [#45915] [#45958] [#46143] [#46456]
+
+### Fixed
+- Ensure proper flags are used with `json_encode()`. [#46117]
+- Jetpack: remove getIconColor functions for block icons. [#45992]
+- My Jetpack: Fix expiring renewal prompt to show all products. [#45995]
+- My Jetpack page: fix visual compatibility issue with Hello Dolly plugin. [#45474]
+
+## 0.8.0 - 2025-09-09
+### Added
+- Add typecheck support for E2E tests. [#44788]
+- My Jetpack: Add analytics for empty product search results. [#44344]
+
+### Changed
+- Improve performance of WordPress.com comment likes by caching and minimizing API requests. [#44205]
+- My Jetpack: Enable access to My Jetpack on WP Multisite. [#44260]
+- My Jetpack: Fix multisite availability check for restricted products and modules. [#44710]
+- My Jetpack: Unify the user connection flow with a unified screen. [#44469]
+- My Jetpack: Update Stats card to include a chart for better analytics. [#43870]
+- Remove CRM installation nudge for Complete plan users. [#45026]
+- Sync: Ignore the ActivityPub Outbox CPT. [#44222]
+- Update package dependencies. [#44020] [#44148] [#44151] [#44206] [#44217] [#44356] [#44677] [#44701] [#44725] [#45027] [#45096] [#45097]
+
+### Fixed
+- JITM: Fix ineffective caching due to expired plugin sync transient [#44117]
+- JITM: Remove jQuery dependency. [#43783]
+- My Jetpack: Fix footer alignment for disconnected accounts. [#44468]
+- My Jetpack: Prevent expiration alerts for products covered by active bundles. [#44586]
+- My Jetpack: Restore plan purchase link. [#44535]
+
 ## 0.7.1 - 2025-06-18
 ### Changed
 - Update package dependencies. [#43839]

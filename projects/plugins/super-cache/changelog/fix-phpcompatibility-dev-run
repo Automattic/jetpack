@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Suppress phpcompatibility sniffs that apply to code that is properly guarded with a version check.
+
+

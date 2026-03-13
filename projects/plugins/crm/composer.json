@@ -28,7 +28,6 @@
 		"create-test": "vendor/bin/codecept generate:cest acceptance $1",
 		"build-tests": "vendor/bin/codecept build",
 		"cs": "temp=$(git diff --diff-filter=d --name-only trunk HEAD | grep '.php'); [[ -n $temp ]] && phpcs-changed -s --always-exit-zero --git --git-base trunk $temp || echo 'No changes found.'",
-		"cs-security": "temp=$(git diff --diff-filter=d --name-only trunk HEAD | grep '.php'); [[ -n $temp ]] && phpcs-changed -s --standard=phpcs.security.xml$([[ ! -f phpcs.security.xml ]] && echo .dist) --always-exit-zero --git --git-base trunk $temp || echo 'No changes found.'",
 		"cs-staged": "temp=$(git diff --diff-filter=d --name-only --cached | grep '.php'); [[ -n $temp ]] && phpcs-changed -s --always-exit-zero --git --git-staged $temp || echo 'No changes found.'",
 		"cs-unstaged": "temp=$(git diff --diff-filter=d --name-only | grep '.php'); [[ -n $temp ]] && phpcs-changed -s --always-exit-zero --git --git-unstaged $temp || echo 'No changes found.'",
 		"phpunit": [
@@ -46,7 +45,7 @@
 		]
 	},
 	"config": {
-		"autoloader-suffix": "06c775433a83ed276f0a1d8ac25f93ba_crmⓥ6_6_1",
+		"autoloader-suffix": "06c775433a83ed276f0a1d8ac25f93ba_crmⓥ6_7_2",
 		"allow-plugins": {
 			"automattic/jetpack-autoloader": true,
 			"automattic/jetpack-composer-plugin": true,

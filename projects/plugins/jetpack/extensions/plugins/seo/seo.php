@@ -9,6 +9,10 @@ namespace Automattic\Jetpack\Extensions\Seo;
 
 use Automattic\Jetpack\Modules;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 add_action(
 	'jetpack_register_gutenberg_extensions',
 	function () {

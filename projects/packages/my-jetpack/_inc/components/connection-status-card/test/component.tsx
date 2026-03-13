@@ -93,7 +93,11 @@ const setConnectionStore = ( {
 	jest
 		.spyOn( storeSelect, 'getConnectionStatus' )
 		.mockReset()
-		.mockReturnValue( { isRegistered, isUserConnected, hasConnectedOwner, userConnectionData } );
+		.mockReturnValue( { isRegistered, isUserConnected, hasConnectedOwner } );
+	jest
+		.spyOn( storeSelect, 'getUserConnectionData' )
+		.mockReset()
+		.mockReturnValue( userConnectionData );
 };
 beforeAll( () => {
 	global.JetpackScriptData = {
@@ -294,7 +298,7 @@ describe( 'ConnectionStatusCard', () => {
 					possibleAccountErrors: {
 						mismatch: {
 							type: 'mismatch',
-							message: 'Your WordPress.com email also used by another user account.',
+							message: 'Your WordPress.com email is also used by another user account.',
 							details: {
 								site_email: 'local@example.com',
 								wpcom_email: 'email@example.com',

@@ -1,25 +1,25 @@
-import { Button, getRedirectUrl, Notice } from '@automattic/jetpack-components';
-import { __, _n, sprintf } from '@wordpress/i18n';
-import { useEffect, useMemo, useState } from 'react';
-import styles from './meta.module.scss';
-import {
-	useCustomCornerstonePages,
-	useCornerstonePagesProperties,
-} from '../lib/stores/cornerstone-pages';
-import { createInterpolateElement } from '@wordpress/element';
+import { isCriticalCssEnabled } from '$features/critical-css/lib/is-critical-css-enabled';
+import { useRegenerateCriticalCssAction } from '$features/critical-css/lib/stores/critical-css-state';
+import { useRegenerationReason } from '$features/critical-css/lib/stores/suggest-regenerate';
+import { useLcpState } from '$features/lcp/lib/stores/lcp-state';
+import { useModulesState } from '$features/module/lib/stores';
+import { useNotices } from '$features/notice/context';
+import InterstitialModalCTA from '$features/upgrade-cta/interstitial-modal-cta';
+import { usePremiumFeatures } from '$lib/stores/premium-features';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import getSupportLink from '$lib/utils/get-support-link';
-import { useRegenerationReason } from '$features/critical-css/lib/stores/suggest-regenerate';
-import { usePremiumFeatures } from '$lib/stores/premium-features';
-import { useRegenerateCriticalCssAction } from '$features/critical-css/lib/stores/critical-css-state';
 import { isSameSiteUrl } from '$lib/utils/is-same-site-url';
-import InterstitialModalCTA from '$features/upgrade-cta/interstitial-modal-cta';
-import { useNotices } from '$features/notice/context';
-import { useLcpState } from '$features/lcp/lib/stores/lcp-state';
-import { ExternalLink } from '@wordpress/components';
+import { Button, getRedirectUrl, Notice } from '@automattic/jetpack-components';
+import { ExternalLink, Tooltip } from '@wordpress/components';
+import { createInterpolateElement } from '@wordpress/element';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import type { FC, ReactNode } from 'react';
-import { isCriticalCssEnabled } from '$features/critical-css/lib/is-critical-css-enabled';
-import { useModulesState } from '$features/module/lib/stores';
+import { useEffect, useMemo, useState } from 'react';
+import {
+	useCornerstonePagesProperties,
+	useCustomCornerstonePages,
+} from '../lib/stores/cornerstone-pages';
+import styles from './meta.module.scss';
 
 export const MetaError = () => (
 	<Notice
@@ -62,7 +62,12 @@ const CornerstonePagesContent = () => {
 
 	const updateCornerstonePages = ( newValue: string ) => {
 		// If the user deletes all the URLs, we should set the list to an empty array.
-		const newItems = newValue ? newValue.split( '\n' ).map( line => line.trim() ) : [];
+		const newItems = newValue
+			? newValue
+					.split( '\n' )
+					.map( line => line.trim() )
+					.filter( Boolean ) // Filter empty lines for better UX
+			: [];
 
 		setCornerstonePages( newItems, () => {
 			setNotice( {
@@ -198,6 +203,165 @@ const PredefinedList: FC< PredefinedListProps > = ( { items } ) => {
 	);
 };
 
+type LoadDefaultsButtonProps = {
+	defaultValue: string;
+	inputValue: string;
+	maxPages: number;
+	onValueChange: ( value: string ) => void;
+	className?: string;
+};
+
+const LoadDefaultsButton: FC< LoadDefaultsButtonProps > = ( {
+	defaultValue,
+	inputValue,
+	maxPages,
+	onValueChange,
+	className,
+} ) => {
+	const { setNotice } = useNotices();
+
+	const parsePages = ( value: string ) =>
+		value
+			.split( '\n' )
+			.map( line => line.trim() )
+			.filter( Boolean );
+
+	const defaultPages = useMemo( () => parsePages( defaultValue ), [ defaultValue ] );
+	const currentPages = useMemo( () => parsePages( inputValue ), [ inputValue ] );
+
+	// Calculate derived state once
+	const defaultsAvailability = useMemo( () => {
+		const hasDefaults = defaultPages.length > 0;
+		const missingDefaults = defaultPages.filter( p => ! currentPages.includes( p ) );
+		const availableSlots = Math.max( 0, maxPages - currentPages.length );
+		const hasAllDefaults = missingDefaults.length === 0;
+
+		return {
+			hasDefaults,
+			missingDefaults,
+			availableSlots,
+			hasAllDefaults,
+		};
+	}, [ defaultPages, currentPages, maxPages ] );
+
+	const getTooltipMessage = ( missingDefaults: string[], availableSlots: number ) => {
+		const pagesToLoad = Math.min( missingDefaults.length, availableSlots );
+		const willTruncate = pagesToLoad < missingDefaults.length;
+
+		return willTruncate
+			? sprintf(
+					/* translators: %1$d is pages that will be included, %2$d is total available pages */
+					__( 'Include %1$d of %2$d default pages (plan limit).', 'jetpack-boost' ),
+					pagesToLoad,
+					missingDefaults.length
+			  )
+			: sprintf(
+					/* translators: %d is the number of pages that will be included */
+					_n(
+						'Include %d default page from compatible plugins.',
+						'Include %d default pages from compatible plugins.',
+						pagesToLoad,
+						'jetpack-boost'
+					),
+					pagesToLoad
+			  );
+	};
+
+	const loadDefaultValue = () => {
+		// Use pre-calculated values
+		const { missingDefaults, availableSlots } = defaultsAvailability;
+		const toAppend = missingDefaults.slice( 0, availableSlots );
+		const newPages = [ ...currentPages, ...toAppend ];
+
+		// Update the input value with the combined list
+		onValueChange( newPages.join( '\n' ) );
+
+		// Show appropriate feedback
+		if ( toAppend.length < missingDefaults.length ) {
+			setNotice( {
+				id: 'cornerstone-load-defaults',
+				type: 'error',
+				message: sprintf(
+					/* translators: %1$d is pages included, %2$d is total available pages */
+					__( 'Included %1$d of %2$d default pages (plan limit reached).', 'jetpack-boost' ),
+					toAppend.length,
+					missingDefaults.length
+				),
+			} );
+		} else {
+			setNotice( {
+				id: 'cornerstone-load-defaults',
+				type: 'success',
+				message: sprintf(
+					/* translators: %d is the number of pages included */
+					_n(
+						'Included %d default page.',
+						'Included %d default pages.',
+						toAppend.length,
+						'jetpack-boost'
+					),
+					toAppend.length
+				),
+			} );
+		}
+
+		recordBoostEvent( 'cornerstone_pages_load_default', {
+			loaded_count: toAppend.length,
+			available_count: missingDefaults.length,
+			was_truncated: toAppend.length < missingDefaults.length ? 'true' : 'false',
+		} );
+	};
+
+	// Simplified button state logic using pre-calculated values
+	const getButtonState = () => {
+		const { hasDefaults, missingDefaults, availableSlots, hasAllDefaults } = defaultsAvailability;
+
+		if ( ! hasDefaults ) {
+			return {
+				disabled: true,
+				title: __( 'No default pages available. Add pages manually.', 'jetpack-boost' ),
+			};
+		}
+
+		if ( hasAllDefaults ) {
+			return {
+				disabled: true,
+				title: __( 'Default pages are already included.', 'jetpack-boost' ),
+			};
+		}
+
+		// Handle case where user has reached plan limit
+		if ( availableSlots === 0 ) {
+			return {
+				disabled: true,
+				title: __( 'Cannot include defaults. Plan limit reached.', 'jetpack-boost' ),
+			};
+		}
+
+		return {
+			disabled: false,
+			title: getTooltipMessage( missingDefaults, availableSlots ),
+		};
+	};
+
+	const buttonState = getButtonState();
+
+	return (
+		<Tooltip text={ buttonState.title } delay={ 0 }>
+			<div>
+				<Button
+					disabled={ buttonState.disabled }
+					onClick={ loadDefaultValue }
+					className={ className }
+					variant="link"
+				>
+					{ __( 'Include default pages', 'jetpack-boost' ) }
+				</Button>
+			</div>
+		</Tooltip>
+	);
+};
+
 const List: FC< ListProps > = ( {
 	items,
 	setItems,
@@ -224,11 +388,24 @@ const List: FC< ListProps > = ( {
 		}
 	};
 
-	const validateItems = ( value: string ) => {
-		const lines = value.split( '\n' ).map( line => line.trim() );
+	// Helper function to resolve paths for multisite homepage detection
+	const getResolvedPath = ( pathname: string, siteUrl: URL ): string => {
+		// For multisite subdirectory installations, "/" should resolve to the site's base path
+		if ( pathname === '/' ) {
+			return siteUrl.pathname;
+		}
+		return pathname;
+	};
 
+	const validateItems = ( value: string ) => {
+		const lines = value
+			.split( '\n' )
+			.map( line => line.trim() )
+			.filter( Boolean );
+
+		// Allow empty input - user can clear all cornerstone pages
 		if ( lines.length === 0 ) {
-			throw new Error( __( 'You must add at least one URL.', 'jetpack-boost' ) );
+			return true;
 		}
 
 		// Check if the number of items exceeds maxItems
@@ -267,7 +444,9 @@ const List: FC< ListProps > = ( {
 				);
 			}
 
-			if ( pathname === siteUrl.pathname ) {
+			// Only consider it homepage if it has no query parameters
+			const resolvedPath = getResolvedPath( pathname, siteUrl );
+			if ( resolvedPath === siteUrl.pathname && ! url?.search ) {
 				throw new Error(
 					__(
 						'The homepage does not need to be added to the list, as it is automatically included.',
@@ -282,15 +461,18 @@ const List: FC< ListProps > = ( {
 
 	function save() {
 		setItems( inputValue );
+		const pageCount = inputValue
+			.split( '\n' )
+			.map( line => line.trim() )
+			.filter( Boolean ).length;
 		recordBoostEvent( 'cornerstone_pages_save', {
-			list_length: inputValue.split( '\n' ).length,
+			list_length: pageCount,
 		} );
 	}
 
-	function loadDefaultValue() {
-		validateInputValue( defaultValue );
-		recordBoostEvent( 'cornerstone_pages_load_default', {} );
-	}
+	const handleValueChange = ( newValue: string ) => {
+		validateInputValue( newValue );
+	};
 
 	return (
 		<div className={ inputInvalid ? styles[ 'has-error' ] : '' }>
@@ -302,21 +484,17 @@ const List: FC< ListProps > = ( {
 			/>
 			{ inputInvalid && <span className={ styles.error }>{ validationError?.message }</span> }
 			{ description && <div className={ styles.description }>{ description }</div> }
-			<Button
-				disabled={ items === inputValue || inputInvalid }
-				onClick={ save }
-				className={ styles.button }
-			>
-				{ __( 'Save', 'jetpack-boost' ) }
-			</Button>
-			<Button
-				disabled={ inputValue === defaultValue }
-				onClick={ loadDefaultValue }
-				className={ styles.button }
-				variant="link"
-			>
-				{ __( 'Load default pages', 'jetpack-boost' ) }
-			</Button>
+			<div className={ styles.buttonGroup }>
+				<Button disabled={ items === inputValue || inputInvalid } onClick={ save }>
+					{ __( 'Save', 'jetpack-boost' ) }
+				</Button>
+				<LoadDefaultsButton
+					defaultValue={ defaultValue }
+					inputValue={ inputValue }
+					maxPages={ maxItems }
+					onValueChange={ handleValueChange }
+				/>
+			</div>
 		</div>
 	);
 };

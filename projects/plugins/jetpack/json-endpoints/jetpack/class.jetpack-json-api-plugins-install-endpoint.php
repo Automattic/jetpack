@@ -105,6 +105,8 @@ class Jetpack_JSON_API_Plugins_Install_Endpoint extends Jetpack_JSON_API_Plugins
 		}
 
 		// No errors, install worked. Now replace the slug with the actual plugin id
+		// @todo This code looks a bit suspect; why do we loop through plugins and only look at the last one?
+		// @phan-suppress-next-line PhanPossiblyUndeclaredVariable -- we return early if there is an issue; otherwise $index and $slug are set in the foreach loop
 		$this->plugins[ $index ] = Plugins_Installer::get_plugin_id_by_slug( $slug );
 
 		return true;

@@ -1,12 +1,6 @@
-/**
- * External dependencies
- */
-import { test as baseTest, expect } from '_jetpack-e2e-commons/fixtures/base-test.ts';
-/**
- * Internal dependencies
- */
-import logger from '_jetpack-e2e-commons/logger.js';
-import { SearchUtils } from '../utils/index.js';
+import { test as baseTest, expect } from '_jetpack-e2e-commons/fixtures/base-test';
+import logger from '_jetpack-e2e-commons/logger';
+import { SearchUtils } from '../utils/index';
 
 export const SEARCH_API_PATTERN =
 	/^https:\/\/public-api\.wordpress.com\/rest\/v1.3\/sites\/\d+\/search.*/;
@@ -359,19 +353,22 @@ const test = baseTest.extend< object, { searchUtils: SearchUtils } >( {
 	 */
 	page: async ( { page }, use ) => {
 		await page.route( SEARCH_API_PATTERN, ( route, request ) => {
-			logger.info( `intercepted search API call: ${ request.url() }` );
+			logger.debug( `intercepted search API call: ${ request.url() }` );
 			const url = new URL( request.url() );
 			const params = url.searchParams;
 
 			// loads response for queries
+			// IMPORTANT: We must create a deep copy of the results array to avoid mutating
+			// the original mock data. Without this, sorting operations would permanently
+			// modify the mock data, causing inconsistent test results on subsequent runs.
 			let body;
 			switch ( params.get( 'query' ) ) {
 				case 'test1':
-					body = { ...searchResultForTest1 };
+					body = { ...searchResultForTest1, results: [ ...searchResultForTest1.results ] };
 					break;
 				case 'test2':
 				default:
-					body = { ...searchResultForTest2 };
+					body = { ...searchResultForTest2, results: [ ...searchResultForTest2.results ] };
 					break;
 			}
 
@@ -402,12 +399,18 @@ const test = baseTest.extend< object, { searchUtils: SearchUtils } >( {
 			const tag = params.get( 'filter[bool][must][0][term][tag.slug]' );
 
 			if ( category ) {
-				body.results = body.results.filter( v => v?.categories?.includes( category ) );
+				body.results = body.results.filter(
+					( v: { categories?: string | string[] } ) => v?.categories?.includes( category )
+				);
 			}
 
 			if ( tag ) {
-				body.results = body.results.filter( v => v?.tags?.includes( tag ) );
+				body.results = body.results.filter(
+					( v: { tags?: string | string[] } ) => v?.tags?.includes( tag )
+				);
 			}
+
+			logger.debug( `returning ${ JSON.stringify( body ) }` );
 
 			route.fulfill( {
 				contentType: 'application/json',

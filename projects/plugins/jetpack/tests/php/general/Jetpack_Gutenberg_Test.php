@@ -5,10 +5,8 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
- * @covers \Automattic\Jetpack\Blocks
  * @covers \Jetpack_Gutenberg
  */
-#[CoversClass( Blocks::class )]
 #[CoversClass( Jetpack_Gutenberg::class )]
 class Jetpack_Gutenberg_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
@@ -347,5 +345,120 @@ class Jetpack_Gutenberg_Test extends WP_UnitTestCase {
 				);
 			}
 		}
+	}
+
+	/**
+	 * Test setting and getting a JS loading strategy for a block.
+	 */
+	public function test_set_and_get_block_js_loading_strategy() {
+		$block_name = 'test-block';
+		$strategy   = array( 'strategy' => 'defer' );
+
+		// Set the strategy
+		Jetpack_Gutenberg::set_block_js_loading_strategy( $block_name, $strategy );
+
+		// Get the strategy and verify it matches
+		$retrieved_strategy = Jetpack_Gutenberg::get_block_js_loading_strategy( $block_name );
+		$this->assertEquals( $strategy, $retrieved_strategy );
+	}
+
+	/**
+	 * Test that getting a JS loading strategy for a non-existent block returns false.
+	 */
+	public function test_get_block_js_loading_strategy_returns_false_for_nonexistent_block() {
+		$block_name = 'nonexistent-block';
+
+		$strategy = Jetpack_Gutenberg::get_block_js_loading_strategy( $block_name );
+		$this->assertEquals(
+			array(
+				'strategy'  => 'defer',
+				'in_footer' => true,
+			),
+			$strategy
+		);
+	}
+
+	/**
+	 * Test setting a boolean JS loading strategy for a block.
+	 */
+	public function test_set_block_js_loading_strategy_with_boolean() {
+		$block_name = 'boolean-strategy-block';
+		$strategy   = true;
+
+		// Set the strategy
+		Jetpack_Gutenberg::set_block_js_loading_strategy( $block_name, $strategy );
+
+		// Get the strategy and verify it matches
+		$retrieved_strategy = Jetpack_Gutenberg::get_block_js_loading_strategy( $block_name );
+		$this->assertEquals( $strategy, $retrieved_strategy );
+	}
+
+	/**
+	 * Test setting multiple JS loading strategies for different blocks.
+	 */
+	public function test_set_multiple_block_js_loading_strategies() {
+		$strategies = array(
+			'block-one'   => array( 'strategy' => 'defer' ),
+			'block-two'   => array( 'strategy' => 'async' ),
+			'block-three' => true,
+			'block-four'  => false,
+		);
+
+		// Set all strategies
+		foreach ( $strategies as $block_name => $strategy ) {
+			Jetpack_Gutenberg::set_block_js_loading_strategy( $block_name, $strategy );
+		}
+
+		// Verify all strategies are retrieved correctly
+		foreach ( $strategies as $block_name => $expected_strategy ) {
+			$retrieved_strategy = Jetpack_Gutenberg::get_block_js_loading_strategy( $block_name );
+			$this->assertEquals( $expected_strategy, $retrieved_strategy, "Strategy mismatch for block: {$block_name}" );
+		}
+	}
+
+	/**
+	 * Test overwriting an existing JS loading strategy for a block.
+	 */
+	public function test_overwrite_block_js_loading_strategy() {
+		$block_name       = 'overwrite-test-block';
+		$initial_strategy = array( 'strategy' => 'defer' );
+		$new_strategy     = array( 'strategy' => 'async' );
+
+		// Set initial strategy
+		Jetpack_Gutenberg::set_block_js_loading_strategy( $block_name, $initial_strategy );
+		$retrieved_strategy = Jetpack_Gutenberg::get_block_js_loading_strategy( $block_name );
+		$this->assertEquals( $initial_strategy, $retrieved_strategy );
+
+		// Overwrite with new strategy
+		Jetpack_Gutenberg::set_block_js_loading_strategy( $block_name, $new_strategy );
+		$retrieved_strategy = Jetpack_Gutenberg::get_block_js_loading_strategy( $block_name );
+		$this->assertEquals( $new_strategy, $retrieved_strategy );
+	}
+	/**
+	 * Test that the reset method clears JS loading strategies.
+	 */
+	public function test_reset_clears_js_loading_strategies() {
+		$block_name = 'reset-test-block';
+		$strategy   = array( 'strategy' => 'defer' );
+
+		// Set a strategy
+		Jetpack_Gutenberg::set_block_js_loading_strategy( $block_name, $strategy );
+
+		// Verify it's set
+		$retrieved_strategy = Jetpack_Gutenberg::get_block_js_loading_strategy( $block_name );
+		$this->assertEquals( $strategy, $retrieved_strategy );
+
+		// Reset the class
+		Jetpack_Gutenberg::reset();
+
+		// Verify the strategy is cleared
+		$retrieved_strategy = Jetpack_Gutenberg::get_block_js_loading_strategy( $block_name );
+		$this->assertEquals(
+			array(
+				'strategy'  => 'defer',
+				'in_footer' => true,
+			),
+			$retrieved_strategy
+		);
 	}
 }

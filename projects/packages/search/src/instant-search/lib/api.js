@@ -83,6 +83,10 @@ function generateAggregation( filter ) {
 
 			return { terms: { field, size: filter.count } };
 		}
+		case 'product_attribute': {
+			const field = `taxonomy.${ filter.attribute }.slug_slash_name`;
+			return { terms: { field, size: filter.count } };
+		}
 		case 'post_type': {
 			return { terms: { field: filter.type, size: filter.count } };
 		}

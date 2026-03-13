@@ -60,5 +60,8 @@ phpcs.xml
 *.code-workspace
 /.vscode/settings.json
 
+# Claude setting files
+.claude/settings.local.json
+
 .pnpm-debug.log
 .pnpm-error.log

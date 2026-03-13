@@ -14,6 +14,10 @@
  * @package automattic/jetpack
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 define( 'GROFILES__CACHE_BUSTER', gmdate( 'YW' ) );
 
 /**

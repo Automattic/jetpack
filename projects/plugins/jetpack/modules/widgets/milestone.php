@@ -7,6 +7,10 @@
  * @package automattic/jetpack
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Includes the milestone widget.  This makes it easier to keep the /milestone/ dir content in sync with wpcom.
  */

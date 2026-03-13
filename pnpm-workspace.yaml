@@ -1,8 +1,113 @@
 packages:
-  - 'projects/*/*'
+  - projects/*/*
   - '!projects/js-packages/jetpack-cli'
-  - 'projects/plugins/*/tests/e2e'
-  - 'tools/cli'
-  - 'tools/e2e-commons'
-  - 'tools/js-tools'
-  - '.github/files/coverage-munger'
+  - projects/plugins/*/tests/e2e
+  - tools/cli
+  - tools/e2e-commons
+  - tools/js-tools
+  - tools/performance
+  - .github/files/coverage-munger
+
+engineStrict: true
+managePackageManagerVersions: false
+preferWorkspacePackages: true
+
+# Be strict about peer deps
+autoInstallPeers: false
+dedupePeerDependents: false
+strictPeerDependencies: true
+
+# No hoisting by default.
+hoistPattern: []
+
+# Silence this warning. Our `jetpack dependencies build-order` (also used by `jetpack build --all`) checks for cycles itself, plus it has a way to indicate that a dep is only for testing.
+ignoreWorkspaceCycles: true
+
+# Package compromise avoidance: let new releases age a day, and don't allow trust downgrades unless explicitly excepted.
+minimumReleaseAge: 1440
+minimumReleaseAgeExclude:
+  # Packages we often want to immediately update after releasing them.
+  - '@automattic/*'
+  - '@woocommerce/*'
+  - '@wordpress/*'
+  # GHSA-7h2j-956f-4vf2
+  - '@isaacs/brace-expansion@5.0.1'
+  # Renovate security update: webpack@5.104.1
+  - webpack@5.104.1
+  # Renovate security update: axios@1.13.5
+  - axios@1.13.5
+  # Renovate security update: qs@6.14.2
+  - qs@6.14.2
+  # Renovate security update: markdown-it@14.1.1
+  - markdown-it@14.1.1
+  # Renovate security update: minimatch@10.2.1
+  - minimatch@10.2.1
+  # Renovate security update: swiper@12.1.2
+  - swiper@12.1.2
+  # Renovate security update: rollup@3.30.0
+  - rollup@3.30.0
+  # Renovate security update: svelte@5.53.5 (also needs devalue@5.6.3)
+  - svelte@5.53.5
+  - devalue@5.6.3
+trustPolicy: no-downgrade
+trustPolicyExclude:
+  # https://github.com/paulmillr/chokidar/issues/1440
+  - chokidar@4.0.3
+
+  # Don't know why 5.1.0 had provenance but 5.1.1 doesn't. But both are over a year old and there's nothing suspicious in the diff. 🤷
+  - reselect@5.1.1
+
+  # Packages where newer majors have provenance but we're still on an older one.
+  - '@octokit/endpoint@9.0.6'
+  - '@octokit/plugin-paginate-rest@9.2.2'
+  - '@oxc-parser/binding-darwin-arm64@0.78.0'
+  - '@oxc-parser/binding-darwin-x64@0.78.0'
+  - '@oxc-parser/binding-linux-arm64-gnu@0.78.0'
+  - '@oxc-parser/binding-linux-arm64-musl@0.78.0'
+  - '@oxc-parser/binding-linux-arm-gnueabihf@0.78.0'
+  - '@oxc-parser/binding-linux-x64-gnu@0.78.0'
+  - '@oxc-parser/binding-linux-x64-musl@0.78.0'
+  - '@oxc-parser/binding-wasm32-wasi@0.78.0'
+  - '@oxc-parser/binding-win32-arm64-msvc@0.78.0'
+  - '@oxc-parser/binding-win32-x64-msvc@0.78.0'
+  - rollup@3.30.0
+  - rxjs@7.8.2
+  - semver@6.3.1
+  - svelte@4.2.19
+  - undici@5.29.0
+  - undici-types@6.21.0
+
+# Package compromise avoidance: require dep build script approval.
+strictDepBuilds: true
+verifyDepsBeforeRun: install
+allowBuilds:
+  # Tries to download/install stuff if optional deps weren't installed.
+  '@swc/core': false
+  esbuild: false
+  unrs-resolver: false
+  # Tries to rebuild its bundled libs if a newer version of libvips-dev is installed, which probably isn't.
+  sharp: false
+  # Attempt to show "remember to install other stuff" spam.
+  svelte-preprocess: false
+  # Attempt to show "support me" spam.
+  core-js: false
+  core-js-pure: false
+  print-this: false
+
+# Package compromise avoidance: Block odd protocols in subdeps
+blockExoticSubdeps: true
+
+# Some optional dependencies we don't actually need.
+ignoredOptionalDependencies:
+  - sass-embedded-all-unknown
+  - sass-embedded-unknown-all
+
+# Dependencies needing patching.
+patchedDependencies:
+
+  # uuid up to v11 had CommonJS files with ESM content too.
+  # No bug report, because it's already fixed in the latest versions.
+  "uuid@<11": .pnpm-patches/uuid.patch
+  # @wordpress/interactivity@6.41.0 declares Window.scheduler as optional, but tsgo's DOM lib
+  # requires it. Upstream fix: https://github.com/WordPress/gutenberg/pull/76070 needs another fix.
+  "@wordpress/interactivity@6.41.0": .pnpm-patches/@wordpress__interactivity@6.41.0.patch

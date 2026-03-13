@@ -10,6 +10,10 @@ namespace Automattic\Jetpack\Extensions\Sharing;
 use Automattic\Jetpack\Modules;
 use Jetpack_Gutenberg;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Register Sharing plugin.
  *
@@ -51,7 +55,7 @@ add_action(
 								return false;
 							}
 
-							return (bool) ! get_post_meta( $post['id'], 'sharing_disabled', true );
+							return ! get_post_meta( $post['id'], 'sharing_disabled', true );
 						},
 						'schema'       => array(
 							'description' => __( 'Are sharing buttons enabled?', 'jetpack' ),

@@ -6,6 +6,10 @@
  * @since 14.0
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Jetpack_Subscribe_Floating_Button class.
  */

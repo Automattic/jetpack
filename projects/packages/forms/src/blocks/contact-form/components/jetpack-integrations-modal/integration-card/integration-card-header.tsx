@@ -2,12 +2,11 @@
  * External dependencies
  */
 import jetpackAnalytics from '@automattic/jetpack-analytics';
-import { Badge } from '@automattic/ui';
-import '@automattic/ui/style.css';
 /**
  * Internal dependencies
  */
 import {
+	Animate,
 	CardHeader,
 	Icon,
 	ToggleControl,
@@ -15,18 +14,22 @@ import {
 	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { chevronDown, chevronUp } from '@wordpress/icons';
-import PluginActionButton from './plugin-action-button';
+import { chevronDown, chevronUp, plugins } from '@wordpress/icons';
+import { Badge } from '@wordpress/ui';
+import clsx from 'clsx';
+import useConfigValue from '../../../../../hooks/use-config-value.ts';
+import PluginActionButton from './plugin-action-button.tsx';
 /**
  * Types
  */
-import type { IntegrationCardProps } from './index';
+import type { IntegrationCardProps } from './index.tsx';
 import type { MouseEvent } from 'react';
+
+const noop = () => {};
 
 const IntegrationCardHeader = ( {
 	title,
 	description,
-	icon,
 	isExpanded,
 	onToggle,
 	cardData = {},
@@ -44,13 +47,15 @@ const IntegrationCardHeader = ( {
 		onHeaderToggleChange,
 		toggleDisabledTooltip,
 		setupBadge,
+		__isPartial,
 	} = cardData;
-	const showPluginAction = type === 'plugin' && ( ! isInstalled || ! isActive );
-	const showConnectedBadge = isConnected || ( isActive && ! needsConnection );
+
+	const showPluginAction = ! __isPartial && type === 'plugin' && ( ! isInstalled || ! isActive );
+	const showConnectedBadge = ! __isPartial && ( isConnected || ( isActive && ! needsConnection ) );
 	const disableFormText = __( 'Disable for this form', 'jetpack-forms' );
 	const enableFormText = __( 'Enable for this form', 'jetpack-forms' );
 
-	const showPendingBadge = ! showPluginAction && ! isConnected && needsConnection;
+	const showPendingBadge = ! __isPartial && ! showPluginAction && ! isConnected && needsConnection;
 
 	const installPluginActionLabel = __( 'Plugin needs install', 'jetpack-forms' );
 	const activatePluginActionLabel = __( 'Plugin needs activation', 'jetpack-forms' );
@@ -89,40 +94,78 @@ const IntegrationCardHeader = ( {
 		onToggle();
 	};
 
+	const isHeaderToggleEnabledFinal = isHeaderToggleEnabled && ! __isPartial; // wait for the full data to load before allwing things to be exanded;
+	const showHeaderToggleFinal = showHeaderToggle && ! __isPartial;
+	const showIntegrationIcons = useConfigValue( 'showIntegrationIcons' );
+
 	return (
-		<CardHeader onClick={ handleHeaderClick } className="integration-card__header">
+		<CardHeader
+			onClick={ __isPartial ? noop : handleHeaderClick }
+			className={ clsx( 'integration-card__header', { 'is-clickable': ! __isPartial } ) }
+		>
 			<div className="integration-card__header-content">
 				<div className="integration-card__header-main">
-					<div className="integration-card__service-icon-container">
-						<Icon
-							icon={ icon }
-							className={ `integration-card__service-icon ${
-								cardData.slug ? `integration-card__service-icon--${ cardData.slug }` : ''
-							}` }
-							size={ 30 }
-						/>
-					</div>
+					{ showIntegrationIcons !== false && (
+						<div className="integration-card__service-icon-container">
+							{ cardData?.iconUrl ? (
+								<img
+									src={ cardData.iconUrl as string }
+									alt=""
+									aria-hidden={ true }
+									width={ 30 }
+									height={ 30 }
+									className={ clsx(
+										'integration-card__service-icon',
+										cardData.slug && `integration-card__service-icon--${ cardData.slug }`
+									) }
+								/>
+							) : (
+								<Icon
+									icon={ plugins }
+									className={ clsx(
+										'integration-card__service-icon',
+										cardData.slug && `integration-card__service-icon--${ cardData.slug }`
+									) }
+									size={ 30 }
+									aria-hidden={ true }
+								/>
+							) }
+						</div>
+					) }
 					<div className="integration-card__title-section">
 						<h3 className="integration-card__title">{ title }</h3>
 						{ description && (
 							<span className="integration-card__description">{ description }</span>
 						) }
+						{ /* Show skeleton badge while loading status */ }
+						{ __isPartial && (
+							<Animate type="loading">
+								{ ( { className } ) => (
+									<Badge
+										intent="draft"
+										className={ clsx( 'integration-card__plugin-badge', className ) }
+									>
+										{ ' ' /* intentionally left blank */ }
+									</Badge>
+								) }
+							</Animate>
+						) }
 						{ showPluginAction && (
 							<Badge
-								intent={ isInstalled && ! isActive ? 'warning' : 'default' }
+								intent={ isInstalled && ! isActive ? 'low' : 'draft' }
 								className="integration-card__plugin-badge"
 							>
 								{ pluginActionLabel }
 							</Badge>
 						) }
 						{ showConnectedBadge && (
-							<Badge intent="success" className="integration-card__connected-badge">
+							<Badge intent="stable" className="integration-card__connected-badge">
 								{ __( 'Enabled', 'jetpack-forms' ) }
 							</Badge>
 						) }
 						{ showPendingBadge &&
 							( setupBadge || (
-								<Badge intent="warning" className="integration-card__setup-badge">
+								<Badge intent="low" className="integration-card__setup-badge">
 									{ __( 'Needs connection', 'jetpack-forms' ) }
 								</Badge>
 							) ) }
@@ -140,29 +183,31 @@ const IntegrationCardHeader = ( {
 							slug={ cardData.slug }
 							pluginFile={ cardData.pluginFile }
 							isInstalled={ isInstalled }
+							isActive={ isActive }
 							refreshStatus={ cardData.refreshStatus }
 							trackEventName={ cardData.trackEventName }
 						/>
 					) }
-					{ ! showPluginAction && showHeaderToggle && (
+					{ ! showPluginAction && showHeaderToggleFinal && (
 						<Tooltip
 							text={
-								! isHeaderToggleEnabled && toggleDisabledTooltip
+								! isHeaderToggleEnabledFinal && toggleDisabledTooltip
 									? toggleDisabledTooltip
 									: getTooltipText( headerToggleValue )
 							}
 						>
 							<span className="integration-card__toggle-tooltip-wrapper">
+								{ /* @ts-expect-error label is missing here. May be use FormToggle then? */ }
 								<ToggleControl
 									checked={ headerToggleValue && ( isActive || isConnected ) }
 									onChange={ handleToggleChange }
-									disabled={ ! isHeaderToggleEnabled || ! ( isActive || isConnected ) }
-									__nextHasNoMarginBottom={ true }
+									disabled={ ! isHeaderToggleEnabledFinal || ! ( isActive || isConnected ) }
+									__nextHasNoMarginBottom
 								/>
 							</span>
 						</Tooltip>
 					) }
-					<Icon icon={ isExpanded ? chevronUp : chevronDown } />
+					{ ! __isPartial && <Icon icon={ isExpanded ? chevronUp : chevronDown } /> }
 				</HStack>
 			</div>
 		</CardHeader>

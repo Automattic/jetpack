@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Enable autotagger and autorelease workflows, instead of making people do it manually.
+
+

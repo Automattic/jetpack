@@ -103,7 +103,7 @@ export function createSignals() {
 	const shouldStoreEmailData = signal( false );
 
 	//
-	const subscriptionSettings: Signal< SubscriptionDetails > = signal( undefined );
+	const subscriptionSettings: Signal< SubscriptionDetails | undefined > = signal( undefined );
 
 	/*
 	 * Store the comment parent which is updated by external scripts
@@ -114,7 +114,7 @@ export function createSignals() {
 	 * Store the subscription modal status calculated for the user.
 	 * Can be one of these values: 'showed', 'hidden_cookies_disabled', 'hidden_subscribe_not_enabled', 'hidden_views_limit' and 'hidden_already_subscribed'.
 	 */
-	const subscribeModalStatus = signal( undefined );
+	const subscribeModalStatus: Signal< string | undefined > = signal( undefined );
 
 	return {
 		userInfo,

@@ -12,6 +12,10 @@ namespace Automattic\Jetpack\Extensions\Button;
 use Automattic\Jetpack\Blocks;
 use Jetpack_Gutenberg;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 const FEATURE_NAME = 'button';
 const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
 
@@ -24,9 +28,10 @@ function register_block() {
 	Blocks::jetpack_register_block(
 		BLOCK_NAME,
 		array(
-			'render_callback' => __NAMESPACE__ . '\render_block',
-			'uses_context'    => array( 'jetpack/parentBlockWidth' ),
-			'selectors'       => array(
+			'render_callback'       => __NAMESPACE__ . '\render_block',
+			'render_email_callback' => __NAMESPACE__ . '\render_email',
+			'uses_context'          => array( 'jetpack/parentBlockWidth' ),
+			'selectors'             => array(
 				'border' => '.wp-block-jetpack-button .wp-block-button__link',
 			),
 		)
@@ -99,6 +104,113 @@ function render_block( $attributes, $content ) {
 
 	// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	return '<div' . $wrapper_attributes . '>' . $button . '</div>';
+}
+
+/**
+ * WooCommerce Email Editor render callback for the button block.
+ *
+ * @param string $block_content The block content.
+ * @param array  $parsed_block  The parsed block data.
+ * @param object $rendering_context The email rendering context.
+ *
+ * @return string
+ */
+function render_email( $block_content, array $parsed_block, $rendering_context ) {
+	// Validate input parameters and required dependencies
+	if ( ! isset( $parsed_block['attrs'] ) || ! is_array( $parsed_block['attrs'] ) ||
+		! class_exists( '\Automattic\WooCommerce\EmailEditor\Integrations\Core\Renderer\Blocks\Button' ) ) {
+		return '';
+	}
+
+	$attributes = $parsed_block['attrs'];
+
+	// Create a mock innerHTML that WooCommerce's button renderer can parse
+	$button_text = ! empty( $attributes['text'] ) ? sanitize_text_field( $attributes['text'] ) : __( 'Click here', 'jetpack' );
+	$button_url  = ! empty( $attributes['url'] ) ? $attributes['url'] : '#';
+
+	// Create the innerHTML that WooCommerce's button renderer expects
+	$inner_html = sprintf(
+		'<div class="wp-block-button"><a class="wp-block-button__link" href="%s">%s</a></div>',
+		esc_url( $button_url ),
+		esc_html( $button_text )
+	);
+
+	// Format attributes for WooCommerce's Styles_Helper
+	$formatted_attributes = format_attributes_for_woocommerce( $attributes );
+
+	// Create a mock parsed block that WooCommerce's button renderer can handle
+	$mock_parsed_block = array(
+		'innerHTML' => $inner_html,
+		'attrs'     => $formatted_attributes,
+	);
+
+	// Use WooCommerce's core button renderer
+	$woo_button_renderer = new \Automattic\WooCommerce\EmailEditor\Integrations\Core\Renderer\Blocks\Button();
+
+	return $woo_button_renderer->render( $block_content, $mock_parsed_block, $rendering_context );
+}
+
+/**
+ * Format button attributes for WooCommerce's Styles_Helper.
+ *
+ * @param array $attributes The original attributes.
+ * @return array The formatted attributes.
+ */
+function format_attributes_for_woocommerce( $attributes ) {
+	$formatted = array();
+
+	// Handle background colors (prioritize subscription attributes)
+	// Named colors go in backgroundColor, hex colors go in style.color.background
+	if ( ! empty( $attributes['buttonBackgroundColor'] ) ) {
+		$formatted['backgroundColor'] = $attributes['buttonBackgroundColor'];
+	} elseif ( ! empty( $attributes['backgroundColor'] ) ) {
+		$formatted['backgroundColor'] = $attributes['backgroundColor'];
+	}
+
+	if ( ! empty( $attributes['customButtonBackgroundColor'] ) ) {
+		$formatted['style']['color']['background'] = $attributes['customButtonBackgroundColor'];
+	} elseif ( ! empty( $attributes['customBackgroundColor'] ) ) {
+		$formatted['style']['color']['background'] = $attributes['customBackgroundColor'];
+	}
+
+	// Named colors go in textColor, hex colors go in style.color.text
+	if ( ! empty( $attributes['textColor'] ) ) {
+		$formatted['textColor'] = $attributes['textColor'];
+	}
+	if ( ! empty( $attributes['customTextColor'] ) ) {
+		$formatted['style']['color']['text'] = $attributes['customTextColor'];
+	}
+
+	// Handle typography (font size)
+	if ( ! empty( $attributes['fontSize'] ) ) {
+		$formatted['style']['typography']['fontSize'] = $attributes['fontSize'];
+	}
+	if ( ! empty( $attributes['customFontSize'] ) ) {
+		$formatted['style']['typography']['fontSize'] = $attributes['customFontSize'];
+	}
+
+	// Handle borders
+	if ( ! empty( $attributes['borderRadius'] ) ) {
+		$formatted['style']['border']['radius'] = $attributes['borderRadius'] . 'px';
+	}
+	// Named colors go in borderColor, hex colors go in style.color.border
+	if ( ! empty( $attributes['borderColor'] ) ) {
+		$formatted['borderColor'] = $attributes['borderColor'];
+	}
+	if ( ! empty( $attributes['customBorderColor'] ) ) {
+		$formatted['style']['border']['color'] = $attributes['customBorderColor'];
+	}
+	// Handle border weight (subscription block uses borderWeight, button block expects style.border.width)
+	if ( ! empty( $attributes['borderWeight'] ) ) {
+		$formatted['style']['border']['width'] = $attributes['borderWeight'] . 'px';
+	}
+
+	// Handle padding
+	if ( ! empty( $attributes['padding'] ) ) {
+		$formatted['style']['spacing']['padding'] = $attributes['padding'] . 'px';
+	}
+
+	return $formatted;
 }
 
 /**

@@ -5,6 +5,149 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.9] - 2026-03-09
+### Changed
+- Update package dependencies. [#47496] [#47499]
+
+## [0.6.8] - 2026-03-02
+### Changed
+- Update dependencies. [#47038]
+
+## [0.6.7] - 2026-02-26
+### Changed
+- Update package dependencies. [#47300]
+
+## [0.6.6] - 2026-02-23
+### Changed
+- Update package dependencies. [#47173]
+
+## [0.6.5] - 2026-02-16
+### Changed
+- Update package dependencies. [#47099]
+
+### Fixed
+- Compatibility: Clean up deprecated CSS. [#47067]
+
+## [0.6.4] - 2026-02-10
+### Changed
+- Update dependencies. [#46931] [#47002]
+
+## [0.6.3] - 2026-02-02
+### Changed
+- Update package dependencies. [#46854]
+
+## [0.6.2] - 2026-01-26
+### Changed
+- Update package dependencies. [#46716]
+
+## [0.6.1] - 2026-01-19
+### Changed
+- Update package dependencies. [#46552] [#46647]
+
+## [0.6.0] - 2026-01-12
+### Changed
+- Gate PayPal payment buttons block behind conditional features. [#46536]
+- Update package dependencies. [#46456]
+
+## [0.5.18] - 2025-12-22
+### Changed
+- Update dependencies. [#46381]
+
+## [0.5.17] - 2025-12-15
+### Changed
+- Replace use of confusing `esc_js` with `wp_json_encode`, or `intval` where appropriate. [#46229]
+
+### Fixed
+- Add back `#` selector to fix a broken selector for the container. [#46259]
+
+## [0.5.16] - 2025-12-08
+### Changed
+- Internal updates.
+
+## [0.5.15] - 2025-12-01
+### Changed
+- Update package dependencies. [#46072] [#46143]
+
+## [0.5.14] - 2025-11-20
+### Fixed
+- Jetpack: Remove getIconColor functions from block icons. [#45992]
+
+## [0.5.13] - 2025-11-18
+### Changed
+- Update dependencies. [#45745]
+
+## [0.5.12] - 2025-11-17
+### Changed
+- Update package dependencies. [#45915] [#45958]
+
+## [0.5.11] - 2025-11-10
+### Changed
+- Update dependencies. [#45745]
+
+## [0.5.10] - 2025-11-03
+### Changed
+- Update dependencies. [#45664]
+
+## [0.5.9] - 2025-10-20
+### Changed
+- Update dependencies. [#45488]
+
+## [0.5.8] - 2025-10-06
+### Security
+- Improve PayPal SDK host validation for PayPal Payment Buttons. [#45343]
+
+### Changed
+- Update package dependencies. [#45334]
+
+## [0.5.7] - 2025-09-29
+### Changed
+- Update dependencies. [#44736]
+
+## [0.5.6] - 2025-09-22
+### Changed
+- Update dependencies. [#44736]
+
+## [0.5.5] - 2025-09-19
+### Changed
+- Namespace PayPal SDK to minimize loading conflicts when using other PayPal blocks. [#45224]
+- Update package dependencies. [#45173] [#45229]
+
+## [0.5.4] - 2025-09-16
+### Changed
+- Improve robustness of PayPal payment buttons parsing [#45158]
+
+## [0.5.3] - 2025-09-15
+### Changed
+- Update package dependencies. [#45127] [#45128]
+
+## [0.5.2] - 2025-09-08
+### Changed
+- Update package dependencies. [#45027]
+
+## [0.5.1] - 2025-09-01
+### Changed
+- Internal updates.
+
+## [0.5.0] - 2025-08-25
+### Changed
+- Disallow inserting Simple Payments block via inserter. [#44724]
+
+## [0.4.3] - 2025-08-18
+### Changed
+- Update dependencies. [#44736]
+
+## [0.4.2] - 2025-08-14
+### Changed
+- Update package dependencies. [#44701]
+
+## [0.4.1] - 2025-08-11
+### Changed
+- Update dependencies. [#44673]
+- Update package dependencies. [#44677]
+
+### Fixed
+- I18n: Improve context hints in comments for translators. [#44686]
+
 ## [0.4.0] - 2025-08-04
 ### Changed
 - Improve alignment of "Pay with PayPal" block labels. [#44560]
@@ -35,6 +178,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Simple Payments: Move Simple Payments block to PayPal Payments package. [#43413]
 
+[0.6.9]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.6.8...v0.6.9
+[0.6.8]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.6.7...v0.6.8
+[0.6.7]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.6.6...v0.6.7
+[0.6.6]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.6.5...v0.6.6
+[0.6.5]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.6.4...v0.6.5
+[0.6.4]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.6.3...v0.6.4
+[0.6.3]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.6.2...v0.6.3
+[0.6.2]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.6.1...v0.6.2
+[0.6.1]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.6.0...v0.6.1
+[0.6.0]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.5.18...v0.6.0
+[0.5.18]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.5.17...v0.5.18
+[0.5.17]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.5.16...v0.5.17
+[0.5.16]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.5.15...v0.5.16
+[0.5.15]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.5.14...v0.5.15
+[0.5.14]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.5.13...v0.5.14
+[0.5.13]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.5.12...v0.5.13
+[0.5.12]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.5.11...v0.5.12
+[0.5.11]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.5.10...v0.5.11
+[0.5.10]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.5.9...v0.5.10
+[0.5.9]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.5.8...v0.5.9
+[0.5.8]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.5.7...v0.5.8
+[0.5.7]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.5.6...v0.5.7
+[0.5.6]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.5.5...v0.5.6
+[0.5.5]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.5.4...v0.5.5
+[0.5.4]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.5.3...v0.5.4
+[0.5.3]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.5.2...v0.5.3
+[0.5.2]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.5.1...v0.5.2
+[0.5.1]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.5.0...v0.5.1
+[0.5.0]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.4.3...v0.5.0
+[0.4.3]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.4.2...v0.4.3
+[0.4.2]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.4.1...v0.4.2
+[0.4.1]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.1.0...v0.2.0

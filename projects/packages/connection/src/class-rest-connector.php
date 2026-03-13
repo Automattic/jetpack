@@ -476,7 +476,7 @@ class REST_Connector {
 				'constant'        => defined( 'JETPACK_DEV_DEBUG' ) && JETPACK_DEV_DEBUG,
 				'url'             => $status->is_local_site(),
 				/** This filter is documented in packages/status/src/class-status.php */
-				'filter'          => ( apply_filters( 'jetpack_development_mode', false ) || apply_filters( 'jetpack_offline_mode', false ) ), // jetpack_development_mode is deprecated.
+				'filter'          => apply_filters( 'jetpack_offline_mode', false ),
 				'wpLocalConstant' => defined( 'WP_LOCAL_DEV' ) && WP_LOCAL_DEV,
 				'option'          => (bool) get_option( 'jetpack_offline_mode' ),
 			),
@@ -822,7 +822,7 @@ class REST_Connector {
 			array()
 		);
 
-		// We manipulate the alternate URLs after the filter is applied, so they can not be overwritten.
+		// We manipulate the alternate URLs after the filter is applied, so they cannot be overwritten.
 		$response_body['authorizeUrl'] = $authorize_url;
 		if ( ! empty( $response_body['alternateAuthorizeUrl'] ) ) {
 			$response_body['alternateAuthorizeUrl'] = Redirect::get_url( $response_body['alternateAuthorizeUrl'] );
@@ -1103,7 +1103,8 @@ class REST_Connector {
 				'rest_route' => filter_var( wp_unslash( $_GET['rest_route'] ) ),
 				'timestamp'  => (int) $_GET['timestamp'],
 				'url'        => filter_var( wp_unslash( $_GET['url'] ) ),
-			)
+			),
+			0 // phpcs:ignore Jetpack.Functions.JsonEncodeFlags.ZeroFound -- No `json_encode()` flags because this needs to match whatever is calculating the hash on the other end.
 		);
 
 		if (

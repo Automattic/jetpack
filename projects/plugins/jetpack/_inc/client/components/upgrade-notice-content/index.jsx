@@ -66,7 +66,7 @@ const UpgradeNoticeContent = withModuleSettingsFormHelpers(
 
 			if ( ! title || 0 === title.length ) {
 				title = sprintf(
-					/* translators: Placeholder is a version number. */
+					/* translators: %s: a version number. */
 					__( 'New in Jetpack %s', 'jetpack' ),
 					this.props.version
 				);

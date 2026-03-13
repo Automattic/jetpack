@@ -40,7 +40,7 @@ export type PluginData = {
 	/** ID of the plugin for update purposes, should be a URI. */
 	UpdateURI?: string;
 
-	/** Comma separated list of dot org plugin slugs. */
+	/** Comma-separated list of dot org plugin slugs. */
 	RequiresPlugins?: string;
 
 	/** Title of the plugin and link to the plugin’s site (if set). */

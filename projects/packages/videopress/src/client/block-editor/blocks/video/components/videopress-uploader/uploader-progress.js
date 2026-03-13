@@ -230,7 +230,7 @@ const UploaderProgress = ( {
 							</div>
 							<div className="videopress-upload__percent-complete">
 								{ sprintf(
-									/* translators: Placeholder is an upload progress percenatage number, from 0-100. */
+									/* translators: %1$s: an upload progress percentage number, from 0-100. */
 									__( 'Uploading (%1$s%%)', 'jetpack-videopress-pkg' ),
 									roundedProgress
 								) }

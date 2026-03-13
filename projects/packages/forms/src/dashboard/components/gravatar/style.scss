@@ -1,7 +1,6 @@
 .jp-forms__gravatar {
 	background-color: var(--jp-gray-5);
 	border-radius: 50%;
-	height: 48px;
+	flex-shrink: 0; // Prevent shrinking when Gravatar is inside flex containers
 	overflow: hidden;
-	width: 48px;
 }

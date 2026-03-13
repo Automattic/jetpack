@@ -8,7 +8,6 @@
 namespace Automattic\Jetpack\Masterbar;
 
 use Automattic\Jetpack\Connection\Client;
-use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 use Automattic\Jetpack\JITMS\JITM;
 use Automattic\Jetpack\Modules;
 
@@ -29,7 +28,7 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		add_action( 'admin_enqueue_scripts', array( $this, 'dequeue_scripts' ), 20 );
 		add_action( 'wp_ajax_sidebar_state', array( $this, 'ajax_sidebar_state' ) );
 		add_action( 'wp_ajax_jitm_dismiss', array( $this, 'wp_ajax_jitm_dismiss' ) );
-		add_action( 'wp_ajax_upsell_nudge_jitm', array( $this, 'wp_ajax_upsell_nudge_jitm' ) );
+		add_action( 'adminmenu', array( $this, 'render_upsell_nudge' ), 100 );
 
 		if ( ! $this->is_api_request ) {
 			add_filter( 'submenu_file', array( $this, 'override_the_theme_installer' ), 10, 2 );
@@ -38,7 +37,6 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		add_action(
 			'admin_menu',
 			function () {
-				// @phan-suppress-next-line PhanUndeclaredFunctionInCallable -- Not worth bringing in a stub just for a callback in a remove_action call.
 				remove_action( 'admin_menu', 'gutenberg_menu', 9 );
 			},
 			0
@@ -136,12 +134,6 @@ class Atomic_Admin_Menu extends Admin_Menu {
 			);
 			$this->update_submenus( $slug, $submenus_to_update );
 		}
-
-		// Temporary "Users > Subscribers" menu for existing users that shows a callout informing that the screen has moved to "Jetpack > Subscribers".
-		if ( ! $this->use_wp_admin_interface() && ! apply_filters( 'jetpack_wp_admin_subscriber_management_enabled', false ) && get_current_user_id() < 268854000 ) {
-			// // @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-			add_submenu_page( 'users.php', esc_attr__( 'Subscribers', 'jetpack-masterbar' ), __( 'Subscribers', 'jetpack-masterbar' ), 'list_users', 'https://wordpress.com/subscribers/jetpack-subscribers/' . $this->domain, null );
-		}
 	}
 
 	/**
@@ -231,7 +223,7 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	public function get_upsell_nudge() {
 		$jitm         = JITM::get_instance();
 		$message_path = 'calypso:sites:sidebar_notice';
-		$message      = $jitm->get_messages( $message_path, wp_json_encode( array( 'message_path' => $message_path ) ), false );
+		$message      = $jitm->get_messages( $message_path, array( 'message_path' => $message_path ), false );
 
 		if ( isset( $message[0] ) ) {
 			$message = $message[0];
@@ -247,90 +239,6 @@ class Atomic_Admin_Menu extends Admin_Menu {
 				'feature_class'                => $message->feature_class,
 				'id'                           => $message->id,
 			);
-		}
-	}
-
-	/**
-	 * Adds Jetpack menu.
-	 */
-	public function add_jetpack_menu() {
-		// This is supposed to be the same as class-admin-menu but with a different position specified for the Jetpack menu.
-		if ( $this->use_wp_admin_interface() ) {
-			parent::create_jetpack_menu( 2, false );
-		} else {
-			parent::add_jetpack_menu();
-		}
-	}
-
-	/**
-	 * Adds Stats menu.
-	 */
-	public function add_stats_menu() {
-		$menu_title = __( 'Stats', 'jetpack-masterbar' );
-		if (
-			! $this->is_api_request &&
-			( new Modules() )->is_active( 'stats' ) &&
-			function_exists( 'stats_get_image_chart_src' )
-		) {
-			$img_src = esc_attr(
-				stats_get_image_chart_src( 'admin-bar-hours-scale-2x', array( 'masterbar' => '' ) )
-			);
-			$alt     = esc_attr__( 'Hourly views', 'jetpack-masterbar' );
-
-			$menu_title .= "<img class='sidebar-unified__sparkline' src='$img_src' width='80' height='20' alt='$alt'>";
-		}
-
-		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-		add_menu_page( __( 'Stats', 'jetpack-masterbar' ), $menu_title, 'view_stats', 'https://wordpress.com/stats/day/' . $this->domain, null, 'dashicons-chart-bar', 3 );
-	}
-
-	/**
-	 * Adds Upgrades menu.
-	 *
-	 * @param string $plan The current WPCOM plan of the blog.
-	 */
-	public function add_upgrades_menu( $plan = null ) {
-
-		if ( get_option( 'wpcom_is_staging_site' ) ) {
-			return;
-		}
-		$products = Jetpack_Plan::get();
-		if ( array_key_exists( 'product_name_short', $products ) ) {
-			$plan = $products['product_name_short'];
-		}
-		parent::add_upgrades_menu( $plan );
-
-		$last_upgrade_submenu_position = $this->get_submenu_item_count( 'paid-upgrades.php' );
-
-		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-		add_submenu_page( 'paid-upgrades.php', __( 'Domains', 'jetpack-masterbar' ), __( 'Domains', 'jetpack-masterbar' ), 'manage_options', 'https://wordpress.com/domains/manage/' . $this->domain, null, $last_upgrade_submenu_position - 1 );
-
-		/**
-		 * Whether to show the WordPress.com Emails submenu under the main Upgrades menu.
-		 *
-		 * @use add_filter( 'jetpack_show_wpcom_upgrades_email_menu', '__return_true' );
-		 * @module masterbar
-		 *
-		 * @since jetpack-9.7.0
-		 *
-		 * @param bool $show_wpcom_upgrades_email_menu Load the WordPress.com Emails submenu item. Default to false.
-		 */
-		if ( apply_filters( 'jetpack_show_wpcom_upgrades_email_menu', false ) ) {
-			// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-			add_submenu_page( 'paid-upgrades.php', __( 'Emails', 'jetpack-masterbar' ), __( 'Emails', 'jetpack-masterbar' ), 'manage_options', 'https://wordpress.com/email/' . $this->domain, null, $last_upgrade_submenu_position );
-		}
-	}
-
-	/**
-	 * Adds Settings menu.
-	 */
-	public function add_options_menu() {
-		parent::add_options_menu();
-
-		// Hide Settings > Performance when the interface is set to wp-admin.
-		// This is due to these settings are mostly also available in Jetpack > Settings, in the Performance tab.
-		if ( $this->use_wp_admin_interface() ) {
-			$this->hide_submenu_page( 'options-general.php', 'https://wordpress.com/settings/performance/' . $this->domain );
 		}
 	}
 

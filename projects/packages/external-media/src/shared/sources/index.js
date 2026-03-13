@@ -16,6 +16,7 @@ import {
 	SOURCE_JETPACK_AI_GENERAL_PURPOSE_IMAGE_FOR_MEDIA_SOURCE,
 	SOURCE_JETPACK_AI_GENERAL_PURPOSE_IMAGE_FOR_BLOCK,
 } from '../constants';
+import { isGutenbergKit } from '../utils/is-gutenberg-kit';
 import GooglePhotosMedia from './google-photos';
 import JetpackAIFeaturedImage from './jetpack-ai-featured-image';
 import JetpackAIGeneralPurposeImageForBlock from './jetpack-ai-general-purpose-image-for-block';
@@ -24,7 +25,7 @@ import JetpackAppMedia from './jetpack-app-media';
 import OpenverseMedia from './openverse';
 import PexelsMedia from './pexels';
 
-export const internalMediaSources = [
+const allInternalMediaSources = [
 	{
 		id: SOURCE_JETPACK_APP_MEDIA,
 		label: __( 'Your Phone', 'jetpack-external-media' ),
@@ -32,6 +33,11 @@ export const internalMediaSources = [
 		keyword: 'jetpack mobile app',
 	},
 ];
+
+// Disable SOURCE_JETPACK_APP_MEDIA for GutenbergKit (mobile app) as sourcing
+// media from "Your phone" while on a phone is less useful and possibly
+// confusing.
+export const internalMediaSources = isGutenbergKit() ? [] : allInternalMediaSources;
 
 /**
  * Used when the context is for a featured image.

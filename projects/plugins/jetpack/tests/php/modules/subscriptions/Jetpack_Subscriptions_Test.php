@@ -9,9 +9,13 @@ use Automattic\Jetpack\Extensions\Premium_Content\JWT;
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Abstract_Token_Subscription_Service;
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\WPCOM_Offline_Subscription_Service;
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\WPCOM_Online_Subscription_Service;
+use Automattic\Jetpack\Sync\Defaults;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\Automattic\Jetpack\Extensions\Premium_Content\Test_Jetpack_Token_Subscription_Service;
 use function Automattic\Jetpack\Extensions\Subscriptions\register_block as register_subscription_block;
+use const Automattic\Jetpack\Extensions\Subscriptions\META_NAME_CONTAINS_PAID_CONTENT;
+use const Automattic\Jetpack\Extensions\Subscriptions\META_NAME_CONTAINS_PAYWALLED_CONTENT;
+use const Automattic\Jetpack\Extensions\Subscriptions\META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS;
 use const Automattic\Jetpack\Extensions\Subscriptions\META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS;
 use const Automattic\Jetpack\Extensions\Subscriptions\META_NAME_FOR_POST_TIER_ID_SETTINGS;
 
@@ -67,6 +71,34 @@ class Jetpack_Subscriptions_Test extends WP_UnitTestCase {
 		);
 
 		get_user_by( 'id', $this->admin_user_id )->add_role( 'administrator' );
+	}
+
+	/**
+	 * Verify that the subscriptions block adds newsletter-related post meta keys to the sync whitelist.
+	 */
+	public function test_subscriptions_block_adds_newsletter_meta_to_sync_whitelist() {
+		// Activate the subscriptions module so register_block() adds its filter (it returns early if inactive).
+		Jetpack_Options::update_option( 'active_modules', array( 'subscriptions' ) );
+		// Call register_block directly to add the sync whitelist filter (avoids do_action('init') which re-registers blocks and triggers notices).
+		register_subscription_block();
+
+		$whitelist = Defaults::get_post_meta_whitelist();
+
+		$expected_meta_keys = array(
+			META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS,
+			META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS,
+			META_NAME_CONTAINS_PAYWALLED_CONTENT,
+			META_NAME_FOR_POST_TIER_ID_SETTINGS,
+			META_NAME_CONTAINS_PAID_CONTENT,
+		);
+
+		foreach ( $expected_meta_keys as $meta_key ) {
+			$this->assertContains(
+				$meta_key,
+				$whitelist,
+				sprintf( 'Post meta whitelist should include %s for sync to WPCom.', $meta_key )
+			);
+		}
 	}
 
 	/**
@@ -286,6 +318,7 @@ class Jetpack_Subscriptions_Test extends WP_UnitTestCase {
 	 */
 	#[DataProvider( 'matrix_access' )]
 	public function test_subscriber_access_level( $type_user_id, $logged, $token_set, $post_access_level, $should_email_be_sent, $should_user_access_post, $subscription_end_date = null, $status = null ) {
+		$user_id = null;
 		if ( $type_user_id !== null ) {
 			$user_id = $this->{$type_user_id};
 		}
@@ -329,7 +362,10 @@ class Jetpack_Subscriptions_Test extends WP_UnitTestCase {
 			}
 			$online_subscription_service = new WPCOM_Online_Subscription_Service();
 			$ref_method                  = new ReflectionMethod( $online_subscription_service, 'user_can_view_content' );
-			$ref_method->setAccessible( true );
+			// @todo Remove this call once we no longer need to support PHP <8.1.
+			if ( PHP_VERSION_ID < 80100 ) {
+				$ref_method->setAccessible( true );
+			}
 			$result = $ref_method->invoke( $online_subscription_service, array( $this->plan_id ), $post_access_level, $logged && $is_blog_subscriber, get_the_ID() );
 		}
 

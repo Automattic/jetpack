@@ -5,6 +5,10 @@
  * @package automattic/jetpack
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 // Feature name.
 const FEATURE_NAME = 'post-publish-qr-post-panel';
 

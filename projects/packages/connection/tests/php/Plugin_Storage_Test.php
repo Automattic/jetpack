@@ -56,11 +56,17 @@ class Plugin_Storage_Test extends TestCase {
 			$reflection_class->setStaticPropertyValue( 'plugins', array() );
 		} catch ( \ReflectionException $e ) { // PHP 7 compat
 			$configured = $reflection_class->getProperty( 'configured' );
-			$configured->setAccessible( true );
+			// @todo Remove this call once we no longer need to support PHP <8.1.
+			if ( PHP_VERSION_ID < 80100 ) {
+				$configured->setAccessible( true );
+			}
 			$configured->setValue( false );
 
 			$plugins = $reflection_class->getProperty( 'plugins' );
-			$plugins->setAccessible( true );
+			// @todo Remove this call once we no longer need to support PHP <8.1.
+			if ( PHP_VERSION_ID < 80100 ) {
+				$plugins->setAccessible( true );
+			}
 			$plugins->setValue( array() );
 		}
 		$this->reset_connection_status();

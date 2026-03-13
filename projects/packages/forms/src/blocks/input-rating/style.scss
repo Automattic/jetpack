@@ -1,72 +1,87 @@
 /* Rating input block – front-end styles */
-
-.screen-reader-text {
-	position: absolute !important;
-	clip: rect(1px, 1px, 1px, 1px);
-	word-wrap: normal !important;
-	border: 0;
-	height: 1px;
-	overflow: hidden;
-	width: 1px;
-}
+@use "../shared/styles/visually-hidden" as *;
 
 .jetpack-field-rating {
-	position: relative;
 
-	/* Checked (filled) rating icons */
-	.jetpack-field-rating__label:has(> input[type="radio"].jetpack-field-rating__input:checked),
-	.jetpack-field-rating__label:has(~ .jetpack-field-rating__label .jetpack-field-rating__input:checked) {
-		color: var(--jetpack--contact-form--rating-star-color, var(--jetpack--contact-form--primary-color, #333));
+	.jetpack-field-rating__option:last-child .jetpack-field-rating__label {
+		padding-right: 0;
 	}
 
-	/* Hover effects - only when hovering individual labels */
-	.jetpack-field-rating__label:hover,
-	.jetpack-field-rating__label:has(~ .jetpack-field-rating__label:hover) {
-		color: var(--jetpack--contact-form--rating-star-color, var(--jetpack--contact-form--primary-color, #333));
-	}
+	/* Layout */
+	.jetpack-field-rating__options {
+		display: flex;
+		flex-wrap: wrap;
 
-	.jetpack-field-rating__label {
-		display: inline-block;
-		margin-bottom: 0;
-		cursor: pointer;
-		overflow: hidden;
-		color: var(--jetpack--contact-form--background-color, #fff);
+		.jetpack-field-rating__label {
+			padding-right: 5px;
 
-		// spacing between symbols
-		&:not(:first-of-type) {
-			margin-left: 8px;
+			/* Guard against theme label font-size overrides (e.g., Twenty Sixteen) */
+			font-size: inherit;
+			display: inline-flex;
+			cursor: pointer;
+
+			.jetpack-field-rating__icon {
+				width: 1em;
+				height: 1em;
+
+				path {
+					fill: none;
+					stroke: var(--jetpack--contact-form--rating-star-color, currentColor);
+				}
+			}
 		}
 
-		.jetpack-field-rating__icon {
-			width: 1em;
-			height: 1em;
-			display: block;
-		}
-	}
+		// Filled states: current (checked/hover)
+		:is(
+			input[type="radio"].jetpack-field-rating__input:checked + .jetpack-field-rating__label,
+			.jetpack-field-rating__label:hover
+		) {
 
-	.contact-form & input[type="radio"].jetpack-field-rating__input {
-		-webkit-appearance: none;
-		-moz-appearance: none;
-		appearance: none;
-		font-family: inherit;
-		font-size: inherit;
-		color: inherit;
-		cursor: pointer;
-
-		&::before {
-			font-family: inherit;
-			font-size: 1em;
-			content: "★";
-			display: block;
-			width: 1em;
-			color: inherit;
-			-webkit-text-stroke: 2px var(--jetpack--contact-form--border-color, #8c8f94);
+			.jetpack-field-rating__icon path {
+				fill: var(--jetpack--contact-form--rating-star-color, currentColor);
+			}
 		}
-		// Visually hide the actual radio but keep it accessible for screen readers
-		position: absolute;
-		opacity: 0;
-		width: 0;
-		height: 0;
-		margin: 0;
+
+		// Filled states: current (checked/hover)
+		:is(
+			input[type="radio"].jetpack-field-rating__input:focus-visible + .jetpack-field-rating__label) {
+
+			.jetpack-field-rating__icon {
+				scale: 1.3;
+			}
+		}
+
+
+		/* Filled states: previous siblings */
+		.jetpack-field-rating__option {
+
+			&:has(
+				~ .jetpack-field-rating__option :is(
+					input[type="radio"].jetpack-field-rating__input:checked,
+					.jetpack-field-rating__label:hover
+				)
+			) {
+
+				.jetpack-field-rating__label .jetpack-field-rating__icon path {
+					fill: var(--jetpack--contact-form--rating-star-color, currentColor);
+				}
+			}
+		}
+
+		/* Unfill all options to the right of the hovered one (container scoped) */
+		&:has(.jetpack-field-rating__label:hover) {
+
+			.jetpack-field-rating__option:has(.jetpack-field-rating__label:hover) ~ .jetpack-field-rating__option {
+
+				.jetpack-field-rating__label .jetpack-field-rating__icon path {
+					fill: none;
+				}
+
+				input[type="radio"].jetpack-field-rating__input:checked + .jetpack-field-rating__label .jetpack-field-rating__icon path {
+					fill: none;
+				}
+			}
+		}
 	}
 }
+

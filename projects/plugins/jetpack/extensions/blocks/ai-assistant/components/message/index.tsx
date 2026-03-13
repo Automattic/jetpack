@@ -3,7 +3,7 @@
  */
 import {
 	Icon,
-	warning,
+	cautionFilled as warning,
 	info,
 	cancelCircleFilled as error,
 	check as success,

@@ -45,7 +45,8 @@ class Customizer {
 		$wp_customize->add_section(
 			$section_id,
 			array(
-				'title'      => esc_html__( 'Jetpack Search', 'jetpack-search-pkg' ),
+				/** "Search" is a product name, do not translate. */
+				'title'      => 'Jetpack Search',
 				'capability' => 'edit_theme_options',
 				'priority'   => 200,
 			)
@@ -298,6 +299,26 @@ class Customizer {
 				'type'    => 'checkbox',
 				'section' => $section_id,
 				'label'   => __( 'Show post date', 'jetpack-search-pkg' ),
+			)
+		);
+
+		$id = $setting_prefix . 'show_product_price';
+		$wp_customize->add_setting(
+			$id,
+			array(
+				'default'              => '1',
+				'sanitize_callback'    => array( 'Automattic\Jetpack\Search\Helper', 'sanitize_checkbox_value' ),
+				'sanitize_js_callback' => array( 'Automattic\Jetpack\Search\Helper', 'sanitize_checkbox_value_for_js' ),
+				'transport'            => 'postMessage',
+				'type'                 => 'option',
+			)
+		);
+		$wp_customize->add_control(
+			$id,
+			array(
+				'type'    => 'checkbox',
+				'section' => $section_id,
+				'label'   => __( 'Show price', 'jetpack-search-pkg' ),
 			)
 		);
 

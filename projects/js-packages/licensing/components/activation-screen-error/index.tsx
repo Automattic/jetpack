@@ -1,5 +1,5 @@
 import jetpackAnalytics from '@automattic/jetpack-analytics';
-import { Icon, warning, check } from '@wordpress/icons';
+import { Icon, cautionFilled as warning, check } from '@wordpress/icons';
 import { useEffect } from 'react';
 import { LICENSE_ERRORS } from './constants';
 import { useGetErrorContent } from './use-get-error-content';

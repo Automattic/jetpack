@@ -243,12 +243,57 @@ div.ui.learn.button {
 	background: none !important;
 }
 
-//TEAM STUFF BELOW HERE
-#zbs-team-user-table {
+#jpcrm-team-mechanics {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 1rem;
+	margin-bottom: 10px;
 
-	.dn {
-		line-height: 30px;
-		float: left;
+	#jpcrm-users-search {
+		max-width: 300px;
+		width: 100%;
+	}
+
+	#jpcrm-search-wp-users {
+		cursor: pointer;
+		pointer-events: all;
+	}
+
+	.ui.button {
+		white-space: nowrap;
+	}
+
+	@media (max-width: 767px) {
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+		text-align: center;
+
+		#zbs-users-search {
+			max-width: 100%; /* full width on small screens */
+		}
+	}
+}
+
+#jpcrm-team-user-table {
+	display: grid;
+	grid-template-columns: auto 1fr 1fr 1fr auto;
+	line-height: 30px;
+
+	> div {
+		border: 1px solid rgba(34, 36, 38, 0.1);
+		padding: 0.75rem;
+	}
+
+	// bold header rows (first 5 items)
+	> div:nth-child(-n+5) {
+		font-weight: 700;
+	}
+
+	.fit-col {
+		white-space: nowrap;
 	}
 
 	img {
@@ -256,14 +301,15 @@ div.ui.learn.button {
 		margin-right: 5px;
 		float: left;
 	}
-}
 
-#zbs-team-mechanics {
-	padding: 10px;
-}
+	@media (max-width: 767px) {
+		grid-template-columns: auto 1fr 1fr auto;
 
-#zbs-team-mechanics::after {
-	clear: both;
+		// Hide last login on smaller screens
+		> div:nth-child(5n-1) {
+			display: none;
+		}
+	}
 }
 
 .clear {
@@ -413,7 +459,7 @@ div.ui.learn.button {
 
 /* allow for long file titles and descriptions */
 table#zbsFilesTable td {
-	word-break: break-word;
+	overflow-wrap: break-word;
 }
 
 // Custom field csv builder labels can be clicked!

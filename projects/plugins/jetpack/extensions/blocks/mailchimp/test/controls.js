@@ -1,15 +1,13 @@
 import { render, screen, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import apiFetch from '@wordpress/api-fetch';
 import { MailChimpBlockControls } from '../controls';
 
-const originalFetch = window.fetch;
+// Mock @wordpress/api-fetch
+jest.mock( '@wordpress/api-fetch' );
 
-/**
- * Mock return value for a successful fetch JSON return value.
- *
- * @return {Promise} Mock return value.
- */
-const RESOLVED_FETCH_PROMISE = Promise.resolve( {
+// Mock API response for mailchimp groups
+const MAILCHIMP_GROUPS_RESPONSE = {
 	interest_categories: [
 		{
 			interests: [
@@ -18,25 +16,24 @@ const RESOLVED_FETCH_PROMISE = Promise.resolve( {
 			],
 		},
 	],
-} );
-const DEFAULT_FETCH_MOCK_RETURN = Promise.resolve( {
-	status: 200,
-	json: () => RESOLVED_FETCH_PROMISE,
-} );
+};
 
 describe( 'Mailchimp block controls component', () => {
 	beforeEach( () => {
-		// eslint-disable-next-line jest/prefer-spy-on -- Nothing to spy on.
-		window.fetch = jest.fn();
-		window.fetch.mockReturnValue( DEFAULT_FETCH_MOCK_RETURN );
+		apiFetch.mockClear();
+		// Mock the mailchimp groups API call
+		apiFetch.mockResolvedValue( MAILCHIMP_GROUPS_RESPONSE );
 	} );
 
 	afterEach( async () => {
-		await act( () => RESOLVED_FETCH_PROMISE );
+		// Wait for any pending API calls to resolve
+		await act( async () => {
+			await Promise.resolve();
+		} );
 	} );
 
 	afterAll( () => {
-		window.fetch = originalFetch;
+		jest.clearAllMocks();
 	} );
 
 	const setAttributes = jest.fn();
@@ -61,6 +58,8 @@ describe( 'Mailchimp block controls component', () => {
 		setAttributes.mockClear();
 		auditionNotification.mockClear();
 		clearAudition.mockClear();
+		apiFetch.mockClear();
+		apiFetch.mockResolvedValue( MAILCHIMP_GROUPS_RESPONSE );
 	} );
 
 	test( 'updates email placeholder attribute', async () => {

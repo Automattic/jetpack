@@ -1,9 +1,9 @@
 import { InnerBlocks, useBlockProps } from '@wordpress/block-editor';
 import { __ } from '@wordpress/i18n';
-import INNER_BLOCKS_DEPRECATION from '../shared/deprecations/inner-blocks-deprecation';
-import migrateInnerOptionBlocks from '../shared/deprecations/migrate-inner-option-blocks';
-import migrateOptionsToInnerBlocks from '../shared/deprecations/migrate-options-to-inner-blocks';
-import multiFieldV1 from '../shared/deprecations/multiple-choice-field-deprecation';
+import INNER_BLOCKS_DEPRECATION from '../shared/deprecations/inner-blocks-deprecation.js';
+import migrateInnerOptionBlocks from '../shared/deprecations/migrate-inner-option-blocks.js';
+import migrateOptionsToInnerBlocks from '../shared/deprecations/migrate-options-to-inner-blocks.js';
+import multiFieldV1 from '../shared/deprecations/multiple-choice-field-deprecation.js';
 
 const v1 = multiFieldV1( 'radio' );
 const v2 = {

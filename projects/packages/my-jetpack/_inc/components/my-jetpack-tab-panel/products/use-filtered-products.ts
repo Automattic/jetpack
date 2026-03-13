@@ -1,7 +1,8 @@
 import { useMemo } from 'react';
 import useProducts from '../../../data/products/use-products';
+import { JetpackProductWithCard } from '../../../types';
 import { CATEGORY_CARDS_AND_MODULES, PRODUCT_MODULES } from './mappings';
-import { JetpackProductWithCard, ProductFilter } from './types';
+import { ProductFilter } from './types';
 import { useAllJetpackModules } from './use-all-jetpack-modules';
 import { filterAndSortModules, filterSections, getSectionTitle } from './utils';
 

@@ -8,4 +8,3 @@
 /templates/**/.htaccess
 /templates/**/index.html
 /tests/codeception/acceptance.suite.yml
-phpcs.security.xml

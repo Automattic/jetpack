@@ -5,6 +5,125 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.4.21 - 2026-03-09
+### Changed
+- Switch to Native TypeScript compiler based on Go. [#47375]
+- Update package dependencies. [#47496]
+
+## 0.4.20 - 2026-02-26
+### Changed
+- Update package dependencies. [#47300]
+
+## 0.4.19 - 2026-02-23
+### Changed
+- Update package dependencies. [#47173]
+
+## 0.4.18 - 2026-02-16
+### Changed
+- Update package dependencies. [#47099]
+
+## 0.4.17 - 2026-02-10
+### Changed
+- Update package dependencies. [#47002]
+
+## 0.4.16 - 2026-02-02
+### Changed
+- Update package dependencies. [#46430] [#46853] [#46854]
+
+## 0.4.15 - 2026-01-26
+### Changed
+- Update dependencies. [#46383]
+
+## 0.4.14 - 2026-01-19
+### Changed
+- Update package dependencies. [#46552] [#46647]
+
+## 0.4.13 - 2026-01-09
+### Changed
+- Update package dependencies. [#46456]
+
+## 0.4.12 - 2025-12-22
+### Changed
+- Update dependencies. [#46381]
+
+## 0.4.11 - 2025-12-15
+### Changed
+- Update dependencies. [#46271]
+
+## 0.4.10 - 2025-12-08
+### Changed
+- Update package dependencies. [#45914]
+
+## 0.4.9 - 2025-12-01
+### Changed
+- Update package dependencies. [#46143]
+
+## 0.4.8 - 2025-11-24
+### Changed
+- Internal updates.
+
+## 0.4.7 - 2025-11-17
+### Changed
+- Update package dependencies. [#45915] [#45958]
+
+## 0.4.6 - 2025-11-10
+### Changed
+- Update package dependencies. [#45735] [#45756]
+
+## 0.4.5 - 2025-11-03
+### Changed
+- Update package dependencies. [#45652]
+
+## 0.4.4 - 2025-10-27
+### Changed
+- Update package dependencies. [#45551]
+
+## 0.4.3 - 2025-10-10
+### Changed
+- Update package dependencies. [#45428]
+
+## 0.4.2 - 2025-10-06
+### Changed
+- Update package dependencies. [#45334]
+
+## 0.4.1 - 2025-09-22
+### Changed
+- Update dependencies. [#44940]
+
+## 0.4.0 - 2025-09-19
+### Changed
+- Update @wordpress/dataviews package from v7 to v9. [#45213]
+- Update package dependencies. [#45173] [#45229]
+
+## 0.3.0 - 2025-09-08
+### Changed
+- Update @wordpress/dataviews package v5.0.0 → v7.0.0 [#45012]
+- Update package dependencies. [#45027] [#45097]
+
+## 0.2.5 - 2025-09-01
+### Changed
+- Remove unused JavaScript dependencies. [#44813]
+
+### Fixed
+- Restore dependency removed in #44813. [#44968]
+
+## 0.2.4 - 2025-08-25
+### Changed
+- Update dependencies. [#44934]
+
+## 0.2.3 - 2025-08-18
+### Added
+- Add `typecheck` script to ensure that TypeScript files are type-checked. [#44795]
+
+## 0.2.2 - 2025-08-14
+### Changed
+- Update package dependencies. [#44701]
+
+## 0.2.1 - 2025-08-11
+### Changed
+- Update dependencies. [#44673]
+- Update package dependencies. [#44677]
+
 ## 0.2.0 - 2025-08-04
 ### Changed
 - Update @wordpress/dataviews to 5.0.0. [#44376]

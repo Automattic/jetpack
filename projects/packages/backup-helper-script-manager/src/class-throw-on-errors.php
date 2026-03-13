@@ -328,7 +328,7 @@ class Throw_On_Errors {
 	 *
 	 * @param string $directory Directory that will be scanned.
 	 *
-	 * @return string An array of filenames.
+	 * @return string[] An array of filenames.
 	 * @throws Exception If scandir() has thrown warnings, or has failed.
 	 */
 	public static function t_scandir( $directory ) {

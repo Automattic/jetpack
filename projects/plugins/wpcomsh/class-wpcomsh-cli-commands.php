@@ -531,7 +531,7 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 			}
 
 			if ( 'json' === $assoc_args['format'] ) {
-				$output = wp_json_encode( $output, JSON_PRETTY_PRINT );
+				$output = wp_json_encode( $output, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT );
 			}
 
 			WP_CLI::log( print_r( $output, true ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_print_r
@@ -569,7 +569,7 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 		public function headstart_terms( $args, $assoc_args ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter, VariableAnalysis.CodeAnalysis.VariableAnalysis
 			$results            = wpcomsh_apply_headstart_terms();
 			$missing_taxonomies = $results['missing_taxonomies'];
-			$output             = wp_json_encode( array( 'missing_taxonomies' => $missing_taxonomies ), JSON_PRETTY_PRINT );
+			$output             = wp_json_encode( array( 'missing_taxonomies' => $missing_taxonomies ), JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT );
 			WP_CLI::log( $output );
 		}
 
@@ -687,7 +687,7 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 			if ( $action === 'list' ) {
 				$global_styles = $response->get_data();
 				$global_styles = ! empty( $field_path ) ? _wp_array_get( $global_styles, $field_path ) : $global_styles;
-				WP_CLI::log( wp_json_encode( $global_styles, JSON_PRETTY_PRINT ) );
+				WP_CLI::log( wp_json_encode( $global_styles, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT ) );
 				return;
 			}
 
@@ -710,7 +710,7 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 				_wp_array_set( $global_styles, $field_path, $value );
 
 				if ( $dry_run ) {
-					WP_CLI::log( wp_json_encode( $global_styles, JSON_PRETTY_PRINT ) );
+					WP_CLI::log( wp_json_encode( $global_styles, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT ) );
 				} else {
 					$request = new \WP_REST_Request( 'POST', "/wp/v2/global-styles/$active_global_styles_id" );
 					$request->set_query_params( $global_styles );
@@ -719,7 +719,7 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 						WP_CLI::error( $response->as_error() );
 					}
 
-					WP_CLI::log( wp_json_encode( $response->get_data(), JSON_PRETTY_PRINT ) );
+					WP_CLI::log( wp_json_encode( $response->get_data(), JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT ) );
 				}
 
 				WP_CLI::success( "Update the data field `$field` successfully" );
@@ -744,7 +744,7 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 				unset( $current[ $field_path[ $i ] ] );
 
 				if ( $dry_run ) {
-					WP_CLI::log( wp_json_encode( $global_styles, JSON_PRETTY_PRINT ) );
+					WP_CLI::log( wp_json_encode( $global_styles, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT ) );
 				} else {
 					$request = new \WP_REST_Request( 'POST', "/wp/v2/global-styles/$active_global_styles_id" );
 					$request->set_query_params( $global_styles );
@@ -753,7 +753,7 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 						WP_CLI::error( $response->as_error() );
 					}
 
-					WP_CLI::log( wp_json_encode( $response->get_data(), JSON_PRETTY_PRINT ) );
+					WP_CLI::log( wp_json_encode( $response->get_data(), JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT ) );
 				}
 
 				WP_CLI::success( "Removing the data field `$field` successfully" );
@@ -1290,80 +1290,21 @@ if ( class_exists( 'WP_CLI_Command' ) ) {
 
 			WP_CLI::log( '' );
 
-			// 6. PHP Errors (filtered to recent fatals and errors)
-			WP_CLI::log( WP_CLI::colorize( '%Y--- Recent PHP Errors ---%n' ) );
-			$php_errors_result = WP_CLI::runcommand(
-				'php-errors',
-				array(
-					'launch'     => false,
-					'return'     => 'all',
-					'exit_error' => false,
-				)
-			);
+			// 6. PHP Errors (filtered to critical errors)
+			WP_CLI::log( WP_CLI::colorize( '%Y--- Critical PHP Errors ---%n' ) );
+			$error_log_file = '/tmp/php-errors';
 
-			if ( 0 === $php_errors_result->return_code ) {
-				$error_lines     = explode( "\n", trim( $php_errors_result->stdout ) );
-				$filtered_errors = array();
+			if ( file_exists( $error_log_file ) ) {
+				// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.system_calls_shell_exec
+				$output = shell_exec( "grep -E 'Fatal error|PHP Fatal error|Parse error|Uncaught Error|Uncaught Exception|TypeError|ArgumentCountError|Compile error' " . escapeshellarg( $error_log_file ) . ' | tail -n 100' );
 
-				$recent_dates = array(
-					gmdate( 'd-M-Y' ),
-					gmdate( 'd-M-Y', strtotime( '-1 day' ) ),
-					gmdate( 'd-M-Y', strtotime( '-2 days' ) ),
-				);
-
-				foreach ( $error_lines as $line ) {
-					if ( empty( trim( $line ) ) ) {
-						continue;
-					}
-
-					$is_recent = false;
-					foreach ( $recent_dates as $date ) {
-						if ( strpos( $line, $date ) !== false ) {
-							$is_recent = true;
-							break;
-						}
-					}
-
-					if ( $is_recent ) {
-						// Check for various types of critical/fatal errors
-						$critical_patterns = array(
-							'Fatal error',
-							'PHP Fatal error',
-							'Parse error',
-							'Uncaught Error',
-							'Uncaught Exception',
-							'TypeError',
-							'ArgumentCountError',
-							'Compile error',
-						);
-
-						foreach ( $critical_patterns as $pattern ) {
-							if ( strpos( $line, $pattern ) !== false ) {
-								$filtered_errors[] = $line;
-								break;
-							}
-						}
-					}
-				}
-
-				if ( ! empty( $filtered_errors ) ) {
-					WP_CLI::log( WP_CLI::colorize( '%RRecent Critical PHP Errors:%n' ) );
-					foreach ( $filtered_errors as $error ) {
-						WP_CLI::log( $error );
-					}
+				if ( ! empty( trim( (string) $output ) ) ) {
+					WP_CLI::log( trim( (string) $output ) );
 				} else {
-					// Show last 10 errors of any type if no recent critical errors
-					WP_CLI::log( WP_CLI::colorize( '%GNo recent critical errors found. Last 10 PHP errors:%n' ) );
-					$recent_errors = array_slice( $error_lines, -10 );
-					foreach ( $recent_errors as $error ) {
-						if ( ! empty( trim( $error ) ) ) {
-							WP_CLI::log( $error );
-						}
-					}
+					WP_CLI::log( WP_CLI::colorize( '%GNo critical PHP errors found.%n' ) );
 				}
 			} else {
-				WP_CLI::log( WP_CLI::colorize( '%RPHP errors command failed:%n' ) );
-				WP_CLI::log( $php_errors_result->stderr );
+				WP_CLI::log( WP_CLI::colorize( '%RPHP errors file not found:%n /tmp/php-errors' ) );
 			}
 
 			WP_CLI::log( '' );
@@ -1625,9 +1566,7 @@ WP_CLI::add_wp_hook(
 add_action( 'deactivated_plugin', 'wpcomsh_cli_remember_plugin_deactivation' );
 add_action( 'activated_plugin', 'wpcomsh_cli_forget_plugin_deactivation' );
 
-// @phan-suppress-next-line PhanUndeclaredFunctionInCallable -- https://github.com/phan/phan/issues/4763
 WP_CLI::add_command( 'wpcomsh', 'WPCOMSH_CLI_Commands' );
-// @phan-suppress-next-line PhanUndeclaredFunctionInCallable -- https://github.com/phan/phan/issues/4763
 WP_CLI::add_command( 'wpcomsh plugin verify-checksums', 'Checksum_Plugin_Command_WPCOMSH' );
 WP_CLI::add_command( 'plugin symlink', 'wpcomsh_cli_plugin_symlink' );
 WP_CLI::add_command( 'theme symlink', 'wpcomsh_cli_theme_symlink' );

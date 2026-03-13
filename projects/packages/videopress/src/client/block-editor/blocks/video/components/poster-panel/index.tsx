@@ -182,7 +182,7 @@ export function PosterDropdown( {
 										<p id={ videoPosterDescription } hidden>
 											{ poster
 												? sprintf(
-														/* translators: Placeholder is an image URL. */
+														/* translators: %s: an image URL. */
 														__( 'The current poster image url is %s', 'jetpack-videopress-pkg' ),
 														poster
 												  )
@@ -348,7 +348,7 @@ export function VideoHoverPreviewControl( {
 
 	const startingPointHelp = createInterpolateElement(
 		sprintf(
-			/* translators: placeholder is video duration */
+			/* translators: %s: the formatted video duration */
 			__( 'Video duration: <em>%s</em>.', 'jetpack-videopress-pkg' ),
 			millisecondsToClockTime( videoDuration )
 		),
@@ -359,7 +359,7 @@ export function VideoHoverPreviewControl( {
 
 	const loopDurationHelp = createInterpolateElement(
 		sprintf(
-			/* translators: placeholders are the minimum and maximum lapse duration for the previewOnHover, in seconds */
+			/* translators: %1$s, %2$s: the minimum and maximum lapse duration for the previewOnHover, in seconds */
 			__( 'Minimum: <em>%1$ss</em>. Maximum: <em>%2$ss</em>.', 'jetpack-videopress-pkg' ),
 			Math.min( MIN_LOOP_DURATION / 1000, maxLoopDurationSeconds ),
 			maxLoopDurationSeconds

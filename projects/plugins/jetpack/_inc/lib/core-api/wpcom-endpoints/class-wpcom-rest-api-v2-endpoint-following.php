@@ -9,6 +9,10 @@
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Status\Visitor;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Class WPCOM_REST_API_V2_Endpoint_Following
  */

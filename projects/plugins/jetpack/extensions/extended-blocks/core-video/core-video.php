@@ -5,6 +5,10 @@
  * @package automattic/jetpack
  **/
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 // Populate the available extensions with core/video.
 add_filter(
 	'jetpack_set_available_extensions',

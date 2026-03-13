@@ -12,7 +12,7 @@
 namespace Automattic\Jetpack\Extensions\Sharing_Button_Block;
 
 use Automattic\Jetpack\Device_Detection\User_Agent_Info;
-use Jetpack_PostImages;
+use Automattic\Jetpack\Post_Media\Images;
 use WP_Post;
 
 /**
@@ -431,7 +431,7 @@ class Share_Email_Block extends Sharing_Source_Block {
 	 * @return string The nonce action name.
 	 */
 	protected function get_email_share_nonce_action( $post_id ) {
-		if ( ! empty( $post_id ) && 0 !== $post_id ) {
+		if ( ! empty( $post_id ) ) {
 			return 'jetpack-email-share-' . $post_id;
 		}
 
@@ -521,7 +521,8 @@ class Share_Email_Block extends Sharing_Source_Block {
 		}
 
 		if ( $is_ajax ) {
-			wp_send_json_success();
+			// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- It takes null, but its phpdoc only says int.
+			wp_send_json_success( null, null, JSON_UNESCAPED_SLASHES );
 		} else {
 			wp_safe_redirect( get_permalink( $post->ID ) . '?shared=email&msg=fail' );
 			exit( 0 );
@@ -568,7 +569,7 @@ class Share_Facebook_Block extends Sharing_Source_Block {
 	 */
 	public function process_request( $post, array $post_data ) {
 		$post_id = $post instanceof WP_Post ? $post->ID : 0;
-		$fb_url  = $this->http() . '://www.facebook.com/sharer.php?u=' . rawurlencode( $this->get_share_url( $post_id ) ) . '&t=' . rawurlencode( $this->get_share_title( $post_id ) );
+		$fb_url  = 'https://www.facebook.com/sharer/sharer.php?u=' . rawurlencode( $this->get_share_url( $post_id ) ) . '&t=' . rawurlencode( $this->get_share_title( $post_id ) );
 
 		// Record stats
 		parent::process_request( $post, $post_data );
@@ -686,11 +687,9 @@ class Share_Pinterest_Block extends Sharing_Source_Block {
 	 * @return string
 	 */
 	public function get_image( $post ) {
-		if ( class_exists( 'Jetpack_PostImages' ) ) {
-			$image = Jetpack_PostImages::get_image( $post->ID, array( 'fallback_to_avatars' => true ) );
-			if ( ! empty( $image ) ) {
-				return $image['src'];
-			}
+		$image = Images::get_image( $post->ID, array( 'fallback_to_avatars' => true ) );
+		if ( ! empty( $image ) ) {
+			return $image['src'];
 		}
 
 		/**
@@ -766,44 +765,6 @@ class Share_Pinterest_Block extends Sharing_Source_Block {
 			echo '// share count bumped';
 			die( 0 );
 		}
-	}
-}
-
-/**
- * Pocket sharing service.
- */
-class Share_Pocket_Block extends Sharing_Source_Block {
-	/**
-	 * Service short name.
-	 *
-	 * @var string
-	 */
-	public $shortname = 'pocket';
-
-	/**
-	 * Service name.
-	 *
-	 * @return string
-	 */
-	public function get_name() {
-		return __( 'Pocket', 'jetpack' );
-	}
-
-	/**
-	 * Process sharing request. Add actions that need to happen when sharing here.
-	 *
-	 * @param WP_Post $post Post object.
-	 * @param array   $post_data Array of information about the post we're sharing.
-	 *
-	 * @return void
-	 */
-	public function process_request( $post, array $post_data ) {
-		// Record stats
-		parent::process_request( $post, $post_data );
-
-		$pocket_url = esc_url_raw( 'https://getpocket.com/save/?url=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&title=' . rawurlencode( $this->get_share_title( $post->ID ) ) );
-
-		parent::redirect_request( $pocket_url );
 	}
 }
 
@@ -1428,13 +1389,11 @@ class Share_LinkedIn_Block extends Sharing_Source_Block {
 
 		$post_link = $this->get_share_url( $post->ID );
 
-		// Using the same URL as the official button, which is *not* LinkedIn's documented sharing link
-		// https://www.linkedin.com/cws/share?url={url}&token=&isFramed=false
 		$linkedin_url = add_query_arg(
 			array(
 				'url' => rawurlencode( $post_link ),
 			),
-			'https://www.linkedin.com/cws/share?token=&isFramed=false'
+			'https://www.linkedin.com/sharing/share-offsite/'
 		);
 
 		// Record stats

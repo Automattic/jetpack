@@ -25,7 +25,7 @@ header( 'Content-Type: ' . get_bloginfo( 'html_type' ) . '; charset=' . get_blog
 	</script>
 	<meta http-equiv="Content-Type" content="<?php bloginfo( 'html_type' ); ?>; charset=<?php bloginfo( 'charset' ); ?>" />
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title><?php echo bloginfo( 'name' ); ?></title>
+	<title><?php bloginfo( 'name' ); ?></title>
 	<?php
 	// Use styles from wp-login.
 	wp_enqueue_style( 'login' );
@@ -71,10 +71,10 @@ header( 'Content-Type: ' . get_bloginfo( 'html_type' ) . '; charset=' . get_blog
 						<?php if ( isset( $_GET['calypso_token'] ) ) { /* phpcs:ignore WordPress.Security */ ?>
 							window.calypso.postMessage(JSON.stringify({
 								type: 'needs-auth',
-								channel: "preview-" + <?php echo wp_json_encode( $_GET['calypso_token'] ); /* phpcs:ignore WordPress.Security */ ?>
+								channel: "preview-" + <?php echo wp_json_encode( $_GET['calypso_token'], JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); /* phpcs:ignore WordPress.Security */ ?>
 							}), '*');
 						<?php } else { ?>
-							window.location.href = <?php echo wp_json_encode( $login_link ); ?>;
+							window.location.href = <?php echo wp_json_encode( $login_link, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
 						<?php } ?>
 					}
 				</script>

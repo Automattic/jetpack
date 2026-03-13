@@ -1,27 +1,10 @@
-import {
-	InspectorAdvancedControls,
-	InspectorControls,
-	BlockControls,
-} from '@wordpress/block-editor';
-import { PanelBody, TextControl, ToggleControl } from '@wordpress/components';
-import { isValidElement, useState } from '@wordpress/element';
-import { __, sprintf } from '@wordpress/i18n';
-import JetpackFieldWidth from './jetpack-field-width';
-import ToolbarRequiredGroup from './toolbar-required-group';
-
-// List of reserved HTML form element attribute names
-const reservedAttributes = [
-	'accept',
-	'action',
-	'autocomplete',
-	'enctype',
-	'method',
-	'name',
-	'novalidate',
-	'target',
-	'type',
-	'value',
-];
+import { InspectorControls, BlockControls } from '@wordpress/block-editor';
+import { PanelBody, ToggleControl } from '@wordpress/components';
+import { isValidElement } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
+import JetpackFieldId from './jetpack-field-id-control.js';
+import JetpackFieldWidth from './jetpack-field-width.js';
+import ToolbarRequiredGroup from './toolbar-required-group.js';
 
 const JetpackFieldControls = ( {
 	attributes,
@@ -31,41 +14,6 @@ const JetpackFieldControls = ( {
 	width,
 	extraFieldSettings = [],
 } ) => {
-	const helpMessage = __(
-		"Customize the input's name/ID. Only alphanumeric, dash and underscore characters are allowed",
-		'jetpack-forms'
-	);
-
-	const [ errorState, setErrorState ] = useState( {
-		error: false,
-		message: '',
-	} );
-
-	const setId = value => {
-		const newValue = value.replace( /[^a-zA-Z0-9_-]/g, '' );
-		const reservedWordError = word => {
-			return sprintf(
-				/* translators: %s is the reserved attribute name causing an error */
-				__( 'The name/ID "%s" is a reserved word. Please use a different name.', 'jetpack-forms' ),
-				word
-			);
-		};
-
-		// Only set ID if it's not a reserved attribute name (case insensitive)
-		if ( ! reservedAttributes.some( attr => attr.toLowerCase() === newValue.toLowerCase() ) ) {
-			setErrorState( {
-				error: false,
-				message: '',
-			} );
-			setAttributes( { id: newValue } );
-		} else {
-			setErrorState( {
-				error: true,
-				message: reservedWordError( newValue ),
-			} );
-		}
-	};
-
 	let fieldSettings = [
 		<ToggleControl
 			key="required"
@@ -75,6 +23,19 @@ const JetpackFieldControls = ( {
 			help={ __( 'You can edit the "required" label in the editor', 'jetpack-forms' ) }
 			__nextHasNoMarginBottom={ true }
 		/>,
+		required && (
+			<ToggleControl
+				key="requiredIndicator"
+				label={ __( 'Show required text', 'jetpack-forms' ) }
+				checked={ !! attributes.requiredIndicator }
+				onChange={ value => setAttributes( { requiredIndicator: value } ) }
+				help={ __(
+					'Toggle whether to display the required indicator text for this field.',
+					'jetpack-forms'
+				) }
+				__nextHasNoMarginBottom={ true }
+			/>
+		),
 		<JetpackFieldWidth key="width" setAttributes={ setAttributes } width={ width } />,
 		<ToggleControl
 			key="shareFieldAttributes"
@@ -112,21 +73,14 @@ const JetpackFieldControls = ( {
 			</BlockControls>
 
 			<InspectorControls>
-				<PanelBody title={ __( 'Field settings', 'jetpack-forms' ) }>
+				<PanelBody
+					title={ __( 'Field settings', 'jetpack-forms' ) }
+					className="jetpack-contact-form__panel"
+				>
 					<>{ fieldSettings }</>
 				</PanelBody>
 			</InspectorControls>
-			<InspectorAdvancedControls>
-				<TextControl
-					className={ errorState.error ? 'jetpack-forms-field-controls__input-error' : '' }
-					label={ __( 'Name/ID', 'jetpack-forms' ) }
-					value={ id || '' }
-					onChange={ setId }
-					help={ errorState.error ? errorState.message : helpMessage }
-					__nextHasNoMarginBottom={ true }
-					__next40pxDefaultSize={ true }
-				/>
-			</InspectorAdvancedControls>
+			<JetpackFieldId id={ id } setAttributes={ setAttributes } />
 		</>
 	);
 };

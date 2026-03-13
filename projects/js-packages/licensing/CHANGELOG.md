@@ -5,6 +5,161 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 1.2.35 - 2026-03-09
+### Changed
+- Switch to Native TypeScript compiler based on Go. [#47375]
+- Update license activation screen copy to be more concise. [#47434]
+
+### Fixed
+- Fix TS errors detected by tsgo. [#47409]
+
+## 1.2.34 - 2026-03-02
+### Changed
+- Update dependencies. [#46951]
+
+## 1.2.33 - 2026-02-26
+### Changed
+- Update package dependencies. [#47285] [#47300]
+
+## 1.2.32 - 2026-02-23
+### Changed
+- Update dependencies. [#46951]
+
+## 1.2.31 - 2026-02-18
+### Changed
+- Update dependencies. [#46951]
+
+## 1.2.30 - 2026-02-16
+### Changed
+- Update package dependencies. [#47099]
+
+## 1.2.29 - 2026-02-10
+### Changed
+- Update dependencies. [#46951]
+
+## 1.2.28 - 2026-02-04
+### Changed
+- Update dependencies. [#46944]
+
+## 1.2.27 - 2026-02-03
+### Changed
+- Update dependencies. [#46758]
+
+## 1.2.26 - 2026-02-02
+### Changed
+- Update package dependencies. [#46854]
+
+## 1.2.25 - 2026-01-26
+### Changed
+- Update dependencies. [#46741]
+
+## 1.2.24 - 2026-01-19
+### Changed
+- Update package dependencies. [#46647]
+
+## 1.2.23 - 2026-01-14
+### Changed
+- Internal updates.
+
+## 1.2.22 - 2026-01-07
+### Changed
+- Update package dependencies. [#46456]
+
+## 1.2.21 - 2025-12-22
+### Changed
+- Update dependencies. [#46381]
+
+## 1.2.20 - 2025-12-15
+### Changed
+- Update dependencies. [#46039]
+
+## 1.2.19 - 2025-12-11
+### Changed
+- Update dependencies. [#46039]
+
+## 1.2.18 - 2025-12-08
+### Changed
+- Internal updates.
+
+## 1.2.17 - 2025-12-01
+### Changed
+- Update package dependencies. [#46143]
+
+## 1.2.16 - 2025-11-20
+### Changed
+- Update dependencies. [#46031]
+
+## 1.2.15 - 2025-11-18
+### Changed
+- Update dependencies. [#45493]
+
+## 1.2.14 - 2025-11-17
+### Changed
+- Update package dependencies. [#45915] [#45958]
+
+## 1.2.13 - 2025-11-10
+### Changed
+- Replace icons removed from @wordpress/icons with alternatives. [#45760]
+- Update package dependencies. [#45737]
+
+## 1.2.12 - 2025-11-03
+### Changed
+- Update dependencies. [#45493]
+
+## 1.2.11 - 2025-10-28
+### Changed
+- Update package dependencies. [#45652]
+
+## 1.2.10 - 2025-10-14
+### Changed
+- Update dependencies. [#45488]
+
+## 1.2.9 - 2025-10-06
+### Changed
+- Update package dependencies. [#45334] [#45335]
+
+## 1.2.8 - 2025-09-22
+### Changed
+- Update dependencies. [#44940]
+
+## 1.2.7 - 2025-09-19
+### Changed
+- Update package dependencies. [#45229]
+
+## 1.2.6 - 2025-09-15
+### Changed
+- Update dependencies. [#44940]
+
+## 1.2.5 - 2025-09-08
+### Changed
+- Update package dependencies. [#45027] [#45097]
+
+## 1.2.4 - 2025-09-01
+### Changed
+- Update dependencies. [#44940]
+
+## 1.2.3 - 2025-08-25
+### Changed
+- Update dependencies. [#44934]
+
+## 1.2.2 - 2025-08-18
+### Added
+- Add `typecheck` script to ensure that TypeScript files are type-checked. [#44795]
+
+## 1.2.1 - 2025-08-14
+### Changed
+- Update package dependencies. [#44701]
+
+## 1.2.0 - 2025-08-11
+### Changed
+- Update package dependencies. [#44677]
+
+### Removed
+- Remove unused code. [#44654]
+
+### Fixed
+- I18n: Improve context hints in comments for translators. [#44686]
+
 ## 1.1.0 - 2025-08-04
 ### Changed
 - My Jetpack: Unify the user connection flow with a unified screen. [#44469]

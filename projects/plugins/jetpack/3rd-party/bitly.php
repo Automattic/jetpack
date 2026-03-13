@@ -6,6 +6,10 @@
  * @package automattic/jetpack
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 if ( isset( $GLOBALS['bitly'] ) ) {
 	if ( method_exists( $GLOBALS['bitly'], 'og_tags' ) ) {
 		remove_action( 'wp_head', array( $GLOBALS['bitly'], 'og_tags' ) );

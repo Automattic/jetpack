@@ -70,6 +70,7 @@ import {
 	isWooCommerceActive,
 	userIsSubscriber,
 	getJetpackManageInfo,
+	isWpAdminNewsletterSettingsEnabled,
 } from 'state/initial-state';
 import {
 	updateLicensingActivationNoticeDismiss as updateLicensingActivationNoticeDismissAction,
@@ -143,6 +144,7 @@ const settingsRoutes = [
 	'/discussion',
 	'/earn',
 	'/newsletter',
+	'/reader',
 	'/traffic',
 	'/privacy',
 ];
@@ -161,7 +163,7 @@ class Main extends Component {
 		this.initializeAnalytics();
 
 		// Handles refresh, closing and navigating away from Jetpack's Admin Page
-		// beforeunload can not handle confirm calls in most of the browsers, so just clean up the flag.
+		// beforeunload cannot handle confirm calls in most of the browsers, so just clean up the flag.
 		window.addEventListener( 'beforeunload', this.props.clearUnsavedSettingsFlag );
 
 		// Track initial page view
@@ -329,6 +331,7 @@ class Main extends Component {
 			case '/discussion':
 			case '/earn':
 			case '/newsletter':
+			case '/reader':
 			case '/traffic':
 			case '/privacy':
 				return (
@@ -434,7 +437,7 @@ class Main extends Component {
 					title={
 						this.props.connectingUserFeatureLabel &&
 						sprintf(
-							/* translators: placeholder is a feature label (e.g. SEO, Notifications) */
+							/* translators: %s: a feature label (e.g. SEO, Notifications) */
 							__( 'Unlock %s and more amazing features', 'jetpack' ),
 							this.props.connectingUserFeatureLabel
 						)
@@ -534,6 +537,22 @@ class Main extends Component {
 			case '/plans-prompt':
 				window.location.href = getRedirectUrl( 'jetpack-plans', { site: this.props.siteRawUrl } );
 				break;
+			case '/newsletter':
+				if ( this.props.isWpAdminNewsletterSettingsEnabled ) {
+					window.location.href = `${ this.props.siteAdminUrl }admin.php?page=jetpack-newsletter`;
+					break;
+				}
+				pageComponent = (
+					<SearchableSettings
+						siteAdminUrl={ this.props.siteAdminUrl }
+						siteRawUrl={ this.props.siteRawUrl }
+						blogID={ this.props.blogID }
+						searchTerm={ this.props.searchTerm }
+						rewindStatus={ this.props.rewindStatus }
+						userCanManageModules={ this.props.userCanManageModules }
+					/>
+				);
+				break;
 			case '/settings':
 			case '/security':
 			case '/performance':
@@ -541,7 +560,7 @@ class Main extends Component {
 			case '/sharing':
 			case '/discussion':
 			case '/earn':
-			case '/newsletter':
+			case '/reader':
 			case '/traffic':
 			case '/privacy':
 				pageComponent = (
@@ -842,8 +861,8 @@ class Main extends Component {
 
 				{ showHeader && (
 					<div className="jp-top">
+						{ this.shouldShowMasthead() && <Masthead location={ this.props.location } /> }
 						<div className="jp-top-inside">
-							{ this.shouldShowMasthead() && <Masthead location={ this.props.location } /> }
 							{ this.shouldShowRewindStatus() && <QueryRewindStatus /> }
 							{ mainNav }
 						</div>
@@ -910,6 +929,7 @@ export default connect(
 			currentRecommendationsStep: getInitialRecommendationsStep( state ),
 			isSubscriber: userIsSubscriber( state ),
 			jetpackManage: getJetpackManageInfo( state ),
+			isWpAdminNewsletterSettingsEnabled: isWpAdminNewsletterSettingsEnabled( state ),
 		};
 	},
 	dispatch => ( {

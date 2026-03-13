@@ -22,8 +22,8 @@ export const StepProgressBar = ( { currentStepIndex, totalSteps }: Props ) => {
 			/>
 			<span className="step-progress-bar__label">
 				{ sprintf(
-					/* Translators: %1$s is the current step number, %2$s are total steps */
-					__( 'Step %1$s of %2$s', 'jetpack' ),
+					/* Translators: %1$d is the current step number, %2$d are total steps */
+					__( 'Step %1$d of %2$d', 'jetpack' ),
 					currentStepIndex + 1,
 					totalSteps
 				) }

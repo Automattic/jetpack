@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.4] - 2026-01-08
+### Changed
+- Replace use of confusing `esc_js` on an integer value with `intval`. [#46229]
+- Update package dependencies. [#45478]
+
+### Fixed
+- Ensure proper flags are used with `json_encode()`. [#46117]
+
+## [2.2.3] - 2025-10-09
+### Changed
+- Update package dependencies. [#44725] [#45096]
+
+## [2.2.2] - 2025-08-06
+### Changed
+- Update package dependencies. [#43839] [#44206]
+
+### Fixed
+- Fix JS in Broken Token tool. [#44277]
+
 ## [2.2.1] - 2025-06-05
 ### Changed
 - Update package dependencies. [#43425]
@@ -148,6 +167,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial version.
 
+[2.2.4]: https://github.com/Automattic/jetpack-debug-helper/compare/v2.2.3...v2.2.4
+[2.2.3]: https://github.com/Automattic/jetpack-debug-helper/compare/v2.2.2...v2.2.3
+[2.2.2]: https://github.com/Automattic/jetpack-debug-helper/compare/v2.2.1...v2.2.2
 [2.2.1]: https://github.com/Automattic/jetpack-debug-helper/compare/v2.2.0...v2.2.1
 [2.2.0]: https://github.com/Automattic/jetpack-debug-helper/compare/v2.1.0...v2.2.0
 [2.1.0]: https://github.com/Automattic/jetpack-debug-helper/compare/v2.0.1...v2.1.0

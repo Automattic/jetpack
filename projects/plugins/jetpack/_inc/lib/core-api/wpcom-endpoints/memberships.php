@@ -8,6 +8,10 @@
 
 use Automattic\Jetpack\Connection\Traits\WPCOM_REST_API_Proxy_Request;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Class WPCOM_REST_API_V2_Endpoint_Memberships
  * This introduces V2 endpoints.

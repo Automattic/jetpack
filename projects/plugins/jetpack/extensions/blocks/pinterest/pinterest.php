@@ -17,6 +17,10 @@ use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Status\Request;
 use WP_Error;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 const URL_PATTERN = '#^https?://(?:www\.)?(?:[a-z]{2}\.)?pinterest\.[a-z.]+/pin/(?P<pin_id>[^/]+)/?#i'; // Taken from AMP plugin, originally from Jetpack.
 // This is the validate Pinterest URLs, converted from URL_REGEX in extensions/blocks/pinterest/index.js.
 const PINTEREST_URL_REGEX = '/^https?:\/\/(?:www\.)?(?:[a-z]{2}\.)?(?:pinterest\.[a-z.]+|pin\.it)\/([^\/]+)(\/[^\/]+)?/i';

@@ -2,10 +2,15 @@
  * This takes care of minifying CSS and JS.
  */
 
-const path = require( 'path' );
-const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
-const RemoveAssetWebpackPlugin = require( '@automattic/remove-asset-webpack-plugin' );
-const { glob } = require( 'glob' );
+import path from 'path';
+import { fileURLToPath } from 'url';
+import jetpackWebpackConfig from '@automattic/jetpack-webpack-config/webpack';
+import RemoveAssetWebpackPlugin from '@automattic/remove-asset-webpack-plugin';
+import autoprefixer from 'autoprefixer';
+import { glob } from 'glob';
+
+const __filename = fileURLToPath( import.meta.url );
+const __dirname = path.dirname( __filename );
 
 const scriptSrcDir = path.join( __dirname, '../src/contact-form/js' );
 const styleSrcDir = path.join( __dirname, '../src/contact-form/css' );
@@ -50,7 +55,7 @@ const sharedWebpackConfig = {
 					{
 						loader: 'postcss-loader',
 						options: {
-							postcssOptions: { plugins: [ require( 'autoprefixer' ) ] },
+							postcssOptions: { plugins: [ autoprefixer ] },
 						},
 					},
 					{
@@ -89,6 +94,9 @@ const sharedWebpackConfig = {
 				name.startsWith( 'css' ) && ( name.endsWith( '.js' ) || name.endsWith( 'map' ) ),
 		} ),
 	],
+	watchOptions: {
+		...jetpackWebpackConfig.watchOptions,
+	},
 };
 
 // CSS files using `wp_style_add_data( $handle, 'rtl', 'replace' )` need the
@@ -121,7 +129,7 @@ const RenamerPlugin = {
 	},
 };
 
-module.exports = [
+export default [
 	{
 		...sharedWebpackConfig,
 		entry: glob.sync( path.join( scriptSrcDir, '*.{js,ts,tsx}' ) ).reduce( ( acc, filepath ) => {
@@ -131,7 +139,7 @@ module.exports = [
 	},
 	{
 		...sharedWebpackConfig,
-		entry: glob.sync( path.join( styleSrcDir, '*.css' ) ).reduce( ( acc, filepath ) => {
+		entry: glob.sync( path.join( styleSrcDir, '*.{css,scss}' ) ).reduce( ( acc, filepath ) => {
 			acc[ 'css/' + path.parse( filepath ).name ] = filepath;
 			return acc;
 		}, {} ),

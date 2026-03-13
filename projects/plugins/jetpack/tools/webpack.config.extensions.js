@@ -56,6 +56,15 @@ const viewBlocksScripts = presetBetaBlocks.reduce( ( viewBlocks, block ) => {
 	return viewBlocks;
 }, {} );
 
+// Helps split up each block into its own folder admin script
+const adminBlocksScripts = presetBetaBlocks.reduce( ( adminBlocks, block ) => {
+	const adminScriptPath = path.join( __dirname, '../extensions/blocks', block, 'admin.js' );
+	if ( fs.existsSync( adminScriptPath ) ) {
+		adminBlocks[ block + '/admin' ] = adminScriptPath;
+	}
+	return adminBlocks;
+}, {} );
+
 // Combines all the different production blocks into one editor.js script
 const editorScript = [
 	editorSetup,
@@ -178,14 +187,6 @@ const sharedWebpackConfig = {
 				],
 			} ),
 
-			// Allow importing .svg files as React components by appending `?component` to the import, e.g. `import Logo from './logo.svg?component';`
-			{
-				test: /\.svg$/i,
-				issuer: /\.[jt]sx?$/,
-				resourceQuery: /component/,
-				use: [ '@svgr/webpack' ],
-			},
-
 			// Handle images.
 			jetpackWebpackConfig.FileRule(),
 		],
@@ -205,6 +206,7 @@ module.exports = [
 			'editor-beta': editorBetaScript,
 			'editor-no-post-editor': editorNoPostEditorScript,
 			...viewBlocksScripts,
+			...adminBlocksScripts,
 		},
 		plugins: [
 			...sharedWebpackConfig.plugins,
@@ -273,7 +275,7 @@ module.exports = [
 					if ( ! resource.contextInfo.issuer.includes( 'extensions/shared/i18n-to-php' ) ) {
 						resource.request = path.join(
 							path.dirname( __dirname ),
-							'./extensions/shared/i18n-to-php'
+							'./extensions/shared/i18n-to-php.js'
 						);
 					}
 				}

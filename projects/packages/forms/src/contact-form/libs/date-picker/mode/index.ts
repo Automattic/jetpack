@@ -2,8 +2,8 @@
  * @file Defines the various date picker modes (modal, dropdown, permanent)
  */
 
-import { IDatePickerOptions } from '../interfaces';
-import DropdownMode from './dropdown-mode';
+import { IDatePickerOptions } from '../interfaces.ts';
+import DropdownMode from './dropdown-mode.ts';
 
 export default function Mode(
 	input: HTMLInputElement | string,

@@ -36,7 +36,10 @@ class Error_Handler_Test extends BaseTestCase {
 		// Clear any cached data between tests
 		$reflection = new \ReflectionClass( $this->error_handler );
 		$property   = $reflection->getProperty( 'cached_displayable_errors' );
-		$property->setAccessible( true );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
 		$property->setValue( $this->error_handler, null );
 
 		// Clear any test data
@@ -605,13 +608,15 @@ class Error_Handler_Test extends BaseTestCase {
 	 */
 	public function test_send_error_to_wpcom_encryption_failure() {
 		// Mock encryption to fail
-		$error_handler_mock = $this->getMockBuilder( Error_Handler::class )
-			->disableOriginalConstructor()
-			->onlyMethods( array( 'encrypt_data_to_wpcom' ) )
-			->getMock();
-
-		$error_handler_mock->method( 'encrypt_data_to_wpcom' )
-			->willReturn( false );
+		// Anonymous class to disable constructor and replace one method.
+		// PHPUnit 12.5 whines about mocks without expectations, while getStubBuilder() doesn't exist until 12.5.
+		$error_handler_mock = new class() extends Error_Handler {
+			public function __construct() {
+			}
+			public function encrypt_data_to_wpcom( $data ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+				return false;
+			}
+		};
 
 		$error_array = array(
 			'error_code' => 'test_error',
@@ -728,7 +733,10 @@ class Error_Handler_Test extends BaseTestCase {
 	public function test_should_allow_error_filtering() {
 		$reflection = new \ReflectionClass( $this->error_handler );
 		$method     = $reflection->getMethod( 'should_allow_error_filtering' );
-		$method->setAccessible( true );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
 
 		// This test will depend on the actual Host class implementation
 		// We'll just verify the method exists and returns a boolean
@@ -1293,7 +1301,10 @@ class Error_Handler_Test extends BaseTestCase {
 		// Use reflection to access protected method
 		$reflection = new \ReflectionClass( $this->error_handler );
 		$method     = $reflection->getMethod( 'has_external_filters' );
-		$method->setAccessible( true );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
 
 		// Test without filters
 		$result = $method->invoke( $this->error_handler );
@@ -1319,7 +1330,10 @@ class Error_Handler_Test extends BaseTestCase {
 		// Use reflection to access protected method
 		$reflection = new \ReflectionClass( $this->error_handler );
 		$method     = $reflection->getMethod( 'invalidate_displayable_errors_cache' );
-		$method->setAccessible( true );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
 
 		// Test that the method doesn't throw any errors
 		$method->invoke( $this->error_handler );

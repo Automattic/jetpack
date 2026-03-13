@@ -8,6 +8,7 @@ export CI=1
 BASE="$PWD"
 BRANCH="$1"
 CHANGEFILE="$(sed 's/[<>:"/\\|?*]/-/g' <<<"$BRANCH")"
+EXIT=0
 
 . "$BASE/tools/includes/changelogger.sh"
 . "$BASE/tools/includes/alpha-tag.sh"
@@ -44,10 +45,12 @@ fi
 
 # Do the pnpm install. Turn off some strictness settings to make it more likely this will work.
 cd "$BASE"
-echo 'strict-peer-dependencies = false' >> .npmrc
-echo 'strict-dep-builds = false' >> .npmrc
-pnpm install
-git restore .npmrc
+TMP=$(< pnpm-workspace.yaml )
+pnpm config set --location project strict-peer-dependencies false
+pnpm config set --location project strict-dep-builds false
+pnpm config set --location project allow-unused-patches true
+pnpm install || EXIT=$?
+echo "$TMP" > pnpm-workspace.yaml
 
 # Install changelogger too.
 cd "$BASE/projects/packages/changelogger"
@@ -70,9 +73,11 @@ done
 
 if ! $ANY; then
 	echo "No projects are touched in this renovate PR, so nothing to do."
-	exit 0
+	exit $EXIT
 fi
 
 # Update deps and lock files.
 echo "Updating dependencies on changed projects"
 tools/check-intra-monorepo-deps.sh -ua -n "${CHANGEFILE}"
+
+exit $EXIT

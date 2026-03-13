@@ -25,11 +25,12 @@ const useBackupNeedsAttentionNotice: NoticeHookType = ( redBubbleAlerts, isLoadi
 
 	const {
 		timezone: { offset },
-	} = getDateSettings() || { offset: '0' };
+	} = getDateSettings() || { offset: 0 };
 	// Using dateI18n() to apply internationalization and formatting.
 	const backupStatusLastUpdatedDate = dateI18n(
 		'F jS, Y g:ia',
-		applyTimezone( lastUpdated, parseInt( offset ) )
+		// @todo Once we drop support for WordPress 6.9, `offset` should always be a number.
+		applyTimezone( lastUpdated, typeof offset === 'string' ? parseInt( offset ) : offset )
 	);
 
 	const troubleshootBackupsUrl = getRedirectUrl( 'jetpack-support-troubleshooting-backup' );
@@ -58,7 +59,11 @@ const useBackupNeedsAttentionNotice: NoticeHookType = ( redBubbleAlerts, isLoadi
 	}, [ recordEvent, status, contactSupportUrl ] );
 
 	useEffect( () => {
-		if ( ! redBubbleAlerts?.backup_failure || status === 'backups-deactivated' ) {
+		if (
+			! redBubbleAlerts?.backup_failure ||
+			status === 'backups-deactivated' ||
+			status === 'multisite_not_supported'
+		) {
 			return;
 		}
 

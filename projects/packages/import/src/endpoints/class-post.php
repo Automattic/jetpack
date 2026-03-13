@@ -12,6 +12,10 @@ use WP_Error;
 use WP_REST_Request;
 use WP_REST_Response;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 if ( ! function_exists( 'post_exists' ) ) {
 	require_once ABSPATH . 'wp-admin/includes/post.php';
 }
@@ -183,16 +187,14 @@ class Post extends \WP_REST_Posts_Controller {
 	 * @return array The filtered array of meta keys.
 	 */
 	private function filter_post_meta_keys( $metas ) {
-		// Define an array of keys to exclude from the filtered array
-		$excluded_keys = array();
 		// Convert array of keys to a plain array of key strings
-		$meta_keys = array_unique( array_values( array_keys( $metas ) ) );
+		$meta_keys = array_unique( array_keys( $metas ) );
 		// // Filter the array by removing the excluded keys and any keys that include '_oembed'
 		$filtered_keys = array_filter(
 			$meta_keys,
-			function ( $key ) use ( $excluded_keys ) {
+			function ( $key ) {
 				// We also don't want to include any oembed post meta because it gets created after a post created
-				return ! in_array( $key, $excluded_keys, true ) && ! str_contains( $key, '_oembed' );
+				return ! str_contains( $key, '_oembed' );
 			}
 		);
 		// Return the filtered array
@@ -208,6 +210,7 @@ class Post extends \WP_REST_Posts_Controller {
 	 * @return array                  Array of term IDs.
 	 */
 	protected function get_term_ids_from_slugs( $term_slugs, $taxonomy_name ) {
+		// @phan-suppress-next-line PhanAccessMethodInternal @phan-suppress-current-line UnusedSuppression -- Fixed in WP 6.9, but then we need a suppression for the WP 6.8 compat run. @todo Remove this suppression when we drop WP <6.9.
 		return get_terms(
 			array(
 				'fields'     => 'ids',

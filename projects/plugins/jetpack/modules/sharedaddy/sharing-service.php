@@ -13,9 +13,11 @@
 // phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
 
 use Automattic\Jetpack\Assets;
-use Automattic\Jetpack\Redirect;
-use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Sync\Settings;
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
 
 require_once __DIR__ . '/sharing-sources.php';
 
@@ -103,7 +105,6 @@ class Sharing_Service {
 			'twitter'          => 'Share_Twitter',
 			'tumblr'           => 'Share_Tumblr',
 			'pinterest'        => 'Share_Pinterest',
-			'pocket'           => 'Share_Pocket',
 			'telegram'         => 'Share_Telegram',
 			'threads'          => 'Share_Threads',
 			'jetpack-whatsapp' => 'Jetpack_Share_WhatsApp',
@@ -872,7 +873,7 @@ function sharing_add_footer() {
 				?>
 
 	<script type="text/javascript">
-		window.WPCOM_sharing_counts = <?php echo wp_json_encode( array_flip( $sharing_post_urls ) ); ?>;
+		window.WPCOM_sharing_counts = <?php echo wp_json_encode( array_flip( $sharing_post_urls ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
 	</script>
 				<?php
 			endif;
@@ -939,12 +940,12 @@ if ( isset( $_GET['share'] ) ) {
 }
 
 /**
- * Gets the url to customise the sharing buttons in Calypso.
+ * Gets the url to customise the sharing buttons in WP-Admin.
  *
- * @return string the customisation URL or null if it couldn't be determinde.
+ * @return string the customisation URL.
  */
 function get_sharing_buttons_customisation_url() {
-	return Redirect::get_url( 'calypso-marketing-sharing-buttons', array( 'site' => ( new Status() )->get_site_suffix() ) );
+	return admin_url( 'options-general.php?page=sharing' );
 }
 
 /**
@@ -1109,7 +1110,7 @@ function sharing_display( $text = '', $echo = false ) {
 			$dir = get_option( 'text_direction' );
 
 			// Wrapper.
-			$sharing_content .= '<div class="sharedaddy sd-sharing-enabled"><div class="robots-nocontent sd-block sd-social sd-social-' . $global['button_style'] . ' sd-sharing">';
+			$sharing_content .= '<div class="sharedaddy sd-sharing-enabled"><div class="robots-nocontent sd-block sd-social sd-social-' . ( $global['button_style'] ?? 'icon-text' ) . ' sd-sharing">';
 			if ( '' !== $global['sharing_label'] ) {
 				$sharing_content .= sprintf(
 					/**

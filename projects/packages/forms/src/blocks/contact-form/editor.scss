@@ -1,5 +1,35 @@
 @use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
-@import url(https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+JP&display=swap&text=♥★);
+
+:where(.jetpack-contact-form) {
+	border-width: 0;
+}
+
+:where(.is-classic-layout) .jetpack-contact-form,
+.jetpack-contact-form.has-no-jetpack-form-layout {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: flex-start;
+	gap: var(--wp--style--block-gap, 1.5rem);
+
+	.wp-block {
+		flex: 0 0 100%;
+		margin-top: 0;
+		margin-bottom: 0;
+		max-width: 100%;
+	}
+
+	> div {
+		flex: 1 1 100%;
+	}
+
+	&.is-nowrap {
+		flex-wrap: nowrap;
+	}
+
+	.wp-block-jetpack-button {
+		align-self: flex-end;
+	}
+}
 
 .wp-block-jetpack-contact-form {
 	box-sizing: border-box;
@@ -45,32 +75,47 @@
 
 	.jetpack-contact-form,
 	[class*="wp-block-jetpack-field-option"] {
-		display: flex;
-		flex-wrap: wrap;
-		justify-content: flex-start;
-		flex-direction: row;
-		gap: var(--wp--style--block-gap, 1.5rem);
 
-		> div {
-			flex: 1 1 100%;
-		}
+		// not horizontal or vertical means a form created
+		// before layout support was added
 
 		.wp-block {
-			flex: 0 0 100%;
 			margin-top: 0;
 			margin-bottom: 0;
+			max-width: 100%;
 
+			&.wp-block-button,
 			&.wp-block-jetpack-button {
-				flex-basis: auto;
+				flex: 0 0 auto;
+				min-height: var(--jetpack--contact-form--input-height, auto);
+				line-height: 1;
+				margin-block: 0;
+
+				.wp-block-button__link {
+					min-height: var(--jetpack--contact-form--input-height, auto);
+					padding-top: var(--jetpack--contact-form--input-padding-top);
+					padding-bottom: var(--jetpack--contact-form--input-padding-top);
+				}
+			}
+
+			&.wp-block-group-is-layout-flex:not(.is-vertical) {
+				// when the button is on a row stack, we expect it to fill the width of the
+				// button block container (which is filling the provided column width)
+				.wp-block.wp-block-jetpack-button .wp-block-button__link {
+					width: 100%;
+				}
 			}
 
 			&.jetpack-field__width-25,
 			&.jetpack-field__width-33,
 			&.jetpack-field__width-50,
-			&.jetpack-field__width-75 {
+			&.jetpack-field__width-75,
+			&.jetpack-field__width-100,
+			&.jetpack-field__width-auto {
 				box-sizing: border-box;
 			}
 
+			&.wp-block-button__width-25,
 			&.jetpack-field__width-25 {
 				flex: 1 1 calc(25% - calc(var(--wp--style--block-gap, 1.5rem) * 1));
 				max-width: 25%;
@@ -81,14 +126,33 @@
 				max-width: 33.33%;
 			}
 
+			&.wp-block-button__width-50,
 			&.jetpack-field__width-50 {
 				flex: 1 1 calc(50% - calc(var(--wp--style--block-gap, 1.5rem) * 1));
 				max-width: 50%;
 			}
 
+			&.wp-block-button__width-75,
 			&.jetpack-field__width-75 {
 				flex: 1 1 calc(75% - calc(var(--wp--style--block-gap, 1.5rem) * 1));
 				max-width: 75%;
+			}
+
+			&.wp-block-button__width-100,
+			&.jetpack-field__width-100 {
+				flex: 1 1 100%;
+				max-width: 100%;
+			}
+
+			&.wp-block-button {
+
+				.wp-block-button__link {
+					width: 100%;
+				}
+			}
+
+			&.jetpack-field__width-auto {
+				flex: 1 1 0;
 			}
 
 			@media (max-width: #{ (gb.$break-mobile) }) {
@@ -97,11 +161,14 @@
 					flex-basis: 100%;
 					max-width: none;
 				}
-			}
 
-			&[data-type="jetpack/field-checkbox"],
-			&[data-type="jetpack/field-consent"] {
-				align-self: center;
+				&.wp-block-jetpack-button {
+					flex-basis: 100%;
+
+					.wp-block-button__link {
+						width: 100%;
+					}
+				}
 			}
 
 			&:where(.wp-block-jetpack-contact-form .wp-block-separator) {
@@ -142,6 +209,7 @@
 			margin: unset;
 		}
 	}
+
 }
 
 .jetpack-contact-form .components-placeholder {
@@ -192,13 +260,17 @@
 		}
 	}
 
-	.form-placeholder__footer {
-		display: flex;
-		flex-direction: row;
-		justify-content: center;
-		width: 100%;
-		font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+	.form-placeholder__shell {
+		text-align: center;
+
+		.components-select-control {
+			text-align: left;
+		}
 	}
+}
+
+.is-form-empty .block-editor-inserter {
+	width: 100%;
 }
 
 .form-placeholder__patterns-modal {
@@ -310,7 +382,7 @@
 		word-break: normal;
 		color: unset;
 		opacity: 0.6;
-		font-size: 85%;
+		font-size: 72%;
 		margin-inline-start: 0.25em;
 		font-weight: 400;
 	}
@@ -322,45 +394,27 @@
 	padding: 0;
 }
 
-.jetpack-field__textarea {
-	display: block;
-	min-height: 200px;
-}
-
+// Default field styles. (browser default styles)
 .jetpack-field {
+
+	.jetpack-field__textarea {
+		display: block;
+		min-height: 200px;
+	}
 
 	.jetpack-field__input,
 	.jetpack-field__textarea {
-		width: 100%;
 		box-sizing: border-box;
 		box-shadow: unset;
-		padding: 16px;
+		padding: var(--jetpack--contact-form--input-padding, 16px);
 		margin: 0;
-	}
-
-	// Reduced specificity to 0,1,0 so that global styles can override it.
-	:where(.jetpack-field__input, .jetpack-field__textarea, .jetpack-field-dropdown__toggle) {
-		font: inherit;
-		border: 1px solid #8c8f94;
-		border-radius: 0;
-	}
-
-	:where(.jetpack-field-dropdown__toggle) {
-		background-color: var(--jetpack--contact-form--input-background);
-	}
-
-	// Reduced specificity to 0,1,0 so that global styles can override it.
-	:where(.jetpack-field__textarea) {
-		border: var(--jetpack--contact-form--border, 1px solid #8c8f94);
-		border-color: var(--jetpack--contact-form--border-color, #8c8f94);
-		border-style: var(--jetpack--contact-form--border-style, solid);
-		border-width: var(--jetpack--contact-form--border-left-size, 1px);
 	}
 
 	.components-base-control__field {
 		margin-bottom: 0;
 	}
 
+	.jetpack-option__type,
 	&.jetpack-field-checkbox .jetpack-field-option__checkbox,
 	&.jetpack-field-consent .jetpack-field-option__checkbox {
 		margin: 0 0.75rem 0 0;
@@ -368,7 +422,53 @@
 		opacity: 1;
 	}
 
-	.jetpack-option__type.jetpack-option__type {
+	.jetpack-field-consent__checkbox + .jetpack-field-label {
+		line-height: normal;
+	}
+
+	.jetpack-field-option {
+		display: flex;
+		align-items: center;
+		justify-content: flex-start;
+	}
+
+}
+
+// Selectors with specificity to 0,0,0 so that global styles can override it.
+
+:where(.jetpack-field .jetpack-field__input, .jetpack-field .jetpack-field__textarea) {
+	padding: 16px;
+	margin: 0;
+}
+
+:where(.jetpack-field .jetpack-field__textarea) {
+	border: var(--jetpack--contact-form--border, 1px solid #8c8f94);
+	border-color: var(--jetpack--contact-form--border-color, #8c8f94);
+	border-style: var(--jetpack--contact-form--border-style, solid);
+	border-width: var(--jetpack--contact-form--border-left-size, 1px);
+}
+
+:where(.jetpack-field .jetpack-field__input, .jetpack-field .jetpack-field__textarea, .jetpack-field .jetpack-field-dropdown__toggle) {
+	font: inherit;
+	border: 1px solid #8c8f94;
+	border-radius: 0;
+}
+
+:where(.jetpack-field .jetpack-field-dropdown__toggle) {
+	background-color: var(--jetpack--contact-form--input-background);
+}
+
+// Default field styles other the plain.
+.jetpack-field:not(.is-style-plain) {
+
+	&.jetpack-field-consent .jetpack-field-option__checkbox {
+		margin: 0 0.75rem 0 0;
+		border-color: currentColor;
+		opacity: 1;
+	}
+
+	.jetpack-field-option__checkbox, // standalone and consent
+	.jetpack-option__type { // radios and checkboxes (multiple option fields)
 		align-items: center;
 		display: flex;
 		justify-content: center;
@@ -380,56 +480,70 @@
 		width: 1em !important;
 		height: 1em !important;
 		box-shadow: none !important;
-		border: none !important;
 		appearance: none !important;
 		outline: none !important;
 
-		/* Some classic themes set the min-widths, which gives
-		 * an elliptical shape to the input. */
-		min-width: auto;
+		box-sizing: border-box;
+
+		/* Inherit the font size from the parent element.
+		 * This allows the input to scale with the font size
+		 * set from global styles or from block styles */
+		font-size: inherit;
+		min-width: 1em;
+		min-height: 1em;
+		margin-inline-end: calc(var(--jetpack--contact-form--font-size) / 2);
+		padding: 0;
+
+		// appearance: none;
+		border: solid 1px currentColor;
+		border-radius: 4px;
+		color: currentColor;
+		outline-offset: 1px;
+		transform: translateY(0.15em);
+		background-color: var(--jetpack--contact-form--input-background, field);
+
+		&::before {
+			position: absolute;
+			width: 0.25em;
+			height: 0.5em;
+			content: "";
+			display: block;
+			opacity: 0; /* Hidden by default */
+			scale: 0.7;
+			margin-left: 50%;
+			margin-top: 50%;
+			transition: opacity 0.1s ease-in-out, scale 0.15s ease-in-out;
+
+			font-size: inherit;
+			border-style: solid;
+			border-color: var(--jetpack--contact-form--inverted-body-text-color, var(--jetpack--contact-form--input-background));
+			border-width: 0 2px 2px 0;
+			transform: translate(-50%, -60%) rotate(40deg);
+			top: 0;
+			left: 0;
+
+		}
+
+		&:checked {
+			background-color: currentColor;
+
+			&::before {
+				scale: 1;
+				opacity: 1;
+			}
+		}
 	}
 
-	:where(.jetpack-option__type) {
-		all: initial;
-		color: currentColor;
-		// Inherit the font size from the parent element, this needs
-		// to override the `all: initial` above.
-		// Set the height and width to 1em, so that the input scales
-		// with the font size.
-		font-size: inherit;
-
-		&::after,
-		&::before {
-			all: initial;
-			color: inherit;
-			font-size: inherit;
-			font-family: inherit;
-		}
-
-		&::before {
-			align-items: center;
-			border-color: currentColor;
-			border-radius: min(var(--jetpack--contact-form--button-outline--border-radius, 0px), 4px);
-			border-style: solid;
-			border-width: 1px;
-			box-sizing: border-box;
-			content: " ";
-			display: flex;
-			font-weight: 700;
-			height: 1em;
-			justify-content: center;
-			width: 1em;
-		}
-
-		&[type="radio"]::before {
-			border-radius: 50%;
-		}
+	// Radios are .jetpack-option__type nested within this selector.
+	.jetpack-field-option.field-option-radio .jetpack-option__type {
+		border-radius: 50%;
 	}
 
 	.jetpack-field-consent__checkbox + .jetpack-field-label {
 		line-height: normal;
 	}
 
+	.jetpack-field-option__checkbox,
 	.jetpack-field-option {
 		display: flex;
 		align-items: center;
@@ -452,6 +566,10 @@
 			display: block; /* display: flex causes baselines to not align */
 			transform: translateY(0.15em);
 		}
+	}
+
+	.jetpack-field-multiple__list .jetpack-field-option.field-option-checkbox {
+		align-items: baseline;
 	}
 }
 
@@ -491,6 +609,7 @@
 
 	.jetpack-field-option .jetpack-option__type {
 		color: inherit;
+		transform: translateY(0.15em);
 
 		&::before {
 
@@ -571,7 +690,7 @@
 	font-weight: 400;
 
 	:where(.wp-block-jetpack-option) {
-		font-size: 13px;
+		font-size: 16px;
 	}
 }
 
@@ -691,7 +810,10 @@
 
 		.jetpack-field__input,
 		.jetpack-field__textarea {
-			color: #787c82; //Simulates a placeholder color
+
+			&::placeholder {
+				opacity: 0.5;
+			}
 		}
 	}
 
@@ -705,7 +827,8 @@
 
 	.is-style-outlined & {
 
-		.block-editor-block-list__block:not([contenteditable]):focus::after {
+		// This hides the focus outline, so we exclude the non-outlined blocks.
+		.block-editor-block-list__block:not([contenteditable]):not(.is-non-outlined-block):not(.is-non-outlined-block *):focus::after {
 			top: -10px;
 			left: -10px;
 			bottom: -10px;
@@ -797,8 +920,12 @@
 			}
 
 			&.is-non-animated-label .notched-label__label {
-				position: static;
-				transform: unset;
+				position: static !important;
+				transform: unset !important;
+
+				.jetpack-field-label__input {
+					font-size: inherit !important;
+				}
 			}
 
 			&.is-selected,
@@ -881,10 +1008,9 @@
 				outline: none;
 			}
 
-			.jetpack-field__input,
 			.jetpack-field__textarea,
 			.jetpack-field-dropdown__toggle {
-				padding-top: 1.4em;
+				padding-top: max(var(--jetpack--contact-form--input-padding-top, 0), 1.4em);
 				padding-left: var(--jetpack--contact-form--animated-left-offset);
 			}
 
@@ -986,6 +1112,8 @@
 
 	.notched-label__leading {
 		border-color: var(--jetpack--contact-form--border-color);
+		border-style: var(--jetpack--contact-form--border-style);
+		border-radius: var(--jetpack--contact-form--border-radius);
 		width: var(--jetpack--contact-form--notch-width);
 		border-right: none !important;
 		border-top-right-radius: unset !important;
@@ -1050,13 +1178,17 @@
 }
 
 /* Styles for form inspector panels */
-.jetpack-contact-form__manage-responses-panel,
+.jetpack-contact-form__responses-storage-panel,
 .jetpack-contact-form__integrations-panel {
 
 	.components-button.is-secondary {
 		width: 100%;
 		justify-content: center;
 	}
+}
+
+.jetpack-contact-form__panel {
+	text-wrap: pretty;
 }
 
 :where(.wp-block-jetpack-input) {
@@ -1118,3 +1250,12 @@
 	}
 }
 
+/* Status notice for synced forms with non-publish status */
+.jetpack-contact-form__status-notice {
+	margin-bottom: 16px;
+}
+
+/* "Other" option text input styles */
+.jetpack-other-text-input-wrapper {
+	margin-left: 1.5em;
+}

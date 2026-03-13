@@ -14,9 +14,9 @@ use function Automattic\Jetpack\Extensions\Premium_Content\subscription_service;
 use const Automattic\Jetpack\Extensions\Premium_Content\PAYWALL_FILTER;
 
 /**
- * @covers ::\Automattic\Jetpack\Extensions\Premium_Content\current_visitor_can_access
+ * @covers ::Automattic\Jetpack\Extensions\Premium_Content\current_visitor_can_access
  */
-#[CoversFunction( '\\Automattic\\Jetpack\\Extensions\\Premium_Content\\current_visitor_can_access' )]
+#[CoversFunction( 'Automattic\\Jetpack\\Extensions\\Premium_Content\\current_visitor_can_access' )]
 class Jetpack_Premium_Content_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 

@@ -3,6 +3,44 @@ All notable changes to this project will be documented in this file.
 
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.0.14] - 2026-02-12
+### Changed
+- Internal updates.
+
+### Fixed
+- Tests: Fix tests for PHPUnit 12.5.11 breakage.
+## [6.0.13] - 2026-02-02
+### Changed
+- Update package dependencies. [#46836]
+
+## [6.0.12] - 2025-12-16
+### Changed
+- Internal updates.
+
+## [6.0.11] - 2025-12-04
+### Fixed
+- Ensure proper flags are used with `json_encode()`. [#46092]
+
+## [6.0.10] - 2025-12-01
+### Changed
+- Update tests to use addCommand() instead of deprecated add() method. [#46126]
+
+## [6.0.9] - 2025-11-12
+### Changed
+- Internal updates.
+
+## [6.0.8] - 2025-11-10
+### Fixed
+- Tests: Improve compatibility with PHP 8.5. [#45771]
+
+## [6.0.7] - 2025-09-15
+### Changed
+- Internal updates.
+
+## [6.0.6] - 2025-08-13
+### Changed
+- Update package dependencies. [#44725]
+
 ## [6.0.5] - 2025-04-28
 ### Changed
 - Internal updates.
@@ -287,6 +325,15 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ### Added
 - Initial version.
 
+[6.0.14]: https://github.com/Automattic/jetpack-changelogger/compare/6.0.13...6.0.14
+[6.0.13]: https://github.com/Automattic/jetpack-changelogger/compare/6.0.12...6.0.13
+[6.0.12]: https://github.com/Automattic/jetpack-changelogger/compare/6.0.11...6.0.12
+[6.0.11]: https://github.com/Automattic/jetpack-changelogger/compare/6.0.10...6.0.11
+[6.0.10]: https://github.com/Automattic/jetpack-changelogger/compare/6.0.9...6.0.10
+[6.0.9]: https://github.com/Automattic/jetpack-changelogger/compare/6.0.8...6.0.9
+[6.0.8]: https://github.com/Automattic/jetpack-changelogger/compare/6.0.7...6.0.8
+[6.0.7]: https://github.com/Automattic/jetpack-changelogger/compare/6.0.6...6.0.7
+[6.0.6]: https://github.com/Automattic/jetpack-changelogger/compare/6.0.5...6.0.6
 [6.0.5]: https://github.com/Automattic/jetpack-changelogger/compare/6.0.4...6.0.5
 [6.0.4]: https://github.com/Automattic/jetpack-changelogger/compare/6.0.3...6.0.4
 [6.0.3]: https://github.com/Automattic/jetpack-changelogger/compare/6.0.2...6.0.3

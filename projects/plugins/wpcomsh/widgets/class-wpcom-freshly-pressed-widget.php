@@ -39,7 +39,13 @@ class WPCOM_Freshly_Pressed_Widget extends WP_Widget {
 
 		$badge_size = $this->get_badge_size( $instance['badge'] );
 
-		echo '<a href="http://discover.wordpress.com/" title="Featured on Freshly Pressed"><img src="' . esc_url( $this->get_badge_url( $instance['badge'] ) ) . '" width="' . (int) $badge_size['width'] . 'px" height="' . (int) $badge_size['height'] . 'px" /></a>';
+		printf(
+			'<a href="https://wordpress.com/discover/" title="%1$s"><img src="%2$s" width="%3$dpx" height="%4$dpx" /></a>',
+			esc_attr__( 'Featured on Freshly Pressed', 'wpcomsh' ),
+			esc_url( $this->get_badge_url( $instance['badge'] ) ),
+			(int) $badge_size['width'],
+			(int) $badge_size['height']
+		);
 
 		echo "\n" . $args['after_widget']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
@@ -128,6 +134,8 @@ class WPCOM_Freshly_Pressed_Widget extends WP_Widget {
 	 */
 	public function get_badge_size( $badge ) {
 		$badges = $this->badges();
+
+		$badge = isset( $badges[ $badge ] ) ? $badge : 'rectangle';
 
 		return $badges[ $badge ];
 	}

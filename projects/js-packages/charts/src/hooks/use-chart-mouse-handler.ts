@@ -8,6 +8,14 @@ type UseChartMouseHandlerProps = {
 	 * Whether tooltips are enabled
 	 */
 	withTooltips: boolean;
+	/**
+	 * Horizontal offset for tooltip positioning in pixels (default: 0)
+	 */
+	offsetX?: number;
+	/**
+	 * Vertical offset for tooltip positioning in pixels (default: -10)
+	 */
+	offsetY?: number;
 };
 
 type UseChartMouseHandlerReturn = {
@@ -43,13 +51,14 @@ type UseChartMouseHandlerReturn = {
  * @param {UseChartMouseHandlerProps} props - Hook configuration
  * @return {UseChartMouseHandlerReturn} Object containing handlers and tooltip state
  */
-const useChartMouseHandler = ( {
+export const useChartMouseHandler = ( {
 	withTooltips,
+	offsetX = 0,
+	offsetY = -10,
 }: UseChartMouseHandlerProps ): UseChartMouseHandlerReturn => {
 	const { tooltipOpen, tooltipLeft, tooltipTop, tooltipData, hideTooltip, showTooltip } =
 		useTooltip< DataPoint >();
 
-	// TODO: either debounce/throttle or use useTooltipInPortal with built-in debounce
 	const onMouseMove = useCallback(
 		( event: MouseEvent< SVGElement >, data: DataPoint ) => {
 			if ( ! withTooltips ) {
@@ -63,11 +72,11 @@ const useChartMouseHandler = ( {
 
 			showTooltip( {
 				tooltipData: data,
-				tooltipLeft: coords.x,
-				tooltipTop: coords.y - 10,
+				tooltipLeft: coords.x + offsetX,
+				tooltipTop: coords.y + offsetY,
 			} );
 		},
-		[ withTooltips, showTooltip ]
+		[ withTooltips, showTooltip, offsetX, offsetY ]
 	);
 
 	const onMouseLeave = useCallback( () => {
@@ -86,5 +95,3 @@ const useChartMouseHandler = ( {
 		tooltipTop,
 	};
 };
-
-export default useChartMouseHandler;

@@ -5,6 +5,10 @@
  * @package automattic/jetpack
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 if ( ! class_exists( 'Jetpack_Google_Font_Face' ) ) {
 	/**
 	 * Load Jetpack Google Font Face
@@ -236,7 +240,7 @@ function jetpack_unregister_google_fonts() {
 	// Prepare changes
 	$changes               = new stdClass();
 	$changes->ID           = $post_id;
-	$changes->post_content = wp_json_encode( $user_config_raw_data );
+	$changes->post_content = wp_json_encode( $user_config_raw_data, JSON_UNESCAPED_SLASHES );
 
 	// Update user config
 	wp_update_post( wp_slash( (array) $changes ), true );

@@ -124,7 +124,7 @@ export default connect(
 					createNotice(
 						'is-error',
 						sprintf(
-							/* translators: placeholder is the error. */
+							/* translators: %s: the error. */
 							__( 'There was an error reconnecting Jetpack. Error: %s', 'jetpack' ),
 							error.response.message || error.response.code
 						),

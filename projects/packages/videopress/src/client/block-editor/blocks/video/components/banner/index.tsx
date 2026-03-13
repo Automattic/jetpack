@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { Spinner } from '@wordpress/components';
-import { Icon, warning } from '@wordpress/icons';
+import { Icon, cautionFilled as warning } from '@wordpress/icons';
 /**
  * Types
  */

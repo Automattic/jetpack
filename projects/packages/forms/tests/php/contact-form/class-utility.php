@@ -11,14 +11,15 @@ class Utility {
 	 *
 	 * This function creates a mock feedback post in the legacy format used by Jetpack Contact Form.
 	 *
-	 * @param array       $all_values               An associative array of field values.
-	 * @param string|null $comment_content          The content of the comment.
-	 * @param string|null $comment_author           The name of the comment author.
-	 * @param string|null $comment_author_email     The email of the comment author.
-	 * @param string|null $comment_author_url       The URL of the comment author.
-	 * @param string|null $comment_ip_text          The IP address of the comment author.
-	 * @param string|null $subject                  The subject of the feedback.
-	 * @param string|null $status                   The status of the post (default is 'publish').
+	 * @param array        $all_values               An associative array of field values.
+	 * @param string|null  $comment_content          The content of the comment.
+	 * @param string|null  $comment_author           The name of the comment author.
+	 * @param string|null  $comment_author_email     The email of the comment author.
+	 * @param string|null  $comment_author_url       The URL of the comment author.
+	 * @param string|null  $comment_ip_text          The IP address of the comment author.
+	 * @param string|null  $subject                  The subject of the feedback.
+	 * @param string|null  $status                   The status of the post (default is 'publish').
+	 * @param boolean|null $strip_new_lines          Whether to strip new lines from the content (default is false).
 	 *
 	 * @return int|\WP_Error The ID of the created post on success, or a WP_Error object on failure.
 	 */
@@ -30,7 +31,9 @@ class Utility {
 		$comment_author_url = 'http://example.com',
 		$comment_ip_text = 'https://127.0.0.1',
 		$subject = 'Test Subject',
-		$status = 'publish'
+		$status = 'publish',
+		$strip_new_lines = false,
+		$is_unread = false
 	) {
 		global $post;
 		$feedback_time  = current_time( 'mysql' );
@@ -64,18 +67,82 @@ class Utility {
 			$entry_values
 		);
 
-		$content = addslashes( wp_kses( "$comment_content\n<!--more-->\nAUTHOR: {$comment_author}\nAUTHOR EMAIL: {$comment_author_email}\nAUTHOR URL: {$comment_author_url}\nSUBJECT: {$subject}\nIP: {$comment_ip_text}\nJSON_DATA\n" . wp_json_encode( $all_values ), array() ) );
+		$content = addslashes( wp_kses( "$comment_content\n<!--more-->\nAUTHOR: {$comment_author}\nAUTHOR EMAIL: {$comment_author_email}\nAUTHOR URL: {$comment_author_url}\nSUBJECT: {$subject}\nIP: {$comment_ip_text}\nJSON_DATA\n" . wp_json_encode( $all_values, JSON_UNESCAPED_SLASHES ), array() ) );
+		if ( $strip_new_lines ) {
+			$content = str_replace( array( "\n", "\r" ), ' ', $content );
+		}
+		// Create a mock post with JSON_DATA format
+		return wp_insert_post(
+			array(
+				'post_date'      => addslashes( $feedback_time ),
+				'post_type'      => 'feedback',
+				'post_status'    => addslashes( $status ),
+				'post_parent'    => $post ? $post->ID : 0,
+				'post_title'     => addslashes( wp_kses( $feedback_title, array() ) ),
+				'post_content'   => $content, // so that search will pick up this data
+				'post_name'      => $feedback_id,
+				'comment_status' => $is_unread ? Feedback::STATUS_UNREAD : Feedback::STATUS_READ,
+			)
+		);
+	}
+
+	public static function create_legacy_feedback_v2(
+		$all_values = array(),
+		$comment_author = 'Test User',
+		$comment_ip_text = 'https://127.0.0.1',
+		$subject = 'Test Subject',
+		$status = 'publish'
+	) {
+		global $post;
+		$feedback_time  = current_time( 'mysql' );
+		$feedback_title = "{$comment_author} - {$feedback_time}";
+		$feedback_id    = md5( $feedback_title );
+
+		if ( empty( $all_values ) ) {
+			$all_values = array(
+				'field1'                  => 'value1',
+				'field2'                  => 'value2',
+				'email_marketing_consent' => 'yes',
+			);
+		}
+
+		$entry_values = array(
+			'entry_title'     => 'Cool Post Title',
+			'entry_permalink' => 'https://example.com/post/123',
+			'feedback_id'     => $feedback_id,
+		);
+
+		if ( isset( $_POST['page'] ) ) {
+			$entry_values['entry_page'] = absint( wp_unslash( $_POST['page'] ) );
+		}
+
+		$fields = array();
+		$i      = 1;
+		foreach ( $all_values as $key => $value ) {
+			$field    = new Feedback_Field( $i . '_' . $key, $key, $value, 'textarea', array(), $key );
+			$fields[] = $field->serialize();
+			++$i;
+		}
+
+		$content = array(
+			'subject'     => $subject,
+			'ip'          => $comment_ip_text,
+			'entry_title' => $entry_values['entry_title'],
+			'entry_page'  => $entry_values['entry_page'] ?? 1,
+			'fields'      => $fields,
+		);
 
 		// Create a mock post with JSON_DATA format
 		return wp_insert_post(
 			array(
-				'post_date'    => addslashes( $feedback_time ),
-				'post_type'    => 'feedback',
-				'post_status'  => addslashes( $status ),
-				'post_parent'  => $post ? $post->ID : 0,
-				'post_title'   => addslashes( wp_kses( $feedback_title, array() ) ),
-				'post_content' => $content, // so that search will pick up this data
-				'post_name'    => $feedback_id,
+				'post_type'      => 'feedback',
+				'post_status'    => $status,
+				'post_title'     => addslashes( wp_kses( $feedback_title, array() ) ),
+				'post_date'      => $feedback_time,
+				'post_name'      => $feedback_id,
+				'post_content'   => wp_json_encode( $content, JSON_UNESCAPED_SLASHES ),
+				'post_mime_type' => 'v2', // a way to help us identify what version of the data this is.
+				'post_parent'    => $post ? $post->ID : 0,
 			)
 		);
 	}

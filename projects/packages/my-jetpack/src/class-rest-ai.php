@@ -70,7 +70,7 @@ class REST_AI {
 				'method'  => 'POST',
 				'headers' => array( 'Content-Type' => 'application/json; charset=utf-8' ),
 			),
-			wp_json_encode( array() ),
+			wp_json_encode( array(), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ),
 			'wpcom'
 		);
 

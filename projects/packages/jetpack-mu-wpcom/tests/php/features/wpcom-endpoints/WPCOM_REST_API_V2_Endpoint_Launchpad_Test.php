@@ -103,7 +103,7 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad_Test extends \WorDBless\BaseTestCase 
 
 		$request = new WP_REST_Request( Requests::POST, '/wpcom/v2/launchpad' );
 		$request->set_header( 'content_type', 'application/json' );
-		$request->set_body( wp_json_encode( $data ) );
+		$request->set_body( wp_json_encode( $data, JSON_UNESCAPED_SLASHES ) );
 
 		$this->assertFalse( wpcom_launchpad_is_task_list_dismissed( 'intent-build' ) );
 
@@ -128,7 +128,7 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad_Test extends \WorDBless\BaseTestCase 
 		$data    = array( 'is_checklist_dismissed' => $values );
 		$request = new WP_REST_Request( Requests::POST, '/wpcom/v2/launchpad' );
 		$request->set_header( 'content_type', 'application/json' );
-		$request->set_body( wp_json_encode( $data ) );
+		$request->set_body( wp_json_encode( $data, JSON_UNESCAPED_SLASHES ) );
 		$result = rest_do_request( $request );
 		$this->assertSame( 200, $result->get_status(), 'assert status code' );
 		$this->assertTrue( wpcom_launchpad_is_task_list_dismissed( 'intent-build' ), 'assert the dismiss state' );
@@ -148,7 +148,7 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad_Test extends \WorDBless\BaseTestCase 
 		$data    = array( 'is_checklist_dismissed' => $values );
 		$request = new WP_REST_Request( Requests::POST, '/wpcom/v2/launchpad' );
 		$request->set_header( 'content_type', 'application/json' );
-		$request->set_body( wp_json_encode( $data ) );
+		$request->set_body( wp_json_encode( $data, JSON_UNESCAPED_SLASHES ) );
 		$result = rest_do_request( $request );
 		$this->assertSame( 400, $result->get_status(), 'assert status code' );
 	}
@@ -167,7 +167,7 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad_Test extends \WorDBless\BaseTestCase 
 
 		$request = new WP_REST_Request( Requests::POST, '/wpcom/v2/launchpad' );
 		$request->set_header( 'content_type', 'application/json' );
-		$request->set_body( wp_json_encode( $data ) );
+		$request->set_body( wp_json_encode( $data, JSON_UNESCAPED_SLASHES ) );
 
 		$this->assertFalse( get_option( 'launchpad_checklist_tasks_statuses' ) );
 
@@ -197,7 +197,7 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad_Test extends \WorDBless\BaseTestCase 
 
 		$request = new WP_REST_Request( Requests::POST, '/wpcom/v2/launchpad' );
 		$request->set_header( 'content_type', 'application/json' );
-		$request->set_body( wp_json_encode( $data ) );
+		$request->set_body( wp_json_encode( $data, JSON_UNESCAPED_SLASHES ) );
 
 		$result = rest_do_request( $request );
 
@@ -209,7 +209,7 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad_Test extends \WorDBless\BaseTestCase 
 		$this->assertFalse( $option_value );
 
 		// Invalid parameter.
-		$request->set_body( wp_json_encode( array( 'checklist_statuses' => array( 'wrong_key' => true ) ) ) );
+		$request->set_body( wp_json_encode( array( 'checklist_statuses' => array( 'wrong_key' => true ) ), JSON_UNESCAPED_SLASHES ) );
 		$result = rest_do_request( $request );
 
 		$this->assertSame( 400, $result->get_status() );
@@ -231,7 +231,7 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad_Test extends \WorDBless\BaseTestCase 
 
 		$request = new WP_REST_Request( Requests::POST, '/wpcom/v2/launchpad' );
 		$request->set_header( 'content_type', 'application/json' );
-		$request->set_body( wp_json_encode( $data ) );
+		$request->set_body( wp_json_encode( $data, JSON_UNESCAPED_SLASHES ) );
 
 		$this->assertFalse( get_option( 'launchpad_screen' ) );
 
@@ -255,7 +255,7 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad_Test extends \WorDBless\BaseTestCase 
 
 		$request = new WP_REST_Request( Requests::POST, '/wpcom/v2/launchpad' );
 		$request->set_header( 'content_type', 'application/json' );
-		$request->set_body( wp_json_encode( $data ) );
+		$request->set_body( wp_json_encode( $data, JSON_UNESCAPED_SLASHES ) );
 
 		$result = rest_do_request( $request );
 
@@ -461,6 +461,38 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad_Test extends \WorDBless\BaseTestCase 
 	}
 
 	/**
+	 * Tests that the intent-free-newsletter task list includes import tasks.
+	 */
+	public function test_intent_free_newsletter_includes_import_tasks() {
+		\Brain\Monkey\Functions\when( 'get_blog_count_for_user' )->justReturn( 1 );
+		\Mockery::mock( 'alias:Email_Verification' )->shouldReceive( 'is_email_unverified' )->andReturn( true );
+
+		wp_set_current_user( $this->admin_id );
+		update_option( 'site_goals', array( 'import-subscribers' ) );
+
+		$data = array(
+			'checklist_slug'    => 'intent-free-newsletter',
+			'launchpad_context' => 'customer-home',
+		);
+
+		$result = $this->call_launchpad_api( Requests::GET, $data );
+
+		$this->assertEquals( 200, $result->get_status() );
+		$this->assertIsArray( $result->get_data()['checklist'] );
+
+		$task_ids = array_column( $result->get_data()['checklist'], 'id' );
+
+		// Verify that import tasks are included
+		$this->assertContains( 'migrate_content', $task_ids, 'migrate_content task should be in intent-free-newsletter task list' );
+		$this->assertContains( 'subscribers_added', $task_ids, 'subscribers_added task should be in intent-free-newsletter task list' );
+
+		// Verify the order: migrate_content should come before subscribers_added
+		$migrate_index     = array_search( 'migrate_content', $task_ids, true );
+		$subscribers_index = array_search( 'subscribers_added', $task_ids, true );
+		$this->assertLessThan( $subscribers_index, $migrate_index, 'migrate_content should come before subscribers_added' );
+	}
+
+	/**
 	 * Helper function to create a new WP_REST_Request and call the Launchpad REST API.
 	 *
 	 * @param string     $method The HTTP method to use.
@@ -472,7 +504,7 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad_Test extends \WorDBless\BaseTestCase 
 		$request->set_header( 'content_type', 'application/json' );
 
 		if ( null !== $body ) {
-			$request->set_body( wp_json_encode( $body ) );
+			$request->set_body( wp_json_encode( $body, JSON_UNESCAPED_SLASHES ) );
 		}
 
 		return rest_do_request( $request );

@@ -1,4 +1,3 @@
-import { getIconColor } from '@automattic/jetpack-shared-extension-utils';
 import { InnerBlocks, useBlockProps } from '@wordpress/block-editor';
 import { __ } from '@wordpress/i18n';
 import PlaceholderSiteIcon from '../placeholder-site-icon.svg';
@@ -15,7 +14,6 @@ export const settings = {
 	description: __( 'Blogroll Item', 'jetpack' ),
 	icon: {
 		src: icon,
-		foreground: getIconColor(),
 	},
 	category: 'grow',
 	parent: [ 'jetpack/blogroll' ],

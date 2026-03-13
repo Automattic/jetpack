@@ -13,6 +13,10 @@ use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Sync\Health as Sync_Health;
 use Automattic\Jetpack\Sync\Settings as Sync_Settings;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Class Jetpack_Cxn_Tests contains all of the actual tests.
  */
@@ -309,7 +313,7 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 		if ( $local_user->exists() ) {
 			$result = self::passing_test( array( 'name' => $name ) );
 		} else {
-			$connection_error = __( 'The user who setup the Jetpack connection no longer exists on this site.', 'jetpack' );
+			$connection_error = __( 'The user who set up the Jetpack connection no longer exists on this site.', 'jetpack' );
 
 			$result = self::connection_failing_test( $name, $connection_error );
 		}
@@ -348,7 +352,7 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 			$result = self::passing_test( array( 'name' => $name ) );
 		} else {
 			/* translators: a WordPress username */
-			$connection_error = sprintf( __( 'The user (%s) who setup the Jetpack connection is not an administrator.', 'jetpack' ), $master_user->user_login );
+			$connection_error = sprintf( __( 'The user (%s) who set up the Jetpack connection is not an administrator.', 'jetpack' ), $master_user->user_login );
 			/* translators: a WordPress username */
 			$recommendation = sprintf( __( 'We recommend either upgrading the user (%s) or reconnecting Jetpack.', 'jetpack' ), $master_user->user_login );
 
@@ -451,15 +455,36 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 		if ( ! $identity_crisis ) {
 			$result = self::passing_test( array( 'name' => $name ) );
 		} else {
+			$messages = array();
+
+			// Check each URL pair and add a message for any that mismatch.
+			if ( isset( $identity_crisis['home'] ) && isset( $identity_crisis['wpcom_home'] ) && $identity_crisis['home'] !== $identity_crisis['wpcom_home'] ) {
+				$messages[] = sprintf(
+					/* translators: Two URLs. The first is the locally-recorded value, the second is the value as recorded on WP.com. */
+					__( 'Your home URL is set as `%1$s`, but your WordPress.com connection lists it as `%2$s`.', 'jetpack' ),
+					$identity_crisis['home'],
+					$identity_crisis['wpcom_home']
+				);
+			}
+
+			if ( isset( $identity_crisis['siteurl'] ) && isset( $identity_crisis['wpcom_siteurl'] ) && $identity_crisis['siteurl'] !== $identity_crisis['wpcom_siteurl'] ) {
+				$messages[] = sprintf(
+					/* translators: Two URLs. The first is the locally-recorded value, the second is the value as recorded on WP.com. */
+					__( 'Your site URL is set as `%1$s`, but your WordPress.com connection lists it as `%2$s`.', 'jetpack' ),
+					$identity_crisis['siteurl'],
+					$identity_crisis['wpcom_siteurl']
+				);
+			}
+
+			// Fallback if no specific mismatch was detected (shouldn't happen, but be safe).
+			if ( empty( $messages ) ) {
+				$messages[] = __( 'A URL mismatch was detected between your site and WordPress.com.', 'jetpack' );
+			}
+
 			$result = self::failing_test(
 				array(
 					'name'              => $name,
-					'short_description' => sprintf(
-						/* translators: Two URLs. The first is the locally-recorded value, the second is the value as recorded on WP.com. */
-						__( 'Your url is set as `%1$s`, but your WordPress.com connection lists it as `%2$s`!', 'jetpack' ),
-						$identity_crisis['home'],
-						$identity_crisis['wpcom_home']
-					),
+					'short_description' => implode( ' ', $messages ),
 					'action_label'      => $this->helper_get_support_text(),
 					'action'            => $this->helper_get_support_url(),
 				)

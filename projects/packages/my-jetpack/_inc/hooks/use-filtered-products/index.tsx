@@ -1,4 +1,6 @@
+import { getScriptData } from '@automattic/jetpack-script-data';
 import { useCallback, useEffect, useState } from 'react';
+import { JETPACK_PRODUCTS_NOT_FOR_MULTISITE } from '../../constants';
 import useProductsByOwnership from '../../data/products/use-products-by-ownership';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 
@@ -47,6 +49,11 @@ const useFilteredProducts = () => {
 			// If the user cannot view stats, filter out the stats card
 			if ( ! canUserViewStats ) {
 				productsWithNoCard.push( 'stats' );
+			}
+
+			// If on multisite, filter out products that are not supported
+			if ( getScriptData().site.is_multisite ) {
+				productsWithNoCard.push( ...JETPACK_PRODUCTS_NOT_FOR_MULTISITE );
 			}
 
 			return products.filter( product => {

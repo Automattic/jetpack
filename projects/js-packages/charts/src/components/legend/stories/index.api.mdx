@@ -1,0 +1,125 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title="JS Packages/Charts Library/Components/Legend/API Reference" />
+
+# Legend API Reference
+
+This document provides comprehensive API documentation for the Legend component.
+
+## Legend Component
+
+The Legend component displays chart legends with support for both standalone usage and chart context integration.
+
+**Props:**
+
+| Prop                  | Type                                     | Default                 | Description                                                                                                                                                                                |
+| --------------------- | ---------------------------------------- | ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `items`               | `BaseLegendItem[]`                       | -                       | Array of legend items to display. Optional when using `chartId`.                                                                                                                           |
+| `chartId`             | `string`                                 | -                       | ID of a chart to retrieve legend data from context. When provided, the legend automatically retrieves items from the chart.                                                                |
+| `orientation`         | `'horizontal' \| 'vertical'`             | `'horizontal'`          | Controls the layout direction of legend items.                                                                                                                                             |
+| `position`            | `'top' \| 'bottom'`                      | `'bottom'`              | Position of the legend relative to the chart content. Controls which slot the legend renders in when using the composition API.                                                             |
+| `alignment`           | `'start' \| 'center' \| 'end'`           | `'center'`              | Horizontal alignment of legend items within the legend container.                                                                                                                          |
+| `itemClassName`       | `string`                                 | -                       | Additional CSS class name for legend items. Allows consumers to customize individual legend item styling.                                                                                  |
+| `render`              | `(items: BaseLegendItem[]) => ReactNode` | -                       | Function for rendering a custom legend layout. Receives the legend items array and returns custom JSX.                                                                                     |
+| `className`           | `string`                                 | -                       | Additional CSS class name for the legend container.                                                                                                                                        |
+| `shape`               | `string \| ShapeType`                    | `'rect'`                | Shape of the legend glyph. Common values: 'rect', 'circle', 'line'.                                                                                                                        |
+| `fill`                | `(item: LegendItem) => string`           | `valueOrIdentityString` | Function that returns the fill color for each legend shape.                                                                                                                                |
+| `size`                | `(item: LegendItem) => string \| number` | `valueOrIdentityString` | Function that returns the size for each legend shape.                                                                                                                                      |
+| `labelFormat`         | `(item: unknown) => unknown`             | `valueOrIdentity`       | Function to format legend labels.                                                                                                                                                          |
+| `labelTransform`      | `(label: LegendItem) => LegendItem`      | `labelTransformFactory` | Function to transform legend label objects.                                                                                                                                                |
+| `itemStyles`          | `LegendItemStyles`                       | see below               | CSS styles for each legend item. See `LegendItemStyles` type below.                                                                                                                        |
+| `labelClassName`      | `string`                                 | -                       | Additional CSS class name for legend labels.                                                                                                                                               |
+| `labelStyles`         | `LegendLabelStyles`                      | see below               | CSS styles for legend labels. See `LegendLabelStyles` type below.                                                                                                                          |
+| `shapeStyles`         | `LegendShapeStyles`                      | see below               | Styles for legend shapes. See `LegendShapeStyles` type below.                                                                                                                              |
+| `interactive`         | `boolean`                                | `false`                 | Enable interactive legend items that can toggle series visibility. Requires `chartId` and `GlobalChartsProvider`.                                                                          |
+
+## Style Types
+
+### LegendItemStyles
+
+Styles applied to each legend item.
+
+```typescript
+type LegendItemStyles = {
+	margin?: CSSProperties['margin'];  // Default: '0'
+	flexDirection?: 'row' | 'row-reverse' | 'column' | 'column-reverse'; // Default: 'row'
+};
+```
+
+### LegendLabelStyles
+
+Styles and text overflow behavior for legend labels.
+
+```typescript
+type LegendLabelStyles = Pick< CSSProperties, 'justifyContent' | 'flex' | 'margin' > & {
+	maxWidth?: string;                    // CSS value (e.g. '200px', '50%', '10rem')
+	textOverflow?: 'ellipsis' | 'wrap';   // Default: 'wrap'
+};
+// Other defaults: { justifyContent: 'flex-start', flex: '0 0 auto', margin: '0 4px' }
+```
+
+- **`maxWidth`**: Maximum width for legend label text. When set, text overflow behavior is controlled by `textOverflow`.
+- **`textOverflow`**: `'ellipsis'` truncates with ellipsis (ideal for widgets/small devices), `'wrap'` wraps text to multiple lines (default, ideal for larger displays).
+
+### LegendShapeStyles
+
+Styles for legend shapes (glyphs).
+
+```typescript
+type LegendShapeStyles = {
+	width?: number;                      // Default: 16
+	height?: number;                     // Default: 16
+	margin?: CSSProperties['margin'];    // Default: '2px 4px 2px 0'
+};
+```
+
+## BaseLegendItem Type
+
+Represents a single item in the legend.
+
+```typescript
+type BaseLegendItem = {
+	/** Display label for the legend item */
+	label: string;
+
+	/** Value to display next to the label (e.g., percentage, count) */
+	value?: number | string;
+
+	/** Color for the legend glyph */
+	color: string;
+
+	/** Optional custom size for the glyph */
+	glyphSize?: number;
+
+	/** Optional custom rendering function for the glyph */
+	renderGlyph?: < Datum extends object >( props: GlyphProps< Datum > ) => ReactNode;
+
+	/** Optional custom styles for the shape */
+	shapeStyle?: CSSProperties & LineStyles;
+};
+```
+
+### BaseLegendItem Properties
+
+- **`label`** (required): The text displayed for this legend entry
+- **`value`** (optional): The value shown next to the label (often a percentage or count)
+- **`color`** (required): The color used for the legend glyph/shape
+- **`glyphSize`** (optional): Custom size for the glyph in pixels. When provided, the glyph will be rendered at `glyphSize * 2` dimensions
+- **`renderGlyph`** (optional): Custom function to render the glyph. Receives GlyphProps and returns a React node. Useful for custom symbols or complex glyphs
+- **`shapeStyle`** (optional): Additional CSS and line styles to apply to the shape. Supports standard CSSProperties plus visx LineStyles
+
+## GlyphProps Type
+
+Props passed to custom glyph render functions.
+
+```typescript
+type GlyphProps< Datum extends object > = {
+	key: string;
+	datum: Datum;
+	index: number;
+	color: string;
+	size: number;
+	x: number;
+	y: number;
+};
+```

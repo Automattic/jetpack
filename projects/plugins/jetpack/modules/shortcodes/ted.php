@@ -13,6 +13,10 @@
  * @package automattic/jetpack
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 wp_oembed_add_provider( '!https?://(www\.)?ted.com/talks/view/id/.+!i', 'https://www.ted.com/talks/oembed.json', true );
 wp_oembed_add_provider( '!https?://(www\.)?ted.com/talks/[a-zA-Z\-\_]+\.html!i', 'https://www.ted.com/talks/oembed.json', true );
 
@@ -106,9 +110,23 @@ function ted_filter_oembed_fetch_url( $provider, $url, $args ) {
  * @return string|false
  */
 function ted_filter_oembed_amp_iframe( $cache, $url ) {
-	if ( is_string( $cache )
-		&& strpos( $url, 'ted.com' )
-	) {
+	if ( ! is_string( $cache ) ) {
+		return $cache;
+	}
+
+	$host = wp_parse_url( $url, PHP_URL_HOST );
+	if ( ! $host ) {
+		return $cache;
+	}
+
+	$allowed_hosts = array(
+		'ted.com',
+		'www.ted.com',
+		'embed.ted.com',
+	);
+
+	$host = strtolower( $host );
+	if ( in_array( $host, $allowed_hosts, true ) ) {
 		$cache = preg_replace(
 			'/src=[\'"].*?[\'"]/',
 			'$0 sandbox="allow-popups allow-scripts allow-same-origin"',

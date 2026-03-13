@@ -125,6 +125,19 @@ class Jetpack_Sync_Settings_Test extends Jetpack_Sync_TestBase {
 
 		$this->assertTrue( $this->dedicated_sync_test_request_spawned );
 		$this->assertFalse( Settings::is_dedicated_sync_enabled() );
+
+		// Ensure 'updated_option' events related to 'jetpack_sync_settings_dedicated_sync_enabled' have been removed from
+		// the queue.
+		$this->sender->do_sync();
+		$event = $this->server_event_storage->get_most_recent_event(
+			'updated_option',
+			get_current_blog_id(),
+			function ( $event ) {
+				return isset( $event->args[0] ) && 'jetpack_sync_settings_dedicated_sync_enabled' === $event->args[0];
+			}
+		);
+
+		$this->assertFalse( $event );
 	}
 
 	public function test_enabling_dedicated_sync_setting_with_successful_sync_spawn_test_request() {
@@ -135,6 +148,7 @@ class Jetpack_Sync_Settings_Test extends Jetpack_Sync_TestBase {
 		$this->assertTrue( $this->dedicated_sync_test_request_spawned );
 		$this->assertTrue( Settings::is_dedicated_sync_enabled() );
 	}
+
 	/**
 	 * Intercept HTTP request to run Sync and mock the response.
 	 * Should be hooked on the `pre_http_request` filter.
@@ -177,13 +191,6 @@ class Jetpack_Sync_Settings_Test extends Jetpack_Sync_TestBase {
 			'status_code' => 500,
 			'body'        => '',
 		);
-	}
-
-	public function test_enabling_wpcom_rest_api_enabled_gets_disabled_when_send_data_fails() {
-		add_filter( 'jetpack_sync_send_data', array( $this, 'serverReceiveWithError' ) );
-		Settings::update_settings( array( 'wpcom_rest_api_enabled' => 1 ) );
-		remove_filter( 'jetpack_sync_send_data', array( $this, 'serverReceiveWithError' ) );
-		$this->assertFalse( Settings::is_wpcom_rest_api_enabled() );
 	}
 
 	/**

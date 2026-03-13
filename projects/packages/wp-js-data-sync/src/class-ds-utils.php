@@ -19,9 +19,6 @@ class DS_Utils {
 		if ( isset( $_GET['ds-debug-disable'] ) && ( is_admin() || ( defined( 'REST_REQUEST' ) && REST_REQUEST ) ) ) {
 			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			$values = explode( ',', sanitize_key( $_GET['ds-debug-disable'] ) );
-			if ( ! $values ) {
-				return false;
-			}
 			if ( $values === array( 'all' ) ) {
 				return true;
 			}

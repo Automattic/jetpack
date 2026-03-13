@@ -1,10 +1,10 @@
 === Jetpack Search ===
 Contributors: automattic, annamcphee, bluefuton, kangzj, jsnmoon, robfelty, gibrown, trakos, dognose24, a8ck3n
 Tags: search, filter, woocommerce search, ajax search, product search, free cloud-based search
-Requires at least: 6.7
+Requires at least: 6.8
 Requires PHP: 7.2
-Tested up to: 6.8
-Stable tag: 1.4.0
+Tested up to: 6.9
+Stable tag: 5.2.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -122,32 +122,10 @@ If you are using the Jetpack Search free option, and you have more than 5000 rec
 5. Manage all of your Jetpack products, including Search, in a single place.
 
 == Changelog ==
-### 5.0.0 - 2025-06-10
-#### Added
-- Add more error logging.
-- Add My Jetpack tour.
-- Highlight search terms in returned search results.
-
-#### Changed
-- E2E Tests: Update config file encryption algorithm.
-- My Jetpack: Hide backup failure notice when backups are deactivated.
-- My Jetpack: Optimize the images for onboarding slider for faster page load.
-- My Jetpack: Update the onboarding UI, changing it to a single button.
-- Update package dependencies.
-
-#### Removed
-- Classic Themes: Replace the Core Search widget instead of adding a new widget to the main sidebar.
-- General: Update minimum WordPress version to 6.7.
-
+### 5.2.2 - 2025-11-21
 #### Fixed
-- Address `body_class` filter fatal in older versions of the Blaskan theme.
-- Block editor: Fix layout issues with the Media Library modal buttons.
-- Linting: Fix more Stylelint violations.
-- Mitigate bug with certain P2 themes.
-- My Jetpack: Fix Onboarding UI responsiveness at 600px.
-- My Jetpack: Fix readability of license activation button on hover.
-- My Jetpack: Prevent social login from getting stuck when email input is not empty.
-- Protect against improper calls to `the_title()` filter.
+- Jetpack: Remove getIconColor functions for block icons.
+- My Jetpack: Fix expiring renewal prompt to show all products.
 
 == Testimonials ==
 

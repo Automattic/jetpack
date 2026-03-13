@@ -1,10 +1,12 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
+import { useSearchParams } from 'react-router';
 import { FilteredPlans } from './filtered-plans';
 import { FilteredProducts } from './filtered-products';
 import { Filters } from './filters';
 import { ProductFiltersProvider, useProductFiltersContext } from './products-tracking-context';
 import styles from './styles.module.scss';
 import { ProductFilter } from './types';
+import { isValidFilter } from './utils';
 
 /**
  * Inner component that consumes the ProductFiltering context.
@@ -105,14 +107,40 @@ const ProductsContent = ( {
  * @return The rendered component.
  */
 export const Products = () => {
-	const [ selectedFilter, setSelectedFilter ] = useState< ProductFilter >( 'all' );
-	const [ search, setSearch ] = useState< string >( '' );
+	const [ searchParams, setSearchParams ] = useSearchParams();
+	const filterParam = searchParams.get( 'filter' );
+	const selectedFilter: ProductFilter = isValidFilter( filterParam ) ? filterParam : 'all';
+	const search = searchParams.get( 'search' ) || '';
+
+	// Update URL when filter changes
+	const handleSetSelectedFilter = useCallback(
+		( filter: ProductFilter ) => {
+			const newSearchParams = new URLSearchParams( searchParams );
+			newSearchParams.set( 'filter', filter );
+			setSearchParams( newSearchParams, { replace: true } );
+		},
+		[ searchParams, setSearchParams ]
+	);
+
+	// Update URL when search changes
+	const setSearch = useCallback(
+		( searchTerm: string ) => {
+			const newSearchParams = new URLSearchParams( searchParams );
+			if ( searchTerm ) {
+				newSearchParams.set( 'search', searchTerm );
+			} else {
+				newSearchParams.delete( 'search' );
+			}
+			setSearchParams( newSearchParams, { replace: true } );
+		},
+		[ searchParams, setSearchParams ]
+	);
 
 	return (
 		<ProductFiltersProvider currentFilter={ selectedFilter } searchTerm={ search }>
 			<ProductsContent
 				selectedFilter={ selectedFilter }
-				setSelectedFilter={ setSelectedFilter }
+				setSelectedFilter={ handleSetSelectedFilter }
 				search={ search }
 				setSearch={ setSearch }
 			/>

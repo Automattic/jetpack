@@ -13,6 +13,10 @@ use DomainException;
 use InvalidArgumentException;
 use UnexpectedValueException;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * JSON Web Token implementation, based on this spec:
  * https://tools.ietf.org/html/rfc7519
@@ -320,7 +324,7 @@ class JWT {
 	 * @throws DomainException Provided object could not be encoded to valid JSON.
 	 */
 	public static function json_encode( $input ) {
-		$json  = wp_json_encode( $input );
+		$json  = wp_json_encode( $input, JSON_UNESCAPED_SLASHES );
 		$errno = json_last_error();
 
 		if ( $errno ) {

@@ -1,5 +1,4 @@
 export { Legend } from './legend';
-export { BaseLegend } from './base-legend';
-export { useChartLegendData } from './use-chart-legend-data';
-export type { LegendProps, BaseLegendProps } from './types';
-export type { ChartLegendOptions } from './use-chart-legend-data';
+export { useChartLegendItems } from './hooks/use-chart-legend-items';
+export type { LegendProps, BaseLegendProps, BaseLegendItem } from './types';
+export type { ChartLegendOptions, LegendValueDisplay } from './hooks/use-chart-legend-items';

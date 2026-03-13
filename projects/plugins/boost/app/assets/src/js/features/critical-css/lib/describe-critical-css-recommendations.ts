@@ -535,6 +535,33 @@ const errorTypeSpecs: { [ type: string ]: ErrorTypeSpec } = {
 			],
 		} ),
 	},
+
+	PayloadTooLargeError: {
+		describeSet: set =>
+			_n(
+				'The Critical CSS generated for the following page is too large to be useful:',
+				'The Critical CSS generated for the following pages is too large to be useful:',
+				urlCount( set ),
+				'jetpack-boost'
+			),
+		rawError: set => Object.values( set.byUrl )[ 0 ].message,
+		suggestion: _set => ( {
+			paragraph: __(
+				'The Critical CSS generated for these pages is too large (over 1MB) to be optimized effectively. Using Critical CSS in this case would defeat its purpose, which is to deliver only the most essential styles quickly.',
+				'jetpack-boost'
+			),
+			list: [
+				__(
+					'<strong>These pages will continue working normally</strong>, using the standard CSS delivery method. This is the best approach for pages with very large CSS requirements.',
+					'jetpack-boost'
+				),
+				__(
+					'<strong>This is normal for some pages</strong>, particularly those using complex themes or page builders that generate large amounts of CSS. No action is needed - Boost will continue optimizing your other pages.',
+					'jetpack-boost'
+				),
+			],
+		} ),
+	},
 };
 
 function getErrorSpec( type: string ): ErrorTypeSpec {

@@ -17,6 +17,7 @@ class Jetpack_Json_Api_Plugins_Endpoints_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
 	private static $super_admin_user_id;
+	private $the_plugin_lock;
 
 	public static function wpSetUpBeforeClass( $factory ) {
 		self::$super_admin_user_id = $factory->user->create( array( 'role' => 'administrator' ) );
@@ -37,6 +38,58 @@ class Jetpack_Json_Api_Plugins_Endpoints_Test extends WP_UnitTestCase {
 
 		// Force direct method. Running the upgrade via PHPUnit can't detect the correct filesystem method.
 		add_filter( 'filesystem_method', array( $this, 'filesystem_method_direct' ) );
+	}
+
+	public function tear_down() {
+		if ( $this->the_plugin_lock ) {
+			$this->remove_the_plugin();
+		}
+	}
+
+	private function install_the_plugin() {
+		// For CI coverage tests, use a lock file to avoid multiple copies of this test from interfering with each other.
+		if ( getenv( 'PHPUNIT_JETPACK_TESTSUITE_IS_PARALLEL' ) === 'true' && ! $this->the_plugin_lock ) {
+			$this->the_plugin_lock = fopen( WP_PLUGIN_DIR . '/.thepluginlock', 'c+' );
+			if ( ! $this->the_plugin_lock ) {
+				throw new RuntimeException( 'Failed to open lockfile ' . WP_PLUGIN_DIR . '/.thepluginlock' );
+			}
+			if ( ! flock( $this->the_plugin_lock, LOCK_EX ) ) {
+				throw new RuntimeException( 'Failed to lock lockfile ' . WP_PLUGIN_DIR . '/.thepluginlock' );
+			}
+		}
+
+		$the_plugin_file = 'the/the.php';
+		$the_real_folder = WP_PLUGIN_DIR . '/the';
+		$the_real_file   = WP_PLUGIN_DIR . '/' . $the_plugin_file;
+
+		/*
+		 * Create an oudated version of 'The' plugin
+		 */
+
+		// Check if 'The' plugin folder is already there.
+		if ( ! file_exists( $the_real_folder ) ) {
+			mkdir( $the_real_folder );
+		}
+		file_put_contents(
+			$the_real_file,
+			'<?php
+			/*
+			 * Plugin Name: The
+			 * Version: 1.0
+			 */'
+		);
+	}
+
+	private function remove_the_plugin() {
+		$the_real_folder = WP_PLUGIN_DIR . '/the';
+		if ( file_exists( $the_real_folder ) ) {
+			static::rmdir( $the_real_folder );
+		}
+
+		if ( $this->the_plugin_lock ) {
+			fclose( $this->the_plugin_lock );
+			$this->the_plugin_lock = null;
+		}
 	}
 
 	/**
@@ -71,40 +124,24 @@ class Jetpack_Json_Api_Plugins_Endpoints_Test extends WP_UnitTestCase {
 		 */
 		$class                = new ReflectionClass( 'Jetpack_JSON_API_Plugins_Modify_Endpoint' );
 		$update_plugin_method = $class->getMethod( 'update' );
-		$update_plugin_method->setAccessible( true );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$update_plugin_method->setAccessible( true );
+		}
 
 		$plugin_property = $class->getProperty( 'plugins' );
-		$plugin_property->setAccessible( true );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$plugin_property->setAccessible( true );
+		}
 		$plugin_property->setValue( $endpoint, array( 'the/the.php' ) );
 
-		$the_plugin_file = 'the/the.php';
-		$the_real_folder = WP_PLUGIN_DIR . '/the';
-		$the_real_file   = WP_PLUGIN_DIR . '/' . $the_plugin_file;
-
-		/*
-		 * Create an oudated version of 'The' plugin
-		 */
-
-		// Check if 'The' plugin folder is already there.
-		if ( ! file_exists( $the_real_folder ) ) {
-			mkdir( $the_real_folder );
-			$clean = true;
-		}
-		file_put_contents(
-			$the_real_file,
-			'<?php
-			/*
-			 * Plugin Name: The
-			 * Version: 1.0
-			 */'
-		);
+		$this->install_the_plugin();
 
 		// Invoke the upgrade_plugin method.
 		$result = $update_plugin_method->invoke( $endpoint );
 
-		if ( isset( $clean ) ) {
-			$this->rmdir( $the_real_folder );
-		}
+		$this->remove_the_plugin();
 
 		$this->assertTrue( $result );
 	}
@@ -143,34 +180,19 @@ class Jetpack_Json_Api_Plugins_Endpoints_Test extends WP_UnitTestCase {
 		 */
 		$class                = new ReflectionClass( 'Jetpack_JSON_API_Plugins_Modify_Endpoint' );
 		$update_plugin_method = $class->getMethod( 'update' );
-		$update_plugin_method->setAccessible( true );
-
-		$plugin_property = $class->getProperty( 'plugins' );
-		$plugin_property->setAccessible( true );
-		$plugin_property->setValue( $endpoint, array( 'the/the.php' ) );
-
-		$the_plugin_file = 'the/the.php';
-		$the_real_folder = WP_PLUGIN_DIR . '/the';
-		$the_real_file   = WP_PLUGIN_DIR . '/' . $the_plugin_file;
-
-		/*
-		 * Create an oudated version of 'The' plugin
-		 */
-
-		// Check if 'The' plugin folder is already there.
-		if ( ! file_exists( $the_real_folder ) ) {
-			mkdir( $the_real_folder );
-			$clean = true;
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$update_plugin_method->setAccessible( true );
 		}
 
-		file_put_contents(
-			$the_real_file,
-			'<?php
-			/*
-			 * Plugin Name: The
-			 * Version: 1.0
-			 */'
-		);
+		$plugin_property = $class->getProperty( 'plugins' );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$plugin_property->setAccessible( true );
+		}
+		$plugin_property->setValue( $endpoint, array( 'the/the.php' ) );
+
+		$this->install_the_plugin();
 
 		// Obtain lock.
 		include_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
@@ -184,9 +206,7 @@ class Jetpack_Json_Api_Plugins_Endpoints_Test extends WP_UnitTestCase {
 		WP_Upgrader::release_lock( 'auto_updater' );
 		Constants::set_constant( 'JETPACK_PLUGIN_AUTOUPDATE', false );
 		// clean up.
-		if ( isset( $clean ) ) {
-			$this->rmdir( $the_real_folder );
-		}
+		$this->remove_the_plugin();
 
 		$this->assertTrue( is_wp_error( $result ) );
 	}
@@ -225,34 +245,19 @@ class Jetpack_Json_Api_Plugins_Endpoints_Test extends WP_UnitTestCase {
 		 */
 		$class                = new ReflectionClass( 'Jetpack_JSON_API_Plugins_Modify_Endpoint' );
 		$update_plugin_method = $class->getMethod( 'update' );
-		$update_plugin_method->setAccessible( true );
-
-		$plugin_property = $class->getProperty( 'plugins' );
-		$plugin_property->setAccessible( true );
-		$plugin_property->setValue( $endpoint, array( 'the/the.php' ) );
-
-		$the_plugin_file = 'the/the.php';
-		$the_real_folder = WP_PLUGIN_DIR . '/the';
-		$the_real_file   = WP_PLUGIN_DIR . '/' . $the_plugin_file;
-
-		/*
-		 * Create an oudated version of 'The' plugin
-		 */
-
-		// Check if 'The' plugin folder is already there.
-		if ( ! file_exists( $the_real_folder ) ) {
-			mkdir( $the_real_folder );
-			$clean = true;
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$update_plugin_method->setAccessible( true );
 		}
 
-		file_put_contents(
-			$the_real_file,
-			'<?php
-			/*
-			 * Plugin Name: The
-			 * Version: 1.0
-			 */'
-		);
+		$plugin_property = $class->getProperty( 'plugins' );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$plugin_property->setAccessible( true );
+		}
+		$plugin_property->setValue( $endpoint, array( 'the/the.php' ) );
+
+		$this->install_the_plugin();
 
 		// Obtain lock.
 		include_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
@@ -266,9 +271,7 @@ class Jetpack_Json_Api_Plugins_Endpoints_Test extends WP_UnitTestCase {
 		WP_Upgrader::release_lock( 'auto_updater' );
 
 		// clean up.
-		if ( isset( $clean ) ) {
-			$this->rmdir( $the_real_folder );
-		}
+		$this->remove_the_plugin();
 
 		$this->assertTrue( $result );
 	}
@@ -318,16 +321,25 @@ class Jetpack_Json_Api_Plugins_Endpoints_Test extends WP_UnitTestCase {
 		$class = new ReflectionClass( 'Jetpack_JSON_API_Plugins_Install_Endpoint' );
 
 		$plugins_property = $class->getProperty( 'plugins' );
-		$plugins_property->setAccessible( true );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$plugins_property->setAccessible( true );
+		}
 		$plugins_property->setValue( $endpoint, array( $the_plugin_slug ) );
 
 		$validate_plugins_method = $class->getMethod( 'validate_plugins' );
-		$validate_plugins_method->setAccessible( true );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$validate_plugins_method->setAccessible( true );
+		}
 		$result = $validate_plugins_method->invoke( $endpoint );
 		$this->assertTrue( $result );
 
 		$install_plugin_method = $class->getMethod( 'install' );
-		$install_plugin_method->setAccessible( true );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$install_plugin_method->setAccessible( true );
+		}
 
 		$result = $install_plugin_method->invoke( $endpoint );
 

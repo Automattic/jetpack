@@ -1,6 +1,5 @@
 <?php
 /*
-!
  * Single contact view page
  */
 defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
@@ -24,6 +23,9 @@ function jpcrm_render_contact_view_page( $id = -1 ) {
 		if ( empty( $second_address_label ) ) {
 			$second_address_label = __( 'Second Address', 'zero-bs-crm' );
 		}
+
+		// Get screen options for user
+		$screenOpts = $zbs->global_screen_options(); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 		// Retrieve contact
 		$contact = $zbs->DAL->contacts->getContact(
@@ -324,26 +326,14 @@ function jpcrm_render_contact_view_page( $id = -1 ) {
 
 				<div id="zbs-vitals-box">
 				<div class="ui top attached tabular menu">
-					<div data-tab="vitals" class="
-					<?php
-					if ( ! isset( $activeVitalsTab ) ) {
-						echo 'active ';
-						$activeVitalsTab = 'vitals'; }
-					?>
-					item">
+					<div data-tab="vitals" class="active item">
 														<?php
 															esc_html_e( 'Contact', 'zero-bs-crm' );
 															echo ' ' . esc_html__( 'Vitals', 'zero-bs-crm' );
 														?>
 						</div>
 					<?php if ( count( $zbsSocialAccountTypes ) > 0 && count( $contact_socials ) > 0 ) { ?>
-					<div class="zbs-hide" data-tab="social" id="contact-tab-social" class="
-						<?php
-						if ( ! isset( $activeVitalsTab ) ) {
-							echo 'active ';
-							$activeVitalsTab = 'social'; }
-						?>
-					item"><?php esc_html_e( 'Social', 'zero-bs-crm' ); ?></div>                      
+					<div class="zbs-hide" data-tab="social" id="contact-tab-social" class="item"><?php esc_html_e( 'Social', 'zero-bs-crm' ); ?></div>
 					<?php } ?>
 					<?php
 					// } Any integrated tabs - via filter jetpack-crm-contact-vital-tabs
@@ -670,9 +660,8 @@ function jpcrm_render_contact_view_page( $id = -1 ) {
 						?>
 						<div data-tab="quotes" class="
 						<?php
-						if ( ! isset( $activeTab ) ) {
-							echo 'active ';
-							$activeTab = 'quotes'; }
+						echo 'active ';
+						$active_tab = 'quotes';
 						?>
 item"><?php esc_html_e( 'Quotes', 'zero-bs-crm' ); ?></div><?php } ?>
 					<?php
@@ -680,9 +669,9 @@ item"><?php esc_html_e( 'Quotes', 'zero-bs-crm' ); ?></div><?php } ?>
 						?>
 						<div data-tab="invoices" class="
 						<?php
-						if ( ! isset( $activeTab ) ) {
+						if ( ! isset( $active_tab ) ) {
 							echo 'active ';
-							$activeTab = 'invoices'; }
+							$active_tab = 'invoices'; }
 						?>
 item"><?php esc_html_e( 'Invoices', 'zero-bs-crm' ); ?></div><?php } ?>
 					<?php
@@ -690,16 +679,16 @@ item"><?php esc_html_e( 'Invoices', 'zero-bs-crm' ); ?></div><?php } ?>
 						?>
 						<div data-tab="transactions" class="
 						<?php
-						if ( ! isset( $activeTab ) ) {
+						if ( ! isset( $active_tab ) ) {
 							echo 'active ';
-							$activeTab = 'transactions'; }
+							$active_tab = 'transactions'; }
 						?>
 item"><?php esc_html_e( 'Transactions', 'zero-bs-crm' ); ?></div><?php } ?>
 					<div data-tab="files" class="
 					<?php
-					if ( ! isset( $activeTab ) ) {
+					if ( ! isset( $active_tab ) ) {
 						echo 'active ';
-						$activeTab = 'files'; }
+						$active_tab = 'files'; }
 					?>
 					item"><?php esc_html_e( 'Files', 'zero-bs-crm' ); ?></div>
 					<?php
@@ -707,9 +696,9 @@ item"><?php esc_html_e( 'Transactions', 'zero-bs-crm' ); ?></div><?php } ?>
 						?>
 						<div data-tab="tasks" class="
 						<?php
-						if ( ! isset( $activeTab ) ) {
+						if ( ! isset( $active_tab ) ) {
 							echo 'active ';
-							$activeTab = 'tasks'; }
+							$active_tab = 'tasks'; }
 						?>
 item"><?php esc_html_e( 'Tasks', 'zero-bs-crm' ); ?></div><?php } ?>
 				</div>
@@ -721,7 +710,7 @@ item"><?php esc_html_e( 'Tasks', 'zero-bs-crm' ); ?></div><?php } ?>
 						?>
 					<div class="ui bottom attached 
 						<?php
-						if ( $activeTab == 'quotes' ) {
+						if ( $active_tab === 'quotes' ) {
 							echo 'active ';}
 						?>
 					tab segment" data-tab="quotes">
@@ -834,7 +823,7 @@ item"><?php esc_html_e( 'Tasks', 'zero-bs-crm' ); ?></div><?php } ?>
 						?>
 					<div class="ui bottom attached 
 						<?php
-						if ( $activeTab == 'invoices' ) {
+						if ( $active_tab === 'invoices' ) {
 							echo 'active ';}
 						?>
 					tab segment" data-tab="invoices">
@@ -939,7 +928,7 @@ item"><?php esc_html_e( 'Tasks', 'zero-bs-crm' ); ?></div><?php } ?>
 						?>
 					<div class="ui bottom attached 
 						<?php
-						if ( $activeTab == 'transactions' ) {
+						if ( $active_tab === 'transactions' ) {
 							echo 'active ';}
 						?>
 					tab segment" data-tab="transactions">
@@ -1137,7 +1126,7 @@ item"><?php esc_html_e( 'Tasks', 'zero-bs-crm' ); ?></div><?php } ?>
 
 												if ( $wp_user !== null && zeroBSCRM_isWPAdmin() ) {
 													$url = admin_url( 'user-edit.php?user_id=' . $zbsFile['owner'] );
-													echo '<br /><br /><a style="font-size: 12px;" href="' . esc_url( $url ) . '" target="_blank"><i class="wordpress simple icon"></i> ' . esc_html__( 'View WordPress Profile', 'zero-bs-crm' ) . '</a>';
+													echo '<br /><br /><a style="font-size: 12px;" href="' . esc_url( $url ) . '" target="_blank"><i class="wordpress simple icon"></i> ' . esc_html__( 'View WordPress Profile', 'zero-bs-crm' ) . '</a>'; // phpcs:ignore WordPress.WP.CapitalPDangit.MisspelledInText -- "wordpress" is a Semantic UI icon class name, not the brand name.
 												}
 
 												?>
@@ -1233,7 +1222,7 @@ item"><?php esc_html_e( 'Tasks', 'zero-bs-crm' ); ?></div><?php } ?>
 						?>
 					<div class="ui bottom attached 
 						<?php
-						if ( $activeTab == 'tasks' ) {
+						if ( $active_tab === 'tasks' ) {
 							echo 'active ';}
 						?>
 					tab segment" data-tab="tasks">

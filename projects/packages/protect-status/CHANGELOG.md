@@ -5,13 +5,41 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.8] - 2026-02-23
+### Changed
+- Update dependencies. [#44736]
+
+## [0.7.7] - 2026-02-02
+### Changed
+- Update dependencies. [#44736]
+
+## [0.7.6] - 2025-12-08
+### Fixed
+- Ensure proper flags are used with `json_encode()`. [#46092]
+
+## [0.7.5] - 2025-12-01
+### Changed
+- Update dependencies. [#44736]
+
+## [0.7.4] - 2025-10-20
+### Changed
+- Internal updates.
+
+## [0.7.3] - 2025-09-15
+### Changed
+- Internal updates.
+
+## [0.7.2] - 2025-08-11
+### Changed
+- Update dependencies. [#44673]
+
 ## [0.7.1] - 2025-08-04
 ### Changed
 - Internal updates.
 
 ## [0.7.0] - 2025-07-30
 ### Added
-- Add UI confirmation via text box when deleting an extension via delete-fixer so that the user is fully aware that it may break their site. [#44521]
+- Ensure user is fully aware that deleting an extension via delete-fixer may break their site. [#44521]
 
 ## [0.6.1] - 2025-07-21
 ### Changed
@@ -136,6 +164,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Updated package dependencies. [#37894]
 
+[0.7.8]: https://github.com/Automattic/jetpack-protect-status/compare/v0.7.7...v0.7.8
+[0.7.7]: https://github.com/Automattic/jetpack-protect-status/compare/v0.7.6...v0.7.7
+[0.7.6]: https://github.com/Automattic/jetpack-protect-status/compare/v0.7.5...v0.7.6
+[0.7.5]: https://github.com/Automattic/jetpack-protect-status/compare/v0.7.4...v0.7.5
+[0.7.4]: https://github.com/Automattic/jetpack-protect-status/compare/v0.7.3...v0.7.4
+[0.7.3]: https://github.com/Automattic/jetpack-protect-status/compare/v0.7.2...v0.7.3
+[0.7.2]: https://github.com/Automattic/jetpack-protect-status/compare/v0.7.1...v0.7.2
 [0.7.1]: https://github.com/Automattic/jetpack-protect-status/compare/v0.7.0...v0.7.1
 [0.7.0]: https://github.com/Automattic/jetpack-protect-status/compare/v0.6.1...v0.7.0
 [0.6.1]: https://github.com/Automattic/jetpack-protect-status/compare/v0.6.0...v0.6.1

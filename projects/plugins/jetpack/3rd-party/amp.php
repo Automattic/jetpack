@@ -7,6 +7,10 @@
 
 namespace Automattic\Jetpack;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Load Jetpack_AMP_Support.
  */

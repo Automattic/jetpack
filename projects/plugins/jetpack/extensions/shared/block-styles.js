@@ -3,7 +3,7 @@ import TokenList from '@wordpress/token-list';
 /**
  * Returns the active style from the given className.
  *
- * From @link https://github.com/WordPress/gutenberg/blob/ddac4f3cf8fd311169c7e125411343a437bdbb5a/packages/editor/src/components/block-styles/index.js#L20-L42
+ * From {@link https://github.com/WordPress/gutenberg/blob/ddac4f3cf8fd311169c7e125411343a437bdbb5a/packages/editor/src/components/block-styles/index.js#L20-L42}
  *
  * @param {Array}  styles    - Block style variations.
  * @param {string} className - Class name

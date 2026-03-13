@@ -26,7 +26,7 @@ class Jetpack_Podcast_Feed_Locator_Test extends WP_UnitTestCase {
 	}
 
 	public function test_does_not_find_podcast_feed_with_itunes_ns() {
-		$rss  = <<<FEED
+		$rss  = <<<'FEED'
 <?xml version="1.0" encoding="UTF-8"?>
 <rss xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd"></rss>
 FEED;
@@ -38,7 +38,7 @@ FEED;
 	}
 
 	public function test_does_not_find_podcast_feed_with_audio_enclosures() {
-		$rss  = <<<FEED
+		$rss  = <<<'FEED'
 <?xml version="1.0" encoding="UTF-8"?>
 <rss>
 	<channel>
@@ -56,7 +56,7 @@ FEED;
 	}
 
 	public function test_does_not_locate_non_podcast_feeds() {
-		$rss  = <<<FEED
+		$rss  = <<<'FEED'
 <?xml version="1.0" encoding="UTF-8"?>
 <rss>
 	<channel>
@@ -74,7 +74,7 @@ FEED;
 	}
 
 	public function test_finds_podcast_feed_with_itunes_ns_and_audio_enclosures() {
-		$rss  = <<<FEED
+		$rss  = <<<'FEED'
 <?xml version="1.0" encoding="UTF-8"?>
 <rss xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd">
 	<channel>

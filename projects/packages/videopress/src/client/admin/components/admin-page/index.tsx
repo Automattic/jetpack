@@ -11,7 +11,6 @@ import {
 	Col,
 	useBreakpointMatch,
 	ContextualUpgradeTrigger,
-	JetpackVideoPressLogo,
 } from '@automattic/jetpack-components';
 import {
 	useProductCheckoutWorkflow,
@@ -193,8 +192,8 @@ const Admin = () => {
 
 	return (
 		<AdminPage
-			moduleName={ __( 'Jetpack VideoPress', 'jetpack-videopress-pkg' ) }
-			header={ <JetpackVideoPressLogo /> }
+			title={ 'VideoPress' /** "VideoPress" is a product name, do not translate. */ }
+			subTitle={ __( 'Professional quality, ad-free video hosting.', 'jetpack-videopress-pkg' ) }
 			useInternalLinks={ shouldUseInternalLinks() }
 		>
 			<div
@@ -331,20 +330,20 @@ export default Admin;
 const UpgradeTrigger = ( { hasUsedVideo = false }: { hasUsedVideo: boolean } ) => {
 	const { adminUri, siteSuffix } = window.jetpackVideoPressInitialState;
 
-	const { product, hasVideoPressPurchase, isFetchingPurchases } = usePlan();
+	const { product, hasVideoPressPurchase, isFetchingFeatures } = usePlan();
 	// eslint-disable-next-line @wordpress/no-unused-vars-before-return -- @todo Start extending jetpack-js-tools/eslintrc/react in eslintrc, then we can remove this disable comment.
 	const { run } = useProductCheckoutWorkflow( {
 		siteSuffix,
 		productSlug: product.productSlug,
 		redirectUrl: adminUri,
-		isFetchingPurchases,
 		useBlogIdSuffix: true,
+		from: 'jetpack-videopress',
 	} );
 
 	// eslint-disable-next-line @wordpress/no-unused-vars-before-return -- @todo Start extending jetpack-js-tools/eslintrc/react in eslintrc, then we can remove this disable comment.
 	const { recordEventHandler } = useAnalyticsTracks( {} );
 
-	if ( hasVideoPressPurchase || isFetchingPurchases ) {
+	if ( hasVideoPressPurchase || isFetchingFeatures ) {
 		return null;
 	}
 

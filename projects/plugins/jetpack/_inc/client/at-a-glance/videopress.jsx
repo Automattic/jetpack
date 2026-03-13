@@ -99,7 +99,7 @@ class DashVideoPress extends Component {
 										<span>
 											{ createInterpolateElement(
 												sprintf(
-													/* translators: %s is a number (disk space used) */
+													/* translators: %d: a number (disk space used) */
 													__( 'Using <strong>%dGB</strong> of 1TB', 'jetpack' ),
 													Math.round( videoPressStorageUsed / 1024 )
 												),

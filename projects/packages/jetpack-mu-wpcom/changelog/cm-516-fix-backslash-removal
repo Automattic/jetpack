@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Verbum Comments: fix backslashes being stripped from comments.

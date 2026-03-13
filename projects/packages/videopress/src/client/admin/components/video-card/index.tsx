@@ -82,7 +82,7 @@ export const VideoCard = ( {
 	const hasPlays = typeof plays !== 'undefined';
 	const playsCount = hasPlays
 		? sprintf(
-				/* translators: placeholder is a number of plays */
+				/* translators: %s: the number of plays */
 				__( '%s plays', 'jetpack-videopress-pkg' ),
 				formatNumber( plays )
 		  )

@@ -17,6 +17,7 @@
 		<exclude name="PHPCompatibility.Constants.NewConstants.curlopt_http09_allowedFound" />
 		<exclude name="PHPCompatibility.Constants.NewConstants.img_filter_scatterFound" />
 		<exclude name="PHPCompatibility.Constants.NewConstants.mb_oniguruma_versionFound" />
+		<exclude name="PHPCompatibility.Constants.NewConstants.mhash_crc32cFound" />
 		<exclude name="PHPCompatibility.Constants.NewConstants.password_argon2_providerFound" />
 		<exclude name="PHPCompatibility.Constants.NewConstants.php_windows_event_ctrl_breakFound" />
 		<exclude name="PHPCompatibility.Constants.NewConstants.php_windows_event_ctrl_cFound" />

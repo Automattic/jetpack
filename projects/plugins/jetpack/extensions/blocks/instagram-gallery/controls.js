@@ -23,7 +23,7 @@ export default function InstagramGalleryInspectorControls( {
 	const renderSidebarNotice = () => {
 		const noticeContent = accountImageTotal
 			? sprintf(
-					/* translators: placeholder is a number. */
+					/* translators: %s: the number of posts. */
 					_n(
 						'There is currently only %s post in your Instagram account.',
 						'There are currently only %s posts in your Instagram account.',

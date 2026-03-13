@@ -88,7 +88,7 @@ class Jetpack_Sync_Meta_Test extends Jetpack_Sync_TestBase {
 		$this->sender->do_sync();
 
 		$meta_key_array = $this->server_replica_storage->get_metadata( 'post', $this->post_id, $this->whitelisted_post_meta );
-		$this->assertEquals( get_post_meta( $this->post_id, $this->whitelisted_post_meta ), $meta_key_array );
+		$this->assertEquals( get_post_meta( $this->post_id, $this->whitelisted_post_meta, false ), $meta_key_array );
 	}
 
 	/**
@@ -101,7 +101,7 @@ class Jetpack_Sync_Meta_Test extends Jetpack_Sync_TestBase {
 		$this->sender->do_sync();
 
 		$meta_key_array = $this->server_replica_storage->get_metadata( 'post', $this->post_id, $this->whitelisted_post_meta );
-		$this->assertEquals( get_post_meta( $this->post_id, $this->whitelisted_post_meta ), $meta_key_array );
+		$this->assertEquals( get_post_meta( $this->post_id, $this->whitelisted_post_meta, false ), $meta_key_array );
 	}
 
 	/**
@@ -117,7 +117,7 @@ class Jetpack_Sync_Meta_Test extends Jetpack_Sync_TestBase {
 		$meta_key_array = $this->server_replica_storage->get_metadata( 'post', $this->post_id, $this->whitelisted_post_meta );
 
 		$this->assertEquals( get_post_meta( $this->post_id, $this->whitelisted_post_meta, true ), $meta_key_value );
-		$this->assertEquals( get_post_meta( $this->post_id, $this->whitelisted_post_meta ), $meta_key_array );
+		$this->assertEquals( get_post_meta( $this->post_id, $this->whitelisted_post_meta, false ), $meta_key_array );
 	}
 
 	/**
@@ -133,7 +133,7 @@ class Jetpack_Sync_Meta_Test extends Jetpack_Sync_TestBase {
 		$meta_key_value = $this->server_replica_storage->get_metadata( 'post', $this->post_id, $this->whitelisted_post_meta, true );
 		$meta_key_array = $this->server_replica_storage->get_metadata( 'post', $this->post_id, $this->whitelisted_post_meta );
 		$this->assertEquals( get_post_meta( $this->post_id, $this->whitelisted_post_meta, true ), $meta_key_value );
-		$this->assertEquals( get_post_meta( $this->post_id, $this->whitelisted_post_meta ), $meta_key_array );
+		$this->assertEquals( get_post_meta( $this->post_id, $this->whitelisted_post_meta, false ), $meta_key_array );
 	}
 
 	/**
@@ -206,7 +206,7 @@ class Jetpack_Sync_Meta_Test extends Jetpack_Sync_TestBase {
 			if ( $meta_key === 'footnotes' ) {
 				// WordPress would filter non-array into an empty string, and fail the test
 				// See sanitize_post_meta_footnotes filter
-				add_post_meta( $this->post_id, $meta_key, wp_json_encode( array() ) );
+				add_post_meta( $this->post_id, $meta_key, wp_json_encode( array(), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE ) );
 				continue;
 			}
 			add_post_meta( $this->post_id, $meta_key, 'foo' );

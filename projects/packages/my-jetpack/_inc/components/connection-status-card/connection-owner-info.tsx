@@ -51,7 +51,7 @@ export function ConnectionOwnerInfo() {
 			{ ! isOwner && userConnectionData?.connectionOwner ? (
 				<li>
 					{ sprintf(
-						/* translators: placeholder is the username of the Jetpack connection owner */
+						/* translators: %s: the username of the Jetpack connection owner */
 						__( 'Also connected: %s (Owner).', 'jetpack-my-jetpack' ),
 						userConnectionData.connectionOwner
 					) }

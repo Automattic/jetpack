@@ -3,8 +3,8 @@ import { PanelBody, __experimentalNumberControl as NumberControl } from '@wordpr
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { clsx } from 'clsx';
-import useInsertAfterOnEnterKeyDown from '../shared/hooks/use-insert-after-on-enter-key-down';
-import { useSyncedAttributes } from '../shared/hooks/use-synced-attributes';
+import useInsertAfterOnEnterKeyDown from '../shared/hooks/use-insert-after-on-enter-key-down.js';
+import { useSyncedAttributes } from '../shared/hooks/use-synced-attributes.js';
 import useVariationStyleProperties from '../shared/hooks/use-variation-style-properties.js';
 import { ALLOWED_FORMATS } from '../shared/util/constants.js';
 
@@ -17,7 +17,7 @@ const SYNCED_ATTRIBUTE_KEYS = [
 	'textColor',
 ];
 
-const TEXT_FIELDS = [ 'number', 'text', 'email', 'url', 'tel' ];
+const TEXT_FIELDS = [ 'number', 'text', 'email', 'url', 'tel', 'time' ];
 
 const getInputClass = type => {
 	if ( type === 'dropdown' ) {
@@ -46,9 +46,11 @@ const InputEdit = ( { attributes, clientId, isSelected, name, setAttributes, con
 
 	const onChange = useCallback(
 		event => {
-			setAttributes( { placeholder: event.target.value } );
+			if ( type !== 'time' ) {
+				setAttributes( { placeholder: event.target.value } );
+			}
 		},
-		[ setAttributes ]
+		[ setAttributes, type ]
 	);
 
 	if ( type === 'dropdown' ) {
@@ -76,6 +78,12 @@ const InputEdit = ( { attributes, clientId, isSelected, name, setAttributes, con
 		);
 	}
 
+	if ( type === 'time' ) {
+		return (
+			<input { ...blockProps } onChange={ onChange } onKeyDown={ onKeyDown } type="time" value="" />
+		);
+	}
+
 	return (
 		<>
 			<input
@@ -88,12 +96,18 @@ const InputEdit = ( { attributes, clientId, isSelected, name, setAttributes, con
 			/>
 			{ type === 'number' && (
 				<InspectorControls>
-					<PanelBody title={ __( 'Settings', 'jetpack-forms' ) }>
+					<PanelBody
+						title={ __( 'Settings', 'jetpack-forms' ) }
+						className="jetpack-contact-form__panel"
+					>
 						<NumberControl
 							key="min"
 							label={ __( 'Minimum value', 'jetpack-forms' ) }
 							value={ min }
-							onChange={ value => setAttributes( { min: value } ) }
+							onChange={ value => {
+								const parsed = parseFloat( value );
+								setAttributes( { min: Number.isFinite( parsed ) ? parsed : undefined } );
+							} }
 							max={ max }
 							__nextHasNoMarginBottom={ true }
 							__next40pxDefaultSize={ true }
@@ -105,12 +119,11 @@ const InputEdit = ( { attributes, clientId, isSelected, name, setAttributes, con
 						<NumberControl
 							key="max"
 							label={ __( 'Maximum value', 'jetpack-forms' ) }
-							value={ attributes.max }
-							onChange={ value =>
-								setAttributes( {
-									max: value,
-								} )
-							}
+							value={ max }
+							onChange={ value => {
+								const parsed = parseFloat( value );
+								setAttributes( { max: Number.isFinite( parsed ) ? parsed : undefined } );
+							} }
 							min={ min }
 							__nextHasNoMarginBottom={ true }
 							__next40pxDefaultSize={ true }

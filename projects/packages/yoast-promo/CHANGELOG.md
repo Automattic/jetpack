@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.2] - 2026-01-12
+### Changed
+- Update dependencies. [#45664] [#45915] [#46143] [#46456]
+
+## [0.4.1] - 2025-10-13
+### Changed
+- Update package dependencies. [#44677] [#44701] [#45027] [#45173] [#45229] [#45334]
+
+## [0.4.0] - 2025-08-06
+### Changed
+- Scripts: Change imports for hosting checks. [#43972]
+- Update dependencies. [#43785]
+- Update package dependencies. [#44020] [#44148] [#44151] [#44356]
+
+### Removed
+- Utilities: Remove post editor fallback as we no longer need to ensure compatibility. [#44164]
+
 ## [0.3.3] - 2025-06-03
 ### Changed
 - Update dependencies. [#42943]
@@ -58,6 +75,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Generate initial package for Yoast promo components [#29627]
 - Initialize yoast promo package in jetpack plugin [#29641]
 
+[0.4.2]: https://github.com/automattic/jetpack-yoast-promo/compare/v0.4.1...v0.4.2
+[0.4.1]: https://github.com/automattic/jetpack-yoast-promo/compare/v0.4.0...v0.4.1
+[0.4.0]: https://github.com/automattic/jetpack-yoast-promo/compare/v0.3.3...v0.4.0
 [0.3.3]: https://github.com/automattic/jetpack-yoast-promo/compare/v0.3.2...v0.3.3
 [0.3.2]: https://github.com/automattic/jetpack-yoast-promo/compare/v0.3.1...v0.3.2
 [0.3.1]: https://github.com/automattic/jetpack-yoast-promo/compare/v0.3.0...v0.3.1

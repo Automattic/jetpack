@@ -13,7 +13,7 @@ import { BlockControls, useBlockProps } from '@wordpress/block-editor';
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback, useEffect, useState, useRef, useMemo } from '@wordpress/element';
-import { addFilter } from '@wordpress/hooks';
+import { addFilter, doAction } from '@wordpress/hooks';
 import clsx from 'clsx';
 import debugFactory from 'debug';
 /*
@@ -98,7 +98,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 		const lastRequest = useRef< RequestOptions | null >( null );
 		// Ref to the requesting state to use it in the hideOnBlockFocus effect.
 		const requestingStateRef = useRef< RequestingStateProp | null >( null );
-
+		const timelapse = useRef( null );
 		// Data and functions from the editor.
 		const { undo } = useDispatch( 'core/editor' ) as CoreEditorDispatch;
 		const { postId } = useSelect( select => {
@@ -223,17 +223,17 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 
 		// Called after the last suggestion chunk is received.
 		const onDone = useCallback(
-			( suggestion: string, skipRequestCount?: boolean, modelUsed?: AiModelTypeProp ) => {
+			( suggestion: string, modelUsed?: AiModelTypeProp ) => {
 				disableAutoScroll();
 				onBlockDone( suggestion );
-				if ( ! skipRequestCount ) {
-					increaseRequestsCount();
-				}
+				increaseRequestsCount();
 				setAction( '' );
 
 				tracks.recordEvent( 'jetpack_ai_assistant_toolbar_extension_generate', {
 					prompt_type: lastPromptType.current,
 					model: modelUsed,
+					generation_time:
+						timelapse.current !== null ? window?.performance?.now?.() - timelapse.current : null,
 				} );
 
 				if ( lastRequest.current?.message ) {
@@ -273,6 +273,18 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 					}
 					focusInput();
 				}, 100 );
+
+				/**
+				 * Fires when AI generation completes for a block.
+				 * This allows cross-package communication - for example, the forms package
+				 * uses this to automatically create a synced form after AI generates form fields.
+				 *
+				 * @since 15.6.0
+				 *
+				 * @param {string} clientId  - The block client ID that received AI-generated content.
+				 * @param {string} blockName - The block type name (e.g., 'jetpack/contact-form').
+				 */
+				doAction( 'jetpack_ai_assistant_generation_complete', clientId, blockName );
 			},
 			[
 				disableAutoScroll,
@@ -284,6 +296,8 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 				adjustBlockPadding,
 				tracks,
 				lastPromptType,
+				clientId,
+				blockName,
 			]
 		);
 
@@ -361,7 +375,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 				dequeueAsyncRequest();
 
 				enableAutoScroll();
-
+				timelapse.current = window?.performance?.now?.() || null;
 				request( messages );
 			},
 			[ dequeueAsyncRequest, enableAutoScroll, getRequestMessages, request, requireUpgrade ]
@@ -563,7 +577,9 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 		}
 
 		const ProviderProps = {
-			value: { [ blockName ]: { handleAskAiAssistant, handleRequestSuggestion } },
+			value: {
+				[ blockName ]: { handleAskAiAssistant, handleRequestSuggestion },
+			},
 		};
 
 		return (

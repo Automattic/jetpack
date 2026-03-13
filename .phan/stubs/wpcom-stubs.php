@@ -4,7 +4,7 @@
  * `bin/teamcity-builds/jetpack-stubs/stub-defs.php` and regenerate the stubs
  * by triggering the Jetpack Staging → Update WPCOM Stubs job in TeamCity.
  *
- * Stubs automatically generated from WordPress.com commit b838f7438fc23838704673cee335adb9295bff0f.
+ * Stubs automatically generated from WordPress.com commit db1aa088c939a38aec20f32b91748de1223e3e55.
  */
 
 namespace {
@@ -215,7 +215,7 @@ namespace {
         }
     }
     /**
-    * @return Store_Product|null
+     * @return Store_Product|null
     */
     function get_store_product($product_id, $meta = \null, $currency = \null, $blog_id = \null, ?int $usage_quantity = \null, ?string $plan_id = \null)
     {
@@ -263,6 +263,12 @@ namespace {
     function global_css()
     {
     }
+    /**
+     * @return WP_Ability[]
+     */
+    function wp_get_abilities(): array
+    {
+    }
     class WPCOM_External_Connections
     {
         /**
@@ -271,12 +277,27 @@ namespace {
         static function init()
         {
         }
+        public function get_keyring_connection_item($keyring_token_id, $force_external_users_refetch = \false, $force_connection_test = \false)
+        {
+        }
         /**
          * @param string $type
          * @param int|false $blog_id
          * @return array
          */
         public function get_external_services_list($type = \false, $blog_id = \false)
+        {
+        }
+        public function get_external_service_item($service)
+        {
+        }
+        public function delete_keyring_connection($keyring_connection_id)
+        {
+        }
+    }
+    abstract class ExternalMediaService
+    {
+        public static function get_service_token($service_name, $user_id)
         {
         }
     }
@@ -346,6 +367,21 @@ namespace {
      */
     function log2logstash($params)
     {
+    }
+    class MailchimpApi
+    {
+        function __construct($blog_id, $user_id)
+        {
+        }
+        function get_lists()
+        {
+        }
+        static function get_settings($blog_id)
+        {
+        }
+        static function save_settings($blog_id, $new_settings = array(), $cleanup_previous = \false)
+        {
+        }
     }
     /**
      * @param int $site_id
@@ -471,7 +507,7 @@ namespace {
         public function request_dalle_generation(string $prompt, string $model = 'dall-e-2', array $options = array())
         {
         }
-        public function request_chat_completion(array $backscroll = [], $max_tokens = \null, $model = \null, $completion_options = [], array $tools = [], $response_format = 'text', $tool_choice = \null, $store = \false, int $timeout = 120, $parallel_tool_calls = \true)
+        public function request_chat_completion(array $backscroll = [], $max_tokens = \null, $model = \null, $completion_options = [], array $tools = [], $response_format = 'text', $tool_choice = \null, $store = \false, int $timeout = 120, $parallel_tool_calls = \true, $stream_callback = \null)
         {
         }
         /**
@@ -617,7 +653,7 @@ namespace {
     }
     class WPCOM_Masterbar
     {
-        static function get_calypso_site_slug($site_id)
+        public static function get_calypso_site_slug($site_id): string
         {
         }
     }
@@ -840,7 +876,7 @@ namespace {
     }
     class Subscription_Mailer extends \WordPressMailer
     {
-        public function __construct(\Blog_Subscriber $subscriber, $use_wp = \true, $locale_type = self::USER_LOCALE)
+        public function __construct(\Blog_Subscriber $subscriber, $use_wp = \true, $locale_type = self::USER_LOCALE, $woocommerce_email_renderer = \null)
         {
         }
         /**
@@ -1137,7 +1173,25 @@ namespace {
     /**
      * @phan-return mixed
      */
+    function stats_get_visitors($blog_id, $end_date = \false, $num_units = 1, $unit = 1)
+    {
+    }
+    /**
+     * @phan-return mixed
+     */
     function stats_get_daily_history($site_id, $blog_id, $table, $field, $end_date = \false, $num_days = 1, $and = '', $limit = 0, $summarize = \false, $rollup = \false)
+    {
+    }
+    /**
+     * @phan-return mixed
+     */
+    function stats_grandtotal_views($blog_id = \null, $site_id = \null, $update_if_older_than = \false)
+    {
+    }
+    /**
+     * @phan-return mixed
+     */
+    function get_all_time_postviews($post_id = \null)
     {
     }
     /**

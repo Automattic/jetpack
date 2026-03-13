@@ -11,14 +11,12 @@ const additionalCssTextareaSelector =
 	'.block-editor-global-styles-advanced-panel__custom-css-input textarea';
 
 // Prevent a flash of the textarea before we cover it.
-{
-	const styleElement = document.createElement( 'style' );
-	styleElement.textContent = `
+const styleElement = document.createElement( 'style' );
+styleElement.textContent = `
 ${ additionalCssTextareaSelector } {
   visibility: hidden;
 }`;
-	document.head.appendChild( styleElement );
-}
+document.head.appendChild( styleElement );
 
 const observer = new MutationObserver( () => {
 	const additionalCSSTextarea: ReactHTMLTextAreaElement | null = document.querySelector(
@@ -36,7 +34,11 @@ const observer = new MutationObserver( () => {
 		// And the editor isn't loaded or initializing
 		if ( ! editor ) {
 			// Do it
-			setupEditor( additionalCSSTextarea, isSingleBlockStyleEditor );
+			setupEditor( additionalCSSTextarea, isSingleBlockStyleEditor ).catch( () => {
+				// Clean up in case of problems.
+				observer.disconnect();
+				styleElement.remove();
+			} );
 		}
 	}
 	// If there's no textarea but the editor is loaded
@@ -66,7 +68,6 @@ const setupEditor = async (
 	target: ReactHTMLTextAreaElement,
 	cssParseStartsAtStyles: boolean
 ): Promise< void > => {
-	// biome-ignore lint/style/noNonNullAssertion: Please.
 	const controlElement = target.parentElement!;
 	// We'll use absolute positioning to place the editor.
 	// This must be set early so that we can calculate the top offset.

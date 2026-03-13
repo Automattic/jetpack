@@ -61,9 +61,10 @@ class PD_Top_Rated extends WP_Widget {
 			echo '<script language="javascript" src="' . esc_url( $top_rated_url ) . '"></script>'; // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript
 			echo '<script language="javascript" type="text/javascript">';
 
-			echo 'PDRTJS_TOP = new PDRTJS_RATING_TOP( ' . (int) $posts_rating_id . ', ' . (int) $pages_rating_id . ', ' . (int) $comments_rating_id . ", '" . (int) $instance['show_posts'] . (int) $instance['show_pages'] . (int) $instance['show_comments'] . "', " . (int) $instance['item_count'] . ' );';
+			echo 'PDRTJS_TOP = new PDRTJS_RATING_TOP( ' . esc_html( (string) $posts_rating_id ) . ', ' . esc_html( (string) $pages_rating_id ) . ', ' . esc_html( (string) $comments_rating_id ) . ", '" . (int) $instance['show_posts'] . (int) $instance['show_pages'] . (int) $instance['show_comments'] . "', " . (int) $instance['item_count'] . ' );';
 
 			if ( $instance['show_posts'] === 1 && $instance['filter_by_category'] === 1 ) {
+				$current_category = array();
 				if ( is_single() ) { // get all posts in current category
 					global $post;
 					if ( ! empty( $post ) ) {
@@ -78,7 +79,7 @@ class PD_Top_Rated extends WP_Widget {
 					}
 				}
 
-				if ( is_array( $current_category ) && (int) $current_category[0]->cat_ID > 0 ) {
+				if ( is_array( $current_category ) && isset( $current_category[0]->cat_ID ) && (int) $current_category[0]->cat_ID > 0 ) {
 					$args     = array(
 						'category' => $current_category[0]->cat_ID,
 						'fields'   => 'ids',
@@ -175,7 +176,7 @@ class PD_Top_Rated extends WP_Widget {
 			</label>
 		</p>
 		<p>
-			<label for="rss-items-<?php echo (int) $item_count; ?>"><?php esc_html_e( 'How many items would you like to display?', 'wpcomsh' ); ?>
+			<label for="rss-items-<?php echo esc_attr( (string) $item_count ); ?>"><?php esc_html_e( 'How many items would you like to display?', 'wpcomsh' ); ?>
 				<select id="<?php echo esc_attr( $this->get_field_id( 'item_count' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'item_count' ) ); ?>">
 					<?php
 					for ( $i = 1; $i <= 20; ++$i ) {

@@ -14,6 +14,10 @@ use Automattic\Jetpack\Sync\Replicastore;
 use Automattic\Jetpack\Sync\Sender;
 use Automattic\Jetpack\Sync\Settings;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Basic methods implemented by Jetpack Sync extensions.
  *
@@ -195,7 +199,7 @@ abstract class Module {
 	 * @access public
 	 *
 	 * @param array $config Full sync configuration for this sync module.
-	 * @return array Number of items yet to be enqueued.
+	 * @return int Number of items yet to be enqueued.
 	 */
 	public function estimate_full_sync_actions( $config ) {
 		// In subclasses, return the number of items yet to be enqueued.
@@ -242,7 +246,12 @@ abstract class Module {
 		if ( $sort && is_array( $values ) ) {
 			$this->recursive_ksort( $values );
 		}
-		return crc32( wp_json_encode( Functions::json_wrap( $values ) ) );
+		return crc32(
+			wp_json_encode(
+				Functions::json_wrap( $values ),
+				0 // phpcs:ignore Jetpack.Functions.JsonEncodeFlags.ZeroFound -- No `json_encode()` flags because we don't want disrupt the checksum algorithm.
+			)
+		);
 	}
 
 	/**
@@ -398,10 +407,10 @@ abstract class Module {
 	 *
 	 * @access protected
 	 *
-	 * @param string $config Full sync configuration for this module.
-	 * @param array  $status the current module full sync status.
-	 * @param float  $send_until timestamp until we want this request to send full sync events.
-	 * @param int    $started The timestamp when the full sync started.
+	 * @param array $config Full sync configuration for this module.
+	 * @param array $status the current module full sync status.
+	 * @param float $send_until timestamp until we want this request to send full sync events.
+	 * @param int   $started The timestamp when the full sync started.
 	 *
 	 * @return array Status, the module full sync status updated.
 	 */
@@ -428,7 +437,12 @@ abstract class Module {
 
 		$chunks_sent = 0;
 
-		$last_item = $this->get_last_item( $config );
+		// Store last_item in status to avoid re-running this expensive query on every invocation.
+		// The minimum ID does not change during a Full Sync.
+		if ( ! isset( $status['last_item'] ) ) {
+			$status['last_item'] = $this->get_last_item( $config );
+		}
+		$last_item = $status['last_item'];
 
 		while ( $chunks_sent < $limits['max_chunks'] && microtime( true ) < $send_until ) {
 			$objects = $this->get_next_chunk( $config, $status, $limits['chunk_size'] );
@@ -445,7 +459,7 @@ abstract class Module {
 			// If we have objects as a key it means get_next_chunk is being overridden, we need to check for it being an empty array.
 			// In case it is an empty array, we should not send the action or increase the chunks_sent, we just need to update the status.
 			if ( ! isset( $objects['objects'] ) || array() !== $objects['objects'] ) {
-				$key    = $this->full_sync_action_name() . '_' . crc32( wp_json_encode( $status['last_sent'] ) );
+				$key    = $this->full_sync_action_name() . '_' . crc32( wp_json_encode( $status['last_sent'], JSON_UNESCAPED_SLASHES ) );
 				$result = $this->send_action( $this->full_sync_action_name(), array( $objects, $status['last_sent'] ), $key );
 				if ( is_wp_error( $result ) || $wpdb->last_error ) {
 					$status['error'] = true;
@@ -474,12 +488,17 @@ abstract class Module {
 	 * @return int Adjusted chunk size.
 	 */
 	private function adjust_chunk_size_if_stuck( $last_sent, $default_chunk_size, $started ) {
-		$transient_key       = 'jetpack_sync_last_sent_' . $this->name() . '_' . $started;
-		$stuck_data          = get_transient( $transient_key );
-		$stuck_count         = 0;
-		$adjusted_chunk_size = $default_chunk_size;
-		$is_stuck            = isset( $stuck_data['last_sent'] ) && $stuck_data['last_sent'] === $last_sent;
+		$transient_key = 'jetpack_sync_last_sent_' . $this->name() . '_' . $started;
+		$stuck_data    = get_transient( $transient_key );
+		$is_stuck      = isset( $stuck_data['last_sent'] ) && $stuck_data['last_sent'] === $last_sent;
+
+		// Preserve the adjusted chunk size and stuck count from the transient when stuck.
+		$stuck_count         = $is_stuck && isset( $stuck_data['stuck_count'] ) ? $stuck_data['stuck_count'] : 0;
+		$adjusted_chunk_size = $is_stuck && isset( $stuck_data['adjusted_chunk_size'] ) ? $stuck_data['adjusted_chunk_size'] : $default_chunk_size;
+
 		if ( $is_stuck && $stuck_data['adjusted_chunk_size'] === 1 ) {
+			// Refresh transient TTL to prevent expiry-driven reset cycles.
+			set_transient( $transient_key, $stuck_data, HOUR_IN_SECONDS );
 			return 1; // If we are already at the minimum chunk size, do not adjust further.
 		}
 
@@ -488,27 +507,35 @@ abstract class Module {
 			$is_stuck &&
 			( time() - $stuck_data['timestamp'] ) >= 10 * MINUTE_IN_SECONDS
 		) {
-			$stuck_count         = ++$stuck_data['stuck_count'];
+			++$stuck_count;
 			$adjusted_chunk_size = max( 1, (int) ( $default_chunk_size / ( 2 ** $stuck_count ) ) ); // Halve the chunk size for each stuck iteration.
-			// If we are stuck, we will send an action to notify about the adjustment.
-			$this->send_action(
-				'jetpack_full_sync_stuck_adjustment',
-				array(
-					'module'              => $this->name(),
-					'last_sent'           => $last_sent,
-					'stuck_count'         => $stuck_count,
-					'adjusted_chunk_size' => $adjusted_chunk_size,
-				)
-			);
+
+			// Send one HTTP notification when chunk size reaches the minimum (1)
+			// so the stuck state is visible for monitoring. Intermediate cascade
+			// steps skip the HTTP request to avoid consuming the time budget.
+			if ( 1 === $adjusted_chunk_size ) {
+				$this->send_action(
+					'jetpack_full_sync_stuck_adjustment',
+					array(
+						'module'              => $this->name(),
+						'last_sent'           => $last_sent,
+						'stuck_count'         => $stuck_count,
+						'adjusted_chunk_size' => $adjusted_chunk_size,
+					)
+				);
+			}
 		}
 
 		// Set or update the transient with the new last_sent, timestamp, and stuck_count.
-		// If we are not stuck, reset the timestamp and stuck_count.
+		// Reset the timestamp when not stuck or after an adjustment, so each new chunk size
+		// gets a 10-minute window to prove itself before halving further.
+		$previous_chunk_size = $stuck_data['adjusted_chunk_size'] ?? null;
+		$reset_timestamp     = ! $is_stuck || $adjusted_chunk_size !== $previous_chunk_size;
 		set_transient(
 			$transient_key,
 			array(
 				'last_sent'           => $last_sent,
-				'timestamp'           => $is_stuck ? $stuck_data['timestamp'] : time(),
+				'timestamp'           => $reset_timestamp ? time() : $stuck_data['timestamp'],
 				'stuck_count'         => $stuck_count,
 				'adjusted_chunk_size' => $adjusted_chunk_size,
 			),

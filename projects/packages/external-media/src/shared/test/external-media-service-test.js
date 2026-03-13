@@ -38,14 +38,14 @@ describe( 'Media API Tests', () => {
 		apiFetch.mockClear();
 		select.mockClear();
 		dispatch.mockClear();
-		// eslint-disable-next-line testing-library/await-async-utils
+
 		waitFor.mockClear();
 	} );
 
 	it( 'registers Pexels in the Media inserter', async () => {
 		// Given.
 		// The inserter is opened.
-		// eslint-disable-next-line testing-library/await-async-utils
+
 		waitFor.mockReturnValue( ANY_RESOLVED_WAIT );
 
 		// When.
@@ -59,7 +59,7 @@ describe( 'Media API Tests', () => {
 	it( 'does not register Pexels when the Media inserter is closed', async () => {
 		// Given.
 		// The inserter is never opened.
-		// eslint-disable-next-line testing-library/await-async-utils
+
 		waitFor.mockReturnValue( ANY_UNRESOLVED_WAIT );
 
 		// When.
@@ -73,7 +73,7 @@ describe( 'Media API Tests', () => {
 	it( 'registers Google Photos in the Media inserter when Google Photos is connected', async () => {
 		// Given.
 		// The inserter is opened.
-		// eslint-disable-next-line testing-library/await-async-utils
+
 		waitFor.mockReturnValue( ANY_RESOLVED_WAIT );
 		// The Media Source is connected.
 		apiFetch.mockReturnValue( ANY_VALID_WPCOM_RESPONSE );
@@ -91,7 +91,7 @@ describe( 'Media API Tests', () => {
 	it( 'does not insert Google Photos in the Media inserter when Google Photos is not connected', async () => {
 		// Given.
 		// The inserter is opened.
-		// eslint-disable-next-line testing-library/await-async-utils
+
 		waitFor.mockReturnValue( ANY_RESOLVED_WAIT );
 		// The Media Source is not connected.
 		apiFetch.mockReturnValue( ANY_CONNECTION_ERROR );

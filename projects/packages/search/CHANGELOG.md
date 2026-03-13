@@ -5,6 +5,179 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.56.3] - 2026-03-09
+### Changed
+- Dashboard: Remove global CSS overrides and move admin notices inside the main container. [#47313]
+- Migrate upsell page header to use unified AdminHeader component. [#47313]
+- Replace license activation link with a "Use license key" button in the header actions area. [#47434]
+- Use the core WordPress spinner component for the dashboard loading state. [#47467]
+- Update package dependencies. [#47496]
+
+### Fixed
+- Constrain license activation link width on mobile to prevent header overflow. [#47431]
+
+## [0.56.2] - 2026-03-02
+### Changed
+- Update package dependencies. [#47357]
+
+## [0.56.1] - 2026-02-26
+### Changed
+- Search admin: Change `max-width` of contents to 1040px. [#47326]
+- Update package dependencies. [#47288] [#47300]
+
+## [0.56.0] - 2026-02-23
+### Added
+- Add a new `disable_tracking` feature flag. [#46722]
+
+### Changed
+- Update package dependencies. [#47173]
+
+## [0.55.4] - 2026-02-16
+### Changed
+- Update package dependencies. [#47099]
+
+### Fixed
+- Compatibility: Clean up deprecated CSS. [#47067]
+
+## [0.55.3] - 2026-02-10
+### Changed
+- Update dependencies. [#46931] [#47002]
+
+## [0.55.2] - 2026-02-02
+### Changed
+- Update package dependencies. [#46854]
+
+## [0.55.1] - 2026-01-26
+### Changed
+- Update dependencies. [#46741]
+
+## [0.55.0] - 2026-01-19
+### Added
+- Add a "Show price" option to allow prices to be shown or hidden in Jetpack Instant Search results. [#46454]
+
+### Changed
+- Show WooCommerce product filters in filter widget. [#46373]
+- Update package dependencies. [#46552] [#46647]
+
+## [0.54.10] - 2026-01-12
+### Changed
+- Update package dependencies. [#46456] [#46491]
+
+## [0.54.9] - 2025-12-22
+### Changed
+- Update dependencies. [#46381]
+
+## [0.54.8] - 2025-12-15
+### Changed
+- Update dependencies. [#46271]
+
+## [0.54.7] - 2025-12-08
+### Fixed
+- Ensure proper flags are used with `json_encode()`. [#46092]
+
+## [0.54.6] - 2025-12-01
+### Changed
+- Update package dependencies. [#46143]
+
+## [0.54.5] - 2025-11-21
+### Fixed
+- Phan: Address PhanPossiblyUndeclaredVariable violations. [#45911]
+
+## [0.54.4] - 2025-11-18
+### Changed
+- Update dependencies. [#45745]
+
+## [0.54.3] - 2025-11-17
+### Changed
+- Update package dependencies. [#45915] [#45958]
+
+## [0.54.2] - 2025-11-12
+### Changed
+- Internal updates.
+
+## [0.54.1] - 2025-11-10
+### Changed
+- Use native WordPress API to load CSS. [#45694]
+- Use number formatting in pricing/plan features. [#45794]
+- Tests: Ensure PHP 8.5 compatibility. [#45769]
+- Update package dependencies. [#45756]
+
+## [0.54.0] - 2025-11-03
+### Changed
+- Don't translate product names. [#43961]
+- Update dependencies. [#45664]
+
+### Fixed
+- Phan: Address PhanRedundantCondition, PhanRedundantArrayValuesCall, and PhanPluginRedundantAssignment violations. [#45681]
+
+## [0.53.0] - 2025-10-27
+### Added
+- Instant Search: Add global WooCommerce Product Attributes as filter options. [#45416]
+
+### Changed
+- Instant Search: Fix issue where Safari's 'Use advanced tracking and fingerprinting protection' setting breaks Search. [#45582] [#45588]
+
+## [0.52.24] - 2025-10-21
+### Fixed
+- Instant Search: Handle browser privacy settings stripping out the search query value. [#45533]
+
+## [0.52.23] - 2025-10-20
+### Changed
+- Update dependencies. [#45488]
+
+## [0.52.22] - 2025-10-13
+### Fixed
+- Prevent PHP errors when handling malformed data. [#45419]
+
+## [0.52.21] - 2025-10-06
+### Changed
+- Update package dependencies. [#45334]
+
+## [0.52.20] - 2025-09-29
+### Changed
+- Update dependencies. [#44615]
+
+## [0.52.19] - 2025-09-22
+### Changed
+- Update dependencies. [#44615]
+
+## [0.52.18] - 2025-09-19
+### Changed
+- Update package dependencies. [#45173] [#45229]
+
+## [0.52.17] - 2025-09-15
+### Changed
+- Update package dependencies. [#45127] [#45128]
+
+## [0.52.16] - 2025-09-08
+### Changed
+- Update package dependencies. [#45027]
+
+## [0.52.15] - 2025-09-01
+### Changed
+- Update dependencies. [#44615]
+
+## [0.52.14] - 2025-08-25
+### Fixed
+- Resolve `PhanImpossibleCondition` violations. [#44869]
+- Pass SSL argument properly to Photon for sites with https enabled. [#44851]
+
+## [0.52.13] - 2025-08-18
+### Changed
+- Update dependencies. [#44615]
+
+## [0.52.12] - 2025-08-14
+### Changed
+- Update package dependencies. [#44701]
+
+## [0.52.11] - 2025-08-11
+### Changed
+- Update package dependencies. [#44677]
+
+### Fixed
+- I18n: Improve context hints in comments for translators. [#44686]
+- Prevent PHP errors when directly accessing various files. [#44646]
+
 ## [0.52.10] - 2025-08-04
 ### Changed
 - Update dependencies. [#44551]
@@ -1295,6 +1468,41 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update PHPUnit configs to include just what needs coverage rather than include everything then try to exclude stuff that doesn't.
 
+[0.56.3]: https://github.com/Automattic/jetpack-search/compare/v0.56.2...v0.56.3
+[0.56.2]: https://github.com/Automattic/jetpack-search/compare/v0.56.1...v0.56.2
+[0.56.1]: https://github.com/Automattic/jetpack-search/compare/v0.56.0...v0.56.1
+[0.56.0]: https://github.com/Automattic/jetpack-search/compare/v0.55.4...v0.56.0
+[0.55.4]: https://github.com/Automattic/jetpack-search/compare/v0.55.3...v0.55.4
+[0.55.3]: https://github.com/Automattic/jetpack-search/compare/v0.55.2...v0.55.3
+[0.55.2]: https://github.com/Automattic/jetpack-search/compare/v0.55.1...v0.55.2
+[0.55.1]: https://github.com/Automattic/jetpack-search/compare/v0.55.0...v0.55.1
+[0.55.0]: https://github.com/Automattic/jetpack-search/compare/v0.54.10...v0.55.0
+[0.54.10]: https://github.com/Automattic/jetpack-search/compare/v0.54.9...v0.54.10
+[0.54.9]: https://github.com/Automattic/jetpack-search/compare/v0.54.8...v0.54.9
+[0.54.8]: https://github.com/Automattic/jetpack-search/compare/v0.54.7...v0.54.8
+[0.54.7]: https://github.com/Automattic/jetpack-search/compare/v0.54.6...v0.54.7
+[0.54.6]: https://github.com/Automattic/jetpack-search/compare/v0.54.5...v0.54.6
+[0.54.5]: https://github.com/Automattic/jetpack-search/compare/v0.54.4...v0.54.5
+[0.54.4]: https://github.com/Automattic/jetpack-search/compare/v0.54.3...v0.54.4
+[0.54.3]: https://github.com/Automattic/jetpack-search/compare/v0.54.2...v0.54.3
+[0.54.2]: https://github.com/Automattic/jetpack-search/compare/v0.54.1...v0.54.2
+[0.54.1]: https://github.com/Automattic/jetpack-search/compare/v0.54.0...v0.54.1
+[0.54.0]: https://github.com/Automattic/jetpack-search/compare/v0.53.0...v0.54.0
+[0.53.0]: https://github.com/Automattic/jetpack-search/compare/v0.52.24...v0.53.0
+[0.52.24]: https://github.com/Automattic/jetpack-search/compare/v0.52.23...v0.52.24
+[0.52.23]: https://github.com/Automattic/jetpack-search/compare/v0.52.22...v0.52.23
+[0.52.22]: https://github.com/Automattic/jetpack-search/compare/v0.52.21...v0.52.22
+[0.52.21]: https://github.com/Automattic/jetpack-search/compare/v0.52.20...v0.52.21
+[0.52.20]: https://github.com/Automattic/jetpack-search/compare/v0.52.19...v0.52.20
+[0.52.19]: https://github.com/Automattic/jetpack-search/compare/v0.52.18...v0.52.19
+[0.52.18]: https://github.com/Automattic/jetpack-search/compare/v0.52.17...v0.52.18
+[0.52.17]: https://github.com/Automattic/jetpack-search/compare/v0.52.16...v0.52.17
+[0.52.16]: https://github.com/Automattic/jetpack-search/compare/v0.52.15...v0.52.16
+[0.52.15]: https://github.com/Automattic/jetpack-search/compare/v0.52.14...v0.52.15
+[0.52.14]: https://github.com/Automattic/jetpack-search/compare/v0.52.13...v0.52.14
+[0.52.13]: https://github.com/Automattic/jetpack-search/compare/v0.52.12...v0.52.13
+[0.52.12]: https://github.com/Automattic/jetpack-search/compare/v0.52.11...v0.52.12
+[0.52.11]: https://github.com/Automattic/jetpack-search/compare/v0.52.10...v0.52.11
 [0.52.10]: https://github.com/Automattic/jetpack-search/compare/v0.52.9...v0.52.10
 [0.52.9]: https://github.com/Automattic/jetpack-search/compare/v0.52.8...v0.52.9
 [0.52.8]: https://github.com/Automattic/jetpack-search/compare/v0.52.7...v0.52.8

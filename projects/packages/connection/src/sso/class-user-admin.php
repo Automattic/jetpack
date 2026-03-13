@@ -19,6 +19,10 @@ use WP_Error;
 use WP_User;
 use WP_User_Query;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Jetpack sso user admin class.
  *
@@ -791,7 +795,7 @@ class User_Admin extends Base_Admin {
 									type="checkbox"
 									id="user_external_contractor"
 									>
-								<?php esc_html_e( 'This user is a contractor, freelancer, consultant, or agency.', 'jetpack-connection' ); ?>
+								<?php esc_html_e( 'Mark as external collaborator', 'jetpack-connection' ); ?>
 							</label>
 						</fieldset>
 					</td>
@@ -978,18 +982,6 @@ class User_Admin extends Base_Admin {
 	}
 
 	/**
-	 * Deprecated method. Adds a column in the user admin table to display user connection status and actions.
-	 *
-	 * @param array $columns User list table columns.
-	 * @return array
-	 * @deprecated 6.5.0
-	 */
-	public function jetpack_user_connected_th( $columns ) {
-		_deprecated_function( __METHOD__, 'package-6.5.0' );
-		return $columns;
-	}
-
-	/**
 	 * Executed when our WP_User_Query instance is set, and we don't have cached invites.
 	 * This function uses the user emails and the 'are-users-invited' endpoint to build the cache.
 	 *
@@ -1081,8 +1073,12 @@ class User_Admin extends Base_Admin {
 	 * @return false|string returns the user invite code if the user is invited, false otherwise.
 	 */
 	private static function has_pending_wpcom_invite( $user_id ) {
+		$user = get_user_by( 'id', $user_id );
+		if ( ! $user instanceof \WP_User ) {
+			return false;
+		}
+
 		$blog_id       = Manager::get_site_id( true );
-		$user          = get_user_by( 'id', $user_id );
 		$cached_invite = self::get_pending_cached_wpcom_invite( $user->user_email );
 
 		if ( $cached_invite ) {

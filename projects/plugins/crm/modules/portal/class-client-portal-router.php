@@ -19,11 +19,11 @@ class Client_Portal_Router {
 	/**
 	 * Redirect CRM contacts to Client Portal after login.
 	 *
-	 * @param   string  $redirect_to The redirect destination URL.
-	 * @param   int     $request The requested redirect destination URL passed as a parameter.
-	 * @param   WP_User $wp_user WP_User object if login was successful, WP_Error object otherwise.
+	 * @param string   $redirect_to The redirect destination URL.
+	 * @param int      $request The requested redirect destination URL passed as a parameter.
+	 * @param \WP_User $wp_user WP_User object if login was successful, WP_Error object otherwise.
 	 *
-	 * @return  str $redirect_to
+	 * @return string $redirect_to
 	 */
 	public function redirect_contacts_upon_login( $redirect_to, $request, $wp_user ) {
 

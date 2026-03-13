@@ -62,6 +62,13 @@ class Host_Test extends TestCase {
 	}
 
 	/**
+	 * Sets up the site as a WPCOM Simple site.
+	 */
+	private function setup_wpcom_simple_constants() {
+		Constants::set_constant( 'IS_WPCOM', true );
+	}
+
+	/**
 	 * Tests if WoA Site based on constant
 	 */
 	public function test_woa_site_based_on_constant() {
@@ -102,7 +109,7 @@ class Host_Test extends TestCase {
 	 * Tests if a Simple Site based on constant
 	 */
 	public function test_simple_site_based_on_constant() {
-		Constants::set_constant( 'IS_WPCOM', true );
+		$this->setup_wpcom_simple_constants();
 		$this->assertTrue( $this->host_obj->is_wpcom_simple() );
 		$this->assertTrue( $this->host_obj->is_wpcom_platform() );
 	}
@@ -175,5 +182,53 @@ class Host_Test extends TestCase {
 			'valid_a4a'    => array( 'a8c-for-agencies', 'a8c-for-agencies' ),
 			'invalid'      => array( 'invalid-param', '' ),
 		);
+	}
+
+	/**
+	 * Tests that is_p2_site() returns true when the stylesheet contains 'pub/p2'.
+	 */
+	public function test_is_p2_site_true_if_stylesheet_contains_pub_p2() {
+		// Make is_wpcom_simple true so get_wpcom_site_id returns a value.
+		$this->setup_wpcom_simple_constants();
+		Functions\when( 'get_stylesheet' )->justReturn( 'pub/p2-theme' );
+		$this->assertTrue( $this->host_obj->is_p2_site() );
+	}
+
+	/**
+	 * Tests that is_p2_site() returns true when the WPForTeams function exists and returns true.
+	 */
+	public function test_is_p2_site_true_if_wpforteams_function_exists_and_true() {
+		// Mock get_wpcom_site_id to ensure we are testing all existing functions within is_p2_site().
+		// Anonymous class to replace method.
+		// PHPUnit 12.5 whines about mocks without expectations, while getStubBuilder() (for partial mocks) doesn't exist until 12.5.
+		$host = new class() extends Host {
+			public function get_wpcom_site_id() {
+				return 123;
+			}
+		};
+
+		Functions\when( 'get_stylesheet' )->justReturn( 'not-p2-theme' );
+		Functions\when( 'function_exists' )->alias(
+			function ( $fn ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+				return $fn === '\WPForTeams\is_wpforteams_site';
+			}
+		);
+		Functions\when( '\WPForTeams\is_wpforteams_site' )->justReturn( true );
+
+		$this->assertTrue( $host->is_p2_site() );
+	}
+
+	/**
+	 * Tests that is_p2_site() returns false when neither the stylesheet nor the WPForTeams function indicate a P2 site.
+	 */
+	public function test_is_p2_site_false_if_no_conditions_met() {
+		$this->setup_wpcom_simple_constants();
+		Functions\when( 'get_stylesheet' )->justReturn( 'not-p2-theme' );
+		Functions\when( 'function_exists' )->alias(
+			function ( $fn ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+				return false;
+			}
+		);
+		$this->assertFalse( $this->host_obj->is_p2_site() );
 	}
 }

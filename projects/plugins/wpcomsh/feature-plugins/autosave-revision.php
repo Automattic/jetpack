@@ -35,6 +35,8 @@ function wpcom_post_has_changed_since_last_revision( $post_id, $post ) {
 		return true;
 	}
 
+	$check_for_changes = true;
+
 	/**
 	 * Filters whether the post has changed since the last revision.
 	 *
@@ -48,7 +50,7 @@ function wpcom_post_has_changed_since_last_revision( $post_id, $post ) {
 	 * @param WP_Post $last_revision     The last revision post object.
 	 * @param WP_Post $post              The post object.
 	 */
-	if ( ! apply_filters( 'wp_save_post_revision_check_for_changes', $check_for_changes = true, $last_revision, $post ) ) { // phpcs:ignore Generic.CodeAnalysis.AssignmentInCondition.Found
+	if ( ! apply_filters( 'wp_save_post_revision_check_for_changes', $check_for_changes, $last_revision, $post ) ) { // phpcs:ignore Generic.CodeAnalysis.AssignmentInCondition.Found
 		return true;
 	}
 

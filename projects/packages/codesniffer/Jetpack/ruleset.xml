@@ -26,7 +26,7 @@
 	-->
 	<rule ref="MediaWiki.Usage.InArrayUsage" />
 	<rule ref="MediaWiki.Usage.MagicConstantClosure" />
-	<rule ref="MediaWiki.Usage.NestedFunctions" />
+	<rule ref="Squiz.PHP.InnerFunctions" /> <!-- Formerly MediaWiki.Usage.NestedFunctions -->
 	<rule ref="MediaWiki.Usage.PlusStringConcat" />
 	<rule ref="MediaWiki.Usage.ReferenceThis" />
 	<rule ref="MediaWiki.WhiteSpace.EmptyLinesBetweenUse" />
@@ -56,6 +56,10 @@
 				<element key="proc_open" value="proc_open" />
 				<element key="shell_exec" value="shell_exec" />
 				<element key="is_resource" value="is_resource" />
+
+				<!-- PHPCompatibility is already flagging these, no need for this to do it too. -->
+				<element key="curl_close" value="curl_close" />
+				<element key="finfo_close" value="finfo_close" />
 			</property>
 		</properties>
 	</rule>

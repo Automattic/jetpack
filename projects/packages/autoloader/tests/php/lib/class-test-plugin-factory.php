@@ -361,12 +361,20 @@ class Test_Plugin_Factory {
 		// the developer has installed is compatible. To address these differences we will download a
 		// composer package that is compatible based on ranges of autoloader versions.
 		$composer_versions = array(
+			// Version 2.8.12 is compatible with PHP 8.5.
+			'2.8.12'  => array(
+				'min'     => '2.6.0',
+				'url'     => 'https://getcomposer.org/download/2.8.12/composer.phar',
+				'sha256'  => 'f446ea719708bb85fcbf4ef18def5d0515f1f9b4d703f6d820c9c1656e10a2f2',
+				'min_php' => 70205,
+			),
 			// Version 2.4.0 renamed a class, we want to test with that.
 			'2.4.4'   => array(
 				'min'     => '2.6.0',
 				'url'     => 'https://getcomposer.org/download/2.4.4/composer.phar',
 				'sha256'  => 'c252c2a2219956f88089ffc242b42c8cb9300a368fd3890d63940e4fc9652345',
 				'min_php' => 70205,
+				'max_php' => 80499,
 			),
 			// Version 2.1.6 of Composer is the first to support PHP 8.1.
 			'2.1.6'   => array(
@@ -530,7 +538,7 @@ class Test_Plugin_Factory {
 		// Prepare a checksum object for comparison and store it in the composer config so we can retrieve it later.
 		$factory_checksum = array(
 			'plugin'   => hash( 'crc32', $plugin_file ),
-			'composer' => hash( 'crc32', json_encode( $composer_config ) ),
+			'composer' => hash( 'crc32', json_encode( $composer_config, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) ),
 			'files'    => array(),
 		);
 		foreach ( $this->files as $path => $content ) {

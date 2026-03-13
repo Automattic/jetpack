@@ -174,7 +174,6 @@ fclose( $pipes[0] );
 
 $ok_projects      = array();
 $touched_projects = array();
-$files_to_ignore  = array( 'projects/plugins/jetpack/to-test.md' );
 // phpcs:ignore Generic.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
 while ( ( $line = fgets( $pipes[1] ) ) ) {
 	$line                  = trim( $line );
@@ -191,9 +190,9 @@ while ( ( $line = fgets( $pipes[1] ) ) ) {
 	}
 	if ( $parts[3] === $changelogger_projects[ $slug ]['changelog'] ) {
 		if ( $status === 'A' ) {
-			debug( 'Changes add changelog file %s, but this does not count as having a change file.', $file );
+			debug( 'PR adds changelog file %s, but this does not count as having a change file.', $file );
 		} else {
-			debug( 'Changes touch changelog file %s, so marking %s as having a change file.', $file, $slug );
+			debug( 'PR touches changelog file %s, so marking %s as having a change file.', $file, $slug );
 			$ok_projects[ $slug ] = true;
 			continue;
 		}
@@ -202,17 +201,13 @@ while ( ( $line = fgets( $pipes[1] ) ) ) {
 		if ( '.' === $parts[4][0] ) {
 			debug( 'Ignoring changes dir dotfile %s.', $file );
 		} else {
-			debug( 'Changes touch file %s, so marking %s as having a change file.', $file, $slug );
+			debug( 'PR touches file %s, so marking %s as having a change file.', $file, $slug );
 			$ok_projects[ $slug ] = true;
 		}
 		continue;
 	}
-	if ( in_array( $file, $files_to_ignore, true ) ) {
-		debug( 'Ignoring file %s, as it is explicitly set to be ignored.', $file );
-		continue;
-	}
 
-	debug( 'PR touches file %s, marking %s as touched.', $file, $slug );
+	debug( 'PR touches file %s, so marking %s as touched.', $file, $slug );
 	if ( ! isset( $touched_projects[ $slug ] ) ) {
 		$touched_projects[ $slug ][] = $file;
 	}
@@ -231,7 +226,7 @@ if ( ! $needed_projects ) {
 }
 
 // Look for unmerged change entry files.
-debug( 'Checking for unmerged change entry files.' );
+debug( 'Checking for unmerged change entry files...' );
 $pipes = null;
 $p     = proc_open(
 	'git -c core.quotepath=off status --no-renames --porcelain',
@@ -254,14 +249,14 @@ while ( ( $line = fgets( $pipes[1] ) ) ) {
 	}
 	$slug = "{$parts[1]}/{$parts[2]}";
 	if ( ! isset( $changelogger_projects[ $slug ] ) ) {
-		debug( 'Ignoring file %s, project %s does not use changelogger.', $file, $slug );
+		debug( 'Ignoring file %s, as project %s does not use changelogger.', $file, $slug );
 		continue;
 	}
 	if ( $parts[3] === $changelogger_projects[ $slug ]['changes-dir'] && '.' !== $parts[4][0] ) {
 		if ( empty( $needed_projects[ $slug ] ) ) {
-			debug( 'Ignoring unmerged change entry file %s, project %s is already ok.', $file, $slug );
+			debug( 'Ignoring unmerged change entry file %s, as project %s is already ok.', $file, $slug );
 		} else {
-			debug( 'Unmerged changes touch change entry file %s, marking %s as having an unmerged change file.', $file, $slug );
+			debug( 'Unmerged changes touch change entry file %s, so marking %s as having an unmerged change file.', $file, $slug );
 			$unmerged_projects[ $slug ][] = $file;
 		}
 		continue;

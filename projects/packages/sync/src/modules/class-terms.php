@@ -9,6 +9,10 @@ namespace Automattic\Jetpack\Sync\Modules;
 
 use Automattic\Jetpack\Sync\Settings;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Class to handle sync for terms.
  */
@@ -339,6 +343,7 @@ class Terms extends Module {
 		list( $term_taxonomy_ids, $previous_end ) = $args;
 
 		return array(
+			// @phan-suppress-next-line PhanAccessMethodInternal @phan-suppress-current-line UnusedSuppression -- Fixed in WP 6.9, but then we need a suppression for the WP 6.8 compat run. @todo Remove this suppression when we drop WP <6.9.
 			'terms'        => get_terms(
 				array(
 					'hide_empty'       => false,

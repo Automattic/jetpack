@@ -2,6 +2,203 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## [1.5.0] - 2026-03-09
+### Added
+- Add AdminHeader component wrapping @wordpress/admin-ui Page for unified admin page headers. [#47313]
+
+### Changed
+- AdminPage: Override admin-ui header position so it's not sticky. [#47313]
+- AdminPage: Remove admin-ui header border via scoped CSS to support unified admin-ui Page layout. [#47313]
+- AdminPage: Remove header border-bottom for a cleaner unified header appearance. [#47313]
+- Remove padding from admin page header subtitle for consistent spacing. [#47417]
+- Replace admin-ui CSS proxy file with direct import, now that webpack-config handles bundling centrally. [#47313]
+- Switch to Native TypeScript compiler based on Go. [#47375]
+- Widen AdminPage subTitle prop type from string to ReactNode. [#47434]
+
+### Fixed
+- AdminPage: Fix aria-label attribute by passing a string value to the Page component. [#47461]
+- Admin page: Fix Hello Dolly banner display and clear floats on Jetpack admin pages. [#47313]
+- Admin Page: Restore border on header component. [#47425]
+
+## [1.4.16] - 2026-02-26
+### Changed
+- Container: Adjust maximum width to 1040px. [#47308]
+- Update package dependencies. [#47285] [#47300] [#47309]
+
+### Fixed
+- Button: Loosen `ref` type from `HTMLInputElement` to `HTMLElement`. [#47300]
+- NavigatorModal: Guard against WordPress Modal dismisser mechanism to prevent the modal from being closed when an external modal (e.g. Image Studio) opens. [#47180]
+
+## [1.4.15] - 2026-02-23
+### Changed
+- Update dependencies.
+
+## [1.4.14] - 2026-02-18
+### Changed
+- Set `.repository.url` in `package.json` to the mirror repo rather than the monorepo. [#47149]
+- Update package dependencies. [#47173]
+
+## [1.4.13] - 2026-02-16
+### Changed
+- Update package dependencies. [#47099]
+
+### Fixed
+- Compatibility: Clean up deprecated CSS. [#47067]
+
+## [1.4.12] - 2026-02-10
+### Changed
+- Update package dependencies. [#47002]
+
+### Fixed
+- RNA: Fix build folder extensions and copy SCSS assets. [#46938]
+
+## [1.4.11] - 2026-02-04
+### Changed
+- NavigatorModal: Prevent scrolling for navigator screen for large content. [#46925]
+
+## [1.4.10] - 2026-02-03
+### Changed
+- Update package dependencies. [#46905]
+
+## [1.4.9] - 2026-02-02
+### Added
+- NavigatorModal: Allow passing all the props supported by underlying components. [#46856]
+
+### Changed
+- NavigatorModal: Allow customizing the modal via stable BEM class names. [#46818]
+- Update package dependencies. [#46854]
+
+## [1.4.8] - 2026-01-26
+### Changed
+- Update dependencies.
+
+## [1.4.7] - 2026-01-23
+### Changed
+- Internal updates.
+
+## [1.4.6] - 2026-01-19
+### Changed
+- Update package dependencies. [#46647]
+
+## [1.4.5] - 2026-01-14
+### Changed
+- Internal updates.
+
+## [1.4.4] - 2026-01-07
+### Changed
+- Update package dependencies. [#46456]
+
+## [1.4.3] - 2025-12-22
+### Added
+- Added subpath export for jetpack-logo component. [#46206]
+- NavigatorModal: Add support for dynamic footer actions. [#46279]
+
+### Changed
+- NavigatorModal: Improve modal height and z-index. [#46322]
+- NavigatorModal: Make the modal full size by default. [#46366]
+- Update package dependencies. [#46362] [#46363]
+
+### Fixed
+- NavigatorModal: Remove extra padding for screen component following recent Gutenberg changes. [#46334]
+
+## [1.4.2] - 2025-12-15
+### Added
+- NavigatorModal: Add header icon support for Screen component. [#46265]
+
+## [1.4.1] - 2025-12-11
+### Changed
+- Improve scrolling for navigator modal sidebar and content. [#46252]
+
+## [1.4.0] - 2025-12-08
+### Added
+- Jetpack Logo: Add support for customized title in shared component. [#46162]
+
+### Changed
+- Make `NavigatorModal` responsive using container queries. [#46102]
+
+## [1.3.13] - 2025-12-01
+### Added
+- Add NavigatorModal component. [#46101]
+
+### Changed
+- Update package dependencies. [#46143]
+
+## [1.3.12] - 2025-11-20
+### Changed
+- Update package dependencies. [#46022]
+
+## [1.3.11] - 2025-11-18
+### Changed
+- Update dependencies.
+
+## [1.3.10] - 2025-11-17
+### Changed
+- Update package dependencies. [#45915] [#45958]
+
+## [1.3.9] - 2025-11-10
+### Changed
+- Replace icons removed from @wordpress/icons with alternatives. [#45760]
+- Update package dependencies. [#45737]
+
+## [1.3.8] - 2025-11-03
+### Added
+- Add domains icon to the Gridicon component. [#45716]
+
+## [1.3.7] - 2025-10-28
+### Changed
+- Update package dependencies. [#45652]
+
+## [1.3.6] - 2025-10-13
+### Changed
+- Update dependencies.
+
+## [1.3.5] - 2025-10-02
+### Changed
+- Update package dependencies. [#45334] [#45335]
+
+## [1.3.4] - 2025-09-22
+### Changed
+- Update dependencies.
+
+## [1.3.3] - 2025-09-19
+### Changed
+- Update package dependencies. [#45173] [#45229]
+
+## [1.3.2] - 2025-09-08
+### Changed
+- Update package dependencies. [#45027] [#45097]
+
+## [1.3.1] - 2025-09-01
+### Changed
+- My Jetpack: Add product interstitials state management. [#44772]
+
+## [1.3.0] - 2025-08-25
+### Changed
+- Use PricingTable component for product interstitials. [#44801]
+
+## [1.2.2] - 2025-08-25
+### Changed
+- Update dependencies.
+
+## [1.2.1] - 2025-08-18
+### Changed
+- Update dependencies.
+
+## [1.2.0] - 2025-08-14
+### Added
+- Add new Interstitial component. [#44665]
+
+## [1.1.19] - 2025-08-13
+### Changed
+- Update package dependencies. [#44701]
+
+## [1.1.18] - 2025-08-11
+### Changed
+- Update package dependencies. [#44677]
+
+### Fixed
+- I18n: Improve context hints in comments for translators. [#44686]
+
 ## [1.1.17] - 2025-08-04
 ### Changed
 - Internal updates.
@@ -1493,6 +1690,43 @@
 ### Changed
 - Update node version requirement to 14.16.1
 
+[1.5.0]: https://github.com/Automattic/jetpack-components/compare/1.4.16...1.5.0
+[1.4.16]: https://github.com/Automattic/jetpack-components/compare/1.4.15...1.4.16
+[1.4.15]: https://github.com/Automattic/jetpack-components/compare/1.4.14...1.4.15
+[1.4.14]: https://github.com/Automattic/jetpack-components/compare/1.4.13...1.4.14
+[1.4.13]: https://github.com/Automattic/jetpack-components/compare/1.4.12...1.4.13
+[1.4.12]: https://github.com/Automattic/jetpack-components/compare/1.4.11...1.4.12
+[1.4.11]: https://github.com/Automattic/jetpack-components/compare/1.4.10...1.4.11
+[1.4.10]: https://github.com/Automattic/jetpack-components/compare/1.4.9...1.4.10
+[1.4.9]: https://github.com/Automattic/jetpack-components/compare/1.4.8...1.4.9
+[1.4.8]: https://github.com/Automattic/jetpack-components/compare/1.4.7...1.4.8
+[1.4.7]: https://github.com/Automattic/jetpack-components/compare/1.4.6...1.4.7
+[1.4.6]: https://github.com/Automattic/jetpack-components/compare/1.4.5...1.4.6
+[1.4.5]: https://github.com/Automattic/jetpack-components/compare/1.4.4...1.4.5
+[1.4.4]: https://github.com/Automattic/jetpack-components/compare/1.4.3...1.4.4
+[1.4.3]: https://github.com/Automattic/jetpack-components/compare/1.4.2...1.4.3
+[1.4.2]: https://github.com/Automattic/jetpack-components/compare/1.4.1...1.4.2
+[1.4.1]: https://github.com/Automattic/jetpack-components/compare/1.4.0...1.4.1
+[1.4.0]: https://github.com/Automattic/jetpack-components/compare/1.3.13...1.4.0
+[1.3.13]: https://github.com/Automattic/jetpack-components/compare/1.3.12...1.3.13
+[1.3.12]: https://github.com/Automattic/jetpack-components/compare/1.3.11...1.3.12
+[1.3.11]: https://github.com/Automattic/jetpack-components/compare/1.3.10...1.3.11
+[1.3.10]: https://github.com/Automattic/jetpack-components/compare/1.3.9...1.3.10
+[1.3.9]: https://github.com/Automattic/jetpack-components/compare/1.3.8...1.3.9
+[1.3.8]: https://github.com/Automattic/jetpack-components/compare/1.3.7...1.3.8
+[1.3.7]: https://github.com/Automattic/jetpack-components/compare/1.3.6...1.3.7
+[1.3.6]: https://github.com/Automattic/jetpack-components/compare/1.3.5...1.3.6
+[1.3.5]: https://github.com/Automattic/jetpack-components/compare/1.3.4...1.3.5
+[1.3.4]: https://github.com/Automattic/jetpack-components/compare/1.3.3...1.3.4
+[1.3.3]: https://github.com/Automattic/jetpack-components/compare/1.3.2...1.3.3
+[1.3.2]: https://github.com/Automattic/jetpack-components/compare/1.3.1...1.3.2
+[1.3.1]: https://github.com/Automattic/jetpack-components/compare/1.3.0...1.3.1
+[1.3.0]: https://github.com/Automattic/jetpack-components/compare/1.2.2...1.3.0
+[1.2.2]: https://github.com/Automattic/jetpack-components/compare/1.2.1...1.2.2
+[1.2.1]: https://github.com/Automattic/jetpack-components/compare/1.2.0...1.2.1
+[1.2.0]: https://github.com/Automattic/jetpack-components/compare/1.1.19...1.2.0
+[1.1.19]: https://github.com/Automattic/jetpack-components/compare/1.1.18...1.1.19
+[1.1.18]: https://github.com/Automattic/jetpack-components/compare/1.1.17...1.1.18
 [1.1.17]: https://github.com/Automattic/jetpack-components/compare/1.1.16...1.1.17
 [1.1.16]: https://github.com/Automattic/jetpack-components/compare/1.1.15...1.1.16
 [1.1.15]: https://github.com/Automattic/jetpack-components/compare/1.1.14...1.1.15

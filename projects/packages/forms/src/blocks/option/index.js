@@ -1,8 +1,8 @@
 import { Path } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import renderMaterialIcon from '../shared/components/render-material-icon';
-import edit from './edit';
-import save from './save';
+import renderMaterialIcon from '../shared/components/render-material-icon.jsx';
+import edit from './edit.js';
+import save from './save.js';
 
 const name = 'option';
 const settings = {
@@ -37,6 +37,10 @@ const settings = {
 			},
 		},
 	},
+	merge: ( attributes, { label = '' } ) => ( {
+		...attributes,
+		label: ( attributes.label || '' ) + label,
+	} ),
 	attributes: {
 		placeholder: {
 			type: 'string',
@@ -58,6 +62,14 @@ const settings = {
 			type: 'boolean',
 			default: false,
 		},
+		isOther: {
+			type: 'boolean',
+			default: false,
+		},
+		otherPlaceholder: {
+			type: 'string',
+			default: __( 'Please specify…', 'jetpack-forms' ),
+		},
 	},
 	usesContext: [
 		'jetpack/field-default-value',
@@ -67,6 +79,11 @@ const settings = {
 	],
 	edit,
 	save,
+	__experimentalLabel: ( { isOther: isOtherOption } ) => {
+		const otherLabel = __( 'Option (other)', 'jetpack-forms' );
+		const defaultLabel = __( 'Option', 'jetpack-forms' );
+		return isOtherOption ? otherLabel : defaultLabel;
+	},
 };
 
 export default {

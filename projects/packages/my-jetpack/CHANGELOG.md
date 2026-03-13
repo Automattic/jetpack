@@ -5,6 +5,286 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.31.9] - 2026-03-09
+### Changed
+- Migrate admin page header to use unified AdminHeader component. [#47313]
+- Newsletter: Update manage URL to redirect to new settings page when wp-admin newsletter settings are enabled. [#47347]
+- Reorder admin menu items so external links appear last. [#47417]
+- Switch to Native TypeScript compiler based on Go. [#47375]
+- Unified Header: Add back border to the header. [#47425]
+- Update package dependencies. [#47496]
+
+### Fixed
+- Fix Hello Dolly banner z-index to prevent overlap on the My Jetpack page. [#47313]
+- Fix TS errors detected by tsgo. [#47409]
+
+## [5.31.8] - 2026-03-02
+### Fixed
+- Fix JS tests following the change in `useConnection`. [#47380]
+
+## [5.31.7] - 2026-02-26
+### Changed
+- Update package dependencies. [#47285] [#47300] [#47309]
+
+## [5.31.6] - 2026-02-23
+### Changed
+- Move `wpcom-reader` module from Other to Growth category in My Jetpack tab panel. [#47245]
+
+## [5.31.5] - 2026-02-19
+### Changed
+- Internal updates.
+
+## [5.31.4] - 2026-02-18
+### Changed
+- Update package dependencies. [#47173]
+
+## [5.31.3] - 2026-02-16
+### Changed
+- Convert product interstitial and onboarding images from PNG to WebP. [#47083]
+- Update external menu links in My Jetpack to use an external-link arrow indicator (↗) for improved clarity and modern appearance. [#47076]
+- Update package dependencies. [#47099]
+
+### Fixed
+- Compatibility: Clean up deprecated CSS. [#47067]
+
+## [5.31.2] - 2026-02-10
+### Changed
+- Update package dependencies. [#47002]
+
+## [5.31.1] - 2026-02-04
+### Changed
+- Update dependencies. [#46944]
+
+## [5.31.0] - 2026-02-03
+### Added
+- Modules: add new Reader module. [#46781]
+
+### Changed
+- Update package dependencies. [#46905]
+
+## [5.30.4] - 2026-02-02
+### Added
+- Adding Jetpack Protect details page for users without the dedicated Jetpack Protect plugin. [#46630]
+
+### Changed
+- Update package dependencies. [#46853] [#46854]
+
+## [5.30.3] - 2026-01-26
+### Changed
+- Update package dependencies. [#46430]
+
+## [5.30.2] - 2026-01-26
+### Added
+- Add HMR support by wiring up webpack dev server. [#46686]
+
+### Changed
+- Update dependencies. [#46697]
+
+## [5.30.1] - 2026-01-19
+### Changed
+- Check red bubble notifications async when cache is not available. [#46396]
+- Update package dependencies. [#46647]
+
+## [5.30.0] - 2026-01-14
+### Added
+- Add 'View included features' link to Plans section for quick access to plan features. [#46520]
+
+### Changed
+- Show module descriptions beneath titles instead of in tooltips for improved discoverability. [#46518]
+- Update package dependencies. [#46552]
+
+## [5.29.3] - 2026-01-12
+### Changed
+- Plans section: Update 'Activate a license' text to 'Activate a new license' when user already has active licenses, and add visual separation before actions list. [#46501]
+- Update package dependencies. [#46512]
+
+## [5.29.2] - 2026-01-07
+### Changed
+- Update package dependencies. [#46456]
+
+## [5.29.1] - 2026-01-06
+### Fixed
+- Fix false "backup failed" error for deactivated backups. [#46299]
+
+## [5.29.0] - 2025-12-22
+### Changed
+- Add benefit-driven success messages for module activation. [#46251]
+- Update package dependencies. [#46362] [#46363]
+
+## [5.28.11] - 2025-12-15
+### Changed
+- Update dependencies. [#46157]
+
+## [5.28.10] - 2025-12-11
+### Changed
+- Update package dependencies. [#46244]
+
+## [5.28.9] - 2025-12-08
+### Changed
+- Update package dependencies. [#45914]
+
+### Fixed
+- Ensure proper flags are used with `json_encode()`. [#46092]
+
+## [5.28.8] - 2025-12-01
+### Changed
+- Update dependencies. [#46116] [#46143]
+
+## [5.28.7] - 2025-11-24
+### Fixed
+- Fix false error for new sites during backup provisioning. [#46008]
+
+## [5.28.6] - 2025-11-20
+### Changed
+- Update package dependencies. [#46022]
+
+### Fixed
+- My Jetpack: Fix expiring renewal prompt to show all products. [#45995]
+- Redirect partner coupon redemption requests to Jetpack dashboard to ensure coupon can be redeemed. [#45994]
+
+## [5.28.5] - 2025-11-19
+### Changed
+- Update dependencies. [#45493]
+
+## [5.28.4] - 2025-11-18
+### Changed
+- Update dependencies. [#45493]
+
+## [5.28.3] - 2025-11-17
+### Changed
+- Update package dependencies. [#45915] [#45932] [#45958]
+
+### Fixed
+- My Jetpack: Add missing background color for products list. [#45893]
+
+## [5.28.2] - 2025-11-12
+### Changed
+- Update dependencies. [#45493]
+
+## [5.28.1] - 2025-11-10
+### Changed
+- Use number formatting in pricing/plan features. [#45794]
+- Update package dependencies. [#45735] [#45737] [#45756]
+
+### Fixed
+- Fix Protect card showing as active when Jetpack modules are disabled. [#45795]
+
+## [5.28.0] - 2025-11-03
+### Changed
+- Don't translate product names. [#43961]
+
+## [5.27.10] - 2025-10-28
+### Changed
+- Update package dependencies. [#45652]
+
+## [5.27.9] - 2025-10-27
+### Changed
+- Update package dependencies. [#45551]
+
+## [5.27.8] - 2025-10-21
+### Changed
+- Update dependencies. [#45493]
+
+## [5.27.7] - 2025-10-20
+### Fixed
+- Prevent PHP errors when notification data is malformed. [#45385]
+
+## [5.27.6] - 2025-10-14
+### Changed
+- Update dependencies. [#45488]
+
+### Fixed
+- My Jetpack page: fix visual compatibility issue with Hello Dolly plugin. [#45474]
+
+## [5.27.5] - 2025-10-13
+### Changed
+- Update dependencies. [#45466]
+
+## [5.27.4] - 2025-10-10
+### Changed
+- Update dependencies. [#45423]
+- Update package dependencies. [#45428]
+
+## [5.27.3] - 2025-10-06
+### Changed
+- Update package dependencies. [#45334] [#45335]
+
+## [5.27.2] - 2025-09-29
+### Changed
+- Update dependencies. [#45179]
+
+## [5.27.1] - 2025-09-22
+### Changed
+- Update dependencies. [#45179]
+
+## [5.27.0] - 2025-09-19
+### Changed
+- Update @wordpress/dataviews package from v7 to v9. [#45213]
+- Update package dependencies. [#45173] [#45229]
+
+## [5.26.3] - 2025-09-15
+### Changed
+- Update dependencies. [#45130]
+
+## [5.26.2] - 2025-09-09
+### Changed
+- Update dependencies. [#45113]
+
+## [5.26.1] - 2025-09-08
+### Changed
+- Update dependencies. [#45050]
+
+## [5.26.0] - 2025-09-08
+### Changed
+- Update @wordpress/dataviews package from v5.0.0 to v7.0.0. [#45012]
+- Update package dependencies. [#45027] [#45097]
+
+## [5.25.2] - 2025-09-03
+### Fixed
+- Prevent PHP error when using WP-CLI. [#45045]
+
+## [5.25.1] - 2025-09-02
+### Changed
+- Update dependencies. [#45044]
+
+## [5.25.0] - 2025-09-01
+### Added
+- Add product interstitials state management. [#44772]
+
+### Changed
+- Remove CRM installation nudge for Complete plan users. [#45026]
+
+## [5.24.0] - 2025-08-25
+### Changed
+- Use PricingTable component for product interstitials. [#44801]
+
+### Fixed
+- Resolve `PhanImpossibleCondition` violations. [#44869]
+
+## [5.23.2] - 2025-08-21
+### Changed
+- Lift the TypeScript types up from product tabs for reusability. [#44857]
+
+## [5.23.1] - 2025-08-18
+### Changed
+- Update dependencies. [#44736]
+
+## [5.23.0] - 2025-08-14
+### Added
+- Add new Interstitial component. [#44665]
+
+### Changed
+- My Jetpack: Fix multisite availability check for restricted products and modules. [#44710]
+- Update package dependencies. [#44701]
+
+## [5.22.1] - 2025-08-11
+### Changed
+- Update dependencies. [#44673]
+- Update package dependencies. [#44677] [#44703]
+
+### Fixed
+- I18n: Improve context hints in comments for translators. [#44686]
+
 ## [5.22.0] - 2025-08-04
 ### Changed
 - My Jetpack: Unify the user connection flow with a unified screen. [#44469]
@@ -25,7 +305,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Update dependencies. [#44463]
 
 ### Fixed
-- Fix footer alignment for diconnected accounts. [#44468]
+- Fix footer alignment for disconnected accounts. [#44468]
 
 ## [5.20.1] - 2025-07-24
 ### Removed
@@ -2284,6 +2564,60 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[5.31.9]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.31.8...5.31.9
+[5.31.8]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.31.7...5.31.8
+[5.31.7]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.31.6...5.31.7
+[5.31.6]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.31.5...5.31.6
+[5.31.5]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.31.4...5.31.5
+[5.31.4]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.31.3...5.31.4
+[5.31.3]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.31.2...5.31.3
+[5.31.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.31.1...5.31.2
+[5.31.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.31.0...5.31.1
+[5.31.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.30.4...5.31.0
+[5.30.4]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.30.3...5.30.4
+[5.30.3]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.30.2...5.30.3
+[5.30.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.30.1...5.30.2
+[5.30.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.30.0...5.30.1
+[5.30.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.29.3...5.30.0
+[5.29.3]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.29.2...5.29.3
+[5.29.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.29.1...5.29.2
+[5.29.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.29.0...5.29.1
+[5.29.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.28.11...5.29.0
+[5.28.11]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.28.10...5.28.11
+[5.28.10]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.28.9...5.28.10
+[5.28.9]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.28.8...5.28.9
+[5.28.8]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.28.7...5.28.8
+[5.28.7]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.28.6...5.28.7
+[5.28.6]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.28.5...5.28.6
+[5.28.5]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.28.4...5.28.5
+[5.28.4]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.28.3...5.28.4
+[5.28.3]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.28.2...5.28.3
+[5.28.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.28.1...5.28.2
+[5.28.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.28.0...5.28.1
+[5.28.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.27.10...5.28.0
+[5.27.10]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.27.9...5.27.10
+[5.27.9]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.27.8...5.27.9
+[5.27.8]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.27.7...5.27.8
+[5.27.7]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.27.6...5.27.7
+[5.27.6]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.27.5...5.27.6
+[5.27.5]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.27.4...5.27.5
+[5.27.4]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.27.3...5.27.4
+[5.27.3]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.27.2...5.27.3
+[5.27.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.27.1...5.27.2
+[5.27.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.27.0...5.27.1
+[5.27.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.26.3...5.27.0
+[5.26.3]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.26.2...5.26.3
+[5.26.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.26.1...5.26.2
+[5.26.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.26.0...5.26.1
+[5.26.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.25.2...5.26.0
+[5.25.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.25.1...5.25.2
+[5.25.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.25.0...5.25.1
+[5.25.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.24.0...5.25.0
+[5.24.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.23.2...5.24.0
+[5.23.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.23.1...5.23.2
+[5.23.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.23.0...5.23.1
+[5.23.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.22.1...5.23.0
+[5.22.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.22.0...5.22.1
 [5.22.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.21.0...5.22.0
 [5.21.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.20.2...5.21.0
 [5.20.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.20.1...5.20.2

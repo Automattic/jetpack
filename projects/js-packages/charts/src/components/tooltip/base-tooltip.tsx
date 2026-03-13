@@ -1,3 +1,4 @@
+import { formatNumber } from '@automattic/number-formatters';
 import styles from './base-tooltip.module.scss';
 import type { CSSProperties, ComponentType, ReactNode } from 'react';
 
@@ -17,6 +18,12 @@ type TooltipCommonProps = {
 	left: number;
 	style?: CSSProperties;
 	className?: string;
+	/**
+	 * Whether to render the tooltip container div. When false, only renders the content.
+	 * Useful when the tooltip is rendered inside a portal or custom container.
+	 * @default true
+	 */
+	renderContainer?: boolean;
 };
 
 type DefaultDataTooltip = {
@@ -35,7 +42,7 @@ type BaseTooltipProps = TooltipCommonProps & ( DefaultDataTooltip | CustomToolti
 
 const DefaultTooltipContent = ( { data }: TooltipComponentProps ) => (
 	<>
-		{ data?.label }: { data?.valueDisplay || data?.value }
+		{ data?.label }: { data?.valueDisplay || formatNumber( data?.value ) }
 	</>
 );
 
@@ -46,10 +53,18 @@ export const BaseTooltip = ( {
 	component: Component = DefaultTooltipContent,
 	children,
 	className,
+	style,
+	renderContainer = true,
 }: BaseTooltipProps ) => {
+	const content = children || ( data && <Component data={ data } className={ className } /> );
+
+	if ( ! renderContainer ) {
+		return content;
+	}
+
 	return (
-		<div className={ styles.tooltip } style={ { top, left } } role="tooltip">
-			{ children || ( data && <Component data={ data } className={ className } /> ) }
+		<div className={ styles.tooltip } style={ { top, left, ...style } } role="tooltip">
+			{ content }
 		</div>
 	);
 };

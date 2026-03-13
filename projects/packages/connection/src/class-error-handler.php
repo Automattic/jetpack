@@ -294,7 +294,11 @@ class Error_Handler {
 	 */
 	protected function should_allow_error_filtering() {
 		$host = new \Automattic\Jetpack\Status\Host();
-		return $host->is_woa_site();
+		if ( $host->is_woa_site() || $host->is_vip_site() || $host->is_newspack_site() ) {
+			return true;
+		}
+
+		return false;
 	}
 
 	/**
@@ -659,7 +663,7 @@ class Error_Handler {
 		try {
 			// phpcs:disable WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode
 			// phpcs:disable WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
-			$encrypted_data = base64_encode( sodium_crypto_box_seal( wp_json_encode( $data ), base64_decode( JETPACK__ERRORS_PUBLIC_KEY ) ) );
+			$encrypted_data = base64_encode( sodium_crypto_box_seal( wp_json_encode( $data, JSON_UNESCAPED_SLASHES ), base64_decode( JETPACK__ERRORS_PUBLIC_KEY ) ) );
 			// phpcs:enable WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode
 			// phpcs:enable WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
 		} catch ( \SodiumException $e ) {
@@ -751,7 +755,7 @@ class Error_Handler {
 	private function garbage_collector( $errors ) {
 		foreach ( $errors as $error_code => $users ) {
 			foreach ( $users as $user_id => $error ) {
-				if ( self::ERROR_LIFE_TIME < time() - (int) $error['timestamp'] ) {
+				if ( empty( $error['timestamp'] ) || self::ERROR_LIFE_TIME < time() - (int) $error['timestamp'] ) {
 					unset( $errors[ $error_code ][ $user_id ] );
 				}
 			}
@@ -1067,7 +1071,8 @@ class Error_Handler {
 	 * @return bool True if external filters are applied, false otherwise.
 	 */
 	private function has_external_filters() {
-		return has_filter( 'jetpack_connection_get_verified_errors' ) && $this->should_allow_error_filtering();
+		return has_filter( 'jetpack_connection_get_verified_errors' ) &&
+			$this->should_allow_error_filtering();
 	}
 
 	/**

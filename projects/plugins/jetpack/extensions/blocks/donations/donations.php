@@ -14,6 +14,10 @@ use Automattic\Jetpack\Status\Request;
 use Jetpack_Gutenberg;
 use WP_Post;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Registers the block for use in Gutenberg
  * This is done via an action so that we can disable
@@ -27,6 +31,7 @@ function register_block() {
 			__DIR__,
 			array(
 				'render_callback' => __NAMESPACE__ . '\render_block',
+				'plan_check'      => true,
 			)
 		);
 	}
@@ -266,7 +271,7 @@ function load_editor_scripts() {
 
 	wp_add_inline_script(
 		'jetpack-blocks-editor',
-		'var Jetpack_DonationsBlock = ' . wp_json_encode( $data, JSON_HEX_TAG | JSON_HEX_AMP ) . ';',
+		'var Jetpack_DonationsBlock = ' . wp_json_encode( $data, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ';',
 		'before'
 	);
 }

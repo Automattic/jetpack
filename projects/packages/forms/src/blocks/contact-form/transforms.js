@@ -36,6 +36,7 @@ const getContactFieldBlockName = type => {
 		name: `${ prefix }/field-name`,
 		number: `${ prefix }/field-number`,
 		default: `${ prefix }/field-text`,
+		time: `${ prefix }/field-time`,
 	};
 	return fieldTypes[ type ] ? fieldTypes[ type ] : fieldTypes.default;
 };
@@ -80,6 +81,25 @@ const blockData = {
 
 export default {
 	from: [
+		{
+			// This transform handles the contact-form shortcode only when it has a ref attribute.
+			// This will actively be used for Centralized Form Management feature.
+			type: 'shortcode',
+			tag: 'contact-form',
+			isMatch: function ( attributes ) {
+				// Only match shortcodes that have a ref attribute (synced form reference)
+				return attributes.named.ref !== undefined;
+			},
+			attributes: {
+				ref: {
+					type: 'number',
+					shortcode: ( { named: { ref } } ) => {
+						const parsed = parseInt( ref, 10 );
+						return Number.isNaN( parsed ) || parsed <= 0 ? undefined : parsed;
+					},
+				},
+			},
+		},
 		{
 			type: 'raw',
 			priority: 1,

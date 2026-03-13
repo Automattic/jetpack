@@ -1,24 +1,29 @@
-import { Page } from '@playwright/test';
 import {
 	test,
 	expect,
-	searchResultForTest1 as originalSearchResultForTest1,
-	searchResultForTest2 as originalSearchResultForTest2,
+	searchResultForTest1,
+	searchResultForTest2,
 	SEARCH_API_PATTERN,
-} from '../fixtures/test.ts';
-
-// Create deep copies to prevent mutations during tests
-const searchResultForTest1 = JSON.parse( JSON.stringify( originalSearchResultForTest1 ) );
-const searchResultForTest2 = JSON.parse( JSON.stringify( originalSearchResultForTest2 ) );
+} from '../fixtures/test';
+import type { Page } from '@playwright/test';
 
 /**
- * Returns the inner HTML of the first search result title.
- * @param {Page} page - instance of a Playwright Page type
- * @return {Promise<string>} The inner HTML of the first search result title.
+ * Asserts that the first result title matches the expected value with retry logic.
+ * @param {Page}   page          - instance of a Playwright Page type
+ * @param {string} expectedTitle - the expected title to match
+ * @return {Promise<void>} - A promise that resolves when the assertion passes.
  */
-async function getFirstResultTitle( page: Page ): Promise< string > {
-	const resultTitleSelector = '.jetpack-instant-search__search-result-title-link > span';
-	return page.innerHTML( resultTitleSelector );
+async function expectFirstResultTitle( page: Page, expectedTitle: string ): Promise< void > {
+	await expect( async () => {
+		const resultTitleSelector = '.jetpack-instant-search__search-result-title-link > span';
+		const firstResultTitle = await page.innerHTML( resultTitleSelector );
+		expect( firstResultTitle, 'First result title should match the expected value' ).toBe(
+			expectedTitle
+		);
+	} ).toPass( {
+		intervals: [ 1000 ],
+		timeout: 30000,
+	} );
 }
 
 /**
@@ -52,8 +57,6 @@ test.describe( 'Instant Search', () => {
 	} );
 
 	test( 'Can perform search with default settings', async ( { page } ) => {
-		let searchResponsePromise;
-
 		await page.goto( '/?result_format=expanded' );
 
 		await test.step( 'Can open the overlay by entering a query', async () => {
@@ -91,10 +94,7 @@ test.describe( 'Instant Search', () => {
 		} );
 
 		await test.step( 'Can sort results by relevance by default', async () => {
-			expect(
-				await getFirstResultTitle( page ),
-				'First result title should match the expected value'
-			).toEqual( searchResultForTest1.results[ 0 ].highlight.title[ 0 ] );
+			await expectFirstResultTitle( page, searchResultForTest1.results[ 0 ].highlight.title[ 0 ] );
 		} );
 
 		const overlaySearchInput = page.getByRole( 'searchbox', {
@@ -104,20 +104,21 @@ test.describe( 'Instant Search', () => {
 		await test.step( 'Can edit query and search for another term', async () => {
 			await overlaySearchInput.clear();
 			await overlaySearchInput.focus();
-			searchResponsePromise = page.waitForResponse( resp => SEARCH_API_PATTERN.test( resp.url() ) );
+			const searchResponsePromise = page.waitForResponse( resp =>
+				SEARCH_API_PATTERN.test( resp.url() )
+			);
 			await overlaySearchInput.fill( 'test2' );
 			await searchResponsePromise;
 		} );
 
 		await test.step( 'The first result is updated by relevance', async () => {
-			expect(
-				await getFirstResultTitle( page ),
-				'First result title should match the most relevant value'
-			).toContain( '<mark>Test2</mark>' );
+			await expectFirstResultTitle( page, '<mark>Test2</mark> Record 1' );
 		} );
 
 		await test.step( 'Can change sort order', async () => {
-			searchResponsePromise = page.waitForResponse( resp => SEARCH_API_PATTERN.test( resp.url() ) );
+			const searchResponsePromise = page.waitForResponse( resp =>
+				SEARCH_API_PATTERN.test( resp.url() )
+			);
 			await page.getByRole( 'button', { name: 'Newest' } ).click();
 			await searchResponsePromise;
 
@@ -128,17 +129,13 @@ test.describe( 'Instant Search', () => {
 				"'newest' sorting link should be selected"
 			).toBeVisible();
 
-			expect(
-				await getFirstResultTitle( page ),
-				`First result title should match the newest value: ${
-					searchResultForTest2.results[ searchResultForTest2.results.length - 1 ].highlight
-						.title[ 0 ]
-				}`
-			).toBe( '<mark>Test2</mark> Record 3' );
+			await expectFirstResultTitle( page, '<mark>Test2</mark> Record 3' );
 
-			searchResponsePromise = page.waitForResponse( resp => SEARCH_API_PATTERN.test( resp.url() ) );
+			const searchResponsePromise2 = page.waitForResponse( resp =>
+				SEARCH_API_PATTERN.test( resp.url() )
+			);
 			await page.getByRole( 'button', { name: 'Oldest' } ).click();
-			await searchResponsePromise;
+			await searchResponsePromise2;
 
 			await expect(
 				page.locator(
@@ -147,31 +144,26 @@ test.describe( 'Instant Search', () => {
 				"'oldest' sorting link should be selected"
 			).toBeVisible();
 
-			expect(
-				await getFirstResultTitle( page ),
-				'First result title should match the oldest value'
-			).toBe( '<mark>Test2</mark> Record 2' );
+			await expectFirstResultTitle( page, '<mark>Test2</mark> Record 2' );
 		} );
 
 		await test.step( 'Can apply filters', async () => {
-			searchResponsePromise = page.waitForResponse( resp => SEARCH_API_PATTERN.test( resp.url() ) );
+			const searchResponsePromise = page.waitForResponse( resp =>
+				SEARCH_API_PATTERN.test( resp.url() )
+			);
 			await page.getByRole( 'checkbox', { name: 'Category 2' } ).check();
 			await searchResponsePromise;
 
-			expect(
-				await getFirstResultTitle( page ),
-				'First result title should match the expected value'
-			).toBe( '<mark>Test2</mark> Record 2' );
+			await expectFirstResultTitle( page, '<mark>Test2</mark> Record 2' );
 
-			searchResponsePromise = page.waitForResponse( resp => SEARCH_API_PATTERN.test( resp.url() ) );
+			const searchResponsePromise2 = page.waitForResponse( resp =>
+				SEARCH_API_PATTERN.test( resp.url() )
+			);
 			await page.getByRole( 'checkbox', { name: 'Category 2' } ).uncheck();
 			await page.getByRole( 'checkbox', { name: 'Tag 3' } ).check();
-			await searchResponsePromise;
+			await searchResponsePromise2;
 
-			expect(
-				await getFirstResultTitle( page ),
-				'First result title should match the expected value'
-			).toBe( '<mark>Test2</mark> Record 3' );
+			await expectFirstResultTitle( page, '<mark>Test2</mark> Record 3' );
 		} );
 
 		await test.step( 'Can close overlay by clicking the cross', async () => {

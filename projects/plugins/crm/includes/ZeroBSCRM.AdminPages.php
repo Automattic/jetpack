@@ -1,6 +1,5 @@
 <?php
 /*
-!
  * Jetpack CRM
  * https://jetpackcrm.com
  * V1.20
@@ -30,16 +29,21 @@ if ( ! defined( 'ZEROBSCRM_PATH' ) ) {
  */
 function jpcrm_load_admin_page( $page_name, $alt_path = ZEROBSCRM_PATH ) {
 
-	$target_file = $alt_path . "admin/$page_name.page.php";
+	$base_dir = realpath( $alt_path . 'admin' );
 
-	if ( file_exists( $target_file ) ) {
+	if ( $base_dir === false ) {
+		echo wp_kses_post( zeroBSCRM_UI2_messageHTML( 'warning', '', __( 'Could not load the requested page.', 'zero-bs-crm' ) ) );
+		return;
+	}
 
+	$base_dir    = rtrim( $base_dir, DIRECTORY_SEPARATOR ) . DIRECTORY_SEPARATOR;
+	$target_file = realpath( "{$base_dir}{$page_name}.page.php" );
+
+	// Check if resolved path exists and stays within allowed base directory.
+	if ( $target_file !== false && strpos( $target_file, $base_dir ) === 0 ) {
 		require_once $target_file;
-
 	} else {
-
-		echo zeroBSCRM_UI2_messageHTML( 'warning', '', __( 'Could not load the requested page.', 'zero-bs-crm' ) );
-
+		echo wp_kses_post( zeroBSCRM_UI2_messageHTML( 'warning', '', __( 'Could not load the requested page.', 'zero-bs-crm' ) ) );
 	}
 }
 
@@ -242,23 +246,21 @@ function zeroBSCRM_pages_admin_deactivate_error() {
 	<?php
 }
 
-// } Team UI page - i.e. to guide vs the wp-users.php
-// } Added this to be able to make it easier for people to add team members to the CRM
-// } Also to control permissions.
-// } WHLOOK - is there a way of us finding out from telemetry how many people are actually using
-// } roles that are like the "customer" only role - as discussed I think our CRM has evolved past this
-// } and we should have users as "CRMTEAM" members, and then "manage permissions" for them (vs the actual specific "role")
+/**
+ * Team UI page - i.e. to guide vs the wp-users.php
+ * Added this to be able to make it easier for people to add team members to the CRM
+ * Also to control permissions.
+ * WHLOOK - is there a way of us finding out from telemetry how many people are actually using
+ * roles that are like the "customer" only role - as discussed I think our CRM has evolved past this
+ * and we should have users as "CRMTEAM" members, and then "manage permissions" for them (vs the actual specific "role")
+ */
 function zeroBSCRM_pages_admin_team() {
 
-	global $ZBSCRM_t,$wpdb;
-
-	// } we can do this via AJAX eventually - but for now lets do it via normal $_POST stuff...
-	$searching_users = false;
-
+	$crm_role_ids = array();
 	// } User Search...
-	if ( isset( $_POST['zbs-search-wp-users'] ) ) {
+	if ( isset( $_POST['jpcrm-search-wp-users'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
 
-		$search   = sanitize_text_field( $_POST['zbs-search-wp-users'] );
+		$search   = sanitize_text_field( $_POST['jpcrm-search-wp-users'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash,WordPress.Security.NonceVerification.Missing
 		$users    = new WP_User_Query(
 			array(
 				'search'         => '*' . esc_attr( $search ) . '*',
@@ -269,106 +271,77 @@ function zeroBSCRM_pages_admin_team() {
 			)
 		);
 		$wp_users = $users->get_results();
-
-		$zbsRoleIDs = array();
 		foreach ( $wp_users as $user ) {
-			$zbsRoleIDs[] = $user->ID;
+			$crm_role_ids[] = $user->ID;
 		}
-
-		$searching_users = true;
-
-		// zbs_prettyprint($users_found);
-
 	} else {
 
 		// Jetpack CRM team roles - tidied since also use in meta tracking
 		$crm_users = zeroBSCRM_crm_users_list();
 		foreach ( $crm_users as $user ) {
-			$zbsRoleIDs[] = $user->ID;
+			$crm_role_ids[] = $user->ID;
 		}
 	}
 
 	?>
-	<script type="text/javascript">
-
-		jQuery(function($){
-
-			jQuery('#zbs-search-wp-users').on("click"){
-				jQuery("#zbs-users-search").submit();
-			}
-
-
-		});
-	</script>
-
-		
-
-
 
 	<div class="ui segment zbs-inner-segment">
-	<div id="zbs-team-mechanics">
+	<div id="jpcrm-team-mechanics">
+		<form id="jpcrm-users-search" action="#" method="POST">
+			<div class="ui icon input" style="width:100%;">
+				<input class="prompt" name="jpcrm-search-wp-users" type="text" placeholder="<?php echo esc_html__( 'Search WordPress users...', 'zero-bs-crm' ); ?>">
+				<i class="search icon" id="jpcrm-search-wp-users"></i>
+			</div>
+		</form>
 
-		<form id="zbs-users-search" action="#" method="POST">
-		<div class="ui search left" style="background:white;width:300px;float:left">
-		<div class="ui icon input" style="width:100%;">
-			<input class="prompt" name="zbs-search-wp-users"  type="text" placeholder="Search WordPress Users...">
-			<i class="search icon" id="zbs-search-wp-users"></i>
-		</div>
-		<div class="results"></div>
-		</div>
-	</form>
-
-
-		<a style="margin-left:10px;" class="ui button black right" href="<?php echo esc_url( admin_url( 'user-new.php?zbsslug=zbs-add-user' ) ); ?>">
-		<i class="add icon"></i> 
-			<?php esc_html_e( 'Add New Team Member', 'zero-bs-crm' ); ?>
+		<a class="ui button black" href="<?php echo esc_url( admin_url( 'user-new.php?zbsslug=zbs-add-user' ) ); ?>">
+			<i class="add icon"></i>
+			<?php esc_html_e( 'Add new team member', 'zero-bs-crm' ); ?>
 		</a>
+
+		<script type="text/javascript">
+			document.getElementById('jpcrm-search-wp-users').addEventListener('click', function() {
+				document.getElementById('jpcrm-users-search').submit();
+			});
+		</script>
 
 	</div>
 
-	<div class='clear'></div>
-
-	<div class="ui divider"></div>
-
-	<table class="ui fixed single line celled table" id="zbs-team-user-table">
-		<tbody>
-		<th style="width:40px;"><?php esc_html_e( 'ID', 'zero-bs-crm' ); ?></th>
-		<th><?php esc_html_e( 'Team member', 'zero-bs-crm' ); ?></th>
-		<th><?php esc_html_e( 'Role', 'zero-bs-crm' ); ?></th>
-		<th><?php esc_html_e( 'Last login', 'zero-bs-crm' ); ?></th>
-		<th><?php esc_html_e( 'Manage permissions', 'zero-bs-crm' ); ?></th>
+	<div id="jpcrm-team-user-table">
+		<div class="fit-col"><?php esc_html_e( 'ID', 'zero-bs-crm' ); ?></div>
+		<div><?php esc_html_e( 'Team member', 'zero-bs-crm' ); ?></div>
+		<div><?php esc_html_e( 'Role', 'zero-bs-crm' ); ?></div>
+		<div><?php esc_html_e( 'Last login', 'zero-bs-crm' ); ?></div>
+		<div><?php esc_html_e( 'Manage permissions', 'zero-bs-crm' ); ?></div>
 		<?php
-		foreach ( $zbsRoleIDs as $ID ) {
-			$user = get_user_by( 'ID', $ID );
+		foreach ( $crm_role_ids as $id ) {
+			$user = get_user_by( 'ID', $id );
 
-			// zbs_prettyprint($user);
-
-			$edit_url = admin_url( 'user-edit.php?user_id=' . $ID . '&zbsslug=zbs-edit-user' );
+			$edit_url = admin_url( 'user-edit.php?user_id=' . $id . '&zbsslug=zbs-edit-user' );
 
 			$caps_output = '';
 			foreach ( $user->caps as $k => $v ) {
 				$caps_output .= ' ' . zeroBSCRM_caps_to_nicename( $k );
 			}
-
-			echo '<tr><td>' . esc_html( $ID ) . '</td><td>' . jpcrm_get_avatar( $ID, 30 ) . "<div class='dn'>" . esc_html( $user->display_name ) . '</div></td><td>' . esc_html( $caps_output ) . '</td>';
-
-			echo '<td>' . esc_html( zeroBSCRM_wpb_lastlogin( $ID ) . ' ' . __( 'ago', 'zero-bs-crm' ) ) . '</td>';
-
-			echo "<td><a href='" . esc_url( $edit_url ) . "'' data-uid='" . esc_attr( $ID ) . "' class='zbs-perm-edit ui button mini black'>"; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-
-			esc_html_e( 'Manage permissions', 'zero-bs-crm' );
-
-			echo '</a></td>';
-
-			echo '</tr>';
-
-			// zbs_prettyprint($user);
+			?>
+			<div class="fit-col"><?php echo esc_html( $id ); ?></div>
+			<div><?php echo jpcrm_get_avatar( $id, 30 ); ?><?php echo esc_html( $user->display_name ); ?></div>
+			<div><?php echo esc_html( $caps_output ); ?></div>
+			<div>
+				<?php
+				// translators: a time string generated by human_time_diff()
+				echo esc_html( sprintf( __( '%s ago', 'zero-bs-crm' ), zeroBSCRM_wpb_lastlogin( $id ) ) );
+				?>
+			</div>
+			<div>
+				<a href="<?php echo esc_url( $edit_url ); ?>" data-uid="<?php echo esc_attr( $id ); ?>" class="zbs-perm-edit ui button mini black">
+					<?php esc_html_e( 'Manage permissions', 'zero-bs-crm' ); ?>
+				</a>
+			</div>
+			<?php
 		}
-
 		?>
-
-		</tbody>
-	</table>
+	</div>
 
 
 		</div>
@@ -1027,22 +1000,22 @@ function zeroBSCRM_pages_admin_system_emails() {
 							if ( $form->zbsmail_active ) {
 								// 1 = active, 0 = inactive..
 								echo '<div class="ui buttons tiny" style="float: right;
-                                        position: absolute;
-                                        top: 19px;
-                                        right: 20px;">
-                                        <button class="ui positive button zbs-turn-active" id="the-positive-button-' . esc_attr( $emailtab ) . '" data-emid="' . esc_attr( $emailtab ) . '">Active</button>
-                                        <div class="or"></div>
-                                        <button class="ui button zbs-turn-inactive" id="active-to-inactive-' . esc_attr( $emailtab ) . '" data-emid="' . esc_attr( $emailtab ) . '">Inactive</button>
-                                      </div>';
+										position: absolute;
+										top: 19px;
+										right: 20px;">
+										<button class="ui positive button zbs-turn-active" id="the-positive-button-' . esc_attr( $emailtab ) . '" data-emid="' . esc_attr( $emailtab ) . '">Active</button>
+										<div class="or"></div>
+										<button class="ui button zbs-turn-inactive" id="active-to-inactive-' . esc_attr( $emailtab ) . '" data-emid="' . esc_attr( $emailtab ) . '">Inactive</button>
+									  </div>';
 							} else {
 								echo '<div class="ui buttons tiny" style="float: right;
-                                        position: absolute;
-                                        top: 19px;
-                                        right: 20px;">
-                                        <button class="ui button zbs-turn-active" id="the-positive-button-' . esc_attr( $emailtab ) . '" data-emid="' . esc_attr( $emailtab ) . '">Active</button>
-                                        <div class="or"></div>
-                                        <button class="ui button zbs-turn-inactive negative" id="active-to-inactive-' . esc_attr( $emailtab ) . '" data-emid="' . esc_attr( $emailtab ) . '">Inactive</button>
-                                      </div>';
+										position: absolute;
+										top: 19px;
+										right: 20px;">
+										<button class="ui button zbs-turn-active" id="the-positive-button-' . esc_attr( $emailtab ) . '" data-emid="' . esc_attr( $emailtab ) . '">Active</button>
+										<div class="or"></div>
+										<button class="ui button zbs-turn-inactive negative" id="active-to-inactive-' . esc_attr( $emailtab ) . '" data-emid="' . esc_attr( $emailtab ) . '">Inactive</button>
+									  </div>';
 							}
 						}
 
@@ -1297,9 +1270,6 @@ function zeroBSCRM_html_home2() {
 	// $add_new_customer_link = admin_url('admin.php?page=zbs-add-edit&action=edit&zbstype=contact');
 	$add_new_customer_link = jpcrm_esc_link( 'create', -1, 'zerobs_customer' );
 
-	// change this to true when ELITE is out
-	$isv3 = false;
-
 	// WH added: Is now polite to License-key based settings like 'entrepreneur' doesn't try and upsell
 	// this might be a bit easy to "hack out" hmmmm
 	$bundle = false;
@@ -1428,11 +1398,7 @@ function zeroBSCRM_html_home2() {
 
 					<div class="feature-block last">
 						<img alt="<?php esc_attr_e( 'Mail Campaigns', 'zero-bs-crm' ); ?>" src="<?php echo esc_url( plugins_url( '/i/mail.png', ZBS_ROOTFILE ) ); ?>">
-			<?php if ( $isv3 ) { ?>
-						<h5><?php esc_html_e( 'Mail Campaigns', 'zero-bs-crm' ); ?><span class='pro-elite'>Elite</span></h5>
-			<?php } else { ?>
 						<h5><?php esc_html_e( 'Mail Campaigns', 'zero-bs-crm' ); ?><span class='pro'>Entrepreneur</span></h5>
-			<?php } ?>
 						<p><?php echo wp_kses( __( 'Send Email Broadcasts and Sequences to your CRM contacts using our <strong>powerful</strong> Mail Campaigns v2.0. which is linked directly into your CRM data!', 'zero-bs-crm' ), $zbs->acceptable_restricted_html ); ?></p>
 					</div>
 
@@ -2114,8 +2080,8 @@ function zeroBSCRM_html_extensions() {
 				usort(
 					$top_woo_extensions,
 					function (
-					$str1,
-					$str2
+						$str1,
+						$str2
 					) {
 						return strcasecmp( $str1->name, $str2->name );
 					}
@@ -2125,8 +2091,8 @@ function zeroBSCRM_html_extensions() {
 			usort(
 				$extensions_to_display,
 				function (
-				$str1,
-				$str2
+					$str1,
+					$str2
 				) {
 					return strcasecmp( $str1->name, $str2->name );
 				}
@@ -2316,7 +2282,7 @@ function jpcrm_html_modules() {
 
 			}
 
-			echo zeroBSCRM_html_msg( 0, $msgHTML );
+			zeroBSCRM_html_msg( 0, $msgHTML ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 		} else {
 
@@ -2326,7 +2292,7 @@ function jpcrm_html_modules() {
 				$errmsg .= '<br />' . __( 'Installer Error:', 'zero-bs-crm' ) . ' ' . $module_messages['error_msg'];
 			}
 
-			echo zeroBSCRM_html_msg( -1, $errmsg );
+			zeroBSCRM_html_msg( -1, $errmsg );
 
 		}
 

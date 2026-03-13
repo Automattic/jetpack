@@ -23,7 +23,7 @@ if ( ! defined( 'ZEROBSCRM_PATH' ) ) {
 
 ================================================================================*/
 
-global $zeroBSCRM_Conf_Setup,$zbs;
+global $zeroBSCRM_Conf_Setup, $zbs;
 
 $zeroBSCRM_Conf_Setup = array(
 
@@ -60,7 +60,7 @@ $zeroBSCRM_Conf_Setup = array(
 ================================================================================*/
 
 // Only declared here, then gets shuttled into $zeroBSCRM_Conf_Setup
-// ... left seperate for ease of reading
+// ... left separate for ease of reading
 // global $zeroBSCRM_Conf_Def;
 $zeroBSCRM_Conf_Def = array(
 

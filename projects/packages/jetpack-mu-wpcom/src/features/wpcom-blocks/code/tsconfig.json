@@ -1,0 +1,11 @@
+{
+	"$schema": "https://json.schemastore.org/tsconfig.json",
+	"files": [],
+	"references": [
+		{ "path": "./tsconfig.block-definition.json" },
+		{ "path": "./tsconfig.block-edit-function.json" },
+		{ "path": "./tsconfig.block-front.json" },
+		{ "path": "./tsconfig.block-worker.json" },
+		{ "path": "./tsconfig.common.json" }
+	]
+}

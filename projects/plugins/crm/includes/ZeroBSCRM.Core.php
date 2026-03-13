@@ -24,7 +24,7 @@ final class ZeroBSCRM {
 	 *
 	 * @var string
 	 */
-	const VERSION = '6.6.1';
+	const VERSION = '6.7.2';
 
 	/**
 	 * Jetpack CRM version (used in various extensions as of January 2025).
@@ -39,7 +39,7 @@ final class ZeroBSCRM {
 	 *
 	 * @var string
 	 */
-	public $wp_tested = '6.8';
+	public $wp_tested = '6.9';
 
 	/**
 	 * WordPress update API version.
@@ -338,7 +338,7 @@ final class ZeroBSCRM {
 	public $encryption = null;
 
 	/**
-	 * Included Array (means we can not 'reinclude' stripe etc.)
+	 * Included Array (means we cannot 'reinclude' stripe etc.)
 	 */
 	public $included = array(
 
@@ -1063,23 +1063,23 @@ final class ZeroBSCRM {
 		// NOTE: DAL3 + these are referenced in DAL2.php so be aware :)
 		// (This helps for generically linking back to list obj etc.)
 		// USE zbsLink!
-		$this->slugs['managecontacts']          = 'manage-customers';
-		$this->slugs['managequotes']            = 'manage-quotes';
-		$this->slugs['manageinvoices']          = 'manage-invoices';
-		$this->slugs['managetransactions']      = 'manage-transactions';
-		$this->slugs['managecompanies']         = 'manage-companies';
-		$this->slugs['manageformscrm']          = 'manage-forms';
-		$this->slugs['segments']                = 'manage-segments';
-		$this->slugs['quote-templates']         = 'manage-quote-templates';
+		$this->slugs['managecontacts']         = 'manage-customers';
+		$this->slugs['managequotes']           = 'manage-quotes';
+		$this->slugs['manageinvoices']         = 'manage-invoices';
+		$this->slugs['managetransactions']     = 'manage-transactions';
+		$this->slugs['managecompanies']        = 'manage-companies';
+		$this->slugs['manageformscrm']         = 'manage-forms';
+		$this->slugs['segments']               = 'manage-segments';
+		$this->slugs['quote-templates']        = 'manage-quote-templates';
 		$this->slugs['manage-tasks']           = 'manage-tasks';
 		$this->slugs['manage-tasks-completed'] = 'manage-tasks-completed';
 		$this->slugs['manage-tasks-list']      = 'manage-tasks-list';
-		$this->slugs['managecontactsprev']      = 'manage-customers-crm';
-		$this->slugs['managequotesprev']        = 'manage-quotes-crm';
-		$this->slugs['managetransactionsprev']  = 'manage-transactions-crm';
-		$this->slugs['manageinvoicesprev']      = 'manage-invoices-crm';
-		$this->slugs['managecompaniesprev']     = 'manage-companies-crm';
-		$this->slugs['manageformscrmprev']      = 'manage-forms-crm';
+		$this->slugs['managecontactsprev']     = 'manage-customers-crm';
+		$this->slugs['managequotesprev']       = 'manage-quotes-crm';
+		$this->slugs['managetransactionsprev'] = 'manage-transactions-crm';
+		$this->slugs['manageinvoicesprev']     = 'manage-invoices-crm';
+		$this->slugs['managecompaniesprev']    = 'manage-companies-crm';
+		$this->slugs['manageformscrmprev']     = 'manage-forms-crm';
 
 		// } NEW UI - ADD or EDIT, SEND EMAIL, NOTIFICATIONS
 		$this->slugs['addedit']  = 'zbs-add-edit';
@@ -2425,7 +2425,7 @@ final class ZeroBSCRM {
 	/**
 	 * Get Globalised ZBS Vars
 	 *
-	 * @return str/int/bool
+	 * @return string|int|bool
 	 */
 	public function zbsvar( $key = '' ) {
 
@@ -2578,7 +2578,7 @@ final class ZeroBSCRM {
 
 		$currentUserID = get_current_user_id();
 
-		if ( ! $pageKey || empty( $pageKey ) ) {
+		if ( ! $pageKey ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 			// actually just use a global for now :) - so just set global $zbs->pageKey on page :)
 			$pageKeyCheck = apply_filters( 'zbs_pagekey', $this->pageKey );

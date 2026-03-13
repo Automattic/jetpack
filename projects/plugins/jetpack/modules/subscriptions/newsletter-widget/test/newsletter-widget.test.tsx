@@ -34,6 +34,9 @@ describe( 'NewsletterWidget', () => {
 				paid: 5,
 			},
 		},
+		showHeader: true,
+		showChart: true,
+		newsletterSettingsUrl: 'https://wordpress.com/settings/newsletter/example.com',
 	};
 
 	it( 'renders', () => {
@@ -51,11 +54,15 @@ describe( 'NewsletterWidget', () => {
 		expect(
 			screen.getByText( `${ defaultProps.paidSubscribers } paid subscribers` )
 		).toBeInTheDocument();
+
+		// Check for chart label
+		expect( screen.getByText( 'Total Subscribers' ) ).toBeInTheDocument();
 	} );
 
 	it( 'renders correct quick links when hosted on WordPress.com', () => {
 		const redirectDomain = 'wordpress.com';
-		render( <NewsletterWidget { ...defaultProps } /> );
+		const newsletterUrl = 'https://wordpress.com/settings/newsletter/example.com';
+		render( <NewsletterWidget { ...defaultProps } newsletterSettingsUrl={ newsletterUrl } /> );
 
 		const expectedLinks = [
 			{
@@ -68,9 +75,7 @@ describe( 'NewsletterWidget', () => {
 			},
 			{
 				text: 'View subscriber stats',
-				href: getRedirectUrl(
-					`https://${ redirectDomain }/stats/subscribers/${ defaultProps.site }`
-				),
+				href: 'https://example.com/wp-admin/admin.php?page=stats#!/stats/subscribers/example.com',
 			},
 			{
 				text: 'Import subscribers',
@@ -88,9 +93,7 @@ describe( 'NewsletterWidget', () => {
 			},
 			{
 				text: 'Newsletter settings',
-				href: getRedirectUrl(
-					`https://${ redirectDomain }/settings/newsletter/${ defaultProps.site }`
-				),
+				href: newsletterUrl,
 			},
 		];
 
@@ -103,8 +106,14 @@ describe( 'NewsletterWidget', () => {
 
 	it( 'renders correct quick links when self-hosted (and stats module is active)', () => {
 		const redirectDomain = 'cloud.jetpack.com';
+		const selfHostedNewsletterUrl = `https://${ defaultProps.site }/wp-admin/admin.php?page=jetpack#/newsletter`;
 		render(
-			<NewsletterWidget { ...defaultProps } isWpcomSite={ false } isStatsModuleActive={ true } />
+			<NewsletterWidget
+				{ ...defaultProps }
+				isWpcomSite={ false }
+				isStatsModuleActive={ true }
+				newsletterSettingsUrl={ selfHostedNewsletterUrl }
+			/>
 		);
 
 		const expectedLinks = [
@@ -136,7 +145,7 @@ describe( 'NewsletterWidget', () => {
 			},
 			{
 				text: 'Newsletter settings',
-				href: `https://${ defaultProps.site }/wp-admin/admin.php?page=jetpack#newsletter`,
+				href: selfHostedNewsletterUrl,
 			},
 		];
 
@@ -147,112 +156,37 @@ describe( 'NewsletterWidget', () => {
 		} );
 	} );
 
+	it( 'renders newsletter settings link with provided URL', () => {
+		const customNewsletterUrl = 'https://example.com/wp-admin/admin.php?page=jetpack-newsletter';
+		render(
+			<NewsletterWidget { ...defaultProps } newsletterSettingsUrl={ customNewsletterUrl } />
+		);
+
+		const link = screen.getByText( 'Newsletter settings' );
+		expect( link ).toHaveAttribute( 'href', customNewsletterUrl );
+	} );
+
+	it( 'does not render newsletter settings link when URL is not provided', () => {
+		render( <NewsletterWidget { ...defaultProps } newsletterSettingsUrl={ undefined } /> );
+
+		expect( screen.queryByText( 'Newsletter settings' ) ).not.toBeInTheDocument();
+	} );
+
 	describe( 'Stats display conditions', () => {
-		it( 'shows stats section when allSubscribers > 0', () => {
-			render(
-				<NewsletterWidget
-					{ ...defaultProps }
-					allSubscribers={ 10 }
-					emailSubscribers={ 0 }
-					paidSubscribers={ 0 }
-				/>
-			);
-
-			expect( screen.getByText( '10 subscribers (0 via email)' ) ).toBeInTheDocument();
-		} );
-
-		it( 'shows stats section when paidSubscribers > 0', () => {
-			render( <NewsletterWidget { ...defaultProps } allSubscribers={ 0 } paidSubscribers={ 5 } /> );
-
-			expect( screen.getByText( '5 paid subscribers' ) ).toBeInTheDocument();
-		} );
-
-		it( 'hides stats section when allSubscribers and paidSubscribers are 0', () => {
-			render(
-				<NewsletterWidget
-					{ ...defaultProps }
-					allSubscribers={ 0 }
-					emailSubscribers={ 0 }
-					paidSubscribers={ 0 }
-				/>
-			);
+		it( 'hides stats when showHeader = false', () => {
+			render( <NewsletterWidget { ...defaultProps } showHeader={ false } /> );
 
 			expect( screen.queryByText( /subscribers \(\d+ via email\)/ ) ).not.toBeInTheDocument();
 
 			expect( screen.queryByText( /paid subscribers/ ) ).not.toBeInTheDocument();
 		} );
-
-		it( 'shows stats section when allSubscribers = 1', () => {
-			render(
-				<NewsletterWidget
-					{ ...defaultProps }
-					allSubscribers={ 1 }
-					emailSubscribers={ 1 }
-					paidSubscribers={ 0 }
-				/>
-			);
-
-			expect( screen.getByText( '1 subscriber (1 via email)' ) ).toBeInTheDocument();
-			expect( screen.getByText( '0 paid subscribers' ) ).toBeInTheDocument();
-		} );
-
-		it( 'shows stats section when paidSubscribers = 1', () => {
-			render(
-				<NewsletterWidget
-					{ ...defaultProps }
-					allSubscribers={ 10 }
-					emailSubscribers={ 7 }
-					paidSubscribers={ 1 }
-				/>
-			);
-
-			expect( screen.getByText( '10 subscribers (7 via email)' ) ).toBeInTheDocument();
-			expect( screen.getByText( '1 paid subscriber' ) ).toBeInTheDocument();
-		} );
 	} );
 
 	describe( 'Chart display conditions', () => {
-		it( 'shows chart when at least one day has a total "all" count >= 5', () => {
+		it( 'hides chart when showChart = false', () => {
 			const props: NewsletterWidgetProps = {
 				...defaultProps,
-				subscriberTotalsByDate: {
-					'2021-01-01': { all: 5, paid: 0 },
-				},
-			};
-
-			render( <NewsletterWidget { ...props } /> );
-			expect( screen.getByText( 'Total Subscribers' ) ).toBeInTheDocument();
-		} );
-
-		it( 'shows chart when at least one day has a total "paid" > 0', () => {
-			const props: NewsletterWidgetProps = {
-				...defaultProps,
-				subscriberTotalsByDate: {
-					'2021-01-01': { all: 0, paid: 1 },
-				},
-			};
-
-			render( <NewsletterWidget { ...props } /> );
-			expect( screen.getByText( 'Total Subscribers' ) ).toBeInTheDocument();
-		} );
-
-		it( 'hides chart when no day has "all" count >= 5 or "paid" count > 0', () => {
-			const props: NewsletterWidgetProps = {
-				...defaultProps,
-				subscriberTotalsByDate: {
-					'2021-01-01': { all: 4, paid: 0 },
-					'2021-01-02': { all: 3, paid: 0 },
-				},
-			};
-
-			render( <NewsletterWidget { ...props } /> );
-			expect( screen.queryByText( 'Total Subscribers' ) ).not.toBeInTheDocument();
-		} );
-
-		it( 'handles empty subscriberTotalsByDate by hiding chart', () => {
-			const props = {
-				...defaultProps,
-				subscriberTotalsByDate: {},
+				showChart: false,
 			};
 
 			render( <NewsletterWidget { ...props } /> );
@@ -261,28 +195,10 @@ describe( 'NewsletterWidget', () => {
 	} );
 
 	describe( 'Stats module inactive behavior', () => {
-		it( 'uses WordPress.com URL for stats URL when stats module is inactive, even if we are on a self-hosted site', () => {
-			render(
-				<NewsletterWidget { ...defaultProps } isWpcomSite={ false } isStatsModuleActive={ false } />
-			);
+		it( 'hides subscriber stats link when stats module is inactive', () => {
+			render( <NewsletterWidget { ...defaultProps } isStatsModuleActive={ false } /> );
 
-			const statsLink = screen.getByText( 'View subscriber stats' );
-			expect( statsLink ).toHaveAttribute(
-				'href',
-				getRedirectUrl( 'https://wordpress.com/stats/subscribers/example.com' )
-			);
-		} );
-
-		it( 'uses WordPress.com for stats URL on WordPress.com site, regardless of stats module status', () => {
-			render(
-				<NewsletterWidget { ...defaultProps } isWpcomSite={ true } isStatsModuleActive={ false } />
-			);
-
-			const statsLink = screen.getByText( 'View subscriber stats' );
-			expect( statsLink ).toHaveAttribute(
-				'href',
-				getRedirectUrl( 'https://wordpress.com/stats/subscribers/example.com' )
-			);
+			expect( screen.queryByText( 'View subscriber stats' ) ).not.toBeInTheDocument();
 		} );
 	} );
 } );

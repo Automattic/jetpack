@@ -1,6 +1,7 @@
 import { useModuleStatus } from '@automattic/jetpack-shared-extension-utils';
 import { render, screen } from '@testing-library/react';
 import { useSelect } from '@wordpress/data';
+import { getEditorType, SITE_EDITOR } from '../../../shared/get-editor-type';
 import RelatedPostsEdit from '../edit';
 import { useRelatedPostsStatus } from '../hooks/use-status-toggle';
 
@@ -72,13 +73,34 @@ jest.mock( '@automattic/jetpack-shared-extension-utils', () => ( {
 
 jest.mock( '../hooks/use-status-toggle' );
 
-jest.mock( '@wordpress/data/build/components/use-select', () => jest.fn() );
+jest.mock( '@wordpress/data', () => {
+	const actual = jest.requireActual( '@wordpress/data' );
+	const mocks = {
+		useSelect: jest.fn(),
+	};
+	return new Proxy( actual, {
+		get( target, property ) {
+			return mocks[ property ] ?? target[ property ];
+		},
+	} );
+} );
+
 useSelect.mockImplementation( cb => {
 	return cb( () => ( {
 		getCurrentPost: jest.fn().mockReturnValueOnce( currentPost ),
 		isFirstMultiSelectedBlock: jest.fn().mockReturnValueOnce( true ),
 		getMultiSelectedBlockClientIds: () => [],
 	} ) );
+} );
+
+jest.mock( '../../../shared/get-editor-type', () => {
+	// eslint-disable-next-line no-shadow
+	const SITE_EDITOR = 'site-editor';
+	return {
+		__esModule: true,
+		SITE_EDITOR,
+		getEditorType: jest.fn( () => 'post-editor' ),
+	};
 } );
 
 jest.mock( '@wordpress/block-editor', () => ( {
@@ -125,6 +147,8 @@ beforeEach( () => {
 		isFetchingStatus: false,
 		isUpdatingStatus: false,
 	} );
+
+	getEditorType.mockReturnValue( 'post-editor' );
 } );
 
 describe( 'RelatedPostsEdit', () => {
@@ -168,6 +192,18 @@ describe( 'RelatedPostsEdit', () => {
 			expect(
 				screen.getByText(
 					"Preview unavailable: you haven't published enough posts with similar content."
+				)
+			).toBeInTheDocument();
+		} );
+		test( 'loads and displays placeholder when there are not enough related posts within Site Editor context', () => {
+			getEditorType.mockReturnValue( SITE_EDITOR );
+			renderRelatedPosts( { postsToShow: 3 } );
+
+			expect( screen.getByText( 'Test Post One' ) ).toBeInTheDocument();
+			expect( screen.getByText( 'Test Post Two' ) ).toBeInTheDocument();
+			expect(
+				screen.getByText(
+					'Preview unavailable in site editor. The post title will appear normally on your site.'
 				)
 			).toBeInTheDocument();
 		} );

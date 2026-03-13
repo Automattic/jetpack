@@ -34,6 +34,23 @@ function wpcomsh_get_wpcom_themes_service_instance(): WPCom_Themes_Service {
 }
 
 /**
+ * Perform necessary checks to remove dot org themes based on the plan and other features.
+ *
+ * @param mixed $res The result object.
+ *
+ * @return mixed|stdClass
+ */
+function wpcomsh_remove_dot_org_themes_based_on_plan( $res ) {
+	if ( ! wpcom_site_has_feature( WPCOM_Features::COMMUNITY_THEMES ) ) {
+		$res->info['results'] = 0;
+		$res->themes          = array();
+	}
+
+	return $res;
+}
+add_filter( 'themes_api_result', 'wpcomsh_remove_dot_org_themes_based_on_plan', 0, 1 );
+
+/**
  * Process the themes API result and add the recommended WPCom themes to the Popular tab.
  *
  * @param mixed  $res    The result object.
@@ -54,7 +71,7 @@ function wpcomsh_popular_wpcom_themes_api_result( $res, string $action, $args ) 
 	// Add results to the resulting array.
 	return $wpcom_themes_service->filter_themes_api_result_recommended( $res );
 }
-add_filter( 'themes_api_result', 'wpcomsh_popular_wpcom_themes_api_result', 0, 3 );
+add_filter( 'themes_api_result', 'wpcomsh_popular_wpcom_themes_api_result', 1, 3 );
 
 /**
  * Process the themes API result and add the latest WPCom themes to the Latest tab.
@@ -77,7 +94,7 @@ function wpcomsh_latest_wpcom_themes_api_result( $res, string $action, $args ) {
 	// Add results to the resulting array.
 	return $wpcom_themes_service->filter_themes_api_result_latest( $res );
 }
-add_filter( 'themes_api_result', 'wpcomsh_latest_wpcom_themes_api_result', 0, 3 );
+add_filter( 'themes_api_result', 'wpcomsh_latest_wpcom_themes_api_result', 1, 3 );
 
 /**
  * Process the themes API result and add the WPCom block themes to the Block themes tab.
@@ -100,7 +117,7 @@ function wpcomsh_block_themes_wpcom_themes_api_result( $res, string $action, $ar
 	// Add results to the resulting array.
 	return $wpcom_themes_service->filter_themes_api_result_block_themes( $res );
 }
-add_filter( 'themes_api_result', 'wpcomsh_block_themes_wpcom_themes_api_result', 0, 3 );
+add_filter( 'themes_api_result', 'wpcomsh_block_themes_wpcom_themes_api_result', 1, 3 );
 
 /**
  * Process the themes API result and add WPCom themes when using the search.
@@ -123,7 +140,7 @@ function wpcomsh_search_wpcom_themes_api_result( $res, string $action, $args ) {
 	// Add results to the resulting array.
 	return $wpcom_themes_service->filter_themes_api_result_search( $res, $search );
 }
-add_filter( 'themes_api_result', 'wpcomsh_search_wpcom_themes_api_result', 0, 3 );
+add_filter( 'themes_api_result', 'wpcomsh_search_wpcom_themes_api_result', 1, 3 );
 
 /**
  * Process the themes API result and add WPCom themes when using the filter feature.
@@ -150,7 +167,7 @@ function wpcomsh_feature_filter_wpcom_themes_api_result( $res, string $action, $
 	// Add results to the resulting array.
 	return $wpcom_themes_service->filter_themes_api_result_feature_filter( $res, $tags );
 }
-add_filter( 'themes_api_result', 'wpcomsh_feature_filter_wpcom_themes_api_result', 0, 3 );
+add_filter( 'themes_api_result', 'wpcomsh_feature_filter_wpcom_themes_api_result', 1, 3 );
 
 /**
  * Process the themes API result theme_information for WPCom themes if needed.
@@ -171,7 +188,7 @@ function wpcomsh_theme_information_wpcom_themes_api_result( $res, string $action
 
 	return $wpcom_themes_service->get_theme( $args->slug ) ?? $res;
 }
-add_filter( 'themes_api_result', 'wpcomsh_theme_information_wpcom_themes_api_result', 0, 3 );
+add_filter( 'themes_api_result', 'wpcomsh_theme_information_wpcom_themes_api_result', 1, 3 );
 
 /**
  * Remove the WP_Error object from the WP_Error object.

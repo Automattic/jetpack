@@ -3,43 +3,48 @@
  */
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { useBreakpointMatch } from '@automattic/jetpack-components';
-import {
-	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
-	__experimentalToggleGroupControl as ToggleGroupControl,
-	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
-	__experimentalToggleGroupControlOption as ToggleGroupControlOption,
-} from '@wordpress/components';
-import { __, _x, sprintf } from '@wordpress/i18n';
+import { formatNumberCompact } from '@automattic/number-formatters';
+import { __, _x } from '@wordpress/i18n';
+import { Badge, Tabs } from '@wordpress/ui';
 import { useCallback } from 'react';
-import { useSearchParams } from 'react-router';
 /**
  * Internal dependencies
  */
-import useInboxData from '../../hooks/use-inbox-data';
+import useInboxData from '../../hooks/use-inbox-data.ts';
+import { useDashboardSearchParams } from '../../router/dashboard-search-params-context.tsx';
 
 /**
- * Returns a formatted tab label with count.
+ * Returns a formatted tab label with count badge.
  *
  * @param {string} label - The label for the tab.
  * @param {number} count - The count to display.
- * @return {string} The formatted label.
+ * @return {JSX.Element} The formatted label with count badge.
  */
-function getTabLabel( label: string, count: number ): string {
-	/* translators: 1: Tab label, 2: Count */
-	return sprintf( __( '%1$s (%2$s)', 'jetpack-forms' ), label, count || 0 );
+function getTabLabel( label: string, count: number ): JSX.Element {
+	return (
+		<span style={ { display: 'flex', gap: '4px', alignItems: 'center' } }>
+			{ label }
+			<Badge intent="draft">{ formatNumberCompact( count || 0 ) }</Badge>
+		</span>
+	);
 }
+
+type InboxStatusToggleProps = {
+	onChange?: ( status: string ) => void;
+};
 
 /**
  * Renders the status toggle for the inbox view.
  *
+ * @param {Function} onChange - The function to call when the status changes.
  * @return {JSX.Element} The status toggle component.
  */
-export default function InboxStatusToggle(): JSX.Element {
-	const [ searchParams, setSearchParams ] = useSearchParams();
+export default function InboxStatusToggle( { onChange }: InboxStatusToggleProps ): JSX.Element {
+	const [ searchParams, setSearchParams ] = useDashboardSearchParams();
 	const status = searchParams.get( 'status' ) || 'inbox';
 	const [ isSm ] = useBreakpointMatch( 'sm' );
 
-	const { totalItemsInbox, totalItemsSpam, totalItemsTrash } = useInboxData();
+	const { totalItemsInbox, totalItemsSpam, totalItemsTrash, setSelectedResponses } = useInboxData();
 
 	const statusTabs = [
 		{ label: getTabLabel( __( 'Inbox', 'jetpack-forms' ), totalItemsInbox ), value: 'inbox' },
@@ -61,32 +66,24 @@ export default function InboxStatusToggle(): JSX.Element {
 			setSearchParams( prev => {
 				const params = new URLSearchParams( prev );
 				params.set( 'status', newStatus );
-
+				params.delete( 'r' ); // Clear selected responses when changing tabs.
 				return params;
 			} );
+			setSelectedResponses( [] );
+			onChange?.( newStatus );
 		},
-		[ setSearchParams, status, isSm ]
+		[ isSm, status, setSearchParams, onChange, setSelectedResponses ]
 	);
 
 	return (
-		<ToggleGroupControl
-			__next40pxDefaultSize
-			__nextHasNoMarginBottom
-			hideLabelFromVision
-			isAdaptiveWidth={ true }
-			isBlock
-			key={ `${ totalItemsInbox ?? 0 }-${ totalItemsSpam ?? 0 }-${ totalItemsTrash ?? 0 }` }
-			label={ __( 'Form responses type', 'jetpack-forms' ) }
-			onChange={ handleChange }
-			value={ status }
-		>
-			{ statusTabs.map( option => (
-				<ToggleGroupControlOption
-					key={ option.value }
-					value={ option.value }
-					label={ option.label }
-				/>
-			) ) }
-		</ToggleGroupControl>
+		<Tabs.Root value={ status } onValueChange={ handleChange }>
+			<Tabs.List variant="minimal">
+				{ statusTabs.map( option => (
+					<Tabs.Tab key={ option.value } value={ option.value }>
+						{ option.label }
+					</Tabs.Tab>
+				) ) }
+			</Tabs.List>
+		</Tabs.Root>
 	);
 }

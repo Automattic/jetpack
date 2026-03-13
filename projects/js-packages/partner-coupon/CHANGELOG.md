@@ -5,6 +5,126 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 1.0.40 - 2026-03-09
+### Changed
+- Switch to Native TypeScript compiler based on Go. [#47375]
+
+## 1.0.39 - 2026-03-02
+### Changed
+- Update dependencies. [#47272]
+
+## 1.0.38 - 2026-02-26
+### Changed
+- Update package dependencies. [#47300]
+
+## 1.0.37 - 2026-02-23
+### Changed
+- Update dependencies. [#47191]
+
+## 1.0.36 - 2026-02-16
+### Changed
+- Update package dependencies. [#47099]
+
+## 1.0.35 - 2026-02-10
+### Changed
+- Update dependencies. [#46931]
+
+## 1.0.34 - 2026-02-02
+### Changed
+- Update package dependencies. [#46854]
+
+## 1.0.33 - 2026-01-26
+### Changed
+- Update dependencies. [#46741]
+
+## 1.0.32 - 2026-01-19
+### Changed
+- Update package dependencies. [#46647]
+
+## 1.0.31 - 2026-01-12
+### Changed
+- Update package dependencies. [#46456]
+
+## 1.0.30 - 2025-12-22
+### Changed
+- Update dependencies. [#46063]
+
+## 1.0.29 - 2025-12-15
+### Changed
+- Update package dependencies. [#46245]
+
+## 1.0.28 - 2025-12-08
+### Changed
+- Update dependencies. [#46063]
+
+## 1.0.27 - 2025-12-01
+### Changed
+- Update package dependencies. [#46143]
+
+## 1.0.26 - 2025-11-24
+### Changed
+- Update dependencies. [#46031]
+
+## 1.0.25 - 2025-11-18
+### Changed
+- Update dependencies. [#45745]
+
+## 1.0.24 - 2025-11-17
+### Changed
+- Update package dependencies. [#45915] [#45958]
+
+## 1.0.23 - 2025-11-10
+### Changed
+- Update dependencies. [#45745]
+
+## 1.0.22 - 2025-11-03
+### Changed
+- Update dependencies. [#45664]
+
+## 1.0.21 - 2025-10-20
+### Changed
+- Update dependencies. [#45488]
+
+## 1.0.20 - 2025-10-06
+### Changed
+- Update package dependencies. [#45334]
+
+## 1.0.19 - 2025-09-22
+### Changed
+- Update dependencies. [#44940]
+
+## 1.0.18 - 2025-09-19
+### Changed
+- Update package dependencies. [#45229]
+
+## 1.0.17 - 2025-09-15
+### Changed
+- Update dependencies. [#44940]
+
+## 1.0.16 - 2025-09-08
+### Changed
+- Update package dependencies. [#45027]
+
+## 1.0.15 - 2025-09-01
+### Changed
+- Update dependencies. [#44940]
+
+## 1.0.14 - 2025-08-25
+### Changed
+- Update dependencies. [#44934]
+
+## 1.0.13 - 2025-08-18
+### Changed
+- Update dependencies. [#44615]
+
+## 1.0.12 - 2025-08-14
+### Changed
+- Update package dependencies. [#44701]
+
+## 1.0.11 - 2025-08-11
+### Changed
+- Update package dependencies. [#44677]
+
 ## 1.0.10 - 2025-08-04
 ### Changed
 - Update dependencies. [#44551]

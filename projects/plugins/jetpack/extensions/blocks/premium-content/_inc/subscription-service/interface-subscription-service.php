@@ -13,6 +13,10 @@
 
 namespace Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 interface Subscription_Service {
 
 	/**

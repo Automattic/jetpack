@@ -1,6 +1,6 @@
 <?php
 /**
- * Stubs automatically generated from Akismet 5.5
+ * Stubs automatically generated from Akismet 5.6
  * using the definition file `tools/stubs/akismet-stub-defs.php` in the Jetpack monorepo.
  *
  * Do not edit this directly! Run tools/stubs/update-stubs.sh to regenerate it.
@@ -24,7 +24,7 @@ class Akismet
     }
     /**
      * Get the full comment history for a given comment, as an array in reverse chronological order.
-     * Each entry will have an 'event', a 'time', and possible a 'message' member (if the entry is old enough).
+     * Each entry will have an 'event', a 'time', and possibly a 'message' member (if the entry is old enough).
      * Some entries will also have a 'user' or 'meta' member.
      *
      * @param int $comment_id The relevant comment ID.
@@ -59,6 +59,20 @@ class Akismet_Admin
     public static function admin_menu()
     {
     }
+    /**
+     * Get Akismet user subscription information.
+     *
+     * @param string $api_key The Akismet API key.
+     * @return object|false Object with subscription info, or false if key is invalid or has no subscription.
+     *
+     * The returned object contains these properties:
+     * - account_id (int|false): WordPress.com user ID, or false if unavailable.
+     * - status (string): Account status - 'active', 'active-dunning', 'no-sub', 'cancelled', 'suspended', 'missing', or 'notice'.
+     * - account_name (string): Subscription plan display name.
+     * - account_type (string): Account type slug.
+     * - next_billing_date (int|false): Unix timestamp of next billing date, or false if none.
+     * - limit_reached (bool): Whether the usage limit has been reached.
+     */
     public static function get_akismet_user($api_key)
     {
     }

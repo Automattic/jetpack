@@ -12,7 +12,15 @@
  */
 
 use Automattic\Block_Scanner;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Current_Plan;
+use Automattic\Jetpack\Post_Media\Images;
+use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
 
 add_action( 'wp_head', 'jetpack_og_tags' );
 add_action( 'web_stories_story_head', 'jetpack_og_tags' );
@@ -326,12 +334,12 @@ function jetpack_og_get_image( $width = 200, $height = 200, $deprecated = null )
 		// Grab obvious image if post is an attachment page for an image.
 		if ( is_attachment( get_the_ID() ) && str_starts_with( get_post_mime_type(), 'image' ) ) {
 			$image['src']      = wp_get_attachment_url( get_the_ID() );
-			$image['alt_text'] = Jetpack_PostImages::get_alt_text( get_the_ID() );
+			$image['alt_text'] = Images::get_alt_text( get_the_ID() );
 		}
 
 		// Attempt to find something good for this post using our generalized PostImages code.
-		if ( empty( $image ) && class_exists( 'Jetpack_PostImages' ) ) {
-			$post_image = Jetpack_PostImages::get_image(
+		if ( empty( $image ) ) {
+			$post_image = Images::get_image(
 				get_the_ID(),
 				array(
 					'width'  => $width,
@@ -408,35 +416,64 @@ function jetpack_og_get_fallback_social_image( $width, $height ) {
 
 	// Let's get the site's representative image.
 	$site_image = jetpack_og_get_site_image( $width, $height );
+
+	/**
+	 * Define your own site's representative image,
+	 * to override any fallback image found by looking through site's logo, site icon, and blavatar.
+	 * This will allow you to overwrite the default fallback image generated dynamically.
+	 *
+	 * @since 15.0
+	 *
+	 * @param array $site_image Your own site's representative image.
+	 * @param array $site_image The site's representative image picked by Jetpack. {
+	 *     @type string $src    The source of the image.
+	 *     @type int    $width  The width of the image.
+	 *     @type int    $height The height of the image.
+	 *     @type string $type   The type of the image.
+	 * }
+	 */
+	$custom_site_image = apply_filters( 'jetpack_og_default_site_image', array(), $site_image );
+	if ( ! empty( $custom_site_image['src'] ) ) {
+		return $custom_site_image;
+	}
+
 	if ( empty( $site_image['src'] ) ) {
 		// When using the default blank image, use a different template in Social Image Generator.
 		$template          = 'highway';
 		$site_image['src'] = jetpack_og_get_site_fallback_blank_image();
 	}
 
-	/**
-	 * Allow filtering the template to use with Social Image Generator.
-	 * Available templates: highway, dois, fullscreen, edge.
-	 *
-	 * @since 14.9
-	 *
-	 * @param string $template The template to use.
-	 */
-	$template = apply_filters( 'jetpack_og_fallback_social_image_template', $template );
-
-	// Let's generate the image.
-	$image = jetpack_og_generate_fallback_social_image( $site_image, $template );
-
-	// Final fallback if everything else fails, the blank image.
-	if ( empty( $image['src'] ) ) {
-		return array(
-			'src'    => jetpack_og_get_site_fallback_blank_image(),
-			'width'  => $width,
-			'height' => $height,
-		);
+	// Return the site image if we are in offline mode instead of attempting to generate a dynamic one.
+	if ( ( new Status() )->is_offline_mode() ) {
+		return $site_image;
 	}
 
-	return $image;
+	/*
+	 * Only attempt to generate a dynamic fallback image
+	 * if we have a healthy connection to WPCOM.
+	 * and if the site has the right plan.
+	 */
+	if (
+		( ( new Host() )->is_wpcom_simple()
+		|| ( new Connection_Manager() )->is_connected()
+		)
+		&& Current_Plan::supports( 'social-image-generator' )
+	) {
+		/**
+		 * Allow filtering the template to use with Social Image Generator.
+		 * Available templates: highway, dois, fullscreen, edge.
+		 *
+		 * @since 14.9
+		 *
+		 * @param string $template The template to use.
+		 */
+		$template = apply_filters( 'jetpack_og_fallback_social_image_template', $template );
+
+		// Let's generate the image.
+		$site_image = jetpack_og_generate_fallback_social_image( $site_image, $template );
+	}
+
+	return $site_image;
 }
 
 /**
@@ -498,7 +535,7 @@ function jetpack_og_get_site_image( $width, $height ) {
 				'src'      => $sl_details[0],
 				'width'    => $sl_details[1],
 				'height'   => $sl_details[2],
-				'alt_text' => Jetpack_PostImages::get_alt_text( $custom_logo_id ),
+				'alt_text' => Images::get_alt_text( $custom_logo_id ),
 			);
 		}
 	}
@@ -600,8 +637,18 @@ function jetpack_og_get_social_image_token( $site_title, $image_url, $template )
 
 	$token = \Automattic\Jetpack\Publicize\Social_Image_Generator\fetch_token( $site_title, $image_url, $template );
 
-	// If we have a token, cache it for a day.
-	if ( ! is_wp_error( $token ) ) {
+	/*
+	 * We want to cache 2 types of responses:
+	 * - Successful responses with a token.
+	 * - WP_Error responses that denote a WordPress.com connection issue.
+	 */
+	if (
+		! is_wp_error( $token )
+		|| (
+			is_wp_error( $token )
+			&& 'invalid_user_permission_publicize' === $token->get_error_code()
+		)
+	) {
 		set_transient( $transient_name, $token, DAY_IN_SECONDS );
 	}
 
@@ -778,6 +825,11 @@ function jetpack_og_get_description( $description = '', $data = null ) {
  * @return string The description with wp:query blocks removed.
  */
 function jetpack_og_remove_query_blocks( $description ) {
+	// Handle non-string input
+	if ( ! is_string( $description ) ) {
+		return '';
+	}
+
 	$output         = '';
 	$offset         = 0;
 	$depth          = 0;
