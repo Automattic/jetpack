@@ -202,6 +202,27 @@ class Admin_Menu_Test extends TestCase {
 	}
 
 	/**
+	 * Upgrade item is shown when is_free is explicitly true.
+	 *
+	 * @return void
+	 */
+	public function test_upgrade_menu_item_shown_when_is_free_true() {
+		wp_set_current_user( self::$admin_user_id );
+		update_option(
+			'jetpack_active_plan',
+			array(
+				'product_slug' => 'jetpack_free',
+				'is_free'      => true,
+			)
+		);
+
+		Admin_Menu::init();
+		do_action( 'admin_menu' );
+
+		$this->assertUpgradeMenuItemPresent();
+	}
+
+	/**
 	 * Upgrade item is absent when the site has a paid plan.
 	 *
 	 * @return void
@@ -209,6 +230,71 @@ class Admin_Menu_Test extends TestCase {
 	public function test_upgrade_menu_item_hidden_for_paid_plan() {
 		wp_set_current_user( self::$admin_user_id );
 		update_option( 'jetpack_active_plan', array( 'class' => 'security' ) );
+
+		Admin_Menu::init();
+		do_action( 'admin_menu' );
+
+		$this->assertUpgradeMenuItemAbsent();
+	}
+
+	/**
+	 * Upgrade item is absent when the plan has is_free field set to false.
+	 *
+	 * Tests the real-world data structure where plan option includes is_free field.
+	 *
+	 * @return void
+	 */
+	public function test_upgrade_menu_item_hidden_when_is_free_false() {
+		wp_set_current_user( self::$admin_user_id );
+		update_option(
+			'jetpack_active_plan',
+			array(
+				'product_slug' => 'jetpack_complete',
+				'is_free'      => false,
+			)
+		);
+
+		Admin_Menu::init();
+		do_action( 'admin_menu' );
+
+		$this->assertUpgradeMenuItemAbsent();
+	}
+
+	/**
+	 * Upgrade item is absent when product_slug indicates a paid plan.
+	 *
+	 * @return void
+	 */
+	public function test_upgrade_menu_item_hidden_for_paid_product_slug() {
+		wp_set_current_user( self::$admin_user_id );
+		update_option(
+			'jetpack_active_plan',
+			array(
+				'product_slug' => 'jetpack_security_daily',
+			)
+		);
+
+		Admin_Menu::init();
+		do_action( 'admin_menu' );
+
+		$this->assertUpgradeMenuItemAbsent();
+	}
+
+	/**
+	 * Upgrade item is absent when site has products from attached licenses.
+	 *
+	 * @return void
+	 */
+	public function test_upgrade_menu_item_hidden_when_site_has_products() {
+		wp_set_current_user( self::$admin_user_id );
+		update_option(
+			'jetpack_site_products',
+			array(
+				array(
+					'product_slug' => 'jetpack_backup_daily',
+				),
+			)
+		);
 
 		Admin_Menu::init();
 		do_action( 'admin_menu' );
@@ -238,6 +324,8 @@ class Admin_Menu_Test extends TestCase {
 	 * @return void
 	 */
 	public function test_upgrade_menu_item_styles_output_for_free_plan() {
+		wp_set_current_user( self::$admin_user_id );
+
 		ob_start();
 		Admin_Menu::add_upgrade_menu_item_styles();
 		$output = ob_get_clean();
@@ -252,7 +340,53 @@ class Admin_Menu_Test extends TestCase {
 	 * @return void
 	 */
 	public function test_upgrade_menu_item_styles_no_output_for_paid_plan() {
+		wp_set_current_user( self::$admin_user_id );
 		update_option( 'jetpack_active_plan', array( 'class' => 'premium' ) );
+
+		ob_start();
+		Admin_Menu::add_upgrade_menu_item_styles();
+		$output = ob_get_clean();
+
+		$this->assertSame( '', $output );
+	}
+
+	/**
+	 * No CSS output when is_free is false.
+	 *
+	 * @return void
+	 */
+	public function test_upgrade_menu_item_styles_no_output_when_is_free_false() {
+		wp_set_current_user( self::$admin_user_id );
+		update_option(
+			'jetpack_active_plan',
+			array(
+				'product_slug' => 'jetpack_complete',
+				'is_free'      => false,
+			)
+		);
+
+		ob_start();
+		Admin_Menu::add_upgrade_menu_item_styles();
+		$output = ob_get_clean();
+
+		$this->assertSame( '', $output );
+	}
+
+	/**
+	 * No CSS output when site has products.
+	 *
+	 * @return void
+	 */
+	public function test_upgrade_menu_item_styles_no_output_when_site_has_products() {
+		wp_set_current_user( self::$admin_user_id );
+		update_option(
+			'jetpack_site_products',
+			array(
+				array(
+					'product_slug' => 'jetpack_backup_daily',
+				),
+			)
+		);
 
 		ob_start();
 		Admin_Menu::add_upgrade_menu_item_styles();
