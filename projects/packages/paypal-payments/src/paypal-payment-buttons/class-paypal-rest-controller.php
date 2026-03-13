@@ -78,7 +78,7 @@ class PayPal_REST_Controller {
 						'environment'   => array(
 							'required'          => false,
 							'type'              => 'string',
-							'default'           => 'sandbox',
+							'default'           => 'production',
 							'enum'              => array( 'sandbox', 'production' ),
 							'sanitize_callback' => 'sanitize_text_field',
 							'description'       => __( 'PayPal environment: sandbox or production.', 'jetpack-paypal-payments' ),

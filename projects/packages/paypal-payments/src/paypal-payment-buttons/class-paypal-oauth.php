@@ -77,10 +77,10 @@ class PayPal_OAuth {
 	/**
 	 * Get the current PayPal API environment.
 	 *
-	 * @return string 'sandbox' or 'production'. Defaults to 'sandbox'.
+	 * @return string 'sandbox' or 'production'. Defaults to 'production'.
 	 */
 	public static function get_environment() {
-		return get_option( self::ENVIRONMENT_OPTION_KEY, 'sandbox' );
+		return get_option( self::ENVIRONMENT_OPTION_KEY, 'production' );
 	}
 
 	/**
