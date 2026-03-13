@@ -4,6 +4,7 @@
 	"private": true,
 	"dependencies": {
 		"@automattic/jetpack-components": "workspace:*",
+		"@automattic/number-formatters": "workspace:*",
 		"@types/react": "18.3.28",
 		"@wordpress/admin-ui": "1.9.0",
 		"@wordpress/api-fetch": "7.41.0",

@@ -477,7 +477,7 @@ function StageInner() {
 							__( '(no title)', 'jetpack-forms' ),
 					} )
 				),
-				...( isSingleFormView ? {} : { filterBy: { operators: [ 'is' ] as Operator[] } } ),
+				filterBy: isSingleFormView ? false : { operators: [ 'is' ] as Operator[] },
 				enableSorting: false,
 			},
 			{
