@@ -1,4 +1,4 @@
 Significance: patch
-Type: removed
+Type: deprecated
 
-Remove legacy polldaddy plugin feedback menu creation code.
+Deprecate admin_menu() function as feedback menu management is no longer needed.
