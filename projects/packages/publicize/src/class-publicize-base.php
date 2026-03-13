@@ -1487,11 +1487,6 @@ abstract class Publicize_Base {
 
 		$labels = array();
 		foreach ( $services as $service_name => $display_names ) {
-			// Twitter connections do not trigger Publicize anymore. Skip.
-			if ( 'Twitter' === $service_name ) {
-				continue;
-			}
-
 			$labels[] = sprintf(
 				/* translators: Service name is %1$s, and account name is %2$s. */
 				esc_html__( '%1$s (%2$s)', 'jetpack-publicize-pkg' ),
