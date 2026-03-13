@@ -74,6 +74,8 @@ export function useCreateSyncedFormOnInsertion( {
 
 		hasAttemptedCreation.current = true;
 
+		let cancelled = false;
+
 		( async () => {
 			try {
 				const name = attributes.variationName as string | undefined;
@@ -89,9 +91,21 @@ export function useCreateSyncedFormOnInsertion( {
 
 				const formId = await createSyncedForm( formBlock, formTitle, Number( currentPostId ) );
 
-				// Preload the entity record into the cache before setting ref
+				if ( cancelled ) {
+					return;
+				}
+
+				// Best-effort preload of the entity record into the cache before setting ref
 				// to prevent the form from showing a loading skeleton.
-				await resolveSelect( coreStore ).getEntityRecord( 'postType', FORM_POST_TYPE, formId );
+				try {
+					await resolveSelect( coreStore ).getEntityRecord( 'postType', FORM_POST_TYPE, formId );
+				} catch {
+					// Preload failed; the form will show a brief loading state.
+				}
+
+				if ( cancelled ) {
+					return;
+				}
 
 				setAttributes( { ref: formId } );
 
@@ -100,6 +114,10 @@ export function useCreateSyncedFormOnInsertion( {
 					isDismissible: true,
 				} );
 			} catch ( error ) {
+				if ( cancelled ) {
+					return;
+				}
+
 				// eslint-disable-next-line no-console
 				console.error( 'Failed to create synced form on insertion:', error );
 				createErrorNotice(
@@ -111,6 +129,10 @@ export function useCreateSyncedFormOnInsertion( {
 				);
 			}
 		} )();
+
+		return () => {
+			cancelled = true;
+		};
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [] );
 }

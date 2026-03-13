@@ -101,10 +101,12 @@ await jest.unstable_mockModule( '../../../src/blocks/contact-form/variations.js'
 		{
 			name: 'contact-form',
 			title: 'Contact Form',
+			attributes: { variationName: 'default' },
 		},
 		{
 			name: 'rsvp-form',
 			title: 'RSVP Form',
+			attributes: { variationName: 'rsvp-form' },
 		},
 	],
 } ) );
@@ -123,7 +125,7 @@ describe( 'useCreateSyncedFormOnInsertion', () => {
 			{ name: 'jetpack/field-textarea', innerBlocks: [] },
 			{ name: 'core/button', innerBlocks: [] },
 		],
-		attributes: { variationName: 'contact-form' },
+		attributes: { variationName: 'default' },
 		setAttributes: mockSetAttributes,
 	};
 
@@ -251,6 +253,19 @@ describe( 'useCreateSyncedFormOnInsertion', () => {
 		consoleSpy.mockRestore();
 	} );
 
+	it( 'still sets ref when entity preload fails', async () => {
+		mockGetEntityRecord.mockRejectedValue( new Error( 'Network error' ) );
+
+		renderHook( () => useCreateSyncedFormOnInsertion( defaultProps ) );
+
+		await waitFor( () => {
+			expect( mockSetAttributes ).toHaveBeenCalledWith( { ref: 42 } );
+		} );
+
+		expect( mockCreateSuccessNotice ).toHaveBeenCalled();
+		expect( mockCreateErrorNotice ).not.toHaveBeenCalled();
+	} );
+
 	it( 'does not create synced form when block was not just inserted', async () => {
 		mockWasBlockJustInserted = false;
 
@@ -278,11 +293,24 @@ describe( 'useCreateSyncedFormOnInsertion', () => {
 		} );
 	} );
 
-	it( 'falls back to generic Form title when no variationName', async () => {
+	it( 'does not create synced form when no variationName', async () => {
 		renderHook( () =>
 			useCreateSyncedFormOnInsertion( {
 				...defaultProps,
 				attributes: {},
+			} )
+		);
+
+		await act( () => Promise.resolve() );
+
+		expect( mockCreateSyncedForm ).not.toHaveBeenCalled();
+	} );
+
+	it( 'falls back to generic Form title when variationName does not match a variation', async () => {
+		renderHook( () =>
+			useCreateSyncedFormOnInsertion( {
+				...defaultProps,
+				attributes: { variationName: 'unknown-variation' },
 			} )
 		);
 
