@@ -108,34 +108,40 @@ function NewsletterEditorSettingsPanel( { accessLevel } ) {
 	);
 }
 
-const NewsletterDisabledNotice = () => (
-	<Notice status="info" isDismissible={ false } className="edit-post-post-visibility__notice">
-		{ __( 'You will be able to send newsletters once the site is published', 'jetpack' ) }
-	</Notice>
-);
+const NewsletterDisabledNotice = ( isComingSoonEnabled = false ) => {
+	const message = isComingSoonEnabled
+		? __( 'You will be able to send newsletters once the site is published', 'jetpack' )
+		: __( 'Emails will not be sent to subscribers while the site is private', 'jetpack', 0 ); // 0 dummy arg to prevent bad minification
 
-const NewsletterDisabledPanels = () => (
+	return (
+		<Notice status="info" isDismissible={ false } className="edit-post-post-visibility__notice">
+			{ message }
+		</Notice>
+	);
+};
+
+const NewsletterDisabledPanels = ( isComingSoonEnabled = false ) => (
 	<>
 		<PluginDocumentSettingPanel
 			className="jetpack-subscribe-newsletters-panel"
 			title={ __( 'Access', 'jetpack' ) }
 			icon={ <JetpackEditorPanelLogo /> }
 		>
-			<NewsletterDisabledNotice />
+			<NewsletterDisabledNotice isComingSoonEnabled={ isComingSoonEnabled } />
 		</PluginDocumentSettingPanel>
 		<PluginPrePublishPanel
 			className="jetpack-subscribe-newsletters-panel"
 			title={ __( 'Newsletter', 'jetpack' ) }
 			icon={ <JetpackEditorPanelLogo /> }
 		>
-			<NewsletterDisabledNotice />
+			<NewsletterDisabledNotice isComingSoonEnabled={ isComingSoonEnabled } />
 		</PluginPrePublishPanel>
 		<PluginPostPublishPanel
 			className="jetpack-subscribe-newsletters-panel"
 			title={ __( 'Newsletter', 'jetpack' ) }
 			icon={ <JetpackEditorPanelLogo /> }
 		>
-			<NewsletterDisabledNotice />
+			<NewsletterDisabledNotice isComingSoonEnabled={ isComingSoonEnabled } />
 		</PluginPostPublishPanel>
 	</>
 );
@@ -259,7 +265,7 @@ export default function SubscribePanels() {
 	// Subscriptions will not be triggered on private sites ( on WordPress.com simple and WoA ),
 	// nor on sites that have not been launched yet.
 	if ( isPrivateSite() || isComingSoon() ) {
-		return <NewsletterDisabledPanels />;
+		return <NewsletterDisabledPanels isComingSoonEnabled={ isComingSoon() } />;
 	}
 
 	return (
