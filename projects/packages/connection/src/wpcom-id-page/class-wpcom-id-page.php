@@ -57,8 +57,8 @@ class Wpcom_Id_Page {
 		$registry->register(
 			'wordpress_com',
 			array(
-				'name'           => __( 'WordPress.com ID', 'jetpack-connection' ),
-				'description'    => __( 'Connect your site to WordPress.com for enhanced functionality, Jetpack services, and centralized management.', 'jetpack-connection' ),
+				'name'           => __( 'WordPress.com account', 'jetpack-connection' ),
+				'description'    => __( 'Connect your site to WordPress.com for enhanced functionality, Jetpack and WooCommerceservices, and centralized management.', 'jetpack-connection' ),
 				'type'           => 'ai_provider',
 				'logo_url'       => plugins_url( 'images/wpcom-logo.svg', __FILE__ ),
 				'authentication' => array(
