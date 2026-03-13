@@ -94,6 +94,43 @@ class PayPal_Payment_Buttons {
 	public function register_standalone_script_stubs() {
 		if ( ! wp_script_is( 'jetpack-script-data', 'registered' ) ) {
 			wp_register_script( 'jetpack-script-data', false, array(), '1.0.0', false );
+
+			// The webpack build externalizes @automattic/jetpack-script-data to
+			// window.JetpackScriptDataModule (UMD global). The module's getScriptData()
+			// returns window.JetpackScriptData. Without these globals the editor.js
+			// bundle crashes at module init time in connection/state/store.jsx.
+			$current_user = wp_get_current_user();
+			$script_data  = wp_json_encode(
+				array(
+					'site' => array(
+						'icon'       => get_site_icon_url(),
+						'title'      => get_bloginfo( 'name' ),
+						'admin_url'  => admin_url(),
+						'rest_root'  => esc_url_raw( rest_url() ),
+						'rest_nonce' => wp_create_nonce( 'wp_rest' ),
+						'wp_version' => get_bloginfo( 'version' ),
+					),
+					'user' => array(
+						'current_user' => array(
+							'id'           => $current_user->ID,
+							'display_name' => $current_user->display_name,
+							'capabilities' => array(
+								'manage_options' => current_user_can( 'manage_options' ),
+								'manage_modules' => current_user_can( 'manage_options' ),
+							),
+						),
+					),
+				),
+				JSON_HEX_TAG | JSON_HEX_AMP
+			);
+
+			$inline_js = sprintf(
+				'window.JetpackScriptData = %s;'
+				. 'window.JetpackScriptDataModule = { getScriptData: function() { return window.JetpackScriptData; } };',
+				$script_data
+			);
+
+			wp_add_inline_script( 'jetpack-script-data', $inline_js, 'before' );
 		}
 	}
 
