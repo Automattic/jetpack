@@ -333,6 +333,28 @@ class Gutenberg_RTC_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Tests that the inline script data does not include pinghubJWTToken when assets are enqueued.
+	 */
+	public function test_wpcom_enqueue_gutenberg_rtc_assets_does_not_include_jwt_token() {
+		add_filter( 'wpcom_is_gutenberg_rtc_enabled', '__return_true' );
+		add_filter(
+			'wpcom_gutenberg_rtc_providers',
+			function () {
+				return array( 'pinghub' );
+			}
+		);
+
+		wpcom_enqueue_gutenberg_rtc_assets();
+
+		$handle = 'jetpack-mu-wpcom-gutenberg-rtc';
+		$this->assertTrue( wp_script_is( $handle, 'enqueued' ) );
+
+		// Ensure the inline script does NOT contain pinghubJWTToken.
+		$inline_script = wp_scripts()->get_inline_script_data( $handle, 'before' );
+		$this->assertStringNotContainsString( 'pinghubJWTToken', $inline_script );
+	}
+
+	/**
 	 * Tests that wpcom_unregister_rtc_setting does not error when settings fields are not set.
 	 */
 	public function test_wpcom_unregister_rtc_setting_handles_missing_fields() {
