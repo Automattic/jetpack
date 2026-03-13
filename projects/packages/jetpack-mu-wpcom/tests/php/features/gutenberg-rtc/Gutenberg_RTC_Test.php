@@ -522,11 +522,11 @@ class Gutenberg_RTC_Test extends \WorDBless\BaseTestCase {
 		add_filter(
 			'wpcom_rtc_max_collaborators',
 			function () {
-				return 2;
+				return 4;
 			}
 		);
 
-		$this->assertSame( 2, wpcom_rtc_get_max_collaborators() );
+		$this->assertSame( 4, wpcom_rtc_get_max_collaborators() );
 	}
 
 	/**

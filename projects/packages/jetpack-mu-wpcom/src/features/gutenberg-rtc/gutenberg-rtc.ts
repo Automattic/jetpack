@@ -52,7 +52,7 @@ function registerRoomLimitMiddleware(): void {
 		next( options ).then( ( response: unknown ) => {
 			const path = typeof options.path === 'string' ? options.path : '';
 
-			if ( path !== SYNC_UPDATES_PATH || ! isResponseLike( response ) ) {
+			if ( ! path.startsWith( SYNC_UPDATES_PATH ) || ! isResponseLike( response ) ) {
 				return response;
 			}
 
