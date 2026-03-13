@@ -108,10 +108,10 @@ function NewsletterEditorSettingsPanel( { accessLevel } ) {
 	);
 }
 
-const NewsletterDisabledNotice = ( { isComingSoonEnabled = false } ) => {
-	const message = isComingSoonEnabled
-		? __( 'You will be able to send newsletters once the site is published', 'jetpack' )
-	if ( ! isComingSoon() && ! isPrivateSite() ) {
+const isNewsletterDisabled = () => isComingSoon() || isPrivateSite();
+
+const NewsletterDisabledNotice = () => {
+	if ( ! isNewsletterDisabled() ) {
 		return null;
 	}
 
@@ -129,28 +129,28 @@ const NewsletterDisabledNotice = ( { isComingSoonEnabled = false } ) => {
 	);
 };
 
-const NewsletterDisabledPanels = ( { isComingSoonEnabled = false } ) => (
+const NewsletterDisabledPanels = () => (
 	<>
 		<PluginDocumentSettingPanel
 			className="jetpack-subscribe-newsletters-panel"
 			title={ __( 'Access', 'jetpack' ) }
 			icon={ <JetpackEditorPanelLogo /> }
 		>
-			<NewsletterDisabledNotice isComingSoonEnabled={ isComingSoonEnabled } />
+			<NewsletterDisabledNotice />
 		</PluginDocumentSettingPanel>
 		<PluginPrePublishPanel
 			className="jetpack-subscribe-newsletters-panel"
 			title={ __( 'Newsletter', 'jetpack' ) }
 			icon={ <JetpackEditorPanelLogo /> }
 		>
-			<NewsletterDisabledNotice isComingSoonEnabled={ isComingSoonEnabled } />
+			<NewsletterDisabledNotice />
 		</PluginPrePublishPanel>
 		<PluginPostPublishPanel
 			className="jetpack-subscribe-newsletters-panel"
 			title={ __( 'Newsletter', 'jetpack' ) }
 			icon={ <JetpackEditorPanelLogo /> }
 		>
-			<NewsletterDisabledNotice isComingSoonEnabled={ isComingSoonEnabled } />
+			<NewsletterDisabledNotice />
 		</PluginPostPublishPanel>
 	</>
 );
@@ -273,8 +273,8 @@ export default function SubscribePanels() {
 
 	// Subscriptions will not be triggered on private sites ( on WordPress.com simple and WoA ),
 	// nor on sites that have not been launched yet.
-	if ( isPrivateSite() || isComingSoon() ) {
-		return <NewsletterDisabledPanels isComingSoonEnabled={ isComingSoon() } />;
+	if ( isNewsletterDisabled() ) {
+		return <NewsletterDisabledPanels />;
 	}
 
 	return (
