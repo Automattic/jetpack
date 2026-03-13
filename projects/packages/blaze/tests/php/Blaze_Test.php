@@ -37,6 +37,13 @@ class Blaze_Test extends BaseTestCase {
 	 * Set up before each test.
 	 */
 	public function set_up() {
+		// Reset admin menu globals to avoid state leakage between tests.
+		global $menu, $submenu, $_parent_pages, $_registered_pages;
+		$menu              = array();
+		$submenu           = array();
+		$_parent_pages     = array();
+		$_registered_pages = array();
+
 		$this->admin_id = wp_insert_user(
 			array(
 				'user_login' => 'dummy_user',
