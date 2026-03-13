@@ -236,7 +236,6 @@ class Contact_Form_Plugin {
 			add_action( 'wp_ajax_create_new_form', array( $this, 'create_new_form' ) );
 			add_action( 'wp_ajax_grunion_export_to_gdrive', array( $this, 'export_to_gdrive' ) );
 		}
-		add_action( 'admin_menu', array( $this, 'admin_menu' ) );
 		add_action( 'current_screen', array( $this, 'unread_count' ) );
 		add_action( 'current_screen', array( $this, 'redirect_edit_feedback_to_jetpack_forms' ) );
 
@@ -1472,34 +1471,6 @@ class Contact_Form_Plugin {
 		}
 
 		return Contact_Form::parse_contact_field( $atts, $content, $block );
-	}
-
-	/**
-	 * Add the 'Form Responses' menu item as a submenu of Feedback.
-	 */
-	public function admin_menu() {
-		$slug = 'feedback';
-
-		add_submenu_page(
-			$slug,
-			__( 'Form Responses', 'jetpack-forms' ),
-			__( 'Form Responses', 'jetpack-forms' ),
-			'edit_pages',
-			'edit.php?post_type=feedback',
-			null,
-			0
-		);
-
-		remove_submenu_page(
-			$slug,
-			$slug
-		);
-
-		// remove the first default submenu item
-		remove_submenu_page(
-			$slug,
-			'edit.php?post_type=feedback'
-		);
 	}
 
 	/**
