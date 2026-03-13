@@ -244,6 +244,32 @@ class Admin_Menu {
 	}
 
 	/**
+	 * Checks whether the current site should show the upgrade menu item.
+	 *
+	 * The upgrade menu is only shown to administrators on free-plan sites
+	 * that are not hosted on WordPress.com.
+	 *
+	 * @return bool True if the upgrade menu should be shown.
+	 */
+	private static function should_show_upgrade_menu() {
+		// Only show to administrators.
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return false;
+		}
+
+		// Don't show upsells on WordPress.com platform.
+		if ( class_exists( '\Automattic\Jetpack\Status\Host' ) ) {
+			$host = new \Automattic\Jetpack\Status\Host();
+			if ( $host->is_wpcom_platform() ) {
+				return false;
+			}
+		}
+
+		// Only show to free-plan sites.
+		return self::is_free_plan();
+	}
+
+	/**
 	 * Checks whether the current site is on a free Jetpack plan with no active paid license.
 	 *
 	 * @return bool True if the site has no paid plan.
@@ -264,17 +290,13 @@ class Admin_Menu {
 	/**
 	 * Conditionally adds an "Upgrade to Pro" submenu item for free-plan sites.
 	 *
-	 * Only shown to users with manage_options capability on sites without
-	 * a paid Jetpack plan or license.
+	 * Only shown to users with manage_options capability on self-hosted sites
+	 * without a paid Jetpack plan or license.
 	 *
 	 * @return void
 	 */
 	private static function maybe_add_upgrade_menu_item() {
-		if ( ! current_user_can( 'manage_options' ) ) {
-			return;
-		}
-
-		if ( ! self::is_free_plan() ) {
+		if ( ! self::should_show_upgrade_menu() ) {
 			return;
 		}
 
@@ -313,16 +335,12 @@ class Admin_Menu {
 	 * Outputs inline CSS to style the "Upgrade to Pro" menu item in Jetpack green.
 	 *
 	 * The sidebar menu is visible on every admin page, so styles must load globally.
-	 * Only outputs for free-plan sites with manage_options capability.
+	 * Only outputs for free-plan sites on self-hosted installs.
 	 *
 	 * @return void
 	 */
 	public static function add_upgrade_menu_item_styles() {
-		if ( ! current_user_can( 'manage_options' ) ) {
-			return;
-		}
-
-		if ( ! self::is_free_plan() ) {
+		if ( ! self::should_show_upgrade_menu() ) {
 			return;
 		}
 		?>
