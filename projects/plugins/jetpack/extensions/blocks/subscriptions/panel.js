@@ -120,7 +120,7 @@ const NewsletterDisabledNotice = ( { isComingSoonEnabled = false } ) => {
 	);
 };
 
-const NewsletterDisabledPanels = ( isComingSoonEnabled = false ) => (
+const NewsletterDisabledPanels = ( { isComingSoonEnabled = false } ) => (
 	<>
 		<PluginDocumentSettingPanel
 			className="jetpack-subscribe-newsletters-panel"
