@@ -291,7 +291,6 @@ export default function usePageHeaderDetails(
 				createSuccessNotice( __( 'Form restored.', 'jetpack-forms' ), {
 					type: 'snackbar',
 				} );
-				navigate( { to: '/forms' } );
 			} catch ( error ) {
 				createErrorNotice( __( 'Could not restore form.', 'jetpack-forms' ), {
 					type: 'snackbar',
@@ -300,13 +299,7 @@ export default function usePageHeaderDetails(
 				console.error( 'Failed to restore form:', error );
 			}
 		},
-		[
-			saveEntityRecord,
-			invalidateFormStatusCounts,
-			createSuccessNotice,
-			createErrorNotice,
-			navigate,
-		]
+		[ saveEntityRecord, invalidateFormStatusCounts, createSuccessNotice, createErrorNotice ]
 	);
 
 	const permanentlyDeleteForm = useCallback(

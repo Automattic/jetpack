@@ -366,7 +366,7 @@ describe( 'usePageHeaderDetails', () => {
 			expect( titles ).toEqual( [ 'Restore', 'Delete permanently' ] );
 		} );
 
-		it( 'calls saveEntityRecord with publish status on restore', async () => {
+		it( 'calls saveEntityRecord with publish status on restore and stays on page', async () => {
 			mockFormRecord = { title: { rendered: 'Trashed Form' }, status: 'trash' };
 			const { result } = renderHook( () =>
 				usePageHeaderDetails( { ...defaultProps, statusView: 'trash' } )
@@ -387,7 +387,7 @@ describe( 'usePageHeaderDetails', () => {
 				expect( mockCreateSuccessNotice ).toHaveBeenCalledWith( 'Form restored.', {
 					type: 'snackbar',
 				} );
-				expect( mockNavigate ).toHaveBeenCalledWith( { to: '/forms' } );
+				expect( mockNavigate ).not.toHaveBeenCalled();
 			} );
 		} );
 
