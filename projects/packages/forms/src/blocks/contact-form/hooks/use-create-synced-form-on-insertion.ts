@@ -132,14 +132,8 @@ export function useCreateSyncedFormOnInsertion( {
 
 		return () => {
 			cancelled = true;
+			hasAttemptedCreation.current = false;
 		};
-	}, [
-		shouldCreate,
-		attributes,
-		innerBlocks,
-		currentPostId,
-		setAttributes,
-		createSuccessNotice,
-		createErrorNotice,
-	] );
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [] );
 }
