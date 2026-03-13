@@ -26,6 +26,19 @@ function wpcom_is_gutenberg_rtc_enabled() {
 }
 
 /**
+ * Determine whether the active Gutenberg plugin version is greater than 22.6.0.
+ *
+ * @return bool True when Gutenberg plugin version is >= 22.6.0.
+ */
+function wpcom_is_target_gutenberg_version() {
+	// TODO: check against the version we need. Current one is 22.6.0
+	if ( defined( 'GUTENBERG_VERSION' ) && version_compare( GUTENBERG_VERSION, '22.6.0', '>=' ) ) {
+		return true;
+	}
+	return false;
+}
+
+/**
  * Determine if HTTP polling should be enforced for the current blog.
  *
  * @return bool True if HTTP polling should be enforced for the current blog, false otherwise.
@@ -33,7 +46,7 @@ function wpcom_is_gutenberg_rtc_enabled() {
 function should_enforce_http_polling_for_blog() {
 	$blog_id = get_wpcom_blog_id();
 
-	if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC && ( $blog_id % 100 === 1 ) ) {
+	if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC && ( $blog_id % 100 === 1 ) && wpcom_is_target_gutenberg_version() ) {
 		return true;
 	}
 	return false;
