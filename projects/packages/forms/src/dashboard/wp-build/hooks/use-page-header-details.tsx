@@ -24,6 +24,7 @@ import { Badge, Stack } from '@wordpress/ui';
 import { FORM_POST_TYPE } from '../../../blocks/shared/util/constants.js';
 import useConfigValue from '../../../hooks/use-config-value';
 import CreateFormButton from '../../components/create-form-button';
+import EditFormButton from '../../components/edit-form-button';
 import EmptySpamButton from '../../components/empty-spam-button';
 import EmptySpamConfirmationModal from '../../components/empty-spam-button/confirmation-modal';
 import EmptyTrashButton from '../../components/empty-trash-button';
@@ -160,14 +161,17 @@ export default function usePageHeaderDetails(
 	const { invalidateFormStatusCounts } = useDispatch( dashboardStore );
 
 	const formRecord = useSelect(
-		select =>
-			sourceIdNumber
-				? ( select( coreDataStore ).getEntityRecord(
-						'postType',
-						'jetpack_form',
-						sourceIdNumber
-				  ) as { title?: { rendered?: string }; status?: string } | undefined )
-				: undefined,
+		select => {
+			if ( ! sourceIdNumber ) {
+				return undefined;
+			}
+			const record = select( coreDataStore ).getEntityRecord(
+				'postType',
+				'jetpack_form',
+				sourceIdNumber
+			) as { title?: { rendered?: string }; status?: string } | undefined;
+			return record;
+		},
 		[ sourceIdNumber ]
 	);
 
@@ -740,6 +744,9 @@ export default function usePageHeaderDetails(
 
 		if ( isSingleFormScreen ) {
 			return [
+				...( sourceIdNumber && formStatus !== 'trash'
+					? [ <EditFormButton key="edit-form" formId={ sourceIdNumber } /> ]
+					: [] ),
 				<ExportResponsesButton
 					key="export"
 					isPrimary={ statusView === 'inbox' }
@@ -860,6 +867,7 @@ export default function usePageHeaderDetails(
 		isPermanentDeleteConfirmOpen,
 		closePermanentDeleteConfirm,
 		confirmPermanentDelete,
+		formStatus,
 	] );
 
 	return { ariaLabel, breadcrumbs, title, badges, subtitle, actions };
