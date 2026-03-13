@@ -40,6 +40,29 @@ function countOtherUsers( awareness: Awareness ): number {
 }
 
 /**
+ * Count other connected clients (tabs) for the local WordPress user.
+ *
+ * @param awareness - The Yjs awareness instance.
+ * @return Number of additional local-user clients, or -1 when the local user/client is not identifiable yet.
+ */
+function countOtherClientsForLocalUser( awareness: Awareness ): number {
+	const localUserId = awareness.getLocalState()?.collaboratorInfo?.id;
+	const localClientId = ( awareness as Awareness & { clientID?: unknown } ).clientID;
+	if ( typeof localUserId !== 'number' || typeof localClientId !== 'number' ) {
+		return -1;
+	}
+
+	let count = 0;
+	for ( const [ clientId, state ] of awareness.getStates() ) {
+		const uid = state?.collaboratorInfo?.id;
+		if ( typeof uid === 'number' && uid === localUserId && clientId !== localClientId ) {
+			count++;
+		}
+	}
+	return count;
+}
+
+/**
  * Wraps a provider creator to enforce a per-room user limit.
  *
  * On every awareness change the wrapper counts unique WordPress user IDs
@@ -47,19 +70,24 @@ function countOtherUsers( awareness: Awareness ): number {
  * reaches the given limit every provider created through `withRoomLimit`
  * is destroyed, which causes the shared polling manager to stop entirely.
  *
- * @param creator         - The provider creator to wrap.
- * @param maxPeersPerRoom - Max other unique users allowed. Undefined or ≤ 0 disables enforcement.
+ * @param creator           - The provider creator to wrap.
+ * @param maxPeersPerRoom   - Max other unique users allowed. Undefined or <= 0 disables peer enforcement.
+ * @param maxClientsPerUser - Max additional clients (tabs) for the same user. Undefined or <= 0 disables per-user enforcement.
  * @return Wrapped provider creator.
  */
 export function withRoomLimit(
 	creator: ProviderCreator,
-	maxPeersPerRoom?: number
+	maxPeersPerRoom?: number,
+	maxClientsPerUser?: number
 ): ProviderCreator {
-	if ( ! maxPeersPerRoom || maxPeersPerRoom <= 0 ) {
+	const hasPeerLimit = Boolean( maxPeersPerRoom && maxPeersPerRoom > 0 );
+	const hasClientLimit = Boolean( maxClientsPerUser && maxClientsPerUser > 0 );
+	if ( ! hasPeerLimit && ! hasClientLimit ) {
 		return creator;
 	}
 
-	const limit = maxPeersPerRoom;
+	const peerLimit = maxPeersPerRoom ?? 0;
+	const clientLimit = maxClientsPerUser ?? 0;
 
 	return async ( options ): Promise< ProviderCreatorResult > => {
 		if ( breached ) {
@@ -86,8 +114,11 @@ export function withRoomLimit(
 				return;
 			}
 
-			const others = countOtherUsers( awareness );
-			if ( others >= limit ) {
+			const otherUsers = countOtherUsers( awareness );
+			const otherLocalUserClients = countOtherClientsForLocalUser( awareness );
+			const isPeerLimitReached = hasPeerLimit && otherUsers >= peerLimit;
+			const isClientLimitReached = hasClientLimit && otherLocalUserClients >= clientLimit;
+			if ( isPeerLimitReached || isClientLimitReached ) {
 				breached = true;
 				for ( const fn of teardowns ) {
 					fn();
