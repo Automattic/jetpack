@@ -4,7 +4,11 @@
 import { useBreakpointMatch } from '@automattic/jetpack-components';
 import JetpackLogo from '@automattic/jetpack-components/jetpack-logo';
 import { Breadcrumbs } from '@wordpress/admin-ui';
-import { DropdownMenu, Button } from '@wordpress/components';
+import {
+	DropdownMenu,
+	Button,
+	__experimentalConfirmDialog as ConfirmDialog, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+} from '@wordpress/components';
 import { store as coreDataStore } from '@wordpress/core-data';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { useMemo, useState, useCallback, useRef } from '@wordpress/element';
@@ -20,7 +24,6 @@ import { Badge, Stack } from '@wordpress/ui';
 import { FORM_POST_TYPE } from '../../../blocks/shared/util/constants.js';
 import useConfigValue from '../../../hooks/use-config-value';
 import CreateFormButton from '../../components/create-form-button';
-import EditFormButton from '../../components/edit-form-button';
 import EmptySpamButton from '../../components/empty-spam-button';
 import EmptySpamConfirmationModal from '../../components/empty-spam-button/confirmation-modal';
 import EmptyTrashButton from '../../components/empty-trash-button';
@@ -126,6 +129,10 @@ export default function usePageHeaderDetails(
 	// Empty spam/trash hooks
 	const emptySpam = useEmptySpam();
 	const emptyTrash = useEmptyTrash();
+
+	// Permanent delete confirmation state
+	const [ isPermanentDeleteConfirmOpen, setIsPermanentDeleteConfirmOpen ] = useState( false );
+	const permanentDeleteItemRef = useRef< { id: number } | null >( null );
 
 	// Rename form state
 	const [ renameFormItem, setRenameFormItem ] = useState< { id: number; title: string } | null >(
@@ -302,38 +309,52 @@ export default function usePageHeaderDetails(
 		[ saveEntityRecord, invalidateFormStatusCounts, createSuccessNotice, createErrorNotice ]
 	);
 
-	const permanentlyDeleteForm = useCallback(
-		async ( item: { id: number } ) => {
-			try {
-				await deleteEntityRecord(
-					'postType',
-					FORM_POST_TYPE,
-					item.id,
-					{ force: true },
-					{ throwOnError: true }
-				);
+	const openPermanentDeleteConfirm = useCallback( ( item: { id: number } ) => {
+		permanentDeleteItemRef.current = item;
+		setIsPermanentDeleteConfirmOpen( true );
+	}, [] );
 
-				invalidateFormStatusCounts();
-				createSuccessNotice( __( 'Form deleted permanently.', 'jetpack-forms' ), {
-					type: 'snackbar',
-				} );
-				navigate( { to: '/forms' } );
-			} catch ( error ) {
-				createErrorNotice( __( 'Could not delete form.', 'jetpack-forms' ), {
-					type: 'snackbar',
-				} );
-				// eslint-disable-next-line no-console
-				console.error( 'Failed to permanently delete form:', error );
-			}
-		},
-		[
-			deleteEntityRecord,
-			invalidateFormStatusCounts,
-			createSuccessNotice,
-			createErrorNotice,
-			navigate,
-		]
-	);
+	const closePermanentDeleteConfirm = useCallback( () => {
+		setIsPermanentDeleteConfirmOpen( false );
+		permanentDeleteItemRef.current = null;
+	}, [] );
+
+	const confirmPermanentDelete = useCallback( async () => {
+		const item = permanentDeleteItemRef.current;
+		if ( ! item ) {
+			return;
+		}
+		setIsPermanentDeleteConfirmOpen( false );
+		permanentDeleteItemRef.current = null;
+
+		try {
+			await deleteEntityRecord(
+				'postType',
+				FORM_POST_TYPE,
+				item.id,
+				{ force: true },
+				{ throwOnError: true }
+			);
+
+			invalidateFormStatusCounts();
+			createSuccessNotice( __( 'Form deleted permanently.', 'jetpack-forms' ), {
+				type: 'snackbar',
+			} );
+			navigate( { to: '/forms' } );
+		} catch ( error ) {
+			createErrorNotice( __( 'Could not delete form.', 'jetpack-forms' ), {
+				type: 'snackbar',
+			} );
+			// eslint-disable-next-line no-console
+			console.error( 'Failed to permanently delete form:', error );
+		}
+	}, [
+		deleteEntityRecord,
+		invalidateFormStatusCounts,
+		createSuccessNotice,
+		createErrorNotice,
+		navigate,
+	] );
 
 	const formStatus = formRecord?.status;
 
@@ -371,7 +392,7 @@ export default function usePageHeaderDetails(
 				},
 				{
 					title: __( 'Delete permanently', 'jetpack-forms' ),
-					onClick: () => permanentlyDeleteForm( formItem ),
+					onClick: () => openPermanentDeleteConfirm( formItem ),
 				},
 			];
 		}
@@ -438,7 +459,7 @@ export default function usePageHeaderDetails(
 		duplicateForm,
 		trashForm,
 		restoreForm,
-		permanentlyDeleteForm,
+		openPermanentDeleteConfirm,
 		formRecord?.status,
 		formTitle,
 		isUpdatingStatus,
@@ -685,6 +706,25 @@ export default function usePageHeaderDetails(
 							/>,
 					  ]
 					: [] ),
+				...( isPermanentDeleteConfirmOpen
+					? [
+							<ConfirmDialog
+								key="permanent-delete-confirm"
+								onCancel={ closePermanentDeleteConfirm }
+								onConfirm={ confirmPermanentDelete }
+								isOpen={ isPermanentDeleteConfirmOpen }
+								confirmButtonText={ __( 'Delete permanently', 'jetpack-forms' ) }
+							>
+								<h3>{ __( 'Delete permanently', 'jetpack-forms' ) }</h3>
+								<p>
+									{ __(
+										'This will permanently delete this form. This action cannot be undone.',
+										'jetpack-forms'
+									) }
+								</p>
+							</ConfirmDialog>,
+					  ]
+					: [] ),
 			];
 		}
 
@@ -700,9 +740,6 @@ export default function usePageHeaderDetails(
 
 		if ( isSingleFormScreen ) {
 			return [
-				...( sourceIdNumber
-					? [ <EditFormButton key="edit-form" formId={ sourceIdNumber } /> ]
-					: [] ),
 				<ExportResponsesButton
 					key="export"
 					isPrimary={ statusView === 'inbox' }
@@ -731,6 +768,25 @@ export default function usePageHeaderDetails(
 								title={ __( 'Rename form', 'jetpack-forms' ) }
 								initialValue={ renameRetryRef.current?.title || renameFormItem?.title || '' }
 							/>,
+					  ]
+					: [] ),
+				...( isPermanentDeleteConfirmOpen
+					? [
+							<ConfirmDialog
+								key="permanent-delete-confirm"
+								onCancel={ closePermanentDeleteConfirm }
+								onConfirm={ confirmPermanentDelete }
+								isOpen={ isPermanentDeleteConfirmOpen }
+								confirmButtonText={ __( 'Delete permanently', 'jetpack-forms' ) }
+							>
+								<h3>{ __( 'Delete permanently', 'jetpack-forms' ) }</h3>
+								<p>
+									{ __(
+										'This will permanently delete this form. This action cannot be undone.',
+										'jetpack-forms'
+									) }
+								</p>
+							</ConfirmDialog>,
 					  ]
 					: [] ),
 			];
@@ -801,6 +857,9 @@ export default function usePageHeaderDetails(
 		renameFormItem,
 		closeRenameModal,
 		handleRename,
+		isPermanentDeleteConfirmOpen,
+		closePermanentDeleteConfirm,
+		confirmPermanentDelete,
 	] );
 
 	return { ariaLabel, breadcrumbs, title, badges, subtitle, actions };

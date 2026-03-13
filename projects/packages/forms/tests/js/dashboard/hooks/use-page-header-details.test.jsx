@@ -21,6 +21,7 @@ await jest.unstable_mockModule( '@wordpress/admin-ui', () => ( {
 await jest.unstable_mockModule( '@wordpress/components', () => ( {
 	DropdownMenu: () => null,
 	Button: ( { children } ) => children,
+	__experimentalConfirmDialog: ( { children } ) => children,
 } ) );
 
 await jest.unstable_mockModule( '@wordpress/core-data', () => ( {
@@ -391,15 +392,44 @@ describe( 'usePageHeaderDetails', () => {
 			} );
 		} );
 
-		it( 'calls deleteEntityRecord with force on permanent delete', async () => {
+		it( 'opens confirmation dialog on Delete permanently click', () => {
 			mockFormRecord = { title: { rendered: 'Trashed Form' }, status: 'trash' };
 			const { result } = renderHook( () =>
 				usePageHeaderDetails( { ...defaultProps, statusView: 'trash' } )
 			);
 			const controls = result.current.actions.find( a => a?.props?.controls )?.props?.controls;
 
-			await act( async () => {
+			act( () => {
 				controls[ 1 ].onClick();
+			} );
+
+			// ConfirmDialog should now be rendered in actions
+			const confirmDialog = result.current.actions.find(
+				a => a?.key === 'permanent-delete-confirm'
+			);
+			expect( confirmDialog ).toBeTruthy();
+			expect( confirmDialog.props.isOpen ).toBe( true );
+		} );
+
+		it( 'deletes form after confirming permanent delete', async () => {
+			mockFormRecord = { title: { rendered: 'Trashed Form' }, status: 'trash' };
+			const { result } = renderHook( () =>
+				usePageHeaderDetails( { ...defaultProps, statusView: 'trash' } )
+			);
+			const controls = result.current.actions.find( a => a?.props?.controls )?.props?.controls;
+
+			// Open the confirmation dialog
+			act( () => {
+				controls[ 1 ].onClick();
+			} );
+
+			// Confirm the deletion
+			const confirmDialog = result.current.actions.find(
+				a => a?.key === 'permanent-delete-confirm'
+			);
+
+			await act( async () => {
+				await confirmDialog.props.onConfirm();
 			} );
 
 			await waitFor( () => {
