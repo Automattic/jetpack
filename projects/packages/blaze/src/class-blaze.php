@@ -136,16 +136,30 @@ class Blaze {
 			}
 			add_action( 'load-' . $page_suffix, array( $blaze_dashboard, 'admin_init' ) );
 		} elseif ( ( new Host() )->is_wpcom_platform() ) {
-			$domain      = ( new Jetpack_Status() )->get_site_suffix();
-			$page_suffix = add_submenu_page(
-				$parent_slug,
-				esc_attr__( 'Blaze Ads', 'jetpack-blaze' ),
-				__( 'Blaze Ads', 'jetpack-blaze' ),
-				'manage_options',
-				'https://wordpress.com/advertising/' . $domain,
-				null, // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539
-				1
-			);
+			$domain = ( new Jetpack_Status() )->get_site_suffix();
+			$url    = 'https://wordpress.com/advertising/' . $domain;
+
+			if ( self::has_active_campaigns() ) {
+				$page_suffix = add_menu_page(
+					esc_attr__( 'Blaze Ads', 'jetpack-blaze' ),
+					__( 'Blaze Ads', 'jetpack-blaze' ),
+					'manage_options',
+					$url,
+					null, // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539
+					'dashicons-megaphone',
+					30
+				);
+			} else {
+				$page_suffix = add_submenu_page(
+					$parent_slug,
+					esc_attr__( 'Blaze Ads', 'jetpack-blaze' ),
+					__( 'Blaze Ads', 'jetpack-blaze' ),
+					'manage_options',
+					$url,
+					null, // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539
+					1
+				);
+			}
 			add_action( 'load-' . $page_suffix, array( $blaze_dashboard, 'admin_init' ) );
 		}
 	}

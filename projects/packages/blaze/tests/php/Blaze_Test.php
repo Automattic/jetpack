@@ -201,27 +201,98 @@ class Blaze_Test extends BaseTestCase {
 	 * Test that has_active_campaigns() reads the cached transient.
 	 */
 	public function test_has_active_campaigns_cached_yes() {
-		// Fake a numeric site ID.
-		update_option( 'jetpack_id', 12345 );
+		// Seed the site ID in the compact jetpack_options array (where
+		// Jetpack_Options::get_option( 'id' ) actually reads it).
+		update_option( 'jetpack_options', array( 'id' => 12345 ) );
 		set_transient( 'jetpack_blaze_has_active_campaigns_12345', 'yes', HOUR_IN_SECONDS );
 
 		$this->assertTrue( Blaze::has_active_campaigns() );
 
 		delete_transient( 'jetpack_blaze_has_active_campaigns_12345' );
-		delete_option( 'jetpack_id' );
+		delete_option( 'jetpack_options' );
 	}
 
 	/**
 	 * Test that has_active_campaigns() reads cached "no" transient.
 	 */
 	public function test_has_active_campaigns_cached_no() {
-		update_option( 'jetpack_id', 12345 );
+		update_option( 'jetpack_options', array( 'id' => 12345 ) );
 		set_transient( 'jetpack_blaze_has_active_campaigns_12345', 'no', HOUR_IN_SECONDS );
 
 		$this->assertFalse( Blaze::has_active_campaigns() );
 
 		delete_transient( 'jetpack_blaze_has_active_campaigns_12345' );
-		delete_option( 'jetpack_id' );
+		delete_option( 'jetpack_options' );
+	}
+
+	/**
+	 * Test that enable_blaze_menu() registers a top-level menu when the site
+	 * has active campaigns (transient cached as 'yes').
+	 */
+	public function test_top_level_menu_when_active_campaigns() {
+		global $menu;
+
+		wp_set_current_user( $this->admin_id );
+		add_filter( 'jetpack_blaze_enabled', '__return_true' );
+
+		// Seed the site ID and campaign transient.
+		update_option( 'jetpack_options', array( 'id' => 12345 ) );
+		set_transient( 'jetpack_blaze_has_active_campaigns_12345', 'yes', HOUR_IN_SECONDS );
+
+		Blaze::enable_blaze_menu();
+
+		// Verify a top-level menu entry exists for 'advertising'.
+		$found_top_level = false;
+		foreach ( (array) $menu as $item ) {
+			if ( isset( $item[2] ) && 'advertising' === $item[2] ) {
+				$found_top_level = true;
+				break;
+			}
+		}
+
+		$this->assertTrue( $found_top_level, 'Expected a top-level menu entry for advertising when active campaigns exist.' );
+
+		delete_transient( 'jetpack_blaze_has_active_campaigns_12345' );
+		delete_option( 'jetpack_options' );
+		add_filter( 'jetpack_blaze_enabled', '__return_false' );
+	}
+
+	/**
+	 * Test that enable_blaze_menu() registers a submenu (not top-level)
+	 * when the site has no active campaigns.
+	 */
+	public function test_submenu_when_no_active_campaigns() {
+		global $menu, $submenu;
+
+		wp_set_current_user( $this->admin_id );
+		add_filter( 'jetpack_blaze_enabled', '__return_true' );
+
+		Blaze::enable_blaze_menu();
+
+		// Verify 'advertising' is NOT in the top-level menu.
+		$found_top_level = false;
+		foreach ( (array) $menu as $item ) {
+			if ( isset( $item[2] ) && 'advertising' === $item[2] ) {
+				$found_top_level = true;
+				break;
+			}
+		}
+		$this->assertFalse( $found_top_level, 'Did not expect a top-level menu entry when no active campaigns.' );
+
+		// Verify it exists as a submenu instead.
+		$parent_slug   = Blaze::get_menu_parent();
+		$found_submenu = false;
+		if ( isset( $submenu[ $parent_slug ] ) ) {
+			foreach ( $submenu[ $parent_slug ] as $item ) {
+				if ( 'advertising' === $item[2] ) {
+					$found_submenu = true;
+					break;
+				}
+			}
+		}
+		$this->assertTrue( $found_submenu, 'Expected a submenu entry for advertising under ' . $parent_slug );
+
+		add_filter( 'jetpack_blaze_enabled', '__return_false' );
 	}
 
 	/**
