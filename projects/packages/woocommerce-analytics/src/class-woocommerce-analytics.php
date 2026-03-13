@@ -13,6 +13,7 @@ use Automattic\Jetpack\Connection\Manager as Jetpack_Connection;
 use Automattic\Woocommerce_Analytics\My_Account;
 use Automattic\Woocommerce_Analytics\Universal;
 use Automattic\Woocommerce_Analytics\WC_Analytics_Tracking_Proxy;
+use Composer\InstalledVersions;
 
 /**
  * Instantiate WooCommerce Analytics
@@ -260,8 +261,13 @@ class Woocommerce_Analytics {
 		}
 
 		// Get the autoloader path from the current plugin location.
-		$plugin_dir      = dirname( __DIR__ );
-		$autoloader_path = $plugin_dir . '/vendor/autoload.php';
+		$autoloader_path = self::locate_autoloader_file();
+		if ( null === $autoloader_path ) {
+			if ( function_exists( 'wc_get_logger' ) ) {
+				wc_get_logger()->error( 'WooCommerce Analytics proxy speed module not installed: could not locate autoloader.', array( 'source' => 'woocommerce-analytics' ) );
+			}
+			return;
+		}
 
 		// Replace placeholders with actual values.
 		$content = str_replace(
@@ -304,6 +310,62 @@ class Woocommerce_Analytics {
 
 		delete_option( self::PROXY_SPEED_MODULE_VERSION_OPTION );
 		delete_transient( self::PROXY_SPEED_MODULE_VERSION_CHECK_TRANSIENT );
+	}
+
+	/**
+	 * Finds the path to the autoloader file.
+	 *
+	 * Uses multiple strategies to locate the autoloader, since this package
+	 * can be included in different plugins (Jetpack, WooCommerce Analytics, etc.):
+	 * 1. Jetpack autoloader global (if available)
+	 * 2. Composer's InstalledVersions API
+	 * 3. Directory-based guessing as a fallback
+	 *
+	 * @return string|null The path to the autoloader file, or null if not found.
+	 */
+	private static function locate_autoloader_file() {
+		global $jetpack_autoloader_loader;
+
+		$autoload_file = null;
+
+		// Try the Jetpack autoloader.
+		if ( isset( $jetpack_autoloader_loader ) ) {
+			$class_file = $jetpack_autoloader_loader->find_class_file( self::class );
+			if ( $class_file ) {
+				// Walk up 5 levels: src/ → woocommerce-analytics/ → automattic/ → jetpack_vendor/ → plugin root.
+				$autoload_file = dirname( $class_file, 5 ) . '/vendor/autoload.php';
+			}
+		}
+
+		// Try Composer's InstalledVersions API.
+		if ( null === $autoload_file
+			&& is_callable( array( InstalledVersions::class, 'getInstallPath' ) )
+			&& InstalledVersions::isInstalled( 'automattic/woocommerce-analytics' )
+		) {
+			$package_file    = InstalledVersions::getInstallPath( 'automattic/woocommerce-analytics' );
+			$expected_suffix = '/automattic/woocommerce-analytics';
+			if ( substr( $package_file, -strlen( $expected_suffix ) ) === $expected_suffix ) {
+				// Walk up 3 levels: woocommerce-analytics/ → automattic/ → jetpack_vendor/ → plugin root.
+				$autoload_file = dirname( $package_file, 3 ) . '/vendor/autoload.php';
+			}
+		}
+
+		// Guess based on directory structure.
+		// First try standard vendor layout (vendor/automattic/woocommerce-analytics/src/),
+		// then try standalone package with its own vendor dir.
+		if ( null === $autoload_file ) {
+			// Walk up 4 levels from src/: woocommerce-analytics/ → automattic/ → vendor/ → project root.
+			$autoload_file = dirname( __DIR__, 4 ) . '/vendor/autoload.php';
+			if ( ! file_exists( $autoload_file ) ) {
+				$autoload_file = dirname( __DIR__ ) . '/vendor/autoload.php';
+			}
+		}
+
+		if ( ! file_exists( $autoload_file ) ) {
+			return null;
+		}
+
+		return $autoload_file;
 	}
 
 	/**
