@@ -281,14 +281,22 @@ class Admin_Menu {
 			return $is_free;
 		}
 
-		// Check the active plan.
+		// Check the active plan - use the is_free field or product_slug.
 		$plan = get_option( 'jetpack_active_plan', array() );
-		if ( isset( $plan['class'] ) && 'free' !== $plan['class'] ) {
+		
+		// If the plan explicitly says it's not free, trust that.
+		if ( isset( $plan['is_free'] ) && false === $plan['is_free'] ) {
+			$is_free = false;
+			return $is_free;
+		}
+		
+		// Check if the product slug indicates a paid plan.
+		if ( isset( $plan['product_slug'] ) && 'jetpack_free' !== $plan['product_slug'] ) {
 			$is_free = false;
 			return $is_free;
 		}
 
-		// Also check for site products (licenses can add products without changing plan class).
+		// Also check for site products (licenses can add products without changing plan).
 		$products = get_option( 'jetpack_site_products', array() );
 		if ( ! empty( $products ) && is_array( $products ) ) {
 			$is_free = false;
@@ -300,10 +308,9 @@ class Admin_Menu {
 	}
 
 	/**
-	 * Conditionally adds an "Upgrade to Pro" submenu item for free-plan sites.
+	 * Conditionally adds an "Upgrade Jetpack" submenu item for free-plan sites.
 	 *
-	 * Only shown to users with manage_options capability on self-hosted sites
-	 * without a paid Jetpack plan or license.
+	 * Only shown to users with manage_options capability on self-hosted sites without a paid Jetpack plan or license.
 	 *
 	 * @return void
 	 */
