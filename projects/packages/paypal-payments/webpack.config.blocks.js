@@ -16,6 +16,7 @@ const sharedWebpackConfig = {
 		'block/editor': './src/block/editor.js',
 		'legacy-simple-payments': './src/legacy/simple-payments.css',
 		'paypal-payment-buttons/editor': './src/paypal-payment-buttons/editor.js',
+		'paypal-payment-buttons/style': './src/paypal-payment-buttons/style.scss',
 	},
 	output: {
 		...jetpackWebpackConfig.output,

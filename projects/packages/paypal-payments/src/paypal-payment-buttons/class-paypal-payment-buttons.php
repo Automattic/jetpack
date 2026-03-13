@@ -124,13 +124,85 @@ class PayPal_Payment_Buttons {
 	 * @param array $attributes The block attributes.
 	 * @return string|void The rendered button HTML.
 	 */
+	/**
+	 * Currency symbols for frontend price formatting.
+	 * Matches the JS CURRENCY_SYMBOLS map in paypal-button-preview.js.
+	 *
+	 * @var array
+	 */
+	private static $currency_symbols = array(
+		'USD' => '$',
+		'EUR' => '€',
+		'GBP' => '£',
+		'JPY' => '¥',
+		'CAD' => 'CA$',
+		'AUD' => 'A$',
+		'CHF' => 'CHF',
+		'CNY' => '¥',
+		'INR' => '₹',
+		'BRL' => 'R$',
+		'MXN' => 'MX$',
+		'HKD' => 'HK$',
+		'NZD' => 'NZ$',
+		'SGD' => 'S$',
+		'SEK' => 'kr',
+		'NOK' => 'kr',
+		'DKK' => 'kr',
+		'PLN' => 'zł',
+		'CZK' => 'Kč',
+		'HUF' => 'Ft',
+		'ILS' => '₪',
+		'MYR' => 'RM',
+		'PHP' => '₱',
+		'TWD' => 'NT$',
+		'THB' => '฿',
+		'RUB' => '₽',
+	);
+
+	/**
+	 * Format a price with its currency symbol.
+	 *
+	 * @param string $price    The price value.
+	 * @param string $currency The ISO currency code.
+	 * @return string Formatted price string (e.g., "$29.99").
+	 */
+	private static function format_price( $price, $currency ) {
+		$symbol = isset( self::$currency_symbols[ $currency ] ) ? self::$currency_symbols[ $currency ] : $currency;
+		return $symbol . $price;
+	}
+
+	/**
+	 * PayPal logo SVG markup for frontend button rendering.
+	 * Matches the inline SVG from paypal-button-preview.js.
+	 *
+	 * @return string SVG markup.
+	 */
+	private static function get_paypal_logo_svg() {
+		return '<svg class="jetpack-paypal-button__logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 101 32" width="80" height="20" aria-label="PayPal">'
+			. '<path d="M12.5 4.7h-7c-.5 0-.9.3-1 .8L1.6 25c0 .3.2.6.6.6h3.3c.5 0 .9-.3 1-.8l.8-5.4c0-.5.5-.8 1-.8h2.3c4.7 0 7.4-2.3 8.1-6.8.3-2 0-3.5-.9-4.6C16.7 5.5 14.9 4.7 12.5 4.7zm.8 6.7c-.4 2.6-2.3 2.6-4.2 2.6h-1l.8-4.8c0-.3.3-.5.6-.5h.5c1.3 0 2.5 0 3.1.7.4.5.5 1.2.2 2z" fill="#253B80"/>'
+			. '<path d="M35.2 11.3h-3.3c-.3 0-.5.2-.6.5l-.1.9-.2-.3c-.7-1-2.2-1.3-3.7-1.3-3.5 0-6.4 2.6-7 6.3-.3 1.8.1 3.6 1.2 4.8 1 1.1 2.4 1.6 4.1 1.6 2.9 0 4.5-1.9 4.5-1.9l-.1.9c0 .3.2.6.6.6h3c.5 0 .9-.3 1-.8l1.8-11.5c-.1-.4-.4-.8-.7-.8zm-4.5 6.1c-.3 1.8-1.8 3-3.6 3-.9 0-1.6-.3-2.1-.8-.4-.5-.6-1.3-.5-2.1.3-1.8 1.8-3 3.6-3 .9 0 1.6.3 2.1.8.4.6.6 1.3.5 2.1z" fill="#253B80"/>'
+			. '<path d="M55.1 11.3h-3.4c-.3 0-.6.2-.8.4l-4.5 6.6-1.9-6.4c-.1-.4-.5-.6-.9-.6h-3.3c-.4 0-.7.4-.5.7l3.6 10.5-3.4 4.8c-.3.4 0 .9.4.9h3.3c.3 0 .6-.1.8-.4l10.9-15.7c.3-.4 0-.8-.3-.8z" fill="#253B80"/>'
+			. '<path d="M67.4 4.7h-7c-.5 0-.9.3-1 .8L56.5 25c0 .3.2.6.6.6h3.5c.3 0 .6-.2.7-.6l.8-5.2c0-.5.5-.8 1-.8h2.3c4.7 0 7.4-2.3 8.1-6.8.3-2 0-3.5-.9-4.6-1.1-1.2-2.9-1.9-5.2-1.9zm.8 6.7c-.4 2.6-2.3 2.6-4.2 2.6h-1l.8-4.8c0-.3.3-.5.6-.5h.5c1.3 0 2.5 0 3.1.7.3.5.4 1.2.2 2z" fill="#179BD7"/>'
+			. '<path d="M90.1 11.3h-3.3c-.3 0-.5.2-.6.5l-.1.9-.2-.3c-.7-1-2.2-1.3-3.7-1.3-3.5 0-6.4 2.6-7 6.3-.3 1.8.1 3.6 1.2 4.8 1 1.1 2.4 1.6 4.1 1.6 2.9 0 4.5-1.9 4.5-1.9l-.1.9c0 .3.2.6.6.6h3c.5 0 .9-.3 1-.8l1.8-11.5c-.1-.4-.3-.8-.7-.8zm-4.5 6.1c-.3 1.8-1.8 3-3.6 3-.9 0-1.6-.3-2.1-.8-.4-.5-.6-1.3-.5-2.1.3-1.8 1.8-3 3.6-3 .9 0 1.6.3 2.1.8.4.6.5 1.3.5 2.1z" fill="#179BD7"/>'
+			. '<path d="M95.1 5.2l-3 19.9c0 .3.2.6.6.6h2.9c.5 0 .9-.3 1-.8L99.5 5.5c0-.3-.2-.6-.6-.6h-3.2c-.2 0-.5.1-.6.3z" fill="#179BD7"/>'
+			. '</svg>';
+	}
+
+	/**
+	 * Render an API-managed PayPal payment button on the frontend.
+	 *
+	 * @param array $attributes The block attributes.
+	 * @return string|void The rendered button HTML.
+	 */
 	private static function render_api_managed_button( $attributes ) {
-		$resource_id  = $attributes['resourceId'] ?? '';
-		$payment_url  = $attributes['paymentLink'] ?? '';
-		$product_name = $attributes['productName'] ?? '';
-		$price        = $attributes['price'] ?? '';
-		$currency     = $attributes['currencyCode'] ?? 'USD';
-		$button_label = $attributes['buttonText'] ?? __( 'Buy Now', 'jetpack-paypal-payments' );
+		$resource_id         = $attributes['resourceId'] ?? '';
+		$payment_url         = $attributes['paymentLink'] ?? '';
+		$product_name        = $attributes['productName'] ?? '';
+		$price               = $attributes['price'] ?? '';
+		$currency            = $attributes['currencyCode'] ?? 'USD';
+		$button_text         = $attributes['buttonText'] ?? __( 'Pay Now', 'jetpack-paypal-payments' );
+		$button_type         = $attributes['buttonType'] ?? 'stacked';
+		$product_description = $attributes['productDescription'] ?? '';
 
 		if ( empty( $resource_id ) || empty( $payment_url ) ) {
 			return;
@@ -149,30 +221,64 @@ class PayPal_Payment_Buttons {
 			add_query_arg( 'at_code', self::PAYPAL_PARTNER_ATTRIBUTION_ID, $sanitized_payment_url )
 		);
 
-		$payment_id           = esc_attr( $resource_id );
-		$button_text_escaped  = esc_attr( $button_label );
-		$product_name_escaped = esc_html( $product_name );
-		$price_display        = esc_html( $price . ' ' . $currency );
+		$is_stacked = 'stacked' === $button_type;
+
+		// Build product info section.
+		$description_html = '';
+		if ( ! empty( $product_description ) ) {
+			$description_html = sprintf(
+				'<span class="jetpack-paypal-button__product-description">%s</span>',
+				esc_html( $product_description )
+			);
+		}
+
+		$price_html = '';
+		if ( ! empty( $price ) ) {
+			$price_html = sprintf(
+				'<span class="jetpack-paypal-button__product-price">%s</span>',
+				esc_html( self::format_price( $price, $currency ) )
+			);
+		}
+
+		// Build debit/credit secondary button (stacked layout only).
+		$debit_button_html = '';
+		if ( $is_stacked ) {
+			$debit_button_html = sprintf(
+				'<a href="%s" class="jetpack-paypal-button__debit-link" target="_blank" rel="noopener noreferrer">%s</a>',
+				$action_url,
+				esc_html__( 'Debit or Credit Card', 'jetpack-paypal-payments' )
+			);
+		}
+
+		$paypal_logo = self::get_paypal_logo_svg();
 
 		return sprintf(
-			'<div class="wp-block-jetpack-paypal-payment-buttons paypal-api-button">
-	<div class="paypal-api-button__product">
-		<span class="paypal-api-button__name">%1$s</span>
-		<span class="paypal-api-button__price">%2$s</span>
+			'<div class="wp-block-jetpack-paypal-payment-buttons">
+	<div class="jetpack-paypal-button">
+		<div class="jetpack-paypal-button__product">
+			<div class="jetpack-paypal-button__product-info">
+				<span class="jetpack-paypal-button__product-name">%1$s</span>
+				%2$s
+			</div>
+			%3$s
+		</div>
+		<div class="jetpack-paypal-button__buttons jetpack-paypal-button__buttons--%4$s">
+			<a href="%5$s" class="jetpack-paypal-button__paypal-link" target="_blank" rel="noopener noreferrer">
+				%6$s
+				<span class="jetpack-paypal-button__button-text">%7$s</span>
+			</a>
+			%8$s
+		</div>
 	</div>
-	<form action="%3$s" method="post" target="_blank" class="paypal-api-button__form">
-		<input class="paypal-api-button__submit pp-%4$s" type="submit" value="%5$s" />
-		<img src="https://www.paypalobjects.com/images/Debit_Credit_APM.svg" alt="%6$s" />
-		<span class="paypal-api-button__powered-by">%7$s <img src="https://www.paypalobjects.com/paypal-ui/logos/svg/paypal-wordmark-color.svg" alt="PayPal" /></span>
-	</form>
 </div>',
-			$product_name_escaped,
-			$price_display,
+			esc_html( $product_name ),
+			$description_html,
+			$price_html,
+			esc_attr( $button_type ),
 			$action_url,
-			$payment_id,
-			$button_text_escaped,
-			esc_attr__( 'Accepted payment methods', 'jetpack-paypal-payments' ),
-			esc_html__( 'Powered by', 'jetpack-paypal-payments' )
+			$paypal_logo,
+			esc_html( $button_text ),
+			$debit_button_html
 		);
 	}
 

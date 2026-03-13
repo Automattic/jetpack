@@ -66,5 +66,5 @@
 	},
 	"editorScript": "file:../../dist/paypal-payment-buttons/editor.js",
 	"editorStyle": "file:../../dist/paypal-payment-buttons/editor.css",
-	"style": "file:../../dist/paypal-payment-buttons/editor.css"
+	"style": "file:../../dist/paypal-payment-buttons/style.css"
 }
