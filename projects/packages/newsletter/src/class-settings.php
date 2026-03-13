@@ -99,12 +99,13 @@ class Settings {
 		}
 
 		// Hijack the config URLs to point to our settings page.
-		// Customize the configuration URL to lead to the Subscriptions settings.
+		// Priority 20 to override the default URL set in subscriptions.php.
 		add_filter(
 			'jetpack_module_configuration_url_subscriptions',
 			function () {
 				return Urls::get_newsletter_settings_url( ( new Status() )->get_site_suffix() );
-			}
+			},
+			20
 		);
 
 		$host = new Host();
