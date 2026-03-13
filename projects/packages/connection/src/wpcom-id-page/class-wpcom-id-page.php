@@ -171,7 +171,6 @@ class Wpcom_Id_Page {
 	public static function render() {
 		?>
 		<div class="wrap">
-			<h1><?php esc_html_e( 'WordPress.com ID', 'jetpack-connection' ); ?></h1>
 			<div id="wpcom-id-container"></div>
 		</div>
 		<?php

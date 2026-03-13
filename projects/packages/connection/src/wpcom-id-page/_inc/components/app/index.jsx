@@ -1,8 +1,8 @@
 import { ConnectionError } from '@automattic/jetpack-connection';
-import { __ } from '@wordpress/i18n';
 import ConnectedPlugins from '../connected-plugins';
 import DiagnosticTools from '../diagnostic-tools';
 import MigrationTools from '../migration-tools';
+import PageHeader from '../page-header';
 import SiteConnection from '../site-connection';
 import SyncSection from '../sync-section';
 import UserConnection from '../user-connection';
@@ -21,12 +21,7 @@ export default function App() {
 
 	return (
 		<div className="wpcom-id-page">
-			<p>
-				{ __(
-					"This page displays your site's WordPress.com connection and sync information.",
-					'jetpack-connection'
-				) }
-			</p>
+			<PageHeader connectionState={ connectionState } />
 
 			<ConnectionError />
 
