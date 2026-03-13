@@ -18,6 +18,8 @@ use PHPUnit\Framework\Attributes\CoversFunction;
  *
  * @covers ::wpcom_enqueue_gutenberg_rtc_assets
  * @covers ::wpcom_get_gutenberg_rtc_providers
+ * @covers ::wpcom_get_gutenberg_rtc_max_clients_per_user
+ * @covers ::wpcom_get_gutenberg_rtc_max_peers_per_room
  * @covers ::wpcom_is_gutenberg_rtc_enabled
  * @covers ::wpcom_unregister_rtc_setting
  * @covers ::wpcom_filter_rtc_option
@@ -31,6 +33,8 @@ use PHPUnit\Framework\Attributes\CoversFunction;
 #[CoversFunction( 'wpcom_filter_rtc_option' )]
 #[CoversFunction( 'wpcom_default_rtc_option' )]
 #[CoversFunction( 'wpcom_override_rtc_setting_default' )]
+#[CoversFunction( 'wpcom_get_gutenberg_rtc_max_clients_per_user' )]
+#[CoversFunction( 'wpcom_get_gutenberg_rtc_max_peers_per_room' )]
 class Gutenberg_RTC_Test extends \WorDBless\BaseTestCase {
 
 	/**
@@ -75,6 +79,8 @@ class Gutenberg_RTC_Test extends \WorDBless\BaseTestCase {
 		$wp_styles          = $this->original_wp_styles; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		remove_all_filters( 'wpcom_is_gutenberg_rtc_enabled' );
 		remove_all_filters( 'wpcom_gutenberg_rtc_providers' );
+		remove_all_filters( 'wpcom_gutenberg_rtc_max_peers_per_room' );
+		remove_all_filters( 'wpcom_gutenberg_rtc_max_clients_per_user' );
 		parent::tear_down();
 	}
 
@@ -416,6 +422,42 @@ class Gutenberg_RTC_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertStringContainsString( 'wpcomGutenbergRTC', $inline );
 		$this->assertStringContainsString( '"maxPeersPerRoom":', $inline );
+	}
+
+	/**
+	 * Tests that the inline script data includes maxClientsPerUser.
+	 */
+	public function test_wpcom_enqueue_gutenberg_rtc_assets_includes_max_clients_per_user() {
+		wpcom_enqueue_gutenberg_rtc_assets();
+
+		$inline = $this->get_inline_script();
+
+		$this->assertStringContainsString( '"maxClientsPerUser":', $inline );
+	}
+
+	/**
+	 * Tests that max peer and client limits are filterable.
+	 */
+	public function test_wpcom_enqueue_gutenberg_rtc_assets_uses_filtered_limits() {
+		add_filter(
+			'wpcom_gutenberg_rtc_max_peers_per_room',
+			function () {
+				return 4;
+			}
+		);
+		add_filter(
+			'wpcom_gutenberg_rtc_max_clients_per_user',
+			function () {
+				return 3;
+			}
+		);
+
+		wpcom_enqueue_gutenberg_rtc_assets();
+
+		$inline = $this->get_inline_script();
+
+		$this->assertStringContainsString( '"maxPeersPerRoom":4', $inline );
+		$this->assertStringContainsString( '"maxClientsPerUser":3', $inline );
 	}
 
 	/**
