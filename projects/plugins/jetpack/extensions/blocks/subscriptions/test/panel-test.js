@@ -255,66 +255,19 @@ describe( 'SubscribePanels', () => {
 		isNewsletterFeatureEnabled.mockReturnValue( true );
 		useSelectSpy = jest.spyOn( wpData, 'useSelect' );
 		useDispatchSpy = jest.spyOn( wpData, 'useDispatch' );
-		useDispatchSpy.mockImplementation( store => {
-			if ( store === editorStore || store === 'core/editor' ) {
-				return {
-					toggleEditorPanelOpened: jest.fn(),
-					__unstableSaveForPreview: jest.fn(),
-				};
-			}
-			if ( store === 'core/block-editor' ) {
-				return { selectBlock: jest.fn() };
-			}
-			if ( store === 'core/edit-post' ) {
-				return { closeGeneralSidebar: jest.fn() };
-			}
-			return {
-				setPublishedWithEmailEnabledInSession: mockSetPublishedWithEmailEnabledInSession,
-				setAlreadySentPostModifiedInSession: mockSetAlreadySentPostModifiedInSession,
-			};
-		} );
+		useDispatchSpy.mockReturnValue( {} );
 	} );
 
 	afterEach( () => {
 		jest.restoreAllMocks();
 	} );
 
-	const createSubscribePanelsMockSelect = ( {
-		postType = 'post',
-		postId = 123,
-		postMeta = {},
-		postEmailSentState = null,
-		status = 'draft',
-		isSavingPost = false,
-		getConnectUrl = () => 'https://connect.example.com',
-	} = {} ) => {
+	const createSubscribePanelsMockSelect = ( { postType = 'post' } = {} ) => {
 		const editorSelect = {
-			getCurrentPost: () => ( postId ? { id: postId, status } : null ),
-			getCurrentPostId: () => postId,
 			getCurrentPostType: () => postType,
-			getEditedPostAttribute: attr => ( attr === 'meta' ? postMeta : undefined ),
-			getEditedPostVisibility: () => 'public',
-			isSavingPost: () => isSavingPost,
-			isEditorPanelOpened: () => true,
-			isEditorPanelEnabled: () => true,
 		};
-		const membershipSelect = {
-			getConnectUrl,
-			getPostEmailSentState: () => postEmailSentState,
-			isApiStateLoading: () => false,
-			getNewsletterTierProducts: () => [],
-		};
-		const blockEditorSelect = {
-			getBlocks: () => [],
-			selectBlock: () => {},
-		};
-		const editPostSelect = {};
 		return store => {
 			if ( store === editorStore || store === 'core/editor' ) return editorSelect;
-			if ( store === membershipProductsStore || store === 'jetpack/membership-products' )
-				return membershipSelect;
-			if ( store === 'core/block-editor' ) return blockEditorSelect;
-			if ( store === 'core/edit-post' ) return editPostSelect;
 			return {};
 		};
 	};
