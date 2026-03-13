@@ -15,21 +15,18 @@ declare global {
 }
 
 const SYNC_UPDATES_PATH = '/wp-sync/v1/updates';
-const ROOM_LIMIT_ERROR_CODE = 'rest_sync_connection_limit_exceeded';
 let isRoomLimitMiddlewareRegistered = false;
 
 /**
- * Narrow an apiFetch result to a Response-like object.
+ * Narrow an apiFetch error to an object with a numeric `status` field.
  *
- * @param value - Unknown apiFetch result.
- * @return True when the value exposes response status and clone.
+ * @param value - Unknown apiFetch error.
+ * @return True when the value exposes an HTTP status.
  */
-function isResponseLike( value: unknown ): value is Response {
-	if ( ! value || typeof value !== 'object' ) {
-		return false;
-	}
-
-	return 'status' in value && 'clone' in value;
+function hasStatusCode( value: unknown ): value is { status: number } {
+	return (
+		!! value && typeof value === 'object' && 'status' in value && typeof value.status === 'number'
+	);
 }
 
 /**
@@ -42,37 +39,19 @@ function registerRoomLimitMiddleware(): void {
 	}
 	isRoomLimitMiddlewareRegistered = true;
 
-	apiFetch.use( ( options, next ) =>
-		next( options ).then( ( response: unknown ) => {
-			const path = typeof options.path === 'string' ? options.path : '';
+	apiFetch.use( ( options, next ) => {
+		const path = typeof options.path === 'string' ? options.path : '';
+		if ( ! path.startsWith( SYNC_UPDATES_PATH ) ) {
+			return next( options );
+		}
 
-			if ( ! path.startsWith( SYNC_UPDATES_PATH ) || ! isResponseLike( response ) ) {
-				return response;
+		return next( options ).catch( ( error: unknown ) => {
+			if ( hasStatusCode( error ) && error.status === 429 ) {
+				triggerRoomLimitBreach();
 			}
-
-			const maybeResponse = response as Response;
-			if ( maybeResponse.status !== 429 ) {
-				return response;
-			}
-
-			void maybeResponse
-				.clone()
-				.json()
-				.then( ( data: unknown ) => {
-					if (
-						data &&
-						typeof data === 'object' &&
-						'code' in data &&
-						data.code === ROOM_LIMIT_ERROR_CODE
-					) {
-						triggerRoomLimitBreach();
-					}
-				} )
-				.catch( () => {} );
-
-			return response;
-		} )
-	);
+			throw error;
+		} );
+	} );
 }
 
 /**

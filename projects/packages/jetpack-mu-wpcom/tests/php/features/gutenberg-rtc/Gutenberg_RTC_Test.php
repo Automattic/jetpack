@@ -511,22 +511,22 @@ class Gutenberg_RTC_Test extends \WorDBless\BaseTestCase {
 	/**
 	 * Tests that the default max collaborators is 2.
 	 */
-	public function test_wpcom_rtc_get_max_collaborators_default() {
-		$this->assertSame( 2, wpcom_rtc_get_max_collaborators() );
+	public function test_wpcom_get_gutenberg_rtc_max_peers_per_room_default() {
+		$this->assertSame( 2, wpcom_get_gutenberg_rtc_max_peers_per_room() );
 	}
 
 	/**
 	 * Tests that max collaborators can be set via filter.
 	 */
-	public function test_wpcom_rtc_get_max_collaborators_via_filter() {
+	public function test_wpcom_get_gutenberg_rtc_max_peers_per_room_via_filter() {
 		add_filter(
-			'wpcom_rtc_max_collaborators',
+			'wpcom_gutenberg_rtc_max_peers_per_room',
 			function () {
 				return 4;
 			}
 		);
 
-		$this->assertSame( 4, wpcom_rtc_get_max_collaborators() );
+		$this->assertSame( 4, wpcom_get_gutenberg_rtc_max_peers_per_room() );
 	}
 
 	/**
@@ -626,7 +626,7 @@ class Gutenberg_RTC_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function test_wpcom_rtc_limit_collaborators_skips_non_http_polling_sites() {
 		add_filter(
-			'wpcom_rtc_max_collaborators',
+			'wpcom_gutenberg_rtc_max_peers_per_room',
 			function () {
 				return 1;
 			}

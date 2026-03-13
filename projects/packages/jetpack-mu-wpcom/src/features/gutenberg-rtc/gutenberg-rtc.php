@@ -221,15 +221,6 @@ function wpcom_override_rtc_setting_default() {
 add_action( 'admin_init', 'wpcom_override_rtc_setting_default', 20 );
 
 /**
- * Get the maximum number of simultaneous RTC collaborators allowed per room.
- *
- * @return int Maximum collaborator count. 0 means unlimited.
- */
-function wpcom_rtc_get_max_collaborators() {
-	return (int) apply_filters( 'wpcom_rtc_max_collaborators', 2 );
-}
-
-/**
  * Count active collaborators in a room, excluding the current collaborator.
  *
  * Uses awareness `state.collaboratorInfo.id` (matching frontend semantics).
@@ -289,7 +280,7 @@ function wpcom_rtc_limit_collaborators( $result, $server, $request ) {
 		return $result;
 	}
 
-	$max_collaborators = wpcom_rtc_get_max_collaborators();
+	$max_collaborators = wpcom_get_gutenberg_rtc_max_peers_per_room();
 	if ( $max_collaborators <= 0 ) {
 		return $result;
 	}
