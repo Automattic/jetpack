@@ -283,13 +283,13 @@ class Admin_Menu {
 
 		// Check the active plan - use the is_free field or product_slug.
 		$plan = get_option( 'jetpack_active_plan', array() );
-		
+
 		// If the plan explicitly says it's not free, trust that.
 		if ( isset( $plan['is_free'] ) && false === $plan['is_free'] ) {
 			$is_free = false;
 			return $is_free;
 		}
-		
+
 		// Check if the product slug indicates a paid plan.
 		if ( isset( $plan['product_slug'] ) && 'jetpack_free' !== $plan['product_slug'] ) {
 			$is_free = false;
@@ -350,7 +350,7 @@ class Admin_Menu {
 	}
 
 	/**
-	 * Outputs inline CSS to style the "Upgrade to Pro" menu item in Jetpack green.
+	 * Outputs inline CSS to style the "Upgrade Jetpack" menu item in Jetpack green.
 	 *
 	 * The sidebar menu is visible on every admin page, so styles must load globally.
 	 * Only outputs for free-plan sites on self-hosted installs.
