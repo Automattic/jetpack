@@ -20,6 +20,14 @@ class Jetpack_Sync_Checksum_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
 	/**
+	 * Set up before each test.
+	 */
+	public function set_up() {
+		parent::set_up();
+		Table_Checksum::reset_range_edges_cache();
+	}
+
+	/**
 	 * Allowed Tables for current test.
 	 *
 	 * @var array Table Configurations
@@ -610,6 +618,110 @@ class Jetpack_Sync_Checksum_Test extends WP_UnitTestCase {
 		$checksum_half_2 = $tc->calculate_checksum( $max_range_expected - 4, $max_range_expected );
 
 		$this->assertSame( (int) $checksum_full, (int) ( $checksum_half_1 + $checksum_half_2 ) );
+	}
+
+	/**
+	 * Test that get_range_edges for postmeta uses parent table count optimization.
+	 */
+	public function test_get_range_edges_postmeta_uses_parent_count() {
+		$user_id = self::factory()->user->create();
+
+		// Create 5 posts, each with 3 meta entries.
+		$post_ids = array();
+		for ( $i = 0; $i < 5; $i++ ) {
+			$post_id    = self::factory()->post->create( array( 'post_author' => $user_id ) );
+			$post_ids[] = $post_id;
+			add_post_meta( $post_id, 'test_key_1', 'value_1' );
+			add_post_meta( $post_id, 'test_key_2', 'value_2' );
+			add_post_meta( $post_id, 'test_key_3', 'value_3' );
+		}
+
+		$tc    = new Table_Checksum( 'postmeta' );
+		$range = $tc->get_range_edges();
+
+		// item_count should come from parent (posts) table, so it should be > 0.
+		$this->assertGreaterThan( 0, (int) $range['item_count'] );
+		// MIN and MAX should be valid.
+		$this->assertNotNull( $range['min_range'] );
+		$this->assertNotNull( $range['max_range'] );
+		$this->assertLessThanOrEqual( (int) $range['max_range'], (int) $range['min_range'] );
+	}
+
+	/**
+	 * Test that get_range_edges for postmeta with limit uses original DISTINCT behavior.
+	 */
+	public function test_get_range_edges_postmeta_with_limit() {
+		$user_id = self::factory()->user->create();
+
+		// Create 10 posts with meta.
+		for ( $i = 0; $i < 10; $i++ ) {
+			$post_id = self::factory()->post->create( array( 'post_author' => $user_id ) );
+			add_post_meta( $post_id, 'test_key', 'value' );
+		}
+
+		$tc    = new Table_Checksum( 'postmeta' );
+		$range = $tc->get_range_edges( null, null, 5 );
+
+		// With limit=5, the DISTINCT subquery path should return at most 5 items.
+		$this->assertLessThanOrEqual( 5, (int) $range['item_count'] );
+		$this->assertGreaterThan( 0, (int) $range['item_count'] );
+	}
+
+	/**
+	 * Test that get_range_edges for commentmeta uses parent table count optimization.
+	 */
+	public function test_get_range_edges_commentmeta_uses_parent_count() {
+		$user_id = self::factory()->user->create();
+		$post_id = self::factory()->post->create( array( 'post_author' => $user_id ) );
+
+		// Create 3 comments, each with meta. Non-whitelisted keys work because
+		// get_range_edges() strips filter_values for tables with a parent table.
+		for ( $i = 0; $i < 3; $i++ ) {
+			$comment_id = self::factory()->comment->create(
+				array(
+					'comment_post_ID' => $post_id,
+					'user_id'         => $user_id,
+				)
+			);
+			add_comment_meta( $comment_id, 'test_meta_key', 'test_meta_value' );
+		}
+
+		$tc    = new Table_Checksum( 'commentmeta' );
+		$range = $tc->get_range_edges();
+
+		// item_count should come from parent (comments) table.
+		$this->assertGreaterThan( 0, (int) $range['item_count'] );
+		$this->assertNotNull( $range['min_range'] );
+		$this->assertNotNull( $range['max_range'] );
+	}
+
+	/**
+	 * Test that get_range_edges strips filter_values for all meta tables, not just postmeta.
+	 * Non-whitelisted meta keys should still produce valid MIN/MAX range edges.
+	 */
+	public function test_get_range_edges_meta_tables_strip_filters() {
+		$user_id = self::factory()->user->create();
+		$post_id = self::factory()->post->create( array( 'post_author' => $user_id ) );
+
+		// Create comments with only non-whitelisted meta keys.
+		for ( $i = 0; $i < 3; $i++ ) {
+			$comment_id = self::factory()->comment->create(
+				array(
+					'comment_post_ID' => $post_id,
+					'user_id'         => $user_id,
+				)
+			);
+			add_comment_meta( $comment_id, 'non_whitelisted_key', 'value' );
+		}
+
+		$tc    = new Table_Checksum( 'commentmeta' );
+		$range = $tc->get_range_edges();
+
+		// Even though the meta key is not whitelisted, range edges should still
+		// return valid results because filter_values are stripped for meta tables.
+		$this->assertNotNull( $range['min_range'] );
+		$this->assertNotNull( $range['max_range'] );
+		$this->assertGreaterThan( 0, (int) $range['item_count'] );
 	}
 
 	/**
