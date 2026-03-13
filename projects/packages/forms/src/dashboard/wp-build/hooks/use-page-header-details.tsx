@@ -277,6 +277,71 @@ export default function usePageHeaderDetails(
 		]
 	);
 
+	const restoreForm = useCallback(
+		async ( item: { id: number } ) => {
+			try {
+				await saveEntityRecord(
+					'postType',
+					FORM_POST_TYPE,
+					{ id: item.id, status: 'publish' },
+					{ throwOnError: true }
+				);
+
+				invalidateFormStatusCounts();
+				createSuccessNotice( __( 'Form restored.', 'jetpack-forms' ), {
+					type: 'snackbar',
+				} );
+				navigate( { to: '/forms' } );
+			} catch ( error ) {
+				createErrorNotice( __( 'Could not restore form.', 'jetpack-forms' ), {
+					type: 'snackbar',
+				} );
+				// eslint-disable-next-line no-console
+				console.error( 'Failed to restore form:', error );
+			}
+		},
+		[
+			saveEntityRecord,
+			invalidateFormStatusCounts,
+			createSuccessNotice,
+			createErrorNotice,
+			navigate,
+		]
+	);
+
+	const permanentlyDeleteForm = useCallback(
+		async ( item: { id: number } ) => {
+			try {
+				await deleteEntityRecord(
+					'postType',
+					FORM_POST_TYPE,
+					item.id,
+					{ force: true },
+					{ throwOnError: true }
+				);
+
+				invalidateFormStatusCounts();
+				createSuccessNotice( __( 'Form deleted permanently.', 'jetpack-forms' ), {
+					type: 'snackbar',
+				} );
+				navigate( { to: '/forms' } );
+			} catch ( error ) {
+				createErrorNotice( __( 'Could not delete form.', 'jetpack-forms' ), {
+					type: 'snackbar',
+				} );
+				// eslint-disable-next-line no-console
+				console.error( 'Failed to permanently delete form:', error );
+			}
+		},
+		[
+			deleteEntityRecord,
+			invalidateFormStatusCounts,
+			createSuccessNotice,
+			createErrorNotice,
+			navigate,
+		]
+	);
+
 	const formStatus = formRecord?.status;
 
 	const statusLabel = formStatus ? getFormStatusLabel( formStatus ) : undefined;
@@ -304,6 +369,20 @@ export default function usePageHeaderDetails(
 		}
 
 		const formItem = { id: sourceIdNumber, title: formTitle };
+
+		if ( formRecord?.status === 'trash' ) {
+			return [
+				{
+					title: __( 'Restore', 'jetpack-forms' ),
+					onClick: () => restoreForm( formItem ),
+				},
+				{
+					title: __( 'Delete permanently', 'jetpack-forms' ),
+					onClick: () => permanentlyDeleteForm( formItem ),
+				},
+			];
+		}
+
 		const controls: Array< { title: string; onClick: () => void } > = [
 			{
 				title: __( 'Preview', 'jetpack-forms' ),
@@ -324,42 +403,40 @@ export default function usePageHeaderDetails(
 			);
 		}
 
-		if ( formRecord?.status !== 'trash' ) {
-			if ( formRecord?.status === 'publish' ) {
-				controls.push( {
-					title: __( 'Unpublish', 'jetpack-forms' ),
-					onClick: () => {
-						if ( ! isUpdatingStatus ) {
-							setFormsToDraft( [ formItem ] );
-						}
-					},
-				} );
-			} else {
-				controls.push( {
-					title: __( 'Publish', 'jetpack-forms' ),
-					onClick: () => {
-						if ( ! isUpdatingStatus ) {
-							publishForms( [ formItem ] );
-						}
-					},
-				} );
-			}
-
-			controls.push(
-				{
-					title: __( 'Rename', 'jetpack-forms' ),
-					onClick: () => setRenameFormItem( formItem ),
+		if ( formRecord?.status === 'publish' ) {
+			controls.push( {
+				title: __( 'Unpublish', 'jetpack-forms' ),
+				onClick: () => {
+					if ( ! isUpdatingStatus ) {
+						setFormsToDraft( [ formItem ] );
+					}
 				},
-				{
-					title: __( 'Duplicate', 'jetpack-forms' ),
-					onClick: () => duplicateForm( formItem ),
+			} );
+		} else {
+			controls.push( {
+				title: __( 'Publish', 'jetpack-forms' ),
+				onClick: () => {
+					if ( ! isUpdatingStatus ) {
+						publishForms( [ formItem ] );
+					}
 				},
-				{
-					title: __( 'Trash', 'jetpack-forms' ),
-					onClick: () => trashForm( formItem ),
-				}
-			);
+			} );
 		}
+
+		controls.push(
+			{
+				title: __( 'Rename', 'jetpack-forms' ),
+				onClick: () => setRenameFormItem( formItem ),
+			},
+			{
+				title: __( 'Duplicate', 'jetpack-forms' ),
+				onClick: () => duplicateForm( formItem ),
+			},
+			{
+				title: __( 'Trash', 'jetpack-forms' ),
+				onClick: () => trashForm( formItem ),
+			}
+		);
 
 		return controls;
 	}, [
@@ -367,6 +444,8 @@ export default function usePageHeaderDetails(
 		copyShortcode,
 		duplicateForm,
 		trashForm,
+		restoreForm,
+		permanentlyDeleteForm,
 		formRecord?.status,
 		formTitle,
 		isUpdatingStatus,

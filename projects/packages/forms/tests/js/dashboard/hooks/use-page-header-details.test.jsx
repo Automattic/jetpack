@@ -355,20 +355,66 @@ describe( 'usePageHeaderDetails', () => {
 		} );
 	} );
 
-	describe( 'trashed form guard', () => {
-		it( 'hides Rename, Duplicate, Trash, and Publish for trashed forms', () => {
+	describe( 'trashed form actions', () => {
+		it( 'shows only Restore and Delete permanently for trashed forms', () => {
 			mockFormRecord = { title: { rendered: 'Trashed Form' }, status: 'trash' };
 			const { result } = renderHook( () =>
 				usePageHeaderDetails( { ...defaultProps, statusView: 'trash' } )
 			);
 			const titles = getControlTitles( result );
 
-			expect( titles ).toContain( 'Preview' );
-			expect( titles ).not.toContain( 'Rename' );
-			expect( titles ).not.toContain( 'Duplicate' );
-			expect( titles ).not.toContain( 'Trash' );
-			expect( titles ).not.toContain( 'Publish' );
-			expect( titles ).not.toContain( 'Unpublish' );
+			expect( titles ).toEqual( [ 'Restore', 'Delete permanently' ] );
+		} );
+
+		it( 'calls saveEntityRecord with publish status on restore', async () => {
+			mockFormRecord = { title: { rendered: 'Trashed Form' }, status: 'trash' };
+			const { result } = renderHook( () =>
+				usePageHeaderDetails( { ...defaultProps, statusView: 'trash' } )
+			);
+			const controls = result.current.actions.find( a => a?.props?.controls )?.props?.controls;
+
+			await act( async () => {
+				controls[ 0 ].onClick();
+			} );
+
+			await waitFor( () => {
+				expect( mockSaveEntityRecord ).toHaveBeenCalledWith(
+					'postType',
+					'jetpack_form',
+					{ id: 42, status: 'publish' },
+					{ throwOnError: true }
+				);
+				expect( mockCreateSuccessNotice ).toHaveBeenCalledWith( 'Form restored.', {
+					type: 'snackbar',
+				} );
+				expect( mockNavigate ).toHaveBeenCalledWith( { to: '/forms' } );
+			} );
+		} );
+
+		it( 'calls deleteEntityRecord with force on permanent delete', async () => {
+			mockFormRecord = { title: { rendered: 'Trashed Form' }, status: 'trash' };
+			const { result } = renderHook( () =>
+				usePageHeaderDetails( { ...defaultProps, statusView: 'trash' } )
+			);
+			const controls = result.current.actions.find( a => a?.props?.controls )?.props?.controls;
+
+			await act( async () => {
+				controls[ 1 ].onClick();
+			} );
+
+			await waitFor( () => {
+				expect( mockDeleteEntityRecord ).toHaveBeenCalledWith(
+					'postType',
+					'jetpack_form',
+					42,
+					{ force: true },
+					{ throwOnError: true }
+				);
+				expect( mockCreateSuccessNotice ).toHaveBeenCalledWith( 'Form deleted permanently.', {
+					type: 'snackbar',
+				} );
+				expect( mockNavigate ).toHaveBeenCalledWith( { to: '/forms' } );
+			} );
 		} );
 	} );
 
