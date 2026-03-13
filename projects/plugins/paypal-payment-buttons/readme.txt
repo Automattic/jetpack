@@ -1,92 +1,141 @@
 === PayPal Payment Buttons ===
 Contributors: paypal,automattic,woocommerce
-Tags: paypal, payments, ecommerce, blocks, checkout
+Tags: paypal, payments, buy now, payment buttons, ecommerce
 Requires at least: 6.8
-Requires PHP: 7.2
+Requires PHP: 7.4
 Tested up to: 6.9
-Stable tag: 0.3.2
+Stable tag: 0.8.0
 License: GPLv2 or later
-License URI: http://www.gnu.org/licenses/gpl-2.0.html
+License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Easily showcase products/services, upload images, manage variants, set pricing options, and simplify checkout with shipping and taxes.
+Accept payments with PayPal — create branded Buy Now buttons directly in the WordPress block editor.
 
 == Description ==
 
-Start accepting PayPal payments from any post or page with the PayPal Payment Buttons block. Designed to streamline the checkout experience, PayPal Payment Buttons can help boost your conversion at the point of payment.
+PayPal Payment Buttons lets you accept payments on your WordPress site using PayPal's Pay Links & Buttons API. Create professional, PayPal-branded Buy Now buttons without leaving the block editor.
 
-- **Fast, easy setup**: You can create PayPal Payment Buttons in seconds - no coding experience needed. Embed the buttons on your site in minutes. Just copy and paste 5 lines of code.
-- **More payment options**: Let your customers choose how they want to pay. You can accept PayPal, Venmo, Pay Later, Apple Pay®, debit cards, and credit cards. Availability may vary by region.
-- **Higher sales**: We help drive conversion by offering a trusted, seamless payment experience.
-- **International reach**: We make it simple to accept payments from customers around the globe. Access PayPal’s coverage for over 200 countries and regions, supporting 24 currencies and 25 languages to support sales around the globe.
-- **Smart security**: Get peace of mind with encryption and fraud prevention.
+**Key Features:**
 
-### Highlight Features
+* **API-driven button creation** — Fill in product name, price, and currency; the plugin creates a PayPal payment link automatically
+* **PayPal-branded buttons** — Gold PayPal button with optional Debit/Credit Card secondary button, matching PayPal's official design
+* **Live preview** — See exactly how your button will look before publishing — the frontend renders identically to the editor preview
+* **26 currencies supported** — USD, EUR, GBP, JPY, and 22 more with proper currency symbol formatting
+* **Stacked or single layout** — Choose between a two-button stack (PayPal + Debit/Credit) or PayPal-only button
+* **Secure credential storage** — OAuth credentials are encrypted at rest using AES-256-CBC
+* **Backward compatible** — Existing paste-code buttons continue to work unchanged
 
-- Add images and descriptions to showcase your products and services.
-- Easily add and manage product variants.
-- Implement the Name Your Price feature for tipping or flexible price payments.
-- Tailor your page and buttons to align with your personal brand.
-- Offer a variety of shipping options and tax rates based on buyer's location.
-- Easily track payments via your PayPal dashboard.
+**How It Works:**
 
-### Requirements
-
-The PayPal Payment Buttons block is free to use. It is available as part of the Jetpack plugin. It is also available to all WordPress.com hosted sites. It is also available as a standalone plugin from the WordPress.org plugin directory.
-
-Once you have added and set up the block, you’ll also need a free PayPal account linked to your bank account to claim any payments you receive.
-
-You can add the PayPal Payment Buttons block in your post or page, by following these steps:
-
-### Add a PayPal Payment Buttons block
-
-1. Select the PayPal Payment Buttons block from the block picker. You can recognize the block by its green credit card icon.
-2. [Sign up](https://www.paypal.com/bizsignup/entry?product=payment_button&utm_source=wp&at_code=wp) or [log in](https://www.paypal.com/ncp/buttons/create?utm_source=wp&at_code=wp) to PayPal to get your Payment Button code.
-3. Choose between Stacked Buttons and Single Buttons based on your needs.
-   - **Stacked Buttons (Recommended)**: This option lets you present all of your product information and PayPal payment method upfront on your website.
-   - **Single Buttons**: This option lets you quickly paste a single button on your site, with no product information.
-4. Copy the provided button code from the PayPal site.
-
-
-#### If you are using the Stacked Buttons:
-
-1. Select the HTML code language from the dropdown above your button code. 
-2. Then paste the code for the `<head>` into the first text box in the PayPal Payment Buttons block. (We’ll take care of placing this code into your post or page `<head>` only once.)
-3. Then paste the `<body>` code into the second text box in the PayPal Payment Buttons block.
-
-#### If you are using the Single Button:
-
-1. Click the Single Button option in the PayPal Payment Buttons block.
-2. Copy the single button code from the PayPal site and paste it into the text area of the block.
-
-By repeating the process above, you can add as many PayPal Payment Buttons blocks to your page as you like.
-
-### Taking Payments with PayPal
-
-1. When a visitor clicks a PayPal payment button, a new window will open to guide them through the PayPal checkout process.
-2. Visitors can use an existing PayPal account or a credit or debit card to complete their purchase.
-3. All payments are credited to the PayPal business account that was used to create the payment button code.
+1. Connect your PayPal account using API credentials from the PayPal Developer Dashboard
+2. Add the PayPal Payment Buttons block to any post or page
+3. Enter your product details (name, price, currency, and optional description)
+4. Click "Create Button" — the plugin creates a payment link via PayPal's API
+5. Publish your post — visitors see a styled PayPal button that links to checkout
 
 == Installation ==
 
-1. Upload the PayPal Payment Buttons plugin to your WordPress site.
-2. Activate the plugin through the 'Plugins' screen in WordPress.
-3. Add the PayPal Payment Buttons block to any post or page using the block editor.
-4. Configure your PayPal account settings within the block to start accepting payments.
+1. Upload the plugin to the `/wp-content/plugins/` directory, or install via the WordPress plugin screen.
+2. Activate the plugin through the "Plugins" screen in WordPress.
+3. **Connect PayPal:**
+   a. Go to the [PayPal Developer Dashboard](https://developer.paypal.com/dashboard/applications/).
+   b. Create a new app (or use an existing one) under **Apps & Credentials**.
+   c. Copy the **Client ID** and **Client Secret**.
+   d. Add a PayPal Payment Buttons block in the editor and enter your credentials.
+   e. Start in **Sandbox** mode for testing, then switch to **Production** when ready.
+
+= Requirements =
+
+* WordPress 6.8 or later
+* PHP 7.4 or later with OpenSSL extension
+* A PayPal Business or Developer account with API credentials
 
 == Frequently Asked Questions ==
 
-= Can I test with a sandbox account? =
+= How do I get PayPal API credentials? =
 
-It is possible to perform test payments with the PayPal Payment Buttons block. To get started you would need to create a [PayPal Developer account](https://developer.paypal.com/home/). Once you are logged into your PayPal developer account, you can access or create new sandbox accounts. You will need to make note of your sandbox business account and personal account email addresses and passwords. Once you have this information, you would login to the [PayPal Sandbox site](https://www.sandbox.paypal.com/) with the sandbox business account. Create a [payment button on the PayPal sandbox site](https://www.sandbox.paypal.com/ncp/buttons/create?utm_source=wp&at_code=wp). Follow the instructions above to add the payment button code to your PayPal Payment Buttons block. Publish the post or page that contains the block. Then use the sandbox personal account to complete the purchase. All successful test payments will show up in the business sandbox account on the PayPal Sandbox.
+1. Log in to the [PayPal Developer Dashboard](https://developer.paypal.com/dashboard/applications/).
+2. Navigate to **Apps & Credentials**.
+3. Select **Sandbox** or **Live** depending on your needs.
+4. Click **Create App** or select an existing app.
+5. Copy the **Client ID** and **Client Secret**.
+
+= What's the difference between Sandbox and Production? =
+
+**Sandbox** is PayPal's testing environment — no real money changes hands. Use it to test your buttons before going live. **Production** processes real payments. You can switch between environments in the block editor sidebar.
+
+= Will my existing PayPal buttons still work after updating? =
+
+Yes. Existing buttons created with the paste-code method continue to work exactly as before. There is no forced migration — old buttons render unchanged on both the editor and frontend.
+
+= What currencies are supported? =
+
+USD, EUR, GBP, CAD, AUD, JPY, CHF, SEK, NOK, DKK, NZD, SGD, HKD, MXN, BRL, PLN, CZK, HUF, ILS, MYR, PHP, TWD, THB, INR, CNY, and RUB. Each currency displays its proper symbol (e.g., $, €, £, ¥) on both the editor preview and published page.
+
+= Where are my PayPal credentials stored? =
+
+Credentials are encrypted using AES-256-CBC before being stored in the WordPress database (`wp_options`). The encryption key is derived from your site's `LOGGED_IN_KEY` and `LOGGED_IN_SALT` constants in `wp-config.php`.
+
+= What happens if I disconnect PayPal? =
+
+Disconnecting removes your stored credentials and cached token. Existing published buttons with payment links continue to work on the frontend — the links are static URLs hosted by PayPal. However, you won't be able to create new buttons or edit existing ones until you reconnect.
+
+= I'm seeing "not authorized for Payment Links & Buttons" — what do I do? =
+
+This means your PayPal app may not have the required permissions. In the PayPal Developer Dashboard, ensure your app has the **Payment Links & Buttons** feature enabled. If you're using a sandbox account, create a new sandbox business account with full permissions.
+
+= Can I use this with WooCommerce? =
+
+This plugin is designed for standalone PayPal payment buttons on posts and pages. It's separate from the WooCommerce PayPal payment gateway. Both can coexist on the same site.
 
 == Changelog ==
-### 0.3.2 - 2025-11-20
-#### Added
-- Tested up to WordPress 6.9.
 
-#### Changed
-- Update package dependencies.
+= 0.8.0 =
+* **New:** API-driven button creation via PayPal's Pay Links & Buttons API
+* **New:** OAuth 2.0 connection flow with encrypted credential storage (AES-256-CBC)
+* **New:** Live button preview in the block editor with PayPal-branded styling
+* **New:** Frontend rendering matches block editor preview exactly — currency symbols, PayPal logo, product info card, stacked/inline layouts
+* **New:** Product description field with truncation on the published page
+* **New:** Edit/preview mode toggle for existing buttons
+* **New:** Client-side and server-side input validation
+* **New:** Automatic token refresh on expiry with retry logic
+* **New:** Exponential backoff for transient API errors (500/502/503)
+* **New:** PayPal URL domain whitelist for payment link validation
+* **New:** 26 supported currencies with proper symbol formatting
+* **New:** Delete button action in the sidebar
+* **Fixed:** Extract payment_link from HATEOAS links array instead of non-existent top-level field
+* **Fixed:** Align block.json attribute names between editor (JS) and server-side (PHP) registration
+* **Fixed:** Frontend style.css build path (was incorrectly pointing to editor.css)
+* **Improved:** User-friendly error messages for all PayPal API errors
+* **Improved:** Backward compatibility with v0.4.0-alpha paste-code blocks via deprecated.js
 
-#### Fixed
-- Jetpack: Remove getIconColor functions for block icons.
+= 0.3.2 - 2025-11-20 =
+* Tested up to WordPress 6.9.
+* Update package dependencies.
+* Jetpack: Remove getIconColor functions for block icons.
 
+= 0.3.1 - 2025-10-09 =
+* Update package dependencies.
+* Update short description for plugin.
+
+= 0.3.0 - 2025-09-16 =
+* Improve robustness of PayPal Payment Buttons parsing.
+* Remove admin page for PayPal Payment Buttons plugin.
+* Update readme.txt and adds assets for distribution.
+
+= 0.2.0 - 2025-07-25 =
+* Initial release setup and plugin structure.
+* Integration with paypal-payments package for core functionality.
+* Working PayPal Payment Button block with availability data.
+
+== Upgrade Notice ==
+
+= 0.8.0 =
+Major update: API-driven PayPal button creation replaces the paste-code workflow. Existing buttons are fully backward compatible — no action required.
+
+== Screenshots ==
+
+1. Connect PayPal — Enter API credentials from the PayPal Developer Dashboard.
+2. Create Button — Fill in product name, price, and currency in the block editor.
+3. Live Preview — See the PayPal-branded button preview before publishing.
+4. Frontend — Published PayPal button with product info and payment link.
+5. Stacked Layout — PayPal button with Debit/Credit Card secondary button.
