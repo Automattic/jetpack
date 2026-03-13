@@ -236,7 +236,6 @@ class Contact_Form_Plugin {
 			add_action( 'wp_ajax_create_new_form', array( $this, 'create_new_form' ) );
 			add_action( 'wp_ajax_grunion_export_to_gdrive', array( $this, 'export_to_gdrive' ) );
 		}
-		add_action( 'admin_menu', array( $this, 'admin_menu' ) );
 		add_action( 'current_screen', array( $this, 'unread_count' ) );
 		add_action( 'current_screen', array( $this, 'redirect_edit_feedback_to_jetpack_forms' ) );
 
