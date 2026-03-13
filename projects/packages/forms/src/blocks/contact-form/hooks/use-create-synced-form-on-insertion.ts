@@ -57,13 +57,14 @@ export function useCreateSyncedFormOnInsertion( {
 				currentPostId: getCurrentPostId(),
 				shouldCreate:
 					isCentralFormManagementEnabled &&
+					!! attributes.variationName &&
 					select( blockEditorStore ).wasBlockJustInserted( clientId ) &&
 					! ref &&
 					innerBlocks?.length > 0 &&
 					getCurrentPostType() !== FORM_POST_TYPE,
 			};
 		},
-		[ clientId, ref, innerBlocks, isCentralFormManagementEnabled ]
+		[ clientId, ref, innerBlocks, attributes.variationName, isCentralFormManagementEnabled ]
 	);
 
 	useEffect( () => {
@@ -77,7 +78,8 @@ export function useCreateSyncedFormOnInsertion( {
 			try {
 				const name = attributes.variationName as string | undefined;
 				const formTitle =
-					variations.find( v => v.name === name )?.title || __( 'Form', 'jetpack-forms' );
+					variations.find( v => v.attributes?.variationName === name )?.title ||
+					__( 'Form', 'jetpack-forms' );
 
 				const formBlock = createBlock(
 					'jetpack/contact-form',
