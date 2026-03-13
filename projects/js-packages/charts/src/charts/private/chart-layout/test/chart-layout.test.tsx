@@ -77,17 +77,18 @@ describe( 'ChartLayout', () => {
 			return { width: 0, height: 0, top: 0, left: 0, bottom: 0, right: 0, x: 0, y: 0 } as DOMRect;
 		};
 
-		const childFn = jest.fn().mockReturnValue( <div>Chart</div> );
-		render(
-			<ChartLayout legendPosition="bottom" legendChildren={ [] } data-testid="layout">
-				{ childFn }
-			</ChartLayout>
-		);
-		// When contentHeight is 0, layout should be hidden to prevent layout shift
-		expect( screen.getByTestId( 'layout' ) ).toHaveStyle( { visibility: 'hidden' } );
-
-		// Restore the global mock
-		Element.prototype.getBoundingClientRect = originalGetBoundingClientRect;
+		try {
+			const childFn = jest.fn().mockReturnValue( <div>Chart</div> );
+			render(
+				<ChartLayout legendPosition="bottom" legendChildren={ [] } data-testid="layout">
+					{ childFn }
+				</ChartLayout>
+			);
+			// When contentHeight is 0, layout should be hidden to prevent layout shift
+			expect( screen.getByTestId( 'layout' ) ).toHaveStyle( { visibility: 'hidden' } );
+		} finally {
+			Element.prototype.getBoundingClientRect = originalGetBoundingClientRect;
+		}
 	} );
 
 	it( 'does not hide layout when using plain ReactNode children', () => {
