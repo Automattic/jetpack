@@ -1,20 +1,307 @@
 /**
- * The following styles get applied inside the editor only.
+ * PayPal Payment Buttons — Block Editor Styles.
+ *
+ * Updated for WOOPTP-151: Inline validation error styles for
+ * client-side form validation.
+ *
+ * @package automattic/jetpack-paypal-payments
+ * @since 0.8.0
  */
-@use "@wordpress/base-styles/variables" as *;
-@use "@wordpress/base-styles/breakpoints" as *;
-@use "@wordpress/base-styles/mixins" as *;
 
-.wp-block-jetpack-paypal-payment-buttons {
+// ---------------------------------------------------------------
+// Shared / Utility
+// ---------------------------------------------------------------
 
-	.block-editor-plain-text {
+.jetpack-paypal-payment-buttons__loading {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	padding: 32px;
+	gap: 12px;
+	color: #757575;
+}
 
-		width: auto;
+.jetpack-paypal-payment-buttons__preview-status {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin-bottom: 16px;
+	font-size: 13px;
+	color: #1e1e1e;
+}
 
-		@include editor-input-reset();
+.jetpack-paypal-payment-buttons__status-dot {
+	display: inline-block;
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	background: #757575;
+
+	&--connected {
+		background: #00a32a;
+	}
+}
+
+.jetpack-paypal-payment-buttons__sandbox-badge {
+	display: inline-block;
+	padding: 2px 8px;
+	font-size: 11px;
+	font-weight: 600;
+	text-transform: uppercase;
+	color: #996800;
+	background: #fcf0e3;
+	border-radius: 3px;
+}
+
+// ---------------------------------------------------------------
+// Connection Form
+// ---------------------------------------------------------------
+
+.jetpack-paypal-payment-buttons__connect {
+	padding: 24px;
+	border: 1px dashed #c3c4c7;
+	border-radius: 4px;
+	background: #f9f9f9;
+
+	h3 {
+		margin-top: 0;
+		margin-bottom: 8px;
 	}
 
-	.components-notice {
-		align-self: normal;
+	p {
+		color: #757575;
+		margin-bottom: 16px;
+	}
+
+	.components-base-control {
+		margin-bottom: 12px;
+	}
+}
+
+// ---------------------------------------------------------------
+// Create / Edit Form
+// ---------------------------------------------------------------
+
+.jetpack-paypal-payment-buttons__create-form {
+	padding: 24px;
+	border: 1px solid #c3c4c7;
+	border-radius: 4px;
+
+	h3 {
+		margin-top: 0;
+		margin-bottom: 16px;
+	}
+
+	.components-base-control {
+		margin-bottom: 12px;
+	}
+
+	// Error state for form fields.
+	.has-error {
+
+		.components-text-control__input,
+		.components-textarea-control__input {
+			border-color: #cc1818;
+
+			&:focus {
+				border-color: #cc1818;
+				box-shadow: 0 0 0 1px #cc1818;
+			}
+		}
+	}
+}
+
+.jetpack-paypal-payment-buttons__price-row {
+	display: flex;
+	gap: 12px;
+
+	> * {
+		flex: 1;
+	}
+}
+
+.jetpack-paypal-payment-buttons__form-actions {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	margin-top: 4px;
+}
+
+// ---------------------------------------------------------------
+// Inline Field Validation Errors
+// ---------------------------------------------------------------
+
+.jetpack-paypal-payment-buttons__field-error {
+	margin: -8px 0 12px;
+	padding: 0;
+	font-size: 12px;
+	color: #cc1818;
+	line-height: 1.4;
+}
+
+// ---------------------------------------------------------------
+// Button Preview (editor wrapper)
+// ---------------------------------------------------------------
+
+.jetpack-paypal-payment-buttons__preview {
+	padding: 24px;
+	border: 1px solid #c3c4c7;
+	border-radius: 4px;
+}
+
+// ---------------------------------------------------------------
+// PayPal Button Preview Component
+// ---------------------------------------------------------------
+
+.jetpack-paypal-button-preview {
+	max-width: 400px;
+	margin: 0 auto;
+}
+
+// Product card
+.jetpack-paypal-button-preview__product {
+	display: flex;
+	justify-content: space-between;
+	align-items: flex-start;
+	padding: 16px;
+	margin-bottom: 16px;
+	background: #f6f7f7;
+	border-radius: 4px;
+	border: 1px solid #e0e0e0;
+}
+
+.jetpack-paypal-button-preview__product-info {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	flex: 1;
+	min-width: 0;
+}
+
+.jetpack-paypal-button-preview__product-name {
+	font-weight: 600;
+	font-size: 15px;
+	color: #1e1e1e;
+}
+
+.jetpack-paypal-button-preview__product-description {
+	font-size: 13px;
+	color: #757575;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.jetpack-paypal-button-preview__product-price {
+	font-weight: 700;
+	font-size: 18px;
+	color: #1e1e1e;
+	white-space: nowrap;
+	padding-left: 12px;
+}
+
+// Buttons container
+.jetpack-paypal-button-preview__buttons {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	margin-bottom: 12px;
+
+	&--single {
+
+		.jetpack-paypal-button-preview__debit-button {
+			display: none;
+		}
+	}
+}
+
+// PayPal primary button
+.jetpack-paypal-button-preview__paypal-button {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	padding: 14px 24px;
+	background: #ffc439;
+	border: none;
+	border-radius: 25px;
+	cursor: default;
+	text-decoration: none;
+	transition: background 0.2s;
+
+	.jetpack-paypal-button__logo {
+		height: 18px;
+		width: auto;
+	}
+
+	.jetpack-paypal-button-preview__button-text {
+		font-size: 15px;
+		font-weight: 600;
+		color: #2c2e2f;
+	}
+
+	&:hover {
+		background: #f0b72a;
+	}
+}
+
+// Debit/credit secondary button
+.jetpack-paypal-button-preview__debit-button {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 14px 24px;
+	background: #2c2e2f;
+	border: none;
+	border-radius: 25px;
+	cursor: default;
+	text-decoration: none;
+	font-size: 14px;
+	font-weight: 500;
+	color: #fff;
+
+	&:hover {
+		background: #1a1b1c;
+		color: #fff;
+	}
+}
+
+// Payment link reference
+.jetpack-paypal-button-preview__link-ref {
+	display: flex;
+	align-items: baseline;
+	gap: 6px;
+	padding-top: 8px;
+	border-top: 1px solid #e0e0e0;
+}
+
+.jetpack-paypal-button-preview__link-label {
+	font-size: 11px;
+	color: #757575;
+	white-space: nowrap;
+}
+
+.jetpack-paypal-button-preview__link-url {
+	font-size: 11px;
+	color: #2271b1;
+	word-break: break-all;
+	background: none;
+	padding: 0;
+}
+
+// ---------------------------------------------------------------
+// Legacy Block Indicator
+// ---------------------------------------------------------------
+
+.jetpack-paypal-payment-buttons__legacy {
+	padding: 24px;
+	border: 1px dashed #c3c4c7;
+	border-radius: 4px;
+	background: #f9f9f9;
+	text-align: center;
+	color: #757575;
+
+	p {
+		margin: 4px 0;
 	}
 }

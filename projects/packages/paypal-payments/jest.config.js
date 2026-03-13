@@ -15,6 +15,7 @@ module.exports = {
 		...baseConfig.moduleNameMapper,
 		'\\.(css|less|sass|scss)$': '<rootDir>/tests/styles-mock.js',
 		'^../src/block/block\\.json$': '<rootDir>/tests/json-mock.js',
+		'^@wordpress/api-fetch$': '<rootDir>/tests/api-fetch-mock.js',
 	},
 	setupFilesAfterEnv: [ '<rootDir>/tests/jest.setup.js', '@testing-library/jest-dom' ],
 	collectCoverageFrom: [

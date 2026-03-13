@@ -1,0 +1,70 @@
+/**
+ * PayPal Payment Buttons — Frontend Styles for API-managed buttons (V2)
+ *
+ * These styles are loaded on the frontend for blocks created via the
+ * Pay Links & Buttons API. Legacy paste-code blocks use inline styles
+ * and are not affected.
+ *
+ * @package automattic/jetpack-paypal-payments
+ * @since 0.7.0
+ */
+
+.paypal-api-button {
+	text-align: center;
+	padding: 16px 0;
+}
+
+.paypal-api-button__product {
+	margin-bottom: 12px;
+}
+
+.paypal-api-button__name {
+	display: block;
+	font-size: 1rem;
+	font-weight: 600;
+	color: inherit;
+	margin-bottom: 2px;
+}
+
+.paypal-api-button__price {
+	display: block;
+	font-size: 0.875rem;
+	color: #757575;
+}
+
+.paypal-api-button__form {
+	display: inline-grid;
+	justify-items: center;
+	align-content: start;
+	gap: 0.5rem;
+}
+
+.paypal-api-button__submit {
+	text-align: center;
+	border: none;
+	border-radius: 0.25rem;
+	min-width: 11.625rem;
+	padding: 0 2rem;
+	height: 2.625rem;
+	font-weight: 700;
+	background-color: #ffd140;
+	color: #000;
+	font-family: "Helvetica Neue", Arial, sans-serif;
+	font-size: 1rem;
+	line-height: 1.25rem;
+	cursor: pointer;
+}
+
+.paypal-api-button__submit:hover {
+	background-color: #f0c030;
+}
+
+.paypal-api-button__powered-by {
+	font-size: 0.75rem;
+	color: #757575;
+}
+
+.paypal-api-button__powered-by img {
+	height: 0.875rem;
+	vertical-align: middle;
+}

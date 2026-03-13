@@ -93,11 +93,96 @@ class PayPal_Payment_Buttons {
 	/**
 	 * Render the block.
 	 *
+	 * Supports both API-managed buttons (V2) and legacy paste-code buttons (V1).
+	 * API-managed buttons use the payment_url from the PayPal Pay Links & Buttons API.
+	 * Legacy buttons use scriptSrc/hostedButtonId from the paste-code workflow.
+	 *
 	 * @param array  $attributes The block attributes.
 	 * @param string $content The block content.
-	 * @return string|void
+	 * @return string|void The rendered block HTML.
 	 */
 	public static function render_block( $attributes, $content ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		$api_managed = ! empty( $attributes['apiManaged'] );
+
+		// ─── V2: API-managed button ───
+		if ( $api_managed ) {
+			return self::render_api_managed_button( $attributes );
+		}
+
+		// ─── V1: Legacy paste-code button ───
+		return self::render_legacy_button( $attributes );
+	}
+
+	/**
+	 * Render an API-managed button created via the Pay Links & Buttons API.
+	 *
+	 * Generates a styled form that links to the PayPal payment page.
+	 * The BN code is included as a query parameter for revenue attribution.
+	 *
+	 * @since 0.7.0
+	 *
+	 * @param array $attributes The block attributes.
+	 * @return string|void The rendered button HTML.
+	 */
+	private static function render_api_managed_button( $attributes ) {
+		$resource_id  = $attributes['resourceId'] ?? '';
+		$payment_url  = $attributes['paymentUrl'] ?? '';
+		$product_name = $attributes['productName'] ?? '';
+		$price        = $attributes['price'] ?? '';
+		$currency     = $attributes['currency'] ?? 'USD';
+		$button_label = $attributes['buttonLabel'] ?? __( 'Buy Now', 'jetpack-paypal-payments' );
+
+		if ( empty( $resource_id ) || empty( $payment_url ) ) {
+			return;
+		}
+
+		// Validate the payment URL is from a legitimate PayPal domain.
+		$sanitized_payment_url = self::sanitize_paypal_script_url( $payment_url );
+		if ( false === $sanitized_payment_url ) {
+			return;
+		}
+
+		self::register_hooks();
+
+		// Append BN code for revenue attribution tracking.
+		$action_url = esc_url(
+			add_query_arg( 'at_code', self::PAYPAL_PARTNER_ATTRIBUTION_ID, $sanitized_payment_url )
+		);
+
+		$payment_id           = esc_attr( $resource_id );
+		$button_text_escaped  = esc_attr( $button_label );
+		$product_name_escaped = esc_html( $product_name );
+		$price_display        = esc_html( $price . ' ' . $currency );
+
+		return sprintf(
+			'<div class="wp-block-jetpack-paypal-payment-buttons paypal-api-button">
+	<div class="paypal-api-button__product">
+		<span class="paypal-api-button__name">%1$s</span>
+		<span class="paypal-api-button__price">%2$s</span>
+	</div>
+	<form action="%3$s" method="post" target="_blank" class="paypal-api-button__form">
+		<input class="paypal-api-button__submit pp-%4$s" type="submit" value="%5$s" />
+		<img src="https://www.paypalobjects.com/images/Debit_Credit_APM.svg" alt="%6$s" />
+		<span class="paypal-api-button__powered-by">%7$s <img src="https://www.paypalobjects.com/paypal-ui/logos/svg/paypal-wordmark-color.svg" alt="PayPal" /></span>
+	</form>
+</div>',
+			$product_name_escaped,
+			$price_display,
+			$action_url,
+			$payment_id,
+			$button_text_escaped,
+			esc_attr__( 'Accepted payment methods', 'jetpack-paypal-payments' ),
+			esc_html__( 'Powered by', 'jetpack-paypal-payments' )
+		);
+	}
+
+	/**
+	 * Render a legacy paste-code button (V1 backward compatibility).
+	 *
+	 * @param array $attributes The block attributes.
+	 * @return string|void The rendered button HTML.
+	 */
+	private static function render_legacy_button( $attributes ) {
 		$button_type      = $attributes['buttonType'] ?? '';
 		$script_src       = $attributes['scriptSrc'] ?? '';
 		$hosted_button_id = $attributes['hostedButtonId'] ?? '';
@@ -244,5 +329,18 @@ class PayPal_Payment_Buttons {
 	 */
 	public static function register_hooks() {
 		add_filter( 'safe_style_css', array( __CLASS__, 'add_style_display' ) );
+	}
+
+	/**
+	 * Initialize PayPal Payment Buttons API integration hooks.
+	 *
+	 * Registers REST API routes for PayPal OAuth connection management
+	 * and button CRUD operations.
+	 *
+	 * @since 0.7.0
+	 * @return void
+	 */
+	public static function init_api() {
+		add_action( 'rest_api_init', array( PayPal_REST_Controller::class, 'register_routes' ) );
 	}
 }

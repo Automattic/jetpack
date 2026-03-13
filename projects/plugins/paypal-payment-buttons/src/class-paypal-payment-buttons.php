@@ -63,6 +63,9 @@ class PayPal_Payment_Buttons {
 		// Initialize PayPal Payment Buttons block with correct dist path
 		add_action( 'init', array( $this, 'register_paypal_block' ), 9 );
 
+		// Initialize PayPal API integration (REST routes for OAuth + button management).
+		Jetpack_PayPal_Payment_Buttons::init_api();
+
 		// Load scripts for the editing interface
 		add_action( 'enqueue_block_editor_assets', array( Jetpack_PayPal_Payment_Buttons::class, 'load_editor_scripts' ), 9 );
 

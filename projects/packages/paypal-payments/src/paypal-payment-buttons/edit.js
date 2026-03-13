@@ -1,427 +1,882 @@
-import { isWpcomPlatformSite } from '@automattic/jetpack-script-data';
-import { PlainText, useBlockProps } from '@wordpress/block-editor';
+/* eslint-disable react/jsx-no-bind */
+/**
+ * PayPal Payment Buttons — Block Editor Component.
+ *
+ * Replaces the legacy paste-code textarea with an API-driven form UI.
+ * When PayPal is connected, merchants fill in product details and create
+ * buttons directly in the editor. Falls back to the paste-code interface
+ * when PayPal is not connected.
+ *
+ * Updated for WOOPTP-151: Client-side validation with inline errors,
+ * user-friendly API error mapping, and graceful 404 handling.
+ *
+ * @package
+ * @since 0.8.0
+ */
+
+import apiFetch from '@wordpress/api-fetch'; // eslint-disable-line import/no-unresolved
+import { BlockControls, InspectorControls, useBlockProps } from '@wordpress/block-editor';
 import {
-	ExternalLink,
+	Button,
 	Notice,
-	Placeholder,
-	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
-	__experimentalToggleGroupControl as ToggleGroupControl,
-	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
-	__experimentalToggleGroupControlOption as ToggleGroupControlOption,
-	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
-	__experimentalItemGroup as ItemGroup,
-	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
-	__experimentalItem as Item,
+	PanelBody,
+	SelectControl,
+	Spinner,
+	TextControl,
+	TextareaControl,
+	ToolbarButton,
+	ToolbarGroup,
 } from '@wordpress/components';
-import { createInterpolateElement, useEffect, useState } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
-import PayPalIcon from './icon';
-import './editor.scss';
+import { useState, useEffect, useCallback, useMemo } from '@wordpress/element';
+import { __, sprintf } from '@wordpress/i18n';
+import PayPalButtonPreview from './paypal-button-preview';
 
-const BUTTON_ID_PATTERN = '[A-Za-z0-9_-]+';
+/**
+ * Supported currencies for the currency selector.
+ * Matches PayPal_Attribute_Mapper::SUPPORTED_CURRENCIES on the server.
+ */
+const SUPPORTED_CURRENCIES = [
+	{ label: 'USD — US Dollar', value: 'USD' },
+	{ label: 'EUR — Euro', value: 'EUR' },
+	{ label: 'GBP — British Pound', value: 'GBP' },
+	{ label: 'CAD — Canadian Dollar', value: 'CAD' },
+	{ label: 'AUD — Australian Dollar', value: 'AUD' },
+	{ label: 'JPY — Japanese Yen', value: 'JPY' },
+	{ label: 'CHF — Swiss Franc', value: 'CHF' },
+	{ label: 'SEK — Swedish Krona', value: 'SEK' },
+	{ label: 'NOK — Norwegian Krone', value: 'NOK' },
+	{ label: 'DKK — Danish Krone', value: 'DKK' },
+	{ label: 'NZD — New Zealand Dollar', value: 'NZD' },
+	{ label: 'SGD — Singapore Dollar', value: 'SGD' },
+	{ label: 'HKD — Hong Kong Dollar', value: 'HKD' },
+	{ label: 'MXN — Mexican Peso', value: 'MXN' },
+	{ label: 'BRL — Brazilian Real', value: 'BRL' },
+	{ label: 'PLN — Polish Zloty', value: 'PLN' },
+	{ label: 'CZK — Czech Koruna', value: 'CZK' },
+	{ label: 'HUF — Hungarian Forint', value: 'HUF' },
+	{ label: 'ILS — Israeli Shekel', value: 'ILS' },
+	{ label: 'MYR — Malaysian Ringgit', value: 'MYR' },
+	{ label: 'PHP — Philippine Peso', value: 'PHP' },
+	{ label: 'TWD — Taiwan Dollar', value: 'TWD' },
+	{ label: 'THB — Thai Baht', value: 'THB' },
+	{ label: 'INR — Indian Rupee', value: 'INR' },
+	{ label: 'CNY — Chinese Yuan', value: 'CNY' },
+	{ label: 'RUB — Russian Ruble', value: 'RUB' },
+];
 
-const extractScriptSrc = codeHead => {
-	const match = codeHead.match(
-		/src="(https:\/\/(www\.)?(sandbox\.)?paypal\.com\/sdk\/js\?[^"]+)"/
-	);
-	return match ? match[ 1 ] : '';
-};
+/**
+ * Currency code set for fast lookup.
+ */
+const VALID_CURRENCY_CODES = new Set( SUPPORTED_CURRENCIES.map( c => c.value ) );
 
-const extractHostedButtonId = codeBody => {
-	let buttonId = '';
+/**
+ * Validation constants — match server-side limits.
+ */
+const MAX_NAME_LENGTH = 127;
+const MAX_DESCRIPTION_LENGTH = 256;
 
-	// Try to extract from hostedButtonId property first (stacked buttons)
-	const hostedButtonMatch = codeBody.match(
-		new RegExp( `hostedButtonId:\\s*["'](${ BUTTON_ID_PATTERN })["']` )
-	);
-	if ( hostedButtonMatch ) {
-		buttonId = hostedButtonMatch[ 1 ];
+/**
+ * Button type options for the block display style.
+ */
+const BUTTON_TYPE_OPTIONS = [
+	{ label: __( 'Stacked', 'jetpack-paypal-payments' ), value: 'stacked' },
+	{ label: __( 'Single', 'jetpack-paypal-payments' ), value: 'single' },
+];
+
+/**
+ * REST API base path for PayPal endpoints.
+ */
+const API_BASE = '/jetpack/v4/paypal';
+
+/**
+ * Validate a price string.
+ *
+ * @param {string} value - The price value.
+ * @return {string|null} Error message or null if valid.
+ */
+function validatePrice( value ) {
+	if ( ! value || value.trim() === '' ) {
+		return __( 'Price is required.', 'jetpack-paypal-payments' );
 	}
 
-	// Try to extract from form action URL (single buttons)
-	// Support international domains, protocol-relative URLs, and case-insensitive domain matching
-	// Extract ID before any query parameters or spaces
-	if ( ! buttonId ) {
-		const actionMatch = codeBody.match(
-			/action\s*=\s*["'](?:https?:)?\/\/(?:www\.)?(?:sandbox\.)?paypal\.[a-z.]+\/ncp\/payment\/([A-Za-z0-9_-]+)\s*(?:\?[^"']*)?["']/i
+	const num = parseFloat( value );
+	if ( isNaN( num ) || num <= 0 ) {
+		return __( 'Price must be a positive number.', 'jetpack-paypal-payments' );
+	}
+
+	// Check max 2 decimal places.
+	if ( ! /^\d+(\.\d{1,2})?$/.test( value.trim() ) ) {
+		return __(
+			'Price can have at most 2 decimal places (e.g., "29.99").',
+			'jetpack-paypal-payments'
 		);
-		if ( actionMatch ) {
-			buttonId = actionMatch[ 1 ];
-		}
-	}
-
-	return buttonId.trim();
-};
-
-const extractButtonText = codeBody => {
-	// Extract button text from input value attribute (single buttons)
-	// Support spaces around equals sign and both self-closing and non-self-closing tags
-	const inputMatch = codeBody.match( /<input[^>]*value\s*=\s*["']([^"']+)["'][^>]*\/?>/ );
-	return inputMatch ? inputMatch[ 1 ].trim() : '';
-};
-
-const generateHeadCode = scriptSrc => {
-	if ( ! scriptSrc ) {
-		return '';
-	}
-	return `<script src="${ scriptSrc }" data-namespace="paypal_payment_buttons"></script>`;
-};
-
-const generateBodyCode = ( hostedButtonId, buttonType = 'stacked', buttonText = '' ) => {
-	if ( ! hostedButtonId ) {
-		return '';
-	}
-
-	if ( buttonType === 'single' ) {
-		return `<style>.pp-${ hostedButtonId }{text-align:center;border:none;border-radius:0.25rem;min-width:11.625rem;padding:0 2rem;height:2.625rem;font-weight:bold;background-color:#FFD140;color:#000000;font-family:"Helvetica Neue",Arial,sans-serif;font-size:1rem;line-height:1.25rem;cursor:pointer;}</style>
-<form action="https://www.paypal.com/ncp/payment/${ hostedButtonId }" method="post" target="_blank" style="display:inline-grid;justify-items:center;align-content:start;gap:0.5rem;">
-  <input class="pp-${ hostedButtonId }" type="submit" value="${ buttonText || 'Pay Now' }" />
-  <img src="https://www.paypalobjects.com/images/Debit_Credit_APM.svg" alt="cards" />
-  <section style="font-size: 0.75rem;"> Powered by <img src="https://www.paypalobjects.com/paypal-ui/logos/svg/paypal-wordmark-color.svg" alt="paypal" style="height:0.875rem;vertical-align:middle;"/></section>
-</form>`;
-	}
-
-	return `<div id="paypal-container-${ hostedButtonId }"></div>
-<script>
-  (window.paypal_payment_buttons || window.paypal).HostedButtons({
-    hostedButtonId: "${ hostedButtonId }",
-  }).render("#paypal-container-${ hostedButtonId }")
-</script>`;
-};
-
-const validScriptSrc = scriptSrc =>
-	/^https:\/\/(www\.)?(sandbox\.)?paypal\.com\/sdk\/js\?client-id=/.test( scriptSrc );
-
-const validHostedButtonId = hostedButtonId => {
-	// Validate the button ID format
-	return new RegExp( `^${ BUTTON_ID_PATTERN }$` ).test( hostedButtonId );
-};
-
-const validButtonText = buttonText =>
-	buttonText && buttonText.trim().length > 0 && buttonText.length <= 50;
-
-/**
- * Get PayPal signup URL with platform-specific tracking parameters
- *
- * @return {string} The PayPal signup URL
- */
-const getPayPalSignupUrl = () => {
-	const isWpcom = isWpcomPlatformSite();
-	const utmSource = isWpcom ? 'wp_com' : 'wp_org';
-	const atCode = isWpcom ? 'wp_com' : 'wp_org';
-	return `https://www.paypal.com/bizsignup/entry?product=payment_button&utm_source=${ utmSource }&at_code=${ atCode }`;
-};
-
-/**
- * Get PayPal login URL with platform-specific tracking parameters
- *
- * @return {string} The PayPal login URL
- */
-const getPayPalLoginUrl = () => {
-	const isWpcom = isWpcomPlatformSite();
-	const utmSource = isWpcom ? 'wp_com' : 'wp_org';
-	const atCode = isWpcom ? 'wp_com' : 'wp_org';
-	return `https://www.paypal.com/ncp/buttons/create?utm_source=${ utmSource }&at_code=${ atCode }`;
-};
-
-/**
- * PayPal Single Button Preview component (rendered directly)
- *
- * @param {object} root0            - The component props
- * @param {string} root0.buttonText - The button text
- * @return {Element} The PayPal single button preview component
- */
-const PayPalSingleButtonPreview = ( { buttonText } ) => {
-	const paypalButtonStyles = {
-		textAlign: 'center',
-		border: 'none',
-		borderRadius: '0.25rem',
-		minWidth: '11.625rem',
-		padding: '0 2rem',
-		height: '2.625rem',
-		fontWeight: 'bold',
-		backgroundColor: '#FFD140',
-		color: '#000000',
-		fontFamily: '"Helvetica Neue", Arial, sans-serif',
-		fontSize: '1rem',
-		lineHeight: '1.25rem',
-		cursor: 'pointer',
-		pointerEvents: 'none', // Prevent clicking in editor
-	};
-
-	return (
-		<div style={ { textAlign: 'center' } }>
-			<form
-				style={ {
-					display: 'inline-grid',
-					justifyItems: 'center',
-					alignContent: 'start',
-					gap: '0.5rem',
-				} }
-			>
-				<input type="button" value={ buttonText } style={ paypalButtonStyles } />
-				<img src="https://www.paypalobjects.com/images/Debit_Credit_APM.svg" alt="cards" />
-				<section style={ { fontSize: '0.75rem' } }>
-					Powered by{ ' ' }
-					<img
-						src="https://www.paypalobjects.com/paypal-ui/logos/svg/paypal-wordmark-color.svg"
-						alt="paypal"
-						style={ { height: '0.875rem', verticalAlign: 'middle' } }
-					/>
-				</section>
-			</form>
-		</div>
-	);
-};
-
-/**
- * Check if we have the required data for a preview (only single buttons)
- *
- * @param {object} attributes - The block attributes
- * @return {boolean} Whether preview can be shown
- */
-const canShowPreview = attributes => {
-	const { buttonType, hostedButtonId, buttonText } = attributes;
-
-	if ( ! hostedButtonId || ! validHostedButtonId( hostedButtonId ) ) {
-		return false;
-	}
-
-	if ( buttonType === 'single' ) {
-		return buttonText && validButtonText( buttonText );
-	}
-
-	return false;
-};
-
-/**
- * PayPal Preview component router
- *
- * @param {object} root0            - The component props
- * @param {object} root0.attributes - The block attributes
- * @return {Element|null} The PayPal preview component or null
- */
-const PayPalPreview = ( { attributes } ) => {
-	const { buttonType, buttonText } = attributes;
-
-	if ( ! canShowPreview( attributes ) ) {
-		return null;
-	}
-
-	// Only render preview for single button type
-	if ( buttonType === 'single' ) {
-		return <PayPalSingleButtonPreview buttonText={ buttonText } />;
 	}
 
 	return null;
-};
+}
 
-export default function Edit( { attributes, setAttributes, isSelected } ) {
-	const { buttonType, scriptSrc, hostedButtonId, buttonText } = attributes;
-	const [ notice, setNotice ] = useState( null );
-	const [ rawHeadCode, setRawHeadCode ] = useState( '' );
-	const [ rawBodyCode, setRawBodyCode ] = useState( '' );
+/**
+ * Validate a product name.
+ *
+ * @param {string} value - The product name.
+ * @return {string|null} Error message or null if valid.
+ */
+function validateProductName( value ) {
+	if ( ! value || value.trim() === '' ) {
+		return __( 'Product name is required.', 'jetpack-paypal-payments' );
+	}
 
-	const stackedInstructions = __(
-		'Stacked Buttons (Recommended): This option lets you present all of your product information and PayPal payment method upfront on your website.',
-		'jetpack-paypal-payments'
-	);
-	const singleInstructions = __(
-		'Single Button: This option lets you quickly paste a single button on your site, with no product information.',
-		'jetpack-paypal-payments'
-	);
+	if ( value.length > MAX_NAME_LENGTH ) {
+		return sprintf(
+			/* translators: %d: maximum number of characters allowed for the product name */
+			__( 'Product name must be %d characters or fewer.', 'jetpack-paypal-payments' ),
+			MAX_NAME_LENGTH
+		);
+	}
 
-	// Initialize raw code when valid extracted values exist
-	useEffect( () => {
-		if ( ! rawHeadCode && scriptSrc && buttonType === 'stacked' ) {
-			setRawHeadCode( generateHeadCode( scriptSrc ) );
-		}
-	}, [ scriptSrc, rawHeadCode, buttonType ] );
+	return null;
+}
 
-	useEffect( () => {
-		if ( ! rawBodyCode && hostedButtonId ) {
-			setRawBodyCode( generateBodyCode( hostedButtonId, buttonType, buttonText ) );
-		}
-	}, [ hostedButtonId, rawBodyCode, buttonType, buttonText ] );
+/**
+ * Validate a description (optional field).
+ *
+ * @param {string} value - The description.
+ * @return {string|null} Error message or null if valid.
+ */
+function validateDescription( value ) {
+	if ( value && value.length > MAX_DESCRIPTION_LENGTH ) {
+		return sprintf(
+			/* translators: %d: maximum number of characters allowed for the description */
+			__( 'Description must be %d characters or fewer.', 'jetpack-paypal-payments' ),
+			MAX_DESCRIPTION_LENGTH
+		);
+	}
 
-	useEffect( () => {
-		// Check if user has pasted invalid code that couldn't be extracted
-		if ( 'stacked' === buttonType && rawHeadCode && rawHeadCode.trim() && ! scriptSrc ) {
-			return setNotice(
-				<Notice status="error" isDismissible={ false }>
-					{ __(
-						'Invalid PayPal script URL. Please paste code from PayPal.com.',
-						'jetpack-paypal-payments'
-					) }
-				</Notice>
-			);
-		}
+	return null;
+}
 
-		if ( rawBodyCode && rawBodyCode.trim() && ! hostedButtonId ) {
-			return setNotice(
-				<Notice status="error" isDismissible={ false }>
-					{ __(
-						'Invalid PayPal button code. Please paste code from PayPal.com.',
-						'jetpack-paypal-payments'
-					) }
-				</Notice>
-			);
-		}
+/**
+ * Map an API error response to a user-friendly message.
+ *
+ * The server-side already returns user-friendly messages, but this
+ * provides client-side fallbacks for network errors and edge cases.
+ *
+ * @param {object} err - The error object from apiFetch.
+ * @return {string} User-friendly error message.
+ */
+function getUserFriendlyError( err ) {
+	// Server already provides friendly messages — use them.
+	if ( err.message ) {
+		return err.message;
+	}
 
-		// Validate extracted values
-		if ( 'stacked' === buttonType && scriptSrc && ! validScriptSrc( scriptSrc ) ) {
-			return setNotice(
-				<Notice status="error" isDismissible={ false }>
-					{ __( 'Invalid PayPal script URL.', 'jetpack-paypal-payments' ) }
-				</Notice>
-			);
-		}
+	// Network-level errors (no response from server).
+	if ( err.code === 'fetch_error' ) {
+		return __(
+			'Could not reach the server. Please check your internet connection and try again.',
+			'jetpack-paypal-payments'
+		);
+	}
 
-		if ( hostedButtonId && ! validHostedButtonId( hostedButtonId ) ) {
-			return setNotice(
-				<Notice status="error" isDismissible={ false }>
-					{ __( 'Invalid PayPal button ID.', 'jetpack-paypal-payments' ) }
-				</Notice>
-			);
-		}
+	return __( 'An unexpected error occurred. Please try again.', 'jetpack-paypal-payments' );
+}
 
-		if ( 'single' === buttonType && buttonText && ! validButtonText( buttonText ) ) {
-			return setNotice(
-				<Notice status="error" isDismissible={ false }>
-					{ __( 'Button text must be between 1 and 50 characters.', 'jetpack-paypal-payments' ) }
-				</Notice>
-			);
-		}
-
-		setNotice( null );
-	}, [ buttonType, scriptSrc, hostedButtonId, buttonText, rawHeadCode, rawBodyCode ] );
+/**
+ * PayPal Payment Buttons edit component.
+ *
+ * @param {object}   props               - Block props.
+ * @param {object}   props.attributes    - Block attributes.
+ * @param {Function} props.setAttributes - Function to update block attributes.
+ * @return {Element} Block editor UI.
+ */
+export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } ) {
+	const {
+		isApiManaged,
+		buttonType,
+		scriptSrc,
+		hostedButtonId,
+		buttonText,
+		resourceId,
+		paymentLink,
+		productName,
+		price,
+		currencyCode,
+		productDescription,
+		returnUrl,
+	} = attributes;
 
 	const blockProps = useBlockProps();
 
-	// Early return for preview rendering
-	if ( ! isSelected && ! notice && canShowPreview( attributes ) ) {
+	// Connection state.
+	const [ isConnected, setIsConnected ] = useState( false );
+	const [ environment, setEnvironment ] = useState( 'sandbox' );
+	const [ connectionLoading, setConnectionLoading ] = useState( true );
+
+	// Form state.
+	const [ isCreating, setIsCreating ] = useState( false );
+	const [ error, setError ] = useState( null );
+	const [ successMessage, setSuccessMessage ] = useState( null );
+
+	// Edit/preview mode toggle. Start in preview if button already exists.
+	const [ isEditing, setIsEditing ] = useState( ! ( isApiManaged && resourceId && paymentLink ) );
+
+	// Connect form state.
+	const [ clientId, setClientId ] = useState( '' );
+	const [ clientSecret, setClientSecret ] = useState( '' );
+	const [ connectError, setConnectError ] = useState( null );
+	const [ isConnecting, setIsConnecting ] = useState( false );
+
+	// Inline validation state — track which fields have been touched.
+	const [ touchedFields, setTouchedFields ] = useState( {} );
+
+	/**
+	 * Mark a field as touched (user has interacted with it).
+	 *
+	 * @param {string} field - Field name.
+	 */
+	const markTouched = useCallback( field => {
+		setTouchedFields( prev => ( { ...prev, [ field ]: true } ) );
+	}, [] );
+
+	/**
+	 * Compute validation errors for all form fields.
+	 * Memoized to avoid re-computing on every render.
+	 */
+	const validationErrors = useMemo(
+		() => ( {
+			productName: validateProductName( productName ),
+			price: validatePrice( price ),
+			productDescription: validateDescription( productDescription ),
+			currencyCode:
+				currencyCode && ! VALID_CURRENCY_CODES.has( currencyCode )
+					? __( 'Unsupported currency.', 'jetpack-paypal-payments' )
+					: null,
+		} ),
+		[ productName, price, productDescription, currencyCode ]
+	);
+
+	/**
+	 * Whether the form is valid (no validation errors on required fields).
+	 */
+	const isFormValid =
+		! validationErrors.productName && ! validationErrors.price && ! validationErrors.currencyCode;
+
+	/**
+	 * Check PayPal connection status on mount.
+	 */
+	useEffect( () => {
+		apiFetch( { path: `${ API_BASE }/connection` } )
+			.then( response => {
+				setIsConnected( response.connected );
+				setEnvironment( response.environment );
+			} )
+			.catch( () => {
+				setIsConnected( false );
+			} )
+			.finally( () => {
+				setConnectionLoading( false );
+			} );
+	}, [] );
+
+	/**
+	 * Handle PayPal OAuth connection.
+	 */
+	const handleConnect = useCallback( () => {
+		setConnectError( null );
+		setIsConnecting( true );
+
+		apiFetch( {
+			path: `${ API_BASE }/connect`,
+			method: 'POST',
+			data: {
+				client_id: clientId,
+				client_secret: clientSecret,
+				environment,
+			},
+		} )
+			.then( response => {
+				setIsConnected( response.connected );
+				setEnvironment( response.environment );
+				setClientId( '' );
+				setClientSecret( '' );
+			} )
+			.catch( err => {
+				setConnectError( getUserFriendlyError( err ) );
+			} )
+			.finally( () => {
+				setIsConnecting( false );
+			} );
+	}, [ clientId, clientSecret, environment ] );
+
+	/**
+	 * Handle PayPal disconnect.
+	 */
+	const handleDisconnect = useCallback( () => {
+		apiFetch( {
+			path: `${ API_BASE }/disconnect`,
+			method: 'POST',
+		} ).then( () => {
+			setIsConnected( false );
+		} );
+	}, [] );
+
+	/**
+	 * Build the line_items payload from current attributes.
+	 *
+	 * @return {object} API request data.
+	 */
+	const buildRequestData = useCallback(
+		() => ( {
+			type: 'BUY_NOW',
+			integration_mode: 'LINK',
+			reusable: 'MULTIPLE',
+			line_items: [
+				{
+					name: productName,
+					unit_amount: {
+						currency_code: currencyCode || 'USD',
+						value: price,
+					},
+					...( productDescription ? { description: productDescription } : {} ),
+				},
+			],
+			...( returnUrl ? { return_url: returnUrl } : {} ),
+		} ),
+		[ productName, price, currencyCode, productDescription, returnUrl ]
+	);
+
+	/**
+	 * Create a PayPal payment button via the API.
+	 */
+	const handleCreateButton = useCallback( () => {
+		// Mark all fields as touched to show any remaining errors.
+		setTouchedFields( {
+			productName: true,
+			price: true,
+			currencyCode: true,
+			productDescription: true,
+		} );
+
+		if ( ! isFormValid ) {
+			return;
+		}
+
+		setError( null );
+		setSuccessMessage( null );
+		setIsCreating( true );
+
+		apiFetch( {
+			path: `${ API_BASE }/buttons`,
+			method: 'POST',
+			data: buildRequestData(),
+		} )
+			.then( response => {
+				setAttributes( {
+					isApiManaged: true,
+					resourceId: response.id,
+					paymentLink: response.payment_link,
+				} );
+				setSuccessMessage( __( 'PayPal button created successfully!', 'jetpack-paypal-payments' ) );
+				setIsEditing( false );
+				setTouchedFields( {} );
+			} )
+			.catch( err => {
+				setError( getUserFriendlyError( err ) );
+			} )
+			.finally( () => {
+				setIsCreating( false );
+			} );
+	}, [ buildRequestData, setAttributes, isFormValid ] );
+
+	/**
+	 * Update an existing PayPal payment button via the API.
+	 */
+	const handleUpdateButton = useCallback( () => {
+		if ( ! resourceId ) {
+			return;
+		}
+
+		// Mark all fields as touched to show any remaining errors.
+		setTouchedFields( {
+			productName: true,
+			price: true,
+			currencyCode: true,
+			productDescription: true,
+		} );
+
+		if ( ! isFormValid ) {
+			return;
+		}
+
+		setError( null );
+		setSuccessMessage( null );
+		setIsCreating( true );
+
+		apiFetch( {
+			path: `${ API_BASE }/buttons/${ resourceId }`,
+			method: 'PUT',
+			data: buildRequestData(),
+		} )
+			.then( response => {
+				setAttributes( {
+					paymentLink: response.payment_link || paymentLink,
+				} );
+				setSuccessMessage( __( 'PayPal button updated successfully!', 'jetpack-paypal-payments' ) );
+				setIsEditing( false );
+				setTouchedFields( {} );
+			} )
+			.catch( err => {
+				const errorMessage = getUserFriendlyError( err );
+
+				// If the resource was not found (404), clear stale state and prompt re-creation.
+				if ( err.code === 'paypal_api_resource_not_found' || err.data?.status === 404 ) {
+					setAttributes( {
+						isApiManaged: false,
+						resourceId: undefined,
+						paymentLink: undefined,
+					} );
+					setError(
+						__(
+							'This button no longer exists on PayPal. Please create a new one.',
+							'jetpack-paypal-payments'
+						)
+					);
+				} else {
+					setError( errorMessage );
+				}
+			} )
+			.finally( () => {
+				setIsCreating( false );
+			} );
+	}, [ resourceId, buildRequestData, paymentLink, setAttributes, isFormValid ] );
+
+	/**
+	 * Delete the PayPal payment button via the API.
+	 */
+	const handleDeleteButton = useCallback( () => {
+		if ( ! resourceId ) {
+			return;
+		}
+
+		setError( null );
+		setIsCreating( true );
+
+		apiFetch( {
+			path: `${ API_BASE }/buttons/${ resourceId }`,
+			method: 'DELETE',
+		} )
+			.then( () => {
+				setAttributes( {
+					isApiManaged: false,
+					resourceId: undefined,
+					paymentLink: undefined,
+				} );
+				setIsEditing( true );
+				setSuccessMessage( __( 'PayPal button deleted.', 'jetpack-paypal-payments' ) );
+			} )
+			.catch( err => {
+				// If already deleted (404), clear state anyway.
+				if ( err.code === 'paypal_api_resource_not_found' || err.data?.status === 404 ) {
+					setAttributes( {
+						isApiManaged: false,
+						resourceId: undefined,
+						paymentLink: undefined,
+					} );
+					setIsEditing( true );
+					setSuccessMessage(
+						__( 'Button was already removed from PayPal.', 'jetpack-paypal-payments' )
+					);
+				} else {
+					setError( getUserFriendlyError( err ) );
+				}
+			} )
+			.finally( () => {
+				setIsCreating( false );
+			} );
+	}, [ resourceId, setAttributes ] );
+
+	/**
+	 * Whether the block has a created button to preview.
+	 */
+	const hasButton = isApiManaged && resourceId && paymentLink;
+
+	// Loading state while checking connection.
+	if ( connectionLoading ) {
 		return (
 			<div { ...blockProps }>
-				<PayPalPreview attributes={ attributes } />
+				<div className="jetpack-paypal-payment-buttons__loading">
+					<Spinner />
+					<p>{ __( 'Checking PayPal connection…', 'jetpack-paypal-payments' ) }</p>
+				</div>
 			</div>
 		);
 	}
 
-	const stackedButtonCodeLabel = __( 'Part 2 code', 'jetpack-paypal-payments' );
-	const stackedButtonCodePlaceholder = __(
-		'Paste the part 2 code here…',
-		'jetpack-paypal-payments'
-	);
-
-	const singleButtonCodeLabel = __( 'Single button code', 'jetpack-paypal-payments' );
-	const singleButtonCodePlaceholder = __(
-		'Paste the single button code here…',
-		'jetpack-paypal-payments'
-	);
-
-	return (
-		<div { ...blockProps }>
-			<Placeholder
-				icon={ PayPalIcon }
-				label={ __( 'PayPal Payment Buttons', 'jetpack-paypal-payments' ) }
-				isColumnLayout
-				instructions={ buttonType === 'stacked' ? stackedInstructions : singleInstructions }
-				notices={ notice }
-			>
-				<ItemGroup>
-					<Item>
-						{ createInterpolateElement(
-							__(
-								'1. <SignupLink><strong>Sign up</strong></SignupLink> or <LoginLink><strong>log in</strong></LoginLink> to PayPal to get your Payment Button code.',
-								'jetpack-paypal-payments'
-							),
-							{
-								SignupLink: <ExternalLink href={ getPayPalSignupUrl() } />,
-								LoginLink: <ExternalLink href={ getPayPalLoginUrl() } />,
-								strong: <strong />,
-							}
-						) }
-					</Item>
-					<Item>
-						{ 'stacked' === buttonType &&
-							__(
-								'2. After login, choose Payment Buttons. Enter your product or service details, and build the buttons. Copy the button code for Stacked Buttons (copy html code).',
-								'jetpack-paypal-payments'
-							) }
-						{ 'single' === buttonType &&
-							__(
-								'2. After login, choose Payment Buttons. Enter your product or service details, and build the buttons. Copy the button code for Single Button.',
-								'jetpack-paypal-payments'
-							) }
-					</Item>
-					<Item>{ __( '3. Paste the code below.', 'jetpack-paypal-payments' ) }</Item>
-				</ItemGroup>
-				<ToggleGroupControl
-					label={ __( 'Button type', 'jetpack-paypal-payments' ) }
-					value={ buttonType }
-					hideLabelFromVision
-					onChange={ type => {
-						const newAttributes = { buttonType: type };
-						newAttributes.scriptSrc = '';
-						newAttributes.buttonText = '';
-						newAttributes.hostedButtonId = '';
-
-						setRawHeadCode( '' );
-						setRawBodyCode( '' );
-
-						setAttributes( newAttributes );
-					} }
-					isBlock
-					__nextHasNoMarginBottom={ true }
-					__next40pxDefaultSize={ true }
-				>
-					<ToggleGroupControlOption
-						value="stacked"
-						label={ __( 'Stacked Buttons (Recommended)', 'jetpack-paypal-payments' ) }
-						aria-label={ __(
-							'Stacked Buttons are the recommended option for better conversion rates.',
+	// Legacy paste-code block — render as-is without the new UI.
+	if ( ! isApiManaged && ( scriptSrc || hostedButtonId ) ) {
+		return (
+			<div { ...blockProps }>
+				<div className="jetpack-paypal-payment-buttons__legacy">
+					<p>
+						{ __(
+							'This PayPal button uses the legacy paste-code format.',
 							'jetpack-paypal-payments'
 						) }
-						showTooltip={ true }
+					</p>
+					<p>
+						{ __( 'It will continue to work as-is on the frontend.', 'jetpack-paypal-payments' ) }
+					</p>
+				</div>
+				<InspectorControls>
+					<PanelBody title={ __( 'Button Settings', 'jetpack-paypal-payments' ) }>
+						<SelectControl
+							label={ __( 'Button Layout', 'jetpack-paypal-payments' ) }
+							value={ buttonType }
+							options={ BUTTON_TYPE_OPTIONS }
+							onChange={ value => setAttributes( { buttonType: value } ) }
+						/>
+						<TextControl
+							label={ __( 'Button Text', 'jetpack-paypal-payments' ) }
+							value={ buttonText }
+							onChange={ value => setAttributes( { buttonText: value } ) }
+						/>
+					</PanelBody>
+				</InspectorControls>
+			</div>
+		);
+	}
+
+	// Not connected — show connection form.
+	if ( ! isConnected ) {
+		return (
+			<div { ...blockProps }>
+				<div className="jetpack-paypal-payment-buttons__connect">
+					<h3>{ __( 'Connect PayPal', 'jetpack-paypal-payments' ) }</h3>
+					<p>
+						{ __(
+							'Enter your PayPal API credentials to create buttons directly in the editor. You can find these in your PayPal Developer Dashboard under Apps & Credentials.',
+							'jetpack-paypal-payments'
+						) }
+					</p>
+
+					{ connectError && (
+						<Notice status="error" isDismissible onDismiss={ () => setConnectError( null ) }>
+							{ connectError }
+						</Notice>
+					) }
+
+					<TextControl
+						label={ __( 'Client ID', 'jetpack-paypal-payments' ) }
+						value={ clientId }
+						onChange={ setClientId }
+						help={ __(
+							'From PayPal Developer Dashboard → Apps & Credentials.',
+							'jetpack-paypal-payments'
+						) }
 					/>
-					<ToggleGroupControlOption
-						value="single"
-						label={ __( 'Single Button', 'jetpack-paypal-payments' ) }
+					<TextControl
+						label={ __( 'Client Secret', 'jetpack-paypal-payments' ) }
+						value={ clientSecret }
+						onChange={ setClientSecret }
+						type="password"
 					/>
-				</ToggleGroupControl>
-				{ 'stacked' === buttonType && (
-					<PlainText
-						value={ rawHeadCode }
-						onChange={ code => {
-							setRawHeadCode( code );
-							const extractedSrc = extractScriptSrc( code );
-							setAttributes( {
-								scriptSrc: extractedSrc,
-							} );
-						} }
-						placeholder={ __( 'Paste the part 1 code here…', 'jetpack-paypal-payments' ) }
-						aria-label={ __( 'Part 1 code', 'jetpack-paypal-payments' ) }
-						name="paypal-payment-buttons-code-head"
+					<SelectControl
+						label={ __( 'Environment', 'jetpack-paypal-payments' ) }
+						value={ environment }
+						options={ [
+							{ label: __( 'Sandbox (Testing)', 'jetpack-paypal-payments' ), value: 'sandbox' },
+							{ label: __( 'Production (Live)', 'jetpack-paypal-payments' ), value: 'production' },
+						] }
+						onChange={ setEnvironment }
 					/>
-				) }
-				<PlainText
-					value={ rawBodyCode }
-					onChange={ code => {
-						setRawBodyCode( code );
-						const extractedButtonId = extractHostedButtonId( code );
-						const extractedButtonText = extractButtonText( code );
-						setAttributes( {
-							hostedButtonId: extractedButtonId,
-							buttonText: extractedButtonText,
-						} );
-					} }
-					placeholder={
-						'stacked' === buttonType ? stackedButtonCodePlaceholder : singleButtonCodePlaceholder
-					}
-					aria-label={ 'stacked' === buttonType ? stackedButtonCodeLabel : singleButtonCodeLabel }
-					name="paypal-payment-buttons-code-body"
+					<Button
+						variant="primary"
+						onClick={ handleConnect }
+						isBusy={ isConnecting }
+						disabled={ isConnecting || ! clientId || ! clientSecret }
+					>
+						{ isConnecting
+							? __( 'Connecting…', 'jetpack-paypal-payments' )
+							: __( 'Connect PayPal', 'jetpack-paypal-payments' ) }
+					</Button>
+				</div>
+			</div>
+		);
+	}
+
+	// Toolbar controls for edit/preview toggle (only when button exists).
+	const toolbarControls = hasButton ? (
+		<BlockControls>
+			<ToolbarGroup>
+				<ToolbarButton
+					icon="visibility"
+					label={ __( 'Preview', 'jetpack-paypal-payments' ) }
+					isPressed={ ! isEditing }
+					onClick={ () => setIsEditing( false ) }
 				/>
-			</Placeholder>
+				<ToolbarButton
+					icon="edit"
+					label={ __( 'Edit', 'jetpack-paypal-payments' ) }
+					isPressed={ isEditing }
+					onClick={ () => setIsEditing( true ) }
+				/>
+			</ToolbarGroup>
+		</BlockControls>
+	) : null;
+
+	// Inspector sidebar — always shown when connected.
+	const inspectorControls = (
+		<InspectorControls>
+			<PanelBody title={ __( 'Button Settings', 'jetpack-paypal-payments' ) }>
+				<SelectControl
+					label={ __( 'Button Layout', 'jetpack-paypal-payments' ) }
+					value={ buttonType }
+					options={ BUTTON_TYPE_OPTIONS }
+					onChange={ value => setAttributes( { buttonType: value } ) }
+				/>
+				<TextControl
+					label={ __( 'Button Text', 'jetpack-paypal-payments' ) }
+					value={ buttonText || '' }
+					onChange={ value => setAttributes( { buttonText: value } ) }
+				/>
+			</PanelBody>
+
+			{ hasButton && (
+				<PanelBody
+					title={ __( 'PayPal Connection', 'jetpack-paypal-payments' ) }
+					initialOpen={ false }
+				>
+					<p>
+						{ __( 'Resource ID:', 'jetpack-paypal-payments' ) } <code>{ resourceId }</code>
+					</p>
+					<p>
+						{ __( 'Environment:', 'jetpack-paypal-payments' ) } <strong>{ environment }</strong>
+					</p>
+					<div style={ { display: 'flex', gap: '8px', marginTop: '12px' } }>
+						<Button
+							variant="secondary"
+							isDestructive
+							onClick={ handleDeleteButton }
+							disabled={ isCreating }
+						>
+							{ __( 'Delete Button', 'jetpack-paypal-payments' ) }
+						</Button>
+						<Button variant="secondary" isDestructive onClick={ handleDisconnect }>
+							{ __( 'Disconnect', 'jetpack-paypal-payments' ) }
+						</Button>
+					</div>
+				</PanelBody>
+			) }
+
+			{ ! hasButton && (
+				<PanelBody
+					title={ __( 'PayPal Connection', 'jetpack-paypal-payments' ) }
+					initialOpen={ false }
+				>
+					<p>
+						{ __( 'Environment:', 'jetpack-paypal-payments' ) } <strong>{ environment }</strong>
+					</p>
+					<Button variant="secondary" isDestructive onClick={ handleDisconnect }>
+						{ __( 'Disconnect PayPal', 'jetpack-paypal-payments' ) }
+					</Button>
+				</PanelBody>
+			) }
+		</InspectorControls>
+	);
+
+	// Connected + has button + preview mode — show live button preview.
+	if ( hasButton && ! isEditing ) {
+		return (
+			<div { ...blockProps }>
+				{ toolbarControls }
+				{ inspectorControls }
+
+				<div className="jetpack-paypal-payment-buttons__preview">
+					<div className="jetpack-paypal-payment-buttons__preview-status">
+						<span className="jetpack-paypal-payment-buttons__status-dot jetpack-paypal-payment-buttons__status-dot--connected" />
+						{ __( 'PayPal Connected', 'jetpack-paypal-payments' ) }
+						{ environment === 'sandbox' && (
+							<span className="jetpack-paypal-payment-buttons__sandbox-badge">
+								{ __( 'Sandbox', 'jetpack-paypal-payments' ) }
+							</span>
+						) }
+					</div>
+
+					{ successMessage && (
+						<Notice status="success" isDismissible onDismiss={ () => setSuccessMessage( null ) }>
+							{ successMessage }
+						</Notice>
+					) }
+
+					{ error && (
+						<Notice status="error" isDismissible onDismiss={ () => setError( null ) }>
+							{ error }
+						</Notice>
+					) }
+
+					<PayPalButtonPreview
+						buttonText={ buttonText }
+						buttonType={ buttonType }
+						productName={ productName }
+						price={ price }
+						currencyCode={ currencyCode }
+						productDescription={ productDescription }
+						paymentLink={ paymentLink }
+					/>
+				</div>
+			</div>
+		);
+	}
+
+	// Connected — edit mode (either creating new or editing existing).
+	return (
+		<div { ...blockProps }>
+			{ toolbarControls }
+			{ inspectorControls }
+
+			<div className="jetpack-paypal-payment-buttons__create-form">
+				<div className="jetpack-paypal-payment-buttons__preview-status">
+					<span className="jetpack-paypal-payment-buttons__status-dot jetpack-paypal-payment-buttons__status-dot--connected" />
+					{ __( 'PayPal Connected', 'jetpack-paypal-payments' ) }
+					{ environment === 'sandbox' && (
+						<span className="jetpack-paypal-payment-buttons__sandbox-badge">
+							{ __( 'Sandbox', 'jetpack-paypal-payments' ) }
+						</span>
+					) }
+				</div>
+
+				<h3>
+					{ hasButton
+						? __( 'Edit PayPal Button', 'jetpack-paypal-payments' )
+						: __( 'Create PayPal Button', 'jetpack-paypal-payments' ) }
+				</h3>
+
+				{ error && (
+					<Notice status="error" isDismissible onDismiss={ () => setError( null ) }>
+						{ error }
+					</Notice>
+				) }
+
+				{ successMessage && (
+					<Notice status="success" isDismissible onDismiss={ () => setSuccessMessage( null ) }>
+						{ successMessage }
+					</Notice>
+				) }
+
+				<TextControl
+					label={ __( 'Product Name', 'jetpack-paypal-payments' ) }
+					value={ productName || '' }
+					onChange={ value => setAttributes( { productName: value } ) }
+					onBlur={ () => markTouched( 'productName' ) }
+					placeholder={ __( 'e.g., Premium Widget', 'jetpack-paypal-payments' ) }
+					help={
+						touchedFields.productName && validationErrors.productName
+							? undefined
+							: sprintf(
+									/* translators: %d: maximum number of characters allowed */
+									__( 'Max %d characters.', 'jetpack-paypal-payments' ),
+									MAX_NAME_LENGTH
+							  )
+					}
+					className={
+						touchedFields.productName && validationErrors.productName ? 'has-error' : undefined
+					}
+				/>
+				{ touchedFields.productName && validationErrors.productName && (
+					<p className="jetpack-paypal-payment-buttons__field-error">
+						{ validationErrors.productName }
+					</p>
+				) }
+
+				<div className="jetpack-paypal-payment-buttons__price-row">
+					<div>
+						<TextControl
+							label={ __( 'Price', 'jetpack-paypal-payments' ) }
+							value={ price || '' }
+							onChange={ value => setAttributes( { price: value } ) }
+							onBlur={ () => markTouched( 'price' ) }
+							type="number"
+							min="0.01"
+							step="0.01"
+							placeholder="29.99"
+							className={ touchedFields.price && validationErrors.price ? 'has-error' : undefined }
+						/>
+						{ touchedFields.price && validationErrors.price && (
+							<p className="jetpack-paypal-payment-buttons__field-error">
+								{ validationErrors.price }
+							</p>
+						) }
+					</div>
+					<SelectControl
+						label={ __( 'Currency', 'jetpack-paypal-payments' ) }
+						value={ currencyCode || 'USD' }
+						options={ SUPPORTED_CURRENCIES }
+						onChange={ value => setAttributes( { currencyCode: value } ) }
+					/>
+				</div>
+
+				<TextareaControl
+					label={ __( 'Description (optional)', 'jetpack-paypal-payments' ) }
+					value={ productDescription || '' }
+					onChange={ value => setAttributes( { productDescription: value } ) }
+					onBlur={ () => markTouched( 'productDescription' ) }
+					help={
+						touchedFields.productDescription && validationErrors.productDescription
+							? undefined
+							: sprintf(
+									/* translators: %d: maximum number of characters allowed */
+									__(
+										'Shown to customers at checkout. Max %d characters.',
+										'jetpack-paypal-payments'
+									),
+									MAX_DESCRIPTION_LENGTH
+							  )
+					}
+					className={
+						touchedFields.productDescription && validationErrors.productDescription
+							? 'has-error'
+							: undefined
+					}
+				/>
+				{ touchedFields.productDescription && validationErrors.productDescription && (
+					<p className="jetpack-paypal-payment-buttons__field-error">
+						{ validationErrors.productDescription }
+					</p>
+				) }
+
+				<TextControl
+					label={ __( 'Return URL (optional)', 'jetpack-paypal-payments' ) }
+					value={ returnUrl || '' }
+					onChange={ value => setAttributes( { returnUrl: value } ) }
+					type="url"
+					help={ __( 'Redirect customers here after payment.', 'jetpack-paypal-payments' ) }
+				/>
+
+				<div className="jetpack-paypal-payment-buttons__form-actions">
+					<Button
+						variant="primary"
+						onClick={ hasButton ? handleUpdateButton : handleCreateButton }
+						isBusy={ isCreating }
+						disabled={ isCreating || ! isFormValid }
+					>
+						{ isCreating && __( 'Saving…', 'jetpack-paypal-payments' ) }
+						{ ! isCreating && hasButton && __( 'Update Button', 'jetpack-paypal-payments' ) }
+						{ ! isCreating && ! hasButton && __( 'Create Button', 'jetpack-paypal-payments' ) }
+					</Button>
+
+					{ hasButton && (
+						<Button
+							variant="tertiary"
+							onClick={ () => {
+								setIsEditing( false );
+								setTouchedFields( {} );
+							} }
+						>
+							{ __( 'Cancel', 'jetpack-paypal-payments' ) }
+						</Button>
+					) }
+				</div>
+			</div>
 		</div>
 	);
 }

@@ -1,0 +1,109 @@
+/**
+ * PayPal Payment Buttons — Frontend Styles.
+ *
+ * Styles for the published page rendering of PayPal buttons.
+ * Loaded on the frontend only (not in editor).
+ *
+ * @package automattic/jetpack-paypal-payments
+ * @since 0.8.0
+ */
+
+.jetpack-paypal-button {
+	max-width: 400px;
+	margin: 24px auto;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+}
+
+// Product info
+.jetpack-paypal-button__product {
+	text-align: center;
+	margin-bottom: 16px;
+}
+
+.jetpack-paypal-button__product-name {
+	display: block;
+	font-weight: 600;
+	font-size: 16px;
+	color: #1e1e1e;
+}
+
+.jetpack-paypal-button__product-description {
+	display: block;
+	font-size: 14px;
+	color: #757575;
+	margin-top: 4px;
+}
+
+.jetpack-paypal-button__product-price {
+	display: block;
+	font-weight: 700;
+	font-size: 20px;
+	color: #1e1e1e;
+	margin-top: 8px;
+}
+
+// Button container
+.jetpack-paypal-button__buttons {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+
+	&--single {
+
+		.jetpack-paypal-button__debit-link {
+			display: none;
+		}
+	}
+}
+
+// PayPal primary button
+.jetpack-paypal-button__paypal-link {
+	display: block;
+	padding: 14px 24px;
+	background: #ffc439;
+	border: none;
+	border-radius: 25px;
+	text-align: center;
+	text-decoration: none;
+	font-size: 16px;
+	font-weight: 600;
+	color: #2c2e2f;
+	cursor: pointer;
+	transition: background 0.2s;
+
+	&:hover {
+		background: #f0b72a;
+		color: #2c2e2f;
+	}
+
+	&:focus {
+		outline: 2px solid #0070ba;
+		outline-offset: 2px;
+	}
+}
+
+// Debit/credit secondary button
+.jetpack-paypal-button__debit-link {
+	display: block;
+	padding: 14px 24px;
+	background: #2c2e2f;
+	border: none;
+	border-radius: 25px;
+	text-align: center;
+	text-decoration: none;
+	font-size: 14px;
+	font-weight: 500;
+	color: #fff;
+	cursor: pointer;
+	transition: background 0.2s;
+
+	&:hover {
+		background: #1a1b1c;
+		color: #fff;
+	}
+
+	&:focus {
+		outline: 2px solid #0070ba;
+		outline-offset: 2px;
+	}
+}

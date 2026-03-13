@@ -1,991 +1,410 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+/* eslint-disable react/jsx-no-bind */
+/**
+ * Tests for the PayPal Payment Buttons V2 edit component.
+ *
+ * Tests the API-driven block editor UI including connection checking,
+ * connection form, product creation form, and preview states.
+ *
+ * @package
+ */
+
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import Edit from '../../../src/paypal-payment-buttons/edit';
+// apiFetch mock — controls what the component receives from the REST API.
+const apiFetch = require( '@wordpress/api-fetch' );
 
-// Mock Jetpack script data
-jest.mock( '@automattic/jetpack-script-data', () => ( {
-	isWpcomPlatformSite: jest.fn( () => false ), // Default to WordPress.org for tests
-} ) );
-
-// Mock WordPress dependencies
-jest.mock( '@wordpress/block-editor', () => ( {
-	useBlockProps: () => ( { className: 'wp-block-paypal-payment-buttons' } ),
-	PlainText: ( { value, onChange, placeholder, 'aria-label': ariaLabel } ) => (
-		<input
-			data-testid="plain-text"
-			value={ value || '' }
-			onChange={ e => onChange( e.target.value ) }
-			placeholder={ placeholder }
-			aria-label={ ariaLabel }
-		/>
-	),
-} ) );
-
-// Mock WordPress components
-jest.mock( '@wordpress/components', () => ( {
-	Notice: ( { children, status, isDismissible } ) => (
-		<span data-testid="notice" data-status={ status } data-dismissible={ isDismissible }>
-			{ children }
-		</span>
-	),
-	ExternalLink: ( { href, children } ) => (
-		<a href={ href } data-testid="external-link">
-			{ children }
-		</a>
-	),
-	Placeholder: ( { icon, label, instructions, notices, children } ) => (
-		<div data-testid="placeholder">
-			{ icon && <span data-testid="placeholder-icon"></span> }
-			<h2>{ label }</h2>
-			{ instructions && <p>{ instructions }</p> }
-			{ notices }
-			<div>{ children }</div>
-		</div>
-	),
-	__experimentalToggleGroupControl: ( { value, onChange } ) => {
-		// Mock implementation that doesn't use React.Children methods
-		return (
-			<div data-testid="toggle-group">
-				<div>
-					{ /* Simplified rendering for tests */ }
-					<button
-						data-testid={ `toggle-option-stacked` }
-						data-selected={ value === 'stacked' }
-						onClick={ () => onChange( 'stacked' ) }
-					>
-						Stacked Buttons
-					</button>
-					<button
-						data-testid={ `toggle-option-single` }
-						data-selected={ value === 'single' }
-						onClick={ () => onChange( 'single' ) }
-					>
-						Single Button
-					</button>
-				</div>
-			</div>
-		);
-	},
-	__experimentalToggleGroupControlOption: () => null, // We're not using the actual implementation
-	__experimentalItemGroup: ( { children } ) => <div data-testid="item-group">{ children }</div>,
-	__experimentalItem: ( { children } ) => <div data-testid="item">{ children }</div>,
-	SVG: props => <svg { ...props } />,
-	Path: props => <path { ...props } />,
-} ) );
-
-// Mock i18n
-jest.mock( '@wordpress/i18n', () => ( {
-	__: text => text,
-	_x: text => text,
-} ) );
-
-// Mock element
+// Mock WordPress element with real React hooks.
 jest.mock( '@wordpress/element', () => {
 	const React = require( 'react' );
 	return {
 		createElement: React.createElement,
-		useState: jest.fn().mockImplementation( initialValue => {
-			const [ state, setState ] = React.useState( initialValue );
-			return [ state, setState ];
-		} ),
-		useEffect: jest.fn().mockImplementation( ( callback, deps ) => {
-			React.useEffect( () => callback(), deps ); // eslint-disable-line react-hooks/exhaustive-deps
-		} ),
-		createInterpolateElement: ( text, elements ) => {
-			// Simple mock implementation for createInterpolateElement
-			// Replace the text with actual React elements
-			let result = text;
-
-			// Replace SignupLink and LoginLink with actual ExternalLink components
-			if ( elements.SignupLink ) {
-				result = React.createElement(
-					React.Fragment,
-					null,
-					'1. ',
-					React.cloneElement(
-						elements.SignupLink,
-						{ 'data-testid': 'external-link' },
-						React.createElement( 'strong', null, 'Sign up' )
-					),
-					' or ',
-					React.cloneElement(
-						elements.LoginLink,
-						{ 'data-testid': 'external-link' },
-						React.createElement( 'strong', null, 'log in' )
-					),
-					' to PayPal to get your Payment Button code.'
-				);
-			}
-
-			return result;
-		},
+		Fragment: React.Fragment,
+		useState: React.useState,
+		useEffect: React.useEffect,
+		useCallback: React.useCallback,
+		useMemo: React.useMemo,
+		createInterpolateElement: text => text,
 	};
 } );
 
-describe( 'Edit', () => {
-	const defaultProps = {
-		attributes: {
-			buttonType: 'stacked',
-			scriptSrc: '',
-			hostedButtonId: '',
-			buttonText: '',
-		},
-		setAttributes: jest.fn(),
-		isSelected: true,
+// Mock WordPress i18n.
+jest.mock( '@wordpress/i18n', () => ( {
+	__: text => text,
+	_x: text => text,
+	sprintf: ( format, ...args ) => {
+		let i = 0;
+		return format.replace( /%[ds]/g, () => args[ i++ ] );
+	},
+} ) );
+
+// Mock WordPress block-editor.
+jest.mock( '@wordpress/block-editor', () => ( {
+	useBlockProps: () => ( { className: 'wp-block-paypal-payment-buttons' } ),
+	BlockControls: ( { children } ) => <div data-testid="block-controls">{ children }</div>,
+	InspectorControls: ( { children } ) => <div data-testid="inspector-controls">{ children }</div>,
+} ) );
+
+// Mock WordPress components with simple HTML equivalents.
+jest.mock( '@wordpress/components', () => ( {
+	Button: ( { children, onClick, disabled, variant, isBusy, ...rest } ) => (
+		<button
+			onClick={ onClick }
+			disabled={ disabled }
+			data-variant={ variant }
+			data-busy={ isBusy }
+			{ ...rest }
+		>
+			{ children }
+		</button>
+	),
+	Notice: ( { children, status, isDismissible, onDismiss } ) => (
+		<div data-testid="notice" data-status={ status }>
+			{ children }
+			{ isDismissible && onDismiss && (
+				<button data-testid="dismiss-notice" onClick={ onDismiss }>
+					Dismiss
+				</button>
+			) }
+		</div>
+	),
+	PanelBody: ( { children, title } ) => (
+		<div data-testid="panel-body" data-title={ title }>
+			{ children }
+		</div>
+	),
+	SelectControl: ( { label, value, options, onChange } ) => (
+		<select aria-label={ label } value={ value } onChange={ e => onChange( e.target.value ) }>
+			{ options &&
+				options.map( opt => (
+					<option key={ opt.value } value={ opt.value }>
+						{ opt.label }
+					</option>
+				) ) }
+		</select>
+	),
+	Spinner: () => <div data-testid="spinner">Loading...</div>,
+	TextControl: ( { label, value, onChange, onBlur, type, help, className, ...rest } ) => (
+		<div>
+			<label htmlFor={ `field-${ label }` }>{ label }</label>
+			<input
+				id={ `field-${ label }` }
+				aria-label={ label }
+				value={ value || '' }
+				onChange={ e => onChange( e.target.value ) }
+				onBlur={ onBlur }
+				type={ type || 'text' }
+				className={ className }
+				{ ...rest }
+			/>
+			{ help && <span className="help-text">{ help }</span> }
+		</div>
+	),
+	TextareaControl: ( { label, value, onChange, onBlur, help, className } ) => (
+		<div>
+			<label htmlFor={ `field-${ label }` }>{ label }</label>
+			<textarea
+				id={ `field-${ label }` }
+				aria-label={ label }
+				value={ value || '' }
+				onChange={ e => onChange( e.target.value ) }
+				onBlur={ onBlur }
+				className={ className }
+			/>
+			{ help && <span className="help-text">{ help }</span> }
+		</div>
+	),
+	ToolbarButton: ( { label, onClick, isPressed } ) => (
+		<button data-testid={ `toolbar-${ label }` } onClick={ onClick } data-pressed={ isPressed }>
+			{ label }
+		</button>
+	),
+	ToolbarGroup: ( { children } ) => <div data-testid="toolbar-group">{ children }</div>,
+} ) );
+
+// Mock PayPal button preview component.
+jest.mock( '../../../src/paypal-payment-buttons/paypal-button-preview', () => {
+	return function MockPayPalButtonPreview( props ) {
+		return (
+			<div data-testid="paypal-button-preview" data-product-name={ props.productName }>
+				Preview: { props.productName } - { props.price } { props.currencyCode }
+			</div>
+		);
 	};
+} );
+
+describe( 'PayPalPaymentButtonsEdit (V2)', () => {
+	const setAttributes = jest.fn();
 
 	beforeEach( () => {
 		jest.clearAllMocks();
+		// Default: connection check returns not connected.
+		apiFetch.mockReset();
+		apiFetch.mockResolvedValue( { connected: false, environment: 'sandbox' } );
 	} );
 
-	it( 'renders without crashing', () => {
-		render( <Edit { ...defaultProps } /> );
-		expect( screen.getByTestId( 'placeholder' ) ).toBeInTheDocument();
-	} );
+	describe( 'Loading State', () => {
+		it( 'shows a spinner while checking connection', () => {
+			// Make apiFetch hang (never resolve) to keep loading state.
+			apiFetch.mockReturnValue( new Promise( () => {} ) );
 
-	it( 'displays the button type toggle control', () => {
-		render( <Edit { ...defaultProps } /> );
-		expect( screen.getByTestId( 'toggle-group' ) ).toBeInTheDocument();
-		expect( screen.getByTestId( 'toggle-option-stacked' ) ).toBeInTheDocument();
-		expect( screen.getByTestId( 'toggle-option-single' ) ).toBeInTheDocument();
-	} );
+			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
 
-	it( 'shows head code input only when stacked button type is selected', () => {
-		const { rerender } = render( <Edit { ...defaultProps } /> );
-
-		// With stacked button type, should have 2 PlainText inputs (head and body)
-		const inputs = screen.getAllByTestId( 'plain-text' );
-		expect( inputs ).toHaveLength( 2 );
-
-		// Rerender with single button type
-		rerender(
-			<Edit
-				attributes={ {
-					...defaultProps.attributes,
-					buttonType: 'single',
-				} }
-				setAttributes={ defaultProps.setAttributes }
-				isSelected={ true }
-			/>
-		);
-
-		// With single button type, should have only 1 PlainText input (body)
-		const singleInputs = screen.getAllByTestId( 'plain-text' );
-		expect( singleInputs ).toHaveLength( 1 );
-	} );
-
-	it( 'updates buttonType when toggle is clicked', () => {
-		const setAttributes = jest.fn();
-		render(
-			<Edit
-				attributes={ defaultProps.attributes }
-				setAttributes={ setAttributes }
-				isSelected={ true }
-			/>
-		);
-
-		fireEvent.click( screen.getByTestId( 'toggle-option-single' ) ); // eslint-disable-line testing-library/prefer-user-event
-		expect( setAttributes ).toHaveBeenCalledWith( {
-			buttonType: 'single',
-			scriptSrc: '',
-			buttonText: '',
-			hostedButtonId: '',
+			expect( screen.getByTestId( 'spinner' ) ).toBeInTheDocument();
+			expect( screen.getByText( /Checking PayPal connection/ ) ).toBeInTheDocument();
 		} );
 	} );
 
-	it( 'updates scriptSrc when head code is entered', () => {
-		const setAttributes = jest.fn();
-		render(
-			<Edit
-				attributes={ { ...defaultProps.attributes } }
-				setAttributes={ setAttributes }
-				isSelected={ true }
-			/>
-		);
+	describe( 'Connection Form (not connected)', () => {
+		it( 'shows the connection form when PayPal is not connected', async () => {
+			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
 
-		const inputs = screen.getAllByTestId( 'plain-text' );
-		// First input should be the head code for stacked buttons
-		// eslint-disable-next-line testing-library/prefer-user-event
-		fireEvent.change( inputs[ 0 ], {
-			target: { value: '<script src="https://www.paypal.com/sdk/js?client-id=test"></script>' },
+			await expect( screen.findAllByText( 'Connect PayPal' ) ).resolves.toEqual(
+				expect.any( Array )
+			);
+			expect( screen.getByLabelText( 'Client ID' ) ).toBeInTheDocument();
+			expect( screen.getByLabelText( 'Client Secret' ) ).toBeInTheDocument();
+			expect( screen.getByLabelText( 'Environment' ) ).toBeInTheDocument();
 		} );
 
-		expect( setAttributes ).toHaveBeenCalledWith( {
-			scriptSrc: 'https://www.paypal.com/sdk/js?client-id=test',
+		it( 'disables connect button when credentials are empty', async () => {
+			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+
+			await expect( screen.findAllByText( 'Connect PayPal' ) ).resolves.toEqual(
+				expect.any( Array )
+			);
+			const connectButtons = screen.getAllByText( 'Connect PayPal' );
+			// The button (not the heading) should be disabled.
+			const button = connectButtons.find( el => el.tagName === 'BUTTON' );
+			expect( button ).toBeDisabled();
 		} );
 	} );
 
-	it( 'updates hostedButtonId when body code is entered', () => {
-		const setAttributes = jest.fn();
-		render(
-			<Edit
-				attributes={ { ...defaultProps.attributes } }
-				setAttributes={ setAttributes }
-				isSelected={ true }
-			/>
-		);
+	describe( 'Legacy Block', () => {
+		it( 'shows legacy message for paste-code blocks', async () => {
+			apiFetch.mockResolvedValue( { connected: true, environment: 'sandbox' } );
 
-		const inputs = screen.getAllByTestId( 'plain-text' );
-		// For stacked buttons, body code is the second input
-		// eslint-disable-next-line testing-library/prefer-user-event
-		fireEvent.change( inputs[ 1 ], {
-			target: {
-				value:
-					'(window.paypal_payment_buttons || window.paypal).HostedButtons({ hostedButtonId: "ABC123DEF", }).render("#paypal-container-ABC123DEF")',
-			},
-		} );
-
-		expect( setAttributes ).toHaveBeenCalledWith( {
-			hostedButtonId: 'ABC123DEF',
-			buttonText: '',
-		} );
-	} );
-
-	it( 'extracts payment ID and button text from single button code', () => {
-		const setAttributes = jest.fn();
-		render(
-			<Edit
-				attributes={ { ...defaultProps.attributes, buttonType: 'single' } }
-				setAttributes={ setAttributes }
-				isSelected={ true }
-			/>
-		);
-
-		const inputs = screen.getAllByTestId( 'plain-text' );
-		// For single buttons, there's only one input (no head code)
-		// eslint-disable-next-line testing-library/prefer-user-event
-		fireEvent.change( inputs[ 0 ], {
-			target: {
-				value:
-					'<form action="https://www.paypal.com/ncp/payment/9J2U2LUWM4SUY" method="post"><input type="submit" value="Pay Now" /></form>',
-			},
-		} );
-
-		expect( setAttributes ).toHaveBeenCalledWith( {
-			hostedButtonId: '9J2U2LUWM4SUY',
-			buttonText: 'Pay Now',
-		} );
-	} );
-
-	describe( 'PayPal Code Snippet Parsing', () => {
-		it( 'parses original PayPal single button snippet correctly', () => {
-			const setAttributes = jest.fn();
-			render(
-				<Edit
-					attributes={ { ...defaultProps.attributes, buttonType: 'single' } }
-					setAttributes={ setAttributes }
-					isSelected={ true }
-				/>
-			);
-
-			const originalSnippet = `<style>.pp-HLDQA6NDL5TLG{text-align:center;border:none;border-radius:0.25rem;min-width:11.625rem;padding:0 2rem;height:2.625rem;font-weight:bold;background-color:#FFD140;color:#000000;font-family:"Helvetica Neue",Arial,sans-serif;font-size:1rem;line-height:1.25rem;cursor:pointer;}</style> <form action="https://www.paypal.com/ncp/payment/HLDQA6NDL5TLG" method="post" target="_blank" style="display:inline-grid;justify-items:center;align-content:start;gap:0.5rem;">   <input class="pp-HLDQA6NDL5TLG" type="submit" value="Buy Now" />   <img src=https://www.paypalobjects.com/images/Debit_Credit_APM.svg alt="cards" />   <section style="font-size: 0.75rem;"> Powered by <img src="https://www.paypalobjects.com/paypal-ui/logos/svg/paypal-wordmark-color.svg" alt="paypal" style="height:0.875rem;vertical-align:middle;"/></section> </form>`;
-
-			const inputs = screen.getAllByTestId( 'plain-text' );
-			// eslint-disable-next-line testing-library/prefer-user-event
-			fireEvent.change( inputs[ 0 ], {
-				target: { value: originalSnippet },
-			} );
-
-			expect( setAttributes ).toHaveBeenCalledWith( {
-				hostedButtonId: 'HLDQA6NDL5TLG',
-				buttonText: 'Buy Now',
-			} );
-		} );
-
-		it( 'parses PayPal snippet with query parameters and div wrapper', () => {
-			const setAttributes = jest.fn();
-			render(
-				<Edit
-					attributes={ { ...defaultProps.attributes, buttonType: 'single' } }
-					setAttributes={ setAttributes }
-					isSelected={ true }
-				/>
-			);
-
-			const snippetWithQueryParams = `<div><style>.pp-HLDQA6NDL5TLG{text-align:center;border:none;border-radius:0.25rem;min-width:11.625rem;padding:0 2rem;height:2.625rem;font-weight:bold;background-color:#FFD140;color:#000000;font-family:"Helvetica Neue",Arial,sans-serif;font-size:1rem;line-height:1.25rem;cursor:pointer;}</style><form action="https://www.paypal.com/ncp/payment/HLDQA6NDL5TLG?at_code=WooNCPS_Ecom_Wordpress" method="post" target="_blank" style="display:inline-grid;justify-items:center;align-content:start;gap:0.5rem;">
-  <input class="pp-HLDQA6NDL5TLG" type="submit" value="Buy Now">
-  <img src="https://www.paypalobjects.com/images/Debit_Credit_APM.svg" alt="cards">
-  <section style="font-size: 0.75rem;"> Powered by <img src="https://www.paypalobjects.com/paypal-ui/logos/svg/paypal-wordmark-color.svg" alt="paypal" style="height:0.875rem;vertical-align:middle;"></section>
-</form></div>`;
-
-			const inputs = screen.getAllByTestId( 'plain-text' );
-			// eslint-disable-next-line testing-library/prefer-user-event
-			fireEvent.change( inputs[ 0 ], {
-				target: { value: snippetWithQueryParams },
-			} );
-
-			expect( setAttributes ).toHaveBeenCalledWith( {
-				hostedButtonId: 'HLDQA6NDL5TLG',
-				buttonText: 'Buy Now',
-			} );
-		} );
-
-		it( 'parses non-self-terminating input tags correctly', () => {
-			const setAttributes = jest.fn();
-			render(
-				<Edit
-					attributes={ { ...defaultProps.attributes, buttonType: 'single' } }
-					setAttributes={ setAttributes }
-					isSelected={ true }
-				/>
-			);
-
-			const snippetNonSelfTerminating = `<form action="https://www.paypal.com/ncp/payment/ABC123DEF" method="post">
-				<input class="pp-ABC123DEF" type="submit" value="Purchase Item">
-			</form>`;
-
-			const inputs = screen.getAllByTestId( 'plain-text' );
-			// eslint-disable-next-line testing-library/prefer-user-event
-			fireEvent.change( inputs[ 0 ], {
-				target: { value: snippetNonSelfTerminating },
-			} );
-
-			expect( setAttributes ).toHaveBeenCalledWith( {
-				hostedButtonId: 'ABC123DEF',
-				buttonText: 'Purchase Item',
-			} );
-		} );
-
-		it( 'handles URL with multiple query parameters', () => {
-			const setAttributes = jest.fn();
-			render(
-				<Edit
-					attributes={ { ...defaultProps.attributes, buttonType: 'single' } }
-					setAttributes={ setAttributes }
-					isSelected={ true }
-				/>
-			);
-
-			const snippetMultipleParams = `<form action="https://www.paypal.com/ncp/payment/XYZ789GHI?at_code=WooNCPS_Ecom_Wordpress&utm_source=wordpress&campaign=test" method="post">
-				<input type="submit" value="Subscribe" />
-			</form>`;
-
-			const inputs = screen.getAllByTestId( 'plain-text' );
-			// eslint-disable-next-line testing-library/prefer-user-event
-			fireEvent.change( inputs[ 0 ], {
-				target: { value: snippetMultipleParams },
-			} );
-
-			expect( setAttributes ).toHaveBeenCalledWith( {
-				hostedButtonId: 'XYZ789GHI',
-				buttonText: 'Subscribe',
-			} );
-		} );
-
-		it( 'handles multi-line input with various formatting', () => {
-			const setAttributes = jest.fn();
-			render(
-				<Edit
-					attributes={ { ...defaultProps.attributes, buttonType: 'single' } }
-					setAttributes={ setAttributes }
-					isSelected={ true }
-				/>
-			);
-
-			const multiLineSnippet = `<style>
-				.pp-MULTILINE123 {
-					text-align: center;
-				}
-			</style>
-			<form
-				action="https://www.paypal.com/ncp/payment/MULTILINE123"
-				method="post"
-				target="_blank">
-				<input
-					class="pp-MULTILINE123"
-					type="submit"
-					value="Multi Line Button" />
-			</form>`;
-
-			const inputs = screen.getAllByTestId( 'plain-text' );
-			// eslint-disable-next-line testing-library/prefer-user-event
-			fireEvent.change( inputs[ 0 ], {
-				target: { value: multiLineSnippet },
-			} );
-
-			expect( setAttributes ).toHaveBeenCalledWith( {
-				hostedButtonId: 'MULTILINE123',
-				buttonText: 'Multi Line Button',
-			} );
-		} );
-	} );
-
-	describe( 'Edge Cases Handling', () => {
-		it( 'handles lowercase button IDs', () => {
-			const setAttributes = jest.fn();
-			render(
-				<Edit
-					attributes={ { ...defaultProps.attributes, buttonType: 'single' } }
-					setAttributes={ setAttributes }
-					isSelected={ true }
-				/>
-			);
-
-			const snippet = `<form action="https://www.paypal.com/ncp/payment/abc123def" method="post">
-				<input type="submit" value="Buy" />
-			</form>`;
-
-			const inputs = screen.getAllByTestId( 'plain-text' );
-			// eslint-disable-next-line testing-library/prefer-user-event
-			fireEvent.change( inputs[ 0 ], {
-				target: { value: snippet },
-			} );
-
-			expect( setAttributes ).toHaveBeenCalledWith( {
-				hostedButtonId: 'abc123def',
-				buttonText: 'Buy',
-			} );
-		} );
-
-		it( 'handles button IDs with hyphens and underscores', () => {
-			const setAttributes = jest.fn();
-			render(
-				<Edit
-					attributes={ { ...defaultProps.attributes, buttonType: 'single' } }
-					setAttributes={ setAttributes }
-					isSelected={ true }
-				/>
-			);
-
-			const snippet = `<style>.pp-ABC-123_DEF{}</style>
-				<form action="https://www.paypal.com/ncp/payment/ABC-123_DEF" method="post">
-					<input class="pp-ABC-123_DEF" type="submit" value="Purchase" />
-				</form>`;
-
-			const inputs = screen.getAllByTestId( 'plain-text' );
-			// eslint-disable-next-line testing-library/prefer-user-event
-			fireEvent.change( inputs[ 0 ], {
-				target: { value: snippet },
-			} );
-
-			expect( setAttributes ).toHaveBeenCalledWith( {
-				hostedButtonId: 'ABC-123_DEF',
-				buttonText: 'Purchase',
-			} );
-		} );
-
-		it( 'handles international PayPal domains', () => {
-			const setAttributes = jest.fn();
-			render(
-				<Edit
-					attributes={ { ...defaultProps.attributes, buttonType: 'single' } }
-					setAttributes={ setAttributes }
-					isSelected={ true }
-				/>
-			);
-
-			const snippetUK = `<form action="https://www.paypal.co.uk/ncp/payment/UK123ABC" method="post">
-				<input type="submit" value="Buy from UK" />
-			</form>`;
-
-			const inputs = screen.getAllByTestId( 'plain-text' );
-			// eslint-disable-next-line testing-library/prefer-user-event
-			fireEvent.change( inputs[ 0 ], {
-				target: { value: snippetUK },
-			} );
-
-			expect( setAttributes ).toHaveBeenCalledWith( {
-				hostedButtonId: 'UK123ABC',
-				buttonText: 'Buy from UK',
-			} );
-		} );
-
-		it( 'handles German PayPal domain', () => {
-			const setAttributes = jest.fn();
-			render(
-				<Edit
-					attributes={ { ...defaultProps.attributes, buttonType: 'single' } }
-					setAttributes={ setAttributes }
-					isSelected={ true }
-				/>
-			);
-
-			const snippetDE = `<form action="https://www.paypal.de/ncp/payment/DE789XYZ" method="post">
-				<input type="submit" value="Jetzt kaufen" />
-			</form>`;
-
-			const inputs = screen.getAllByTestId( 'plain-text' );
-			// eslint-disable-next-line testing-library/prefer-user-event
-			fireEvent.change( inputs[ 0 ], {
-				target: { value: snippetDE },
-			} );
-
-			expect( setAttributes ).toHaveBeenCalledWith( {
-				hostedButtonId: 'DE789XYZ',
-				buttonText: 'Jetzt kaufen',
-			} );
-		} );
-
-		it( 'handles sandbox PayPal domain', () => {
-			const setAttributes = jest.fn();
-			render(
-				<Edit
-					attributes={ { ...defaultProps.attributes, buttonType: 'single' } }
-					setAttributes={ setAttributes }
-					isSelected={ true }
-				/>
-			);
-
-			const snippetSandbox = `<style>.pp-FHK6SXBKZXM4A{text-align:center;border:none;border-radius:0.25rem;min-width:11.625rem;padding:0 2rem;height:2.625rem;font-weight:bold;background-color:#FFD140;color:#000000;font-family:"Helvetica Neue",Arial,sans-serif;font-size:1rem;line-height:1.25rem;cursor:pointer;}</style>
-<form action="https://www.sandbox.paypal.com/ncp/payment/FHK6SXBKZXM4A" method="post" target="_blank" style="display:inline-grid;justify-items:center;align-content:start;gap:0.5rem;">
-  <input class="pp-FHK6SXBKZXM4A" type="submit" value="Buy Now" />
-  <img src=https://www.paypalobjects.com/images/Debit_Credit_APM.svg alt="cards" />
-  <section style="font-size: 0.75rem;"> Powered by <img src="https://www.paypalobjects.com/paypal-ui/logos/svg/paypal-wordmark-color.svg" alt="paypal" style="height:0.875rem;vertical-align:middle;"/></section>
-</form>`;
-
-			const inputs = screen.getAllByTestId( 'plain-text' );
-			// eslint-disable-next-line testing-library/prefer-user-event
-			fireEvent.change( inputs[ 0 ], {
-				target: { value: snippetSandbox },
-			} );
-
-			expect( setAttributes ).toHaveBeenCalledWith( {
-				hostedButtonId: 'FHK6SXBKZXM4A',
-				buttonText: 'Buy Now',
-			} );
-		} );
-
-		it( 'handles spaces around equals sign in attributes', () => {
-			const setAttributes = jest.fn();
-			render(
-				<Edit
-					attributes={ { ...defaultProps.attributes, buttonType: 'single' } }
-					setAttributes={ setAttributes }
-					isSelected={ true }
-				/>
-			);
-
-			const snippet = `<form action = "https://www.paypal.com/ncp/payment/SPACES123" method="post">
-				<input type="submit" value = "Buy Now" />
-			</form>`;
-
-			const inputs = screen.getAllByTestId( 'plain-text' );
-			// eslint-disable-next-line testing-library/prefer-user-event
-			fireEvent.change( inputs[ 0 ], {
-				target: { value: snippet },
-			} );
-
-			expect( setAttributes ).toHaveBeenCalledWith( {
-				hostedButtonId: 'SPACES123',
-				buttonText: 'Buy Now',
-			} );
-		} );
-
-		it( 'trims whitespace from extracted values', () => {
-			const setAttributes = jest.fn();
-			render(
-				<Edit
-					attributes={ { ...defaultProps.attributes, buttonType: 'single' } }
-					setAttributes={ setAttributes }
-					isSelected={ true }
-				/>
-			);
-
-			const snippet = `<form action="https://www.paypal.com/ncp/payment/TRIM123  " method="post">
-				<input type="submit" value="  Buy Now  " />
-			</form>`;
-
-			const inputs = screen.getAllByTestId( 'plain-text' );
-			// eslint-disable-next-line testing-library/prefer-user-event
-			fireEvent.change( inputs[ 0 ], {
-				target: { value: snippet },
-			} );
-
-			expect( setAttributes ).toHaveBeenCalledWith( {
-				hostedButtonId: 'TRIM123',
-				buttonText: 'Buy Now',
-			} );
-		} );
-
-		it( 'handles multiple buttons - extracts only the first', () => {
-			const setAttributes = jest.fn();
-			render(
-				<Edit
-					attributes={ { ...defaultProps.attributes, buttonType: 'single' } }
-					setAttributes={ setAttributes }
-					isSelected={ true }
-				/>
-			);
-
-			const snippet = `<form action="https://www.paypal.com/ncp/payment/FIRST123" method="post">
-				<input type="submit" value="First Button" />
-			</form>
-			<form action="https://www.paypal.com/ncp/payment/SECOND456" method="post">
-				<input type="submit" value="Second Button" />
-			</form>`;
-
-			const inputs = screen.getAllByTestId( 'plain-text' );
-			// eslint-disable-next-line testing-library/prefer-user-event
-			fireEvent.change( inputs[ 0 ], {
-				target: { value: snippet },
-			} );
-
-			// Should extract only the first button
-			expect( setAttributes ).toHaveBeenCalledWith( {
-				hostedButtonId: 'FIRST123',
-				buttonText: 'First Button',
-			} );
-		} );
-
-		it( 'handles protocol-relative URLs', () => {
-			const setAttributes = jest.fn();
-			render(
-				<Edit
-					attributes={ { ...defaultProps.attributes, buttonType: 'single' } }
-					setAttributes={ setAttributes }
-					isSelected={ true }
-				/>
-			);
-
-			const snippet = `<form action="//www.paypal.com/ncp/payment/PROTOCOL123" method="post">
-				<input type="submit" value="Buy" />
-			</form>`;
-
-			const inputs = screen.getAllByTestId( 'plain-text' );
-			// eslint-disable-next-line testing-library/prefer-user-event
-			fireEvent.change( inputs[ 0 ], {
-				target: { value: snippet },
-			} );
-
-			expect( setAttributes ).toHaveBeenCalledWith( {
-				hostedButtonId: 'PROTOCOL123',
-				buttonText: 'Buy',
-			} );
-		} );
-
-		it( 'handles mixed case in domain names', () => {
-			const setAttributes = jest.fn();
-			render(
-				<Edit
-					attributes={ { ...defaultProps.attributes, buttonType: 'single' } }
-					setAttributes={ setAttributes }
-					isSelected={ true }
-				/>
-			);
-
-			const snippet = `<form action="https://www.PayPal.COM/ncp/payment/MIXEDCASE123" method="post">
-				<input type="submit" value="Buy" />
-			</form>`;
-
-			const inputs = screen.getAllByTestId( 'plain-text' );
-			// eslint-disable-next-line testing-library/prefer-user-event
-			fireEvent.change( inputs[ 0 ], {
-				target: { value: snippet },
-			} );
-
-			expect( setAttributes ).toHaveBeenCalledWith( {
-				hostedButtonId: 'MIXEDCASE123',
-				buttonText: 'Buy',
-			} );
-		} );
-	} );
-
-	describe( 'Validation Notices', () => {
-		it( 'shows error notice for invalid script URL', () => {
 			render(
 				<Edit
 					attributes={ {
-						buttonType: 'stacked',
-						scriptSrc: 'https://invalid-url.com/script.js',
-						hostedButtonId: 'ABC123',
-					} }
-					setAttributes={ jest.fn() }
-					isSelected={ false }
-				/>
-			);
-
-			expect( screen.getByTestId( 'notice' ) ).toBeInTheDocument();
-			expect( screen.getByTestId( 'notice' ) ).toHaveAttribute( 'data-status', 'error' );
-			expect( screen.getByText( 'Invalid PayPal script URL.' ) ).toBeInTheDocument();
-		} );
-
-		it( 'shows no notice for valid stacked button data', () => {
-			render(
-				<Edit
-					attributes={ {
-						buttonType: 'stacked',
+						isApiManaged: false,
 						scriptSrc: 'https://www.paypal.com/sdk/js?client-id=test',
-						hostedButtonId: 'ABC123DEF',
-					} }
-					setAttributes={ jest.fn() }
-					isSelected={ false }
-				/>
-			);
-
-			expect( screen.queryByTestId( 'notice' ) ).not.toBeInTheDocument();
-		} );
-
-		it( 'shows error notice for invalid hosted button ID', () => {
-			render(
-				<Edit
-					attributes={ {
-						buttonType: 'stacked',
-						scriptSrc: 'https://www.paypal.com/sdk/js?client-id=test',
-						hostedButtonId: 'invalid@button#id!123', // Contains invalid characters
-					} }
-					setAttributes={ jest.fn() }
-					isSelected={ false }
-				/>
-			);
-
-			expect( screen.getByTestId( 'notice' ) ).toBeInTheDocument();
-			expect( screen.getByTestId( 'notice' ) ).toHaveAttribute( 'data-status', 'error' );
-			expect( screen.getByText( 'Invalid PayPal button ID.' ) ).toBeInTheDocument();
-		} );
-
-		it( 'shows error notice for invalid button text', () => {
-			render(
-				<Edit
-					attributes={ {
-						buttonType: 'single',
-						hostedButtonId: 'ABC123DEF',
-						buttonText: 'This is a really long button text that exceeds the maximum length allowed',
-					} }
-					setAttributes={ jest.fn() }
-					isSelected={ false }
-				/>
-			);
-
-			expect( screen.getByTestId( 'notice' ) ).toBeInTheDocument();
-			expect( screen.getByTestId( 'notice' ) ).toHaveAttribute( 'data-status', 'error' );
-			expect(
-				screen.getByText( 'Button text must be between 1 and 50 characters.' )
-			).toBeInTheDocument();
-		} );
-
-		it( 'shows validation errors even when block is selected', () => {
-			render(
-				<Edit
-					attributes={ {
-						buttonType: 'stacked',
-						scriptSrc: 'https://invalid-url.com/script.js', // Invalid URL
-						hostedButtonId: 'ABC123',
-					} }
-					setAttributes={ jest.fn() }
-					isSelected={ true } // Block is selected
-				/>
-			);
-
-			expect( screen.getByTestId( 'notice' ) ).toBeInTheDocument();
-			expect( screen.getByTestId( 'notice' ) ).toHaveAttribute( 'data-status', 'error' );
-		} );
-	} );
-
-	it( 'renders external links to PayPal signup and login pages for WordPress.org', () => {
-		render( <Edit { ...defaultProps } /> );
-		const links = screen.getAllByTestId( 'external-link' );
-		expect( links ).toHaveLength( 2 );
-
-		// Check signup link
-		expect( links[ 0 ] ).toHaveAttribute(
-			'href',
-			'https://www.paypal.com/bizsignup/entry?product=payment_button&utm_source=wp_org&at_code=wp_org'
-		);
-		expect( links[ 0 ] ).toHaveTextContent( 'Sign up' );
-
-		// Check login link
-		expect( links[ 1 ] ).toHaveAttribute(
-			'href',
-			'https://www.paypal.com/ncp/buttons/create?utm_source=wp_org&at_code=wp_org'
-		);
-		expect( links[ 1 ] ).toHaveTextContent( 'log in' );
-	} );
-
-	it( 'renders external links to PayPal signup and login pages for WordPress.com', () => {
-		// Mock WordPress.com platform
-		const { isWpcomPlatformSite } = require( '@automattic/jetpack-script-data' );
-		isWpcomPlatformSite.mockReturnValue( true );
-
-		render( <Edit { ...defaultProps } /> );
-		const links = screen.getAllByTestId( 'external-link' );
-		expect( links ).toHaveLength( 2 );
-
-		// Check signup link
-		expect( links[ 0 ] ).toHaveAttribute(
-			'href',
-			'https://www.paypal.com/bizsignup/entry?product=payment_button&utm_source=wp_com&at_code=wp_com'
-		);
-		expect( links[ 0 ] ).toHaveTextContent( 'Sign up' );
-
-		// Check login link
-		expect( links[ 1 ] ).toHaveAttribute(
-			'href',
-			'https://www.paypal.com/ncp/buttons/create?utm_source=wp_com&at_code=wp_com'
-		);
-		expect( links[ 1 ] ).toHaveTextContent( 'log in' );
-
-		// Reset mock
-		isWpcomPlatformSite.mockReturnValue( false );
-	} );
-
-	describe( 'Parameter Clearing on Button Type Toggle', () => {
-		it( 'clears all parameters when switching from stacked to single', () => {
-			const setAttributes = jest.fn();
-			render(
-				<Edit
-					attributes={ {
-						buttonType: 'stacked',
-						scriptSrc: 'https://www.paypal.com/sdk/js?client-id=test',
-						hostedButtonId: 'ABC123DEF',
-						buttonText: '',
+						hostedButtonId: 'BTN_123',
 					} }
 					setAttributes={ setAttributes }
-					isSelected={ true }
 				/>
 			);
 
-			fireEvent.click( screen.getByTestId( 'toggle-option-single' ) ); // eslint-disable-line testing-library/prefer-user-event
-
-			expect( setAttributes ).toHaveBeenCalledWith( {
-				buttonType: 'single',
-				scriptSrc: '',
-				buttonText: '',
-				hostedButtonId: '',
-			} );
-		} );
-
-		it( 'clears all parameters when switching from single to stacked', () => {
-			const setAttributes = jest.fn();
-			render(
-				<Edit
-					attributes={ {
-						buttonType: 'single',
-						scriptSrc: '',
-						hostedButtonId: 'ABC123DEF',
-						buttonText: 'Pay Now',
-					} }
-					setAttributes={ setAttributes }
-					isSelected={ true }
-				/>
-			);
-
-			fireEvent.click( screen.getByTestId( 'toggle-option-stacked' ) ); // eslint-disable-line testing-library/prefer-user-event
-
-			expect( setAttributes ).toHaveBeenCalledWith( {
-				buttonType: 'stacked',
-				scriptSrc: '',
-				buttonText: '',
-				hostedButtonId: '',
-			} );
-		} );
-
-		it( 'clears all parameters when switching to the same type', () => {
-			const setAttributes = jest.fn();
-			render(
-				<Edit
-					attributes={ {
-						buttonType: 'stacked',
-						scriptSrc: 'https://www.paypal.com/sdk/js?client-id=test',
-						hostedButtonId: 'ABC123DEF',
-						buttonText: '',
-					} }
-					setAttributes={ setAttributes }
-					isSelected={ true }
-				/>
-			);
-
-			fireEvent.click( screen.getByTestId( 'toggle-option-stacked' ) ); // eslint-disable-line testing-library/prefer-user-event
-
-			// Should clear all parameters even when switching to the same type
-			expect( setAttributes ).toHaveBeenCalledWith( {
-				buttonType: 'stacked',
-				scriptSrc: '',
-				buttonText: '',
-				hostedButtonId: '',
-			} );
+			await expect( screen.findByText( /legacy paste-code format/ ) ).resolves.toBeInTheDocument();
 		} );
 	} );
 
-	describe( 'Preview Functionality', () => {
-		it( 'shows no preview for stacked buttons', () => {
+	describe( 'Create Form (connected, no button)', () => {
+		beforeEach( () => {
+			apiFetch.mockResolvedValue( { connected: true, environment: 'sandbox' } );
+		} );
+
+		it( 'shows the create form when connected but no button exists', async () => {
+			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+
+			await expect( screen.findByText( 'Create PayPal Button' ) ).resolves.toBeInTheDocument();
+			expect( screen.getByLabelText( 'Product Name' ) ).toBeInTheDocument();
+			expect( screen.getByLabelText( 'Price' ) ).toBeInTheDocument();
+			expect( screen.getByLabelText( 'Currency' ) ).toBeInTheDocument();
+			expect( screen.getByLabelText( /Description/ ) ).toBeInTheDocument();
+		} );
+
+		it( 'shows PayPal Connected status', async () => {
+			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+
+			await expect( screen.findByText( 'PayPal Connected' ) ).resolves.toBeInTheDocument();
+		} );
+
+		it( 'shows sandbox badge when in sandbox mode', async () => {
+			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+
+			await expect( screen.findByText( 'Sandbox' ) ).resolves.toBeInTheDocument();
+		} );
+
+		it( 'calls setAttributes when product name changes', async () => {
+			const user = userEvent.setup();
+
+			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+
+			await expect( screen.findByLabelText( 'Product Name' ) ).resolves.toBeInTheDocument();
+			const nameInput = screen.getByLabelText( 'Product Name' );
+			await user.type( nameInput, 'T' );
+
+			expect( setAttributes ).toHaveBeenCalledWith( { productName: 'T' } );
+		} );
+
+		it( 'disables Create Button when form is invalid', async () => {
+			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+
+			await expect( screen.findByText( 'Create Button' ) ).resolves.toBeInTheDocument();
+			const createButton = screen.getByText( 'Create Button' );
+			expect( createButton ).toBeDisabled();
+		} );
+
+		it( 'enables Create Button when required fields are filled', async () => {
 			render(
 				<Edit
 					attributes={ {
+						productName: 'Test Widget',
+						price: '29.99',
+						currencyCode: 'USD',
+					} }
+					setAttributes={ setAttributes }
+				/>
+			);
+
+			await expect( screen.findByText( 'Create Button' ) ).resolves.toBeInTheDocument();
+			const createButton = screen.getByText( 'Create Button' );
+			expect( createButton ).toBeEnabled();
+		} );
+
+		it( 'submits create request with correct data', async () => {
+			const user = userEvent.setup();
+
+			// First call: connection check. Second call: create button.
+			apiFetch
+				.mockResolvedValueOnce( { connected: true, environment: 'sandbox' } )
+				.mockResolvedValueOnce( {
+					id: 'PLB-TEST123',
+					payment_link: 'https://www.paypal.com/paymentpage/PLB-TEST123',
+				} );
+
+			render(
+				<Edit
+					attributes={ {
+						productName: 'Test Widget',
+						price: '29.99',
+						currencyCode: 'USD',
+					} }
+					setAttributes={ setAttributes }
+				/>
+			);
+
+			await expect( screen.findByText( 'Create Button' ) ).resolves.toBeInTheDocument();
+			const createButton = screen.getByText( 'Create Button' );
+			await user.click( createButton );
+
+			// Should have called apiFetch with the create request.
+			expect( apiFetch ).toHaveBeenCalledWith(
+				expect.objectContaining( {
+					path: '/jetpack/v4/paypal/buttons',
+					method: 'POST',
+					data: expect.objectContaining( {
+						type: 'BUY_NOW',
+						integration_mode: 'LINK',
+						line_items: expect.arrayContaining( [
+							expect.objectContaining( {
+								name: 'Test Widget',
+								unit_amount: { currency_code: 'USD', value: '29.99' },
+							} ),
+						] ),
+					} ),
+				} )
+			);
+		} );
+	} );
+
+	describe( 'Preview Mode (connected, has button)', () => {
+		beforeEach( () => {
+			apiFetch.mockResolvedValue( { connected: true, environment: 'sandbox' } );
+		} );
+
+		it( 'shows button preview when API-managed button exists', async () => {
+			render(
+				<Edit
+					attributes={ {
+						isApiManaged: true,
+						resourceId: 'PLB-TEST123',
+						paymentLink: 'https://www.paypal.com/paymentpage/PLB-TEST123',
+						productName: 'Test Widget',
+						price: '29.99',
+						currencyCode: 'USD',
 						buttonType: 'stacked',
-						scriptSrc: 'https://www.paypal.com/sdk/js?client-id=test',
-						hostedButtonId: 'ABC123DEF',
 					} }
-					setAttributes={ jest.fn() }
-					isSelected={ false }
+					setAttributes={ setAttributes }
 				/>
 			);
 
-			// Should show the configuration form since stacked button previews are disabled
-			expect( screen.getByTestId( 'placeholder' ) ).toBeInTheDocument();
-			expect( screen.queryByTitle( 'PayPal Button Preview' ) ).not.toBeInTheDocument();
+			await expect( screen.findByTestId( 'paypal-button-preview' ) ).resolves.toBeInTheDocument();
 		} );
 
-		it( 'shows direct button preview when block is not selected and has valid single button data', () => {
+		it( 'shows edit toolbar when button exists', async () => {
 			render(
 				<Edit
 					attributes={ {
-						buttonType: 'single',
-						hostedButtonId: 'ABC123DEF',
-						buttonText: 'Buy Now',
+						isApiManaged: true,
+						resourceId: 'PLB-TEST123',
+						paymentLink: 'https://www.paypal.com/paymentpage/PLB-TEST123',
+						productName: 'Test Widget',
+						price: '29.99',
+						currencyCode: 'USD',
 					} }
-					setAttributes={ jest.fn() }
-					isSelected={ false }
+					setAttributes={ setAttributes }
 				/>
 			);
 
-			// Single button should render directly, not in iframe
-			const button = screen.getByDisplayValue( 'Buy Now' );
-			expect( button ).toBeInTheDocument();
-			expect( button ).toHaveAttribute( 'type', 'button' );
-			expect( screen.queryByTitle( 'PayPal Button Preview' ) ).not.toBeInTheDocument();
+			await expect( screen.findByTestId( 'toolbar-Edit' ) ).resolves.toBeInTheDocument();
+			expect( screen.getByTestId( 'toolbar-Preview' ) ).toBeInTheDocument();
 		} );
 
-		it( 'shows placeholder when block is not selected but data is invalid', () => {
+		it( 'switches to edit mode when Edit toolbar button is clicked', async () => {
+			const user = userEvent.setup();
+
 			render(
 				<Edit
 					attributes={ {
-						buttonType: 'single',
-						hostedButtonId: '',
-						buttonText: '',
+						isApiManaged: true,
+						resourceId: 'PLB-TEST123',
+						paymentLink: 'https://www.paypal.com/paymentpage/PLB-TEST123',
+						productName: 'Test Widget',
+						price: '29.99',
+						currencyCode: 'USD',
 					} }
-					setAttributes={ jest.fn() }
-					isSelected={ false }
+					setAttributes={ setAttributes }
 				/>
 			);
 
-			// Should show the configuration form, not the preview
-			expect( screen.getByTestId( 'placeholder' ) ).toBeInTheDocument();
-			expect( screen.queryByTitle( 'PayPal Button Preview' ) ).not.toBeInTheDocument();
+			await expect( screen.findByTestId( 'toolbar-Edit' ) ).resolves.toBeInTheDocument();
+			const editButton = screen.getByTestId( 'toolbar-Edit' );
+			await user.click( editButton );
+
+			// Should now show the edit form with "Edit PayPal Button" heading.
+			expect( screen.getByText( 'Edit PayPal Button' ) ).toBeInTheDocument();
+			expect( screen.getByText( 'Update Button' ) ).toBeInTheDocument();
 		} );
+	} );
 
-		it( 'shows settings form when block is selected', () => {
-			render(
-				<Edit
-					attributes={ {
-						buttonType: 'single',
-						hostedButtonId: 'ABC123DEF',
-						buttonText: 'Buy Now',
-					} }
-					setAttributes={ jest.fn() }
-					isSelected={ true }
-				/>
+	describe( 'API Error Handling', () => {
+		it( 'shows connection form when connection check fails', async () => {
+			apiFetch.mockRejectedValue( new Error( 'Network error' ) );
+
+			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+
+			// Should fall back to not-connected state.
+			await expect( screen.findAllByText( 'Connect PayPal' ) ).resolves.toEqual(
+				expect.any( Array )
 			);
-
-			expect( screen.getByTestId( 'placeholder' ) ).toBeInTheDocument();
-			expect( screen.queryByTitle( 'PayPal Button Preview' ) ).not.toBeInTheDocument();
 		} );
+	} );
 
-		it( 'shows preview placeholder message when data is incomplete', () => {
-			// Mock the preview component to show up, but with incomplete data
-			render(
-				<Edit
-					attributes={ {
-						buttonType: 'single',
-						hostedButtonId: '', // Missing button ID
-						buttonText: '',
-					} }
-					setAttributes={ jest.fn() }
-					isSelected={ false }
-				/>
+	describe( 'Connection Check', () => {
+		it( 'calls apiFetch to check connection on mount', async () => {
+			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+
+			await expect( screen.findAllByText( 'Connect PayPal' ) ).resolves.toEqual(
+				expect.any( Array )
 			);
 
-			// Should show the configuration form since data is incomplete
-			expect( screen.getByTestId( 'placeholder' ) ).toBeInTheDocument();
-			expect( screen.queryByTitle( 'PayPal Button Preview' ) ).not.toBeInTheDocument();
+			expect( apiFetch ).toHaveBeenCalledWith(
+				expect.objectContaining( {
+					path: '/jetpack/v4/paypal/connection',
+				} )
+			);
 		} );
 	} );
 } );

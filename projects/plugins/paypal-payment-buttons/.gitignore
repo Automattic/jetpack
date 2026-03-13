@@ -6,3 +6,4 @@
 /vendor/
 /.cache/
 /build/
+/.claude-project/
