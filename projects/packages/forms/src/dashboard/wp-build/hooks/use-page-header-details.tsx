@@ -12,6 +12,7 @@ import { decodeEntities } from '@wordpress/html-entities';
 import { __, sprintf } from '@wordpress/i18n';
 import { moreVertical } from '@wordpress/icons';
 import { store as noticesStore } from '@wordpress/notices';
+import { useNavigate } from '@wordpress/route';
 import { Badge, Stack } from '@wordpress/ui';
 /**
  * Internal dependencies
@@ -33,6 +34,7 @@ import useEmptySpam from '../../hooks/use-empty-spam';
 import useEmptyTrash from '../../hooks/use-empty-trash';
 import useExportResponses from '../../hooks/use-export-responses';
 import useInboxData from '../../hooks/use-inbox-data';
+import { store as dashboardStore } from '../../store/index.js';
 import { getFormEditUrl } from '../../utils.ts';
 import ManageIntegrationsButton from '../components/manage-integrations-button';
 import useFormItemActions from './use-form-item-actions';
@@ -91,6 +93,7 @@ export default function usePageHeaderDetails(
 
 	// Detect mobile viewport
 	const [ isSm ] = useBreakpointMatch( 'sm' );
+	const navigate = useNavigate();
 
 	// Mutually-exclusive screen flags.
 	const isFormsScreen = screen === 'forms';
@@ -131,15 +134,23 @@ export default function usePageHeaderDetails(
 	const renameRetryRef = useRef< { item: { id: number; title: string }; title: string } | null >(
 		null
 	);
-	const { saveEntityRecord } = useDispatch( 'core' ) as {
+	const { saveEntityRecord, deleteEntityRecord } = useDispatch( 'core' ) as {
 		saveEntityRecord: (
 			kind: string,
 			name: string,
 			record: Record< string, unknown >,
 			options?: { throwOnError?: boolean }
 		) => Promise< unknown >;
+		deleteEntityRecord: (
+			kind: string,
+			name: string,
+			recordId: number,
+			query?: Record< string, unknown >,
+			options?: { throwOnError?: boolean }
+		) => Promise< unknown >;
 	};
 	const { createSuccessNotice, createErrorNotice } = useDispatch( noticesStore );
+	const { invalidateFormStatusCounts } = useDispatch( dashboardStore );
 
 	const closeRenameModal = useCallback( () => {
 		setRenameFormItem( null );
@@ -185,6 +196,41 @@ export default function usePageHeaderDetails(
 			}
 		},
 		[ renameFormItem, saveEntityRecord, createSuccessNotice, createErrorNotice ]
+	);
+
+	const trashForm = useCallback(
+		async ( item: { id: number } ) => {
+			try {
+				await deleteEntityRecord(
+					'postType',
+					FORM_POST_TYPE,
+					item.id,
+					{ force: false },
+					{ throwOnError: true }
+				);
+
+				invalidateFormStatusCounts();
+				createSuccessNotice( __( 'Form moved to trash.', 'jetpack-forms' ), {
+					type: 'snackbar',
+				} );
+
+				// Navigate back to the forms list since the form no longer exists.
+				navigate( { to: '/forms' } );
+			} catch ( error ) {
+				createErrorNotice( __( 'Failed to move form to trash.', 'jetpack-forms' ), {
+					type: 'snackbar',
+				} );
+				// eslint-disable-next-line no-console
+				console.error( 'Failed to trash form:', error );
+			}
+		},
+		[
+			deleteEntityRecord,
+			invalidateFormStatusCounts,
+			createSuccessNotice,
+			createErrorNotice,
+			navigate,
+		]
 	);
 
 	const formRecord = useSelect(
@@ -279,11 +325,17 @@ export default function usePageHeaderDetails(
 			} );
 		}
 
+		controls.push( {
+			title: __( 'Move to trash', 'jetpack-forms' ),
+			onClick: () => trashForm( formItem ),
+		} );
+
 		return controls;
 	}, [
 		copyEmbed,
 		copyShortcode,
 		duplicateForm,
+		trashForm,
 		formRecord?.status,
 		formTitle,
 		isUpdatingStatus,
