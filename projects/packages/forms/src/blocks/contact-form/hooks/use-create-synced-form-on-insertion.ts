@@ -85,7 +85,7 @@ export function useCreateSyncedFormOnInsertion( {
 					innerBlocks
 				);
 
-				const formId = await createSyncedForm( formBlock, formTitle, currentPostId );
+				const formId = await createSyncedForm( formBlock, formTitle, Number( currentPostId ) );
 
 				// Preload the entity record into the cache before setting ref
 				// to prevent the form from showing a loading skeleton.
