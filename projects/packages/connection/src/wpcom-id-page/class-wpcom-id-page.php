@@ -36,32 +36,32 @@ class Wpcom_Id_Page {
 		static::$initialized = true;
 
 		add_action( 'admin_menu', array( static::class, 'add_menu' ) );
-		add_filter( 'wp_connectors_settings', array( static::class, 'register_connector' ) );
+		add_action( 'wp_connectors_init', array( static::class, 'register_connector' ) );
 	}
 
 	/**
 	 * Register WordPress.com ID as a connector in the WP core Connectors screen.
 	 *
-	 * The wp_connectors_settings filter is available in WordPress 7.0+.
-	 * On older versions this filter never fires, so the hook is safely a no-op.
+	 * The wp_connectors_init action is available in WordPress 7.0+.
+	 * On older versions this action never fires, so the hook is safely a no-op.
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @param array $connectors Existing connector settings.
-	 * @return array Modified connector settings.
+	 * @param \WP_Connector_Registry $registry Connector registry instance.
 	 */
-	public static function register_connector( $connectors ) {
-		$connectors['wordpress_com'] = array(
-			'name'           => __( 'WordPress.com ID', 'jetpack-connection' ),
-			'description'    => __( 'Connect your site to WordPress.com for enhanced functionality, Jetpack services, and centralized management.', 'jetpack-connection' ),
-			'type'           => 'cloud_service',
-			'authentication' => array(
-				'method'          => 'none',
-				'credentials_url' => admin_url( 'tools.php?page=wpcom-id' ),
-			),
+	public static function register_connector( $registry ) {
+		$registry->register(
+			'wordpress_com',
+			array(
+				'name'           => __( 'WordPress.com ID', 'jetpack-connection' ),
+				'description'    => __( 'Connect your site to WordPress.com for enhanced functionality, Jetpack services, and centralized management.', 'jetpack-connection' ),
+				'type'           => 'cloud_service',
+				'authentication' => array(
+					'method'          => 'none',
+					'credentials_url' => admin_url( 'tools.php?page=wpcom-id' ),
+				),
+			)
 		);
-
-		return $connectors;
 	}
 
 	/**
