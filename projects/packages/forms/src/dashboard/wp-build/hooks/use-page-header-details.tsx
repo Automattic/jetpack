@@ -147,7 +147,15 @@ export default function usePageHeaderDetails(
 		return <Badge intent="draft">{ statusLabel }</Badge>;
 	}, [ isSingleFormScreen, formStatus, statusLabel ] );
 
-	const { duplicateForm, previewForm, copyEmbed, copyShortcode } = useFormItemActions();
+	const {
+		duplicateForm,
+		previewForm,
+		copyEmbed,
+		copyShortcode,
+		publishForms,
+		setFormsToDraft,
+		isUpdatingStatus,
+	} = useFormItemActions();
 
 	const formItemControls = useMemo( () => {
 		if ( ! sourceIdNumber ) {
@@ -179,8 +187,39 @@ export default function usePageHeaderDetails(
 			);
 		}
 
+		if ( formRecord?.status === 'publish' ) {
+			controls.push( {
+				title: __( 'Unpublish', 'jetpack-forms' ),
+				onClick: () => {
+					if ( ! isUpdatingStatus ) {
+						setFormsToDraft( [ formItem ] );
+					}
+				},
+			} );
+		} else {
+			controls.push( {
+				title: __( 'Publish', 'jetpack-forms' ),
+				onClick: () => {
+					if ( ! isUpdatingStatus ) {
+						publishForms( [ formItem ] );
+					}
+				},
+			} );
+		}
+
 		return controls;
-	}, [ sourceIdNumber, formTitle, duplicateForm, previewForm, copyEmbed, copyShortcode ] );
+	}, [
+		copyEmbed,
+		copyShortcode,
+		duplicateForm,
+		formRecord?.status,
+		formTitle,
+		isUpdatingStatus,
+		publishForms,
+		previewForm,
+		setFormsToDraft,
+		sourceIdNumber,
+	] );
 
 	const WrapWithJetpackLogo = ( { children }: { children: ReactNode } ) => (
 		<Stack align="center" gap="xs">
