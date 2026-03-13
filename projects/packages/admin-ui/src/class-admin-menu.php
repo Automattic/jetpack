@@ -281,9 +281,21 @@ class Admin_Menu {
 			return $is_free;
 		}
 
-		$plan    = get_option( 'jetpack_active_plan', array() );
-		$is_free = 'free' === ( $plan['class'] ?? 'free' );
+		// Check the active plan.
+		$plan = get_option( 'jetpack_active_plan', array() );
+		if ( isset( $plan['class'] ) && 'free' !== $plan['class'] ) {
+			$is_free = false;
+			return $is_free;
+		}
 
+		// Also check for site products (licenses can add products without changing plan class).
+		$products = get_option( 'jetpack_site_products', array() );
+		if ( ! empty( $products ) && is_array( $products ) ) {
+			$is_free = false;
+			return $is_free;
+		}
+
+		$is_free = true;
 		return $is_free;
 	}
 
@@ -304,8 +316,7 @@ class Admin_Menu {
 			? \Automattic\Jetpack\Redirect::get_url( self::UPGRADE_MENU_SLUG )
 			: self::UPGRADE_MENU_FALLBACK_URL;
 
-		$menu_title = '<span class="dashicons dashicons-star-filled jetpack-upgrade-menu__icon" aria-hidden="true"></span>'
-			. esc_html__( 'Upgrade Jetpack', 'jetpack-admin-ui' )
+		$menu_title = esc_html__( 'Upgrade Jetpack', 'jetpack-admin-ui' )
 			. ' <span aria-hidden="true">↗</span>';
 
 		add_submenu_page(
@@ -345,16 +356,9 @@ class Admin_Menu {
 		}
 		?>
 		<style>
-			#adminmenu .jetpack-upgrade-menu__icon {
-				color: #069e08;
-				font-size: 15px;
-				line-height: 1;
-				vertical-align: middle;
-				margin-inline-start: -3px;
-			}
 			#adminmenu li.<?php echo esc_attr( self::UPGRADE_MENU_SLUG ); ?> > a,
 			#adminmenu li.<?php echo esc_attr( self::UPGRADE_MENU_SLUG ); ?> > a:hover {
-				color: #069e08;
+				color: #069e08 !important;
 				font-weight: 600;
 			}
 		</style>
