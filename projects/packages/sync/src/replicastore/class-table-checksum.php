@@ -906,7 +906,11 @@ class Table_Checksum {
 		try {
 			$parent_range = $parent_table_obj->get_range_edges();
 
-			return (int) $parent_range['item_count'];
+			if ( is_array( $parent_range ) && isset( $parent_range['item_count'] ) ) {
+				return (int) $parent_range['item_count'];
+			}
+
+			return false;
 		} catch ( Exception $e ) {
 			return false;
 		}
