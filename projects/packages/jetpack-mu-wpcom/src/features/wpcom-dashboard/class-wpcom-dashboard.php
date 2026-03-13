@@ -23,36 +23,36 @@ class Wpcom_Dashboard {
 	 * Initialize the feature.
 	 */
 	public static function init() {
-		add_filter( 'wpcom_dashboard_replacement_enabled', array( __CLASS__, 'is_feature_flag_enabled' ) );
-		add_filter( 'wpcom_dashboard_replacement_holdout_is_treatment', array( __CLASS__, 'is_holdout_treatment' ) );
-		add_action( 'admin_notices', array( __CLASS__, 'render_admin_notice' ) );
+		add_filter( 'screen_layout_columns', array( __CLASS__, 'limit_dashboard_columns' ) );
+		add_filter( 'get_user_option_screen_layout_dashboard', array( __CLASS__, 'cap_dashboard_column_preference' ) );
+		add_filter( 'get_user_option_meta-box-order_dashboard', array( __CLASS__, 'redistribute_meta_box_order' ) );
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_dashboard_styles' ) );
 	}
 
 	/**
-	 * Feature flag filter callback. Defaults to false.
-	 * Override this filter to true to force-enable for testing.
+	 * Whether the current user is in the holdout treatment group.
 	 *
-	 * @param bool $enabled Whether the feature is enabled.
-	 * @return bool
-	 */
-	public static function is_feature_flag_enabled( $enabled = false ) {
-		return (bool) $enabled;
-	}
-
-	/**
-	 * Check whether the current user is in the holdout treatment group.
-	 *
-	 * On Simple sites, uses \ExPlat\assign_current_user() directly.
-	 * On Atomic sites with a connected user, uses the REST API.
+	 * Checks the ExPlat experiment assignment. On Simple sites, uses
+	 * \ExPlat\assign_current_user() directly. On Atomic sites with a
+	 * connected user, uses the REST API.
 	 * Caches the result in a transient for 1 hour.
 	 *
-	 * @param bool $is_treatment Whether the user is in the treatment group.
+	 * The result can be overridden via the
+	 * {@see 'wpcom_dashboard_override_is_treatment'} filter.
+	 *
 	 * @return bool
 	 */
-	public static function is_holdout_treatment( $is_treatment = false ) {
-		// Respect earlier filter overrides.
-		if ( $is_treatment ) {
-			return true;
+	public static function is_treatment() {
+		/**
+		 * Overrides the holdout experiment assignment.
+		 * Return true to force-enable the treatment for testing.
+		 *
+		 * @param bool|null $override Return a bool to override, or null to use the experiment value.
+		 */
+		$override = apply_filters( 'wpcom_dashboard_override_is_treatment', null );
+
+		if ( null !== $override ) {
+			return (bool) $override;
 		}
 
 		$user_id = get_current_user_id();
@@ -94,55 +94,105 @@ class Wpcom_Dashboard {
 	}
 
 	/**
-	 * Whether the dashboard replacement is active.
+	 * Enqueue responsive dashboard column styles on the Dashboard screen.
 	 *
-	 * Returns true if the feature flag is enabled OR the holdout experiment
-	 * assigns the user to the treatment group.
-	 *
-	 * @return bool
+	 * @param string $hook_suffix The current admin page hook suffix.
 	 */
-	public static function is_active() {
-		/** This filter is documented in class-wpcom-dashboard.php */
-		$feature_flag = apply_filters( 'wpcom_dashboard_replacement_enabled', false );
-
-		if ( $feature_flag ) {
-			return true;
+	public static function enqueue_dashboard_styles( $hook_suffix ) {
+		if ( 'index.php' !== $hook_suffix || ! self::is_treatment() ) {
+			return;
 		}
 
-		/** This filter is documented in class-wpcom-dashboard.php */
-		return (bool) apply_filters( 'wpcom_dashboard_replacement_holdout_is_treatment', false );
+		wp_enqueue_style(
+			'wpcom-dashboard-styles',
+			plugins_url( 'wpcom-dashboard.css', __FILE__ ),
+			array(),
+			\Automattic\Jetpack\Jetpack_Mu_Wpcom::PACKAGE_VERSION
+		);
 	}
 
 	/**
-	 * Render an admin notice on the Dashboard page showing the current state.
-	 * Temporary dev aid — remove before shipping.
+	 * Limit the dashboard screen to a maximum of 2 columns.
+	 *
+	 * @param array $columns Screen layout columns keyed by screen ID.
+	 * @return array
 	 */
-	public static function render_admin_notice() {
-		if ( ! self::is_active() ) {
-			return;
+	public static function limit_dashboard_columns( $columns ) {
+		if ( ! self::is_treatment() ) {
+			return $columns;
 		}
 
-		$screen = get_current_screen();
-		if ( ! $screen || 'dashboard' !== $screen->id ) {
-			return;
+		$columns['dashboard'] = 2;
+
+		return $columns;
+	}
+
+	/**
+	 * Cap the user's saved dashboard column preference to 2.
+	 *
+	 * @param int|false $value The user's saved column count, or false if not set.
+	 * @return int|false
+	 */
+	public static function cap_dashboard_column_preference( $value ) {
+		if ( ! self::is_treatment() ) {
+			return $value;
 		}
 
-		/** This filter is documented in class-wpcom-dashboard.php */
-		$is_treatment = (bool) apply_filters( 'wpcom_dashboard_replacement_holdout_is_treatment', false );
+		if ( false !== $value && (int) $value > 2 ) {
+			return 2;
+		}
 
-		$status = $is_treatment ? 'active/treatment' : 'active/control';
-		$type   = $is_treatment ? 'success' : 'info';
+		return $value;
+	}
 
-		printf(
-			'<div class="notice notice-%s"><p>%s</p></div>',
-			esc_attr( $type ),
-			esc_html(
-				sprintf(
-					/* translators: %s is "active/treatment" or "active/control". */
-					__( 'Dashboard replacement: %s', 'jetpack-mu-wpcom' ),
-					$status
-				)
-			)
-		);
+	/**
+	 * Move widgets from columns 3 and 4 into columns 1 and 2.
+	 *
+	 * WordPress stores the dashboard meta box order as an array with keys:
+	 * 'normal' (column 1), 'side' (column 2), 'column3', 'column4'.
+	 *
+	 * @param array|false $order The saved meta box order, or false if not set.
+	 * @return array|false
+	 */
+	public static function redistribute_meta_box_order( $order ) {
+		if ( ! self::is_treatment() || ! is_array( $order ) ) {
+			return $order;
+		}
+
+		// Append column3 widgets to normal (column 1).
+		if ( ! empty( $order['column3'] ) ) {
+			$order['normal']  = self::merge_widget_lists( $order['normal'] ?? '', $order['column3'] );
+			$order['column3'] = '';
+		}
+
+		// Append column4 widgets to side (column 2).
+		if ( ! empty( $order['column4'] ) ) {
+			$order['side']    = self::merge_widget_lists( $order['side'] ?? '', $order['column4'] );
+			$order['column4'] = '';
+		}
+
+		return $order;
+	}
+
+	/**
+	 * Merge two comma-separated widget ID lists.
+	 *
+	 * @param string $target Existing comma-separated list.
+	 * @param string $source List to append.
+	 * @return string
+	 */
+	private static function merge_widget_lists( $target, $source ) {
+		$target = trim( $target, ',' );
+		$source = trim( $source, ',' );
+
+		if ( '' === $target ) {
+			return $source;
+		}
+
+		if ( '' === $source ) {
+			return $target;
+		}
+
+		return $target . ',' . $source;
 	}
 }
