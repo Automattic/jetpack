@@ -152,6 +152,23 @@ export default function usePageHeaderDetails(
 	const { createSuccessNotice, createErrorNotice } = useDispatch( noticesStore );
 	const { invalidateFormStatusCounts } = useDispatch( dashboardStore );
 
+	const formRecord = useSelect(
+		select =>
+			sourceIdNumber
+				? ( select( coreDataStore ).getEntityRecord(
+						'postType',
+						'jetpack_form',
+						sourceIdNumber
+				  ) as { title?: { rendered?: string }; status?: string } | undefined )
+				: undefined,
+		[ sourceIdNumber ]
+	);
+
+	const formTitle = useMemo( () => {
+		const rendered = formRecord?.title?.rendered || '';
+		return decodeEntities( rendered );
+	}, [ formRecord?.title?.rendered ] );
+
 	const closeRenameModal = useCallback( () => {
 		setRenameFormItem( null );
 		renameRetryRef.current = null;
@@ -259,23 +276,6 @@ export default function usePageHeaderDetails(
 			navigate,
 		]
 	);
-
-	const formRecord = useSelect(
-		select =>
-			sourceIdNumber
-				? ( select( coreDataStore ).getEntityRecord(
-						'postType',
-						'jetpack_form',
-						sourceIdNumber
-				  ) as { title?: { rendered?: string }; status?: string } | undefined )
-				: undefined,
-		[ sourceIdNumber ]
-	);
-
-	const formTitle = useMemo( () => {
-		const rendered = formRecord?.title?.rendered || '';
-		return decodeEntities( rendered );
-	}, [ formRecord?.title?.rendered ] );
 
 	const formStatus = formRecord?.status;
 
