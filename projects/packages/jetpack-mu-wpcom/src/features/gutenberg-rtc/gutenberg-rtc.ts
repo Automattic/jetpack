@@ -8,18 +8,12 @@ declare global {
 	interface Window {
 		wpcomGutenbergRTC?: {
 			providers?: string[];
-<<<<<<< HEAD
 			maxPeersPerRoom?: number;
 			maxClientsPerUser?: number;
-=======
-			roomUserLimit?: number;
->>>>>>> d04887b473 (Ensure pooling is disabled on 429)
 		};
 	}
 }
 
-<<<<<<< HEAD
-=======
 const SYNC_UPDATES_PATH = '/wp-sync/v1/updates';
 const ROOM_LIMIT_ERROR_CODE = 'rest_sync_connection_limit_exceeded';
 let isRoomLimitMiddlewareRegistered = false;
@@ -81,7 +75,6 @@ function registerRoomLimitMiddleware(): void {
 	);
 }
 
->>>>>>> d04887b473 (Ensure pooling is disabled on 429)
 /**
  * Register providers (e.g. PingHub, HTTP polling) supplied by the server,
  * each wrapped with a room-user-limit enforcer.
