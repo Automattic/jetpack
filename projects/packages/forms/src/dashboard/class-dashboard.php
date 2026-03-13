@@ -27,6 +27,18 @@ class Dashboard {
 	 */
 	public static function load_wp_build() {
 		if ( self::get_admin_query_page() === self::FORMS_WPBUILD_ADMIN_SLUG ) {
+			// When no route path is specified, redirect to the default view
+			// so the client-side router doesn't need a catch-all root route.
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			if ( ! isset( $_GET['p'] ) ) {
+				$default_tab = Contact_Form_Plugin::has_editor_feature_flag( 'central-form-management' )
+					? 'forms'
+					: 'inbox';
+
+				wp_safe_redirect( self::get_forms_admin_url( $default_tab ) );
+				exit;
+			}
+
 			$wp_build_index = dirname( __DIR__, 2 ) . '/build/build.php';
 
 			if ( file_exists( $wp_build_index ) ) {
