@@ -133,6 +133,13 @@ export function useCreateSyncedFormOnInsertion( {
 		return () => {
 			cancelled = true;
 		};
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [] );
+	}, [
+		shouldCreate,
+		attributes,
+		innerBlocks,
+		currentPostId,
+		setAttributes,
+		createSuccessNotice,
+		createErrorNotice,
+	] );
 }
