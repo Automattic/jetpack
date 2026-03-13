@@ -63,13 +63,17 @@ The version threshold for force-replacements can be overridden with a third para
 WP_Build_Polyfills::register( 'my-plugin', array( 'wp-notices' ), '7.1' );
 ```
 
-## Boot module asset proxy
+## Boot module asset file
 
 Packages that use `@wordpress/build` to generate pages get a hardcoded reference to `build/modules/boot/index.min.asset.php` in the generated page templates. This file provides the classic script dependencies and version hash needed to bootstrap the page.
 
-When `@wordpress/build` stops bundling the boot module (as planned in upcoming Gutenberg changes), this asset file will no longer be generated. The polyfills package ships a proxy file (`src/boot-module-asset-proxy.php`) that resolves the asset data from this package's build output at runtime, using `ReflectionClass` to locate the package regardless of install path (`vendor/` or `jetpack_vendor/`).
+When `@wordpress/build` stops bundling the boot module (as planned in upcoming Gutenberg changes), this asset file will no longer be generated. This package builds its own boot module asset file, and ships a bin script (`provide-boot-asset-file`) that copies it to the expected location in the consumer's build directory.
 
-The Jetpack monorepo CLI (`jetpack build`) automatically copies this proxy to the expected location (`build/modules/boot/index.min.asset.php`) after building any package that has `build/pages/` and depends on this package. No per-consumer configuration is needed.
+Consuming packages should add `@automattic/jetpack-wp-build-polyfills` as a devDependency and call the script after `wp-build`:
+
+```json
+"build:boot-proxy": "provide-boot-asset-file"
+```
 
 ## Development
 
