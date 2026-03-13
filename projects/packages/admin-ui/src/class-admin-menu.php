@@ -283,12 +283,12 @@ class Admin_Menu {
 			: self::UPGRADE_MENU_FALLBACK_URL;
 
 		$menu_title = '<span class="dashicons dashicons-star-filled jetpack-upgrade-menu__icon" aria-hidden="true"></span>'
-			. esc_html__( 'Upgrade to Pro', 'jetpack-admin-ui' )
+			. esc_html__( 'Upgrade Jetpack', 'jetpack-admin-ui' )
 			. ' <span aria-hidden="true">↗</span>';
 
 		add_submenu_page(
 			'jetpack',
-			__( 'Upgrade to Pro', 'jetpack-admin-ui' ),
+			__( 'Upgrade Jetpack', 'jetpack-admin-ui' ),
 			$menu_title,
 			'manage_options',
 			esc_url( $upgrade_url ),
