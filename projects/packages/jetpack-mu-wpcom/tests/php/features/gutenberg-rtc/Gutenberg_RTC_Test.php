@@ -407,7 +407,7 @@ class Gutenberg_RTC_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Tests that the inline script data includes roomUserLimit.
+	 * Tests that the inline script data includes maxPeersPerRoom.
 	 */
 	public function test_wpcom_enqueue_gutenberg_rtc_assets_includes_room_user_limit() {
 		wpcom_enqueue_gutenberg_rtc_assets();
@@ -415,7 +415,7 @@ class Gutenberg_RTC_Test extends \WorDBless\BaseTestCase {
 		$inline = $this->get_inline_script();
 
 		$this->assertStringContainsString( 'wpcomGutenbergRTC', $inline );
-		$this->assertStringContainsString( '"roomUserLimit":', $inline );
+		$this->assertStringContainsString( '"maxPeersPerRoom":', $inline );
 	}
 
 	/**

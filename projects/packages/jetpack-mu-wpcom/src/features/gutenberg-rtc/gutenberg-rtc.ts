@@ -13,30 +13,21 @@ function registerWpcomGutenbergProviders() {
 			return defaultProviders;
 		}
 
-		const httpPollingCreator =
-			typeof defaultProviders?.[ 0 ] === 'function'
-				? ( defaultProviders[ 0 ] as ProviderCreator )
-				: null;
-
-		const roomUserLimit = window.wpcomGutenbergRTC.roomUserLimit;
+		const maxPeersPerRoom = window.wpcomGutenbergRTC.maxPeersPerRoom;
 
 		return window.wpcomGutenbergRTC.providers
 			.map( ( provider: string ) => {
 				switch ( provider ) {
-					case 'http-polling': {
-						if ( httpPollingCreator ) {
-							return withRoomLimit( httpPollingCreator, roomUserLimit );
-						}
-						return null;
-					}
-					case 'pinghub': {
-						return withRoomLimit( createPingHubProvider(), roomUserLimit );
-					}
+					case 'http-polling':
+						return defaultProviders?.[ 0 ];
+					case 'pinghub':
+						return createPingHubProvider();
 					default:
 						return null;
 				}
 			} )
-			.filter( Boolean );
+			.filter( ( creator ): creator is ProviderCreator => Boolean( creator ) )
+			.map( creator => withRoomLimit( creator, maxPeersPerRoom ) );
 	};
 
 	addFilter( 'sync.providers', 'wpcom/gutenberg-rtc-providers', getProviders );

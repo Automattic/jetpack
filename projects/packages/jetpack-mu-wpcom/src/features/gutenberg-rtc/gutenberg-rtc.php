@@ -73,8 +73,8 @@ function wpcom_enqueue_gutenberg_rtc_assets() {
 
 	$data = wp_json_encode(
 		array(
-			'providers'     => wpcom_get_gutenberg_rtc_providers(),
-			'roomUserLimit' => 2,
+			'providers'       => wpcom_get_gutenberg_rtc_providers(),
+			'maxPeersPerRoom' => 2,
 		),
 		JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 	);

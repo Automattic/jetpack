@@ -47,16 +47,19 @@ function countOtherUsers( awareness: Awareness ): number {
  * reaches the given limit every provider created through `withRoomLimit`
  * is destroyed, which causes the shared polling manager to stop entirely.
  *
- * @param creator       - The provider creator to wrap.
- * @param roomUserLimit - Max other unique users allowed. Undefined or ≤ 0 disables enforcement.
+ * @param creator         - The provider creator to wrap.
+ * @param maxPeersPerRoom - Max other unique users allowed. Undefined or ≤ 0 disables enforcement.
  * @return Wrapped provider creator.
  */
-export function withRoomLimit( creator: ProviderCreator, roomUserLimit?: number ): ProviderCreator {
-	if ( ! roomUserLimit || roomUserLimit <= 0 ) {
+export function withRoomLimit(
+	creator: ProviderCreator,
+	maxPeersPerRoom?: number
+): ProviderCreator {
+	if ( ! maxPeersPerRoom || maxPeersPerRoom <= 0 ) {
 		return creator;
 	}
 
-	const limit = roomUserLimit;
+	const limit = maxPeersPerRoom;
 
 	return async ( options ): Promise< ProviderCreatorResult > => {
 		if ( breached ) {
@@ -84,7 +87,7 @@ export function withRoomLimit( creator: ProviderCreator, roomUserLimit?: number 
 			}
 
 			const others = countOtherUsers( awareness );
-			if ( others >= 0 && others >= limit ) {
+			if ( others >= limit ) {
 				breached = true;
 				for ( const fn of teardowns ) {
 					fn();
