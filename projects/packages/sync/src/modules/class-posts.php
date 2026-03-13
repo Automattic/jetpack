@@ -500,6 +500,12 @@ class Posts extends Module {
 		}
 
 		list( $post_id, $flags, $post ) = $args;
+
+		// During incremental sync, skip posts whose type is not registered (e.g. CPT unregistered before sync).
+		if ( ! get_post_type_object( $post->post_type ) ) {
+			return false;
+		}
+
 		return array( (int) $post_id, $flags, $this->filter_post_content_and_add_links( $post ) );
 	}
 
