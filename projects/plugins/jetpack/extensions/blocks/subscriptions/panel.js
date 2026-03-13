@@ -111,7 +111,16 @@ function NewsletterEditorSettingsPanel( { accessLevel } ) {
 const NewsletterDisabledNotice = ( { isComingSoonEnabled = false } ) => {
 	const message = isComingSoonEnabled
 		? __( 'You will be able to send newsletters once the site is published', 'jetpack' )
-		: __( 'Emails will not be sent to subscribers while the site is private', 'jetpack', 0 ); // 0 dummy arg to prevent bad minification
+	if ( ! isComingSoon() && ! isPrivateSite() ) {
+		return null;
+	}
+
+	let message = '';
+	if ( isComingSoon() ) {
+		message = __( 'You will be able to send newsletters once the site is published', 'jetpack' );
+	} else if ( isPrivateSite() ) {
+		message = __( 'You cannot send newsletters from a private site', 'jetpack' );
+	}
 
 	return (
 		<Notice status="info" isDismissible={ false } className="edit-post-post-visibility__notice">
