@@ -50,14 +50,19 @@ class Wpcom_Id_Page {
 	 * @param \WP_Connector_Registry $registry Connector registry instance.
 	 */
 	public static function register_connector( $registry ) {
+		// The Connectors UI (as of WP 7.0-beta5) only renders connectors with
+		// type 'ai_provider' and method 'api_key'. Using those values here so
+		// WordPress.com ID appears on the Settings > Connectors page. Once the
+		// UI supports additional types this should use 'cloud_service' / 'none'.
 		$registry->register(
 			'wordpress_com',
 			array(
 				'name'           => __( 'WordPress.com ID', 'jetpack-connection' ),
 				'description'    => __( 'Connect your site to WordPress.com for enhanced functionality, Jetpack services, and centralized management.', 'jetpack-connection' ),
-				'type'           => 'cloud_service',
+				'type'           => 'ai_provider',
+				'logo_url'       => plugins_url( 'images/wpcom-logo.svg', __FILE__ ),
 				'authentication' => array(
-					'method'          => 'none',
+					'method'          => 'api_key',
 					'credentials_url' => admin_url( 'tools.php?page=wpcom-id' ),
 				),
 			)
