@@ -180,7 +180,7 @@ const InteractiveLegendComponent = () => (
 		height={ 300 }
 		withGradientFill={ false }
 		withLegendGlyph={ false }
-		legendInteractive={ true }
+		legend={ { interactive: true } }
 	/>
 );
 export const InteractiveLegend: Story = {

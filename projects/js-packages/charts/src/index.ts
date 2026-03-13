@@ -37,14 +37,7 @@ export type {
 	PieSemiCircleChartRenderTooltipParams,
 } from './charts/pie-semi-circle-chart';
 export type { GeoChartProps, GeoRegion, GeoResolution } from './charts/geo-chart';
-export type {
-	LegendValueDisplay,
-	LegendPosition,
-	BaseLegendItem,
-	LegendItemStyles,
-	LegendLabelStyles,
-	LegendShapeStyles,
-} from './components/legend';
+export type { LegendValueDisplay, BaseLegendItem } from './components/legend';
 export type { TrendIndicatorProps, TrendDirection } from './components/trend-indicator';
 export type { LineStyles, GridStyles, EventHandlerParams } from '@visx/xychart';
 export type {

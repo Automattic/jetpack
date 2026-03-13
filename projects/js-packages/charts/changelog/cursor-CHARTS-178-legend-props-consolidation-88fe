@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Breaking: Consolidate flat legend props into a nested legend configuration object on BaseChartProps.

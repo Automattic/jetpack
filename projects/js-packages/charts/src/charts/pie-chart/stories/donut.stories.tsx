@@ -11,6 +11,7 @@ import {
 	sharedChartArgTypes,
 	sharedThemeArgs,
 	ChartStoryArgs,
+	extractLegendConfig,
 	legendArgTypes,
 	themeArgTypes,
 } from '../../../stories';
@@ -48,6 +49,13 @@ const meta: Meta< StoryArgs > = {
 		...sharedChartArgTypes,
 		...themeArgTypes,
 		...legendArgTypes,
+		legendValueDisplay: {
+			control: { type: 'select' as const },
+			options: [ 'percentage', 'value', 'valueDisplay', 'none' ],
+			table: { category: 'Legend' },
+			description:
+				'What type of value to display in the legend when showValues is true. Note: Enable "showLegend" to see the effect of this control.',
+		},
 		size: {
 			control: {
 				type: 'range',
@@ -81,6 +89,10 @@ const meta: Meta< StoryArgs > = {
 				step: 0.01,
 			},
 		},
+	},
+	render: args => {
+		const legend = extractLegendConfig( args );
+		return <PieChart { ...args } legend={ legend } />;
 	},
 } satisfies Meta< StoryArgs >;
 
@@ -208,40 +220,31 @@ export const WithLegend: Story = {
 };
 
 export const WithCompositionLegend: Story = {
-	render: args => (
-		<PieChart
-			size={ 300 }
-			data={ args.data }
-			thickness={ 0.5 }
-			legendValueDisplay={ args.legendValueDisplay }
-		>
-			<Group>
-				<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 16 } y={ -8 }>
-					User Stats
-				</Text>
-				<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 14 } y={ 12 } fill="#666">
-					100K Total
-				</Text>
-			</Group>
-			<PieChart.Legend
-				position={ args.legendPosition || 'bottom' }
-				orientation={ args.legendOrientation || 'horizontal' }
-				alignment={ args.legendAlignment || 'center' }
-				labelStyles={ {
-					maxWidth: args.legendMaxWidth,
-					textOverflow: args.legendTextOverflow || 'wrap',
-				} }
-			/>
-		</PieChart>
-	),
+	render: args => {
+		const legend = extractLegendConfig( args );
+		return (
+			<PieChart
+				size={ 300 }
+				data={ args.data }
+				thickness={ 0.5 }
+				legendValueDisplay={ args.legendValueDisplay }
+				chartId="composition-donut-chart"
+			>
+				<Group>
+					<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 16 } y={ -8 }>
+						User Stats
+					</Text>
+					<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 14 } y={ 12 } fill="#666">
+						100K Total
+					</Text>
+				</Group>
+				<PieChart.Legend { ...legend } />
+			</PieChart>
+		);
+	},
 	args: {
 		data,
 		thickness: 0.5,
-	},
-	argTypes: {
-		legendInteractive: {
-			table: { disable: true },
-		},
 	},
 	parameters: {
 		docs: {
@@ -262,10 +265,7 @@ export const InteractiveLegend: Story = {
 				data={ args.data }
 				thickness={ 0.5 }
 				showLegend={ true }
-				legendInteractive={ true }
-				legendPosition={ args.legendPosition || 'bottom' }
-				legendOrientation={ args.legendOrientation || 'horizontal' }
-				legendAlignment={ args.legendAlignment || 'center' }
+				legend={ extractLegendConfig( args ) }
 				legendValueDisplay={ args.legendValueDisplay }
 			>
 				<Group>
@@ -285,6 +285,7 @@ export const InteractiveLegend: Story = {
 	args: {
 		data,
 		thickness: 0.5,
+		legendInteractive: true,
 	},
 	parameters: {
 		docs: {

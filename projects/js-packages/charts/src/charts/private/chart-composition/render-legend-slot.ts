@@ -1,6 +1,6 @@
 import { createElement, Fragment } from 'react';
 import type { LegendChild } from './use-chart-children';
-import type { LegendPosition } from '../../../components/legend';
+import type { LegendPosition } from '../../../types';
 import type { ReactNode } from 'react';
 
 /**

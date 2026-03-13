@@ -99,13 +99,6 @@ export interface PieChartProps extends BaseChartProps< DataPointPercentage[] > {
 	legendValueDisplay?: LegendValueDisplay;
 
 	/**
-	 * Enable interactive legend items that can toggle segment visibility.
-	 * Requires chartId and GlobalChartsProvider.
-	 * When segments are hidden, percentages are recalculated so visible segments total 100%.
-	 */
-	legendInteractive?: boolean;
-
-	/**
 	 * Use the children prop to render additional elements on the chart.
 	 */
 	children?: ReactNode;
@@ -174,13 +167,7 @@ const PieChartInternal = ( {
 	withTooltips = false,
 	className,
 	showLegend = false,
-	legendOrientation = 'horizontal',
-	legendPosition = 'bottom',
-	legendAlignment = 'center',
-	legendMaxWidth,
-	legendTextOverflow = 'wrap',
-	legendItemClassName,
-	legendShape = 'circle',
+	legend = {},
 	width: propWidth,
 	height: propHeight,
 	size,
@@ -191,13 +178,15 @@ const PieChartInternal = ( {
 	cornerScale = 0,
 	showLabels = true,
 	legendValueDisplay = 'percentage',
-	legendInteractive = false,
 	children = null,
 	tooltipOffsetX = 0,
 	tooltipOffsetY = -15,
 	renderTooltip = renderDefaultPieTooltip,
 	gap = 'md',
 }: PieChartProps ) => {
+	const legendInteractive = legend.interactive ?? false;
+	const legendPosition = legend.position ?? 'bottom';
+
 	const providerTheme = useGlobalChartsTheme();
 	const chartId = useChartId( providedChartId );
 	const [ svgWrapperRef, svgWrapperWidth, svgWrapperHeight ] = useElementSize< HTMLDivElement >();
@@ -322,12 +311,14 @@ const PieChartInternal = ( {
 
 	const legendElement = showLegend && (
 		<Legend
-			orientation={ legendOrientation }
+			orientation={ legend.orientation ?? 'horizontal' }
 			position={ legendPosition }
-			alignment={ legendAlignment }
-			labelStyles={ { maxWidth: legendMaxWidth, textOverflow: legendTextOverflow } }
-			itemClassName={ legendItemClassName }
-			shape={ legendShape }
+			alignment={ legend.alignment ?? 'center' }
+			labelStyles={ legend.labelStyles }
+			itemClassName={ legend.itemClassName }
+			itemStyles={ legend.itemStyles }
+			shapeStyles={ legend.shapeStyles }
+			shape={ legend.shape ?? 'circle' }
 			chartId={ chartId }
 			interactive={ legendInteractive }
 		/>

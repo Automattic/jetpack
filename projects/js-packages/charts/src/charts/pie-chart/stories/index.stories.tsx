@@ -4,7 +4,7 @@ import {
 	sharedChartArgTypes,
 	ChartStoryArgs,
 } from '../../../stories/chart-decorator';
-import { legendArgTypes } from '../../../stories/legend-config';
+import { extractLegendConfig, legendArgTypes } from '../../../stories/legend-config';
 import { osUsageData as data } from '../../../stories/sample-data';
 import { sharedThemeArgs, themeArgTypes } from '../../../stories/theme-config';
 import { PieChart } from '../index';
@@ -27,6 +27,13 @@ const meta: Meta< StoryArgs > = {
 		...sharedChartArgTypes,
 		...themeArgTypes,
 		...legendArgTypes,
+		legendValueDisplay: {
+			control: { type: 'select' as const },
+			options: [ 'percentage', 'value', 'valueDisplay', 'none' ],
+			table: { category: 'Legend' },
+			description:
+				'What type of value to display in the legend when showValues is true. Note: Enable "showLegend" to see the effect of this control.',
+		},
 		size: {
 			control: {
 				type: 'range',
@@ -96,7 +103,8 @@ const meta: Meta< StoryArgs > = {
 		},
 	},
 	render: ( { labelTextColor, labelBackgroundColor, ...chartProps } ) => {
-		const ChartComponent = <PieChart { ...chartProps } />;
+		const legend = extractLegendConfig( chartProps );
+		const ChartComponent = <PieChart { ...chartProps } legend={ legend } />;
 
 		if ( labelTextColor || labelBackgroundColor ) {
 			return (
@@ -175,26 +183,21 @@ export const WithLegend: Story = {
 };
 
 export const WithCompositionLegend: Story = {
-	render: args => (
-		<PieChart size={ 300 } data={ args.data } legendValueDisplay={ args.legendValueDisplay }>
-			<PieChart.Legend
-				position={ args.legendPosition || 'bottom' }
-				orientation={ args.legendOrientation || 'horizontal' }
-				alignment={ args.legendAlignment || 'center' }
-				labelStyles={ {
-					maxWidth: args.legendMaxWidth,
-					textOverflow: args.legendTextOverflow || 'wrap',
-				} }
-			/>
-		</PieChart>
-	),
+	render: args => {
+		const legend = extractLegendConfig( args );
+		return (
+			<PieChart
+				size={ 300 }
+				data={ args.data }
+				legendValueDisplay={ args.legendValueDisplay }
+				chartId="composition-pie-chart"
+			>
+				<PieChart.Legend { ...legend } />
+			</PieChart>
+		);
+	},
 	args: {
 		data,
-	},
-	argTypes: {
-		legendInteractive: {
-			table: { disable: true },
-		},
 	},
 	parameters: {
 		docs: {
@@ -214,10 +217,7 @@ export const InteractiveLegend: Story = {
 				size={ args.size }
 				data={ args.data }
 				showLegend={ true }
-				legendInteractive={ true }
-				legendPosition={ args.legendPosition || 'bottom' }
-				legendOrientation={ args.legendOrientation || 'horizontal' }
-				legendAlignment={ args.legendAlignment || 'center' }
+				legend={ extractLegendConfig( args ) }
 				legendValueDisplay={ args.legendValueDisplay }
 			>
 				<p style={ { color: '#666' } }>
@@ -230,6 +230,7 @@ export const InteractiveLegend: Story = {
 	args: {
 		data,
 		size: 400,
+		legendInteractive: true,
 	},
 	parameters: {
 		docs: {
@@ -354,11 +355,6 @@ export const CompositionAPI: Story = {
 		data,
 		containerHeight: '700px',
 		containerWidth: '600px',
-	},
-	argTypes: {
-		legendInteractive: {
-			table: { disable: true },
-		},
 	},
 	parameters: {
 		docs: {

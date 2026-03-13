@@ -1,6 +1,7 @@
 import { Group } from '@visx/group';
 import { useMemo, Children, isValidElement } from 'react';
-import { Legend, type LegendPosition } from '../../../components/legend';
+import { Legend } from '../../../components/legend';
+import type { LegendPosition } from '../../../types';
 import type { ReactElement, ReactNode } from 'react';
 
 export type LegendChild = {

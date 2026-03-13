@@ -28,9 +28,8 @@ const ASSET_TRANSIENT        = 'jetpack_image_studio_asset';
 /**
  * Check if Image Studio is enabled.
  *
- * Requires AI features (Big Sky or AI Assistant) plus at least one of:
- * - The unified chat experience (agents_manager_use_unified_experience).
- * - The jetpack_image_studio_enabled filter.
+ * Enabled when AI features are available and either the request is from an
+ * Automattician or the Big Sky plugin is active and enabled.
  *
  * @return bool
  */
@@ -38,10 +37,34 @@ function is_image_studio_enabled() {
 	if ( ! has_ai_features() ) {
 		return false;
 	}
-
-	return apply_filters( 'agents_manager_use_unified_experience', false )
-		|| apply_filters( 'jetpack_image_studio_enabled', false );
+	return is_dev_mode()
+		|| is_big_sky_enabled();
 }
+
+/**
+ * Check if the Big Sky plugin is active and enabled.
+ *
+ * @return bool
+ */
+function is_big_sky_enabled() {
+	return class_exists( 'Big_Sky' ) && get_option( 'big_sky_enable', '1' );
+}
+
+/**
+ * Signal to Big Sky that Jetpack is handling Image Studio.
+ *
+ * Sets the jetpack_image_studio_enabled filter to true so that
+ * Big Sky skips its own Image Studio loading when Jetpack has
+ * AI features available.
+ *
+ * @return void
+ */
+function signal_image_studio_active() {
+	if ( is_image_studio_enabled() ) {
+		add_filter( 'jetpack_image_studio_enabled', '__return_true', 5 );
+	}
+}
+add_action( 'init', __NAMESPACE__ . '\signal_image_studio_active' );
 
 /**
  * Check whether AI features are available.
@@ -63,6 +86,57 @@ function has_ai_features() {
 	return ( new Connection_Manager( 'jetpack' ) )->has_connected_owner()
 		&& ! ( new Status() )->is_offline_mode()
 		&& apply_filters( 'jetpack_ai_enabled', true );
+}
+
+/**
+ * Check if the current request is from a development environment.
+ *
+ * Matches the same checks as Agents_Manager::is_dev_mode():
+ * - Known local environments (localhost, jurassic.tube, jurassic.ninja)
+ * - Proxied A8C requests
+ * - Allowed Atomic client IDs
+ *
+ * IMPORTANT: Only use for feature gating, not authorization.
+ *
+ * @return bool
+ */
+function is_dev_mode() {
+	// Known local environments.
+	$domain = wp_parse_url( get_site_url(), PHP_URL_HOST );
+	if (
+		$domain === 'localhost' ||
+		'.jurassic.tube' === stristr( $domain, '.jurassic.tube' ) ||
+		'.jurassic.ninja' === stristr( $domain, '.jurassic.ninja' )
+	) {
+		return true;
+	}
+
+	// Proxied A8C request via function.
+	if ( function_exists( 'wpcom_is_proxied_request' ) && wpcom_is_proxied_request() ) {
+		return true;
+	}
+
+	// Proxied A8C request via server variable or constant.
+	if (
+		( isset( $_SERVER['A8C_PROXIED_REQUEST'] ) && (bool) sanitize_text_field( wp_unslash( $_SERVER['A8C_PROXIED_REQUEST'] ) ) ) ||
+		( defined( 'A8C_PROXIED_REQUEST' ) && A8C_PROXIED_REQUEST )
+	) {
+		return true;
+	}
+
+	// Allowed Atomic client IDs.
+	if ( defined( 'AT_PROXIED_REQUEST' ) && AT_PROXIED_REQUEST && defined( 'ATOMIC_CLIENT_ID' ) ) {
+		switch ( ATOMIC_CLIENT_ID ) {
+			case 1:
+			case 2:
+			case 3: // Pressable
+			case 32:
+			case 118: // Commerce garden client (ciab)
+				return true;
+		}
+	}
+
+	return false;
 }
 
 /**

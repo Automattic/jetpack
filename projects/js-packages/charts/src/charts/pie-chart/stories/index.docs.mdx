@@ -154,8 +154,10 @@ Control legend alignment and positioning:
 		size={ 400 }
 		data={ data }
 		showLegend={ true }
-		legendAlignment="end"
-		legendPosition="top"
+		legend={{
+			alignment: 'end',
+			position: 'top',
+		}}
 	/>` }
 />
 
@@ -169,9 +171,11 @@ Use vertical orientation for space-efficient legend placement:
 		size={ 400 }
 		data={ data }
 		showLegend={ true }
-		legendOrientation="vertical"
-		legendAlignment="end"
-		legendPosition="top"
+		legend={{
+			orientation: 'vertical',
+			alignment: 'end',
+			position: 'top',
+		}}
 	/>` }
 />
 

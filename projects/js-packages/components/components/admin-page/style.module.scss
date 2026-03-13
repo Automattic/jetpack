@@ -35,6 +35,13 @@
 		gap: 8px;
 	}
 
+	// Ensure footer Container padding is included in its max-width,
+	// preventing horizontal scroll when the content area is narrower
+	// than the Container's max-width + padding (JETPACK-1424).
+	.admin-page-footer {
+		box-sizing: border-box;
+	}
+
 	.sandbox-domain-badge {
 		background: #d63638;
 		text-transform: uppercase;

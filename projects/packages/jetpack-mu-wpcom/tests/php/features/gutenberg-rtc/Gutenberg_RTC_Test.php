@@ -69,7 +69,6 @@ class Gutenberg_RTC_Test extends \WorDBless\BaseTestCase {
 		$wp_settings_fields = $this->original_wp_settings_fields; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		$wp_scripts         = $this->original_wp_scripts; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		$wp_styles          = $this->original_wp_styles; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-		delete_transient( 'jetpack-mu-wpcom-wpcom-gutenberg-rtc.asset.json' );
 		remove_all_filters( 'wpcom_is_gutenberg_rtc_enabled' );
 		remove_all_filters( 'wpcom_gutenberg_rtc_providers' );
 		parent::tear_down();
@@ -234,7 +233,7 @@ class Gutenberg_RTC_Test extends \WorDBless\BaseTestCase {
 
 		wpcom_enqueue_gutenberg_rtc_assets();
 
-		$this->assertFalse( wp_script_is( 'jetpack-mu-wpcom-wpcom-gutenberg-rtc', 'enqueued' ) );
+		$this->assertFalse( wp_script_is( 'jetpack-mu-wpcom-gutenberg-rtc', 'enqueued' ) );
 	}
 
 	/**
@@ -249,17 +248,9 @@ class Gutenberg_RTC_Test extends \WorDBless\BaseTestCase {
 			}
 		);
 
-		set_transient(
-			'jetpack-mu-wpcom-wpcom-gutenberg-rtc.asset.json',
-			array(
-				'dependencies' => array(),
-				'version'      => 'test',
-			)
-		);
-
 		wpcom_enqueue_gutenberg_rtc_assets();
 
-		$this->assertTrue( wp_script_is( 'jetpack-mu-wpcom-wpcom-gutenberg-rtc', 'enqueued' ) );
+		$this->assertTrue( wp_script_is( 'jetpack-mu-wpcom-gutenberg-rtc', 'enqueued' ) );
 	}
 
 	/**
@@ -274,17 +265,9 @@ class Gutenberg_RTC_Test extends \WorDBless\BaseTestCase {
 			}
 		);
 
-		set_transient(
-			'jetpack-mu-wpcom-wpcom-gutenberg-rtc.asset.json',
-			array(
-				'dependencies' => array(),
-				'version'      => 'test',
-			)
-		);
-
 		wpcom_enqueue_gutenberg_rtc_assets();
 
-		$this->assertTrue( wp_script_is( 'jetpack-mu-wpcom-wpcom-gutenberg-rtc', 'enqueued' ) );
+		$this->assertTrue( wp_script_is( 'jetpack-mu-wpcom-gutenberg-rtc', 'enqueued' ) );
 	}
 
 	/**
@@ -347,6 +330,28 @@ class Gutenberg_RTC_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertArrayHasKey( 'wp_enable_real_time_collaboration', $wp_settings_fields['writing']['default'] );
 		$this->assertArrayHasKey( 'enable_real_time_collaboration', $wp_settings_fields['writing']['default'] );
+	}
+
+	/**
+	 * Tests that the inline script data does not include pinghubJWTToken when assets are enqueued.
+	 */
+	public function test_wpcom_enqueue_gutenberg_rtc_assets_does_not_include_jwt_token() {
+		add_filter( 'wpcom_is_gutenberg_rtc_enabled', '__return_true' );
+		add_filter(
+			'wpcom_gutenberg_rtc_providers',
+			function () {
+				return array( 'pinghub' );
+			}
+		);
+
+		wpcom_enqueue_gutenberg_rtc_assets();
+
+		$handle = 'jetpack-mu-wpcom-gutenberg-rtc';
+		$this->assertTrue( wp_script_is( $handle, 'enqueued' ) );
+
+		// Ensure the inline script does NOT contain pinghubJWTToken.
+		$inline_script = wp_scripts()->get_inline_script_data( $handle, 'before' );
+		$this->assertStringNotContainsString( 'pinghubJWTToken', $inline_script );
 	}
 
 	/**

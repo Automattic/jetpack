@@ -4,6 +4,7 @@ import {
 	sharedThemeArgs,
 	ChartStoryArgs,
 	legendArgTypes,
+	extractLegendConfig,
 	medalCountsData,
 	largeValuesData,
 	trafficData,
@@ -58,6 +59,7 @@ const meta: Meta< StoryArgs > = {
 	},
 	render: args => {
 		const { seriesCount, ...chartProps } = args;
+		const legend = extractLegendConfig( args );
 
 		// Determine data based on seriesCount control
 		let data = chartProps.data;
@@ -69,7 +71,7 @@ const meta: Meta< StoryArgs > = {
 			data = medalCountsData;
 		}
 
-		return <BarChart { ...chartProps } data={ data } />;
+		return <BarChart { ...chartProps } legend={ legend } data={ data } />;
 	},
 } satisfies Meta< StoryArgs >;
 
@@ -255,27 +257,18 @@ export const WithInteractiveLegend: Story = {
 
 // Story demonstrating composition API
 export const WithCompositionLegend: StoryObj< typeof BarChart > = {
-	render: args => (
-		<BarChart
-			data={ args.data || [ medalCountsData[ 0 ], medalCountsData[ 1 ], medalCountsData[ 2 ] ] }
-			withTooltips={ true }
-			gridVisibility="x"
-		>
-			<BarChart.Legend
-				orientation={ args.legendOrientation || 'horizontal' }
-				alignment={ args.legendAlignment || 'center' }
-				position={ args.legendPosition || 'bottom' }
-				labelStyles={ {
-					maxWidth: args.legendMaxWidth,
-					textOverflow: args.legendTextOverflow || 'wrap',
-				} }
-			/>
-		</BarChart>
-	),
-	argTypes: {
-		legendInteractive: {
-			table: { disable: true },
-		},
+	render: args => {
+		const legend = extractLegendConfig( args );
+		return (
+			<BarChart
+				data={ args.data || [ medalCountsData[ 0 ], medalCountsData[ 1 ], medalCountsData[ 2 ] ] }
+				withTooltips={ true }
+				gridVisibility="x"
+				chartId="composition-bar-chart"
+			>
+				<BarChart.Legend { ...legend } />
+			</BarChart>
+		);
 	},
 	parameters: {
 		docs: {

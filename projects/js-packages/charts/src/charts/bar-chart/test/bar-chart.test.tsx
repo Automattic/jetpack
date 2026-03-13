@@ -760,7 +760,7 @@ describe( 'BarChart', () => {
 
 			renderWithTheme( {
 				showLegend: true,
-				legendInteractive: true,
+				legend: { interactive: true },
 				chartId: 'test-interactive-bar-chart',
 				data: [
 					{
@@ -788,7 +788,7 @@ describe( 'BarChart', () => {
 		it( 'does not filter series when legendInteractive is false', () => {
 			renderWithTheme( {
 				showLegend: true,
-				legendInteractive: false,
+				legend: { interactive: false },
 				chartId: 'test-non-interactive-bar-chart',
 				data: [
 					{
@@ -812,7 +812,7 @@ describe( 'BarChart', () => {
 		it( 'shows all series when chartId is missing even if legendInteractive is true', () => {
 			renderWithTheme( {
 				showLegend: true,
-				legendInteractive: true,
+				legend: { interactive: true },
 				// No chartId provided
 				data: [
 					{
@@ -840,7 +840,7 @@ describe( 'BarChart', () => {
 
 			renderWithTheme( {
 				showLegend: true,
-				legendInteractive: true,
+				legend: { interactive: true },
 				chartId: 'test-all-hidden-bar-chart',
 				data: [
 					{

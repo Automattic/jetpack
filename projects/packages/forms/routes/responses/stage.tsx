@@ -543,6 +543,7 @@ function StageInner() {
 	}, [] );
 
 	const {
+		ariaLabel,
 		breadcrumbs,
 		badges,
 		subtitle,
@@ -573,6 +574,7 @@ function StageInner() {
 			breadcrumbs={ breadcrumbs }
 			badges={ badges }
 			title={ title }
+			ariaLabel={ ariaLabel }
 			subTitle={ subtitle }
 			actions={ headerActions }
 			hasPadding={ false }
