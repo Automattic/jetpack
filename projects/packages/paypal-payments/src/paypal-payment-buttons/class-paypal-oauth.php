@@ -350,6 +350,64 @@ class PayPal_OAuth {
 	}
 
 	/**
+	 * Validate that the authenticated account has access to the Payment Links & Buttons API.
+	 *
+	 * Probes GET /v1/checkout/payment-resources?page_size=1 after a successful
+	 * token exchange. A 403 means the merchant's app lacks the required scope.
+	 * Transient server errors (5xx, timeouts) are treated as non-blocking so
+	 * the connect flow is not disrupted by temporary PayPal outages.
+	 *
+	 * @return true|\WP_Error True if the account has API access, WP_Error on 403.
+	 */
+	public static function validate_api_access() {
+		$token = self::get_access_token();
+		if ( is_wp_error( $token ) ) {
+			return $token;
+		}
+
+		$url = self::get_base_url() . '/v1/checkout/payment-resources?page_size=1';
+
+		$response = wp_remote_get(
+			$url,
+			array(
+				'timeout' => 15,
+				'headers' => array(
+					'Authorization' => 'Bearer ' . $token,
+					'Content-Type'  => 'application/json',
+					'Accept'        => 'application/json',
+				),
+			)
+		);
+
+		// Network-level failures are non-blocking.
+		if ( is_wp_error( $response ) ) {
+			return true;
+		}
+
+		$status_code = wp_remote_retrieve_response_code( $response );
+
+		// 5xx / unexpected codes — treat as transient, don't block connect.
+		if ( $status_code >= 500 || 0 === $status_code ) {
+			return true;
+		}
+
+		// 403 — the app lacks Payment Links & Buttons access.
+		if ( 403 === $status_code ) {
+			return new \WP_Error(
+				'paypal_api_not_authorized',
+				__(
+					'Your PayPal app does not have access to Payment Links & Buttons. In the PayPal Developer Dashboard, open your app settings and enable the "Payment Links & Buttons" feature, then try connecting again.',
+					'jetpack-paypal-payments'
+				),
+				array( 'status' => 403 )
+			);
+		}
+
+		// 200, 204, or other success / client errors (400, 404) mean the API is reachable.
+		return true;
+	}
+
+	/**
 	 * Get the connection status for display in the block editor.
 	 *
 	 * @return array {

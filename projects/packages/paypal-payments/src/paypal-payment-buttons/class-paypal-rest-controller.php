@@ -309,6 +309,22 @@ class PayPal_REST_Controller {
 			);
 		}
 
+		// Validate that the account has Payment Links & Buttons API access.
+		$api_access = PayPal_OAuth::validate_api_access();
+		if ( is_wp_error( $api_access ) ) {
+			// Credentials are valid but the app lacks the required scope — remove them.
+			PayPal_OAuth::delete_credentials();
+
+			$error_data = $api_access->get_error_data();
+			$status     = isset( $error_data['status'] ) ? (int) $error_data['status'] : 403;
+
+			return new WP_Error(
+				$api_access->get_error_code(),
+				$api_access->get_error_message(),
+				array( 'status' => $status )
+			);
+		}
+
 		return new WP_REST_Response(
 			array(
 				'connected'   => true,
