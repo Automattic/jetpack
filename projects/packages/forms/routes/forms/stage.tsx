@@ -28,7 +28,7 @@ import { EmptyWrapper, NoResults } from '../../src/dashboard/components/empty-re
 import { FormNameModal } from '../../src/dashboard/components/form-name-modal';
 import { NON_TRASH_FORM_STATUSES, getFormStatusLabel } from '../../src/dashboard/constants';
 import useDeleteForm from '../../src/dashboard/hooks/use-delete-form.ts';
-import useFormsData from '../../src/dashboard/hooks/use-forms-data.ts';
+import useFormsData, { getFormsListQuery } from '../../src/dashboard/hooks/use-forms-data.ts';
 import WpRouteDashboardSearchParamsProvider from '../../src/dashboard/router/wp-route-dashboard-search-params-provider.tsx';
 import DataViewsHeaderRow from '../../src/dashboard/wp-build/components/dataviews-header-row';
 import FormsHelpModal from '../../src/dashboard/wp-build/components/forms-help-modal';
@@ -135,7 +135,15 @@ function StageInner() {
 		hasResponsesQuery
 	);
 
-	const { duplicateForm, previewForm, copyEmbed, copyShortcode } = useFormItemActions();
+	const {
+		duplicateForm,
+		previewForm,
+		copyEmbed,
+		copyShortcode,
+		publishForms,
+		setFormsToDraft,
+		isUpdatingStatus,
+	} = useFormItemActions();
 
 	const {
 		isDeleting,
@@ -374,19 +382,6 @@ function StageInner() {
 		} );
 
 		actionsList.push( {
-			id: 'duplicate-form',
-			isPrimary: false,
-			label: __( 'Duplicate', 'jetpack-forms' ),
-			supportsBulk: false,
-			async callback( items: FormListItem[] ) {
-				const [ item ] = items;
-				if ( item ) {
-					await duplicateForm( item );
-				}
-			},
-		} );
-
-		actionsList.push( {
 			id: 'preview-form',
 			isPrimary: false,
 			label: __( 'Preview', 'jetpack-forms' ),
@@ -426,6 +421,58 @@ function StageInner() {
 				},
 			} );
 		}
+		const currentListQuery = getFormsListQuery(
+			view.page ?? 1,
+			view.perPage ?? 20,
+			view.search ?? '',
+			statusQuery
+		) as Record< string, unknown >;
+		const statusUpdateOptions = { invalidateQueries: [ currentListQuery ] };
+
+		actionsList.push( {
+			id: 'publish-form',
+			isPrimary: false,
+			label: __( 'Publish', 'jetpack-forms' ),
+			isEligible: ( item: FormListItem ) => item.status !== 'publish',
+			supportsBulk: true,
+			async callback( items: FormListItem[] ) {
+				if ( isDeleting || isUpdatingStatus ) {
+					return;
+				}
+				const eligibleItems = ( items || [] ).filter( item => item.status !== 'publish' );
+				if ( ! eligibleItems.length ) {
+					return;
+				}
+				try {
+					await publishForms( eligibleItems, statusUpdateOptions );
+				} finally {
+					setSelection( [] );
+				}
+			},
+		} );
+
+		actionsList.push( {
+			id: 'unpublish-form',
+			isPrimary: false,
+			label: __( 'Unpublish', 'jetpack-forms' ),
+			isEligible: ( item: FormListItem ) => item.status === 'publish',
+			supportsBulk: true,
+			async callback( items: FormListItem[] ) {
+				if ( isDeleting || isUpdatingStatus ) {
+					return;
+				}
+				const eligibleItems = ( items || [] ).filter( item => item.status === 'publish' );
+				if ( ! eligibleItems.length ) {
+					return;
+				}
+				try {
+					await setFormsToDraft( eligibleItems, statusUpdateOptions );
+				} finally {
+					setSelection( [] );
+				}
+			},
+		} );
+
 		actionsList.push( {
 			id: 'rename-form',
 			isPrimary: false,
@@ -437,6 +484,19 @@ function StageInner() {
 					return;
 				}
 				openRenameModal( item );
+			},
+		} );
+
+		actionsList.push( {
+			id: 'duplicate-form',
+			isPrimary: false,
+			label: __( 'Duplicate', 'jetpack-forms' ),
+			supportsBulk: false,
+			async callback( items: FormListItem[] ) {
+				const [ item ] = items;
+				if ( item ) {
+					await duplicateForm( item );
+				}
 			},
 		} );
 
@@ -463,13 +523,20 @@ function StageInner() {
 		copyShortcode,
 		duplicateForm,
 		isDeleting,
+		isUpdatingStatus,
 		isViewingTrash,
 		onOpenPermanentDeleteConfirm,
 		openRenameModal,
 		openSingleFormView,
+		publishForms,
 		previewForm,
 		restoreForms,
+		setFormsToDraft,
+		statusQuery,
 		trashForms,
+		view.page,
+		view.perPage,
+		view.search,
 	] );
 
 	const paginationInfo = useMemo(

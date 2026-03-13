@@ -95,17 +95,28 @@ export default function useFormsData(
 		totalPages,
 	} = useEntityRecords( 'postType', 'jetpack_form', query );
 
-	const records = ( rawRecords || [] ).map( item => {
-		const typedItem = item as JetpackFormRestItem;
-		return {
-			id: typedItem.id,
-			title: decodeEntities( typedItem.title?.rendered || '' ),
-			status: typedItem.status,
-			modified: typedItem.modified,
-			entriesCount: typedItem.entries_count ?? 0,
-			editUrl: typedItem.edit_url,
-		};
-	} );
+	const records = useMemo( () => {
+		const seen = new Set< number >();
+		const items: FormListItem[] = [];
+		for ( const item of rawRecords || [] ) {
+			const typedItem = item as JetpackFormRestItem;
+			// Deduplicate records because core-data can momentarily return the same entity
+			// twice during optimistic updates (e.g. when bulk-publishing forms).
+			if ( seen.has( typedItem.id ) ) {
+				continue;
+			}
+			seen.add( typedItem.id );
+			items.push( {
+				id: typedItem.id,
+				title: decodeEntities( typedItem.title?.rendered || '' ),
+				status: typedItem.status,
+				modified: typedItem.modified,
+				entriesCount: typedItem.entries_count ?? 0,
+				editUrl: typedItem.edit_url,
+			} );
+		}
+		return items;
+	}, [ rawRecords ] );
 
 	return {
 		records,
