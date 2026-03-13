@@ -1,5 +1,5 @@
 /**
- * These restrictions were updated on: November 18, 2022.
+ * These restrictions were updated on: March 13, 2026.
  *
  * Image and video size is in MB.
  * Video length is in seconds.
@@ -94,14 +94,20 @@ export const DEFAULT_RESTRICTIONS = {
 };
 
 export const RESTRICTIONS = {
-	twitter: {
-		allowedMediaTypes: allowedImageTypes.concat( [ MP4, VIDEOPRESS ] ),
+	x: {
+		allowedMediaTypes: allowedImageTypes.concat( [ 'image/gif', 'image/webp', MP4, VIDEOPRESS ] ),
 		image: {
 			maxSize: 5,
 		},
 		video: {
 			maxSize: 512,
 			maxLength: 140,
+			minLength: 0.5,
+			maxWidth: 1280,
+			aspectRatio: {
+				min: 1 / 3,
+				max: 3,
+			},
 		},
 	},
 	facebook: {
