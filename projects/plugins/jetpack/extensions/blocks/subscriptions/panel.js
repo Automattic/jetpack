@@ -296,4 +296,4 @@ export default function SubscribePanels() {
 	);
 }
 
-export { NewsletterRepublishTracker };
+export { NewsletterRepublishTracker, getNewsletterDisabledMessage };
