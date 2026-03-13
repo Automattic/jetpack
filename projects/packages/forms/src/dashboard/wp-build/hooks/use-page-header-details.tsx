@@ -200,6 +200,7 @@ export default function usePageHeaderDetails(
 
 	const trashForm = useCallback(
 		async ( item: { id: number } ) => {
+			const previousStatus = formRecord?.status || 'draft';
 			try {
 				await deleteEntityRecord(
 					'postType',
@@ -212,6 +213,30 @@ export default function usePageHeaderDetails(
 				invalidateFormStatusCounts();
 				createSuccessNotice( __( 'Form moved to trash.', 'jetpack-forms' ), {
 					type: 'snackbar',
+					actions: [
+						{
+							label: __( 'Undo', 'jetpack-forms' ),
+							onClick: () => {
+								saveEntityRecord(
+									'postType',
+									FORM_POST_TYPE,
+									{ id: item.id, status: previousStatus },
+									{ throwOnError: true }
+								)
+									.then( () => {
+										invalidateFormStatusCounts();
+										createSuccessNotice( __( 'Form restored.', 'jetpack-forms' ), {
+											type: 'snackbar',
+										} );
+									} )
+									.catch( () => {
+										createErrorNotice( __( 'Could not restore form.', 'jetpack-forms' ), {
+											type: 'snackbar',
+										} );
+									} );
+							},
+						},
+					],
 				} );
 
 				// Navigate back to the forms list since the form no longer exists.
@@ -226,9 +251,11 @@ export default function usePageHeaderDetails(
 		},
 		[
 			deleteEntityRecord,
+			formRecord?.status,
 			invalidateFormStatusCounts,
 			createSuccessNotice,
 			createErrorNotice,
+			saveEntityRecord,
 			navigate,
 		]
 	);
@@ -297,40 +324,42 @@ export default function usePageHeaderDetails(
 			);
 		}
 
-		if ( formRecord?.status === 'publish' ) {
-			controls.push( {
-				title: __( 'Unpublish', 'jetpack-forms' ),
-				onClick: () => {
-					if ( ! isUpdatingStatus ) {
-						setFormsToDraft( [ formItem ] );
-					}
-				},
-			} );
-		} else {
-			controls.push( {
-				title: __( 'Publish', 'jetpack-forms' ),
-				onClick: () => {
-					if ( ! isUpdatingStatus ) {
-						publishForms( [ formItem ] );
-					}
-				},
-			} );
-		}
-
-		controls.push(
-			{
-				title: __( 'Rename', 'jetpack-forms' ),
-				onClick: () => setRenameFormItem( formItem ),
-			},
-			{
-				title: __( 'Duplicate', 'jetpack-forms' ),
-				onClick: () => duplicateForm( formItem ),
-			},
-			{
-				title: __( 'Trash', 'jetpack-forms' ),
-				onClick: () => trashForm( formItem ),
+		if ( formRecord?.status !== 'trash' ) {
+			if ( formRecord?.status === 'publish' ) {
+				controls.push( {
+					title: __( 'Unpublish', 'jetpack-forms' ),
+					onClick: () => {
+						if ( ! isUpdatingStatus ) {
+							setFormsToDraft( [ formItem ] );
+						}
+					},
+				} );
+			} else {
+				controls.push( {
+					title: __( 'Publish', 'jetpack-forms' ),
+					onClick: () => {
+						if ( ! isUpdatingStatus ) {
+							publishForms( [ formItem ] );
+						}
+					},
+				} );
 			}
-		);
+
+			controls.push(
+				{
+					title: __( 'Rename', 'jetpack-forms' ),
+					onClick: () => setRenameFormItem( formItem ),
+				},
+				{
+					title: __( 'Duplicate', 'jetpack-forms' ),
+					onClick: () => duplicateForm( formItem ),
+				},
+				{
+					title: __( 'Trash', 'jetpack-forms' ),
+					onClick: () => trashForm( formItem ),
+				}
+			);
+		}
 
 		return controls;
 	}, [

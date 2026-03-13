@@ -1,4 +1,4 @@
 Significance: patch
 Type: added
 
-Add rename, duplicate, and trash actions to the single form dashboard dropdown menu.
+Add rename and trash actions to the single form dashboard dropdown menu, and reorder menu items.
