@@ -226,9 +226,9 @@ class Settings {
 		$host                   = new Host();
 		$status                 = new Status();
 		$blog_id                = (int) $host->get_wpcom_site_id();
-		$is_wpcom_simple        = $host->is_wpcom_simple();
+		$is_wpcom               = $host->is_wpcom_platform();
 		$is_block_theme         = wp_is_block_theme();
-		$setup_payment_plan_url = ( $is_wpcom_simple ? 'https://wordpress.com/earn/payments/' : 'https://cloud.jetpack.com/monetize/payments/' ) . rawurlencode( $site_raw_url );
+		$setup_payment_plan_url = ( $is_wpcom ? 'https://wordpress.com/earn/payments/' : 'https://cloud.jetpack.com/monetize/payments/' ) . rawurlencode( $site_raw_url );
 
 		$wp_admin_subscriber_management_enabled = apply_filters( 'jetpack_wp_admin_subscriber_management_enabled', false );
 
@@ -244,7 +244,7 @@ class Settings {
 			'email'                           => $current_user->user_email,
 			'gravatar'                        => get_avatar_url( $current_user->ID ),
 			'dateExample'                     => gmdate( get_option( 'date_format' ), time() ),
-			'subscriberManagementUrl'         => $this->get_subscriber_management_url( $wp_admin_subscriber_management_enabled, $is_wpcom_simple, $site_raw_url, $blog_id ),
+			'subscriberManagementUrl'         => $this->get_subscriber_management_url( $wp_admin_subscriber_management_enabled, $is_wpcom, $site_raw_url, $blog_id ),
 			'isSubscriptionSiteEditSupported' => $is_block_theme,
 			'setupPaymentPlansUrl'            => $setup_payment_plan_url,
 			'isSitePublic'                    => ! $status->is_private_site() && ! $status->is_coming_soon(),
@@ -278,23 +278,23 @@ class Settings {
 	 * Get the subscriber management URL based on site type and filter settings.
 	 *
 	 * - If jetpack_wp_admin_subscriber_management_enabled filter is true: wp-admin subscribers page
-	 * - If filter is false AND wpcom simple site: wordpress.com/subscribers/$domain
+	 * - If filter is false AND wpcom site: wordpress.com/subscribers/$domain
 	 * - If filter is false AND Jetpack site: jetpack.com redirect URL
 	 *
 	 * @param bool   $wp_admin_enabled Whether wp-admin subscriber management is enabled.
-	 * @param bool   $is_wpcom_simple  Whether this is a wpcom simple site.
+	 * @param bool   $is_wpcom         Whether this is a WordPress.com site.
 	 * @param string $site_raw_url     The site URL without protocol.
 	 * @param int    $blog_id          The blog ID.
 	 * @return string The subscriber management URL.
 	 */
-	private function get_subscriber_management_url( $wp_admin_enabled, $is_wpcom_simple, $site_raw_url, $blog_id ) {
+	private function get_subscriber_management_url( $wp_admin_enabled, $is_wpcom, $site_raw_url, $blog_id ) {
 		// If wp-admin subscriber management is enabled, use the wp-admin page.
 		if ( $wp_admin_enabled ) {
 			return admin_url( 'admin.php?page=subscribers' );
 		}
 
-		// For wpcom simple sites, use the wordpress.com URL.
-		if ( $is_wpcom_simple ) {
+		// For wpcom sites, use the wordpress.com URL.
+		if ( $is_wpcom ) {
 			return 'https://wordpress.com/subscribers/' . $site_raw_url;
 		}
 
