@@ -59,7 +59,7 @@ class Dashboard {
 	const BLAZEDASH_CACHE_BUSTER_CACHE_KEY = 'jetpack_blaze_admin_asset_cache_buster';
 
 	/**
-	 * Blaze dashboard admin page. Default is tools.php.
+	 * Blaze dashboard admin page. Default is admin.php.
 	 *
 	 * @var string
 	 */
@@ -82,11 +82,11 @@ class Dashboard {
 	/**
 	 * Dashboard constructor.
 	 *
-	 * @param string $admin_page Dashboard admin page. Default is tools.php.
+	 * @param string $admin_page Dashboard admin page. Default is admin.php.
 	 * @param string $menu_slug Dashboard menu slug. Default is 'advertising'.
 	 * @param string $css_prefix Dashboard css prefix. Default is 'jp-blaze'.
 	 */
-	public function __construct( $admin_page = 'tools.php', $menu_slug = 'advertising', $css_prefix = 'jp-blaze' ) {
+	public function __construct( $admin_page = 'admin.php', $menu_slug = 'advertising', $css_prefix = 'jp-blaze' ) {
 		$this->admin_page = $admin_page;
 		$this->menu_slug  = $menu_slug;
 		$this->css_prefix = $css_prefix;

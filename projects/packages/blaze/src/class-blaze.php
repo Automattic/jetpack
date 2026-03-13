@@ -55,6 +55,8 @@ class Blaze {
 		add_action( 'enqueue_block_editor_assets', array( __CLASS__, 'enqueue_block_editor_assets' ) );
 		// Add a Blaze Menu.
 		add_action( 'admin_menu', array( __CLASS__, 'enable_blaze_menu' ), 999 );
+		// Redirect old tools.php URL to the canonical admin.php URL.
+		add_action( 'admin_init', array( __CLASS__, 'redirect_legacy_advertising_url' ) );
 		// Add Blaze dashboard app REST API endpoints.
 		add_action( 'rest_api_init', array( new Blaze_Dashboard_REST_Controller(), 'register_rest_routes' ) );
 		// Add general Blaze REST API endpoints.
@@ -107,31 +109,136 @@ class Blaze {
 			return;
 		}
 
-		$blaze_dashboard = new Blaze_Dashboard();
+		$parent_slug     = self::get_menu_parent();
+		$blaze_dashboard = new Blaze_Dashboard( 'admin.php' );
 
 		if ( self::is_dashboard_enabled() ) {
-			$page_suffix = add_submenu_page(
-				'tools.php',
-				esc_attr__( 'Advertising', 'jetpack-blaze' ),
-				__( 'Advertising', 'jetpack-blaze' ),
-				'manage_options',
-				'advertising',
-				array( $blaze_dashboard, 'render' ),
-				1
-			);
+			if ( self::has_active_campaigns() ) {
+				$page_suffix = add_menu_page(
+					esc_attr__( 'Blaze Ads', 'jetpack-blaze' ),
+					__( 'Blaze Ads', 'jetpack-blaze' ),
+					'manage_options',
+					'advertising',
+					array( $blaze_dashboard, 'render' ),
+					'dashicons-megaphone',
+					30
+				);
+			} else {
+				$page_suffix = add_submenu_page(
+					$parent_slug,
+					esc_attr__( 'Blaze Ads', 'jetpack-blaze' ),
+					__( 'Blaze Ads', 'jetpack-blaze' ),
+					'manage_options',
+					'advertising',
+					array( $blaze_dashboard, 'render' ),
+					1
+				);
+			}
 			add_action( 'load-' . $page_suffix, array( $blaze_dashboard, 'admin_init' ) );
 		} elseif ( ( new Host() )->is_wpcom_platform() ) {
 			$domain      = ( new Jetpack_Status() )->get_site_suffix();
 			$page_suffix = add_submenu_page(
-				'tools.php',
-				esc_attr__( 'Advertising', 'jetpack-blaze' ),
-				__( 'Advertising', 'jetpack-blaze' ),
+				$parent_slug,
+				esc_attr__( 'Blaze Ads', 'jetpack-blaze' ),
+				__( 'Blaze Ads', 'jetpack-blaze' ),
 				'manage_options',
 				'https://wordpress.com/advertising/' . $domain,
 				null, // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539
 				1
 			);
 			add_action( 'load-' . $page_suffix, array( $blaze_dashboard, 'admin_init' ) );
+		}
+	}
+
+	/**
+	 * Determine the appropriate parent menu slug based on the installation context.
+	 *
+	 * - WooCommerce active: parent is 'woocommerce-marketing'
+	 * - WPCOM platform or Jetpack connected: parent is 'jetpack'
+	 * - Otherwise: parent is 'tools.php'
+	 *
+	 * @return string The parent menu slug.
+	 */
+	public static function get_menu_parent() {
+		if ( class_exists( 'WooCommerce' ) ) {
+			return 'woocommerce-marketing';
+		}
+
+		if ( ( new Host() )->is_wpcom_platform() ) {
+			return 'jetpack';
+		}
+
+		// should_initialize() already checks Jetpack connection, so if we reach
+		// enable_blaze_menu() on a self-hosted site, the site is connected.
+		$connection = new Jetpack_Connection();
+		if ( $connection->is_connected() ) {
+			return 'jetpack';
+		}
+
+		return 'tools.php';
+	}
+
+	/**
+	 * Check whether the site has active Blaze campaigns.
+	 *
+	 * Results are cached in a transient for one hour. On error the method
+	 * returns false so the menu falls back to a submenu entry.
+	 *
+	 * @return bool
+	 */
+	public static function has_active_campaigns() {
+		$site_id = Jetpack_Connection::get_site_id();
+
+		if ( is_wp_error( $site_id ) || ! is_numeric( $site_id ) ) {
+			return false;
+		}
+
+		$transient_name = 'jetpack_blaze_has_active_campaigns_' . $site_id;
+		$cached_result  = get_transient( $transient_name );
+
+		if ( false !== $cached_result ) {
+			return 'yes' === $cached_result;
+		}
+
+		// Make the API request.
+		$url      = sprintf( '/sites/%d/wordads/dsp/api/v1/campaigns?status=active', $site_id );
+		$response = Client::wpcom_json_api_request_as_blog(
+			$url,
+			'2',
+			array( 'method' => 'GET' ),
+			null,
+			'wpcom'
+		);
+
+		if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
+			set_transient( $transient_name, 'no', HOUR_IN_SECONDS );
+			return false;
+		}
+
+		$result      = json_decode( wp_remote_retrieve_body( $response ), true );
+		$has_active  = is_array( $result ) && ! empty( $result );
+		$cache_value = $has_active ? 'yes' : 'no';
+
+		set_transient( $transient_name, $cache_value, HOUR_IN_SECONDS );
+
+		return $has_active;
+	}
+
+	/**
+	 * Redirect the legacy tools.php?page=advertising URL to admin.php?page=advertising.
+	 *
+	 * @return void
+	 */
+	public static function redirect_legacy_advertising_url() {
+		global $pagenow;
+
+		if (
+			'tools.php' === $pagenow
+			&& isset( $_GET['page'] ) // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			&& 'advertising' === $_GET['page'] // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		) {
+			wp_safe_redirect( admin_url( 'admin.php?page=advertising' ), 301 );
+			exit;
 		}
 	}
 
@@ -299,7 +406,7 @@ class Blaze {
 	 */
 	public static function get_campaign_management_url( $post_id ) {
 		if ( self::is_dashboard_enabled() ) {
-			$admin_url = admin_url( 'tools.php?page=advertising' );
+			$admin_url = admin_url( 'admin.php?page=advertising' );
 			$hostname  = wp_parse_url( get_site_url(), PHP_URL_HOST );
 			$blaze_url = sprintf(
 				'%1$s#!/advertising/posts/promote/post-%2$s/%3$s',

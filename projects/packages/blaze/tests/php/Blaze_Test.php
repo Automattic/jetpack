@@ -152,6 +152,88 @@ class Blaze_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Test that the menu label is "Blaze Ads" (not "Advertising").
+	 */
+	public function test_admin_menu_label_is_blaze_ads() {
+		global $submenu;
+
+		wp_set_current_user( $this->admin_id );
+		add_filter( 'jetpack_blaze_enabled', '__return_true' );
+
+		Blaze::enable_blaze_menu();
+
+		// Find the "advertising" submenu entry and verify its label.
+		$parent_slug = Blaze::get_menu_parent();
+		$found_label = null;
+		if ( isset( $submenu[ $parent_slug ] ) ) {
+			foreach ( $submenu[ $parent_slug ] as $item ) {
+				if ( 'advertising' === $item[2] ) {
+					$found_label = $item[0];
+					break;
+				}
+			}
+		}
+
+		$this->assertSame( 'Blaze Ads', $found_label );
+
+		add_filter( 'jetpack_blaze_enabled', '__return_false' );
+	}
+
+	/**
+	 * Test that get_menu_parent() returns 'tools.php' when neither WooCommerce
+	 * nor Jetpack connection is present.
+	 */
+	public function test_get_menu_parent_fallback() {
+		// In the test environment, WooCommerce class does not exist and
+		// the site is not WPCOM or Jetpack-connected, so we should get tools.php.
+		$this->assertSame( 'tools.php', Blaze::get_menu_parent() );
+	}
+
+	/**
+	 * Test that has_active_campaigns() returns false when there is no site ID
+	 * (the typical test-environment scenario).
+	 */
+	public function test_has_active_campaigns_returns_false_without_site_id() {
+		$this->assertFalse( Blaze::has_active_campaigns() );
+	}
+
+	/**
+	 * Test that has_active_campaigns() reads the cached transient.
+	 */
+	public function test_has_active_campaigns_cached_yes() {
+		// Fake a numeric site ID.
+		update_option( 'jetpack_id', 12345 );
+		set_transient( 'jetpack_blaze_has_active_campaigns_12345', 'yes', HOUR_IN_SECONDS );
+
+		$this->assertTrue( Blaze::has_active_campaigns() );
+
+		delete_transient( 'jetpack_blaze_has_active_campaigns_12345' );
+		delete_option( 'jetpack_id' );
+	}
+
+	/**
+	 * Test that has_active_campaigns() reads cached "no" transient.
+	 */
+	public function test_has_active_campaigns_cached_no() {
+		update_option( 'jetpack_id', 12345 );
+		set_transient( 'jetpack_blaze_has_active_campaigns_12345', 'no', HOUR_IN_SECONDS );
+
+		$this->assertFalse( Blaze::has_active_campaigns() );
+
+		delete_transient( 'jetpack_blaze_has_active_campaigns_12345' );
+		delete_option( 'jetpack_id' );
+	}
+
+	/**
+	 * Test that get_campaign_management_url() uses admin.php (not tools.php).
+	 */
+	public function test_campaign_management_url_uses_admin_php() {
+		$url_data = Blaze::get_campaign_management_url( 42 );
+		$this->assertStringContainsString( 'admin.php?page=advertising', $url_data['link'] );
+		$this->assertStringNotContainsString( 'tools.php', $url_data['link'] );
+	}
+
+	/**
 	 * Test that we avoid enqueuing assets when Blaze is not enabled.
 	 *
 	 * @dataProvider get_enqueue_scenarios
