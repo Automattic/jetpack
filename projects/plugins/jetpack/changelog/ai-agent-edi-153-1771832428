@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Map block: fix markers displaying as bullet points on Simple sites by moving data to inline JS and hiding fallback list via CSS.
