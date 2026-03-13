@@ -8,8 +8,12 @@
  * @package wpcomsh
  */
 
+// Enable allowed experiments early so Gutenberg's load.php include-time check picks them up.
+// This runs at MU plugin load time, before Gutenberg (a regular plugin) is loaded.
+add_filter( 'default_option_gutenberg-experiments', 'wpcomsh_filter_gutenberg_experiments' );
+
 /**
- * Disable all Gutenberg experiments.
+ * Disable all Gutenberg experiments except explicitly allowed ones.
  *
  * @see https://github.com/WordPress/gutenberg/blob/e6d8284b03799136915495654e821ca6212ae6d8/lib/load.php#L22
  */
@@ -29,10 +33,31 @@ function wpcomsh_remove_gutenberg_experiments() {
 		return;
 	}
 
-	add_filter( 'option_gutenberg-experiments', '__return_false' );
+	add_filter( 'option_gutenberg-experiments', 'wpcomsh_filter_gutenberg_experiments' );
 	add_action( 'admin_menu', 'wpcomsh_remove_gutenberg_experimental_menu' );
 }
 add_action( 'init', 'wpcomsh_remove_gutenberg_experiments' );
+
+/**
+ * Disable all Gutenberg experiments except explicitly allowed ones.
+ *
+ * Allowed experiments are always enabled regardless of the option value.
+ *
+ * @param mixed $experiments The gutenberg-experiments option value.
+ * @return array Filtered experiments with only allowed experiments enabled.
+ */
+function wpcomsh_filter_gutenberg_experiments( $experiments ) {
+	$allowed_experiments = array(
+		'gutenberg-content-guidelines',
+	);
+
+	$filtered = array();
+	foreach ( $allowed_experiments as $experiment ) {
+		$filtered[ $experiment ] = true;
+	}
+
+	return $filtered;
+}
 
 /**
  * Remove Gutenberg's Experiments submenu item.
