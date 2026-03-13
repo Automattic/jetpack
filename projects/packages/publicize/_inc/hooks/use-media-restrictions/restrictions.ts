@@ -94,6 +94,7 @@ export const DEFAULT_RESTRICTIONS = {
 };
 
 export const RESTRICTIONS = {
+	// https://docs.x.com/x-api/media/quickstart/best-practices
 	x: {
 		allowedMediaTypes: allowedImageTypes.concat( [ 'image/gif', 'image/webp', MP4, VIDEOPRESS ] ),
 		image: {
@@ -110,10 +111,12 @@ export const RESTRICTIONS = {
 			},
 		},
 	},
+	// https://developers.facebook.com/docs/graph-api/reference/photo/
+	// https://developers.facebook.com/docs/video-api/guides/publishing
 	facebook: {
 		allowedMediaTypes: facebookImageTypes.concat( [ VIDEOPRESS, ...facebookVideoTypes ] ),
 		image: {
-			maxSize: 8,
+			maxSize: 10,
 		},
 		video: {
 			maxSize: 10000,
@@ -121,6 +124,7 @@ export const RESTRICTIONS = {
 		},
 		charLimit: 10000,
 	},
+	// https://www.tumblr.com/docs/en/api/v2
 	tumblr: {
 		allowedMediaTypes: allowedImageTypes.concat( [ MP4, MOV, VIDEOPRESS ] ),
 		image: {
@@ -132,19 +136,22 @@ export const RESTRICTIONS = {
 		},
 		charLimit: 4096,
 	},
+	// https://learn.microsoft.com/en-us/linkedin/marketing/community-management/shares/images-api
+	// https://learn.microsoft.com/en-us/linkedin/marketing/community-management/shares/videos-api
 	linkedin: {
-		allowedMediaTypes: allowedImageTypes.concat( [ MP4, VIDEOPRESS ] ),
+		allowedMediaTypes: allowedImageTypes.concat( [ 'image/gif', MP4, VIDEOPRESS ] ),
 		image: {
 			maxSize: 20,
 		},
 		video: {
 			minSize: 0.075,
-			maxSize: 200,
-			maxLength: 600,
+			maxSize: 500,
+			maxLength: 1800,
 			minLength: 3,
 		},
 		charLimit: 3000,
 	},
+	// https://developers.facebook.com/docs/instagram-platform/instagram-api-with-instagram-login/content-publishing
 	'instagram-business': {
 		requiresMedia: true,
 		allowedMediaTypes: [ 'image/jpg', 'image/jpeg', MP4, MOV, VIDEOPRESS ],
@@ -169,16 +176,24 @@ export const RESTRICTIONS = {
 		},
 		charLimit: 2200,
 	},
+	// https://docs.joinmastodon.org/user/posting/#media
 	mastodon: {
-		allowedMediaTypes: mastodonImageTypes.concat( [ ...mastodonVideoTypes, MP4, VIDEOPRESS ] ),
+		allowedMediaTypes: mastodonImageTypes.concat( [
+			...mastodonVideoTypes,
+			MP4,
+			'video/m4v',
+			MOV,
+			VIDEOPRESS,
+		] ),
 		image: {
-			maxSize: 10,
+			maxSize: 16,
 		},
 		video: {
-			maxSize: 40,
+			maxSize: 99,
 		},
 		charLimit: 500,
 	},
+	// https://developer.nextdoor.com/reference/media-upload
 	nextdoor: {
 		allowedMediaTypes: nextdoorImageTypes.concat( [ ...nextdoorVideoTypes, MP4, VIDEOPRESS ] ),
 		image: {
@@ -189,6 +204,7 @@ export const RESTRICTIONS = {
 		},
 		charLimit: 10000,
 	},
+	// https://docs.bsky.app/docs/advanced-guides/posts#images-and-media
 	bluesky: {
 		allowedMediaTypes: allowedImageTypes.concat( [
 			MP4,
