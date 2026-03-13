@@ -108,7 +108,7 @@ function NewsletterEditorSettingsPanel( { accessLevel } ) {
 	);
 }
 
-const NewsletterDisabledNotice = ( isComingSoonEnabled = false ) => {
+const NewsletterDisabledNotice = ( { isComingSoonEnabled = false } ) => {
 	const message = isComingSoonEnabled
 		? __( 'You will be able to send newsletters once the site is published', 'jetpack' )
 		: __( 'Emails will not be sent to subscribers while the site is private', 'jetpack', 0 ); // 0 dummy arg to prevent bad minification
