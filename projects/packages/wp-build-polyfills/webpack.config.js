@@ -114,8 +114,9 @@ const sharedConfig = {
 	},
 };
 
-// Plugins disabled for all polyfill builds: no CSS is bundled, and i18n is
-// handled by core's textdomain since @wordpress/i18n remains external.
+// Plugins disabled for all polyfill builds: no CSS is bundled, and the i18n
+// loader/checker are unnecessary since Core doesn't provide translations for
+// these packages (they aren't shipped with Core in the first place).
 const disabledPlugins = {
 	MiniCssExtractPlugin: false,
 	MiniCssWithRtlPlugin: false,
