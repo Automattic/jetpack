@@ -6,15 +6,17 @@ import JetpackLogo from '@automattic/jetpack-components/jetpack-logo';
 import { Breadcrumbs } from '@wordpress/admin-ui';
 import { DropdownMenu, Button } from '@wordpress/components';
 import { store as coreDataStore } from '@wordpress/core-data';
-import { useSelect } from '@wordpress/data';
-import { useMemo, useState, useCallback } from '@wordpress/element';
+import { useSelect, useDispatch } from '@wordpress/data';
+import { useMemo, useState, useCallback, useRef } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __, sprintf } from '@wordpress/i18n';
 import { moreVertical } from '@wordpress/icons';
+import { store as noticesStore } from '@wordpress/notices';
 import { Badge, Stack } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
+import { FORM_POST_TYPE } from '../../../blocks/shared/util/constants.js';
 import useConfigValue from '../../../hooks/use-config-value';
 import CreateFormButton from '../../components/create-form-button';
 import EditFormButton from '../../components/edit-form-button';
@@ -122,6 +124,69 @@ export default function usePageHeaderDetails(
 	const emptySpam = useEmptySpam();
 	const emptyTrash = useEmptyTrash();
 
+	// Rename form state
+	const [ renameFormItem, setRenameFormItem ] = useState< { id: number; title: string } | null >(
+		null
+	);
+	const renameRetryRef = useRef< { item: { id: number; title: string }; title: string } | null >(
+		null
+	);
+	const { saveEntityRecord } = useDispatch( 'core' ) as {
+		saveEntityRecord: (
+			kind: string,
+			name: string,
+			record: Record< string, unknown >,
+			options?: { throwOnError?: boolean }
+		) => Promise< unknown >;
+	};
+	const { createSuccessNotice, createErrorNotice } = useDispatch( noticesStore );
+
+	const closeRenameModal = useCallback( () => {
+		setRenameFormItem( null );
+		renameRetryRef.current = null;
+	}, [] );
+
+	const handleRename = useCallback(
+		async ( newTitle: string ) => {
+			if ( ! renameFormItem ) {
+				return;
+			}
+			try {
+				await saveEntityRecord(
+					'postType',
+					FORM_POST_TYPE,
+					{
+						id: renameFormItem.id,
+						title: newTitle,
+					},
+					{ throwOnError: true }
+				);
+
+				createSuccessNotice( __( 'Form renamed.', 'jetpack-forms' ), { type: 'snackbar' } );
+				renameRetryRef.current = null;
+			} catch ( error ) {
+				const retryItem = renameFormItem;
+				const retryTitle = newTitle;
+
+				createErrorNotice( __( 'Failed to rename form.', 'jetpack-forms' ), {
+					type: 'snackbar',
+					actions: [
+						{
+							label: __( 'Retry', 'jetpack-forms' ),
+							onClick: () => {
+								renameRetryRef.current = { item: retryItem, title: retryTitle };
+								setRenameFormItem( retryItem );
+							},
+						},
+					],
+				} );
+				// eslint-disable-next-line no-console
+				console.error( 'Failed to rename form:', error );
+			}
+		},
+		[ renameFormItem, saveEntityRecord, createSuccessNotice, createErrorNotice ]
+	);
+
 	const formRecord = useSelect(
 		select =>
 			sourceIdNumber
@@ -167,6 +232,10 @@ export default function usePageHeaderDetails(
 
 		const formItem = { id: sourceIdNumber, title: formTitle };
 		const controls: Array< { title: string; onClick: () => void } > = [
+			{
+				title: __( 'Rename', 'jetpack-forms' ),
+				onClick: () => setRenameFormItem( formItem ),
+			},
 			{
 				title: __( 'Duplicate', 'jetpack-forms' ),
 				onClick: () => duplicateForm( formItem ),
@@ -449,6 +518,18 @@ export default function usePageHeaderDetails(
 							/>,
 					  ]
 					: [] ),
+				...( renameFormItem
+					? [
+							<FormNameModal
+								key="rename-form-modal"
+								isOpen={ !! renameFormItem }
+								onClose={ closeRenameModal }
+								onSave={ handleRename }
+								title={ __( 'Rename form', 'jetpack-forms' ) }
+								initialValue={ renameRetryRef.current?.title || renameFormItem?.title || '' }
+							/>,
+					  ]
+					: [] ),
 			];
 		}
 
@@ -482,6 +563,18 @@ export default function usePageHeaderDetails(
 								icon={ moreVertical }
 								label={ __( 'More actions', 'jetpack-forms' ) }
 								toggleProps={ { size: 'compact' } }
+							/>,
+					  ]
+					: [] ),
+				...( renameFormItem
+					? [
+							<FormNameModal
+								key="rename-form-modal"
+								isOpen={ !! renameFormItem }
+								onClose={ closeRenameModal }
+								onSave={ handleRename }
+								title={ __( 'Rename form', 'jetpack-forms' ) }
+								initialValue={ renameRetryRef.current?.title || renameFormItem?.title || '' }
 							/>,
 					  ]
 					: [] ),
@@ -550,6 +643,9 @@ export default function usePageHeaderDetails(
 		emptySpam.onConfirmEmptying,
 		emptySpam.totalItemsSpam,
 		emptySpam.selectedResponsesCount,
+		renameFormItem,
+		closeRenameModal,
+		handleRename,
 	] );
 
 	return { ariaLabel, breadcrumbs, title, badges, subtitle, actions };
