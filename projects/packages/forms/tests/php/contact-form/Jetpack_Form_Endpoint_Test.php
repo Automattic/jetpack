@@ -321,6 +321,7 @@ class Jetpack_Form_Endpoint_Test extends TestCase {
 	 */
 	private function set_has_responses_filter( Jetpack_Form_Endpoint $endpoint, bool $value ): void {
 		$ref = new \ReflectionProperty( Jetpack_Form_Endpoint::class, 'has_responses_filter' );
+		$ref->setAccessible( true );
 		$ref->setValue( $endpoint, $value );
 	}
 
