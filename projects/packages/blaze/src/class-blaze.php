@@ -161,7 +161,13 @@ class Blaze {
 	 */
 	public static function get_menu_parent() {
 		if ( class_exists( 'WooCommerce' ) ) {
-			return 'woocommerce-marketing';
+			// Only use woocommerce-marketing if the menu is actually registered.
+			global $menu;
+			foreach ( (array) $menu as $item ) {
+				if ( isset( $item[2] ) && 'woocommerce-marketing' === $item[2] ) {
+					return 'woocommerce-marketing';
+				}
+			}
 		}
 
 		if ( ( new Host() )->is_wpcom_platform() ) {
@@ -237,7 +243,7 @@ class Blaze {
 			&& isset( $_GET['page'] ) // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			&& 'advertising' === $_GET['page'] // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		) {
-			wp_safe_redirect( admin_url( 'admin.php?page=advertising' ), 301 );
+			wp_safe_redirect( admin_url( 'admin.php?page=advertising' ), 302 );
 			exit;
 		}
 	}

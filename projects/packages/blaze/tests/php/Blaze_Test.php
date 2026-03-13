@@ -234,6 +234,14 @@ class Blaze_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Test that redirect_legacy_advertising_url is hooked on admin_init.
+	 */
+	public function test_redirect_legacy_url_is_hooked() {
+		Blaze::init();
+		$this->assertIsInt( has_action( 'admin_init', array( Blaze::class, 'redirect_legacy_advertising_url' ) ) );
+	}
+
+	/**
 	 * Test that we avoid enqueuing assets when Blaze is not enabled.
 	 *
 	 * @dataProvider get_enqueue_scenarios
