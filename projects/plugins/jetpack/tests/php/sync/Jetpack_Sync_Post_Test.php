@@ -1377,7 +1377,7 @@ That was a cool video.';
 		$this->server_event_storage->reset();
 		$this->test_already = false;
 		add_action( 'wp_insert_post', array( $this, 'add_a_hello_post_type' ), 9 );
-		self::factory()->post->create( array( 'post_type' => 'post' ) );
+		$post_id = self::factory()->post->create( array( 'post_type' => 'post' ) );
 		remove_action( 'wp_insert_post', array( $this, 'add_a_hello_post_type' ), 9 );
 
 		$this->sender->do_sync();
@@ -1398,12 +1398,27 @@ That was a cool video.';
 			}
 		);
 
-		// Reindex
 		$filtered = array_values( $filtered );
 
-		$this->assertEquals( $filtered[0]->args[0], $filtered[1]->args[0] );
-		$this->assertEquals( 'jetpack_sync_save_post', $filtered[0]->action );
-		$this->assertEquals( 'jetpack_published_post', $filtered[1]->action );
+		// Find save_post and published_post for the post we created (interjecting plugin may add another post with unregistered type).
+		$save_event    = null;
+		$publish_event = null;
+		foreach ( $filtered as $event ) {
+			if ( (int) $event->args[0] !== (int) $post_id ) {
+				continue;
+			}
+			if ( $event->action === 'jetpack_sync_save_post' && $save_event === null ) {
+				$save_event = $event;
+			}
+			if ( $event->action === 'jetpack_published_post' && $publish_event === null ) {
+				$publish_event = $event;
+			}
+		}
+
+		$this->assertNotNull( $save_event, 'Expected jetpack_sync_save_post for our post.' );
+		$this->assertNotNull( $publish_event, 'Expected jetpack_published_post for our post.' );
+		$this->assertEquals( $post_id, $save_event->args[0] );
+		$this->assertEquals( $post_id, $publish_event->args[0] );
 	}
 
 	/**
