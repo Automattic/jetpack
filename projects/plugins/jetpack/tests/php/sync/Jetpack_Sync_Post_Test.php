@@ -660,36 +660,34 @@ class Jetpack_Sync_Post_Test extends Jetpack_Sync_TestBase {
 		);
 		register_post_type( 'unregister_post_type', $args );
 
+		// Unregister the post type before the sync listener enqueues the event.
 		add_action( 'wp_insert_post', array( $this, 'unregister_post_type' ), 9 );
 		$post_id = self::factory()->post->create( array( 'post_type' => 'unregister_post_type' ) );
 		remove_action( 'wp_insert_post', array( $this, 'unregister_post_type' ), 9 );
 
 		$this->sender->do_sync();
+
+		// Event should have been dropped at enqueue — post should not exist on the server.
 		$synced_post = $this->server_replica_storage->get_post( $post_id );
+		$this->assertNull( $synced_post );
 
-		$this->assertEquals( 'jetpack_sync_non_registered_post_type', $synced_post->post_status );
-		$this->assertSame( '', $synced_post->post_content_filtered );
-		$this->assertSame( '', $synced_post->post_excerpt_filtered );
-
-		$this->assertEquals( 'unregister_post_type', $synced_post->post_type );
-
-		// Also works for post type that was never registed
+		// Also works for a post type that was never registered.
 		$post_id = self::factory()->post->create( array( 'post_type' => 'does_not_exist' ) );
 		$this->sender->do_sync();
-		$synced_post = $this->server_replica_storage->get_post( $post_id );
 
-		$this->assertEquals( 'jetpack_sync_non_registered_post_type', $synced_post->post_status );
-		$this->assertSame( '', $synced_post->post_content_filtered );
-		$this->assertSame( '', $synced_post->post_excerpt_filtered );
-		$this->assertEquals( 'does_not_exist', $synced_post->post_type );
+		$synced_post = $this->server_replica_storage->get_post( $post_id );
+		$this->assertNull( $synced_post );
 	}
 
 	/**
-	 * The purpose of this test is to ensure that when a post type is registered during
-	 * enqueueing Sync actions but not present when sending, we will still sync
-	 * the corresponding post with the correct post type.
-	 * This covers cases, where Dedicated Sync is enabled combined with custom post types
-	 * that are registered on `init`, after the corresponding `add_dedicated_sync_sender_init` hook.
+	 * Ensures that when a post type is registered at enqueue time but unregistered before
+	 * sending, the post is still synced with its original status and post type.
+	 *
+	 * This is the only path where a post of an unregistered type reaches the server —
+	 * if the post type is already unregistered at enqueue time, the event is dropped entirely.
+	 *
+	 * This covers cases where Dedicated Sync is enabled combined with custom post types
+	 * registered on `init`, after the corresponding `add_dedicated_sync_sender_init` hook.
 	 */
 	public function test_will_sync_non_existant_post_types_during_sending() {
 		$args = array(
