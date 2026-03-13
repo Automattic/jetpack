@@ -94,22 +94,23 @@ export const DEFAULT_RESTRICTIONS = {
 };
 
 export const RESTRICTIONS = {
-	// https://docs.x.com/x-api/media/quickstart/best-practices
-	x: {
-		allowedMediaTypes: allowedImageTypes.concat( [ 'image/gif', 'image/webp', MP4, VIDEOPRESS ] ),
+	// https://docs.bsky.app/docs/advanced-guides/posts#images-and-media
+	bluesky: {
+		allowedMediaTypes: allowedImageTypes.concat( [
+			MP4,
+			VIDEOPRESS,
+			MOV,
+			'video/webm',
+			'video/mpeg',
+		] ),
 		image: {
-			maxSize: 5,
+			maxSize: 1,
 		},
 		video: {
-			maxSize: 512,
-			maxLength: 140,
-			minLength: 0.5,
-			maxWidth: 1280,
-			aspectRatio: {
-				min: 1 / 3,
-				max: 3,
-			},
+			maxSize: 10000,
+			maxLength: 60,
 		},
+		charLimit: 300,
 	},
 	// https://developers.facebook.com/docs/graph-api/reference/photo/
 	// https://developers.facebook.com/docs/video-api/guides/publishing
@@ -123,33 +124,6 @@ export const RESTRICTIONS = {
 			maxLength: 14400,
 		},
 		charLimit: 10000,
-	},
-	// https://www.tumblr.com/docs/en/api/v2
-	tumblr: {
-		allowedMediaTypes: allowedImageTypes.concat( [ MP4, MOV, VIDEOPRESS ] ),
-		image: {
-			maxSize: 20,
-		},
-		video: {
-			maxSize: 500,
-			maxLength: 600,
-		},
-		charLimit: 4096,
-	},
-	// https://learn.microsoft.com/en-us/linkedin/marketing/community-management/shares/images-api
-	// https://learn.microsoft.com/en-us/linkedin/marketing/community-management/shares/videos-api
-	linkedin: {
-		allowedMediaTypes: allowedImageTypes.concat( [ 'image/gif', MP4, VIDEOPRESS ] ),
-		image: {
-			maxSize: 20,
-		},
-		video: {
-			minSize: 0.075,
-			maxSize: 500,
-			maxLength: 1800,
-			minLength: 3,
-		},
-		charLimit: 3000,
 	},
 	// https://developers.facebook.com/docs/instagram-platform/instagram-api-with-instagram-login/content-publishing
 	'instagram-business': {
@@ -175,6 +149,21 @@ export const RESTRICTIONS = {
 			},
 		},
 		charLimit: 2200,
+	},
+	// https://learn.microsoft.com/en-us/linkedin/marketing/community-management/shares/images-api
+	// https://learn.microsoft.com/en-us/linkedin/marketing/community-management/shares/videos-api
+	linkedin: {
+		allowedMediaTypes: allowedImageTypes.concat( [ 'image/gif', MP4, VIDEOPRESS ] ),
+		image: {
+			maxSize: 20,
+		},
+		video: {
+			minSize: 0.075,
+			maxSize: 500,
+			maxLength: 1800,
+			minLength: 3,
+		},
+		charLimit: 3000,
 	},
 	// https://docs.joinmastodon.org/user/posting/#media
 	mastodon: {
@@ -204,23 +193,34 @@ export const RESTRICTIONS = {
 		},
 		charLimit: 10000,
 	},
-	// https://docs.bsky.app/docs/advanced-guides/posts#images-and-media
-	bluesky: {
-		allowedMediaTypes: allowedImageTypes.concat( [
-			MP4,
-			VIDEOPRESS,
-			MOV,
-			'video/webm',
-			'video/mpeg',
-		] ),
+	// https://www.tumblr.com/docs/en/api/v2
+	tumblr: {
+		allowedMediaTypes: allowedImageTypes.concat( [ MP4, MOV, VIDEOPRESS ] ),
 		image: {
-			maxSize: 1,
+			maxSize: 20,
 		},
 		video: {
-			maxSize: 10000,
-			maxLength: 60,
+			maxSize: 500,
+			maxLength: 600,
 		},
-		charLimit: 300,
+		charLimit: 4096,
+	},
+	// https://docs.x.com/x-api/media/quickstart/best-practices
+	x: {
+		allowedMediaTypes: allowedImageTypes.concat( [ 'image/gif', 'image/webp', MP4, VIDEOPRESS ] ),
+		image: {
+			maxSize: 5,
+		},
+		video: {
+			maxSize: 512,
+			maxLength: 140,
+			minLength: 0.5,
+			maxWidth: 1280,
+			aspectRatio: {
+				min: 1 / 3,
+				max: 3,
+			},
+		},
 	},
 };
 
