@@ -75,6 +75,16 @@ class PayPal_OAuth {
 	const TOKEN_EXPIRY_BUFFER = 300;
 
 	/**
+	 * Option key for storing the absolute token expiry timestamp.
+	 *
+	 * Provides a reliable expiry check independent of the transient cache,
+	 * which can be evicted by object caches or plugin flushes.
+	 *
+	 * @var string
+	 */
+	const TOKEN_EXPIRES_AT_OPTION_KEY = 'jetpack_paypal_payment_buttons_token_expires_at';
+
+	/**
 	 * Get the current PayPal API environment.
 	 *
 	 * @return string 'sandbox' or 'production'. Defaults to 'production'.
@@ -204,6 +214,14 @@ class PayPal_OAuth {
 		// Try cached token first.
 		$cached_token = get_transient( self::TOKEN_TRANSIENT_KEY );
 		if ( false !== $cached_token && is_string( $cached_token ) ) {
+			// Double-check absolute expiry timestamp in case the transient
+			// survived an object-cache flush or clock drift.
+			$expires_at = get_option( self::TOKEN_EXPIRES_AT_OPTION_KEY, 0 );
+			if ( $expires_at > 0 && time() >= $expires_at ) {
+				self::clear_cached_token();
+				return self::request_access_token();
+			}
+
 			return $cached_token;
 		}
 
@@ -292,6 +310,9 @@ class PayPal_OAuth {
 		if ( $expires_in > self::TOKEN_EXPIRY_BUFFER ) {
 			$cache_duration = $expires_in - self::TOKEN_EXPIRY_BUFFER;
 			set_transient( self::TOKEN_TRANSIENT_KEY, $access_token, $cache_duration );
+
+			// Store absolute expiry timestamp as a fallback for object-cache eviction.
+			update_option( self::TOKEN_EXPIRES_AT_OPTION_KEY, time() + $cache_duration, false );
 		}
 
 		return $access_token;
@@ -303,6 +324,7 @@ class PayPal_OAuth {
 	 * @return bool True if the transient was deleted, false otherwise.
 	 */
 	public static function clear_cached_token() {
+		delete_option( self::TOKEN_EXPIRES_AT_OPTION_KEY );
 		return delete_transient( self::TOKEN_TRANSIENT_KEY );
 	}
 
@@ -355,6 +377,7 @@ class PayPal_OAuth {
 	public static function disconnect() {
 		delete_option( self::CREDENTIALS_OPTION_KEY );
 		delete_option( self::ENVIRONMENT_OPTION_KEY );
+		delete_option( self::TOKEN_EXPIRES_AT_OPTION_KEY );
 		self::clear_cached_token();
 	}
 }
