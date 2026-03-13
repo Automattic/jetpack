@@ -25,7 +25,7 @@ class Jetpack_Form_Endpoint extends \WP_REST_Posts_Controller {
 	 *
 	 * @var bool
 	 */
-	private $has_responses_filter = true;
+	public $has_responses_filter = true;
 
 	/**
 	 * Constructor.
