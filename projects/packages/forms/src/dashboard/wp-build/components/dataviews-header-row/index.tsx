@@ -11,8 +11,7 @@ import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useNavigate } from '@wordpress/route';
 import { Badge, Stack, Tabs } from '@wordpress/ui';
-import { NON_TRASH_FORM_STATUSES } from '../../../constants.ts';
-import useFormsData from '../../../hooks/use-forms-data.ts';
+import useFormStatusCounts from '../../../hooks/use-form-status-counts.ts';
 import { store as dashboardStore } from '../../../store/index.js';
 import InboxStatusToggle from '../inbox-status-toggle';
 import './style.scss';
@@ -51,12 +50,14 @@ export default function DataViewsHeaderRow( {
 	onStatusChange,
 }: DataViewsHeaderRowProps ): JSX.Element {
 	const navigate = useNavigate();
-	const { totalItems: formsCount = 0 } = useFormsData( 1, 1, '', NON_TRASH_FORM_STATUSES );
+	const { all: formsCount } = useFormStatusCounts();
 
 	const responsesInboxCount = useSelect( select => {
-		// Trigger resolver if needed.
-		select( dashboardStore ).getCounts();
-		return select( dashboardStore ).getInboxCount() ?? 0;
+		// Pass an explicit empty object so @wordpress/data resolver deduplication
+		// matches other call-sites (useInboxData, preload). Without this,
+		// getCounts() and getCounts({}) are treated as different resolutions.
+		select( dashboardStore ).getCounts( {} );
+		return select( dashboardStore ).getInboxCount( {} ) ?? 0;
 	}, [] );
 
 	const onTabChange = useCallback(
