@@ -60,6 +60,9 @@ class PayPal_Payment_Buttons {
 	 * @return void
 	 */
 	public function init_hooks() {
+		// Register standalone script stubs for Jetpack dependencies not available outside the monorepo.
+		add_action( 'init', array( $this, 'register_standalone_script_stubs' ), 1 );
+
 		// Initialize PayPal Payment Buttons block with correct dist path
 		add_action( 'init', array( $this, 'register_paypal_block' ), 9 );
 
@@ -75,6 +78,22 @@ class PayPal_Payment_Buttons {
 		// Load styles in the editor iframe context
 		if ( is_admin() ) {
 			add_action( 'enqueue_block_assets', array( Jetpack_PayPal_Payment_Buttons::class, 'load_editor_styles' ), 9 );
+		}
+	}
+
+	/**
+	 * Register script stubs for Jetpack dependencies that are not available in standalone mode.
+	 *
+	 * The editor.js bundle declares `jetpack-script-data` as a dependency (from
+	 *
+	 * @automattic/jetpack-script-data). In the Jetpack plugin this is registered by the
+	 * Assets package, but in standalone mode it does not exist. WordPress silently
+	 * refuses to enqueue scripts with unregistered dependencies, so we register an
+	 * empty stub to satisfy the dependency chain.
+	 */
+	public function register_standalone_script_stubs() {
+		if ( ! wp_script_is( 'jetpack-script-data', 'registered' ) ) {
+			wp_register_script( 'jetpack-script-data', false, array(), '1.0.0', false );
 		}
 	}
 
