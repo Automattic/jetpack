@@ -108,18 +108,22 @@ function NewsletterEditorSettingsPanel( { accessLevel } ) {
 	);
 }
 
-const isNewsletterDisabled = () => isComingSoon() || isPrivateSite();
+// Subscriptions will not be triggered on private sites ( on WordPress.com simple and WoA ),
+// nor on sites that have not been launched yet.
+const getNewsletterDisabledMessage = () => {
+	if ( isComingSoon() ) {
+		return __( 'You will be able to send newsletters once the site is published', 'jetpack' );
+	}
+	if ( isPrivateSite() ) {
+		return __( 'You cannot send newsletters from a private site', 'jetpack' );
+	}
+	return null;
+};
 
 const NewsletterDisabledNotice = () => {
-	if ( ! isNewsletterDisabled() ) {
+	const message = getNewsletterDisabledMessage();
+	if ( ! message ) {
 		return null;
-	}
-
-	let message = '';
-	if ( isComingSoon() ) {
-		message = __( 'You will be able to send newsletters once the site is published', 'jetpack' );
-	} else if ( isPrivateSite() ) {
-		message = __( 'You cannot send newsletters from a private site', 'jetpack' );
 	}
 
 	return (
@@ -271,9 +275,7 @@ export default function SubscribePanels() {
 		return null;
 	}
 
-	// Subscriptions will not be triggered on private sites ( on WordPress.com simple and WoA ),
-	// nor on sites that have not been launched yet.
-	if ( isNewsletterDisabled() ) {
+	if ( getNewsletterDisabledMessage() ) {
 		return <NewsletterDisabledPanels />;
 	}
 
