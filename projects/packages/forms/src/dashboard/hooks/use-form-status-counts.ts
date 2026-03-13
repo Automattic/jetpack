@@ -30,7 +30,10 @@ const DEFAULT_COUNTS: FormStatusCounts = {
  * @return Per-status form counts.
  */
 export default function useFormStatusCounts(): FormStatusCounts {
-	return useSelect( select => {
-		return select( dashboardStore ).getFormStatusCounts() ?? DEFAULT_COUNTS;
-	}, [] );
+	return useSelect(
+		select =>
+			( select( dashboardStore ).getFormStatusCounts() as FormStatusCounts | null ) ??
+			DEFAULT_COUNTS,
+		[]
+	);
 }
