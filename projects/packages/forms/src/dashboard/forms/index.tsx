@@ -35,6 +35,7 @@ import type { Action, Operator } from '@wordpress/dataviews/wp';
  */
 export default function FormsDashboardForms(): JSX.Element | null {
 	const navigate = useNavigate();
+	const adminUrl = ( useConfigValue( 'adminUrl' ) as string ) || '';
 	const isCentralFormManagementEnabled = useConfigValue( 'isCentralFormManagementEnabled' );
 	const isCentralFormManagementDisabled = isCentralFormManagementEnabled === false;
 
@@ -229,9 +230,8 @@ export default function FormsDashboardForms(): JSX.Element | null {
 					if ( ! item ) {
 						return;
 					}
-					const editUrl = item.editUrl || getFormEditUrl( item.id );
-					const url = new URL( editUrl, window.location.origin );
-					window.location.href = url.toString();
+					const editUrl = item.editUrl || getFormEditUrl( item.id, adminUrl );
+					window.location.href = editUrl;
 				},
 			},
 			{
@@ -366,6 +366,7 @@ export default function FormsDashboardForms(): JSX.Element | null {
 
 		return actionsList;
 	}, [
+		adminUrl,
 		createErrorNotice,
 		createSuccessNotice,
 		isDeleting,

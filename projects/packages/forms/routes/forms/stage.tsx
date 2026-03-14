@@ -87,6 +87,7 @@ function StageInner() {
 		[]
 	);
 	const { refreshIntegrations } = useDispatch( INTEGRATIONS_STORE );
+	const adminUrl = ( useConfigValue( 'adminUrl' ) as string ) || '';
 	const isIntegrationsEnabled = useConfigValue( 'isIntegrationsEnabled' );
 	const showDashboardIntegrations = useConfigValue( 'showDashboardIntegrations' );
 
@@ -379,9 +380,8 @@ function StageInner() {
 				if ( ! item ) {
 					return;
 				}
-				const editUrl = item.editUrl || getFormEditUrl( item.id );
-				const url = new URL( editUrl, window.location.origin );
-				window.location.href = url.toString();
+				const editUrl = item.editUrl || getFormEditUrl( item.id, adminUrl );
+				window.location.href = editUrl;
 			},
 		} );
 
@@ -523,6 +523,7 @@ function StageInner() {
 
 		return actionsList;
 	}, [
+		adminUrl,
 		copyEmbed,
 		copyShortcode,
 		duplicateForm,

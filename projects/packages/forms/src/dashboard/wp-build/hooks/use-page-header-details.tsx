@@ -15,6 +15,7 @@ import { Badge, Stack } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
+import useConfigValue from '../../../hooks/use-config-value';
 import CreateFormButton from '../../components/create-form-button';
 import EditFormButton from '../../components/edit-form-button';
 import EmptySpamButton from '../../components/empty-spam-button';
@@ -78,6 +79,7 @@ export default function usePageHeaderDetails(
 		onOpenIntegrations,
 		onOpenFormsHelp,
 	} = props;
+	const adminUrl = ( useConfigValue( 'adminUrl' ) as string ) || '';
 	const statusView: ResponsesStatusView = props.statusView ?? 'inbox';
 	const sourceIdNumber = useMemo( () => {
 		const value = sourceId;
@@ -319,8 +321,7 @@ export default function usePageHeaderDetails(
 				if ( statusView === 'inbox' && sourceIdNumber ) {
 					dropdownControls.push( {
 						onClick: () => {
-							const url = new URL( getFormEditUrl( sourceIdNumber ), window.location.origin );
-							window.location.href = url.toString();
+							window.location.href = getFormEditUrl( sourceIdNumber, adminUrl );
 						},
 						title: __( 'Edit form', 'jetpack-forms' ),
 					} );
@@ -512,6 +513,7 @@ export default function usePageHeaderDetails(
 			...( statusView === 'spam' ? [ <EmptySpamButton key="empty-spam" /> ] : [] ),
 		];
 	}, [
+		adminUrl,
 		isSm,
 		isIntegrationsEnabled,
 		onOpenIntegrations,

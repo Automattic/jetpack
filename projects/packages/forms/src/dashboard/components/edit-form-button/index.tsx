@@ -22,11 +22,10 @@ type EditFormButtonProps = {
  * @return JSX element.
  */
 export default function EditFormButton( { formId }: EditFormButtonProps ): JSX.Element {
-	const adminUrl = useConfigValue( 'adminUrl' ) || '';
+	const adminUrl = ( useConfigValue( 'adminUrl' ) as string ) || '';
 
 	const onClick = useCallback( () => {
-		const editPath = getFormEditUrl( formId );
-		window.location.href = adminUrl ? `${ adminUrl }${ editPath }` : editPath;
+		window.location.href = getFormEditUrl( formId, adminUrl );
 	}, [ adminUrl, formId ] );
 
 	return (
