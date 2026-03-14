@@ -22,6 +22,7 @@ import Page from '../components/page/index.tsx';
 import { NON_TRASH_FORM_STATUSES } from '../constants.ts';
 import useDeleteForm from '../hooks/use-delete-form.ts';
 import useFormsData from '../hooks/use-forms-data.ts';
+import { getFormEditUrl } from '../utils.ts';
 import { defaultLayouts, useView } from './views.ts';
 import './style.scss';
 import type { FormListItem } from '../hooks/use-forms-data.ts';
@@ -228,8 +229,7 @@ export default function FormsDashboardForms(): JSX.Element | null {
 					if ( ! item ) {
 						return;
 					}
-					const fallbackEditUrl = `post.php?post=${ item.id }&action=edit`;
-					const editUrl = item.editUrl || fallbackEditUrl;
+					const editUrl = item.editUrl || getFormEditUrl( item.id );
 					const url = new URL( editUrl, window.location.origin );
 					window.location.href = url.toString();
 				},

@@ -30,6 +30,7 @@ import useEmptySpam from '../../hooks/use-empty-spam';
 import useEmptyTrash from '../../hooks/use-empty-trash';
 import useExportResponses from '../../hooks/use-export-responses';
 import useInboxData from '../../hooks/use-inbox-data';
+import { getFormEditUrl } from '../../utils.ts';
 import ManageIntegrationsButton from '../components/manage-integrations-button';
 import useFormItemActions from './use-form-item-actions';
 import type { ReactNode } from 'react';
@@ -318,8 +319,7 @@ export default function usePageHeaderDetails(
 				if ( statusView === 'inbox' && sourceIdNumber ) {
 					dropdownControls.push( {
 						onClick: () => {
-							const fallbackEditUrl = `post.php?post=${ sourceIdNumber }&action=edit`;
-							const url = new URL( fallbackEditUrl, window.location.origin );
+							const url = new URL( getFormEditUrl( sourceIdNumber ), window.location.origin );
 							window.location.href = url.toString();
 						},
 						title: __( 'Edit form', 'jetpack-forms' ),

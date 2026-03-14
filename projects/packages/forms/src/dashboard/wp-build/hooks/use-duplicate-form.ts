@@ -11,6 +11,7 @@ import { store as noticesStore } from '@wordpress/notices';
 import { FORM_SOURCE_META_KEY } from '../../../blocks/shared/util/constants.js';
 import useConfigValue from '../../../hooks/use-config-value';
 import { store as dashboardStore } from '../../store/index.js';
+import { getFormEditUrl } from '../../utils.ts';
 /**
  * Types
  */
@@ -114,7 +115,7 @@ export default function useDuplicateForm(): UseDuplicateFormReturn {
 							label: __( 'Edit', 'jetpack-forms' ),
 							onClick: () => {
 								if ( adminUrl ) {
-									window.location.href = `${ adminUrl }post.php?post=${ createdId }&action=edit`;
+									window.location.href = `${ adminUrl }${ getFormEditUrl( createdId ) }`;
 								}
 							},
 						},
