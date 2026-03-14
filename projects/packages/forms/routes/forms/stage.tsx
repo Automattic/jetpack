@@ -378,7 +378,7 @@ function StageInner() {
 				if ( ! item ) {
 					return;
 				}
-				const fallbackEditUrl = `post.php?post=${ item.id }&action=edit&post_type=jetpack_form`;
+				const fallbackEditUrl = `post.php?post=${ item.id }&action=edit`;
 				const editUrl = item.editUrl || fallbackEditUrl;
 				const url = new URL( editUrl, window.location.origin );
 				window.location.href = url.toString();

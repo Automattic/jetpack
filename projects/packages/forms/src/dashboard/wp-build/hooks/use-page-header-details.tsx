@@ -318,7 +318,7 @@ export default function usePageHeaderDetails(
 				if ( statusView === 'inbox' && sourceIdNumber ) {
 					dropdownControls.push( {
 						onClick: () => {
-							const fallbackEditUrl = `post.php?post=${ sourceIdNumber }&action=edit&post_type=jetpack_form`;
+							const fallbackEditUrl = `post.php?post=${ sourceIdNumber }&action=edit`;
 							const url = new URL( fallbackEditUrl, window.location.origin );
 							window.location.href = url.toString();
 						},

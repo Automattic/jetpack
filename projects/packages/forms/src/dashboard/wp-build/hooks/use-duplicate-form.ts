@@ -114,7 +114,7 @@ export default function useDuplicateForm(): UseDuplicateFormReturn {
 							label: __( 'Edit', 'jetpack-forms' ),
 							onClick: () => {
 								if ( adminUrl ) {
-									window.location.href = `${ adminUrl }post.php?post=${ createdId }&action=edit&post_type=jetpack_form`;
+									window.location.href = `${ adminUrl }post.php?post=${ createdId }&action=edit`;
 								}
 							},
 						},
