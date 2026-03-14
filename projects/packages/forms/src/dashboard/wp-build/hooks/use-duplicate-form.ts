@@ -78,9 +78,6 @@ export default function useDuplicateForm(): UseDuplicateFormReturn {
 				const typedOriginal = original as JetpackFormEntityRecord;
 				const raw = typedOriginal.content?.raw;
 				const originalContentRaw = typeof raw === 'string' ? raw : '';
-				const originalStatus = typedOriginal.status;
-				const duplicateStatus = originalStatus === 'publish' ? 'draft' : originalStatus;
-
 				const originalTitle = item.title || __( 'Untitled Form', 'jetpack-forms' );
 				const newTitle = sprintf(
 					/* translators: %s: original form title */
@@ -95,7 +92,7 @@ export default function useDuplicateForm(): UseDuplicateFormReturn {
 						title: newTitle,
 						// Duplicate the raw block content so the form is an exact copy.
 						content: originalContentRaw,
-						status: duplicateStatus,
+						status: typedOriginal.status === 'publish' ? 'draft' : typedOriginal.status,
 						meta: {
 							[ FORM_SOURCE_META_KEY ]: item.id,
 						},
