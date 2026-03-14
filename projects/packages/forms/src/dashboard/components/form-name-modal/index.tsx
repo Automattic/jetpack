@@ -129,7 +129,6 @@ export function FormNameModal( {
 			await onSave( finalName );
 		} catch {
 			// Error handling is left to the caller via onSave
-			// Modal stays open on error
 		} finally {
 			setIsSaving( false );
 			onClose();

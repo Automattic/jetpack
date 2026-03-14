@@ -142,7 +142,7 @@ export default function usePageHeaderDetails(
 	const renameRetryRef = useRef< { item: { id: number; title: string }; title: string } | null >(
 		null
 	);
-	const { saveEntityRecord, deleteEntityRecord } = useDispatch( 'core' ) as {
+	const { saveEntityRecord, deleteEntityRecord } = useDispatch( coreDataStore ) as {
 		saveEntityRecord: (
 			kind: string,
 			name: string,
