@@ -3,7 +3,11 @@
  */
 import { JetpackLogo } from '@automattic/jetpack-components';
 import apiFetch from '@wordpress/api-fetch';
-import { __experimentalConfirmDialog as ConfirmDialog } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
+import {
+	Button,
+	__experimentalConfirmDialog as ConfirmDialog, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+} from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
 import { DataViews } from '@wordpress/dataviews/wp';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
@@ -23,6 +27,7 @@ import { NON_TRASH_FORM_STATUSES } from '../constants.ts';
 import useDeleteForm from '../hooks/use-delete-form.ts';
 import useFormsData from '../hooks/use-forms-data.ts';
 import { getFormEditUrl } from '../utils.ts';
+import FormsHelpModal from '../wp-build/components/forms-help-modal/index.tsx';
 import { defaultLayouts, useView } from './views.ts';
 import './style.scss';
 import type { FormListItem } from '../hooks/use-forms-data.ts';
@@ -38,6 +43,11 @@ export default function FormsDashboardForms(): JSX.Element | null {
 	const adminUrl = ( useConfigValue( 'adminUrl' ) as string ) || '';
 	const isCentralFormManagementEnabled = useConfigValue( 'isCentralFormManagementEnabled' );
 	const isCentralFormManagementDisabled = isCentralFormManagementEnabled === false;
+	const hasClassicForms = useConfigValue( 'hasClassicForms' );
+
+	const [ isFormsHelpModalOpen, setIsFormsHelpModalOpen ] = useState( false );
+	const openFormsHelpModal = useCallback( () => setIsFormsHelpModalOpen( true ), [] );
+	const closeFormsHelpModal = useCallback( () => setIsFormsHelpModalOpen( false ), [] );
 
 	const dateSettings = getDateSettings();
 	const [ view, setView ] = useView();
@@ -410,7 +420,18 @@ export default function FormsDashboardForms(): JSX.Element | null {
 						{ __( 'Forms', 'jetpack-forms' ) }
 					</div>
 				}
-				subTitle={ __( 'View and manage all your forms in one place.', 'jetpack-forms' ) }
+				subTitle={
+					hasClassicForms ? (
+						<>
+							{ __( 'View and manage all your forms.', 'jetpack-forms' ) }{ ' ' }
+							<Button variant="link" onClick={ openFormsHelpModal }>
+								{ __( 'Not seeing all your forms?', 'jetpack-forms' ) }
+							</Button>
+						</>
+					) : (
+						__( 'View and manage all your forms in one place.', 'jetpack-forms' )
+					)
+				}
 				actions={ headerActions }
 				hasPadding={ false }
 			>
@@ -428,10 +449,22 @@ export default function FormsDashboardForms(): JSX.Element | null {
 								'jetpack-forms'
 							) }
 							actions={
-								<CreateFormButton
-									label={ __( 'Create a new form', 'jetpack-forms' ) }
-									variant="primary"
-								/>
+								hasClassicForms ? (
+									<HStack justify="center" spacing="2">
+										<CreateFormButton
+											label={ __( 'Create a new form', 'jetpack-forms' ) }
+											variant="primary"
+										/>
+										<Button size="compact" variant="secondary" onClick={ openFormsHelpModal }>
+											{ __( 'Not seeing all your forms?', 'jetpack-forms' ) }
+										</Button>
+									</HStack>
+								) : (
+									<CreateFormButton
+										label={ __( 'Create a new form', 'jetpack-forms' ) }
+										variant="primary"
+									/>
+								)
 							}
 						/>
 					}
@@ -475,6 +508,7 @@ export default function FormsDashboardForms(): JSX.Element | null {
 					</div>
 				</DataViews>
 			</Page>
+			<FormsHelpModal isOpen={ isFormsHelpModalOpen } onClose={ closeFormsHelpModal } />
 		</div>
 	);
 }

@@ -50,8 +50,7 @@ type UsePageHeaderDetailsProps = {
 	screen: 'forms' | 'responses';
 	statusView?: ResponsesStatusView;
 	sourceId?: string | number;
-	formsCount?: number;
-	hasFormBlocks?: boolean;
+	hasClassicForms?: boolean;
 	isIntegrationsEnabled: boolean;
 	showDashboardIntegrations: boolean;
 	onOpenIntegrations: () => void;
@@ -82,8 +81,7 @@ export default function usePageHeaderDetails(
 	const {
 		screen,
 		sourceId,
-		formsCount,
-		hasFormBlocks,
+		hasClassicForms,
 		isIntegrationsEnabled,
 		showDashboardIntegrations,
 		onOpenIntegrations,
@@ -520,10 +518,7 @@ export default function usePageHeaderDetails(
 			const shortMessage = __( 'View and manage all your forms.', 'jetpack-forms' );
 			const longMessage = __( 'View and manage all your forms in one place.', 'jetpack-forms' );
 
-			const shouldShowFormsHelpLink =
-				!! onOpenFormsHelp && !! hasFormBlocks && ( typeof formsCount !== 'number' || formsCount < 5 );
-
-			return shouldShowFormsHelpLink ? (
+			return hasClassicForms ? (
 				<>
 					{ shortMessage }{ ' ' }
 					<Button variant="link" onClick={ onOpenFormsHelp }>
@@ -547,7 +542,7 @@ export default function usePageHeaderDetails(
 		}
 
 		return __( 'View and manage all your form responses in one place.', 'jetpack-forms' );
-	}, [ formTitle, isFormsScreen, isSingleFormScreen, onOpenFormsHelp, formsCount, hasFormBlocks ] );
+	}, [ formTitle, isFormsScreen, isSingleFormScreen, onOpenFormsHelp, hasClassicForms ] );
 
 	const actions = useMemo( () => {
 		// Mobile: show dropdown menu with actions

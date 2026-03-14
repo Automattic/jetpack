@@ -90,7 +90,7 @@ function StageInner() {
 	const adminUrl = ( useConfigValue( 'adminUrl' ) as string ) || '';
 	const isIntegrationsEnabled = useConfigValue( 'isIntegrationsEnabled' );
 	const showDashboardIntegrations = useConfigValue( 'showDashboardIntegrations' );
-	const hasFormBlocks = useConfigValue( 'hasFormBlocks' );
+	const hasClassicForms = useConfigValue( 'hasClassicForms' );
 
 	const [ view, setView ] = useState< View >( () => ( {
 		...DEFAULT_VIEW,
@@ -591,8 +591,7 @@ function StageInner() {
 		actions: headerActions,
 	} = usePageHeaderDetails( {
 		screen: 'forms',
-		formsCount: statusCounts.all,
-		hasFormBlocks: !! hasFormBlocks,
+		hasClassicForms: !! hasClassicForms,
 		isIntegrationsEnabled: !! isIntegrationsEnabled,
 		showDashboardIntegrations: !! showDashboardIntegrations,
 		onOpenIntegrations: openIntegrationsModal,
@@ -637,27 +636,24 @@ function StageInner() {
 								'jetpack-forms'
 							) }
 							actions={
-								hasFormBlocks ? (
-								<HStack justify="center" spacing="2">
+								hasClassicForms ? (
+									<HStack justify="center" spacing="2">
+										<CreateFormButton
+											label={ __( 'Create a new form', 'jetpack-forms' ) }
+											variant="primary"
+											showIcon={ false }
+										/>
+										<Button size="compact" variant="secondary" onClick={ openFormsHelpModal }>
+											{ __( 'Not seeing all your forms?', 'jetpack-forms' ) }
+										</Button>
+									</HStack>
+								) : (
 									<CreateFormButton
 										label={ __( 'Create a new form', 'jetpack-forms' ) }
 										variant="primary"
 										showIcon={ false }
 									/>
-									<Button
-										size="compact"
-										variant="secondary"
-										onClick={ openFormsHelpModal }
-									>
-										{ __( 'Not seeing all your forms?', 'jetpack-forms' ) }
-									</Button>
-								</HStack>
-							) : (
-								<CreateFormButton
-									label={ __( 'Create a new form', 'jetpack-forms' ) }
-									variant="primary"
-									showIcon={ false }
-								/>
+								)
 							}
 						/>
 					)

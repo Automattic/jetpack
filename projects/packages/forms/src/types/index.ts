@@ -322,8 +322,8 @@ export interface FormsConfigData {
 	canActivatePlugins?: boolean;
 	/** Whether there are any feedback (form response) posts on the site. */
 	hasFeedback?: boolean;
-	/** Whether there are any posts or pages containing a Jetpack form block or shortcode. */
-	hasFormBlocks?: boolean;
+	/** Whether the site has classic (non-synced) form submissions. */
+	hasClassicForms?: boolean;
 	/** Whether form notes are enabled. */
 	isNotesEnabled?: boolean;
 	/** The URL of the Forms responses list in wp-admin. */

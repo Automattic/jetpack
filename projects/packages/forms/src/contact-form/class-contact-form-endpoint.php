@@ -1560,7 +1560,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			'fileIconsUrl'                   => Jetpack_Forms::plugin_url() . 'contact-form/images/file-icons/',
 			'siteURL'                        => ( new Status() )->get_site_suffix(),
 			'hasFeedback'                    => ( new Forms_Dashboard() )->has_feedback(),
-			'hasFormBlocks'                  => ( new Forms_Dashboard() )->has_form_blocks(),
+			'hasClassicForms'                => ( new Forms_Dashboard() )->get_classic_forms_state() === 'classic',
 			'isNotesEnabled'                 => Forms_Dashboard::is_notes_enabled(),
 			'isIntegrationsEnabled'          => Jetpack_Forms::is_integrations_enabled(),
 			'isWebhooksEnabled'              => Jetpack_Forms::is_webhooks_enabled(),
