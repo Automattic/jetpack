@@ -148,8 +148,8 @@ importers:
         specifier: 30.2.0
         version: 30.2.0
       undici:
-        specifier: 7.18.2
-        version: 7.18.2
+        specifier: 7.24.0
+        version: 7.24.0
 
   projects/js-packages/ai-client:
     dependencies:
@@ -17598,12 +17598,8 @@ packages:
     resolution: {integrity: sha512-VfQPToRA5FZs/qJxLIinmU59u0r7LXqoJkCzinq3ckNJp3vKEh7jTWN589YQ5+aoAC/TGRLyJLCPKcLQbM8r9g==}
     engines: {node: '>=18.17'}
 
-  undici@7.18.2:
-    resolution: {integrity: sha512-y+8YjDFzWdQlSE9N5nzKMT3g4a5UBX1HKowfdXh0uvAnTaqqwqB92Jt4UXBAeKekDs5IaDKyJFR4X1gYVCgXcw==}
-    engines: {node: '>=20.18.1'}
-
-  undici@7.22.0:
-    resolution: {integrity: sha512-RqslV2Us5BrllB+JeiZnK4peryVTndy9Dnqq62S3yYRRTj0tFQCwEniUy2167skdGOy3vqRzEvl1Dm4sV2ReDg==}
+  undici@7.24.0:
+    resolution: {integrity: sha512-jxytwMHhsbdpBXxLAcuu0fzlQeXCNnWdDyRHpvWsUl8vd98UwYdl9YTyn8/HcpcJPC3pwUveefsa3zTxyD/ERg==}
     engines: {node: '>=20.18.1'}
 
   unicode-canonical-property-names-ecmascript@2.0.1:
@@ -26772,7 +26768,7 @@ snapshots:
       parse5: 7.3.0
       parse5-htmlparser2-tree-adapter: 7.1.0
       parse5-parser-stream: 7.1.2
-      undici: 7.22.0
+      undici: 7.24.0
       whatwg-mimetype: 4.0.0
 
   chokidar@3.6.0:
@@ -33952,9 +33948,7 @@ snapshots:
 
   undici@6.23.0: {}
 
-  undici@7.18.2: {}
-
-  undici@7.22.0: {}
+  undici@7.24.0: {}
 
   unicode-canonical-property-names-ecmascript@2.0.1: {}
 
