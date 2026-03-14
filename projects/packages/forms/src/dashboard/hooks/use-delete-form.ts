@@ -91,7 +91,7 @@ export default function useDeleteForm( {
 		[ invalidateResolution ]
 	);
 
-	const restoreItemsToPublish = useCallback(
+	const restoreItemsToDraft = useCallback(
 		async (
 			items: FormListItem[],
 			{
@@ -104,7 +104,7 @@ export default function useDeleteForm( {
 					saveEntityRecord(
 						'postType',
 						'jetpack_form',
-						{ id: item.id, status: 'publish' },
+						{ id: item.id, status: 'draft' },
 						{ throwOnError: true }
 					)
 				)
@@ -162,7 +162,7 @@ export default function useDeleteForm( {
 			let shouldNavigateToPreviousPage = false;
 
 			try {
-				const { restoredCount } = await restoreItemsToPublish( items, {
+				const { restoredCount } = await restoreItemsToDraft( items, {
 					successNoticeIdPrefix: 'restore-forms',
 					errorNoticeIdPrefix: 'restore-forms-error',
 				} );
@@ -194,7 +194,7 @@ export default function useDeleteForm( {
 			page,
 			perPage,
 			recordsLength,
-			restoreItemsToPublish,
+			restoreItemsToDraft,
 			search,
 			setView,
 			statusQuery,
@@ -212,7 +212,7 @@ export default function useDeleteForm( {
 			const currentQuerySnapshot = currentQuery;
 
 			try {
-				await restoreItemsToPublish( items, {
+				await restoreItemsToDraft( items, {
 					successNoticeIdPrefix: 'undo-trash-forms',
 					errorNoticeIdPrefix: 'undo-trash-forms-error',
 				} );
@@ -227,7 +227,7 @@ export default function useDeleteForm( {
 			invalidateFormStatusCounts,
 			invalidateListQueries,
 			isDeleting,
-			restoreItemsToPublish,
+			restoreItemsToDraft,
 		]
 	);
 
