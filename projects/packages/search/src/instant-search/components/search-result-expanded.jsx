@@ -13,7 +13,13 @@ import './search-result-expanded.scss';
  * @return {Element} - Expanded search result component.
  */
 export default function SearchResultExpanded( props ) {
-	const { isMultiSite, locale = 'en-US', showPostDate, overlayOptions = {} } = props;
+	const {
+		isMultiSite,
+		locale = 'en-US',
+		showPostDate,
+		enableFallbackImage,
+		fallbackImageUrl,
+	} = props;
 	const { result_type, fields, highlight } = props.result;
 
 	if ( result_type !== 'post' ) {
@@ -48,14 +54,16 @@ export default function SearchResultExpanded( props ) {
 				fields,
 				postType: fields.post_type,
 				postId: fields.post_id,
-				overlayOptions,
+				enableFallbackImage,
+				fallbackImageUrl,
 			}
 		);
 	}
 
 	// If no image and fallback is enabled, get fallback image
-	if ( ! firstImage && overlayOptions.enableFallbackImage && overlayOptions.fallbackImageUrl ) {
-		let fallbackImage = overlayOptions.fallbackImageUrl.replace( /^https?:\/\//, '' );
+	if ( ! firstImage && enableFallbackImage && fallbackImageUrl ) {
+		// Strip protocol to match format of image.url.raw from Elasticsearch (rendered as protocol-relative via `//${url}`)
+		let fallbackImage = fallbackImageUrl.replace( /^https?:\/\//, '' );
 
 		// Apply filters to the fallback image URL
 		if ( window.wp && window.wp.hooks ) {
@@ -66,7 +74,8 @@ export default function SearchResultExpanded( props ) {
 					fields,
 					postType: fields.post_type,
 					postId: fields.post_id,
-					overlayOptions,
+					enableFallbackImage,
+					fallbackImageUrl,
 				}
 			);
 		}
