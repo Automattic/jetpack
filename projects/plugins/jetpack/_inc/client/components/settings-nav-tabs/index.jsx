@@ -1,5 +1,6 @@
 import { isWoASite as _isWoASite } from '@automattic/jetpack-script-data';
 import { __, _x } from '@wordpress/i18n';
+import clsx from 'clsx';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { connect } from 'react-redux';
 import { NavLink, useLocation } from 'react-router';
@@ -19,18 +20,33 @@ import {
 } from 'state/modules';
 import { filterSearch, getSearchTerm } from 'state/search';
 
+// Map route paths to their translated tab labels.
+// Used both for rendering tabs and for the mobile dropdown header text.
+const TAB_LABELS = {
+	'/security': _x( 'Security', 'Navigation item.', 'jetpack' ),
+	'/performance': _x( 'Performance', 'Navigation item.', 'jetpack' ),
+	'/writing': _x( 'Writing', 'Navigation item.', 'jetpack' ),
+	'/sharing': _x( 'Sharing', 'Navigation item.', 'jetpack' ),
+	'/discussion': _x( 'Discussion', 'Navigation item.', 'jetpack' ),
+	'/traffic': _x( 'Traffic', 'Navigation item.', 'jetpack' ),
+	'/newsletter': _x( 'Newsletter', 'Navigation item.', 'jetpack' ),
+	'/reader': _x( 'Reader', 'Navigation item.', 'jetpack' ),
+	'/earn': _x( 'Monetize', 'Navigation item.', 'jetpack' ),
+};
+
 const Tab = ( { to, label, onClick, alsoActiveFor } ) => {
-	const location = useLocation();
-	const extraActive = alsoActiveFor ? alsoActiveFor.includes( location.pathname ) : false;
+	const { pathname } = useLocation();
+	const extraActive = alsoActiveFor?.includes( pathname );
 
 	return (
 		<NavLink
 			to={ to }
+			// NavLink's className API requires a function — not a bind issue.
 			// eslint-disable-next-line react/jsx-no-bind
 			className={ ( { isActive } ) =>
-				isActive || extraActive
-					? 'jp-settings-nav__tab jp-settings-nav__tab--active'
-					: 'jp-settings-nav__tab'
+				clsx( 'jp-settings-nav__tab', {
+					'jp-settings-nav__tab--active': isActive || extraActive,
+				} )
 			}
 			onClick={ onClick }
 		>
@@ -56,23 +72,7 @@ const SettingsNavTabs = props => {
 	const location = useLocation();
 	const [ mobileOpen, setMobileOpen ] = useState( false );
 
-	// Map route paths to their translated tab labels for the mobile header.
-	const tabLabels = useMemo(
-		() => ( {
-			'/security': _x( 'Security', 'Navigation item.', 'jetpack' ),
-			'/performance': _x( 'Performance', 'Navigation item.', 'jetpack' ),
-			'/writing': _x( 'Writing', 'Navigation item.', 'jetpack' ),
-			'/sharing': _x( 'Sharing', 'Navigation item.', 'jetpack' ),
-			'/discussion': _x( 'Discussion', 'Navigation item.', 'jetpack' ),
-			'/traffic': _x( 'Traffic', 'Navigation item.', 'jetpack' ),
-			'/newsletter': _x( 'Newsletter', 'Navigation item.', 'jetpack' ),
-			'/reader': _x( 'Reader', 'Navigation item.', 'jetpack' ),
-			'/earn': _x( 'Monetize', 'Navigation item.', 'jetpack' ),
-		} ),
-		[]
-	);
-
-	const selectedTabText = tabLabels[ location.pathname ] || __( 'Settings', 'jetpack' );
+	const selectedTabText = TAB_LABELS[ location.pathname ] || __( 'Settings', 'jetpack' );
 
 	// Close the mobile dropdown when navigating to a new tab.
 	useEffect( () => {
@@ -108,7 +108,7 @@ const SettingsNavTabs = props => {
 				{ hasSecurityFeature && (
 					<Tab
 						to="/security"
-						label={ _x( 'Security', 'Navigation item.', 'jetpack' ) }
+						label={ TAB_LABELS[ '/security' ] }
 						onClick={ () => trackNavClick( 'security' ) }
 						alsoActiveFor={ [ '/settings' ] }
 					/>
@@ -116,7 +116,7 @@ const SettingsNavTabs = props => {
 				{ hasPerformanceFeature && (
 					<Tab
 						to="/performance"
-						label={ _x( 'Performance', 'Navigation item.', 'jetpack' ) }
+						label={ TAB_LABELS[ '/performance' ] }
 						onClick={ () => trackNavClick( 'performance' ) }
 					/>
 				) }
@@ -124,21 +124,21 @@ const SettingsNavTabs = props => {
 					window.CUSTOM_CONTENT_TYPE__INITIAL_STATE?.active ) && (
 					<Tab
 						to="/writing"
-						label={ _x( 'Writing', 'Navigation item.', 'jetpack' ) }
+						label={ TAB_LABELS[ '/writing' ] }
 						onClick={ () => trackNavClick( 'writing' ) }
 					/>
 				) }
 				{ hasModules( [ 'publicize', 'sharedaddy', 'likes' ] ) && (
 					<Tab
 						to="/sharing"
-						label={ _x( 'Sharing', 'Navigation item.', 'jetpack' ) }
+						label={ TAB_LABELS[ '/sharing' ] }
 						onClick={ () => trackNavClick( 'sharing' ) }
 					/>
 				) }
 				{ hasModules( [ 'comments', 'gravatar-hovercards', 'markdown' ] ) && (
 					<Tab
 						to="/discussion"
-						label={ _x( 'Discussion', 'Navigation item.', 'jetpack' ) }
+						label={ TAB_LABELS[ '/discussion' ] }
 						onClick={ () => trackNavClick( 'discussion' ) }
 					/>
 				) }
@@ -152,28 +152,28 @@ const SettingsNavTabs = props => {
 				] ) && (
 					<Tab
 						to="/traffic"
-						label={ _x( 'Traffic', 'Navigation item.', 'jetpack' ) }
+						label={ TAB_LABELS[ '/traffic' ] }
 						onClick={ () => trackNavClick( 'traffic' ) }
 					/>
 				) }
 				{ hasModules( [ 'subscriptions' ] ) && (
 					<Tab
 						to="/newsletter"
-						label={ _x( 'Newsletter', 'Navigation item.', 'jetpack' ) }
+						label={ TAB_LABELS[ '/newsletter' ] }
 						onClick={ () => trackNavClick( 'newsletter' ) }
 					/>
 				) }
 				{ hasModules( [ 'wpcom-reader' ] ) && ! isWoASite && (
 					<Tab
 						to="/reader"
-						label={ _x( 'Reader', 'Navigation item.', 'jetpack' ) }
+						label={ TAB_LABELS[ '/reader' ] }
 						onClick={ () => trackNavClick( 'reader' ) }
 					/>
 				) }
 				{ hasModules( [ 'wordads' ] ) && (
 					<Tab
 						to="/earn"
-						label={ _x( 'Monetize', 'Navigation item.', 'jetpack' ) }
+						label={ TAB_LABELS[ '/earn' ] }
 						onClick={ () => trackNavClick( 'earn' ) }
 					/>
 				) }
@@ -189,14 +189,14 @@ const SettingsNavTabs = props => {
 					hasModules( [ 'post-by-email' ] ) && (
 						<Tab
 							to="/writing"
-							label={ _x( 'Writing', 'Navigation item.', 'jetpack' ) }
+							label={ TAB_LABELS[ '/writing' ] }
 							onClick={ () => trackNavClick( 'writing' ) }
 						/>
 					) }
 				{ isModuleActive( 'publicize' ) && userCanPublishPosts && hasModules( [ 'publicize' ] ) && (
 					<Tab
 						to="/sharing"
-						label={ _x( 'Sharing', 'Navigation item.', 'jetpack' ) }
+						label={ TAB_LABELS[ '/sharing' ] }
 						onClick={ () => trackNavClick( 'sharing' ) }
 						alsoActiveFor={ [ '/settings' ] }
 					/>
@@ -204,6 +204,7 @@ const SettingsNavTabs = props => {
 			</>
 		);
 	}
+	/* eslint-enable react/jsx-no-bind */
 
 	const searchFromUrl = useMemo(
 		() => new URLSearchParams( location.search ).get( 'term' ) || '',
@@ -216,19 +217,21 @@ const SettingsNavTabs = props => {
 		searchForTerm( searchFromUrl );
 	}, [ searchFromUrl, searchForTerm ] );
 
+	/* eslint-disable react/jsx-no-bind -- Trivial toggle callback. */
 	return (
-		<div className={ `jp-settings-nav ${ mobileOpen ? 'is-open' : '' }` }>
+		<div className={ clsx( 'jp-settings-nav', { 'is-open': mobileOpen } ) }>
 			<QuerySitePlugins />
 			<button
-				className={ `jp-settings-nav__mobile-header ${ mobileOpen ? 'is-open' : '' }` }
+				className={ clsx( 'jp-settings-nav__mobile-header', { 'is-open': mobileOpen } ) }
 				onClick={ () => setMobileOpen( ! mobileOpen ) }
 				aria-expanded={ mobileOpen }
 			>
 				<span>{ selectedTabText }</span>
 				<span
-					className={ `dashicons jp-settings-nav__mobile-chevron ${
-						mobileOpen ? 'dashicons-arrow-up-alt2' : 'dashicons-arrow-down-alt2'
-					}` }
+					className={ clsx( 'dashicons', 'jp-settings-nav__mobile-chevron', {
+						'dashicons-arrow-up-alt2': mobileOpen,
+						'dashicons-arrow-down-alt2': ! mobileOpen,
+					} ) }
 				/>
 			</button>
 			<nav
