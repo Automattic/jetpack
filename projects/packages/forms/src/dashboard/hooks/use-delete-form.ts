@@ -116,10 +116,15 @@ export default function useDeleteForm( {
 			if ( restoredCount ) {
 				const successMessage =
 					restoredCount === 1
-						? __( 'Form restored.', 'jetpack-forms' )
+						? __( 'Form restored as draft.', 'jetpack-forms' )
 						: sprintf(
 								/* translators: %d: number of forms. */
-								_n( '%d form restored.', '%d forms restored.', restoredCount, 'jetpack-forms' ),
+								_n(
+									'%d form restored as draft.',
+									'%d forms restored as draft.',
+									restoredCount,
+									'jetpack-forms'
+								),
 								restoredCount
 						  );
 
