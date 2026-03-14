@@ -307,6 +307,17 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			)
 		);
 
+		// Dismiss the classic forms notice.
+		register_rest_route(
+			$this->namespace,
+			$this->rest_base . '/dismiss-classic-forms-notice',
+			array(
+				'methods'             => \WP_REST_Server::CREATABLE,
+				'callback'            => array( $this, 'dismiss_classic_forms_notice' ),
+				'permission_callback' => array( $this, 'get_items_permissions_check' ),
+			)
+		);
+
 		// Get optimized status counts.
 		register_rest_route(
 			$this->namespace,
@@ -1537,6 +1548,17 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 				'count'     => Contact_Form_Plugin::get_unread_count(),
 			)
 		);
+	}
+
+	/**
+	 * Dismiss the classic forms notice by updating the option to 'dismissed'.
+	 *
+	 * @return WP_REST_Response
+	 */
+	public function dismiss_classic_forms_notice() {
+		update_option( Forms_Dashboard::CLASSIC_FORMS_OPTION, 'dismissed', false );
+
+		return rest_ensure_response( array( 'success' => true ) );
 	}
 
 	/**

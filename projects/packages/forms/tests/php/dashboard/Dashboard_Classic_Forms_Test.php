@@ -168,4 +168,28 @@ class Dashboard_Classic_Forms_Test extends BaseTestCase {
 
 		$this->assertEquals( 'classic', $state );
 	}
+
+	/**
+	 * Test that when option is 'dismissed', it returns 'dismissed' without querying.
+	 */
+	public function test_option_dismissed_returns_dismissed() {
+		update_option( self::OPTION_NAME, 'dismissed' );
+
+		$dashboard = new Dashboard();
+		$state     = $dashboard->get_classic_forms_state();
+
+		$this->assertEquals( 'dismissed', $state );
+	}
+
+	/**
+	 * Test that 'dismissed' state is not treated as 'classic' by the config endpoint.
+	 */
+	public function test_dismissed_state_is_not_classic() {
+		update_option( self::OPTION_NAME, 'dismissed' );
+
+		$dashboard = new Dashboard();
+		$state     = $dashboard->get_classic_forms_state();
+
+		$this->assertNotEquals( 'classic', $state );
+	}
 }
