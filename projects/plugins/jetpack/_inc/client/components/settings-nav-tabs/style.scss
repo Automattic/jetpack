@@ -27,11 +27,19 @@ $spacing-base: var(--spacing-base, 8px);
 	position: relative;
 	border-bottom: 1px solid gb.$gray-100;
 	padding-inline: calc(#{$spacing-base} * 3); // 24px — matches admin-ui header
+	background-color: #fff; // Match search component background; prevents beige bleed-through
 
-	// On small screens, stack tabs above the search icon and let tabs scroll.
 	@media (max-width: 660px) {
 		flex-wrap: wrap;
 		padding-inline: calc(#{$spacing-base} * 2); // tighter padding on mobile
+		border-bottom: none;
+		box-shadow: 0 0 0 1px gb.$gray-100, 0 1px 1px 1px rgba(0, 0, 0, 0.04);
+		margin: calc(#{$spacing-base} * 1.5) calc(#{$spacing-base} * 2);
+		border-radius: 2px;
+
+		&.is-open {
+			box-shadow: 0 0 0 1px gb.$gray-300, 0 2px 4px rgba(0, 0, 0, 0.1);
+		}
 	}
 
 	// The Search component uses position: absolute with fitsContainer, which
@@ -40,9 +48,61 @@ $spacing-base: var(--spacing-base, 8px);
 	.dops-search.is-expanded-to-container {
 		inset-inline-end: calc(#{$spacing-base} * 3);
 
+		@media (max-width: 660px) {
+			inset-inline-end: 0;
+		}
+
 		&.is-open {
 			inset-inline-start: calc(#{$spacing-base} * 3);
 			width: auto;
+
+			@media (max-width: 660px) {
+				// Slide over the entire dropdown box (header + tabs).
+				// Don't set inset-inline-start — keep the element right-anchored
+				// so the width transition creates a smooth leftward slide.
+				// (auto → 0 isn't animatable and would cause an instant snap.)
+				inset-inline-start: auto;
+				inset-block: 0;
+				z-index: 1;
+				background-color: #fff;
+				// Concrete value enables CSS width transition.
+				// (auto is not interpolatable, so it snaps instead of animating.)
+				width: 100%;
+				border-radius: 2px;
+			}
+		}
+	}
+}
+
+// Mobile dropdown header — hidden on desktop, visible at <=660px.
+.jp-settings-nav__mobile-header {
+	display: none;
+
+	@media (max-width: 660px) {
+		display: flex;
+		align-items: center;
+		width: 100%;
+		gap: calc(#{$spacing-base} / 2);
+		padding: calc(#{$spacing-base} * 1.5) 0;
+		background: none;
+		border: none;
+		cursor: pointer;
+		font-size: var(--font-body);
+		font-weight: 400;
+		color: var(--jp-black);
+		font-family: inherit;
+
+		&:focus,
+		&:focus-visible {
+			outline-color: gb.$gray-100;
+		}
+
+		.jp-settings-nav__mobile-chevron {
+			font-size: 16px;
+			width: 16px;
+			height: 16px;
+			flex-shrink: 0;
+			color: gb.$gray-700;
 		}
 	}
 }
@@ -58,6 +118,20 @@ $spacing-base: var(--spacing-base, 8px);
 	&::-webkit-scrollbar {
 		display: none; // Chrome, Safari, Edge
 	}
+
+	// On mobile, tabs are hidden by default and shown as a vertical dropdown.
+	@media (max-width: 660px) {
+		display: none;
+		flex-direction: column;
+		width: 100%;
+		overflow-x: visible;
+
+		.is-open > & {
+			display: flex;
+			border-top: 1px solid gb.$gray-100;
+			padding-top: calc(#{$spacing-base} / 2);
+		}
+	}
 }
 
 .jp-settings-nav__tab {
@@ -70,8 +144,9 @@ $spacing-base: var(--spacing-base, 8px);
 	white-space: nowrap;
 
 	@media (max-width: 660px) {
-		font-size: 13px;
-		margin-inline-end: calc(#{$spacing-base} * 2);
+		margin-inline-end: 0;
+		padding: calc(#{$spacing-base} * 1.5) calc(#{$spacing-base} * 2);
+		border-inline-start: 3px solid transparent;
 	}
 
 	&:last-child {
@@ -85,12 +160,18 @@ $spacing-base: var(--spacing-base, 8px);
 		opacity: 0.7;
 	}
 
+	&:focus,
 	&:focus-visible {
-		outline: 2px solid var(--jp-black);
-		outline-offset: -2px;
+		outline-color: gb.$gray-100;
 	}
 
 	&--active {
 		border-bottom: var(--jp-underline-thickness) solid var(--jp-black);
+
+		@media (max-width: 660px) {
+			border-bottom: none;
+			border-inline-start-color: var(--jp-black);
+			font-weight: 600;
+		}
 	}
 }

@@ -1,6 +1,6 @@
 import { isWoASite as _isWoASite } from '@automattic/jetpack-script-data';
 import { __, _x } from '@wordpress/i18n';
-import { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { connect } from 'react-redux';
 import { NavLink, useLocation } from 'react-router';
 import QuerySitePlugins from 'components/data/query-site-plugins';
@@ -54,6 +54,30 @@ const SettingsNavTabs = props => {
 	} = props;
 
 	const location = useLocation();
+	const [ mobileOpen, setMobileOpen ] = useState( false );
+
+	// Map route paths to their translated tab labels for the mobile header.
+	const tabLabels = useMemo(
+		() => ( {
+			'/security': _x( 'Security', 'Navigation item.', 'jetpack' ),
+			'/performance': _x( 'Performance', 'Navigation item.', 'jetpack' ),
+			'/writing': _x( 'Writing', 'Navigation item.', 'jetpack' ),
+			'/sharing': _x( 'Sharing', 'Navigation item.', 'jetpack' ),
+			'/discussion': _x( 'Discussion', 'Navigation item.', 'jetpack' ),
+			'/traffic': _x( 'Traffic', 'Navigation item.', 'jetpack' ),
+			'/newsletter': _x( 'Newsletter', 'Navigation item.', 'jetpack' ),
+			'/reader': _x( 'Reader', 'Navigation item.', 'jetpack' ),
+			'/earn': _x( 'Monetize', 'Navigation item.', 'jetpack' ),
+		} ),
+		[]
+	);
+
+	const selectedTabText = tabLabels[ location.pathname ] || __( 'Settings', 'jetpack' );
+
+	// Close the mobile dropdown when navigating to a new tab.
+	useEffect( () => {
+		setMobileOpen( false );
+	}, [ location.pathname ] );
 
 	const trackNavClick = target => {
 		analytics.tracks.recordJetpackClick( {
@@ -193,8 +217,20 @@ const SettingsNavTabs = props => {
 	}, [ searchFromUrl, searchForTerm ] );
 
 	return (
-		<div className="jp-settings-nav">
+		<div className={ `jp-settings-nav ${ mobileOpen ? 'is-open' : '' }` }>
 			<QuerySitePlugins />
+			<button
+				className={ `jp-settings-nav__mobile-header ${ mobileOpen ? 'is-open' : '' }` }
+				onClick={ () => setMobileOpen( ! mobileOpen ) }
+				aria-expanded={ mobileOpen }
+			>
+				<span>{ selectedTabText }</span>
+				<span
+					className={ `dashicons jp-settings-nav__mobile-chevron ${
+						mobileOpen ? 'dashicons-arrow-up-alt2' : 'dashicons-arrow-down-alt2'
+					}` }
+				/>
+			</button>
 			<nav
 				className="jp-settings-nav__tabs"
 				aria-label={ __( 'Jetpack settings sections', 'jetpack' ) }
