@@ -802,6 +802,7 @@ class Feedback {
 			'contact_form_subject' => $this->get_subject(),
 			'comment_author_ip'    => $this->get_ip_address(),
 			'comment_content'      => empty( $this->get_comment_content() ) ? null : $this->get_comment_content(),
+			'permalink'            => $this->get_entry_permalink(),
 		);
 
 		foreach ( $this->fields as $field ) {
