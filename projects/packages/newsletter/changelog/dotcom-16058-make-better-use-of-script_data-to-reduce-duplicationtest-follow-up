@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Use Status class methods for isSitePublic check (filterable and handles coming soon state)

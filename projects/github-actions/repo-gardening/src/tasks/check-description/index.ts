@@ -1,4 +1,3 @@
-import fs from 'fs';
 import path from 'path';
 import moment from 'moment';
 import debug from '../../utils/debug.ts';
@@ -9,6 +8,7 @@ import getNextValidMilestone from '../../utils/get-next-valid-milestone.ts';
 import getPluginNames from '../../utils/get-plugin-names.ts';
 import getPrWorkspace from '../../utils/get-pr-workspace.ts';
 import getLabels from '../../utils/labels/get-labels.ts';
+import { safeJsonParse, safeReadFileSync } from '../../utils/safe-read-file.ts';
 import type { OctokitClient, PullRequestEvent } from '../../types.ts';
 
 /**
@@ -252,7 +252,10 @@ async function getChangelogEntries(
 
 	return affectedProjects.reduce( ( acc: string[], project: string ) => {
 		const composerFile = `${ baseDir }/projects/${ project }/composer.json`;
-		const json = JSON.parse( fs.readFileSync( composerFile ).toString() );
+		const json = safeJsonParse( safeReadFileSync( composerFile, baseDir ), composerFile ) as Record<
+			string,
+			Record< string, Record< string, string > >
+		>;
 		// Changelog directory could be customized via .extra.changelogger.changes-dir in composer.json. Lets check for it.
 		const changelogDir =
 			path.relative(

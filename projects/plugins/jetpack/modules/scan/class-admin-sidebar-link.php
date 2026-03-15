@@ -115,7 +115,7 @@ class Admin_Sidebar_Link {
 	 */
 	private function get_link_offset() {
 		global $submenu;
-		$offset = 9;
+		$offset = 17;
 
 		if ( ! array_key_exists( 'jetpack', $submenu ) ) {
 			return $offset;

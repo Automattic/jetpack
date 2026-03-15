@@ -86,7 +86,7 @@ const createMockConnection = ( overrides: Partial< Connection > = {} ): Connecti
 	profile_link: 'https://example.com/test',
 	profile_picture: 'https://example.com/pic.jpg',
 	service_label: 'Test Service',
-	service_name: 'test',
+	service_name: 'tumblr',
 	shared: false,
 	status: 'ok',
 	wpcom_user_id: 1,

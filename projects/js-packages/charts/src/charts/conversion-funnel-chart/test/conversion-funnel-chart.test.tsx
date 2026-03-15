@@ -372,7 +372,7 @@ describe( 'ConversionFunnelChart', () => {
 			expect( customRenderMainMetric ).toHaveBeenCalledWith( {
 				mainRate: 10.3,
 				changeIndicator: undefined,
-				className: undefined,
+				className: 'main-metric',
 				changeColor: expect.any( String ),
 			} );
 		} );
@@ -427,7 +427,7 @@ describe( 'ConversionFunnelChart', () => {
 				index: 1,
 				top: expect.any( Number ),
 				left: expect.any( Number ),
-				className: undefined,
+				className: 'tooltip-wrapper',
 			} );
 		} );
 

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Improves flagging of PRs that need doc updates.

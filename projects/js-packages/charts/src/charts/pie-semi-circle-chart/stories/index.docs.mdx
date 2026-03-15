@@ -133,28 +133,86 @@ Adjust the visual weight of the chart using the `thickness` prop:
 	/>` }
 />
 
-## Responsive Behavior
+## Error Handling
 
-By default, charts **fill their parent container's dimensions** while maintaining a 2:1 width-to-height aspect ratio. The parent must have an explicit height:
+### Data Validation
 
-<Canvas of={ PieSemiCircleChartStories.Default } />
+The chart includes comprehensive data validation with user-friendly error messages:
+
+<Canvas of={ PieSemiCircleChartStories.ErrorStates } />
+
+**Validation Rules:**
+- Data array cannot be empty
+- Values and percentages must be non-negative
+- Total percentage must be greater than 0 (unlike full pie charts, doesn't need to equal 100)
+
+**Error States Handled:**
+- **Empty Data**: Displays "No data available"
+- **Negative Values**: Shows "Invalid data: Negative values are not allowed"
+- **Zero Total**: Displays "Invalid percentage total: Must be greater than 0"
+
+### Single Data Point
+
+The chart gracefully handles single data points, rendering a complete semi-circle:
 
 <Source
 	language="jsx"
-	code={ `// Fill parent container (default) - parent needs explicit height
-	<div style={{ width: '100%', height: '400px' }}>
-		<PieSemiCircleChart data={ data } />
-	</div>
+	code={ `const singlePointData = [
+		{
+			label: 'Complete',
+			value: 100,
+			percentage: 100,
+		},
+	];
 
-	// Fixed dimensions - chart constrains to 2:1 ratio within these bounds
-	<PieSemiCircleChart data={ data } width={ 600 } height={ 300 } />` }
+	<PieSemiCircleChart
+		data={ singlePointData }
+		width={ 400 }
+		label="Single Category"
+	/>` }
 />
 
-The chart always maintains a 2:1 width-to-height ratio. When both `width` and `height` are provided, the chart constrains to whichever dimension is more restrictive. Use `width` and/or `height` to constrain the chart to specific pixel dimensions.
+## Legend Integration
 
-<Canvas of={ PieSemiCircleChartStories.FixedDimensions } />
+### Legend Positioning
 
-For more details on responsive behavior, see the [Responsive Design section](./?path=/docs/js-packages-charts-library-introduction--docs#responsive-design) in the introduction.
+Control legend placement using alignment properties:
+
+<Source
+	language="jsx"
+	code={ `// Legend at top-right
+	<PieSemiCircleChart
+		data={ data }
+		showLegend={ true }
+		legend={{
+			alignment: 'end',
+			position: 'top',
+		}}
+	/>
+
+	// Vertical legend on the right
+	<PieSemiCircleChart
+		data={ data }
+		showLegend={ true }
+		legend={{
+			orientation: 'vertical',
+			alignment: 'end',
+		}}
+	/>` }
+/>
+
+### Legend Shape Options
+
+Customize legend indicators with different shapes:
+
+<Source
+	language="jsx"
+	code={ `<PieSemiCircleChart
+	data={ data }
+	showLegend={ true }
+	legend={{ shape: 'rect' }} // Options: 'rect', 'circle', 'line'
+/>` }
+/>
 
 ## Styling and Customization
 
@@ -220,6 +278,29 @@ Pie Semi Circle Charts integrate seamlessly with the chart theming system. The d
 	</GlobalChartsProvider>` }
 />
 
+## Responsive Behavior
+
+By default, charts **fill their parent container's dimensions** while maintaining a 2:1 width-to-height aspect ratio. The parent must have an explicit height:
+
+<Canvas of={ PieSemiCircleChartStories.Default } />
+
+<Source
+	language="jsx"
+	code={ `// Fill parent container (default) - parent needs explicit height
+	<div style={{ width: '100%', height: '400px' }}>
+		<PieSemiCircleChart data={ data } />
+	</div>
+
+	// Fixed dimensions - chart constrains to 2:1 ratio within these bounds
+	<PieSemiCircleChart data={ data } width={ 600 } height={ 300 } />` }
+/>
+
+The chart always maintains a 2:1 width-to-height ratio. When both `width` and `height` are provided, the chart constrains to whichever dimension is more restrictive. Use `width` and/or `height` to constrain the chart to specific pixel dimensions.
+
+<Canvas of={ PieSemiCircleChartStories.FixedDimensions } />
+
+For more details on responsive behavior, see the [Responsive Design section](./?path=/docs/js-packages-charts-library-introduction--docs#responsive-design) in the introduction.
+
 ## Animation
 
 The Pie Semi Circle Chart component supports an optional entry animation that creates a smooth reveal effect when the chart first renders:
@@ -244,83 +325,6 @@ The Pie Semi Circle Chart component supports an optional entry animation that cr
 - **Duration**: 1000ms (1 second)
 
 **Note**: The animation plays once when the chart initially renders and does not repeat.
-
-## Legend Integration
-
-### Legend Positioning
-
-Control legend placement using alignment properties:
-
-<Source
-	language="jsx"
-	code={ `// Legend at top-right
-	<PieSemiCircleChart
-		data={ data }
-		showLegend={ true }
-		legendAlignment="end"
-		legendPosition="top"
-	/>
-
-	// Vertical legend on the right
-	<PieSemiCircleChart
-		data={ data }
-		showLegend={ true }
-		legendOrientation="vertical"
-		legendAlignment="end"
-	/>` }
-/>
-
-### Legend Shape Options
-
-Customize legend indicators with different shapes:
-
-<Source
-	language="jsx"
-	code={ `<PieSemiCircleChart
-	data={ data }
-	showLegend={ true }
-	legendShape="rect" // Options: 'rect', 'circle', 'line'
-/>` }
-/>
-
-## Error Handling
-
-### Data Validation
-
-The chart includes comprehensive data validation with user-friendly error messages:
-
-<Canvas of={ PieSemiCircleChartStories.ErrorStates } />
-
-**Validation Rules:**
-- Data array cannot be empty
-- Values and percentages must be non-negative
-- Total percentage must be greater than 0 (unlike full pie charts, doesn't need to equal 100)
-
-**Error States Handled:**
-- **Empty Data**: Displays "No data available"
-- **Negative Values**: Shows "Invalid data: Negative values are not allowed"
-- **Zero Total**: Displays "Invalid percentage total: Must be greater than 0"
-
-### Single Data Point
-
-The chart gracefully handles single data points, rendering a complete semi-circle:
-
-<Source
-	language="jsx"
-	code={ `const singlePointData = [
-		{
-			label: 'Complete',
-			value: 100,
-			percentage: 100,
-		},
-	];
-
-	<PieSemiCircleChart
-		data={ singlePointData }
-		width={ 400 }
-		label="Single Category"
-	/>` }
-/>
 
 ## Advanced Features
 

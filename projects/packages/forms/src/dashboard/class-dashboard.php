@@ -247,6 +247,8 @@ class Dashboard {
 				),
 				'/wp/v2/jetpack-forms'
 			);
+			$preload_paths[] = '/wp/v2/jetpack-forms/status-counts';
+			$preload_paths[] = add_query_arg( array( '_locale' => 'user' ), '/wp/v2/jetpack-forms/status-counts' );
 		}
 		$preload_data_raw = array_reduce( $preload_paths, 'rest_preload_api_request', array() );
 

@@ -35,6 +35,10 @@ setup(
 	'verify environment readiness',
 	{ tag: [ getCIProjectNameTestTag() ] },
 	async ( { baseURL, request } ) => {
+		if ( ! baseURL ) {
+			throw new Error( 'baseURL is not configured' );
+		}
+
 		// Skip connectivity checks for localhost URLs
 		if ( baseURL.includes( 'localhost' ) || baseURL.includes( '127.0.0.1' ) ) {
 			await setup.step( 'skip - localhost environment', async () => {

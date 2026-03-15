@@ -40,7 +40,7 @@ const Verbum = ( { siteId, parentForm }: VerbumAppProps ) => {
 	const [ showMessage, setShowMessage ] = useState( '' );
 	const [ isErrorMessage, setIsErrorMessage ] = useState( false );
 
-	const commentTextarea = useRef< HTMLTextAreaElement >();
+	const commentTextarea = useRef< HTMLTextAreaElement >( null );
 	const [ email, setEmail ] = useState( '' );
 	const [ ignoreSubscriptionModal, setIgnoreSubscriptionModal ] = useState( false );
 	const { login, loginWindowRef, logout } = useSocialLogin();
@@ -113,7 +113,7 @@ const Verbum = ( { siteId, parentForm }: VerbumAppProps ) => {
 		}
 	};
 
-	const handleSubscriptionModal = async event => {
+	const handleSubscriptionModal = async ( event: Event ) => {
 		event.preventDefault();
 		setShowMessage( '' );
 
@@ -125,9 +125,9 @@ const Verbum = ( { siteId, parentForm }: VerbumAppProps ) => {
 			setEmail( formData.get( 'email' ) as string );
 		}
 
-		formData.set( 'verbum_show_subscription_modal', subscribeModalStatus.value );
+		formData.set( 'verbum_show_subscription_modal', subscribeModalStatus.value ?? '' );
 
-		const response = await fetch( formAction, {
+		const response = await fetch( formAction!, {
 			method: 'POST',
 			body: formData,
 		} );
@@ -159,7 +159,7 @@ const Verbum = ( { siteId, parentForm }: VerbumAppProps ) => {
 		submitFormFunction.call( parentForm );
 	};
 
-	const handleCommentSubmit = async event => {
+	const handleCommentSubmit = async ( event: Event ) => {
 		window.removeEventListener( 'beforeunload', handleBeforeUnload );
 		if ( userInfo.value?.service === 'guest' ) {
 			if ( shouldStoreEmailData.value ) {
@@ -191,7 +191,7 @@ const Verbum = ( { siteId, parentForm }: VerbumAppProps ) => {
 	};
 
 	const handleTrayToggle = () => {
-		commentTextarea.current.focus();
+		commentTextarea.current?.focus();
 
 		if ( isTrayOpen.value && ! subscriptionTraySeen && userLoggedIn.value ) {
 			setSubscriptionTraySeen();
@@ -224,12 +224,12 @@ const Verbum = ( { siteId, parentForm }: VerbumAppProps ) => {
 				} ) }
 			>
 				{ userLoggedIn.value ? (
-					<LoggedIn siteId={ siteId } toggleTray={ handleTrayToggle } logout={ logout } />
+					<LoggedIn siteId={ siteId } toggleTray={ handleTrayToggle } logout={ logout! } />
 				) : (
 					<LoggedOut
-						login={ login }
+						login={ login! }
 						canWeAccessCookies={ canWeAccessCookies() }
-						loginWindow={ loginWindowRef }
+						loginWindow={ loginWindowRef ?? null }
 					/>
 				) }
 			</div>

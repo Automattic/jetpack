@@ -5,6 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.31.9] - 2026-03-09
+### Changed
+- Migrate admin page header to use unified AdminHeader component. [#47313]
+- Newsletter: Update manage URL to redirect to new settings page when wp-admin newsletter settings are enabled. [#47347]
+- Reorder admin menu items so external links appear last. [#47417]
+- Switch to Native TypeScript compiler based on Go. [#47375]
+- Unified Header: Add back border to the header. [#47425]
+- Update package dependencies. [#47496]
+
+### Fixed
+- Fix Hello Dolly banner z-index to prevent overlap on the My Jetpack page. [#47313]
+- Fix TS errors detected by tsgo. [#47409]
+
+## [5.31.8] - 2026-03-02
+### Fixed
+- Fix JS tests following the change in `useConnection`. [#47380]
+
+## [5.31.7] - 2026-02-26
+### Changed
+- Update package dependencies. [#47285] [#47300] [#47309]
+
 ## [5.31.6] - 2026-02-23
 ### Changed
 - Move `wpcom-reader` module from Other to Growth category in My Jetpack tab panel. [#47245]
@@ -2543,6 +2564,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[5.31.9]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.31.8...5.31.9
+[5.31.8]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.31.7...5.31.8
+[5.31.7]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.31.6...5.31.7
 [5.31.6]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.31.5...5.31.6
 [5.31.5]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.31.4...5.31.5
 [5.31.4]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.31.3...5.31.4

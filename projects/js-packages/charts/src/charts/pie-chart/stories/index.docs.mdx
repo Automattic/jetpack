@@ -127,33 +127,6 @@ Enable interactive tooltips that display data information on hover:
 	/>` }
 />
 
-### Responsive Behavior
-
-By default, charts **fill their parent container's dimensions**. The parent must have an explicit height:
-
-<Source
-	language="jsx"
-	code={ `// Fill parent container (default) - parent needs explicit height
-	<div style={{ width: '100%', height: '400px' }}>
-		<PieChart data={data} />
-	</div>
-
-	// Fixed dimensions
-	<PieChart data={data} width={400} height={400} />` }
-/>
-
-Use the `size` prop to constrain the maximum pie diameter. The pie will shrink if the container is smaller, but won't grow beyond this value:
-
-<Canvas of={ PieChartStories.WithSize } />
-
-<Source
-	language="jsx"
-	code={ `// Constrained pie diameter (container still fills parent)
-<PieChart data={data} size={200} />` }
-/>
-
-For more details on responsive behavior, see the [Responsive Design section](./?path=/docs/js-packages-charts-library-introduction--docs#responsive-design) in the introduction.
-
 ### Data Validation and Error Handling
 
 The component includes built-in data validation with helpful error states:
@@ -167,6 +140,8 @@ The chart validates:
 - **Negative values**: Prevents invalid negative values
 - **Single data points**: Handles edge cases gracefully
 
+## Legends
+
 ### Legend Positioning
 
 Control legend alignment and positioning:
@@ -179,8 +154,10 @@ Control legend alignment and positioning:
 		size={ 400 }
 		data={ data }
 		showLegend={ true }
-		legendAlignment="end"
-		legendPosition="top"
+		legend={{
+			alignment: 'end',
+			position: 'top',
+		}}
 	/>` }
 />
 
@@ -194,9 +171,11 @@ Use vertical orientation for space-efficient legend placement:
 		size={ 400 }
 		data={ data }
 		showLegend={ true }
-		legendOrientation="vertical"
-		legendAlignment="end"
-		legendPosition="top"
+		legend={{
+			orientation: 'vertical',
+			alignment: 'end',
+			position: 'top',
+		}}
 	/>` }
 />
 
@@ -301,6 +280,33 @@ Pie Charts integrate seamlessly with the chart theming system. The default theme
 		<PieChart data={data} />
 	</GlobalChartsProvider>` }
 />
+
+## Responsive Behavior
+
+By default, charts **fill their parent container's dimensions**. The parent must have an explicit height:
+
+<Source
+	language="jsx"
+	code={ `// Fill parent container (default) - parent needs explicit height
+	<div style={{ width: '100%', height: '400px' }}>
+		<PieChart data={data} />
+	</div>
+
+	// Fixed dimensions
+	<PieChart data={data} width={400} height={400} />` }
+/>
+
+Use the `size` prop to constrain the maximum pie diameter. The pie will shrink if the container is smaller, but won't grow beyond this value:
+
+<Canvas of={ PieChartStories.WithSize } />
+
+<Source
+	language="jsx"
+	code={ `// Constrained pie diameter (container still fills parent)
+<PieChart data={data} size={200} />` }
+/>
+
+For more details on responsive behavior, see the [Responsive Design section](./?path=/docs/js-packages-charts-library-introduction--docs#responsive-design) in the introduction.
 
 ## Animation
 

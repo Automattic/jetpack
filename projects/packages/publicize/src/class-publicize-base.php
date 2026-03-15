@@ -371,6 +371,8 @@ abstract class Publicize_Base {
 				return 'Google Drive';
 			case 'instagram-business':
 				return 'Instagram';
+			case 'x':
+				return 'X';
 			case 'twitter':
 			case 'facebook':
 			case 'tumblr':
@@ -531,6 +533,10 @@ abstract class Publicize_Base {
 			return 'https://twitter.com/' . substr( $cmeta['external_display'], 1 ); // Has a leading '@'.
 		}
 
+		if ( 'x' === $service_name && isset( $cmeta['external_name'] ) ) {
+			return 'https://x.com/' . $cmeta['external_name'];
+		}
+
 		if ( 'bluesky' === $service_name ) {
 			return 'https://bsky.app/profile/' . $cmeta['external_id'];
 		}
@@ -600,6 +606,7 @@ abstract class Publicize_Base {
 			case 'mastodon':
 				return $cmeta['external_display'] ?? null;
 
+			case 'x':
 			case 'bluesky':
 			case 'threads':
 				return $cmeta['external_name'] ?? null;
@@ -1480,11 +1487,6 @@ abstract class Publicize_Base {
 
 		$labels = array();
 		foreach ( $services as $service_name => $display_names ) {
-			// Twitter connections do not trigger Publicize anymore. Skip.
-			if ( 'Twitter' === $service_name ) {
-				continue;
-			}
-
 			$labels[] = sprintf(
 				/* translators: Service name is %1$s, and account name is %2$s. */
 				esc_html__( '%1$s (%2$s)', 'jetpack-publicize-pkg' ),

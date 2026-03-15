@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+AdminPage: Add breadcrumbs prop passthrough to admin-ui Page component.

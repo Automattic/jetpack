@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Tooltip: prevent flash at origin before visx calculates correct position.
