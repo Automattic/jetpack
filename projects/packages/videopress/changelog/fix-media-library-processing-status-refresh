@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Automatically refresh VideoPress video thumbnails in the Media Library grid after transcoding completes, instead of requiring a page reload.

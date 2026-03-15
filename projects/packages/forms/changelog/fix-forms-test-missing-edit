@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Extract WidgetEditorReadonlyView into its own component to scope useBlockEditingMode to widget editor context only

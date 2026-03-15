@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Forms: Fix admin page header CSS specificity to prevent style conflicts.

@@ -180,7 +180,7 @@ const InteractiveLegendComponent = () => (
 		height={ 300 }
 		withGradientFill={ false }
 		withLegendGlyph={ false }
-		legendInteractive={ true }
+		legend={ { interactive: true } }
 	/>
 );
 export const InteractiveLegend: Story = {
@@ -326,7 +326,9 @@ export const AlignmentOptions: Story = {
 export const TextOverflow: Story = {
 	render: args => {
 		// eslint-disable-next-line @typescript-eslint/no-unused-vars
-		const { themeName, maxWidth, ...restProps } = args;
+		const { themeName, accentColor, ...legendProps } = args;
+		const maxWidth = args.labelStyles?.maxWidth;
+		const textOverflow = args.labelStyles?.textOverflow;
 		const containerStyle =
 			args.orientation === 'horizontal'
 				? { width: '600px', border: '1px solid #ddd', padding: '20px' }
@@ -334,14 +336,14 @@ export const TextOverflow: Story = {
 
 		const titleText = maxWidth
 			? `Legend with ${
-					args.textOverflow === 'ellipsis' ? 'Ellipsis' : 'Text Wrapping'
+					textOverflow === 'ellipsis' ? 'Ellipsis' : 'Text Wrapping'
 			  } (maxWidth: ${ maxWidth })`
 			: 'Legend without maxWidth constraint';
 
 		return (
 			<div style={ containerStyle }>
 				<h4 style={ { marginBottom: '10px' } }>{ titleText }</h4>
-				<Legend { ...restProps } maxWidth={ maxWidth } />
+				<Legend { ...legendProps } />
 			</div>
 		);
 	},
@@ -361,8 +363,7 @@ export const TextOverflow: Story = {
 			{ label: 'Medium Length Label Text', value: '25%', color: '#FFC107' },
 		],
 		orientation: 'horizontal',
-		maxWidth: 150,
-		textOverflow: 'wrap',
+		labelStyles: { maxWidth: '150px', textOverflow: 'wrap' },
 		position: 'bottom',
 		alignment: 'center',
 	},
@@ -371,12 +372,8 @@ export const TextOverflow: Story = {
 			control: { type: 'radio' },
 			options: [ 'horizontal', 'vertical' ],
 		},
-		maxWidth: {
-			control: { type: 'range', min: 0, max: 300, step: 10 },
-		},
-		textOverflow: {
-			control: { type: 'radio' },
-			options: [ 'wrap', 'ellipsis' ],
+		labelStyles: {
+			control: 'object',
 		},
 		position: {
 			control: { type: 'radio' },

@@ -10,6 +10,7 @@ import { store as coreStore } from '@wordpress/core-data';
 import { useDispatch, useRegistry, useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { useEffect, useState } from '@wordpress/element';
+import { decodeEntities } from '@wordpress/html-entities';
 import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
 import clsx from 'clsx';
@@ -85,15 +86,46 @@ export default function VariationPicker( { blockName, setAttributes, clientId, c
 		} );
 	};
 
+	const hasExistingForms = jetpackForms && jetpackForms.length > 0;
+
+	const showFormPicker =
+		! isEditingJetpackFormPost && isCentralFormManagementEnabled && hasExistingForms;
+
+	const getInstructions = () => {
+		// Each translated string is assigned to a variable to prevent the minifier
+		// from collapsing them into a single __() call with a ternary argument,
+		// which breaks the i18n string literal requirement.
+		if ( isCentralFormManagementEnabled && showFormPicker ) {
+			const msg = __(
+				'Start by selecting one of these templates or select an existing form below.',
+				'jetpack-forms'
+			);
+			return msg;
+		}
+		if ( isCentralFormManagementEnabled ) {
+			const msg = __( 'Start by selecting one of these templates.', 'jetpack-forms' );
+			return msg;
+		}
+		if ( hasExistingForms ) {
+			const msg = __(
+				'Start by selecting one of these templates, browse patterns, or select an existing form below.',
+				'jetpack-forms'
+			);
+			return msg;
+		}
+		const msg = __(
+			'Start by selecting one of these templates or browse patterns.',
+			'jetpack-forms'
+		);
+		return msg;
+	};
+
 	return (
 		<div className={ clsx( classNames, 'is-placeholder' ) }>
 			<BlockVariationPicker
 				icon={ blockType?.icon?.src }
 				label={ blockType?.title }
-				instructions={ __(
-					'Start by selecting one of these templates, browse patterns, or select an existing form below.',
-					'jetpack-forms'
-				) }
+				instructions={ getInstructions() }
 				variations={ variations.filter( v => ! v.hiddenFromPicker ) }
 				onSelect={ async ( nextVariation = defaultVariation ) => {
 					// If we're editing a jetpack-form post directly, or central form management
@@ -163,16 +195,18 @@ export default function VariationPicker( { blockName, setAttributes, clientId, c
 					}
 				} }
 			/>
-			<div className="form-placeholder__shell">
-				<Button
-					__next40pxDefaultSize
-					variant="secondary"
-					onClick={ () => setIsPatternsModalOpen( true ) }
-				>
-					{ __( 'Browse form patterns', 'jetpack-forms' ) }
-				</Button>
-			</div>
-			{ ! isEditingJetpackFormPost && isCentralFormManagementEnabled && jetpackForms.length > 0 && (
+			{ ! isCentralFormManagementEnabled && (
+				<div className="form-placeholder__shell">
+					<Button
+						__next40pxDefaultSize
+						variant="secondary"
+						onClick={ () => setIsPatternsModalOpen( true ) }
+					>
+						{ __( 'Browse form patterns', 'jetpack-forms' ) }
+					</Button>
+				</div>
+			) }
+			{ showFormPicker && (
 				<div className="form-placeholder__shell">
 					<SelectControl
 						__next40pxDefaultSize
@@ -180,7 +214,9 @@ export default function VariationPicker( { blockName, setAttributes, clientId, c
 						options={ [
 							{ label: __( 'Select a form…', 'jetpack-forms' ), value: '' },
 							...jetpackForms.map( form => ( {
-								label: form.title?.rendered || __( '(Untitled)', 'jetpack-forms' ),
+								label:
+									decodeEntities( form.title?.rendered || '' ) ||
+									__( '(Untitled)', 'jetpack-forms' ),
 								value: form.id.toString(),
 							} ) ),
 						] }

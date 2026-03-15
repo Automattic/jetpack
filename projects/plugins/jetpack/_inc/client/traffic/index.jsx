@@ -48,6 +48,7 @@ export class Traffic extends Component {
 		}
 
 		const foundSeo = this.props.isModuleFound( 'seo-tools' ),
+			foundCanonicalUrls = this.props.isModuleFound( 'canonical-urls' ),
 			foundStats = this.props.isModuleFound( 'stats' ),
 			foundShortlinks = this.props.isModuleFound( 'shortlinks' ),
 			foundRelated = this.props.isModuleFound( 'related-posts' ),
@@ -58,6 +59,7 @@ export class Traffic extends Component {
 
 		if (
 			! foundSeo &&
+			! foundCanonicalUrls &&
 			! foundStats &&
 			! foundShortlinks &&
 			! foundRelated &&
@@ -82,7 +84,7 @@ export class Traffic extends Component {
 						  ) }
 				</h2>
 				{ foundRelated && <RelatedPosts { ...commonProps } /> }
-				{ foundSeo && (
+				{ ( foundSeo || foundCanonicalUrls ) && (
 					<SEO
 						{ ...commonProps }
 						configureUrl={ getRedirectUrl( 'calypso-marketing-traffic', {

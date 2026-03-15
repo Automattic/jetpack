@@ -16,7 +16,7 @@ import {
 	useGlobalChartsTheme,
 } from '../../providers';
 import { formatMetricValue, attachSubComponents } from '../../utils';
-import { useChartChildren } from '../private/chart-composition';
+import { useChartChildren, renderLegendSlot } from '../private/chart-composition';
 import { SingleChartContext } from '../private/single-chart-context';
 import { withResponsive } from '../private/with-responsive';
 import { useLeaderboardLegendItems } from './hooks';
@@ -110,32 +110,26 @@ const BarWithLabel = ( {
  * LeaderboardChart component displays a ranked list of data with progress bars
  * and optional comparison values.
  *
- * @param props                   - Component props
- * @param props.data              - Array of leaderboard entries to display
- * @param props.chartId           - Optional unique identifier for the chart
- * @param props.width             - Optional width of the chart container in pixels
- * @param props.height            - Optional height of the chart container in pixels
- * @param props.withComparison    - Whether to show comparison data
- * @param props.withOverlayLabel  - Whether to overlay the label on top of the bar
- * @param props.primaryColor      - Primary color for current period bars
- * @param props.secondaryColor    - Secondary color for comparison period bars
- * @param props.valueFormatter    - Custom formatter for values
- * @param props.deltaFormatter    - Custom formatter for delta values
- * @param props.loading           - Whether the chart is in loading state
- * @param props.animation         - Whether the chart should animate on load
- * @param props.showLegend        - Whether to show legend
- * @param props.legendOrientation - Legend orientation
- * @param props.legendPosition    - Legend position
- * @param props.legendAlignment   - Legend alignment
- * @param props.legendShape       - Legend shape
- * @param props.legendShapeWidth  - Width of legend shapes in pixels
- * @param props.legendShapeHeight - Height of legend shapes in pixels
- * @param props.legendLabels      - Custom labels for legend items
- * @param props.legendInteractive - Whether legend items are interactive (clickable to toggle series visibility)
- * @param props.gap               - Spacing between legend and chart content
- * @param props.children          - Child components for composition API
- * @param props.className         - Additional CSS class name
- * @param props.style             - Custom styling for the chart container
+ * @param props                  - Component props
+ * @param props.data             - Array of leaderboard entries to display
+ * @param props.chartId          - Optional unique identifier for the chart
+ * @param props.width            - Optional width of the chart container in pixels
+ * @param props.height           - Optional height of the chart container in pixels
+ * @param props.withComparison   - Whether to show comparison data
+ * @param props.withOverlayLabel - Whether to overlay the label on top of the bar
+ * @param props.primaryColor     - Primary color for current period bars
+ * @param props.secondaryColor   - Secondary color for comparison period bars
+ * @param props.valueFormatter   - Custom formatter for values
+ * @param props.deltaFormatter   - Custom formatter for delta values
+ * @param props.loading          - Whether the chart is in loading state
+ * @param props.animation        - Whether the chart should animate on load
+ * @param props.showLegend       - Whether to show legend
+ * @param props.legend           - Legend configuration (orientation, position, alignment, shape, shapeStyles, interactive)
+ * @param props.legendLabels     - Custom labels for legend items
+ * @param props.gap              - Spacing between legend and chart content
+ * @param props.children         - Child components for composition API
+ * @param props.className        - Additional CSS class name
+ * @param props.style            - Custom styling for the chart container
  * @return JSX element representing the leaderboard chart
  */
 const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
@@ -152,24 +146,22 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 	animation,
 	loading = false,
 	showLegend = false,
-	legendOrientation = 'horizontal',
-	legendPosition = 'bottom',
-	legendAlignment = 'center',
-	legendShape = 'circle',
-	legendShapeWidth = 8,
-	legendShapeHeight = 8,
+	legend = {},
 	legendLabels,
-	legendInteractive = false,
 	gap = 'md',
 	className,
 	style,
 	children,
 } ) => {
+	const legendInteractive = legend.interactive ?? false;
+	const legendPosition = legend.position ?? 'bottom';
+
 	const chartId = useChartId( providedChartId );
 	const { leaderboardChart: leaderboardChartSettings } = useGlobalChartsTheme();
+	const legendShapeStyles = { width: 8, height: 8, ...legend.shapeStyles };
 
 	// Process children to extract compound components
-	const { otherChildren } = useChartChildren( children, 'LeaderboardChart' );
+	const { legendChildren, nonLegendChildren } = useChartChildren( children, 'LeaderboardChart' );
 	const {
 		labelSpacing,
 		rowGap,
@@ -282,8 +274,8 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 							? __( 'Loading…', 'jetpack-charts' )
 							: __( 'No data available', 'jetpack-charts' ) }
 					</div>
-					{ /* Render children from composition API */ }
-					{ otherChildren }
+
+					{ nonLegendChildren }
 				</Stack>
 			</SingleChartContext.Provider>
 		);
@@ -291,12 +283,14 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 
 	const legendElement = showLegend && (
 		<Legend
-			orientation={ legendOrientation }
+			orientation={ legend.orientation ?? 'horizontal' }
 			position={ legendPosition }
-			alignment={ legendAlignment }
-			shape={ legendShape }
-			shapeWidth={ legendShapeWidth }
-			shapeHeight={ legendShapeHeight }
+			alignment={ legend.alignment ?? 'center' }
+			labelStyles={ legend.labelStyles }
+			itemClassName={ legend.itemClassName }
+			itemStyles={ legend.itemStyles }
+			shape={ legend.shape ?? 'circle' }
+			shapeStyles={ legendShapeStyles }
 			chartId={ chartId }
 			interactive={ legendInteractive }
 		/>
@@ -329,6 +323,7 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 				} }
 			>
 				{ legendPosition === 'top' && legendElement }
+				{ renderLegendSlot( legendChildren, 'top' ) }
 
 				<div className={ styles.leaderboardChart__content }>
 					{ allSeriesHidden ? (
@@ -379,9 +374,9 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 				</div>
 
 				{ legendPosition === 'bottom' && legendElement }
+				{ renderLegendSlot( legendChildren, 'bottom' ) }
 
-				{ /* Render children from composition API */ }
-				{ otherChildren }
+				{ nonLegendChildren }
 			</Stack>
 		</SingleChartContext.Provider>
 	);

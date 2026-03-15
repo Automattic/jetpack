@@ -184,16 +184,20 @@ Control legend placement using alignment properties:
 	<PieSemiCircleChart
 		data={ data }
 		showLegend={ true }
-		legendAlignment="end"
-		legendPosition="top"
+		legend={{
+			alignment: 'end',
+			position: 'top',
+		}}
 	/>
 
 	// Vertical legend on the right
 	<PieSemiCircleChart
 		data={ data }
 		showLegend={ true }
-		legendOrientation="vertical"
-		legendAlignment="end"
+		legend={{
+			orientation: 'vertical',
+			alignment: 'end',
+		}}
 	/>` }
 />
 
@@ -206,7 +210,7 @@ Customize legend indicators with different shapes:
 	code={ `<PieSemiCircleChart
 	data={ data }
 	showLegend={ true }
-	legendShape="rect" // Options: 'rect', 'circle', 'line'
+	legend={{ shape: 'rect' }} // Options: 'rect', 'circle', 'line'
 />` }
 />
 

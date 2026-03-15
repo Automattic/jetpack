@@ -15,10 +15,6 @@ import { store as noticesStore } from '@wordpress/notices';
 import { store as dashboardStore } from '../store/index';
 import useInboxData from './use-inbox-data';
 
-type CoreStore = typeof coreStore & {
-	invalidateResolution: ( selector: string, args: unknown[] ) => void;
-};
-
 type UseEmptySpamReturn = {
 	isConfirmDialogOpen: boolean;
 	openConfirmDialog: () => void;
@@ -46,13 +42,15 @@ export default function useEmptySpam( {
 	const [ isEmptying, setIsEmptying ] = useState( false );
 	const [ isEmpty, setIsEmpty ] = useState( true );
 	const { createSuccessNotice, createErrorNotice } = useDispatch( noticesStore );
-	const { invalidateResolution } = useDispatch( coreStore ) as unknown as CoreStore;
+	const { invalidateResolutionForStoreSelector } = useDispatch( coreStore ) as unknown as {
+		invalidateResolutionForStoreSelector: ( selector: string ) => void;
+	};
 	const { invalidateCounts } = useDispatch( dashboardStore );
 
 	// Use props if provided, otherwise use hook
 	const hookData = useInboxData();
 	const totalItemsSpam = totalItemsSpamProp ?? hookData.totalItemsSpam ?? 0;
-	const { selectedResponsesCount, currentQuery } = hookData;
+	const { selectedResponsesCount } = hookData;
 
 	useEffect( () => {
 		setIsEmpty( ! totalItemsSpam );
@@ -101,26 +99,19 @@ export default function useEmptySpam( {
 			} )
 			.finally( () => {
 				setIsEmptying( false );
-				// invalidate items list
-				invalidateResolution( 'getEntityRecords', [ 'postType', 'feedback', currentQuery ] );
-				// invalidate total items value
-				invalidateResolution( 'getEntityRecords', [
-					'postType',
-					'feedback',
-					{ ...currentQuery, per_page: 1, _fields: 'id' },
-				] );
 				// invalidate counts to refresh the counts across all status tabs
 				invalidateCounts();
+				// invalidate all entity record resolutions (feedback items, forms list entries_count, etc.)
+				invalidateResolutionForStoreSelector( 'getEntityRecords' );
 			} );
 	}, [
 		closeConfirmDialog,
 		createErrorNotice,
 		createSuccessNotice,
-		invalidateResolution,
+		invalidateResolutionForStoreSelector,
 		invalidateCounts,
 		isEmpty,
 		isEmptying,
-		currentQuery,
 	] );
 
 	return {

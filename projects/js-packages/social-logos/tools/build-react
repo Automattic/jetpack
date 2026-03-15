@@ -16,7 +16,7 @@ cd "$root_dir"
 mkdir -p "$dest_react_dir"
 
 # Build files using TypeScript.
-pnpm tsc
+pnpm tsgo
 
 # Copy example CSS.
 if [[ ! -d "$dest_css_dir" ]]; then

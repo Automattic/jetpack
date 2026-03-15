@@ -11,7 +11,10 @@ import {
 	setConnectedAccountDefaultCurrency,
 	setNewsletterCategories,
 	setNewsletterCategoriesSubscriptionsCount,
+	setPostEmailSentState,
 	setTotalEmailsSentCount,
+	setAlreadySentPostModifiedInSession,
+	setPublishedWithEmailEnabledInSession,
 } from '../actions';
 import * as utils from '../utils';
 
@@ -341,5 +344,41 @@ describe( 'Membership Products Actions', () => {
 		const result = setTotalEmailsSentCount( ANY_VALID_DATA );
 
 		expect( result ).toStrictEqual( anyValidTotalEmailsSentCountWithType );
+	} );
+
+	test( 'setPostEmailSentState works as expected with postId and payload', () => {
+		const postId = 42;
+		const payload = {
+			email_sent_at: 1234567890,
+			stats_on_send: { access_level: 'subscribers' },
+		};
+
+		const result = setPostEmailSentState( postId, payload );
+
+		expect( result ).toStrictEqual( {
+			type: 'SET_POST_EMAIL_SENT_STATE',
+			postId,
+			payload,
+		} );
+	} );
+
+	test( 'setAlreadySentPostModifiedInSession works as expected', () => {
+		const postId = 42;
+		const result = setAlreadySentPostModifiedInSession( postId );
+
+		expect( result ).toStrictEqual( {
+			type: 'SET_ALREADY_SENT_POST_MODIFIED_IN_SESSION',
+			postId,
+		} );
+	} );
+
+	test( 'setPublishedWithEmailEnabledInSession works as expected', () => {
+		const postId = 42;
+		const result = setPublishedWithEmailEnabledInSession( postId );
+
+		expect( result ).toStrictEqual( {
+			type: 'SET_PUBLISHED_WITH_EMAIL_ENABLED_IN_SESSION',
+			postId,
+		} );
 	} );
 } );

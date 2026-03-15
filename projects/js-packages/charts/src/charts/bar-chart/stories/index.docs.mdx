@@ -78,7 +78,7 @@ The simplest bar chart requires only a `data` prop with categorical data:
 
 **Legend:**
 - **`showLegend`**: Display chart legend (`false` by default)
-- **`legendInteractive`**: Enable interactive legend with series toggle (`false` by default, requires `chartId`)
+- **`legend`**: Legend configuration object (`ChartLegendConfig`) for controlling orientation, position, alignment, shape, interactivity, and styling
 
 **Advanced:**
 - **`options`**: Advanced axis and scale configuration
@@ -310,10 +310,12 @@ Display series information with automatic color and pattern matching:
 	code={ `<BarChart
 		data={data}
 		showLegend={true}
-		legendOrientation="horizontal"
-		legendAlignment="center"
-		legendPosition="bottom"
-		legendShape="rect"
+		legend={{
+			orientation: 'horizontal',
+			alignment: 'center',
+			position: 'bottom',
+			shape: 'rect',
+		}}
 	/>` }
 />
 
@@ -328,9 +330,11 @@ Display legends vertically for charts with many series:
 	code={ `<BarChart
 		data={data}
 		showLegend={true}
-		legendOrientation="vertical"
-		legendAlignment="start"
-		legendPosition="top"
+		legend={{
+			orientation: 'vertical',
+			alignment: 'start',
+			position: 'top',
+		}}
 	/>` }
 />
 
@@ -367,15 +371,17 @@ For more flexible legend positioning and future extensibility, use the compositi
 	language="jsx"
 	code={ `// Composition API (recommended for new code)
 	<BarChart data={data}>
-		<BarChart.Legend legendOrientation="vertical" alignment="end" />
+		<BarChart.Legend orientation="vertical" alignment="end" />
 	</BarChart>
 
 	// Traditional prop-based approach (still supported)
 	<BarChart
 		data={data}
 		showLegend={true}
-		legendOrientation="vertical"
-		legendAlignment="end"
+		legend={{
+			orientation: 'vertical',
+			alignment: 'end',
+		}}
 	/>` }
 />
 
@@ -394,7 +400,7 @@ Enable interactive legend items that users can click to toggle series visibility
 			data={data}
 			chartId="my-chart"
 			showLegend={true}
-			legendInteractive={true}
+			legend={{ interactive: true }}
 		/>
 	</GlobalChartsProvider>` }
 />
@@ -407,7 +413,7 @@ Enable interactive legend items that users can click to toggle series visibility
 - **State management**: Visibility state is managed through the global charts provider
 
 **Requirements:**
-- Set `legendInteractive={true}` to enable the feature
+- Set `legend={{ interactive: true }}` to enable the feature
 - Provide a unique `chartId` prop for state tracking
 - Wrap the chart in a `<GlobalChartsProvider>` component
 

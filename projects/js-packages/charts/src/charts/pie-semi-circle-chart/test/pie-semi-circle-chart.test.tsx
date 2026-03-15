@@ -29,10 +29,10 @@ const mockData = [
 ];
 
 // Helper function to render component with providers
-const renderPieChart = props =>
+const renderPieChart = ( props, children = undefined ) =>
 	render(
 		<GlobalChartsProvider>
-			<PieSemiCircleChart { ...props } />
+			<PieSemiCircleChart { ...props }>{ children }</PieSemiCircleChart>
 		</GlobalChartsProvider>
 	);
 
@@ -256,6 +256,34 @@ describe( 'PieSemiCircleChart', () => {
 		} );
 	} );
 
+	describe( 'Composition Legend', () => {
+		test( 'renders composition legend as child component', () => {
+			renderPieChart( { data: mockData }, <PieSemiCircleChart.Legend /> );
+
+			expect( screen.getAllByTestId( 'legend-item' ) ).toHaveLength( 2 );
+			expect( screen.getByText( 'Category A' ) ).toBeInTheDocument();
+			expect( screen.getByText( 'Category B' ) ).toBeInTheDocument();
+		} );
+
+		test( 'renders composition legend regardless of showLegend value', () => {
+			renderPieChart( { data: mockData, showLegend: false }, <PieSemiCircleChart.Legend /> );
+
+			expect( screen.getAllByTestId( 'legend-item' ) ).toHaveLength( 2 );
+		} );
+
+		test( 'renders composition legend in top position', () => {
+			renderPieChart( { data: mockData }, <PieSemiCircleChart.Legend position="top" /> );
+
+			expect( screen.getAllByTestId( 'legend-item' ) ).toHaveLength( 2 );
+
+			// Legend should appear before the chart SVG in DOM order
+			const html = document.body.innerHTML;
+			expect( html.indexOf( 'data-testid="legend-horizontal"' ) ).toBeLessThan(
+				html.indexOf( 'data-testid="pie-chart-svg"' )
+			);
+		} );
+	} );
+
 	describe( 'Interactive Legend', () => {
 		test( 'filters segments when interactive legend is enabled and segment is toggled', async () => {
 			const user = userEvent.setup();
@@ -267,7 +295,7 @@ describe( 'PieSemiCircleChart', () => {
 			renderPieChart( {
 				data: testData,
 				showLegend: true,
-				legendInteractive: true,
+				legend: { interactive: true },
 				chartId: 'test-interactive-semi-circle-chart',
 			} );
 
@@ -299,7 +327,7 @@ describe( 'PieSemiCircleChart', () => {
 			renderPieChart( {
 				data: testData,
 				showLegend: true,
-				legendInteractive: true,
+				legend: { interactive: true },
 				chartId: 'test-all-hidden-semi-circle-chart',
 			} );
 
@@ -326,7 +354,7 @@ describe( 'PieSemiCircleChart', () => {
 			renderPieChart( {
 				data: testData,
 				showLegend: true,
-				legendInteractive: false,
+				legend: { interactive: false },
 				chartId: 'test-non-interactive-semi-circle-chart',
 			} );
 

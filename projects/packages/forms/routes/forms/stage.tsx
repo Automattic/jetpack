@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { formatNumber } from '@automattic/number-formatters';
 import { Page } from '@wordpress/admin-ui';
 import {
 	__experimentalConfirmDialog as ConfirmDialog, // eslint-disable-line @wordpress/no-unsafe-wp-apis
@@ -23,11 +24,16 @@ import * as React from 'react';
 import IntegrationsModal from '../../src/blocks/contact-form/components/jetpack-integrations-modal';
 import { FORM_POST_TYPE } from '../../src/blocks/shared/util/constants.js';
 import CreateFormButton from '../../src/dashboard/components/create-form-button/index.tsx';
-import { EmptyWrapper } from '../../src/dashboard/components/empty-responses/index.tsx';
+import { EmptyWrapper, NoResults } from '../../src/dashboard/components/empty-responses/index.tsx';
 import { FormNameModal } from '../../src/dashboard/components/form-name-modal';
-import { NON_TRASH_FORM_STATUSES, getFormStatusLabel } from '../../src/dashboard/constants';
+import {
+	FORM_STATUSES,
+	NON_TRASH_FORM_STATUSES,
+	getFormStatusLabel,
+} from '../../src/dashboard/constants';
 import useDeleteForm from '../../src/dashboard/hooks/use-delete-form.ts';
-import useFormsData from '../../src/dashboard/hooks/use-forms-data.ts';
+import useFormStatusCounts from '../../src/dashboard/hooks/use-form-status-counts.ts';
+import useFormsData, { getFormsListQuery } from '../../src/dashboard/hooks/use-forms-data.ts';
 import WpRouteDashboardSearchParamsProvider from '../../src/dashboard/router/wp-route-dashboard-search-params-provider.tsx';
 import DataViewsHeaderRow from '../../src/dashboard/wp-build/components/dataviews-header-row';
 import FormsHelpModal from '../../src/dashboard/wp-build/components/forms-help-modal';
@@ -112,17 +118,36 @@ function StageInner() {
 		return statusFilterValue === 'trash';
 	}, [ view.filters ] );
 
-	// Stable (non-trash) managed forms count, independent of the current DataViews search/filter state.
-	const { totalItems: totalNonTrashForms } = useFormsData( 1, 1, '', NON_TRASH_FORM_STATUSES );
+	const hasResponsesQuery = useMemo( () => {
+		const entriesFilterValue = view.filters?.find( filter => filter.field === 'entries' )?.value;
+		if ( entriesFilterValue === 'has_responses' ) {
+			return 'true';
+		}
+		if ( entriesFilterValue === 'no_responses' ) {
+			return 'false';
+		}
+		return undefined;
+	}, [ view.filters ] );
+
+	const statusCounts = useFormStatusCounts();
 
 	const { records, isLoading, totalItems, totalPages } = useFormsData(
 		view.page ?? 1,
 		view.perPage ?? 20,
 		view.search ?? '',
-		statusQuery
+		statusQuery,
+		hasResponsesQuery
 	);
 
-	const { duplicateForm, previewForm, copyEmbed, copyShortcode } = useFormItemActions();
+	const {
+		duplicateForm,
+		previewForm,
+		copyEmbed,
+		copyShortcode,
+		publishForms,
+		setFormsToDraft,
+		isUpdatingStatus,
+	} = useFormItemActions();
 
 	const {
 		isDeleting,
@@ -242,8 +267,14 @@ function StageInner() {
 			{
 				id: 'entries',
 				label: __( 'Responses', 'jetpack-forms' ),
-				type: 'integer',
-				getValue: ( { item }: { item: FormListItem } ) => item.entriesCount ?? 0,
+				getValue: ( { item }: { item: FormListItem } ) =>
+					( item.entriesCount ?? 0 ) > 0 ? 'has_responses' : 'no_responses',
+				render: ( { item }: { item: FormListItem } ) => formatNumber( item.entriesCount ?? 0 ),
+				elements: [
+					{ label: __( 'Has responses', 'jetpack-forms' ), value: 'has_responses' },
+					{ label: __( 'No responses', 'jetpack-forms' ), value: 'no_responses' },
+				],
+				filterBy: { operators: [ 'is' ] as Operator[] },
 				enableSorting: false,
 			},
 			{
@@ -253,15 +284,15 @@ function StageInner() {
 				render: ( { item }: { item: FormListItem } ) => (
 					<Badge intent="draft">{ getFormStatusLabel( item.status ) }</Badge>
 				),
-				elements: [
-					{ label: __( 'All', 'jetpack-forms' ), value: 'all' },
-					{ label: __( 'Published', 'jetpack-forms' ), value: 'publish' },
-					{ label: __( 'Draft', 'jetpack-forms' ), value: 'draft' },
-					{ label: __( 'Pending review', 'jetpack-forms' ), value: 'pending' },
-					{ label: __( 'Scheduled', 'jetpack-forms' ), value: 'future' },
-					{ label: __( 'Private', 'jetpack-forms' ), value: 'private' },
-					{ label: __( 'Trash', 'jetpack-forms' ), value: 'trash' },
-				],
+				elements: FORM_STATUSES.map( value => ( {
+					value,
+					label: sprintf(
+						/* translators: 1: status name, 2: form count */
+						__( '%1$s (%2$s)', 'jetpack-forms' ),
+						getFormStatusLabel( value ),
+						formatNumber( statusCounts[ value ] )
+					),
+				} ) ),
 				filterBy: { operators: [ 'is' ] as Operator[], isPrimary: true },
 				enableSorting: false,
 			},
@@ -272,9 +303,10 @@ function StageInner() {
 				render: ( { item }: { item: FormListItem } ) =>
 					dateI18n( dateSettings.formats.datetime, item.modified ),
 				enableSorting: false,
+				filterBy: false,
 			},
 		],
-		[ dateSettings.formats.datetime ]
+		[ dateSettings.formats.datetime, statusCounts ]
 	);
 
 	const openSingleFormView = useCallback(
@@ -354,19 +386,6 @@ function StageInner() {
 		} );
 
 		actionsList.push( {
-			id: 'duplicate-form',
-			isPrimary: false,
-			label: __( 'Duplicate', 'jetpack-forms' ),
-			supportsBulk: false,
-			async callback( items: FormListItem[] ) {
-				const [ item ] = items;
-				if ( item ) {
-					await duplicateForm( item );
-				}
-			},
-		} );
-
-		actionsList.push( {
 			id: 'preview-form',
 			isPrimary: false,
 			label: __( 'Preview', 'jetpack-forms' ),
@@ -406,6 +425,58 @@ function StageInner() {
 				},
 			} );
 		}
+		const currentListQuery = getFormsListQuery(
+			view.page ?? 1,
+			view.perPage ?? 20,
+			view.search ?? '',
+			statusQuery
+		) as Record< string, unknown >;
+		const statusUpdateOptions = { invalidateQueries: [ currentListQuery ] };
+
+		actionsList.push( {
+			id: 'publish-form',
+			isPrimary: false,
+			label: __( 'Publish', 'jetpack-forms' ),
+			isEligible: ( item: FormListItem ) => item.status !== 'publish',
+			supportsBulk: true,
+			async callback( items: FormListItem[] ) {
+				if ( isDeleting || isUpdatingStatus ) {
+					return;
+				}
+				const eligibleItems = ( items || [] ).filter( item => item.status !== 'publish' );
+				if ( ! eligibleItems.length ) {
+					return;
+				}
+				try {
+					await publishForms( eligibleItems, statusUpdateOptions );
+				} finally {
+					setSelection( [] );
+				}
+			},
+		} );
+
+		actionsList.push( {
+			id: 'unpublish-form',
+			isPrimary: false,
+			label: __( 'Unpublish', 'jetpack-forms' ),
+			isEligible: ( item: FormListItem ) => item.status === 'publish',
+			supportsBulk: true,
+			async callback( items: FormListItem[] ) {
+				if ( isDeleting || isUpdatingStatus ) {
+					return;
+				}
+				const eligibleItems = ( items || [] ).filter( item => item.status === 'publish' );
+				if ( ! eligibleItems.length ) {
+					return;
+				}
+				try {
+					await setFormsToDraft( eligibleItems, statusUpdateOptions );
+				} finally {
+					setSelection( [] );
+				}
+			},
+		} );
+
 		actionsList.push( {
 			id: 'rename-form',
 			isPrimary: false,
@@ -417,6 +488,19 @@ function StageInner() {
 					return;
 				}
 				openRenameModal( item );
+			},
+		} );
+
+		actionsList.push( {
+			id: 'duplicate-form',
+			isPrimary: false,
+			label: __( 'Duplicate', 'jetpack-forms' ),
+			supportsBulk: false,
+			async callback( items: FormListItem[] ) {
+				const [ item ] = items;
+				if ( item ) {
+					await duplicateForm( item );
+				}
 			},
 		} );
 
@@ -443,13 +527,20 @@ function StageInner() {
 		copyShortcode,
 		duplicateForm,
 		isDeleting,
+		isUpdatingStatus,
 		isViewingTrash,
 		onOpenPermanentDeleteConfirm,
 		openRenameModal,
 		openSingleFormView,
+		publishForms,
 		previewForm,
 		restoreForms,
+		setFormsToDraft,
+		statusQuery,
 		trashForms,
+		view.page,
+		view.perPage,
+		view.search,
 	] );
 
 	const paginationInfo = useMemo(
@@ -491,17 +582,23 @@ function StageInner() {
 	}, [] );
 
 	const {
+		title,
+		ariaLabel,
 		breadcrumbs,
 		subtitle,
 		actions: headerActions,
 	} = usePageHeaderDetails( {
 		screen: 'forms',
-		formsCount: totalNonTrashForms ?? 0,
+		formsCount: statusCounts.all,
 		isIntegrationsEnabled: !! isIntegrationsEnabled,
 		showDashboardIntegrations: !! showDashboardIntegrations,
 		onOpenIntegrations: openIntegrationsModal,
 		onOpenFormsHelp: openFormsHelpModal,
 	} );
+	const statusFilterValue = view.filters?.find( filter => filter.field === 'status' )?.value;
+	const hasActiveFilters =
+		!! view.search?.trim() || ( !! statusFilterValue && statusFilterValue !== 'all' );
+
 	const getItemId = useCallback( ( item: FormListItem ) => String( item.id ), [] );
 	const onClickItem = useCallback(
 		( item: FormListItem ) => {
@@ -514,6 +611,8 @@ function StageInner() {
 		<Page
 			showSidebarToggle={ false }
 			breadcrumbs={ breadcrumbs }
+			title={ title }
+			ariaLabel={ ariaLabel }
 			subTitle={ subtitle }
 			actions={ headerActions }
 			hasPadding={ false }
@@ -525,25 +624,29 @@ function StageInner() {
 				data={ records || [] }
 				isLoading={ isLoading }
 				empty={
-					<EmptyWrapper
-						heading={ __( "You're set up. No forms yet.", 'jetpack-forms' ) }
-						body={ __(
-							'Create a shared form pattern to manage and reuse it across your site.',
-							'jetpack-forms'
-						) }
-						actions={
-							<HStack justify="center" spacing="2">
-								<CreateFormButton
-									label={ __( 'Create a new form', 'jetpack-forms' ) }
-									variant="primary"
-									showIcon={ false }
-								/>
-								<Button size="compact" variant="secondary" onClick={ openFormsHelpModal }>
-									{ __( 'Missing forms?', 'jetpack-forms' ) }
-								</Button>
-							</HStack>
-						}
-					/>
+					hasActiveFilters ? (
+						<NoResults />
+					) : (
+						<EmptyWrapper
+							heading={ __( "You're set up. No forms yet.", 'jetpack-forms' ) }
+							body={ __(
+								'Create a shared form pattern to manage and reuse it across your site.',
+								'jetpack-forms'
+							) }
+							actions={
+								<HStack justify="center" spacing="2">
+									<CreateFormButton
+										label={ __( 'Create a new form', 'jetpack-forms' ) }
+										variant="primary"
+										showIcon={ false }
+									/>
+									<Button size="compact" variant="secondary" onClick={ openFormsHelpModal }>
+										{ __( 'Missing forms?', 'jetpack-forms' ) }
+									</Button>
+								</HStack>
+							}
+						/>
+					)
 				}
 				view={ view }
 				onChangeView={ onChangeView }

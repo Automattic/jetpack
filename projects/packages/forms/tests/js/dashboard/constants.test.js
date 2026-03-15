@@ -1,7 +1,32 @@
-import { getFormStatusLabel } from '../../../src/dashboard/constants';
+import {
+	FORM_STATUSES,
+	NON_TRASH_FORM_STATUSES,
+	getFormStatusLabel,
+} from '../../../src/dashboard/constants';
+
+describe( 'FORM_STATUSES', () => {
+	it( 'contains all expected statuses in order', () => {
+		expect( FORM_STATUSES ).toEqual( [
+			'all',
+			'publish',
+			'draft',
+			'pending',
+			'future',
+			'private',
+			'trash',
+		] );
+	} );
+} );
+
+describe( 'NON_TRASH_FORM_STATUSES', () => {
+	it( 'is a comma-separated string excluding "all" and "trash"', () => {
+		expect( NON_TRASH_FORM_STATUSES ).toBe( 'publish,draft,pending,future,private' );
+	} );
+} );
 
 describe( 'getFormStatusLabel', () => {
 	it.each( [
+		[ 'all', 'All' ],
 		[ 'publish', 'Published' ],
 		[ 'draft', 'Draft' ],
 		[ 'pending', 'Pending review' ],

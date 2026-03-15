@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [1.1.1] - 2026-03-09
+### Changed
+- Switch to Native TypeScript compiler based on Go. [#47375]
+
 ## [1.1.0] - 2026-02-23
 ### Added
 - `getCurrencyObject`: Add `floatValue` property to currency object. [#47203]
@@ -109,6 +113,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Initial release
 - Basic number formatting functionality
 
+[1.1.1]: https://github.com/Automattic/number-formatters/compare/1.1.0...1.1.1
 [1.1.0]: https://github.com/Automattic/number-formatters/compare/1.0.18...1.1.0
 [1.0.18]: https://github.com/Automattic/number-formatters/compare/1.0.17...1.0.18
 [1.0.17]: https://github.com/Automattic/number-formatters/compare/1.0.16...1.0.17
