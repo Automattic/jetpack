@@ -213,6 +213,17 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 
 	const blockProps = useBlockProps();
 
+	// Pre-extract translated strings used in ternaries to avoid
+	// i18n-check-webpack-plugin errors when the minifier collapses branches.
+	const labelConnect = __( 'Connect', 'jetpack-paypal-payments' );
+	const labelConnecting = __( 'Connecting\u2026', 'jetpack-paypal-payments' );
+	const labelHide = __( 'Hide', 'jetpack-paypal-payments' );
+	const labelShow = __( 'Show', 'jetpack-paypal-payments' );
+	const labelHideSecret = __( 'Hide client secret', 'jetpack-paypal-payments' );
+	const labelShowSecret = __( 'Show client secret', 'jetpack-paypal-payments' );
+	const labelEditHeading = __( 'Edit PayPal Button or Link', 'jetpack-paypal-payments' );
+	const labelCreateHeading = __( 'Create PayPal Button or Link', 'jetpack-paypal-payments' );
+
 	// Connection state.
 	const [ isConnected, setIsConnected ] = useState( false );
 	const [ environment, setEnvironment ] = useState( 'production' );
@@ -847,15 +858,9 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 									variant="tertiary"
 									className="jetpack-paypal-wizard__toggle-secret"
 									onClick={ () => setShowSecretField( ! showSecretField ) }
-									aria-label={
-										showSecretField
-											? __( 'Hide client secret', 'jetpack-paypal-payments' )
-											: __( 'Show client secret', 'jetpack-paypal-payments' )
-									}
+									aria-label={ showSecretField ? labelHideSecret : labelShowSecret }
 								>
-									{ showSecretField
-										? __( 'Hide', 'jetpack-paypal-payments' )
-										: __( 'Show', 'jetpack-paypal-payments' ) }
+									{ showSecretField ? labelHide : labelShow }
 								</Button>
 							</div>
 
@@ -866,9 +871,7 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 									isBusy={ isConnecting }
 									disabled={ isConnecting || ! clientId || ! clientSecret }
 								>
-									{ isConnecting
-										? __( 'Connecting…', 'jetpack-paypal-payments' )
-										: __( 'Connect', 'jetpack-paypal-payments' ) }
+									{ isConnecting ? labelConnecting : labelConnect }
 								</Button>
 								<Button
 									variant="tertiary"
@@ -1067,11 +1070,7 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 					) }
 				</div>
 
-				<h3>
-					{ hasButton
-						? __( 'Edit PayPal Button or Link', 'jetpack-paypal-payments' )
-						: __( 'Create PayPal Button or Link', 'jetpack-paypal-payments' ) }
-				</h3>
+				<h3>{ hasButton ? labelEditHeading : labelCreateHeading }</h3>
 				{ ! hasButton && (
 					<p className="jetpack-paypal-payment-buttons__form-intro">
 						{ __(

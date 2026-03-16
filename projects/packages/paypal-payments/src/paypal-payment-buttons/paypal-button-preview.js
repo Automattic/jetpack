@@ -118,6 +118,9 @@ function formatPrice( priceValue, currencyCode ) {
 function CopyablePaymentLink( { paymentLink } ) {
 	const [ copied, setCopied ] = useState( false );
 
+	const copiedLabel = __( 'Copied!', 'jetpack-paypal-payments' );
+	const copyLabel = __( 'Copy', 'jetpack-paypal-payments' );
+
 	const handleCopy = () => {
 		if ( navigator.clipboard ) {
 			navigator.clipboard.writeText( paymentLink ).then( () => {
@@ -139,9 +142,7 @@ function CopyablePaymentLink( { paymentLink } ) {
 				onClick={ handleCopy }
 				aria-label={ __( 'Copy payment link to clipboard', 'jetpack-paypal-payments' ) }
 			>
-				{ copied
-					? __( 'Copied!', 'jetpack-paypal-payments' )
-					: __( 'Copy', 'jetpack-paypal-payments' ) }
+				{ copied ? copiedLabel : copyLabel }
 			</button>
 		</div>
 	);
