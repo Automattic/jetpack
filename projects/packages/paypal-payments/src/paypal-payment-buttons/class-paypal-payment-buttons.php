@@ -216,6 +216,7 @@ class PayPal_Payment_Buttons {
 		}
 
 		self::register_hooks();
+		self::enqueue_qr_script();
 
 		// Append BN code for revenue attribution tracking.
 		$action_url = esc_url(
@@ -285,6 +286,13 @@ class PayPal_Payment_Buttons {
 			%8$s
 		</div>
 		<p class="jetpack-paypal-button__attribution">%9$s</p>
+		<div class="jetpack-paypal-button__qr-section">
+			<button type="button" class="jetpack-paypal-button__qr-toggle" data-show-label="%11$s" data-hide-label="%12$s" aria-expanded="false">%11$s</button>
+			<div class="jetpack-paypal-button__qr-wrapper" style="display:none;">
+				<canvas class="jetpack-paypal-button__qr-canvas"></canvas>
+				<button type="button" class="jetpack-paypal-button__qr-download">%13$s</button>
+			</div>
+		</div>
 	</div>
 </div>',
 			esc_html( $product_name ),
@@ -296,7 +304,10 @@ class PayPal_Payment_Buttons {
 			esc_html( $button_text ),
 			$debit_button_html,
 			esc_html__( 'Powered by PayPal', 'jetpack-paypal-payments' ),
-			$image_html
+			$image_html,
+			esc_attr__( 'Show QR Code', 'jetpack-paypal-payments' ),
+			esc_attr__( 'Hide QR Code', 'jetpack-paypal-payments' ),
+			esc_html__( 'Download QR Code', 'jetpack-paypal-payments' )
 		);
 	}
 
@@ -453,6 +464,34 @@ class PayPal_Payment_Buttons {
 	 */
 	public static function register_hooks() {
 		add_filter( 'safe_style_css', array( __CLASS__, 'add_style_display' ) );
+	}
+
+	/**
+	 * Enqueue the QR code frontend script on pages containing the block.
+	 *
+	 * Called from render_api_managed_button() so the script is only loaded
+	 * when a PayPal payment button is actually present on the page.
+	 *
+	 * @since 0.9.0
+	 * @return void
+	 */
+	private static function enqueue_qr_script() {
+		static $enqueued = false;
+		if ( $enqueued ) {
+			return;
+		}
+		$enqueued = true;
+
+		Assets::register_script(
+			'jetpack-paypal-qr-code',
+			'../../dist/paypal-payment-buttons/qr-code.js',
+			__FILE__,
+			array(
+				'in_footer'  => true,
+				'textdomain' => 'jetpack-paypal-payments',
+				'enqueue'    => true,
+			)
+		);
 	}
 
 	/**
