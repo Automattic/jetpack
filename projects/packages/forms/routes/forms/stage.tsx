@@ -35,6 +35,7 @@ import useDeleteForm from '../../src/dashboard/hooks/use-delete-form.ts';
 import useFormStatusCounts from '../../src/dashboard/hooks/use-form-status-counts.ts';
 import useFormsData, { getFormsListQuery } from '../../src/dashboard/hooks/use-forms-data.ts';
 import WpRouteDashboardSearchParamsProvider from '../../src/dashboard/router/wp-route-dashboard-search-params-provider.tsx';
+import { getFormEditUrl } from '../../src/dashboard/utils.ts';
 import DataViewsHeaderRow from '../../src/dashboard/wp-build/components/dataviews-header-row';
 import FormsHelpModal from '../../src/dashboard/wp-build/components/forms-help-modal';
 import useFormItemActions from '../../src/dashboard/wp-build/hooks/use-form-item-actions';
@@ -86,6 +87,7 @@ function StageInner() {
 		[]
 	);
 	const { refreshIntegrations } = useDispatch( INTEGRATIONS_STORE );
+	const adminUrl = ( useConfigValue( 'adminUrl' ) as string ) || '';
 	const isIntegrationsEnabled = useConfigValue( 'isIntegrationsEnabled' );
 	const showDashboardIntegrations = useConfigValue( 'showDashboardIntegrations' );
 
@@ -378,10 +380,8 @@ function StageInner() {
 				if ( ! item ) {
 					return;
 				}
-				const fallbackEditUrl = `post.php?post=${ item.id }&action=edit&post_type=jetpack_form`;
-				const editUrl = item.editUrl || fallbackEditUrl;
-				const url = new URL( editUrl, window.location.origin );
-				window.location.href = url.toString();
+				const editUrl = item.editUrl || getFormEditUrl( item.id, adminUrl );
+				window.location.href = editUrl;
 			},
 		} );
 
@@ -523,6 +523,7 @@ function StageInner() {
 
 		return actionsList;
 	}, [
+		adminUrl,
 		copyEmbed,
 		copyShortcode,
 		duplicateForm,
