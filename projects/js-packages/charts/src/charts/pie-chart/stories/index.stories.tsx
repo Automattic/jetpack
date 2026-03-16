@@ -186,11 +186,7 @@ export const WithCompositionLegend: Story = {
 	render: args => {
 		const legend = extractLegendConfig( args );
 		return (
-			<PieChart
-				data={ args.data }
-				legendValueDisplay={ args.legendValueDisplay }
-				chartId="composition-pie-chart"
-			>
+			<PieChart { ...args } chartId="composition-pie-chart">
 				<PieChart.Legend { ...legend } />
 			</PieChart>
 		);

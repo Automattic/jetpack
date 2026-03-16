@@ -147,12 +147,7 @@ export const WithCompositionLegend: Story = {
 	render: args => {
 		const legend = extractLegendConfig( args );
 		return (
-			<PieSemiCircleChart
-				data={ args.data }
-				label="Performance Metrics"
-				note="Q4 2023 Results"
-				chartId="composition-semi-circle-chart"
-			>
+			<PieSemiCircleChart { ...Default.args } { ...args } chartId="composition-semi-circle-chart">
 				<PieSemiCircleChart.Legend { ...legend } />
 			</PieSemiCircleChart>
 		);

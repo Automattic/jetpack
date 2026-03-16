@@ -223,13 +223,7 @@ export const WithCompositionLegend: Story = {
 	render: args => {
 		const legend = extractLegendConfig( args );
 		return (
-			<PieChart
-				size={ 300 }
-				data={ args.data }
-				thickness={ 0.5 }
-				legendValueDisplay={ args.legendValueDisplay }
-				chartId="composition-donut-chart"
-			>
+			<PieChart { ...args } size={ 300 } thickness={ 0.5 } chartId="composition-donut-chart">
 				<Group>
 					<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 16 } y={ -8 }>
 						User Stats
