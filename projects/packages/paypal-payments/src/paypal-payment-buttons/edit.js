@@ -29,6 +29,7 @@ import {
 	Spinner,
 	TextControl,
 	TextareaControl,
+	ToggleControl,
 	ToolbarButton,
 	ToolbarGroup,
 } from '@wordpress/components';
@@ -212,6 +213,13 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 		imageUrl,
 		variantsEnabled,
 		variants,
+		adjustableQuantity,
+		maxQuantity,
+		customerNotes,
+		taxEnabled,
+		taxType,
+		taxName,
+		taxValue,
 	} = attributes;
 
 	const blockProps = useBlockProps();
@@ -456,6 +464,23 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 					...( productDescription ? { description: productDescription } : {} ),
 					...( imageUrl ? { image_url: imageUrl } : {} ),
 					...( variantsEnabled && variants ? { variants } : {} ),
+					...( adjustableQuantity && maxQuantity > 1
+						? { adjustable_quantity: { maximum: parseInt( maxQuantity, 10 ) } }
+						: {} ),
+					...( customerNotes?.length > 0
+						? { customer_notes: customerNotes.filter( n => n.label?.trim() ) }
+						: {} ),
+					...( taxEnabled && taxName
+						? {
+								taxes: [
+									{
+										name: taxName,
+										type: taxType || 'PERCENTAGE',
+										value: taxType === 'PREFERENCE' ? 'PROFILE' : taxValue || '0',
+									},
+								],
+						  }
+						: {} ),
 				},
 			],
 			...( returnUrl ? { return_url: returnUrl } : {} ),
@@ -469,6 +494,13 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 			imageUrl,
 			variantsEnabled,
 			variants,
+			adjustableQuantity,
+			maxQuantity,
+			customerNotes,
+			taxEnabled,
+			taxType,
+			taxName,
+			taxValue,
 		]
 	);
 
@@ -1282,6 +1314,196 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 							: undefined
 					}
 				/>
+
+				<div className="jetpack-paypal-payment-buttons__checkout-options">
+					<h4 className="jetpack-paypal-payment-buttons__section-heading">
+						{ __( 'Checkout Options', 'jetpack-paypal-payments' ) }
+					</h4>
+
+					{ /* WOOPTP-170: Adjustable Quantity */ }
+					<ToggleControl
+						label={ __( 'Allow customers to adjust quantity', 'jetpack-paypal-payments' ) }
+						help={
+							adjustableQuantity
+								? __( 'Customers can buy multiple units at checkout.', 'jetpack-paypal-payments' )
+								: __( 'Fixed at 1 unit per purchase.', 'jetpack-paypal-payments' )
+						}
+						checked={ adjustableQuantity }
+						onChange={ value => setAttributes( { adjustableQuantity: value } ) }
+						disabled={ isCreating }
+					/>
+					{ adjustableQuantity && (
+						<TextControl
+							label={ __( 'Maximum quantity', 'jetpack-paypal-payments' ) }
+							value={ maxQuantity || '' }
+							onChange={ value => setAttributes( { maxQuantity: parseInt( value, 10 ) || 10 } ) }
+							type="number"
+							min={ 2 }
+							max={ 999 }
+							disabled={ isCreating }
+							help={ __(
+								'Customers can select from 1 to this number.',
+								'jetpack-paypal-payments'
+							) }
+						/>
+					) }
+
+					{ /* WOOPTP-172: Tax Configuration */ }
+					<ToggleControl
+						label={ __( 'Collect tax', 'jetpack-paypal-payments' ) }
+						help={
+							taxEnabled
+								? __( 'Tax will be added at PayPal checkout.', 'jetpack-paypal-payments' )
+								: __( 'No tax collected.', 'jetpack-paypal-payments' )
+						}
+						checked={ taxEnabled }
+						onChange={ value => setAttributes( { taxEnabled: value } ) }
+						disabled={ isCreating }
+					/>
+					{ taxEnabled && (
+						<div className="jetpack-paypal-payment-buttons__tax-config">
+							<SelectControl
+								label={ __( 'Tax type', 'jetpack-paypal-payments' ) }
+								value={ taxType || 'PERCENTAGE' }
+								options={ [
+									{
+										label: __( 'Fixed percentage', 'jetpack-paypal-payments' ),
+										value: 'PERCENTAGE',
+									},
+									{
+										label: __( 'Use PayPal profile settings', 'jetpack-paypal-payments' ),
+										value: 'PREFERENCE',
+									},
+								] }
+								onChange={ value => setAttributes( { taxType: value } ) }
+								disabled={ isCreating }
+							/>
+							<TextControl
+								label={ __( 'Tax name', 'jetpack-paypal-payments' ) }
+								value={ taxName || '' }
+								onChange={ value => setAttributes( { taxName: value } ) }
+								placeholder={ __( 'Sales Tax', 'jetpack-paypal-payments' ) }
+								disabled={ isCreating }
+							/>
+							{ taxType === 'PERCENTAGE' && (
+								<TextControl
+									label={ __( 'Tax rate (%)', 'jetpack-paypal-payments' ) }
+									value={ taxValue || '' }
+									onChange={ value => setAttributes( { taxValue: value } ) }
+									type="number"
+									min="0.01"
+									max="99.99"
+									step="0.01"
+									placeholder="8.25"
+									disabled={ isCreating }
+									help={ __( 'Percentage added to the product price.', 'jetpack-paypal-payments' ) }
+								/>
+							) }
+						</div>
+					) }
+
+					{ /* WOOPTP-171: Customer Notes */ }
+					<ToggleControl
+						label={ __( 'Custom checkout fields', 'jetpack-paypal-payments' ) }
+						help={
+							customerNotes?.length > 0
+								? sprintf(
+										/* translators: %d: number of custom fields */
+										__( '%d custom field(s) configured.', 'jetpack-paypal-payments' ),
+										customerNotes.length
+								  )
+								: __(
+										'Add fields for gift messages, personalization, etc.',
+										'jetpack-paypal-payments'
+								  )
+						}
+						checked={ customerNotes?.length > 0 }
+						onChange={ value => {
+							if ( value ) {
+								setAttributes( {
+									customerNotes: [ { label: '', required: false } ],
+								} );
+							} else {
+								setAttributes( { customerNotes: [] } );
+							}
+						} }
+						disabled={ isCreating }
+					/>
+					{ customerNotes?.length > 0 && (
+						<div className="jetpack-paypal-payment-buttons__customer-notes">
+							{ customerNotes.map( ( note, noteIndex ) => (
+								<div key={ noteIndex } className="jetpack-paypal-payment-buttons__customer-note">
+									<TextControl
+										label={ sprintf(
+											/* translators: %d: field number */
+											__( 'Field %d label', 'jetpack-paypal-payments' ),
+											noteIndex + 1
+										) }
+										value={ note.label || '' }
+										onChange={ value => {
+											const updated = [ ...customerNotes ];
+											updated[ noteIndex ] = {
+												...updated[ noteIndex ],
+												label: value,
+											};
+											setAttributes( { customerNotes: updated } );
+										} }
+										placeholder={ __( 'e.g., Gift Message', 'jetpack-paypal-payments' ) }
+										disabled={ isCreating }
+									/>
+									<div className="jetpack-paypal-payment-buttons__customer-note-controls">
+										<ToggleControl
+											label={ __( 'Required', 'jetpack-paypal-payments' ) }
+											checked={ note.required }
+											onChange={ value => {
+												const updated = [ ...customerNotes ];
+												updated[ noteIndex ] = {
+													...updated[ noteIndex ],
+													required: value,
+												};
+												setAttributes( { customerNotes: updated } );
+											} }
+											disabled={ isCreating }
+										/>
+										{ customerNotes.length > 1 && (
+											<Button
+												isSmall
+												isDestructive
+												variant="tertiary"
+												onClick={ () => {
+													const updated = customerNotes.filter( ( _, i ) => i !== noteIndex );
+													setAttributes( { customerNotes: updated } );
+												} }
+												disabled={ isCreating }
+												aria-label={ sprintf(
+													/* translators: %d: field number */
+													__( 'Remove field %d', 'jetpack-paypal-payments' ),
+													noteIndex + 1
+												) }
+											>
+												{ __( 'Remove', 'jetpack-paypal-payments' ) }
+											</Button>
+										) }
+									</div>
+								</div>
+							) ) }
+							{ customerNotes.length < 5 && (
+								<Button
+									isSmall
+									variant="secondary"
+									onClick={ () =>
+										setAttributes( {
+											customerNotes: [ ...customerNotes, { label: '', required: false } ],
+										} )
+									}
+									disabled={ isCreating }
+								>
+									{ __( 'Add field', 'jetpack-paypal-payments' ) }
+								</Button>
+							) }
+						</div>
+					) }
+				</div>
 
 				<div className="jetpack-paypal-payment-buttons__form-actions">
 					<Button

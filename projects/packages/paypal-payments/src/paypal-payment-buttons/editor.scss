@@ -575,3 +575,46 @@
 	gap: 8px;
 	margin-top: 12px;
 }
+
+// Checkout options section (WOOPTP-170/171/172).
+.jetpack-paypal-payment-buttons__checkout-options {
+	margin: 16px 0;
+	padding: 16px;
+	border: 1px solid #e0e0e0;
+	border-radius: 4px;
+	background: #fafafa;
+}
+
+.jetpack-paypal-payment-buttons__section-heading {
+	margin: 0 0 12px;
+	font-size: 13px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+	color: #1e1e1e;
+}
+
+.jetpack-paypal-payment-buttons__tax-config {
+	margin-left: 12px;
+	padding-left: 12px;
+	border-left: 2px solid #ddd;
+}
+
+.jetpack-paypal-payment-buttons__customer-notes {
+	margin-top: 8px;
+}
+
+.jetpack-paypal-payment-buttons__customer-note {
+	border: 1px solid #e0e0e0;
+	border-radius: 4px;
+	padding: 12px;
+	margin-bottom: 8px;
+	background: #fff;
+}
+
+.jetpack-paypal-payment-buttons__customer-note-controls {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	margin-top: 4px;
+}

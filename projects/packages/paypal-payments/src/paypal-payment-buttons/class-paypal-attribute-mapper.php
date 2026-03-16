@@ -118,6 +118,48 @@ class PayPal_Attribute_Mapper {
 			$line_item['variants'] = self::sanitize_variants( $attributes['variants'] );
 		}
 
+		// Adjustable quantity (WOOPTP-170).
+		if ( ! empty( $attributes['adjustableQuantity'] ) && ! empty( $attributes['maxQuantity'] ) ) {
+			$max = absint( $attributes['maxQuantity'] );
+			if ( $max >= 2 ) {
+				$line_item['adjustable_quantity'] = array( 'maximum' => $max );
+			}
+		}
+
+		// Customer notes / custom fields (WOOPTP-171).
+		if ( ! empty( $attributes['customerNotes'] ) && is_array( $attributes['customerNotes'] ) ) {
+			$notes = array();
+			foreach ( $attributes['customerNotes'] as $note ) {
+				$label = sanitize_text_field( $note['label'] ?? '' );
+				if ( '' !== $label ) {
+					$notes[] = array(
+						'label'    => $label,
+						'required' => ! empty( $note['required'] ),
+					);
+				}
+			}
+			if ( ! empty( $notes ) ) {
+				$line_item['customer_notes'] = $notes;
+			}
+		}
+
+		// Tax configuration (WOOPTP-172).
+		if ( ! empty( $attributes['taxEnabled'] ) && ! empty( $attributes['taxName'] ) ) {
+			$tax_type = sanitize_text_field( $attributes['taxType'] ?? 'PERCENTAGE' );
+			$tax      = array(
+				'name' => sanitize_text_field( $attributes['taxName'] ),
+				'type' => in_array( $tax_type, array( 'PERCENTAGE', 'PREFERENCE' ), true ) ? $tax_type : 'PERCENTAGE',
+			);
+
+			if ( 'PREFERENCE' === $tax_type ) {
+				$tax['value'] = 'PROFILE';
+			} else {
+				$tax['value'] = sanitize_text_field( $attributes['taxValue'] ?? '0' );
+			}
+
+			$line_item['taxes'] = array( $tax );
+		}
+
 		$request = array(
 			'type'             => 'BUY_NOW',
 			'integration_mode' => 'LINK',
@@ -171,6 +213,34 @@ class PayPal_Attribute_Mapper {
 			if ( ! empty( $line_item['variants']['dimensions'] ) ) {
 				$attributes['variantsEnabled'] = true;
 				$attributes['variants']        = $line_item['variants'];
+			}
+
+			// Adjustable quantity (WOOPTP-170).
+			if ( ! empty( $line_item['adjustable_quantity']['maximum'] ) ) {
+				$attributes['adjustableQuantity'] = true;
+				$attributes['maxQuantity']        = absint( $line_item['adjustable_quantity']['maximum'] );
+			}
+
+			// Customer notes (WOOPTP-171).
+			if ( ! empty( $line_item['customer_notes'] ) && is_array( $line_item['customer_notes'] ) ) {
+				$attributes['customerNotes'] = array_map(
+					function ( $note ) {
+						return array(
+							'label'    => sanitize_text_field( $note['label'] ?? '' ),
+							'required' => ! empty( $note['required'] ),
+						);
+					},
+					$line_item['customer_notes']
+				);
+			}
+
+			// Tax configuration (WOOPTP-172).
+			if ( ! empty( $line_item['taxes'] ) && is_array( $line_item['taxes'] ) ) {
+				$tax                      = $line_item['taxes'][0];
+				$attributes['taxEnabled'] = true;
+				$attributes['taxName']    = sanitize_text_field( $tax['name'] ?? 'Sales Tax' );
+				$attributes['taxType']    = sanitize_text_field( $tax['type'] ?? 'PERCENTAGE' );
+				$attributes['taxValue']   = 'PREFERENCE' === $attributes['taxType'] ? '' : sanitize_text_field( $tax['value'] ?? '' );
 			}
 		}
 
