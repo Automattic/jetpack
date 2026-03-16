@@ -1,3 +1,4 @@
+import { mount } from 'svelte';
 import { MeasurableImage, type Dimensions, type FetchFn, type Weight } from './MeasurableImage.ts';
 import { type TracksCallback } from './analytics.ts';
 import { getMeasurableImages } from './find-image-elements.ts';
@@ -29,7 +30,7 @@ export function setupImageGuideUI(
 ) {
 	setupLoadListener( fetchFunction );
 
-	return new AdminBarToggle( {
+	return mount( AdminBarToggle, {
 		target,
 		props: {
 			href,

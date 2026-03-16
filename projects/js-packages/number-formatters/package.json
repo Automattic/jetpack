@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/number-formatters",
-	"version": "1.1.0",
+	"version": "1.1.2",
 	"description": "Number formatting utilities",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/number-formatters/#readme",
 	"bugs": {
@@ -30,7 +30,7 @@
 		"clean": "rm -rf dist",
 		"test": "NODE_OPTIONS=--experimental-vm-modules jest",
 		"test-coverage": "pnpm run test --coverage",
-		"typecheck": "tsc --noEmit"
+		"typecheck": "tsgo --noEmit"
 	},
 	"dependencies": {
 		"@wordpress/date": "^5.19.0",
@@ -43,6 +43,7 @@
 		"@jest/globals": "30.2.0",
 		"@knighted/duel": "2.1.5",
 		"@types/jest": "30.0.0",
+		"@typescript/native-preview": "7.0.0-dev.20260225.1",
 		"jest": "30.2.0",
 		"typescript": "5.9.3"
 	}

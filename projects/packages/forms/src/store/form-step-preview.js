@@ -74,13 +74,21 @@ const selectors = {
 	},
 
 	/**
+	 * @typedef {object} StepInfo
+	 * @property {string}  stepLabel   - The label of the current step.
+	 * @property {number}  index       - The index of the current step in the steps array.
+	 * @property {boolean} isFirstStep - Whether the current step is the first step.
+	 * @property {boolean} isLastStep  - Whether the current step is the last step.
+	 */
+
+	/**
 	 * Gets information about the current step (label and index) based on the steps array.
 	 * This is a higher-level selector that requires the steps array from the block editor.
 	 *
 	 * @param {object} state        - The store state
 	 * @param {string} formClientId - The ID of the form
 	 * @param {Array}  steps        - The array of step blocks from the block editor
-	 * @return {object} An object with step information
+	 * @return {StepInfo} An object with step information
 	 */
 	getCurrentStepInfo( state, formClientId, steps ) {
 		const selectedStepId = selectors.getActiveStepId( state, formClientId );

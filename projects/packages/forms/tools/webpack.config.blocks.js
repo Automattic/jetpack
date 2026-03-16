@@ -19,6 +19,10 @@ const sharedWebpackConfig = {
 	devtool: jetpackWebpackConfig.devtool,
 	entry: {
 		editor: './src/blocks/contact-form/editor.ts',
+		'ai-form-plugin': {
+			import: './src/blocks/contact-form/plugins/ai-form-generation.ts',
+			dependOn: 'editor',
+		},
 		view: './src/blocks/contact-form/view.ts',
 		'form-progress-indicator/style': './src/blocks/form-progress-indicator/style.scss',
 		'form-step-navigation/style': './src/blocks/form-step-navigation/style.scss',
@@ -80,14 +84,6 @@ const sharedWebpackConfig = {
 				],
 			} ),
 
-			// Allow importing .svg files as React components via `?component` query.
-			{
-				test: /\.svg$/i,
-				issuer: /\.[jt]sx?$/,
-				resourceQuery: /component/,
-				use: [ '@svgr/webpack' ],
-			},
-
 			// Allow importing .svg files as raw HTML strings via `?raw` query.
 			{
 				test: /\.svg$/i,
@@ -95,10 +91,10 @@ const sharedWebpackConfig = {
 				type: 'asset/source',
 			},
 
-			// Handle images (exclude ?component and ?raw SVG imports).
+			// Handle images (exclude ?raw SVG imports).
 			{
 				...jetpackWebpackConfig.FileRule(),
-				resourceQuery: { not: [ /component/, /raw/ ] },
+				resourceQuery: { not: [ /raw/ ] },
 			},
 		],
 	},

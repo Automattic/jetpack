@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Newsletter: Add wpcom_newsletter_send_default site option to control whether posts are sent to subscribers by default.

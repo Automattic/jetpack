@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fix duplicate title in plain text email by removing the preheader element before generating plain text alternative.

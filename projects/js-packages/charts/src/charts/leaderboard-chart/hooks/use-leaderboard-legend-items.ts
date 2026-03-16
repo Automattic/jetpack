@@ -53,7 +53,6 @@ export function useLeaderboardLegendItems( {
 
 		items.push( {
 			label: legendLabels?.primary || __( 'Current period', 'jetpack-charts' ),
-			value: '',
 			color: resolvedPrimaryColor,
 		} );
 
@@ -66,7 +65,6 @@ export function useLeaderboardLegendItems( {
 
 			items.push( {
 				label: legendLabels?.comparison || __( 'Previous period', 'jetpack-charts' ),
-				value: '',
 				color: resolvedSecondaryColor,
 			} );
 		}

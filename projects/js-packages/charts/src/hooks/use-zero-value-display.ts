@@ -11,57 +11,86 @@ export interface EnhancedSeriesData extends Omit< SeriesData, 'data' > {
 
 export interface UseZeroValueDisplayOptions {
 	enabled: boolean;
-	minValueRatio?: number;
-	maxValueRatio?: number;
+	/**
+	 * The pixel length of the value axis (height for vertical charts, width for
+	 * horizontal charts). Used to calculate a minimum visible value that ensures
+	 * zero-value bars are at least MIN_PIXEL_HEIGHT pixels tall along that axis.
+	 */
+	valueAxisLength?: number;
 }
+
+/**
+ * Minimum pixel size for near-zero bars (non-zero values that would render too small).
+ * Using 3px to be visible but not misleading - larger values might look like actual data.
+ */
+const MIN_PIXEL_SIZE = 3;
+
+/**
+ * Pixel size for zero-value bars (1px less than near-zero to be visually distinguishable).
+ */
+const ZERO_PIXEL_SIZE = MIN_PIXEL_SIZE - 1;
 
 export const useZeroValueDisplay = (
 	data: SeriesData[],
 	options: UseZeroValueDisplayOptions = { enabled: false }
 ): SeriesData[] | EnhancedSeriesData[] => {
-	const { enabled, minValueRatio = 0.6, maxValueRatio = 0.008 } = options;
+	const { enabled, valueAxisLength } = options;
 
 	return useMemo( () => {
-		if ( ! enabled ) return data;
+		if ( ! enabled || ! valueAxisLength || valueAxisLength <= 0 ) return data;
 
-		// Collect all non-zero, non-null values (both positive and negative)
-		const nonZeroValues: number[] = [];
-
+		// Find max absolute value
+		let maxAbsoluteValue = 0;
 		for ( const series of data ) {
 			for ( const point of series.data ) {
 				if ( point.value !== null && point.value !== 0 ) {
-					nonZeroValues.push( point.value );
+					maxAbsoluteValue = Math.max( maxAbsoluteValue, Math.abs( point.value ) );
 				}
 			}
 		}
 
-		if ( nonZeroValues.length === 0 ) return data;
+		if ( maxAbsoluteValue === 0 ) return data;
 
-		// Convert to absolute values to find the range
-		const absoluteValues = nonZeroValues.map( Math.abs );
-
-		// Calculate min and max based on absolute values
-		const minAbsoluteValue = Math.min( ...absoluteValues );
-		const maxAbsoluteValue = Math.max( ...absoluteValues );
-
-		// Calculate minimum visible value using absolute range
-		const minVisibleValue = Math.min(
-			minAbsoluteValue * minValueRatio,
-			maxAbsoluteValue * maxValueRatio
+		// Calculate values that render as specific pixel sizes, clamped to maxAbsoluteValue
+		// to prevent visual distortion when valueAxisLength is very small
+		const minNonZeroValue = Math.min(
+			( MIN_PIXEL_SIZE / valueAxisLength ) * maxAbsoluteValue,
+			maxAbsoluteValue
+		);
+		const zeroVisualValue = Math.min(
+			( ZERO_PIXEL_SIZE / valueAxisLength ) * maxAbsoluteValue,
+			maxAbsoluteValue
 		);
 
 		return data.map( series => ( {
 			...series,
-			data: series.data.map( ( point ): EnhancedDataPoint => {
+			data: series.data.map( ( point: DataPointDate ): EnhancedDataPoint => {
+				// Zero values get a smaller visual representation (2px)
 				if ( point.value === 0 ) {
 					return {
 						...point,
-						visualValue: minVisibleValue,
+						visualValue: zeroVisualValue,
+					};
+				}
+
+				// Null values should remain untouched
+				if ( point.value === null ) {
+					return point;
+				}
+
+				const absValue = Math.abs( point.value );
+
+				// Near-zero values that would render below MIN_PIXEL_SIZE get boosted to 3px
+				// Preserve the sign for negative values
+				if ( absValue < minNonZeroValue ) {
+					return {
+						...point,
+						visualValue: Math.sign( point.value ) * minNonZeroValue,
 					};
 				}
 
 				return point;
 			} ),
 		} ) );
-	}, [ data, enabled, minValueRatio, maxValueRatio ] );
+	}, [ data, enabled, valueAxisLength ] );
 };

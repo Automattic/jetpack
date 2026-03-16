@@ -17,7 +17,12 @@ import {
 	GlobalChartsContext,
 } from '../../providers';
 import { attachSubComponents } from '../../utils';
-import { ChartSVG, ChartHTML, useChartChildren } from '../private/chart-composition';
+import {
+	ChartSVG,
+	ChartHTML,
+	useChartChildren,
+	renderLegendSlot,
+} from '../private/chart-composition';
 import { RadialWipeAnimation } from '../private/radial-wipe-animation';
 import { SingleChartContext } from '../private/single-chart-context';
 import { withResponsive } from '../private/with-responsive';
@@ -99,13 +104,6 @@ export interface PieSemiCircleChartProps extends BaseChartProps< DataPointPercen
 	legendValueDisplay?: LegendValueDisplay;
 
 	/**
-	 * Enable interactive legend items that can toggle segment visibility.
-	 * Requires chartId and GlobalChartsProvider.
-	 * When segments are hidden, percentages are recalculated so visible segments total 100%.
-	 */
-	legendInteractive?: boolean;
-
-	/**
 	 * Horizontal offset for tooltip positioning in pixels (default: 0)
 	 */
 	tooltipOffsetX?: number;
@@ -167,15 +165,8 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 	clockwise = true,
 	withTooltips = false,
 	showLegend = false,
-	legendOrientation = 'horizontal',
-	legendPosition = 'bottom',
-	legendAlignment = 'center',
-	legendMaxWidth,
-	legendTextOverflow = 'wrap',
-	legendItemClassName,
-	legendShape = 'circle',
+	legend = {},
 	legendValueDisplay = 'percentage',
-	legendInteractive = false,
 	label,
 	animation,
 	note,
@@ -186,6 +177,9 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 	renderTooltip = renderDefaultPieSemiCircleTooltip,
 	gap = 'md',
 } ) => {
+	const legendInteractive = legend.interactive ?? false;
+	const legendPosition = legend.position ?? 'bottom';
+
 	const chartId = useChartId( providedChartId );
 	// Measure the SVG wrapper to calculate constrained dimensions
 	const [ svgWrapperRef, svgWrapperWidth, svgWrapperHeight ] = useElementSize< HTMLDivElement >();
@@ -277,7 +271,7 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 	const legendItems = useChartLegendItems( legendData, legendOptions );
 
 	// Process children to extract compound components
-	const { svgChildren, htmlChildren, otherChildren } = useChartChildren(
+	const { svgChildren, htmlChildren, legendChildren, otherChildren } = useChartChildren(
 		children,
 		'PieSemiCircleChart'
 	);
@@ -349,13 +343,14 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 
 	const legendElement = showLegend && (
 		<Legend
-			orientation={ legendOrientation }
+			orientation={ legend.orientation ?? 'horizontal' }
 			position={ legendPosition }
-			alignment={ legendAlignment }
-			maxWidth={ legendMaxWidth }
-			textOverflow={ legendTextOverflow }
-			legendItemClassName={ legendItemClassName }
-			shape={ legendShape }
+			alignment={ legend.alignment ?? 'center' }
+			labelStyles={ legend.labelStyles }
+			itemClassName={ legend.itemClassName }
+			itemStyles={ legend.itemStyles }
+			shapeStyles={ legend.shapeStyles }
+			shape={ legend.shape ?? 'circle' }
 			chartId={ chartId }
 			interactive={ legendInteractive }
 		/>
@@ -388,6 +383,7 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 				data-testid="pie-chart-container"
 			>
 				{ legendPosition === 'top' && legendElement }
+				{ renderLegendSlot( legendChildren, 'top' ) }
 
 				<div ref={ svgWrapperRef } className={ styles[ 'pie-semi-circle-chart__svg-wrapper' ] }>
 					<svg
@@ -484,7 +480,8 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 					</svg>
 				</div>
 
-				{ legendPosition !== 'top' && legendElement }
+				{ legendPosition === 'bottom' && legendElement }
+				{ renderLegendSlot( legendChildren, 'bottom' ) }
 
 				{ withTooltips && tooltipOpen && tooltipData && (
 					<TooltipInPortal top={ tooltipTop || 0 } left={ tooltipLeft || 0 }>

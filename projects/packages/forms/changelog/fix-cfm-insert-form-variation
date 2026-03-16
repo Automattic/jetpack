@@ -1,0 +1,4 @@
+Significance: minor
+Type: fixed
+
+Create synced form when inserting form variations via the block inserter.

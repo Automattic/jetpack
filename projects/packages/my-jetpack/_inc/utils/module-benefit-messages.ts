@@ -27,6 +27,10 @@ function getModuleBenefitMessages(): Record< JetpackModuleSlug, string > {
 			'Your editor now has custom Jetpack blocks for rich content and layout options.',
 			'jetpack-my-jetpack'
 		),
+		'canonical-urls': __(
+			'Your archive pages now have canonical URLs to prevent duplicate content in search engines.',
+			'jetpack-my-jetpack'
+		),
 		carousel: __(
 			'Your image galleries now display as immersive, full-screen slideshows.',
 			'jetpack-my-jetpack'

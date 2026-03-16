@@ -55,10 +55,13 @@ import { ContactFormPlaceholder } from './components/jetpack-contact-form-placeh
 import ContactFormSkeletonLoader from './components/jetpack-contact-form-skeleton-loader.js';
 import NotificationsSettings from './components/notifications-settings.js';
 import WebhooksSettings from './components/webhooks-settings.js';
+import WidgetEditorReadonlyView from './components/widget-editor-readonly-view.tsx';
+import { useCreateSyncedFormOnInsertion } from './hooks/use-create-synced-form-on-insertion.ts';
 import { useSyncedFormAutoSave } from './hooks/use-synced-form-auto-save.ts';
 import { useSyncedFormLoader } from './hooks/use-synced-form-loader.ts';
 import { useSyncedForm } from './hooks/use-synced-form.ts';
 import useFormBlockDefaults from './shared/hooks/use-form-block-defaults.js';
+import { getEditorContext } from './util/get-editor-context.ts';
 import VariationPicker from './variation-picker.js';
 import './util/form-styles.js';
 
@@ -210,6 +213,9 @@ function JetpackContactFormEdit( {
 	const isCentralFormManagementEnabled = hasFeatureFlag( 'central-form-management' );
 	const instanceId = useInstanceId( JetpackContactFormEdit );
 
+	// Check if we're in widget editor with a synced form (ref)
+	const isWidgetEditorWithRef = !! ref && getEditorContext() === 'widget';
+
 	// Load synced form data from the jetpack_form post type
 	const {
 		syncedForm,
@@ -242,7 +248,9 @@ function JetpackContactFormEdit( {
 	);
 
 	const findButtonsBlock = useCallback(
-		block => block.name === 'core/button' || block.name === 'jetpack/button',
+		block =>
+			block.name === 'jetpack/button' ||
+			( block.name === 'core/button' && block.attributes?.tagName === 'button' ),
 		[]
 	);
 	const submitButton = useFindBlockRecursively( clientId, findButtonsBlock );
@@ -281,8 +289,9 @@ function JetpackContactFormEdit( {
 
 			const isSingleButtonBlock =
 				innerBlocksData.length === 1 &&
-				( innerBlocksData[ 0 ].name === 'core/button' ||
-					innerBlocksData[ 0 ].name === 'jetpack/button' );
+				( innerBlocksData[ 0 ].name === 'jetpack/button' ||
+					( innerBlocksData[ 0 ].name === 'core/button' &&
+						innerBlocksData[ 0 ].attributes?.tagName === 'button' ) );
 
 			const title = getEditedPostAttribute( 'title' );
 			const authorId = getEditedPostAttribute( 'author' );
@@ -290,7 +299,7 @@ function JetpackContactFormEdit( {
 
 			return {
 				postTitle: title,
-				hasAnyInnerBlocks: innerBlocksData.length > 0,
+				hasAnyInnerBlocks: innerBlocksData.length > 0 || syncedFormBlocks?.length > 0,
 				postAuthorEmail: authorEmail,
 				selectedBlockClientId: selectedStepBlockId,
 				onlySubmitBlock: isSingleButtonBlock,
@@ -298,7 +307,7 @@ function JetpackContactFormEdit( {
 				hasChildSelected: hasSelectedInnerBlock( clientId, true ),
 			};
 		},
-		[ clientId ]
+		[ clientId, syncedFormBlocks ]
 	);
 
 	useEffect( () => {
@@ -417,6 +426,15 @@ function JetpackContactFormEdit( {
 		editEntityRecord,
 	} );
 
+	// Create synced form when a variation is inserted via the block inserter
+	useCreateSyncedFormOnInsertion( {
+		clientId,
+		ref,
+		innerBlocks: currentInnerBlocks,
+		attributes,
+		setAttributes,
+	} );
+
 	// Note: We don't clear attributes in memory when ref is set, as they're needed
 	// for the form to work properly in the editor. The save() method ensures that
 	// only the ref attribute is persisted to the database.
@@ -457,7 +475,9 @@ function JetpackContactFormEdit( {
 			const submitButtonIndex = currentInnerBlocks.findIndex(
 				block =>
 					( block.name === 'core/button' || block.name === 'jetpack/button' ) &&
-					( block.attributes?.customVariant === 'submit' || block.attributes?.element === 'button' )
+					( block.attributes?.customVariant === 'submit' ||
+						block.attributes?.element === 'button' ||
+						block.attributes?.tagName === 'button' )
 			);
 
 			// If there's a submit button and it's not the last block, reorder
@@ -633,7 +653,9 @@ function JetpackContactFormEdit( {
 		// Helper functions
 		const findButtonBlock = () => {
 			const buttonIndex = currentInnerBlocks.findIndex(
-				block => block.name === 'core/button' || block.name === 'jetpack/button'
+				block =>
+					block.name === 'jetpack/button' ||
+					( block.name === 'core/button' && block.attributes?.tagName === 'button' )
 			);
 			return buttonIndex !== -1
 				? {
@@ -990,8 +1012,7 @@ function JetpackContactFormEdit( {
 
 	let elt;
 
-	// Show loading state when resolving synced form
-	if ( ref && isResolvingSyncedForm ) {
+	if ( ref && isResolvingSyncedForm && ! hasAnyInnerBlocks ) {
 		return (
 			<div { ...blockProps }>
 				<ContactFormSkeletonLoader />
@@ -1004,6 +1025,18 @@ function JetpackContactFormEdit( {
 			<Notice status="warning" isDismissible={ false }>
 				{ __( 'The referenced form could not be found.', 'jetpack-forms' ) }
 			</Notice>
+		);
+	}
+	// In widget editor, synced forms (with ref) are not editable
+	else if ( isWidgetEditorWithRef ) {
+		return (
+			<WidgetEditorReadonlyView
+				blockProps={ blockProps }
+				innerBlocksProps={ innerBlocksProps }
+				isResolvingSyncedForm={ isResolvingSyncedForm }
+				formRef={ ref as number }
+				flushPendingSave={ flushPendingSave }
+			/>
 		);
 	} else if ( ! isModuleActive ) {
 		if ( isLoadingModules ) {

@@ -5,6 +5,7 @@ import { store as noticesStore } from '@wordpress/notices';
 /**
  * Internal dependencies
  */
+import { store as dashboardStore } from '../store/index.js';
 import { getFormsListQuery } from './use-forms-data.ts';
 import type { FormListItem } from './use-forms-data.ts';
 import type { View } from '@wordpress/dataviews/wp';
@@ -67,6 +68,7 @@ export default function useDeleteForm( {
 		'core'
 	) as CoreDispatch;
 	const { createSuccessNotice, createErrorNotice } = useDispatch( noticesStore );
+	const { invalidateFormStatusCounts } = useDispatch( dashboardStore );
 
 	const page = view.page ?? 1;
 	const perPage = view.perPage ?? 20;
@@ -176,6 +178,7 @@ export default function useDeleteForm( {
 
 				// Invalidate the list query so restored forms disappear from the trash view and totals refresh.
 				invalidateListQueries( currentQuerySnapshot );
+				invalidateFormStatusCounts();
 				if ( shouldNavigateToPreviousPage ) {
 					invalidateListQueries(
 						getFormsListQuery( page - 1, perPage, search, statusQuery ) as Record< string, unknown >
@@ -185,6 +188,7 @@ export default function useDeleteForm( {
 		},
 		[
 			currentQuery,
+			invalidateFormStatusCounts,
 			invalidateListQueries,
 			isDeleting,
 			page,
@@ -215,9 +219,16 @@ export default function useDeleteForm( {
 			} finally {
 				setIsDeleting( false );
 				invalidateListQueries( currentQuerySnapshot );
+				invalidateFormStatusCounts();
 			}
 		},
-		[ currentQuery, invalidateListQueries, isDeleting, restoreItemsToPublish ]
+		[
+			currentQuery,
+			invalidateFormStatusCounts,
+			invalidateListQueries,
+			isDeleting,
+			restoreItemsToPublish,
+		]
 	);
 
 	const trashForms = useCallback(
@@ -304,6 +315,7 @@ export default function useDeleteForm( {
 
 				// Invalidate the list query so trashed forms disappear from the table and totals refresh.
 				invalidateListQueries( currentQuerySnapshot );
+				invalidateFormStatusCounts();
 				if ( shouldNavigateToPreviousPage ) {
 					invalidateListQueries(
 						getFormsListQuery( page - 1, perPage, search, statusQuery ) as Record< string, unknown >
@@ -316,6 +328,7 @@ export default function useDeleteForm( {
 			createSuccessNotice,
 			currentQuery,
 			deleteEntityRecord,
+			invalidateFormStatusCounts,
 			invalidateListQueries,
 			isDeleting,
 			page,
@@ -418,6 +431,7 @@ export default function useDeleteForm( {
 
 			// Invalidate the list query so the deleted forms disappear from the table and totals refresh.
 			invalidateListQueries( currentQuerySnapshot );
+			invalidateFormStatusCounts();
 			if ( shouldNavigateToPreviousPage ) {
 				invalidateListQueries(
 					getFormsListQuery( page - 1, perPage, search, statusQuery ) as Record< string, unknown >
@@ -429,6 +443,7 @@ export default function useDeleteForm( {
 		createSuccessNotice,
 		currentQuery,
 		deleteEntityRecord,
+		invalidateFormStatusCounts,
 		invalidateListQueries,
 		isDeleting,
 		page,

@@ -6,6 +6,7 @@ import {
 	sharedChartArgTypes,
 	sharedThemeArgs,
 	ChartStoryArgs,
+	extractLegendConfig,
 	legendArgTypes,
 	partialOsUsageData as data,
 	themeArgTypes,
@@ -26,6 +27,13 @@ const meta: Meta< StoryArgs > = {
 		...sharedChartArgTypes,
 		...themeArgTypes,
 		...legendArgTypes,
+		legendValueDisplay: {
+			control: { type: 'select' as const },
+			options: [ 'percentage', 'value', 'valueDisplay', 'none' ],
+			table: { category: 'Legend' },
+			description:
+				'What type of value to display in the legend when showValues is true. Note: Enable "showLegend" to see the effect of this control.',
+		},
 		width: {
 			control: {
 				type: 'range',
@@ -50,6 +58,10 @@ const meta: Meta< StoryArgs > = {
 				step: 0.01,
 			},
 		},
+	},
+	render: args => {
+		const legend = extractLegendConfig( args );
+		return <PieSemiCircleChart { ...args } legend={ legend } />;
 	},
 } satisfies Meta< StoryArgs >;
 
@@ -132,24 +144,21 @@ export const WithLegend: Story = {
 };
 
 export const WithCompositionLegend: Story = {
-	render: args => (
-		<PieSemiCircleChart data={ args.data } label="Performance Metrics" note="Q4 2023 Results">
-			<PieSemiCircleChart.Legend
-				position={ args.legendPosition || 'bottom' }
-				orientation={ args.legendOrientation || 'horizontal' }
-				alignment={ args.legendAlignment || 'center' }
-				maxWidth={ args.legendMaxWidth }
-				textOverflow={ args.legendTextOverflow || 'wrap' }
-			/>
-		</PieSemiCircleChart>
-	),
+	render: args => {
+		const legend = extractLegendConfig( args );
+		return (
+			<PieSemiCircleChart
+				data={ args.data }
+				label="Performance Metrics"
+				note="Q4 2023 Results"
+				chartId="composition-semi-circle-chart"
+			>
+				<PieSemiCircleChart.Legend { ...legend } />
+			</PieSemiCircleChart>
+		);
+	},
 	args: {
 		data,
-	},
-	argTypes: {
-		legendInteractive: {
-			table: { disable: true },
-		},
 	},
 	parameters: {
 		docs: {
@@ -170,10 +179,8 @@ export const InteractiveLegend: Story = {
 				label="Performance Metrics"
 				note="Click legend to filter"
 				showLegend={ true }
-				legendInteractive={ true }
-				legendPosition={ args.legendPosition || 'bottom' }
-				legendOrientation={ args.legendOrientation || 'horizontal' }
-				legendAlignment={ args.legendAlignment || 'center' }
+				legend={ extractLegendConfig( args ) }
+				legendValueDisplay={ args.legendValueDisplay }
 			>
 				<p style={ { marginBottom: '20px', color: '#666' } }>
 					Click legend items to show/hide segments. Percentages adjust automatically.
@@ -183,6 +190,7 @@ export const InteractiveLegend: Story = {
 	),
 	args: {
 		data,
+		legendInteractive: true,
 	},
 	parameters: {
 		docs: {
@@ -417,11 +425,6 @@ export const CompositionAPI: Story = {
 		data,
 		containerHeight: '1000px',
 		containerWidth: '1000px',
-	},
-	argTypes: {
-		legendInteractive: {
-			table: { disable: true },
-		},
 	},
 	parameters: {
 		layout: 'fullscreen',

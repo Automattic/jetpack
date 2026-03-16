@@ -174,7 +174,9 @@ export async function createTestPosts( testPostTitles: string[] ): Promise< void
 				logger.debug( 'The test content post already exists' );
 			} else {
 				logger.debug( 'Creating test content post...' );
-				await executeWpCommand( testPostTitlesCommands[ testPostTitle ] );
+				await executeWpCommand(
+					testPostTitlesCommands[ testPostTitle as keyof typeof testPostTitlesCommands ]
+				);
 			}
 		}
 	}

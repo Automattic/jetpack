@@ -16,6 +16,9 @@ export const DEFAULT_STATE = {
 		enabled: false,
 		categories: [],
 	},
+	postEmailSentState: {},
+	alreadySentPostModifiedInSession: {},
+	publishedWithEmailEnabledInSession: {},
 };
 
 export default function reducer( state = DEFAULT_STATE, action ) {
@@ -52,6 +55,33 @@ export default function reducer( state = DEFAULT_STATE, action ) {
 			return {
 				...state,
 				newsletterCategoriesSubscriptionsCount: action.newsletterCategoriesSubscriptionsCount,
+			};
+		case 'SET_POST_EMAIL_SENT_STATE':
+			return {
+				...state,
+				postEmailSentState: {
+					...state.postEmailSentState,
+					[ action.postId ]: {
+						email_sent_at: action.payload.email_sent_at ?? null,
+						stats_on_send: action.payload.stats_on_send ?? null,
+					},
+				},
+			};
+		case 'SET_ALREADY_SENT_POST_MODIFIED_IN_SESSION':
+			return {
+				...state,
+				alreadySentPostModifiedInSession: {
+					...state.alreadySentPostModifiedInSession,
+					[ action.postId ]: true,
+				},
+			};
+		case 'SET_PUBLISHED_WITH_EMAIL_ENABLED_IN_SESSION':
+			return {
+				...state,
+				publishedWithEmailEnabledInSession: {
+					...state.publishedWithEmailEnabledInSession,
+					[ action.postId ]: true,
+				},
 			};
 	}
 	return state;

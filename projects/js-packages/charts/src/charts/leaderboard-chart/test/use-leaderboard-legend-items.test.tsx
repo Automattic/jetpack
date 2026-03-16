@@ -80,7 +80,6 @@ describe( 'useLeaderboardLegendItems', () => {
 			expect( result.current ).toHaveLength( 1 );
 			expect( result.current[ 0 ] ).toEqual( {
 				label: 'Current period',
-				value: '',
 				color: expect.any( String ),
 			} );
 		} );
@@ -102,14 +101,12 @@ describe( 'useLeaderboardLegendItems', () => {
 			// Current period item
 			expect( result.current[ 0 ] ).toEqual( {
 				label: 'Current period',
-				value: '',
 				color: expect.any( String ),
 			} );
 
 			// Previous period item
 			expect( result.current[ 1 ] ).toEqual( {
 				label: 'Previous period',
-				value: '',
 				color: expect.any( String ),
 			} );
 		} );
@@ -585,7 +582,7 @@ describe( 'useLeaderboardLegendItems', () => {
 			expect( result.current[ 1 ].label ).toBe( 'Previous period' );
 		} );
 
-		it( 'should have empty value strings for all items', () => {
+		it( 'should not include value property for legend items', () => {
 			const wrapper = createWrapper();
 			const { result } = renderHook(
 				() =>
@@ -598,7 +595,7 @@ describe( 'useLeaderboardLegendItems', () => {
 			);
 
 			result.current.forEach( item => {
-				expect( item.value ).toBe( '' );
+				expect( item ).not.toHaveProperty( 'value' );
 			} );
 		} );
 

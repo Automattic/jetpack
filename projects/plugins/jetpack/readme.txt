@@ -1,7 +1,7 @@
 === Jetpack - WP Security, Backup, Speed, & Growth ===
-Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav, alternatekev, andy, annamcphee, annezazu, apeatling, arcangelini, arsihasi, azaozz, barry, batmoo, beaulebens, bindlegirl, biskobe, bjorsch, blobaugh, brbrr, brileyhooper, cainm, cena, cfinke, cgastrell, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, daniloercoli, davoraltman, delawski, designsimply, dkmyta, dllh, drawmyface, dsmart, dun2mis, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, joen, jblz, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lhkowalski, lschuyler, macmanx, martinremy, matt, mattwiebe, matveb, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, miguelxavierpenha, mikeyarce, mkaz, nancythanki, nickmomrik, njweller, nunyvega, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, renatoagds, retrofox, richardmtl, richardmuscat, robertbpugh, roccotripaldi, ryancowles, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, thehenridev, tmoorewp, tyxla, Viper007Bond, westi, williamvianas, wpkaren, yoavf, zinigor
+Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav, alternatekev, andy, annamcphee, annezazu, apeatling, arcangelini, arsihasi, azaozz, barry, batmoo, beaulebens, bindlegirl, biskobe, bjorsch, blobaugh, brbrr, brileyhooper, cainm, cena, cfinke, cgastrell, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, daniloercoli, davoraltman, delawski, designsimply, dkmyta, dllh, dlocc, drawmyface, dsmart, dun2mis, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, joen, jblz, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lhkowalski, lschuyler, macmanx, martinremy, matt, mattwiebe, matveb, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, miguelxavierpenha, mikeyarce, mkaz, nancythanki, nickmomrik, njweller, nunyvega, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, renatoagds, retrofox, richardmtl, richardmuscat, robertbpugh, roccotripaldi, ryancowles, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, thehenridev, tmoorewp, tyxla, Viper007Bond, westi, williamvianas, wpkaren, yoavf, zinigor
 Tags: Security, backup, malware, scan, performance
-Stable tag: 15.6-a.5
+Stable tag: 15.7-a.1
 Requires at least: 6.8
 Requires PHP: 7.2
 Tested up to: 6.9
@@ -326,24 +326,23 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 15.6-a.5 - 2026-02-23
+### 15.7-a.1 - 2026-03-09
 #### Enhancements
-- AI Sidebar: Add `jetpack.ai.imageGenerationHandler` filter to allow external plugins (e.g. Image Studio) to replace the built-in AI image generation flow for the "Get Featured Image" entry point.
-- Block Editor: Make Jetpack logo display behavior consistent across SEO and AI panels. Logo now appears in global contexts (document settings, pre-publish, post-publish) but not in the Jetpack sidebar.
-- Forms: Render images from image select fields on email notifications.
-- Image Studio: Add Image Studio plugin support to block editor and media library.
-- Post Images: Add `jetpack-ignore-thumbnail` CSS class and `jetpack_postimages_exclude_image` filter to exclude specific images from post image discovery.
-- SEO: Add social link previews to the SEO tools UI.
-- Site: Ensure `is_garden` is included in default site fields for server-side rendering.
-- Social: Add visual dot to active connection in preview modal.
+- Admin Menu: Reorder menu items so that links opening in new windows appear last.
+- Backup: Use core components for storage popover.
+- Block Notes: Add Block Notes as a standalone Jetpack extension plugin.
+- Donations: Use the core WordPress spinner component.
+- Forms: Use title header on top-level dashboard pages.
+- Newsletter: Hide settings tab and redirect to new settings page when wp-admin newsletter settings are enabled.
+- QR Post Code: Use site icon (favicon) instead of site logo for better rendering in the QR code center area.
 
 #### Bug fixes
-- Forms: Prevent fatal error when rendering image-select fields with invalid image payloads.
-- Sharing: Remove Pocket sharing button.
-- Shortcode embeds: Improve handling of YouTube shorts in embeds.
-- Slideshow: Fix doubled navigation arrows.
-- Slideshow block: Fix further issues with aspect ratio.
-- Social Icons: Update documentation links for available icons.
+- Admin Page: Restore border on header component.
+- Canonical URLs: Fix flaky author archive canonical URL resolution on WordPress trunk.
+- SEO: Restore the Optimize SEO panel to the Jetpack sidebar alongside document settings.
+- Settings: Add bottom border to the masthead header.
+- Social: Fix slow page loads due to Social Image generation.
+- Update AI form assistant to detect and create `core/button` blocks instead of `jetpack/button`.
 
 --------
 

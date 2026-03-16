@@ -1,18 +1,15 @@
 {
+	"extends": "jetpack-js-tools/tsconfig.base.json",
 	"compilerOptions": {
 		"target": "ES2020",
-		"module": "ESNext",
-		"moduleResolution": "bundler",
-		"noEmit": true,
-		"allowJs": true,
 		"checkJs": true,
-		"jsx": "react-jsx",
 		"jsxImportSource": "preact"
 	},
 	"typeRoots": [ "./src/components", "./src/editor", "./node_modules/@types" ],
 	"include": [ "node_modules/vite/client.d.ts", "**/*" ],
 	"exclude": [
 		// Linting this file makes tsc complain about a bunch of irrelevant stuff, including stuff deep inside node_modules. I don't know why.
-		"./tests/eslint.config.mjs"
+		"./tests/eslint.config.mjs",
+		"./playwright.config.ts"
 	]
 }

@@ -1,0 +1,4 @@
+Significance: patch
+Type: security
+
+Fix incomplete string sanitization in legacy classic editor form builder (esc_attr and newline replacement now escape all occurrences, not just the first).
