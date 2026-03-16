@@ -250,6 +250,8 @@ class Table_Checksum {
 				'checksum_fields'           => array( 'term_id' ),
 				'checksum_text_fields'      => array( 'name', 'slug' ),
 				'parent_table'              => 'term_taxonomy',
+				'parent_join_field'         => 'term_id',
+				'table_join_field'          => 'term_id',
 				'is_table_enabled_callback' => function () {
 					return false !== Sync\Modules::get_module( 'terms' );
 				},
@@ -260,6 +262,8 @@ class Table_Checksum {
 				'key_fields'                => array( 'term_id', 'meta_key' ),
 				'checksum_text_fields'      => array( 'meta_key', 'meta_value' ),
 				'parent_table'              => 'term_taxonomy',
+				'parent_join_field'         => 'term_id',
+				'table_join_field'          => 'term_id',
 				'is_table_enabled_callback' => function () {
 					return false !== Sync\Modules::get_module( 'terms' );
 				},
@@ -415,14 +419,14 @@ class Table_Checksum {
 	protected function prepare_fields( $table_configuration ) {
 		$this->key_fields                = $table_configuration['key_fields'];
 		$this->range_field               = $table_configuration['range_field'];
-		$this->checksum_fields           = isset( $table_configuration['checksum_fields'] ) ? $table_configuration['checksum_fields'] : array();
-		$this->checksum_text_fields      = isset( $table_configuration['checksum_text_fields'] ) ? $table_configuration['checksum_text_fields'] : array();
-		$this->filter_values             = isset( $table_configuration['filter_values'] ) ? $table_configuration['filter_values'] : null;
+		$this->checksum_fields           = $table_configuration['checksum_fields'] ?? array();
+		$this->checksum_text_fields      = $table_configuration['checksum_text_fields'] ?? array();
+		$this->filter_values             = $table_configuration['filter_values'] ?? null;
 		$this->additional_filter_sql     = ! empty( $table_configuration['filter_sql'] ) ? $table_configuration['filter_sql'] : '';
-		$this->parent_table              = isset( $table_configuration['parent_table'] ) ? $table_configuration['parent_table'] : null;
-		$this->parent_join_field         = isset( $table_configuration['parent_join_field'] ) ? $table_configuration['parent_join_field'] : $table_configuration['range_field'];
-		$this->table_join_field          = isset( $table_configuration['table_join_field'] ) ? $table_configuration['table_join_field'] : $table_configuration['range_field'];
-		$this->is_table_enabled_callback = isset( $table_configuration['is_table_enabled_callback'] ) ? $table_configuration['is_table_enabled_callback'] : false;
+		$this->parent_table              = $table_configuration['parent_table'] ?? null;
+		$this->parent_join_field         = $table_configuration['parent_join_field'] ?? null;
+		$this->table_join_field          = $table_configuration['table_join_field'] ?? null;
+		$this->is_table_enabled_callback = $table_configuration['is_table_enabled_callback'] ?? false;
 	}
 
 	/**
@@ -671,7 +675,7 @@ class Table_Checksum {
 		$filter_stamenet = $this->build_filter_statement( $range_from, $range_to, $filter_values );
 
 		$join_statement = '';
-		if ( $this->parent_table && ! ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ) {
+		if ( $this->parent_table && $this->parent_join_field && $this->table_join_field ) {
 			$parent_table_obj    = new Table_Checksum( $this->parent_table );
 			$parent_filter_query = $parent_table_obj->build_filter_statement( null, null, null, 'parent_table' );
 
