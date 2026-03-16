@@ -22,6 +22,7 @@ import Page from '../components/page/index.tsx';
 import { NON_TRASH_FORM_STATUSES } from '../constants.ts';
 import useDeleteForm from '../hooks/use-delete-form.ts';
 import useFormsData from '../hooks/use-forms-data.ts';
+import { getFormEditUrl } from '../utils.ts';
 import { defaultLayouts, useView } from './views.ts';
 import './style.scss';
 import type { FormListItem } from '../hooks/use-forms-data.ts';
@@ -34,6 +35,7 @@ import type { Action, Operator } from '@wordpress/dataviews/wp';
  */
 export default function FormsDashboardForms(): JSX.Element | null {
 	const navigate = useNavigate();
+	const adminUrl = ( useConfigValue( 'adminUrl' ) as string ) || '';
 	const isCentralFormManagementEnabled = useConfigValue( 'isCentralFormManagementEnabled' );
 	const isCentralFormManagementDisabled = isCentralFormManagementEnabled === false;
 
@@ -228,10 +230,8 @@ export default function FormsDashboardForms(): JSX.Element | null {
 					if ( ! item ) {
 						return;
 					}
-					const fallbackEditUrl = `post.php?post=${ item.id }&action=edit&post_type=jetpack_form`;
-					const editUrl = item.editUrl || fallbackEditUrl;
-					const url = new URL( editUrl, window.location.origin );
-					window.location.href = url.toString();
+					const editUrl = item.editUrl || getFormEditUrl( item.id, adminUrl );
+					window.location.href = editUrl;
 				},
 			},
 			{
@@ -366,6 +366,7 @@ export default function FormsDashboardForms(): JSX.Element | null {
 
 		return actionsList;
 	}, [
+		adminUrl,
 		createErrorNotice,
 		createSuccessNotice,
 		isDeleting,

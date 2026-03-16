@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Add wpcom_newsletter_send_default to sync options whitelist.

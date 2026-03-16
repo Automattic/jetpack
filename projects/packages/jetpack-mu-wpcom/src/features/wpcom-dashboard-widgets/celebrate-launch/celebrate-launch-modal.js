@@ -116,50 +116,48 @@ export default function CelebrateLaunchModal( {
 	const ref = useCopyToClipboard( siteSlug, () => setClipboardCopied( true ) );
 
 	return (
-		<Modal onRequestClose={ onRequestClose } className="launched__modal">
+		<Modal
+			className="launched__modal"
+			onRequestClose={ onRequestClose }
+			size="medium"
+			title={ __( 'Congrats, your site is live!', 'jetpack-mu-wpcom' ) }
+		>
 			<ConfettiAnimation />
-			<div className="launched__modal-content">
-				<div className="launched__modal-text">
-					<h1 className="launched__modal-heading">
-						{ __( 'Congrats, your site is live!', 'jetpack-mu-wpcom' ) }
-					</h1>
-					<p className="launched__modal-body">
-						{ __(
-							'Now you can head over to your site and share it with the world.',
-							'jetpack-mu-wpcom'
-						) }
-					</p>
-				</div>
-				<div className="launched__modal-actions">
-					<div className="launched__modal-site">
-						<div className="launched__modal-domain">
-							<p className="launched__modal-domain-text">{ siteSlug }</p>
-							<Tooltip
-								text={ clipboardCopied ? __( 'Copied to clipboard!', 'jetpack-mu-wpcom' ) : '' }
-								delay={ 0 }
-								hideOnClick={ false }
-							>
-								<Button
-									label={ __( 'Copy URL', 'jetpack-mu-wpcom' ) }
-									className="launchpad__clipboard-button"
-									borderless
-									size="compact"
-									ref={ ref }
-									onMouseLeave={ () => setClipboardCopied( false ) }
-								>
-									<Icon icon={ copy } size={ 18 } />
-								</Button>
-							</Tooltip>
-						</div>
 
-						<Button href={ siteUrl } target="_blank" className="launched__modal-view-site">
-							<Gridicon icon="domains" size={ 18 } />
-							<span className="launched__modal-view-site-text">
-								{ __( 'View site', 'jetpack-mu-wpcom' ) }
-							</span>
+			<p>
+				{ __(
+					'Now you can head over to your site and share it with the world.',
+					'jetpack-mu-wpcom'
+				) }
+			</p>
+
+			<div className="launched__modal-site">
+				<div className="launched__modal-domain">
+					<p className="launched__modal-domain-text">{ siteSlug }</p>
+					<Tooltip
+						text={ clipboardCopied ? __( 'Copied to clipboard!', 'jetpack-mu-wpcom' ) : '' }
+						delay={ 0 }
+						hideOnClick={ false }
+					>
+						<Button
+							label={ __( 'Copy URL', 'jetpack-mu-wpcom' ) }
+							className="launchpad__clipboard-button"
+							borderless
+							size="compact"
+							ref={ ref }
+							onMouseLeave={ () => setClipboardCopied( false ) }
+						>
+							<Icon icon={ copy } size={ 18 } />
 						</Button>
-					</div>
+					</Tooltip>
 				</div>
+
+				<Button href={ siteUrl } target="_blank" className="launched__modal-view-site">
+					<Gridicon icon="domains" size={ 18 } />
+					<span className="launched__modal-view-site-text">
+						{ __( 'View site', 'jetpack-mu-wpcom' ) }
+					</span>
+				</Button>
 			</div>
 			{ renderUpsellContent() }
 		</Modal>
