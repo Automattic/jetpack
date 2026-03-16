@@ -1,9 +1,12 @@
 /**
- * PayPal Payment Buttons — Block Registration.
+ * Standalone plugin entry point for PayPal Payment Buttons.
  *
- * Registers the block with WordPress, wiring together the edit component,
- * save component, and deprecation handlers. This is the entry point
- * specified in block.json's `editorScript`.
+ * This file is used when the block runs as a standalone WordPress plugin
+ * (outside the Jetpack monorepo). It uses `registerBlockType` with a static
+ * save component, deprecated handler, and block-v2.json as the manifest.
+ *
+ * For the Jetpack monorepo entry point, see editor.js (uses block.json
+ * with dynamic/PHP rendering via `save: () => null`).
  *
  * @package
  * @since 0.8.0

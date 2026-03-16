@@ -113,7 +113,7 @@ class PayPal_Admin_Page {
 
 		if ( is_wp_error( $result ) ) {
 			set_transient(
-				'paypal_admin_notice',
+				'paypal_admin_notice_' . get_current_user_id(),
 				array(
 					'type'    => 'error',
 					'message' => sprintf(
@@ -126,7 +126,7 @@ class PayPal_Admin_Page {
 			);
 		} else {
 			set_transient(
-				'paypal_admin_notice',
+				'paypal_admin_notice_' . get_current_user_id(),
 				array(
 					'type'    => 'success',
 					'message' => __( 'Payment link deleted successfully.', 'jetpack-paypal-payments' ),
@@ -297,9 +297,9 @@ class PayPal_Admin_Page {
 		}
 
 		// Display admin notices from transient.
-		$notice = get_transient( 'paypal_admin_notice' );
+		$notice = get_transient( 'paypal_admin_notice_' . get_current_user_id() );
 		if ( $notice ) {
-			delete_transient( 'paypal_admin_notice' );
+			delete_transient( 'paypal_admin_notice_' . get_current_user_id() );
 			printf(
 				'<div class="notice notice-%s is-dismissible"><p>%s</p></div>',
 				esc_attr( $notice['type'] ),

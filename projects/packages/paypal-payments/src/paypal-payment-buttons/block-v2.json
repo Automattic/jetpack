@@ -52,6 +52,58 @@
 		},
 		"returnUrl": {
 			"type": "string"
+		},
+		"variantsEnabled": {
+			"type": "boolean",
+			"default": false
+		},
+		"variants": {
+			"type": "object",
+			"default": null
+		},
+		"adjustableQuantity": {
+			"type": "boolean",
+			"default": false
+		},
+		"maxQuantity": {
+			"type": "number",
+			"default": 10
+		},
+		"customerNotes": {
+			"type": "array",
+			"default": []
+		},
+		"taxEnabled": {
+			"type": "boolean",
+			"default": false
+		},
+		"taxType": {
+			"type": "string",
+			"default": "PERCENTAGE"
+		},
+		"taxName": {
+			"type": "string",
+			"default": "Sales Tax"
+		},
+		"taxValue": {
+			"type": "string",
+			"default": ""
+		},
+		"collectShippingAddress": {
+			"type": "boolean",
+			"default": false
+		},
+		"shippingEnabled": {
+			"type": "boolean",
+			"default": false
+		},
+		"shippingType": {
+			"type": "string",
+			"default": "FLAT"
+		},
+		"shippingValue": {
+			"type": "string",
+			"default": ""
 		}
 	},
 	"supports": {

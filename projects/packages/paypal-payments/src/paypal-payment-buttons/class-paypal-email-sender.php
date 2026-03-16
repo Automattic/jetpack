@@ -241,7 +241,7 @@ class PayPal_Email_Sender {
 
 		$log[] = array(
 			'resource_id' => $resource_id,
-			'email'       => $recipient,
+			'email'       => self::mask_email( $recipient ),
 			'sent_at'     => gmdate( 'Y-m-d H:i:s' ),
 		);
 
@@ -251,6 +251,26 @@ class PayPal_Email_Sender {
 		}
 
 		update_option( self::LOG_OPTION_KEY, $log, false );
+	}
+
+	/**
+	 * Mask an email address for privacy-safe storage.
+	 *
+	 * Stores only the first 3 characters of the local part + domain.
+	 * Example: "customer@example.com" → "cus***@example.com"
+	 *
+	 * @param string $email Full email address.
+	 * @return string Masked email address.
+	 */
+	private static function mask_email( $email ) {
+		$parts = explode( '@', $email, 2 );
+		if ( count( $parts ) !== 2 ) {
+			return '***';
+		}
+		$local   = $parts[0];
+		$domain  = $parts[1];
+		$visible = min( 3, strlen( $local ) );
+		return substr( $local, 0, $visible ) . '***@' . $domain;
 	}
 
 	/**
