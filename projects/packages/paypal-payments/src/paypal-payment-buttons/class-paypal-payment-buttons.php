@@ -206,6 +206,7 @@ class PayPal_Payment_Buttons {
 		$image_url           = $attributes['imageUrl'] ?? '';
 		$variants_enabled    = ! empty( $attributes['variantsEnabled'] );
 		$variants            = $attributes['variants'] ?? null;
+		$show_qr_code        = $attributes['showQrCode'] ?? true;
 
 		if ( empty( $resource_id ) || empty( $payment_url ) ) {
 			return;
@@ -218,7 +219,9 @@ class PayPal_Payment_Buttons {
 		}
 
 		self::register_hooks();
-		self::enqueue_qr_script();
+		if ( $show_qr_code ) {
+			self::enqueue_qr_script();
+		}
 
 		// Append BN code for revenue attribution tracking.
 		$action_url = esc_url(
@@ -314,10 +317,25 @@ class PayPal_Payment_Buttons {
 			}
 		}
 
+		// QR code section (conditionally rendered).
+		$qr_html = '';
+		if ( $show_qr_code ) {
+			$qr_show     = esc_attr__( 'Show QR Code', 'jetpack-paypal-payments' );
+			$qr_hide     = esc_attr__( 'Hide QR Code', 'jetpack-paypal-payments' );
+			$qr_download = esc_html__( 'Download QR Code', 'jetpack-paypal-payments' );
+			$qr_html     = '<div class="jetpack-paypal-button__qr-section">'
+				. '<button type="button" class="jetpack-paypal-button__qr-toggle" data-show-label="' . $qr_show . '" data-hide-label="' . $qr_hide . '" aria-expanded="false">' . $qr_show . '</button>'
+				. '<div class="jetpack-paypal-button__qr-wrapper" style="display:none;">'
+				. '<canvas class="jetpack-paypal-button__qr-canvas"></canvas>'
+				. '<button type="button" class="jetpack-paypal-button__qr-download">' . $qr_download . '</button>'
+				. '</div></div>';
+		}
+
 		$paypal_logo = self::get_paypal_logo_svg();
+		// Note: get_block_wrapper_attributes() available if needed for custom wrapper classes.
 
 		return sprintf(
-			'<div class="wp-block-jetpack-paypal-payment-buttons">
+			'<div %15$s>
 	<div class="jetpack-paypal-button">
 		%10$s
 		<div class="jetpack-paypal-button__product">
@@ -336,13 +354,7 @@ class PayPal_Payment_Buttons {
 			%8$s
 		</div>
 		<p class="jetpack-paypal-button__attribution">%9$s</p>
-		<div class="jetpack-paypal-button__qr-section">
-			<button type="button" class="jetpack-paypal-button__qr-toggle" data-show-label="%11$s" data-hide-label="%12$s" aria-expanded="false">%11$s</button>
-			<div class="jetpack-paypal-button__qr-wrapper" style="display:none;">
-				<canvas class="jetpack-paypal-button__qr-canvas"></canvas>
-				<button type="button" class="jetpack-paypal-button__qr-download">%13$s</button>
-			</div>
-		</div>
+		%15$s
 	</div>
 </div>',
 			esc_html( $product_name ),
@@ -355,10 +367,11 @@ class PayPal_Payment_Buttons {
 			$debit_button_html,
 			esc_html__( 'Powered by PayPal', 'jetpack-paypal-payments' ),
 			$image_html,
-			esc_attr__( 'Show QR Code', 'jetpack-paypal-payments' ),
-			esc_attr__( 'Hide QR Code', 'jetpack-paypal-payments' ),
-			esc_html__( 'Download QR Code', 'jetpack-paypal-payments' ),
-			$variants_html
+			'',
+			'',
+			'',
+			$variants_html,
+			$qr_html
 		);
 	}
 

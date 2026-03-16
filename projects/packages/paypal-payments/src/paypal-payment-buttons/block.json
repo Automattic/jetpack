@@ -118,6 +118,10 @@
 		"shippingValue": {
 			"type": "string",
 			"default": ""
+		},
+		"showQrCode": {
+			"type": "boolean",
+			"default": true
 		}
 	},
 	"editorScript": "file:../../dist/paypal-payment-buttons/editor.js",

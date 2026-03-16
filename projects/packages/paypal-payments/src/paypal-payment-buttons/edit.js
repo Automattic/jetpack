@@ -88,8 +88,8 @@ const VALID_CURRENCY_CODES = new Set( SUPPORTED_CURRENCIES.map( c => c.value ) )
  * Button type options for the block display style.
  */
 const BUTTON_TYPE_OPTIONS = [
-	{ label: __( 'Stacked', 'jetpack-paypal-payments' ), value: 'stacked' },
-	{ label: __( 'Single', 'jetpack-paypal-payments' ), value: 'single' },
+	{ label: __( 'PayPal + Debit/Credit Card', 'jetpack-paypal-payments' ), value: 'stacked' },
+	{ label: __( 'PayPal Only', 'jetpack-paypal-payments' ), value: 'single' },
 ];
 
 /**
@@ -640,7 +640,7 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 				<InspectorControls>
 					<PanelBody title={ __( 'Button Settings', 'jetpack-paypal-payments' ) }>
 						<SelectControl
-							label={ __( 'Button Layout', 'jetpack-paypal-payments' ) }
+							label={ __( 'Payment Methods', 'jetpack-paypal-payments' ) }
 							value={ buttonType }
 							options={ BUTTON_TYPE_OPTIONS }
 							onChange={ value => setAttributes( { buttonType: value } ) }
@@ -946,7 +946,7 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 		<InspectorControls>
 			<PanelBody title={ __( 'Button Settings', 'jetpack-paypal-payments' ) }>
 				<SelectControl
-					label={ __( 'Button Layout', 'jetpack-paypal-payments' ) }
+					label={ __( 'Payment Methods', 'jetpack-paypal-payments' ) }
 					value={ buttonType }
 					options={ BUTTON_TYPE_OPTIONS }
 					onChange={ value => setAttributes( { buttonType: value } ) }
@@ -955,6 +955,15 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 					label={ __( 'Button Text', 'jetpack-paypal-payments' ) }
 					value={ buttonText || '' }
 					onChange={ value => setAttributes( { buttonText: value } ) }
+				/>
+				<ToggleControl
+					label={ __( 'Show QR code', 'jetpack-paypal-payments' ) }
+					help={ __(
+						'Display a QR code below the button for in-person sharing.',
+						'jetpack-paypal-payments'
+					) }
+					checked={ attributes.showQrCode !== false }
+					onChange={ value => setAttributes( { showQrCode: value } ) }
 				/>
 			</PanelBody>
 
