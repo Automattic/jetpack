@@ -263,6 +263,360 @@ class PayPal_Admin_Page_Test extends TestCase {
 		$this->assertStringContainsString( 'notice-error', $output );
 	}
 
+	// --- render_page: detail view (WOOPTP-167) ---
+
+	/**
+	 * Test render_page routes to detail view when action=view and resource_id are set.
+	 */
+	public function test_render_page_routes_to_detail_view() {
+		$admin = $this->create_admin_user();
+		wp_set_current_user( $admin );
+
+		$this->set_up_connected_state();
+		$this->mock_get_resource_response( $this->get_sample_resource() );
+
+		$_GET['action']      = 'view';
+		$_GET['resource_id'] = 'PLB-ABC123';
+
+		ob_start();
+		PayPal_Admin_Page::render_page();
+		$output = ob_get_clean();
+
+		// Should show product name as heading.
+		$this->assertStringContainsString( 'Premium Widget', $output );
+		// Should show breadcrumb back link.
+		$this->assertStringContainsString( 'Back to Payment Links', $output );
+		// Should show resource ID.
+		$this->assertStringContainsString( 'PLB-ABC123', $output );
+	}
+
+	/**
+	 * Test detail view shows status badge.
+	 */
+	public function test_detail_view_shows_status_badge() {
+		$admin = $this->create_admin_user();
+		wp_set_current_user( $admin );
+
+		$this->set_up_connected_state();
+		$this->mock_get_resource_response( $this->get_sample_resource() );
+
+		$_GET['action']      = 'view';
+		$_GET['resource_id'] = 'PLB-ABC123';
+
+		ob_start();
+		PayPal_Admin_Page::render_page();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( 'paypal-status-active', $output );
+		$this->assertStringContainsString( 'ACTIVE', $output );
+	}
+
+	/**
+	 * Test detail view shows payment details card.
+	 */
+	public function test_detail_view_shows_payment_details() {
+		$admin = $this->create_admin_user();
+		wp_set_current_user( $admin );
+
+		$this->set_up_connected_state();
+		$this->mock_get_resource_response( $this->get_sample_resource() );
+
+		$_GET['action']      = 'view';
+		$_GET['resource_id'] = 'PLB-ABC123';
+
+		ob_start();
+		PayPal_Admin_Page::render_page();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( 'Payment Details', $output );
+		$this->assertStringContainsString( '$29.99', $output );
+		$this->assertStringContainsString( 'USD', $output );
+		$this->assertStringContainsString( 'BUY_NOW', $output );
+		$this->assertStringContainsString( 'LINK', $output );
+	}
+
+	/**
+	 * Test detail view shows description when present.
+	 */
+	public function test_detail_view_shows_description() {
+		$admin = $this->create_admin_user();
+		wp_set_current_user( $admin );
+
+		$this->set_up_connected_state();
+		$resource                                 = $this->get_sample_resource();
+		$resource['line_items'][0]['description'] = 'A premium widget with features.';
+		$this->mock_get_resource_response( $resource );
+
+		$_GET['action']      = 'view';
+		$_GET['resource_id'] = 'PLB-ABC123';
+
+		ob_start();
+		PayPal_Admin_Page::render_page();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( 'A premium widget with features.', $output );
+	}
+
+	/**
+	 * Test detail view shows payment link card with copy button.
+	 */
+	public function test_detail_view_shows_payment_link_card() {
+		$admin = $this->create_admin_user();
+		wp_set_current_user( $admin );
+
+		$this->set_up_connected_state();
+		$this->mock_get_resource_response( $this->get_sample_resource() );
+
+		$_GET['action']      = 'view';
+		$_GET['resource_id'] = 'PLB-ABC123';
+
+		ob_start();
+		PayPal_Admin_Page::render_page();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( 'Payment Link', $output );
+		$this->assertStringContainsString( 'paypal.com/ncp/payment/PLB-ABC123', $output );
+		$this->assertStringContainsString( 'paypal-copy-link', $output );
+		$this->assertStringContainsString( 'Copy to Clipboard', $output );
+	}
+
+	/**
+	 * Test detail view shows action buttons (Open, Copy, Delete).
+	 */
+	public function test_detail_view_shows_action_buttons() {
+		$admin = $this->create_admin_user();
+		wp_set_current_user( $admin );
+
+		$this->set_up_connected_state();
+		$this->mock_get_resource_response( $this->get_sample_resource() );
+
+		$_GET['action']      = 'view';
+		$_GET['resource_id'] = 'PLB-ABC123';
+
+		ob_start();
+		PayPal_Admin_Page::render_page();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( 'Open Payment Page', $output );
+		$this->assertStringContainsString( 'Copy Link', $output );
+		$this->assertStringContainsString( 'action=delete', $output );
+	}
+
+	/**
+	 * Test detail view shows error when API returns WP_Error.
+	 */
+	public function test_detail_view_shows_error_on_api_failure() {
+		$admin = $this->create_admin_user();
+		wp_set_current_user( $admin );
+
+		$this->set_up_connected_state();
+
+		add_filter(
+			'pre_http_request',
+			function ( $preempt, $args, $url ) {
+				if ( false !== strpos( $url, '/v1/oauth2/token' ) ) {
+					return $preempt;
+				}
+				return new \WP_Error( 'http_request_failed', 'Connection refused' );
+			},
+			10,
+			3
+		);
+
+		$_GET['action']      = 'view';
+		$_GET['resource_id'] = 'PLB-NOTFOUND';
+
+		ob_start();
+		PayPal_Admin_Page::render_page();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( 'notice-error', $output );
+		$this->assertStringContainsString( 'Back to Payment Links', $output );
+	}
+
+	/**
+	 * Test detail view shows 404 error for deleted resource.
+	 */
+	public function test_detail_view_handles_404() {
+		$admin = $this->create_admin_user();
+		wp_set_current_user( $admin );
+
+		$this->set_up_connected_state();
+
+		add_filter(
+			'pre_http_request',
+			function ( $preempt, $args, $url ) {
+				if ( false !== strpos( $url, '/v1/oauth2/token' ) ) {
+					return $preempt;
+				}
+				return array(
+					'response' => array(
+						'code'    => 404,
+						'message' => '',
+					),
+					'body'     => wp_json_encode(
+						array(
+							'name'    => 'RESOURCE_NOT_FOUND',
+							'message' => 'The specified resource does not exist.',
+						),
+						JSON_UNESCAPED_SLASHES
+					),
+				);
+			},
+			10,
+			3
+		);
+
+		$_GET['action']      = 'view';
+		$_GET['resource_id'] = 'PLB-DELETED';
+
+		ob_start();
+		PayPal_Admin_Page::render_page();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( 'notice-error', $output );
+	}
+
+	/**
+	 * Test detail view shows configuration card when taxes are present.
+	 */
+	public function test_detail_view_shows_configuration_card_with_taxes() {
+		$admin = $this->create_admin_user();
+		wp_set_current_user( $admin );
+
+		$this->set_up_connected_state();
+		$resource                           = $this->get_sample_resource();
+		$resource['line_items'][0]['taxes'] = array(
+			array(
+				'name'  => 'Sales Tax',
+				'type'  => 'PERCENTAGE',
+				'value' => '8.25',
+			),
+		);
+		$this->mock_get_resource_response( $resource );
+
+		$_GET['action']      = 'view';
+		$_GET['resource_id'] = 'PLB-ABC123';
+
+		ob_start();
+		PayPal_Admin_Page::render_page();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( 'Configuration', $output );
+		$this->assertStringContainsString( 'Sales Tax', $output );
+		$this->assertStringContainsString( '8.25', $output );
+	}
+
+	/**
+	 * Test detail view shows adjustable quantity.
+	 */
+	public function test_detail_view_shows_adjustable_quantity() {
+		$admin = $this->create_admin_user();
+		wp_set_current_user( $admin );
+
+		$this->set_up_connected_state();
+		$resource = $this->get_sample_resource();
+		$resource['line_items'][0]['adjustable_quantity'] = array( 'maximum' => 10 );
+		$this->mock_get_resource_response( $resource );
+
+		$_GET['action']      = 'view';
+		$_GET['resource_id'] = 'PLB-ABC123';
+
+		ob_start();
+		PayPal_Admin_Page::render_page();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( 'Adjustable Quantity', $output );
+		$this->assertStringContainsString( '10', $output );
+	}
+
+	/**
+	 * Test detail view shows variants with dimensions.
+	 */
+	public function test_detail_view_shows_variants() {
+		$admin = $this->create_admin_user();
+		wp_set_current_user( $admin );
+
+		$this->set_up_connected_state();
+		$resource                              = $this->get_sample_resource();
+		$resource['line_items'][0]['variants'] = array(
+			'dimensions' => array(
+				array(
+					'name'    => 'Color',
+					'options' => array(
+						array( 'label' => 'Black' ),
+						array( 'label' => 'White' ),
+					),
+				),
+			),
+		);
+		$this->mock_get_resource_response( $resource );
+
+		$_GET['action']      = 'view';
+		$_GET['resource_id'] = 'PLB-ABC123';
+
+		ob_start();
+		PayPal_Admin_Page::render_page();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( 'Variants', $output );
+		$this->assertStringContainsString( 'Color', $output );
+		$this->assertStringContainsString( 'Black', $output );
+		$this->assertStringContainsString( 'White', $output );
+	}
+
+	/**
+	 * Test detail view omits configuration card when no config fields are present.
+	 */
+	public function test_detail_view_omits_configuration_card_when_empty() {
+		$admin = $this->create_admin_user();
+		wp_set_current_user( $admin );
+
+		$this->set_up_connected_state();
+		$this->mock_get_resource_response( $this->get_sample_resource() );
+
+		$_GET['action']      = 'view';
+		$_GET['resource_id'] = 'PLB-ABC123';
+
+		ob_start();
+		PayPal_Admin_Page::render_page();
+		$output = ob_get_clean();
+
+		$this->assertStringNotContainsString( 'Configuration', $output );
+	}
+
+	/**
+	 * Test detail view extracts payment link from HATEOAS links.
+	 */
+	public function test_detail_view_extracts_payment_link_from_hateoas() {
+		$admin = $this->create_admin_user();
+		wp_set_current_user( $admin );
+
+		$this->set_up_connected_state();
+		$resource = $this->get_sample_resource();
+		unset( $resource['payment_link'] );
+		$resource['links'] = array(
+			array(
+				'rel'  => 'self',
+				'href' => 'https://api.paypal.com/v1/checkout/payment-resources/PLB-ABC123',
+			),
+			array(
+				'rel'  => 'payment_link',
+				'href' => 'https://www.paypal.com/ncp/payment/PLB-ABC123',
+			),
+		);
+		$this->mock_get_resource_response( $resource );
+
+		$_GET['action']      = 'view';
+		$_GET['resource_id'] = 'PLB-ABC123';
+
+		ob_start();
+		PayPal_Admin_Page::render_page();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( 'paypal.com/ncp/payment/PLB-ABC123', $output );
+	}
+
 	// --- enqueue_assets ---
 
 	/**
@@ -294,6 +648,66 @@ class PayPal_Admin_Page_Test extends TestCase {
 				'user_pass'  => wp_generate_password(),
 				'role'       => 'administrator',
 			)
+		);
+	}
+
+	/**
+	 * Set up a connected PayPal state with a cached token.
+	 */
+	private function set_up_connected_state() {
+		PayPal_OAuth::store_credentials( 'test_client_id', 'test_client_secret' );
+		PayPal_OAuth::set_environment( 'production' );
+		set_transient( PayPal_OAuth::TOKEN_TRANSIENT_KEY, 'fake_access_token', 3600 );
+	}
+
+	/**
+	 * Mock a get_resource API response.
+	 *
+	 * @param array $resource The resource data to return.
+	 */
+	private function mock_get_resource_response( $resource ) {
+		add_filter(
+			'pre_http_request',
+			function ( $preempt, $args, $url ) use ( $resource ) {
+				if ( false !== strpos( $url, '/v1/oauth2/token' ) ) {
+					return $preempt;
+				}
+				return array(
+					'response' => array(
+						'code'    => 200,
+						'message' => '',
+					),
+					'body'     => wp_json_encode( $resource, JSON_UNESCAPED_SLASHES ),
+				);
+			},
+			10,
+			3
+		);
+	}
+
+	/**
+	 * Get a sample payment resource for testing.
+	 *
+	 * @return array
+	 */
+	private function get_sample_resource() {
+		return array(
+			'id'               => 'PLB-ABC123',
+			'type'             => 'BUY_NOW',
+			'integration_mode' => 'LINK',
+			'reusable'         => 'MULTIPLE',
+			'status'           => 'ACTIVE',
+			'create_time'      => '2026-03-15T10:00:00Z',
+			'payment_link'     => 'https://www.paypal.com/ncp/payment/PLB-ABC123',
+			'line_items'       => array(
+				array(
+					'name'        => 'Premium Widget',
+					'unit_amount' => array(
+						'currency_code' => 'USD',
+						'value'         => '29.99',
+					),
+				),
+			),
 		);
 	}
 }
