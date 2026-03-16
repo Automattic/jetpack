@@ -35,6 +35,7 @@ import {
 import { useState, useEffect, useCallback, useMemo } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import PayPalButtonPreview from './paypal-button-preview';
+import VariantBuilder from './variant-builder';
 
 /**
  * Supported currencies for the currency selector.
@@ -209,6 +210,8 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 		productDescription,
 		returnUrl,
 		imageUrl,
+		variantsEnabled,
+		variants,
 	} = attributes;
 
 	const blockProps = useBlockProps();
@@ -441,11 +444,21 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 					},
 					...( productDescription ? { description: productDescription } : {} ),
 					...( imageUrl ? { image_url: imageUrl } : {} ),
+					...( variantsEnabled && variants ? { variants } : {} ),
 				},
 			],
 			...( returnUrl ? { return_url: returnUrl } : {} ),
 		} ),
-		[ productName, price, currencyCode, productDescription, returnUrl, imageUrl ]
+		[
+			productName,
+			price,
+			currencyCode,
+			productDescription,
+			returnUrl,
+			imageUrl,
+			variantsEnabled,
+			variants,
+		]
 	);
 
 	/**
@@ -965,6 +978,19 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 				/>
 			</PanelBody>
 
+			<PanelBody
+				title={ __( 'Product Variants', 'jetpack-paypal-payments' ) }
+				initialOpen={ false }
+			>
+				<VariantBuilder
+					enabled={ variantsEnabled }
+					variants={ variants }
+					currencyCode={ currencyCode || 'USD' }
+					onChange={ updates => setAttributes( updates ) }
+					disabled={ isCreating }
+				/>
+			</PanelBody>
+
 			{ hasButton && (
 				<PanelBody
 					title={ __( 'PayPal Connection', 'jetpack-paypal-payments' ) }
@@ -1047,6 +1073,8 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 						productDescription={ productDescription }
 						paymentLink={ paymentLink }
 						imageUrl={ imageUrl }
+						variantsEnabled={ variantsEnabled }
+						variants={ variants }
 					/>
 				</div>
 			</div>

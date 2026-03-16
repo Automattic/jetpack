@@ -154,15 +154,17 @@ function CopyablePaymentLink( { paymentLink } ) {
  * Renders a styled button that visually matches the PayPal-branded button
  * appearance on the frontend. Clicking is disabled in the editor.
  *
- * @param {object} props                    - Component props.
- * @param {string} props.buttonText         - Text displayed on the button.
- * @param {string} props.buttonType         - Layout type: 'stacked' or 'single'.
- * @param {string} props.productName        - Product name to display.
- * @param {string} props.price              - Price value string.
- * @param {string} props.currencyCode       - ISO currency code.
- * @param {string} props.productDescription - Optional product description.
- * @param {string} props.paymentLink        - PayPal payment URL.
- * @param {string} props.imageUrl           - Optional product image URL.
+ * @param {object}  props                    - Component props.
+ * @param {string}  props.buttonText         - Text displayed on the button.
+ * @param {string}  props.buttonType         - Layout type: 'stacked' or 'single'.
+ * @param {string}  props.productName        - Product name to display.
+ * @param {string}  props.price              - Price value string.
+ * @param {string}  props.currencyCode       - ISO currency code.
+ * @param {string}  props.productDescription - Optional product description.
+ * @param {string}  props.paymentLink        - PayPal payment URL.
+ * @param {string}  props.imageUrl           - Optional product image URL.
+ * @param {boolean} props.variantsEnabled    - Whether variants are active.
+ * @param {object}  props.variants           - Variants data with dimensions.
  * @return {Element} Button preview element.
  */
 export default function PayPalButtonPreview( {
@@ -174,6 +176,8 @@ export default function PayPalButtonPreview( {
 	productDescription,
 	paymentLink,
 	imageUrl,
+	variantsEnabled,
+	variants,
 } ) {
 	const isStacked = buttonType === 'stacked';
 
@@ -202,6 +206,17 @@ export default function PayPalButtonPreview( {
 					</span>
 				) }
 			</div>
+
+			{ /* Variant summary */ }
+			{ variantsEnabled && variants?.dimensions?.length > 0 && (
+				<div className="jetpack-paypal-button-preview__variants">
+					{ variants.dimensions.map( ( dim, i ) => (
+						<span key={ i } className="jetpack-paypal-button-preview__variant-badge">
+							{ dim.name }: { dim.options?.length || 0 }
+						</span>
+					) ) }
+				</div>
+			) }
 
 			{ /* PayPal-styled button */ }
 			<div

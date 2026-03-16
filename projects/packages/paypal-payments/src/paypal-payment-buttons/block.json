@@ -66,6 +66,14 @@
 		"imageUrl": {
 			"type": "string",
 			"default": ""
+		},
+		"variantsEnabled": {
+			"type": "boolean",
+			"default": false
+		},
+		"variants": {
+			"type": "object",
+			"default": null
 		}
 	},
 	"editorScript": "file:../../dist/paypal-payment-buttons/editor.js",

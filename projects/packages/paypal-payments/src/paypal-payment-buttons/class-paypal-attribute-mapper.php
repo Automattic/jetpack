@@ -113,6 +113,11 @@ class PayPal_Attribute_Mapper {
 			$line_item['image_url'] = esc_url_raw( $attributes['imageUrl'] );
 		}
 
+		// Product variants (dimensions with options).
+		if ( ! empty( $attributes['variantsEnabled'] ) && ! empty( $attributes['variants']['dimensions'] ) ) {
+			$line_item['variants'] = self::sanitize_variants( $attributes['variants'] );
+		}
+
 		$request = array(
 			'type'             => 'BUY_NOW',
 			'integration_mode' => 'LINK',
@@ -161,6 +166,11 @@ class PayPal_Attribute_Mapper {
 
 			if ( ! empty( $line_item['image_url'] ) ) {
 				$attributes['imageUrl'] = esc_url_raw( $line_item['image_url'] );
+			}
+
+			if ( ! empty( $line_item['variants']['dimensions'] ) ) {
+				$attributes['variantsEnabled'] = true;
+				$attributes['variants']        = $line_item['variants'];
 			}
 		}
 
@@ -366,5 +376,70 @@ class PayPal_Attribute_Mapper {
 		}
 
 		return true;
+	}
+
+	/**
+	 * Sanitize and validate a variants structure for the PayPal API.
+	 *
+	 * Enforces: max 5 dimensions, max 10 options per dimension,
+	 * only the primary dimension may have per-option pricing.
+	 *
+	 * @param array $variants Raw variants from block attributes.
+	 * @return array Sanitized variants ready for the API.
+	 */
+	private static function sanitize_variants( array $variants ) {
+		if ( empty( $variants['dimensions'] ) || ! is_array( $variants['dimensions'] ) ) {
+			return array( 'dimensions' => array() );
+		}
+
+		$sanitized_dimensions = array();
+		$count                = 0;
+
+		foreach ( $variants['dimensions'] as $dimension ) {
+			if ( ++$count > 5 ) {
+				break;
+			}
+
+			$dim = array(
+				'name'    => sanitize_text_field( $dimension['name'] ?? '' ),
+				'primary' => ! empty( $dimension['primary'] ),
+				'options' => array(),
+			);
+
+			if ( empty( $dim['name'] ) ) {
+				continue;
+			}
+
+			$option_count = 0;
+			foreach ( ( $dimension['options'] ?? array() ) as $option ) {
+				if ( ++$option_count > 10 ) {
+					break;
+				}
+
+				$opt = array(
+					'label' => sanitize_text_field( $option['label'] ?? '' ),
+				);
+
+				if ( empty( $opt['label'] ) ) {
+					continue;
+				}
+
+				// Only primary dimension can have per-option pricing.
+				if ( $dim['primary'] && ! empty( $option['unit_amount'] ) && is_array( $option['unit_amount'] ) ) {
+					$opt['unit_amount'] = array(
+						'currency_code' => sanitize_text_field( $option['unit_amount']['currency_code'] ?? 'USD' ),
+						'value'         => sanitize_text_field( $option['unit_amount']['value'] ?? '' ),
+					);
+				}
+
+				$dim['options'][] = $opt;
+			}
+
+			if ( ! empty( $dim['options'] ) ) {
+				$sanitized_dimensions[] = $dim;
+			}
+		}
+
+		return array( 'dimensions' => $sanitized_dimensions );
 	}
 }

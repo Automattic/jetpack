@@ -450,3 +450,63 @@
 		margin: 4px 0;
 	}
 }
+
+// Variant builder in InspectorControls.
+.jetpack-paypal-variants__dimension {
+	border: 1px solid #ddd;
+	border-radius: 4px;
+	padding: 12px;
+	margin-bottom: 12px;
+	background: #f9f9f9;
+}
+
+.jetpack-paypal-variants__dimension-header {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	margin-bottom: 8px;
+}
+
+.jetpack-paypal-variants__dimension-controls {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+
+.jetpack-paypal-variants__options {
+	margin-left: 12px;
+	padding-left: 12px;
+	border-left: 2px solid #ddd;
+}
+
+.jetpack-paypal-variants__option {
+	display: flex;
+	gap: 8px;
+	align-items: flex-end;
+	margin-bottom: 8px;
+
+	.components-text-control__input {
+		min-width: 0;
+	}
+}
+
+.jetpack-paypal-variants__add-dimension {
+	margin-top: 8px;
+}
+
+// Variant summary badges in preview.
+.jetpack-paypal-button-preview__variants {
+	display: flex;
+	gap: 6px;
+	flex-wrap: wrap;
+	margin-bottom: 8px;
+}
+
+.jetpack-paypal-button-preview__variant-badge {
+	display: inline-block;
+	padding: 2px 8px;
+	border-radius: 10px;
+	background: #e8e8e8;
+	font-size: 11px;
+	color: #555;
+}

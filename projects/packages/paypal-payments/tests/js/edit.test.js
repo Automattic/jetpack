@@ -85,6 +85,22 @@ jest.mock( '@wordpress/components', () => ( {
 		</select>
 	),
 	Spinner: () => <div data-testid="spinner">Loading...</div>,
+	ToggleControl: ( { label, checked, onChange, help, disabled } ) => {
+		const id = `toggle-${ label }`;
+		return (
+			<div>
+				<input
+					id={ id }
+					type="checkbox"
+					checked={ checked }
+					onChange={ () => onChange( ! checked ) }
+					disabled={ disabled }
+				/>
+				<label htmlFor={ id }>{ label }</label>
+				{ help && <span>{ help }</span> }
+			</div>
+		);
+	},
 	TextControl: ( { label, value, onChange, onBlur, type, help, className, ...rest } ) => (
 		<div>
 			<label htmlFor={ `field-${ label }` }>{ label }</label>
