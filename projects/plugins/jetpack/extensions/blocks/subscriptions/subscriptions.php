@@ -88,11 +88,14 @@ function register_block() {
 		)
 	);
 
+	// The meta is a "don't send" flag, so invert the blog option (which defaults to true = "send").
+	$dont_email_default = ! get_option( 'wpcom_newsletter_send_default', true );
+
 	register_post_meta(
 		'post',
 		META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS,
 		array(
-			'default'       => false,
+			'default'       => $dont_email_default,
 			'show_in_rest'  => true,
 			'single'        => true,
 			'type'          => 'boolean',
