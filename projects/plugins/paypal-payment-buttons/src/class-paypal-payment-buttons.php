@@ -69,6 +69,11 @@ class PayPal_Payment_Buttons {
 		// Initialize PayPal API integration (REST routes for OAuth + button management).
 		Jetpack_PayPal_Payment_Buttons::init_api();
 
+		// Initialize admin dashboard (Payment Links list page).
+		if ( is_admin() ) {
+			Jetpack_PayPal_Payment_Buttons::init_admin();
+		}
+
 		// Load scripts for the editing interface
 		add_action( 'enqueue_block_editor_assets', array( Jetpack_PayPal_Payment_Buttons::class, 'load_editor_scripts' ), 9 );
 

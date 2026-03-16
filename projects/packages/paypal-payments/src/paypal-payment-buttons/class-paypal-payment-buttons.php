@@ -166,7 +166,7 @@ class PayPal_Payment_Buttons {
 	 * @param string $currency The ISO currency code.
 	 * @return string Formatted price string (e.g., "$29.99").
 	 */
-	private static function format_price( $price, $currency ) {
+	public static function format_price( $price, $currency ) {
 		$symbol = isset( self::$currency_symbols[ $currency ] ) ? self::$currency_symbols[ $currency ] : $currency;
 		return $symbol . $price;
 	}
@@ -203,6 +203,7 @@ class PayPal_Payment_Buttons {
 		$button_text         = $attributes['buttonText'] ?? __( 'Pay Now', 'jetpack-paypal-payments' );
 		$button_type         = $attributes['buttonType'] ?? 'stacked';
 		$product_description = $attributes['productDescription'] ?? '';
+		$image_url           = $attributes['imageUrl'] ?? '';
 
 		if ( empty( $resource_id ) || empty( $payment_url ) ) {
 			return;
@@ -222,6 +223,19 @@ class PayPal_Payment_Buttons {
 		);
 
 		$is_stacked = 'stacked' === $button_type;
+
+		// Build product image.
+		$image_html = '';
+		if ( ! empty( $image_url ) ) {
+			$sanitized_image = esc_url( $image_url );
+			if ( $sanitized_image ) {
+				$image_html = sprintf(
+					'<div class="jetpack-paypal-button__image"><img src="%s" alt="%s" loading="lazy" /></div>',
+					$sanitized_image,
+					esc_attr( $product_name )
+				);
+			}
+		}
 
 		// Build product info section.
 		$description_html = '';
@@ -255,6 +269,7 @@ class PayPal_Payment_Buttons {
 		return sprintf(
 			'<div class="wp-block-jetpack-paypal-payment-buttons">
 	<div class="jetpack-paypal-button">
+		%10$s
 		<div class="jetpack-paypal-button__product">
 			<div class="jetpack-paypal-button__product-info">
 				<span class="jetpack-paypal-button__product-name">%1$s</span>
@@ -280,7 +295,8 @@ class PayPal_Payment_Buttons {
 			$paypal_logo,
 			esc_html( $button_text ),
 			$debit_button_html,
-			esc_html__( 'Powered by PayPal', 'jetpack-paypal-payments' )
+			esc_html__( 'Powered by PayPal', 'jetpack-paypal-payments' ),
+			$image_html
 		);
 	}
 
@@ -451,6 +467,18 @@ class PayPal_Payment_Buttons {
 	public static function init_api() {
 		add_action( 'init', array( __CLASS__, 'register_standalone_script_stubs' ), 1 );
 		add_action( 'rest_api_init', array( PayPal_REST_Controller::class, 'register_routes' ) );
+	}
+
+	/**
+	 * Initialize admin dashboard hooks.
+	 *
+	 * Registers the Payment Links admin page for managing
+	 * all merchant payment links from wp-admin.
+	 *
+	 * @since 0.9.0
+	 */
+	public static function init_admin() {
+		PayPal_Admin_Page::init();
 	}
 
 	/**
