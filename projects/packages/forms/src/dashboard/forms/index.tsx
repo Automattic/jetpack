@@ -449,22 +449,17 @@ export default function FormsDashboardForms(): JSX.Element | null {
 								'jetpack-forms'
 							) }
 							actions={
-								hasClassicForms ? (
-									<HStack justify="center" spacing="2">
-										<CreateFormButton
-											label={ __( 'Create a new form', 'jetpack-forms' ) }
-											variant="primary"
-										/>
-										<Button size="compact" variant="secondary" onClick={ openFormsHelpModal }>
-											{ __( 'Not seeing all your forms?', 'jetpack-forms' ) }
-										</Button>
-									</HStack>
-								) : (
+								<HStack justify="center" spacing="2">
 									<CreateFormButton
 										label={ __( 'Create a new form', 'jetpack-forms' ) }
 										variant="primary"
 									/>
-								)
+									{ hasClassicForms && (
+										<Button size="compact" variant="secondary" onClick={ openFormsHelpModal }>
+											{ __( 'Not seeing all your forms?', 'jetpack-forms' ) }
+										</Button>
+									) }
+								</HStack>
 							}
 						/>
 					}

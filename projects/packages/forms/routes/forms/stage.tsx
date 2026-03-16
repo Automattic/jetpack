@@ -636,24 +636,18 @@ function StageInner() {
 								'jetpack-forms'
 							) }
 							actions={
-								hasClassicForms ? (
-									<HStack justify="center" spacing="2">
-										<CreateFormButton
-											label={ __( 'Create a new form', 'jetpack-forms' ) }
-											variant="primary"
-											showIcon={ false }
-										/>
-										<Button size="compact" variant="secondary" onClick={ openFormsHelpModal }>
-											{ __( 'Not seeing all your forms?', 'jetpack-forms' ) }
-										</Button>
-									</HStack>
-								) : (
+								<HStack justify="center" spacing="2">
 									<CreateFormButton
 										label={ __( 'Create a new form', 'jetpack-forms' ) }
 										variant="primary"
 										showIcon={ false }
 									/>
-								)
+									{ hasClassicForms && (
+										<Button size="compact" variant="secondary" onClick={ openFormsHelpModal }>
+											{ __( 'Not seeing all your forms?', 'jetpack-forms' ) }
+										</Button>
+									) }
+								</HStack>
 							}
 						/>
 					)

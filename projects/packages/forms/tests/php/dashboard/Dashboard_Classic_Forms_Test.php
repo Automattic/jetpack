@@ -24,6 +24,13 @@ class Dashboard_Classic_Forms_Test extends BaseTestCase {
 	private const OPTION_NAME = 'jetpack_forms_classic_state';
 
 	/**
+	 * Shorthand constants for readability.
+	 */
+	private const STATE_CLASSIC   = Dashboard::CLASSIC_FORMS_STATE_CLASSIC;
+	private const STATE_HIDDEN    = Dashboard::CLASSIC_FORMS_STATE_HIDDEN;
+	private const STATE_DISMISSED = Dashboard::CLASSIC_FORMS_STATE_DISMISSED;
+
+	/**
 	 * Clean up after each test.
 	 */
 	protected function tear_down() {
@@ -75,8 +82,8 @@ class Dashboard_Classic_Forms_Test extends BaseTestCase {
 		$dashboard = new Dashboard();
 		$state     = $dashboard->get_classic_forms_state();
 
-		$this->assertEquals( 'hidden', $state );
-		$this->assertEquals( 'hidden', get_option( self::OPTION_NAME ) );
+		$this->assertEquals( self::STATE_HIDDEN, $state );
+		$this->assertEquals( self::STATE_HIDDEN, get_option( self::OPTION_NAME ) );
 	}
 
 	/**
@@ -88,32 +95,32 @@ class Dashboard_Classic_Forms_Test extends BaseTestCase {
 		$dashboard = new Dashboard();
 		$state     = $dashboard->get_classic_forms_state();
 
-		$this->assertEquals( 'classic', $state );
-		$this->assertEquals( 'classic', get_option( self::OPTION_NAME ) );
+		$this->assertEquals( self::STATE_CLASSIC, $state );
+		$this->assertEquals( self::STATE_CLASSIC, get_option( self::OPTION_NAME ) );
 	}
 
 	/**
 	 * Test that when option is already 'classic', it returns 'classic' without querying.
 	 */
 	public function test_option_classic_returns_classic() {
-		update_option( self::OPTION_NAME, 'classic' );
+		update_option( self::OPTION_NAME, self::STATE_CLASSIC );
 
 		$dashboard = new Dashboard();
 		$state     = $dashboard->get_classic_forms_state();
 
-		$this->assertEquals( 'classic', $state );
+		$this->assertEquals( self::STATE_CLASSIC, $state );
 	}
 
 	/**
 	 * Test that when option is already 'hidden', it returns 'hidden' without querying.
 	 */
 	public function test_option_hidden_returns_hidden() {
-		update_option( self::OPTION_NAME, 'hidden' );
+		update_option( self::OPTION_NAME, self::STATE_HIDDEN );
 
 		$dashboard = new Dashboard();
 		$state     = $dashboard->get_classic_forms_state();
 
-		$this->assertEquals( 'hidden', $state );
+		$this->assertEquals( self::STATE_HIDDEN, $state );
 	}
 
 	/**
@@ -126,7 +133,7 @@ class Dashboard_Classic_Forms_Test extends BaseTestCase {
 
 		// First call detects classic and caches.
 		$state = $dashboard->get_classic_forms_state();
-		$this->assertEquals( 'classic', $state );
+		$this->assertEquals( self::STATE_CLASSIC, $state );
 
 		// Remove the SQL simulation — if option caching works, it won't matter.
 		remove_all_filters( 'wordbless_wpdb_query_results' );
@@ -134,7 +141,7 @@ class Dashboard_Classic_Forms_Test extends BaseTestCase {
 
 		// Second call should use cached option, not re-query.
 		$state = $dashboard->get_classic_forms_state();
-		$this->assertEquals( 'classic', $state );
+		$this->assertEquals( self::STATE_CLASSIC, $state );
 	}
 
 	/**
@@ -143,18 +150,18 @@ class Dashboard_Classic_Forms_Test extends BaseTestCase {
 	public function test_mark_classic_form_detected_sets_option() {
 		Dashboard::mark_classic_form_detected();
 
-		$this->assertEquals( 'classic', get_option( self::OPTION_NAME ) );
+		$this->assertEquals( self::STATE_CLASSIC, get_option( self::OPTION_NAME ) );
 	}
 
 	/**
 	 * Test that mark_classic_form_detected overwrites 'hidden' with 'classic'.
 	 */
 	public function test_mark_classic_form_detected_overwrites_hidden() {
-		update_option( self::OPTION_NAME, 'hidden' );
+		update_option( self::OPTION_NAME, self::STATE_HIDDEN );
 
 		Dashboard::mark_classic_form_detected();
 
-		$this->assertEquals( 'classic', get_option( self::OPTION_NAME ) );
+		$this->assertEquals( self::STATE_CLASSIC, get_option( self::OPTION_NAME ) );
 	}
 
 	/**
@@ -166,30 +173,41 @@ class Dashboard_Classic_Forms_Test extends BaseTestCase {
 		$dashboard = new Dashboard();
 		$state     = $dashboard->get_classic_forms_state();
 
-		$this->assertEquals( 'classic', $state );
+		$this->assertEquals( self::STATE_CLASSIC, $state );
 	}
 
 	/**
 	 * Test that when option is 'dismissed', it returns 'dismissed' without querying.
 	 */
 	public function test_option_dismissed_returns_dismissed() {
-		update_option( self::OPTION_NAME, 'dismissed' );
+		update_option( self::OPTION_NAME, self::STATE_DISMISSED );
 
 		$dashboard = new Dashboard();
 		$state     = $dashboard->get_classic_forms_state();
 
-		$this->assertEquals( 'dismissed', $state );
+		$this->assertEquals( self::STATE_DISMISSED, $state );
 	}
 
 	/**
 	 * Test that 'dismissed' state is not treated as 'classic' by the config endpoint.
 	 */
 	public function test_dismissed_state_is_not_classic() {
-		update_option( self::OPTION_NAME, 'dismissed' );
+		update_option( self::OPTION_NAME, self::STATE_DISMISSED );
 
 		$dashboard = new Dashboard();
 		$state     = $dashboard->get_classic_forms_state();
 
-		$this->assertNotEquals( 'classic', $state );
+		$this->assertNotEquals( self::STATE_CLASSIC, $state );
+	}
+
+	/**
+	 * Test that mark_classic_form_detected does not overwrite 'dismissed'.
+	 */
+	public function test_mark_classic_form_detected_does_not_overwrite_dismissed() {
+		update_option( self::OPTION_NAME, self::STATE_DISMISSED );
+
+		Dashboard::mark_classic_form_detected();
+
+		$this->assertEquals( self::STATE_DISMISSED, get_option( self::OPTION_NAME ) );
 	}
 }

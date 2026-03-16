@@ -365,10 +365,26 @@ class Dashboard {
 	const CLASSIC_FORMS_OPTION = 'jetpack_forms_classic_state';
 
 	/**
+	 * Classic forms state: site has classic (non-synced) form submissions.
+	 */
+	const CLASSIC_FORMS_STATE_CLASSIC = 'classic';
+
+	/**
+	 * Classic forms state: no classic form submissions detected.
+	 */
+	const CLASSIC_FORMS_STATE_HIDDEN = 'hidden';
+
+	/**
+	 * Classic forms state: user dismissed the classic forms notice.
+	 */
+	const CLASSIC_FORMS_STATE_DISMISSED = 'dismissed';
+
+	/**
 	 * Returns the classic forms state for the current site.
 	 *
 	 * Returns 'classic' if the site has form submissions (feedback posts) that were not
-	 * created by a synced/reusable jetpack_form, or 'hidden' otherwise.
+	 * created by a synced/reusable jetpack_form, 'dismissed' if the user dismissed the
+	 * classic forms notice, or 'hidden' otherwise.
 	 *
 	 * The result is persisted in a WP option so the detection query only runs once per site.
 	 * After that, the cached value is returned on every subsequent call. The cache is also
@@ -376,7 +392,7 @@ class Dashboard {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @return string 'classic' or 'hidden'.
+	 * @return string 'classic', 'hidden', or 'dismissed'.
 	 */
 	public function get_classic_forms_state() {
 		$state = get_option( self::CLASSIC_FORMS_OPTION );
@@ -433,7 +449,7 @@ class Dashboard {
 			)
 		);
 
-		return $result ? 'classic' : 'hidden';
+		return $result ? self::CLASSIC_FORMS_STATE_CLASSIC : self::CLASSIC_FORMS_STATE_HIDDEN;
 	}
 
 	/**
@@ -443,10 +459,19 @@ class Dashboard {
 	 * This avoids re-running the detection query — once a classic submission is observed, the
 	 * state is permanently set without needing to scan the database again.
 	 *
+	 * If the user has already dismissed the classic forms notice, the state is left as
+	 * 'dismissed' so the notice does not reappear.
+	 *
 	 * @since $$next-version$$
 	 */
 	public static function mark_classic_form_detected() {
-		update_option( self::CLASSIC_FORMS_OPTION, 'classic', false );
+		$current = get_option( self::CLASSIC_FORMS_OPTION );
+
+		if ( self::CLASSIC_FORMS_STATE_DISMISSED === $current ) {
+			return;
+		}
+
+		update_option( self::CLASSIC_FORMS_OPTION, self::CLASSIC_FORMS_STATE_CLASSIC, false );
 	}
 
 	/**
