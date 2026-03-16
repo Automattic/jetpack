@@ -7,7 +7,7 @@ import { store as socialStore } from '../../social-store';
 import { Connection } from '../../social-store/types';
 import { ServiceConnectionInfo } from './service-connection-info';
 import styles from './style.module.scss';
-import { SupportedService } from './use-supported-services';
+import { SupportedService } from './types';
 
 export type ServicesItemDetailsProps = {
 	service: SupportedService;

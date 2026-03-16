@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.56.3] - 2026-03-09
+### Changed
+- Dashboard: Remove global CSS overrides and move admin notices inside the main container. [#47313]
+- Migrate upsell page header to use unified AdminHeader component. [#47313]
+- Replace license activation link with a "Use license key" button in the header actions area. [#47434]
+- Use the core WordPress spinner component for the dashboard loading state. [#47467]
+- Update package dependencies. [#47496]
+
+### Fixed
+- Constrain license activation link width on mobile to prevent header overflow. [#47431]
+
+## [0.56.2] - 2026-03-02
+### Changed
+- Update package dependencies. [#47357]
+
+## [0.56.1] - 2026-02-26
+### Changed
+- Search admin: Change `max-width` of contents to 1040px. [#47326]
+- Update package dependencies. [#47288] [#47300]
+
 ## [0.56.0] - 2026-02-23
 ### Added
 - Add a new `disable_tracking` feature flag. [#46722]
@@ -1448,6 +1468,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update PHPUnit configs to include just what needs coverage rather than include everything then try to exclude stuff that doesn't.
 
+[0.56.3]: https://github.com/Automattic/jetpack-search/compare/v0.56.2...v0.56.3
+[0.56.2]: https://github.com/Automattic/jetpack-search/compare/v0.56.1...v0.56.2
+[0.56.1]: https://github.com/Automattic/jetpack-search/compare/v0.56.0...v0.56.1
 [0.56.0]: https://github.com/Automattic/jetpack-search/compare/v0.55.4...v0.56.0
 [0.55.4]: https://github.com/Automattic/jetpack-search/compare/v0.55.3...v0.55.4
 [0.55.3]: https://github.com/Automattic/jetpack-search/compare/v0.55.2...v0.55.3

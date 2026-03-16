@@ -138,6 +138,7 @@ class Jetpack_Subscriptions {
 		// Set "social_notifications_subscribe" option during the first-time activation.
 		add_action( 'jetpack_activate_module_subscriptions', array( $this, 'set_social_notifications_subscribe' ) );
 		add_action( 'jetpack_activate_module_subscriptions', array( $this, 'set_featured_image_in_email_default' ) );
+		add_action( 'jetpack_activate_module_subscriptions', array( $this, 'set_newsletter_send_default' ) );
 
 		// Hide subscription messaging in Publish panel for posts that were published in the past
 		add_action( 'init', array( $this, 'register_post_meta' ), 20 );
@@ -948,6 +949,15 @@ class Jetpack_Subscriptions {
 	}
 
 	/**
+	 * Set the email post to subscribers default option to `1` when the Subscriptions module is activated for the first time.
+	 *
+	 * @return void
+	 */
+	public function set_newsletter_send_default() {
+		add_option( 'wpcom_newsletter_send_default', 1 );
+	}
+
+	/**
 	 * Save a flag when a post was ever published.
 	 *
 	 * It saves the post meta when the post was published and becomes a draft.
@@ -1058,7 +1068,7 @@ class Jetpack_Subscriptions {
 			'manage_options',
 			esc_url( $link ),
 			null,
-			11
+			15
 		);
 	}
 

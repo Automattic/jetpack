@@ -576,9 +576,10 @@ class Agents_Manager {
 	/**
 	 * Determine if user should see unified experience.
 	 *
+	 * @param bool $use_unified_experience Whether to use unified experience.
 	 * @return bool
 	 */
-	public function should_use_unified_experience() {
+	public function should_use_unified_experience( $use_unified_experience = false ) {
 		// Early return for non-proxied/dev mode requests.
 		// This feature is currently only available to Automattic employees testing via proxy.
 		if ( ! self::is_dev_mode() ) {
@@ -608,9 +609,9 @@ class Agents_Manager {
 			return true;
 		}
 
-		// False, for now.
+		// Default to false, for now.
 		// In the future: users with a big sky site (similar to https://github.a8c.com/Automattic/wpcom/pull/196449/files), a big-sky free trial or a paid plan.
-		return false;
+		return $use_unified_experience;
 	}
 
 	/**

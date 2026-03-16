@@ -157,6 +157,7 @@ const variations = [
 			],
 		],
 		attributes: {
+			variationName: 'rsvp-form',
 			subject: __( 'A new RSVP from your website', 'jetpack-forms' ),
 			layout: VERTICAL_LAYOUT,
 		},
@@ -311,6 +312,7 @@ const variations = [
 			],
 		],
 		attributes: {
+			variationName: 'registration-form',
 			subject: __( 'A new registration from your website', 'jetpack-forms' ),
 			layout: VERTICAL_LAYOUT,
 		},
@@ -501,6 +503,7 @@ const variations = [
 			],
 		],
 		attributes: {
+			variationName: 'appointment-form',
 			subject: __( 'A new appointment booked from your website', 'jetpack-forms' ),
 			layout: VERTICAL_LAYOUT,
 		},
@@ -648,6 +651,7 @@ const variations = [
 			],
 		],
 		attributes: {
+			variationName: 'feedback-form',
 			subject: __( 'New feedback received from your website', 'jetpack-forms' ),
 			layout: VERTICAL_LAYOUT,
 		},
@@ -898,31 +902,28 @@ const variations = [
 						'core/button',
 						{
 							tagName: 'button',
-							uniqueId: 'previous-step',
-							customVariant: 'previous',
 							text: __( '← Back', 'jetpack-forms' ),
-							className: 'is-style-outline',
-							metaName: __( 'Previous button', 'jetpack-forms' ),
+							className: 'is-style-outline form-button-previous is-previous',
+							metadata: { name: __( 'Previous button', 'jetpack-forms' ) },
 						},
 					],
 					[
 						'core/button',
 						{
 							tagName: 'button',
-							uniqueId: 'next-step',
-							customVariant: 'next',
+							className: 'form-button-next is-next',
 							text: __( 'Next →', 'jetpack-forms' ),
-							metaName: __( 'Next button', 'jetpack-forms' ),
+							metadata: { name: __( 'Next button', 'jetpack-forms' ) },
 						},
 					],
 					[
 						'core/button',
 						{
 							tagName: 'button',
-							uniqueId: 'submit-step',
-							customVariant: 'submit',
+							className: 'form-button-submit is-submit',
+							type: 'submit',
 							text: __( 'Submit', 'jetpack-forms' ),
-							metaName: __( 'Submit button', 'jetpack-forms' ),
+							metadata: { name: __( 'Submit button', 'jetpack-forms' ) },
 						},
 					],
 				],
@@ -973,6 +974,7 @@ const variations = [
 			],
 		],
 		attributes: {
+			variationName: 'lead-capture-form',
 			layout: VERTICAL_LAYOUT,
 		},
 		example: {

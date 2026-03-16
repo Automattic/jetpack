@@ -463,6 +463,7 @@ class WPCOM_Features {
 	public const PRIORITY_SUPPORT                  = 'priority_support';
 	public const PRIVATE_WHOIS                     = 'private_whois';
 	public const REAL_TIME_BACKUPS                 = 'real-time-backups';
+	public const REAL_TIME_COLLABORATION           = 'real-time-collaboration';
 	public const RECURRING_PAYMENTS                = 'recurring-payments';
 	public const REDUCED_ATOMIC_EMAIL_PRIORITY     = 'reduced-email-priority';
 	public const REPUBLICIZE                       = 'republicize';
@@ -482,6 +483,7 @@ class WPCOM_Features {
 	public const SOCIAL_ENHANCED_PUBLISHING        = 'social-enhanced-publishing';
 	public const SOCIAL_IMAGE_AUTO_CONVERT         = 'social-image-auto-convert';
 	public const SOCIAL_UNIFIED_UI_V1              = 'social-unified-ui-v1';
+	public const SOCIAL_X_CONNECTION               = 'social-x-connection';
 	public const SPACE                             = 'space';
 	public const SPACE_UPGRADED_STORAGE            = 'space-upgraded-storage';
 	public const SSH                               = 'ssh';
@@ -1161,6 +1163,14 @@ class WPCOM_Features {
 			self::WPCOM_PRO_PLANS,
 			self::WPCOM_FLEX_CACHE_SITE_FREE_PLANS,
 		),
+
+		self::REAL_TIME_COLLABORATION           => array(
+			array(
+				'required_sticker' => 'wpcom-features-edge',
+				self::WPCOM_PERSONAL_AND_HIGHER_PLANS,
+			),
+		),
+
 		self::RECURRING_PAYMENTS                => array(
 			array(
 				'sticker_not_present' => 'gating-business-q1',
@@ -1334,6 +1344,13 @@ class WPCOM_Features {
 		self::SOCIAL_UNIFIED_UI_V1              => array(
 			self::WPCOM_ALL_SITES,
 			// For Jetpack sites, the feature is controlled in Store_Product_List.
+		),
+		self::SOCIAL_X_CONNECTION               => array(
+			// For now, this is controlled via a blog sticker in Store_Product_List.
+			array(
+				'before' => '2004-12-12',
+				self::WPCOM_ALL_SITES,
+			),
 		),
 		self::SOCIAL_IMAGE_AUTO_CONVERT         => array(
 			self::WPCOM_ALL_SITES,

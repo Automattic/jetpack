@@ -15,6 +15,7 @@ use Automattic\Block_Scanner;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Post_Media\Images;
+use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -440,6 +441,11 @@ function jetpack_og_get_fallback_social_image( $width, $height ) {
 		// When using the default blank image, use a different template in Social Image Generator.
 		$template          = 'highway';
 		$site_image['src'] = jetpack_og_get_site_fallback_blank_image();
+	}
+
+	// Return the site image if we are in offline mode instead of attempting to generate a dynamic one.
+	if ( ( new Status() )->is_offline_mode() ) {
+		return $site_image;
 	}
 
 	/*

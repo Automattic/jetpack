@@ -11,7 +11,6 @@ import {
 	Col,
 	useBreakpointMatch,
 	ContextualUpgradeTrigger,
-	JetpackVideoPressLogo,
 } from '@automattic/jetpack-components';
 import {
 	useProductCheckoutWorkflow,
@@ -193,8 +192,8 @@ const Admin = () => {
 
 	return (
 		<AdminPage
-			moduleName={ __( 'Jetpack VideoPress', 'jetpack-videopress-pkg' ) }
-			header={ <JetpackVideoPressLogo /> }
+			title={ 'VideoPress' /** "VideoPress" is a product name, do not translate. */ }
+			subTitle={ __( 'Professional quality, ad-free video hosting.', 'jetpack-videopress-pkg' ) }
 			useInternalLinks={ shouldUseInternalLinks() }
 		>
 			<div

@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 3.7.28 - 2026-03-16
+### Changed
+- Update dependencies. [#47472]
+
+## 3.7.27 - 2026-03-09
+### Changed
+- Centralize admin-ui CSS bundling: add subpath to defaultRequestMap and mark CSS imports as sideEffects to prevent incorrect externalization and tree-shaking. [#47313]
+- Switch to Native TypeScript compiler based on Go. [#47375]
+- Update package dependencies. [#47497] [#47500]
+
+## 3.7.26 - 2026-02-26
+### Changed
+- Update package dependencies. [#47300]
+
 ## 3.7.25 - 2026-02-18
 ### Changed
 - Add WebP to default file extensions handled by `FileRule`. [#47085]

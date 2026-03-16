@@ -18,7 +18,12 @@ import {
 } from '../../providers';
 import { attachSubComponents } from '../../utils';
 import { getStringWidth } from '../../visx/text';
-import { ChartSVG, ChartHTML, useChartChildren } from '../private/chart-composition';
+import {
+	ChartSVG,
+	ChartHTML,
+	useChartChildren,
+	renderLegendSlot,
+} from '../private/chart-composition';
 import { RadialWipeAnimation } from '../private/radial-wipe-animation/';
 import { SingleChartContext } from '../private/single-chart-context';
 import { withResponsive, ResponsiveConfig } from '../private/with-responsive';
@@ -94,13 +99,6 @@ export interface PieChartProps extends BaseChartProps< DataPointPercentage[] > {
 	legendValueDisplay?: LegendValueDisplay;
 
 	/**
-	 * Enable interactive legend items that can toggle segment visibility.
-	 * Requires chartId and GlobalChartsProvider.
-	 * When segments are hidden, percentages are recalculated so visible segments total 100%.
-	 */
-	legendInteractive?: boolean;
-
-	/**
 	 * Use the children prop to render additional elements on the chart.
 	 */
 	children?: ReactNode;
@@ -169,13 +167,7 @@ const PieChartInternal = ( {
 	withTooltips = false,
 	className,
 	showLegend = false,
-	legendOrientation = 'horizontal',
-	legendPosition = 'bottom',
-	legendAlignment = 'center',
-	legendMaxWidth,
-	legendTextOverflow = 'wrap',
-	legendItemClassName,
-	legendShape = 'circle',
+	legend = {},
 	width: propWidth,
 	height: propHeight,
 	size,
@@ -186,13 +178,15 @@ const PieChartInternal = ( {
 	cornerScale = 0,
 	showLabels = true,
 	legendValueDisplay = 'percentage',
-	legendInteractive = false,
 	children = null,
 	tooltipOffsetX = 0,
 	tooltipOffsetY = -15,
 	renderTooltip = renderDefaultPieTooltip,
 	gap = 'md',
 }: PieChartProps ) => {
+	const legendInteractive = legend.interactive ?? false;
+	const legendPosition = legend.position ?? 'bottom';
+
 	const providerTheme = useGlobalChartsTheme();
 	const chartId = useChartId( providedChartId );
 	const [ svgWrapperRef, svgWrapperWidth, svgWrapperHeight ] = useElementSize< HTMLDivElement >();
@@ -236,7 +230,10 @@ const PieChartInternal = ( {
 	const { isValid, message } = validateData( data );
 
 	// Process children to extract compound components
-	const { svgChildren, htmlChildren, otherChildren } = useChartChildren( children, 'PieChart' );
+	const { svgChildren, htmlChildren, legendChildren, otherChildren } = useChartChildren(
+		children,
+		'PieChart'
+	);
 
 	// Memoize metadata to prevent unnecessary re-registration
 	const chartMetadata = useMemo(
@@ -314,13 +311,14 @@ const PieChartInternal = ( {
 
 	const legendElement = showLegend && (
 		<Legend
-			orientation={ legendOrientation }
+			orientation={ legend.orientation ?? 'horizontal' }
 			position={ legendPosition }
-			alignment={ legendAlignment }
-			maxWidth={ legendMaxWidth }
-			textOverflow={ legendTextOverflow }
-			legendItemClassName={ legendItemClassName }
-			shape={ legendShape }
+			alignment={ legend.alignment ?? 'center' }
+			labelStyles={ legend.labelStyles }
+			itemClassName={ legend.itemClassName }
+			itemStyles={ legend.itemStyles }
+			shapeStyles={ legend.shapeStyles }
+			shape={ legend.shape ?? 'circle' }
 			chartId={ chartId }
 			interactive={ legendInteractive }
 		/>
@@ -351,6 +349,7 @@ const PieChartInternal = ( {
 				} }
 			>
 				{ legendPosition === 'top' && legendElement }
+				{ renderLegendSlot( legendChildren, 'top' ) }
 
 				<div className={ styles[ 'pie-chart__svg-wrapper' ] } ref={ svgWrapperRef }>
 					<svg
@@ -483,6 +482,7 @@ const PieChartInternal = ( {
 				</div>
 
 				{ legendPosition === 'bottom' && legendElement }
+				{ renderLegendSlot( legendChildren, 'bottom' ) }
 
 				{ withTooltips && tooltipOpen && tooltipData && (
 					<TooltipInPortal top={ tooltipTop || 0 } left={ tooltipLeft || 0 }>

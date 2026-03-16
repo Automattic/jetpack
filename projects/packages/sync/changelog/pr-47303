@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-REST_Endpoints: Add clear-queue endpoint to allow clearing a Sync queue via REST API.

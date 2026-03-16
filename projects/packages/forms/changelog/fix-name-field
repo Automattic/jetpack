@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fix infinite loop in Name field block when initializing fieldVariant attribute

@@ -116,7 +116,7 @@ export async function executeCommand( cmd: string | string[] ): Promise< string 
 		logger.debug( `Command output: ${ maskSecrets( output.replace( /\n$/, '' ) ) }` );
 		return output;
 	} catch ( error ) {
-		logger.warn( `Command error: ${ maskSecrets( error.toString() ) }` );
+		logger.warn( `Command error: ${ maskSecrets( String( error ) ) }` );
 		throw error;
 	}
 }

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Hide "Browse form patterns" button in the form placeholder when central form management is enabled

@@ -17,8 +17,8 @@ const API = {
 			path: 'jetpack-protect/v1/toggle-account-protection',
 		} ),
 
-	getWaf: (): Promise< WafStatus > =>
-		apiFetch( {
+	getWaf: () =>
+		apiFetch< WafStatus >( {
 			path: 'jetpack-protect/v1/waf',
 			method: 'GET',
 		} ).then( camelize ),
@@ -61,8 +61,8 @@ const API = {
 			data: { step_ids: stepIds },
 		} ),
 
-	getScanHistory: (): Promise< ScanStatus | false > =>
-		apiFetch( {
+	getScanHistory: () =>
+		apiFetch< ScanStatus | false >( {
 			path: 'jetpack-protect/v1/scan-history',
 			method: 'GET',
 		} ).then( camelize ),
@@ -73,8 +73,8 @@ const API = {
 			method: 'POST',
 		} ),
 
-	getScanStatus: (): Promise< ScanStatus > =>
-		apiFetch( {
+	getScanStatus: () =>
+		apiFetch< ScanStatus >( {
 			path: 'jetpack-protect/v1/status?hard_refresh=true',
 			method: 'GET',
 		} ).then( camelize ),
@@ -110,24 +110,22 @@ const API = {
 		} ),
 
 	checkCredentials: () =>
-		apiFetch( {
+		apiFetch< [ Record< string, unknown > ] >( {
 			path: 'jetpack-protect/v1/check-credentials',
 			method: 'POST',
-		} ) as Promise< [ Record< string, unknown > ] >,
+		} ),
 
 	checkPlan: () =>
-		apiFetch( {
+		apiFetch< boolean >( {
 			path: 'jetpack-protect/v1/check-plan',
 			method: 'GET',
 		} ),
 
 	getProductData: () =>
-		(
-			apiFetch( {
-				path: '/my-jetpack/v1/site/products?products=scan',
-				method: 'GET',
-			} ) as Promise< { [ key: string ]: ProductData } >
-		 ).then( products => camelize( products?.scan ) ),
+		apiFetch< { [ key: string ]: ProductData } >( {
+			path: '/my-jetpack/v1/site/products?products=scan',
+			method: 'GET',
+		} ).then( products => camelize( products?.scan ) ),
 };
 
 export default API;

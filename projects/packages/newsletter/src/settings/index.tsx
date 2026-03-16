@@ -10,14 +10,14 @@ import {
 	useGlobalNotices,
 } from '@automattic/jetpack-components';
 import { getSiteType, isSimpleSite } from '@automattic/jetpack-script-data';
-import { Notice } from '@wordpress/components';
+import { Notice, Disabled, Spinner } from '@wordpress/components';
 import { createRoot, useCallback, useEffect, useState, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Stack } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
 import { fetchSettings, updateSettings } from './api';
-import { Header } from './components/header';
 import { getNewsletterScriptData } from './script-data';
 import {
 	EmailContentSection,
@@ -32,8 +32,6 @@ import {
 } from './sections';
 import type { NewsletterSettings } from './types';
 import './style.scss';
-
-const MODULE_NAME = __( 'Jetpack Newsletter', 'jetpack-newsletter' );
 
 /**
  * Normalize settings from API response
@@ -333,11 +331,17 @@ function NewsletterSettingsApp(): JSX.Element | null {
 
 	if ( isLoading ) {
 		return (
-			<AdminPage moduleName={ MODULE_NAME } header={ <Header /> }>
+			<AdminPage
+				title={ 'Newsletter' /** "Newsletter" is a product name, do not translate. */ }
+				subTitle={ __(
+					'Transform your blog posts into newsletters to easily reach your subscribers.',
+					'jetpack-newsletter'
+				) }
+			>
 				<Container horizontalSpacing={ 3 }>
 					<Col>
 						<div className="newsletter-settings">
-							<p>{ __( 'Loading newsletter settings…', 'jetpack-newsletter' ) }</p>
+							<Spinner />
 						</div>
 					</Col>
 				</Container>
@@ -347,7 +351,13 @@ function NewsletterSettingsApp(): JSX.Element | null {
 
 	if ( error ) {
 		return (
-			<AdminPage moduleName={ MODULE_NAME } header={ <Header /> }>
+			<AdminPage
+				title={ 'Newsletter' /** "Newsletter" is a product name, do not translate. */ }
+				subTitle={ __(
+					'Transform your blog posts into newsletters to easily reach your subscribers.',
+					'jetpack-newsletter'
+				) }
+			>
 				<Container horizontalSpacing={ 3 }>
 					<Col>
 						<div className="newsletter-settings newsletter-settings--error">
@@ -371,73 +381,83 @@ function NewsletterSettingsApp(): JSX.Element | null {
 	const hasWelcomeEmailChanges = Object.keys( welcomeEmailChanges ).length > 0;
 
 	return (
-		<AdminPage moduleName={ MODULE_NAME } header={ <Header /> }>
+		<AdminPage
+			title={ 'Newsletter' /** "Newsletter" is a product name, do not translate. */ }
+			subTitle={ __(
+				'Transform your blog posts into newsletters to easily reach your subscribers.',
+				'jetpack-newsletter'
+			) }
+		>
 			<Container horizontalSpacing={ 3 }>
 				<Col>
-					<div className="newsletter-settings">
+					<Stack gap="md" direction="column" className="newsletter-settings">
 						{ ! isSimpleSite() && <NewsletterSection data={ data } onChange={ handleAutoSave } /> }
 
-						<SubscriptionsSection
-							data={ data }
-							onChange={ handleSubscriptionChange }
-							onSave={ saveSubscriptionSettings }
-							isSaving={ isSavingSubscriptions }
-							hasChanges={ hasSubscriptionChanges }
-							isNewsletterEnabled={ data.subscriptions }
-						/>
+						<Disabled isDisabled={ ! data.subscriptions }>
+							<Stack gap="md" direction="column">
+								<SubscriptionsSection
+									data={ data }
+									onChange={ handleSubscriptionChange }
+									onSave={ saveSubscriptionSettings }
+									isSaving={ isSavingSubscriptions }
+									hasChanges={ hasSubscriptionChanges }
+									isNewsletterEnabled={ data.subscriptions }
+								/>
 
-						<PaidNewsletterSection
-							isNewsletterEnabled={ data.subscriptions }
-							hasActivePlan={ data.newsletter_has_active_plan }
-						/>
+								<PaidNewsletterSection
+									isNewsletterEnabled={ data.subscriptions }
+									hasActivePlan={ data.newsletter_has_active_plan }
+								/>
 
-						<NewsletterCategoriesSection
-							data={ data }
-							onChange={ handleNewsletterCategoriesChange }
-							onSave={ saveNewsletterCategories }
-							isSaving={ isSavingNewsletterCategories }
-							hasChanges={ hasNewsletterCategoriesChanges }
-							isNewsletterEnabled={ data.subscriptions }
-						/>
+								<NewsletterCategoriesSection
+									data={ data }
+									onChange={ handleNewsletterCategoriesChange }
+									onSave={ saveNewsletterCategories }
+									isSaving={ isSavingNewsletterCategories }
+									hasChanges={ hasNewsletterCategoriesChanges }
+									isNewsletterEnabled={ data.subscriptions }
+								/>
 
-						<EmailContentSection
-							data={ data }
-							onChange={ handleAutoSave }
-							isNewsletterEnabled={ data.subscriptions }
-						/>
+								<EmailContentSection
+									data={ data }
+									onChange={ handleAutoSave }
+									isNewsletterEnabled={ data.subscriptions }
+								/>
 
-						<EmailBylineSection
-							data={ data }
-							onChange={ handleAutoSave }
-							isNewsletterEnabled={ data.subscriptions }
-						/>
+								<EmailBylineSection
+									data={ data }
+									onChange={ handleAutoSave }
+									isNewsletterEnabled={ data.subscriptions }
+								/>
 
-						<EmailSenderSettingsSection
-							data={ data }
-							onChange={ handleSenderNameChange }
-							onSave={ saveSenderName }
-							isSaving={ isSavingSenderName }
-							hasChanges={ hasSenderNameChanges }
-							isNewsletterEnabled={ data.subscriptions }
-						/>
+								<EmailSenderSettingsSection
+									data={ data }
+									onChange={ handleSenderNameChange }
+									onSave={ saveSenderName }
+									isSaving={ isSavingSenderName }
+									hasChanges={ hasSenderNameChanges }
+									isNewsletterEnabled={ data.subscriptions }
+								/>
 
-						<EmailReplyToSettingsSection
-							data={ data }
-							onChange={ handleAutoSave }
-							isNewsletterEnabled={ data.subscriptions }
-						/>
+								<EmailReplyToSettingsSection
+									data={ data }
+									onChange={ handleAutoSave }
+									isNewsletterEnabled={ data.subscriptions }
+								/>
 
-						<WelcomeEmailSection
-							data={ data }
-							onChange={ handleWelcomeEmailChange }
-							onSave={ saveWelcomeEmail }
-							isSaving={ isSavingWelcomeEmail }
-							hasChanges={ hasWelcomeEmailChanges }
-							isNewsletterEnabled={ data.subscriptions }
-						/>
+								<WelcomeEmailSection
+									data={ data }
+									onChange={ handleWelcomeEmailChange }
+									onSave={ saveWelcomeEmail }
+									isSaving={ isSavingWelcomeEmail }
+									hasChanges={ hasWelcomeEmailChanges }
+									isNewsletterEnabled={ data.subscriptions }
+								/>
+							</Stack>
+						</Disabled>
+					</Stack>
 
-						<GlobalNotices />
-					</div>
+					<GlobalNotices />
 				</Col>
 			</Container>
 		</AdminPage>

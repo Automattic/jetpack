@@ -4,7 +4,7 @@ import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { store } from '../../social-store';
 import { requestExternalAccess } from '../../utils';
-import { SupportedService } from './use-supported-services';
+import { SupportedService } from './types';
 
 const isValidMastodonUsername = ( username: string ) =>
 	/^@?\b([A-Z0-9_]+)@([A-Z0-9.-]+\.[A-Z]{2,})$/gi.test( username );

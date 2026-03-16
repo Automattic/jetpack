@@ -245,7 +245,7 @@ class Jetpack_Sync_Search_Test extends Jetpack_Sync_TestBase {
 
 		// clean up - speeds up tests.
 		wp_remove_object_terms( $this->post_id, array( $term_obj['term_id'] ), $taxonomy );
-		unregister_taxonomy_for_object_type( $taxonomy, 'post' );
+		unregister_taxonomy( $taxonomy );
 	}
 
 	/**

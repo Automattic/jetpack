@@ -9,9 +9,13 @@ use Automattic\Jetpack\Extensions\Premium_Content\JWT;
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Abstract_Token_Subscription_Service;
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\WPCOM_Offline_Subscription_Service;
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\WPCOM_Online_Subscription_Service;
+use Automattic\Jetpack\Sync\Defaults;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\Automattic\Jetpack\Extensions\Premium_Content\Test_Jetpack_Token_Subscription_Service;
 use function Automattic\Jetpack\Extensions\Subscriptions\register_block as register_subscription_block;
+use const Automattic\Jetpack\Extensions\Subscriptions\META_NAME_CONTAINS_PAID_CONTENT;
+use const Automattic\Jetpack\Extensions\Subscriptions\META_NAME_CONTAINS_PAYWALLED_CONTENT;
+use const Automattic\Jetpack\Extensions\Subscriptions\META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS;
 use const Automattic\Jetpack\Extensions\Subscriptions\META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS;
 use const Automattic\Jetpack\Extensions\Subscriptions\META_NAME_FOR_POST_TIER_ID_SETTINGS;
 
@@ -67,6 +71,34 @@ class Jetpack_Subscriptions_Test extends WP_UnitTestCase {
 		);
 
 		get_user_by( 'id', $this->admin_user_id )->add_role( 'administrator' );
+	}
+
+	/**
+	 * Verify that the subscriptions block adds newsletter-related post meta keys to the sync whitelist.
+	 */
+	public function test_subscriptions_block_adds_newsletter_meta_to_sync_whitelist() {
+		// Activate the subscriptions module so register_block() adds its filter (it returns early if inactive).
+		Jetpack_Options::update_option( 'active_modules', array( 'subscriptions' ) );
+		// Call register_block directly to add the sync whitelist filter (avoids do_action('init') which re-registers blocks and triggers notices).
+		register_subscription_block();
+
+		$whitelist = Defaults::get_post_meta_whitelist();
+
+		$expected_meta_keys = array(
+			META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS,
+			META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS,
+			META_NAME_CONTAINS_PAYWALLED_CONTENT,
+			META_NAME_FOR_POST_TIER_ID_SETTINGS,
+			META_NAME_CONTAINS_PAID_CONTENT,
+		);
+
+		foreach ( $expected_meta_keys as $meta_key ) {
+			$this->assertContains(
+				$meta_key,
+				$whitelist,
+				sprintf( 'Post meta whitelist should include %s for sync to WPCom.', $meta_key )
+			);
+		}
 	}
 
 	/**
@@ -128,6 +160,68 @@ class Jetpack_Subscriptions_Test extends WP_UnitTestCase {
 		$post_id = $this->factory->post->create();
 		wp_publish_post( $post_id );
 		$this->assertEmpty( get_post_meta( $post_id, '_jetpack_dont_email_post_to_subs', true ) );
+	}
+
+	/**
+	 * Test that wpcom_newsletter_send_default option defaults to true.
+	 */
+	public function test_newsletter_send_default_option_defaults_to_true() {
+		delete_option( 'wpcom_newsletter_send_default' );
+		$this->assertTrue( (bool) get_option( 'wpcom_newsletter_send_default', true ) );
+	}
+
+	/**
+	 * Test that wpcom_newsletter_send_default=true means emails are sent (meta default false).
+	 */
+	public function test_newsletter_send_default_true_sends_email() {
+		update_option( 'wpcom_newsletter_send_default', 1 );
+		$this->assertFalse( ! get_option( 'wpcom_newsletter_send_default', true ) );
+		delete_option( 'wpcom_newsletter_send_default' );
+	}
+
+	/**
+	 * Test that wpcom_newsletter_send_default=false means emails are skipped (meta default true).
+	 */
+	public function test_newsletter_send_default_false_skips_email() {
+		update_option( 'wpcom_newsletter_send_default', 0 );
+		$this->assertTrue( ! get_option( 'wpcom_newsletter_send_default', true ) );
+		delete_option( 'wpcom_newsletter_send_default' );
+	}
+
+	/**
+	 * Test that when option is missing, the default behavior is to send email.
+	 */
+	public function test_newsletter_send_default_missing_sends_email() {
+		delete_option( 'wpcom_newsletter_send_default' );
+		$this->assertFalse( ! get_option( 'wpcom_newsletter_send_default', true ) );
+	}
+
+	/**
+	 * Test that set_newsletter_send_default sets the option on first activation.
+	 */
+	public function test_set_newsletter_send_default_on_activation() {
+		delete_option( 'wpcom_newsletter_send_default' );
+
+		$subscriptions = Jetpack_Subscriptions::init();
+		$subscriptions->set_newsletter_send_default();
+
+		$this->assertSame( 1, get_option( 'wpcom_newsletter_send_default' ) );
+	}
+
+	/**
+	 * Test that set_newsletter_send_default does not overwrite an existing value.
+	 */
+	public function test_set_newsletter_send_default_does_not_overwrite() {
+		update_option( 'wpcom_newsletter_send_default', 0 );
+
+		$subscriptions = Jetpack_Subscriptions::init();
+		$subscriptions->set_newsletter_send_default();
+
+		// add_option should not overwrite the existing value.
+		$this->assertSame( 0, (int) get_option( 'wpcom_newsletter_send_default' ) );
+
+		// Clean up.
+		delete_option( 'wpcom_newsletter_send_default' );
 	}
 
 	/**

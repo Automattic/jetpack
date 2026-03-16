@@ -12,13 +12,13 @@ return [
     // PhanPluginDuplicateConditionalNullCoalescing : 20+ occurrences
     // PhanTypeMismatchArgumentProbablyReal : 9 occurrences
     // PhanTypeMismatchReturnProbablyReal : 7 occurrences
-    // PhanTypeArraySuspicious : 6 occurrences
     // PhanTypeMismatchReturn : 6 occurrences
     // PhanUndeclaredClassMethod : 6 occurrences
     // PhanCommentOverrideOnNonOverrideMethod : 4 occurrences
     // PhanNonClassMethodCall : 4 occurrences
     // PhanTypeArraySuspiciousNullable : 4 occurrences
     // PhanTypeMismatchArgument : 4 occurrences
+    // PhanTypeArraySuspicious : 3 occurrences
     // PhanTypeInvalidDimOffset : 2 occurrences
     // PhanUndeclaredExtendedClass : 2 occurrences
     // PhanUndeclaredMethod : 2 occurrences
@@ -32,7 +32,7 @@ return [
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
         'src/class-access-control.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
-        'src/class-attachment-handler.php' => ['PhanNonClassMethodCall', 'PhanTypeArraySuspicious'],
+        'src/class-attachment-handler.php' => ['PhanNonClassMethodCall'],
         'src/class-block-editor-content.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
         'src/class-block-editor-extensions.php' => ['PhanTypeMismatchReturnProbablyReal'],
         'src/class-data.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeArraySuspicious', 'PhanTypeMismatchReturn'],

@@ -2,7 +2,6 @@
  * External dependencies
  */
 import { formatNumber } from '@automattic/number-formatters';
-import { Badge } from '@automattic/ui';
 /**
  * WordPress dependencies
  */
@@ -18,7 +17,7 @@ import { useMemo, useState, useCallback, useEffect } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __, sprintf } from '@wordpress/i18n';
 import { useParams, useSearch, useNavigate } from '@wordpress/route';
-import { Stack } from '@wordpress/ui';
+import { Badge, Stack } from '@wordpress/ui';
 import * as React from 'react';
 /**
  * Internal dependencies
@@ -478,7 +477,7 @@ function StageInner() {
 							__( '(no title)', 'jetpack-forms' ),
 					} )
 				),
-				...( isSingleFormView ? {} : { filterBy: { operators: [ 'is' ] as Operator[] } } ),
+				filterBy: isSingleFormView ? false : { operators: [ 'is' ] as Operator[] },
 				enableSorting: false,
 			},
 			{
@@ -492,7 +491,7 @@ function StageInner() {
 				enableSorting: false,
 				render: ( { item } ) => {
 					return (
-						<Badge intent="default">
+						<Badge intent="draft">
 							{ item.is_unread ? __( 'Unread', 'jetpack-forms' ) : __( 'Read', 'jetpack-forms' ) }
 						</Badge>
 					);
@@ -544,8 +543,11 @@ function StageInner() {
 	}, [] );
 
 	const {
+		ariaLabel,
 		breadcrumbs,
+		badges,
 		subtitle,
+		title,
 		actions: headerActions,
 	} = usePageHeaderDetails( {
 		screen: 'responses',
@@ -570,6 +572,9 @@ function StageInner() {
 		<Page
 			showSidebarToggle={ false }
 			breadcrumbs={ breadcrumbs }
+			badges={ badges }
+			title={ title }
+			ariaLabel={ ariaLabel }
 			subTitle={ subtitle }
 			actions={ headerActions }
 			hasPadding={ false }
