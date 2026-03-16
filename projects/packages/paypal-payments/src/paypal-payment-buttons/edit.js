@@ -530,6 +530,8 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 		setSuccessMessage( null );
 		setIsCreating( true );
 
+		let isRecreating = false;
+
 		apiFetch( {
 			path: `${ API_BASE }/buttons/${ resourceId }`,
 			method: 'PUT',
@@ -544,27 +546,46 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 				setTouchedFields( {} );
 			} )
 			.catch( err => {
-				const errorMessage = getUserFriendlyError( err );
-
-				// If the resource was not found (404), clear stale state and prompt re-creation.
+				// If the resource was deleted from PayPal (404), automatically
+				// re-create it as a new button with the same product data.
+				// This handles demo/playground blocks and buttons deleted outside WordPress.
 				if ( err.code === 'paypal_api_resource_not_found' || err.data?.status === 404 ) {
-					setAttributes( {
-						isApiManaged: false,
-						resourceId: undefined,
-						paymentLink: undefined,
-					} );
-					setError(
-						__(
-							'This button no longer exists on PayPal. Please create a new one.',
-							'jetpack-paypal-payments'
-						)
-					);
-				} else {
-					setError( errorMessage );
+					isRecreating = true;
+					apiFetch( {
+						path: `${ API_BASE }/buttons`,
+						method: 'POST',
+						data: buildRequestData(),
+					} )
+						.then( response => {
+							setAttributes( {
+								isApiManaged: true,
+								resourceId: response.id,
+								paymentLink: response.payment_link,
+							} );
+							setSuccessMessage(
+								__(
+									'Button re-created on PayPal with a new payment link.',
+									'jetpack-paypal-payments'
+								)
+							);
+							setIsEditing( false );
+							setTouchedFields( {} );
+						} )
+						.catch( createErr => {
+							setError( getUserFriendlyError( createErr ) );
+						} )
+						.finally( () => {
+							setIsCreating( false );
+						} );
+					return;
 				}
+
+				setError( getUserFriendlyError( err ) );
 			} )
 			.finally( () => {
-				setIsCreating( false );
+				if ( ! isRecreating ) {
+					setIsCreating( false );
+				}
 			} );
 	}, [ resourceId, buildRequestData, paymentLink, setAttributes, isFormValid ] );
 
