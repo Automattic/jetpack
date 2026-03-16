@@ -213,6 +213,14 @@ class PayPal_Admin_Page {
 			.paypal-detail-actions .button {
 				margin-right: 8px;
 			}
+			.paypal-send-email-form .regular-text {
+				width: 100%;
+				max-width: 400px;
+			}
+			.paypal-send-email-form .large-text {
+				width: 100%;
+				max-width: 400px;
+			}
 			.paypal-detail-link-url {
 				font-size: 14px;
 				padding: 4px 8px;
@@ -237,6 +245,45 @@ class PayPal_Admin_Page {
 					}
 				}
 			});
+
+			// Send via Email form handler (WOOPTP-181).
+			var emailForm = document.getElementById("paypal-send-email-form");
+			if (emailForm) {
+				emailForm.addEventListener("submit", function(ev) {
+					ev.preventDefault();
+					var btn = document.getElementById("paypal-send-email-btn");
+					var status = document.getElementById("paypal-send-email-status");
+					btn.disabled = true;
+					status.textContent = ' . wp_json_encode( __( 'Sending...', 'jetpack-paypal-payments' ), JSON_HEX_TAG | JSON_HEX_AMP ) . ';
+					status.style.color = "#555";
+
+					var formData = new FormData(emailForm);
+					fetch(' . wp_json_encode( admin_url( 'admin-ajax.php' ), JSON_HEX_TAG | JSON_HEX_AMP ) . ', {
+						method: "POST",
+						credentials: "same-origin",
+						body: formData,
+					})
+					.then(function(r) { return r.json(); })
+					.then(function(data) {
+						if (data.success) {
+							status.textContent = data.data.message;
+							status.style.color = "#00a32a";
+							emailForm.querySelector("[name=recipient]").value = "";
+							emailForm.querySelector("[name=message]").value = "";
+						} else {
+							status.textContent = data.data.message || ' . wp_json_encode( __( 'Failed to send.', 'jetpack-paypal-payments' ), JSON_HEX_TAG | JSON_HEX_AMP ) . ';
+							status.style.color = "#d63638";
+						}
+					})
+					.catch(function() {
+						status.textContent = ' . wp_json_encode( __( 'Network error. Please try again.', 'jetpack-paypal-payments' ), JSON_HEX_TAG | JSON_HEX_AMP ) . ';
+						status.style.color = "#d63638";
+					})
+					.finally(function() {
+						btn.disabled = false;
+					});
+				});
+			}
 			'
 		);
 	}
@@ -554,6 +601,70 @@ class PayPal_Admin_Page {
 				esc_url( $payment_link ),
 				esc_html__( 'Open Payment Page', 'jetpack-paypal-payments' )
 			);
+			echo '</div>';
+		}
+
+		// --- Send via Email Card (WOOPTP-181) ---
+		if ( $payment_link ) {
+			$nonce = wp_create_nonce( PayPal_Email_Sender::AJAX_ACTION );
+
+			echo '<div class="card paypal-detail-card">';
+			printf( '<h3>%s</h3>', esc_html__( 'Send via Email', 'jetpack-paypal-payments' ) );
+
+			printf(
+				'<form id="paypal-send-email-form" class="paypal-send-email-form">
+					<input type="hidden" name="action" value="%s" />
+					<input type="hidden" name="_wpnonce" value="%s" />
+					<input type="hidden" name="payment_link" value="%s" />
+					<input type="hidden" name="product_name" value="%s" />
+					<input type="hidden" name="price" value="%s" />
+					<input type="hidden" name="currency" value="%s" />
+					<input type="hidden" name="resource_id" value="%s" />
+					<p>
+						<label for="paypal-email-recipient"><strong>%s</strong></label><br />
+						<input type="email" id="paypal-email-recipient" name="recipient" class="regular-text" required placeholder="%s" />
+					</p>
+					<p>
+						<label for="paypal-email-message"><strong>%s</strong></label><br />
+						<textarea id="paypal-email-message" name="message" class="large-text" rows="3" placeholder="%s"></textarea>
+					</p>
+					<p>
+						<button type="submit" class="button button-primary" id="paypal-send-email-btn">%s</button>
+						<span id="paypal-send-email-status" style="margin-left:12px;"></span>
+					</p>
+				</form>',
+				esc_attr( PayPal_Email_Sender::AJAX_ACTION ),
+				esc_attr( $nonce ),
+				esc_attr( $payment_link ),
+				esc_attr( $name ),
+				esc_attr( $line_item['unit_amount']['value'] ?? '' ),
+				esc_attr( $line_item['unit_amount']['currency_code'] ?? 'USD' ),
+				esc_attr( $resource_id ),
+				esc_html__( 'Recipient email', 'jetpack-paypal-payments' ),
+				esc_attr__( 'customer@example.com', 'jetpack-paypal-payments' ),
+				esc_html__( 'Personal message (optional)', 'jetpack-paypal-payments' ),
+				esc_attr__( 'Here is your payment link...', 'jetpack-paypal-payments' ),
+				esc_html__( 'Send Email', 'jetpack-paypal-payments' )
+			);
+
+			// Send log for this resource.
+			$send_log = PayPal_Email_Sender::get_log_for_resource( $resource_id );
+			if ( ! empty( $send_log ) ) {
+				printf( '<h4 style="margin-top:16px;">%s</h4>', esc_html__( 'Send History', 'jetpack-paypal-payments' ) );
+				echo '<table class="widefat striped" style="max-width:500px;"><thead><tr>';
+				printf( '<th>%s</th>', esc_html__( 'Recipient', 'jetpack-paypal-payments' ) );
+				printf( '<th>%s</th>', esc_html__( 'Sent', 'jetpack-paypal-payments' ) );
+				echo '</tr></thead><tbody>';
+				foreach ( array_reverse( $send_log ) as $entry ) {
+					printf(
+						'<tr><td>%s</td><td>%s</td></tr>',
+						esc_html( $entry['email'] ?? '' ),
+						esc_html( isset( $entry['sent_at'] ) ? wp_date( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), strtotime( $entry['sent_at'] ) ) : '' )
+					);
+				}
+				echo '</tbody></table>';
+			}
+
 			echo '</div>';
 		}
 	}

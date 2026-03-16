@@ -506,6 +506,58 @@ class PayPal_Payment_Buttons {
 	public static function init_api() {
 		add_action( 'init', array( __CLASS__, 'register_standalone_script_stubs' ), 1 );
 		add_action( 'rest_api_init', array( PayPal_REST_Controller::class, 'register_routes' ) );
+		self::init_jetpack_sharing();
+		PayPal_Email_Sender::init();
+	}
+
+	/**
+	 * Integrate with Jetpack Sharing (Sharedaddy) if available.
+	 *
+	 * Ensures sharing buttons appear on pages containing the PayPal
+	 * payment button block. Gracefully no-ops when Jetpack or the
+	 * Sharedaddy module is not active.
+	 *
+	 * @since 0.9.0
+	 * @return void
+	 */
+	private static function init_jetpack_sharing() {
+		// Only register if Jetpack + Sharedaddy are active.
+		if (
+			! class_exists( 'Jetpack' )
+			|| ! method_exists( 'Jetpack', 'is_module_active' )
+			|| ! \Jetpack::is_module_active( 'sharedaddy' )
+		) {
+			return;
+		}
+
+		add_filter( 'sharing_show', array( __CLASS__, 'enable_sharing_on_payment_pages' ), 10, 2 );
+	}
+
+	/**
+	 * Enable Jetpack Sharing buttons on pages containing the PayPal block.
+	 *
+	 * Callback for the 'sharing_show' filter. Returns true if the current
+	 * post contains the PayPal payment buttons block, otherwise passes
+	 * through the existing value unchanged.
+	 *
+	 * @param bool     $show Whether to show sharing buttons.
+	 * @param \WP_Post $post The current post object.
+	 * @return bool Whether to show sharing buttons.
+	 */
+	public static function enable_sharing_on_payment_pages( $show, $post = null ) {
+		if ( $show ) {
+			return $show; // Already enabled by another filter — don't interfere.
+		}
+
+		if ( ! $post instanceof \WP_Post ) {
+			return $show;
+		}
+
+		if ( has_block( 'jetpack/paypal-payment-buttons', $post ) ) {
+			return true;
+		}
+
+		return $show;
 	}
 
 	/**
