@@ -115,7 +115,7 @@ const getNewsletterDisabledMessage = () => {
 		return __( 'You will be able to send newsletters once the site is published', 'jetpack' );
 	}
 	if ( isPrivateSite() ) {
-		return __( 'You cannot send newsletters from a private site', 'jetpack' );
+		return __( 'Emails will not be sent to subscribers while your site is private', 'jetpack' );
 	}
 	return null;
 };
