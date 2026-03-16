@@ -85,7 +85,7 @@ class PayPal_Payment_Buttons {
 			__DIR__,
 			array(
 				'render_callback' => array( __CLASS__, 'render_block' ),
-				'plan_check'      => true,
+				'plan_check'      => false,
 			)
 		);
 	}
