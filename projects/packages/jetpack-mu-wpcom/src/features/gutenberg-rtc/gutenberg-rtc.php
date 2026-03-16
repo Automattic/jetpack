@@ -148,8 +148,8 @@ function wpcom_default_rtc_option() {
 	// Providers exist and option is not stored yet → default to enabled.
 	return '1';
 }
-add_filter( 'default_option_wp_enable_real_time_collaboration', 'wpcom_default_rtc_option', 10 );
-add_filter( 'default_option_enable_real_time_collaboration', 'wpcom_default_rtc_option', 10 );
+add_filter( 'default_option_wp_enable_real_time_collaboration', 'wpcom_default_rtc_option', 20 );
+add_filter( 'default_option_enable_real_time_collaboration', 'wpcom_default_rtc_option', 20 );
 
 /**
  * Override the default for the Gutenberg RTC setting so that
