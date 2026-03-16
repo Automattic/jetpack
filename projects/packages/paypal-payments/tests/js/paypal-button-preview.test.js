@@ -1,4 +1,4 @@
-/* eslint-disable testing-library/no-node-access, testing-library/prefer-user-event */
+/* eslint-disable testing-library/no-node-access */
 /**
  * Tests for the PayPal Button Preview component.
  *
@@ -12,7 +12,7 @@ jest.mock( '@wordpress/i18n', () => ( {
 	__: str => str,
 } ) );
 
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import PayPalButtonPreview from '../../src/paypal-payment-buttons/paypal-button-preview';
 
 const defaultProps = {
@@ -79,15 +79,12 @@ describe( 'PayPalButtonPreview', () => {
 		expect( screen.getByText( 'https://www.paypal.com/ncp/payment/ABC123' ) ).toBeInTheDocument();
 	} );
 
-	it( 'prevents click navigation on the PayPal button', () => {
+	it( 'renders non-interactive preview buttons as div elements', () => {
 		render( <PayPalButtonPreview { ...defaultProps } /> );
-		const link = document.querySelector( '.jetpack-paypal-button-preview__paypal-button' );
-		fireEvent.click( link );
-
-		// fireEvent.click returns false when preventDefault was called.
-		// We verify the link has an onClick handler that calls preventDefault
-		// by checking the element exists and has the correct href.
-		expect( link ).toBeInTheDocument();
-		expect( link ).toHaveAttribute( 'href', 'https://www.paypal.com/ncp/payment/ABC123' );
+		const button = document.querySelector( '.jetpack-paypal-button-preview__paypal-button' );
+		expect( button ).toBeInTheDocument();
+		// Preview buttons are divs (not links) — non-interactive in the editor.
+		expect( button.tagName ).toBe( 'DIV' );
+		expect( button ).toHaveAttribute( 'aria-hidden', 'true' );
 	} );
 } );

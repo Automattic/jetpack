@@ -10,6 +10,10 @@
 
 jest.mock( '@wordpress/i18n', () => ( {
 	__: str => str,
+	sprintf: ( format, ...args ) => {
+		let i = 0;
+		return format.replace( /%[ds]/g, () => String( args[ i++ ] ) );
+	},
 } ) );
 
 import {

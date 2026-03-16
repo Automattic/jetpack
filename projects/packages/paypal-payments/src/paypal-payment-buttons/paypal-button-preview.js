@@ -15,6 +15,7 @@
  * @since 0.8.0
  */
 
+import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -108,6 +109,45 @@ function formatPrice( priceValue, currencyCode ) {
 }
 
 /**
+ * Copyable payment link with a "Copy" button.
+ *
+ * @param {object} props             - Component props.
+ * @param {string} props.paymentLink - The payment link URL.
+ * @return {Element} Payment link with copy button.
+ */
+function CopyablePaymentLink( { paymentLink } ) {
+	const [ copied, setCopied ] = useState( false );
+
+	const handleCopy = () => {
+		if ( navigator.clipboard ) {
+			navigator.clipboard.writeText( paymentLink ).then( () => {
+				setCopied( true );
+				setTimeout( () => setCopied( false ), 2000 );
+			} );
+		}
+	};
+
+	return (
+		<div className="jetpack-paypal-button-preview__link-ref">
+			<span className="jetpack-paypal-button-preview__link-label">
+				{ __( 'Payment link:', 'jetpack-paypal-payments' ) }
+			</span>
+			<code className="jetpack-paypal-button-preview__link-url">{ paymentLink }</code>
+			<button
+				type="button"
+				className="jetpack-paypal-button-preview__copy-button"
+				onClick={ handleCopy }
+				aria-label={ __( 'Copy payment link to clipboard', 'jetpack-paypal-payments' ) }
+			>
+				{ copied
+					? __( 'Copied!', 'jetpack-paypal-payments' )
+					: __( 'Copy', 'jetpack-paypal-payments' ) }
+			</button>
+		</div>
+	);
+}
+
+/**
  * PayPal button preview component.
  *
  * Renders a styled button that visually matches the PayPal-branded button
@@ -157,39 +197,23 @@ export default function PayPalButtonPreview( {
 			<div
 				className={ `jetpack-paypal-button-preview__buttons jetpack-paypal-button-preview__buttons--${ buttonType }` }
 			>
-				<a
-					href={ paymentLink }
-					className="jetpack-paypal-button-preview__paypal-button"
-					onClick={ e => e.preventDefault() }
-					role="button"
-					tabIndex={ -1 }
-				>
+				{ /* Non-interactive preview elements — use div, not <a role="button"> */ }
+				<div className="jetpack-paypal-button-preview__paypal-button" aria-hidden="true">
 					<PayPalLogo />
 					<span className="jetpack-paypal-button-preview__button-text">
 						{ buttonText || __( 'Pay Now', 'jetpack-paypal-payments' ) }
 					</span>
-				</a>
+				</div>
 
 				{ isStacked && (
-					<a
-						href={ paymentLink }
-						className="jetpack-paypal-button-preview__debit-button"
-						onClick={ e => e.preventDefault() }
-						role="button"
-						tabIndex={ -1 }
-					>
+					<div className="jetpack-paypal-button-preview__debit-button" aria-hidden="true">
 						{ __( 'Debit or Credit Card', 'jetpack-paypal-payments' ) }
-					</a>
+					</div>
 				) }
 			</div>
 
-			{ /* Payment link reference */ }
-			<div className="jetpack-paypal-button-preview__link-ref">
-				<span className="jetpack-paypal-button-preview__link-label">
-					{ __( 'Payment link:', 'jetpack-paypal-payments' ) }
-				</span>
-				<code className="jetpack-paypal-button-preview__link-url">{ paymentLink }</code>
-			</div>
+			{ /* Payment link with copy button */ }
+			<CopyablePaymentLink paymentLink={ paymentLink } />
 		</div>
 	);
 }

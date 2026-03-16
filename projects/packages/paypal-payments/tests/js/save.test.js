@@ -36,8 +36,8 @@ describe( 'PayPalPaymentButtonsSave', () => {
 		expect( screen.getByText( 'A great product.' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'Buy Now' ) ).toBeInTheDocument();
 
-		// Price renders as "USD 19.99" (currency code + space + value).
-		expect( screen.getByText( /USD/ ) ).toBeInTheDocument();
+		// Price renders with currency symbol (e.g., "$19.99").
+		expect( screen.getByText( /\$19\.99/ ) ).toBeInTheDocument();
 
 		// Payment link is used as the href.
 		const paypalLink = container.querySelector( '.jetpack-paypal-button__paypal-link' );

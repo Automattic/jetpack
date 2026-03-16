@@ -138,6 +138,8 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 
 	beforeEach( () => {
 		jest.clearAllMocks();
+		// Clear persisted wizard step to ensure tests start from 'welcome'.
+		window.localStorage.removeItem( 'jetpack-paypal-wizard-step' );
 		// Default: connection check returns not connected.
 		apiFetch.mockReset();
 		apiFetch.mockResolvedValue( { connected: false, environment: 'sandbox' } );
@@ -156,27 +158,36 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 	} );
 
 	describe( 'Connection Form (not connected)', () => {
+		/**
+		 * Navigate the WOOPTP-162 wizard to the credentials step.
+		 *
+		 * @param {object} user - userEvent instance.
+		 */
+		async function navigateToCredentialsStep( user ) {
+			await user.click( await screen.findByRole( 'button', { name: /Get Started/i } ) );
+			await user.click( await screen.findByRole( 'button', { name: /I have my credentials/i } ) );
+		}
+
 		it( 'shows the connection form when PayPal is not connected', async () => {
+			const user = userEvent.setup();
 			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
 
-			await expect( screen.findAllByText( 'Connect PayPal' ) ).resolves.toEqual(
-				expect.any( Array )
-			);
+			await navigateToCredentialsStep( user );
+
 			expect( screen.getByLabelText( 'Client ID' ) ).toBeInTheDocument();
 			expect( screen.getByLabelText( 'Client Secret' ) ).toBeInTheDocument();
-			expect( screen.getByLabelText( 'Environment' ) ).toBeInTheDocument();
+			expect(
+				screen.getByRole( 'button', { name: /Use Sandbox for testing|Switch to Production/i } )
+			).toBeInTheDocument();
 		} );
 
 		it( 'disables connect button when credentials are empty', async () => {
+			const user = userEvent.setup();
 			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
 
-			await expect( screen.findAllByText( 'Connect PayPal' ) ).resolves.toEqual(
-				expect.any( Array )
-			);
-			const connectButtons = screen.getAllByText( 'Connect PayPal' );
-			// The button (not the heading) should be disabled.
-			const button = connectButtons.find( el => el.tagName === 'BUTTON' );
-			expect( button ).toBeDisabled();
+			await navigateToCredentialsStep( user );
+
+			expect( screen.getByRole( 'button', { name: /^Connect$/i } ) ).toBeDisabled();
 		} );
 	} );
 
@@ -207,7 +218,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 		it( 'shows the create form when connected but no button exists', async () => {
 			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
 
-			await expect( screen.findByText( 'Create PayPal Button' ) ).resolves.toBeInTheDocument();
+			await expect( screen.findByText( /Create PayPal Button/ ) ).resolves.toBeInTheDocument();
 			expect( screen.getByLabelText( 'Product Name' ) ).toBeInTheDocument();
 			expect( screen.getByLabelText( 'Price' ) ).toBeInTheDocument();
 			expect( screen.getByLabelText( 'Currency' ) ).toBeInTheDocument();
@@ -241,8 +252,8 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 		it( 'disables Create Button when form is invalid', async () => {
 			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
 
-			await expect( screen.findByText( 'Create Button' ) ).resolves.toBeInTheDocument();
-			const createButton = screen.getByText( 'Create Button' );
+			await expect( screen.findByText( /Create Button/ ) ).resolves.toBeInTheDocument();
+			const createButton = screen.getByText( /Create Button/ );
 			expect( createButton ).toBeDisabled();
 		} );
 
@@ -258,8 +269,8 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				/>
 			);
 
-			await expect( screen.findByText( 'Create Button' ) ).resolves.toBeInTheDocument();
-			const createButton = screen.getByText( 'Create Button' );
+			await expect( screen.findByText( /Create Button/ ) ).resolves.toBeInTheDocument();
+			const createButton = screen.getByText( /Create Button/ );
 			expect( createButton ).toBeEnabled();
 		} );
 
@@ -285,8 +296,8 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				/>
 			);
 
-			await expect( screen.findByText( 'Create Button' ) ).resolves.toBeInTheDocument();
-			const createButton = screen.getByText( 'Create Button' );
+			await expect( screen.findByText( /Create Button/ ) ).resolves.toBeInTheDocument();
+			const createButton = screen.getByText( /Create Button/ );
 			await user.click( createButton );
 
 			// Should have called apiFetch with the create request.
@@ -374,8 +385,8 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			await user.click( editButton );
 
 			// Should now show the edit form with "Edit PayPal Button" heading.
-			expect( screen.getByText( 'Edit PayPal Button' ) ).toBeInTheDocument();
-			expect( screen.getByText( 'Update Button' ) ).toBeInTheDocument();
+			expect( screen.getByText( /Edit PayPal Button/ ) ).toBeInTheDocument();
+			expect( screen.getByText( /Update Button/ ) ).toBeInTheDocument();
 		} );
 	} );
 

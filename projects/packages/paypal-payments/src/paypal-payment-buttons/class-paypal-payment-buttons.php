@@ -269,6 +269,7 @@ class PayPal_Payment_Buttons {
 			</a>
 			%8$s
 		</div>
+		<p class="jetpack-paypal-button__attribution">%9$s</p>
 	</div>
 </div>',
 			esc_html( $product_name ),
@@ -278,7 +279,8 @@ class PayPal_Payment_Buttons {
 			$action_url,
 			$paypal_logo,
 			esc_html( $button_text ),
-			$debit_button_html
+			$debit_button_html,
+			esc_html__( 'Powered by PayPal', 'jetpack-paypal-payments' )
 		);
 	}
 

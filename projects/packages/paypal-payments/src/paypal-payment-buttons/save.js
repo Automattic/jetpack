@@ -17,6 +17,39 @@ import { useBlockProps } from '@wordpress/block-editor';
 import { __ } from '@wordpress/i18n';
 
 /**
+ * Currency symbol map — must match paypal-button-preview.js and
+ * class-paypal-payment-buttons.php for consistent WYSIWYG rendering.
+ */
+const CURRENCY_SYMBOLS = {
+	USD: '$',
+	EUR: '\u20AC',
+	GBP: '\u00A3',
+	JPY: '\u00A5',
+	CAD: 'CA$',
+	AUD: 'A$',
+	CHF: 'CHF',
+	CNY: '\u00A5',
+	INR: '\u20B9',
+	BRL: 'R$',
+	MXN: 'MX$',
+	HKD: 'HK$',
+	NZD: 'NZ$',
+	SGD: 'S$',
+	SEK: 'kr',
+	NOK: 'kr',
+	DKK: 'kr',
+	PLN: 'z\u0142',
+	CZK: 'K\u010D',
+	HUF: 'Ft',
+	ILS: '\u20AA',
+	MYR: 'RM',
+	PHP: '\u20B1',
+	TWD: 'NT$',
+	THB: '\u0E3F',
+	RUB: '\u20BD',
+};
+
+/**
  * PayPal logo SVG rendered inline.
  *
  * Per PayPal brand guidelines, the PayPal wordmark must appear on any
@@ -95,17 +128,19 @@ export default function PayPalPaymentButtonsSave( { attributes } ) {
 		return (
 			<div { ...blockProps }>
 				<div className="jetpack-paypal-button">
-					{ /* Product info */ }
+					{ /* Product info — flex layout matches editor preview */ }
 					<div className="jetpack-paypal-button__product">
-						<span className="jetpack-paypal-button__product-name">{ productName }</span>
-						{ productDescription && (
-							<span className="jetpack-paypal-button__product-description">
-								{ productDescription }
-							</span>
-						) }
+						<div className="jetpack-paypal-button__product-info">
+							<span className="jetpack-paypal-button__product-name">{ productName }</span>
+							{ productDescription && (
+								<span className="jetpack-paypal-button__product-description">
+									{ productDescription }
+								</span>
+							) }
+						</div>
 						{ price && (
 							<span className="jetpack-paypal-button__product-price">
-								{ currencyCode } { price }
+								{ ( CURRENCY_SYMBOLS[ currencyCode ] || currencyCode ) + price }
 							</span>
 						) }
 					</div>
