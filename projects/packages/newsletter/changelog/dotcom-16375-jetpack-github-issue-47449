@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Fixes #47449
+
+Fix i18n translator comment concatenation caused by dataviews function aliasing
