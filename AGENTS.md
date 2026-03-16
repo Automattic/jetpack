@@ -130,11 +130,15 @@ jp test coverage <project>      # Generate coverage report (optional)
 
 ### PHP Testing
 
+- `jp test php` works for all projects except `plugins/jetpack`, which uses `jp docker` commands
+- Add `--verbose` for full output: `jp test php packages/connection --verbose`
+- Filter to specific tests: `jp test php packages/connection --verbose -- --filter SSO_Test`
 - Use PHPUnit with WordPress test framework and `yoast/phpunit-polyfills`
 - Follow WordPress testing conventions, use WordPress fixtures and mocks
 - Test WordPress hooks and filters
 - Test class names MUST end in "Test"
 - Every test class MUST be in a file with a matching name (e.g., class `My_Unit_Test` in `My_Unit_Test.php`)
+- Many packages use WorDBless (not the WP test factory). Test classes extend `WorDBless\BaseTestCase`. To create test users, use `wp_insert_user()` + `get_userdata()` — do NOT use `self::factory()->user->create_and_get()` as that method is not available. See `projects/packages/connection/tests/php/sso/Helpers_Test.php` for an example.
 
 See `docs/automated-testing.md` for full testing guidelines.
 
