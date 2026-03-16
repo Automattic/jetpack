@@ -150,10 +150,28 @@ class PayPal_Payment_Links_List_Table extends \WP_List_Table {
 
 		$actions = array();
 
+		// View details link (admin detail view).
+		if ( isset( $item['id'] ) ) {
+			$detail_url = add_query_arg(
+				array(
+					'page'        => 'paypal-payment-links',
+					'action'      => 'view',
+					'resource_id' => $item['id'],
+				),
+				admin_url( 'admin.php' )
+			);
+
+			$actions['view_details'] = sprintf(
+				'<a href="%s">%s</a>',
+				esc_url( $detail_url ),
+				esc_html__( 'View Details', 'jetpack-paypal-payments' )
+			);
+		}
+
 		// View on PayPal link.
 		$payment_link = $this->get_payment_link( $item );
 		if ( $payment_link ) {
-			$actions['view'] = sprintf(
+			$actions['view_paypal'] = sprintf(
 				'<a href="%s" target="_blank" rel="noopener noreferrer">%s</a>',
 				esc_url( $payment_link ),
 				esc_html__( 'View on PayPal', 'jetpack-paypal-payments' )
