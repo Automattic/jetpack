@@ -133,7 +133,7 @@ class PayPal_OAuth {
 	 * @return string Raw binary key of SODIUM_CRYPTO_SECRETBOX_KEYBYTES length.
 	 */
 	private static function get_encryption_key() {
-		return sodium_crypto_generichash( AUTH_KEY, '', SODIUM_CRYPTO_SECRETBOX_KEYBYTES );
+		return sodium_crypto_generichash( \AUTH_KEY, '', SODIUM_CRYPTO_SECRETBOX_KEYBYTES );
 	}
 
 	/**

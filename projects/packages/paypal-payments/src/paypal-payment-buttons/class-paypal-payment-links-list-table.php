@@ -255,7 +255,10 @@ class PayPal_Payment_Links_List_Table extends \WP_List_Table {
 			return '—';
 		}
 
-		return esc_html( wp_date( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), $timestamp ) );
+		$date_format = get_option( 'date_format', 'F j, Y' );
+		$time_format = get_option( 'time_format', 'g:i a' );
+
+		return esc_html( wp_date( $date_format . ' ' . $time_format, $timestamp ) );
 	}
 
 	/**
