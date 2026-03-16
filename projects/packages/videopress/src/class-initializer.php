@@ -198,13 +198,13 @@ class Initializer {
 	public static function render_videopress_video_block( $block_attributes, $content, $block ) {
 		global $wp_embed;
 
-		// CSS classes
+		// CSS classes.
 		$align        = isset( $block_attributes['align'] ) ? $block_attributes['align'] : null;
 		$align_class  = $align ? ' align' . $align : '';
 		$custom_class = isset( $block_attributes['className'] ) ? ' ' . $block_attributes['className'] : '';
 		$classes      = 'wp-block-jetpack-videopress jetpack-videopress-player' . $custom_class . $align_class;
 
-		// Inline style
+		// Inline style.
 		$style     = '';
 		$max_width = isset( $block_attributes['maxWidth'] ) ? $block_attributes['maxWidth'] : null;
 
@@ -221,7 +221,7 @@ class Initializer {
 		 */
 		$figcaption = '';
 
-		// Caption from block attributes
+		// Caption from block attributes.
 		$caption = isset( $block_attributes['caption'] ) ? $block_attributes['caption'] : null;
 
 		/*
@@ -238,18 +238,18 @@ class Initializer {
 			$figcaption = sprintf( '<figcaption>%s</figcaption>', wp_kses_post( $caption ) );
 		}
 
-		// Custom anchor from block content
+		// Custom anchor from block content.
 		$id_attribute = '';
 
 		// Try to get the custom anchor from the block attributes.
 		if ( isset( $block_attributes['anchor'] ) && $block_attributes['anchor'] ) {
 			$id_attribute = sprintf( 'id="%s"', esc_attr( $block_attributes['anchor'] ) );
 		} elseif ( preg_match( '/<figure[^>]*id="([^"]+)"/', $content, $matches ) ) {
-			// Othwerwise, try to get the custom anchor from the <figure /> element.
-			$id_attribute = sprintf( 'id="%s"', $matches[1] );
+			// Otherwise, try to get the custom anchor from the <figure /> element.
+			$id_attribute = sprintf( 'id="%s"', esc_attr( $matches[1] ) );
 		}
 
-		// Preview On Hover data
+		// Preview On Hover data.
 		$is_poh_enabled =
 			isset( $block_attributes['posterData']['previewOnHover'] ) &&
 			$block_attributes['posterData']['previewOnHover'];
@@ -268,7 +268,7 @@ class Initializer {
 				'showControls'        => $controls,
 			);
 
-			// Create inlione style in case video has a custom poster.
+			// Create inline style in case video has a custom poster.
 			$inline_style = '';
 			if ( $poster ) {
 				$inline_style = sprintf(
@@ -297,7 +297,7 @@ class Initializer {
 		</figure>
 		';
 
-		// VideoPress URL
+		// VideoPress URL.
 		$guid           = isset( $block_attributes['guid'] ) ? $block_attributes['guid'] : null;
 		$videopress_url = Utils::get_video_press_url( $guid, $block_attributes );
 
@@ -315,7 +315,7 @@ class Initializer {
 			);
 		}
 
-		// Get premium content from block context
+		// Get premium content from block context.
 		$premium_block_plan_id    = isset( $block->context['premium-content/planId'] ) ? intval( $block->context['premium-content/planId'] ) : 0;
 		$is_premium_content_child = isset( $block->context['isPremiumContentChild'] ) ? (bool) $block->context['isPremiumContentChild'] : false;
 		$maybe_premium_script     = '';
@@ -326,7 +326,7 @@ class Initializer {
 			$maybe_premium_script = '<script>' . $script_content . '</script>';
 		}
 
-		// $id_attribute, $video_wrapper, $figcaption properly escaped earlier on the code
+		// $id_attribute, $video_wrapper, $figcaption properly escaped earlier in the code.
 		return sprintf(
 			$figure_template,
 			esc_attr( $classes ),

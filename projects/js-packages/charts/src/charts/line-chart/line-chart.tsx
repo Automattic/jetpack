@@ -15,7 +15,6 @@ import {
 	useChartDataTransform,
 	useChartMargin,
 	useElementSize,
-	useHasLegendChild,
 	usePrefersReducedMotion,
 } from '../../hooks';
 import {
@@ -27,6 +26,7 @@ import {
 	useGlobalChartsTheme,
 } from '../../providers';
 import { attachSubComponents } from '../../utils';
+import { useChartChildren, renderLegendSlot } from '../private/chart-composition';
 import { DefaultGlyph } from '../private/default-glyph';
 import { SingleChartContext, type SingleChartRef } from '../private/single-chart-context';
 import { withResponsive } from '../private/with-responsive';
@@ -256,15 +256,9 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 			withTooltips = true,
 			withTooltipCrosshairs,
 			showLegend = false,
-			legendOrientation = 'horizontal',
-			legendAlignment = 'center',
-			legendPosition = 'bottom',
-			legendMaxWidth,
-			legendTextOverflow = 'wrap',
-			legendItemClassName,
+			legend = {},
 			renderGlyph = defaultRenderGlyph,
 			glyphStyle = {},
-			legendShape = 'line',
 			withLegendGlyph = false,
 			withGradientFill = false,
 			smoothing = true,
@@ -272,7 +266,6 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 			renderTooltip = renderDefaultTooltip,
 			withStartGlyphs = false,
 			withEndGlyphs = false,
-			legendInteractive = false,
 			animation,
 			options = {},
 			onPointerDown = undefined,
@@ -285,6 +278,10 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 		},
 		ref
 	) => {
+		const legendInteractive = legend.interactive ?? false;
+		const legendShape = legend.shape ?? 'line';
+		const legendPosition = legend.position ?? 'bottom';
+
 		const providerTheme = useGlobalChartsTheme();
 		const theme = useXYChartTheme( data );
 		const chartId = useChartId( providedChartId );
@@ -294,8 +291,9 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 		const [ isNavigating, setIsNavigating ] = useState( false );
 		const internalChartRef = useRef< SingleChartRef >( null );
 
-		// Check if children contain a Legend component (composition pattern)
-		const hasLegendChild = useHasLegendChild( children );
+		// Process children for composition API (Legend, etc.)
+		const { legendChildren, nonLegendChildren } = useChartChildren( children, 'LineChart' );
+		const hasLegendChild = legendChildren.length > 0;
 
 		// Use the measured SVG wrapper height, falling back to the passed height if provided.
 		// When there's a legend (via prop or composition), we must wait for measurement because
@@ -454,12 +452,13 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 
 		const legendElement = showLegend && (
 			<Legend
-				orientation={ legendOrientation }
-				alignment={ legendAlignment }
+				orientation={ legend.orientation ?? 'horizontal' }
+				alignment={ legend.alignment ?? 'center' }
 				position={ legendPosition }
-				maxWidth={ legendMaxWidth }
-				textOverflow={ legendTextOverflow }
-				legendItemClassName={ legendItemClassName }
+				labelStyles={ legend.labelStyles }
+				itemClassName={ legend.itemClassName }
+				itemStyles={ legend.itemStyles }
+				shapeStyles={ legend.shapeStyles }
 				className={ styles[ 'line-chart__legend' ] }
 				shape={ legendShape }
 				chartId={ chartId }
@@ -493,6 +492,7 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 					} }
 				>
 					{ legendPosition === 'top' && legendElement }
+					{ renderLegendSlot( legendChildren, 'top' ) }
 
 					<div
 						className={ styles[ 'line-chart__svg-wrapper' ] }
@@ -655,8 +655,9 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 					</div>
 
 					{ legendPosition === 'bottom' && legendElement }
+					{ renderLegendSlot( legendChildren, 'bottom' ) }
 
-					{ children }
+					{ nonLegendChildren }
 				</Stack>
 			</SingleChartContext.Provider>
 		);

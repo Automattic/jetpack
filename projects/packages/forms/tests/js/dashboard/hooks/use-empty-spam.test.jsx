@@ -43,7 +43,7 @@ await jest.unstable_mockModule( '@wordpress/data', () => {
 	const mockDispatch = {
 		createSuccessNotice: jest.fn(),
 		createErrorNotice: jest.fn(),
-		invalidateResolution: jest.fn(),
+		invalidateResolutionForStoreSelector: jest.fn(),
 		invalidateCounts: jest.fn(),
 	};
 
@@ -56,7 +56,9 @@ await jest.unstable_mockModule( '@wordpress/data', () => {
 				};
 			}
 			if ( store === 'core' ) {
-				return { invalidateResolution: mockDispatch.invalidateResolution };
+				return {
+					invalidateResolutionForStoreSelector: mockDispatch.invalidateResolutionForStoreSelector,
+				};
 			}
 			if ( store === 'dashboard' ) {
 				return { invalidateCounts: mockDispatch.invalidateCounts };
@@ -150,6 +152,16 @@ describe( 'useEmptySpam', () => {
 				expect.stringContaining( 'deleted permanently' ),
 				{ type: 'snackbar', id: 'empty-spam' }
 			);
+		} );
+
+		// Verify cache invalidation
+		const coreDispatch = useDispatch( 'core' );
+		const dashboardDispatch = useDispatch( 'dashboard' );
+		await waitFor( () => {
+			expect( coreDispatch.invalidateResolutionForStoreSelector ).toHaveBeenCalledWith(
+				'getEntityRecords'
+			);
+			expect( dashboardDispatch.invalidateCounts ).toHaveBeenCalled();
 		} );
 	} );
 

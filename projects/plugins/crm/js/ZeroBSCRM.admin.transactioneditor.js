@@ -226,11 +226,10 @@ function zbscrmjs_build_custInv_dropdown( custID, preSelectedInvID ) {
 				}
 
 				// NOTE THIS IS DUPE BELOW... REFACTOR
-				jQuery( '#invoiceFieldWrap' ).html(
-					'<input style="max-width:200px;" id="invoice_id" name="invoice_id" value="' +
-						previousInvValL +
-						'" class="form-control">'
-				);
+				document.getElementById( 'invoiceFieldWrap' ).innerHTML =
+					'<input style="max-width: 200px;" id="invoice_id" name="invoice_id" class="form-control" value="' +
+					jpcrm.esc_attr( previousInvValL ) +
+					'">';
 			}
 		);
 	} else {
@@ -242,11 +241,10 @@ function zbscrmjs_build_custInv_dropdown( custID, preSelectedInvID ) {
 			previousInvVal = '';
 		}
 		// NOTE THIS IS DUPE ABOVE... REFACTOR
-		jQuery( '#invoiceFieldWrap' ).html(
-			'<input style="max-width:200px;" id="invoice_id" name="invoice_id" value="' +
-				previousInvVal +
-				'" class="form-control">'
-		);
+		document.getElementById( 'invoiceFieldWrap' ).innerHTML =
+			'<input style="max-width: 200px;" id="invoice_id" name="invoice_id" class="form-control" value="' +
+			jpcrm.esc_attr( previousInvVal ) +
+			'">';
 
 		// bind
 		setTimeout( function () {

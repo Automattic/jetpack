@@ -12,12 +12,13 @@ import {
 	PricingTableHeader,
 	PricingTableItem,
 	IconTooltip,
-	Button,
+	Button as JetpackButton,
 	ThemeProvider,
 } from '@automattic/jetpack-components';
 import { ConnectionError, useConnectionErrorNotice } from '@automattic/jetpack-connection';
 import { shouldUseInternalLinks } from '@automattic/jetpack-shared-extension-utils';
 import { formatNumberCompact } from '@automattic/number-formatters';
+import { Button } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
@@ -27,7 +28,6 @@ import Price from 'components/price';
 import SearchPromotionBlock from 'components/search-promotion';
 import useProductCheckoutWorkflow from 'hooks/use-product-checkout-workflow';
 import { STORE_ID } from 'store';
-import Header from './header';
 
 import './styles.scss';
 
@@ -44,11 +44,14 @@ export default function UpsellPage( { isLoading = false } ) {
 	// Introduce the gate for new pricing with URL parameter `new_pricing_202208=1`
 	const APINonce = useSelect( select => select( STORE_ID ).getAPINonce(), [] );
 	const isNewPricing = useSelect( select => select( STORE_ID ).isNewPricing202208(), [] );
+	const isWpcom = useSelect( select => select( STORE_ID ).isWpcom(), [] );
+	const activateLicenseUrl = useSelect(
+		select => `${ select( STORE_ID ).getSiteAdminUrl() }admin.php?page=my-jetpack#/add-license`
+	);
 	useSelect( select => select( STORE_ID ).getSearchPricing(), [] );
 	const domain = useSelect( select => select( STORE_ID ).getCalypsoSlug(), [] );
 	const blogID = useSelect( select => select( STORE_ID ).getBlogId(), [] );
 	const adminUrl = useSelect( select => select( STORE_ID ).getSiteAdminUrl(), [] );
-	const isWpcom = useSelect( select => select( STORE_ID ).isWpcom(), [] );
 
 	const { fetchSearchPlanInfo } = useDispatch( STORE_ID );
 	const checkSiteHasSearchProduct = useCallback( () => {
@@ -94,25 +97,33 @@ export default function UpsellPage( { isLoading = false } ) {
 		<>
 			{ isPageLoading && <Loading /> }
 			{ ! isPageLoading && (
-				<div className="jp-search-dashboard-upsell-page">
-					<AdminPage
-						moduleName={ __( 'Jetpack Search', 'jetpack-search-pkg' ) }
-						header={ <Header /> }
-						moduleNameHref={ JETPACK_SEARCH__LINK }
-						useInternalLinks={ shouldUseInternalLinks() }
-					>
-						<AdminSectionHero>
-							{ isNewPricing ? (
-								<NewPricingComponent
-									sendToCartPaid={ sendToCartPaid }
-									sendToCartFree={ sendToCartFree }
-								/>
-							) : (
-								<OldPricingComponent sendToCart={ sendToCartPaid } />
-							) }
-						</AdminSectionHero>
-					</AdminPage>
-				</div>
+				<AdminPage
+					title={ 'Search' /** "Search" is a product name, do not translate. */ }
+					subTitle={ __(
+						'Help your visitors find exactly what they are looking for.',
+						'jetpack-search-pkg'
+					) }
+					actions={
+						! isWpcom && (
+							<Button variant="secondary" href={ activateLicenseUrl }>
+								{ __( 'Use license key', 'jetpack-search-pkg' ) }
+							</Button>
+						)
+					}
+					moduleNameHref={ JETPACK_SEARCH__LINK }
+					useInternalLinks={ shouldUseInternalLinks() }
+				>
+					<AdminSectionHero>
+						{ isNewPricing ? (
+							<NewPricingComponent
+								sendToCartPaid={ sendToCartPaid }
+								sendToCartFree={ sendToCartFree }
+							/>
+						) : (
+							<OldPricingComponent sendToCart={ sendToCartPaid } />
+						) }
+					</AdminSectionHero>
+				</AdminPage>
 			) }
 		</>
 	);
@@ -258,9 +269,9 @@ const NewPricingComponent = ( { sendToCartPaid, sendToCartFree } ) => {
 										</IconTooltip>
 									</div>
 								</ProductPrice>
-								<Button onClick={ sendToCartPaid } fullWidth>
+								<JetpackButton onClick={ sendToCartPaid } fullWidth>
 									{ __( 'Get Search', 'jetpack-search-pkg' ) }
-								</Button>
+								</JetpackButton>
 							</PricingTableHeader>
 							<PricingTableItem
 								isIncluded={ true }
@@ -304,9 +315,9 @@ const NewPricingComponent = ( { sendToCartPaid, sendToCartFree } ) => {
 									currency={ priceCurrencyCode }
 									hidePriceFraction
 								/>
-								<Button onClick={ sendToCartFree } variant="secondary" fullWidth>
+								<JetpackButton onClick={ sendToCartFree } variant="secondary" fullWidth>
 									{ __( 'Start for free', 'jetpack-search-pkg' ) }
-								</Button>
+								</JetpackButton>
 							</PricingTableHeader>
 							<PricingTableItem
 								isIncluded={ true }

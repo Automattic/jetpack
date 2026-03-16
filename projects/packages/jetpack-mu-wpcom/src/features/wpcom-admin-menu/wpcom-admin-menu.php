@@ -348,15 +348,20 @@ function wpcom_add_jetpack_submenu() {
 		);
 
 		// Jetpack > Newsletter (Calypso).
-		// Force Calypso for atomic Personal/Premium sites since local Jetpack newsletter page exposes broken pages.
-		add_submenu_page(
-			'jetpack',
-			esc_attr__( 'Newsletter', 'jetpack-mu-wpcom' ),
-			__( 'Newsletter', 'jetpack-mu-wpcom' ),
-			'manage_options',
-			'https://wordpress.com/settings/newsletter/' . $domain,
-			null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-		);
+		// When the new wp-admin newsletter settings page is enabled, the menu item is added
+		// by the newsletter package's Settings::add_wp_admin_menu() for Atomic sites.
+		// Otherwise, link to Calypso for atomic Personal/Premium sites.
+		/** This filter is documented in projects/packages/newsletter/src/class-settings.php */
+		if ( ! apply_filters( 'jetpack_wp_admin_newsletter_settings_enabled', false ) ) {
+			add_submenu_page(
+				'jetpack',
+				esc_attr__( 'Newsletter', 'jetpack-mu-wpcom' ),
+				__( 'Newsletter', 'jetpack-mu-wpcom' ),
+				'manage_options',
+				\Automattic\Jetpack\Newsletter\Urls::get_newsletter_settings_url( $domain ),
+				null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
+			);
+		}
 	}
 	// @codeCoverageIgnoreEnd
 
@@ -423,19 +428,21 @@ function wpcom_add_jetpack_submenu() {
 
 	if ( $is_simple_site ) {
 		// Jetpack > Newsletter.
+		/** This filter is documented in projects/packages/newsletter/src/class-settings.php */
 		if ( apply_filters( 'jetpack_wp_admin_newsletter_settings_enabled', false ) ) {
-			// When enabled, call Newsletter Settings to add the in-admin settings page.
-			// This must be done here (at priority 999999) because the Jetpack menu
-			// is created by this function and doesn't exist at earlier priorities.
+			// Register the in-admin Newsletter settings page (with its own render callback
+			// and admin hooks). This must be done here (at priority 999999) because the
+			// Jetpack menu is created by this function and doesn't exist at earlier priorities.
 			$newsletter_settings = new Newsletter_Settings();
 			$newsletter_settings->add_wp_admin_submenu();
 		} else {
+			// No local settings page — just add a menu link that points to Calypso.
 			add_submenu_page(
 				'jetpack',
 				__( 'Newsletter', 'jetpack-mu-wpcom' ),
 				__( 'Newsletter', 'jetpack-mu-wpcom' ),
 				'manage_options',
-				'https://wordpress.com/settings/newsletter/' . $domain,
+				\Automattic\Jetpack\Newsletter\Urls::get_newsletter_settings_url( $domain ),
 				null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 			);
 		}

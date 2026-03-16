@@ -3,7 +3,14 @@
  */
 import analytics from '@automattic/jetpack-analytics';
 import { getSiteType } from '@automattic/jetpack-script-data';
-import { Button } from '@wordpress/components';
+import {
+	Button,
+	Card,
+	CardHeader,
+	CardBody,
+	__experimentalText as Text, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+	__experimentalHeading as Heading, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+} from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
@@ -42,33 +49,37 @@ export function PaidNewsletterSection( {
 	}
 
 	// Button text based on whether they have an active plan
-	const addPlansText = __( 'Add Plans', 'jetpack-newsletter' );
-	const managePlansText = __( 'Manage Plans', 'jetpack-newsletter' );
+	const addPlansText = __( 'Add plans', 'jetpack-newsletter' );
+	const managePlansText = __( 'Manage plans', 'jetpack-newsletter' );
 	const buttonText = hasActivePlan ? managePlansText : addPlansText;
 
 	return (
-		<div className="newsletter-settings__section">
-			<h3 className="newsletter-settings__section-title">
-				{ __( 'Paid newsletter', 'jetpack-newsletter' ) }
-			</h3>
-			<p className="newsletter-settings__section-description">
-				{ __(
-					'Earn money through your Newsletter. Reward your most loyal subscribers with exclusive content or add a paywall to monetize content.',
-					'jetpack-newsletter'
-				) }
-			</p>
-			<fieldset className="newsletter-settings__section-content" disabled={ ! isNewsletterEnabled }>
-				<Button
-					variant="primary"
-					href={ newsletterScriptData.setupPaymentPlansUrl }
-					target="_blank"
-					rel="noopener noreferrer"
-					disabled={ ! isNewsletterEnabled }
-					onClick={ handlePaidPlansClick }
-				>
-					{ buttonText }
-				</Button>
-			</fieldset>
-		</div>
+		<Card>
+			<CardHeader>
+				<Heading level={ 4 }>{ __( 'Paid newsletter', 'jetpack-newsletter' ) }</Heading>
+			</CardHeader>
+			<CardBody>
+				<p>
+					<Text>
+						{ __(
+							'Earn money through your Newsletter. Reward your most loyal subscribers with exclusive content or add a paywall to monetize content.',
+							'jetpack-newsletter'
+						) }
+					</Text>
+				</p>
+				<fieldset disabled={ ! isNewsletterEnabled }>
+					<Button
+						variant="primary"
+						href={ newsletterScriptData.setupPaymentPlansUrl }
+						target="_blank"
+						rel="noopener noreferrer"
+						disabled={ ! isNewsletterEnabled }
+						onClick={ handlePaidPlansClick }
+					>
+						{ buttonText }
+					</Button>
+				</fieldset>
+			</CardBody>
+		</Card>
 	);
 }

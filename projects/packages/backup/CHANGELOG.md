@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.2.45] - 2026-03-09
+### Changed
+- Migrate admin page header to use unified AdminHeader component from jetpack-components. [#47313]
+- Replace @automattic/jetpack-components Button with @wordpress/components Button in BackupNowButton component. [#47417]
+- Replace license activation link with a "Use license key" button in the header actions area. [#47434]
+- Simplify admin menu title from 'VaultPress Backup' to 'Backups'. [#47417]
+- Storage popover: use core components and remove custom CSS. [#47448]
+- Switch to Native TypeScript compiler based on Go. [#47375]
+- Update package dependencies. [#47496]
+
+### Fixed
+- Constrain license activation link width on mobile to prevent header overflow. [#47431]
+
 ## [4.2.44] - 2026-03-02
 ### Changed
 - Update dependencies. [#46758]
@@ -1045,6 +1058,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add API endpoints and Jetpack Backup package for managing Help…
 
+[4.2.45]: https://github.com/Automattic/jetpack-backup/compare/v4.2.44...v4.2.45
 [4.2.44]: https://github.com/Automattic/jetpack-backup/compare/v4.2.43...v4.2.44
 [4.2.43]: https://github.com/Automattic/jetpack-backup/compare/v4.2.42...v4.2.43
 [4.2.42]: https://github.com/Automattic/jetpack-backup/compare/v4.2.41...v4.2.42

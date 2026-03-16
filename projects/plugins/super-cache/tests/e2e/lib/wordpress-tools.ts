@@ -11,9 +11,9 @@ import { deleteCacheDirectory, readPluginFile } from './plugin-tools';
 /**
  * Run the given wp-cli command (provided as a string array) in wp-cli in the docker.
  *
- * @param {...any} command - The command to run.
+ * @param {...string} command - The command to run.
  */
-export async function wpcli( ...command ) {
+export async function wpcli( ...command: string[] ) {
 	return dockerExec( 'wp', ...command );
 }
 

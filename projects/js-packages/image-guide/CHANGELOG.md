@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.13] - 2026-03-09
+### Changed
+- Set `.repository.url` in `package.json` to the mirror repo rather than the monorepo. Required for enabling provenance. [#47149]
+- Switch to Native TypeScript compiler based on Go. [#47375]
+- Update package dependencies. [#47002] [#47099] [#47173] [#47229] [#47337] [#47498]
+
 ## [1.0.12] - 2026-01-26
 ### Changed
 - Update package dependencies. [#46552]
@@ -226,6 +232,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 - Minor package.json change - removing private entry.
 
+[1.0.13]: https://github.com/Automattic/jetpack-image-guide/compare/v1.0.12...v1.0.13
 [1.0.12]: https://github.com/Automattic/jetpack-image-guide/compare/v1.0.11...v1.0.12
 [1.0.11]: https://github.com/Automattic/jetpack-image-guide/compare/v1.0.10...v1.0.11
 [1.0.10]: https://github.com/Automattic/jetpack-image-guide/compare/v1.0.9...v1.0.10

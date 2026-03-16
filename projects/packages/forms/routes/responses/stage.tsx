@@ -477,7 +477,7 @@ function StageInner() {
 							__( '(no title)', 'jetpack-forms' ),
 					} )
 				),
-				...( isSingleFormView ? {} : { filterBy: { operators: [ 'is' ] as Operator[] } } ),
+				filterBy: isSingleFormView ? false : { operators: [ 'is' ] as Operator[] },
 				enableSorting: false,
 			},
 			{
@@ -543,9 +543,11 @@ function StageInner() {
 	}, [] );
 
 	const {
+		ariaLabel,
 		breadcrumbs,
 		badges,
 		subtitle,
+		title,
 		actions: headerActions,
 	} = usePageHeaderDetails( {
 		screen: 'responses',
@@ -571,6 +573,8 @@ function StageInner() {
 			showSidebarToggle={ false }
 			breadcrumbs={ breadcrumbs }
 			badges={ badges }
+			title={ title }
+			ariaLabel={ ariaLabel }
 			subTitle={ subtitle }
 			actions={ headerActions }
 			hasPadding={ false }
