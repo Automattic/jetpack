@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix module configure URL not pointing to the new newsletter settings page
