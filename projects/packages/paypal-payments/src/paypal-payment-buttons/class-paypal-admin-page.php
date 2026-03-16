@@ -240,6 +240,7 @@ class PayPal_Admin_Page {
 						navigator.clipboard.writeText(url).then(function() {
 							var original = e.target.textContent;
 							e.target.textContent = ' . wp_json_encode( __( 'Copied!', 'jetpack-paypal-payments' ), JSON_HEX_TAG | JSON_HEX_AMP ) . ';
+							if (typeof wp !== "undefined" && wp.a11y) { wp.a11y.speak("Copied to clipboard"); }
 							setTimeout(function() { e.target.textContent = original; }, 2000);
 						});
 					}
@@ -382,7 +383,17 @@ class PayPal_Admin_Page {
 	 * @param string $resource_id The PayPal resource ID (PLB-...).
 	 */
 	private static function render_detail_view( $resource_id ) {
-		$resource = PayPal_API_Client::get_resource( $resource_id );
+		// Cache detail API responses for 300 seconds to reduce redundant API calls.
+		$cache_key = 'paypal_resource_' . sanitize_key( $resource_id );
+		$resource  = get_transient( $cache_key );
+
+		if ( false === $resource ) {
+			$resource = PayPal_API_Client::get_resource( $resource_id );
+
+			if ( ! is_wp_error( $resource ) ) {
+				set_transient( $cache_key, $resource, 300 );
+			}
+		}
 
 		// Breadcrumb.
 		printf(

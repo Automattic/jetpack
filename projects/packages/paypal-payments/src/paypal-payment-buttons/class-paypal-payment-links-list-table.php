@@ -103,7 +103,17 @@ class PayPal_Payment_Links_List_Table extends \WP_List_Table {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only pagination parameter.
 		$page_token = isset( $_GET['page_token'] ) ? sanitize_text_field( wp_unslash( $_GET['page_token'] ) ) : '';
 
-		$result = PayPal_API_Client::list_resources( self::PER_PAGE, $page_token );
+		// Cache list API responses for 60 seconds to reduce redundant API calls.
+		$cache_key = 'paypal_list_cache_' . md5( $page_token );
+		$result    = get_transient( $cache_key );
+
+		if ( false === $result ) {
+			$result = PayPal_API_Client::list_resources( self::PER_PAGE, $page_token );
+
+			if ( ! is_wp_error( $result ) ) {
+				set_transient( $cache_key, $result, 60 );
+			}
+		}
 
 		if ( is_wp_error( $result ) ) {
 			$this->api_error = $result;
@@ -232,10 +242,13 @@ class PayPal_Payment_Links_List_Table extends \WP_List_Table {
 
 		$class = 'ACTIVE' === $status ? 'paypal-status-active' : 'paypal-status-inactive';
 
+		// Prefix with a text icon so status is conveyed by more than color alone (A11Y-S1).
+		$label = 'ACTIVE' === $status ? "\xE2\x9C\x93 ACTIVE" : "\xE2\x80\x94 INACTIVE";
+
 		return sprintf(
 			'<span class="paypal-status-badge %s">%s</span>',
 			esc_attr( $class ),
-			esc_html( $status )
+			esc_html( $label )
 		);
 	}
 

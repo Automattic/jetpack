@@ -73,6 +73,7 @@ class PayPal_Email_Sender {
 		// Validate inputs.
 		$recipient    = isset( $_POST['recipient'] ) ? sanitize_email( wp_unslash( $_POST['recipient'] ) ) : '';
 		$payment_link = isset( $_POST['payment_link'] ) ? esc_url_raw( wp_unslash( $_POST['payment_link'] ) ) : '';
+		$payment_link = PayPal_Payment_Buttons::sanitize_paypal_script_url( $payment_link );
 		$product_name = isset( $_POST['product_name'] ) ? sanitize_text_field( wp_unslash( $_POST['product_name'] ) ) : '';
 		$price        = isset( $_POST['price'] ) ? sanitize_text_field( wp_unslash( $_POST['price'] ) ) : '';
 		$currency     = isset( $_POST['currency'] ) ? sanitize_text_field( wp_unslash( $_POST['currency'] ) ) : 'USD';
@@ -87,12 +88,35 @@ class PayPal_Email_Sender {
 			);
 		}
 
-		if ( empty( $payment_link ) ) {
+		if ( false === $payment_link || empty( $payment_link ) ) {
 			wp_send_json_error(
-				array( 'message' => __( 'Payment link is missing.', 'jetpack-paypal-payments' ) ),
+				array( 'message' => __( 'Invalid or missing PayPal payment link.', 'jetpack-paypal-payments' ) ),
 				400,
 				JSON_HEX_TAG | JSON_HEX_AMP
 			);
+		}
+
+		// Rate limiting: max 10 sends per 60 seconds per user.
+		$user_id     = get_current_user_id();
+		$rate_key    = 'paypal_email_rate_' . $user_id;
+		$rate_count  = (int) get_transient( $rate_key );
+		$rate_limit  = 10;
+		$rate_window = 60; // seconds.
+
+		if ( $rate_count >= $rate_limit ) {
+			wp_send_json_error(
+				array( 'message' => __( 'Rate limit exceeded. Please wait a minute before sending more emails.', 'jetpack-paypal-payments' ) ),
+				429,
+				JSON_HEX_TAG | JSON_HEX_AMP
+			);
+		}
+
+		// Increment the rate counter (set/refresh the transient window on first send).
+		if ( 0 === $rate_count ) {
+			set_transient( $rate_key, 1, $rate_window );
+		} else {
+			// Preserve remaining TTL by using the WordPress object cache expiry already set.
+			set_transient( $rate_key, $rate_count + 1, $rate_window );
 		}
 
 		// Build and send email.
