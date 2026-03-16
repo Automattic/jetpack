@@ -5,6 +5,7 @@ import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { createInterpolateElement } from '@wordpress/element';
 import { sprintf, __ } from '@wordpress/i18n';
+import paywallBlockMetadata from '../../blocks/paywall/block.json';
 import {
 	accessOptions,
 	META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS,
@@ -106,6 +107,22 @@ export function getAccessLevelLabel( accessLevel, tierName = null ) {
 		);
 	}
 	return label;
+}
+
+/**
+ * Get access label for affirmation copy, accounting for paywall.
+ * When paid_subscribers post has a paywall block, email goes to all subscribers.
+ *
+ * @param {string}      accessLevel           - Base key e.g. 'paid_subscribers'.
+ * @param {string|null} [tierName]            - Optional tier name.
+ * @param {boolean}     [postHasPaywallBlock] - Whether the post contains a paywall block.
+ * @return {string} Access level label for display.
+ */
+export function getAccessLabelForCopy( accessLevel, tierName = null, postHasPaywallBlock = false ) {
+	if ( accessLevel === 'paid_subscribers' && postHasPaywallBlock ) {
+		return __( 'all subscribers', 'jetpack' );
+	}
+	return getAccessLevelLabel( accessLevel, tierName );
 }
 
 /**
@@ -269,6 +286,12 @@ export function getSentCopyLine( { accessLabel, categoryNames, tense, dateStr } 
  * Determines copy to show in pre/post-publish panels to confirm number and type of subscribers receiving the post as email.
  */
 function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
+	const postHasPaywallBlock = useSelect( select =>
+		select( 'core/block-editor' )
+			.getBlocks()
+			.some( block => block.name === paywallBlockMetadata.name )
+	);
+
 	const { isScheduledPost, postCategories, postId, postMeta, publishDate, status } = useSelect(
 		select => {
 			const { isCurrentPostScheduled, getEditedPostAttribute, getCurrentPost } =
@@ -425,7 +448,7 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 		);
 	} else if ( isSendingInProgress ) {
 		const currentTierName = getCurrentTierName( accessLevel, postMeta, tierProducts );
-		const accessLabel = getAccessLevelLabel( accessLevel, currentTierName );
+		const accessLabel = getAccessLabelForCopy( accessLevel, currentTierName, postHasPaywallBlock );
 		const categoryNames =
 			newsletterCategoriesEnabled && newsletterCategories?.length && postCategories?.length
 				? getFormattedCategories( postCategories, newsletterCategories )
@@ -446,7 +469,7 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 	} else {
 		// Pre-send (prepublish/scheduled) — unified access + categories
 		const currentTierName = getCurrentTierName( accessLevel, postMeta, tierProducts );
-		const accessLabel = getAccessLevelLabel( accessLevel, currentTierName );
+		const accessLabel = getAccessLabelForCopy( accessLevel, currentTierName, postHasPaywallBlock );
 		const categoryNames =
 			newsletterCategoriesEnabled && newsletterCategories?.length && postCategories?.length
 				? getFormattedCategories( postCategories, newsletterCategories )

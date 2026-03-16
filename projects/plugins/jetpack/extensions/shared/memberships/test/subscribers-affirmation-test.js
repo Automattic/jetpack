@@ -3,6 +3,7 @@ import { META_NAME_FOR_POST_TIER_ID_SETTINGS, accessOptions } from '../constants
 import {
 	getFormattedCategories,
 	getAccessLevelLabel,
+	getAccessLabelForCopy,
 	getCurrentTierName,
 	shouldShowWontResendMessage,
 	getSentCopyLine,
@@ -91,6 +92,39 @@ describe( 'getAccessLevelLabel', () => {
 		expect( getAccessLevelLabel( 'paid_subscribers', 'Premium' ) ).toBe(
 			'paid subscribers (Premium)'
 		);
+	} );
+} );
+
+describe( 'getAccessLabelForCopy', () => {
+	test( 'paid_subscribers with paywall returns "all subscribers"', () => {
+		expect( getAccessLabelForCopy( 'paid_subscribers', null, true ) ).toBe( 'all subscribers' );
+	} );
+
+	test( 'paid_subscribers with paywall ignores tierName', () => {
+		expect( getAccessLabelForCopy( 'paid_subscribers', 'Premium', true ) ).toBe(
+			'all subscribers'
+		);
+	} );
+
+	test( 'paid_subscribers without paywall returns "paid subscribers"', () => {
+		expect( getAccessLabelForCopy( 'paid_subscribers', null, false ) ).toBe( 'paid subscribers' );
+	} );
+
+	test( 'paid_subscribers without paywall with tierName returns "paid subscribers (Premium)"', () => {
+		expect( getAccessLabelForCopy( 'paid_subscribers', 'Premium', false ) ).toBe(
+			'paid subscribers (Premium)'
+		);
+	} );
+
+	test( 'subscribers with paywall returns "all subscribers"', () => {
+		expect( getAccessLabelForCopy( 'subscribers', null, true ) ).toBe( 'all subscribers' );
+	} );
+
+	test( 'paid_subscribers with falsy postHasPaywallBlock defaults to paid label', () => {
+		expect( getAccessLabelForCopy( 'paid_subscribers', null, undefined ) ).toBe(
+			'paid subscribers'
+		);
+		expect( getAccessLabelForCopy( 'paid_subscribers', null ) ).toBe( 'paid subscribers' );
 	} );
 } );
 
