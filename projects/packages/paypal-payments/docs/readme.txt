@@ -1,7 +1,7 @@
 === PayPal Payment Buttons ===
 Contributors: paypal,automattic,woocommerce
 Tags: paypal, payments, buy now, payment buttons, payment links, ecommerce
-Requires at least: 6.8
+Requires at least: 6.5
 Requires PHP: 7.4
 Tested up to: 6.9
 Stable tag: 0.8.0
@@ -21,7 +21,7 @@ PayPal Payment Buttons lets you accept payments on your WordPress site using Pay
 * **Live preview** — See exactly how your button will look before publishing — the frontend renders identically to the editor preview
 * **26 currencies supported** — USD, EUR, GBP, JPY, and 22 more with proper currency symbol formatting
 * **Stacked or single layout** — Choose between a two-button stack (PayPal + Debit/Credit) or PayPal-only button
-* **Secure credential storage** — OAuth credentials are encrypted at rest using AES-256-CBC
+* **Secure credential storage** — OAuth credentials are encrypted at rest using sodium encryption
 * **Backward compatible** — Existing paste-code buttons continue to work unchanged
 
 **How It Works:**
@@ -45,7 +45,7 @@ PayPal Payment Buttons lets you accept payments on your WordPress site using Pay
 
 = Requirements =
 
-* WordPress 6.8 or later
+* WordPress 6.5 or later
 * PHP 7.4 or later with OpenSSL extension
 * A PayPal Business or Developer account with API credentials
 
@@ -73,7 +73,7 @@ USD, EUR, GBP, CAD, AUD, JPY, CHF, SEK, NOK, DKK, NZD, SGD, HKD, MXN, BRL, PLN, 
 
 = Where are my PayPal credentials stored? =
 
-Credentials are stored in the WordPress database (`wp_options`) and protected with an integrity check using WordPress's `wp_hash()` function, which is derived from your site's `LOGGED_IN_KEY` and `LOGGED_IN_SALT` constants. Changing these constants (for example, during a site migration) will invalidate stored credentials and require reconnecting PayPal.
+Credentials are stored in the WordPress database (`wp_options`) and encrypted at rest using `sodium_crypto_secretbox`. The encryption key is derived from your site's `AUTH_KEY` constant in `wp-config.php`. Changing security keys (for example, during a site migration) will invalidate stored credentials and require reconnecting PayPal.
 
 = What happens if I disconnect PayPal? =
 
@@ -83,6 +83,10 @@ Disconnecting removes your stored credentials and cached token. Existing publish
 
 This means your PayPal app may not have the required permissions. In the PayPal Developer Dashboard, ensure your app has the **Payment Links & Buttons** feature enabled. If you're using a sandbox account, create a new sandbox business account with full permissions.
 
+= What are the minimum requirements? =
+
+WordPress 6.5 or later, PHP 7.4 or later, and a PayPal Business account with API credentials. The plugin uses PHP's sodium extension for credential encryption, which is bundled with PHP 7.2+ and polyfilled by WordPress.
+
 = Can I use this with WooCommerce? =
 
 This plugin is designed for standalone PayPal payment buttons on posts and pages. It's separate from the WooCommerce PayPal payment gateway. Both can coexist on the same site.
@@ -91,7 +95,7 @@ This plugin is designed for standalone PayPal payment buttons on posts and pages
 
 = 0.8.0 =
 * **New:** API-driven button and payment link creation via PayPal's Pay Links & Buttons API — every payment resource includes both an embeddable button and a shareable payment URL
-* **New:** OAuth 2.0 connection flow with encrypted credential storage (AES-256-CBC)
+* **New:** OAuth 2.0 connection flow with encrypted credential storage (sodium encryption)
 * **New:** Live button preview in the block editor with PayPal-branded styling
 * **New:** Frontend rendering matches block editor preview exactly — currency symbols, PayPal logo, product info card, stacked/inline layouts
 * **New:** Product description field with truncation on the published page
