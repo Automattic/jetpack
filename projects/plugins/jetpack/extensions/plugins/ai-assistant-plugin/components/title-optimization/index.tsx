@@ -2,7 +2,7 @@
  * External dependencies
  */
 import {
-	useAiSuggestions,
+	ERROR_CONTEXT_TOO_LARGE,
 	RequestingErrorProps,
 	ERROR_QUOTA_EXCEEDED,
 	ERROR_NETWORK,
@@ -11,10 +11,11 @@ import {
 	QuotaExceededMessage,
 	usePostContent,
 	AiAssistantModal,
+	requestJwt,
 } from '@automattic/jetpack-ai-client';
 import { useAnalytics, useAutosaveAndRedirect } from '@automattic/jetpack-shared-extension-utils';
 import { Button, Spinner, ExternalLink, Notice } from '@wordpress/components';
-import { useDispatch } from '@wordpress/data';
+import { useDispatch, useSelect } from '@wordpress/data';
 import { useState, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
@@ -41,12 +42,61 @@ const genericErrorMessage = __(
 );
 
 const ERROR_JSON_PARSE = 'json-parse-error';
+
+/**
+ * wp-orchestrator constants matching the ability registered in
+ * class-title-optimization-ability.php.
+ */
+const ORCHESTRATOR_URL = 'https://public-api.wordpress.com/wpcom/v2/ai/agent';
+const ORCHESTRATOR_AGENT_ID = 'wp-orchestrator';
+const ABILITY_NAME = 'wpcom/optimize-title';
+const FEATURE_NAME = 'jetpack-ai-title-optimization';
 type TitleOptimizationJSONError = {
 	code: typeof ERROR_JSON_PARSE;
 	message: string;
 };
 
 type TitleOptimizationError = RequestingErrorProps | TitleOptimizationJSONError;
+
+function getErrorFromApiResponse( status?: number ): RequestingErrorProps {
+	if ( status === 429 ) {
+		return {
+			code: ERROR_QUOTA_EXCEEDED,
+			message: '',
+			severity: 'info',
+		};
+	}
+
+	if ( status === 503 ) {
+		return {
+			code: ERROR_SERVICE_UNAVAILABLE,
+			message: genericErrorMessage,
+			severity: 'info',
+		};
+	}
+
+	if ( status === 413 ) {
+		return {
+			code: ERROR_CONTEXT_TOO_LARGE,
+			message: genericErrorMessage,
+			severity: 'info',
+		};
+	}
+
+	if ( status === 422 ) {
+		return {
+			code: ERROR_UNCLEAR_PROMPT,
+			message: genericErrorMessage,
+			severity: 'info',
+		};
+	}
+
+	return {
+		code: ERROR_NETWORK,
+		message: genericErrorMessage,
+		severity: 'info',
+	};
+}
 
 const TitleOptimizationErrorMessage = ( { error }: { error: TitleOptimizationError } ) => {
 	if ( error.code === ERROR_QUOTA_EXCEEDED ) {
@@ -105,6 +155,7 @@ export default function TitleOptimization( {
 	const [ error, setError ] = useState< TitleOptimizationError | null >( null );
 	const [ optimizationKeywords, setOptimizationKeywords ] = useState( '' );
 	const { editPost } = useDispatch( 'core/editor' );
+	const postId = useSelect( select => select( 'core/editor' ).getCurrentPostId(), [] );
 	const { autosave } = useAutosaveAndRedirect();
 	const { increaseAiAssistantRequestsCount } = useDispatch( 'wordpress-com/plans' );
 	const { tracks } = useAnalytics();
@@ -134,16 +185,8 @@ export default function TitleOptimization( {
 		[ increaseAiAssistantRequestsCount ]
 	);
 
-	const { request, stopSuggestion } = useAiSuggestions( {
-		onDone: handleDone,
-		onError: ( e: RequestingErrorProps ) => {
-			setError( e );
-			setGenerating( false );
-		},
-	} );
-
 	const handleRequest = useCallback(
-		( isRetry: boolean = false ) => {
+		async ( isRetry: boolean = false ) => {
 			// track the generate title optimization options
 			recordEvent( 'jetpack_ai_title_optimization_generate', {
 				placement,
@@ -152,21 +195,59 @@ export default function TitleOptimization( {
 			} );
 
 			setGenerating( true );
-			// Message to request a backend prompt for this feature
-			const messages = [
-				{
-					role: 'jetpack-ai' as const,
-					context: {
-						type: 'title-optimization',
-						content: getPostContent(),
-						keywords: optimizationKeywords,
-					},
-				},
-			];
+			setError( null );
+			try {
+				const { token, blogId } = await requestJwt();
 
-			request( messages, { feature: 'jetpack-ai-title-optimization' } );
+				const content = getPostContent();
+				const requestBody: Record< string, unknown > = {
+					agent_id: ORCHESTRATOR_AGENT_ID,
+					ability: ABILITY_NAME,
+					feature: FEATURE_NAME,
+					stream: false,
+					site_id: Number( blogId ),
+					input: {
+						messages: [
+							{
+								role: 'jetpack-ai',
+								context: {
+									type: 'title-optimization',
+									content,
+									keywords: optimizationKeywords,
+								},
+							},
+						],
+						...( postId ? { post_id: postId } : {} ),
+					},
+				};
+
+				const res = await fetch( ORCHESTRATOR_URL, {
+					method: 'POST',
+					headers: {
+						Authorization: `Bearer ${ token }`,
+						'Content-Type': 'application/json',
+					},
+					body: JSON.stringify( requestBody ),
+				} );
+
+				if ( ! res.ok ) {
+					setError( getErrorFromApiResponse( res.status ) );
+					setGenerating( false );
+					return;
+				}
+
+				const data = ( await res.json() ) as {
+					choices?: Array< { message?: { content?: string } } >;
+				};
+
+				handleDone( data?.choices?.[ 0 ]?.message?.content ?? '' );
+			} catch ( e ) {
+				const requestError = e as { status?: number; data?: { status?: number } };
+				setError( getErrorFromApiResponse( requestError?.data?.status || requestError?.status ) );
+				setGenerating( false );
+			}
 		},
-		[ recordEvent, placement, getPostContent, optimizationKeywords, request ]
+		[ recordEvent, placement, getPostContent, optimizationKeywords, postId, handleDone ]
 	);
 
 	const handleTitleOptimization = useCallback( () => {
@@ -214,8 +295,7 @@ export default function TitleOptimization( {
 		setError( null );
 		toggleTitleOptimizationModal();
 		setOptimizationKeywords( '' );
-		stopSuggestion();
-	}, [ stopSuggestion, toggleTitleOptimizationModal ] );
+	}, [ toggleTitleOptimizationModal ] );
 
 	// When can we retry?
 	const showTryAgainButton =
