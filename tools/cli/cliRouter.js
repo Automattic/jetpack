@@ -13,7 +13,7 @@ import { generateDefine } from './commands/generate.js';
 import * as installCommand from './commands/install.js';
 import * as noopCommand from './commands/noop.js';
 import * as phanCommand from './commands/phan.js';
-import { playgroundDefine } from './commands/playground.js';
+import * as playgroundCommand from './commands/playground.js';
 import * as pnpmCommand from './commands/pnpm.js';
 import { releaseDefine } from './commands/release.js';
 import { rsyncDefine } from './commands/rsync.js';
@@ -50,7 +50,7 @@ export async function cli() {
 	argv.command( installCommand );
 	argv.command( noopCommand );
 	argv.command( phanCommand );
-	argv = playgroundDefine( argv );
+	argv.command( playgroundCommand );
 	argv.command( pnpmCommand );
 	argv = releaseDefine( argv );
 	argv = rsyncDefine( argv );
