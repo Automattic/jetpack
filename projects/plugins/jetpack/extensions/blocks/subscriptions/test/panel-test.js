@@ -222,7 +222,7 @@ describe( 'getNewsletterDisabledMessage', () => {
 
 		const message = getNewsletterDisabledMessage();
 
-		expect( message ).toBe( 'You cannot send newsletters from a private site' );
+		expect( message ).toBe( 'Emails will not be sent to subscribers while your site is private' );
 	} );
 
 	test( 'returns null when site is neither coming soon nor private', () => {
@@ -312,7 +312,8 @@ describe( 'SubscribePanels', () => {
 		render( <SubscribePanels /> );
 
 		expect(
-			screen.getAllByText( 'You cannot send newsletters from a private site' ).length
+			screen.getAllByText( 'Emails will not be sent to subscribers while your site is private' )
+				.length
 		).toBeGreaterThanOrEqual( 3 );
 	} );
 } );
