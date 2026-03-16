@@ -1029,16 +1029,16 @@ importers:
         version: 4.0.2(postcss@8.5.6)
       rollup-plugin-svelte:
         specifier: 7.2.2
-        version: 7.2.2(rollup@3.30.0)(svelte@5.53.5)
+        version: 7.2.2(rollup@3.30.0)(svelte@5.53.12)
       sass:
         specifier: npm:sass-embedded@^1.97.2
         version: sass-embedded@1.97.3
       svelte:
-        specifier: 5.53.5
-        version: 5.53.5
+        specifier: 5.53.12
+        version: 5.53.12
       svelte-preprocess:
         specifier: 6.0.2
-        version: 6.0.2(@babel/core@7.29.0)(postcss@8.5.6)(sass-embedded@1.97.3)(svelte@5.53.5)(typescript@5.9.3)
+        version: 6.0.2(@babel/core@7.29.0)(postcss@8.5.6)(sass-embedded@1.97.3)(svelte@5.53.12)(typescript@5.9.3)
       tslib:
         specifier: 2.8.1
         version: 2.8.1
@@ -4795,16 +4795,16 @@ importers:
         version: 4.0.2(postcss@8.5.6)
       rollup-plugin-svelte:
         specifier: 7.2.2
-        version: 7.2.2(rollup@3.30.0)(svelte@5.53.5)
+        version: 7.2.2(rollup@3.30.0)(svelte@5.53.12)
       sass:
         specifier: npm:sass-embedded@^1.97.2
         version: sass-embedded@1.97.3
       svelte:
-        specifier: 5.53.5
-        version: 5.53.5
+        specifier: 5.53.12
+        version: 5.53.12
       svelte-preprocess:
         specifier: 6.0.2
-        version: 6.0.2(@babel/core@7.29.0)(postcss@8.5.6)(sass-embedded@1.97.3)(svelte@5.53.5)(typescript@5.9.3)
+        version: 6.0.2(@babel/core@7.29.0)(postcss@8.5.6)(sass-embedded@1.97.3)(svelte@5.53.12)(typescript@5.9.3)
       tslib:
         specifier: 2.8.1
         version: 2.8.1
@@ -6005,7 +6005,7 @@ importers:
         version: 7.0.1(eslint@9.39.3)
       eslint-plugin-svelte:
         specifier: 3.15.0
-        version: 3.15.0(eslint@9.39.3)(svelte@5.53.5)
+        version: 3.15.0(eslint@9.39.3)(svelte@5.53.12)
       eslint-plugin-testing-library:
         specifier: 7.16.0
         version: 7.16.0(eslint@9.39.3)(typescript@5.9.3)
@@ -6047,7 +6047,7 @@ importers:
         version: wp-prettier@3.0.3
       prettier-plugin-svelte:
         specifier: 3.3.2
-        version: 3.3.2(svelte@5.53.5)(wp-prettier@3.0.3)
+        version: 3.3.2(svelte@5.53.12)(wp-prettier@3.0.3)
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -6064,11 +6064,11 @@ importers:
         specifier: 7.0.0
         version: 7.0.0(stylelint@16.26.1(typescript@5.9.3))
       svelte:
-        specifier: 5.53.5
-        version: 5.53.5
+        specifier: 5.53.12
+        version: 5.53.12
       svelte-eslint-parser:
         specifier: 1.4.1
-        version: 1.4.1(svelte@5.53.5)
+        version: 1.4.1(svelte@5.53.12)
       typescript:
         specifier: 5.9.3
         version: 5.9.3
@@ -12323,8 +12323,8 @@ packages:
   detect-node@2.1.0:
     resolution: {integrity: sha512-T0NIuQpnTvFDATNuHN5roPwSBG83rFsuO+MXXH9/3N1eFbn4wcPjttvjMLEPWJ0RGUYgQE7cGgS3tNxbqCGM7g==}
 
-  devalue@5.6.3:
-    resolution: {integrity: sha512-nc7XjUU/2Lb+SvEFVGcWLiKkzfw8+qHI7zn8WYXKkLMgfGSHbgCEaR6bJpev8Cm6Rmrb19Gfd/tZvGqx9is3wg==}
+  devalue@5.6.4:
+    resolution: {integrity: sha512-Gp6rDldRsFh/7XuouDbxMH3Mx8GMCcgzIb1pDTvNyn8pZGQ22u+Wa+lGV9dQCltFQ7uVw0MhRyb8XDskNFOReA==}
 
   devlop@1.1.0:
     resolution: {integrity: sha512-RWmIqhcFf1lRYBvNmr7qTNuyCt/7/ns2jbpp1+PalgE/rDQcBT0fioSMUpJ93irlUhC5hrg4cYqe6U+0ImW0rA==}
@@ -17173,8 +17173,8 @@ packages:
       typescript:
         optional: true
 
-  svelte@5.53.5:
-    resolution: {integrity: sha512-YkqERnF05g8KLdDZwZrF8/i1eSbj6Eoat8Jjr2IfruZz9StLuBqo8sfCSzjosNKd+ZrQ8DkKZDjpO5y3ht1Pow==}
+  svelte@5.53.12:
+    resolution: {integrity: sha512-4x/uk4rQe/d7RhfvS8wemTfNjQ0bJbKvamIzRBfTe2eHHjzBZ7PZicUQrC2ryj83xxEacfA1zHKd1ephD1tAxA==}
     engines: {node: '>=18'}
 
   svg-pathdata@7.2.0:
@@ -27500,7 +27500,7 @@ snapshots:
 
   detect-node@2.1.0: {}
 
-  devalue@5.6.3: {}
+  devalue@5.6.4: {}
 
   devlop@1.1.0:
     dependencies:
@@ -28165,7 +28165,7 @@ snapshots:
       string.prototype.matchall: 4.0.12
       string.prototype.repeat: 1.0.0
 
-  eslint-plugin-svelte@3.15.0(eslint@9.39.3)(svelte@5.53.5):
+  eslint-plugin-svelte@3.15.0(eslint@9.39.3)(svelte@5.53.12):
     dependencies:
       '@eslint-community/eslint-utils': 4.9.1(eslint@9.39.3)
       '@jridgewell/sourcemap-codec': 1.5.5
@@ -28177,9 +28177,9 @@ snapshots:
       postcss-load-config: 3.1.4(postcss@8.5.6)
       postcss-safe-parser: 7.0.1(postcss@8.5.6)
       semver: 7.7.3
-      svelte-eslint-parser: 1.4.1(svelte@5.53.5)
+      svelte-eslint-parser: 1.4.1(svelte@5.53.12)
     optionalDependencies:
-      svelte: 5.53.5
+      svelte: 5.53.12
     transitivePeerDependencies:
       - ts-node
 
@@ -31841,10 +31841,10 @@ snapshots:
     dependencies:
       fast-diff: 1.3.0
 
-  prettier-plugin-svelte@3.3.2(svelte@5.53.5)(wp-prettier@3.0.3):
+  prettier-plugin-svelte@3.3.2(svelte@5.53.12)(wp-prettier@3.0.3):
     dependencies:
       prettier: wp-prettier@3.0.3
-      svelte: 5.53.5
+      svelte: 5.53.12
 
   prettier@3.8.1: {}
 
@@ -32501,12 +32501,12 @@ snapshots:
     transitivePeerDependencies:
       - ts-node
 
-  rollup-plugin-svelte@7.2.2(rollup@3.30.0)(svelte@5.53.5):
+  rollup-plugin-svelte@7.2.2(rollup@3.30.0)(svelte@5.53.12):
     dependencies:
       '@rollup/pluginutils': 4.2.1
       resolve.exports: 2.0.3
       rollup: 3.30.0
-      svelte: 5.53.5
+      svelte: 5.53.12
 
   rollup-pluginutils@2.8.2:
     dependencies:
@@ -33450,7 +33450,7 @@ snapshots:
 
   supports-preserve-symlinks-flag@1.0.0: {}
 
-  svelte-eslint-parser@1.4.1(svelte@5.53.5):
+  svelte-eslint-parser@1.4.1(svelte@5.53.12):
     dependencies:
       eslint-scope: 8.4.0
       eslint-visitor-keys: 4.2.1
@@ -33459,18 +33459,18 @@ snapshots:
       postcss-scss: 4.0.9(postcss@8.5.6)
       postcss-selector-parser: 7.1.1
     optionalDependencies:
-      svelte: 5.53.5
+      svelte: 5.53.12
 
-  svelte-preprocess@6.0.2(@babel/core@7.29.0)(postcss@8.5.6)(sass-embedded@1.97.3)(svelte@5.53.5)(typescript@5.9.3):
+  svelte-preprocess@6.0.2(@babel/core@7.29.0)(postcss@8.5.6)(sass-embedded@1.97.3)(svelte@5.53.12)(typescript@5.9.3):
     dependencies:
-      svelte: 5.53.5
+      svelte: 5.53.12
     optionalDependencies:
       '@babel/core': 7.29.0
       postcss: 8.5.6
       sass: sass-embedded@1.97.3
       typescript: 5.9.3
 
-  svelte@5.53.5:
+  svelte@5.53.12:
     dependencies:
       '@jridgewell/remapping': 2.3.5
       '@jridgewell/sourcemap-codec': 1.5.5
@@ -33481,7 +33481,7 @@ snapshots:
       aria-query: 5.3.1
       axobject-query: 4.1.0
       clsx: 2.1.1
-      devalue: 5.6.3
+      devalue: 5.6.4
       esm-env: 1.2.2
       esrap: 2.2.3
       is-reference: 3.0.3
