@@ -41,6 +41,14 @@ class SSO {
 	public static $instance = null;
 
 	/**
+	 * Stores the WP_User being authenticated via SSO so the
+	 * attach_session_information callback can tag the session.
+	 *
+	 * @var WP_User|null
+	 */
+	private static $sso_user_for_2fa = null;
+
+	/**
 	 * Automattic\Jetpack\Connection\SSO constructor.
 	 */
 	private function __construct() {
@@ -952,17 +960,8 @@ class SSO {
 				&& class_exists( 'Two_Factor_Core' )
 				&& $accept_wpcom_2fa
 			) {
-				add_filter(
-					'attach_session_information',
-					function ( $session, $user_id ) use ( $user ) {
-						if ( $user->ID === $user_id ) {
-							$session['two-factor-login'] = time();
-						}
-						return $session;
-					},
-					10,
-					2
-				);
+				self::$sso_user_for_2fa = $user;
+				add_filter( 'attach_session_information', array( static::class, 'add_two_factor_session_meta' ), 10, 2 );
 
 				remove_action( 'wp_login', array( 'Two_Factor_Core', 'wp_login' ), PHP_INT_MAX );
 			}
@@ -1321,5 +1320,20 @@ class SSO {
 	 **/
 	public function get_user_data( $user_id ) {
 		return get_user_meta( $user_id, 'wpcom_user_data', true );
+	}
+
+	/**
+	 * Marks a session as two-factor-authenticated when SSO handled 2FA via WP.com.
+	 *
+	 * @param array $session Session information array.
+	 * @param int   $user_id User ID for the session being created.
+	 * @return array Modified session information.
+	 */
+	public static function add_two_factor_session_meta( $session, $user_id ) {
+		if ( self::$sso_user_for_2fa && self::$sso_user_for_2fa->ID === $user_id ) {
+			$session['two-factor-login'] = time();
+			self::$sso_user_for_2fa      = null;
+		}
+		return $session;
 	}
 }
