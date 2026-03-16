@@ -155,22 +155,37 @@ class PayPal_OAuth_Test extends TestCase {
 	}
 
 	/**
-	 * Test credential integrity check detects corruption.
+	 * Test that corrupted ciphertext is detected and credentials are cleared.
 	 */
-	public function test_credential_integrity_check() {
+	public function test_corrupted_ciphertext_detected() {
 		PayPal_OAuth::store_credentials( 'test_client_id', 'test_client_secret' );
 
-		// Manually corrupt the stored data.
-		$credentials                  = get_option( PayPal_OAuth::CREDENTIALS_OPTION_KEY );
-		$credentials['client_secret'] = 'tampered_value';
+		// Manually corrupt the stored encrypted data.
+		$credentials                            = get_option( PayPal_OAuth::CREDENTIALS_OPTION_KEY );
+		$credentials['encrypted_client_secret'] = base64_encode( 'corrupted_ciphertext_that_is_long_enough_for_nonce_and_mac' ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
 		update_option( PayPal_OAuth::CREDENTIALS_OPTION_KEY, $credentials );
 
-		// Should detect corruption and return false.
+		// Authenticated encryption should detect tampering and return false.
 		$result = PayPal_OAuth::get_credentials();
 		$this->assertFalse( $result );
 
 		// Should also clean up the corrupted data.
 		$this->assertFalse( PayPal_OAuth::has_credentials() );
+	}
+
+	/**
+	 * Test that credentials are not recoverable if AUTH_KEY changes.
+	 */
+	public function test_credentials_irrecoverable_with_truncated_data() {
+		PayPal_OAuth::store_credentials( 'test_client_id', 'test_client_secret' );
+
+		// Replace stored data with something too short to contain nonce + MAC.
+		$credentials                        = get_option( PayPal_OAuth::CREDENTIALS_OPTION_KEY );
+		$credentials['encrypted_client_id'] = base64_encode( 'short' ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
+		update_option( PayPal_OAuth::CREDENTIALS_OPTION_KEY, $credentials );
+
+		$result = PayPal_OAuth::get_credentials();
+		$this->assertFalse( $result );
 	}
 
 	/**
@@ -286,8 +301,47 @@ class PayPal_OAuth_Test extends TestCase {
 		$credentials = PayPal_OAuth::get_credentials();
 
 		// sanitize_text_field strips tags and trims whitespace.
+		$this->assertIsArray( $credentials );
 		$this->assertStringNotContainsString( '<script>', $credentials['client_id'] );
 		$this->assertStringNotContainsString( '<b>', $credentials['client_secret'] );
+	}
+
+	/**
+	 * Test that credentials are stored encrypted, not in plaintext.
+	 */
+	public function test_credentials_stored_encrypted() {
+		PayPal_OAuth::store_credentials( 'my_client_id', 'my_client_secret' );
+
+		$raw = get_option( PayPal_OAuth::CREDENTIALS_OPTION_KEY );
+
+		// Raw stored data should not contain plaintext credentials.
+		$this->assertArrayNotHasKey( 'client_id', $raw );
+		$this->assertArrayNotHasKey( 'client_secret', $raw );
+		$this->assertArrayHasKey( 'encrypted_client_id', $raw );
+		$this->assertArrayHasKey( 'encrypted_client_secret', $raw );
+
+		// The encrypted values should not match the plaintext.
+		$this->assertNotEquals( 'my_client_id', $raw['encrypted_client_id'] );
+		$this->assertNotEquals( 'my_client_secret', $raw['encrypted_client_secret'] );
+
+		// But decryption should return the originals.
+		$credentials = PayPal_OAuth::get_credentials();
+		$this->assertEquals( 'my_client_id', $credentials['client_id'] );
+		$this->assertEquals( 'my_client_secret', $credentials['client_secret'] );
+	}
+
+	/**
+	 * Test that each store generates a different ciphertext (unique nonce).
+	 */
+	public function test_encryption_uses_unique_nonce() {
+		PayPal_OAuth::store_credentials( 'same_id', 'same_secret' );
+		$raw1 = get_option( PayPal_OAuth::CREDENTIALS_OPTION_KEY );
+
+		PayPal_OAuth::store_credentials( 'same_id', 'same_secret' );
+		$raw2 = get_option( PayPal_OAuth::CREDENTIALS_OPTION_KEY );
+
+		// Same plaintext should produce different ciphertext due to random nonce.
+		$this->assertNotEquals( $raw1['encrypted_client_id'], $raw2['encrypted_client_id'] );
 	}
 
 	/**

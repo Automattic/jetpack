@@ -102,6 +102,22 @@
 		"taxValue": {
 			"type": "string",
 			"default": ""
+		},
+		"collectShippingAddress": {
+			"type": "boolean",
+			"default": false
+		},
+		"shippingEnabled": {
+			"type": "boolean",
+			"default": false
+		},
+		"shippingType": {
+			"type": "string",
+			"default": "FLAT"
+		},
+		"shippingValue": {
+			"type": "string",
+			"default": ""
 		}
 	},
 	"editorScript": "file:../../dist/paypal-payment-buttons/editor.js",

@@ -124,10 +124,68 @@ class PayPal_OAuth {
 	}
 
 	/**
+	 * Derive a symmetric encryption key from AUTH_KEY.
+	 *
+	 * Uses sodium_crypto_generichash (BLAKE2b) to derive a fixed-length
+	 * key suitable for sodium_crypto_secretbox from the WordPress AUTH_KEY
+	 * constant defined in wp-config.php.
+	 *
+	 * @return string Raw binary key of SODIUM_CRYPTO_SECRETBOX_KEYBYTES length.
+	 */
+	private static function get_encryption_key() {
+		return sodium_crypto_generichash( AUTH_KEY, '', SODIUM_CRYPTO_SECRETBOX_KEYBYTES );
+	}
+
+	/**
+	 * Encrypt a plaintext string using sodium_crypto_secretbox.
+	 *
+	 * Returns a base64-encoded string containing the nonce prepended to the ciphertext.
+	 *
+	 * @param string $plaintext The string to encrypt.
+	 * @return string Base64-encoded nonce + ciphertext.
+	 */
+	private static function encrypt( $plaintext ) {
+		$key   = self::get_encryption_key();
+		$nonce = random_bytes( SODIUM_CRYPTO_SECRETBOX_NONCEBYTES );
+
+		$ciphertext = sodium_crypto_secretbox( $plaintext, $nonce, $key );
+
+		return base64_encode( $nonce . $ciphertext ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode -- Encoding binary ciphertext for safe storage in wp_options.
+	}
+
+	/**
+	 * Decrypt a string previously encrypted with self::encrypt().
+	 *
+	 * @param string $encoded Base64-encoded nonce + ciphertext.
+	 * @return string|false The decrypted plaintext, or false on failure.
+	 */
+	private static function decrypt( $encoded ) {
+		$decoded = base64_decode( $encoded, true ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode -- Decoding binary ciphertext from wp_options storage.
+
+		if ( false === $decoded || strlen( $decoded ) < SODIUM_CRYPTO_SECRETBOX_NONCEBYTES + SODIUM_CRYPTO_SECRETBOX_MACBYTES ) {
+			return false;
+		}
+
+		$nonce      = substr( $decoded, 0, SODIUM_CRYPTO_SECRETBOX_NONCEBYTES );
+		$ciphertext = substr( $decoded, SODIUM_CRYPTO_SECRETBOX_NONCEBYTES );
+		$key        = self::get_encryption_key();
+
+		try {
+			$plaintext = sodium_crypto_secretbox_open( $ciphertext, $nonce, $key );
+		} catch ( \SodiumException $e ) {
+			return false;
+		}
+
+		return $plaintext;
+	}
+
+	/**
 	 * Store PayPal client credentials.
 	 *
-	 * Credentials are encrypted before storage using wp_hash() as a
-	 * verification mechanism and stored as a serialized array in wp_options.
+	 * Credentials are encrypted at rest using sodium_crypto_secretbox
+	 * (XSalsa20-Poly1305 authenticated encryption) with a key derived
+	 * from AUTH_KEY via BLAKE2b. Each storage operation generates a
+	 * fresh random nonce.
 	 *
 	 * @param string $client_id     The PayPal OAuth client ID.
 	 * @param string $client_secret The PayPal OAuth client secret.
@@ -142,10 +200,9 @@ class PayPal_OAuth {
 		}
 
 		$credentials = array(
-			'client_id'     => $client_id,
-			'client_secret' => $client_secret,
-			'hash'          => wp_hash( $client_id . $client_secret ),
-			'stored_at'     => time(),
+			'encrypted_client_id'     => self::encrypt( $client_id ),
+			'encrypted_client_secret' => self::encrypt( $client_secret ),
+			'stored_at'               => time(),
 		);
 
 		// Clear any existing cached token since credentials changed.
@@ -157,29 +214,34 @@ class PayPal_OAuth {
 	/**
 	 * Retrieve stored PayPal client credentials.
 	 *
+	 * Decrypts credentials from wp_options using sodium_crypto_secretbox.
+	 * If decryption fails (corrupted data or AUTH_KEY changed), the stored
+	 * credentials are deleted and false is returned.
+	 *
 	 * @return array|false Array with 'client_id' and 'client_secret' keys, or false if not set.
 	 */
 	public static function get_credentials() {
 		$credentials = get_option( self::CREDENTIALS_OPTION_KEY, false );
 
 		if ( ! is_array( $credentials )
-			|| empty( $credentials['client_id'] )
-			|| empty( $credentials['client_secret'] )
+			|| empty( $credentials['encrypted_client_id'] )
+			|| empty( $credentials['encrypted_client_secret'] )
 		) {
 			return false;
 		}
 
-		// Verify integrity.
-		$expected_hash = wp_hash( $credentials['client_id'] . $credentials['client_secret'] );
-		if ( ! hash_equals( $expected_hash, $credentials['hash'] ?? '' ) ) {
-			// Credentials may be corrupted — remove them.
+		$client_id     = self::decrypt( $credentials['encrypted_client_id'] );
+		$client_secret = self::decrypt( $credentials['encrypted_client_secret'] );
+
+		if ( false === $client_id || false === $client_secret ) {
+			// Decryption failed — likely AUTH_KEY changed or data corrupted.
 			self::delete_credentials();
 			return false;
 		}
 
 		return array(
-			'client_id'     => $credentials['client_id'],
-			'client_secret' => $credentials['client_secret'],
+			'client_id'     => $client_id,
+			'client_secret' => $client_secret,
 		);
 	}
 

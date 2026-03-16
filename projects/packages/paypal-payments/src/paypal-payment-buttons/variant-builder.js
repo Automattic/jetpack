@@ -13,6 +13,23 @@ import { Button, TextControl, ToggleControl } from '@wordpress/components';
 import { useRef, useEffect, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 
+// Pre-extract translated strings used in ternaries to avoid i18n build errors.
+const placeholderColor = __( 'e.g., Color', 'jetpack-paypal-payments' );
+const placeholderSize = __( 'e.g., Size', 'jetpack-paypal-payments' );
+const helpPrimaryOn = __( 'Each option can have its own price.', 'jetpack-paypal-payments' );
+const helpPrimaryOff = __(
+	'Enable to charge different prices per option.',
+	'jetpack-paypal-payments'
+);
+const helpVariantsOn = __(
+	'Customers choose options (e.g., size, color) at checkout.',
+	'jetpack-paypal-payments'
+);
+const helpVariantsOff = __(
+	'Add size, color, or other product options.',
+	'jetpack-paypal-payments'
+);
+
 const MAX_GROUPS = 5;
 const MAX_OPTIONS = 10;
 
@@ -186,21 +203,13 @@ function GroupEditor( { group, index, currencyCode, onChange, onRemove, onSetPri
 					) }
 					value={ group.name }
 					onChange={ updateName }
-					placeholder={
-						index === 0
-							? __( 'e.g., Color', 'jetpack-paypal-payments' )
-							: __( 'e.g., Size', 'jetpack-paypal-payments' )
-					}
+					placeholder={ index === 0 ? placeholderColor : placeholderSize }
 					disabled={ disabled }
 				/>
 				<div className="jetpack-paypal-variants__group-controls">
 					<ToggleControl
 						label={ __( 'Set price per option', 'jetpack-paypal-payments' ) }
-						help={
-							group.primary
-								? __( 'Each option can have its own price.', 'jetpack-paypal-payments' )
-								: __( 'Enable to charge different prices per option.', 'jetpack-paypal-payments' )
-						}
+						help={ group.primary ? helpPrimaryOn : helpPrimaryOff }
 						checked={ group.primary }
 						onChange={ () => onSetPrimary( index ) }
 						disabled={ disabled }
@@ -393,14 +402,7 @@ export default function VariantBuilder( {
 
 			<ToggleControl
 				label={ __( 'Enable product options', 'jetpack-paypal-payments' ) }
-				help={
-					enabled
-						? __(
-								'Customers choose options (e.g., size, color) at checkout.',
-								'jetpack-paypal-payments'
-						  )
-						: __( 'Add size, color, or other product options.', 'jetpack-paypal-payments' )
-				}
+				help={ enabled ? helpVariantsOn : helpVariantsOff }
 				checked={ enabled }
 				onChange={ setEnabled }
 				disabled={ disabled }

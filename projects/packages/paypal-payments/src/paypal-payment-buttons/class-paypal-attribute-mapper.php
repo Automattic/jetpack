@@ -160,6 +160,27 @@ class PayPal_Attribute_Mapper {
 			$line_item['taxes'] = array( $tax );
 		}
 
+		// Shipping configuration (WOOPTP-173).
+		if ( ! empty( $attributes['shippingEnabled'] ) ) {
+			$shipping_type = sanitize_text_field( $attributes['shippingType'] ?? 'FLAT' );
+
+			$shipping = array(
+				'type' => in_array( $shipping_type, array( 'FLAT', 'PREFERENCE' ), true ) ? $shipping_type : 'FLAT',
+			);
+
+			if ( 'PREFERENCE' === $shipping_type ) {
+				$shipping['value'] = 'PROFILE';
+			} else {
+				$shipping['value'] = sanitize_text_field( $attributes['shippingValue'] ?? '0' );
+			}
+
+			$line_item['shipping'] = array( $shipping );
+		}
+
+		if ( ! empty( $attributes['collectShippingAddress'] ) ) {
+			$line_item['collect_shipping_address'] = true;
+		}
+
 		$request = array(
 			'type'             => 'BUY_NOW',
 			'integration_mode' => 'LINK',
@@ -241,6 +262,18 @@ class PayPal_Attribute_Mapper {
 				$attributes['taxName']    = sanitize_text_field( $tax['name'] ?? 'Sales Tax' );
 				$attributes['taxType']    = sanitize_text_field( $tax['type'] ?? 'PERCENTAGE' );
 				$attributes['taxValue']   = 'PREFERENCE' === $attributes['taxType'] ? '' : sanitize_text_field( $tax['value'] ?? '' );
+			}
+
+			// Shipping configuration (WOOPTP-173).
+			if ( ! empty( $line_item['shipping'] ) && is_array( $line_item['shipping'] ) ) {
+				$shipping                      = $line_item['shipping'][0];
+				$attributes['shippingEnabled'] = true;
+				$attributes['shippingType']    = sanitize_text_field( $shipping['type'] ?? 'FLAT' );
+				$attributes['shippingValue']   = 'PREFERENCE' === $attributes['shippingType'] ? '' : sanitize_text_field( $shipping['value'] ?? '' );
+			}
+
+			if ( ! empty( $line_item['collect_shipping_address'] ) ) {
+				$attributes['collectShippingAddress'] = true;
 			}
 		}
 
