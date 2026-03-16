@@ -671,7 +671,7 @@ class Table_Checksum {
 		$filter_stamenet = $this->build_filter_statement( $range_from, $range_to, $filter_values );
 
 		$join_statement = '';
-		if ( $this->parent_table ) {
+		if ( $this->parent_table && ! ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ) {
 			$parent_table_obj    = new Table_Checksum( $this->parent_table );
 			$parent_filter_query = $parent_table_obj->build_filter_statement( null, null, null, 'parent_table' );
 
@@ -744,8 +744,7 @@ class Table_Checksum {
 		// Performance :: For tables with a parent table (meta tables like postmeta, commentmeta,
 		// woocommerce_order_itemmeta, etc.) we strip the filter_values (e.g. meta_key whitelist)
 		// when building the range edges query. These filters cause non-performant queries that can
-		// timeout on large tables. The actual data filtering happens during checksum calculation
-		// via the INNER JOIN with the parent table.
+		// timeout on large tables. The actual data filtering happens during checksum calculation.
 		$filter_values = $this->filter_values;
 		if ( $this->parent_table ) {
 			$this->filter_values = null;
@@ -785,7 +784,8 @@ class Table_Checksum {
 		 * If `$limit` is not specified, we can directly use the table.
 		 */
 		if ( ! $limit ) {
-			// For meta tables, avoid expensive COUNT(DISTINCT) by using the parent table count.
+			// For tables that would use COUNT(DISTINCT), avoid the expensive full table scan
+			// by using the parent table's count instead.
 			if ( $distinct_count ) {
 				$parent_count = $this->get_parent_table_count();
 				if ( false !== $parent_count ) {
