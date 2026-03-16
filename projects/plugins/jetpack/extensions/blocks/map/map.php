@@ -210,7 +210,7 @@ function rebuild_map_block_div( $attr, $content, $map_provider, $access_token ) 
 	$div_open .= '>';
 
 	$result = preg_replace( '/<div[^>]*>/', $div_open, $content, 1 );
-	return null !== $result ? $result : $content;
+	return $result ?? $content;
 }
 
 /**
