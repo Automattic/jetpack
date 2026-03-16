@@ -323,11 +323,11 @@ class PayPal_Payment_Buttons {
 				function ( $tag, $handle, $src ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 					if ( 'paypal-payment-buttons-block-head' === $handle ) {
 						// Add namespace to avoid conflicts with other PayPal SDK versions
-						if ( ! str_contains( $tag, 'data-namespace' ) ) {
+						if ( false === strpos( $tag, 'data-namespace' ) ) {
 							$tag = preg_replace( '/(\s+)src=([\'"])/', '$1 data-namespace="paypal_payment_buttons" src=$2', $tag );
 						}
 						// Add partner attribution ID
-						if ( ! str_contains( $tag, 'data-paypal-partner-attribution-id' ) ) {
+						if ( false === strpos( $tag, 'data-paypal-partner-attribution-id' ) ) {
 							$tag = preg_replace( '/(\s+)src=([\'"])/', '$1 data-paypal-partner-attribution-id="' . self::PAYPAL_PARTNER_ATTRIBUTION_ID . '" src=$2', $tag );
 						}
 					}
@@ -447,6 +447,23 @@ class PayPal_Payment_Buttons {
 	 * @return void
 	 */
 	public static function init_api() {
+		add_action( 'init', array( __CLASS__, 'register_standalone_script_stubs' ), 1 );
 		add_action( 'rest_api_init', array( PayPal_REST_Controller::class, 'register_routes' ) );
+	}
+
+	/**
+	 * Register empty script stubs for Jetpack dependencies that may not be available
+	 * when the plugin runs outside the full Jetpack monorepo (e.g., WordPress Playground).
+	 *
+	 * The wp_script_is() guard ensures this is a no-op inside the full Jetpack plugin
+	 * where the real handle is already registered by the Assets package.
+	 *
+	 * @since 0.8.0
+	 * @return void
+	 */
+	public static function register_standalone_script_stubs() {
+		if ( ! wp_script_is( 'jetpack-script-data', 'registered' ) ) {
+			wp_register_script( 'jetpack-script-data', false, array(), '1.0.0', false );
+		}
 	}
 }

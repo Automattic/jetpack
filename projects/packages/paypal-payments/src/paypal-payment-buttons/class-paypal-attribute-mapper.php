@@ -279,7 +279,7 @@ class PayPal_Attribute_Mapper {
 		// Optional: return URL validation.
 		if ( ! empty( $attributes['returnUrl'] ) ) {
 			$return_url = esc_url_raw( $attributes['returnUrl'] );
-			if ( empty( $return_url ) || ! wp_http_validate_url( $return_url ) ) {
+			if ( empty( $return_url ) || ! wp_http_validate_url( $return_url ) || 0 !== strpos( $return_url, 'https://' ) ) {
 				return new WP_Error(
 					'invalid_return_url',
 					__( 'Return URL must be a valid HTTPS URL.', 'jetpack-paypal-payments' ),

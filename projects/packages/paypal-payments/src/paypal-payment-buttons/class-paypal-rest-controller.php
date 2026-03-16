@@ -273,12 +273,16 @@ class PayPal_REST_Controller {
 		$client_secret = $request->get_param( 'client_secret' );
 		$environment   = $request->get_param( 'environment' );
 
+		// Save previous environment so we can restore it if connect fails.
+		$previous_environment = PayPal_OAuth::get_environment();
+
 		// Set environment first so token exchange uses the right base URL.
 		PayPal_OAuth::set_environment( $environment );
 
 		// Store the credentials.
 		$stored = PayPal_OAuth::store_credentials( $client_id, $client_secret );
 		if ( ! $stored ) {
+			PayPal_OAuth::set_environment( $previous_environment );
 			return new WP_Error(
 				'paypal_credentials_storage_failed',
 				__( 'Failed to store PayPal credentials. Please ensure your WordPress installation supports encryption (OpenSSL extension).', 'jetpack-paypal-payments' ),
@@ -289,8 +293,9 @@ class PayPal_REST_Controller {
 		// Validate by attempting a token exchange.
 		$validation = PayPal_OAuth::validate_credentials();
 		if ( is_wp_error( $validation ) ) {
-			// Credentials are invalid — remove them.
+			// Credentials are invalid — remove them and restore previous environment.
 			PayPal_OAuth::delete_credentials();
+			PayPal_OAuth::set_environment( $previous_environment );
 
 			// Provide a user-friendly message based on the error type.
 			$error_data = $validation->get_error_data();
@@ -312,8 +317,9 @@ class PayPal_REST_Controller {
 		// Validate that the account has Payment Links & Buttons API access.
 		$api_access = PayPal_OAuth::validate_api_access();
 		if ( is_wp_error( $api_access ) ) {
-			// Credentials are valid but the app lacks the required scope — remove them.
+			// Credentials are valid but the app lacks the required scope — remove them and restore previous environment.
 			PayPal_OAuth::delete_credentials();
+			PayPal_OAuth::set_environment( $previous_environment );
 
 			$error_data = $api_access->get_error_data();
 			$status     = isset( $error_data['status'] ) ? (int) $error_data['status'] : 403;

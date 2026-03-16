@@ -425,7 +425,9 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 					resourceId: response.id,
 					paymentLink: response.payment_link,
 				} );
-				setSuccessMessage( __( 'PayPal button created successfully!', 'jetpack-paypal-payments' ) );
+				setSuccessMessage(
+					__( 'PayPal button and payment link created successfully!', 'jetpack-paypal-payments' )
+				);
 				setIsEditing( false );
 				setTouchedFields( {} );
 			} )
@@ -798,7 +800,7 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 							<h3>{ __( 'PayPal account connected!', 'jetpack-paypal-payments' ) }</h3>
 							<p>
 								{ __(
-									"You're ready to create payment buttons. Fill in your product details below.",
+									"You're ready to create payment buttons and links. Fill in your product details and we'll create both an embeddable PayPal button and a shareable payment link.",
 									'jetpack-paypal-payments'
 								) }
 							</p>
@@ -955,9 +957,17 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 
 				<h3>
 					{ hasButton
-						? __( 'Edit PayPal Button', 'jetpack-paypal-payments' )
-						: __( 'Create PayPal Button', 'jetpack-paypal-payments' ) }
+						? __( 'Edit PayPal Button or Link', 'jetpack-paypal-payments' )
+						: __( 'Create PayPal Button or Link', 'jetpack-paypal-payments' ) }
 				</h3>
+				{ ! hasButton && (
+					<p className="jetpack-paypal-payment-buttons__form-intro">
+						{ __(
+							'This creates a PayPal payment resource — you get both an embeddable branded button and a shareable payment link URL. Use the button on this page, or share the link anywhere.',
+							'jetpack-paypal-payments'
+						) }
+					</p>
+				) }
 
 				{ error && (
 					<Notice status="error" isDismissible onDismiss={ () => setError( null ) }>
@@ -1068,8 +1078,10 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 						disabled={ isCreating || ! isFormValid }
 					>
 						{ isCreating && __( 'Saving…', 'jetpack-paypal-payments' ) }
-						{ ! isCreating && hasButton && __( 'Update Button', 'jetpack-paypal-payments' ) }
-						{ ! isCreating && ! hasButton && __( 'Create Button', 'jetpack-paypal-payments' ) }
+						{ ! isCreating && hasButton && __( 'Update Button & Link', 'jetpack-paypal-payments' ) }
+						{ ! isCreating &&
+							! hasButton &&
+							__( 'Create Button & Link', 'jetpack-paypal-payments' ) }
 					</Button>
 
 					{ hasButton && (

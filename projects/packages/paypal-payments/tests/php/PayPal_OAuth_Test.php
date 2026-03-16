@@ -33,10 +33,10 @@ class PayPal_OAuth_Test extends TestCase {
 	}
 
 	/**
-	 * Test default environment is sandbox.
+	 * Test default environment is production (WOOPTP-163).
 	 */
-	public function test_default_environment_is_sandbox() {
-		$this->assertEquals( 'sandbox', PayPal_OAuth::get_environment() );
+	public function test_default_environment_is_production() {
+		$this->assertEquals( 'production', PayPal_OAuth::get_environment() );
 	}
 
 	/**
@@ -51,7 +51,6 @@ class PayPal_OAuth_Test extends TestCase {
 	 * Test setting environment to sandbox.
 	 */
 	public function test_set_environment_sandbox() {
-		PayPal_OAuth::set_environment( 'production' );
 		PayPal_OAuth::set_environment( 'sandbox' );
 		$this->assertEquals( 'sandbox', PayPal_OAuth::get_environment() );
 	}
@@ -67,8 +66,8 @@ class PayPal_OAuth_Test extends TestCase {
 	public function test_invalid_environment_is_rejected( $environment ) {
 		$result = PayPal_OAuth::set_environment( $environment );
 		$this->assertFalse( $result );
-		// Should remain at default.
-		$this->assertEquals( 'sandbox', PayPal_OAuth::get_environment() );
+		// Should remain at default (production per WOOPTP-163).
+		$this->assertEquals( 'production', PayPal_OAuth::get_environment() );
 	}
 
 	/**
@@ -89,17 +88,17 @@ class PayPal_OAuth_Test extends TestCase {
 	/**
 	 * Test sandbox base URL.
 	 */
-	public function test_sandbox_base_url() {
-		PayPal_OAuth::set_environment( 'sandbox' );
-		$this->assertEquals( 'https://api-m.sandbox.paypal.com', PayPal_OAuth::get_base_url() );
+	public function test_production_base_url_is_default() {
+		// Production is the default (WOOPTP-163) — no set_environment() call needed.
+		$this->assertEquals( 'https://api.paypal.com', PayPal_OAuth::get_base_url() );
 	}
 
 	/**
-	 * Test production base URL.
+	 * Test sandbox base URL after explicit switch.
 	 */
-	public function test_production_base_url() {
-		PayPal_OAuth::set_environment( 'production' );
-		$this->assertEquals( 'https://api.paypal.com', PayPal_OAuth::get_base_url() );
+	public function test_sandbox_base_url() {
+		PayPal_OAuth::set_environment( 'sandbox' );
+		$this->assertEquals( 'https://api-m.sandbox.paypal.com', PayPal_OAuth::get_base_url() );
 	}
 
 	/**
@@ -244,7 +243,8 @@ class PayPal_OAuth_Test extends TestCase {
 		PayPal_OAuth::disconnect();
 
 		$this->assertFalse( PayPal_OAuth::has_credentials() );
-		$this->assertEquals( 'sandbox', PayPal_OAuth::get_environment() );
+		// After disconnect, environment resets to the default (production per WOOPTP-163).
+		$this->assertEquals( 'production', PayPal_OAuth::get_environment() );
 		$this->assertFalse( get_transient( PayPal_OAuth::TOKEN_TRANSIENT_KEY ) );
 	}
 
@@ -256,7 +256,7 @@ class PayPal_OAuth_Test extends TestCase {
 
 		$this->assertIsArray( $status );
 		$this->assertFalse( $status['connected'] );
-		$this->assertEquals( 'sandbox', $status['environment'] );
+		$this->assertEquals( 'production', $status['environment'] );
 	}
 
 	/**

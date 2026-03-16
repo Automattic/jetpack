@@ -6,6 +6,11 @@
  * Visually matches the frontend PayPal button rendering so merchants see
  * a WYSIWYG representation of what visitors will see on the published page.
  *
+ * Updated for WOOPTP-156: Removed hardcoded SVG dimensions; sizing is now
+ * controlled exclusively by CSS to ensure consistency across editor and
+ * frontend views. Logo height is set via .jetpack-paypal-button__logo in
+ * editor.scss.
+ *
  * @package
  * @since 0.8.0
  */
@@ -15,6 +20,10 @@ import { __ } from '@wordpress/i18n';
 /**
  * PayPal logo SVG rendered inline to avoid external requests in the editor.
  *
+ * Dimensions are intentionally omitted from the SVG element — CSS
+ * (.jetpack-paypal-button__logo) controls the rendered size to keep
+ * the logo visually consistent between editor preview and frontend.
+ *
  * @return {Element} PayPal logo SVG.
  */
 function PayPalLogo() {
@@ -23,9 +32,8 @@ function PayPalLogo() {
 			className="jetpack-paypal-button__logo"
 			xmlns="http://www.w3.org/2000/svg"
 			viewBox="0 0 101 32"
-			width="80"
-			height="20"
-			aria-label="PayPal"
+			aria-hidden="true"
+			focusable="false"
 		>
 			<path
 				d="M12.5 4.7h-7c-.5 0-.9.3-1 .8L1.6 25c0 .3.2.6.6.6h3.3c.5 0 .9-.3 1-.8l.8-5.4c0-.5.5-.8 1-.8h2.3c4.7 0 7.4-2.3 8.1-6.8.3-2 0-3.5-.9-4.6C16.7 5.5 14.9 4.7 12.5 4.7zm.8 6.7c-.4 2.6-2.3 2.6-4.2 2.6h-1l.8-4.8c0-.3.3-.5.6-.5h.5c1.3 0 2.5 0 3.1.7.4.5.5 1.2.2 2z"
