@@ -201,6 +201,44 @@ $paypal-blue: #0070ba;
 	line-height: 1.5;
 }
 
+// Variant options display.
+.jetpack-paypal-button__variants {
+	margin-bottom: 16px;
+	text-align: center;
+}
+
+.jetpack-paypal-button__variants-label {
+	font-size: 12px;
+	color: #757575;
+	margin: 0 0 8px;
+}
+
+.jetpack-paypal-button__variant-group {
+	margin-bottom: 6px;
+	font-size: 13px;
+	line-height: 1.8;
+}
+
+.jetpack-paypal-button__variant-name {
+	font-weight: 600;
+	color: #1e1e1e;
+}
+
+.jetpack-paypal-button__variant-option {
+	display: inline-block;
+	background: #f0f0f0;
+	border-radius: 12px;
+	padding: 2px 10px;
+	margin: 2px 3px;
+	font-size: 12px;
+	color: #1e1e1e;
+}
+
+.jetpack-paypal-button__variant-price {
+	color: #757575;
+	font-size: 11px;
+}
+
 // QR Code section.
 .jetpack-paypal-button__qr-section {
 	text-align: center;

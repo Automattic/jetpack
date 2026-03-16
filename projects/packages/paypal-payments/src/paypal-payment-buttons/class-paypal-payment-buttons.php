@@ -204,6 +204,8 @@ class PayPal_Payment_Buttons {
 		$button_type         = $attributes['buttonType'] ?? 'stacked';
 		$product_description = $attributes['productDescription'] ?? '';
 		$image_url           = $attributes['imageUrl'] ?? '';
+		$variants_enabled    = ! empty( $attributes['variantsEnabled'] );
+		$variants            = $attributes['variants'] ?? null;
 
 		if ( empty( $resource_id ) || empty( $payment_url ) ) {
 			return;
@@ -265,6 +267,53 @@ class PayPal_Payment_Buttons {
 			);
 		}
 
+		// Build variant options display.
+		$variants_html = '';
+		if ( $variants_enabled && ! empty( $variants['dimensions'] ) && is_array( $variants['dimensions'] ) ) {
+			$variant_groups = array();
+			foreach ( $variants['dimensions'] as $dimension ) {
+				$dim_name = esc_html( $dimension['name'] ?? '' );
+				if ( empty( $dim_name ) || empty( $dimension['options'] ) ) {
+					continue;
+				}
+
+				$options_html = array();
+				foreach ( $dimension['options'] as $option ) {
+					$label = esc_html( $option['label'] ?? '' );
+					if ( empty( $label ) ) {
+						continue;
+					}
+
+					// Show per-option price if different from base price.
+					$option_price = '';
+					if ( ! empty( $option['unit_amount']['value'] ) && $option['unit_amount']['value'] !== $price ) {
+						$option_price = ' <span class="jetpack-paypal-button__variant-price">'
+							. esc_html( self::format_price( $option['unit_amount']['value'], $currency ) )
+							. '</span>';
+					}
+
+					$options_html[] = '<span class="jetpack-paypal-button__variant-option">'
+						. $label . $option_price . '</span>';
+				}
+
+				if ( ! empty( $options_html ) ) {
+					$variant_groups[] = '<div class="jetpack-paypal-button__variant-group">'
+						. '<span class="jetpack-paypal-button__variant-name">' . $dim_name . ':</span> '
+						. implode( '', $options_html )
+						. '</div>';
+				}
+			}
+
+			if ( ! empty( $variant_groups ) ) {
+				$variants_html = '<div class="jetpack-paypal-button__variants">'
+					. '<p class="jetpack-paypal-button__variants-label">'
+					. esc_html__( 'Options available — select at checkout:', 'jetpack-paypal-payments' )
+					. '</p>'
+					. implode( '', $variant_groups )
+					. '</div>';
+			}
+		}
+
 		$paypal_logo = self::get_paypal_logo_svg();
 
 		return sprintf(
@@ -278,6 +327,7 @@ class PayPal_Payment_Buttons {
 			</div>
 			%3$s
 		</div>
+		%14$s
 		<div class="jetpack-paypal-button__buttons jetpack-paypal-button__buttons--%4$s">
 			<a href="%5$s" class="jetpack-paypal-button__paypal-link" target="_blank" rel="noopener noreferrer">
 				%6$s
@@ -307,7 +357,8 @@ class PayPal_Payment_Buttons {
 			$image_html,
 			esc_attr__( 'Show QR Code', 'jetpack-paypal-payments' ),
 			esc_attr__( 'Hide QR Code', 'jetpack-paypal-payments' ),
-			esc_html__( 'Download QR Code', 'jetpack-paypal-payments' )
+			esc_html__( 'Download QR Code', 'jetpack-paypal-payments' ),
+			$variants_html
 		);
 	}
 
