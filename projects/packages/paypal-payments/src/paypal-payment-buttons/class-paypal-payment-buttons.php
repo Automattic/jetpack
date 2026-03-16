@@ -331,11 +331,11 @@ class PayPal_Payment_Buttons {
 				. '</div></div>';
 		}
 
-		$paypal_logo = self::get_paypal_logo_svg();
-		// Note: get_block_wrapper_attributes() available if needed for custom wrapper classes.
+		$paypal_logo        = self::get_paypal_logo_svg();
+		$wrapper_attributes = get_block_wrapper_attributes();
 
 		return sprintf(
-			'<div %15$s>
+			'<div %16$s>
 	<div class="jetpack-paypal-button">
 		%10$s
 		<div class="jetpack-paypal-button__product">
@@ -371,7 +371,8 @@ class PayPal_Payment_Buttons {
 			'',
 			'',
 			$variants_html,
-			$qr_html
+			$qr_html,
+			$wrapper_attributes
 		);
 	}
 
