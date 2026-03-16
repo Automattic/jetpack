@@ -16,7 +16,6 @@ use PHPUnit\Framework\Attributes\CoversFunction;
 /**
  * Tests for Gutenberg RTC feature.
  *
- * @covers ::wpcom_disable_rtc_option
  * @covers ::wpcom_enqueue_gutenberg_rtc_assets
  * @covers ::wpcom_get_gutenberg_rtc_providers
  * @covers ::wpcom_is_gutenberg_rtc_enabled
@@ -26,7 +25,6 @@ use PHPUnit\Framework\Attributes\CoversFunction;
 #[CoversFunction( 'wpcom_get_gutenberg_rtc_providers' )]
 #[CoversFunction( 'wpcom_enqueue_gutenberg_rtc_assets' )]
 #[CoversFunction( 'wpcom_unregister_rtc_setting' )]
-#[CoversFunction( 'wpcom_disable_rtc_option' )]
 class Gutenberg_RTC_Test extends \WorDBless\BaseTestCase {
 
 	/**
@@ -86,14 +84,6 @@ class Gutenberg_RTC_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function test_wpcom_unregister_rtc_setting_hooked() {
 		$this->assertSame( 11, has_action( 'admin_init', 'wpcom_unregister_rtc_setting' ) );
-	}
-
-	/**
-	 * Tests whether the disable RTC option filters are hooked.
-	 */
-	public function test_wpcom_disable_rtc_option_hooked() {
-		$this->assertSame( 10, has_filter( 'pre_option_wp_enable_real_time_collaboration', 'wpcom_disable_rtc_option' ) );
-		$this->assertSame( 10, has_filter( 'pre_option_enable_real_time_collaboration', 'wpcom_disable_rtc_option' ) );
 	}
 
 	/**
@@ -268,29 +258,6 @@ class Gutenberg_RTC_Test extends \WorDBless\BaseTestCase {
 		wpcom_enqueue_gutenberg_rtc_assets();
 
 		$this->assertTrue( wp_script_is( 'jetpack-mu-wpcom-gutenberg-rtc', 'enqueued' ) );
-	}
-
-	/**
-	 * Tests that wpcom_disable_rtc_option returns '0' when no providers.
-	 */
-	public function test_wpcom_disable_rtc_option_returns_zero_when_no_providers() {
-		$this->assertSame( '0', wpcom_disable_rtc_option( false ) );
-	}
-
-	/**
-	 * Tests that wpcom_disable_rtc_option passes through the pre_option value when providers exist.
-	 */
-	public function test_wpcom_disable_rtc_option_passes_through_when_providers_exist() {
-		add_filter( 'wpcom_is_gutenberg_rtc_enabled', '__return_true' );
-		add_filter(
-			'wpcom_gutenberg_rtc_providers',
-			function () {
-				return array( 'pinghub' );
-			}
-		);
-
-		$this->assertFalse( wpcom_disable_rtc_option( false ) );
-		$this->assertSame( '1', wpcom_disable_rtc_option( '1' ) );
 	}
 
 	/**
