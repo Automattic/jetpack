@@ -9,7 +9,6 @@ import {
 import { useConnectionErrorNotice, ConnectionError } from '@automattic/jetpack-connection';
 import { shouldUseInternalLinks } from '@automattic/jetpack-shared-extension-utils';
 import { useSelect, useDispatch } from '@wordpress/data';
-import { useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import NoticesList from 'components/global-notices';
 import Loading from 'components/loading';
@@ -62,21 +61,6 @@ export default function DashboardPage( { isLoading = false } ) {
 		[ isLoading ]
 	);
 
-	// The JITM JS may run before React mounts, placing .jitm-card in #wpbody-content
-	// instead of #jp-admin-notices. Move any stray JITMs into the correct container.
-	useEffect( () => {
-		if ( isPageLoading ) {
-			return;
-		}
-		const target = document.getElementById( 'jp-admin-notices' );
-		if ( ! target ) {
-			return;
-		}
-		document.querySelectorAll( '#wpbody-content > .jitm-card' ).forEach( card => {
-			target.appendChild( card );
-		} );
-	}, [ isPageLoading ] );
-
 	// Introduce the gate for new pricing with URL parameter `new_pricing_202208=1`
 	const isNewPricing = useSelect( select => select( STORE_ID ).isNewPricing202208(), [] );
 
@@ -123,6 +107,8 @@ export default function DashboardPage( { isLoading = false } ) {
 
 	return (
 		<>
+			{ /* Always in the DOM so JITM JS finds it immediately (Path A). */ }
+			<div id="jp-admin-notices" className="jetpack-search-jitm-card" />
 			{ isPageLoading && <Loading /> }
 			{ ! isPageLoading && (
 				<div className="jp-search-dashboard-page">
@@ -146,16 +132,13 @@ export default function DashboardPage( { isLoading = false } ) {
 							supportsInstantSearch={ supportsInstantSearch }
 							supportsOnlyClassicSearch={ supportsOnlyClassicSearch }
 						/>
-						<Container horizontalSpacing={ 0 } horizontalGap={ 3 }>
-							{ hasConnectionError && (
+						{ hasConnectionError && (
+							<Container horizontalSpacing={ 0 } horizontalGap={ 3 }>
 								<Col lg={ 12 } md={ 12 } sm={ 12 }>
 									<ConnectionError />
 								</Col>
-							) }
-							<Col>
-								<div id="jp-admin-notices" className="jetpack-search-jitm-card" />
-							</Col>
-						</Container>
+							</Container>
+						) }
 						{ isNewPricing && supportsInstantSearch && (
 							<PlanInfo
 								hasIndex={ postCount !== 0 }
