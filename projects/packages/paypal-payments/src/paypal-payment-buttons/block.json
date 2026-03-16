@@ -62,6 +62,10 @@
 		"returnUrl": {
 			"type": "string",
 			"default": ""
+		},
+		"imageUrl": {
+			"type": "string",
+			"default": ""
 		}
 	},
 	"editorScript": "file:../../dist/paypal-payment-buttons/editor.js",

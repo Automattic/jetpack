@@ -43,6 +43,7 @@ jest.mock( '@wordpress/block-editor', () => ( {
 	useBlockProps: () => ( { className: 'wp-block-paypal-payment-buttons' } ),
 	BlockControls: ( { children } ) => <div data-testid="block-controls">{ children }</div>,
 	InspectorControls: ( { children } ) => <div data-testid="inspector-controls">{ children }</div>,
+	MediaUpload: ( { render: renderProp } ) => renderProp( { open: jest.fn() } ),
 } ) );
 
 // Mock WordPress components with simple HTML equivalents.

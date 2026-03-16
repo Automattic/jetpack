@@ -117,6 +117,7 @@ export default function PayPalPaymentButtonsSave( { attributes } ) {
 		price,
 		currencyCode,
 		productDescription,
+		imageUrl,
 	} = attributes;
 
 	const blockProps = useBlockProps.save();
@@ -128,6 +129,13 @@ export default function PayPalPaymentButtonsSave( { attributes } ) {
 		return (
 			<div { ...blockProps }>
 				<div className="jetpack-paypal-button">
+					{ /* Product image */ }
+					{ imageUrl && (
+						<div className="jetpack-paypal-button__image">
+							<img src={ imageUrl } alt={ productName || '' } loading="lazy" />
+						</div>
+					) }
+
 					{ /* Product info — flex layout matches editor preview */ }
 					<div className="jetpack-paypal-button__product">
 						<div className="jetpack-paypal-button__product-info">
