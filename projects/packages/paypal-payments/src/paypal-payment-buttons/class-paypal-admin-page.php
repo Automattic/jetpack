@@ -85,12 +85,12 @@ class PayPal_Admin_Page {
 	 */
 	public static function handle_actions() {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Nonce is verified below.
-		if ( ! isset( $_GET['page'] ) || self::PAGE_SLUG !== $_GET['page'] ) {
+		if ( ! isset( $_GET['page'] ) || self::PAGE_SLUG !== sanitize_text_field( wp_unslash( $_GET['page'] ) ) ) {
 			return;
 		}
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Nonce is verified below.
-		if ( ! isset( $_GET['action'] ) || 'delete' !== $_GET['action'] ) {
+		if ( ! isset( $_GET['action'] ) || 'delete' !== sanitize_text_field( wp_unslash( $_GET['action'] ) ) ) {
 			return;
 		}
 
@@ -334,7 +334,7 @@ class PayPal_Admin_Page {
 
 		// Detail view (WOOPTP-167).
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only view parameter.
-		if ( isset( $_GET['action'] ) && 'view' === $_GET['action'] && ! empty( $_GET['resource_id'] ) ) {
+		if ( isset( $_GET['action'] ) && 'view' === sanitize_text_field( wp_unslash( $_GET['action'] ) ) && ! empty( $_GET['resource_id'] ) ) {
 			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			self::render_detail_view( sanitize_text_field( wp_unslash( $_GET['resource_id'] ) ) );
 			echo '</div>';
