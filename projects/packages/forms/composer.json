@@ -7,6 +7,7 @@
 		"php": ">=7.2",
 		"automattic/jetpack-blocks": "@dev",
 		"automattic/jetpack-assets": "@dev",
+		"automattic/jetpack-wp-build-polyfills": "@dev",
 		"automattic/jetpack-connection": "@dev",
 		"automattic/jetpack-device-detection": "@dev",
 		"automattic/jetpack-external-connections": "@dev",

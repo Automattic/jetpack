@@ -12,6 +12,7 @@ use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin;
 use Automattic\Jetpack\Tracking;
+use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
@@ -36,8 +37,18 @@ class Dashboard {
 					: 'inbox';
 
 				wp_safe_redirect( self::get_forms_admin_url( $default_tab ) );
+
 				exit;
 			}
+
+			// Register polyfills for WP < 7.0 (must run before build.php).
+			WP_Build_Polyfills::register(
+				'jetpack-forms',
+				array_merge(
+					WP_Build_Polyfills::SCRIPT_HANDLES,
+					WP_Build_Polyfills::MODULE_IDS
+				)
+			);
 
 			$wp_build_index = dirname( __DIR__, 2 ) . '/build/build.php';
 
