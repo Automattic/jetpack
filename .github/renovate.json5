@@ -1,5 +1,6 @@
 {
 	extends: [ 'config:recommended', 'abandonments:recommended', 'group:definitelyTyped' ],
+	abandonmentThreshold: '2 years',
 	labels: [ 'Task', '[Status] Needs Review' ],
 	reviewers: [ 'team:jetpack-monorepo' ],
 	prHourlyLimit: 1,
