@@ -27,7 +27,7 @@ class PayPal_Admin_Page_Test extends TestCase {
 		delete_option( PayPal_OAuth::CREDENTIALS_OPTION_KEY );
 		delete_option( PayPal_OAuth::ENVIRONMENT_OPTION_KEY );
 		delete_transient( PayPal_OAuth::TOKEN_TRANSIENT_KEY );
-		delete_transient( 'paypal_admin_notice' );
+		delete_transient( 'paypal_admin_notice_' . get_current_user_id() );
 		remove_all_filters( 'pre_http_request' );
 
 		// Reset $_GET superglobal.
@@ -189,7 +189,7 @@ class PayPal_Admin_Page_Test extends TestCase {
 		wp_set_current_user( $admin );
 
 		set_transient(
-			'paypal_admin_notice',
+			'paypal_admin_notice_' . get_current_user_id(),
 			array(
 				'type'    => 'success',
 				'message' => 'Payment link deleted successfully.',
@@ -205,7 +205,7 @@ class PayPal_Admin_Page_Test extends TestCase {
 		$this->assertStringContainsString( 'Payment link deleted successfully.', $output );
 
 		// Transient should be consumed.
-		$this->assertFalse( get_transient( 'paypal_admin_notice' ) );
+		$this->assertFalse( get_transient( 'paypal_admin_notice_' . get_current_user_id() ) );
 	}
 
 	/**
@@ -216,7 +216,7 @@ class PayPal_Admin_Page_Test extends TestCase {
 		wp_set_current_user( $admin );
 
 		set_transient(
-			'paypal_admin_notice',
+			'paypal_admin_notice_' . get_current_user_id(),
 			array(
 				'type'    => 'error',
 				'message' => 'Failed to delete payment link: Resource not found.',

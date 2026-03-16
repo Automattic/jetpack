@@ -240,7 +240,7 @@ class PayPal_Admin_Page {
 						navigator.clipboard.writeText(url).then(function() {
 							var original = e.target.textContent;
 							e.target.textContent = ' . wp_json_encode( __( 'Copied!', 'jetpack-paypal-payments' ), JSON_HEX_TAG | JSON_HEX_AMP ) . ';
-							if (typeof wp !== "undefined" && wp.a11y) { wp.a11y.speak("Copied to clipboard"); }
+							if (typeof wp !== "undefined" && wp.a11y) { wp.a11y.speak(' . wp_json_encode( __( 'Copied to clipboard', 'jetpack-paypal-payments' ), JSON_HEX_TAG | JSON_HEX_AMP ) . '); }
 							setTimeout(function() { e.target.textContent = original; }, 2000);
 						});
 					}
