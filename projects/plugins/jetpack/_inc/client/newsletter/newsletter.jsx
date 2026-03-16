@@ -168,7 +168,7 @@ function Newsletter( props ) {
 					onChange={ handleEmailPostToSubsDefaultToggle }
 					label={
 						<span className="jp-form-toggle-explanation">
-							{ __( 'Send newsletter by default', 'jetpack' ) }
+							{ __( 'Email new posts to subscribers by default', 'jetpack' ) }
 						</span>
 					}
 				/>

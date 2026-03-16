@@ -119,15 +119,15 @@ describe( 'Newsletter', () => {
 		} );
 	} );
 
-	describe( 'Send newsletter by default toggle', () => {
+	describe( 'Email new posts to subscribers by default toggle', () => {
 		it( 'renders the toggle', () => {
 			render( <Newsletter { ...defaultProps } />, { initialState } );
-			expect( screen.getByText( 'Send newsletter by default' ) ).toBeInTheDocument();
+			expect( screen.getByText( 'Email new posts to subscribers by default' ) ).toBeInTheDocument();
 		} );
 
 		it( 'is checked when newsletterSendDefault is true', () => {
 			render( <Newsletter { ...defaultProps } />, { initialState } );
-			const toggle = screen.getByLabelText( 'Send newsletter by default' );
+			const toggle = screen.getByLabelText( 'Email new posts to subscribers by default' );
 			expect( toggle ).toBeChecked();
 		} );
 
@@ -137,7 +137,7 @@ describe( 'Newsletter', () => {
 				getOptionValue: option => ( option === 'wpcom_newsletter_send_default' ? false : true ),
 			};
 			render( <Newsletter { ...propsWithSendDefaultFalse } />, { initialState } );
-			const toggle = screen.getByLabelText( 'Send newsletter by default' );
+			const toggle = screen.getByLabelText( 'Email new posts to subscribers by default' );
 			expect( toggle ).not.toBeChecked();
 		} );
 
@@ -147,7 +147,7 @@ describe( 'Newsletter', () => {
 				getOptionValue: option => ( option === 'subscriptions' ? false : true ),
 			};
 			render( <Newsletter { ...propsWithSubscriptionsInactive } />, { initialState } );
-			const toggle = screen.getByLabelText( 'Send newsletter by default' );
+			const toggle = screen.getByLabelText( 'Email new posts to subscribers by default' );
 			expect( toggle ).not.toBeChecked();
 			expect( toggle ).toBeDisabled();
 		} );

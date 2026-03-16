@@ -72,16 +72,6 @@ export function NewsletterSection( { data, onChange }: NewsletterSectionProps ):
 			type: 'boolean' as const,
 			Edit: 'toggle' as const,
 		},
-		{
-			id: 'wpcom_newsletter_send_default',
-			label: __( 'Send newsletter by default', 'jetpack-newsletter' ),
-			type: 'boolean' as const,
-			Edit: 'toggle' as const,
-			description: __(
-				'When on, the newsletter option will be pre-selected each time you publish. You can change it in the newsletter panel in the editor before publishing any post.',
-				'jetpack-newsletter'
-			),
-		},
 	];
 
 	return (
@@ -98,7 +88,7 @@ export function NewsletterSection( { data, onChange }: NewsletterSectionProps ):
 							type: 'regular',
 							labelPosition: 'top',
 						},
-						fields: [ 'subscriptions', 'wpcom_newsletter_send_default' ],
+						fields: [ 'subscriptions' ],
 					} }
 					onChange={ handleChange }
 				/>
