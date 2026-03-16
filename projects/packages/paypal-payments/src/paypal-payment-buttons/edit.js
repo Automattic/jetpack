@@ -35,7 +35,7 @@ import {
 import { useState, useEffect, useCallback, useMemo } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import PayPalButtonPreview from './paypal-button-preview';
-import VariantBuilder from './variant-builder';
+import VariantBuilder, { validateVariants } from './variant-builder';
 
 /**
  * Supported currencies for the currency selector.
@@ -304,10 +304,21 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 	);
 
 	/**
-	 * Whether the form is valid (no validation errors on required fields).
+	 * Variant validation errors (empty array if valid or disabled).
+	 */
+	const variantErrors = useMemo(
+		() => validateVariants( variantsEnabled, variants ),
+		[ variantsEnabled, variants ]
+	);
+
+	/**
+	 * Whether the form is valid (no validation errors on required fields or variants).
 	 */
 	const isFormValid =
-		! validationErrors.productName && ! validationErrors.price && ! validationErrors.currencyCode;
+		! validationErrors.productName &&
+		! validationErrors.price &&
+		! validationErrors.currencyCode &&
+		variantErrors.length === 0;
 
 	/**
 	 * Check PayPal connection status on mount.
@@ -1012,7 +1023,7 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 					<p>
 						{ __( 'Environment:', 'jetpack-paypal-payments' ) } <strong>{ environment }</strong>
 					</p>
-					<div style={ { display: 'flex', gap: '8px', marginTop: '12px' } }>
+					<div className="jetpack-paypal-payment-buttons__destructive-actions">
 						<Button
 							variant="secondary"
 							isDestructive

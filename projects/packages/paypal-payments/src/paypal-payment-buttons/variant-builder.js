@@ -1,8 +1,8 @@
 /* eslint-disable react/jsx-no-bind */
 /**
- * Product Variants Dimension Builder.
+ * Product Variants Builder.
  *
- * Reusable component for building product variant dimensions
+ * Reusable component for building product variant option groups
  * (e.g., Color, Size) with options and optional per-option pricing.
  *
  * @package
@@ -10,31 +10,35 @@
  */
 
 import { Button, TextControl, ToggleControl } from '@wordpress/components';
-import { __ } from '@wordpress/i18n';
+import { useRef, useEffect, useState } from '@wordpress/element';
+import { __, sprintf } from '@wordpress/i18n';
 
-// Pre-extract translated strings used in ternaries to avoid i18n build errors.
-const placeholderColor = __( 'e.g., Color', 'jetpack-paypal-payments' );
-const placeholderSize = __( 'e.g., Size', 'jetpack-paypal-payments' );
-const helpEnabled = __(
-	'Customers choose options (e.g., size, color) at checkout.',
-	'jetpack-paypal-payments'
-);
-const helpDisabled = __( 'Add size, color, or other product options.', 'jetpack-paypal-payments' );
-
-const MAX_DIMENSIONS = 5;
+const MAX_GROUPS = 5;
 const MAX_OPTIONS = 10;
 
+let nextId = 1;
+
 /**
- * Create a new empty dimension.
+ * Generate a stable unique ID for keying React elements.
  *
- * @param {boolean} isPrimary - Whether this is the primary dimension.
- * @return {object} New dimension object.
+ * @return {string} A unique ID string.
  */
-function createDimension( isPrimary = false ) {
+function uid() {
+	return `vb-${ nextId++ }`;
+}
+
+/**
+ * Create a new empty option group (dimension).
+ *
+ * @param {boolean} isPrimary - Whether this is the primary group.
+ * @return {object} New group object with a stable _key.
+ */
+function createGroup( isPrimary = false ) {
 	return {
+		_key: uid(),
 		name: '',
 		primary: isPrimary,
-		options: [ { label: '' } ],
+		options: [ { _key: uid(), label: '' } ],
 	};
 }
 
@@ -43,10 +47,10 @@ function createDimension( isPrimary = false ) {
  *
  * @param {boolean} withPricing - Whether to include pricing fields.
  * @param {string}  currency    - Currency code for pricing.
- * @return {object} New option object.
+ * @return {object} New option object with a stable _key.
  */
 function createOption( withPricing = false, currency = 'USD' ) {
-	const opt = { label: '' };
+	const opt = { _key: uid(), label: '' };
 	if ( withPricing ) {
 		opt.unit_amount = { currency_code: currency, value: '' };
 	}
@@ -54,66 +58,150 @@ function createOption( withPricing = false, currency = 'USD' ) {
 }
 
 /**
- * Single dimension editor with its options.
+ * Validate variant data and return error messages.
+ *
+ * @param {boolean} enabled  - Whether variants are enabled.
+ * @param {object}  variants - The variants data.
+ * @return {Array} Array of error strings. Empty if valid.
+ */
+export function validateVariants( enabled, variants ) {
+	if ( ! enabled || ! variants?.dimensions?.length ) {
+		return [];
+	}
+
+	const errors = [];
+
+	variants.dimensions.forEach( ( dim, i ) => {
+		if ( ! dim.name?.trim() ) {
+			errors.push(
+				sprintf(
+					/* translators: %d: option group number */
+					__( 'Option group %d needs a name.', 'jetpack-paypal-payments' ),
+					i + 1
+				)
+			);
+		}
+
+		dim.options?.forEach( ( opt, j ) => {
+			if ( ! opt.label?.trim() ) {
+				errors.push(
+					sprintf(
+						/* translators: 1: option number, 2: group name or number */
+						__( 'Option %1$d in "%2$s" needs a label.', 'jetpack-paypal-payments' ),
+						j + 1,
+						dim.name || `#${ i + 1 }`
+					)
+				);
+			}
+
+			if ( dim.primary && opt.unit_amount?.value ) {
+				const val = parseFloat( opt.unit_amount.value );
+				if ( isNaN( val ) || val < 0 ) {
+					errors.push(
+						sprintf(
+							/* translators: 1: option label or number, 2: group name */
+							__(
+								'Price for "%1$s" in "%2$s" must be a positive number.',
+								'jetpack-paypal-payments'
+							),
+							opt.label || `Option ${ j + 1 }`,
+							dim.name || `#${ i + 1 }`
+						)
+					);
+				}
+			}
+		} );
+	} );
+
+	return errors;
+}
+
+/**
+ * Single option group editor with its options.
  *
  * @param {object}   props              - Component props.
- * @param {object}   props.dimension    - The dimension data.
- * @param {number}   props.index        - Dimension index.
+ * @param {object}   props.group        - The group data.
+ * @param {number}   props.index        - Group index.
  * @param {string}   props.currencyCode - Product currency for pricing.
- * @param {Function} props.onChange     - Callback when dimension changes.
- * @param {Function} props.onRemove     - Callback to remove this dimension.
+ * @param {Function} props.onChange     - Callback when group changes.
+ * @param {Function} props.onRemove     - Callback to remove this group.
  * @param {Function} props.onSetPrimary - Callback to set this as primary.
  * @param {boolean}  props.disabled     - Whether inputs are disabled.
- * @return {Element} Dimension editor.
+ * @return {Element} Group editor.
  */
-function DimensionEditor( {
-	dimension,
-	index,
-	currencyCode,
-	onChange,
-	onRemove,
-	onSetPrimary,
-	disabled,
-} ) {
+function GroupEditor( { group, index, currencyCode, onChange, onRemove, onSetPrimary, disabled } ) {
+	const lastOptionRef = useRef( null );
+	const [ focusNewOption, setFocusNewOption ] = useState( false );
+
+	// Focus newly added option.
+	useEffect( () => {
+		if ( focusNewOption && lastOptionRef.current ) {
+			lastOptionRef.current.querySelector( 'input' )?.focus();
+			setFocusNewOption( false );
+		}
+	}, [ focusNewOption ] );
+
 	const updateName = name => {
-		onChange( { ...dimension, name } );
+		onChange( { ...group, name } );
 	};
 
 	const updateOption = ( optIndex, updates ) => {
-		const newOptions = [ ...dimension.options ];
+		const newOptions = [ ...group.options ];
 		newOptions[ optIndex ] = { ...newOptions[ optIndex ], ...updates };
-		onChange( { ...dimension, options: newOptions } );
+		onChange( { ...group, options: newOptions } );
 	};
 
 	const addOption = () => {
-		if ( dimension.options.length >= MAX_OPTIONS ) {
+		if ( group.options.length >= MAX_OPTIONS ) {
 			return;
 		}
 		onChange( {
-			...dimension,
-			options: [ ...dimension.options, createOption( dimension.primary, currencyCode ) ],
+			...group,
+			options: [ ...group.options, createOption( group.primary, currencyCode ) ],
 		} );
+		setFocusNewOption( true );
 	};
 
 	const removeOption = optIndex => {
-		const newOptions = dimension.options.filter( ( _, i ) => i !== optIndex );
-		onChange( { ...dimension, options: newOptions } );
+		const newOptions = group.options.filter( ( _, i ) => i !== optIndex );
+		onChange( { ...group, options: newOptions } );
 	};
 
+	const groupLabel =
+		group.name ||
+		sprintf(
+			/* translators: %d: group number */
+			__( 'Option group %d', 'jetpack-paypal-payments' ),
+			index + 1
+		);
+
 	return (
-		<div className="jetpack-paypal-variants__dimension">
-			<div className="jetpack-paypal-variants__dimension-header">
+		<div className="jetpack-paypal-variants__group" role="group" aria-label={ groupLabel }>
+			<div className="jetpack-paypal-variants__group-header">
 				<TextControl
-					label={ `${ __( 'Dimension', 'jetpack-paypal-payments' ) } ${ index + 1 }` }
-					value={ dimension.name }
+					label={ sprintf(
+						/* translators: %d: group number */
+						__( 'Option group %d', 'jetpack-paypal-payments' ),
+						index + 1
+					) }
+					value={ group.name }
 					onChange={ updateName }
-					placeholder={ index === 0 ? placeholderColor : placeholderSize }
+					placeholder={
+						index === 0
+							? __( 'e.g., Color', 'jetpack-paypal-payments' )
+							: __( 'e.g., Size', 'jetpack-paypal-payments' )
+					}
 					disabled={ disabled }
 				/>
-				<div className="jetpack-paypal-variants__dimension-controls">
+				<div className="jetpack-paypal-variants__group-controls">
 					<ToggleControl
-						label={ __( 'Primary (has pricing)', 'jetpack-paypal-payments' ) }
-						checked={ dimension.primary }
+						label={ __( 'Set price per option', 'jetpack-paypal-payments' ) }
+						help={
+							group.primary
+								? __( 'Each option can have its own price.', 'jetpack-paypal-payments' )
+								: __( 'Enable to charge different prices per option.', 'jetpack-paypal-payments' )
+						}
+						checked={ group.primary }
 						onChange={ () => onSetPrimary( index ) }
 						disabled={ disabled }
 					/>
@@ -123,6 +211,11 @@ function DimensionEditor( {
 						variant="tertiary"
 						onClick={ onRemove }
 						disabled={ disabled }
+						aria-label={ sprintf(
+							/* translators: %s: group name */
+							__( 'Remove option group "%s"', 'jetpack-paypal-payments' ),
+							groupLabel
+						) }
 					>
 						{ __( 'Remove', 'jetpack-paypal-payments' ) }
 					</Button>
@@ -130,16 +223,24 @@ function DimensionEditor( {
 			</div>
 
 			<div className="jetpack-paypal-variants__options">
-				{ dimension.options.map( ( option, optIndex ) => (
-					<div key={ optIndex } className="jetpack-paypal-variants__option">
+				{ group.options.map( ( option, optIndex ) => (
+					<div
+						key={ option._key }
+						className="jetpack-paypal-variants__option"
+						ref={ optIndex === group.options.length - 1 ? lastOptionRef : null }
+					>
 						<TextControl
-							label={ `${ __( 'Option', 'jetpack-paypal-payments' ) } ${ optIndex + 1 }` }
+							label={ sprintf(
+								/* translators: %d: option number */
+								__( 'Option %d', 'jetpack-paypal-payments' ),
+								optIndex + 1
+							) }
 							value={ option.label }
 							onChange={ label => updateOption( optIndex, { label } ) }
 							placeholder={ __( 'e.g., Black', 'jetpack-paypal-payments' ) }
 							disabled={ disabled }
 						/>
-						{ dimension.primary && (
+						{ group.primary && (
 							<TextControl
 								label={ __( 'Price', 'jetpack-paypal-payments' ) }
 								value={ option.unit_amount?.value || '' }
@@ -154,36 +255,54 @@ function DimensionEditor( {
 								type="number"
 								min="0.01"
 								step="0.01"
-								placeholder={ __( 'Same as base', 'jetpack-paypal-payments' ) }
+								placeholder={ __( 'Same as base price', 'jetpack-paypal-payments' ) }
 								disabled={ disabled }
+								help={ __( 'Leave empty to use the base price.', 'jetpack-paypal-payments' ) }
 							/>
 						) }
-						{ dimension.options.length > 1 && (
+						{ group.options.length > 1 && (
 							<Button
 								isSmall
 								isDestructive
 								variant="tertiary"
 								onClick={ () => removeOption( optIndex ) }
 								disabled={ disabled }
+								aria-label={ sprintf(
+									/* translators: 1: option number, 2: group name */
+									__( 'Remove option %1$d from "%2$s"', 'jetpack-paypal-payments' ),
+									optIndex + 1,
+									groupLabel
+								) }
+								className="jetpack-paypal-variants__remove-option"
 							>
-								×
+								{ __( 'Remove', 'jetpack-paypal-payments' ) }
 							</Button>
 						) }
 					</div>
 				) ) }
 
-				{ dimension.options.length < MAX_OPTIONS && (
-					<Button isSmall variant="secondary" onClick={ addOption } disabled={ disabled }>
-						{ __( 'Add Option', 'jetpack-paypal-payments' ) }
-					</Button>
-				) }
+				<div className="jetpack-paypal-variants__option-actions">
+					{ group.options.length < MAX_OPTIONS ? (
+						<Button isSmall variant="secondary" onClick={ addOption } disabled={ disabled }>
+							{ __( 'Add Option', 'jetpack-paypal-payments' ) }
+						</Button>
+					) : (
+						<p className="jetpack-paypal-variants__limit-notice">
+							{ sprintf(
+								/* translators: %d: maximum number of options */
+								__( 'Maximum of %d options reached.', 'jetpack-paypal-payments' ),
+								MAX_OPTIONS
+							) }
+						</p>
+					) }
+				</div>
 			</div>
 		</div>
 	);
 }
 
 /**
- * Product Variants builder panel.
+ * Product Variants builder.
  *
  * @param {object}   props              - Component props.
  * @param {boolean}  props.enabled      - Whether variants are enabled.
@@ -191,7 +310,7 @@ function DimensionEditor( {
  * @param {string}   props.currencyCode - Product currency code.
  * @param {Function} props.onChange     - Callback with { variantsEnabled, variants }.
  * @param {boolean}  props.disabled     - Whether inputs are disabled.
- * @return {Element} Variants builder panel.
+ * @return {Element} Variants builder.
  */
 export default function VariantBuilder( {
 	enabled,
@@ -201,13 +320,22 @@ export default function VariantBuilder( {
 	disabled,
 } ) {
 	const dimensions = variants?.dimensions || [];
+	const lastGroupRef = useRef( null );
+	const [ focusNewGroup, setFocusNewGroup ] = useState( false );
+
+	// Focus newly added group.
+	useEffect( () => {
+		if ( focusNewGroup && lastGroupRef.current ) {
+			lastGroupRef.current.querySelector( 'input' )?.focus();
+			setFocusNewGroup( false );
+		}
+	}, [ focusNewGroup ] );
 
 	const setEnabled = newEnabled => {
 		if ( newEnabled && dimensions.length === 0 ) {
-			// Start with one empty primary dimension.
 			onChange( {
 				variantsEnabled: true,
-				variants: { dimensions: [ createDimension( true ) ] },
+				variants: { dimensions: [ createGroup( true ) ] },
 			} );
 		} else {
 			onChange( { variantsEnabled: newEnabled } );
@@ -234,34 +362,45 @@ export default function VariantBuilder( {
 		const newDimensions = dimensions.map( ( dim, i ) => ( {
 			...dim,
 			primary: i === dimIndex,
-			// Strip pricing from non-primary options.
 			options:
 				i === dimIndex
 					? dim.options.map( opt => ( {
 							...opt,
 							unit_amount: opt.unit_amount || { currency_code: currencyCode, value: '' },
 					  } ) )
-					: dim.options.map( ( { label } ) => ( { label } ) ),
+					: dim.options.map( ( { _key, label } ) => ( { _key, label } ) ),
 		} ) );
 		onChange( { variants: { dimensions: newDimensions } } );
 	};
 
-	const addDimension = () => {
-		if ( dimensions.length >= MAX_DIMENSIONS ) {
+	const addGroup = () => {
+		if ( dimensions.length >= MAX_GROUPS ) {
 			return;
 		}
 		onChange( {
 			variants: {
-				dimensions: [ ...dimensions, createDimension( false ) ],
+				dimensions: [ ...dimensions, createGroup( false ) ],
 			},
 		} );
+		setFocusNewGroup( true );
 	};
 
 	return (
 		<div className="jetpack-paypal-variants">
+			<h4 className="jetpack-paypal-variants__heading">
+				{ __( 'Product Options', 'jetpack-paypal-payments' ) }
+			</h4>
+
 			<ToggleControl
-				label={ __( 'Enable product variants', 'jetpack-paypal-payments' ) }
-				help={ enabled ? helpEnabled : helpDisabled }
+				label={ __( 'Enable product options', 'jetpack-paypal-payments' ) }
+				help={
+					enabled
+						? __(
+								'Customers choose options (e.g., size, color) at checkout.',
+								'jetpack-paypal-payments'
+						  )
+						: __( 'Add size, color, or other product options.', 'jetpack-paypal-payments' )
+				}
 				checked={ enabled }
 				onChange={ setEnabled }
 				disabled={ disabled }
@@ -269,29 +408,59 @@ export default function VariantBuilder( {
 
 			{ enabled && (
 				<>
+					{ dimensions.length === 0 && (
+						<p className="jetpack-paypal-variants__empty-help">
+							{ __(
+								'No option groups yet. Click "Add option group" to create one. An option group is a product attribute like Color or Size — add choices within each group.',
+								'jetpack-paypal-payments'
+							) }
+						</p>
+					) }
+
 					{ dimensions.map( ( dimension, dimIndex ) => (
-						<DimensionEditor
-							key={ dimIndex }
-							dimension={ dimension }
-							index={ dimIndex }
-							currencyCode={ currencyCode }
-							onChange={ newDim => updateDimension( dimIndex, newDim ) }
-							onRemove={ () => removeDimension( dimIndex ) }
-							onSetPrimary={ setPrimary }
-							disabled={ disabled }
-						/>
+						<div
+							key={ dimension._key || dimIndex }
+							ref={ dimIndex === dimensions.length - 1 ? lastGroupRef : null }
+						>
+							<GroupEditor
+								group={ dimension }
+								index={ dimIndex }
+								currencyCode={ currencyCode }
+								onChange={ newDim => updateDimension( dimIndex, newDim ) }
+								onRemove={ () => removeDimension( dimIndex ) }
+								onSetPrimary={ setPrimary }
+								disabled={ disabled }
+							/>
+						</div>
 					) ) }
 
-					{ dimensions.length < MAX_DIMENSIONS && (
-						<Button
-							variant="secondary"
-							onClick={ addDimension }
-							disabled={ disabled }
-							className="jetpack-paypal-variants__add-dimension"
-						>
-							{ __( 'Add Dimension', 'jetpack-paypal-payments' ) }
-						</Button>
-					) }
+					<div className="jetpack-paypal-variants__add-group">
+						{ dimensions.length < MAX_GROUPS ? (
+							<>
+								<Button variant="secondary" onClick={ addGroup } disabled={ disabled }>
+									{ __( 'Add option group', 'jetpack-paypal-payments' ) }
+								</Button>
+								{ dimensions.length > 0 && (
+									<span className="jetpack-paypal-variants__counter">
+										{ sprintf(
+											/* translators: 1: current count, 2: maximum */
+											__( '%1$d / %2$d groups', 'jetpack-paypal-payments' ),
+											dimensions.length,
+											MAX_GROUPS
+										) }
+									</span>
+								) }
+							</>
+						) : (
+							<p className="jetpack-paypal-variants__limit-notice">
+								{ sprintf(
+									/* translators: %d: maximum number of groups */
+									__( 'Maximum of %d option groups reached.', 'jetpack-paypal-payments' ),
+									MAX_GROUPS
+								) }
+							</p>
+						) }
+					</div>
 				</>
 			) }
 		</div>

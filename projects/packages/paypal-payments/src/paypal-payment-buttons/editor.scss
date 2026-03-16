@@ -460,7 +460,37 @@
 	background: #fafafa;
 }
 
-// Variant builder dimensions.
+// Variant builder heading.
+.jetpack-paypal-variants__heading {
+	margin: 0 0 8px;
+	font-size: 13px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+	color: #1e1e1e;
+}
+
+.jetpack-paypal-variants__empty-help {
+	font-size: 13px;
+	color: #757575;
+	font-style: italic;
+	margin: 8px 0 12px;
+}
+
+.jetpack-paypal-variants__limit-notice {
+	font-size: 12px;
+	color: #757575;
+	margin: 4px 0;
+}
+
+.jetpack-paypal-variants__counter {
+	font-size: 12px;
+	color: #757575;
+	margin-left: 8px;
+}
+
+// Variant builder option groups.
+.jetpack-paypal-variants__group,
 .jetpack-paypal-variants__dimension {
 	border: 1px solid #ddd;
 	border-radius: 4px;
@@ -497,10 +527,30 @@
 	.components-text-control__input {
 		min-width: 0;
 	}
+
+	@media ( max-width: 480px ) {
+		flex-direction: column;
+		align-items: stretch;
+	}
 }
 
+.jetpack-paypal-variants__remove-option {
+	min-width: 44px;
+	min-height: 44px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.jetpack-paypal-variants__option-actions {
+	margin-top: 4px;
+}
+
+.jetpack-paypal-variants__add-group,
 .jetpack-paypal-variants__add-dimension {
 	margin-top: 8px;
+	display: flex;
+	align-items: center;
 }
 
 // Variant summary badges in preview.
@@ -518,4 +568,10 @@
 	background: #e8e8e8;
 	font-size: 11px;
 	color: #555;
+}
+
+.jetpack-paypal-payment-buttons__destructive-actions {
+	display: flex;
+	gap: 8px;
+	margin-top: 12px;
 }
