@@ -451,7 +451,16 @@
 	}
 }
 
-// Variant builder in InspectorControls.
+// Variant builder inline section.
+.jetpack-paypal-payment-buttons__variants-section {
+	margin: 16px 0;
+	padding: 16px;
+	border: 1px solid #e0e0e0;
+	border-radius: 4px;
+	background: #fafafa;
+}
+
+// Variant builder dimensions.
 .jetpack-paypal-variants__dimension {
 	border: 1px solid #ddd;
 	border-radius: 4px;

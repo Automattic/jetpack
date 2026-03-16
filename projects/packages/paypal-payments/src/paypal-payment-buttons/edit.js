@@ -999,18 +999,7 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 				/>
 			</PanelBody>
 
-			<PanelBody
-				title={ __( 'Product Variants', 'jetpack-paypal-payments' ) }
-				initialOpen={ false }
-			>
-				<VariantBuilder
-					enabled={ variantsEnabled }
-					variants={ variants }
-					currencyCode={ currencyCode || 'USD' }
-					onChange={ updates => setAttributes( updates ) }
-					disabled={ isCreating }
-				/>
-			</PanelBody>
+			{ /* Variant builder moved inline to the block form for discoverability. */ }
 
 			{ hasButton && (
 				<PanelBody
@@ -1251,6 +1240,16 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 						{ __( 'Shown on the PayPal checkout page.', 'jetpack-paypal-payments' ) }
 					</p>
 				</div>
+				<div className="jetpack-paypal-payment-buttons__variants-section">
+					<VariantBuilder
+						enabled={ variantsEnabled }
+						variants={ variants }
+						currencyCode={ currencyCode || 'USD' }
+						onChange={ updates => setAttributes( updates ) }
+						disabled={ isCreating }
+					/>
+				</div>
+
 				<TextControl
 					label={ __( 'Return URL (optional)', 'jetpack-paypal-payments' ) }
 					value={ returnUrl || '' }
