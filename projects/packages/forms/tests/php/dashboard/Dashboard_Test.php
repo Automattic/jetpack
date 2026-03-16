@@ -24,7 +24,7 @@ class Dashboard_Test extends BaseTestCase {
 	 */
 	public function tear_down() {
 		$this->reset_wp_build_polyfills();
-		unset( $_GET['page'] );
+		unset( $_GET['page'], $_GET['p'] );
 		parent::tear_down();
 	}
 
@@ -162,6 +162,7 @@ class Dashboard_Test extends BaseTestCase {
 	 */
 	public function test_load_wp_build_registers_polyfills_on_wpbuild_page() {
 		$_GET['page'] = Dashboard::FORMS_WPBUILD_ADMIN_SLUG;
+		$_GET['p']    = '/responses/inbox';
 
 		Dashboard::load_wp_build();
 
