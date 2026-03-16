@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fix forms list entries count not updating after trashing responses

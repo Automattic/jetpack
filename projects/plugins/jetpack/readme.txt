@@ -326,23 +326,13 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 15.7-a.1 - 2026-03-09
+### 15.7-a.3 - 2026-03-16
 #### Enhancements
-- Admin Menu: Reorder menu items so that links opening in new windows appear last.
-- Backup: Use core components for storage popover.
-- Block Notes: Add Block Notes as a standalone Jetpack extension plugin.
-- Donations: Use the core WordPress spinner component.
-- Forms: Use title header on top-level dashboard pages.
-- Newsletter: Hide settings tab and redirect to new settings page when wp-admin newsletter settings are enabled.
-- QR Post Code: Use site icon (favicon) instead of site logo for better rendering in the QR code center area.
+- Newsletter: Add `wpcom_newsletter_send_default` site option to control whether posts are sent to subscribers by default.
+- SEO: Add Canonical URLs toggle to the Traffic settings page.
 
 #### Bug fixes
-- Admin Page: Restore border on header component.
-- Canonical URLs: Fix flaky author archive canonical URL resolution on WordPress trunk.
-- SEO: Restore the Optimize SEO panel to the Jetpack sidebar alongside document settings.
-- Settings: Add bottom border to the masthead header.
-- Social: Fix slow page loads due to Social Image generation.
-- Update AI form assistant to detect and create `core/button` blocks instead of `jetpack/button`.
+- Forms: Ensure number field min and max values display in the UI after page reload.
 
 --------
 
