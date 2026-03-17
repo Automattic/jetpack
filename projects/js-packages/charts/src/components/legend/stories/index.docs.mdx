@@ -20,7 +20,7 @@ The Legend component offers multiple ways to display chart legends, from simple 
 	// Composition API (recommended)
 
 	<LineChart data={ salesData } chartId="sales-chart">
-		<LineChart.Legend orientation="horizontal" />
+		<LineChart.Legend />
 	</LineChart>
 
 	// Standalone usage with manual data
@@ -30,7 +30,6 @@ The Legend component offers multiple ways to display chart legends, from simple 
 			{ label: 'Series 1', value: '25%', color: '#3858E9' },
 			{ label: 'Series 2', value: '35%', color: '#80C8FF' },
 		] }
-		orientation="horizontal"
 	/>`
 } />
 
@@ -105,7 +104,7 @@ The recommended way to add legends to charts is the composition API. Use the cha
 	code={ `import { LineChart } from '@automattic/charts';
 
 	<LineChart data={ lineChartData } chartId="sales-chart">
-		<LineChart.Legend orientation="horizontal" />
+		<LineChart.Legend />
 	</LineChart>` }
 />
 
@@ -118,7 +117,7 @@ This works with all chart types that support legends:
 	code={ `import { BarChart } from '@automattic/charts';
 
 	<BarChart data={ barChartData } chartId="quarterly-sales">
-		<BarChart.Legend orientation="vertical" />
+		<BarChart.Legend />
 	</BarChart>` }
 />
 
@@ -150,7 +149,6 @@ For decoupled layouts such as dashboards, the Legend component can retrieve data
 		{/* Standalone legend that automatically gets data from chart context */}
 		<Legend
 			chartId="standalone-legend-chart"
-			orientation="horizontal"
 		/>
 
 	</div>` }
@@ -216,7 +214,6 @@ Interactive legends also work with standalone Legend components. Set `legend.int
 
 		<Legend
 			chartId="sales-chart"
-			orientation="horizontal"
 			interactive={ true }
 		/>
 	</GlobalChartsProvider>` }
@@ -273,7 +270,6 @@ The Legend component provides comprehensive text overflow handling for long labe
 	language="tsx"
 	code={ `<Legend
 		items={ items }
-		orientation="horizontal"
 		labelStyles={ { maxWidth: '150px', textOverflow: 'ellipsis' } }
 		alignment="center"
 	/>` }
@@ -289,7 +285,6 @@ By default, legends use rectangular shapes, but you can customize the glyph shap
 	language="tsx"
 	code={ `<Legend
 		items={ items }
-		orientation="horizontal"
 		shape="circle"
 	/>` }
 />

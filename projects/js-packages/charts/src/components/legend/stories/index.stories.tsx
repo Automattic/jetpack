@@ -116,7 +116,7 @@ export const WithLineChart: Story = {
 			withLegendGlyph={ false }
 			chartId="legend-line-chart"
 		>
-			<LineChart.Legend orientation="horizontal" />
+			<LineChart.Legend />
 		</LineChart>
 	),
 };
@@ -125,7 +125,7 @@ export const WithLineChart: Story = {
 export const WithBarChart: Story = {
 	render: () => (
 		<BarChart data={ barChartData } width={ 400 } height={ 300 } chartId="legend-bar-chart">
-			<BarChart.Legend orientation="vertical" />
+			<BarChart.Legend />
 		</BarChart>
 	),
 };
@@ -145,7 +145,7 @@ const StandaloneLegendWithChartIdComponent = () => {
 				withLegendGlyph={ false }
 			/>
 			{ /* Standalone legend that automatically gets data from chart context */ }
-			<Legend chartId="standalone-legend-chart" orientation="horizontal" shape="line" />
+			<Legend chartId="standalone-legend-chart" shape="line" />
 		</div>
 	);
 };
@@ -300,7 +300,6 @@ export const AlignmentOptions: Story = {
 			{ label: 'Series 2', value: '35%', color: '#80C8FF' },
 			{ label: 'Series 3', value: '40%', color: '#44B556' },
 		],
-		orientation: 'horizontal',
 		alignment: 'start',
 	},
 };
@@ -376,7 +375,6 @@ export const CustomShape: Story = {
 			{ label: 'Desktop', value: '65%', color: '#3858E9' },
 			{ label: 'Mobile', value: '35%', color: '#80C8FF' },
 		],
-		orientation: 'horizontal',
 		shape: 'circle',
 	},
 };

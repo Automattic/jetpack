@@ -268,6 +268,9 @@ export const WithCompositionLegend: StoryObj< typeof BarChart > = {
 			</BarChart>
 		);
 	},
+	args: {
+		...Default.args,
+	},
 	parameters: {
 		docs: {
 			description: {

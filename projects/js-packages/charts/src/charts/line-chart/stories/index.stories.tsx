@@ -171,6 +171,9 @@ export const WithCompositionLegend: StoryObj< typeof LineChart > = {
 			</LineChart>
 		);
 	},
+	args: {
+		...Default.args,
+	},
 	parameters: {
 		docs: {
 			description: {
