@@ -1,3 +1,4 @@
+import { Stack } from '@wordpress/ui';
 import styles from './svg-empty-state.module.scss';
 import type { FC, ReactNode } from 'react';
 
@@ -41,9 +42,14 @@ export const SvgEmptyState: FC< SvgEmptyStateProps > = ( {
 } ) => {
 	return (
 		<foreignObject x={ x - width / 2 } y={ y - height / 2 } width={ width } height={ height }>
-			<div className={ styles[ 'svg-empty-state' ] } style={ { color: fill } }>
+			<Stack
+				align="center"
+				justify="center"
+				className={ styles[ 'svg-empty-state' ] }
+				style={ { color: fill } }
+			>
 				{ children }
-			</div>
+			</Stack>
 		</foreignObject>
 	);
 };
