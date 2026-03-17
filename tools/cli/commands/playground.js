@@ -57,7 +57,7 @@ export async function handler( argv ) {
 	// Warn if @wp-playground/cli needs to be downloaded (first run).
 	const playgroundCheck = child_process.spawnSync(
 		'npx',
-		[ '--no-install', '@wp-playground/cli', '--version' ],
+		[ '--no-install', '@wp-playground/cli@^3', '--version' ],
 		{ stdio: 'ignore' }
 	);
 	if ( playgroundCheck.status !== 0 ) {
@@ -87,10 +87,14 @@ export async function handler( argv ) {
 	}
 
 	// If the plugin hasn't been built, run the build first.
-	if (
-		! fs.existsSync( path.join( pluginPath, 'vendor' ) ) ||
-		! fs.existsSync( path.join( pluginPath, 'node_modules' ) )
-	) {
+	// Only check for vendor/ when composer.json exists, and node_modules/ when package.json exists.
+	const hasComposerJson = fs.existsSync( path.join( pluginPath, 'composer.json' ) );
+	const hasPackageJson = fs.existsSync( path.join( pluginPath, 'package.json' ) );
+	const needsBuild =
+		( hasComposerJson && ! fs.existsSync( path.join( pluginPath, 'vendor' ) ) ) ||
+		( hasPackageJson && ! fs.existsSync( path.join( pluginPath, 'node_modules' ) ) );
+
+	if ( needsBuild ) {
 		console.log(
 			chalk.yellow( `Plugin "${ argv.plugin }" does not appear to be built. Building...` )
 		);
@@ -119,12 +123,12 @@ export async function handler( argv ) {
 	const packagesPath = projectDir( 'packages' );
 
 	try {
-		const blueprintPath = buildBlueprint( pluginPath, tmpDir, argv, wpPluginSlug );
+		const blueprintPath = buildBlueprint( pluginPath, tmpDir, argv, wpPluginSlug, argv.plugin );
 
 		const port = argv.port ?? 9400;
 
 		const args = [
-			'@wp-playground/cli',
+			'@wp-playground/cli@^3',
 			'server',
 			`--mount=${ pluginPath }:/wordpress/wp-content/plugins/${ wpPluginSlug }`,
 			`--mount=${ packagesPath }:/wordpress/wp-content/packages`,
@@ -167,6 +171,9 @@ export async function handler( argv ) {
 
 			proc.on( 'error', reject );
 		} );
+	} catch ( err ) {
+		console.error( chalk.red( err.message ) );
+		process.exit( 1 );
 	} finally {
 		console.log( chalk.gray( 'Cleaning up temporary files...' ) );
 		fs.rmSync( tmpDir, { recursive: true, force: true } );
@@ -176,17 +183,18 @@ export async function handler( argv ) {
 /**
  * Build a blueprint JSON file for the Playground session.
  *
- * Always injects a step to define JETPACK_DEV_DEBUG in wp-config.php so Jetpack
- * runs in offline mode without needing a WordPress.com connection. If the plugin
+ * For the Jetpack plugin, injects a step to define JETPACK_DEV_DEBUG in wp-config.php
+ * so it runs in offline mode without needing a WordPress.com connection. If the plugin
  * ships its own blueprint, the steps are merged.
  *
  * @param {string} pluginPath   - Absolute path to the plugin source directory.
  * @param {string} tmpDir       - Temporary directory to write the blueprint into.
  * @param {object} options      - CLI options (may include a custom blueprint path and plugin name).
  * @param {string} wpPluginSlug - The WordPress plugin slug (used for activation).
+ * @param {string} pluginName   - The monorepo plugin directory name (e.g. 'jetpack').
  * @return {string} Path to the generated blueprint file.
  */
-function buildBlueprint( pluginPath, tmpDir, options, wpPluginSlug ) {
+function buildBlueprint( pluginPath, tmpDir, options, wpPluginSlug, pluginName ) {
 	// Start with a base blueprint.
 	let blueprint = {
 		$schema: 'https://playground.wordpress.net/blueprint-schema.json',
@@ -203,8 +211,7 @@ function buildBlueprint( pluginPath, tmpDir, options, wpPluginSlug ) {
 	if ( options.blueprint ) {
 		sourceBlueprint = path.resolve( options.blueprint );
 		if ( ! fs.existsSync( sourceBlueprint ) ) {
-			console.error( chalk.red( `Blueprint file not found: ${ sourceBlueprint }` ) );
-			process.exit( 1 );
+			throw new Error( `Blueprint file not found: ${ sourceBlueprint }` );
 		}
 	} else {
 		const pluginBlueprintPath = path.join(
@@ -224,8 +231,7 @@ function buildBlueprint( pluginPath, tmpDir, options, wpPluginSlug ) {
 		try {
 			custom = JSON.parse( fs.readFileSync( sourceBlueprint, 'utf8' ) );
 		} catch ( err ) {
-			console.error( chalk.red( `Failed to parse blueprint: ${ err.message }` ) );
-			process.exit( 1 );
+			throw new Error( `Failed to parse blueprint: ${ err.message }` );
 		}
 		blueprint = {
 			...blueprint,
@@ -255,13 +261,15 @@ add_filter( 'plugins_url', function ( $url ) {
 `,
 	} );
 
-	// Inject the offline mode step: define JETPACK_DEV_DEBUG in wp-config.php.
-	blueprint.steps.push( {
-		step: 'defineWpConfigConsts',
-		consts: {
-			JETPACK_DEV_DEBUG: true,
-		},
-	} );
+	// Inject the offline mode step only for the Jetpack plugin itself.
+	if ( pluginName === 'jetpack' ) {
+		blueprint.steps.push( {
+			step: 'defineWpConfigConsts',
+			consts: {
+				JETPACK_DEV_DEBUG: true,
+			},
+		} );
+	}
 
 	// Activate the plugin using the WordPress plugin identifier (slug/main-file.php).
 	const mainFile = findMainPluginFile( pluginPath );
