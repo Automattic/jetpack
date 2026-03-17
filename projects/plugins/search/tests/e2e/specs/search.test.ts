@@ -16,7 +16,7 @@ import type { Page } from '@playwright/test';
 async function expectFirstResultTitle( page: Page, expectedTitle: string ): Promise< void > {
 	await expect( async () => {
 		const resultTitleSelector = '.jetpack-instant-search__search-result-title-link > span';
-		const firstResultTitle = await page.locator( resultTitleSelector ).innerHTML();
+		const firstResultTitle = await page.locator( resultTitleSelector ).first().innerHTML();
 		expect( firstResultTitle, 'First result title should match the expected value' ).toBe(
 			expectedTitle
 		);
