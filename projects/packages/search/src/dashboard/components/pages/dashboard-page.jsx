@@ -124,15 +124,19 @@ export default function DashboardPage( { isLoading = false } ) {
 				className="uses-new-admin-ui"
 				showFooter={ false }
 			>
-				{ /* Always in the DOM so JITM JS finds it immediately (Path A). */ }
-				<div id="jp-admin-notices" className="jetpack-search-jitm-card" />
-				{ isPageLoading && <Loading /> }
-				{ ! isPageLoading && (
-					<>
-						<MockedSearchInterface
+				<div className="jp-search-dashboard-top jp-search-dashboard-wrap">
+					{ /* Always in the DOM so JITM JS finds it immediately (Path A). */ }
+					<div id="jp-admin-notices" className="jetpack-search-jitm-card" />
+					{ isPageLoading && <Loading /> }
+					{ ! isPageLoading && (
+						<MockedSearchContent
 							supportsInstantSearch={ supportsInstantSearch }
 							supportsOnlyClassicSearch={ supportsOnlyClassicSearch }
 						/>
+					) }
+				</div>
+				{ ! isPageLoading && (
+					<>
 						{ hasConnectionError && (
 							<Container horizontalSpacing={ 0 } horizontalGap={ 3 }>
 								<Col lg={ 12 } md={ 12 } sm={ 12 }>
@@ -222,9 +226,9 @@ const PlanInfo = ( { hasIndex, recordMeterInfo, isFreePlan, sendPaidPlanToCart }
 	);
 };
 
-const MockedSearchInterface = ( { supportsInstantSearch, supportsOnlyClassicSearch } ) => {
+const MockedSearchContent = ( { supportsInstantSearch, supportsOnlyClassicSearch } ) => {
 	return (
-		<div className="jp-search-dashboard-top jp-search-dashboard-wrap">
+		<>
 			<div className="jp-search-dashboard-row">
 				<div className="jp-search-dashboard-top__title lg-col-span-6 md-col-span-7 sm-col-span-4">
 					<h1>
@@ -244,7 +248,7 @@ const MockedSearchInterface = ( { supportsInstantSearch, supportsOnlyClassicSear
 					/>
 				</div>
 			</div>
-		</div>
+		</>
 	);
 };
 
