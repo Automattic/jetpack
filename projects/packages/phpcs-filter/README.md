@@ -117,4 +117,4 @@ This is applied before the filter runs, and so has no effect on a per-directory 
 This should be avoided, as it takes effect globally rather than being scoped to the directory.
 
 
-[PHP CodeSniffer]: https://github.com/squizlabs/PHP_CodeSniffer
+[PHP CodeSniffer]: https://github.com/PHPCSStandards/PHP_CodeSniffer
