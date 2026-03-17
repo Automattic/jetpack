@@ -7,15 +7,28 @@
 
 /**
  * Class StagingSitePingsTest.
- *
- * Each test runs in a separate process because wp_get_environment_type()
- * caches its result in a static variable that cannot be reset between tests.
- *
- * @runTestsInSeparateProcesses
- * @preserveGlobalState disabled
  */
 class StagingSitePingsTest extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
+
+	/**
+	 * Define WP_RUN_CORE_TESTS so wp_get_environment_type() bypasses
+	 * its static cache and re-reads the env var on every call.
+	 */
+	public function set_up() {
+		parent::set_up();
+		if ( ! defined( 'WP_RUN_CORE_TESTS' ) ) {
+			define( 'WP_RUN_CORE_TESTS', true );
+		}
+	}
+
+	/**
+	 * Reset the environment type after each test.
+	 */
+	public function tear_down() {
+		putenv( 'WP_ENVIRONMENT_TYPE' );
+		parent::tear_down();
+	}
 
 	/**
 	 * Test that outgoing pings are disabled in staging environment.
