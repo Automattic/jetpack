@@ -38,16 +38,6 @@ export function EmailContentSection( {
 	const isSitePublic = getNewsletterScriptData()?.isSitePublic ?? true;
 	const fields: Field< NewsletterSettings >[] = [
 		{
-			id: 'wpcom_newsletter_send_default',
-			label: __( 'Email new posts to subscribers by default', 'jetpack-newsletter' ),
-			type: 'boolean' as const,
-			Edit: 'toggle' as const,
-			description: __(
-				'When on, the newsletter option will be pre-selected each time you publish. You can change it in the newsletter panel in the editor before publishing any post.',
-				'jetpack-newsletter'
-			),
-		},
-		{
 			id: 'wpcom_featured_image_in_email',
 			label: __( "Include the post's featured image in the new post emails", 'jetpack-newsletter' ),
 			type: 'boolean' as const,
@@ -99,11 +89,7 @@ export function EmailContentSection( {
 								type: 'regular',
 								labelPosition: 'top',
 							},
-							fields: [
-								'wpcom_newsletter_send_default',
-								'wpcom_featured_image_in_email',
-								'wpcom_subscription_emails_use_excerpt',
-							],
+							fields: [ 'wpcom_featured_image_in_email', 'wpcom_subscription_emails_use_excerpt' ],
 						} }
 						onChange={ onChange }
 					/>
