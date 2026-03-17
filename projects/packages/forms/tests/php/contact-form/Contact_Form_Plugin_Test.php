@@ -1619,7 +1619,7 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 		$this->assertEquals( get_option( 'home' ), $result['blog'] );
 	}
 
-	/*
+	/**
 	 * Test that the block editor is disabled for the feedback post type.
 	 */
 	public function test_use_block_editor_for_post_type_feedback() {
