@@ -54,15 +54,6 @@ class Dashboard {
 
 			if ( file_exists( $wp_build_index ) ) {
 				require_once $wp_build_index;
-
-				// Re-add core's registration only when Gutenberg isn't providing it
-				if ( ! defined( 'IS_GUTENBERG_PLUGIN' ) || ! IS_GUTENBERG_PLUGIN ) {
-					// `wp-build` currently removes `wp_default_script_modules` from `wp_default_scripts`.
-					// Re-add the core hook so script modules work in vanilla wp-admin (no Gutenberg plugin).
-					if ( function_exists( 'wp_default_script_modules' ) ) {
-						add_action( 'wp_default_scripts', 'wp_default_script_modules', 0 );
-					}
-				}
 			}
 		}
 	}
