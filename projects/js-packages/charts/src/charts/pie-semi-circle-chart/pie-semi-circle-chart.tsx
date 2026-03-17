@@ -7,6 +7,7 @@ import { Stack } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useCallback, useContext, useMemo } from 'react';
 import { Legend, useChartLegendItems } from '../../components/legend';
+import { SvgEmptyState } from '../../components/svg-empty-state';
 import { BaseTooltip } from '../../components/tooltip';
 import { useInteractiveLegendData, usePrefersReducedMotion } from '../../hooks';
 import {
@@ -415,18 +416,17 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 									}
 								>
 									{ allSegmentsHidden ? (
-										<text
-											textAnchor="middle"
+										<SvgEmptyState
+											x={ 0 }
 											y={ -radius / 2 }
-											fill="#ccc"
-											fontSize="14"
-											fontFamily="-apple-system,BlinkMacSystemFont,Roboto,Helvetica Neue,sans-serif"
+											width={ width }
+											height={ height }
 										>
 											{ __(
 												'All segments are hidden. Click legend items to show data.',
 												'jetpack-charts'
 											) }
-										</text>
+										</SvgEmptyState>
 									) : (
 										<>
 											{ /* Pie chart */ }

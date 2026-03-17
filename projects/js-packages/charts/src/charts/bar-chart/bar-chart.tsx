@@ -5,6 +5,7 @@ import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useCallback, useContext, useState, useRef, useMemo } from 'react';
 import { Legend, useChartLegendItems } from '../../components/legend';
+import { SvgEmptyState } from '../../components/svg-empty-state';
 import { AccessibleTooltip, useKeyboardNavigation } from '../../components/tooltip';
 import {
 	useXYChartTheme,
@@ -421,21 +422,20 @@ const BarChartInternal: FC< BarChartProps > = ( {
 
 										{ highlightedBarStyle && <style>{ highlightedBarStyle }</style> }
 
-										{ allSeriesHidden ? (
-											<text
-												x={ width / 2 }
-												y={ chartHeight / 2 }
-												textAnchor="middle"
-												fill={ providerTheme.gridStyles?.stroke || '#ccc' }
-												fontSize="14"
-												fontFamily="-apple-system,BlinkMacSystemFont,Roboto,Helvetica Neue,sans-serif"
-											>
-												{ __(
-													'All series are hidden. Click legend items to show data.',
-													'jetpack-charts'
-												) }
-											</text>
-										) : null }
+									{ allSeriesHidden ? (
+										<SvgEmptyState
+											x={ width / 2 }
+											y={ chartHeight / 2 }
+											width={ width }
+											height={ chartHeight }
+											fill={ providerTheme.gridStyles?.stroke || '#ccc' }
+										>
+											{ __(
+												'All series are hidden. Click legend items to show data.',
+												'jetpack-charts'
+											) }
+										</SvgEmptyState>
+									) : null }
 
 										<BarGroup padding={ chartOptions.barGroup.padding }>
 											{ seriesWithVisibility.map( ( { series: seriesData, index, isVisible } ) => {

@@ -6,6 +6,7 @@ import { Stack } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useCallback, useContext, useMemo } from 'react';
 import { Legend, useChartLegendItems } from '../../components/legend';
+import { SvgEmptyState } from '../../components/svg-empty-state';
 import { BaseTooltip } from '../../components/tooltip';
 import { useInteractiveLegendData, usePrefersReducedMotion } from '../../hooks';
 import {
@@ -370,18 +371,18 @@ const PieChartInternal = ( {
 									}
 								>
 									{ allSegmentsHidden ? (
-										<text
-											textAnchor="middle"
-											dy=".33em"
+										<SvgEmptyState
+											x={ 0 }
+											y={ 0 }
+											width={ width }
+											height={ height }
 											fill={ providerTheme.gridColor || '#ccc' }
-											fontSize="14"
-											fontFamily="-apple-system,BlinkMacSystemFont,Roboto,Helvetica Neue,sans-serif"
 										>
 											{ __(
 												'All segments are hidden. Click legend items to show data.',
 												'jetpack-charts'
 											) }
-										</text>
+										</SvgEmptyState>
 									) : (
 										<Pie< DataPointPercentage & { index: number } >
 											data={ dataWithIndex }
