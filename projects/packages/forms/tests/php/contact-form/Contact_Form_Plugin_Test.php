@@ -1572,4 +1572,50 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 
 		remove_all_actions( 'edge_cache_purge_domain' );
 	}
+
+	/**
+	 * Test that prepare_for_akismet includes blog_lang.
+	 */
+	public function test_prepare_for_akismet_includes_blog_lang() {
+		$plugin = Contact_Form_Plugin::init();
+		$form   = array(
+			'comment_author'  => 'Test',
+			'comment_content' => 'Hello',
+		);
+
+		$result = $plugin->prepare_for_akismet( $form );
+
+		$this->assertArrayHasKey( 'blog_lang', $result, 'prepare_for_akismet should include blog_lang' );
+		$this->assertEquals( get_bloginfo( 'language' ), $result['blog_lang'], 'blog_lang should match site language' );
+	}
+
+	/**
+	 * Test that prepare_for_akismet includes blog and other standard fields.
+	 */
+	public function test_prepare_for_akismet_includes_standard_fields() {
+		$plugin = Contact_Form_Plugin::init();
+		$form   = array(
+			'comment_author'  => 'Test',
+			'comment_content' => 'Hello',
+		);
+
+		$result = $plugin->prepare_for_akismet( $form );
+
+		$expected_keys = array(
+			'comment_type',
+			'user_ip',
+			'user_agent',
+			'referrer',
+			'blog',
+			'blog_lang',
+			'comment_date_gmt',
+		);
+
+		foreach ( $expected_keys as $key ) {
+			$this->assertArrayHasKey( $key, $result, "prepare_for_akismet should include '$key'" );
+		}
+
+		$this->assertEquals( 'contact_form', $result['comment_type'] );
+		$this->assertEquals( get_option( 'home' ), $result['blog'] );
+	}
 }
