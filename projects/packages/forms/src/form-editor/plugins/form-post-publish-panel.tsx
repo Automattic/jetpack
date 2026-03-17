@@ -19,6 +19,9 @@ import './form-post-publish-panel.scss';
 
 export const FORM_POST_PUBLISH_PANEL_PLUGIN = 'jetpack-form-post-publish';
 
+const PAGES_URL = addQueryArgs( 'edit.php', { post_type: 'page' } );
+const POSTS_URL = 'edit.php';
+
 /**
  * Form Post-Publish Modal component.
  *
@@ -32,7 +35,7 @@ export const FormPostPublishPanel = () => {
 	const [ isModalOpen, setIsModalOpen ] = useState( false );
 	const [ isCreatingPage, setIsCreatingPage ] = useState( false );
 	const [ showCopyConfirmation, setShowCopyConfirmation ] = useState( false );
-	const [ showLinks, setShowLinks ] = useState( false );
+	const hasEverCopiedRef = useRef( false );
 	const wasPublishedOnLoadRef = useRef< boolean | null >( null );
 	const hasShownModalRef = useRef( false );
 	const copiedTimeoutRef = useRef< number | null >( null );
@@ -93,10 +96,6 @@ export const FormPostPublishPanel = () => {
 	}, [] );
 
 	const handleCreatePage = useCallback( async () => {
-		if ( isCreatingPage ) {
-			return;
-		}
-
 		setIsCreatingPage( true );
 		try {
 			const page = ( await saveEntityRecord( 'postType', 'page', {
@@ -117,15 +116,16 @@ export const FormPostPublishPanel = () => {
 			} );
 			setIsCreatingPage( false );
 		}
-	}, [ isCreatingPage, postTitle, embedCode, saveEntityRecord, createErrorNotice ] );
+	}, [ postTitle, embedCode, saveEntityRecord, createErrorNotice ] );
 
 	const copyRef = useCopyToClipboard< HTMLButtonElement >( embedCode, () => {
 		setShowCopyConfirmation( true );
-		setShowLinks( true );
+		hasEverCopiedRef.current = true;
 		if ( copiedTimeoutRef.current ) {
 			clearTimeout( copiedTimeoutRef.current );
 		}
 		copiedTimeoutRef.current = setTimeout( () => {
+			copiedTimeoutRef.current = null;
 			setShowCopyConfirmation( false );
 		}, 3000 );
 	} );
@@ -143,9 +143,6 @@ export const FormPostPublishPanel = () => {
 	}
 
 	const createNewPageTitle = __( 'Create a new page with this form', 'jetpack-forms' );
-
-	const pagesUrl = addQueryArgs( 'edit.php', { post_type: 'page' } );
-	const postsUrl = 'edit.php';
 
 	return (
 		<Modal
@@ -173,12 +170,16 @@ export const FormPostPublishPanel = () => {
 						</span>
 					</div>
 				</button>
-				<div className={ `jetpack-form-post-publish__reveal${ showLinks ? ' is-visible' : '' }` }>
+				<div
+					className={ `jetpack-form-post-publish__reveal${
+						hasEverCopiedRef.current ? ' is-visible' : ''
+					}` }
+				>
 					<div className="jetpack-form-post-publish__reveal-inner">
 						<a
 							className="jetpack-form-post-publish__action-card"
-							href={ pagesUrl }
-							tabIndex={ showLinks ? undefined : -1 }
+							href={ PAGES_URL }
+							tabIndex={ hasEverCopiedRef.current ? undefined : -1 }
 						>
 							<div className="jetpack-form-post-publish__action-icon">
 								<Icon icon={ pageIcon } size={ 24 } />
@@ -194,8 +195,8 @@ export const FormPostPublishPanel = () => {
 						</a>
 						<a
 							className="jetpack-form-post-publish__action-card"
-							href={ postsUrl }
-							tabIndex={ showLinks ? undefined : -1 }
+							href={ POSTS_URL }
+							tabIndex={ hasEverCopiedRef.current ? undefined : -1 }
 						>
 							<div className="jetpack-form-post-publish__action-icon">
 								<Icon icon={ postList } size={ 24 } />
