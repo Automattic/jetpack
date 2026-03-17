@@ -32,7 +32,7 @@ function wpcom_is_gutenberg_rtc_enabled() {
  */
 function wpcom_is_target_gutenberg_version() {
 	// TODO: check against the version we need. Current one is 22.6.0
-	if ( defined( 'GUTENBERG_VERSION' ) && version_compare( GUTENBERG_VERSION, '22.6.0', '>=' ) ) {
+	if ( defined( 'GUTENBERG_VERSION' ) && is_string( GUTENBERG_VERSION ) && version_compare( GUTENBERG_VERSION, '22.6.0', '>=' ) ) {
 		return true;
 	}
 	return false;
