@@ -8,6 +8,10 @@
  * @package wpcomsh
  */
 
+// Enable allowed experiments early so Gutenberg's load.php include-time check picks them up.
+// This runs at MU plugin load time, before Gutenberg (a regular plugin) is loaded.
+add_filter( 'default_option_gutenberg-experiments', 'wpcomsh_filter_gutenberg_experiments' );
+
 /**
  * Disable all Gutenberg experiments except explicitly allowed ones.
  *
