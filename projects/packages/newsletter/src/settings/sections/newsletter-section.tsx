@@ -10,6 +10,7 @@ import {
 	CardBody,
 	CardFooter,
 	ExternalLink,
+	ToggleControl,
 	__experimentalHeading as Heading, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
 import { DataForm, type Field } from '@wordpress/dataviews/wp';
@@ -80,7 +81,25 @@ export function NewsletterSection( { data, onChange }: NewsletterSectionProps ):
 			id: 'wpcom_newsletter_send_default',
 			label: __( 'Email new posts to subscribers by default', 'jetpack-newsletter' ),
 			type: 'boolean' as const,
-			Edit: 'toggle' as const,
+			Edit( { field, onChange: onChangeField, data: formData } ) {
+				const handleToggle = useCallback( () => {
+					onChangeField(
+						field.setValue( {
+							item: formData,
+							value: ! field.getValue( { item: formData } ),
+						} )
+					);
+				}, [ onChangeField, field, formData ] );
+				return (
+					<ToggleControl
+						label={ field.label }
+						help={ field.description }
+						checked={ !! field.getValue( { item: formData } ) }
+						onChange={ handleToggle }
+						disabled={ ! isSimpleSite() && ! formData.subscriptions }
+					/>
+				);
+			},
 			description: __(
 				'When on, the newsletter option will be pre-selected each time you publish. You can change it in the newsletter panel in the editor before publishing any post.',
 				'jetpack-newsletter'
