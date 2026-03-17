@@ -17,11 +17,6 @@ test.describe( 'Cornerstone Pages', () => {
 		await boostUtils.mockSpeedScore();
 	} );
 
-	test.afterAll( async ( { boostUtils } ) => {
-		await boostUtils.unMockConnection();
-		await boostUtils.unMockSpeedScore();
-	} );
-
 	test.beforeEach( async ( { jetpackBoostPage } ) => {
 		await jetpackBoostPage.visit();
 	} );
@@ -31,6 +26,11 @@ test.describe( 'Cornerstone Pages', () => {
 		// Reset cornerstone pages before each test to ensure atomicity
 		// Using option delete ensures the system properly initializes an empty array
 		await boostUtils.executeWpCommand( 'option delete jetpack_boost_ds_cornerstone_pages_list' );
+	} );
+
+	test.afterAll( async ( { boostUtils } ) => {
+		await boostUtils.unMockConnection();
+		await boostUtils.unMockSpeedScore();
 	} );
 
 	test( 'Cornerstone Pages panel should be visible and toggleable', async ( {
