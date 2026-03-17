@@ -189,7 +189,7 @@ Interactive legends allow users to toggle series visibility by clicking or using
 
 ### Basic Interactive Legend
 
-Enable interactive legends by setting the `legendInteractive` prop on the chart. When `showLegend` is enabled, the chart's built-in legend will automatically become interactive:
+Enable interactive legends by setting `legend.interactive` on the chart. When `showLegend` is enabled, the chart's built-in legend will automatically become interactive:
 
 <Canvas of={ LegendStories.InteractiveLegend } />
 
@@ -200,13 +200,13 @@ Enable interactive legends by setting the `legendInteractive` prop on the chart.
 	<LineChart
 		data={ data }
 		showLegend={ true }
-		legendInteractive={ true }
+		legend={{ interactive: true }}
 	/>` }
 />
 
 ### Standalone Interactive Legend
 
-Interactive legends also work with standalone Legend components. Set `legendInteractive` on the chart so it filters visible series, and `interactive` on the Legend so it renders clickable toggle controls. `chartId` is also required for this to work.
+Interactive legends also work with standalone Legend components. Set `legend.interactive` on the chart so it filters visible series, and `interactive` on the Legend so it renders clickable toggle controls. `chartId` is also required for this to work.
 
 <Source
 	language="tsx"
@@ -215,7 +215,7 @@ Interactive legends also work with standalone Legend components. Set `legendInte
 			chartId="sales-chart"
 			data={ salesData }
 			showLegend={ false }
-			legendInteractive={ true }
+			legend={{ interactive: true }}
 		/>
 
 		<Legend
@@ -240,11 +240,11 @@ Interactive legends require:
 
 1. **GlobalChartsProvider**: Must wrap both chart and legend
 2. **chartId**: A unique identifier to connect chart and legend
-3. **legendInteractive prop**: Set to `true` on the chart component
+3. **legend.interactive**: Set to `true` in the chart's `legend` config object
 
 ### Current Limitations
 
-- The `render` prop is not compatible with interactive legends (legendInteractive mode will be disabled)
+- The `render` prop is not compatible with interactive legends (`legend.interactive` mode will be disabled)
 
 ## Styling and Customization
 

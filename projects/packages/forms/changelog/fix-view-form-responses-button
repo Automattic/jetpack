@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Update 'View form responses' button to link to the specific form's responses when the form has a ref.

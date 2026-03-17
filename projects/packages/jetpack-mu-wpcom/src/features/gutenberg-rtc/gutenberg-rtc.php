@@ -16,7 +16,13 @@
  * and we are confident in proceeding with the rollout.
  */
 function wpcom_is_gutenberg_rtc_enabled() {
-	return apply_filters( 'wpcom_is_gutenberg_rtc_enabled', false );
+	$is_enabled = false;
+	if ( function_exists( 'wpcom_site_has_feature' ) && class_exists( 'WPCOM_Features' ) && defined( 'WPCOM_Features::REAL_TIME_COLLABORATION' ) ) {
+		$blog_id    = get_wpcom_blog_id();
+		$is_enabled = wpcom_site_has_feature( WPCOM_Features::REAL_TIME_COLLABORATION, $blog_id );
+	}
+
+	return apply_filters( 'wpcom_is_gutenberg_rtc_enabled', $is_enabled );
 }
 
 /**
@@ -27,13 +33,51 @@ function wpcom_get_gutenberg_rtc_providers() {
 		return array();
 	}
 
-	return apply_filters( 'wpcom_gutenberg_rtc_providers', array( 'pinghub' ) );
+	$allowed_providers = array( 'http-polling', 'pinghub' );
+	$providers         = apply_filters( 'wpcom_gutenberg_rtc_providers', array( 'pinghub' ) );
+	if ( ! is_array( $providers ) ) {
+		return array();
+	}
+
+	return array_values(
+		array_filter(
+			$providers,
+			function ( $provider ) use ( $allowed_providers ) {
+				return in_array( $provider, $allowed_providers, true );
+			}
+		)
+	);
 }
+
+/**
+ * Register the Gutenberg RTC REST endpoint.
+ */
+add_action(
+	'rest_api_init',
+	function () {
+		$providers = wpcom_get_gutenberg_rtc_providers();
+		if ( ! in_array( 'pinghub', $providers, true ) ) {
+			return;
+		}
+
+		require_once __DIR__ . '/class-wp-rest-gutenberg-rtc.php';
+		( new WP_REST_Gutenberg_RTC() )->register_routes();
+	}
+);
 
 /**
  * Enqueue block editor assets for Gutenberg RTC customizations.
  */
 function wpcom_enqueue_gutenberg_rtc_assets() {
+	$providers = wpcom_get_gutenberg_rtc_providers();
+
+	// If HTTP polling (Gutenberg’s built-in default provider when this script isn’t enqueued)
+	// is the only provider being used, then we don’t need to inject any assets since that’s
+	// already the default behavior.
+	if ( count( $providers ) === 1 && in_array( 'http-polling', $providers, true ) ) {
+		return;
+	}
+
 	$handle = jetpack_mu_wpcom_enqueue_assets( 'gutenberg-rtc', array( 'js' ) );
 
 	$data = wp_json_encode(

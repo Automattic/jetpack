@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.0] - 2026-03-09
+### Added
+- Add `jetpack_show_newsletter_menu_item` filter to show menu regardless of subscriptions module state. [#47347]
+
+### Changed
+- Migrate admin page header to use unified header pattern. [#47313]
+- Switch to Native TypeScript compiler based on Go. [#47375]
+- Update newsletter sections to use new component patterns. [#47406]
+- Update package dependencies. [#47496]
+
+### Fixed
+- Settings: Fix Hello Dolly banner display and box-sizing on the newsletter settings page. [#47313]
+
 ## [0.5.2] - 2026-03-02
 ### Changed
 - Update dependencies. [#47038]
@@ -88,6 +101,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Update package dependencies. [#46143]
 
+[0.6.0]: https://github.com/Automattic/jetpack-newsletter/compare/v0.5.2...v0.6.0
 [0.5.2]: https://github.com/Automattic/jetpack-newsletter/compare/v0.5.1...v0.5.2
 [0.5.1]: https://github.com/Automattic/jetpack-newsletter/compare/v0.5.0...v0.5.1
 [0.5.0]: https://github.com/Automattic/jetpack-newsletter/compare/v0.4.0...v0.5.0

@@ -245,6 +245,66 @@ describe( 'BaseLegend', () => {
 				expect( label ).toHaveStyle( { maxWidth: '0px', minWidth: 0 } );
 			} );
 		} );
+
+		test( 'applies legend-item-text--ellipsis class when textOverflow is ellipsis and maxWidth is set', () => {
+			render(
+				<BaseLegend
+					items={ longLabelItems }
+					labelStyles={ { maxWidth: '150px', textOverflow: 'ellipsis' } }
+					orientation="horizontal"
+				/>
+			);
+			const labels = screen.getAllByText( /Long Label/ );
+			labels.forEach( label => {
+				expect( label ).toHaveClass( 'legend-item-text--ellipsis' );
+				expect( label ).not.toHaveClass( 'legend-item-text--wrap' );
+			} );
+		} );
+
+		test( 'applies legend-item-text--wrap class when textOverflow is wrap and maxWidth is set', () => {
+			render(
+				<BaseLegend
+					items={ longLabelItems }
+					labelStyles={ { maxWidth: '150px', textOverflow: 'wrap' } }
+					orientation="horizontal"
+				/>
+			);
+			const labels = screen.getAllByText( /Long Label/ );
+			labels.forEach( label => {
+				expect( label ).toHaveClass( 'legend-item-text--wrap' );
+				expect( label ).not.toHaveClass( 'legend-item-text--ellipsis' );
+			} );
+		} );
+
+		test( 'does not apply overflow class when maxWidth is not set', () => {
+			render(
+				<BaseLegend
+					items={ longLabelItems }
+					labelStyles={ { textOverflow: 'ellipsis' } }
+					orientation="horizontal"
+				/>
+			);
+			const labels = screen.getAllByText( /Long Label/ );
+			labels.forEach( label => {
+				expect( label ).not.toHaveClass( 'legend-item-text--ellipsis' );
+				expect( label ).not.toHaveClass( 'legend-item-text--wrap' );
+			} );
+		} );
+
+		test( 'does not apply overflow class when maxWidth is not set and textOverflow is wrap', () => {
+			render(
+				<BaseLegend
+					items={ longLabelItems }
+					labelStyles={ { textOverflow: 'wrap' } }
+					orientation="horizontal"
+				/>
+			);
+			const labels = screen.getAllByText( /Long Label/ );
+			labels.forEach( label => {
+				expect( label ).not.toHaveClass( 'legend-item-text--wrap' );
+				expect( label ).not.toHaveClass( 'legend-item-text--ellipsis' );
+			} );
+		} );
 	} );
 
 	describe( 'custom render prop', () => {

@@ -7,6 +7,7 @@
 		"php": ">=7.2",
 		"automattic/jetpack-blocks": "@dev",
 		"automattic/jetpack-assets": "@dev",
+		"automattic/jetpack-wp-build-polyfills": "@dev",
 		"automattic/jetpack-connection": "@dev",
 		"automattic/jetpack-device-detection": "@dev",
 		"automattic/jetpack-external-connections": "@dev",
@@ -73,7 +74,7 @@
 			"link-template": "https://github.com/automattic/jetpack-forms/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-trunk": "7.11.x-dev"
+			"dev-trunk": "7.12.x-dev"
 		},
 		"textdomain": "jetpack-forms",
 		"version-constants": {

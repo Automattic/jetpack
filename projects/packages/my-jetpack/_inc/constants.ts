@@ -92,6 +92,7 @@ export const JETPACK_NON_PAID_MODULES = [
 	'account-protection',
 	'blaze',
 	'blocks',
+	'canonical-urls',
 	'carousel',
 	'comment-likes',
 	'comments',

@@ -1,3 +1,7 @@
+## [3.3.11] - 2026-03-09
+### Changed
+- Switch to Native TypeScript compiler based on Go. [#47375]
+
 ## [3.3.10] - 2026-02-26
 ### Changed
 - Update package dependencies. [#47285]
@@ -313,6 +317,7 @@
 
 - Build: Refactored (aligned build system with Gridicons).
 
+[3.3.11]: https://github.com/Automattic/social-logos/compare/v3.3.10...v3.3.11
 [3.3.10]: https://github.com/Automattic/social-logos/compare/v3.3.9...v3.3.10
 [3.3.9]: https://github.com/Automattic/social-logos/compare/v3.3.8...v3.3.9
 [3.3.8]: https://github.com/Automattic/social-logos/compare/v3.3.7...v3.3.8

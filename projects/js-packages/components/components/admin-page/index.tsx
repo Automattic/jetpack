@@ -42,6 +42,7 @@ const AdminPage: FC< AdminPageProps > = ( {
 	subTitle,
 	logo,
 	actions,
+	breadcrumbs,
 	tabs,
 	showBottomBorder = true,
 } ) => {
@@ -89,7 +90,7 @@ const AdminPage: FC< AdminPageProps > = ( {
 	) : undefined;
 
 	const footer = showFooter && (
-		<Container horizontalSpacing={ 5 }>
+		<Container className={ styles[ 'admin-page-footer' ] } horizontalSpacing={ 5 }>
 			<Col>
 				<JetpackFooter
 					moduleName={ moduleName }
@@ -101,12 +102,13 @@ const AdminPage: FC< AdminPageProps > = ( {
 		</Container>
 	);
 
-	// When title is provided, use admin-ui Page for the full page layout.
-	if ( showHeader && composedTitle ) {
+	// When title or breadcrumbs are provided, use admin-ui Page for the full page layout.
+	if ( showHeader && ( composedTitle || breadcrumbs ) ) {
 		return (
 			<div className={ rootClassName }>
 				<Page
 					ariaLabel={ title }
+					breadcrumbs={ breadcrumbs }
 					title={ composedTitle }
 					subTitle={ subTitle }
 					actions={ actions }

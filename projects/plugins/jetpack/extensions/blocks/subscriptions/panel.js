@@ -7,17 +7,20 @@ import {
 } from '@automattic/jetpack-shared-extension-utils';
 import { JetpackEditorPanelLogo } from '@automattic/jetpack-shared-extension-utils/components';
 import { Button, Notice, PanelRow } from '@wordpress/components';
-import { useSelect } from '@wordpress/data';
+import { useDispatch, useSelect } from '@wordpress/data';
 import {
 	PluginPrePublishPanel,
 	PluginPostPublishPanel,
 	PluginDocumentSettingPanel,
 	store as editorStore,
 } from '@wordpress/editor';
-import { useState } from '@wordpress/element';
+import { useLayoutEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { external, Icon } from '@wordpress/icons';
-import { accessOptions } from '../../shared/memberships/constants';
+import {
+	accessOptions,
+	META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS,
+} from '../../shared/memberships/constants';
 import { useAccessLevel, isNewsletterFeatureEnabled } from '../../shared/memberships/edit';
 import {
 	NewsletterAccessDocumentSettings,
@@ -32,6 +35,65 @@ import { store as membershipProductsStore } from '../../store/membership-product
 import { NewsletterTestEmailModal } from './email-preview';
 
 import './panel.scss';
+
+/**
+ * Tracks status transitions and save completions, dispatching Redux flags so
+ * SubscribersAffirmation can show the republish/modify blurb even when the
+ * post-publish panel remounts. Stays mounted for the editor session.
+ *
+ * @return {null} Renders nothing.
+ */
+function NewsletterRepublishTracker() {
+	const prevStatusRef = useRef( null );
+	const {
+		setPublishedWithEmailEnabledInSession: dispatchPublishedWithEmail,
+		setAlreadySentPostModifiedInSession: dispatchModifiedAlreadySent,
+	} = useDispatch( membershipProductsStore );
+
+	const { postId, postMeta, postEmailSentState, status, isSavingPost } = useSelect( select => {
+		const { getCurrentPost, getEditedPostAttribute } = select( editorStore );
+		const { getPostEmailSentState } = select( membershipProductsStore );
+		const post = getCurrentPost();
+		const id = post?.id;
+		if ( id ) {
+			getPostEmailSentState( id );
+		}
+		return {
+			postId: id,
+			postMeta: getEditedPostAttribute( 'meta' ),
+			postEmailSentState: id ? getPostEmailSentState( id ) : null,
+			status: post?.status,
+			isSavingPost: select( editorStore ).isSavingPost(),
+		};
+	}, [] );
+
+	useLayoutEffect( () => {
+		if ( postId ) {
+			if ( status === 'publish' ) {
+				const didTransition = prevStatusRef.current !== null && prevStatusRef.current !== 'publish';
+				if ( didTransition ) {
+					if ( ! postMeta?.[ META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS ] ) {
+						dispatchPublishedWithEmail( postId );
+					}
+				}
+			}
+			if ( isSavingPost && postEmailSentState?.email_sent_at != null ) {
+				dispatchModifiedAlreadySent( postId );
+			}
+		}
+		prevStatusRef.current = status;
+	}, [
+		status,
+		postId,
+		isSavingPost,
+		postEmailSentState?.email_sent_at,
+		postMeta,
+		dispatchPublishedWithEmail,
+		dispatchModifiedAlreadySent,
+	] );
+
+	return null;
+}
 
 function NewsletterEditorSettingsPanel( { accessLevel } ) {
 	return (
@@ -202,6 +264,7 @@ export default function SubscribePanels() {
 
 	return (
 		<>
+			<NewsletterRepublishTracker />
 			<NewsletterEditorSettingsPanel accessLevel={ accessLevel } />
 			<NewsletterPrePublishSettingsPanel
 				accessLevel={ accessLevel }
@@ -215,3 +278,5 @@ export default function SubscribePanels() {
 		</>
 	);
 }
+
+export { NewsletterRepublishTracker };

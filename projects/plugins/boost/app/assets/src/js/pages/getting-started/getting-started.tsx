@@ -4,7 +4,7 @@ import { getUpgradeURL, useConnection } from '$lib/stores/connection';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import { BoostPricingTable } from '$features/boost-pricing-table/boost-pricing-table';
 import Footer from '$layout/footer/footer';
-import Header from '$layout/header/header';
+import BoostAdminPage from '$layout/boost-admin-page/boost-admin-page';
 import styles from './getting-started.module.scss';
 import { useGettingStarted } from '$lib/stores/getting-started';
 import { useNavigate } from 'react-router';
@@ -81,26 +81,29 @@ const GettingStarted: FC = () => {
 	}
 
 	return (
-		<div id="jb-dashboard" className="jb-dashboard jb-dashboard--main">
-			<Header />
-
-			<div className="jb-section jb-section--alt">
-				<div className="jb-container">
-					<div className={ styles[ 'pricing-table' ] }>
-						<BoostPricingTable
-							onPremiumCTA={ () => initialize( 'premium' ) }
-							onFreeCTA={ () => initialize( 'free' ) }
-							chosenFreePlan={ selectedPlan === 'free' }
-							chosenPaidPlan={ selectedPlan === 'premium' }
-						/>
-						{ snackbarMessage !== '' && (
-							<Snackbar children={ snackbarMessage } onDismiss={ () => setSnackbarMessage( '' ) } />
-						) }
+		<BoostAdminPage>
+			<div id="jb-dashboard" className="jb-dashboard jb-dashboard--main">
+				<div className="jb-section jb-section--alt">
+					<div className="jb-container">
+						<div className={ styles[ 'pricing-table' ] }>
+							<BoostPricingTable
+								onPremiumCTA={ () => initialize( 'premium' ) }
+								onFreeCTA={ () => initialize( 'free' ) }
+								chosenFreePlan={ selectedPlan === 'free' }
+								chosenPaidPlan={ selectedPlan === 'premium' }
+							/>
+							{ snackbarMessage !== '' && (
+								<Snackbar
+									children={ snackbarMessage }
+									onDismiss={ () => setSnackbarMessage( '' ) }
+								/>
+							) }
+						</div>
 					</div>
 				</div>
+				<Footer />
 			</div>
-			<Footer />
-		</div>
+		</BoostAdminPage>
 	);
 };
 

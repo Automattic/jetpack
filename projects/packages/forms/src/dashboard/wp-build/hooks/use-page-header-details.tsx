@@ -7,7 +7,7 @@ import { Breadcrumbs } from '@wordpress/admin-ui';
 import { DropdownMenu, Button } from '@wordpress/components';
 import { store as coreDataStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
-import { useMemo } from '@wordpress/element';
+import { useMemo, useState, useCallback } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __, sprintf } from '@wordpress/i18n';
 import { moreVertical } from '@wordpress/icons';
@@ -15,6 +15,7 @@ import { Badge, Stack } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
+import useConfigValue from '../../../hooks/use-config-value';
 import CreateFormButton from '../../components/create-form-button';
 import EditFormButton from '../../components/edit-form-button';
 import EmptySpamButton from '../../components/empty-spam-button';
@@ -23,12 +24,14 @@ import EmptyTrashButton from '../../components/empty-trash-button';
 import EmptyTrashConfirmationModal from '../../components/empty-trash-button/confirmation-modal';
 import ExportResponsesButton from '../../components/export-responses/button';
 import ExportResponsesModal from '../../components/export-responses/modal';
+import { FormNameModal } from '../../components/form-name-modal';
 import { getFormStatusLabel } from '../../constants';
 import useCreateForm from '../../hooks/use-create-form';
 import useEmptySpam from '../../hooks/use-empty-spam';
 import useEmptyTrash from '../../hooks/use-empty-trash';
 import useExportResponses from '../../hooks/use-export-responses';
 import useInboxData from '../../hooks/use-inbox-data';
+import { getFormEditUrl } from '../../utils.ts';
 import ManageIntegrationsButton from '../components/manage-integrations-button';
 import useFormItemActions from './use-form-item-actions';
 import type { ReactNode } from 'react';
@@ -47,6 +50,7 @@ type UsePageHeaderDetailsProps = {
 };
 
 type UsePageHeaderDetailsReturn = {
+	ariaLabel: string;
 	breadcrumbs: ReactNode;
 	title?: ReactNode;
 	badges?: ReactNode;
@@ -75,6 +79,7 @@ export default function usePageHeaderDetails(
 		onOpenIntegrations,
 		onOpenFormsHelp,
 	} = props;
+	const adminUrl = ( useConfigValue( 'adminUrl' ) as string ) || '';
 	const statusView: ResponsesStatusView = props.statusView ?? 'inbox';
 	const sourceIdNumber = useMemo( () => {
 		const value = sourceId;
@@ -91,6 +96,17 @@ export default function usePageHeaderDetails(
 
 	// Hooks for mobile dropdown menu actions
 	const { openNewForm } = useCreateForm();
+	const [ isCreateFormModalOpen, setIsCreateFormModalOpen ] = useState( false );
+	const handleCreateFormClick = useCallback( () => {
+		setIsCreateFormModalOpen( true );
+	}, [] );
+	const closeCreateFormModal = useCallback( () => setIsCreateFormModalOpen( false ), [] );
+	const handleCreateFormSave = useCallback(
+		async ( formName: string ) => {
+			await openNewForm( { formTitle: formName } );
+		},
+		[ openNewForm ]
+	);
 	const {
 		showExportModal,
 		openModal: openExportModal,
@@ -134,7 +150,15 @@ export default function usePageHeaderDetails(
 		return <Badge intent="draft">{ statusLabel }</Badge>;
 	}, [ isSingleFormScreen, formStatus, statusLabel ] );
 
-	const { duplicateForm, previewForm, copyEmbed, copyShortcode } = useFormItemActions();
+	const {
+		duplicateForm,
+		previewForm,
+		copyEmbed,
+		copyShortcode,
+		publishForms,
+		setFormsToDraft,
+		isUpdatingStatus,
+	} = useFormItemActions();
 
 	const formItemControls = useMemo( () => {
 		if ( ! sourceIdNumber ) {
@@ -166,8 +190,39 @@ export default function usePageHeaderDetails(
 			);
 		}
 
+		if ( formRecord?.status === 'publish' ) {
+			controls.push( {
+				title: __( 'Unpublish', 'jetpack-forms' ),
+				onClick: () => {
+					if ( ! isUpdatingStatus ) {
+						setFormsToDraft( [ formItem ] );
+					}
+				},
+			} );
+		} else {
+			controls.push( {
+				title: __( 'Publish', 'jetpack-forms' ),
+				onClick: () => {
+					if ( ! isUpdatingStatus ) {
+						publishForms( [ formItem ] );
+					}
+				},
+			} );
+		}
+
 		return controls;
-	}, [ sourceIdNumber, formTitle, duplicateForm, previewForm, copyEmbed, copyShortcode ] );
+	}, [
+		copyEmbed,
+		copyShortcode,
+		duplicateForm,
+		formRecord?.status,
+		formTitle,
+		isUpdatingStatus,
+		publishForms,
+		previewForm,
+		setFormsToDraft,
+		sourceIdNumber,
+	] );
 
 	const WrapWithJetpackLogo = ( { children }: { children: ReactNode } ) => (
 		<Stack align="center" gap="xs">
@@ -175,6 +230,14 @@ export default function usePageHeaderDetails(
 			{ children }
 		</Stack>
 	);
+
+	const ariaLabel = useMemo( () => {
+		if ( isSingleFormScreen ) {
+			return formTitle || __( 'Form responses', 'jetpack-forms' );
+		}
+		// "Forms" is a product name, do not translate.
+		return 'Jetpack Forms';
+	}, [ isSingleFormScreen, formTitle ] );
 
 	const title = useMemo( () => {
 		if ( isSingleFormScreen ) {
@@ -250,7 +313,7 @@ export default function usePageHeaderDetails(
 				}
 
 				dropdownControls.push( {
-					onClick: () => openNewForm( {} ),
+					onClick: handleCreateFormClick,
 					title: __( 'Create a form', 'jetpack-forms' ),
 				} );
 			} else if ( isSingleFormScreen ) {
@@ -258,9 +321,7 @@ export default function usePageHeaderDetails(
 				if ( statusView === 'inbox' && sourceIdNumber ) {
 					dropdownControls.push( {
 						onClick: () => {
-							const fallbackEditUrl = `post.php?post=${ sourceIdNumber }&action=edit&post_type=jetpack_form`;
-							const url = new URL( fallbackEditUrl, window.location.origin );
-							window.location.href = url.toString();
+							window.location.href = getFormEditUrl( sourceIdNumber, adminUrl );
 						},
 						title: __( 'Edit form', 'jetpack-forms' ),
 					} );
@@ -299,7 +360,7 @@ export default function usePageHeaderDetails(
 
 				if ( statusView === 'inbox' ) {
 					dropdownControls.push( {
-						onClick: () => openNewForm( { showPatterns: false } ),
+						onClick: handleCreateFormClick,
 						title: __( 'Create a form', 'jetpack-forms' ),
 					} );
 				}
@@ -340,6 +401,20 @@ export default function usePageHeaderDetails(
 					toggleProps={ { size: 'compact' } }
 				/>,
 				// Include modals when on mobile
+				...( isCreateFormModalOpen
+					? [
+							<FormNameModal
+								key="create-form-modal"
+								isOpen={ isCreateFormModalOpen }
+								onClose={ closeCreateFormModal }
+								onSave={ handleCreateFormSave }
+								title={ __( 'Create form', 'jetpack-forms' ) }
+								primaryButtonLabel={ __( 'Create', 'jetpack-forms' ) }
+								secondaryButtonLabel={ __( 'Cancel', 'jetpack-forms' ) }
+								placeholder={ __( 'Enter form title', 'jetpack-forms' ) }
+							/>,
+					  ]
+					: [] ),
 				...( showExportModal
 					? [
 							<ExportResponsesModal
@@ -383,7 +458,7 @@ export default function usePageHeaderDetails(
 				...( isIntegrationsEnabled && showDashboardIntegrations
 					? [ <ManageIntegrationsButton key="integrations" onClick={ onOpenIntegrations } /> ]
 					: [] ),
-				<CreateFormButton key="create" variant="primary" showIcon={ false } />,
+				<CreateFormButton key="create" variant="primary" showIcon={ false } showNameModal />,
 			];
 		}
 
@@ -425,6 +500,7 @@ export default function usePageHeaderDetails(
 							variant="secondary"
 							showPatterns={ false }
 							showIcon={ false }
+							showNameModal
 						/>,
 				  ]
 				: [] ),
@@ -437,6 +513,7 @@ export default function usePageHeaderDetails(
 			...( statusView === 'spam' ? [ <EmptySpamButton key="empty-spam" /> ] : [] ),
 		];
 	}, [
+		adminUrl,
 		isSm,
 		isIntegrationsEnabled,
 		onOpenIntegrations,
@@ -446,7 +523,10 @@ export default function usePageHeaderDetails(
 		isSingleFormScreen,
 		formItemControls,
 		statusView,
-		openNewForm,
+		handleCreateFormClick,
+		isCreateFormModalOpen,
+		closeCreateFormModal,
+		handleCreateFormSave,
 		openExportModal,
 		showExportModal,
 		closeExportModal,
@@ -472,5 +552,5 @@ export default function usePageHeaderDetails(
 		emptySpam.selectedResponsesCount,
 	] );
 
-	return { breadcrumbs, title, badges, subtitle, actions };
+	return { ariaLabel, breadcrumbs, title, badges, subtitle, actions };
 }

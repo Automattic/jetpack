@@ -4,6 +4,7 @@ import {
 	sharedThemeArgs,
 	ChartStoryArgs,
 	legendArgTypes,
+	extractLegendConfig,
 	medalCountsData,
 	largeValuesData,
 	trafficData,
@@ -58,6 +59,7 @@ const meta: Meta< StoryArgs > = {
 	},
 	render: args => {
 		const { seriesCount, ...chartProps } = args;
+		const legend = extractLegendConfig( args );
 
 		// Determine data based on seriesCount control
 		let data = chartProps.data;
@@ -69,7 +71,7 @@ const meta: Meta< StoryArgs > = {
 			data = medalCountsData;
 		}
 
-		return <BarChart { ...chartProps } data={ data } />;
+		return <BarChart { ...chartProps } legend={ legend } data={ data } />;
 	},
 } satisfies Meta< StoryArgs >;
 
@@ -255,27 +257,13 @@ export const WithInteractiveLegend: Story = {
 
 // Story demonstrating composition API
 export const WithCompositionLegend: StoryObj< typeof BarChart > = {
-	render: args => (
-		<BarChart
-			data={ args.data || [ medalCountsData[ 0 ], medalCountsData[ 1 ], medalCountsData[ 2 ] ] }
-			withTooltips={ true }
-			gridVisibility="x"
-		>
-			<BarChart.Legend
-				orientation={ args.legendOrientation || 'horizontal' }
-				alignment={ args.legendAlignment || 'center' }
-				position={ args.legendPosition || 'bottom' }
-				labelStyles={ {
-					maxWidth: args.legendMaxWidth,
-					textOverflow: args.legendTextOverflow || 'wrap',
-				} }
-			/>
-		</BarChart>
-	),
-	argTypes: {
-		legendInteractive: {
-			table: { disable: true },
-		},
+	render: args => {
+		const legend = extractLegendConfig( args );
+		return (
+			<BarChart { ...Default.args } { ...args } chartId="composition-bar-chart">
+				<BarChart.Legend { ...legend } />
+			</BarChart>
+		);
 	},
 	parameters: {
 		docs: {
@@ -389,13 +377,32 @@ export const ZeroValueComparison: StoryObj< typeof BarChart > = {
 					/>
 				</div>
 			</div>
+
+			<div>
+				<h3>Small Chart Height (100px)</h3>
+				<p style={ { marginBottom: '20px', color: '#666' } }>
+					Zero-value bars remain visible even in small charts. The minimum pixel height ensures bars
+					are at least 2 pixels tall regardless of chart dimensions.
+				</p>
+				<div style={ { width: '600px', height: '100px', border: '1px solid #e0e0e0' } }>
+					<BarChart
+						data={ dataWithZeroValues }
+						showZeroValues={ true }
+						withTooltips={ true }
+						gridVisibility="x"
+					/>
+				</div>
+			</div>
 		</div>
 	),
+	args: {
+		containerHeight: '1600px', // Extra height to demonstrate zero-value bars in small chart height scenario
+	},
 	parameters: {
 		docs: {
 			description: {
 				story:
-					'Comparison showing the difference between disabled and enabled zero value display modes. The feature preserves data integrity by keeping the original value for tooltips while providing visual feedback through minimum bar heights.',
+					'Comparison showing the difference between disabled and enabled zero value display modes. The feature preserves data integrity by keeping the original value for tooltips while providing visual feedback through minimum bar heights. Zero-value bars remain visible even in small chart heights.',
 			},
 		},
 	},

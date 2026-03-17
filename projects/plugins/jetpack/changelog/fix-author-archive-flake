@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Canonical URLs: Fix flaky author archive canonical URL resolution on WordPress trunk.

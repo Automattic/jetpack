@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Update submit button handling to support core/button blocks as part of the jetpack/button to core/button migration.
