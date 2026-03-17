@@ -735,4 +735,11 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 	public function is_pending_plan() {
 		return false;
 	}
+
+	/**
+	 * Apply platform-specific overrides to the proxied Jetpack response. No-op on Jetpack.
+	 *
+	 * @param object $response The response object to modify.
+	 */
+	public function decorate_jetpack_response( &$response ) {} // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 }
