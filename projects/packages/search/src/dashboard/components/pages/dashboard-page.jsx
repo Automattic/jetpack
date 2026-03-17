@@ -106,28 +106,29 @@ export default function DashboardPage( { isLoading = false } ) {
 	};
 
 	return (
-		<>
-			{ /* Always in the DOM so JITM JS finds it immediately (Path A). */ }
-			<div id="jp-admin-notices" className="jetpack-search-jitm-card" />
-			{ isPageLoading && <Loading /> }
-			{ ! isPageLoading && (
-				<div className="jp-search-dashboard-page">
-					<AdminPage
-						title={ 'Search' /** "Search" is a product name, do not translate. */ }
-						subTitle={ __(
-							'Help your visitors find exactly what they are looking for.',
-							'jetpack-search-pkg'
-						) }
-						actions={
-							( ( isNewPricing && isFreePlan ) || ! supportsInstantSearch ) && (
-								<Button size="compact" variant="link" onClick={ sendPaidPlanToCart }>
-									{ __( 'Upgrade Jetpack Search', 'jetpack-search-pkg' ) }
-								</Button>
-							)
-						}
-						className="uses-new-admin-ui"
-						showFooter={ false }
-					>
+		<div className="jp-search-dashboard-page">
+			<AdminPage
+				title={ 'Search' /** "Search" is a product name, do not translate. */ }
+				subTitle={ __(
+					'Help your visitors find exactly what they are looking for.',
+					'jetpack-search-pkg'
+				) }
+				actions={
+					! isPageLoading &&
+					( ( isNewPricing && isFreePlan ) || ! supportsInstantSearch ) && (
+						<Button size="compact" variant="link" onClick={ sendPaidPlanToCart }>
+							{ __( 'Upgrade Jetpack Search', 'jetpack-search-pkg' ) }
+						</Button>
+					)
+				}
+				className="uses-new-admin-ui"
+				showFooter={ false }
+			>
+				{ /* Always in the DOM so JITM JS finds it immediately (Path A). */ }
+				<div id="jp-admin-notices" className="jetpack-search-jitm-card" />
+				{ isPageLoading && <Loading /> }
+				{ ! isPageLoading && (
+					<>
 						<MockedSearchInterface
 							supportsInstantSearch={ supportsInstantSearch }
 							supportsOnlyClassicSearch={ supportsOnlyClassicSearch }
@@ -178,10 +179,10 @@ export default function DashboardPage( { isLoading = false } ) {
 							notices={ notices }
 							handleLocalNoticeDismissClick={ handleLocalNoticeDismissClick }
 						/>
-					</AdminPage>
-				</div>
-			) }
-		</>
+					</>
+				) }
+			</AdminPage>
+		</div>
 	);
 }
 
