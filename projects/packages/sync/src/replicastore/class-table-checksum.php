@@ -745,12 +745,17 @@ class Table_Checksum {
 
 		$this->validate_fields( array( $this->range_field ) );
 
-		// Performance :: For tables with a parent table (meta tables like postmeta, commentmeta,
-		// woocommerce_order_itemmeta, etc.) we strip the filter_values (e.g. meta_key whitelist)
-		// when building the range edges query. These filters cause non-performant queries that can
-		// timeout on large tables. The actual data filtering happens during checksum calculation.
+		// Performance :: For meta tables (postmeta, commentmeta, termmeta, woocommerce_order_itemmeta)
+		// we strip the filter_values (e.g. meta_key whitelist) when building the range edges query.
+		// These filters cause non-performant queries that can timeout on large tables.
+		// The actual data filtering happens during checksum calculation via the INNER JOIN.
+		$is_meta_table = in_array(
+			$this->table,
+			array( $wpdb->postmeta, $wpdb->commentmeta, $wpdb->termmeta, "{$wpdb->prefix}woocommerce_order_itemmeta" ),
+			true
+		);
 		$filter_values = $this->filter_values;
-		if ( $this->parent_table ) {
+		if ( $is_meta_table ) {
 			$this->filter_values = null;
 		}
 
@@ -758,7 +763,7 @@ class Table_Checksum {
 		$filters = trim( $this->build_filter_statement( $range_from, $range_to ) );
 
 		// Restore filter values.
-		if ( $this->parent_table ) {
+		if ( $is_meta_table ) {
 			$this->filter_values = $filter_values;
 		}
 
@@ -788,31 +793,6 @@ class Table_Checksum {
 		 * If `$limit` is not specified, we can directly use the table.
 		 */
 		if ( ! $limit ) {
-			// For non-filtered, single-key tables (e.g. woocommerce_order_items), avoid the
-			// expensive COUNT(*) by running a MIN/MAX-only query and approximating the row
-			// count as MAX - MIN + 1. This is instant on indexed columns (no table scan).
-			// The estimate overestimates when there are gaps from deletions, but item_count
-			// is only used for bucket sizing in checksum_histogram(), so that's safe.
-			if ( ! $distinct_count && ! $this->filter_values && null === $range_from && null === $range_to ) {
-				$min_max_query = "
-					SELECT
-						MIN({$this->range_field}) as min_range,
-						MAX({$this->range_field}) as max_range
-					FROM
-						{$this->table}
-						{$filter_statement}
-				";
-
-				// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- $min_max_query is built from trusted class properties (table name, range_field), not user input. Result is cached in $range_edges_cache.
-				$result = $wpdb->get_row( $min_max_query, ARRAY_A );
-
-				if ( $result && is_array( $result ) && null !== $result['min_range'] ) {
-					$result['item_count']                    = (int) $result['max_range'] - (int) $result['min_range'] + 1;
-					self::$range_edges_cache[ $this->table ] = $result;
-					return $result;
-				}
-			}
-
 			// For tables that would use COUNT(DISTINCT), avoid the expensive full table scan
 			// by using the parent table's count instead.
 			if ( $distinct_count ) {
