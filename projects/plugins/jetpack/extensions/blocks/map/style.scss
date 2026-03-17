@@ -2,12 +2,6 @@
 
 .wp-block-jetpack-map {
 
-	// Hide the fallback list of markers so they don't render as bullet points
-	// when the map JavaScript hasn't loaded yet.
-	> ul {
-		display: none;
-	}
-
 	.wp-block-group-is-layout-flex:not(.is-vertical) > & {
 		flex-basis: 100%;
 	}
