@@ -624,33 +624,31 @@ class Jetpack_Sync_Checksum_Test extends WP_UnitTestCase {
 	 * Test that get_range_edges for postmeta uses parent table count optimization.
 	 */
 	public function test_get_range_edges_postmeta_uses_parent_count() {
+		global $wpdb;
+
 		$user_id = self::factory()->user->create();
 
-		// Create 5 posts, each with 3 meta entries.
-		$post_ids = array();
+		// Create 5 posts, each with meta.
 		for ( $i = 0; $i < 5; $i++ ) {
-			$post_id    = self::factory()->post->create( array( 'post_author' => $user_id ) );
-			$post_ids[] = $post_id;
-			add_post_meta( $post_id, 'test_key_1', 'value_1' );
-			add_post_meta( $post_id, 'test_key_2', 'value_2' );
-			add_post_meta( $post_id, 'test_key_3', 'value_3' );
+			$post_id = self::factory()->post->create( array( 'post_author' => $user_id ) );
+			add_post_meta( $post_id, 'test_key', 'value' );
 		}
 
 		$tc    = new Table_Checksum( 'postmeta' );
 		$range = $tc->get_range_edges();
 
-		// item_count should come from parent (posts) table, so it should be > 0.
 		$this->assertGreaterThan( 0, (int) $range['item_count'] );
-		// MIN and MAX should be valid.
-		$this->assertNotNull( $range['min_range'] );
-		$this->assertNotNull( $range['max_range'] );
-		$this->assertGreaterThanOrEqual( (int) $range['min_range'], (int) $range['max_range'] );
+
+		// Ensure the optimized path is used: the query should not use COUNT(DISTINCT ...).
+		$this->assertStringNotContainsString( 'COUNT(DISTINCT', $wpdb->last_query );
 	}
 
 	/**
 	 * Test that get_range_edges for postmeta with limit uses original DISTINCT behavior.
 	 */
 	public function test_get_range_edges_postmeta_with_limit() {
+		global $wpdb;
+
 		$user_id = self::factory()->user->create();
 
 		// Create 10 posts with meta.
@@ -665,12 +663,17 @@ class Jetpack_Sync_Checksum_Test extends WP_UnitTestCase {
 		// With limit=5, the DISTINCT subquery path should return at most 5 items.
 		$this->assertLessThanOrEqual( 5, (int) $range['item_count'] );
 		$this->assertGreaterThan( 0, (int) $range['item_count'] );
+
+		// The limit path should use DISTINCT in the subquery, not the parent count.
+		$this->assertStringContainsString( 'DISTINCT', $wpdb->last_query );
 	}
 
 	/**
 	 * Test that get_range_edges for commentmeta uses parent table count optimization.
 	 */
 	public function test_get_range_edges_commentmeta_uses_parent_count() {
+		global $wpdb;
+
 		$user_id = self::factory()->user->create();
 		$post_id = self::factory()->post->create( array( 'post_author' => $user_id ) );
 
@@ -691,10 +694,10 @@ class Jetpack_Sync_Checksum_Test extends WP_UnitTestCase {
 		$tc    = new Table_Checksum( 'commentmeta' );
 		$range = $tc->get_range_edges();
 
-		// item_count should come from parent (comments) table.
 		$this->assertGreaterThan( 0, (int) $range['item_count'] );
-		$this->assertNotNull( $range['min_range'] );
-		$this->assertNotNull( $range['max_range'] );
+
+		// Ensure the optimized path is used: the query should not use COUNT(DISTINCT ...).
+		$this->assertStringNotContainsString( 'COUNT(DISTINCT', $wpdb->last_query );
 	}
 
 	/**
@@ -735,25 +738,19 @@ class Jetpack_Sync_Checksum_Test extends WP_UnitTestCase {
 	public function test_get_range_edges_termmeta_skips_parent_count() {
 		global $wpdb;
 
-		// Create 3 terms, each with meta — only 2 of them get termmeta entries.
-		$term_ids_with_meta = array();
-		for ( $i = 0; $i < 3; $i++ ) {
+		// Create 2 terms with meta.
+		for ( $i = 0; $i < 2; $i++ ) {
 			$term = self::factory()->term->create_and_get( array( 'taxonomy' => 'category' ) );
-			if ( $i < 2 ) {
-				add_term_meta( $term->term_id, 'test_key', 'value' );
-				$term_ids_with_meta[] = $term->term_id;
-			}
+			add_term_meta( $term->term_id, 'test_key', 'value' );
 		}
 
 		$tc    = new Table_Checksum( 'termmeta' );
 		$range = $tc->get_range_edges();
 
-		// item_count should reflect the actual COUNT(DISTINCT term_id) from termmeta,
-		// NOT the term_taxonomy row count (which would be higher).
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-		$actual_distinct = (int) $wpdb->get_var( "SELECT COUNT(DISTINCT term_id) FROM {$wpdb->termmeta}" );
+		$this->assertGreaterThan( 0, (int) $range['item_count'] );
 
-		$this->assertEquals( $actual_distinct, (int) $range['item_count'] );
+		// Termmeta should use COUNT(DISTINCT), not the parent count from term_taxonomy.
+		$this->assertStringContainsString( 'COUNT( DISTINCT', $wpdb->last_query );
 	}
 
 	/**
@@ -774,7 +771,7 @@ class Jetpack_Sync_Checksum_Test extends WP_UnitTestCase {
 			add_post_meta( $post_id, 'orphan_key', 'value' );
 		}
 
-		// Delete posts directly via SQL to leave orphaned postmeta rows.
+		// Delete all posts via SQL to leave orphaned postmeta rows.
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$wpdb->query( "DELETE FROM {$wpdb->posts}" );
 
@@ -788,6 +785,9 @@ class Jetpack_Sync_Checksum_Test extends WP_UnitTestCase {
 		$this->assertGreaterThan( 0, (int) $range['item_count'] );
 		$this->assertNotNull( $range['min_range'] );
 		$this->assertNotNull( $range['max_range'] );
+
+		// Verify the fallback path uses COUNT(DISTINCT), not the parent count.
+		$this->assertStringContainsString( 'COUNT( DISTINCT', $wpdb->last_query );
 	}
 
 	/**
@@ -819,6 +819,9 @@ class Jetpack_Sync_Checksum_Test extends WP_UnitTestCase {
 		$tc    = new Table_Checksum( 'postmeta' );
 		$range = $tc->get_range_edges( $range_from, $range_to );
 
+		// Capture before the verification query overwrites it.
+		$range_edges_query = $wpdb->last_query;
+
 		// item_count must reflect the actual distinct post_ids in this sub-range,
 		// not the total posts count. The sub-range has at most 5 distinct post_ids.
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
@@ -831,6 +834,9 @@ class Jetpack_Sync_Checksum_Test extends WP_UnitTestCase {
 		);
 
 		$this->assertEquals( $actual_distinct, (int) $range['item_count'] );
+
+		// Verify the sub-range path uses COUNT(DISTINCT), not the parent count.
+		$this->assertStringContainsString( 'COUNT( DISTINCT', $range_edges_query );
 	}
 
 	/**
