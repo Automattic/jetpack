@@ -115,6 +115,13 @@ $matrix[] = array(
 	'timeout' => 40, // 2025-11-06: Successful runs seem to take ~15 minutes.
 );
 
+// Hack around a possible PHP 8.4.19 bug.
+foreach ( $matrix as $k => $v ) {
+	if ( $v['php'] === '8.4' ) {
+		$matrix[ $k ]['php'] = '8.4.18';
+	}
+}
+
 // END matrix definitions.
 // Now, validation.
 
