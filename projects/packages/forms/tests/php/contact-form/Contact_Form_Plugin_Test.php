@@ -1618,4 +1618,64 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 		$this->assertEquals( 'contact_form', $result['comment_type'] );
 		$this->assertEquals( get_option( 'home' ), $result['blog'] );
 	}
+
+	/*
+	 * Test that the block editor is disabled for the feedback post type.
+	 */
+	public function test_use_block_editor_for_post_type_feedback() {
+		$plugin = Contact_Form_Plugin::init();
+		$this->assertFalse( $plugin->use_block_editor_for_post_type( true, 'feedback' ) );
+	}
+
+	/**
+	 * Test that the block editor is forced on for the jetpack_form post type.
+	 */
+	public function test_use_block_editor_for_post_type_jetpack_form() {
+		$plugin = Contact_Form_Plugin::init();
+		$this->assertTrue( $plugin->use_block_editor_for_post_type( false, Contact_Form::POST_TYPE ) );
+	}
+
+	/**
+	 * Test that the block editor filter passes through for other post types.
+	 */
+	public function test_use_block_editor_for_post_type_other() {
+		$plugin = Contact_Form_Plugin::init();
+		$this->assertTrue( $plugin->use_block_editor_for_post_type( true, 'post' ) );
+		$this->assertFalse( $plugin->use_block_editor_for_post_type( false, 'page' ) );
+	}
+
+	/**
+	 * Test that the block editor is forced on for individual jetpack_form posts.
+	 */
+	public function test_use_block_editor_for_post_jetpack_form() {
+		$plugin  = Contact_Form_Plugin::init();
+		$post_id = wp_insert_post(
+			array(
+				'post_type'   => Contact_Form::POST_TYPE,
+				'post_title'  => 'Test Form',
+				'post_status' => 'publish',
+			)
+		);
+		$post    = get_post( $post_id );
+
+		$this->assertTrue( $plugin->use_block_editor_for_post( false, $post ) );
+	}
+
+	/**
+	 * Test that the block editor filter passes through for non-form posts.
+	 */
+	public function test_use_block_editor_for_post_other() {
+		$plugin  = Contact_Form_Plugin::init();
+		$post_id = wp_insert_post(
+			array(
+				'post_type'   => 'post',
+				'post_title'  => 'Regular Post',
+				'post_status' => 'publish',
+			)
+		);
+		$post    = get_post( $post_id );
+
+		$this->assertTrue( $plugin->use_block_editor_for_post( true, $post ) );
+		$this->assertFalse( $plugin->use_block_editor_for_post( false, $post ) );
+	}
 }
