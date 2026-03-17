@@ -1,5 +1,3 @@
-import clsx from 'clsx';
-import { isSafari } from '../../../utils';
 import styles from './svg-empty-state.module.scss';
 import type { FC, ReactNode } from 'react';
 
@@ -22,9 +20,7 @@ interface SvgEmptyStateProps {
  * Renders empty-state text inside an SVG using foreignObject so that the
  * message wraps onto multiple lines instead of being clipped.
  *
- * The component centers the text within the specified area.  Safari's
- * foreignObject positioning quirks are handled with the same workaround
- * used elsewhere in this package (position: fixed).
+ * The component centers the text within the specified area.
  *
  * @param  root0          - Component props
  * @param  root0.x        - X coordinate of the center point
@@ -45,13 +41,7 @@ export const SvgEmptyState: FC< SvgEmptyStateProps > = ( {
 } ) => {
 	return (
 		<foreignObject x={ x - width / 2 } y={ y - height / 2 } width={ width } height={ height }>
-			<div
-				className={ clsx(
-					styles[ 'svg-empty-state' ],
-					isSafari() && styles[ 'svg-empty-state--safari' ]
-				) }
-				style={ { color: fill } }
-			>
+			<div className={ styles[ 'svg-empty-state' ] } style={ { color: fill } }>
 				{ children }
 			</div>
 		</foreignObject>
