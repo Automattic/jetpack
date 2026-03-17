@@ -127,16 +127,6 @@ export const SocialAdminPage = () => {
 					<AdminSectionHero>
 						<Header />
 					</AdminSectionHero>
-					<Container horizontalSpacing={ 0 }>
-						{ hasConnectionError && (
-							<Col className={ styles[ 'connection-error-col' ] }>
-								<ConnectionError />
-							</Col>
-						) }
-						<Col>
-							<div id="jp-admin-notices" className="jetpack-social-jitm-card" />
-						</Col>
-					</Container>
 					<AdminSection>
 						<SocialModuleToggle />
 						{ canManageOptions && (
