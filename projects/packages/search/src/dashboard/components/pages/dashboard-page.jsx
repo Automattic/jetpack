@@ -126,7 +126,12 @@ export default function DashboardPage( { isLoading = false } ) {
 			>
 				<div className="jp-search-dashboard-top jp-search-dashboard-wrap">
 					{ /* Always in the DOM so JITM JS finds it immediately (Path A). */ }
-					<div id="jp-admin-notices" className="jetpack-search-jitm-card" />
+					<div className="jp-search-dashboard-row">
+						<div
+							id="jp-admin-notices"
+							className="jetpack-search-jitm-card sm-col-span-4 md-col-span-8 lg-col-span-12"
+						/>
+					</div>
 					{ isPageLoading && <Loading /> }
 					{ ! isPageLoading && (
 						<MockedSearchContent
