@@ -115,10 +115,10 @@ for repo in $( jq -r '.extra["mirror-repo"] // empty' projects/*/*/composer.json
 	check '.has_wiki' false 'Wiki disabled' 'Wiki not disabled'
 
 	JSON=$( gh api "/repos/$repo/actions/permissions/fork-pr-contributor-approval" || die "Failed to fetch fork-pr-contributor-approval setting for $repo" )
-	check '.approval_policy' 'all_external_contributors' 'Actions approval policy set to "All external contributors"' "Actions approval policy set to $( jq -r '.approval_policy' <<<"$JSON" )"
+	check '.approval_policy' '"all_external_contributors"' 'Actions approval policy set to "All external contributors"' "Actions approval policy set to $( jq -r '.approval_policy' <<<"$JSON" )"
 
 	JSON=$( gh api "/repos/$repo/actions/permissions/workflow" || die "Failed to fetch workflow permissions setting for $repo" )
-	check '.default_workflow_permissions' 'all_external_contributors' "Actions workflow permissions set to \"$( jq -r '.default_workflow_permissions' <<<"$JSON" )\""
+	check '.default_workflow_permissions' '"read"' "Actions workflow permissions set to \"$( jq -r '.default_workflow_permissions' <<<"$JSON" )\""
 done
 
 if [[ -z "$QUIET" ]]; then
