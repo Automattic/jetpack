@@ -20,6 +20,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Enqueue content-guidelines-ai script on the Content Guidelines admin page.
  *
+ * @since $$next-version$$
+ *
  * @param string $hook_suffix The current admin page hook suffix.
  */
 function jetpack_content_guidelines_ai_enqueue_scripts( $hook_suffix ) {
