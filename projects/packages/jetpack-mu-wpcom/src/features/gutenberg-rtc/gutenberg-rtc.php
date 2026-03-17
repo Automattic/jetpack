@@ -43,7 +43,7 @@ function wpcom_is_target_gutenberg_version() {
  *
  * @return bool True if HTTP polling should be enforced for the current blog, false otherwise.
  */
-function should_enforce_http_polling_for_blog() {
+function wpcom_should_enforce_http_polling_for_blog() {
 	$blog_id = get_wpcom_blog_id();
 
 	if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC && ( $blog_id % 100 === 1 ) && wpcom_is_target_gutenberg_version() ) {
@@ -56,7 +56,7 @@ function should_enforce_http_polling_for_blog() {
  * Get WPCOM RTC providers.
  */
 function wpcom_get_gutenberg_rtc_providers() {
-	if ( should_enforce_http_polling_for_blog() ) {
+	if ( wpcom_should_enforce_http_polling_for_blog() ) {
 		return array( 'http-polling' );
 	}
 
@@ -283,7 +283,7 @@ function wpcom_rtc_limit_collaborators( $result, $server, $request ) {
 	}
 
 	// Only enforce for HTTP polling ramp-up sites; PingHub handles its own limits.
-	if ( ! should_enforce_http_polling_for_blog() ) {
+	if ( ! wpcom_should_enforce_http_polling_for_blog() ) {
 		return $result;
 	}
 
