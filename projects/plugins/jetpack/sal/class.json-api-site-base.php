@@ -1756,11 +1756,4 @@ abstract class SAL_Site {
 		}
 		return false;
 	}
-
-	/**
-	 * Apply platform-specific overrides to the proxied Jetpack response.
-	 *
-	 * @param object $response The response object to modify.
-	 */
-	abstract public function decorate_jetpack_response( &$response );
 }

@@ -1014,6 +1014,11 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		$this->site = $this->get_platform()->get_site( $response->ID );
 		switch_to_blog( $this->site->get_id() );
 
+		// Allow the SAL site to apply its own overrides to the proxied response.
+		if ( method_exists( $this->site, 'decorate_jetpack_response' ) ) {
+			$this->site->decorate_jetpack_response( $response ); // @phan-suppress-current-line PhanUndeclaredMethod -- checked via method_exists().
+		}
+
 		$wpcom_response = $this->render_response_keys( self::$jetpack_response_field_additions );
 
 		foreach ( $wpcom_response as $key => $value ) {
@@ -1061,9 +1066,6 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 				$response->options[ $key ] = $value;
 			}
 		}
-
-		// Allow the SAL site to apply its own overrides to the proxied response.
-		$this->site->decorate_jetpack_response( $response );
 
 		restore_current_blog();
 		return $response; // possibly no need since it's modified in place.
