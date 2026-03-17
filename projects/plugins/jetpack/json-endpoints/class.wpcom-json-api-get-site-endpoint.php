@@ -1062,6 +1062,11 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 			}
 		}
 
+		// Allow the SAL site to apply its own overrides to the proxied response.
+		if ( method_exists( $this->site, 'decorate_jetpack_response' ) ) {
+			$this->site->decorate_jetpack_response( $response );
+		}
+
 		restore_current_blog();
 		return $response; // possibly no need since it's modified in place.
 	}
