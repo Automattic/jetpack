@@ -493,8 +493,7 @@
 			document.getElementById('icons').onclick = function(e) {
 				e = e || window.event;
 				var name = e.target.getAttribute('data-name') || e.target.parentNode.getAttribute('data-name');
-				document.getElementById('name').innerHTML = name;
-
+				document.getElementById('name').textContent = name;
 			}
 		})();
 		</script>
