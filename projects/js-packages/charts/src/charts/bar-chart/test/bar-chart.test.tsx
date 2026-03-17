@@ -26,10 +26,12 @@ describe( 'BarChart', () => {
 		],
 	};
 
-	const renderWithTheme = ( props = {} ) => {
+	const renderWithTheme = ( props = {}, children = undefined ) => {
 		return render(
 			<GlobalChartsProvider>
-				<BarChart { ...defaultProps } { ...props } />
+				<BarChart { ...defaultProps } { ...props }>
+					{ children }
+				</BarChart>
 			</GlobalChartsProvider>
 		);
 	};
@@ -123,38 +125,53 @@ describe( 'BarChart', () => {
 	} );
 
 	describe( 'Legend', () => {
+		const multiSeriesData = [
+			{
+				label: 'Series A',
+				data: [ { date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' } ],
+				options: {},
+			},
+			{
+				label: 'Series B',
+				data: [ { date: new Date( '2024-01-01' ), value: 20, label: 'Jan 1' } ],
+				options: {},
+			},
+		];
+
 		test( 'shows legend when showLegend is true', () => {
-			renderWithTheme( {
-				showLegend: true,
-				data: [
-					{
-						label: 'Series A',
-						data: [ { date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' } ],
-						options: {},
-					},
-					{
-						label: 'Series B',
-						data: [ { date: new Date( '2024-01-01' ), value: 20, label: 'Jan 1' } ],
-						options: {},
-					},
-				],
-			} );
+			renderWithTheme( { showLegend: true, data: multiSeriesData } );
 			expect( screen.getByText( 'Series A' ) ).toBeInTheDocument();
 			expect( screen.getByText( 'Series B' ) ).toBeInTheDocument();
 		} );
 
 		test( 'hides legend when showLegend is false', () => {
-			renderWithTheme( {
-				showLegend: false,
-				data: [
-					{
-						label: 'Series A',
-						data: [ { date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' } ],
-						options: {},
-					},
-				],
-			} );
+			renderWithTheme( { showLegend: false, data: multiSeriesData } );
 			expect( screen.queryByText( 'Series A' ) ).not.toBeInTheDocument();
+		} );
+
+		test( 'renders composition legend as child component', () => {
+			renderWithTheme( { data: multiSeriesData }, <BarChart.Legend /> );
+
+			expect( screen.getAllByTestId( 'legend-item' ) ).toHaveLength( 2 );
+			expect( screen.getByText( 'Series A' ) ).toBeInTheDocument();
+			expect( screen.getByText( 'Series B' ) ).toBeInTheDocument();
+		} );
+
+		test( 'renders composition legend regardless of showLegend value', () => {
+			renderWithTheme( { data: multiSeriesData, showLegend: false }, <BarChart.Legend /> );
+
+			expect( screen.getAllByTestId( 'legend-item' ) ).toHaveLength( 2 );
+		} );
+
+		test( 'renders composition legend in top position', () => {
+			renderWithTheme( { data: multiSeriesData }, <BarChart.Legend position="top" /> );
+
+			// Legend should appear before the chart content in DOM order
+			expect( screen.getAllByTestId( 'legend-item' ) ).toHaveLength( 2 );
+			const html = document.body.innerHTML;
+			expect( html.indexOf( 'data-testid="legend-horizontal"' ) ).toBeLessThan(
+				html.indexOf( 'role="grid"' )
+			);
 		} );
 	} );
 
@@ -743,7 +760,7 @@ describe( 'BarChart', () => {
 
 			renderWithTheme( {
 				showLegend: true,
-				legendInteractive: true,
+				legend: { interactive: true },
 				chartId: 'test-interactive-bar-chart',
 				data: [
 					{
@@ -771,7 +788,7 @@ describe( 'BarChart', () => {
 		it( 'does not filter series when legendInteractive is false', () => {
 			renderWithTheme( {
 				showLegend: true,
-				legendInteractive: false,
+				legend: { interactive: false },
 				chartId: 'test-non-interactive-bar-chart',
 				data: [
 					{
@@ -795,7 +812,7 @@ describe( 'BarChart', () => {
 		it( 'shows all series when chartId is missing even if legendInteractive is true', () => {
 			renderWithTheme( {
 				showLegend: true,
-				legendInteractive: true,
+				legend: { interactive: true },
 				// No chartId provided
 				data: [
 					{
@@ -823,7 +840,7 @@ describe( 'BarChart', () => {
 
 			renderWithTheme( {
 				showLegend: true,
-				legendInteractive: true,
+				legend: { interactive: true },
 				chartId: 'test-all-hidden-bar-chart',
 				data: [
 					{

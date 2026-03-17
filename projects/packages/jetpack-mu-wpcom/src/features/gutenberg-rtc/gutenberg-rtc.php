@@ -16,7 +16,13 @@
  * and we are confident in proceeding with the rollout.
  */
 function wpcom_is_gutenberg_rtc_enabled() {
-	return apply_filters( 'wpcom_is_gutenberg_rtc_enabled', false );
+	$is_enabled = false;
+	if ( function_exists( 'wpcom_site_has_feature' ) && class_exists( 'WPCOM_Features' ) && defined( 'WPCOM_Features::REAL_TIME_COLLABORATION' ) ) {
+		$blog_id    = get_wpcom_blog_id();
+		$is_enabled = wpcom_site_has_feature( WPCOM_Features::REAL_TIME_COLLABORATION, $blog_id );
+	}
+
+	return apply_filters( 'wpcom_is_gutenberg_rtc_enabled', $is_enabled );
 }
 
 /**
@@ -42,6 +48,22 @@ function wpcom_get_gutenberg_rtc_providers() {
 		)
 	);
 }
+
+/**
+ * Register the Gutenberg RTC REST endpoint.
+ */
+add_action(
+	'rest_api_init',
+	function () {
+		$providers = wpcom_get_gutenberg_rtc_providers();
+		if ( ! in_array( 'pinghub', $providers, true ) ) {
+			return;
+		}
+
+		require_once __DIR__ . '/class-wp-rest-gutenberg-rtc.php';
+		( new WP_REST_Gutenberg_RTC() )->register_routes();
+	}
+);
 
 /**
  * Enqueue block editor assets for Gutenberg RTC customizations.
@@ -94,18 +116,64 @@ function wpcom_unregister_rtc_setting() {
 add_action( 'admin_init', 'wpcom_unregister_rtc_setting', 11 );
 
 /**
- * Disable the `wp_enable_real_time_collaboration` option if there are no RTC providers.
+ * When there are no providers, always force the option off.
+ * When there are providers, respect the stored option value.
  *
- * @param mixed $pre_option The value to return instead of the option value.
- * @return string|false Filtered wp_enable_real_time_collaboration option
+ * @param mixed $value  The value of the option.
+ * @return mixed
  */
-function wpcom_disable_rtc_option( $pre_option ) {
+function wpcom_filter_rtc_option( $value ) {
 	$providers = wpcom_get_gutenberg_rtc_providers();
+	// No providers: force the option off, regardless of what's in the DB.
 	if ( count( $providers ) === 0 ) {
 		return '0';
 	}
-
-	return $pre_option;
+	// Providers exist: respect whatever is stored.
+	return $value;
 }
-add_filter( 'pre_option_wp_enable_real_time_collaboration', 'wpcom_disable_rtc_option' );
-add_filter( 'pre_option_enable_real_time_collaboration', 'wpcom_disable_rtc_option' ); // TODO: Clean up the old name. See https://github.com/WordPress/gutenberg/pull/75837.
+add_filter( 'option_wp_enable_real_time_collaboration', 'wpcom_filter_rtc_option', 10 );
+add_filter( 'option_enable_real_time_collaboration', 'wpcom_filter_rtc_option', 10 ); // Old name.
+/**
+ * When there ARE providers and the option is NOT stored yet,
+ * default the option to enabled (1).
+ *
+ * @return mixed
+ */
+function wpcom_default_rtc_option() {
+	$providers = wpcom_get_gutenberg_rtc_providers();
+	// No providers: keep default disabled.
+	if ( count( $providers ) === 0 ) {
+		return '0';
+	}
+	// Providers exist and option is not stored yet → default to enabled.
+	return '1';
+}
+add_filter( 'default_option_wp_enable_real_time_collaboration', 'wpcom_default_rtc_option', 20 );
+add_filter( 'default_option_enable_real_time_collaboration', 'wpcom_default_rtc_option', 20 );
+
+/**
+ * Override the default for the Gutenberg RTC setting so that
+ * when providers exist, it defaults to enabled in the UI.
+ */
+function wpcom_override_rtc_setting_default() {
+	$providers   = wpcom_get_gutenberg_rtc_providers();
+	$option_name = 'wp_enable_real_time_collaboration';
+
+	// Ensure the Gutenberg setting is unregistered first.
+	unregister_setting( 'writing', $option_name );
+
+	register_setting(
+		'writing',
+		$option_name,
+		array(
+			'type'              => 'boolean',
+			'description'       => __( 'Enable Real-Time Collaboration', 'jetpack-mu-wpcom' ),
+			'sanitize_callback' => 'rest_sanitize_boolean',
+			// Dynamic default: true when providers exist, false otherwise.
+			'default'           => count( $providers ) > 0,
+			'show_in_rest'      => true,
+		)
+	);
+}
+// Run after Gutenberg's own registration (default priority 10).
+add_action( 'admin_init', 'wpcom_override_rtc_setting_default', 20 );

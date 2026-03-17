@@ -2,11 +2,13 @@
  * External dependencies
  */
 import analytics from '@automattic/jetpack-analytics';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 import { getSiteType } from '@automattic/jetpack-script-data';
 import {
 	Card,
 	CardHeader,
 	CardBody,
+	CardFooter,
 	ExternalLink,
 	__experimentalHeading as Heading, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
@@ -101,6 +103,13 @@ export function NewsletterSection( { data, onChange }: NewsletterSectionProps ):
 					</div>
 				) }
 			</CardBody>
+			<CardFooter>
+				<ExternalLink
+					href={ getRedirectUrl( 'jetpack-support-subscriptions', { anchor: 'privacy' } ) }
+				>
+					{ __( 'Privacy information', 'jetpack-newsletter' ) }
+				</ExternalLink>
+			</CardFooter>
 		</Card>
 	);
 }

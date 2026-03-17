@@ -177,18 +177,6 @@ class Help_Center {
 	}
 
 	/**
-	 * Acts as a feature flag, returning a boolean for whether we should show the next steps tutorial UI.
-	 *
-	 * @return boolean
-	 */
-	public static function is_next_steps_tutorial_enabled() {
-		return apply_filters(
-			'help_center_should_enable_next_steps_tutorial',
-			false
-		);
-	}
-
-	/**
 	 * Enqueue Help Center assets.
 	 *
 	 * @param string $variant The variant of the asset file to get.
@@ -270,18 +258,6 @@ class Help_Center {
 
 		// This information is only needed for the connected version of the help center.
 		if ( $variant !== 'wp-admin-disconnected' && $variant !== 'gutenberg-disconnected' ) {
-			// Adds feature flags for development.
-			wp_add_inline_script(
-				'help-center',
-				'const helpCenterFeatureFlags = ' . wp_json_encode(
-					array(
-						'loadNextStepsTutorial' => self::is_next_steps_tutorial_enabled(),
-					),
-					JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
-				),
-				'before'
-			);
-
 			$user_id            = get_current_user_id();
 			$user_data          = get_userdata( $user_id );
 			$username           = $user_data ? $user_data->user_login : null;
@@ -300,7 +276,7 @@ class Help_Center {
 
 			wp_add_inline_script(
 				'help-center',
-				'const helpCenterData = ' . wp_json_encode(
+				'if ( typeof helpCenterData === "undefined" ) { var helpCenterData = ' . wp_json_encode(
 					array(
 						'isProxied'        => boolval( self::is_proxied() ),
 						'isSU'             => defined( 'WPCOM_SUPPORT_SESSION' ) && WPCOM_SUPPORT_SESSION,
@@ -318,7 +294,7 @@ class Help_Center {
 						'locale'           => self::determine_iso_639_locale(),
 					),
 					JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
-				),
+				) . '; }',
 				'before'
 			);
 		}

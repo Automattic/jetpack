@@ -185,6 +185,7 @@ class Defaults {
 		'wp_page_for_privacy_policy',
 		'wpcom_ai_site_prompt',
 		'wpcom_classic_early_release',
+		'wpcom_newsletter_send_default',
 		'wpcom_featured_image_in_email',
 		'jetpack_gravatar_in_email',
 		'jetpack_author_in_email',

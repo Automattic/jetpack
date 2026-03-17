@@ -1,5 +1,6 @@
 import {
 	ChartStoryArgs,
+	extractLegendConfig,
 	temperatureData as sampleData,
 	largeValuesData,
 	trafficData as webTrafficData,
@@ -62,6 +63,7 @@ export default meta;
 const Template: StoryFn< typeof LineChart > = args => {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const { seriesCount, dimensionMode, crosshairMode, withTooltipCrosshairs, ...chartProps } = args;
+	const legend = extractLegendConfig( args );
 
 	// Determine data based on seriesCount control
 	let data = chartProps.data || lineChartStoryArgs.data;
@@ -94,6 +96,7 @@ const Template: StoryFn< typeof LineChart > = args => {
 			{ ...chartProps }
 			{ ...dimensions }
 			data={ data }
+			legend={ legend }
 			withTooltipCrosshairs={ crosshairConfig }
 		/>
 	);
@@ -176,27 +179,13 @@ CustomLegendPositioning.parameters = {
 
 // Story showing use with LineChart using composition API
 export const WithCompositionLegend: StoryObj< typeof LineChart > = {
-	render: args => (
-		<LineChart
-			data={ args.data || webTrafficData }
-			withGradientFill={ false }
-			withLegendGlyph={ false }
-		>
-			<LineChart.Legend
-				orientation={ args.legendOrientation || 'horizontal' }
-				alignment={ args.legendAlignment || 'center' }
-				position={ args.legendPosition || 'bottom' }
-				labelStyles={ {
-					maxWidth: args.legendMaxWidth,
-					textOverflow: args.legendTextOverflow || 'wrap',
-				} }
-			/>
-		</LineChart>
-	),
-	argTypes: {
-		legendInteractive: {
-			table: { disable: true },
-		},
+	render: args => {
+		const legend = extractLegendConfig( args );
+		return (
+			<LineChart { ...Default.args } { ...args } chartId="composition-line-chart">
+				<LineChart.Legend { ...legend } />
+			</LineChart>
+		);
 	},
 	parameters: {
 		docs: {

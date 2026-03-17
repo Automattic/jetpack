@@ -378,6 +378,8 @@ Most projects in the monorepo should have a mirror repository holding a built ve
    3. In the repo's settings, turn off wikis, PRs, issues, projects, discussions, and so on.
    4. Make sure that [matticbot](https://github.com/matticbot) can push to the repo. Usually no special configuration is needed for repos under the Automattic organization.
    5. Make sure that Actions are enabled. The build process copies workflows from `.github/files/mirror-.github` into the mirror to do useful things like automatically close PRs with a reference back to the monorepo.
+      * Set "Approval for running fork pull request workflows from contributors" to "Require approval for all external contributors".
+      * Set "Workflow permissions" to "Read repository contents and packages permissions".
    6. Set up any secrets and configuration needed (e.g. for [Autotagger](#autotagger) or [Autopublisher](#wordpressorg-svn-auto-publisher)). See PCYsg-xsv-p2#mirror-repo-secrets for details.
 2. For a PHP package (or a plugin listed in Packagist) you also need to go to packagist.org and create the package there. This requires pushing a first commit with a valid `composer.json` to the repository. That can be done by copying the new package's `composer.json` from the PR that introduced it.
    1. Be sure that `automattic` is added as a maintainer.

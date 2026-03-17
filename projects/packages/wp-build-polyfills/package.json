@@ -1,0 +1,40 @@
+{
+	"name": "@automattic/jetpack-wp-build-polyfills",
+	"version": "0.1.0-alpha",
+	"private": true,
+	"description": "Polyfills for WordPress Core packages not available in WP < 7.0",
+	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/wp-build-polyfills/#readme",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Automattic/jetpack.git",
+		"directory": "projects/packages/wp-build-polyfills"
+	},
+	"license": "GPL-2.0-or-later",
+	"author": "Automattic",
+	"bin": {
+		"provide-boot-asset-file": "bin/provide-boot-asset-file.js"
+	},
+	"scripts": {
+		"build": "pnpm run clean && webpack",
+		"build-production": "NODE_ENV=production BABEL_ENV=production pnpm run build",
+		"clean": "rm -rf build/"
+	},
+	"devDependencies": {
+		"@automattic/jetpack-webpack-config": "workspace:*",
+		"@wordpress/a11y": "^4.40.0",
+		"@wordpress/admin-ui": "^1.9.0",
+		"@wordpress/boot": "^0.7.1",
+		"@wordpress/icons": "^11.7.0",
+		"@wordpress/lazy-editor": "^1.6.1",
+		"@wordpress/notices": "^5.40.0",
+		"@wordpress/private-apis": "^1.40.0",
+		"@wordpress/route": "^0.6.0",
+		"@wordpress/theme": "^0.7.0",
+		"webpack": "^5.104.1",
+		"webpack-cli": "^6.0.1"
+	},
+	"optionalDependencies": {
+		"react": "18.3.1",
+		"react-dom": "18.3.1"
+	}
+}

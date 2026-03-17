@@ -29,7 +29,7 @@ GrunionFB_i18n = jQuery.extend(
 	GrunionFB_i18n
 );
 
-GrunionFB_i18n.moveInstructions = GrunionFB_i18n.moveInstructions.replace( '\n', '<br />' );
+GrunionFB_i18n.moveInstructions = GrunionFB_i18n.moveInstructions.replace( /\n/g, '<br />' );
 
 FB.span = jQuery( '<span>' );
 FB.esc_html = function ( string ) {
@@ -38,7 +38,7 @@ FB.esc_html = function ( string ) {
 
 FB.esc_attr = function ( string ) {
 	string = FB.esc_html( string );
-	return string.replace( '"', '&quot;' ).replace( "'", '&#039;' );
+	return string.replace( /"/g, '&quot;' ).replace( /'/g, '&#039;' );
 };
 
 FB.ContactForm = ( function () {

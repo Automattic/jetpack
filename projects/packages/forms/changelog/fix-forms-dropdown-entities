@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Decode HTML entities in form dropdown titles in the variation picker

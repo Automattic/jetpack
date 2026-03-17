@@ -67,7 +67,6 @@ export const BaseLegend: ForwardRefExoticComponent<
 			items,
 			className,
 			orientation = 'horizontal',
-			position = 'bottom',
 			alignment = 'center',
 			shape = 'rect',
 			fill = valueOrIdentityString,
@@ -177,7 +176,6 @@ export const BaseLegend: ForwardRefExoticComponent<
 							styles.legend,
 							styles[ `legend--${ orientation }` ],
 							styles[ `legend--alignment-${ alignment }` ],
-							styles[ `legend--position-${ position }` ],
 							className
 						) }
 						style={ {

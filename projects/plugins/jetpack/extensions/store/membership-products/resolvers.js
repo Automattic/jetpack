@@ -17,6 +17,7 @@ import {
 	setNewsletterCategories,
 	setNewsletterCategoriesSubscriptionsCount,
 	setTotalEmailsSentCount,
+	setPostEmailSentState,
 } from './actions';
 import { API_STATE_CONNECTED, API_STATE_NOTCONNECTED } from './constants';
 import { onError } from './utils';
@@ -29,6 +30,8 @@ const GET_NEWSLETTER_CATEGORIES_EXECUTION_KEY =
 	'membership-products-resolver-getNewsletterCategories';
 const GET_NEWSLETTER_CATEGORIES_SUBSCRIPTIONS_COUNT_EXECUTION_KEY =
 	'membership-products-resolver-getNewsletterCategoriesSubscriptionsCount';
+const GET_POST_EMAIL_SENT_STATE_EXECUTION_KEY =
+	'membership-products-resolver-getPostEmailSentState';
 let hydratedFromAPI = false;
 
 const fetchMemberships = async () => {
@@ -174,6 +177,28 @@ export const fetchNewsletterCategoriesSubscriptionsCount = async termIds => {
 	 *
 	 * @see https://developer.wordpress.org/reference/classes/wp_error/
 	 */
+	const wpError = response?.errors && Object.values( response.errors )?.[ 0 ]?.[ 0 ];
+	if ( wpError ) {
+		throw new Error( wpError );
+	}
+
+	return response;
+};
+
+const fetchPostEmailSentState = async postId => {
+	if ( ! postId ) {
+		return { email_sent_at: null, stats_on_send: null };
+	}
+
+	const response = await apiFetch( {
+		path: addQueryArgs( '/wpcom/v2/newsletter-email-sent-status', { post_id: postId } ),
+		method: 'GET',
+	} );
+
+	if ( ! response || typeof response !== 'object' ) {
+		throw new Error( 'Unexpected API response' );
+	}
+
 	const wpError = response?.errors && Object.values( response.errors )?.[ 0 ]?.[ 0 ];
 	if ( wpError ) {
 		throw new Error( wpError );
@@ -344,6 +369,31 @@ export const getNewsletterCategoriesSubscriptionsCount =
 			dispatch( setNewsletterCategoriesSubscriptionsCount( response.subscriptions_count ) );
 		} catch ( error ) {
 			dispatch( setApiState( API_STATE_NOTCONNECTED ) );
+			onError( error.message, registry );
+		} finally {
+			executionLock.release( lock );
+		}
+	};
+
+export const getPostEmailSentState =
+	postId =>
+	async ( { dispatch, registry } ) => {
+		if ( ! postId ) {
+			return;
+		}
+
+		await executionLock.blockExecution( GET_POST_EMAIL_SENT_STATE_EXECUTION_KEY );
+
+		const lock = executionLock.acquire( GET_POST_EMAIL_SENT_STATE_EXECUTION_KEY );
+		try {
+			const response = await fetchPostEmailSentState( postId );
+			dispatch(
+				setPostEmailSentState( postId, {
+					email_sent_at: response.email_sent_at ?? null,
+					stats_on_send: response.stats_on_send ?? null,
+				} )
+			);
+		} catch ( error ) {
 			onError( error.message, registry );
 		} finally {
 			executionLock.release( lock );

@@ -1,5 +1,5 @@
 import Footer from '$layout/footer/footer';
-import Header from '$layout/header/header';
+import BoostAdminPage from '$layout/boost-admin-page/boost-admin-page';
 import BackButton from '$features/ui/back-button/back-button';
 import JetpackLogo from '$svg/jetpack-green';
 import clsx from 'clsx';
@@ -22,28 +22,28 @@ const CardPage = ( {
 	sidebarItem,
 }: CardPageProps ) => {
 	return (
-		<div id="jb-dashboard" className="jb-dashboard">
-			<Header showActivateLicense={ showActivateLicense } />
+		<BoostAdminPage showActivateLicense={ showActivateLicense }>
+			<div id="jb-dashboard" className="jb-dashboard">
+				<div className={ styles.body }>
+					<div className={ 'jb-container jb-container--fixed mt-2' }>
+						{ showBackButton && <BackButton /> }
+						<div className={ styles.card }>
+							<div className={ styles.content }>
+								<JetpackLogo />
+								{ children }
+							</div>
 
-			<div className={ styles.body }>
-				<div className={ 'jb-container jb-container--fixed mt-2' }>
-					{ showBackButton && <BackButton /> }
-					<div className={ styles.card }>
-						<div className={ styles.content }>
-							<JetpackLogo />
-							{ children }
+							<div className={ clsx( styles.cta, 'px-2 my-4' ) }>{ sidebarItem }</div>
 						</div>
-
-						<div className={ clsx( styles.cta, 'px-2 my-4' ) }>{ sidebarItem }</div>
+						{ footerNote && <footer className={ styles[ 'footer-note' ] }>{ footerNote }</footer> }
 					</div>
-					{ footerNote && <footer className={ styles[ 'footer-note' ] }>{ footerNote }</footer> }
+				</div>
+
+				<div className={ styles.footer }>
+					<Footer />
 				</div>
 			</div>
-
-			<div className={ styles.footer }>
-				<Footer />
-			</div>
-		</div>
+		</BoostAdminPage>
 	);
 };
 

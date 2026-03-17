@@ -1744,6 +1744,9 @@ class Search extends Module {
 		'kb_category',
 		'kb_tag',
 
+		// coolhunting.com
+		'article-type',
+
 	); // end taxonomies.
 
 	/**

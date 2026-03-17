@@ -1,0 +1,24 @@
+diff --git a/build-types/utils.d.ts b/build-types/utils.d.ts
+--- a/build-types/utils.d.ts
++++ b/build-types/utils.d.ts
+@@ -4,7 +4,7 @@
+ import { type EffectCallback, type Inputs } from 'preact/hooks';
+ declare global {
+     interface Window {
+-        scheduler?: {
++        scheduler: {
+             postTask: (callback: () => unknown, options?: object) => Promise<unknown>;
+             yield: () => Promise<void>;
+         };
+diff --git a/src/utils.ts b/src/utils.ts
+--- a/src/utils.ts
++++ b/src/utils.ts
+@@ -24,7 +24,7 @@
+
+ declare global {
+ 	interface Window {
+-		scheduler?: {
++		scheduler: {
+ 			postTask: (
+ 				callback: () => unknown,
+ 				options?: object

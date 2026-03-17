@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Fix phpdoc type for deprecated videopress_prepare_attachment_for_js wrapper.

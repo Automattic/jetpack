@@ -1,0 +1,4 @@
+Significance: patch
+Type: security
+
+Fix ReDoS vulnerability in date parsing timezone detection.

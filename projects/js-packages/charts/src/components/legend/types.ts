@@ -1,4 +1,10 @@
 import { LegendOrdinal } from '@visx/legend';
+import type {
+	LegendItemStyles,
+	LegendLabelStyles,
+	LegendPosition,
+	LegendShapeStyles,
+} from '../../types';
 import type { GlyphProps, LineStyles } from '@visx/xychart';
 import type { ComponentProps, CSSProperties, ReactNode } from 'react';
 
@@ -7,43 +13,10 @@ type VisxLegendProps = Pick<
 	'className' | 'shape' | 'fill' | 'size' | 'labelFormat' | 'labelTransform'
 >;
 
-export type LegendItemStyles = {
-	/** Margin around each legend item. */
-	margin?: CSSProperties[ 'margin' ];
-	/** Flex direction for items within each legend entry. */
-	flexDirection?: 'row' | 'row-reverse' | 'column' | 'column-reverse';
-};
-
-export type LegendLabelStyles = Pick< CSSProperties, 'justifyContent' | 'flex' | 'margin' > & {
-	/**
-	 * Maximum width for legend label text as a CSS value (e.g. '200px', '50%', '10rem').
-	 * When set, text overflow behavior is controlled by textOverflow.
-	 */
-	maxWidth?: string;
-	/**
-	 * Controls how text behaves when it exceeds maxWidth.
-	 * - 'ellipsis': Truncate with ellipsis (ideal for widgets/small devices)
-	 * - 'wrap': Wrap text to multiple lines (default, ideal for larger displays)
-	 */
-	textOverflow?: 'ellipsis' | 'wrap';
-};
-
-export type LegendShapeStyles = {
-	/** Width of the legend shape in pixels. */
-	width?: number;
-	/** Height of the legend shape in pixels. */
-	height?: number;
-	/** Margin around the legend shape. */
-	margin?: CSSProperties[ 'margin' ];
-};
-
 export type BaseLegendProps = VisxLegendProps & {
 	items: BaseLegendItem[];
 	orientation?: 'horizontal' | 'vertical';
-	/**
-	 * TODO: Add 'left' | 'right' positioning support in future implementation
-	 */
-	position?: 'top' | 'bottom';
+	position?: LegendPosition;
 	alignment?: 'start' | 'center' | 'end';
 	/** Additional CSS class name for legend items. */
 	itemClassName?: string;

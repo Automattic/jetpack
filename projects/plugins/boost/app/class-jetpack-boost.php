@@ -115,11 +115,11 @@ class Jetpack_Boost {
 		$cornerstone_pages = new Cornerstone_Pages();
 		Setup::add( $cornerstone_pages );
 
+		// Initialize Jetpack packages (connection, sync, identity crisis).
+		$this->init_jetpack_config();
+
 		// Initialize the Admin experience.
 		$this->init_admin( $modules_setup );
-
-		// Initiate jetpack sync.
-		$this->init_sync();
 
 		add_action( 'admin_init', array( $this, 'schedule_version_change' ) );
 
@@ -324,12 +324,37 @@ class Jetpack_Boost {
 		REST_API::register( List_Cornerstone_Pages::class );
 		REST_API::register( List_LCP_Analysis::class );
 
-		$this->connection->ensure_connection();
 		( new Admin() )->init( $modules_setup );
 	}
 
-	public function init_sync() {
+	/**
+	 * Initialize Jetpack packages via the Config class.
+	 *
+	 * Consolidates connection, sync, and identity crisis initialization
+	 * into a single Config instance, matching the pattern used by other
+	 * standalone Jetpack plugins (Protect, Social, VideoPress, etc.).
+	 */
+	private function init_jetpack_config() {
 		$jetpack_config = new Jetpack_Config();
+
+		/**
+		 * Filter that fakes the connection to WordPress.com. Useful for testing.
+		 *
+		 * @param bool $connection Return true to fake the connection.
+		 *
+		 * @since 1.0.0
+		 */
+		if ( ! apply_filters( 'jetpack_boost_connection_bypass', false ) ) {
+			$jetpack_config->ensure(
+				'connection',
+				array(
+					'slug'     => JETPACK_BOOST_SLUG,
+					'name'     => 'Jetpack Boost',
+					'url_info' => '',
+				)
+			);
+		}
+
 		$jetpack_config->ensure(
 			'sync',
 			array(
@@ -343,6 +368,8 @@ class Jetpack_Boost {
 				),
 			)
 		);
+
+		$jetpack_config->ensure( 'identity_crisis' );
 	}
 
 	/**

@@ -22,6 +22,7 @@ import Page from '../components/page/index.tsx';
 import { NON_TRASH_FORM_STATUSES } from '../constants.ts';
 import useDeleteForm from '../hooks/use-delete-form.ts';
 import useFormsData from '../hooks/use-forms-data.ts';
+import { getFormEditUrl } from '../utils.ts';
 import { defaultLayouts, useView } from './views.ts';
 import './style.scss';
 import type { FormListItem } from '../hooks/use-forms-data.ts';
@@ -34,6 +35,7 @@ import type { Action, Operator } from '@wordpress/dataviews/wp';
  */
 export default function FormsDashboardForms(): JSX.Element | null {
 	const navigate = useNavigate();
+	const adminUrl = ( useConfigValue( 'adminUrl' ) as string ) || '';
 	const isCentralFormManagementEnabled = useConfigValue( 'isCentralFormManagementEnabled' );
 	const isCentralFormManagementDisabled = isCentralFormManagementEnabled === false;
 
@@ -60,11 +62,23 @@ export default function FormsDashboardForms(): JSX.Element | null {
 		return statusFilterValue === 'trash';
 	}, [ view.filters ] );
 
+	const hasResponsesQuery = useMemo( () => {
+		const entriesFilterValue = view.filters?.find( filter => filter.field === 'entries' )?.value;
+		if ( entriesFilterValue === 'has_responses' ) {
+			return 'true';
+		}
+		if ( entriesFilterValue === 'no_responses' ) {
+			return 'false';
+		}
+		return undefined;
+	}, [ view.filters ] );
+
 	const { records, isLoading, totalItems, totalPages } = useFormsData(
 		view.page,
 		view.perPage,
 		view.search,
-		statusQuery
+		statusQuery,
+		hasResponsesQuery
 	);
 	const {
 		isDeleting,
@@ -150,8 +164,14 @@ export default function FormsDashboardForms(): JSX.Element | null {
 			{
 				id: 'entries',
 				label: __( 'Entries', 'jetpack-forms' ),
-				getValue: ( { item }: { item: FormListItem } ) => item.entriesCount ?? 0,
+				getValue: ( { item }: { item: FormListItem } ) =>
+					( item.entriesCount ?? 0 ) > 0 ? 'has_responses' : 'no_responses',
 				render: ( { item }: { item: FormListItem } ) => item.entriesCount ?? 0,
+				elements: [
+					{ label: __( 'Has responses', 'jetpack-forms' ), value: 'has_responses' },
+					{ label: __( 'No responses', 'jetpack-forms' ), value: 'no_responses' },
+				],
+				filterBy: { operators: [ 'is' ] as Operator[] },
 				enableSorting: false,
 			},
 			{
@@ -210,10 +230,8 @@ export default function FormsDashboardForms(): JSX.Element | null {
 					if ( ! item ) {
 						return;
 					}
-					const fallbackEditUrl = `post.php?post=${ item.id }&action=edit&post_type=jetpack_form`;
-					const editUrl = item.editUrl || fallbackEditUrl;
-					const url = new URL( editUrl, window.location.origin );
-					window.location.href = url.toString();
+					const editUrl = item.editUrl || getFormEditUrl( item.id, adminUrl );
+					window.location.href = editUrl;
 				},
 			},
 			{
@@ -348,6 +366,7 @@ export default function FormsDashboardForms(): JSX.Element | null {
 
 		return actionsList;
 	}, [
+		adminUrl,
 		createErrorNotice,
 		createSuccessNotice,
 		isDeleting,

@@ -156,7 +156,7 @@ const StoryChartProvider = ( {
 				<style>
 					{ `
 						:root {
-							--wpds-color-bg-interactive-brand: ${ sanitizedAccentColor };
+							--wpds-color-bg-interactive-brand-weak: ${ sanitizedAccentColor };
 						}
 					` }
 				</style>
