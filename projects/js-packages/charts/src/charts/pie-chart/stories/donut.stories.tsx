@@ -1,3 +1,10 @@
+/* eslint-disable @wordpress/no-unsafe-wp-apis */
+import {
+	__experimentalText as WPText,
+	__experimentalHStack as HStack,
+} from '@wordpress/components';
+import { Fragment } from 'react';
+import { BaseLegendItem } from '../../../components/legend/types';
 import {
 	chartDecorator,
 	sharedChartArgTypes,
@@ -7,9 +14,10 @@ import {
 	legendArgTypes,
 	themeArgTypes,
 } from '../../../stories';
+import { customerRevenueData, customerRevenueLegendData } from '../../../stories/sample-data';
 import { Group } from '../../../visx/group';
 import { Text } from '../../../visx/text';
-import { PieChart } from '../../pie-chart';
+import { PieChart, PieChartUnresponsive } from '../../pie-chart';
 import type { Meta, StoryObj } from '@storybook/react';
 
 type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof PieChart > >;
@@ -250,6 +258,87 @@ export const WithCompositionLegend: Story = {
 			description: {
 				story:
 					'Composition API using `<PieChart.Legend />` as a child component for explicit legend placement and configuration. This is the recommended approach for flexible legend positioning.',
+			},
+		},
+	},
+};
+
+const CustomPieLegend = ( {
+	chartItems,
+	items,
+	withComparison,
+}: {
+	chartItems: BaseLegendItem[];
+	items: { label: string; value: number; formattedValue: string; comparison: string }[];
+	withComparison: boolean;
+} ) => (
+	<div
+		style={ {
+			display: 'inline-grid',
+			gridTemplateColumns: '1fr auto auto',
+			gap: 'var(--wpds-dimension-gap-xs, 4px) var(--wpds-dimension-gap-sm, 8px)',
+		} }
+	>
+		{ items.map( ( item, index ) => {
+			const { color } = chartItems[ index ];
+
+			return (
+				<Fragment key={ index }>
+					<HStack direction="row" justify="flex-start" spacing={ 2 }>
+						<div
+							style={ {
+								width: '8px',
+								height: '8px',
+								borderRadius: '50%',
+								flexShrink: 0,
+								backgroundColor: color,
+							} }
+						/>
+						<WPText size="small">{ item.label }</WPText>
+					</HStack>
+					<WPText size="small" weight={ 600 } style={ { textAlign: 'right' } }>
+						{ item.formattedValue }
+					</WPText>
+					<WPText size="small" style={ { textAlign: 'right', color: '#008a20' } }>
+						{ withComparison && item.comparison }
+					</WPText>
+				</Fragment>
+			);
+		} ) }
+	</div>
+);
+
+export const CustomLegend: Story = {
+	render: args => (
+		<PieChartUnresponsive { ...args }>
+			<PieChartUnresponsive.Legend
+				// eslint-disable-next-line react/jsx-no-bind
+				render={ items => (
+					<CustomPieLegend
+						chartItems={ items }
+						items={ customerRevenueLegendData }
+						withComparison={ args.withComparison }
+					/>
+				) }
+			/>
+		</PieChartUnresponsive>
+	),
+	args: {
+		...Default.args,
+		data: customerRevenueData,
+		showLabels: false,
+		thickness: 0.3,
+		cornerScale: 0.03,
+		gapScale: 0.01,
+		size: 164,
+		withComparison: true,
+		withTooltips: false,
+		containerHeight: '300px',
+	},
+	parameters: {
+		docs: {
+			description: {
+				story: 'Demonstrates how to customize the legend using the render prop.',
 			},
 		},
 	},
