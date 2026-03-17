@@ -16,7 +16,8 @@ import {
 	useGlobalChartsTheme,
 } from '../../providers';
 import { formatMetricValue, attachSubComponents } from '../../utils';
-import { useChartChildren, renderLegendSlot } from '../private/chart-composition';
+import { useChartChildren } from '../private/chart-composition';
+import { ChartLayout } from '../private/chart-layout';
 import { SingleChartContext } from '../private/single-chart-context';
 import { withResponsive } from '../private/with-responsive';
 import { useLeaderboardLegendItems } from './hooks';
@@ -246,37 +247,30 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 	// Handle empty or undefined data
 	if ( ! data || data.length === 0 ) {
 		return (
-			<SingleChartContext.Provider
-				value={ {
-					chartId,
-					chartWidth: 0, // LeaderboardChart doesn't need specific dimensions
-					chartHeight: 0,
-				} }
-			>
-				<Stack
-					direction="column"
-					data-testid="leaderboard-chart-container"
+			<SingleChartContext.Provider value={ { chartId } }>
+				<ChartLayout
+					legendPosition={ legendPosition }
+					legendElement={ false }
+					legendChildren={ legendChildren }
 					className={ clsx(
 						styles.leaderboardChart,
-						{ [ styles[ 'leaderboardChart--responsive' ] ]: ! propWidth && ! propHeight },
-						{ [ styles[ 'leaderboardChart--loading' ] ]: loading },
+						{
+							[ styles[ 'leaderboardChart--responsive' ] ]: ! propWidth && ! propHeight,
+							[ styles[ 'leaderboardChart--loading' ] ]: loading,
+						},
 						className
 					) }
 					gap={ gap }
-					style={ {
-						...style,
-						width: propWidth || undefined,
-						height: propHeight || undefined,
-					} }
+					style={ { ...style, width: propWidth || undefined, height: propHeight || undefined } }
+					data-testid="leaderboard-chart-container"
+					trailingContent={ nonLegendChildren }
 				>
 					<div className={ styles.emptyState }>
 						{ loading
 							? __( 'Loading…', 'jetpack-charts' )
 							: __( 'No data available', 'jetpack-charts' ) }
 					</div>
-
-					{ nonLegendChildren }
-				</Stack>
+				</ChartLayout>
 			</SingleChartContext.Provider>
 		);
 	}
@@ -297,16 +291,11 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 	);
 
 	return (
-		<SingleChartContext.Provider
-			value={ {
-				chartId,
-				chartWidth: 0, // LeaderboardChart doesn't need specific dimensions
-				chartHeight: 0,
-			} }
-		>
-			<Stack
-				direction="column"
-				data-testid="leaderboard-chart-container"
+		<SingleChartContext.Provider value={ { chartId } }>
+			<ChartLayout
+				legendPosition={ legendPosition }
+				legendElement={ legendElement }
+				legendChildren={ legendChildren }
 				className={ clsx(
 					styles.leaderboardChart,
 					{
@@ -321,10 +310,9 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 					width: propWidth || undefined,
 					height: propHeight || undefined,
 				} }
+				data-testid="leaderboard-chart-container"
+				trailingContent={ nonLegendChildren }
 			>
-				{ legendPosition === 'top' && legendElement }
-				{ renderLegendSlot( legendChildren, 'top' ) }
-
 				<div className={ styles.leaderboardChart__content }>
 					{ allSeriesHidden ? (
 						<div className={ styles.emptyState }>
@@ -372,12 +360,7 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 						</Grid>
 					) }
 				</div>
-
-				{ legendPosition === 'bottom' && legendElement }
-				{ renderLegendSlot( legendChildren, 'bottom' ) }
-
-				{ nonLegendChildren }
-			</Stack>
+			</ChartLayout>
 		</SingleChartContext.Provider>
 	);
 };

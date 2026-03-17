@@ -99,8 +99,7 @@ const LineChartAnnotationsOverlay: FC< LineChartAnnotationsProps > = ( { childre
 		};
 	}, [ getScalesData, chartWidth, chartHeight ] );
 
-	// Early return if no chart data available
-	if ( ! chartRef || ! children ) {
+	if ( ! chartRef || ! children || ! chartWidth || ! chartHeight ) {
 		return null;
 	}
 
