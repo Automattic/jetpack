@@ -840,6 +840,43 @@ class Jetpack_Sync_Checksum_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test that sub-range calls do not pollute the static cache used by
+	 * get_parent_table_count(). A sub-range call on the parent table should
+	 * not overwrite the full-table count in the cache.
+	 */
+	public function test_get_range_edges_subrange_does_not_pollute_cache() {
+		global $wpdb;
+
+		$user_id = self::factory()->user->create();
+
+		// Create 10 posts, each with meta.
+		$post_ids = array();
+		for ( $i = 0; $i < 10; $i++ ) {
+			$post_id    = self::factory()->post->create( array( 'post_author' => $user_id ) );
+			$post_ids[] = $post_id;
+			add_post_meta( $post_id, 'test_key', 'value' );
+		}
+
+		sort( $post_ids );
+
+		// Call get_range_edges on posts with a sub-range — this should NOT cache.
+		$posts_tc = new Table_Checksum( 'posts' );
+		$posts_tc->get_range_edges( $post_ids[0], $post_ids[4] );
+
+		// Now call get_range_edges on postmeta (full range). If the sub-range
+		// result was cached, postmeta would reuse the scoped posts count instead
+		// of querying the full posts count.
+		$meta_tc    = new Table_Checksum( 'postmeta' );
+		$meta_range = $meta_tc->get_range_edges();
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$full_posts_count = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->posts}" );
+
+		// item_count should equal the full posts count, not the sub-range count.
+		$this->assertEquals( $full_posts_count, (int) $meta_range['item_count'] );
+	}
+
+	/**
 	 * Filter Sync modules.
 	 *
 	 * @return array

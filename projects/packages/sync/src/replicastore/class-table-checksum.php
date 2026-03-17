@@ -853,7 +853,8 @@ class Table_Checksum {
 		}
 
 		// Cache full-range results so child meta tables can reuse the parent's count.
-		if ( ! $limit ) {
+		// Only cache when no range constraints — sub-range counts would pollute the cache.
+		if ( ! $limit && null === $range_from && null === $range_to ) {
 			self::$range_edges_cache[ $this->table ] = $result;
 		}
 
