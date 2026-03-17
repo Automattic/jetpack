@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Custom Colors: Fix block editor CSS not applying in Gutenberg 22.6.0+ iframe context.
