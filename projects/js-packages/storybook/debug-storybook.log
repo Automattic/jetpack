@@ -1,0 +1,29 @@
+[03:58:53.552] [INFO] storybook v10.2.11
+[03:58:54.307] [DEBUG] Getting package.json info for /workspace/projects/js-packages/storybook/package.json...
+[03:58:54.817] [DEBUG] Serving static files from projects/js-packages/storybook/public at /
+[03:58:54.837] [INFO] Starting...
+[03:58:54.953] [WARN] No story files found for the specified pattern: ../shared-extension-utils/src/**/stories/*.@(mdx|@(story|stories).@(js|jsx|ts|tsx))
+[03:58:56.361] [DEBUG] Starting preview..
+[03:58:56.403] [INFO] Addon-docs: using MDX3
+[03:58:56.430] [INFO] Using implicit CSS loaders
+[03:58:56.605] [INFO] Using default Webpack5 setup
+[03:58:57.069] [DEBUG] Using tsconfig paths for react-docgen
+[03:59:47.581] [WARN] Module not found: Error: Can't resolve 'jetpackConfig' in '/workspace/projects/js-packages/config/src'
+[03:59:47.584] [WARN] Module not found: Error: Can't resolve '@emotion/is-prop-valid' in '/workspace/node_modules/.pnpm/framer-motion@11.18.2_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/framer-motion/dist/es/render/dom/utils'
+[03:59:47.591] [WARN] Force closed preview build
+[03:59:47.593] [ERROR] [38;2;241;97;97mError: listen EADDRINUSE: address already in use :::50240[39m
+    at Server.setupListenHandle [as _listen2] (node:net:1940:16)
+    at listenInCluster (node:net:1997:12)
+    at Server.listen (node:net:2102:7)
+    at _Polka.listen (file:///workspace/node_modules/.pnpm/storybook@10.2.11_@testing-library+dom@10.4.1_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/storybook/dist/core-server/index.js:6492:110)
+    at file:///workspace/node_modules/.pnpm/storybook@10.2.11_@testing-library+dom@10.4.1_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/storybook/dist/core-server/index.js:7251:39
+    at new Promise (<anonymous>)
+    at storybookDevServer (file:///workspace/node_modules/.pnpm/storybook@10.2.11_@testing-library+dom@10.4.1_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/storybook/dist/core-server/index.js:7250:19)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async buildOrThrow (file:///workspace/node_modules/.pnpm/storybook@10.2.11_@testing-library+dom@10.4.1_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/storybook/dist/core-server/index.js:4504:12)
+    at async buildDevStandalone (file:///workspace/node_modules/.pnpm/storybook@10.2.11_@testing-library+dom@10.4.1_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/storybook/dist/core-server/index.js:7611:66)
+    at async withTelemetry (file:///workspace/node_modules/.pnpm/storybook@10.2.11_@testing-library+dom@10.4.1_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/storybook/dist/_node-chunks/chunk-GEQXL5UM.js:218:12)
+    at async dev (file:///workspace/node_modules/.pnpm/storybook@10.2.11_@testing-library+dom@10.4.1_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/storybook/dist/bin/core.js:2734:3)
+    at async _Command.<anonymous> (file:///workspace/node_modules/.pnpm/storybook@10.2.11_@testing-library+dom@10.4.1_react-dom@18.3.1_react@18.3.1__react@18.3.1/node_modules/storybook/dist/bin/core.js:2803:92)
+[03:59:47.604] [WARN] Broken build, fix the error above.
+You may need to refresh the browser.
