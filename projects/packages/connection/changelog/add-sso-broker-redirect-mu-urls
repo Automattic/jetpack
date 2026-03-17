@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Added broker URL feature for SSO that enables specific wpcom sites to use different URLs for SSO auth redirects.
