@@ -791,6 +791,49 @@ class Jetpack_Sync_Checksum_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test that sub-range calls to get_range_edges() use COUNT(DISTINCT), not the
+	 * parent table's total count.
+	 *
+	 * Using the total parent count for a sub-range would produce an oversized bucket,
+	 * causing checksum_histogram() to compute checksums over the wrong range.
+	 */
+	public function test_get_range_edges_subrange_skips_parent_count() {
+		global $wpdb;
+
+		$user_id = self::factory()->user->create();
+
+		// Create 10 posts, each with meta.
+		$post_ids = array();
+		for ( $i = 0; $i < 10; $i++ ) {
+			$post_id    = self::factory()->post->create( array( 'post_author' => $user_id ) );
+			$post_ids[] = $post_id;
+			add_post_meta( $post_id, 'test_key', 'value' );
+		}
+
+		sort( $post_ids );
+
+		// Pick a sub-range covering roughly the first half of posts.
+		$range_from = $post_ids[0];
+		$range_to   = $post_ids[4];
+
+		$tc    = new Table_Checksum( 'postmeta' );
+		$range = $tc->get_range_edges( $range_from, $range_to );
+
+		// item_count must reflect the actual distinct post_ids in this sub-range,
+		// not the total posts count. The sub-range has at most 5 distinct post_ids.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$actual_distinct = (int) $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT COUNT(DISTINCT post_id) FROM {$wpdb->postmeta} WHERE post_id >= %d AND post_id <= %d",
+				$range_from,
+				$range_to
+			)
+		);
+
+		$this->assertEquals( $actual_distinct, (int) $range['item_count'] );
+	}
+
+	/**
 	 * Filter Sync modules.
 	 *
 	 * @return array

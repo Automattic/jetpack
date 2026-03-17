@@ -794,8 +794,10 @@ class Table_Checksum {
 		 */
 		if ( ! $limit ) {
 			// For tables that would use COUNT(DISTINCT), avoid the expensive full table scan
-			// by using the parent table's count instead.
-			if ( $distinct_count ) {
+			// by using the parent table's count instead. Only for full-table calls — sub-range
+			// calls need the actual COUNT(DISTINCT) scoped to the range, and those are cheap
+			// because the WHERE clause limits the scan.
+			if ( $distinct_count && null === $range_from && null === $range_to ) {
 				$parent_count = $this->get_parent_table_count();
 				if ( (int) $parent_count > 0 ) {
 					$min_max_query = "
@@ -862,8 +864,8 @@ class Table_Checksum {
 	 * Static cache for range edge results, keyed by table name.
 	 *
 	 * When checksum_all() processes tables sequentially, the parent table's
-	 * get_range_edges() result is cached so the child meta table can reuse
-	 * the item_count without re-querying.
+	 * get_range_edges() result is cached so child tables can reuse the
+	 * item_count without re-querying.
 	 *
 	 * @var array
 	 */
