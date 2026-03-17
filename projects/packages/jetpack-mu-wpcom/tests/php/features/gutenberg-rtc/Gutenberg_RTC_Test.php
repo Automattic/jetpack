@@ -413,54 +413,6 @@ class Gutenberg_RTC_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Tests that the inline script data includes maxPeersPerRoom.
-	 */
-	public function test_wpcom_enqueue_gutenberg_rtc_assets_includes_room_user_limit() {
-		wpcom_enqueue_gutenberg_rtc_assets();
-
-		$inline = $this->get_inline_script();
-
-		$this->assertStringContainsString( 'wpcomGutenbergRTC', $inline );
-		$this->assertStringContainsString( '"maxPeersPerRoom":', $inline );
-	}
-
-	/**
-	 * Tests that the inline script data includes maxClientsPerUser.
-	 */
-	public function test_wpcom_enqueue_gutenberg_rtc_assets_includes_max_clients_per_user() {
-		wpcom_enqueue_gutenberg_rtc_assets();
-
-		$inline = $this->get_inline_script();
-
-		$this->assertStringContainsString( '"maxClientsPerUser":', $inline );
-	}
-
-	/**
-	 * Tests that max peer and client limits are filterable.
-	 */
-	public function test_wpcom_enqueue_gutenberg_rtc_assets_uses_filtered_limits() {
-		add_filter(
-			'wpcom_gutenberg_rtc_max_peers_per_room',
-			function () {
-				return 4;
-			}
-		);
-		add_filter(
-			'wpcom_gutenberg_rtc_max_clients_per_user',
-			function () {
-				return 3;
-			}
-		);
-
-		wpcom_enqueue_gutenberg_rtc_assets();
-
-		$inline = $this->get_inline_script();
-
-		$this->assertStringContainsString( '"maxPeersPerRoom":4', $inline );
-		$this->assertStringContainsString( '"maxClientsPerUser":3', $inline );
-	}
-
-	/**
 	 * Tests that the inline script data includes providers array.
 	 */
 	public function test_wpcom_enqueue_gutenberg_rtc_assets_includes_providers() {

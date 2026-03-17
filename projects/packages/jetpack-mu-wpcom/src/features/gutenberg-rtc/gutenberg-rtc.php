@@ -100,13 +100,20 @@ add_action(
  * Enqueue block editor assets for Gutenberg RTC customizations.
  */
 function wpcom_enqueue_gutenberg_rtc_assets() {
+	$providers = wpcom_get_gutenberg_rtc_providers();
+
+	// If HTTP polling (Gutenberg’s built-in default provider when this script isn’t enqueued)
+	// is the only provider being used, then we don’t need to inject any assets since that’s
+	// already the default behavior.
+	if ( count( $providers ) === 1 && in_array( 'http-polling', $providers, true ) ) {
+		return;
+	}
+
 	$handle = jetpack_mu_wpcom_enqueue_assets( 'gutenberg-rtc', array( 'js' ) );
 
 	$data = wp_json_encode(
 		array(
-			'providers'         => wpcom_get_gutenberg_rtc_providers(),
-			'maxPeersPerRoom'   => wpcom_get_gutenberg_rtc_max_peers_per_room(),
-			'maxClientsPerUser' => wpcom_get_gutenberg_rtc_max_clients_per_user(),
+			'providers' => wpcom_get_gutenberg_rtc_providers(),
 		),
 		JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 	);
