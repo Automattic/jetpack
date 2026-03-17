@@ -1482,7 +1482,7 @@ class Colors_Manager_Common {
 			$css
 		);
 
-		wp_register_style( 'custom-colors-editor-css', false, null, '20210311' ); // Register an empty stylesheet to append custom CSS to.
+		wp_register_style( 'custom-colors-editor-css', false, array(), '20210311' ); // Register an empty stylesheet to append custom CSS to.
 		wp_enqueue_style( 'custom-colors-editor-css' );
 		wp_add_inline_style( 'custom-colors-editor-css', $css ); // Append inline style to our new stylesheet
 	}
