@@ -160,8 +160,8 @@ class Jetpack_Likes {
 	 * Load scripts and styles for front end.
 	 */
 	public function load_styles_register_scripts() {
-		// Likes are only rendered on singular views and the blog home/front page.
-		if ( ! is_singular() && ! is_home() && ! is_front_page() ) {
+		// Likes are rendered on singular views, the blog home/front page, archive pages, and search results.
+		if ( ! is_singular() && ! is_home() && ! is_front_page() && ! is_archive() && ! is_search() ) {
 			return;
 		}
 

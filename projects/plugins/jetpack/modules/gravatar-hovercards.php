@@ -262,8 +262,8 @@ function grofiles_attach_cards() {
 		return;
 	}
 
-	// Hovercards are only relevant on pages that render author avatars or comment avatars.
-	if ( ! is_singular() && ! is_author() && ! is_home() && ! is_front_page() ) {
+	// Hovercards are only relevant on pages that render avatars (singular, author, home, archive, search).
+	if ( ! is_singular() && ! is_author() && ! is_home() && ! is_front_page() && ! is_archive() && ! is_search() ) {
 		return;
 	}
 
