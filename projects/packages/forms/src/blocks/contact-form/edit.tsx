@@ -29,7 +29,7 @@ import { store as coreStore } from '@wordpress/core-data';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { useRef, useEffect, useCallback, lazy, Suspense, useState } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import clsx from 'clsx';
 /*
  * Internal dependencies
@@ -1027,7 +1027,7 @@ function JetpackContactFormEdit( {
 		const errorMessage =
 			syncedFormErrorType === 'permission_denied'
 				? __( "You don't have permission to edit this form.", 'jetpack-forms' )
-				: __( 'The referenced form could not be found.', 'jetpack-forms', 0 );
+				: _x( 'The referenced form could not be found.', 'synced form error', 'jetpack-forms' );
 		elt = (
 			<Notice status="warning" isDismissible={ false }>
 				{ errorMessage }
