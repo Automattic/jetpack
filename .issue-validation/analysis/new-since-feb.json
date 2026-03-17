@@ -1,0 +1,2475 @@
+{
+  "count": 197,
+  "issues": [
+    {
+      "number": 47553,
+      "title": "Instant Search: Search modal triggers on form submissions to third-parties",
+      "url": "https://github.com/Automattic/jetpack/issues/47553",
+      "created_at": "2026-03-11T21:41:46Z",
+      "labels": [
+        "Bug",
+        "[Pri] Normal",
+        "[Plugin] Search",
+        "Needs triage",
+        "[Status] Auto-allocated"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 47534,
+      "title": "Forms: Code review summary for central form management PRs",
+      "url": "https://github.com/Automattic/jetpack/issues/47534",
+      "created_at": "2026-03-10T00:55:15Z",
+      "labels": [],
+      "comments_count": 0
+    },
+    {
+      "number": 47515,
+      "title": "WP Super Cache using multsite function get_blog_option when doing bulk-updates for plugins on non-multisite",
+      "url": "https://github.com/Automattic/jetpack/issues/47515",
+      "created_at": "2026-03-09T14:56:57Z",
+      "labels": [
+        "Bug",
+        "[Pri] Low",
+        "Needs triage",
+        "[Plugin] Super Cache",
+        "[Status] Auto-allocated"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 47503,
+      "title": "Enhancement: \"Docs\" Custom Post Type for Jetpack Search",
+      "url": "https://github.com/Automattic/jetpack/issues/47503",
+      "created_at": "2026-03-08T20:35:27Z",
+      "labels": [
+        "Enhancement",
+        "[Plugin] Search"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 47440,
+      "title": "CRM attempts to store data in invalid path",
+      "url": "https://github.com/Automattic/jetpack/issues/47440",
+      "created_at": "2026-03-04T05:58:32Z",
+      "labels": [
+        "Bug",
+        "[Pri] High",
+        "Needs triage",
+        "[Plugin] CRM",
+        "[Status] Priority Review Triggered",
+        "[Status] Auto-allocated",
+        "[Status] Escalated to Product Ambassadors"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 47428,
+      "title": "Local dev install  of JPCRM core with WP Studio - SQL Lite error",
+      "url": "https://github.com/Automattic/jetpack/issues/47428",
+      "created_at": "2026-03-03T13:31:07Z",
+      "labels": [
+        "Bug",
+        "[Pri] Low",
+        "Needs triage",
+        "[Plugin] CRM",
+        "[Status] Auto-allocated"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 47391,
+      "title": "Feature Request: The Option To Monetize VideoPress",
+      "url": "https://github.com/Automattic/jetpack/issues/47391",
+      "created_at": "2026-02-27T21:02:50Z",
+      "labels": [
+        "New Feature",
+        "[Plugin] VideoPress"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 47331,
+      "title": "Forms: Strange vertical alignment with \"inline\" form with a button.",
+      "url": "https://github.com/Automattic/jetpack/issues/47331",
+      "created_at": "2026-02-25T20:38:07Z",
+      "labels": [
+        "Bug",
+        "[Pri] Low",
+        "[Plugin] Jetpack",
+        "Needs triage",
+        "[Status] Auto-allocated"
+      ],
+      "comments_count": 3
+    },
+    {
+      "number": 47258,
+      "title": "Jetpack Stats view_stats meta-cap mapping only checks first user role, admins with multiple roles may be unable to view stats",
+      "url": "https://github.com/Automattic/jetpack/issues/47258",
+      "created_at": "2026-02-20T17:09:32Z",
+      "labels": [],
+      "comments_count": 0
+    },
+    {
+      "number": 47195,
+      "title": "Enhancement: Jetpack Stats/Boost - Collect & Display RUM data",
+      "url": "https://github.com/Automattic/jetpack/issues/47195",
+      "created_at": "2026-02-18T15:08:41Z",
+      "labels": [
+        "[Plugin] Boost"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 47116,
+      "title": "Performance: Comments module adds resource hints for unused gravatar domains.",
+      "url": "https://github.com/Automattic/jetpack/issues/47116",
+      "created_at": "2026-02-13T02:20:48Z",
+      "labels": [
+        "[Feature] Comments",
+        "[Focus] Performance",
+        "[Pri] Low",
+        "[Plugin] Jetpack",
+        "Needs triage",
+        "[Status] Auto-allocated",
+        "Performance"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 47053,
+      "title": "Enhancement: Strip ignored tracking query parameters via mod_rewrite",
+      "url": "https://github.com/Automattic/jetpack/issues/47053",
+      "created_at": "2026-02-11T07:37:21Z",
+      "labels": [
+        "[Focus] Performance",
+        "[Plugin] Super Cache",
+        "[Feature] WP Super Cache"
+      ],
+      "comments_count": 1
+    },
+    {
+      "number": 31902,
+      "title": "Donations block: improve rendering on email & reader",
+      "url": "https://github.com/Automattic/jetpack/issues/31902",
+      "created_at": "2023-07-14T21:03:51Z",
+      "labels": [
+        "Enhancement",
+        "[Plugin] Jetpack",
+        "[Block] Payments",
+        "[Block] Donations"
+      ],
+      "comments_count": 2
+    },
+    {
+      "number": 31131,
+      "title": "Super Cache: incompatibility with Core's theme file editor",
+      "url": "https://github.com/Automattic/jetpack/issues/31131",
+      "created_at": "2023-06-01T00:56:28Z",
+      "labels": [
+        "Enhancement",
+        "[Focus] Compatibility",
+        "[Plugin] Super Cache"
+      ],
+      "comments_count": 1
+    },
+    {
+      "number": 25982,
+      "title": "Carousel: update colors of the previous / next buttons",
+      "url": "https://github.com/Automattic/jetpack/issues/25982",
+      "created_at": "2022-09-01T12:49:56Z",
+      "labels": [
+        "Enhancement",
+        "[Feature] Carousel",
+        "[Pri] Low",
+        "[Plugin] Jetpack"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 25965,
+      "title": "Enhancement: Make it easier for Jetpack CRM Tags to be added on a Jetpack Contact Form",
+      "url": "https://github.com/Automattic/jetpack/issues/25965",
+      "created_at": "2022-08-31T18:18:05Z",
+      "labels": [
+        "Enhancement",
+        "[Feature] Forms",
+        "[Pri] Low",
+        "[Plugin] Jetpack",
+        "[Block] Form",
+        "[Focus] Compatibility",
+        "[Plugin] CRM"
+      ],
+      "comments_count": 1
+    },
+    {
+      "number": 25937,
+      "title": "Jetpack: consider to replace the react.qrcode library",
+      "url": "https://github.com/Automattic/jetpack/issues/25937",
+      "created_at": "2022-08-30T20:41:52Z",
+      "labels": [
+        "[Type] Janitorial",
+        "Task",
+        "[Pri] Normal",
+        "[Extension] Post Publish QR Post Panel"
+      ],
+      "comments_count": 2
+    },
+    {
+      "number": 25878,
+      "title": "QRCode Integration: Research and suggest an approach to render QR codes in the posts list page",
+      "url": "https://github.com/Automattic/jetpack/issues/25878",
+      "created_at": "2022-08-27T13:26:52Z",
+      "labels": [
+        "[Package] Post List"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 25867,
+      "title": "Enhancement: Add after_wpsc_delete_cache_directory hook",
+      "url": "https://github.com/Automattic/jetpack/issues/25867",
+      "created_at": "2022-08-26T14:02:14Z",
+      "labels": [
+        "Enhancement",
+        "[Pri] Low",
+        "[Plugin] Super Cache"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 25760,
+      "title": "RNA: Update Button Figma",
+      "url": "https://github.com/Automattic/jetpack/issues/25760",
+      "created_at": "2022-08-22T17:16:15Z",
+      "labels": [
+        "Enhancement",
+        "RNA"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 25759,
+      "title": "RNA: Add new `color` prop for Button",
+      "url": "https://github.com/Automattic/jetpack/issues/25759",
+      "created_at": "2022-08-22T17:14:51Z",
+      "labels": [
+        "Enhancement",
+        "RNA"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 25758,
+      "title": "RNA: Add bold variants for `body` and `body-small` at Text",
+      "url": "https://github.com/Automattic/jetpack/issues/25758",
+      "created_at": "2022-08-22T17:13:35Z",
+      "labels": [
+        "Enhancement",
+        "RNA"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 25757,
+      "title": "RNA: Unit tests for Button component",
+      "url": "https://github.com/Automattic/jetpack/issues/25757",
+      "created_at": "2022-08-22T17:11:03Z",
+      "labels": [
+        "Enhancement",
+        "Unit Tests",
+        "RNA"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 25756,
+      "title": "RNA: Use Text components in Admin Page components",
+      "url": "https://github.com/Automattic/jetpack/issues/25756",
+      "created_at": "2022-08-22T17:10:05Z",
+      "labels": [
+        "Enhancement",
+        "RNA"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 25755,
+      "title": "RNA: Introduce HeaderNav component",
+      "url": "https://github.com/Automattic/jetpack/issues/25755",
+      "created_at": "2022-08-22T17:08:48Z",
+      "labels": [
+        "Enhancement",
+        "RNA"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 25753,
+      "title": "Connection: Add documentation for components",
+      "url": "https://github.com/Automattic/jetpack/issues/25753",
+      "created_at": "2022-08-22T17:06:26Z",
+      "labels": [
+        "Enhancement",
+        "RNA"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 25752,
+      "title": "RNA: Fix small arrow icon at CUT component",
+      "url": "https://github.com/Automattic/jetpack/issues/25752",
+      "created_at": "2022-08-22T17:00:18Z",
+      "labels": [
+        "Enhancement",
+        "RNA"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 25669,
+      "title": "VideoPress: add translator note for the \"Resume\" string",
+      "url": "https://github.com/Automattic/jetpack/issues/25669",
+      "created_at": "2022-08-17T11:16:35Z",
+      "labels": [
+        "Enhancement",
+        "[Focus] i18n",
+        "[Plugin] Jetpack",
+        "[Package] VideoPress"
+      ],
+      "comments_count": 1
+    },
+    {
+      "number": 25647,
+      "title": "Search: switch from v1.0 endpoint to v1.3 for Classic Search",
+      "url": "https://github.com/Automattic/jetpack/issues/25647",
+      "created_at": "2022-08-16T02:12:54Z",
+      "labels": [
+        "New Feature",
+        "[Feature] Search",
+        "[Plugin] Jetpack",
+        "[Plugin] Search",
+        "[Package] Search"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 25440,
+      "title": "Instant Search: Better handling of paths/breadcrumbs in results",
+      "url": "https://github.com/Automattic/jetpack/issues/25440",
+      "created_at": "2022-08-11T11:15:46Z",
+      "labels": [
+        "Enhancement",
+        "[Feature] Search",
+        "[Plugin] Jetpack",
+        "[Plugin] Search",
+        "[Package] Search"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 25438,
+      "title": "Instant Search: Better handling of untitled posts in search results",
+      "url": "https://github.com/Automattic/jetpack/issues/25438",
+      "created_at": "2022-08-11T10:29:31Z",
+      "labels": [
+        "Enhancement",
+        "[Feature] Search",
+        "[Plugin] Jetpack",
+        "[Plugin] Search"
+      ],
+      "comments_count": 1
+    },
+    {
+      "number": 25435,
+      "title": "Instant Search: Add some contrast or separation to results on mobile",
+      "url": "https://github.com/Automattic/jetpack/issues/25435",
+      "created_at": "2022-08-11T06:32:47Z",
+      "labels": [
+        "Enhancement",
+        "[Feature] Search",
+        "[Plugin] Jetpack",
+        "[Plugin] Search",
+        "[Package] Search"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 25327,
+      "title": "Sharing buttons: Discrepancies between themes on homepage / archive pages",
+      "url": "https://github.com/Automattic/jetpack/issues/25327",
+      "created_at": "2022-07-29T10:39:46Z",
+      "labels": [
+        "Bug",
+        "[Feature] Sharing",
+        "[Pri] Normal",
+        "[Plugin] Jetpack",
+        "[Focus] FSE",
+        "Triaged"
+      ],
+      "comments_count": 1
+    },
+    {
+      "number": 25326,
+      "title": "Slideshow block: Controls have no contrast (on select themes)",
+      "url": "https://github.com/Automattic/jetpack/issues/25326",
+      "created_at": "2022-07-29T08:13:02Z",
+      "labels": [
+        "Bug",
+        "[Pri] Low",
+        "[Block] Slideshow",
+        "[Plugin] Jetpack",
+        "Triaged"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 25305,
+      "title": "Full-width blocks alignment don't match in the editor",
+      "url": "https://github.com/Automattic/jetpack/issues/25305",
+      "created_at": "2022-07-28T09:27:46Z",
+      "labels": [
+        "Bug",
+        "Enhancement",
+        "[Pri] Normal",
+        "[Block] Slideshow",
+        "Blocks V2",
+        "[Plugin] Jetpack",
+        "Triaged"
+      ],
+      "comments_count": 1
+    },
+    {
+      "number": 25267,
+      "title": "Enhancement: Add ability to filter meta tags",
+      "url": "https://github.com/Automattic/jetpack/issues/25267",
+      "created_at": "2022-07-26T02:26:25Z",
+      "labels": [
+        "Enhancement",
+        "[Plugin] Social"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 25259,
+      "title": "Reader to display custom post types",
+      "url": "https://github.com/Automattic/jetpack/issues/25259",
+      "created_at": "2022-07-23T10:14:21Z",
+      "labels": [
+        "Enhancement",
+        "[Feature] Subscriptions",
+        "General",
+        "[Pri] Low"
+      ],
+      "comments_count": 2
+    },
+    {
+      "number": 25087,
+      "title": "My Jetpack: Notify about Identity Crisis",
+      "url": "https://github.com/Automattic/jetpack/issues/25087",
+      "created_at": "2022-07-13T16:10:11Z",
+      "labels": [
+        "[Status] Design Input Requested",
+        "[Package] My Jetpack"
+      ],
+      "comments_count": 5
+    },
+    {
+      "number": 25006,
+      "title": "Gallery block: x Icon to Close Carousel view breaks on Safari Browser when an Image has a Caption with 4 or more lines",
+      "url": "https://github.com/Automattic/jetpack/issues/25006",
+      "created_at": "2022-07-08T08:57:09Z",
+      "labels": [
+        "Bug",
+        "[Feature] Carousel",
+        "[Pri] Low",
+        "[Plugin] Jetpack"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 24912,
+      "title": "Sync: Add enable_instant_search to syncing for Search",
+      "url": "https://github.com/Automattic/jetpack/issues/24912",
+      "created_at": "2022-06-30T15:23:31Z",
+      "labels": [
+        "Bug",
+        "[Package] Sync",
+        "[Pri] Normal",
+        "[Feature] Search",
+        "[Plugin] Jetpack"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 25456,
+      "title": "Add Support for WooCommerce Multilingual multicurrency",
+      "url": "https://github.com/Automattic/jetpack/issues/25456",
+      "created_at": "2022-06-30T09:52:43Z",
+      "labels": [
+        "Enhancement",
+        "[Focus] i18n",
+        "[Plugin] Super Cache"
+      ],
+      "comments_count": 1
+    },
+    {
+      "number": 24842,
+      "title": "Sync: clarify use of base64 encoding",
+      "url": "https://github.com/Automattic/jetpack/issues/24842",
+      "created_at": "2022-06-27T14:31:17Z",
+      "labels": [
+        "[Type] Janitorial",
+        "[Package] Sync",
+        "[Pri] Normal"
+      ],
+      "comments_count": 2
+    },
+    {
+      "number": 24782,
+      "title": "Feature Request: Ability to hide comments on search results",
+      "url": "https://github.com/Automattic/jetpack/issues/24782",
+      "created_at": "2022-06-17T23:05:09Z",
+      "labels": [
+        "New Feature",
+        "[Feature] Search",
+        "[Plugin] Search"
+      ],
+      "comments_count": 4
+    },
+    {
+      "number": 24781,
+      "title": "Feature Request: Ability to hide breadcrumb on Expanded search result format",
+      "url": "https://github.com/Automattic/jetpack/issues/24781",
+      "created_at": "2022-06-17T22:59:42Z",
+      "labels": [
+        "New Feature",
+        "[Feature] Search",
+        "[Plugin] Search"
+      ],
+      "comments_count": 1
+    },
+    {
+      "number": 25008,
+      "title": "Gif/Giphy Block: Add Alt Text field",
+      "url": "https://github.com/Automattic/jetpack/issues/25008",
+      "created_at": "2022-06-17T20:24:47Z",
+      "labels": [
+        "[Focus] Accessibility",
+        "New Feature",
+        "[Pri] Normal",
+        "[Block] GIF",
+        "[Plugin] Jetpack",
+        "Media",
+        "Triaged"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 24775,
+      "title": "Main branch renamed to `trunk`",
+      "url": "https://github.com/Automattic/jetpack/issues/24775",
+      "created_at": "2022-06-17T13:31:55Z",
+      "labels": [
+        "Build",
+        "[Tools] Monorepo Setup"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 24773,
+      "title": "Carousel: Advancing images too quickly causes image being overlaid",
+      "url": "https://github.com/Automattic/jetpack/issues/24773",
+      "created_at": "2022-06-17T12:47:32Z",
+      "labels": [
+        "Bug",
+        "[Feature] Carousel",
+        "[Pri] Low",
+        "[Plugin] Jetpack"
+      ],
+      "comments_count": 4
+    },
+    {
+      "number": 24713,
+      "title": "Updated minimum supported PHP version for development to PHP 8",
+      "url": "https://github.com/Automattic/jetpack/issues/24713",
+      "created_at": "2022-06-13T15:09:22Z",
+      "labels": [
+        "Bug",
+        "Docs",
+        "[Pri] Normal",
+        "[Tools] Monorepo Setup"
+      ],
+      "comments_count": 2
+    },
+    {
+      "number": 24745,
+      "title": "Facebook Page Plugin (Jetpack) not working on iOS",
+      "url": "https://github.com/Automattic/jetpack/issues/24745",
+      "created_at": "2022-06-13T09:43:38Z",
+      "labels": [
+        "Bug",
+        "[Feature] Extra Sidebar Widgets",
+        "[Pri] Normal",
+        "Customer Report [LEGACY]",
+        "[Plugin] Jetpack"
+      ],
+      "comments_count": 24
+    },
+    {
+      "number": 24685,
+      "title": "Search: set error boundary for Dashboard",
+      "url": "https://github.com/Automattic/jetpack/issues/24685",
+      "created_at": "2022-06-09T02:37:48Z",
+      "labels": [
+        "Enhancement",
+        "[Feature] Search",
+        "[Package] Search"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 24683,
+      "title": "Search: Add E2E test for customizer search section",
+      "url": "https://github.com/Automattic/jetpack/issues/24683",
+      "created_at": "2022-06-09T02:30:50Z",
+      "labels": [
+        "Enhancement",
+        "[Feature] Search",
+        "E2E Tests",
+        "[Plugin] Jetpack",
+        "[Plugin] Search",
+        "[Package] Search"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 24682,
+      "title": "Search: add E2E tests for search widget editing",
+      "url": "https://github.com/Automattic/jetpack/issues/24682",
+      "created_at": "2022-06-09T02:29:08Z",
+      "labels": [
+        "Enhancement",
+        "E2E Tests",
+        "[Plugin] Jetpack",
+        "[Plugin] Search",
+        "[Package] Search"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 25078,
+      "title": "Give feedback when Publicize fails due to \"Connection available to all administrators, editors, and authors\" not being checked",
+      "url": "https://github.com/Automattic/jetpack/issues/25078",
+      "created_at": "2022-06-05T18:42:42Z",
+      "labels": [
+        "[Feature] Publicize",
+        "New Feature",
+        "[Pri] Low",
+        "Triaged"
+      ],
+      "comments_count": 2
+    },
+    {
+      "number": 24610,
+      "title": "Search Enhancement: remove or improve search result caching",
+      "url": "https://github.com/Automattic/jetpack/issues/24610",
+      "created_at": "2022-06-02T01:26:49Z",
+      "labels": [
+        "Enhancement",
+        "[Feature] WPCOM API",
+        "[Feature] Search",
+        "[Package] Search"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 25457,
+      "title": "Tracking Parameters Causes Issue for Forms",
+      "url": "https://github.com/Automattic/jetpack/issues/25457",
+      "created_at": "2022-06-01T21:39:45Z",
+      "labels": [
+        "[Status] Needs Author Reply",
+        "[Plugin] Super Cache"
+      ],
+      "comments_count": 1
+    },
+    {
+      "number": 24594,
+      "title": "Feature Request: convert search widget to block widget",
+      "url": "https://github.com/Automattic/jetpack/issues/24594",
+      "created_at": "2022-05-31T23:15:23Z",
+      "labels": [
+        "New Feature",
+        "[Feature] Search",
+        "[Package] Search"
+      ],
+      "comments_count": 1
+    },
+    {
+      "number": 24537,
+      "title": "Feature Request: Full screen (or big screen) mode for Slideshow block ",
+      "url": "https://github.com/Automattic/jetpack/issues/24537",
+      "created_at": "2022-05-27T12:08:34Z",
+      "labels": [
+        "Enhancement",
+        "[Feature] Carousel",
+        "[Feature] Shortcodes / Embeds",
+        "[Pri] Low",
+        "[Block] Slideshow",
+        "Customer Report [LEGACY]",
+        "[Plugin] Jetpack"
+      ],
+      "comments_count": 6
+    },
+    {
+      "number": 24525,
+      "title": "DevCard Tools: refactor for feature checks vs plan checks",
+      "url": "https://github.com/Automattic/jetpack/issues/24525",
+      "created_at": "2022-05-26T18:37:13Z",
+      "labels": [
+        "Enhancement",
+        "[Pri] Low",
+        "[Plugin] Jetpack"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 24455,
+      "title": "Enhancement: Add feature to enforce unique reviewer approvals to required-review action when reviewer satisfies multiple 'all-of' teams",
+      "url": "https://github.com/Automattic/jetpack/issues/24455",
+      "created_at": "2022-05-20T14:17:20Z",
+      "labels": [
+        "Enhancement",
+        "[Pri] Low",
+        "Good For Community",
+        "[Action] Required Review"
+      ],
+      "comments_count": 1
+    },
+    {
+      "number": 24447,
+      "title": "Change from the Calypso side and remove the special behaviour for search from `class.wpcom-json-api.php`",
+      "url": "https://github.com/Automattic/jetpack/issues/24447",
+      "created_at": "2022-05-19T23:26:27Z",
+      "labels": [
+        "[Feature] Search",
+        "[Plugin] Search",
+        "[Package] Search"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 24446,
+      "title": "Ensure i18n works",
+      "url": "https://github.com/Automattic/jetpack/issues/24446",
+      "created_at": "2022-05-19T23:21:55Z",
+      "labels": [
+        "[Focus] i18n",
+        "[Feature] Search",
+        "[Plugin] Search",
+        "[Package] Search"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 24445,
+      "title": "Review permission checks for both plugin and wpcom APIs",
+      "url": "https://github.com/Automattic/jetpack/issues/24445",
+      "created_at": "2022-05-19T23:14:26Z",
+      "labels": [
+        "[Feature] Search",
+        "[Plugin] Search",
+        "[Package] Search"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 24405,
+      "title": "[Boost] Use WordPress heartbeat API for slow polling",
+      "url": "https://github.com/Automattic/jetpack/issues/24405",
+      "created_at": "2022-05-18T05:53:57Z",
+      "labels": [
+        "[Plugin] Boost",
+        "[Boost Feature] Cloud CSS"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 24400,
+      "title": "Search: Improve live preview discoverability in Customberg for mobile viewports",
+      "url": "https://github.com/Automattic/jetpack/issues/24400",
+      "created_at": "2022-05-18T00:45:00Z",
+      "labels": [
+        "Enhancement",
+        "[Feature] Search"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 24373,
+      "title": "Enhancement: Related Posts preview on mobile devices",
+      "url": "https://github.com/Automattic/jetpack/issues/24373",
+      "created_at": "2022-05-14T02:52:54Z",
+      "labels": [
+        "Enhancement",
+        "[Feature] Related Posts",
+        "[Plugin] Jetpack"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 24321,
+      "title": "Enhancement: Indicate Map Block Limitations in UI",
+      "url": "https://github.com/Automattic/jetpack/issues/24321",
+      "created_at": "2022-05-10T16:43:10Z",
+      "labels": [
+        "Enhancement",
+        "[Block] Map",
+        "Customer Report [LEGACY]",
+        "[Plugin] Jetpack"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 24311,
+      "title": "Should search plugin respect module status overridden?",
+      "url": "https://github.com/Automattic/jetpack/issues/24311",
+      "created_at": "2022-05-09T22:12:35Z",
+      "labels": [
+        "Enhancement",
+        "[Feature] Search",
+        "[Package] Search"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 24271,
+      "title": "Odd behavior of '>' (greater-than) in Markdown Block",
+      "url": "https://github.com/Automattic/jetpack/issues/24271",
+      "created_at": "2022-05-06T12:46:07Z",
+      "labels": [
+        "Bug",
+        "[Pri] Low",
+        "[Block] Markdown"
+      ],
+      "comments_count": 2
+    },
+    {
+      "number": 24196,
+      "title": "Excluding multiple categories from Related Posts disables it completely",
+      "url": "https://github.com/Automattic/jetpack/issues/24196",
+      "created_at": "2022-04-29T21:29:33Z",
+      "labels": [
+        "[Status] Needs Author Reply",
+        "[Feature] Related Posts",
+        "[Plugin] Jetpack"
+      ],
+      "comments_count": 1
+    },
+    {
+      "number": 24254,
+      "title": "Sharing: Query Loop block displaying sharing buttons on page editor but not on the live page",
+      "url": "https://github.com/Automattic/jetpack/issues/24254",
+      "created_at": "2022-04-27T16:02:43Z",
+      "labels": [
+        "Bug",
+        "[Feature] Sharing",
+        "[Pri] Normal",
+        "Customer Report [LEGACY]",
+        "[Focus] FSE"
+      ],
+      "comments_count": 3
+    },
+    {
+      "number": 23922,
+      "title": "Subscriptions: Subscribing to comments silently fails for users with pending subscriptions block",
+      "url": "https://github.com/Automattic/jetpack/issues/23922",
+      "created_at": "2022-04-13T13:27:52Z",
+      "labels": [
+        "Enhancement",
+        "[Feature] Subscriptions",
+        "[Pri] Normal",
+        "Customer Report [LEGACY]",
+        "[Plugin] Jetpack"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 23929,
+      "title": "Jetpack: QRPost: increase the QR code resolution",
+      "url": "https://github.com/Automattic/jetpack/issues/23929",
+      "created_at": "2022-04-12T19:16:42Z",
+      "labels": [
+        "Enhancement",
+        "[Pri] Low",
+        "Customer Report [LEGACY]",
+        "[Extension] Post Publish QR Post Panel"
+      ],
+      "comments_count": 1
+    },
+    {
+      "number": 27266,
+      "title": "[Bug]: Annual Site Stats Insights Reporting Wrong Posts Number",
+      "url": "https://github.com/Automattic/jetpack/issues/27266",
+      "created_at": "2022-04-12T17:40:13Z",
+      "labels": [
+        "Bug",
+        "[Feature] Stats Data",
+        "[Package] Sync",
+        "[Pri] Low",
+        "Customer Report [LEGACY]",
+        "Triaged"
+      ],
+      "comments_count": 5
+    },
+    {
+      "number": 24867,
+      "title": "Photon: Images larger than 6000px set to full-width+full size appear blurry with Photon enabled",
+      "url": "https://github.com/Automattic/jetpack/issues/24867",
+      "created_at": "2022-04-11T12:37:16Z",
+      "labels": [
+        "Bug",
+        "[Feature] Photon",
+        "[Pri] Normal",
+        "Customer Report [LEGACY]",
+        "Triaged"
+      ],
+      "comments_count": 7
+    },
+    {
+      "number": 23886,
+      "title": "Feature Request: Jetpack Search Filter to Only Show Products in Stock",
+      "url": "https://github.com/Automattic/jetpack/issues/23886",
+      "created_at": "2022-04-08T20:05:15Z",
+      "labels": [
+        "Enhancement",
+        "[Feature] Search",
+        "[Plugin] Search"
+      ],
+      "comments_count": 1
+    },
+    {
+      "number": 24046,
+      "title": "[Tiled Gallery] Shift+Click Selection in Reverse Order isn't working as expected",
+      "url": "https://github.com/Automattic/jetpack/issues/24046",
+      "created_at": "2022-04-08T09:58:41Z",
+      "labels": [
+        "Bug",
+        "[Pri] Low",
+        "Customer Report [LEGACY]",
+        "[Block] Tiled Gallery",
+        "[Plugin] Jetpack"
+      ],
+      "comments_count": 6
+    },
+    {
+      "number": 23792,
+      "title": "External Media: update Openverse logo in Media popover",
+      "url": "https://github.com/Automattic/jetpack/issues/23792",
+      "created_at": "2022-04-05T14:09:31Z",
+      "labels": [
+        "Enhancement",
+        "[Extension] External Media",
+        "[Plugin] Jetpack"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 23727,
+      "title": "Subscription Block: update subscriber count to take Publicize settings into account",
+      "url": "https://github.com/Automattic/jetpack/issues/23727",
+      "created_at": "2022-03-31T13:32:03Z",
+      "labels": [
+        "Enhancement",
+        "[Feature] Publicize",
+        "[Feature] Subscriptions",
+        "[Pri] Low",
+        "[Block] Subscribe"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 23717,
+      "title": "Feature Request: Build Tools - Add command for generating zip bundles of each plugin from command line, locally",
+      "url": "https://github.com/Automattic/jetpack/issues/23717",
+      "created_at": "2022-03-30T19:34:41Z",
+      "labels": [
+        "New Feature",
+        "Build",
+        "[Tools] Development CLI",
+        "[Tools] Monorepo Setup"
+      ],
+      "comments_count": 1
+    },
+    {
+      "number": 23660,
+      "title": "Search: Filter content on the site to auto link and open search overlay.",
+      "url": "https://github.com/Automattic/jetpack/issues/23660",
+      "created_at": "2022-03-28T21:00:14Z",
+      "labels": [
+        "New Feature",
+        "Customer Report [LEGACY]",
+        "[Plugin] Jetpack",
+        "[Plugin] Search"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 23588,
+      "title": "Enhancement: assess removal of postcss from search package",
+      "url": "https://github.com/Automattic/jetpack/issues/23588",
+      "created_at": "2022-03-24T03:05:17Z",
+      "labels": [
+        "Enhancement",
+        "[Feature] Search",
+        "[Plugin] Jetpack",
+        "[Package] Search"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 23530,
+      "title": "Feature Request: Reduce Unused CSS in Jetpack Boost",
+      "url": "https://github.com/Automattic/jetpack/issues/23530",
+      "created_at": "2022-03-21T20:05:06Z",
+      "labels": [
+        "New Feature",
+        "[Pri] Low",
+        "[Plugin] Boost"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 23510,
+      "title": "Feature Request: Filter categories differently than the overall settings using the Gutenberg Search Block",
+      "url": "https://github.com/Automattic/jetpack/issues/23510",
+      "created_at": "2022-03-19T09:53:52Z",
+      "labels": [
+        "New Feature",
+        "[Feature] Search",
+        "Customer Report [LEGACY]",
+        "[Plugin] Jetpack"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 23469,
+      "title": "Enhancement: Gallery Block Hooks",
+      "url": "https://github.com/Automattic/jetpack/issues/23469",
+      "created_at": "2022-03-16T17:46:58Z",
+      "labels": [
+        "Enhancement",
+        "[Pri] Low",
+        "[Block] Tiled Gallery"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 23421,
+      "title": "Donations Form Block: Attach the Donations pattern",
+      "url": "https://github.com/Automattic/jetpack/issues/23421",
+      "created_at": "2022-03-14T13:42:42Z",
+      "labels": [
+        "Enhancement",
+        "[Block] Payment Button",
+        "[Plugin] Jetpack",
+        "[Block] Donations"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 23420,
+      "title": "Payments Block: Add the Donations pattern",
+      "url": "https://github.com/Automattic/jetpack/issues/23420",
+      "created_at": "2022-03-14T13:39:10Z",
+      "labels": [
+        "Enhancement",
+        "[Block] Payment Button",
+        "[Plugin] Jetpack",
+        "[Block] Payments"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 25037,
+      "title": "Patterns: Create a Donations pattern",
+      "url": "https://github.com/Automattic/jetpack/issues/25037",
+      "created_at": "2022-03-14T13:37:16Z",
+      "labels": [
+        "Task",
+        "[Block] Payment Button",
+        "[Block] Donations",
+        "Patterns"
+      ],
+      "comments_count": 1
+    },
+    {
+      "number": 23417,
+      "title": "Payment Button Block: Create a custom amount variation",
+      "url": "https://github.com/Automattic/jetpack/issues/23417",
+      "created_at": "2022-03-14T13:31:44Z",
+      "labels": [
+        "Enhancement",
+        "[Block] Payment Button"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 23405,
+      "title": "Photon: filter attachment_url_to_postid() to support Photon CDN URLs",
+      "url": "https://github.com/Automattic/jetpack/issues/23405",
+      "created_at": "2022-03-12T16:08:42Z",
+      "labels": [
+        "Enhancement",
+        "[Feature] Photon",
+        "[Pri] Low",
+        "Good For Community",
+        "[Plugin] Jetpack"
+      ],
+      "comments_count": 3
+    },
+    {
+      "number": 23260,
+      "title": "Feature Request: My Jetpack shows paid upgrades first",
+      "url": "https://github.com/Automattic/jetpack/issues/23260",
+      "created_at": "2022-03-06T23:59:33Z",
+      "labels": [
+        "Enhancement",
+        "[Plugin] Jetpack",
+        "[Package] My Jetpack"
+      ],
+      "comments_count": 1
+    },
+    {
+      "number": 23236,
+      "title": "S2.3 Post purchase thank-you page",
+      "url": "https://github.com/Automattic/jetpack/issues/23236",
+      "created_at": "2022-03-04T00:33:38Z",
+      "labels": [
+        "New Feature",
+        "[Feature] Search",
+        "[Size] M",
+        "[Plugin] Search"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 17874,
+      "title": "e2e Tests: Run against Firefox",
+      "url": "https://github.com/Automattic/jetpack/issues/17874",
+      "created_at": "2020-11-23T20:14:10Z",
+      "labels": [
+        "[Focus] Blocks",
+        "E2E Tests"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 17395,
+      "title": "Instant Search: Scrollbar Scrolls Content, Not Full Page Search Overlay",
+      "url": "https://github.com/Automattic/jetpack/issues/17395",
+      "created_at": "2020-10-06T23:07:20Z",
+      "labels": [
+        "Bug",
+        "[Pri] Normal",
+        "[Feature] Search"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 17384,
+      "title": "Custom #infinite-handle button doesn't works",
+      "url": "https://github.com/Automattic/jetpack/issues/17384",
+      "created_at": "2020-10-06T12:15:18Z",
+      "labels": [
+        "Bug",
+        "[Feature] Infinite Scroll",
+        "[Pri] Low",
+        "Good For Community"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 17379,
+      "title": "Jetpack REST API: Site based authentication migration",
+      "url": "https://github.com/Automattic/jetpack/issues/17379",
+      "created_at": "2020-10-05T14:39:03Z",
+      "labels": [
+        "Enhancement",
+        "[Feature] WP REST API"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 17365,
+      "title": "Instant Search: Private simple site search fails if mapped to a domain",
+      "url": "https://github.com/Automattic/jetpack/issues/17365",
+      "created_at": "2020-10-02T22:01:54Z",
+      "labels": [
+        "Bug",
+        "[Pri] Normal",
+        "[Feature] Search"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 17328,
+      "title": "Site Health: improve look and consistency of all tests",
+      "url": "https://github.com/Automattic/jetpack/issues/17328",
+      "created_at": "2020-09-30T14:20:36Z",
+      "labels": [
+        "Enhancement",
+        "General",
+        "[Pri] Normal"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 17325,
+      "title": "Pinterest Block: display custom message when Pinterest cannot be reached",
+      "url": "https://github.com/Automattic/jetpack/issues/17325",
+      "created_at": "2020-09-30T11:36:00Z",
+      "labels": [
+        "Enhancement",
+        "[Pri] Low",
+        "[Block] Pinterest"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 17320,
+      "title": "My Plan: merge \"activate\" and \"configure\" buttons when possible",
+      "url": "https://github.com/Automattic/jetpack/issues/17320",
+      "created_at": "2020-09-30T07:31:26Z",
+      "labels": [
+        "Enhancement",
+        "Admin Page",
+        "Plans"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 17282,
+      "title": "Publicize: add explanation when toggles are disabled for a published post",
+      "url": "https://github.com/Automattic/jetpack/issues/17282",
+      "created_at": "2020-09-28T09:13:55Z",
+      "labels": [
+        "Enhancement",
+        "[Feature] Publicize",
+        "[Pri] Low"
+      ],
+      "comments_count": 2
+    },
+    {
+      "number": 17267,
+      "title": "EventBrite Block: Focus not returning to invoking element on modal close (A11Y)",
+      "url": "https://github.com/Automattic/jetpack/issues/17267",
+      "created_at": "2020-09-25T20:45:19Z",
+      "labels": [
+        "Bug",
+        "[Focus] Accessibility",
+        "[Pri] Normal",
+        "[Block] Eventbrite"
+      ],
+      "comments_count": 1
+    },
+    {
+      "number": 17241,
+      "title": "PHPCS - Use prepared sql",
+      "url": "https://github.com/Automattic/jetpack/issues/17241",
+      "created_at": "2020-09-22T17:22:05Z",
+      "labels": [
+        "[Type] Janitorial",
+        "[Package] Sync"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 17240,
+      "title": "Add ability to disable masterbar from theme",
+      "url": "https://github.com/Automattic/jetpack/issues/17240",
+      "created_at": "2020-09-22T16:19:04Z",
+      "labels": [
+        "Enhancement",
+        "[Pri] Low",
+        "[Feature] Masterbar"
+      ],
+      "comments_count": 1
+    },
+    {
+      "number": 17239,
+      "title": "Add \"Edit\" button to masterbar",
+      "url": "https://github.com/Automattic/jetpack/issues/17239",
+      "created_at": "2020-09-22T16:14:14Z",
+      "labels": [
+        "Enhancement",
+        "[Pri] Low",
+        "[Feature] Masterbar"
+      ],
+      "comments_count": 1
+    },
+    {
+      "number": 17221,
+      "title": "Autoloader: A potential issue with different major versions of dependencies",
+      "url": "https://github.com/Automattic/jetpack/issues/17221",
+      "created_at": "2020-09-21T17:49:45Z",
+      "labels": [
+        "Enhancement",
+        "[Pri] Normal",
+        "[Focus] Jetpack DNA",
+        "[Package] Autoloader"
+      ],
+      "comments_count": 3
+    },
+    {
+      "number": 17207,
+      "title": "Search: add 404 search recommendation block",
+      "url": "https://github.com/Automattic/jetpack/issues/17207",
+      "created_at": "2020-09-18T21:45:55Z",
+      "labels": [
+        "Enhancement",
+        "[Feature] Search"
+      ],
+      "comments_count": 2
+    },
+    {
+      "number": 17182,
+      "title": "Contradiction between text of Jetpack \"free\" plan with Jetpack Backup product",
+      "url": "https://github.com/Automattic/jetpack/issues/17182",
+      "created_at": "2020-09-16T17:51:35Z",
+      "labels": [
+        "Bug",
+        "Admin Page",
+        "[Pri] Normal",
+        "[Focus] FixTheFlows",
+        "Plans",
+        "[Feature] Backups"
+      ],
+      "comments_count": 2
+    },
+    {
+      "number": 17159,
+      "title": "Instant Search: Search API only accepts blog tokens for Atomic/VIP sites",
+      "url": "https://github.com/Automattic/jetpack/issues/17159",
+      "created_at": "2020-09-14T19:00:58Z",
+      "labels": [
+        "[Package] Sync",
+        "[Feature] Search",
+        "[Feature] Backups"
+      ],
+      "comments_count": 6
+    },
+    {
+      "number": 17129,
+      "title": "Calendly Block: Can't switch back from link style",
+      "url": "https://github.com/Automattic/jetpack/issues/17129",
+      "created_at": "2020-09-10T11:02:02Z",
+      "labels": [
+        "Enhancement",
+        "[Pri] Normal",
+        "[Block] Calendly"
+      ],
+      "comments_count": 1
+    },
+    {
+      "number": 17125,
+      "title": "Tiled gallery: adding images button invisible on dark backgrounds",
+      "url": "https://github.com/Automattic/jetpack/issues/17125",
+      "created_at": "2020-09-10T09:29:03Z",
+      "labels": [
+        "Bug",
+        "[Pri] Normal",
+        "[Block] Tiled Gallery"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 17112,
+      "title": "Slideshow Block: Allow arranging images by drag-n-drop",
+      "url": "https://github.com/Automattic/jetpack/issues/17112",
+      "created_at": "2020-09-09T13:54:47Z",
+      "labels": [
+        "Enhancement",
+        "[Pri] Low",
+        "[Block] Slideshow",
+        "Customer Report [LEGACY]"
+      ],
+      "comments_count": 4
+    },
+    {
+      "number": 17109,
+      "title": "Infinite scroll: Issues with browser back button and Infinity Scrolled page ",
+      "url": "https://github.com/Automattic/jetpack/issues/17109",
+      "created_at": "2020-09-09T10:25:18Z",
+      "labels": [
+        "Bug",
+        "[Feature] Infinite Scroll",
+        "[Pri] Normal"
+      ],
+      "comments_count": 6
+    },
+    {
+      "number": 17108,
+      "title": "Infinite scroll: on scrolled page, browser \"back\" button creates offset issues",
+      "url": "https://github.com/Automattic/jetpack/issues/17108",
+      "created_at": "2020-09-09T09:58:06Z",
+      "labels": [
+        "Bug",
+        "[Feature] Infinite Scroll",
+        "[Pri] Normal"
+      ],
+      "comments_count": 4
+    },
+    {
+      "number": 17097,
+      "title": "Masterbar Module: Link to wp-admin when the site is ineligible for Gutenframe",
+      "url": "https://github.com/Automattic/jetpack/issues/17097",
+      "created_at": "2020-09-08T09:42:39Z",
+      "labels": [
+        "Enhancement",
+        "[Pri] Normal",
+        "[Feature] Masterbar",
+        "[Size] S"
+      ],
+      "comments_count": 2
+    },
+    {
+      "number": 17066,
+      "title": "Search: add support for Safe Redirect Plugin",
+      "url": "https://github.com/Automattic/jetpack/issues/17066",
+      "created_at": "2020-09-03T18:37:22Z",
+      "labels": [
+        "[Package] Sync",
+        "New Feature",
+        "[Feature] Search",
+        "[Status] Search Index Change",
+        "[Closed] Won't Fix",
+        "Customer Report [LEGACY]"
+      ],
+      "comments_count": 5
+    },
+    {
+      "number": 17050,
+      "title": "Possible bug in output buffering for infinite scroll",
+      "url": "https://github.com/Automattic/jetpack/issues/17050",
+      "created_at": "2020-09-02T07:23:17Z",
+      "labels": [
+        "Bug",
+        "[Feature] Infinite Scroll",
+        "[Pri] Low",
+        "Good For Community"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 16985,
+      "title": "Tools: prepare-commit-msg.js is prepending \"[not verified]\" to commits after rebase.",
+      "url": "https://github.com/Automattic/jetpack/issues/16985",
+      "created_at": "2020-08-26T08:32:21Z",
+      "labels": [
+        "Bug",
+        "[Type] Janitorial",
+        "[Pri] Normal"
+      ],
+      "comments_count": 11
+    },
+    {
+      "number": 16972,
+      "title": "DNA: automate version management of files enqueued from within a package",
+      "url": "https://github.com/Automattic/jetpack/issues/16972",
+      "created_at": "2020-08-25T16:06:22Z",
+      "labels": [
+        "Enhancement",
+        "[Pri] Normal",
+        "[Focus] Jetpack DNA"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 16966,
+      "title": "Blocks Build: remove calypso-color-schemes dependency and rely on color-studio instead",
+      "url": "https://github.com/Automattic/jetpack/issues/16966",
+      "created_at": "2020-08-25T11:38:08Z",
+      "labels": [
+        "[Type] Janitorial",
+        "[Pri] Normal",
+        "[Focus] Blocks",
+        "Build"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 16951,
+      "title": "i18n: Jetpack overriding translations in Site Health",
+      "url": "https://github.com/Automattic/jetpack/issues/16951",
+      "created_at": "2020-08-24T09:54:58Z",
+      "labels": [
+        "Bug",
+        "[Focus] i18n",
+        "[Pri] Normal",
+        "[Feature] Asset CDN"
+      ],
+      "comments_count": 1
+    },
+    {
+      "number": 16884,
+      "title": "Search: add SQL WHERE clause support to our API?",
+      "url": "https://github.com/Automattic/jetpack/issues/16884",
+      "created_at": "2020-08-18T23:10:22Z",
+      "labels": [
+        "New Feature",
+        "[Feature] Search"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 16855,
+      "title": "Gif block styles conflict with theme block styles",
+      "url": "https://github.com/Automattic/jetpack/issues/16855",
+      "created_at": "2020-08-15T20:08:29Z",
+      "labels": [
+        "Bug",
+        "[Pri] Normal",
+        "Good For Community",
+        "[Block] GIF"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 16854,
+      "title": "Automatically disable CDN when enabling debug mode",
+      "url": "https://github.com/Automattic/jetpack/issues/16854",
+      "created_at": "2020-08-15T19:33:04Z",
+      "labels": [
+        "Enhancement",
+        "[Feature] Photon",
+        "[Feature] Offline Mode",
+        "[Pri] Low",
+        "Good For Community",
+        "[Feature] Asset CDN"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 16822,
+      "title": "Form Block: label formatting is not applied on the frontend",
+      "url": "https://github.com/Automattic/jetpack/issues/16822",
+      "created_at": "2020-08-13T09:40:20Z",
+      "labels": [
+        "Bug",
+        "[Feature] Forms",
+        "[Pri] Normal",
+        "[Size] S"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 16816,
+      "title": "Block Editor Tools: revisit registration and directory structure",
+      "url": "https://github.com/Automattic/jetpack/issues/16816",
+      "created_at": "2020-08-12T09:50:45Z",
+      "labels": [
+        "[Type] Janitorial",
+        "[Pri] Normal",
+        "[Focus] Blocks"
+      ],
+      "comments_count": 4
+    },
+    {
+      "number": 16812,
+      "title": "Develop a search feature for individual days in Stats",
+      "url": "https://github.com/Automattic/jetpack/issues/16812",
+      "created_at": "2020-08-11T23:22:54Z",
+      "labels": [
+        "Enhancement",
+        "[Feature] Stats Data",
+        "[Pri] Low"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 16800,
+      "title": "stats_get_csv(): Post view data for 1 day is empty between midnight UTC and midnight local time",
+      "url": "https://github.com/Automattic/jetpack/issues/16800",
+      "created_at": "2020-08-11T04:33:31Z",
+      "labels": [
+        "Bug",
+        "[Feature] Stats Data",
+        "[Pri] Low"
+      ],
+      "comments_count": 2
+    },
+    {
+      "number": 16789,
+      "title": "Drop usage of the old Heartbeat",
+      "url": "https://github.com/Automattic/jetpack/issues/16789",
+      "created_at": "2020-08-10T17:28:50Z",
+      "labels": [
+        "General",
+        "[Type] Janitorial",
+        "[Pri] Normal"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 20123,
+      "title": "UI: Inconsistent menu item ordering",
+      "url": "https://github.com/Automattic/jetpack/issues/20123",
+      "created_at": "2020-08-10T04:08:05Z",
+      "labels": [
+        "Enhancement",
+        "[Pri] Low",
+        "[Plugin] VaultPress"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 16740,
+      "title": "Delay site is \"Unreachable\" notification from Jetpack while plugins are being \"Updated\".",
+      "url": "https://github.com/Automattic/jetpack/issues/16740",
+      "created_at": "2020-08-06T00:16:23Z",
+      "labels": [
+        "Enhancement",
+        "[Feature] Monitor"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 16720,
+      "title": "Conflict with dfactory cookie notice plugin - async script disabled",
+      "url": "https://github.com/Automattic/jetpack/issues/16720",
+      "created_at": "2020-08-05T07:34:30Z",
+      "labels": [
+        "Bug",
+        "[Feature] Shortcodes / Embeds",
+        "[Pri] Normal"
+      ],
+      "comments_count": 8
+    },
+    {
+      "number": 16711,
+      "title": "Business Hours Block: allow users to indicate that they're open \"24 hours\" per day (always open)",
+      "url": "https://github.com/Automattic/jetpack/issues/16711",
+      "created_at": "2020-08-04T16:03:46Z",
+      "labels": [
+        "Enhancement",
+        "[Pri] Low",
+        "[Block] Business Hours"
+      ],
+      "comments_count": 1
+    },
+    {
+      "number": 16673,
+      "title": "Social Icons Widget / Social Menu Theme Tool: include only SVGs needed",
+      "url": "https://github.com/Automattic/jetpack/issues/16673",
+      "created_at": "2020-07-31T18:50:26Z",
+      "labels": [
+        "Enhancement",
+        "[Feature] Extra Sidebar Widgets",
+        "[Feature] Theme Tools",
+        "[Focus] Performance",
+        "[Pri] Normal"
+      ],
+      "comments_count": 4
+    },
+    {
+      "number": 16665,
+      "title": "Instagram Widget: Disable \"Connect\" button if widget is not published",
+      "url": "https://github.com/Automattic/jetpack/issues/16665",
+      "created_at": "2020-07-31T11:02:43Z",
+      "labels": [
+        "Enhancement",
+        "[Feature] Extra Sidebar Widgets"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 16664,
+      "title": "Instagram Widget: Button state not updated when pop-up closed not connected",
+      "url": "https://github.com/Automattic/jetpack/issues/16664",
+      "created_at": "2020-07-31T10:54:36Z",
+      "labels": [
+        "Bug",
+        "[Feature] Extra Sidebar Widgets",
+        "[Pri] Low"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 16656,
+      "title": "Slideshow Block: resizing / rendering issues",
+      "url": "https://github.com/Automattic/jetpack/issues/16656",
+      "created_at": "2020-07-30T23:03:40Z",
+      "labels": [
+        "Bug",
+        "[Pri] Normal",
+        "[Block] Slideshow",
+        "[Size] S"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 16639,
+      "title": "Setting to automatically confirm subscriptions",
+      "url": "https://github.com/Automattic/jetpack/issues/16639",
+      "created_at": "2020-07-29T23:12:20Z",
+      "labels": [
+        "Enhancement",
+        "[Feature] Subscriptions",
+        "[Pri] Low"
+      ],
+      "comments_count": 3
+    },
+    {
+      "number": 16613,
+      "title": "Subscriptions: add the possibility to subscribe only to replies to one's comment",
+      "url": "https://github.com/Automattic/jetpack/issues/16613",
+      "created_at": "2020-07-28T11:35:04Z",
+      "labels": [
+        "Enhancement",
+        "[Feature] Subscriptions",
+        "[Pri] Low"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 16605,
+      "title": "Contact Forms: Ability to open \"Redirect to another webpage\" in a new browser tab",
+      "url": "https://github.com/Automattic/jetpack/issues/16605",
+      "created_at": "2020-07-28T02:54:00Z",
+      "labels": [
+        "Enhancement",
+        "[Feature] Forms",
+        "[Pri] Low",
+        "Customer Report [LEGACY]"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 16579,
+      "title": "Image Compare Plays Badly with Pinterest Image Hover Button",
+      "url": "https://github.com/Automattic/jetpack/issues/16579",
+      "created_at": "2020-07-25T01:27:27Z",
+      "labels": [
+        "Enhancement",
+        "[Pri] Low",
+        "[Block] Image Compare"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 16563,
+      "title": "Sandbox tools: add Admin Bar or frontend widget",
+      "url": "https://github.com/Automattic/jetpack/issues/16563",
+      "created_at": "2020-07-23T18:47:04Z",
+      "labels": [
+        "Enhancement",
+        "[Status] Proposal",
+        "Debug Tools"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 16511,
+      "title": "Subscriptions: Prevent Password Protected Posts From Being Sent to Subscribers",
+      "url": "https://github.com/Automattic/jetpack/issues/16511",
+      "created_at": "2020-07-17T00:04:46Z",
+      "labels": [
+        "Bug",
+        "[Feature] Subscriptions",
+        "[Pri] Normal"
+      ],
+      "comments_count": 2
+    },
+    {
+      "number": 16507,
+      "title": "Editing Slideshow Block to add more images",
+      "url": "https://github.com/Automattic/jetpack/issues/16507",
+      "created_at": "2020-07-16T20:38:48Z",
+      "labels": [
+        "Bug",
+        "[Pri] Normal",
+        "[Block] Slideshow"
+      ],
+      "comments_count": 1
+    },
+    {
+      "number": 16483,
+      "title": "Make Docker mysql container more accessible to the host",
+      "url": "https://github.com/Automattic/jetpack/issues/16483",
+      "created_at": "2020-07-14T16:29:15Z",
+      "labels": [
+        "Enhancement",
+        "[Status] In Progress",
+        "Docker"
+      ],
+      "comments_count": 1
+    },
+    {
+      "number": 16470,
+      "title": "Build and serve wpcom-block-editor inside Jetpack",
+      "url": "https://github.com/Automattic/jetpack/issues/16470",
+      "created_at": "2020-07-13T16:00:28Z",
+      "labels": [
+        "Enhancement",
+        "[Focus] Performance",
+        "[Pri] Normal",
+        "[Feature] WordPress.com Block Editor",
+        "[Size] M"
+      ],
+      "comments_count": 2
+    },
+    {
+      "number": 16441,
+      "title": "Contact Form / Date Picker: Option to restrict dates",
+      "url": "https://github.com/Automattic/jetpack/issues/16441",
+      "created_at": "2020-07-08T23:43:21Z",
+      "labels": [
+        "Enhancement",
+        "[Feature] Forms",
+        "[Pri] Normal",
+        "Good For Community"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 16436,
+      "title": "Mailchimp Connection: Allow separate connections for separate sites",
+      "url": "https://github.com/Automattic/jetpack/issues/16436",
+      "created_at": "2020-07-08T15:42:59Z",
+      "labels": [
+        "[Feature] Publicize",
+        "[Block] Mailchimp",
+        "Customer Report [LEGACY]"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 16419,
+      "title": "Slideshow Block: When using VoiceOver (screenreader) the focus automatically goes to autoplay slides",
+      "url": "https://github.com/Automattic/jetpack/issues/16419",
+      "created_at": "2020-07-06T22:24:27Z",
+      "labels": [
+        "Bug",
+        "[Focus] Accessibility",
+        "[Pri] Normal",
+        "[Block] Slideshow"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 16386,
+      "title": "Verification Tools: Warning breaks Multisite edit settings flow",
+      "url": "https://github.com/Automattic/jetpack/issues/16386",
+      "created_at": "2020-07-04T00:54:21Z",
+      "labels": [
+        "Bug",
+        "[Feature] Verification tools",
+        "[Focus] Multisite",
+        "[Type] Good First Bug",
+        "[Status] In Progress",
+        "[Pri] Low"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 16383,
+      "title": "Search: Expanded Results needs better fallbacks for \"empty-ish\" content",
+      "url": "https://github.com/Automattic/jetpack/issues/16383",
+      "created_at": "2020-07-03T16:38:20Z",
+      "labels": [
+        "[Feature] Search",
+        "[Status] Needs Design"
+      ],
+      "comments_count": 1
+    },
+    {
+      "number": 16357,
+      "title": "Consider adding package unit tests to the multisite phpunit config file",
+      "url": "https://github.com/Automattic/jetpack/issues/16357",
+      "created_at": "2020-07-01T17:16:36Z",
+      "labels": [
+        "Unit Tests",
+        "[Focus] Jetpack DNA"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 16342,
+      "title": "Send a Message Block: Obfuscate phone number",
+      "url": "https://github.com/Automattic/jetpack/issues/16342",
+      "created_at": "2020-06-30T17:53:41Z",
+      "labels": [
+        "Enhancement",
+        "[Block] Send a message",
+        "Blocks V2"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 16253,
+      "title": "Widgets: Display WordPress Posts widget performance issues",
+      "url": "https://github.com/Automattic/jetpack/issues/16253",
+      "created_at": "2020-06-24T01:28:19Z",
+      "labels": [
+        "Enhancement",
+        "[Feature] Extra Sidebar Widgets",
+        "[Focus] Performance",
+        "[Pri] Normal"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 16224,
+      "title": "Search: improve performance of the javascript bundle",
+      "url": "https://github.com/Automattic/jetpack/issues/16224",
+      "created_at": "2020-06-20T22:14:01Z",
+      "labels": [
+        "Enhancement",
+        "[Focus] Performance",
+        "[Feature] Search"
+      ],
+      "comments_count": 3
+    },
+    {
+      "number": 16141,
+      "title": "Authorize flow links to a page explaining Jetpack Sync, it's not always needed",
+      "url": "https://github.com/Automattic/jetpack/issues/16141",
+      "created_at": "2020-06-11T15:39:30Z",
+      "labels": [
+        "Enhancement",
+        "Connect Flow",
+        "[Focus] Jetpack DNA"
+      ],
+      "comments_count": 1
+    },
+    {
+      "number": 16119,
+      "title": "Search: allow user to filter post meta into common fields",
+      "url": "https://github.com/Automattic/jetpack/issues/16119",
+      "created_at": "2020-06-10T15:39:11Z",
+      "labels": [
+        "Enhancement",
+        "[Feature] Search"
+      ],
+      "comments_count": 1
+    },
+    {
+      "number": 16114,
+      "title": "Slideshow block: Slides sometimes not displaying in Chrome, Safari",
+      "url": "https://github.com/Automattic/jetpack/issues/16114",
+      "created_at": "2020-06-09T23:00:20Z",
+      "labels": [
+        "Bug",
+        "[Pri] Low",
+        "[Block] Slideshow"
+      ],
+      "comments_count": 2
+    },
+    {
+      "number": 16105,
+      "title": "Image Compare: size issue when used inside CoBlocks accordion",
+      "url": "https://github.com/Automattic/jetpack/issues/16105",
+      "created_at": "2020-06-09T13:37:28Z",
+      "labels": [
+        "Bug",
+        "[Pri] Low",
+        "Customer Report [LEGACY]",
+        "[Block] Image Compare"
+      ],
+      "comments_count": 1
+    },
+    {
+      "number": 16090,
+      "title": "Image Compare Block: Missing icon, title & description in the placeholder",
+      "url": "https://github.com/Automattic/jetpack/issues/16090",
+      "created_at": "2020-06-08T13:05:54Z",
+      "labels": [
+        "Bug",
+        "[Pri] Normal",
+        "[Block] Image Compare"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 16066,
+      "title": "Move Jetpack::disconnect_site() into connection package",
+      "url": "https://github.com/Automattic/jetpack/issues/16066",
+      "created_at": "2020-06-04T16:46:16Z",
+      "labels": [
+        "Connect Flow",
+        "[Focus] Jetpack DNA"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 16065,
+      "title": "Comments: comment submission does not works on HTTP sites for logged in users",
+      "url": "https://github.com/Automattic/jetpack/issues/16065",
+      "created_at": "2020-06-04T15:11:19Z",
+      "labels": [
+        "Bug",
+        "[Feature] Comments",
+        "[Pri] Normal"
+      ],
+      "comments_count": 4
+    },
+    {
+      "number": 16043,
+      "title": "Image Compare Block: avoid lagging when moving the slider too quickly ",
+      "url": "https://github.com/Automattic/jetpack/issues/16043",
+      "created_at": "2020-06-02T18:09:49Z",
+      "labels": [
+        "Enhancement",
+        "[Pri] Low",
+        "[Block] Image Compare"
+      ],
+      "comments_count": 1
+    },
+    {
+      "number": 16042,
+      "title": "eslint configuration: adapt Jetpack's basic rules to match Calypso",
+      "url": "https://github.com/Automattic/jetpack/issues/16042",
+      "created_at": "2020-06-02T17:47:19Z",
+      "labels": [
+        "Task",
+        "[Pri] Normal",
+        "Build"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 16027,
+      "title": "Publicize: Refresh Facebook tokens",
+      "url": "https://github.com/Automattic/jetpack/issues/16027",
+      "created_at": "2020-06-01T17:17:20Z",
+      "labels": [
+        "Enhancement",
+        "[Feature] Publicize",
+        "[Pri] Normal",
+        "[Size] S"
+      ],
+      "comments_count": 1
+    },
+    {
+      "number": 16026,
+      "title": "External Media: Add Creative Commons as image source",
+      "url": "https://github.com/Automattic/jetpack/issues/16026",
+      "created_at": "2020-06-01T17:08:29Z",
+      "labels": [
+        "Enhancement",
+        "[Pri] Normal",
+        "[Size] M",
+        "[Extension] External Media"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 16006,
+      "title": "Form Block: provide a way to \"reset\" the block",
+      "url": "https://github.com/Automattic/jetpack/issues/16006",
+      "created_at": "2020-05-29T16:25:25Z",
+      "labels": [
+        "Enhancement",
+        "[Feature] Forms",
+        "[Pri] Low",
+        "[Size] M"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 16000,
+      "title": "Instant Search: category filter when there's only one category",
+      "url": "https://github.com/Automattic/jetpack/issues/16000",
+      "created_at": "2020-05-29T07:50:41Z",
+      "labels": [
+        "Enhancement",
+        "[Feature] Search"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 15997,
+      "title": "Top Posts & Pages Widget Spacing issue ",
+      "url": "https://github.com/Automattic/jetpack/issues/15997",
+      "created_at": "2020-05-29T05:37:54Z",
+      "labels": [
+        "Bug",
+        "[Feature] Extra Sidebar Widgets",
+        "[Type] Good First Bug",
+        "[Pri] Low",
+        "Customer Report [LEGACY]"
+      ],
+      "comments_count": 2
+    },
+    {
+      "number": 15967,
+      "title": "googlemaps shortcode w=100%",
+      "url": "https://github.com/Automattic/jetpack/issues/15967",
+      "created_at": "2020-05-28T08:51:32Z",
+      "labels": [
+        "Bug",
+        "[Feature] Shortcodes / Embeds",
+        "[Pri] Low",
+        "Good For Community"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 15962,
+      "title": "Image Compare: Color controls for slider",
+      "url": "https://github.com/Automattic/jetpack/issues/15962",
+      "created_at": "2020-05-27T22:18:38Z",
+      "labels": [
+        "Enhancement",
+        "[Pri] Low",
+        "[Block] Image Compare"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 15953,
+      "title": "Image Compare: do not upscale images",
+      "url": "https://github.com/Automattic/jetpack/issues/15953",
+      "created_at": "2020-05-27T15:18:26Z",
+      "labels": [
+        "Bug",
+        "[Pri] Low",
+        "[Block] Image Compare"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 15905,
+      "title": "Image Compare: Expand drop area for second image",
+      "url": "https://github.com/Automattic/jetpack/issues/15905",
+      "created_at": "2020-05-22T19:10:22Z",
+      "labels": [
+        "Enhancement",
+        "[Pri] Low",
+        "[Block] Image Compare"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 15893,
+      "title": "Block WordPress.com account from placing likes",
+      "url": "https://github.com/Automattic/jetpack/issues/15893",
+      "created_at": "2020-05-22T14:03:13Z",
+      "labels": [
+        "Enhancement",
+        "[Feature] Likes",
+        "[Pri] Low"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 15891,
+      "title": "Slideshow 'Add slide' button not visible in dark mode",
+      "url": "https://github.com/Automattic/jetpack/issues/15891",
+      "created_at": "2020-05-22T07:59:04Z",
+      "labels": [
+        "Bug",
+        "[Pri] Normal",
+        "[Block] Slideshow"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 15874,
+      "title": "External Media: Review button hierarchy",
+      "url": "https://github.com/Automattic/jetpack/issues/15874",
+      "created_at": "2020-05-20T22:24:40Z",
+      "labels": [
+        "[Status] Design Review Complete",
+        "Task",
+        "[Extension] External Media"
+      ],
+      "comments_count": 3
+    },
+    {
+      "number": 15871,
+      "title": "Portfolio shortcode: display extra CSS classes based on enabled sections",
+      "url": "https://github.com/Automattic/jetpack/issues/15871",
+      "created_at": "2020-05-20T20:13:19Z",
+      "labels": [
+        "Enhancement",
+        "[Feature] Custom Content Types",
+        "[Pri] Low",
+        "Good For Community"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 15861,
+      "title": "Comments: \"Reply\" button makes the whole site jump",
+      "url": "https://github.com/Automattic/jetpack/issues/15861",
+      "created_at": "2020-05-20T06:51:05Z",
+      "labels": [
+        "Bug",
+        "[Feature] Comments",
+        "[Pri] Normal",
+        "Customer Report [LEGACY]"
+      ],
+      "comments_count": 4
+    },
+    {
+      "number": 15860,
+      "title": "Likes: \"Turned on per post\" setting removes likes",
+      "url": "https://github.com/Automattic/jetpack/issues/15860",
+      "created_at": "2020-05-20T06:40:31Z",
+      "labels": [
+        "Bug",
+        "[Feature] Likes",
+        "[Pri] Normal",
+        "Customer Report [LEGACY]"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 15845,
+      "title": "Tiled Gallery: 3d image is lost when switched to \"Tiled columns\"",
+      "url": "https://github.com/Automattic/jetpack/issues/15845",
+      "created_at": "2020-05-19T12:57:19Z",
+      "labels": [
+        "Bug",
+        "[Pri] Low",
+        "[Block] Tiled Gallery"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 15841,
+      "title": "Submit button styles break theme styles",
+      "url": "https://github.com/Automattic/jetpack/issues/15841",
+      "created_at": "2020-05-19T09:08:48Z",
+      "labels": [
+        "Enhancement",
+        "[Block] Payment Button",
+        "[Block] Mailchimp",
+        "[Block] Calendly"
+      ],
+      "comments_count": 4
+    },
+    {
+      "number": 15839,
+      "title": "Cookies & Consents Widget: JavaScript error in the customizer in some themes",
+      "url": "https://github.com/Automattic/jetpack/issues/15839",
+      "created_at": "2020-05-19T08:20:29Z",
+      "labels": [
+        "Bug",
+        "[Feature] Extra Sidebar Widgets",
+        "[Pri] Low",
+        "Good For Community",
+        "Customer Report [LEGACY]"
+      ],
+      "comments_count": 9
+    },
+    {
+      "number": 15838,
+      "title": "Blocks: Convert blocks to use FrontendManagement",
+      "url": "https://github.com/Automattic/jetpack/issues/15838",
+      "created_at": "2020-05-19T06:42:30Z",
+      "labels": [
+        "Enhancement",
+        "Task",
+        "[Pri] Normal",
+        "[Focus] Blocks",
+        "[Size] M"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 15787,
+      "title": "Sharing: update Skype button to support Microsoft Teams",
+      "url": "https://github.com/Automattic/jetpack/issues/15787",
+      "created_at": "2020-05-14T07:27:07Z",
+      "labels": [
+        "Enhancement",
+        "[Feature] Sharing",
+        "[Pri] Low",
+        "Customer Report [LEGACY]"
+      ],
+      "comments_count": 1
+    },
+    {
+      "number": 15750,
+      "title": "Podcast player: improve on mobile",
+      "url": "https://github.com/Automattic/jetpack/issues/15750",
+      "created_at": "2020-05-11T19:39:15Z",
+      "labels": [
+        "Enhancement",
+        "[Block] Podcast Player"
+      ],
+      "comments_count": 1
+    },
+    {
+      "number": 15738,
+      "title": "Image Compare Block: add uploading progress indicators",
+      "url": "https://github.com/Automattic/jetpack/issues/15738",
+      "created_at": "2020-05-11T10:53:29Z",
+      "labels": [
+        "Enhancement",
+        "[Pri] Normal",
+        "[Block] Image Compare"
+      ],
+      "comments_count": 2
+    },
+    {
+      "number": 15736,
+      "title": "Likes: The Like button does not pass w3 validation",
+      "url": "https://github.com/Automattic/jetpack/issues/15736",
+      "created_at": "2020-05-10T12:35:05Z",
+      "labels": [
+        "Enhancement",
+        "[Feature] Likes",
+        "[Pri] Low",
+        "Good For Community"
+      ],
+      "comments_count": 1
+    },
+    {
+      "number": 15752,
+      "title": "MailChimp Block: form labels appear when not in WordPress context (RSS feed, WordPress.com Reader)",
+      "url": "https://github.com/Automattic/jetpack/issues/15752",
+      "created_at": "2020-05-08T00:06:23Z",
+      "labels": [
+        "Bug",
+        "[Pri] Normal",
+        "[Block] Mailchimp"
+      ],
+      "comments_count": 1
+    },
+    {
+      "number": 15706,
+      "title": "Recurring Payments: get rid of the CPT caching",
+      "url": "https://github.com/Automattic/jetpack/issues/15706",
+      "created_at": "2020-05-07T08:41:02Z",
+      "labels": [
+        "Enhancement",
+        "[Block] Payment Button",
+        "Earn"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 15705,
+      "title": "Recurring Payments: Voiceover Cursor Focus on Payment Form",
+      "url": "https://github.com/Automattic/jetpack/issues/15705",
+      "created_at": "2020-05-07T03:55:06Z",
+      "labels": [
+        "Bug",
+        "[Focus] Accessibility",
+        "[Pri] Normal",
+        "[Block] Payment Button"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 15702,
+      "title": "Business Hours Block: V2 Improvements",
+      "url": "https://github.com/Automattic/jetpack/issues/15702",
+      "created_at": "2020-05-06T22:11:50Z",
+      "labels": [
+        "Enhancement",
+        "[Pri] Normal",
+        "[Block] Business Hours",
+        "Blocks V2"
+      ],
+      "comments_count": 1
+    },
+    {
+      "number": 15689,
+      "title": "Admin Page: Fix the Release Announcement Modal's top post margin on small devices",
+      "url": "https://github.com/Automattic/jetpack/issues/15689",
+      "created_at": "2020-05-05T20:11:56Z",
+      "labels": [
+        "Enhancement",
+        "Admin Page",
+        "[Pri] Normal"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 15688,
+      "title": "Admin Page: Check for Release Announcement Modal content once per day",
+      "url": "https://github.com/Automattic/jetpack/issues/15688",
+      "created_at": "2020-05-05T20:08:22Z",
+      "labels": [
+        "Enhancement",
+        "Admin Page",
+        "[Pri] Normal"
+      ],
+      "comments_count": 2
+    },
+    {
+      "number": 14854,
+      "title": "Blocks: Hiding vs overwriting saved content",
+      "url": "https://github.com/Automattic/jetpack/issues/14854",
+      "created_at": "2020-03-02T13:58:42Z",
+      "labels": [
+        "Task",
+        "[Pri] Low",
+        "[Focus] Blocks",
+        "[Type] Question",
+        "[Size] S"
+      ],
+      "comments_count": 1
+    },
+    {
+      "number": 11808,
+      "title": "Contact info block: hide empty space in preview",
+      "url": "https://github.com/Automattic/jetpack/issues/11808",
+      "created_at": "2019-03-21T19:24:19Z",
+      "labels": [
+        "Bug",
+        "[Pri] Normal",
+        "[Block] Contact Info",
+        "[Size] S"
+      ],
+      "comments_count": 0
+    },
+    {
+      "number": 6528,
+      "title": "Contact Form: Encoding issues with reply-to address when special characters are used in name field",
+      "url": "https://github.com/Automattic/jetpack/issues/6528",
+      "created_at": "2017-02-28T18:23:53Z",
+      "labels": [
+        "Bug",
+        "[Feature] Forms",
+        "[Pri] Normal",
+        "[Status] Stale"
+      ],
+      "comments_count": 6
+    },
+    {
+      "number": 6354,
+      "title": "Related posts contain non-visible WooCommerce Products ",
+      "url": "https://github.com/Automattic/jetpack/issues/6354",
+      "created_at": "2017-02-10T01:15:14Z",
+      "labels": [
+        "Bug",
+        "[Feature] Related Posts",
+        "[Pri] Normal",
+        "[Status] Stale"
+      ],
+      "comments_count": 5
+    },
+    {
+      "number": 6315,
+      "title": "Multisite: Deleted sites show as \"phantom\" sites on Jetpack -> Sites",
+      "url": "https://github.com/Automattic/jetpack/issues/6315",
+      "created_at": "2017-02-07T20:04:02Z",
+      "labels": [
+        "Bug",
+        "[Focus] Multisite",
+        "Admin Page",
+        "[Pri] Low",
+        "[Status] Stale"
+      ],
+      "comments_count": 7
+    }
+  ]
+}

@@ -1,14 +1,14 @@
 {
-  "count": 367,
+  "count": 380,
   "issues": [
     {
       "number": 25600,
       "title": "Mobile caching not working (debug log provided)",
       "url": "https://github.com/Automattic/jetpack/issues/25600",
       "created_at": "2015-03-22T23:21:49Z",
-      "age_days": 3978,
+      "age_days": 4012,
       "labels": [
-        "[Type] Bug",
+        "Bug",
         "[Pri] Low",
         "[Plugin] Super Cache",
         "[Super Cache] Configuration",
@@ -20,9 +20,9 @@
       "title": "Single quote path is cached incorrectly",
       "url": "https://github.com/Automattic/jetpack/issues/25584",
       "created_at": "2015-10-14T18:39:10Z",
-      "age_days": 3772,
+      "age_days": 3806,
       "labels": [
-        "[Type] Bug",
+        "Bug",
         "[Pri] Low",
         "[Plugin] Super Cache"
       ]
@@ -32,9 +32,9 @@
       "title": "Redirections not working for cached target pages",
       "url": "https://github.com/Automattic/jetpack/issues/25580",
       "created_at": "2015-12-21T05:02:21Z",
-      "age_days": 3704,
+      "age_days": 3739,
       "labels": [
-        "[Type] Bug",
+        "Bug",
         "[Pri] Low",
         "[Plugin] Super Cache"
       ]
@@ -44,9 +44,9 @@
       "title": "mod_rewrite never serving cache files if logged in status or mobile device",
       "url": "https://github.com/Automattic/jetpack/issues/25564",
       "created_at": "2016-09-30T16:07:55Z",
-      "age_days": 3420,
+      "age_days": 3454,
       "labels": [
-        "[Type] Bug",
+        "Bug",
         "[Pri] Low",
         "[Plugin] Super Cache"
       ]
@@ -56,9 +56,9 @@
       "title": "SSO + Admin UI: Add options to UI state",
       "url": "https://github.com/Automattic/jetpack/issues/6136",
       "created_at": "2017-01-19T22:39:56Z",
-      "age_days": 3309,
+      "age_days": 3343,
       "labels": [
-        "[Type] Bug",
+        "Bug",
         "[Feature] SSO",
         "[Type] Good First Bug",
         "Admin Page",
@@ -70,9 +70,9 @@
       "title": "_escaped_fragment_=  issue",
       "url": "https://github.com/Automattic/jetpack/issues/25547",
       "created_at": "2017-03-08T19:30:19Z",
-      "age_days": 3261,
+      "age_days": 3295,
       "labels": [
-        "[Type] Bug",
+        "Bug",
         "[Pri] Low",
         "[Plugin] Super Cache"
       ]
@@ -82,9 +82,9 @@
       "title": ".htaccess Mod Rewrite Rules only checks one of the files that needs updating",
       "url": "https://github.com/Automattic/jetpack/issues/25537",
       "created_at": "2017-07-31T07:58:30Z",
-      "age_days": 3116,
+      "age_days": 3150,
       "labels": [
-        "[Type] Bug",
+        "Bug",
         "[Pri] Low",
         "[Plugin] Super Cache"
       ]
@@ -94,9 +94,9 @@
       "title": "Check that web server user/group can write to files before attempting to write to files",
       "url": "https://github.com/Automattic/jetpack/issues/25534",
       "created_at": "2017-08-24T17:23:35Z",
-      "age_days": 3092,
+      "age_days": 3126,
       "labels": [
-        "[Type] Bug",
+        "Bug",
         "[Pri] Low",
         "[Plugin] Super Cache"
       ]
@@ -106,9 +106,9 @@
       "title": "Connection: Add periodic test to let user know if connection broken",
       "url": "https://github.com/Automattic/jetpack/issues/7722",
       "created_at": "2017-08-30T17:42:39Z",
-      "age_days": 3086,
+      "age_days": 3120,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "General",
         "[Pri] Low",
         "[Focus] FixTheFlows",
@@ -122,9 +122,9 @@
       "title": "Using \"Trash\" takes a long time",
       "url": "https://github.com/Automattic/jetpack/issues/25524",
       "created_at": "2017-11-01T14:05:51Z",
-      "age_days": 3023,
+      "age_days": 3057,
       "labels": [
-        "[Type] Bug",
+        "Bug",
         "[Pri] Low",
         "[Plugin] Super Cache"
       ]
@@ -134,9 +134,9 @@
       "title": "Error delete cache multisite enable",
       "url": "https://github.com/Automattic/jetpack/issues/25521",
       "created_at": "2017-11-09T16:00:31Z",
-      "age_days": 3015,
+      "age_days": 3049,
       "labels": [
-        "[Type] Bug",
+        "Bug",
         "[Focus] Multisite",
         "[Pri] Low",
         "[Plugin] Super Cache"
@@ -147,9 +147,9 @@
       "title": "Updated scheduled posts doesn't clear the cache of the preview",
       "url": "https://github.com/Automattic/jetpack/issues/25508",
       "created_at": "2018-08-28T11:44:11Z",
-      "age_days": 2723,
+      "age_days": 2757,
       "labels": [
-        "[Type] Bug",
+        "Bug",
         "[Pri] Low",
         "[Plugin] Super Cache",
         "[Super Cache] REST API",
@@ -161,7 +161,7 @@
       "title": "New Icon: Square Cash",
       "url": "https://github.com/Automattic/jetpack/issues/37562",
       "created_at": "2018-08-29T09:44:28Z",
-      "age_days": 2722,
+      "age_days": 2756,
       "labels": [
         "[JS Package] Social Logos"
       ]
@@ -171,9 +171,9 @@
       "title": "Markdown: Apply Markdown only to Classic Blocks in Gutenberg Posts",
       "url": "https://github.com/Automattic/jetpack/issues/10642",
       "created_at": "2018-11-15T21:04:45Z",
-      "age_days": 2644,
+      "age_days": 2678,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Feature] Markdown",
         "[Focus] Blocks"
       ]
@@ -183,7 +183,7 @@
       "title": "New Icon: Android",
       "url": "https://github.com/Automattic/jetpack/issues/37559",
       "created_at": "2018-11-17T20:47:53Z",
-      "age_days": 2642,
+      "age_days": 2676,
       "labels": [
         "[JS Package] Social Logos"
       ]
@@ -193,7 +193,7 @@
       "title": "Consider New Strategy for iTunes/Apple icons",
       "url": "https://github.com/Automattic/jetpack/issues/37554",
       "created_at": "2018-11-17T20:57:29Z",
-      "age_days": 2642,
+      "age_days": 2676,
       "labels": [
         "[JS Package] Social Logos"
       ]
@@ -203,9 +203,9 @@
       "title": "Tiled gallery block: make it keyboardable",
       "url": "https://github.com/Automattic/jetpack/issues/11873",
       "created_at": "2018-11-29T18:18:44Z",
-      "age_days": 2630,
+      "age_days": 2664,
       "labels": [
-        "[Type] Bug",
+        "Bug",
         "[Feature] Tiled Gallery",
         "[Focus] Accessibility",
         "[Pri] Normal",
@@ -218,9 +218,9 @@
       "title": "Docker: a script to turn WP into subfolder install",
       "url": "https://github.com/Automattic/jetpack/issues/10800",
       "created_at": "2018-12-04T09:08:10Z",
-      "age_days": 2625,
+      "age_days": 2659,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "Docker",
         "Hacktoberfest"
       ]
@@ -230,9 +230,9 @@
       "title": "Contact form block: transforming inputs to same format",
       "url": "https://github.com/Automattic/jetpack/issues/11866",
       "created_at": "2018-12-06T10:01:11Z",
-      "age_days": 2623,
+      "age_days": 2657,
       "labels": [
-        "[Feature] Contact Form",
+        "[Feature] Forms",
         "[Pri] Low",
         "[Focus] Blocks"
       ]
@@ -242,9 +242,9 @@
       "title": "Activity Log: adding custom activity events ",
       "url": "https://github.com/Automattic/jetpack/issues/10869",
       "created_at": "2018-12-07T03:24:09Z",
-      "age_days": 2622,
+      "age_days": 2657,
       "labels": [
-        "[Type] Feature Request",
+        "New Feature",
         "[Pri] Normal",
         "[Feature] Activity Log"
       ]
@@ -254,9 +254,9 @@
       "title": "Related posts block: narrow styles broken",
       "url": "https://github.com/Automattic/jetpack/issues/11862",
       "created_at": "2018-12-07T14:18:11Z",
-      "age_days": 2622,
+      "age_days": 2656,
       "labels": [
-        "[Type] Bug",
+        "Bug",
         "[Feature] Related Posts",
         "[Pri] Low",
         "[Focus] Blocks",
@@ -268,7 +268,7 @@
       "title": "Sync Gutenberg reusable blocks (`wp_block` post type)",
       "url": "https://github.com/Automattic/jetpack/issues/10907",
       "created_at": "2018-12-10T08:50:00Z",
-      "age_days": 2619,
+      "age_days": 2653,
       "labels": [
         "[Package] Sync",
         "[Focus] Blocks"
@@ -279,9 +279,9 @@
       "title": "404 Error message is not clear",
       "url": "https://github.com/Automattic/jetpack/issues/10971",
       "created_at": "2018-12-13T16:25:04Z",
-      "age_days": 2616,
+      "age_days": 2650,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "General",
         "Connect Flow"
       ]
@@ -291,9 +291,9 @@
       "title": "Tiled gallery block: add ImageGallery schema",
       "url": "https://github.com/Automattic/jetpack/issues/11791",
       "created_at": "2018-12-14T11:36:15Z",
-      "age_days": 2615,
+      "age_days": 2649,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Feature] Tiled Gallery",
         "[Pri] Low",
         "[Focus] Blocks",
@@ -305,9 +305,9 @@
       "title": "Settings: Add Google AMP & WP Super Cache to \"Performance\" tab",
       "url": "https://github.com/Automattic/jetpack/issues/10994",
       "created_at": "2018-12-17T20:22:35Z",
-      "age_days": 2612,
+      "age_days": 2646,
       "labels": [
-        "[Type] Enhancement"
+        "Enhancement"
       ]
     },
     {
@@ -315,9 +315,9 @@
       "title": "Related Posts: Implement _log_click and _previous_post_id in the block",
       "url": "https://github.com/Automattic/jetpack/issues/11013",
       "created_at": "2018-12-20T09:16:32Z",
-      "age_days": 2609,
+      "age_days": 2643,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Feature] Related Posts",
         "[Pri] Normal",
         "[Focus] Blocks"
@@ -328,13 +328,13 @@
       "title": "Contact Form block: add a prefix to a generic CSS selector",
       "url": "https://github.com/Automattic/jetpack/issues/11856",
       "created_at": "2019-01-09T10:45:08Z",
-      "age_days": 2589,
+      "age_days": 2623,
       "labels": [
-        "[Type] Bug",
-        "[Feature] Contact Form",
+        "Bug",
+        "[Feature] Forms",
         "[Pri] Low",
         "[Focus] Blocks",
-        "[Block] Contact Form",
+        "[Block] Form",
         "Triaged",
         "[Status] Auto-allocated"
       ]
@@ -344,9 +344,9 @@
       "title": "GIF Block: Smoother image swapping in editor",
       "url": "https://github.com/Automattic/jetpack/issues/11850",
       "created_at": "2019-01-25T09:51:42Z",
-      "age_days": 2573,
+      "age_days": 2607,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Pri] Low",
         "[Focus] Blocks",
         "[Block] GIF"
@@ -357,9 +357,9 @@
       "title": "Tiled gallery: Gallery transform produces wrong layout",
       "url": "https://github.com/Automattic/jetpack/issues/11780",
       "created_at": "2019-02-04T17:01:36Z",
-      "age_days": 2563,
+      "age_days": 2597,
       "labels": [
-        "[Type] Bug",
+        "Bug",
         "[Feature] Tiled Gallery",
         "[Pri] Low",
         "[Focus] Blocks",
@@ -371,7 +371,7 @@
       "title": "Slideshow Block: Wrap Swiper's CSS in our CSS selector",
       "url": "https://github.com/Automattic/jetpack/issues/11839",
       "created_at": "2019-02-06T19:13:37Z",
-      "age_days": 2561,
+      "age_days": 2595,
       "labels": [
         "[Type] Question",
         "[Block] Slideshow"
@@ -382,9 +382,9 @@
       "title": "HTTP2 push header are getting removed from cached pages",
       "url": "https://github.com/Automattic/jetpack/issues/25496",
       "created_at": "2019-02-07T12:37:38Z",
-      "age_days": 2560,
+      "age_days": 2594,
       "labels": [
-        "[Type] Bug",
+        "Bug",
         "[Pri] Low",
         "[Plugin] Super Cache",
         "[Status] Auto-allocated"
@@ -395,9 +395,9 @@
       "title": "Contact Info: Make the Address fields be reorderable",
       "url": "https://github.com/Automattic/jetpack/issues/11396",
       "created_at": "2019-02-22T12:33:35Z",
-      "age_days": 2545,
+      "age_days": 2579,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Focus] Blocks",
         "[Block] Contact Info"
       ]
@@ -407,7 +407,7 @@
       "title": "Import Muriel colours from color-studio package",
       "url": "https://github.com/Automattic/jetpack/issues/11410",
       "created_at": "2019-02-25T11:11:34Z",
-      "age_days": 2542,
+      "age_days": 2576,
       "labels": [
         "Admin Page",
         "[Type] Janitorial"
@@ -418,10 +418,10 @@
       "title": "Gutenberg - Form block: restrict phone field to numeric data",
       "url": "https://github.com/Automattic/jetpack/issues/11459",
       "created_at": "2019-03-02T16:01:33Z",
-      "age_days": 2537,
+      "age_days": 2571,
       "labels": [
-        "[Type] Enhancement",
-        "[Feature] Contact Form",
+        "Enhancement",
+        "[Feature] Forms",
         "[Pri] Low",
         "[Focus] Blocks"
       ]
@@ -431,9 +431,9 @@
       "title": "Contact Info: suggest the Map block as inner block",
       "url": "https://github.com/Automattic/jetpack/issues/11834",
       "created_at": "2019-03-04T12:52:01Z",
-      "age_days": 2535,
+      "age_days": 2569,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Pri] Normal",
         "[Block] Contact Info"
       ]
@@ -443,12 +443,25 @@
       "title": "Mailchimp block: Indicate no active list when attempting to re-check connection",
       "url": "https://github.com/Automattic/jetpack/issues/11829",
       "created_at": "2019-03-21T06:25:19Z",
-      "age_days": 2518,
+      "age_days": 2552,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Pri] Low",
         "[Focus] FixTheFlows",
         "[Block] Mailchimp"
+      ]
+    },
+    {
+      "number": 11808,
+      "title": "Contact info block: hide empty space in preview",
+      "url": "https://github.com/Automattic/jetpack/issues/11808",
+      "created_at": "2019-03-21T19:24:19Z",
+      "age_days": 2552,
+      "labels": [
+        "Bug",
+        "[Pri] Normal",
+        "[Block] Contact Info",
+        "[Size] S"
       ]
     },
     {
@@ -456,9 +469,9 @@
       "title": "Add functionally that deletes posts and users that fall in gaps during full sync",
       "url": "https://github.com/Automattic/jetpack/issues/11717",
       "created_at": "2019-03-27T14:54:31Z",
-      "age_days": 2512,
+      "age_days": 2546,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Package] Sync"
       ]
     },
@@ -467,9 +480,9 @@
       "title": "Add functionality that deletes users that fall in gaps during full sync.",
       "url": "https://github.com/Automattic/jetpack/issues/12012",
       "created_at": "2019-04-10T19:20:28Z",
-      "age_days": 2498,
+      "age_days": 2532,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Package] Sync"
       ]
     },
@@ -478,9 +491,9 @@
       "title": "Tiled gallery block: lock post while uploading image",
       "url": "https://github.com/Automattic/jetpack/issues/12198",
       "created_at": "2019-04-29T19:02:07Z",
-      "age_days": 2479,
+      "age_days": 2513,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Feature] Tiled Gallery",
         "[Type] Good First Bug",
         "[Pri] Normal",
@@ -494,9 +507,9 @@
       "title": "Post about historic sync stats availability:",
       "url": "https://github.com/Automattic/jetpack/issues/12211",
       "created_at": "2019-04-30T20:52:03Z",
-      "age_days": 2478,
+      "age_days": 2512,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Package] Sync"
       ]
     },
@@ -505,9 +518,9 @@
       "title": "Inform Users of First Backup/First Restore Point for Paid Plans",
       "url": "https://github.com/Automattic/jetpack/issues/12402",
       "created_at": "2019-05-17T10:46:47Z",
-      "age_days": 2461,
+      "age_days": 2495,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Pri] Low",
         "[Feature] Backups",
         "[Status] Needs Design"
@@ -518,9 +531,9 @@
       "title": "Jetpack DNA: Create a build process for package assets",
       "url": "https://github.com/Automattic/jetpack/issues/12679",
       "created_at": "2019-06-13T10:13:57Z",
-      "age_days": 2434,
+      "age_days": 2468,
       "labels": [
-        "[Type] Task",
+        "Task",
         "Build",
         "[Focus] Jetpack DNA"
       ]
@@ -530,9 +543,9 @@
       "title": "Tests: Make only integration tests rely on the WP core unit test infrastructure",
       "url": "https://github.com/Automattic/jetpack/issues/12685",
       "created_at": "2019-06-13T14:21:14Z",
-      "age_days": 2434,
+      "age_days": 2468,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "Unit Tests",
         "[Focus] Jetpack DNA"
       ]
@@ -542,7 +555,7 @@
       "title": "Remove redundant charcoal color from our text",
       "url": "https://github.com/Automattic/jetpack/issues/12949",
       "created_at": "2019-07-03T21:28:00Z",
-      "age_days": 2414,
+      "age_days": 2448,
       "labels": [
         "Admin Page",
         "[Pri] Normal",
@@ -554,9 +567,9 @@
       "title": "GET Parameters not getting Cached on Multisite Subsites where the whole multisite has a directory path.",
       "url": "https://github.com/Automattic/jetpack/issues/25481",
       "created_at": "2019-11-22T15:26:22Z",
-      "age_days": 2272,
+      "age_days": 2306,
       "labels": [
-        "[Type] Bug",
+        "Bug",
         "[Focus] Multisite",
         "[Pri] Low",
         "[Plugin] Super Cache"
@@ -567,10 +580,10 @@
       "title": "Theme Tools: AMP Compatibility",
       "url": "https://github.com/Automattic/jetpack/issues/14396",
       "created_at": "2020-01-20T13:50:23Z",
-      "age_days": 2213,
+      "age_days": 2247,
       "labels": [
         "[Feature] Theme Tools",
-        "[Type] Task",
+        "Task",
         "Epic",
         "[Pri] Low",
         "AMP"
@@ -581,10 +594,10 @@
       "title": "Shortcodes / Embeds: AMP Compatibility",
       "url": "https://github.com/Automattic/jetpack/issues/14397",
       "created_at": "2020-01-20T14:05:05Z",
-      "age_days": 2213,
+      "age_days": 2247,
       "labels": [
         "[Feature] Shortcodes / Embeds",
-        "[Type] Task",
+        "Task",
         "Epic",
         "[Pri] Low",
         "AMP"
@@ -595,9 +608,9 @@
       "title": "Frontend modules: AMP Compatibility",
       "url": "https://github.com/Automattic/jetpack/issues/14399",
       "created_at": "2020-01-20T14:32:12Z",
-      "age_days": 2213,
+      "age_days": 2247,
       "labels": [
-        "[Type] Task",
+        "Task",
         "Epic",
         "[Pri] Low",
         "AMP"
@@ -608,9 +621,9 @@
       "title": "do_shortcode: switch to using apply_shortcodes instead",
       "url": "https://github.com/Automattic/jetpack/issues/14674",
       "created_at": "2020-02-14T07:47:19Z",
-      "age_days": 2188,
+      "age_days": 2222,
       "labels": [
-        "[Feature] Contact Form",
+        "[Feature] Forms",
         "[Feature] Shortcodes / Embeds",
         "[Feature] Extra Sidebar Widgets",
         "[Type] Good First Bug",
@@ -625,9 +638,9 @@
       "title": "Search: toggling module on/off removed widget from sidebar",
       "url": "https://github.com/Automattic/jetpack/issues/15178",
       "created_at": "2020-03-29T18:18:29Z",
-      "age_days": 2144,
+      "age_days": 2178,
       "labels": [
-        "[Type] Bug",
+        "Bug",
         "[Pri] Low",
         "[Feature] Search",
         "Triaged"
@@ -638,9 +651,9 @@
       "title": "How to remove \"Rewrite rules must be updated\" warning",
       "url": "https://github.com/Automattic/jetpack/issues/25476",
       "created_at": "2020-04-08T10:14:08Z",
-      "age_days": 2134,
+      "age_days": 2168,
       "labels": [
-        "[Type] Bug",
+        "Bug",
         "[Pri] Low",
         "[Plugin] Super Cache",
         "[Super Cache] UI"
@@ -651,9 +664,9 @@
       "title": "Search: display error messaging for unsupported custom taxonomies",
       "url": "https://github.com/Automattic/jetpack/issues/15458",
       "created_at": "2020-04-15T22:58:52Z",
-      "age_days": 2127,
+      "age_days": 2161,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Pri] Low",
         "[Feature] Search",
         "Triaged",
@@ -665,10 +678,10 @@
       "title": "Contact Form: focus won't stay in Checkbox Group and Select Block menu fields",
       "url": "https://github.com/Automattic/jetpack/issues/15479",
       "created_at": "2020-04-17T13:44:15Z",
-      "age_days": 2125,
+      "age_days": 2159,
       "labels": [
-        "[Type] Bug",
-        "[Feature] Contact Form",
+        "Bug",
+        "[Feature] Forms",
         "[Pri] Normal",
         "[Focus] Blocks"
       ]
@@ -678,10 +691,10 @@
       "title": "Contact Form: duplicate ids can be specified for form blocks",
       "url": "https://github.com/Automattic/jetpack/issues/15485",
       "created_at": "2020-04-17T17:03:41Z",
-      "age_days": 2125,
+      "age_days": 2159,
       "labels": [
-        "[Type] Enhancement",
-        "[Feature] Contact Form",
+        "Enhancement",
+        "[Feature] Forms",
         "[Pri] Low",
         "[Focus] Blocks"
       ]
@@ -691,9 +704,9 @@
       "title": "Log changes to sensitive options in Woo plugins to Activity log ",
       "url": "https://github.com/Automattic/jetpack/issues/15486",
       "created_at": "2020-04-17T17:13:33Z",
-      "age_days": 2125,
+      "age_days": 2159,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Package] Sync",
         "[Feature] Activity Log"
       ]
@@ -703,9 +716,9 @@
       "title": "Custom roles get stuck in loop during Jetpack SSO login; are ultimately logged in",
       "url": "https://github.com/Automattic/jetpack/issues/15487",
       "created_at": "2020-04-17T19:24:58Z",
-      "age_days": 2125,
+      "age_days": 2159,
       "labels": [
-        "[Type] Bug",
+        "Bug",
         "[Feature] SSO",
         "[Pri] Low"
       ]
@@ -715,9 +728,9 @@
       "title": "Site logo: Image attachment page incorrectly uses media file as site logo",
       "url": "https://github.com/Automattic/jetpack/issues/15507",
       "created_at": "2020-04-21T08:50:32Z",
-      "age_days": 2121,
+      "age_days": 2155,
       "labels": [
-        "[Type] Bug",
+        "Bug",
         "[Feature] Theme Tools",
         "[Pri] Low"
       ]
@@ -727,12 +740,234 @@
       "title": "Search: use record estimates for pricing while indexing is in process",
       "url": "https://github.com/Automattic/jetpack/issues/15559",
       "created_at": "2020-04-24T22:08:13Z",
-      "age_days": 2118,
+      "age_days": 2152,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Pri] Low",
         "[Feature] Search",
         "Triaged"
+      ]
+    },
+    {
+      "number": 15689,
+      "title": "Admin Page: Fix the Release Announcement Modal's top post margin on small devices",
+      "url": "https://github.com/Automattic/jetpack/issues/15689",
+      "created_at": "2020-05-05T20:11:56Z",
+      "age_days": 2141,
+      "labels": [
+        "Enhancement",
+        "Admin Page",
+        "[Pri] Normal"
+      ]
+    },
+    {
+      "number": 15705,
+      "title": "Recurring Payments: Voiceover Cursor Focus on Payment Form",
+      "url": "https://github.com/Automattic/jetpack/issues/15705",
+      "created_at": "2020-05-07T03:55:06Z",
+      "age_days": 2140,
+      "labels": [
+        "Bug",
+        "[Focus] Accessibility",
+        "[Pri] Normal",
+        "[Block] Payment Button"
+      ]
+    },
+    {
+      "number": 15706,
+      "title": "Recurring Payments: get rid of the CPT caching",
+      "url": "https://github.com/Automattic/jetpack/issues/15706",
+      "created_at": "2020-05-07T08:41:02Z",
+      "age_days": 2139,
+      "labels": [
+        "Enhancement",
+        "[Block] Payment Button",
+        "Earn"
+      ]
+    },
+    {
+      "number": 15838,
+      "title": "Blocks: Convert blocks to use FrontendManagement",
+      "url": "https://github.com/Automattic/jetpack/issues/15838",
+      "created_at": "2020-05-19T06:42:30Z",
+      "age_days": 2127,
+      "labels": [
+        "Enhancement",
+        "Task",
+        "[Pri] Normal",
+        "[Focus] Blocks",
+        "[Size] M"
+      ]
+    },
+    {
+      "number": 15845,
+      "title": "Tiled Gallery: 3d image is lost when switched to \"Tiled columns\"",
+      "url": "https://github.com/Automattic/jetpack/issues/15845",
+      "created_at": "2020-05-19T12:57:19Z",
+      "age_days": 2127,
+      "labels": [
+        "Bug",
+        "[Pri] Low",
+        "[Block] Tiled Gallery"
+      ]
+    },
+    {
+      "number": 15860,
+      "title": "Likes: \"Turned on per post\" setting removes likes",
+      "url": "https://github.com/Automattic/jetpack/issues/15860",
+      "created_at": "2020-05-20T06:40:31Z",
+      "age_days": 2126,
+      "labels": [
+        "Bug",
+        "[Feature] Likes",
+        "[Pri] Normal",
+        "Customer Report [LEGACY]"
+      ]
+    },
+    {
+      "number": 15871,
+      "title": "Portfolio shortcode: display extra CSS classes based on enabled sections",
+      "url": "https://github.com/Automattic/jetpack/issues/15871",
+      "created_at": "2020-05-20T20:13:19Z",
+      "age_days": 2126,
+      "labels": [
+        "Enhancement",
+        "[Feature] Custom Content Types",
+        "[Pri] Low",
+        "Good For Community"
+      ]
+    },
+    {
+      "number": 15891,
+      "title": "Slideshow 'Add slide' button not visible in dark mode",
+      "url": "https://github.com/Automattic/jetpack/issues/15891",
+      "created_at": "2020-05-22T07:59:04Z",
+      "age_days": 2124,
+      "labels": [
+        "Bug",
+        "[Pri] Normal",
+        "[Block] Slideshow"
+      ]
+    },
+    {
+      "number": 15893,
+      "title": "Block WordPress.com account from placing likes",
+      "url": "https://github.com/Automattic/jetpack/issues/15893",
+      "created_at": "2020-05-22T14:03:13Z",
+      "age_days": 2124,
+      "labels": [
+        "Enhancement",
+        "[Feature] Likes",
+        "[Pri] Low"
+      ]
+    },
+    {
+      "number": 15905,
+      "title": "Image Compare: Expand drop area for second image",
+      "url": "https://github.com/Automattic/jetpack/issues/15905",
+      "created_at": "2020-05-22T19:10:22Z",
+      "age_days": 2124,
+      "labels": [
+        "Enhancement",
+        "[Pri] Low",
+        "[Block] Image Compare"
+      ]
+    },
+    {
+      "number": 15953,
+      "title": "Image Compare: do not upscale images",
+      "url": "https://github.com/Automattic/jetpack/issues/15953",
+      "created_at": "2020-05-27T15:18:26Z",
+      "age_days": 2119,
+      "labels": [
+        "Bug",
+        "[Pri] Low",
+        "[Block] Image Compare"
+      ]
+    },
+    {
+      "number": 15962,
+      "title": "Image Compare: Color controls for slider",
+      "url": "https://github.com/Automattic/jetpack/issues/15962",
+      "created_at": "2020-05-27T22:18:38Z",
+      "age_days": 2119,
+      "labels": [
+        "Enhancement",
+        "[Pri] Low",
+        "[Block] Image Compare"
+      ]
+    },
+    {
+      "number": 15967,
+      "title": "googlemaps shortcode w=100%",
+      "url": "https://github.com/Automattic/jetpack/issues/15967",
+      "created_at": "2020-05-28T08:51:32Z",
+      "age_days": 2118,
+      "labels": [
+        "Bug",
+        "[Feature] Shortcodes / Embeds",
+        "[Pri] Low",
+        "Good For Community"
+      ]
+    },
+    {
+      "number": 16000,
+      "title": "Instant Search: category filter when there's only one category",
+      "url": "https://github.com/Automattic/jetpack/issues/16000",
+      "created_at": "2020-05-29T07:50:41Z",
+      "age_days": 2117,
+      "labels": [
+        "Enhancement",
+        "[Feature] Search"
+      ]
+    },
+    {
+      "number": 16006,
+      "title": "Form Block: provide a way to \"reset\" the block",
+      "url": "https://github.com/Automattic/jetpack/issues/16006",
+      "created_at": "2020-05-29T16:25:25Z",
+      "age_days": 2117,
+      "labels": [
+        "Enhancement",
+        "[Feature] Forms",
+        "[Pri] Low",
+        "[Size] M"
+      ]
+    },
+    {
+      "number": 16026,
+      "title": "External Media: Add Creative Commons as image source",
+      "url": "https://github.com/Automattic/jetpack/issues/16026",
+      "created_at": "2020-06-01T17:08:29Z",
+      "age_days": 2114,
+      "labels": [
+        "Enhancement",
+        "[Pri] Normal",
+        "[Size] M",
+        "[Extension] External Media"
+      ]
+    },
+    {
+      "number": 16042,
+      "title": "eslint configuration: adapt Jetpack's basic rules to match Calypso",
+      "url": "https://github.com/Automattic/jetpack/issues/16042",
+      "created_at": "2020-06-02T17:47:19Z",
+      "age_days": 2113,
+      "labels": [
+        "Task",
+        "[Pri] Normal",
+        "Build"
+      ]
+    },
+    {
+      "number": 16066,
+      "title": "Move Jetpack::disconnect_site() into connection package",
+      "url": "https://github.com/Automattic/jetpack/issues/16066",
+      "created_at": "2020-06-04T16:46:16Z",
+      "age_days": 2111,
+      "labels": [
+        "Connect Flow",
+        "[Focus] Jetpack DNA"
       ]
     },
     {
@@ -740,12 +975,37 @@
       "title": "[QUESTION] Preloaded all pages but status file cache is none",
       "url": "https://github.com/Automattic/jetpack/issues/25474",
       "created_at": "2020-06-06T05:50:16Z",
-      "age_days": 2075,
+      "age_days": 2109,
       "labels": [
-        "[Type] Bug",
+        "Bug",
         "[Pri] Low",
         "[Plugin] Super Cache",
         "[Super Cache] Preload"
+      ]
+    },
+    {
+      "number": 16090,
+      "title": "Image Compare Block: Missing icon, title & description in the placeholder",
+      "url": "https://github.com/Automattic/jetpack/issues/16090",
+      "created_at": "2020-06-08T13:05:54Z",
+      "age_days": 2107,
+      "labels": [
+        "Bug",
+        "[Pri] Normal",
+        "[Block] Image Compare"
+      ]
+    },
+    {
+      "number": 16253,
+      "title": "Widgets: Display WordPress Posts widget performance issues",
+      "url": "https://github.com/Automattic/jetpack/issues/16253",
+      "created_at": "2020-06-24T01:28:19Z",
+      "age_days": 2092,
+      "labels": [
+        "Enhancement",
+        "[Feature] Extra Sidebar Widgets",
+        "[Focus] Performance",
+        "[Pri] Normal"
       ]
     },
     {
@@ -753,12 +1013,297 @@
       "title": "Jetpack Search: when using full-width overlay without overlay widgets, it's impossible to clear any pre-applied filters",
       "url": "https://github.com/Automattic/jetpack/issues/16280",
       "created_at": "2020-06-24T23:33:02Z",
-      "age_days": 2057,
+      "age_days": 2091,
       "labels": [
-        "[Type] Bug",
+        "Bug",
         "[Pri] Low",
         "[Feature] Search",
         "Triaged"
+      ]
+    },
+    {
+      "number": 16342,
+      "title": "Send a Message Block: Obfuscate phone number",
+      "url": "https://github.com/Automattic/jetpack/issues/16342",
+      "created_at": "2020-06-30T17:53:41Z",
+      "age_days": 2085,
+      "labels": [
+        "Enhancement",
+        "[Block] Send a message",
+        "Blocks V2"
+      ]
+    },
+    {
+      "number": 16357,
+      "title": "Consider adding package unit tests to the multisite phpunit config file",
+      "url": "https://github.com/Automattic/jetpack/issues/16357",
+      "created_at": "2020-07-01T17:16:36Z",
+      "age_days": 2084,
+      "labels": [
+        "Unit Tests",
+        "[Focus] Jetpack DNA"
+      ]
+    },
+    {
+      "number": 16386,
+      "title": "Verification Tools: Warning breaks Multisite edit settings flow",
+      "url": "https://github.com/Automattic/jetpack/issues/16386",
+      "created_at": "2020-07-04T00:54:21Z",
+      "age_days": 2082,
+      "labels": [
+        "Bug",
+        "[Feature] Verification tools",
+        "[Focus] Multisite",
+        "[Type] Good First Bug",
+        "[Status] In Progress",
+        "[Pri] Low"
+      ]
+    },
+    {
+      "number": 16419,
+      "title": "Slideshow Block: When using VoiceOver (screenreader) the focus automatically goes to autoplay slides",
+      "url": "https://github.com/Automattic/jetpack/issues/16419",
+      "created_at": "2020-07-06T22:24:27Z",
+      "age_days": 2079,
+      "labels": [
+        "Bug",
+        "[Focus] Accessibility",
+        "[Pri] Normal",
+        "[Block] Slideshow"
+      ]
+    },
+    {
+      "number": 16436,
+      "title": "Mailchimp Connection: Allow separate connections for separate sites",
+      "url": "https://github.com/Automattic/jetpack/issues/16436",
+      "created_at": "2020-07-08T15:42:59Z",
+      "age_days": 2077,
+      "labels": [
+        "[Feature] Publicize",
+        "[Block] Mailchimp",
+        "Customer Report [LEGACY]"
+      ]
+    },
+    {
+      "number": 16441,
+      "title": "Contact Form / Date Picker: Option to restrict dates",
+      "url": "https://github.com/Automattic/jetpack/issues/16441",
+      "created_at": "2020-07-08T23:43:21Z",
+      "age_days": 2077,
+      "labels": [
+        "Enhancement",
+        "[Feature] Forms",
+        "[Pri] Normal",
+        "Good For Community"
+      ]
+    },
+    {
+      "number": 16563,
+      "title": "Sandbox tools: add Admin Bar or frontend widget",
+      "url": "https://github.com/Automattic/jetpack/issues/16563",
+      "created_at": "2020-07-23T18:47:04Z",
+      "age_days": 2062,
+      "labels": [
+        "Enhancement",
+        "[Status] Proposal",
+        "Debug Tools"
+      ]
+    },
+    {
+      "number": 16579,
+      "title": "Image Compare Plays Badly with Pinterest Image Hover Button",
+      "url": "https://github.com/Automattic/jetpack/issues/16579",
+      "created_at": "2020-07-25T01:27:27Z",
+      "age_days": 2061,
+      "labels": [
+        "Enhancement",
+        "[Pri] Low",
+        "[Block] Image Compare"
+      ]
+    },
+    {
+      "number": 16605,
+      "title": "Contact Forms: Ability to open \"Redirect to another webpage\" in a new browser tab",
+      "url": "https://github.com/Automattic/jetpack/issues/16605",
+      "created_at": "2020-07-28T02:54:00Z",
+      "age_days": 2058,
+      "labels": [
+        "Enhancement",
+        "[Feature] Forms",
+        "[Pri] Low",
+        "Customer Report [LEGACY]"
+      ]
+    },
+    {
+      "number": 16613,
+      "title": "Subscriptions: add the possibility to subscribe only to replies to one's comment",
+      "url": "https://github.com/Automattic/jetpack/issues/16613",
+      "created_at": "2020-07-28T11:35:04Z",
+      "age_days": 2057,
+      "labels": [
+        "Enhancement",
+        "[Feature] Subscriptions",
+        "[Pri] Low"
+      ]
+    },
+    {
+      "number": 16656,
+      "title": "Slideshow Block: resizing / rendering issues",
+      "url": "https://github.com/Automattic/jetpack/issues/16656",
+      "created_at": "2020-07-30T23:03:40Z",
+      "age_days": 2055,
+      "labels": [
+        "Bug",
+        "[Pri] Normal",
+        "[Block] Slideshow",
+        "[Size] S"
+      ]
+    },
+    {
+      "number": 16664,
+      "title": "Instagram Widget: Button state not updated when pop-up closed not connected",
+      "url": "https://github.com/Automattic/jetpack/issues/16664",
+      "created_at": "2020-07-31T10:54:36Z",
+      "age_days": 2054,
+      "labels": [
+        "Bug",
+        "[Feature] Extra Sidebar Widgets",
+        "[Pri] Low"
+      ]
+    },
+    {
+      "number": 16665,
+      "title": "Instagram Widget: Disable \"Connect\" button if widget is not published",
+      "url": "https://github.com/Automattic/jetpack/issues/16665",
+      "created_at": "2020-07-31T11:02:43Z",
+      "age_days": 2054,
+      "labels": [
+        "Enhancement",
+        "[Feature] Extra Sidebar Widgets"
+      ]
+    },
+    {
+      "number": 16740,
+      "title": "Delay site is \"Unreachable\" notification from Jetpack while plugins are being \"Updated\".",
+      "url": "https://github.com/Automattic/jetpack/issues/16740",
+      "created_at": "2020-08-06T00:16:23Z",
+      "age_days": 2049,
+      "labels": [
+        "Enhancement",
+        "[Feature] Monitor"
+      ]
+    },
+    {
+      "number": 20123,
+      "title": "UI: Inconsistent menu item ordering",
+      "url": "https://github.com/Automattic/jetpack/issues/20123",
+      "created_at": "2020-08-10T04:08:05Z",
+      "age_days": 2045,
+      "labels": [
+        "Enhancement",
+        "[Pri] Low",
+        "[Plugin] VaultPress"
+      ]
+    },
+    {
+      "number": 16789,
+      "title": "Drop usage of the old Heartbeat",
+      "url": "https://github.com/Automattic/jetpack/issues/16789",
+      "created_at": "2020-08-10T17:28:50Z",
+      "age_days": 2044,
+      "labels": [
+        "General",
+        "[Type] Janitorial",
+        "[Pri] Normal"
+      ]
+    },
+    {
+      "number": 16812,
+      "title": "Develop a search feature for individual days in Stats",
+      "url": "https://github.com/Automattic/jetpack/issues/16812",
+      "created_at": "2020-08-11T23:22:54Z",
+      "age_days": 2043,
+      "labels": [
+        "Enhancement",
+        "[Feature] Stats Data",
+        "[Pri] Low"
+      ]
+    },
+    {
+      "number": 16822,
+      "title": "Form Block: label formatting is not applied on the frontend",
+      "url": "https://github.com/Automattic/jetpack/issues/16822",
+      "created_at": "2020-08-13T09:40:20Z",
+      "age_days": 2041,
+      "labels": [
+        "Bug",
+        "[Feature] Forms",
+        "[Pri] Normal",
+        "[Size] S"
+      ]
+    },
+    {
+      "number": 16854,
+      "title": "Automatically disable CDN when enabling debug mode",
+      "url": "https://github.com/Automattic/jetpack/issues/16854",
+      "created_at": "2020-08-15T19:33:04Z",
+      "age_days": 2039,
+      "labels": [
+        "Enhancement",
+        "[Feature] Photon",
+        "[Feature] Offline Mode",
+        "[Pri] Low",
+        "Good For Community",
+        "[Feature] Asset CDN"
+      ]
+    },
+    {
+      "number": 16855,
+      "title": "Gif block styles conflict with theme block styles",
+      "url": "https://github.com/Automattic/jetpack/issues/16855",
+      "created_at": "2020-08-15T20:08:29Z",
+      "age_days": 2039,
+      "labels": [
+        "Bug",
+        "[Pri] Normal",
+        "Good For Community",
+        "[Block] GIF"
+      ]
+    },
+    {
+      "number": 16884,
+      "title": "Search: add SQL WHERE clause support to our API?",
+      "url": "https://github.com/Automattic/jetpack/issues/16884",
+      "created_at": "2020-08-18T23:10:22Z",
+      "age_days": 2036,
+      "labels": [
+        "New Feature",
+        "[Feature] Search"
+      ]
+    },
+    {
+      "number": 16966,
+      "title": "Blocks Build: remove calypso-color-schemes dependency and rely on color-studio instead",
+      "url": "https://github.com/Automattic/jetpack/issues/16966",
+      "created_at": "2020-08-25T11:38:08Z",
+      "age_days": 2029,
+      "labels": [
+        "[Type] Janitorial",
+        "[Pri] Normal",
+        "[Focus] Blocks",
+        "Build"
+      ]
+    },
+    {
+      "number": 16972,
+      "title": "DNA: automate version management of files enqueued from within a package",
+      "url": "https://github.com/Automattic/jetpack/issues/16972",
+      "created_at": "2020-08-25T16:06:22Z",
+      "age_days": 2029,
+      "labels": [
+        "Enhancement",
+        "[Pri] Normal",
+        "[Focus] Jetpack DNA"
       ]
     },
     {
@@ -766,9 +1311,9 @@
       "title": "Search: Can not remove filters from existing search widget",
       "url": "https://github.com/Automattic/jetpack/issues/17039",
       "created_at": "2020-08-31T21:46:06Z",
-      "age_days": 1989,
+      "age_days": 2023,
       "labels": [
-        "[Type] Bug",
+        "Bug",
         "[Pri] Low",
         "[Feature] Search",
         "Triaged",
@@ -776,37 +1321,123 @@
       ]
     },
     {
-      "number": 17532,
-      "title": "Delete tokens from remote site when unknown_token error is returned.",
-      "url": "https://github.com/Automattic/jetpack/issues/17532",
-      "created_at": "2020-10-19T18:56:09Z",
-      "age_days": 1940,
+      "number": 17050,
+      "title": "Possible bug in output buffering for infinite scroll",
+      "url": "https://github.com/Automattic/jetpack/issues/17050",
+      "created_at": "2020-09-02T07:23:17Z",
+      "age_days": 2021,
       "labels": [
-        "[Type] Enhancement",
-        "[Package] Connection"
+        "Bug",
+        "[Feature] Infinite Scroll",
+        "[Pri] Low",
+        "Good For Community"
       ]
     },
     {
-      "number": 17554,
-      "title": "Instant Search: make overlay/modal more accessible",
-      "url": "https://github.com/Automattic/jetpack/issues/17554",
-      "created_at": "2020-10-21T00:35:57Z",
-      "age_days": 1939,
+      "number": 17125,
+      "title": "Tiled gallery: adding images button invisible on dark backgrounds",
+      "url": "https://github.com/Automattic/jetpack/issues/17125",
+      "created_at": "2020-09-10T09:29:03Z",
+      "age_days": 2013,
       "labels": [
-        "[Type] Enhancement",
+        "Bug",
+        "[Pri] Normal",
+        "[Block] Tiled Gallery"
+      ]
+    },
+    {
+      "number": 17241,
+      "title": "PHPCS - Use prepared sql",
+      "url": "https://github.com/Automattic/jetpack/issues/17241",
+      "created_at": "2020-09-22T17:22:05Z",
+      "age_days": 2001,
+      "labels": [
+        "[Type] Janitorial",
+        "[Package] Sync"
+      ]
+    },
+    {
+      "number": 17320,
+      "title": "My Plan: merge \"activate\" and \"configure\" buttons when possible",
+      "url": "https://github.com/Automattic/jetpack/issues/17320",
+      "created_at": "2020-09-30T07:31:26Z",
+      "age_days": 1993,
+      "labels": [
+        "Enhancement",
+        "Admin Page",
+        "Plans"
+      ]
+    },
+    {
+      "number": 17325,
+      "title": "Pinterest Block: display custom message when Pinterest cannot be reached",
+      "url": "https://github.com/Automattic/jetpack/issues/17325",
+      "created_at": "2020-09-30T11:36:00Z",
+      "age_days": 1993,
+      "labels": [
+        "Enhancement",
+        "[Pri] Low",
+        "[Block] Pinterest"
+      ]
+    },
+    {
+      "number": 17328,
+      "title": "Site Health: improve look and consistency of all tests",
+      "url": "https://github.com/Automattic/jetpack/issues/17328",
+      "created_at": "2020-09-30T14:20:36Z",
+      "age_days": 1993,
+      "labels": [
+        "Enhancement",
+        "General",
+        "[Pri] Normal"
+      ]
+    },
+    {
+      "number": 17365,
+      "title": "Instant Search: Private simple site search fails if mapped to a domain",
+      "url": "https://github.com/Automattic/jetpack/issues/17365",
+      "created_at": "2020-10-02T22:01:54Z",
+      "age_days": 1991,
+      "labels": [
+        "Bug",
+        "[Pri] Normal",
         "[Feature] Search"
       ]
     },
     {
-      "number": 17589,
-      "title": "Re-Publicize: Support Custom Post Types ",
-      "url": "https://github.com/Automattic/jetpack/issues/17589",
-      "created_at": "2020-10-23T04:06:44Z",
-      "age_days": 1936,
+      "number": 17379,
+      "title": "Jetpack REST API: Site based authentication migration",
+      "url": "https://github.com/Automattic/jetpack/issues/17379",
+      "created_at": "2020-10-05T14:39:03Z",
+      "age_days": 1988,
       "labels": [
-        "[Type] Enhancement",
-        "[Feature] Publicize",
-        "Customer Report [LEGACY]"
+        "Enhancement",
+        "[Feature] WP REST API"
+      ]
+    },
+    {
+      "number": 17384,
+      "title": "Custom #infinite-handle button doesn't works",
+      "url": "https://github.com/Automattic/jetpack/issues/17384",
+      "created_at": "2020-10-06T12:15:18Z",
+      "age_days": 1987,
+      "labels": [
+        "Bug",
+        "[Feature] Infinite Scroll",
+        "[Pri] Low",
+        "Good For Community"
+      ]
+    },
+    {
+      "number": 17395,
+      "title": "Instant Search: Scrollbar Scrolls Content, Not Full Page Search Overlay",
+      "url": "https://github.com/Automattic/jetpack/issues/17395",
+      "created_at": "2020-10-06T23:07:20Z",
+      "age_days": 1987,
+      "labels": [
+        "Bug",
+        "[Pri] Normal",
+        "[Feature] Search"
       ]
     },
     {
@@ -814,7 +1445,7 @@
       "title": "Always use Jetpack_Options::get_option( ‘id’ )",
       "url": "https://github.com/Automattic/jetpack/issues/17647",
       "created_at": "2020-10-28T23:45:10Z",
-      "age_days": 1931,
+      "age_days": 1965,
       "labels": [
         "General",
         "[Type] Janitorial",
@@ -822,87 +1453,14 @@
       ]
     },
     {
-      "number": 17657,
-      "title": "Send a Message / WhatsApp Block: add size option",
-      "url": "https://github.com/Automattic/jetpack/issues/17657",
-      "created_at": "2020-10-29T18:45:01Z",
-      "age_days": 1930,
+      "number": 17874,
+      "title": "e2e Tests: Run against Firefox",
+      "url": "https://github.com/Automattic/jetpack/issues/17874",
+      "created_at": "2020-11-23T20:14:10Z",
+      "age_days": 1939,
       "labels": [
-        "[Type] Enhancement",
-        "[Pri] Low",
-        "[Block] Send a message"
-      ]
-    },
-    {
-      "number": 17665,
-      "title": "WhatsApp Block: text wrapping issue on frontend",
-      "url": "https://github.com/Automattic/jetpack/issues/17665",
-      "created_at": "2020-10-30T12:39:56Z",
-      "age_days": 1929,
-      "labels": [
-        "[Type] Bug",
-        "[Pri] Low",
-        "[Block] Send a message"
-      ]
-    },
-    {
-      "number": 17687,
-      "title": "WhatsApp Block: improve phone number country selection",
-      "url": "https://github.com/Automattic/jetpack/issues/17687",
-      "created_at": "2020-11-02T14:27:20Z",
-      "age_days": 1926,
-      "labels": [
-        "[Type] Enhancement",
-        "[Pri] Normal",
-        "[Block] Send a message"
-      ]
-    },
-    {
-      "number": 17774,
-      "title": "Consider using require_once in the masterbar module",
-      "url": "https://github.com/Automattic/jetpack/issues/17774",
-      "created_at": "2020-11-11T10:58:35Z",
-      "age_days": 1917,
-      "labels": [
-        "[Type] Janitorial",
-        "[Feature] Masterbar"
-      ]
-    },
-    {
-      "number": 17789,
-      "title": "Blocks: ensure that icons are green in block manager as well",
-      "url": "https://github.com/Automattic/jetpack/issues/17789",
-      "created_at": "2020-11-12T08:47:41Z",
-      "age_days": 1916,
-      "labels": [
-        "[Type] Enhancement",
-        "[Pri] Low",
-        "[Focus] Blocks"
-      ]
-    },
-    {
-      "number": 17825,
-      "title": "Video Block: Enable inserting video from Media Library on Personal/free plans for already uploaded videos",
-      "url": "https://github.com/Automattic/jetpack/issues/17825",
-      "created_at": "2020-11-17T12:16:59Z",
-      "age_days": 1911,
-      "labels": [
-        "[Type] Enhancement",
-        "[Feature] VideoPress",
-        "[Pri] Low",
-        "[Focus] Blocks"
-      ]
-    },
-    {
-      "number": 17845,
-      "title": "Missing \"more products\" button for Infinite Scroll in WooCommerce shop loop using Twenty Twenty Theme",
-      "url": "https://github.com/Automattic/jetpack/issues/17845",
-      "created_at": "2020-11-20T17:26:44Z",
-      "age_days": 1908,
-      "labels": [
-        "[Type] Bug",
-        "[Feature] Infinite Scroll",
-        "[Pri] Low"
+        "[Focus] Blocks",
+        "E2E Tests"
       ]
     },
     {
@@ -910,112 +1468,13 @@
       "title": "Form Block: iterate on fallback text outside of WP context",
       "url": "https://github.com/Automattic/jetpack/issues/17918",
       "created_at": "2020-11-27T16:34:04Z",
-      "age_days": 1901,
+      "age_days": 1935,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Feature] Subscriptions",
-        "[Feature] Contact Form",
+        "[Feature] Forms",
         "[Pri] Low",
-        "[Block] Contact Form"
-      ]
-    },
-    {
-      "number": 17949,
-      "title": "Subscriptions: language issues in latest Posts block",
-      "url": "https://github.com/Automattic/jetpack/issues/17949",
-      "created_at": "2020-12-02T14:32:01Z",
-      "age_days": 1896,
-      "labels": [
-        "[Type] Bug",
-        "[Feature] Subscriptions",
-        "[Pri] Low"
-      ]
-    },
-    {
-      "number": 18040,
-      "title": "Contact Form Feedback: resend the contact form email when feedback is moved out of spam",
-      "url": "https://github.com/Automattic/jetpack/issues/18040",
-      "created_at": "2020-12-09T22:43:17Z",
-      "age_days": 1889,
-      "labels": [
-        "[Type] Enhancement",
-        "[Feature] Contact Form",
-        "[Pri] Normal"
-      ]
-    },
-    {
-      "number": 18043,
-      "title": "Image Compare: add caption option to each image",
-      "url": "https://github.com/Automattic/jetpack/issues/18043",
-      "created_at": "2020-12-10T00:36:27Z",
-      "age_days": 1889,
-      "labels": [
-        "[Type] Enhancement",
-        "[Pri] Low",
-        "Good For Community",
-        "[Block] Image Compare"
-      ]
-    },
-    {
-      "number": 18048,
-      "title": "Instagram Widget: Update Copy to Remove Reference to \"Publish\" ",
-      "url": "https://github.com/Automattic/jetpack/issues/18048",
-      "created_at": "2020-12-10T15:52:05Z",
-      "age_days": 1888,
-      "labels": [
-        "[Type] Enhancement",
-        "[Feature] Extra Sidebar Widgets"
-      ]
-    },
-    {
-      "number": 18049,
-      "title": "Admin: Anti-spam card displays Upgrade button with Anti-Spam product purchased and Akismet deactivated",
-      "url": "https://github.com/Automattic/jetpack/issues/18049",
-      "created_at": "2020-12-10T15:52:14Z",
-      "age_days": 1888,
-      "labels": [
-        "[Type] Bug",
-        "Admin Page",
-        "[Pri] Normal",
-        "[Feature] Akismet"
-      ]
-    },
-    {
-      "number": 18050,
-      "title": "Admin: Set up button in Anti-Spam card doesn't activate Akismet",
-      "url": "https://github.com/Automattic/jetpack/issues/18050",
-      "created_at": "2020-12-10T16:10:01Z",
-      "age_days": 1888,
-      "labels": [
-        "[Type] Bug",
-        "Admin Page",
-        "[Pri] Low",
-        "[Feature] Akismet"
-      ]
-    },
-    {
-      "number": 18060,
-      "title": "Podcast Helper: Consider sideloading the Anchor badge into the media library.",
-      "url": "https://github.com/Automattic/jetpack/issues/18060",
-      "created_at": "2020-12-10T21:17:04Z",
-      "age_days": 1888,
-      "labels": [
-        "[Type] Enhancement",
-        "[Pri] Normal",
-        "[Block] Anchor Fm"
-      ]
-    },
-    {
-      "number": 18177,
-      "title": "Jetpack Protect: optimize transient clean up",
-      "url": "https://github.com/Automattic/jetpack/issues/18177",
-      "created_at": "2020-12-22T21:17:55Z",
-      "age_days": 1876,
-      "labels": [
-        "[Type] Enhancement",
-        "[Feature] Protect",
-        "[Pri] Normal",
-        "Debug Tools"
+        "[Block] Form"
       ]
     },
     {
@@ -1023,37 +1482,12 @@
       "title": "Gzip Not Work Simple Mode ",
       "url": "https://github.com/Automattic/jetpack/issues/25473",
       "created_at": "2020-12-26T12:26:40Z",
-      "age_days": 1872,
+      "age_days": 1906,
       "labels": [
-        "[Type] Bug",
+        "Bug",
         "[Pri] Low",
         "[Plugin] Super Cache",
         "[Super Cache] UI"
-      ]
-    },
-    {
-      "number": 18194,
-      "title": "Subscriptions - YouTube embed not showing with Classic Editor",
-      "url": "https://github.com/Automattic/jetpack/issues/18194",
-      "created_at": "2021-01-02T06:09:44Z",
-      "age_days": 1865,
-      "labels": [
-        "[Type] Bug",
-        "[Feature] Subscriptions",
-        "[Pri] Normal",
-        "Customer Report [LEGACY]"
-      ]
-    },
-    {
-      "number": 18224,
-      "title": "Comments: Add support for comment_form_top action after comment title",
-      "url": "https://github.com/Automattic/jetpack/issues/18224",
-      "created_at": "2021-01-07T01:59:32Z",
-      "age_days": 1861,
-      "labels": [
-        "[Type] Enhancement",
-        "[Feature] Comments",
-        "[Pri] Low"
       ]
     },
     {
@@ -1061,59 +1495,10 @@
       "title": ".htaccess directive Options -Indexes causing 500 Internal server error",
       "url": "https://github.com/Automattic/jetpack/issues/25472",
       "created_at": "2021-01-08T10:07:10Z",
-      "age_days": 1859,
+      "age_days": 1893,
       "labels": [
-        "[Type] Bug",
+        "Bug",
         "[Pri] Low",
-        "[Plugin] Super Cache"
-      ]
-    },
-    {
-      "number": 18282,
-      "title": "Dialogue block: Use Date for generating timestamps",
-      "url": "https://github.com/Automattic/jetpack/issues/18282",
-      "created_at": "2021-01-11T15:56:46Z",
-      "age_days": 1856,
-      "labels": [
-        "[Type] Task",
-        "[Pri] Low",
-        "[Size] S",
-        "[Block] Dialogue"
-      ]
-    },
-    {
-      "number": 18284,
-      "title": "Coversation/Dialogue blocks: use Conversation schema.org markup",
-      "url": "https://github.com/Automattic/jetpack/issues/18284",
-      "created_at": "2021-01-11T16:11:03Z",
-      "age_days": 1856,
-      "labels": [
-        "[Type] Enhancement",
-        "[Pri] Normal",
-        "[Size] M",
-        "[Block] Conversation",
-        "[Block] Dialogue"
-      ]
-    },
-    {
-      "number": 18291,
-      "title": "Instant Search: Improve JSX handling with Preact",
-      "url": "https://github.com/Automattic/jetpack/issues/18291",
-      "created_at": "2021-01-11T19:41:00Z",
-      "age_days": 1856,
-      "labels": [
-        "[Feature] Search",
-        "Build"
-      ]
-    },
-    {
-      "number": 25471,
-      "title": "Allow per-page garbage collection expiration time",
-      "url": "https://github.com/Automattic/jetpack/issues/25471",
-      "created_at": "2021-01-18T11:09:32Z",
-      "age_days": 1849,
-      "labels": [
-        "[Type] Enhancement",
         "[Plugin] Super Cache"
       ]
     },
@@ -1122,71 +1507,12 @@
       "title": "Search: enable search analytics tracking for wpcom sites",
       "url": "https://github.com/Automattic/jetpack/issues/18397",
       "created_at": "2021-01-18T17:36:30Z",
-      "age_days": 1849,
+      "age_days": 1883,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Pri] Low",
         "[Feature] Search",
         "[Platform] Simple"
-      ]
-    },
-    {
-      "number": 18463,
-      "title": "Connection: review the use of the HTTP_RAW_POST_DATA global",
-      "url": "https://github.com/Automattic/jetpack/issues/18463",
-      "created_at": "2021-01-21T02:36:04Z",
-      "age_days": 1847,
-      "labels": [
-        "[Pri] Low",
-        "[Package] Connection"
-      ]
-    },
-    {
-      "number": 18466,
-      "title": "Jetpack Comments: Integrate other platforms to login and comment",
-      "url": "https://github.com/Automattic/jetpack/issues/18466",
-      "created_at": "2021-01-21T14:05:57Z",
-      "age_days": 1846,
-      "labels": [
-        "[Feature] Comments",
-        "[Type] Feature Request",
-        "[Pri] Low"
-      ]
-    },
-    {
-      "number": 18478,
-      "title": "Autoloader: Better support being a transitive dependency",
-      "url": "https://github.com/Automattic/jetpack/issues/18478",
-      "created_at": "2021-01-21T18:27:59Z",
-      "age_days": 1846,
-      "labels": [
-        "[Type] Enhancement",
-        "[Package] Autoloader"
-      ]
-    },
-    {
-      "number": 18517,
-      "title": "Subscriptions Block: Add Outline Button Style ",
-      "url": "https://github.com/Automattic/jetpack/issues/18517",
-      "created_at": "2021-01-24T23:41:30Z",
-      "age_days": 1843,
-      "labels": [
-        "[Type] Enhancement",
-        "[Block] Subscribe"
-      ]
-    },
-    {
-      "number": 18543,
-      "title": "Dialog block: add keyboard controls for play/pause/skip audio player buttons",
-      "url": "https://github.com/Automattic/jetpack/issues/18543",
-      "created_at": "2021-01-25T23:58:28Z",
-      "age_days": 1842,
-      "labels": [
-        "[Focus] Accessibility",
-        "[Type] Feature Request",
-        "[Pri] Normal",
-        "[Size] S",
-        "[Block] Dialogue"
       ]
     },
     {
@@ -1194,7 +1520,7 @@
       "title": "Polldaddy has been renamed",
       "url": "https://github.com/Automattic/jetpack/issues/37556",
       "created_at": "2021-01-26T19:58:32Z",
-      "age_days": 1841,
+      "age_days": 1875,
       "labels": [
         "[JS Package] Social Logos"
       ]
@@ -1204,69 +1530,9 @@
       "title": "Update tumblr icon",
       "url": "https://github.com/Automattic/jetpack/issues/37760",
       "created_at": "2021-01-26T20:04:24Z",
-      "age_days": 1841,
+      "age_days": 1875,
       "labels": [
         "[JS Package] Social Logos"
-      ]
-    },
-    {
-      "number": 18607,
-      "title": "Display the play/pause button on the Slideshow even when Autoplay is disabled",
-      "url": "https://github.com/Automattic/jetpack/issues/18607",
-      "created_at": "2021-01-29T02:58:35Z",
-      "age_days": 1839,
-      "labels": [
-        "[Type] Feature Request",
-        "[Block] Slideshow",
-        "Customer Report [LEGACY]"
-      ]
-    },
-    {
-      "number": 18613,
-      "title": "Dashboard: cannot display a single feature card",
-      "url": "https://github.com/Automattic/jetpack/issues/18613",
-      "created_at": "2021-01-29T13:40:46Z",
-      "age_days": 1838,
-      "labels": [
-        "[Type] Enhancement",
-        "Admin Page",
-        "[Pri] Normal"
-      ]
-    },
-    {
-      "number": 18615,
-      "title": "Assistant: Add \"configure *more* options as text on recommendations summary screen",
-      "url": "https://github.com/Automattic/jetpack/issues/18615",
-      "created_at": "2021-01-29T16:39:25Z",
-      "age_days": 1838,
-      "labels": [
-        "[Type] Enhancement",
-        "Admin Page",
-        "Connect Flow",
-        "Assistant (Onboarding)"
-      ]
-    },
-    {
-      "number": 18638,
-      "title": "Jetpack Search: Add option to make search box position \"fixed\"",
-      "url": "https://github.com/Automattic/jetpack/issues/18638",
-      "created_at": "2021-01-31T21:12:34Z",
-      "age_days": 1836,
-      "labels": [
-        "[Type] Feature Request",
-        "[Feature] Search"
-      ]
-    },
-    {
-      "number": 18712,
-      "title": "gitignore: Update per-project type .gitignores",
-      "url": "https://github.com/Automattic/jetpack/issues/18712",
-      "created_at": "2021-02-04T16:16:56Z",
-      "age_days": 1832,
-      "labels": [
-        "[Type] Enhancement",
-        "General",
-        "[Type] Janitorial"
       ]
     },
     {
@@ -1274,9 +1540,9 @@
       "title": "Fetch for /jetpack/v4/scan delays DOM load by several seconds",
       "url": "https://github.com/Automattic/jetpack/issues/18740",
       "created_at": "2021-02-07T18:58:33Z",
-      "age_days": 1829,
+      "age_days": 1863,
       "labels": [
-        "[Type] Bug",
+        "Bug",
         "[Focus] Performance",
         "[Pri] Normal",
         "[Feature] Scan",
@@ -1285,99 +1551,13 @@
       ]
     },
     {
-      "number": 18746,
-      "title": "Mailchimp reported as connected after disconnecting Jetpack",
-      "url": "https://github.com/Automattic/jetpack/issues/18746",
-      "created_at": "2021-02-08T15:51:13Z",
-      "age_days": 1828,
-      "labels": [
-        "[Type] Bug",
-        "[Pri] Normal",
-        "[Block] Mailchimp"
-      ]
-    },
-    {
-      "number": 18747,
-      "title": "Mailchimp connected in API response after disconnecting Jetpack",
-      "url": "https://github.com/Automattic/jetpack/issues/18747",
-      "created_at": "2021-02-08T15:52:06Z",
-      "age_days": 1828,
-      "labels": [
-        "[Type] Bug",
-        "[Pri] Normal",
-        "[Block] Mailchimp"
-      ]
-    },
-    {
-      "number": 18789,
-      "title": "Conversation block: support audio block as source for transcription",
-      "url": "https://github.com/Automattic/jetpack/issues/18789",
-      "created_at": "2021-02-11T05:10:32Z",
-      "age_days": 1825,
-      "labels": [
-        "[Type] Feature Request",
-        "[Pri] Normal",
-        "[Size] M",
-        "[Block] Conversation"
-      ]
-    },
-    {
-      "number": 18811,
-      "title": "Newly registered users with Jetpack SSO aren't fully connected",
-      "url": "https://github.com/Automattic/jetpack/issues/18811",
-      "created_at": "2021-02-12T22:23:10Z",
-      "age_days": 1824,
-      "labels": [
-        "[Type] Bug",
-        "[Feature] SSO",
-        "[Pri] Low"
-      ]
-    },
-    {
-      "number": 18818,
-      "title": "Xing social share button",
-      "url": "https://github.com/Automattic/jetpack/issues/18818",
-      "created_at": "2021-02-13T08:23:11Z",
-      "age_days": 1823,
-      "labels": [
-        "[Type] Enhancement",
-        "[Feature] Sharing",
-        "[Pri] Low"
-      ]
-    },
-    {
-      "number": 18888,
-      "title": "ES API errors bubble up to `no_search_results_array`, hiding the error code/details",
-      "url": "https://github.com/Automattic/jetpack/issues/18888",
-      "created_at": "2021-02-19T19:38:30Z",
-      "age_days": 1817,
-      "labels": [
-        "[Type] Feature Request",
-        "[Pri] Low",
-        "[Feature] Search"
-      ]
-    },
-    {
-      "number": 18934,
-      "title": "Slideshow / Tiled Gallery block: block controls alignment issues",
-      "url": "https://github.com/Automattic/jetpack/issues/18934",
-      "created_at": "2021-02-25T09:19:23Z",
-      "age_days": 1811,
-      "labels": [
-        "[Type] Bug",
-        "[Pri] Low",
-        "[Block] Slideshow",
-        "[Block] Tiled Gallery"
-      ]
-    },
-    {
       "number": 18938,
       "title": "Secondary Users: Access to modules that require a user account ",
       "url": "https://github.com/Automattic/jetpack/issues/18938",
       "created_at": "2021-02-25T13:25:10Z",
-      "age_days": 1811,
+      "age_days": 1845,
       "labels": [
-        "[Type] Bug",
+        "Bug",
         "Admin Page",
         "[Pri] Low",
         "Connect Flow",
@@ -1387,36 +1567,13 @@
       ]
     },
     {
-      "number": 18944,
-      "title": "Disable \"anonymous\" commenting via Jetpack Comments",
-      "url": "https://github.com/Automattic/jetpack/issues/18944",
-      "created_at": "2021-02-25T19:55:00Z",
-      "age_days": 1811,
-      "labels": [
-        "[Type] Enhancement",
-        "[Feature] Comments",
-        "[Pri] Low"
-      ]
-    },
-    {
-      "number": 18975,
-      "title": "Backup: \"Enter credentials\" should link to Calypso Green.",
-      "url": "https://github.com/Automattic/jetpack/issues/18975",
-      "created_at": "2021-03-02T16:19:27Z",
-      "age_days": 1806,
-      "labels": [
-        "[Type] Enhancement",
-        "[Feature] Backups"
-      ]
-    },
-    {
       "number": 18976,
       "title": "Backup & Scan: Menu should link to Calypso Green",
       "url": "https://github.com/Automattic/jetpack/issues/18976",
       "created_at": "2021-03-02T16:20:50Z",
-      "age_days": 1806,
+      "age_days": 1840,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Feature] Backups",
         "[Feature] Scan"
       ]
@@ -1426,9 +1583,9 @@
       "title": "Jetpack Search: Indexed images should not be preprocessed by photon",
       "url": "https://github.com/Automattic/jetpack/issues/19014",
       "created_at": "2021-03-03T23:48:17Z",
-      "age_days": 1805,
+      "age_days": 1839,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Pri] Low",
         "[Feature] Search",
         "[Plugin] Jetpack",
@@ -1437,52 +1594,16 @@
       ]
     },
     {
-      "number": 19029,
-      "title": "Search: Handle inaccessible images for a given search result",
-      "url": "https://github.com/Automattic/jetpack/issues/19029",
-      "created_at": "2021-03-04T21:52:24Z",
-      "age_days": 1804,
-      "labels": [
-        "[Type] Enhancement",
-        "[Feature] Search"
-      ]
-    },
-    {
-      "number": 19142,
-      "title": "Search: exclude \"media\" post type by default",
-      "url": "https://github.com/Automattic/jetpack/issues/19142",
-      "created_at": "2021-03-11T23:08:50Z",
-      "age_days": 1797,
-      "labels": [
-        "[Type] Feature Request",
-        "[Feature] Search"
-      ]
-    },
-    {
       "number": 19206,
       "title": "Protect: do not offer option to enable module in dashboard widget when it is force-disabled via filter",
       "url": "https://github.com/Automattic/jetpack/issues/19206",
       "created_at": "2021-03-17T18:54:39Z",
-      "age_days": 1791,
+      "age_days": 1825,
       "labels": [
-        "[Type] Bug",
+        "Bug",
         "[Feature] Protect",
         "[Pri] Low",
         "[Status] Auto-allocated"
-      ]
-    },
-    {
-      "number": 19215,
-      "title": "Stats: improve accessibility by adding the mention of “views”",
-      "url": "https://github.com/Automattic/jetpack/issues/19215",
-      "created_at": "2021-03-18T11:43:00Z",
-      "age_days": 1790,
-      "labels": [
-        "[Type] Enhancement",
-        "[Feature] Stats Data",
-        "[Focus] Accessibility",
-        "Admin Page",
-        "[Pri] Normal"
       ]
     },
     {
@@ -1490,9 +1611,9 @@
       "title": "Mailchimp block: Form instances with deleted group attributes result in failed subscribe requests",
       "url": "https://github.com/Automattic/jetpack/issues/19311",
       "created_at": "2021-03-25T22:08:51Z",
-      "age_days": 1783,
+      "age_days": 1817,
       "labels": [
-        "[Type] Bug",
+        "Bug",
         "[Pri] Low",
         "[Block] Mailchimp",
         "[Plugin] Jetpack",
@@ -1500,73 +1621,13 @@
       ]
     },
     {
-      "number": 25468,
-      "title": "Add \"Country Caching\" plugin",
-      "url": "https://github.com/Automattic/jetpack/issues/25468",
-      "created_at": "2021-03-31T13:06:46Z",
-      "age_days": 1777,
-      "labels": [
-        "[Type] Enhancement",
-        "[Pri] Low",
-        "[Plugin] Super Cache"
-      ]
-    },
-    {
-      "number": 19391,
-      "title": "Button Block: better account for alignment on multi-line text",
-      "url": "https://github.com/Automattic/jetpack/issues/19391",
-      "created_at": "2021-04-02T11:42:22Z",
-      "age_days": 1775,
-      "labels": [
-        "[Type] Bug",
-        "[Pri] Low",
-        "[Block] Button"
-      ]
-    },
-    {
-      "number": 19393,
-      "title": "Instant Search: Closing the search overlay on a search page temporarily re-enables body scroll",
-      "url": "https://github.com/Automattic/jetpack/issues/19393",
-      "created_at": "2021-04-02T12:42:25Z",
-      "age_days": 1775,
-      "labels": [
-        "[Type] Bug",
-        "[Pri] Low",
-        "[Feature] Search"
-      ]
-    },
-    {
-      "number": 19397,
-      "title": "Star Rating: Lower Highest Rating to  1",
-      "url": "https://github.com/Automattic/jetpack/issues/19397",
-      "created_at": "2021-04-02T14:03:52Z",
-      "age_days": 1775,
-      "labels": [
-        "[Type] Enhancement",
-        "[Pri] Low",
-        "[Block] Star Rating"
-      ]
-    },
-    {
-      "number": 19413,
-      "title": "Video Block: empty placeholder remains when replacing deleted video",
-      "url": "https://github.com/Automattic/jetpack/issues/19413",
-      "created_at": "2021-04-05T11:44:11Z",
-      "age_days": 1772,
-      "labels": [
-        "[Type] Bug",
-        "[Pri] Low",
-        "[Block] VideoPress"
-      ]
-    },
-    {
       "number": 19415,
       "title": "Tiled Gallery - Image Placeholder When Uploading from Gallery",
       "url": "https://github.com/Automattic/jetpack/issues/19415",
       "created_at": "2021-04-05T11:54:59Z",
-      "age_days": 1772,
+      "age_days": 1806,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Feature] Tiled Gallery",
         "[Pri] Low",
         "[Block] Tiled Gallery",
@@ -1575,63 +1636,13 @@
       ]
     },
     {
-      "number": 19417,
-      "title": "Tiled Gallery Block - Reorder Arrows on Small Screens",
-      "url": "https://github.com/Automattic/jetpack/issues/19417",
-      "created_at": "2021-04-05T12:15:14Z",
-      "age_days": 1772,
-      "labels": [
-        "[Type] Feature Request",
-        "[Block] Tiled Gallery"
-      ]
-    },
-    {
-      "number": 19432,
-      "title": "Comments: Notification after comment is approved",
-      "url": "https://github.com/Automattic/jetpack/issues/19432",
-      "created_at": "2021-04-06T11:52:26Z",
-      "age_days": 1771,
-      "labels": [
-        "[Feature] Notifications",
-        "[Feature] Subscriptions",
-        "[Type] Feature Request",
-        "[Pri] Low"
-      ]
-    },
-    {
-      "number": 19600,
-      "title": "Evolving Google Calendar block icon and placeholder",
-      "url": "https://github.com/Automattic/jetpack/issues/19600",
-      "created_at": "2021-04-21T13:47:19Z",
-      "age_days": 1756,
-      "labels": [
-        "[Type] Enhancement",
-        "[Status] In Progress",
-        "[Status] Needs Design",
-        "[Block] Google Calendar"
-      ]
-    },
-    {
-      "number": 19621,
-      "title": "Related Posts - add ARIA tab role to Related Posts lists",
-      "url": "https://github.com/Automattic/jetpack/issues/19621",
-      "created_at": "2021-04-22T11:10:14Z",
-      "age_days": 1755,
-      "labels": [
-        "[Feature] Related Posts",
-        "[Focus] Accessibility",
-        "[Pri] Normal",
-        "[Block] Related Posts"
-      ]
-    },
-    {
       "number": 25466,
       "title": "GC breaks on multisite when visiting WPSC admin on non-main site",
       "url": "https://github.com/Automattic/jetpack/issues/25466",
       "created_at": "2021-04-28T19:39:00Z",
-      "age_days": 1749,
+      "age_days": 1783,
       "labels": [
-        "[Type] Bug",
+        "Bug",
         "[Focus] Multisite",
         "[Pri] Low",
         "[Plugin] Super Cache"
@@ -1642,9 +1653,9 @@
       "title": "Spaces removed in \"Check front page every 5 minutes. Front page text\"",
       "url": "https://github.com/Automattic/jetpack/issues/25465",
       "created_at": "2021-05-10T11:42:07Z",
-      "age_days": 1737,
+      "age_days": 1771,
       "labels": [
-        "[Type] Bug",
+        "Bug",
         "[Pri] Low",
         "[Plugin] Super Cache"
       ]
@@ -1654,7 +1665,7 @@
       "title": "Jetpack Block PHP Fixture Tests: Tracking issue for blocks requiring server-side rendering tests",
       "url": "https://github.com/Automattic/jetpack/issues/19812",
       "created_at": "2021-05-11T06:33:13Z",
-      "age_days": 1736,
+      "age_days": 1770,
       "labels": [
         "Unit Tests",
         "Epic",
@@ -1666,9 +1677,9 @@
       "title": "Invalid $blogcacheid value for multisite installs within a subdirectory",
       "url": "https://github.com/Automattic/jetpack/issues/25464",
       "created_at": "2021-05-19T17:58:58Z",
-      "age_days": 1728,
+      "age_days": 1762,
       "labels": [
-        "[Type] Bug",
+        "Bug",
         "[Focus] Multisite",
         "[Pri] Low",
         "[Plugin] Super Cache"
@@ -1679,9 +1690,9 @@
       "title": "Tiled Gallery Block: If a image is deleted from the Media Library, it cannot be removed from the block",
       "url": "https://github.com/Automattic/jetpack/issues/25014",
       "created_at": "2021-06-23T21:57:24Z",
-      "age_days": 1693,
+      "age_days": 1727,
       "labels": [
-        "[Type] Bug",
+        "Bug",
         "[Pri] Normal",
         "[Focus] Blocks",
         "Customer Report [LEGACY]",
@@ -1694,9 +1705,9 @@
       "title": "Consider updating the Backups and Scanning module's Learn More link",
       "url": "https://github.com/Automattic/jetpack/issues/20427",
       "created_at": "2021-07-21T14:49:52Z",
-      "age_days": 1665,
+      "age_days": 1699,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Pri] Low",
         "[Feature] Backups",
         "[Feature] Scan"
@@ -1707,9 +1718,9 @@
       "title": "Carousel: adding image to post that is already in a gallery on that post hides exif",
       "url": "https://github.com/Automattic/jetpack/issues/20526",
       "created_at": "2021-08-02T19:00:30Z",
-      "age_days": 1653,
+      "age_days": 1687,
       "labels": [
-        "[Type] Bug",
+        "Bug",
         "[Feature] Carousel",
         "[Pri] Low",
         "[Plugin] Jetpack",
@@ -1721,9 +1732,9 @@
       "title": "Search: Erroneously opens modal when opening a page/post preview with Classic Editor",
       "url": "https://github.com/Automattic/jetpack/issues/20547",
       "created_at": "2021-08-04T22:16:03Z",
-      "age_days": 1651,
+      "age_days": 1685,
       "labels": [
-        "[Type] Bug",
+        "Bug",
         "[Pri] Low",
         "[Feature] Search",
         "[Plugin] Jetpack",
@@ -1737,9 +1748,9 @@
       "title": "Instagram block placeholder icon is tight ",
       "url": "https://github.com/Automattic/jetpack/issues/20685",
       "created_at": "2021-08-13T11:31:32Z",
-      "age_days": 1642,
+      "age_days": 1676,
       "labels": [
-        "[Type] Bug",
+        "Bug",
         "[Status] In Progress",
         "[Pri] Low",
         "[Block] Latest Instagram Posts",
@@ -1752,9 +1763,9 @@
       "title": "Instant Search: overlay is incorrectly zoomed in & scrolled when using Astra theme on mobile devices",
       "url": "https://github.com/Automattic/jetpack/issues/20790",
       "created_at": "2021-08-23T01:09:37Z",
-      "age_days": 1633,
+      "age_days": 1667,
       "labels": [
-        "[Type] Bug",
+        "Bug",
         "[Pri] Low",
         "[Feature] Search",
         "[Plugin] Jetpack",
@@ -1769,9 +1780,9 @@
       "title": "Instant Search: filter checkboxes should remain a consistent size",
       "url": "https://github.com/Automattic/jetpack/issues/21009",
       "created_at": "2021-09-09T03:17:09Z",
-      "age_days": 1615,
+      "age_days": 1650,
       "labels": [
-        "[Type] Bug",
+        "Bug",
         "[Pri] Low",
         "[Feature] Search",
         "[Plugin] Jetpack",
@@ -1786,9 +1797,9 @@
       "title": "Mailchimp block: Subscribing with an unsubbed address results in error / failure",
       "url": "https://github.com/Automattic/jetpack/issues/21153",
       "created_at": "2021-09-22T14:21:51Z",
-      "age_days": 1602,
+      "age_days": 1636,
       "labels": [
-        "[Type] Bug",
+        "Bug",
         "[Pri] Low",
         "[Block] Mailchimp",
         "[Plugin] Jetpack",
@@ -1800,9 +1811,9 @@
       "title": "Enhancement: Modules Page - Update Backup and Scan",
       "url": "https://github.com/Automattic/jetpack/issues/21280",
       "created_at": "2021-10-04T13:48:43Z",
-      "age_days": 1590,
+      "age_days": 1624,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Pri] Low",
         "[Feature] Backups",
         "[Plugin] Jetpack",
@@ -1814,9 +1825,9 @@
       "title": "Widgets: `Stylesheet widget-conditions-css was not properly added` errors",
       "url": "https://github.com/Automattic/jetpack/issues/21434",
       "created_at": "2021-10-15T14:04:17Z",
-      "age_days": 1579,
+      "age_days": 1613,
       "labels": [
-        "[Type] Bug",
+        "Bug",
         "[Feature] Widget Visibility",
         "[Feature] Extra Sidebar Widgets",
         "[Pri] Low",
@@ -1829,9 +1840,9 @@
       "title": "Instant Search: improve printed output",
       "url": "https://github.com/Automattic/jetpack/issues/22135",
       "created_at": "2021-12-20T03:53:52Z",
-      "age_days": 1513,
+      "age_days": 1548,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Pri] Low",
         "[Feature] Search",
         "[Plugin] Jetpack",
@@ -1844,9 +1855,9 @@
       "title": "Tiled Gallery doesn't reset column width attribute when switching layouts",
       "url": "https://github.com/Automattic/jetpack/issues/22225",
       "created_at": "2022-01-05T14:37:44Z",
-      "age_days": 1497,
+      "age_days": 1531,
       "labels": [
-        "[Type] Bug",
+        "Bug",
         "[Feature] Tiled Gallery",
         "[Pri] Low",
         "[Block] Tiled Gallery",
@@ -1859,9 +1870,9 @@
       "title": "Shortlinks: page_on_front not handled correctly.",
       "url": "https://github.com/Automattic/jetpack/issues/22256",
       "created_at": "2022-01-07T03:39:40Z",
-      "age_days": 1495,
+      "age_days": 1530,
       "labels": [
-        "[Type] Bug",
+        "Bug",
         "[Feature] Shortlinks",
         "[Pri] Low",
         "[Plugin] Jetpack",
@@ -1873,9 +1884,9 @@
       "title": "VaultPress: Update VP when Blog owner changes",
       "url": "https://github.com/Automattic/jetpack/issues/22332",
       "created_at": "2022-01-13T13:51:37Z",
-      "age_days": 1489,
+      "age_days": 1523,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Pri] Low",
         "[Plugin] VaultPress",
         "Triaged"
@@ -1886,9 +1897,9 @@
       "title": "Search Widget: On deactivation, removing more widgets than expected",
       "url": "https://github.com/Automattic/jetpack/issues/22417",
       "created_at": "2022-01-19T21:49:15Z",
-      "age_days": 1483,
+      "age_days": 1517,
       "labels": [
-        "[Type] Bug",
+        "Bug",
         "[Pri] Low",
         "[Feature] Search",
         "[Plugin] Jetpack",
@@ -1900,7 +1911,7 @@
       "title": "Search: Filters do not populate for Jetpack Search widget on Classic Search",
       "url": "https://github.com/Automattic/jetpack/issues/22441",
       "created_at": "2022-01-21T00:34:57Z",
-      "age_days": 1482,
+      "age_days": 1516,
       "labels": [
         "[Pri] Low",
         "[Feature] Search",
@@ -1913,9 +1924,9 @@
       "title": "Search: Improve messaging for the overlay close button on Customberg",
       "url": "https://github.com/Automattic/jetpack/issues/22517",
       "created_at": "2022-01-27T00:17:58Z",
-      "age_days": 1476,
+      "age_days": 1510,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Pri] Low",
         "[Feature] Search",
         "[Plugin] Jetpack",
@@ -1930,9 +1941,9 @@
       "title": "Infinite scroll query_args does not respect \"tag\"",
       "url": "https://github.com/Automattic/jetpack/issues/22573",
       "created_at": "2022-01-31T18:12:57Z",
-      "age_days": 1471,
+      "age_days": 1505,
       "labels": [
-        "[Type] Bug",
+        "Bug",
         "[Feature] Infinite Scroll",
         "[Pri] Low",
         "[Plugin] Jetpack",
@@ -1944,9 +1955,9 @@
       "title": "Bug: The payment block introducer looks odd when only one block is available",
       "url": "https://github.com/Automattic/jetpack/issues/22583",
       "created_at": "2022-01-31T23:02:28Z",
-      "age_days": 1471,
+      "age_days": 1505,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Pri] Low",
         "Earn",
         "[Plugin] Jetpack",
@@ -1958,12 +1969,12 @@
       "title": "Admin Performance: Jetpack Scan Menu Options and Availability Check",
       "url": "https://github.com/Automattic/jetpack/issues/22665",
       "created_at": "2022-02-04T12:47:38Z",
-      "age_days": 1467,
+      "age_days": 1501,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Focus] Performance",
         "Admin Page",
-        "[Type] Task",
+        "Task",
         "[Status] Blocked / Hold",
         "[Plugin] Jetpack",
         "[Feature] Scan"
@@ -1974,9 +1985,9 @@
       "title": "Widget Visibility: Page Visibility on Non-Legacy Widgets Doesn't Allow Including Children",
       "url": "https://github.com/Automattic/jetpack/issues/23072",
       "created_at": "2022-02-23T17:43:45Z",
-      "age_days": 1448,
+      "age_days": 1482,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Feature] Widget Visibility",
         "[Pri] Low",
         "Customer Report [LEGACY]",
@@ -1988,19 +1999,17 @@
       "title": "Subscription Block: Border color in the editor isn't consistently reflected properly in preview or live",
       "url": "https://github.com/Automattic/jetpack/issues/23133",
       "created_at": "2022-02-28T11:50:17Z",
-      "age_days": 1443,
-      "labels": [
-        "Bug"
-      ]
+      "age_days": 1477,
+      "labels": []
     },
     {
       "number": 23204,
       "title": "Jetpack/Button block allows inserting blocks when changing alignment controls even when templateLock is active",
       "url": "https://github.com/Automattic/jetpack/issues/23204",
       "created_at": "2022-03-02T20:28:36Z",
-      "age_days": 1441,
+      "age_days": 1475,
       "labels": [
-        "[Type] Bug",
+        "Bug",
         "[Pri] Low",
         "[Block] Payment Button",
         "Earn",
@@ -2014,9 +2023,9 @@
       "title": "Payments Button block: change wording of payment button 'exclusive member updates' ",
       "url": "https://github.com/Automattic/jetpack/issues/23212",
       "created_at": "2022-03-03T09:35:47Z",
-      "age_days": 1440,
+      "age_days": 1474,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Pri] Low",
         "[Block] Payment Button",
         "Earn",
@@ -2025,14 +2034,27 @@
       ]
     },
     {
+      "number": 23236,
+      "title": "S2.3 Post purchase thank-you page",
+      "url": "https://github.com/Automattic/jetpack/issues/23236",
+      "created_at": "2022-03-04T00:33:38Z",
+      "age_days": 1474,
+      "labels": [
+        "New Feature",
+        "[Feature] Search",
+        "[Size] M",
+        "[Plugin] Search"
+      ]
+    },
+    {
       "number": 23363,
       "title": "Renovate Dependency Updates",
       "url": "https://github.com/Automattic/jetpack/issues/23363",
       "created_at": "2022-03-10T21:38:51Z",
-      "age_days": 1433,
+      "age_days": 1467,
       "labels": [
-        "Primary Issue",
-        "Task"
+        "Task",
+        "Primary Issue"
       ]
     },
     {
@@ -2040,9 +2062,9 @@
       "title": "[Bug]: Pay with Paypal: Layout issue in Customizer",
       "url": "https://github.com/Automattic/jetpack/issues/25010",
       "created_at": "2022-03-11T12:34:43Z",
-      "age_days": 1432,
+      "age_days": 1466,
       "labels": [
-        "[Type] Bug",
+        "Bug",
         "[Pri] Low",
         "Earn",
         "[Block] Pay With Paypal",
@@ -2055,9 +2077,9 @@
       "title": "Search: Focus loss when loading more search results in search modal.",
       "url": "https://github.com/Automattic/jetpack/issues/23397",
       "created_at": "2022-03-11T21:37:01Z",
-      "age_days": 1432,
+      "age_days": 1466,
       "labels": [
-        "[Type] Bug",
+        "Bug",
         "[Focus] Accessibility",
         "[Pri] Normal",
         "[Feature] Search",
@@ -2069,9 +2091,9 @@
       "title": "Infinite Scroll: Podcast embeds fail to load after initial page load",
       "url": "https://github.com/Automattic/jetpack/issues/23406",
       "created_at": "2022-03-12T18:59:45Z",
-      "age_days": 1431,
+      "age_days": 1465,
       "labels": [
-        "[Type] Bug",
+        "Bug",
         "[Feature] Infinite Scroll",
         "[Pri] Low",
         "[Plugin] Jetpack",
@@ -2079,14 +2101,101 @@
       ]
     },
     {
+      "number": 23417,
+      "title": "Payment Button Block: Create a custom amount variation",
+      "url": "https://github.com/Automattic/jetpack/issues/23417",
+      "created_at": "2022-03-14T13:31:44Z",
+      "age_days": 1463,
+      "labels": [
+        "Enhancement",
+        "[Block] Payment Button"
+      ]
+    },
+    {
+      "number": 23420,
+      "title": "Payments Block: Add the Donations pattern",
+      "url": "https://github.com/Automattic/jetpack/issues/23420",
+      "created_at": "2022-03-14T13:39:10Z",
+      "age_days": 1463,
+      "labels": [
+        "Enhancement",
+        "[Block] Payment Button",
+        "[Plugin] Jetpack",
+        "[Block] Payments"
+      ]
+    },
+    {
+      "number": 23421,
+      "title": "Donations Form Block: Attach the Donations pattern",
+      "url": "https://github.com/Automattic/jetpack/issues/23421",
+      "created_at": "2022-03-14T13:42:42Z",
+      "age_days": 1463,
+      "labels": [
+        "Enhancement",
+        "[Block] Payment Button",
+        "[Plugin] Jetpack",
+        "[Block] Donations"
+      ]
+    },
+    {
       "number": 23428,
       "title": "Jetpack: Improve CSS class names of QR Post",
       "url": "https://github.com/Automattic/jetpack/issues/23428",
       "created_at": "2022-03-14T18:20:02Z",
-      "age_days": 1429,
+      "age_days": 1463,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Extension] Post Publish QR Post Panel"
+      ]
+    },
+    {
+      "number": 23469,
+      "title": "Enhancement: Gallery Block Hooks",
+      "url": "https://github.com/Automattic/jetpack/issues/23469",
+      "created_at": "2022-03-16T17:46:58Z",
+      "age_days": 1461,
+      "labels": [
+        "Enhancement",
+        "[Pri] Low",
+        "[Block] Tiled Gallery"
+      ]
+    },
+    {
+      "number": 23510,
+      "title": "Feature Request: Filter categories differently than the overall settings using the Gutenberg Search Block",
+      "url": "https://github.com/Automattic/jetpack/issues/23510",
+      "created_at": "2022-03-19T09:53:52Z",
+      "age_days": 1458,
+      "labels": [
+        "New Feature",
+        "[Feature] Search",
+        "Customer Report [LEGACY]",
+        "[Plugin] Jetpack"
+      ]
+    },
+    {
+      "number": 23530,
+      "title": "Feature Request: Reduce Unused CSS in Jetpack Boost",
+      "url": "https://github.com/Automattic/jetpack/issues/23530",
+      "created_at": "2022-03-21T20:05:06Z",
+      "age_days": 1456,
+      "labels": [
+        "New Feature",
+        "[Pri] Low",
+        "[Plugin] Boost"
+      ]
+    },
+    {
+      "number": 23588,
+      "title": "Enhancement: assess removal of postcss from search package",
+      "url": "https://github.com/Automattic/jetpack/issues/23588",
+      "created_at": "2022-03-24T03:05:17Z",
+      "age_days": 1454,
+      "labels": [
+        "Enhancement",
+        "[Feature] Search",
+        "[Plugin] Jetpack",
+        "[Package] Search"
       ]
     },
     {
@@ -2094,9 +2203,9 @@
       "title": "Setting up Stripe connection from FSE results in a 'Sorry, you are not allowed to access this page.' message",
       "url": "https://github.com/Automattic/jetpack/issues/23629",
       "created_at": "2022-03-25T14:19:39Z",
-      "age_days": 1418,
+      "age_days": 1452,
       "labels": [
-        "[Type] Bug",
+        "Bug",
         "[Pri] Normal",
         "[Block] Payment Button",
         "[Block] Paid Content",
@@ -2111,12 +2220,25 @@
       "title": "Feature Request: Donations Block Add Support for Causes",
       "url": "https://github.com/Automattic/jetpack/issues/25036",
       "created_at": "2022-03-27T13:49:33Z",
-      "age_days": 1416,
+      "age_days": 1450,
       "labels": [
-        "[Type] Feature Request",
+        "New Feature",
         "Customer Report [LEGACY]",
         "[Block] Donations",
         "Triaged"
+      ]
+    },
+    {
+      "number": 23660,
+      "title": "Search: Filter content on the site to auto link and open search overlay.",
+      "url": "https://github.com/Automattic/jetpack/issues/23660",
+      "created_at": "2022-03-28T21:00:14Z",
+      "age_days": 1449,
+      "labels": [
+        "New Feature",
+        "Customer Report [LEGACY]",
+        "[Plugin] Jetpack",
+        "[Plugin] Search"
       ]
     },
     {
@@ -2124,12 +2246,52 @@
       "title": "Search: Allow for partial matching of words in Arabic",
       "url": "https://github.com/Automattic/jetpack/issues/23676",
       "created_at": "2022-03-29T14:42:45Z",
-      "age_days": 1414,
+      "age_days": 1448,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Focus] i18n",
         "[Pri] Low",
         "[Feature] Search",
+        "[Plugin] Jetpack"
+      ]
+    },
+    {
+      "number": 23727,
+      "title": "Subscription Block: update subscriber count to take Publicize settings into account",
+      "url": "https://github.com/Automattic/jetpack/issues/23727",
+      "created_at": "2022-03-31T13:32:03Z",
+      "age_days": 1446,
+      "labels": [
+        "Enhancement",
+        "[Feature] Publicize",
+        "[Feature] Subscriptions",
+        "[Pri] Low",
+        "[Block] Subscribe"
+      ]
+    },
+    {
+      "number": 23792,
+      "title": "External Media: update Openverse logo in Media popover",
+      "url": "https://github.com/Automattic/jetpack/issues/23792",
+      "created_at": "2022-04-05T14:09:31Z",
+      "age_days": 1441,
+      "labels": [
+        "Enhancement",
+        "[Extension] External Media",
+        "[Plugin] Jetpack"
+      ]
+    },
+    {
+      "number": 23922,
+      "title": "Subscriptions: Subscribing to comments silently fails for users with pending subscriptions block",
+      "url": "https://github.com/Automattic/jetpack/issues/23922",
+      "created_at": "2022-04-13T13:27:52Z",
+      "age_days": 1433,
+      "labels": [
+        "Enhancement",
+        "[Feature] Subscriptions",
+        "[Pri] Normal",
+        "Customer Report [LEGACY]",
         "[Plugin] Jetpack"
       ]
     },
@@ -2138,9 +2300,9 @@
       "title": "VideoPress: Uploading large files can result in unexpected behaviour in the resumable uploader",
       "url": "https://github.com/Automattic/jetpack/issues/24169",
       "created_at": "2022-04-29T08:00:54Z",
-      "age_days": 1383,
+      "age_days": 1417,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Feature] VideoPress",
         "[Pri] Normal",
         "[Plugin] Jetpack",
@@ -2152,9 +2314,9 @@
       "title": "VideoPress: Video upload block stretching to full width in editor.",
       "url": "https://github.com/Automattic/jetpack/issues/24171",
       "created_at": "2022-04-29T08:34:07Z",
-      "age_days": 1383,
+      "age_days": 1417,
       "labels": [
-        "[Type] Bug",
+        "Bug",
         "[Feature] VideoPress",
         "[Pri] Low",
         "[Plugin] Jetpack",
@@ -2167,9 +2329,9 @@
       "title": "VideoPress: Unexpected privacy behaviour for duplicated videos",
       "url": "https://github.com/Automattic/jetpack/issues/24179",
       "created_at": "2022-04-29T12:27:40Z",
-      "age_days": 1383,
+      "age_days": 1417,
       "labels": [
-        "[Type] Bug",
+        "Bug",
         "[Feature] VideoPress",
         "[Pri] Normal",
         "[Plugin] Jetpack",
@@ -2182,11 +2344,59 @@
       "title": "My Jetpack: Minor inconsistencies in color between plans section and connection card",
       "url": "https://github.com/Automattic/jetpack/issues/24282",
       "created_at": "2022-05-06T22:27:42Z",
-      "age_days": 1376,
+      "age_days": 1410,
       "labels": [
-        "[Type] Bug",
+        "Bug",
         "[Pri] Low",
         "[Package] My Jetpack"
+      ]
+    },
+    {
+      "number": 24311,
+      "title": "Should search plugin respect module status overridden?",
+      "url": "https://github.com/Automattic/jetpack/issues/24311",
+      "created_at": "2022-05-09T22:12:35Z",
+      "age_days": 1407,
+      "labels": [
+        "Enhancement",
+        "[Feature] Search",
+        "[Package] Search"
+      ]
+    },
+    {
+      "number": 24321,
+      "title": "Enhancement: Indicate Map Block Limitations in UI",
+      "url": "https://github.com/Automattic/jetpack/issues/24321",
+      "created_at": "2022-05-10T16:43:10Z",
+      "age_days": 1406,
+      "labels": [
+        "Enhancement",
+        "[Block] Map",
+        "Customer Report [LEGACY]",
+        "[Plugin] Jetpack"
+      ]
+    },
+    {
+      "number": 24373,
+      "title": "Enhancement: Related Posts preview on mobile devices",
+      "url": "https://github.com/Automattic/jetpack/issues/24373",
+      "created_at": "2022-05-14T02:52:54Z",
+      "age_days": 1403,
+      "labels": [
+        "Enhancement",
+        "[Feature] Related Posts",
+        "[Plugin] Jetpack"
+      ]
+    },
+    {
+      "number": 24400,
+      "title": "Search: Improve live preview discoverability in Customberg for mobile viewports",
+      "url": "https://github.com/Automattic/jetpack/issues/24400",
+      "created_at": "2022-05-18T00:45:00Z",
+      "age_days": 1399,
+      "labels": [
+        "Enhancement",
+        "[Feature] Search"
       ]
     },
     {
@@ -2194,12 +2404,72 @@
       "title": "Search: Jetpack Search widget preview is incorrect in the block-based widget editor ",
       "url": "https://github.com/Automattic/jetpack/issues/24401",
       "created_at": "2022-05-18T01:00:03Z",
-      "age_days": 1365,
+      "age_days": 1399,
       "labels": [
-        "[Type] Bug",
+        "Bug",
         "[Pri] Low",
         "[Feature] Search",
         "Triaged"
+      ]
+    },
+    {
+      "number": 24405,
+      "title": "[Boost] Use WordPress heartbeat API for slow polling",
+      "url": "https://github.com/Automattic/jetpack/issues/24405",
+      "created_at": "2022-05-18T05:53:57Z",
+      "age_days": 1398,
+      "labels": [
+        "[Plugin] Boost",
+        "[Boost Feature] Cloud CSS"
+      ]
+    },
+    {
+      "number": 24445,
+      "title": "Review permission checks for both plugin and wpcom APIs",
+      "url": "https://github.com/Automattic/jetpack/issues/24445",
+      "created_at": "2022-05-19T23:14:26Z",
+      "age_days": 1397,
+      "labels": [
+        "[Feature] Search",
+        "[Plugin] Search",
+        "[Package] Search"
+      ]
+    },
+    {
+      "number": 24446,
+      "title": "Ensure i18n works",
+      "url": "https://github.com/Automattic/jetpack/issues/24446",
+      "created_at": "2022-05-19T23:21:55Z",
+      "age_days": 1397,
+      "labels": [
+        "[Focus] i18n",
+        "[Feature] Search",
+        "[Plugin] Search",
+        "[Package] Search"
+      ]
+    },
+    {
+      "number": 24447,
+      "title": "Change from the Calypso side and remove the special behaviour for search from `class.wpcom-json-api.php`",
+      "url": "https://github.com/Automattic/jetpack/issues/24447",
+      "created_at": "2022-05-19T23:26:27Z",
+      "age_days": 1397,
+      "labels": [
+        "[Feature] Search",
+        "[Plugin] Search",
+        "[Package] Search"
+      ]
+    },
+    {
+      "number": 24525,
+      "title": "DevCard Tools: refactor for feature checks vs plan checks",
+      "url": "https://github.com/Automattic/jetpack/issues/24525",
+      "created_at": "2022-05-26T18:37:13Z",
+      "age_days": 1390,
+      "labels": [
+        "Enhancement",
+        "[Pri] Low",
+        "[Plugin] Jetpack"
       ]
     },
     {
@@ -2207,9 +2477,9 @@
       "title": "Search: Instant Search is active at /wp-admin/widgets.php",
       "url": "https://github.com/Automattic/jetpack/issues/24550",
       "created_at": "2022-05-30T02:28:58Z",
-      "age_days": 1353,
+      "age_days": 1387,
       "labels": [
-        "[Type] Bug",
+        "Bug",
         "[Pri] Low",
         "[Feature] Search",
         "[Plugin] Search",
@@ -2221,9 +2491,9 @@
       "title": "Number Formatting: add new function to format a number to a short format",
       "url": "https://github.com/Automattic/jetpack/issues/24554",
       "created_at": "2022-05-30T07:56:18Z",
-      "age_days": 1352,
+      "age_days": 1386,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Focus] i18n",
         "[Pri] Normal",
         "RNA",
@@ -2231,14 +2501,122 @@
       ]
     },
     {
+      "number": 24610,
+      "title": "Search Enhancement: remove or improve search result caching",
+      "url": "https://github.com/Automattic/jetpack/issues/24610",
+      "created_at": "2022-06-02T01:26:49Z",
+      "age_days": 1384,
+      "labels": [
+        "Enhancement",
+        "[Feature] WPCOM API",
+        "[Feature] Search",
+        "[Package] Search"
+      ]
+    },
+    {
+      "number": 24682,
+      "title": "Search: add E2E tests for search widget editing",
+      "url": "https://github.com/Automattic/jetpack/issues/24682",
+      "created_at": "2022-06-09T02:29:08Z",
+      "age_days": 1377,
+      "labels": [
+        "Enhancement",
+        "E2E Tests",
+        "[Plugin] Jetpack",
+        "[Plugin] Search",
+        "[Package] Search"
+      ]
+    },
+    {
+      "number": 24683,
+      "title": "Search: Add E2E test for customizer search section",
+      "url": "https://github.com/Automattic/jetpack/issues/24683",
+      "created_at": "2022-06-09T02:30:50Z",
+      "age_days": 1377,
+      "labels": [
+        "Enhancement",
+        "[Feature] Search",
+        "E2E Tests",
+        "[Plugin] Jetpack",
+        "[Plugin] Search",
+        "[Package] Search"
+      ]
+    },
+    {
+      "number": 24685,
+      "title": "Search: set error boundary for Dashboard",
+      "url": "https://github.com/Automattic/jetpack/issues/24685",
+      "created_at": "2022-06-09T02:37:48Z",
+      "age_days": 1377,
+      "labels": [
+        "Enhancement",
+        "[Feature] Search",
+        "[Package] Search"
+      ]
+    },
+    {
+      "number": 24775,
+      "title": "Main branch renamed to `trunk`",
+      "url": "https://github.com/Automattic/jetpack/issues/24775",
+      "created_at": "2022-06-17T13:31:55Z",
+      "age_days": 1368,
+      "labels": [
+        "Build",
+        "[Tools] Monorepo Setup"
+      ]
+    },
+    {
+      "number": 25008,
+      "title": "Gif/Giphy Block: Add Alt Text field",
+      "url": "https://github.com/Automattic/jetpack/issues/25008",
+      "created_at": "2022-06-17T20:24:47Z",
+      "age_days": 1368,
+      "labels": [
+        "[Focus] Accessibility",
+        "New Feature",
+        "[Pri] Normal",
+        "[Block] GIF",
+        "[Plugin] Jetpack",
+        "Media",
+        "Triaged"
+      ]
+    },
+    {
       "number": 24900,
       "title": "Contact Form: form fields reset on validation error for logged in admins",
       "url": "https://github.com/Automattic/jetpack/issues/24900",
       "created_at": "2022-06-29T21:02:48Z",
-      "age_days": 1322,
+      "age_days": 1356,
       "labels": [
-        "[Type] Bug",
-        "[Feature] Contact Form",
+        "Bug",
+        "[Feature] Forms",
+        "[Pri] Low",
+        "[Plugin] Jetpack"
+      ]
+    },
+    {
+      "number": 24912,
+      "title": "Sync: Add enable_instant_search to syncing for Search",
+      "url": "https://github.com/Automattic/jetpack/issues/24912",
+      "created_at": "2022-06-30T15:23:31Z",
+      "age_days": 1355,
+      "labels": [
+        "Bug",
+        "[Package] Sync",
+        "[Pri] Normal",
+        "[Feature] Search",
+        "[Plugin] Jetpack"
+      ]
+    },
+    {
+      "number": 25006,
+      "title": "Gallery block: x Icon to Close Carousel view breaks on Safari Browser when an Image has a Caption with 4 or more lines",
+      "url": "https://github.com/Automattic/jetpack/issues/25006",
+      "created_at": "2022-07-08T08:57:09Z",
+      "age_days": 1347,
+      "labels": [
+        "Bug",
+        "[Feature] Carousel",
         "[Pri] Low",
         "[Plugin] Jetpack"
       ]
@@ -2248,9 +2626,9 @@
       "title": "Search: Customberg overlay preview for Field Guide broken",
       "url": "https://github.com/Automattic/jetpack/issues/25150",
       "created_at": "2022-07-21T04:56:11Z",
-      "age_days": 1300,
+      "age_days": 1335,
       "labels": [
-        "[Type] Bug",
+        "Bug",
         "[Pri] Low",
         "[Feature] Search",
         "[Plugin] Search",
@@ -2259,13 +2637,191 @@
       ]
     },
     {
+      "number": 25267,
+      "title": "Enhancement: Add ability to filter meta tags",
+      "url": "https://github.com/Automattic/jetpack/issues/25267",
+      "created_at": "2022-07-26T02:26:25Z",
+      "age_days": 1330,
+      "labels": [
+        "Enhancement",
+        "[Plugin] Social"
+      ]
+    },
+    {
+      "number": 25326,
+      "title": "Slideshow block: Controls have no contrast (on select themes)",
+      "url": "https://github.com/Automattic/jetpack/issues/25326",
+      "created_at": "2022-07-29T08:13:02Z",
+      "age_days": 1326,
+      "labels": [
+        "Bug",
+        "[Pri] Low",
+        "[Block] Slideshow",
+        "[Plugin] Jetpack",
+        "Triaged"
+      ]
+    },
+    {
+      "number": 25435,
+      "title": "Instant Search: Add some contrast or separation to results on mobile",
+      "url": "https://github.com/Automattic/jetpack/issues/25435",
+      "created_at": "2022-08-11T06:32:47Z",
+      "age_days": 1313,
+      "labels": [
+        "Enhancement",
+        "[Feature] Search",
+        "[Plugin] Jetpack",
+        "[Plugin] Search",
+        "[Package] Search"
+      ]
+    },
+    {
+      "number": 25440,
+      "title": "Instant Search: Better handling of paths/breadcrumbs in results",
+      "url": "https://github.com/Automattic/jetpack/issues/25440",
+      "created_at": "2022-08-11T11:15:46Z",
+      "age_days": 1313,
+      "labels": [
+        "Enhancement",
+        "[Feature] Search",
+        "[Plugin] Jetpack",
+        "[Plugin] Search",
+        "[Package] Search"
+      ]
+    },
+    {
+      "number": 25647,
+      "title": "Search: switch from v1.0 endpoint to v1.3 for Classic Search",
+      "url": "https://github.com/Automattic/jetpack/issues/25647",
+      "created_at": "2022-08-16T02:12:54Z",
+      "age_days": 1309,
+      "labels": [
+        "New Feature",
+        "[Feature] Search",
+        "[Plugin] Jetpack",
+        "[Plugin] Search",
+        "[Package] Search"
+      ]
+    },
+    {
+      "number": 25752,
+      "title": "RNA: Fix small arrow icon at CUT component",
+      "url": "https://github.com/Automattic/jetpack/issues/25752",
+      "created_at": "2022-08-22T17:00:18Z",
+      "age_days": 1302,
+      "labels": [
+        "Enhancement",
+        "RNA"
+      ]
+    },
+    {
+      "number": 25753,
+      "title": "Connection: Add documentation for components",
+      "url": "https://github.com/Automattic/jetpack/issues/25753",
+      "created_at": "2022-08-22T17:06:26Z",
+      "age_days": 1302,
+      "labels": [
+        "Enhancement",
+        "RNA"
+      ]
+    },
+    {
+      "number": 25755,
+      "title": "RNA: Introduce HeaderNav component",
+      "url": "https://github.com/Automattic/jetpack/issues/25755",
+      "created_at": "2022-08-22T17:08:48Z",
+      "age_days": 1302,
+      "labels": [
+        "Enhancement",
+        "RNA"
+      ]
+    },
+    {
+      "number": 25756,
+      "title": "RNA: Use Text components in Admin Page components",
+      "url": "https://github.com/Automattic/jetpack/issues/25756",
+      "created_at": "2022-08-22T17:10:05Z",
+      "age_days": 1302,
+      "labels": [
+        "Enhancement",
+        "RNA"
+      ]
+    },
+    {
+      "number": 25757,
+      "title": "RNA: Unit tests for Button component",
+      "url": "https://github.com/Automattic/jetpack/issues/25757",
+      "created_at": "2022-08-22T17:11:03Z",
+      "age_days": 1302,
+      "labels": [
+        "Enhancement",
+        "Unit Tests",
+        "RNA"
+      ]
+    },
+    {
+      "number": 25758,
+      "title": "RNA: Add bold variants for `body` and `body-small` at Text",
+      "url": "https://github.com/Automattic/jetpack/issues/25758",
+      "created_at": "2022-08-22T17:13:35Z",
+      "age_days": 1302,
+      "labels": [
+        "Enhancement",
+        "RNA"
+      ]
+    },
+    {
+      "number": 25759,
+      "title": "RNA: Add new `color` prop for Button",
+      "url": "https://github.com/Automattic/jetpack/issues/25759",
+      "created_at": "2022-08-22T17:14:51Z",
+      "age_days": 1302,
+      "labels": [
+        "Enhancement",
+        "RNA"
+      ]
+    },
+    {
+      "number": 25760,
+      "title": "RNA: Update Button Figma",
+      "url": "https://github.com/Automattic/jetpack/issues/25760",
+      "created_at": "2022-08-22T17:16:15Z",
+      "age_days": 1302,
+      "labels": [
+        "Enhancement",
+        "RNA"
+      ]
+    },
+    {
+      "number": 25867,
+      "title": "Enhancement: Add after_wpsc_delete_cache_directory hook",
+      "url": "https://github.com/Automattic/jetpack/issues/25867",
+      "created_at": "2022-08-26T14:02:14Z",
+      "age_days": 1298,
+      "labels": [
+        "Enhancement",
+        "[Pri] Low",
+        "[Plugin] Super Cache"
+      ]
+    },
+    {
+      "number": 25878,
+      "title": "QRCode Integration: Research and suggest an approach to render QR codes in the posts list page",
+      "url": "https://github.com/Automattic/jetpack/issues/25878",
+      "created_at": "2022-08-27T13:26:52Z",
+      "age_days": 1297,
+      "labels": [
+        "[Package] Post List"
+      ]
+    },
+    {
       "number": 25949,
       "title": "Sync: Home URLs being incorrectly stored on WordPress.com",
       "url": "https://github.com/Automattic/jetpack/issues/25949",
       "created_at": "2022-08-31T10:57:12Z",
-      "age_days": 1259,
+      "age_days": 1293,
       "labels": [
-        "[Type] Bug",
+        "Bug",
         "[Package] Sync",
         "[Pri] Low",
         "[Plugin] Jetpack",
@@ -2273,13 +2829,26 @@
       ]
     },
     {
+      "number": 25982,
+      "title": "Carousel: update colors of the previous / next buttons",
+      "url": "https://github.com/Automattic/jetpack/issues/25982",
+      "created_at": "2022-09-01T12:49:56Z",
+      "age_days": 1292,
+      "labels": [
+        "Enhancement",
+        "[Feature] Carousel",
+        "[Pri] Low",
+        "[Plugin] Jetpack"
+      ]
+    },
+    {
       "number": 25983,
       "title": "External Media: add ability to bulk-select with the shift key",
       "url": "https://github.com/Automattic/jetpack/issues/25983",
       "created_at": "2022-09-01T13:35:13Z",
-      "age_days": 1258,
+      "age_days": 1292,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Pri] Low",
         "[Extension] External Media",
         "[Plugin] Jetpack"
@@ -2290,26 +2859,12 @@
       "title": "External Media: highlighting media discrepancies",
       "url": "https://github.com/Automattic/jetpack/issues/25985",
       "created_at": "2022-09-01T14:00:39Z",
-      "age_days": 1258,
+      "age_days": 1292,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Pri] Low",
         "[Extension] External Media",
         "[Plugin] Jetpack"
-      ]
-    },
-    {
-      "number": 26014,
-      "title": "Google Docs Embed Block: sheet embeds not displaying as expected",
-      "url": "https://github.com/Automattic/jetpack/issues/26014",
-      "created_at": "2022-09-02T14:17:39Z",
-      "age_days": 1257,
-      "labels": [
-        "[Type] Bug",
-        "[Pri] Low",
-        "[Plugin] Jetpack",
-        "[Block] Google Docs Embed",
-        "Triaged"
       ]
     },
     {
@@ -2317,7 +2872,7 @@
       "title": "VideoPress: take advantage of the edit-when-uploading to store the video sizes",
       "url": "https://github.com/Automattic/jetpack/issues/26071",
       "created_at": "2022-09-06T19:43:19Z",
-      "age_days": 1253,
+      "age_days": 1287,
       "labels": [
         "[Pri] Low",
         "[Status] Stale",
@@ -2329,9 +2884,9 @@
       "title": "Feature Request: Activity from the Site Editor in the Activity Log",
       "url": "https://github.com/Automattic/jetpack/issues/26203",
       "created_at": "2022-09-13T19:52:23Z",
-      "age_days": 1246,
+      "age_days": 1280,
       "labels": [
-        "[Type] Feature Request",
+        "New Feature",
         "[Feature] Activity Log",
         "[Plugin] Jetpack",
         "[Plugin] Backup"
@@ -2342,7 +2897,7 @@
       "title": "RNA: Move `IconTooltip` close to our current specs for components",
       "url": "https://github.com/Automattic/jetpack/issues/26207",
       "created_at": "2022-09-13T20:48:33Z",
-      "age_days": 1246,
+      "age_days": 1280,
       "labels": [
         "RNA",
         "[JS Package] Components"
@@ -2353,9 +2908,9 @@
       "title": "Feature Request: allow changing input background color for Subscribe block",
       "url": "https://github.com/Automattic/jetpack/issues/26379",
       "created_at": "2022-09-23T11:51:55Z",
-      "age_days": 1236,
+      "age_days": 1270,
       "labels": [
-        "[Type] Feature Request",
+        "New Feature",
         "[Block] Subscribe",
         "[Plugin] Jetpack"
       ]
@@ -2365,9 +2920,9 @@
       "title": "[Bug]: Feeds in social media are notified of new post in unpublished blogs",
       "url": "https://github.com/Automattic/jetpack/issues/26505",
       "created_at": "2022-09-26T16:05:23Z",
-      "age_days": 1233,
+      "age_days": 1267,
       "labels": [
-        "[Type] Bug",
+        "Bug",
         "[Feature] Publicize",
         "[Pri] Normal",
         "[Platform] Simple"
@@ -2378,9 +2933,9 @@
       "title": "The upgrade banner doesn't have paddings when it's viewed on the front of the site",
       "url": "https://github.com/Automattic/jetpack/issues/26446",
       "created_at": "2022-09-26T16:11:42Z",
-      "age_days": 1233,
+      "age_days": 1267,
       "labels": [
-        "[Type] Bug",
+        "Bug",
         "[Pri] Low",
         "Plans",
         "[Focus] Blocks",
@@ -2393,9 +2948,9 @@
       "title": "Enhancement request: Configure address for Protect monthly emails",
       "url": "https://github.com/Automattic/jetpack/issues/26469",
       "created_at": "2022-09-27T11:21:59Z",
-      "age_days": 1232,
+      "age_days": 1266,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Plugin] Jetpack",
         "[Plugin] Protect"
       ]
@@ -2405,9 +2960,9 @@
       "title": "Publicize (Auto Share) Adding Image Caption in Description When Sharing on Facebook",
       "url": "https://github.com/Automattic/jetpack/issues/26523",
       "created_at": "2022-09-29T09:09:09Z",
-      "age_days": 1230,
+      "age_days": 1264,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Feature] Publicize",
         "[Pri] Low",
         "[Plugin] Jetpack",
@@ -2419,9 +2974,9 @@
       "title": "Enhancement: Add typography controls to jetpack/recurring-payments",
       "url": "https://github.com/Automattic/jetpack/issues/26634",
       "created_at": "2022-10-05T09:21:23Z",
-      "age_days": 1224,
+      "age_days": 1258,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Plugin] Jetpack"
       ]
     },
@@ -2430,9 +2985,9 @@
       "title": "Enhancement: VideoPress audio quality",
       "url": "https://github.com/Automattic/jetpack/issues/26645",
       "created_at": "2022-10-05T17:23:03Z",
-      "age_days": 1224,
+      "age_days": 1258,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Feature] VideoPress"
       ]
     },
@@ -2441,7 +2996,7 @@
       "title": "VideoPress: loading video visual states",
       "url": "https://github.com/Automattic/jetpack/issues/26698",
       "created_at": "2022-10-07T11:37:45Z",
-      "age_days": 1222,
+      "age_days": 1256,
       "labels": [
         "[Pri] Low",
         "[Status] Stale",
@@ -2453,9 +3008,9 @@
       "title": "Infinite scroll: URL updated on scroll when paused",
       "url": "https://github.com/Automattic/jetpack/issues/26706",
       "created_at": "2022-10-07T17:08:25Z",
-      "age_days": 1222,
+      "age_days": 1256,
       "labels": [
-        "[Type] Bug",
+        "Bug",
         "[Feature] Infinite Scroll",
         "[Pri] Low",
         "[Plugin] Jetpack"
@@ -2466,9 +3021,9 @@
       "title": "Some Jetpack settings/endpoints not available in Calypso when using standalone plugins",
       "url": "https://github.com/Automattic/jetpack/issues/26918",
       "created_at": "2022-10-18T20:37:09Z",
-      "age_days": 1211,
+      "age_days": 1245,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Feature] WPCOM API",
         "Epic",
         "[Plugin] Jetpack"
@@ -2479,7 +3034,7 @@
       "title": "VideoPress: do not use Jetpack redirect when site is not connected",
       "url": "https://github.com/Automattic/jetpack/issues/26941",
       "created_at": "2022-10-19T18:28:53Z",
-      "age_days": 1210,
+      "age_days": 1244,
       "labels": [
         "[Pri] Normal",
         "[Status] Stale",
@@ -2491,12 +3046,12 @@
       "title": "Form Block: Decrease delay before child block block inserter icon appears",
       "url": "https://github.com/Automattic/jetpack/issues/27121",
       "created_at": "2022-10-27T15:16:14Z",
-      "age_days": 1202,
+      "age_days": 1236,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Focus] Performance",
         "[Plugin] Jetpack",
-        "[Block] Contact Form"
+        "[Block] Form"
       ]
     },
     {
@@ -2504,35 +3059,11 @@
       "title": "VideoPress: Allow video metadata edit while uploading",
       "url": "https://github.com/Automattic/jetpack/issues/27129",
       "created_at": "2022-10-27T19:55:35Z",
-      "age_days": 1202,
+      "age_days": 1236,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Pri] Low",
         "[Status] Stale",
-        "[Package] VideoPress"
-      ]
-    },
-    {
-      "number": 27145,
-      "title": "Form Block: Default to showing form related blocks when inserting child blocks",
-      "url": "https://github.com/Automattic/jetpack/issues/27145",
-      "created_at": "2022-10-28T14:01:49Z",
-      "age_days": 1201,
-      "labels": [
-        "[Type] Enhancement",
-        "[Plugin] Jetpack",
-        "[Block] Contact Form"
-      ]
-    },
-    {
-      "number": 27158,
-      "title": "VideoPress: review proper handling of the isFetching state for playback tokens",
-      "url": "https://github.com/Automattic/jetpack/issues/27158",
-      "created_at": "2022-10-28T18:20:33Z",
-      "age_days": 1201,
-      "labels": [
-        "[Type] Enhancement",
-        "[Pri] Low",
         "[Package] VideoPress"
       ]
     },
@@ -2541,9 +3072,9 @@
       "title": "VideoPress: tell user that he has a paid plan",
       "url": "https://github.com/Automattic/jetpack/issues/27162",
       "created_at": "2022-10-28T20:42:22Z",
-      "age_days": 1201,
+      "age_days": 1235,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Pri] Low",
         "[Status] Stale",
         "[Package] VideoPress"
@@ -2554,115 +3085,12 @@
       "title": "VideoPress: add option to cancel an ongoing upload",
       "url": "https://github.com/Automattic/jetpack/issues/27166",
       "created_at": "2022-10-28T21:13:45Z",
-      "age_days": 1201,
+      "age_days": 1235,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Pri] Low",
         "[Status] Stale",
         "[Package] VideoPress"
-      ]
-    },
-    {
-      "number": 27181,
-      "title": "Contact Form: Disable comment forms from displaying on dynamic confirmation pages",
-      "url": "https://github.com/Automattic/jetpack/issues/27181",
-      "created_at": "2022-10-31T10:54:53Z",
-      "age_days": 1198,
-      "labels": [
-        "[Type] Enhancement",
-        "[Plugin] Jetpack",
-        "[Block] Contact Form"
-      ]
-    },
-    {
-      "number": 27200,
-      "title": "Related Posts: Add warning / JITM on template page if switching to FSE theme",
-      "url": "https://github.com/Automattic/jetpack/issues/27200",
-      "created_at": "2022-11-01T10:49:17Z",
-      "age_days": 1197,
-      "labels": [
-        "[Type] Enhancement",
-        "[Feature] Related Posts",
-        "[Plugin] Jetpack"
-      ]
-    },
-    {
-      "number": 27257,
-      "title": "Enhancement: Widget visibility config by country",
-      "url": "https://github.com/Automattic/jetpack/issues/27257",
-      "created_at": "2022-11-03T19:08:12Z",
-      "age_days": 1195,
-      "labels": [
-        "[Type] Enhancement",
-        "[Feature] Widget Visibility",
-        "[Pri] Low",
-        "[Plugin] Jetpack"
-      ]
-    },
-    {
-      "number": 27300,
-      "title": "Jetpack Social: settings page doesn't indicate the site needs to be public to use features",
-      "url": "https://github.com/Automattic/jetpack/issues/27300",
-      "created_at": "2022-11-07T21:53:46Z",
-      "age_days": 1191,
-      "labels": [
-        "[Type] Bug",
-        "[Feature] Publicize",
-        "[Pri] Normal",
-        "[Plugin] Jetpack",
-        "[Package] Publicize",
-        "[Plugin] Social",
-        "[Platform] Atomic"
-      ]
-    },
-    {
-      "number": 27353,
-      "title": "Top posts: add option \"order by likes\"",
-      "url": "https://github.com/Automattic/jetpack/issues/27353",
-      "created_at": "2022-11-10T16:29:31Z",
-      "age_days": 1188,
-      "labels": [
-        "[Type] Enhancement",
-        "[Feature] Stats Data",
-        "[Feature] Extra Sidebar Widgets",
-        "[Pri] Low",
-        "[Plugin] Jetpack"
-      ]
-    },
-    {
-      "number": 27387,
-      "title": "Enhancement: Dynamic title attribute on Markdown Footnote links",
-      "url": "https://github.com/Automattic/jetpack/issues/27387",
-      "created_at": "2022-11-14T13:32:17Z",
-      "age_days": 1184,
-      "labels": [
-        "[Type] Enhancement",
-        "[Feature] Markdown",
-        "[Plugin] Jetpack"
-      ]
-    },
-    {
-      "number": 27396,
-      "title": "Enhancement: support IDNS on URL form input validations",
-      "url": "https://github.com/Automattic/jetpack/issues/27396",
-      "created_at": "2022-11-14T19:11:33Z",
-      "age_days": 1184,
-      "labels": [
-        "[Type] Enhancement",
-        "[Feature] Contact Form",
-        "[Plugin] Jetpack"
-      ]
-    },
-    {
-      "number": 27406,
-      "title": "Enhancement: Allow drag and drop of video to replace VideoPress block",
-      "url": "https://github.com/Automattic/jetpack/issues/27406",
-      "created_at": "2022-11-14T21:27:18Z",
-      "age_days": 1184,
-      "labels": [
-        "[Type] Enhancement",
-        "[Plugin] Jetpack",
-        "[Block] VideoPress"
       ]
     },
     {
@@ -2670,10 +3098,10 @@
       "title": "Feature Request: Close a gallery by clicking on the background",
       "url": "https://github.com/Automattic/jetpack/issues/27452",
       "created_at": "2022-11-16T18:56:58Z",
-      "age_days": 1182,
+      "age_days": 1216,
       "labels": [
         "[Feature] Carousel",
-        "[Type] Feature Request",
+        "New Feature",
         "[Pri] Low",
         "[Plugin] Jetpack"
       ]
@@ -2683,90 +3111,10 @@
       "title": "Adding more form patterns to patterns library",
       "url": "https://github.com/Automattic/jetpack/issues/27469",
       "created_at": "2022-11-17T13:41:07Z",
-      "age_days": 1181,
+      "age_days": 1215,
       "labels": [
-        "[Type] Enhancement",
-        "[Block] Contact Form"
-      ]
-    },
-    {
-      "number": 27484,
-      "title": "Search: Display the record meter on the upgrade page.",
-      "url": "https://github.com/Automattic/jetpack/issues/27484",
-      "created_at": "2022-11-18T02:32:19Z",
-      "age_days": 1181,
-      "labels": [
-        "[Type] Enhancement",
-        "[Feature] Search",
-        "[Plugin] Search"
-      ]
-    },
-    {
-      "number": 27491,
-      "title": "Enhancement: Apply Photon image CDN to video posters",
-      "url": "https://github.com/Automattic/jetpack/issues/27491",
-      "created_at": "2022-11-18T10:31:27Z",
-      "age_days": 1180,
-      "labels": [
-        "[Type] Enhancement",
-        "[Feature] Photon",
-        "[Plugin] Jetpack"
-      ]
-    },
-    {
-      "number": 27668,
-      "title": "[VideoPress] Update onboard dialogues w/a link to add a license key",
-      "url": "https://github.com/Automattic/jetpack/issues/27668",
-      "created_at": "2022-11-30T10:19:39Z",
-      "age_days": 1168,
-      "labels": [
-        "[Plugin] VideoPress"
-      ]
-    },
-    {
-      "number": 27680,
-      "title": "Update the Boost onboarding dialog to use the new plugin's pricing table screen",
-      "url": "https://github.com/Automattic/jetpack/issues/27680",
-      "created_at": "2022-11-30T16:29:59Z",
-      "age_days": 1168,
-      "labels": [
-        "[Plugin] Boost"
-      ]
-    },
-    {
-      "number": 27681,
-      "title": "Update the Site Search onboarding dialog to use the new plugin's pricing table screen",
-      "url": "https://github.com/Automattic/jetpack/issues/27681",
-      "created_at": "2022-11-30T16:32:25Z",
-      "age_days": 1168,
-      "labels": [
-        "[Type] Enhancement",
-        "[Plugin] Search"
-      ]
-    },
-    {
-      "number": 27682,
-      "title": "Update the VideoPress onboarding dialog to use the new plugin's pricing table screen",
-      "url": "https://github.com/Automattic/jetpack/issues/27682",
-      "created_at": "2022-11-30T16:38:57Z",
-      "age_days": 1168,
-      "labels": [
-        "[Type] Enhancement",
-        "[Plugin] VideoPress"
-      ]
-    },
-    {
-      "number": 27763,
-      "title": "Site settings: Options don't sync after multiple changes in a row",
-      "url": "https://github.com/Automattic/jetpack/issues/27763",
-      "created_at": "2022-12-06T13:04:02Z",
-      "age_days": 1162,
-      "labels": [
-        "[Type] Bug",
-        "[Package] Sync",
-        "[Pri] Low",
-        "[Plugin] Jetpack",
-        "[Platform] Atomic"
+        "Enhancement",
+        "[Block] Form"
       ]
     },
     {
@@ -2774,11 +3122,11 @@
       "title": "Feature Request: Only show Jetpack Safe Mode message on main Dashboard page instead of EVERY page",
       "url": "https://github.com/Automattic/jetpack/issues/27790",
       "created_at": "2022-12-07T04:18:02Z",
-      "age_days": 1161,
+      "age_days": 1196,
       "labels": [
         "[Feature] Offline Mode",
         "IDC",
-        "[Type] Feature Request",
+        "New Feature",
         "[Pri] Normal",
         "[Package] Connection",
         "[Plugin] Jetpack",
@@ -2786,26 +3134,11 @@
       ]
     },
     {
-      "number": 28021,
-      "title": "Tiled Galleries: Gallery blocks are not transformed to Tiled Gallery block when selecting media setting to make tiled the default",
-      "url": "https://github.com/Automattic/jetpack/issues/28021",
-      "created_at": "2022-12-20T15:58:20Z",
-      "age_days": 1148,
-      "labels": [
-        "[Type] Bug",
-        "[Feature] Tiled Gallery",
-        "[Pri] Low",
-        "Customer Report [LEGACY]",
-        "[Block] Tiled Gallery",
-        "[Plugin] Jetpack"
-      ]
-    },
-    {
       "number": 28253,
       "title": "VideoPress: be able to resume the aborted uploading file",
       "url": "https://github.com/Automattic/jetpack/issues/28253",
       "created_at": "2023-01-10T12:02:09Z",
-      "age_days": 1127,
+      "age_days": 1161,
       "labels": [
         "[Pri] Normal",
         "[Status] Stale",
@@ -2814,25 +3147,13 @@
       ]
     },
     {
-      "number": 28426,
-      "title": "Feature Request: Search filter block for block theme templates",
-      "url": "https://github.com/Automattic/jetpack/issues/28426",
-      "created_at": "2023-01-17T22:16:48Z",
-      "age_days": 1120,
-      "labels": [
-        "[Type] Feature Request",
-        "[Feature] Search",
-        "[Plugin] Search"
-      ]
-    },
-    {
       "number": 28468,
       "title": "VideoPress: consider to add from/to paragraph transform",
       "url": "https://github.com/Automattic/jetpack/issues/28468",
       "created_at": "2023-01-19T16:53:08Z",
-      "age_days": 1118,
+      "age_days": 1152,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Pri] Low",
         "[Status] Stale",
         "[Block] VideoPress",
@@ -2844,7 +3165,7 @@
       "title": "VideoPress: consider to address the whole connection/checkout flow from the VideoPress video block",
       "url": "https://github.com/Automattic/jetpack/issues/28525",
       "created_at": "2023-01-23T11:44:11Z",
-      "age_days": 1114,
+      "age_days": 1148,
       "labels": [
         "[Pri] Low",
         "[Block] VideoPress",
@@ -2852,85 +3173,13 @@
       ]
     },
     {
-      "number": 28560,
-      "title": "[Super Cache] Show missing modules notice when using header related constants",
-      "url": "https://github.com/Automattic/jetpack/issues/28560",
-      "created_at": "2023-01-25T09:25:46Z",
-      "age_days": 1112,
-      "labels": [
-        "[Type] Enhancement",
-        "[Plugin] Super Cache"
-      ]
-    },
-    {
-      "number": 28758,
-      "title": "VideoPress: Add VideoPress category to Gutenberg Inserter Media tab",
-      "url": "https://github.com/Automattic/jetpack/issues/28758",
-      "created_at": "2023-02-03T22:59:53Z",
-      "age_days": 1103,
-      "labels": [
-        "[Type] Enhancement",
-        "[Feature] VideoPress"
-      ]
-    },
-    {
-      "number": 28759,
-      "title": "VideoPress: Insert v6 block for VideoPress videos on Gutenberg Inserter Media tab",
-      "url": "https://github.com/Automattic/jetpack/issues/28759",
-      "created_at": "2023-02-03T23:04:44Z",
-      "age_days": 1103,
-      "labels": [
-        "[Type] Enhancement",
-        "[Feature] VideoPress"
-      ]
-    },
-    {
-      "number": 28864,
-      "title": "Enhancement: Image Compare Block: Missing responsive images",
-      "url": "https://github.com/Automattic/jetpack/issues/28864",
-      "created_at": "2023-02-09T11:25:37Z",
-      "age_days": 1097,
-      "labels": [
-        "[Type] Enhancement",
-        "[Focus] Performance",
-        "[Pri] Normal",
-        "[Block] Image Compare",
-        "[Plugin] Jetpack"
-      ]
-    },
-    {
-      "number": 29020,
-      "title": "Jetpack Components: use Social Icons from automattic/social-logos",
-      "url": "https://github.com/Automattic/jetpack/issues/29020",
-      "created_at": "2023-02-17T13:28:40Z",
-      "age_days": 1089,
-      "labels": [
-        "[Type] Enhancement",
-        "[Pri] Low",
-        "Good For Community",
-        "RNA",
-        "[JS Package] Components"
-      ]
-    },
-    {
-      "number": 29153,
-      "title": "[Jetpack AI] Better prompts ",
-      "url": "https://github.com/Automattic/jetpack/issues/29153",
-      "created_at": "2023-02-24T15:23:38Z",
-      "age_days": 1082,
-      "labels": [
-        "[Type] Enhancement",
-        "[Block] AI Paragraph"
-      ]
-    },
-    {
       "number": 29176,
       "title": "Widget Visibility: add existing block visibility options to the block editor / site editor",
       "url": "https://github.com/Automattic/jetpack/issues/29176",
       "created_at": "2023-02-27T12:47:45Z",
-      "age_days": 1079,
+      "age_days": 1113,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Feature] Widget Visibility",
         "[Pri] Normal",
         "[Focus] FSE"
@@ -2941,97 +3190,11 @@
       "title": "VideoPress: disable video privacy toggle on Jetpack Settings for Atomic private sites",
       "url": "https://github.com/Automattic/jetpack/issues/29213",
       "created_at": "2023-02-28T21:04:56Z",
-      "age_days": 1078,
+      "age_days": 1112,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Feature] VideoPress",
         "[Status] Stale"
-      ]
-    },
-    {
-      "number": 29265,
-      "title": "[Super Cache] Show a warning when setting GC time over 24h",
-      "url": "https://github.com/Automattic/jetpack/issues/29265",
-      "created_at": "2023-03-02T23:10:46Z",
-      "age_days": 1076,
-      "labels": [
-        "[Type] Enhancement",
-        "[Plugin] Super Cache"
-      ]
-    },
-    {
-      "number": 29312,
-      "title": "Set widget visibility for individual Products, like for Pages",
-      "url": "https://github.com/Automattic/jetpack/issues/29312",
-      "created_at": "2023-03-06T15:53:18Z",
-      "age_days": 1072,
-      "labels": [
-        "[Type] Enhancement",
-        "[Feature] Widget Visibility",
-        "[Pri] Low",
-        "Good For Community",
-        "[Plugin] Jetpack"
-      ]
-    },
-    {
-      "number": 29344,
-      "title": "Sharing: improve mobile view of Mastodon sharing modal",
-      "url": "https://github.com/Automattic/jetpack/issues/29344",
-      "created_at": "2023-03-07T20:55:26Z",
-      "age_days": 1071,
-      "labels": [
-        "[Type] Enhancement",
-        "[Feature] Sharing",
-        "[Pri] Normal",
-        "[Status] Needs Design",
-        "[Plugin] Jetpack",
-        "[Platform] Simple",
-        "[Platform] Atomic"
-      ]
-    },
-    {
-      "number": 29392,
-      "title": "Upgrade flows: When logged out of wpcom, some flows show a wpcom-branded login page. ",
-      "url": "https://github.com/Automattic/jetpack/issues/29392",
-      "created_at": "2023-03-09T15:38:39Z",
-      "age_days": 1069,
-      "labels": [
-        "[Type] Bug",
-        "Admin Page",
-        "[Pri] Low",
-        "Plans",
-        "[Plugin] Jetpack",
-        "Triaged"
-      ]
-    },
-    {
-      "number": 29424,
-      "title": "Enhancement: Export individual contact form without filtering first",
-      "url": "https://github.com/Automattic/jetpack/issues/29424",
-      "created_at": "2023-03-10T19:27:50Z",
-      "age_days": 1068,
-      "labels": [
-        "[Type] Enhancement",
-        "[Feature] Contact Form",
-        "[Pri] Normal",
-        "[Plugin] Jetpack",
-        "[Package] Forms"
-      ]
-    },
-    {
-      "number": 29521,
-      "title": "Form: Allow customise label weight",
-      "url": "https://github.com/Automattic/jetpack/issues/29521",
-      "created_at": "2023-03-16T21:03:54Z",
-      "age_days": 1062,
-      "labels": [
-        "[Type] Enhancement",
-        "[Feature] Contact Form",
-        "[Type] Feature Request",
-        "[Pri] Normal",
-        "[Plugin] Jetpack",
-        "[Block] Contact Form",
-        "[Package] Forms"
       ]
     },
     {
@@ -3039,9 +3202,9 @@
       "title": "Subscriptions: Separate Border color option to field and button ",
       "url": "https://github.com/Automattic/jetpack/issues/29530",
       "created_at": "2023-03-17T11:25:00Z",
-      "age_days": 1061,
+      "age_days": 1095,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Pri] Normal",
         "[Block] Subscribe",
         "Customer Report [LEGACY]",
@@ -3049,26 +3212,13 @@
       ]
     },
     {
-      "number": 29533,
-      "title": "Upgrade flow from My Jetpack [Social stand-alone]: Add info icon to price table explaining \"customize publications\"",
-      "url": "https://github.com/Automattic/jetpack/issues/29533",
-      "created_at": "2023-03-17T15:40:13Z",
-      "age_days": 1061,
-      "labels": [
-        "[Type] Enhancement",
-        "[Pri] Normal",
-        "[Focus] FixTheFlows",
-        "[Plugin] Social"
-      ]
-    },
-    {
       "number": 30477,
       "title": "Enhancement: Visitor IP behind Cloudflare WAF setting",
       "url": "https://github.com/Automattic/jetpack/issues/30477",
       "created_at": "2023-05-05T06:56:05Z",
-      "age_days": 1012,
+      "age_days": 1046,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Feature] Protect",
         "[Plugin] Jetpack",
         "[Plugin] Protect"
@@ -3079,9 +3229,9 @@
       "title": "Enhancement: Tiled Gallery, customize the default \"LINK TO\" option",
       "url": "https://github.com/Automattic/jetpack/issues/31431",
       "created_at": "2023-06-19T08:55:03Z",
-      "age_days": 967,
+      "age_days": 1001,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "Customer Report [LEGACY]",
         "[Block] Tiled Gallery",
         "[Plugin] Jetpack"
@@ -3092,9 +3242,9 @@
       "title": "Publicize: add option to set privacy when sharing to Mastodon",
       "url": "https://github.com/Automattic/jetpack/issues/32446",
       "created_at": "2023-08-12T22:19:42Z",
-      "age_days": 913,
+      "age_days": 947,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Feature] Publicize",
         "[Pri] Normal",
         "[Plugin] Jetpack",
@@ -3106,9 +3256,9 @@
       "title": "Enhancement: AI Assistant Paragraph Block - Update \"Try Again\" Copy",
       "url": "https://github.com/Automattic/jetpack/issues/32492",
       "created_at": "2023-08-15T18:47:03Z",
-      "age_days": 910,
+      "age_days": 944,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Status] Needs Design",
         "[Plugin] Jetpack",
         "[Block] AI Assistant"
@@ -3119,9 +3269,9 @@
       "title": "Feature Request: Cluster map markers",
       "url": "https://github.com/Automattic/jetpack/issues/32643",
       "created_at": "2023-08-23T16:31:39Z",
-      "age_days": 902,
+      "age_days": 936,
       "labels": [
-        "[Type] Feature Request",
+        "New Feature",
         "[Pri] Low",
         "[Block] Map",
         "[Plugin] Jetpack"
@@ -3132,9 +3282,9 @@
       "title": "Enhancement: Delete Cache button",
       "url": "https://github.com/Automattic/jetpack/issues/32669",
       "created_at": "2023-08-24T14:50:32Z",
-      "age_days": 901,
+      "age_days": 935,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Plugin] Super Cache"
       ]
     },
@@ -3143,9 +3293,9 @@
       "title": "Enhancement: Advanced Settings screen visual aids",
       "url": "https://github.com/Automattic/jetpack/issues/32670",
       "created_at": "2023-08-24T14:55:41Z",
-      "age_days": 901,
+      "age_days": 935,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Plugin] Super Cache"
       ]
     },
@@ -3154,11 +3304,11 @@
       "title": "Social Menu & Social Media Icons: Add Vero Support",
       "url": "https://github.com/Automattic/jetpack/issues/32980",
       "created_at": "2023-09-11T19:37:48Z",
-      "age_days": 883,
+      "age_days": 917,
       "labels": [
         "[Feature] Extra Sidebar Widgets",
         "[Feature] Theme Tools",
-        "[Type] Feature Request",
+        "New Feature",
         "[Plugin] Jetpack"
       ]
     },
@@ -3167,7 +3317,7 @@
       "title": "Paid Content: Refactor to use get_token payload",
       "url": "https://github.com/Automattic/jetpack/issues/33070",
       "created_at": "2023-09-14T11:41:55Z",
-      "age_days": 880,
+      "age_days": 914,
       "labels": [
         "[Type] Janitorial",
         "Earn",
@@ -3180,9 +3330,9 @@
       "title": "Add undo to the AI assistant toolbar",
       "url": "https://github.com/Automattic/jetpack/issues/33122",
       "created_at": "2023-09-15T20:59:21Z",
-      "age_days": 879,
+      "age_days": 913,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Block] AI Assistant",
         "[AI Feature] AI Extension"
       ]
@@ -3192,9 +3342,9 @@
       "title": "Suggest prompt shortcuts within AI Assistant",
       "url": "https://github.com/Automattic/jetpack/issues/33123",
       "created_at": "2023-09-15T21:03:19Z",
-      "age_days": 879,
+      "age_days": 913,
       "labels": [
-        "[Type] Feature Request",
+        "New Feature",
         "[Block] AI Assistant",
         "[AI Feature] AI Extension"
       ]
@@ -3204,9 +3354,9 @@
       "title": "Stats: Date picker - test new ranges with the summary pages",
       "url": "https://github.com/Automattic/jetpack/issues/33204",
       "created_at": "2023-09-20T04:29:26Z",
-      "age_days": 874,
+      "age_days": 909,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Feature] Stats Data",
         "[Package] Stats Data",
         "[Package] Stats Admin"
@@ -3217,7 +3367,7 @@
       "title": "Boost: Improve Boost in My Jetpack",
       "url": "https://github.com/Automattic/jetpack/issues/33399",
       "created_at": "2023-09-29T07:47:07Z",
-      "age_days": 865,
+      "age_days": 899,
       "labels": [
         "[Plugin] Boost"
       ]
@@ -3227,9 +3377,9 @@
       "title": "Enhancement: Backup - update setup page pricing UI to show loading while price loads",
       "url": "https://github.com/Automattic/jetpack/issues/33501",
       "created_at": "2023-10-09T10:13:46Z",
-      "age_days": 855,
+      "age_days": 889,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Plugin] Backup",
         "[Pri] TBD"
       ]
@@ -3239,9 +3389,9 @@
       "title": "WP Super Cache: add option to clear cache on Word Press or plugin or theme update",
       "url": "https://github.com/Automattic/jetpack/issues/33829",
       "created_at": "2023-10-27T07:28:54Z",
-      "age_days": 837,
+      "age_days": 871,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Plugin] Super Cache"
       ]
     },
@@ -3250,9 +3400,9 @@
       "title": "WP Super Cache: add speed setting to preload process",
       "url": "https://github.com/Automattic/jetpack/issues/33912",
       "created_at": "2023-11-01T13:58:28Z",
-      "age_days": 832,
+      "age_days": 866,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Pri] Normal",
         "[Plugin] Super Cache"
       ]
@@ -3262,9 +3412,9 @@
       "title": "Enhancement: Improve subscription payment confirmation email",
       "url": "https://github.com/Automattic/jetpack/issues/34144",
       "created_at": "2023-11-15T17:23:55Z",
-      "age_days": 818,
+      "age_days": 852,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Feature] Subscriptions",
         "[Pri] Normal",
         "Earn",
@@ -3276,9 +3426,9 @@
       "title": "Refresh the UI for better information architecture",
       "url": "https://github.com/Automattic/jetpack/issues/34166",
       "created_at": "2023-11-16T11:50:04Z",
-      "age_days": 817,
+      "age_days": 851,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Plugin] Boost"
       ]
     },
@@ -3287,9 +3437,9 @@
       "title": "Tiled Gallery: Individual images should use the standard block toolbar.",
       "url": "https://github.com/Automattic/jetpack/issues/34175",
       "created_at": "2023-11-16T17:36:29Z",
-      "age_days": 817,
+      "age_days": 851,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Pri] Normal",
         "[Block] Tiled Gallery",
         "[Plugin] Jetpack"
@@ -3300,9 +3450,9 @@
       "title": "Subscriptions: Adding First-time Subscription Level Disrupts Posting Experience",
       "url": "https://github.com/Automattic/jetpack/issues/34178",
       "created_at": "2023-11-16T23:11:37Z",
-      "age_days": 817,
+      "age_days": 851,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Feature] Subscriptions",
         "[Pri] Normal",
         "Earn",
@@ -3316,9 +3466,9 @@
       "title": "Super Cache: Add a form for setting up caching of static files by proxies and clients",
       "url": "https://github.com/Automattic/jetpack/issues/34204",
       "created_at": "2023-11-20T12:28:00Z",
-      "age_days": 813,
+      "age_days": 847,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Plugin] Super Cache"
       ]
     },
@@ -3327,9 +3477,9 @@
       "title": "Subscriptions: submit form via AJAX",
       "url": "https://github.com/Automattic/jetpack/issues/34293",
       "created_at": "2023-11-24T14:09:29Z",
-      "age_days": 809,
+      "age_days": 843,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Feature] Subscriptions",
         "[Pri] Normal",
         "[Block] Subscribe",
@@ -3341,9 +3491,9 @@
       "title": "Enhancement: My Jetpack > Connection - Account connection detail",
       "url": "https://github.com/Automattic/jetpack/issues/34531",
       "created_at": "2023-12-08T05:04:00Z",
-      "age_days": 795,
+      "age_days": 830,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Pri] Normal",
         "[Plugin] Jetpack",
         "[Package] My Jetpack"
@@ -3354,9 +3504,9 @@
       "title": "Enhancement for Jetpack Search: Improve UX for Search when Blog pages show at most is not 10",
       "url": "https://github.com/Automattic/jetpack/issues/34545",
       "created_at": "2023-12-08T14:38:43Z",
-      "age_days": 795,
+      "age_days": 829,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Pri] Low",
         "[Feature] Search",
         "[Plugin] Search",
@@ -3368,7 +3518,7 @@
       "title": "AI Tiered Plans: Validate the upgrade event registration",
       "url": "https://github.com/Automattic/jetpack/issues/34737",
       "created_at": "2023-12-20T15:17:24Z",
-      "age_days": 783,
+      "age_days": 817,
       "labels": [
         "[Type] Janitorial",
         "[Block] AI Assistant"
@@ -3379,9 +3529,9 @@
       "title": "Enhancement: Add List ID header to email subscriptions.",
       "url": "https://github.com/Automattic/jetpack/issues/34802",
       "created_at": "2023-12-28T22:23:42Z",
-      "age_days": 775,
+      "age_days": 809,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Feature] Subscriptions",
         "[Pri] Normal",
         "[Plugin] Jetpack"
@@ -3392,9 +3542,9 @@
       "title": "Enhancement: Summarise statistics for the EU/EEA",
       "url": "https://github.com/Automattic/jetpack/issues/34813",
       "created_at": "2023-12-31T10:16:54Z",
-      "age_days": 772,
+      "age_days": 806,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Feature] Stats Data",
         "[Pri] Low",
         "[Plugin] Jetpack",
@@ -3406,9 +3556,9 @@
       "title": "Asset CDN: add option to exclude specific file from being served by the CDN",
       "url": "https://github.com/Automattic/jetpack/issues/34901",
       "created_at": "2024-01-08T21:06:08Z",
-      "age_days": 764,
+      "age_days": 798,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Pri] Low",
         "Good For Community",
         "[Feature] Asset CDN",
@@ -3420,9 +3570,9 @@
       "title": "Enhancement: Enable AI Assistant to Suggest Post Tags",
       "url": "https://github.com/Automattic/jetpack/issues/34947",
       "created_at": "2024-01-10T19:14:16Z",
-      "age_days": 762,
+      "age_days": 796,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Plugin] Jetpack",
         "[Extension] AI Assistant"
       ]
@@ -3432,9 +3582,9 @@
       "title": "Asset CDN: serve Akismet Frontend from CDN",
       "url": "https://github.com/Automattic/jetpack/issues/35291",
       "created_at": "2024-01-29T10:33:47Z",
-      "age_days": 743,
+      "age_days": 777,
       "labels": [
-        "[Type] Feature Request",
+        "New Feature",
         "[Pri] Normal",
         "[Feature] Akismet",
         "[Feature] Asset CDN",
@@ -3446,10 +3596,10 @@
       "title": "Subscribe block: Improve next step after \"Confirm your subscription\"",
       "url": "https://github.com/Automattic/jetpack/issues/35430",
       "created_at": "2024-02-03T06:00:05Z",
-      "age_days": 738,
+      "age_days": 772,
       "labels": [
-        "[Type] Bug",
-        "[Type] Enhancement",
+        "Bug",
+        "Enhancement",
         "[Feature] Subscriptions",
         "[Pri] Normal",
         "[Block] Subscribe",
@@ -3462,9 +3612,9 @@
       "title": "Blocks: add pattern introducing our post-content blocks",
       "url": "https://github.com/Automattic/jetpack/issues/35539",
       "created_at": "2024-02-08T12:34:27Z",
-      "age_days": 733,
+      "age_days": 767,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Feature] Sharing",
         "[Feature] Subscriptions",
         "[Feature] Likes",
@@ -3484,9 +3634,9 @@
       "title": "Feature Request: Jetpack WAF multisite support",
       "url": "https://github.com/Automattic/jetpack/issues/35732",
       "created_at": "2024-02-16T17:09:12Z",
-      "age_days": 725,
+      "age_days": 759,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Focus] Multisite",
         "[Pri] Low",
         "[Plugin] Jetpack",
@@ -3499,9 +3649,9 @@
       "title": "Monitor: update wp-admin settings to include notification option",
       "url": "https://github.com/Automattic/jetpack/issues/35776",
       "created_at": "2024-02-20T11:09:41Z",
-      "age_days": 721,
+      "age_days": 755,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Feature] Monitor",
         "Admin Page",
         "[Pri] Normal",
@@ -3513,9 +3663,9 @@
       "title": "Embeds: display preview in editor for Facebook embed",
       "url": "https://github.com/Automattic/jetpack/issues/35826",
       "created_at": "2024-02-21T16:23:43Z",
-      "age_days": 720,
+      "age_days": 754,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Feature] Shortcodes / Embeds",
         "[Pri] Low",
         "Good For Community"
@@ -3526,9 +3676,9 @@
       "title": "Jetpack Connection: implement connection screen as an actual modal",
       "url": "https://github.com/Automattic/jetpack/issues/35884",
       "created_at": "2024-02-22T22:10:42Z",
-      "age_days": 719,
+      "age_days": 753,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Pri] Normal",
         "Connect Flow",
         "[Package] My Jetpack"
@@ -3539,9 +3689,9 @@
       "title": "[Boost] Cache log viewer should have filters",
       "url": "https://github.com/Automattic/jetpack/issues/35952",
       "created_at": "2024-02-26T15:16:21Z",
-      "age_days": 715,
+      "age_days": 749,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Plugin] Boost",
         "[Boost Feature] Page Cache"
       ]
@@ -3551,7 +3701,7 @@
       "title": "Jetpack Inspect",
       "url": "https://github.com/Automattic/jetpack/issues/35975",
       "created_at": "2024-02-27T07:36:36Z",
-      "age_days": 714,
+      "age_days": 748,
       "labels": [
         "[Type] Janitorial",
         "[Plugin] Inspect"
@@ -3562,9 +3712,9 @@
       "title": "Sharing Buttons Block v2 - first iteration",
       "url": "https://github.com/Automattic/jetpack/issues/35993",
       "created_at": "2024-02-27T16:37:52Z",
-      "age_days": 714,
+      "age_days": 748,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Feature] Sharing",
         "[Status] In Progress",
         "Epic",
@@ -3578,9 +3728,9 @@
       "title": "Enhancement: Support for fullscreen click event from outside video player",
       "url": "https://github.com/Automattic/jetpack/issues/36020",
       "created_at": "2024-02-28T10:11:05Z",
-      "age_days": 713,
+      "age_days": 747,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Feature] VideoPress",
         "[Pri] Low",
         "[Plugin] VideoPress"
@@ -3591,9 +3741,9 @@
       "title": "Enhancement: Jetpack Like block - add option to select a post ID",
       "url": "https://github.com/Automattic/jetpack/issues/36214",
       "created_at": "2024-03-06T12:55:38Z",
-      "age_days": 706,
+      "age_days": 740,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Feature] Likes",
         "[Plugin] Jetpack"
       ]
@@ -3603,10 +3753,10 @@
       "title": "Feature Request: Upload subtitle files via API",
       "url": "https://github.com/Automattic/jetpack/issues/36242",
       "created_at": "2024-03-07T10:18:11Z",
-      "age_days": 705,
+      "age_days": 739,
       "labels": [
         "[Feature] VideoPress",
-        "[Type] Feature Request",
+        "New Feature",
         "[Pri] Low",
         "[Plugin] VideoPress"
       ]
@@ -3616,9 +3766,9 @@
       "title": "Add option for all payment plans to Paid Content block",
       "url": "https://github.com/Automattic/jetpack/issues/36295",
       "created_at": "2024-03-08T18:41:32Z",
-      "age_days": 704,
+      "age_days": 738,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Pri] Normal",
         "Earn",
         "[Block] Paid Content",
@@ -3631,9 +3781,9 @@
       "title": "[Super Cache] Add docs explaining preload constants to Preload page",
       "url": "https://github.com/Automattic/jetpack/issues/36320",
       "created_at": "2024-03-11T12:09:25Z",
-      "age_days": 701,
+      "age_days": 735,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Plugin] Super Cache"
       ]
     },
@@ -3642,9 +3792,9 @@
       "title": "[Super Cache] Allow site owner to disable some warnings",
       "url": "https://github.com/Automattic/jetpack/issues/36322",
       "created_at": "2024-03-11T13:09:44Z",
-      "age_days": 701,
+      "age_days": 735,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Plugin] Super Cache"
       ]
     },
@@ -3653,9 +3803,9 @@
       "title": "Sharing / Like Blocks: compatibility with theme styles",
       "url": "https://github.com/Automattic/jetpack/issues/36410",
       "created_at": "2024-03-15T14:46:21Z",
-      "age_days": 697,
+      "age_days": 731,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Feature] Sharing",
         "[Feature] Likes",
         "[Pri] Normal",
@@ -3669,9 +3819,9 @@
       "title": "Sharing Button: Tooltip accessibility",
       "url": "https://github.com/Automattic/jetpack/issues/36420",
       "created_at": "2024-03-15T19:06:50Z",
-      "age_days": 697,
+      "age_days": 731,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Feature] Sharing",
         "[Focus] Accessibility",
         "[Pri] Normal",
@@ -3685,9 +3835,9 @@
       "title": "Feature Request: Allow only searching title field",
       "url": "https://github.com/Automattic/jetpack/issues/36463",
       "created_at": "2024-03-19T16:27:24Z",
-      "age_days": 693,
+      "age_days": 727,
       "labels": [
-        "[Type] Feature Request",
+        "New Feature",
         "[Feature] Search",
         "[Plugin] Search",
         "[Package] Search"
@@ -3698,10 +3848,10 @@
       "title": "Feature Request: Favorites option",
       "url": "https://github.com/Automattic/jetpack/issues/36527",
       "created_at": "2024-03-22T11:31:56Z",
-      "age_days": 690,
+      "age_days": 724,
       "labels": [
         "[Feature] VideoPress",
-        "[Type] Feature Request",
+        "New Feature",
         "[Pri] Low",
         "[Plugin] VideoPress"
       ]
@@ -3711,9 +3861,9 @@
       "title": "Enhancement: WP super cache - add \"Preload Now\" button instead of \"Cancel\" then enable again",
       "url": "https://github.com/Automattic/jetpack/issues/36662",
       "created_at": "2024-03-29T21:47:03Z",
-      "age_days": 683,
+      "age_days": 717,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Plugin] Super Cache"
       ]
     },
@@ -3722,9 +3872,9 @@
       "title": "Instant Search: allow filtering the markup of the search results",
       "url": "https://github.com/Automattic/jetpack/issues/36719",
       "created_at": "2024-04-03T12:15:50Z",
-      "age_days": 678,
+      "age_days": 712,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Pri] Low",
         "[Feature] Search",
         "Customer Report [LEGACY]",
@@ -3738,9 +3888,9 @@
       "title": "Enhancement: Increase Listed Vulnerabilities Number",
       "url": "https://github.com/Automattic/jetpack/issues/36884",
       "created_at": "2024-04-12T19:49:40Z",
-      "age_days": 669,
+      "age_days": 703,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Plugin] Protect"
       ]
     },
@@ -3749,9 +3899,9 @@
       "title": "Enhancement: Clarify VaultPress Backup Undo state on Dashboard",
       "url": "https://github.com/Automattic/jetpack/issues/36898",
       "created_at": "2024-04-15T16:14:00Z",
-      "age_days": 666,
+      "age_days": 700,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Status] Needs Design",
         "[Plugin] Jetpack",
         "[Package] My Jetpack"
@@ -3762,9 +3912,9 @@
       "title": "Enhancement: My Jetpack in Offline mode",
       "url": "https://github.com/Automattic/jetpack/issues/36984",
       "created_at": "2024-04-19T11:51:18Z",
-      "age_days": 662,
+      "age_days": 696,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Pri] Low",
         "[Plugin] Jetpack",
         "[Package] My Jetpack"
@@ -3775,14 +3925,14 @@
       "title": "[Form] Add ability to link text",
       "url": "https://github.com/Automattic/jetpack/issues/37328",
       "created_at": "2024-05-09T19:29:06Z",
-      "age_days": 642,
+      "age_days": 676,
       "labels": [
-        "[Type] Enhancement",
-        "[Feature] Contact Form",
+        "Enhancement",
+        "[Feature] Forms",
         "[Pri] Normal",
         "Earn",
         "[Plugin] Jetpack",
-        "[Block] Contact Form",
+        "[Block] Form",
         "Triaged",
         "[Package] Forms"
       ]
@@ -3792,10 +3942,10 @@
       "title": "Log or notify when a subscriber unsubscribes from a site",
       "url": "https://github.com/Automattic/jetpack/issues/37349",
       "created_at": "2024-05-13T02:23:34Z",
-      "age_days": 639,
+      "age_days": 673,
       "labels": [
         "[Feature] Subscriptions",
-        "[Type] Feature Request",
+        "New Feature",
         "[Pri] Low",
         "[Plugin] Jetpack",
         "Triaged"
@@ -3806,9 +3956,9 @@
       "title": "Allow custom \"reply to\" addresses in emails",
       "url": "https://github.com/Automattic/jetpack/issues/37371",
       "created_at": "2024-05-14T10:00:51Z",
-      "age_days": 637,
+      "age_days": 671,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Feature] Subscriptions"
       ]
     },
@@ -3817,9 +3967,9 @@
       "title": "Enhancement: Newsletter subscrption import failed emails",
       "url": "https://github.com/Automattic/jetpack/issues/37584",
       "created_at": "2024-05-27T17:23:07Z",
-      "age_days": 624,
+      "age_days": 658,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Feature] Subscriptions",
         "[Plugin] Jetpack"
       ]
@@ -3829,11 +3979,11 @@
       "title": "Newsletter: Make it more clear that Newsletter doesn't work with old posts (or allow it to send old posts)",
       "url": "https://github.com/Automattic/jetpack/issues/37671",
       "created_at": "2024-06-01T07:16:02Z",
-      "age_days": 619,
+      "age_days": 653,
       "labels": [
-        "[Type] Bug",
+        "Bug",
         "[Feature] Subscriptions",
-        "[Type] Feature Request",
+        "New Feature",
         "[Pri] Normal",
         "[Plugin] Jetpack",
         "Triaged"
@@ -3844,9 +3994,9 @@
       "title": "Earn Blocks: allow customers to hide WordPress.com branding",
       "url": "https://github.com/Automattic/jetpack/issues/37816",
       "created_at": "2024-06-12T13:12:58Z",
-      "age_days": 608,
+      "age_days": 642,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "Earn",
         "[Plugin] Jetpack",
         "Triaged",
@@ -3858,9 +4008,9 @@
       "title": "Enhancement: Show Akismet Stats on My Jetpack Card",
       "url": "https://github.com/Automattic/jetpack/issues/37852",
       "created_at": "2024-06-13T15:58:01Z",
-      "age_days": 607,
+      "age_days": 641,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Feature] Akismet",
         "[Plugin] Jetpack",
         "[Package] My Jetpack"
@@ -3871,10 +4021,10 @@
       "title": "Newsletter Emails: Support customizable sizing of site icons",
       "url": "https://github.com/Automattic/jetpack/issues/37937",
       "created_at": "2024-06-18T19:17:31Z",
-      "age_days": 602,
+      "age_days": 636,
       "labels": [
         "[Feature] Subscriptions",
-        "[Type] Feature Request",
+        "New Feature",
         "[Plugin] Jetpack"
       ]
     },
@@ -3883,9 +4033,9 @@
       "title": "Newsletters: allow classic themes to preview or edit modals",
       "url": "https://github.com/Automattic/jetpack/issues/37980",
       "created_at": "2024-06-21T11:34:12Z",
-      "age_days": 599,
+      "age_days": 633,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Feature] Subscriptions"
       ]
     },
@@ -3894,9 +4044,9 @@
       "title": "Newsletter: show sent-numbers in the stats for emails list",
       "url": "https://github.com/Automattic/jetpack/issues/37981",
       "created_at": "2024-06-21T11:41:22Z",
-      "age_days": 599,
+      "age_days": 633,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Feature] Subscriptions"
       ]
     },
@@ -3905,7 +4055,7 @@
       "title": "WordPress.com REST API: consider supporting AVIF as a supported media type",
       "url": "https://github.com/Automattic/jetpack/issues/38029",
       "created_at": "2024-06-25T11:15:05Z",
-      "age_days": 595,
+      "age_days": 629,
       "labels": [
         "[Feature] WPCOM API",
         "[Type] Janitorial",
@@ -3918,9 +4068,9 @@
       "title": "Enhancement: My Jetpack - VaultPress Card - Explain Icons",
       "url": "https://github.com/Automattic/jetpack/issues/38099",
       "created_at": "2024-06-27T19:34:48Z",
-      "age_days": 593,
+      "age_days": 627,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Plugin] Jetpack",
         "[Package] My Jetpack"
       ]
@@ -3930,9 +4080,9 @@
       "title": "[Feature Request] Checklist Block Separate from Form Block",
       "url": "https://github.com/Automattic/jetpack/issues/38269",
       "created_at": "2024-07-09T21:52:29Z",
-      "age_days": 581,
+      "age_days": 615,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Focus] Blocks",
         "[Plugin] Jetpack",
         "Triaged",
@@ -3944,7 +4094,7 @@
       "title": "Remove \"new\" Chip from Seettings AI link",
       "url": "https://github.com/Automattic/jetpack/issues/38461",
       "created_at": "2024-07-22T18:36:19Z",
-      "age_days": 568,
+      "age_days": 602,
       "labels": [
         "[Status] In Progress",
         "Admin Page",
@@ -3957,9 +4107,9 @@
       "title": "Monitor: Add support for webhooks ",
       "url": "https://github.com/Automattic/jetpack/issues/38631",
       "created_at": "2024-07-30T20:09:40Z",
-      "age_days": 560,
+      "age_days": 594,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Feature] Monitor",
         "[Plugin] Jetpack"
       ]
@@ -3969,9 +4119,9 @@
       "title": "Monitor: Allow Jetpack Monitor Notifications to be Filterable",
       "url": "https://github.com/Automattic/jetpack/issues/38632",
       "created_at": "2024-07-30T20:16:02Z",
-      "age_days": 560,
+      "age_days": 594,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Feature] Monitor",
         "[Plugin] Jetpack"
       ]
@@ -3981,9 +4131,9 @@
       "title": "Ad Block: More Responsive Options",
       "url": "https://github.com/Automattic/jetpack/issues/38643",
       "created_at": "2024-07-31T12:20:54Z",
-      "age_days": 559,
+      "age_days": 593,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Feature] WordAds",
         "[Pri] Normal",
         "[Focus] Blocks",
@@ -3997,9 +4147,9 @@
       "title": "Enhancement: log WC Subscription actions + general WC deletion actions",
       "url": "https://github.com/Automattic/jetpack/issues/38735",
       "created_at": "2024-08-06T13:30:16Z",
-      "age_days": 553,
+      "age_days": 587,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Package] Sync",
         "[Pri] Normal",
         "[Focus] Compatibility",
@@ -4011,9 +4161,9 @@
       "title": "Likes: display like count in post list table, when Likes module is enabled",
       "url": "https://github.com/Automattic/jetpack/issues/38939",
       "created_at": "2024-08-16T18:28:23Z",
-      "age_days": 543,
+      "age_days": 577,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Feature] Likes",
         "[Pri] Normal",
         "[Plugin] Jetpack",
@@ -4025,9 +4175,9 @@
       "title": "Tiled Gallery Optimization: Use Lower Resolution Version of the Images in the Editor",
       "url": "https://github.com/Automattic/jetpack/issues/39052",
       "created_at": "2024-08-23T14:10:30Z",
-      "age_days": 536,
+      "age_days": 570,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Feature] Tiled Gallery",
         "[Focus] Performance",
         "[Block] Tiled Gallery",
@@ -4040,13 +4190,13 @@
       "title": "[Form] Feature Request: name/ID field for checkboxes",
       "url": "https://github.com/Automattic/jetpack/issues/39114",
       "created_at": "2024-08-28T08:22:42Z",
-      "age_days": 531,
+      "age_days": 565,
       "labels": [
-        "[Feature] Contact Form",
-        "[Type] Feature Request",
+        "[Feature] Forms",
+        "New Feature",
         "[Pri] Normal",
         "[Plugin] Jetpack",
-        "[Block] Contact Form",
+        "[Block] Form",
         "Triaged"
       ]
     },
@@ -4055,9 +4205,9 @@
       "title": "Enhancement: Jetpack Social Image Generator - Make Preview Images Reflect Post Title & Selected Media",
       "url": "https://github.com/Automattic/jetpack/issues/39206",
       "created_at": "2024-09-03T15:05:53Z",
-      "age_days": 525,
+      "age_days": 559,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Plugin] Social"
       ]
     },
@@ -4066,9 +4216,9 @@
       "title": "Feature Request: Upcoming Events Block",
       "url": "https://github.com/Automattic/jetpack/issues/39212",
       "created_at": "2024-09-03T17:23:55Z",
-      "age_days": 525,
+      "age_days": 559,
       "labels": [
-        "[Type] Feature Request",
+        "New Feature",
         "[Focus] Blocks",
         "[Plugin] Jetpack"
       ]
@@ -4078,9 +4228,9 @@
       "title": "Enhancement: Update How Fixed Threats are Shown in the History Section for Jetpack Protect",
       "url": "https://github.com/Automattic/jetpack/issues/39243",
       "created_at": "2024-09-04T20:10:38Z",
-      "age_days": 524,
+      "age_days": 558,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Plugin] Protect"
       ]
     },
@@ -4089,10 +4239,10 @@
       "title": "Contact Form: Provide default value when no \"from\" value is discernable.",
       "url": "https://github.com/Automattic/jetpack/issues/39440",
       "created_at": "2024-09-18T13:52:55Z",
-      "age_days": 510,
+      "age_days": 544,
       "labels": [
-        "[Type] Enhancement",
-        "[Feature] Contact Form",
+        "Enhancement",
+        "[Feature] Forms",
         "[Pri] Low",
         "[Plugin] Jetpack"
       ]
@@ -4102,9 +4252,9 @@
       "title": "Add an option to manually create Activity Log entry items",
       "url": "https://github.com/Automattic/jetpack/issues/39506",
       "created_at": "2024-09-24T13:00:27Z",
-      "age_days": 504,
+      "age_days": 538,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Pri] Normal",
         "[Feature] Activity Log"
       ]
@@ -4114,9 +4264,9 @@
       "title": "VideoPress: scroll to video from emails",
       "url": "https://github.com/Automattic/jetpack/issues/39721",
       "created_at": "2024-10-10T09:25:43Z",
-      "age_days": 488,
+      "age_days": 522,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Feature] Subscriptions",
         "[Feature] VideoPress",
         "[Pri] Low",
@@ -4128,9 +4278,9 @@
       "title": "Implement tooltip for styles dropdown",
       "url": "https://github.com/Automattic/jetpack/issues/39739",
       "created_at": "2024-10-10T21:29:18Z",
-      "age_days": 488,
+      "age_days": 522,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Extension] AI Assistant Plugin"
       ]
     },
@@ -4139,9 +4289,9 @@
       "title": "Allow customizing legal address in email footer",
       "url": "https://github.com/Automattic/jetpack/issues/39774",
       "created_at": "2024-10-15T14:31:40Z",
-      "age_days": 483,
+      "age_days": 517,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Feature] Subscriptions",
         "[Plugin] Jetpack"
       ]
@@ -4151,9 +4301,9 @@
       "title": "Generate an image with AI: the modal doesn't look very good",
       "url": "https://github.com/Automattic/jetpack/issues/39810",
       "created_at": "2024-10-17T13:30:05Z",
-      "age_days": 481,
+      "age_days": 515,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Pri] Normal",
         "[Plugin] Jetpack",
         "[Extension] AI Assistant"
@@ -4164,7 +4314,7 @@
       "title": "WordPress 6.8 Compatibility",
       "url": "https://github.com/Automattic/jetpack/issues/39818",
       "created_at": "2024-10-18T08:55:40Z",
-      "age_days": 480,
+      "age_days": 514,
       "labels": [
         "General",
         "[Type] Janitorial",
@@ -4177,7 +4327,7 @@
       "title": "Carousel: Accessibility - when image set to  'Attachment page', clicking and tabbing should result in same behavior",
       "url": "https://github.com/Automattic/jetpack/issues/39926",
       "created_at": "2024-10-28T11:39:28Z",
-      "age_days": 470,
+      "age_days": 504,
       "labels": [
         "[Feature] Carousel",
         "[Focus] Accessibility",
@@ -4190,9 +4340,9 @@
       "title": "Boost: Update critical css message to include partial regeneration info",
       "url": "https://github.com/Automattic/jetpack/issues/39946",
       "created_at": "2024-10-29T14:40:50Z",
-      "age_days": 469,
+      "age_days": 503,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Plugin] Boost",
         "[Boost Feature] Cloud CSS"
       ]
@@ -4202,9 +4352,9 @@
       "title": "Comments: allow gating only to paid members or free subscribers",
       "url": "https://github.com/Automattic/jetpack/issues/40077",
       "created_at": "2024-11-06T20:38:28Z",
-      "age_days": 461,
+      "age_days": 495,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Feature] Comments",
         "[Feature] Subscriptions",
         "[Feature] Memberships"
@@ -4215,9 +4365,9 @@
       "title": "Boost: add rudimentary plugin system to cache system",
       "url": "https://github.com/Automattic/jetpack/issues/40091",
       "created_at": "2024-11-07T14:31:45Z",
-      "age_days": 460,
+      "age_days": 494,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Plugin] Boost",
         "[Boost Feature] Page Cache"
       ]
@@ -4227,9 +4377,9 @@
       "title": "Jetpack AI: Make it so clicking the option on a nested list will convert the root parent list",
       "url": "https://github.com/Automattic/jetpack/issues/40196",
       "created_at": "2024-11-14T20:57:52Z",
-      "age_days": 453,
+      "age_days": 487,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Extension] AI Assistant Plugin",
         "[Feature] AI"
       ]
@@ -4239,9 +4389,9 @@
       "title": "Feature Request: Paid Content Block Styling - Lock Login button or provide allignement options",
       "url": "https://github.com/Automattic/jetpack/issues/40320",
       "created_at": "2024-11-23T09:32:13Z",
-      "age_days": 444,
+      "age_days": 478,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Pri] Low",
         "Earn",
         "[Block] Paid Content",
@@ -4254,9 +4404,9 @@
       "title": "Feature Request: Jetpack Stats - Exclude Chrome Lighthouse insights visits",
       "url": "https://github.com/Automattic/jetpack/issues/40374",
       "created_at": "2024-11-28T05:50:08Z",
-      "age_days": 439,
+      "age_days": 473,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Feature] Stats Data",
         "[Pri] Normal",
         "Customer Report [LEGACY]",
@@ -4269,7 +4419,7 @@
       "title": "Super Cache: remove .eslintignore and fix JS linting errors in inc/*.js",
       "url": "https://github.com/Automattic/jetpack/issues/40571",
       "created_at": "2024-12-11T16:53:53Z",
-      "age_days": 426,
+      "age_days": 460,
       "labels": [
         "[Type] Janitorial",
         "[Pri] Normal",
@@ -4281,9 +4431,9 @@
       "title": "Testimonials and Portfolio Custom Post types: Unclear what pages the pagination option is valid for",
       "url": "https://github.com/Automattic/jetpack/issues/40821",
       "created_at": "2025-01-02T11:33:52Z",
-      "age_days": 404,
+      "age_days": 438,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Feature] Custom Content Types"
       ]
     },
@@ -4292,14 +4442,14 @@
       "title": "Forms: Radio single choice option selected by defaut",
       "url": "https://github.com/Automattic/jetpack/issues/40887",
       "created_at": "2025-01-08T12:00:20Z",
-      "age_days": 398,
+      "age_days": 432,
       "labels": [
-        "[Type] Enhancement",
-        "[Feature] Contact Form",
+        "Enhancement",
+        "[Feature] Forms",
         "[Pri] Normal",
         "Customer Report [LEGACY]",
         "[Plugin] Jetpack",
-        "[Block] Contact Form",
+        "[Block] Form",
         "Triaged",
         "[Feature] Forms Blocks"
       ]
@@ -4309,11 +4459,11 @@
       "title": "Forms: MailPoet connection",
       "url": "https://github.com/Automattic/jetpack/issues/41021",
       "created_at": "2025-01-14T09:11:31Z",
-      "age_days": 392,
+      "age_days": 426,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Pri] Normal",
-        "[Block] Contact Form",
+        "[Block] Form",
         "[Package] Forms",
         "[Feature] Forms Blocks"
       ]
@@ -4323,9 +4473,9 @@
       "title": "Investigate SEO inner works",
       "url": "https://github.com/Automattic/jetpack/issues/41049",
       "created_at": "2025-01-14T16:53:13Z",
-      "age_days": 392,
+      "age_days": 426,
       "labels": [
-        "[Type] Task",
+        "Task",
         "[Pri] Normal",
         "[Feature] AI"
       ]
@@ -4335,9 +4485,9 @@
       "title": "Iterate through images to set ALT text (user input)",
       "url": "https://github.com/Automattic/jetpack/issues/41050",
       "created_at": "2025-01-14T16:53:21Z",
-      "age_days": 392,
+      "age_days": 426,
       "labels": [
-        "[Type] Task",
+        "Task",
         "[Pri] Normal",
         "[Feature] AI"
       ]
@@ -4347,9 +4497,9 @@
       "title": "Check for featured image and offer to generate one",
       "url": "https://github.com/Automattic/jetpack/issues/41067",
       "created_at": "2025-01-14T22:39:40Z",
-      "age_days": 392,
+      "age_days": 426,
       "labels": [
-        "[Type] Task",
+        "Task",
         "[Pri] Normal",
         "[Feature] AI"
       ]
@@ -4359,9 +4509,9 @@
       "title": "Check title+excerpt vs seo title+meta description",
       "url": "https://github.com/Automattic/jetpack/issues/41071",
       "created_at": "2025-01-14T22:46:44Z",
-      "age_days": 392,
+      "age_days": 426,
       "labels": [
-        "[Type] Task",
+        "Task",
         "[Pri] Normal",
         "[Feature] AI"
       ]
@@ -4371,11 +4521,11 @@
       "title": "Forms: multi step Forms",
       "url": "https://github.com/Automattic/jetpack/issues/41080",
       "created_at": "2025-01-15T09:55:11Z",
-      "age_days": 391,
+      "age_days": 425,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Pri] Normal",
-        "[Block] Contact Form",
+        "[Block] Form",
         "[Package] Forms",
         "[Feature] Forms Blocks"
       ]
@@ -4385,9 +4535,9 @@
       "title": "Track Built-in AI API errors",
       "url": "https://github.com/Automattic/jetpack/issues/41214",
       "created_at": "2025-01-21T08:43:09Z",
-      "age_days": 385,
+      "age_days": 419,
       "labels": [
-        "[Type] Task",
+        "Task",
         "[Pri] Normal",
         "[Feature] AI"
       ]
@@ -4397,9 +4547,9 @@
       "title": "Early Preview Program registration",
       "url": "https://github.com/Automattic/jetpack/issues/41215",
       "created_at": "2025-01-21T08:44:45Z",
-      "age_days": 385,
+      "age_days": 419,
       "labels": [
-        "[Type] Task",
+        "Task",
         "[Pri] Normal",
         "[Feature] AI"
       ]
@@ -4409,9 +4559,9 @@
       "title": "Internal release and CFT",
       "url": "https://github.com/Automattic/jetpack/issues/41216",
       "created_at": "2025-01-21T08:45:42Z",
-      "age_days": 385,
+      "age_days": 419,
       "labels": [
-        "[Type] Task",
+        "Task",
         "[Pri] Normal",
         "[Feature] AI"
       ]
@@ -4421,9 +4571,9 @@
       "title": "Query AI for keywords",
       "url": "https://github.com/Automattic/jetpack/issues/41548",
       "created_at": "2025-02-04T15:10:12Z",
-      "age_days": 371,
+      "age_days": 405,
       "labels": [
-        "[Type] Task",
+        "Task",
         "[Pri] Normal",
         "[Feature] AI"
       ]
@@ -4433,10 +4583,9 @@
       "title": "Design QA: auto select option",
       "url": "https://github.com/Automattic/jetpack/issues/41574",
       "created_at": "2025-02-05T16:47:35Z",
-      "age_days": 370,
+      "age_days": 404,
       "labels": [
         "[Pri] Normal",
-        "[Type] Question",
         "[Feature] AI"
       ]
     },
@@ -4445,9 +4594,9 @@
       "title": "Search: examples of searches to improve.",
       "url": "https://github.com/Automattic/jetpack/issues/41735",
       "created_at": "2025-02-11T23:35:24Z",
-      "age_days": 364,
+      "age_days": 398,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Pri] Normal",
         "[Feature] Search",
         "[Status] Search Index Change",
@@ -4459,9 +4608,9 @@
       "title": "Search: if language pack isn't available to load, it create a errors (404 showing in the console)",
       "url": "https://github.com/Automattic/jetpack/issues/41808",
       "created_at": "2025-02-14T07:41:17Z",
-      "age_days": 361,
+      "age_days": 395,
       "labels": [
-        "[Type] Bug",
+        "Bug",
         "[Focus] Performance",
         "[Focus] i18n",
         "[Pri] Low",
@@ -4480,9 +4629,9 @@
       "title": "Write Brief: Remove feedback icons before suggestion",
       "url": "https://github.com/Automattic/jetpack/issues/41953",
       "created_at": "2025-02-21T14:59:36Z",
-      "age_days": 354,
+      "age_days": 388,
       "labels": [
-        "[Type] Task",
+        "Task",
         "[Feature] AI"
       ]
     },
@@ -4491,9 +4640,9 @@
       "title": "Write Brief: Remove helper text when suggestion is displayed",
       "url": "https://github.com/Automattic/jetpack/issues/41954",
       "created_at": "2025-02-21T15:00:07Z",
-      "age_days": 354,
+      "age_days": 388,
       "labels": [
-        "[Type] Task",
+        "Task",
         "[Feature] AI"
       ]
     },
@@ -4502,9 +4651,9 @@
       "title": "Tiled Gallery block: Allow custom link to work directly from the Carousel",
       "url": "https://github.com/Automattic/jetpack/issues/42096",
       "created_at": "2025-02-27T09:19:01Z",
-      "age_days": 348,
+      "age_days": 382,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Feature] Carousel",
         "[Feature] Tiled Gallery",
         "[Pri] Normal",
@@ -4516,9 +4665,9 @@
       "title": "Tiled Gallery block: Hide 'Link To' options if Carousel is enabled",
       "url": "https://github.com/Automattic/jetpack/issues/42097",
       "created_at": "2025-02-27T09:20:09Z",
-      "age_days": 348,
+      "age_days": 382,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Feature] Carousel",
         "[Feature] Tiled Gallery",
         "[Pri] Normal",
@@ -4530,9 +4679,9 @@
       "title": "Tiled Gallery block: Pick an image filter button border styling does not match surrounding buttons",
       "url": "https://github.com/Automattic/jetpack/issues/42121",
       "created_at": "2025-02-27T19:59:14Z",
-      "age_days": 348,
+      "age_days": 382,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Feature] Tiled Gallery",
         "[Block] Tiled Gallery"
       ]
@@ -4542,9 +4691,9 @@
       "title": "Enhancement: Improve Stats for Viewing Subscriber Engagement",
       "url": "https://github.com/Automattic/jetpack/issues/42241",
       "created_at": "2025-03-05T22:39:33Z",
-      "age_days": 342,
+      "age_days": 376,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Feature] Stats Data",
         "[Plugin] Jetpack"
       ]
@@ -4554,12 +4703,12 @@
       "title": "Forms: Converting form fields to use inner blocks",
       "url": "https://github.com/Automattic/jetpack/issues/42353",
       "created_at": "2025-03-11T09:27:21Z",
-      "age_days": 336,
+      "age_days": 370,
       "labels": [
-        "[Feature] Contact Form",
+        "[Feature] Forms",
         "[Status] In Progress",
         "Epic",
-        "[Block] Contact Form",
+        "[Block] Form",
         "Triaged",
         "[Package] Forms",
         "[Feature] Forms Blocks",
@@ -4571,11 +4720,11 @@
       "title": "Forms: Establish baseline automated tests for Jetpack form fields",
       "url": "https://github.com/Automattic/jetpack/issues/42354",
       "created_at": "2025-03-11T09:27:47Z",
-      "age_days": 336,
+      "age_days": 370,
       "labels": [
-        "[Type] Enhancement",
-        "[Feature] Contact Form",
-        "[Block] Contact Form",
+        "Enhancement",
+        "[Feature] Forms",
+        "[Block] Form",
         "Triaged",
         "[Package] Forms",
         "[Feature] Forms Blocks"
@@ -4586,11 +4735,11 @@
       "title": "Forms: Audit & update default form styles for Global Styles compatibility",
       "url": "https://github.com/Automattic/jetpack/issues/42357",
       "created_at": "2025-03-11T09:28:18Z",
-      "age_days": 336,
+      "age_days": 370,
       "labels": [
-        "[Type] Enhancement",
-        "[Feature] Contact Form",
-        "[Block] Contact Form",
+        "Enhancement",
+        "[Feature] Forms",
+        "[Block] Form",
         "Triaged",
         "[Package] Forms",
         "[Feature] Forms Blocks"
@@ -4601,11 +4750,11 @@
       "title": "Forms: Update or create documentation around form field structure and inner blocks",
       "url": "https://github.com/Automattic/jetpack/issues/42359",
       "created_at": "2025-03-11T09:28:30Z",
-      "age_days": 336,
+      "age_days": 370,
       "labels": [
-        "[Type] Enhancement",
-        "[Feature] Contact Form",
-        "[Block] Contact Form",
+        "Enhancement",
+        "[Feature] Forms",
+        "[Block] Form",
         "Triaged",
         "[Package] Forms",
         "[Feature] Forms Blocks"
@@ -4616,13 +4765,13 @@
       "title": "Forms: Checkbox doesn't scale when changing text size",
       "url": "https://github.com/Automattic/jetpack/issues/42446",
       "created_at": "2025-03-14T02:15:31Z",
-      "age_days": 334,
+      "age_days": 368,
       "labels": [
-        "[Type] Bug",
-        "[Feature] Contact Form",
+        "Bug",
+        "[Feature] Forms",
         "[Pri] Low",
         "[Plugin] Jetpack",
-        "[Block] Contact Form",
+        "[Block] Form",
         "Triaged",
         "[Package] Forms",
         "[Feature] Forms Blocks",
@@ -4634,13 +4783,13 @@
       "title": "Forms: Multiple Choice checkbox styles work inconsistently and aren't synced with Checkbox styles",
       "url": "https://github.com/Automattic/jetpack/issues/42447",
       "created_at": "2025-03-14T02:30:58Z",
-      "age_days": 334,
+      "age_days": 368,
       "labels": [
-        "[Type] Bug",
-        "[Feature] Contact Form",
+        "Bug",
+        "[Feature] Forms",
         "[Pri] Low",
         "[Plugin] Jetpack",
-        "[Block] Contact Form",
+        "[Block] Form",
         "Triaged",
         "[Package] Forms",
         "[Feature] Forms Blocks",
@@ -4652,9 +4801,9 @@
       "title": "VideoPress: WordPress 6.8 Compatibility - Fix data manipulation within useSelect",
       "url": "https://github.com/Automattic/jetpack/issues/42666",
       "created_at": "2025-03-24T09:10:56Z",
-      "age_days": 323,
+      "age_days": 357,
       "labels": [
-        "[Type] Bug",
+        "Bug",
         "[Feature] VideoPress",
         "[Pri] Normal",
         "Triaged",
@@ -4667,9 +4816,9 @@
       "title": "Social Notes: no post title is saved when post is published",
       "url": "https://github.com/Automattic/jetpack/issues/42884",
       "created_at": "2025-04-03T09:54:20Z",
-      "age_days": 313,
+      "age_days": 347,
       "labels": [
-        "[Type] Bug",
+        "Bug",
         "[Feature] Stats Data",
         "[Pri] Normal",
         "[Plugin] Social",
@@ -4682,9 +4831,9 @@
       "title": "Social Notes: clarify usage of WP.me shortlink for shortlink and permashortcitation formats",
       "url": "https://github.com/Automattic/jetpack/issues/42886",
       "created_at": "2025-04-03T10:08:03Z",
-      "age_days": 313,
+      "age_days": 347,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Pri] Normal",
         "[Plugin] Social",
         "[Feature] Social Notes"
@@ -4695,9 +4844,9 @@
       "title": "Feature Request: Payments Buttons block style parity with Buttons block",
       "url": "https://github.com/Automattic/jetpack/issues/43118",
       "created_at": "2025-04-16T20:54:16Z",
-      "age_days": 300,
+      "age_days": 334,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Block] Payment Button",
         "[Block] Button",
         "Earn",
@@ -4713,9 +4862,9 @@
       "title": "Jetpack AI Assistant: Hide or Disable Incompatible AI Options Based on Post Type Capabilities",
       "url": "https://github.com/Automattic/jetpack/issues/43204",
       "created_at": "2025-04-23T08:02:36Z",
-      "age_days": 293,
+      "age_days": 327,
       "labels": [
-        "[Type] Bug",
+        "Bug",
         "[Pri] Low",
         "[Plugin] Jetpack",
         "Triaged",
@@ -4729,15 +4878,14 @@
       "title": "VideoPress: Video block with \"Wide width\" not styled as wide in the editor",
       "url": "https://github.com/Automattic/jetpack/issues/43807",
       "created_at": "2025-06-06T00:51:03Z",
-      "age_days": 250,
+      "age_days": 284,
       "labels": [
-        "[Type] Bug",
+        "Bug",
         "[Feature] VideoPress",
         "[Pri] Low",
         "[Block] VideoPress",
         "[Focus] Compatibility",
-        "Triaged",
-        "Bug"
+        "Triaged"
       ]
     },
     {
@@ -4745,14 +4893,13 @@
       "title": "Feature Request: add an option to contain video within player container",
       "url": "https://github.com/Automattic/jetpack/issues/43908",
       "created_at": "2025-06-11T16:34:03Z",
-      "age_days": 244,
+      "age_days": 278,
       "labels": [
-        "[Type] Enhancement",
+        "Enhancement",
         "[Feature] VideoPress",
         "[Pri] Low",
         "[Plugin] Jetpack",
-        "[Plugin] VideoPress",
-        "Enhancement"
+        "[Plugin] VideoPress"
       ]
     },
     {
@@ -4760,9 +4907,8 @@
       "title": "Jetpack Comments: allow new \"Fediverse\" login option",
       "url": "https://github.com/Automattic/jetpack/issues/44092",
       "created_at": "2025-06-25T13:03:23Z",
-      "age_days": 230,
+      "age_days": 264,
       "labels": [
-        "Enhancement",
         "Loop",
         "Blogs"
       ]
@@ -4772,13 +4918,24 @@
       "title": "PHP Warning in wp-cache-phase2.php: Array Offset on Null",
       "url": "https://github.com/Automattic/jetpack/issues/44240",
       "created_at": "2025-07-09T08:45:27Z",
-      "age_days": 216,
+      "age_days": 250,
       "labels": [
-        "[Type] Bug",
+        "Bug",
         "[Pri] Low",
         "Needs triage",
         "[Plugin] Super Cache",
         "[Status] Auto-allocated"
+      ]
+    },
+    {
+      "number": 44855,
+      "title": "Enhancement: Prompt Cloudflare Users to Read Jetpack Integration Documents on Plugin Activation",
+      "url": "https://github.com/Automattic/jetpack/issues/44855",
+      "created_at": "2025-08-19T23:29:22Z",
+      "age_days": 209,
+      "labels": [
+        "Enhancement",
+        "[Plugin] Boost"
       ]
     }
   ]
