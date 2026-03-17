@@ -1022,11 +1022,15 @@ function JetpackContactFormEdit( {
 	}
 	// Show error if referenced form not found or not accessible
 	else if ( ref && ! syncedForm && ! isResolvingSyncedForm ) {
+		// Note: The two __() calls must remain dissimilar to prevent Terser from
+		// compacting them into a single call with a ternary argument, which breaks i18n.
+		const errorMessage =
+			syncedFormErrorType === 'permission_denied'
+				? __( "You don't have permission to edit this form.", 'jetpack-forms' )
+				: __( 'The referenced form could not be found.', 'jetpack-forms', 0 );
 		elt = (
 			<Notice status="warning" isDismissible={ false }>
-				{ syncedFormErrorType === 'permission_denied'
-					? __( "You don't have permission to edit this form.", 'jetpack-forms' )
-					: __( 'The referenced form could not be found.', 'jetpack-forms' ) }
+				{ errorMessage }
 			</Notice>
 		);
 	}
