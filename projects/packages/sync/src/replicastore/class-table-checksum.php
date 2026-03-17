@@ -881,11 +881,15 @@ class Table_Checksum {
 	/**
 	 * Get the row count from the parent table as an approximate item count.
 	 *
-	 * For meta tables (postmeta, commentmeta, termmeta, etc.), COUNT(DISTINCT range_field)
+	 * For tables with compound keys or non-unique range fields, COUNT(DISTINCT range_field)
 	 * causes expensive full table scans. Since item_count is only used for bucket sizing
-	 * in checksum_histogram(), an approximate count from the parent table is acceptable.
-	 * The parent count is always >= the distinct meta count, producing slightly more
+	 * in checksum_histogram(), the parent table's row count is an acceptable approximation.
+	 * The parent count is always >= the distinct child count, producing slightly more
 	 * (smaller) buckets — a safe overestimate.
+	 *
+	 * Returns false when the parent table's count is not a reliable proxy (e.g.
+	 * term_taxonomy, whose count does not correlate with distinct range_field values
+	 * in terms, termmeta, or term_relationships).
 	 *
 	 * Uses a static cache so that if the parent table was already processed
 	 * (e.g. posts before postmeta in checksum_all), no additional query is needed.
@@ -894,6 +898,12 @@ class Table_Checksum {
 	 */
 	private function get_parent_table_count() {
 		if ( ! $this->parent_table ) {
+			return false;
+		}
+
+		// term_taxonomy's count is not a reliable proxy for the distinct range_field
+		// values in terms, termmeta, or term_relationships.
+		if ( 'term_taxonomy' === $this->parent_table ) {
 			return false;
 		}
 

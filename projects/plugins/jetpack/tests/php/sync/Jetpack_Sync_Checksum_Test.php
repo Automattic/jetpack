@@ -725,6 +725,36 @@ class Jetpack_Sync_Checksum_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test that termmeta uses COUNT(DISTINCT) instead of parent count from term_taxonomy.
+	 *
+	 * The term_taxonomy's row count is not a reliable proxy for the distinct term_id count
+	 * in termmeta, so get_parent_table_count() should return false for term-related tables.
+	 */
+	public function test_get_range_edges_termmeta_skips_parent_count() {
+		global $wpdb;
+
+		// Create 3 terms, each with meta — only 2 of them get termmeta entries.
+		$term_ids_with_meta = array();
+		for ( $i = 0; $i < 3; $i++ ) {
+			$term = self::factory()->term->create_and_get( array( 'taxonomy' => 'category' ) );
+			if ( $i < 2 ) {
+				add_term_meta( $term->term_id, 'test_key', 'value' );
+				$term_ids_with_meta[] = $term->term_id;
+			}
+		}
+
+		$tc    = new Table_Checksum( 'termmeta' );
+		$range = $tc->get_range_edges();
+
+		// item_count should reflect the actual COUNT(DISTINCT term_id) from termmeta,
+		// NOT the term_taxonomy row count (which would be higher).
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$actual_distinct = (int) $wpdb->get_var( "SELECT COUNT(DISTINCT term_id) FROM {$wpdb->termmeta}" );
+
+		$this->assertEquals( $actual_distinct, (int) $range['item_count'] );
+	}
+
+	/**
 	 * Filter Sync modules.
 	 *
 	 * @return array
