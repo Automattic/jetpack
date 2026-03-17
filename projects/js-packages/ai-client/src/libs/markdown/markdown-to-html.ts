@@ -63,7 +63,7 @@ export const fixes: Fixes = {
 		}
 
 		// Fix encoding of <br /> tags
-		return content.replaceAll( /\s*&lt;br \/&gt;\s*/g, '<br />' );
+		return content.replaceAll( '&lt;br /&gt;', '<br />' );
 	},
 	table: ( content: string, extension = false, { hasFixedLayout = false } ) => {
 		if ( ! extension ) {
