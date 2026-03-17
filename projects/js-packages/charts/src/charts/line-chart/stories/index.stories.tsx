@@ -161,7 +161,12 @@ export const WithCompositionLegend: StoryObj< typeof LineChart > = {
 	render: args => {
 		const legend = extractLegendConfig( args );
 		return (
-			<LineChart { ...Default.args } { ...args } chartId="composition-line-chart">
+			<LineChart
+				{ ...Default.args }
+				{ ...args }
+				legend={ { interactive: legend?.interactive } }
+				chartId="composition-line-chart"
+			>
 				<LineChart.Legend { ...legend } />
 			</LineChart>
 		);

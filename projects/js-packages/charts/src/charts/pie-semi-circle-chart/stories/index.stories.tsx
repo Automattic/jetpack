@@ -154,7 +154,12 @@ export const WithCompositionLegend: Story = {
 	render: args => {
 		const legend = extractLegendConfig( args );
 		return (
-			<PieSemiCircleChart { ...Default.args } { ...args } chartId="composition-semi-circle-chart">
+			<PieSemiCircleChart
+				{ ...Default.args }
+				{ ...args }
+				legend={ { interactive: legend?.interactive } }
+				chartId="composition-semi-circle-chart"
+			>
 				<PieSemiCircleChart.Legend { ...legend } />
 			</PieSemiCircleChart>
 		);

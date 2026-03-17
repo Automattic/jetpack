@@ -258,7 +258,12 @@ export const WithCompositionLegend: StoryObj< typeof BarChart > = {
 	render: args => {
 		const legend = extractLegendConfig( args );
 		return (
-			<BarChart { ...Default.args } { ...args } chartId="composition-bar-chart">
+			<BarChart
+				{ ...Default.args }
+				{ ...args }
+				legend={ { interactive: legend?.interactive } }
+				chartId="composition-bar-chart"
+			>
 				<BarChart.Legend { ...legend } />
 			</BarChart>
 		);

@@ -194,7 +194,11 @@ export const WithCompositionLegend: Story = {
 	render: args => {
 		const legend = extractLegendConfig( args );
 		return (
-			<PieChart { ...args } chartId="composition-pie-chart">
+			<PieChart
+				{ ...args }
+				legend={ { interactive: legend?.interactive } }
+				chartId="composition-pie-chart"
+			>
 				<PieChart.Legend { ...legend } />
 			</PieChart>
 		);
