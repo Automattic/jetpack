@@ -7,7 +7,8 @@ import type { Awareness } from 'y-protocols/awareness';
  * The polling manager in `@wordpress/sync` is a singleton that sends a single
  * HTTP request for every registered room. To fully stop polling when the
  * room limit is reached we must destroy *all* wrapped providers — entity
- * rooms AND collection rooms — in one shot.
+ * rooms AND collection rooms — in one shot. We only trigger that global
+ * teardown when the current client is in the overflow set (newest by enteredAt).
  */
 let breached = false;
 const teardowns: Array< () => void > = [];
@@ -18,57 +19,86 @@ const NOOP_RESULT: ProviderCreatorResult = {
 };
 
 /**
- * Count unique WordPress user IDs in the room, excluding the local user.
+ * Build a sorted list of unique collaborators (by WordPress user ID), ordered
+ * by the time they entered the room.
+ *
+ * The earliest `enteredAt` value for each user is used so that multiple tabs
+ * for the same user share a single, stable "join time".
  *
  * @param awareness - The Yjs awareness instance.
- * @return Number of other unique users, or -1 when the local user is not identifiable yet.
+ * @return Array of user descriptors sorted by enter time.
  */
-function countOtherUsers( awareness: Awareness ): number {
-	const localUserId = awareness.getLocalState()?.collaboratorInfo?.id;
-	if ( typeof localUserId !== 'number' ) {
-		return -1;
-	}
+function getSortedCollaborators(
+	awareness: Awareness
+): Array< { id: number; enteredAt: number } > {
+	const byId = new Map< number, number >();
 
-	const ids = new Set< number >();
 	for ( const [ , state ] of awareness.getStates() ) {
-		const uid = state?.collaboratorInfo?.id;
-		if ( typeof uid === 'number' && uid !== localUserId ) {
-			ids.add( uid );
+		const info = state?.collaboratorInfo as { id?: unknown; enteredAt?: unknown } | undefined;
+		const id = info?.id;
+		const enteredAt = info?.enteredAt;
+		if ( typeof id !== 'number' || typeof enteredAt !== 'number' ) {
+			continue;
+		}
+		const prev = byId.get( id );
+		if ( prev === undefined || enteredAt < prev ) {
+			byId.set( id, enteredAt );
 		}
 	}
-	return ids.size;
+
+	return Array.from( byId.entries() )
+		.map( ( [ id, enteredAt ] ) => ( { id, enteredAt } ) )
+		.sort( ( a, b ) => {
+			if ( a.enteredAt !== b.enteredAt ) {
+				return a.enteredAt - b.enteredAt;
+			}
+			return a.id - b.id;
+		} );
 }
 
 /**
- * Count other connected clients (tabs) for the local WordPress user.
+ * Build a sorted list of clients (tabs) for the local WordPress user, ordered
+ * by when they entered the room (earliest enteredAt per clientId).
  *
- * @param awareness - The Yjs awareness instance.
- * @return Number of additional local-user clients, or -1 when the local user/client is not identifiable yet.
+ * @param awareness   - The Yjs awareness instance.
+ * @param localUserId - The WordPress user ID to filter by.
+ * @return Array of client descriptors sorted by enter time.
  */
-function countOtherClientsForLocalUser( awareness: Awareness ): number {
-	const localUserId = awareness.getLocalState()?.collaboratorInfo?.id;
-	const localClientId = ( awareness as Awareness & { clientID?: unknown } ).clientID;
-	if ( typeof localUserId !== 'number' || typeof localClientId !== 'number' ) {
-		return -1;
-	}
+function getSortedClientsForLocalUser(
+	awareness: Awareness,
+	localUserId: number
+): Array< { clientId: number; enteredAt: number } > {
+	const byClientId = new Map< number, number >();
 
-	let count = 0;
 	for ( const [ clientId, state ] of awareness.getStates() ) {
-		const uid = state?.collaboratorInfo?.id;
-		if ( typeof uid === 'number' && uid === localUserId && clientId !== localClientId ) {
-			count++;
+		const info = state?.collaboratorInfo as { id?: unknown; enteredAt?: unknown } | undefined;
+		if ( info?.id !== localUserId || typeof info?.enteredAt !== 'number' ) {
+			continue;
+		}
+		const enteredAt = info.enteredAt as number;
+		const prev = byClientId.get( clientId );
+		if ( prev === undefined || enteredAt < prev ) {
+			byClientId.set( clientId, enteredAt );
 		}
 	}
-	return count;
+
+	return Array.from( byClientId.entries() )
+		.map( ( [ clientId, enteredAt ] ) => ( { clientId, enteredAt } ) )
+		.sort( ( a, b ) => {
+			if ( a.enteredAt !== b.enteredAt ) {
+				return a.enteredAt - b.enteredAt;
+			}
+			return a.clientId - b.clientId;
+		} );
 }
 
 /**
  * Wraps a provider creator to enforce a per-room user limit.
  *
- * On every awareness change the wrapper counts unique WordPress user IDs
- * (via `collaboratorInfo.id`) excluding the local user. When the count
- * reaches the given limit every provider created through `withRoomLimit`
- * is destroyed, which causes the shared polling manager to stop entirely.
+ * Collaborators are ordered by `enteredAt`. When the total number of unique
+ * users (or clients for the same user) exceeds the allowed maximum, only the
+ * current client is considered "overflow" if it is among the newest (by enteredAt).
+ * In that case all wrapped providers in this window are destroyed.
  *
  * @param creator           - The provider creator to wrap.
  * @param maxPeersPerRoom   - Max other unique users allowed. Undefined or <= 0 disables peer enforcement.
@@ -86,9 +116,6 @@ export function withRoomLimit(
 		return creator;
 	}
 
-	const peerLimit = maxPeersPerRoom ?? 0;
-	const clientLimit = maxClientsPerUser ?? 0;
-
 	return async ( options ): Promise< ProviderCreatorResult > => {
 		if ( breached ) {
 			return NOOP_RESULT;
@@ -97,6 +124,15 @@ export function withRoomLimit(
 		const { awareness } = options;
 		const innerProvider = await creator( options );
 		let destroyed = false;
+
+		/** Trigger a global teardown for all wrapped providers in this window. */
+		function destroyAll(): void {
+			breached = true;
+			for ( const fn of teardowns ) {
+				fn();
+			}
+			teardowns.length = 0;
+		}
 
 		/** Tear down this single provider and detach the awareness listener. */
 		function destroy(): void {
@@ -108,22 +144,42 @@ export function withRoomLimit(
 			innerProvider.destroy();
 		}
 
-		/** React to awareness changes and trigger a global teardown when the limit is reached. */
+		/** React to awareness changes; trigger global teardown only when this client is in the overflow. */
 		function onAwarenessChange(): void {
 			if ( destroyed || ! awareness ) {
 				return;
 			}
 
-			const otherUsers = countOtherUsers( awareness );
-			const otherLocalUserClients = countOtherClientsForLocalUser( awareness );
-			const isPeerLimitReached = hasPeerLimit && otherUsers >= peerLimit;
-			const isClientLimitReached = hasClientLimit && otherLocalUserClients >= clientLimit;
-			if ( isPeerLimitReached || isClientLimitReached ) {
-				breached = true;
-				for ( const fn of teardowns ) {
-					fn();
+			const localUserId = awareness.getLocalState()?.collaboratorInfo?.id;
+			if ( typeof localUserId !== 'number' ) {
+				return;
+			}
+
+			// Peer limit: too many unique users; only newest users (by enteredAt) are overflow.
+			if ( hasPeerLimit ) {
+				const collaborators = getSortedCollaborators( awareness );
+				if ( collaborators.length > maxPeersPerRoom ) {
+					const overflow = collaborators.slice( maxPeersPerRoom );
+					if ( overflow.some( user => user.id === localUserId ) ) {
+						destroyAll();
+						return;
+					}
 				}
-				teardowns.length = 0;
+			}
+
+			// Client limit: too many tabs for this user; only newest clients (by enteredAt) are overflow.
+			if ( hasClientLimit ) {
+				const localClientId = ( awareness as Awareness & { clientID?: unknown } ).clientID;
+				if ( typeof localClientId !== 'number' ) {
+					return;
+				}
+				const clientsForUser = getSortedClientsForLocalUser( awareness, localUserId );
+				if ( clientsForUser.length > maxClientsPerUser ) {
+					const overflow = clientsForUser.slice( maxClientsPerUser );
+					if ( overflow.some( c => c.clientId === localClientId ) ) {
+						destroyAll();
+					}
+				}
 			}
 		}
 
