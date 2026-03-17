@@ -14,21 +14,38 @@ import { store as noticesStore } from '@wordpress/notices';
 
 const STORE_NAME = 'core/content-guidelines';
 const VALID_SECTIONS = [ 'site', 'copy', 'images', 'additional' ];
+const config = window.jetpackContentGuidelinesAiConfig || {};
+const isAvailable = config.available ?? false;
+const isConnected = config.isConnected ?? false;
+const upgradeUrl = config.upgradeUrl ?? null;
 
 function GenerateButton( { slug } ) {
 	const [ loading, setLoading ] = useState( false );
-
 	const { setGuideline } = useDispatch( STORE_NAME );
-	const { createErrorNotice } = useDispatch( noticesStore );
+	const { createErrorNotice, createWarningNotice } = useDispatch( noticesStore );
 	const draft = useSelect( select => select( STORE_NAME ).getGuideline( slug ), [ slug ] );
 
 	const handleGenerate = async () => {
+		if ( ! isAvailable ) {
+			const message = ! isConnected
+				? __(
+						'Jetpack AI is not available. Connect your site to WordPress.com to get started.',
+						'jetpack'
+				  )
+				: __( 'Upgrade now to start using Jetpack AI.', 'jetpack' );
+
+			const actionLabel = ! isConnected ? __( 'Connect', 'jetpack' ) : __( 'Upgrade', 'jetpack' );
+
+			createWarningNotice( message, {
+				type: 'snackbar',
+				actions: upgradeUrl ? [ { label: actionLabel, url: upgradeUrl } ] : [],
+			} );
+			return;
+		}
+
 		setLoading( true );
 		try {
-			const body = {
-				sections: [ slug ],
-			};
-
+			const body = { sections: [ slug ] };
 			if ( draft ) {
 				body.existing_content = { [ slug ]: draft };
 			}
@@ -67,20 +84,21 @@ function GenerateButton( { slug } ) {
 
 /**
  * Find all guideline accordion forms and inject generate buttons.
+ *
+ * @return {boolean} True if all expected sections have been injected.
  */
 function injectButtons() {
-	const forms = document.querySelectorAll( '.content-guidelines__accordion-form' );
+	let injectedCount = 0;
 
-	forms.forEach( form => {
-		// Derive slug from form id: "content-guidelines-{slug}"
+	document.querySelectorAll( '.content-guidelines__accordion-form' ).forEach( form => {
 		const slug = form.id?.replace( 'content-guidelines-', '' );
-
 		if ( ! slug || ! VALID_SECTIONS.includes( slug ) ) {
 			return;
 		}
 
-		// Don't inject twice.
+		// Already injected.
 		if ( form.querySelector( '.jetpack-content-guidelines-ai__container' ) ) {
+			injectedCount++;
 			return;
 		}
 
@@ -89,30 +107,36 @@ function injectButtons() {
 			return;
 		}
 
-		// Create container and render button.
-		const container = document.createElement( 'div' );
-		container.className = 'jetpack-content-guidelines-ai__container';
-		saveButton.parentNode.insertBefore( container, saveButton );
+		// Wrap save button and generate button in a horizontal flex row.
+		const wrapper = document.createElement( 'div' );
+		wrapper.className = 'jetpack-content-guidelines-ai__container';
+		wrapper.style.cssText = 'display:flex;gap:8px;align-items:center';
+		saveButton.parentNode.insertBefore( wrapper, saveButton );
+		wrapper.appendChild( saveButton );
 
-		createRoot( container ).render( createElement( GenerateButton, { slug } ) );
+		const root = document.createElement( 'div' );
+		wrapper.appendChild( root );
+		createRoot( root ).render( createElement( GenerateButton, { slug } ) );
+
+		injectedCount++;
 	} );
+
+	return injectedCount === VALID_SECTIONS.length;
 }
 
-// Wait for the content-guidelines page to render, then inject.
-// Use MutationObserver to handle the async React rendering.
+// Observe DOM until all buttons are injected, then disconnect.
 function init() {
-	// Try immediately in case the DOM is already there.
-	injectButtons();
+	if ( injectButtons() ) {
+		return;
+	}
 
-	// Observe for new forms being added (accordion expand, page load).
 	const observer = new MutationObserver( () => {
-		injectButtons();
+		if ( injectButtons() ) {
+			observer.disconnect();
+		}
 	} );
 
-	observer.observe( document.body, {
-		childList: true,
-		subtree: true,
-	} );
+	observer.observe( document.body, { childList: true, subtree: true } );
 }
 
 if ( document.readyState === 'loading' ) {
