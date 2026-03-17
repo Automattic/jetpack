@@ -747,7 +747,8 @@ class Table_Checksum {
 		// Performance :: For meta tables (postmeta, commentmeta, termmeta, woocommerce_order_itemmeta)
 		// we strip the filter_values (e.g. meta_key whitelist) when building the range edges query.
 		// These filters cause non-performant queries that can timeout on large tables.
-		// The actual data filtering happens during checksum calculation via the INNER JOIN.
+		// The actual data filtering happens during checksum calculation — via the filter_values
+		// WHERE clause and, when enabled, the parent table INNER JOIN.
 		$is_meta_table = in_array(
 			$this->table,
 			array( $wpdb->postmeta, $wpdb->commentmeta, $wpdb->termmeta, "{$wpdb->prefix}woocommerce_order_itemmeta" ),
@@ -796,7 +797,7 @@ class Table_Checksum {
 			// by using the parent table's count instead.
 			if ( $distinct_count ) {
 				$parent_count = $this->get_parent_table_count();
-				if ( false !== $parent_count ) {
+				if ( (int) $parent_count > 0 ) {
 					$min_max_query = "
 						SELECT
 							MIN({$this->range_field}) as min_range,
@@ -884,8 +885,9 @@ class Table_Checksum {
 	 * For tables with compound keys or non-unique range fields, COUNT(DISTINCT range_field)
 	 * causes expensive full table scans. Since item_count is only used for bucket sizing
 	 * in checksum_histogram(), the parent table's row count is an acceptable approximation.
-	 * The parent count is always >= the distinct child count, producing slightly more
-	 * (smaller) buckets — a safe overestimate.
+	 * In typical cases the parent count >= the distinct child count, producing slightly
+	 * more (smaller) buckets. The caller guards against a zero parent count (e.g. orphaned
+	 * child rows) by falling back to the original COUNT(DISTINCT) query.
 	 *
 	 * Returns false when the parent table's count is not a reliable proxy (e.g.
 	 * term_taxonomy, whose count does not correlate with distinct range_field values

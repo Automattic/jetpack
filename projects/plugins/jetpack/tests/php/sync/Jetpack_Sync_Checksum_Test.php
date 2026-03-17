@@ -644,7 +644,7 @@ class Jetpack_Sync_Checksum_Test extends WP_UnitTestCase {
 		// MIN and MAX should be valid.
 		$this->assertNotNull( $range['min_range'] );
 		$this->assertNotNull( $range['max_range'] );
-		$this->assertLessThanOrEqual( (int) $range['max_range'], (int) $range['min_range'] );
+		$this->assertGreaterThanOrEqual( (int) $range['min_range'], (int) $range['max_range'] );
 	}
 
 	/**
@@ -675,7 +675,9 @@ class Jetpack_Sync_Checksum_Test extends WP_UnitTestCase {
 		$post_id = self::factory()->post->create( array( 'post_author' => $user_id ) );
 
 		// Create 3 comments, each with meta. Non-whitelisted keys work because
-		// get_range_edges() strips filter_values for tables with a parent table.
+		// get_range_edges() strips filter_values for meta tables (postmeta,
+		// commentmeta, termmeta, woocommerce_order_itemmeta). Note: termmeta
+		// also strips filters, even though it skips the parent-count optimization.
 		for ( $i = 0; $i < 3; $i++ ) {
 			$comment_id = self::factory()->comment->create(
 				array(
@@ -752,6 +754,40 @@ class Jetpack_Sync_Checksum_Test extends WP_UnitTestCase {
 		$actual_distinct = (int) $wpdb->get_var( "SELECT COUNT(DISTINCT term_id) FROM {$wpdb->termmeta}" );
 
 		$this->assertEquals( $actual_distinct, (int) $range['item_count'] );
+	}
+
+	/**
+	 * Test that parent count of zero falls back to COUNT(DISTINCT) instead of
+	 * returning item_count=0, which would cause checksum_histogram() to
+	 * early-return an empty histogram.
+	 */
+	public function test_get_range_edges_falls_back_when_parent_count_is_zero() {
+		global $wpdb;
+
+		$user_id = self::factory()->user->create();
+
+		// Create posts with meta, then delete all posts to leave orphaned postmeta.
+		$post_ids = array();
+		for ( $i = 0; $i < 3; $i++ ) {
+			$post_id    = self::factory()->post->create( array( 'post_author' => $user_id ) );
+			$post_ids[] = $post_id;
+			add_post_meta( $post_id, 'orphan_key', 'value' );
+		}
+
+		// Delete posts directly via SQL to leave orphaned postmeta rows.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$wpdb->query( "DELETE FROM {$wpdb->posts}" );
+
+		Table_Checksum::reset_range_edges_cache();
+
+		$tc    = new Table_Checksum( 'postmeta' );
+		$range = $tc->get_range_edges();
+
+		// With 0 posts, parent count is 0 so the optimization should be skipped.
+		// The fallback COUNT(DISTINCT) should return the actual orphaned meta count.
+		$this->assertGreaterThan( 0, (int) $range['item_count'] );
+		$this->assertNotNull( $range['min_range'] );
+		$this->assertNotNull( $range['max_range'] );
 	}
 
 	/**
