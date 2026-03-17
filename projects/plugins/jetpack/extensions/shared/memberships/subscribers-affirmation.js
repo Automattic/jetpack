@@ -396,7 +396,11 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 		postEmailSentState?.email_sent_at ?? postEmailSentState?.stats_on_send?.timestamp ?? '';
 
 	const sentAccessLabel = statsOnSend
-		? getAccessLevelLabel( statsOnSend.access_level, statsOnSend.paid_tier )
+		? getAccessLabelForCopy(
+				statsOnSend.access_level,
+				statsOnSend.paid_tier ?? null,
+				statsOnSend.has_paywall_block === true
+		  )
 		: '';
 	const sentCategoryNames = statsOnSend
 		? getFormattedCategories( statsOnSend.post_categories, newsletterCategories, false )

@@ -114,6 +114,7 @@ class WPCOM_REST_API_V2_Endpoint_Newsletter_Email_Sent_Status extends WP_REST_Co
 				'paid_tier'                 => $paid_tier,
 				'post_categories'           => isset( $first['post_categories'] ) && is_array( $first['post_categories'] ) ? $first['post_categories'] : array(),
 				'has_newsletter_categories' => ! empty( $first['has_newsletter_categories'] ),
+				'has_paywall_block'         => isset( $first['has_paywall_block'] ) ? (bool) $first['has_paywall_block'] : null,
 				'timestamp'                 => $ts,
 			);
 		}
