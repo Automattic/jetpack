@@ -371,13 +371,7 @@ const PieChartInternal = ( {
 									}
 								>
 									{ allSegmentsHidden ? (
-										<SvgEmptyState
-											x={ 0 }
-											y={ 0 }
-											width={ width }
-											height={ height }
-											fill={ providerTheme.gridColor || '#ccc' }
-										>
+										<SvgEmptyState x={ 0 } y={ 0 } width={ width } height={ height }>
 											{ __(
 												'All segments are hidden. Click legend items to show data.',
 												'jetpack-charts'

@@ -18,7 +18,6 @@ import {
 	useChartId,
 	useChartRegistration,
 	useGlobalChartsContext,
-	useGlobalChartsTheme,
 	GlobalChartsContext,
 } from '../../providers';
 import { attachSubComponents } from '../../utils';
@@ -143,7 +142,6 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	} );
 
 	const { getElementStyles, isSeriesVisible } = useGlobalChartsContext();
-	const providerTheme = useGlobalChartsTheme();
 
 	// Add visibility information to series when using interactive legends
 	const seriesWithVisibility = useMemo( () => {
@@ -428,7 +426,6 @@ const BarChartInternal: FC< BarChartProps > = ( {
 												y={ chartHeight / 2 }
 												width={ width }
 												height={ chartHeight }
-												fill={ providerTheme.gridStyles?.stroke || '#ccc' }
 											>
 												{ __(
 													'All series are hidden. Click legend items to show data.',

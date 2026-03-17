@@ -543,7 +543,6 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 													y={ chartHeight / 2 }
 													width={ width }
 													height={ chartHeight }
-													fill={ providerTheme.gridStyles?.stroke || '#ccc' }
 												>
 													{ __(
 														'All series are hidden. Click legend items to show data.',

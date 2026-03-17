@@ -11,8 +11,6 @@ interface SvgEmptyStateProps {
 	width: number;
 	/** Available height for the text area */
 	height: number;
-	/** Fill color for the text */
-	fill?: string;
 	/** Text content */
 	children: ReactNode;
 }
@@ -28,26 +26,13 @@ interface SvgEmptyStateProps {
  * @param  root0.y        - Y coordinate of the center point
  * @param  root0.width    - Available width for the text area
  * @param  root0.height   - Available height for the text area
- * @param  root0.fill     - Fill color for the text
  * @param  root0.children - Text content
  * @return {JSX.Element} A foreignObject element containing the centered text.
  */
-export const SvgEmptyState: FC< SvgEmptyStateProps > = ( {
-	x,
-	y,
-	width,
-	height,
-	fill = '#ccc',
-	children,
-} ) => {
+export const SvgEmptyState: FC< SvgEmptyStateProps > = ( { x, y, width, height, children } ) => {
 	return (
 		<foreignObject x={ x - width / 2 } y={ y - height / 2 } width={ width } height={ height }>
-			<Stack
-				align="center"
-				justify="center"
-				className={ styles[ 'svg-empty-state' ] }
-				style={ { color: fill } }
-			>
+			<Stack align="center" justify="center" className={ styles[ 'svg-empty-state' ] }>
 				{ children }
 			</Stack>
 		</foreignObject>
