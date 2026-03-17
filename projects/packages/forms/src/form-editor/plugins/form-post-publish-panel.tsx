@@ -143,6 +143,8 @@ export const FormPostPublishPanel = () => {
 	}
 
 	const createNewPageTitle = __( 'Create a new page with this form', 'jetpack-forms' );
+	const copiedText = __( 'Copied to clipboard!', 'jetpack-forms' );
+	const pasteText = __( 'Paste it into any post or page.', 'jetpack-forms' );
 
 	return (
 		<Modal
@@ -164,9 +166,7 @@ export const FormPostPublishPanel = () => {
 							{ __( 'Copy embed code', 'jetpack-forms' ) }
 						</span>
 						<span className="jetpack-form-post-publish__action-description">
-							{ showCopyConfirmation
-								? __( 'Copied to clipboard!', 'jetpack-forms' )
-								: __( 'Paste it into any post or page.', 'jetpack-forms' ) }
+							{ showCopyConfirmation ? copiedText : pasteText }
 						</span>
 					</div>
 				</button>
