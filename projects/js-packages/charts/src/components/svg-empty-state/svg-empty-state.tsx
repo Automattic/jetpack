@@ -23,6 +23,15 @@ interface SvgEmptyStateProps {
  * The component centers the text within the specified area.  Safari's
  * foreignObject positioning quirks are handled with the same workaround
  * used elsewhere in this package (position: fixed).
+ *
+ * @param  root0          - Component props
+ * @param  root0.x        - X coordinate of the center point
+ * @param  root0.y        - Y coordinate of the center point
+ * @param  root0.width    - Available width for the text area
+ * @param  root0.height   - Available height for the text area
+ * @param  root0.fill     - Fill color for the text
+ * @param  root0.children - Text content
+ * @return {JSX.Element} A foreignObject element containing the centered text.
  */
 export const SvgEmptyState: FC< SvgEmptyStateProps > = ( {
 	x,
@@ -44,16 +53,11 @@ export const SvgEmptyState: FC< SvgEmptyStateProps > = ( {
 		fontFamily: '-apple-system,BlinkMacSystemFont,Roboto,Helvetica Neue,sans-serif',
 		padding: '16px',
 		boxSizing: 'border-box',
-		...( isSafari() ? ( { position: 'fixed' as const } ) : {} ),
+		...( isSafari() ? { position: 'fixed' as const } : {} ),
 	};
 
 	return (
-		<foreignObject
-			x={ x - width / 2 }
-			y={ y - height / 2 }
-			width={ width }
-			height={ height }
-		>
+		<foreignObject x={ x - width / 2 } y={ y - height / 2 } width={ width } height={ height }>
 			<div style={ textStyles }>{ children }</div>
 		</foreignObject>
 	);

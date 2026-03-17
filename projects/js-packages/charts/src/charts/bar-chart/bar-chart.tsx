@@ -422,20 +422,20 @@ const BarChartInternal: FC< BarChartProps > = ( {
 
 										{ highlightedBarStyle && <style>{ highlightedBarStyle }</style> }
 
-									{ allSeriesHidden ? (
-										<SvgEmptyState
-											x={ width / 2 }
-											y={ chartHeight / 2 }
-											width={ width }
-											height={ chartHeight }
-											fill={ providerTheme.gridStyles?.stroke || '#ccc' }
-										>
-											{ __(
-												'All series are hidden. Click legend items to show data.',
-												'jetpack-charts'
-											) }
-										</SvgEmptyState>
-									) : null }
+										{ allSeriesHidden ? (
+											<SvgEmptyState
+												x={ width / 2 }
+												y={ chartHeight / 2 }
+												width={ width }
+												height={ chartHeight }
+												fill={ providerTheme.gridStyles?.stroke || '#ccc' }
+											>
+												{ __(
+													'All series are hidden. Click legend items to show data.',
+													'jetpack-charts'
+												) }
+											</SvgEmptyState>
+										) : null }
 
 										<BarGroup padding={ chartOptions.barGroup.padding }>
 											{ seriesWithVisibility.map( ( { series: seriesData, index, isVisible } ) => {

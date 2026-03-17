@@ -416,12 +416,7 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 									}
 								>
 									{ allSegmentsHidden ? (
-										<SvgEmptyState
-											x={ 0 }
-											y={ -radius / 2 }
-											width={ width }
-											height={ height }
-										>
+										<SvgEmptyState x={ 0 } y={ -radius / 2 } width={ width } height={ height }>
 											{ __(
 												'All segments are hidden. Click legend items to show data.',
 												'jetpack-charts'

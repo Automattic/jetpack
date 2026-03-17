@@ -537,20 +537,20 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 											{ chartOptions.axis.x.display && <Axis { ...chartOptions.axis.x } /> }
 											{ chartOptions.axis.y.display && <Axis { ...chartOptions.axis.y } /> }
 
-										{ allSeriesHidden ? (
-											<SvgEmptyState
-												x={ width / 2 }
-												y={ chartHeight / 2 }
-												width={ width }
-												height={ chartHeight }
-												fill={ providerTheme.gridStyles?.stroke || '#ccc' }
-											>
-												{ __(
-													'All series are hidden. Click legend items to show data.',
-													'jetpack-charts'
-												) }
-											</SvgEmptyState>
-										) : null }
+											{ allSeriesHidden ? (
+												<SvgEmptyState
+													x={ width / 2 }
+													y={ chartHeight / 2 }
+													width={ width }
+													height={ chartHeight }
+													fill={ providerTheme.gridStyles?.stroke || '#ccc' }
+												>
+													{ __(
+														'All series are hidden. Click legend items to show data.',
+														'jetpack-charts'
+													) }
+												</SvgEmptyState>
+											) : null }
 
 											{ seriesWithVisibility.map( ( { series: seriesData, index, isVisible } ) => {
 												// Skip rendering invisible series
