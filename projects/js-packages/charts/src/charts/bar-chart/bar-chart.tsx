@@ -5,7 +5,6 @@ import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useCallback, useContext, useState, useRef, useMemo } from 'react';
 import { Legend, useChartLegendItems } from '../../components/legend';
-import { SvgEmptyState } from '../../components/svg-empty-state';
 import { AccessibleTooltip, useKeyboardNavigation } from '../../components/tooltip';
 import {
 	useXYChartTheme,
@@ -26,6 +25,7 @@ import { attachSubComponents } from '../../utils';
 import { useChartChildren } from '../private/chart-composition';
 import { ChartLayout } from '../private/chart-layout';
 import { SingleChartContext } from '../private/single-chart-context';
+import { SvgEmptyState } from '../private/svg-empty-state';
 import { withResponsive } from '../private/with-responsive';
 import styles from './bar-chart.module.scss';
 import { useBarChartOptions } from './private';

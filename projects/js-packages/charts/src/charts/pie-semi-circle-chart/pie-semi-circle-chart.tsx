@@ -7,7 +7,6 @@ import { Stack } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useCallback, useContext, useMemo } from 'react';
 import { Legend, useChartLegendItems } from '../../components/legend';
-import { SvgEmptyState } from '../../components/svg-empty-state';
 import { BaseTooltip } from '../../components/tooltip';
 import { useInteractiveLegendData, usePrefersReducedMotion } from '../../hooks';
 import {
@@ -22,6 +21,7 @@ import { ChartSVG, ChartHTML, useChartChildren } from '../private/chart-composit
 import { ChartLayout } from '../private/chart-layout';
 import { RadialWipeAnimation } from '../private/radial-wipe-animation';
 import { SingleChartContext } from '../private/single-chart-context';
+import { SvgEmptyState } from '../private/svg-empty-state';
 import { withResponsive } from '../private/with-responsive';
 import styles from './pie-semi-circle-chart.module.scss';
 import type { LegendValueDisplay } from '../../components/legend';

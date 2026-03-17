@@ -16,7 +16,6 @@ import {
 	useCallback,
 } from 'react';
 import { Legend, useChartLegendItems } from '../../components/legend';
-import { SvgEmptyState } from '../../components/svg-empty-state';
 import { AccessibleTooltip, useKeyboardNavigation } from '../../components/tooltip';
 import {
 	useXYChartTheme,
@@ -37,6 +36,7 @@ import { useChartChildren } from '../private/chart-composition';
 import { ChartLayout } from '../private/chart-layout';
 import { DefaultGlyph } from '../private/default-glyph';
 import { SingleChartContext, type SingleChartRef } from '../private/single-chart-context';
+import { SvgEmptyState } from '../private/svg-empty-state';
 import { withResponsive } from '../private/with-responsive';
 import styles from './line-chart.module.scss';
 import { LineChartAnnotation, LineChartAnnotationsOverlay, LineChartGlyph } from './private';

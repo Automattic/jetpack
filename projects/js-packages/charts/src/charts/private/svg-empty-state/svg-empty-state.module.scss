@@ -1,0 +1,16 @@
+.svg-empty-state {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	text-align: center;
+	width: 100%;
+	height: 100%;
+	font-size: 14px;
+	font-family: -apple-system, BlinkMacSystemFont, Roboto, "Helvetica Neue", sans-serif;
+	padding: 16px;
+	box-sizing: border-box;
+
+	&--safari {
+		position: fixed;
+	}
+}
