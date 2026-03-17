@@ -86,7 +86,6 @@ function CopyablePaymentLink( { paymentLink } ) {
  * @param {string}  props.currencyCode       - ISO currency code.
  * @param {string}  props.productDescription - Optional product description.
  * @param {string}  props.paymentLink        - PayPal payment URL.
- * @param {string}  props.imageUrl           - Optional product image URL.
  * @param {boolean} props.variantsEnabled    - Whether variants are active.
  * @param {object}  props.variants           - Variants data with dimensions.
  * @return {Element} Button preview element.
@@ -99,7 +98,6 @@ export default function PayPalButtonPreview( {
 	currencyCode = 'USD',
 	productDescription,
 	paymentLink,
-	imageUrl,
 	variantsEnabled,
 	variants,
 } ) {
@@ -107,13 +105,6 @@ export default function PayPalButtonPreview( {
 
 	return (
 		<div className="jetpack-paypal-button-preview">
-			{ /* Product image */ }
-			{ imageUrl && (
-				<div className="jetpack-paypal-button-preview__image">
-					<img src={ imageUrl } alt={ productName || '' } />
-				</div>
-			) }
-
 			{ /* Product info card */ }
 			<div className="jetpack-paypal-button-preview__product">
 				<div className="jetpack-paypal-button-preview__product-info">

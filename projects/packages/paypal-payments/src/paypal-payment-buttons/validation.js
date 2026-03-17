@@ -46,7 +46,6 @@ export const VALID_CURRENCY_CODES = new Set( [
 	'THB',
 	'INR',
 	'CNY',
-	'RUB',
 ] );
 
 /**

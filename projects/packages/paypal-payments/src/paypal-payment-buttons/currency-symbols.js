@@ -34,5 +34,4 @@ export const CURRENCY_SYMBOLS = {
 	PHP: '\u20B1',
 	TWD: 'NT$',
 	THB: '\u0E3F',
-	RUB: '\u20BD',
 };

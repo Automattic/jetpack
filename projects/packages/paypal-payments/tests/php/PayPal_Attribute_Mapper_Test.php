@@ -212,7 +212,7 @@ class PayPal_Attribute_Mapper_Test extends TestCase {
 			$this->assertTrue( $result, "Currency $currency should be accepted" );
 		}
 
-		$this->assertCount( 26, PayPal_Attribute_Mapper::SUPPORTED_CURRENCIES );
+		$this->assertCount( 25, PayPal_Attribute_Mapper::SUPPORTED_CURRENCIES );
 	}
 
 	// --- validate_attributes: optional field length limits ---
@@ -254,23 +254,6 @@ class PayPal_Attribute_Mapper_Test extends TestCase {
 	// --- validate_attributes: URL validation ---
 
 	/**
-	 * Test that an invalid image URL is rejected.
-	 */
-	public function test_validate_rejects_invalid_image_url() {
-		$result = PayPal_Attribute_Mapper::validate_attributes(
-			array(
-				'productName'  => 'Widget',
-				'price'        => '10.00',
-				'currencyCode' => 'USD',
-				'imageUrl'     => 'not-a-url',
-			)
-		);
-
-		$this->assertInstanceOf( \WP_Error::class, $result );
-		$this->assertEquals( 'invalid_image_url', $result->get_error_code() );
-	}
-
-	/**
 	 * Test that an invalid return URL is rejected.
 	 */
 	public function test_validate_rejects_invalid_return_url() {
@@ -300,7 +283,6 @@ class PayPal_Attribute_Mapper_Test extends TestCase {
 				'currencyCode'       => 'USD',
 				'productDescription' => 'A fine widget.',
 				'buttonText'         => 'Buy Now',
-				'imageUrl'           => 'https://example.com/widget.png',
 				'returnUrl'          => 'https://example.com/thanks',
 			)
 		);
@@ -341,13 +323,11 @@ class PayPal_Attribute_Mapper_Test extends TestCase {
 				'price'              => '29.99',
 				'currencyCode'       => 'USD',
 				'productDescription' => 'A great widget.',
-				'imageUrl'           => 'https://example.com/widget.jpg',
 				'returnUrl'          => 'https://example.com/thanks',
 			)
 		);
 
 		$this->assertEquals( 'A great widget.', $request['line_items'][0]['description'] );
-		$this->assertEquals( 'https://example.com/widget.jpg', $request['line_items'][0]['image_url'] );
 		$this->assertEquals( 'https://example.com/thanks', $request['return_url'] );
 	}
 
@@ -364,7 +344,6 @@ class PayPal_Attribute_Mapper_Test extends TestCase {
 		);
 
 		$this->assertArrayNotHasKey( 'description', $request['line_items'][0] );
-		$this->assertArrayNotHasKey( 'image_url', $request['line_items'][0] );
 		$this->assertArrayNotHasKey( 'return_url', $request );
 	}
 
@@ -411,7 +390,6 @@ class PayPal_Attribute_Mapper_Test extends TestCase {
 							'currency_code' => 'GBP',
 							'value'         => '49.99',
 						),
-						'image_url'   => 'https://example.com/fancy.png',
 					),
 				),
 				'return_url'   => 'https://example.com/thanks',
@@ -422,7 +400,6 @@ class PayPal_Attribute_Mapper_Test extends TestCase {
 		$this->assertEquals( 'GBP', $attributes['currencyCode'] );
 		$this->assertSame( '49.99', $attributes['price'] );
 		$this->assertEquals( 'A very fancy widget.', $attributes['productDescription'] );
-		$this->assertEquals( 'https://example.com/fancy.png', $attributes['imageUrl'] );
 		$this->assertEquals( 'https://example.com/thanks', $attributes['returnUrl'] );
 	}
 

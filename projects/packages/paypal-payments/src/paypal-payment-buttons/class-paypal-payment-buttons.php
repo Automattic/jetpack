@@ -156,7 +156,6 @@ class PayPal_Payment_Buttons {
 		'PHP' => '₱',
 		'TWD' => 'NT$',
 		'THB' => '฿',
-		'RUB' => '₽',
 	);
 
 	/**
@@ -203,7 +202,6 @@ class PayPal_Payment_Buttons {
 		$button_text         = $attributes['buttonText'] ?? __( 'Pay Now', 'jetpack-paypal-payments' );
 		$button_type         = $attributes['buttonType'] ?? 'stacked';
 		$product_description = $attributes['productDescription'] ?? '';
-		$image_url           = $attributes['imageUrl'] ?? '';
 		$variants_enabled    = ! empty( $attributes['variantsEnabled'] );
 		$variants            = $attributes['variants'] ?? null;
 		$show_qr_code        = $attributes['showQrCode'] ?? true;
@@ -229,19 +227,6 @@ class PayPal_Payment_Buttons {
 		);
 
 		$is_stacked = 'stacked' === $button_type;
-
-		// Build product image.
-		$image_html = '';
-		if ( ! empty( $image_url ) ) {
-			$sanitized_image = esc_url( $image_url );
-			if ( $sanitized_image ) {
-				$image_html = sprintf(
-					'<div class="jetpack-paypal-button__image"><img src="%s" alt="%s" loading="lazy" /></div>',
-					$sanitized_image,
-					esc_attr( $product_name )
-				);
-			}
-		}
 
 		// Build product info section.
 		$description_html = '';
@@ -337,7 +322,6 @@ class PayPal_Payment_Buttons {
 		return sprintf(
 			'<div %16$s>
 	<div class="jetpack-paypal-button">
-		%10$s
 		<div class="jetpack-paypal-button__product">
 			<div class="jetpack-paypal-button__product-info">
 				<span class="jetpack-paypal-button__product-name">%1$s</span>
@@ -366,7 +350,6 @@ class PayPal_Payment_Buttons {
 			esc_html( $button_text ),
 			$debit_button_html,
 			esc_html__( 'Powered by PayPal', 'jetpack-paypal-payments' ),
-			$image_html,
 			'',
 			'',
 			'',

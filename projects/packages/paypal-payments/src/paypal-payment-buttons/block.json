@@ -3,7 +3,7 @@
 	"apiVersion": 3,
 	"name": "jetpack/paypal-payment-buttons",
 	"title": "PayPal Payment Buttons",
-	"description": "Accept payments via PayPal. Create a buy button directly in the editor — no code required.",
+	"description": "Accept payments via PayPal. Create a buy button directly in the editor \u2014 no code required.",
 	"keywords": [ "paypal", "payment", "buy", "sell", "commerce", "checkout" ],
 	"category": "earn",
 	"icon": "paypal",
@@ -60,10 +60,6 @@
 			"default": ""
 		},
 		"returnUrl": {
-			"type": "string",
-			"default": ""
-		},
-		"imageUrl": {
 			"type": "string",
 			"default": ""
 		},

@@ -15,12 +15,7 @@
  */
 
 import apiFetch from '@wordpress/api-fetch'; // eslint-disable-line import/no-unresolved
-import {
-	BlockControls,
-	InspectorControls,
-	MediaUpload,
-	useBlockProps,
-} from '@wordpress/block-editor';
+import { BlockControls, InspectorControls, useBlockProps } from '@wordpress/block-editor';
 import {
 	Button,
 	Notice,
@@ -76,7 +71,6 @@ const SUPPORTED_CURRENCIES = [
 	{ label: 'THB — Thai Baht', value: 'THB' },
 	{ label: 'INR — Indian Rupee', value: 'INR' },
 	{ label: 'CNY — Chinese Yuan', value: 'CNY' },
-	{ label: 'RUB — Russian Ruble', value: 'RUB' },
 ];
 
 /**
@@ -119,7 +113,6 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 		currencyCode,
 		productDescription,
 		returnUrl,
-		imageUrl,
 		variantsEnabled,
 		variants,
 		adjustableQuantity,
@@ -378,7 +371,6 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 						value: price,
 					},
 					...( productDescription ? { description: productDescription } : {} ),
-					...( imageUrl ? { image_url: imageUrl } : {} ),
 					...( variantsEnabled && variants ? { variants } : {} ),
 					...( adjustableQuantity && maxQuantity > 1
 						? { adjustable_quantity: { maximum: parseInt( maxQuantity, 10 ) } }
@@ -407,7 +399,6 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 			currencyCode,
 			productDescription,
 			returnUrl,
-			imageUrl,
 			variantsEnabled,
 			variants,
 			adjustableQuantity,
@@ -1050,7 +1041,6 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 						currencyCode={ currencyCode }
 						productDescription={ productDescription }
 						paymentLink={ paymentLink }
-						imageUrl={ imageUrl }
 						variantsEnabled={ variantsEnabled }
 						variants={ variants }
 					/>
@@ -1171,43 +1161,6 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 					}
 				/>
 
-				<div className="jetpack-paypal-payment-buttons__image-upload">
-					<p className="jetpack-paypal-payment-buttons__field-label">
-						{ __( 'Product Image (optional)', 'jetpack-paypal-payments' ) }
-					</p>
-					{ imageUrl ? (
-						<div className="jetpack-paypal-payment-buttons__image-preview">
-							<img src={ imageUrl } alt={ productName || '' } />
-							<Button
-								variant="secondary"
-								isDestructive
-								isSmall
-								onClick={ () => setAttributes( { imageUrl: '' } ) }
-								disabled={ isCreating }
-							>
-								{ __( 'Remove Image', 'jetpack-paypal-payments' ) }
-							</Button>
-						</div>
-					) : (
-						<MediaUpload
-							onSelect={ media => setAttributes( { imageUrl: media.url } ) }
-							allowedTypes={ [ 'image' ] }
-							render={ ( { open } ) => (
-								<Button
-									variant="secondary"
-									onClick={ open }
-									disabled={ isCreating }
-									className="jetpack-paypal-payment-buttons__upload-button"
-								>
-									{ __( 'Upload Image', 'jetpack-paypal-payments' ) }
-								</Button>
-							) }
-						/>
-					) }
-					<p className="jetpack-paypal-payment-buttons__field-help">
-						{ __( 'Shown on the PayPal checkout page.', 'jetpack-paypal-payments' ) }
-					</p>
-				</div>
 				<div className="jetpack-paypal-payment-buttons__variants-section">
 					<VariantBuilder
 						enabled={ variantsEnabled }

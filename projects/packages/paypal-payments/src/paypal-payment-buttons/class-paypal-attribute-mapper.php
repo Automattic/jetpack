@@ -62,7 +62,6 @@ class PayPal_Attribute_Mapper {
 		'TWD',
 		'THB',
 		'INR',
-		'RUB',
 	);
 
 	/**
@@ -107,10 +106,6 @@ class PayPal_Attribute_Mapper {
 		// Optional line item fields.
 		if ( ! empty( $attributes['productDescription'] ) ) {
 			$line_item['description'] = sanitize_text_field( $attributes['productDescription'] );
-		}
-
-		if ( ! empty( $attributes['imageUrl'] ) ) {
-			$line_item['image_url'] = esc_url_raw( $attributes['imageUrl'] );
 		}
 
 		// Product variants (dimensions with options).
@@ -225,10 +220,6 @@ class PayPal_Attribute_Mapper {
 
 			if ( ! empty( $line_item['description'] ) ) {
 				$attributes['productDescription'] = sanitize_text_field( $line_item['description'] );
-			}
-
-			if ( ! empty( $line_item['image_url'] ) ) {
-				$attributes['imageUrl'] = esc_url_raw( $line_item['image_url'] );
 			}
 
 			if ( ! empty( $line_item['variants']['dimensions'] ) ) {
@@ -372,18 +363,6 @@ class PayPal_Attribute_Mapper {
 					'button_text_too_long',
 					/* translators: %d: maximum allowed characters */
 					sprintf( __( 'Button text must be %d characters or fewer.', 'jetpack-paypal-payments' ), self::MAX_BUTTON_TEXT_LENGTH ),
-					array( 'status' => 400 )
-				);
-			}
-		}
-
-		// Optional: image URL validation.
-		if ( ! empty( $attributes['imageUrl'] ) ) {
-			$image_url = esc_url_raw( $attributes['imageUrl'] );
-			if ( empty( $image_url ) || ! wp_http_validate_url( $image_url ) ) {
-				return new WP_Error(
-					'invalid_image_url',
-					__( 'Image URL must be a valid HTTPS URL.', 'jetpack-paypal-payments' ),
 					array( 'status' => 400 )
 				);
 			}
