@@ -222,6 +222,7 @@ function JetpackContactFormEdit( {
 		isLoading: isResolvingSyncedForm,
 		syncedAttributes: syncedFormAttributes,
 		syncedInnerBlocks: syncedFormBlocks,
+		errorType: syncedFormErrorType,
 	} = useSyncedForm( ref );
 
 	// Backward compatibility for the deprecated customThankyou attribute.
@@ -1019,11 +1020,13 @@ function JetpackContactFormEdit( {
 			</div>
 		);
 	}
-	// Show error if referenced form not found
+	// Show error if referenced form not found or not accessible
 	else if ( ref && ! syncedForm && ! isResolvingSyncedForm ) {
 		elt = (
 			<Notice status="warning" isDismissible={ false }>
-				{ __( 'The referenced form could not be found.', 'jetpack-forms' ) }
+				{ syncedFormErrorType === 'permission_denied'
+					? __( "You don't have permission to edit this form.", 'jetpack-forms' )
+					: __( 'The referenced form could not be found.', 'jetpack-forms' ) }
 			</Notice>
 		);
 	}
