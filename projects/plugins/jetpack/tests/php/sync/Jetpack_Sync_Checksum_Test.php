@@ -701,8 +701,12 @@ class Jetpack_Sync_Checksum_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test that get_range_edges strips filter_values for all meta tables, not just postmeta.
-	 * Non-whitelisted meta keys should still produce valid MIN/MAX range edges.
+	 * Test that get_range_edges strips filter_values for meta tables, but
+	 * checksum calculation still respects them.
+	 *
+	 * Creates commentmeta with only non-whitelisted keys. Range edges should
+	 * return valid results (filters stripped), but the checksum should be null
+	 * because no rows match the filter during checksum calculation.
 	 */
 	public function test_get_range_edges_meta_tables_strip_filters() {
 		$user_id = self::factory()->user->create();
@@ -727,6 +731,11 @@ class Jetpack_Sync_Checksum_Test extends WP_UnitTestCase {
 		$this->assertNotNull( $range['min_range'] );
 		$this->assertNotNull( $range['max_range'] );
 		$this->assertGreaterThan( 0, (int) $range['item_count'] );
+
+		// But the checksum should be null — no rows match the filter_values
+		// whitelist during checksum calculation, proving filters are restored.
+		$checksum = $tc->calculate_checksum();
+		$this->assertNull( $checksum );
 	}
 
 	/**
@@ -874,6 +883,38 @@ class Jetpack_Sync_Checksum_Test extends WP_UnitTestCase {
 
 		// item_count should equal the full posts count, not the sub-range count.
 		$this->assertEquals( $full_posts_count, (int) $meta_range['item_count'] );
+	}
+
+	/**
+	 * Test that get_parent_table_count() reuses the cached result from a prior
+	 * full-range get_range_edges() call on the parent table, rather than
+	 * re-querying the parent.
+	 */
+	public function test_get_range_edges_parent_count_reuses_cache() {
+		global $wpdb;
+
+		$user_id = self::factory()->user->create();
+
+		// Create 5 posts, each with meta.
+		for ( $i = 0; $i < 5; $i++ ) {
+			$post_id = self::factory()->post->create( array( 'post_author' => $user_id ) );
+			add_post_meta( $post_id, 'test_key', 'value' );
+		}
+
+		// Prime the cache by querying posts first (simulates checksum_all order).
+		$posts_tc    = new Table_Checksum( 'posts' );
+		$posts_range = $posts_tc->get_range_edges();
+
+		// Now query postmeta — should reuse cached posts count.
+		$meta_tc    = new Table_Checksum( 'postmeta' );
+		$meta_range = $meta_tc->get_range_edges();
+
+		// The postmeta query should be a MIN/MAX on postmeta only, not a posts query.
+		$this->assertStringContainsString( $wpdb->postmeta, $wpdb->last_query );
+		$this->assertStringNotContainsString( $wpdb->posts, $wpdb->last_query );
+
+		// And item_count should match the posts count from the cached result.
+		$this->assertEquals( (int) $posts_range['item_count'], (int) $meta_range['item_count'] );
 	}
 
 	/**
