@@ -1,13 +1,14 @@
 /**
  * External dependencies
  */
-import { Button, Modal } from '@wordpress/components';
+import { Modal } from '@wordpress/components';
 import { useCopyToClipboard } from '@wordpress/compose';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Icon, copy, check, page as pageIcon, postList } from '@wordpress/icons';
 import { store as noticesStore } from '@wordpress/notices';
 import { addQueryArgs } from '@wordpress/url';
 /**
@@ -30,7 +31,8 @@ export const FORM_POST_PUBLISH_PANEL_PLUGIN = 'jetpack-form-post-publish';
 export const FormPostPublishPanel = () => {
 	const [ isModalOpen, setIsModalOpen ] = useState( false );
 	const [ isCreatingPage, setIsCreatingPage ] = useState( false );
-	const [ showCopied, setShowCopied ] = useState( false );
+	const [ showCopyConfirmation, setShowCopyConfirmation ] = useState( false );
+	const [ showLinks, setShowLinks ] = useState( false );
 	const wasPublishedOnLoadRef = useRef< boolean | null >( null );
 	const hasShownModalRef = useRef( false );
 	const copiedTimeoutRef = useRef< number | null >( null );
@@ -86,6 +88,10 @@ export const FormPostPublishPanel = () => {
 
 	const embedCode = `<!-- wp:jetpack/contact-form {"ref":${ postId }} /-->`;
 
+	const handleClose = useCallback( () => {
+		setIsModalOpen( false );
+	}, [] );
+
 	const handleCreatePage = useCallback( async () => {
 		if ( isCreatingPage ) {
 			return;
@@ -113,59 +119,114 @@ export const FormPostPublishPanel = () => {
 		}
 	}, [ isCreatingPage, postTitle, embedCode, saveEntityRecord, createErrorNotice ] );
 
-	const handleClose = useCallback( () => {
-		setIsModalOpen( false );
-	}, [] );
-
-	const copyButtonRef = useCopyToClipboard( embedCode, () => {
-		setShowCopied( true );
+	const copyRef = useCopyToClipboard< HTMLButtonElement >( embedCode, () => {
+		setShowCopyConfirmation( true );
+		setShowLinks( true );
 		if ( copiedTimeoutRef.current ) {
 			clearTimeout( copiedTimeoutRef.current );
 		}
 		copiedTimeoutRef.current = setTimeout( () => {
-			setShowCopied( false );
-		}, 2000 );
+			setShowCopyConfirmation( false );
+		}, 3000 );
 	} );
+
+	useEffect( () => {
+		return () => {
+			if ( copiedTimeoutRef.current ) {
+				clearTimeout( copiedTimeoutRef.current );
+			}
+		};
+	}, [] );
 
 	if ( ! isModalOpen ) {
 		return null;
 	}
 
+	const createNewPageTitle = __( 'Create a new page with this form', 'jetpack-forms' );
+
+	const pagesUrl = addQueryArgs( 'edit.php', { post_type: 'page' } );
+	const postsUrl = 'edit.php';
+
 	return (
 		<Modal
-			title={ __( 'Your form is ready \u2014 add it to a page', 'jetpack-forms' ) }
+			title={ __( 'Almost ready to collect responses \ud83c\udf89', 'jetpack-forms' ) }
 			onRequestClose={ handleClose }
 			className="jetpack-form-post-publish-modal"
 			size="medium"
 		>
 			<div className="jetpack-form-post-publish__content">
-				<p className="jetpack-form-post-publish__description">
-					{ __(
-						'Once it\u2019s on a page, visitors can start submitting responses.',
-						'jetpack-forms'
-					) }
+				<p className="jetpack-form-post-publish__subtitle">
+					{ __( 'Next steps:', 'jetpack-forms' ) }
 				</p>
-				<Button
-					variant="primary"
-					className="jetpack-form-post-publish__action-button"
-					onClick={ handleCreatePage }
-					isBusy={ isCreatingPage }
-				>
-					{ isCreatingPage
-						? __( 'Creating page…', 'jetpack-forms' )
-						: __( 'Add to new page', 'jetpack-forms' ) }
-				</Button>
-				<div className="jetpack-form-post-publish__manual">
-					<Button
-						ref={ copyButtonRef }
-						variant="secondary"
-						className="jetpack-form-post-publish__action-button"
-					>
-						{ showCopied
-							? __( 'Copied!', 'jetpack-forms' )
-							: __( 'Copy and add manually', 'jetpack-forms' ) }
-					</Button>
+				<button type="button" className="jetpack-form-post-publish__action-card" ref={ copyRef }>
+					<div className="jetpack-form-post-publish__action-icon">
+						<Icon icon={ showCopyConfirmation ? check : copy } size={ 24 } />
+					</div>
+					<div className="jetpack-form-post-publish__action-text">
+						<span className="jetpack-form-post-publish__action-title">
+							{ __( 'Copy embed code', 'jetpack-forms' ) }
+						</span>
+						<span className="jetpack-form-post-publish__action-description">
+							{ showCopyConfirmation
+								? __( 'Copied to clipboard!', 'jetpack-forms' )
+								: __( 'Paste it into any post or page.', 'jetpack-forms' ) }
+						</span>
+					</div>
+				</button>
+				<div className={ `jetpack-form-post-publish__reveal${ showLinks ? ' is-visible' : '' }` }>
+					<div className="jetpack-form-post-publish__reveal-inner">
+						<a
+							className="jetpack-form-post-publish__action-card"
+							href={ pagesUrl }
+							tabIndex={ showLinks ? undefined : -1 }
+						>
+							<div className="jetpack-form-post-publish__action-icon">
+								<Icon icon={ pageIcon } size={ 24 } />
+							</div>
+							<div className="jetpack-form-post-publish__action-text">
+								<span className="jetpack-form-post-publish__action-title">
+									{ __( 'View Pages', 'jetpack-forms' ) }
+								</span>
+								<span className="jetpack-form-post-publish__action-description">
+									{ __( 'Open the pages list to paste the embed code.', 'jetpack-forms' ) }
+								</span>
+							</div>
+						</a>
+						<a
+							className="jetpack-form-post-publish__action-card"
+							href={ postsUrl }
+							tabIndex={ showLinks ? undefined : -1 }
+						>
+							<div className="jetpack-form-post-publish__action-icon">
+								<Icon icon={ postList } size={ 24 } />
+							</div>
+							<div className="jetpack-form-post-publish__action-text">
+								<span className="jetpack-form-post-publish__action-title">
+									{ __( 'View Posts', 'jetpack-forms' ) }
+								</span>
+								<span className="jetpack-form-post-publish__action-description">
+									{ __( 'Open the posts list to paste the embed code.', 'jetpack-forms' ) }
+								</span>
+							</div>
+						</a>
+					</div>
 				</div>
+				<button
+					type="button"
+					className="jetpack-form-post-publish__action-card"
+					onClick={ handleCreatePage }
+					disabled={ isCreatingPage }
+				>
+					<div className="jetpack-form-post-publish__action-icon">
+						<Icon icon={ pageIcon } size={ 24 } />
+					</div>
+					<div className="jetpack-form-post-publish__action-text">
+						<span className="jetpack-form-post-publish__action-title">{ createNewPageTitle }</span>
+						<span className="jetpack-form-post-publish__action-description">
+							{ __( 'Use this form to quickly create a new page.', 'jetpack-forms' ) }
+						</span>
+					</div>
+				</button>
 			</div>
 		</Modal>
 	);
