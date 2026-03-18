@@ -1,0 +1,4 @@
+Significance: patch
+Type: security
+
+Fix polynomial ReDoS vulnerability in markdown-to-HTML paragraph renderer.
