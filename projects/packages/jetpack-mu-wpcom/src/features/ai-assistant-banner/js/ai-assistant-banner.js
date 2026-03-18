@@ -15,16 +15,16 @@ import { wpcomTrackEvent } from '../../../common/tracks';
 			return;
 		}
 
-		wpcomTrackEvent( 'wpcom_tip_ai_assistant_banner_impression' );
+		wpcomTrackEvent( 'jetpack_ai_assistant_banner_impression' );
 
 		const ctaBtn = banner.querySelector( '.wpcom-ai-assistant-banner__cta' );
 		ctaBtn?.addEventListener( 'click', function () {
-			wpcomTrackEvent( 'wpcom_tip_ai_assistant_banner_cta_click' );
+			wpcomTrackEvent( 'jetpack_ai_assistant_banner_cta_click' );
 		} );
 
 		const dismissBtn = banner.querySelector( '.wpcom-ai-assistant-banner__dismiss' );
 		dismissBtn?.addEventListener( 'click', function () {
-			wpcomTrackEvent( 'wpcom_tip_ai_assistant_banner_dismiss' );
+			wpcomTrackEvent( 'jetpack_ai_assistant_banner_dismiss' );
 
 			$.post( window.ajaxurl, {
 				action: 'dismiss_ai_assistant_banner',

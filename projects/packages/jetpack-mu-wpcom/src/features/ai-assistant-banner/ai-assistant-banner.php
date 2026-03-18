@@ -60,7 +60,7 @@ function wpcom_render_ai_assistant_banner() {
 				<strong><?php esc_html_e( 'Bring AI to your site.', 'jetpack-mu-wpcom' ); ?></strong>
 				<span><?php esc_html_e( 'Opt-in to get site-aware assistance where you write and design.', 'jetpack-mu-wpcom' ); ?></span>
 			</div>
-			<a href="<?php echo esc_url( $cta_url ); ?>" class="button button-primary wpcom-ai-assistant-banner__cta">
+			<a href="<?php echo esc_url( $cta_url ); ?>" class="button wpcom-ai-assistant-banner__cta">
 				<?php esc_html_e( 'Enable AI assistant', 'jetpack-mu-wpcom' ); ?>
 			</a>
 		</div>
@@ -74,7 +74,6 @@ function wpcom_render_ai_assistant_banner() {
 			align-items: center;
 			padding: 12px 16px;
 			border-left-color: #3858E9;
-			position: relative;
 		}
 		.wpcom-ai-assistant-banner__content {
 			display: flex;
@@ -86,14 +85,16 @@ function wpcom_render_ai_assistant_banner() {
 			flex-shrink: 0;
 		}
 		.wpcom-ai-assistant-banner__text {
-			display: flex;
-			flex-direction: column;
-			gap: 2px;
+			flex: 1;
 		}
-		.wpcom-ai-assistant-banner__dismiss {
+		.wpcom-ai-assistant-banner__cta {
+			flex-shrink: 0;
+			white-space: nowrap;
+		}
+		.wpcom-ai-assistant-banner .notice-dismiss {
 			position: static;
 			flex-shrink: 0;
-			margin-left: 8px;
+			padding: 0 0 0 12px;
 		}
 	</style>
 	<?php
@@ -112,7 +113,7 @@ function wpcom_maybe_add_ai_assistant_banner() {
 		return;
 	}
 
-	add_action( 'admin_notices', 'wpcom_render_ai_assistant_banner' );
+	add_action( 'admin_notices', 'wpcom_render_ai_assistant_banner', 1 );
 
 	wp_register_script_module(
 		'wpcom-tracks-module',
