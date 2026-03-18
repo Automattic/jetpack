@@ -110,10 +110,10 @@ jp test coverage <project>  # Generate coverage report
 ### Testing Prerequisites
 
 - **Packages** (`jp test php packages/...`, `jp test js packages/...`): Work immediately with no extra setup. The monorepo Docker container handles everything.
-- **Plugins**: Some plugins use mocked WordPress environments (WorDBless/Brain Monkey) and their tests work immediately. Others (notably `plugins/jetpack`) require a full WordPress test environment:
+- **Plugins**: Some plugins use mocked WordPress environments (WorDBless/Brain Monkey) and their tests work immediately via `jp test php`. Others (notably `plugins/jetpack`, `plugins/crm`, `plugins/wpcomsh`) require a full WordPress test environment:
   1. `jp docker up -d` — Start Docker WordPress containers
   2. `jp docker install` — Install WordPress in Docker
-  Then run: `jp test php plugins/jetpack`
+  Then run: `jp docker phpunit <plugin-slug>`
 - If you've modified package versions or dependencies between monorepo packages, run `tools/fixup-project-versions.sh` to update lock files before testing.
 - If a project's `composer.json` doesn't define `test-js`, the JS test step is skipped automatically — this is normal, not an error.
 
@@ -130,15 +130,17 @@ jp test coverage <project>      # Generate coverage report (optional)
 
 ### PHP Testing
 
-- `jp test php` works for all projects except `plugins/jetpack`, which uses `jp docker` commands
-- Add `--verbose` for full output: `jp test php packages/connection --verbose`
-- Filter to specific tests: `jp test php packages/connection --verbose -- --filter SSO_Test`
-- Use PHPUnit with WordPress test framework and `yoast/phpunit-polyfills`
-- Follow WordPress testing conventions, use WordPress fixtures and mocks
-- Test WordPress hooks and filters
+- `jp test php` works for most projects. A few plugins that require a full WordPress copy (`plugins/jetpack`, `plugins/crm`, `plugins/wpcomsh`) use `jp docker phpunit` instead.
+- `jp test php` does not support passthrough options like `--filter`. To filter tests in Docker-based projects, use: `jp docker phpunit jetpack -- --filter=Jetpack_Sync_Post_Test` or `jp docker phpunit jetpack -- --group jetpack-sync`
+- PHP testing approaches vary by project:
+  - Some packages use basic PHPUnit with `yoast/phpunit-polyfills` (no WordPress-specific testing)
+  - Some use `brain/monkey` for basic WordPress mocking
+  - Some use WorDBless (via `automattic/jetpack-test-environment`) for a lightweight WordPress environment
+  - A few plugins use an actual copy of WordPress (these are the `jp docker phpunit` projects)
+- For WorDBless-based tests: test classes extend `WorDBless\BaseTestCase`. To create test users, use `wp_insert_user()` + `get_userdata()` — do NOT use `self::factory()->user->create_and_get()` as that method is not available.
 - Test class names MUST end in "Test"
 - Every test class MUST be in a file with a matching name (e.g., class `My_Unit_Test` in `My_Unit_Test.php`)
-- Many packages use WorDBless (not the WP test factory). Test classes extend `WorDBless\BaseTestCase`. To create test users, use `wp_insert_user()` + `get_userdata()` — do NOT use `self::factory()->user->create_and_get()` as that method is not available. See `projects/packages/connection/tests/php/sso/Helpers_Test.php` for an example.
+- See `projects/packages/connection/tests/php/sso/Helpers_Test.php` for an example of a WorDBless-based test.
 
 See `docs/automated-testing.md` for full testing guidelines.
 
