@@ -35,7 +35,6 @@ function resolve_donation_plan_id( $interval, $currency ) {
 			'fields'         => 'ids',
 			'post_type'      => \Jetpack_Memberships::$post_type_plan,
 			'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
-				'relation' => 'AND',
 				array(
 					'key'   => 'jetpack_memberships_type',
 					'value' => 'donation',
@@ -179,8 +178,11 @@ function render_block( $attr, $content ) {
 
 		// Fallback: resolve by type + interval + currency if saved planId is stale.
 		if ( ! $plan || is_wp_error( $plan ) ) {
-			$plan_id = resolve_donation_plan_id( $interval, $currency );
-			$plan    = $plan_id ? get_post( $plan_id ) : null;
+			$resolved_id = resolve_donation_plan_id( $interval, $currency );
+			if ( $resolved_id ) {
+				$plan_id = $resolved_id;
+				$plan    = get_post( $plan_id );
+			}
 		}
 
 		if ( ! $plan || is_wp_error( $plan ) ) {
