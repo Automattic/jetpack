@@ -4181,8 +4181,8 @@ importers:
         specifier: ^1.9.0
         version: 1.9.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/boot':
-        specifier: ^0.7.1
-        version: 0.7.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@16.26.1)
+        specifier: ^0.8.0
+        version: 0.8.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@16.26.1)
       '@wordpress/icons':
         specifier: ^11.7.0
         version: 11.8.0(react@18.3.1)
@@ -10494,13 +10494,6 @@ packages:
     engines: {node: '>=18.12.0', npm: '>=8.19.2'}
     peerDependencies:
       react: ^18.0.0
-
-  '@wordpress/boot@0.7.1':
-    resolution: {integrity: sha512-rfoPJiDYCt4odZBmc3CL2C8wL+uH6L9Jfg+udTBk6sLx81MSgRJlhAmcH6T8LO1vemrdsChk8Z84VBO428glAA==}
-    engines: {node: '>=18.12.0', npm: '>=8.19.2'}
-    peerDependencies:
-      react: ^18.0.0
-      react-dom: ^18.0.0
 
   '@wordpress/boot@0.8.0':
     resolution: {integrity: sha512-vyjmPZXWC0FgoU27JO/8KVZVNLwELKgiSB6FO/DATy22zQBmOuqIBbGKhsf2MazPYpkwe+l5ozBp2hGgIX/ofg==}
@@ -24008,40 +24001,6 @@ snapshots:
       simple-html-tokenizer: 0.5.11
       uuid: 9.0.1(patch_hash=87a713b75995ed86c0ecd0cadfd1b9f85092ca16fdff7132ff98b62fc3cf2db0)
 
-  '@wordpress/boot@0.7.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@16.26.1)':
-    dependencies:
-      '@wordpress/a11y': 4.41.0
-      '@wordpress/admin-ui': 1.9.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@wordpress/base-styles': 6.17.0
-      '@wordpress/commands': 1.41.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@wordpress/components': 32.3.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@wordpress/compose': 7.41.0(react@18.3.1)
-      '@wordpress/core-data': 7.41.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@16.26.1)
-      '@wordpress/data': 10.41.0(react@18.3.1)
-      '@wordpress/editor': 14.41.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@16.26.1)
-      '@wordpress/element': 6.41.0
-      '@wordpress/html-entities': 4.41.0
-      '@wordpress/i18n': 6.14.0
-      '@wordpress/icons': 11.8.0(react@18.3.1)
-      '@wordpress/keyboard-shortcuts': 5.41.0(react@18.3.1)
-      '@wordpress/keycodes': 4.41.0
-      '@wordpress/lazy-editor': 1.7.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@16.26.1)
-      '@wordpress/notices': 5.41.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@wordpress/primitives': 4.41.0(react@18.3.1)
-      '@wordpress/private-apis': 1.41.0
-      '@wordpress/route': 0.6.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@wordpress/theme': 0.7.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@16.26.1)
-      '@wordpress/url': 4.41.0
-      clsx: 2.1.1
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
-    transitivePeerDependencies:
-      - '@emotion/is-prop-valid'
-      - '@types/react'
-      - '@types/react-dom'
-      - stylelint
-      - supports-color
-
   '@wordpress/boot@0.8.0(@types/react-dom@18.3.7(@types/react@18.3.28))(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@16.26.1)':
     dependencies:
       '@wordpress/a11y': 4.41.0
@@ -24060,6 +24019,40 @@ snapshots:
       '@wordpress/keyboard-shortcuts': 5.41.0(react@18.3.1)
       '@wordpress/keycodes': 4.41.0
       '@wordpress/lazy-editor': 1.7.0(@types/react-dom@18.3.7(@types/react@18.3.28))(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@16.26.1)
+      '@wordpress/notices': 5.41.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@wordpress/primitives': 4.41.0(react@18.3.1)
+      '@wordpress/private-apis': 1.41.0
+      '@wordpress/route': 0.7.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@wordpress/theme': 0.8.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@16.26.1)
+      '@wordpress/url': 4.41.0
+      clsx: 2.1.1
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+    transitivePeerDependencies:
+      - '@emotion/is-prop-valid'
+      - '@types/react'
+      - '@types/react-dom'
+      - stylelint
+      - supports-color
+
+  '@wordpress/boot@0.8.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@16.26.1)':
+    dependencies:
+      '@wordpress/a11y': 4.41.0
+      '@wordpress/admin-ui': 1.9.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@wordpress/base-styles': 6.17.0
+      '@wordpress/commands': 1.41.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@wordpress/components': 32.3.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@wordpress/compose': 7.41.0(react@18.3.1)
+      '@wordpress/core-data': 7.41.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@16.26.1)
+      '@wordpress/data': 10.41.0(react@18.3.1)
+      '@wordpress/editor': 14.41.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@16.26.1)
+      '@wordpress/element': 6.41.0
+      '@wordpress/html-entities': 4.41.0
+      '@wordpress/i18n': 6.14.0
+      '@wordpress/icons': 11.8.0(react@18.3.1)
+      '@wordpress/keyboard-shortcuts': 5.41.0(react@18.3.1)
+      '@wordpress/keycodes': 4.41.0
+      '@wordpress/lazy-editor': 1.7.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@16.26.1)
       '@wordpress/notices': 5.41.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/primitives': 4.41.0(react@18.3.1)
       '@wordpress/private-apis': 1.41.0
