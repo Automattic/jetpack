@@ -19,21 +19,30 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Resolve a donation plan ID by querying for a matching jp_mem_plan post.
+ * Resolve a donation plan post, trying the saved plan ID first then falling
+ * back to a query by type, interval, and currency.
  *
- * Used as a fallback when the saved planId in block attributes is stale
- * (e.g. the product was deleted and recreated).
- *
+ * @param int    $plan_id  The saved plan post ID (may be 0 or stale).
  * @param string $interval The donation interval (one-time, 1 month, 1 year).
  * @param string $currency The currency code.
- * @return int|null The plan post ID, or null if not found.
+ * @return WP_Post|null The plan post, or null if not found.
  */
-function resolve_donation_plan_id( $interval, $currency ) {
+function resolve_donation_plan( $plan_id, $interval, $currency ) {
+	$post_type = \Jetpack_Memberships::$post_type_plan;
+
+	// Try the saved plan ID first.
+	if ( $plan_id ) {
+		$plan = get_post( $plan_id );
+		if ( $plan && ! is_wp_error( $plan ) && $plan->post_type === $post_type ) {
+			return $plan;
+		}
+	}
+
+	// Fallback: query by type + interval + currency.
 	$plans = get_posts(
 		array(
 			'posts_per_page' => 1,
-			'fields'         => 'ids',
-			'post_type'      => \Jetpack_Memberships::$post_type_plan,
+			'post_type'      => $post_type,
 			'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
 				array(
 					'key'   => 'jetpack_memberships_type',
@@ -173,19 +182,8 @@ function render_block( $attr, $content ) {
 	$extra_text         = '';
 	$buttons            = '';
 	foreach ( $donations as $interval => $donation ) {
-		$plan_id = (int) $donation['planId'];
-		$plan    = $plan_id ? get_post( $plan_id ) : null;
-
-		// Fallback: resolve by type + interval + currency if saved planId is stale.
-		if ( ! $plan || is_wp_error( $plan ) ) {
-			$resolved_id = resolve_donation_plan_id( $interval, $currency );
-			if ( $resolved_id ) {
-				$plan_id = $resolved_id;
-				$plan    = get_post( $plan_id );
-			}
-		}
-
-		if ( ! $plan || is_wp_error( $plan ) ) {
+		$plan = resolve_donation_plan( (int) $donation['planId'], $interval, $currency );
+		if ( ! $plan ) {
 			continue;
 		}
 
@@ -224,7 +222,7 @@ function render_block( $attr, $content ) {
 		$buttons    .= sprintf(
 			'<a class="wp-block-button__link donations__donate-button %1$s" href="%2$s">%3$s</a>',
 			esc_attr( $donation['class'] ),
-			esc_url( \Jetpack_Memberships::get_instance()->get_subscription_url( $plan_id ) ),
+			esc_url( \Jetpack_Memberships::get_instance()->get_subscription_url( $plan->ID ) ),
 			wp_kses_post( $donation['buttonText'] )
 		);
 	}
