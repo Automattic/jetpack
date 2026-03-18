@@ -105,17 +105,17 @@ class Feedback_Email_Renderer {
 		$is_spam              = $context_data['is_spam'];
 		$feedback_status      = $context_data['feedback_status'];
 
-		/**
-		 * Filter the title used in the response email.
-		 *
-		 * @module contact-form
-		 *
-		 * @since 0.18.0
-		 *
-		 * @param string the title of the email
-		 */
-		$default_email_title = __( 'Hey, a new form response just came in!', 'jetpack-forms' );
-		$title               = (string) apply_filters( 'jetpack_forms_response_email_title', $default_email_title );
+	/**
+	 * Filter the title used in the response email.
+	 *
+	 * @module contact-form
+	 *
+	 * @since 0.18.0
+	 *
+	 * @param string the title of the email
+	 */
+	$default_email_title = '';
+	$title               = (string) apply_filters( 'jetpack_forms_response_email_title', $default_email_title );
 		$message             = self::get_compiled_form_for_email( $post_id, $form );
 
 		if ( is_user_logged_in() ) {

@@ -3,7 +3,7 @@
  * Jetpack Forms Email Response Template
  *
  * The template contains several placeholders:
- * %1$s is the hero text to display above the response (e.g., "Hey, a new form response just came in!")
+ * %1$s is the hero text to display above the response (can be empty or filtered)
  * %2$s is the response itself (form fields HTML).
  * %3$s was a link to the response page in wp-admin (left empty for backwards compatibility)
  * %4$s was a link to the embedded form to allow the site owner to edit it to change their email address (left empty for backwards compatibility)
@@ -63,9 +63,6 @@ $template = '
 					<table role="presentation" border="0" cellpadding="0" cellspacing="0" class="main">
 						<tr>
 							<td class="wrapper">
-								<!-- Header -->
-								<h1 class="email-header">%1$s</h1>
-
 								<!-- Respondent Info -->
 								%10$s
 
@@ -181,15 +178,6 @@ $style = '<style media="all" type="text/css">
 		width: 0;
 	}
 
-	/* Header */
-	.email-header {
-		font-size: 20px;
-		font-weight: 600;
-		color: ' . $text_color . ';
-		margin: 0 0 24px 0;
-		padding: 0;
-	}
-
 	.respondent-name {
 		font-size: 16px;
 		font-weight: 500;
@@ -264,11 +252,6 @@ $style = '<style media="all" type="text/css">
 		padding: 16px 0;
 	}
 
-	h1 {
-		font-size: 20px;
-		font-weight: 600;
-	}
-
 	p {
 		font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
 		font-size: 14px;
@@ -330,10 +313,6 @@ $style = '<style media="all" type="text/css">
 
 		.collapse {
 			display: none;
-		}
-
-		h1 {
-			padding: 0 16px;
 		}
 
 		.powered-by {
