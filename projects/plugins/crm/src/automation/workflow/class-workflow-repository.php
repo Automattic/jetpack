@@ -180,8 +180,8 @@ class Workflow_Repository {
 	protected function prepare_data_to_persist( Automation_Workflow $workflow ): array {
 		$data = $workflow->to_array();
 
-		$data['triggers'] = wp_json_encode( $data['triggers'] );
-		$data['steps']    = wp_json_encode( $data['steps'] );
+		$data['triggers'] = wp_json_encode( $data['triggers'], JSON_UNESCAPED_SLASHES );
+		$data['steps']    = wp_json_encode( $data['steps'], JSON_UNESCAPED_SLASHES );
 
 		return $data;
 	}

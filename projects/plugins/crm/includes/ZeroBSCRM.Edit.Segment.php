@@ -164,49 +164,7 @@ function zeroBSCRM_html_addEditSegment( $potentialID = -1 ) {
 				</div>
 			</div>
 
-			<?php // ajax + lang bits ?><script type="text/javascript">
-			var zbsSegment = <?php echo json_encode( $segment ); ?>;
-			var jpcrm_available_conditions = <?php echo json_encode( $available_conditions ); ?>;
-			var jpcrm_available_conditions_by_category = <?php echo json_encode( $available_conditions_by_category ); ?>;
-			var zbsAvailableConditionOperators = <?php echo json_encode( $available_condition_operators ); ?>;
-			var jpcrm_available_contact_tags = <?php echo json_encode( $available_tags_contacts ); ?>;
-			var jpcrm_available_transaction_tags = <?php echo json_encode( $available_tags_transactions ); ?>;
-			var zbsAvailableStatuses = <?php echo json_encode( $availableStatuses ); ?>;
-			var zbsSegmentStemURL = '<?php echo jpcrm_esc_link( 'edit', -1, 'segment', true ); ?>';
-			var jpcrm_contact_stem_URL = '<?php echo jpcrm_esc_link( 'view', -1, 'contact', true ); ?>';
-			var zbsSegmentListURL = '<?php echo jpcrm_esc_link( $zbs->slugs['segments'] ); ?>';
-			var zbsSegmentSEC = '<?php echo esc_js( wp_create_nonce( 'zbs-ajax-nonce' ) ); ?>';
-			var zbsSegmentLang = {
-
-				generalerrortitle: '<?php esc_html_e( 'General Error', 'zero-bs-crm' ); ?>',
-				generalerror: '<?php esc_html_e( 'There was a general error.', 'zero-bs-crm' ); ?>',
-
-				currentlyInSegment: '<?php esc_html_e( 'Contacts currently match these conditions.', 'zero-bs-crm' ); ?>',
-				previewTitle: '<?php esc_html_e( 'Contacts Preview (randomised)', 'zero-bs-crm' ); ?>',
-
-				noName: '<?php esc_html_e( 'Unnamed Contact', 'zero-bs-crm' ); ?>',
-				noEmail: '<?php esc_html_e( 'No Email', 'zero-bs-crm' ); ?>',
-
-				notags: '<?php esc_html_e( 'No Tags Found', 'zero-bs-crm' ); ?>',
-				nostatuses: '<?php esc_html_e( 'No Statuses Found', 'zero-bs-crm' ); ?>',
-				noextsources: '<?php esc_html_e( 'No External Sources Found', 'zero-bs-crm' ); ?>',
-				no_mailpoet_statuses: '<?php esc_html_e( 'No MailPoet Statuses Found', 'zero-bs-crm' ); ?>',
-				nosegmentid: '<?php esc_html_e( 'No Segment ID Found.', 'zero-bs-crm' ); ?>',
-
-				to: '<?php esc_html_e( 'to', 'zero-bs-crm' ); ?>',
-				eg: '<?php esc_html_e( 'e.g.', 'zero-bs-crm' ); ?>',
-
-				saveSegment: '<?php echo esc_html( zeroBSCRM_slashOut( 'Save Segment', true ) ) . ' <i class="save icon">'; ?>',
-				savedSegment: '<?php echo esc_html( zeroBSCRM_slashOut( 'Segment Saved', true ) ) . ' <i class="check circle outline icon">'; ?>',
-
-				contactfields: '=== <?php esc_html_e( 'Contact Fields', 'zero-bs-crm' ); ?> ===',
-
-				default_description: '<?php echo esc_html( zeroBSCRM_slashOut( 'Condition which selects contacts based on given value', true ) ); ?>',
-
-			};
-			var jpcrm_external_source_list = 
 			<?php
-
 			// simplify our external sources array
 			$external_source_array = array();
 			foreach ( $zbs->external_sources as $external_source_key => $external_source_info ) {
@@ -224,42 +182,80 @@ function zeroBSCRM_html_addEditSegment( $potentialID = -1 ) {
 				}
 			);
 
-											echo json_encode( $external_source_array );
-
-											// any extra js? e.g. MailPoet Export functionality
-											do_action( 'segment_edit_extra_js' );
-
+			// phpcs:disable WordPress.WP.I18n.TextDomainMismatch -- this is intentionally using the `mailpoet` text domain
+			$jpcrm_mailpoet_status_list = array(
+				array(
+					'key'  => 'subscribed',
+					'name' => __( 'Subscribed', 'mailpoet' ),
+				),
+				array(
+					'key'  => 'unconfirmed',
+					'name' => __( 'Unconfirmed', 'mailpoet' ),
+				),
+				array(
+					'key'  => 'unsubscribed',
+					'name' => __( 'Unsubscribed', 'mailpoet' ),
+				),
+				array(
+					'key'  => 'inactive',
+					'name' => __( 'Inactive', 'mailpoet' ),
+				),
+				array(
+					'key'  => 'bounced',
+					'name' => __( 'Bounced', 'mailpoet' ),
+				),
+			);
+			// phpcs:enable WordPress.WP.I18n.TextDomainMismatch
 			?>
-			;
-			var jpcrm_mailpoet_status_list = 
-			<?php
-				$jpcrm_mailpoet_status_list = array(
-					array(
-						'key'  => 'subscribed',
-						'name' => __( 'Subscribed', 'mailpoet' ),
-					),
-					array(
-						'key'  => 'unconfirmed',
-						'name' => __( 'Unconfirmed', 'mailpoet' ),
-					),
-					array(
-						'key'  => 'unsubscribed',
-						'name' => __( 'Unsubscribed', 'mailpoet' ),
-					),
-					array(
-						'key'  => 'inactive',
-						'name' => __( 'Inactive', 'mailpoet' ),
-					),
-					array(
-						'key'  => 'bounced',
-						'name' => __( 'Bounced', 'mailpoet' ),
-					),
-				);
-				echo json_encode( $jpcrm_mailpoet_status_list );
-				?>
-			</script>
 
-	</div>
+			<script type="text/javascript">
+				var zbsSegment = <?php echo wp_json_encode( $segment, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
+				var jpcrm_available_conditions = <?php echo wp_json_encode( $available_conditions, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
+				var jpcrm_available_conditions_by_category = <?php echo wp_json_encode( $available_conditions_by_category, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
+				var zbsAvailableConditionOperators = <?php echo wp_json_encode( $available_condition_operators, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
+				var jpcrm_available_contact_tags = <?php echo wp_json_encode( $available_tags_contacts, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
+				var jpcrm_available_transaction_tags = <?php echo wp_json_encode( $available_tags_transactions, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
+				var zbsAvailableStatuses = <?php echo wp_json_encode( $availableStatuses, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
+				var zbsSegmentStemURL = '<?php echo jpcrm_esc_link( 'edit', -1, 'segment', true ); ?>';
+				var jpcrm_contact_stem_URL = '<?php echo jpcrm_esc_link( 'view', -1, 'contact', true ); ?>';
+				var zbsSegmentListURL = '<?php echo jpcrm_esc_link( $zbs->slugs['segments'] ); ?>';
+				var zbsSegmentSEC = <?php echo wp_json_encode( wp_create_nonce( 'zbs-ajax-nonce' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
+				var zbsSegmentLang = {
+					generalerrortitle: '<?php esc_html_e( 'General Error', 'zero-bs-crm' ); ?>',
+					generalerror: '<?php esc_html_e( 'There was a general error.', 'zero-bs-crm' ); ?>',
+
+					currentlyInSegment: '<?php esc_html_e( 'Contacts currently match these conditions.', 'zero-bs-crm' ); ?>',
+					previewTitle: '<?php esc_html_e( 'Contacts Preview (randomised)', 'zero-bs-crm' ); ?>',
+
+					noName: '<?php esc_html_e( 'Unnamed Contact', 'zero-bs-crm' ); ?>',
+					noEmail: '<?php esc_html_e( 'No Email', 'zero-bs-crm' ); ?>',
+
+					notags: '<?php esc_html_e( 'No Tags Found', 'zero-bs-crm' ); ?>',
+					nostatuses: '<?php esc_html_e( 'No Statuses Found', 'zero-bs-crm' ); ?>',
+					noextsources: '<?php esc_html_e( 'No External Sources Found', 'zero-bs-crm' ); ?>',
+					no_mailpoet_statuses: '<?php esc_html_e( 'No MailPoet Statuses Found', 'zero-bs-crm' ); ?>',
+					nosegmentid: '<?php esc_html_e( 'No Segment ID Found.', 'zero-bs-crm' ); ?>',
+
+					to: '<?php esc_html_e( 'to', 'zero-bs-crm' ); ?>',
+					eg: '<?php esc_html_e( 'e.g.', 'zero-bs-crm' ); ?>',
+
+					saveSegment: '<?php echo esc_html( zeroBSCRM_slashOut( 'Save Segment', true ) ) . ' <i class="save icon">'; ?>',
+					savedSegment: '<?php echo esc_html( zeroBSCRM_slashOut( 'Segment Saved', true ) ) . ' <i class="check circle outline icon">'; ?>',
+
+					contactfields: '=== <?php esc_html_e( 'Contact Fields', 'zero-bs-crm' ); ?> ===',
+
+					default_description: '<?php echo esc_html( zeroBSCRM_slashOut( 'Condition which selects contacts based on given value', true ) ); ?>',
+				};
+				var jpcrm_external_source_list = <?php echo wp_json_encode( $external_source_array, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
+
+				<?php
+				// any extra js? e.g. MailPoet Export functionality
+				do_action( 'segment_edit_extra_js' );
+				?>
+
+				var jpcrm_mailpoet_status_list = <?php echo wp_json_encode( $jpcrm_mailpoet_status_list, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>
+			</script>
+			</div>
 	<?php
 }
 

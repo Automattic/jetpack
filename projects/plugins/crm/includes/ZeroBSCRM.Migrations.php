@@ -1040,7 +1040,7 @@ function zeroBSCRM_migration_560_move_file_array( $meta_row ) { // phpcs:ignore 
 	$update_result = $wpdb->update( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 		$ZBSCRM_t['meta'], // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 		array(
-			'zbsm_val'         => wp_json_encode( $new_file_array ),
+			'zbsm_val'         => wp_json_encode( $new_file_array, JSON_UNESCAPED_SLASHES ),
 			'zbsm_lastupdated' => time(),
 		),
 		array( 'ID' => $meta_row->ID ),

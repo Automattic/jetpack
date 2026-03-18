@@ -1659,18 +1659,6 @@ function zeroBSCRM_mergeCustomers( $dominantID = -1, $slaveID = -1 ) {
 				$slaveLogs = zeroBSCRM_getContactLogs( $slaveID, true, 10000, 0 ); // id created name meta
 				if ( is_array( $slaveLogs ) && count( $slaveLogs ) > 0 ) {
 
-					/*
-					in fact, just save as json encode :D - rough but quicker
-					// brutal str builder.
-					$logStr = '';
-
-					foreach ( $slaveLogs as $log){
-
-						if ( !empty( $logStr)) $logStr .= "\r\n";
-
-					} */
-
-					// update_post_meta($dominantID, 'zbs_merged_customer_log_bk_'.time(), json_encode($slaveLogs));
 					// no $change here, as this is kinda secret, kthx
 					$zbs->DAL->updateMeta( ZBS_TYPE_CONTACT, $dominantID, 'merged_customer_log_bk_' . time(), $slaveLogs );
 

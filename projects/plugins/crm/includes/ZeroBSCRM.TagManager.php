@@ -287,7 +287,7 @@ class zeroBSCRM_TagManager {
 			var zbsCustomTagInitFunc = 'zbsJS_bindTagManagerInit';
 			var zbsDontDrawTags = true; // don't draw em in edit box
 			// and this OVERRIDES the tag metabox list:
-			var zbsCRMJS_currentTags = <?php echo json_encode( $tags ); ?>;
+			var zbsCRMJS_currentTags = <?php echo wp_json_encode( $tags, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
 
 			jQuery(function($){
 				console.log("======= TAG MANAGER VIEW UI =========");

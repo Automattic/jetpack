@@ -407,12 +407,13 @@ function jpcrm_render_dashboard_page() {
 		}
 	}
 
-	$jpcrm_dash_data  = 'const jpcrm_funnel_data = ' . wp_json_encode( $funnel_data ) . ';';
+	$jpcrm_dash_data  = 'const jpcrm_funnel_data = ' . wp_json_encode( $funnel_data, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ';';
 	$jpcrm_dash_data .= 'const jpcrm_revenue_chart_data = ' . wp_json_encode(
 		array(
 			'labels' => $labels,
 			'data'   => $chartdata,
-		)
+		),
+		JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 	);
 	wp_add_inline_script( 'jpcrm-dash', $jpcrm_dash_data, 'before' );
 }

@@ -465,8 +465,8 @@ if ( $sbupdated ) {
 
 		// all custom js moved to admin.settings.js 12/3/19 :)
 
-		var wpzbscrmCustomFields = <?php echo json_encode( $current_custom_fields ); ?>;
-		var wpzbscrmAcceptableTypes = <?php echo json_encode( $acceptableCFTypes ); ?>;
+		var wpzbscrmCustomFields = <?php echo wp_json_encode( $current_custom_fields, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
+		var wpzbscrmAcceptableTypes = <?php echo wp_json_encode( $acceptableCFTypes, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
 		var wpzbscrm_settings_page = 'customfields'; // this fires init js in admin.settings.min.js
 		var wpzbscrm_settings_lang = {
 

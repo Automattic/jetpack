@@ -239,7 +239,7 @@ function zbs_color_grabber() {
 	// } Information here to get the colors
 	global $_wp_admin_css_colors, $zbsadmincolors;
 	$current_color = get_user_option( 'admin_color' );
-	echo '<script type="text/javascript">var zbsJS_admcolours = ' . json_encode( $_wp_admin_css_colors[ $current_color ] ) . ';</script>';
+	echo '<script type="text/javascript">var zbsJS_admcolours = ' . wp_json_encode( $_wp_admin_css_colors[ $current_color ], JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ';</script>';
 	echo '<script type="text/javascript">var zbsJS_unpaid = "' . esc_html__( 'unpaid', 'zero-bs-crm' ) . '";</script>';
 	$zbsadmincolors = $_wp_admin_css_colors[ $current_color ]->colors;
 	?>

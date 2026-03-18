@@ -898,5 +898,5 @@ function zeroBSCRM_AJAX_mailDelivery_setMailDeliveryAsDefault() {
 	// fini - lazy nocheck
 	$res['success'] = 1;
 
-	echo wp_json_encode( $res );
+	echo wp_json_encode( $res, JSON_UNESCAPED_SLASHES );
 }
