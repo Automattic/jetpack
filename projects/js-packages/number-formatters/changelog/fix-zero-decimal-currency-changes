@@ -1,4 +1,4 @@
 Significance: minor
 Type: fixed
 
-Anticipate zero-decimal changes to IDR in node 22.22.1+
+Anticipate zero-decimal changes to IDR, COP, HUF and PKR currencies upgraded unicode CLDR released in node 22.22.1+
