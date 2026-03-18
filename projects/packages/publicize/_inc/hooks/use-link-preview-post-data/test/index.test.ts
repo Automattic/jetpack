@@ -25,7 +25,7 @@ jest.mock( '../utils', () => ( {
 	getPostImageUrl: jest.fn(),
 } ) );
 
-const mockUseSelect = useSelect as jest.MockedFunction< typeof useSelect >;
+const mockUseSelect = useSelect as jest.Mock;
 const mockGetSigImageUrl = getSigImageUrl as jest.MockedFunction< typeof getSigImageUrl >;
 const mockGetMediaSourceUrl = getMediaSourceUrl as jest.MockedFunction< typeof getMediaSourceUrl >;
 const mockGetPostImageUrl = getPostImageUrl as jest.MockedFunction< typeof getPostImageUrl >;
@@ -43,12 +43,12 @@ const getDefaultAttributes = (): Record< string, unknown > => ( {
 
 const setupMocks = ( {
 	attributes = getDefaultAttributes(),
-	site = { title: 'Test Site' },
+	site = { name: 'Test Site', site_icon_url: '' },
 	featuredMediaRecord = null,
 	editedPostContent = '',
 }: {
 	attributes?: Record< string, unknown >;
-	site?: { title: string } | null;
+	site?: { name: string; site_icon_url?: string } | null;
 	featuredMediaRecord?: Record< string, unknown > | null;
 	editedPostContent?: string;
 } = {} ) => {
@@ -61,6 +61,7 @@ const setupMocks = ( {
 				getEditedPostAttribute: mockGetEditedPostAttribute,
 				getEditedPostContent: jest.fn().mockReturnValue( editedPostContent ),
 				getSite: jest.fn().mockReturnValue( site ),
+				getUnstableBase: jest.fn().mockReturnValue( site ),
 			} );
 			return selectorOrMapper( mockSelect );
 		}

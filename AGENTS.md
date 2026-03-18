@@ -27,7 +27,7 @@ Projects define build steps in `composer.json`:
 
 ## Jetpack CLI (`jp`)
 
-The `jp` command runs `pnpm jetpack` inside the monorepo Docker container. Install globally: `npm install -g @automattic/jetpack-cli`
+The `jp` command runs `pnpm jetpack` inside the monorepo Docker container. Install globally: `npm install -g @automattic/jetpack-cli` (this is a global install, safe to run even inside a Jetpack checkout). `jp` commands work from git worktrees — the CLI resolves to the monorepo root automatically.
 
 ### Common Commands
 
@@ -107,6 +107,27 @@ jp test js <project>        # Jest tests
 jp test coverage <project>  # Generate coverage report
 ```
 
+### Testing Prerequisites
+
+- **Packages** (`jp test php packages/...`, `jp test js packages/...`): Work immediately with no extra setup. The monorepo Docker container handles everything.
+- **Plugins**: Some plugins use mocked WordPress environments (WorDBless/Brain Monkey) and their tests work immediately. Others (notably `plugins/jetpack`) require a full WordPress test environment:
+  1. `jp docker up -d` — Start Docker WordPress containers
+  2. `jp docker install` — Install WordPress in Docker
+  Then run: `jp test php plugins/jetpack`
+- If you've modified package versions or dependencies between monorepo packages, run `tools/fixup-project-versions.sh` to update lock files before testing.
+- If a project's `composer.json` doesn't define `test-js`, the JS test step is skipped automatically — this is normal, not an error.
+
+### What to Test
+
+After modifying a project, run its tests and static analysis:
+
+```bash
+jp test php <project>           # PHP tests
+jp test js <project>            # JS tests (skipped if not defined)
+jp phan <project>               # Static analysis
+jp test coverage <project>      # Generate coverage report (optional)
+```
+
 ### PHP Testing
 
 - Use PHPUnit with WordPress test framework and `yoast/phpunit-polyfills`
@@ -127,6 +148,16 @@ See `projects/packages/my-jetpack/_inc/components/connection-status-card/test/co
 ## Changelog Entries
 
 Every PR touching `/projects` MUST include a changelog file in the project's `changelog/` directory. Changes outside `/projects` (e.g., `tools/`, `docs/`, `.github/`) do NOT need changelog entries.
+
+### AI-Generated Changelog Entries
+
+The PR template includes a checkbox: "Generate changelog entries for this PR (using AI)." When checked, a CI workflow uses AI to generate and commit changelog entries automatically. This workflow only runs for pull requests from branches in this repository (not from forks).
+
+**When filling out a PR description:**
+- Do NOT check this box if changelog files already exist in `changelog/` directories for the affected projects.
+- Do NOT check this box if you have already created changelog entries (e.g., via `jp changelog add`).
+- Only check this box if the PR needs changelog entries and you want them auto-generated.
+- When in doubt, leave it unchecked -- the bot will flag missing entries.
 
 ### Interactive Mode
 

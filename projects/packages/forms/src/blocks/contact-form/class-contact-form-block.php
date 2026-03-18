@@ -45,13 +45,13 @@ class Contact_Form_Block {
 				'render_email_callback' => array( __CLASS__, 'render_email' ),
 				'render_callback'       => array( __CLASS__, 'gutenblock_render_form' ),
 				'supports'              => array(
-					'layout' => array(
+					'layout'               => array(
 						'default'                => array(
 							'type'              => 'flex',
-							'flexWrap'          => 'nowrap',
-							'orientation'       => 'vertical',
+							'flexWrap'          => 'wrap',
+							'orientation'       => 'horizontal',
 							'justifyContent'    => 'left',
-							'verticalAlignment' => 'bottom',
+							'verticalAlignment' => 'top',
 						),
 						'allowSwitching'         => false,
 						'allowEditing'           => true,
@@ -59,6 +59,18 @@ class Contact_Form_Block {
 						'allowVerticalAlignment' => true,
 						'allowJustification'     => true,
 						'allowWrap'              => false,
+					),
+					'__experimentalBorder' => array(
+						'color'                         => true,
+						'radius'                        => true,
+						'style'                         => true,
+						'width'                         => true,
+						'__experimentalDefaultControls' => array(
+							'color'  => true,
+							'radius' => true,
+							'style'  => true,
+							'width'  => true,
+						),
 					),
 				),
 				'style_handles'         => array( 'jetpack-forms-layout' ),
@@ -74,6 +86,9 @@ class Contact_Form_Block {
 
 		// Load scripts for the editing interface
 		add_action( 'enqueue_block_editor_assets', array( __CLASS__, 'load_editor_scripts' ), 9 );
+
+		// Load AI integration after Jetpack_Gutenberg registers extensions (priority 10)
+		add_action( 'enqueue_block_editor_assets', array( __CLASS__, 'maybe_load_ai_integration' ), 11 );
 	}
 	/**
 	 * Register the contact form block feature flag.
@@ -798,140 +813,17 @@ class Contact_Form_Block {
 
 		self::load_view_scripts();
 
-		// Handle ref attribute - load form from jetpack-form post
+		// Handle ref attribute - load form from jetpack_form post
 		if ( isset( $atts['ref'] ) ) {
 			$ref_id = absint( $atts['ref'] );
 			if ( $ref_id > 0 ) {
-				return self::render_synced_form( $ref_id );
+				return Contact_Form::render_synced_form( $ref_id );
 			} else {
 				return ''; // Invalid ref ID.
 			}
 		}
 
 		return Contact_Form::parse( $atts, do_blocks( $content ) );
-	}
-
-	/**
-	 * Render a synced form by reference ID.
-	 *
-	 * @param int $ref_id The jetpack_form post ID.
-	 * @return string Rendered form HTML.
-	 */
-	private static function render_synced_form( $ref_id ) {
-		// Circular reference prevention.
-		if ( Contact_Form::has_seen( $ref_id ) ) {
-			return '';
-		}
-		// Load the jetpack-form post.
-		$synced_form = get_post( $ref_id );
-
-		// Validate post.
-		if ( ! $synced_form || 'jetpack_form' !== $synced_form->post_type ) {
-			return '';
-		}
-
-		$status = $synced_form->post_status;
-
-		// Trashed forms are always hidden.
-		if ( 'trash' === $status ) {
-			return '';
-		}
-
-		// Published forms render normally for everyone.
-		if ( 'publish' === $status ) {
-			return self::render_synced_form_content( $ref_id, $synced_form );
-		}
-
-		// For non-published statuses (draft, pending, future, private), only show preview to users who can edit the form.
-		if ( ! current_user_can( 'edit_post', $ref_id ) ) {
-			return '';
-		}
-
-		// Render the form with a status notice for editors.
-		$notice       = self::render_frontend_status_notice( $synced_form );
-		$form_content = self::render_synced_form_content( $ref_id, $synced_form );
-
-		return $notice . $form_content;
-	}
-
-	/**
-	 * Render the actual form content for a synced form.
-	 *
-	 * @param int      $ref_id The jetpack_form post ID.
-	 * @param \WP_Post $synced_form The synced form post object.
-	 * @return string Rendered form HTML.
-	 */
-	private static function render_synced_form_content( $ref_id, $synced_form ) {
-		if ( $ref_id === Contact_Form::get_ref_id() ) {
-			return '';
-		}
-		// Mark as seen for circular reference prevention.
-		Contact_Form::set_ref_id( $ref_id );
-		$output = '';
-		try {
-			// Parse and render blocks from post_content.
-			$blocks = parse_blocks( $synced_form->post_content );
-			foreach ( $blocks as $block ) {
-				$output .= render_block( $block );
-			}
-		} finally {
-			// Clean up.
-			Contact_Form::clear_ref_id( $ref_id );
-		}
-		return $output;
-	}
-
-	/**
-	 * Render a frontend status notice for non-published forms.
-	 *
-	 * @param \WP_Post $synced_form The synced form post object.
-	 * @return string Notice HTML.
-	 */
-	private static function render_frontend_status_notice( $synced_form ) {
-		$status = $synced_form->post_status;
-
-		if ( 'publish' === $status || 'private' === $status ) {
-			return '';
-		}
-
-		$status_config = array(
-			'draft'   => array(
-				'type'    => 'warning',
-				'message' => __( 'This form is a draft and is only visible to you. Publish it to make it visible to site visitors.', 'jetpack-forms' ),
-			),
-			'pending' => array(
-				'type'    => 'warning',
-				'message' => __( 'This form is pending review and is only visible to you. It will be visible to site visitors once approved and published.', 'jetpack-forms' ),
-			),
-			'future'  => array(
-				'type'    => 'info',
-				'message' => sprintf(
-					/* translators: %s: scheduled publish date */
-					__( 'This form is scheduled for %s and is only visible to you until then.', 'jetpack-forms' ),
-					wp_date( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), get_post_time( 'U', true, $synced_form ) )
-				),
-			),
-		);
-
-		if ( ! isset( $status_config[ $status ] ) ) {
-			return '';
-		}
-
-		$config     = $status_config[ $status ];
-		$type_class = 'info' === $config['type'] ? 'jetpack-form-status-notice--info' : 'jetpack-form-status-notice--warning';
-		$edit_url   = get_edit_post_link( $synced_form->ID, 'raw' );
-		$edit_link  = $edit_url ? sprintf(
-			' <a href="%s" class="jetpack-form-status-notice__edit-link">%s</a>',
-			esc_url( $edit_url ),
-			esc_html__( 'Edit form', 'jetpack-forms' )
-		) : '';
-
-		return sprintf(
-			'<div class="jetpack-form-status-notice %s"><p>%s%s</p></div>',
-			esc_attr( $type_class ),
-			esc_html( $config['message'] ),
-			$edit_link
-		);
 	}
 
 	/**
@@ -986,6 +878,55 @@ class Contact_Form_Block {
 		);
 
 		wp_add_inline_script( $handle, 'window.jpFormsBlocks = ' . wp_json_encode( $data, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ';', 'before' );
+	}
+
+	/**
+	 * Conditionally loads the AI form generation integration script.
+	 *
+	 * This script is only loaded when:
+	 * 1. The AI Assistant extension is available (ai-assistant-form-support)
+	 * 2. The central-form-management feature flag is enabled
+	 *
+	 * By checking these conditions in PHP, we ensure no JavaScript is loaded
+	 * when either the AI extension is disabled or central form management is off.
+	 *
+	 * This is hooked at priority 11 on enqueue_block_editor_assets to ensure
+	 * it runs after Jetpack_Gutenberg registers extensions at priority 10.
+	 */
+	public static function maybe_load_ai_integration() {
+		// Bail if the user cannot manage the block — jp-forms-blocks won't be registered.
+		if ( ! self::can_manage_block() ) {
+			return;
+		}
+
+		// Check if central form management is enabled.
+		if ( ! Contact_Form_Plugin::has_editor_feature_flag( 'central-form-management' ) ) {
+			return;
+		}
+
+		// Check if AI Assistant form support is available.
+		// This extension is set as available when the AI Assistant block is registered.
+		if ( ! class_exists( 'Jetpack_Gutenberg' ) ) {
+			return;
+		}
+
+		// Ensure extensions are registered by calling get_cached_availability().
+		\Jetpack_Gutenberg::get_cached_availability();
+		if ( ! \Jetpack_Gutenberg::is_available( 'ai-assistant-form-support' ) ) {
+			return;
+		}
+
+		Assets::register_script(
+			'jp-forms-ai-plugin',
+			'../../../dist/blocks/ai-form-plugin.js',
+			__FILE__,
+			array(
+				'dependencies' => array( 'jp-forms-blocks' ),
+				'in_footer'    => true,
+				'textdomain'   => 'jetpack-forms',
+				'enqueue'      => true,
+			)
+		);
 	}
 
 	/**

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Agents Manager: Make is_enabled() a public static method so consumers can check enablement without duplicating filter logic

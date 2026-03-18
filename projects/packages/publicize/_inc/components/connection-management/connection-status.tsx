@@ -5,7 +5,7 @@ import { createInterpolateElement } from '@wordpress/element';
 import { __, _x, sprintf } from '@wordpress/i18n';
 import { store as socialStore } from '../../social-store';
 import { Connection } from '../../social-store/types';
-import { SupportedService } from '../services/use-supported-services';
+import { SupportedService } from '../services/types';
 import { Disconnect } from './disconnect';
 import { Reconnect } from './reconnect';
 

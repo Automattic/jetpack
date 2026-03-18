@@ -12,11 +12,20 @@ import { subscribe, select, dispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { getPlugin, registerPlugin, unregisterPlugin } from '@wordpress/plugins';
 import { FORM_POST_TYPE } from '../blocks/shared/util/constants.js';
-import { FormTitleModal } from './plugins/form-title-modal';
+import { EmbedCodePanel, EMBED_CODE_PANEL_PLUGIN } from './plugins/embed-code-panel';
+import {
+	FormPrePublishPanel,
+	JETPACK_FORM_PRE_PUBLISH_PANEL,
+} from './plugins/form-pre-publish-panel';
+import { HeaderActions, HEADER_ACTIONS_PLUGIN } from './plugins/header-actions';
 import {
 	activateBlockCategoryOverrides,
 	deactivateBlockCategoryOverrides,
 } from './utils/block-category-override';
+import {
+	removeJetpackBlockCollection,
+	restoreJetpackBlockCollection,
+} from './utils/block-collection';
 import { determineBlockNestingAction } from './utils/block-nesting-logic';
 import { BlockLock, findFormBlock, shouldLockBlock, getBlocksToMove } from './utils/block-utils';
 import {
@@ -26,11 +35,10 @@ import {
 	unregisterFormCategories,
 } from './utils/category-utils';
 import { getAllowedBlocks } from './utils/get-allowed-blocks';
+import { shouldAutoOpenInserter } from './utils/inserter-utils';
 import type { WPPlugin } from '@wordpress/plugins';
 
 type PluginSettings = Omit< WPPlugin, 'name' >;
-
-const NEW_FORMS_MODAL_PLUGIN = 'jetpack-form-title-modal';
 
 import './style.scss';
 
@@ -112,6 +120,7 @@ const state = {
 	lastRootBlockIds: '',
 	lastSelectedBlockId: null as string | null | undefined,
 	isFormBlockLocked: false,
+	hasOpenedInserter: false,
 };
 
 const BLOCK_DIRECTORY_PLUGIN_NAME = 'block-directory';
@@ -213,6 +222,16 @@ const enforceBlockSelection = () => {
 	if ( hasMultiSelection() ) {
 		return;
 	}
+
+	// Don't force-select when the inserter is open — selecting a block
+	// can close the inserter or change its context.
+	const { isInserterOpened } = select( 'core/editor' ) as {
+		isInserterOpened: () => boolean;
+	};
+	if ( isInserterOpened() ) {
+		return;
+	}
+
 	const selectedBlockId = getSelectedBlockClientId();
 	if ( ! selectedBlockId ) {
 		const { selectBlock } = dispatch( 'core/block-editor' ) as {
@@ -286,8 +305,9 @@ const enforceBlockNesting = () => {
 
 	if ( action.addSubmitButton ) {
 		// Form was empty, add a submit button after the moved blocks
-		const submitButton = createBlock( 'jetpack/button', {
-			element: 'button',
+		const submitButton = createBlock( 'core/button', {
+			tagName: 'button',
+			type: 'submit',
 			text: __( 'Submit', 'jetpack-forms' ),
 			lock: { move: false, remove: true },
 		} );
@@ -321,6 +341,7 @@ const enforceBlockNesting = () => {
 
 let unsubscribe: ( () => void ) | null = null;
 let requestAnimationFrameId: number | null = null;
+let inserterAnimationFrameId: number | null = null;
 
 /**
  * Sets up a subscription to monitor editor state changes and enforce form editor behavior.
@@ -348,15 +369,28 @@ const setupFormEditorSubscription = () => {
 				if ( isFormEditor ) {
 					// We just entered the form editor.
 					document.body.classList.add( 'post-type-jetpack_form' );
-					// Register the form title modal plugin
-					registerPlugin( NEW_FORMS_MODAL_PLUGIN, {
-						render: FormTitleModal,
+
+					registerPlugin( JETPACK_FORM_PRE_PUBLISH_PANEL, { render: FormPrePublishPanel } );
+					// Register the header actions plugin
+					registerPlugin( HEADER_ACTIONS_PLUGIN, {
+						render: HeaderActions,
+					} );
+					registerPlugin( EMBED_CODE_PANEL_PLUGIN, {
+						render: EmbedCodePanel,
 					} );
 				} else {
 					// We just left the form editor.
 					document.body.classList.remove( 'post-type-jetpack_form' );
-					if ( getPlugin( NEW_FORMS_MODAL_PLUGIN ) ) {
-						unregisterPlugin( NEW_FORMS_MODAL_PLUGIN );
+					if ( getPlugin( HEADER_ACTIONS_PLUGIN ) ) {
+						unregisterPlugin( HEADER_ACTIONS_PLUGIN );
+					}
+
+					if ( getPlugin( JETPACK_FORM_PRE_PUBLISH_PANEL ) ) {
+						unregisterPlugin( JETPACK_FORM_PRE_PUBLISH_PANEL );
+					}
+
+					if ( getPlugin( EMBED_CODE_PANEL_PLUGIN ) ) {
+						unregisterPlugin( EMBED_CODE_PANEL_PLUGIN );
 					}
 
 					if ( state.categoriesSetUp ) {
@@ -364,16 +398,22 @@ const setupFormEditorSubscription = () => {
 						restoreOriginalCategories( state.previousCategories || [] );
 					}
 					restoreBlockDirectory();
+					restoreJetpackBlockCollection();
 					restoreAllowedBlocks();
 					if ( requestAnimationFrameId ) {
 						cancelAnimationFrame( requestAnimationFrameId );
 						requestAnimationFrameId = null;
+					}
+					if ( inserterAnimationFrameId ) {
+						cancelAnimationFrame( inserterAnimationFrameId );
+						inserterAnimationFrameId = null;
 					}
 
 					state.formBlockClientId = null;
 					state.lastRootBlockIds = '';
 					state.lastSelectedBlockId = null;
 					state.isFormBlockLocked = false;
+					state.hasOpenedInserter = false;
 				}
 			}
 
@@ -383,12 +423,13 @@ const setupFormEditorSubscription = () => {
 				return;
 			}
 
-			// 3. One-time category setup and block directory disable
+			// 3. One-time category setup, block directory disable, and collection removal
 			if ( ! state.categoriesSetUp ) {
 				state.categoriesSetUp = true;
 				state.previousCategories = setupFormEditorCategories();
 
 				disableBlockDirectory();
+				removeJetpackBlockCollection();
 			}
 
 			// 4. React to root block changes (locate, select, nest)
@@ -436,7 +477,40 @@ const setupFormEditorSubscription = () => {
 				enforceBlockNesting();
 			}
 
-			// 5. React to selection changes
+			// 5. Auto-open the block inserter (once) after blocks are ready
+			if ( ! state.hasOpenedInserter && state.formBlockClientId ) {
+				const currentFormBlock = select( 'core/block-editor' ).getBlock( state.formBlockClientId );
+				const hasAnyInnerBlocks = currentFormBlock && currentFormBlock.innerBlocks.length > 0;
+
+				if ( hasAnyInnerBlocks ) {
+					state.hasOpenedInserter = true;
+
+					const { get: getPreference } = select( 'core/preferences' ) as {
+						get: ( scope: string, name: string ) => boolean;
+					};
+
+					if (
+						shouldAutoOpenInserter( {
+							viewportWidth: window.innerWidth,
+							showListViewByDefault: getPreference( 'core', 'showListViewByDefault' ),
+							distractionFree: getPreference( 'core', 'distractionFree' ),
+						} )
+					) {
+						inserterAnimationFrameId = requestAnimationFrame( () => {
+							inserterAnimationFrameId = null;
+							if ( ! state.isFormEditor ) {
+								return;
+							}
+							const { setIsInserterOpened } = dispatch( 'core/editor' ) as {
+								setIsInserterOpened: ( isOpened: boolean ) => void;
+							};
+							setIsInserterOpened( true );
+						} );
+					}
+				}
+			}
+
+			// 6. React to selection changes
 			const { getSelectedBlockClientId } = select( 'core/block-editor' );
 			const currentSelectedBlockId = getSelectedBlockClientId();
 			if ( currentSelectedBlockId !== state.lastSelectedBlockId ) {
@@ -444,7 +518,7 @@ const setupFormEditorSubscription = () => {
 				enforceBlockSelection();
 			}
 
-			// 6. Ensure form block is locked
+			// 7. Ensure form block is locked
 			if ( ! state.isFormBlockLocked && state.formBlockClientId ) {
 				lockFormBlock();
 				const { getBlock } = select( 'core/block-editor' );
@@ -472,6 +546,10 @@ const setupFormEditorSubscription = () => {
 		if ( requestAnimationFrameId ) {
 			cancelAnimationFrame( requestAnimationFrameId );
 			requestAnimationFrameId = null;
+		}
+		if ( inserterAnimationFrameId ) {
+			cancelAnimationFrame( inserterAnimationFrameId );
+			inserterAnimationFrameId = null;
 		}
 		window.removeEventListener( 'beforeunload', handleUnload );
 	};

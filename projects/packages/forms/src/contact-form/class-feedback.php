@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Forms\ContactForm;
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Device_Detection\User_Agent_Info;
+use Automattic\Jetpack\Forms\Dashboard\Dashboard as Forms_Dashboard;
 use WP_Post;
 /**
  * Handles the response for a contact form submission.
@@ -443,6 +444,72 @@ class Feedback {
 	}
 
 	/**
+	 * Process a radio field value to detect and extract "Other" option metadata.
+	 *
+	 * This method checks if a radio field value matches the "Other" pattern and combines
+	 * it with the corresponding text input value if present.
+	 *
+	 * @param string $value     The raw field value from the submission.
+	 * @param object $field     The field object from the form.
+	 * @param string $field_id  The field ID.
+	 * @param array  $post_data The POST data from the submission.
+	 *
+	 * @return array An array with 'value' and 'meta' keys.
+	 */
+	private function process_radio_field_value( $value, $field, $field_id, $post_data ) {
+		$meta        = array();
+		$allow_other = $field->get_attribute( 'allowother' );
+
+		if ( ! $allow_other || ! is_string( $value ) ) {
+			return array(
+				'value' => $value,
+				'meta'  => $meta,
+			);
+		}
+
+		$options_data = $field->get_attribute( 'optionsdata' );
+		$other_label  = null;
+
+		if ( ! empty( $options_data ) && is_array( $options_data ) ) {
+			foreach ( $options_data as $option ) {
+				if ( ! empty( $option['isOther'] ) ) {
+					$other_label = Contact_Form_Plugin::strip_tags( $option['label'] );
+					break;
+				}
+			}
+		}
+
+		if ( empty( $other_label ) ) {
+			return array(
+				'value' => $value,
+				'meta'  => $meta,
+			);
+		}
+
+		if ( $value === $other_label ) {
+			$other_text_key = $field_id . '-other-text';
+			$custom_text    = '';
+
+			if ( isset( $post_data[ $other_text_key ] ) ) {
+				$custom_text = sanitize_textarea_field( wp_unslash( $post_data[ $other_text_key ] ) );
+			}
+
+			$meta['is_other_option']  = true;
+			$meta['other_label']      = $other_label;
+			$meta['other_user_value'] = $custom_text;
+
+			if ( ! empty( $custom_text ) ) {
+				$value = $other_label . ': ' . $custom_text;
+			}
+		}
+
+		return array(
+			'value' => $value,
+			'meta'  => $meta,
+		);
+	}
+
+	/**
 	 * Get the computed fields from the post data.
 	 *
 	 * @param string $label The label of the field to look for.
@@ -736,6 +803,7 @@ class Feedback {
 			'contact_form_subject' => $this->get_subject(),
 			'comment_author_ip'    => $this->get_ip_address(),
 			'comment_content'      => empty( $this->get_comment_content() ) ? null : $this->get_comment_content(),
+			'permalink'            => $this->get_entry_permalink(),
 		);
 
 		foreach ( $this->fields as $field ) {
@@ -1249,6 +1317,12 @@ class Feedback {
 				'comment_status' => self::STATUS_UNREAD, // New feedback is unread by default.
 			)
 		);
+
+		// If this feedback does not have a jetpack_form parent,
+		// it's a classic form — mark the state accordingly.
+		if ( empty( $this->form_id ) ) {
+			Forms_Dashboard::mark_classic_form_detected();
+		}
 
 		$feedback_post = get_post( $post_id );
 		return $feedback_post ?? 0;
@@ -1815,7 +1889,14 @@ class Feedback {
 			$label = wp_strip_all_tags( $field->get_attribute( 'label' ) );
 			$key   = $i . '_' . $label;
 
-			$meta           = self::get_field_meta( $field, $type );
+			$meta = self::get_field_meta( $field, $type );
+
+			// Process radio fields to detect and extract "Other" option metadata
+			if ( $type === 'radio' ) {
+				$processed = $this->process_radio_field_value( $value, $field, $field_id, $post_data );
+				$value     = $processed['value'];
+				$meta      = array_merge( $meta, $processed['meta'] );
+			}
 			$fields[ $key ] = new Feedback_Field( $key, $label, $value, $type, $meta, $field_id );
 			if ( ! $this->has_file && $fields[ $key ]->has_file() ) {
 				$this->has_file = true;

@@ -1508,85 +1508,174 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test navigation button processing with class-based identification (core/button).
-	 *
-	 * @dataProvider data_provider_navigation_button_class_identification
+	 * Data provider for edge cache purge tests.
 	 */
-	#[DataProvider( 'data_provider_navigation_button_class_identification' )]
-	public function test_navigation_button_class_identification( $input_html, $expected_attributes, $description ) {
-		// Create minimal wrapper structure that gutenblock_render_form_step_navigation expects
-		$wrapped_html = '<div class="wp-block-jetpack-form-step-navigation"><div class="wp-block-jetpack-form-step-navigation__wrapper">' . $input_html . '</div></div>';
-
-		$result = Contact_Form_Plugin::gutenblock_render_form_step_navigation( array(), $wrapped_html );
-
-		foreach ( $expected_attributes as $attr => $value ) {
-			if ( $value === null ) {
-				$this->assertStringNotContainsString( $attr, $result, "$description: should NOT contain $attr" );
-			} else {
-				$this->assertStringContainsString( "$attr=\"$value\"", $result, "$description: should contain $attr=\"$value\"" );
-			}
-		}
+	public static function edge_cache_purge_cases() {
+		return array(
+			'published'               => array( 'publish', 'draft', Contact_Form::POST_TYPE, true ),
+			'updated while published' => array( 'publish', 'publish', Contact_Form::POST_TYPE, true ),
+			'unpublished'             => array( 'draft', 'publish', Contact_Form::POST_TYPE, true ),
+			'non-publish transition'  => array( 'pending', 'draft', Contact_Form::POST_TYPE, false ),
+			'other post type'         => array( 'publish', 'draft', 'post', false ),
+		);
 	}
 
 	/**
-	 * Data provider for navigation button class identification tests.
+	 * Test edge cache purge behavior on form status changes.
+	 *
+	 * @dataProvider edge_cache_purge_cases
 	 */
-	public static function data_provider_navigation_button_class_identification() {
-		return array(
-			'previous button by class'       => array(
-				'<button class="form-button-previous">Previous</button>',
-				array(
-					'data-wp-on--click'        => 'actions.previousStep',
-					'data-wp-class--is-hidden' => 'state.isFirstStep',
-				),
-				'Previous button identified by form-button-previous class',
-			),
-			'next button by class'           => array(
-				'<button class="form-button-next">Next</button>',
-				array(
-					'data-wp-on--click'        => 'actions.nextStep',
-					'data-wp-class--is-hidden' => 'state.isLastStep',
-				),
-				'Next button identified by form-button-next class',
-			),
-			'submit button by class'         => array(
-				'<button class="form-button-submit">Submit</button>',
-				array(
-					'data-wp-class--is-hidden' => 'state.isNotLastStep',
-				),
-				'Submit button identified by form-button-submit class',
-			),
-			'previous button by legacy attr' => array(
-				'<button data-id-attr="previous-step">Previous</button>',
-				array(
-					'data-wp-on--click'        => 'actions.previousStep',
-					'data-wp-class--is-hidden' => 'state.isFirstStep',
-				),
-				'Previous button identified by legacy data-id-attr',
-			),
-			'next button by legacy attr'     => array(
-				'<button data-id-attr="next-step">Next</button>',
-				array(
-					'data-wp-on--click'        => 'actions.nextStep',
-					'data-wp-class--is-hidden' => 'state.isLastStep',
-				),
-				'Next button identified by legacy data-id-attr',
-			),
-			'submit button by legacy attr'   => array(
-				'<button data-id-attr="submit-step">Submit</button>',
-				array(
-					'data-wp-class--is-hidden' => 'state.isNotLastStep',
-				),
-				'Submit button identified by legacy data-id-attr',
-			),
-			'regular button not affected'    => array(
-				'<button class="some-other-class">Click me</button>',
-				array(
-					'data-wp-on--click'        => null,
-					'data-wp-class--is-hidden' => null,
-				),
-				'Regular button should not get navigation attributes',
-			),
+	#[DataProvider( 'edge_cache_purge_cases' )]
+	public function test_edge_cache_purge_on_form_status_change( $new_status, $old_status, $post_type, $expected ) {
+		$post_id = wp_insert_post(
+			array(
+				'post_type'   => $post_type,
+				'post_status' => $old_status,
+			)
 		);
+
+		$post   = get_post( $post_id );
+		$plugin = Contact_Form_Plugin::init();
+		$purged = false;
+
+		add_action(
+			'edge_cache_purge_domain',
+			function () use ( &$purged ) {
+				$purged = true;
+			}
+		);
+
+		$plugin->purge_edge_cache_on_form_status_change( $new_status, $old_status, $post );
+
+		$this->assertSame( $expected, $purged );
+
+		remove_all_actions( 'edge_cache_purge_domain' );
+	}
+
+	/**
+	 * Test edge cache purge handles null post gracefully.
+	 */
+	public function test_no_edge_cache_purge_for_null_post() {
+		$plugin = Contact_Form_Plugin::init();
+		$purged = false;
+
+		add_action(
+			'edge_cache_purge_domain',
+			function () use ( &$purged ) {
+				$purged = true;
+			}
+		);
+
+		$plugin->purge_edge_cache_on_form_status_change( 'publish', 'draft', null );
+
+		$this->assertFalse( $purged );
+
+		remove_all_actions( 'edge_cache_purge_domain' );
+	}
+
+	/**
+	 * Test that prepare_for_akismet includes blog_lang.
+	 */
+	public function test_prepare_for_akismet_includes_blog_lang() {
+		$plugin = Contact_Form_Plugin::init();
+		$form   = array(
+			'comment_author'  => 'Test',
+			'comment_content' => 'Hello',
+		);
+
+		$result = $plugin->prepare_for_akismet( $form );
+
+		$this->assertArrayHasKey( 'blog_lang', $result, 'prepare_for_akismet should include blog_lang' );
+		$this->assertEquals( get_bloginfo( 'language' ), $result['blog_lang'], 'blog_lang should match site language' );
+	}
+
+	/**
+	 * Test that prepare_for_akismet includes blog and other standard fields.
+	 */
+	public function test_prepare_for_akismet_includes_standard_fields() {
+		$plugin = Contact_Form_Plugin::init();
+		$form   = array(
+			'comment_author'  => 'Test',
+			'comment_content' => 'Hello',
+		);
+
+		$result = $plugin->prepare_for_akismet( $form );
+
+		$expected_keys = array(
+			'comment_type',
+			'user_ip',
+			'user_agent',
+			'referrer',
+			'blog',
+			'blog_lang',
+			'comment_date_gmt',
+		);
+
+		foreach ( $expected_keys as $key ) {
+			$this->assertArrayHasKey( $key, $result, "prepare_for_akismet should include '$key'" );
+		}
+
+		$this->assertEquals( 'contact_form', $result['comment_type'] );
+		$this->assertEquals( get_option( 'home' ), $result['blog'] );
+	}
+
+	/**
+	 * Test that the block editor is disabled for the feedback post type.
+	 */
+	public function test_use_block_editor_for_post_type_feedback() {
+		$plugin = Contact_Form_Plugin::init();
+		$this->assertFalse( $plugin->use_block_editor_for_post_type( true, 'feedback' ) );
+	}
+
+	/**
+	 * Test that the block editor is forced on for the jetpack_form post type.
+	 */
+	public function test_use_block_editor_for_post_type_jetpack_form() {
+		$plugin = Contact_Form_Plugin::init();
+		$this->assertTrue( $plugin->use_block_editor_for_post_type( false, Contact_Form::POST_TYPE ) );
+	}
+
+	/**
+	 * Test that the block editor filter passes through for other post types.
+	 */
+	public function test_use_block_editor_for_post_type_other() {
+		$plugin = Contact_Form_Plugin::init();
+		$this->assertTrue( $plugin->use_block_editor_for_post_type( true, 'post' ) );
+		$this->assertFalse( $plugin->use_block_editor_for_post_type( false, 'page' ) );
+	}
+
+	/**
+	 * Test that the block editor is forced on for individual jetpack_form posts.
+	 */
+	public function test_use_block_editor_for_post_jetpack_form() {
+		$plugin  = Contact_Form_Plugin::init();
+		$post_id = wp_insert_post(
+			array(
+				'post_type'   => Contact_Form::POST_TYPE,
+				'post_title'  => 'Test Form',
+				'post_status' => 'publish',
+			)
+		);
+		$post    = get_post( $post_id );
+
+		$this->assertTrue( $plugin->use_block_editor_for_post( false, $post ) );
+	}
+
+	/**
+	 * Test that the block editor filter passes through for non-form posts.
+	 */
+	public function test_use_block_editor_for_post_other() {
+		$plugin  = Contact_Form_Plugin::init();
+		$post_id = wp_insert_post(
+			array(
+				'post_type'   => 'post',
+				'post_title'  => 'Regular Post',
+				'post_status' => 'publish',
+			)
+		);
+		$post    = get_post( $post_id );
+
+		$this->assertTrue( $plugin->use_block_editor_for_post( true, $post ) );
+		$this->assertFalse( $plugin->use_block_editor_for_post( false, $post ) );
 	}
 }

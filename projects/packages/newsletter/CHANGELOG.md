@@ -5,6 +5,55 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.1] - 2026-03-16
+### Added
+- Settings: Add privacy information link. [#47587]
+
+### Changed
+- Settings: Fix inconsistent punctuation and casing on labels. [#47559]
+- Settings: Link to WordPress.com for all WordPress.com sites. [#47578]
+- Update dependencies. [#47472]
+
+### Fixed
+- Add spacing below warning notice in Email content settings section. [#47516]
+- Subscriptions: Fix mobile alignment of Preview and edit links in settings. [#47561]
+- Ensure module configure URL points to the new newsletter settings page. [#47584]
+
+## [0.6.0] - 2026-03-09
+### Added
+- Add `jetpack_show_newsletter_menu_item` filter to show menu regardless of subscriptions module state. [#47347]
+
+### Changed
+- Migrate admin page header to use unified header pattern. [#47313]
+- Switch to Native TypeScript compiler based on Go. [#47375]
+- Update newsletter sections to use new component patterns. [#47406]
+- Update package dependencies. [#47496]
+
+### Fixed
+- Settings: Fix Hello Dolly banner display and box-sizing on the newsletter settings page. [#47313]
+
+## [0.5.2] - 2026-03-02
+### Changed
+- Update dependencies. [#47038]
+
+## [0.5.1] - 2026-02-26
+### Added
+- Add clarifying note to Reading settings page linking to Newsletter settings for email content control. [#47299]
+
+### Changed
+- Refactor settings to use `@automattic/jetpack-script-data` utilities for site info and admin URLs. [#47259]
+- Update package dependencies. [#47285] [#47300]
+- Use `Status` class methods for `isSitePublic` check (filterable and handles coming soon state). [#47321]
+
+## [0.5.0] - 2026-02-23
+### Added
+- Add Tracks analytics to track user interactions on the newsletter settings page. [#47100]
+
+### Changed
+- Reader Link: Open the Reader in a different tab on self-hosted sites. [#47246]
+- Settings: Wrap page with `AdminPage` component for consistency with other Jetpack pages. [#47086]
+- Update package dependencies. [#47173]
+
 ## [0.4.0] - 2026-02-16
 ### Added
 - Automatically enable the admin bar link on sites newly connected to WordPress.com. [#47033]
@@ -66,6 +115,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Update package dependencies. [#46143]
 
+[0.6.1]: https://github.com/Automattic/jetpack-newsletter/compare/v0.6.0...v0.6.1
+[0.6.0]: https://github.com/Automattic/jetpack-newsletter/compare/v0.5.2...v0.6.0
+[0.5.2]: https://github.com/Automattic/jetpack-newsletter/compare/v0.5.1...v0.5.2
+[0.5.1]: https://github.com/Automattic/jetpack-newsletter/compare/v0.5.0...v0.5.1
+[0.5.0]: https://github.com/Automattic/jetpack-newsletter/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/Automattic/jetpack-newsletter/compare/v0.3.2...v0.4.0
 [0.3.2]: https://github.com/Automattic/jetpack-newsletter/compare/v0.3.1...v0.3.2
 [0.3.1]: https://github.com/Automattic/jetpack-newsletter/compare/v0.3.0...v0.3.1

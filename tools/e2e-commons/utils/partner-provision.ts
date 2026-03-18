@@ -22,7 +22,7 @@ export async function partnerProvisionConnection(
 	user: string
 ): Promise< boolean > {
 	logger.info( `Provisioning Jetpack start connection [userId: ${ userId }, plan: ${ plan }]` );
-	const [ clientID, clientSecret ] = config.get( 'jetpackStartSecrets' );
+	const [ clientID, clientSecret ] = config.get< Array< string > >( 'jetpackStartSecrets' );
 	const __dirname = url.fileURLToPath( new URL( '.', import.meta.url ) );
 
 	const scriptPath = path.resolve( __dirname, '../../partner-provision.sh' );
@@ -54,7 +54,7 @@ export async function partnerProvisionConnection(
  */
 export async function cancelPartnerPlan() {
 	logger.info( `Cancelling partner plan` );
-	const [ clientID, clientSecret ] = config.get( 'jetpackStartSecrets' );
+	const [ clientID, clientSecret ] = config.get< string[] >( 'jetpackStartSecrets' );
 	const __dirname = url.fileURLToPath( new URL( '.', import.meta.url ) );
 	const scriptPath = path.resolve( __dirname, '../../partner-cancel.sh' );
 	const cmd = `sh ${ scriptPath } --partner_id=${ clientID } --partner_secret=${ clientSecret } --allow-root`;

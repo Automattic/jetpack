@@ -184,6 +184,10 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 					'description' => 'Additional text to be added inline with the menu title.',
 					'type'        => 'string',
 				),
+				'inlineIcon' => array(
+					'description' => 'Dashicon slug to be displayed inline with the menu title.',
+					'type'        => 'string',
+				),
 				'badge'      => array(
 					'description' => 'Badge to be added inline with the menu title.',
 					'type'        => 'string',
@@ -481,6 +485,21 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 			if ( $text ) {
 				// Keep the text in the item array.
 				$item['inlineText'] = $text;
+			}
+
+			// Finally remove the markup.
+			$title = trim( str_replace( $matches[0], '', $title ) );
+		}
+
+		if (
+			str_contains( $title, 'inline-icon' )
+			&& preg_match( '/<span class="inline-icon dashicons (dashicons-[^"]+)"[^>]*><\/span>/', $title, $matches )
+		) {
+
+			$icon = $matches[1];
+			if ( $icon ) {
+				// Keep the dashicon slug in the item array.
+				$item['inlineIcon'] = $icon;
 			}
 
 			// Finally remove the markup.

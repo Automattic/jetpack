@@ -20,7 +20,7 @@ const ADD_MEDIA_LABEL = __( 'Choose Media', 'jetpack-publicize-pkg' );
  * @param {object}                    [props.analyticsData]            - Data for tracking analytics.
  * @param {Array}                     [props.attachedMedia]            - Optional attached media array for controlled mode.
  * @param {Function}                  [props.onMediaChange]            - Optional callback to update media options in controlled mode.
- * @return {object} The media section.
+ * @return {import('react').ReactNode} The media section.
  */
 export default function MediaSection( {
 	disabled = false,

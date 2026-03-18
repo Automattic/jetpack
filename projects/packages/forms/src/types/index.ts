@@ -322,6 +322,8 @@ export interface FormsConfigData {
 	canActivatePlugins?: boolean;
 	/** Whether there are any feedback (form response) posts on the site. */
 	hasFeedback?: boolean;
+	/** Whether the site has classic (non-synced) form submissions. */
+	hasClassicForms?: boolean;
 	/** Whether form notes are enabled. */
 	isNotesEnabled?: boolean;
 	/** The URL of the Forms responses list in wp-admin. */
@@ -332,6 +334,8 @@ export interface FormsConfigData {
 	gdriveConnectSupportURL?: string;
 	/** Base URL to static/assets for the Forms package. */
 	pluginAssetsURL?: string;
+	/** Base URL to file-type icon SVGs (e.g. txt.svg, pdf.svg). */
+	fileIconsUrl?: string;
 	/** The site suffix/fragment for building admin links. */
 	siteURL?: string;
 	/** The dashboard URL with migration acknowledgement parameter. */

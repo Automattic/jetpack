@@ -2,7 +2,7 @@
 
 A comprehensive charting library for displaying interactive data visualizations within Automattic products. Built on top of modern libraries like `@visx/xychart` and designed for accessibility, responsiveness, and ease of use.
 
-Explore the available charts and their documentation in [Storybook](https://automattic.github.io/jetpack-storybook/?path=/docs/js-packages-charts).
+Explore the available charts and their documentation in [Storybook](https://automattic.github.io/jetpack-storybook/?path=/docs/js-packages-charts-library-introduction--docs).
 
 ## Requirements
 
@@ -72,6 +72,7 @@ The following components can be imported individually:
 - `@automattic/charts/trend-indicator` - Trend Indicator component
 - `@automattic/charts/hooks` - React hooks
 - `@automattic/charts/providers` - Context providers
+- `@automattic/charts/utils` - Shared chart utility functions
 - `@automattic/charts/visx/group` - Visx group utilities
 - `@automattic/charts/visx/legend` - Visx legend utilities
 - `@automattic/charts/visx/text` - Visx text utilities

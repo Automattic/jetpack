@@ -4,7 +4,6 @@
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { JetpackLogo } from '@automattic/jetpack-components';
 import { isSimpleSite } from '@automattic/jetpack-script-data';
-import { Badge } from '@automattic/ui';
 import { ExternalLink, Modal } from '@wordpress/components';
 import { useViewportMatch } from '@wordpress/compose';
 import { useSelect } from '@wordpress/data';
@@ -13,6 +12,7 @@ import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { useCallback, useMemo, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __ } from '@wordpress/i18n';
+import { Badge } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useEffect } from 'react';
 /**
@@ -468,7 +468,7 @@ export default function InboxView( { parentId, pageTitle, pageSubtitle } = {} ) 
 				enableSorting: false,
 				render: ( { item } ) => {
 					return (
-						<Badge intent="default">
+						<Badge intent="draft">
 							{ item.is_unread ? __( 'Unread', 'jetpack-forms' ) : __( 'Read', 'jetpack-forms' ) }
 						</Badge>
 					);

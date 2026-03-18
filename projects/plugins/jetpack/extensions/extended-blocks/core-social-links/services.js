@@ -108,10 +108,6 @@ const services = [
 		url: [ 'pinterest.' ],
 	},
 	{
-		name: 'pocket',
-		url: [ 'getpocket.com' ],
-	},
-	{
 		name: 'reddit',
 		url: [ 'reddit.com' ],
 	},

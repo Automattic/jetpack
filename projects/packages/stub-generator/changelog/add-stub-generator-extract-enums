@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Allow extracting enum stubs too.

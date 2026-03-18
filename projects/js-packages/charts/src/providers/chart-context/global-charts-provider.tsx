@@ -8,6 +8,7 @@ import {
 	useLayoutEffect,
 	useRef,
 } from 'react';
+import { useTooltipPortalRelocator } from '../../hooks/use-tooltip-portal-relocator';
 import {
 	getItemShapeStyles,
 	getSeriesLineStyles,
@@ -26,9 +27,22 @@ export const GlobalChartsContext = createContext< GlobalChartsContextValue | nul
 export interface GlobalChartsProviderProps {
 	children: ReactNode;
 	theme?: Partial< ChartTheme >;
+	/**
+	 * Optional ref to an element that chart tooltip portals should be relocated into.
+	 * When provided, visx tooltip portals (normally appended to document.body) will be
+	 * moved into this container so they participate in the same effective CSS stacking context.
+	 * The element referenced here, or one of its ancestors, should establish the desired
+	 * stacking context (for example by using `position` and `z-index`) so that tooltips
+	 * appear above the relevant chart content.
+	 */
+	portalContainer?: React.RefObject< HTMLElement | null >;
 }
 
-export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { children, theme } ) => {
+export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( {
+	children,
+	theme,
+	portalContainer,
+} ) => {
 	const [ charts, setCharts ] = useState< Map< string, ChartRegistration > >( () => new Map() );
 	// Track hidden series per chart: chartId -> Set<seriesLabel>
 	const [ hiddenSeries, setHiddenSeries ] = useState< Map< string, Set< string > > >(
@@ -37,6 +51,9 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { childre
 
 	// Ref to the wrapper element for resolving scoped CSS variables
 	const wrapperRef = useRef< HTMLDivElement >( null );
+
+	// Relocate tooltip portals into the wrapper (or a consumer-provided container) for z-index control.
+	useTooltipPortalRelocator( portalContainer ?? wrapperRef );
 
 	const providerTheme: CompleteChartTheme = useMemo( () => {
 		return theme ? mergeThemes( defaultTheme, theme ) : defaultTheme;

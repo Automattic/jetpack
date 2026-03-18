@@ -54,6 +54,23 @@
 	}
 }
 
+.enabled-connection {
+
+	// Add a dot indicator for enabled connections
+	&::after {
+		content: "";
+		display: block;
+		width: 12px;
+		height: 12px;
+		border-radius: 50%;
+		border: 2px solid gb.$white;
+		position: absolute;
+		inset-block-start: 0;
+		inset-inline-start: 0;
+		background-color: var(--wp-admin-theme-color, #3858e9);
+	}
+}
+
 .tab-content {
 	display: grid;
 	grid-template-columns: 1fr;
