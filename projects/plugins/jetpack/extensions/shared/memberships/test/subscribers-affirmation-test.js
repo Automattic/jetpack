@@ -2,9 +2,8 @@ import { getAdminUrl } from '@automattic/jetpack-script-data';
 import { META_NAME_FOR_POST_TIER_ID_SETTINGS, accessOptions } from '../constants';
 import {
 	getFormattedCategories,
-	getCopyForSubscribers,
-	getCopyForCategorySubscribers,
 	getAccessLevelLabel,
+	getAccessLabelForCopy,
 	getCurrentTierName,
 	shouldShowWontResendMessage,
 	getSentCopyLine,
@@ -69,118 +68,6 @@ describe( 'getFormattedCategories', () => {
 	} );
 } );
 
-describe( 'getCopyForSubscribers', () => {
-	test( 'future tense returns "will be sent" copy', () => {
-		const result = getCopyForSubscribers( {
-			futureTense: true,
-			isPaidPost: false,
-			postHasPaywallBlock: false,
-			reachCount: 5,
-		} );
-		expect( result ).toContain( 'will be sent' );
-		expect( result ).toContain( '5' );
-	} );
-
-	test( 'past tense returns "was sent" copy', () => {
-		const result = getCopyForSubscribers( {
-			futureTense: false,
-			isPaidPost: false,
-			postHasPaywallBlock: false,
-			reachCount: 10,
-		} );
-		expect( result ).toContain( 'was sent' );
-		expect( result ).toContain( '10' );
-	} );
-
-	test( 'paid post without paywall shows paid subscriber copy', () => {
-		const result = getCopyForSubscribers( {
-			futureTense: true,
-			isPaidPost: true,
-			postHasPaywallBlock: false,
-			reachCount: 3,
-		} );
-		expect( result ).toContain( 'paid subscriber' );
-	} );
-
-	test( 'pluralizes subscriber correctly', () => {
-		const singular = getCopyForSubscribers( {
-			futureTense: true,
-			isPaidPost: false,
-			postHasPaywallBlock: false,
-			reachCount: 1,
-		} );
-		const plural = getCopyForSubscribers( {
-			futureTense: true,
-			isPaidPost: false,
-			postHasPaywallBlock: false,
-			reachCount: 2,
-		} );
-		expect( singular ).toContain( 'subscriber' );
-		expect( singular ).not.toContain( 'subscribers' );
-		expect( plural ).toContain( 'subscribers' );
-	} );
-} );
-
-const newsletterCategories = [
-	{ id: 1, name: 'Uncategorized' },
-	{ id: 2, name: 'Tech' },
-	{ id: 3, name: 'News' },
-];
-
-describe( 'getCopyForCategorySubscribers', () => {
-	test( 'future tense returns "will be sent to everyone subscribed to" copy', () => {
-		const result = getCopyForCategorySubscribers( {
-			futureTense: true,
-			newsletterCategories,
-			postCategories: [ 2 ],
-			reachCount: 5,
-		} );
-		expect( result ).toContain( 'will be sent' );
-		expect( result ).toContain( 'Tech' );
-		expect( result ).toContain( '5' );
-	} );
-
-	test( 'past tense returns "was sent to everyone subscribed to" with link placeholder', () => {
-		const result = getCopyForCategorySubscribers( {
-			futureTense: false,
-			newsletterCategories,
-			postCategories: [ 2 ],
-			reachCount: 10,
-		} );
-		expect( result ).toContain( 'was sent' );
-		expect( result ).toContain( '<link>' );
-		expect( result ).toContain( 'Tech' );
-	} );
-
-	test( 'reachCount undefined uses "0"', () => {
-		const result = getCopyForCategorySubscribers( {
-			futureTense: true,
-			newsletterCategories,
-			postCategories: [ 2 ],
-			reachCount: undefined,
-		} );
-		expect( result ).toContain( '0' );
-	} );
-
-	test( 'pluralizes subscriber correctly', () => {
-		const singular = getCopyForCategorySubscribers( {
-			futureTense: true,
-			newsletterCategories,
-			postCategories: [ 2 ],
-			reachCount: 1,
-		} );
-		const plural = getCopyForCategorySubscribers( {
-			futureTense: true,
-			newsletterCategories,
-			postCategories: [ 2 ],
-			reachCount: 2,
-		} );
-		expect( singular ).toContain( 'subscriber' );
-		expect( singular ).not.toContain( 'subscribers' );
-		expect( plural ).toContain( 'subscribers' );
-	} );
-} );
-
 describe( 'getAccessLevelLabel', () => {
 	test( 'empty or falsy accessLevel returns "all subscribers"', () => {
 		expect( getAccessLevelLabel( '' ) ).toBe( 'all subscribers' );
@@ -205,6 +92,43 @@ describe( 'getAccessLevelLabel', () => {
 		expect( getAccessLevelLabel( 'paid_subscribers', 'Premium' ) ).toBe(
 			'paid subscribers (Premium)'
 		);
+	} );
+} );
+
+describe( 'getAccessLabelForCopy', () => {
+	test( 'paid_subscribers with paywall returns "all subscribers"', () => {
+		expect( getAccessLabelForCopy( 'paid_subscribers', null, true ) ).toBe( 'all subscribers' );
+	} );
+
+	test( 'paid_subscribers with paywall ignores tierName', () => {
+		expect( getAccessLabelForCopy( 'paid_subscribers', 'Premium', true ) ).toBe(
+			'all subscribers'
+		);
+	} );
+
+	test( 'paid_subscribers without paywall returns "paid subscribers"', () => {
+		expect( getAccessLabelForCopy( 'paid_subscribers', null, false ) ).toBe( 'paid subscribers' );
+	} );
+
+	test( 'paid_subscribers without paywall with tierName returns "paid subscribers (Premium)"', () => {
+		expect( getAccessLabelForCopy( 'paid_subscribers', 'Premium', false ) ).toBe(
+			'paid subscribers (Premium)'
+		);
+	} );
+
+	test( 'subscribers with paywall returns "all subscribers"', () => {
+		expect( getAccessLabelForCopy( 'subscribers', null, true ) ).toBe( 'all subscribers' );
+	} );
+
+	test( 'paid_subscribers with falsy postHasPaywallBlock defaults to paid label', () => {
+		expect( getAccessLabelForCopy( 'paid_subscribers', null, undefined ) ).toBe(
+			'paid subscribers'
+		);
+		expect( getAccessLabelForCopy( 'paid_subscribers', null ) ).toBe( 'paid subscribers' );
+	} );
+
+	test( 'paid_subscribers with has_paywall_block null (legacy stats) returns "paid subscribers"', () => {
+		expect( getAccessLabelForCopy( 'paid_subscribers', null, null ) ).toBe( 'paid subscribers' );
 	} );
 } );
 
@@ -326,11 +250,11 @@ describe( 'shouldShowWontResendMessage', () => {
 } );
 
 describe( 'getSentCopyLine', () => {
-	test( 'pastTense with dateStr and no accessLabel returns date-only format', () => {
+	test( 'tense past with dateStr and no accessLabel returns date-only format', () => {
 		const result = getSentCopyLine( {
 			accessLabel: '',
 			categoryNames: '',
-			pastTense: true,
+			tense: 'past',
 			dateStr: 'Jan 15, 2024',
 		} );
 		expect( result ).toContain( 'emailed on' );
@@ -338,11 +262,11 @@ describe( 'getSentCopyLine', () => {
 		expect( result ).toContain( 'delivery details' );
 	} );
 
-	test( 'pastTense with categoryNames and dateStr returns "was emailed to X of Y on Z"', () => {
+	test( 'tense past with categoryNames and dateStr returns "was emailed to X of Y on Z"', () => {
 		const result = getSentCopyLine( {
 			accessLabel: 'all subscribers',
 			categoryNames: 'Tech',
-			pastTense: true,
+			tense: 'past',
 			dateStr: 'Jan 15, 2024',
 		} );
 		expect( result ).toContain( 'was emailed to' );
@@ -351,11 +275,11 @@ describe( 'getSentCopyLine', () => {
 		expect( result ).toContain( 'Jan 15, 2024' );
 	} );
 
-	test( 'pastTense with categoryNames, no dateStr returns "was emailed to X of Y"', () => {
+	test( 'tense past with categoryNames, no dateStr returns "was emailed to X of Y"', () => {
 		const result = getSentCopyLine( {
 			accessLabel: 'all subscribers',
 			categoryNames: 'Tech',
-			pastTense: true,
+			tense: 'past',
 			dateStr: '',
 		} );
 		expect( result ).toContain( 'was emailed to' );
@@ -363,11 +287,11 @@ describe( 'getSentCopyLine', () => {
 		expect( result ).toContain( 'Tech' );
 	} );
 
-	test( 'future tense with categoryNames returns "is being emailed to X of Y"', () => {
+	test( 'tense present with categoryNames returns "is being emailed to X of Y"', () => {
 		const result = getSentCopyLine( {
 			accessLabel: 'all subscribers',
 			categoryNames: 'Tech',
-			pastTense: false,
+			tense: 'present',
 			dateStr: '',
 		} );
 		expect( result ).toContain( 'is being emailed' );
@@ -375,11 +299,23 @@ describe( 'getSentCopyLine', () => {
 		expect( result ).toContain( 'Tech' );
 	} );
 
-	test( 'pastTense with accessLabel and dateStr returns "was emailed to X on Y"', () => {
+	test( 'tense future with categoryNames returns "will be emailed to X of Y"', () => {
+		const result = getSentCopyLine( {
+			accessLabel: 'all subscribers',
+			categoryNames: 'Tech',
+			tense: 'future',
+			dateStr: '',
+		} );
+		expect( result ).toContain( 'will be emailed' );
+		expect( result ).toContain( 'all subscribers' );
+		expect( result ).toContain( 'Tech' );
+	} );
+
+	test( 'tense past with accessLabel and dateStr returns "was emailed to X on Y"', () => {
 		const result = getSentCopyLine( {
 			accessLabel: 'all subscribers',
 			categoryNames: '',
-			pastTense: true,
+			tense: 'past',
 			dateStr: 'Jan 15, 2024',
 		} );
 		expect( result ).toContain( 'was emailed to' );
@@ -387,11 +323,11 @@ describe( 'getSentCopyLine', () => {
 		expect( result ).toContain( 'Jan 15, 2024' );
 	} );
 
-	test( 'pastTense with accessLabel only returns "was emailed to X"', () => {
+	test( 'tense past with accessLabel only returns "was emailed to X"', () => {
 		const result = getSentCopyLine( {
 			accessLabel: 'all subscribers',
 			categoryNames: '',
-			pastTense: true,
+			tense: 'past',
 			dateStr: '',
 		} );
 		expect( result ).toContain( 'was emailed to' );
@@ -399,14 +335,25 @@ describe( 'getSentCopyLine', () => {
 		expect( result ).toContain( 'delivery details' );
 	} );
 
-	test( 'future tense with accessLabel returns "is being emailed to X"', () => {
+	test( 'tense present with accessLabel returns "is being emailed to X"', () => {
 		const result = getSentCopyLine( {
 			accessLabel: 'all subscribers',
 			categoryNames: '',
-			pastTense: false,
+			tense: 'present',
 			dateStr: '',
 		} );
 		expect( result ).toContain( 'is being emailed' );
+		expect( result ).toContain( 'all subscribers' );
+	} );
+
+	test( 'tense future with accessLabel returns "will be emailed to X"', () => {
+		const result = getSentCopyLine( {
+			accessLabel: 'all subscribers',
+			categoryNames: '',
+			tense: 'future',
+			dateStr: '',
+		} );
+		expect( result ).toContain( 'will be emailed' );
 		expect( result ).toContain( 'all subscribers' );
 	} );
 } );

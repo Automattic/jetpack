@@ -8,7 +8,6 @@ import {
 	themeArgTypes,
 	sharedThemeArgs,
 } from '../../../stories';
-import { useChartLegendItems } from '../hooks/use-chart-legend-items';
 import { Legend } from '../legend';
 import type { SeriesData, DataPointPercentage } from '../../../types';
 
@@ -106,45 +105,29 @@ export const Vertical: Story = {
 	},
 };
 
-// Story showing use with LineChart data
-const WithLineChartData = () => {
-	const legendItems = useChartLegendItems( lineChartData, {
-		showValues: false,
-	} );
-
-	return (
-		<div style={ { display: 'flex', flexDirection: 'column', gap: '20px' } }>
-			<LineChart
-				data={ lineChartData }
-				showLegend={ false }
-				width={ 600 }
-				height={ 300 }
-				withGradientFill={ false }
-				withLegendGlyph={ false }
-			/>
-			<Legend items={ legendItems } orientation="horizontal" shape="line" />
-		</div>
-	);
-};
-
+// Story showing composition API with LineChart
 export const WithLineChart: Story = {
-	render: () => <WithLineChartData />,
+	render: () => (
+		<LineChart
+			data={ lineChartData }
+			width={ 600 }
+			height={ 300 }
+			withGradientFill={ false }
+			withLegendGlyph={ false }
+			chartId="legend-line-chart"
+		>
+			<LineChart.Legend />
+		</LineChart>
+	),
 };
 
-// Story showing use with BarChart data
-const WithBarChartData = () => {
-	const legendItems = useChartLegendItems( barChartData );
-
-	return (
-		<div style={ { display: 'flex', gap: '20px', alignItems: 'flex-start' } }>
-			<BarChart data={ barChartData } showLegend={ false } width={ 400 } height={ 300 } />
-			<Legend items={ legendItems } orientation="vertical" />
-		</div>
-	);
-};
-
+// Story showing composition API with BarChart
 export const WithBarChart: Story = {
-	render: () => <WithBarChartData />,
+	render: () => (
+		<BarChart data={ barChartData } width={ 400 } height={ 300 } chartId="legend-bar-chart">
+			<BarChart.Legend />
+		</BarChart>
+	),
 };
 
 // Story showing standalone legend using chartId to automatically get data from context
@@ -162,7 +145,7 @@ const StandaloneLegendWithChartIdComponent = () => {
 				withLegendGlyph={ false }
 			/>
 			{ /* Standalone legend that automatically gets data from chart context */ }
-			<Legend chartId="standalone-legend-chart" orientation="horizontal" shape="line" />
+			<Legend chartId="standalone-legend-chart" shape="line" />
 		</div>
 	);
 };
@@ -317,7 +300,6 @@ export const AlignmentOptions: Story = {
 			{ label: 'Series 2', value: '35%', color: '#80C8FF' },
 			{ label: 'Series 3', value: '40%', color: '#44B556' },
 		],
-		orientation: 'horizontal',
 		alignment: 'start',
 	},
 };
@@ -393,7 +375,6 @@ export const CustomShape: Story = {
 			{ label: 'Desktop', value: '65%', color: '#3858E9' },
 			{ label: 'Mobile', value: '35%', color: '#80C8FF' },
 		],
-		orientation: 'horizontal',
 		shape: 'circle',
 	},
 };

@@ -16,17 +16,21 @@ use PHPUnit\Framework\Attributes\CoversFunction;
 /**
  * Tests for Gutenberg RTC feature.
  *
- * @covers ::wpcom_disable_rtc_option
  * @covers ::wpcom_enqueue_gutenberg_rtc_assets
  * @covers ::wpcom_get_gutenberg_rtc_providers
  * @covers ::wpcom_is_gutenberg_rtc_enabled
  * @covers ::wpcom_unregister_rtc_setting
+ * @covers ::wpcom_filter_rtc_option
+ * @covers ::wpcom_default_rtc_option
+ * @covers ::wpcom_override_rtc_setting_default
  */
 #[CoversFunction( 'wpcom_is_gutenberg_rtc_enabled' )]
 #[CoversFunction( 'wpcom_get_gutenberg_rtc_providers' )]
 #[CoversFunction( 'wpcom_enqueue_gutenberg_rtc_assets' )]
 #[CoversFunction( 'wpcom_unregister_rtc_setting' )]
-#[CoversFunction( 'wpcom_disable_rtc_option' )]
+#[CoversFunction( 'wpcom_filter_rtc_option' )]
+#[CoversFunction( 'wpcom_default_rtc_option' )]
+#[CoversFunction( 'wpcom_override_rtc_setting_default' )]
 class Gutenberg_RTC_Test extends \WorDBless\BaseTestCase {
 
 	/**
@@ -89,11 +93,35 @@ class Gutenberg_RTC_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Tests whether the disable RTC option filters are hooked.
+	 * Tests whether the filter RTC option function is hooked to the option filters.
 	 */
-	public function test_wpcom_disable_rtc_option_hooked() {
-		$this->assertSame( 10, has_filter( 'pre_option_wp_enable_real_time_collaboration', 'wpcom_disable_rtc_option' ) );
-		$this->assertSame( 10, has_filter( 'pre_option_enable_real_time_collaboration', 'wpcom_disable_rtc_option' ) );
+	public function test_wpcom_filter_rtc_option_hooked() {
+		$this->assertSame( 10, has_filter( 'option_wp_enable_real_time_collaboration', 'wpcom_filter_rtc_option' ) );
+		$this->assertSame( 10, has_filter( 'option_enable_real_time_collaboration', 'wpcom_filter_rtc_option' ) );
+	}
+
+	/**
+	 * Tests that wpcom_filter_rtc_option forces the option to '0' when there are no providers.
+	 */
+	public function test_wpcom_filter_rtc_option_forces_zero_without_providers() {
+		// By default, RTC is disabled and providers list is empty.
+		$this->assertSame( '0', wpcom_filter_rtc_option( '1' ) );
+	}
+
+	/**
+	 * Tests that wpcom_filter_rtc_option respects the stored value when providers exist.
+	 */
+	public function test_wpcom_filter_rtc_option_respects_value_with_providers() {
+		add_filter( 'wpcom_is_gutenberg_rtc_enabled', '__return_true' );
+		add_filter(
+			'wpcom_gutenberg_rtc_providers',
+			function () {
+				return array( 'pinghub' );
+			}
+		);
+
+		$this->assertSame( '1', wpcom_filter_rtc_option( '1' ) );
+		$this->assertSame( '0', wpcom_filter_rtc_option( '0' ) );
 	}
 
 	/**
@@ -271,16 +299,17 @@ class Gutenberg_RTC_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Tests that wpcom_disable_rtc_option returns '0' when no providers.
+	 * Tests that wpcom_default_rtc_option returns '0' when there are no providers.
 	 */
-	public function test_wpcom_disable_rtc_option_returns_zero_when_no_providers() {
-		$this->assertSame( '0', wpcom_disable_rtc_option( false ) );
+	public function test_wpcom_default_rtc_option_returns_zero_without_providers() {
+		// By default, RTC is disabled and providers list is empty.
+		$this->assertSame( '0', wpcom_default_rtc_option() );
 	}
 
 	/**
-	 * Tests that wpcom_disable_rtc_option passes through the pre_option value when providers exist.
+	 * Tests that wpcom_default_rtc_option returns '1' when providers exist.
 	 */
-	public function test_wpcom_disable_rtc_option_passes_through_when_providers_exist() {
+	public function test_wpcom_default_rtc_option_returns_one_with_providers() {
 		add_filter( 'wpcom_is_gutenberg_rtc_enabled', '__return_true' );
 		add_filter(
 			'wpcom_gutenberg_rtc_providers',
@@ -289,8 +318,14 @@ class Gutenberg_RTC_Test extends \WorDBless\BaseTestCase {
 			}
 		);
 
-		$this->assertFalse( wpcom_disable_rtc_option( false ) );
-		$this->assertSame( '1', wpcom_disable_rtc_option( '1' ) );
+		$this->assertSame( '1', wpcom_default_rtc_option() );
+	}
+
+	/**
+	 * Tests that the override RTC setting function is hooked to admin_init.
+	 */
+	public function test_wpcom_override_rtc_setting_default_hooked() {
+		$this->assertSame( 20, has_action( 'admin_init', 'wpcom_override_rtc_setting_default' ) );
 	}
 
 	/**

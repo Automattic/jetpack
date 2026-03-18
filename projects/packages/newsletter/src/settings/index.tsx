@@ -9,7 +9,7 @@ import {
 	GlobalNotices,
 	useGlobalNotices,
 } from '@automattic/jetpack-components';
-import { getSiteType, isSimpleSite } from '@automattic/jetpack-script-data';
+import { getSiteType } from '@automattic/jetpack-script-data';
 import { Notice, Disabled, Spinner } from '@wordpress/components';
 import { createRoot, useCallback, useEffect, useState, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -391,7 +391,7 @@ function NewsletterSettingsApp(): JSX.Element | null {
 			<Container horizontalSpacing={ 3 }>
 				<Col>
 					<Stack gap="md" direction="column" className="newsletter-settings">
-						{ ! isSimpleSite() && <NewsletterSection data={ data } onChange={ handleAutoSave } /> }
+						<NewsletterSection data={ data } onChange={ handleAutoSave } />
 
 						<Disabled isDisabled={ ! data.subscriptions }>
 							<Stack gap="md" direction="column">

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+VideoPress: auto-complete upload when user hasn't edited title or poster, and self-heal failed oEmbed cache.

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix default wp-build dashboard URL to point to /responses/inbox instead of / which caused a 404
