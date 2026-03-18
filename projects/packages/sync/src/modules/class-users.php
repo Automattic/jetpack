@@ -945,7 +945,7 @@ class Users extends Module {
 	 * @return bool
 	 */
 	protected function is_function_in_backtrace( $names ) {
-		$backtrace = debug_backtrace( 0 ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_debug_backtrace
+		$backtrace = debug_backtrace( DEBUG_BACKTRACE_IGNORE_ARGS ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_debug_backtrace
 		if ( ! is_array( $names ) ) {
 			$names = array( $names );
 		}
