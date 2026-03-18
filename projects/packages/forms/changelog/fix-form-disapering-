@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix blocks disappearing after navigating back from form editor when page has multiple form blocks
