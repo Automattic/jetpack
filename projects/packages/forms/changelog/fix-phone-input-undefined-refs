@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Forms: Fix phone input field errors when refs are not initialized.

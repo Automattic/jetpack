@@ -108,6 +108,9 @@ const { actions, callbacks } = store( NAMESPACE, {
 			}
 			const groomedValue = value.indexOf( '00' ) === 0 ? '+' + value.slice( 2 ) : value;
 
+			if ( ! asYouTypes[ fieldId ] ) {
+				return;
+			}
 			asYouTypes[ fieldId ].reset();
 			asYouTypes[ fieldId ].input( groomedValue );
 			if ( asYouTypes[ fieldId ].getCountry() ) {
@@ -140,7 +143,7 @@ const { actions, callbacks } = store( NAMESPACE, {
 					country.code.toLowerCase().includes( searchTerm ) ||
 					country.value.includes( searchTerm )
 			);
-			optionsListRefs[ context.fieldId ].scrollTo?.( { top: 0, behavior: 'instant' } );
+			optionsListRefs[ context.fieldId ]?.scrollTo?.( { top: 0, behavior: 'instant' } );
 		},
 		phoneComboboxKeydownHandler: withSyncEvent( event => {
 			const context = getContext();
@@ -172,7 +175,7 @@ const { actions, callbacks } = store( NAMESPACE, {
 					updateSelection( context.selectedCountry );
 					setTimeout( () => {
 						// Find and scroll the newly selected option into view
-						const selectedOption = optionsListRefs[ context.fieldId ].querySelector(
+						const selectedOption = optionsListRefs[ context.fieldId ]?.querySelector(
 							'.jetpack-combobox-option-selected'
 						);
 						selectedOption?.scrollIntoView?.( {
@@ -195,7 +198,7 @@ const { actions, callbacks } = store( NAMESPACE, {
 					updateSelection( context.selectedCountry );
 					setTimeout( () => {
 						// Find and scroll the newly selected option into view
-						const selectedOption = optionsListRefs[ context.fieldId ].querySelector(
+						const selectedOption = optionsListRefs[ context.fieldId ]?.querySelector(
 							'.jetpack-combobox-option-selected'
 						);
 						selectedOption?.scrollIntoView?.( {
@@ -218,7 +221,7 @@ const { actions, callbacks } = store( NAMESPACE, {
 				setTimeout( () => {
 					searchInputRefs[ context.fieldId ]?.focus?.();
 					optionsListRefs[ context.fieldId ]
-						.querySelector( '.jetpack-combobox-option-selected' )
+						?.querySelector( '.jetpack-combobox-option-selected' )
 						?.scrollIntoView?.( { block: 'nearest', container: 'nearest' } );
 				}, 0 );
 			}
