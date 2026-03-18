@@ -64,7 +64,7 @@ $template = '
 						<tr>
 							<td class="wrapper">
 								<!-- Header -->
-								<h1 class="email-header">%1$s</h1>
+								%1$s
 
 								<!-- Respondent Info -->
 								%10$s
