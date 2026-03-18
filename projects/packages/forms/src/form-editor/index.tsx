@@ -121,6 +121,7 @@ const state = {
 	lastSelectedBlockId: null as string | null | undefined,
 	isFormBlockLocked: false,
 	hasOpenedInserter: false,
+	enteredViaNavigation: false,
 };
 
 const BLOCK_DIRECTORY_PLUGIN_NAME = 'block-directory';
@@ -257,14 +258,6 @@ const enforceBlockNesting = () => {
 		return;
 	}
 
-	// In the form editor, there should be exactly one jetpack/contact-form at root.
-	// If there are multiple, we're seeing page/post blocks during an entity transition
-	// (e.g. navigating back from the form editor). Skip nesting to avoid corrupting page content.
-	const formBlockCount = rootBlocks.filter( b => b.name === 'jetpack/contact-form' ).length;
-	if ( formBlockCount > 1 ) {
-		return;
-	}
-
 	// Find any blocks that aren't the form block
 	const blocksToMove = getBlocksToMove( rootBlocks, state.formBlockClientId );
 
@@ -372,9 +365,15 @@ const setupFormEditorSubscription = () => {
 			// 1. Handle form editor enter/leave transitions
 			// Detect if we are in the form editor and detect when this state changes across ticks.
 			if ( isFormEditor !== state.isFormEditor ) {
-				state.isFormEditor = isFormEditor; // Store the current isFormEditor in the state object for future reference.
+				const previousIsFormEditor = state.isFormEditor;
+				state.isFormEditor = isFormEditor;
 
 				if ( isFormEditor ) {
+					// Track how we entered: false → true = entity navigation, null → true = direct load.
+					// When entered via entity navigation (e.g. "Edit Form" from a page), skip
+					// enforceBlockNesting to avoid corrupting page blocks during the transition.
+					state.enteredViaNavigation = previousIsFormEditor === false;
+
 					// We just entered the form editor.
 					document.body.classList.add( 'post-type-jetpack_form' );
 
@@ -422,6 +421,7 @@ const setupFormEditorSubscription = () => {
 					state.lastSelectedBlockId = null;
 					state.isFormBlockLocked = false;
 					state.hasOpenedInserter = false;
+					state.enteredViaNavigation = false;
 				}
 			}
 
@@ -482,7 +482,9 @@ const setupFormEditorSubscription = () => {
 					enforceBlockSelection();
 				}
 
-				enforceBlockNesting();
+				if ( ! state.enteredViaNavigation ) {
+					enforceBlockNesting();
+				}
 			}
 
 			// 5. Auto-open the block inserter (once) after blocks are ready
