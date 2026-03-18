@@ -115,7 +115,7 @@ class Feedback_Email_Renderer {
 		 * @param string the title of the email
 		 */
 		$title   = (string) apply_filters( 'jetpack_forms_response_email_title', '' );
-		$title   = ! empty( $title ) ? sprintf( '<h1 class="email-header">%s</h1>', $title ) : '';
+		$title   = ! empty( $title ) ? sprintf( '<h1 class="email-header">%s</h1>', esc_html( $title ) ) : '';
 		$message = self::get_compiled_form_for_email( $post_id, $form );
 
 		if ( is_user_logged_in() ) {
@@ -616,7 +616,7 @@ class Feedback_Email_Renderer {
 				'',
 				$template
 			),
-			esc_html( $title ),
+			$title,
 			$body,
 			'',
 			'',
