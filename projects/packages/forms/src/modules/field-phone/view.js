@@ -69,7 +69,7 @@ const ensureInitialized = fieldId => {
 	const config = getConfig( 'jetpack/field-phone' );
 	context.allCountries = countries.map( country => ( {
 		...country,
-		country: config?.i18n?.countryNames?.[ country.code ] || '',
+		country: config?.i18n?.countryNames?.[ country.code ] || country.country,
 		selected: country.code === context.defaultCountry,
 	} ) );
 	context.filteredCountries = [ ...context.allCountries ];
