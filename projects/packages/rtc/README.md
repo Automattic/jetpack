@@ -23,7 +23,7 @@ Then initialize it in your plugin:
 ```php
 use Automattic\Jetpack\Rtc;
 
-Rtc::init();
+RTC::init();
 ```
 
 ## Architecture
@@ -32,12 +32,12 @@ The package has two main layers:
 
 ### PHP (`src/`)
 
-- **`Rtc`** — Main class. Manages providers, enqueues assets, registers REST routes, and handles the RTC settings.
+- **`RTC`** — Main class. Manages providers, enqueues assets, registers REST routes, and handles the RTC settings.
 - **`REST_Pinghub_Token`** — REST endpoint that generates short-lived JWTs for PingHub WebSocket authentication.
 
 ### JavaScript (`src/js/`)
 
-- **`gutenberg-rtc.ts`** — Entry point. Registers the PingHub provider via the `sync.providers` filter.
+- **`rtc.ts`** — Entry point. Registers the PingHub provider via the `sync.providers` filter.
 - **`providers/pinghub/`** — PingHub provider implementation:
   - `pinghub-provider.ts` — Yjs provider (thin shell delegating to the manager).
   - `pinghub-manager.ts` — Per-room sync protocol, awareness, and reconnection logic.
