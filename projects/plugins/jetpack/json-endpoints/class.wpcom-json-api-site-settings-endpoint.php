@@ -688,12 +688,15 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 				$enabled = $current_mcp_abilities[ $ability_name ] ?? $ability_meta['enabled'] ?? false;
 
 				$computed_abilities[ $ability_name ] = array(
-					'name'        => $ability_name,
-					'title'       => $ability_meta['title'] ?? '',
-					'description' => $ability_meta['description'] ?? '',
-					'category'    => $ability_meta['category'] ?? '',
-					'type'        => $ability_meta['type'] ?? '',
-					'enabled'     => (bool) $enabled,
+					'name'             => $ability_name,
+					'title'            => $ability_meta['title'] ?? '',
+					'description'      => $ability_meta['description'] ?? '',
+					'category'         => $ability_meta['category'] ?? '',
+					'type'             => $ability_meta['type'] ?? '',
+					'enabled'          => (bool) $enabled,
+					'mcp_exposed'      => (bool) ( $ability_meta['mcp_exposed'] ?? false ),
+					'visible'          => (bool) ( $ability_meta['settings_visible'] ?? false ),
+					'readonly'         => (bool) ( $ability_meta['meta']['annotations']['readonly'] ?? false ),
 				);
 			}
 		}
