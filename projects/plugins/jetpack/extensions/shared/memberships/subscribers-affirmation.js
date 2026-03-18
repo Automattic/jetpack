@@ -405,6 +405,16 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 	const sentCategoryNames = statsOnSend
 		? getFormattedCategories( statsOnSend.post_categories, newsletterCategories, false )
 		: '';
+	const currentTierName = getCurrentTierName( accessLevel, postMeta, tierProducts );
+	const accessLabelFromSettings = getAccessLabelForCopy(
+		accessLevel,
+		currentTierName,
+		postHasPaywallBlock
+	);
+	const categoryNamesFromSettings =
+		newsletterCategoriesEnabled && newsletterCategories?.length && postCategories?.length
+			? getFormattedCategories( postCategories, newsletterCategories )
+			: '';
 
 	const isAlreadySent = emailSentAt != null || statsOnSend;
 	const isStatsOnlyFallback = ! isAlreadySent && ( totalEmailsSentCount ?? 0 ) > 0;
@@ -451,15 +461,9 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 			'jetpack'
 		);
 	} else if ( isSendingInProgress ) {
-		const currentTierName = getCurrentTierName( accessLevel, postMeta, tierProducts );
-		const accessLabel = getAccessLabelForCopy( accessLevel, currentTierName, postHasPaywallBlock );
-		const categoryNames =
-			newsletterCategoriesEnabled && newsletterCategories?.length && postCategories?.length
-				? getFormattedCategories( postCategories, newsletterCategories )
-				: '';
 		text = getSentCopyLine( {
-			accessLabel,
-			categoryNames,
+			accessLabel: accessLabelFromSettings,
+			categoryNames: categoryNamesFromSettings,
 			tense: 'present',
 			dateStr: '',
 		} );
@@ -472,15 +476,9 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 		text = __( 'Not sent via email.', 'jetpack' );
 	} else {
 		// Pre-send (prepublish/scheduled) — unified access + categories
-		const currentTierName = getCurrentTierName( accessLevel, postMeta, tierProducts );
-		const accessLabel = getAccessLabelForCopy( accessLevel, currentTierName, postHasPaywallBlock );
-		const categoryNames =
-			newsletterCategoriesEnabled && newsletterCategories?.length && postCategories?.length
-				? getFormattedCategories( postCategories, newsletterCategories )
-				: '';
 		text = getSentCopyLine( {
-			accessLabel,
-			categoryNames,
+			accessLabel: accessLabelFromSettings,
+			categoryNames: categoryNamesFromSettings,
 			tense: isPrepublishOrScheduled ? 'future' : 'present',
 			dateStr: '',
 		} );
