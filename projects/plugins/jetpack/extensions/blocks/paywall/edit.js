@@ -65,7 +65,7 @@ function PaywallEdit() {
 				hasSetDefaultAccess.current = false;
 			}
 		};
-	}, [] ); // eslint-disable-line react-hooks/exhaustive-deps
+	}, [ setAccess ] );
 
 	function selectAccess( value ) {
 		if ( accessOptions.paid_subscribers.key === value && ( stripeConnectUrl || ! hasTierPlans ) ) {

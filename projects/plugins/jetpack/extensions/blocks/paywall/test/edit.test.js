@@ -172,4 +172,27 @@ describe( 'PaywallEdit', () => {
 
 		expect( screen.getByText( 'Paid content below this line' ) ).toBeInTheDocument();
 	} );
+
+	test( 'sets access to "subscribers" when paywall block is re-added after removal', () => {
+		mockSavedAccessLevel = 'everybody';
+		mockGetBlocks.mockReturnValue( [ { name: 'jetpack/paywall' } ] );
+
+		// First render.
+		const { unmount } = render( <PaywallEdit /> );
+		expect( mockSetAccess ).toHaveBeenCalledWith( accessOptions.subscribers.key );
+
+		// Simulate block removal - cleanup should reset to 'everybody'.
+		mockSetAccess.mockClear();
+		mockGetBlocks.mockReturnValue( [] ); // No paywall block
+		unmount();
+		expect( mockSetAccess ).toHaveBeenCalledWith( accessOptions.everybody.key );
+
+		// Re-adding the block.
+		mockSetAccess.mockClear();
+		mockSavedAccessLevel = 'everybody'; // Access was reset to 'everybody' by cleanup
+		mockGetBlocks.mockReturnValue( [ { name: 'jetpack/paywall' } ] );
+
+		render( <PaywallEdit /> );
+		expect( mockSetAccess ).toHaveBeenCalledWith( accessOptions.subscribers.key );
+	} );
 } );
