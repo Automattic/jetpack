@@ -1,3 +1,4 @@
+import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { store as blockEditorStore } from '@wordpress/block-editor';
 import { createBlock, getBlockType } from '@wordpress/blocks';
 import { store as coreStore } from '@wordpress/core-data';
@@ -7,6 +8,7 @@ import { useEffect, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import useConfigValue from '../../../hooks/use-config-value.ts';
 import { createSyncedForm } from '../../contact-form/util/create-synced-form.ts';
+import { getEditorContext } from '../../contact-form/util/get-editor-context.ts';
 import { FORM_BLOCK_NAME, FORM_POST_TYPE, VERTICAL_LAYOUT } from '../util/constants.js';
 
 /**
@@ -60,6 +62,11 @@ export async function convertFormToSynced(
 		formTitle,
 		currentPostId
 	);
+
+	jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_convert_to_synced', {
+		source: 'field_auto_wrap',
+		editor_context: getEditorContext(),
+	} );
 
 	// Preload the entity record into the cache BEFORE setting ref.
 	// This ensures the form component won't show a loading skeleton

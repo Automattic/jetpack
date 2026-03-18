@@ -3,6 +3,7 @@
  * Provides toolbar buttons to convert forms to synced mode and edit synced forms
  */
 
+import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { store as blockEditorStore } from '@wordpress/block-editor';
 import { ToolbarGroup, ToolbarButton } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
@@ -98,6 +99,11 @@ export function ConvertFormToolbar( {
 				formTitle,
 				currentPostId
 			);
+
+			jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_convert_to_synced', {
+				source: 'toolbar',
+				editor_context: editorContext,
+			} );
 
 			// Clear block and set ref to the new form
 			replaceInnerBlocks( clientId, [], false );

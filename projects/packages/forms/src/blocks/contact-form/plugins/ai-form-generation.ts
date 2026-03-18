@@ -14,6 +14,7 @@
  * - The hook callback only runs when AI actually generates content
  */
 
+import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { store as blockEditorStore } from '@wordpress/block-editor';
 import { select, dispatch } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
@@ -81,6 +82,11 @@ export async function handleAiGenerationComplete(
 		if ( ! updatedBlock || updatedBlock.attributes?.ref ) {
 			return;
 		}
+
+		jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_convert_to_synced', {
+			source: 'ai_generation',
+			editor_context: 'post',
+		} );
 
 		// Set the ref attribute to link to the synced form.
 		dispatch( blockEditorStore ).updateBlockAttributes( clientId, { ref: formId } );
