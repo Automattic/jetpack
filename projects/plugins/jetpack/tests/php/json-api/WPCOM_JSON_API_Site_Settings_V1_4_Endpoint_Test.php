@@ -94,7 +94,6 @@ class WPCOM_JSON_API_Site_Settings_V1_4_Endpoint_Test extends WP_UnitTestCase {
 						'category'         => 'search',
 						'type'             => 'tool',
 						'enabled'          => true,
-						'mcp_exposed'      => true,
 						'settings_visible' => true,
 						'meta'             => array(
 							'annotations' => array(
@@ -108,7 +107,6 @@ class WPCOM_JSON_API_Site_Settings_V1_4_Endpoint_Test extends WP_UnitTestCase {
 						'category'         => 'user',
 						'type'             => 'resource',
 						'enabled'          => false,
-						'mcp_exposed'      => true,
 						'settings_visible' => false,
 						'meta'             => array(
 							'annotations' => array(
@@ -371,7 +369,6 @@ class WPCOM_JSON_API_Site_Settings_V1_4_Endpoint_Test extends WP_UnitTestCase {
 						'category'    => 'search',
 						'type'        => 'tool',
 						'enabled'     => true,
-						'mcp_exposed' => true,
 						'visible'     => true,
 						'readonly'    => false,
 					),
@@ -382,7 +379,6 @@ class WPCOM_JSON_API_Site_Settings_V1_4_Endpoint_Test extends WP_UnitTestCase {
 						'category'    => 'user',
 						'type'        => 'resource',
 						'enabled'     => false,
-						'mcp_exposed' => true,
 						'visible'     => false,
 						'readonly'    => true,
 					),
@@ -416,7 +412,6 @@ class WPCOM_JSON_API_Site_Settings_V1_4_Endpoint_Test extends WP_UnitTestCase {
 						'category'    => 'search',
 						'type'        => 'tool',
 						'enabled'     => true,
-						'mcp_exposed' => true,
 						'visible'     => true,
 						'readonly'    => false,
 					),
@@ -427,7 +422,6 @@ class WPCOM_JSON_API_Site_Settings_V1_4_Endpoint_Test extends WP_UnitTestCase {
 						'category'    => 'user',
 						'type'        => 'resource',
 						'enabled'     => true,
-						'mcp_exposed' => true,
 						'visible'     => false,
 						'readonly'    => true,
 					),
@@ -481,7 +475,6 @@ class WPCOM_JSON_API_Site_Settings_V1_4_Endpoint_Test extends WP_UnitTestCase {
 						'category'    => 'search',
 						'type'        => 'tool',
 						'enabled'     => true,
-						'mcp_exposed' => true,
 						'visible'     => true,
 						'readonly'    => false,
 					),
@@ -492,7 +485,6 @@ class WPCOM_JSON_API_Site_Settings_V1_4_Endpoint_Test extends WP_UnitTestCase {
 						'category'    => 'user',
 						'type'        => 'resource',
 						'enabled'     => false,
-						'mcp_exposed' => true,
 						'visible'     => false,
 						'readonly'    => true,
 					),

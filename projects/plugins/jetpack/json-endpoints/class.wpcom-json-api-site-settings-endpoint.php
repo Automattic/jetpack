@@ -694,7 +694,6 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					'category'    => $ability_meta['category'] ?? '',
 					'type'        => $ability_meta['type'] ?? '',
 					'enabled'     => (bool) $enabled,
-					'mcp_exposed' => (bool) ( $ability_meta['mcp_exposed'] ?? false ),
 					'visible'     => (bool) ( $ability_meta['settings_visible'] ?? false ),
 					'readonly'    => (bool) ( $ability_meta['meta']['annotations']['readonly'] ?? false ),
 				);
