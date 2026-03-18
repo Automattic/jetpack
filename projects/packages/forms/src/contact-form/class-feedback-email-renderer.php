@@ -241,14 +241,20 @@ class Feedback_Email_Renderer {
 			$form_title = Contact_Form::get_post_property( $form->current_post, 'post_title' );
 		}
 
+		$current_user = is_user_logged_in() ? wp_get_current_user() : null;
+
 		// Build metadata for the new email template.
 		$metadata = array(
-			'date'       => $time,
-			'source'     => $form_title,
-			'source_url' => $url,
-			'device'     => $response->get_browser(),
-			'ip'         => $comment_author_ip,
-			'ip_flag'    => $response->get_country_flag(),
+			'date'         => $time,
+			'source'       => $form_title,
+			'source_url'   => $url,
+			'device'       => $response->get_browser(),
+			'ip'           => $comment_author_ip,
+			'ip_flag'      => $response->get_country_flag(),
+			'current_user' => $current_user ? array(
+				'display_name' => $current_user->display_name,
+				'id'           => $current_user->ID,
+			) : null,
 		);
 
 		/**
@@ -746,6 +752,15 @@ class Feedback_Email_Renderer {
 			}
 			$ip_value .= esc_html( $metadata['ip'] );
 			$rows[]    = self::generate_metadata_row( __( 'IP address', 'jetpack-forms' ), $ip_value );
+		}
+
+		// Logged in user row.
+		if ( ! empty( $metadata['current_user'] ) ) {
+			$user_value = '#' . $metadata['current_user']['id'];
+			if ( ! empty( $metadata['current_user']['display_name'] ) ) {
+				$user_value = $metadata['current_user']['display_name'] . ' (#' . $metadata['current_user']['id'] . ')';
+			}
+			$rows[] = self::generate_metadata_row( __( 'Logged-in user', 'jetpack-forms' ), esc_html( $user_value ) );
 		}
 
 		if ( empty( $rows ) ) {
