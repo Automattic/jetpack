@@ -538,17 +538,22 @@ class Listener {
 		 * @param array $actor Associative array of actor information.
 		 */
 		$actor = apply_filters( 'jetpack_sync_actor_data', $actor );
-		
+
 		// Ensure the filter returns a valid array.
 		if ( ! is_array( $actor ) ) {
 			$actor = array();
 		}
- 
- 		// Sanitize any sync actor data fields added via the filter.
-		if ( isset( $actor['ai_client_name'] ) && is_string( $actor['ai_client_name'] ) ) {
-			$actor['ai_client_name'] = sanitize_text_field( $actor['ai_client_name'] ); 
+
+		// Only keep scalar values from filtered actor data.
+		$actor = array_filter( $actor, 'is_scalar' );
+
+		// Sanitize string values added via the filter.
+		foreach ( $actor as $key => $value ) {
+			if ( is_string( $value ) ) {
+				$actor[ $key ] = sanitize_text_field( $value );
+			}
 		}
-		
+
 		return $actor;
 	}
 
