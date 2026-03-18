@@ -544,9 +544,6 @@ class Listener {
 			$actor = array();
 		}
 
-		// Only keep scalar values from filtered actor data.
-		$actor = array_filter( $actor, 'is_scalar' );
-
 		// Sanitize string values added via the filter.
 		foreach ( $actor as $key => $value ) {
 			if ( is_string( $value ) ) {
