@@ -5,11 +5,12 @@ import PaywallEdit from '../edit';
 // Mock variables - must start with "mock" to be accessible in jest.mock factories
 const mockSetAccess = jest.fn();
 const mockGetBlocks = jest.fn();
-let mockSavedAccessLevel = 'everybody';
+let mockSavedAccessLevel: string | undefined = 'everybody';
 let mockAccessLevel = 'everybody';
 
 // Mock window.wp.data for cleanup function
-window.wp = {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+( window as any ).wp = {
 	data: {
 		select: jest.fn().mockReturnValue( {
 			getBlocks: mockGetBlocks,
