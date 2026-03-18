@@ -41,7 +41,8 @@ class SSO_Test extends BaseTestCase {
 			$_COOKIE[ SSO::BROKER_COOKIE ],
 			$_COOKIE['jetpack_sso_nonce'],
 			$_GET['redirect_to'],
-			$_SERVER['HTTP_REFERER']
+			$_SERVER['HTTP_REFERER'],
+			$GLOBALS['action']
 		);
 		parent::tear_down();
 	}

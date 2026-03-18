@@ -814,6 +814,8 @@ class SSO {
 				is_ssl(),
 				true
 			);
+			// Ensure this request can use the nonce immediately after setcookie().
+			$_COOKIE['jetpack_sso_nonce'] = $nonce;
 
 			if ( $use_broker ) {
 				setcookie(
@@ -825,8 +827,11 @@ class SSO {
 					is_ssl(),
 					true
 				);
+				// Mirror the broker signal in-memory for this request.
+				$_COOKIE[ self::BROKER_COOKIE ] = $nonce;
 			} else {
 				setcookie( self::BROKER_COOKIE, ' ', time() - YEAR_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN, is_ssl(), true );
+				unset( $_COOKIE[ self::BROKER_COOKIE ] );
 			}
 		}
 
@@ -1323,7 +1328,9 @@ class SSO {
 	}
 
 	/**
-	 * Build WordPress.com SSO URL with appropriate query parameters.
+	 * Build SSO URL with appropriate query parameters.
+	 *
+	 * The base URL can be WordPress.com or an authorized broker URL.
 	 *
 	 * @param array $args Optional query parameters.
 	 * @return string|WP_Error Redirect URL for SSO authentication.
