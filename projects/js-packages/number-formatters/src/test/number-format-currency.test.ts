@@ -460,6 +460,138 @@ describe( 'numberFormatCurrency()', () => {
 			expect( smallMoney ).toMatch( expectation );
 			expect( bigMoney ).toMatch( expectation );
 		} );
+		it( 'COP', () => {
+			let bigMoney = null;
+			let expectation = null;
+			let smallMoney = null;
+			const [ , majorVersion, minorVersion, patchVersion ] =
+				process.version.match( /^v(\d+).(\d+).(\d+)/ );
+			if (
+				parseInt( majorVersion ) > 22 ||
+				( parseInt( majorVersion ) === 22 && parseInt( minorVersion ) > 22 ) ||
+				( parseInt( majorVersion ) === 22 &&
+					parseInt( minorVersion ) === 22 &&
+					parseInt( patchVersion ) >= 1 )
+			) {
+				smallMoney = numberFormatCurrency( {
+					number: 1072800,
+					currency: 'COP',
+					browserSafeLocale: 'es-CO',
+					isSmallestUnit: true,
+				} );
+				bigMoney = numberFormatCurrency( {
+					number: 1072800,
+					currency: 'COP',
+					browserSafeLocale: 'es-CO',
+					isSmallestUnit: false,
+				} );
+				expectation = /\$\s1\.072\.800/;
+			} else {
+				smallMoney = numberFormatCurrency( {
+					number: 107280000,
+					currency: 'COP',
+					browserSafeLocale: 'es-CO',
+					isSmallestUnit: true,
+				} );
+				bigMoney = numberFormatCurrency( {
+					number: 1072800,
+					currency: 'COP',
+					browserSafeLocale: 'es-CO',
+					isSmallestUnit: false,
+				} );
+				expectation = /\$\s1\.072\.800,00/;
+			}
+			expect( smallMoney ).toMatch( expectation );
+			expect( bigMoney ).toMatch( expectation );
+		} );
+		it( 'HUF', () => {
+			let bigMoney = null;
+			let expectation = null;
+			let smallMoney = null;
+			const [ , majorVersion, minorVersion, patchVersion ] =
+				process.version.match( /^v(\d+).(\d+).(\d+)/ );
+			if (
+				parseInt( majorVersion ) > 22 ||
+				( parseInt( majorVersion ) === 22 && parseInt( minorVersion ) > 22 ) ||
+				( parseInt( majorVersion ) === 22 &&
+					parseInt( minorVersion ) === 22 &&
+					parseInt( patchVersion ) >= 1 )
+			) {
+				smallMoney = numberFormatCurrency( {
+					number: 1072800,
+					currency: 'HUF',
+					browserSafeLocale: 'hu-HU',
+					isSmallestUnit: true,
+				} );
+				bigMoney = numberFormatCurrency( {
+					number: 1072800,
+					currency: 'HUF',
+					browserSafeLocale: 'hu-HU',
+					isSmallestUnit: false,
+				} );
+				expectation = /1\s072\s800\sFt/;
+			} else {
+				smallMoney = numberFormatCurrency( {
+					number: 107280000,
+					currency: 'HUF',
+					browserSafeLocale: 'hu-HU',
+					isSmallestUnit: true,
+				} );
+				bigMoney = numberFormatCurrency( {
+					number: 1072800,
+					currency: 'HUF',
+					browserSafeLocale: 'hu-HU',
+					isSmallestUnit: false,
+				} );
+				expectation = /1\s072\s800,00\sFt/;
+			}
+			expect( smallMoney ).toMatch( expectation );
+			expect( bigMoney ).toMatch( expectation );
+		} );
+		it( 'PKR', () => {
+			let bigMoney = null;
+			let expectation = null;
+			let smallMoney = null;
+			const [ , majorVersion, minorVersion, patchVersion ] =
+				process.version.match( /^v(\d+).(\d+).(\d+)/ );
+			if (
+				parseInt( majorVersion ) > 22 ||
+				( parseInt( majorVersion ) === 22 && parseInt( minorVersion ) > 22 ) ||
+				( parseInt( majorVersion ) === 22 &&
+					parseInt( minorVersion ) === 22 &&
+					parseInt( patchVersion ) >= 1 )
+			) {
+				smallMoney = numberFormatCurrency( {
+					number: 1072800,
+					currency: 'PKR',
+					browserSafeLocale: 'en-PK',
+					isSmallestUnit: true,
+				} );
+				bigMoney = numberFormatCurrency( {
+					number: 1072800,
+					currency: 'PKR',
+					browserSafeLocale: 'en-PK',
+					isSmallestUnit: false,
+				} );
+				expectation = /₨\s1,072,800/;
+			} else {
+				smallMoney = numberFormatCurrency( {
+					number: 107280000,
+					currency: 'PKR',
+					browserSafeLocale: 'en-PK',
+					isSmallestUnit: true,
+				} );
+				bigMoney = numberFormatCurrency( {
+					number: 1072800,
+					currency: 'PKR',
+					browserSafeLocale: 'en-PK',
+					isSmallestUnit: false,
+				} );
+				expectation = /₨\s1,072,800.00/;
+			}
+			expect( smallMoney ).toMatch( expectation );
+			expect( bigMoney ).toMatch( expectation );
+		} );
 	} );
 } );
 
