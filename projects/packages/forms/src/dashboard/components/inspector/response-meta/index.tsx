@@ -126,6 +126,16 @@ const ResponseMeta = ( { response }: ResponseMetaProps ): import('react').JSX.El
 							<td>{ response.browser }</td>
 						</tr>
 					) }
+					{ response.logged_in_user && (
+						<tr>
+							<th>{ __( 'Logged-in user:', 'jetpack-forms' ) }&nbsp;</th>
+							<td>
+								{ response.logged_in_user.display_name
+									? `${ response.logged_in_user.display_name } (#${ response.logged_in_user.id })`
+									: `#${ response.logged_in_user.id }` }
+							</td>
+						</tr>
+					) }
 				</tbody>
 			</table>
 		</div>

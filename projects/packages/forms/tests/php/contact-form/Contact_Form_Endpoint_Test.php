@@ -168,11 +168,23 @@ class Contact_Form_Endpoint_Test extends TestCase {
 		$this->assertArrayHasKey( 'author_avatar', $schema_properties );
 		$this->assertArrayHasKey( 'email_marketing_consent', $schema_properties );
 		$this->assertArrayHasKey( 'ip', $schema_properties );
+		$this->assertArrayHasKey( 'country_code', $schema_properties );
+		$this->assertArrayHasKey( 'browser', $schema_properties );
+		$this->assertArrayHasKey( 'logged_in_user', $schema_properties );
 		$this->assertArrayHasKey( 'entry_title', $schema_properties );
 		$this->assertArrayHasKey( 'entry_permalink', $schema_properties );
 		$this->assertArrayHasKey( 'subject', $schema_properties );
 		$this->assertArrayHasKey( 'fields', $schema_properties );
 		$this->assertArrayHasKey( 'is_unread', $schema_properties );
+
+		// Verify logged_in_user schema structure
+		$logged_in_user_schema = $schema_properties['logged_in_user'];
+		$this->assertArrayHasKey( 'type', $logged_in_user_schema );
+		$this->assertContains( 'object', $logged_in_user_schema['type'] );
+		$this->assertContains( 'null', $logged_in_user_schema['type'] );
+		$this->assertArrayHasKey( 'properties', $logged_in_user_schema );
+		$this->assertArrayHasKey( 'display_name', $logged_in_user_schema['properties'] );
+		$this->assertArrayHasKey( 'id', $logged_in_user_schema['properties'] );
 
 		// Also make sure that we don't have fields that are not relevant to feedback.
 		$this->assertArrayNotHasKey( 'link', $schema_properties );
@@ -1168,5 +1180,110 @@ JSON_DATA{"1_name":"Test Author","2_email":"author@example.com","3_file":{"field
 		$response = $this->server->dispatch( $request );
 
 		$this->assertEquals( 401, $response->get_status() );
+	}
+
+	/**
+	 * Test prepare_item_for_response includes logged_in_user when user is logged in.
+	 */
+	public function test_prepare_item_for_response_with_logged_in_user() {
+		$user_id = wp_insert_user(
+			array(
+				'user_login'   => 'testuser',
+				'user_pass'    => 'testpass',
+				'display_name' => 'Test Display Name',
+			)
+		);
+
+		$feedback_time = current_time( 'mysql' );
+		$content       = wp_json_encode(
+			array(
+				'subject'        => 'Test Subject',
+				'ip'             => '127.0.0.1',
+				'country_code'   => 'US',
+				'entry_title'    => 'Test Form',
+				'entry_page'     => 123,
+				'logged_in_user' => array(
+					'display_name' => 'Test Display Name',
+					'id'           => $user_id,
+				),
+				'fields'         => array(
+					array(
+						'id'    => '1',
+						'label' => 'Name',
+						'value' => 'Submitter Name',
+					),
+				),
+			),
+			JSON_UNESCAPED_SLASHES
+		);
+
+		$post_id = wp_insert_post(
+			array(
+				'post_type'      => 'feedback',
+				'post_status'    => 'publish',
+				'post_title'     => 'Test Feedback - ' . $feedback_time,
+				'post_content'   => $content,
+				'post_mime_type' => 'v2',
+			)
+		);
+
+		$request  = new WP_REST_Request( 'GET', '/wp/v2/feedback/' . $post_id );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 200, $response->get_status() );
+		$data = $response->get_data();
+
+		$this->assertArrayHasKey( 'logged_in_user', $data );
+		$this->assertIsArray( $data['logged_in_user'] );
+		$this->assertArrayHasKey( 'display_name', $data['logged_in_user'] );
+		$this->assertArrayHasKey( 'id', $data['logged_in_user'] );
+		$this->assertEquals( 'Test Display Name', $data['logged_in_user']['display_name'] );
+		$this->assertEquals( $user_id, $data['logged_in_user']['id'] );
+
+		wp_delete_user( $user_id );
+	}
+
+	/**
+	 * Test prepare_item_for_response returns null for logged_in_user when not logged in.
+	 */
+	public function test_prepare_item_for_response_without_logged_in_user() {
+		$feedback_time = current_time( 'mysql' );
+		$content       = wp_json_encode(
+			array(
+				'subject'        => 'Test Subject',
+				'ip'             => '127.0.0.1',
+				'country_code'   => 'US',
+				'entry_title'    => 'Test Form',
+				'entry_page'     => 123,
+				'logged_in_user' => null,
+				'fields'         => array(
+					array(
+						'id'    => '1',
+						'label' => 'Name',
+						'value' => 'Submitter Name',
+					),
+				),
+			),
+			JSON_UNESCAPED_SLASHES
+		);
+
+		$post_id = wp_insert_post(
+			array(
+				'post_type'      => 'feedback',
+				'post_status'    => 'publish',
+				'post_title'     => 'Test Feedback - ' . $feedback_time,
+				'post_content'   => $content,
+				'post_mime_type' => 'v2',
+			)
+		);
+
+		$request  = new WP_REST_Request( 'GET', '/wp/v2/feedback/' . $post_id );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 200, $response->get_status() );
+		$data = $response->get_data();
+
+		$this->assertArrayHasKey( 'logged_in_user', $data );
+		$this->assertNull( $data['logged_in_user'] );
 	}
 }

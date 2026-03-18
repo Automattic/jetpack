@@ -630,6 +630,29 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			'readonly'    => true,
 		);
 
+		$schema['properties']['logged_in_user'] = array(
+			'description' => __( 'The logged-in user who submitted the form, if any.', 'jetpack-forms' ),
+			'type'        => array( 'object', 'null' ),
+			'context'     => array( 'view', 'edit', 'embed' ),
+			'properties'  => array(
+				'display_name' => array(
+					'type'        => 'string',
+					'description' => __( 'The display name of the logged-in user.', 'jetpack-forms' ),
+					'arg_options' => array(
+						'sanitize_callback' => 'sanitize_text_field',
+					),
+				),
+				'id'           => array(
+					'type'        => 'integer',
+					'description' => __( 'The ID of the logged-in user.', 'jetpack-forms' ),
+					'arg_options' => array(
+						'sanitize_callback' => 'absint',
+					),
+				),
+			),
+			'readonly'    => true,
+		);
+
 		$schema['properties']['entry_title'] = array(
 			'description' => __( 'The title of the page or post where the form was submitted.', 'jetpack-forms' ),
 			'type'        => 'string',
@@ -894,6 +917,10 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 
 		if ( rest_is_field_included( 'browser', $fields ) ) {
 			$data['browser'] = $feedback_response->get_browser();
+		}
+
+		if ( rest_is_field_included( 'logged_in_user', $fields ) ) {
+			$data['logged_in_user'] = $feedback_response->get_logged_in_user();
 		}
 
 		if ( rest_is_field_included( 'entry_title', $fields ) ) {
