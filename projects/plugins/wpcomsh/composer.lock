@@ -1970,10 +1970,11 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/rtc",
-                "reference": "b88619b039e84922183128a5a2aad385f7f44a0b"
+                "reference": "e8f440cdd4bedae187d26ee2c873bc9b52a88a66"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
+                "automattic/jetpack-connection": "@dev",
                 "php": ">=7.2"
             },
             "require-dev": {
