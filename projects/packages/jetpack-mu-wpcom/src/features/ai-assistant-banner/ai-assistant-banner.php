@@ -23,7 +23,7 @@ function wpcom_should_show_ai_assistant_banner() {
 		return false;
 	}
 
-	if ( ! wpcom_site_has_feature( 'ai-assistant' ) ) {
+	if ( ! function_exists( 'wpcom_site_has_feature' ) || ! wpcom_site_has_feature( 'ai-assistant' ) ) {
 		return false;
 	}
 
