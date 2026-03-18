@@ -1,13 +1,15 @@
-import { wpcomTrackEvent } from '../../../common/tracks';
-
-/**
- * JavaScript for the AI Assistant banner event tracking and dismiss handling.
- *
- * @param {object} $ - The jQuery object
- */
-
 /* global jQuery */
 ( function ( $ ) {
+	/**
+	 * Record a Tracks event via the _tkq global.
+	 *
+	 * @param {string} eventName - The event name to record.
+	 */
+	function trackEvent( eventName ) {
+		window._tkq = window._tkq || [];
+		window._tkq.push( [ 'recordEvent', eventName ] );
+	}
+
 	$( document ).ready( function () {
 		const banner = document.getElementById( 'wpcom-ai-assistant-banner' );
 
@@ -15,16 +17,16 @@ import { wpcomTrackEvent } from '../../../common/tracks';
 			return;
 		}
 
-		wpcomTrackEvent( 'jetpack_ai_assistant_banner_impression' );
+		trackEvent( 'jetpack_ai_assistant_banner_impression' );
 
-		const ctaBtn = banner.querySelector( '.wpcom-ai-assistant-banner__cta' );
+		const ctaBtn = banner.querySelector( '.button-secondary' );
 		ctaBtn?.addEventListener( 'click', function () {
-			wpcomTrackEvent( 'jetpack_ai_assistant_banner_cta_click' );
+			trackEvent( 'jetpack_ai_assistant_banner_cta_click' );
 		} );
 
-		const dismissBtn = banner.querySelector( '.wpcom-ai-assistant-banner__dismiss' );
+		const dismissBtn = banner.querySelector( '.notice-dismiss' );
 		dismissBtn?.addEventListener( 'click', function () {
-			wpcomTrackEvent( 'jetpack_ai_assistant_banner_dismiss' );
+			trackEvent( 'jetpack_ai_assistant_banner_dismiss' );
 
 			$.post( window.ajaxurl, {
 				action: 'dismiss_ai_assistant_banner',
