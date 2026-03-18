@@ -10,7 +10,10 @@
 
 // Enable allowed experiments early so Gutenberg's load.php include-time check picks them up.
 // This runs at MU plugin load time, before Gutenberg (a regular plugin) is loaded.
+// Both filters are needed: default_option_ fires when the option doesn't exist in the DB,
+// option_ fires when it does.
 add_filter( 'default_option_gutenberg-experiments', 'wpcomsh_filter_gutenberg_experiments' );
+add_filter( 'option_gutenberg-experiments', 'wpcomsh_filter_gutenberg_experiments' );
 
 /**
  * Disable all Gutenberg experiments except explicitly allowed ones.
@@ -30,10 +33,11 @@ function wpcomsh_remove_gutenberg_experiments() {
 	);
 
 	if ( in_array( $blog_id, $allowed_blogs, true ) ) {
+		// Undo the early filters for allowed blogs so they keep all experiments.
+		remove_filter( 'default_option_gutenberg-experiments', 'wpcomsh_filter_gutenberg_experiments' );
+		remove_filter( 'option_gutenberg-experiments', 'wpcomsh_filter_gutenberg_experiments' );
 		return;
 	}
-
-	add_filter( 'option_gutenberg-experiments', 'wpcomsh_filter_gutenberg_experiments' );
 	add_action( 'admin_menu', 'wpcomsh_remove_gutenberg_experimental_menu' );
 }
 add_action( 'init', 'wpcomsh_remove_gutenberg_experiments' );
@@ -41,21 +45,14 @@ add_action( 'init', 'wpcomsh_remove_gutenberg_experiments' );
 /**
  * Disable all Gutenberg experiments except explicitly allowed ones.
  *
- * Allowed experiments are always enabled regardless of the option value.
+ * Allowed experiments are always enabled regardless of the option value in the database.
  *
- * @return array Filtered experiments with only allowed experiments enabled.
+ * @return array List of the enabled experiments.
  */
 function wpcomsh_filter_gutenberg_experiments() {
-	$allowed_experiments = array(
-		'gutenberg-content-guidelines',
+	return array(
+		'gutenberg-content-guidelines' => true,
 	);
-
-	$filtered = array();
-	foreach ( $allowed_experiments as $experiment ) {
-		$filtered[ $experiment ] = true;
-	}
-
-	return $filtered;
 }
 
 /**
