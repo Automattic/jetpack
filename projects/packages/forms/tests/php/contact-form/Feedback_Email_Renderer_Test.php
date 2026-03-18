@@ -211,6 +211,58 @@ class Feedback_Email_Renderer_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Test generate_metadata_html with logged-in user renders user info.
+	 */
+	public function test_generate_metadata_html_logged_in_user() {
+		$result = self::invoke_static_method(
+			'generate_metadata_html',
+			array(
+				'logged_in_user' => array(
+					'display_name' => 'John Smith',
+					'id'           => 42,
+				),
+			)
+		);
+
+		$this->assertStringContainsString( 'Logged-in user', $result );
+		$this->assertStringContainsString( 'John Smith (#42)', $result );
+	}
+
+	/**
+	 * Test generate_metadata_html with logged-in user without display name shows ID only.
+	 */
+	public function test_generate_metadata_html_logged_in_user_no_display_name() {
+		$result = self::invoke_static_method(
+			'generate_metadata_html',
+			array(
+				'logged_in_user' => array(
+					'display_name' => '',
+					'id'           => 123,
+				),
+			)
+		);
+
+		$this->assertStringContainsString( 'Logged-in user', $result );
+		$this->assertStringContainsString( '#123', $result );
+		$this->assertStringNotContainsString( '(#123)', $result );
+	}
+
+	/**
+	 * Test generate_metadata_html without logged-in user omits the row.
+	 */
+	public function test_generate_metadata_html_no_logged_in_user() {
+		$result = self::invoke_static_method(
+			'generate_metadata_html',
+			array(
+				'date'   => 'January 1, 2025',
+				'device' => 'Desktop',
+			)
+		);
+
+		$this->assertStringNotContainsString( 'Logged-in user', $result );
+	}
+
+	/**
 	 * Test format_field_for_email with label renders label, value, and field icon.
 	 */
 	public function test_format_field_for_email_with_label() {
