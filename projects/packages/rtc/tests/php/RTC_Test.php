@@ -65,6 +65,9 @@ class RTC_Test extends \WorDBless\BaseTestCase {
 
 		// Reset the static $initialized flag so hooks are re-registered in the next test.
 		$reflection = new \ReflectionProperty( RTC::class, 'initialized' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$reflection->setAccessible( true );
+		}
 		$reflection->setValue( null, false );
 
 		parent::tear_down();
