@@ -632,7 +632,9 @@ class Users extends Module {
 		);
 
 		// The jetpack_sync_register_user payload is identical to jetpack_sync_save_user, don't send both.
-		if ( $this->is_create_user() || $this->is_add_user_to_blog() ) {
+		if ( $this->is_function_in_backtrace(
+			array_merge( $this->get_create_user_functions(), $this->get_add_user_to_blog_functions() )
+		) ) {
 			return;
 		}
 		/**
@@ -703,7 +705,9 @@ class Users extends Module {
 			$this->add_flags( $user_id, array( 'capabilities_changed' => true ) );
 		}
 
-		if ( $this->is_create_user() || $this->is_add_user_to_blog() || $this->is_delete_user() ) {
+		if ( $this->is_function_in_backtrace(
+			array_merge( $this->get_create_user_functions(), $this->get_add_user_to_blog_functions(), $this->get_delete_user_functions() )
+		) ) {
 			return;
 		}
 
@@ -875,18 +879,18 @@ class Users extends Module {
 	 * @return boolean
 	 */
 	protected function is_add_new_user_to_blog() {
-		return $this->is_function_in_backtrace( 'add_new_user_to_blog' );
+		return $this->is_function_in_backtrace( $this->get_add_new_user_to_blog_functions() );
 	}
 
 	/**
-	 * Whether we're adding an existing user to a blog in this request.
+	 * Get the function names that indicate a new user is being added to a blog.
 	 *
 	 * @access protected
 	 *
-	 * @return boolean
+	 * @return array
 	 */
-	protected function is_add_user_to_blog() {
-		return $this->is_function_in_backtrace( 'add_user_to_blog' );
+	protected function get_add_new_user_to_blog_functions() {
+		return array( 'add_new_user_to_blog' );
 	}
 
 	/**
@@ -897,7 +901,7 @@ class Users extends Module {
 	 * @return boolean
 	 */
 	protected function is_delete_user() {
-		return $this->is_function_in_backtrace( array( 'wp_delete_user', 'remove_user_from_blog' ) );
+		return $this->is_function_in_backtrace( $this->get_delete_user_functions() );
 	}
 
 	/**
@@ -908,13 +912,46 @@ class Users extends Module {
 	 * @return boolean
 	 */
 	protected function is_create_user() {
-		$functions = array(
-			'add_new_user_to_blog', // Used to suppress jetpack_sync_save_user in save_user_cap_handler when user registered on multi site.
-			'wp_create_user', // Used to suppress jetpack_sync_save_user in save_user_role_handler when user registered on multi site.
-			'wp_insert_user', // Used to suppress jetpack_sync_save_user in save_user_cap_handler and save_user_role_handler when user registered on single site.
-		);
+		return $this->is_function_in_backtrace( $this->get_create_user_functions() );
+	}
 
-		return $this->is_function_in_backtrace( $functions );
+	/**
+	 * Get the function names that indicate a user is being created.
+	 *
+	 * @access protected
+	 *
+	 * @return array
+	 */
+	protected function get_create_user_functions() {
+		return array_merge(
+			$this->get_add_new_user_to_blog_functions(),
+			array(
+				'wp_create_user', // Used to suppress jetpack_sync_save_user in save_user_role_handler when user registered on multi site.
+				'wp_insert_user', // Used to suppress jetpack_sync_save_user in save_user_cap_handler and save_user_role_handler when user registered on single site.
+			)
+		);
+	}
+
+	/**
+	 * Get the function names that indicate a user is being added to a blog.
+	 *
+	 * @access protected
+	 *
+	 * @return array
+	 */
+	protected function get_add_user_to_blog_functions() {
+		return array( 'add_user_to_blog' );
+	}
+
+	/**
+	 * Get the function names that indicate a user is being deleted.
+	 *
+	 * @access protected
+	 *
+	 * @return array
+	 */
+	protected function get_delete_user_functions() {
+		return array( 'wp_delete_user', 'remove_user_from_blog' );
 	}
 
 	/**
