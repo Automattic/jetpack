@@ -1,0 +1,3 @@
+Significance: patch
+Type: enhancement
+Comment: Add hook point in decorate_jetpack_response to allow SAL site overrides.

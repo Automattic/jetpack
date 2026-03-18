@@ -1,8 +1,5 @@
 .pie-chart {
-	display: flex;
-	flex-direction: column;
 	overflow: hidden;
-	align-items: center;
 
 	// Fill parent when no explicit width/height provided
 	&--responsive {
@@ -10,13 +7,8 @@
 		width: 100%;
 	}
 
-	&__svg-wrapper {
-		flex: 1;
-		min-height: 0; // Required for flex shrinking
-		min-width: 0; // Required for flex shrinking
+	&__centering {
 		width: 100%;
-		display: flex;
-		align-items: center;
-		justify-content: center;
+		height: 100%;
 	}
 }

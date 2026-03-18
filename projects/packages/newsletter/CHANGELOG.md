@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.1] - 2026-03-16
+### Added
+- Settings: Add privacy information link. [#47587]
+
+### Changed
+- Settings: Fix inconsistent punctuation and casing on labels. [#47559]
+- Settings: Link to WordPress.com for all WordPress.com sites. [#47578]
+- Update dependencies. [#47472]
+
+### Fixed
+- Add spacing below warning notice in Email content settings section. [#47516]
+- Subscriptions: Fix mobile alignment of Preview and edit links in settings. [#47561]
+- Ensure module configure URL points to the new newsletter settings page. [#47584]
+
 ## [0.6.0] - 2026-03-09
 ### Added
 - Add `jetpack_show_newsletter_menu_item` filter to show menu regardless of subscriptions module state. [#47347]
@@ -101,6 +115,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Update package dependencies. [#46143]
 
+[0.6.1]: https://github.com/Automattic/jetpack-newsletter/compare/v0.6.0...v0.6.1
 [0.6.0]: https://github.com/Automattic/jetpack-newsletter/compare/v0.5.2...v0.6.0
 [0.5.2]: https://github.com/Automattic/jetpack-newsletter/compare/v0.5.1...v0.5.2
 [0.5.1]: https://github.com/Automattic/jetpack-newsletter/compare/v0.5.0...v0.5.1

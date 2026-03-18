@@ -49,7 +49,8 @@ class Feedback_Legacy_Compatibility_Test extends BaseTestCase {
 		$response = Feedback::from_submission( $_post_data, $form, $current_post );
 		$post_id  = $response->save();
 
-		$saved_response = Feedback::get( $post_id );
+		$saved_response     = Feedback::get( $post_id );
+		$expected_permalink = get_permalink( $current_post->ID );
 		Utility::destroy_post_context( $current_post );
 
 		$this->assertNotEmpty( $response->get_akismet_vars(), 'Akismet vars should not be empty for the form submission' );
@@ -61,6 +62,7 @@ class Feedback_Legacy_Compatibility_Test extends BaseTestCase {
 			'contact_form_subject',
 			'comment_author_ip',
 			'comment_content',
+			'permalink',
 			'contact_form_field_text',
 		);
 
@@ -68,6 +70,10 @@ class Feedback_Legacy_Compatibility_Test extends BaseTestCase {
 			$this->assertArrayHasKey( $key, $response->get_akismet_vars(), "Akismet vars should contain '$key'" );
 			$this->assertArrayHasKey( $key, $saved_response->get_akismet_vars(), "Akismet vars should contain '$key'" );
 		}
+
+		// Verify permalink points to the post the form was submitted on.
+		$this->assertEquals( $expected_permalink, $response->get_akismet_vars()['permalink'], 'Akismet permalink should match the entry permalink' );
+		$this->assertEquals( $expected_permalink, $saved_response->get_akismet_vars()['permalink'], 'Saved Akismet permalink should match the entry permalink' );
 	}
 
 	public function test_legacy_get_all_legacy_values() {

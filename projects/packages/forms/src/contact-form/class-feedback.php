@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Forms\ContactForm;
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Device_Detection\User_Agent_Info;
+use Automattic\Jetpack\Forms\Dashboard\Dashboard as Forms_Dashboard;
 use WP_Post;
 /**
  * Handles the response for a contact form submission.
@@ -802,6 +803,7 @@ class Feedback {
 			'contact_form_subject' => $this->get_subject(),
 			'comment_author_ip'    => $this->get_ip_address(),
 			'comment_content'      => empty( $this->get_comment_content() ) ? null : $this->get_comment_content(),
+			'permalink'            => $this->get_entry_permalink(),
 		);
 
 		foreach ( $this->fields as $field ) {
@@ -1315,6 +1317,12 @@ class Feedback {
 				'comment_status' => self::STATUS_UNREAD, // New feedback is unread by default.
 			)
 		);
+
+		// If this feedback does not have a jetpack_form parent,
+		// it's a classic form — mark the state accordingly.
+		if ( empty( $this->form_id ) ) {
+			Forms_Dashboard::mark_classic_form_detected();
+		}
 
 		$feedback_post = get_post( $post_id );
 		return $feedback_post ?? 0;
