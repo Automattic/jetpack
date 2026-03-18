@@ -257,6 +257,14 @@ const enforceBlockNesting = () => {
 		return;
 	}
 
+	// In the form editor, there should be exactly one jetpack/contact-form at root.
+	// If there are multiple, we're seeing page/post blocks during an entity transition
+	// (e.g. navigating back from the form editor). Skip nesting to avoid corrupting page content.
+	const formBlockCount = rootBlocks.filter( b => b.name === 'jetpack/contact-form' ).length;
+	if ( formBlockCount > 1 ) {
+		return;
+	}
+
 	// Find any blocks that aren't the form block
 	const blocksToMove = getBlocksToMove( rootBlocks, state.formBlockClientId );
 
