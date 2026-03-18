@@ -128,8 +128,8 @@ export const FormPostPublishPanel = () => {
 		return null;
 	}
 
-	const pagesUrl = addQueryArgs( 'edit.php', { post_type: 'page' } );
 	const postsUrl = 'edit.php';
+	const pagesUrl = addQueryArgs( postsUrl, { post_type: 'page' } );
 
 	return (
 		<Modal
