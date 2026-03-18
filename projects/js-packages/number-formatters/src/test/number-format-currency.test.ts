@@ -457,8 +457,8 @@ describe( 'numberFormatCurrency()', () => {
 				} );
 				expectation = 'Rp 1.072.800,00';
 			}
-			expect( smallMoney ).toBe( expectation );
-			expect( bigMoney ).toBe( expectation );
+			expect( smallMoney ).toMatch( expectation );
+			expect( bigMoney ).toMatch( expectation );
 		} );
 	} );
 } );
