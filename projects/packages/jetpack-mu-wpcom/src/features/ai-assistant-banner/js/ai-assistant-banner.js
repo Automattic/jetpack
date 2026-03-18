@@ -11,7 +11,7 @@
 	}
 
 	$( document ).ready( function () {
-		const banner = document.getElementById( 'wpcom-ai-assistant-banner' );
+		const banner = document.getElementById( 'ai-assistant-banner' );
 
 		if ( ! banner ) {
 			return;
