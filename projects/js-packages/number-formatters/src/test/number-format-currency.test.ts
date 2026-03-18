@@ -441,7 +441,7 @@ describe( 'numberFormatCurrency()', () => {
 					browserSafeLocale: 'in-ID',
 					isSmallestUnit: false,
 				} );
-				expectation = 'Rp 1.072.800';
+				expectation = /Rp\s1\.072\.800/;
 			} else {
 				smallMoney = numberFormatCurrency( {
 					number: 107280000,
@@ -455,7 +455,7 @@ describe( 'numberFormatCurrency()', () => {
 					browserSafeLocale: 'in-ID',
 					isSmallestUnit: false,
 				} );
-				expectation = 'Rp 1.072.800,00';
+				expectation = /Rp\s1\.072\.800,00/;
 			}
 			expect( smallMoney ).toMatch( expectation );
 			expect( bigMoney ).toMatch( expectation );
