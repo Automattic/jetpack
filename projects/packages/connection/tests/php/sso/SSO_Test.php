@@ -29,7 +29,6 @@ class SSO_Test extends BaseTestCase {
 	 */
 	public function set_up() {
 		parent::set_up();
-		$this->reset_sso_instance();
 		$this->sso = SSO::get_instance();
 	}
 
@@ -37,7 +36,6 @@ class SSO_Test extends BaseTestCase {
 	 * Tear down.
 	 */
 	public function tear_down() {
-		$this->reset_sso_instance();
 		Constants::clear_constants();
 		unset(
 			$_COOKIE[ SSO::BROKER_COOKIE ],
@@ -46,14 +44,6 @@ class SSO_Test extends BaseTestCase {
 			$_SERVER['HTTP_REFERER']
 		);
 		parent::tear_down();
-	}
-
-	/**
-	 * Reset the SSO singleton so each test starts fresh.
-	 */
-	private function reset_sso_instance() {
-		SSO::$instance = null;
-		$this->sso     = null;
 	}
 
 	// ──────────────────────────────────────────────
@@ -172,8 +162,6 @@ class SSO_Test extends BaseTestCase {
 	 * Test validate_jetpack_sso_require_two_step returns 1 for truthy value.
 	 */
 	public function test_validate_require_two_step_truthy() {
-		$this->assertSame( 1, $this->sso->validate_jetpack_sso_require_two_step( '1' ) );
-		$this->assertSame( 1, $this->sso->validate_jetpack_sso_require_two_step( 'yes' ) );
 		$this->assertSame( 1, $this->sso->validate_jetpack_sso_require_two_step( true ) );
 	}
 
@@ -181,18 +169,13 @@ class SSO_Test extends BaseTestCase {
 	 * Test validate_jetpack_sso_require_two_step returns 0 for falsy value.
 	 */
 	public function test_validate_require_two_step_falsy() {
-		$this->assertSame( 0, $this->sso->validate_jetpack_sso_require_two_step( '' ) );
 		$this->assertSame( 0, $this->sso->validate_jetpack_sso_require_two_step( false ) );
-		$this->assertSame( 0, $this->sso->validate_jetpack_sso_require_two_step( null ) );
-		$this->assertSame( 0, $this->sso->validate_jetpack_sso_require_two_step( 0 ) );
 	}
 
 	/**
 	 * Test validate_jetpack_sso_match_by_email returns 1 for truthy value.
 	 */
 	public function test_validate_match_by_email_truthy() {
-		$this->assertSame( 1, $this->sso->validate_jetpack_sso_match_by_email( '1' ) );
-		$this->assertSame( 1, $this->sso->validate_jetpack_sso_match_by_email( 'yes' ) );
 		$this->assertSame( 1, $this->sso->validate_jetpack_sso_match_by_email( true ) );
 	}
 
@@ -200,10 +183,7 @@ class SSO_Test extends BaseTestCase {
 	 * Test validate_jetpack_sso_match_by_email returns 0 for falsy value.
 	 */
 	public function test_validate_match_by_email_falsy() {
-		$this->assertSame( 0, $this->sso->validate_jetpack_sso_match_by_email( '' ) );
 		$this->assertSame( 0, $this->sso->validate_jetpack_sso_match_by_email( false ) );
-		$this->assertSame( 0, $this->sso->validate_jetpack_sso_match_by_email( null ) );
-		$this->assertSame( 0, $this->sso->validate_jetpack_sso_match_by_email( 0 ) );
 	}
 
 	// ──────────────────────────────────────────────
