@@ -431,6 +431,15 @@ const setupFormEditorSubscription = () => {
 				return;
 			}
 
+			// 2b. Early return if entered via entity navigation (e.g. "Edit Form" from a page).
+			// All form-editor-specific block manipulations below (category setup, block nesting,
+			// block locking, selection enforcement, etc.) should only run when the form editor
+			// is loaded directly. During entity navigation transitions, the block store briefly
+			// contains page blocks while isFormEditor is still true, which causes race conditions.
+			if ( state.enteredViaNavigation ) {
+				return;
+			}
+
 			// 3. One-time category setup, block directory disable, and collection removal
 			if ( ! state.categoriesSetUp ) {
 				state.categoriesSetUp = true;
@@ -482,9 +491,7 @@ const setupFormEditorSubscription = () => {
 					enforceBlockSelection();
 				}
 
-				if ( ! state.enteredViaNavigation ) {
-					enforceBlockNesting();
-				}
+				enforceBlockNesting();
 			}
 
 			// 5. Auto-open the block inserter (once) after blocks are ready
