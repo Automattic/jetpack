@@ -4,12 +4,7 @@ import TitleOptimization from '..';
 
 const mockRecordEvent = jest.fn();
 const mockIncreaseAiAssistantRequestsCount = jest.fn();
-const mockRequestJwt = jest.fn();
-const mockFetch = jest.fn();
-
-// Replace global fetch before any component code runs.
-const originalFetch = global.fetch;
-global.fetch = mockFetch;
+const mockSendMessage = jest.fn();
 
 jest.mock(
 	'@automattic/jetpack-ai-client',
@@ -25,7 +20,44 @@ jest.mock(
 			isEditedPostEmpty: () => false,
 		} ),
 		AiAssistantModal: ( { children }: { children: React.ReactNode } ) => <div>{ children }</div>,
-		requestJwt: ( ...args: unknown[] ) => mockRequestJwt( ...args ),
+	} ),
+	{ virtual: true }
+);
+
+jest.mock(
+	'@automattic/agenttic-client',
+	() => ( {
+		createClient: () => ( {
+			sendMessage: ( ...args: unknown[] ) => mockSendMessage( ...args ),
+		} ),
+		createJetpackAuthProvider: () => jest.fn(),
+		createTextMessage: ( text: string ) => ( {
+			role: 'user',
+			parts: [ { type: 'text', text } ],
+			kind: 'message',
+			messageId: 'test-msg-id',
+			metadata: { timestamp: Date.now() },
+		} ),
+		extractToolCallsFromMessage: ( message: {
+			parts: Array< { type: string; data?: Record< string, unknown > } >;
+		} ) => {
+			if ( ! message?.parts ) {
+				return [];
+			}
+			return message.parts.filter(
+				( p: { type: string; data?: Record< string, unknown > } ) =>
+					p.type === 'data' && p.data && 'toolCallId' in p.data
+			);
+		},
+		extractTextFromMessage: ( message: { parts: Array< { type: string; text?: string } > } ) => {
+			if ( ! message?.parts ) {
+				return '';
+			}
+			return message.parts
+				.filter( ( p: { type: string } ) => p.type === 'text' )
+				.map( ( p: { text?: string } ) => p.text || '' )
+				.join( ' ' );
+		},
 	} ),
 	{ virtual: true }
 );
@@ -111,73 +143,91 @@ jest.mock( '../style.scss', () => ( {} ) );
 jest.mock( '../title-optimization-options.scss', () => ( {} ) );
 jest.mock( '../title-optimization-keywords.scss', () => ( {} ) );
 
-describe( 'TitleOptimization', () => {
-	beforeEach( () => {
-		jest.clearAllMocks();
-		mockRequestJwt.mockResolvedValue( { token: 'test-token', blogId: '123' } );
-		mockFetch.mockResolvedValue( {
-			ok: true,
-			json: async () => ( {
-				choices: [
+/**
+ * Helper to create a successful TaskUpdate response with tool call data.
+ * @param titles
+ * @return Mock TaskUpdate with tool call data.
+ */
+function createToolCallResponse( titles: Array< { title: string; explanation: string } > ) {
+	return {
+		id: 'task-abc123',
+		status: {
+			state: 'completed',
+			message: {
+				role: 'agent',
+				parts: [
 					{
-						message: {
-							content: '[{"title":"Optimized Title","explanation":"Good clarity"}]',
+						type: 'data',
+						data: {
+							toolCallId: 'call-1',
+							toolId: 'wpcom__optimize_title',
+							arguments: { titles },
 						},
 					},
 				],
-			} ),
-		} as Response );
+				kind: 'message',
+				messageId: 'msg-1',
+			},
+		},
+		final: true,
+		text: '',
+	};
+}
+
+/**
+ * Helper to create a successful TaskUpdate response with plain text.
+ * @param text
+ * @return Mock TaskUpdate with text content.
+ */
+function createTextResponse( text: string ) {
+	return {
+		id: 'task-abc123',
+		status: {
+			state: 'completed',
+			message: {
+				role: 'agent',
+				parts: [ { type: 'text', text } ],
+				kind: 'message',
+				messageId: 'msg-1',
+			},
+		},
+		final: true,
+		text,
+	};
+}
+
+describe( 'TitleOptimization', () => {
+	beforeEach( () => {
+		jest.clearAllMocks();
+		mockSendMessage.mockResolvedValue(
+			createToolCallResponse( [ { title: 'Optimized Title', explanation: 'Good clarity' } ] )
+		);
 	} );
 
-	afterAll( () => {
-		global.fetch = originalFetch;
-	} );
-
-	it( 'sends orchestrator request with correct payload', async () => {
+	it( 'sends request via agenttic-client with correct message payload', async () => {
 		render( <TitleOptimization placement="sidebar" busy={ false } disabled={ false } /> );
 
 		await userEvent.click( screen.getByRole( 'button', { name: 'Generate title options' } ) );
 
 		await waitFor( () => {
-			expect( mockRequestJwt ).toHaveBeenCalled();
-			expect( mockFetch ).toHaveBeenCalledWith(
-				'https://public-api.wordpress.com/wpcom/v2/ai/agent',
-				expect.objectContaining( {
-					method: 'POST',
-					headers: expect.objectContaining( {
-						Authorization: 'Bearer test-token',
-						'Content-Type': 'application/json',
-					} ),
-				} )
-			);
+			expect( mockSendMessage ).toHaveBeenCalled();
 		} );
 
-		// Verify the request body
-		const callArgs = mockFetch.mock.calls[ 0 ];
-		const body = JSON.parse( callArgs[ 1 ].body as string );
-		expect( body ).toMatchObject( {
-			agent_id: 'wp-orchestrator',
+		// Verify the message payload
+		const callArgs = mockSendMessage.mock.calls[ 0 ][ 0 ];
+		const messageText = JSON.parse( callArgs.message.parts[ 0 ].text );
+		expect( messageText ).toMatchObject( {
 			ability: 'wpcom/optimize-title',
 			feature: 'jetpack-ai-title-optimization',
-			stream: false,
-			site_id: 123,
-			input: {
-				messages: [
-					{
-						role: 'jetpack-ai',
-						context: {
-							type: 'title-optimization',
-							content: 'Example post content',
-							keywords: '',
-						},
-					},
-				],
-				post_id: 77,
-			},
+			mode: 'ui',
+			content: 'Example post content',
+			keywords: '',
+			post_id: 77,
 		} );
+		expect( messageText.site_id ).toBeDefined();
 	} );
 
-	it( 'displays title options after successful response', async () => {
+	it( 'displays title options from tool call response', async () => {
 		render( <TitleOptimization placement="sidebar" busy={ false } disabled={ false } /> );
 
 		await userEvent.click( screen.getByRole( 'button', { name: 'Generate title options' } ) );
@@ -189,11 +239,72 @@ describe( 'TitleOptimization', () => {
 		expect( mockIncreaseAiAssistantRequestsCount ).toHaveBeenCalled();
 	} );
 
-	it( 'handles API error responses', async () => {
-		mockFetch.mockResolvedValue( {
-			ok: false,
-			status: 503,
-		} as Response );
+	it( 'displays title options from plain text status messages', async () => {
+		mockSendMessage.mockResolvedValue(
+			createTextResponse(
+				`Here are optimized title options:
+
+1) Fresh Pan de Sal and Manila-Style Breads Each Morning
+2) Inside a Manila-Style Bakery: Warm Pan de Sal at Dawn
+3) A Neighborhood Manila Bakery, Oven to Table
+4) Taste Manila Mornings: Pan de Sal and Filipino Breads`
+			)
+		);
+
+		render( <TitleOptimization placement="sidebar" busy={ false } disabled={ false } /> );
+
+		await userEvent.click( screen.getByRole( 'button', { name: 'Generate title options' } ) );
+
+		await waitFor( () => {
+			expect(
+				screen.getByText( 'Fresh Pan de Sal and Manila-Style Breads Each Morning' )
+			).toBeInTheDocument();
+			expect(
+				screen.getByText( 'Inside a Manila-Style Bakery: Warm Pan de Sal at Dawn' )
+			).toBeInTheDocument();
+			expect(
+				screen.getByText( 'A Neighborhood Manila Bakery, Oven to Table' )
+			).toBeInTheDocument();
+		} );
+		expect(
+			screen.queryByText( 'Taste Manila Mornings: Pan de Sal and Filipino Breads' )
+		).not.toBeInTheDocument();
+	} );
+
+	it( 'displays title options from bulleted text status messages', async () => {
+		mockSendMessage.mockResolvedValue(
+			createTextResponse(
+				`Here are optimized title options:
+
+- Fresh Pan de Sal, Baked Each Morning | Cozy Bakery
+- Manila-Style Pan de Sal, Baked Fresh Every Morning
+- Taste Manila: Fresh Pan de Sal & Filipino Breads
+- Cozy Bakery: Fresh Pan de Sal and Manila-Style Breads`
+			)
+		);
+
+		render( <TitleOptimization placement="sidebar" busy={ false } disabled={ false } /> );
+
+		await userEvent.click( screen.getByRole( 'button', { name: 'Generate title options' } ) );
+
+		await waitFor( () => {
+			expect(
+				screen.getByText( 'Fresh Pan de Sal, Baked Each Morning | Cozy Bakery' )
+			).toBeInTheDocument();
+			expect(
+				screen.getByText( 'Manila-Style Pan de Sal, Baked Fresh Every Morning' )
+			).toBeInTheDocument();
+			expect(
+				screen.getByText( 'Taste Manila: Fresh Pan de Sal & Filipino Breads' )
+			).toBeInTheDocument();
+		} );
+		expect(
+			screen.queryByText( 'Cozy Bakery: Fresh Pan de Sal and Manila-Style Breads' )
+		).not.toBeInTheDocument();
+	} );
+
+	it( 'handles HTTP error responses with status codes', async () => {
+		mockSendMessage.mockRejectedValue( new Error( 'HTTP error! status: 503' ) );
 
 		render( <TitleOptimization placement="sidebar" busy={ false } disabled={ false } /> );
 
@@ -207,10 +318,7 @@ describe( 'TitleOptimization', () => {
 	} );
 
 	it( 'handles quota exceeded error', async () => {
-		mockFetch.mockResolvedValue( {
-			ok: false,
-			status: 429,
-		} as Response );
+		mockSendMessage.mockRejectedValue( new Error( 'HTTP error! status: 429' ) );
 
 		render( <TitleOptimization placement="sidebar" busy={ false } disabled={ false } /> );
 
@@ -218,6 +326,28 @@ describe( 'TitleOptimization', () => {
 
 		await waitFor( () => {
 			expect( screen.getByText( 'Quota exceeded' ) ).toBeInTheDocument();
+		} );
+	} );
+
+	it( 'handles failed task state', async () => {
+		mockSendMessage.mockResolvedValue( {
+			id: 'task-abc123',
+			status: {
+				state: 'failed',
+				error: { code: -32000, message: 'Internal error' },
+			},
+			final: true,
+			text: '',
+		} );
+
+		render( <TitleOptimization placement="sidebar" busy={ false } disabled={ false } /> );
+
+		await userEvent.click( screen.getByRole( 'button', { name: 'Generate title options' } ) );
+
+		await waitFor( () => {
+			expect(
+				screen.getByText( 'The generation of your suggested titles failed. Please try again.' )
+			).toBeInTheDocument();
 		} );
 	} );
 
@@ -239,7 +369,7 @@ describe( 'TitleOptimization', () => {
 	} );
 
 	it( 'handles network errors gracefully', async () => {
-		mockFetch.mockRejectedValue( new Error( 'Network failure' ) );
+		mockSendMessage.mockRejectedValue( new Error( 'Network failure' ) );
 
 		render( <TitleOptimization placement="sidebar" busy={ false } disabled={ false } /> );
 

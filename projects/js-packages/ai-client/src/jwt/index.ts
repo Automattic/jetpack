@@ -28,6 +28,10 @@ type TokenDataEndpointResponseProps = {
 	blog_id: string;
 };
 
+type JetpackEditorInitialState = {
+	wpcomBlogId?: string;
+};
+
 const debug = debugFactory( 'jetpack-ai-client:jwt' );
 
 const JWT_TOKEN_ID = 'jetpack-ai-jwt';
@@ -44,6 +48,12 @@ export default async function requestJwt( {
 	siteId,
 	expirationTime,
 }: RequestTokenOptions = {} ): Promise< TokenDataProps > {
+	const wpcomBlogId = (
+		window as Window & {
+			Jetpack_Editor_Initial_State?: JetpackEditorInitialState;
+		}
+	 ).Jetpack_Editor_Initial_State?.wpcomBlogId;
+
 	// Default values
 	apiNonce = apiNonce || window.JP_CONNECTION_INITIAL_STATE.apiNonce;
 	siteId = siteId || window.JP_CONNECTION_INITIAL_STATE.siteSuffix;
@@ -61,14 +71,17 @@ export default async function requestJwt( {
 		}
 	}
 
-	if ( tokenData && tokenData?.expire > Date.now() ) {
+	const isSimple = isSimpleSite();
+	const cachedTokenHasExpectedBlogId =
+		! isSimple || ! wpcomBlogId || tokenData?.blogId === wpcomBlogId;
+
+	if ( tokenData && tokenData?.expire > Date.now() && cachedTokenHasExpectedBlogId ) {
 		debug( 'Using cached token' );
 		return tokenData;
 	}
 
 	let data: TokenDataEndpointResponseProps;
 
-	const isSimple = isSimpleSite();
 	if ( ! isSimple ) {
 		data = ( await apiFetch( {
 			/*
@@ -92,10 +105,7 @@ export default async function requestJwt( {
 
 	const newTokenData = {
 		token: data.token,
-		/**
-		 * TODO: make sure we return id from the .com token acquisition endpoint too
-		 */
-		blogId: ! isSimple ? data.blog_id : siteId,
+		blogId: ! isSimple ? data.blog_id : wpcomBlogId || data.blog_id || siteId,
 
 		/**
 		 * Let's expire the token in 2 minutes

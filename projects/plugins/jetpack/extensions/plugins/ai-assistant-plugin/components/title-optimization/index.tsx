@@ -2,6 +2,13 @@
  * External dependencies
  */
 import {
+	createClient,
+	createJetpackAuthProvider,
+	createTextMessage,
+	extractToolCallsFromMessage,
+	extractTextFromMessage,
+} from '@automattic/agenttic-client';
+import {
 	ERROR_CONTEXT_TOO_LARGE,
 	RequestingErrorProps,
 	ERROR_QUOTA_EXCEEDED,
@@ -11,12 +18,11 @@ import {
 	QuotaExceededMessage,
 	usePostContent,
 	AiAssistantModal,
-	requestJwt,
 } from '@automattic/jetpack-ai-client';
 import { useAnalytics, useAutosaveAndRedirect } from '@automattic/jetpack-shared-extension-utils';
 import { Button, Spinner, ExternalLink, Notice } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
-import { useState, useCallback } from '@wordpress/element';
+import { useState, useCallback, useEffect, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
@@ -24,6 +30,7 @@ import { __ } from '@wordpress/i18n';
 import { getFeatureAvailability } from '../../../../blocks/ai-assistant/lib/utils/get-feature-availability';
 import TitleOptimizationKeywords from './title-optimization-keywords';
 import TitleOptimizationOptions from './title-optimization-options';
+import type { Client, TaskUpdate } from '@automattic/agenttic-client';
 import './style.scss';
 
 /**
@@ -47,10 +54,71 @@ const ERROR_JSON_PARSE = 'json-parse-error';
  * wp-orchestrator constants matching the ability registered in
  * class-title-optimization-ability.php.
  */
-const ORCHESTRATOR_URL = 'https://public-api.wordpress.com/wpcom/v2/ai/agent';
 const ORCHESTRATOR_AGENT_ID = 'wp-orchestrator';
 const ABILITY_NAME = 'wpcom/optimize-title';
 const FEATURE_NAME = 'jetpack-ai-title-optimization';
+
+/**
+ * Get the numeric blog ID from editor state.
+ * @return {string} The blog ID or empty string if unavailable.
+ */
+function getNumericBlogId(): string {
+	return (
+		window?.Jetpack_Editor_Initial_State?.wpcomBlogId ||
+		window?.JP_CONNECTION_INITIAL_STATE?.siteSuffix ||
+		''
+	);
+}
+
+type TitleOptimizationOption = {
+	title: string;
+	explanation: string;
+};
+
+const MAX_TITLE_OPTIONS = 3;
+
+/**
+ * Parse numbered or bulleted title options from plain text.
+ * @param {string} content - The text content to parse.
+ * @return {TitleOptimizationOption[]} Parsed title options.
+ */
+function parseNumberedTitleOptions( content: string ): TitleOptimizationOption[] {
+	return content
+		.split( '\n' )
+		.map( line => line.trim() )
+		.map( line => line.match( /^(?:\d+\)|[-*])\s+(.+)$/ ) )
+		.filter( Boolean )
+		.map( match => ( {
+			title: match?.[ 1 ]?.trim() || '',
+			explanation: '',
+		} ) )
+		.filter( option => option.title.length > 0 );
+}
+
+/**
+ * Parse title options from JSON or plain text content.
+ * @param {string} content - The content to parse, either JSON array or numbered/bulleted text.
+ * @return {TitleOptimizationOption[]} Parsed title options, max 3.
+ */
+function parseTitleOptions( content: string ): TitleOptimizationOption[] {
+	let options: TitleOptimizationOption[] = [];
+
+	try {
+		const parsedContent = JSON.parse( content ) as TitleOptimizationOption[];
+		if ( Array.isArray( parsedContent ) && parsedContent.length > 0 ) {
+			options = parsedContent;
+		}
+	} catch {
+		// Fall through to numbered/bulleted text parsing below.
+	}
+
+	if ( options.length === 0 ) {
+		options = parseNumberedTitleOptions( content );
+	}
+
+	return options.slice( 0, MAX_TITLE_OPTIONS );
+}
+
 type TitleOptimizationJSONError = {
 	code: typeof ERROR_JSON_PARSE;
 	message: string;
@@ -58,7 +126,28 @@ type TitleOptimizationJSONError = {
 
 type TitleOptimizationError = RequestingErrorProps | TitleOptimizationJSONError;
 
-function getErrorFromApiResponse( status?: number ): RequestingErrorProps {
+/**
+ * Extract HTTP status code from agenttic-client error messages.
+ * The client throws errors like "HTTP error! status: 503".
+ * @param {unknown} error - The error to extract the status from.
+ * @return {number|undefined} The HTTP status code, or undefined if not found.
+ */
+function getStatusFromError( error: unknown ): number | undefined {
+	if ( error instanceof Error ) {
+		const match = error.message.match( /status:\s*(\d+)/ );
+		if ( match ) {
+			return parseInt( match[ 1 ], 10 );
+		}
+	}
+	return undefined;
+}
+
+/**
+ * Map an HTTP status code to an error object.
+ * @param {number} status - The HTTP status code.
+ * @return {RequestingErrorProps} The mapped error.
+ */
+function getErrorFromStatus( status?: number ): RequestingErrorProps {
 	if ( status === 429 ) {
 		return {
 			code: ERROR_QUOTA_EXCEEDED,
@@ -98,6 +187,38 @@ function getErrorFromApiResponse( status?: number ): RequestingErrorProps {
 	};
 }
 
+/**
+ * Error handler for the Jetpack auth provider.
+ * @return {string} The error message.
+ */
+function handleAuthError(): string {
+	return genericErrorMessage;
+}
+
+/**
+ * Extract title options from an agenttic-client TaskUpdate response.
+ * Checks for wpcom__optimize_title tool call data first, then falls back to text.
+ * @param {TaskUpdate} response - The agenttic-client task update response.
+ * @return {string} JSON string of titles or plain text content.
+ */
+function extractTitlesFromResponse( response: TaskUpdate ): string {
+	const message = response.status?.message;
+	if ( ! message ) {
+		return response.text || '';
+	}
+
+	// Check for tool call with title data
+	const toolCalls = extractToolCallsFromMessage( message );
+	const titleToolCall = toolCalls.find( tc => tc.data?.toolId === 'wpcom__optimize_title' );
+
+	if ( titleToolCall?.data?.arguments?.titles ) {
+		return JSON.stringify( titleToolCall.data.arguments.titles );
+	}
+
+	// Fallback to text content
+	return extractTextFromMessage( message );
+}
+
 const TitleOptimizationErrorMessage = ( { error }: { error: TitleOptimizationError } ) => {
 	if ( error.code === ERROR_QUOTA_EXCEEDED ) {
 		return (
@@ -119,6 +240,14 @@ const TitleOptimizationErrorMessage = ( { error }: { error: TitleOptimizationErr
 	);
 };
 
+/**
+ * Title optimization component for the AI assistant plugin sidebar.
+ * @param {object}  props           - Component props.
+ * @param {string}  props.placement - Placement context for analytics.
+ * @param {boolean} props.busy      - Whether the button should show a busy state.
+ * @param {boolean} props.disabled  - Whether the button should be disabled.
+ * @return {import('react').ReactElement} The rendered component.
+ */
 export default function TitleOptimization( {
 	placement,
 	busy,
@@ -154,12 +283,49 @@ export default function TitleOptimization( {
 	const [ options, setOptions ] = useState( [] );
 	const [ error, setError ] = useState< TitleOptimizationError | null >( null );
 	const [ optimizationKeywords, setOptimizationKeywords ] = useState( '' );
+	const [ requestStartedAt, setRequestStartedAt ] = useState< number | null >( null );
+	const [ elapsedSeconds, setElapsedSeconds ] = useState( 0 );
 	const { editPost } = useDispatch( 'core/editor' );
-	const postId = useSelect( select => select( 'core/editor' ).getCurrentPostId(), [] );
+	const postId = useSelect(
+		select => ( select( 'core/editor' ) as { getCurrentPostId: () => number } ).getCurrentPostId(),
+		[]
+	);
 	const { autosave } = useAutosaveAndRedirect();
 	const { increaseAiAssistantRequestsCount } = useDispatch( 'wordpress-com/plans' );
 	const { tracks } = useAnalytics();
 	const { recordEvent } = tracks;
+
+	// Lazily create the agenttic client. The blogId comes from editor state.
+	// Client is not cached until a valid blogId is available so that late-loading
+	// editor state doesn't produce a permanently misconfigured client.
+	const clientRef = useRef< Client | null >( null );
+	const getClient = useCallback( (): Client => {
+		const blogId = getNumericBlogId();
+		if ( ! blogId ) {
+			throw new Error( 'Blog ID not available' );
+		}
+		if ( ! clientRef.current ) {
+			clientRef.current = createClient( {
+				agentId: ORCHESTRATOR_AGENT_ID,
+				agentUrl: `https://public-api.wordpress.com/wpcom/v2/sites/${ blogId }/ai/agent`,
+				authProvider: createJetpackAuthProvider( handleAuthError ),
+			} );
+		}
+		return clientRef.current;
+	}, [] );
+
+	useEffect( () => {
+		if ( ! generating || ! requestStartedAt ) {
+			setElapsedSeconds( 0 );
+			return;
+		}
+
+		const intervalId = window.setInterval( () => {
+			setElapsedSeconds( Math.max( 0, Math.floor( ( Date.now() - requestStartedAt ) / 1000 ) ) );
+		}, 250 );
+
+		return () => window.clearInterval( intervalId );
+	}, [ generating, requestStartedAt ] );
 
 	const toggleTitleOptimizationModal = useCallback( () => {
 		setIsTitleOptimizationModalVisible( ! isTitleOptimizationModalVisible );
@@ -168,13 +334,14 @@ export default function TitleOptimization( {
 	const handleDone = useCallback(
 		( content: string ) => {
 			setGenerating( false );
+			setRequestStartedAt( null );
 			increaseAiAssistantRequestsCount();
 
-			try {
-				const parsedContent = JSON.parse( content );
+			const parsedContent = parseTitleOptions( content );
+			if ( parsedContent.length > 0 ) {
 				setOptions( parsedContent );
 				setSelected( parsedContent?.[ 0 ]?.title );
-			} catch {
+			} else {
 				const jsonError: TitleOptimizationJSONError = {
 					code: ERROR_JSON_PARSE,
 					message: genericErrorMessage,
@@ -195,59 +362,44 @@ export default function TitleOptimization( {
 			} );
 
 			setGenerating( true );
+			setRequestStartedAt( Date.now() );
 			setError( null );
 			try {
-				const { token, blogId } = await requestJwt();
-
+				const client = getClient();
 				const content = getPostContent();
-				const requestBody: Record< string, unknown > = {
-					agent_id: ORCHESTRATOR_AGENT_ID,
-					ability: ABILITY_NAME,
-					feature: FEATURE_NAME,
-					stream: false,
-					site_id: Number( blogId ),
-					input: {
-						messages: [
-							{
-								role: 'jetpack-ai',
-								context: {
-									type: 'title-optimization',
-									content,
-									keywords: optimizationKeywords,
-								},
-							},
-						],
+				const numericBlogId = getNumericBlogId();
+
+				const message = createTextMessage(
+					JSON.stringify( {
+						ability: ABILITY_NAME,
+						feature: FEATURE_NAME,
+						site_id: Number( numericBlogId ),
+						mode: 'ui',
+						content,
+						keywords: optimizationKeywords,
 						...( postId ? { post_id: postId } : {} ),
-					},
-				};
+					} )
+				);
 
-				const res = await fetch( ORCHESTRATOR_URL, {
-					method: 'POST',
-					headers: {
-						Authorization: `Bearer ${ token }`,
-						'Content-Type': 'application/json',
-					},
-					body: JSON.stringify( requestBody ),
-				} );
+				const response = await client.sendMessage( { message } );
 
-				if ( ! res.ok ) {
-					setError( getErrorFromApiResponse( res.status ) );
+				if ( response.status?.state === 'failed' ) {
+					setError( getErrorFromStatus() );
 					setGenerating( false );
+					setRequestStartedAt( null );
 					return;
 				}
 
-				const data = ( await res.json() ) as {
-					choices?: Array< { message?: { content?: string } } >;
-				};
-
-				handleDone( data?.choices?.[ 0 ]?.message?.content ?? '' );
+				const titlesContent = extractTitlesFromResponse( response );
+				handleDone( titlesContent );
 			} catch ( e ) {
-				const requestError = e as { status?: number; data?: { status?: number } };
-				setError( getErrorFromApiResponse( requestError?.data?.status || requestError?.status ) );
+				const status = getStatusFromError( e );
+				setError( getErrorFromStatus( status ) );
 				setGenerating( false );
+				setRequestStartedAt( null );
 			}
 		},
-		[ recordEvent, placement, getPostContent, optimizationKeywords, postId, handleDone ]
+		[ recordEvent, placement, getPostContent, optimizationKeywords, postId, handleDone, getClient ]
 	);
 
 	const handleTitleOptimization = useCallback( () => {
@@ -297,6 +449,11 @@ export default function TitleOptimization( {
 		setOptimizationKeywords( '' );
 	}, [ toggleTitleOptimizationModal ] );
 
+	const handleOptionChange = useCallback(
+		( e: React.ChangeEvent< HTMLInputElement > ) => setSelected( e.target.value ),
+		[]
+	);
+
 	// When can we retry?
 	const showTryAgainButton =
 		error &&
@@ -331,7 +488,10 @@ export default function TitleOptimization( {
 									height: '50px',
 								} }
 							/>
-							{ __( 'Reading your post and generating suggestions…', 'jetpack' ) }
+							{ `${ __(
+								'Reading your post and generating suggestions…',
+								'jetpack'
+							) } (${ elapsedSeconds }s)` }
 						</div>
 					) : (
 						<>
@@ -353,7 +513,7 @@ export default function TitleOptimization( {
 										</span>
 									) }
 									<TitleOptimizationOptions
-										onChangeValue={ e => setSelected( e.target.value ) }
+										onChangeValue={ handleOptionChange }
 										selected={ selected }
 										options={ options?.map?.( option => ( {
 											value: option.title,
