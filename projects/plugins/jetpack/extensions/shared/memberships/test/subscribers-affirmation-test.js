@@ -126,6 +126,10 @@ describe( 'getAccessLabelForCopy', () => {
 		);
 		expect( getAccessLabelForCopy( 'paid_subscribers', null ) ).toBe( 'paid subscribers' );
 	} );
+
+	test( 'paid_subscribers with has_paywall_block null (legacy stats) returns "paid subscribers"', () => {
+		expect( getAccessLabelForCopy( 'paid_subscribers', null, null ) ).toBe( 'paid subscribers' );
+	} );
 } );
 
 describe( 'getCurrentTierName', () => {
