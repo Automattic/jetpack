@@ -26,13 +26,12 @@ function wpcom_is_gutenberg_rtc_enabled() {
 }
 
 /**
- * Determine whether the active Gutenberg plugin version is greater than 22.6.0.
+ * Determine whether the active Gutenberg plugin version is greater than 22.7.0.
  *
- * @return bool True when Gutenberg plugin version is >= 22.6.0.
+ * @return bool True when Gutenberg plugin version is >= 22.7.0.
  */
 function wpcom_is_target_gutenberg_version() {
-	// TODO: check against the version we need. Current one is 22.6.0
-	if ( defined( 'GUTENBERG_VERSION' ) && is_string( GUTENBERG_VERSION ) && version_compare( GUTENBERG_VERSION, '22.6.0', '>=' ) ) {
+	if ( defined( 'GUTENBERG_VERSION' ) && is_string( GUTENBERG_VERSION ) && version_compare( (string) GUTENBERG_VERSION, '22.7.0', '>=' ) ) {
 		return true;
 	}
 	return false;
