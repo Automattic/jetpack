@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { useBreakpointMatch } from '@automattic/jetpack-components';
 import JetpackLogo from '@automattic/jetpack-components/jetpack-logo';
 import { Breadcrumbs } from '@wordpress/admin-ui';
@@ -388,15 +389,27 @@ export default function usePageHeaderDetails(
 
 		const formItem = { id: sourceIdNumber, title: formTitle };
 
+		const trackAction = ( eventName: string ) => {
+			jetpackAnalytics.tracks.recordEvent( eventName, {
+				source: 'form_header',
+			} );
+		};
+
 		if ( formRecord?.status === 'trash' ) {
 			return [
 				{
 					title: __( 'Restore', 'jetpack-forms' ),
-					onClick: () => restoreForm( formItem ),
+					onClick: () => {
+						trackAction( 'jetpack_forms_action_restore_click' );
+						restoreForm( formItem );
+					},
 				},
 				{
 					title: __( 'Delete permanently', 'jetpack-forms' ),
-					onClick: () => openPermanentDeleteConfirm( formItem ),
+					onClick: () => {
+						trackAction( 'jetpack_forms_action_delete_permanently_click' );
+						openPermanentDeleteConfirm( formItem );
+					},
 				},
 			];
 		}
@@ -404,7 +417,10 @@ export default function usePageHeaderDetails(
 		const controls: Array< { title: string; onClick: () => void } > = [
 			{
 				title: __( 'Preview', 'jetpack-forms' ),
-				onClick: () => previewForm( formItem ),
+				onClick: () => {
+					trackAction( 'jetpack_forms_action_preview_click' );
+					previewForm( formItem );
+				},
 			},
 		];
 
@@ -412,11 +428,17 @@ export default function usePageHeaderDetails(
 			controls.push(
 				{
 					title: __( 'Copy embed', 'jetpack-forms' ),
-					onClick: () => copyEmbed( formItem ),
+					onClick: () => {
+						trackAction( 'jetpack_forms_action_copy_embed_click' );
+						copyEmbed( formItem );
+					},
 				},
 				{
 					title: __( 'Copy shortcode', 'jetpack-forms' ),
-					onClick: () => copyShortcode( formItem ),
+					onClick: () => {
+						trackAction( 'jetpack_forms_action_copy_shortcode_click' );
+						copyShortcode( formItem );
+					},
 				}
 			);
 		}
@@ -426,6 +448,7 @@ export default function usePageHeaderDetails(
 				title: __( 'Unpublish', 'jetpack-forms' ),
 				onClick: () => {
 					if ( ! isUpdatingStatus ) {
+						trackAction( 'jetpack_forms_action_unpublish_click' );
 						setFormsToDraft( [ formItem ] );
 					}
 				},
@@ -435,6 +458,7 @@ export default function usePageHeaderDetails(
 				title: __( 'Publish', 'jetpack-forms' ),
 				onClick: () => {
 					if ( ! isUpdatingStatus ) {
+						trackAction( 'jetpack_forms_action_publish_click' );
 						publishForms( [ formItem ] );
 					}
 				},
@@ -444,15 +468,24 @@ export default function usePageHeaderDetails(
 		controls.push(
 			{
 				title: __( 'Rename', 'jetpack-forms' ),
-				onClick: () => setRenameFormItem( formItem ),
+				onClick: () => {
+					trackAction( 'jetpack_forms_action_rename_click' );
+					setRenameFormItem( formItem );
+				},
 			},
 			{
 				title: __( 'Duplicate', 'jetpack-forms' ),
-				onClick: () => duplicateForm( formItem ),
+				onClick: () => {
+					trackAction( 'jetpack_forms_action_duplicate_click' );
+					duplicateForm( formItem );
+				},
 			},
 			{
 				title: __( 'Trash', 'jetpack-forms' ),
-				onClick: () => trashForm( formItem ),
+				onClick: () => {
+					trackAction( 'jetpack_forms_action_trash_click' );
+					trashForm( formItem );
+				},
 			}
 		);
 
