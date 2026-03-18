@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.58.0] - 2026-03-16
+### Security
+- Fix ReDoS vulnerability in date parsing timezone detection. [#47524]
+
+### Changed
+- Breaking: Consolidate flat legend props into a nested legend configuration object on BaseChartProps. [#47506]
+- Charts: Fix Legend position prop in the composition API so that legends render in the correct top or bottom slot. [#47478]
+- Remove useHasLegendChild hook from @automattic/charts/hooks (charts now derive legend presence from useChartChildren). [#47478]
+- Update dependencies. [#47472]
+
+### Fixed
+- Bundle fast-deep-equal as a non-external dependency to fix compatibility with webpack strict ESM mode. [#47372]
+
 ## [0.57.0] - 2026-03-09
 ### Added
 - Add identity-obj-proxy to enable CSS module class assertions in tests. [#47476]
@@ -728,6 +741,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed lints following ESLint rule changes for TS [#40584]
 - Fixing a bug in Chart storybook data. [#40640]
 
+[0.58.0]: https://github.com/Automattic/charts/compare/v0.57.0...v0.58.0
 [0.57.0]: https://github.com/Automattic/charts/compare/v0.56.7...v0.57.0
 [0.56.7]: https://github.com/Automattic/charts/compare/v0.56.6...v0.56.7
 [0.56.6]: https://github.com/Automattic/charts/compare/v0.56.5...v0.56.6

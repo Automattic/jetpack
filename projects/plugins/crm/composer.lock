@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "10648b2e74e2b57260d08c23a3ad4195",
+    "content-hash": "7a89cda3a9c60e2bf55c22014963c2b4",
     "packages": [
         {
             "name": "automattic/jetpack-assets",
@@ -1359,16 +1359,16 @@
         },
         {
             "name": "codeception/module-phpbrowser",
-            "version": "3.0.2",
+            "version": "4.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Codeception/module-phpbrowser.git",
-                "reference": "460e392c77370f7836012b16e06071eb1607876a"
+                "reference": "495a2cf19c4d0f1004bc24e10ed9d3cf33ccdc51"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Codeception/module-phpbrowser/zipball/460e392c77370f7836012b16e06071eb1607876a",
-                "reference": "460e392c77370f7836012b16e06071eb1607876a",
+                "url": "https://api.github.com/repos/Codeception/module-phpbrowser/zipball/495a2cf19c4d0f1004bc24e10ed9d3cf33ccdc51",
+                "reference": "495a2cf19c4d0f1004bc24e10ed9d3cf33ccdc51",
                 "shasum": ""
             },
             "require": {
@@ -1376,8 +1376,8 @@
                 "codeception/lib-innerbrowser": "*@dev",
                 "ext-json": "*",
                 "guzzlehttp/guzzle": "^7.4",
-                "php": "^8.1",
-                "symfony/browser-kit": "^5.4 | ^6.0 | ^7.0"
+                "php": "^8.2",
+                "symfony/browser-kit": "^5.4 | ^6.0 | ^7.0 | ^8.0"
             },
             "conflict": {
                 "codeception/codeception": "<5.0",
@@ -1420,9 +1420,9 @@
             ],
             "support": {
                 "issues": "https://github.com/Codeception/module-phpbrowser/issues",
-                "source": "https://github.com/Codeception/module-phpbrowser/tree/3.0.2"
+                "source": "https://github.com/Codeception/module-phpbrowser/tree/4.0.0"
             },
-            "time": "2025-09-04T10:45:58+00:00"
+            "time": "2026-01-23T13:24:41+00:00"
         },
         {
             "name": "codeception/module-webdriver",
@@ -1528,17 +1528,20 @@
         },
         {
             "name": "codeception/util-universalframework",
-            "version": "1.0.0",
+            "version": "2.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Codeception/util-universalframework.git",
-                "reference": "cc381f364c6d24f9b9c7b70a4c724949725f491a"
+                "reference": "a5f7165d243af3c86e48364cf3ee5df4c0b05bc5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Codeception/util-universalframework/zipball/cc381f364c6d24f9b9c7b70a4c724949725f491a",
-                "reference": "cc381f364c6d24f9b9c7b70a4c724949725f491a",
+                "url": "https://api.github.com/repos/Codeception/util-universalframework/zipball/a5f7165d243af3c86e48364cf3ee5df4c0b05bc5",
+                "reference": "a5f7165d243af3c86e48364cf3ee5df4c0b05bc5",
                 "shasum": ""
+            },
+            "require": {
+                "symfony/browser-kit": "^5.2 || ^6.0 || ^7.0 || ^8.0"
             },
             "type": "library",
             "autoload": {
@@ -1556,12 +1559,12 @@
                 }
             ],
             "description": "Mock framework module used in internal Codeception tests",
-            "homepage": "http://codeception.com/",
+            "homepage": "https://codeception.com/",
             "support": {
                 "issues": "https://github.com/Codeception/util-universalframework/issues",
-                "source": "https://github.com/Codeception/util-universalframework/tree/1.0.0"
+                "source": "https://github.com/Codeception/util-universalframework/tree/2.0.0"
             },
-            "time": "2019-09-22T06:06:49+00:00"
+            "time": "2025-12-15T11:29:58+00:00"
         },
         {
             "name": "guzzlehttp/guzzle",

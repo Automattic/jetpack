@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix AdminPage footer Container causing horizontal scroll on narrow viewports by explicitly setting box-sizing: border-box.

@@ -1,8 +1,6 @@
 # Contributing to Jetpack
 
-This is a quick reference for common commands used during development. For broader contribution guidelines, see [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md).
-
-Please keep detailed explanations and documentation in separate external files.
+This is a quick reference for common commands used during development. Please keep detailed explanations and documentation in separate external files. For broader contribution guidelines, see [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md).
 
 ## Tooling
 
@@ -44,17 +42,19 @@ jetpack watch <project>           # watch and rebuild on changes
 
 ## Tests
 ```sh
-jetpack test php <project>    # PHP tests (e.g. PHPUnit)
-jetpack test js <project>     # JS tests (e.g. Jest)
+jetpack test php <project>       # PHP tests (e.g. PHPUnit)
+jetpack test js <project>        # JS tests (e.g. Jest)
+jetpack docker phpunit jetpack   # Run Jetpack PHPUnit tests within Docker container
 ```
 
 See [Automated Testing](docs/automated-testing.md) for full details and setup requirements.
 
-## Linting & Code Standards
+## Linting and static analysis
 ```sh
 pnpm lint                    # JS/TS (ESLint)
 pnpm lint-style              # CSS/SCSS (Stylelint)
 composer phpcs:lint <path>   # PHP (PHPCS)
+jetpack phan <project>       # Static analysis (Phan)
 ```
 
 See [Coding Guidelines](docs/coding-guidelines.md) for standards and conventions.
@@ -71,13 +71,11 @@ jetpack changelog add <project> -s patch -t fixed -e "Implement Unicord."
 
 See [Writing a Good Changelog Entry](docs/writing-a-good-changelog-entry.md).
 
-## Local WordPress Environment
-
-This starts the Jetpack Docker-based environment:
+## Local WordPress environment
 ```sh
-jetpack docker up -d
-jetpack docker install   # install WordPress
-jetpack docker down
+jetpack docker up -d     # start the container
+jetpack docker install   # initialize the WordPress install
+jetpack docker down      # stop the container
 ```
 
 See the [Docker guide](tools/docker/README.md) for details.

@@ -1,0 +1,4 @@
+Significance: patch
+Type: removed
+
+Remove dead grunion.js legacy form builder script that is no longer loaded or used.

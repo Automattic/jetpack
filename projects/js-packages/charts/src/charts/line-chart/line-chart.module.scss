@@ -1,11 +1,6 @@
 .line-chart {
 	position: relative;
 
-	&__svg-wrapper {
-		flex: 1;
-		min-height: 0; // Required for flex shrinking
-	}
-
 	&--animated {
 
 		path {

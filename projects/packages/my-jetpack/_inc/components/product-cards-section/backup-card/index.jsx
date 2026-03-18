@@ -222,7 +222,23 @@ const WithBackupsValueSection = props => {
 			{ lastRewindableEvent ? (
 				<div className={ styles.activity }>
 					<Gridicon icon={ lastRewindableEvent.gridicon } size={ 24 } />
-					<p className={ styles.summary }>{ lastRewindableEvent.summary }</p>
+					<p className={ styles.summary }>
+						{ lastRewindableEvent.summary }
+						{ lastRewindableEvent.actor?.is_mcp_agent && (
+							<>
+								{ ' ' }
+								<span className={ styles.mcpBadge }>
+									{ sprintf(
+										/* translators: %s: The name of the MCP client application. */
+										__( 'via %s (MCP)', 'jetpack-my-jetpack' ),
+										lastRewindableEvent.actor?.mcp_client ||
+											lastRewindableEvent.actor?.mcp_client_name ||
+											__( 'MCP client', 'jetpack-my-jetpack' )
+									) }
+								</span>
+							</>
+						) }
+					</p>
 				</div>
 			) : null }
 		</ProductCard>

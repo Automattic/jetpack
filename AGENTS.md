@@ -149,6 +149,16 @@ See `projects/packages/my-jetpack/_inc/components/connection-status-card/test/co
 
 Every PR touching `/projects` MUST include a changelog file in the project's `changelog/` directory. Changes outside `/projects` (e.g., `tools/`, `docs/`, `.github/`) do NOT need changelog entries.
 
+### AI-Generated Changelog Entries
+
+The PR template includes a checkbox: "Generate changelog entries for this PR (using AI)." When checked, a CI workflow uses AI to generate and commit changelog entries automatically. This workflow only runs for pull requests from branches in this repository (not from forks).
+
+**When filling out a PR description:**
+- Do NOT check this box if changelog files already exist in `changelog/` directories for the affected projects.
+- Do NOT check this box if you have already created changelog entries (e.g., via `jp changelog add`).
+- Only check this box if the PR needs changelog entries and you want them auto-generated.
+- When in doubt, leave it unchecked -- the bot will flag missing entries.
+
 ### Interactive Mode
 
 Run `jp changelog add` and follow the prompts.

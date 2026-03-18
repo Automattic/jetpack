@@ -1,4 +1,4 @@
-import { addQueryArgs } from '@wordpress/url';
+import { getFormEditUrl } from '../../../dashboard/utils.ts';
 import { FORM_POST_TYPE } from '../../shared/util/constants.js';
 import type { EditorContext } from './get-editor-context.ts';
 
@@ -17,8 +17,7 @@ export const navigateToForm = (
 	onNavigateToEntityRecord?: ( params: { postId: number; postType: string } ) => void
 ) => {
 	if ( editorContext === 'widget' || editorContext === 'site' ) {
-		const editUrl = addQueryArgs( 'post.php', { post: formId, action: 'edit' } );
-		window.location.href = editUrl;
+		window.location.href = getFormEditUrl( formId );
 	} else if ( onNavigateToEntityRecord ) {
 		onNavigateToEntityRecord( { postId: formId, postType: FORM_POST_TYPE } );
 	}

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Prevent incremental sync for posts with unregistered post types.
