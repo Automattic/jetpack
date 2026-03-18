@@ -19,6 +19,46 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
+ * Resolve a donation plan ID by querying for a matching jp_mem_plan post.
+ *
+ * Used as a fallback when the saved planId in block attributes is stale
+ * (e.g. the product was deleted and recreated).
+ *
+ * @param string $interval The donation interval (one-time, 1 month, 1 year).
+ * @param string $currency The currency code.
+ * @return int|null The plan post ID, or null if not found.
+ */
+function resolve_donation_plan_id( $interval, $currency ) {
+	$plans = get_posts(
+		array(
+			'posts_per_page' => 1,
+			'fields'         => 'ids',
+			'post_type'      => \Jetpack_Memberships::$post_type_plan,
+			'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+				'relation' => 'AND',
+				array(
+					'key'   => 'jetpack_memberships_type',
+					'value' => 'donation',
+				),
+				array(
+					'key'   => 'jetpack_memberships_interval',
+					'value' => $interval,
+				),
+				array(
+					'key'   => 'jetpack_memberships_currency',
+					'value' => $currency,
+				),
+				array(
+					'key'     => 'jetpack_memberships_is_deleted',
+					'compare' => 'NOT EXISTS',
+				),
+			),
+		)
+	);
+	return ! empty( $plans ) ? $plans[0] : null;
+}
+
+/**
  * Registers the block for use in Gutenberg
  * This is done via an action so that we can disable
  * registration if we need to.
@@ -135,7 +175,14 @@ function render_block( $attr, $content ) {
 	$buttons            = '';
 	foreach ( $donations as $interval => $donation ) {
 		$plan_id = (int) $donation['planId'];
-		$plan    = get_post( $plan_id );
+		$plan    = $plan_id ? get_post( $plan_id ) : null;
+
+		// Fallback: resolve by type + interval + currency if saved planId is stale.
+		if ( ! $plan || is_wp_error( $plan ) ) {
+			$plan_id = resolve_donation_plan_id( $interval, $currency );
+			$plan    = $plan_id ? get_post( $plan_id ) : null;
+		}
+
 		if ( ! $plan || is_wp_error( $plan ) ) {
 			continue;
 		}

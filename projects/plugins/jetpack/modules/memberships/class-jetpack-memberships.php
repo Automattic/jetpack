@@ -220,6 +220,12 @@ class Jetpack_Memberships {
 			'product_id'      => array(
 				'meta' => $meta_prefix . 'product_id',
 			),
+			'type'            => array(
+				'meta' => $meta_prefix . 'type',
+			),
+			'interval'        => array(
+				'meta' => $meta_prefix . 'interval',
+			),
 			'tier'            => array(
 				'meta' => $meta_prefix . 'tier',
 			),

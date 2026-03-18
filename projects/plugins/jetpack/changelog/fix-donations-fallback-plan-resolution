@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Donations Block: Add fallback plan resolution when saved plan ID is stale.
