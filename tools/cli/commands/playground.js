@@ -2,12 +2,10 @@ import child_process from 'child_process';
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
-import { fileURLToPath } from 'url';
 import chalk from 'chalk';
 import { projectDir } from '../helpers/install.js';
+import { readComposerJson } from '../helpers/json.js';
 import { maybePromptForPlugin } from './rsync.js';
-
-const cliPath = fileURLToPath( new URL( '../bin/jetpack.js', import.meta.url ) );
 
 export const command = 'playground [plugin]';
 export const describe = 'Starts a WordPress Playground instance with a plugin mounted';
@@ -33,6 +31,11 @@ export function builder( yargs ) {
 			alias: 'p',
 			type: 'number',
 			description: 'Port to run the Playground server on',
+		} )
+		.option( 'debug', {
+			type: 'boolean',
+			default: false,
+			description: 'Enable WP_DEBUG and SCRIPT_DEBUG (errors logged to /wp-content/debug.log)',
 		} )
 		.example( 'jetpack playground jetpack', 'Start Playground with the Jetpack plugin' )
 		.example( 'jetpack playground crm', 'Start Playground with the CRM plugin' );
@@ -72,44 +75,11 @@ export async function handler( argv ) {
 
 	// Read the plugin slug from composer.json so the mount path inside
 	// Playground uses the correct wp-plugin-slug (e.g. zero-bs-crm for crm).
-	const composerJsonPath = path.join( pluginPath, 'composer.json' );
-	let wpPluginSlug = argv.plugin;
-	if ( fs.existsSync( composerJsonPath ) ) {
-		try {
-			const composerJson = JSON.parse( fs.readFileSync( composerJsonPath, 'utf8' ) );
-			wpPluginSlug =
-				composerJson?.extra?.[ 'wp-plugin-slug' ] ??
-				composerJson?.extra?.[ 'beta-plugin-slug' ] ??
-				argv.plugin;
-		} catch {
-			// Fall back to directory name if composer.json is unreadable.
-		}
-	}
-
-	// If the plugin hasn't been built, run the build first.
-	// Only check for vendor/ when composer.json exists, and node_modules/ when package.json exists.
-	const hasComposerJson = fs.existsSync( path.join( pluginPath, 'composer.json' ) );
-	const hasPackageJson = fs.existsSync( path.join( pluginPath, 'package.json' ) );
-	const needsBuild =
-		( hasComposerJson && ! fs.existsSync( path.join( pluginPath, 'vendor' ) ) ) ||
-		( hasPackageJson && ! fs.existsSync( path.join( pluginPath, 'node_modules' ) ) );
-
-	if ( needsBuild ) {
-		console.log(
-			chalk.yellow( `Plugin "${ argv.plugin }" does not appear to be built. Building...` )
-		);
-		const build = child_process.spawnSync(
-			process.execPath,
-			[ cliPath, 'build', `plugins/${ argv.plugin }` ],
-			{ stdio: 'inherit' }
-		);
-		if ( build.status !== 0 ) {
-			console.error(
-				chalk.red( 'Build failed. Please run "jetpack build" manually and try again.' )
-			);
-			process.exit( 1 );
-		}
-	}
+	const composerJson = readComposerJson( `plugins/${ argv.plugin }`, false );
+	const wpPluginSlug =
+		composerJson?.extra?.[ 'wp-plugin-slug' ] ??
+		composerJson?.extra?.[ 'beta-plugin-slug' ] ??
+		argv.plugin;
 
 	// Build the blueprint into a temp directory.
 	const tmpDir = fs.mkdtempSync( path.join( os.tmpdir(), `jetpack-playground-${ argv.plugin }-` ) );
@@ -121,6 +91,18 @@ export async function handler( argv ) {
 	// projects/packages there so these symlinks resolve to real files and
 	// plugins_url() can generate correct URLs (paths stay under wp-content).
 	const packagesPath = projectDir( 'packages' );
+
+	const cleanup = () => {
+		console.log( chalk.gray( 'Cleaning up temporary files...' ) );
+		fs.rmSync( tmpDir, { recursive: true, force: true } );
+	};
+
+	// Ensure temp directory is cleaned up on Ctrl+C.
+	const onSigInt = () => {
+		cleanup();
+		process.exit( 130 );
+	};
+	process.on( 'SIGINT', onSigInt );
 
 	try {
 		const blueprintPath = buildBlueprint( pluginPath, tmpDir, argv, wpPluginSlug, argv.plugin );
@@ -171,12 +153,9 @@ export async function handler( argv ) {
 
 			proc.on( 'error', reject );
 		} );
-	} catch ( err ) {
-		console.error( chalk.red( err.message ) );
-		process.exit( 1 );
 	} finally {
-		console.log( chalk.gray( 'Cleaning up temporary files...' ) );
-		fs.rmSync( tmpDir, { recursive: true, force: true } );
+		process.removeListener( 'SIGINT', onSigInt );
+		cleanup();
 	}
 }
 
@@ -241,6 +220,29 @@ function buildBlueprint( pluginPath, tmpDir, options, wpPluginSlug, pluginName )
 		};
 	}
 
+	// Playground enables WP_DEBUG by default, which causes PHP notices (e.g.
+	// early textdomain loading) to produce output before headers are sent,
+	// breaking the auto-login redirect. When debug is off we disable WP_DEBUG
+	// entirely; when on we log errors to file instead of displaying them.
+	if ( options.debug ) {
+		blueprint.steps.push( {
+			step: 'defineWpConfigConsts',
+			consts: {
+				WP_DEBUG: true,
+				WP_DEBUG_DISPLAY: false,
+				WP_DEBUG_LOG: true,
+				SCRIPT_DEBUG: true,
+			},
+		} );
+	} else {
+		blueprint.steps.push( {
+			step: 'defineWpConfigConsts',
+			consts: {
+				WP_DEBUG: false,
+			},
+		} );
+	}
+
 	// The vendor symlinks resolve to /wordpress/wp-content/packages/ which is
 	// outside WP_PLUGIN_DIR, so plugins_url() generates broken URLs like
 	// /wp-content/plugins/wordpress/wp-content/packages/... Install a mu-plugin
@@ -271,39 +273,15 @@ add_filter( 'plugins_url', function ( $url ) {
 		} );
 	}
 
-	// Activate the plugin using the WordPress plugin identifier (slug/main-file.php).
-	const mainFile = findMainPluginFile( pluginPath );
-	if ( mainFile ) {
-		blueprint.steps.push( {
-			step: 'activatePlugin',
-			pluginPath: `${ wpPluginSlug }/${ mainFile }`,
-		} );
-	}
+	// Activate the plugin.
+	blueprint.steps.push( {
+		step: 'activatePlugin',
+		pluginPath: `/wordpress/wp-content/plugins/${ wpPluginSlug }`,
+	} );
 
 	// Write the merged blueprint to the temp directory.
 	const blueprintOutPath = path.join( tmpDir, 'blueprint.json' );
 	fs.writeFileSync( blueprintOutPath, JSON.stringify( blueprint, null, '\t' ) );
 
 	return blueprintOutPath;
-}
-
-/**
- * Find the main plugin PHP file by looking for the "Plugin Name:" header
- * in root-level PHP files.
- *
- * @param {string} pluginPath - Absolute path to the plugin directory.
- * @return {string|null} The filename of the main plugin file, or null if not found.
- */
-function findMainPluginFile( pluginPath ) {
-	const entries = fs.readdirSync( pluginPath, { withFileTypes: true } );
-	for ( const entry of entries ) {
-		if ( ! entry.isFile() || ! entry.name.endsWith( '.php' ) ) {
-			continue;
-		}
-		const content = fs.readFileSync( path.join( pluginPath, entry.name ), 'utf8' );
-		if ( /^\s*\*?\s*Plugin Name:/m.test( content ) ) {
-			return entry.name;
-		}
-	}
-	return null;
 }
