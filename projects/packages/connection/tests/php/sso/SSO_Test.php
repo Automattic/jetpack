@@ -17,6 +17,9 @@ class SSO_Test extends BaseTestCase {
 	 */
 	public function tear_down() {
 		$ref = new \ReflectionProperty( SSO::class, 'sso_user_for_2fa' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$ref->setAccessible( true );
+		}
 		$ref->setValue( null, null );
 
 		parent::tear_down();
@@ -45,6 +48,9 @@ class SSO_Test extends BaseTestCase {
 	 */
 	private function set_sso_user_for_2fa( $user ) {
 		$ref = new \ReflectionProperty( SSO::class, 'sso_user_for_2fa' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$ref->setAccessible( true );
+		}
 		$ref->setValue( null, $user );
 	}
 
@@ -55,6 +61,9 @@ class SSO_Test extends BaseTestCase {
 	 */
 	private function get_sso_user_for_2fa() {
 		$ref = new \ReflectionProperty( SSO::class, 'sso_user_for_2fa' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$ref->setAccessible( true );
+		}
 		return $ref->getValue();
 	}
 
