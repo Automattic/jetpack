@@ -4,14 +4,13 @@ import { Animate } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { createInterpolateElement } from '@wordpress/element';
-import { sprintf, __, _n } from '@wordpress/i18n';
+import { sprintf, __ } from '@wordpress/i18n';
 import paywallBlockMetadata from '../../blocks/paywall/block.json';
 import {
 	accessOptions,
 	META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS,
 	META_NAME_FOR_POST_TIER_ID_SETTINGS,
 } from '../../shared/memberships/constants';
-import { getReachForAccessLevelKey } from '../../shared/memberships/settings';
 import { store as membershipProductsStore } from '../../store/membership-products';
 
 /**
@@ -72,106 +71,6 @@ export const getFormattedCategories = (
 	return formattedCategories;
 };
 
-export const getCopyForCategorySubscribers = ( {
-	futureTense,
-	newsletterCategories,
-	postCategories,
-	reachCount,
-} ) => {
-	const formattedCategoryNames = getFormattedCategories( postCategories, newsletterCategories );
-	// This needs a more elegant solution, but for now it stops the crash when the count is undefined.
-	const reachCountString = undefined === reachCount ? '0' : reachCount.toLocaleString();
-
-	if ( futureTense ) {
-		return sprintf(
-			// translators: %1s is the list of categories, %2d is subscriptions count
-			_n(
-				'This post will be sent to everyone subscribed to %1$s (%2$s subscriber).',
-				'This post will be sent to everyone subscribed to %1$s (%2$s subscribers).',
-				reachCount ?? 0,
-				'jetpack'
-			),
-			formattedCategoryNames,
-			reachCountString
-		);
-	}
-
-	return sprintf(
-		// translators: %1s is the list of categories, %2d is subscriptions count
-		_n(
-			'This post was sent to everyone subscribed to %1$s (<link>%2$s subscriber</link>).',
-			'This post was sent to everyone subscribed to %1$s (<link>%2$s subscribers</link>).',
-			reachCount ?? 0,
-			'jetpack'
-		),
-		formattedCategoryNames,
-		reachCountString
-	);
-};
-
-// Determines copy to show in post-publish panel to confirm number and type of subscribers who received the post as email, or will receive in case of scheduled post.
-export const getCopyForSubscribers = ( {
-	futureTense,
-	isPaidPost,
-	postHasPaywallBlock,
-	reachCount,
-} ) => {
-	const reachCountString = reachCount.toLocaleString();
-
-	// Schedulled post
-	if ( futureTense ) {
-		// Paid post without paywall: sent only to paid subscribers
-		if ( isPaidPost && ! postHasPaywallBlock ) {
-			return sprintf(
-				/* translators: %s is the number of subscribers */
-				_n(
-					'This post will be sent to <strong>%s paid subscriber</strong>.',
-					'This post will be sent to <strong>%s paid subscribers</strong>.',
-					reachCount,
-					'jetpack'
-				),
-				reachCountString
-			);
-		}
-		// Paid post with paywall or Free post, sent to all subscribers
-		return sprintf(
-			/* translators: %s is the number of subscribers */
-			_n(
-				'This post will be sent to <strong>%s subscriber</strong>.',
-				'This post will be sent to <strong>%s subscribers</strong>.',
-				reachCount,
-				'jetpack'
-			),
-			reachCountString
-		);
-	}
-	// Paid post without paywall: sent only to paid subscribers
-	if ( isPaidPost && ! postHasPaywallBlock ) {
-		return sprintf(
-			/* translators: %s is the number of subscribers */
-			_n(
-				'This post was sent to <link>%s paid subscriber</link>.',
-				'This post was sent to <link>%s paid subscribers</link>.',
-				reachCount,
-				'jetpack'
-			),
-			reachCountString
-		);
-	}
-
-	// Paid post with paywall or Free post, sent to all subscribers, post is already published
-	return sprintf(
-		/* translators: %s is the number of subscribers */
-		_n(
-			'This post was sent to <link>%s subscriber</link>.',
-			'This post was sent to <link>%s subscribers</link>.',
-			reachCount,
-			'jetpack'
-		),
-		reachCountString
-	);
-};
-
 const SENDING_IN_PROGRESS_WINDOW_MS = 15 * 60 * 1000;
 
 /**
@@ -208,6 +107,22 @@ export function getAccessLevelLabel( accessLevel, tierName = null ) {
 		);
 	}
 	return label;
+}
+
+/**
+ * Get access label for affirmation copy, accounting for paywall.
+ * When paid_subscribers post has a paywall block, email goes to all subscribers.
+ *
+ * @param {string}      accessLevel           - Base key e.g. 'paid_subscribers'.
+ * @param {string|null} [tierName]            - Optional tier name.
+ * @param {boolean}     [postHasPaywallBlock] - Whether the post contains a paywall block.
+ * @return {string} Access level label for display.
+ */
+export function getAccessLabelForCopy( accessLevel, tierName = null, postHasPaywallBlock = false ) {
+	if ( accessLevel === 'paid_subscribers' && postHasPaywallBlock ) {
+		return __( 'all subscribers', 'jetpack' );
+	}
+	return getAccessLevelLabel( accessLevel, tierName );
 }
 
 /**
@@ -270,17 +185,20 @@ export function shouldShowWontResendMessage( {
 }
 
 /**
- * Build "was sent" or "is being sent" copy for access + categories.
+ * Build "was sent", "is being sent", or "will be sent" copy for access + categories.
  *
- * @param {object}  opts
- * @param {string}  opts.accessLabel   - "all subscribers" or "paid subscribers" (may be empty for date-only case)
- * @param {string}  opts.categoryNames - Formatted category list (or empty)
- * @param {boolean} opts.pastTense     - "was emailed" vs "is being emailed"
- * @param {string}  opts.dateStr       - For past tense only
- * @return {string} Formatted sentence for "was sent" or "is being sent" copy.
+ * @param {object} opts               - Options object.
+ * @param {string} opts.accessLabel   - "all subscribers" or "paid subscribers" (may be empty for date-only case).
+ * @param {string} opts.categoryNames - Formatted category list (or empty).
+ * @param {string} opts.tense         - 'past' | 'present' | 'future'.
+ * @param {string} opts.dateStr       - For past tense only.
+ * @return {string} Formatted sentence for "was sent", "is being sent", or "will be sent" copy.
  */
-export function getSentCopyLine( { accessLabel, categoryNames, pastTense, dateStr } ) {
-	if ( pastTense && dateStr && ! accessLabel ) {
+export function getSentCopyLine( { accessLabel, categoryNames, tense, dateStr } ) {
+	const isPast = tense === 'past';
+	const isFuture = tense === 'future';
+
+	if ( isPast && dateStr && ! accessLabel ) {
 		return sprintf(
 			/* translators: %s: formatted date */
 			__( 'This post was emailed on %s. View <link>delivery details</link>.', 'jetpack' ),
@@ -288,7 +206,7 @@ export function getSentCopyLine( { accessLabel, categoryNames, pastTense, dateSt
 		);
 	}
 	if ( categoryNames ) {
-		if ( pastTense ) {
+		if ( isPast ) {
 			if ( dateStr ) {
 				return sprintf(
 					/* translators: %1$s: access (e.g. "all subscribers"), %2$s: category list, %3$s: date */
@@ -311,6 +229,14 @@ export function getSentCopyLine( { accessLabel, categoryNames, pastTense, dateSt
 				categoryNames
 			);
 		}
+		if ( isFuture ) {
+			return sprintf(
+				/* translators: %1$s: access, %2$s: category list */
+				__( 'This post will be emailed to %1$s of %2$s.', 'jetpack' ),
+				accessLabel,
+				categoryNames
+			);
+		}
 		return sprintf(
 			/* translators: %1$s: access, %2$s: category list */
 			__(
@@ -321,7 +247,7 @@ export function getSentCopyLine( { accessLabel, categoryNames, pastTense, dateSt
 			categoryNames
 		);
 	}
-	if ( pastTense ) {
+	if ( isPast ) {
 		if ( dateStr ) {
 			return sprintf(
 				/* translators: %1$s: access, %2$s: date */
@@ -336,6 +262,13 @@ export function getSentCopyLine( { accessLabel, categoryNames, pastTense, dateSt
 		return sprintf(
 			/* translators: %s: access */
 			__( 'This post was emailed to %s. View <link>delivery details</link>.', 'jetpack' ),
+			accessLabel
+		);
+	}
+	if ( isFuture ) {
+		return sprintf(
+			/* translators: %s: access level */
+			__( 'This post will be emailed to %s.', 'jetpack' ),
 			accessLabel
 		);
 	}
@@ -386,12 +319,9 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 
 	const blogId = window.Jetpack_Editor_Initial_State?.wpcomBlogId;
 	const {
-		emailSubscribersCount,
 		hasFinishedLoading,
 		newsletterCategories,
 		newsletterCategoriesEnabled,
-		newsletterCategorySubscriberCount,
-		paidSubscribersCount,
 		postEmailSentState,
 		tierProducts,
 		totalEmailsSentCount,
@@ -402,17 +332,13 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 			const {
 				getNewsletterCategories,
 				getNewsletterCategoriesEnabled,
-				getNewsletterCategoriesSubscriptionsCount,
 				getNewsletterTierProducts,
 				getPostEmailSentState,
 				getPublishedWithEmailEnabledInSession,
 				getAlreadySentPostModifiedInSession,
-				getSubscriberCounts,
 				getTotalEmailsSentCount,
 				hasFinishedResolution,
 			} = select( membershipProductsStore );
-
-			const { emailSubscribers, paidSubscribers } = getSubscriberCounts();
 
 			// Trigger fetch when we have a postId so we have email_sent_at / stats_on_send (including for draft)
 			if ( postId ) {
@@ -428,16 +354,11 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 
 			return {
 				hasFinishedLoading: [
-					hasFinishedResolution( 'getSubscriberCounts' ),
 					hasFinishedResolution( 'getNewsletterCategories' ),
-					hasFinishedResolution( 'getNewsletterCategoriesSubscriptionsCount' ),
 					postEmailResolved,
 				].every( Boolean ),
-				emailSubscribersCount: emailSubscribers,
 				newsletterCategories: getNewsletterCategories(),
 				newsletterCategoriesEnabled: getNewsletterCategoriesEnabled(),
-				newsletterCategorySubscriberCount: getNewsletterCategoriesSubscriptionsCount(),
-				paidSubscribersCount: paidSubscribers,
 				postEmailSentState: _postEmailSentState,
 				alreadySentPostModifiedInSession: postId
 					? getAlreadySentPostModifiedInSession( postId )
@@ -466,7 +387,6 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 		);
 	}
 
-	const isPaidPost = accessLevel === accessOptions.paid_subscribers.key;
 	const isPrepublishOrScheduled = prePublish || isScheduledPost;
 
 	const emailSentAt = postEmailSentState?.email_sent_at ?? null;
@@ -494,13 +414,6 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 	const isPublishedWithoutEmail =
 		status === 'publish' && emailSentAt == null && ! isSendingInProgress;
 
-	const reachForAccessLevel = getReachForAccessLevelKey( {
-		accessLevel,
-		subscribers: emailSubscribersCount,
-		paidSubscribers: paidSubscribersCount,
-		postHasPaywallBlock,
-	} );
-
 	let text;
 	let showWontResendMessage = false;
 
@@ -508,7 +421,7 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 		text = getSentCopyLine( {
 			accessLabel: sentAccessLabel,
 			categoryNames: sentCategoryNames,
-			pastTense: true,
+			tense: 'past',
 			dateStr,
 		} );
 
@@ -535,7 +448,7 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 		);
 	} else if ( isSendingInProgress ) {
 		const currentTierName = getCurrentTierName( accessLevel, postMeta, tierProducts );
-		const accessLabel = getAccessLevelLabel( accessLevel, currentTierName );
+		const accessLabel = getAccessLabelForCopy( accessLevel, currentTierName, postHasPaywallBlock );
 		const categoryNames =
 			newsletterCategoriesEnabled && newsletterCategories?.length && postCategories?.length
 				? getFormattedCategories( postCategories, newsletterCategories )
@@ -543,7 +456,7 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 		text = getSentCopyLine( {
 			accessLabel,
 			categoryNames,
-			pastTense: false,
+			tense: 'present',
 			dateStr: '',
 		} );
 	} else if ( isPublishedWithoutEmail ) {
@@ -553,21 +466,19 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 		);
 	} else if ( ! isSendEmailEnabled() ) {
 		text = __( 'Not sent via email.', 'jetpack' );
-	} else if ( newsletterCategoriesEnabled && newsletterCategories.length > 0 && ! isPaidPost ) {
-		// Pre-send (prepublish/scheduled) or published fallback — category subscribers
-		text = getCopyForCategorySubscribers( {
-			futureTense: isPrepublishOrScheduled,
-			newsletterCategories,
-			postCategories,
-			reachCount: newsletterCategorySubscriberCount,
-		} );
 	} else {
-		// Pre-send (prepublish/scheduled) or published fallback — all/paid subscribers
-		text = getCopyForSubscribers( {
-			futureTense: isPrepublishOrScheduled,
-			isPaidPost,
-			postHasPaywallBlock,
-			reachCount: reachForAccessLevel,
+		// Pre-send (prepublish/scheduled) — unified access + categories
+		const currentTierName = getCurrentTierName( accessLevel, postMeta, tierProducts );
+		const accessLabel = getAccessLabelForCopy( accessLevel, currentTierName, postHasPaywallBlock );
+		const categoryNames =
+			newsletterCategoriesEnabled && newsletterCategories?.length && postCategories?.length
+				? getFormattedCategories( postCategories, newsletterCategories )
+				: '';
+		text = getSentCopyLine( {
+			accessLabel,
+			categoryNames,
+			tense: isPrepublishOrScheduled ? 'future' : 'present',
+			dateStr: '',
 		} );
 	}
 
