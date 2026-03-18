@@ -1,3 +1,4 @@
+import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { useDispatch } from '@wordpress/data';
 import { useCallback, useMemo, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
@@ -114,6 +115,12 @@ export default function useDeleteForm( {
 			const failedCount = promises.length - restoredCount;
 
 			if ( restoredCount ) {
+				items.slice( 0, restoredCount ).forEach( () => {
+					jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_form_status_change', {
+						new_status: 'draft',
+						action: 'restore',
+					} );
+				} );
 				const successMessage =
 					restoredCount === 1
 						? __( 'Form restored as draft.', 'jetpack-forms' )
@@ -267,6 +274,12 @@ export default function useDeleteForm( {
 				const failedCount = items.length - trashedCount;
 
 				if ( trashedCount ) {
+					trashedItems.forEach( () => {
+						jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_form_status_change', {
+							new_status: 'trash',
+							action: 'trash',
+						} );
+					} );
 					const successMessage =
 						trashedCount === 1
 							? __( 'Form moved to trash.', 'jetpack-forms' )
@@ -384,6 +397,12 @@ export default function useDeleteForm( {
 			const failedCount = promises.length - deletedCount;
 
 			if ( deletedCount ) {
+				permanentDeleteItems.slice( 0, deletedCount ).forEach( () => {
+					jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_form_status_change', {
+						new_status: 'trash',
+						action: 'delete_permanently',
+					} );
+				} );
 				const successMessage =
 					deletedCount === 1
 						? __( 'Form deleted permanently.', 'jetpack-forms' )

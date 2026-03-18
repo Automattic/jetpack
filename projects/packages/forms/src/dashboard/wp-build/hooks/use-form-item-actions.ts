@@ -1,3 +1,4 @@
+import jetpackAnalytics from '@automattic/jetpack-analytics';
 /**
  * WordPress dependencies
  */
@@ -76,6 +77,9 @@ export default function useFormItemActions(): UseFormItemActionsReturn {
 			const embedCode = `<!-- wp:jetpack/contact-form {"ref":${ item.id }} /-->`;
 			try {
 				await navigator.clipboard.writeText( embedCode );
+				jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_copy_embed', {
+					type: 'embed',
+				} );
 				createSuccessNotice( __( 'Embed code copied to clipboard.', 'jetpack-forms' ), {
 					type: 'snackbar',
 				} );
@@ -93,6 +97,9 @@ export default function useFormItemActions(): UseFormItemActionsReturn {
 			const shortcode = `[contact-form ref="${ item.id }"]`;
 			try {
 				await navigator.clipboard.writeText( shortcode );
+				jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_copy_embed', {
+					type: 'shortcode',
+				} );
 				createSuccessNotice( __( 'Shortcode copied to clipboard.', 'jetpack-forms' ), {
 					type: 'snackbar',
 				} );
@@ -147,6 +154,14 @@ export default function useFormItemActions(): UseFormItemActionsReturn {
 				const failedCount = promises.length - updatedCount;
 
 				if ( updatedCount ) {
+					items.forEach( ( item, index ) => {
+						if ( promises[ index ]?.status === 'fulfilled' ) {
+							jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_form_status_change', {
+								new_status: nextStatus,
+								action: nextStatus === 'publish' ? 'publish' : 'unpublish',
+							} );
+						}
+					} );
 					const message =
 						nextStatus === 'publish'
 							? sprintf(

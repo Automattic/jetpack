@@ -1,3 +1,4 @@
+import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { hasFeatureFlag } from '@automattic/jetpack-shared-extension-utils';
 import {
 	__experimentalBlockVariationPicker as BlockVariationPicker, // eslint-disable-line @wordpress/no-unsafe-wp-apis
@@ -128,6 +129,10 @@ export default function VariationPicker( { blockName, setAttributes, clientId, c
 				instructions={ getInstructions() }
 				variations={ variations.filter( v => ! v.hiddenFromPicker ) }
 				onSelect={ async ( nextVariation = defaultVariation ) => {
+					jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_variation_selected', {
+						variation: nextVariation.name,
+					} );
+
 					// If we're editing a jetpack-form post directly, or central form management
 					// is disabled, use the "old" behavior: apply the variation directly to this
 					// block by setting attributes and inner blocks, without creating a synced

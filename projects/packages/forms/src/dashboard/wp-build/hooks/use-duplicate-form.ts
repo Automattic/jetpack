@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { resolveSelect, useDispatch } from '@wordpress/data';
 import { useCallback, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
@@ -108,6 +109,8 @@ export default function useDuplicateForm(): UseDuplicateFormReturn {
 					} );
 					return;
 				}
+
+				jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_form_duplicated' );
 
 				createSuccessNotice( __( 'Form duplicated.', 'jetpack-forms' ), {
 					type: 'snackbar',

@@ -1,6 +1,7 @@
 /*
  * External dependencies
  */
+import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { ThemeProvider } from '@automattic/jetpack-components';
 import { useModuleStatus, hasFeatureFlag } from '@automattic/jetpack-shared-extension-utils';
 import {
@@ -849,6 +850,8 @@ function JetpackContactFormEdit( {
 			setActiveStep( clientId, stepContainer.innerBlocks[ 0 ].clientId );
 		}
 
+		jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_convert_to_multistep' );
+
 		// Ensure we are marked as multistep – this records the undo level.
 		if ( variationName !== 'multistep' ) {
 			setAttributes( { variationName: 'multistep' } );
@@ -953,6 +956,7 @@ function JetpackContactFormEdit( {
 			setAttributes( { variationName: 'default-empty' } );
 		}
 
+		jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_convert_to_standard' );
 		formTransitionStateRef.current = FormTransitionState.IS_FORM;
 	}, [
 		variationName,
