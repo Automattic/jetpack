@@ -18,13 +18,13 @@ import {
 	useChartId,
 	useChartRegistration,
 	useGlobalChartsContext,
-	useGlobalChartsTheme,
 	GlobalChartsContext,
 } from '../../providers';
 import { attachSubComponents } from '../../utils';
 import { useChartChildren } from '../private/chart-composition';
 import { ChartLayout } from '../private/chart-layout';
 import { SingleChartContext } from '../private/single-chart-context';
+import { SvgEmptyState } from '../private/svg-empty-state';
 import { withResponsive } from '../private/with-responsive';
 import styles from './bar-chart.module.scss';
 import { useBarChartOptions } from './private';
@@ -142,7 +142,6 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	} );
 
 	const { getElementStyles, isSeriesVisible } = useGlobalChartsContext();
-	const providerTheme = useGlobalChartsTheme();
 
 	// Add visibility information to series when using interactive legends
 	const seriesWithVisibility = useMemo( () => {
@@ -422,19 +421,17 @@ const BarChartInternal: FC< BarChartProps > = ( {
 										{ highlightedBarStyle && <style>{ highlightedBarStyle }</style> }
 
 										{ allSeriesHidden ? (
-											<text
+											<SvgEmptyState
 												x={ width / 2 }
 												y={ chartHeight / 2 }
-												textAnchor="middle"
-												fill={ providerTheme.gridStyles?.stroke || '#ccc' }
-												fontSize="14"
-												fontFamily="-apple-system,BlinkMacSystemFont,Roboto,Helvetica Neue,sans-serif"
+												width={ width }
+												height={ chartHeight }
 											>
 												{ __(
 													'All series are hidden. Click legend items to show data.',
 													'jetpack-charts'
 												) }
-											</text>
+											</SvgEmptyState>
 										) : null }
 
 										<BarGroup padding={ chartOptions.barGroup.padding }>

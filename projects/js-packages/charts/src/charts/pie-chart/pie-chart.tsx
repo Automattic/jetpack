@@ -22,6 +22,7 @@ import { ChartSVG, ChartHTML, useChartChildren } from '../private/chart-composit
 import { ChartLayout } from '../private/chart-layout';
 import { RadialWipeAnimation } from '../private/radial-wipe-animation/';
 import { SingleChartContext } from '../private/single-chart-context';
+import { SvgEmptyState } from '../private/svg-empty-state';
 import { withResponsive, ResponsiveConfig } from '../private/with-responsive';
 import styles from './pie-chart.module.scss';
 import type { LegendValueDisplay } from '../../components/legend';
@@ -370,18 +371,12 @@ const PieChartInternal = ( {
 									}
 								>
 									{ allSegmentsHidden ? (
-										<text
-											textAnchor="middle"
-											dy=".33em"
-											fill={ providerTheme.gridColor || '#ccc' }
-											fontSize="14"
-											fontFamily="-apple-system,BlinkMacSystemFont,Roboto,Helvetica Neue,sans-serif"
-										>
+										<SvgEmptyState x={ 0 } y={ 0 } width={ width } height={ height }>
 											{ __(
 												'All segments are hidden. Click legend items to show data.',
 												'jetpack-charts'
 											) }
-										</text>
+										</SvgEmptyState>
 									) : (
 										<Pie< DataPointPercentage & { index: number } >
 											data={ dataWithIndex }

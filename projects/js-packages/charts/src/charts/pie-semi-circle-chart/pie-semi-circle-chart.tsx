@@ -21,6 +21,7 @@ import { ChartSVG, ChartHTML, useChartChildren } from '../private/chart-composit
 import { ChartLayout } from '../private/chart-layout';
 import { RadialWipeAnimation } from '../private/radial-wipe-animation';
 import { SingleChartContext } from '../private/single-chart-context';
+import { SvgEmptyState } from '../private/svg-empty-state';
 import { withResponsive } from '../private/with-responsive';
 import styles from './pie-semi-circle-chart.module.scss';
 import type { LegendValueDisplay } from '../../components/legend';
@@ -415,18 +416,12 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 									}
 								>
 									{ allSegmentsHidden ? (
-										<text
-											textAnchor="middle"
-											y={ -radius / 2 }
-											fill="#ccc"
-											fontSize="14"
-											fontFamily="-apple-system,BlinkMacSystemFont,Roboto,Helvetica Neue,sans-serif"
-										>
+										<SvgEmptyState x={ 0 } y={ -radius / 2 } width={ width } height={ height }>
 											{ __(
 												'All segments are hidden. Click legend items to show data.',
 												'jetpack-charts'
 											) }
-										</text>
+										</SvgEmptyState>
 									) : (
 										<>
 											{ /* Pie chart */ }
