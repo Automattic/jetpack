@@ -63,7 +63,7 @@ $template = '
 					<table role="presentation" border="0" cellpadding="0" cellspacing="0" class="main">
 						<tr>
 							<td class="wrapper">
-								<!-- Header -->
+								<!-- Header title -->
 								%1$s
 
 								<!-- Respondent Info -->

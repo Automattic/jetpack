@@ -520,6 +520,77 @@ class Feedback_Email_Renderer_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Test build_email_content with empty title does not render h1 tag.
+	 */
+	public function test_build_email_content_empty_title() {
+		$post_id = Utility::create_legacy_feedback(
+			array(
+				'Name'  => 'Test User',
+				'Email' => 'test@example.com',
+			),
+			'Test message',
+			'Test User'
+		);
+
+		$form     = new Contact_Form( array(), '' );
+		$response = Feedback::get( $post_id );
+
+		$context_data = array(
+			'time'                 => current_time( 'mysql' ),
+			'url'                  => 'https://example.com',
+			'comment_author'       => 'Test User',
+			'comment_author_email' => 'test@example.com',
+			'comment_author_ip'    => '127.0.0.1',
+			'is_spam'              => false,
+			'feedback_status'      => 'publish',
+		);
+
+		add_filter( 'jetpack_forms_response_email_title', '__return_empty_string' );
+		$result = Feedback_Email_Renderer::build_email_content( $post_id, $form, $response, $context_data );
+		remove_filter( 'jetpack_forms_response_email_title', '__return_empty_string' );
+
+		$this->assertStringNotContainsString( '<h1 class="email-header">', $result['message'] );
+	}
+
+	/**
+	 * Test build_email_content with non-empty title renders h1 tag.
+	 */
+	public function test_build_email_content_with_title() {
+		$post_id = Utility::create_legacy_feedback(
+			array(
+				'Name'  => 'Test User',
+				'Email' => 'test@example.com',
+			),
+			'Test message',
+			'Test User'
+		);
+
+		$form     = new Contact_Form( array(), '' );
+		$response = Feedback::get( $post_id );
+
+		$context_data = array(
+			'time'                 => current_time( 'mysql' ),
+			'url'                  => 'https://example.com',
+			'comment_author'       => 'Test User',
+			'comment_author_email' => 'test@example.com',
+			'comment_author_ip'    => '127.0.0.1',
+			'is_spam'              => false,
+			'feedback_status'      => 'publish',
+		);
+
+		add_filter(
+			'jetpack_forms_response_email_title',
+			function () {
+				return 'Custom Email Title';
+			}
+		);
+		$result = Feedback_Email_Renderer::build_email_content( $post_id, $form, $response, $context_data );
+		remove_all_filters( 'jetpack_forms_response_email_title' );
+
+		$this->assertStringContainsString( '<h1 class="email-header">Custom Email Title</h1>', $result['message'] );
+	}
+
+	/**
 	 * Invoke a private static method on Feedback_Field via reflection.
 	 *
 	 * @param string $method_name The method name.
