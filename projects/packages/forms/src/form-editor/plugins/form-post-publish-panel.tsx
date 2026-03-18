@@ -1,14 +1,13 @@
 /**
  * External dependencies
  */
-import { Modal } from '@wordpress/components';
+import { Modal, Button, TextControl } from '@wordpress/components';
 import { useCopyToClipboard } from '@wordpress/compose';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Icon, copy, check, page as pageIcon, postList } from '@wordpress/icons';
 import { store as noticesStore } from '@wordpress/notices';
 import { addQueryArgs } from '@wordpress/url';
 /**
@@ -18,9 +17,6 @@ import { FORM_POST_TYPE } from '../../blocks/shared/util/constants.js';
 import './form-post-publish-panel.scss';
 
 export const FORM_POST_PUBLISH_PANEL_PLUGIN = 'jetpack-form-post-publish';
-
-const PAGES_URL = addQueryArgs( 'edit.php', { post_type: 'page' } );
-const POSTS_URL = 'edit.php';
 
 /**
  * Form Post-Publish Modal component.
@@ -34,11 +30,10 @@ const POSTS_URL = 'edit.php';
 export const FormPostPublishPanel = () => {
 	const [ isModalOpen, setIsModalOpen ] = useState( false );
 	const [ isCreatingPage, setIsCreatingPage ] = useState( false );
-	const [ showCopyConfirmation, setShowCopyConfirmation ] = useState( false );
-	const hasEverCopiedRef = useRef( false );
+	const [ step, setStep ] = useState< 'initial' | 'title' | 'copied' >( 'initial' );
+	const [ pageTitle, setPageTitle ] = useState( '' );
 	const wasPublishedOnLoadRef = useRef< boolean | null >( null );
 	const hasShownModalRef = useRef( false );
-	const copiedTimeoutRef = useRef< number | null >( null );
 
 	const { postId, postTitle, postType, isPublished, isSaving } = useSelect( select => {
 		const editor = select( editorStore ) as {
@@ -95,11 +90,16 @@ export const FormPostPublishPanel = () => {
 		setIsModalOpen( false );
 	}, [] );
 
+	const handleShowPageTitleInput = useCallback( () => {
+		setPageTitle( postTitle || '' );
+		setStep( 'title' );
+	}, [ postTitle ] );
+
 	const handleCreatePage = useCallback( async () => {
 		setIsCreatingPage( true );
 		try {
 			const page = ( await saveEntityRecord( 'postType', 'page', {
-				title: postTitle || __( 'Untitled Form', 'jetpack-forms' ),
+				title: pageTitle || __( 'Untitled Form', 'jetpack-forms' ),
 				content: embedCode,
 				status: 'draft',
 			} ) ) as { id: number } | undefined;
@@ -116,118 +116,101 @@ export const FormPostPublishPanel = () => {
 			} );
 			setIsCreatingPage( false );
 		}
-	}, [ postTitle, embedCode, saveEntityRecord, createErrorNotice ] );
+	}, [ pageTitle, embedCode, saveEntityRecord, createErrorNotice ] );
 
 	const copyRef = useCopyToClipboard< HTMLButtonElement >( embedCode, () => {
-		setShowCopyConfirmation( true );
-		hasEverCopiedRef.current = true;
-		if ( copiedTimeoutRef.current ) {
-			clearTimeout( copiedTimeoutRef.current );
-		}
-		copiedTimeoutRef.current = setTimeout( () => {
-			copiedTimeoutRef.current = null;
-			setShowCopyConfirmation( false );
-		}, 3000 );
+		setStep( 'copied' );
 	} );
 
-	useEffect( () => {
-		return () => {
-			if ( copiedTimeoutRef.current ) {
-				clearTimeout( copiedTimeoutRef.current );
-			}
-		};
-	}, [] );
+	const handleBack = useCallback( () => setStep( 'initial' ), [] );
 
 	if ( ! isModalOpen ) {
 		return null;
 	}
 
-	const createNewPageTitle = __( 'Create a new page with this form', 'jetpack-forms' );
-	const copiedText = __( 'Copied to clipboard!', 'jetpack-forms' );
-	const pasteText = __( 'Paste it into any post or page.', 'jetpack-forms' );
+	const pagesUrl = addQueryArgs( 'edit.php', { post_type: 'page' } );
+	const postsUrl = 'edit.php';
 
 	return (
 		<Modal
-			title={ __( 'Almost ready to collect responses \ud83c\udf89', 'jetpack-forms' ) }
+			title={ __( 'Your form is ready — add it to a page', 'jetpack-forms' ) }
 			onRequestClose={ handleClose }
 			className="jetpack-form-post-publish-modal"
 			size="medium"
 		>
 			<div className="jetpack-form-post-publish__content">
 				<p className="jetpack-form-post-publish__subtitle">
-					{ __( 'Next steps:', 'jetpack-forms' ) }
+					{ __( "Once it's on a page, visitors can start submitting responses.", 'jetpack-forms' ) }
 				</p>
-				<button type="button" className="jetpack-form-post-publish__action-card" ref={ copyRef }>
-					<div className="jetpack-form-post-publish__action-icon">
-						<Icon icon={ showCopyConfirmation ? check : copy } size={ 24 } />
-					</div>
-					<div className="jetpack-form-post-publish__action-text">
-						<span className="jetpack-form-post-publish__action-title">
-							{ __( 'Copy embed code', 'jetpack-forms' ) }
-						</span>
-						<span className="jetpack-form-post-publish__action-description">
-							{ showCopyConfirmation ? copiedText : pasteText }
-						</span>
-					</div>
-				</button>
-				<div
-					className={ `jetpack-form-post-publish__reveal${
-						hasEverCopiedRef.current ? ' is-visible' : ''
-					}` }
-				>
-					<div className="jetpack-form-post-publish__reveal-inner">
-						<a
-							className="jetpack-form-post-publish__action-card"
-							href={ PAGES_URL }
-							tabIndex={ hasEverCopiedRef.current ? undefined : -1 }
+				{ step === 'initial' && (
+					<>
+						<Button
+							variant="primary"
+							onClick={ handleShowPageTitleInput }
+							className="jetpack-form-post-publish__button"
 						>
-							<div className="jetpack-form-post-publish__action-icon">
-								<Icon icon={ pageIcon } size={ 24 } />
-							</div>
-							<div className="jetpack-form-post-publish__action-text">
-								<span className="jetpack-form-post-publish__action-title">
-									{ __( 'View Pages', 'jetpack-forms' ) }
-								</span>
-								<span className="jetpack-form-post-publish__action-description">
-									{ __( 'Open the pages list to paste the embed code.', 'jetpack-forms' ) }
-								</span>
-							</div>
-						</a>
-						<a
-							className="jetpack-form-post-publish__action-card"
-							href={ POSTS_URL }
-							tabIndex={ hasEverCopiedRef.current ? undefined : -1 }
+							{ __( 'Add to new page', 'jetpack-forms' ) }
+						</Button>
+						<div className="jetpack-form-post-publish__separator">
+							<span>{ __( 'or', 'jetpack-forms' ) }</span>
+						</div>
+						<Button
+							variant="secondary"
+							ref={ copyRef }
+							className="jetpack-form-post-publish__button"
 						>
-							<div className="jetpack-form-post-publish__action-icon">
-								<Icon icon={ postList } size={ 24 } />
-							</div>
-							<div className="jetpack-form-post-publish__action-text">
-								<span className="jetpack-form-post-publish__action-title">
-									{ __( 'View Posts', 'jetpack-forms' ) }
-								</span>
-								<span className="jetpack-form-post-publish__action-description">
-									{ __( 'Open the posts list to paste the embed code.', 'jetpack-forms' ) }
-								</span>
-							</div>
-						</a>
-					</div>
-				</div>
-				<button
-					type="button"
-					className="jetpack-form-post-publish__action-card"
-					onClick={ handleCreatePage }
-					disabled={ isCreatingPage }
-				>
-					<div className="jetpack-form-post-publish__action-icon">
-						<Icon icon={ pageIcon } size={ 24 } />
-					</div>
-					<div className="jetpack-form-post-publish__action-text">
-						<span className="jetpack-form-post-publish__action-title">{ createNewPageTitle }</span>
-						<span className="jetpack-form-post-publish__action-description">
-							{ __( 'Use this form to quickly create a new page.', 'jetpack-forms' ) }
-						</span>
-					</div>
-				</button>
+							{ __( 'Copy and add manually', 'jetpack-forms' ) }
+						</Button>
+					</>
+				) }
+				{ step === 'title' && (
+					<>
+						<TextControl
+							label={ __( 'Page title', 'jetpack-forms' ) }
+							value={ pageTitle }
+							onChange={ setPageTitle }
+							placeholder={ __( 'Untitled Form', 'jetpack-forms' ) }
+						/>
+						<div className="jetpack-form-post-publish__button-row">
+							<Button
+								variant="secondary"
+								onClick={ handleBack }
+								className="jetpack-form-post-publish__button"
+							>
+								{ __( 'Back', 'jetpack-forms' ) }
+							</Button>
+							<Button
+								variant="primary"
+								onClick={ handleCreatePage }
+								disabled={ isCreatingPage }
+								className="jetpack-form-post-publish__button"
+							>
+								{ isCreatingPage
+									? __( 'Creating page…', 'jetpack-forms' )
+									: __( 'Continue', 'jetpack-forms' ) }
+							</Button>
+						</div>
+					</>
+				) }
+				{ step === 'copied' && (
+					<>
+						<p>{ __( 'Embed code copied! Paste it into any post or page.', 'jetpack-forms' ) }</p>
+						<Button
+							variant="secondary"
+							href={ pagesUrl }
+							className="jetpack-form-post-publish__button"
+						>
+							{ __( 'View Pages', 'jetpack-forms' ) }
+						</Button>
+						<Button
+							variant="secondary"
+							href={ postsUrl }
+							className="jetpack-form-post-publish__button"
+						>
+							{ __( 'View Posts', 'jetpack-forms' ) }
+						</Button>
+					</>
+				) }
 			</div>
 		</Modal>
 	);
