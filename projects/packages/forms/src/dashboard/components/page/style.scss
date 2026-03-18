@@ -35,12 +35,6 @@
 	flex-shrink: 0;
 	z-index: 10;
 	border-bottom: none;
-
-	@container (max-width: 430px) {
-		padding: variables.$grid-unit-15 variables.$grid-unit-30;
-		// Account for wp-admin bar on mobile (46px)
-		top: var(--wp-admin--admin-bar--height, 0);
-	}
 }
 
 .admin-ui-page__header-subtitle {
