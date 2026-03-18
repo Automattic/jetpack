@@ -20,6 +20,26 @@
 		gap: 12px;
 	}
 
+	.jetpack-form-post-publish__step {
+		display: flex;
+		flex-direction: column;
+		gap: 16px;
+		animation: jetpack-form-post-publish-fade-in 0.3s ease;
+	}
+
+	@keyframes jetpack-form-post-publish-fade-in {
+
+		from {
+			opacity: 0;
+			transform: translateY(8px);
+		}
+
+		to {
+			opacity: 1;
+			transform: translateY(0);
+		}
+	}
+
 	.jetpack-form-post-publish__separator {
 		display: flex;
 		align-items: center;

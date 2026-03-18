@@ -142,75 +142,77 @@ export const FormPostPublishPanel = () => {
 				<p className="jetpack-form-post-publish__subtitle">
 					{ __( "Once it's on a page, visitors can start submitting responses.", 'jetpack-forms' ) }
 				</p>
-				{ step === 'initial' && (
-					<>
-						<Button
-							variant="primary"
-							onClick={ handleShowPageTitleInput }
-							className="jetpack-form-post-publish__button"
-						>
-							{ __( 'Add to new page', 'jetpack-forms' ) }
-						</Button>
-						<div className="jetpack-form-post-publish__separator">
-							<span>{ __( 'or', 'jetpack-forms' ) }</span>
-						</div>
-						<Button
-							variant="secondary"
-							ref={ copyRef }
-							className="jetpack-form-post-publish__button"
-						>
-							{ __( 'Copy and add manually', 'jetpack-forms' ) }
-						</Button>
-					</>
-				) }
-				{ step === 'title' && (
-					<>
-						<TextControl
-							label={ __( 'Page title', 'jetpack-forms' ) }
-							value={ pageTitle }
-							onChange={ setPageTitle }
-							placeholder={ __( 'Untitled Form', 'jetpack-forms' ) }
-						/>
-						<div className="jetpack-form-post-publish__button-row">
-							<Button
-								variant="secondary"
-								onClick={ handleBack }
-								className="jetpack-form-post-publish__button"
-							>
-								{ __( 'Back', 'jetpack-forms' ) }
-							</Button>
+				<div key={ step } className="jetpack-form-post-publish__step">
+					{ step === 'initial' && (
+						<>
 							<Button
 								variant="primary"
-								onClick={ handleCreatePage }
-								disabled={ isCreatingPage }
+								onClick={ handleShowPageTitleInput }
 								className="jetpack-form-post-publish__button"
 							>
-								{ isCreatingPage
-									? __( 'Creating page…', 'jetpack-forms' )
-									: __( 'Continue', 'jetpack-forms' ) }
+								{ __( 'Add to new page', 'jetpack-forms' ) }
 							</Button>
-						</div>
-					</>
-				) }
-				{ step === 'copied' && (
-					<>
-						<p>{ __( 'Embed code copied! Paste it into any post or page.', 'jetpack-forms' ) }</p>
-						<Button
-							variant="secondary"
-							href={ pagesUrl }
-							className="jetpack-form-post-publish__button"
-						>
-							{ __( 'View Pages', 'jetpack-forms' ) }
-						</Button>
-						<Button
-							variant="secondary"
-							href={ postsUrl }
-							className="jetpack-form-post-publish__button"
-						>
-							{ __( 'View Posts', 'jetpack-forms' ) }
-						</Button>
-					</>
-				) }
+							<div className="jetpack-form-post-publish__separator">
+								<span>{ __( 'or', 'jetpack-forms' ) }</span>
+							</div>
+							<Button
+								variant="secondary"
+								ref={ copyRef }
+								className="jetpack-form-post-publish__button"
+							>
+								{ __( 'Copy and add manually', 'jetpack-forms' ) }
+							</Button>
+						</>
+					) }
+					{ step === 'title' && (
+						<>
+							<TextControl
+								label={ __( 'Page title', 'jetpack-forms' ) }
+								value={ pageTitle }
+								onChange={ setPageTitle }
+								placeholder={ __( 'Untitled Form', 'jetpack-forms' ) }
+							/>
+							<div className="jetpack-form-post-publish__button-row">
+								<Button
+									variant="secondary"
+									onClick={ handleBack }
+									className="jetpack-form-post-publish__button"
+								>
+									{ __( 'Back', 'jetpack-forms' ) }
+								</Button>
+								<Button
+									variant="primary"
+									onClick={ handleCreatePage }
+									disabled={ isCreatingPage }
+									className="jetpack-form-post-publish__button"
+								>
+									{ isCreatingPage
+										? __( 'Creating page…', 'jetpack-forms' )
+										: __( 'Continue', 'jetpack-forms' ) }
+								</Button>
+							</div>
+						</>
+					) }
+					{ step === 'copied' && (
+						<>
+							<p>{ __( 'Embed code copied! Paste it into any post or page.', 'jetpack-forms' ) }</p>
+							<Button
+								variant="secondary"
+								href={ pagesUrl }
+								className="jetpack-form-post-publish__button"
+							>
+								{ __( 'View Pages', 'jetpack-forms' ) }
+							</Button>
+							<Button
+								variant="secondary"
+								href={ postsUrl }
+								className="jetpack-form-post-publish__button"
+							>
+								{ __( 'View Posts', 'jetpack-forms' ) }
+							</Button>
+						</>
+					) }
+				</div>
 			</div>
 		</Modal>
 	);
