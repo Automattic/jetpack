@@ -97,7 +97,7 @@ function wpcom_maybe_add_ai_assistant_banner() {
 
 	wp_enqueue_script(
 		'wpcom-ai-assistant-banner',
-		plugin_dir_url( __FILE__ ) . 'js/wpcom-ai-assistant-banner.js',
+		plugin_dir_url( __FILE__ ) . 'js/ai-assistant-banner.js',
 		array( 'jquery' ),
 		'20250604',
 		true
