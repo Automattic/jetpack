@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Reduce memory overhead when inspecting call stack for user sync operations by using DEBUG_BACKTRACE_IGNORE_ARGS and consolidating backtrace calls.
