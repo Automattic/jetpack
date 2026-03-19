@@ -29,7 +29,12 @@ import { SvgEmptyState } from '../private/svg-empty-state';
 import { withResponsive } from '../private/with-responsive';
 import styles from './pie-semi-circle-chart.module.scss';
 import type { LegendValueDisplay } from '../../components/legend';
-import type { BaseChartProps, DataPointPercentage, Optional } from '../../types';
+import type {
+	BaseChartProps,
+	DataPointPercentage,
+	DataPointPercentageCalculated,
+	Optional,
+} from '../../types';
 import type { ChartComponentWithComposition } from '../private/chart-composition';
 import type { ResponsiveConfig } from '../private/with-responsive';
 import type { PieArcDatum } from '@visx/shape/lib/shapes/Pie';
@@ -40,9 +45,9 @@ import type { FC, MouseEvent, ReactNode } from 'react';
  */
 export type PieSemiCircleChartRenderTooltipParams = {
 	/**
-	 * The data point being hovered, including label, value, and percentage.
+	 * The data point being hovered, including label, value, and calculated percentage.
 	 */
-	tooltipData: DataPointPercentage;
+	tooltipData: DataPointPercentageCalculated;
 };
 
 /**
@@ -130,7 +135,7 @@ type PieSemiCircleChartResponsiveComponent = ChartComponentWithComposition<
 	PieSemiCircleChartBaseProps & ResponsiveConfig
 >;
 
-export type ArcData = PieArcDatum< DataPointPercentage >;
+export type ArcData = PieArcDatum< DataPointPercentageCalculated >;
 
 /**
  * Validates the semi-circle pie chart data
@@ -183,7 +188,7 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 
 	const chartId = useChartId( providedChartId );
 	const { tooltipOpen, tooltipLeft, tooltipTop, tooltipData, hideTooltip, showTooltip } =
-		useTooltip< DataPointPercentage >();
+		useTooltip< DataPointPercentageCalculated >();
 
 	// Set up portal tooltip for better z-index handling
 	// We get containerBounds to cancel out stale offsets in the position calculation
@@ -252,12 +257,12 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 	// Define accessors with useMemo to avoid changing dependencies
 	const accessors = useMemo(
 		() => ( {
-			value: ( d: DataPointPercentage ) => d.value,
+			value: ( d: DataPointPercentageCalculated ) => d.value,
 			sort: (
-				a: DataPointPercentage & { index: number },
-				b: DataPointPercentage & { index: number }
+				a: DataPointPercentageCalculated & { index: number },
+				b: DataPointPercentageCalculated & { index: number }
 			) => b.value - a.value,
-			fill: ( d: DataPointPercentage & { index: number } ) =>
+			fill: ( d: DataPointPercentageCalculated & { index: number } ) =>
 				getElementStyles( { data: d, index: d.index } ).color,
 		} ),
 		[ getElementStyles ]
@@ -432,7 +437,7 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 									) : (
 										<>
 											{ /* Pie chart */ }
-											<Pie< DataPointPercentage & { index: number } >
+											<Pie< DataPointPercentageCalculated & { index: number } >
 												data={ dataWithIndex }
 												pieValue={ accessors.value }
 												outerRadius={ radius }
