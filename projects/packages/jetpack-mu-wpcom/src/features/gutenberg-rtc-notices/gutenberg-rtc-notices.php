@@ -15,7 +15,8 @@ add_action(
 	function () {
 		require_once __DIR__ . '/class-wp-rest-rtc-notices.php';
 		( new WP_REST_RTC_Notices() )->register_routes();
-	}
+	},
+	20
 );
 
 /**
