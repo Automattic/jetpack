@@ -41,16 +41,11 @@ type CustomTooltip = {
 
 type BaseTooltipProps = TooltipCommonProps & ( DefaultDataTooltip | CustomTooltip );
 
-const DefaultTooltipContent = ( { data }: TooltipComponentProps ) => {
-	// Display value in order of preference: valueDisplay > value
-	const displayValue = data?.valueDisplay || formatNumber( data?.value );
-
-	return (
-		<>
-			{ data?.label }: { displayValue }
-		</>
-	);
-};
+const DefaultTooltipContent = ( { data }: TooltipComponentProps ) => (
+	<>
+		{ data?.label }: { data?.valueDisplay || formatNumber( data?.value ) }
+	</>
+);
 
 export const BaseTooltip = ( {
 	data,
