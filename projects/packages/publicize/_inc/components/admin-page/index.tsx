@@ -84,7 +84,7 @@ export const SocialAdminPage = () => {
 	const subTitle = __( 'Publish once. Share everywhere.', 'jetpack-publicize-pkg' );
 
 	const licenseAction = ! hasSocialPaidFeatures() && isJetpackSite && (
-		<Button variant="secondary" href={ getMyJetpackUrl( '#/add-license' ) }>
+		<Button size="compact" variant="secondary" href={ getMyJetpackUrl( '#/add-license' ) }>
 			{ __( 'Use license key', 'jetpack-publicize-pkg' ) }
 		</Button>
 	);

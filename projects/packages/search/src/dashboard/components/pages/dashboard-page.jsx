@@ -118,7 +118,7 @@ export default function DashboardPage( { isLoading = false } ) {
 						) }
 						actions={
 							( ( isNewPricing && isFreePlan ) || ! supportsInstantSearch ) && (
-								<Button variant="link" onClick={ sendPaidPlanToCart }>
+								<Button size="compact" variant="link" onClick={ sendPaidPlanToCart }>
 									{ __( 'Upgrade Jetpack Search', 'jetpack-search-pkg' ) }
 								</Button>
 							)
