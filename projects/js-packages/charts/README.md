@@ -30,7 +30,7 @@ import { LineChart, BarChart, PieChart } from '@automattic/charts';
 import '@automattic/charts/style.css';
 ```
 
-Modern bundlers handle tree-shaking automatically, so only the components you use will be included in your bundle.
+Modern bundlers tree-shake unused JavaScript automatically, so only the chart components you import are included in your bundle. Note that `style.css` includes styles for all charts.
 
 #### Additional Entry Points
 

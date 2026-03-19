@@ -31,12 +31,35 @@ export {
 // Types
 export type * from './types';
 export type * from './visx/types';
+export type { BarChartProps } from './charts/bar-chart';
+export type {
+	BarListChartProps,
+	RenderLabelProps,
+	RenderValueProps,
+} from './charts/bar-list-chart';
+export type {
+	ConversionFunnelChartProps,
+	FunnelStep,
+	StepLabelRenderProps,
+	StepRateRenderProps,
+	MainMetricRenderProps,
+	TooltipRenderProps,
+} from './charts/conversion-funnel-chart';
+export type { GeoChartProps, GeoRegion, GeoResolution } from './charts/geo-chart';
+export type { LeaderboardChartProps } from './charts/leaderboard-chart';
+export type {
+	LineChartProps,
+	LineChartAnnotationProps,
+	RenderLineGlyphProps,
+	TooltipDatum,
+	CurveType,
+} from './charts/line-chart';
 export type { PieChartProps, PieChartRenderTooltipParams } from './charts/pie-chart';
 export type {
 	PieSemiCircleChartProps,
 	PieSemiCircleChartRenderTooltipParams,
 } from './charts/pie-semi-circle-chart';
-export type { GeoChartProps, GeoRegion, GeoResolution } from './charts/geo-chart';
+export type { SparklineProps, GradientConfig, SparklineDataPoint } from './charts/sparkline';
 export type {
 	LegendProps,
 	BaseLegendProps,
@@ -44,9 +67,8 @@ export type {
 	ChartLegendOptions,
 	LegendValueDisplay,
 } from './components/legend';
-export type { TrendIndicatorProps, TrendDirection } from './components/trend-indicator';
 export type { BaseTooltipProps, TooltipData, TooltipProps } from './components/tooltip';
-export type { SparklineProps, GradientConfig, SparklineDataPoint } from './charts/sparkline';
+export type { TrendIndicatorProps, TrendDirection } from './components/trend-indicator';
 export type { LineStyles, GridStyles, EventHandlerParams } from '@visx/xychart';
 export type {
 	GoogleDataTableColumn,
