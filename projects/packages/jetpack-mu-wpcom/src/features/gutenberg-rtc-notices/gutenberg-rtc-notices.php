@@ -24,7 +24,7 @@ add_action(
  * @return int Max peers per room.
  */
 function wpcom_get_rtc_max_peers_per_room() {
-	return (int) apply_filters( 'wpcom_rtc_max_peers_per_room', 2 );
+	return (int) apply_filters( 'wpcom_rtc_max_peers_per_room', 3 );
 }
 
 /**

@@ -97,7 +97,7 @@ class RTC_Notices_Test extends \WorDBless\BaseTestCase {
 	 * Tests that default max peers per room is 2.
 	 */
 	public function test_default_max_peers_per_room() {
-		$this->assertSame( 2, wpcom_get_rtc_max_peers_per_room() );
+		$this->assertSame( 3, wpcom_get_rtc_max_peers_per_room() );
 	}
 
 	/**
