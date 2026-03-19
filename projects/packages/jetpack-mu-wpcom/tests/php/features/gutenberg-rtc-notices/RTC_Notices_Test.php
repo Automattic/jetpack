@@ -113,7 +113,7 @@ class RTC_Notices_Test extends \WorDBless\BaseTestCase {
 	 * Tests that welcome notice can be dismissed via user meta.
 	 */
 	public function test_welcome_notice_dismiss_persists() {
-		update_user_meta( $this->user_id, WP_REST_RTC_Notices::META_KEY, 'dismissed' );
+		update_user_option( $this->user_id, WP_REST_RTC_Notices::OPTION_KEY, 'dismissed' );
 
 		$this->assertTrue( WP_REST_RTC_Notices::is_dismissed() );
 	}
@@ -130,7 +130,7 @@ class RTC_Notices_Test extends \WorDBless\BaseTestCase {
 			)
 		);
 
-		update_user_meta( $this->user_id, WP_REST_RTC_Notices::META_KEY, 'dismissed' );
+		update_user_option( $this->user_id, WP_REST_RTC_Notices::OPTION_KEY, 'dismissed' );
 
 		wp_set_current_user( $other_user_id );
 		$this->assertFalse( WP_REST_RTC_Notices::is_dismissed() );

@@ -14,7 +14,7 @@
  */
 
 import apiFetch from '@wordpress/api-fetch';
-import { useRef } from '@wordpress/element';
+import { useEffect, useRef } from '@wordpress/element';
 import { addFilter } from '@wordpress/hooks';
 import { __ } from '@wordpress/i18n';
 import { isRoomLimitBreached } from '../room-limit';
@@ -34,18 +34,21 @@ const WpcomSyncConnectionErrorModal: FC< SyncConnectionErrorModalProps > = () =>
 	const config = window.wpcomRtcNotices;
 	const joinRequestSent = useRef( false );
 
-	if ( ! config ) {
-		return null;
-	}
-
 	// Non-admin: record a join request so the admin gets notified.
-	if ( ! config.isAdmin && config.postId && ! joinRequestSent.current ) {
+	useEffect( () => {
+		if ( ! config || config.isAdmin || ! config.postId || joinRequestSent.current ) {
+			return;
+		}
 		joinRequestSent.current = true;
 		apiFetch( {
 			path: '/wpcom/v2/rtc-notices/join-request',
 			method: 'POST',
 			data: { post_id: config.postId },
 		} ).catch( () => {} );
+	}, [ config ] );
+
+	if ( ! config ) {
+		return null;
 	}
 
 	const siteSlug = config.siteSlug || '';

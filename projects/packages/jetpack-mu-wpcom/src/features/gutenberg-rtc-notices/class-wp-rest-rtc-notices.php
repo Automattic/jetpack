@@ -16,7 +16,7 @@
  */
 class WP_REST_RTC_Notices extends WP_REST_Controller {
 
-	const META_KEY            = 'wpcom_rtc_welcome_notice_dismissed';
+	const OPTION_KEY          = 'wpcom_rtc_welcome_notice_dismissed';
 	const JOIN_REQUEST_OPTION = 'rtc_pending_join_requests';
 
 	/**
@@ -153,7 +153,7 @@ class WP_REST_RTC_Notices extends WP_REST_Controller {
 	 * @return WP_REST_Response
 	 */
 	public function dismiss_notice() {
-		update_user_meta( get_current_user_id(), self::META_KEY, 'dismissed' );
+		update_user_option( get_current_user_id(), self::OPTION_KEY, 'dismissed' );
 		return rest_ensure_response( array( 'success' => true ) );
 	}
 
@@ -168,17 +168,12 @@ class WP_REST_RTC_Notices extends WP_REST_Controller {
 
 	/**
 	 * Check if the welcome notice is dismissed.
+	 * Uses user options (not user meta) so dismissal is per-site on multisite/Simple.
 	 *
 	 * @return bool
 	 */
 	public static function is_dismissed() {
-		$user_id = get_current_user_id();
-
-		if ( ! metadata_exists( 'user', $user_id, self::META_KEY ) ) {
-			return false;
-		}
-
-		return 'dismissed' === get_user_meta( $user_id, self::META_KEY, true );
+		return 'dismissed' === get_user_option( self::OPTION_KEY, get_current_user_id() );
 	}
 
 	/**
