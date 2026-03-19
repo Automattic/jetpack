@@ -1,4 +1,4 @@
 Significance: minor
 Type: changed
 
-Charts: Remove `percentage` from DataPointPercentage interface. Percentages are now calculated automatically from `value`, aligning with industry-standard charting libraries (Chart.js, Recharts, D3).
+Remove `percentage` from DataPointPercentage interface.
