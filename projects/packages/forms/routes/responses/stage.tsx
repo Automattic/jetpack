@@ -11,7 +11,6 @@ import {
 	ExternalLink,
 } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
-import { DataViews } from '@wordpress/dataviews';
 import { dateI18n } from '@wordpress/date';
 import { useMemo, useState, useCallback, useEffect } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
@@ -29,6 +28,7 @@ import TextWithFlag from '../../src/dashboard/components/text-with-flag/index.ts
 import useInboxData from '../../src/dashboard/hooks/use-inbox-data.ts';
 import WpRouteDashboardSearchParamsProvider from '../../src/dashboard/router/wp-route-dashboard-search-params-provider.tsx';
 import DataViewsHeaderRow from '../../src/dashboard/wp-build/components/dataviews-header-row';
+import { DataViews } from '../../src/dashboard/wp-build/dataviews';
 import usePageHeaderDetails from '../../src/dashboard/wp-build/hooks/use-page-header-details';
 import useConfigValue from '../../src/hooks/use-config-value';
 import { INTEGRATIONS_STORE, IntegrationsSelectors } from '../../src/store/integrations';
@@ -38,8 +38,8 @@ import './style.scss';
 /**
  * Types
  */
+import type { View, Field, Action, Operator } from '../../src/dashboard/wp-build/dataviews';
 import type { FormResponse } from '../../src/types/index.ts';
-import type { View, Field, Action, Operator } from '@wordpress/dataviews';
 
 type FeedbackFilterDate = {
 	month: number;

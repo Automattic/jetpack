@@ -10,7 +10,6 @@ import {
 } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useDispatch, useSelect } from '@wordpress/data';
-import { DataViews } from '@wordpress/dataviews';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { useEffect, useMemo, useState, useCallback, useRef } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
@@ -38,6 +37,7 @@ import WpRouteDashboardSearchParamsProvider from '../../src/dashboard/router/wp-
 import { getFormEditUrl } from '../../src/dashboard/utils.ts';
 import DataViewsHeaderRow from '../../src/dashboard/wp-build/components/dataviews-header-row';
 import FormsHelpModal from '../../src/dashboard/wp-build/components/forms-help-modal';
+import { DataViews } from '../../src/dashboard/wp-build/dataviews';
 import useFormItemActions from '../../src/dashboard/wp-build/hooks/use-form-item-actions';
 import usePageHeaderDetails from '../../src/dashboard/wp-build/hooks/use-page-header-details';
 import '../../src/dashboard/wp-build/style.scss';
@@ -48,7 +48,7 @@ import './style.scss';
  * Types
  */
 import type { FormListItem } from '../../src/dashboard/hooks/use-forms-data.ts';
-import type { Action, Operator, View } from '@wordpress/dataviews';
+import type { Action, Operator, View } from '../../src/dashboard/wp-build/dataviews';
 
 /**
  * Default DataViews config for the Forms list.
