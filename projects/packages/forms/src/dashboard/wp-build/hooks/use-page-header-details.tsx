@@ -382,18 +382,18 @@ export default function usePageHeaderDetails(
 		isUpdatingStatus,
 	} = useFormItemActions();
 
+	const trackAction = useCallback( ( eventName: string ) => {
+		jetpackAnalytics.tracks.recordEvent( eventName, {
+			source: 'form_header',
+		} );
+	}, [] );
+
 	const formItemControls = useMemo( () => {
 		if ( ! sourceIdNumber ) {
 			return [];
 		}
 
 		const formItem = { id: sourceIdNumber, title: formTitle };
-
-		const trackAction = ( eventName: string ) => {
-			jetpackAnalytics.tracks.recordEvent( eventName, {
-				source: 'form_header',
-			} );
-		};
 
 		if ( formRecord?.status === 'trash' ) {
 			return [
@@ -504,6 +504,7 @@ export default function usePageHeaderDetails(
 		previewForm,
 		setFormsToDraft,
 		sourceIdNumber,
+		trackAction,
 	] );
 
 	const WrapWithJetpackLogo = ( { children }: { children: ReactNode } ) => (
@@ -905,6 +906,7 @@ export default function usePageHeaderDetails(
 		closePermanentDeleteConfirm,
 		confirmPermanentDelete,
 		formStatus,
+		trackAction,
 	] );
 
 	return { ariaLabel, breadcrumbs, title, badges, subtitle, actions };
