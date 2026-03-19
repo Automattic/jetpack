@@ -84,28 +84,20 @@ export function findStepContainer( formBlock: Block ): Block | null {
 }
 
 /**
- * Checks if a form block is a multistep form (has a step container).
+ * Finds the active step block inside a step container.
  *
- * @param formBlock - The form block to check
- * @return True if the form contains a step container
- */
-export function isMultistepForm( formBlock: Block ): boolean {
-	return findStepContainer( formBlock ) !== null;
-}
-
-/**
- * Finds the active step block inside a multistep form.
- *
- * Traverses form → step-container → steps to find the step matching activeStepId.
+ * Looks for the step matching activeStepId within the container's inner blocks.
  * Falls back to the first step if no matching step is found.
  *
- * @param formBlock    - The form block containing the step container
- * @param activeStepId - The client ID of the active step (from the store)
+ * @param stepContainer - The step container block
+ * @param activeStepId  - The client ID of the active step (from the store)
  * @return The active step block, the first step as fallback, or null if no steps exist
  */
-export function findActiveStepBlock( formBlock: Block, activeStepId: string | null ): Block | null {
-	const stepContainer = findStepContainer( formBlock );
-	if ( ! stepContainer || stepContainer.innerBlocks.length === 0 ) {
+export function findActiveStepInContainer(
+	stepContainer: Block,
+	activeStepId: string | null
+): Block | null {
+	if ( stepContainer.innerBlocks.length === 0 ) {
 		return null;
 	}
 

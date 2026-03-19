@@ -29,9 +29,9 @@ import {
 import { determineBlockNestingAction } from './utils/block-nesting-logic';
 import {
 	BlockLock,
-	findActiveStepBlock,
+	findActiveStepInContainer,
 	findFormBlock,
-	isMultistepForm,
+	findStepContainer,
 	shouldLockBlock,
 	getBlocksToMove,
 } from './utils/block-utils';
@@ -283,12 +283,13 @@ const enforceBlockNesting = () => {
 	let targetBlock = formBlock;
 	let targetClientId = state.formBlockClientId;
 
-	if ( isMultistepForm( formBlock ) ) {
+	const stepContainer = findStepContainer( formBlock );
+	if ( stepContainer ) {
 		const { getActiveStepId } = select( 'jetpack/forms/single-step' ) as {
 			getActiveStepId: ( formClientId: string ) => string | null;
 		};
 		const activeStepId = getActiveStepId( state.formBlockClientId );
-		const activeStep = findActiveStepBlock( formBlock, activeStepId );
+		const activeStep = findActiveStepInContainer( stepContainer, activeStepId );
 		if ( activeStep ) {
 			targetBlock = activeStep;
 			targetClientId = activeStep.clientId;
@@ -341,7 +342,7 @@ const enforceBlockNesting = () => {
 	} else if ( action.addSubmitButton ) {
 		// Multistep step was empty — just add the blocks without a submit button
 		// (multistep forms use form-step-navigation for submission)
-		newInnerBlocks = [ ...clonedBlocks ];
+		newInnerBlocks = clonedBlocks;
 	} else {
 		// Target already has blocks, insert new blocks at the target index
 		const existingBlocks = [ ...targetBlock.innerBlocks ];

@@ -7,8 +7,7 @@
 import {
 	findFormBlock,
 	findStepContainer,
-	isMultistepForm,
-	findActiveStepBlock,
+	findActiveStepInContainer,
 	getInsertionIndex,
 	shouldLockBlock,
 	getBlocksToMove,
@@ -151,90 +150,40 @@ describe( 'block-utils', () => {
 		} );
 	} );
 
-	describe( 'isMultistepForm', () => {
-		test( 'returns true when form has step container', () => {
-			const formBlock = {
-				name: 'jetpack/contact-form',
-				clientId: 'form-1',
-				innerBlocks: [
-					{
-						name: 'jetpack/form-step-container',
-						clientId: 'container-1',
-						innerBlocks: [],
-					},
-				],
-			};
-
-			expect( isMultistepForm( formBlock ) ).toBe( true );
-		} );
-
-		test( 'returns false for regular form', () => {
-			const formBlock = {
-				name: 'jetpack/contact-form',
-				clientId: 'form-1',
-				innerBlocks: [ { name: 'jetpack/field-text', clientId: 'field-1', innerBlocks: [] } ],
-			};
-
-			expect( isMultistepForm( formBlock ) ).toBe( false );
-		} );
-	} );
-
-	describe( 'findActiveStepBlock', () => {
-		const formBlock = {
-			name: 'jetpack/contact-form',
-			clientId: 'form-1',
+	describe( 'findActiveStepInContainer', () => {
+		const stepContainer = {
+			name: 'jetpack/form-step-container',
+			clientId: 'container-1',
 			innerBlocks: [
-				{
-					name: 'jetpack/form-step-container',
-					clientId: 'container-1',
-					innerBlocks: [
-						{ name: 'jetpack/form-step', clientId: 'step-1', innerBlocks: [] },
-						{ name: 'jetpack/form-step', clientId: 'step-2', innerBlocks: [] },
-						{ name: 'jetpack/form-step', clientId: 'step-3', innerBlocks: [] },
-					],
-				},
+				{ name: 'jetpack/form-step', clientId: 'step-1', innerBlocks: [] },
+				{ name: 'jetpack/form-step', clientId: 'step-2', innerBlocks: [] },
+				{ name: 'jetpack/form-step', clientId: 'step-3', innerBlocks: [] },
 			],
 		};
 
 		test( 'finds the active step by ID', () => {
-			const result = findActiveStepBlock( formBlock, 'step-2' );
+			const result = findActiveStepInContainer( stepContainer, 'step-2' );
 			expect( result?.clientId ).toBe( 'step-2' );
 		} );
 
 		test( 'falls back to first step when activeStepId is null', () => {
-			const result = findActiveStepBlock( formBlock, null );
+			const result = findActiveStepInContainer( stepContainer, null );
 			expect( result?.clientId ).toBe( 'step-1' );
 		} );
 
 		test( 'falls back to first step when activeStepId not found', () => {
-			const result = findActiveStepBlock( formBlock, 'nonexistent' );
+			const result = findActiveStepInContainer( stepContainer, 'nonexistent' );
 			expect( result?.clientId ).toBe( 'step-1' );
 		} );
 
-		test( 'returns null when no step container exists', () => {
-			const regularForm = {
-				name: 'jetpack/contact-form',
-				clientId: 'form-1',
-				innerBlocks: [ { name: 'jetpack/field-text', clientId: 'field-1', innerBlocks: [] } ],
-			};
-
-			expect( findActiveStepBlock( regularForm, 'step-1' ) ).toBeNull();
-		} );
-
 		test( 'returns null when step container has no steps', () => {
-			const emptyMultistep = {
-				name: 'jetpack/contact-form',
-				clientId: 'form-1',
-				innerBlocks: [
-					{
-						name: 'jetpack/form-step-container',
-						clientId: 'container-1',
-						innerBlocks: [],
-					},
-				],
+			const emptyContainer = {
+				name: 'jetpack/form-step-container',
+				clientId: 'container-1',
+				innerBlocks: [],
 			};
 
-			expect( findActiveStepBlock( emptyMultistep, null ) ).toBeNull();
+			expect( findActiveStepInContainer( emptyContainer, null ) ).toBeNull();
 		} );
 	} );
 
