@@ -62,13 +62,9 @@
 
 	.rtc-notice-modal__description {
 		margin: 12px 0 0;
-		font-size: 14px;
+		font-size: 13px;
 		line-height: 1.6;
 		color: #1e1e1e;
-
-		@include mixins.break-mobile {
-			font-size: 16px;
-		}
 	}
 
 	.rtc-notice-modal__actions {
