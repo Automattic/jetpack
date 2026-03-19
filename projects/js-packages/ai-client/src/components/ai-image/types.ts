@@ -10,14 +10,3 @@ export interface EditorSelectors {
 	getEditedPostAttribute: ( attribute: string ) => number;
 	isEditorPanelOpened: ( panel: string ) => boolean;
 }
-
-export interface CoreSelectors {
-	getEntityRecord: (
-		kind: string,
-		name: string,
-		key: number
-	) => {
-		id: number;
-		source_url: string;
-	} | null;
-}
