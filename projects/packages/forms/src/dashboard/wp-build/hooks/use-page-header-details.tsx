@@ -400,14 +400,14 @@ export default function usePageHeaderDetails(
 				{
 					title: __( 'Restore', 'jetpack-forms' ),
 					onClick: () => {
-						trackAction( 'jetpack_forms_action_restore_click' );
+						trackAction( 'jetpack_forms_form_restore_click' );
 						restoreForm( formItem );
 					},
 				},
 				{
 					title: __( 'Delete permanently', 'jetpack-forms' ),
 					onClick: () => {
-						trackAction( 'jetpack_forms_action_delete_permanently_click' );
+						trackAction( 'jetpack_forms_form_delete_permanently_click' );
 						openPermanentDeleteConfirm( formItem );
 					},
 				},
@@ -418,7 +418,7 @@ export default function usePageHeaderDetails(
 			{
 				title: __( 'Preview', 'jetpack-forms' ),
 				onClick: () => {
-					trackAction( 'jetpack_forms_action_preview_click' );
+					trackAction( 'jetpack_forms_form_preview_click' );
 					previewForm( formItem );
 				},
 			},
@@ -429,14 +429,14 @@ export default function usePageHeaderDetails(
 				{
 					title: __( 'Copy embed', 'jetpack-forms' ),
 					onClick: () => {
-						trackAction( 'jetpack_forms_action_copy_embed_click' );
+						trackAction( 'jetpack_forms_form_copy_embed_click' );
 						copyEmbed( formItem );
 					},
 				},
 				{
 					title: __( 'Copy shortcode', 'jetpack-forms' ),
 					onClick: () => {
-						trackAction( 'jetpack_forms_action_copy_shortcode_click' );
+						trackAction( 'jetpack_forms_form_copy_shortcode_click' );
 						copyShortcode( formItem );
 					},
 				}
@@ -448,7 +448,7 @@ export default function usePageHeaderDetails(
 				title: __( 'Unpublish', 'jetpack-forms' ),
 				onClick: () => {
 					if ( ! isUpdatingStatus ) {
-						trackAction( 'jetpack_forms_action_unpublish_click' );
+						trackAction( 'jetpack_forms_form_unpublish_click' );
 						setFormsToDraft( [ formItem ] );
 					}
 				},
@@ -458,7 +458,7 @@ export default function usePageHeaderDetails(
 				title: __( 'Publish', 'jetpack-forms' ),
 				onClick: () => {
 					if ( ! isUpdatingStatus ) {
-						trackAction( 'jetpack_forms_action_publish_click' );
+						trackAction( 'jetpack_forms_form_publish_click' );
 						publishForms( [ formItem ] );
 					}
 				},
@@ -469,21 +469,21 @@ export default function usePageHeaderDetails(
 			{
 				title: __( 'Rename', 'jetpack-forms' ),
 				onClick: () => {
-					trackAction( 'jetpack_forms_action_rename_click' );
+					trackAction( 'jetpack_forms_form_rename_click' );
 					setRenameFormItem( formItem );
 				},
 			},
 			{
 				title: __( 'Duplicate', 'jetpack-forms' ),
 				onClick: () => {
-					trackAction( 'jetpack_forms_action_duplicate_click' );
+					trackAction( 'jetpack_forms_form_duplicate_click' );
 					duplicateForm( formItem );
 				},
 			},
 			{
 				title: __( 'Trash', 'jetpack-forms' ),
 				onClick: () => {
-					trackAction( 'jetpack_forms_action_trash_click' );
+					trackAction( 'jetpack_forms_form_trash_click' );
 					trashForm( formItem );
 				},
 			}

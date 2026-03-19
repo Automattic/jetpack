@@ -225,7 +225,7 @@ export default function FormsDashboardForms(): JSX.Element | null {
 				label: __( 'View responses', 'jetpack-forms' ),
 				supportsBulk: false,
 				callback( items: FormListItem[] ) {
-					jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_action_view_responses_click', {
+					jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_form_view_responses_click', {
 						source: 'forms_list',
 					} );
 					const [ item ] = items;
@@ -241,7 +241,7 @@ export default function FormsDashboardForms(): JSX.Element | null {
 				label: __( 'Edit', 'jetpack-forms' ),
 				supportsBulk: false,
 				async callback( items: FormListItem[] ) {
-					jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_action_edit_form_click', {
+					jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_form_edit_form_click', {
 						source: 'forms_list',
 					} );
 					const [ item ] = items;
@@ -258,7 +258,7 @@ export default function FormsDashboardForms(): JSX.Element | null {
 				label: __( 'Preview', 'jetpack-forms' ),
 				supportsBulk: false,
 				async callback( items: FormListItem[] ) {
-					jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_action_preview_click', {
+					jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_form_preview_click', {
 						source: 'forms_list',
 					} );
 					const [ item ] = items;
@@ -287,7 +287,7 @@ export default function FormsDashboardForms(): JSX.Element | null {
 				label: __( 'Copy embed', 'jetpack-forms' ),
 				supportsBulk: false,
 				async callback( items: FormListItem[] ) {
-					jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_action_copy_embed_click', {
+					jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_form_copy_embed_click', {
 						source: 'forms_list',
 					} );
 					const [ item ] = items;
@@ -315,7 +315,7 @@ export default function FormsDashboardForms(): JSX.Element | null {
 				label: __( 'Copy shortcode', 'jetpack-forms' ),
 				supportsBulk: false,
 				async callback( items: FormListItem[] ) {
-					jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_action_copy_shortcode_click', {
+					jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_form_copy_shortcode_click', {
 						source: 'forms_list',
 					} );
 					const [ item ] = items;
@@ -346,7 +346,7 @@ export default function FormsDashboardForms(): JSX.Element | null {
 				label: __( 'Restore', 'jetpack-forms' ),
 				supportsBulk: true,
 				async callback( items: FormListItem[] ) {
-					jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_action_restore_click', {
+					jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_form_restore_click', {
 						source: 'forms_list',
 						multiple: items.length > 1,
 					} );
@@ -366,7 +366,7 @@ export default function FormsDashboardForms(): JSX.Element | null {
 				label: __( 'Delete permanently', 'jetpack-forms' ),
 				supportsBulk: true,
 				async callback( items: FormListItem[] ) {
-					jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_action_delete_permanently_click', {
+					jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_form_delete_permanently_click', {
 						source: 'forms_list',
 						multiple: items.length > 1,
 					} );
@@ -388,7 +388,7 @@ export default function FormsDashboardForms(): JSX.Element | null {
 			label: __( 'Trash', 'jetpack-forms' ),
 			supportsBulk: true,
 			async callback( items: FormListItem[] ) {
-				jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_action_trash_click', {
+				jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_form_trash_click', {
 					source: 'forms_list',
 					multiple: items.length > 1,
 				} );
