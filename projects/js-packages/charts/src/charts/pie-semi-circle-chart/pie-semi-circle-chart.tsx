@@ -8,7 +8,11 @@ import clsx from 'clsx';
 import { useCallback, useContext, useMemo } from 'react';
 import { Legend, useChartLegendItems } from '../../components/legend';
 import { BaseTooltip } from '../../components/tooltip';
-import { useInteractiveLegendData, usePrefersReducedMotion } from '../../hooks';
+import {
+	useDataWithPercentages,
+	useInteractiveLegendData,
+	usePrefersReducedMotion,
+} from '../../hooks';
 import {
 	GlobalChartsProvider,
 	useChartId,
@@ -235,13 +239,7 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 	const { getElementStyles, isSeriesVisible } = useGlobalChartsContext();
 
 	// Calculate percentages from values (single source of truth)
-	const dataWithPercentages = useMemo( () => {
-		const totalValue = data.reduce( ( sum, segment ) => sum + segment.value, 0 );
-		return data.map( segment => ( {
-			...segment,
-			percentage: totalValue > 0 ? ( segment.value / totalValue ) * 100 : 0,
-		} ) );
-	}, [ data ] );
+	const dataWithPercentages = useDataWithPercentages( data );
 
 	// Filter and recalculate data for interactive legends
 	const { visibleData, allSegmentsHidden, legendData } = useInteractiveLegendData( {
