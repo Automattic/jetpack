@@ -113,7 +113,7 @@ jp test coverage <project>  # Generate coverage report
 - **Plugins**: Some plugins use mocked WordPress environments (WorDBless/Brain Monkey) and their tests work immediately via `jp test php`. Others (notably `plugins/jetpack`, `plugins/crm`, `plugins/wpcomsh`) require a full WordPress test environment:
   1. `jp docker up -d` — Start Docker WordPress containers
   2. `jp docker install` — Install WordPress in Docker
-  Then run: `jp docker phpunit <target>` where target is `jetpack`, `crm`, or `wpcomsh`
+  Then run: `jp docker phpunit <target>` where `<target>` can be `jetpack`, `jp-multisite`, `crm`, `wpcomsh`, or `jp-wpcomsh` (see `jp docker phpunit --help` for the full list).
 - If you've modified package versions or dependencies between monorepo packages, run `tools/fixup-project-versions.sh` to update lock files before testing.
 - If a project's `composer.json` doesn't define `test-js`, the JS test step is skipped automatically — this is normal, not an error.
 
