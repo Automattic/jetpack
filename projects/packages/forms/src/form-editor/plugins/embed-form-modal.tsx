@@ -214,13 +214,17 @@ export const EmbedFormModal = ( { isOpen, onClose, variant = 'embed' }: EmbedFor
 	const shortcode = getShortcode( postId );
 	const pagesUrl = addQueryArgs( 'edit.php', { post_type: 'page' } );
 
+	// Hoist translation calls out of ternaries to avoid i18n build errors.
+	const titlePostPublish = __( 'Your form is ready — add it to a page', 'jetpack-forms' );
+	const titleEmbed = __( 'Embed form', 'jetpack-forms' );
+	const creatingPageLabel = __( 'Creating page…', 'jetpack-forms' );
+	const createPageLabel = __( 'Create page', 'jetpack-forms' );
+	const copiedOpeningLabel = __( 'Copied! Opening page…', 'jetpack-forms' );
+	const copyGoToPageLabel = __( 'Copy & go to page', 'jetpack-forms' );
+
 	return (
 		<Modal
-			title={
-				variant === 'post-publish'
-					? __( 'Your form is ready — add it to a page', 'jetpack-forms' )
-					: __( 'Embed form', 'jetpack-forms' )
-			}
+			title={ variant === 'post-publish' ? titlePostPublish : titleEmbed }
 			onRequestClose={ handleClose }
 			className="jetpack-form-embed-form-modal"
 			size="medium"
@@ -289,9 +293,7 @@ export const EmbedFormModal = ( { isOpen, onClose, variant = 'embed' }: EmbedFor
 									isBusy={ isCreatingPage }
 									className="jetpack-form-embed-form__button"
 								>
-									{ isCreatingPage
-										? __( 'Creating page…', 'jetpack-forms' )
-										: __( 'Create page', 'jetpack-forms' ) }
+									{ isCreatingPage ? creatingPageLabel : createPageLabel }
 								</Button>
 							</HStack>
 						</>
@@ -328,9 +330,7 @@ export const EmbedFormModal = ( { isOpen, onClose, variant = 'embed' }: EmbedFor
 										isBusy={ isRedirecting }
 										className="jetpack-form-embed-form__button"
 									>
-										{ isRedirecting
-											? __( 'Copied! Opening page…', 'jetpack-forms' )
-											: __( 'Copy & go to page', 'jetpack-forms' ) }
+										{ isRedirecting ? copiedOpeningLabel : copyGoToPageLabel }
 									</Button>
 								</HStack>
 							</VStack>
