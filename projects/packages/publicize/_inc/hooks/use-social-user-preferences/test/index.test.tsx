@@ -37,13 +37,11 @@ describe( 'useSocialUserPreferences', () => {
 		} );
 
 		expect( result.current.data.showPrePublishConfirmation ).toBeUndefined();
-		expect( result.current.data.reviewPromptDismissed ).toBeUndefined();
 	} );
 
 	it( 'should return the initial preference values', () => {
 		const registry = createRegistryWithPreferencesStore( {
 			show_pre_publish_confirmation: true,
-			review_prompt_dismissed: false,
 		} );
 
 		const { result } = renderHook( () => useSocialUserPreferences(), {
@@ -53,7 +51,6 @@ describe( 'useSocialUserPreferences', () => {
 		} );
 
 		expect( result.current.data.showPrePublishConfirmation ).toBe( true );
-		expect( result.current.data.reviewPromptDismissed ).toBe( false );
 	} );
 
 	it( 'should set a preference value', () => {
@@ -70,12 +67,6 @@ describe( 'useSocialUserPreferences', () => {
 		} );
 
 		expect( result.current.data.showPrePublishConfirmation ).toBe( true );
-
-		act( () => {
-			result.current.set( 'reviewPromptDismissed', true );
-		} );
-
-		expect( result.current.data.reviewPromptDismissed ).toBe( true );
 	} );
 
 	it( 'should toggle a boolean preference value', () => {
