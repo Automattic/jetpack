@@ -42,7 +42,7 @@
 		"@microsoft/fetch-event-source": "2.0.1",
 		"@types/jest": "30.0.0",
 		"@types/react": "18.3.28",
-		"@types/wordpress__block-editor": "15.0.3",
+		"@types/wordpress__block-editor": "15.0.5",
 		"@wordpress/api-fetch": "7.42.0",
 		"@wordpress/base-styles": "6.18.0",
 		"@wordpress/blob": "4.42.0",

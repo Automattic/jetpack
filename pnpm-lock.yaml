@@ -178,8 +178,8 @@ importers:
         specifier: 18.3.28
         version: 18.3.28
       '@types/wordpress__block-editor':
-        specifier: 15.0.3
-        version: 15.0.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 15.0.5
+        version: 15.0.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/api-fetch':
         specifier: 7.42.0
         version: 7.42.0
@@ -5174,8 +5174,8 @@ importers:
         specifier: 18.3.28
         version: 18.3.28
       '@types/wordpress__block-editor':
-        specifier: 15.0.3
-        version: 15.0.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 15.0.5
+        version: 15.0.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@typescript/native-preview':
         specifier: 7.0.0-dev.20260225.1
         version: 7.0.0-dev.20260225.1
@@ -10002,8 +10002,8 @@ packages:
   '@types/wait-on@5.3.4':
     resolution: {integrity: sha512-EBsPjFMrFlMbbUFf9D1Fp+PAB2TwmUn7a3YtHyD9RLuTIk1jDd8SxXVAoez2Ciy+8Jsceo2MYEYZzJ/DvorOKw==}
 
-  '@types/wordpress__block-editor@15.0.3':
-    resolution: {integrity: sha512-ub0HvoOtz7aPHzCPUocuhmVWwrp14iHP1Bc012fXaCV2R3YYJRa1MfE+G6/aQHaK7O64uGjOaBuXt3vsB/bP8A==}
+  '@types/wordpress__block-editor@15.0.5':
+    resolution: {integrity: sha512-nQNBDiVISlJWelHG+V7ikSaDFHWeKx60IyCQIG2qiePaeqjHuOaWWVJl0H1QWyOMUnmDuro2Y+GNsaNvjufuXA==}
 
   '@types/wordpress__blocks@15.10.2':
     resolution: {integrity: sha512-d8+XJZ/QszWyCp7k9lbqDoJePl7/SLUueMxzAA9J2buRsvd4KXK5C5Y8BAU8WuLMG2Av1dRhTvr+izfLA9jynA==}
@@ -22979,7 +22979,7 @@ snapshots:
     dependencies:
       '@types/node': 22.19.15
 
-  '@types/wordpress__block-editor@15.0.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@types/wordpress__block-editor@15.0.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@types/react': 18.3.28
       '@types/wordpress__blocks': 15.10.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
