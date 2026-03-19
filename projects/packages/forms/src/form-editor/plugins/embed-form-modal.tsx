@@ -1,7 +1,14 @@
 /**
  * External dependencies
  */
-import { ComboboxControl, Modal, Button } from '@wordpress/components';
+import {
+	ComboboxControl,
+	Modal,
+	Button,
+	__experimentalVStack as VStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+	__experimentalText as Text, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+} from '@wordpress/components';
 import { useCopyToClipboard, debounce } from '@wordpress/compose';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect, useDispatch } from '@wordpress/data';
@@ -179,22 +186,22 @@ export const EmbedFormModal = ( { isOpen, onClose, variant = 'embed' }: EmbedFor
 			title={
 				variant === 'post-publish'
 					? __( 'Your form is ready — add it to a page', 'jetpack-forms' )
-					: __( 'Add to a page', 'jetpack-forms' )
+					: __( 'Embed form', 'jetpack-forms' )
 			}
 			onRequestClose={ handleClose }
 			className="jetpack-form-embed-form-modal"
 			size="medium"
 		>
-			<div className="jetpack-form-embed-form__content">
+			<VStack spacing={ 4 }>
 				{ variant === 'post-publish' && (
-					<p className="jetpack-form-embed-form__subtitle">
+					<Text>
 						{ __(
 							"Once it's on a page, visitors can start submitting responses.",
 							'jetpack-forms'
 						) }
-					</p>
+					</Text>
 				) }
-				<div key={ step } className="jetpack-form-embed-form__step">
+				<VStack key={ step } spacing={ 4 } className="jetpack-form-embed-form__step">
 					{ step === 'initial' && (
 						<>
 							<Button
@@ -202,14 +209,14 @@ export const EmbedFormModal = ( { isOpen, onClose, variant = 'embed' }: EmbedFor
 								onClick={ handleShowPageTitleInput }
 								className="jetpack-form-embed-form__button"
 							>
-								{ __( 'Create new', 'jetpack-forms' ) }
+								{ __( 'Add to a new page', 'jetpack-forms' ) }
 							</Button>
 							<Button
 								variant="secondary"
 								onClick={ handleShowExistingPages }
 								className="jetpack-form-embed-form__button"
 							>
-								{ __( 'Choose existing', 'jetpack-forms' ) }
+								{ __( 'Add to existing page', 'jetpack-forms' ) }
 							</Button>
 							<div className="jetpack-form-embed-form__separator">
 								<span>{ __( 'or', 'jetpack-forms' ) }</span>
@@ -234,7 +241,7 @@ export const EmbedFormModal = ( { isOpen, onClose, variant = 'embed' }: EmbedFor
 									ref={ pageTitleInputRef }
 								/>
 							</Field.Root>
-							<div className="jetpack-form-embed-form__button-row">
+							<HStack spacing={ 3 }>
 								<Button
 									variant="secondary"
 									onClick={ handleBack }
@@ -252,49 +259,47 @@ export const EmbedFormModal = ( { isOpen, onClose, variant = 'embed' }: EmbedFor
 										? __( 'Creating page…', 'jetpack-forms' )
 										: __( 'Create page', 'jetpack-forms' ) }
 								</Button>
-							</div>
+							</HStack>
 						</>
 					) }
 					{ step === 'existing' && (
-						<>
-							<div className="jetpack-form-embed-form__combobox-wrapper">
-								<div className="jetpack-form-embed-form__combobox-wrapper-inner">
-									<ComboboxControl
-										__next40pxDefaultSize
-										label={ __( 'Select a page', 'jetpack-forms' ) }
-										value={ selectedPageId }
-										onChange={ setSelectedPageId }
-										options={ pageOptions }
-										onFilterValueChange={ debouncedSetSearchTerm }
-									/>
-									<p className="jetpack-form-embed-form__hint">
-										{ __(
-											'Your form will be copied — just paste it into the page.',
-											'jetpack-forms'
-										) }
-									</p>
-									<div className="jetpack-form-embed-form__button-row">
-										<Button
-											variant="secondary"
-											onClick={ handleBack }
-											className="jetpack-form-embed-form__button"
-										>
-											{ __( 'Back', 'jetpack-forms' ) }
-										</Button>
-										<Button
-											variant="primary"
-											onClick={ handleGoToExistingPage }
-											disabled={ ! selectedPageId || isRedirecting }
-											className="jetpack-form-embed-form__button"
-										>
-											{ isRedirecting
-												? __( 'Copied! Opening page…', 'jetpack-forms' )
-												: __( 'Copy & go to page', 'jetpack-forms' ) }
-										</Button>
-									</div>
-								</div>
-							</div>
-						</>
+						<div className="jetpack-form-embed-form__combobox-wrapper">
+							<VStack spacing={ 4 } className="jetpack-form-embed-form__combobox-wrapper-inner">
+								<ComboboxControl
+									__next40pxDefaultSize
+									label={ __( 'Select a page', 'jetpack-forms' ) }
+									value={ selectedPageId }
+									onChange={ setSelectedPageId }
+									options={ pageOptions }
+									onFilterValueChange={ debouncedSetSearchTerm }
+								/>
+								<Text color="#757575" size="12px">
+									{ __(
+										'Your form will be copied — just paste it into the page.',
+										'jetpack-forms'
+									) }
+								</Text>
+								<HStack spacing={ 3 }>
+									<Button
+										variant="secondary"
+										onClick={ handleBack }
+										className="jetpack-form-embed-form__button"
+									>
+										{ __( 'Back', 'jetpack-forms' ) }
+									</Button>
+									<Button
+										variant="primary"
+										onClick={ handleGoToExistingPage }
+										disabled={ ! selectedPageId || isRedirecting }
+										className="jetpack-form-embed-form__button"
+									>
+										{ isRedirecting
+											? __( 'Copied! Opening page…', 'jetpack-forms' )
+											: __( 'Copy & go to page', 'jetpack-forms' ) }
+									</Button>
+								</HStack>
+							</VStack>
+						</div>
 					) }
 					{ step === 'copied' && (
 						<>
@@ -326,7 +331,7 @@ export const EmbedFormModal = ( { isOpen, onClose, variant = 'embed' }: EmbedFor
 									</InputLayout.Slot>
 								}
 							/>
-							<div className="jetpack-form-embed-form__button-row">
+							<HStack spacing={ 3 }>
 								<Button
 									variant="secondary"
 									onClick={ handleBack }
@@ -341,11 +346,11 @@ export const EmbedFormModal = ( { isOpen, onClose, variant = 'embed' }: EmbedFor
 								>
 									{ __( 'View Pages', 'jetpack-forms' ) }
 								</Button>
-							</div>
+							</HStack>
 						</>
 					) }
-				</div>
-			</div>
+				</VStack>
+			</VStack>
 		</Modal>
 	);
 };
