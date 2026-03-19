@@ -115,31 +115,16 @@ function get_donation_products( $currency ) {
 		return array();
 	}
 
-	// Fetch from remote.
-	$status = null;
+	// Fetch via internal REST request to /wpcom/v2/memberships/status.
+	$request = new \WP_REST_Request( 'GET', '/wpcom/v2/memberships/status' );
+	$request->set_param( 'type', 'donation' );
+	$request->set_param( 'is_editable', false );
 
-	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-		require_lib( 'memberships' );
-		\Memberships_Store_Sandbox::get_instance()->init( true );
-		$result = get_memberships_settings_for_site( get_current_blog_id(), 'donation', false, 'server' );
-		if ( ! is_wp_error( $result ) ) {
-			$status = (array) $result;
-		}
-	} else {
-		$blog_id = \Jetpack_Options::get_option( 'id' );
-		if ( $blog_id ) {
-			$response = \Automattic\Jetpack\Connection\Client::wpcom_json_api_request_as_blog(
-				sprintf( '/sites/%d/memberships/status?type=donation&is_editable=0', $blog_id ),
-				'2',
-				array( 'method' => 'GET' )
-			);
-			if ( ! is_wp_error( $response ) && 200 === wp_remote_retrieve_response_code( $response ) ) {
-				$body = json_decode( wp_remote_retrieve_body( $response ), true );
-				if ( is_array( $body ) ) {
-					$status = $body;
-				}
-			}
-		}
+	$response = rest_do_request( $request );
+	$status   = null;
+
+	if ( ! $response->is_error() && 200 === $response->get_status() ) {
+		$status = $response->get_data();
 	}
 
 	if ( ! is_array( $status ) || empty( $status['products'] ) ) {
@@ -154,7 +139,7 @@ function get_donation_products( $currency ) {
 		if ( strtoupper( $product['currency'] ?? '' ) !== $upper_curr ) {
 			continue;
 		}
-		$product_id = (int) ( $product['product_id'] ?? ( $product['id'] ?? 0 ) );
+		$product_id = (int) $product['id'] ?? 0;
 		if ( $product_id ) {
 			$products_by_id[ $product_id ] = $product;
 		}
