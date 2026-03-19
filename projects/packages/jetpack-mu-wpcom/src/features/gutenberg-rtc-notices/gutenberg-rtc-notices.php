@@ -37,6 +37,34 @@ function wpcom_get_rtc_max_clients_per_user() {
 }
 
 /**
+ * Check if the current user is the plan owner for this site.
+ * Works on Simple sites (via wpcom_get_blog_owner) and Atomic sites
+ * (via Jetpack connection master_user). Returns false on self-hosted
+ * since there is no WP.com plan to upgrade.
+ *
+ * @return bool
+ */
+function wpcom_rtc_is_plan_owner() {
+	$current_user_id = get_current_user_id();
+
+	// Simple sites: wpcom_get_blog_owner is the canonical source.
+	if ( function_exists( 'wpcom_get_blog_owner' ) ) {
+		$owner_id = wpcom_get_blog_owner( get_wpcom_blog_id() );
+		return (int) $current_user_id === (int) $owner_id;
+	}
+
+	// Atomic sites: the Jetpack connection master_user is the plan owner.
+	if ( class_exists( 'Jetpack_Options' ) ) {
+		$master_user = \Jetpack_Options::get_option( 'master_user' );
+		if ( $master_user ) {
+			return (int) $current_user_id === (int) $master_user;
+		}
+	}
+
+	return false;
+}
+
+/**
  * Enqueue block editor assets for RTC notices and limits.
  */
 function wpcom_enqueue_rtc_notices_assets() {
@@ -58,10 +86,12 @@ function wpcom_enqueue_rtc_notices_assets() {
 	require_once __DIR__ . '/class-wp-rest-rtc-notices.php';
 
 	$is_admin_user = current_user_can( 'manage_options' );
+	$is_plan_owner = wpcom_rtc_is_plan_owner();
 
 	$data = wp_json_encode(
 		array(
 			'isAdmin'            => $is_admin_user,
+			'isPlanOwner'        => $is_plan_owner,
 			'welcomeDismissed'   => WP_REST_RTC_Notices::is_dismissed(),
 			'postId'             => get_the_ID(),
 			'postTitle'          => get_the_title(),

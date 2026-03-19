@@ -58,7 +58,7 @@ const WpcomSyncConnectionErrorModal: FC< SyncConnectionErrorModalProps > = () =>
 		cancel_to: `https://wordpress.com/post/${ siteSlug }/${ config.postId }`,
 	} ).toString() }`;
 
-	if ( config.isAdmin ) {
+	if ( config.isPlanOwner ) {
 		return (
 			<RtcNoticeModal
 				isOpen={ true }

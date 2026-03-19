@@ -5,6 +5,7 @@ declare module '*.png' {
 
 interface WpcomRtcNoticesConfig {
 	isAdmin: boolean;
+	isPlanOwner: boolean;
 	welcomeDismissed: boolean;
 	postId: number;
 	postTitle: string;

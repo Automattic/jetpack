@@ -28,7 +28,7 @@ const RtcAdminSomeoneWaitingNotice = () => {
 	const dismissed = useRef( false );
 
 	const pollForRequests = useCallback( () => {
-		if ( ! config?.isAdmin || ! config.postId || dismissed.current ) {
+		if ( ! config?.isPlanOwner || ! config.postId || dismissed.current ) {
 			return;
 		}
 
@@ -44,7 +44,7 @@ const RtcAdminSomeoneWaitingNotice = () => {
 	}, [ config ] );
 
 	useEffect( () => {
-		if ( ! config?.isAdmin || ! config.postId ) {
+		if ( ! config?.isPlanOwner || ! config.postId ) {
 			return;
 		}
 
@@ -65,7 +65,7 @@ const RtcAdminSomeoneWaitingNotice = () => {
 		}
 	}, [ config ] );
 
-	if ( ! waitingUser || ! config?.isAdmin ) {
+	if ( ! waitingUser || ! config?.isPlanOwner ) {
 		return null;
 	}
 
