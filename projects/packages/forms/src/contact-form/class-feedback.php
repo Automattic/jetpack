@@ -356,6 +356,7 @@ class Feedback {
 			$current_user         = wp_get_current_user();
 			$this->logged_in_user = array(
 				'display_name' => $current_user->display_name,
+				'username'     => $current_user->user_login,
 				'id'           => $current_user->ID,
 			);
 		}

@@ -139,6 +139,7 @@ export interface FormResponse {
 	/** The logged-in user who submitted the form, if any. */
 	logged_in_user?: {
 		display_name: string;
+		username: string;
 		id: number;
 	} | null;
 	/** The title of the form that the response was submitted to. */

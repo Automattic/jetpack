@@ -47,6 +47,16 @@ const ResponseMeta = ( { response }: ResponseMetaProps ): import('react').JSX.El
 
 	const dateSettings = getDateSettings();
 
+	// Logged-in user row content: either shows display name and ID, username and ID, or just the ID.
+	const loggedInUser = response?.logged_in_user?.id ? response.logged_in_user : null;
+	const loggedInUserName = loggedInUser?.display_name || loggedInUser?.username || null;
+	let loggedInUserDisplay = null;
+	if ( loggedInUser ) {
+		loggedInUserDisplay = loggedInUserName
+			? `${ loggedInUserName } (#${ loggedInUser.id })`
+			: `#${ loggedInUser.id }`;
+	}
+
 	return (
 		<div className="jp-forms__inbox-response-meta">
 			<HStack alignment="topLeft" spacing="3" wrap={ false }>
@@ -126,14 +136,10 @@ const ResponseMeta = ( { response }: ResponseMetaProps ): import('react').JSX.El
 							<td>{ response.browser }</td>
 						</tr>
 					) }
-					{ response.logged_in_user && response.logged_in_user.id && (
+					{ loggedInUserDisplay && (
 						<tr>
 							<th>{ __( 'Logged-in user:', 'jetpack-forms' ) }&nbsp;</th>
-							<td>
-								{ response.logged_in_user.display_name
-									? `${ response.logged_in_user.display_name } (#${ response.logged_in_user.id })`
-									: `#${ response.logged_in_user.id }` }
-							</td>
+							<td>{ loggedInUserDisplay }</td>
 						</tr>
 					) }
 				</tbody>

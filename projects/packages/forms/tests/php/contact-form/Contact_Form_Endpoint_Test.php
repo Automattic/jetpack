@@ -184,6 +184,7 @@ class Contact_Form_Endpoint_Test extends TestCase {
 		$this->assertContains( 'null', $logged_in_user_schema['type'] );
 		$this->assertArrayHasKey( 'properties', $logged_in_user_schema );
 		$this->assertArrayHasKey( 'display_name', $logged_in_user_schema['properties'] );
+		$this->assertArrayHasKey( 'username', $logged_in_user_schema['properties'] );
 		$this->assertArrayHasKey( 'id', $logged_in_user_schema['properties'] );
 
 		// Also make sure that we don't have fields that are not relevant to feedback.
@@ -1204,6 +1205,7 @@ JSON_DATA{"1_name":"Test Author","2_email":"author@example.com","3_file":{"field
 				'entry_page'     => 123,
 				'logged_in_user' => array(
 					'display_name' => 'Test Display Name',
+					'username'     => 'testuser',
 					'id'           => $user_id,
 				),
 				'fields'         => array(
@@ -1236,8 +1238,10 @@ JSON_DATA{"1_name":"Test Author","2_email":"author@example.com","3_file":{"field
 		$this->assertArrayHasKey( 'logged_in_user', $data );
 		$this->assertIsArray( $data['logged_in_user'] );
 		$this->assertArrayHasKey( 'display_name', $data['logged_in_user'] );
+		$this->assertArrayHasKey( 'username', $data['logged_in_user'] );
 		$this->assertArrayHasKey( 'id', $data['logged_in_user'] );
 		$this->assertEquals( 'Test Display Name', $data['logged_in_user']['display_name'] );
+		$this->assertEquals( 'testuser', $data['logged_in_user']['username'] );
 		$this->assertEquals( $user_id, $data['logged_in_user']['id'] );
 
 		wp_delete_user( $user_id );

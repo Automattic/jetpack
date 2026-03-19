@@ -528,7 +528,7 @@ class Feedback_Email_Renderer {
 	 * @param string $footer - the footer containing meta information.
 	 * @param string $actions - HTML for actions displayed in the email.
 	 * @param array  $respondent_info - Optional. Respondent information array with 'name', 'email', 'avatar'.
-	 * @param array  $metadata - Optional. Metadata array with 'date', 'source', 'source_url', 'device', 'ip', 'ip_flag', 'logged_in_user'.
+	 * @param array  $metadata - Optional. Metadata array with 'date', 'source', 'source_url', 'device', 'ip', 'ip_flag', 'logged_in_user' (with display_name, username, id).
 	 *
 	 * @return string
 	 */
@@ -710,7 +710,7 @@ class Feedback_Email_Renderer {
 	/**
 	 * Generate HTML for metadata section in email.
 	 *
-	 * @param array $metadata Array with 'date', 'source', 'source_url', 'device', 'ip', 'ip_flag', 'logged_in_user' keys.
+	 * @param array $metadata Array with 'date', 'source', 'source_url', 'device', 'ip', 'ip_flag', 'logged_in_user' (with display_name, username, id) keys.
 	 * @return string HTML for metadata section.
 	 */
 	private static function generate_metadata_html( $metadata ) {
@@ -755,6 +755,8 @@ class Feedback_Email_Renderer {
 			$user_value = '#' . $user_id;
 			if ( ! empty( $metadata['logged_in_user']['display_name'] ) ) {
 				$user_value = $metadata['logged_in_user']['display_name'] . ' (#' . $user_id . ')';
+			} elseif ( ! empty( $metadata['logged_in_user']['username'] ) ) {
+				$user_value = $metadata['logged_in_user']['username'] . ' (#' . $user_id . ')';
 			}
 			$rows[] = self::generate_metadata_row( __( 'Logged-in user', 'jetpack-forms' ), esc_html( $user_value ) );
 		}

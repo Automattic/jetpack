@@ -351,8 +351,10 @@ class Feedback_Entry_Metadata_Test extends BaseTestCase {
 		$logged_in_user = $response->get_logged_in_user();
 		$this->assertIsArray( $logged_in_user, 'Logged-in user should be an array' );
 		$this->assertArrayHasKey( 'display_name', $logged_in_user, 'Logged-in user should have display_name key' );
+		$this->assertArrayHasKey( 'username', $logged_in_user, 'Logged-in user should have username key' );
 		$this->assertArrayHasKey( 'id', $logged_in_user, 'Logged-in user should have id key' );
 		$this->assertEquals( 'Test Submitter', $logged_in_user['display_name'], 'Display name should match' );
+		$this->assertEquals( 'testsubmitter', $logged_in_user['username'], 'Username should match' );
 		$this->assertEquals( $user_id, $logged_in_user['id'], 'User ID should match' );
 
 		// Check saved response has the same data
@@ -437,5 +439,43 @@ class Feedback_Entry_Metadata_Test extends BaseTestCase {
 		$saved_response = Feedback::get( $post_id );
 		$this->assertNotNull( $saved_response->get_logged_in_user(), 'Logged-in user should not be null for legacy feedback' );
 		$this->assertEquals( $logged_in_user, $saved_response->get_logged_in_user(), 'Logged-in user should match legacy data' );
+	}
+
+	/**
+	 * Test that username is captured alongside display_name and id.
+	 */
+	public function test_logged_in_user_includes_username() {
+		$user_id = wp_insert_user(
+			array(
+				'user_login'   => 'usernametest',
+				'user_email'   => 'username@example.com',
+				'user_pass'    => 'password123',
+				'display_name' => 'Display Name Test',
+				'role'         => 'subscriber',
+			)
+		);
+		wp_set_current_user( $user_id );
+
+		$form_id    = Utility::get_form_id();
+		$_post_data = Utility::get_post_request(
+			array(
+				'name'  => 'Test Name',
+				'email' => 'test@example.com',
+			),
+			'g' . $form_id
+		);
+
+		$form     = new Contact_Form( array(), '' );
+		$response = Feedback::from_submission( $_post_data, $form );
+
+		$logged_in_user = $response->get_logged_in_user();
+		$this->assertIsArray( $logged_in_user );
+		$this->assertArrayHasKey( 'username', $logged_in_user );
+		$this->assertEquals( 'usernametest', $logged_in_user['username'] );
+		$this->assertEquals( 'Display Name Test', $logged_in_user['display_name'] );
+		$this->assertEquals( $user_id, $logged_in_user['id'] );
+
+		wp_delete_user( $user_id );
+		wp_set_current_user( 0 );
 	}
 }

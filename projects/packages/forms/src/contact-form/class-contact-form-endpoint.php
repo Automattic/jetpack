@@ -642,6 +642,13 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 						'sanitize_callback' => 'sanitize_text_field',
 					),
 				),
+				'username'     => array(
+					'type'        => 'string',
+					'description' => __( 'The username of the logged-in user.', 'jetpack-forms' ),
+					'arg_options' => array(
+						'sanitize_callback' => 'sanitize_text_field',
+					),
+				),
 				'id'           => array(
 					'type'        => 'integer',
 					'description' => __( 'The ID of the logged-in user.', 'jetpack-forms' ),
