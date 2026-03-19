@@ -105,15 +105,6 @@ class WP_REST_RTC_Notices extends WP_REST_Controller {
 	}
 
 	/**
-	 * Check if the current user is an admin.
-	 *
-	 * @return bool
-	 */
-	public function check_admin_permission() {
-		return current_user_can( 'manage_options' );
-	}
-
-	/**
 	 * Check if the current user can edit the post specified in the request.
 	 *
 	 * @param WP_REST_Request $request The request.

@@ -270,29 +270,6 @@ class RTC_Notices_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Tests that admin permission requires manage_options.
-	 */
-	public function test_admin_permission_requires_manage_options() {
-		$editor_id = wp_insert_user(
-			array(
-				'user_login' => 'rtc_editor',
-				'user_pass'  => 'password',
-				'role'       => 'editor',
-			)
-		);
-
-		$controller = new WP_REST_RTC_Notices();
-
-		wp_set_current_user( $editor_id );
-		$this->assertFalse( $controller->check_admin_permission() );
-
-		wp_set_current_user( $this->user_id );
-		$this->assertTrue( $controller->check_admin_permission() );
-
-		wp_delete_user( $editor_id );
-	}
-
-	/**
 	 * Tests that join request rejects invalid post IDs.
 	 */
 	public function test_join_request_rejects_invalid_post_id() {
