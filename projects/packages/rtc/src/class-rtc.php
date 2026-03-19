@@ -20,6 +20,14 @@ class RTC {
 	const PACKAGE_VERSION = '0.1.0-alpha';
 
 	/**
+	 * Option names for the RTC setting.
+	 * The old name was used until Gutenberg PR #76643 renamed it.
+	 * Both are supported for backwards compatibility.
+	 */
+	const OPTION_OLD = 'wp_enable_real_time_collaboration';
+	const OPTION_NEW = 'wp_collaboration_enabled';
+
+	/**
 	 * Whether the hooks have been initialized.
 	 *
 	 * @var bool
@@ -40,9 +48,13 @@ class RTC {
 		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_routes' ) );
 		add_action( 'enqueue_block_editor_assets', array( __CLASS__, 'enqueue_assets' ) );
 		add_action( 'admin_init', array( __CLASS__, 'unregister_rtc_setting' ), 11 );
-		add_filter( 'option_wp_enable_real_time_collaboration', array( __CLASS__, 'filter_rtc_option' ), 10 );
-		add_filter( 'default_option_wp_enable_real_time_collaboration', array( __CLASS__, 'default_rtc_option' ), 20 );
 		add_action( 'admin_init', array( __CLASS__, 'override_rtc_setting_default' ), 20 );
+
+		// Hook into both old and new option names for backwards compatibility.
+		foreach ( array( self::OPTION_OLD, self::OPTION_NEW ) as $option ) {
+			add_filter( 'option_' . $option, array( __CLASS__, 'filter_rtc_option' ), 10 );
+			add_filter( 'default_option_' . $option, array( __CLASS__, 'default_rtc_option' ), 20 );
+		}
 	}
 
 	/**
@@ -158,9 +170,10 @@ class RTC {
 
 		global $wp_settings_fields;
 
-		$option_name = 'wp_enable_real_time_collaboration';
-		if ( isset( $wp_settings_fields['writing']['default'][ $option_name ] ) ) {
-			unset( $wp_settings_fields['writing']['default'][ $option_name ] );
+		foreach ( array( self::OPTION_OLD, self::OPTION_NEW ) as $option ) {
+			if ( isset( $wp_settings_fields['writing']['default'][ $option ] ) ) {
+				unset( $wp_settings_fields['writing']['default'][ $option ] );
+			}
 		}
 	}
 
@@ -203,22 +216,24 @@ class RTC {
 	 * @return void
 	 */
 	public static function override_rtc_setting_default() {
-		$providers   = self::get_providers();
-		$option_name = 'wp_enable_real_time_collaboration';
+		$providers = self::get_providers();
+		$default   = count( $providers ) > 0;
 
-		unregister_setting( 'writing', $option_name );
+		foreach ( array( self::OPTION_OLD, self::OPTION_NEW ) as $option ) {
+			unregister_setting( 'writing', $option );
 
-		register_setting(
-			'writing',
-			$option_name,
-			array(
-				'type'              => 'boolean',
-				'description'       => __( 'Enable Real-Time Collaboration', 'jetpack-rtc' ),
-				'sanitize_callback' => 'rest_sanitize_boolean',
-				// Dynamic default: true when providers exist, false otherwise.
-				'default'           => count( $providers ) > 0,
-				'show_in_rest'      => true,
-			)
-		);
+			register_setting(
+				'writing',
+				$option,
+				array(
+					'type'              => 'boolean',
+					'description'       => __( 'Enable Real-Time Collaboration', 'jetpack-rtc' ),
+					'sanitize_callback' => 'rest_sanitize_boolean',
+					// Dynamic default: true when providers exist, false otherwise.
+					'default'           => $default,
+					'show_in_rest'      => true,
+				)
+			);
+		}
 	}
 }

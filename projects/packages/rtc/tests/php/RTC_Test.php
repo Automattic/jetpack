@@ -60,8 +60,10 @@ class RTC_Test extends \WorDBless\BaseTestCase {
 		$wp_styles          = $this->original_wp_styles; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		remove_all_filters( 'jetpack_rtc_enabled' );
 		remove_all_filters( 'jetpack_rtc_providers' );
-		remove_all_filters( 'option_wp_enable_real_time_collaboration' );
-		remove_all_filters( 'default_option_wp_enable_real_time_collaboration' );
+		remove_all_filters( 'option_' . RTC::OPTION_OLD );
+		remove_all_filters( 'default_option_' . RTC::OPTION_OLD );
+		remove_all_filters( 'option_' . RTC::OPTION_NEW );
+		remove_all_filters( 'default_option_' . RTC::OPTION_NEW );
 
 		// Reset the static $initialized flag so hooks are re-registered in the next test.
 		$reflection = new \ReflectionProperty( RTC::class, 'initialized' );
@@ -110,19 +112,21 @@ class RTC_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Tests that init hooks filter_rtc_option on the option filter.
+	 * Tests that init hooks filter_rtc_option on both old and new option filters.
 	 */
 	public function test_init_hooks_filter_rtc_option() {
 		RTC::init();
-		$this->assertSame( 10, has_filter( 'option_wp_enable_real_time_collaboration', array( RTC::class, 'filter_rtc_option' ) ) );
+		$this->assertSame( 10, has_filter( 'option_' . RTC::OPTION_OLD, array( RTC::class, 'filter_rtc_option' ) ) );
+		$this->assertSame( 10, has_filter( 'option_' . RTC::OPTION_NEW, array( RTC::class, 'filter_rtc_option' ) ) );
 	}
 
 	/**
-	 * Tests that init hooks default_rtc_option on the default option filter.
+	 * Tests that init hooks default_rtc_option on both old and new default option filters.
 	 */
 	public function test_init_hooks_default_rtc_option() {
 		RTC::init();
-		$this->assertSame( 20, has_filter( 'default_option_wp_enable_real_time_collaboration', array( RTC::class, 'default_rtc_option' ) ) );
+		$this->assertSame( 20, has_filter( 'default_option_' . RTC::OPTION_OLD, array( RTC::class, 'default_rtc_option' ) ) );
+		$this->assertSame( 20, has_filter( 'default_option_' . RTC::OPTION_NEW, array( RTC::class, 'default_rtc_option' ) ) );
 	}
 
 	// -------------------------------------------------------------------------
@@ -347,30 +351,34 @@ class RTC_Test extends \WorDBless\BaseTestCase {
 	// -------------------------------------------------------------------------
 
 	/**
-	 * Tests that unregister_rtc_setting removes the field when no providers exist.
+	 * Tests that unregister_rtc_setting removes both old and new fields when no providers exist.
 	 */
 	public function test_unregister_rtc_setting_removes_field_when_no_providers() {
 		global $wp_settings_fields;
 
-		$wp_settings_fields['writing']['default']['wp_enable_real_time_collaboration'] = array( 'id' => 'wp_enable_real_time_collaboration' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$wp_settings_fields['writing']['default'][ RTC::OPTION_OLD ] = array( 'id' => RTC::OPTION_OLD ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$wp_settings_fields['writing']['default'][ RTC::OPTION_NEW ] = array( 'id' => RTC::OPTION_NEW ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 
 		RTC::unregister_rtc_setting();
 
-		$this->assertArrayNotHasKey( 'wp_enable_real_time_collaboration', $wp_settings_fields['writing']['default'] );
+		$this->assertArrayNotHasKey( RTC::OPTION_OLD, $wp_settings_fields['writing']['default'] );
+		$this->assertArrayNotHasKey( RTC::OPTION_NEW, $wp_settings_fields['writing']['default'] );
 	}
 
 	/**
-	 * Tests that unregister_rtc_setting keeps the field when providers exist.
+	 * Tests that unregister_rtc_setting keeps both fields when providers exist.
 	 */
 	public function test_unregister_rtc_setting_keeps_field_when_providers_exist() {
 		global $wp_settings_fields;
 
 		add_filter( 'jetpack_rtc_enabled', '__return_true' );
-		$wp_settings_fields['writing']['default']['wp_enable_real_time_collaboration'] = array( 'id' => 'wp_enable_real_time_collaboration' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$wp_settings_fields['writing']['default'][ RTC::OPTION_OLD ] = array( 'id' => RTC::OPTION_OLD ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$wp_settings_fields['writing']['default'][ RTC::OPTION_NEW ] = array( 'id' => RTC::OPTION_NEW ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 
 		RTC::unregister_rtc_setting();
 
-		$this->assertArrayHasKey( 'wp_enable_real_time_collaboration', $wp_settings_fields['writing']['default'] );
+		$this->assertArrayHasKey( RTC::OPTION_OLD, $wp_settings_fields['writing']['default'] );
+		$this->assertArrayHasKey( RTC::OPTION_NEW, $wp_settings_fields['writing']['default'] );
 	}
 
 	/**
