@@ -18,6 +18,7 @@ import { useNavigate } from 'react-router';
 /**
  * Internal dependencies
  */
+import { getEmbedCode, getShortcode } from '../../blocks/shared/util/embed-codes';
 import useConfigValue from '../../hooks/use-config-value.ts';
 import CreateFormButton from '../components/create-form-button/index.tsx';
 import DataViewsHeaderRow from '../components/dataviews-header-row/index.tsx';
@@ -281,7 +282,7 @@ export default function FormsDashboardForms(): JSX.Element | null {
 						return;
 					}
 
-					const embedCode = `<!-- wp:jetpack/contact-form {"ref":${ item.id }} /-->`;
+					const embedCode = getEmbedCode( item.id );
 					try {
 						await navigator.clipboard.writeText( embedCode );
 						createSuccessNotice( __( 'Embed code copied to clipboard.', 'jetpack-forms' ), {
@@ -306,7 +307,7 @@ export default function FormsDashboardForms(): JSX.Element | null {
 						return;
 					}
 
-					const embedCode = `[contact-form ref="${ item.id }"]`;
+					const embedCode = getShortcode( item.id );
 					try {
 						await navigator.clipboard.writeText( embedCode );
 						createSuccessNotice( __( 'Shortcode copied to clipboard.', 'jetpack-forms' ), {
