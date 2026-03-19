@@ -481,6 +481,7 @@ describe( 'BaseLegend', () => {
 			expect( screen.getByRole( 'list' ) ).toBeInTheDocument();
 
 			const html = document.body.innerHTML;
+			expect( html ).toContain( 'background:' );
 			expect( html ).not.toContain( '<line' );
 			expect( html ).not.toContain( '<circle' );
 		} );
