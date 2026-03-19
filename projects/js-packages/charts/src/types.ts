@@ -159,7 +159,7 @@ export type MultipleDataPointsDate = {
 
 /**
  * Input data point for percentage-based charts (pie, donut, semi-circle).
- * Provide values and percentages will be calculated automatically.
+ * Provide values; percentages will be calculated automatically.
  */
 export type DataPointPercentage = {
 	/**
