@@ -41,6 +41,7 @@ class SSO_Test extends BaseTestCase {
 			$_COOKIE[ SSO::BROKER_COOKIE ],
 			$_COOKIE['jetpack_sso_nonce'],
 			$_GET['redirect_to'],
+			$_GET['jetpack-sso-show-default-form'],
 			$_SERVER['HTTP_REFERER'],
 			$GLOBALS['action']
 		);
@@ -236,8 +237,6 @@ class SSO_Test extends BaseTestCase {
 
 		$this->assertContains( 'jetpack-sso', $classes );
 		$this->assertNotContains( 'jetpack-sso-form-display', $classes );
-
-		unset( $_GET['jetpack-sso-show-default-form'] );
 	}
 
 	// ──────────────────────────────────────────────

@@ -50,6 +50,16 @@ class SSO {
 	private static $sso_user_for_2fa = null;
 
 	/**
+	 * Cookie name for the SSO broker authorization signal.
+	 *
+	 * Set when WP.com signals that a broker should be used for SSO. The cookie
+	 * value is the SSO nonce, tying the signal to a specific authentication flow.
+	 *
+	 * @var string
+	 */
+	const BROKER_COOKIE = 'jetpack_sso_broker';
+
+	/**
 	 * Automattic\Jetpack\Connection\SSO constructor.
 	 */
 	private function __construct() {
@@ -759,16 +769,6 @@ class SSO {
 	}
 
 	/**
-	 * Cookie name for the SSO broker authorization signal.
-	 *
-	 * Set when WP.com signals that a broker should be used for SSO. The cookie
-	 * value is the SSO nonce, tying the signal to a specific authentication flow.
-	 *
-	 * @var string
-	 */
-	const BROKER_COOKIE = 'jetpack_sso_broker';
-
-	/**
 	 * Retrieves nonce used for SSO form.
 	 *
 	 * @return string|WP_Error
@@ -1135,16 +1135,6 @@ class SSO {
 
 			wp_set_current_user( $user->ID );
 
-			$_request_redirect_to = isset( $_REQUEST['redirect_to'] ) ? esc_url_raw( wp_unslash( $_REQUEST['redirect_to'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			$redirect_to          = user_can( $user, 'edit_posts' ) ? admin_url() : self::profile_page_url();
-
-			// If we have a saved redirect to request in a cookie.
-			if ( ! empty( $_COOKIE['jetpack_sso_redirect_to'] ) ) {
-				// Set that as the requested redirect to.
-				$redirect_to          = esc_url_raw( wp_unslash( $_COOKIE['jetpack_sso_redirect_to'] ) );
-				$_request_redirect_to = $redirect_to;
-			}
-
 			$json_api_auth_environment = Helpers::get_json_api_auth_environment();
 
 			$is_json_api_auth  = ! empty( $json_api_auth_environment );
@@ -1159,6 +1149,16 @@ class SSO {
 					'is_json_api_auth' => $is_json_api_auth,
 				)
 			);
+
+			$_request_redirect_to = isset( $_REQUEST['redirect_to'] ) ? esc_url_raw( wp_unslash( $_REQUEST['redirect_to'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			$redirect_to          = user_can( $user, 'edit_posts' ) ? admin_url() : self::profile_page_url();
+
+			// If we have a saved redirect to request in a cookie.
+			if ( ! empty( $_COOKIE['jetpack_sso_redirect_to'] ) ) {
+				// Set that as the requested redirect to.
+				$redirect_to          = esc_url_raw( wp_unslash( $_COOKIE['jetpack_sso_redirect_to'] ) );
+				$_request_redirect_to = $redirect_to;
+			}
 
 			if ( $is_json_api_auth ) {
 				$authorize_json_api = new Authorize_Json_Api();
