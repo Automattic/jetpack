@@ -335,7 +335,7 @@ Display a legend to help users understand the data visualization:
 
 Customize legend labels with specific date ranges or descriptive text:
 
-<Canvas of={ LeaderboardChartStories.WithCompositionLegend } />
+<Canvas of={ LeaderboardChartStories.WithLegendLabels } />
 
 <Source
 	language="tsx"
@@ -354,13 +354,32 @@ Customize legend labels with specific date ranges or descriptive text:
 
 Use the composition API for explicit legend placement:
 
-<Canvas of={ LeaderboardChartStories.WithCompositionLegend } />
+<Source
+	language="tsx"
+	code={ `<LeaderboardChart
+		data={data}
+		withComparison={true}
+		showLegend={false}
+	>
+		<LeaderboardChart.Legend />
+	>` }
+/>
 
 ### Interactive Legends
 
 Enable interactive legend items to toggle visibility of current and comparison series:
 
-<Canvas of={ LeaderboardChartStories.WithLegend } />
+<Source
+	language="tsx"
+	code={ `<LeaderboardChart
+		data={data}
+		withComparison={true}
+		showLegend={true}
+		legend={{
+			interactive: true,
+		}}
+	/>` }
+/>
 
 **Legend Configuration Options:**
 - Control legend positioning, alignment, and visual appearance
