@@ -68,6 +68,8 @@
 		"@wordpress/notices": "5.42.0",
 		"@wordpress/plugins": "7.42.0",
 		"@wordpress/preferences": "4.42.0",
+		"@wordpress/theme": "0.9.0",
+		"@wordpress/ui": "0.9.0",
 		"@wordpress/url": "4.42.0",
 		"clsx": "2.1.1",
 		"jquery": "3.7.1",
