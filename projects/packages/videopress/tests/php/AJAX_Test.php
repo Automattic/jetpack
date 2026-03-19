@@ -115,10 +115,17 @@ class AJAX_Test extends BaseTestCase {
 	private function call_ajax_method( $method ) {
 		add_filter( 'wp_doing_ajax', '__return_true' );
 
+		// Override WorDBless's wp_die handler to avoid a current_filter() bug on PHP < 8.
+		$noop_die_handler = static function () {
+			return '__return_empty_string';
+		};
+		add_filter( 'wp_die_ajax_handler', $noop_die_handler, 20 );
+
 		ob_start();
 		$this->ajax->$method();
 		$output = ob_get_clean();
 
+		remove_filter( 'wp_die_ajax_handler', $noop_die_handler, 20 );
 		remove_filter( 'wp_doing_ajax', '__return_true' );
 
 		$response = json_decode( $output, true );
