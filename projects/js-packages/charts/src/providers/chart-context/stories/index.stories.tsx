@@ -1,14 +1,5 @@
 import { Meta, StoryObj } from '@storybook/react';
-import {
-	LineChart,
-	BarChart,
-	PieSemiCircleChart,
-	PieChart,
-	BarListChart,
-	DataPointPercentage,
-	SeriesData,
-	LeaderboardChart,
-} from '../../../.';
+import { LineChart, BarChart, PieSemiCircle, PieChart, BarList, Leaderboard } from '../../..';
 import { simpleChartDecorator, ChartStoryArgs } from '../../../stories/chart-decorator';
 import {
 	medalCountsData,
@@ -18,6 +9,7 @@ import {
 	trafficSourcesData,
 } from '../../../stories/sample-data';
 import { themeArgTypes } from '../../../stories/theme-config';
+import type { DataPointPercentage, SeriesData } from '../../../types';
 
 type StoryArgs = ChartStoryArgs< {
 	showUnitedStates?: boolean;
@@ -183,7 +175,7 @@ const ChartGrid = ( { args }: { args: StoryArgs } ) => {
 				showLegend={ true }
 			/>
 
-			<PieSemiCircleChart
+			<PieSemiCircle
 				data={ pieChartData }
 				width={ 350 }
 				label="Semi-Circle Chart"
@@ -191,7 +183,7 @@ const ChartGrid = ( { args }: { args: StoryArgs } ) => {
 				showLegend={ true }
 			/>
 
-			<BarListChart data={ barListChartData } width={ 350 } height={ 250 } withTooltips={ true } />
+			<BarList data={ barListChartData } width={ 350 } height={ 250 } withTooltips={ true } />
 
 			<PieChart size={ 300 } data={ pieChartData } withTooltips={ true } showLegend={ true } />
 
@@ -203,7 +195,7 @@ const ChartGrid = ( { args }: { args: StoryArgs } ) => {
 				showLegend={ true }
 			/>
 
-			<LeaderboardChart data={ trafficSourcesData } withComparison showLegend />
+			<Leaderboard data={ trafficSourcesData } withComparison showLegend />
 		</div>
 	);
 };
@@ -244,7 +236,7 @@ const ChartGridWithColorOverrides = ( { args }: { args: StoryArgs } ) => {
 				showLegend={ true }
 			/>
 
-			<PieSemiCircleChart
+			<PieSemiCircle
 				data={ pieChartData }
 				width={ 350 }
 				label="Semi-Circle Chart"
@@ -252,7 +244,7 @@ const ChartGridWithColorOverrides = ( { args }: { args: StoryArgs } ) => {
 				showLegend={ true }
 			/>
 
-			<BarListChart data={ barListChartData } width={ 350 } height={ 250 } withTooltips={ true } />
+			<BarList data={ barListChartData } width={ 350 } height={ 250 } withTooltips={ true } />
 
 			<PieChart size={ 300 } data={ pieChartData } withTooltips={ true } showLegend={ true } />
 
@@ -264,12 +256,7 @@ const ChartGridWithColorOverrides = ( { args }: { args: StoryArgs } ) => {
 				showLegend={ true }
 			/>
 
-			<LeaderboardChart
-				data={ trafficSourcesData }
-				withComparison
-				showLegend
-				secondaryColor="#e74c3c"
-			/>
+			<Leaderboard data={ trafficSourcesData } withComparison showLegend secondaryColor="#e74c3c" />
 		</div>
 	);
 };

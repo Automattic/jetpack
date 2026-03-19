@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Charts: Add namespaced exports for improved discoverability. Chart types are now namespaced under each chart (e.g., LineChart.Props, BarChart.Props).

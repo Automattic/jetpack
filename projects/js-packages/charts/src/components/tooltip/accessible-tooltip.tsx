@@ -16,7 +16,7 @@ export type FlattenedTooltipData = {
 };
 
 // Enhanced tooltip with keyboard navigation and accessibility
-interface AccessibleTooltipProps
+export interface AccessibleTooltipProps
 	extends Omit< BaseTooltipProps< DataPointDate >, 'renderTooltip' > {
 	renderTooltip?: ( params: RenderTooltipParams< DataPointDate > ) => ReactNode;
 	selectedIndex?: number | undefined;
@@ -152,7 +152,7 @@ export const AccessibleTooltip: React.FC< AccessibleTooltipProps > = ( {
 };
 
 // Keyboard navigation hook for charts
-interface UseKeyboardNavigationProps {
+export interface UseKeyboardNavigationProps {
 	selectedIndex: number | undefined;
 	setSelectedIndex: ( index: number | undefined ) => void;
 	isNavigating: boolean;

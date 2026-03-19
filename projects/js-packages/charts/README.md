@@ -32,6 +32,39 @@ import '@automattic/charts/style.css';
 
 Modern bundlers tree-shake unused JavaScript automatically, so only the chart components you import are included in your bundle. Note that `style.css` includes styles for all charts.
 
+### Namespaced Types
+
+All chart components include namespaced types for better discoverability:
+
+```typescript
+import { LineChart, BarChart, Legend, Data } from '@automattic/charts';
+
+// Types are namespaced under each export
+const lineProps: LineChart.Props = { data: [...] };
+const barProps: BarChart.Props = { data: [...] };
+const legendProps: Legend.Props = { items: [...] };
+
+// Data types are grouped under the Data namespace
+const point: Data.Point = { label: 'A', value: 100 };
+const series: Data.Series = { label: 'Sales', data: [...] };
+```
+
+#### Available Chart Components
+
+| Component | Description |
+|-----------|-------------|
+| `LineChart` | Line/time-series chart with responsive sizing |
+| `BarChart` | Vertical/horizontal bar chart |
+| `BarList` | Horizontal bar list chart |
+| `PieChart` | Pie/donut chart |
+| `PieSemiCircle` | Semi-circle pie chart |
+| `Geo` | Geographic/map chart |
+| `Leaderboard` | Leaderboard/ranking chart |
+| `ConversionFunnel` | Conversion funnel visualization |
+| `Sparkline` | Compact sparkline chart |
+
+Each chart also has an `Unresponsive` variant (e.g., `LineChartUnresponsive`) for fixed dimensions without the responsive wrapper.
+
 #### Additional Entry Points
 
 For utilities and auxiliary components, separate entry points are available:

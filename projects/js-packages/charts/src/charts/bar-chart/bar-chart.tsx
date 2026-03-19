@@ -45,7 +45,7 @@ export interface BarChartProps extends BaseChartProps< SeriesData[] > {
 type BarChartBaseProps = Optional< BarChartProps, 'width' | 'height' | 'size' >;
 
 // Composition API types
-interface BarChartSubComponents {
+export interface BarChartSubComponents {
 	Legend: ComponentType< React.ComponentProps< typeof Legend > >;
 }
 
