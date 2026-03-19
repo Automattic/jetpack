@@ -29,11 +29,18 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 function resolve_donation_plan( $plan_id, $interval, $currency ) {
 	$post_type = \Jetpack_Memberships::$post_type_plan;
+	$site_id   = \Jetpack_Memberships::get_blog_id();
 
 	// Try the saved plan ID first.
 	if ( $plan_id ) {
 		$plan = get_post( $plan_id );
-		if ( $plan && ! is_wp_error( $plan ) && $plan->post_type === $post_type ) {
+		if ( $plan && ! is_wp_error( $plan )
+			&& $plan->post_type === $post_type
+			&& (int) get_post_meta( $plan->ID, 'jetpack_memberships_site_id', true ) === $site_id
+			&& get_post_meta( $plan->ID, 'jetpack_memberships_type', true ) === 'donation'
+			&& get_post_meta( $plan->ID, 'jetpack_memberships_interval', true ) === $interval
+			&& get_post_meta( $plan->ID, 'jetpack_memberships_currency', true ) === $currency
+		) {
 			return $plan;
 		}
 	}
@@ -59,6 +66,10 @@ function resolve_donation_plan( $plan_id, $interval, $currency ) {
 				array(
 					'key'     => 'jetpack_memberships_is_deleted',
 					'compare' => 'NOT EXISTS',
+				),
+				array(
+					'key'   => 'jetpack_memberships_site_id',
+					'value' => $site_id,
 				),
 			),
 		)
