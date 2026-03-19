@@ -22,18 +22,17 @@ export const Legend = forwardRef< HTMLDivElement, LegendProps >(
 		// When chartId is not provided, we use the context's chartId, meaning it is in a single chart context
 		const contextChartId = chartId ?? singleChartContext?.chartId;
 
-		const chartData = useMemo( () => {
-			return contextChartId && context
-				? context.getChartData( contextChartId )
-				: undefined;
-		}, [ contextChartId, context ] );
+		const chartData = useMemo(
+			() => ( contextChartId && context ? context.getChartData( contextChartId ) : undefined ),
+			[ contextChartId, context ]
+		);
 
 		const contextItems = chartData?.legendItems;
 
 		// Derive the default legend shape from the chart type when no explicit shape is provided
-		const resolvedShape = shape ?? ( chartData?.chartType
-			? defaultShapeByChartType[ chartData.chartType ]
-			: undefined );
+		const resolvedShape =
+			shape ??
+			( chartData?.chartType ? defaultShapeByChartType[ chartData.chartType ] : undefined );
 
 		// Provided items take precedence over context items
 		const legendItems = ( items || contextItems ) as typeof items;

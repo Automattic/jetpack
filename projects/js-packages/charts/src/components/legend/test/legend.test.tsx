@@ -3,11 +3,7 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useMemo } from 'react';
 import { SingleChartContext } from '../../../charts/private/single-chart-context';
-import {
-	GlobalChartsProvider,
-	useChartId,
-	useChartRegistration,
-} from '../../../providers';
+import { GlobalChartsProvider, useChartId, useChartRegistration } from '../../../providers';
 import { Legend } from '../legend';
 import { BaseLegend } from '../private/base-legend';
 import { LegendProps } from '../types';
@@ -438,13 +434,11 @@ describe( 'BaseLegend', () => {
 			{ label: 'Series 2', color: '#00ff00' },
 		];
 
-		const ChartRegistrar = ( {
-			chartType,
-			chartId,
-		}: {
-			chartType: string;
-			chartId: string;
-		} ) => {
+		const CustomShape: LegendProps[ 'shape' ] = props => (
+			<span data-testid="custom-shape" style={ { color: props.fill as string } } />
+		);
+
+		const ChartRegistrar = ( { chartType, chartId }: { chartType: string; chartId: string } ) => {
 			const resolvedId = useChartId( chartId );
 			const metadata = useMemo( () => ( {} ), [] );
 			useChartRegistration( {
@@ -457,16 +451,17 @@ describe( 'BaseLegend', () => {
 			return null;
 		};
 
-		const renderLegendWithChartType = ( chartType: string, explicitShape?: LegendProps[ 'shape' ] ) => {
+		const renderLegendWithChartType = (
+			chartType: string,
+			explicitShape?: LegendProps[ 'shape' ]
+		) => {
 			const chartId = `test-${ chartType }`;
 
 			return render(
 				<GlobalChartsProvider>
 					<ChartRegistrar chartType={ chartType } chartId={ chartId } />
-					<SingleChartContext.Provider
-						value={ { chartId } }
-					>
-						<Legend shape={ explicitShape } data-testid="composition-legend" />
+					<SingleChartContext.Provider value={ { chartId } }>
+						<Legend shape={ explicitShape } />
 					</SingleChartContext.Provider>
 				</GlobalChartsProvider>
 			);
@@ -474,50 +469,38 @@ describe( 'BaseLegend', () => {
 
 		it( 'uses line shape for line chart type', () => {
 			renderLegendWithChartType( 'line' );
-			const legendEl = screen.getByRole( 'list' );
-			expect( legendEl ).toBeInTheDocument();
+			expect( screen.getByRole( 'list' ) ).toBeInTheDocument();
+			expect( screen.getAllByTestId( 'legend-item' ) ).toHaveLength( 2 );
 
-			const svgs = legendEl.querySelectorAll( 'svg' );
-			const hasLineSvg = Array.from( svgs ).some( svg => {
-				return svg.querySelector( 'line' ) !== null;
-			} );
-			expect( hasLineSvg ).toBe( true );
+			const html = document.body.innerHTML;
+			expect( html ).toContain( '<line' );
 		} );
 
 		it( 'uses rect shape for bar chart type', () => {
 			renderLegendWithChartType( 'bar' );
-			const legendEl = screen.getByRole( 'list' );
-			expect( legendEl ).toBeInTheDocument();
+			expect( screen.getByRole( 'list' ) ).toBeInTheDocument();
 
-			const svgs = legendEl.querySelectorAll( 'svg' );
-			const hasLineSvg = Array.from( svgs ).some( svg => {
-				return svg.querySelector( 'line' ) !== null;
-			} );
-			expect( hasLineSvg ).toBe( false );
+			const html = document.body.innerHTML;
+			expect( html ).not.toContain( '<line' );
+			expect( html ).not.toContain( '<circle' );
 		} );
 
 		it( 'uses circle shape for pie chart type', () => {
 			renderLegendWithChartType( 'pie' );
-			const legendEl = screen.getByRole( 'list' );
-			expect( legendEl ).toBeInTheDocument();
+			expect( screen.getByRole( 'list' ) ).toBeInTheDocument();
 
-			const svgs = legendEl.querySelectorAll( 'svg' );
-			const hasLineSvg = Array.from( svgs ).some( svg => {
-				return svg.querySelector( 'line' ) !== null;
-			} );
-			expect( hasLineSvg ).toBe( false );
+			const html = document.body.innerHTML;
+			expect( html ).toContain( '<circle' );
+			expect( html ).not.toContain( '<line' );
 		} );
 
 		it( 'allows explicit shape to override chart type default', () => {
-			renderLegendWithChartType( 'line', 'circle' );
-			const legendEl = screen.getByRole( 'list' );
+			renderLegendWithChartType( 'line', CustomShape );
+			expect( screen.getByRole( 'list' ) ).toBeInTheDocument();
+			expect( screen.getAllByTestId( 'custom-shape' ) ).toHaveLength( 2 );
 
-			const svgs = legendEl.querySelectorAll( 'svg' );
-			const hasLineSvg = Array.from( svgs ).some( svg => {
-				return svg.querySelector( 'line' ) !== null;
-			} );
-
-			expect( hasLineSvg ).toBe( false );
+			const html = document.body.innerHTML;
+			expect( html ).not.toContain( '<line' );
 		} );
 	} );
 
