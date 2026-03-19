@@ -6,7 +6,6 @@ type TooltipData = {
 	label: string;
 	value: number;
 	valueDisplay?: string;
-	percentage?: number;
 };
 
 type TooltipComponentProps = {
