@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Enable Image Studio for Big Sky and CIAB sites, regardless of Jetpack AI enabled status.
