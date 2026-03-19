@@ -142,42 +142,18 @@ The chart validates:
 
 ## Legends
 
-### Legend Positioning
+Use the composition API to add a legend by placing `<PieChart.Legend />` as a child:
 
-Control legend alignment and positioning:
-
-<Canvas of={ PieChartStories.WithLegend } />
+<Canvas of={ PieChartStories.WithCompositionLegend } />
 
 <Source
 	language="jsx"
-	code={ `<PieChart
-		size={ 400 }
-		data={ data }
-		showLegend={ true }
-		legend={{
-			alignment: 'end',
-			position: 'top',
-		}}
-	/>` }
+	code={ `<PieChart size={ 400 } data={ data }>
+		<PieChart.Legend />
+	</PieChart>` }
 />
 
-### Vertical Legend
-
-Use vertical orientation for space-efficient legend placement:
-
-<Source
-	language="jsx"
-	code={ `<PieChart
-		size={ 400 }
-		data={ data }
-		showLegend={ true }
-		legend={{
-			orientation: 'vertical',
-			alignment: 'end',
-			position: 'top',
-		}}
-	/>` }
-/>
+For full legend configuration options — positioning, orientation, shapes, interactivity, and the composition API — see the [Legend component docs](./?path=/docs/js-packages-charts-library-components-legend--docs).
 
 ## Styling and Customization
 

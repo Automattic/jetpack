@@ -508,70 +508,18 @@ Charts are fully keyboard accessible with Tab navigation and arrow key data poin
 
 ## Legends
 
-### Basic Legend
+Use the composition API to add a legend by placing `<LineChart.Legend />` as a child:
 
-Display series information with automatic color matching:
-
-<Canvas of={ LineChartStories.WithLegend } />
+<Canvas of={ LineChartStories.WithCompositionLegend } />
 
 <Source
 	language="jsx"
-	code={ `<LineChart
-		data={data}
-		showLegend={true}
-	/>` }
+	code={ `<LineChart data={data}>
+		<LineChart.Legend />
+	</LineChart>` }
 />
 
-### Legend Shape
-
-Control the shape of the legend glyph using the `legend.shape` prop. Available values are `'line'` (default), `'rect'`, and `'circle'`:
-
-<Source
-	language="jsx"
-	code={ `<LineChart
-		data={data}
-		showLegend={true}
-		legend={{ shape: 'circle' }}
-	/>` }
-/>
-
-### Legend Glyphs
-
-Show a data-point glyph on the legend line marker using `withLegendGlyph`:
-
-<Source
-	language="jsx"
-	code={ `<LineChart
-		data={data}
-		showLegend={true}
-		withLegendGlyph={true}
-	/>` }
-/>
-
-### Interactive Legends
-
-Enable interactive legends that allow users to toggle series visibility by clicking or using keyboard navigation:
-
-<Source
-	language="jsx"
-	code={ `<LineChart
-		data={data}
-		chartId="sales-chart"
-		showLegend={true}
-		legend={{ interactive: true }}
-	/>` }
-/>
-
-**Interactive Legend Features:**
-- **Click or Tap**: Toggle series visibility by clicking on legend items
-- **Keyboard Navigation**: Use Tab to focus legend items, then Enter or Space to toggle
-- **Accessibility**: Full ARIA support with screen reader announcements
-- **Visual Feedback**: Hidden series appear with reduced opacity and strikethrough text
-- **Color Stability**: Series colors remain consistent when toggling visibility
-
-**Requirements:**
-- Provide a unique `chartId` prop
-- Set `legend={{ interactive: true }}` and `showLegend={true}`
+For full legend configuration options — positioning, orientation, shapes, interactivity, and the composition API — see the [Legend component docs](./?path=/docs/js-packages-charts-library-components-legend--docs).
 
 ## Theming Integration
 

@@ -299,108 +299,18 @@ Charts are fully keyboard accessible:
 
 ## Legends
 
-### Basic Legend
-
-Display series information with automatic color and pattern matching:
-
-<Canvas of={ BarChartStories.WithLegend } />
-
-<Source
-	language="jsx"
-	code={ `<BarChart
-		data={data}
-		showLegend={true}
-	/>` }
-/>
-
-### Vertical Legend
-
-Display legends vertically for charts with many series:
-
-<Source
-	language="jsx"
-	code={ `<BarChart
-		data={data}
-		showLegend={true}
-		legend={{
-			orientation: 'vertical',
-		}}
-	/>` }
-/>
-
-### Composition API
-
-For more flexible legend positioning and future extensibility, use the composition API with `<BarChart.Legend />` as a child component:
+Use the composition API to add a legend by placing `<BarChart.Legend />` as a child:
 
 <Canvas of={ BarChartStories.WithCompositionLegend } />
 
 <Source
 	language="jsx"
-	code={ `<BarChart
-		data={data}
-		withTooltips={true}
-		gridVisibility="x"
-		showLegend={false}
-	>
+	code={ `<BarChart data={data}>
 		<BarChart.Legend />
 	</BarChart>` }
 />
 
-**Benefits of the composition API:**
-- **Flexible positioning**: Place legends anywhere within the chart container
-- **Future extensibility**: Enables additional chart components like annotations
-- **Consistent API**: Same pattern as LineChart for a unified developer experience
-- **Backward compatibility**: Existing `showLegend` prop continues to work
-
-**Usage patterns:**
-
-<Source
-	language="jsx"
-	code={ `// Composition API (recommended for new code)
-	<BarChart data={data}>
-		<BarChart.Legend orientation="vertical" alignment="end" />
-	</BarChart>
-
-	// Traditional prop-based approach (still supported)
-	<BarChart
-		data={data}
-		showLegend={true}
-		legend={{
-			orientation: 'vertical',
-			alignment: 'end',
-		}}
-	/>` }
-/>
-
-### Interactive Legend
-
-Enable interactive legend items that users can click to toggle series visibility. This feature requires a `chartId` and wrapping your chart in a `GlobalChartsProvider`:
-
-<Source
-	language="jsx"
-	code={ `import { BarChart, GlobalChartsProvider } from '@automattic/charts';
-
-	<GlobalChartsProvider>
-		<BarChart
-			data={data}
-			chartId="my-chart"
-			showLegend={true}
-			legend={{ interactive: true }}
-		/>
-	</GlobalChartsProvider>` }
-/>
-
-**Interactive legend features:**
-- **Click to toggle**: Click legend items to show/hide series
-- **Visual feedback**: Legend items visually indicate their active/inactive state
-- **Accessibility**: Full keyboard support with proper ARIA attributes
-- **Empty state**: When all series are hidden, a message prompts users to re-enable series
-- **State management**: Visibility state is managed through the global charts provider
-
-**Requirements:**
-- Set `legend={{ interactive: true }}` to enable the feature
-- Provide a unique `chartId` prop for state tracking
-- Wrap the chart in a `<GlobalChartsProvider>` component
+For full legend configuration options — positioning, orientation, shapes, interactivity, and the composition API — see the [Legend component docs](./?path=/docs/js-packages-charts-library-components-legend--docs).
 
 ## Theming Integration
 

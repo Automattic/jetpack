@@ -316,24 +316,18 @@ Calculate the `currentShare` and `previousShare` values to determine bar widths:
 
 ## Legends
 
-### Basic Legend
+Use the composition API to add a legend by placing `<LeaderboardChart.Legend />` as a child:
 
-Display a legend to help users understand the data visualization:
-
-<Canvas of={ LeaderboardChartStories.WithLegend } />
+<Canvas of={ LeaderboardChartStories.WithCompositionLegend } />
 
 <Source
 	language="tsx"
-	code={ `<LeaderboardChart
-		data={data}
-		withComparison={true}
-		showLegend={true}
-	/>` }
+	code={ `<LeaderboardChart data={data} withComparison={true}>
+		<LeaderboardChart.Legend />
+	</LeaderboardChart>` }
 />
 
-### Custom Legend Labels
-
-Customize legend labels with specific date ranges or descriptive text:
+Use `legendLabels` to show descriptive labels (e.g. date ranges) for the primary and comparison series:
 
 <Canvas of={ LeaderboardChartStories.WithLegendLabels } />
 
@@ -344,50 +338,13 @@ Customize legend labels with specific date ranges or descriptive text:
 		withComparison={true}
 		showLegend={true}
 		legendLabels={{
-			primary: 'Aug 11-Sep 9, 2025',
-			comparison: 'Jul 11-Aug 11, 2025',
+			primary: 'Aug 11–Sep 9, 2025',
+			comparison: 'Jul 11–Aug 11, 2025',
 		}}
 	/>` }
 />
 
-### Composition API Legend
-
-Use the composition API for explicit legend placement:
-
-<Source
-	language="tsx"
-	code={ `<LeaderboardChart
-		data={data}
-		withComparison={true}
-		showLegend={false}
-	>
-		<LeaderboardChart.Legend />
-	>` }
-/>
-
-### Interactive Legends
-
-Enable interactive legend items to toggle visibility of current and comparison series:
-
-<Source
-	language="tsx"
-	code={ `<LeaderboardChart
-		data={data}
-		withComparison={true}
-		showLegend={true}
-		legend={{
-			interactive: true,
-		}}
-	/>` }
-/>
-
-**Legend Configuration Options:**
-- Control legend positioning, alignment, and visual appearance
-- Customize legend shapes and sizes
-- Add custom labels for different time periods or data series
-- Control legend/content spacing with the chart-level `gap` prop
-
-See the [API Reference](./?path=/docs/js-packages-charts-library-charts-leaderboard-chart-api-reference--docs) for detailed prop information.
+For full legend configuration options — positioning, orientation, shapes, interactivity, and the composition API — see the [Legend component docs](./?path=/docs/js-packages-charts-library-components-legend--docs).
 
 ## Styling and Customization
 
