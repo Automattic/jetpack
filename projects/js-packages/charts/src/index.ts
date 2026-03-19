@@ -13,6 +13,7 @@ export { Sparkline, SparklineUnresponsive } from './charts/sparkline';
 export { BaseTooltip } from './components/tooltip';
 export { Legend, useChartLegendItems } from './components/legend';
 export { TrendIndicator } from './components/trend-indicator';
+export { useLeaderboardLegendItems } from './charts/leaderboard-chart/hooks';
 
 // Compositions
 
