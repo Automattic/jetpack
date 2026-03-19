@@ -58,8 +58,7 @@ function wpcom_enqueue_gutenberg_rtc_assets() {
 	$data = wp_json_encode(
 		array(
 			'providers'         => wpcom_get_gutenberg_rtc_providers(),
-			'maxPeersPerRoom'   => wpcom_get_gutenberg_rtc_max_peers_per_room(),
-			'maxClientsPerUser' => wpcom_get_gutenberg_rtc_max_clients_per_user(),
+			'maxClientsPerRoom' => wpcom_get_gutenberg_rtc_max_clients_per_room(),
 		),
 		JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 	);
@@ -73,21 +72,13 @@ function wpcom_enqueue_gutenberg_rtc_assets() {
 add_action( 'enqueue_block_editor_assets', 'wpcom_enqueue_gutenberg_rtc_assets' );
 
 /**
- * Get the maximum number of peers allowed per room.
+ * Get the maximum number of clients allowed per room.
  *
- * @return int Max peers per room.
+ * @return int Max clients per room.
  */
-function wpcom_get_gutenberg_rtc_max_peers_per_room() {
-	return (int) apply_filters( 'wpcom_gutenberg_rtc_max_peers_per_room', 2 );
+function wpcom_get_gutenberg_rtc_max_clients_per_room() {
+	return (int) apply_filters( 'wpcom_gutenberg_rtc_max_clients_per_room', 2 );
 }
-
-/**
- * Get the maximum number of clients (tabs) allowed per user in a room.
- *
- * @return int Max clients per user.
- */
-function wpcom_get_gutenberg_rtc_max_clients_per_user() {
-	return (int) apply_filters( 'wpcom_gutenberg_rtc_max_clients_per_user', 2 );
 }
 
 /**
