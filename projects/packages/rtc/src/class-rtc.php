@@ -145,7 +145,7 @@ class RTC {
 
 		$data = wp_json_encode(
 			array(
-				'providers' => self::get_providers(),
+				'providers' => $providers,
 			),
 			JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 		);
