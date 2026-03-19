@@ -10,7 +10,7 @@ export { PieSemiCircleChart, PieSemiCircleChartUnresponsive } from './charts/pie
 export { Sparkline, SparklineUnresponsive } from './charts/sparkline';
 
 // Components
-export { BaseTooltip } from './components/tooltip';
+export { BaseTooltip, AccessibleTooltip, useKeyboardNavigation } from './components/tooltip';
 export { Legend, useChartLegendItems } from './components/legend';
 export { TrendIndicator } from './components/trend-indicator';
 
@@ -37,8 +37,15 @@ export type {
 	PieSemiCircleChartRenderTooltipParams,
 } from './charts/pie-semi-circle-chart';
 export type { GeoChartProps, GeoRegion, GeoResolution } from './charts/geo-chart';
-export type { LegendValueDisplay, BaseLegendItem } from './components/legend';
+export type {
+	LegendProps,
+	BaseLegendProps,
+	BaseLegendItem,
+	ChartLegendOptions,
+	LegendValueDisplay,
+} from './components/legend';
 export type { TrendIndicatorProps, TrendDirection } from './components/trend-indicator';
+export type { BaseTooltipProps, TooltipData, TooltipProps } from './components/tooltip';
 export type { SparklineProps, GradientConfig, SparklineDataPoint } from './charts/sparkline';
 export type { LineStyles, GridStyles, EventHandlerParams } from '@visx/xychart';
 export type {
