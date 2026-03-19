@@ -74,13 +74,23 @@ export function getBlocksToMove( blocks: Block[], formBlockClientId: string ): B
 }
 
 /**
- * Finds the step container block inside a form block.
+ * Finds the step container block inside a form block, searching recursively
+ * through nested inner blocks.
  *
  * @param formBlock - The form block to search
  * @return The step container block or null if not found
  */
 export function findStepContainer( formBlock: Block ): Block | null {
-	return formBlock.innerBlocks.find( b => b.name === 'jetpack/form-step-container' ) || null;
+	for ( const block of formBlock.innerBlocks ) {
+		if ( block.name === 'jetpack/form-step-container' ) {
+			return block;
+		}
+		const found = findStepContainer( block );
+		if ( found ) {
+			return found;
+		}
+	}
+	return null;
 }
 
 /**

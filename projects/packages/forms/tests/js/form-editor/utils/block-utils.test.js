@@ -148,6 +148,29 @@ describe( 'block-utils', () => {
 
 			expect( findStepContainer( formBlock ) ).toBeNull();
 		} );
+
+		test( 'finds step container nested inside a child block', () => {
+			const formBlock = {
+				name: 'jetpack/contact-form',
+				clientId: 'form-1',
+				innerBlocks: [
+					{
+						name: 'core/group',
+						clientId: 'group-1',
+						innerBlocks: [
+							{
+								name: 'jetpack/form-step-container',
+								clientId: 'container-1',
+								innerBlocks: [ { name: 'jetpack/form-step', clientId: 'step-1', innerBlocks: [] } ],
+							},
+						],
+					},
+				],
+			};
+
+			const result = findStepContainer( formBlock );
+			expect( result?.clientId ).toBe( 'container-1' );
+		} );
 	} );
 
 	describe( 'findActiveStepInContainer', () => {
