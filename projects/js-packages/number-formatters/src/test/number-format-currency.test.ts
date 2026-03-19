@@ -420,15 +420,8 @@ describe( 'numberFormatCurrency()', () => {
 			let bigMoney = null;
 			let expectation = null;
 			let smallMoney = null;
-			const [ , majorVersion, minorVersion, patchVersion ] =
-				process.version.match( /^v(\d+).(\d+).(\d+)/ );
-			if (
-				parseInt( majorVersion ) > 22 ||
-				( parseInt( majorVersion ) === 22 && parseInt( minorVersion ) > 22 ) ||
-				( parseInt( majorVersion ) === 22 &&
-					parseInt( minorVersion ) === 22 &&
-					parseInt( patchVersion ) >= 1 )
-			) {
+			const [ majorVersion ] = process.versions.cldr.match( /^(\d+).\d+/ );
+			if ( parseInt( majorVersion ) >= 48 ) {
 				smallMoney = numberFormatCurrency( {
 					number: 1072800,
 					currency: 'IDR',
@@ -464,15 +457,8 @@ describe( 'numberFormatCurrency()', () => {
 			let bigMoney = null;
 			let expectation = null;
 			let smallMoney = null;
-			const [ , majorVersion, minorVersion, patchVersion ] =
-				process.version.match( /^v(\d+).(\d+).(\d+)/ );
-			if (
-				parseInt( majorVersion ) > 22 ||
-				( parseInt( majorVersion ) === 22 && parseInt( minorVersion ) > 22 ) ||
-				( parseInt( majorVersion ) === 22 &&
-					parseInt( minorVersion ) === 22 &&
-					parseInt( patchVersion ) >= 1 )
-			) {
+			const [ majorVersion ] = process.versions.cldr.match( /^(\d+).\d+/ );
+			if ( parseInt( majorVersion ) >= 48 ) {
 				smallMoney = numberFormatCurrency( {
 					number: 1072800,
 					currency: 'COP',
@@ -508,15 +494,8 @@ describe( 'numberFormatCurrency()', () => {
 			let bigMoney = null;
 			let expectation = null;
 			let smallMoney = null;
-			const [ , majorVersion, minorVersion, patchVersion ] =
-				process.version.match( /^v(\d+).(\d+).(\d+)/ );
-			if (
-				parseInt( majorVersion ) > 22 ||
-				( parseInt( majorVersion ) === 22 && parseInt( minorVersion ) > 22 ) ||
-				( parseInt( majorVersion ) === 22 &&
-					parseInt( minorVersion ) === 22 &&
-					parseInt( patchVersion ) >= 1 )
-			) {
+			const [ majorVersion ] = process.versions.cldr.match( /^(\d+).\d+/ );
+			if ( parseInt( majorVersion ) >= 48 ) {
 				smallMoney = numberFormatCurrency( {
 					number: 1072800,
 					currency: 'HUF',
@@ -552,15 +531,8 @@ describe( 'numberFormatCurrency()', () => {
 			let bigMoney = null;
 			let expectation = null;
 			let smallMoney = null;
-			const [ , majorVersion, minorVersion, patchVersion ] =
-				process.version.match( /^v(\d+).(\d+).(\d+)/ );
-			if (
-				parseInt( majorVersion ) > 22 ||
-				( parseInt( majorVersion ) === 22 && parseInt( minorVersion ) > 22 ) ||
-				( parseInt( majorVersion ) === 22 &&
-					parseInt( minorVersion ) === 22 &&
-					parseInt( patchVersion ) >= 1 )
-			) {
+			const [ majorVersion ] = process.versions.cldr.match( /^(\d+).\d+/ );
+			if ( parseInt( majorVersion ) >= 48 ) {
 				smallMoney = numberFormatCurrency( {
 					number: 1072800,
 					currency: 'PKR',
