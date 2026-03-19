@@ -285,10 +285,10 @@ const enforceBlockNesting = () => {
 
 	const stepContainer = findStepContainer( formBlock );
 	if ( stepContainer ) {
-		const { getActiveStepId } = select( 'jetpack/forms/single-step' ) as {
-			getActiveStepId: ( formClientId: string ) => string | null;
+		const store = select( 'jetpack/forms/single-step' ) as {
+			getActiveStepId?: ( formClientId: string ) => string | null;
 		};
-		const activeStepId = getActiveStepId( state.formBlockClientId );
+		const activeStepId = store?.getActiveStepId?.( state.formBlockClientId ) ?? null;
 		const activeStep = findActiveStepInContainer( stepContainer, activeStepId );
 		if ( activeStep ) {
 			targetBlock = activeStep;
@@ -329,7 +329,7 @@ const enforceBlockNesting = () => {
 	// Build the new inner blocks array
 	let newInnerBlocks: ReturnType< typeof createBlock >[];
 
-	if ( action.addSubmitButton && targetBlock === formBlock ) {
+	if ( action.targetWasEmpty && targetBlock === formBlock ) {
 		// Form was empty (non-multistep), add a submit button after the moved blocks
 		const submitButton = createBlock( 'core/button', {
 			tagName: 'button',
@@ -339,7 +339,7 @@ const enforceBlockNesting = () => {
 		} );
 
 		newInnerBlocks = [ ...clonedBlocks, submitButton ];
-	} else if ( action.addSubmitButton ) {
+	} else if ( action.targetWasEmpty ) {
 		// Multistep step was empty — just add the blocks without a submit button
 		// (multistep forms use form-step-navigation for submission)
 		newInnerBlocks = clonedBlocks;
