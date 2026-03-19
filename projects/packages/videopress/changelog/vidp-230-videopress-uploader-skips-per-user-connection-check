@@ -1,0 +1,4 @@
+Significance: patch
+Type: security
+
+Add upload_files capability check to VideoPress upload token AJAX handlers.
