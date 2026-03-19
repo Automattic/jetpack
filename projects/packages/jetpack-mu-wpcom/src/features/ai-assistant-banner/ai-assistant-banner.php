@@ -23,7 +23,7 @@ function wpcom_should_show_ai_assistant_banner() {
 		return false;
 	}
 
-	if ( ! function_exists( 'wpcom_site_has_feature' ) || ! wpcom_site_has_feature( WPCOM_Features::AI_ASSISTANT ) ) {
+	if ( ! function_exists( 'wpcom_site_has_feature' ) || ! wpcom_site_has_feature( 'big-sky' ) ) {
 		return false;
 	}
 
@@ -48,7 +48,7 @@ function wpcom_should_show_ai_assistant_banner() {
  */
 function wpcom_render_ai_assistant_banner() {
 	$site_slug = wpcom_get_site_slug();
-	$cta_url   = 'https://wordpress.com/sites/' . $site_slug . '/settings/ai-tools';
+	$cta_url   = wpcom_get_calypso_origin() . '/sites/' . $site_slug . '/settings/ai-tools';
 	$nonce     = wp_create_nonce( 'dismiss_ai_assistant_banner' );
 	?>
 	<div id="wpcom-ai-assistant-banner" class="notice is-dismissible" style="border-left-color: #3858E9;" data-nonce="<?php echo esc_attr( $nonce ); ?>">
@@ -95,13 +95,7 @@ function wpcom_maybe_add_ai_assistant_banner() {
 
 	add_action( 'admin_notices', 'wpcom_render_ai_assistant_banner', 1 );
 
-	wp_enqueue_script(
-		'wpcom-ai-assistant-banner',
-		plugin_dir_url( __FILE__ ) . 'js/ai-assistant-banner.js',
-		array( 'jquery' ),
-		'20250604',
-		true
-	);
+	jetpack_mu_wpcom_enqueue_assets( 'ai-assistant-banner', array( 'js' ) );
 }
 add_action( 'current_screen', 'wpcom_maybe_add_ai_assistant_banner' );
 
