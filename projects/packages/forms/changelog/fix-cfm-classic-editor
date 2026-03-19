@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Force block editor for jetpack_form post type when Classic Editor plugin is active

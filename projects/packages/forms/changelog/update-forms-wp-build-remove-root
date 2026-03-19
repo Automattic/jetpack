@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Remove the root route in favor of PHP redirect.

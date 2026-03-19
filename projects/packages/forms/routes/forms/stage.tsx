@@ -4,8 +4,8 @@
 import { formatNumber } from '@automattic/number-formatters';
 import { Page } from '@wordpress/admin-ui';
 import {
-	__experimentalConfirmDialog as ConfirmDialog, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	Button,
+	__experimentalConfirmDialog as ConfirmDialog, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
@@ -35,6 +35,7 @@ import useDeleteForm from '../../src/dashboard/hooks/use-delete-form.ts';
 import useFormStatusCounts from '../../src/dashboard/hooks/use-form-status-counts.ts';
 import useFormsData, { getFormsListQuery } from '../../src/dashboard/hooks/use-forms-data.ts';
 import WpRouteDashboardSearchParamsProvider from '../../src/dashboard/router/wp-route-dashboard-search-params-provider.tsx';
+import { getFormEditUrl } from '../../src/dashboard/utils.ts';
 import DataViewsHeaderRow from '../../src/dashboard/wp-build/components/dataviews-header-row';
 import FormsHelpModal from '../../src/dashboard/wp-build/components/forms-help-modal';
 import useFormItemActions from '../../src/dashboard/wp-build/hooks/use-form-item-actions';
@@ -86,8 +87,10 @@ function StageInner() {
 		[]
 	);
 	const { refreshIntegrations } = useDispatch( INTEGRATIONS_STORE );
+	const adminUrl = ( useConfigValue( 'adminUrl' ) as string ) || '';
 	const isIntegrationsEnabled = useConfigValue( 'isIntegrationsEnabled' );
 	const showDashboardIntegrations = useConfigValue( 'showDashboardIntegrations' );
+	const hasClassicForms = useConfigValue( 'hasClassicForms' );
 
 	const [ view, setView ] = useState< View >( () => ( {
 		...DEFAULT_VIEW,
@@ -378,10 +381,8 @@ function StageInner() {
 				if ( ! item ) {
 					return;
 				}
-				const fallbackEditUrl = `post.php?post=${ item.id }&action=edit&post_type=jetpack_form`;
-				const editUrl = item.editUrl || fallbackEditUrl;
-				const url = new URL( editUrl, window.location.origin );
-				window.location.href = url.toString();
+				const editUrl = item.editUrl || getFormEditUrl( item.id, adminUrl );
+				window.location.href = editUrl;
 			},
 		} );
 
@@ -523,6 +524,7 @@ function StageInner() {
 
 		return actionsList;
 	}, [
+		adminUrl,
 		copyEmbed,
 		copyShortcode,
 		duplicateForm,
@@ -589,7 +591,7 @@ function StageInner() {
 		actions: headerActions,
 	} = usePageHeaderDetails( {
 		screen: 'forms',
-		formsCount: statusCounts.all,
+		hasClassicForms: !! hasClassicForms,
 		isIntegrationsEnabled: !! isIntegrationsEnabled,
 		showDashboardIntegrations: !! showDashboardIntegrations,
 		onOpenIntegrations: openIntegrationsModal,
@@ -640,9 +642,11 @@ function StageInner() {
 										variant="primary"
 										showIcon={ false }
 									/>
-									<Button size="compact" variant="secondary" onClick={ openFormsHelpModal }>
-										{ __( 'Missing forms?', 'jetpack-forms' ) }
-									</Button>
+									{ hasClassicForms && (
+										<Button size="compact" variant="secondary" onClick={ openFormsHelpModal }>
+											{ __( 'Not seeing all your forms?', 'jetpack-forms' ) }
+										</Button>
+									) }
 								</HStack>
 							}
 						/>
