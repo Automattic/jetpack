@@ -33,7 +33,7 @@ function wpcomsh_remove_gutenberg_experiments() {
 	);
 
 	if ( in_array( $blog_id, $allowed_blogs, true ) ) {
-		// Undo the early filters for allowed blogs so they keep all experiments.
+		// Undo the early filters for allowed blogs so they can still manage Gutenberg experiments.
 		remove_filter( 'default_option_gutenberg-experiments', 'wpcomsh_filter_gutenberg_experiments' );
 		remove_filter( 'option_gutenberg-experiments', 'wpcomsh_filter_gutenberg_experiments' );
 		return;
