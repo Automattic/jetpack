@@ -3,10 +3,11 @@ import { SingleChartContext } from '../../charts/private/single-chart-context';
 import { GlobalChartsContext } from '../../providers';
 import { BaseLegend } from './private';
 import type { LegendProps } from './types';
+import type { ChartType } from '../../types';
 import type { LegendShape } from '@visx/legend/lib/types';
 
 const defaultShapeByChartType: Partial<
-	Record< string, Extract< LegendShape< unknown, unknown >, string > >
+	Record< ChartType, Extract< LegendShape< unknown, unknown >, string > >
 > = {
 	line: 'line',
 	bar: 'rect',

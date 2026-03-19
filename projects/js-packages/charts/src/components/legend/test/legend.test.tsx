@@ -6,6 +6,7 @@ import { SingleChartContext } from '../../../charts/private/single-chart-context
 import { GlobalChartsProvider, useChartId, useChartRegistration } from '../../../providers';
 import { Legend } from '../legend';
 import { BaseLegend } from '../private/base-legend';
+import type { ChartType } from '../../../types';
 import type { LegendProps } from '../types';
 
 const TestShape: LegendProps[ 'shape' ] = props => {
@@ -438,7 +439,13 @@ describe( 'BaseLegend', () => {
 			<span data-testid="custom-shape" style={ { color: props.fill as string } } />
 		);
 
-		const ChartRegistrar = ( { chartType, chartId }: { chartType: string; chartId: string } ) => {
+		const ChartRegistrar = ( {
+			chartType,
+			chartId,
+		}: {
+			chartType: ChartType;
+			chartId: string;
+		} ) => {
 			const resolvedId = useChartId( chartId );
 			const metadata = useMemo( () => ( {} ), [] );
 			useChartRegistration( {
@@ -452,7 +459,7 @@ describe( 'BaseLegend', () => {
 		};
 
 		const renderLegendWithChartType = (
-			chartType: string,
+			chartType: ChartType,
 			explicitShape?: LegendProps[ 'shape' ]
 		) => {
 			const chartId = `test-${ chartType }`;
