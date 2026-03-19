@@ -1,0 +1,4 @@
+Significance: major
+Type: changed
+
+Charts: Add namespaced types and utilities to chart exports (e.g., BarChart.Props, BarChart.Unresponsive, LeaderboardChart.useLegendItems). Remove deprecated flat exports.
