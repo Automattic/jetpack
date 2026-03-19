@@ -93,10 +93,8 @@ export async function handler( argv ) {
 	try {
 		const blueprintPath = buildBlueprint( pluginPath, tmpDir, argv, wpPluginSlug, argv.plugin );
 
-		const port = argv.port ?? 9400;
-
 		const args = [
-			'@wp-playground/cli@^3',
+			'@wp-playground/cli',
 			'server',
 			`--mount=${ pluginPath }:/wordpress/wp-content/plugins/${ wpPluginSlug }`,
 			`--mount=${ packagesPath }:/wordpress/wp-content/packages`,
@@ -119,10 +117,13 @@ export async function handler( argv ) {
 			proc.stdout.on( 'data', data => {
 				process.stdout.write( data );
 
-				// After Playground prints its "Ready!" line, show helpful info.
-				if ( data.toString().includes( 'Ready!' ) ) {
+				// Parse the actual URL from Playground's output
+				// (e.g. "WordPress is running on http://127.0.0.1:9400").
+				const match = data.toString().match( /running on (http:\/\/[^\s]+)/ );
+				if ( match ) {
+					const siteUrl = match[ 1 ].replace( /\/$/, '' );
 					console.log();
-					console.log( `  Admin:  ${ chalk.cyan( `http://127.0.0.1:${ port }/wp-admin/` ) }` );
+					console.log( `  Admin:  ${ chalk.cyan( `${ siteUrl }/wp-admin/` ) }` );
 					console.log( chalk.gray( '  Login:  admin / password' ) );
 					console.log( chalk.gray( '  Stop:   Ctrl+C' ) );
 					console.log();
