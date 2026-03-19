@@ -48,22 +48,6 @@ const WpcomSyncConnectionErrorModal: FC< SyncConnectionErrorModalProps > = () =>
 		} ).catch( () => {} );
 	}
 
-	const isAdmin = config.isAdmin;
-
-	const title = isAdmin
-		? __( 'Allow your team to collaborate', 'jetpack-mu-wpcom' )
-		: __( 'You can\u2019t edit this together yet', 'jetpack-mu-wpcom' );
-
-	const description = isAdmin
-		? __(
-				'Your plan\u2019s collaborator limit has been reached. No room for anyone else right now.',
-				'jetpack-mu-wpcom'
-		  )
-		: __(
-				'Your team is already editing this post and the collaborator limit has been reached. We\u2019ve notified your admin so they can make room.',
-				'jetpack-mu-wpcom'
-		  );
-
 	const siteSlug = config.siteSlug || '';
 	const upgradeUrl = `https://wordpress.com/setup/plan-upgrade/plans?${ new URLSearchParams( {
 		siteSlug,
@@ -71,36 +55,49 @@ const WpcomSyncConnectionErrorModal: FC< SyncConnectionErrorModalProps > = () =>
 		cancel_to: `https://wordpress.com/post/${ siteSlug }/${ config.postId }`,
 	} ).toString() }`;
 
-	const primaryAction = isAdmin
-		? {
-				label: __( 'Upgrade to invite your entire team', 'jetpack-mu-wpcom' ),
-				onClick: () => {
-					window.location.href = upgradeUrl;
-				},
-		  }
-		: {
-				label: __( 'Back to posts', 'jetpack-mu-wpcom' ),
-				onClick: () => {
-					window.location.href = config.postsListUrl;
-				},
-		  };
-
-	const secondaryAction = isAdmin
-		? {
-				label: __( 'Back to posts', 'jetpack-mu-wpcom' ),
-				onClick: () => {
-					window.location.href = config.postsListUrl;
-				},
-		  }
-		: undefined;
+	if ( config.isAdmin ) {
+		return (
+			<RtcNoticeModal
+				isOpen={ true }
+				title={ __( 'Allow your team to collaborate', 'jetpack-mu-wpcom' ) }
+				description={ __(
+					'Your plan\u2019s collaborator limit has been reached. No room for anyone else right now.',
+					'jetpack-mu-wpcom'
+				) }
+				primaryAction={ {
+					label: __( 'Upgrade to invite your entire team', 'jetpack-mu-wpcom' ),
+					onClick: () => {
+						window.location.href = upgradeUrl;
+					},
+				} }
+				secondaryAction={ {
+					label: __( 'Back to posts', 'jetpack-mu-wpcom' ),
+					onClick: () => {
+						window.location.href = config.postsListUrl;
+					},
+				} }
+				onRequestClose={ () => {} }
+				isDismissible={ false }
+				shouldCloseOnClickOutside={ false }
+				className="rtc-notice-modal--limit-reached"
+			/>
+		);
+	}
 
 	return (
 		<RtcNoticeModal
 			isOpen={ true }
-			title={ title }
-			description={ description }
-			primaryAction={ primaryAction }
-			secondaryAction={ secondaryAction }
+			title={ __( 'You can\u2019t edit this together yet', 'jetpack-mu-wpcom' ) }
+			description={ __(
+				'Your team is already editing this post and the collaborator limit has been reached. We\u2019ve notified your admin so they can make room.',
+				'jetpack-mu-wpcom'
+			) }
+			primaryAction={ {
+				label: __( 'Back to posts', 'jetpack-mu-wpcom' ),
+				onClick: () => {
+					window.location.href = config.postsListUrl;
+				},
+			} }
 			onRequestClose={ () => {} }
 			isDismissible={ false }
 			shouldCloseOnClickOutside={ false }
