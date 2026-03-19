@@ -51,6 +51,9 @@ const CacheDebugLog = () => {
 	return (
 		<BoostAdminPage breadcrumbs={ breadcrumbs }>
 			<div id="jb-dashboard" className="jb-dashboard jb-dashboard--main">
+				<div className="jb-container">
+					<div id="jp-admin-notices" className="jetpack-boost-jitm-card" />
+				</div>
 				<div className={ clsx( 'jb-section jb-section--main', styles.section ) }>
 					<div className="jb-container">
 						<header className={ styles.header }>
