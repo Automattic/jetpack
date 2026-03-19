@@ -33,6 +33,8 @@ export default function DashboardPage( { isLoading = false } ) {
 	useSelect( select => select( STORE_ID ).getSearchModuleStatus(), [] );
 	useSelect( select => select( STORE_ID ).getSearchStats(), [] );
 
+	const apiRoot = useSelect( select => select( STORE_ID ).getAPIRootUrl() );
+	const apiNonce = useSelect( select => select( STORE_ID ).getAPINonce() );
 	const domain = useSelect( select => select( STORE_ID ).getCalypsoSlug() );
 	const blogID = useSelect( select => select( STORE_ID ).getBlogId() );
 	const siteAdminUrl = useSelect( select => select( STORE_ID ).getSiteAdminUrl() );
@@ -121,6 +123,8 @@ export default function DashboardPage( { isLoading = false } ) {
 						</Button>
 					)
 				}
+				apiRoot={ apiRoot }
+				apiNonce={ apiNonce }
 				className="uses-new-admin-ui"
 				showFooter={ false }
 			>
