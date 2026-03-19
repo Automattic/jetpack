@@ -519,11 +519,6 @@ Display series information with automatic color matching:
 	code={ `<LineChart
 		data={data}
 		showLegend={true}
-		legend={{
-			orientation: 'horizontal',
-			alignment: 'center',
-			position: 'bottom',
-		}}
 	/>` }
 />
 
@@ -536,31 +531,22 @@ Use different shapes and custom glyphs in legends:
 	code={ `<LineChart
 		data={data}
 		showLegend={true}
-		legend={{
-			alignment: 'end',
-			position: 'top',
-			shape: 'circle',
-		}}
 		withLegendGlyph={true}
 	/>` }
 />
 
 ### Interactive Legends
 
-Enable interactive legends that allow users to toggle series visibility by clicking or using keyboard navigation. This feature requires wrapping your chart in `GlobalChartsProvider` and providing a unique `chartId`:
+Enable interactive legends that allow users to toggle series visibility by clicking or using keyboard navigation:
 
 <Source
 	language="jsx"
-	code={ `import { GlobalChartsProvider, LineChart } from '@automattic/charts';
-
-	<GlobalChartsProvider>
-		<LineChart
-			data={data}
-			chartId="sales-chart"
-			showLegend={true}
-			legend={{ interactive: true }}
-		/>
-	</GlobalChartsProvider>` }
+	code={ `<LineChart
+	data={data}
+	chartId="sales-chart"
+	showLegend={true}
+	legend={{ interactive: true }}
+/>` }
 />
 
 **Interactive Legend Features:**
@@ -571,11 +557,8 @@ Enable interactive legends that allow users to toggle series visibility by click
 - **Color Stability**: Series colors remain consistent when toggling visibility
 
 **Requirements:**
-- Must be wrapped in `GlobalChartsProvider`
-- Must provide a unique `chartId` prop
+- Provide a unique `chartId` prop
 - Set `legend={{ interactive: true }}` and `showLegend={true}`
-
-**Note:** Interactive legends are currently supported for both LineChart and BarChart. Support for additional chart types will be added in future releases.
 
 ## Theming Integration
 
