@@ -5,9 +5,8 @@ import { BaseLegend } from './private';
 import type { LegendProps } from './types';
 import type { LegendShape } from '@visx/legend/lib/types';
 
-const defaultShapeByChartType: Record<
-	string,
-	Extract< LegendShape< unknown, unknown >, string >
+const defaultShapeByChartType: Partial<
+	Record< string, Extract< LegendShape< unknown, unknown >, string > >
 > = {
 	line: 'line',
 	bar: 'rect',
