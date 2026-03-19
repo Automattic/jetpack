@@ -351,11 +351,12 @@ export const ErrorStatesAndEdgeCases: Story = {
 		<div style={ { display: 'grid', gap: '2rem', gridTemplateColumns: 'repeat(2, 1fr)' } }>
 			<div>
 				<h3>Empty Data</h3>
-				<PieChart data={ [] } />
+				<PieChart height={ 300 } data={ [] } />
 			</div>
 			<div>
 				<h3>Negative Values</h3>
 				<PieChart
+					height={ 300 }
 					data={ [
 						{ label: 'A', value: -30 },
 						{ label: 'B', value: 130 },
