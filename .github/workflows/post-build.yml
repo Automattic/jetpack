@@ -287,10 +287,11 @@ jobs:
           name: ${{ needs.find_artifact.outputs.artifact_name }}
           github-token: ${{ github.token }}
           run-id: ${{ github.event.workflow_run.id }}
+          path: ${{ runner.temp }}/artifact/
 
       - name: Extract build artifact
         env:
-          ARTIFACT_FILENAME: ${{ needs.find_artifact.outputs.artifact_filename }}
+          ARTIFACT_FILENAME: ${{ runner.temp }}/artifact/${{ needs.find_artifact.outputs.artifact_filename }}
         shell: bash
         run: tar --xz -xvvf "$ARTIFACT_FILENAME" build/plugins.tsv
 
@@ -354,10 +355,11 @@ jobs:
           name: ${{ needs.find_artifact.outputs.artifact_name }}
           github-token: ${{ github.token }}
           run-id: ${{ github.event.workflow_run.id }}
+          path: ${{ runner.temp }}/artifact/
 
       - name: Extract build artifact
         env:
-          ARTIFACT_FILENAME: ${{ needs.find_artifact.outputs.artifact_filename }}
+          ARTIFACT_FILENAME: ${{ runner.temp }}/artifact/${{ needs.find_artifact.outputs.artifact_filename }}
         shell: bash
         run: tar --xz -xvvf "$ARTIFACT_FILENAME" build
 
@@ -442,10 +444,11 @@ jobs:
           name: ${{ needs.find_artifact.outputs.artifact_name }}
           github-token: ${{ github.token }}
           run-id: ${{ github.event.workflow_run.id }}
+          path: ${{ runner.temp }}/artifact/
 
       - name: Extract build artifact
         env:
-          ARTIFACT_FILENAME: ${{ needs.find_artifact.outputs.artifact_filename }}
+          ARTIFACT_FILENAME: ${{ runner.temp }}/artifact/${{ needs.find_artifact.outputs.artifact_filename }}
         shell: bash
         run: tar --xz -xvvf "$ARTIFACT_FILENAME" build
 
