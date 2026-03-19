@@ -44,6 +44,11 @@ function wpcom_enqueue_rtc_notices_assets() {
 		return;
 	}
 
+	// Don't show notices if the user has turned off RTC in Writing Settings.
+	if ( ! get_option( 'wp_enable_real_time_collaboration', false ) ) {
+		return;
+	}
+
 	$handle = jetpack_mu_wpcom_enqueue_assets( 'gutenberg-rtc-notices', array( 'js', 'css' ) );
 	wp_set_script_translations( $handle, 'jetpack-mu-wpcom' );
 
