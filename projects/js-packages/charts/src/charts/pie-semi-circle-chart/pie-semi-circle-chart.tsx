@@ -245,8 +245,7 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 	// Define accessors with useMemo to avoid changing dependencies
 	const accessors = useMemo(
 		() => ( {
-			// Use value for slice sizing - percentages are calculated from values
-			pieValue: ( d: DataPointPercentage ) => d.value,
+			value: ( d: DataPointPercentage ) => d.value,
 			sort: (
 				a: DataPointPercentage & { index: number },
 				b: DataPointPercentage & { index: number }
@@ -428,7 +427,7 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 											{ /* Pie chart */ }
 											<Pie< DataPointPercentage & { index: number } >
 												data={ dataWithIndex }
-												pieValue={ accessors.pieValue }
+												pieValue={ accessors.value }
 												outerRadius={ radius }
 												innerRadius={ innerRadius }
 												cornerRadius={ 3 }

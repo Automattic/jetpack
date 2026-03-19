@@ -273,8 +273,7 @@ const PieChartInternal = ( {
 	} );
 
 	const accessors = {
-		// Use value for slice sizing - percentages are calculated from values
-		pieValue: ( d: DataPointPercentage ) => d.value,
+		value: ( d: DataPointPercentage ) => d.value,
 		fill: ( d: DataPointPercentage & { index: number } ) => {
 			return getElementStyles( { data: d, index: d.index } ).color;
 		},
@@ -384,7 +383,7 @@ const PieChartInternal = ( {
 									) : (
 										<Pie< DataPointPercentage & { index: number } >
 											data={ dataWithIndex }
-											pieValue={ accessors.pieValue }
+											pieValue={ accessors.value }
 											outerRadius={ outerRadius }
 											innerRadius={ innerRadius }
 											padAngle={ padAngle }
