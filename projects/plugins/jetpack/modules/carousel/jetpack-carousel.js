@@ -272,7 +272,9 @@
 		}
 
 		function stripHTML( text ) {
-			return text.replace( /<[^>]*>?/gm, '' );
+			var tmp = document.createElement( 'div' );
+			tmp.innerHTML = text.replace( /<[^>]*>?/gm, '' );
+			return tmp.textContent;
 		}
 
 		return {
