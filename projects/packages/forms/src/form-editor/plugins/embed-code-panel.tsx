@@ -1,35 +1,27 @@
 /**
  * External dependencies
  */
-import { Button } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { PluginPostStatusInfo } from '@wordpress/editor';
-import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
 import { getEmbedCode, getShortcode } from '../../blocks/shared/util/embed-codes';
 import { CopyCodeRow } from './copy-code-row';
-import { EmbedFormModal } from './embed-form-modal';
 
 export const EMBED_CODE_PANEL_PLUGIN = 'jetpack-form-embed-code-panel';
 
 /**
  * Embed Code Panel component.
  *
- * Adds post status info rows with the embed code and shortcode, each with a copy button,
- * plus an "Embed Form" button that opens the embed modal.
+ * Adds post status info rows with the embed code and shortcode, each with a copy button.
  * Rendered only in the jetpack_form post editor; post-type scoping is handled by
  * registration logic in form-editor/index.tsx.
  *
  * @return {JSX.Element|null} The embed code panel or null.
  */
 export const EmbedCodePanel = () => {
-	const [ isModalOpen, setIsModalOpen ] = useState( false );
-	const handleOpenModal = useCallback( () => setIsModalOpen( true ), [] );
-	const handleCloseModal = useCallback( () => setIsModalOpen( false ), [] );
-
 	const { postId, postStatus } = useSelect( select => {
 		const editor = select( 'core/editor' ) as {
 			getCurrentPostId: () => number;
@@ -59,15 +51,7 @@ export const EmbedCodePanel = () => {
 			<div className="jetpack-form-embed-code__rows">
 				<CopyCodeRow text={ embedCode } label={ __( 'Embed code', 'jetpack-forms' ) } />
 				<CopyCodeRow text={ shortcode } label={ __( 'Shortcode', 'jetpack-forms' ) } />
-				<Button
-					variant="secondary"
-					onClick={ handleOpenModal }
-					className="jetpack-form-embed-code__embed-button"
-				>
-					{ __( 'Embed Form', 'jetpack-forms' ) }
-				</Button>
 			</div>
-			<EmbedFormModal isOpen={ isModalOpen } onClose={ handleCloseModal } />
 		</PluginPostStatusInfo>
 	);
 };
