@@ -5,8 +5,11 @@
 		justify-content: center;
 	}
 
-	.jetpack-form-embed-form__step {
-		animation: jetpack-form-embed-form-fade-in 0.3s ease;
+	@media ( prefers-reduced-motion: no-preference ) {
+
+		.jetpack-form-embed-form__step {
+			animation: jetpack-form-embed-form-fade-in 0.3s ease;
+		}
 	}
 
 	// Wrapper for the combobox: positioned absolutely so the dropdown
