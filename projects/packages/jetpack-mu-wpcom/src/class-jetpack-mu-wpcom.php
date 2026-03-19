@@ -435,6 +435,7 @@ class Jetpack_Mu_Wpcom {
 		}
 
 		require_once __DIR__ . '/features/gutenberg-rtc/gutenberg-rtc.php';
+		require_once __DIR__ . '/features/gutenberg-rtc-notices/gutenberg-rtc-notices.php';
 		require_once __DIR__ . '/features/jetpack-global-styles/class-global-styles.php';
 		require_once __DIR__ . '/features/mailerlite/subscriber-popup.php';
 		require_once __DIR__ . '/features/wpcom-fse/wpcom-fse.php';
