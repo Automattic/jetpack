@@ -200,7 +200,13 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( {
 	const getElementStyles = useCallback< GlobalChartsContextValue[ 'getElementStyles' ] >(
 		( { data, index, overrideColor, legendShape } ) => {
 			const isSeriesData = data && typeof data === 'object' && 'data' in data && 'options' in data;
-			const isPointPercentageData = data && typeof data === 'object' && 'percentage' in data;
+			// DataPointPercentage has a numeric 'value' directly, unlike SeriesData which has 'data' array
+			const isPointPercentageData =
+				data &&
+				typeof data === 'object' &&
+				'value' in data &&
+				typeof data.value === 'number' &&
+				! ( 'data' in data );
 
 			return {
 				color: resolveColor( {

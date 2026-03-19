@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Charts: Make `percentage` optional in DataPointPercentage. Percentages are now calculated from `value`, aligning with industry-standard charting libraries (Chart.js, Recharts, D3).
+Charts: Remove `percentage` from DataPointPercentage interface. Percentages are now calculated automatically from `value`, aligning with industry-standard charting libraries (Chart.js, Recharts, D3).

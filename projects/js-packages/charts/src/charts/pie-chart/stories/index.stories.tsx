@@ -219,9 +219,9 @@ export const WithCompositionLegend: Story = {
 export const CompositionAPI: Story = {
 	render: args => {
 		const chartData = args.data || [
-			{ label: 'Desktop', value: 45, percentage: 45 },
-			{ label: 'Mobile', value: 30, percentage: 30 },
-			{ label: 'Tablet', value: 25, percentage: 25 },
+			{ label: 'Desktop', value: 45 },
+			{ label: 'Mobile', value: 30 },
+			{ label: 'Tablet', value: 25 },
 		];
 
 		return (
@@ -311,21 +311,18 @@ export const CustomLabelColors: Story = {
 				label: 'Desktop',
 				value: 45000,
 				valueDisplay: '45K',
-				percentage: 45,
 				color: '#FF6B6B', // Light red segment
 			},
 			{
 				label: 'Mobile',
 				value: 35000,
 				valueDisplay: '35K',
-				percentage: 35,
 				color: '#4ECDC4', // Light teal segment
 			},
 			{
 				label: 'Tablet',
 				value: 20000,
 				valueDisplay: '20K',
-				percentage: 20,
 				color: '#45B7D1', // Light blue segment
 			},
 		],
@@ -357,26 +354,26 @@ export const ErrorStates: Story = {
 				<PieChart data={ [] } />
 			</div>
 			<div>
-				<h3>Invalid Percentage Total</h3>
+				<h3>Partial Values</h3>
 				<PieChart
 					data={ [
-						{ label: 'A', value: 30, percentage: 30 },
-						{ label: 'B', value: 40, percentage: 40 },
-					] } // Only adds up to 70%
+						{ label: 'A', value: 30 },
+						{ label: 'B', value: 40 },
+					] }
 				/>
 			</div>
 			<div>
 				<h3>Negative Values</h3>
 				<PieChart
 					data={ [
-						{ label: 'A', value: -30, percentage: -30 },
-						{ label: 'B', value: 130, percentage: 130 },
+						{ label: 'A', value: -30 },
+						{ label: 'B', value: 130 },
 					] }
 				/>
 			</div>
 			<div>
 				<h3>Single Data Point</h3>
-				<PieChart height={ 300 } data={ [ { label: 'A', value: 100, percentage: 100 } ] } />
+				<PieChart height={ 300 } data={ [ { label: 'A', value: 100 } ] } />
 			</div>
 		</div>
 	),
