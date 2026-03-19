@@ -81,9 +81,13 @@ function wpcom_add_launch_button_to_admin_bar( WP_Admin_Bar $admin_bar ) {
  * Enqueue the necessary styles for the admin bar button.
  */
 function wpcom_enqueue_launch_button_styles() {
-	if ( ! current_user_can( 'manage_options' ) ) {
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- This is a context check, not a form submission.
+	$is_preview = isset( $_GET['preview'] ) && 'true' === sanitize_text_field( wp_unslash( $_GET['preview'] ) );
+
+	if ( ! current_user_can( 'manage_options' ) || $is_preview ) {
 		return;
 	}
+
 	$version = filemtime( __DIR__ . '/style.css' );
 	wp_enqueue_style( 'launch-banner', plugins_url( 'style.css', __FILE__ ), array(), $version );
 	$asset_file = include Jetpack_Mu_Wpcom::BASE_DIR . 'build/adminbar-launch-button/adminbar-launch-button.asset.php';
