@@ -58,6 +58,7 @@ export type { PieChartProps, PieChartRenderTooltipParams } from './charts/pie-ch
 export type {
 	PieSemiCircleChartProps,
 	PieSemiCircleChartRenderTooltipParams,
+	ArcData,
 } from './charts/pie-semi-circle-chart';
 export type { SparklineProps, GradientConfig, SparklineDataPoint } from './charts/sparkline';
 export type {
