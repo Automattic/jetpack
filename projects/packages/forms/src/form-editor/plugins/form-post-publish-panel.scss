@@ -27,6 +27,28 @@
 		animation: jetpack-form-post-publish-fade-in 0.3s ease;
 	}
 
+	// Allow the ComboboxControl dropdown to extend beyond the modal.
+	&,
+	.components-modal__content {
+		overflow: visible;
+	}
+
+	.components-combobox-control {
+		position: relative;
+	}
+
+	.components-form-token-field__suggestions-list {
+		position: absolute;
+		z-index: 100000;
+		background: #fff;
+		width: 100%;
+		box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+		border: 1px solid #ddd;
+		border-top: none;
+		max-height: 200px;
+		overflow-y: auto;
+	}
+
 	@keyframes jetpack-form-post-publish-fade-in {
 
 		from {
@@ -38,6 +60,18 @@
 			opacity: 1;
 			transform: translateY(0);
 		}
+	}
+
+	.jetpack-form-post-publish__code-input input {
+		font-family: monospace;
+		font-size: 12px;
+		background: #fff;
+	}
+
+	.jetpack-form-post-publish__hint {
+		margin: 0;
+		font-size: 12px;
+		color: #757575;
 	}
 
 	.jetpack-form-post-publish__separator {
