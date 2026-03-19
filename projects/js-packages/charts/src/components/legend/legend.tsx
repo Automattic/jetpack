@@ -3,8 +3,12 @@ import { SingleChartContext } from '../../charts/private/single-chart-context';
 import { GlobalChartsContext } from '../../providers';
 import { BaseLegend } from './private';
 import type { LegendProps } from './types';
+import type { LegendShape } from '@visx/legend/lib/types';
 
-const defaultShapeByChartType: Record< string, 'rect' | 'circle' | 'line' > = {
+const defaultShapeByChartType: Record<
+	string,
+	Extract< LegendShape< unknown, unknown >, string >
+> = {
 	line: 'line',
 	bar: 'rect',
 	pie: 'circle',
