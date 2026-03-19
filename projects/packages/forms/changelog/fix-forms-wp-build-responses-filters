@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix DataViews filters missing in wp-build Responses tab due to duplicate module instance from pnpm peer dependency resolution
