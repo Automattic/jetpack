@@ -226,7 +226,7 @@ function zeroBSCRM_AJAX_mailDelivery_validateWPMail() {
 
 	// } Perms?
 	if ( ! zeroBSCRM_permsMailCampaigns() ) {
-		wp_send_json( array( 'permserror' => 1 ), null, JSON_UNESCAPED_SLASHES );
+		wp_send_json( array( 'permserror' => 1 ), 403, JSON_UNESCAPED_SLASHES );
 	}
 
 	// } Retrieve...
@@ -301,7 +301,7 @@ function zeroBSCRM_AJAX_mailDelivery_validateWPMail() {
 					if ( ! isset( $existing_mail_delivery_methods[ $settingsKey ] ) ) {
 						$existing_mail_delivery_methods[ $settingsKey ] = $settingsArr;
 					} else {
-						wp_send_json( array( 'keyerror' => 1 ), null, JSON_UNESCAPED_SLASHES );
+						wp_send_json( array( 'keyerror' => 1 ), 200, JSON_UNESCAPED_SLASHES );
 					}
 
 					// } Update
@@ -334,7 +334,7 @@ function zeroBSCRM_AJAX_mailDelivery_validateWPMail() {
 
 	}
 
-	wp_send_json( $res, null, JSON_UNESCAPED_SLASHES );
+	wp_send_json( $res, 200, JSON_UNESCAPED_SLASHES );
 }
 
 // } Attempts to validate mail delivery SMTP settings, send test email, & save's if validated
@@ -439,7 +439,7 @@ function zeroBSCRM_AJAX_mailDelivery_validateSMTP() {
 										),
 									),
 								),
-								null,
+								200,
 								JSON_UNESCAPED_SLASHES
 							);
 						}
@@ -488,7 +488,7 @@ function zeroBSCRM_AJAX_mailDelivery_validateSMTP() {
 
 	}
 
-	wp_send_json( $res, null, JSON_UNESCAPED_SLASHES );
+	wp_send_json( $res, 200, JSON_UNESCAPED_SLASHES );
 }
 
 // } quickly checks if ports are open (pre smtp check)
@@ -556,7 +556,7 @@ function zeroBSCRM_AJAX_mailDelivery_validateSMTPPorts() {
 	}
 
 	$res['open'] = $okay;
-	wp_send_json( $res, null, JSON_UNESCAPED_SLASHES );
+	wp_send_json( $res, 200, JSON_UNESCAPED_SLASHES );
 }
 
 /*
@@ -572,7 +572,7 @@ function jpcrm_ajax_mail_delivery_validate_api_oauth() {
 
 	// Permission check
 	if ( ! zeroBSCRM_permsMailCampaigns() ) {
-		wp_send_json( array( 'permserror' => 1 ), null, JSON_UNESCAPED_SLASHES );
+		wp_send_json( array( 'permserror' => 1 ), 403, JSON_UNESCAPED_SLASHES );
 	}
 
 	// return
@@ -708,7 +708,7 @@ function jpcrm_ajax_mail_delivery_validate_api_oauth() {
 	}
 
 	// return
-	wp_send_json( $return, null, JSON_UNESCAPED_SLASHES );
+	wp_send_json( $return, 200, JSON_UNESCAPED_SLASHES );
 }
 
 // } Attempts to send a test email from a stored mail delivery method
@@ -739,7 +739,7 @@ function zeroBSCRM_AJAX_mailDelivery_testEmail() {
 	// validate the email
 	if ( ! zeroBSCRM_validateEmail( $sendToEmail ) ) {
 		$res['message'] = 'Not a valid email';
-		wp_send_json( $res, null, JSON_UNESCAPED_SLASHES );
+		wp_send_json( $res, 200, JSON_UNESCAPED_SLASHES );
 	}
 
 	// } Check id + perms + em
@@ -778,7 +778,7 @@ function zeroBSCRM_AJAX_mailDelivery_testEmail() {
 	$sent = zeroBSCRM_mailDelivery_sendMessage( $mailDeliveryIndxKey, $mailArray );
 	if ( is_array( $sent ) && $sent[0] ) {
 		// fini
-		wp_send_json( $res, null, JSON_UNESCAPED_SLASHES );
+		wp_send_json( $res, 200, JSON_UNESCAPED_SLASHES );
 	}
 
 	// error
@@ -864,7 +864,7 @@ function zeroBSCRM_AJAX_mailDelivery_removeMailDelivery() {
 
 	}
 
-	wp_send_json( $res, null, JSON_UNESCAPED_SLASHES );
+	wp_send_json( $res, 200, JSON_UNESCAPED_SLASHES );
 }
 
 // } Attempts to set a delivery route default

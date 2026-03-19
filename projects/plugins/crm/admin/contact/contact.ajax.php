@@ -9,12 +9,12 @@ function jpcrm_update_meta_ajax() {
 
 	// check perms
 	if ( ! zeroBSCRM_permsCustomers() ) {
-		wp_send_json_error( null, null, JSON_UNESCAPED_SLASHES );
+		wp_send_json_error( null, 403, JSON_UNESCAPED_SLASHES );
 	}
 
 	// check for params; note that we may want an empty value
 	if ( empty( $_POST['contact_id'] ) || empty( $_POST['meta_key'] ) ) {
-		wp_send_json_error( null, null, JSON_UNESCAPED_SLASHES );
+		wp_send_json_error( null, 200, JSON_UNESCAPED_SLASHES );
 	}
 
 	$valid_meta_keys = array( 'do-not-email' );
@@ -23,7 +23,7 @@ function jpcrm_update_meta_ajax() {
 
 	// check for valid meta key
 	if ( ! in_array( $meta_key, $valid_meta_keys, true ) ) {
-		wp_send_json_error( null, null, JSON_UNESCAPED_SLASHES );
+		wp_send_json_error( null, 200, JSON_UNESCAPED_SLASHES );
 	}
 
 	global $zbs;
@@ -41,9 +41,9 @@ function jpcrm_update_meta_ajax() {
 
 	}
 	if ( $success ) {
-		wp_send_json_success( null, null, JSON_UNESCAPED_SLASHES );
+		wp_send_json_success( null, 200, JSON_UNESCAPED_SLASHES );
 	} else {
-		wp_send_json_error( null, null, JSON_UNESCAPED_SLASHES );
+		wp_send_json_error( null, 200, JSON_UNESCAPED_SLASHES );
 	}
 }
 add_action( 'wp_ajax_jpcrm_update_meta', 'jpcrm_update_meta_ajax' );
@@ -106,7 +106,7 @@ function zeroBSCRM_generateClientPortalUser() { // phpcs:ignore WordPress.Naming
 			$m['message'] = 'WordPress User Created';
 			$m['success'] = true;
 			$m['user_id'] = $created;
-			wp_send_json( $m, null, JSON_UNESCAPED_SLASHES );
+			wp_send_json( $m, 200, JSON_UNESCAPED_SLASHES );
 		} else {
 
 			// if has wp id, & contact ID is set
@@ -120,7 +120,7 @@ function zeroBSCRM_generateClientPortalUser() { // phpcs:ignore WordPress.Naming
 			$m['message'] = __( 'User already exists or invalid email!', 'zero-bs-crm' );
 			$m['success'] = false;
 			$m['email']   = $email;
-			wp_send_json( $m, null, JSON_UNESCAPED_SLASHES );
+			wp_send_json( $m, 200, JSON_UNESCAPED_SLASHES );
 		}
 	}
 }
@@ -149,7 +149,7 @@ function zeroBSCRM_AJAX_zbsPortalAction() { // phpcs:ignore WordPress.NamingConv
 					zeroBSCRM_customerPortalDisableEnable( $contact_id, 'enable' );
 
 					// send success
-					wp_send_json( array( 'success' => 1 ), null, JSON_UNESCAPED_SLASHES );
+					wp_send_json( array( 'success' => 1 ), 200, JSON_UNESCAPED_SLASHES );
 
 					break;
 				// disable
@@ -158,7 +158,7 @@ function zeroBSCRM_AJAX_zbsPortalAction() { // phpcs:ignore WordPress.NamingConv
 					zeroBSCRM_customerPortalDisableEnable( $contact_id, 'disable' );
 
 					// send success
-					wp_send_json( array( 'success' => 1 ), null, JSON_UNESCAPED_SLASHES );
+					wp_send_json( array( 'success' => 1 ), 200, JSON_UNESCAPED_SLASHES );
 
 					break;
 				// Reset client portal password
@@ -172,7 +172,7 @@ function zeroBSCRM_AJAX_zbsPortalAction() { // phpcs:ignore WordPress.NamingConv
 							'success' => 1,
 							'pw'      => $newpw,
 						),
-						null,
+						200,
 						JSON_UNESCAPED_SLASHES
 					);
 

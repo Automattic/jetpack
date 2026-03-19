@@ -37,4 +37,4 @@ $args       = array(
 global $zbs;
 $transactions = $zbs->DAL->transactions->getTransactions( $args ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 
-wp_send_json( $transactions, null, JSON_UNESCAPED_SLASHES );
+wp_send_json( $transactions, 200, JSON_UNESCAPED_SLASHES );

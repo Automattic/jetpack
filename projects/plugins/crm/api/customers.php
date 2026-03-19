@@ -95,7 +95,7 @@ $args = array(
 
 $customers = $zbs->DAL->contacts->getContacts( $args );
 
-wp_send_json( $customers, null, JSON_UNESCAPED_SLASHES );
+wp_send_json( $customers, 200, JSON_UNESCAPED_SLASHES );
 
 // phpcs:enabled WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 

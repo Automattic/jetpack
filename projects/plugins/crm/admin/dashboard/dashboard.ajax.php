@@ -140,7 +140,7 @@ function jetpackcrm_dash_refresh() {
 		'chart'   => $chart,
 	);
 
-	wp_send_json( $r, null, JSON_UNESCAPED_SLASHES );
+	wp_send_json( $r, 200, JSON_UNESCAPED_SLASHES );
 }
 add_action( 'wp_ajax_jetpackcrm_dash_refresh', 'jetpackcrm_dash_refresh' );
 
@@ -169,7 +169,7 @@ function jpcrm_dash_setting() {
 			update_user_meta( $current_user_id, $setting_key, $is_checked );
 
 			// No rights or failed key match
-			wp_send_json( array( 'fini' => 1 ), null, JSON_UNESCAPED_SLASHES );
+			wp_send_json( array( 'fini' => 1 ), 200, JSON_UNESCAPED_SLASHES );
 		}
 	}
 

@@ -212,12 +212,12 @@ if (
 		}
 
 		// return
-		wp_send_json( $return_params, null, JSON_UNESCAPED_SLASHES );
+		wp_send_json( $return_params, 200, JSON_UNESCAPED_SLASHES );
 
 	} else {
 
 		// fail.
-		wp_send_json( array( 'error' => 100 ), null, JSON_UNESCAPED_SLASHES );
+		wp_send_json( array( 'error' => 100 ), 200, JSON_UNESCAPED_SLASHES );
 
 	}
 }

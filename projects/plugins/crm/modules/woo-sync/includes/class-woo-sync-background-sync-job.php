@@ -515,7 +515,7 @@ class Woo_Sync_Background_Sync_Job {
 						'orders_imported'      => 0,
 						'percentage_completed' => 0,
 					),
-					null,
+					200,
 					JSON_UNESCAPED_SLASHES
 				);
 			}

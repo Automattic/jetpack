@@ -35,7 +35,7 @@ foreach ( $required_fields as $field ) {
 				'error'   => 400,
 				'message' => 'Missing required field: ' . $field,
 			),
-			null,
+			200,
 			JSON_UNESCAPED_SLASHES
 		);
 		exit( 0 );
@@ -231,12 +231,12 @@ if ( ! empty( $orderid ) ) {
 		}
 
 		// return
-		wp_send_json( $return_params, null, JSON_UNESCAPED_SLASHES );
+		wp_send_json( $return_params, 200, JSON_UNESCAPED_SLASHES );
 
 	} else {
 
 		// fail.
-		wp_send_json( array( 'error' => 100 ), null, JSON_UNESCAPED_SLASHES );
+		wp_send_json( array( 'error' => 100 ), 200, JSON_UNESCAPED_SLASHES );
 
 	}
 }

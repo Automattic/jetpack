@@ -470,5 +470,5 @@ function zeroBSCRM_notifyme_get_notifications_ajax() {
 		$res['notifybody']  = 'This is the body';
 		$res['count']       = count( $res['notifications'] );
 	}
-	wp_send_json( $res, null, JSON_UNESCAPED_SLASHES );
+	wp_send_json( $res, 200, JSON_UNESCAPED_SLASHES );
 }

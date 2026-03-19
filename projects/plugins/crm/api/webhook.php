@@ -71,4 +71,4 @@ if ( ! in_array( $webhook_action, $valid_webhook_actions ) ) {
 do_action( 'jpcrm_webhook_' . $webhook_action, $webhook_data );
 
 // by default, send success, but the action can override this
-wp_send_json_success( null, null, JSON_UNESCAPED_SLASHES );
+wp_send_json_success( null, 200, JSON_UNESCAPED_SLASHES );

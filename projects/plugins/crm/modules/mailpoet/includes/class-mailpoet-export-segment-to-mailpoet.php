@@ -182,7 +182,7 @@ class Mailpoet_Export_Segment_To_MailPoet {
 											'go_to_mailpoet_list' => __( 'Go to MailPoet', 'zero-bs-crm' ),
 										),
 									),
-									null,
+									200,
 									JSON_UNESCAPED_SLASHES
 								);
 							}
@@ -196,7 +196,7 @@ class Mailpoet_Export_Segment_To_MailPoet {
 									'error_message' => $th->getMessage(),
 								),
 							),
-							null,
+							200,
 							JSON_UNESCAPED_SLASHES
 						);
 					}
@@ -212,7 +212,7 @@ class Mailpoet_Export_Segment_To_MailPoet {
 							'error_message' => __( 'The segment could not be exported to MailPoet', 'zero-bs-crm' ),
 						),
 					),
-					null,
+					200,
 					JSON_UNESCAPED_SLASHES
 				);
 			}
@@ -263,7 +263,7 @@ class Mailpoet_Export_Segment_To_MailPoet {
 								'current_page'  => $page,
 								'is_last_batch' => $is_last_batch,
 							),
-							null,
+							200,
 							JSON_UNESCAPED_SLASHES
 						);
 
@@ -279,7 +279,7 @@ class Mailpoet_Export_Segment_To_MailPoet {
 									'error_message' => __( 'The segment could not be exported to MailPoet', 'zero-bs-crm' ),
 								),
 							),
-							null,
+							200,
 							JSON_UNESCAPED_SLASHES
 						);
 
@@ -296,7 +296,7 @@ class Mailpoet_Export_Segment_To_MailPoet {
 											'error_message' => __( 'The segment could not be exported to MailPoet', 'zero-bs-crm' ),
 										),
 									),
-									null,
+									200,
 									JSON_UNESCAPED_SLASHES
 								);
 
@@ -339,10 +339,10 @@ class Mailpoet_Export_Segment_To_MailPoet {
 
 					if ( ! is_array( $list_details ) ) {
 						// nope
-						wp_send_json( false, null, JSON_UNESCAPED_SLASHES );
+						wp_send_json( false, 200, JSON_UNESCAPED_SLASHES );
 					} else {
 						// success
-						wp_send_json( $list_details, null, JSON_UNESCAPED_SLASHES );
+						wp_send_json( $list_details, 200, JSON_UNESCAPED_SLASHES );
 					}
 				} catch ( \Throwable $th ) {
 					wp_send_json_error( array( 'fail' => 1 ), 500, JSON_UNESCAPED_SLASHES );

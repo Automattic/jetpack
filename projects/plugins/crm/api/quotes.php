@@ -46,4 +46,4 @@ $args = array(
 
 $quotes = $zbs->DAL->quotes->getQuotes( $args );
 
-wp_send_json( $quotes, null, JSON_UNESCAPED_SLASHES );
+wp_send_json( $quotes, 200, JSON_UNESCAPED_SLASHES );

@@ -15,7 +15,7 @@ function jpcrm_mailpoet_ajax_import_subscribers() {
 
 	// if something's returned, output via AJAX
 	// (Mostly `background_sync->sync_subscribers()` will do this automatically)
-	wp_send_json( $return, null, JSON_UNESCAPED_SLASHES );
+	wp_send_json( $return, 200, JSON_UNESCAPED_SLASHES );
 }
 
 // import subscribers AJAX

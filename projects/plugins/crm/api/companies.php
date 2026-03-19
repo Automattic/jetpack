@@ -71,4 +71,4 @@ $args = array(
 global $zbs;
 $companies = $zbs->DAL->companies->getCompanies( $args ); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable,WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 
-wp_send_json( $companies, null, JSON_UNESCAPED_SLASHES );
+wp_send_json( $companies, 200, JSON_UNESCAPED_SLASHES );
