@@ -327,7 +327,7 @@ export default function InboxView( { parentId, pageTitle, pageSubtitle } = {} ) 
 				? [
 						{
 							id: 'folder',
-							label: __( 'Folder', 'jetpack-forms' ),
+							label: __( 'Status', 'jetpack-forms' ),
 							elements: [
 								{ label: __( 'Inbox', 'jetpack-forms' ), value: 'inbox' },
 								{ label: __( 'Spam', 'jetpack-forms' ), value: 'spam' },

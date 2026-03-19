@@ -338,7 +338,7 @@ function StageInner() {
 				: [
 						{
 							id: 'folder',
-							label: __( 'Folder', 'jetpack-forms' ),
+							label: __( 'Status', 'jetpack-forms' ),
 							elements: [
 								{
 									label: sprintf(

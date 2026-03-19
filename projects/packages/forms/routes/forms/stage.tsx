@@ -632,7 +632,7 @@ function StageInner() {
 						<EmptyWrapper
 							heading={ __( "You're set up. No forms yet.", 'jetpack-forms' ) }
 							body={ __(
-								'Create a shared form pattern to manage and reuse it across your site.',
+								'Create a form to manage and reuse it across your site.',
 								'jetpack-forms'
 							) }
 							actions={

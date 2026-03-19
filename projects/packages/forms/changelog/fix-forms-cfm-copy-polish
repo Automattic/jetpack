@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Improve dashboard copy: replace 'shared form pattern' with 'form', rename 'Folder' filter to 'Status', and use 'Form name' label in create modal.

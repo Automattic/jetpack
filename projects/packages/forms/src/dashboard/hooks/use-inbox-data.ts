@@ -21,7 +21,7 @@ import type { FormResponse, ResponseField, ResponseFields } from '../../types/in
  * This is the only way to filter the data by `status`.
  *
  * Note: When Central Form Management (CFM) is enabled, the UI can expose a
- * "Folder" DataViews filter that syncs its value to the URL `status` param.
+ * "Status" DataViews filter that syncs its value to the URL `status` param.
  *
  * @param {string} urlStatus - The current status from the URL.
  * @return {string} The status filter to apply.

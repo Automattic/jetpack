@@ -62,7 +62,7 @@ export type FormNameModalProps = {
 
 	/**
 	 * Label for the input field.
-	 * @default "Name"
+	 * @default "Form name"
 	 */
 	inputLabel?: string;
 
@@ -151,7 +151,7 @@ export function FormNameModal( {
 		<Modal title={ title } onRequestClose={ handleClose } size="medium">
 			<form onSubmit={ onSubmitForm }>
 				<TextControl
-					label={ inputLabel || __( 'Name', 'jetpack-forms' ) }
+					label={ inputLabel || __( 'Form name', 'jetpack-forms' ) }
 					value={ name }
 					onChange={ setName }
 					__next40pxDefaultSize
