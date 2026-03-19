@@ -15,6 +15,10 @@ import { useState, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import RtcNoticeModal from '../rtc-notice-modal';
 
+interface SyncConnectionStatus {
+	status: string;
+}
+
 const RtcWelcomeNotice = () => {
 	const config = window.wpcomRtcNotices;
 
@@ -23,9 +27,10 @@ const RtcWelcomeNotice = () => {
 	// Don't show the welcome notice if the sync connection is lost (e.g. room
 	// limit reached). The limit-reached modal should take priority.
 	const isDisconnected = useSelect( select => {
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		const status = ( select( 'core' ) as any ).getSyncConnectionStatus?.();
-		return status?.status === 'disconnected';
+		const coreStore = select( 'core' ) as {
+			getSyncConnectionStatus?: () => SyncConnectionStatus | undefined;
+		};
+		return coreStore.getSyncConnectionStatus?.()?.status === 'disconnected';
 	}, [] );
 
 	const dismissNotice = useCallback( () => {
