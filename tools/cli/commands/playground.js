@@ -57,20 +57,6 @@ export async function handler( argv ) {
 		}
 	}
 
-	// Warn if @wp-playground/cli needs to be downloaded (first run).
-	const playgroundCheck = child_process.spawnSync(
-		'npx',
-		[ '--no-install', '@wp-playground/cli@^3', '--version' ],
-		{ stdio: 'ignore' }
-	);
-	if ( playgroundCheck.status !== 0 ) {
-		console.log(
-			chalk.yellow(
-				'@wp-playground/cli is not yet cached. The first run will download it, which may take a moment.'
-			)
-		);
-	}
-
 	const pluginPath = projectDir( `plugins/${ argv.plugin }` );
 
 	// Read the plugin slug from composer.json so the mount path inside
