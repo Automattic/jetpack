@@ -487,10 +487,15 @@ describe( 'BaseLegend', () => {
 			renderLegendWithChartType( 'bar' );
 			expect( screen.getByRole( 'list' ) ).toBeInTheDocument();
 
-			const html = document.body.innerHTML;
-			expect( html ).toContain( 'background:' );
-			expect( html ).not.toContain( '<line' );
-			expect( html ).not.toContain( '<circle' );
+			// visx ShapeRect renders a <div> with inline background style inside
+			// .visx-legend-shape. No testids or roles on these elements, so direct
+			// node access is necessary.
+			// eslint-disable-next-line testing-library/no-node-access
+			const shapes = document.querySelectorAll( '.visx-legend-shape > div' );
+			expect( shapes ).toHaveLength( 2 );
+			shapes.forEach( shape => {
+				expect( ( shape as HTMLElement ).style.background ).toBeTruthy();
+			} );
 		} );
 
 		it( 'uses circle shape for pie chart type', () => {
