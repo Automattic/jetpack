@@ -49,8 +49,11 @@ function registerRoomLimitFilter(): void {
 	);
 }
 
+// Room-limit enforcement always runs (it stops polling, sends join requests).
+// The branded modals are gated behind enableLimitNotices.
+registerRoomLimitFilter();
+
 if ( enableLimitNotices ) {
-	registerRoomLimitFilter();
 	registerConnectionErrorModalFilter();
 }
 
