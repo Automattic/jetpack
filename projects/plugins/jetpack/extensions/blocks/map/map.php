@@ -127,11 +127,90 @@ function load_assets( $attr, $content ) {
 	Jetpack_Gutenberg::load_assets_as_required( __DIR__ );
 
 	$map_provider = get_map_provider( $content );
-	if ( $map_provider === 'mapkit' ) {
-		return preg_replace( '/<div /', '<div data-map-provider="mapkit" data-api-key="' . esc_attr( $access_token['key'] ) . '"  data-blog-id="' . \Jetpack_Options::get_option( 'id' ) . '" ', $content, 1 );
+
+	return rebuild_map_block_div( $attr, $content, $map_provider, $access_token );
+}
+
+/**
+ * Rebuild the map block div to move large JSON data from HTML attributes
+ * into an inline JS payload, keeping the DOM lightweight.
+ *
+ * @param array  $attr         Array containing the map block attributes.
+ * @param string $content      String containing the map block content.
+ * @param string $map_provider The map provider (mapbox or mapkit).
+ * @param array  $access_token The Mapbox/MapKit access token data.
+ *
+ * @return string
+ */
+function rebuild_map_block_div( $attr, $content, $map_provider, $access_token ) {
+	static $did_inline = false;
+
+	$block_id = wp_unique_id( 'jp-map-' );
+
+	// Extract map-style from the saved HTML since it's no longer a block attribute
+	// (was deprecated and converted to CSS class names like is-style-terrain).
+	$map_style = 'default';
+	if ( preg_match( '/data-map-style="([^"]*)"/', $content, $matches ) ) {
+		$map_style = $matches[1];
 	}
 
-	return preg_replace( '/<div /', '<div data-map-provider="mapbox" data-api-key="' . esc_attr( $access_token['key'] ) . '" ', $content, 1 );
+	$classes = array( 'wp-block-jetpack-map' );
+	if ( ! empty( $attr['align'] ) ) {
+		$classes[] = 'align' . $attr['align'];
+	}
+	if ( ! empty( $attr['className'] ) ) {
+		$classes[] = $attr['className'];
+	}
+
+	// Keep the tag small: no giant JSON in attributes.
+	$data_attrs = array(
+		'class'             => implode( ' ', $classes ),
+		'data-map-id'       => $block_id,
+		'data-map-provider' => $map_provider,
+		'data-api-key'      => $access_token['key'],
+		'data-map-style'    => $map_style,
+	);
+
+	if ( 'mapkit' === $map_provider ) {
+		$data_attrs['data-blog-id'] = \Jetpack_Options::get_option( 'id' );
+	}
+
+	// Put everything else in the JS payload (including points).
+	$payload = array(
+		'points'               => $attr['points'] ?? null,
+		'zoom'                 => $attr['zoom'] ?? null,
+		'mapCenter'            => $attr['mapCenter'] ?? null,
+		'markerColor'          => $attr['markerColor'] ?? null,
+		'scrollToZoom'         => $attr['scrollToZoom'] ?? null,
+		'mapDetails'           => $attr['mapDetails'] ?? null,
+		'mapHeight'            => $attr['mapHeight'] ?? null,
+		'showFullscreenButton' => $attr['showFullscreenButton'] ?? null,
+		'mapStyle'             => $map_style,
+	);
+
+	$handle = 'jetpack-block-map';
+
+	// Seed global once.
+	if ( ! $did_inline ) {
+		wp_add_inline_script( $handle, 'window.JetpackMapBlockData = window.JetpackMapBlockData || {};', 'before' );
+		$did_inline = true;
+	}
+
+	// Add this block's payload keyed by ID.
+	wp_add_inline_script(
+		$handle,
+		'window.JetpackMapBlockData[' . wp_json_encode( $block_id, JSON_HEX_TAG | JSON_HEX_AMP ) . '] = ' . wp_json_encode( $payload, JSON_HEX_TAG | JSON_HEX_AMP ) . ';',
+		'before'
+	);
+
+	$div_open = '<div';
+	foreach ( $data_attrs as $key => $value ) {
+		$div_open .= ' ' . $key . '="' . esc_attr( $value ) . '"';
+	}
+	$div_open .= '>';
+
+	$result = preg_replace( '/<div[^>]*>/', $div_open, $content, 1 );
+	return $result ?? $content;
 }
 
 /**
