@@ -68,7 +68,7 @@ function jpcrm_woosync_ajax_get_auth_url() {
 
 	// Check perms
 	if ( ! zeroBSCRM_isZBSAdminOrAdmin() ) {
-		wp_send_json_error( array(), 500 );
+		wp_send_json_error( array(), 500, JSON_UNESCAPED_SLASHES );
 	}
 
 	// retrieve params
@@ -83,11 +83,13 @@ function jpcrm_woosync_ajax_get_auth_url() {
 			wp_send_json(
 				array(
 					'target_url' => $zbs->modules->woosync->get_external_woo_url_for_oauth( $site_url ),
-				)
+				),
+				null,
+				JSON_UNESCAPED_SLASHES
 			);
 		}
 	}
 
-	wp_send_json_error( array(), 500 );
+	wp_send_json_error( array(), 500, JSON_UNESCAPED_SLASHES );
 }
 add_action( 'wp_ajax_jpcrm_woosync_get_auth_url', 'jpcrm_woosync_ajax_get_auth_url' );

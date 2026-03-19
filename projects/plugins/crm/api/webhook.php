@@ -26,7 +26,7 @@ function jpcrm_api_invalid_webhook() {
 		'status'  => __( 'Invalid webhook request', 'zero-bs-crm' ),
 		'message' => __( 'Please ensure you are using the proper webhook action name and that the webhook is enabled in the CRM.', 'zero-bs-crm' ),
 	);
-	wp_send_json_error( $reply, 400 );
+	wp_send_json_error( $reply, 400, JSON_UNESCAPED_SLASHES );
 }
 
 // Check the method
@@ -71,4 +71,4 @@ if ( ! in_array( $webhook_action, $valid_webhook_actions ) ) {
 do_action( 'jpcrm_webhook_' . $webhook_action, $webhook_data );
 
 // by default, send success, but the action can override this
-wp_send_json_success();
+wp_send_json_success( null, null, JSON_UNESCAPED_SLASHES );

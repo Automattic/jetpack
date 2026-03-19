@@ -31,7 +31,7 @@ if ( ! defined( 'ZEROBSCRM_PATH' ) ) {
 function jpcrm_hide_woo_promo() {
 	if ( current_user_can( 'activate_plugins' ) ) {
 		$option = update_option( 'jpcrm_hide_woo_promo', 'hide', false );
-		wp_send_json_success();
+		wp_send_json_success( null, null, JSON_UNESCAPED_SLASHES );
 	}
 }
 
@@ -39,7 +39,7 @@ function jpcrm_hide_woo_promo() {
 function jpcrm_hide_track_notice() {
 	if ( current_user_can( 'activate_plugins' ) ) {
 		$option = update_option( 'jpcrm_hide_track_notice', 'hide', false );
-		wp_send_json_success();
+		wp_send_json_success( null, null, JSON_UNESCAPED_SLASHES );
 	}
 }
 
@@ -48,7 +48,7 @@ function jpcrm_hide_feature_alert() {
 	if ( current_user_can( 'activate_plugins' ) && isset( $_POST['feature_alert'] ) ) {
 		$option = 'jpcrm_hide_' . sanitize_text_field( $_POST['feature_alert'] );
 		update_option( $option, true, false );
-		wp_send_json_success();
+		wp_send_json_success( null, null, JSON_UNESCAPED_SLASHES );
 	}
 }
 
@@ -65,7 +65,7 @@ function zbs_create_email_templates() {
 	} else {
 		$m['message'] = 'no permissions';
 	}
-	wp_send_json( $m );
+	wp_send_json( $m, null, JSON_UNESCAPED_SLASHES );
 }
 
 	// save email template
@@ -153,7 +153,7 @@ function zbs_save_email_status() {
 		$m['message'] = 'no perms';
 	}
 
-	wp_send_json( $m );
+	wp_send_json( $m, null, JSON_UNESCAPED_SLASHES );
 	// nonce field is zbs-save-email_active
 }
 
@@ -180,7 +180,7 @@ function zeroBSCRM_AJAX_logClose() {
 		update_option( 'zbs_closers_' . $potentialKey, time(), false );
 	}
 
-	wp_send_json( array( 'fini' => 1 ) );
+	wp_send_json( array( 'fini' => 1 ), null, JSON_UNESCAPED_SLASHES );
 }
 
 	/*
@@ -231,7 +231,7 @@ function jpcrm_set_jpcrm_transient() {
 		}
 	}
 
-	wp_send_json( array( 'fini' => 1 ) );
+	wp_send_json( array( 'fini' => 1 ), null, JSON_UNESCAPED_SLASHES );
 }
 
 	// } Feedback
@@ -245,7 +245,7 @@ function zeroBSCRM_AJAX_markFeedback() {
 		}
 		update_option( 'zbsfeedback', $feedbackVal, false );
 	}
-	wp_send_json( array( 'fini' => 1 ) );
+	wp_send_json( array( 'fini' => 1 ), null, JSON_UNESCAPED_SLASHES );
 }
 
 	// } Retrieve list of invoice deets for customer ID
@@ -274,7 +274,7 @@ function zeroBSCRM_AJAX_getCustInvs() {
 		}
 	}
 
-	wp_send_json( $ret );
+	wp_send_json( $ret, null, JSON_UNESCAPED_SLASHES );
 }
 
 	// } Remove file
@@ -333,7 +333,9 @@ function zeroBSCRM_removeFile() {
 		array(
 			'res'    => $res,
 			'errors' => $errors,
-		)
+		),
+		null,
+		JSON_UNESCAPED_SLASHES
 	);
 }
 
@@ -348,7 +350,7 @@ function zeroBSCRM_AJAX_filterCustomers() {
 	check_ajax_referer( 'zbscrmjs-ajax-nonce', 'sec' );
 
 	if ( ! zeroBSCRM_permsCustomers() ) {
-		wp_send_json( array( 'processed' => -1 ) );
+		wp_send_json( array( 'processed' => -1 ), null, JSON_UNESCAPED_SLASHES );
 	}
 
 	// } Running this auto-pulls POSTED filters + finds customers
@@ -361,7 +363,7 @@ function zeroBSCRM_AJAX_filterCustomers() {
 		$res                      = zeroBS__customerFiltersRetrieveCustomerCountAndTopCustomers();
 		$res['filters_in_effect'] = $zbsCustomerFiltersInEffect;
 
-	wp_send_json( $res );
+	wp_send_json( $res, null, JSON_UNESCAPED_SLASHES );
 }
 
 	// Add log
@@ -375,7 +377,7 @@ function zeroBSCRM_AJAX_addLog() {
 
 	// brutal
 	if ( ! zeroBSCRM_permsCustomers() ) {
-		wp_send_json( array( 'processed' => -1 ) );
+		wp_send_json( array( 'processed' => -1 ), null, JSON_UNESCAPED_SLASHES );
 	}
 
 	global $zbs;
@@ -439,7 +441,7 @@ function zeroBSCRM_AJAX_addLog() {
 
 	}
 
-	wp_send_json( array( 'processed' => $res ) );
+	wp_send_json( array( 'processed' => $res ), null, JSON_UNESCAPED_SLASHES );
 }
 
 	// Update log
@@ -453,7 +455,7 @@ function zeroBSCRM_AJAX_updateLog() {
 
 	// brutal
 	if ( ! zeroBSCRM_permsLogsAddEdit() ) {
-		wp_send_json( array( 'processed' => -1 ) );
+		wp_send_json( array( 'processed' => -1 ), null, JSON_UNESCAPED_SLASHES );
 	}
 
 	global $zbs;
@@ -530,7 +532,7 @@ function zeroBSCRM_AJAX_updateLog() {
 		}
 	}
 
-	wp_send_json( array( 'processed' => $res ) );
+	wp_send_json( array( 'processed' => $res ), null, JSON_UNESCAPED_SLASHES );
 }
 
 	// } Del log
@@ -546,7 +548,7 @@ function zeroBSCRM_AJAX_deleteLog() {
 	// from 2.94.2 uses sub perms
 	// if (!zeroBSCRM_permsCustomers()) exit('{processed:-1}');
 	if ( ! zeroBSCRM_permsLogsDelete() ) {
-		wp_send_json( array( 'processed' => -1 ) );
+		wp_send_json( array( 'processed' => -1 ), null, JSON_UNESCAPED_SLASHES );
 	}
 	// if (!current_user_can('edit_page', $post_id)) return;
 
@@ -567,7 +569,7 @@ function zeroBSCRM_AJAX_deleteLog() {
 		$res = $zbs->DAL->logs->deleteLog( array( 'id' => $zbsNoteID ) ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase,WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 	}
 
-	wp_send_json( array( 'processed' => $res ) );
+	wp_send_json( array( 'processed' => $res ), null, JSON_UNESCAPED_SLASHES );
 }
 
 	// Pin log
@@ -581,7 +583,7 @@ function jpcrm_ajax_pin_log() {
 	check_ajax_referer( 'zbscrmjs-ajax-nonce-logs', 'sec' );
 
 	if ( ! zeroBSCRM_permsLogsDelete() ) {
-		wp_send_json( array( processed => false ) );
+		wp_send_json( array( processed => false ), null, JSON_UNESCAPED_SLASHES );
 	}
 
 	// Retrieve vars - this allows notes against ALL post types (just by id)
@@ -602,7 +604,7 @@ function jpcrm_ajax_pin_log() {
 
 	}
 
-	wp_send_json( array( 'processed' => $res ) );
+	wp_send_json( array( 'processed' => $res ), null, JSON_UNESCAPED_SLASHES );
 }
 
 	// Un-Pin log
@@ -616,7 +618,7 @@ function jpcrm_ajax_unpin_log() {
 	check_ajax_referer( 'zbscrmjs-ajax-nonce-logs', 'sec' );
 
 	if ( ! zeroBSCRM_permsLogsDelete() ) {
-		wp_send_json( array( processed => false ) );
+		wp_send_json( array( processed => false ), null, JSON_UNESCAPED_SLASHES );
 	}
 
 	// Retrieve vars - this allows notes against ALL post types (just by id)
@@ -637,7 +639,7 @@ function jpcrm_ajax_unpin_log() {
 
 	}
 
-	wp_send_json( array( 'processed' => $res ) );
+	wp_send_json( array( 'processed' => $res ), null, JSON_UNESCAPED_SLASHES );
 }
 
 /*
@@ -663,10 +665,10 @@ function ZeroBSCRM_get_quote_template() {
 
 	// } brutal
 	if ( ! zeroBSCRM_permsCustomers() ) {
-		wp_send_json( array( 'processed' => -1 ) );
+		wp_send_json( array( 'processed' => -1 ), null, JSON_UNESCAPED_SLASHES );
 	}
 	if ( ! zeroBSCRM_permsQuotes() ) {
-		wp_send_json( array( 'processed' => -1 ) );
+		wp_send_json( array( 'processed' => -1 ), null, JSON_UNESCAPED_SLASHES );
 	}
 
 	// } Retrive deets
@@ -834,13 +836,13 @@ function ZeroBSCRM_get_quote_template() {
 			$content['template_notes'] = $quote_template['notes'];
 
 			// } return
-			wp_send_json( $content );
+			wp_send_json( $content, null, JSON_UNESCAPED_SLASHES );
 
 		} // / if content
 
 	} // / if vars
 
-	wp_send_json( array( 'error' => 1 ) );
+	wp_send_json( array( 'error' => 1 ), null, JSON_UNESCAPED_SLASHES );
 }
 
 // Send a quote via email
@@ -852,10 +854,10 @@ function jpcrm_ajax_quote_send_email() {
 
 	// Check Permissions
 	if ( ! zeroBSCRM_permsCustomers() ) {
-		wp_send_json( array( 'processed' => -1 ) );
+		wp_send_json( array( 'processed' => -1 ), null, JSON_UNESCAPED_SLASHES );
 	}
 	if ( ! zeroBSCRM_permsQuotes() ) {
-		wp_send_json( array( 'processed' => -1 ) );
+		wp_send_json( array( 'processed' => -1 ), null, JSON_UNESCAPED_SLASHES );
 	}
 
 	// Retrive details
@@ -886,12 +888,12 @@ function jpcrm_ajax_quote_send_email() {
 
 	// validate the email
 	if ( ! zeroBSCRM_validateEmail( $target_email ) || empty( $target_email ) ) {
-		wp_send_json_error( array( 'message' => __( 'Invalid email', 'zero-bs-crm' ) ), 400 );
+		wp_send_json_error( array( 'message' => __( 'Invalid email', 'zero-bs-crm' ) ), 400, JSON_UNESCAPED_SLASHES );
 	}
 
 	// Check id
 	if ( $quoteID == -1 ) {
-		wp_send_json_error( array( 'message' => __( 'Invalid parameters', 'zero-bs-crm' ) ), 400 );
+		wp_send_json_error( array( 'message' => __( 'Invalid parameters', 'zero-bs-crm' ) ), 400, JSON_UNESCAPED_SLASHES );
 	}
 
 	global $zbs;
@@ -1030,11 +1032,11 @@ function jpcrm_ajax_quote_send_email() {
 		if ( $sent ) {
 
 			// send result
-			wp_send_json( array( 'message' => 'sent' ) );
+			wp_send_json( array( 'message' => 'sent' ), null, JSON_UNESCAPED_SLASHES );
 
 		}
 		// send err
-		wp_send_json_error( array( 'message' => __( 'not sent', 'zero-bs-crm' ) ), 500 );
+		wp_send_json_error( array( 'message' => __( 'not sent', 'zero-bs-crm' ) ), 500, JSON_UNESCAPED_SLASHES );
 }
 
 /**
@@ -1052,7 +1054,7 @@ function ZeroBSCRM_accept_quote() {
 
 	// } Got quote ID?
 	if ( empty( $quoteID ) || $quoteID < 0 ) {
-		wp_send_json_error( array( 'noparams' => 1 ), 400 );
+		wp_send_json_error( array( 'noparams' => 1 ), 400, JSON_UNESCAPED_SLASHES );
 	} // / posted data
 
 	// If nonced & has quote id, verify user can 'accept'
@@ -1075,20 +1077,20 @@ function ZeroBSCRM_accept_quote() {
 		if ( ! $can ) {
 			// Require login
 			if ( ! is_user_logged_in() ) {
-				wp_send_json_error( array( 'access' => 1 ), 403 );
+				wp_send_json_error( array( 'access' => 1 ), 403, JSON_UNESCAPED_SLASHES );
 			}
 			// Resolve IDs safely
 			$customer_id      = (int) zeroBS_getCustomerIDWithEmail( $uinfo->user_email );
 			$quote_contact_id = (int) $zbs->DAL->quotes->getQuoteContactID( $quoteID ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase,WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 			// Both IDs must exist and match
 			if ( $customer_id <= 0 || $quote_contact_id <= 0 || $customer_id !== $quote_contact_id ) {
-				wp_send_json_error( array( 'access' => 1 ), 403 );
+				wp_send_json_error( array( 'access' => 1 ), 403, JSON_UNESCAPED_SLASHES );
 			}
 		}
 	} else {
 		$quote_from_hash = zeroBSCRM_quotes_getFromHash( $quoteHash );
 		if ( ! $quote_from_hash['success'] || $quoteID !== (int) $quote_from_hash['data']['ID'] ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-			wp_send_json_error( array( 'hash' => 1 ), 403 );
+			wp_send_json_error( array( 'hash' => 1 ), 403, JSON_UNESCAPED_SLASHES );
 		}
 	}
 
@@ -1111,7 +1113,7 @@ function ZeroBSCRM_accept_quote() {
 	} // / if email notification active
 
 	// success
-	wp_send_json( array( 'success' => 1 ) );
+	wp_send_json( array( 'success' => 1 ), null, JSON_UNESCAPED_SLASHES );
 }
 
 /*
@@ -1187,7 +1189,7 @@ function zbs_lead_form_views() {
 	$form_id    = (int) sanitize_text_field( $_POST['id'] );
 	$form_views = $zbs->DAL->forms->add_form_view( $form_id );
 
-	wp_send_json( array( 'view_logged' => 'true' ) );
+	wp_send_json( array( 'view_logged' => 'true' ), null, JSON_UNESCAPED_SLASHES );
 }
 	add_action( 'wp_ajax_nopriv_zbs_lead_form_views', 'zbs_lead_form_views' );
 	add_action( 'wp_ajax_zbs_lead_form_views', 'zbs_lead_form_views' );
@@ -1256,7 +1258,7 @@ function zbs_lead_form_capture() {
 			// } AXE IT
 			$r['message'] = 'Nope.';
 			$r['code']    = 'recaptcha';
-			wp_send_json( $r );
+			wp_send_json( $r, null, JSON_UNESCAPED_SLASHES );
 
 		}
 	}
@@ -1273,7 +1275,7 @@ function zbs_lead_form_capture() {
 		// } AXE IT
 		$r['message'] = 'Nope.';
 		$r['code']    = 'form';
-		wp_send_json( $r );
+		wp_send_json( $r, null, JSON_UNESCAPED_SLASHES );
 
 	}
 
@@ -1283,7 +1285,7 @@ function zbs_lead_form_capture() {
 		// then this is likely a spambot who has filled in the form since its hidden from humans
 		$r['message'] = 'This is a honeypot.. something has gone wrong can alert the member on response';
 		$r['code']    = 'honey';
-		wp_send_json( $r );
+		wp_send_json( $r, null, JSON_UNESCAPED_SLASHES );
 	} else {
 
 		// } Added here: REQUIRE email...
@@ -1297,7 +1299,7 @@ function zbs_lead_form_capture() {
 			// } AXE IT
 			$r['message'] = 'Email Required.';
 			$r['code']    = 'emailfail';
-			wp_send_json( $r );
+			wp_send_json( $r, null, JSON_UNESCAPED_SLASHES );
 
 		}
 
@@ -1571,7 +1573,7 @@ function zbs_lead_form_capture() {
 			// return
 			$r['message'] = 'Contact received.';
 			$r['code']    = 'success';
-			wp_send_json( $r );
+			wp_send_json( $r, null, JSON_UNESCAPED_SLASHES );
 
 	}
 }
@@ -1605,7 +1607,7 @@ function zeroBSCRM_AJAX_addAlias() {
 
 	// } Check perms
 	if ( ! zeroBSCRM_permsCustomers() ) {
-		wp_send_json( array( 'err' => 1 ) );
+		wp_send_json( array( 'err' => 1 ), null, JSON_UNESCAPED_SLASHES );
 	}
 
 	// } Proceed :)
@@ -1639,12 +1641,12 @@ function zeroBSCRM_AJAX_addAlias() {
 		}
 
 		// } Return
-		wp_send_json( $passback );
+		wp_send_json( $passback, null, JSON_UNESCAPED_SLASHES );
 
 	}
 
 		// err really :o
-		wp_send_json( array() );
+		wp_send_json( array(), null, JSON_UNESCAPED_SLASHES );
 }
 	add_action( 'wp_ajax_removeAlias', 'zeroBSCRM_AJAX_removeAlias' );
 function zeroBSCRM_AJAX_removeAlias() {
@@ -1654,7 +1656,7 @@ function zeroBSCRM_AJAX_removeAlias() {
 
 	// } Check perms
 	if ( ! zeroBSCRM_permsCustomers() ) {
-		wp_send_json( array( 'err' => 1 ) );
+		wp_send_json( array( 'err' => 1 ), null, JSON_UNESCAPED_SLASHES );
 	}
 
 	// } Proceed :)
@@ -1679,12 +1681,12 @@ function zeroBSCRM_AJAX_removeAlias() {
 		// } For now, no checks :)
 
 			// } Return
-			wp_send_json( $passback );
+			wp_send_json( $passback, null, JSON_UNESCAPED_SLASHES );
 
 	}
 
 		// err really :o
-		wp_send_json( array() );
+		wp_send_json( array(), null, JSON_UNESCAPED_SLASHES );
 }
 
 /*
@@ -1708,7 +1710,7 @@ function zeroBSCRM_AJAX_updateListViewColumns() {
 
 	// } Check perms
 	if ( ! zeroBSCRM_isZBSAdminOrAdmin() ) {
-		wp_send_json( array( 'err' => 1 ) );
+		wp_send_json( array( 'err' => 1 ), null, JSON_UNESCAPED_SLASHES );
 	}
 
 		global $zbs;
@@ -1751,7 +1753,7 @@ function zeroBSCRM_AJAX_updateListViewColumns() {
 			$zbs->settings->update( 'customviews2', $newCustomViews );
 
 			// } Return
-			wp_send_json( $passback );
+			wp_send_json( $passback, null, JSON_UNESCAPED_SLASHES );
 
 			break;
 
@@ -1778,7 +1780,7 @@ function zeroBSCRM_AJAX_updateListViewColumns() {
 			$zbs->settings->update( 'customviews2', $newCustomViews );
 
 			// } Return
-			wp_send_json( $passback );
+			wp_send_json( $passback, null, JSON_UNESCAPED_SLASHES );
 
 			break;
 
@@ -1805,7 +1807,7 @@ function zeroBSCRM_AJAX_updateListViewColumns() {
 			$zbs->settings->update( 'customviews2', $newCustomViews );
 
 			// } Return
-			wp_send_json( $passback );
+			wp_send_json( $passback, null, JSON_UNESCAPED_SLASHES );
 
 			break;
 
@@ -1832,7 +1834,7 @@ function zeroBSCRM_AJAX_updateListViewColumns() {
 			$zbs->settings->update( 'customviews2', $newCustomViews );
 
 			// } Return
-			wp_send_json( $passback );
+			wp_send_json( $passback, null, JSON_UNESCAPED_SLASHES );
 
 			break;
 
@@ -1859,7 +1861,7 @@ function zeroBSCRM_AJAX_updateListViewColumns() {
 			$zbs->settings->update( 'customviews2', $newCustomViews );
 
 			// } Return
-			wp_send_json( $passback );
+			wp_send_json( $passback, null, JSON_UNESCAPED_SLASHES );
 
 			break;
 
@@ -1886,7 +1888,7 @@ function zeroBSCRM_AJAX_updateListViewColumns() {
 			$zbs->settings->update( 'customviews2', $newCustomViews );
 
 			// } Return
-			wp_send_json( $passback );
+			wp_send_json( $passback, null, JSON_UNESCAPED_SLASHES );
 
 			break;
 
@@ -1913,7 +1915,7 @@ function zeroBSCRM_AJAX_updateListViewColumns() {
 			$zbs->settings->update( 'customviews2', $newCustomViews );
 
 			// } Return
-			wp_send_json( $passback );
+			wp_send_json( $passback, null, JSON_UNESCAPED_SLASHES );
 
 			break;
 
@@ -1938,13 +1940,13 @@ function zeroBSCRM_AJAX_updateListViewColumns() {
 			$zbs->settings->update( 'customviews2', $newCustomViews );
 
 			// } Return
-			wp_send_json( $passback );
+			wp_send_json( $passback, null, JSON_UNESCAPED_SLASHES );
 
 			break;
 
 		default:
 			// err really :o
-			wp_send_json( array() );
+			wp_send_json( array(), null, JSON_UNESCAPED_SLASHES );
 
 			break;
 
@@ -2078,25 +2080,25 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 
 		// } check perms first
 		if ( $listViewParams['listtype'] == 'customer' && ! zeroBSCRM_permsViewCustomers() ) {
-			wp_send_json_error( array( 'no-action-or-rights' => 1 ), 500 );
+			wp_send_json_error( array( 'no-action-or-rights' => 1 ), 500, JSON_UNESCAPED_SLASHES );
 		}
 		if ( $listViewParams['listtype'] == 'company' && ! zeroBSCRM_permsViewCustomers() ) {
-			wp_send_json_error( array( 'no-action-or-rights' => 1 ), 500 );
+			wp_send_json_error( array( 'no-action-or-rights' => 1 ), 500, JSON_UNESCAPED_SLASHES );
 		}
 		if ( $listViewParams['listtype'] == 'segment' && ! zeroBSCRM_permsViewCustomers() ) {
-			wp_send_json_error( array( 'no-action-or-rights' => 1 ), 500 );
+			wp_send_json_error( array( 'no-action-or-rights' => 1 ), 500, JSON_UNESCAPED_SLASHES );
 		}
 		if ( $listViewParams['listtype'] == 'quote' && ! zeroBSCRM_permsViewQuotes() ) {
-			wp_send_json_error( array( 'no-action-or-rights' => 1 ), 500 );
+			wp_send_json_error( array( 'no-action-or-rights' => 1 ), 500, JSON_UNESCAPED_SLASHES );
 		}
 		if ( $listViewParams['listtype'] == 'quotetemplate' && ! zeroBSCRM_permsViewQuotes() ) {
-			wp_send_json_error( array( 'no-action-or-rights' => 1 ), 500 );
+			wp_send_json_error( array( 'no-action-or-rights' => 1 ), 500, JSON_UNESCAPED_SLASHES );
 		}
 		if ( $listViewParams['listtype'] == 'invoice' && ! zeroBSCRM_permsViewInvoices() ) {
-			wp_send_json_error( array( 'no-action-or-rights' => 1 ), 500 );
+			wp_send_json_error( array( 'no-action-or-rights' => 1 ), 500, JSON_UNESCAPED_SLASHES );
 		}
 		if ( $listViewParams['listtype'] == 'transaction' && ! zeroBSCRM_permsViewTransactions() ) {
-			wp_send_json_error( array( 'no-action-or-rights' => 1 ), 500 );
+			wp_send_json_error( array( 'no-action-or-rights' => 1 ), 500, JSON_UNESCAPED_SLASHES );
 		}
 
 		// } Check for screen options (perpage)
@@ -3621,7 +3623,7 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 
 		// debug $res = array(isset($listViewParams),gettype($listViewParams) == 'array',isset($listViewParams['listtype']));
 
-		wp_send_json( $res );
+		wp_send_json( $res, null, JSON_UNESCAPED_SLASHES );
 }
 
 	// } Enact some bulk action :)
@@ -3643,7 +3645,7 @@ function zeroBSCRM_AJAX_enactListViewBulkAction() {
 			'status'  => __( 'Forbidden', 'zero-bs-crm' ),
 			'message' => __( 'You do not have permission to access this resource.', 'zero-bs-crm' ),
 		);
-		wp_send_json_error( $reply, 403 );
+		wp_send_json_error( $reply, 403, JSON_UNESCAPED_SLASHES );
 	}
 
 	// ret
@@ -3700,7 +3702,7 @@ function zeroBSCRM_AJAX_enactListViewBulkAction() {
 							$passback['deleted'] = $deleted;
 
 							// } Return
-							wp_send_json( $passback );
+							wp_send_json( $passback, null, JSON_UNESCAPED_SLASHES );
 
 							break;
 
@@ -3729,7 +3731,7 @@ function zeroBSCRM_AJAX_enactListViewBulkAction() {
 							$passback['accepted'] = $accepted;
 
 							// } Return
-							wp_send_json( $passback );
+							wp_send_json( $passback, null, JSON_UNESCAPED_SLASHES );
 
 							break;
 
@@ -3773,14 +3775,14 @@ function zeroBSCRM_AJAX_enactListViewBulkAction() {
 							}
 
 							// } Return
-							wp_send_json( $passback );
+							wp_send_json( $passback, null, JSON_UNESCAPED_SLASHES );
 
 							break;
 
 					}
 
 						// } Return - will be an error if here
-						wp_send_json( $passback );
+						wp_send_json( $passback, null, JSON_UNESCAPED_SLASHES );
 
 					break;
 
@@ -3825,7 +3827,7 @@ function zeroBSCRM_AJAX_enactListViewBulkAction() {
 								$passback['deleted'] = $deleted;
 
 								// } Return
-								wp_send_json( $passback );
+								wp_send_json( $passback, null, JSON_UNESCAPED_SLASHES );
 
 								break;
 
@@ -3849,7 +3851,7 @@ function zeroBSCRM_AJAX_enactListViewBulkAction() {
 					}
 
 					// } Return - will be an error if here
-					wp_send_json( $passback );
+					wp_send_json( $passback, null, JSON_UNESCAPED_SLASHES );
 
 					break;
 
@@ -3891,7 +3893,7 @@ function zeroBSCRM_AJAX_enactListViewBulkAction() {
 								$passback['deleted'] = $deleted;
 
 								// } Return
-								wp_send_json( $passback );
+								wp_send_json( $passback, null, JSON_UNESCAPED_SLASHES );
 
 								break;
 
@@ -3911,7 +3913,7 @@ function zeroBSCRM_AJAX_enactListViewBulkAction() {
 								$passback['accepted'] = $accepted;
 
 								// } Return
-								wp_send_json( $passback );
+								wp_send_json( $passback, null, JSON_UNESCAPED_SLASHES );
 
 								break;
 
@@ -3931,7 +3933,7 @@ function zeroBSCRM_AJAX_enactListViewBulkAction() {
 								$passback['unaccepted'] = $unaccepted;
 
 								// } Return
-								wp_send_json( $passback );
+								wp_send_json( $passback, null, JSON_UNESCAPED_SLASHES );
 
 								break;
 
@@ -3955,7 +3957,7 @@ function zeroBSCRM_AJAX_enactListViewBulkAction() {
 					}
 
 					// } Return - will be an error if here
-					wp_send_json( $passback );
+					wp_send_json( $passback, null, JSON_UNESCAPED_SLASHES );
 
 					break;
 
@@ -3996,7 +3998,7 @@ function zeroBSCRM_AJAX_enactListViewBulkAction() {
 								$passback['deleted'] = $deleted;
 
 								// } Return
-								wp_send_json( $passback );
+								wp_send_json( $passback, null, JSON_UNESCAPED_SLASHES );
 
 								break;
 
@@ -4022,7 +4024,7 @@ function zeroBSCRM_AJAX_enactListViewBulkAction() {
 								$passback['accepted'] = $accepted;
 
 								// } Return
-								wp_send_json( $passback );
+								wp_send_json( $passback, null, JSON_UNESCAPED_SLASHES );
 
 								break;
 
@@ -4046,7 +4048,7 @@ function zeroBSCRM_AJAX_enactListViewBulkAction() {
 					}
 
 					// } Return - will be an error if here
-					wp_send_json( $passback );
+					wp_send_json( $passback, null, JSON_UNESCAPED_SLASHES );
 
 					break;
 
@@ -4088,7 +4090,7 @@ function zeroBSCRM_AJAX_enactListViewBulkAction() {
 								$passback['deleted'] = $deleted;
 
 								// } Return
-								wp_send_json( $passback );
+								wp_send_json( $passback, null, JSON_UNESCAPED_SLASHES );
 
 								break;
 
@@ -4112,7 +4114,7 @@ function zeroBSCRM_AJAX_enactListViewBulkAction() {
 					}
 
 					// } Return - will be an error if here
-					wp_send_json( $passback );
+					wp_send_json( $passback, null, JSON_UNESCAPED_SLASHES );
 
 					break;
 
@@ -4154,7 +4156,7 @@ function zeroBSCRM_AJAX_enactListViewBulkAction() {
 								$passback['deleted'] = $deleted;
 
 								// } Return
-								wp_send_json( $passback );
+								wp_send_json( $passback, null, JSON_UNESCAPED_SLASHES );
 
 								break;
 
@@ -4166,7 +4168,7 @@ function zeroBSCRM_AJAX_enactListViewBulkAction() {
 					}
 
 					// } Return - will be an error if here
-					wp_send_json( $passback );
+					wp_send_json( $passback, null, JSON_UNESCAPED_SLASHES );
 
 					break;
 
@@ -4202,7 +4204,7 @@ function zeroBSCRM_AJAX_enactListViewBulkAction() {
 								$passback['deleted'] = $deleted;
 
 								// } Return
-								wp_send_json( $passback );
+								wp_send_json( $passback, null, JSON_UNESCAPED_SLASHES );
 
 								break;
 
@@ -4214,7 +4216,7 @@ function zeroBSCRM_AJAX_enactListViewBulkAction() {
 					}
 
 					// } Return - will be an error if here, really!?!?
-					wp_send_json( $passback );
+					wp_send_json( $passback, null, JSON_UNESCAPED_SLASHES );
 
 					break;
 
@@ -4250,7 +4252,7 @@ function zeroBSCRM_AJAX_enactListViewBulkAction() {
 								$passback['deleted'] = $deleted;
 
 								// } Return
-								wp_send_json( $passback );
+								wp_send_json( $passback, null, JSON_UNESCAPED_SLASHES );
 
 								break;
 
@@ -4262,7 +4264,7 @@ function zeroBSCRM_AJAX_enactListViewBulkAction() {
 					}
 
 					// } Return - will be an error if here, really!?!? should be passsing headers as such.
-					wp_send_json( $passback );
+					wp_send_json( $passback, null, JSON_UNESCAPED_SLASHES );
 
 					break;
 
@@ -4304,7 +4306,7 @@ function zeroBSCRM_AJAX_enactListViewBulkAction() {
 								$passback['deleted'] = $deleted;
 
 								// } Return
-								wp_send_json( $passback );
+								wp_send_json( $passback, null, JSON_UNESCAPED_SLASHES );
 
 								break;
 
@@ -4336,7 +4338,7 @@ function zeroBSCRM_AJAX_enactListViewBulkAction() {
 								$passback['completed'] = $completed;
 
 								// } Return
-								wp_send_json( $passback );
+								wp_send_json( $passback, null, JSON_UNESCAPED_SLASHES );
 
 								break;
 
@@ -4356,7 +4358,7 @@ function zeroBSCRM_AJAX_enactListViewBulkAction() {
 								$passback['incompleted'] = $incompleted;
 
 								// } Return
-								wp_send_json( $passback );
+								wp_send_json( $passback, null, JSON_UNESCAPED_SLASHES );
 
 								break;
 
@@ -4368,13 +4370,13 @@ function zeroBSCRM_AJAX_enactListViewBulkAction() {
 					}
 
 					// } Return - will be an error if here, really!?!? should be passsing headers as such.
-					wp_send_json( $passback );
+					wp_send_json( $passback, null, JSON_UNESCAPED_SLASHES );
 
 					break;
 
 				default:
 					// err really :o
-					wp_send_json( array() );
+					wp_send_json( array(), null, JSON_UNESCAPED_SLASHES );
 
 					break;
 
@@ -4443,7 +4445,7 @@ function zeroBSCRM_bulkAction_enact_addTags( $obj_ids = array(), $obj_type_id = 
 			$passback['tagged'] = $tagged;
 
 			// This function outputs JSON and exits.
-			wp_send_json( $passback ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+			wp_send_json( $passback, null, JSON_UNESCAPED_SLASHES ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 	} else {
 
@@ -4452,7 +4454,7 @@ function zeroBSCRM_bulkAction_enact_addTags( $obj_ids = array(), $obj_type_id = 
 	}
 
 		// err
-		wp_send_json_error( -1, 500 );
+		wp_send_json_error( -1, 500, JSON_UNESCAPED_SLASHES );
 }
 
 	/**
@@ -4510,7 +4512,7 @@ function zeroBSCRM_bulkAction_enact_removeTags( $obj_ids = array(), $obj_type_id
 			$passback['untagged'] = $untagged;
 
 			// This function outputs JSON and exits.
-			wp_send_json( $passback ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+			wp_send_json( $passback, null, JSON_UNESCAPED_SLASHES ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 	} else {
 
@@ -4519,7 +4521,7 @@ function zeroBSCRM_bulkAction_enact_removeTags( $obj_ids = array(), $obj_type_id
 	}
 
 		// err
-		wp_send_json_error( -1, 500 );
+		wp_send_json_error( -1, 500, JSON_UNESCAPED_SLASHES );
 }
 
 /*
@@ -4598,7 +4600,8 @@ function zeroBSCRM_AJAX_previewSegment() {
 					'count' => 0,
 					'error' => $error_string,
 				),
-				$status
+				$status,
+				JSON_UNESCAPED_SLASHES
 			);
 
 		}
@@ -4606,13 +4609,13 @@ function zeroBSCRM_AJAX_previewSegment() {
 		if ( is_array( $ret ) && isset( $ret['count'] ) ) {
 
 			// return id / fail
-			wp_send_json( $ret );
+			wp_send_json( $ret, null, JSON_UNESCAPED_SLASHES );
 
 		}
 	}
 
 	// empty handed
-	wp_send_json( array( 'count' => 0 ) );
+	wp_send_json( array( 'count' => 0 ), null, JSON_UNESCAPED_SLASHES );
 }
 // } Save a segment down (update or add)
 add_action( 'wp_ajax_zbs_segment_savesegment', 'zeroBSCRM_AJAX_saveSegment' );
@@ -4652,7 +4655,7 @@ function zeroBSCRM_AJAX_saveSegment() {
 		if ( ! empty( $segmentID ) ) {
 
 			// return id / fail
-			wp_send_json( array( 'id' => $segmentID ) ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+			wp_send_json( array( 'id' => $segmentID ), null, JSON_UNESCAPED_SLASHES ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 		}
 	}
@@ -4718,7 +4721,7 @@ function zeroBSCRM_AJAX_addTag() {
 		}
 
 		if ( empty( $objType ) ) {
-			wp_send_json_error( array( 'notag' => 1 ), 500 );
+			wp_send_json_error( array( 'notag' => 1 ), 500, JSON_UNESCAPED_SLASHES );
 			exit( 0 );
 		}
 
@@ -4762,14 +4765,16 @@ function zeroBSCRM_AJAX_addTag() {
 					array(
 						'id'   => $tagID,
 						'slug' => $slug,
-					)
+					),
+					null,
+					JSON_UNESCAPED_SLASHES
 				);
 			}
 		} // if objtype match
 
 	}
 
-	wp_send_json_error( array( 'dataerr' => 1 ), 500 );
+	wp_send_json_error( array( 'dataerr' => 1 ), 500, JSON_UNESCAPED_SLASHES );
 }
 
 add_action( 'wp_ajax_zbs_delete_tag', 'zeroBSCRM_AJAX_deleteTag' );
@@ -4789,7 +4794,7 @@ function zeroBSCRM_AJAX_deleteTag() {
 		}
 
 		if ( empty( $objTagID ) ) {
-			wp_send_json_error( array( 'notag' => 1 ), 500 );
+			wp_send_json_error( array( 'notag' => 1 ), 500, JSON_UNESCAPED_SLASHES );
 		}
 
 		global $zbs;
@@ -4806,13 +4811,13 @@ function zeroBSCRM_AJAX_deleteTag() {
 				)
 			);
 
-			wp_send_json( array( 'res' => $res ) );
+			wp_send_json( array( 'res' => $res ), null, JSON_UNESCAPED_SLASHES );
 
 		} // if objtype match
 
 	}
 
-	wp_send_json_error( array( 'dataerr' => 1 ), 500 );
+	wp_send_json_error( array( 'dataerr' => 1 ), 500, JSON_UNESCAPED_SLASHES );
 }
 
 // } Preview a tagged group
@@ -4867,13 +4872,13 @@ function zeroBSCRM_AJAX_previewTagged() {
 		if ( is_array( $ret ) && isset( $ret['count'] ) ) {
 
 			// return id / fail
-			wp_send_json( $ret );
+			wp_send_json( $ret, null, JSON_UNESCAPED_SLASHES );
 
 		}
 	}
 
 	// empty handed
-	wp_send_json( array( 'count' => 0 ) );
+	wp_send_json( array( 'count' => 0 ), null, JSON_UNESCAPED_SLASHES );
 }
 
 /*
@@ -4897,7 +4902,7 @@ function zeroBSCRM_AJAX_saveScreenOptions() {
 
 	// } Check is logged in legit user
 	if ( ! zeroBS_canUpdateScreenOptions() ) {
-		wp_send_json_error( array( 'err' => 'rights' ), 500 );
+		wp_send_json_error( array( 'err' => 'rights' ), 500, JSON_UNESCAPED_SLASHES );
 	}
 
 	global $zbs;
@@ -4983,11 +4988,11 @@ function zeroBSCRM_AJAX_saveScreenOptions() {
 		// } Brutally update
 		$zbs->DAL->updateSetting( 'screenopts_' . $pageKey, $screenOpts ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase,WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 
-		wp_send_json( array( 'fini' => 1 ) );
+		wp_send_json( array( 'fini' => 1 ), null, JSON_UNESCAPED_SLASHES );
 
 	}
 
-	wp_send_json_error( array( 'err' => 'pagekey' ), 500 );
+	wp_send_json_error( array( 'err' => 'pagekey' ), 500, JSON_UNESCAPED_SLASHES );
 }
 
 /*
@@ -5022,7 +5027,7 @@ function zeroBSCRM_AJAX_listViewInlineEdit_save() {
 		case 'customer':
 			// } Perms
 			if ( ! zeroBSCRM_permsCustomers() ) {
-				wp_send_json_error( array( 'no-action-or-rights' => 1 ), 500 );
+				wp_send_json_error( array( 'no-action-or-rights' => 1 ), 500, JSON_UNESCAPED_SLASHES );
 			}
 
 			// } check deets
@@ -5041,7 +5046,7 @@ function zeroBSCRM_AJAX_listViewInlineEdit_save() {
 				}
 
 				if ( $success ) {
-					wp_send_json( array( 'success' => 1 ) );
+					wp_send_json( array( 'success' => 1 ), null, JSON_UNESCAPED_SLASHES );
 				}
 			}
 
@@ -5049,7 +5054,7 @@ function zeroBSCRM_AJAX_listViewInlineEdit_save() {
 
 	}
 
-	wp_send_json_error( array( 'no-action-or-rights' => 1 ), 500 );
+	wp_send_json_error( array( 'no-action-or-rights' => 1 ), 500, JSON_UNESCAPED_SLASHES );
 }
 
 /*
@@ -5094,12 +5099,12 @@ function zbs_invoice_send_invoice() {
 
 	// validate the email
 	if ( ! zeroBSCRM_validateEmail( $em ) ) {
-		wp_send_json_error( array( 'message' => __( 'Not valid', 'zero-bs-crm' ) ), 500 );
+		wp_send_json_error( array( 'message' => __( 'Not valid', 'zero-bs-crm' ) ), 500, JSON_UNESCAPED_SLASHES );
 	}
 
 	// } Check id + perms + em
 	if ( $zbs_invID <= 0 || empty( $em ) || ! zeroBSCRM_permsInvoices() ) {
-		wp_send_json_error( array( 'message' => __( 'Not valid', 'zero-bs-crm' ) ), 500 );
+		wp_send_json_error( array( 'message' => __( 'Not valid', 'zero-bs-crm' ) ), 500, JSON_UNESCAPED_SLASHES );
 	}
 
 	$sent = zeroBSCRM_AJAX_sendInvoiceEmail_v3( $em, $zbs_invID, $attachAssignedDocs, $attachAsPDF );
@@ -5107,12 +5112,12 @@ function zbs_invoice_send_invoice() {
 	if ( $sent ) {
 
 		// send result
-		wp_send_json( array( 'message' => 'sent' ) );
+		wp_send_json( array( 'message' => 'sent' ), null, JSON_UNESCAPED_SLASHES );
 
 	}
 
 	// send err
-	wp_send_json_error( array( 'message' => __( 'not sent', 'zero-bs-crm' ) ), 500 );
+	wp_send_json_error( array( 'message' => __( 'not sent', 'zero-bs-crm' ) ), 500, JSON_UNESCAPED_SLASHES );
 }
 
 // v3.0+ send email for an invoice
@@ -5307,7 +5312,7 @@ function zeroBSCRM_AJAX_sendStatement() {
 	if ( ! zeroBSCRM_validateEmail( $em ) ) {
 
 		$r['error'] = __( 'Not a valid email', 'zero-bs-crm' );
-		wp_send_json_error( $r, 500 );
+		wp_send_json_error( $r, 500, JSON_UNESCAPED_SLASHES );
 
 	} else {
 		$email = $em;
@@ -5317,7 +5322,7 @@ function zeroBSCRM_AJAX_sendStatement() {
 	if ( $cID <= 0 || empty( $email ) || ! zeroBSCRM_permsInvoices() ) {
 
 		$r['error'] = '';
-		wp_send_json_error( $r, 500 );
+		wp_send_json_error( $r, 500, JSON_UNESCAPED_SLASHES );
 
 	}
 
@@ -5330,7 +5335,7 @@ function zeroBSCRM_AJAX_sendStatement() {
 	if ( ! file_exists( $statementPDFfilepath ) ) {
 
 		$r['error'] = '';
-		wp_send_json_error( $r, 500 );
+		wp_send_json_error( $r, 500, JSON_UNESCAPED_SLASHES );
 
 	}
 
@@ -5389,7 +5394,7 @@ function zeroBSCRM_AJAX_sendStatement() {
 		unlink( $statementPDFfilepath );
 
 		$r['success'] = __( 'Sent', 'zero-bs-crm' );
-		wp_send_json( $r );
+		wp_send_json( $r, null, JSON_UNESCAPED_SLASHES );
 }
 
 add_action( 'wp_ajax_zbs_invoice_mark_paid', 'zbs_invoice_mark_paid' );
@@ -5417,7 +5422,7 @@ function zbs_invoice_mark_paid() {
 
 	// all OK ....
 	$r = array( 'message' => 'All done OK' );
-	wp_send_json( $r );
+	wp_send_json( $r, null, JSON_UNESCAPED_SLASHES );
 }
 
 // } and send test so they can test before actually sending the invoice
@@ -5443,7 +5448,7 @@ function zbs_invoice_send_test_invoice() {
 	// validate the email
 	if ( ! zeroBSCRM_validateEmail( $em ) ) {
 		$r['message'] = 'Not a valid email';
-		wp_send_json( $r );
+		wp_send_json( $r, null, JSON_UNESCAPED_SLASHES );
 	} else {
 		$email = $em;
 	}
@@ -5533,7 +5538,7 @@ function zbs_invoice_send_test_invoice() {
 
 	// sends the invoice via wp_mail (for now)...
 	$r['message'] = 'All done OK';
-	wp_send_json( $r );
+	wp_send_json( $r, null, JSON_UNESCAPED_SLASHES );
 }
 
 /*
@@ -5574,7 +5579,7 @@ function zeroBSCRM_AJAX_getInvoice() {
 
 	// check perms
 	if ( ! zeroBSCRM_permsIsZBSUser() ) {
-		wp_send_json_error( null, 500 );
+		wp_send_json_error( null, 500, JSON_UNESCAPED_SLASHES );
 	}
 
 		// build + return
@@ -5592,7 +5597,7 @@ function zeroBSCRM_AJAX_getInvoice() {
 		$data = zeroBSCRM_invoicing_getInvoiceData( $invID );
 
 		// pass back in json
-		wp_send_json( $data );
+		wp_send_json( $data, null, JSON_UNESCAPED_SLASHES );
 
 	} else {
 
@@ -5612,12 +5617,12 @@ function zeroBSCRM_AJAX_getInvoice() {
 		$data['tax_linesObj'] = zeroBSCRM_taxRates_getTaxTableArr();
 
 		// pass back in json
-		wp_send_json( $data );
+		wp_send_json( $data, null, JSON_UNESCAPED_SLASHES );
 
 	}
 
 		// exit json
-		wp_send_json_error( array( 'here' ), 500 );
+		wp_send_json_error( array( 'here' ), 500, JSON_UNESCAPED_SLASHES );
 }
 
 /*
@@ -5637,7 +5642,7 @@ function zeroBSCRM_ajax_mark_task_complete() {
 	check_ajax_referer( 'zbscrmjs-glob-ajax-nonce', 'sec' );
 
 	if ( ! zeroBSCRM_perms_tasks() ) {
-		wp_send_json_error( array( 'permission_error' => 1 ), 403 );
+		wp_send_json_error( array( 'permission_error' => 1 ), 403, JSON_UNESCAPED_SLASHES );
 	}
 
 	global $zbs;
@@ -5653,12 +5658,14 @@ function zeroBSCRM_ajax_mark_task_complete() {
 				array(
 					'task_id' => $task_id,
 					'status'  => $status,
-				)
+				),
+				null,
+				JSON_UNESCAPED_SLASHES
 			);
 		}
 	}
 
-	wp_send_json_error( array( 'params_error' => 1 ), 400 );
+	wp_send_json_error( array( 'params_error' => 1 ), 400, JSON_UNESCAPED_SLASHES );
 }
 
 /*

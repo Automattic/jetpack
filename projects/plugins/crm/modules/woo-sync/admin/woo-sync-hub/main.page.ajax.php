@@ -15,7 +15,7 @@ function jpcrm_woosync_ajax_import_orders() {
 
 	// if something's returned, output via AJAX
 	// (Mostly `background_sync->sync_orders()` will do this automatically)
-	wp_send_json( $return );
+	wp_send_json( $return, null, JSON_UNESCAPED_SLASHES );
 }
 
 // import orders AJAX

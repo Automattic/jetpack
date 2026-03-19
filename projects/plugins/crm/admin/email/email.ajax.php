@@ -20,7 +20,7 @@ function zeroBSCRM_star_email_thread() {
 	check_ajax_referer( 'zbscrmjs-glob-ajax-nonce', 'sec' );
 
 	if ( ! zeroBSCRM_permsSendEmailContacts() ) {
-		wp_send_json( array( 'processed' => -1 ) );
+		wp_send_json( array( 'processed' => -1 ), null, JSON_UNESCAPED_SLASHES );
 	}
 
 	global $wpdb, $ZBSCRM_t; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
@@ -28,7 +28,7 @@ function zeroBSCRM_star_email_thread() {
 	$sql        = $wpdb->prepare( 'UPDATE ' . $ZBSCRM_t['system_mail_hist'] . ' SET zbsmail_starred = 1 WHERE zbsmail_sender_thread = %d', $the_thread ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 	$wpdb->query( $sql );
 	$m = array( 'message' => 'success' );
-	wp_send_json( $m );
+	wp_send_json( $m, null, JSON_UNESCAPED_SLASHES );
 }
 add_action( 'wp_ajax_zbs_email_star_thread', 'zeroBSCRM_star_email_thread' );
 
@@ -41,7 +41,7 @@ function zeroBSCRM_unstar_email_thread() {
 	check_ajax_referer( 'zbscrmjs-glob-ajax-nonce', 'sec' );
 
 	if ( ! zeroBSCRM_permsSendEmailContacts() ) {
-		wp_send_json( array( 'processed' => -1 ) );
+		wp_send_json( array( 'processed' => -1 ), null, JSON_UNESCAPED_SLASHES );
 	}
 
 	global $wpdb, $ZBSCRM_t; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
@@ -49,7 +49,7 @@ function zeroBSCRM_unstar_email_thread() {
 	$sql        = $wpdb->prepare( 'UPDATE ' . $ZBSCRM_t['system_mail_hist'] . ' SET zbsmail_starred = 0 WHERE zbsmail_sender_thread = %d', $the_thread ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 	$wpdb->query( $sql );
 	$m = array( 'message' => 'success' );
-	wp_send_json( $m );
+	wp_send_json( $m, null, JSON_UNESCAPED_SLASHES );
 }
 add_action( 'wp_ajax_zbs_email_unstar_thread', 'zeroBSCRM_unstar_email_thread' );
 
@@ -61,7 +61,7 @@ function zeroBSCRM_delete_email_thread() {
 	check_ajax_referer( 'zbscrmjs-glob-ajax-nonce', 'sec' );
 
 	if ( ! zeroBSCRM_permsSendEmailContacts() ) {
-		wp_send_json( array( 'processed' => -1 ) );
+		wp_send_json( array( 'processed' => -1 ), null, JSON_UNESCAPED_SLASHES );
 	}
 
 	global $wpdb, $ZBSCRM_t; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
@@ -69,7 +69,7 @@ function zeroBSCRM_delete_email_thread() {
 	$sql        = $wpdb->prepare( 'DELETE FROM ' . $ZBSCRM_t['system_mail_hist'] . ' WHERE zbsmail_sender_thread = %d', $the_thread ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 	$wpdb->query( $sql );
 	$m = array( 'message' => 'success' );
-	wp_send_json( $m );
+	wp_send_json( $m, null, JSON_UNESCAPED_SLASHES );
 }
 add_action( 'wp_ajax_zbs_delete_email_thread', 'zeroBSCRM_delete_email_thread' );
 
@@ -83,7 +83,7 @@ function zeroBSCRM_send_email_thread_ajax() {
 
 	// check permissions
 	if ( ! zeroBSCRM_permsSendEmailContacts() ) {
-		wp_send_json( array( 'processed' => -1 ) );
+		wp_send_json( array( 'processed' => -1 ), null, JSON_UNESCAPED_SLASHES );
 	}
 
 	global $wpdb, $ZBSCRM_t; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
@@ -123,7 +123,7 @@ function zeroBSCRM_emails_customer_panel() {
 	check_ajax_referer( 'zbscrmjs-glob-ajax-nonce', 'sec' );
 
 	if ( ! zeroBSCRM_permsSendEmailContacts() ) {
-		wp_send_json( array( 'processed' => -1 ) );
+		wp_send_json( array( 'processed' => -1 ), null, JSON_UNESCAPED_SLASHES );
 	}
 
 	$contact_id = ( empty( $_POST['cid'] ) ? -1 : (int) $_POST['cid'] );
@@ -171,7 +171,7 @@ function zeroBSCRM_emails_customer_panel() {
 
 	$ret['email'] = $email_ret;
 
-	wp_send_json( $ret, true );
+	wp_send_json( $ret, null, JSON_UNESCAPED_SLASHES );
 }
 add_action( 'wp_ajax_zbs_email_customer_panel', 'zeroBSCRM_emails_customer_panel' );
 
@@ -204,7 +204,7 @@ function jpcrm_send_single_email_from_box( $send_to_email = '', $thread_id = -1,
 	// check permissions
 	if ( ! zeroBSCRM_permsSendEmailContacts() ) {
 		if ( $exit_json ) {
-			wp_send_json( array( 'processed' => -1 ) );
+			wp_send_json( array( 'processed' => -1 ), null, JSON_UNESCAPED_SLASHES );
 		} else {
 			exit( 0 );
 		}
@@ -353,7 +353,7 @@ function jpcrm_send_single_email_from_box( $send_to_email = '', $thread_id = -1,
 
 	if ( $exit_json ) {
 
-		wp_send_json( $m );
+		wp_send_json( $m, null, JSON_UNESCAPED_SLASHES );
 
 	}
 	return $result;

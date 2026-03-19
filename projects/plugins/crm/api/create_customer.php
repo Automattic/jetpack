@@ -21,7 +21,9 @@ if ( ! is_array( $new_customer ) ) {
 		array(
 			'error'   => true,
 			'message' => 'Invalid JSON data',
-		)
+		),
+		null,
+		JSON_UNESCAPED_SLASHES
 	);
 }
 
@@ -238,9 +240,6 @@ if (
 		zeroBS_setOwner( $new_contact, $assign, ZBS_TYPE_CONTACT );
 	}
 
-	// old way just returned what was sent...
-	// wp_send_json($json_params); //sends back to Zapier the customer that's been sent to it.
-
 	// thorough much? lol.
 	if ( ! empty( $new_contact ) && $new_contact !== -1 ) {
 
@@ -254,14 +253,14 @@ if (
 		}
 
 		// return
-		wp_send_json( $return_params );
+		wp_send_json( $return_params, null, JSON_UNESCAPED_SLASHES );
 
 	} else {
 
 		// fail.
-		wp_send_json( array( 'error' => 100 ) );
+		wp_send_json( array( 'error' => 100 ), null, JSON_UNESCAPED_SLASHES );
 
 	}
 }
 
-wp_send_json( array( 'errors' => 1 ) );
+wp_send_json( array( 'errors' => 1 ), null, JSON_UNESCAPED_SLASHES );

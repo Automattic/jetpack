@@ -181,7 +181,9 @@ class Mailpoet_Export_Segment_To_MailPoet {
 											'export_finished_long' => __( 'The export process is now complete. Click the button below to view the list of subscribers.', 'zero-bs-crm' ),
 											'go_to_mailpoet_list' => __( 'Go to MailPoet', 'zero-bs-crm' ),
 										),
-									)
+									),
+									null,
+									JSON_UNESCAPED_SLASHES
 								);
 							}
 						}
@@ -193,7 +195,9 @@ class Mailpoet_Export_Segment_To_MailPoet {
 									'error_title'   => __( 'Something went wrong', 'zero-bs-crm' ),
 									'error_message' => $th->getMessage(),
 								),
-							)
+							),
+							null,
+							JSON_UNESCAPED_SLASHES
 						);
 					}
 				}
@@ -207,7 +211,9 @@ class Mailpoet_Export_Segment_To_MailPoet {
 							'error_title'   => __( 'Something went wrong', 'zero-bs-crm' ),
 							'error_message' => __( 'The segment could not be exported to MailPoet', 'zero-bs-crm' ),
 						),
-					)
+					),
+					null,
+					JSON_UNESCAPED_SLASHES
 				);
 			}
 		);
@@ -256,7 +262,9 @@ class Mailpoet_Export_Segment_To_MailPoet {
 								'segmentID'     => $segment_id,
 								'current_page'  => $page,
 								'is_last_batch' => $is_last_batch,
-							)
+							),
+							null,
+							JSON_UNESCAPED_SLASHES
 						);
 
 					} else {
@@ -270,7 +278,9 @@ class Mailpoet_Export_Segment_To_MailPoet {
 									'error_title'   => __( 'Something went wrong', 'zero-bs-crm' ),
 									'error_message' => __( 'The segment could not be exported to MailPoet', 'zero-bs-crm' ),
 								),
-							)
+							),
+							null,
+							JSON_UNESCAPED_SLASHES
 						);
 
 					}
@@ -285,7 +295,9 @@ class Mailpoet_Export_Segment_To_MailPoet {
 											'error_title' => __( 'Something went wrong', 'zero-bs-crm' ),
 											'error_message' => __( 'The segment could not be exported to MailPoet', 'zero-bs-crm' ),
 										),
-									)
+									),
+									null,
+									JSON_UNESCAPED_SLASHES
 								);
 
 				}
@@ -327,13 +339,13 @@ class Mailpoet_Export_Segment_To_MailPoet {
 
 					if ( ! is_array( $list_details ) ) {
 						// nope
-						wp_send_json( false );
+						wp_send_json( false, null, JSON_UNESCAPED_SLASHES );
 					} else {
 						// success
-						wp_send_json( $list_details );
+						wp_send_json( $list_details, null, JSON_UNESCAPED_SLASHES );
 					}
 				} catch ( \Throwable $th ) {
-					wp_send_json_error( array( 'fail' => 1 ), 500 );
+					wp_send_json_error( array( 'fail' => 1 ), 500, JSON_UNESCAPED_SLASHES );
 				}
 			}
 		);

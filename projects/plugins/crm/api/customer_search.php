@@ -53,7 +53,7 @@ if ( isset( $_GET['email'] ) ) {
 
 	// Send an empty array if no matches.
 	if ( ! $customer_matches ) {
-		wp_send_json( array() );
+		wp_send_json( array(), null, JSON_UNESCAPED_SLASHES );
 	}
 } else {
 	// could be more matches (don't return financial data - unperformant)
@@ -61,7 +61,7 @@ if ( isset( $_GET['email'] ) ) {
 }
 
 if ( $replace_hyphens_in_response === 1 ) {
-	wp_send_json( jpcrm_api_replace_hyphens_in_json_keys_with_underscores( $customer_matches ) );
+	wp_send_json( jpcrm_api_replace_hyphens_in_json_keys_with_underscores( $customer_matches ), null, JSON_UNESCAPED_SLASHES );
 }
 
-wp_send_json( $customer_matches );
+wp_send_json( $customer_matches, null, JSON_UNESCAPED_SLASHES );

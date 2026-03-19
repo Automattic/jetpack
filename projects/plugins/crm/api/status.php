@@ -35,4 +35,4 @@ if ( isset( $_GET['full'] ) ) {
 	$reply['extensions'] = $active_extensions_and_ver;
 }
 
-wp_send_json_success( $reply );
+wp_send_json_success( $reply, null, JSON_UNESCAPED_SLASHES );

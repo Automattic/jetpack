@@ -53,4 +53,4 @@ $args = array(
 global $zbs;
 $tasks = $zbs->DAL->events->getEvents( $args ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 
-wp_send_json( $tasks );
+wp_send_json( $tasks, null, JSON_UNESCAPED_SLASHES );

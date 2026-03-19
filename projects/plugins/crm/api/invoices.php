@@ -37,4 +37,4 @@ global $zbs;
 $invoices = $zbs->DAL->invoices->getInvoices( $args ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 
 
-wp_send_json( $invoices );
+wp_send_json( $invoices, null, JSON_UNESCAPED_SLASHES );

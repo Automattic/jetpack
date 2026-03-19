@@ -108,11 +108,11 @@ if ( ! empty( $task_result ) && $task_result !== -1 ) {
 	}
 
 	// return
-	wp_send_json( $return_params );
+	wp_send_json( $return_params, null, JSON_UNESCAPED_SLASHES );
 
 } else {
 
 	// fail.
-	wp_send_json( array( 'error' => 100 ) );
+	wp_send_json( array( 'error' => 100 ), null, JSON_UNESCAPED_SLASHES );
 
 }
