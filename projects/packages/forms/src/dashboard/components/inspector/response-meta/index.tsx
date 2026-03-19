@@ -126,7 +126,7 @@ const ResponseMeta = ( { response }: ResponseMetaProps ): import('react').JSX.El
 							<td>{ response.browser }</td>
 						</tr>
 					) }
-					{ response.logged_in_user && (
+					{ response.logged_in_user && response.logged_in_user.id && (
 						<tr>
 							<th>{ __( 'Logged-in user:', 'jetpack-forms' ) }&nbsp;</th>
 							<td>

@@ -750,10 +750,11 @@ class Feedback_Email_Renderer {
 		}
 
 		// Logged in user row.
-		if ( ! empty( $metadata['logged_in_user'] ) ) {
-			$user_value = '#' . $metadata['logged_in_user']['id'];
+		if ( ! empty( $metadata['logged_in_user'] ) && isset( $metadata['logged_in_user']['id'] ) ) {
+			$user_id    = $metadata['logged_in_user']['id'];
+			$user_value = '#' . $user_id;
 			if ( ! empty( $metadata['logged_in_user']['display_name'] ) ) {
-				$user_value = $metadata['logged_in_user']['display_name'] . ' (#' . $metadata['logged_in_user']['id'] . ')';
+				$user_value = $metadata['logged_in_user']['display_name'] . ' (#' . $user_id . ')';
 			}
 			$rows[] = self::generate_metadata_row( __( 'Logged-in user', 'jetpack-forms' ), esc_html( $user_value ) );
 		}
