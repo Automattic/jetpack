@@ -46,7 +46,11 @@
 		// Handle element
 		this.handle = document.createElement( 'div' );
 		this.handle.setAttribute( 'id', 'infinite-handle' );
-		this.handle.innerHTML = '<span><button>' + text.replace( '\\', '' ) + '</button></span>';
+		var span = document.createElement( 'span' );
+		var button = document.createElement( 'button' );
+		button.textContent = text;
+		span.appendChild( button );
+		this.handle.appendChild( span );
 
 		// Footer settings
 		this.footer = {
