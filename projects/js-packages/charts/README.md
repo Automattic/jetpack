@@ -36,7 +36,6 @@ Modern bundlers handle tree-shaking automatically, so only the components you us
 
 For utilities and auxiliary components, separate entry points are available:
 
-- `@automattic/charts/trend-indicator` - Trend Indicator component
 - `@automattic/charts/hooks` - React hooks
 - `@automattic/charts/providers` - Context providers
 - `@automattic/charts/utils` - Shared chart utility functions
@@ -47,7 +46,6 @@ For utilities and auxiliary components, separate entry points are available:
 #### Available Style Imports
 
 - `@automattic/charts/style.css` - All chart styles
-- `@automattic/charts/trend-indicator/style.css`
 
 ### Basic Usage Example
 

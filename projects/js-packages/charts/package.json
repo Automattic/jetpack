@@ -34,12 +34,6 @@
 			"require": "./dist/providers/index.cjs"
 		},
 		"./style.css": "./dist/index.css",
-		"./trend-indicator": {
-			"jetpack:src": "./src/components/trend-indicator/index.ts",
-			"import": "./dist/components/trend-indicator/index.js",
-			"require": "./dist/components/trend-indicator/index.cjs"
-		},
-		"./trend-indicator/style.css": "./dist/components/trend-indicator/index.css",
 		"./utils": {
 			"jetpack:src": "./src/utils/index.ts",
 			"import": "./dist/utils/index.js",
@@ -73,9 +67,6 @@
 			],
 			"providers": [
 				"./dist/providers/index.d.ts"
-			],
-			"trend-indicator": [
-				"./dist/components/trend-indicator/index.d.ts"
 			],
 			"utils": [
 				"./dist/utils/index.d.ts"
