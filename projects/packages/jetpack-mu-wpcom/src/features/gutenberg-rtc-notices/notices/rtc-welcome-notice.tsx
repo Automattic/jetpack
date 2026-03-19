@@ -11,9 +11,14 @@
 
 import apiFetch from '@wordpress/api-fetch';
 import { useSelect } from '@wordpress/data';
-import { useState, useCallback } from '@wordpress/element';
+import { useState, useCallback, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { isRoomLimitBreached } from '../room-limit';
 import RtcNoticeModal from '../rtc-notice-modal';
+
+// Wait before showing the welcome notice to give the sync connection
+// time to establish and potentially hit the room limit first.
+const WELCOME_NOTICE_DELAY_MS = 6000;
 
 interface SyncConnectionStatus {
 	status: string;
@@ -23,6 +28,13 @@ const RtcWelcomeNotice = () => {
 	const config = window.wpcomRtcNotices;
 
 	const [ isDismissed, setIsDismissed ] = useState( config?.welcomeDismissed ?? true );
+	const [ isReady, setIsReady ] = useState( false );
+
+	// Delay showing the notice to avoid flashing it before a limit disconnect.
+	useEffect( () => {
+		const timeout = setTimeout( () => setIsReady( true ), WELCOME_NOTICE_DELAY_MS );
+		return () => clearTimeout( timeout );
+	}, [] );
 
 	// Don't show the welcome notice if the sync connection is lost (e.g. room
 	// limit reached). The limit-reached modal should take priority.
@@ -30,7 +42,9 @@ const RtcWelcomeNotice = () => {
 		const coreStore = select( 'core' ) as {
 			getSyncConnectionStatus?: () => SyncConnectionStatus | undefined;
 		};
-		return coreStore.getSyncConnectionStatus?.()?.status === 'disconnected';
+		return (
+			coreStore.getSyncConnectionStatus?.()?.status === 'disconnected' || isRoomLimitBreached()
+		);
 	}, [] );
 
 	const dismissNotice = useCallback( () => {
@@ -43,7 +57,7 @@ const RtcWelcomeNotice = () => {
 		} );
 	}, [] );
 
-	if ( ! config || isDismissed || isDisconnected ) {
+	if ( ! config || isDismissed || ! isReady || isDisconnected ) {
 		return null;
 	}
 
