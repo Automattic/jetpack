@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Bump @wordpress/admin-ui to 1.10.0 and remove double heading wrapper from AdminPage title, fixing header title sizing across all Jetpack admin pages.
