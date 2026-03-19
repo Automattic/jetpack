@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+WooSync: Fix company ID extraction from linked companies, add guard for company update result, and fix indentation in background sync job.
