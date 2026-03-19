@@ -47,13 +47,13 @@ class RTC {
 
 		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_routes' ) );
 		add_action( 'enqueue_block_editor_assets', array( __CLASS__, 'enqueue_assets' ) );
-		add_action( 'admin_init', array( __CLASS__, 'unregister_rtc_setting' ), 11 );
-		add_action( 'admin_init', array( __CLASS__, 'override_rtc_setting_default' ), 20 );
+		add_action( 'load-options-writing.php', array( __CLASS__, 'unregister_rtc_setting' ) );
+		add_action( 'load-options-writing.php', array( __CLASS__, 'override_rtc_setting_default' ) );
 
 		// Hook into both old and new option names for backwards compatibility.
 		foreach ( array( self::OPTION_OLD, self::OPTION_NEW ) as $option ) {
 			add_filter( 'option_' . $option, array( __CLASS__, 'filter_rtc_option' ), 10 );
-			add_filter( 'default_option_' . $option, array( __CLASS__, 'default_rtc_option' ), 20 );
+			add_filter( 'default_option_' . $option, array( __CLASS__, 'default_rtc_option' ), 20, 2 );
 		}
 	}
 
@@ -196,17 +196,29 @@ class RTC {
 
 	/**
 	 * When there ARE providers and the option is NOT stored yet,
-	 * default the option to enabled (1).
+	 * default the option to enabled (1), unless the old option
+	 * has a stored value to migrate from.
 	 *
+	 * This handles the Gutenberg upgrade path: e.g. a site on 22.7 stored
+	 * wp_enable_real_time_collaboration, then upgraded to 22.8 which reads
+	 * wp_collaboration_enabled — the new option inherits the old value.
+	 *
+	 * @param mixed  $default The default value.
+	 * @param string $option  The option name.
 	 * @return mixed
 	 */
-	public static function default_rtc_option() {
+	public static function default_rtc_option( $default = '', $option = '' ) {
 		$providers = self::get_providers();
 		// No providers: keep default disabled.
 		if ( count( $providers ) === 0 ) {
 			return '0';
 		}
-		// Providers exist and option is not stored yet → default to enabled.
+		// Providers exist and option is not stored yet
+		if ( $option === self::OPTION_NEW ) {
+			// If the old option is set, use that.
+			return get_option( self::OPTION_OLD );
+		}
+		// Default to enabled.
 		return '1';
 	}
 

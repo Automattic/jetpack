@@ -100,7 +100,7 @@ class RTC_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function test_init_hooks_unregister_rtc_setting() {
 		RTC::init();
-		$this->assertSame( 11, has_action( 'admin_init', array( RTC::class, 'unregister_rtc_setting' ) ) );
+		$this->assertSame( 10, has_action( 'load-options-writing.php', array( RTC::class, 'unregister_rtc_setting' ) ) );
 	}
 
 	/**
@@ -108,7 +108,7 @@ class RTC_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function test_init_hooks_override_rtc_setting_default() {
 		RTC::init();
-		$this->assertSame( 20, has_action( 'admin_init', array( RTC::class, 'override_rtc_setting_default' ) ) );
+		$this->assertSame( 10, has_action( 'load-options-writing.php', array( RTC::class, 'override_rtc_setting_default' ) ) );
 	}
 
 	/**
@@ -428,11 +428,21 @@ class RTC_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Tests that default_rtc_option returns '1' when providers exist.
+	 * Tests that default_rtc_option returns '1' when providers exist and no option is stored.
 	 */
 	public function test_default_rtc_option_returns_1_when_providers_exist() {
 		add_filter( 'jetpack_rtc_enabled', '__return_true' );
 
-		$this->assertSame( '1', RTC::default_rtc_option() );
+		$this->assertSame( '1', RTC::default_rtc_option( '', RTC::OPTION_OLD ) );
+	}
+
+	/**
+	 * Tests that the new option falls back to the old option's stored value on upgrade.
+	 */
+	public function test_default_rtc_option_migrates_old_to_new() {
+		add_filter( 'jetpack_rtc_enabled', '__return_true' );
+		update_option( RTC::OPTION_OLD, '0' );
+
+		$this->assertSame( '0', RTC::default_rtc_option( '', RTC::OPTION_NEW ) );
 	}
 }
