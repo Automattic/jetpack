@@ -1,11 +1,31 @@
-import { wpcomTrackEvent } from '../../common/tracks';
+import { createRoot } from 'react-dom/client';
+import { LaunchButton } from './launch-button';
 
-document.addEventListener( 'DOMContentLoaded', () => {
+/**
+ * Renders the launch button.
+ * @return {Promise<void>}
+ */
+async function renderLaunchButton() {
 	const launchButton = document.querySelector( '#wpadminbar .launch-site' );
 	if ( ! launchButton ) {
 		return;
 	}
-	launchButton.addEventListener( 'click', () => {
-		wpcomTrackEvent( 'wpcom_adminbar_launch_site' );
-	} );
-} );
+
+	const root = createRoot( launchButton );
+	root.render(
+		<LaunchButton
+			onCelebrationModalClose={ () => {
+				// We have two alternatives here...
+
+				// Keep the user on the same page...
+				root.unmount();
+				launchButton.remove();
+
+				// ...or reload it to reflect the new state.
+				// window.location.reload();
+			} }
+		/>
+	);
+}
+
+renderLaunchButton();

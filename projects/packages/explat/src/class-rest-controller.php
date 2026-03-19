@@ -81,16 +81,15 @@ class REST_Controller {
 	 * @return WP_REST_Response|WP_Error
 	 */
 	public function get_assignments( $request ) {
-		$response          = null;
-		$is_user_connected = ( new Jetpack_Connection() )->is_user_connected();
-		$platform          = $request->get_param( 'platform' );
-		$request_path      = '/experiments/' . self::EXPLAT_API_VERSION . '/assignments/' . $platform;
-		$args              = array(
+		$response     = null;
+		$platform     = $request->get_param( 'platform' );
+		$request_path = '/experiments/' . self::EXPLAT_API_VERSION . '/assignments/' . $platform;
+		$args         = array(
 			'experiment_name' => $request['experiment_name'],
 			'anon_id'         => $request['anon_id'],
 		);
 
-		if ( $request['as_connected_user'] && $is_user_connected ) {
+		if ( $request['as_connected_user'] ) {
 			$response = Client::wpcom_json_api_request_as_user(
 				add_query_arg( $args, $request_path ),
 				'v2'
