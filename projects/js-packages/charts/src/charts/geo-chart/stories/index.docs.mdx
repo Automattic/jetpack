@@ -12,13 +12,13 @@ Geo Charts visualize geographical data on an interactive world map, making it ea
 
 ## Overview
 
-The Geo Chart component provides a clean, accessible solution for displaying country-level data on a world map. Built on Google Charts GeoChart, it supports interactive tooltips, automatic color scaling, and integration with the chart theme system:
+The Geo component provides a clean, accessible solution for displaying country-level data on a world map. Built on Google Charts GeoChart, it supports interactive tooltips, automatic color scaling, and integration with the chart theme system:
 
 <Source
 	language="tsx"
-	code={ `import { GeoChart } from '@automattic/charts';
+	code={ `import { Geo } from '@automattic/charts';
 
-	<GeoChart
+	<Geo
 		data={ ordersByCountry }
 		width={ 800 }
 		height={ 500 }
@@ -40,7 +40,7 @@ The simplest geo chart requires data, width, and height. The `data` prop uses Go
 
 <Source
 	language="tsx"
-	code={ `<GeoChart
+	code={ `<Geo
 		data={ [
 			['Country', 'Orders'],
 			['United States', 1000],
@@ -90,7 +90,7 @@ You can customize tooltip content using column roles. Add a tooltip column to yo
 
 <Source
 	language="tsx"
-	code={ `<GeoChart
+	code={ `<Geo
 		data={ [
 			['Country', 'Value', { type: 'string', role: 'tooltip' }],
 			['United States', 1000, 'United States: 1,000 orders (40% of total)'],
@@ -110,7 +110,7 @@ For rich tooltip content with HTML formatting, add `p: { html: true }` to the to
 
 <Source
 	language="tsx"
-	code={ `<GeoChart
+	code={ `<Geo
 		data={ [
 			['Country', 'Value', { type: 'string', role: 'tooltip', p: { html: true } }],
 			['United States', 1000, '<b>United States</b><br/>1,000 orders'],
@@ -133,7 +133,7 @@ Separate the display format from the actual value using cell objects with `v` (v
 
 <Source
 	language="tsx"
-	code={ `<GeoChart
+	code={ `<Geo
 		data={ [
 			['Country', 'Revenue'],
 			['United States', { v: 1234567, f: '$1.23M' }],
@@ -155,7 +155,7 @@ Combine HTML tooltips with custom styling for rich, interactive experiences:
 
 <Source
 	language="tsx"
-	code={ `<GeoChart
+	code={ `<Geo
 		data={ [
 			['Country', 'Orders', { type: 'string', role: 'tooltip', p: { html: true } }],
 			[
@@ -183,7 +183,7 @@ By default, a simple "Loading map" text is shown while Google Charts loads:
 
 <Source
 	language="tsx"
-	code={ `<GeoChart
+	code={ `<Geo
 		data={ ordersByCountry }
 		width={ 800 }
 		height={ 500 }
@@ -197,7 +197,7 @@ You can provide a custom loading placeholder using the `renderPlaceholder` prop:
 
 <Source
 	language="tsx"
-	code={ `<GeoChart
+	code={ `<Geo
 		data={ ordersByCountry }
 		width={ 800 }
 		height={ 500 }
@@ -270,7 +270,7 @@ Add custom styles using the `className` prop:
 		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 	}
 
-	<GeoChart
+	<Geo
 		data={ ordersByCountry }
 		width={ 800 }
 		height={ 500 }
@@ -285,7 +285,7 @@ Geo Charts integrate seamlessly with the chart theming system. The default theme
 
 <Source
 	language="tsx"
-	code={ `import { GlobalChartsProvider, GeoChart, type ChartTheme } from '@automattic/charts';
+	code={ `import { GlobalChartsProvider, Geo, type ChartTheme } from '@automattic/charts';
 
 	const customTheme: ChartTheme = {
 		colors: ['#FF6B6B', '#4ECDC4', '#45B7D1'],
@@ -296,7 +296,7 @@ Geo Charts integrate seamlessly with the chart theming system. The default theme
 	};
 
 	<GlobalChartsProvider theme={customTheme}>
-		<GeoChart
+		<Geo
 			data={ ordersByCountry }
 			width={ 800 }
 			height={ 500 }
@@ -313,29 +313,29 @@ The chart uses the following theme properties:
 
 ## Responsive Behavior
 
-Like other charts in this library, GeoChart supports responsive sizing. By default, it **fills its parent container's dimensions**:
+Like other charts in this library, Geo supports responsive sizing. By default, it **fills its parent container's dimensions**:
 
 <Source
 	language="tsx"
 	code={ `// Fill parent container (default) - parent needs explicit height
 	<div style={{ width: '100%', height: '400px' }}>
-		<GeoChart data={ordersByCountry} />
+		<Geo data={ordersByCountry} />
 	</div>
 
 	// Use aspect ratio - height calculated from width
 	<div style={{ width: '100%' }}>
-		<GeoChart data={ordersByCountry} aspectRatio={0.625} />
+		<Geo data={ordersByCountry} aspectRatio={0.625} />
 	</div>
 
 	// Fixed dimensions
-	<GeoChart data={ordersByCountry} width={800} height={500} />` }
+	<Geo data={ordersByCountry} width={800} height={500} />` }
 />
 
 For more details on responsive behavior, see the [Responsive Design section](./?path=/docs/js-packages-charts-library-introduction--docs#responsive-design) in the introduction.
 
 ## Map Projection
 
-The Geo Chart uses Google Charts' default Mercator projection for world map visualization. The map automatically scales to fit within the specified dimensions.
+The Geo uses Google Charts' default Mercator projection for world map visualization. The map automatically scales to fit within the specified dimensions.
 
 ## Best Practices
 

@@ -11,11 +11,11 @@ The Pie Semi Circle Chart displays proportional data in a semi-circular format, 
 
 ## Overview
 
-The PieSemiCircleChart component renders data as segments in a semi-circular arc (180 degrees), making it ideal for displaying percentages, categories, or proportional breakdowns in a visually compact format. This chart type is particularly effective in dashboards where vertical space is limited.
+The PieSemiCircle component renders data as segments in a semi-circular arc (180 degrees), making it ideal for displaying percentages, categories, or proportional breakdowns in a visually compact format. This chart type is particularly effective in dashboards where vertical space is limited.
 
 <Source
 	language="jsx"
-	code={ `import { PieSemiCircleChart } from '@automattic/charts';
+	code={ `import { PieSemiCircle } from '@automattic/charts';
 
 	const data = [
 		{
@@ -38,7 +38,7 @@ The PieSemiCircleChart component renders data as segments in a semi-circular arc
 		},
 	];
 
-	<PieSemiCircleChart
+	<PieSemiCircle
 		data={ data }
 		thickness={ 0.4 }
 		label="OS"
@@ -62,7 +62,7 @@ The simplest implementation requires only data with proper percentage values. Un
 
 <Source
 	language="jsx"
-	code={ `<PieSemiCircleChart
+	code={ `<PieSemiCircle
 		data={ data }
 		thickness={ 0.4 }
 		label="OS"
@@ -88,7 +88,7 @@ Add `withTooltips` to enable hover interactions that display detailed informatio
 
 <Source
 	language="jsx"
-	code={ `<PieSemiCircleChart
+	code={ `<PieSemiCircle
 		data={ data }
 		withTooltips={ true }
 		label="OS"
@@ -102,7 +102,7 @@ Use the `clockwise` prop to control the rendering direction of segments:
 
 <Source
 	language="jsx"
-	code={ `<PieSemiCircleChart
+	code={ `<PieSemiCircle
 		data={ data }
 		width={ 600 }
 		clockwise={ false }
@@ -117,7 +117,7 @@ Adjust the visual weight of the chart using the `thickness` prop:
 <Source
 	language="jsx"
 	code={ `// Thin ring (thickness: 0.2)
-	<PieSemiCircleChart
+	<PieSemiCircle
 		data={ data }
 		width={ 400 }
 		thickness={ 0.2 }
@@ -125,7 +125,7 @@ Adjust the visual weight of the chart using the `thickness` prop:
 	/>
 
 	// Thick ring (thickness: 0.8)
-	<PieSemiCircleChart
+	<PieSemiCircle
 		data={ data }
 		width={ 400 }
 		thickness={ 0.8 }
@@ -165,7 +165,7 @@ The chart gracefully handles single data points, rendering a complete semi-circl
 		},
 	];
 
-	<PieSemiCircleChart
+	<PieSemiCircle
 		data={ singlePointData }
 		width={ 400 }
 		label="Single Category"
@@ -181,7 +181,7 @@ Control legend placement using alignment properties:
 <Source
 	language="jsx"
 	code={ `// Legend at top-right
-	<PieSemiCircleChart
+	<PieSemiCircle
 		data={ data }
 		showLegend={ true }
 		legend={{
@@ -191,7 +191,7 @@ Control legend placement using alignment properties:
 	/>
 
 	// Vertical legend on the right
-	<PieSemiCircleChart
+	<PieSemiCircle
 		data={ data }
 		showLegend={ true }
 		legend={{
@@ -207,7 +207,7 @@ Customize legend indicators with different shapes:
 
 <Source
 	language="jsx"
-	code={ `<PieSemiCircleChart
+	code={ `<PieSemiCircle
 	data={ data }
 	showLegend={ true }
 	legend={{ shape: 'rect' }} // Options: 'rect', 'circle', 'line'
@@ -237,7 +237,7 @@ Segments automatically use theme colors, but you can override individual segment
 		},
 	];
 
-	<PieSemiCircleChart
+	<PieSemiCircle
 		data={ customColorData }
 		width={ 400 }
 		label="Custom Colors"
@@ -253,7 +253,7 @@ The chart includes built-in styling for labels and notes with appropriate typogr
 
 <Source
 	language="jsx"
-	code={ `<PieSemiCircleChart
+	code={ `<PieSemiCircle
 		data={ data }
 		width={ 600 }
 		label="Primary Heading"
@@ -267,14 +267,14 @@ Pie Semi Circle Charts integrate seamlessly with the chart theming system. The d
 
 <Source
 	language="tsx"
-	code={ `import { GlobalChartsProvider, PieSemiCircleChart, type ChartTheme } from '@automattic/charts';
+	code={ `import { GlobalChartsProvider, PieSemiCircle, type ChartTheme } from '@automattic/charts';
 
 	const customTheme: ChartTheme = {
 		colors: ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A'],
 	};
 
 	<GlobalChartsProvider theme={customTheme}>
-		<PieSemiCircleChart data={data} />
+		<PieSemiCircle data={data} />
 	</GlobalChartsProvider>` }
 />
 
@@ -288,11 +288,11 @@ By default, charts **fill their parent container's dimensions** while maintainin
 	language="jsx"
 	code={ `// Fill parent container (default) - parent needs explicit height
 	<div style={{ width: '100%', height: '400px' }}>
-		<PieSemiCircleChart data={ data } />
+		<PieSemiCircle data={ data } />
 	</div>
 
 	// Fixed dimensions - chart constrains to 2:1 ratio within these bounds
-	<PieSemiCircleChart data={ data } width={ 600 } height={ 300 } />` }
+	<PieSemiCircle data={ data } width={ 600 } height={ 300 } />` }
 />
 
 The chart always maintains a 2:1 width-to-height ratio. When both `width` and `height` are provided, the chart constrains to whichever dimension is more restrictive. Use `width` and/or `height` to constrain the chart to specific pixel dimensions.
@@ -309,7 +309,7 @@ The Pie Semi Circle Chart component supports an optional entry animation that cr
 
 <Source
 	language="jsx"
-	code={ `<PieSemiCircleChart
+	code={ `<PieSemiCircle
 		data={ data }
 		animation={ true }
 		label="OS"
@@ -349,7 +349,7 @@ Use the `valueDisplay` property to show formatted values in tooltips and legends
 		},
 	];
 
-	<PieSemiCircleChart
+	<PieSemiCircle
 		data={ formattedData }
 		withTooltips={ true }
 		showLegend={ true }
@@ -379,7 +379,7 @@ Semi-circle charts use the same data format as full pie charts, making migration
 	/>
 
 	// Semi-circle chart (uses width instead of size)
-	<PieSemiCircleChart
+	<PieSemiCircle
 		data={ data }
 		width={ 400 }
 	/>` }

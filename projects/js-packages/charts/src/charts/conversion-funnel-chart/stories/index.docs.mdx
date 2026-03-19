@@ -11,7 +11,7 @@ A focused conversion funnel chart component for visualizing step-by-step convers
 
 ## Overview
 
-The ConversionFunnelChart component provides a specialized visualization for tracking user conversion through sequential steps, featuring:
+The ConversionFunnel component provides a specialized visualization for tracking user conversion through sequential steps, featuring:
 
 - Clear funnel visualization with proportional bar heights and light backgrounds
 - Main conversion rate highlighting with positive/negative change indicators
@@ -24,7 +24,7 @@ The ConversionFunnelChart component provides a specialized visualization for tra
 
 <Source
 	language="tsx"
-	code={ `import { ConversionFunnelChart } from '@automattic/charts';
+	code={ `import { ConversionFunnel } from '@automattic/charts';
 
 	const funnelData = [
 		{ id: 'sessions', label: 'Sessions', rate: 100, count: 10000 },
@@ -33,7 +33,7 @@ The ConversionFunnelChart component provides a specialized visualization for tra
 		{ id: 'purchase', label: 'Purchase', rate: 10.3, count: 1030 },
 	];
 
-	<ConversionFunnelChart
+	<ConversionFunnel
 		mainRate={10.3}
 		changeIndicator="+2%"
 		steps={funnelData}
@@ -54,7 +54,7 @@ The most basic implementation requires only the main conversion rate and steps d
 
 <Source
 	language="tsx"
-	code={ `<ConversionFunnelChart
+	code={ `<ConversionFunnel
 		mainRate={10.3}
 		changeIndicator="+2%"
 		steps={ecommerceFunnelData}
@@ -105,7 +105,7 @@ Clean presentation focused solely on current metrics:
 
 <Source
 	language="tsx"
-	code={ `<ConversionFunnelChart
+	code={ `<ConversionFunnel
 		mainRate={10.3}
 		steps={ecommerceFunnelData}
 		// No changeIndicator prop
@@ -122,7 +122,7 @@ Shows skeleton or loading indicators while data is being fetched:
 
 <Source
 	language="tsx"
-	code={ `<ConversionFunnelChart
+	code={ `<ConversionFunnel
 		mainRate={10.3}
 		changeIndicator="+2%"
 		steps={ecommerceFunnelData}
@@ -138,7 +138,7 @@ Gracefully handles empty or missing data:
 
 <Source
 	language="tsx"
-	code={ `<ConversionFunnelChart
+	code={ `<ConversionFunnel
 		mainRate={0}
 		steps={[]}
 	/>` }
@@ -154,7 +154,7 @@ Full control over component rendering with custom render functions:
 
 <Source
 	language="tsx"
-	code={ `<ConversionFunnelChart
+	code={ `<ConversionFunnel
 		mainRate={10.3}
 		changeIndicator="+2%"
 		steps={ecommerceFunnelData}
@@ -217,7 +217,7 @@ Return `null` from render props to disable specific parts:
 
 <Source
 	language="tsx"
-	code={ `<ConversionFunnelChart
+	code={ `<ConversionFunnel
 		mainRate={10.3}
 		changeIndicator="+2%"
 		steps={ecommerceFunnelData}
@@ -234,7 +234,7 @@ Use the `style` prop or `className` prop to customize the chart container:
 
 <Source
 	language="tsx"
-	code={ `<ConversionFunnelChart
+	code={ `<ConversionFunnel
 		mainRate={10.3}
 		steps={funnelData}
 		className="my-custom-funnel"
@@ -264,14 +264,14 @@ Conversion Funnel Charts integrate seamlessly with the chart theming system. The
 
 <Source
 	language="tsx"
-	code={ `import { GlobalChartsProvider, ConversionFunnelChart, type ChartTheme } from '@automattic/charts';
+	code={ `import { GlobalChartsProvider, ConversionFunnel, type ChartTheme } from '@automattic/charts';
 
 	const customTheme: ChartTheme = {
 		colors: ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A'],
 	};
 
 	<GlobalChartsProvider theme={customTheme}>
-		<ConversionFunnelChart mainRate={10.3} steps={funnelData} />
+		<ConversionFunnel mainRate={10.3} steps={funnelData} />
 	</GlobalChartsProvider>` }
 />
 
@@ -284,7 +284,7 @@ By default, the chart fills its parent container's height (`height="100%"`), con
 <Source
 	language="tsx"
 	code={ `{/* Fixed height */}
-	<ConversionFunnelChart
+	<ConversionFunnel
 		mainRate={10.3}
 		changeIndicator="+2%"
 		steps={funnelData}
@@ -292,7 +292,7 @@ By default, the chart fills its parent container's height (`height="100%"`), con
 	/>
 
 	{/* Fill parent container (default) */}
-	<ConversionFunnelChart
+	<ConversionFunnel
 		mainRate={10.3}
 		changeIndicator="+2%"
 		steps={funnelData}
@@ -309,7 +309,7 @@ The Conversion Funnel Chart component supports an optional entry animation that 
 
 <Source
 	language="tsx"
-	code={ `<ConversionFunnelChart
+	code={ `<ConversionFunnel
 		mainRate={ 10.3 }
 		steps={ funnelData }
 		animation={ true }
@@ -341,7 +341,7 @@ Track customer journey from initial visit to purchase:
 		{ id: 'purchase', label: 'Purchase', rate: 12.3 },
 	];
 
-	<ConversionFunnelChart
+	<ConversionFunnel
 		mainRate={12.3}
 		changeIndicator="+3.2%"
 		steps={ecommerceFunnel}
@@ -361,7 +361,7 @@ Monitor user activation through key onboarding steps:
 		{ id: 'subscription', label: 'Paid Plan', rate: 3.1 },
 	];
 
-	<ConversionFunnelChart
+	<ConversionFunnel
 		mainRate={3.1}
 		changeIndicator="-0.4%"
 		steps={saasFunnel}

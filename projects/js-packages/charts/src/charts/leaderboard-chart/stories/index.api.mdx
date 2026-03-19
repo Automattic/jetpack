@@ -4,7 +4,7 @@ import { Meta, Source } from '@storybook/addon-docs/blocks';
 
 # Leaderboard Chart API Reference
 
-## LeaderboardChart
+## Leaderboard
 
 Main chart component for displaying ranked data with optional comparison values.
 
@@ -22,14 +22,14 @@ Main chart component for displaying ranked data with optional comparison values.
 | `loading` | `boolean` | `false` | Whether the chart is in loading state |
 | `animation` | `boolean` | `false` | Enable entry animation on initial render. Bars stretch from left to right. Automatically respects user's `prefers-reduced-motion` system setting |
 | `showLegend` | `boolean` | `false` | Whether to display the legend |
-| `legend` | `ChartLegendConfig` | `undefined` | Legend configuration object. See [ChartLegendConfig](#chartlegendconfig-type). Supports `shapeStyles` for controlling legend shape dimensions. When `interactive` is enabled, legend items are clickable to toggle series visibility. **Note:** For props-based legends, use `showLegend={true}`. For composition API, render an interactive legend child (for example, `<LeaderboardChart.Legend interactive />`) so it can use chart context. |
+| `legend` | `ChartLegendConfig` | `undefined` | Legend configuration object. See [ChartLegendConfig](#chartlegendconfig-type). Supports `shapeStyles` for controlling legend shape dimensions. When `interactive` is enabled, legend items are clickable to toggle series visibility. **Note:** For props-based legends, use `showLegend={true}`. For composition API, render an interactive legend child (for example, `<Leaderboard.Legend interactive />`) so it can use chart context. |
 | `legendLabels` | `{ primary?: string; comparison?: string }` | `undefined` | Custom labels for legend items |
 | `width` | `number` | `undefined` | Optional fixed width of the chart container in pixels |
 | `height` | `number` | `undefined` | Optional fixed height of the chart container in pixels |
 | `gap` | `GapSize` | `'md'` | Spacing between legend and chart content, using the WordPress `GapSize` scale |
 | `className` | `string` | `undefined` | Additional CSS class name for the chart container |
 | `style` | `React.CSSProperties & CustomProperties` | `undefined` | Custom styling for the chart container |
-| `children` | `ReactNode` | `undefined` | Child components for composition API (for example, `LeaderboardChart.Legend`) |
+| `children` | `ReactNode` | `undefined` | Child components for composition API (for example, `Leaderboard.Legend`) |
 
 ## LeaderboardEntry Type
 

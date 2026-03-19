@@ -1,21 +1,21 @@
 import { Meta, Canvas, Story, Source } from '@storybook/addon-docs/blocks';
-import * as BarListChartStories from './index.stories';
+import * as BarListStories from './index.stories';
 
-<Meta title="JS Packages/Charts Library/Charts/Bar List Chart" of={ BarListChartStories } />
+<Meta title="JS Packages/Charts Library/Charts/Bar List Chart" of={ BarListStories } />
 
 # Bar List Chart
 
 A specialized horizontal bar chart component that displays data as a ranked list with labels and values positioned alongside the bars. Ideal for showing comparisons between categories or time periods.
 
-<Canvas of={ BarListChartStories.Default } />
+<Canvas of={ BarListStories.Default } />
 
 ## Overview
 
-The BarListChart component extends the BarChart component to create a list-style visualization that combines horizontal bars with text labels and values. It automatically handles positioning of labels on the left and values on the right, making it perfect for dashboards and reports that need to display ranked data clearly.
+The BarList component extends the BarChart component to create a list-style visualization that combines horizontal bars with text labels and values. It automatically handles positioning of labels on the left and values on the right, making it perfect for dashboards and reports that need to display ranked data clearly.
 
 <Source
 	language="jsx"
-	code={ `import { BarListChart } from '@automattic/charts';
+	code={ `import { BarList } from '@automattic/charts';
 
 	const data = [
 		{
@@ -29,7 +29,7 @@ The BarListChart component extends the BarChart component to create a list-style
 		},
 	];
 
-	<BarListChart data={ data } />` }
+	<BarList data={ data } />` }
 />
 
 Key features:
@@ -49,7 +49,7 @@ For detailed information about component props, types, and method signatures, se
 
 The simplest implementation displays a single series of data with automatic formatting:
 
-<Canvas of={ BarListChartStories.Default } />
+<Canvas of={ BarListStories.Default } />
 
 <Source
 	language="jsx"
@@ -66,7 +66,7 @@ The simplest implementation displays a single series of data with automatic form
 		},
 	];
 
-	<BarListChart
+	<BarList
 		data={ singleSeriesData }
 		withTooltips={ true }
 	/>` }
@@ -76,7 +76,7 @@ The simplest implementation displays a single series of data with automatic form
 
 Compare data across different time periods or categories:
 
-<Canvas of={ BarListChartStories.MultiSeries } />
+<Canvas of={ BarListStories.MultiSeries } />
 
 <Source
 	language="jsx"
@@ -101,7 +101,7 @@ Compare data across different time periods or categories:
 		},
 	];
 
-	<BarListChart data={ multiSeriesData } />` }
+	<BarList data={ multiSeriesData } />` }
 />
 
 ### Required Props
@@ -116,7 +116,7 @@ For detailed prop information and configuration options, see the [Bar List Chart
 
 Best for displaying a simple ranked list of items:
 
-<Canvas of={ BarListChartStories.Default } />
+<Canvas of={ BarListStories.Default } />
 
 Characteristics:
 - Compact layout with minimal padding
@@ -128,7 +128,7 @@ Characteristics:
 
 Perfect for comparing data across time periods or categories:
 
-<Canvas of={ BarListChartStories.MultiSeries } />
+<Canvas of={ BarListStories.MultiSeries } />
 
 Characteristics:
 - Increased padding for better visual separation
@@ -142,14 +142,14 @@ Characteristics:
 
 Create custom label rendering with icons or enhanced styling:
 
-<Canvas of={ BarListChartStories.CustomLabelComponent } />
+<Canvas of={ BarListStories.CustomLabelComponent } />
 
 <Source
 	language="jsx"
 	code={ `import { Circle } from '@visx/shape';
 	import { Text } from '@visx/text';
 
-	<BarListChart
+	<BarList
 		data={ data }
 		options={ {
 			labelComponent: ( { textProps, x, y, label, formatter } ) => (
@@ -174,11 +174,11 @@ Create custom label rendering with icons or enhanced styling:
 
 Display additional information alongside values:
 
-<Canvas of={ BarListChartStories.CustomValueComponent } />
+<Canvas of={ BarListStories.CustomValueComponent } />
 
 <Source
 	language="jsx"
-	code={ `<BarListChart
+	code={ `<BarList
 		data={ data }
 		options={ {
 			valueComponent: ( { textProps, x, y, value, formatter, data, index } ) => {
@@ -259,35 +259,35 @@ Bar List Charts integrate seamlessly with the chart theming system. The default 
 
 <Source
 	language="tsx"
-	code={ `import { GlobalChartsProvider, BarListChart, type ChartTheme } from '@automattic/charts';
+	code={ `import { GlobalChartsProvider, BarList, type ChartTheme } from '@automattic/charts';
 
 	const customTheme: ChartTheme = {
 		colors: ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A'],
 	};
 
 	<GlobalChartsProvider theme={customTheme}>
-		<BarListChart data={data} />
+		<BarList data={data} />
 	</GlobalChartsProvider>` }
 />
 
 ## Responsive Behavior
 
-By default, BarListChart **fills its parent container's dimensions**. The parent must have an explicit height:
+By default, BarList **fills its parent container's dimensions**. The parent must have an explicit height:
 
 <Source
 	language="jsx"
 	code={ `// Fill parent container (default) - parent needs explicit height
 	<div style={{ width: '100%', height: '300px' }}>
-		<BarListChart data={data} />
+		<BarList data={data} />
 	</div>
 
 	// Use aspect ratio - height calculated from width
 	<div style={{ width: '100%' }}>
-		<BarListChart data={data} aspectRatio={0.4} />
+		<BarList data={data} aspectRatio={0.4} />
 	</div>
 
 	// Fixed dimensions
-	<BarListChart data={data} width={600} height={300} />` }
+	<BarList data={data} width={600} height={300} />` }
 />
 
 For more details on responsive behavior, see the [Responsive Design section](./?path=/docs/js-packages-charts-library-introduction--docs#responsive-design) in the introduction.
@@ -296,11 +296,11 @@ For more details on responsive behavior, see the [Responsive Design section](./?
 
 The Bar List Chart component supports an optional entry animation that creates a smooth reveal effect when the chart first renders:
 
-<Canvas of={ BarListChartStories.Animation } />
+<Canvas of={ BarListStories.Animation } />
 
 <Source
 	language="tsx"
-	code={ `<BarListChart
+	code={ `<BarList
 		data={ data }
 		animation={ true }
 	/>` }
@@ -323,7 +323,7 @@ Customize the chart scales for precise control over bar sizing and spacing:
 
 <Source
 	language="jsx"
-	code={ `<BarListChart
+	code={ `<BarList
 		data={ data }
 		options={ {
 			yScale: {
@@ -355,7 +355,7 @@ Override automatic positioning when needed:
 
 <Source
 	language="jsx"
-	code={ `<BarListChart
+	code={ `<BarList
 		data={ data }
 		options={ {
 			yOffset: -20,          // Vertical offset for text
@@ -367,11 +367,11 @@ Override automatic positioning when needed:
 
 ## Accessibility
 
-BarListChart inherits accessibility features from the underlying BarChart component, including keyboard navigation support when tooltips are enabled and proper ARIA attributes for screen readers.
+BarList inherits accessibility features from the underlying BarChart component, including keyboard navigation support when tooltips are enabled and proper ARIA attributes for screen readers.
 
 ## Migration from Bar Chart
 
-If you're currently using a horizontal BarChart for list-style data, BarListChart provides a more optimized experience:
+If you're currently using a horizontal BarChart for list-style data, BarList provides a more optimized experience:
 
 <Source language="jsx" code={`
 	// Old approach with BarChart
@@ -387,8 +387,8 @@ If you're currently using a horizontal BarChart for list-style data, BarListChar
 		} }
 	/>
 
-	// New approach with BarListChart
-	<BarListChart data={ data } />
+	// New approach with BarList
+	<BarList data={ data } />
 	`}
 />
 
