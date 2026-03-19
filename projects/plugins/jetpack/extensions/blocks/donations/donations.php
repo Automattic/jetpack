@@ -19,8 +19,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Resolve a donation plan post, trying the saved plan ID first then falling
- * back to a query by type, interval, and currency.
+ * Resolve a donation plan post for the given interval and currency.
+ *
+ * When duplicates exist (same interval+currency), the products cache from
+ * /memberships/status is used to pick the correct one by product_id.
  *
  * @param int    $plan_id  The saved plan post ID (may be 0 or stale).
  * @param string $interval The donation interval (one-time, 1 month, 1 year).
@@ -29,27 +31,11 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 function resolve_donation_plan( $plan_id, $interval, $currency ) {
 	$post_type = \Jetpack_Memberships::$post_type_plan;
-	$site_id   = \Jetpack_Memberships::get_blog_id();
 
-	// Try the saved plan ID first.
-	if ( $plan_id ) {
-		$plan = get_post( $plan_id );
-		$meta = $plan ? get_post_meta( $plan->ID ) : array();
-		if ( $plan && ! is_wp_error( $plan )
-			&& $plan->post_type === $post_type
-			&& ( $meta['jetpack_memberships_type'][0] ?? '' ) === 'donation'
-			&& (int) ( $meta['jetpack_memberships_site_id'][0] ?? 0 ) === $site_id
-			&& ( $meta['jetpack_memberships_interval'][0] ?? '' ) === $interval
-			&& ( $meta['jetpack_memberships_currency'][0] ?? '' ) === $currency
-		) {
-			return $plan;
-		}
-	}
-
-	// Fallback: query by type + interval + currency.
-	$plans = get_posts(
+	// Query all local plans for this interval + currency.
+	$candidates = get_posts(
 		array(
-			'posts_per_page' => 1,
+			'posts_per_page' => -1,
 			'post_type'      => $post_type,
 			'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
 				array(
@@ -68,14 +54,120 @@ function resolve_donation_plan( $plan_id, $interval, $currency ) {
 					'key'     => 'jetpack_memberships_is_deleted',
 					'compare' => 'NOT EXISTS',
 				),
-				array(
-					'key'   => 'jetpack_memberships_site_id',
-					'value' => $site_id,
-				),
 			),
 		)
 	);
-	return ! empty( $plans ) ? $plans[0] : null;
+
+	if ( empty( $candidates ) ) {
+		return null;
+	}
+
+	// Single candidate — no ambiguity.
+	if ( count( $candidates ) === 1 ) {
+		return $candidates[0];
+	}
+
+	// Multiple candidates — use remote products to pick the right one.
+	$products = get_donation_products( $currency );
+	if ( ! empty( $products ) ) {
+		foreach ( $candidates as $candidate ) {
+			$pid = get_post_meta( $candidate->ID, 'jetpack_memberships_product_id', true );
+			if ( $pid && isset( $products[ (int) $pid ] ) ) {
+				return $candidate;
+			}
+		}
+	}
+
+	// Fall back to the saved plan ID if it's among the candidates.
+	if ( $plan_id ) {
+		foreach ( $candidates as $candidate ) {
+			if ( $candidate->ID === $plan_id ) {
+				return $candidate;
+			}
+		}
+	}
+
+	// No products cache and no saved ID match — return first candidate.
+	return $candidates[0];
+}
+
+/**
+ * Get donation products for a currency, keyed by product_id.
+ *
+ * Returns cached data when available. Otherwise fetches from
+ * /memberships/status (GET, read-only) and caches the result.
+ *
+ * @param string $currency The currency code.
+ * @return array Map of product_id => product data, or empty array.
+ */
+function get_donation_products( $currency ) {
+	$cache_key = 'jetpack_donation_products_' . strtolower( $currency );
+	$neg_key   = $cache_key . '_empty';
+
+	// Return cached products if available.
+	$cached = get_transient( $cache_key );
+	if ( is_array( $cached ) ) {
+		return $cached;
+	}
+
+	// Negative cache — no products exist for this currency.
+	if ( false !== get_transient( $neg_key ) ) {
+		return array();
+	}
+
+	// Fetch from remote.
+	$status = null;
+
+	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+		require_lib( 'memberships' );
+		\Memberships_Store_Sandbox::get_instance()->init( true );
+		$result = get_memberships_settings_for_site( get_current_blog_id(), 'donation', false, 'server' );
+		if ( ! is_wp_error( $result ) ) {
+			$status = (array) $result;
+		}
+	} else {
+		$blog_id = \Jetpack_Options::get_option( 'id' );
+		if ( $blog_id ) {
+			$response = \Automattic\Jetpack\Connection\Client::wpcom_json_api_request_as_blog(
+				sprintf( '/sites/%d/memberships/status?type=donation&is_editable=0', $blog_id ),
+				'2',
+				array( 'method' => 'GET' )
+			);
+			if ( ! is_wp_error( $response ) && 200 === wp_remote_retrieve_response_code( $response ) ) {
+				$body = json_decode( wp_remote_retrieve_body( $response ), true );
+				if ( is_array( $body ) ) {
+					$status = $body;
+				}
+			}
+		}
+	}
+
+	if ( ! is_array( $status ) || empty( $status['products'] ) ) {
+		set_transient( $neg_key, 1, HOUR_IN_SECONDS );
+		return array();
+	}
+
+	// Build product_id => product map for the requested currency.
+	$upper_curr     = strtoupper( $currency );
+	$products_by_id = array();
+	foreach ( $status['products'] as $product ) {
+		if ( strtoupper( $product['currency'] ?? '' ) !== $upper_curr ) {
+			continue;
+		}
+		$product_id = (int) ( $product['product_id'] ?? ( $product['id'] ?? 0 ) );
+		if ( $product_id ) {
+			$products_by_id[ $product_id ] = $product;
+		}
+	}
+
+	if ( empty( $products_by_id ) ) {
+		set_transient( $neg_key, 1, HOUR_IN_SECONDS );
+		return array();
+	}
+
+	set_transient( $cache_key, $products_by_id, DAY_IN_SECONDS );
+
+	return $products_by_id;
 }
 
 /**
@@ -193,8 +285,16 @@ function render_block( $attr, $content ) {
 	$amounts            = '';
 	$extra_text         = '';
 	$buttons            = '';
+
+	// Resolve donation plans. When duplicates exist, resolve_donation_plan()
+	// fetches the products cache from /memberships/status to disambiguate.
+	$resolved_plans = array();
 	foreach ( $donations as $interval => $donation ) {
-		$plan = resolve_donation_plan( (int) $donation['planId'], $interval, $currency );
+		$resolved_plans[ $interval ] = resolve_donation_plan( (int) $donation['planId'], $interval, $currency );
+	}
+
+	foreach ( $donations as $interval => $donation ) {
+		$plan = $resolved_plans[ $interval ];
 		if ( ! $plan ) {
 			continue;
 		}

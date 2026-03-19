@@ -226,9 +226,6 @@ class Jetpack_Memberships {
 			'interval'        => array(
 				'meta' => $meta_prefix . 'interval',
 			),
-			'site_id'         => array(
-				'meta' => $meta_prefix . 'site_id',
-			),
 			'tier'            => array(
 				'meta' => $meta_prefix . 'tier',
 			),
