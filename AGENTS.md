@@ -35,8 +35,8 @@ The `jp` command runs `pnpm jetpack` inside the monorepo Docker container. Insta
 jp build plugins/jetpack          # Build a project
 jp build plugins/jetpack --deps   # Build with dependencies
 jp watch plugins/jetpack          # Watch and rebuild on changes
-jp test php plugins/jetpack       # Run PHP tests
-jp test js plugins/jetpack        # Run JS tests
+jp test php packages/connection    # Run PHP tests (packages)
+jp test js packages/connection     # Run JS tests
 jp changelog add                  # Add changelog entry (interactive)
 jp generate                       # Create new project (interactive wizard)
 jp install plugins/jetpack        # Install project dependencies
@@ -113,7 +113,7 @@ jp test coverage <project>  # Generate coverage report
 - **Plugins**: Some plugins use mocked WordPress environments (WorDBless/Brain Monkey) and their tests work immediately via `jp test php`. Others (notably `plugins/jetpack`, `plugins/crm`, `plugins/wpcomsh`) require a full WordPress test environment:
   1. `jp docker up -d` — Start Docker WordPress containers
   2. `jp docker install` — Install WordPress in Docker
-  Then run: `jp docker phpunit <plugin-slug>`
+  Then run: `jp docker phpunit <target>` where target is `jetpack`, `crm`, or `wpcomsh`
 - If you've modified package versions or dependencies between monorepo packages, run `tools/fixup-project-versions.sh` to update lock files before testing.
 - If a project's `composer.json` doesn't define `test-js`, the JS test step is skipped automatically — this is normal, not an error.
 
@@ -137,7 +137,7 @@ jp test coverage <project>      # Generate coverage report (optional)
   - Some use `brain/monkey` for basic WordPress mocking
   - Some use WorDBless (via `automattic/jetpack-test-environment`) for a lightweight WordPress environment
   - A few plugins use an actual copy of WordPress (these are the `jp docker phpunit` projects)
-- For WorDBless-based tests: test classes extend `WorDBless\BaseTestCase`. To create test users, use `wp_insert_user()` + `get_userdata()` — do NOT use `self::factory()->user->create_and_get()` as that method is not available.
+- For WorDBless-based tests: test classes extend `WorDBless\BaseTestCase`. The `self::factory()` helper is available for creating posts and other objects. For users specifically, prefer `wp_insert_user()` + `get_userdata()` as user factory support varies by project.
 - Test class names MUST end in "Test"
 - Every test class MUST be in a file with a matching name (e.g., class `My_Unit_Test` in `My_Unit_Test.php`)
 - See `projects/packages/connection/tests/php/sso/Helpers_Test.php` for an example of a WorDBless-based test.
