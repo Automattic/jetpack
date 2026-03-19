@@ -398,7 +398,7 @@ export default function FormsDashboardForms(): JSX.Element | null {
 
 	const onChangeView = useCallback( newView => setView( newView ), [ setView ] );
 
-	const headerActions = useMemo( () => [ <CreateFormButton key="create" /> ], [] );
+	const headerActions = useMemo( () => [ <CreateFormButton key="create" showNameModal /> ], [] );
 	const getItemId = useCallback( ( item: FormListItem ) => String( item.id ), [] );
 	const onClickItem = useCallback(
 		( item: FormListItem ) => {
@@ -446,7 +446,7 @@ export default function FormsDashboardForms(): JSX.Element | null {
 						<EmptyWrapper
 							heading={ __( "You're set up. No forms yet.", 'jetpack-forms' ) }
 							body={ __(
-								'Create a shared form pattern to manage and reuse it across your site.',
+								'Create a form to manage and reuse it across your site.',
 								'jetpack-forms'
 							) }
 							actions={
@@ -454,6 +454,7 @@ export default function FormsDashboardForms(): JSX.Element | null {
 									<CreateFormButton
 										label={ __( 'Create a new form', 'jetpack-forms' ) }
 										variant="primary"
+										showNameModal
 									/>
 									{ hasClassicForms && (
 										<Button size="compact" variant="secondary" onClick={ openFormsHelpModal }>
