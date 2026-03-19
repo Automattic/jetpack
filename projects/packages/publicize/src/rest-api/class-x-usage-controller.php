@@ -36,6 +36,8 @@ class X_Usage_Controller extends Base_Controller {
 		$this->namespace = "{$this->base_api_path}/{$this->version}";
 		$this->rest_base = 'publicize/x-usage';
 
+		$this->allow_requests_as_blog = true;
+
 		add_action( 'rest_api_init', array( $this, 'register_routes' ) );
 	}
 
@@ -126,7 +128,7 @@ class X_Usage_Controller extends Base_Controller {
 		}
 
 		return rest_ensure_response(
-			$this->proxy_request_to_wpcom_as_user( $request )
+			$this->proxy_request_to_wpcom_as_blog( $request )
 		);
 	}
 
