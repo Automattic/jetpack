@@ -157,23 +157,24 @@ export type MultipleDataPointsDate = {
 	data: DataPointDate[];
 };
 
+/**
+ * Input data point for percentage-based charts (pie, donut, semi-circle).
+ * Provide values; percentages will be calculated automatically.
+ */
 export type DataPointPercentage = {
 	/**
 	 * Label for the data point
 	 */
 	label: string;
 	/**
-	 * Numerical value
+	 * Numerical value used for slice sizing.
+	 * Percentages are calculated automatically from values.
 	 */
 	value: number;
 	/**
-	 * Formatted value for display
+	 * Formatted value for display (e.g., "30K" instead of 30000)
 	 */
 	valueDisplay?: string;
-	/**
-	 * Percentage value
-	 */
-	percentage: number;
 	/**
 	 * Color code for the segment, by default colours are taken from the theme but this property can overrides it
 	 */
@@ -182,6 +183,17 @@ export type DataPointPercentage = {
 	 * Group for the data point, used to match color with groups on other charts
 	 */
 	group?: string;
+};
+
+/**
+ * Internal type with calculated percentage.
+ * Used internally after percentage calculation from values.
+ */
+export type DataPointPercentageCalculated = DataPointPercentage & {
+	/**
+	 * Calculated percentage (0-100) based on value relative to total
+	 */
+	percentage: number;
 };
 
 /**

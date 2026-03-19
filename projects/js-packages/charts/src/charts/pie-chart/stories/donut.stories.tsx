@@ -27,13 +27,11 @@ const data = [
 		label: 'Active Users',
 		value: 65000,
 		valueDisplay: '65K',
-		percentage: 65,
 	},
 	{
 		label: 'Inactive Users',
 		value: 35000,
 		valueDisplay: '35K',
-		percentage: 35,
 	},
 ];
 
@@ -156,11 +154,7 @@ export const ErrorStates: Story = {
 			</div>
 			<div>
 				<h3>Single Value</h3>
-				<PieChart
-					height={ 300 }
-					thickness={ 0.6 }
-					data={ [ { label: 'Single', value: 100, percentage: 100 } ] }
-				/>
+				<PieChart height={ 300 } thickness={ 0.6 } data={ [ { label: 'Single', value: 100 } ] } />
 			</div>
 		</div>
 	),
