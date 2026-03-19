@@ -120,8 +120,8 @@ const state = {
 	lastRootBlockIds: '',
 	lastSelectedBlockId: null as string | null | undefined,
 	isFormBlockLocked: false,
+	formBlockStable: false,
 	hasOpenedInserter: false,
-	enteredViaNavigation: false,
 };
 
 const BLOCK_DIRECTORY_PLUGIN_NAME = 'block-directory';
@@ -365,15 +365,9 @@ const setupFormEditorSubscription = () => {
 			// 1. Handle form editor enter/leave transitions
 			// Detect if we are in the form editor and detect when this state changes across ticks.
 			if ( isFormEditor !== state.isFormEditor ) {
-				const previousIsFormEditor = state.isFormEditor;
 				state.isFormEditor = isFormEditor;
 
 				if ( isFormEditor ) {
-					// Track how we entered: false → true = entity navigation, null → true = direct load.
-					// When entered via entity navigation (e.g. "Edit Form" from a page), skip
-					// enforceBlockNesting to avoid corrupting page blocks during the transition.
-					state.enteredViaNavigation = previousIsFormEditor === false;
-
 					// We just entered the form editor.
 					document.body.classList.add( 'post-type-jetpack_form' );
 
@@ -420,23 +414,14 @@ const setupFormEditorSubscription = () => {
 					state.lastRootBlockIds = '';
 					state.lastSelectedBlockId = null;
 					state.isFormBlockLocked = false;
+					state.formBlockStable = false;
 					state.hasOpenedInserter = false;
-					state.enteredViaNavigation = false;
 				}
 			}
 
 			// 2. Early return if not in form editor
 			if ( ! isFormEditor ) {
 				// We are not in the form editor, nothing more to do.
-				return;
-			}
-
-			// 2b. Early return if entered via entity navigation (e.g. "Edit Form" from a page).
-			// All form-editor-specific block manipulations below (category setup, block nesting,
-			// block locking, selection enforcement, etc.) should only run when the form editor
-			// is loaded directly. During entity navigation transitions, the block store briefly
-			// contains page blocks while isFormEditor is still true, which causes race conditions.
-			if ( state.enteredViaNavigation ) {
 				return;
 			}
 
@@ -491,7 +476,16 @@ const setupFormEditorSubscription = () => {
 					enforceBlockSelection();
 				}
 
-				enforceBlockNesting();
+				// Only run enforceBlockNesting when the form block is stable (same clientId
+				// as before). When the formBlockClientId changes, we're in a transition
+				// (initial load, block re-parse, or navigating back to page) and nesting
+				// would incorrectly move page/transition blocks inside the form.
+				const formBlockIsStable =
+					!! state.formBlockClientId && state.formBlockClientId === previousFormBlockClientId;
+				state.formBlockStable = formBlockIsStable;
+				if ( formBlockIsStable ) {
+					enforceBlockNesting();
+				}
 			}
 
 			// 5. Auto-open the block inserter (once) after blocks are ready
@@ -535,8 +529,9 @@ const setupFormEditorSubscription = () => {
 				enforceBlockSelection();
 			}
 
-			// 7. Ensure form block is locked
-			if ( ! state.isFormBlockLocked && state.formBlockClientId ) {
+			// 7. Ensure form block is locked (only when form block is stable —
+			// skip during transitions to avoid locking page blocks).
+			if ( ! state.isFormBlockLocked && state.formBlockClientId && state.formBlockStable ) {
 				lockFormBlock();
 				const { getBlock } = select( 'core/block-editor' );
 				const formBlock = getBlock( state.formBlockClientId );
