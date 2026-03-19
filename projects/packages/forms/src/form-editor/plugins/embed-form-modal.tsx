@@ -76,14 +76,12 @@ export const EmbedFormModal = ( { isOpen, onClose, variant = 'embed' }: EmbedFor
 					) => Array< { id: number; title: { rendered: string } } > | null;
 				};
 
-				const searchQuery = searchTerm.trim()
-					? {
-							search: searchTerm.trim(),
-							status: 'publish',
-							per_page: 20,
-							_fields: 'id,title',
-					  }
-					: { status: 'publish', per_page: 20, orderby: 'modified', _fields: 'id,title' };
+				const searchQuery: Record< string, unknown > = {
+					status: 'publish',
+					per_page: 20,
+					_fields: 'id,title',
+					...( searchTerm.trim() ? { search: searchTerm.trim() } : { orderby: 'modified' } ),
+				};
 
 				records = entityStore.getEntityRecords( 'postType', 'page', searchQuery );
 			}
