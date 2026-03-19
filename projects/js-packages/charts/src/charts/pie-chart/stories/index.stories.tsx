@@ -346,7 +346,7 @@ Use the Storybook controls to experiment with different combinations. Try settin
 	},
 };
 
-export const ErrorStatesAndEdgeCases: Story = {
+export const ErrorStates: Story = {
 	render: () => (
 		<div style={ { display: 'grid', gap: '2rem', gridTemplateColumns: 'repeat(2, 1fr)' } }>
 			<div>
