@@ -205,9 +205,18 @@ const PieChartInternal = ( {
 
 	const { getElementStyles, isSeriesVisible } = useGlobalChartsContext();
 
+	// Calculate percentages from values (single source of truth)
+	const dataWithPercentages = useMemo( () => {
+		const totalValue = data.reduce( ( sum, segment ) => sum + segment.value, 0 );
+		return data.map( segment => ( {
+			...segment,
+			percentage: totalValue > 0 ? ( segment.value / totalValue ) * 100 : 0,
+		} ) );
+	}, [ data ] );
+
 	// Filter and recalculate data for interactive legends
 	const { visibleData, allSegmentsHidden, legendData } = useInteractiveLegendData( {
-		data,
+		data: dataWithPercentages,
 		chartId,
 		legendInteractive,
 		isSeriesVisible,
