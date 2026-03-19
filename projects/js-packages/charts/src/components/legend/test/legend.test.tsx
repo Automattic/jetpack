@@ -1,9 +1,16 @@
 /* eslint-disable react/jsx-no-bind */
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { GlobalChartsProvider } from '../../../providers';
+import { useMemo } from 'react';
+import { SingleChartContext } from '../../../charts/private/single-chart-context';
+import {
+	GlobalChartsProvider,
+	useChartId,
+	useChartRegistration,
+} from '../../../providers';
+import { Legend } from '../legend';
 import { BaseLegend } from '../private/base-legend';
-import type { LegendProps } from '../types';
+import { LegendProps } from '../types';
 
 const TestShape: LegendProps[ 'shape' ] = props => {
 	return (
@@ -422,6 +429,95 @@ describe( 'BaseLegend', () => {
 
 			expect( screen.getByTestId( 'custom-legend' ) ).toBeInTheDocument();
 			expect( screen.queryByTestId( 'legend-vertical' ) ).not.toBeInTheDocument();
+		} );
+	} );
+
+	describe( 'Legend shape defaults from chart type', () => {
+		const legendItems = [
+			{ label: 'Series 1', color: '#ff0000' },
+			{ label: 'Series 2', color: '#00ff00' },
+		];
+
+		const ChartRegistrar = ( {
+			chartType,
+			chartId,
+		}: {
+			chartType: string;
+			chartId: string;
+		} ) => {
+			const resolvedId = useChartId( chartId );
+			const metadata = useMemo( () => ( {} ), [] );
+			useChartRegistration( {
+				chartId: resolvedId,
+				legendItems,
+				chartType,
+				isDataValid: true,
+				metadata,
+			} );
+			return null;
+		};
+
+		const renderLegendWithChartType = ( chartType: string, explicitShape?: LegendProps[ 'shape' ] ) => {
+			const chartId = `test-${ chartType }`;
+
+			return render(
+				<GlobalChartsProvider>
+					<ChartRegistrar chartType={ chartType } chartId={ chartId } />
+					<SingleChartContext.Provider
+						value={ { chartId } }
+					>
+						<Legend shape={ explicitShape } data-testid="composition-legend" />
+					</SingleChartContext.Provider>
+				</GlobalChartsProvider>
+			);
+		};
+
+		it( 'uses line shape for line chart type', () => {
+			renderLegendWithChartType( 'line' );
+			const legendEl = screen.getByRole( 'list' );
+			expect( legendEl ).toBeInTheDocument();
+
+			const svgs = legendEl.querySelectorAll( 'svg' );
+			const hasLineSvg = Array.from( svgs ).some( svg => {
+				return svg.querySelector( 'line' ) !== null;
+			} );
+			expect( hasLineSvg ).toBe( true );
+		} );
+
+		it( 'uses rect shape for bar chart type', () => {
+			renderLegendWithChartType( 'bar' );
+			const legendEl = screen.getByRole( 'list' );
+			expect( legendEl ).toBeInTheDocument();
+
+			const svgs = legendEl.querySelectorAll( 'svg' );
+			const hasLineSvg = Array.from( svgs ).some( svg => {
+				return svg.querySelector( 'line' ) !== null;
+			} );
+			expect( hasLineSvg ).toBe( false );
+		} );
+
+		it( 'uses circle shape for pie chart type', () => {
+			renderLegendWithChartType( 'pie' );
+			const legendEl = screen.getByRole( 'list' );
+			expect( legendEl ).toBeInTheDocument();
+
+			const svgs = legendEl.querySelectorAll( 'svg' );
+			const hasLineSvg = Array.from( svgs ).some( svg => {
+				return svg.querySelector( 'line' ) !== null;
+			} );
+			expect( hasLineSvg ).toBe( false );
+		} );
+
+		it( 'allows explicit shape to override chart type default', () => {
+			renderLegendWithChartType( 'line', 'circle' );
+			const legendEl = screen.getByRole( 'list' );
+
+			const svgs = legendEl.querySelectorAll( 'svg' );
+			const hasLineSvg = Array.from( svgs ).some( svg => {
+				return svg.querySelector( 'line' ) !== null;
+			} );
+
+			expect( hasLineSvg ).toBe( false );
 		} );
 	} );
 
