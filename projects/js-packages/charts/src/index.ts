@@ -45,3 +45,69 @@ export type {
 	GoogleDataTableRow,
 	GoogleDataTableColumnRoleType,
 } from 'react-google-charts';
+
+// Re-exports from removed individual entry points
+export { useLeaderboardLegendItems } from './charts/leaderboard-chart/hooks';
+
+// Previously available via '@automattic/charts/tooltip', '@automattic/charts/legend'
+export { AccessibleTooltip, useKeyboardNavigation } from './components/tooltip';
+export type { BaseTooltipProps, TooltipData, TooltipProps } from './components/tooltip';
+export type { LegendProps, BaseLegendProps, ChartLegendOptions } from './components/legend';
+
+// Previously available via '@automattic/charts/bar-chart', '@automattic/charts/line-chart', etc.
+export type { BarChartProps } from './charts/bar-chart';
+export type {
+	BarListChartProps,
+	RenderLabelProps,
+	RenderValueProps,
+} from './charts/bar-list-chart';
+export type {
+	ConversionFunnelChartProps,
+	FunnelStep,
+	StepLabelRenderProps,
+	StepRateRenderProps,
+	MainMetricRenderProps,
+	TooltipRenderProps,
+} from './charts/conversion-funnel-chart';
+export type { LeaderboardChartProps } from './charts/leaderboard-chart';
+export type {
+	LineChartProps,
+	LineChartAnnotationProps,
+	RenderLineGlyphProps,
+	TooltipDatum,
+	CurveType,
+} from './charts/line-chart';
+export type { ArcData } from './charts/pie-semi-circle-chart';
+export type { SparklineProps, GradientConfig, SparklineDataPoint } from './charts/sparkline';
+
+// Previously available via '@automattic/charts/hooks'
+export {
+	useDeepMemo,
+	useChartMouseHandler,
+	useXYChartTheme,
+	useChartDataTransform,
+	useChartMargin,
+	useElementSize,
+	useTextTruncation,
+	useZeroValueDisplay,
+	useInteractiveLegendData,
+	usePrefersReducedMotion,
+	useTooltipPortalRelocator,
+} from './hooks';
+
+// Previously available via '@automattic/charts/utils'
+export {
+	attachSubComponents,
+	parseAsLocalDate,
+	formatMetricValue,
+	formatPercentage,
+	getLongestTickWidth,
+	getSeriesLineStyles,
+	getSeriesStroke,
+	getItemShapeStyles,
+	isSafari,
+	mergeThemes,
+	resolveCssVariable,
+} from './utils';
+export * from './utils/color-utils';
+export type { MetricValueType } from './utils';
