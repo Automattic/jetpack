@@ -140,6 +140,22 @@ export function withRoomLimit(
 		function destroyAll(): void {
 			breached = true;
 			( window as Record< string, unknown > ).__wpcomRtcRoomLimitBreached = true;
+
+			// Non-admin: record a join request so the admin gets notified.
+			const config = window.wpcomRtcNotices;
+			if ( config && ! config.isAdmin && config.postId ) {
+				const wp = ( window as Record< string, unknown > ).wp as
+					| { apiFetch?: ( opts: Record< string, unknown > ) => Promise< unknown > }
+					| undefined;
+				wp
+					?.apiFetch?.( {
+						path: '/wpcom/v2/rtc-notices/join-request',
+						method: 'POST',
+						data: { post_id: config.postId },
+					} )
+					?.catch?.( () => {} );
+			}
+
 			for ( const fn of teardowns ) {
 				fn();
 			}
