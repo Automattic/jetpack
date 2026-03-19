@@ -52,7 +52,7 @@ const RtcWelcomeNotice = () => {
 			isOpen={ ! isDismissed }
 			title={ __( 'Edit posts together, in real time', 'jetpack-mu-wpcom' ) }
 			description={ __(
-				'You can now edit posts with others at the same time. See each other\u2019s changes instantly, right in the WordPress editor. Have fun, and if you have questions or feedback reach out to our support team.',
+				"You can now edit posts with others at the same time. See each other's changes instantly, right in the WordPress editor. Have fun, and if you have questions or feedback reach out to our support team.",
 				'jetpack-mu-wpcom'
 			) }
 			primaryAction={ {

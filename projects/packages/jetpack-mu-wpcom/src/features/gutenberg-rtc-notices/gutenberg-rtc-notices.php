@@ -45,7 +45,10 @@ function wpcom_enqueue_rtc_notices_assets() {
 	}
 
 	// Don't show notices if the user has turned off RTC in Writing Settings.
-	if ( ! get_option( 'wp_enable_real_time_collaboration', false ) ) {
+	// Both the old and new option names must be false to consider it disabled.
+	$old_option = get_option( 'wp_enable_real_time_collaboration', false );
+	$new_option = get_option( 'wp_collaboration_enabled', false );
+	if ( ! $old_option && ! $new_option ) {
 		return;
 	}
 

@@ -61,7 +61,7 @@ const WpcomSyncConnectionErrorModal: FC< SyncConnectionErrorModalProps > = () =>
 				isOpen={ true }
 				title={ __( 'Allow your team to collaborate', 'jetpack-mu-wpcom' ) }
 				description={ __(
-					'Your plan\u2019s collaborator limit has been reached. No room for anyone else right now.',
+					"Your plan's collaborator limit has been reached. No room for anyone else right now.",
 					'jetpack-mu-wpcom'
 				) }
 				primaryAction={ {
@@ -87,9 +87,9 @@ const WpcomSyncConnectionErrorModal: FC< SyncConnectionErrorModalProps > = () =>
 	return (
 		<RtcNoticeModal
 			isOpen={ true }
-			title={ __( 'You can\u2019t edit this together yet', 'jetpack-mu-wpcom' ) }
+			title={ __( "You can't edit this together yet", 'jetpack-mu-wpcom' ) }
 			description={ __(
-				'Your team is already editing this post and the collaborator limit has been reached. We\u2019ve notified your admin so they can make room.',
+				"Your team is already editing this post and the collaborator limit has been reached. We've notified your admin so they can make room.",
 				'jetpack-mu-wpcom'
 			) }
 			primaryAction={ {
