@@ -48,6 +48,7 @@ const VideoDetailsActions = ( {
 				placement="bottom center"
 				renderToggle={ ( { isOpen, onToggle } ) => (
 					<Button
+						size="compact"
 						variant="tertiary"
 						disabled={ disabled }
 						icon={ moreVertical }
