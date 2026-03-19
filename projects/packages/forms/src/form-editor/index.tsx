@@ -14,6 +14,10 @@ import { getPlugin, registerPlugin, unregisterPlugin } from '@wordpress/plugins'
 import { FORM_POST_TYPE } from '../blocks/shared/util/constants.js';
 import { EmbedCodePanel, EMBED_CODE_PANEL_PLUGIN } from './plugins/embed-code-panel';
 import {
+	FormPostPublishPanel,
+	FORM_POST_PUBLISH_PANEL_PLUGIN,
+} from './plugins/form-post-publish-panel';
+import {
 	FormPrePublishPanel,
 	JETPACK_FORM_PRE_PUBLISH_PANEL,
 } from './plugins/form-pre-publish-panel';
@@ -407,6 +411,9 @@ const setupFormEditorSubscription = () => {
 					registerPlugin( EMBED_CODE_PANEL_PLUGIN, {
 						render: EmbedCodePanel,
 					} );
+					registerPlugin( FORM_POST_PUBLISH_PANEL_PLUGIN, {
+						render: FormPostPublishPanel,
+					} );
 				} else {
 					// We just left the form editor.
 					document.body.classList.remove( 'post-type-jetpack_form' );
@@ -420,6 +427,10 @@ const setupFormEditorSubscription = () => {
 
 					if ( getPlugin( EMBED_CODE_PANEL_PLUGIN ) ) {
 						unregisterPlugin( EMBED_CODE_PANEL_PLUGIN );
+					}
+
+					if ( getPlugin( FORM_POST_PUBLISH_PANEL_PLUGIN ) ) {
+						unregisterPlugin( FORM_POST_PUBLISH_PANEL_PLUGIN );
 					}
 
 					if ( state.categoriesSetUp ) {
