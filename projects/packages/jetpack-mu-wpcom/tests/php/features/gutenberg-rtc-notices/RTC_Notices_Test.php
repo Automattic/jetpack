@@ -13,6 +13,7 @@ use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/gutenberg-rtc-notices/gutenberg-rtc-notices.php';
 // phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/gutenberg-rtc-notices/class-wp-rest-rtc-notices.php';
+use PHPUnit\Framework\Attributes\Before;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\CoversFunction;
 
@@ -51,12 +52,44 @@ class RTC_Notices_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Original WP_Scripts instance.
+	 *
+	 * @var \WP_Scripts|null
+	 */
+	private $original_wp_scripts;
+
+	/**
+	 * Original WP_Styles instance.
+	 *
+	 * @var \WP_Styles|null
+	 */
+	private $original_wp_styles;
+
+	/**
+	 * Set up before each test.
+	 *
+	 * @before
+	 */
+	#[Before]
+	public function save_globals(): void {
+		global $wp_scripts, $wp_styles;
+		$this->original_wp_scripts = $wp_scripts;
+		$this->original_wp_styles  = $wp_styles;
+	}
+
+	/**
 	 * Clean up after each test.
 	 */
 	public function tear_down(): void {
+		global $wp_scripts, $wp_styles;
+		$wp_scripts = $this->original_wp_scripts; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$wp_styles  = $this->original_wp_styles; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		wp_delete_user( $this->user_id );
 		remove_all_filters( 'wpcom_rtc_max_peers_per_room' );
 		remove_all_filters( 'wpcom_rtc_max_clients_per_user' );
+		remove_all_filters( 'wpcom_is_gutenberg_rtc_enabled' );
+		delete_option( 'wp_enable_real_time_collaboration' );
+		delete_option( 'wp_collaboration_enabled' );
 		parent::tear_down();
 	}
 
@@ -311,5 +344,140 @@ class RTC_Notices_Test extends \WorDBless\BaseTestCase {
 
 		wp_delete_user( $subscriber_id );
 		wp_delete_post( $post_id, true );
+	}
+
+	/**
+	 * Tests admin edit post permission denies non-admins.
+	 */
+	public function test_admin_edit_post_permission_denies_non_admin() {
+		$post_id = wp_insert_post(
+			array(
+				'post_title'  => 'Test Post',
+				'post_status' => 'publish',
+			)
+		);
+
+		$editor_id = wp_insert_user(
+			array(
+				'user_login' => 'rtc_editor_perm',
+				'user_pass'  => 'password',
+				'role'       => 'editor',
+			)
+		);
+
+		$controller = new WP_REST_RTC_Notices();
+		$request    = new WP_REST_Request( 'GET', '/wpcom/v2/rtc-notices/join-requests' );
+		$request->set_param( 'post_id', $post_id );
+
+		wp_set_current_user( $editor_id );
+		$this->assertFalse( $controller->check_admin_edit_post_permission( $request ) );
+
+		wp_set_current_user( $this->user_id );
+		$this->assertTrue( $controller->check_admin_edit_post_permission( $request ) );
+
+		wp_delete_user( $editor_id );
+		wp_delete_post( $post_id, true );
+	}
+
+	/**
+	 * Reset scripts/styles to a fresh state for enqueue tests.
+	 */
+	private function reset_scripts(): void {
+		global $wp_scripts, $wp_styles;
+		$wp_scripts = new \WP_Scripts(); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$wp_styles  = new \WP_Styles(); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+	}
+
+	/**
+	 * Tests that enqueue skips when RTC is not enabled.
+	 */
+	public function test_enqueue_skips_when_rtc_disabled() {
+		$this->reset_scripts();
+		add_filter( 'wpcom_is_gutenberg_rtc_enabled', '__return_false' );
+
+		wpcom_enqueue_rtc_notices_assets();
+
+		$this->assertFalse( wp_script_is( 'jetpack-mu-wpcom-gutenberg-rtc-notices', 'enqueued' ) );
+	}
+
+	/**
+	 * Tests that enqueue skips when RTC setting is off.
+	 */
+	public function test_enqueue_skips_when_rtc_setting_off() {
+		$this->reset_scripts();
+		add_filter( 'wpcom_is_gutenberg_rtc_enabled', '__return_true' );
+		// Explicitly set to '0' — deleting won't work because gutenberg-rtc.php
+		// has a default_option filter that returns '1' when providers exist.
+		update_option( 'wp_enable_real_time_collaboration', '0' );
+		update_option( 'wp_collaboration_enabled', '0' );
+
+		wpcom_enqueue_rtc_notices_assets();
+
+		$this->assertFalse( wp_script_is( 'jetpack-mu-wpcom-gutenberg-rtc-notices', 'enqueued' ) );
+	}
+
+	/**
+	 * Tests that enqueue works when RTC is enabled and old setting is on.
+	 */
+	public function test_enqueue_works_with_old_rtc_option() {
+		$this->reset_scripts();
+		add_filter( 'wpcom_is_gutenberg_rtc_enabled', '__return_true' );
+		update_option( 'wp_enable_real_time_collaboration', '1' );
+
+		wpcom_enqueue_rtc_notices_assets();
+
+		$this->assertTrue( wp_script_is( 'jetpack-mu-wpcom-gutenberg-rtc-notices', 'enqueued' ) );
+	}
+
+	/**
+	 * Tests that enqueue works when RTC is enabled and new setting is on.
+	 */
+	public function test_enqueue_works_with_new_rtc_option() {
+		$this->reset_scripts();
+		add_filter( 'wpcom_is_gutenberg_rtc_enabled', '__return_true' );
+		update_option( 'wp_collaboration_enabled', '1' );
+
+		wpcom_enqueue_rtc_notices_assets();
+
+		$this->assertTrue( wp_script_is( 'jetpack-mu-wpcom-gutenberg-rtc-notices', 'enqueued' ) );
+	}
+
+	/**
+	 * Tests that the inline script includes expected config keys.
+	 */
+	public function test_enqueue_includes_inline_config() {
+		$this->reset_scripts();
+		add_filter( 'wpcom_is_gutenberg_rtc_enabled', '__return_true' );
+		update_option( 'wp_enable_real_time_collaboration', '1' );
+
+		wpcom_enqueue_rtc_notices_assets();
+
+		global $wp_scripts;
+		$handle = 'jetpack-mu-wpcom-gutenberg-rtc-notices';
+		$extra  = $wp_scripts->registered[ $handle ]->extra['before'] ?? array();
+		$inline = implode( "\n", array_filter( $extra ) );
+
+		$this->assertStringContainsString( 'wpcomRtcNotices', $inline );
+		$this->assertStringContainsString( '"isAdmin"', $inline );
+		$this->assertStringContainsString( '"welcomeDismissed"', $inline );
+		$this->assertStringContainsString( '"maxPeersPerRoom"', $inline );
+		$this->assertStringContainsString( '"maxClientsPerUser"', $inline );
+		$this->assertStringContainsString( '"siteSlug"', $inline );
+	}
+
+	/**
+	 * Tests that REST routes are registered.
+	 */
+	public function test_rest_routes_registered() {
+		$controller = new WP_REST_RTC_Notices();
+		$controller->register_routes();
+
+		$routes = rest_get_server()->get_routes();
+
+		$this->assertArrayHasKey( '/wpcom/v2/rtc-notices/dismiss', $routes );
+		$this->assertArrayHasKey( '/wpcom/v2/rtc-notices/status', $routes );
+		$this->assertArrayHasKey( '/wpcom/v2/rtc-notices/join-request', $routes );
+		$this->assertArrayHasKey( '/wpcom/v2/rtc-notices/join-requests', $routes );
+		$this->assertArrayHasKey( '/wpcom/v2/rtc-notices/join-requests/clear', $routes );
 	}
 }
