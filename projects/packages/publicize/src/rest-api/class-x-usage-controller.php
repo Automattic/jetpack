@@ -2,7 +2,7 @@
 /**
  * X Usage Controller.
  *
- * Exposes X share quota and per-month usage data for client UI.
+ * Exposes X share usage data as a collection.
  *
  * @package automattic/jetpack-publicize
  */
@@ -70,14 +70,11 @@ class X_Usage_Controller extends Base_Controller {
 	}
 
 	/**
-	 * Get X usage data.
+	 * Get X usage data as a collection.
 	 *
-	 * Returns the quota limit, plan type, and usage breakdown.
-	 * Each period with data includes counts of 'used' (done) and 'pending'
-	 * (scheduled/future) shares. Only periods with entries are included.
-	 *
-	 * For paid plans, usage is keyed by yyyy-mm with per-month quota.
-	 * For free plans, usage is keyed by 'free' with a lifetime limit.
+	 * Returns an array of usage items, one per period. For paid plans,
+	 * each item represents a calendar month (id = yyyy-mm). For free
+	 * plans, a single item with id = 'free' covers lifetime usage.
 	 *
 	 * @param WP_REST_Request $request Full details about the request.
 	 * @return WP_REST_Response
@@ -86,14 +83,10 @@ class X_Usage_Controller extends Base_Controller {
 		if ( Utils::is_wpcom() ) {
 			require_lib( 'publicize/util/x-usage' );
 
-			$blog_id = get_current_blog_id();
-			$usage   = \Publicize\get_x_usage( $blog_id );
-			$is_free = \Publicize\is_free_x_plan( $blog_id );
-			$limit   = \Publicize\get_x_share_limit( $blog_id );
+			$usage = \Publicize\get_x_usage( get_current_blog_id() );
 
-			// Build per-month breakdown.
-			$months = array();
-			foreach ( $usage as $month => $entries ) {
+			$items = array();
+			foreach ( $usage as $period => $entries ) {
 				if ( ! is_array( $entries ) || empty( $entries ) ) {
 					continue;
 				}
@@ -108,23 +101,22 @@ class X_Usage_Controller extends Base_Controller {
 					}
 				}
 
-				$months[ $month ] = array(
+				$item = array(
+					'period'  => $period,
 					'used'    => $used,
 					'pending' => $pending,
 					'total'   => $used + $pending,
 				);
+
+				$data    = $this->prepare_item_for_response( $item, $request );
+				$items[] = $this->prepare_response_for_collection( $data );
 			}
 
-			// Sort by month key.
-			ksort( $months );
+			$response = rest_ensure_response( $items );
+			$response->header( 'X-WP-Total', (string) count( $items ) );
+			$response->header( 'X-WP-TotalPages', '1' );
 
-			$data = array(
-				'limit'   => $limit,
-				'is_free' => $is_free,
-				'usage'   => $months,
-			);
-
-			return rest_ensure_response( $data );
+			return $response;
 		}
 
 		return rest_ensure_response(
@@ -138,42 +130,35 @@ class X_Usage_Controller extends Base_Controller {
 	 * @return array
 	 */
 	public function get_item_schema() {
+		if ( $this->schema ) {
+			return $this->add_additional_fields_schema( $this->schema );
+		}
+
 		$schema = array(
 			'$schema'    => 'http://json-schema.org/draft-04/schema#',
 			'title'      => 'publicize-x-usage',
 			'type'       => 'object',
 			'properties' => array(
-				'limit'   => array(
+				'period'  => array(
+					'type'        => 'string',
+					'description' => __( 'Period identifier: yyyy-mm for paid plans, "free" for free plans.', 'jetpack-publicize-pkg' ),
+				),
+				'used'    => array(
 					'type'        => 'integer',
-					'description' => __( 'Maximum number of X shares allowed (per month for paid, lifetime for free).', 'jetpack-publicize-pkg' ),
+					'description' => __( 'Number of shares successfully sent.', 'jetpack-publicize-pkg' ),
 				),
-				'is_free' => array(
-					'type'        => 'boolean',
-					'description' => __( 'Whether the site is on the free plan (lifetime limit vs monthly).', 'jetpack-publicize-pkg' ),
+				'pending' => array(
+					'type'        => 'integer',
+					'description' => __( 'Number of shares scheduled or awaiting publish.', 'jetpack-publicize-pkg' ),
 				),
-				'usage'   => array(
-					'type'                 => 'object',
-					'description'          => __( 'Usage breakdown keyed by yyyy-mm for paid plans or "free" for free plans. Only periods with data are included.', 'jetpack-publicize-pkg' ),
-					'additionalProperties' => array(
-						'type'       => 'object',
-						'properties' => array(
-							'used'    => array(
-								'type'        => 'integer',
-								'description' => __( 'Number of shares successfully sent.', 'jetpack-publicize-pkg' ),
-							),
-							'pending' => array(
-								'type'        => 'integer',
-								'description' => __( 'Number of shares scheduled or awaiting publish.', 'jetpack-publicize-pkg' ),
-							),
-							'total'   => array(
-								'type'        => 'integer',
-								'description' => __( 'Total shares counting toward quota (used + pending).', 'jetpack-publicize-pkg' ),
-							),
-						),
-					),
+				'total'   => array(
+					'type'        => 'integer',
+					'description' => __( 'Total shares counting toward quota (used + pending).', 'jetpack-publicize-pkg' ),
 				),
 			),
 		);
+
+		$this->schema = $schema;
 
 		return $this->add_additional_fields_schema( $schema );
 	}
