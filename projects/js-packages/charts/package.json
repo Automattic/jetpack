@@ -23,22 +23,7 @@
 			"import": "./dist/index.js",
 			"require": "./dist/index.cjs"
 		},
-		"./hooks": {
-			"jetpack:src": "./src/hooks/index.ts",
-			"import": "./dist/hooks/index.js",
-			"require": "./dist/hooks/index.cjs"
-		},
-		"./providers": {
-			"jetpack:src": "./src/providers/index.ts",
-			"import": "./dist/providers/index.js",
-			"require": "./dist/providers/index.cjs"
-		},
 		"./style.css": "./dist/index.css",
-		"./utils": {
-			"jetpack:src": "./src/utils/index.ts",
-			"import": "./dist/utils/index.js",
-			"require": "./dist/utils/index.cjs"
-		},
 		"./visx/group": {
 			"jetpack:src": "./src/visx/group/index.ts",
 			"import": "./dist/visx/group/index.js",
@@ -61,15 +46,6 @@
 		"*": {
 			".": [
 				"./dist/index.d.ts"
-			],
-			"hooks": [
-				"./dist/hooks/index.d.ts"
-			],
-			"providers": [
-				"./dist/providers/index.d.ts"
-			],
-			"utils": [
-				"./dist/utils/index.d.ts"
 			],
 			"visx/group": [
 				"./dist/visx/group/index.d.ts"
