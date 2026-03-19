@@ -600,13 +600,17 @@ export default function usePageHeaderDetails(
 				if ( statusView === 'inbox' && sourceIdNumber ) {
 					dropdownControls.push( {
 						onClick: () => {
+							trackAction( 'jetpack_forms_form_edit_form_click' );
 							window.location.href = getFormEditUrl( sourceIdNumber, adminUrl );
 						},
 						title: __( 'Edit form', 'jetpack-forms' ),
 					} );
 				}
 				dropdownControls.push( {
-					onClick: openExportModal,
+					onClick: () => {
+						trackAction( 'jetpack_forms_form_export_click' );
+						openExportModal();
+					},
 					title: exportLabel,
 					isDisabled: ! hasResponses,
 				} );
@@ -645,7 +649,10 @@ export default function usePageHeaderDetails(
 				}
 
 				dropdownControls.push( {
-					onClick: openExportModal,
+					onClick: () => {
+						trackAction( 'jetpack_forms_form_export_click' );
+						openExportModal();
+					},
 					title: exportLabel,
 					isDisabled: ! hasResponses,
 				} );
