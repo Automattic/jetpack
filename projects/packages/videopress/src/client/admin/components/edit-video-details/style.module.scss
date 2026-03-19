@@ -50,6 +50,10 @@
 	margin-left: var(--spacing-base); // 8px
 }
 
+.actions {
+	margin-top: calc(var(--spacing-base) * 3); // 24px
+}
+
 .rating {
 
 	:global {

@@ -57,6 +57,7 @@ const Infos = ( {
 	onChangeDescription,
 	loading = false,
 	disabled = false,
+	actions,
 }: {
 	title: string;
 	onChangeTitle: ( value: string ) => void;
@@ -64,6 +65,7 @@ const Infos = ( {
 	onChangeDescription: ( value: string ) => void;
 	loading: boolean;
 	disabled: boolean;
+	actions?: React.ReactNode | React.ReactNode[];
 } ) => {
 	const { hasIncompleteChapters } = useChaptersLiveParsing( description );
 
@@ -109,6 +111,7 @@ const Infos = ( {
 					</div>
 				</>
 			) }
+			{ ! loading && actions && <div className={ styles.actions }>{ actions }</div> }
 		</>
 	);
 };
@@ -231,7 +234,7 @@ const EditVideoDetails = () => {
 				</li>
 				<li>
 					<h1 className={ styles[ 'breadcrumb-current' ] }>
-						{ __( 'Edit video details', 'jetpack-videopress-pkg' ) }
+						{ __( 'Edit', 'jetpack-videopress-pkg' ) }
 					</h1>
 				</li>
 			</HStack>
@@ -239,14 +242,6 @@ const EditVideoDetails = () => {
 	);
 
 	const headerActions = [
-		<Button
-			variant="primary"
-			disabled={ ! hasChanges || isBusy || isFetchingData }
-			onClick={ handleSaveChanges }
-			isLoading={ isBusy || isFetchingData }
-		>
-			{ __( 'Save changes', 'jetpack-videopress-pkg' ) }
-		</Button>,
 		<VideoDetailsActions
 			videoId={ id }
 			disabled={ isBusy || isFetchingData }
@@ -287,6 +282,16 @@ const EditVideoDetails = () => {
 								onChangeDescription={ setDescription }
 								loading={ isFetchingData }
 								disabled={ isBusy }
+								actions={
+									<Button
+										variant="primary"
+										disabled={ ! hasChanges || isBusy || isFetchingData }
+										onClick={ handleSaveChanges }
+										isLoading={ isBusy || isFetchingData }
+									>
+										{ __( 'Save changes', 'jetpack-videopress-pkg' ) }
+									</Button>
+								}
 							/>
 						</Col>
 						<Col sm={ 4 } md={ 8 } lg={ { start: 9, end: 12 } }>
