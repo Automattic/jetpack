@@ -409,7 +409,7 @@ export const WithLegendLabels: Story = {
 		docs: {
 			description: {
 				story:
-					'Props-based legend using `showLegend` and the `legend` config object. Use Storybook controls to adjust legend position, alignment, orientation, shape, and interactivity.',
+					'Props-based legend using `showLegend`, the `legend` config object, and the `legendLabels` prop to customize primary and comparison labels. Other legend options (position, alignment, orientation, shape, interactivity) can be adjusted via Storybook controls.',
 			},
 		},
 	},
