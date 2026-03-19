@@ -354,15 +354,6 @@ export const ErrorStatesAndEdgeCases: Story = {
 				<PieChart data={ [] } />
 			</div>
 			<div>
-				<h3>Partial Values</h3>
-				<PieChart
-					data={ [
-						{ label: 'A', value: 30 },
-						{ label: 'B', value: 40 },
-					] }
-				/>
-			</div>
-			<div>
 				<h3>Negative Values</h3>
 				<PieChart
 					data={ [
