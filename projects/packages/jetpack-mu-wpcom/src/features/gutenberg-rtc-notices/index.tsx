@@ -17,6 +17,8 @@ import RtcWelcomeNotice from './notices/rtc-welcome-notice';
 import { withRoomLimit } from './room-limit';
 import type { ProviderCreator } from '@wordpress/sync';
 
+const enableLimitNotices = window.wpcomRtcNotices?.enableLimitNotices ?? false;
+
 /**
  * Wrap all sync providers with room-limit enforcement.
  * Runs at priority 20 so it wraps providers registered by the rtc package (priority 10).
@@ -47,18 +49,17 @@ function registerRoomLimitFilter(): void {
 	);
 }
 
-// Register limit enforcement.
-registerRoomLimitFilter();
-
-// Replace Gutenberg's default "Connection lost" modal with branded notices.
-registerConnectionErrorModalFilter();
+if ( enableLimitNotices ) {
+	registerRoomLimitFilter();
+	registerConnectionErrorModalFilter();
+}
 
 const RtcNoticesPlugin = () => {
 	return (
 		<>
 			<RtcWelcomeNotice />
-			<RtcAdminSomeoneWaitingNotice />
-			<RtcNonAdminPostUpgradeNotice />
+			{ enableLimitNotices && <RtcAdminSomeoneWaitingNotice /> }
+			{ enableLimitNotices && <RtcNonAdminPostUpgradeNotice /> }
 		</>
 	);
 };

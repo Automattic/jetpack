@@ -61,15 +61,16 @@ function wpcom_enqueue_rtc_notices_assets() {
 
 	$data = wp_json_encode(
 		array(
-			'isAdmin'           => $is_admin_user,
-			'welcomeDismissed'  => WP_REST_RTC_Notices::is_dismissed(),
-			'postId'            => get_the_ID(),
-			'postTitle'         => get_the_title(),
-			'postEditUrl'       => get_edit_post_link( get_the_ID(), 'raw' ),
-			'postsListUrl'      => admin_url( 'edit.php' ),
-			'siteSlug'          => wpcom_get_site_slug(),
-			'maxPeersPerRoom'   => wpcom_get_rtc_max_peers_per_room(),
-			'maxClientsPerUser' => wpcom_get_rtc_max_clients_per_user(),
+			'isAdmin'            => $is_admin_user,
+			'welcomeDismissed'   => WP_REST_RTC_Notices::is_dismissed(),
+			'postId'             => get_the_ID(),
+			'postTitle'          => get_the_title(),
+			'postEditUrl'        => get_edit_post_link( get_the_ID(), 'raw' ),
+			'postsListUrl'       => admin_url( 'edit.php' ),
+			'siteSlug'           => wpcom_get_site_slug(),
+			'maxPeersPerRoom'    => wpcom_get_rtc_max_peers_per_room(),
+			'maxClientsPerUser'  => wpcom_get_rtc_max_clients_per_user(),
+			'enableLimitNotices' => apply_filters( 'wpcom_rtc_enable_limit_notices', false ),
 		),
 		JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 	);
