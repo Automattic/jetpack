@@ -5,8 +5,59 @@
  * @package automattic/jetpack-mu-wpcom
  */
 
+use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\Common;
+use Automattic\Jetpack\Status\Host;
+
+function wpcom_launch_button_experiment_assignment() {
+	$experiment_name = 'calypso_launch_button_experiment_test_20260319_3';
+	$user_id         = get_current_user_id();
+	$cache_key       = $experiment_name . '-' . $user_id;
+
+	$variation = null;
+
+	// Check cache first.
+	$cached_result = get_transient( $cache_key );
+
+	if ( $cached_result ) {
+		$variation = $cached_result;
+	} elseif ( ( new Host() )->is_wpcom_simple() ) {
+		$variation = \ExPlat\assign_current_user( $experiment_name );
+
+		error_log( 'response simple: ' . print_r( $variation, true ) );
+
+		set_transient( $cache_key, $variation, HOUR_IN_SECONDS );
+	} elseif ( ( new Connection_Manager() )->is_user_connected() ) {
+		$request_path = '/experiments/0.1.0/assignments/calypso';
+		$response     = Client::wpcom_json_api_request_as_user(
+			add_query_arg( array( 'experiment_names' => $experiment_name ), $request_path ),
+			'v2',
+			array(
+				'headers' => array(
+					'User-Agent' => 'Jetpack MU WPCOM Plugin Launch Button Experiment Assignment',
+				),
+			)
+		);
+
+		if ( ! is_wp_error( $response ) ) {
+			$response_code = wp_remote_retrieve_response_code( $response );
+			if ( 200 === $response_code ) {
+				$data = json_decode( wp_remote_retrieve_body( $response ), true );
+				if ( isset( $data['variations'] ) && isset( $data['variations'][ $experiment_name ] ) ) {
+					$variation = $data['variations'][ $experiment_name ];
+				}
+			}
+		}
+
+		error_log( 'response atomic: ' . wp_remote_retrieve_body( $response ) );
+
+		set_transient( $cache_key, $variation, HOUR_IN_SECONDS );
+	}
+
+	error_log( 'variation: ' . print_r( $variation, true ) );
+}
 
 /**
  * Adds a "launch site" button to the admin bar.
@@ -37,14 +88,16 @@ function wpcom_add_launch_button_to_admin_bar( WP_Admin_Bar $admin_bar ) {
 		return false;
 	}
 
-	$is_launched = get_option( 'launch-status' ) !== 'unlaunched';
-	if ( $is_launched ) {
-		return;
-	}
+	// $is_launched = get_option( 'launch-status' ) !== 'unlaunched';
+	// if ( $is_launched ) {
+	// return;
+	// }
 
 	if ( $current_blog_id === 1 && defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 		return;
 	}
+
+	wpcom_launch_button_experiment_assignment();
 
 	$icon = '<svg viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
 						<path
