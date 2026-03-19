@@ -39,6 +39,7 @@ export type {
 export type { GeoChartProps, GeoRegion, GeoResolution } from './charts/geo-chart';
 export type { LegendValueDisplay, BaseLegendItem } from './components/legend';
 export type { TrendIndicatorProps, TrendDirection } from './components/trend-indicator';
+export type { SparklineProps, GradientConfig, SparklineDataPoint } from './charts/sparkline';
 export type { LineStyles, GridStyles, EventHandlerParams } from '@visx/xychart';
 export type {
 	GoogleDataTableColumn,
