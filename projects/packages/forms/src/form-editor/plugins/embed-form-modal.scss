@@ -1,0 +1,85 @@
+.jetpack-form-embed-form-modal {
+
+	.jetpack-form-embed-form__content {
+		display: flex;
+		flex-direction: column;
+		gap: 16px;
+	}
+
+	.jetpack-form-embed-form__subtitle {
+		margin: 0;
+	}
+
+	.jetpack-form-embed-form__button {
+		width: 100%;
+		justify-content: center;
+	}
+
+	.jetpack-form-embed-form__button-row {
+		display: flex;
+		gap: 12px;
+	}
+
+	.jetpack-form-embed-form__step {
+		display: flex;
+		flex-direction: column;
+		gap: 16px;
+		animation: jetpack-form-embed-form-fade-in 0.3s ease;
+	}
+
+	// Wrapper for the combobox: positioned absolutely so the dropdown
+	// doesn't shift the modal layout as results change.
+	.jetpack-form-embed-form__combobox-wrapper {
+		position: relative;
+		min-height: 300px;
+	}
+
+	.jetpack-form-embed-form__combobox-wrapper-inner {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		display: flex;
+		flex-direction: column;
+		gap: 16px;
+	}
+
+	@keyframes jetpack-form-embed-form-fade-in {
+
+		from {
+			opacity: 0;
+			transform: translateY(8px);
+		}
+
+		to {
+			opacity: 1;
+			transform: translateY(0);
+		}
+	}
+
+	.jetpack-form-embed-form__code-input input {
+		font-family: monospace;
+		font-size: 12px;
+		background: #fff;
+	}
+
+	.jetpack-form-embed-form__hint {
+		margin: 0;
+		font-size: 12px;
+		color: #757575;
+	}
+
+	.jetpack-form-embed-form__separator {
+		display: flex;
+		align-items: center;
+		gap: 12px;
+		color: #757575;
+
+		&::before,
+		&::after {
+			content: "";
+			flex: 1;
+			border-top: 1px solid #ddd;
+		}
+	}
+}

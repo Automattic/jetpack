@@ -41,6 +41,26 @@ await jest.unstable_mockModule( '@wordpress/editor', () => ( {
 	PluginPostStatusInfo: MockPluginPostStatusInfo,
 } ) );
 
+// Mock WordPress components
+await jest.unstable_mockModule( '@wordpress/components', () => ( {
+	Button: ( { children, onClick, className } ) => (
+		<button onClick={ onClick } className={ className }>
+			{ children }
+		</button>
+	),
+} ) );
+
+// Mock WordPress element
+await jest.unstable_mockModule( '@wordpress/element', () => ( {
+	useState: jest.fn( initial => {
+		let value = initial;
+		const setValue = newValue => {
+			value = newValue;
+		};
+		return [ value, setValue ];
+	} ),
+} ) );
+
 // Mock CopyCodeRow to capture text props
 const copyCodeRowTexts = [];
 await jest.unstable_mockModule( '../../../../src/form-editor/plugins/copy-code-row', () => ( {
@@ -48,6 +68,12 @@ await jest.unstable_mockModule( '../../../../src/form-editor/plugins/copy-code-r
 		copyCodeRowTexts.push( text );
 		return <div data-testid="copy-code-row">{ label }</div>;
 	},
+} ) );
+
+// Mock the EmbedFormModal
+await jest.unstable_mockModule( '../../../../src/form-editor/plugins/embed-form-modal', () => ( {
+	EmbedFormModal: ( { isOpen } ) =>
+		isOpen ? <div data-testid="embed-form-modal">Modal Open</div> : null,
 } ) );
 
 // Import component after mocks
@@ -96,5 +122,19 @@ describe( 'EmbedCodePanel', () => {
 
 		expect( copyCodeRowTexts ).toContain( '<!-- wp:jetpack/contact-form {"ref":123} /-->' );
 		expect( copyCodeRowTexts ).toContain( '[contact-form ref="123"]' );
+	} );
+
+	it( 'renders the Embed Form button', () => {
+		render( <EmbedCodePanel /> );
+
+		expect( screen.getByText( 'Embed Form' ) ).toBeInTheDocument();
+	} );
+
+	it( 'does not render the Embed Form button for auto-draft posts', () => {
+		mockPostStatus = 'auto-draft';
+
+		const { container } = render( <EmbedCodePanel /> );
+
+		expect( container ).toBeEmptyDOMElement();
 	} );
 } );
