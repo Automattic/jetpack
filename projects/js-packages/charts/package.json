@@ -28,24 +28,12 @@
 			"import": "./dist/hooks/index.js",
 			"require": "./dist/hooks/index.cjs"
 		},
-		"./legend": {
-			"jetpack:src": "./src/components/legend/index.ts",
-			"import": "./dist/components/legend/index.js",
-			"require": "./dist/components/legend/index.cjs"
-		},
-		"./legend/style.css": "./dist/components/legend/index.css",
 		"./providers": {
 			"jetpack:src": "./src/providers/index.ts",
 			"import": "./dist/providers/index.js",
 			"require": "./dist/providers/index.cjs"
 		},
 		"./style.css": "./dist/index.css",
-		"./tooltip": {
-			"jetpack:src": "./src/components/tooltip/index.ts",
-			"import": "./dist/components/tooltip/index.js",
-			"require": "./dist/components/tooltip/index.cjs"
-		},
-		"./tooltip/style.css": "./dist/components/tooltip/index.css",
 		"./trend-indicator": {
 			"jetpack:src": "./src/components/trend-indicator/index.ts",
 			"import": "./dist/components/trend-indicator/index.js",
@@ -83,14 +71,8 @@
 			"hooks": [
 				"./dist/hooks/index.d.ts"
 			],
-			"legend": [
-				"./dist/components/legend/index.d.ts"
-			],
 			"providers": [
 				"./dist/providers/index.d.ts"
-			],
-			"tooltip": [
-				"./dist/components/tooltip/index.d.ts"
 			],
 			"trend-indicator": [
 				"./dist/components/trend-indicator/index.d.ts"
