@@ -34,12 +34,13 @@ function resolve_donation_plan( $plan_id, $interval, $currency ) {
 	// Try the saved plan ID first.
 	if ( $plan_id ) {
 		$plan = get_post( $plan_id );
+		$meta = $plan ? get_post_meta( $plan->ID ) : array();
 		if ( $plan && ! is_wp_error( $plan )
 			&& $plan->post_type === $post_type
-			&& (int) get_post_meta( $plan->ID, 'jetpack_memberships_site_id', true ) === $site_id
-			&& get_post_meta( $plan->ID, 'jetpack_memberships_type', true ) === 'donation'
-			&& get_post_meta( $plan->ID, 'jetpack_memberships_interval', true ) === $interval
-			&& get_post_meta( $plan->ID, 'jetpack_memberships_currency', true ) === $currency
+			&& ( $meta['jetpack_memberships_type'][0] ?? '' ) === 'donation'
+			&& (int) ( $meta['jetpack_memberships_site_id'][0] ?? 0 ) === $site_id
+			&& ( $meta['jetpack_memberships_interval'][0] ?? '' ) === $interval
+			&& ( $meta['jetpack_memberships_currency'][0] ?? '' ) === $currency
 		) {
 			return $plan;
 		}
