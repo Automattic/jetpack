@@ -27,7 +27,14 @@ import {
 	restoreJetpackBlockCollection,
 } from './utils/block-collection';
 import { determineBlockNestingAction } from './utils/block-nesting-logic';
-import { BlockLock, findFormBlock, shouldLockBlock, getBlocksToMove } from './utils/block-utils';
+import {
+	BlockLock,
+	findActiveStepBlock,
+	findFormBlock,
+	isMultistepForm,
+	shouldLockBlock,
+	getBlocksToMove,
+} from './utils/block-utils';
 import {
 	moveContactFormCategoryToFront as moveCategoryToFront,
 	moveContactFormCategoryToBack as moveCategoryToBack,
@@ -272,8 +279,24 @@ const enforceBlockNesting = () => {
 		return;
 	}
 
-	// Determine what action to take based on form state and blocks to move
-	const action = determineBlockNestingAction( formBlock, blocksToMove );
+	// For multistep forms, target the active step instead of the form block directly
+	let targetBlock = formBlock;
+	let targetClientId = state.formBlockClientId;
+
+	if ( isMultistepForm( formBlock ) ) {
+		const { getActiveStepId } = select( 'jetpack/forms/single-step' ) as {
+			getActiveStepId: ( formClientId: string ) => string | null;
+		};
+		const activeStepId = getActiveStepId( state.formBlockClientId );
+		const activeStep = findActiveStepBlock( formBlock, activeStepId );
+		if ( activeStep ) {
+			targetBlock = activeStep;
+			targetClientId = activeStep.clientId;
+		}
+	}
+
+	// Determine what action to take based on target block state and blocks to move
+	const action = determineBlockNestingAction( targetBlock, blocksToMove );
 
 	const { replaceInnerBlocks, removeBlocks, __unstableMarkNextChangeAsNotPersistent } = dispatch(
 		'core/block-editor'
@@ -299,14 +322,14 @@ const enforceBlockNesting = () => {
 		return;
 	}
 
-	// Handle move-blocks case: clone blocks and insert them into the form
+	// Handle move-blocks case: clone blocks and insert them into the target
 	const clonedBlocks = blocksToMove.map( block => cloneBlock( block ) );
 
 	// Build the new inner blocks array
 	let newInnerBlocks: ReturnType< typeof createBlock >[];
 
-	if ( action.addSubmitButton ) {
-		// Form was empty, add a submit button after the moved blocks
+	if ( action.addSubmitButton && targetBlock === formBlock ) {
+		// Form was empty (non-multistep), add a submit button after the moved blocks
 		const submitButton = createBlock( 'core/button', {
 			tagName: 'button',
 			type: 'submit',
@@ -315,9 +338,13 @@ const enforceBlockNesting = () => {
 		} );
 
 		newInnerBlocks = [ ...clonedBlocks, submitButton ];
+	} else if ( action.addSubmitButton ) {
+		// Multistep step was empty — just add the blocks without a submit button
+		// (multistep forms use form-step-navigation for submission)
+		newInnerBlocks = [ ...clonedBlocks ];
 	} else {
-		// Form already has blocks, insert new blocks at the target index
-		const existingBlocks = [ ...formBlock.innerBlocks ];
+		// Target already has blocks, insert new blocks at the target index
+		const existingBlocks = [ ...targetBlock.innerBlocks ];
 		existingBlocks.splice( action.insertionIndex!, 0, ...clonedBlocks );
 		newInnerBlocks = existingBlocks;
 	}
@@ -327,10 +354,10 @@ const enforceBlockNesting = () => {
 	__unstableMarkNextChangeAsNotPersistent();
 	removeBlocks( clientIdsToRemove );
 
-	// Then use replaceInnerBlocks to set the form's inner blocks
+	// Then use replaceInnerBlocks to set the target's inner blocks
 	__unstableMarkNextChangeAsNotPersistent();
 	replaceInnerBlocks(
-		state.formBlockClientId,
+		targetClientId,
 		newInnerBlocks,
 		false // Don't update selection
 	);

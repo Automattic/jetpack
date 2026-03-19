@@ -74,6 +74,53 @@ export function getBlocksToMove( blocks: Block[], formBlockClientId: string ): B
 }
 
 /**
+ * Finds the step container block inside a form block.
+ *
+ * @param formBlock - The form block to search
+ * @return The step container block or null if not found
+ */
+export function findStepContainer( formBlock: Block ): Block | null {
+	return formBlock.innerBlocks.find( b => b.name === 'jetpack/form-step-container' ) || null;
+}
+
+/**
+ * Checks if a form block is a multistep form (has a step container).
+ *
+ * @param formBlock - The form block to check
+ * @return True if the form contains a step container
+ */
+export function isMultistepForm( formBlock: Block ): boolean {
+	return findStepContainer( formBlock ) !== null;
+}
+
+/**
+ * Finds the active step block inside a multistep form.
+ *
+ * Traverses form → step-container → steps to find the step matching activeStepId.
+ * Falls back to the first step if no matching step is found.
+ *
+ * @param formBlock    - The form block containing the step container
+ * @param activeStepId - The client ID of the active step (from the store)
+ * @return The active step block, the first step as fallback, or null if no steps exist
+ */
+export function findActiveStepBlock( formBlock: Block, activeStepId: string | null ): Block | null {
+	const stepContainer = findStepContainer( formBlock );
+	if ( ! stepContainer || stepContainer.innerBlocks.length === 0 ) {
+		return null;
+	}
+
+	if ( activeStepId ) {
+		const activeStep = stepContainer.innerBlocks.find( b => b.clientId === activeStepId );
+		if ( activeStep ) {
+			return activeStep;
+		}
+	}
+
+	// Fall back to the first step
+	return stepContainer.innerBlocks[ 0 ];
+}
+
+/**
  * Checks if a block is an empty paragraph.
  *
  * Handles various content types: undefined, null, empty string, empty object {},

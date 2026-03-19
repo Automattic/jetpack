@@ -6,6 +6,9 @@
 
 import {
 	findFormBlock,
+	findStepContainer,
+	isMultistepForm,
+	findActiveStepBlock,
 	getInsertionIndex,
 	shouldLockBlock,
 	getBlocksToMove,
@@ -101,6 +104,137 @@ describe( 'block-utils', () => {
 				attributes: { formId: 123 },
 				customProp: 'value',
 			} );
+		} );
+	} );
+
+	describe( 'findStepContainer', () => {
+		test( 'finds step container in form block', () => {
+			const formBlock = {
+				name: 'jetpack/contact-form',
+				clientId: 'form-1',
+				innerBlocks: [
+					{ name: 'jetpack/form-progress-indicator', clientId: 'prog-1', innerBlocks: [] },
+					{
+						name: 'jetpack/form-step-container',
+						clientId: 'container-1',
+						innerBlocks: [ { name: 'jetpack/form-step', clientId: 'step-1', innerBlocks: [] } ],
+					},
+					{ name: 'jetpack/form-step-navigation', clientId: 'nav-1', innerBlocks: [] },
+				],
+			};
+
+			const result = findStepContainer( formBlock );
+			expect( result?.clientId ).toBe( 'container-1' );
+		} );
+
+		test( 'returns null when no step container exists', () => {
+			const formBlock = {
+				name: 'jetpack/contact-form',
+				clientId: 'form-1',
+				innerBlocks: [
+					{ name: 'jetpack/field-text', clientId: 'field-1', innerBlocks: [] },
+					{ name: 'core/button', clientId: 'btn-1', innerBlocks: [] },
+				],
+			};
+
+			expect( findStepContainer( formBlock ) ).toBeNull();
+		} );
+
+		test( 'returns null for empty form', () => {
+			const formBlock = {
+				name: 'jetpack/contact-form',
+				clientId: 'form-1',
+				innerBlocks: [],
+			};
+
+			expect( findStepContainer( formBlock ) ).toBeNull();
+		} );
+	} );
+
+	describe( 'isMultistepForm', () => {
+		test( 'returns true when form has step container', () => {
+			const formBlock = {
+				name: 'jetpack/contact-form',
+				clientId: 'form-1',
+				innerBlocks: [
+					{
+						name: 'jetpack/form-step-container',
+						clientId: 'container-1',
+						innerBlocks: [],
+					},
+				],
+			};
+
+			expect( isMultistepForm( formBlock ) ).toBe( true );
+		} );
+
+		test( 'returns false for regular form', () => {
+			const formBlock = {
+				name: 'jetpack/contact-form',
+				clientId: 'form-1',
+				innerBlocks: [ { name: 'jetpack/field-text', clientId: 'field-1', innerBlocks: [] } ],
+			};
+
+			expect( isMultistepForm( formBlock ) ).toBe( false );
+		} );
+	} );
+
+	describe( 'findActiveStepBlock', () => {
+		const formBlock = {
+			name: 'jetpack/contact-form',
+			clientId: 'form-1',
+			innerBlocks: [
+				{
+					name: 'jetpack/form-step-container',
+					clientId: 'container-1',
+					innerBlocks: [
+						{ name: 'jetpack/form-step', clientId: 'step-1', innerBlocks: [] },
+						{ name: 'jetpack/form-step', clientId: 'step-2', innerBlocks: [] },
+						{ name: 'jetpack/form-step', clientId: 'step-3', innerBlocks: [] },
+					],
+				},
+			],
+		};
+
+		test( 'finds the active step by ID', () => {
+			const result = findActiveStepBlock( formBlock, 'step-2' );
+			expect( result?.clientId ).toBe( 'step-2' );
+		} );
+
+		test( 'falls back to first step when activeStepId is null', () => {
+			const result = findActiveStepBlock( formBlock, null );
+			expect( result?.clientId ).toBe( 'step-1' );
+		} );
+
+		test( 'falls back to first step when activeStepId not found', () => {
+			const result = findActiveStepBlock( formBlock, 'nonexistent' );
+			expect( result?.clientId ).toBe( 'step-1' );
+		} );
+
+		test( 'returns null when no step container exists', () => {
+			const regularForm = {
+				name: 'jetpack/contact-form',
+				clientId: 'form-1',
+				innerBlocks: [ { name: 'jetpack/field-text', clientId: 'field-1', innerBlocks: [] } ],
+			};
+
+			expect( findActiveStepBlock( regularForm, 'step-1' ) ).toBeNull();
+		} );
+
+		test( 'returns null when step container has no steps', () => {
+			const emptyMultistep = {
+				name: 'jetpack/contact-form',
+				clientId: 'form-1',
+				innerBlocks: [
+					{
+						name: 'jetpack/form-step-container',
+						clientId: 'container-1',
+						innerBlocks: [],
+					},
+				],
+			};
+
+			expect( findActiveStepBlock( emptyMultistep, null ) ).toBeNull();
 		} );
 	} );
 
