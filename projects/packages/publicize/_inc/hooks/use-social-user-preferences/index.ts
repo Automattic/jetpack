@@ -9,6 +9,11 @@ export type SocialUserPreferences = {
 	 * Whether to show a confirmation before publishing a post with social shares.
 	 */
 	showPrePublishConfirmation: boolean | undefined;
+
+	/**
+	 * Whether the X usage at-limit notice has been dismissed.
+	 */
+	dismissedXUsageNotice: boolean | undefined;
 };
 
 type BooleanPreferences = {
@@ -21,6 +26,7 @@ type Preference = keyof SocialUserPreferences;
 
 const PREFERENCES: Record< Preference, string > = {
 	showPrePublishConfirmation: 'show_pre_publish_confirmation',
+	dismissedXUsageNotice: 'dismissed_x_usage_notice',
 } as const;
 
 /**
