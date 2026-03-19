@@ -6,7 +6,11 @@ import {
 	Col,
 	GlobalNotices,
 } from '@automattic/jetpack-components';
-import { useConnection } from '@automattic/jetpack-connection';
+import {
+	ConnectionError,
+	useConnection,
+	useConnectionErrorNotice,
+} from '@automattic/jetpack-connection';
 import {
 	getMyJetpackUrl,
 	isJetpackSelfHostedSite,
@@ -25,7 +29,7 @@ import ConnectionScreen from './connection-screen';
 import Header from './header';
 import InfoSection from './info-section';
 import PricingPage from './pricing-page';
-import './styles.module.scss';
+import styles from './styles.module.scss';
 import SupportSection from './support-section';
 import SocialImageGeneratorToggle from './toggles/social-image-generator-toggle';
 import SocialModuleToggle from './toggles/social-module-toggle';
@@ -38,6 +42,7 @@ export const SocialAdminPage = () => {
 	const isJetpackSite = isJetpackSelfHostedSite();
 
 	const { isUserConnected, isRegistered } = useConnection();
+	const { hasConnectionError } = useConnectionErrorNotice();
 	const showConnectionCard = ! isSimple && ( ! isRegistered || ! isUserConnected );
 
 	const [ pricingPageDismissed, setPricingPageDismissed ] = useState( false );
@@ -101,6 +106,16 @@ export const SocialAdminPage = () => {
 			<GlobalNotices />
 			{ isJetpackSite && ! hasSocialPaidFeatures() && showPricingPage && ! pricingPageDismissed ? (
 				<AdminSectionHero>
+					<Container horizontalSpacing={ 0 }>
+						{ hasConnectionError && (
+							<Col className={ styles[ 'connection-error-col' ] }>
+								<ConnectionError />
+							</Col>
+						) }
+						<Col>
+							<div id="jp-admin-notices" className="jetpack-social-jitm-card" />
+						</Col>
+					</Container>
 					<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
 						<Col>
 							<PricingPage onDismiss={ onPricingPageDismiss } />

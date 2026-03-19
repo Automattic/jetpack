@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Move admin notices and JITMs below the tab bar instead of rendering inside the page header.
