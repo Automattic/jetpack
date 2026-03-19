@@ -46,40 +46,56 @@ export const EmbedFormModal = ( { isOpen, onClose, variant = 'embed' }: EmbedFor
 	const [ searchTerm, setSearchTerm ] = useState( '' );
 	const debouncedSetSearchTerm = useMemo( () => debounce( setSearchTerm, 300 ), [] );
 	const pageTitleInputRef = useRef< HTMLInputElement >( null );
+	const redirectTimeoutRef = useRef< ReturnType< typeof setTimeout > | null >( null );
 
-	// Cancel any pending debounce timer on unmount.
-	useEffect( () => () => debouncedSetSearchTerm.cancel(), [ debouncedSetSearchTerm ] );
-
-	const { postId, postTitle, pageRecords } = useSelect( select => {
-		const editor = select( editorStore ) as {
-			getCurrentPostId: () => number;
-			getEditedPostAttribute: ( attr: string ) => unknown;
+	// Cancel any pending debounce timer and redirect timeout on unmount.
+	useEffect( () => {
+		return () => {
+			debouncedSetSearchTerm.cancel();
+			if ( redirectTimeoutRef.current ) {
+				clearTimeout( redirectTimeoutRef.current );
+			}
 		};
+	}, [ debouncedSetSearchTerm ] );
 
-		// Only fetch page records when the modal is open to avoid unnecessary API calls.
-		let records = null;
-		if ( isOpen ) {
-			const entityStore = select( coreStore ) as {
-				getEntityRecords: (
-					kind: string,
-					name: string,
-					query: Record< string, unknown >
-				) => Array< { id: number; title: { rendered: string } } > | null;
+	const { postId, postTitle, pageRecords } = useSelect(
+		select => {
+			const editor = select( editorStore ) as {
+				getCurrentPostId: () => number;
+				getEditedPostAttribute: ( attr: string ) => unknown;
 			};
 
-			const searchQuery = searchTerm.trim()
-				? { search: searchTerm.trim(), per_page: 20, _fields: 'id,title' }
-				: { status: 'publish', per_page: 20, orderby: 'modified', _fields: 'id,title' };
+			// Only fetch page records when the modal is open to avoid unnecessary API calls.
+			let records = null;
+			if ( isOpen ) {
+				const entityStore = select( coreStore ) as {
+					getEntityRecords: (
+						kind: string,
+						name: string,
+						query: Record< string, unknown >
+					) => Array< { id: number; title: { rendered: string } } > | null;
+				};
 
-			records = entityStore.getEntityRecords( 'postType', 'page', searchQuery );
-		}
+				const searchQuery = searchTerm.trim()
+					? {
+							search: searchTerm.trim(),
+							status: 'publish',
+							per_page: 20,
+							_fields: 'id,title',
+					  }
+					: { status: 'publish', per_page: 20, orderby: 'modified', _fields: 'id,title' };
 
-		return {
-			postId: editor.getCurrentPostId(),
-			postTitle: editor.getEditedPostAttribute( 'title' ) as string,
-			pageRecords: records,
-		};
-	} );
+				records = entityStore.getEntityRecords( 'postType', 'page', searchQuery );
+			}
+
+			return {
+				postId: editor.getCurrentPostId(),
+				postTitle: editor.getEditedPostAttribute( 'title' ) as string,
+				pageRecords: records,
+			};
+		},
+		[ isOpen, searchTerm ]
+	);
 
 	const pageOptions = useMemo( () => {
 		if ( ! pageRecords ) {
@@ -97,6 +113,11 @@ export const EmbedFormModal = ( { isOpen, onClose, variant = 'embed' }: EmbedFor
 
 	const handleClose = useCallback( () => {
 		onClose();
+		// Cancel any pending redirect.
+		if ( redirectTimeoutRef.current ) {
+			clearTimeout( redirectTimeoutRef.current );
+			redirectTimeoutRef.current = null;
+		}
 		// Reset all state when closing so re-opening starts fresh.
 		setStep( 'initial' );
 		setPageTitle( '' );
@@ -132,6 +153,11 @@ export const EmbedFormModal = ( { isOpen, onClose, variant = 'embed' }: EmbedFor
 					post: page.id,
 					action: 'edit',
 				} );
+			} else {
+				createErrorNotice( __( 'Failed to create page. Please try again.', 'jetpack-forms' ), {
+					type: 'snackbar',
+				} );
+				setIsCreatingPage( false );
 			}
 		} catch {
 			createErrorNotice( __( 'Failed to create page. Please try again.', 'jetpack-forms' ), {
@@ -153,19 +179,26 @@ export const EmbedFormModal = ( { isOpen, onClose, variant = 'embed' }: EmbedFor
 		} );
 	}, [] );
 
-	const handleGoToExistingPage = useCallback( () => {
+	const handleGoToExistingPage = useCallback( async () => {
 		if ( ! selectedPageId ) {
 			return;
 		}
-		navigator.clipboard.writeText( getEmbedCode( postId ) ).catch( () => {} );
+		try {
+			await navigator.clipboard.writeText( getEmbedCode( postId ) );
+		} catch {
+			createErrorNotice( __( 'Failed to copy embed code. Please try again.', 'jetpack-forms' ), {
+				type: 'snackbar',
+			} );
+			return;
+		}
 		setIsRedirecting( true );
-		setTimeout( () => {
+		redirectTimeoutRef.current = setTimeout( () => {
 			window.location.href = addQueryArgs( 'post.php', {
 				post: Number( selectedPageId ),
 				action: 'edit',
 			} );
 		}, 1000 );
-	}, [ selectedPageId, postId ] );
+	}, [ selectedPageId, postId, createErrorNotice ] );
 
 	const copyRef = useCopyToClipboard< HTMLButtonElement >( getEmbedCode( postId ), () => {
 		setStep( 'copied' );
@@ -253,6 +286,7 @@ export const EmbedFormModal = ( { isOpen, onClose, variant = 'embed' }: EmbedFor
 									variant="primary"
 									onClick={ handleCreatePage }
 									disabled={ isCreatingPage }
+									isBusy={ isCreatingPage }
 									className="jetpack-form-embed-form__button"
 								>
 									{ isCreatingPage
@@ -291,6 +325,7 @@ export const EmbedFormModal = ( { isOpen, onClose, variant = 'embed' }: EmbedFor
 										variant="primary"
 										onClick={ handleGoToExistingPage }
 										disabled={ ! selectedPageId || isRedirecting }
+										isBusy={ isRedirecting }
 										className="jetpack-form-embed-form__button"
 									>
 										{ isRedirecting
