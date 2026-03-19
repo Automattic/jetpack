@@ -163,17 +163,20 @@ export type DataPointPercentage = {
 	 */
 	label: string;
 	/**
-	 * Numerical value
+	 * Numerical value used for slice sizing.
+	 * Percentages are calculated automatically from values.
 	 */
 	value: number;
 	/**
-	 * Formatted value for display
+	 * Formatted value for display (e.g., "30K" instead of 30000)
 	 */
 	valueDisplay?: string;
 	/**
-	 * Percentage value
+	 * Pre-calculated percentage for display purposes (optional).
+	 * If not provided, percentage is calculated from value.
+	 * Note: This is for display only - slice sizing always uses value.
 	 */
-	percentage: number;
+	percentage?: number;
 	/**
 	 * Color code for the segment, by default colours are taken from the theme but this property can overrides it
 	 */

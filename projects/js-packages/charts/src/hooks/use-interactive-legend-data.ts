@@ -2,12 +2,13 @@ import { useMemo } from 'react';
 
 /**
  * Data point interface for charts with interactive legends.
- * Requires label for series identification, value for calculations, and percentage for display.
+ * Requires label for series identification and value for calculations.
+ * Percentage is optional - if not provided, it's calculated from value.
  */
 interface DataPointWithPercentage {
 	label: string;
 	value: number;
-	percentage: number;
+	percentage?: number;
 }
 
 /**
@@ -33,9 +34,9 @@ interface UseInteractiveLegendDataResult< T extends DataPointWithPercentage > {
 	/** Boolean indicating if all segments are hidden */
 	allSegmentsHidden: boolean;
 	/**
-	 * Legend data with recalculated percentages for visible items.
-	 * Uses original data for hidden items, but shows recalculated percentages for visible ones.
-	 * This ensures the legend displays accurate percentages while maintaining all entries.
+	 * Legend data with stable percentage formatting.
+	 * Hidden items keep their original percentage.
+	 * Visible items show recalculated percentages that total 100%.
 	 */
 	legendData: T[];
 }
@@ -84,47 +85,55 @@ export const useInteractiveLegendData = < T extends DataPointWithPercentage >( {
 	legendInteractive,
 	isSeriesVisible,
 }: UseInteractiveLegendDataParams< T > ): UseInteractiveLegendDataResult< T > => {
+	// Calculate baseline percentages from values (for all items)
+	const baselineData = useMemo( () => {
+		const totalValue = data.reduce( ( sum, segment ) => sum + segment.value, 0 );
+		return data.map( segment => ( {
+			...segment,
+			percentage: totalValue > 0 ? ( segment.value / totalValue ) * 100 : 0,
+		} ) );
+	}, [ data ] );
+
 	// Filter and recalculate data for interactive legends
 	const visibleData = useMemo( () => {
-		// If interactive mode is disabled or no chartId, return all data unchanged
+		// If interactive mode is disabled or no chartId, return baseline data
 		if ( ! chartId || ! legendInteractive ) {
-			return data;
+			return baselineData;
 		}
 
 		// Filter to only visible segments based on legend state
-		const filtered = data.filter( segment => isSeriesVisible( chartId, segment.label ) );
+		const filtered = baselineData.filter( segment => isSeriesVisible( chartId, segment.label ) );
 
 		// If no segments are visible, return empty array
 		if ( filtered.length === 0 ) {
 			return [];
 		}
 
-		// Recalculate percentages so visible segments total 100%
+		// Recalculate percentages from values so visible segments total 100%
 		const totalValue = filtered.reduce( ( sum, segment ) => sum + segment.value, 0 );
-
 		return filtered.map( segment => ( {
 			...segment,
 			percentage: totalValue > 0 ? ( segment.value / totalValue ) * 100 : 0,
 		} ) );
-	}, [ data, chartId, isSeriesVisible, legendInteractive ] );
+	}, [ baselineData, chartId, isSeriesVisible, legendInteractive ] );
 
 	// Check if all segments are hidden (only relevant in interactive mode)
 	const allSegmentsHidden = useMemo( () => {
 		return legendInteractive && visibleData.length === 0;
 	}, [ legendInteractive, visibleData ] );
 
-	// Prepare legend data with recalculated percentages for visible items
-	// This maintains all legend entries but shows updated percentages for visible segments
+	// Prepare legend data with calculated percentages
+	// Hidden items keep their baseline percentage (calculated from all values)
+	// Visible items show recalculated percentages (totaling 100%)
 	const legendData = useMemo( () => {
 		if ( ! legendInteractive || ! chartId ) {
-			return data;
+			return baselineData;
 		}
 
-		// Map original data to show recalculated percentages for visible items
-		return data.map( segment => {
+		return baselineData.map( segment => {
 			const isVisible = isSeriesVisible( chartId, segment.label );
 			if ( ! isVisible ) {
-				// Return original data for hidden items
+				// Hidden items keep baseline percentage
 				return segment;
 			}
 
@@ -132,7 +141,7 @@ export const useInteractiveLegendData = < T extends DataPointWithPercentage >( {
 			const recalculated = visibleData.find( d => d.label === segment.label );
 			return recalculated || segment;
 		} );
-	}, [ data, visibleData, legendInteractive, chartId, isSeriesVisible ] );
+	}, [ baselineData, visibleData, legendInteractive, chartId, isSeriesVisible ] );
 
 	return { visibleData, allSegmentsHidden, legendData };
 };

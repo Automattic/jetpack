@@ -139,15 +139,15 @@ const validateData = ( data: DataPointPercentage[] ) => {
 	}
 
 	// Check for negative values
-	const hasNegativeValues = data.some( item => item.percentage < 0 || item.value < 0 );
+	const hasNegativeValues = data.some( item => item.value < 0 );
 	if ( hasNegativeValues ) {
 		return { isValid: false, message: 'Invalid data: Negative values are not allowed' };
 	}
 
-	// Validate total percentage is greater than 0
-	const totalPercentage = data.reduce( ( sum, item ) => sum + item.percentage, 0 );
-	if ( totalPercentage <= 0 ) {
-		return { isValid: false, message: 'Invalid percentage total: Must be greater than 0' };
+	// Validate total value is greater than 0
+	const totalValue = data.reduce( ( sum, item ) => sum + item.value, 0 );
+	if ( totalValue <= 0 ) {
+		return { isValid: false, message: 'Invalid data: Total value must be greater than 0' };
 	}
 
 	return { isValid: true, message: '' };
@@ -245,7 +245,8 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 	// Define accessors with useMemo to avoid changing dependencies
 	const accessors = useMemo(
 		() => ( {
-			value: ( d: DataPointPercentage ) => d.value,
+			// Use value for slice sizing - percentages are calculated from values
+			pieValue: ( d: DataPointPercentage ) => d.value,
 			sort: (
 				a: DataPointPercentage & { index: number },
 				b: DataPointPercentage & { index: number }
@@ -427,7 +428,7 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 											{ /* Pie chart */ }
 											<Pie< DataPointPercentage & { index: number } >
 												data={ dataWithIndex }
-												pieValue={ accessors.value }
+												pieValue={ accessors.pieValue }
 												outerRadius={ radius }
 												innerRadius={ innerRadius }
 												cornerRadius={ 3 }

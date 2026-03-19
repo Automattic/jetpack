@@ -6,6 +6,7 @@ type TooltipData = {
 	label: string;
 	value: number;
 	valueDisplay?: string;
+	percentage?: number;
 };
 
 type TooltipComponentProps = {
@@ -40,11 +41,16 @@ type CustomTooltip = {
 
 type BaseTooltipProps = TooltipCommonProps & ( DefaultDataTooltip | CustomTooltip );
 
-const DefaultTooltipContent = ( { data }: TooltipComponentProps ) => (
-	<>
-		{ data?.label }: { data?.valueDisplay || formatNumber( data?.value ) }
-	</>
-);
+const DefaultTooltipContent = ( { data }: TooltipComponentProps ) => {
+	// Display value in order of preference: valueDisplay > value
+	const displayValue = data?.valueDisplay || formatNumber( data?.value );
+
+	return (
+		<>
+			{ data?.label }: { displayValue }
+		</>
+	);
+};
 
 export const BaseTooltip = ( {
 	data,

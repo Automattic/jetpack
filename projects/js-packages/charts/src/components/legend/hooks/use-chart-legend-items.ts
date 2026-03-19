@@ -40,11 +40,13 @@ function formatPointValue(
 	}
 
 	// Handle DataPointPercentage (pie chart data)
-	if ( 'percentage' in point ) {
+	// Note: percentage is now optional, but the hook calculates it from value
+	if ( 'value' in point && ! ( 'date' in point ) && ! ( 'dateString' in point ) ) {
 		const percentagePoint = point as DataPointPercentage;
 		switch ( legendValueDisplay ) {
 			case 'percentage':
-				return formatPercentage( percentagePoint.percentage );
+				// Percentage should be calculated by the hook, fall back to 0
+				return formatPercentage( percentagePoint.percentage ?? 0 );
 			case 'value':
 				return formatNumber( percentagePoint.value );
 			case 'valueDisplay':

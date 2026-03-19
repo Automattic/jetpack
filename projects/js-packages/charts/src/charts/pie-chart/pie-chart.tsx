@@ -137,16 +137,15 @@ const validateData = ( data: DataPointPercentage[] ) => {
 	}
 
 	// Check for negative values
-	const hasNegativeValues = data.some( item => item.percentage < 0 || item.value < 0 );
+	const hasNegativeValues = data.some( item => item.value < 0 );
 	if ( hasNegativeValues ) {
 		return { isValid: false, message: 'Invalid data: Negative values are not allowed' };
 	}
 
-	// Validate total percentage
-	const totalPercentage = data.reduce( ( sum, item ) => sum + item.percentage, 0 );
-	if ( Math.abs( totalPercentage - 100 ) > 0.01 ) {
-		// Using small epsilon for floating point comparison
-		return { isValid: false, message: 'Invalid percentage total: Must equal 100' };
+	// Validate total value is greater than 0
+	const totalValue = data.reduce( ( sum, item ) => sum + item.value, 0 );
+	if ( totalValue <= 0 ) {
+		return { isValid: false, message: 'Invalid data: Total value must be greater than 0' };
 	}
 
 	return { isValid: true, message: '' };
@@ -274,7 +273,8 @@ const PieChartInternal = ( {
 	} );
 
 	const accessors = {
-		value: ( d: DataPointPercentage ) => d.value,
+		// Use value for slice sizing - percentages are calculated from values
+		pieValue: ( d: DataPointPercentage ) => d.value,
 		fill: ( d: DataPointPercentage & { index: number } ) => {
 			return getElementStyles( { data: d, index: d.index } ).color;
 		},
@@ -384,7 +384,7 @@ const PieChartInternal = ( {
 									) : (
 										<Pie< DataPointPercentage & { index: number } >
 											data={ dataWithIndex }
-											pieValue={ accessors.value }
+											pieValue={ accessors.pieValue }
 											outerRadius={ outerRadius }
 											innerRadius={ innerRadius }
 											padAngle={ padAngle }
