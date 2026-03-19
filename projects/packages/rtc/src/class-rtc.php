@@ -216,10 +216,17 @@ class RTC {
 	 * @return void
 	 */
 	public static function override_rtc_setting_default() {
+		global $wp_registered_settings;
+
 		$providers = self::get_providers();
 		$default   = count( $providers ) > 0;
 
 		foreach ( array( self::OPTION_OLD, self::OPTION_NEW ) as $option ) {
+			// Only re-register the option if Gutenberg already registered it.
+			if ( ! isset( $wp_registered_settings[ $option ] ) ) {
+				continue;
+			}
+
 			unregister_setting( 'writing', $option );
 
 			register_setting(
