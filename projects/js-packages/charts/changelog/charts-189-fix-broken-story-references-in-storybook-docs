@@ -1,4 +1,4 @@
 Significance: patch
-Type: fixed
+Type: changed
 
-Charts: Fix broken story references in Storybook docs.
+Charts: Fix broken story references and simplify legend sections in Storybook docs.
