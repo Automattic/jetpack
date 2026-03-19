@@ -122,6 +122,9 @@ export const useInteractiveLegendData = < T extends DataPointWithPercentage >( {
 			return data;
 		}
 
+		// Build a Map for O(1) lookups instead of O(n) find() calls
+		const visibleDataMap = new Map( visibleData.map( d => [ d.label, d ] ) );
+
 		return data.map( segment => {
 			const isVisible = isSeriesVisible( chartId, segment.label );
 			if ( ! isVisible ) {
@@ -129,9 +132,8 @@ export const useInteractiveLegendData = < T extends DataPointWithPercentage >( {
 				return segment;
 			}
 
-			// For visible items, find the recalculated percentage from visibleData
-			const recalculated = visibleData.find( d => d.label === segment.label );
-			return recalculated || segment;
+			// For visible items, get the recalculated percentage from visibleData
+			return visibleDataMap.get( segment.label ) || segment;
 		} );
 	}, [ data, visibleData, legendInteractive, chartId, isSeriesVisible ] );
 
