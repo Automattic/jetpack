@@ -258,4 +258,58 @@ class RTC_Notices_Test extends \WorDBless\BaseTestCase {
 
 		wp_delete_user( $editor_id );
 	}
+
+	/**
+	 * Tests that join request rejects invalid post IDs.
+	 */
+	public function test_join_request_rejects_invalid_post_id() {
+		$controller = new WP_REST_RTC_Notices();
+
+		$request = new WP_REST_Request( 'POST', '/wpcom/v2/rtc-notices/join-request' );
+		$request->set_param( 'post_id', 999999 );
+		$result = $controller->check_edit_post_permission( $request );
+
+		$this->assertInstanceOf( 'WP_Error', $result );
+		$this->assertSame( 'rest_post_invalid_id', $result->get_error_code() );
+	}
+
+	/**
+	 * Tests that join request requires edit_post capability.
+	 */
+	public function test_join_request_requires_edit_post() {
+		$post_id = wp_insert_post(
+			array(
+				'post_title'  => 'Test Post',
+				'post_status' => 'publish',
+				'post_author' => $this->user_id,
+			)
+		);
+
+		$subscriber_id = wp_insert_user(
+			array(
+				'user_login' => 'rtc_subscriber',
+				'user_pass'  => 'password',
+				'role'       => 'subscriber',
+			)
+		);
+
+		$controller = new WP_REST_RTC_Notices();
+
+		$request = new WP_REST_Request( 'POST', '/wpcom/v2/rtc-notices/join-request' );
+		$request->set_param( 'post_id', $post_id );
+
+		// Subscriber cannot edit posts.
+		wp_set_current_user( $subscriber_id );
+		$result = $controller->check_edit_post_permission( $request );
+		$this->assertInstanceOf( 'WP_Error', $result );
+		$this->assertSame( 'rest_forbidden', $result->get_error_code() );
+
+		// Admin can edit posts.
+		wp_set_current_user( $this->user_id );
+		$result = $controller->check_edit_post_permission( $request );
+		$this->assertTrue( $result );
+
+		wp_delete_user( $subscriber_id );
+		wp_delete_post( $post_id, true );
+	}
 }
