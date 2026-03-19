@@ -6,7 +6,7 @@ import { SingleChartContext } from '../../../charts/private/single-chart-context
 import { GlobalChartsProvider, useChartId, useChartRegistration } from '../../../providers';
 import { Legend } from '../legend';
 import { BaseLegend } from '../private/base-legend';
-import { LegendProps } from '../types';
+import type { LegendProps } from '../types';
 
 const TestShape: LegendProps[ 'shape' ] = props => {
 	return (
