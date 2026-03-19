@@ -13,7 +13,6 @@ export { Sparkline, SparklineUnresponsive } from './charts/sparkline';
 export { BaseTooltip } from './components/tooltip';
 export { Legend, useChartLegendItems } from './components/legend';
 export { TrendIndicator } from './components/trend-indicator';
-export { useLeaderboardLegendItems } from './charts/leaderboard-chart/hooks';
 
 // Compositions
 
@@ -48,6 +47,8 @@ export type {
 } from 'react-google-charts';
 
 // Re-exports from removed individual entry points
+export { useLeaderboardLegendItems } from './charts/leaderboard-chart/hooks';
+
 // Previously available via '@automattic/charts/tooltip', '@automattic/charts/legend'
 export { AccessibleTooltip, useKeyboardNavigation } from './components/tooltip';
 export type { BaseTooltipProps, TooltipData, TooltipProps } from './components/tooltip';
