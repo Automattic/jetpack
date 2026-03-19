@@ -27,7 +27,14 @@ import {
 	restoreJetpackBlockCollection,
 } from './utils/block-collection';
 import { determineBlockNestingAction } from './utils/block-nesting-logic';
-import { BlockLock, findFormBlock, shouldLockBlock, getBlocksToMove } from './utils/block-utils';
+import {
+	BlockLock,
+	findActiveStepInContainer,
+	findFormBlock,
+	findStepContainer,
+	shouldLockBlock,
+	getBlocksToMove,
+} from './utils/block-utils';
 import {
 	moveContactFormCategoryToFront as moveCategoryToFront,
 	moveContactFormCategoryToBack as moveCategoryToBack,
@@ -120,6 +127,8 @@ const state = {
 	lastRootBlockIds: '',
 	lastSelectedBlockId: null as string | null | undefined,
 	isFormBlockLocked: false,
+	formBlockStable: false,
+	previousTickFormBlockClientId: null as string | null,
 	hasOpenedInserter: false,
 };
 
@@ -270,8 +279,25 @@ const enforceBlockNesting = () => {
 		return;
 	}
 
-	// Determine what action to take based on form state and blocks to move
-	const action = determineBlockNestingAction( formBlock, blocksToMove );
+	// For multistep forms, target the active step instead of the form block directly
+	let targetBlock = formBlock;
+	let targetClientId = state.formBlockClientId;
+
+	const stepContainer = findStepContainer( formBlock );
+	if ( stepContainer ) {
+		const store = select( 'jetpack/forms/single-step' ) as {
+			getActiveStepId?: ( formClientId: string ) => string | null;
+		};
+		const activeStepId = store?.getActiveStepId?.( state.formBlockClientId ) ?? null;
+		const activeStep = findActiveStepInContainer( stepContainer, activeStepId );
+		if ( activeStep ) {
+			targetBlock = activeStep;
+			targetClientId = activeStep.clientId;
+		}
+	}
+
+	// Determine what action to take based on target block state and blocks to move
+	const action = determineBlockNestingAction( targetBlock, blocksToMove );
 
 	const { replaceInnerBlocks, removeBlocks, __unstableMarkNextChangeAsNotPersistent } = dispatch(
 		'core/block-editor'
@@ -297,14 +323,14 @@ const enforceBlockNesting = () => {
 		return;
 	}
 
-	// Handle move-blocks case: clone blocks and insert them into the form
+	// Handle move-blocks case: clone blocks and insert them into the target
 	const clonedBlocks = blocksToMove.map( block => cloneBlock( block ) );
 
 	// Build the new inner blocks array
 	let newInnerBlocks: ReturnType< typeof createBlock >[];
 
-	if ( action.addSubmitButton ) {
-		// Form was empty, add a submit button after the moved blocks
+	if ( action.targetWasEmpty && targetBlock === formBlock ) {
+		// Form was empty (non-multistep), add a submit button after the moved blocks
 		const submitButton = createBlock( 'core/button', {
 			tagName: 'button',
 			type: 'submit',
@@ -313,9 +339,13 @@ const enforceBlockNesting = () => {
 		} );
 
 		newInnerBlocks = [ ...clonedBlocks, submitButton ];
+	} else if ( action.targetWasEmpty ) {
+		// Multistep step was empty — just add the blocks without a submit button
+		// (multistep forms use form-step-navigation for submission)
+		newInnerBlocks = clonedBlocks;
 	} else {
-		// Form already has blocks, insert new blocks at the target index
-		const existingBlocks = [ ...formBlock.innerBlocks ];
+		// Target already has blocks, insert new blocks at the target index
+		const existingBlocks = [ ...targetBlock.innerBlocks ];
 		existingBlocks.splice( action.insertionIndex!, 0, ...clonedBlocks );
 		newInnerBlocks = existingBlocks;
 	}
@@ -325,10 +355,10 @@ const enforceBlockNesting = () => {
 	__unstableMarkNextChangeAsNotPersistent();
 	removeBlocks( clientIdsToRemove );
 
-	// Then use replaceInnerBlocks to set the form's inner blocks
+	// Then use replaceInnerBlocks to set the target's inner blocks
 	__unstableMarkNextChangeAsNotPersistent();
 	replaceInnerBlocks(
-		state.formBlockClientId,
+		targetClientId,
 		newInnerBlocks,
 		false // Don't update selection
 	);
@@ -360,11 +390,10 @@ const setupFormEditorSubscription = () => {
 		try {
 			const { getCurrentPostType } = select( 'core/editor' );
 			const isFormEditor = getCurrentPostType() === FORM_POST_TYPE;
-
 			// 1. Handle form editor enter/leave transitions
 			// Detect if we are in the form editor and detect when this state changes across ticks.
 			if ( isFormEditor !== state.isFormEditor ) {
-				state.isFormEditor = isFormEditor; // Store the current isFormEditor in the state object for future reference.
+				state.isFormEditor = isFormEditor;
 
 				if ( isFormEditor ) {
 					// We just entered the form editor.
@@ -413,6 +442,8 @@ const setupFormEditorSubscription = () => {
 					state.lastRootBlockIds = '';
 					state.lastSelectedBlockId = null;
 					state.isFormBlockLocked = false;
+					state.formBlockStable = false;
+					state.previousTickFormBlockClientId = null;
 					state.hasOpenedInserter = false;
 				}
 			}
@@ -422,6 +453,15 @@ const setupFormEditorSubscription = () => {
 				// We are not in the form editor, nothing more to do.
 				return;
 			}
+
+			// Compute form block stability per tick. The form block is "stable" when
+			// its clientId hasn't changed since the previous tick. This allows
+			// enforceBlockNesting and lockFormBlock to run once the editor settles,
+			// while skipping them during transitions (navigation, block re-parse)
+			// where the clientId bounces through null/different values.
+			state.formBlockStable =
+				!! state.formBlockClientId &&
+				state.formBlockClientId === state.previousTickFormBlockClientId;
 
 			// 3. One-time category setup, block directory disable, and collection removal
 			if ( ! state.categoriesSetUp ) {
@@ -446,8 +486,13 @@ const setupFormEditorSubscription = () => {
 				const formBlock = findFormBlock( rootBlocks );
 				state.formBlockClientId = formBlock ? formBlock.clientId : null;
 
-				if ( state.formBlockClientId && state.formBlockClientId !== previousFormBlockClientId ) {
-					state.isFormBlockLocked = false;
+				// When the clientId changes (including through null), the per-tick
+				// stability from the top of this tick is stale — override it.
+				if ( state.formBlockClientId !== previousFormBlockClientId ) {
+					state.formBlockStable = false;
+					if ( state.formBlockClientId ) {
+						state.isFormBlockLocked = false;
+					}
 				}
 
 				// When the form block first appears, defer restrictAllowedBlocks to break
@@ -474,7 +519,9 @@ const setupFormEditorSubscription = () => {
 					enforceBlockSelection();
 				}
 
-				enforceBlockNesting();
+				if ( state.formBlockStable ) {
+					enforceBlockNesting();
+				}
 			}
 
 			// 5. Auto-open the block inserter (once) after blocks are ready
@@ -518,8 +565,9 @@ const setupFormEditorSubscription = () => {
 				enforceBlockSelection();
 			}
 
-			// 7. Ensure form block is locked
-			if ( ! state.isFormBlockLocked && state.formBlockClientId ) {
+			// 7. Ensure form block is locked (only when form block is stable —
+			// skip during transitions to avoid locking page blocks).
+			if ( ! state.isFormBlockLocked && state.formBlockClientId && state.formBlockStable ) {
 				lockFormBlock();
 				const { getBlock } = select( 'core/block-editor' );
 				const formBlock = getBlock( state.formBlockClientId );
@@ -528,6 +576,9 @@ const setupFormEditorSubscription = () => {
 					state.isFormBlockLocked = true;
 				}
 			}
+			// Track the form block clientId from this tick so the next tick can
+			// determine whether it has stabilized.
+			state.previousTickFormBlockClientId = state.formBlockClientId;
 		} finally {
 			isProcessing = false;
 		}

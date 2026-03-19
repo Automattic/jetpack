@@ -140,6 +140,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'is_a4a_dev_site',
 		'is_garden',
 		'big_sky_enabled',
+		'garden_name',
 	);
 
 	/**
@@ -1019,6 +1020,11 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 	public function decorate_jetpack_response( &$response ) {
 		$this->site = $this->get_platform()->get_site( $response->ID );
 		switch_to_blog( $this->site->get_id() );
+
+		// Allow the SAL site to apply its own overrides to the proxied response.
+		if ( method_exists( $this->site, 'decorate_jetpack_response' ) ) {
+			$this->site->decorate_jetpack_response( $response ); // @phan-suppress-current-line PhanUndeclaredMethod -- checked via method_exists().
+		}
 
 		$wpcom_response = $this->render_response_keys( self::$jetpack_response_field_additions );
 

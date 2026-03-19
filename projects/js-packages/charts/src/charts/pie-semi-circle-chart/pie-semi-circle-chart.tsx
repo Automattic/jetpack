@@ -342,7 +342,6 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 	return (
 		<SingleChartContext.Provider value={ { chartId } }>
 			<ChartLayout
-				ref={ containerRef }
 				legendPosition={ legendPosition }
 				legendElement={ legendElement }
 				legendChildren={ legendChildren }
@@ -387,6 +386,7 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 
 					return (
 						<Stack
+							ref={ containerRef }
 							align="center"
 							justify="center"
 							className={ styles[ 'pie-semi-circle-chart__centering' ] }

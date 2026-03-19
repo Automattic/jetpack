@@ -109,7 +109,7 @@ class Dashboard_Test extends BaseTestCase {
 	 */
 	public function test_get_forms_admin_url_wp_build_without_tab() {
 		add_filter( 'jetpack_forms_alpha', '__return_true' );
-		$expected = get_admin_url() . 'admin.php?page=' . Dashboard::FORMS_WPBUILD_ADMIN_SLUG . '&p=%2F';
+		$expected = get_admin_url() . 'admin.php?page=' . Dashboard::FORMS_WPBUILD_ADMIN_SLUG . '&p=' . rawurlencode( '/responses/inbox' );
 		$this->assertEquals( $expected, Dashboard::get_forms_admin_url() );
 		remove_filter( 'jetpack_forms_alpha', '__return_true' );
 	}

@@ -534,7 +534,7 @@ class Dashboard {
 			return '/responses/inbox?responseIds=["' . $post_id . '"]';
 		}
 
-		return '/';
+		return '/responses/inbox';
 	}
 
 	/**

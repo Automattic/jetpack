@@ -10,22 +10,22 @@
 return [
     // # Issue statistics:
     // PhanTypeMismatchArgument : 35+ occurrences
-    // PhanPluginDuplicateConditionalNullCoalescing : 30+ occurrences
-    // PhanTypeMismatchReturnProbablyReal : 25+ occurrences
+    // PhanTypeMismatchReturnProbablyReal : 30+ occurrences
+    // PhanPluginDuplicateConditionalNullCoalescing : 25+ occurrences
     // PhanTypeMismatchReturn : 20+ occurrences
     // PhanParamSignatureMismatch : 10+ occurrences
     // PhanTypeMismatchArgumentProbablyReal : 10+ occurrences
     // PhanPluginSimplifyExpressionBool : 9 occurrences
+    // PhanTypeExpectedObjectPropAccess : 8 occurrences
     // PhanPluginDuplicateSwitchCaseLooseEquality : 6 occurrences
-    // PhanTypeExpectedObjectPropAccess : 4 occurrences
     // PhanNonClassMethodCall : 3 occurrences
     // PhanTypeArraySuspiciousNullable : 3 occurrences
+    // PhanTypePossiblyInvalidDimOffset : 3 occurrences
     // PhanImpossibleCondition : 2 occurrences
     // PhanTypeArraySuspicious : 2 occurrences
     // PhanTypeMismatchArgumentNullable : 2 occurrences
     // PhanTypeMismatchPropertyDefault : 2 occurrences
     // PhanTypeMismatchReturnNullable : 2 occurrences
-    // PhanTypePossiblyInvalidDimOffset : 2 occurrences
     // PhanParamTooManyCallable : 1 occurrence
     // PhanPluginUseReturnValueInternalKnown : 1 occurrence
     // PhanTypeMismatchArgumentNullableInternal : 1 occurrence
@@ -64,7 +64,7 @@ return [
         'src/modules/class-updates.php' => ['PhanImpossibleCondition', 'PhanParamSignatureMismatch', 'PhanTypeMismatchReturn'],
         'src/modules/class-users.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchDefault', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal'],
         'src/modules/class-woocommerce-hpos-orders.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal'],
-        'src/replicastore/class-table-checksum.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchPropertyDefault', 'PhanTypeMismatchPropertyProbablyReal'],
+        'src/replicastore/class-table-checksum.php' => ['PhanTypeMismatchPropertyDefault', 'PhanTypeMismatchPropertyProbablyReal'],
         'tests/php/Actions_Test.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal'],
         'tests/php/REST_Endpoints_Test.php' => ['PhanTypeMismatchReturn'],
     ],

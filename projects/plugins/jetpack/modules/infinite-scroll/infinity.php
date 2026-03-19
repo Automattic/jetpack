@@ -933,7 +933,7 @@ class The_Neverending_Home_Page {
 			'wrapper_class'    => is_string( $settings->wrapper ) ? esc_js( $settings->wrapper ) : 'infinite-wrap',
 			'footer'           => is_string( $settings->footer ) ? esc_js( $settings->footer ) : $settings->footer,
 			'click_handle'     => esc_js( $settings->click_handle ),
-			'text'             => esc_js( $click_handle_text ),
+			'text'             => $click_handle_text,
 			'totop'            => __( 'Scroll back to top', 'jetpack' ),
 			'currentday'       => $currentday,
 			'order'            => 'DESC',

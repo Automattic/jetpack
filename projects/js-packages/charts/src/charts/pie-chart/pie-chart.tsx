@@ -298,7 +298,6 @@ const PieChartInternal = ( {
 	return (
 		<SingleChartContext.Provider value={ { chartId } }>
 			<ChartLayout
-				ref={ containerRef }
 				legendPosition={ legendPosition }
 				legendElement={ legendElement }
 				legendChildren={ legendChildren }
@@ -348,7 +347,12 @@ const PieChartInternal = ( {
 						: 0;
 
 					return (
-						<Stack align="center" justify="center" className={ styles[ 'pie-chart__centering' ] }>
+						<Stack
+							ref={ containerRef }
+							align="center"
+							justify="center"
+							className={ styles[ 'pie-chart__centering' ] }
+						>
 							<svg
 								viewBox={ `0 0 ${ width } ${ height }` }
 								preserveAspectRatio="xMidYMid meet"
