@@ -149,7 +149,6 @@
 
 .backup__animation {
 	position: relative;
-	overflow: hidden;
 
 	@include calypso-mixins.responsive( full-width ) {
 		display: none;
