@@ -173,32 +173,18 @@ Tooltips work seamlessly with donut charts:
 
 ## Legends
 
-### Donut with Legend
+Use the composition API to add a legend by placing `<PieChart.Legend />` as a child:
 
-Combine legends with donut charts for comprehensive data presentation:
-
-<Canvas of={ DonutStories.WithLegend } />
+<Canvas of={ DonutStories.WithCompositionLegend } />
 
 <Source
 	language="jsx"
-	code={ `<PieChart
-		thickness={ 0.5 }
-		gapScale={ 0.03 }
-		cornerScale={ 0.03 }
-		withTooltips={ true }
-		showLegend={ true }
-		data={ data }
-	>
-		<Group>
-			<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 24 } y={ -16 }>
-				User Activity
-			</Text>
-			<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 18 } y={ 16 }>
-				Total: 100K Users
-			</Text>
-		</Group>
+	code={ `<PieChart data={ data } thickness={ 0.5 }>
+		<PieChart.Legend />
 	</PieChart>` }
 />
+
+For full legend configuration options — positioning, orientation, shapes, interactivity, and the composition API — see the [Legend component docs](./?path=/docs/js-packages-charts-library-components-legend--docs).
 
 ### Data Validation and Error Handling
 
