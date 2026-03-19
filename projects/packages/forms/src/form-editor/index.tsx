@@ -121,6 +121,7 @@ const state = {
 	lastSelectedBlockId: null as string | null | undefined,
 	isFormBlockLocked: false,
 	formBlockStable: false,
+	previousTickFormBlockClientId: null as string | null,
 	hasOpenedInserter: false,
 };
 
@@ -361,7 +362,6 @@ const setupFormEditorSubscription = () => {
 		try {
 			const { getCurrentPostType } = select( 'core/editor' );
 			const isFormEditor = getCurrentPostType() === FORM_POST_TYPE;
-
 			// 1. Handle form editor enter/leave transitions
 			// Detect if we are in the form editor and detect when this state changes across ticks.
 			if ( isFormEditor !== state.isFormEditor ) {
@@ -415,6 +415,7 @@ const setupFormEditorSubscription = () => {
 					state.lastSelectedBlockId = null;
 					state.isFormBlockLocked = false;
 					state.formBlockStable = false;
+					state.previousTickFormBlockClientId = null;
 					state.hasOpenedInserter = false;
 				}
 			}
@@ -424,6 +425,15 @@ const setupFormEditorSubscription = () => {
 				// We are not in the form editor, nothing more to do.
 				return;
 			}
+
+			// Compute form block stability per tick. The form block is "stable" when
+			// its clientId hasn't changed since the previous tick. This allows
+			// enforceBlockNesting and lockFormBlock to run once the editor settles,
+			// while skipping them during transitions (navigation, block re-parse)
+			// where the clientId bounces through null/different values.
+			state.formBlockStable =
+				!! state.formBlockClientId &&
+				state.formBlockClientId === state.previousTickFormBlockClientId;
 
 			// 3. One-time category setup, block directory disable, and collection removal
 			if ( ! state.categoriesSetUp ) {
@@ -448,8 +458,13 @@ const setupFormEditorSubscription = () => {
 				const formBlock = findFormBlock( rootBlocks );
 				state.formBlockClientId = formBlock ? formBlock.clientId : null;
 
-				if ( state.formBlockClientId && state.formBlockClientId !== previousFormBlockClientId ) {
-					state.isFormBlockLocked = false;
+				// When the clientId changes (including through null), the per-tick
+				// stability from the top of this tick is stale — override it.
+				if ( state.formBlockClientId !== previousFormBlockClientId ) {
+					state.formBlockStable = false;
+					if ( state.formBlockClientId ) {
+						state.isFormBlockLocked = false;
+					}
 				}
 
 				// When the form block first appears, defer restrictAllowedBlocks to break
@@ -476,14 +491,7 @@ const setupFormEditorSubscription = () => {
 					enforceBlockSelection();
 				}
 
-				// Only run enforceBlockNesting when the form block is stable (same clientId
-				// as before). When the formBlockClientId changes, we're in a transition
-				// (initial load, block re-parse, or navigating back to page) and nesting
-				// would incorrectly move page/transition blocks inside the form.
-				const formBlockIsStable =
-					!! state.formBlockClientId && state.formBlockClientId === previousFormBlockClientId;
-				state.formBlockStable = formBlockIsStable;
-				if ( formBlockIsStable ) {
+				if ( state.formBlockStable ) {
 					enforceBlockNesting();
 				}
 			}
@@ -540,6 +548,9 @@ const setupFormEditorSubscription = () => {
 					state.isFormBlockLocked = true;
 				}
 			}
+			// Track the form block clientId from this tick so the next tick can
+			// determine whether it has stabilized.
+			state.previousTickFormBlockClientId = state.formBlockClientId;
 		} finally {
 			isProcessing = false;
 		}
