@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Remove internal hooks and utilities from public exports to reduce API surface.
