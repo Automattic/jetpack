@@ -243,12 +243,13 @@ class Feedback_Email_Renderer {
 
 		// Build metadata for the new email template.
 		$metadata = array(
-			'date'       => $time,
-			'source'     => $form_title,
-			'source_url' => $url,
-			'device'     => $response->get_browser(),
-			'ip'         => $comment_author_ip,
-			'ip_flag'    => $response->get_country_flag(),
+			'date'           => $time,
+			'source'         => $form_title,
+			'source_url'     => $url,
+			'device'         => $response->get_browser(),
+			'ip'             => $comment_author_ip,
+			'ip_flag'        => $response->get_country_flag(),
+			'logged_in_user' => $response->get_logged_in_user(),
 		);
 
 		/**
@@ -527,7 +528,7 @@ class Feedback_Email_Renderer {
 	 * @param string $footer - the footer containing meta information.
 	 * @param string $actions - HTML for actions displayed in the email.
 	 * @param array  $respondent_info - Optional. Respondent information array with 'name', 'email', 'avatar'.
-	 * @param array  $metadata - Optional. Metadata array with 'date', 'source', 'source_url', 'device', 'ip', 'ip_flag'.
+	 * @param array  $metadata - Optional. Metadata array with 'date', 'source', 'source_url', 'device', 'ip', 'ip_flag', 'logged_in_user' (with display_name, username, id).
 	 *
 	 * @return string
 	 */
@@ -709,7 +710,7 @@ class Feedback_Email_Renderer {
 	/**
 	 * Generate HTML for metadata section in email.
 	 *
-	 * @param array $metadata Array with 'date', 'source', 'source_url', 'device', 'ip', 'ip_flag' keys.
+	 * @param array $metadata Array with 'date', 'source', 'source_url', 'device', 'ip', 'ip_flag', 'logged_in_user' (with display_name, username, id) keys.
 	 * @return string HTML for metadata section.
 	 */
 	private static function generate_metadata_html( $metadata ) {
@@ -746,6 +747,18 @@ class Feedback_Email_Renderer {
 			}
 			$ip_value .= esc_html( $metadata['ip'] );
 			$rows[]    = self::generate_metadata_row( __( 'IP address', 'jetpack-forms' ), $ip_value );
+		}
+
+		// Logged in user row.
+		if ( ! empty( $metadata['logged_in_user'] ) && isset( $metadata['logged_in_user']['id'] ) ) {
+			$user_id    = $metadata['logged_in_user']['id'];
+			$user_value = '#' . $user_id;
+			if ( ! empty( $metadata['logged_in_user']['display_name'] ) ) {
+				$user_value = $metadata['logged_in_user']['display_name'] . ' (#' . $user_id . ')';
+			} elseif ( ! empty( $metadata['logged_in_user']['username'] ) ) {
+				$user_value = $metadata['logged_in_user']['username'] . ' (#' . $user_id . ')';
+			}
+			$rows[] = self::generate_metadata_row( __( 'Logged-in user', 'jetpack-forms' ), esc_html( $user_value ) );
 		}
 
 		if ( empty( $rows ) ) {
