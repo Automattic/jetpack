@@ -1493,7 +1493,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/forms",
-                "reference": "50f87f787265e2f589b8ecd51407ffe4013e607f"
+                "reference": "3fd7fbd931167b75382af273f49ac7c686cde498"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -1507,6 +1507,7 @@
                 "automattic/jetpack-plans": "@dev",
                 "automattic/jetpack-status": "@dev",
                 "automattic/jetpack-sync": "@dev",
+                "automattic/jetpack-wp-build-polyfills": "@dev",
                 "php": ">=7.2"
             },
             "require-dev": {
@@ -1528,7 +1529,7 @@
                     "link-template": "https://github.com/automattic/jetpack-forms/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "7.12.x-dev"
+                    "dev-trunk": "7.13.x-dev"
                 },
                 "textdomain": "jetpack-forms",
                 "version-constants": {
@@ -2092,7 +2093,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
-                "reference": "5b728f6f664c4d185e4808a427c627e1f56205dc"
+                "reference": "063414954f2eef2f61b84c17567fb57ccb9885dd"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -2131,7 +2132,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-my-jetpack/compare/${old}...${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "5.31.x-dev"
+                    "dev-trunk": "5.32.x-dev"
                 },
                 "version-constants": {
                     "::PACKAGE_VERSION": "src/class-initializer.php"
@@ -2797,7 +2798,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/publicize",
-                "reference": "2060d46d22f526bedcef53247efd53041dcdefc8"
+                "reference": "092a45f25a9b8c00bbce8f0d043c0a015cf70149"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -2829,7 +2830,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-publicize/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.73.x-dev"
+                    "dev-trunk": "0.74.x-dev"
                 }
             },
             "autoload": {
@@ -3581,12 +3582,71 @@
             }
         },
         {
+            "name": "automattic/jetpack-wp-build-polyfills",
+            "version": "dev-trunk",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/wp-build-polyfills",
+                "reference": "e8095b10b4cb4eac8b26dce82529f158aa5346e0"
+            },
+            "require": {
+                "php": ">=7.2"
+            },
+            "require-dev": {
+                "automattic/jetpack-changelogger": "@dev",
+                "automattic/jetpack-test-environment": "@dev",
+                "automattic/phpunit-select-config": "@dev",
+                "yoast/phpunit-polyfills": "^4.0.0"
+            },
+            "type": "jetpack-library",
+            "extra": {
+                "autotagger": true,
+                "mirror-repo": "Automattic/jetpack-wp-build-polyfills",
+                "textdomain": "jetpack-wp-build-polyfills",
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-wp-build-polyfills/compare/v${old}...v${new}"
+                },
+                "branch-alias": {
+                    "dev-trunk": "0.1.x-dev"
+                }
+            },
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "build-production": [
+                    "pnpm run build-production"
+                ],
+                "build-development": [
+                    "pnpm run build"
+                ],
+                "phpunit": [
+                    "phpunit-select-config phpunit.#.xml.dist --colors=always"
+                ],
+                "test-coverage": [
+                    "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
+                ],
+                "test-php": [
+                    "@composer phpunit"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Polyfills for WordPress Core packages not available in WP < 7.0",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
             "name": "automattic/woocommerce-analytics",
             "version": "dev-trunk",
             "dist": {
                 "type": "path",
                 "url": "../../packages/woocommerce-analytics",
-                "reference": "11ede3fe2d181ec8dfb96f8f1abcdd8802584c31"
+                "reference": "81c9635770bc72bc376f61e00605760bd4356f5d"
             },
             "require": {
                 "automattic/block-delimiter": "@dev",
@@ -3613,7 +3673,7 @@
                 },
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "0.15.x-dev"
+                    "dev-trunk": "0.16.x-dev"
                 },
                 "textdomain": "woocommerce-analytics",
                 "version-constants": {

@@ -1572,4 +1572,110 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 
 		remove_all_actions( 'edge_cache_purge_domain' );
 	}
+
+	/**
+	 * Test that prepare_for_akismet includes blog_lang.
+	 */
+	public function test_prepare_for_akismet_includes_blog_lang() {
+		$plugin = Contact_Form_Plugin::init();
+		$form   = array(
+			'comment_author'  => 'Test',
+			'comment_content' => 'Hello',
+		);
+
+		$result = $plugin->prepare_for_akismet( $form );
+
+		$this->assertArrayHasKey( 'blog_lang', $result, 'prepare_for_akismet should include blog_lang' );
+		$this->assertEquals( get_bloginfo( 'language' ), $result['blog_lang'], 'blog_lang should match site language' );
+	}
+
+	/**
+	 * Test that prepare_for_akismet includes blog and other standard fields.
+	 */
+	public function test_prepare_for_akismet_includes_standard_fields() {
+		$plugin = Contact_Form_Plugin::init();
+		$form   = array(
+			'comment_author'  => 'Test',
+			'comment_content' => 'Hello',
+		);
+
+		$result = $plugin->prepare_for_akismet( $form );
+
+		$expected_keys = array(
+			'comment_type',
+			'user_ip',
+			'user_agent',
+			'referrer',
+			'blog',
+			'blog_lang',
+			'comment_date_gmt',
+		);
+
+		foreach ( $expected_keys as $key ) {
+			$this->assertArrayHasKey( $key, $result, "prepare_for_akismet should include '$key'" );
+		}
+
+		$this->assertEquals( 'contact_form', $result['comment_type'] );
+		$this->assertEquals( get_option( 'home' ), $result['blog'] );
+	}
+
+	/**
+	 * Test that the block editor is disabled for the feedback post type.
+	 */
+	public function test_use_block_editor_for_post_type_feedback() {
+		$plugin = Contact_Form_Plugin::init();
+		$this->assertFalse( $plugin->use_block_editor_for_post_type( true, 'feedback' ) );
+	}
+
+	/**
+	 * Test that the block editor is forced on for the jetpack_form post type.
+	 */
+	public function test_use_block_editor_for_post_type_jetpack_form() {
+		$plugin = Contact_Form_Plugin::init();
+		$this->assertTrue( $plugin->use_block_editor_for_post_type( false, Contact_Form::POST_TYPE ) );
+	}
+
+	/**
+	 * Test that the block editor filter passes through for other post types.
+	 */
+	public function test_use_block_editor_for_post_type_other() {
+		$plugin = Contact_Form_Plugin::init();
+		$this->assertTrue( $plugin->use_block_editor_for_post_type( true, 'post' ) );
+		$this->assertFalse( $plugin->use_block_editor_for_post_type( false, 'page' ) );
+	}
+
+	/**
+	 * Test that the block editor is forced on for individual jetpack_form posts.
+	 */
+	public function test_use_block_editor_for_post_jetpack_form() {
+		$plugin  = Contact_Form_Plugin::init();
+		$post_id = wp_insert_post(
+			array(
+				'post_type'   => Contact_Form::POST_TYPE,
+				'post_title'  => 'Test Form',
+				'post_status' => 'publish',
+			)
+		);
+		$post    = get_post( $post_id );
+
+		$this->assertTrue( $plugin->use_block_editor_for_post( false, $post ) );
+	}
+
+	/**
+	 * Test that the block editor filter passes through for non-form posts.
+	 */
+	public function test_use_block_editor_for_post_other() {
+		$plugin  = Contact_Form_Plugin::init();
+		$post_id = wp_insert_post(
+			array(
+				'post_type'   => 'post',
+				'post_title'  => 'Regular Post',
+				'post_status' => 'publish',
+			)
+		);
+		$post    = get_post( $post_id );
+
+		$this->assertTrue( $plugin->use_block_editor_for_post( true, $post ) );
+		$this->assertFalse( $plugin->use_block_editor_for_post( false, $post ) );
+	}
 }

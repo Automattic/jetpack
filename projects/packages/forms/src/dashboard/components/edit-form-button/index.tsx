@@ -8,6 +8,7 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import useConfigValue from '../../../hooks/use-config-value';
+import { getFormEditUrl } from '../../utils.ts';
 
 type EditFormButtonProps = {
 	formId: number;
@@ -21,11 +22,10 @@ type EditFormButtonProps = {
  * @return JSX element.
  */
 export default function EditFormButton( { formId }: EditFormButtonProps ): JSX.Element {
-	const adminUrl = useConfigValue( 'adminUrl' ) || '';
+	const adminUrl = ( useConfigValue( 'adminUrl' ) as string ) || '';
 
 	const onClick = useCallback( () => {
-		const editPath = `post.php?post=${ formId }&action=edit`;
-		window.location.href = adminUrl ? `${ adminUrl }${ editPath }` : editPath;
+		window.location.href = getFormEditUrl( formId, adminUrl );
 	}, [ adminUrl, formId ] );
 
 	return (

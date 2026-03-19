@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Remove unnecessary post_type parameter from form edit URLs that caused incorrect redirects.

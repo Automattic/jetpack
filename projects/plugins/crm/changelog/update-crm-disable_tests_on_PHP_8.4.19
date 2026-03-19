@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Disable tests on PHP 8.4.19.
+
+

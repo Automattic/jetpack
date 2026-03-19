@@ -16,15 +16,15 @@ test.describe( 'Cache module', () => {
 		await page.close();
 	} );
 
-	test.afterAll( async ( { boostUtils } ) => {
-		await boostUtils.unMockConnection();
-		await boostUtils.unMockSpeedScore();
-	} );
-
 	// Disabling the module before each test, because each test will decide if
 	// it needs the module enabled or not.
 	test.beforeEach( async ( { boostUtils } ) => {
 		await boostUtils.deactivateBoostModule( 'page_cache' );
+	} );
+
+	test.afterAll( async ( { boostUtils } ) => {
+		await boostUtils.unMockConnection();
+		await boostUtils.unMockSpeedScore();
 	} );
 
 	test( 'No Page Cache meta information should show on the admin when the module is inactive', async ( {

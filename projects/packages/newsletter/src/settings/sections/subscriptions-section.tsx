@@ -78,7 +78,7 @@ export function SubscriptionsSection( {
 	const fields: Field< NewsletterSettings >[] = [
 		{
 			id: 'jetpack_subscriptions_subscribe_post_end_enabled',
-			label: __( 'Add the Subscribe Block at the end of each post.', 'jetpack-newsletter' ),
+			label: __( 'Add the Subscribe Block at the end of each post', 'jetpack-newsletter' ),
 			type: 'boolean' as const,
 			Edit: canShowSubscriptionEditorLinks
 				? ( { data: formData, field, onChange: fieldOnChange }: FieldRenderProps ) => (
@@ -96,7 +96,7 @@ export function SubscriptionsSection( {
 		},
 		{
 			id: 'sm_enabled',
-			label: __( 'Show subscription pop-up when scrolling a post.', 'jetpack-newsletter' ),
+			label: __( 'Show subscription pop-up when scrolling a post', 'jetpack-newsletter' ),
 			type: 'boolean' as const,
 			Edit: canShowBlockThemeEditorLinks
 				? ( { data: formData, field, onChange: fieldOnChange }: FieldRenderProps ) => (
