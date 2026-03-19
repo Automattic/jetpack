@@ -522,9 +522,22 @@ Display series information with automatic color matching:
 	/>` }
 />
 
-### Custom Legend Shapes
+### Legend Shape
 
-Use different shapes and custom glyphs in legends:
+Control the shape of the legend glyph using the `legend.shape` prop. Available values are `'line'` (default), `'rect'`, and `'circle'`:
+
+<Source
+	language="jsx"
+	code={ `<LineChart
+		data={data}
+		showLegend={true}
+		legend={{ shape: 'circle' }}
+	/>` }
+/>
+
+### Legend Glyphs
+
+Show a data-point glyph on the legend line marker using `withLegendGlyph`:
 
 <Source
 	language="jsx"
@@ -542,11 +555,11 @@ Enable interactive legends that allow users to toggle series visibility by click
 <Source
 	language="jsx"
 	code={ `<LineChart
-	data={data}
-	chartId="sales-chart"
-	showLegend={true}
-	legend={{ interactive: true }}
-/>` }
+		data={data}
+		chartId="sales-chart"
+		showLegend={true}
+		legend={{ interactive: true }}
+	/>` }
 />
 
 **Interactive Legend Features:**
