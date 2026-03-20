@@ -51,7 +51,8 @@ class Wpcom_Id_Page {
 	 * @param \WP_Connector_Registry $registry Connector registry instance.
 	 */
 	public static function register_connector( $registry ) {
-		$registry->register(
+		// @phan-suppress-current-line PhanUndeclaredTypeParameter -- WP 7.0+ class.
+		$registry->register( // @phan-suppress-current-line PhanUndeclaredClassMethod -- WP 7.0+ class.
 			'wordpress_com',
 			array(
 				'name'           => __( 'WordPress.com account', 'jetpack-connection' ),
@@ -123,7 +124,15 @@ class Wpcom_Id_Page {
 	 * @param string $hook_suffix The current admin page hook suffix.
 	 */
 	public static function maybe_enqueue_connectors_module( $hook_suffix ) {
-		if ( 'settings_page_connectors' !== $hook_suffix || ! function_exists( 'wp_register_script_module' ) ) {
+		/*
+		 * The Connectors page slug varies between WP core and the Gutenberg plugin:
+		 *  - WP core:   'connectors-wp-admin'          → hook 'settings_page_connectors-wp-admin'
+		 *  - Gutenberg: 'options-connectors-wp-admin'   → hook 'settings_page_options-connectors-wp-admin'
+		 */
+		$is_connectors_page = str_contains( $hook_suffix, 'connectors' )
+			&& str_starts_with( $hook_suffix, 'settings_page_' );
+
+		if ( ! $is_connectors_page || ! function_exists( 'wp_register_script_module' ) ) {
 			return;
 		}
 
