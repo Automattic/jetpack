@@ -22,10 +22,14 @@ use PHPUnit\Framework\Attributes\CoversFunction;
  *
  * @covers ::wpcom_get_rtc_max_peers_per_room
  * @covers ::wpcom_get_rtc_max_clients_per_user
+ * @covers ::wpcom_rtc_is_plan_owner
+ * @covers ::wpcom_enqueue_rtc_notices_assets
  * @covers WP_REST_RTC_Notices
  */
 #[CoversFunction( 'wpcom_get_rtc_max_peers_per_room' )]
 #[CoversFunction( 'wpcom_get_rtc_max_clients_per_user' )]
+#[CoversFunction( 'wpcom_rtc_is_plan_owner' )]
+#[CoversFunction( 'wpcom_enqueue_rtc_notices_assets' )]
 #[CoversClass( WP_REST_RTC_Notices::class )]
 class RTC_Notices_Test extends \WorDBless\BaseTestCase {
 
@@ -471,5 +475,64 @@ class RTC_Notices_Test extends \WorDBless\BaseTestCase {
 		$this->assertArrayHasKey( '/wpcom/v2/rtc-notices/join-request', $routes );
 		$this->assertArrayHasKey( '/wpcom/v2/rtc-notices/join-requests', $routes );
 		$this->assertArrayHasKey( '/wpcom/v2/rtc-notices/join-requests/clear', $routes );
+	}
+
+	/**
+	 * Tests that plan owner returns false when no owner detection is available.
+	 */
+	public function test_plan_owner_returns_false_without_detection() {
+		$this->assertFalse( wpcom_rtc_is_plan_owner() );
+	}
+
+	/**
+	 * Tests that plan owner uses Jetpack master_user when available.
+	 */
+	public function test_plan_owner_via_jetpack_master_user() {
+		if ( ! class_exists( 'Jetpack_Options' ) ) {
+			$this->markTestSkipped( 'Jetpack_Options not available' );
+		}
+
+		// Set master_user to current user.
+		\Jetpack_Options::update_option( 'master_user', $this->user_id );
+		$this->assertTrue( wpcom_rtc_is_plan_owner() );
+
+		// Set master_user to a different user.
+		\Jetpack_Options::update_option( 'master_user', 999999 );
+		$this->assertFalse( wpcom_rtc_is_plan_owner() );
+
+		\Jetpack_Options::delete_option( 'master_user' );
+	}
+
+	/**
+	 * Tests that inline config includes isPlanOwner.
+	 */
+	public function test_enqueue_includes_is_plan_owner() {
+		$this->reset_scripts();
+		add_filter( 'wpcom_is_gutenberg_rtc_enabled', '__return_true' );
+		update_option( 'wp_enable_real_time_collaboration', '1' );
+
+		wpcom_enqueue_rtc_notices_assets();
+
+		global $wp_scripts;
+		$handle = 'jetpack-mu-wpcom-gutenberg-rtc-notices';
+		$extra  = $wp_scripts->registered[ $handle ]->extra['before'] ?? array();
+		$inline = implode( "\n", array_filter( $extra ) );
+
+		$this->assertStringContainsString( '"isPlanOwner"', $inline );
+		$this->assertStringContainsString( '"enableLimitNotices"', $inline );
+	}
+
+	/**
+	 * Tests that enqueue skips when both RTC options are explicitly off.
+	 */
+	public function test_enqueue_skips_when_both_options_explicitly_off() {
+		$this->reset_scripts();
+		add_filter( 'wpcom_is_gutenberg_rtc_enabled', '__return_true' );
+		update_option( 'wp_enable_real_time_collaboration', '0' );
+		update_option( 'wp_collaboration_enabled', '0' );
+
+		wpcom_enqueue_rtc_notices_assets();
+
+		$this->assertFalse( wp_script_is( 'jetpack-mu-wpcom-gutenberg-rtc-notices', 'enqueued' ) );
 	}
 }
