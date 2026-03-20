@@ -15,6 +15,14 @@ type ValueOf< T > = T[ keyof T ];
 
 export type Optional< T, K extends keyof T > = Pick< Partial< T >, K > & Omit< T, K >;
 
+export type ChartType =
+	| 'bar'
+	| 'conversion-funnel'
+	| 'leaderboard'
+	| 'line'
+	| 'pie'
+	| 'pie-semi-circle';
+
 export type OrientationType = ValueOf< typeof Orientation >;
 
 export type AnnotationStyles = {

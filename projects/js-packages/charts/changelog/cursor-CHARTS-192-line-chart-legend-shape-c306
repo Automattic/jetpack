@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Derive default legend shape from chart type in composition API.
