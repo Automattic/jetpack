@@ -28,8 +28,32 @@ export {
 	defaultTheme,
 } from './providers';
 
-// Types
-export type * from './types';
+// Types - explicit exports (excludes internal types like DataPointPercentageCalculated)
+export type {
+	Optional,
+	OrientationType,
+	AnnotationStyles,
+	DataPoint,
+	GeoData,
+	DataPointDate,
+	LeaderboardEntry,
+	GradientStop,
+	SeriesDataOptions,
+	SeriesData,
+	MultipleDataPointsDate,
+	DataPointPercentage,
+	ChartTheme,
+	CompleteChartTheme,
+	AxisOptions,
+	ScaleOptions,
+	LegendItemStyles,
+	LegendLabelStyles,
+	LegendShapeStyles,
+	LegendPosition,
+	ChartLegendConfig,
+	BaseChartProps,
+	GridProps,
+} from './types';
 export type * from './visx/types';
 export type { PieChartProps, PieChartRenderTooltipParams } from './charts/pie-chart';
 export type {
@@ -50,7 +74,7 @@ export type {
 export { useLeaderboardLegendItems } from './charts/leaderboard-chart/hooks';
 
 // Previously available via '@automattic/charts/tooltip', '@automattic/charts/legend'
-export { AccessibleTooltip, useKeyboardNavigation } from './components/tooltip';
+export { AccessibleTooltip } from './components/tooltip';
 export type { BaseTooltipProps, TooltipData, TooltipProps } from './components/tooltip';
 export type { LegendProps, BaseLegendProps, ChartLegendOptions } from './components/legend';
 
@@ -80,34 +104,7 @@ export type {
 export type { ArcData } from './charts/pie-semi-circle-chart';
 export type { SparklineProps, GradientConfig, SparklineDataPoint } from './charts/sparkline';
 
-// Previously available via '@automattic/charts/hooks'
-export {
-	useDeepMemo,
-	useChartMouseHandler,
-	useXYChartTheme,
-	useChartDataTransform,
-	useChartMargin,
-	useElementSize,
-	useTextTruncation,
-	useZeroValueDisplay,
-	useInteractiveLegendData,
-	usePrefersReducedMotion,
-	useTooltipPortalRelocator,
-} from './hooks';
-
-// Previously available via '@automattic/charts/utils'
-export {
-	attachSubComponents,
-	parseAsLocalDate,
-	formatMetricValue,
-	formatPercentage,
-	getLongestTickWidth,
-	getSeriesLineStyles,
-	getSeriesStroke,
-	getItemShapeStyles,
-	isSafari,
-	mergeThemes,
-	resolveCssVariable,
-} from './utils';
+// Utilities
+export { parseAsLocalDate, formatMetricValue, formatPercentage, mergeThemes } from './utils';
 export * from './utils/color-utils';
 export type { MetricValueType } from './utils';

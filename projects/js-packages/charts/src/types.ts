@@ -316,7 +316,7 @@ export type CompleteChartTheme = Required< ChartTheme > & {
 	};
 };
 
-declare type AxisOptions = {
+export type AxisOptions = {
 	orientation?: OrientationType;
 	numTicks?: number;
 	axisClassName?: string;
