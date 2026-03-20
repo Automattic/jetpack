@@ -10,6 +10,15 @@
 	text-align: right;
 }
 
+.newsletter-jitm-card {
+
+	.jitm-card {
+		margin-right: 0;
+		margin-bottom: 1.5rem;
+		margin-top: 1.5rem;
+	}
+}
+
 .newsletter-settings {
 	max-width: 660px; /* MSD and future JP settings pages are 660px wide */
 	margin-inline: auto;
