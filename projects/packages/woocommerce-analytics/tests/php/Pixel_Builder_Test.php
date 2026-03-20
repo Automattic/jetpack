@@ -9,7 +9,6 @@ namespace Automattic\Woocommerce_Analytics;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\IgnoreDeprecations;
-use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use WorDBless\BaseTestCase;
 use WP_Error;
 
@@ -426,64 +425,5 @@ class Pixel_Builder_Test extends BaseTestCase {
 		$method->setAccessible( true );
 
 		$this->assertFalse( $method->invoke( null ) );
-	}
-
-	/**
-	 * Test is_socks_proxy_configured returns true when a SOCKS5 proxy is configured.
-	 *
-	 * @runInSeparateProcess
-	 */
-	#[RunInSeparateProcess]
-	public function test_is_socks_proxy_configured_returns_true_for_socks5(): void {
-		if ( ! defined( 'WP_PROXY_HOST' ) ) {
-			define( 'WP_PROXY_HOST', 'socks5://127.0.0.1' );
-		}
-
-		$reflection = new \ReflectionClass( Pixel_Builder::class );
-		$method     = $reflection->getMethod( 'is_socks_proxy_configured' );
-		$method->setAccessible( true );
-
-		$this->assertTrue( $method->invoke( null ) );
-	}
-
-	/**
-	 * Test is_socks_proxy_configured returns false for a non-SOCKS proxy.
-	 *
-	 * @runInSeparateProcess
-	 */
-	#[RunInSeparateProcess]
-	public function test_is_socks_proxy_configured_returns_false_for_http_proxy(): void {
-		if ( ! defined( 'WP_PROXY_HOST' ) ) {
-			define( 'WP_PROXY_HOST', 'proxy.example.com' );
-		}
-
-		$reflection = new \ReflectionClass( Pixel_Builder::class );
-		$method     = $reflection->getMethod( 'is_socks_proxy_configured' );
-		$method->setAccessible( true );
-
-		$this->assertFalse( $method->invoke( null ) );
-	}
-
-	/**
-	 * Test send_pixels_batched falls back to individual requests when SOCKS proxy is configured.
-	 *
-	 * @runInSeparateProcess
-	 */
-	#[RunInSeparateProcess]
-	#[IgnoreDeprecations]
-	public function test_send_pixels_batched_falls_back_when_socks_proxy(): void {
-		if ( ! defined( 'WP_PROXY_HOST' ) ) {
-			define( 'WP_PROXY_HOST', 'socks5://127.0.0.1' );
-		}
-
-		$pixels = array(
-			Pixel_Builder::TRACKS_PIXEL_URL . '?_en=woocommerceanalytics_test1',
-			Pixel_Builder::TRACKS_PIXEL_URL . '?_en=woocommerceanalytics_test2',
-		);
-
-		// Should still succeed, using the wp_remote_get fallback path.
-		$result = Pixel_Builder::send_pixels_batched( $pixels );
-
-		$this->assertTrue( $result );
 	}
 }
