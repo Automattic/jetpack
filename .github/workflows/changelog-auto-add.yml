@@ -118,6 +118,8 @@ jobs:
           BASE: ${{ github.event.pull_request.base.sha }}
           HEAD: ${{ github.event.pull_request.head.sha }}
           PROJECTS: ${{ steps.check.outputs.projects }}
+          PLUGIN_DEPS: ${{ steps.deps.outputs.plugin_deps }}
+          PR_DESCRIPTION: ${{ github.event.pull_request.body }}
         run: |
           # Generate diff and check size.
           DIFF_FILE=$(mktemp)
@@ -133,7 +135,7 @@ jobs:
             echo "diff_file=$DIFF_FILE" >> "$GITHUB_OUTPUT"
 
             # Read each project's available changelog types from composer.json.
-            TYPES_INFO=""
+            TYPES_FILE=$(mktemp)
             while IFS= read -r proj; do
               [ -z "$proj" ] && continue
               COMPOSER="projects/$proj/composer.json"
@@ -144,13 +146,24 @@ jobs:
                   if (\$types) echo implode(', ', array_keys(\$types));
                 " 2>/dev/null || true)
                 if [ -n "$PROJ_TYPES" ]; then
-                  TYPES_INFO="${TYPES_INFO}${proj}: ${PROJ_TYPES}"$'\n'
+                  echo "${proj}: ${PROJ_TYPES}" >> "$TYPES_FILE"
                 fi
               fi
             done <<< "$PROJECTS"
+            echo "types_file=$TYPES_FILE" >> "$GITHUB_OUTPUT"
 
-            source .github/files/gh-funcs.sh
-            gh_set_output project_types "$TYPES_INFO"
+            # Write projects and plugin deps to temp files for file_input.
+            PROJECTS_FILE=$(mktemp)
+            echo "$PROJECTS" > "$PROJECTS_FILE"
+            echo "projects_file=$PROJECTS_FILE" >> "$GITHUB_OUTPUT"
+
+            DEPS_FILE=$(mktemp)
+            echo "${PLUGIN_DEPS:-}" > "$DEPS_FILE"
+            echo "deps_file=$DEPS_FILE" >> "$GITHUB_OUTPUT"
+
+            PR_DESC_FILE=$(mktemp)
+            echo "${PR_DESCRIPTION:-}" > "$PR_DESC_FILE"
+            echo "pr_desc_file=$PR_DESC_FILE" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Comment on large diff
@@ -159,7 +172,7 @@ jobs:
           steps.check.outputs.needed == 'true' &&
           steps.prepare.outputs.too_large == 'true'
         env:
-          GH_TOKEN: ${{ secrets.API_TOKEN_GITHUB }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
           gh pr comment "$PR_NUMBER" \
@@ -176,14 +189,14 @@ jobs:
           prompt-file: .github/prompts/changelog-generate.prompt.yml
           max-completion-tokens: 4000
           input: |
-            projects: ${{ steps.check.outputs.projects }}
-            plugin_deps: ${{ steps.deps.outputs.plugin_deps }}
             pr_title: ${{ github.event.pull_request.title }}
             pr_number: ${{ github.event.pull_request.number }}
-            pr_description: ${{ github.event.pull_request.body }}
-            project_types: ${{ steps.prepare.outputs.project_types }}
           file_input: |
             diff: ${{ steps.prepare.outputs.diff_file }}
+            projects: ${{ steps.prepare.outputs.projects_file }}
+            plugin_deps: ${{ steps.prepare.outputs.deps_file }}
+            pr_description: ${{ steps.prepare.outputs.pr_desc_file }}
+            project_types: ${{ steps.prepare.outputs.types_file }}
 
       - name: Checkout PR branch
         if: >-
@@ -207,11 +220,18 @@ jobs:
           RESPONSE: ${{ steps.ai.outputs.response }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
           CHANGELOGGER: ${{ github.workspace }}/projects/packages/changelogger/vendor/bin/changelogger
+          KNOWN_PROJECTS: ${{ steps.check.outputs.projects }}
         run: |
           set -euo pipefail
 
           # Parse the JSON response and create changelog entries.
           ENTRY_COUNT=$(echo "$RESPONSE" | jq '.entries | length')
+
+          if [ "$ENTRY_COUNT" -eq 0 ]; then
+            echo "No changelog entries to create; skipping."
+            exit 0
+          fi
+
           echo "Creating $ENTRY_COUNT changelog entries..."
 
           for i in $(seq 0 $(( ENTRY_COUNT - 1 ))); do
@@ -222,6 +242,16 @@ jobs:
             COMMENT=$(echo "$RESPONSE" | jq -r ".entries[$i].comment")
 
             echo "--- Entry $((i+1)): $PROJECT ($SIGNIFICANCE/$TYPE)"
+
+            # Validate project path: must match expected pattern and be a known project.
+            if ! echo "$PROJECT" | grep -qE '^(plugins|packages|projects)/[a-zA-Z0-9_-]+$'; then
+              echo "WARNING: Invalid project path format: $PROJECT — skipping."
+              continue
+            fi
+            if ! echo "$KNOWN_PROJECTS" | grep -qxF "$PROJECT"; then
+              echo "WARNING: Project not in detected list: $PROJECT — skipping."
+              continue
+            fi
 
             PROJECT_DIR="$GITHUB_WORKSPACE/pr-checkout/projects/$PROJECT"
             if [ ! -d "$PROJECT_DIR" ]; then
