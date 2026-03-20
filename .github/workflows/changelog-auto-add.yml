@@ -1,15 +1,13 @@
-# This workflow auto-generates changelog entries using Claude when the
+# This workflow auto-generates changelog entries using GitHub Models when the
 # "Generate changelog entries" checkbox is checked in the PR template.
 #
-# It triggers on pull_request_target so it can access repository secrets
-# (ANTHROPIC_API_KEY). Regular pull_request events for same-repo branches
-# don't expose secrets.
+# It triggers on pull_request_target so it can access repository secrets.
 #
 # Security: the default checkout is the base branch (trunk). Tool setup,
 # the PHP detection script, and composer.json reads all come from trusted
 # code. The PR branch is checked out at a separate path (./pr-checkout)
-# only after all detection is done, and only so Claude can write changelog
-# files there and push. No code from the PR is ever executed.
+# only after all detection is done, and only so changelog files can be
+# written there and pushed. No code from the PR is ever executed.
 
 name: Changelog Auto-Add
 
@@ -23,7 +21,8 @@ concurrency:
 
 permissions:
   contents: write
-  pull-requests: read
+  pull-requests: write
+  models: read
 
 jobs:
   generate:
@@ -112,8 +111,85 @@ jobs:
           done <<< "$PROJECTS"
           gh_set_output plugin_deps "$DEPS"
 
-      - name: Checkout PR branch
+      - name: Prepare prompt input
         if: steps.checkbox.outputs.checked == 'true' && steps.check.outputs.needed == 'true'
+        id: prepare
+        env:
+          BASE: ${{ github.event.pull_request.base.sha }}
+          HEAD: ${{ github.event.pull_request.head.sha }}
+          PROJECTS: ${{ steps.check.outputs.projects }}
+        run: |
+          # Generate diff and check size.
+          DIFF_FILE=$(mktemp)
+          git diff "$BASE...$HEAD" > "$DIFF_FILE"
+          DIFF_SIZE=$(wc -c < "$DIFF_FILE")
+          echo "Diff size: $DIFF_SIZE characters"
+
+          if [ "$DIFF_SIZE" -gt 50000 ]; then
+            echo "too_large=true" >> "$GITHUB_OUTPUT"
+            echo "Diff exceeds 50K character threshold."
+          else
+            echo "too_large=false" >> "$GITHUB_OUTPUT"
+            echo "diff_file=$DIFF_FILE" >> "$GITHUB_OUTPUT"
+
+            # Read each project's available changelog types from composer.json.
+            TYPES_INFO=""
+            while IFS= read -r proj; do
+              [ -z "$proj" ] && continue
+              COMPOSER="projects/$proj/composer.json"
+              if [ -f "$COMPOSER" ]; then
+                PROJ_TYPES=$(php -r "
+                  \$d = json_decode(file_get_contents('$COMPOSER'), true);
+                  \$types = \$d['extra']['changelogger']['types'] ?? null;
+                  if (\$types) echo implode(', ', array_keys(\$types));
+                " 2>/dev/null || true)
+                if [ -n "$PROJ_TYPES" ]; then
+                  TYPES_INFO="${TYPES_INFO}${proj}: ${PROJ_TYPES}"$'\n'
+                fi
+              fi
+            done <<< "$PROJECTS"
+
+            source .github/files/gh-funcs.sh
+            gh_set_output project_types "$TYPES_INFO"
+          fi
+
+      - name: Comment on large diff
+        if: >-
+          steps.checkbox.outputs.checked == 'true' &&
+          steps.check.outputs.needed == 'true' &&
+          steps.prepare.outputs.too_large == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.API_TOKEN_GITHUB }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          gh pr comment "$PR_NUMBER" \
+            --body "This PR's diff is too large for automated changelog generation. Please add changelog entries manually using the changelogger CLI."
+
+      - name: Generate changelog entries with AI
+        if: >-
+          steps.checkbox.outputs.checked == 'true' &&
+          steps.check.outputs.needed == 'true' &&
+          steps.prepare.outputs.too_large != 'true'
+        id: ai
+        uses: actions/ai-inference@v1
+        with:
+          prompt-file: .github/prompts/changelog-generate.prompt.yml
+          max-completion-tokens: 4000
+          input: |
+            projects: ${{ steps.check.outputs.projects }}
+            plugin_deps: ${{ steps.deps.outputs.plugin_deps }}
+            pr_title: ${{ github.event.pull_request.title }}
+            pr_number: ${{ github.event.pull_request.number }}
+            pr_description: ${{ github.event.pull_request.body }}
+            project_types: ${{ steps.prepare.outputs.project_types }}
+          file_input: |
+            diff: ${{ steps.prepare.outputs.diff_file }}
+
+      - name: Checkout PR branch
+        if: >-
+          steps.checkbox.outputs.checked == 'true' &&
+          steps.check.outputs.needed == 'true' &&
+          steps.prepare.outputs.too_large != 'true'
         uses: actions/checkout@v6
         with:
           ref: ${{ github.event.pull_request.head.ref }}
@@ -122,97 +198,60 @@ jobs:
           path: ./pr-checkout
           token: ${{ secrets.API_TOKEN_GITHUB }}
 
-      - name: Generate changelog entries with Claude
-        if: steps.checkbox.outputs.checked == 'true' && steps.check.outputs.needed == 'true'
-        uses: anthropics/claude-code-action@v1
-        with:
-          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-          github_token: ${{ secrets.API_TOKEN_GITHUB }}
-          prompt: |
-            You are generating changelog entries for a Jetpack monorepo PR.
+      - name: Create changelog entries and push
+        if: >-
+          steps.checkbox.outputs.checked == 'true' &&
+          steps.check.outputs.needed == 'true' &&
+          steps.prepare.outputs.too_large != 'true'
+        env:
+          RESPONSE: ${{ steps.ai.outputs.response }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          CHANGELOGGER: ${{ github.workspace }}/projects/packages/changelogger/vendor/bin/changelogger
+        run: |
+          set -euo pipefail
 
-            The following projects need changelog entries:
-            ${{ steps.check.outputs.projects }}
+          # Parse the JSON response and create changelog entries.
+          ENTRY_COUNT=$(echo "$RESPONSE" | jq '.entries | length')
+          echo "Creating $ENTRY_COUNT changelog entries..."
 
-            Pre-computed plugin dependents for each project (may be empty):
-            ${{ steps.deps.outputs.plugin_deps }}
+          for i in $(seq 0 $(( ENTRY_COUNT - 1 ))); do
+            PROJECT=$(echo "$RESPONSE" | jq -r ".entries[$i].project")
+            SIGNIFICANCE=$(echo "$RESPONSE" | jq -r ".entries[$i].significance")
+            TYPE=$(echo "$RESPONSE" | jq -r ".entries[$i].type")
+            ENTRY=$(echo "$RESPONSE" | jq -r ".entries[$i].entry")
+            COMMENT=$(echo "$RESPONSE" | jq -r ".entries[$i].comment")
 
-            PR title: ${{ github.event.pull_request.title }}
-            PR number: ${{ github.event.pull_request.number }}
-            PR branch: ${{ github.event.pull_request.head.ref }}
-            PR description:
-            <pr-description>
-            ${{ github.event.pull_request.body }}
-            </pr-description>
+            echo "--- Entry $((i+1)): $PROJECT ($SIGNIFICANCE/$TYPE)"
 
-            The PR branch is checked out at `./pr-checkout`. Use that directory for
-            writing changelog files and for committing/pushing. The main working
-            directory contains the base branch (trunk).
+            PROJECT_DIR="$GITHUB_WORKSPACE/pr-checkout/projects/$PROJECT"
+            if [ ! -d "$PROJECT_DIR" ]; then
+              echo "WARNING: Project directory not found: $PROJECT_DIR — skipping."
+              continue
+            fi
 
-            The changelogger binary is available at:
-            `$GITHUB_WORKSPACE/projects/packages/changelogger/vendor/bin/changelogger`
+            cd "$PROJECT_DIR"
 
-            Instructions:
-            1. Read the diff for this PR to understand the changes:
-               `git diff ${{ github.event.pull_request.base.sha }}...${{ github.event.pull_request.head.sha }}`
-               (Run this from the main working directory, which has full history.)
+            ARGS=(--no-interaction -s "$SIGNIFICANCE" -t "$TYPE" -f "pr-$PR_NUMBER")
+            if [ -n "$ENTRY" ]; then
+              ARGS+=(-e "$ENTRY")
+            else
+              ARGS+=(-e "")
+            fi
+            if [ -n "$COMMENT" ]; then
+              ARGS+=(-c "$COMMENT")
+            fi
 
-            2. For each project listed above, create a changelog entry by running the
-               changelogger CLI from the project's directory in the PR checkout:
-               ```
-               cd $GITHUB_WORKSPACE/pr-checkout/projects/<type>/<name>
-               $GITHUB_WORKSPACE/projects/packages/changelogger/vendor/bin/changelogger add \
-                 --no-interaction -s <significance> -t <type> -e "<entry>" -f "pr-${{ github.event.pull_request.number }}"
-               ```
+            "$CHANGELOGGER" add "${ARGS[@]}"
+            echo "  Created entry for $PROJECT"
+          done
 
-               For trivial/internal changes with no user-facing impact, use an empty
-               entry with a comment explaining why:
-               ```
-               $GITHUB_WORKSPACE/projects/packages/changelogger/vendor/bin/changelogger add \
-                 --no-interaction -s patch -t changed -e "" -c "reason" -f "pr-${{ github.event.pull_request.number }}"
-               ```
-
-            3. Follow these rules for changelog entries:
-               - Start with a capital letter and end with a period.
-               - Use imperative mood (e.g., "Add feature." not "Added feature").
-               - Use a "Component: description" prefix when the change is specific to a component within the project.
-               - Do NOT use the package/project name itself as prefix for entries in that package.
-               - Describe the change from a user's perspective.
-
-            4. For significance: `patch` for bug fixes and minor changes, `minor` for new features and enhancements, `major` for breaking changes.
-
-            5. For type, most projects use: `security`, `added`, `changed`, `deprecated`, `removed`, `fixed`.
-               BUT `plugins/jetpack` uses custom types: `major`, `enhancement`, `compat`, `bugfix`, `other`.
-               Check each project's `composer.json` at `.extra.changelogger.types` to confirm available types.
-
-            6. The pre-computed plugin dependents above show which plugins depend on each
-               project. If a plugin is listed as a dependent of a project you are adding
-               a changelog entry for, also add a changelog entry for that plugin
-               describing the downstream impact. Only add a plugin changelog entry if the
-               change is relevant to end users or site administrators.
-
-            7. After creating all changelog entries, commit and push from the PR checkout:
-               ```
-               cd $GITHUB_WORKSPACE/pr-checkout
-               git add 'projects/*/*/changelog/pr-${{ github.event.pull_request.number }}'
-               git commit -m "Add changelog entries."
-               git push
-               ```
-
-            8. Do NOT modify any files other than changelog entries.
-
-          # WARNING: Do not add tools that could execute code from the PR checkout.
-          # The PR checkout contains untrusted code. Only the base branch is trusted.
-          claude_args: >-
-            --allowedTools
-            "Bash(git diff *)"
-            "Bash(git log *)"
-            "Bash(git add *)"
-            "Bash(git commit *)"
-            "Bash(git push *)"
-            "Bash(cd *)"
-            "Bash(*/projects/packages/changelogger/vendor/bin/changelogger *)"
-            Read
-            Write
-            Glob
-            Grep
+          # Commit and push from the PR checkout.
+          cd "$GITHUB_WORKSPACE/pr-checkout"
+          git add "projects/*/*/changelog/pr-$PR_NUMBER"
+          if git diff --cached --quiet; then
+            echo "No changelog files to commit."
+          else
+            git commit -m "Add changelog entries."
+            git push
+            echo "Changelog entries committed and pushed."
+          fi
