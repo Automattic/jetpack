@@ -220,9 +220,9 @@ class Blaze {
 			return 'yes' === $cached_result;
 		}
 
-		// Make the API request.
-		$url      = sprintf( '/sites/%d/wordads/dsp/api/v1/campaigns?status=active', $site_id );
-		$response = Client::wpcom_json_api_request_as_blog(
+		// Make the API request. Uses as_user because the DSP campaigns endpoint requires a user token.
+		$url      = sprintf( '/sites/%d/wordads/dsp/api/v1/campaigns', $site_id );
+		$response = Client::wpcom_json_api_request_as_user(
 			$url,
 			'2',
 			array( 'method' => 'GET' ),
