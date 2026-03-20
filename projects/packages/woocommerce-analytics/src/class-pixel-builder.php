@@ -214,6 +214,27 @@ class Pixel_Builder {
 	}
 
 	/**
+	 * Check if a SOCKS proxy is configured.
+	 *
+	 * The Requests library doesn't support SOCKS proxies, so we need to fall back
+	 * to wp_remote_get() which respects WordPress proxy settings.
+	 *
+	 * @return bool True if a SOCKS proxy is configured.
+	 */
+	private static function is_socks_proxy_configured() {
+		if ( ! defined( 'WP_PROXY_HOST' ) || empty( WP_PROXY_HOST ) ) {
+			return false;
+		}
+
+		$proxy_host = strtolower( WP_PROXY_HOST );
+
+		// Check if the proxy host indicates a SOCKS proxy.
+		return str_starts_with( $proxy_host, 'socks5://' )
+			|| str_starts_with( $proxy_host, 'socks4://' )
+			|| str_starts_with( $proxy_host, 'socks://' );
+	}
+
+	/**
 	 * Send pixel requests using batched non-blocking HTTP calls.
 	 *
 	 * Uses Requests library's request_multiple() for parallel execution via curl_multi.
@@ -227,8 +248,11 @@ class Pixel_Builder {
 		}
 
 		// Check if batching is supported.
+		// Note: WpOrg\Requests\Requests doesn't support SOCKS proxies, so we fall back
+		// to individual wp_remote_get() requests which respect WP_PROXY_* settings.
 		$can_batch = ( class_exists( 'WpOrg\Requests\Requests' ) && method_exists( 'WpOrg\Requests\Requests', 'request_multiple' ) )
 			|| ( class_exists( 'Requests' ) && method_exists( 'Requests', 'request_multiple' ) );
+		$can_batch = $can_batch && ! self::is_socks_proxy_configured();
 
 		if ( ! $can_batch ) {
 			// Fallback to individual requests.
