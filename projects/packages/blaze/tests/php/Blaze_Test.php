@@ -404,6 +404,87 @@ class Blaze_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Test that enable_blaze_menu() registers a top-level menu on WPCOM
+	 * when the dashboard is disabled and the site has active campaigns.
+	 */
+	public function test_wpcom_non_dashboard_top_level_menu_with_campaigns() {
+		global $menu;
+
+		wp_set_current_user( $this->admin_id );
+		add_filter( 'jetpack_blaze_enabled', '__return_true' );
+		add_filter( 'jetpack_blaze_dashboard_enable', '__return_false' );
+
+		// Simulate WPCOM platform.
+		Constants::set_constant( 'IS_WPCOM', true );
+
+		// Seed campaigns.
+		update_option( 'jetpack_options', array( 'id' => 12345 ) );
+		set_transient( 'jetpack_blaze_has_active_campaigns_12345', 'yes', HOUR_IN_SECONDS );
+
+		Blaze::enable_blaze_menu();
+
+		$found_top_level = false;
+		foreach ( (array) $menu as $item ) {
+			if ( isset( $item[2] ) && str_contains( $item[2], 'advertising' ) ) {
+				$found_top_level = true;
+				break;
+			}
+		}
+
+		$this->assertTrue( $found_top_level, 'Expected top-level menu on WPCOM non-dashboard with active campaigns.' );
+
+		delete_transient( 'jetpack_blaze_has_active_campaigns_12345' );
+		delete_option( 'jetpack_options' );
+		Constants::clear_single_constant( 'IS_WPCOM' );
+		add_filter( 'jetpack_blaze_enabled', '__return_false' );
+		remove_all_filters( 'jetpack_blaze_dashboard_enable' );
+	}
+
+	/**
+	 * Test that enable_blaze_menu() registers a submenu on WPCOM
+	 * when the dashboard is disabled and there are no active campaigns.
+	 */
+	public function test_wpcom_non_dashboard_submenu_without_campaigns() {
+		global $submenu;
+
+		wp_set_current_user( $this->admin_id );
+		add_filter( 'jetpack_blaze_enabled', '__return_true' );
+		add_filter( 'jetpack_blaze_dashboard_enable', '__return_false' );
+
+		Constants::set_constant( 'IS_WPCOM', true );
+
+		Blaze::enable_blaze_menu();
+
+		// Should be a submenu, not top-level.
+		$found_submenu = false;
+		foreach ( (array) $submenu as $items ) {
+			foreach ( $items as $item ) {
+				if ( isset( $item[2] ) && str_contains( $item[2], 'advertising' ) ) {
+					$found_submenu = true;
+					break 2;
+				}
+			}
+		}
+
+		$this->assertTrue( $found_submenu, 'Expected submenu on WPCOM non-dashboard without campaigns.' );
+
+		Constants::clear_single_constant( 'IS_WPCOM' );
+		add_filter( 'jetpack_blaze_enabled', '__return_false' );
+		remove_all_filters( 'jetpack_blaze_dashboard_enable' );
+	}
+
+	/**
+	 * Test that get_menu_parent() returns 'jetpack' on WPCOM platform.
+	 */
+	public function test_get_menu_parent_wpcom_platform() {
+		Constants::set_constant( 'IS_WPCOM', true );
+
+		$this->assertSame( 'jetpack', Blaze::get_menu_parent() );
+
+		Constants::clear_single_constant( 'IS_WPCOM' );
+	}
+
+	/**
 	 * Test that redirect_legacy_advertising_url does not redirect when not on tools.php.
 	 */
 	public function test_redirect_legacy_url_no_redirect_on_other_pages() {
