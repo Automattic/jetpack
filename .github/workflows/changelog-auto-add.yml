@@ -122,23 +122,8 @@ jobs:
           path: ./pr-checkout
           token: ${{ secrets.API_TOKEN_GITHUB }}
 
-      - name: Check for existing changelog entries
-        if: steps.checkbox.outputs.checked == 'true' && steps.check.outputs.needed == 'true'
-        id: existing
-        env:
-          PR_NUM: ${{ github.event.pull_request.number }}
-        run: |
-          EXISTING=$(find ./pr-checkout/projects -path "*/changelog/pr-${PR_NUM}" -type f 2>/dev/null || true)
-          if [ -n "$EXISTING" ]; then
-            echo "found=true" >> "$GITHUB_OUTPUT"
-            echo "Existing changelog entries found — skipping generation:"
-            echo "$EXISTING"
-          else
-            echo "found=false" >> "$GITHUB_OUTPUT"
-          fi
-
       - name: Generate changelog entries with Claude
-        if: steps.checkbox.outputs.checked == 'true' && steps.check.outputs.needed == 'true' && steps.existing.outputs.found == 'false'
+        if: steps.checkbox.outputs.checked == 'true' && steps.check.outputs.needed == 'true'
         uses: anthropics/claude-code-action@df37d2f0760a4b5683a6e617c9325bc1a36443f6 # v1
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}

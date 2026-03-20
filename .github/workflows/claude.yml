@@ -37,6 +37,7 @@ jobs:
       pull-requests: write
       issues: write
       actions: read
+      id-token: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
