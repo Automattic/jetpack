@@ -27,7 +27,7 @@ function wpcom_colourlovers_deprecate_warning() {
 
 	// This message is shown to users in the Customizer.
 	// It warns them that their current background image will no longer be available.
-	$message = __( 'Update your background image before April 15 to keep your site looking great.', 'jetpack-mu-wpcom' );
+	$message = __( 'Update your background image before June 15 to keep your site looking great.', 'jetpack-mu-wpcom' );
 
 	// Enqueue a JavaScript file that displays the warning message.
 	wp_enqueue_script(
