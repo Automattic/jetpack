@@ -13,7 +13,7 @@ require_once __DIR__ . '/../../utils.php';
 add_action(
 	'rest_api_init',
 	function () {
-		if ( ! wpcom_is_gutenberg_rtc_enabled() ) {
+		if ( ! \Automattic\Jetpack\RTC::is_enabled() ) {
 			return;
 		}
 		require_once __DIR__ . '/class-wp-rest-rtc-notices.php';
@@ -72,7 +72,7 @@ function wpcom_rtc_is_plan_owner() {
  * Enqueue block editor assets for RTC notices and limits.
  */
 function wpcom_enqueue_rtc_notices_assets() {
-	if ( ! wpcom_is_gutenberg_rtc_enabled() ) {
+	if ( ! \Automattic\Jetpack\RTC::is_enabled() ) {
 		return;
 	}
 

@@ -1,8 +1,12 @@
 /* eslint-disable react/jsx-no-bind */
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { GlobalChartsProvider } from '../../../providers';
+import { useMemo } from 'react';
+import { SingleChartContext } from '../../../charts/private/single-chart-context';
+import { GlobalChartsProvider, useChartId, useChartRegistration } from '../../../providers';
+import { Legend } from '../legend';
 import { BaseLegend } from '../private/base-legend';
+import type { ChartType } from '../../../types';
 import type { LegendProps } from '../types';
 
 const TestShape: LegendProps[ 'shape' ] = props => {
@@ -422,6 +426,94 @@ describe( 'BaseLegend', () => {
 
 			expect( screen.getByTestId( 'custom-legend' ) ).toBeInTheDocument();
 			expect( screen.queryByTestId( 'legend-vertical' ) ).not.toBeInTheDocument();
+		} );
+	} );
+
+	describe( 'Legend shape defaults from chart type', () => {
+		const legendItems = [
+			{ label: 'Series 1', color: '#ff0000' },
+			{ label: 'Series 2', color: '#00ff00' },
+		];
+
+		const CustomShape: LegendProps[ 'shape' ] = props => (
+			<span data-testid="custom-shape" style={ { color: props.fill as string } } />
+		);
+
+		const ChartRegistrar = ( {
+			chartType,
+			chartId,
+		}: {
+			chartType: ChartType;
+			chartId: string;
+		} ) => {
+			const resolvedId = useChartId( chartId );
+			const metadata = useMemo( () => ( {} ), [] );
+			useChartRegistration( {
+				chartId: resolvedId,
+				legendItems,
+				chartType,
+				isDataValid: true,
+				metadata,
+			} );
+			return null;
+		};
+
+		const renderLegendWithChartType = (
+			chartType: ChartType,
+			explicitShape?: LegendProps[ 'shape' ]
+		) => {
+			const chartId = `test-${ chartType }`;
+
+			return render(
+				<GlobalChartsProvider>
+					<ChartRegistrar chartType={ chartType } chartId={ chartId } />
+					<SingleChartContext.Provider value={ { chartId } }>
+						<Legend shape={ explicitShape } />
+					</SingleChartContext.Provider>
+				</GlobalChartsProvider>
+			);
+		};
+
+		it( 'uses line shape for line chart type', () => {
+			renderLegendWithChartType( 'line' );
+			expect( screen.getByRole( 'list' ) ).toBeInTheDocument();
+			expect( screen.getAllByTestId( 'legend-item' ) ).toHaveLength( 2 );
+
+			const html = document.body.innerHTML;
+			expect( html ).toContain( '<line' );
+		} );
+
+		it( 'uses rect shape for bar chart type', () => {
+			renderLegendWithChartType( 'bar' );
+			expect( screen.getByRole( 'list' ) ).toBeInTheDocument();
+
+			// visx ShapeRect renders a <div> with inline background style inside
+			// .visx-legend-shape. No testids or roles on these elements, so direct
+			// node access is necessary.
+			// eslint-disable-next-line testing-library/no-node-access
+			const shapes = document.querySelectorAll( '.visx-legend-shape > div' );
+			expect( shapes ).toHaveLength( 2 );
+			shapes.forEach( shape => {
+				expect( ( shape as HTMLElement ).style.background ).toBeTruthy();
+			} );
+		} );
+
+		it( 'uses circle shape for pie chart type', () => {
+			renderLegendWithChartType( 'pie' );
+			expect( screen.getByRole( 'list' ) ).toBeInTheDocument();
+
+			const html = document.body.innerHTML;
+			expect( html ).toContain( '<circle' );
+			expect( html ).not.toContain( '<line' );
+		} );
+
+		it( 'allows explicit shape to override chart type default', () => {
+			renderLegendWithChartType( 'line', CustomShape );
+			expect( screen.getByRole( 'list' ) ).toBeInTheDocument();
+			expect( screen.getAllByTestId( 'custom-shape' ) ).toHaveLength( 2 );
+
+			const html = document.body.innerHTML;
+			expect( html ).not.toContain( '<line' );
 		} );
 	} );
 

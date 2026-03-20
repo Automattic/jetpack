@@ -330,7 +330,7 @@ export class PingHubBridge {
 		}
 		try {
 			const response = await apiFetch< { token: string } >( {
-				path: '/wpcom/v2/gutenberg-rtc/pinghub-token',
+				path: '/wpcom/v2/rtc/pinghub-token',
 				method: 'POST',
 			} );
 			this.cachedJwt = response?.token ?? null;

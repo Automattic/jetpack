@@ -94,7 +94,7 @@ class RTC_Notices_Test extends \WorDBless\BaseTestCase {
 
 		remove_all_filters( 'wpcom_rtc_max_peers_per_room' );
 		remove_all_filters( 'wpcom_rtc_max_clients_per_user' );
-		remove_all_filters( 'wpcom_is_gutenberg_rtc_enabled' );
+		remove_all_filters( 'jetpack_rtc_enabled' );
 		remove_all_filters( 'wpcom_rtc_enable_limit_notices' );
 
 		delete_option( 'wp_enable_real_time_collaboration' );
@@ -389,7 +389,7 @@ class RTC_Notices_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function test_enqueue_skips_when_rtc_disabled() {
 		$this->reset_scripts();
-		add_filter( 'wpcom_is_gutenberg_rtc_enabled', '__return_false' );
+		add_filter( 'jetpack_rtc_enabled', '__return_false' );
 
 		wpcom_enqueue_rtc_notices_assets();
 
@@ -401,7 +401,7 @@ class RTC_Notices_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function test_enqueue_skips_when_rtc_setting_off() {
 		$this->reset_scripts();
-		add_filter( 'wpcom_is_gutenberg_rtc_enabled', '__return_true' );
+		add_filter( 'jetpack_rtc_enabled', '__return_true' );
 		// Explicitly set to '0' — deleting won't work because gutenberg-rtc.php
 		// has a default_option filter that returns '1' when providers exist.
 		update_option( 'wp_enable_real_time_collaboration', '0' );
@@ -417,7 +417,7 @@ class RTC_Notices_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function test_enqueue_works_with_old_rtc_option() {
 		$this->reset_scripts();
-		add_filter( 'wpcom_is_gutenberg_rtc_enabled', '__return_true' );
+		add_filter( 'jetpack_rtc_enabled', '__return_true' );
 		update_option( 'wp_enable_real_time_collaboration', '1' );
 
 		wpcom_enqueue_rtc_notices_assets();
@@ -430,7 +430,7 @@ class RTC_Notices_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function test_enqueue_works_with_new_rtc_option() {
 		$this->reset_scripts();
-		add_filter( 'wpcom_is_gutenberg_rtc_enabled', '__return_true' );
+		add_filter( 'jetpack_rtc_enabled', '__return_true' );
 		update_option( 'wp_collaboration_enabled', '1' );
 
 		wpcom_enqueue_rtc_notices_assets();
@@ -443,7 +443,7 @@ class RTC_Notices_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function test_enqueue_includes_inline_config() {
 		$this->reset_scripts();
-		add_filter( 'wpcom_is_gutenberg_rtc_enabled', '__return_true' );
+		add_filter( 'jetpack_rtc_enabled', '__return_true' );
 		update_option( 'wp_enable_real_time_collaboration', '1' );
 
 		wpcom_enqueue_rtc_notices_assets();
@@ -508,7 +508,7 @@ class RTC_Notices_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function test_enqueue_includes_is_plan_owner() {
 		$this->reset_scripts();
-		add_filter( 'wpcom_is_gutenberg_rtc_enabled', '__return_true' );
+		add_filter( 'jetpack_rtc_enabled', '__return_true' );
 		update_option( 'wp_enable_real_time_collaboration', '1' );
 
 		wpcom_enqueue_rtc_notices_assets();
@@ -527,7 +527,7 @@ class RTC_Notices_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function test_enqueue_skips_when_both_options_explicitly_off() {
 		$this->reset_scripts();
-		add_filter( 'wpcom_is_gutenberg_rtc_enabled', '__return_true' );
+		add_filter( 'jetpack_rtc_enabled', '__return_true' );
 		update_option( 'wp_enable_real_time_collaboration', '0' );
 		update_option( 'wp_collaboration_enabled', '0' );
 
