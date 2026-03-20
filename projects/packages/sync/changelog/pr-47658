@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Reduce memory overhead when inspecting call stack for user sync operations by using DEBUG_BACKTRACE_IGNORE_ARGS and consolidating backtrace calls.
+Reduce debug_backtrace overhead in Users sync module: use DEBUG_BACKTRACE_IGNORE_ARGS, consolidate backtrace calls, and remove get_reassigned_network_user_id() in favor of the $reassign hook parameter available since WP 5.4.
