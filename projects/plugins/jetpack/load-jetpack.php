@@ -37,6 +37,7 @@ require_once JETPACK__PLUGIN_DIR . 'class.photon.php';
 require_once JETPACK__PLUGIN_DIR . 'functions.photon.php';
 require_once JETPACK__PLUGIN_DIR . 'functions.global.php';
 require_once JETPACK__PLUGIN_DIR . 'functions.compat.php';
+require_once JETPACK__PLUGIN_DIR . 'functions.excerpt-compat.php';
 require_once JETPACK__PLUGIN_DIR . 'class-jetpack-gallery-settings.php';
 require_once JETPACK__PLUGIN_DIR . 'functions.cookies.php';
 require_once JETPACK__PLUGIN_DIR . 'class.jetpack-autoupdate.php';
