@@ -46,12 +46,12 @@ describe( 'BaseLegend', () => {
 		expect( legendItems ).toHaveLength( 0 );
 	} );
 
-	test( 'applies legendItemClassName to legend items', () => {
+	test( 'applies itemClassName to legend items', () => {
 		render(
 			<BaseLegend
 				items={ defaultItems }
 				orientation="horizontal"
-				legendItemClassName="custom-legend-item"
+				itemClassName="custom-legend-item"
 			/>
 		);
 		const legendItems = screen.getAllByTestId( 'legend-item' );
@@ -60,14 +60,63 @@ describe( 'BaseLegend', () => {
 		} );
 	} );
 
+	test( 'applies labelClassName to legend labels', () => {
+		render(
+			<BaseLegend
+				items={ defaultItems }
+				orientation="horizontal"
+				labelClassName="custom-legend-label"
+			/>
+		);
+		const labels = screen.getAllByTestId( 'legend-label' );
+		labels.forEach( label => {
+			expect( label ).toHaveClass( 'custom-legend-label' );
+		} );
+	} );
+
 	test( 'handles missing values', () => {
 		const itemsWithoutValues = [
-			{ label: 'Item 1', color: '#ff0000', value: undefined },
-			{ label: 'Item 2', color: '#00ff00', value: undefined },
+			{ label: 'Item 1', color: '#ff0000' },
+			{ label: 'Item 2', color: '#00ff00' },
 		];
 		render( <BaseLegend items={ itemsWithoutValues } orientation="horizontal" /> );
 		expect( screen.getByText( 'Item 1' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'Item 2' ) ).toBeInTheDocument();
+	} );
+
+	test( 'does not render value span for empty string values', () => {
+		const itemsWithEmptyValues = [
+			{ label: 'Item 1', color: '#ff0000', value: '' },
+			{ label: 'Item 2', color: '#00ff00', value: '' },
+		];
+		render( <BaseLegend items={ itemsWithEmptyValues } orientation="horizontal" /> );
+		expect( screen.getByText( 'Item 1' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Item 2' ) ).toBeInTheDocument();
+		expect( screen.queryByText( '\u00A0' ) ).not.toBeInTheDocument();
+	} );
+
+	test( 'renders numeric value of 0 without hiding it', () => {
+		const itemsWithZeroValue = [
+			{ label: 'Item 1', color: '#ff0000', value: 0 },
+			{ label: 'Item 2', color: '#00ff00', value: '0%' },
+		];
+		render( <BaseLegend items={ itemsWithZeroValue } orientation="horizontal" /> );
+		expect( screen.getByText( '0' ) ).toBeInTheDocument();
+		expect( screen.getByText( '0%' ) ).toBeInTheDocument();
+	} );
+
+	test( 'renders each value next to its corresponding label by index', () => {
+		const itemsWithDistinctValues = [
+			{ label: 'Alpha', value: '100', color: '#ff0000' },
+			{ label: 'Beta', value: '200', color: '#00ff00' },
+			{ label: 'Gamma', value: '300', color: '#0000ff' },
+		];
+		render( <BaseLegend items={ itemsWithDistinctValues } orientation="horizontal" /> );
+		const legendItems = screen.getAllByTestId( 'legend-item' );
+		expect( legendItems ).toHaveLength( 3 );
+		expect( legendItems[ 0 ] ).toHaveTextContent( /Alpha.*100/ );
+		expect( legendItems[ 1 ] ).toHaveTextContent( /Beta.*200/ );
+		expect( legendItems[ 2 ] ).toHaveTextContent( /Gamma.*300/ );
 	} );
 
 	test( 'applies custom className', () => {
@@ -106,108 +155,155 @@ describe( 'BaseLegend', () => {
 			{ label: 'Another Long Label for Testing', value: '30%', color: '#00ff00' },
 		];
 
-		test( 'renders with maxWidth constraint', () => {
-			render( <BaseLegend items={ longLabelItems } maxWidth="150px" orientation="horizontal" /> );
-			const legendItems = screen.getAllByTestId( 'legend-item' );
-			expect( legendItems ).toHaveLength( 2 );
-			// Note: maxWidth is applied to LegendLabel via inline styles,
-			// which is harder to test without DOM traversal
+		test( 'applies maxWidth and minWidth styles to label text', () => {
+			render(
+				<BaseLegend
+					items={ longLabelItems }
+					labelStyles={ { maxWidth: '150px' } }
+					orientation="horizontal"
+				/>
+			);
+			const labels = screen.getAllByText( /Long Label/ );
+			labels.forEach( label => {
+				expect( label ).toHaveStyle( { maxWidth: '150px', minWidth: 0 } );
+			} );
 		} );
 
-		test( 'renders with maxWidth as string', () => {
-			render( <BaseLegend items={ longLabelItems } maxWidth="10rem" orientation="horizontal" /> );
-			const legendItems = screen.getAllByTestId( 'legend-item' );
-			expect( legendItems ).toHaveLength( 2 );
-			// Note: maxWidth is applied to LegendLabel via inline styles
+		test( 'supports different CSS units for maxWidth', () => {
+			render(
+				<BaseLegend
+					items={ longLabelItems }
+					labelStyles={ { maxWidth: '10rem' } }
+					orientation="horizontal"
+				/>
+			);
+			const labels = screen.getAllByText( /Long Label/ );
+			labels.forEach( label => {
+				expect( label ).toHaveStyle( { maxWidth: '10rem' } );
+			} );
 		} );
 
-		test( 'renders correctly with and without maxWidth', () => {
+		test( 'does not apply maxWidth styles when omitted', () => {
 			const { rerender } = render(
 				<BaseLegend items={ longLabelItems } orientation="horizontal" />
 			);
 
-			// Without maxWidth, legend items should render normally
-			let legendItems = screen.getAllByTestId( 'legend-item' );
-			expect( legendItems ).toHaveLength( 2 );
-
-			// With maxWidth, legend items should still render
-			rerender( <BaseLegend items={ longLabelItems } maxWidth="150px" orientation="horizontal" /> );
-			legendItems = screen.getAllByTestId( 'legend-item' );
-			expect( legendItems ).toHaveLength( 2 );
-		} );
-
-		test( 'renders with different textOverflow values', () => {
-			// Test ellipsis behavior - should render without errors
-			const { rerender } = render(
-				<BaseLegend
-					items={ longLabelItems }
-					maxWidth="150px"
-					textOverflow="ellipsis"
-					orientation="horizontal"
-				/>
-			);
 			let labels = screen.getAllByText( /Long Label/ );
-			expect( labels ).toHaveLength( 2 );
+			labels.forEach( label => {
+				expect( label ).not.toHaveStyle( { maxWidth: '150px' } );
+			} );
 
-			// Test wrap behavior - should render without errors
 			rerender(
 				<BaseLegend
 					items={ longLabelItems }
-					maxWidth="150px"
-					textOverflow="wrap"
+					labelStyles={ { maxWidth: '150px' } }
 					orientation="horizontal"
 				/>
 			);
 			labels = screen.getAllByText( /Long Label/ );
-			expect( labels ).toHaveLength( 2 );
+			labels.forEach( label => {
+				expect( label ).toHaveStyle( { maxWidth: '150px', minWidth: 0 } );
+			} );
 		} );
 
-		test( 'renders ellipsis mode without errors', () => {
-			// Render with ellipsis overflow
-			render(
+		test( 'applies maxWidth styles for both textOverflow modes', () => {
+			const { rerender } = render(
 				<BaseLegend
 					items={ longLabelItems }
-					maxWidth="50px"
-					textOverflow="ellipsis"
+					labelStyles={ { maxWidth: '150px', textOverflow: 'ellipsis' } }
 					orientation="horizontal"
 				/>
 			);
+			let labels = screen.getAllByText( /Long Label/ );
+			labels.forEach( label => {
+				expect( label ).toHaveStyle( { maxWidth: '150px', minWidth: 0 } );
+			} );
 
-			// Verify the text is rendered
+			rerender(
+				<BaseLegend
+					items={ longLabelItems }
+					labelStyles={ { maxWidth: '150px', textOverflow: 'wrap' } }
+					orientation="horizontal"
+				/>
+			);
+			labels = screen.getAllByText( /Long Label/ );
+			labels.forEach( label => {
+				expect( label ).toHaveStyle( { maxWidth: '150px', minWidth: 0 } );
+			} );
+		} );
+
+		test( 'applies maxWidth=0px correctly', () => {
+			render(
+				<BaseLegend
+					items={ longLabelItems }
+					labelStyles={ { maxWidth: '0px', textOverflow: 'ellipsis' } }
+					orientation="horizontal"
+				/>
+			);
 			const labels = screen.getAllByText( /Long Label/ );
-			expect( labels ).toHaveLength( 2 );
+			labels.forEach( label => {
+				expect( label ).toHaveStyle( { maxWidth: '0px', minWidth: 0 } );
+			} );
 		} );
 
-		test( 'renders wrap mode without errors', () => {
-			// Render with wrap overflow
+		test( 'applies legend-item-text--ellipsis class when textOverflow is ellipsis and maxWidth is set', () => {
 			render(
 				<BaseLegend
 					items={ longLabelItems }
-					maxWidth="50px"
-					textOverflow="wrap"
+					labelStyles={ { maxWidth: '150px', textOverflow: 'ellipsis' } }
 					orientation="horizontal"
 				/>
 			);
-
-			// Verify the text is rendered
 			const labels = screen.getAllByText( /Long Label/ );
-			expect( labels ).toHaveLength( 2 );
+			labels.forEach( label => {
+				expect( label ).toHaveClass( 'legend-item-text--ellipsis' );
+				expect( label ).not.toHaveClass( 'legend-item-text--wrap' );
+			} );
 		} );
 
-		test( 'handles maxWidth={0} correctly', () => {
-			// maxWidth={0} should apply 0-pixel constraint (not be treated as "no constraint")
+		test( 'applies legend-item-text--wrap class when textOverflow is wrap and maxWidth is set', () => {
 			render(
 				<BaseLegend
 					items={ longLabelItems }
-					maxWidth="0px"
-					textOverflow="ellipsis"
+					labelStyles={ { maxWidth: '150px', textOverflow: 'wrap' } }
 					orientation="horizontal"
 				/>
 			);
+			const labels = screen.getAllByText( /Long Label/ );
+			labels.forEach( label => {
+				expect( label ).toHaveClass( 'legend-item-text--wrap' );
+				expect( label ).not.toHaveClass( 'legend-item-text--ellipsis' );
+			} );
+		} );
 
-			// Should still render the legend items
-			const legendItems = screen.getAllByTestId( 'legend-item' );
-			expect( legendItems ).toHaveLength( 2 );
+		test( 'does not apply overflow class when maxWidth is not set', () => {
+			render(
+				<BaseLegend
+					items={ longLabelItems }
+					labelStyles={ { textOverflow: 'ellipsis' } }
+					orientation="horizontal"
+				/>
+			);
+			const labels = screen.getAllByText( /Long Label/ );
+			labels.forEach( label => {
+				expect( label ).not.toHaveClass( 'legend-item-text--ellipsis' );
+				expect( label ).not.toHaveClass( 'legend-item-text--wrap' );
+			} );
+		} );
+
+		test( 'does not apply overflow class when maxWidth is not set and textOverflow is wrap', () => {
+			render(
+				<BaseLegend
+					items={ longLabelItems }
+					labelStyles={ { textOverflow: 'wrap' } }
+					orientation="horizontal"
+				/>
+			);
+			const labels = screen.getAllByText( /Long Label/ );
+			labels.forEach( label => {
+				expect( label ).not.toHaveClass( 'legend-item-text--wrap' );
+				expect( label ).not.toHaveClass( 'legend-item-text--ellipsis' );
+			} );
 		} );
 	} );
 

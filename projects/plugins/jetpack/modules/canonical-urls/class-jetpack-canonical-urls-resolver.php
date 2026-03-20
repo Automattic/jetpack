@@ -19,7 +19,7 @@ class Jetpack_Canonical_Urls_Resolver {
 	 *
 	 * Routes to the correct URL based on the current query conditionals.
 	 *
-	 * @since $$next-version$$
+	 * @since 15.6
 	 *
 	 * @return string The canonical URL, or empty string if none should be output.
 	 */
@@ -58,9 +58,9 @@ class Jetpack_Canonical_Urls_Resolver {
 				$url = '';
 			}
 		} elseif ( is_author() ) {
-			$author = get_queried_object();
-			if ( $author instanceof WP_User ) {
-				$url = get_author_posts_url( $author->ID );
+			$author_id = (int) get_query_var( 'author' );
+			if ( $author_id ) {
+				$url = get_author_posts_url( $author_id );
 			}
 		} elseif ( is_year() ) {
 			$url = get_year_link( get_query_var( 'year' ) );
@@ -80,7 +80,7 @@ class Jetpack_Canonical_Urls_Resolver {
 		 *
 		 * @module canonical-urls
 		 *
-		 * @since $$next-version$$
+		 * @since 15.6
 		 *
 		 * @param string $url The canonical URL for the current page.
 		 */
@@ -90,7 +90,7 @@ class Jetpack_Canonical_Urls_Resolver {
 	/**
 	 * Append pagination to the canonical URL for paged views.
 	 *
-	 * @since $$next-version$$
+	 * @since 15.6
 	 *
 	 * @param string $url The base canonical URL.
 	 * @return string The URL with pagination appended if applicable.

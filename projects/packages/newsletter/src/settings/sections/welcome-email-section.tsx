@@ -3,7 +3,15 @@
  */
 import analytics from '@automattic/jetpack-analytics';
 import { getSiteType } from '@automattic/jetpack-script-data';
-import { Button } from '@wordpress/components';
+import {
+	Button,
+	Card,
+	CardHeader,
+	CardBody,
+	CardFooter,
+	__experimentalText as Text, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+	__experimentalHeading as Heading, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+} from '@wordpress/components';
 import { DataForm, type Field } from '@wordpress/dataviews/wp';
 import { useCallback, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -95,41 +103,44 @@ export function WelcomeEmailSection( {
 	);
 
 	return (
-		<div className="newsletter-settings__section">
-			<h3 className="newsletter-settings__section-title">
-				{ __( 'Welcome email message', 'jetpack-newsletter' ) }
-			</h3>
-			<p className="newsletter-settings__section-description">
-				{ __(
-					'Sent to your email subscribers when they subscribe to your newsletter.',
-					'jetpack-newsletter'
-				) }
-			</p>
-			<fieldset className="newsletter-settings__section-content" disabled={ ! isNewsletterEnabled }>
-				<DataForm
-					data={ formData }
-					fields={ fields }
-					form={ {
-						layout: {
-							type: 'regular',
-							labelPosition: 'top',
-						},
-						fields: [ 'welcome_message' ],
-					} }
-					onChange={ handleDataFormChange }
-				/>
-
-				<div className="newsletter-settings__section-actions">
-					<Button
-						variant="primary"
-						onClick={ handleSave }
-						disabled={ ! isNewsletterEnabled || isSaving || ! hasChanges }
-						isBusy={ isSaving }
-					>
-						{ isSaving ? savingText : saveText }
-					</Button>
-				</div>
-			</fieldset>
-		</div>
+		<Card>
+			<CardHeader>
+				<Heading level={ 4 }>{ __( 'Welcome email message', 'jetpack-newsletter' ) }</Heading>
+			</CardHeader>
+			<CardBody>
+				<p>
+					<Text>
+						{ __(
+							'Sent to your email subscribers when they subscribe to your newsletter.',
+							'jetpack-newsletter'
+						) }
+					</Text>
+				</p>
+				<fieldset disabled={ ! isNewsletterEnabled }>
+					<DataForm
+						data={ formData }
+						fields={ fields }
+						form={ {
+							layout: {
+								type: 'regular',
+								labelPosition: 'top',
+							},
+							fields: [ 'welcome_message' ],
+						} }
+						onChange={ handleDataFormChange }
+					/>
+				</fieldset>
+			</CardBody>
+			<CardFooter>
+				<Button
+					variant="primary"
+					onClick={ handleSave }
+					disabled={ ! isNewsletterEnabled || isSaving || ! hasChanges }
+					isBusy={ isSaving }
+				>
+					{ isSaving ? savingText : saveText }
+				</Button>
+			</CardFooter>
+		</Card>
 	);
 }

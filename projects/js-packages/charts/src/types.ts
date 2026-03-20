@@ -210,14 +210,17 @@ export type ChartTheme = {
 	xAxisLineStyles?: LineStyles;
 	/** Styles for series lines */
 	seriesLineStyles?: LineStyles[];
-	/** Styles for legend shapes */
-	legendShapeStyles?: Record< string, unknown >[];
 	/** Array of render functions for glyphs */
 	glyphs?: Array< < Datum extends object >( props: GlyphProps< Datum > ) => ReactNode >;
-	/** Styles for legend labels */
-	legendLabelStyles?: CSSProperties;
-	/** Styles for legend container */
-	legendContainerStyles?: CSSProperties;
+	/** Legend specific settings */
+	legend?: {
+		/** Styles for legend shapes */
+		shapeStyles?: Record< string, unknown >[];
+		/** Styles for legend labels */
+		labelStyles?: CSSProperties;
+		/** Styles for legend container */
+		containerStyles?: CSSProperties;
+	};
 	/** Styles for small SVG text (eg. axis tick labels), passed through to the XYChart theme. */
 	svgLabelSmall?: TextProps;
 	annotationStyles?: AnnotationStyles;
@@ -287,6 +290,7 @@ export type CompleteChartTheme = Required< ChartTheme > & {
 	lineChart: {
 		lineStyles: Record< NonNullable< SeriesDataOptions[ 'type' ] >, LineStyles >;
 	};
+	legend: Required< NonNullable< ChartTheme[ 'legend' ] > >;
 	sparkline: Required< NonNullable< ChartTheme[ 'sparkline' ] > > & {
 		margin: Required< NonNullable< ChartTheme[ 'sparkline' ] >[ 'margin' ] >;
 	};
@@ -346,6 +350,86 @@ export type ScaleOptions = {
 	 *
 	 */
 	paddingOuter?: number;
+};
+
+export type LegendItemStyles = {
+	/** Margin around each legend item. */
+	margin?: CSSProperties[ 'margin' ];
+	/** Flex direction for items within each legend entry. */
+	flexDirection?: 'row' | 'row-reverse' | 'column' | 'column-reverse';
+};
+
+export type LegendLabelStyles = Pick< CSSProperties, 'justifyContent' | 'flex' | 'margin' > & {
+	/**
+	 * Maximum width for legend label text as a CSS value (e.g. '200px', '50%', '10rem').
+	 * When set, text overflow behavior is controlled by textOverflow.
+	 */
+	maxWidth?: string;
+	/**
+	 * Controls how text behaves when it exceeds maxWidth.
+	 * - 'ellipsis': Truncate with ellipsis (ideal for widgets/small devices)
+	 * - 'wrap': Wrap text to multiple lines (default, ideal for larger displays)
+	 */
+	textOverflow?: 'ellipsis' | 'wrap';
+};
+
+export type LegendShapeStyles = {
+	/** Width of the legend shape in pixels. */
+	width?: number;
+	/** Height of the legend shape in pixels. */
+	height?: number;
+	/** Margin around the legend shape. */
+	margin?: CSSProperties[ 'margin' ];
+};
+
+/** Position of the legend relative to chart content. */
+export type LegendPosition = 'top' | 'bottom';
+
+/**
+ * Configuration object for chart legend appearance and behavior.
+ * Consolidates all legend styling and layout props into a single structured object.
+ */
+export type ChartLegendConfig< T = DataPoint | DataPointDate | LeaderboardEntry > = {
+	/**
+	 * Layout direction of legend items.
+	 */
+	orientation?: 'horizontal' | 'vertical';
+	/**
+	 * Position of the legend relative to the chart.
+	 * TODO: Add 'left' | 'right' positioning support in future implementation
+	 */
+	position?: LegendPosition;
+	/**
+	 * Alignment of the legend within its position.
+	 */
+	alignment?: 'start' | 'center' | 'end';
+	/**
+	 * Shape of the legend marker icon.
+	 */
+	shape?: LegendShape< T, number >;
+	/**
+	 * Enable interactive legend items that can toggle series visibility.
+	 * Supported for all chart types that render series.
+	 * Requires chartId and GlobalChartsProvider.
+	 * For pie charts, percentages are recalculated so visible segments total 100%.
+	 */
+	interactive?: boolean;
+	/**
+	 * Additional CSS class name for individual legend items.
+	 */
+	itemClassName?: string;
+	/**
+	 * CSS styles for each legend item (margin, flexDirection).
+	 */
+	itemStyles?: LegendItemStyles;
+	/**
+	 * CSS styles for legend labels (maxWidth, textOverflow, justifyContent, flex, margin).
+	 */
+	labelStyles?: LegendLabelStyles;
+	/**
+	 * Styles for legend shapes (width, height, margin).
+	 */
+	shapeStyles?: LegendShapeStyles;
 };
 
 /**
@@ -412,45 +496,10 @@ export type BaseChartProps< T = DataPoint | DataPointDate | LeaderboardEntry > =
 	 */
 	showLegend?: boolean;
 	/**
-	 * Legend orientation
+	 * Legend configuration object for controlling legend appearance and behavior.
+	 * Includes orientation, position, alignment, shape, styling, and interactivity options.
 	 */
-	legendOrientation?: 'horizontal' | 'vertical';
-	/**
-	 * Legend shape
-	 */
-	legendShape?: LegendShape< T, number >;
-	/**
-	 * Legend position (where the legend appears)
-	 * TODO: Add 'left' | 'right' positioning support in future implementation
-	 */
-	legendPosition?: 'top' | 'bottom';
-	/**
-	 * Legend alignment within its position
-	 */
-	legendAlignment?: 'start' | 'center' | 'end';
-	/**
-	 * Maximum width for legend items. When set, text overflow behavior is controlled by legendTextOverflow.
-	 * Should be a CSS value string (e.g. '200px', '50%', '10rem')
-	 */
-	legendMaxWidth?: string;
-	/**
-	 * Controls how text behaves when it exceeds legendMaxWidth.
-	 * - 'ellipsis': Truncate with ellipsis (ideal for widgets/small devices)
-	 * - 'wrap': Wrap text to multiple lines (default, ideal for larger displays)
-	 */
-	legendTextOverflow?: 'ellipsis' | 'wrap';
-	/**
-	 * Additional CSS class name for legend items.
-	 * This allows consumers to customize individual legend item styling.
-	 */
-	legendItemClassName?: string;
-	/**
-	 * Enable interactive legend items that can toggle series visibility.
-	 * Supported for LineChart, PieChart, and PieSemiCircleChart.
-	 * Requires chartId and GlobalChartsProvider.
-	 * For pie charts, percentages are recalculated so visible segments total 100%.
-	 */
-	legendInteractive?: boolean;
+	legend?: ChartLegendConfig< T >;
 	/**
 	 * Grid visibility. x is default when orientation is vertical. y is default when orientation is horizontal.
 	 */

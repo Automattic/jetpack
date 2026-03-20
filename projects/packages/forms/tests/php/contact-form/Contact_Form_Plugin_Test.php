@@ -1506,4 +1506,176 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 		$spam_meta = get_post_meta( $post_id, '_spam_status_changed_gmt', true );
 		$this->assertEmpty( $spam_meta, 'Spam meta should not be set for non-feedback posts' );
 	}
+
+	/**
+	 * Data provider for edge cache purge tests.
+	 */
+	public static function edge_cache_purge_cases() {
+		return array(
+			'published'               => array( 'publish', 'draft', Contact_Form::POST_TYPE, true ),
+			'updated while published' => array( 'publish', 'publish', Contact_Form::POST_TYPE, true ),
+			'unpublished'             => array( 'draft', 'publish', Contact_Form::POST_TYPE, true ),
+			'non-publish transition'  => array( 'pending', 'draft', Contact_Form::POST_TYPE, false ),
+			'other post type'         => array( 'publish', 'draft', 'post', false ),
+		);
+	}
+
+	/**
+	 * Test edge cache purge behavior on form status changes.
+	 *
+	 * @dataProvider edge_cache_purge_cases
+	 */
+	#[DataProvider( 'edge_cache_purge_cases' )]
+	public function test_edge_cache_purge_on_form_status_change( $new_status, $old_status, $post_type, $expected ) {
+		$post_id = wp_insert_post(
+			array(
+				'post_type'   => $post_type,
+				'post_status' => $old_status,
+			)
+		);
+
+		$post   = get_post( $post_id );
+		$plugin = Contact_Form_Plugin::init();
+		$purged = false;
+
+		add_action(
+			'edge_cache_purge_domain',
+			function () use ( &$purged ) {
+				$purged = true;
+			}
+		);
+
+		$plugin->purge_edge_cache_on_form_status_change( $new_status, $old_status, $post );
+
+		$this->assertSame( $expected, $purged );
+
+		remove_all_actions( 'edge_cache_purge_domain' );
+	}
+
+	/**
+	 * Test edge cache purge handles null post gracefully.
+	 */
+	public function test_no_edge_cache_purge_for_null_post() {
+		$plugin = Contact_Form_Plugin::init();
+		$purged = false;
+
+		add_action(
+			'edge_cache_purge_domain',
+			function () use ( &$purged ) {
+				$purged = true;
+			}
+		);
+
+		$plugin->purge_edge_cache_on_form_status_change( 'publish', 'draft', null );
+
+		$this->assertFalse( $purged );
+
+		remove_all_actions( 'edge_cache_purge_domain' );
+	}
+
+	/**
+	 * Test that prepare_for_akismet includes blog_lang.
+	 */
+	public function test_prepare_for_akismet_includes_blog_lang() {
+		$plugin = Contact_Form_Plugin::init();
+		$form   = array(
+			'comment_author'  => 'Test',
+			'comment_content' => 'Hello',
+		);
+
+		$result = $plugin->prepare_for_akismet( $form );
+
+		$this->assertArrayHasKey( 'blog_lang', $result, 'prepare_for_akismet should include blog_lang' );
+		$this->assertEquals( get_bloginfo( 'language' ), $result['blog_lang'], 'blog_lang should match site language' );
+	}
+
+	/**
+	 * Test that prepare_for_akismet includes blog and other standard fields.
+	 */
+	public function test_prepare_for_akismet_includes_standard_fields() {
+		$plugin = Contact_Form_Plugin::init();
+		$form   = array(
+			'comment_author'  => 'Test',
+			'comment_content' => 'Hello',
+		);
+
+		$result = $plugin->prepare_for_akismet( $form );
+
+		$expected_keys = array(
+			'comment_type',
+			'user_ip',
+			'user_agent',
+			'referrer',
+			'blog',
+			'blog_lang',
+			'comment_date_gmt',
+		);
+
+		foreach ( $expected_keys as $key ) {
+			$this->assertArrayHasKey( $key, $result, "prepare_for_akismet should include '$key'" );
+		}
+
+		$this->assertEquals( 'contact_form', $result['comment_type'] );
+		$this->assertEquals( get_option( 'home' ), $result['blog'] );
+	}
+
+	/**
+	 * Test that the block editor is disabled for the feedback post type.
+	 */
+	public function test_use_block_editor_for_post_type_feedback() {
+		$plugin = Contact_Form_Plugin::init();
+		$this->assertFalse( $plugin->use_block_editor_for_post_type( true, 'feedback' ) );
+	}
+
+	/**
+	 * Test that the block editor is forced on for the jetpack_form post type.
+	 */
+	public function test_use_block_editor_for_post_type_jetpack_form() {
+		$plugin = Contact_Form_Plugin::init();
+		$this->assertTrue( $plugin->use_block_editor_for_post_type( false, Contact_Form::POST_TYPE ) );
+	}
+
+	/**
+	 * Test that the block editor filter passes through for other post types.
+	 */
+	public function test_use_block_editor_for_post_type_other() {
+		$plugin = Contact_Form_Plugin::init();
+		$this->assertTrue( $plugin->use_block_editor_for_post_type( true, 'post' ) );
+		$this->assertFalse( $plugin->use_block_editor_for_post_type( false, 'page' ) );
+	}
+
+	/**
+	 * Test that the block editor is forced on for individual jetpack_form posts.
+	 */
+	public function test_use_block_editor_for_post_jetpack_form() {
+		$plugin  = Contact_Form_Plugin::init();
+		$post_id = wp_insert_post(
+			array(
+				'post_type'   => Contact_Form::POST_TYPE,
+				'post_title'  => 'Test Form',
+				'post_status' => 'publish',
+			)
+		);
+		$post    = get_post( $post_id );
+
+		$this->assertTrue( $plugin->use_block_editor_for_post( false, $post ) );
+	}
+
+	/**
+	 * Test that the block editor filter passes through for non-form posts.
+	 */
+	public function test_use_block_editor_for_post_other() {
+		$plugin  = Contact_Form_Plugin::init();
+		$post_id = wp_insert_post(
+			array(
+				'post_type'   => 'post',
+				'post_title'  => 'Regular Post',
+				'post_status' => 'publish',
+			)
+		);
+		$post    = get_post( $post_id );
+
+		$this->assertTrue( $plugin->use_block_editor_for_post( true, $post ) );
+		$this->assertFalse( $plugin->use_block_editor_for_post( false, $post ) );
+	}
 }

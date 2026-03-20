@@ -77,7 +77,6 @@ await jest.unstable_mockModule( '@wordpress/data', () => {
 	const mockDispatch = {
 		createSuccessNotice: jest.fn(),
 		createErrorNotice: jest.fn(),
-		invalidateResolution: jest.fn(),
 		setCounts: jest.fn(),
 		setCurrentQuery: jest.fn(),
 		setSelectedResponses: jest.fn(),
@@ -103,7 +102,9 @@ await jest.unstable_mockModule( '@wordpress/data', () => {
 				return mockDispatch;
 			}
 			if ( store === 'core' ) {
-				return { invalidateResolution: mockDispatch.invalidateResolution };
+				return {
+					invalidateResolutionForStoreSelector: jest.fn(),
+				};
 			}
 			if ( store === 'dashboard' ) {
 				return {

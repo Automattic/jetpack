@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Newsletter: Fix email sent confirmation to show 'all subscribers' when post had paywall block and was emailed to everyone.

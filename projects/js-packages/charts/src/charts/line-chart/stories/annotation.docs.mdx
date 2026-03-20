@@ -28,6 +28,10 @@ The Line Chart component supports a compound component pattern for annotations, 
 	</LineChart>` }
 />
 
+## API Reference
+
+For detailed information about annotation component props, types, and styling options, see the [Line Chart API Reference](./?path=/docs/js-packages-charts-library-charts-line-chart-api-reference--docs).
+
 ## Basic Usage
 
 ### Basic Annotations
@@ -288,6 +292,10 @@ Add rich interactive content with `renderLabelPopover`:
 
 When both `renderLabel` and `renderLabelPopover` are provided, the label becomes clickable and opens the popover content.
 
+Popovers use the native [HTML Popover API](https://developer.mozilla.org/en-US/docs/Web/API/Popover_API) with `popovertarget` and `popover` attributes, which provides built-in show/hide behavior, focus management, and accessibility features. The implementation includes fallback handling for test environments and browsers that don't support the `:popover-open` pseudo-class.
+
+Due to [Safari's foreignObject positioning bug](https://bugs.webkit.org/show_bug.cgi?id=23113), interactive popovers are positioned in the viewport center rather than next to the annotation. This ensures functionality while the browser issue is resolved.
+
 ## Advanced Features
 
 ### Smart Positioning
@@ -348,20 +356,6 @@ Annotations work correctly with zero values (unlike some chart libraries that tr
 
 - Focus returns to the annotation trigger when closed
 - Visual focus indicators are provided
-
-## Browser Compatibility
-
-### Safari Considerations
-
-Due to [Safari's foreignObject positioning bug](https://bugs.webkit.org/show_bug.cgi?id=23113), interactive popovers are positioned in the viewport center rather than next to the annotation. This ensures functionality while the browser issue is resolved.
-
-### Popover API Support
-
-The component uses the native [HTML Popover API](https://developer.mozilla.org/en-US/docs/Web/API/Popover_API) with `popovertarget` and `popover` attributes. This provides built-in show/hide behavior, focus management, and accessibility features. The implementation includes fallback handling for test environments and browsers that don't support the `:popover-open` pseudo-class.
-
-## API Reference
-
-For detailed information about annotation component props, types, and styling options, see the [Line Chart API Reference](./?path=/docs/js-packages-charts-library-charts-line-chart-api-reference--docs).
 
 ## Examples and Stories
 

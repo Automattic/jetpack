@@ -2,13 +2,9 @@
  * External dependencies
  */
 import { formatNumberCompact } from '@automattic/number-formatters';
-import { Badge } from '@automattic/ui';
 import { useCallback, useMemo } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
-/**
- * Internal dependencies
- */
-import * as Tabs from '../../../components/tabs';
+import { Badge, Tabs } from '@wordpress/ui';
 
 type Status = 'inbox' | 'spam' | 'trash';
 
@@ -41,7 +37,7 @@ const getLabel = ( status: Status, count: number ): JSX.Element => {
 	return (
 		<span>
 			{ label }
-			<Badge intent="default" className="jp-forms-badge">
+			<Badge intent="draft" className="jp-forms-tabs-count">
 				{ formatNumberCompact( count || 0 ) }
 			</Badge>
 		</span>
@@ -83,7 +79,7 @@ export default function InboxStatusToggle( {
 
 	return (
 		<Tabs.Root value={ activeStatus } onValueChange={ handleChange }>
-			<Tabs.List density="compact">
+			<Tabs.List variant="minimal">
 				{ statusTabs.map( option => (
 					<Tabs.Tab key={ option.value } value={ option.value }>
 						{ option.label }

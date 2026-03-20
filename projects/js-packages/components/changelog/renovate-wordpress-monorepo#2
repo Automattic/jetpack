@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Button: Loosen `ref` type from `HTMLInputElement` to `HTMLElement`.

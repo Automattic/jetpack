@@ -16,8 +16,8 @@ export const SimpleSubscribeSetModalShowLoggedIn = () => {
 		},
 	};
 	subscribeModalStatus.value = shouldShowSubscriptionModal(
-		email?.send_posts,
-		userInfo.value?.uid
+		email?.send_posts ?? false,
+		userInfo.value?.uid ?? 0
 	);
 	return null;
 };
@@ -35,13 +35,13 @@ export const SimpleSubscribeModalLoggedIn = ( {
 	 * Handle the subscribe button click.
 	 */
 	async function handleOnSubscribeClick() {
-		setSubscribeState( 'SUBSCRIBING' );
+		setSubscribeState?.( 'SUBSCRIBING' );
 		await setEmailPostsSubscription( {
 			type: 'subscribe',
 			value: true,
 			trackSource: 'verbum-subscription-modal',
 		} );
-		setSubscribeState( 'SUBSCRIBED' );
+		setSubscribeState?.( 'SUBSCRIBED' );
 	}
 
 	if ( ! commentUrl.value ) {
@@ -64,8 +64,8 @@ export const SimpleSubscribeModalLoggedIn = ( {
 				</>
 			) : (
 				<SubscriptionModal
-					userEmail={ userInfo.value?.email }
-					subscribeState={ subscribeState }
+					userEmail={ userInfo.value?.email ?? '' }
+					subscribeState={ subscribeState ?? '' }
 					handleOnSubscribeClick={ handleOnSubscribeClick }
 					closeModalHandler={ closeModalHandler }
 					disabled={ true }

@@ -5,6 +5,35 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.32.1] - 2026-03-16
+### Changed
+- Add `wpcom_newsletter_send_default` site option to control whether posts are sent to subscribers by default. [#47564]
+
+## [4.32.0] - 2026-03-09
+### Added
+- `REST_Endpoints`: Add `use_memory_limit` argument to the checkout endpoint, enabling memory-based queue checkout that skips item count validation. [#47338]
+
+## [4.31.0] - 2026-03-02
+### Added
+- Add `protocol` to the comment meta whitelist for syncing. [#47379]
+
+### Changed
+- Documentation: Update variable type in docblock to match reality. [#47346]
+
+### Fixed
+- `REST_Endpoints`: Fix sync health check to verify queue size and lag before allowing status to be set to `in_sync`. [#47323]
+
+## [4.30.0] - 2026-02-26
+### Added
+- REST_Endpoints: Add `clear-queue` endpoint to allow clearing a Sync queue via REST API. [#47303]
+
+### Changed
+- Full Sync: Store `last_item` in status to avoid re-running an expensive query on every invocation. [#47292]
+- Listener: Add per-request in-memory cache to avoid repeated `get_transient` calls when checking queue state. [#47282]
+
+### Fixed
+- Full Sync: Fix chunk size adjustment when sync is stuck to correctly preserve adjusted chunk size and stuck count across invocations. [#47293]
+
 ## [4.29.0] - 2026-02-23
 ### Added
 - Add MCP information to the actor. [#47223]
@@ -1664,6 +1693,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Packages: Move sync to a classmapped package
 
+[4.32.1]: https://github.com/Automattic/jetpack-sync/compare/v4.32.0...v4.32.1
+[4.32.0]: https://github.com/Automattic/jetpack-sync/compare/v4.31.0...v4.32.0
+[4.31.0]: https://github.com/Automattic/jetpack-sync/compare/v4.30.0...v4.31.0
+[4.30.0]: https://github.com/Automattic/jetpack-sync/compare/v4.29.0...v4.30.0
 [4.29.0]: https://github.com/Automattic/jetpack-sync/compare/v4.28.0...v4.29.0
 [4.28.0]: https://github.com/Automattic/jetpack-sync/compare/v4.27.0...v4.28.0
 [4.27.0]: https://github.com/Automattic/jetpack-sync/compare/v4.26.0...v4.27.0

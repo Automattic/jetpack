@@ -9,34 +9,11 @@ import { useSelect, useDispatch } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
-import { addQueryArgs } from '@wordpress/url';
-import { FORM_POST_TYPE } from '../../shared/util/constants.js';
 import { createSyncedForm } from '../util/create-synced-form.ts';
-import { getEditorContext, type EditorContext } from '../util/get-editor-context.ts';
+import { getEditorContext } from '../util/get-editor-context.ts';
+import { navigateToForm } from '../util/navigate-to-form.ts';
 
 const FORM_CONVERSION_LOCK = 'jetpack-form-conversion';
-
-/**
- * Navigate to edit a form post.
- * - Widget/Site editor: redirects in same page (no in-editor navigation available)
- * - Post editor: uses in-editor navigation if available
- *
- * @param formId                   - The form post ID to edit.
- * @param editorContext            - The current editor context.
- * @param onNavigateToEntityRecord - Optional callback for in-editor navigation.
- */
-export const navigateToForm = (
-	formId: number,
-	editorContext: EditorContext,
-	onNavigateToEntityRecord?: ( params: { postId: number; postType: string } ) => void
-) => {
-	if ( editorContext === 'widget' || editorContext === 'site' ) {
-		const editUrl = addQueryArgs( 'post.php', { post: formId, action: 'edit' } );
-		window.location.href = editUrl;
-	} else if ( onNavigateToEntityRecord ) {
-		onNavigateToEntityRecord( { postId: formId, postType: FORM_POST_TYPE } );
-	}
-};
 
 interface ConvertFormToolbarProps {
 	clientId: string;

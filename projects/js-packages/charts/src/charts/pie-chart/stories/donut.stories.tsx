@@ -5,12 +5,12 @@ import {
 } from '@wordpress/components';
 import { Fragment } from 'react';
 import { BaseLegendItem } from '../../../components/legend/types';
-import { GlobalChartsProvider } from '../../../providers';
 import {
 	chartDecorator,
 	sharedChartArgTypes,
 	sharedThemeArgs,
 	ChartStoryArgs,
+	extractLegendConfig,
 	legendArgTypes,
 	themeArgTypes,
 } from '../../../stories';
@@ -48,6 +48,13 @@ const meta: Meta< StoryArgs > = {
 		...sharedChartArgTypes,
 		...themeArgTypes,
 		...legendArgTypes,
+		legendValueDisplay: {
+			control: { type: 'select' as const },
+			options: [ 'percentage', 'value', 'valueDisplay', 'none' ],
+			table: { category: 'Legend' },
+			description:
+				'What type of value to display in the legend when showValues is true. Note: Enable "showLegend" to see the effect of this control.',
+		},
 		size: {
 			control: {
 				type: 'range',
@@ -81,6 +88,10 @@ const meta: Meta< StoryArgs > = {
 				step: 0.01,
 			},
 		},
+	},
+	render: args => {
+		const legend = extractLegendConfig( args );
+		return <PieChart { ...args } legend={ legend } />;
 	},
 } satisfies Meta< StoryArgs >;
 
@@ -205,66 +216,26 @@ export const WithLegend: Story = {
 		showLegend: true,
 		containerHeight: '500px',
 	},
-};
-
-export const WithCompositionLegend: Story = {
-	render: args => (
-		<PieChart
-			size={ 300 }
-			data={ args.data }
-			thickness={ 0.5 }
-			legendValueDisplay={ args.legendValueDisplay }
-		>
-			<Group>
-				<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 16 } y={ -8 }>
-					User Stats
-				</Text>
-				<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 14 } y={ 12 } fill="#666">
-					100K Total
-				</Text>
-			</Group>
-			<PieChart.Legend
-				position={ args.legendPosition || 'bottom' }
-				orientation={ args.legendOrientation || 'horizontal' }
-				alignment={ args.legendAlignment || 'center' }
-				maxWidth={ args.legendMaxWidth }
-				textOverflow={ args.legendTextOverflow || 'wrap' }
-			/>
-		</PieChart>
-	),
-	args: {
-		data,
-		thickness: 0.5,
-	},
-	argTypes: {
-		legendInteractive: {
-			table: { disable: true },
-		},
-	},
 	parameters: {
 		docs: {
 			description: {
 				story:
-					'Demonstrates the donut chart composition API, allowing flexible combination of chart elements and legends.',
+					'Props-based legend using `showLegend` and the `legend` config object. Use Storybook controls to adjust legend position, alignment, orientation, shape, and interactivity.',
 			},
 		},
 	},
 };
 
-export const InteractiveLegend: Story = {
-	render: args => (
-		<GlobalChartsProvider>
-			<PieChartUnresponsive
-				chartId="interactive-donut-chart"
-				size={ args.size }
-				data={ args.data }
+export const WithCompositionLegend: Story = {
+	render: args => {
+		const legend = extractLegendConfig( args );
+		return (
+			<PieChart
+				{ ...args }
+				size={ 300 }
 				thickness={ 0.5 }
-				showLegend={ true }
-				legendInteractive={ true }
-				legendPosition={ args.legendPosition || 'bottom' }
-				legendOrientation={ args.legendOrientation || 'horizontal' }
-				legendAlignment={ args.legendAlignment || 'center' }
-				legendValueDisplay={ args.legendValueDisplay }
+				legend={ { interactive: legend?.interactive } }
+				chartId="composition-donut-chart"
 			>
 				<Group>
 					<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 16 } y={ -8 }>
@@ -274,12 +245,10 @@ export const InteractiveLegend: Story = {
 						100K Total
 					</Text>
 				</Group>
-				<p style={ { color: '#666' } }>
-					Click legend items to show/hide segments. The total value updates dynamically.
-				</p>
-			</PieChartUnresponsive>
-		</GlobalChartsProvider>
-	),
+				<PieChart.Legend { ...legend } />
+			</PieChart>
+		);
+	},
 	args: {
 		data,
 		thickness: 0.5,
@@ -288,53 +257,7 @@ export const InteractiveLegend: Story = {
 		docs: {
 			description: {
 				story:
-					'Interactive donut chart with clickable legend. Segments can be hidden/shown, and percentages recalculate automatically. Requires chartId and GlobalChartsProvider.',
-			},
-		},
-	},
-};
-
-export const CustomLegendPositioning: Story = {
-	args: {
-		...Default.args,
-		thickness: 0.4,
-		showLegend: true,
-		legendOrientation: 'vertical',
-		legendAlignment: 'start',
-		legendPosition: 'top',
-		containerHeight: '450px',
-		data: [
-			{
-				label: 'Desktop',
-				value: 45000,
-				valueDisplay: '45K',
-				percentage: 45,
-			},
-			{
-				label: 'Mobile',
-				value: 35000,
-				valueDisplay: '35K',
-				percentage: 35,
-			},
-			{
-				label: 'Tablet',
-				value: 20000,
-				valueDisplay: '20K',
-				percentage: 20,
-			},
-		],
-		children: (
-			<Group>
-				<Text textAnchor="middle" verticalAnchor="middle" fontSize={ 18 } y={ -8 }>
-					Distribution
-				</Text>
-			</Group>
-		),
-	},
-	parameters: {
-		docs: {
-			description: {
-				story: 'Donut chart with vertical legend positioned at the top left.',
+					'Composition API using `<PieChart.Legend />` as a child component for explicit legend placement and configuration. This is the recommended approach for flexible legend positioning.',
 			},
 		},
 	},

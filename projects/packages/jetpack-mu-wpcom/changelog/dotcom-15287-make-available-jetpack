@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Updated newsletter settings links in Launchpad and admin menu to use centralized URL utility from newsletter package.

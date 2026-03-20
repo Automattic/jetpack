@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Replace Jetpack_PostImages usage with the new Post_Media Images class.

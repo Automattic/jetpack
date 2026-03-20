@@ -26,9 +26,9 @@ class REST_Sender {
 	/**
 	 * Checkout objects from the queue
 	 *
-	 * @param string $queue_name   Name of Queue.
-	 * @param int    $number_of_items Number of Items.
-	 * @param array  $args          arguments.
+	 * @param string   $queue_name        Name of Queue.
+	 * @param int|null $number_of_items Number of Items. Null for memory-based checkout.
+	 * @param array    $args              Request arguments. Supports 'pop', 'force', 'encode', and 'use_memory_limit'.
 	 *
 	 * @return array|WP_Error
 	 */
@@ -117,22 +117,30 @@ class REST_Sender {
 	/**
 	 * Checkout items out of the sync queue.
 	 *
-	 * @param Queue $queue         Sync Queue.
-	 * @param int   $number_of_items Number of items to checkout.
+	 * @param Queue    $queue           Sync Queue.
+	 * @param int|null $number_of_items Number of items to checkout. When null, uses memory-based checkout with default settings.
 	 *
-	 * @return WP_Error
+	 * @return Queue_Buffer|WP_Error
 	 */
 	protected function get_buffer( $queue, $number_of_items ) {
 		$start        = time();
 		$max_duration = 5; // this will try to get the buffer.
 
-		$buffer   = $queue->checkout( $number_of_items );
+		$use_memory_limit = null === $number_of_items;
+		$memory_limit     = $use_memory_limit ? Settings::get_setting( 'dequeue_max_bytes' ) : null;
+		$max_rows         = $use_memory_limit ? Settings::get_setting( 'upload_max_rows' ) : null;
+
+		$buffer   = $use_memory_limit
+			? $queue->checkout_with_memory_limit( $memory_limit, $max_rows )
+			: $queue->checkout( $number_of_items );
 		$duration = time() - $start;
 
 		while ( is_wp_error( $buffer ) && $duration < $max_duration ) {
 			sleep( 2 );
 			$duration = time() - $start;
-			$buffer   = $queue->checkout( $number_of_items );
+			$buffer   = $use_memory_limit
+				? $queue->checkout_with_memory_limit( $memory_limit, $max_rows )
+				: $queue->checkout( $number_of_items );
 		}
 
 		if ( false === $buffer ) {

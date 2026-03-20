@@ -188,8 +188,12 @@ class Listener {
 		// check within the same request when many actions are enqueued.
 		if ( isset( $this->request_queue_state_cache[ $queue->id ] ) ) {
 			list( $queue_size, $queue_age ) = $this->request_queue_state_cache[ $queue->id ];
-			return ( $queue_age < $this->sync_queue_lag_limit )
-				|| ( ( $queue_size + ( $this->request_adds_count[ $queue->id ] ?? 0 ) + 1 ) < $this->sync_queue_size_limit );
+			return Health::is_queue_healthy(
+				$queue_size + ( $this->request_adds_count[ $queue->id ] ?? 0 ) + 1,
+				$queue_age,
+				$this->sync_queue_size_limit,
+				$this->sync_queue_lag_limit
+			);
 		}
 
 		$state_transient_name = self::QUEUE_STATE_CHECK_TRANSIENT . '_' . $queue->id;
@@ -207,9 +211,12 @@ class Listener {
 
 		list( $queue_size, $queue_age ) = $queue_state;
 
-		return ( $queue_age < $this->sync_queue_lag_limit )
-			||
-			( ( $queue_size + 1 ) < $this->sync_queue_size_limit );
+		return Health::is_queue_healthy(
+			$queue_size + 1,
+			$queue_age,
+			$this->sync_queue_size_limit,
+			$this->sync_queue_lag_limit
+		);
 	}
 
 	/**
