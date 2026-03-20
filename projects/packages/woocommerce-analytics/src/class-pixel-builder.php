@@ -222,16 +222,16 @@ class Pixel_Builder {
 	 * @return bool True if a SOCKS proxy is configured.
 	 */
 	private static function is_socks_proxy_configured() {
-		if ( ! defined( 'WP_PROXY_HOST' ) || empty( WP_PROXY_HOST ) ) {
+		if ( ! defined( 'WP_PROXY_HOST' ) || ! is_string( WP_PROXY_HOST ) || '' === WP_PROXY_HOST ) {
 			return false;
 		}
 
 		$proxy_host = strtolower( WP_PROXY_HOST );
 
 		// Check if the proxy host indicates a SOCKS proxy.
-		return str_starts_with( $proxy_host, 'socks5://' )
-			|| str_starts_with( $proxy_host, 'socks4://' )
-			|| str_starts_with( $proxy_host, 'socks://' );
+		return 0 === strpos( $proxy_host, 'socks5://' )
+			|| 0 === strpos( $proxy_host, 'socks4://' )
+			|| 0 === strpos( $proxy_host, 'socks://' );
 	}
 
 	/**
