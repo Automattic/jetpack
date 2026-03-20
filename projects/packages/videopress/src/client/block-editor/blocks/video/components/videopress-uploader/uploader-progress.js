@@ -53,7 +53,12 @@ const usePosterAndTitleUpdate = ( { setAttributes, videoData, onDone } ) => {
 		return new Promise( resolve => {
 			if ( result?.generating ) {
 				setTimeout( () => {
-					getPosterImage().then( response => updatePoster( response ).then( resolve ) );
+					getPosterImage()
+						.then( response => updatePoster( response ).then( resolve ) )
+						.catch( error => {
+							debug( 'Poster polling failed: %o', error );
+							resolve( null );
+						} );
 				}, 2000 );
 			} else if ( result?.poster ) {
 				setAttributes( { poster: result.poster } );
@@ -146,7 +151,8 @@ const usePosterAndTitleUpdate = ( { setAttributes, videoData, onDone } ) => {
 							...( posterUrl ? { poster: posterUrl } : {} ),
 						} );
 					} )
-					.catch( () => {
+					.catch( error => {
+						debug( 'Poster update failed: %o', error );
 						onDone( videoData );
 					} );
 			} else {
@@ -156,7 +162,7 @@ const usePosterAndTitleUpdate = ( { setAttributes, videoData, onDone } ) => {
 	};
 
 	useEffect( () => {
-		if ( ! guid ) {
+		if ( ! guid || isFinishingUpdate ) {
 			return;
 		}
 
@@ -168,7 +174,7 @@ const usePosterAndTitleUpdate = ( { setAttributes, videoData, onDone } ) => {
 		if ( 'undefined' !== typeof videoFrameMs && null !== videoFrameMs ) {
 			debouncedSsendUpdatePoster( { at_time: videoFrameMs, is_millisec: true } );
 		}
-	}, [ videoPosterImageData, videoFrameMs, guid ] );
+	}, [ videoPosterImageData, videoFrameMs, guid, isFinishingUpdate ] );
 
 	const hasPosterEdits = videoPosterImageData !== null || videoFrameMs !== null;
 

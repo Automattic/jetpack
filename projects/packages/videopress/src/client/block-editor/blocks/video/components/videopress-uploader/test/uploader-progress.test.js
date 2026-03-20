@@ -214,6 +214,35 @@ describe( 'usePosterAndTitleUpdate', () => {
 		jest.useRealTimers();
 	} );
 
+	it( 'resolves with null when polling fails during poster generation', async () => {
+		jest.useFakeTimers();
+
+		// Upload returns generating, but polling rejects.
+		mockUploadPoster.mockResolvedValue( { data: { generating: true } } );
+		mockGetPoster.mockRejectedValue( new Error( 'polling failed' ) );
+		mockApiFetch.mockRejectedValue( new Error( 'fallback failed' ) );
+
+		const { result } = renderTestHook();
+
+		act( () => {
+			getHookValues( result ).handleSelectPoster( { id: 10 } );
+		} );
+
+		await act( async () => {
+			getHookValues( result ).handleDoneUpload();
+		} );
+
+		await act( async () => {
+			jest.advanceTimersByTime( 2000 );
+			await Promise.resolve();
+		} );
+
+		// onDone should still be called (without poster) rather than hanging.
+		expect( onDone ).toHaveBeenCalledWith( videoData );
+
+		jest.useRealTimers();
+	} );
+
 	it( 'falls back to apiFetch when poster upload hook rejects', async () => {
 		const posterUrl = 'https://example.com/fallback-poster.jpg';
 		mockUploadPoster.mockRejectedValue( new Error( 'hook failed' ) );
@@ -255,9 +284,13 @@ describe( 'usePosterAndTitleUpdate', () => {
 			await Promise.resolve();
 		} );
 
-		// Now set up both paths to reject for handleDoneUpload's direct call.
-		mockUploadPoster.mockRejectedValue( new Error( 'hook failed' ) );
-		mockApiFetch.mockRejectedValue( new Error( 'fallback failed' ) );
+		// Reject once for handleDoneUpload's direct call, then restore
+		// resolved defaults so the useEffect re-run after isFinishingUpdate
+		// resets doesn't trigger unhandled rejections.
+		mockUploadPoster
+			.mockRejectedValueOnce( new Error( 'hook failed' ) )
+			.mockResolvedValue( { data: {} } );
+		mockApiFetch.mockRejectedValueOnce( new Error( 'fallback failed' ) ).mockResolvedValue( {} );
 
 		await act( async () => {
 			getHookValues( result ).handleDoneUpload();
