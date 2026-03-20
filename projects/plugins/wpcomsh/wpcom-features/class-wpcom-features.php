@@ -642,12 +642,14 @@ class WPCOM_Features {
 		self::BACKUP_ONE_TIME                   => array(
 			self::JETPACK_BACKUP_ONE_TIME,
 		),
+		// Free trials can upgrade to any plan level.
 		self::BIG_SKY                           => array(
 			self::WPCOM_PERSONAL_PLANS,
 			self::WPCOM_BUSINESS_PLANS,
 			self::WPCOM_PREMIUM_PLANS,
 			self::WPCOM_ECOMMERCE_PLANS,
 		),
+		// Existing sites can only enable it if they have a business or higher plan.
 		self::BIG_SKY_EXISTING_SITE             => array(
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 		),
