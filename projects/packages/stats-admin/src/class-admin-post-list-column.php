@@ -166,6 +166,17 @@ class Admin_Post_List_Column {
 	 * @return mixed
 	 */
 	public function add_stats_post_table( $columns ) {
+		// Skip stats column for non-public post types when screen info is available.
+		if ( function_exists( 'get_current_screen' ) ) {
+			$screen = get_current_screen();
+			if ( $screen && $screen->post_type ) {
+				$post_type_object = get_post_type_object( $screen->post_type );
+				if ( $post_type_object && ! $post_type_object->public ) {
+					return $columns;
+				}
+			}
+		}
+
 		/**
 		 * The manage_options capability is a fallback for Simple.
 		 * This should be updated with a proper fix. Implemented based on this PR: https://github.com/Automattic/jetpack/pull/41549.
