@@ -781,13 +781,13 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 								>
 									{ __( 'Open PayPal Dashboard', 'jetpack-paypal-payments' ) }
 								</Button>
-							</div>
-							<div className="jetpack-paypal-wizard__nav">
 								<Button variant="secondary" onClick={ () => setWizardStep( 'credentials' ) }>
 									{ __( 'I have my credentials', 'jetpack-paypal-payments' ) }
 								</Button>
-								<Button variant="tertiary" onClick={ () => setWizardStep( 'welcome' ) }>
-									{ __( 'Back', 'jetpack-paypal-payments' ) }
+							</div>
+							<div className="jetpack-paypal-wizard__nav">
+								<Button variant="link" onClick={ () => setWizardStep( 'welcome' ) }>
+									{ __( '← Back', 'jetpack-paypal-payments' ) }
 								</Button>
 							</div>
 						</div>
@@ -866,12 +866,14 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 								>
 									{ isConnecting ? labelConnecting : labelConnect }
 								</Button>
+							</div>
+							<div className="jetpack-paypal-wizard__nav">
 								<Button
-									variant="tertiary"
+									variant="link"
 									onClick={ () => setWizardStep( 'dashboard' ) }
 									disabled={ isConnecting }
 								>
-									{ __( 'Back', 'jetpack-paypal-payments' ) }
+									{ __( '← Back', 'jetpack-paypal-payments' ) }
 								</Button>
 							</div>
 
