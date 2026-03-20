@@ -14,3 +14,15 @@ changelog/**      production-exclude
 .phpcs.dir.xml    production-exclude
 tests/**          production-exclude
 .phpcsignore      production-exclude
+#
+# Common build config files (uncomment as needed):
+# webpack.config.js production-exclude
+# babel.config.js   production-exclude
+# tsconfig.json     production-exclude
+# jest.config.js    production-exclude
+#
+# Source files compiled during build (uncomment as needed):
+# src/**/*.ts       production-exclude
+# src/**/*.tsx      production-exclude
+# src/**/*.jsx      production-exclude
+# src/**/*.scss     production-exclude

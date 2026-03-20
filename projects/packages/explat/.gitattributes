@@ -17,3 +17,6 @@ global.d.ts       production-exclude
 tests/**          production-exclude
 .phpcsignore      production-exclude
 src/client/**     production-exclude
+webpack.config.js production-exclude
+babel.config.js   production-exclude
+tsconfig.json     production-exclude

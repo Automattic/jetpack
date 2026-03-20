@@ -16,3 +16,4 @@ changelog/**      production-exclude
 tests/**          production-exclude
 .phpcsignore      production-exclude
 src/js/**         production-exclude
+webpack.config.js production-exclude

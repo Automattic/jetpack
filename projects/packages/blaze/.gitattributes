@@ -16,3 +16,4 @@ changelog/**      production-exclude
 .phpcs.dir.xml    production-exclude
 tests/**          production-exclude
 src/js/**         production-exclude
+webpack.config.js production-exclude

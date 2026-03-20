@@ -17,3 +17,6 @@ tests/**            production-exclude
 src/**/*.scss       production-exclude
 src/**/*.jsx        production-exclude
 global.d.ts         production-exclude
+webpack.config.js   production-exclude
+babel.config.js     production-exclude
+tsconfig.json       production-exclude

@@ -22,8 +22,16 @@ tools/**                 production-exclude
 .phpcsignore             production-exclude
 /src/dashboard/**/*.js   production-exclude
 /src/dashboard/**/*.scss production-exclude
+/src/dashboard/**/*.ts   production-exclude
+/src/dashboard/**/*.tsx  production-exclude
+/src/dashboard/**/*.jsx  production-exclude
+/routes/**               production-exclude
+docs/**                  production-exclude
 /src/blocks/**/*.js      production-exclude
 /src/blocks/**/*.scss    production-exclude
+/src/blocks/**/*.ts      production-exclude
+/src/blocks/**/*.tsx     production-exclude
+/src/blocks/**/*.jsx     production-exclude
 tsconfig.json            production-exclude
 declarations.d.ts        production-exclude
 global.d.ts              production-exclude

@@ -17,4 +17,11 @@ changelog/**      production-exclude
 tests/**          production-exclude
 .phpcsignore      production-exclude
 bin/**            production-exclude
-src/**/**/*.scss  production-exclude
+src/**/**/*.scss           production-exclude
+src/**/*.ts                production-exclude
+src/**/*.tsx               production-exclude
+src/**/*.jsx               production-exclude
+babel.config.js            production-exclude
+tsconfig.json              production-exclude
+webpack.config.js          production-exclude
+webpack.config.modules.js  production-exclude

@@ -20,3 +20,4 @@ tests/**          production-exclude
 /package.json     production-exclude
 /postcss.config.js production-exclude
 /webpack.config.js production-exclude
+/tsconfig.json    production-exclude

@@ -13,6 +13,9 @@ changelog/**      production-exclude
 .phpcs.dir.xml    production-exclude
 tests/**          production-exclude
 .phpcsignore      production-exclude
+src/**/*.ts       production-exclude
+webpack.config.js production-exclude
+tsconfig.json     production-exclude
 
 # Files needed in the production build.
 build/**         production-include

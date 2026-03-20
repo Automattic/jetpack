@@ -27,3 +27,8 @@ package.json                                             export-ignore
 /src/instant-search/**/*.js                              production-exclude
 /src/instant-search/**/*.jsx                             production-exclude
 /src/instant-search/**/*.scss                            production-exclude
+/src/customizer/**/*.js                                  production-exclude
+/src/inline-search/**/*.js                               production-exclude
+/src/inline-search/**/*.jsx                              production-exclude
+/src/inline-search/**/*.scss                             production-exclude
+/src/widgets/**/*.js                                     production-exclude
