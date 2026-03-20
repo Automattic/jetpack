@@ -71,8 +71,7 @@ function resolve_donation_plan( $plan_id, $interval, $currency ) {
 	$products = get_donation_products( $currency );
 	if ( ! empty( $products ) ) {
 		foreach ( $candidates as $candidate ) {
-			$pid = get_post_meta( $candidate->ID, 'jetpack_memberships_product_id', true );
-			if ( $pid && isset( $products[ (int) $pid ] ) ) {
+			if ( isset( $products[ $candidate->ID ] ) ) {
 				return $candidate;
 			}
 		}
@@ -87,8 +86,8 @@ function resolve_donation_plan( $plan_id, $interval, $currency ) {
 		}
 	}
 
-	// No products cache and no saved ID match — return first candidate.
-	return $candidates[0];
+	// No products cache and no saved ID match.
+	return null;
 }
 
 /**
@@ -115,19 +114,18 @@ function get_donation_products( $currency ) {
 		return array();
 	}
 
-	// Fetch via internal REST request to /wpcom/v2/memberships/status.
-	$request = new \WP_REST_Request( 'GET', '/wpcom/v2/memberships/status' );
+	// Fetch via internal REST request.
+	$request = new \WP_REST_Request( 'GET', '/wpcom/v2/memberships/products' );
 	$request->set_param( 'type', 'donation' );
 	$request->set_param( 'is_editable', false );
-
 	$response = rest_do_request( $request );
-	$status   = null;
+	$data     = null;
 
 	if ( ! $response->is_error() && 200 === $response->get_status() ) {
-		$status = $response->get_data();
+		$data = $response->get_data();
 	}
 
-	if ( ! is_array( $status ) || empty( $status['products'] ) ) {
+	if ( ! is_array( $data ) || empty( $data['products'] ) ) {
 		set_transient( $neg_key, 1, HOUR_IN_SECONDS );
 		return array();
 	}
@@ -135,7 +133,7 @@ function get_donation_products( $currency ) {
 	// Build product_id => product map for the requested currency.
 	$upper_curr     = strtoupper( $currency );
 	$products_by_id = array();
-	foreach ( $status['products'] as $product ) {
+	foreach ( $data['products'] as $product ) {
 		if ( strtoupper( $product['currency'] ?? '' ) !== $upper_curr ) {
 			continue;
 		}
