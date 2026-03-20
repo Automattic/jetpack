@@ -2,54 +2,39 @@
  * Script module that registers a custom WordPress.com ID card on the
  * WP core Settings > Connectors page (WP 7.0+).
  *
- * Uses dynamic imports so the module degrades gracefully when
- * `@wordpress/connectors` is not available.
+ * Uses dynamic import for `@wordpress/connectors` (available in the
+ * page's import map) and classic-script globals for element / i18n
+ * which are always loaded on admin pages.
  *
- * This file is an ES module loaded via wp_enqueue_script_module().
- * It cannot use JSX — all React elements use createElement.
- *
- * @see Wpcom_Id_Page::maybe_enqueue_connectors_module()
+ * Loaded via a manual `<script type="module">` tag — see
+ * Wpcom_Id_Page::maybe_enqueue_connectors_module().
  */
 
-/* eslint-disable import/no-unresolved -- resolved at runtime via WP script module import maps */
-
 ( async function () {
-	const debug = true; // TODO: Remove before merging.
-	const log = ( ...args ) => debug && console.warn( '[WPCOM-Connector]', ...args ); // eslint-disable-line no-console
+	const { createElement } = window.wp?.element ?? {};
+	const { __ } = window.wp?.i18n ?? {};
 
-	log( 'Module loaded' );
+	if ( ! createElement || ! __ ) {
+		return;
+	}
 
-	let registerConnector, ConnectorItem, createElement, __;
+	let registerConnector, ConnectorItem;
 
 	try {
-		const connectors = await import( '@wordpress/connectors' );
-		log( 'Imported @wordpress/connectors, exports:', Object.keys( connectors ) );
+		const connectors = await import( '@wordpress/connectors' ); // eslint-disable-line import/no-unresolved
 		registerConnector = connectors.__experimentalRegisterConnector || connectors.registerConnector;
 		ConnectorItem = connectors.__experimentalConnectorItem || connectors.ConnectorItem;
 
 		if ( ! registerConnector || ! ConnectorItem ) {
-			log(
-				'Missing exports — registerConnector:',
-				!! registerConnector,
-				'ConnectorItem:',
-				!! ConnectorItem
-			);
 			return;
 		}
-
-		( { createElement } = await import( '@wordpress/element' ) );
-		( { __ } = await import( '@wordpress/i18n' ) );
-		log( 'All imports resolved' );
-	} catch ( err ) {
-		log( 'Import failed:', err );
+	} catch {
 		return;
 	}
 
-	const MODULE_ID = 'wp-script-module-data-@automattic/jetpack-connection-connectors';
-
 	let data;
 	try {
-		const el = document.getElementById( MODULE_ID );
+		const el = document.getElementById( 'wpcom-connector-data' );
 		data = JSON.parse( el?.textContent ?? '{}' );
 	} catch {
 		data = {};
@@ -62,7 +47,7 @@
 	/**
 	 * Build the logo element from the URL provided by PHP.
 	 *
-	 * @return {Object|null} React element or null.
+	 * @return {object|null} React element or null.
 	 */
 	function Logo() {
 		if ( ! logoUrl ) {
@@ -143,8 +128,6 @@
 		} );
 	}
 
-	log( 'Registering connector with data:', { isConnected, manageUrl, logoUrl } );
-
 	registerConnector( 'cloud-service/wordpress-com', {
 		label: data.name || __( 'WordPress.com account', 'jetpack-connection' ),
 		description:
@@ -155,6 +138,4 @@
 			),
 		render: WpcomConnectorCard,
 	} );
-
-	log( 'Connector registered successfully' );
 } )();
