@@ -100,6 +100,11 @@ class RTC_Notices_Test extends \WorDBless\BaseTestCase {
 		delete_user_option( $this->user_id, WP_REST_RTC_Notices::OPTION_KEY );
 		delete_transient( WP_REST_RTC_Notices::JOIN_REQUEST_OPTION . '_' . 999999 );
 
+		// Reset the REST server so stale route registrations don't leak
+		// into other test classes (e.g. Launchpad endpoint tests).
+		global $wp_rest_server;
+		$wp_rest_server = null; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+
 		parent::tear_down();
 	}
 
