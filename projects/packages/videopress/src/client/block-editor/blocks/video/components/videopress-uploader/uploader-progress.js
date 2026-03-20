@@ -116,6 +116,7 @@ const usePosterAndTitleUpdate = ( { setAttributes, videoData, onDone } ) => {
 
 	const handleDoneUpload = () => {
 		setIsFinishingUpdate( true );
+		debouncedSsendUpdatePoster.cancel?.();
 
 		const updates = [];
 

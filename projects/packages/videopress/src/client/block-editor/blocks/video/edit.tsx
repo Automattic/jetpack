@@ -390,8 +390,14 @@ export default function VideoPressEdit( {
 					...newVideoData,
 				};
 
-				// Remove the old video's poster unless a new one was selected during upload.
-				if ( ! newVideoData.poster ) {
+				// Remove the old video's poster unless a new one was selected during
+				// upload. Only delete if it still matches the poster from before the
+				// replacement started, so we don't drop a poster that was set via
+				// setAttributes during upload but not included in newVideoData.
+				if (
+					! newVideoData.poster &&
+					( ! attributes.poster || attributes.poster === isReplacingFile.prevAttrs?.poster )
+				) {
 					delete newBlockAttributes.poster;
 				}
 
