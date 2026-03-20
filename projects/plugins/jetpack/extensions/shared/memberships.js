@@ -65,7 +65,7 @@ export function showModal( url ) {
 
 		const siteLanguage = document.querySelector( 'input[name="lang"]' )?.value;
 		if ( siteLanguage ) {
-			iframe.src = iframe.src + '&lang=' + siteLanguage;
+			iframe.src = iframe.src + '&lang=' + encodeURIComponent( siteLanguage );
 		}
 		document.body.appendChild( dialog );
 		dialog.appendChild( iframe );

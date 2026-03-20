@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Sync: Improve checksum performance for meta tables by generalizing filter stripping to all parent tables and adding parent table count optimization to avoid expensive COUNT(DISTINCT) queries.

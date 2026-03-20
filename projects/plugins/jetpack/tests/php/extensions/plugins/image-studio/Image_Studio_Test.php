@@ -95,7 +95,7 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Simulate a connected Jetpack owner so has_ai_features() returns true.
+	 * Simulate a connected Jetpack owner so has_jetpack_ai_features() returns true.
 	 *
 	 * Called in set_up() so every test starts with AI features available.
 	 * Tests that need AI features off should use disable_ai_features() instead.
@@ -247,22 +247,22 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	}
 
 	// -------------------------------------------------------------------------
-	// has_ai_features() tests
+	// has_jetpack_ai_features() tests
 	// -------------------------------------------------------------------------
 
 	/**
 	 * AI features available by default in the test environment.
 	 */
-	public function test_has_ai_features_true_by_default() {
-		$this->assertTrue( ImageStudio\has_ai_features() );
+	public function test_has_jetpack_ai_features_true_by_default() {
+		$this->assertTrue( ImageStudio\has_jetpack_ai_features() );
 	}
 
 	/**
 	 * AI features disabled via jetpack_ai_enabled kill switch.
 	 */
-	public function test_has_ai_features_false_when_ai_disabled() {
+	public function test_has_jetpack_ai_features_false_when_ai_disabled() {
 		$this->disable_ai_features();
-		$this->assertFalse( ImageStudio\has_ai_features() );
+		$this->assertFalse( ImageStudio\has_jetpack_ai_features() );
 	}
 
 	// -------------------------------------------------------------------------
@@ -285,10 +285,9 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Not enabled when AI features are disabled, even with Big Sky active.
+	 * Not enabled when AI features are disabled and no Big Sky/CIAB override.
 	 */
 	public function test_is_not_enabled_when_ai_features_disabled() {
-		$this->enable_big_sky();
 		$this->disable_ai_features();
 		$this->assertFalse( ImageStudio\is_image_studio_enabled() );
 	}
@@ -622,7 +621,6 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	 * Test nothing enqueued when AI features are disabled.
 	 */
 	public function test_nothing_enqueued_when_ai_features_disabled() {
-		$this->enable_big_sky();
 		$this->disable_ai_features();
 		$this->set_block_editor_screen();
 		ImageStudio\register_plugin();
@@ -744,7 +742,6 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	 * Test nothing enqueued on Media Library when AI features are disabled.
 	 */
 	public function test_media_library_nothing_enqueued_when_disabled() {
-		$this->enable_big_sky();
 		$this->disable_ai_features();
 		$this->set_media_library_screen();
 		ImageStudio\register_plugin();
@@ -940,7 +937,6 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	 * Test AI image extensions are NOT disabled when Image Studio is not available.
 	 */
 	public function test_ai_extensions_not_disabled_when_not_available() {
-		$this->enable_big_sky();
 		$this->disable_ai_features();
 		ImageStudio\register_plugin();
 		$this->make_ai_extensions_available();
