@@ -28,16 +28,13 @@ function wpcom_has_features_edge_sticker() {
  * @return bool
  */
 function wpcom_should_enforce_http_polling() {
-	global $wp_version;
-
 	$blog_id                      = get_wpcom_blog_id();
 	$has_needed_gutenberg_version = defined( 'GUTENBERG_VERSION' ) && is_string( GUTENBERG_VERSION ) && version_compare( (string) GUTENBERG_VERSION, '22.7.0', '>=' );
-	$has_needed_core_version      = ! empty( $wp_version ) && version_compare( $wp_version, '7.0', '>=' );
 
 	if (
 		defined( 'IS_ATOMIC' ) && IS_ATOMIC &&
 		( $blog_id % 100 === 1 ) &&
-		( $has_needed_gutenberg_version || $has_needed_core_version ) &&
+		$has_needed_gutenberg_version &&
 		! wpcom_has_features_edge_sticker() // Sites with the sticker should use WS.
 	) {
 		return true;
