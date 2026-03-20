@@ -154,11 +154,14 @@ const StoryChartProvider = ( {
 		<>
 			{ themeName === 'custom' && (
 				<style>
-					{ `
+					{
+						// eslint-disable-next-line @wordpress/no-unknown-ds-tokens -- Seems to be thinking this is a use, not a redefinition.
+						`
 						:root {
 							--wpds-color-bg-interactive-brand-weak: ${ sanitizedAccentColor };
 						}
-					` }
+					`
+					}
 				</style>
 			) }
 			<GlobalChartsProvider key={ providerKey } theme={ theme }>

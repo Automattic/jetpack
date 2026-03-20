@@ -238,9 +238,7 @@ const enforceBlockSelection = () => {
 
 	// Don't force-select when the inserter is open — selecting a block
 	// can close the inserter or change its context.
-	const { isInserterOpened } = select( 'core/editor' ) as {
-		isInserterOpened: () => boolean;
-	};
+	const { isInserterOpened } = select( 'core/editor' );
 	if ( isInserterOpened() ) {
 		return;
 	}
@@ -543,9 +541,7 @@ const setupFormEditorSubscription = () => {
 				if ( hasAnyInnerBlocks ) {
 					state.hasOpenedInserter = true;
 
-					const { get: getPreference } = select( 'core/preferences' ) as {
-						get: ( scope: string, name: string ) => boolean;
-					};
+					const { get: getPreference } = select( 'core/preferences' );
 
 					if (
 						shouldAutoOpenInserter( {
