@@ -18,7 +18,6 @@
 		"automattic/jetpack-masterbar": "@dev",
 		"automattic/jetpack-newsletter": "@dev",
 		"automattic/jetpack-redirect": "@dev",
-		"automattic/jetpack-rtc": "@dev",
 		"automattic/jetpack-stats-admin": "@dev",
 		"automattic/jetpack-status": "@dev",
 		"automattic/jetpack-subscribers-dashboard": "@dev",
