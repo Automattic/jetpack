@@ -84,12 +84,22 @@ class RTC_Notices_Test extends \WorDBless\BaseTestCase {
 		global $wp_scripts, $wp_styles;
 		$wp_scripts = $this->original_wp_scripts; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		$wp_styles  = $this->original_wp_styles; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+
+		wp_set_current_user( 0 );
 		wp_delete_user( $this->user_id );
+
 		remove_all_filters( 'wpcom_rtc_max_peers_per_room' );
 		remove_all_filters( 'wpcom_rtc_max_clients_per_user' );
 		remove_all_filters( 'wpcom_is_gutenberg_rtc_enabled' );
+		remove_all_filters( 'wpcom_rtc_enable_limit_notices' );
+
 		delete_option( 'wp_enable_real_time_collaboration' );
 		delete_option( 'wp_collaboration_enabled' );
+
+		// Clean up any user options and transients left by tests.
+		delete_user_option( $this->user_id, WP_REST_RTC_Notices::OPTION_KEY );
+		delete_transient( WP_REST_RTC_Notices::JOIN_REQUEST_OPTION . '_' . 999999 );
+
 		parent::tear_down();
 	}
 
