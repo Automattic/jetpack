@@ -1,4 +1,4 @@
 Significance: minor
 Type: changed
 
-Remove internal hooks and utilities from public exports to reduce API surface.
+Remove internal hooks, utilities, and types from public exports to reduce API surface.

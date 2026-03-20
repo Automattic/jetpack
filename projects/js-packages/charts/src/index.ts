@@ -28,9 +28,33 @@ export {
 	defaultTheme,
 } from './providers';
 
-// Types
-export type * from './types';
-export type * from './visx/types';
+// Types - explicit exports (excludes internal types like DataPointPercentageCalculated)
+export type {
+	Optional,
+	OrientationType,
+	AnnotationStyles,
+	DataPoint,
+	GeoData,
+	DataPointDate,
+	LeaderboardEntry,
+	GradientStop,
+	SeriesDataOptions,
+	SeriesData,
+	MultipleDataPointsDate,
+	DataPointPercentage,
+	ChartTheme,
+	CompleteChartTheme,
+	AxisOptions,
+	ScaleOptions,
+	LegendItemStyles,
+	LegendLabelStyles,
+	LegendShapeStyles,
+	LegendPosition,
+	ChartLegendConfig,
+	BaseChartProps,
+	GridProps,
+} from './types';
+export type { RenderTooltipParams } from './visx/types';
 export type { PieChartProps, PieChartRenderTooltipParams } from './charts/pie-chart';
 export type {
 	PieSemiCircleChartProps,
