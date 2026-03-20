@@ -14,9 +14,7 @@ const NAMESPACE = 'jetpack/social';
 function createRegistryWithPreferencesStore( initialPreferences = {} ) {
 	const registry = createRegistry();
 
-	registry
-		// @ts-expect-error register method exists
-		.register( preferencesStore );
+	registry.register( preferencesStore );
 
 	// Set initial preferences if provided
 	Object.entries( initialPreferences ).forEach( ( [ name, value ] ) => {

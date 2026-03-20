@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Hide stats column for non-public post types in the WP Admin post list.
