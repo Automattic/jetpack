@@ -113,7 +113,7 @@ describe( 'Newsletter', () => {
 		it( 'renders header and manage subscribers link', () => {
 			render( <Newsletter { ...defaultProps } />, { initialState } );
 			expect(
-				screen.getByText( 'Newsletter' ).closest( '.dops-section-header' )
+				screen.getByText( 'Newsletter' ).closest( '.jp-form-settings-card__header' )
 			).toBeInTheDocument();
 			expect( screen.getByRole( 'link', { name: 'Manage all subscribers' } ) ).toBeInTheDocument();
 		} );
