@@ -54,7 +54,7 @@ export type {
 	BaseChartProps,
 	GridProps,
 } from './types';
-export type { RenderTooltipParams } from './visx/types';
+export type * from './visx/types';
 export type { PieChartProps, PieChartRenderTooltipParams } from './charts/pie-chart';
 export type {
 	PieSemiCircleChartProps,
