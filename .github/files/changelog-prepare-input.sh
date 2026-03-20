@@ -3,10 +3,9 @@
 # Prepare input for AI changelog generation.
 #
 # Generates the diff, checks its size, collects project metadata, and builds
-# a complete prompt YAML file for actions/ai-inference. The prompt is generated
-# dynamically (rather than using template variables in a static YAML file)
-# because multi-line content like the PR description and diff would break
-# YAML block scalar parsing if substituted via {{variables}}.
+# a complete prompt file for actions/ai-inference. The prompt is generated as
+# JSON (which is valid YAML) using jq, so all string content is properly
+# escaped regardless of special characters in the PR description, title, or diff.
 #
 # Required env vars: BASE, HEAD, PROJECTS, PLUGIN_DEPS, PR_DESCRIPTION, PR_TITLE, PR_NUMBER
 # Outputs: too_large, prompt_file
@@ -46,131 +45,116 @@ while IFS= read -r proj; do
 	fi
 done <<< "$PROJECTS"
 
-# Indent every line of stdin by 6 spaces (for YAML block scalar content).
-indent() { sed 's/^/      /'; }
+SYSTEM_PROMPT='You generate changelog entries for a Jetpack monorepo PR. You will be given
+a git diff, a list of projects needing changelog entries, and PR metadata.
 
-# Build the complete prompt YAML with all content properly indented.
+Rules for changelog entries:
+- Start with a capital letter and end with a period.
+- Use imperative mood (e.g., "Add feature." not "Added feature.").
+- Use a "Component: description." prefix when the change is specific to a
+  component within the project.
+- Do NOT use the package/project name itself as prefix for entries in that
+  package.
+- Describe the change from a user'\''s perspective.
+
+For significance:
+- "patch" for bug fixes and minor changes.
+- "minor" for new features and enhancements.
+- "major" for breaking changes.
+
+For type, most projects use: security, added, changed, deprecated, removed, fixed.
+BUT plugins/jetpack uses custom types: major, enhancement, compat, bugfix, other.
+The available types for each project are listed in the input — always use
+these instead of guessing.
+
+For trivial or internal changes with no user-facing impact, set the entry to
+an empty string and provide a comment explaining why.
+
+If a plugin is listed as a dependent of a project you are adding a changelog
+entry for, also add a changelog entry for that plugin describing the
+downstream impact. Only add a plugin changelog entry if the change is
+relevant to end users or site administrators.'
+
+USER_MESSAGE="PR title: ${PR_TITLE}
+PR number: ${PR_NUMBER}
+
+PR description:
+${PR_DESCRIPTION:-}
+
+Projects needing changelog entries (project paths):
+${PROJECTS}
+
+Available changelog types for each project:
+${TYPES}
+
+Pre-computed plugin dependents for each project (may be empty):
+${PLUGIN_DEPS:-}
+
+Git diff:
+$(cat "$DIFF_FILE")"
+
+JSON_SCHEMA='{
+  "name": "changelog_entries",
+  "strict": true,
+  "schema": {
+    "type": "object",
+    "properties": {
+      "entries": {
+        "type": "array",
+        "description": "Array of changelog entries to create",
+        "items": {
+          "type": "object",
+          "properties": {
+            "project": {
+              "type": "string",
+              "description": "Project path, e.g. plugins/jetpack or packages/changelogger"
+            },
+            "significance": {
+              "type": "string",
+              "enum": ["patch", "minor", "major"],
+              "description": "Significance of the change"
+            },
+            "type": {
+              "type": "string",
+              "description": "Entry type (project-specific, e.g. fixed, added, bugfix, enhancement)"
+            },
+            "entry": {
+              "type": "string",
+              "description": "The changelog entry text. Empty string for trivial/internal changes."
+            },
+            "comment": {
+              "type": "string",
+              "description": "Optional comment for trivial/internal entries with empty entry text. Empty string if not needed."
+            }
+          },
+          "additionalProperties": false,
+          "required": ["project", "significance", "type", "entry", "comment"]
+        }
+      }
+    },
+    "additionalProperties": false,
+    "required": ["entries"]
+  }
+}'
+
+# Build the prompt file as JSON (valid YAML). jq handles all string escaping,
+# so special characters in the PR description, title, or diff are safe.
 # The .prompt.yml suffix is required — actions/ai-inference only parses files
 # ending in .prompt.yml or .prompt.yaml as structured YAML prompt configs.
 PROMPT_FILE=$(mktemp --suffix=.prompt.yml)
-cat > "$PROMPT_FILE" <<'SYSTEM_START'
-messages:
-  - role: system
-    content: |-
-      You generate changelog entries for a Jetpack monorepo PR. You will be given
-      a git diff, a list of projects needing changelog entries, and PR metadata.
-
-      Rules for changelog entries:
-      - Start with a capital letter and end with a period.
-      - Use imperative mood (e.g., "Add feature." not "Added feature.").
-      - Use a "Component: description." prefix when the change is specific to a
-        component within the project.
-      - Do NOT use the package/project name itself as prefix for entries in that
-        package.
-      - Describe the change from a user's perspective.
-
-      For significance:
-      - "patch" for bug fixes and minor changes.
-      - "minor" for new features and enhancements.
-      - "major" for breaking changes.
-
-      For type, most projects use: security, added, changed, deprecated, removed, fixed.
-      BUT plugins/jetpack uses custom types: major, enhancement, compat, bugfix, other.
-      The available types for each project are listed in the input — always use
-      these instead of guessing.
-
-      For trivial or internal changes with no user-facing impact, set the entry to
-      an empty string and provide a comment explaining why.
-
-      If a plugin is listed as a dependent of a project you are adding a changelog
-      entry for, also add a changelog entry for that plugin describing the
-      downstream impact. Only add a plugin changelog entry if the change is
-      relevant to end users or site administrators.
-
-  - role: user
-    content: |-
-SYSTEM_START
-
-# Append user message content, indented for the block scalar.
-{
-	echo "PR title: ${PR_TITLE}"
-	echo "PR number: ${PR_NUMBER}"
-	echo ""
-	echo "PR description:"
-	echo "${PR_DESCRIPTION:-}"
-	echo ""
-	echo "Projects needing changelog entries (project paths):"
-	echo "$PROJECTS"
-	echo ""
-	echo "Available changelog types for each project:"
-	echo "$TYPES"
-	echo ""
-	echo "Pre-computed plugin dependents for each project (may be empty):"
-	echo "${PLUGIN_DEPS:-}"
-	echo ""
-	echo "Git diff:"
-	cat "$DIFF_FILE"
-} | indent >> "$PROMPT_FILE"
-
-cat >> "$PROMPT_FILE" <<'FOOTER'
-
-model: openai/gpt-4o
-
-modelParameters:
-  temperature: 0.3
-
-responseFormat: json_schema
-jsonSchema: |-
-  {
-    "name": "changelog_entries",
-    "strict": true,
-    "schema": {
-      "type": "object",
-      "properties": {
-        "entries": {
-          "type": "array",
-          "description": "Array of changelog entries to create",
-          "items": {
-            "type": "object",
-            "properties": {
-              "project": {
-                "type": "string",
-                "description": "Project path, e.g. plugins/jetpack or packages/changelogger"
-              },
-              "significance": {
-                "type": "string",
-                "enum": ["patch", "minor", "major"],
-                "description": "Significance of the change"
-              },
-              "type": {
-                "type": "string",
-                "description": "Entry type (project-specific, e.g. fixed, added, bugfix, enhancement)"
-              },
-              "entry": {
-                "type": "string",
-                "description": "The changelog entry text. Empty string for trivial/internal changes."
-              },
-              "comment": {
-                "type": "string",
-                "description": "Optional comment for trivial/internal entries with empty entry text. Empty string if not needed."
-              }
-            },
-            "additionalProperties": false,
-            "required": ["project", "significance", "type", "entry", "comment"]
-          }
-        }
-      },
-      "additionalProperties": false,
-      "required": ["entries"]
-    }
-  }
-FOOTER
-
-# Validate the generated YAML before passing it to the action.
-if ! python3 -c "import yaml, sys; yaml.safe_load(open(sys.argv[1]))" "$PROMPT_FILE" 2>/dev/null; then
-	echo "::error::Generated prompt file is not valid YAML. First 20 lines:"
-	head -20 "$PROMPT_FILE"
-	exit 1
-fi
+jq -n \
+	--arg system_prompt "$SYSTEM_PROMPT" \
+	--arg user_message "$USER_MESSAGE" \
+	--argjson json_schema "$JSON_SCHEMA" \
+	'{
+		messages: [
+			{role: "system", content: $system_prompt},
+			{role: "user", content: $user_message}
+		],
+		model: "openai/gpt-4o",
+		modelParameters: {temperature: 0.3},
+		responseFormat: "json_schema",
+		jsonSchema: ($json_schema | tostring)
+	}' > "$PROMPT_FILE"
 
 echo "prompt_file=$PROMPT_FILE" >> "$GITHUB_OUTPUT"
