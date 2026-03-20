@@ -12,7 +12,7 @@
 		"@wordpress/components": "32.4.0",
 		"@wordpress/core-data": "7.42.0",
 		"@wordpress/data": "10.42.0",
-		"@wordpress/dataviews": "11.3.0",
+		"@wordpress/dataviews": "13.1.0",
 		"@wordpress/date": "5.42.0",
 		"@wordpress/element": "6.42.0",
 		"@wordpress/i18n": "6.15.0",
