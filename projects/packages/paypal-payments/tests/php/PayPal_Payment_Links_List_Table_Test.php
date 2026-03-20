@@ -28,6 +28,9 @@ class PayPal_Payment_Links_List_Table_Test extends TestCase {
 		delete_option( PayPal_OAuth::ENVIRONMENT_OPTION_KEY );
 		delete_transient( PayPal_OAuth::TOKEN_TRANSIENT_KEY );
 		remove_all_filters( 'pre_http_request' );
+
+		// Clear list table API response caches.
+		delete_transient( 'paypal_list_cache_' . md5( '' ) );
 	}
 
 	/**
@@ -216,13 +219,14 @@ class PayPal_Payment_Links_List_Table_Test extends TestCase {
 	}
 
 	/**
-	 * Test column_status renders UNKNOWN when no status field.
+	 * Test column_status renders INACTIVE badge when no status field.
 	 */
-	public function test_column_status_renders_unknown_when_missing() {
+	public function test_column_status_renders_inactive_when_missing() {
 		$table  = new PayPal_Payment_Links_List_Table();
 		$output = $table->column_status( array() );
 
-		$this->assertStringContainsString( 'UNKNOWN', $output );
+		$this->assertStringContainsString( 'paypal-status-inactive', $output );
+		$this->assertStringContainsString( 'INACTIVE', $output );
 	}
 
 	/**

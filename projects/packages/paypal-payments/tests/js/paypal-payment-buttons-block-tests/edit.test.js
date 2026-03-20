@@ -24,6 +24,7 @@ jest.mock( '@wordpress/element', () => {
 		useEffect: React.useEffect,
 		useCallback: React.useCallback,
 		useMemo: React.useMemo,
+		useRef: React.useRef,
 		createInterpolateElement: text => text,
 	};
 } );

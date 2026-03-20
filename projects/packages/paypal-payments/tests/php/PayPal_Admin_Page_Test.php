@@ -30,6 +30,12 @@ class PayPal_Admin_Page_Test extends TestCase {
 		delete_transient( 'paypal_admin_notice_' . get_current_user_id() );
 		remove_all_filters( 'pre_http_request' );
 
+		// Clear detail view and list table API response caches.
+		delete_transient( 'paypal_resource_plb-abc123' );
+		delete_transient( 'paypal_resource_plb-notfound' );
+		delete_transient( 'paypal_resource_plb-deleted' );
+		delete_transient( 'paypal_list_cache_' . md5( '' ) );
+
 		// Reset $_GET superglobal.
 		$_GET = array();
 
