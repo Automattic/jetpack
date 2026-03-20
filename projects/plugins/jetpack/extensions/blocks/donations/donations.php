@@ -131,13 +131,13 @@ function get_donation_products( $currency ) {
 	}
 
 	// Build product_id => product map for the requested currency.
-	$upper_curr     = strtoupper( $currency );
 	$products_by_id = array();
 	foreach ( $data['products'] as $product ) {
-		if ( strtoupper( $product['currency'] ?? '' ) !== $upper_curr ) {
+		if ( strtoupper( $product['currency'] ) !== strtoupper( $currency ) ) {
 			continue;
 		}
-		$product_id = (int) $product['id'] ?? 0;
+
+		$product_id = $product['id'];
 		if ( $product_id ) {
 			$products_by_id[ $product_id ] = $product;
 		}
