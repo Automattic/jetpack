@@ -177,6 +177,55 @@ class WP_Build_Polyfills {
 	}
 
 	/**
+	 * Validate that all classic script dependencies in a boot asset file
+	 * are registered with WordPress.
+	 *
+	 * Call this after wp_default_scripts has run and polyfills are registered
+	 * to detect missing script handles that would silently prevent the
+	 * prerequisite script from loading (blank page, no console errors).
+	 *
+	 * @param string $asset_file Absolute path to the boot module asset file.
+	 */
+	public static function validate_boot_dependencies( $asset_file ) {
+		if ( ! file_exists( $asset_file ) ) {
+			return;
+		}
+
+		$asset = require $asset_file;
+
+		if ( empty( $asset['dependencies'] ) || ! is_array( $asset['dependencies'] ) ) {
+			return;
+		}
+
+		$scripts = wp_scripts();
+		$missing = array();
+
+		foreach ( $asset['dependencies'] as $handle ) {
+			if ( ! $scripts->query( $handle, 'registered' ) ) {
+				$missing[] = $handle;
+			}
+		}
+
+		if ( ! empty( $missing ) ) {
+			$message = sprintf(
+				'WP_Build_Polyfills: Boot module has unregistered script dependencies: %s. '
+				. 'The wp-build dashboard will not load. '
+				. 'This usually means a @wordpress/* package needs to be added to '
+				. 'wp-build-polyfills/package.json devDependencies.',
+				implode( ', ', $missing )
+			);
+
+			// Use wp_trigger_error when available (WP 6.4+), fall back to error_log.
+			if ( function_exists( 'wp_trigger_error' ) ) {
+				wp_trigger_error( __METHOD__, $message, E_USER_WARNING );
+			} else {
+				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+				error_log( $message );
+			}
+		}
+	}
+
+	/**
 	 * Register polyfill script modules.
 	 *
 	 * Call to wp_register_script_module() silently ignores duplicate registrations (first wins),

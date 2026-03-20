@@ -198,6 +198,48 @@ const iifeConfigs = classicPolyfills.map( polyfill => ( {
 //   3. Asset generation — writes .asset.php in the same format as
 //      @wordpress/dependency-extraction-webpack-plugin.
 
+// Known WordPress Core classic-script packages (registered via wp_default_scripts).
+// When one of these can't be resolved from this package's node_modules, it is
+// safe to externalize as `var wp.<name>`. Packages NOT in this set must be added
+// to devDependencies so webpack can read their package.json and decide whether
+// to bundle (wpScript: false) or externalize (wpScript: true).
+const KNOWN_WP_CLASSIC_SCRIPTS = new Set( [
+	'@wordpress/a11y',
+	'@wordpress/api-fetch',
+	'@wordpress/blob',
+	'@wordpress/block-editor',
+	'@wordpress/block-library',
+	'@wordpress/blocks',
+	'@wordpress/commands',
+	'@wordpress/components',
+	'@wordpress/compose',
+	'@wordpress/core-data',
+	'@wordpress/data',
+	'@wordpress/date',
+	'@wordpress/deprecated',
+	'@wordpress/dom',
+	'@wordpress/dom-ready',
+	'@wordpress/edit-post',
+	'@wordpress/editor',
+	'@wordpress/element',
+	'@wordpress/hooks',
+	'@wordpress/html-entities',
+	'@wordpress/i18n',
+	'@wordpress/keyboard-shortcuts',
+	'@wordpress/keycodes',
+	'@wordpress/media-utils',
+	'@wordpress/notices',
+	'@wordpress/plugins',
+	'@wordpress/preferences',
+	'@wordpress/primitives',
+	'@wordpress/private-apis',
+	'@wordpress/rich-text',
+	'@wordpress/url',
+	'@wordpress/warning',
+	'@wordpress/widgets',
+	'@wordpress/wordcount',
+] );
+
 // Vendor externals (same mapping as @wordpress/dependency-extraction-webpack-plugin).
 const VENDOR_EXTERNALS = {
 	react: { global: 'React', handle: 'react' },
@@ -281,8 +323,25 @@ class PolyfillModulePlugin {
 					return callback();
 				}
 
-				// Classic script (includes unresolvable packages, which default
-				// to classic since most @wordpress/* packages are classic scripts).
+				// If the package couldn't be resolved, check if it's a known
+				// WordPress Core classic script. Unknown packages must be
+				// added to devDependencies so webpack can read package.json
+				// and decide whether to bundle or externalize.
+				if ( ! pkg ) {
+					if ( ! KNOWN_WP_CLASSIC_SCRIPTS.has( pkgName ) ) {
+						return callback(
+							new Error(
+								`PolyfillModulePlugin: Cannot resolve "${ pkgName }" and it is not a ` +
+									`known WordPress Core classic script. Add it to devDependencies ` +
+									`in wp-build-polyfills/package.json so webpack can determine ` +
+									`whether to bundle or externalize it.`
+							)
+						);
+					}
+				}
+
+				// Classic script (wpScript: true, legacy default, or
+				// known Core classic script).
 				scriptDeps.add( `wp-${ shortName }` );
 				return callback( null, `var wp.${ camelCaseDash( shortName ) }` );
 			}

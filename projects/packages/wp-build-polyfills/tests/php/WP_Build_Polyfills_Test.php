@@ -496,6 +496,89 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Known WordPress core classic script handles that are valid boot dependencies.
+	 *
+	 * These handles are registered by wp_default_scripts() in WordPress Core.
+	 * If the boot module's asset file contains a handle NOT in this list
+	 * and NOT in SCRIPT_HANDLES (polyfills), the build is broken.
+	 */
+	const KNOWN_WP_CORE_HANDLES = array(
+		'react',
+		'react-dom',
+		'react-jsx-runtime',
+		'wp-a11y',
+		'wp-api-fetch',
+		'wp-blob',
+		'wp-block-editor',
+		'wp-block-library',
+		'wp-blocks',
+		'wp-commands',
+		'wp-components',
+		'wp-compose',
+		'wp-core-data',
+		'wp-data',
+		'wp-date',
+		'wp-deprecated',
+		'wp-dom',
+		'wp-dom-ready',
+		'wp-edit-post',
+		'wp-editor',
+		'wp-element',
+		'wp-hooks',
+		'wp-html-entities',
+		'wp-i18n',
+		'wp-keyboard-shortcuts',
+		'wp-keycodes',
+		'wp-media-utils',
+		'wp-notices',
+		'wp-plugins',
+		'wp-preferences',
+		'wp-primitives',
+		'wp-private-apis',
+		'wp-rich-text',
+		'wp-theme',
+		'wp-url',
+		'wp-warning',
+		'wp-widgets',
+		'wp-wordcount',
+	);
+
+	/**
+	 * Validate that the built boot module asset file only contains
+	 * dependencies that are either known WordPress core handles or
+	 * handles registered by the polyfills package.
+	 *
+	 * This prevents silent dashboard failures caused by unresolvable
+	 * packages being externalized as classic scripts that don't exist.
+	 */
+	public function test_boot_asset_dependencies_are_all_known_handles() {
+		$asset_file = dirname( __DIR__, 2 ) . '/build/modules/boot/index.asset.php';
+
+		if ( ! file_exists( $asset_file ) ) {
+			$this->markTestSkipped( 'Boot asset file not found — run "pnpm run build" in wp-build-polyfills first.' );
+		}
+
+		$asset = require $asset_file;
+		$this->assertArrayHasKey( 'dependencies', $asset, 'Boot asset file must have a dependencies key.' );
+
+		$allowed_handles = array_merge( self::KNOWN_WP_CORE_HANDLES, WP_Build_Polyfills::SCRIPT_HANDLES );
+
+		foreach ( $asset['dependencies'] as $dep ) {
+			$this->assertContains(
+				$dep,
+				$allowed_handles,
+				sprintf(
+					'Boot asset dependency "%s" is not a known WP core handle or polyfill. '
+					. 'Add the corresponding package to wp-build-polyfills/package.json devDependencies '
+					. 'so webpack can resolve and bundle it, or add the handle to KNOWN_WP_CORE_HANDLES '
+					. 'if it is a new WordPress core script.',
+					$dep
+				)
+			);
+		}
+	}
+
+	/**
 	 * Test that only requested polyfills are registered.
 	 */
 	public function test_register_scripts_only_registers_requested_handles() {

@@ -56,6 +56,18 @@ class Dashboard {
 			if ( file_exists( $wp_build_index ) ) {
 				require_once $wp_build_index;
 			}
+
+			// Validate boot dependencies after scripts are registered.
+			// This fires a PHP warning if any dependency handles are missing,
+			// making silent blank-page failures debuggable.
+			$boot_asset = dirname( __DIR__, 2 ) . '/build/modules/boot/index.min.asset.php';
+			add_action(
+				'admin_enqueue_scripts',
+				static function () use ( $boot_asset ) {
+					WP_Build_Polyfills::validate_boot_dependencies( $boot_asset );
+				},
+				0
+			);
 		}
 	}
 
