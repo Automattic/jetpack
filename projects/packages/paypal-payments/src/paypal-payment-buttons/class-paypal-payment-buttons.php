@@ -320,7 +320,7 @@ class PayPal_Payment_Buttons {
 		$wrapper_attributes = get_block_wrapper_attributes();
 
 		return sprintf(
-			'<div %16$s>
+			'<div %12$s>
 	<div class="jetpack-paypal-button">
 		<div class="jetpack-paypal-button__product">
 			<div class="jetpack-paypal-button__product-info">
@@ -329,7 +329,7 @@ class PayPal_Payment_Buttons {
 			</div>
 			%3$s
 		</div>
-		%14$s
+		%10$s
 		<div class="jetpack-paypal-button__buttons jetpack-paypal-button__buttons--%4$s">
 			<a href="%5$s" class="jetpack-paypal-button__paypal-link" target="_blank" rel="noopener noreferrer">
 				%6$s
@@ -338,7 +338,7 @@ class PayPal_Payment_Buttons {
 			%8$s
 		</div>
 		<p class="jetpack-paypal-button__attribution">%9$s</p>
-		%15$s
+		%11$s
 	</div>
 </div>',
 			esc_html( $product_name ),
@@ -350,9 +350,6 @@ class PayPal_Payment_Buttons {
 			esc_html( $button_text ),
 			$debit_button_html,
 			esc_html__( 'Powered by PayPal', 'jetpack-paypal-payments' ),
-			'',
-			'',
-			'',
 			$variants_html,
 			$qr_html,
 			$wrapper_attributes
