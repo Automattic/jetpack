@@ -28,13 +28,11 @@ function wpcom_has_features_edge_sticker() {
  * @return bool
  */
 function wpcom_should_enforce_http_polling() {
-	$blog_id                      = get_wpcom_blog_id();
-	$has_needed_gutenberg_version = defined( 'GUTENBERG_VERSION' ) && is_string( GUTENBERG_VERSION ) && version_compare( (string) GUTENBERG_VERSION, '22.7.0', '>=' );
+	$blog_id = get_wpcom_blog_id();
 
 	if (
 		defined( 'IS_ATOMIC' ) && IS_ATOMIC &&
 		( $blog_id % 100 === 1 ) &&
-		$has_needed_gutenberg_version &&
 		! wpcom_has_features_edge_sticker() // Sites with the sticker should use WS.
 	) {
 		return true;
@@ -55,6 +53,11 @@ function wpcom_enable_rtc() {
 	}
 
 	if ( ! $has_rtc_feature ) {
+		return false;
+	}
+
+	$has_needed_gutenberg_version = defined( 'GUTENBERG_VERSION' ) && is_string( GUTENBERG_VERSION ) && version_compare( (string) GUTENBERG_VERSION, '22.7.0', '>=' );
+	if ( ! $has_needed_gutenberg_version ) {
 		return false;
 	}
 
