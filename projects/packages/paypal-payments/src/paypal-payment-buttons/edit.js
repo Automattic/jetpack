@@ -1223,12 +1223,6 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 							/>
 						</MediaUploadCheck>
 					) }
-					<p className="components-base-control__help">
-						{ __(
-							'Displayed on your site alongside the payment button.',
-							'jetpack-paypal-payments'
-						) }
-					</p>
 				</div>
 
 				<div className="jetpack-paypal-payment-buttons__variants-section">
