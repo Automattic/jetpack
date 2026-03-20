@@ -390,8 +390,10 @@ export default function VideoPressEdit( {
 					...newVideoData,
 				};
 
-				// Delete attributes that are not needed.
-				delete newBlockAttributes.poster;
+				// Remove the old video's poster unless a new one was selected during upload.
+				if ( ! newVideoData.poster ) {
+					delete newBlockAttributes.poster;
+				}
 
 				setIsReplacingFile( { isReplacing: false, prevAttrs: {} } );
 				replaceBlock( clientId, createBlock( 'videopress/video', newBlockAttributes ) );

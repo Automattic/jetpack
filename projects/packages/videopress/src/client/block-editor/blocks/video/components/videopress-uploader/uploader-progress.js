@@ -50,21 +50,25 @@ const usePosterAndTitleUpdate = ( { setAttributes, videoData, onDone } ) => {
 	};
 
 	const updatePoster = ( { data: result } ) => {
-		if ( result?.generating ) {
-			setTimeout( () => {
-				getPosterImage().then( response => updatePoster( response ) );
-			}, 2000 );
-		} else if ( result?.poster ) {
-			setAttributes( { poster: result?.poster } );
-		}
+		return new Promise( resolve => {
+			if ( result?.generating ) {
+				setTimeout( () => {
+					getPosterImage().then( response => updatePoster( response ).then( resolve ) );
+				}, 2000 );
+			} else if ( result?.poster ) {
+				setAttributes( { poster: result.poster } );
+				resolve( result.poster );
+			} else {
+				resolve( null );
+			}
+		} );
 	};
 
 	const sendUpdatePoster = data => {
 		return new Promise( ( resolve, reject ) => {
 			videoPressUploadPoster( data )
 				.then( result => {
-					updatePoster( result );
-					resolve();
+					updatePoster( result ).then( resolve );
 				} )
 				.catch( () => {
 					apiFetch( {
@@ -74,8 +78,8 @@ const usePosterAndTitleUpdate = ( { setAttributes, videoData, onDone } ) => {
 						global: true,
 						data: data,
 					} )
-						.then( () => {
-							resolve();
+						.then( result => {
+							updatePoster( { data: result } ).then( resolve );
 						} )
 						.catch( e => {
 							reject( e );
@@ -114,9 +118,36 @@ const usePosterAndTitleUpdate = ( { setAttributes, videoData, onDone } ) => {
 			updates.push( sendUpdateTitleRequest() );
 		}
 
+		// Include the poster update in the completion flow so it resolves
+		// before the upload component unmounts. The resolved poster URL
+		// is passed through onDone so it persists in block attributes.
+		let posterUpdate = null;
+		if ( videoPosterImageData ) {
+			posterUpdate = sendUpdatePoster( {
+				poster_attachment_id: videoPosterImageData?.id,
+			} );
+			updates.push( posterUpdate );
+		} else if ( 'undefined' !== typeof videoFrameMs && null !== videoFrameMs ) {
+			posterUpdate = sendUpdatePoster( {
+				at_time: videoFrameMs,
+				is_millisec: true,
+			} );
+			updates.push( posterUpdate );
+		}
+
 		Promise.allSettled( updates ).then( () => {
 			setIsFinishingUpdate( false );
-			onDone( videoData );
+
+			if ( posterUpdate ) {
+				posterUpdate.then( posterUrl => {
+					onDone( {
+						...videoData,
+						...( posterUrl ? { poster: posterUrl } : {} ),
+					} );
+				} );
+			} else {
+				onDone( videoData );
+			}
 		} );
 	};
 
