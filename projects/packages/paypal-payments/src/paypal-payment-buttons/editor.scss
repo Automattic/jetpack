@@ -117,7 +117,7 @@
 
 .jetpack-paypal-wizard__logo {
 	display: block;
-	width: 120px;
+	width: 160px;
 	height: auto;
 	margin: 0 auto 16px;
 }
@@ -162,6 +162,13 @@
 	align-items: center;
 	gap: 12px;
 	margin-top: 12px;
+}
+
+.jetpack-paypal-wizard__hint {
+	color: #757575;
+	font-size: 13px;
+	font-style: italic;
+	margin: 8px 0 4px;
 }
 
 .jetpack-paypal-wizard__subtitle {
