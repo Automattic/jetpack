@@ -1,21 +1,22 @@
 #!/bin/bash
 ##
-# Prepare input files for AI changelog generation.
+# Prepare input for AI changelog generation.
 #
-# Generates the diff, checks its size, and writes temp files for project types,
-# project list, plugin deps, and PR description — all as file_input for
-# actions/ai-inference.
+# Generates the diff, checks its size, collects project metadata, and builds
+# a complete prompt YAML file for actions/ai-inference. The prompt is generated
+# dynamically (rather than using template variables in a static YAML file)
+# because multi-line content like the PR description and diff would break
+# YAML block scalar parsing if substituted via {{variables}}.
 #
 # Required env vars: BASE, HEAD, PROJECTS, PLUGIN_DEPS, PR_DESCRIPTION, PR_TITLE, PR_NUMBER
-# Outputs: too_large, diff_file, types_file, projects_file, deps_file, pr_desc_file, pr_title_file, pr_number_file
+# Outputs: too_large, prompt_file
 ##
 
 set -euo pipefail
 
 # Generate diff and check size.
-DIFF_FILE=$(mktemp)
-git diff "$BASE...$HEAD" > "$DIFF_FILE"
-DIFF_SIZE=$(wc -c < "$DIFF_FILE")
+DIFF=$(git diff "$BASE...$HEAD")
+DIFF_SIZE=${#DIFF}
 echo "Diff size: $DIFF_SIZE characters"
 
 if [ "$DIFF_SIZE" -gt 50000 ]; then
@@ -25,10 +26,9 @@ if [ "$DIFF_SIZE" -gt 50000 ]; then
 fi
 
 echo "too_large=false" >> "$GITHUB_OUTPUT"
-echo "diff_file=$DIFF_FILE" >> "$GITHUB_OUTPUT"
 
 # Read each project's available changelog types from composer.json.
-TYPES_FILE=$(mktemp)
+TYPES=""
 while IFS= read -r proj; do
 	[ -z "$proj" ] && continue
 	COMPOSER="projects/$proj/composer.json"
@@ -39,29 +39,127 @@ while IFS= read -r proj; do
 			if (\$types) echo implode(', ', array_keys(\$types));
 		" 2>/dev/null || true)
 		if [ -n "$PROJ_TYPES" ]; then
-			echo "${proj}: ${PROJ_TYPES}" >> "$TYPES_FILE"
+			TYPES="${TYPES}${proj}: ${PROJ_TYPES}"$'\n'
 		fi
 	fi
 done <<< "$PROJECTS"
-echo "types_file=$TYPES_FILE" >> "$GITHUB_OUTPUT"
 
-# Write projects and plugin deps to temp files for file_input.
-PROJECTS_FILE=$(mktemp)
-echo "$PROJECTS" > "$PROJECTS_FILE"
-echo "projects_file=$PROJECTS_FILE" >> "$GITHUB_OUTPUT"
+# Indent every line of stdin by 6 spaces (for YAML block scalar content).
+indent() { sed 's/^/      /'; }
 
-DEPS_FILE=$(mktemp)
-echo "${PLUGIN_DEPS:-}" > "$DEPS_FILE"
-echo "deps_file=$DEPS_FILE" >> "$GITHUB_OUTPUT"
+# Build the complete prompt YAML with all content properly indented.
+PROMPT_FILE=$(mktemp)
+cat > "$PROMPT_FILE" <<'SYSTEM_START'
+messages:
+  - role: system
+    content: |-
+      You generate changelog entries for a Jetpack monorepo PR. You will be given
+      a git diff, a list of projects needing changelog entries, and PR metadata.
 
-PR_DESC_FILE=$(mktemp)
-echo "${PR_DESCRIPTION:-}" > "$PR_DESC_FILE"
-echo "pr_desc_file=$PR_DESC_FILE" >> "$GITHUB_OUTPUT"
+      Rules for changelog entries:
+      - Start with a capital letter and end with a period.
+      - Use imperative mood (e.g., "Add feature." not "Added feature.").
+      - Use a "Component: description." prefix when the change is specific to a
+        component within the project.
+      - Do NOT use the package/project name itself as prefix for entries in that
+        package.
+      - Describe the change from a user's perspective.
 
-PR_TITLE_FILE=$(mktemp)
-printf '%s' "$PR_TITLE" > "$PR_TITLE_FILE"
-echo "pr_title_file=$PR_TITLE_FILE" >> "$GITHUB_OUTPUT"
+      For significance:
+      - "patch" for bug fixes and minor changes.
+      - "minor" for new features and enhancements.
+      - "major" for breaking changes.
 
-PR_NUMBER_FILE=$(mktemp)
-printf '%s' "$PR_NUMBER" > "$PR_NUMBER_FILE"
-echo "pr_number_file=$PR_NUMBER_FILE" >> "$GITHUB_OUTPUT"
+      For type, most projects use: security, added, changed, deprecated, removed, fixed.
+      BUT plugins/jetpack uses custom types: major, enhancement, compat, bugfix, other.
+      The available types for each project are listed in the input — always use
+      these instead of guessing.
+
+      For trivial or internal changes with no user-facing impact, set the entry to
+      an empty string and provide a comment explaining why.
+
+      If a plugin is listed as a dependent of a project you are adding a changelog
+      entry for, also add a changelog entry for that plugin describing the
+      downstream impact. Only add a plugin changelog entry if the change is
+      relevant to end users or site administrators.
+
+  - role: user
+    content: |-
+SYSTEM_START
+
+# Append user message content, indented for the block scalar.
+{
+	echo "PR title: ${PR_TITLE}"
+	echo "PR number: ${PR_NUMBER}"
+	echo ""
+	echo "PR description:"
+	echo "${PR_DESCRIPTION:-}"
+	echo ""
+	echo "Projects needing changelog entries (project paths):"
+	echo "$PROJECTS"
+	echo ""
+	echo "Available changelog types for each project:"
+	echo "$TYPES"
+	echo ""
+	echo "Pre-computed plugin dependents for each project (may be empty):"
+	echo "${PLUGIN_DEPS:-}"
+	echo ""
+	echo "Git diff:"
+	echo "$DIFF"
+} | indent >> "$PROMPT_FILE"
+
+cat >> "$PROMPT_FILE" <<'FOOTER'
+
+model: openai/gpt-4o
+
+modelParameters:
+  temperature: 0.3
+
+responseFormat: json_schema
+jsonSchema: |-
+  {
+    "name": "changelog_entries",
+    "strict": true,
+    "schema": {
+      "type": "object",
+      "properties": {
+        "entries": {
+          "type": "array",
+          "description": "Array of changelog entries to create",
+          "items": {
+            "type": "object",
+            "properties": {
+              "project": {
+                "type": "string",
+                "description": "Project path, e.g. plugins/jetpack or packages/changelogger"
+              },
+              "significance": {
+                "type": "string",
+                "enum": ["patch", "minor", "major"],
+                "description": "Significance of the change"
+              },
+              "type": {
+                "type": "string",
+                "description": "Entry type (project-specific, e.g. fixed, added, bugfix, enhancement)"
+              },
+              "entry": {
+                "type": "string",
+                "description": "The changelog entry text. Empty string for trivial/internal changes."
+              },
+              "comment": {
+                "type": "string",
+                "description": "Optional comment for trivial/internal entries with empty entry text. Empty string if not needed."
+              }
+            },
+            "additionalProperties": false,
+            "required": ["project", "significance", "type", "entry", "comment"]
+          }
+        }
+      },
+      "additionalProperties": false,
+      "required": ["entries"]
+    }
+  }
+FOOTER
+
+echo "prompt_file=$PROMPT_FILE" >> "$GITHUB_OUTPUT"

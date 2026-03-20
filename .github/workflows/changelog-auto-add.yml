@@ -144,16 +144,8 @@ jobs:
         id: ai
         uses: actions/ai-inference@v1
         with:
-          prompt-file: .github/prompts/changelog-generate.prompt.yml
+          prompt-file: ${{ steps.prepare.outputs.prompt_file }}
           max-tokens: 4000
-          file_input: |
-            diff: ${{ steps.prepare.outputs.diff_file }}
-            projects: ${{ steps.prepare.outputs.projects_file }}
-            plugin_deps: ${{ steps.prepare.outputs.deps_file }}
-            pr_description: ${{ steps.prepare.outputs.pr_desc_file }}
-            project_types: ${{ steps.prepare.outputs.types_file }}
-            pr_title: ${{ steps.prepare.outputs.pr_title_file }}
-            pr_number: ${{ steps.prepare.outputs.pr_number_file }}
 
       - name: Checkout PR branch
         if: >-
