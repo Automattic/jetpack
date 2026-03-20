@@ -120,6 +120,8 @@ jobs:
           PROJECTS: ${{ steps.check.outputs.projects }}
           PLUGIN_DEPS: ${{ steps.deps.outputs.plugin_deps }}
           PR_DESCRIPTION: ${{ github.event.pull_request.body }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
         run: .github/files/changelog-prepare-input.sh
 
       - name: Comment on large diff
@@ -142,17 +144,8 @@ jobs:
         id: ai
         uses: actions/ai-inference@v1
         with:
-          prompt-file: .github/prompts/changelog-generate.prompt.yml
-          max-completion-tokens: 4000
-          input: |
-            pr_title: ${{ github.event.pull_request.title }}
-            pr_number: ${{ github.event.pull_request.number }}
-          file_input: |
-            diff: ${{ steps.prepare.outputs.diff_file }}
-            projects: ${{ steps.prepare.outputs.projects_file }}
-            plugin_deps: ${{ steps.prepare.outputs.deps_file }}
-            pr_description: ${{ steps.prepare.outputs.pr_desc_file }}
-            project_types: ${{ steps.prepare.outputs.types_file }}
+          prompt-file: ${{ steps.prepare.outputs.prompt_file }}
+          max-tokens: 4000
 
       - name: Checkout PR branch
         if: >-
