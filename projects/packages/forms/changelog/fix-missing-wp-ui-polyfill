@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix blank wp-build dashboard caused by missing @wordpress/ui polyfill after WordPress package dependency update. Add runtime validation of boot dependencies to surface missing script handles as PHP warnings.

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Add @wordpress/ui to devDependencies so it is bundled into the boot module instead of being externalized as an unregistered classic script handle. Add build-time, test-time, and runtime safeguards against missing boot dependencies.
