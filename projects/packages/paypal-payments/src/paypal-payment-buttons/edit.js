@@ -142,8 +142,8 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 	const labelShow = __( 'Show', 'jetpack-paypal-payments' );
 	const labelHideSecret = __( 'Hide client secret', 'jetpack-paypal-payments' );
 	const labelShowSecret = __( 'Show client secret', 'jetpack-paypal-payments' );
-	const labelEditHeading = __( 'Edit PayPal Button or Link', 'jetpack-paypal-payments' );
-	const labelCreateHeading = __( 'Create PayPal Button or Link', 'jetpack-paypal-payments' );
+	const labelEditHeading = __( 'Edit PayPal Payment Button', 'jetpack-paypal-payments' );
+	const labelCreateHeading = __( 'Create PayPal Payment Button', 'jetpack-paypal-payments' );
 	const helpQtyOn = __(
 		'Customers can buy multiple units at checkout.',
 		'jetpack-paypal-payments'
@@ -990,34 +990,9 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 		</BlockControls>
 	) : null;
 
-	// Inspector sidebar — always shown when connected.
+	// Inspector sidebar — connection info and admin actions only.
 	const inspectorControls = (
 		<InspectorControls>
-			<PanelBody title={ __( 'Button Settings', 'jetpack-paypal-payments' ) }>
-				<SelectControl
-					label={ __( 'Payment Methods', 'jetpack-paypal-payments' ) }
-					value={ buttonType }
-					options={ BUTTON_TYPE_OPTIONS }
-					onChange={ value => setAttributes( { buttonType: value } ) }
-				/>
-				<TextControl
-					label={ __( 'Button Text', 'jetpack-paypal-payments' ) }
-					value={ buttonText || '' }
-					onChange={ value => setAttributes( { buttonText: value } ) }
-				/>
-				<ToggleControl
-					label={ __( 'Show QR code', 'jetpack-paypal-payments' ) }
-					help={ __(
-						'Display a QR code below the button for in-person sharing.',
-						'jetpack-paypal-payments'
-					) }
-					checked={ attributes.showQrCode !== false }
-					onChange={ value => setAttributes( { showQrCode: value } ) }
-				/>
-			</PanelBody>
-
-			{ /* Variant builder moved inline to the block form for discoverability. */ }
-
 			{ hasButton && (
 				<PanelBody
 					title={ __( 'PayPal Connection', 'jetpack-paypal-payments' ) }
@@ -1129,7 +1104,7 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 				{ ! hasButton && (
 					<p className="jetpack-paypal-payment-buttons__form-intro">
 						{ __(
-							'This creates a PayPal payment resource — you get both an embeddable branded button and a shareable payment link URL. Use the button on this page, or share the link anywhere.',
+							'Use the button on this page, or share the link anywhere.',
 							'jetpack-paypal-payments'
 						) }
 					</p>
@@ -1486,6 +1461,35 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 					) }
 				</div>
 
+				<div className="jetpack-paypal-payment-buttons__button-appearance">
+					<h4 className="jetpack-paypal-payment-buttons__section-heading">
+						{ __( 'Button Appearance', 'jetpack-paypal-payments' ) }
+					</h4>
+					<SelectControl
+						label={ __( 'Payment Methods', 'jetpack-paypal-payments' ) }
+						value={ buttonType }
+						options={ BUTTON_TYPE_OPTIONS }
+						onChange={ value => setAttributes( { buttonType: value } ) }
+						disabled={ isCreating }
+					/>
+					<TextControl
+						label={ __( 'Button Text', 'jetpack-paypal-payments' ) }
+						value={ buttonText || '' }
+						onChange={ value => setAttributes( { buttonText: value } ) }
+						disabled={ isCreating }
+					/>
+					<ToggleControl
+						label={ __( 'Show QR code', 'jetpack-paypal-payments' ) }
+						help={ __(
+							'Display a QR code below the button for in-person sharing.',
+							'jetpack-paypal-payments'
+						) }
+						checked={ attributes.showQrCode !== false }
+						onChange={ value => setAttributes( { showQrCode: value } ) }
+						disabled={ isCreating }
+					/>
+				</div>
+
 				<div className="jetpack-paypal-payment-buttons__form-actions">
 					<Button
 						variant="primary"
@@ -1494,10 +1498,8 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 						disabled={ isCreating || ! isFormValid }
 					>
 						{ isCreating && __( 'Saving…', 'jetpack-paypal-payments' ) }
-						{ ! isCreating && hasButton && __( 'Update Button & Link', 'jetpack-paypal-payments' ) }
-						{ ! isCreating &&
-							! hasButton &&
-							__( 'Create Button & Link', 'jetpack-paypal-payments' ) }
+						{ ! isCreating && hasButton && __( 'Update Button', 'jetpack-paypal-payments' ) }
+						{ ! isCreating && ! hasButton && __( 'Create Button', 'jetpack-paypal-payments' ) }
 					</Button>
 
 					{ hasButton && (
