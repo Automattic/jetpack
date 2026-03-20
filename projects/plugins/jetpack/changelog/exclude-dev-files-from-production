@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Exclude TypeScript, JSX, and SCSS source files from vendor packages in production builds.
