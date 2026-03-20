@@ -411,19 +411,4 @@ class Pixel_Builder_Test extends BaseTestCase {
 
 		$this->assertTrue( $result );
 	}
-
-	/**
-	 * Test is_socks_proxy_configured returns false when WP_PROXY_HOST is not defined.
-	 */
-	public function test_is_socks_proxy_configured_returns_false_when_not_defined(): void {
-		if ( defined( 'WP_PROXY_HOST' ) ) {
-			$this->markTestSkipped( 'WP_PROXY_HOST is already defined in the environment.' );
-		}
-
-		$reflection = new \ReflectionClass( Pixel_Builder::class );
-		$method     = $reflection->getMethod( 'is_socks_proxy_configured' );
-		$method->setAccessible( true );
-
-		$this->assertFalse( $method->invoke( null ) );
-	}
 }

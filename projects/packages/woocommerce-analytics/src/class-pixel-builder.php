@@ -226,9 +226,18 @@ class Pixel_Builder {
 			return false;
 		}
 
-		$proxy_host = strtolower( WP_PROXY_HOST );
+		return self::is_socks_proxy_host( WP_PROXY_HOST );
+	}
 
-		// Check if the proxy host indicates a SOCKS proxy.
+	/**
+	 * Check if a proxy host string indicates a SOCKS proxy.
+	 *
+	 * @param string $proxy_host The proxy host value.
+	 * @return bool True if the host indicates a SOCKS proxy.
+	 */
+	public static function is_socks_proxy_host( $proxy_host ) {
+		$proxy_host = strtolower( $proxy_host );
+
 		return 0 === strpos( $proxy_host, 'socks5://' )
 			|| 0 === strpos( $proxy_host, 'socks4://' )
 			|| 0 === strpos( $proxy_host, 'socks://' );
