@@ -1,4 +1,4 @@
 Significance: patch
 Type: other
 
-Update sync user tests to cover event suppression during user creation and align reassign assertions with hook parameter changes.
+Update sync user test assertion to expect 0 instead of false for reassigned user ID, matching the $reassign hook parameter now used directly.
