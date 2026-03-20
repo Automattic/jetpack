@@ -12,7 +12,7 @@ return [
     // PhanTypeMismatchArgument : 35+ occurrences
     // PhanTypeMismatchReturnProbablyReal : 30+ occurrences
     // PhanPluginDuplicateConditionalNullCoalescing : 25+ occurrences
-    // PhanTypeMismatchReturn : 20+ occurrences
+    // PhanTypeMismatchReturn : 15+ occurrences
     // PhanParamSignatureMismatch : 10+ occurrences
     // PhanTypeMismatchArgumentProbablyReal : 10+ occurrences
     // PhanPluginSimplifyExpressionBool : 9 occurrences
@@ -62,7 +62,7 @@ return [
         'src/modules/class-term-relationships.php' => ['PhanParamSignatureMismatch', 'PhanTypeMismatchArgument'],
         'src/modules/class-themes.php' => ['PhanParamSignatureMismatch', 'PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal'],
         'src/modules/class-updates.php' => ['PhanImpossibleCondition', 'PhanParamSignatureMismatch', 'PhanTypeMismatchReturn'],
-        'src/modules/class-users.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchDefault', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal'],
+        'src/modules/class-users.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchDefault', 'PhanTypeMismatchReturnProbablyReal'],
         'src/modules/class-woocommerce-hpos-orders.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchReturn', 'PhanTypeMismatchReturnProbablyReal'],
         'src/replicastore/class-table-checksum.php' => ['PhanTypeMismatchPropertyDefault', 'PhanTypeMismatchPropertyProbablyReal'],
         'tests/php/Actions_Test.php' => ['PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal'],
