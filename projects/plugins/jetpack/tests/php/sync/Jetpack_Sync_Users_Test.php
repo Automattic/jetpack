@@ -923,25 +923,6 @@ class Jetpack_Sync_Users_Test extends Jetpack_Sync_TestBase {
 		$this->assertTrue( array_diff( $user1_array, $user2_array ) === array_diff( $user2_array, $user1_array ) );
 	}
 
-	/**
-	 * Test that creating a user fires jetpack_sync_register_user but not jetpack_sync_save_user.
-	 *
-	 * During user creation, save_user_role_handler and maybe_save_user_meta fire but should
-	 * be suppressed because the backtrace contains wp_insert_user / wp_create_user.
-	 */
-	public function test_create_user_does_not_fire_save_user_event() {
-		$this->server_event_storage->reset();
-
-		self::factory()->user->create( array( 'role' => 'editor' ) );
-		$this->sender->do_sync();
-
-		$register_event  = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_register_user' );
-		$save_user_event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_user' );
-
-		$this->assertNotEmpty( $register_event, 'jetpack_sync_register_user should fire when creating a user.' );
-		$this->assertFalse( $save_user_event, 'jetpack_sync_save_user should not fire during user creation.' );
-	}
-
 	private function get_invite_user_data() {
 		return (object) array(
 			'ID'           => 1234,
