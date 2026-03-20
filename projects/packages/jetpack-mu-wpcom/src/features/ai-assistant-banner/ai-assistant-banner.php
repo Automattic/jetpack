@@ -23,7 +23,7 @@ function wpcom_should_show_ai_assistant_banner() {
 		return false;
 	}
 
-	if ( ! function_exists( 'wpcom_site_has_feature' ) || ! wpcom_site_has_feature( 'big-sky' ) ) {
+	if ( ! function_exists( 'wpcom_site_has_feature' ) || ! wpcom_site_has_feature( WPCOM_Features::AI_ASSISTANT ) ) {
 		return false;
 	}
 
