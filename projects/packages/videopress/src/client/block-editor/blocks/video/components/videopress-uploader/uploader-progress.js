@@ -139,12 +139,16 @@ const usePosterAndTitleUpdate = ( { setAttributes, videoData, onDone } ) => {
 			setIsFinishingUpdate( false );
 
 			if ( posterUpdate ) {
-				posterUpdate.then( posterUrl => {
-					onDone( {
-						...videoData,
-						...( posterUrl ? { poster: posterUrl } : {} ),
+				posterUpdate
+					.then( posterUrl => {
+						onDone( {
+							...videoData,
+							...( posterUrl ? { poster: posterUrl } : {} ),
+						} );
+					} )
+					.catch( () => {
+						onDone( videoData );
 					} );
-				} );
 			} else {
 				onDone( videoData );
 			}
@@ -312,3 +316,4 @@ const UploaderProgress = ( {
 };
 
 export default UploaderProgress;
+export { usePosterAndTitleUpdate };
