@@ -303,6 +303,121 @@ class Blaze_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Test that get_menu_parent() returns 'woocommerce-marketing' when WooCommerce
+	 * is active and the marketing menu is registered.
+	 */
+	public function test_get_menu_parent_woocommerce() {
+		global $menu;
+
+		// Simulate WooCommerce marketing menu being registered.
+		// The WooCommerce class must exist for get_menu_parent() to check the menu.
+		// phpcs:ignore Generic.Files.OneObjectStructurePerFile.MultipleFound -- Test helper.
+		if ( ! class_exists( 'WooCommerce' ) ) {
+			require_once __DIR__ . '/class-woocommerce.php';
+		}
+
+		$menu[] = array( 'Marketing', 'manage_options', 'woocommerce-marketing', '', '', '', '' );
+
+		$this->assertSame( 'woocommerce-marketing', Blaze::get_menu_parent() );
+	}
+
+	/**
+	 * Test that has_active_campaigns() returns true when the API returns campaigns.
+	 */
+	public function test_has_active_campaigns_api_returns_campaigns() {
+		update_option( 'jetpack_options', array( 'id' => 99999 ) );
+		// Ensure no cached transient.
+		delete_transient( 'jetpack_blaze_has_active_campaigns_99999' );
+
+		Constants::$set_constants['JETPACK__WPCOM_JSON_API_BASE'] = 'https://public-api.wordpress.com';
+		update_option( 'jetpack_private_options', array( 'blog_token' => 'blog.token' ) );
+
+		add_filter(
+			'pre_http_request',
+			function () {
+				return array(
+					'response' => array( 'code' => 200 ),
+					'body'     => wp_json_encode( array( array( 'campaign_id' => 1 ) ), JSON_UNESCAPED_SLASHES ),
+				);
+			}
+		);
+
+		$this->assertTrue( Blaze::has_active_campaigns() );
+
+		delete_transient( 'jetpack_blaze_has_active_campaigns_99999' );
+		delete_option( 'jetpack_options' );
+		delete_option( 'jetpack_private_options' );
+	}
+
+	/**
+	 * Test that has_active_campaigns() returns false when the API returns empty campaigns.
+	 */
+	public function test_has_active_campaigns_api_returns_empty() {
+		update_option( 'jetpack_options', array( 'id' => 99999 ) );
+		delete_transient( 'jetpack_blaze_has_active_campaigns_99999' );
+
+		Constants::$set_constants['JETPACK__WPCOM_JSON_API_BASE'] = 'https://public-api.wordpress.com';
+		update_option( 'jetpack_private_options', array( 'blog_token' => 'blog.token' ) );
+
+		add_filter(
+			'pre_http_request',
+			function () {
+				return array(
+					'response' => array( 'code' => 200 ),
+					'body'     => wp_json_encode( array(), JSON_UNESCAPED_SLASHES ),
+				);
+			}
+		);
+
+		$this->assertFalse( Blaze::has_active_campaigns() );
+
+		delete_transient( 'jetpack_blaze_has_active_campaigns_99999' );
+		delete_option( 'jetpack_options' );
+		delete_option( 'jetpack_private_options' );
+	}
+
+	/**
+	 * Test that has_active_campaigns() returns false when the API returns an error.
+	 */
+	public function test_has_active_campaigns_api_error() {
+		update_option( 'jetpack_options', array( 'id' => 99999 ) );
+		delete_transient( 'jetpack_blaze_has_active_campaigns_99999' );
+
+		Constants::$set_constants['JETPACK__WPCOM_JSON_API_BASE'] = 'https://public-api.wordpress.com';
+		update_option( 'jetpack_private_options', array( 'blog_token' => 'blog.token' ) );
+
+		add_filter(
+			'pre_http_request',
+			function () {
+				return array(
+					'response' => array( 'code' => 403 ),
+					'body'     => '',
+				);
+			}
+		);
+
+		$this->assertFalse( Blaze::has_active_campaigns() );
+
+		delete_transient( 'jetpack_blaze_has_active_campaigns_99999' );
+		delete_option( 'jetpack_options' );
+		delete_option( 'jetpack_private_options' );
+	}
+
+	/**
+	 * Test that redirect_legacy_advertising_url does not redirect when not on tools.php.
+	 */
+	public function test_redirect_legacy_url_no_redirect_on_other_pages() {
+		global $pagenow;
+		$pagenow = 'edit.php';
+
+		// Should not redirect (no exit), just return.
+		Blaze::redirect_legacy_advertising_url();
+
+		// If we get here, no redirect happened.
+		$this->assertTrue( true );
+	}
+
+	/**
 	 * Test that get_campaign_management_url() uses admin.php (not tools.php).
 	 */
 	public function test_campaign_management_url_uses_admin_php() {
