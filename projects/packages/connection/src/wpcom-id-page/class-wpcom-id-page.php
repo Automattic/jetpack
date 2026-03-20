@@ -132,6 +132,20 @@ class Wpcom_Id_Page {
 		$is_connectors_page = str_contains( $hook_suffix, 'connectors' )
 			&& str_starts_with( $hook_suffix, 'settings_page_' );
 
+		// TODO: Remove debug block before merging.
+		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			error_log(
+				sprintf(
+					'[WPCOM-Connector] hook_suffix=%s is_connectors=%s has_script_modules=%s has_registry=%s',
+					$hook_suffix,
+					$is_connectors_page ? 'yes' : 'no',
+					function_exists( 'wp_register_script_module' ) ? 'yes' : 'no',
+					class_exists( 'WP_Connector_Registry' ) ? 'yes' : 'no'
+				)
+			);
+		}
+
 		if ( ! $is_connectors_page
 			|| ! function_exists( 'wp_register_script_module' )
 			|| ! class_exists( 'WP_Connector_Registry' ) ) {

@@ -14,20 +14,34 @@
 /* eslint-disable import/no-unresolved -- resolved at runtime via WP script module import maps */
 
 ( async function () {
+	const debug = true; // TODO: Remove before merging.
+	const log = ( ...args ) => debug && console.warn( '[WPCOM-Connector]', ...args ); // eslint-disable-line no-console
+
+	log( 'Module loaded' );
+
 	let registerConnector, ConnectorItem, createElement, __;
 
 	try {
 		const connectors = await import( '@wordpress/connectors' );
+		log( 'Imported @wordpress/connectors, exports:', Object.keys( connectors ) );
 		registerConnector = connectors.__experimentalRegisterConnector || connectors.registerConnector;
 		ConnectorItem = connectors.__experimentalConnectorItem || connectors.ConnectorItem;
 
 		if ( ! registerConnector || ! ConnectorItem ) {
+			log(
+				'Missing exports — registerConnector:',
+				!! registerConnector,
+				'ConnectorItem:',
+				!! ConnectorItem
+			);
 			return;
 		}
 
 		( { createElement } = await import( '@wordpress/element' ) );
 		( { __ } = await import( '@wordpress/i18n' ) );
-	} catch {
+		log( 'All imports resolved' );
+	} catch ( err ) {
+		log( 'Import failed:', err );
 		return;
 	}
 
@@ -129,6 +143,8 @@
 		} );
 	}
 
+	log( 'Registering connector with data:', { isConnected, manageUrl, logoUrl } );
+
 	registerConnector( 'cloud-service/wordpress-com', {
 		label: data.name || __( 'WordPress.com account', 'jetpack-connection' ),
 		description:
@@ -139,4 +155,6 @@
 			),
 		render: WpcomConnectorCard,
 	} );
+
+	log( 'Connector registered successfully' );
 } )();
