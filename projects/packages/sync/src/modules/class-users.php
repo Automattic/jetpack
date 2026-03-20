@@ -142,7 +142,7 @@ class Users extends Module {
 
 		add_action( 'deleted_user', array( $this, 'deleted_user_handler' ), 10, 2 );
 		add_action( 'jetpack_deleted_user', $callable, 10, 3 );
-		add_action( 'remove_user_from_blog', array( $this, 'remove_user_from_blog_handler' ), 10, 2 );
+		add_action( 'remove_user_from_blog', array( $this, 'remove_user_from_blog_handler' ), 10, 3 );
 		add_action( 'jetpack_removed_user_from_blog', $callable, 10, 2 );
 
 		// User roles.
@@ -847,16 +847,17 @@ class Users extends Module {
 	 *
 	 * @access public
 	 *
-	 * @param int $user_id ID of the user.
-	 * @param int $blog_id ID of the blog.
+	 * @param int $user_id  ID of the user.
+	 * @param int $blog_id  ID of the blog.
+	 * @param int $reassign ID of the user to whom to reassign posts.
 	 */
-	public function remove_user_from_blog_handler( $user_id, $blog_id ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	public function remove_user_from_blog_handler( $user_id, $blog_id, $reassign = 0 ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		// User is removed on add, see https://github.com/WordPress/WordPress/blob/0401cee8b36df3def8e807dd766adc02b359dfaf/wp-includes/ms-functions.php#L2114.
 		if ( $this->is_add_new_user_to_blog() ) {
 			return;
 		}
 
-		$reassigned_user_id = $this->get_reassigned_network_user_id();
+		$reassigned_user_id = $reassign;
 
 		// Note that we are in the context of the blog the user is removed from, see https://github.com/WordPress/WordPress/blob/473e1ba73bc5c18c72d7f288447503713d518790/wp-includes/ms-functions.php#L233.
 		/**
@@ -952,25 +953,6 @@ class Users extends Module {
 	 */
 	protected function get_delete_user_functions() {
 		return array( 'wp_delete_user', 'remove_user_from_blog' );
-	}
-
-	/**
-	 * Retrieve the ID of the user the removed user's posts are reassigned to (if any).
-	 *
-	 * @return int ID of the user that got reassigned as the author of the posts.
-	 */
-	protected function get_reassigned_network_user_id() {
-		$backtrace = debug_backtrace( 0 ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_debug_backtrace
-		foreach ( $backtrace as $call ) {
-			if (
-				'remove_user_from_blog' === $call['function'] &&
-				3 === count( $call['args'] )
-			) {
-				return $call['args'][2];
-			}
-		}
-
-		return false;
 	}
 
 	/**
