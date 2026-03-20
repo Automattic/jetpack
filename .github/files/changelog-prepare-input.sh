@@ -6,8 +6,8 @@
 # project list, plugin deps, and PR description — all as file_input for
 # actions/ai-inference.
 #
-# Required env vars: BASE, HEAD, PROJECTS, PLUGIN_DEPS, PR_DESCRIPTION
-# Outputs: too_large, diff_file, types_file, projects_file, deps_file, pr_desc_file
+# Required env vars: BASE, HEAD, PROJECTS, PLUGIN_DEPS, PR_DESCRIPTION, PR_TITLE, PR_NUMBER
+# Outputs: too_large, diff_file, types_file, projects_file, deps_file, pr_desc_file, pr_title_file, pr_number_file
 ##
 
 set -euo pipefail
@@ -57,3 +57,11 @@ echo "deps_file=$DEPS_FILE" >> "$GITHUB_OUTPUT"
 PR_DESC_FILE=$(mktemp)
 echo "${PR_DESCRIPTION:-}" > "$PR_DESC_FILE"
 echo "pr_desc_file=$PR_DESC_FILE" >> "$GITHUB_OUTPUT"
+
+PR_TITLE_FILE=$(mktemp)
+printf '%s' "$PR_TITLE" > "$PR_TITLE_FILE"
+echo "pr_title_file=$PR_TITLE_FILE" >> "$GITHUB_OUTPUT"
+
+PR_NUMBER_FILE=$(mktemp)
+printf '%s' "$PR_NUMBER" > "$PR_NUMBER_FILE"
+echo "pr_number_file=$PR_NUMBER_FILE" >> "$GITHUB_OUTPUT"
