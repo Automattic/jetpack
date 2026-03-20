@@ -42,6 +42,12 @@
 			"type": "string",
 			"default": ""
 		},
+		"imageUrl": {
+			"type": "string"
+		},
+		"imageId": {
+			"type": "number"
+		},
 		"buttonText": {
 			"type": "string",
 			"default": "Pay Now"
