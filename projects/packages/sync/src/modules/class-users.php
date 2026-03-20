@@ -880,18 +880,7 @@ class Users extends Module {
 	 * @return boolean
 	 */
 	protected function is_add_new_user_to_blog() {
-		return $this->is_function_in_backtrace( $this->get_add_new_user_to_blog_functions() );
-	}
-
-	/**
-	 * Get the function names that indicate a new user is being added to a blog.
-	 *
-	 * @access protected
-	 *
-	 * @return array
-	 */
-	protected function get_add_new_user_to_blog_functions() {
-		return array( 'add_new_user_to_blog' );
+		return $this->is_function_in_backtrace( 'add_new_user_to_blog' );
 	}
 
 	/**
@@ -902,12 +891,10 @@ class Users extends Module {
 	 * @return array
 	 */
 	protected function get_create_user_functions() {
-		return array_merge(
-			$this->get_add_new_user_to_blog_functions(),
-			array(
-				'wp_create_user', // Used to suppress jetpack_sync_save_user in save_user_role_handler when user registered on multi site.
-				'wp_insert_user', // Used to suppress jetpack_sync_save_user in save_user_cap_handler and save_user_role_handler when user registered on single site.
-			)
+		return array(
+			'add_new_user_to_blog', // Used to suppress jetpack_sync_save_user in save_user_cap_handler when user registered on multi site.
+			'wp_create_user', // Used to suppress jetpack_sync_save_user in save_user_role_handler when user registered on multi site.
+			'wp_insert_user', // Used to suppress jetpack_sync_save_user in save_user_cap_handler and save_user_role_handler when user registered on single site.
 		);
 	}
 
