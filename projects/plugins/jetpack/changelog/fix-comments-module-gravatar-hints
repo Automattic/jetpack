@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Comments: Remove resource hints for outdated gravatar domains and use secure.gravatar.com instead.
