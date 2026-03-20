@@ -51,7 +51,7 @@ class Wpcom_Id_Page {
 	 * @param \WP_Connector_Registry $registry Connector registry instance.
 	 */
 	public static function register_connector( $registry ) {
-		// @phan-suppress-current-line PhanUndeclaredTypeParameter -- WP 7.0+ class.
+		// @phan-suppress-previous-line PhanUndeclaredTypeParameter -- WP 7.0+ class.
 		$registry->register( // @phan-suppress-current-line PhanUndeclaredClassMethod -- WP 7.0+ class.
 			'wordpress_com',
 			array(
@@ -132,7 +132,9 @@ class Wpcom_Id_Page {
 		$is_connectors_page = str_contains( $hook_suffix, 'connectors' )
 			&& str_starts_with( $hook_suffix, 'settings_page_' );
 
-		if ( ! $is_connectors_page || ! function_exists( 'wp_register_script_module' ) ) {
+		if ( ! $is_connectors_page
+			|| ! function_exists( 'wp_register_script_module' )
+			|| ! class_exists( 'WP_Connector_Registry' ) ) {
 			return;
 		}
 
@@ -144,15 +146,15 @@ class Wpcom_Id_Page {
 			array(
 				array(
 					'id'     => '@wordpress/connectors',
-					'import' => 'static',
+					'import' => 'dynamic',
 				),
 				array(
 					'id'     => '@wordpress/element',
-					'import' => 'static',
+					'import' => 'dynamic',
 				),
 				array(
 					'id'     => '@wordpress/i18n',
-					'import' => 'static',
+					'import' => 'dynamic',
 				),
 			),
 			filemtime( __DIR__ . '/js/connectors-card.js' )
