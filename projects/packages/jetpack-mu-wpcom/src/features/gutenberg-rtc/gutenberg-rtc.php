@@ -8,6 +8,21 @@
  */
 
 /**
+ * Check if the current site has the `wpcom-features-edge` sticker.
+ *
+ * @return bool|mixed
+ */
+function wpcom_has_features_edge_sticker() {
+	$sticker = 'wpcom-features-edge';
+	if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC && function_exists( 'wpcomsh_is_site_sticker_active' ) ) {
+		return wpcomsh_is_site_sticker_active( $sticker );
+	} elseif ( function_exists( 'has_blog_sticker' ) ) {
+		return has_blog_sticker( $sticker, get_wpcom_blog_id() );
+	}
+	return false;
+}
+
+/**
  * Determine whether RTC should be enabled for Atomic sites.
  *
  * @return bool
@@ -17,12 +32,13 @@ function wpcom_should_enforce_http_polling() {
 
 	$blog_id                      = get_wpcom_blog_id();
 	$has_needed_gutenberg_version = defined( 'GUTENBERG_VERSION' ) && is_string( GUTENBERG_VERSION ) && version_compare( (string) GUTENBERG_VERSION, '22.7.0', '>=' );
-	$has_needed_core_version      = ! empty( $wp_version ) && version_compare( (string) $wp_version, '7.0', '>=' );
+	$has_needed_core_version      = ! empty( $wp_version ) && version_compare( $wp_version, '7.0', '>=' );
 
 	if (
 		defined( 'IS_ATOMIC' ) && IS_ATOMIC &&
 		( $blog_id % 100 === 1 ) &&
-		( $has_needed_gutenberg_version || $has_needed_core_version )
+		( $has_needed_gutenberg_version || $has_needed_core_version ) &&
+		! wpcom_has_features_edge_sticker() // Sites with the sticker should use WS.
 	) {
 		return true;
 	}
@@ -35,12 +51,21 @@ function wpcom_should_enforce_http_polling() {
  * @return bool
  */
 function wpcom_enable_rtc() {
+	$has_rtc_feature = false;
 	if ( function_exists( 'wpcom_site_has_feature' ) && class_exists( 'WPCOM_Features' ) && defined( 'WPCOM_Features::REAL_TIME_COLLABORATION' ) ) {
-		$blog_id = get_wpcom_blog_id();
-		return wpcom_site_has_feature( \WPCOM_Features::REAL_TIME_COLLABORATION, $blog_id );
+		$blog_id         = get_wpcom_blog_id();
+		$has_rtc_feature = wpcom_site_has_feature( \WPCOM_Features::REAL_TIME_COLLABORATION, $blog_id );
+	}
+
+	if ( ! $has_rtc_feature ) {
+		return false;
 	}
 
 	if ( wpcom_should_enforce_http_polling() ) {
+		return true;
+	}
+
+	if ( wpcom_has_features_edge_sticker() ) {
 		return true;
 	}
 
@@ -62,5 +87,7 @@ function wpcom_rtc_providers( $providers ) {
 	return $providers;
 }
 add_filter( 'jetpack_rtc_providers', 'wpcom_rtc_providers' );
+
+add_filter( 'wpcom_rtc_enable_limit_notices', '__return_false', 99 );
 
 \Automattic\Jetpack\RTC::init();
