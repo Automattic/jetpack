@@ -87,7 +87,7 @@
 		"@babel/preset-react": "7.28.5",
 		"@babel/runtime": "7.28.6",
 		"@csstools/postcss-global-data": "4.0.0",
-		"@storybook/react": "10.2.11",
+		"@storybook/react": "10.3.1",
 		"@testing-library/dom": "10.4.1",
 		"@testing-library/react": "16.3.0",
 		"@testing-library/user-event": "14.6.1",
@@ -106,7 +106,7 @@
 		"react-dom": "18.3.1",
 		"sass-embedded": "1.97.3",
 		"sass-loader": "16.0.5",
-		"storybook": "10.2.11",
+		"storybook": "10.3.1",
 		"webpack": "5.105.2",
 		"webpack-cli": "6.0.1",
 		"webpack-dev-server": "5.2.3"
