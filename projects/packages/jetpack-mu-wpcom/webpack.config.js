@@ -10,6 +10,7 @@ module.exports = async () => {
 		moduleConfig,
 		{
 			entry: {
+				'ai-assistant-banner': './src/features/ai-assistant-banner/js/ai-assistant-banner.js',
 				'a8c-posts-list': './src/features/wpcom-blocks/a8c-posts-list/blocks/posts-list/index.js',
 				'block-inserter-modifications': './src/features/block-inserter-modifications/index.js',
 				'core-customizer-css':
@@ -18,7 +19,6 @@ module.exports = async () => {
 					'./src/features/custom-css/custom-css/js/core-customizer-css-preview.js',
 				'customizer-control': './src/features/custom-css/custom-css/css/customizer-control.css',
 				'error-reporting': './src/features/error-reporting/index.js',
-				'gutenberg-rtc': './src/features/gutenberg-rtc/gutenberg-rtc.ts',
 				'holiday-snow': './src/features/holiday-snow/holiday-snow.scss',
 				'html-block-restricted-tags':
 					'./src/features/html-block-restricted-tags/html-block-restricted-tags.tsx',

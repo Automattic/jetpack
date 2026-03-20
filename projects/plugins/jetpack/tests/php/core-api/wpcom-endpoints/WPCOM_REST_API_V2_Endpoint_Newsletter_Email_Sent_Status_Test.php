@@ -188,6 +188,8 @@ class WPCOM_REST_API_V2_Endpoint_Newsletter_Email_Sent_Status_Test extends Jetpa
 		$this->assertNull( $data['stats_on_send']['paid_tier'] );
 		$this->assertSame( array( 1, 2 ), $data['stats_on_send']['post_categories'] );
 		$this->assertTrue( $data['stats_on_send']['has_newsletter_categories'] );
+		$this->assertArrayHasKey( 'has_paywall_block', $data['stats_on_send'] );
+		$this->assertNull( $data['stats_on_send']['has_paywall_block'], 'Legacy stats without has_paywall_block should return null' );
 	}
 
 	/**
@@ -214,5 +216,57 @@ class WPCOM_REST_API_V2_Endpoint_Newsletter_Email_Sent_Status_Test extends Jetpa
 		$data = $response->get_data();
 		$this->assertSame( 'paid_subscribers', $data['stats_on_send']['access_level'] );
 		$this->assertSame( 'Premium', $data['stats_on_send']['paid_tier'] );
+	}
+
+	/**
+	 * Test stats_on_send has_paywall_block when present as true.
+	 */
+	public function test_stats_on_send_has_paywall_block_true() {
+		update_post_meta(
+			static::$post_id,
+			'_wpcom_newsletter_stats_on_email_send',
+			array(
+				array(
+					'timestamp'         => '2024-01-15T10:00:00+00:00',
+					'access_level'      => 'paid_subscribers',
+					'post_categories'   => array(),
+					'has_paywall_block' => true,
+				),
+			)
+		);
+
+		$request = new WP_REST_Request( Requests::GET, static::$path );
+		$request->set_param( 'post_id', static::$post_id );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertSame( 200, $response->get_status() );
+		$data = $response->get_data();
+		$this->assertTrue( $data['stats_on_send']['has_paywall_block'] );
+	}
+
+	/**
+	 * Test stats_on_send has_paywall_block when present as false.
+	 */
+	public function test_stats_on_send_has_paywall_block_false() {
+		update_post_meta(
+			static::$post_id,
+			'_wpcom_newsletter_stats_on_email_send',
+			array(
+				array(
+					'timestamp'         => '2024-01-15T10:00:00+00:00',
+					'access_level'      => 'paid_subscribers',
+					'post_categories'   => array(),
+					'has_paywall_block' => false,
+				),
+			)
+		);
+
+		$request = new WP_REST_Request( Requests::GET, static::$path );
+		$request->set_param( 'post_id', static::$post_id );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertSame( 200, $response->get_status() );
+		$data = $response->get_data();
+		$this->assertFalse( $data['stats_on_send']['has_paywall_block'] );
 	}
 }

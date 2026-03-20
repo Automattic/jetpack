@@ -1,0 +1,4 @@
+Significance: minor
+Type: removed
+
+RTC: Move implementation to generic package

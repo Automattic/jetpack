@@ -394,6 +394,27 @@ export const WithLegend: Story = {
 	},
 };
 
+export const WithLegendLabels: Story = {
+	args: {
+		data: sampleData,
+		withComparison: true,
+		loading: false,
+		showLegend: true,
+		legendLabels: {
+			primary: 'Aug 11-Sep 9, 2025',
+			comparison: 'Jul 11-Aug 11, 2025',
+		},
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Props-based legend using `showLegend`, the `legend` config object, and the `legendLabels` prop to customize primary and comparison labels. Other legend options (position, alignment, orientation, shape, interactivity) can be adjusted via Storybook controls.',
+			},
+		},
+	},
+};
+
 export const WithCompositionLegend: Story = {
 	render: args => {
 		const legend = extractLegendConfig( args );
@@ -414,10 +435,6 @@ export const WithCompositionLegend: Story = {
 		data: sampleData,
 		withComparison: true,
 		loading: false,
-		legendLabels: {
-			primary: 'Aug 11-Sep 9, 2025',
-			comparison: 'Jul 11-Aug 11, 2025',
-		},
 	},
 	parameters: {
 		docs: {

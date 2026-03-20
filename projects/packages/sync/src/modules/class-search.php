@@ -1332,6 +1332,7 @@ class Search extends Module {
 		'organization',
 		'our_team_category',
 		'page_category',
+		'page_condition',
 		'parisrestaurant',
 		'parissauna',
 		'partner_category',
