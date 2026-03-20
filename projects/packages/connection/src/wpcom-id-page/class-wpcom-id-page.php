@@ -37,6 +37,7 @@ class Wpcom_Id_Page {
 
 		add_action( 'admin_menu', array( static::class, 'add_menu' ) );
 		add_action( 'wp_connectors_init', array( static::class, 'register_connector' ) );
+		add_action( 'admin_enqueue_scripts', array( static::class, 'maybe_enqueue_connectors_module' ) );
 	}
 
 	/**
@@ -50,20 +51,15 @@ class Wpcom_Id_Page {
 	 * @param \WP_Connector_Registry $registry Connector registry instance.
 	 */
 	public static function register_connector( $registry ) {
-		// The Connectors UI (as of WP 7.0-beta5) only renders connectors with
-		// type 'ai_provider' and method 'api_key'. Using those values here so
-		// WordPress.com ID appears on the Settings > Connectors page. Once the
-		// UI supports additional types this should use 'cloud_service' / 'none'.
 		$registry->register(
 			'wordpress_com',
 			array(
 				'name'           => __( 'WordPress.com account', 'jetpack-connection' ),
-				'description'    => __( 'Connect your site to WordPress.com for enhanced functionality, Jetpack and WooCommerceservices, and centralized management.', 'jetpack-connection' ),
-				'type'           => 'ai_provider',
+				'description'    => __( 'Connect your site to WordPress.com for enhanced functionality, Jetpack and WooCommerce services, and centralized management.', 'jetpack-connection' ),
+				'type'           => 'cloud_service',
 				'logo_url'       => plugins_url( 'images/wpcom-logo.svg', __FILE__ ),
 				'authentication' => array(
-					'method'          => 'api_key',
-					'credentials_url' => admin_url( 'tools.php?page=wpcom-id' ),
+					'method' => 'none',
 				),
 			)
 		);
@@ -114,6 +110,62 @@ class Wpcom_Id_Page {
 		}
 
 		return $count;
+	}
+
+	/**
+	 * Enqueue the connectors card script module on the Settings > Connectors page.
+	 *
+	 * Uses the WP script module system (WP 6.5+) so the JS file can import
+	 * from @wordpress/connectors which is only available as a script module.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $hook_suffix The current admin page hook suffix.
+	 */
+	public static function maybe_enqueue_connectors_module( $hook_suffix ) {
+		if ( 'settings_page_connectors' !== $hook_suffix || ! function_exists( 'wp_register_script_module' ) ) {
+			return;
+		}
+
+		$module_id = '@automattic/jetpack-connection-connectors';
+
+		wp_register_script_module(
+			$module_id,
+			plugins_url( 'js/connectors-card.js', __FILE__ ),
+			array(
+				array(
+					'id'     => '@wordpress/connectors',
+					'import' => 'static',
+				),
+				array(
+					'id'     => '@wordpress/element',
+					'import' => 'static',
+				),
+				array(
+					'id'     => '@wordpress/i18n',
+					'import' => 'static',
+				),
+			),
+			filemtime( __DIR__ . '/js/connectors-card.js' )
+		);
+
+		wp_enqueue_script_module( $module_id );
+
+		$manager      = new Manager();
+		$is_connected = $manager->is_connected() && $manager->has_connected_owner();
+
+		add_filter(
+			'script_module_data_' . $module_id,
+			static function () use ( $is_connected ) {
+				return array(
+					'isConnected' => $is_connected,
+					'manageUrl'   => admin_url( 'tools.php?page=wpcom-id' ),
+					'logoUrl'     => plugins_url( 'images/wpcom-logo.svg', __FILE__ ),
+					'name'        => __( 'WordPress.com account', 'jetpack-connection' ),
+					'description' => __( 'Connect your site to WordPress.com for enhanced functionality, Jetpack and WooCommerce services, and centralized management.', 'jetpack-connection' ),
+				);
+			}
+		);
 	}
 
 	/**
