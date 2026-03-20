@@ -226,7 +226,7 @@ class Pixel_Builder {
 			return false;
 		}
 
-		return self::is_socks_proxy_host( WP_PROXY_HOST );
+		return self::is_socks_proxy_host( (string) WP_PROXY_HOST );
 	}
 
 	/**

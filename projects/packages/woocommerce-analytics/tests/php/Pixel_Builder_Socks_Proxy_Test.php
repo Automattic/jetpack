@@ -75,7 +75,9 @@ class Pixel_Builder_Socks_Proxy_Test extends BaseTestCase {
 
 		$reflection = new \ReflectionClass( Pixel_Builder::class );
 		$method     = $reflection->getMethod( 'is_socks_proxy_configured' );
-		$method->setAccessible( true );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
 
 		$this->assertFalse( $method->invoke( null ) );
 	}
