@@ -283,4 +283,19 @@ class Dashboard_Test extends BaseTestCase {
 
 		remove_filter( 'jetpack_forms_alpha', '__return_true' );
 	}
+
+	/**
+	 * Test load_wp_build hooks boot dependency validation into admin_enqueue_scripts.
+	 */
+	public function test_load_wp_build_hooks_boot_dependency_validation() {
+		$_GET['page'] = Dashboard::FORMS_WPBUILD_ADMIN_SLUG;
+		$_GET['p']    = '/responses/inbox';
+
+		Dashboard::load_wp_build();
+
+		$this->assertNotFalse(
+			has_action( 'admin_enqueue_scripts' ),
+			'load_wp_build should hook into admin_enqueue_scripts for boot dependency validation.'
+		);
+	}
 }

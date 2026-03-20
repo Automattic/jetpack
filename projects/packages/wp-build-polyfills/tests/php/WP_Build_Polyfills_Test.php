@@ -509,35 +509,54 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 		'wp-a11y',
 		'wp-api-fetch',
 		'wp-blob',
+		'wp-block-directory',
 		'wp-block-editor',
 		'wp-block-library',
+		'wp-block-serialization-default-parser',
 		'wp-blocks',
 		'wp-commands',
 		'wp-components',
 		'wp-compose',
 		'wp-core-data',
+		'wp-customize-widgets',
 		'wp-data',
+		'wp-data-controls',
 		'wp-date',
 		'wp-deprecated',
 		'wp-dom',
 		'wp-dom-ready',
 		'wp-edit-post',
+		'wp-edit-site',
+		'wp-edit-widgets',
 		'wp-editor',
 		'wp-element',
+		'wp-escape-html',
+		'wp-format-library',
 		'wp-hooks',
 		'wp-html-entities',
 		'wp-i18n',
+		'wp-is-shallow-equal',
 		'wp-keyboard-shortcuts',
 		'wp-keycodes',
+		'wp-list-reusable-blocks',
 		'wp-media-utils',
 		'wp-notices',
+		'wp-nux',
 		'wp-plugins',
 		'wp-preferences',
+		'wp-preferences-persistence',
 		'wp-primitives',
+		'wp-priority-queue',
 		'wp-private-apis',
+		'wp-redux-routine',
+		'wp-reusable-blocks',
 		'wp-rich-text',
-		'wp-theme',
+		'wp-server-side-render',
+		'wp-shortcode',
+		'wp-style-engine',
+		'wp-token-list',
 		'wp-url',
+		'wp-viewport',
 		'wp-warning',
 		'wp-widgets',
 		'wp-wordcount',
@@ -576,6 +595,83 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 				)
 			);
 		}
+	}
+
+	/**
+	 * Test validate_boot_dependencies does nothing when the asset file does not exist.
+	 */
+	public function test_validate_boot_dependencies_skips_missing_file() {
+		// Should not trigger any errors.
+		WP_Build_Polyfills::validate_boot_dependencies( $this->build_dir . '/nonexistent.php' );
+		$this->assertTrue( true, 'No error should be triggered for missing files.' );
+	}
+
+	/**
+	 * Test validate_boot_dependencies does nothing when dependencies are empty.
+	 */
+	public function test_validate_boot_dependencies_skips_empty_dependencies() {
+		$asset_file = $this->build_dir . '/empty-deps.asset.php';
+		$this->create_asset_file( '../empty-deps.asset.php', array() );
+
+		WP_Build_Polyfills::validate_boot_dependencies( $asset_file );
+		$this->assertTrue( true, 'No error should be triggered for empty dependencies.' );
+	}
+
+	/**
+	 * Test validate_boot_dependencies does nothing when all dependencies are registered.
+	 */
+	public function test_validate_boot_dependencies_passes_with_registered_deps() {
+		$asset_file = $this->build_dir . '/good-deps.asset.php';
+		file_put_contents(
+			$asset_file,
+			'<?php return ' . var_export(
+				array(
+					'dependencies' => array( 'react', 'wp-element' ),
+					'version'      => '1.0.0',
+				),
+				true
+			) . ";\n"
+		);
+
+		// react and wp-element are registered by wp_default_scripts.
+		WP_Build_Polyfills::validate_boot_dependencies( $asset_file );
+		$this->assertTrue( true, 'No error should be triggered when all deps are registered.' );
+	}
+
+	/**
+	 * Test validate_boot_dependencies triggers a warning for unregistered handles.
+	 */
+	public function test_validate_boot_dependencies_warns_on_missing_handles() {
+		$asset_file = $this->build_dir . '/bad-deps.asset.php';
+		file_put_contents(
+			$asset_file,
+			'<?php return ' . var_export(
+				array(
+					'dependencies' => array( 'react', 'wp-nonexistent-handle' ),
+					'version'      => '1.0.0',
+				),
+				true
+			) . ";\n"
+		);
+
+		$warning_message = null;
+		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_set_error_handler
+		set_error_handler(
+			static function ( $errno, $errstr ) use ( &$warning_message ) {
+				$warning_message = $errstr;
+				return true;
+			},
+			E_USER_WARNING
+		);
+
+		try {
+			WP_Build_Polyfills::validate_boot_dependencies( $asset_file );
+		} finally {
+			restore_error_handler();
+		}
+
+		$this->assertNotNull( $warning_message, 'A PHP warning should be triggered for unregistered handles.' );
+		$this->assertStringContainsString( 'wp-nonexistent-handle', $warning_message );
 	}
 
 	/**

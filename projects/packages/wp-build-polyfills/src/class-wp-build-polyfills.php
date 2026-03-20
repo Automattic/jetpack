@@ -215,13 +215,11 @@ class WP_Build_Polyfills {
 				implode( ', ', $missing )
 			);
 
-			// Use wp_trigger_error when available (WP 6.4+), fall back to error_log.
-			if ( function_exists( 'wp_trigger_error' ) ) {
-				wp_trigger_error( __METHOD__, $message, E_USER_WARNING );
-			} else {
-				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-				error_log( $message );
-			}
+			// Use trigger_error directly — this is a critical runtime failure
+			// (blank page), not a debug-only notice, so it must fire regardless
+			// of WP_DEBUG. wp_trigger_error() is suppressed when WP_DEBUG is off.
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_trigger_error
+			trigger_error( esc_html( $message ), E_USER_WARNING );
 		}
 	}
 
