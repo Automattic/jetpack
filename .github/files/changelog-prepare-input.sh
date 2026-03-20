@@ -14,14 +14,16 @@
 
 set -euo pipefail
 
-# Generate diff and check size.
-DIFF=$(git diff "$BASE...$HEAD")
-DIFF_SIZE=${#DIFF}
-echo "Diff size: $DIFF_SIZE characters"
+# Generate diff and check size. Write to a temp file rather than a variable
+# to avoid NUL-byte truncation and to count bytes (not characters).
+DIFF_FILE=$(mktemp)
+git diff "$BASE...$HEAD" > "$DIFF_FILE"
+DIFF_SIZE=$(wc -c < "$DIFF_FILE")
+echo "Diff size: $DIFF_SIZE bytes"
 
 if [ "$DIFF_SIZE" -gt 50000 ]; then
 	echo "too_large=true" >> "$GITHUB_OUTPUT"
-	echo "Diff exceeds 50K character threshold."
+	echo "Diff exceeds 50K byte threshold."
 	exit 0
 fi
 
@@ -48,7 +50,9 @@ done <<< "$PROJECTS"
 indent() { sed 's/^/      /'; }
 
 # Build the complete prompt YAML with all content properly indented.
-PROMPT_FILE=$(mktemp)
+# The .prompt.yml suffix is required — actions/ai-inference only parses files
+# ending in .prompt.yml or .prompt.yaml as structured YAML prompt configs.
+PROMPT_FILE=$(mktemp --suffix=.prompt.yml)
 cat > "$PROMPT_FILE" <<'SYSTEM_START'
 messages:
   - role: system
@@ -105,7 +109,7 @@ SYSTEM_START
 	echo "${PLUGIN_DEPS:-}"
 	echo ""
 	echo "Git diff:"
-	echo "$DIFF"
+	cat "$DIFF_FILE"
 } | indent >> "$PROMPT_FILE"
 
 cat >> "$PROMPT_FILE" <<'FOOTER'
@@ -161,5 +165,12 @@ jsonSchema: |-
     }
   }
 FOOTER
+
+# Validate the generated YAML before passing it to the action.
+if ! python3 -c "import yaml, sys; yaml.safe_load(open(sys.argv[1]))" "$PROMPT_FILE" 2>/dev/null; then
+	echo "::error::Generated prompt file is not valid YAML. First 20 lines:"
+	head -20 "$PROMPT_FILE"
+	exit 1
+fi
 
 echo "prompt_file=$PROMPT_FILE" >> "$GITHUB_OUTPUT"
