@@ -4,13 +4,13 @@ import { createPingHubProvider } from './providers/pinghub';
 /**
  * Register providers (e.g. PingHub) supplied by the server, and disable HTTP polling by returning only this provider.
  */
-function registerWpcomGutenbergProviders() {
+function jetpackRegisterRTCProviders() {
 	const getProviders = () => {
-		if ( ! window.wpcomGutenbergRTC?.providers ) {
+		if ( ! window.jetpackRTC?.providers ) {
 			return [];
 		}
 
-		return window.wpcomGutenbergRTC.providers
+		return window.jetpackRTC.providers
 			.map( ( provider: string ) => {
 				switch ( provider ) {
 					case 'pinghub': {
@@ -23,7 +23,7 @@ function registerWpcomGutenbergProviders() {
 			.filter( Boolean );
 	};
 
-	addFilter( 'sync.providers', 'wpcom/gutenberg-rtc-providers', () => getProviders() );
+	addFilter( 'sync.providers', 'jetpack/rtc-providers', () => getProviders() );
 }
 
-registerWpcomGutenbergProviders();
+jetpackRegisterRTCProviders();
