@@ -895,28 +895,6 @@ class Users extends Module {
 	}
 
 	/**
-	 * Whether we're removing a user from a blog in this request.
-	 *
-	 * @access protected
-	 *
-	 * @return boolean
-	 */
-	protected function is_delete_user() {
-		return $this->is_function_in_backtrace( $this->get_delete_user_functions() );
-	}
-
-	/**
-	 * Whether we're creating a user or adding a new user to a blog.
-	 *
-	 * @access protected
-	 *
-	 * @return boolean
-	 */
-	protected function is_create_user() {
-		return $this->is_function_in_backtrace( $this->get_create_user_functions() );
-	}
-
-	/**
 	 * Get the function names that indicate a user is being created.
 	 *
 	 * @access protected
