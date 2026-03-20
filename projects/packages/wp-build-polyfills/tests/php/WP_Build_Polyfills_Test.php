@@ -580,15 +580,17 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 		$known_handles = array_merge( $core_handles, $polyfill_handles );
 
 		$unknown = array_diff( $asset['dependencies'], $known_handles );
-		$this->assertEmpty(
-			$unknown,
-			sprintf(
-				"Boot module asset file contains unregistered script handle(s): %s.\n" .
-				"This will cause a silent failure at runtime (blank page, no errors).\n" .
-				'Add the corresponding @wordpress/* package to devDependencies so webpack bundles it.',
-				implode( ', ', $unknown )
-			)
-		);
+		if ( ! empty( $unknown ) ) {
+			$this->fail(
+				sprintf(
+					"Boot module asset file contains unregistered script handle(s): %s.\n" .
+					"This will cause a silent failure at runtime (blank page, no errors).\n" .
+					'Add the corresponding @wordpress/* package to devDependencies in ' .
+					'projects/packages/wp-build-polyfills/package.json so webpack bundles it.',
+					implode( ', ', $unknown )
+				)
+			);
+		}
 	}
 
 	/**
