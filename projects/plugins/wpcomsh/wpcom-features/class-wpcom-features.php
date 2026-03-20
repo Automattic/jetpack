@@ -385,6 +385,7 @@ class WPCOM_Features {
 	public const BACKUPS_SELF_SERVE                = 'backups-self-serve';
 	public const BACKUP_ONE_TIME                   = 'backup-one-time';
 	public const BIG_SKY                           = 'big-sky';
+	public const BIG_SKY_EXISTING_SITE             = 'big-sky-existing-site';
 	public const BLAZE_CREDITS_VOUCHER             = 'blaze-credits-voucher';
 	public const BLOG_DOMAIN_ONLY                  = 'blog-domain-only';
 	public const CALENDLY                          = 'calendly';
@@ -645,6 +646,10 @@ class WPCOM_Features {
 			self::WPCOM_PERSONAL_PLANS,
 			self::WPCOM_BUSINESS_PLANS,
 			self::WPCOM_PREMIUM_PLANS,
+			self::WPCOM_ECOMMERCE_PLANS,
+		),
+		self::BIG_SKY_EXISTING_SITE             => array(
+			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 		),
 		self::BLAZE_CREDITS_VOUCHER             => array(
 			array(
