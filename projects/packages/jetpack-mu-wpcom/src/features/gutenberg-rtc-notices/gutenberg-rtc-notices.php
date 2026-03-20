@@ -94,6 +94,11 @@ function wpcom_enqueue_rtc_notices_assets() {
 		return;
 	}
 
+	// Notices are not relevant for P2 sites.
+	if ( function_exists( '\WPForTeams\is_wpforteams_site' ) && \WPForTeams\is_wpforteams_site( get_current_blog_id() ) ) {
+		return;
+	}
+
 	$handle = jetpack_mu_wpcom_enqueue_assets( 'gutenberg-rtc-notices', array( 'js', 'css' ) );
 	wp_set_script_translations( $handle, 'jetpack-mu-wpcom' );
 
