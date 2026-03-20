@@ -15,7 +15,13 @@
  */
 
 import apiFetch from '@wordpress/api-fetch'; // eslint-disable-line import/no-unresolved
-import { BlockControls, InspectorControls, useBlockProps } from '@wordpress/block-editor';
+import {
+	BlockControls,
+	InspectorControls,
+	MediaUpload,
+	MediaUploadCheck,
+	useBlockProps,
+} from '@wordpress/block-editor';
 import {
 	Button,
 	Notice,
@@ -112,6 +118,8 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 		price,
 		currencyCode,
 		productDescription,
+		imageUrl,
+		imageId,
 		returnUrl,
 		variantsEnabled,
 		variants,
@@ -685,8 +693,9 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 		</svg>
 	);
 
-	// Not connected — show guided connection wizard.
-	if ( ! isConnected ) {
+	// Not connected and no existing button — show guided connection wizard.
+	// Skip the wizard if the block already has a saved button (e.g. demo posts in Playground).
+	if ( ! isConnected && ! hasButton ) {
 		return (
 			<div { ...blockProps }>
 				<div className="jetpack-paypal-payment-buttons__connect">
@@ -730,13 +739,13 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 							<h3>{ __( 'Connect PayPal', 'jetpack-paypal-payments' ) }</h3>
 							<p>
 								{ __(
-									'Accept payments with PayPal by connecting your PayPal Developer account.',
+									'Accept payments with PayPal by connecting your PayPal account.',
 									'jetpack-paypal-payments'
 								) }
 							</p>
 							<p>
 								{ __(
-									"You'll need your API credentials — we'll walk you through finding them.",
+									"You will grab API credentials - don't worry; we will walk you through getting them.",
 									'jetpack-paypal-payments'
 								) }
 							</p>
@@ -790,7 +799,7 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 							<h3>{ __( 'Step 2 of 3: Enter Credentials', 'jetpack-paypal-payments' ) }</h3>
 							<p className="jetpack-paypal-wizard__subtitle">
 								{ __(
-									'Copy these from your app in the PayPal Developer Dashboard:',
+									'Enter the API credentials from your PayPal account:',
 									'jetpack-paypal-payments'
 								) }
 							</p>
@@ -1043,6 +1052,7 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 						paymentLink={ paymentLink }
 						variantsEnabled={ variantsEnabled }
 						variants={ variants }
+						imageUrl={ imageUrl }
 					/>
 				</div>
 			</div>
@@ -1160,6 +1170,64 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 							: undefined
 					}
 				/>
+
+				<div className="jetpack-paypal-payment-buttons__image-field">
+					<p className="components-base-control__label">
+						{ __( 'Product Image (optional)', 'jetpack-paypal-payments' ) }
+					</p>
+					{ imageUrl ? (
+						<div className="jetpack-paypal-payment-buttons__image-preview">
+							<img src={ imageUrl } alt={ productName || '' } />
+							<div className="jetpack-paypal-payment-buttons__image-actions">
+								<MediaUploadCheck>
+									<MediaUpload
+										onSelect={ media =>
+											setAttributes( { imageUrl: media.url, imageId: media.id } )
+										}
+										allowedTypes={ [ 'image' ] }
+										value={ imageId }
+										render={ ( { open } ) => (
+											<Button variant="secondary" onClick={ open } size="small">
+												{ __( 'Replace', 'jetpack-paypal-payments' ) }
+											</Button>
+										) }
+									/>
+								</MediaUploadCheck>
+								<Button
+									variant="link"
+									isDestructive
+									onClick={ () => setAttributes( { imageUrl: undefined, imageId: undefined } ) }
+									size="small"
+								>
+									{ __( 'Remove', 'jetpack-paypal-payments' ) }
+								</Button>
+							</div>
+						</div>
+					) : (
+						<MediaUploadCheck>
+							<MediaUpload
+								onSelect={ media => setAttributes( { imageUrl: media.url, imageId: media.id } ) }
+								allowedTypes={ [ 'image' ] }
+								value={ imageId }
+								render={ ( { open } ) => (
+									<Button
+										variant="secondary"
+										onClick={ open }
+										className="jetpack-paypal-payment-buttons__upload-button"
+									>
+										{ __( 'Upload Image', 'jetpack-paypal-payments' ) }
+									</Button>
+								) }
+							/>
+						</MediaUploadCheck>
+					) }
+					<p className="components-base-control__help">
+						{ __(
+							'Displayed on your site alongside the payment button.',
+							'jetpack-paypal-payments'
+						) }
+					</p>
+				</div>
 
 				<div className="jetpack-paypal-payment-buttons__variants-section">
 					<VariantBuilder

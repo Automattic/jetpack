@@ -88,6 +88,7 @@ function CopyablePaymentLink( { paymentLink } ) {
  * @param {string}  props.paymentLink        - PayPal payment URL.
  * @param {boolean} props.variantsEnabled    - Whether variants are active.
  * @param {object}  props.variants           - Variants data with dimensions.
+ * @param {string}  props.imageUrl           - Optional product image URL.
  * @return {Element} Button preview element.
  */
 export default function PayPalButtonPreview( {
@@ -100,11 +101,19 @@ export default function PayPalButtonPreview( {
 	paymentLink,
 	variantsEnabled,
 	variants,
+	imageUrl,
 } ) {
 	const isStacked = buttonType === 'stacked';
 
 	return (
 		<div className="jetpack-paypal-button-preview">
+			{ /* Product image */ }
+			{ imageUrl && (
+				<div className="jetpack-paypal-button-preview__image">
+					<img src={ imageUrl } alt={ productName || '' } />
+				</div>
+			) }
+
 			{ /* Product info card */ }
 			<div className="jetpack-paypal-button-preview__product">
 				<div className="jetpack-paypal-button-preview__product-info">

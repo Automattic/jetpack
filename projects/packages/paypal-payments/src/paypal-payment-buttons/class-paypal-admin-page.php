@@ -503,13 +503,6 @@ class PayPal_Admin_Page {
 			self::render_detail_row( __( 'Product ID', 'jetpack-paypal-payments' ), $line_item['product_id'] );
 		}
 
-		if ( ! empty( $line_item['image_url'] ) ) {
-			self::render_detail_row_html(
-				__( 'Image', 'jetpack-paypal-payments' ),
-				sprintf( '<img src="%s" alt="%s" style="max-width:200px;height:auto;" />', esc_url( $line_item['image_url'] ), esc_attr( $line_item['name'] ?? '' ) )
-			);
-		}
-
 		self::render_detail_row( __( 'Type', 'jetpack-paypal-payments' ), $resource['type'] ?? '' );
 		self::render_detail_row( __( 'Integration Mode', 'jetpack-paypal-payments' ), $resource['integration_mode'] ?? '' );
 		self::render_detail_row( __( 'Reusable', 'jetpack-paypal-payments' ), $resource['reusable'] ?? 'MULTIPLE' );

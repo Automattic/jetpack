@@ -45,6 +45,7 @@ jest.mock( '@wordpress/block-editor', () => ( {
 	BlockControls: ( { children } ) => <div data-testid="block-controls">{ children }</div>,
 	InspectorControls: ( { children } ) => <div data-testid="inspector-controls">{ children }</div>,
 	MediaUpload: ( { render: renderProp } ) => renderProp( { open: jest.fn() } ),
+	MediaUploadCheck: ( { children } ) => <>{ children }</>,
 } ) );
 
 // Mock WordPress components with simple HTML equivalents.

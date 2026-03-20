@@ -202,6 +202,7 @@ class PayPal_Payment_Buttons {
 		$button_text         = $attributes['buttonText'] ?? __( 'Pay Now', 'jetpack-paypal-payments' );
 		$button_type         = $attributes['buttonType'] ?? 'stacked';
 		$product_description = $attributes['productDescription'] ?? '';
+		$image_url           = $attributes['imageUrl'] ?? '';
 		$variants_enabled    = ! empty( $attributes['variantsEnabled'] );
 		$variants            = $attributes['variants'] ?? null;
 		$show_qr_code        = $attributes['showQrCode'] ?? true;
@@ -227,6 +228,16 @@ class PayPal_Payment_Buttons {
 		);
 
 		$is_stacked = 'stacked' === $button_type;
+
+		// Product image (WordPress-side only, not sent to PayPal).
+		$image_html = '';
+		if ( ! empty( $image_url ) ) {
+			$image_html = sprintf(
+				'<div class="jetpack-paypal-button__product-image"><img src="%s" alt="%s" /></div>',
+				esc_url( $image_url ),
+				esc_attr( $product_name )
+			);
+		}
 
 		// Build product info section.
 		$description_html = '';
@@ -305,13 +316,20 @@ class PayPal_Payment_Buttons {
 		// QR code section (conditionally rendered).
 		$qr_html = '';
 		if ( $show_qr_code ) {
-			$qr_show     = esc_attr__( 'Show QR Code', 'jetpack-paypal-payments' );
-			$qr_hide     = esc_attr__( 'Hide QR Code', 'jetpack-paypal-payments' );
+			$qr_show     = esc_attr__( 'Show Link or QR Code', 'jetpack-paypal-payments' );
+			$qr_hide     = esc_attr__( 'Hide Link or QR Code', 'jetpack-paypal-payments' );
 			$qr_download = esc_html__( 'Download QR Code', 'jetpack-paypal-payments' );
+			$copy_label  = esc_html__( 'Copy Link', 'jetpack-paypal-payments' );
 			$qr_html     = '<div class="jetpack-paypal-button__qr-section">'
 				. '<button type="button" class="jetpack-paypal-button__qr-toggle" data-show-label="' . $qr_show . '" data-hide-label="' . $qr_hide . '" aria-expanded="false">' . $qr_show . '</button>'
 				. '<div class="jetpack-paypal-button__qr-wrapper" style="display:none;">'
+				. '<div class="jetpack-paypal-button__qr-content">'
 				. '<canvas class="jetpack-paypal-button__qr-canvas"></canvas>'
+				. '<div class="jetpack-paypal-button__qr-link">'
+				. '<input type="text" readonly class="jetpack-paypal-button__qr-link-input" value="' . esc_attr( $action_url ) . '" />'
+				. '<button type="button" class="jetpack-paypal-button__qr-copy" data-copy-label="' . $copy_label . '" data-copied-label="' . esc_attr__( 'Copied!', 'jetpack-paypal-payments' ) . '">' . $copy_label . '</button>'
+				. '</div>'
+				. '</div>'
 				. '<button type="button" class="jetpack-paypal-button__qr-download">' . $qr_download . '</button>'
 				. '</div></div>';
 		}
@@ -322,6 +340,7 @@ class PayPal_Payment_Buttons {
 		return sprintf(
 			'<div %12$s>
 	<div class="jetpack-paypal-button">
+		%13$s
 		<div class="jetpack-paypal-button__product">
 			<div class="jetpack-paypal-button__product-info">
 				<span class="jetpack-paypal-button__product-name">%1$s</span>
@@ -352,7 +371,8 @@ class PayPal_Payment_Buttons {
 			esc_html__( 'Powered by PayPal', 'jetpack-paypal-payments' ),
 			$variants_html,
 			$qr_html,
-			$wrapper_attributes
+			$wrapper_attributes,
+			$image_html
 		);
 	}
 

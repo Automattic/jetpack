@@ -115,6 +115,13 @@
 	background: #e0e0e0;
 }
 
+.jetpack-paypal-wizard__logo {
+	display: block;
+	width: 120px;
+	height: auto;
+	margin: 0 auto 16px;
+}
+
 .jetpack-paypal-wizard__welcome,
 .jetpack-paypal-wizard__dashboard,
 .jetpack-paypal-wizard__credentials,
@@ -272,6 +279,40 @@
 	margin-top: 4px;
 }
 
+// Image upload field in the create/edit form.
+.jetpack-paypal-payment-buttons__image-field {
+	margin-bottom: 16px;
+
+	.components-base-control__label {
+		display: block;
+		margin-bottom: 8px;
+	}
+}
+
+.jetpack-paypal-payment-buttons__image-preview {
+
+	img {
+		display: block;
+		max-width: 100%;
+		max-height: 200px;
+		width: auto;
+		height: auto;
+		border-radius: 4px;
+		border: 1px solid #e0e0e0;
+		margin-bottom: 8px;
+	}
+}
+
+.jetpack-paypal-payment-buttons__image-actions {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.jetpack-paypal-payment-buttons__upload-button {
+	margin-bottom: 4px;
+}
+
 // ---------------------------------------------------------------
 // Inline Field Validation Errors
 // ---------------------------------------------------------------
@@ -301,6 +342,20 @@
 .jetpack-paypal-button-preview {
 	max-width: 400px;
 	margin: 0 auto;
+}
+
+// Product image in preview
+.jetpack-paypal-button-preview__image {
+	margin-bottom: 12px;
+	text-align: center;
+
+	img {
+		display: block;
+		max-width: 100%;
+		height: auto;
+		border-radius: 6px;
+		margin: 0 auto;
+	}
 }
 
 // Product card

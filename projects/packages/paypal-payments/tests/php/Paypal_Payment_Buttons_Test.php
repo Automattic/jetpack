@@ -246,4 +246,43 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 			'The render() call must NOT use container ID without # prefix'
 		);
 	}
+
+	/**
+	 * Test that render_block includes product image when imageUrl is set.
+	 */
+	public function test_render_block_includes_product_image() {
+		$attributes = array(
+			'isApiManaged' => true,
+			'resourceId'   => 'PLB-IMG123',
+			'paymentLink'  => 'https://www.paypal.com/ncp/payment/PLB-IMG123',
+			'productName'  => 'Widget',
+			'price'        => '10.00',
+			'currencyCode' => 'USD',
+			'imageUrl'     => 'https://example.com/widget.jpg',
+		);
+
+		$result = PayPal_Payment_Buttons::render_block( $attributes, '' );
+
+		$this->assertStringContainsString( 'jetpack-paypal-button__product-image', $result );
+		$this->assertStringContainsString( 'https://example.com/widget.jpg', $result );
+		$this->assertStringContainsString( 'alt="Widget"', $result );
+	}
+
+	/**
+	 * Test that render_block omits product image when imageUrl is not set.
+	 */
+	public function test_render_block_omits_product_image_when_not_set() {
+		$attributes = array(
+			'isApiManaged' => true,
+			'resourceId'   => 'PLB-NOIMG',
+			'paymentLink'  => 'https://www.paypal.com/ncp/payment/PLB-NOIMG',
+			'productName'  => 'Widget',
+			'price'        => '10.00',
+			'currencyCode' => 'USD',
+		);
+
+		$result = PayPal_Payment_Buttons::render_block( $attributes, '' );
+
+		$this->assertStringNotContainsString( 'jetpack-paypal-button__product-image', $result );
+	}
 }

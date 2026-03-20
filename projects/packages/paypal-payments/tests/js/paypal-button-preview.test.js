@@ -87,4 +87,19 @@ describe( 'PayPalButtonPreview', () => {
 		expect( button.tagName ).toBe( 'DIV' );
 		expect( button ).toHaveAttribute( 'aria-hidden', 'true' );
 	} );
+
+	it( 'renders product image when imageUrl is provided', () => {
+		render( <PayPalButtonPreview { ...defaultProps } imageUrl="https://example.com/widget.jpg" /> );
+		const imageContainer = document.querySelector( '.jetpack-paypal-button-preview__image' );
+		expect( imageContainer ).toBeInTheDocument();
+		const img = imageContainer.querySelector( 'img' );
+		expect( img ).toHaveAttribute( 'src', 'https://example.com/widget.jpg' );
+		expect( img ).toHaveAttribute( 'alt', 'Premium Widget' );
+	} );
+
+	it( 'does not render product image when imageUrl is not provided', () => {
+		render( <PayPalButtonPreview { ...defaultProps } /> );
+		const imageContainer = document.querySelector( '.jetpack-paypal-button-preview__image' );
+		expect( imageContainer ).not.toBeInTheDocument();
+	} );
 } );

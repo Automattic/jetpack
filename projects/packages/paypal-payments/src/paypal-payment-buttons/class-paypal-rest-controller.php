@@ -564,10 +564,6 @@ class PayPal_REST_Controller {
 			$attributes['productDescription'] = $first_item['description'];
 		}
 
-		if ( ! empty( $first_item['image_url'] ) ) {
-			$attributes['imageUrl'] = $first_item['image_url'];
-		}
-
 		$return_url = $request->get_param( 'return_url' );
 		if ( ! empty( $return_url ) ) {
 			$attributes['returnUrl'] = $return_url;
@@ -670,10 +666,6 @@ class PayPal_REST_Controller {
 							'required' => false,
 							'default'  => '1',
 						),
-						'image_url'   => array(
-							'type'   => 'string',
-							'format' => 'uri',
-						),
 					),
 				),
 			),
@@ -747,10 +739,6 @@ class PayPal_REST_Controller {
 			if ( ! empty( $item['quantity'] ) ) {
 				$clean_item['quantity'] = sanitize_text_field( $item['quantity'] );
 			}
-			if ( ! empty( $item['image_url'] ) ) {
-				$clean_item['image_url'] = esc_url_raw( $item['image_url'] );
-			}
-
 			$sanitized[] = $clean_item;
 		}
 

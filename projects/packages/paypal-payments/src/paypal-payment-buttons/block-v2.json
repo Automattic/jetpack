@@ -50,6 +50,9 @@
 		"imageUrl": {
 			"type": "string"
 		},
+		"imageId": {
+			"type": "number"
+		},
 		"returnUrl": {
 			"type": "string"
 		},
