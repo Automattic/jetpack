@@ -969,6 +969,7 @@ class SSO {
 			add_filter( 'auth_cookie_expiration', array( Helpers::class, 'extend_auth_cookie_expiration_for_sso' ) );
 			wp_set_auth_cookie( $user->ID, true );
 			remove_filter( 'auth_cookie_expiration', array( Helpers::class, 'extend_auth_cookie_expiration_for_sso' ) );
+			remove_filter( 'attach_session_information', array( static::class, 'add_two_factor_session_meta' ), 10 );
 
 			/** This filter is documented in core/src/wp-includes/user.php */
 			do_action( 'wp_login', $user->user_login, $user );
