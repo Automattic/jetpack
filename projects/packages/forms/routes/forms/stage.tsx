@@ -641,6 +641,7 @@ function StageInner() {
 										label={ __( 'Create a new form', 'jetpack-forms' ) }
 										variant="primary"
 										showNameModal
+										source="forms_empty_state"
 									/>
 									{ hasClassicForms && (
 										<Button size="compact" variant="secondary" onClick={ openFormsHelpModal }>

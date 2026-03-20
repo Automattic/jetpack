@@ -18,6 +18,7 @@ type CreateFormButtonProps = {
 	variant?: 'primary' | 'secondary';
 	showIcon?: boolean;
 	showNameModal?: boolean;
+	source?: 'forms_header' | 'forms_empty_state' | 'responses_header' | 'responses_empty_state';
 };
 
 /**
@@ -29,6 +30,7 @@ type CreateFormButtonProps = {
  * @param {string}  props.variant       - The button variant (primary or secondary).
  * @param {boolean} props.showIcon      - Whether to show the plus icon.
  * @param {boolean} props.showNameModal - Whether to show a modal asking for the form name before creating.
+ * @param {string}  props.source        - The source identifier for tracking where the button was clicked.
  * @return {JSX.Element}                  The button to create a new form.
  */
 export default function CreateFormButton( {
@@ -37,11 +39,15 @@ export default function CreateFormButton( {
 	variant = 'secondary',
 	showIcon = true,
 	showNameModal = false,
+	source,
 }: CreateFormButtonProps ): JSX.Element {
 	const { openNewForm } = useCreateForm();
 	const [ isModalOpen, setIsModalOpen ] = useState( false );
 
 	const onButtonClickHandler = useCallback( () => {
+		if ( source ) {
+			jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_create_form_click', { source } );
+		}
 		if ( showNameModal ) {
 			setIsModalOpen( true );
 			return;
@@ -54,14 +60,20 @@ export default function CreateFormButton( {
 				} );
 			},
 		} );
-	}, [ showNameModal, openNewForm, showPatterns ] );
+	}, [ showNameModal, openNewForm, showPatterns, source ] );
 
 	const handleModalClose = useCallback( () => {
+		if ( source ) {
+			jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_create_form_modal_close', { source } );
+		}
 		setIsModalOpen( false );
-	}, [] );
+	}, [ source ] );
 
 	const handleModalSave = useCallback(
 		async ( formTitle: string ) => {
+			if ( source ) {
+				jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_create_form_modal_create', { source } );
+			}
 			await openNewForm( {
 				showPatterns,
 				formTitle,
@@ -72,7 +84,7 @@ export default function CreateFormButton( {
 				},
 			} );
 		},
-		[ openNewForm, showPatterns ]
+		[ openNewForm, showPatterns, source ]
 	);
 
 	return (

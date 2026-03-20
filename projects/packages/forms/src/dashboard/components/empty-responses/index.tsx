@@ -256,6 +256,7 @@ const EmptyResponses = ( {
 						label={ __( 'Create a new form', 'jetpack-forms' ) }
 						variant="primary"
 						showNameModal
+						source="responses_empty_state"
 					/>
 				)
 			}

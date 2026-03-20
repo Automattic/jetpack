@@ -34,6 +34,9 @@ const ActionsDropdownMenu = ( { exportData }: ActionsDropdownMenuProps ) => {
 	}, [] );
 
 	const onCreateFormClick = useCallback( () => {
+		jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_create_form_click', {
+			source: 'actions_menu',
+		} );
 		openNewForm( {
 			analyticsEvent,
 		} );

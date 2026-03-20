@@ -398,7 +398,10 @@ export default function FormsDashboardForms(): JSX.Element | null {
 
 	const onChangeView = useCallback( newView => setView( newView ), [ setView ] );
 
-	const headerActions = useMemo( () => [ <CreateFormButton key="create" showNameModal /> ], [] );
+	const headerActions = useMemo(
+		() => [ <CreateFormButton key="create" showNameModal source="forms_header" /> ],
+		[]
+	);
 	const getItemId = useCallback( ( item: FormListItem ) => String( item.id ), [] );
 	const onClickItem = useCallback(
 		( item: FormListItem ) => {
@@ -455,6 +458,7 @@ export default function FormsDashboardForms(): JSX.Element | null {
 										label={ __( 'Create a new form', 'jetpack-forms' ) }
 										variant="primary"
 										showNameModal
+										source="forms_empty_state"
 									/>
 									{ hasClassicForms && (
 										<Button size="compact" variant="secondary" onClick={ openFormsHelpModal }>

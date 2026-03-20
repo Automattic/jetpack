@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { useBreakpointMatch } from '@automattic/jetpack-components';
 import JetpackLogo from '@automattic/jetpack-components/jetpack-logo';
 import { Breadcrumbs } from '@wordpress/admin-ui';
@@ -106,15 +107,31 @@ export default function usePageHeaderDetails(
 	// Hooks for mobile dropdown menu actions
 	const { openNewForm } = useCreateForm();
 	const [ isCreateFormModalOpen, setIsCreateFormModalOpen ] = useState( false );
-	const handleCreateFormClick = useCallback( () => {
+	const [ createFormSource, setCreateFormSource ] = useState< string | null >( null );
+	const handleCreateFormClick = useCallback( ( source: string ) => {
+		setCreateFormSource( source );
 		setIsCreateFormModalOpen( true );
 	}, [] );
-	const closeCreateFormModal = useCallback( () => setIsCreateFormModalOpen( false ), [] );
+	const closeCreateFormModal = useCallback( () => {
+		if ( createFormSource ) {
+			jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_create_form_modal_close', {
+				source: createFormSource,
+			} );
+		}
+		setCreateFormSource( null );
+		setIsCreateFormModalOpen( false );
+	}, [ createFormSource ] );
 	const handleCreateFormSave = useCallback(
 		async ( formName: string ) => {
+			if ( createFormSource ) {
+				jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_create_form_modal_create', {
+					source: createFormSource,
+				} );
+			}
+			setCreateFormSource( null );
 			await openNewForm( { formTitle: formName } );
 		},
-		[ openNewForm ]
+		[ openNewForm, createFormSource ]
 	);
 	const {
 		showExportModal,
@@ -559,7 +576,12 @@ export default function usePageHeaderDetails(
 				}
 
 				dropdownControls.push( {
-					onClick: handleCreateFormClick,
+					onClick: () => {
+						jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_create_form_click', {
+							source: 'forms_header_mobile',
+						} );
+						handleCreateFormClick( 'forms_header_mobile' );
+					},
 					title: __( 'Create a form', 'jetpack-forms' ),
 				} );
 			} else if ( isSingleFormScreen ) {
@@ -606,7 +628,12 @@ export default function usePageHeaderDetails(
 
 				if ( statusView === 'inbox' ) {
 					dropdownControls.push( {
-						onClick: handleCreateFormClick,
+						onClick: () => {
+							jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_create_form_click', {
+								source: 'responses_header_mobile',
+							} );
+							handleCreateFormClick( 'responses_header_mobile' );
+						},
 						title: __( 'Create a form', 'jetpack-forms' ),
 					} );
 				}
@@ -735,7 +762,13 @@ export default function usePageHeaderDetails(
 				...( isIntegrationsEnabled && showDashboardIntegrations
 					? [ <ManageIntegrationsButton key="integrations" onClick={ onOpenIntegrations } /> ]
 					: [] ),
-				<CreateFormButton key="create" variant="primary" showIcon={ false } showNameModal />,
+				<CreateFormButton
+					key="create"
+					variant="primary"
+					showIcon={ false }
+					showNameModal
+					source="forms_header"
+				/>,
 			];
 		}
 
@@ -809,6 +842,7 @@ export default function usePageHeaderDetails(
 							showPatterns={ false }
 							showIcon={ false }
 							showNameModal
+							source="responses_header"
 						/>,
 				  ]
 				: [] ),
