@@ -39,9 +39,10 @@ messages:
       PR description:
       {{pr_description}}
 
-      Projects needing changelog entries and their available types:
+      Projects needing changelog entries (project paths):
       {{projects}}
 
+      Available changelog types for each project:
       {{project_types}}
 
       Pre-computed plugin dependents for each project (may be empty):
