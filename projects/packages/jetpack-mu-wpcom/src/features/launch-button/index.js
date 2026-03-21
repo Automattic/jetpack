@@ -28,4 +28,4 @@ async function renderLaunchButton() {
 	);
 }
 
-renderLaunchButton();
+document.addEventListener( 'DOMContentLoaded', renderLaunchButton, { once: true } );

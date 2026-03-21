@@ -16,7 +16,7 @@ const fetchExperimentAssignment =
 		return canAccessWpcomApis()
 			? wpcomRequest( {
 					path: addQueryArgs( `/experiments/0.1.0/assignments/${ platform }`, {
-						experiment_name: experimentName,
+						experiment_names: experimentName,
 						anon_id: anonId ?? undefined,
 					} ),
 					apiNamespace: 'wpcom/v2',
