@@ -14,15 +14,30 @@ document.addEventListener( 'DOMContentLoaded', () => {
 		wpcomTrackEvent( 'jetpack_ai_assistant_banner_cta_click' );
 	} );
 
+	const attachDismissHandler = btn => {
+		btn.addEventListener( 'click', () => {
+			wpcomTrackEvent( 'jetpack_ai_assistant_banner_dismiss' );
+
+			const body = new FormData();
+			body.append( 'action', 'dismiss_ai_assistant_banner' );
+			body.append( 'nonce', banner.dataset.nonce );
+			fetch( window.ajaxurl, { method: 'POST', body } );
+		} );
+	};
+
 	const dismissBtn = banner.querySelector( '.notice-dismiss' );
-	dismissBtn?.addEventListener( 'click', () => {
-		wpcomTrackEvent( 'jetpack_ai_assistant_banner_dismiss' );
-
-		const body = new FormData();
-		body.append( 'action', 'dismiss_ai_assistant_banner' );
-		body.append( 'nonce', banner.dataset.nonce );
-		fetch( window.ajaxurl, { method: 'POST', body } );
-
-		banner.style.display = 'none';
-	} );
+	if ( dismissBtn ) {
+		attachDismissHandler( dismissBtn );
+	} else {
+		// WP core injects the dismiss button dynamically via common.js;
+		// watch for it if it hasn't appeared yet.
+		const observer = new MutationObserver( () => {
+			const btn = banner.querySelector( '.notice-dismiss' );
+			if ( btn ) {
+				observer.disconnect();
+				attachDismissHandler( btn );
+			}
+		} );
+		observer.observe( banner, { childList: true, subtree: true } );
+	}
 } );
