@@ -28,9 +28,6 @@ function wpcom_should_show_ai_assistant_banner() {
 	}
 
 	// Don't show on Big Sky sites.
-	if ( get_option( 'site_intent' ) === 'ai-assembler' ) {
-		return false;
-	}
 	if ( wpcom_has_blog_sticker( 'big-sky-enabled', get_wpcom_blog_id() ) ) {
 		return false;
 	}
