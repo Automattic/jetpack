@@ -36,6 +36,10 @@ function register_plugin() {
 }
 add_action( 'jetpack_register_gutenberg_extensions', __NAMESPACE__ . '\register_plugin' );
 
+// Initialize the AI sidebar (Agents Manager CDN loader + provider registration).
+require_once __DIR__ . '/ai-sidebar/class-jetpack-ai-sidebar.php';
+Jetpack_AI_Sidebar::init();
+
 // Populate the available extensions with ai-assistant-plugin.
 add_filter(
 	'jetpack_set_available_extensions',

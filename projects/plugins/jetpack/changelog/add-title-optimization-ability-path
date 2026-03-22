@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+AI Assistant: Route title optimization UI directly through the wp-orchestrator agent endpoint, removing the custom REST proxy endpoint.
