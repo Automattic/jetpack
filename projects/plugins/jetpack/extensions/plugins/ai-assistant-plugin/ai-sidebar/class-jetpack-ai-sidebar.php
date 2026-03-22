@@ -348,8 +348,13 @@ class Jetpack_AI_Sidebar {
 			$data = self::get_asset_data_from_remote( 'https://' . $json_path );
 		}
 
+		// Hardcoded fallback for environments where outbound HTTP and local
+		// filesystem access to widgets.wp.com are both unavailable (e.g. sandboxes).
 		if ( false === $data ) {
-			return false;
+			$data = array(
+				'dependencies' => array( 'wp-components', 'wp-data', 'wp-element', 'wp-i18n', 'wp-polyfill' ),
+				'version'      => 'fallback',
+			);
 		}
 
 		if ( ! $skip_cache ) {
