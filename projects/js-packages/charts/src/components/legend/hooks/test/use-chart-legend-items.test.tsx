@@ -1,7 +1,7 @@
 import { renderHook } from '@testing-library/react';
 import { GlobalChartsProvider } from '../../../../providers';
 import { useChartLegendItems } from '../use-chart-legend-items';
-import type { DataPointPercentage, DataPointDate, SeriesData } from '../../../../types';
+import type { DataPointPercentageCalculated, DataPointDate, SeriesData } from '../../../../types';
 import type { ReactNode } from 'react';
 
 // Wrapper component to provide GlobalChartsProvider context
@@ -11,8 +11,8 @@ const wrapper = ( { children }: { children: ReactNode } ) => (
 
 describe( 'useChartLegendItems', () => {
 	describe( 'Number Formatting (i18n)', () => {
-		describe( 'DataPointPercentage', () => {
-			const percentageData: DataPointPercentage[] = [
+		describe( 'DataPointPercentageCalculated', () => {
+			const percentageData: DataPointPercentageCalculated[] = [
 				{ label: 'Item 1', value: 80000, percentage: 60.6 },
 				{ label: 'Item 2', value: 30000, percentage: 22.7 },
 				{ label: 'Item 3', value: 22000, percentage: 16.7 },
@@ -50,7 +50,7 @@ describe( 'useChartLegendItems', () => {
 			} );
 
 			test( 'uses valueDisplay when provided, falling back to formatted value', () => {
-				const dataWithDisplay: DataPointPercentage[] = [
+				const dataWithDisplay: DataPointPercentageCalculated[] = [
 					{ label: 'Item 1', value: 80000, percentage: 60, valueDisplay: 'Custom 80K' },
 					{ label: 'Item 2', value: 30000, percentage: 30 },
 				];
@@ -194,7 +194,9 @@ describe( 'useChartLegendItems', () => {
 		} );
 
 		test( 'handles data with zero values', () => {
-			const zeroData: DataPointPercentage[] = [ { label: 'Zero Value', value: 0, percentage: 0 } ];
+			const zeroData: DataPointPercentageCalculated[] = [
+				{ label: 'Zero Value', value: 0, percentage: 0 },
+			];
 
 			const { result } = renderHook(
 				() =>
@@ -209,7 +211,7 @@ describe( 'useChartLegendItems', () => {
 		} );
 
 		test( 'handles very large numbers', () => {
-			const largeData: DataPointPercentage[] = [
+			const largeData: DataPointPercentageCalculated[] = [
 				{ label: 'Large', value: 1234567890, percentage: 100 },
 			];
 
@@ -227,7 +229,7 @@ describe( 'useChartLegendItems', () => {
 		} );
 
 		test( 'handles decimal values', () => {
-			const decimalData: DataPointPercentage[] = [
+			const decimalData: DataPointPercentageCalculated[] = [
 				{ label: 'Decimal', value: 1234.5678, percentage: 100 },
 			];
 
@@ -247,7 +249,9 @@ describe( 'useChartLegendItems', () => {
 
 	describe( 'Label and Color', () => {
 		test( 'preserves label and color from data', () => {
-			const data: DataPointPercentage[] = [ { label: 'Test Label', value: 100, percentage: 100 } ];
+			const data: DataPointPercentageCalculated[] = [
+				{ label: 'Test Label', value: 100, percentage: 100 },
+			];
 
 			const { result } = renderHook(
 				() =>

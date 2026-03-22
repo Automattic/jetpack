@@ -14,17 +14,17 @@
 		"tunnel:down": "tunnel down",
 		"tunnel:reset": "tunnel reset",
 		"tunnel:up": "tunnel up",
-		"typecheck": "tsc --noEmit"
+		"typecheck": "tsgo --noEmit"
 	},
 	"browserslist": [],
 	"devDependencies": {
-		"@playwright/test": "1.55.1",
-		"@types/node": "^20.4.2",
+		"@playwright/test": "1.58.2",
+		"@types/node": "^22.19.11",
+		"@typescript/native-preview": "7.0.0-dev.20260225.1",
 		"_jetpack-e2e-commons": "workspace:*",
 		"allure-playwright": "2.15.1",
 		"config": "4.1.1",
-		"playwright-ctrf-json-reporter": "^0.0.26",
-		"typescript": "5.9.3"
+		"playwright-ctrf-json-reporter": "^0.0.26"
 	},
 	"ci": {
 		"targets": [

@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/charts",
-	"version": "0.56.1",
+	"version": "0.58.0",
 	"description": "Display charts within Automattic products.",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/charts/#readme",
 	"bugs": {
@@ -8,8 +8,7 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/Automattic/jetpack.git",
-		"directory": "projects/js-packages/charts"
+		"url": "git+https://github.com/Automattic/charts.git"
 	},
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
@@ -24,94 +23,7 @@
 			"import": "./dist/index.js",
 			"require": "./dist/index.cjs"
 		},
-		"./bar-chart": {
-			"jetpack:src": "./src/charts/bar-chart/index.ts",
-			"import": "./dist/charts/bar-chart/index.js",
-			"require": "./dist/charts/bar-chart/index.cjs"
-		},
-		"./bar-chart/style.css": "./dist/charts/bar-chart/index.css",
-		"./bar-list-chart": {
-			"jetpack:src": "./src/charts/bar-list-chart/index.ts",
-			"import": "./dist/charts/bar-list-chart/index.js",
-			"require": "./dist/charts/bar-list-chart/index.cjs"
-		},
-		"./bar-list-chart/style.css": "./dist/charts/bar-list-chart/index.css",
-		"./conversion-funnel-chart": {
-			"jetpack:src": "./src/charts/conversion-funnel-chart/index.ts",
-			"import": "./dist/charts/conversion-funnel-chart/index.js",
-			"require": "./dist/charts/conversion-funnel-chart/index.cjs"
-		},
-		"./conversion-funnel-chart/style.css": "./dist/charts/conversion-funnel-chart/index.css",
-		"./geo-chart": {
-			"jetpack:src": "./src/charts/geo-chart/index.ts",
-			"import": "./dist/charts/geo-chart/index.js",
-			"require": "./dist/charts/geo-chart/index.cjs"
-		},
-		"./geo-chart/style.css": "./dist/charts/geo-chart/index.css",
-		"./hooks": {
-			"jetpack:src": "./src/hooks/index.ts",
-			"import": "./dist/hooks/index.js",
-			"require": "./dist/hooks/index.cjs"
-		},
-		"./leaderboard-chart": {
-			"jetpack:src": "./src/charts/leaderboard-chart/index.ts",
-			"import": "./dist/charts/leaderboard-chart/index.js",
-			"require": "./dist/charts/leaderboard-chart/index.cjs"
-		},
-		"./leaderboard-chart/style.css": "./dist/charts/leaderboard-chart/index.css",
-		"./legend": {
-			"jetpack:src": "./src/components/legend/index.ts",
-			"import": "./dist/components/legend/index.js",
-			"require": "./dist/components/legend/index.cjs"
-		},
-		"./legend/style.css": "./dist/components/legend/index.css",
-		"./line-chart": {
-			"jetpack:src": "./src/charts/line-chart/index.ts",
-			"import": "./dist/charts/line-chart/index.js",
-			"require": "./dist/charts/line-chart/index.cjs"
-		},
-		"./line-chart/style.css": "./dist/charts/line-chart/index.css",
-		"./pie-chart": {
-			"jetpack:src": "./src/charts/pie-chart/index.ts",
-			"import": "./dist/charts/pie-chart/index.js",
-			"require": "./dist/charts/pie-chart/index.cjs"
-		},
-		"./pie-chart/style.css": "./dist/charts/pie-chart/index.css",
-		"./pie-semi-circle-chart": {
-			"jetpack:src": "./src/charts/pie-semi-circle-chart/index.ts",
-			"import": "./dist/charts/pie-semi-circle-chart/index.js",
-			"require": "./dist/charts/pie-semi-circle-chart/index.cjs"
-		},
-		"./pie-semi-circle-chart/style.css": "./dist/charts/pie-semi-circle-chart/index.css",
-		"./providers": {
-			"jetpack:src": "./src/providers/index.ts",
-			"import": "./dist/providers/index.js",
-			"require": "./dist/providers/index.cjs"
-		},
-		"./sparkline": {
-			"jetpack:src": "./src/charts/sparkline/index.ts",
-			"import": "./dist/charts/sparkline/index.js",
-			"require": "./dist/charts/sparkline/index.cjs"
-		},
-		"./sparkline/style.css": "./dist/charts/sparkline/index.css",
 		"./style.css": "./dist/index.css",
-		"./tooltip": {
-			"jetpack:src": "./src/components/tooltip/index.ts",
-			"import": "./dist/components/tooltip/index.js",
-			"require": "./dist/components/tooltip/index.cjs"
-		},
-		"./tooltip/style.css": "./dist/components/tooltip/index.css",
-		"./trend-indicator": {
-			"jetpack:src": "./src/components/trend-indicator/index.ts",
-			"import": "./dist/components/trend-indicator/index.js",
-			"require": "./dist/components/trend-indicator/index.cjs"
-		},
-		"./trend-indicator/style.css": "./dist/components/trend-indicator/index.css",
-		"./utils": {
-			"jetpack:src": "./src/utils/index.ts",
-			"import": "./dist/utils/index.js",
-			"require": "./dist/utils/index.cjs"
-		},
 		"./visx/group": {
 			"jetpack:src": "./src/visx/group/index.ts",
 			"import": "./dist/visx/group/index.js",
@@ -135,51 +47,6 @@
 			".": [
 				"./dist/index.d.ts"
 			],
-			"bar-chart": [
-				"./dist/charts/bar-chart/index.d.ts"
-			],
-			"bar-list-chart": [
-				"./dist/charts/bar-list-chart/index.d.ts"
-			],
-			"conversion-funnel-chart": [
-				"./dist/charts/conversion-funnel-chart/index.d.ts"
-			],
-			"geo-chart": [
-				"./dist/charts/geo-chart/index.d.ts"
-			],
-			"hooks": [
-				"./dist/hooks/index.d.ts"
-			],
-			"leaderboard-chart": [
-				"./dist/charts/leaderboard-chart/index.d.ts"
-			],
-			"legend": [
-				"./dist/components/legend/index.d.ts"
-			],
-			"line-chart": [
-				"./dist/charts/line-chart/index.d.ts"
-			],
-			"pie-chart": [
-				"./dist/charts/pie-chart/index.d.ts"
-			],
-			"pie-semi-circle-chart": [
-				"./dist/charts/pie-semi-circle-chart/index.d.ts"
-			],
-			"sparkline": [
-				"./dist/charts/sparkline/index.d.ts"
-			],
-			"providers": [
-				"./dist/providers/index.d.ts"
-			],
-			"tooltip": [
-				"./dist/components/tooltip/index.d.ts"
-			],
-			"trend-indicator": [
-				"./dist/components/trend-indicator/index.d.ts"
-			],
-			"utils": [
-				"./dist/utils/index.d.ts"
-			],
 			"visx/group": [
 				"./dist/visx/group/index.d.ts"
 			],
@@ -197,7 +64,7 @@
 		"storybook": "cd ../storybook && pnpm run storybook:dev",
 		"test": "TZ=UTC jest --config=tests/jest.config.cjs",
 		"test-coverage": "pnpm run test --coverage",
-		"typecheck": "tsc --noEmit"
+		"typecheck": "tsgo --noEmit"
 	},
 	"dependencies": {
 		"@automattic/number-formatters": "workspace:*",
@@ -220,8 +87,8 @@
 		"@visx/vendor": "^3.12.0",
 		"@visx/xychart": "^3.12.0",
 		"@wordpress/i18n": "^6.0.0",
-		"@wordpress/theme": "0.6.0",
-		"@wordpress/ui": "0.6.0",
+		"@wordpress/theme": "0.9.0",
+		"@wordpress/ui": "0.9.0",
 		"clsx": "2.1.1",
 		"date-fns": "^4.1.0",
 		"deepmerge": "4.3.1",
@@ -233,29 +100,35 @@
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
 		"@babel/core": "7.29.0",
-		"@storybook/addon-docs": "10.2.3",
-		"@storybook/react": "10.2.3",
+		"@babel/preset-react": "7.28.5",
+		"@babel/preset-typescript": "7.28.5",
+		"@storybook/addon-docs": "10.3.1",
+		"@storybook/react": "10.3.1",
 		"@testing-library/dom": "^10.0.0",
 		"@testing-library/jest-dom": "^6.0.0",
 		"@testing-library/react": "^16.0.0",
 		"@testing-library/user-event": "^14.4.3",
 		"@types/jest": "^30.0.0",
-		"@types/react": "18.3.26",
+		"@types/react": "18.3.28",
 		"@types/react-dom": "18.3.7",
+		"@typescript/native-preview": "7.0.0-dev.20260225.1",
 		"@visx/glyph": "3.12.0",
-		"@wordpress/components": "32.1.0",
-		"@wordpress/element": "6.39.0",
+		"@wordpress/components": "32.4.0",
+		"@wordpress/element": "6.42.0",
 		"babel-jest": "30.2.0",
+		"babel-plugin-react-remove-properties": "^0.3.1",
 		"esbuild": "0.25.9",
+		"esbuild-plugin-babel": "^0.2.3",
 		"esbuild-sass-plugin": "^3.1.0",
+		"identity-obj-proxy": "^3.0.0",
 		"jest": "30.2.0",
 		"jest-extended": "7.0.0",
 		"postcss": "8.5.6",
 		"postcss-modules": "6.0.1",
 		"react": "18.3.1",
 		"react-dom": "18.3.1",
-		"sass-embedded": "1.97.2",
-		"storybook": "10.2.3",
+		"sass-embedded": "1.97.3",
+		"storybook": "10.3.1",
 		"tsup": "8.5.1",
 		"typescript": "5.9.3"
 	},

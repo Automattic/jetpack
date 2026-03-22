@@ -17,7 +17,7 @@ import IntegrationsModal from './jetpack-integrations-modal/index.tsx';
  * @param {object}   props               - Component props.
  * @param {object}   props.attributes    - Block attributes.
  * @param {Function} props.setAttributes - Function to set block attributes.
- * @return {object} The IntegrationControls component.
+ * @return {import('react').ReactNode} The IntegrationControls component.
  */
 export default function IntegrationControls( { attributes, setAttributes } ) {
 	const [ isModalOpen, setIsModalOpen ] = useState( false );

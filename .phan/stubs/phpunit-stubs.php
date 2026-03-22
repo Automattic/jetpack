@@ -1,6 +1,6 @@
 <?php
 /**
- * Stubs automatically generated from PHPUnit 12.5.11
+ * Stubs automatically generated from PHPUnit 12.5.14
  * using the definition file `tools/stubs/phpunit-stub-defs.php` in the Jetpack monorepo.
  *
  * Do not edit this directly! Run tools/stubs/update-stubs.sh to regenerate it.
@@ -1706,144 +1706,49 @@ final readonly class ThrowableBuilder
 }
 namespace PHPUnit\Event\Code\IssueTrigger;
 
-/**
- * @immutable
- *
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- */
-final class DirectTrigger extends \PHPUnit\Event\Code\IssueTrigger\IssueTrigger
+enum Code : string
 {
-    /**
-     * Your own code triggers an issue in third-party code.
-     */
-    public function isDirect(): true
+    public function isFirstPartyOrTest(): bool
     {
     }
-    public function asString(): string
+    public function isThirdPartyOrPhpunitOrPhp(): bool
     {
     }
+    case FirstParty = 'first-party code';
+    case ThirdParty = 'third-party code';
+    case Test = 'test code';
+    case PHP = 'PHP runtime';
+    case PHPUnit = 'PHPUnit';
 }
 /**
  * @immutable
  *
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  */
-final class IndirectTrigger extends \PHPUnit\Event\Code\IssueTrigger\IssueTrigger
+final readonly class IssueTrigger
 {
-    /**
-     * Third-party code triggers an issue either in your own code or in third-party code.
-     */
-    public function isIndirect(): true
-    {
-    }
-    public function asString(): string
-    {
-    }
-}
-/**
- * @immutable
- *
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- */
-abstract class IssueTrigger
-{
-    public static function test(): \PHPUnit\Event\Code\IssueTrigger\TestTrigger
-    {
-    }
-    public static function self(): \PHPUnit\Event\Code\IssueTrigger\SelfTrigger
-    {
-    }
-    public static function direct(): \PHPUnit\Event\Code\IssueTrigger\DirectTrigger
-    {
-    }
-    public static function indirect(): \PHPUnit\Event\Code\IssueTrigger\IndirectTrigger
-    {
-    }
-    public static function unknown(): \PHPUnit\Event\Code\IssueTrigger\UnknownTrigger
+    public static function from(?\PHPUnit\Event\Code\IssueTrigger\Code $callee, ?\PHPUnit\Event\Code\IssueTrigger\Code $caller): self
     {
     }
     /**
-     * Your test code triggers an issue.
-     *
-     * @phpstan-assert-if-true TestTrigger $this
-     */
-    public function isTest(): bool
-    {
-    }
-    /**
-     * Your own code triggers an issue in your own code.
-     *
-     * @phpstan-assert-if-true SelfTrigger $this
+     * An issue is triggered in first-party code or in test code.
      */
     public function isSelf(): bool
     {
     }
     /**
-     * Your own code triggers an issue in third-party code.
-     *
-     * @phpstan-assert-if-true DirectTrigger $this
+     * First-party code triggers an issue in third-party code.
      */
     public function isDirect(): bool
     {
     }
     /**
-     * Third-party code triggers an issue either in your own code or in third-party code.
-     *
-     * @phpstan-assert-if-true IndirectTrigger $this
+     * Third-party code triggers an issue.
      */
     public function isIndirect(): bool
     {
     }
-    /**
-     * @phpstan-assert-if-true UnknownTrigger $this
-     */
     public function isUnknown(): bool
-    {
-    }
-    abstract public function asString(): string;
-}
-/**
- * @immutable
- *
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- */
-final class SelfTrigger extends \PHPUnit\Event\Code\IssueTrigger\IssueTrigger
-{
-    /**
-     * Your own code triggers an issue in your own code.
-     */
-    public function isSelf(): true
-    {
-    }
-    public function asString(): string
-    {
-    }
-}
-/**
- * @immutable
- *
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- */
-final class TestTrigger extends \PHPUnit\Event\Code\IssueTrigger\IssueTrigger
-{
-    /**
-     * Your test code triggers an issue.
-     */
-    public function isTest(): true
-    {
-    }
-    public function asString(): string
-    {
-    }
-}
-/**
- * @immutable
- *
- * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- */
-final class UnknownTrigger extends \PHPUnit\Event\Code\IssueTrigger\IssueTrigger
-{
-    public function isUnknown(): true
     {
     }
     public function asString(): string
@@ -10391,6 +10296,25 @@ final class ExecutionOrderDependency implements \Stringable
 }
 /**
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ */
+enum NativeType : string
+{
+    case Array = 'array';
+    case Bool = 'bool';
+    case Callable = 'callable';
+    case ClosedResource = 'resource (closed)';
+    case Float = 'float';
+    case Int = 'int';
+    case Iterable = 'iterable';
+    case Null = 'null';
+    case Numeric = 'numeric';
+    case Object = 'object';
+    case Resource = 'resource';
+    case Scalar = 'scalar';
+    case String = 'string';
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  *
  * @internal This interface is not covered by the backward compatibility promise for PHPUnit
  */
@@ -11266,7 +11190,7 @@ class TestSuite implements \IteratorAggregate, \PHPUnit\Framework\Reorderable, \
     {
     }
     /**
-     * Returns an iterator for this test suite.
+     * @return \Iterator<non-negative-int, Test>
      */
     public function getIterator(): \Iterator
     {
@@ -16380,6 +16304,19 @@ final class OtrXmlLogger
 /**
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  *
+ * @internal This enumeration is not covered by the backward compatibility promise for PHPUnit
+ */
+enum Status : string
+{
+    case Aborted = 'ABORTED';
+    case Errored = 'ERRORED';
+    case Failed = 'FAILED';
+    case Skipped = 'SKIPPED';
+    case Successful = 'SUCCESSFUL';
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ *
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
  */
 final readonly class AfterLastTestMethodErroredSubscriber extends \PHPUnit\Logging\OpenTestReporting\Subscriber implements \PHPUnit\Event\Test\AfterLastTestMethodErroredSubscriber
@@ -19604,6 +19541,17 @@ final class CodeCoverage
     public function generateReports(\PHPUnit\TextUI\Output\Printer $printer, \PHPUnit\TextUI\Configuration\Configuration $configuration): void
     {
     }
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ *
+ * @internal This enumeration is not covered by the backward compatibility promise for PHPUnit
+ */
+enum CodeCoverageInitializationStatus
+{
+    case NOT_REQUESTED;
+    case SUCCEEDED;
+    case FAILED;
 }
 /**
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
@@ -30590,6 +30538,15 @@ final readonly class Trait_
     public function methods(): array
     {
     }
+}
+/**
+ * @internal This enumeration is not covered by the backward compatibility promise for phpunit/php-code-coverage
+ */
+enum Visibility : string
+{
+    case Public = 'public';
+    case Protected = 'protected';
+    case Private = 'private';
 }
 /**
  * Visitor that connects a child node to its parent node optimized for Attribute nodes.

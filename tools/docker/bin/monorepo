@@ -109,6 +109,12 @@ fi
   GIT_USER_NAME=$(git config user.name 2>/dev/null || echo "")
   GIT_USER_EMAIL=$(git config user.email 2>/dev/null || echo "")
 
+  # Mount rsync proxy socket if set (for SSH proxy via Unix domain socket)
+  RSYNC_ENV=()
+  if [[ -n "${RSYNC_PROXY_SOCKET:-}" ]]; then
+      RSYNC_ENV=( -v "$RSYNC_PROXY_SOCKET:/var/run/jp-rsync-socket" -e RSYNC_PROXY_SOCKET=/var/run/jp-rsync-socket )
+  fi
+
   # Worktree-specific Docker args
   WORKTREE_DOCKER_ARGS=()
   if [[ "$IS_WORKTREE" = "1" ]]; then
@@ -117,21 +123,32 @@ fi
       # Mount main .git/ so git operations work inside the container
       WORKTREE_DOCKER_ARGS+=(
           -v "$MAIN_GIT_DIR:/repo-git:ro"
+          -v "$MAIN_GIT_DIR/objects:/repo-git/objects"
+          -v "$MAIN_GIT_DIR/worktrees/$WORKTREE_NAME:/repo-git/worktrees/$WORKTREE_NAME"
           -e "GIT_DIR=/repo-git/worktrees/$WORKTREE_NAME"
           -e "GIT_WORK_TREE=/workspace"
       )
   else
       DOCKER_DATA_DIR="$MONOREPO_ROOT/tools/docker/data/monorepo"
   fi
-  mkdir -p "$DOCKER_DATA_DIR"
 
-  # In worktrees, node_modules is missing (gitignored). Wrap the command to
-  # auto-install dependencies on first run so hooks and build scripts work.
+  # Set pnpm store directory.
+  # For worktrees: use /root/.pnpm-store (shared across all worktrees via DOCKER_DATA_DIR).
+  # For non-worktrees: use /workspace/.pnpm-store (same mount as node_modules, preserves hardlinks).
   if [[ "$IS_WORKTREE" = "1" ]]; then
-      INSTALL_PREFIX='if [ ! -d /workspace/node_modules ]; then echo "Installing dependencies (first run in worktree)..." && pnpm install --frozen-lockfile; fi && '
-      WRAPPED_CMD="${INSTALL_PREFIX}$*"
-      set -- sh -c "$WRAPPED_CMD"
+      PNPM_STORE_DIR_CONTAINER="/root/.pnpm-store"
+  else
+      PNPM_STORE_DIR_CONTAINER="/workspace/.pnpm-store"
   fi
+
+  if [[ "${DEBUG:-}" = "1" ]]; then
+      echo "[pnpm] store dir (container): $PNPM_STORE_DIR_CONTAINER"
+      if [[ "$IS_WORKTREE" = "1" ]]; then
+          echo "[pnpm] store dir (host): $DOCKER_DATA_DIR/.pnpm-store"
+      fi
+  fi
+
+  mkdir -p "$DOCKER_DATA_DIR"
 
   docker run --rm $TTY_FLAG \
     -v "$MONOREPO_ROOT:/workspace" \
@@ -150,10 +167,11 @@ fi
     -e NPM_CONFIG_USERCONFIG=/root/.npmrc \
     -e NPM_CONFIG_CACHE=/root/.npm \
     -e PNPM_HOME=/root/.local/share/pnpm \
-    -e PNPM_STORE_DIR=/root/.pnpm-store \
+    -e npm_config_store_dir="$PNPM_STORE_DIR_CONTAINER" \
     -e GIT_AUTHOR_NAME="${GIT_USER_NAME}" \
     -e GIT_AUTHOR_EMAIL="${GIT_USER_EMAIL}" \
     -e GIT_COMMITTER_NAME="${GIT_USER_NAME}" \
     -e GIT_COMMITTER_EMAIL="${GIT_USER_EMAIL}" \
+    "${RSYNC_ENV[@]}" \
     jetpack-monorepo:latest \
     "$@"

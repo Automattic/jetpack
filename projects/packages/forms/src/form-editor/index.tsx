@@ -12,13 +12,33 @@ import { subscribe, select, dispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { getPlugin, registerPlugin, unregisterPlugin } from '@wordpress/plugins';
 import { FORM_POST_TYPE } from '../blocks/shared/util/constants.js';
-import { FormTitleModal } from './plugins/form-title-modal';
+import { EmbedCodePanel, EMBED_CODE_PANEL_PLUGIN } from './plugins/embed-code-panel';
+import {
+	FormPostPublishPanel,
+	FORM_POST_PUBLISH_PANEL_PLUGIN,
+} from './plugins/form-post-publish-panel';
+import {
+	FormPrePublishPanel,
+	JETPACK_FORM_PRE_PUBLISH_PANEL,
+} from './plugins/form-pre-publish-panel';
+import { HeaderActions, HEADER_ACTIONS_PLUGIN } from './plugins/header-actions';
 import {
 	activateBlockCategoryOverrides,
 	deactivateBlockCategoryOverrides,
 } from './utils/block-category-override';
+import {
+	removeJetpackBlockCollection,
+	restoreJetpackBlockCollection,
+} from './utils/block-collection';
 import { determineBlockNestingAction } from './utils/block-nesting-logic';
-import { BlockLock, findFormBlock, shouldLockBlock, getBlocksToMove } from './utils/block-utils';
+import {
+	BlockLock,
+	findActiveStepInContainer,
+	findFormBlock,
+	findStepContainer,
+	shouldLockBlock,
+	getBlocksToMove,
+} from './utils/block-utils';
 import {
 	moveContactFormCategoryToFront as moveCategoryToFront,
 	moveContactFormCategoryToBack as moveCategoryToBack,
@@ -26,11 +46,10 @@ import {
 	unregisterFormCategories,
 } from './utils/category-utils';
 import { getAllowedBlocks } from './utils/get-allowed-blocks';
+import { shouldAutoOpenInserter } from './utils/inserter-utils';
 import type { WPPlugin } from '@wordpress/plugins';
 
 type PluginSettings = Omit< WPPlugin, 'name' >;
-
-const NEW_FORMS_MODAL_PLUGIN = 'jetpack-form-title-modal';
 
 import './style.scss';
 
@@ -112,6 +131,9 @@ const state = {
 	lastRootBlockIds: '',
 	lastSelectedBlockId: null as string | null | undefined,
 	isFormBlockLocked: false,
+	formBlockStable: false,
+	previousTickFormBlockClientId: null as string | null,
+	hasOpenedInserter: false,
 };
 
 const BLOCK_DIRECTORY_PLUGIN_NAME = 'block-directory';
@@ -213,6 +235,14 @@ const enforceBlockSelection = () => {
 	if ( hasMultiSelection() ) {
 		return;
 	}
+
+	// Don't force-select when the inserter is open — selecting a block
+	// can close the inserter or change its context.
+	const { isInserterOpened } = select( 'core/editor' );
+	if ( isInserterOpened() ) {
+		return;
+	}
+
 	const selectedBlockId = getSelectedBlockClientId();
 	if ( ! selectedBlockId ) {
 		const { selectBlock } = dispatch( 'core/block-editor' ) as {
@@ -251,8 +281,25 @@ const enforceBlockNesting = () => {
 		return;
 	}
 
-	// Determine what action to take based on form state and blocks to move
-	const action = determineBlockNestingAction( formBlock, blocksToMove );
+	// For multistep forms, target the active step instead of the form block directly
+	let targetBlock = formBlock;
+	let targetClientId = state.formBlockClientId;
+
+	const stepContainer = findStepContainer( formBlock );
+	if ( stepContainer ) {
+		const store = select( 'jetpack/forms/single-step' ) as {
+			getActiveStepId?: ( formClientId: string ) => string | null;
+		};
+		const activeStepId = store?.getActiveStepId?.( state.formBlockClientId ) ?? null;
+		const activeStep = findActiveStepInContainer( stepContainer, activeStepId );
+		if ( activeStep ) {
+			targetBlock = activeStep;
+			targetClientId = activeStep.clientId;
+		}
+	}
+
+	// Determine what action to take based on target block state and blocks to move
+	const action = determineBlockNestingAction( targetBlock, blocksToMove );
 
 	const { replaceInnerBlocks, removeBlocks, __unstableMarkNextChangeAsNotPersistent } = dispatch(
 		'core/block-editor'
@@ -278,24 +325,29 @@ const enforceBlockNesting = () => {
 		return;
 	}
 
-	// Handle move-blocks case: clone blocks and insert them into the form
+	// Handle move-blocks case: clone blocks and insert them into the target
 	const clonedBlocks = blocksToMove.map( block => cloneBlock( block ) );
 
 	// Build the new inner blocks array
 	let newInnerBlocks: ReturnType< typeof createBlock >[];
 
-	if ( action.addSubmitButton ) {
-		// Form was empty, add a submit button after the moved blocks
-		const submitButton = createBlock( 'jetpack/button', {
-			element: 'button',
+	if ( action.targetWasEmpty && targetBlock === formBlock ) {
+		// Form was empty (non-multistep), add a submit button after the moved blocks
+		const submitButton = createBlock( 'core/button', {
+			tagName: 'button',
+			type: 'submit',
 			text: __( 'Submit', 'jetpack-forms' ),
 			lock: { move: false, remove: true },
 		} );
 
 		newInnerBlocks = [ ...clonedBlocks, submitButton ];
+	} else if ( action.targetWasEmpty ) {
+		// Multistep step was empty — just add the blocks without a submit button
+		// (multistep forms use form-step-navigation for submission)
+		newInnerBlocks = clonedBlocks;
 	} else {
-		// Form already has blocks, insert new blocks at the target index
-		const existingBlocks = [ ...formBlock.innerBlocks ];
+		// Target already has blocks, insert new blocks at the target index
+		const existingBlocks = [ ...targetBlock.innerBlocks ];
 		existingBlocks.splice( action.insertionIndex!, 0, ...clonedBlocks );
 		newInnerBlocks = existingBlocks;
 	}
@@ -305,10 +357,10 @@ const enforceBlockNesting = () => {
 	__unstableMarkNextChangeAsNotPersistent();
 	removeBlocks( clientIdsToRemove );
 
-	// Then use replaceInnerBlocks to set the form's inner blocks
+	// Then use replaceInnerBlocks to set the target's inner blocks
 	__unstableMarkNextChangeAsNotPersistent();
 	replaceInnerBlocks(
-		state.formBlockClientId,
+		targetClientId,
 		newInnerBlocks,
 		false // Don't update selection
 	);
@@ -321,6 +373,7 @@ const enforceBlockNesting = () => {
 
 let unsubscribe: ( () => void ) | null = null;
 let requestAnimationFrameId: number | null = null;
+let inserterAnimationFrameId: number | null = null;
 
 /**
  * Sets up a subscription to monitor editor state changes and enforce form editor behavior.
@@ -339,24 +392,43 @@ const setupFormEditorSubscription = () => {
 		try {
 			const { getCurrentPostType } = select( 'core/editor' );
 			const isFormEditor = getCurrentPostType() === FORM_POST_TYPE;
-
 			// 1. Handle form editor enter/leave transitions
 			// Detect if we are in the form editor and detect when this state changes across ticks.
 			if ( isFormEditor !== state.isFormEditor ) {
-				state.isFormEditor = isFormEditor; // Store the current isFormEditor in the state object for future reference.
+				state.isFormEditor = isFormEditor;
 
 				if ( isFormEditor ) {
 					// We just entered the form editor.
 					document.body.classList.add( 'post-type-jetpack_form' );
-					// Register the form title modal plugin
-					registerPlugin( NEW_FORMS_MODAL_PLUGIN, {
-						render: FormTitleModal,
+
+					registerPlugin( JETPACK_FORM_PRE_PUBLISH_PANEL, { render: FormPrePublishPanel } );
+					// Register the header actions plugin
+					registerPlugin( HEADER_ACTIONS_PLUGIN, {
+						render: HeaderActions,
+					} );
+					registerPlugin( EMBED_CODE_PANEL_PLUGIN, {
+						render: EmbedCodePanel,
+					} );
+					registerPlugin( FORM_POST_PUBLISH_PANEL_PLUGIN, {
+						render: FormPostPublishPanel,
 					} );
 				} else {
 					// We just left the form editor.
 					document.body.classList.remove( 'post-type-jetpack_form' );
-					if ( getPlugin( NEW_FORMS_MODAL_PLUGIN ) ) {
-						unregisterPlugin( NEW_FORMS_MODAL_PLUGIN );
+					if ( getPlugin( HEADER_ACTIONS_PLUGIN ) ) {
+						unregisterPlugin( HEADER_ACTIONS_PLUGIN );
+					}
+
+					if ( getPlugin( JETPACK_FORM_PRE_PUBLISH_PANEL ) ) {
+						unregisterPlugin( JETPACK_FORM_PRE_PUBLISH_PANEL );
+					}
+
+					if ( getPlugin( EMBED_CODE_PANEL_PLUGIN ) ) {
+						unregisterPlugin( EMBED_CODE_PANEL_PLUGIN );
+					}
+
+					if ( getPlugin( FORM_POST_PUBLISH_PANEL_PLUGIN ) ) {
+						unregisterPlugin( FORM_POST_PUBLISH_PANEL_PLUGIN );
 					}
 
 					if ( state.categoriesSetUp ) {
@@ -364,16 +436,24 @@ const setupFormEditorSubscription = () => {
 						restoreOriginalCategories( state.previousCategories || [] );
 					}
 					restoreBlockDirectory();
+					restoreJetpackBlockCollection();
 					restoreAllowedBlocks();
 					if ( requestAnimationFrameId ) {
 						cancelAnimationFrame( requestAnimationFrameId );
 						requestAnimationFrameId = null;
+					}
+					if ( inserterAnimationFrameId ) {
+						cancelAnimationFrame( inserterAnimationFrameId );
+						inserterAnimationFrameId = null;
 					}
 
 					state.formBlockClientId = null;
 					state.lastRootBlockIds = '';
 					state.lastSelectedBlockId = null;
 					state.isFormBlockLocked = false;
+					state.formBlockStable = false;
+					state.previousTickFormBlockClientId = null;
+					state.hasOpenedInserter = false;
 				}
 			}
 
@@ -383,12 +463,22 @@ const setupFormEditorSubscription = () => {
 				return;
 			}
 
-			// 3. One-time category setup and block directory disable
+			// Compute form block stability per tick. The form block is "stable" when
+			// its clientId hasn't changed since the previous tick. This allows
+			// enforceBlockNesting and lockFormBlock to run once the editor settles,
+			// while skipping them during transitions (navigation, block re-parse)
+			// where the clientId bounces through null/different values.
+			state.formBlockStable =
+				!! state.formBlockClientId &&
+				state.formBlockClientId === state.previousTickFormBlockClientId;
+
+			// 3. One-time category setup, block directory disable, and collection removal
 			if ( ! state.categoriesSetUp ) {
 				state.categoriesSetUp = true;
 				state.previousCategories = setupFormEditorCategories();
 
 				disableBlockDirectory();
+				removeJetpackBlockCollection();
 			}
 
 			// 4. React to root block changes (locate, select, nest)
@@ -405,8 +495,13 @@ const setupFormEditorSubscription = () => {
 				const formBlock = findFormBlock( rootBlocks );
 				state.formBlockClientId = formBlock ? formBlock.clientId : null;
 
-				if ( state.formBlockClientId && state.formBlockClientId !== previousFormBlockClientId ) {
-					state.isFormBlockLocked = false;
+				// When the clientId changes (including through null), the per-tick
+				// stability from the top of this tick is stale — override it.
+				if ( state.formBlockClientId !== previousFormBlockClientId ) {
+					state.formBlockStable = false;
+					if ( state.formBlockClientId ) {
+						state.isFormBlockLocked = false;
+					}
 				}
 
 				// When the form block first appears, defer restrictAllowedBlocks to break
@@ -433,10 +528,43 @@ const setupFormEditorSubscription = () => {
 					enforceBlockSelection();
 				}
 
-				enforceBlockNesting();
+				if ( state.formBlockStable ) {
+					enforceBlockNesting();
+				}
 			}
 
-			// 5. React to selection changes
+			// 5. Auto-open the block inserter (once) after blocks are ready
+			if ( ! state.hasOpenedInserter && state.formBlockClientId ) {
+				const currentFormBlock = select( 'core/block-editor' ).getBlock( state.formBlockClientId );
+				const hasAnyInnerBlocks = currentFormBlock && currentFormBlock.innerBlocks.length > 0;
+
+				if ( hasAnyInnerBlocks ) {
+					state.hasOpenedInserter = true;
+
+					const { get: getPreference } = select( 'core/preferences' );
+
+					if (
+						shouldAutoOpenInserter( {
+							viewportWidth: window.innerWidth,
+							showListViewByDefault: getPreference( 'core', 'showListViewByDefault' ),
+							distractionFree: getPreference( 'core', 'distractionFree' ),
+						} )
+					) {
+						inserterAnimationFrameId = requestAnimationFrame( () => {
+							inserterAnimationFrameId = null;
+							if ( ! state.isFormEditor ) {
+								return;
+							}
+							const { setIsInserterOpened } = dispatch( 'core/editor' ) as {
+								setIsInserterOpened: ( isOpened: boolean ) => void;
+							};
+							setIsInserterOpened( true );
+						} );
+					}
+				}
+			}
+
+			// 6. React to selection changes
 			const { getSelectedBlockClientId } = select( 'core/block-editor' );
 			const currentSelectedBlockId = getSelectedBlockClientId();
 			if ( currentSelectedBlockId !== state.lastSelectedBlockId ) {
@@ -444,8 +572,9 @@ const setupFormEditorSubscription = () => {
 				enforceBlockSelection();
 			}
 
-			// 6. Ensure form block is locked
-			if ( ! state.isFormBlockLocked && state.formBlockClientId ) {
+			// 7. Ensure form block is locked (only when form block is stable —
+			// skip during transitions to avoid locking page blocks).
+			if ( ! state.isFormBlockLocked && state.formBlockClientId && state.formBlockStable ) {
 				lockFormBlock();
 				const { getBlock } = select( 'core/block-editor' );
 				const formBlock = getBlock( state.formBlockClientId );
@@ -454,6 +583,9 @@ const setupFormEditorSubscription = () => {
 					state.isFormBlockLocked = true;
 				}
 			}
+			// Track the form block clientId from this tick so the next tick can
+			// determine whether it has stabilized.
+			state.previousTickFormBlockClientId = state.formBlockClientId;
 		} finally {
 			isProcessing = false;
 		}
@@ -472,6 +604,10 @@ const setupFormEditorSubscription = () => {
 		if ( requestAnimationFrameId ) {
 			cancelAnimationFrame( requestAnimationFrameId );
 			requestAnimationFrameId = null;
+		}
+		if ( inserterAnimationFrameId ) {
+			cancelAnimationFrame( inserterAnimationFrameId );
+			inserterAnimationFrameId = null;
 		}
 		window.removeEventListener( 'beforeunload', handleUnload );
 	};

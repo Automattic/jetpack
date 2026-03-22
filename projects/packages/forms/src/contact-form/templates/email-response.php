@@ -3,7 +3,7 @@
  * Jetpack Forms Email Response Template
  *
  * The template contains several placeholders:
- * %1$s is the hero text to display above the response (e.g., "Hey, a new form response just came in!")
+ * %1$s is the hero text to display above the response (can be empty or filtered)
  * %2$s is the response itself (form fields HTML).
  * %3$s was a link to the response page in wp-admin (left empty for backwards compatibility)
  * %4$s was a link to the embedded form to allow the site owner to edit it to change their email address (left empty for backwards compatibility)
@@ -25,6 +25,24 @@ if ( ! defined( 'ABSPATH' ) ) {
 $link_color           = \Automattic\Jetpack\Forms\ContactForm\Feedback_Email_Renderer::LINK_COLOR;
 $text_color           = \Automattic\Jetpack\Forms\ContactForm\Feedback_Email_Renderer::TEXT_COLOR;
 $text_secondary_color = \Automattic\Jetpack\Forms\ContactForm\Feedback_Email_Renderer::TEXT_SECONDARY_COLOR;
+$font_size_metadata   = \Automattic\Jetpack\Forms\ContactForm\Feedback_Email_Renderer::FONT_SIZE_METADATA;
+$font_size_button     = \Automattic\Jetpack\Forms\ContactForm\Feedback_Email_Renderer::FONT_SIZE_BUTTON;
+
+// Print-friendly styles: @media print hides decorative icons, tightens spacing,
+// and removes non-essential elements. Works for clients that preserve <style> tags
+// in print (Apple Mail ~52%, Outlook, Thunderbird). Gmail strips <style> when
+// printing so @media print has no effect there — a known limitation.
+// Defined as a variable so it can also be injected into <body> for Outlook.com.
+$print_style = '@media print {
+	body, .body { background-color: #ffffff !important; }
+	.container { width: 100% !important; max-width: 100% !important; padding: 0 !important; }
+	.wrapper { padding: 16px 0 !important; }
+	.main { border-radius: 0 !important; }
+	.field-icon-cell { display: none !important; width: 0 !important; max-width: 0 !important; padding: 0 !important; overflow: hidden !important; }
+	.form-fields-inner { padding: 0 !important; }
+	.actions, .powered-by-table, .preheader { display: none !important; }
+	.collapse { display: none !important; }
+}';
 
 // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- used in class-contact-form.php
 $template = '
@@ -45,8 +63,8 @@ $template = '
 					<table role="presentation" border="0" cellpadding="0" cellspacing="0" class="main">
 						<tr>
 							<td class="wrapper">
-								<!-- Header -->
-								<h1 class="email-header">%1$s</h1>
+								<!-- Header title -->
+								%1$s
 
 								<!-- Respondent Info -->
 								%10$s
@@ -150,11 +168,6 @@ $style = '<style media="all" type="text/css">
 		padding: 40px 48px;
 	}
 
-	.content-block {
-		box-sizing: border-box;
-		padding: 0 32px 24px;
-	}
-
 	.preheader {
 		color: transparent;
 		display: none;
@@ -177,40 +190,6 @@ $style = '<style media="all" type="text/css">
 		padding: 0;
 	}
 
-	/* Respondent Info Section */
-	.respondent-info {
-		display: flex;
-		align-items: center;
-		margin-bottom: 24px;
-		padding-bottom: 20px;
-		border-bottom: 1px solid #E4E4E7;
-	}
-
-	.respondent-avatar {
-		width: 48px;
-		height: 48px;
-		border-radius: 50%;
-		background-color: #f0f0f0;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		font-size: 18px;
-		font-weight: 600;
-		color: #50575e;
-		margin-right: 16px;
-		flex-shrink: 0;
-	}
-
-	.respondent-avatar img {
-		width: 48px;
-		height: 48px;
-		border-radius: 50%;
-	}
-
-	.respondent-details {
-		flex: 1;
-	}
-
 	.respondent-name {
 		font-size: 16px;
 		font-weight: 500;
@@ -225,20 +204,13 @@ $style = '<style media="all" type="text/css">
 		line-height: 1.4;
 	}
 
-	/* Metadata Section */
-	.metadata-section {
-		border-bottom: 1px solid #E4E4E7;
-		padding: 16px 0;
-		margin-bottom: 24px;
-	}
-
 	.metadata-table {
 		width: 100%;
 	}
 
 	.metadata-table td {
 		padding: 4px 0;
-		font-size: 13px;
+		font-size: ' . $font_size_metadata . ';
 		vertical-align: top;
 	}
 
@@ -266,162 +238,11 @@ $style = '<style media="all" type="text/css">
 		padding: 16px 16px 24px;
 	}
 
-	.form-field {
-		padding: 16px 0;
-		border-bottom: 1px solid #F0F0F0;
-	}
-
-	.form-field:last-child {
-		border-bottom: none;
-	}
-
-	.field-row {
-		display: flex;
-		align-items: flex-start;
-	}
-
-	.field-icon {
-		width: 24px;
-		height: 24px;
-		margin-right: 16px;
-		flex-shrink: 0;
-		margin-top: 2px;
-	}
-
-	.field-icon svg {
-		width: 24px;
-		height: 24px;
-		fill: #50575e;
-	}
-
-	.field-content {
-		flex: 1;
-		min-width: 0;
-	}
-
-	.field-label {
-		font-size: 12px;
-		color: ' . $text_secondary_color . ';
-		margin: 0 0 4px 0;
-		text-transform: none;
-	}
-
-	.field-value {
-		font-size: 13px;
-		color: ' . $text_color . ';
-		margin: 0;
-		word-wrap: break-word;
-	}
-
-	.field-value a {
-		color: ' . $link_color . ';
-		text-decoration: underline;
-	}
-
-	/* Tag/Chip Styles for Multi-select */
-	.field-tags {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 6px;
-		margin-top: 4px;
-	}
-
-	.field-tag {
-		display: inline-block;
-		background-color: #f0f0f0;
-		border-radius: 2px;
-		padding: 0 8px;
-		font-size: 13px;
-		color: ' . $text_color . ';
-	}
-
-	/* Image Select Styles */
-	.image-choices {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 12px;
-		margin-top: 8px;
-	}
-
-	.image-choice {
-		text-align: center;
-	}
-
-	.image-choice img {
-		width: 80px;
-		height: 80px;
-		object-fit: cover;
-		border-radius: 4px;
-		border: 1px solid #e0e0e0;
-	}
-
-	.image-choice-label {
-		font-size: 12px;
-		color: #50575e;
-		margin-top: 4px;
-	}
-
-	/* Rating Styles */
-	.rating-stars {
-		color: #f5c518;
-		font-size: 18px;
-		letter-spacing: 2px;
-	}
-
-	/* File Upload Styles */
-	.file-item {
-		display: flex;
-		align-items: center;
-		gap: 8px;
-		margin-top: 4px;
-	}
-
-	.file-icon {
-		width: 16px;
-		height: 16px;
-		fill: #50575e;
-	}
-
-	.file-name {
-		color: ' . $link_color . ';
-		text-decoration: underline;
-	}
-
-	.file-size {
-		color: #50575e;
-		font-size: 12px;
-	}
-
-	/* Consent Chip */
-	.consent-chip {
-		display: inline-block;
-		background-color: #d4edda;
-		color: #155724;
-		border-radius: 2px;
-		padding: 0 8px;
-		font-size: 13px;
-	}
-
-	.consent-chip.no {
-		background-color: #f8d7da;
-		color: #721c24;
-	}
-
-	/* Actions Section */
-	.actions {
-		margin-top: 24px;
-		text-align: center;
-	}
-
-	.actions-table {
-		width: 100%;
-	}
-
 	.action-button {
 		display: inline-block;
 		padding: 12px 24px;
 		border-radius: 4px;
-		font-size: 14px;
+		font-size: ' . $font_size_button . ';
 		font-weight: 500;
 		text-decoration: none;
 		margin: 0 6px;
@@ -438,76 +259,9 @@ $style = '<style media="all" type="text/css">
 		border: 1px solid ' . $link_color . ';
 	}
 
-	/* Legacy Actions Support */
-	.actions .button_block {
-		mso-table-lspace: 0pt;
-		mso-table-rspace: 0pt;
-		width: unset;
-		margin-top: 24px;
-	}
-
-	.actions .button_block .pad,
-	.actions .button_block .pad a {
-		border-radius: 4px;
-		background-image: url(\'https://s0.wordpress.com/i/emails/marketing/wpcom/2024/blueberry-px.png\');
-		background-size: cover;
-		background-color: #3858E9;
-	}
-
-	.actions .button_block .pad a {
-		font-size: 14px;
-		font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
-		font-weight: 500;
-		text-decoration: none;
-		padding: 12px 24px;
-		color: #ffffff;
-		border-radius: 4px;
-		display: inline-block;
-		mso-padding-alt: 0;
-	}
-
-	.actions .button_block .pad a span {
-		mso-text-raise: 15pt;
-	}
-
-	.actions .button_block .pad i {
-		letter-spacing: 25px;
-		mso-font-width: -100%;
-	}
-
-	/* Footer */
-	.footer {
-		clear: both;
-		padding: 24px 0;
-		width: 100%;
-	}
-
-	.footer-content {
-		text-align: center;
-	}
-
-	.footer td,
-	.footer p,
-	.footer span,
-	.footer a {
-		color: #50575e;
-		font-size: 12px;
-	}
-
 	.powered-by {
 		text-align: center;
 		padding: 16px 0;
-	}
-
-	.powered-by a {
-		color: #50575e;
-		text-decoration: none;
-		font-size: 12px;
-	}
-
-	.powered-by img {
-		vertical-align: middle;
-		margin-right: 4px;
 	}
 
 	h1 {
@@ -525,7 +279,7 @@ $style = '<style media="all" type="text/css">
 
 	.respondent-avatar-cell {
 		width: 64px;
-		vertical-align: top;
+		vertical-align: middle;
 	}
 
 	.respondent-avatar-wrapper {
@@ -543,7 +297,8 @@ $style = '<style media="all" type="text/css">
 	.respondent-details-cell {
 		vertical-align: middle;
 	}
-
+</style>
+<style media="all" type="text/css">
 	/* Responsive */
 	@media only screen and (max-width: 640px) {
 		.main p,
@@ -593,11 +348,34 @@ $style = '<style media="all" type="text/css">
 			width: 90px !important;
 		}
 
+		.actions {
+			width: 100% !important;
+			padding: 0 !important;
+		}
+
+		.actions .button-table,
+		.actions .button-table tbody,
+		.actions .button-table tr,
+		.actions .button-cell {
+			display: block !important;
+			width: 100% !important;
+			max-width: 100% !important;
+		}
+
+		.button-cell {
+			text-align: center !important;
+			padding: 4px 0 !important;
+		}
+
 		.action-button {
 			display: block !important;
-			margin: 8px 0 !important;
+			width: 100% !important;
+			box-sizing: border-box !important;
+			text-align: center !important;
 		}
 	}
+
+	' . $print_style . '
 
 	@media all {
 		.ExternalClass {

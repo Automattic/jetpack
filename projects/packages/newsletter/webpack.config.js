@@ -62,17 +62,6 @@ export default {
 			// Transpile JavaScript and TypeScript
 			jetpackWebpackConfig.TranspileRule( {
 				exclude: /node_modules\//,
-				babelOpts: {
-					configFile: false,
-					plugins: [
-						[
-							require.resolve( '@automattic/babel-plugin-replace-textdomain' ),
-							{
-								textdomain: 'jetpack-newsletter',
-							},
-						],
-					],
-				},
 			} ),
 
 			// Transpile @automattic/* in node_modules too.
@@ -82,6 +71,11 @@ export default {
 
 			/**
 			 * Transpile `@wordpress/dataviews` in node_modules too.
+			 *
+			 * Uses configFile: false to avoid inheriting babel.config.js, and
+			 * manually applies textdomain replacement with i18n function variants
+			 * to handle the aliased function names (e.g. __1, _x2) in the
+			 * dataviews build-wp bundle.
 			 *
 			 * @see https://github.com/Automattic/jetpack/issues/39907
 			 */

@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/babel-plugin-replace-textdomain",
-	"version": "1.0.54",
+	"version": "1.0.55",
 	"description": "A Babel plugin to replace the textdomain in gettext-style function calls.",
 	"keywords": [
 		"babel",
@@ -17,8 +17,7 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/Automattic/jetpack.git",
-		"directory": "projects/js-packages/babel-plugin-replace-textdomain"
+		"url": "git+https://github.com/Automattic/babel-plugin-replace-textdomain.git"
 	},
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",

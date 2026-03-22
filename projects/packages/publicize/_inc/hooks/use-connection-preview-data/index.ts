@@ -10,7 +10,7 @@ import { usePostMeta } from '../use-post-meta';
 import useSigPreview from '../use-sig-preview';
 import useSocialMediaMessage from '../use-social-media-message';
 import { useSocialPreviewPostData } from '../use-social-preview-post-data';
-import { PostData } from '../use-social-preview-post-data/types';
+import { PostPreviewData } from '../use-social-preview-post-data/types';
 
 /**
  * Returns the post data needed for the preview of a specific connection.
@@ -54,7 +54,7 @@ export function useConnectionPreviewData( connection: Connection ) {
 			};
 		}
 
-		let media: PostData[ 'media' ] = connection.attached_media || [];
+		let media: PostPreviewData[ 'media' ] = connection.attached_media || [];
 
 		switch ( connection.media_source ) {
 			case 'featured-image':

@@ -346,12 +346,7 @@ class zeroBS__Metabox_Quote extends zeroBS__Metabox {
 								<h3><?php esc_html_e( 'Publish this Quote', 'zero-bs-crm' ); ?></h3>
 								<p><?php esc_html_e( 'Do you want to use the Quote Builder to publish this quote? (This lets you email it to a client directly, for approval)', 'zero-bs-crm' ); ?></p>
 
-								<input type="hidden" name="zbs_quote_template_id_used" id="zbs_quote_template_id_used" value="
-								<?php
-								if ( isset( $templateUsed ) && ! empty( $templateUsed ) ) {
-									echo esc_attr( $templateUsed );}
-								?>
-								" />
+								<input type="hidden" name="zbs_quote_template_id_used" id="zbs_quote_template_id_used" value="<?php echo ! empty( $templateUsed ) ? esc_attr( $templateUsed ) : ''; ?>" />
 								<select class="form-control" name="zbs_quote_template_id" id="zbs_quote_template_id">
 									<option value="" disabled="disabled"><?php esc_html_e( 'Select a template', 'zero-bs-crm' ); ?>:</option>
 									<?php

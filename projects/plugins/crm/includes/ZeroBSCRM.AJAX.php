@@ -1085,8 +1085,11 @@ function ZeroBSCRM_accept_quote() {
 				wp_send_json_error( array( 'access' => 1 ), 403 );
 			}
 		}
-	} elseif ( ! zeroBSCRM_quotes_getFromHash( $quoteHash )['success'] ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-		wp_send_json_error( array( 'hash' => 1 ), 403 );
+	} else {
+		$quote_from_hash = zeroBSCRM_quotes_getFromHash( $quoteHash );
+		if ( ! $quote_from_hash['success'] || $quoteID !== (int) $quote_from_hash['data']['ID'] ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+			wp_send_json_error( array( 'hash' => 1 ), 403 );
+		}
 	}
 
 	// We can accept the quote
@@ -1983,6 +1986,12 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 		'sortorder'  => ( isset( $pArray['sortorder'] ) ) ? sanitize_text_field( $pArray['sortorder'] ) : false,
 		'pagekey'    => ( isset( $pArray['pagekey'] ) ) ? sanitize_text_field( $pArray['pagekey'] ) : '',
 	);
+
+	// Security: validate sort field is a safe identifier to prevent SQL injection via ORDER BY.
+	// Hyphens are allowed because custom field slugs use them (e.g. "new-field", "forced-numeric").
+	if ( ! empty( $listViewParams['sort'] ) && ! preg_match( '/^[a-zA-Z_][a-zA-Z0-9_-]*$/', $listViewParams['sort'] ) ) {
+		$listViewParams['sort'] = false;
+	}
 
 	// deal with arrayed items
 

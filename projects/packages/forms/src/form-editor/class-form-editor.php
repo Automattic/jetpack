@@ -32,6 +32,7 @@ class Form_Editor {
 		add_filter( 'block_editor_settings_all', array( __CLASS__, 'block_editor_settings_all' ), 10, 2 );
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_admin_scripts' ) );
 		add_action( 'current_screen', array( __CLASS__, 'disable_block_directory' ) );
+		add_action( 'current_screen', array( __CLASS__, 'disable_block_collection' ) );
 	}
 
 	/**
@@ -154,6 +155,26 @@ class Form_Editor {
 		}
 		if ( Contact_Form::POST_TYPE === $screen->post_type ) {
 			remove_action( 'enqueue_block_editor_assets', 'wp_enqueue_editor_block_directory_assets' );
+		}
+	}
+
+	/**
+	 * Disable the Jetpack block collection in the form editor.
+	 *
+	 * Filters `jetpack_register_block_collection` to prevent the "Jetpack"
+	 * collection label from appearing in the block inserter, since form field
+	 * blocks are organized into their own granular categories.
+	 *
+	 * @since 7.12.0
+	 *
+	 * @param \WP_Screen $screen The current screen object.
+	 */
+	public static function disable_block_collection( $screen ) {
+		if ( ! isset( $screen->post_type ) ) {
+			return;
+		}
+		if ( Contact_Form::POST_TYPE === $screen->post_type ) {
+			add_filter( 'jetpack_register_block_collection', '__return_false' );
 		}
 	}
 

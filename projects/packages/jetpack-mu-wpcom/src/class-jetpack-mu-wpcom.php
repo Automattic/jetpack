@@ -287,12 +287,25 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/wpcom-attachment-pages/wpcom-attachment-pages.php';
 		require_once __DIR__ . '/features/wpcom-block-editor/class-jetpack-wpcom-block-editor.php';
 		require_once __DIR__ . '/features/wpcom-block-editor/functions.editor-type.php';
+		require_once __DIR__ . '/features/wpcom-dashboard/class-wpcom-dashboard.php';
 		require_once __DIR__ . '/features/wpcom-hotfixes/wpcom-hotfixes.php';
 		require_once __DIR__ . '/features/wpcom-logout/wpcom-logout.php';
 		require_once __DIR__ . '/features/wpcom-themes/wpcom-theme-fixes.php';
 		require_once __DIR__ . '/features/wpcom-post-list/wpcom-post-types-tracking.php';
 		require_once __DIR__ . '/features/wpcom-widgets/wpcom-widgets.php';
 		require_once __DIR__ . '/features/wpcom-wpadmin-page-view/wpcom-wpadmin-page-view.php';
+
+		/*
+		 * Temporarily disable client-side media processing.
+		 *
+		 * Client-side media processing enables cross-origin isolation (COEP/COOP headers)
+		 * which can break authenticated API requests. This should be removed once client-side
+		 * media processing is compatible with Dotcom's infrastructure.
+		 *
+		 * @see gutenberg_set_up_cross_origin_isolation() in Gutenberg's lib/media/load.php
+		 * @see https://a8c.slack.com/archives/CBTN58FTJ/p1771950744814189
+		 */
+		add_filter( 'wp_client_side_media_processing_enabled', '__return_false' );
 
 		// Initializers, if needed.
 		\Marketplace_Products_Updater::init();
@@ -302,6 +315,7 @@ class Jetpack_Mu_Wpcom {
 		\Automattic\Jetpack\Classic_Theme_Helper\Featured_Content::setup();
 
 		\Automattic\Jetpack\Jetpack_Mu_Wpcom\Holiday_Snow::init();
+		\Automattic\Jetpack\Jetpack_Mu_Wpcom\Wpcom_Dashboard::init();
 
 		// Gets autoloaded from the Scheduled_Updates package.
 		if ( class_exists( 'Automattic\Jetpack\Scheduled_Updates' ) ) {
@@ -325,6 +339,10 @@ class Jetpack_Mu_Wpcom {
 		if ( ! class_exists( 'A8C\FSE\Agents_Manager' ) ) {
 			require_once __DIR__ . '/features/agents-manager/class-agents-manager.php';
 		}
+		if ( ! class_exists( 'A8C\FSE\Survicate' ) ) {
+			require_once __DIR__ . '/features/survicate/class-survicate.php';
+		}
+		require_once __DIR__ . '/features/ai-assistant-banner/ai-assistant-banner.php';
 		require_once __DIR__ . '/features/html-block-restricted-tags/html-block-restricted-tags.php';
 		require_once __DIR__ . '/features/marketing/marketing.php';
 		require_once __DIR__ . '/features/pages/pages.php';
@@ -347,6 +365,13 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/wpcom-themes/wpcom-theme-tracking.php';
 		require_once __DIR__ . '/features/wpcom-themes/wpcom-themes.php';
 		require_once __DIR__ . '/features/wpcom-user-edit/wpcom-user-edit.php';
+
+		// Enable newsletter settings for sites with the newsletter-package-202603 sticker.
+		add_filter( 'jetpack_wp_admin_newsletter_settings_enabled', 'wpcom_maybe_enable_newsletter_settings' );
+
+		// Initialize Newsletter Settings so hooks like the Reading page notice
+		// are registered on Simple sites (where load-jetpack.php doesn't run).
+		\Automattic\Jetpack\Newsletter\Settings::init();
 
 		// Only load the Masterbar features on WoA sites.
 		if ( class_exists( '\Automattic\Jetpack\Status\Host' ) && ( new \Automattic\Jetpack\Status\Host() )->is_woa_site() ) {
@@ -410,6 +435,7 @@ class Jetpack_Mu_Wpcom {
 			return;
 		}
 
+		require_once __DIR__ . '/features/gutenberg-rtc/gutenberg-rtc.php';
 		require_once __DIR__ . '/features/jetpack-global-styles/class-global-styles.php';
 		require_once __DIR__ . '/features/mailerlite/subscriber-popup.php';
 		require_once __DIR__ . '/features/wpcom-fse/wpcom-fse.php';

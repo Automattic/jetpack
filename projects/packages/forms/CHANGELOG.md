@@ -5,6 +5,156 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [7.13.0] - 2026-03-16
+### Added
+- Add entries filter to filter forms by whether they have responses. [#47523]
+- Add form name modal to the wp-build forms dashboard, prompting users to name their form before entering the editor. [#47395]
+- Add per-status form counts REST endpoint and display counts in Forms dashboard status filters. [#47475]
+- Forms: Add publish/unpublish actions. [#47325]
+
+### Changed
+- Editor: Hide word count and reading time panel. [#47528]
+- Dashboard: Remove modified date filter. [#47523]
+- Hide "Browse form patterns" button in the form placeholder when central form management is enabled. [#47527]
+- Update "View form responses" button to link to the specific form's responses when the form has a ref. [#47530]
+- Update dependencies. [#47472]
+
+### Fixed
+- Create synced form when inserting form variations via the block inserter. [#47335]
+- Ensure forms list entries count updates after trashing responses. [#47526]
+- Ensure HTML entities are decoded in form title on pre-publish panel. [#47531]
+- Ensure number field min and max values display in the UI after page reload. [#47511]
+- Fix aria-label attribute by passing a string value to the Page component. [#47481]
+- Purge edge cache when a jetpack_form post is published, updated, or unpublished. [#47532]
+- Show "No results found" empty state when search or filters are active in the forms list view instead of the onboarding empty state. [#47525]
+
+## [7.12.0] - 2026-03-09
+### Added
+- Form Editor: Show form embed code. [#47238]
+
+### Changed
+- Form Editor: Auto-open the block inserter on load so form field blocks are immediately discoverable. [#47413]
+- Hide the Jetpack block collection from the form editor block inserter. [#47390]
+- Forms dashboard: Use title header on top-level pages for consistency with other Jetpack pages. [#47446]
+- Switch to Native TypeScript compiler based on Go. [#47375]
+- Update package dependencies. [#47496] [#47499]
+
+### Removed
+- Remove the form title modal from the form editor. [#47458]
+
+### Fixed
+- Add missing 'Trash' status label in stage component. [#47450]
+- Contact Form: Show synced forms as read-only preview in widget editor with Edit Form button. [#47235]
+- Dashboard: Fix admin page header CSS specificity to prevent style conflicts. [#47313]
+- Decode HTML entities in form dropdown titles in the variation picker. [#47474]
+- Extract `WidgetEditorReadonlyView` into its own component to scope `useBlockEditingMode` to widget editor context only. [#47452]
+- Fix TypeScipt type errors detected by `tsgo`. [#47423]
+- Update submit button handling to support core/button blocks as part of the jetpack/button to core/button migration. [#47438]
+
+## [7.11.0] - 2026-03-02
+### Added
+- Auto-create synced form when AI generates form fields with central form management enabled. [#47267]
+- Forms Dashboard: Display form status badge in the single form view header. [#47328]
+
+### Changed
+- Replace `Badge` component from `@automattic/ui` with `@wordpress/ui` `Badge`, fixing extra margin on badges in the forms dashboard. [#47377]
+- Use integer format for response count in dataviews. [#47381]
+- Update package dependencies. [#47294]
+- Use block type title instead of post title for synced form naming. [#47336]
+- Use `Tabs` component from `@wordpress/ui`. [#46985]
+
+### Fixed
+- Fix synced form loading state to correctly report loading during initial `IDLE` status. [#47327]
+- Fix MailPoet subscriber not created on form submission due to list ID type mismatch and email field not detected by type attribute. [#47394]
+- Create new form pages without a placeholder title. [#47383]
+- Multi-step Form: Fix navigation button styling to support granular CSS customization. [#47324]
+
+## [7.10.0] - 2026-02-26
+### Added
+- Add 'Other' option support for radio fields with custom text input, including ARIA accessibility, proper validation, and metadata storage for form submissions. [#46461]
+- Add print-friendly styles to form submission emails: hide decorative field icons, tighten spacing, and remove non-essential elements when printing. Minify email CSS to stay under Gmail's 8,192-character style block limit. [#47287]
+- Add View Responses button and More Actions dropdown to form editor header. [#47175]
+- Forms block: Add border styling support. [#47274]
+
+### Changed
+- Optimize CSS loading by moving status notice styles to separate file loaded only when needed. [#47273]
+- Revert https://github.com/Automattic/jetpack/pull/47097 - restore button border colors to previous state. [#47260]
+- Update package dependencies. [#47285] [#47295] [#47300]
+
+### Fixed
+- Fix "Other" option toggle not updating the option label in the editor. [#47316]
+- Fix duplicate title in plain text email by removing the preheader element before generating plain text alternative. [#47291]
+- Fix infinite loop in Name field block when initializing `fieldVariant` attribute. [#47266]
+- Button locator on `multi-step-navigation` was aiming at the wrong element (block parent container instead of button element). [#47286]
+- Fix unwanted border appearing in Gutenberg 22.6.0. [#47275]
+- Prevent decorative icons from being included when copy/pasting form response emails. [#47279]
+
+## [7.9.0] - 2026-02-23
+### Added
+- Dashboard: Add "Duplicate" action to the wp-build forms list. [#47171]
+- Dashboard: Add actions dropdown (Duplicate, Preview, Copy embed, Copy shortcode) to the single form view header. [#47202]
+- Dashboard: Add help for blocks vs forms. [#47135]
+- Dashboard: Add rename action to forms list. [#47104]
+- Add file field HTML output for emails. [#47148]
+- Add pre-publish panel with settings summary and quick navigation to the form editor. [#47255]
+
+### Changed
+- Change default form layout from vertical to horizontal with wrap, allowing form fields to display side-by-side. [#47210]
+- Change forms dashboard URL filter to allow customizing the dashboard location and resolve legacy hash fragments from email links. [#47029]
+- Render images from image select fields on email notifications. [#47160]
+- Update package dependencies. [#47173]
+
+### Fixed
+- Contact Form: Fix layout classes applied to wrong element for synced forms. [#47136]
+- Contact Form: Fix shortcode ref attribute to load form from `jetpack_form` post type. [#47129]
+- Dashboard: Fix flash of unstyled response data in the inspector sidebar on initial page load. [#47179]
+- Dashboard: Re-add the source column to the single form view responses table. [#47232]
+- Dashboard: Remove bottom margin on search control that caused vertical misalignment in the header row. [#47263]
+- Dashboard: Remove icons from mobile dropdown menu items for a cleaner appearance. [#47206]
+- Dashboard: Use consistent "responses" terminology instead of "entries" and "submissions". [#47256]
+- Email template: Fix button layout regression, add responsive mobile stacking, improve font sizes, and align field icons with labels. [#47127]
+- Fix 'Mark as spam' button in email notifications to work with wp-build dashboard. [#47150]
+- Fix file-type icon paths and show image thumbnails for file fields in the inspector. [#47253]
+- Fix image-select field preview styling on the wp-build dashboard. [#47252]
+- Fix wp-build dashboard headers and content positioning on mobile. [#47139]
+- Form Editor: Add padding below title to prevent block toolbar overlap. [#47170]
+- Image Select: Prevent fatal error when rendering image-select fields with invalid image payloads. [#47236]
+
+## [7.8.0] - 2026-02-16
+### Added
+- Dashboard: Add 'Copy embed' and 'Copy shortcode' actions to copy form code to clipboard. [#47092]
+- Form Editor: Show form name modal when creating a new form. [#47105]
+- Form Notifications: Add new HTML email template structure with respondent info section, metadata section (date, source, device, IP), and updated action buttons. [#47022]
+- Add horizontal layout. [#45272]
+- Show status notice for non-published synced forms in the block editor and frontend preview when attempting to publish. [#46914]
+
+### Changed
+- Admin Bar: Replace dashicon with SVG icon and add tooltip to "Form Responses" link. [#47120]
+- Allow Accordion, Details, and Icon blocks in forms. [#47121]
+- Allow filtering active tooltips for integrations from the backend. [#47026]
+- Consolidate temporary menus into one for WP build dashboard. [#47058]
+- Dashboard: Create new forms in same tab. [#47098]
+- Dashboard: Make forms primary on wp-build dashboard. [#47126]
+- Dashboard: Set primary actions for wp-build forms list. [#47051]
+- Dashboard: Tweaks for wpbuild dashboard header. [#47064]
+- Dashboard: Update wp-build header buttons. [#47069]
+- File Upload Dropzone: Allow Icon block to be added inside the dropzone. [#47121]
+- Allow filtering forms dashboard URL. [#47039]
+- Extract method to util class, introduce new email renderer class. [#47108]
+- Make sure 100% width fields apply properly on mobile. [#47125]
+- Use new email renderer class. [#47117]
+- Update package dependencies. [#47099]
+
+### Fixed
+- Compatibility: Clean up deprecated CSS. [#47067]
+- Contact Form: Fix button border color not following the text color on the frontend. [#47097]
+- Contact Form: Fix crash in block label function and display actual form title with status indicator. [#47111]
+- Contact Form: Fix layout display in widget areas. [#47132]
+- Contact Form: Remove `grunion.css` dependency from forms layout stylesheet. [#47133]
+- Form Editor: Fix synced form changes being lost when navigating between page editor and form editor. [#47048]
+- Form Editor: Prevent empty paragraphs from being inserted outside the form block. [#47016]
+- Load the wp-build dashboard independently of the Gutenberg plugin. [#47035]
+
 ## [7.7.0] - 2026-02-10
 ### Added
 - Contact Form: Add shortcode transform support for synced form references. [#46812]
@@ -2187,6 +2337,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a new jetpack/forms package [#28409]
 - Added a public load_contact_form method for initializing the contact form module. [#28416]
 
+[7.13.0]: https://github.com/automattic/jetpack-forms/compare/v7.12.0...v7.13.0
+[7.12.0]: https://github.com/automattic/jetpack-forms/compare/v7.11.0...v7.12.0
+[7.11.0]: https://github.com/automattic/jetpack-forms/compare/v7.10.0...v7.11.0
+[7.10.0]: https://github.com/automattic/jetpack-forms/compare/v7.9.0...v7.10.0
+[7.9.0]: https://github.com/automattic/jetpack-forms/compare/v7.8.0...v7.9.0
+[7.8.0]: https://github.com/automattic/jetpack-forms/compare/v7.7.0...v7.8.0
 [7.7.0]: https://github.com/automattic/jetpack-forms/compare/v7.6.0...v7.7.0
 [7.6.0]: https://github.com/automattic/jetpack-forms/compare/v7.5.0...v7.6.0
 [7.5.0]: https://github.com/automattic/jetpack-forms/compare/v7.4.0...v7.5.0

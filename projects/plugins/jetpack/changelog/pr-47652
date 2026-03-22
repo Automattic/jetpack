@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Forms: Add logged-in user display name and ID to form submission emails and response sidebar.

@@ -5,6 +5,79 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.74.0] - 2026-03-16
+### Added
+- Add support for X connection. [#47538]
+
+### Changed
+- Clean up Twitter notices in classic editor. [#47550]
+- Update dependencies. [#47472]
+- Update media restrictions for all the networks. [#47576]
+
+### Removed
+- Clean up Twitter deprecation blocks. [#47574]
+
+## [0.73.2] - 2026-03-09
+### Changed
+- Convert hooks to TypeScript and fix JSDoc return types for `tsgo` compatibility. [#47404]
+- Migrate admin page header to use unified AdminHeader component. [#47313]
+- Replace license activation link with a "Use license key" button in the header actions area. [#47434]
+- Switch to Native TypeScript compiler based on Go. [#47375]
+- Update package dependencies. [#47496]
+
+### Fixed
+- Constrain license activation link width on mobile to prevent header overflow. [#47431]
+
+## [0.73.1] - 2026-03-02
+### Changed
+- Update dependencies. [#46383]
+
+## [0.73.0] - 2026-02-26
+### Added
+- Social: Add `jetpack.ai.imageGenerationHandler` filter to allow external plugins (e.g. Image Studio) to replace the built-in AI image generation flow for the "Generate image" entry point. [#47180]
+
+### Changed
+- Update package dependencies. [#47285] [#47288] [#47300] [#47309]
+
+### Fixed
+- Fix Threads social preview for posts with gallery. [#47322]
+- Social admin: Expand toggle sections width to fill container. [#47308]
+
+## [0.72.6] - 2026-02-23
+### Changed
+- Twitter Cards: Use `Automattic\Jetpack\Post_Media\Twitter_Cards` instead of `Jetpack_Twitter_Cards`. [#47169]
+
+## [0.72.5] - 2026-02-19
+### Added
+- Add visual dot to active connection in preview modal. [#47218]
+
+### Changed
+- Disable AI image option in the media UI for standalone plugin. [#47193]
+
+## [0.72.4] - 2026-02-18
+### Added
+- Add analytics tracking for per network customizations UI. [#47188]
+- Create reusable link previews modal and tabs component. [#47142]
+
+### Changed
+- Replace link previews in the panel with the unified one. [#47153]
+- Update package dependencies. [#47173]
+
+## [0.72.3] - 2026-02-16
+### Added
+- Add media validation notices to preview modal. [#47006]
+
+### Changed
+- Convert connection and illustration images from PNG to WebP. [#47084]
+- Replace form in the sidebar with message when using per-network customizations. [#47003]
+- Update package dependencies. [#47099]
+
+### Fixed
+- Compatibility: Clean up deprecated CSS. [#47067]
+- Fix connection sync on toggle for published posts. [#46966]
+- Fix Tumblr preview to prioritize custom message when it is set. [#47075]
+- Refresh plan features on post-checkout redirect. [#46961]
+
 ## [0.72.2] - 2026-02-10
 ### Changed
 - Improve the media selection UI in preview modal. [#46921]
@@ -1259,6 +1332,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update package.json metadata.
 
+[0.74.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.73.2...v0.74.0
+[0.73.2]: https://github.com/Automattic/jetpack-publicize/compare/v0.73.1...v0.73.2
+[0.73.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.73.0...v0.73.1
+[0.73.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.72.6...v0.73.0
+[0.72.6]: https://github.com/Automattic/jetpack-publicize/compare/v0.72.5...v0.72.6
+[0.72.5]: https://github.com/Automattic/jetpack-publicize/compare/v0.72.4...v0.72.5
+[0.72.4]: https://github.com/Automattic/jetpack-publicize/compare/v0.72.3...v0.72.4
+[0.72.3]: https://github.com/Automattic/jetpack-publicize/compare/v0.72.2...v0.72.3
 [0.72.2]: https://github.com/Automattic/jetpack-publicize/compare/v0.72.1...v0.72.2
 [0.72.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.72.0...v0.72.1
 [0.72.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.71.0...v0.72.0

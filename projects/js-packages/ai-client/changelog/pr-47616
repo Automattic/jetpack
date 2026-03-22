@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+AI Assistant: Fix modal shaking when content streams in by correcting header margins and making the header sticky.

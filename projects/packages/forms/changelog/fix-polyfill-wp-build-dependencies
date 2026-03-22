@@ -1,0 +1,4 @@
+Significance: minor
+Type: fixed
+
+Add polyfills for wp-build unbundled dependencies

@@ -14,6 +14,13 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
  */
 class Agents_Manager {
 	/**
+	 * Help Center URL for disconnected variants.
+	 *
+	 * @var string
+	 */
+	private const HELP_CENTER_URL = 'https://wordpress.com/help?help-center=home';
+
+	/**
 	 * Class instance.
 	 *
 	 * @var Agents_Manager
@@ -26,6 +33,7 @@ class Agents_Manager {
 	public function __construct() {
 		add_action( 'rest_api_init', array( $this, 'register_rest_api' ) );
 		add_filter( 'calypso_preferences_update', array( $this, 'calypso_preferences_update' ) );
+
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ), 101 );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ), 101 );
 		add_action( 'next_admin_init', array( $this, 'enqueue_scripts' ), 1001 );
@@ -145,39 +153,74 @@ class Agents_Manager {
 	 * Enqueue Agents Manager scripts and add inline script data.
 	 */
 	public function enqueue_scripts() {
-		if ( $this->should_display_menu_panel() ) {
+		// Early return for P2 frontend - don't add admin bar or enqueue scripts.
+		$stylesheet = get_stylesheet();
+		$is_p2      = str_contains( $stylesheet, 'pub/p2' ) || function_exists( '\WPForTeams\is_wpforteams_site' ) && \WPForTeams\is_wpforteams_site( get_current_blog_id() );
+
+		if ( ! is_admin() && $is_p2 ) {
+			return;
+		}
+
+		// Determine which variant to load (null = don't load).
+		$variant = $this->get_variant();
+		if ( null === $variant ) {
+			return;
+		}
+		$use_disconnected = str_contains( $variant, 'disconnected' );
+		$is_gutenberg     = $this->is_block_editor();
+
+		// In Gutenberg, dequeue Help Center so we don't end up with two buttons.
+		// Agents Manager fires at priority 101, after Help Center at 100, so HC is already enqueued.
+		if ( $is_gutenberg ) {
+			wp_dequeue_script( 'help-center' );
+			wp_dequeue_style( 'help-center-style' );
+		}
+
+		// For non-Gutenberg, non-CIAB environments, add to admin bar.
+		// Gutenberg doesn't have an admin bar, so JS will handle UI insertion.
+		// CIAB hides the classic admin bar and uses its own Site Hub — the JS variant handles UI there.
+		$is_ciab = $this->is_ciab_environment();
+		if ( ! $is_gutenberg && ! $is_ciab ) {
 			add_action(
 				'admin_bar_menu',
-				function ( $wp_admin_bar ) {
+				function ( $wp_admin_bar ) use ( $use_disconnected ) {
 					// Remove the help-center menu item
 					$wp_admin_bar->remove_node( 'help-center' );
 
-					// Add the main agents manager menu node
-					$wp_admin_bar->add_menu(
-						array(
-							'id'     => 'agents-manager',
-							'title'  => '<span title="' . __( 'Help Center', 'jetpack-mu-wpcom' ) . '"><svg id="agents-manager-icon" class="ab-icon" width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-												<path fill="currentColor" fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm-1 16v-2h2v2h-2zm2-3v-1.141A3.991 3.991 0 0016 10a4 4 0 00-8 0h2c0-1.103.897-2 2-2s2 .897 2 2-.897 2-2 2a1 1 0 00-1 1v2h2z" />
-											</svg></span>',
-							'parent' => 'top-secondary',
-							'meta'   => array(
-								'html'   => '<div id="agents-manager-masterbar" />',
-								'class'  => 'menupop',
-								'target' => '_blank',
-							),
-						)
+					$menu_args = array(
+						'id'     => 'agents-manager',
+						'title'  => '<span title="' . __( 'Help Center', 'jetpack-mu-wpcom' ) . '"><svg id="agents-manager-icon" class="ab-icon" width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+										<path fill="currentColor" fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm-1 16v-2h2v2h-2zm2-3v-1.141A3.991 3.991 0 0016 10a4 4 0 00-8 0h2c0-1.103.897-2 2-2s2 .897 2 2-.897 2-2 2a1 1 0 00-1 1v2h2z" />
+									</svg></span>',
+						'parent' => 'top-secondary',
 					);
+
+					// For disconnected variants, link directly to help center instead of showing dropdown
+					if ( $use_disconnected ) {
+						$menu_args['href'] = self::HELP_CENTER_URL;
+						$menu_args['meta'] = array(
+							'target' => '_blank',
+						);
+					} else {
+						// For full variants, show the dropdown menu panel
+						$menu_args['meta'] = array(
+							'html'   => '<div id="agents-manager-masterbar" />',
+							'class'  => 'menupop',
+							'target' => '_blank',
+						);
+					}
+
+					// Add the main agents manager menu node
+					$wp_admin_bar->add_menu( $menu_args );
 				},
 				// Add the agents manager icon to the admin bar after the help center is added, so we can remove it.
 				100
 			);
 
-			// Initialize the agents manager menu panel
-			add_action( 'admin_bar_menu', array( $this, 'add_menu_panel' ), 100 );
-		}
-
-		if ( ! $this->should_enqueue_script() ) {
-			return;
+			// Initialize the agents manager menu panel (only for full variants, not disconnected)
+			if ( ! $use_disconnected ) {
+				add_action( 'admin_bar_menu', array( $this, 'add_menu_panel' ), 100 );
+			}
 		}
 
 		/**
@@ -201,12 +244,6 @@ class Agents_Manager {
 		 */
 		$use_unified_experience = apply_filters( 'agents_manager_use_unified_experience', false );
 
-		if ( $this->is_block_editor() ) {
-			$variant = 'gutenberg';
-		} else {
-			$variant = 'wp-admin';
-		}
-
 		$this->enqueue_script( $variant );
 
 		wp_add_inline_script(
@@ -219,6 +256,7 @@ class Agents_Manager {
 					'sectionName'          => $variant,
 					'currentUser'          => $this->get_current_user_data(),
 					'site'                 => $this->get_current_site(),
+					'helpCenterUrl'        => self::HELP_CENTER_URL,
 				),
 				JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 			) . ';',
@@ -227,38 +265,106 @@ class Agents_Manager {
 	}
 
 	/**
-	 * Determine if the agents manager files should be enqueued.
+	 * Determine which script variant to load, or null if none should be loaded.
+	 *
+	 * Combines the gating logic (should we load at all?) with variant selection
+	 * (which build to use?) into a single method so the two cannot get out of sync.
+	 *
+	 * @return string|null The variant name, or null if scripts should not be loaded.
 	 */
-	private function should_enqueue_script() {
-		// Don't load on site frontend - only load in wp-admin.
+	private function get_variant() {
+		// CIAB: Load either the connected or disconnected variants if enabled.
+		if ( $this->is_ciab_environment() && self::is_enabled() ) {
+			return $this->is_jetpack_disconnected() ? 'ciab-disconnected' : 'ciab';
+		}
+
+		// Frontend: load disconnected variant for eligible logged-in editors.
 		if ( ! is_admin() ) {
-			return false;
+			if ( $this->is_loading_on_frontend() && self::is_enabled() ) {
+				return 'wp-admin-disconnected';
+			}
+			return null;
 		}
 
-		// Don't load in customizer preview iframe - Help Center handles customizer separately
-		// via customize_controls_enqueue_scripts hook (loads only in controls panel, not preview).
-		if ( is_customize_preview() ) {
-			return false;
+		// Apply wp-admin exclusions (WooCommerce, customizer, preview contexts).
+		if ( ! $this->passes_admin_checks() ) {
+			return null;
 		}
 
-		// Don't load during Gutenberg asset requests or in preview contexts.
-		// This matches the logic in Help_Center::init() to prevent excessive/unnecessary loading.
-		$request_uri = isset( $_SERVER['REQUEST_URI'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- This is a context check, not a form submission.
-		$is_preview = isset( $_GET['preview'] ) && 'true' === sanitize_text_field( wp_unslash( $_GET['preview'] ) );
-		if ( str_contains( $request_uri, 'wp-content/plugins/gutenberg-core' ) || $is_preview ) {
-			return false;
+		if ( ! self::is_enabled() ) {
+			return null;
 		}
 
+		$disconnected = $this->is_jetpack_disconnected();
+
+		if ( $this->is_block_editor() ) {
+			return $disconnected ? 'gutenberg-disconnected' : 'gutenberg';
+		}
+
+		return $disconnected ? 'wp-admin-disconnected' : 'wp-admin';
+	}
+
+	/**
+	 * Returns true if the Agents Manager should be loaded in the current context.
+	 *
+	 * @return bool
+	 */
+	public static function is_enabled() {
+		// CIAB: Agents Manager is the default AI experience — enabled unless explicitly
+		// disabled via filter (e.g. for debugging or gradual rollout).
+		if ( self::is_ciab_environment() ) {
+			/**
+			 * Filter whether Agents Manager is enabled in CIAB (Next Admin) environments.
+			 *
+			 * @param bool $enabled Whether Agents Manager should load. Default true.
+			 */
+			return apply_filters( 'agents_manager_enabled_in_ciab', true );
+		}
+
+		// Full unified experience: Agents Manager with support guides, Help Center takeover, etc.
 		if ( apply_filters( 'agents_manager_use_unified_experience', false ) ) {
 			return true;
 		}
 
-		if ( $this->is_block_editor() && class_exists( 'Big_Sky' ) && $this->has_unified_big_sky_flag() ) {
+		// Block editor only: Agents Manager replaces Big Sky's native UI. Hooked by Big Sky.
+		if ( self::is_block_editor() && apply_filters( 'agents_manager_enabled_in_block_editor', false ) ) {
 			return true;
 		}
 
 		return false;
+	}
+
+	/**
+	 * Returns true if the current wp-admin context passes all exclusion checks.
+	 *
+	 * Excludes WooCommerce Admin home, customizer preview, Gutenberg asset requests,
+	 * and preview query param contexts.
+	 *
+	 * @return bool
+	 */
+	private function passes_admin_checks() {
+		// Don't load on WooCommerce Admin home page to avoid UI conflicts.
+		global $current_screen;
+		if ( $current_screen && $current_screen->id === 'woocommerce_page_wc-admin' ) {
+			return false;
+		}
+
+		// Don't load in customizer preview iframe.
+		if ( is_customize_preview() ) {
+			return false;
+		}
+
+		// Don't load during Gutenberg asset requests or preview contexts.
+		$request_uri = isset( $_SERVER['REQUEST_URI'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- This is a context check, not a form submission.
+		$is_preview = isset( $_GET['preview'] ) && 'true' === sanitize_text_field( wp_unslash( $_GET['preview'] ) );
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- This is a context check, not a form submission.
+		$is_preview_overlay = isset( $_GET['preview_overlay'] );
+		if ( str_contains( $request_uri, 'wp-content/plugins/gutenberg-core' ) || $is_preview || $is_preview_overlay ) {
+			return false;
+		}
+
+		return true;
 	}
 
 	/**
@@ -291,12 +397,14 @@ class Agents_Manager {
 			true
 		);
 
-		wp_enqueue_style(
-			'agents-manager-style',
-			'https://widgets.wp.com/agents-manager/agents-manager-' . $variant . ( is_rtl() ? '.rtl.css' : '.css' ),
-			array(),
-			$version
-		);
+		if ( 'gutenberg-disconnected' !== $variant && 'ciab-disconnected' !== $variant ) {
+			wp_enqueue_style(
+				'agents-manager-style',
+				'https://widgets.wp.com/agents-manager/agents-manager-' . $variant . ( is_rtl() ? '.rtl.css' : '.css' ),
+				array(),
+				$version
+			);
+		}
 	}
 
 	/**
@@ -468,9 +576,10 @@ class Agents_Manager {
 	/**
 	 * Determine if user should see unified experience.
 	 *
+	 * @param bool $use_unified_experience Whether to use unified experience.
 	 * @return bool
 	 */
-	public function should_use_unified_experience() {
+	public function should_use_unified_experience( $use_unified_experience = false ) {
 		// Early return for non-proxied/dev mode requests.
 		// This feature is currently only available to Automattic employees testing via proxy.
 		if ( ! self::is_dev_mode() ) {
@@ -493,16 +602,16 @@ class Agents_Manager {
 			}
 		}
 
-		// On WoA and Garden sites, delegate to wpcom via the /me/preferences endpoint.
+		// On WoA and Garden sites, delegate to wpcom via the /agents-manager/state endpoint.
 		// This avoids duplicating rollout logic and handles cases where
 		// wpcom-specific functions (like get_user_attribute) aren't available.
 		if ( $this->fetch_unified_experience_preference() ) {
 			return true;
 		}
 
-		// False, for now.
+		// Default to false, for now.
 		// In the future: users with a big sky site (similar to https://github.a8c.com/Automattic/wpcom/pull/196449/files), a big-sky free trial or a paid plan.
-		return false;
+		return $use_unified_experience;
 	}
 
 	/**
@@ -530,7 +639,7 @@ class Agents_Manager {
 	 * Used on Atomic sites to delegate the decision to wpcom, which has
 	 * access to user attributes and can evaluate the rollout logic.
 	 *
-	 * Calls /me/preferences endpoint which is accessible via Jetpack user tokens.
+	 * Calls /agents-manager/state endpoint which is accessible via Jetpack user tokens.
 	 *
 	 * @return bool Whether user should see unified experience.
 	 */
@@ -552,9 +661,9 @@ class Agents_Manager {
 			return false;
 		}
 
-		// Call /me/preferences via wpcom/v2 namespace (works with Jetpack user tokens).
+		// Call dedicated agents-manager/state endpoint.
 		$wpcom_request = \Automattic\Jetpack\Connection\Client::wpcom_json_api_request_as_user(
-			'/me/preferences?preference_key=unified_ai_chat',
+			'/agents-manager/state?key=unified_ai_chat',
 			'2',
 			array( 'method' => 'GET' )
 		);
@@ -574,8 +683,8 @@ class Agents_Manager {
 		$body         = wp_remote_retrieve_body( $wpcom_request );
 		$decoded_body = json_decode( $body, true );
 
-		// The response is the value of the preference directly when using preference_key.
-		$result = ! empty( $decoded_body );
+		// The response is { "unified_ai_chat": true/false } when using key param.
+		$result = is_array( $decoded_body ) && ! empty( $decoded_body['unified_ai_chat'] );
 
 		// Cache for 1 minute.
 		set_transient( $cache_key, $result ? 1 : 0, MINUTE_IN_SECONDS );
@@ -584,11 +693,33 @@ class Agents_Manager {
 	}
 
 	/**
+	 * Returns true if the current request is on the frontend and the user can edit posts.
+	 *
+	 * Mirrors Help_Center::is_loading_on_frontend().
+	 *
+	 * @return bool True if loading on the frontend for an eligible user.
+	 */
+	private function is_loading_on_frontend() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- This is a context check, not a form submission.
+		if ( isset( $_GET['na_site_preview'] ) || isset( $_GET['preview_overlay'] ) ) {
+			return false;
+		}
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- This is a context check, not a form submission.
+		if ( isset( $_GET['preview'] ) && 'true' === sanitize_text_field( wp_unslash( $_GET['preview'] ) ) ) {
+			return false;
+		}
+
+		$can_edit_posts = current_user_can( 'edit_posts' ) && is_user_member_of_blog();
+		return ! is_admin() && ! $this->is_block_editor() && $can_edit_posts;
+	}
+
+	/**
 	 * Returns true if the current screen is the block editor.
 	 *
 	 * @return bool True if the current screen is the block editor.
 	 */
-	private function is_block_editor() {
+	private static function is_block_editor() {
 		if ( ! function_exists( 'get_current_screen' ) ) {
 			return false;
 		}
@@ -599,16 +730,33 @@ class Agents_Manager {
 	}
 
 	/**
-	 * Determine if the user should use unified experience for Big Sky.
+	 * Check if current environment is CIAB (Commerce in a Box) / Next Admin.
+	 *
+	 * Uses the same detection method as Help Center: checks if next_admin_init has fired.
+	 *
+	 * @return bool True if CIAB/Next Admin environment.
 	 */
-	private function has_unified_big_sky_flag() {
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- This is a feature flag check, not a form submission.
-		if ( isset( $_GET['flags'] ) ) {
-			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- This is a feature flag check, not a form submission.
-			$flags = explode( ',', sanitize_text_field( wp_unslash( $_GET['flags'] ) ) );
-			if ( in_array( 'unified-big-sky', $flags, true ) ) {
-				return true;
-			}
+	private static function is_ciab_environment() {
+		return (bool) did_action( 'next_admin_init' );
+	}
+
+	/**
+	 * Returns true if the current user is NOT connected through Jetpack.
+	 *
+	 * Mirrors the logic from Help_Center::is_jetpack_disconnected().
+	 *
+	 * @return bool True if the site uses Jetpack but the current user is not connected.
+	 */
+	private function is_jetpack_disconnected() {
+		$user_id = get_current_user_id();
+		$blog_id = get_current_blog_id();
+
+		if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
+			return ! ( new Connection_Manager( 'jetpack' ) )->is_user_connected( $user_id );
+		}
+
+		if ( true === apply_filters( 'is_jetpack_site', false, $blog_id ) ) {
+			return ! ( new Connection_Manager( 'jetpack' ) )->is_user_connected( $user_id );
 		}
 
 		return false;

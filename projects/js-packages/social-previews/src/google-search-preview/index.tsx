@@ -37,11 +37,13 @@ const googleDescription = firstValid(
 );
 
 export type GoogleSearchPreviewProps = Omit< SocialPreviewBaseProps, 'image' > & {
+	siteIcon?: string;
 	siteTitle?: string;
 };
 
 export const GoogleSearchPreview: React.FC< Partial< GoogleSearchPreviewProps > > = ( {
 	description = '',
+	siteIcon,
 	siteTitle,
 	title = '',
 	url = '',
@@ -55,7 +57,7 @@ export const GoogleSearchPreview: React.FC< Partial< GoogleSearchPreviewProps > 
 					<div className="search-preview__branding">
 						<img
 							className="search-preview__icon"
-							src={ `https://www.google.com/s2/favicons?sz=128&domain_url=${ domain }` }
+							src={ siteIcon || `https://www.google.com/s2/favicons?sz=128&domain_url=${ domain }` }
 							alt=""
 						/>
 						<div className="search-preview__site">

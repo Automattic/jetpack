@@ -1332,6 +1332,7 @@ class Search extends Module {
 		'organization',
 		'our_team_category',
 		'page_category',
+		'page_condition',
 		'parisrestaurant',
 		'parissauna',
 		'partner_category',
@@ -1743,6 +1744,9 @@ class Search extends Module {
 		// wp.com a8c-support-theme taxonomies.
 		'kb_category',
 		'kb_tag',
+
+		// coolhunting.com
+		'article-type',
 
 	); // end taxonomies.
 

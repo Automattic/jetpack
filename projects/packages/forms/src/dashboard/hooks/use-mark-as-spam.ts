@@ -3,45 +3,91 @@
  */
 import { store as coreStore } from '@wordpress/core-data';
 import { useDispatch } from '@wordpress/data';
-import { useCallback, useEffect, useState } from '@wordpress/element';
+import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 import { store as dashboardStore } from '../store/index.js';
 /**
  * Types
  */
 import type { FormResponse } from '../../types/index.ts';
 
-export const useMarkAsSpam = ( response: FormResponse ) => {
+/**
+ * Options for the useMarkAsSpam hook.
+ */
+export type UseMarkAsSpamOptions = {
+	/**
+	 * Function to check if the mark_as_spam parameter is present in the URL.
+	 */
+	checkParameter: () => boolean;
+
+	/**
+	 * Function to remove the mark_as_spam parameter from the URL when cancelling the confirmation dialog.
+	 */
+	removeParameter: () => void;
+
+	/**
+	 * Function to navigate to the spam view after marking as spam, while also removing the mark_as_spam parameter from the URL.
+	 */
+	switchToSpam: ( responseId: number | string ) => void;
+};
+
+export const useMarkAsSpam = ( response: FormResponse | null, options: UseMarkAsSpamOptions ) => {
 	const [ isConfirmDialogOpen, setIsConfirmDialogOpen ] = useState( false );
+	const [ isSaving, setIsSaving ] = useState( false );
 	const { saveEntityRecord } = useDispatch( coreStore );
 	const { invalidateCounts } = useDispatch( dashboardStore );
+	const markAsSpamConfirmationMessage = useMemo(
+		() => __( 'Are you sure you want to mark this response as spam?', 'jetpack-forms' ),
+		[]
+	);
+
+	const { checkParameter, removeParameter, switchToSpam } = options;
 
 	const onConfirmMarkAsSpam = useCallback( async () => {
-		setIsConfirmDialogOpen( false );
+		if ( ! response ) {
+			return;
+		}
 
-		await saveEntityRecord( 'postType', 'feedback', {
-			id: response.id,
-			status: 'spam',
-		} );
+		try {
+			setIsSaving( true );
 
-		await invalidateCounts();
+			await saveEntityRecord( 'postType', 'feedback', {
+				id: response.id,
+				status: 'spam',
+			} );
 
-		window.location.hash = window.location.hash.replace( 'status=inbox', 'status=spam' );
-	}, [ response, saveEntityRecord, invalidateCounts ] );
+			await invalidateCounts();
+
+			setIsSaving( false );
+
+			setIsConfirmDialogOpen( false );
+
+			switchToSpam( response.id );
+		} catch {
+			setIsSaving( false );
+		}
+	}, [ response, saveEntityRecord, invalidateCounts, switchToSpam ] );
+
+	const hasSpamParameter = useMemo( () => checkParameter(), [ checkParameter ] );
 
 	const onCancelMarkAsSpam = useCallback( () => {
 		setIsConfirmDialogOpen( false );
-	}, [ setIsConfirmDialogOpen ] );
+
+		removeParameter();
+	}, [ removeParameter ] );
 
 	// Email links have a query param that triggers the confirmation dialog.
 	useEffect( () => {
-		if ( window.location.hash.includes( '&mark_as_spam' ) ) {
-			window.location.hash = window.location.hash.replace( '&mark_as_spam', '' );
-
-			if ( ! [ 'spam', 'trash' ].includes( response.status ) ) {
-				setIsConfirmDialogOpen( true );
-			}
+		if ( hasSpamParameter && response && ! [ 'spam', 'trash' ].includes( response.status ) ) {
+			setIsConfirmDialogOpen( true );
 		}
-	}, [ response ] );
+	}, [ response?.status, hasSpamParameter, response ] );
 
-	return { isConfirmDialogOpen, onConfirmMarkAsSpam, onCancelMarkAsSpam };
+	return {
+		isConfirmDialogOpen,
+		onConfirmMarkAsSpam,
+		onCancelMarkAsSpam,
+		markAsSpamConfirmationMessage,
+		isSaving,
+	};
 };

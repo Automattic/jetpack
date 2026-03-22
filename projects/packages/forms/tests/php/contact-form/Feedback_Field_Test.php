@@ -713,6 +713,131 @@ class Feedback_Field_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Test email_html renders image-select field with thumbnails and letter codes.
+	 */
+	public function test_email_html_image_select_field() {
+		$value = array(
+			'type'    => 'image-select',
+			'choices' => array(
+				array(
+					'perceived'  => 'A',
+					'selected'   => 'A',
+					'label'      => 'Shoes',
+					'showLabels' => true,
+					'image'      => array(
+						'id'  => null,
+						'src' => 'https://example.com/shoes.jpg',
+					),
+				),
+				array(
+					'perceived'  => 'B',
+					'selected'   => 'C',
+					'label'      => 'Bags',
+					'showLabels' => true,
+					'image'      => array(
+						'id'  => null,
+						'src' => 'https://example.com/bags.jpg',
+					),
+				),
+			),
+		);
+
+		$field  = new Feedback_Field( 'k', 'Pick one', $value, 'image-select' );
+		$result = $field->get_render_value( 'email_html' );
+
+		// Should contain images.
+		$this->assertStringContainsString( 'https://example.com/shoes.jpg', $result );
+		$this->assertStringContainsString( 'https://example.com/bags.jpg', $result );
+		// Should contain letter codes.
+		$this->assertStringContainsString( '>A</span>', $result );
+		$this->assertStringContainsString( '>C</span>', $result );
+		// Should contain labels.
+		$this->assertStringContainsString( 'Shoes', $result );
+		$this->assertStringContainsString( 'Bags', $result );
+		// Should use img tags.
+		$this->assertSame( 2, substr_count( $result, '<img ' ) );
+		// Cards should have outline border and fixed width.
+		$this->assertStringContainsString( 'border: 1px solid #dcdcde', $result );
+		$this->assertStringContainsString( 'width: 154px', $result );
+		// Caption should have text truncation styles.
+		$this->assertStringContainsString( 'text-overflow: ellipsis', $result );
+	}
+
+	/**
+	 * Test email_html renders image-select field without labels when showLabels is false.
+	 */
+	public function test_email_html_image_select_no_labels() {
+		$value = array(
+			'type'    => 'image-select',
+			'choices' => array(
+				array(
+					'perceived'  => 'A',
+					'selected'   => 'A',
+					'label'      => 'Shoes',
+					'showLabels' => false,
+					'image'      => array(
+						'id'  => null,
+						'src' => 'https://example.com/shoes.jpg',
+					),
+				),
+			),
+		);
+
+		$field  = new Feedback_Field( 'k', 'Pick one', $value, 'image-select' );
+		$result = $field->get_render_value( 'email_html' );
+
+		// Should contain letter code but not label text as a separate span.
+		$this->assertStringContainsString( '>A</span>', $result );
+		$this->assertStringNotContainsString( '>Shoes</span>', $result );
+	}
+
+	/**
+	 * Test email_html renders dash for empty image-select.
+	 */
+	public function test_email_html_image_select_empty() {
+		$value = array(
+			'type'    => 'image-select',
+			'choices' => array(),
+		);
+
+		$field  = new Feedback_Field( 'k', 'Pick one', $value, 'image-select' );
+		$result = $field->get_render_value( 'email_html' );
+
+		$this->assertStringContainsString( '&mdash;', $result );
+	}
+
+	/**
+	 * Test email_html renders image-select without image src gracefully.
+	 */
+	public function test_email_html_image_select_no_image() {
+		$value = array(
+			'type'    => 'image-select',
+			'choices' => array(
+				array(
+					'perceived'  => 'A',
+					'selected'   => 'B',
+					'label'      => 'Option',
+					'showLabels' => true,
+					'image'      => array(
+						'id'  => null,
+						'src' => '',
+					),
+				),
+			),
+		);
+
+		$field  = new Feedback_Field( 'k', 'Pick one', $value, 'image-select' );
+		$result = $field->get_render_value( 'email_html' );
+
+		// Placeholder should render with gray background and icon.
+		$this->assertStringContainsString( 'background-color: #f0f0f0', $result );
+		$this->assertStringContainsString( 'field-image-select@2x.png', $result );
+		// Letter code and label should still render.
+		$this->assertStringContainsString( '>B</span>', $result );
+		$this->assertStringContainsString( 'Option', $result );
+	}
+
+	/**
 	 * Test get_admin_theme_color returns a hex color.
 	 */
 	public function test_get_admin_theme_color() {
