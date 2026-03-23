@@ -115,6 +115,10 @@ const usePosterAndTitleUpdate = ( { setAttributes, videoData, onDone } ) => {
 	};
 
 	const handleDoneUpload = () => {
+		if ( ! guid ) {
+			return;
+		}
+
 		setIsFinishingUpdate( true );
 		debouncedSsendUpdatePoster.cancel?.();
 
@@ -306,7 +310,7 @@ const UploaderProgress = ( {
 								<Button
 									variant="primary"
 									onClick={ handleDoneUpload }
-									disabled={ isFinishingUpdate }
+									disabled={ isFinishingUpdate || ! uploadedVideoData?.guid }
 									isBusy={ isFinishingUpdate }
 								>
 									{ __( 'Done', 'jetpack-videopress-pkg' ) }

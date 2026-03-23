@@ -371,6 +371,47 @@ describe( 'usePosterAndTitleUpdate', () => {
 		expect( onDone ).toHaveBeenCalledWith( videoData );
 	} );
 
+	it( 'does not send poster update when guid is missing', async () => {
+		const posterUrl = 'https://example.com/poster.jpg';
+		mockUploadPoster.mockResolvedValue( { data: { poster: posterUrl } } );
+
+		const videoDataWithoutGuid = { id: 1 };
+		const { result, rerender } = renderHook(
+			( { vData } ) =>
+				usePosterAndTitleUpdate( {
+					setAttributes,
+					videoData: vData,
+					onDone,
+				} ),
+			{ initialProps: { vData: videoDataWithoutGuid } }
+		);
+
+		act( () => {
+			getHookValues( result ).handleSelectPoster( { id: 42 } );
+		} );
+
+		// Attempt Done while guid is still missing — should be a no-op.
+		await act( async () => {
+			getHookValues( result ).handleDoneUpload();
+		} );
+
+		expect( mockUploadPoster ).not.toHaveBeenCalled();
+		expect( onDone ).not.toHaveBeenCalled();
+
+		// Simulate guid arriving (upload success).
+		rerender( { vData: videoData } );
+
+		await act( async () => {
+			getHookValues( result ).handleDoneUpload();
+		} );
+
+		expect( mockUploadPoster ).toHaveBeenCalledWith( { poster_attachment_id: 42 } );
+		expect( onDone ).toHaveBeenCalledWith( {
+			...videoData,
+			poster: posterUrl,
+		} );
+	} );
+
 	it( 'reports hasPosterEdits when poster image is selected', () => {
 		const { result } = renderTestHook();
 
