@@ -96,6 +96,7 @@ class RTC_Notices_Test extends \WorDBless\BaseTestCase {
 		remove_all_filters( 'wpcom_rtc_max_clients_per_user' );
 		remove_all_filters( 'jetpack_rtc_enabled' );
 		remove_all_filters( 'wpcom_rtc_enable_limit_notices' );
+		remove_all_filters( 'wpcom_rtc_enable_welcome_notice' );
 
 		delete_option( 'wp_enable_real_time_collaboration' );
 		delete_option( 'wp_collaboration_enabled' );
@@ -520,6 +521,7 @@ class RTC_Notices_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertStringContainsString( '"isPlanOwner"', $inline );
 		$this->assertStringContainsString( '"enableLimitNotices"', $inline );
+		$this->assertStringContainsString( '"enableWelcomeNotice"', $inline );
 	}
 
 	/**

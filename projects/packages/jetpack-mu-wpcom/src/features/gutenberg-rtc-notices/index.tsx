@@ -18,6 +18,7 @@ import { withRoomLimit } from './room-limit';
 import type { ProviderCreator } from '@wordpress/sync';
 
 const enableLimitNotices = window.wpcomRtcNotices?.enableLimitNotices ?? false;
+const enableWelcomeNotice = window.wpcomRtcNotices?.enableWelcomeNotice ?? false;
 
 /**
  * Wrap all sync providers with room-limit enforcement.
@@ -60,7 +61,7 @@ if ( enableLimitNotices ) {
 const RtcNoticesPlugin = () => {
 	return (
 		<>
-			<RtcWelcomeNotice />
+			{ enableWelcomeNotice && <RtcWelcomeNotice /> }
 			{ enableLimitNotices && <RtcAdminSomeoneWaitingNotice /> }
 			{ enableLimitNotices && <RtcNonAdminPostUpgradeNotice /> }
 		</>

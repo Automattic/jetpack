@@ -15,6 +15,7 @@ interface WpcomRtcNoticesConfig {
 	maxPeersPerRoom?: number;
 	maxClientsPerUser?: number;
 	enableLimitNotices?: boolean;
+	enableWelcomeNotice?: boolean;
 }
 
 interface Window {
