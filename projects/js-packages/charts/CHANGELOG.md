@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.59.0] - 2026-03-23
+### Added
+- ChartLayout: Add component for shared chart and legend layout. [#47554]
+
+### Changed
+- Move tooltip portal containerRef from ChartLayout to inner svg-wrapper in pie charts. [#47619]
+- Remove internal hooks, utilities, and types from public exports to reduce API surface. [#47703]
+- Remove `percentage` from DataPointPercentage interface. [#47668]
+- Standardize legend stories and documentation across all chart types. [#47545]
+- Update package dependencies. [#47684] [#47719]
+
+### Removed
+- Remove individual chart entry point exports in favor of the main package entry point for v1. [#47673]
+
+### Fixed
+- Derive default legend shape from chart type in composition API. [#47671]
+- Fix broken story references and simplify legend sections in Storybook docs. [#47663]
+- Fix empty-state text wrapping when all legend items are hidden. [#47620]
+
 ## [0.58.0] - 2026-03-16
 ### Security
 - Fix ReDoS vulnerability in date parsing timezone detection. [#47524]
@@ -741,6 +760,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed lints following ESLint rule changes for TS [#40584]
 - Fixing a bug in Chart storybook data. [#40640]
 
+[0.59.0]: https://github.com/Automattic/charts/compare/v0.58.0...v0.59.0
 [0.58.0]: https://github.com/Automattic/charts/compare/v0.57.0...v0.58.0
 [0.57.0]: https://github.com/Automattic/charts/compare/v0.56.7...v0.57.0
 [0.56.7]: https://github.com/Automattic/charts/compare/v0.56.6...v0.56.7

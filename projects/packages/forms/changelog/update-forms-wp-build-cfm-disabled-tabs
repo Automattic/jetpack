@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Removes tabs from the wp-build dashboard when CFM is disabled

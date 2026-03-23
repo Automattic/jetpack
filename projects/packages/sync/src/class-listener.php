@@ -533,7 +533,7 @@ class Listener {
 		 * request context, MCP client details, etc.) and is sent alongside every
 		 * event to WordPress.com.
 		 *
-		 * @since $$next-version$$
+		 * @since 4.33.0
 		 *
 		 * @param array $actor Associative array of actor information.
 		 */

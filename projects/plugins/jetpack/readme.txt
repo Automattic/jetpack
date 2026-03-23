@@ -326,13 +326,22 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 15.7-a.3 - 2026-03-16
+### 15.7-a.5 - 2026-03-23
 #### Enhancements
-- Newsletter: Add `wpcom_newsletter_send_default` site option to control whether posts are sent to subscribers by default.
-- SEO: Add Canonical URLs toggle to the Traffic settings page.
+- Forms: Add logged-in user display name and ID to form submission emails and response sidebar.
+- Newsletter: Add "Send newsletter by default" toggle to settings.
+- Settings: Modernize page UI.
+- Sync: Improve checksum performance for meta tables.
 
 #### Bug fixes
-- Forms: Ensure number field min and max values display in the UI after page reload.
+- AI Assistant: Prevent modal shaking from when content streams in.
+- Comments: Remove resource hints for outdated gravatar domains and use secure.gravatar.com instead.
+- Google Search Preview: Ensure site icon is shown on all sites.
+- Image Compare Block: Fix disappearing link toolbar when highlighting caption text to add a hyperlink.
+- Map block: Fix markers displaying as bullet points on Simple sites.
+- Newsletter: Fix "email sent" confirmation to show "all subscribers" when post had paywall block and was emailed to everyone.
+- Sync: Prevent incremental sync for posts with unregistered post types.
+- WAF: Fix issue that potentially allowed bypassing WAF rules.
 
 --------
 
