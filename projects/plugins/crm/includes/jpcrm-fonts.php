@@ -7,9 +7,6 @@
  *
  */
 
-// Require DOMPDF
-global $zbs;
-$zbs->libLoad( 'dompdf' );
 use FontLib\Font;
 
 defined( 'ZEROBSCRM_PATH' ) || exit( 0 );

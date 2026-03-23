@@ -347,12 +347,6 @@ final class ZeroBSCRM {
 	);
 
 	/**
-	 * Libraries included (3.0.12+)
-	 * Note: All paths need to be prepended by ZEROBSCRM_PATH before use
-	 */
-	private $libs = array();
-
-	/**
 	 * Usage Tracking
 	 *
 	 * @var object Usage tracking class
@@ -2826,70 +2820,6 @@ final class ZeroBSCRM {
 
 	// ======= / Menu Management =========
 
-	// ========== Basic Library Management =========
-
-	/**
-	 * Retrieve array of details for a library
-	 * Returns: array() or false
-	 */
-	public function lib( $libKey = '' ) {
-
-		if ( isset( $this->libs[ $libKey ] ) && is_array( $this->libs[ $libKey ] ) ) {
-
-			// update path to use ZEROBSCRM_PATH
-			$ret            = $this->libs[ $libKey ];
-			$ret['path']    = ZEROBSCRM_PATH . $this->libs[ $libKey ]['path'];
-			$ret['include'] = ZEROBSCRM_PATH . $this->libs[ $libKey ]['include'];
-
-			return $ret;
-		}
-
-		return false;
-	}
-
-	/**
-	 * Retrieve root path for a library
-	 * Returns: str or false
-	 */
-	public function libPath( $libKey = '' ) {
-
-		if ( isset( $this->libs[ $libKey ] ) && isset( $this->libs[ $libKey ]['path'] ) ) {
-			return ZEROBSCRM_PATH . $this->libs[ $libKey ]['path'];
-		}
-
-		return false;
-	}
-
-	/**
-	 * Retrieve full include path for a library
-	 * Returns: str or false
-	 */
-	public function libInclude( $libKey = '' ) {
-
-		if ( isset( $this->libs[ $libKey ] ) && isset( $this->libs[ $libKey ]['include'] ) ) {
-			return ZEROBSCRM_PATH . $this->libs[ $libKey ]['include'];
-		}
-
-		return false;
-	}
-
-	/**
-	 * Returns the correct dompdf lib version depending on php compatibility
-	 *
-	 * @deprecated We no longer load Dompdf through this library system.
-	 *
-	 * @param string $lib_key The key/machine name.
-	 * @return string
-	 */
-	private function checkDompdfVersion( $lib_key ) {
-
-		if ( $lib_key === 'dompdf' ) {
-			$lib_key = 'dompdf-2';
-		}
-
-		return $lib_key;
-	}
-
 	/*
 	* Returns bool, are we running on a PHP version $operator (e.g. '>=') to $version
 	*/
@@ -2899,53 +2829,8 @@ final class ZeroBSCRM {
 	}
 
 	/**
-	 * Retrieve version of a library
-	 * Returns: str or false
+	 * Autoload files from a directory which match a regex filter
 	 */
-	public function libVer( $libKey = '' ) {
-
-		if ( isset( $this->libs[ $libKey ] ) && isset( $this->libs[ $libKey ]['version'] ) ) {
-			return $this->libs[ $libKey ]['version'];
-		}
-
-		return false;
-	}
-
-	/**
-	 * Check if library already loaded
-	 * Returns: bool
-	 */
-	public function libIsLoaded( $libKey = '' ) {
-
-		if ( isset( $this->libs[ $libKey ] ) && isset( $this->libs[ $libKey ]['include'] ) && ! isset( $this->libs[ $libKey ]['loaded'] ) ) {
-			return false;
-		}
-
-		return true;
-	}
-
-	/**
-	 * Load a library via include
-	 * Returns: str or false
-	 */
-	public function libLoad( $libKey = '' ) {
-
-		if (
-			isset( $this->libs[ $libKey ] ) &&
-			isset( $this->libs[ $libKey ]['include'] ) &&
-			! isset( $this->libs[ $libKey ]['loaded'] ) &&
-			file_exists( ZEROBSCRM_PATH . $this->libs[ $libKey ]['include'] )
-		) {
-			require_once ZEROBSCRM_PATH . $this->libs[ $libKey ]['include'];
-				$this->libs[ $libKey ]['loaded'] = true;
-		}
-
-				return false;
-	}
-
-				/**
-				 * Autoload files from a directory which match a regex filter
-				 */
 	public function autoload_from_directory( string $directory, string $regex_filter ) {
 
 		$files = scandir( $directory );
