@@ -113,6 +113,9 @@ fi
   RSYNC_ENV=()
   if [[ -n "${RSYNC_PROXY_SOCKET:-}" ]]; then
       RSYNC_ENV=( -v "$RSYNC_PROXY_SOCKET:/var/run/jp-rsync-socket" -e RSYNC_PROXY_SOCKET=/var/run/jp-rsync-socket )
+      if [[ -n "${RSYNC_PROXY_SECRET:-}" ]]; then
+          RSYNC_ENV+=( -e RSYNC_PROXY_SECRET )
+      fi
   fi
 
   # Worktree-specific Docker args

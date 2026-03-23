@@ -330,6 +330,7 @@ const runRsyncWithProxy = async ( monorepoRoot, args ) => {
 		os.tmpdir(),
 		'jp-rsync-' + Math.floor( Math.random() * 2821109907456 ).toString( 36 )
 	);
+	const secret = crypto.randomUUID();
 
 	/**
 	 * Clean up the proxy server and socket file.
@@ -389,8 +390,9 @@ const runRsyncWithProxy = async ( monorepoRoot, args ) => {
 				// Validate that this is an SSH command (security check)
 				if (
 					! Array.isArray( parsedArgs ) ||
-					parsedArgs.length === 0 ||
-					parsedArgs[ 0 ] !== 'ssh'
+					parsedArgs.length < 2 ||
+					parsedArgs[ 0 ] !== secret ||
+					parsedArgs[ 1 ] !== 'ssh'
 				) {
 					console.error( chalk.red( 'Invalid command received: expected ssh command' ) );
 					socket.destroy();
@@ -398,7 +400,7 @@ const runRsyncWithProxy = async ( monorepoRoot, args ) => {
 				}
 
 				// Spawn SSH with parsed arguments
-				const sshProcess = spawn( 'ssh', parsedArgs.slice( 1 ), {
+				const sshProcess = spawn( 'ssh', parsedArgs.slice( 2 ), {
 					stdio: [ 'pipe', 'pipe', 'inherit' ],
 				} );
 
@@ -460,7 +462,9 @@ const runRsyncWithProxy = async ( monorepoRoot, args ) => {
 				rejectListening( err );
 			} );
 
+			const oldumask = process.umask( 0o077 );
 			proxyServer.listen( { path: socketPath }, () => {
+				process.umask( oldumask );
 				resolveListening();
 			} );
 		} );
@@ -476,6 +480,7 @@ const runRsyncWithProxy = async ( monorepoRoot, args ) => {
 					env: {
 						...process.env,
 						RSYNC_PROXY_SOCKET: socketPath,
+						RSYNC_PROXY_SECRET: secret,
 					},
 				}
 			);
