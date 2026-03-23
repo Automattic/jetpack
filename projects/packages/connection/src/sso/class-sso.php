@@ -41,6 +41,14 @@ class SSO {
 	public static $instance = null;
 
 	/**
+	 * Stores the WP_User being authenticated via SSO so the
+	 * attach_session_information callback can tag the session.
+	 *
+	 * @var WP_User|null
+	 */
+	private static $sso_user_for_2fa = null;
+
+	/**
 	 * Automattic\Jetpack\Connection\SSO constructor.
 	 */
 	private function __construct() {
@@ -918,9 +926,50 @@ class SSO {
 			// Cache the user's details, so we can present it back to them on their user screen.
 			update_user_meta( $user->ID, 'wpcom_user_data', $user_data );
 
+			/*
+			 * Two-Factor plugin 0.15.0+ unconditionally hooks wp_login at PHP_INT_MAX,
+			 * which destroys the auth session and prompts for local 2FA — even for SSO
+			 * logins that already completed 2FA on WordPress.com.
+			 *
+			 * When WP.com confirms the user has 2FA active, remove Two-Factor's wp_login
+			 * hook so SSO can complete without a redundant local 2FA prompt.
+			 *
+			 * When WP.com 2FA is NOT active, the hook stays and Two-Factor can enforce
+			 * local 2FA as a safety net.
+			 *
+			 * @see https://github.com/WordPress/two-factor/issues/811
+			 */
+			/**
+			 * Filter whether to accept WordPress.com 2FA in place of a local
+			 * Two-Factor prompt during SSO login.
+			 *
+			 * Return false to always require the local Two-Factor prompt,
+			 * even when the user has completed 2FA on WordPress.com.
+			 *
+			 * @since $$next-version$$
+			 * @module sso
+			 *
+			 * @param bool    $accept    Whether to accept WP.com 2FA. Default true.
+			 * @param object  $user_data WordPress.com user data from SSO validation.
+			 * @param WP_User $user      The local WordPress user.
+			 */
+			$accept_wpcom_2fa = apply_filters( 'jetpack_sso_accept_wpcom_2fa', true, $user_data, $user );
+
+			if (
+				! empty( $user_data->two_step_enabled )
+				&& class_exists( 'Two_Factor_Core' )
+				&& $accept_wpcom_2fa
+			) {
+				self::$sso_user_for_2fa = $user;
+				add_filter( 'attach_session_information', array( static::class, 'add_two_factor_session_meta' ), 10, 2 );
+
+				remove_action( 'wp_login', array( 'Two_Factor_Core', 'wp_login' ), PHP_INT_MAX );
+			}
+
 			add_filter( 'auth_cookie_expiration', array( Helpers::class, 'extend_auth_cookie_expiration_for_sso' ) );
 			wp_set_auth_cookie( $user->ID, true );
 			remove_filter( 'auth_cookie_expiration', array( Helpers::class, 'extend_auth_cookie_expiration_for_sso' ) );
+			remove_filter( 'attach_session_information', array( static::class, 'add_two_factor_session_meta' ), 10 );
 
 			/** This filter is documented in core/src/wp-includes/user.php */
 			do_action( 'wp_login', $user->user_login, $user );
@@ -1272,5 +1321,20 @@ class SSO {
 	 **/
 	public function get_user_data( $user_id ) {
 		return get_user_meta( $user_id, 'wpcom_user_data', true );
+	}
+
+	/**
+	 * Marks a session as two-factor-authenticated when SSO handled 2FA via WP.com.
+	 *
+	 * @param array $session Session information array.
+	 * @param int   $user_id User ID for the session being created.
+	 * @return array Modified session information.
+	 */
+	public static function add_two_factor_session_meta( $session, $user_id ) {
+		if ( self::$sso_user_for_2fa && self::$sso_user_for_2fa->ID === $user_id ) {
+			$session['two-factor-login'] = time();
+			self::$sso_user_for_2fa      = null;
+		}
+		return $session;
 	}
 }

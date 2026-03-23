@@ -2,7 +2,6 @@ import restApi from '@automattic/jetpack-api';
 import { Page } from '@wordpress/admin-ui';
 import '@wordpress/admin-ui/build-style/style.css';
 import {
-	__experimentalHeading as Heading, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
@@ -75,17 +74,11 @@ const AdminPage: FC< AdminPageProps > = ( {
 	}, [] );
 
 	// Compose the title with logo for the admin-ui Page header.
-	// Note: The inner Heading causes a double h2 wrapping because Page's Header
-	// also wraps title in a Heading. This is a known issue — the inner Heading is
-	// needed until https://github.com/WordPress/gutenberg/pull/75899 fixes
-	// non-string title rendering in admin-ui. Once that lands, remove the Heading
-	// here and pass the plain HStack with a string child.
+	// Page's Header wraps this in an <h2> tag, so we just pass the content directly.
 	const composedTitle = title ? (
 		<HStack spacing={ 2 } justify="left">
 			{ logo || <JetpackLogo showText={ false } height={ 20 } /> }
-			<Heading as="h2" level={ 3 } weight={ 500 } truncate>
-				{ title }
-			</Heading>
+			<span>{ title }</span>
 		</HStack>
 	) : undefined;
 

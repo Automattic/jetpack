@@ -38,6 +38,9 @@ class Jetpack_Mu_Wpcom {
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_user_features' ) );
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_etk_features' ) );
 
+		// Load features that only apply to WordPress.com sites, regardless of whether the users are connected.
+		add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_sites_features' ) );
+
 		// Load ETK features flag to turn off the features in the ETK plugin.
 		// It needs higher priority than the ETK plugin.
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_etk_features_flags' ), 0 );
@@ -324,7 +327,7 @@ class Jetpack_Mu_Wpcom {
 	}
 
 	/**
-	 * Load features that only apply to WordPress.com users.
+	 * Load features that only apply to WordPress.com-connected users.
 	 */
 	public static function load_wpcom_user_features() {
 		// To avoid potential collisions with ETK.
@@ -377,6 +380,26 @@ class Jetpack_Mu_Wpcom {
 		if ( class_exists( '\Automattic\Jetpack\Status\Host' ) && ( new \Automattic\Jetpack\Status\Host() )->is_woa_site() ) {
 			// This is temporary. After we cleanup Masterbar on WPCOM we should load Masterbar for Simple sites too.
 			\Automattic\Jetpack\Masterbar\Main::init();
+		}
+	}
+
+	/**
+	 * Load features that only apply to WordPress.com sites, regardless of whether the users are connected.
+	 */
+	public static function load_wpcom_sites_features() {
+		if ( is_fully_managed_agency_site() ) {
+			return;
+		}
+
+		require_once __DIR__ . '/features/gutenberg-rtc/gutenberg-rtc.php';
+
+		/**
+		 * Load features for the editor and the frontend pages.
+		 */
+		global $pagenow;
+		$allowed_pages = array( 'post.php', 'post-new.php', 'site-editor.php' );
+		if ( ( isset( $pagenow ) && in_array( $pagenow, $allowed_pages, true ) ) || ! is_admin() ) {
+			require_once __DIR__ . '/features/gutenberg-rtc-notices/gutenberg-rtc-notices.php';
 		}
 	}
 
@@ -435,7 +458,6 @@ class Jetpack_Mu_Wpcom {
 			return;
 		}
 
-		require_once __DIR__ . '/features/gutenberg-rtc/gutenberg-rtc.php';
 		require_once __DIR__ . '/features/jetpack-global-styles/class-global-styles.php';
 		require_once __DIR__ . '/features/mailerlite/subscriber-popup.php';
 		require_once __DIR__ . '/features/wpcom-fse/wpcom-fse.php';
@@ -454,7 +476,6 @@ class Jetpack_Mu_Wpcom {
 			require_once __DIR__ . '/features/tags-education/tags-education.php';
 			require_once __DIR__ . '/features/wpcom-block-description-links/wpcom-block-description-links.php';
 			require_once __DIR__ . '/features/wpcom-block-editor-nux/class-wpcom-block-editor-nux.php';
-			require_once __DIR__ . '/features/gutenberg-rtc-notices/gutenberg-rtc-notices.php';
 			require_once __DIR__ . '/features/wpcom-blocks/a8c-posts-list/a8c-posts-list.php';
 			require_once __DIR__ . '/features/wpcom-blocks/event-countdown/event-countdown.php';
 			require_once __DIR__ . '/features/wpcom-blocks/timeline/timeline.php';

@@ -23,7 +23,7 @@ concurrency:
 
 permissions:
   contents: write
-  pull-requests: read
+  pull-requests: write
 
 jobs:
   generate:
@@ -123,6 +123,7 @@ jobs:
           token: ${{ secrets.API_TOKEN_GITHUB }}
 
       - name: Generate changelog entries with Claude
+        id: claude
         if: steps.checkbox.outputs.checked == 'true' && steps.check.outputs.needed == 'true'
         uses: anthropics/claude-code-action@v1
         with:
@@ -204,6 +205,7 @@ jobs:
           # WARNING: Do not add tools that could execute code from the PR checkout.
           # The PR checkout contains untrusted code. Only the base branch is trusted.
           claude_args: >-
+            --max-turns 40
             --allowedTools
             "Bash(git diff *)"
             "Bash(git log *)"
@@ -211,8 +213,25 @@ jobs:
             "Bash(git commit *)"
             "Bash(git push *)"
             "Bash(cd *)"
+            "Bash(cat *)"
+            "Bash(ls *)"
             "Bash(*/projects/packages/changelogger/vendor/bin/changelogger *)"
             Read
             Write
             Glob
             Grep
+
+      - name: Uncheck changelog checkbox
+        if: steps.claude.outcome == 'success'
+        env:
+          GH_TOKEN: ${{ secrets.API_TOKEN_GITHUB }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          PR_BODY=$(gh pr view "$PR_NUMBER" --json body --jq .body)
+          UPDATED_BODY="${PR_BODY/\[x\] Generate changelog entries/[ ] Generate changelog entries}"
+          if [ "$PR_BODY" != "$UPDATED_BODY" ]; then
+            gh pr edit "$PR_NUMBER" --body "$UPDATED_BODY"
+            echo "Unchecked the changelog checkbox to prevent re-runs."
+          else
+            echo "Checkbox was already unchecked or not found."
+          fi

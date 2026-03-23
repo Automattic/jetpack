@@ -94,6 +94,18 @@ function wpcom_enqueue_rtc_notices_assets() {
 		return;
 	}
 
+	// RTC notices are only relevant for sites with multiple users who can edit posts.
+	$editors = new \WP_User_Query(
+		array(
+			'capability' => 'edit_posts',
+			'number'     => 2,
+			'fields'     => 'ID',
+		)
+	);
+	if ( $editors->get_total() < 2 ) {
+		return;
+	}
+
 	// Notices are not relevant for P2 sites.
 	if ( function_exists( '\WPForTeams\is_wpforteams_site' ) && \WPForTeams\is_wpforteams_site( get_current_blog_id() ) ) {
 		return;
