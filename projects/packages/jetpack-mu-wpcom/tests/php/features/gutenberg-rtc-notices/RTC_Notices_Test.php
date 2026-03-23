@@ -112,6 +112,7 @@ class RTC_Notices_Test extends \WorDBless\BaseTestCase {
 		remove_all_filters( 'jetpack_rtc_enabled' );
 		remove_all_filters( 'wpcom_rtc_enable_limit_notices' );
 		remove_all_filters( 'wpcom_rtc_enable_welcome_notice' );
+		remove_all_filters( 'users_pre_query' );
 
 		delete_option( 'wp_enable_real_time_collaboration' );
 		delete_option( 'wp_collaboration_enabled' );
@@ -393,11 +394,34 @@ class RTC_Notices_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * Reset scripts/styles to a fresh state for enqueue tests.
+	 *
+	 * Also stubs the editor-count query because WorDBless cannot evaluate
+	 * role-based WP_User_Query meta queries (LIKE on wp_capabilities fails
+	 * in its SQLite layer).
 	 */
 	private function reset_scripts(): void {
 		global $wp_scripts, $wp_styles;
 		$wp_scripts = new \WP_Scripts(); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		$wp_styles  = new \WP_Styles(); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+
+		add_filter( 'users_pre_query', array( $this, 'stub_editor_query' ), 10, 2 );
+	}
+
+	/**
+	 * Short-circuit WP_User_Query to return 2 fake user IDs.
+	 *
+	 * WorDBless cannot run any user DB queries (its SQLite layer
+	 * does not support the meta LIKE clauses used for role/capability
+	 * lookups). This filter bypasses the query entirely so the
+	 * editor-count guard in the enqueue function passes.
+	 *
+	 * @param array|null     $results Null to run the real query.
+	 * @param \WP_User_Query $query   The query instance (by reference).
+	 * @return array Fake user ID list.
+	 */
+	public function stub_editor_query( $results, $query ) {
+		$query->total_users = 2;
+		return array( 1, 2 );
 	}
 
 	/**

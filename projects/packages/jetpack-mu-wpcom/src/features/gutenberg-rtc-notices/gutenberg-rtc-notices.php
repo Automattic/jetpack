@@ -97,9 +97,9 @@ function wpcom_enqueue_rtc_notices_assets() {
 	// RTC notices are only relevant for sites with multiple users who can edit posts.
 	$editors = new \WP_User_Query(
 		array(
-			'role__in' => array( 'administrator', 'editor', 'author', 'contributor' ),
-			'number'   => 2,
-			'fields'   => 'ID',
+			'capability' => 'edit_posts',
+			'number'     => 2,
+			'fields'     => 'ID',
 		)
 	);
 	if ( $editors->get_total() < 2 ) {
