@@ -60,6 +60,13 @@ class Jetpack_AI_Sidebar {
 			return;
 		}
 
+		// Big Sky has its own chat UI — don't load AM separately.
+		// When Big Sky enables AM via unified-big-sky flag, AM is loaded
+		// by jetpack-mu-wpcom and caught by the wp_script_is check below.
+		if ( class_exists( 'Big_Sky' ) ) {
+			return;
+		}
+
 		// AM already loaded by jetpack-mu-wpcom — skip CDN load.
 		if ( wp_script_is( 'agents-manager' ) ) {
 			return;
@@ -295,8 +302,9 @@ class Jetpack_AI_Sidebar {
 			$version .= '-' . wp_rand();
 		}
 
-		// Enqueue the IIFE bundle from CDN. This sets
-		// window.__JetpackAIProvider with the provider exports.
+		// Always enqueue the IIFE bundle — it registers Jetpack AI
+		// abilities (select-title, update-block-content) via
+		// @wordpress/abilities, which other providers can discover.
 		wp_enqueue_script(
 			'jetpack-ai-provider',
 			AI_SIDEBAR_JS_URL,
@@ -305,7 +313,6 @@ class Jetpack_AI_Sidebar {
 			true
 		);
 
-		// Enqueue provider styles from CDN.
 		wp_enqueue_style(
 			'jetpack-ai-provider',
 			is_rtl() ? AI_SIDEBAR_RTL_CSS_URL : AI_SIDEBAR_CSS_URL,
@@ -313,10 +320,8 @@ class Jetpack_AI_Sidebar {
 			$version
 		);
 
-		// Register the ESM wrapper URL as the provider. The AM will
-		// import(url) this module, which re-exports from the global.
-		// The ESM wrapper is served from the plugin since it's a tiny
-		// static file that doesn't need the CDN build pipeline.
+		// Register as AM provider. When Big Sky is also present, AM merges
+		// both providers — abilities, suggestions, and components are combined.
 		$esm_url     = plugins_url( '_inc/blocks/ai-sidebar/jetpack-ai-provider-esm.mjs', JETPACK__PLUGIN_FILE );
 		$providers[] = $esm_url . '?ver=' . $version;
 
