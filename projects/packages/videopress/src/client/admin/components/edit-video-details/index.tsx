@@ -243,6 +243,7 @@ const EditVideoDetails = () => {
 
 	const headerActions = [
 		<VideoDetailsActions
+			key="video-details-actions"
 			videoId={ id }
 			disabled={ isBusy || isFetchingData }
 			onDelete={ handleDelete }
@@ -287,7 +288,7 @@ const EditVideoDetails = () => {
 										variant="primary"
 										disabled={ ! hasChanges || isBusy || isFetchingData }
 										onClick={ handleSaveChanges }
-										isLoading={ isBusy || isFetchingData }
+										isBusy={ isBusy || isFetchingData }
 									>
 										{ __( 'Save changes', 'jetpack-videopress-pkg' ) }
 									</Button>
