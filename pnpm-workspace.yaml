@@ -111,6 +111,10 @@ ignoredOptionalDependencies:
 # Dependencies needing patching.
 patchedDependencies:
 
+  # Vite/esbuild doesn't like the `__esModule` + `exports["default"]` pattern, it winds up double-wrapping the default.
+  # See also https://github.com/WordPress/gutenberg/issues/39619
+  react-autosize-textarea: .pnpm-patches/react-autosize-textarea.patch
+
   # uuid up to v11 had CommonJS files with ESM content too.
   # No bug report, because it's already fixed in the latest versions.
   "uuid@<11": .pnpm-patches/uuid.patch

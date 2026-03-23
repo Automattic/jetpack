@@ -9,6 +9,15 @@ window.wp = {
 	i18n: {},
 };
 
+// Make `@automattic/jetpack-connection` happy.
+window.JP_CONNECTION_INITIAL_STATE = {
+	userConnectionData: {
+		currentUser: {
+			wpcomUser: { Id: 99999, login: 'bobsacramento', display_name: 'Bob Sacrmaneto' },
+		},
+	},
+};
+
 const preview = {
 	parameters: {
 		backgrounds: {
@@ -30,6 +39,9 @@ const preview = {
 		},
 		docs: {
 			codePanel: true,
+		},
+		a11y: {
+			test: 'todo', // Show in UI, not in CI. Set "error" to fail in CI too.
 		},
 		options: {
 			storySort: {
