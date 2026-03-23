@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.33.0] - 2026-03-23
+### Added
+- Display MCP client actor attribution in My Jetpack backup card. [#47429]
+
+### Changed
+- Update package dependencies. [#47684] [#47719]
+
+### Fixed
+- Move admin notices and JITMs below the tab bar instead of rendering inside the page header. [#47558]
+
 ## [5.32.0] - 2026-03-16
 ### Added
 - Add Canonical URLs module to the Growth section in My Jetpack. [#47364]
@@ -2571,6 +2581,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[5.33.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.32.0...5.33.0
 [5.32.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.31.9...5.32.0
 [5.31.9]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.31.8...5.31.9
 [5.31.8]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.31.7...5.31.8

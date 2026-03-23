@@ -81,7 +81,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-publicize/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-trunk": "0.74.x-dev"
+			"dev-trunk": "0.75.x-dev"
 		}
 	},
 	"config": {

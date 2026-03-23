@@ -381,7 +381,7 @@ class Dashboard {
 	 * After that, the cached value is returned on every subsequent call. The cache is also
 	 * updated eagerly via mark_classic_form_detected() when new classic submissions arrive.
 	 *
-	 * @since $$next-version$$
+	 * @since 7.14.0
 	 *
 	 * @return string 'classic', 'hidden', or 'dismissed'.
 	 */
@@ -420,7 +420,7 @@ class Dashboard {
 	 * use case: we only need to surface the "Not seeing all your forms?" prompt when there are
 	 * actual submissions that won't appear under any synced form in the dashboard.
 	 *
-	 * @since $$next-version$$
+	 * @since 7.14.0
 	 *
 	 * @return string 'classic' or 'hidden'.
 	 */
@@ -453,7 +453,7 @@ class Dashboard {
 	 * If the user has already dismissed the classic forms notice, the state is left as
 	 * 'dismissed' so the notice does not reappear.
 	 *
-	 * @since $$next-version$$
+	 * @since 7.14.0
 	 */
 	public static function mark_classic_form_detected() {
 		$current = get_option( self::CLASSIC_FORMS_OPTION );

@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.33.0] - 2026-03-23
+### Added
+- Add a filter to customize the actor. [#47634]
+- Instant Search: Add article-type taxonomy. [#47595]
+- Jetpack Sync: Add page_condition taxonomy to approved sync list. [#47691]
+
+### Changed
+- Reduce debug_backtrace overhead in Users sync module. [#47658]
+- Sync: Improve checksum performance for meta tables. [#47579]
+
+### Fixed
+- Prevent incremental sync for posts with unregistered post types. [#47580]
+
 ## [4.32.1] - 2026-03-16
 ### Changed
 - Add `wpcom_newsletter_send_default` site option to control whether posts are sent to subscribers by default. [#47564]
@@ -1693,6 +1706,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Packages: Move sync to a classmapped package
 
+[4.33.0]: https://github.com/Automattic/jetpack-sync/compare/v4.32.1...v4.33.0
 [4.32.1]: https://github.com/Automattic/jetpack-sync/compare/v4.32.0...v4.32.1
 [4.32.0]: https://github.com/Automattic/jetpack-sync/compare/v4.31.0...v4.32.0
 [4.31.0]: https://github.com/Automattic/jetpack-sync/compare/v4.30.0...v4.31.0
