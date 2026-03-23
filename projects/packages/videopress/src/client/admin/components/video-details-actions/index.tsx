@@ -60,8 +60,6 @@ const VideoDetailsActions = ( {
 					<ThemeProvider>
 						<div className={ styles.dropdown }>
 							<Button
-								weight="regular"
-								fullWidth
 								variant="tertiary"
 								icon={ media }
 								href={ newPostURL }
@@ -72,8 +70,6 @@ const VideoDetailsActions = ( {
 								{ __( 'Add to new post', 'jetpack-videopress-pkg' ) }
 							</Button>
 							<Button
-								weight="regular"
-								fullWidth
 								variant="tertiary"
 								icon={ download }
 								href={ url }
@@ -85,8 +81,6 @@ const VideoDetailsActions = ( {
 							</Button>
 							<hr className={ styles.separator } />
 							<Button
-								weight="regular"
-								fullWidth
 								variant="tertiary"
 								icon={ trash }
 								className={ styles.delete }
