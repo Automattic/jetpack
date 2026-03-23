@@ -87,7 +87,13 @@ class Universal {
 				wcAnalytics.assets_url = '<?php echo esc_url( plugins_url( '../build/', __DIR__ . '/class-woocommerce-analytics.php' ) ); ?>';
 
 				// Set the REST API tracking endpoint URL.
-				wcAnalytics.trackEndpoint = '<?php echo esc_url( rest_url( 'woocommerce-analytics/v1/track' ) ); ?>';
+				<?php
+				$track_endpoint = rest_url( 'woocommerce-analytics/v1/track' );
+				if ( is_user_logged_in() ) {
+					$track_endpoint = add_query_arg( '_wpnonce', wp_create_nonce( 'wp_rest' ), $track_endpoint );
+				}
+				?>
+				wcAnalytics.trackEndpoint = '<?php echo esc_url( $track_endpoint ); ?>';
 
 				// Set common properties for all events.
 				wcAnalytics.commonProps = <?php echo wp_json_encode( $common_properties, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
