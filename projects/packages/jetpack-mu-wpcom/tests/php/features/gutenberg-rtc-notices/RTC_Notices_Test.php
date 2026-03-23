@@ -41,15 +41,29 @@ class RTC_Notices_Test extends \WorDBless\BaseTestCase {
 	private $user_id;
 
 	/**
+	 * Second test user ID (editor) to satisfy the 2-user minimum check.
+	 *
+	 * @var int
+	 */
+	private $second_user_id;
+
+	/**
 	 * Set up before each test.
 	 */
 	public function set_up(): void {
 		parent::set_up();
-		$this->user_id = wp_insert_user(
+		$this->user_id        = wp_insert_user(
 			array(
 				'user_login' => 'rtc_test_user',
 				'user_pass'  => 'password',
 				'role'       => 'administrator',
+			)
+		);
+		$this->second_user_id = wp_insert_user(
+			array(
+				'user_login' => 'rtc_test_editor',
+				'user_pass'  => 'password',
+				'role'       => 'editor',
 			)
 		);
 		wp_set_current_user( $this->user_id );
@@ -91,6 +105,7 @@ class RTC_Notices_Test extends \WorDBless\BaseTestCase {
 
 		wp_set_current_user( 0 );
 		wp_delete_user( $this->user_id );
+		wp_delete_user( $this->second_user_id );
 
 		remove_all_filters( 'wpcom_rtc_max_peers_per_room' );
 		remove_all_filters( 'wpcom_rtc_max_clients_per_user' );
