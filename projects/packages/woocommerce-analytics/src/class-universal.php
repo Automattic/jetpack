@@ -93,7 +93,7 @@ class Universal {
 					$track_endpoint = add_query_arg( '_wpnonce', wp_create_nonce( 'wp_rest' ), $track_endpoint );
 				}
 				?>
-				wcAnalytics.trackEndpoint = '<?php echo esc_url( $track_endpoint ); ?>';
+				wcAnalytics.trackEndpoint = <?php echo wp_json_encode( esc_url_raw( $track_endpoint ) ); ?>;
 
 				// Set common properties for all events.
 				wcAnalytics.commonProps = <?php echo wp_json_encode( $common_properties, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
