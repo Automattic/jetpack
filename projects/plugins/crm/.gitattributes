@@ -11,7 +11,6 @@
 /vendor/dompdf/**                               production-include
 /vendor/masterminds/html5/**                    production-include
 /vendor/sabberworm/php-css-parser/**            production-include
-/vendor/thecodingmachine/safe/**                production-include
 **/css/**                                       production-include
 **/js/*.min.js                                  production-include
 **/js/*.min.js.LICENSE.txt                      production-include
