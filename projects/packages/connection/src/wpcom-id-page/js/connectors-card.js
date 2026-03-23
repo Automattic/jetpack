@@ -128,7 +128,18 @@
 		} );
 	}
 
-	registerConnector( 'cloud-service/wordpress-com', {
+	/*
+	 * The slug must match the connector ID registered in PHP via
+	 * wp_connectors_init ('wordpress_com'). The store merges both
+	 * registrations: the server provides label/description/icon,
+	 * and this call adds the render function.
+	 *
+	 * Before the Gutenberg PR that removes the ai_provider filter
+	 * (#76722), registerDefaultConnectors() skips non-AI connectors
+	 * so the server-side data isn't registered client-side. We
+	 * supply label/description as fallbacks for that scenario.
+	 */
+	registerConnector( 'wordpress_com', {
 		label: data.name || __( 'WordPress.com account', 'jetpack-connection' ),
 		description:
 			data.description ||
