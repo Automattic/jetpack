@@ -388,6 +388,12 @@ function NewsletterSettingsApp(): JSX.Element | null {
 				'jetpack-newsletter'
 			) }
 		>
+			<GlobalNotices />
+			<Container horizontalSpacing={ 0 }>
+				<Col>
+					<div id="jp-admin-notices" className="newsletter-jitm-card" />
+				</Col>
+			</Container>
 			<Container horizontalSpacing={ 3 }>
 				<Col>
 					<Stack gap="md" direction="column" className="newsletter-settings">
@@ -456,8 +462,6 @@ function NewsletterSettingsApp(): JSX.Element | null {
 							</Stack>
 						</Disabled>
 					</Stack>
-
-					<GlobalNotices />
 				</Col>
 			</Container>
 		</AdminPage>

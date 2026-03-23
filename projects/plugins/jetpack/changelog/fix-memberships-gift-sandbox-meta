@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Add memberships_gift_is_sandboxed to the Jetpack sync post meta whitelist so gifting works on self-hosted Jetpack sites

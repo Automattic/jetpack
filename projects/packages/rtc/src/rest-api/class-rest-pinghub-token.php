@@ -1,21 +1,30 @@
 <?php
 /**
- * REST API endpoint for Gutenberg RTC PingHub token generation.
+ * REST API endpoint for PingHub token generation.
  *
- * @package automattic/jetpack-mu-wpcom
+ * @package automattic/jetpack-rtc
  */
+
+namespace Automattic\Jetpack\RTC;
+
+use Automattic\Jetpack\RTC;
+use WP_Error;
+use WP_REST_Controller;
+use WP_REST_Request;
+use WP_REST_Response;
+use WP_REST_Server;
 
 /**
  * REST controller that generates short-lived JWTs for PingHub WebSocket auth.
  */
-class WP_REST_Gutenberg_RTC extends WP_REST_Controller {
+class REST_Pinghub_Token extends WP_REST_Controller {
 
 	/**
 	 * Constructor.
 	 */
 	public function __construct() {
 		$this->namespace = 'wpcom/v2';
-		$this->rest_base = 'gutenberg-rtc/pinghub-token';
+		$this->rest_base = 'rtc/pinghub-token';
 	}
 
 	/**
@@ -42,10 +51,11 @@ class WP_REST_Gutenberg_RTC extends WP_REST_Controller {
 	 * @return true|WP_Error
 	 */
 	public function create_item_permissions_check( $request ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		if ( ! is_user_member_of_blog() ) {
+		$providers = RTC::get_providers();
+		if ( ! in_array( 'pinghub', $providers, true ) || ! is_user_member_of_blog() ) {
 			return new WP_Error(
 				'rest_forbidden',
-				__( 'You are not allowed to access this endpoint.', 'jetpack-mu-wpcom' ),
+				__( 'You are not allowed to access this endpoint.', 'jetpack-rtc' ),
 				array( 'status' => 403 )
 			);
 		}
@@ -70,7 +80,7 @@ class WP_REST_Gutenberg_RTC extends WP_REST_Controller {
 		if ( ! $blog_id ) {
 			return new WP_Error(
 				'rest_pinghub_token_error',
-				__( 'Could not determine blog ID.', 'jetpack-mu-wpcom' ),
+				__( 'Could not determine blog ID.', 'jetpack-rtc' ),
 				array( 'status' => 500 )
 			);
 		}
@@ -80,7 +90,7 @@ class WP_REST_Gutenberg_RTC extends WP_REST_Controller {
 		if ( $token === null ) {
 			return new WP_Error(
 				'rest_pinghub_token_error',
-				__( 'Could not generate PingHub token.', 'jetpack-mu-wpcom' ),
+				__( 'Could not generate PingHub token.', 'jetpack-rtc' ),
 				array( 'status' => 500 )
 			);
 		}
@@ -97,7 +107,7 @@ class WP_REST_Gutenberg_RTC extends WP_REST_Controller {
 	private function generate_token( $blog_id ) {
 		// Simple WordPress.com sites: use the internal REST endpoint.
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			$request  = new \WP_REST_Request( 'POST', "/wpcom/v2/sites/$blog_id/jetpack-pinghub/jwt/sign" );
+			$request  = new WP_REST_Request( 'POST', "/wpcom/v2/sites/$blog_id/jetpack-pinghub/jwt/sign" );
 			$response = rest_do_request( $request );
 
 			if ( $response->is_error() ) {
