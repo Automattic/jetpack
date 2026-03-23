@@ -347,9 +347,17 @@ function fixPeerDeps( pkg ) {
 	// Outdated peer dependency because Gutenberg is still on node 20.
 	if (
 		pkg.name === '@wordpress/e2e-test-utils-playwright' &&
-		pkg.peerDependencies?.[ '@types/node' ]?.startsWith( '^20.' )
+		! pkg.peerDependencies?.[ '@types/node' ]?.includes( '^24.' )
 	) {
-		pkg.peerDependencies[ '@types/node' ] += ' || ^22.0.0';
+		pkg.peerDependencies[ '@types/node' ] += ' || ^24.0.0';
+	}
+
+	// Outdated dependency because Calypso is still on node 22.
+	if (
+		pkg.name === '@automattic/calypso-config' &&
+		! pkg.dependencies?.[ '@types/node' ]?.includes( '^24.' )
+	) {
+		pkg.dependencies[ '@types/node' ] += ' || ^24.0.0';
 	}
 
 	// Should be an optional peer dep, but isn't.

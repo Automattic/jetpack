@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Add overflow hidden to AdminSectionHero and z-index to AdminPage header to prevent content from overlapping the page header.
