@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Newsletter: Default the jetpack_wp_admin_newsletter_settings_enabled filter to true.

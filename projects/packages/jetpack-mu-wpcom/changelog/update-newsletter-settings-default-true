@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Enable wp-admin newsletter settings on Simple sites instead of gating behind the newsletter-package-202603 sticker. WoA/WoW sites will activate after the next Jetpack plugin release.
