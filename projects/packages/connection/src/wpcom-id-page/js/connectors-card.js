@@ -6,6 +6,11 @@
  * as a static dependency. Uses classic-script globals for element,
  * i18n, and components which are always loaded on admin pages.
  *
+ * Label, description, and icon are provided by the PHP registration
+ * in register_connector() and merged automatically by the store.
+ * This module only adds the render function and connection-specific
+ * data (isConnected, manageUrl) via script module data.
+ *
  * @see Wpcom_Id_Page::maybe_enqueue_connectors_module()
  */
 
@@ -25,24 +30,6 @@ const data = JSON.parse( dataEl?.textContent ?? '{}' );
 
 const isConnected = Boolean( data.isConnected );
 const manageUrl = data.manageUrl || '';
-const logoUrl = data.logoUrl || '';
-
-/**
- * Logo element built from the URL provided by PHP.
- *
- * @return {object|null} React element or null.
- */
-function Logo() {
-	if ( ! logoUrl ) {
-		return null;
-	}
-	return createElement( 'img', {
-		src: logoUrl,
-		alt: '',
-		width: 40,
-		height: 40,
-	} );
-}
 
 /**
  * Badge shown when the site is connected.
@@ -71,11 +58,12 @@ function ConnectedBadge() {
  * Render callback for the WordPress.com connector card.
  *
  * @param {object} props             - Connector render props.
- * @param {string} props.label       - Connector label.
- * @param {string} props.description - Connector description.
+ * @param {string} props.label       - Connector label (from server).
+ * @param {string} props.description - Connector description (from server).
+ * @param {object} props.icon        - Connector icon element (from server).
  * @return {object} React element.
  */
-function WpcomConnectorCard( { label, description } ) {
+function WpcomConnectorCard( { label, description, icon } ) {
 	const buttonLabel = isConnected
 		? __( 'Manage', 'jetpack-connection' )
 		: __( 'Connect', 'jetpack-connection' );
@@ -104,7 +92,7 @@ function WpcomConnectorCard( { label, description } ) {
 	);
 
 	return createElement( ConnectorItem, {
-		icon: createElement( Logo ),
+		icon,
 		name: label,
 		description,
 		actionArea,
@@ -114,16 +102,9 @@ function WpcomConnectorCard( { label, description } ) {
 /*
  * The slug must match the connector ID registered in PHP via
  * wp_connectors_init ('wordpress_com'). The store merges both
- * registrations: the server provides label/description/icon,
- * and this call adds the render function.
+ * registrations: the server provides label, description, and icon;
+ * this call adds the render function.
  */
 registerConnector( 'wordpress_com', {
-	label: data.name || __( 'WordPress.com account', 'jetpack-connection' ),
-	description:
-		data.description ||
-		__(
-			'Connect your site to WordPress.com for enhanced functionality, Jetpack and WooCommerce services, and centralized management.',
-			'jetpack-connection'
-		),
 	render: WpcomConnectorCard,
 } );

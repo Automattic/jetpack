@@ -155,9 +155,6 @@ class Wpcom_Id_Page {
 			static function ( $data ) use ( $is_connected ) {
 				$data['isConnected'] = $is_connected;
 				$data['manageUrl']   = admin_url( 'tools.php?page=wpcom-id' );
-				$data['logoUrl']     = plugins_url( 'images/wpcom-logo.svg', __FILE__ );
-				$data['name']        = __( 'WordPress.com account', 'jetpack-connection' );
-				$data['description'] = __( 'Connect your site to WordPress.com for enhanced functionality, Jetpack and WooCommerce services, and centralized management.', 'jetpack-connection' );
 
 				return $data;
 			}
