@@ -212,10 +212,10 @@ jobs:
             "Bash(git add *)"
             "Bash(git commit *)"
             "Bash(git push *)"
-            "Bash(cd *)"
-            "Bash(cat *)"
-            "Bash(ls *)"
-            "Bash(*/projects/packages/changelogger/vendor/bin/changelogger *)"
+            "Bash(cd ${{ github.workspace }}/*)"
+            "Bash(cat ${{ github.workspace }}/*)"
+            "Bash(ls ${{ github.workspace }}/*)"
+            "Bash(${{ github.workspace }}/projects/packages/changelogger/vendor/bin/changelogger *)"
             Read
             Write
             Glob
