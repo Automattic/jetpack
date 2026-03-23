@@ -24,12 +24,11 @@ if ( ! defined( 'ABSPATH' ) ) {
  * When duplicates exist (same interval+currency), the products cache from
  * /memberships/status is used to pick the correct one by product_id.
  *
- * @param int    $plan_id  The saved plan post ID (may be 0 or stale).
  * @param string $interval The donation interval (one-time, 1 month, 1 year).
  * @param string $currency The currency code.
  * @return WP_Post|null The plan post, or null if not found.
  */
-function resolve_donation_plan( $plan_id, $interval, $currency ) {
+function resolve_donation_plan( $interval, $currency ) {
 	$post_type = \Jetpack_Memberships::$post_type_plan;
 
 	// Query all local plans for this interval + currency.
@@ -77,16 +76,7 @@ function resolve_donation_plan( $plan_id, $interval, $currency ) {
 		}
 	}
 
-	// Fall back to the saved plan ID if it's among the candidates.
-	if ( $plan_id ) {
-		foreach ( $candidates as $candidate ) {
-			if ( $candidate->ID === $plan_id ) {
-				return $candidate;
-			}
-		}
-	}
-
-	// No products cache and no saved ID match.
+	// No products cache match.
 	return null;
 }
 
@@ -226,7 +216,6 @@ function render_block( $attr, $content ) {
 	$donations = array(
 		'one-time' => array_merge(
 			array(
-				'planId'     => null,
 				'title'      => __( 'One-Time', 'jetpack' ),
 				'class'      => 'donations__one-time-item',
 				'heading'    => $default_texts['oneTimeDonation']['heading'],
@@ -238,7 +227,6 @@ function render_block( $attr, $content ) {
 	if ( $attr['monthlyDonation']['show'] ) {
 		$donations['1 month'] = array_merge(
 			array(
-				'planId'     => null,
 				'title'      => __( 'Monthly', 'jetpack' ),
 				'class'      => 'donations__monthly-item',
 				'heading'    => $default_texts['monthlyDonation']['heading'],
@@ -250,7 +238,6 @@ function render_block( $attr, $content ) {
 	if ( $attr['annualDonation']['show'] ) {
 		$donations['1 year'] = array_merge(
 			array(
-				'planId'     => null,
 				'title'      => __( 'Yearly', 'jetpack' ),
 				'class'      => 'donations__annual-item',
 				'heading'    => $default_texts['annualDonation']['heading'],
@@ -273,7 +260,7 @@ function render_block( $attr, $content ) {
 	// fetches the products cache from /memberships/status to disambiguate.
 	$resolved_plans = array();
 	foreach ( $donations as $interval => $donation ) {
-		$resolved_plans[ $interval ] = resolve_donation_plan( (int) $donation['planId'], $interval, $currency );
+		$resolved_plans[ $interval ] = resolve_donation_plan( $interval, $currency );
 	}
 
 	foreach ( $donations as $interval => $donation ) {

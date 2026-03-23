@@ -23,7 +23,6 @@ const Edit = props => {
 
 	const blockProps = useBlockProps();
 	const [ loadingError, setLoadingError ] = useState( '' );
-	const [ products, setProducts ] = useState( [] );
 	const [ showFirstTimeModal, setShowFirstTimeModal ] = useState( false );
 	const isUserConnected = useIsUserConnected();
 
@@ -128,26 +127,19 @@ const Edit = props => {
 			const filteredProducts = filterProducts( result.products );
 
 			if ( hasRequiredProducts( filteredProducts ) ) {
-				setProducts( filteredProducts );
 				unlockPostSaving( 'donations' );
 				return;
 			}
 
 			// Set fake products when there is no connection to Stripe so users can still try the block in the editor.
 			if ( result.connect_url ) {
-				setProducts( {
-					'one-time': -1,
-					'1 month': -1,
-					'1 year': -1,
-				} );
 				unlockPostSaving( 'donations' );
 				return;
 			}
 
 			if ( currency ) {
 				// Only create products if we have the correct plan and stripe connection.
-				fetchDefaultProducts( currency ).then( defaultProducts => {
-					setProducts( filterProducts( defaultProducts ) );
+				fetchDefaultProducts( currency ).then( () => {
 					unlockPostSaving( 'donations' );
 				}, apiError );
 			}
@@ -181,7 +173,7 @@ const Edit = props => {
 		// Memberships settings are still loading
 		content = <Spinner />;
 	} else {
-		content = <Tabs { ...props } products={ products } />;
+		content = <Tabs { ...props } />;
 	}
 
 	// When the first time modal is closed, update the user meta to mark the donation warning as dismissed

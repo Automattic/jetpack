@@ -5,8 +5,8 @@ import Controls from './controls';
 import Tab from './tab';
 
 const Tabs = props => {
-	const { attributes, products, setAttributes } = props;
-	const { oneTimeDonation, monthlyDonation, annualDonation } = attributes;
+	const { attributes, setAttributes } = props;
+	const { monthlyDonation, annualDonation } = attributes;
 	const [ activeTab, setActiveTab ] = useState( 'one-time' );
 
 	const isTabActive = useCallback( tab => activeTab === tab, [ activeTab ] );
@@ -16,29 +16,6 @@ const Tabs = props => {
 		...( monthlyDonation.show && { '1 month': { title: __( 'Monthly', 'jetpack' ) } } ),
 		...( annualDonation.show && { '1 year': { title: __( 'Yearly', 'jetpack' ) } } ),
 	};
-
-	// Updates plans.
-	useEffect( () => {
-		if (
-			oneTimeDonation.planId === products[ 'one-time' ] &&
-			monthlyDonation.planId === products[ '1 month' ] &&
-			annualDonation.planId === products[ '1 year' ]
-		) {
-			return;
-		}
-
-		setAttributes( {
-			...( products[ 'one-time' ] && {
-				oneTimeDonation: { ...oneTimeDonation, planId: products[ 'one-time' ] },
-			} ),
-			...( products[ '1 month' ] && {
-				monthlyDonation: { ...monthlyDonation, planId: products[ '1 month' ] },
-			} ),
-			...( products[ '1 year' ] && {
-				annualDonation: { ...annualDonation, planId: products[ '1 year' ] },
-			} ),
-		} );
-	}, [ oneTimeDonation, monthlyDonation, annualDonation, setAttributes, products ] );
 
 	// Activates the one-time tab if the interval of the current active tab is disabled.
 	useEffect( () => {

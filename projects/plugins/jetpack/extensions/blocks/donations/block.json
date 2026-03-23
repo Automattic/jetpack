@@ -44,7 +44,6 @@
 			"type": "object",
 			"default": {
 				"show": true,
-				"planId": null,
 				"amounts": [ 5, 15, 100 ]
 			}
 		},
@@ -52,7 +51,6 @@
 			"type": "object",
 			"default": {
 				"show": true,
-				"planId": null,
 				"amounts": [ 5, 15, 100 ]
 			}
 		},
@@ -60,7 +58,6 @@
 			"type": "object",
 			"default": {
 				"show": true,
-				"planId": null,
 				"amounts": [ 5, 15, 100 ]
 			}
 		},
