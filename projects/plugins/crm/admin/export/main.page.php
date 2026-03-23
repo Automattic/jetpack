@@ -155,6 +155,7 @@ function jpcrm_render_export_page() {
 	<input type="hidden" name="jpcrm-export-request-segment-id" value="<?php echo esc_attr( $potential_segment_id ); ?>" />
 	<?php } ?>
 
+	<?php /* translators: %1$s: number of objects, %2$s: object type label, %3$s: extra title (e.g. segment name) */ ?>
 	<h2><?php echo esc_html( sprintf( __( 'Export %1$s %2$s %3$s', 'zero-bs-crm' ), zeroBSCRM_prettifyLongInts( $obj_count ), $exportTypeLabel, $extra_title_str ) ); ?></h2>
 
 	<div class="ui segment" id="zbs-export-filetype-wrap">
