@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-my-jetpack",
-	"version": "5.32.0",
+	"version": "5.33.0",
 	"private": true,
 	"description": "WP Admin page with information and configuration shared among all Jetpack stand-alone plugins",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/my-jetpack/#readme",
@@ -74,7 +74,7 @@
 		"@testing-library/react": "16.3.0",
 		"@testing-library/user-event": "14.6.1",
 		"@types/jest": "30.0.0",
-		"@types/node": "^22.19.11",
+		"@types/node": "^24.12.0",
 		"@types/react": "18.3.28",
 		"@typescript/native-preview": "7.0.0-dev.20260225.1",
 		"concurrently": "9.2.1",

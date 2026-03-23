@@ -8,17 +8,86 @@
  */
 
 /**
+ * Check if the current site has the `wpcom-features-edge` sticker.
+ *
+ * @return bool|mixed
+ */
+function wpcom_has_features_edge_sticker() {
+	$sticker = 'wpcom-features-edge';
+	if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC && function_exists( 'wpcomsh_is_site_sticker_active' ) ) {
+		return wpcomsh_is_site_sticker_active( $sticker );
+	} elseif ( function_exists( 'has_blog_sticker' ) ) {
+		return has_blog_sticker( $sticker, get_wpcom_blog_id() );
+	}
+	return false;
+}
+
+/**
+ * Determine whether RTC should be enabled for Atomic sites.
+ *
+ * @return bool
+ */
+function wpcom_should_enforce_http_polling() {
+	$blog_id = get_wpcom_blog_id();
+
+	if (
+		defined( 'IS_ATOMIC' ) && IS_ATOMIC &&
+		( $blog_id % 100 === 1 ) &&
+		! wpcom_has_features_edge_sticker() // Sites with the sticker should use WS.
+	) {
+		return true;
+	}
+	return false;
+}
+
+/**
  * Determine whether RTC should be enabled based on the site's features.
  *
  * @return bool
  */
 function wpcom_enable_rtc() {
+	$has_rtc_feature = false;
 	if ( function_exists( 'wpcom_site_has_feature' ) && class_exists( 'WPCOM_Features' ) && defined( 'WPCOM_Features::REAL_TIME_COLLABORATION' ) ) {
-		$blog_id = get_wpcom_blog_id();
-		return wpcom_site_has_feature( \WPCOM_Features::REAL_TIME_COLLABORATION, $blog_id );
+		$blog_id         = get_wpcom_blog_id();
+		$has_rtc_feature = wpcom_site_has_feature( \WPCOM_Features::REAL_TIME_COLLABORATION, $blog_id );
 	}
+
+	if ( ! $has_rtc_feature ) {
+		return false;
+	}
+
+	$has_needed_gutenberg_version = defined( 'GUTENBERG_VERSION' ) && is_string( GUTENBERG_VERSION ) && version_compare( (string) GUTENBERG_VERSION, '22.7.0', '>=' );
+	if ( ! $has_needed_gutenberg_version ) {
+		return false;
+	}
+
+	if ( wpcom_should_enforce_http_polling() ) {
+		return true;
+	}
+
+	if ( wpcom_has_features_edge_sticker() ) {
+		return true;
+	}
+
 	return false;
 }
 add_filter( 'jetpack_rtc_enabled', 'wpcom_enable_rtc' );
+
+/**
+ * Filters the list of Real-Time Communication (RTC) providers.
+ *
+ * @param array $providers An array of available RTC providers.
+ *
+ * @return array Modified array of RTC providers, enforcing 'http-polling' if necessary.
+ */
+function wpcom_rtc_providers( $providers ) {
+	if ( wpcom_should_enforce_http_polling() ) {
+		return array( 'http-polling' );
+	}
+	return $providers;
+}
+add_filter( 'jetpack_rtc_providers', 'wpcom_rtc_providers' );
+
+add_filter( 'wpcom_rtc_enable_limit_notices', '__return_false', 99 );
 
 \Automattic\Jetpack\RTC::init();

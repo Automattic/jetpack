@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Form Editor: Insert new blocks into the active step in multistep forms instead of the form root
