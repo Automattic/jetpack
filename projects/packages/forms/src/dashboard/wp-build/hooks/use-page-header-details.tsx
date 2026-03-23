@@ -382,9 +382,9 @@ export default function usePageHeaderDetails(
 		isUpdatingStatus,
 	} = useFormItemActions();
 
-	const trackAction = useCallback( ( eventName: string ) => {
+	const trackAction = useCallback( ( eventName: string, source = 'form_header' ) => {
 		jetpackAnalytics.tracks.recordEvent( eventName, {
-			source: 'form_header',
+			source,
 		} );
 	}, [] );
 
@@ -578,6 +578,19 @@ export default function usePageHeaderDetails(
 		return __( 'View and manage all your form responses in one place.', 'jetpack-forms' );
 	}, [ formTitle, isFormsScreen, isSingleFormScreen, onOpenFormsHelp, hasClassicForms ] );
 
+	const trackEditFormClick = useCallback(
+		() => trackAction( 'jetpack_forms_form_edit_form_click' ),
+		[ trackAction ]
+	);
+	const trackExportClick = useCallback(
+		() => trackAction( 'jetpack_forms_form_export_click' ),
+		[ trackAction ]
+	);
+	const trackExportClickResponsesList = useCallback(
+		() => trackAction( 'jetpack_forms_form_export_click', 'responses_list' ),
+		[ trackAction ]
+	);
+
 	const actions = useMemo( () => {
 		// Mobile: show dropdown menu with actions
 		if ( isSm ) {
@@ -651,7 +664,7 @@ export default function usePageHeaderDetails(
 
 				dropdownControls.push( {
 					onClick: () => {
-						trackAction( 'jetpack_forms_form_export_click' );
+						trackAction( 'jetpack_forms_form_export_click', 'responses_list' );
 						openExportModal();
 					},
 					title: exportLabel,
@@ -783,12 +796,19 @@ export default function usePageHeaderDetails(
 		if ( isSingleFormScreen ) {
 			return [
 				...( sourceIdNumber && formStatus !== 'trash'
-					? [ <EditFormButton key="edit-form" formId={ sourceIdNumber } /> ]
+					? [
+							<EditFormButton
+								key="edit-form"
+								formId={ sourceIdNumber }
+								onClick={ trackEditFormClick }
+							/>,
+					  ]
 					: [] ),
 				<ExportResponsesButton
 					key="export"
 					isPrimary={ statusView === 'inbox' }
 					showIcon={ false }
+					onClick={ trackExportClick }
 				/>,
 				...( statusView === 'trash' ? [ <EmptyTrashButton key="empty-trash" /> ] : [] ),
 				...( statusView === 'spam' ? [ <EmptySpamButton key="empty-spam" /> ] : [] ),
@@ -857,6 +877,7 @@ export default function usePageHeaderDetails(
 				key="export"
 				isPrimary={ statusView === 'inbox' }
 				showIcon={ false }
+				onClick={ trackExportClickResponsesList }
 			/>,
 			...( statusView === 'trash' ? [ <EmptyTrashButton key="empty-trash" /> ] : [] ),
 			...( statusView === 'spam' ? [ <EmptySpamButton key="empty-spam" /> ] : [] ),
@@ -907,6 +928,9 @@ export default function usePageHeaderDetails(
 		confirmPermanentDelete,
 		formStatus,
 		trackAction,
+		trackEditFormClick,
+		trackExportClick,
+		trackExportClickResponsesList,
 	] );
 
 	return { ariaLabel, breadcrumbs, title, badges, subtitle, actions };
