@@ -116,69 +116,51 @@ class Wpcom_Id_Page {
 	/**
 	 * Enqueue the connectors card script module on the Settings > Connectors page.
 	 *
-	 * Uses the WP script module system (WP 6.5+) so the JS file can import
-	 * from @wordpress/connectors which is only available as a script module.
+	 * Follows the standard pattern for the WP Connectors JavaScript API:
+	 * register a script module with @wordpress/connectors as a static
+	 * dependency, and pass data via the script_module_data_ filter.
 	 *
 	 * @since $$next-version$$
-	 *
-	 * @param string $hook_suffix The current admin page hook suffix.
 	 */
-	public static function maybe_enqueue_connectors_module( $hook_suffix ) {
-		/*
-		 * The Connectors page hook suffix varies across WP core versions and the
-		 * Gutenberg plugin:
-		 *  - WP core 7.0:  'options-connectors.php'
-		 *  - Gutenberg:    'settings_page_options-connectors-wp-admin'
-		 *
-		 * Match any admin page whose hook suffix contains "connectors".
-		 */
-		$is_connectors_page = str_contains( $hook_suffix, 'connectors' );
+	public static function maybe_enqueue_connectors_module() {
+		$screen = get_current_screen();
 
-		if ( ! $is_connectors_page || ! class_exists( 'WP_Connector_Registry' ) ) {
+		if ( ! $screen || 'options-connectors' !== $screen->id ) {
 			return;
 		}
 
-		$module_url = plugins_url( 'js/connectors-card.js', __FILE__ );
+		if ( ! class_exists( 'WP_Connector_Registry' ) ) {
+			return;
+		}
+
+		$module_id = '@automattic/jetpack-connection-connectors';
+
+		wp_register_script_module(
+			$module_id,
+			plugins_url( 'js/connectors-card.js', __FILE__ ),
+			array(
+				array(
+					'id'     => '@wordpress/connectors',
+					'import' => 'static',
+				),
+			)
+		);
+		wp_enqueue_script_module( $module_id );
 
 		$manager      = new Manager();
 		$is_connected = $manager->is_connected() && $manager->has_connected_owner();
 
-		$module_data = array(
-			'isConnected' => $is_connected,
-			'manageUrl'   => admin_url( 'tools.php?page=wpcom-id' ),
-			'logoUrl'     => plugins_url( 'images/wpcom-logo.svg', __FILE__ ),
-			'name'        => __( 'WordPress.com account', 'jetpack-connection' ),
-			'description' => __( 'Connect your site to WordPress.com for enhanced functionality, Jetpack and WooCommerce services, and centralized management.', 'jetpack-connection' ),
-		);
+		add_filter(
+			'script_module_data_' . $module_id,
+			static function ( $data ) use ( $is_connected ) {
+				$data['isConnected'] = $is_connected;
+				$data['manageUrl']   = admin_url( 'tools.php?page=wpcom-id' );
+				$data['logoUrl']     = plugins_url( 'images/wpcom-logo.svg', __FILE__ );
+				$data['name']        = __( 'WordPress.com account', 'jetpack-connection' );
+				$data['description'] = __( 'Connect your site to WordPress.com for enhanced functionality, Jetpack and WooCommerce services, and centralized management.', 'jetpack-connection' );
 
-		/*
-		 * Print the script module tag in the admin footer scripts.
-		 *
-		 * WP 7.0's wp_enqueue_script_module() does not reliably print
-		 * externally-registered modules on the Connectors page, so we
-		 * output the tag ourselves. The import map already contains
-		 * `@wordpress/connectors` from core, which is the only dependency
-		 * the module resolves at runtime. For `@wordpress/element` and
-		 * `@wordpress/i18n` the module uses the classic-script globals
-		 * (wp.element / wp.i18n) that are always present on admin pages.
-		 *
-		 * Priority 100 ensures this runs AFTER the WP script module
-		 * system prints the import map (priority 50). Module scripts
-		 * must appear after the import map in the HTML.
-		 */
-		add_action(
-			'admin_print_footer_scripts',
-			static function () use ( $module_url, $module_data ) {
-				printf(
-					'<script id="wpcom-connector-data" type="application/json">%s</script>',
-					wp_json_encode( $module_data, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP )
-				);
-				printf(
-					'<script type="module" src="%s"></script>', // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript -- script modules need type="module"; wp_enqueue_script_module does not print on this page.
-					esc_url( add_query_arg( 'ver', filemtime( __DIR__ . '/js/connectors-card.js' ), $module_url ) )
-				);
-			},
-			100
+				return $data;
+			}
 		);
 	}
 
