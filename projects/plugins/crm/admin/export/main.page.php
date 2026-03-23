@@ -16,7 +16,7 @@ if ( ! zeroBSCRM_permsExport() ) {
 	 **/
 function jpcrm_export_preflight_error( $message ) {
 
-	echo '<h2>' . esc_html( $message ) . '</h2><button class="ui blue button" onclick="history.back()">' . esc_html( __( 'Go Back', 'zerob-bs-crm' ) ) . '</button>';
+	echo '<h2>' . esc_html( $message ) . '</h2><button class="ui blue button" onclick="history.back()">' . esc_html( __( 'Go Back', 'zero-bs-crm' ) ) . '</button>';
 }
 
 	/**
