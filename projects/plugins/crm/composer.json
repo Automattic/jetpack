@@ -59,7 +59,7 @@
 		"automattic/jetpack-composer-plugin": "@dev",
 		"automattic/woocommerce": "^3.1",
 		"dompdf/dompdf": "^3.1",
-		"thecodingmachine/safe": "^1.3 || ^2.5"
+		"thecodingmachine/safe": "^1.3"
 	},
 	"repositories": [
 		{
