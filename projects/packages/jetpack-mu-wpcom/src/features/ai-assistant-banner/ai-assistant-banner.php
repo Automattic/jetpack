@@ -23,21 +23,27 @@ function wpcom_should_show_ai_assistant_banner() {
 		return false;
 	}
 
-	if ( ! function_exists( 'wpcom_site_has_feature' ) || ! wpcom_site_has_feature( 'big-sky' ) ) {
+	if ( ! function_exists( 'wpcom_site_has_feature' ) || ! wpcom_site_has_feature( WPCOM_Features::BIG_SKY_EXISTING_SITE ) ) {
 		return false;
 	}
 
 	// Don't show on Big Sky sites.
-	if ( get_option( 'site_intent' ) === 'ai-assembler' ) {
-		return false;
-	}
 	if ( wpcom_has_blog_sticker( 'big-sky-enabled', get_wpcom_blog_id() ) ) {
 		return false;
 	}
 
-	// Don't show if user has opted out of AI features.
-	if ( function_exists( 'get_user_attribute' ) && '1' === get_user_attribute( get_current_user_id(), 'ai_features_opted_out' ) ) {
-		return false;
+	if ( function_exists( 'get_user_attribute' ) ) {
+		$user_id = get_current_user_id();
+
+		// Don't show if user has opted out of AI features.
+		if ( '1' === get_user_attribute( $user_id, 'ai_features_opted_out' ) ) {
+			return false;
+		}
+
+		// Don't show if user has unsubscribed from AI Tips emails.
+		if ( '1' === get_user_attribute( $user_id, 'notifications_wpcom_email_ai_tips' ) ) {
+			return false;
+		}
 	}
 
 	return true;
