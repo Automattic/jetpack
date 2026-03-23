@@ -121,6 +121,16 @@ class RTC {
 	 * @return void
 	 */
 	public static function enqueue_assets() {
+		global $pagenow;
+
+		// Real-time collaboration is not enabled in the site editor.
+		if (
+			'site-editor.php' === $pagenow ||
+			( 'admin.php' === $pagenow && isset( $_GET['page'] ) && 'site-editor-v2' === sanitize_text_field( wp_unslash( $_GET['page'] ) ) ) // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		) {
+			return;
+		}
+
 		$providers = self::get_providers();
 
 		// If HTTP polling (Gutenberg's built-in default provider when this script isn't enqueued)

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix progress animation overlapping the page header by clipping animation overflow.

@@ -4,7 +4,7 @@ settings:
   autoInstallPeers: false
   excludeLinksFromLockfile: false
 
-pnpmfileChecksum: sha256-6WB2gwhE5lz5Qeo33gw4dkwjk8Lg/7L3m78A1iFmKjQ=
+pnpmfileChecksum: sha256-WVAR9S7EZ4zf00YB6kt3BsKb2jU3a3GcQwJmCVaMVno=
 
 patchedDependencies:
   uuid@<11:
@@ -77,8 +77,8 @@ importers:
         specifier: 7.6.1
         version: 7.6.1
       '@types/node':
-        specifier: ^22.19.11
-        version: 22.19.15
+        specifier: ^24.12.0
+        version: 24.12.0
       '@typescript/native-preview':
         specifier: 7.0.0-dev.20260225.1
         version: 7.0.0-dev.20260225.1
@@ -90,7 +90,7 @@ importers:
         version: 30.2.0(@babel/core@7.29.0)
       jest:
         specifier: 30.2.0
-        version: 30.2.0(@types/node@22.19.15)
+        version: 30.2.0(@types/node@24.12.0)
       typescript:
         specifier: 5.9.3
         version: 5.9.3
@@ -792,8 +792,8 @@ importers:
         specifier: 2.3.11
         version: 2.3.11
       '@types/node':
-        specifier: ^22.19.11
-        version: 22.19.15
+        specifier: ^24.12.0
+        version: 24.12.0
       '@typescript/native-preview':
         specifier: 7.0.0-dev.20260225.1
         version: 7.0.0-dev.20260225.1
@@ -802,7 +802,7 @@ importers:
         version: 4.22.0
       jest:
         specifier: 30.2.0
-        version: 30.2.0(@types/node@22.19.15)
+        version: 30.2.0(@types/node@24.12.0)
       path-browserify:
         specifier: 1.0.1
         version: 1.0.1
@@ -2220,8 +2220,8 @@ importers:
         specifier: 7.29.0
         version: 7.29.0
       '@types/node':
-        specifier: ^22.19.11
-        version: 22.19.15
+        specifier: ^24.12.0
+        version: 24.12.0
       '@typescript/native-preview':
         specifier: 7.0.0-dev.20260225.1
         version: 7.0.0-dev.20260225.1
@@ -2230,7 +2230,7 @@ importers:
         version: 9.2.1
       jest:
         specifier: 30.2.0
-        version: 30.2.0(@types/node@22.19.15)
+        version: 30.2.0(@types/node@24.12.0)
       webpack:
         specifier: 5.105.2
         version: 5.105.2(webpack-cli@6.0.1)
@@ -2898,8 +2898,8 @@ importers:
         specifier: 1.9.0
         version: 1.9.0
       '@types/node':
-        specifier: ^22.19.11
-        version: 22.19.15
+        specifier: ^24.12.0
+        version: 24.12.0
       '@types/react':
         specifier: ^18.3.28
         version: 18.3.28
@@ -3137,8 +3137,8 @@ importers:
         specifier: 30.0.0
         version: 30.0.0
       '@types/node':
-        specifier: ^22.19.11
-        version: 22.19.15
+        specifier: ^24.12.0
+        version: 24.12.0
       '@types/react':
         specifier: 18.3.28
         version: 18.3.28
@@ -3150,7 +3150,7 @@ importers:
         version: 9.2.1
       jest:
         specifier: 30.2.0
-        version: 30.2.0(@types/node@22.19.15)
+        version: 30.2.0(@types/node@24.12.0)
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -4247,6 +4247,9 @@ importers:
       '@wordpress/theme':
         specifier: ^0.9.0
         version: 0.9.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@16.26.1)
+      '@wordpress/ui':
+        specifier: ^0.9.0
+        version: 0.9.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@16.26.1)
       webpack:
         specifier: ^5.104.1
         version: 5.105.2(webpack-cli@6.0.1)
@@ -4584,8 +4587,8 @@ importers:
         specifier: 1.58.2
         version: 1.58.2
       '@types/node':
-        specifier: ^22.19.11
-        version: 22.19.15
+        specifier: ^24.12.0
+        version: 24.12.0
       '@typescript/native-preview':
         specifier: 7.0.0-dev.20260225.1
         version: 7.0.0-dev.20260225.1
@@ -4684,8 +4687,8 @@ importers:
         specifier: 1.58.2
         version: 1.58.2
       '@types/node':
-        specifier: ^22.19.11
-        version: 22.19.15
+        specifier: ^24.12.0
+        version: 24.12.0
       '@typescript/native-preview':
         specifier: 7.0.0-dev.20260225.1
         version: 7.0.0-dev.20260225.1
@@ -5314,8 +5317,8 @@ importers:
         specifier: 1.58.2
         version: 1.58.2
       '@types/node':
-        specifier: ^22.19.11
-        version: 22.19.15
+        specifier: ^24.12.0
+        version: 24.12.0
       '@typescript/native-preview':
         specifier: 7.0.0-dev.20260225.1
         version: 7.0.0-dev.20260225.1
@@ -5519,8 +5522,8 @@ importers:
         specifier: 1.58.2
         version: 1.58.2
       '@types/node':
-        specifier: ^22.19.11
-        version: 22.19.15
+        specifier: ^24.12.0
+        version: 24.12.0
       '@typescript/native-preview':
         specifier: 7.0.0-dev.20260225.1
         version: 7.0.0-dev.20260225.1
@@ -5545,8 +5548,8 @@ importers:
         specifier: 1.58.2
         version: 1.58.2
       '@types/node':
-        specifier: ^22.19.11
-        version: 22.19.15
+        specifier: ^24.12.0
+        version: 24.12.0
       '@typescript/native-preview':
         specifier: 7.0.0-dev.20260225.1
         version: 7.0.0-dev.20260225.1
@@ -5575,8 +5578,8 @@ importers:
         specifier: 1.58.2
         version: 1.58.2
       '@types/node':
-        specifier: ^22.19.11
-        version: 22.19.15
+        specifier: ^24.12.0
+        version: 24.12.0
       '@typescript/native-preview':
         specifier: 7.0.0-dev.20260225.1
         version: 7.0.0-dev.20260225.1
@@ -5672,8 +5675,8 @@ importers:
         specifier: 1.58.2
         version: 1.58.2
       '@types/node':
-        specifier: ^22.19.11
-        version: 22.19.15
+        specifier: ^24.12.0
+        version: 24.12.0
       '@typescript/native-preview':
         specifier: 7.0.0-dev.20260225.1
         version: 7.0.0-dev.20260225.1
@@ -5698,8 +5701,8 @@ importers:
         specifier: ^30.0.0
         version: 30.2.0
       '@types/node':
-        specifier: ^22.19.11
-        version: 22.19.15
+        specifier: ^24.12.0
+        version: 24.12.0
       '@types/shell-escape':
         specifier: 0.2.3
         version: 0.2.3
@@ -5723,7 +5726,7 @@ importers:
         version: 16.6.1
       jest:
         specifier: ^30.0.0
-        version: 30.2.0(@types/node@22.19.15)
+        version: 30.2.0(@types/node@24.12.0)
       jest-util:
         specifier: ^30.0.0
         version: 30.2.0
@@ -5732,7 +5735,7 @@ importers:
         version: 0.2.0
       ts-jest:
         specifier: 29.4.5
-        version: 29.4.5(jest-util@30.2.0)(jest@30.2.0(@types/node@22.19.15))(typescript@5.9.3)
+        version: 29.4.5(jest-util@30.2.0)(jest@30.2.0(@types/node@24.12.0))(typescript@5.9.3)
       typescript:
         specifier: 5.9.3
         version: 5.9.3
@@ -5804,8 +5807,8 @@ importers:
         specifier: 1.58.2
         version: 1.58.2
       '@types/node':
-        specifier: ^22.19.11
-        version: 22.19.15
+        specifier: ^24.12.0
+        version: 24.12.0
       '@typescript/native-preview':
         specifier: 7.0.0-dev.20260225.1
         version: 7.0.0-dev.20260225.1
@@ -5943,14 +5946,14 @@ importers:
         specifier: 4.17.12
         version: 4.17.12
       '@types/node':
-        specifier: ^22.19.11
-        version: 22.19.15
+        specifier: ^24.12.0
+        version: 24.12.0
       '@typescript/native-preview':
         specifier: 7.0.0-dev.20260225.1
         version: 7.0.0-dev.20260225.1
       '@wordpress/e2e-test-utils-playwright':
         specifier: 1.42.0
-        version: 1.42.0(@playwright/test@1.58.2)(@types/node@22.19.15)
+        version: 1.42.0(@playwright/test@1.58.2)(@types/node@24.12.0)
       allure-playwright:
         specifier: 2.15.1
         version: 2.15.1
@@ -9947,8 +9950,8 @@ packages:
   '@types/mysql@2.15.26':
     resolution: {integrity: sha512-DSLCOXhkvfS5WNNPbfn2KdICAmk8lLc+/PNvnPnF7gOdMZCxopXduqv0OQ13y/yA/zXTSikZZqVgybUxOEg6YQ==}
 
-  '@types/node@22.19.15':
-    resolution: {integrity: sha512-F0R/h2+dsy5wJAUe3tAU6oqa2qbWY5TpNfL/RGmo1y38hiyO1w3x2jPtt76wmuaJI4DQnOBu21cNXQ2STIUUWg==}
+  '@types/node@24.12.0':
+    resolution: {integrity: sha512-GYDxsZi3ChgmckRT9HPU0WEhKLP08ev/Yfcq2AstjrDASOYCSXeyjDsHg4v5t4jOj7cyDX3vmprafKlWIG9MXQ==}
 
   '@types/normalize-package-data@2.4.4':
     resolution: {integrity: sha512-37i+OaWTh9qeK4LSHPsyRC7NahnGotNuZvjLSgcPzblpHB3rrCJxAOgI5gCdKm7coonsaX1Of0ILiTcnZjbfxA==}
@@ -10660,7 +10663,7 @@ packages:
     engines: {node: '>=18.12.0', npm: '>=8.19.2'}
     peerDependencies:
       '@playwright/test': '>=1'
-      '@types/node': ^20.17.10 || ^22.0.0
+      '@types/node': ^20.17.10 || ^24.0.0
 
   '@wordpress/edit-post@8.42.0':
     resolution: {integrity: sha512-SAnqCwebixm580hUcty1LBw/Xd412CNRsYA1VKuuQO9hTvuhhOPTpaQUCQGtUsnZ/wCvBXq68LT8gCZiCnnsPg==}
@@ -17693,8 +17696,8 @@ packages:
     resolution: {integrity: sha512-nWJ91DjeOkej/TA8pXQ3myruKpKEYgqvpw9lz4OPHj/NWFNluYrjbz9j01CJ8yKQd2g4jFoOkINCTW2I5LEEyw==}
     engines: {node: '>= 0.4'}
 
-  undici-types@6.21.0:
-    resolution: {integrity: sha512-iwDZqg0QAGrg9Rav5H4n0M64c3mkR59cJ6wQp+7C4nI0gsmExaedaYLNO44eT4AtBBwjbTiGPMlt2Md0T9H9JQ==}
+  undici-types@7.16.0:
+    resolution: {integrity: sha512-Zz+aZWSj8LE6zoxD+xrjh4VfkIG8Ya6LvYkZqtUQGJPZjYl53ypCaUwWqo7eI0x66KBGeRo+mlBEkMSeSZ38Nw==}
 
   undici@6.24.0:
     resolution: {integrity: sha512-lVLNosgqo5EkGqh5XUDhGfsMSoO8K0BAN0TyJLvwNRSl4xWGZlCVYsAIpa/OpA3TvmnM01GWcoKmc3ZWo5wKKA==}
@@ -18382,7 +18385,7 @@ snapshots:
     dependencies:
       '@automattic/create-calypso-config': 1.0.0-alpha.0
       '@types/cookie': 0.6.0
-      '@types/node': 22.19.15
+      '@types/node': 24.12.0
       cookie: 0.7.2
       tslib: 2.8.1
 
@@ -20385,7 +20388,7 @@ snapshots:
   '@jest/console@30.2.0':
     dependencies:
       '@jest/types': 30.2.0
-      '@types/node': 22.19.15
+      '@types/node': 24.12.0
       chalk: 4.1.2
       jest-message-util: 30.2.0
       jest-util: 30.2.0
@@ -20399,14 +20402,14 @@ snapshots:
       '@jest/test-result': 30.2.0
       '@jest/transform': 30.2.0
       '@jest/types': 30.2.0
-      '@types/node': 22.19.15
+      '@types/node': 24.12.0
       ansi-escapes: 4.3.2
       chalk: 4.1.2
       ci-info: 4.4.0
       exit-x: 0.2.2
       graceful-fs: 4.2.11
       jest-changed-files: 30.2.0
-      jest-config: 30.2.0(@types/node@22.19.15)
+      jest-config: 30.2.0(@types/node@24.12.0)
       jest-haste-map: 30.2.0
       jest-message-util: 30.2.0
       jest-regex-util: 30.0.1
@@ -20439,7 +20442,7 @@ snapshots:
       '@jest/fake-timers': 30.2.0
       '@jest/types': 30.2.0
       '@types/jsdom': 21.1.7
-      '@types/node': 22.19.15
+      '@types/node': 24.12.0
       jest-mock: 30.2.0
       jest-util: 30.2.0
       jsdom: 27.4.0
@@ -20448,7 +20451,7 @@ snapshots:
     dependencies:
       '@jest/fake-timers': 30.2.0
       '@jest/types': 30.2.0
-      '@types/node': 22.19.15
+      '@types/node': 24.12.0
       jest-mock: 30.2.0
 
   '@jest/expect-utils@30.2.0':
@@ -20466,7 +20469,7 @@ snapshots:
     dependencies:
       '@jest/types': 30.2.0
       '@sinonjs/fake-timers': 13.0.5
-      '@types/node': 22.19.15
+      '@types/node': 24.12.0
       jest-message-util: 30.2.0
       jest-mock: 30.2.0
       jest-util: 30.2.0
@@ -20484,7 +20487,7 @@ snapshots:
 
   '@jest/pattern@30.0.1':
     dependencies:
-      '@types/node': 22.19.15
+      '@types/node': 24.12.0
       jest-regex-util: 30.0.1
 
   '@jest/reporters@30.2.0':
@@ -20495,7 +20498,7 @@ snapshots:
       '@jest/transform': 30.2.0
       '@jest/types': 30.2.0
       '@jridgewell/trace-mapping': 0.3.31
-      '@types/node': 22.19.15
+      '@types/node': 24.12.0
       chalk: 4.1.2
       collect-v8-coverage: 1.0.3
       exit-x: 0.2.2
@@ -20572,7 +20575,7 @@ snapshots:
       '@jest/schemas': 30.0.5
       '@types/istanbul-lib-coverage': 2.0.6
       '@types/istanbul-reports': 3.0.4
-      '@types/node': 22.19.15
+      '@types/node': 24.12.0
       '@types/yargs': 17.0.35
       chalk: 4.1.2
 
@@ -22241,7 +22244,7 @@ snapshots:
 
   '@slack/logger@4.0.0':
     dependencies:
-      '@types/node': 22.19.15
+      '@types/node': 24.12.0
 
   '@slack/types@2.20.0': {}
 
@@ -22249,7 +22252,7 @@ snapshots:
     dependencies:
       '@slack/logger': 4.0.0
       '@slack/types': 2.20.0
-      '@types/node': 22.19.15
+      '@types/node': 24.12.0
       '@types/retry': 0.12.0
       axios: 1.13.5
       eventemitter3: 5.0.4
@@ -22746,11 +22749,11 @@ snapshots:
   '@types/body-parser@1.19.6':
     dependencies:
       '@types/connect': 3.4.38
-      '@types/node': 22.19.15
+      '@types/node': 24.12.0
 
   '@types/bonjour@3.5.13':
     dependencies:
-      '@types/node': 22.19.15
+      '@types/node': 24.12.0
 
   '@types/canvas-confetti@1.9.0': {}
 
@@ -22761,7 +22764,7 @@ snapshots:
 
   '@types/clean-css@4.2.11':
     dependencies:
-      '@types/node': 22.19.15
+      '@types/node': 24.12.0
       source-map: 0.6.1
 
   '@types/config@3.3.5': {}
@@ -22769,11 +22772,11 @@ snapshots:
   '@types/connect-history-api-fallback@1.5.4':
     dependencies:
       '@types/express-serve-static-core': 4.19.8
-      '@types/node': 22.19.15
+      '@types/node': 24.12.0
 
   '@types/connect@3.4.38':
     dependencies:
-      '@types/node': 22.19.15
+      '@types/node': 24.12.0
 
   '@types/cookie@0.6.0': {}
 
@@ -22833,7 +22836,7 @@ snapshots:
 
   '@types/express-serve-static-core@4.19.8':
     dependencies:
-      '@types/node': 22.19.15
+      '@types/node': 24.12.0
       '@types/qs': 6.15.0
       '@types/range-parser': 1.2.7
       '@types/send': 1.2.1
@@ -22862,7 +22865,7 @@ snapshots:
 
   '@types/http-proxy@1.17.17':
     dependencies:
-      '@types/node': 22.19.15
+      '@types/node': 24.12.0
 
   '@types/istanbul-lib-coverage@2.0.6': {}
 
@@ -22885,7 +22888,7 @@ snapshots:
 
   '@types/jsdom@21.1.7':
     dependencies:
-      '@types/node': 22.19.15
+      '@types/node': 24.12.0
       '@types/tough-cookie': 4.0.5
       parse5: 7.3.0
 
@@ -22922,11 +22925,11 @@ snapshots:
 
   '@types/mysql@2.15.26':
     dependencies:
-      '@types/node': 22.19.15
+      '@types/node': 24.12.0
 
-  '@types/node@22.19.15':
+  '@types/node@24.12.0':
     dependencies:
-      undici-types: 6.21.0
+      undici-types: 7.16.0
 
   '@types/normalize-package-data@2.4.4': {}
 
@@ -22938,7 +22941,7 @@ snapshots:
 
   '@types/pg@8.6.1':
     dependencies:
-      '@types/node': 22.19.15
+      '@types/node': 24.12.0
       pg-protocol: 1.13.0
       pg-types: 2.2.0
 
@@ -22978,7 +22981,7 @@ snapshots:
 
   '@types/sax@1.2.7':
     dependencies:
-      '@types/node': 22.19.15
+      '@types/node': 24.12.0
 
   '@types/seed-random@2.2.4': {}
 
@@ -22987,11 +22990,11 @@ snapshots:
   '@types/send@0.17.6':
     dependencies:
       '@types/mime': 1.3.5
-      '@types/node': 22.19.15
+      '@types/node': 24.12.0
 
   '@types/send@1.2.1':
     dependencies:
-      '@types/node': 22.19.15
+      '@types/node': 24.12.0
 
   '@types/serve-index@1.9.4':
     dependencies:
@@ -23000,7 +23003,7 @@ snapshots:
   '@types/serve-static@1.15.10':
     dependencies:
       '@types/http-errors': 2.0.5
-      '@types/node': 22.19.15
+      '@types/node': 24.12.0
       '@types/send': 0.17.6
 
   '@types/shell-escape@0.2.3': {}
@@ -23011,13 +23014,13 @@ snapshots:
 
   '@types/sockjs@0.3.36':
     dependencies:
-      '@types/node': 22.19.15
+      '@types/node': 24.12.0
 
   '@types/stack-utils@2.0.3': {}
 
   '@types/tedious@4.0.14':
     dependencies:
-      '@types/node': 22.19.15
+      '@types/node': 24.12.0
 
   '@types/tough-cookie@4.0.5': {}
 
@@ -23031,7 +23034,7 @@ snapshots:
 
   '@types/wait-on@5.3.4':
     dependencies:
-      '@types/node': 22.19.15
+      '@types/node': 24.12.0
 
   '@types/wordpress__block-editor@15.0.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
@@ -23064,7 +23067,7 @@ snapshots:
 
   '@types/ws@8.18.1':
     dependencies:
-      '@types/node': 22.19.15
+      '@types/node': 24.12.0
 
   '@types/yargs-parser@21.0.3': {}
 
@@ -23074,7 +23077,7 @@ snapshots:
 
   '@types/yauzl@2.10.3':
     dependencies:
-      '@types/node': 22.19.15
+      '@types/node': 24.12.0
     optional: true
 
   '@typescript-eslint/eslint-plugin@8.57.1(@typescript-eslint/parser@8.57.1(eslint@9.39.4)(typescript@5.9.3))(eslint@9.39.4)(typescript@5.9.3)':
@@ -24673,10 +24676,10 @@ snapshots:
     dependencies:
       '@wordpress/deprecated': 4.42.0
 
-  '@wordpress/e2e-test-utils-playwright@1.42.0(@playwright/test@1.58.2)(@types/node@22.19.15)':
+  '@wordpress/e2e-test-utils-playwright@1.42.0(@playwright/test@1.58.2)(@types/node@24.12.0)':
     dependencies:
       '@playwright/test': 1.58.2
-      '@types/node': 22.19.15
+      '@types/node': 24.12.0
       change-case: 4.1.2
       get-port: 5.1.1
       lighthouse: 12.8.2
@@ -26958,7 +26961,7 @@ snapshots:
 
   chrome-launcher@1.2.1:
     dependencies:
-      '@types/node': 22.19.15
+      '@types/node': 24.12.0
       escape-string-regexp: 4.0.0
       is-wsl: 2.2.0
       lighthouse-logger: 2.0.2
@@ -28488,7 +28491,7 @@ snapshots:
 
   eval@0.1.8:
     dependencies:
-      '@types/node': 22.19.15
+      '@types/node': 24.12.0
       require-like: 0.1.2
 
   eventemitter3@4.0.7: {}
@@ -29790,7 +29793,7 @@ snapshots:
       '@jest/expect': 30.2.0
       '@jest/test-result': 30.2.0
       '@jest/types': 30.2.0
-      '@types/node': 22.19.15
+      '@types/node': 24.12.0
       chalk: 4.1.2
       co: 4.6.0
       dedent: 1.7.2
@@ -29829,7 +29832,7 @@ snapshots:
       - supports-color
       - ts-node
 
-  jest-cli@30.2.0(@types/node@22.19.15):
+  jest-cli@30.2.0(@types/node@24.12.0):
     dependencies:
       '@jest/core': 30.2.0
       '@jest/test-result': 30.2.0
@@ -29837,7 +29840,7 @@ snapshots:
       chalk: 4.1.2
       exit-x: 0.2.2
       import-local: 3.2.0
-      jest-config: 30.2.0(@types/node@22.19.15)
+      jest-config: 30.2.0(@types/node@24.12.0)
       jest-util: 30.2.0
       jest-validate: 30.2.0
       yargs: 17.7.2
@@ -29878,7 +29881,7 @@ snapshots:
       - babel-plugin-macros
       - supports-color
 
-  jest-config@30.2.0(@types/node@22.19.15):
+  jest-config@30.2.0(@types/node@24.12.0):
     dependencies:
       '@babel/core': 7.29.0
       '@jest/get-type': 30.1.0
@@ -29905,7 +29908,7 @@ snapshots:
       slash: 3.0.0
       strip-json-comments: 3.1.1
     optionalDependencies:
-      '@types/node': 22.19.15
+      '@types/node': 24.12.0
     transitivePeerDependencies:
       - babel-plugin-macros
       - supports-color
@@ -29934,7 +29937,7 @@ snapshots:
       '@jest/environment': 30.2.0
       '@jest/fake-timers': 30.2.0
       '@jest/types': 30.2.0
-      '@types/node': 22.19.15
+      '@types/node': 24.12.0
       jest-mock: 30.2.0
       jest-util: 30.2.0
       jest-validate: 30.2.0
@@ -29949,7 +29952,7 @@ snapshots:
   jest-haste-map@30.2.0:
     dependencies:
       '@jest/types': 30.2.0
-      '@types/node': 22.19.15
+      '@types/node': 24.12.0
       anymatch: 3.1.3
       fb-watchman: 2.0.2
       graceful-fs: 4.2.11
@@ -29995,7 +29998,7 @@ snapshots:
   jest-mock@30.2.0:
     dependencies:
       '@jest/types': 30.2.0
-      '@types/node': 22.19.15
+      '@types/node': 24.12.0
       jest-util: 30.2.0
 
   jest-pnp-resolver@1.2.3(jest-resolve@30.2.0):
@@ -30045,7 +30048,7 @@ snapshots:
       '@jest/test-result': 30.2.0
       '@jest/transform': 30.2.0
       '@jest/types': 30.2.0
-      '@types/node': 22.19.15
+      '@types/node': 24.12.0
       chalk: 4.1.2
       emittery: 0.13.1
       exit-x: 0.2.2
@@ -30074,7 +30077,7 @@ snapshots:
       '@jest/test-result': 30.2.0
       '@jest/transform': 30.2.0
       '@jest/types': 30.2.0
-      '@types/node': 22.19.15
+      '@types/node': 24.12.0
       chalk: 4.1.2
       cjs-module-lexer: 2.2.0
       collect-v8-coverage: 1.0.3
@@ -30125,7 +30128,7 @@ snapshots:
   jest-util@30.2.0:
     dependencies:
       '@jest/types': 30.2.0
-      '@types/node': 22.19.15
+      '@types/node': 24.12.0
       chalk: 4.1.2
       ci-info: 4.4.0
       graceful-fs: 4.2.11
@@ -30155,7 +30158,7 @@ snapshots:
     dependencies:
       '@jest/test-result': 30.2.0
       '@jest/types': 30.2.0
-      '@types/node': 22.19.15
+      '@types/node': 24.12.0
       ansi-escapes: 4.3.2
       chalk: 4.1.2
       emittery: 0.13.1
@@ -30164,13 +30167,13 @@ snapshots:
 
   jest-worker@27.5.1:
     dependencies:
-      '@types/node': 22.19.15
+      '@types/node': 24.12.0
       merge-stream: 2.0.0
       supports-color: 8.1.1
 
   jest-worker@30.2.0:
     dependencies:
-      '@types/node': 22.19.15
+      '@types/node': 24.12.0
       '@ungap/structured-clone': 1.3.0
       jest-util: 30.2.0
       merge-stream: 2.0.0
@@ -30189,12 +30192,12 @@ snapshots:
       - supports-color
       - ts-node
 
-  jest@30.2.0(@types/node@22.19.15):
+  jest@30.2.0(@types/node@24.12.0):
     dependencies:
       '@jest/core': 30.2.0
       '@jest/types': 30.2.0
       import-local: 3.2.0
-      jest-cli: 30.2.0(@types/node@22.19.15)
+      jest-cli: 30.2.0(@types/node@24.12.0)
     transitivePeerDependencies:
       - '@types/node'
       - babel-plugin-macros
@@ -33255,7 +33258,7 @@ snapshots:
 
   speedline-core@1.4.3:
     dependencies:
-      '@types/node': 22.19.15
+      '@types/node': 24.12.0
       image-ssim: 0.2.0
       jpeg-js: 0.4.4
 
@@ -33943,12 +33946,12 @@ snapshots:
 
   ts-interface-checker@0.1.13: {}
 
-  ts-jest@29.4.5(jest-util@30.2.0)(jest@30.2.0(@types/node@22.19.15))(typescript@5.9.3):
+  ts-jest@29.4.5(jest-util@30.2.0)(jest@30.2.0(@types/node@24.12.0))(typescript@5.9.3):
     dependencies:
       bs-logger: 0.2.6
       fast-json-stable-stringify: 2.1.0
       handlebars: 4.7.8
-      jest: 30.2.0(@types/node@22.19.15)
+      jest: 30.2.0(@types/node@24.12.0)
       json5: 2.2.3
       lodash.memoize: 4.1.2
       make-error: 1.3.6
@@ -34150,7 +34153,7 @@ snapshots:
       has-symbols: 1.1.0
       which-boxed-primitive: 1.1.1
 
-  undici-types@6.21.0: {}
+  undici-types@7.16.0: {}
 
   undici@6.24.0: {}
 
