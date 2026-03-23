@@ -381,19 +381,36 @@ const runRsyncWithProxy = async ( monorepoRoot, args ) => {
 				let parsedArgs;
 				try {
 					parsedArgs = JSON.parse( commandLine );
+					if ( ! Array.isArray( parsedArgs ) || parsedArgs.length === 0 ) {
+						throw new Error( 'parsedArgs is not a non-empty array' );
+					}
 				} catch {
 					console.error( chalk.red( 'Invalid JSON received from proxy' ) );
 					socket.destroy();
 					return;
 				}
 
+				// Validate the shared secret (security check)
+				if ( parsedArgs[ 0 ] !== secret ) {
+					if ( parsedArgs[ 0 ] === 'ssh' ) {
+						console.error(
+							chalk.red(
+								'The container did not send the shared secret. Update your git checkout with the latest trunk.'
+							)
+						);
+					} else {
+						console.error(
+							chalk.red(
+								'Incorrect shared secret received. Possible unauthorized access or misconfiguration.'
+							)
+						);
+					}
+					socket.destroy();
+					return;
+				}
+
 				// Validate that this is an SSH command (security check)
-				if (
-					! Array.isArray( parsedArgs ) ||
-					parsedArgs.length < 2 ||
-					parsedArgs[ 0 ] !== secret ||
-					parsedArgs[ 1 ] !== 'ssh'
-				) {
+				if ( parsedArgs.length < 2 || parsedArgs[ 1 ] !== 'ssh' ) {
 					console.error( chalk.red( 'Invalid command received: expected ssh command' ) );
 					socket.destroy();
 					return;
@@ -458,11 +475,13 @@ const runRsyncWithProxy = async ( monorepoRoot, args ) => {
 		await new Promise( ( resolveListening, rejectListening ) => {
 			proxyServer = net.createServer( handleConnection );
 
+			const oldumask = process.umask( 0o077 );
+
 			proxyServer.on( 'error', err => {
+				process.umask( oldumask );
 				rejectListening( err );
 			} );
 
-			const oldumask = process.umask( 0o077 );
 			proxyServer.listen( { path: socketPath }, () => {
 				process.umask( oldumask );
 				resolveListening();
