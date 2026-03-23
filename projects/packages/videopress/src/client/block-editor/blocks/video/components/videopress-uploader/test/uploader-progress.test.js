@@ -214,6 +214,37 @@ describe( 'usePosterAndTitleUpdate', () => {
 		jest.useRealTimers();
 	} );
 
+	it( 'stops polling and resolves null after max retries', async () => {
+		jest.useFakeTimers();
+
+		// Upload and every poll return generating — never completes.
+		mockUploadPoster.mockResolvedValue( { data: { generating: true } } );
+		mockGetPoster.mockResolvedValue( { data: { generating: true } } );
+
+		const { result } = renderTestHook();
+
+		act( () => {
+			getHookValues( result ).handleSelectPoster( { id: 10 } );
+		} );
+
+		await act( async () => {
+			getHookValues( result ).handleDoneUpload();
+		} );
+
+		// Advance through all 10 retries (10 × 2000ms).
+		for ( let i = 0; i < 10; i++ ) {
+			await act( async () => {
+				jest.advanceTimersByTime( 2000 );
+				await Promise.resolve();
+			} );
+		}
+
+		// onDone should be called without poster after retries are exhausted.
+		expect( onDone ).toHaveBeenCalledWith( videoData );
+
+		jest.useRealTimers();
+	} );
+
 	it( 'resolves with null when polling fails during poster generation', async () => {
 		jest.useFakeTimers();
 

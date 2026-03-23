@@ -49,12 +49,12 @@ const usePosterAndTitleUpdate = ( { setAttributes, videoData, onDone } ) => {
 		} );
 	};
 
-	const updatePoster = ( { data: result } ) => {
+	const updatePoster = ( { data: result }, remainingRetries = 10 ) => {
 		return new Promise( resolve => {
-			if ( result?.generating ) {
+			if ( result?.generating && remainingRetries > 0 ) {
 				setTimeout( () => {
 					getPosterImage()
-						.then( response => updatePoster( response ).then( resolve ) )
+						.then( response => updatePoster( response, remainingRetries - 1 ).then( resolve ) )
 						.catch( error => {
 							debug( 'Poster polling failed: %o', error );
 							resolve( null );
@@ -64,6 +64,9 @@ const usePosterAndTitleUpdate = ( { setAttributes, videoData, onDone } ) => {
 				setAttributes( { poster: result.poster } );
 				resolve( result.poster );
 			} else {
+				if ( result?.generating ) {
+					debug( 'Poster generation polling timed out' );
+				}
 				resolve( null );
 			}
 		} );
