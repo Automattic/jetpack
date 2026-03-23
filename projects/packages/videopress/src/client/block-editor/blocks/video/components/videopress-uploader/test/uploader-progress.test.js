@@ -48,6 +48,7 @@ describe( 'usePosterAndTitleUpdate', () => {
 		setAttributes = jest.fn();
 		onDone = jest.fn();
 		mockUpdateMeta.mockResolvedValue( {} );
+		mockUploadPoster.mockResolvedValue( { data: {} } );
 	} );
 
 	const renderTestHook = ( overrides = {} ) => {
@@ -93,10 +94,7 @@ describe( 'usePosterAndTitleUpdate', () => {
 		expect( onDone ).toHaveBeenCalledWith( videoData );
 	} );
 
-	it( 'includes poster URL in onDone data when a poster image is selected', async () => {
-		const posterUrl = 'https://example.com/custom-poster.jpg';
-		mockUploadPoster.mockResolvedValue( { data: { poster: posterUrl } } );
-
+	it( 'includes client-side poster URL in onDone when a poster image is selected', async () => {
 		const { result } = renderTestHook();
 
 		act( () => {
@@ -110,17 +108,16 @@ describe( 'usePosterAndTitleUpdate', () => {
 			getHookValues( result ).handleDoneUpload();
 		} );
 
+		// Server-side poster update fires in background.
 		expect( mockUploadPoster ).toHaveBeenCalledWith( { poster_attachment_id: 42 } );
+		// onDone uses the client-side URL immediately.
 		expect( onDone ).toHaveBeenCalledWith( {
 			...videoData,
-			poster: posterUrl,
+			poster: 'https://example.com/image.jpg',
 		} );
 	} );
 
-	it( 'includes poster URL in onDone data when a video frame is selected', async () => {
-		const posterUrl = 'https://example.com/frame-poster.jpg';
-		mockUploadPoster.mockResolvedValue( { data: { poster: posterUrl } } );
-
+	it( 'sends server-side poster update for video frame selection', async () => {
 		const { result } = renderTestHook();
 
 		act( () => {
@@ -135,16 +132,11 @@ describe( 'usePosterAndTitleUpdate', () => {
 			at_time: 5000,
 			is_millisec: true,
 		} );
-		expect( onDone ).toHaveBeenCalledWith( {
-			...videoData,
-			poster: posterUrl,
-		} );
+		// No client-side URL for frame selection, so onDone has no poster.
+		expect( onDone ).toHaveBeenCalledWith( videoData );
 	} );
 
 	it( 'handles video frame selected at 0ms', async () => {
-		const posterUrl = 'https://example.com/zero-frame.jpg';
-		mockUploadPoster.mockResolvedValue( { data: { poster: posterUrl } } );
-
 		const { result } = renderTestHook();
 
 		act( () => {
@@ -159,13 +151,10 @@ describe( 'usePosterAndTitleUpdate', () => {
 			at_time: 0,
 			is_millisec: true,
 		} );
-		expect( onDone ).toHaveBeenCalledWith( {
-			...videoData,
-			poster: posterUrl,
-		} );
+		expect( onDone ).toHaveBeenCalledWith( videoData );
 	} );
 
-	it( 'sets poster attribute via setAttributes when poster resolves', async () => {
+	it( 'sets poster attribute via setAttributes when debounced update resolves', async () => {
 		const posterUrl = 'https://example.com/poster.jpg';
 		mockUploadPoster.mockResolvedValue( { data: { poster: posterUrl } } );
 
@@ -175,8 +164,9 @@ describe( 'usePosterAndTitleUpdate', () => {
 			getHookValues( result ).handleSelectPoster( { id: 10 } );
 		} );
 
+		// The debounced useEffect fires sendUpdatePoster immediately (debounce is mocked).
 		await act( async () => {
-			getHookValues( result ).handleDoneUpload();
+			await Promise.resolve();
 		} );
 
 		expect( setAttributes ).toHaveBeenCalledWith( { poster: posterUrl } );
@@ -198,8 +188,9 @@ describe( 'usePosterAndTitleUpdate', () => {
 			getHookValues( result ).handleSelectPoster( { id: 10 } );
 		} );
 
+		// Flush the debounced useEffect call.
 		await act( async () => {
-			getHookValues( result ).handleDoneUpload();
+			await Promise.resolve();
 		} );
 
 		// Advance past the polling setTimeout and flush resolved promises.
@@ -227,8 +218,9 @@ describe( 'usePosterAndTitleUpdate', () => {
 			getHookValues( result ).handleSelectPoster( { id: 10 } );
 		} );
 
+		// Flush the debounced useEffect call.
 		await act( async () => {
-			getHookValues( result ).handleDoneUpload();
+			await Promise.resolve();
 		} );
 
 		// Advance through all 10 retries (10 × 2000ms).
@@ -239,8 +231,11 @@ describe( 'usePosterAndTitleUpdate', () => {
 			} );
 		}
 
-		// onDone should be called without poster after retries are exhausted.
-		expect( onDone ).toHaveBeenCalledWith( videoData );
+		// After exhausting retries, setAttributes should not have been
+		// called with a poster (generating never resolved to a URL).
+		expect( setAttributes ).not.toHaveBeenCalledWith(
+			expect.objectContaining( { poster: expect.any( String ) } )
+		);
 
 		jest.useRealTimers();
 	} );
@@ -259,8 +254,9 @@ describe( 'usePosterAndTitleUpdate', () => {
 			getHookValues( result ).handleSelectPoster( { id: 10 } );
 		} );
 
+		// Flush the debounced useEffect call.
 		await act( async () => {
-			getHookValues( result ).handleDoneUpload();
+			await Promise.resolve();
 		} );
 
 		await act( async () => {
@@ -268,8 +264,10 @@ describe( 'usePosterAndTitleUpdate', () => {
 			await Promise.resolve();
 		} );
 
-		// onDone should still be called (without poster) rather than hanging.
-		expect( onDone ).toHaveBeenCalledWith( videoData );
+		// Poster should not have been set via setAttributes.
+		expect( setAttributes ).not.toHaveBeenCalledWith(
+			expect.objectContaining( { poster: expect.any( String ) } )
+		);
 
 		jest.useRealTimers();
 	} );
@@ -285,8 +283,10 @@ describe( 'usePosterAndTitleUpdate', () => {
 			getHookValues( result ).handleSelectPoster( { id: 10 } );
 		} );
 
+		// Flush the debounced useEffect call and its fallback.
 		await act( async () => {
-			getHookValues( result ).handleDoneUpload();
+			await Promise.resolve();
+			await Promise.resolve();
 		} );
 
 		expect( mockApiFetch ).toHaveBeenCalledWith(
@@ -298,97 +298,14 @@ describe( 'usePosterAndTitleUpdate', () => {
 		expect( setAttributes ).toHaveBeenCalledWith( { poster: posterUrl } );
 	} );
 
-	it( 'calls onDone without poster when both upload paths reject', async () => {
-		// Let the useEffect's debounced call succeed first, then set up rejections.
-		mockUploadPoster.mockResolvedValueOnce( {
-			data: { poster: 'https://example.com/poster.jpg' },
-		} );
-
-		const { result } = renderTestHook();
-
-		act( () => {
-			getHookValues( result ).handleSelectPoster( { id: 10 } );
-		} );
-
-		// Flush the useEffect's debounced call.
-		await act( async () => {
-			await Promise.resolve();
-		} );
-
-		// Reject once for handleDoneUpload's direct call, then restore
-		// resolved defaults so the useEffect re-run after isFinishingUpdate
-		// resets doesn't trigger unhandled rejections.
-		mockUploadPoster
-			.mockRejectedValueOnce( new Error( 'hook failed' ) )
-			.mockResolvedValue( { data: {} } );
-		mockApiFetch.mockRejectedValueOnce( new Error( 'fallback failed' ) ).mockResolvedValue( {} );
-
-		await act( async () => {
-			getHookValues( result ).handleDoneUpload();
-		} );
-
-		expect( onDone ).toHaveBeenCalledWith( videoData );
-	} );
-
-	it( 'waits for title update alongside poster update', async () => {
-		const posterUrl = 'https://example.com/poster.jpg';
-		mockUploadPoster.mockResolvedValue( { data: { poster: posterUrl } } );
-
-		let resolveMetaUpdate;
-		mockUpdateMeta.mockReturnValue(
-			new Promise( resolve => {
-				resolveMetaUpdate = resolve;
-			} )
-		);
-
-		const { result } = renderTestHook( {
-			videoData: { ...videoData, title: 'My Video' },
-		} );
-
-		act( () => {
-			getHookValues( result ).handleSelectPoster( { id: 10 } );
-		} );
-
-		await act( async () => {
-			getHookValues( result ).handleDoneUpload();
-		} );
-
-		// onDone should not have been called yet — title update is pending.
-		expect( onDone ).not.toHaveBeenCalled();
-
-		// Resolve the title update.
-		await act( async () => {
-			resolveMetaUpdate();
-		} );
-
-		expect( onDone ).toHaveBeenCalledWith( {
-			...videoData,
-			title: 'My Video',
-			poster: posterUrl,
-		} );
-	} );
-
-	it( 'does not include poster in onDone when poster update resolves with null', async () => {
-		mockUploadPoster.mockResolvedValue( { data: {} } );
-
-		const { result } = renderTestHook();
-
-		act( () => {
-			getHookValues( result ).handleSelectPoster( { id: 10 } );
-		} );
-
-		await act( async () => {
-			getHookValues( result ).handleDoneUpload();
-		} );
-
-		expect( onDone ).toHaveBeenCalledWith( videoData );
-	} );
-
 	it( 'calls onDone without poster after handleRemovePoster', async () => {
 		const { result } = renderTestHook();
 
 		act( () => {
-			getHookValues( result ).handleSelectPoster( { id: 10 } );
+			getHookValues( result ).handleSelectPoster( {
+				id: 10,
+				url: 'https://example.com/image.jpg',
+			} );
 		} );
 
 		act( () => {
@@ -403,9 +320,6 @@ describe( 'usePosterAndTitleUpdate', () => {
 	} );
 
 	it( 'does not send poster update when guid is missing', async () => {
-		const posterUrl = 'https://example.com/poster.jpg';
-		mockUploadPoster.mockResolvedValue( { data: { poster: posterUrl } } );
-
 		const videoDataWithoutGuid = { id: 1 };
 		const { result, rerender } = renderHook(
 			( { vData } ) =>
@@ -418,7 +332,10 @@ describe( 'usePosterAndTitleUpdate', () => {
 		);
 
 		act( () => {
-			getHookValues( result ).handleSelectPoster( { id: 42 } );
+			getHookValues( result ).handleSelectPoster( {
+				id: 42,
+				url: 'https://example.com/image.jpg',
+			} );
 		} );
 
 		// Attempt Done while guid is still missing — should be a no-op.
@@ -439,7 +356,7 @@ describe( 'usePosterAndTitleUpdate', () => {
 		expect( mockUploadPoster ).toHaveBeenCalledWith( { poster_attachment_id: 42 } );
 		expect( onDone ).toHaveBeenCalledWith( {
 			...videoData,
-			poster: posterUrl,
+			poster: 'https://example.com/image.jpg',
 		} );
 	} );
 

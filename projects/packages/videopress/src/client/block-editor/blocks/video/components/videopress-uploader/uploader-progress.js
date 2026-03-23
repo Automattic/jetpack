@@ -125,47 +125,31 @@ const usePosterAndTitleUpdate = ( { setAttributes, videoData, onDone } ) => {
 		setIsFinishingUpdate( true );
 		debouncedSsendUpdatePoster.cancel?.();
 
-		const updates = [];
-
 		if ( title ) {
-			updates.push( sendUpdateTitleRequest() );
+			sendUpdateTitleRequest();
 		}
 
-		// Include the poster update in the completion flow so it resolves
-		// before the upload component unmounts. The resolved poster URL
-		// is passed through onDone so it persists in block attributes.
-		let posterUpdate = null;
+		// Fire the server-side poster update in the background — don't
+		// block onDone.  We already have the poster URL client-side
+		// (videoPosterImageData.url) so we pass it through immediately.
 		if ( videoPosterImageData ) {
-			posterUpdate = sendUpdatePoster( {
+			sendUpdatePoster( {
 				poster_attachment_id: videoPosterImageData?.id,
 			} );
-			updates.push( posterUpdate );
 		} else if ( 'undefined' !== typeof videoFrameMs && null !== videoFrameMs ) {
-			posterUpdate = sendUpdatePoster( {
+			sendUpdatePoster( {
 				at_time: videoFrameMs,
 				is_millisec: true,
 			} );
-			updates.push( posterUpdate );
 		}
 
-		Promise.allSettled( updates ).then( () => {
-			setIsFinishingUpdate( false );
+		// Use the client-side poster URL if available so the block
+		// attribute is set immediately without waiting for the server.
+		const posterUrl = videoPosterImageData?.url;
 
-			if ( posterUpdate ) {
-				posterUpdate
-					.then( posterUrl => {
-						onDone( {
-							...videoData,
-							...( posterUrl ? { poster: posterUrl } : {} ),
-						} );
-					} )
-					.catch( error => {
-						debug( 'Poster update failed: %o', error );
-						onDone( videoData );
-					} );
-			} else {
-				onDone( videoData );
-			}
+		onDone( {
+			...videoData,
+			...( posterUrl ? { poster: posterUrl } : {} ),
 		} );
 	};
 
@@ -313,7 +297,7 @@ const UploaderProgress = ( {
 								<Button
 									variant="primary"
 									onClick={ handleDoneUpload }
-									disabled={ isFinishingUpdate || ! uploadedVideoData?.guid }
+									disabled={ isFinishingUpdate }
 									isBusy={ isFinishingUpdate }
 								>
 									{ __( 'Done', 'jetpack-videopress-pkg' ) }
