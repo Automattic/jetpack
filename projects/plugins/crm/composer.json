@@ -59,7 +59,7 @@
 		"automattic/jetpack-composer-plugin": "@dev",
 		"automattic/woocommerce": "^3.1",
 		"dompdf/dompdf": "^3.1",
-		"sabberworm/php-css-parser": "^8.4"
+		"thecodingmachine/safe": "^1.3 || ^2.5"
 	},
 	"repositories": [
 		{
