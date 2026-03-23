@@ -1178,10 +1178,7 @@ class WPCOM_Features {
 		),
 
 		self::REAL_TIME_COLLABORATION           => array(
-			array(
-				'required_sticker' => 'wpcom-features-edge',
-				self::WPCOM_PERSONAL_AND_HIGHER_PLANS,
-			),
+			self::WPCOM_PERSONAL_AND_HIGHER_PLANS,
 		),
 
 		self::RECURRING_PAYMENTS                => array(
