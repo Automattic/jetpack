@@ -44,6 +44,11 @@ class Jetpack_AI_Sidebar {
 		// Priority 200: runs AFTER the AM class in jetpack-mu-wpcom (priority 101),
 		// so wp_script_is('agents-manager') correctly detects if AM is already loaded.
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'maybe_enqueue_am' ), 200 );
+
+		// Always enqueue the IIFE bundle in the block editor — it registers
+		// Jetpack AI abilities via @wordpress/abilities, which Big Sky or AM
+		// can discover regardless of which provider system is active.
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'maybe_enqueue_abilities_script' ), 201 );
 	}
 
 	// ──────────────────────────────────────────────────
@@ -78,6 +83,52 @@ class Jetpack_AI_Sidebar {
 
 		$variant = self::get_variant();
 		self::enqueue_am_from_cdn( $variant );
+	}
+
+	/**
+	 * Enqueue the IIFE bundle that registers Jetpack AI abilities.
+	 *
+	 * This runs independently of AM/provider registration so abilities
+	 * are available even when Big Sky standalone is the active UI.
+	 *
+	 * @return void
+	 */
+	public static function maybe_enqueue_abilities_script(): void {
+		if ( ! self::is_block_editor() || ! self::has_ai_features() ) {
+			return;
+		}
+
+		// Already enqueued by register_provider — skip.
+		if ( wp_script_is( 'jetpack-ai-provider' ) ) {
+			return;
+		}
+
+		$asset_data = self::get_ai_sidebar_asset_data();
+		if ( ! $asset_data ) {
+			return;
+		}
+
+		$version      = $asset_data['version'] ?? false;
+		$dependencies = $asset_data['dependencies'] ?? array();
+
+		if ( self::is_dev_mode() ) {
+			$version .= '-' . wp_rand();
+		}
+
+		wp_enqueue_script(
+			'jetpack-ai-provider',
+			AI_SIDEBAR_JS_URL,
+			$dependencies,
+			$version,
+			true
+		);
+
+		wp_enqueue_style(
+			'jetpack-ai-provider',
+			is_rtl() ? AI_SIDEBAR_RTL_CSS_URL : AI_SIDEBAR_CSS_URL,
+			array(),
+			$version
+		);
 	}
 
 	/**
