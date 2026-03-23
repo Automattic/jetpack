@@ -13,8 +13,8 @@ export interface ChartInstanceRef {
 export interface ChartInstanceContextValue {
 	chartId: string;
 	chartRef?: React.RefObject< ChartInstanceRef >;
-	chartWidth: number;
-	chartHeight: number;
+	chartWidth?: number;
+	chartHeight?: number;
 }
 
 export const ChartInstanceContext = createContext< ChartInstanceContextValue | null >( null );

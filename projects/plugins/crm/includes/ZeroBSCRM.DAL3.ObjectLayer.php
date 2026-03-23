@@ -437,7 +437,7 @@ class zbsDAL_ObjectLayer {
 		#} / Build WHERE
 
 		#} Ownership v1.0 - the following adds SITE + TEAM checks, and (optionally), owner
-		$params = array_merge( $params, $zbs->DAL2->tools-- > ownershipQueryVars( $ignoreowner ) ); // merges in any req.
+		$params = array_merge( $params, $zbs->DAL2->tools->ownershipQueryVars( $ignoreowner ) ); // merges in any req.
 		$ownQ   = $zbs->DAL2->ownershipSQL( $ignoreowner );
 		if ( ! empty( $ownQ ) ) {
 			$additionalWhere = $zbs->DAL2->spaceAnd( $additionalWhere ) . $ownQ; // adds str to query

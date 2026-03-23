@@ -34,11 +34,15 @@ const ASSET_TRANSIENT        = 'jetpack_image_studio_asset';
  * @return bool
  */
 function is_image_studio_enabled() {
-	if ( ! has_ai_features() ) {
+	if ( is_ciab_environment() || is_big_sky_enabled() ) {
+		return true;
+	}
+
+	if ( ! has_jetpack_ai_features() ) {
 		return false;
 	}
-	return is_dev_mode()
-		|| is_big_sky_enabled();
+
+	return is_dev_mode();
 }
 
 /**
@@ -48,6 +52,17 @@ function is_image_studio_enabled() {
  */
 function is_big_sky_enabled() {
 	return class_exists( 'Big_Sky' ) && get_option( 'big_sky_enable', '1' );
+}
+
+/**
+ * Check if current environment is CIAB (Commerce in a Box) / Next Admin.
+ *
+ * Uses the same detection method as Help Center and Agents Manager
+ *
+ * @return bool True if CIAB/Next Admin environment.
+ */
+function is_ciab_environment() {
+	return (bool) did_action( 'next_admin_init' );
 }
 
 /**
@@ -70,13 +85,12 @@ add_action( 'init', __NAMESPACE__ . '\signal_image_studio_active' );
  * Check whether AI features are available.
  *
  * - wpcom simple: always available.
- * - Atomic: requires Big Sky or AI Assistant feature flags.
- * - Self-hosted: requires a connected owner with AI not disabled
+ * - Otherwise requires a connected owner with AI not disabled
  *   (same conditions the AI Assistant plugin uses to register).
  *
  * @return bool
  */
-function has_ai_features() {
+function has_jetpack_ai_features() {
 	$host = new Host();
 
 	if ( $host->is_wpcom_simple() ) {

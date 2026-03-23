@@ -272,7 +272,9 @@
 		}
 
 		function stripHTML( text ) {
-			return text.replace( /<[^>]*>?/gm, '' );
+			var tmp = document.createElement( 'div' );
+			tmp.innerHTML = text.replace( /<[^>]*>?/gm, '' );
+			return tmp.textContent;
 		}
 
 		return {
@@ -1084,18 +1086,18 @@
 					domUtil.show( descriptionElement );
 
 					if ( ! title && ! caption ) {
-						captionMainElement.innerHTML = domUtil.stripHTML( desc );
+						captionMainElement.textContent = domUtil.stripHTML( desc );
 						domUtil.show( captionMainElement );
 					}
 				}
 
 				if ( title ) {
 					var plainTitle = domUtil.stripHTML( title );
-					titleElement.innerHTML = plainTitle;
+					titleElement.textContent = plainTitle;
 
 					if ( ! caption ) {
-						captionMainElement.innerHTML = plainTitle;
-						captionInfoExtraElement.innerHTML = plainTitle;
+						captionMainElement.textContent = plainTitle;
+						captionInfoExtraElement.textContent = plainTitle;
 
 						domUtil.show( captionMainElement );
 					}

@@ -22,6 +22,7 @@ export interface NewsletterSettings {
 	jetpack_post_date_in_email: boolean;
 	jetpack_subscriptions_reply_to: 'comment' | 'author' | 'no-reply';
 	jetpack_subscriptions_from_name: string;
+	wpcom_newsletter_send_default: boolean;
 	wpcom_newsletter_categories_enabled: boolean;
 	wpcom_newsletter_categories: string[];
 	subscription_options?: {

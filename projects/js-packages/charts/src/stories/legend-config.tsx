@@ -33,7 +33,7 @@ export const legendArgTypes = {
 	},
 	legendShape: {
 		control: { type: 'select' as const },
-		options: [ 'circle', 'rect' ],
+		options: [ 'circle', 'line', 'rect' ],
 		description: 'Shape of the legend marker icon',
 		table: { category: 'Legend' },
 	},

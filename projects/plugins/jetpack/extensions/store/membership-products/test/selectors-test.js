@@ -2,7 +2,6 @@ import {
 	getNewsletterCategories,
 	getNewsletterCategoriesEnabled,
 	getNewsletterTierProducts,
-	getNewsletterCategoriesSubscriptionsCount,
 	getPostEmailSentState,
 	getProducts,
 	getTotalEmailsSentCount,
@@ -48,16 +47,6 @@ describe( 'Membership Products Selectors', () => {
 		);
 		expect( getNewsletterCategoriesEnabled( state ) ).toStrictEqual(
 			state.newsletterCategories.enabled
-		);
-	} );
-
-	test( 'getNewsletterCategoriesSubscriptionsCount works as expected', () => {
-		const state = {
-			newsletterCategoriesSubscriptionsCount: 1,
-		};
-
-		expect( getNewsletterCategoriesSubscriptionsCount( state ) ).toStrictEqual(
-			state.newsletterCategoriesSubscriptionsCount
 		);
 	} );
 

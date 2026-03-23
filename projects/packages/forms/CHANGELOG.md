@@ -5,6 +5,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [7.13.0] - 2026-03-16
+### Added
+- Add entries filter to filter forms by whether they have responses. [#47523]
+- Add form name modal to the wp-build forms dashboard, prompting users to name their form before entering the editor. [#47395]
+- Add per-status form counts REST endpoint and display counts in Forms dashboard status filters. [#47475]
+- Forms: Add publish/unpublish actions. [#47325]
+
+### Changed
+- Editor: Hide word count and reading time panel. [#47528]
+- Dashboard: Remove modified date filter. [#47523]
+- Hide "Browse form patterns" button in the form placeholder when central form management is enabled. [#47527]
+- Update "View form responses" button to link to the specific form's responses when the form has a ref. [#47530]
+- Update dependencies. [#47472]
+
+### Fixed
+- Create synced form when inserting form variations via the block inserter. [#47335]
+- Ensure forms list entries count updates after trashing responses. [#47526]
+- Ensure HTML entities are decoded in form title on pre-publish panel. [#47531]
+- Ensure number field min and max values display in the UI after page reload. [#47511]
+- Fix aria-label attribute by passing a string value to the Page component. [#47481]
+- Purge edge cache when a jetpack_form post is published, updated, or unpublished. [#47532]
+- Show "No results found" empty state when search or filters are active in the forms list view instead of the onboarding empty state. [#47525]
+
 ## [7.12.0] - 2026-03-09
 ### Added
 - Form Editor: Show form embed code. [#47238]
@@ -2314,6 +2337,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a new jetpack/forms package [#28409]
 - Added a public load_contact_form method for initializing the contact form module. [#28416]
 
+[7.13.0]: https://github.com/automattic/jetpack-forms/compare/v7.12.0...v7.13.0
 [7.12.0]: https://github.com/automattic/jetpack-forms/compare/v7.11.0...v7.12.0
 [7.11.0]: https://github.com/automattic/jetpack-forms/compare/v7.10.0...v7.11.0
 [7.10.0]: https://github.com/automattic/jetpack-forms/compare/v7.9.0...v7.10.0

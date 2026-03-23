@@ -10,8 +10,10 @@ namespace Automattic\Jetpack\Forms\Dashboard;
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
+use Automattic\Jetpack\Forms\ContactForm\Contact_Form;
 use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin;
 use Automattic\Jetpack\Tracking;
+use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
@@ -36,22 +38,23 @@ class Dashboard {
 					: 'inbox';
 
 				wp_safe_redirect( self::get_forms_admin_url( $default_tab ) );
+
 				exit;
 			}
+
+			// Register polyfills for WP < 7.0 (must run before build.php).
+			WP_Build_Polyfills::register(
+				'jetpack-forms',
+				array_merge(
+					WP_Build_Polyfills::SCRIPT_HANDLES,
+					WP_Build_Polyfills::MODULE_IDS
+				)
+			);
 
 			$wp_build_index = dirname( __DIR__, 2 ) . '/build/build.php';
 
 			if ( file_exists( $wp_build_index ) ) {
 				require_once $wp_build_index;
-
-				// Re-add core's registration only when Gutenberg isn't providing it
-				if ( ! defined( 'IS_GUTENBERG_PLUGIN' ) || ! IS_GUTENBERG_PLUGIN ) {
-					// `wp-build` currently removes `wp_default_script_modules` from `wp_default_scripts`.
-					// Re-add the core hook so script modules work in vanilla wp-admin (no Gutenberg plugin).
-					if ( function_exists( 'wp_default_script_modules' ) ) {
-						add_action( 'wp_default_scripts', 'wp_default_script_modules', 0 );
-					}
-				}
 			}
 		}
 	}
@@ -348,6 +351,121 @@ class Dashboard {
 	}
 
 	/**
+	 * Option name for storing classic forms state.
+	 */
+	const CLASSIC_FORMS_OPTION = 'jetpack_forms_classic_state';
+
+	/**
+	 * Classic forms state: site has classic (non-synced) form submissions.
+	 */
+	const CLASSIC_FORMS_STATE_CLASSIC = 'classic';
+
+	/**
+	 * Classic forms state: no classic form submissions detected.
+	 */
+	const CLASSIC_FORMS_STATE_HIDDEN = 'hidden';
+
+	/**
+	 * Classic forms state: user dismissed the classic forms notice.
+	 */
+	const CLASSIC_FORMS_STATE_DISMISSED = 'dismissed';
+
+	/**
+	 * Returns the classic forms state for the current site.
+	 *
+	 * Returns 'classic' if the site has form submissions (feedback posts) that were not
+	 * created by a synced/reusable jetpack_form, 'dismissed' if the user dismissed the
+	 * classic forms notice, or 'hidden' otherwise.
+	 *
+	 * The result is persisted in a WP option so the detection query only runs once per site.
+	 * After that, the cached value is returned on every subsequent call. The cache is also
+	 * updated eagerly via mark_classic_form_detected() when new classic submissions arrive.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return string 'classic', 'hidden', or 'dismissed'.
+	 */
+	public function get_classic_forms_state() {
+		$state = get_option( self::CLASSIC_FORMS_OPTION );
+
+		if ( $state ) {
+			return $state;
+		}
+
+		$state = $this->detect_classic_forms();
+		update_option( self::CLASSIC_FORMS_OPTION, $state, false );
+
+		return $state;
+	}
+
+	/**
+	 * Detects whether any feedback posts exist that are not linked to a jetpack_form post,
+	 * indicating the site has classic (inline, widget, or template) forms.
+	 *
+	 * A feedback post is considered "classic" if:
+	 * - It has no parent (post_parent = 0), meaning it was created by a form embedded in a
+	 *   widget, page template, or other non-post context.
+	 * - Its parent exists but is not a jetpack_form post, meaning it was created by a form
+	 *   block or shortcode placed directly in a post or page.
+	 *
+	 * The query uses a LEFT JOIN on the posts table to find feedback posts with no matching
+	 * jetpack_form parent. This leverages the primary key index for the join and the
+	 * type_status_date index for filtering by post_type, making it efficient even on large
+	 * sites. The LIMIT 1 ensures early exit as soon as one classic form is found.
+	 *
+	 * Note: An alternative approach would be to search post_content for the form block markup
+	 * (<!-- wp:jetpack/contact-form) or shortcode ([contact-form]). However, that requires a
+	 * full-text scan of the posts table (LIKE '%...%' on a TEXT column) with no usable index,
+	 * making it significantly more expensive. The feedback-based approach also better fits the
+	 * use case: we only need to surface the "Not seeing all your forms?" prompt when there are
+	 * actual submissions that won't appear under any synced form in the dashboard.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return string 'classic' or 'hidden'.
+	 */
+	private function detect_classic_forms() {
+		global $wpdb;
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+		$result = $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT 1 FROM {$wpdb->posts} AS f
+				LEFT JOIN {$wpdb->posts} AS p
+					ON p.ID = f.post_parent AND p.post_type = %s
+				WHERE f.post_type = 'feedback'
+				AND p.ID IS NULL
+				LIMIT 1",
+				Contact_Form::POST_TYPE
+			)
+		);
+
+		return $result ? self::CLASSIC_FORMS_STATE_CLASSIC : self::CLASSIC_FORMS_STATE_HIDDEN;
+	}
+
+	/**
+	 * Eagerly marks the site as having classic forms by setting the option to 'classic'.
+	 *
+	 * Called when a new form submission is saved that does not belong to a synced jetpack_form.
+	 * This avoids re-running the detection query — once a classic submission is observed, the
+	 * state is permanently set without needing to scan the database again.
+	 *
+	 * If the user has already dismissed the classic forms notice, the state is left as
+	 * 'dismissed' so the notice does not reappear.
+	 *
+	 * @since $$next-version$$
+	 */
+	public static function mark_classic_form_detected() {
+		$current = get_option( self::CLASSIC_FORMS_OPTION );
+
+		if ( self::CLASSIC_FORMS_STATE_DISMISSED === $current ) {
+			return;
+		}
+
+		update_option( self::CLASSIC_FORMS_OPTION, self::CLASSIC_FORMS_STATE_CLASSIC, false );
+	}
+
+	/**
 	 * Returns url of forms admin page.
 	 *
 	 * @param string|null $tab Tab to open in the forms admin page.
@@ -416,7 +534,7 @@ class Dashboard {
 			return '/responses/inbox?responseIds=["' . $post_id . '"]';
 		}
 
-		return '/';
+		return '/responses/inbox';
 	}
 
 	/**

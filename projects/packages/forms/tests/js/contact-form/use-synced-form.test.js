@@ -31,14 +31,36 @@ const { useSyncedForm } = await import(
 );
 
 describe( 'useSyncedForm', () => {
+	/**
+	 * useSelect is called twice in useSyncedForm:
+	 * 1st call returns resolutionError, 2nd call returns pendingEdits.
+	 * Use mockReturnValueOnce to control each call independently.
+	 *
+	 * @param {object}  root0                 - Mock configuration.
+	 * @param {object}  root0.record          - Entity record to return.
+	 * @param {boolean} root0.isResolving     - Whether the entity is resolving.
+	 * @param {boolean} root0.hasEdits        - Whether the entity has pending edits.
+	 * @param {string}  root0.status          - Resolution status.
+	 * @param {object}  root0.resolutionError - Resolution error object.
+	 * @param {object}  root0.pendingEdits    - Pending edits object.
+	 */
+	const setupMocks = ( {
+		record = null,
+		isResolving = false,
+		hasEdits = false,
+		status = 'SUCCESS',
+		resolutionError = null,
+		pendingEdits = null,
+	} = {} ) => {
+		mockUseEntityRecord.mockReset();
+		mockUseSelect.mockReset();
+		mockUseEntityRecord.mockReturnValue( { record, isResolving, hasEdits, status } );
+		mockUseSelect.mockReturnValueOnce( resolutionError ).mockReturnValueOnce( pendingEdits );
+	};
+
 	beforeEach( () => {
 		jest.clearAllMocks();
-		mockUseEntityRecord.mockReturnValue( {
-			record: null,
-			isResolving: false,
-			hasEdits: false,
-		} );
-		mockUseSelect.mockReturnValue( null );
+		setupMocks();
 	} );
 
 	it( 'returns null values when ref is undefined', () => {
@@ -48,14 +70,11 @@ describe( 'useSyncedForm', () => {
 		expect( result.syncedAttributes ).toBeNull();
 		expect( result.syncedInnerBlocks ).toBeNull();
 		expect( result.syncedForm ).toBeNull();
+		expect( result.errorType ).toBeNull();
 	} );
 
 	it( 'returns loading state when resolving', () => {
-		mockUseEntityRecord.mockReturnValue( {
-			record: null,
-			isResolving: true,
-			hasEdits: false,
-		} );
+		setupMocks( { isResolving: true } );
 
 		const result = useSyncedForm( 123 );
 
@@ -71,12 +90,11 @@ describe( 'useSyncedForm', () => {
 			},
 		];
 
-		mockUseEntityRecord.mockReturnValue( {
+		setupMocks( {
 			record: { content: { raw: '<!-- old content -->' } },
-			isResolving: false,
 			hasEdits: true,
+			pendingEdits: { blocks: pendingBlocks },
 		} );
-		mockUseSelect.mockReturnValue( { blocks: pendingBlocks } );
 
 		const result = useSyncedForm( 123 );
 
@@ -96,12 +114,11 @@ describe( 'useSyncedForm', () => {
 			},
 		];
 
-		mockUseEntityRecord.mockReturnValue( {
+		setupMocks( {
 			record: { content: { raw: '<!-- saved content -->' } },
-			isResolving: false,
 			hasEdits: true,
+			pendingEdits: { content: '<!-- pending content -->' },
 		} );
-		mockUseSelect.mockReturnValue( { content: '<!-- pending content -->' } );
 		mockParse.mockReturnValue( parsedBlocks );
 
 		const result = useSyncedForm( 456 );
@@ -122,12 +139,9 @@ describe( 'useSyncedForm', () => {
 			},
 		];
 
-		mockUseEntityRecord.mockReturnValue( {
+		setupMocks( {
 			record: { content: { raw: '<!-- saved form -->' } },
-			isResolving: false,
-			hasEdits: false,
 		} );
-		mockUseSelect.mockReturnValue( null );
 		mockParse.mockReturnValue( savedBlocks );
 
 		const result = useSyncedForm( 789 );
@@ -148,12 +162,11 @@ describe( 'useSyncedForm', () => {
 			},
 		];
 
-		mockUseEntityRecord.mockReturnValue( {
+		setupMocks( {
 			record: { content: { raw: '...' } },
-			isResolving: false,
 			hasEdits: true,
+			pendingEdits: { blocks: blocksWithLock },
 		} );
-		mockUseSelect.mockReturnValue( { blocks: blocksWithLock } );
 
 		const result = useSyncedForm( 123 );
 
@@ -170,16 +183,80 @@ describe( 'useSyncedForm', () => {
 			},
 		];
 
-		mockUseEntityRecord.mockReturnValue( {
+		setupMocks( {
 			record: { content: { raw: '...' } },
-			isResolving: false,
 			hasEdits: true,
+			pendingEdits: { blocks: wrongBlock },
 		} );
-		mockUseSelect.mockReturnValue( { blocks: wrongBlock } );
 
 		const result = useSyncedForm( 123 );
 
 		expect( result.syncedAttributes ).toBeNull();
 		expect( result.syncedInnerBlocks ).toBeNull();
+	} );
+
+	describe( 'errorType', () => {
+		it( 'returns permission_denied when resolution error has status 403', () => {
+			setupMocks( {
+				resolutionError: { status: 403 },
+			} );
+
+			const result = useSyncedForm( 123 );
+
+			expect( result.errorType ).toBe( 'permission_denied' );
+			expect( result.syncedForm ).toBeNull();
+		} );
+
+		it( 'returns not_found when resolution error has status 404', () => {
+			setupMocks( {
+				resolutionError: { status: 404 },
+			} );
+
+			const result = useSyncedForm( 123 );
+
+			expect( result.errorType ).toBe( 'not_found' );
+			expect( result.syncedForm ).toBeNull();
+		} );
+
+		it( 'returns not_found when record is null with no resolution error', () => {
+			setupMocks();
+
+			const result = useSyncedForm( 123 );
+
+			expect( result.errorType ).toBe( 'not_found' );
+		} );
+
+		it( 'returns null errorType when record exists', () => {
+			const savedBlocks = [
+				{
+					name: 'jetpack/contact-form',
+					attributes: { to: 'test@example.com' },
+					innerBlocks: [],
+				},
+			];
+
+			setupMocks( {
+				record: { content: { raw: '<!-- form -->' } },
+			} );
+			mockParse.mockReturnValue( savedBlocks );
+
+			const result = useSyncedForm( 123 );
+
+			expect( result.errorType ).toBeNull();
+		} );
+
+		it( 'returns null errorType when ref is undefined', () => {
+			const result = useSyncedForm( undefined );
+
+			expect( result.errorType ).toBeNull();
+		} );
+
+		it( 'returns null errorType while still resolving', () => {
+			setupMocks( { isResolving: true } );
+
+			const result = useSyncedForm( 123 );
+
+			expect( result.errorType ).toBeNull();
+		} );
 	} );
 } );

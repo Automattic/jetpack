@@ -1,0 +1,4 @@
+Significance: major
+Type: removed
+
+Remove individual chart entry point exports in favor of the main package entry point for v1.

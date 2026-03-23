@@ -1,6 +1,5 @@
 import { Group } from '@visx/group';
 import { Text } from '@visx/text';
-import { GlobalChartsProvider } from '../../../providers';
 import {
 	chartDecorator,
 	sharedChartArgTypes,
@@ -141,6 +140,14 @@ export const WithLegend: Story = {
 		...Default.args,
 		showLegend: true,
 	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Props-based legend using `showLegend` and the `legend` config object. Use Storybook controls to adjust legend position, alignment, orientation, shape, and interactivity.',
+			},
+		},
+	},
 };
 
 export const WithCompositionLegend: Story = {
@@ -148,9 +155,9 @@ export const WithCompositionLegend: Story = {
 		const legend = extractLegendConfig( args );
 		return (
 			<PieSemiCircleChart
-				data={ args.data }
-				label="Performance Metrics"
-				note="Q4 2023 Results"
+				{ ...Default.args }
+				{ ...args }
+				legend={ { interactive: legend?.interactive } }
 				chartId="composition-semi-circle-chart"
 			>
 				<PieSemiCircleChart.Legend { ...legend } />
@@ -164,81 +171,7 @@ export const WithCompositionLegend: Story = {
 		docs: {
 			description: {
 				story:
-					'Demonstrates the semi-circle chart composition API, allowing flexible component composition with explicit legend placement.',
-			},
-		},
-	},
-};
-
-export const InteractiveLegend: Story = {
-	render: args => (
-		<GlobalChartsProvider>
-			<PieSemiCircleChart
-				chartId="interactive-semi-circle-chart"
-				data={ args.data }
-				label="Performance Metrics"
-				note="Click legend to filter"
-				showLegend={ true }
-				legend={ extractLegendConfig( args ) }
-				legendValueDisplay={ args.legendValueDisplay }
-			>
-				<p style={ { marginBottom: '20px', color: '#666' } }>
-					Click legend items to show/hide segments. Percentages adjust automatically.
-				</p>
-			</PieSemiCircleChart>
-		</GlobalChartsProvider>
-	),
-	args: {
-		data,
-		legendInteractive: true,
-	},
-	parameters: {
-		docs: {
-			description: {
-				story:
-					'Interactive semi-circle chart with clickable legend items. Hidden segments are excluded and percentages recalculate. Requires chartId and GlobalChartsProvider.',
-			},
-		},
-	},
-};
-
-export const CustomLegendPositioning: Story = {
-	args: {
-		thickness: 0.4,
-		data: [
-			{
-				label: 'MacOS',
-				value: 30000,
-				valueDisplay: '30K',
-				percentage: 30,
-			},
-			{
-				label: 'Linux',
-				value: 22000,
-				valueDisplay: '22K',
-				percentage: 22,
-			},
-			{
-				label: 'Windows',
-				value: 48000,
-				valueDisplay: '48K',
-				percentage: 48,
-			},
-		],
-		label: 'OS',
-		note: 'Windows +10%',
-		withTooltips: true,
-		showLegend: true,
-		legendOrientation: 'vertical',
-		legendAlignment: 'end',
-		legendPosition: 'top',
-		legendShape: 'circle',
-	},
-	parameters: {
-		docs: {
-			description: {
-				story:
-					'Semi-circle pie chart with right-top positioned vertical legend. This demonstrates non-default legend positioning to showcase different legend placement possibilities with OS usage data.',
+					'Composition API using `<PieSemiCircleChart.Legend />` as a child component for explicit legend placement and configuration. This is the recommended approach for flexible legend positioning.',
 			},
 		},
 	},
@@ -253,12 +186,12 @@ export const ErrorStates: Story = {
 			</div>
 
 			<div>
-				<h3>Zero Total Percentage</h3>
+				<h3>Zero Total Value</h3>
 				<PieSemiCircleChart
 					width={ 300 }
 					data={ [
-						{ label: 'A', value: 0, percentage: 0 },
-						{ label: 'B', value: 0, percentage: 0 },
+						{ label: 'A', value: 0 },
+						{ label: 'B', value: 0 },
 					] }
 				/>
 			</div>
@@ -268,18 +201,15 @@ export const ErrorStates: Story = {
 				<PieSemiCircleChart
 					width={ 300 }
 					data={ [
-						{ label: 'A', value: -30, percentage: -30 },
-						{ label: 'B', value: 130, percentage: 130 },
+						{ label: 'A', value: -30 },
+						{ label: 'B', value: 130 },
 					] }
 				/>
 			</div>
 
 			<div>
 				<h3>Single Data Point</h3>
-				<PieSemiCircleChart
-					height={ 300 }
-					data={ [ { label: 'Single Point', value: 100, percentage: 100 } ] }
-				/>
+				<PieSemiCircleChart height={ 300 } data={ [ { label: 'Single Point', value: 100 } ] } />
 			</div>
 		</div>
 	),
