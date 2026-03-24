@@ -28,11 +28,10 @@ css += `
 }
 `;
 
-// Lightly minify
+// Lightly minify - don't remove all whitespace in case some CSS is introduced that uses it.
 const minCss = css
 	.replace( /\/\*[\s\S]*?\*\//g, '' ) // remove comments
-	.replace( /^[ \t]+/gm, '' ) // remove leading whitespace
-	.replace( /\n{2,}/g, '\n' ) // remove blank lines
+	.replace( /\n[ \t]*/g, '' ) // remove newlines and any subsequent indentation
 	.trim();
 
 writeFileSync( resolve( outDir, 'social-logos.css' ), css );
