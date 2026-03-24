@@ -17,9 +17,10 @@ pnpm run watch                    # Watch all targets
 
 # Test
 pnpm test                         # JS tests (Jest)
-pnpm run test-php                 # PHP tests (PHPUnit)
+pnpm run test-php                 # PHP tests (PHPUnit, requires composer install)
 
 # Lint & typecheck
+pnpm run lint                     # ESLint
 pnpm run typecheck                # TypeScript validation (tsgo --noEmit)
 
 # Icons (run after modifying any field-*/icon.{js,jsx,tsx})
@@ -41,7 +42,7 @@ This is a hybrid PHP/JS package implementing Jetpack's contact forms: WordPress 
   - `form-step*/` — Multi-step form support
   - `shared/` — Shared block utilities and hooks
 - **`contact-form/`** — PHP backend: form processing, submission handling, email notifications
-- **`dashboard/`** — React app for managing form responses (uses Redux via `store/`)
+- **`dashboard/`** — React app for managing form responses (uses Redux via `store/`). Top-level `routes/` defines React Router page structure (forms, responses).
 - **`form-editor/`** — React form editor interface
 - **`service/`** — Third-party integrations (Mailpoet, Google Drive, Webhooks, Hostinger Reach)
 - **`store/`** — Redux store for dashboard state
@@ -57,6 +58,7 @@ Multiple webpack configs in `tools/` produce separate bundles:
 - `webpack.config.dashboard.js` → `dist/dashboard/`
 - `webpack.config.form-editor.js` → `dist/form-editor/`
 - `webpack.config.modules.js` → `dist/modules/`
+- `webpack.config.extract-icons.js` — Used by the icon generation pipeline
 
 ### Tests
 
