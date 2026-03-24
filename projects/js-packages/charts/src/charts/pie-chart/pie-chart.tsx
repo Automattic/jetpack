@@ -7,7 +7,11 @@ import clsx from 'clsx';
 import { useCallback, useContext, useMemo } from 'react';
 import { Legend, useChartLegendItems } from '../../components/legend';
 import { BaseTooltip } from '../../components/tooltip';
-import { useInteractiveLegendData, usePrefersReducedMotion } from '../../hooks';
+import {
+	useDataWithPercentages,
+	useInteractiveLegendData,
+	usePrefersReducedMotion,
+} from '../../hooks';
 import {
 	GlobalChartsProvider,
 	useChartId,
@@ -26,7 +30,12 @@ import { SvgEmptyState } from '../private/svg-empty-state';
 import { withResponsive, ResponsiveConfig } from '../private/with-responsive';
 import styles from './pie-chart.module.scss';
 import type { LegendValueDisplay } from '../../components/legend';
-import type { BaseChartProps, DataPointPercentage, Optional } from '../../types';
+import type {
+	BaseChartProps,
+	DataPointPercentage,
+	DataPointPercentageCalculated,
+	Optional,
+} from '../../types';
 import type { ChartComponentWithComposition } from '../private/chart-composition';
 import type { SVGProps, MouseEvent, ReactNode, FC } from 'react';
 
@@ -35,9 +44,9 @@ import type { SVGProps, MouseEvent, ReactNode, FC } from 'react';
  */
 export type PieChartRenderTooltipParams = {
 	/**
-	 * The data point being hovered, including label, value, and percentage.
+	 * The data point being hovered, including label, value, and calculated percentage.
 	 */
-	tooltipData: DataPointPercentage;
+	tooltipData: DataPointPercentageCalculated;
 };
 
 /**
@@ -137,16 +146,15 @@ const validateData = ( data: DataPointPercentage[] ) => {
 	}
 
 	// Check for negative values
-	const hasNegativeValues = data.some( item => item.percentage < 0 || item.value < 0 );
+	const hasNegativeValues = data.some( item => item.value < 0 );
 	if ( hasNegativeValues ) {
 		return { isValid: false, message: 'Invalid data: Negative values are not allowed' };
 	}
 
-	// Validate total percentage
-	const totalPercentage = data.reduce( ( sum, item ) => sum + item.percentage, 0 );
-	if ( Math.abs( totalPercentage - 100 ) > 0.01 ) {
-		// Using small epsilon for floating point comparison
-		return { isValid: false, message: 'Invalid percentage total: Must equal 100' };
+	// Validate total value is greater than 0
+	const totalValue = data.reduce( ( sum, item ) => sum + item.value, 0 );
+	if ( totalValue <= 0 ) {
+		return { isValid: false, message: 'Invalid data: Total value must be greater than 0' };
 	}
 
 	return { isValid: true, message: '' };
@@ -187,7 +195,7 @@ const PieChartInternal = ( {
 	const providerTheme = useGlobalChartsTheme();
 	const chartId = useChartId( providedChartId );
 	const { tooltipOpen, tooltipLeft, tooltipTop, tooltipData, hideTooltip, showTooltip } =
-		useTooltip< DataPointPercentage >();
+		useTooltip< DataPointPercentageCalculated >();
 
 	// Set up portal tooltip for better z-index handling
 	// We get containerBounds to cancel out stale offsets in the position calculation
@@ -206,9 +214,12 @@ const PieChartInternal = ( {
 
 	const { getElementStyles, isSeriesVisible } = useGlobalChartsContext();
 
+	// Calculate percentages from values (single source of truth)
+	const dataWithPercentages = useDataWithPercentages( data );
+
 	// Filter and recalculate data for interactive legends
 	const { visibleData, allSegmentsHidden, legendData } = useInteractiveLegendData( {
-		data,
+		data: dataWithPercentages,
 		chartId,
 		legendInteractive,
 		isSeriesVisible,
@@ -274,8 +285,8 @@ const PieChartInternal = ( {
 	} );
 
 	const accessors = {
-		value: ( d: DataPointPercentage ) => d.value,
-		fill: ( d: DataPointPercentage & { index: number } ) => {
+		value: ( d: DataPointPercentageCalculated ) => d.value,
+		fill: ( d: DataPointPercentageCalculated & { index: number } ) => {
 			return getElementStyles( { data: d, index: d.index } ).color;
 		},
 	};
@@ -382,7 +393,7 @@ const PieChartInternal = ( {
 											) }
 										</SvgEmptyState>
 									) : (
-										<Pie< DataPointPercentage & { index: number } >
+										<Pie< DataPointPercentageCalculated & { index: number } >
 											data={ dataWithIndex }
 											pieValue={ accessors.value }
 											outerRadius={ outerRadius }

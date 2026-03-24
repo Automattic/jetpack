@@ -1,4 +1,0 @@
-Significance: minor
-Type: other
-
-API: Allow `is_garden` and `garden_name` fields to be returned by /me/sites requests by non-member users.

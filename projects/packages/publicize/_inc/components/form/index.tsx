@@ -17,6 +17,7 @@ import usePublicizeConfig from '../../hooks/use-publicize-config';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import { features } from '../../utils';
 import { SocialPostModal } from '../social-post-modal/modal';
+import { XUsage } from '../x-usage';
 import { ConnectionsList } from './connections-list';
 import { EmptyState } from './empty-state';
 import { EnhancedFeaturesNudge } from './enhanced-features-nudge';
@@ -66,6 +67,7 @@ export default function PublicizeForm() {
 			<PanelRow>
 				<ConnectionsList />
 			</PanelRow>
+			<XUsage />
 			{ needsUserConnection ? <UserConnectionNotice /> : null }
 			{ siteHasFeature( features.UNIFIED_UI_V1 ) ? <PreviewPostsTrigger /> : <SocialPostModal /> }
 			{ ! siteHasFeature( features.UNIFIED_UI_V1 ) ? <EnhancedFeaturesNudge /> : null }

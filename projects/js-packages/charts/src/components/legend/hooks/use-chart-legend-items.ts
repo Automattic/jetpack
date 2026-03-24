@@ -6,7 +6,7 @@ import {
 	type ElementStyles,
 } from '../../../providers';
 import { formatPercentage } from '../../../utils';
-import type { SeriesData, DataPointDate, DataPointPercentage } from '../../../types';
+import type { SeriesData, DataPointDate, DataPointPercentageCalculated } from '../../../types';
 import type { BaseLegendItem } from '../types';
 import type { LegendShape } from '@visx/legend/lib/types';
 import type { GlyphProps } from '@visx/xychart';
@@ -31,7 +31,7 @@ export interface ChartLegendOptions {
  * @return Formatted value string
  */
 function formatPointValue(
-	point: DataPointDate | DataPointPercentage,
+	point: DataPointDate | DataPointPercentageCalculated,
 	showValues: boolean,
 	legendValueDisplay: LegendValueDisplay = 'percentage'
 ): string {
@@ -39,16 +39,15 @@ function formatPointValue(
 		return '';
 	}
 
-	// Handle DataPointPercentage (pie chart data)
+	// Handle DataPointPercentageCalculated (pie chart data with calculated percentage)
 	if ( 'percentage' in point ) {
-		const percentagePoint = point as DataPointPercentage;
 		switch ( legendValueDisplay ) {
 			case 'percentage':
-				return formatPercentage( percentagePoint.percentage );
+				return formatPercentage( point.percentage );
 			case 'value':
-				return formatNumber( percentagePoint.value );
+				return formatNumber( point.value );
 			case 'valueDisplay':
-				return percentagePoint.valueDisplay || formatNumber( percentagePoint.value );
+				return point.valueDisplay || formatNumber( point.value );
 			default:
 				return '';
 		}
@@ -145,7 +144,7 @@ function processSeriesData(
  * @return Array of processed legend items
  */
 function processPointData(
-	pointData: ( DataPointDate | DataPointPercentage )[],
+	pointData: ( DataPointDate | DataPointPercentageCalculated )[],
 	getElementStyles: ( params: GetElementStylesParams ) => ElementStyles,
 	showValues: boolean,
 	legendValueDisplay: LegendValueDisplay,
@@ -154,9 +153,9 @@ function processPointData(
 	renderGlyph?: < Datum extends object >( props: GlyphProps< Datum > ) => ReactNode,
 	legendShape?: LegendShape< SeriesData[], number >
 ): BaseLegendItem[] {
-	const mapper = ( point: DataPointDate | DataPointPercentage, index: number ) => {
+	const mapper = ( point: DataPointDate | DataPointPercentageCalculated, index: number ) => {
 		const { color, glyph, shapeStyles } = getElementStyles( {
-			data: point as DataPointPercentage,
+			data: point as DataPointPercentageCalculated,
 			index,
 			legendShape,
 		} );
@@ -182,7 +181,7 @@ function processPointData(
  * @return Array of legend items ready for display
  */
 export function useChartLegendItems<
-	T extends SeriesData[] | DataPointDate[] | DataPointPercentage[],
+	T extends SeriesData[] | DataPointDate[] | DataPointPercentageCalculated[],
 >(
 	data: T,
 	options: ChartLegendOptions = {},
@@ -215,9 +214,9 @@ export function useChartLegendItems<
 			);
 		}
 
-		// Handle DataPointDate or DataPointPercentage (single data points)
+		// Handle DataPointDate or DataPointPercentageCalculated (single data points)
 		return processPointData(
-			data as ( DataPointDate | DataPointPercentage )[],
+			data as ( DataPointDate | DataPointPercentageCalculated )[],
 			getElementStyles,
 			showValues,
 			legendValueDisplay,

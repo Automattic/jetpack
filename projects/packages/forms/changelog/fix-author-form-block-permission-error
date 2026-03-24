@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Show distinct error message when user lacks permission to edit a form block vs when the form does not exist.

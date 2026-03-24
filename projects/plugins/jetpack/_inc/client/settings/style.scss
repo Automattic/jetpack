@@ -1,6 +1,16 @@
 @use "../scss/mixins/breakpoints";
 @use "../scss/functions/rem";
 
+.jp-settings-admin-page .admin-ui-page {
+	background-color: #fcfcfc;
+}
+
+.jp-settings-admin-page .jp-lower {
+	max-width: 660px;
+	margin-left: auto;
+	margin-right: auto;
+}
+
 .jp-settings-container {
 
 	a,
@@ -31,6 +41,10 @@
 
 	.dops-banner.dops-card {
 		border-left: none;
+		border-top: none;
+	}
+
+	.jp-form-settings-group + .dops-banner.dops-card {
 		border-top: 1px solid var(--jp-gray);
 	}
 
@@ -89,7 +103,7 @@
 	}
 
 	.jp-form-settings-group + .jp-form-settings-group {
-		border-top: 1px solid var(--jp-gray);
+		border-top: none;
 	}
 
 	.dops-search__input[type="search"] {

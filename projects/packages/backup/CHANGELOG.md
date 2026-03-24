@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.2.47] - 2026-03-23
+### Changed
+- Backup: Update header action buttons to use compact size for consistent UI. [#47679]
+- Update package dependencies. [#47684] [#47719]
+
+### Fixed
+- Prevent progress animation fro overlapping the page header. [#47697]
+
 ## [4.2.46] - 2026-03-16
 ### Changed
 - Update dependencies. [#47472]
@@ -1062,6 +1070,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add API endpoints and Jetpack Backup package for managing Help…
 
+[4.2.47]: https://github.com/Automattic/jetpack-backup/compare/v4.2.46...v4.2.47
 [4.2.46]: https://github.com/Automattic/jetpack-backup/compare/v4.2.45...v4.2.46
 [4.2.45]: https://github.com/Automattic/jetpack-backup/compare/v4.2.44...v4.2.45
 [4.2.44]: https://github.com/Automattic/jetpack-backup/compare/v4.2.43...v4.2.44

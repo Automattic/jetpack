@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Set duplicated form status to draft when the original form is published, preserving the original status otherwise.

@@ -38,7 +38,7 @@
 						return false;
 					}
 					const wp_pd_js = d.createElement( 'script' );
-					wp_pd_js.src = poll.url;
+					wp_pd_js.src = poll_url.href;
 					wp_pd_js.async = true;
 					d.head.appendChild( wp_pd_js );
 				}

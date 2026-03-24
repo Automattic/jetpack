@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Suppress backup failure and scan threat notifications on multisite installations where these products are not supported.

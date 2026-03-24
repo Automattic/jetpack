@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Fixes a fatal error when adding a new widget if $widget_settings[ $instance_key ] is not defined.
+
+

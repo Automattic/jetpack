@@ -51,5 +51,16 @@ jobs:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           additional_permissions: |
             actions: read
-          claude_args: "--max-turns 30"
+          claude_args: >-
+            --max-turns 30
+            --allowedTools
+            "Bash(gh issue *)"
+            "Bash(gh pr *)"
+            "Bash(git diff *)"
+            "Bash(git log *)"
+            "Bash(git show *)"
+            Read
+            Write
+            Glob
+            Grep
 
