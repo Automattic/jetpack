@@ -32,7 +32,7 @@ function wpcom_should_enforce_http_polling() {
 
 	if (
 		defined( 'IS_ATOMIC' ) && IS_ATOMIC &&
-		( $blog_id % 100 === 1 ) &&
+		( $blog_id % 100 < 5 ) &&
 		! wpcom_has_features_edge_sticker() // Sites with the sticker should use WS.
 	) {
 		return true;
