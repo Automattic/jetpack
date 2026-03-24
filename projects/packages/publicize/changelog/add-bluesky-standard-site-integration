@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Added standard.site protocol support for Bluesky connections: publication URI storage, well-known endpoint, document URI post meta, and link tag injection.

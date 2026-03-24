@@ -17,7 +17,8 @@ use WP_REST_Request;
  */
 class Connections {
 
-	const CONNECTIONS_TRANSIENT = 'jetpack_social_connections_list';
+	const CONNECTIONS_TRANSIENT          = 'jetpack_social_connections_list';
+	const BLUESKY_PUBLICATION_URI_OPTION = 'bluesky_standard_site_publication_uri';
 
 	/**
 	 * Get all connections.
@@ -141,6 +142,8 @@ class Connections {
 
 				set_transient( self::CONNECTIONS_TRANSIENT, $connections, HOUR_IN_SECONDS * 4 );
 			}
+
+			self::maybe_store_bluesky_publication_uri_from( $connections );
 		}
 
 		return $connections;
@@ -375,5 +378,35 @@ class Connections {
 	 */
 	public static function clear_cache() {
 		delete_transient( self::CONNECTIONS_TRANSIENT );
+	}
+
+	/**
+	 * Extract and store the standard.site publication URI from Bluesky connections.
+	 *
+	 * When a Bluesky connection includes a standard_site_publication_uri, store it
+	 * as a site option for the well-known endpoint. Clean up when disconnected.
+	 *
+	 * @param array $connections The connections data from the API.
+	 */
+	public static function maybe_store_bluesky_publication_uri_from( $connections ) {
+		$publication_uri = null;
+		$has_bluesky     = false;
+
+		foreach ( $connections as $connection ) {
+			if ( isset( $connection['service_name'] ) && 'bluesky' === $connection['service_name'] ) {
+				$has_bluesky = true;
+				if ( ! empty( $connection['standard_site_publication_uri'] ) ) {
+					$publication_uri = $connection['standard_site_publication_uri'];
+					break;
+				}
+			}
+		}
+
+		if ( $publication_uri ) {
+			update_option( self::BLUESKY_PUBLICATION_URI_OPTION, $publication_uri );
+		} elseif ( ! $has_bluesky ) {
+			// Clean up when no Bluesky connections exist (disconnected).
+			delete_option( self::BLUESKY_PUBLICATION_URI_OPTION );
+		}
 	}
 }

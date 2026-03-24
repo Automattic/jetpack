@@ -11,7 +11,8 @@ namespace Automattic\Jetpack\Publicize;
  * Publicize Services class.
  */
 class Share_Status {
-	const SHARES_META_KEY = '_publicize_shares';
+	const SHARES_META_KEY               = '_publicize_shares';
+	const BLUESKY_DOCUMENT_URI_META_KEY = '_bluesky_standard_site_document_uri';
 
 	/**
 	 * Gets the share status for a post.

@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Publicize\REST_API;
 
 use Automattic\Jetpack\Connection\Rest_Authentication;
 use Automattic\Jetpack\Connection\Traits\WPCOM_REST_API_Proxy_Request;
+use Automattic\Jetpack\Publicize\Publicize_Setup;
 use Automattic\Jetpack\Publicize\Share_Status;
 use WP_Error;
 use WP_REST_Request;
@@ -142,45 +143,49 @@ class Share_Status_Controller extends Base_Controller {
 	 */
 	public function get_share_item_schema() {
 		return array(
-			'status'          => array(
+			'status'                     => array(
 				'description' => __( 'Status of the share.', 'jetpack-publicize-pkg' ),
 				'type'        => 'string',
 			),
-			'message'         => array(
+			'message'                    => array(
 				'description' => __( 'Share message or link.', 'jetpack-publicize-pkg' ),
 				'type'        => 'string',
 			),
-			'timestamp'       => array(
+			'timestamp'                  => array(
 				'description' => __( 'Timestamp of the share.', 'jetpack-publicize-pkg' ),
 				'type'        => 'integer',
 			),
-			'service'         => array(
+			'service'                    => array(
 				'description' => __( 'The service to which it was shared.', 'jetpack-publicize-pkg' ),
 				'type'        => 'string',
 			),
-			'connection_id'   => array(
+			'connection_id'              => array(
 				'description' => __( 'Connection ID for the share.', 'jetpack-publicize-pkg' ),
 				'type'        => 'integer',
 			),
-			'external_id'     => array(
+			'external_id'                => array(
 				'description' => __( 'External ID of the shared post.', 'jetpack-publicize-pkg' ),
 				'type'        => 'string',
 			),
-			'external_name'   => array(
+			'external_name'              => array(
 				'description' => __( 'External name of the shared post.', 'jetpack-publicize-pkg' ),
 				'type'        => 'string',
 			),
-			'profile_picture' => array(
+			'profile_picture'            => array(
 				'description' => __( 'Profile picture URL of the account sharing.', 'jetpack-publicize-pkg' ),
 				'type'        => 'string',
 			),
-			'profile_link'    => array(
+			'profile_link'               => array(
 				'description' => __( 'Profile link of the sharing account.', 'jetpack-publicize-pkg' ),
 				'type'        => 'string',
 			),
-			'wpcom_user_id'   => array(
+			'wpcom_user_id'              => array(
 				'type'        => 'integer',
 				'description' => __( 'wordpress.com ID of the user the connection belongs to.', 'jetpack-publicize-pkg' ),
+			),
+			'standard_site_document_uri' => array(
+				'type'        => 'string',
+				'description' => __( 'AT URI of the standard.site document record.', 'jetpack-publicize-pkg' ),
 			),
 		);
 	}
@@ -253,6 +258,8 @@ class Share_Status_Controller extends Base_Controller {
 		}
 
 		update_post_meta( $post_id, Share_Status::SHARES_META_KEY, $shares );
+
+		Publicize_Setup::store_bluesky_document_uri( $post_id, $shares );
 
 		$urls = array();
 
