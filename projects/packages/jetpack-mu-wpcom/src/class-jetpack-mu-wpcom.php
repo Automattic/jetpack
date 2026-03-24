@@ -420,6 +420,12 @@ class Jetpack_Mu_Wpcom {
 			\Automattic\Jetpack\Newsletter\Writing_Prompt_Widget::init();
 		}
 
+		// Initialize My Jetpack so the dashboard and products page are available
+		// on Simple sites (where the full Jetpack plugin doesn't run).
+		if ( class_exists( '\Automattic\Jetpack\My_Jetpack\Initializer' ) ) {
+			\Automattic\Jetpack\My_Jetpack\Initializer::init();
+		}
+
 		// Only load the Masterbar features on WoA sites.
 		if ( class_exists( '\Automattic\Jetpack\Status\Host' ) && ( new \Automattic\Jetpack\Status\Host() )->is_woa_site() ) {
 			// This is temporary. After we cleanup Masterbar on WPCOM we should load Masterbar for Simple sites too.
