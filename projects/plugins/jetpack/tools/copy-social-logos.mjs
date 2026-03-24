@@ -1,15 +1,15 @@
 import { readFileSync, writeFileSync, mkdirSync } from 'fs';
-import { resolve, dirname } from 'path';
-import { fileURLToPath } from 'url';
+import { resolve } from 'path';
 
-const __dirname = dirname( fileURLToPath( import.meta.url ) );
-const pluginDir = resolve( __dirname, '..' );
-const pkgDir = resolve( pluginDir, 'node_modules/social-logos' );
+const pluginDir = resolve( import.meta.dirname, '..' );
 const outDir = resolve( pluginDir, '_inc/build/social-logos' );
 
 mkdirSync( outDir, { recursive: true } );
 
-let css = readFileSync( resolve( pkgDir, 'build/font/social-logos.css' ), 'utf8' );
+let css = readFileSync(
+	new URL( import.meta.resolve( 'social-logos/font/social-logos.css' ) ),
+	'utf8'
+);
 
 css += `
 .social-logo {
