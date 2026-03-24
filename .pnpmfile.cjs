@@ -166,12 +166,20 @@ async function fixDeps( pkg ) {
 
 	// Outdated dependencies
 	if ( pkg.name === '@wordpress/stylelint-config' ) {
-		for ( const field of [ 'dependencies', 'peerDependencies' ] ) {
-			for ( const [ dep, ver ] of Object.entries( pkg[ field ] ?? {} ) ) {
-				if ( dep.startsWith( 'stylelint' ) || dep === '@stylistic/stylelint-plugin' ) {
-					pkg[ field ][ dep ] = ver.replace( /^(?:\^|>=)?/, '>=' );
-				}
-			}
+		if ( pkg.dependencies?.[ '@stylistic/stylelint-plugin' ]?.startsWith( '^3.' ) ) {
+			pkg.dependencies[ '@stylistic/stylelint-plugin' ] = '^5';
+		}
+		if ( pkg.dependencies?.[ 'stylelint-config-recommended' ]?.startsWith( '^14.' ) ) {
+			pkg.dependencies[ 'stylelint-config-recommended' ] = '^18';
+		}
+		if ( pkg.dependencies?.[ 'stylelint-config-recommended-scss' ]?.startsWith( '^14.' ) ) {
+			pkg.dependencies[ 'stylelint-config-recommended-scss' ] = '^17';
+		}
+		if ( pkg.peerDependencies?.stylelint?.startsWith( '^16.' ) ) {
+			pkg.peerDependencies.stylelint = '^17';
+		}
+		if ( pkg.peerDependencies?.[ 'stylelint-scss' ]?.startsWith( '^6.' ) ) {
+			pkg.peerDependencies[ 'stylelint-scss' ] = '^7';
 		}
 	}
 	if ( pkg.name === '@wordpress/theme' && pkg.peerDependencies?.stylelint ) {
