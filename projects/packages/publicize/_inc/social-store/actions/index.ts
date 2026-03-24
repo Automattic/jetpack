@@ -9,6 +9,7 @@ import * as socialNoteSettings from './social-notes';
 import * as socialSettings from './social-settings';
 import * as unifiedModal from './unified-modal';
 import * as utmActions from './utm-settings';
+import * as xUsageActions from './x-usage';
 
 const actions = {
 	...shareStatus,
@@ -22,6 +23,7 @@ const actions = {
 	...servicesActions,
 	...scheduledSharesActions,
 	...unifiedModal,
+	...xUsageActions,
 };
 
 export default actions;

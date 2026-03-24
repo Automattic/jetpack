@@ -1,11 +1,12 @@
 /**
  * External dependencies
  */
+import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { formatNumber } from '@automattic/number-formatters';
 import { Page } from '@wordpress/admin-ui';
 import {
-	__experimentalConfirmDialog as ConfirmDialog, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	Button,
+	__experimentalConfirmDialog as ConfirmDialog, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
@@ -35,6 +36,7 @@ import useDeleteForm from '../../src/dashboard/hooks/use-delete-form.ts';
 import useFormStatusCounts from '../../src/dashboard/hooks/use-form-status-counts.ts';
 import useFormsData, { getFormsListQuery } from '../../src/dashboard/hooks/use-forms-data.ts';
 import WpRouteDashboardSearchParamsProvider from '../../src/dashboard/router/wp-route-dashboard-search-params-provider.tsx';
+import { getFormEditUrl } from '../../src/dashboard/utils.ts';
 import DataViewsHeaderRow from '../../src/dashboard/wp-build/components/dataviews-header-row';
 import FormsHelpModal from '../../src/dashboard/wp-build/components/forms-help-modal';
 import useFormItemActions from '../../src/dashboard/wp-build/hooks/use-form-item-actions';
@@ -86,8 +88,10 @@ function StageInner() {
 		[]
 	);
 	const { refreshIntegrations } = useDispatch( INTEGRATIONS_STORE );
+	const adminUrl = ( useConfigValue( 'adminUrl' ) as string ) || '';
 	const isIntegrationsEnabled = useConfigValue( 'isIntegrationsEnabled' );
 	const showDashboardIntegrations = useConfigValue( 'showDashboardIntegrations' );
+	const hasClassicForms = useConfigValue( 'hasClassicForms' );
 
 	const [ view, setView ] = useState< View >( () => ( {
 		...DEFAULT_VIEW,
@@ -324,6 +328,9 @@ function StageInner() {
 				label: __( 'Responses', 'jetpack-forms' ),
 				supportsBulk: false,
 				callback( items: FormListItem[] ) {
+					jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_form_view_responses_click', {
+						source: 'forms_list',
+					} );
 					const [ item ] = items;
 					if ( ! item ) {
 						return;
@@ -340,6 +347,10 @@ function StageInner() {
 				label: __( 'Restore', 'jetpack-forms' ),
 				supportsBulk: true,
 				async callback( items: FormListItem[] ) {
+					jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_form_restore_click', {
+						source: 'forms_list',
+						multiple: items.length > 1,
+					} );
 					if ( isDeleting ) {
 						return;
 					}
@@ -356,6 +367,10 @@ function StageInner() {
 				label: __( 'Delete permanently', 'jetpack-forms' ),
 				supportsBulk: true,
 				async callback( items: FormListItem[] ) {
+					jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_form_delete_permanently_click', {
+						source: 'forms_list',
+						multiple: items.length > 1,
+					} );
 					if ( isDeleting ) {
 						return;
 					}
@@ -374,14 +389,15 @@ function StageInner() {
 			label: __( 'Edit', 'jetpack-forms' ),
 			supportsBulk: false,
 			async callback( items: FormListItem[] ) {
+				jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_form_edit_form_click', {
+					source: 'forms_list',
+				} );
 				const [ item ] = items;
 				if ( ! item ) {
 					return;
 				}
-				const fallbackEditUrl = `post.php?post=${ item.id }&action=edit&post_type=jetpack_form`;
-				const editUrl = item.editUrl || fallbackEditUrl;
-				const url = new URL( editUrl, window.location.origin );
-				window.location.href = url.toString();
+				const editUrl = item.editUrl || getFormEditUrl( item.id, adminUrl );
+				window.location.href = editUrl;
 			},
 		} );
 
@@ -391,6 +407,9 @@ function StageInner() {
 			label: __( 'Preview', 'jetpack-forms' ),
 			supportsBulk: false,
 			async callback( items: FormListItem[] ) {
+				jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_form_preview_click', {
+					source: 'forms_list',
+				} );
 				const [ item ] = items;
 				if ( item ) {
 					await previewForm( item );
@@ -405,6 +424,9 @@ function StageInner() {
 				label: __( 'Copy embed', 'jetpack-forms' ),
 				supportsBulk: false,
 				async callback( items: FormListItem[] ) {
+					jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_form_copy_embed_click', {
+						source: 'forms_list',
+					} );
 					const [ item ] = items;
 					if ( item ) {
 						await copyEmbed( item );
@@ -418,6 +440,9 @@ function StageInner() {
 				label: __( 'Copy shortcode', 'jetpack-forms' ),
 				supportsBulk: false,
 				async callback( items: FormListItem[] ) {
+					jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_form_copy_shortcode_click', {
+						source: 'forms_list',
+					} );
 					const [ item ] = items;
 					if ( item ) {
 						await copyShortcode( item );
@@ -440,6 +465,10 @@ function StageInner() {
 			isEligible: ( item: FormListItem ) => item.status !== 'publish',
 			supportsBulk: true,
 			async callback( items: FormListItem[] ) {
+				jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_form_publish_click', {
+					source: 'forms_list',
+					multiple: items.length > 1,
+				} );
 				if ( isDeleting || isUpdatingStatus ) {
 					return;
 				}
@@ -462,6 +491,10 @@ function StageInner() {
 			isEligible: ( item: FormListItem ) => item.status === 'publish',
 			supportsBulk: true,
 			async callback( items: FormListItem[] ) {
+				jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_form_unpublish_click', {
+					source: 'forms_list',
+					multiple: items.length > 1,
+				} );
 				if ( isDeleting || isUpdatingStatus ) {
 					return;
 				}
@@ -483,6 +516,9 @@ function StageInner() {
 			label: __( 'Rename', 'jetpack-forms' ),
 			supportsBulk: false,
 			callback( items: FormListItem[] ) {
+				jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_form_rename_click', {
+					source: 'forms_list',
+				} );
 				const [ item ] = items;
 				if ( ! item ) {
 					return;
@@ -497,6 +533,9 @@ function StageInner() {
 			label: __( 'Duplicate', 'jetpack-forms' ),
 			supportsBulk: false,
 			async callback( items: FormListItem[] ) {
+				jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_form_duplicate_click', {
+					source: 'forms_list',
+				} );
 				const [ item ] = items;
 				if ( item ) {
 					await duplicateForm( item );
@@ -510,6 +549,10 @@ function StageInner() {
 			label: __( 'Trash', 'jetpack-forms' ),
 			supportsBulk: true,
 			async callback( items: FormListItem[] ) {
+				jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_form_trash_click', {
+					source: 'forms_list',
+					multiple: items.length > 1,
+				} );
 				if ( isDeleting ) {
 					return;
 				}
@@ -523,6 +566,7 @@ function StageInner() {
 
 		return actionsList;
 	}, [
+		adminUrl,
 		copyEmbed,
 		copyShortcode,
 		duplicateForm,
@@ -589,7 +633,7 @@ function StageInner() {
 		actions: headerActions,
 	} = usePageHeaderDetails( {
 		screen: 'forms',
-		formsCount: statusCounts.all,
+		hasClassicForms: !! hasClassicForms,
 		isIntegrationsEnabled: !! isIntegrationsEnabled,
 		showDashboardIntegrations: !! showDashboardIntegrations,
 		onOpenIntegrations: openIntegrationsModal,
@@ -630,7 +674,7 @@ function StageInner() {
 						<EmptyWrapper
 							heading={ __( "You're set up. No forms yet.", 'jetpack-forms' ) }
 							body={ __(
-								'Create a shared form pattern to manage and reuse it across your site.',
+								'Create a form to manage and reuse it across your site.',
 								'jetpack-forms'
 							) }
 							actions={
@@ -638,11 +682,13 @@ function StageInner() {
 									<CreateFormButton
 										label={ __( 'Create a new form', 'jetpack-forms' ) }
 										variant="primary"
-										showIcon={ false }
+										showNameModal
 									/>
-									<Button size="compact" variant="secondary" onClick={ openFormsHelpModal }>
-										{ __( 'Missing forms?', 'jetpack-forms' ) }
-									</Button>
+									{ hasClassicForms && (
+										<Button size="compact" variant="secondary" onClick={ openFormsHelpModal }>
+											{ __( 'Not seeing all your forms?', 'jetpack-forms' ) }
+										</Button>
+									) }
 								</HStack>
 							}
 						/>

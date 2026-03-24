@@ -1,0 +1,7 @@
+// Shared content area for charts using the render prop.
+// Wraps render prop output and handles measurement.
+.chart-layout__content {
+	flex: 1;
+	min-height: 0;
+	min-width: 0;
+}

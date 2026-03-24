@@ -715,6 +715,12 @@ class Waf_Runtime {
 			$this->matched_vars_names = array();
 			$this->matched_var        = '';
 			$this->matched_var_name   = '';
+			unset(
+				$this->metadata['matched_var'],
+				$this->metadata['matched_vars'],
+				$this->metadata['matched_vars_names'],
+				$this->metadata['matched_var_name']
+			);
 	}
 
 	/**

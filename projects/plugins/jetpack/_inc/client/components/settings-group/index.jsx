@@ -1,7 +1,6 @@
 import clsx from 'clsx';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import Card from 'components/card';
 import SupportInfo from 'components/support-info';
 import {
 	isOfflineMode,
@@ -54,17 +53,15 @@ export const SettingsGroup = inprops => {
 	}
 
 	return (
-		<div className={ clsx( 'jp-form-settings-group', props.className ) }>
-			<Card
-				className={ clsx( {
-					'jp-form-has-child': props.hasChild,
-					'jp-form-settings-disable': disableInOfflineMode || disableInSiteConnectionMode,
-				} ) }
-			>
-				{ displayFadeBlock && <div className="jp-form-block-fade" /> }
-				{ props.support.link && <SupportInfo module={ module } { ...props.support } /> }
-				{ props.children }
-			</Card>
+		<div
+			className={ clsx( 'jp-form-settings-group', props.className, {
+				'jp-form-has-child': props.hasChild,
+				'jp-form-settings-disable': disableInOfflineMode || disableInSiteConnectionMode,
+			} ) }
+		>
+			{ displayFadeBlock && <div className="jp-form-block-fade" /> }
+			{ props.support.link && <SupportInfo module={ module } { ...props.support } /> }
+			{ props.children }
 		</div>
 	);
 };

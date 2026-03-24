@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Remove double heading wrapper from AdminPage title, fixing header title sizing across all Jetpack admin pages.
