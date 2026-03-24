@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fix design-tokens.css 404 error on the route-based dashboard by inlining CSS via Sass meta.load-css instead of using CSS @import.

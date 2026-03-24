@@ -395,6 +395,7 @@ class Jetpack_Memberships {
 			$meta_gifts_prefix . 'user_id',
 			$meta_gifts_prefix . 'plan_id',
 			$meta_gifts_prefix . 'is_deleted',
+			$meta_gifts_prefix . 'is_sandboxed',
 		);
 		return array_merge(
 			$post_meta,

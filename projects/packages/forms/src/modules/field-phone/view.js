@@ -4,7 +4,6 @@ import {
 	getConfig,
 	getElement,
 	withSyncEvent as originalWithSyncEvent,
-	withScope,
 } from '@wordpress/interactivity';
 import parsePhoneNumber, { AsYouType } from 'libphonenumber-js';
 import { countries } from '../../blocks/field-telephone/country-list.js';
@@ -21,6 +20,65 @@ const asYouTypes = {};
 const phoneInputRefs = {};
 const searchInputRefs = {};
 const optionsListRefs = {};
+
+/**
+ * Ensures the phone field is fully initialized. Serves as both the primary
+ * initialization path (called from data-wp-init) and a safety net for event
+ * handlers in case the init callback was missed — which can happen when the
+ * module loads after DOMContentLoaded and the Interactivity API has already
+ * processed the DOM.
+ *
+ * @param {string} fieldId - The field ID to initialize.
+ * @return {boolean} Whether the field is initialized and ready.
+ */
+const ensureInitialized = fieldId => {
+	if ( asYouTypes[ fieldId ] ) {
+		return true;
+	}
+
+	const context = getContext();
+	if ( ! context.showCountrySelector ) {
+		return true;
+	}
+
+	// Resolve refs via DOM query if register callbacks haven't fired.
+	const { ref } = getElement();
+	const wrapper = ref.closest( '.jetpack-field__input-phone-wrapper' );
+	if ( ! wrapper ) {
+		return false;
+	}
+
+	if ( ! phoneInputRefs[ fieldId ] ) {
+		phoneInputRefs[ fieldId ] = wrapper.querySelector( '.jetpack-field__input-element' );
+	}
+	if ( ! searchInputRefs[ fieldId ] ) {
+		searchInputRefs[ fieldId ] = wrapper.querySelector( '.jetpack-combobox-search' );
+	}
+	if ( ! optionsListRefs[ fieldId ] ) {
+		optionsListRefs[ fieldId ] = wrapper.querySelector( '.jetpack-combobox-options' );
+	}
+
+	if (
+		! phoneInputRefs[ fieldId ] ||
+		! searchInputRefs[ fieldId ] ||
+		! optionsListRefs[ fieldId ]
+	) {
+		return false;
+	}
+
+	const config = getConfig( 'jetpack/field-phone' );
+	context.allCountries = countries.map( country => ( {
+		...country,
+		country: config?.i18n?.countryNames?.[ country.code ] || country.country,
+		selected: country.code === context.defaultCountry,
+	} ) );
+	context.filteredCountries = [ ...context.allCountries ];
+	context.selectedCountry = context.filteredCountries.find(
+		country => country.code === context.defaultCountry
+	);
+	asYouTypes[ fieldId ] = new AsYouType( context.defaultCountry );
+	return true;
+};
 
 /**
  * Sets flag text on an element by modifying existing text node data instead of
@@ -54,7 +112,7 @@ const updateSelection = selectedCountry => {
 	} ) );
 };
 
-const { actions, callbacks } = store( NAMESPACE, {
+const { actions } = store( NAMESPACE, {
 	state: {
 		validators: {
 			phone: ( value, isRequired ) => {
@@ -106,6 +164,9 @@ const { actions, callbacks } = store( NAMESPACE, {
 				context.phoneNumber = context.fullPhoneNumber = value;
 				return;
 			}
+			if ( ! ensureInitialized( fieldId ) ) {
+				return;
+			}
 			const groomedValue = value.indexOf( '00' ) === 0 ? '+' + value.slice( 2 ) : value;
 
 			asYouTypes[ fieldId ].reset();
@@ -125,6 +186,9 @@ const { actions, callbacks } = store( NAMESPACE, {
 		},
 		phoneCountryChangeHandler() {
 			const context = getContext();
+			if ( ! ensureInitialized( context.fieldId ) ) {
+				return;
+			}
 			// this context.filtered is from the template iterator
 			context.selectedCountry = { ...context.filtered };
 			updateSelection( context.selectedCountry );
@@ -133,6 +197,9 @@ const { actions, callbacks } = store( NAMESPACE, {
 		},
 		phoneComboboxInputHandler( event ) {
 			const context = getContext();
+			if ( ! ensureInitialized( context.fieldId ) ) {
+				return;
+			}
 			const searchTerm = event.target.value.toLowerCase();
 			context.filteredCountries = context.allCountries.filter(
 				country =>
@@ -144,6 +211,9 @@ const { actions, callbacks } = store( NAMESPACE, {
 		},
 		phoneComboboxKeydownHandler: withSyncEvent( event => {
 			const context = getContext();
+			if ( ! ensureInitialized( context.fieldId ) ) {
+				return;
+			}
 			if ( event.key === 'Escape' ) {
 				context.comboboxOpen = false;
 			} else if ( event.key === 'Enter' ) {
@@ -213,6 +283,9 @@ const { actions, callbacks } = store( NAMESPACE, {
 		},
 		phoneComboboxToggle() {
 			const context = getContext();
+			if ( ! ensureInitialized( context.fieldId ) ) {
+				return;
+			}
 			context.comboboxOpen = ! context.comboboxOpen;
 			if ( context.comboboxOpen ) {
 				setTimeout( () => {
@@ -265,44 +338,7 @@ const { actions, callbacks } = store( NAMESPACE, {
 		},
 		initializePhoneFieldCustomComboBox() {
 			const context = getContext();
-			if ( ! context.showCountrySelector ) {
-				return;
-			}
-
-			if (
-				! phoneInputRefs[ context.fieldId ] ||
-				! searchInputRefs[ context.fieldId ] ||
-				! optionsListRefs[ context.fieldId ]
-			) {
-				const { ref } = getElement();
-				// delay execution with a timeout and scoping withScope and return.
-				setTimeout(
-					withScope( function () {
-						const context2 = getContext();
-						phoneInputRefs[ context2.fieldId ] = ref;
-						searchInputRefs[ context2.fieldId ] = ref.parentElement.querySelector(
-							'.jetpack-combobox-search'
-						);
-						optionsListRefs[ context2.fieldId ] = ref.parentElement.querySelector(
-							'.jetpack-combobox-options'
-						);
-						callbacks.initializePhoneFieldCustomComboBox();
-					} ),
-					100
-				);
-				return;
-			}
-			const config = getConfig( 'jetpack/field-phone' );
-			context.allCountries = countries.map( country => ( {
-				...country,
-				country: config?.i18n?.countryNames?.[ country.code ] || '',
-				selected: country.code === context.defaultCountry,
-			} ) );
-			context.filteredCountries = [ ...context.allCountries ];
-			context.selectedCountry = context.filteredCountries.find(
-				country => country.code === context.defaultCountry
-			);
-			asYouTypes[ context.fieldId ] = new AsYouType( context.defaultCountry );
+			ensureInitialized( context.fieldId );
 		},
 	},
 } );

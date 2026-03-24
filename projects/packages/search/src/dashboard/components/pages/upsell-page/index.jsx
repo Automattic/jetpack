@@ -105,7 +105,7 @@ export default function UpsellPage( { isLoading = false } ) {
 					) }
 					actions={
 						! isWpcom && (
-							<Button variant="secondary" href={ activateLicenseUrl }>
+							<Button size="compact" variant="secondary" href={ activateLicenseUrl }>
 								{ __( 'Use license key', 'jetpack-search-pkg' ) }
 							</Button>
 						)

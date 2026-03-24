@@ -31,7 +31,7 @@ const socialWebpackConfig = {
 
 			// Add textdomains (but no other optimizations) for @wordpress/dataviews and its dependencies.
 			jetpackWebpackConfig.TranspileRule( {
-				includeNodeModules: [ '@wordpress/dataviews/' ],
+				includeNodeModules: [ '@wordpress/dataviews/', '@wordpress/ui' ],
 				babelOpts: {
 					configFile: false,
 					plugins: [

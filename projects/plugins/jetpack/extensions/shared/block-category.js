@@ -1,13 +1,6 @@
 import { JetpackLogo } from '@automattic/jetpack-shared-extension-utils/icons';
-import { getCategories, setCategories, registerBlockCollection } from '@wordpress/blocks';
+import { getCategories, setCategories } from '@wordpress/blocks';
 import { __ } from '@wordpress/i18n';
-
-if ( window?.Jetpack_Editor_Initial_State?.registerBlockCollection ) {
-	registerBlockCollection( 'jetpack', {
-		title: 'Jetpack',
-		icon: <JetpackLogo />,
-	} );
-}
 
 // We're moving Form specific blocks to a new 'Forms' category
 // that should appear before the 'monetize' and 'grow' categories

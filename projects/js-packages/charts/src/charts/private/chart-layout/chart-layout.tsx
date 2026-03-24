@@ -1,5 +1,5 @@
 import { Stack } from '@wordpress/ui';
-import { forwardRef, useEffect } from 'react';
+import { useEffect } from 'react';
 import { useElementSize } from '../../../hooks';
 import { renderLegendSlot } from '../chart-composition';
 import styles from './chart-layout.module.scss';
@@ -45,70 +45,62 @@ export interface ChartLayoutProps {
 	'data-chart-id'?: string;
 }
 
-export const ChartLayout = forwardRef< HTMLDivElement, ChartLayoutProps >(
-	(
-		{
-			legendPosition,
-			legendElement,
-			legendChildren,
-			children,
-			trailingContent,
-			onContentHeightChange,
-			gap,
-			className,
-			style,
-			'data-testid': dataTestId,
-			'data-chart-id': dataChartId,
-		},
-		ref
-	) => {
-		const [ contentRef, contentWidth, contentHeight ] = useElementSize< HTMLDivElement >();
-		const isRenderProp = typeof children === 'function';
-		const isMeasured = contentHeight > 0;
+export const ChartLayout = ( {
+	legendPosition,
+	legendElement,
+	legendChildren,
+	children,
+	trailingContent,
+	onContentHeightChange,
+	gap,
+	className,
+	style,
+	'data-testid': dataTestId,
+	'data-chart-id': dataChartId,
+}: ChartLayoutProps ) => {
+	const [ contentRef, contentWidth, contentHeight ] = useElementSize< HTMLDivElement >();
+	const isRenderProp = typeof children === 'function';
+	const isMeasured = contentHeight > 0;
 
-		// When using render-prop children, hide the layout until measurement is available
-		// to prevent layout shift. Plain ReactNode children don't need this since they
-		// don't depend on measured dimensions.
-		const visibilityStyle: { visibility?: 'hidden' | 'visible' } =
-			isRenderProp && ! isMeasured ? { visibility: 'hidden' } : {};
+	// When using render-prop children, hide the layout until measurement is available
+	// to prevent layout shift. Plain ReactNode children don't need this since they
+	// don't depend on measured dimensions.
+	const visibilityStyle: { visibility?: 'hidden' | 'visible' } =
+		isRenderProp && ! isMeasured ? { visibility: 'hidden' } : {};
 
-		useEffect( () => {
-			if ( isRenderProp && onContentHeightChange && isMeasured ) {
-				onContentHeightChange( contentHeight );
-			}
-		}, [ isRenderProp, contentHeight, isMeasured, onContentHeightChange ] );
-		const renderedChildren = isRenderProp
-			? children( { contentWidth, contentHeight, isMeasured } )
-			: children;
+	useEffect( () => {
+		if ( isRenderProp && onContentHeightChange && isMeasured ) {
+			onContentHeightChange( contentHeight );
+		}
+	}, [ isRenderProp, contentHeight, isMeasured, onContentHeightChange ] );
+	const renderedChildren = isRenderProp
+		? children( { contentWidth, contentHeight, isMeasured } )
+		: children;
 
-		return (
-			<Stack
-				ref={ ref }
-				direction="column"
-				gap={ gap }
-				className={ className }
-				style={ { ...style, ...visibilityStyle } }
-				data-testid={ dataTestId }
-				data-chart-id={ dataChartId }
-			>
-				{ legendPosition === 'top' && legendElement }
-				{ renderLegendSlot( legendChildren, 'top' ) }
+	return (
+		<Stack
+			direction="column"
+			gap={ gap }
+			className={ className }
+			style={ { ...style, ...visibilityStyle } }
+			data-testid={ dataTestId }
+			data-chart-id={ dataChartId }
+		>
+			{ legendPosition === 'top' && legendElement }
+			{ renderLegendSlot( legendChildren, 'top' ) }
 
-				{ isRenderProp ? (
-					<div ref={ contentRef } className={ styles[ 'chart-layout__content' ] }>
-						{ renderedChildren }
-					</div>
-				) : (
-					renderedChildren
-				) }
+			{ isRenderProp ? (
+				<div ref={ contentRef } className={ styles[ 'chart-layout__content' ] }>
+					{ renderedChildren }
+				</div>
+			) : (
+				renderedChildren
+			) }
 
-				{ legendPosition === 'bottom' && legendElement }
-				{ renderLegendSlot( legendChildren, 'bottom' ) }
+			{ legendPosition === 'bottom' && legendElement }
+			{ renderLegendSlot( legendChildren, 'bottom' ) }
 
-				{ trailingContent }
-			</Stack>
-		);
-	}
-);
-
-ChartLayout.displayName = 'ChartLayout';
+			{ trailingContent }
+		</Stack>
+	);
+};
