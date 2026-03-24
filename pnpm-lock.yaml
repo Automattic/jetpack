@@ -4,7 +4,7 @@ settings:
   autoInstallPeers: false
   excludeLinksFromLockfile: false
 
-pnpmfileChecksum: sha256-Cnp8r47gydgutUyopMZiCh2kINwL6OtiAf7pXgEtieA=
+pnpmfileChecksum: sha256-4txaWYMVa52+VG4GQ0BjIKjfl6wUMMLVBsecvd1dSlY=
 
 patchedDependencies:
   uuid@<11:
@@ -10953,7 +10953,7 @@ packages:
     engines: {node: '>=18.12.0', npm: '>=8.19.2'}
     peerDependencies:
       stylelint: ^17
-      stylelint-scss: ^6.4.0
+      stylelint-scss: ^7
 
   '@wordpress/sync@1.42.0':
     resolution: {integrity: sha512-xCbWUEBvtWEELMtcI1YL5gdncwf//cQsu/9D7zQZJUGvckHXPkCjeO7VEbj22kNfyRu633F0iDO8H8uwaf0Tug==}
