@@ -1,5 +1,5 @@
 ---
-description: Create WordPress Playground blueprints for Jetpack that activate specific modules. Use when the user asks to create a blueprint, playground blueprint, activate modules in playground, or set up a Playground environment for a Jetpack package/feature.
+description: Create WordPress Playground blueprints for the Jetpack plugin that activate specific modules. Use when the user asks to create a blueprint or Playground environment for Jetpack modules (e.g., Forms, Stats, Search). Only applies to the Jetpack plugin's module system, not standalone plugins like Social or Boost.
 ---
 
 # Jetpack Blueprint Builder
