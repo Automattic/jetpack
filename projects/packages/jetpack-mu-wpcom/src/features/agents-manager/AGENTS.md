@@ -110,7 +110,3 @@ This feature is loaded for WordPress.com-connected users via `Jetpack_Mu_Wpcom`.
 
 1. Follow the standard [`jetpack-mu-wpcom` development process](https://github.com/Automattic/jetpack/blob/trunk/projects/packages/jetpack-mu-wpcom/README.md).
 2. For frontend-only changes, work in the Calypso repo instead (`packages/agents-manager/` or `apps/agents-manager/`).
-
-## Deployment
-
-After changes to the PHP files, deploy `jetpack-mu-wpcom`. Releases happen twice daily.
