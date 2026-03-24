@@ -54,12 +54,8 @@ class Users {
 	public static function user_role_change( $user_id ) {
 		$connection = new Jetpack_Connection();
 		if ( $connection->is_user_connected( $user_id ) ) {
-			unset( self::$user_roles[ $user_id ] );
-			$effective_role = self::get_role( $user_id );
-
-			if ( ! empty( $effective_role ) ) {
-				self::update_role_on_com( $user_id );
-			}
+			self::get_role( $user_id );
+			self::update_role_on_com( $user_id );
 
 			// Try to choose a new master if we're demoting the current one.
 			self::maybe_demote_master_user( $user_id );
@@ -72,11 +68,12 @@ class Users {
 	 * @access public
 	 * @static
 	 *
-	 * @param int $user_id ID of the user.
+	 * @param int  $user_id ID of the user.
+	 * @param bool $reload Forces reading the role from the database.
 	 * @return string Role of the user.
 	 */
-	public static function get_role( $user_id ) {
-		if ( isset( self::$user_roles[ $user_id ] ) ) {
+	public static function get_role( $user_id, $reload = false ) {
+		if ( ! $reload && isset( self::$user_roles[ $user_id ] ) ) {
 			return self::$user_roles[ $user_id ];
 		}
 
