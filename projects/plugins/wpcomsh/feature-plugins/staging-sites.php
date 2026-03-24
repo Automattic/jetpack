@@ -29,22 +29,22 @@ add_filter( 'option_wpcom_is_staging_site', 'wpcomsh_is_staging_site_get_atomic_
 /**
  * Disables outgoing pingbacks/trackbacks in staging environments.
  *
- * Prevents the dispatch of pingbacks when the environment type is 'staging'.
+ * Prevents the dispatch of pingbacks when the environment type is 'staging'
+ * by clearing the list of URLs to ping. The `pre_ping` action passes
+ * `$post_links` by reference, so emptying it prevents all outgoing pings.
+ *
  * This can be removed once WordPress core addresses the issue.
  *
  * @see https://core.trac.wordpress.org/ticket/64837
  *
- * @param bool $send Whether to send the pingback. Default true.
- * @return bool False to prevent sending in staging environments, otherwise the original value.
+ * @param string[] $post_links Array of URLs to ping (passed by reference).
  */
-function wpcomsh_disable_outgoing_pings_in_non_production_envs( $send ) {
+function wpcomsh_disable_outgoing_pings_in_non_production_envs( &$post_links ) {
 	if ( 'staging' === wp_get_environment_type() ) {
-		return false;
+		$post_links = array();
 	}
-
-	return $send;
 }
-add_filter( 'pre_pingback_send', 'wpcomsh_disable_outgoing_pings_in_non_production_envs' );
+add_action( 'pre_ping', 'wpcomsh_disable_outgoing_pings_in_non_production_envs' );
 
 /**
  * Disables incoming pingbacks in staging environments by removing
