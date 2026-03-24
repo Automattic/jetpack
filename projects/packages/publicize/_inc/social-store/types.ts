@@ -69,12 +69,10 @@ export type PostShareStatus = {
 };
 
 export type ShareStatus = {
-	isModalOpen?: boolean;
 	[ PostId: number ]: PostShareStatus;
 };
 
 export type SharePost = {
-	isModalOpen?: boolean;
 	isSharingCurrentPost?: boolean;
 };
 
