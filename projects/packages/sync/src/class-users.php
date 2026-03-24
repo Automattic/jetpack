@@ -54,7 +54,13 @@ class Users {
 	public static function user_role_change( $user_id ) {
 		$connection = new Jetpack_Connection();
 		if ( $connection->is_user_connected( $user_id ) ) {
-			self::update_role_on_com( $user_id );
+			unset( self::$user_roles[ $user_id ] );
+			$effective_role = self::get_role( $user_id );
+
+			if ( ! empty( $effective_role ) ) {
+				self::update_role_on_com( $user_id );
+			}
+
 			// Try to choose a new master if we're demoting the current one.
 			self::maybe_demote_master_user( $user_id );
 		}
