@@ -865,7 +865,7 @@ class Defaults {
 		 *
 		 * @module sync
 		 *
-		 * @since $$next-version$$
+		 * @since 1.6.3
 		 * @since-jetpack 7.6.0
 		 *
 		 * @param array A list of comment types.

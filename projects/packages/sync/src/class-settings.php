@@ -532,7 +532,7 @@ class Settings {
 		return array(
 			'comment_type' => array(
 				'operator' => 'IN',
-				'values'   => Defaults::get_comment_types_whitelist(),
+				'values'   => array_map( 'esc_sql', Defaults::get_comment_types_whitelist() ),
 			),
 		);
 	}

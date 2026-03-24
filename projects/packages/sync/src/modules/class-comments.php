@@ -206,7 +206,7 @@ class Comments extends Module {
 	 *
 	 * @access public
 	 *
-	 * @return array Defaults to [ '', 'trackback', 'pingback' ].
+	 * @return array Defaults to [ '', 'comment', 'trackback', 'pingback', 'review', 'note' ].
 	 */
 	public function get_whitelisted_comment_types() {
 		return Defaults::get_comment_types_whitelist();
