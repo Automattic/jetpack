@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { formatNumber } from '@automattic/number-formatters';
 import { Page } from '@wordpress/admin-ui';
 import {
@@ -327,6 +328,9 @@ function StageInner() {
 				label: __( 'Responses', 'jetpack-forms' ),
 				supportsBulk: false,
 				callback( items: FormListItem[] ) {
+					jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_form_view_responses_click', {
+						source: 'forms_list',
+					} );
 					const [ item ] = items;
 					if ( ! item ) {
 						return;
@@ -343,6 +347,10 @@ function StageInner() {
 				label: __( 'Restore', 'jetpack-forms' ),
 				supportsBulk: true,
 				async callback( items: FormListItem[] ) {
+					jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_form_restore_click', {
+						source: 'forms_list',
+						multiple: items.length > 1,
+					} );
 					if ( isDeleting ) {
 						return;
 					}
@@ -359,6 +367,10 @@ function StageInner() {
 				label: __( 'Delete permanently', 'jetpack-forms' ),
 				supportsBulk: true,
 				async callback( items: FormListItem[] ) {
+					jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_form_delete_permanently_click', {
+						source: 'forms_list',
+						multiple: items.length > 1,
+					} );
 					if ( isDeleting ) {
 						return;
 					}
@@ -377,6 +389,9 @@ function StageInner() {
 			label: __( 'Edit', 'jetpack-forms' ),
 			supportsBulk: false,
 			async callback( items: FormListItem[] ) {
+				jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_form_edit_form_click', {
+					source: 'forms_list',
+				} );
 				const [ item ] = items;
 				if ( ! item ) {
 					return;
@@ -392,6 +407,9 @@ function StageInner() {
 			label: __( 'Preview', 'jetpack-forms' ),
 			supportsBulk: false,
 			async callback( items: FormListItem[] ) {
+				jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_form_preview_click', {
+					source: 'forms_list',
+				} );
 				const [ item ] = items;
 				if ( item ) {
 					await previewForm( item );
@@ -406,6 +424,9 @@ function StageInner() {
 				label: __( 'Copy embed', 'jetpack-forms' ),
 				supportsBulk: false,
 				async callback( items: FormListItem[] ) {
+					jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_form_copy_embed_click', {
+						source: 'forms_list',
+					} );
 					const [ item ] = items;
 					if ( item ) {
 						await copyEmbed( item );
@@ -419,6 +440,9 @@ function StageInner() {
 				label: __( 'Copy shortcode', 'jetpack-forms' ),
 				supportsBulk: false,
 				async callback( items: FormListItem[] ) {
+					jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_form_copy_shortcode_click', {
+						source: 'forms_list',
+					} );
 					const [ item ] = items;
 					if ( item ) {
 						await copyShortcode( item );
@@ -441,6 +465,10 @@ function StageInner() {
 			isEligible: ( item: FormListItem ) => item.status !== 'publish',
 			supportsBulk: true,
 			async callback( items: FormListItem[] ) {
+				jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_form_publish_click', {
+					source: 'forms_list',
+					multiple: items.length > 1,
+				} );
 				if ( isDeleting || isUpdatingStatus ) {
 					return;
 				}
@@ -463,6 +491,10 @@ function StageInner() {
 			isEligible: ( item: FormListItem ) => item.status === 'publish',
 			supportsBulk: true,
 			async callback( items: FormListItem[] ) {
+				jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_form_unpublish_click', {
+					source: 'forms_list',
+					multiple: items.length > 1,
+				} );
 				if ( isDeleting || isUpdatingStatus ) {
 					return;
 				}
@@ -484,6 +516,9 @@ function StageInner() {
 			label: __( 'Rename', 'jetpack-forms' ),
 			supportsBulk: false,
 			callback( items: FormListItem[] ) {
+				jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_form_rename_click', {
+					source: 'forms_list',
+				} );
 				const [ item ] = items;
 				if ( ! item ) {
 					return;
@@ -498,6 +533,9 @@ function StageInner() {
 			label: __( 'Duplicate', 'jetpack-forms' ),
 			supportsBulk: false,
 			async callback( items: FormListItem[] ) {
+				jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_form_duplicate_click', {
+					source: 'forms_list',
+				} );
 				const [ item ] = items;
 				if ( item ) {
 					await duplicateForm( item );
@@ -511,6 +549,10 @@ function StageInner() {
 			label: __( 'Trash', 'jetpack-forms' ),
 			supportsBulk: true,
 			async callback( items: FormListItem[] ) {
+				jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_form_trash_click', {
+					source: 'forms_list',
+					multiple: items.length > 1,
+				} );
 				if ( isDeleting ) {
 					return;
 				}
