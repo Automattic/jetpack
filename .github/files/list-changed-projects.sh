@@ -59,9 +59,10 @@ elif [[ "${GITHUB_EVENT_NAME:?}" == "push" ]]; then
 	else
 		BEFORE="$(jq -r '.before // empty' "$GITHUB_EVENT_PATH")"
 		AFTER="$(jq -r '.after // empty' "$GITHUB_EVENT_PATH")"
-		if [[ -n "$BEFORE" && "$BEFORE" != "0000000000000000000000000000000000000000" && -n "$AFTER" ]]; then
-			debug "GITHUB_EVENT_NAME is push to ${GITHUB_REF#refs/heads/}, checking diff from ${BEFORE}...${AFTER}"
-			ARGS+=( --verbose "--git-changed=${BEFORE}...${AFTER}" )
+		NULL_SHA="0000000000000000000000000000000000000000"
+		if [[ -n "$BEFORE" && "$BEFORE" != "$NULL_SHA" && -n "$AFTER" && "$AFTER" != "$NULL_SHA" ]]; then
+			debug "GITHUB_EVENT_NAME is push to ${GITHUB_REF#refs/heads/}, checking diff from ${BEFORE}..${AFTER}"
+			ARGS+=( --verbose "--git-changed=${BEFORE}..${AFTER}" )
 		else
 			debug "GITHUB_EVENT_NAME is push to ${GITHUB_REF#refs/heads/} but no valid 'before' SHA, considering all projects changed."
 		fi
