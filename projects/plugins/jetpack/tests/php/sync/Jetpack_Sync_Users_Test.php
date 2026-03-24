@@ -301,7 +301,7 @@ class Jetpack_Sync_Users_Test extends Jetpack_Sync_TestBase {
 		$this->assertContains( 'jetpack.updateRole', $method_names );
 	}
 
-	public function test_user_role_change_does_not_send_empty_effective_role() {
+	public function test_user_role_change_with_empty_effective_role_sends_update() {
 		$user = get_user_by( 'id', $this->user_id );
 		$user->remove_role( 'subscriber' );
 
@@ -325,7 +325,7 @@ class Jetpack_Sync_Users_Test extends Jetpack_Sync_TestBase {
 			}
 		}
 
-		$this->assertNotContains( 'jetpack.updateRole', $method_names );
+		$this->assertContains( 'jetpack.updateRole', $method_names );
 	}
 
 	public function test_user_remove_role_is_synced() {
