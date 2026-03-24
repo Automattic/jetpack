@@ -78,6 +78,3 @@ function wpcom_contact_form_set_editor_feature_flags( $flags ) {
 	return $flags;
 }
 add_filter( 'jetpack_block_editor_feature_flags', 'wpcom_contact_form_set_editor_feature_flags', 1000 );
-
-// Disable the integrations tab on all WordPress.com sites.
-add_filter( 'jetpack_forms_enable_integrations_tab', '__return_false' );
