@@ -164,16 +164,16 @@ async function fixDeps( pkg ) {
 		}
 	}
 
-	// Outdated dependencies
+	// @wordpress/stylelint-config is still CJS, which caps how high we can upgrade.
 	if ( pkg.name === '@wordpress/stylelint-config' ) {
 		if ( pkg.dependencies?.[ '@stylistic/stylelint-plugin' ]?.startsWith( '^3.' ) ) {
 			pkg.dependencies[ '@stylistic/stylelint-plugin' ] = '^5';
 		}
 		if ( pkg.dependencies?.[ 'stylelint-config-recommended' ]?.startsWith( '^14.' ) ) {
-			pkg.dependencies[ 'stylelint-config-recommended' ] = '^18';
+			pkg.dependencies[ 'stylelint-config-recommended' ] = '^17'; // 18 is ESM
 		}
 		if ( pkg.dependencies?.[ 'stylelint-config-recommended-scss' ]?.startsWith( '^14.' ) ) {
-			pkg.dependencies[ 'stylelint-config-recommended-scss' ] = '^17';
+			pkg.dependencies[ 'stylelint-config-recommended-scss' ] = '^16'; // 17 is ESM
 		}
 		if ( pkg.peerDependencies?.stylelint?.startsWith( '^16.' ) ) {
 			pkg.peerDependencies.stylelint = '^17';
@@ -372,6 +372,18 @@ function fixPeerDeps( pkg ) {
 	// Since it already has a (non-optional 🙄) peer dep on sass-embedded, we can just delete the sass dep.
 	if ( pkg.name === 'esbuild-sass-plugin' && pkg.dependencies.sass ) {
 		delete pkg.dependencies.sass;
+	}
+
+	// These packages declare stylelint ^16.x as a peer dep, which is CJS.
+	// Bump to v17, which is ESM.
+	if (
+		( pkg.name === 'stylelint-config-recommended' ||
+			pkg.name === 'stylelint-config-recommended-scss' ||
+			pkg.name === '@stylistic/stylelint-plugin' ||
+			pkg.name === 'stylelint-scss' ) &&
+		pkg.peerDependencies?.stylelint?.startsWith( '^16.' )
+	) {
+		pkg.peerDependencies.stylelint = '^17';
 	}
 
 	// 0.x versions treat `^` like `~`. Replace with `>=`.
