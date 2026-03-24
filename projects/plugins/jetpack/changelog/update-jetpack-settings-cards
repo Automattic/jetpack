@@ -1,4 +1,0 @@
-Significance: patch
-Type: enhancement
-
-Settings: modernize settings page UI using @wordpress/components Card and constrain content to 660px max-width.

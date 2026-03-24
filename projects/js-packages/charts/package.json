@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/charts",
-	"version": "0.58.0",
+	"version": "0.59.0",
 	"description": "Display charts within Automattic products.",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/charts/#readme",
 	"bugs": {
@@ -102,8 +102,8 @@
 		"@babel/core": "7.29.0",
 		"@babel/preset-react": "7.28.5",
 		"@babel/preset-typescript": "7.28.5",
-		"@storybook/addon-docs": "10.2.11",
-		"@storybook/react": "10.2.11",
+		"@storybook/addon-docs": "10.3.1",
+		"@storybook/react": "10.3.1",
 		"@testing-library/dom": "^10.0.0",
 		"@testing-library/jest-dom": "^6.0.0",
 		"@testing-library/react": "^16.0.0",
@@ -128,7 +128,7 @@
 		"react": "18.3.1",
 		"react-dom": "18.3.1",
 		"sass-embedded": "1.97.3",
-		"storybook": "10.2.11",
+		"storybook": "10.3.1",
 		"tsup": "8.5.1",
 		"typescript": "5.9.3"
 	},

@@ -704,7 +704,7 @@ class Jetpack_Sync_Users_Test extends Jetpack_Sync_TestBase {
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_removed_user_from_blog', $blog_id );
 		$this->assertNotEmpty( $event );
 		$this->assertEquals( $this->user_id, $event->args['0'] );
-		$this->assertFalse( $event->args['1'] );
+		$this->assertSame( 0, $event->args['1'] );
 	}
 
 	public function test_remove_user_from_blog_with_reassign() {

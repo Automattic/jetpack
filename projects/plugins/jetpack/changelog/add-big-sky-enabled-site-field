@@ -1,4 +1,0 @@
-Significance: patch
-Type: enhancement
-
-REST API: Add big_sky_enabled field to the site endpoint response.
