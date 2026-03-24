@@ -80,7 +80,8 @@ export function ActivityView( { filter = SHARING_ACTIVITY_TABS.ALL }: ActivityVi
 	// DataView state
 	const [ view, setView ] = useState< View >( {
 		type: 'table',
-		fields: [ FIELD_CONNECTION, FIELD_TIME, FIELD_STATUS, FIELD_ACTIONS ],
+		titleField: FIELD_CONNECTION,
+		fields: [ FIELD_TIME, FIELD_STATUS, FIELD_ACTIONS ],
 		sort: {
 			field: FIELD_TIME,
 			direction: 'desc' as SortDirection,
