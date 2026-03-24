@@ -61,8 +61,17 @@ elif [[ "${GITHUB_EVENT_NAME:?}" == "push" ]]; then
 		AFTER="$(jq -r '.after // empty' "$GITHUB_EVENT_PATH")"
 		NULL_SHA="0000000000000000000000000000000000000000"
 		if [[ -n "$BEFORE" && "$BEFORE" != "$NULL_SHA" && -n "$AFTER" && "$AFTER" != "$NULL_SHA" ]]; then
-			debug "GITHUB_EVENT_NAME is push to ${GITHUB_REF#refs/heads/}, checking diff from ${BEFORE}..${AFTER}"
-			ARGS+=( --verbose "--git-changed=${BEFORE}..${AFTER}" )
+			# Ensure the before SHA is available locally (shallow checkouts may not have it).
+			if ! git cat-file -e "$BEFORE^{commit}" 2>/dev/null; then
+				debug "Fetching $BEFORE (not present in shallow checkout)"
+				git fetch --depth=1 origin "$BEFORE" 2>/dev/null || true
+			fi
+			if git cat-file -e "$BEFORE^{commit}" 2>/dev/null; then
+				debug "GITHUB_EVENT_NAME is push to ${GITHUB_REF#refs/heads/}, checking diff from ${BEFORE}..${AFTER}"
+				ARGS+=( --verbose "--git-changed=${BEFORE}..${AFTER}" )
+			else
+				debug "GITHUB_EVENT_NAME is push to ${GITHUB_REF#refs/heads/} but could not fetch 'before' SHA ${BEFORE}, considering all projects changed."
+			fi
 		else
 			debug "GITHUB_EVENT_NAME is push to ${GITHUB_REF#refs/heads/} but no valid 'before' SHA, considering all projects changed."
 		fi
