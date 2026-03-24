@@ -406,6 +406,129 @@ class Jetpack_Sync_Comments_Test extends Jetpack_Sync_TestBase {
 		remove_filter( 'jetpack_sync_whitelisted_comment_types', array( $this, 'add_custom_comment_type' ) );
 	}
 
+	/**
+	 * Test that 'note' is in the whitelisted comment types by default.
+	 */
+	public function test_note_comment_type_is_whitelisted() {
+		$comments_sync_module = Modules::get_module( 'comments' );
+		'@phan-var \Automattic\Jetpack\Sync\Modules\Comments $comments_sync_module';
+
+		$this->assertContains( 'note', $comments_sync_module->get_whitelisted_comment_types() );
+	}
+
+	/**
+	 * Test that a comment with comment_type 'note' is synced without needing a filter.
+	 */
+	public function test_do_sync_comment_with_note_type() {
+		$this->server_event_storage->reset();
+
+		$comment_data = array(
+			'comment_post_ID'  => $this->post_id,
+			'comment_date'     => gmdate( 'Y-m-d H:i:s', time() ),
+			'comment_date_gmt' => gmdate( 'Y-m-d H:i:s', time() ),
+			'comment_author'   => 'Test Author',
+			'comment_content'  => 'This is a note comment.',
+			'comment_agent'    => 'Test Agent',
+			'comment_type'     => 'note',
+		);
+		wp_insert_comment( $comment_data );
+		$this->sender->do_sync();
+
+		$event = $this->server_event_storage->get_most_recent_event( 'wp_insert_comment' );
+		$this->assertNotFalse( $event );
+		$this->assertEquals( 'note', $event->args[1]->comment_type );
+	}
+
+	/**
+	 * Test that note comments do not sync per-status or transition events.
+	 *
+	 * When a note is created via the REST API, WordPress inserts it with
+	 * comment_approved = 1 (default) then sets it to 0 (hold/open state),
+	 * triggering wp_transition_comment_status. These transition events should
+	 * not be synced for note comments.
+	 */
+	public function test_note_comment_does_not_sync_transition_events() {
+		$this->server_event_storage->reset();
+
+		// Step 1: Insert an approved note comment (wp_insert_comment defaults to approved = 1).
+		$comment_id = wp_insert_comment(
+			array(
+				'comment_post_ID'  => $this->post_id,
+				'comment_date'     => gmdate( 'Y-m-d H:i:s', time() ),
+				'comment_date_gmt' => gmdate( 'Y-m-d H:i:s', time() ),
+				'comment_author'   => 'Test Author',
+				'comment_content'  => 'This is a note comment.',
+				'comment_agent'    => 'Test Agent',
+				'comment_type'     => 'note',
+				'comment_approved' => 1,
+			)
+		);
+
+		// Step 2: Unapprove to simulate the REST API flow for notes,
+		// which triggers wp_transition_comment_status (approved → unapproved).
+		wp_update_comment(
+			array(
+				'comment_ID'       => $comment_id,
+				'comment_approved' => 0,
+			)
+		);
+
+		$this->sender->do_sync();
+
+		// wp_insert_comment should still sync.
+		$insert_event = $this->server_event_storage->get_most_recent_event( 'wp_insert_comment' );
+		$this->assertNotFalse( $insert_event );
+		$this->assertEquals( 'note', $insert_event->args[1]->comment_type );
+
+		// Transition and per-status events should NOT sync for note type.
+		$this->assertFalse( $this->server_event_storage->get_most_recent_event( 'comment_approved_to_unapproved' ) );
+		$this->assertFalse( $this->server_event_storage->get_most_recent_event( 'comment_unapproved_note' ) );
+	}
+
+	/**
+	 * Test that editing a note comment does not sync per-status events.
+	 *
+	 * When a note is edited via the REST API, wp_transition_comment_status fires
+	 * comment_{status}_note on every update. These should not be synced.
+	 */
+	public function test_note_comment_edit_does_not_sync_status_events() {
+		// Create an unapproved note (the default state for notes).
+		$comment_id = wp_insert_comment(
+			array(
+				'comment_post_ID'  => $this->post_id,
+				'comment_date'     => gmdate( 'Y-m-d H:i:s', time() ),
+				'comment_date_gmt' => gmdate( 'Y-m-d H:i:s', time() ),
+				'comment_author'   => 'Test Author',
+				'comment_content'  => 'Original note content.',
+				'comment_agent'    => 'Test Agent',
+				'comment_type'     => 'note',
+				'comment_approved' => 0,
+			)
+		);
+
+		// Sync and clear so we only observe the edit events.
+		$this->sender->do_sync();
+		$this->server_event_storage->reset();
+
+		// Edit the note content (status stays unapproved).
+		wp_update_comment(
+			array(
+				'comment_ID'      => $comment_id,
+				'comment_content' => 'Updated note content.',
+			)
+		);
+
+		$this->sender->do_sync();
+
+		// Content modification should sync.
+		$modified_event = $this->server_event_storage->get_most_recent_event( 'jetpack_modified_comment_contents' );
+		$this->assertNotFalse( $modified_event );
+
+		// Per-status events should NOT sync.
+		$this->assertFalse( $this->server_event_storage->get_most_recent_event( 'comment_unapproved_note' ) );
+		$this->assertFalse( $this->server_event_storage->get_most_recent_event( 'comment_approved_note' ) );
+	}
+
 	public function add_custom_comment_type( $comment_types ) {
 		$comment_types[] = 'product_feedback';
 		return $comment_types;

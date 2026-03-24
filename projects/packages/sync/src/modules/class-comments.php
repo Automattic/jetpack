@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Sync\Modules;
 
+use Automattic\Jetpack\Sync\Defaults;
 use Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Sync\Settings;
 
@@ -18,6 +19,14 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Class to handle sync for comments.
  */
 class Comments extends Module {
+
+	/**
+	 * Tracks note comment IDs currently being inserted, so that
+	 * transition events fired as a side-effect of the insert can be suppressed.
+	 *
+	 * @var array<int, true>
+	 */
+	private $inserting_note_ids = array();
 
 	/**
 	 * Sync module name.
@@ -131,6 +140,13 @@ class Comments extends Module {
 		 * so this saves us a DB read for every comment event.
 		 */
 		foreach ( $this->get_whitelisted_comment_types() as $comment_type ) {
+			// Notes are created and updated via the REST API with comment_approved=0,
+			// which triggers wp_transition_comment_status and fires comment_{status}_note
+			// on every insert and edit. Skip these hooks to avoid syncing redundant
+			// transition events — note data is already captured by wp_insert_comment.
+			if ( 'note' === $comment_type ) {
+				continue;
+			}
 			foreach ( array( 'unapproved', 'approved' ) as $comment_status ) {
 				$comment_action_name = "comment_{$comment_status}_{$comment_type}";
 				add_action( $comment_action_name, $callable, 10, 2 );
@@ -208,18 +224,7 @@ class Comments extends Module {
 	 * @return array Defaults to [ '', 'trackback', 'pingback' ].
 	 */
 	public function get_whitelisted_comment_types() {
-		/**
-		 * Comment types present in this list will sync their status changes to WordPress.com.
-		 *
-		 * @since 1.6.3
-		 * @since-jetpack 7.6.0
-		 *
-		 * @param array A list of comment types.
-		 */
-		return apply_filters(
-			'jetpack_sync_whitelisted_comment_types',
-			array( '', 'comment', 'trackback', 'pingback', 'review' )
-		);
+		return Defaults::get_comment_types_whitelist();
 	}
 
 	/**
@@ -290,7 +295,9 @@ class Comments extends Module {
 	public function only_allow_white_listed_comment_type_transitions( $args ) {
 		$comment = $args[0];
 
-		if ( ! in_array( $comment->comment_type, $this->get_whitelisted_comment_types(), true ) ) {
+		if ( ! in_array( $comment->comment_type, $this->get_whitelisted_comment_types(), true )
+			|| isset( $this->inserting_note_ids[ (int) $comment->comment_ID ] )
+		) {
 			return false;
 		}
 
@@ -310,7 +317,16 @@ class Comments extends Module {
 			return false;
 		}
 
-		return $this->expand_wp_insert_comment( $args );
+		$result = $this->expand_wp_insert_comment( $args );
+
+		// Track note comment insertions so that transition events fired as a
+		// side-effect of the insert (e.g. comment_approved_to_unapproved,
+		// comment_unapproved_note) can be suppressed.
+		if ( isset( $args[1]->comment_type ) && 'note' === $args[1]->comment_type ) {
+			$this->inserting_note_ids[ (int) $args[0] ] = true;
+		}
+
+		return $result;
 	}
 
 	/**
