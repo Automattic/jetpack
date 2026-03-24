@@ -33,6 +33,11 @@
 	:global(.dataviews-view-table-header-button) {
 		pointer-events: none;
 	}
+
+	// Make the account column take the remaining available width
+	:global(.dataviews-view-table__row td:first-child) {
+		width: 100%;
+	}
 }
 
 .dropdown {
