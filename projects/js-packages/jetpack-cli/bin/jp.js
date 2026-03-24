@@ -330,6 +330,7 @@ const runRsyncWithProxy = async ( monorepoRoot, args ) => {
 		os.tmpdir(),
 		'jp-rsync-' + Math.floor( Math.random() * 2821109907456 ).toString( 36 )
 	);
+	const secret = crypto.randomUUID();
 
 	/**
 	 * Clean up the proxy server and socket file.
@@ -380,25 +381,43 @@ const runRsyncWithProxy = async ( monorepoRoot, args ) => {
 				let parsedArgs;
 				try {
 					parsedArgs = JSON.parse( commandLine );
+					if ( ! Array.isArray( parsedArgs ) || parsedArgs.length === 0 ) {
+						throw new Error( 'parsedArgs is not a non-empty array' );
+					}
 				} catch {
 					console.error( chalk.red( 'Invalid JSON received from proxy' ) );
 					socket.destroy();
 					return;
 				}
 
+				// Validate the shared secret (security check)
+				if ( parsedArgs[ 0 ] !== secret ) {
+					if ( parsedArgs[ 0 ] === 'ssh' ) {
+						console.error(
+							chalk.red(
+								'The container did not send the shared secret. Update your git checkout with the latest trunk.'
+							)
+						);
+					} else {
+						console.error(
+							chalk.red(
+								'Incorrect shared secret received. Possible unauthorized access or misconfiguration.'
+							)
+						);
+					}
+					socket.destroy();
+					return;
+				}
+
 				// Validate that this is an SSH command (security check)
-				if (
-					! Array.isArray( parsedArgs ) ||
-					parsedArgs.length === 0 ||
-					parsedArgs[ 0 ] !== 'ssh'
-				) {
+				if ( parsedArgs.length < 2 || parsedArgs[ 1 ] !== 'ssh' ) {
 					console.error( chalk.red( 'Invalid command received: expected ssh command' ) );
 					socket.destroy();
 					return;
 				}
 
 				// Spawn SSH with parsed arguments
-				const sshProcess = spawn( 'ssh', parsedArgs.slice( 1 ), {
+				const sshProcess = spawn( 'ssh', parsedArgs.slice( 2 ), {
 					stdio: [ 'pipe', 'pipe', 'inherit' ],
 				} );
 
@@ -456,11 +475,15 @@ const runRsyncWithProxy = async ( monorepoRoot, args ) => {
 		await new Promise( ( resolveListening, rejectListening ) => {
 			proxyServer = net.createServer( handleConnection );
 
+			const oldumask = process.umask( 0o077 );
+
 			proxyServer.on( 'error', err => {
+				process.umask( oldumask );
 				rejectListening( err );
 			} );
 
 			proxyServer.listen( { path: socketPath }, () => {
+				process.umask( oldumask );
 				resolveListening();
 			} );
 		} );
@@ -476,6 +499,7 @@ const runRsyncWithProxy = async ( monorepoRoot, args ) => {
 					env: {
 						...process.env,
 						RSYNC_PROXY_SOCKET: socketPath,
+						RSYNC_PROXY_SECRET: secret,
 					},
 				}
 			);

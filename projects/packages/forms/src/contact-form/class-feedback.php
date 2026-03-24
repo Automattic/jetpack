@@ -185,6 +185,13 @@ class Feedback {
 	protected $form_id = null;
 
 	/**
+	 * The logged-in user who submitted the feedback, if any.
+	 *
+	 * @var array|null Array with 'display_name' and 'id' keys, or null if not logged in.
+	 */
+	protected $logged_in_user = null;
+
+	/**
 	 * Create a response object from a feedback post ID.
 	 *
 	 * @param int $feedback_post_id The ID of the feedback post.
@@ -269,6 +276,7 @@ class Feedback {
 		$this->subject      = $parsed_content['subject'] ?? $this->get_first_field_of_type( 'subject' );
 
 		$this->notification_recipients = $parsed_content['notification_recipients'] ?? array();
+		$this->logged_in_user          = $parsed_content['logged_in_user'] ?? null;
 
 		$this->author_data = new Feedback_Author(
 			$this->get_first_field_of_type( 'name', 'pre_comment_author_name' ),
@@ -342,6 +350,16 @@ class Feedback {
 		$this->feedback_time         = current_time( 'mysql' );
 		$this->legacy_feedback_title = "{$this->get_author()} - {$this->feedback_time}";
 		$this->legacy_feedback_id    = md5( $this->legacy_feedback_title );
+
+		// Capture logged-in user info at submission time.
+		if ( is_user_logged_in() ) {
+			$current_user         = wp_get_current_user();
+			$this->logged_in_user = array(
+				'display_name' => $current_user->display_name,
+				'username'     => $current_user->user_login,
+				'id'           => $current_user->ID,
+			);
+		}
 	}
 
 	/**
@@ -1079,6 +1097,15 @@ class Feedback {
 	}
 
 	/**
+	 * Get the logged-in user information who submitted the feedback.
+	 *
+	 * @return array|null Array with 'display_name' and 'id' keys, or null if not logged in.
+	 */
+	public function get_logged_in_user() {
+		return $this->logged_in_user;
+	}
+
+	/**
 	 * Get the email subject.
 	 *
 	 * @return string
@@ -1342,6 +1369,7 @@ class Feedback {
 				'country_code'            => $this->country_code,
 				'user_agent'              => $this->user_agent,
 				'notification_recipients' => $this->notification_recipients,
+				'logged_in_user'          => $this->logged_in_user,
 			),
 			$this->source->serialize()
 		);

@@ -211,6 +211,98 @@ class Feedback_Email_Renderer_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Test generate_metadata_html with logged-in user renders user info with display name.
+	 */
+	public function test_generate_metadata_html_logged_in_user() {
+		$result = self::invoke_static_method(
+			'generate_metadata_html',
+			array(
+				'logged_in_user' => array(
+					'display_name' => 'John Smith',
+					'username'     => 'jsmith',
+					'id'           => 42,
+				),
+			)
+		);
+
+		$this->assertStringContainsString( 'Logged-in user', $result );
+		$this->assertStringContainsString( 'John Smith (#42)', $result );
+		$this->assertStringNotContainsString( 'jsmith', $result );
+	}
+
+	/**
+	 * Test generate_metadata_html with logged-in user uses username as fallback when no display name.
+	 */
+	public function test_generate_metadata_html_logged_in_user_username_fallback() {
+		$result = self::invoke_static_method(
+			'generate_metadata_html',
+			array(
+				'logged_in_user' => array(
+					'display_name' => '',
+					'username'     => 'jsmith',
+					'id'           => 123,
+				),
+			)
+		);
+
+		$this->assertStringContainsString( 'Logged-in user', $result );
+		$this->assertStringContainsString( 'jsmith (#123)', $result );
+	}
+
+	/**
+	 * Test generate_metadata_html with logged-in user uses username as fallback when display name is null.
+	 */
+	public function test_generate_metadata_html_logged_in_user_username_fallback_null_display_name() {
+		$result = self::invoke_static_method(
+			'generate_metadata_html',
+			array(
+				'logged_in_user' => array(
+					'username' => 'fallbackuser',
+					'id'       => 456,
+				),
+			)
+		);
+
+		$this->assertStringContainsString( 'Logged-in user', $result );
+		$this->assertStringContainsString( 'fallbackuser (#456)', $result );
+	}
+
+	/**
+	 * Test generate_metadata_html with logged-in user shows ID only when both display name and username are empty.
+	 */
+	public function test_generate_metadata_html_logged_in_user_id_only() {
+		$result = self::invoke_static_method(
+			'generate_metadata_html',
+			array(
+				'logged_in_user' => array(
+					'display_name' => '',
+					'username'     => '',
+					'id'           => 123,
+				),
+			)
+		);
+
+		$this->assertStringContainsString( 'Logged-in user', $result );
+		$this->assertStringContainsString( '#123', $result );
+		$this->assertStringNotContainsString( '(#123)', $result );
+	}
+
+	/**
+	 * Test generate_metadata_html without logged-in user omits the row.
+	 */
+	public function test_generate_metadata_html_no_logged_in_user() {
+		$result = self::invoke_static_method(
+			'generate_metadata_html',
+			array(
+				'date'   => 'January 1, 2025',
+				'device' => 'Desktop',
+			)
+		);
+
+		$this->assertStringNotContainsString( 'Logged-in user', $result );
+	}
+
+	/**
 	 * Test format_field_for_email with label renders label, value, and field icon.
 	 */
 	public function test_format_field_for_email_with_label() {
@@ -517,6 +609,77 @@ class Feedback_Email_Renderer_Test extends BaseTestCase {
 	public function test_file_icon_mapping_unknown_falls_back_to_txt() {
 		$method = self::invoke_feedback_field_method( 'get_file_icon_name', 'mystery.xyz', 'application/octet-stream' );
 		$this->assertSame( 'txt', $method );
+	}
+
+	/**
+	 * Test build_email_content with empty title does not render h1 tag.
+	 */
+	public function test_build_email_content_empty_title() {
+		$post_id = Utility::create_legacy_feedback(
+			array(
+				'Name'  => 'Test User',
+				'Email' => 'test@example.com',
+			),
+			'Test message',
+			'Test User'
+		);
+
+		$form     = new Contact_Form( array(), '' );
+		$response = Feedback::get( $post_id );
+
+		$context_data = array(
+			'time'                 => current_time( 'mysql' ),
+			'url'                  => 'https://example.com',
+			'comment_author'       => 'Test User',
+			'comment_author_email' => 'test@example.com',
+			'comment_author_ip'    => '127.0.0.1',
+			'is_spam'              => false,
+			'feedback_status'      => 'publish',
+		);
+
+		add_filter( 'jetpack_forms_response_email_title', '__return_empty_string' );
+		$result = Feedback_Email_Renderer::build_email_content( $post_id, $form, $response, $context_data );
+		remove_filter( 'jetpack_forms_response_email_title', '__return_empty_string' );
+
+		$this->assertStringNotContainsString( '<h1 class="email-header">', $result['message'] );
+	}
+
+	/**
+	 * Test build_email_content with non-empty title renders h1 tag.
+	 */
+	public function test_build_email_content_with_title() {
+		$post_id = Utility::create_legacy_feedback(
+			array(
+				'Name'  => 'Test User',
+				'Email' => 'test@example.com',
+			),
+			'Test message',
+			'Test User'
+		);
+
+		$form     = new Contact_Form( array(), '' );
+		$response = Feedback::get( $post_id );
+
+		$context_data = array(
+			'time'                 => current_time( 'mysql' ),
+			'url'                  => 'https://example.com',
+			'comment_author'       => 'Test User',
+			'comment_author_email' => 'test@example.com',
+			'comment_author_ip'    => '127.0.0.1',
+			'is_spam'              => false,
+			'feedback_status'      => 'publish',
+		);
+
+		add_filter(
+			'jetpack_forms_response_email_title',
+			function () {
+				return 'Custom Email Title';
+			}
+		);
+		$result = Feedback_Email_Renderer::build_email_content( $post_id, $form, $response, $context_data );
+		remove_all_filters( 'jetpack_forms_response_email_title' );
+
+		$this->assertStringContainsString( '<h1 class="email-header">Custom Email Title</h1>', $result['message'] );
 	}
 
 	/**

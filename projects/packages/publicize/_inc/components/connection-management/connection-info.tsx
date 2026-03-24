@@ -6,6 +6,7 @@ import { Icon, chevronDown, chevronUp } from '@wordpress/icons';
 import { useReducer } from 'react';
 import { store as socialStore } from '../../social-store';
 import ConnectionIcon from '../connection-icon';
+import { XNotice } from '../services/x-notice';
 import { ConnectionName } from './connection-name';
 import { ConnectionStatus, ConnectionStatusProps } from './connection-status';
 import { Disconnect } from './disconnect';
@@ -79,6 +80,7 @@ export function ConnectionInfo( { connection, service, canMarkAsShared }: Connec
 							{ __( 'This connection is added by a site administrator.', 'jetpack-publicize-pkg' ) }
 						</Text>
 					) }
+					{ service?.id === 'x' && <XNotice /> }
 				</PanelBody>
 			</Panel>
 		</>

@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Forms Dashboard: Add tracking events for form-level actions (preview, copy embed, copy shortcode, duplicate, trash, restore, delete, rename, publish/unpublish, edit, view responses)

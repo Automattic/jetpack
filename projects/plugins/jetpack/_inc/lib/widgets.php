@@ -383,7 +383,7 @@ class Jetpack_Widgets {
 		$widget_option_name = self::get_widget_option_name( $widget_id );
 		$widget_settings    = get_option( $widget_option_name );
 		$instance_key       = self::get_widget_instance_key( $widget_id );
-		$old_settings       = $widget_settings[ $instance_key ];
+		$old_settings       = $widget_settings[ $instance_key ] ?? array();
 		$settings           = self::sanitize_widget_settings( $widget_id, $settings, $old_settings );
 
 		if ( ! $settings ) {

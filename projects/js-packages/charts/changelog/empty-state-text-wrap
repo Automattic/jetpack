@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fix empty-state text wrapping when all legend items are hidden.

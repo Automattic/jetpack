@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Fixes FORMS-629
+
+Fix phone field initialization failure when script module loads after DOMContentLoaded.

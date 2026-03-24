@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Move tooltip portal containerRef off ChartLayout to inner svg-wrapper in pie charts.

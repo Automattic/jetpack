@@ -1439,7 +1439,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/jetpack-mu-wpcom",
-                "reference": "afa473351bab3b6cbcfd5e6d688dd4fe2af04a4d"
+                "reference": "d3b780d0f18daf63c5e2d5eec725e4e38d5fad56"
             },
             "require": {
                 "automattic/block-delimiter": "@dev",
@@ -1453,6 +1453,7 @@
                 "automattic/jetpack-masterbar": "@dev",
                 "automattic/jetpack-newsletter": "@dev",
                 "automattic/jetpack-redirect": "@dev",
+                "automattic/jetpack-rtc": "@dev",
                 "automattic/jetpack-stats-admin": "@dev",
                 "automattic/jetpack-status": "@dev",
                 "automattic/jetpack-subscribers-dashboard": "@dev",
@@ -1964,6 +1965,73 @@
             }
         },
         {
+            "name": "automattic/jetpack-rtc",
+            "version": "dev-trunk",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/rtc",
+                "reference": "e8f440cdd4bedae187d26ee2c873bc9b52a88a66"
+            },
+            "require": {
+                "automattic/jetpack-assets": "@dev",
+                "automattic/jetpack-connection": "@dev",
+                "php": ">=7.2"
+            },
+            "require-dev": {
+                "automattic/jetpack-changelogger": "@dev",
+                "automattic/jetpack-test-environment": "@dev",
+                "automattic/phpunit-select-config": "@dev",
+                "yoast/phpunit-polyfills": "^4.0.0"
+            },
+            "suggest": {
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
+            },
+            "type": "jetpack-library",
+            "extra": {
+                "autotagger": true,
+                "branch-alias": {
+                    "dev-trunk": "0.1.x-dev"
+                },
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-rtc/compare/v${old}...v${new}"
+                },
+                "mirror-repo": "Automattic/jetpack-rtc",
+                "textdomain": "jetpack-rtc",
+                "version-constants": {
+                    "::PACKAGE_VERSION": "src/class-rtc.php"
+                }
+            },
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "build-development": [
+                    "pnpm run build"
+                ],
+                "build-production": [
+                    "NODE_ENV=production BABEL_ENV=production pnpm run build"
+                ],
+                "phpunit": [
+                    "phpunit-select-config phpunit.#.xml.dist --colors=always"
+                ],
+                "test-coverage": [
+                    "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
+                ],
+                "test-php": [
+                    "@composer phpunit"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Real-time collaboration websocket transport support using WordPress.com infrastructure",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
             "name": "automattic/jetpack-stats",
             "version": "dev-trunk",
             "dist": {
@@ -2249,7 +2317,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-                "reference": "422836dadac9c2274ca09f929b419ed13bde0ae5"
+                "reference": "d49c0d06e3cf0df31474705ef0f71c5eaa7ba015"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -2283,7 +2351,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-sync/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "4.32.x-dev"
+                    "dev-trunk": "4.33.x-dev"
                 },
                 "dependencies": {
                     "test-only": [

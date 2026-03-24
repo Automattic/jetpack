@@ -21,9 +21,10 @@ const wpcom_profile_settings_modify_name_section = () => {
 
 	const settingsLink = window.wpcomProfileSettingsLinkToWpcom?.name?.link;
 	const settingsLinkText = window.wpcomProfileSettingsLinkToWpcom?.name?.text;
-	if ( table && settingsLink && settingsLinkText ) {
+	const settingsLinkTitle = window.wpcomProfileSettingsLinkToWpcom?.name?.title;
+	if ( table && settingsLink && settingsLinkText && settingsLinkTitle ) {
 		const h2 = document.createElement( 'h2' );
-		h2.innerHTML = 'Name';
+		h2.textContent = settingsLinkTitle;
 		h2.style = 'font-size: 1.2em';
 		th.appendChild( h2 );
 
