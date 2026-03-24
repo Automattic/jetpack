@@ -215,18 +215,15 @@ function wpcom_has_blog_sticker( $blog_sticker, $blog_id ) {
 }
 
 /**
- * Enable the newsletter settings package for sites with the newsletter-package-202603 sticker.
+ * Enable the newsletter settings package for all wpcom sites.
  *
- * This allows opt-in testing of the newsletter settings package on wpcom infrastructure.
+ * Previously gated by the newsletter-package-202603 sticker for opt-in testing.
+ * Now enabled unconditionally. This function and its add_filter hook can be
+ * removed once the filter itself is cleaned up.
  *
  * @param bool $enabled Whether the newsletter settings are enabled.
  * @return bool
  */
-function wpcom_maybe_enable_newsletter_settings( $enabled ) {
-	if ( $enabled ) {
-		return $enabled;
-	}
-
-	// Stickered sites (will always be simple, as we don't sync this sticker. WoW sites can just add their own mu-plugin/snippet)
-	return function_exists( 'has_blog_sticker' ) && has_blog_sticker( 'newsletter-package-202603' );
+function wpcom_maybe_enable_newsletter_settings( $enabled ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	return true;
 }
