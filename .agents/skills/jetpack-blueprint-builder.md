@@ -9,7 +9,7 @@ Create `blueprint.json` files for use with `jetpack playground jetpack --bluepri
 ## What the CLI Already Handles
 
 The `jetpack playground` command (`tools/cli/commands/playground.js`) automatically:
-- Sets the base blueprint with `$schema`, `login: true`, `features.networking: true`
+- Merges your blueprint with its base settings (`login: true`, `features.networking: true`). Include `$schema` in your blueprint for editor validation — the CLI won't duplicate it.
 - Mounts the plugin directory and `projects/packages/` into Playground
 - Defines `JETPACK_DEV_DEBUG: true` for offline mode (Jetpack plugin only)
 - Writes a mu-plugin to fix `plugins_url()` for monorepo vendor symlinks
