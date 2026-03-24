@@ -1,16 +1,17 @@
-import { readFileSync, writeFileSync, copyFileSync } from 'fs';
+import { readFileSync, writeFileSync, mkdirSync } from 'fs';
 import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = dirname( fileURLToPath( import.meta.url ) );
 const pluginDir = resolve( __dirname, '..' );
 const pkgDir = resolve( pluginDir, 'node_modules/social-logos' );
-const outDir = resolve( pluginDir, '_inc/social-logos' );
+const outDir = resolve( pluginDir, '_inc/build/social-logos' );
 
-const fontCss = readFileSync( resolve( pkgDir, 'build/font/social-logos.css' ), 'utf8' ).trim();
+mkdirSync( outDir, { recursive: true } );
 
-const css = `${ fontCss }
+let css = readFileSync( resolve( pkgDir, 'build/font/social-logos.css' ), 'utf8' );
 
+css += `
 .social-logo {
 	font-family: social-logos;
 	display: inline-block;
@@ -36,10 +37,6 @@ const minCss = css
 
 writeFileSync( resolve( outDir, 'social-logos.css' ), css );
 writeFileSync( resolve( outDir, 'social-logos.min.css' ), minCss );
-copyFileSync(
-	resolve( pkgDir, 'build/font/social-logos.woff2' ),
-	resolve( outDir, 'social-logos.woff2' )
-);
 
 // eslint-disable-next-line no-console
-console.log( 'Updated _inc/social-logos/ from social-logos package.' );
+console.log( 'Updated _inc/build/social-logos/ from social-logos package.' );

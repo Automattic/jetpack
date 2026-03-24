@@ -12,8 +12,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
 }
 
-define( 'JETPACK_SOCIAL_LOGOS_URL', plugin_dir_url( __FILE__ ) . 'social-logos/' );
-define( 'JETPACK_SOCIAL_LOGOS_DIR', plugin_dir_path( __FILE__ ) . 'social-logos/' );
+define( 'JETPACK_SOCIAL_LOGOS_URL', plugin_dir_url( __FILE__ ) . 'build/social-logos/' );
+define( 'JETPACK_SOCIAL_LOGOS_DIR', plugin_dir_path( __FILE__ ) . 'build/social-logos/' );
 
 /**
  * Globally registers the 'social-logos' style and font.
