@@ -287,7 +287,7 @@ class Jetpack_Sync_Users_Test extends Jetpack_Sync_TestBase {
 
 		XMLRPC_Async_Call::$clients = array();
 
-		Users::user_role_change( $this->user_id, '', array( 'subscriber' ) );
+		Users::user_role_change( $this->user_id );
 
 		$method_names = array();
 		foreach ( XMLRPC_Async_Call::$clients as $blog_clients ) {
@@ -314,7 +314,7 @@ class Jetpack_Sync_Users_Test extends Jetpack_Sync_TestBase {
 
 		XMLRPC_Async_Call::$clients = array();
 
-		Users::user_role_change( $this->user_id, '', array( 'subscriber' ) );
+		Users::user_role_change( $this->user_id );
 
 		$method_names = array();
 		foreach ( XMLRPC_Async_Call::$clients as $blog_clients ) {
