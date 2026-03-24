@@ -83,7 +83,7 @@ These are the steps you can use in `blueprint.json`:
 
 ## Where to Place Blueprints
 
-- Package blueprints: `projects/packages/<name>/blueprint.json`
+- Package blueprints: `projects/packages/<name>/blueprints/<name>.json` (use a `blueprints/` subdirectory for multiple blueprints per package)
 - Plugin blueprints: `projects/plugins/<name>/.wordpress-org/blueprints/blueprint.json` (auto-detected by CLI)
 - Custom path: pass via `--blueprint=<path>` flag
 
@@ -94,8 +94,8 @@ These are the steps you can use in `blueprint.json`:
 jetpack playground jetpack
 
 # Plugin with custom blueprint
-jetpack playground jetpack --blueprint=projects/packages/forms/blueprint.json
+jetpack playground jetpack --blueprint=projects/packages/forms/blueprints/form-blocks.json
 
 # With debug mode
-jetpack playground jetpack --blueprint=projects/packages/forms/blueprint.json --debug
+jetpack playground jetpack --blueprint=projects/packages/forms/blueprints/form-blocks.json --debug
 ```
