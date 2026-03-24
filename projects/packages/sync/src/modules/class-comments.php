@@ -21,14 +21,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Comments extends Module {
 
 	/**
-	 * Tracks note comment IDs currently being inserted, so that
-	 * transition events fired as a side-effect of the insert can be suppressed.
-	 *
-	 * @var array<int, true>
-	 */
-	private $inserting_note_ids = array();
-
-	/**
 	 * Sync module name.
 	 *
 	 * @access public
@@ -140,13 +132,6 @@ class Comments extends Module {
 		 * so this saves us a DB read for every comment event.
 		 */
 		foreach ( $this->get_whitelisted_comment_types() as $comment_type ) {
-			// Notes are created and updated via the REST API with comment_approved=0,
-			// which triggers wp_transition_comment_status and fires comment_{status}_note
-			// on every insert and edit. Skip these hooks to avoid syncing redundant
-			// transition events — note data is already captured by wp_insert_comment.
-			if ( 'note' === $comment_type ) {
-				continue;
-			}
 			foreach ( array( 'unapproved', 'approved' ) as $comment_status ) {
 				$comment_action_name = "comment_{$comment_status}_{$comment_type}";
 				add_action( $comment_action_name, $callable, 10, 2 );
@@ -295,9 +280,7 @@ class Comments extends Module {
 	public function only_allow_white_listed_comment_type_transitions( $args ) {
 		$comment = $args[0];
 
-		if ( ! in_array( $comment->comment_type, $this->get_whitelisted_comment_types(), true )
-			|| isset( $this->inserting_note_ids[ (int) $comment->comment_ID ] )
-		) {
+		if ( ! in_array( $comment->comment_type, $this->get_whitelisted_comment_types(), true ) ) {
 			return false;
 		}
 
@@ -317,16 +300,7 @@ class Comments extends Module {
 			return false;
 		}
 
-		$result = $this->expand_wp_insert_comment( $args );
-
-		// Track note comment insertions so that transition events fired as a
-		// side-effect of the insert (e.g. comment_approved_to_unapproved,
-		// comment_unapproved_note) can be suppressed.
-		if ( isset( $args[1]->comment_type ) && 'note' === $args[1]->comment_type ) {
-			$this->inserting_note_ids[ (int) $args[0] ] = true;
-		}
-
-		return $result;
+		return $this->expand_wp_insert_comment( $args );
 	}
 
 	/**
