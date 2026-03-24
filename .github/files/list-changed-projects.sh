@@ -56,9 +56,9 @@ elif [[ "${GITHUB_EVENT_NAME:?}" == "push" ]]; then
 			debug "GITHUB_EVENT_NAME is push and branch $REF does not seem to be a release branch (nothing uses that prefix), considering all projects changed."
 		fi
 	else
-		BEFORE="$(jq -r '.before' "$GITHUB_EVENT_PATH")"
-		AFTER="$(jq -r '.after' "$GITHUB_EVENT_PATH")"
-		if [[ "$BEFORE" != "0000000000000000000000000000000000000000" && -n "$BEFORE" ]]; then
+		BEFORE="$(jq -r '.before // empty' "$GITHUB_EVENT_PATH")"
+		AFTER="$(jq -r '.after // empty' "$GITHUB_EVENT_PATH")"
+		if [[ -n "$BEFORE" && "$BEFORE" != "0000000000000000000000000000000000000000" && -n "$AFTER" ]]; then
 			debug "GITHUB_EVENT_NAME is push to ${GITHUB_REF#refs/heads/}, checking diff from ${BEFORE}...${AFTER}"
 			ARGS+=( --verbose "--git-changed=${BEFORE}...${AFTER}" )
 		else
