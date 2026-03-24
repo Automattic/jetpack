@@ -1,0 +1,4 @@
+Significance: patch
+Type: removed
+
+Remove UNIFIED_UI_V1 feature flag usage.
