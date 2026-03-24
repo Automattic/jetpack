@@ -31,58 +31,16 @@ Jetpack modules are controlled by the `jetpack_active_modules` option — a PHP 
 }
 ```
 
-## Available Module Slugs
+## Finding Module Slugs
 
-These are the directory names in `projects/plugins/jetpack/modules/`:
+Module slugs are the filenames (without `.php`) in `projects/plugins/jetpack/modules/`. Exclude helper files prefixed with `module-` (e.g., `module-extras.php`).
 
-| Slug | Description |
-|------|-------------|
-| `account-protection` | Account protection |
-| `blaze` | Blaze advertising |
-| `blocks` | Jetpack blocks |
-| `canonical-urls` | Canonical URLs |
-| `carousel` | Image carousel |
-| `comment-likes` | Comment likes |
-| `comments` | Jetpack comments |
-| `contact-form` | Forms (contact, registration, feedback) |
-| `copy-post` | Copy post |
-| `custom-content-types` | Custom content types (testimonials, portfolios) |
-| `google-fonts` | Google Fonts |
-| `gravatar-hovercards` | Gravatar hovercards |
-| `infinite-scroll` | Infinite scroll |
-| `json-api` | JSON API |
-| `latex` | LaTeX |
-| `likes` | Likes |
-| `markdown` | Markdown |
-| `monitor` | Downtime monitoring |
-| `notes` | Notifications |
-| `photon` | Photon image CDN |
-| `photon-cdn` | Photon CDN (Site Accelerator) |
-| `post-by-email` | Post by email |
-| `post-list` | Post list enhancements |
-| `protect` | Brute force protection |
-| `publicize` | Publicize (social sharing) |
-| `related-posts` | Related posts |
-| `search` | Jetpack Search |
-| `seo-tools` | SEO tools |
-| `sharedaddy` | Sharing buttons |
-| `shortcodes` | Shortcode embeds |
-| `shortlinks` | WP.me shortlinks |
-| `simple-payments` | Simple payments |
-| `sitemaps` | Sitemaps |
-| `sso` | WordPress.com SSO |
-| `stats` | Jetpack Stats |
-| `subscriptions` | Subscriptions/newsletters |
-| `theme-tools` | Theme tools |
-| `tiled-gallery` | Tiled galleries |
-| `vaultpress` | VaultPress backup |
-| `verification-tools` | Site verification |
-| `videopress` | VideoPress |
-| `waf` | Web Application Firewall |
-| `widget-visibility` | Widget visibility |
-| `widgets` | Extra widgets |
-| `woocommerce-analytics` | WooCommerce analytics |
-| `wordads` | WordAds |
+To discover available slugs, list the directory:
+```bash
+ls projects/plugins/jetpack/modules/*.php | xargs -I{} basename {} .php | grep -v '^module-'
+```
+
+Common examples: `contact-form`, `blocks`, `stats`, `publicize`, `search`, `subscriptions`, `videopress`.
 
 ## Blueprint Template
 
