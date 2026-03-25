@@ -96,7 +96,7 @@ const usePosterAndTitleUpdate = ( { setAttributes, videoData, onDone } ) => {
 		} );
 	};
 
-	const debouncedSsendUpdatePoster = useDebounce( posterData => {
+	const debouncedSendUpdatePoster = useDebounce( posterData => {
 		sendUpdatePoster( posterData );
 	}, 1000 );
 
@@ -123,7 +123,7 @@ const usePosterAndTitleUpdate = ( { setAttributes, videoData, onDone } ) => {
 		}
 
 		setIsFinishingUpdate( true );
-		debouncedSsendUpdatePoster.cancel?.();
+		debouncedSendUpdatePoster.cancel?.();
 
 		if ( title ) {
 			sendUpdateTitleRequest();
@@ -159,12 +159,12 @@ const usePosterAndTitleUpdate = ( { setAttributes, videoData, onDone } ) => {
 		}
 
 		if ( videoPosterImageData ) {
-			return debouncedSsendUpdatePoster( { poster_attachment_id: videoPosterImageData?.id } );
+			return debouncedSendUpdatePoster( { poster_attachment_id: videoPosterImageData?.id } );
 		}
 
 		// Check if videoFrameMs is not undefined or null instead of bool check to allow 0ms. selection
 		if ( 'undefined' !== typeof videoFrameMs && null !== videoFrameMs ) {
-			debouncedSsendUpdatePoster( { at_time: videoFrameMs, is_millisec: true } );
+			debouncedSendUpdatePoster( { at_time: videoFrameMs, is_millisec: true } );
 		}
 	}, [ videoPosterImageData, videoFrameMs, guid, isFinishingUpdate ] );
 
