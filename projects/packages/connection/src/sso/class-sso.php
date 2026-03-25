@@ -580,7 +580,8 @@ class SSO {
 
 		// Persist the WordPress.com referrer signal so it survives the SSO button
 		// click, which changes the HTTP Referer to the site's own login page.
-		if ( self::is_referrer_wpcom() ) {
+		// Uses the live-only check to avoid a self-reinforcing cookie loop.
+		if ( self::is_live_referrer_wpcom() ) {
 			setcookie( 'jetpack_sso_wpcom_referrer', '1', time() + ( 10 * MINUTE_IN_SECONDS ), COOKIEPATH, COOKIE_DOMAIN, is_ssl(), true );
 			$_COOKIE['jetpack_sso_wpcom_referrer'] = '1';
 		}
@@ -915,6 +916,19 @@ class SSO {
 			return true;
 		}
 
+		return self::is_live_referrer_wpcom();
+	}
+
+	/**
+	 * Checks the live HTTP Referer header against WordPress.com domains.
+	 *
+	 * Unlike is_referrer_wpcom(), this does NOT consult the persisted cookie,
+	 * so it is safe to call from save_cookies() without creating a
+	 * self-reinforcing loop.
+	 *
+	 * @return bool True if the live referrer is a WordPress.com domain.
+	 */
+	private static function is_live_referrer_wpcom() {
 		$referer = wp_get_raw_referer();
 		if ( ! $referer ) {
 			return false;
