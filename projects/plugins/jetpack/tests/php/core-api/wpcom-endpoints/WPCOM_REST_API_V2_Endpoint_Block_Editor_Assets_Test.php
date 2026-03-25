@@ -239,6 +239,69 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Test extends Jetpack_REST_T
 	}
 
 	/**
+	 * Test that assets with a Gutenberg-like path prefix embedded deeper in the URL are filtered out.
+	 */
+	public function test_gutenberg_path_prefix_confusion_is_filtered() {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
+
+		add_action(
+			'enqueue_block_editor_assets',
+			function () {
+				wp_register_script( 'prefix-confusion-script', home_url( '/malicious/wp-content/plugins/gutenberg/payload.js' ), array(), '1.0', true );
+				wp_enqueue_script( 'prefix-confusion-script' );
+			}
+		);
+
+		$request  = new WP_REST_Request( Requests::GET, '/wpcom/v2/editor-assets' );
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+
+		$this->assertStringNotContainsString( 'prefix-confusion-script', $data['scripts'] );
+	}
+
+	/**
+	 * Test that a plugin named gutenberg-evil is not treated as a Gutenberg asset.
+	 */
+	public function test_gutenberg_adjacent_plugin_name_is_filtered() {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
+
+		add_action(
+			'enqueue_block_editor_assets',
+			function () {
+				wp_register_script( 'gutenberg-evil-script', plugins_url( 'gutenberg-evil/script.js' ), array(), '1.0', true );
+				wp_enqueue_script( 'gutenberg-evil-script' );
+			}
+		);
+
+		$request  = new WP_REST_Request( Requests::GET, '/wpcom/v2/editor-assets' );
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+
+		$this->assertStringNotContainsString( 'gutenberg-evil-script', $data['scripts'] );
+	}
+
+	/**
+	 * Test that a path-only src with no host is filtered out.
+	 */
+	public function test_path_only_gutenberg_src_is_filtered() {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
+
+		add_action(
+			'enqueue_block_editor_assets',
+			function () {
+				wp_register_script( 'path-only-gutenberg', '/wp-content/plugins/gutenberg/script.js', array(), '1.0', true );
+				wp_enqueue_script( 'path-only-gutenberg' );
+			}
+		);
+
+		$request  = new WP_REST_Request( Requests::GET, '/wpcom/v2/editor-assets' );
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+
+		$this->assertStringNotContainsString( 'path-only-gutenberg', $data['scripts'] );
+	}
+
+	/**
 	 * Test that protected core handles are preserved.
 	 */
 	public function test_protected_handles_are_preserved() {

@@ -674,8 +674,8 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 			$src_host_cmp     = $src_host;
 
 			if ( function_exists( 'idn_to_ascii' ) ) {
-				$plugins_host_idn = idn_to_ascii( $plugins_host );
-				$src_host_idn     = idn_to_ascii( $src_host );
+				$plugins_host_idn = idn_to_ascii( $plugins_host, IDNA_DEFAULT, INTL_IDNA_VARIANT_UTS46 );
+				$src_host_idn     = idn_to_ascii( $src_host, IDNA_DEFAULT, INTL_IDNA_VARIANT_UTS46 );
 
 				if ( false === $plugins_host_idn || false === $src_host_idn ) {
 					return false;
