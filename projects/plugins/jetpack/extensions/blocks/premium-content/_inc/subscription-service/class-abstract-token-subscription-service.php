@@ -428,8 +428,8 @@ abstract class Abstract_Token_Subscription_Service implements Subscription_Servi
 		foreach ( $user_abbreviated_subscriptions as $subscription_plan_id => $details ) {
 			$details = (array) $details;
 			$end     = is_int( $details['end_date'] ) ? $details['end_date'] : strtotime( $details['end_date'] );
-			if ( $end < time() ) {
-				// subscription not active anymore
+			if ( $end + DAY_IN_SECONDS < time() ) {
+				// subscription not active anymore (with grace period for renewal processing)
 				continue;
 			}
 
@@ -623,7 +623,7 @@ abstract class Abstract_Token_Subscription_Service implements Subscription_Servi
 		foreach ( $token_subscriptions as $product_id => $token_subscription ) {
 			if ( in_array( intval( $product_id ), $product_ids, true ) ) {
 				$end = is_int( $token_subscription->end_date ) ? $token_subscription->end_date : strtotime( $token_subscription->end_date );
-				if ( $end > time() ) {
+				if ( $end + DAY_IN_SECONDS > time() ) {
 					return true;
 				}
 			}

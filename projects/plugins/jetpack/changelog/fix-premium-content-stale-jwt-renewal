@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Paid Content block: add 1-day grace period to subscription expiry check to prevent access lockout during renewal processing.

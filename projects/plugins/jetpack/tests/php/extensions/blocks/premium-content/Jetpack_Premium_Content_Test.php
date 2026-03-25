@@ -195,4 +195,41 @@ class Jetpack_Premium_Content_Test extends WP_UnitTestCase {
 		$this->assertTrue( current_visitor_can_access( array( 'selectedPlanIds' => array( $plan_id ) ), array() ) );
 		$this->assertTrue( current_visitor_can_access( array(), (object) array( 'context' => array( 'premium-content/planIds' => array( $plan_id ) ) ) ) );
 	}
+
+	/**
+	 * Test that a recently expired subscription is still accessible within the grace period.
+	 * This covers the renewal lockout bug where the JWT cookie contains a stale end_date.
+	 *
+	 * @return void
+	 */
+	public function test_access_granted_within_grace_period_after_expiry() {
+		$users_plans        = $this->set_up_users_and_plans();
+		$paid_subscriber_id = $users_plans[2];
+		$plan_id            = $users_plans[3];
+		$selected_plan_ids  = array( $plan_id );
+
+		// Subscription expired 1 hour ago — within the 1-day grace period.
+		wp_set_current_user( $paid_subscriber_id );
+		$payload = $this->get_payload( true, true, time() - HOUR_IN_SECONDS );
+		$this->set_returned_token( $payload );
+		$this->assertTrue( current_visitor_can_access( array( 'selectedPlanIds' => $selected_plan_ids ), array() ) );
+	}
+
+	/**
+	 * Test that a subscription expired beyond the grace period is denied access.
+	 *
+	 * @return void
+	 */
+	public function test_access_denied_beyond_grace_period() {
+		$users_plans        = $this->set_up_users_and_plans();
+		$paid_subscriber_id = $users_plans[2];
+		$plan_id            = $users_plans[3];
+		$selected_plan_ids  = array( $plan_id );
+
+		// Subscription expired 2 days ago — beyond the 1-day grace period.
+		wp_set_current_user( $paid_subscriber_id );
+		$payload = $this->get_payload( true, true, time() - 2 * DAY_IN_SECONDS );
+		$this->set_returned_token( $payload );
+		$this->assertFalse( current_visitor_can_access( array( 'selectedPlanIds' => $selected_plan_ids ), array() ) );
+	}
 }
