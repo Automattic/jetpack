@@ -584,6 +584,9 @@ class SSO {
 		if ( self::is_live_referrer_wpcom() ) {
 			setcookie( 'jetpack_sso_wpcom_referrer', '1', time() + ( 10 * MINUTE_IN_SECONDS ), COOKIEPATH, COOKIE_DOMAIN, is_ssl(), true );
 			$_COOKIE['jetpack_sso_wpcom_referrer'] = '1';
+		} elseif ( ! empty( $_COOKIE['jetpack_sso_wpcom_referrer'] ) ) {
+			setcookie( 'jetpack_sso_wpcom_referrer', ' ', time() - YEAR_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN, is_ssl(), true );
+			unset( $_COOKIE['jetpack_sso_wpcom_referrer'] );
 		}
 
 		if ( ! empty( $_GET['redirect_to'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended

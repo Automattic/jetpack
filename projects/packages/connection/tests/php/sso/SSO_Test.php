@@ -40,6 +40,7 @@ class SSO_Test extends BaseTestCase {
 		unset(
 			$_COOKIE[ SSO::BROKER_COOKIE ],
 			$_COOKIE['jetpack_sso_nonce'],
+			$_COOKIE['jetpack_sso_wpcom_referrer'],
 			$_GET['redirect_to'],
 			$_GET['jetpack-sso-show-default-form'],
 			$_SERVER['HTTP_REFERER'],
@@ -418,7 +419,7 @@ class SSO_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test get_sso_base_url falls back to WordPress.com when referrer is WordPress.com.
+	 * Test get_sso_base_url falls back to WordPress.com when live referrer is WordPress.com.
 	 */
 	public function test_get_sso_base_url_falls_back_when_referrer_is_wpcom() {
 		$nonce                         = 'test_nonce_ref';
@@ -426,6 +427,19 @@ class SSO_Test extends BaseTestCase {
 		$_COOKIE['jetpack_sso_nonce']  = $nonce;
 		Constants::set_constant( 'JETPACK_SSO_BROKER_URL', 'https://broker.example.com/sso' );
 		$_SERVER['HTTP_REFERER'] = 'https://wordpress.com/sites/example.com';
+
+		$this->assertSame( 'https://wordpress.com/wp-login.php', SSO::get_sso_base_url() );
+	}
+
+	/**
+	 * Test get_sso_base_url falls back to WordPress.com when the referrer cookie is set.
+	 */
+	public function test_get_sso_base_url_falls_back_when_referrer_cookie_set() {
+		$nonce                                 = 'test_nonce_cookie_ref';
+		$_COOKIE[ SSO::BROKER_COOKIE ]         = $nonce;
+		$_COOKIE['jetpack_sso_nonce']          = $nonce;
+		$_COOKIE['jetpack_sso_wpcom_referrer'] = '1';
+		Constants::set_constant( 'JETPACK_SSO_BROKER_URL', 'https://broker.example.com/sso' );
 
 		$this->assertSame( 'https://wordpress.com/wp-login.php', SSO::get_sso_base_url() );
 	}
