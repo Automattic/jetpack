@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add social preview section to Publicize settings and new stats summary and cache purge REST API endpoints.
