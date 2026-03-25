@@ -337,7 +337,13 @@ class Blaze_Test extends BaseTestCase {
 			function () {
 				return array(
 					'response' => array( 'code' => 200 ),
-					'body'     => wp_json_encode( array( 'total' => 1, 'results' => array( array( 'campaign_id' => 1 ) ) ), JSON_UNESCAPED_SLASHES ),
+					'body'     => wp_json_encode(
+						array(
+							'total'   => 1,
+							'results' => array( array( 'campaign_id' => 1 ) ),
+						),
+						JSON_UNESCAPED_SLASHES
+					),
 				);
 			}
 		);
@@ -364,7 +370,13 @@ class Blaze_Test extends BaseTestCase {
 			function () {
 				return array(
 					'response' => array( 'code' => 200 ),
-					'body'     => wp_json_encode( array( 'total' => 0, 'results' => array() ), JSON_UNESCAPED_SLASHES ),
+					'body'     => wp_json_encode(
+						array(
+							'total'   => 0,
+							'results' => array(),
+						),
+						JSON_UNESCAPED_SLASHES
+					),
 				);
 			}
 		);
