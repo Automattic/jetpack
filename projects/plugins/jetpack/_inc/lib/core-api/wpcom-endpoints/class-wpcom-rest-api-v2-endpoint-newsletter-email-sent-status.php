@@ -130,17 +130,28 @@ class WPCOM_REST_API_V2_Endpoint_Newsletter_Email_Sent_Status extends WP_REST_Co
 	/**
 	 * Permission check for the endpoint.
 	 *
+	 * @param WP_REST_Request $request Request object.
 	 * @return bool|WP_Error
 	 */
-	public function permission_check() {
-		if ( current_user_can( 'manage_options' ) || current_user_can( 'view_stats' ) || current_user_can( 'edit_posts' ) ) {
-			return true;
+	public function permission_check( $request ) {
+		if ( ! current_user_can( 'manage_options' ) && ! current_user_can( 'view_stats' ) && ! current_user_can( 'edit_posts' ) ) {
+			return new WP_Error(
+				'rest_forbidden',
+				__( 'Sorry, you are not allowed to access this endpoint.', 'jetpack' ),
+				array( 'status' => rest_authorization_required_code() )
+			);
 		}
-		return new WP_Error(
-			'rest_forbidden',
-			__( 'Sorry, you are not allowed to access this endpoint.', 'jetpack' ),
-			array( 'status' => rest_authorization_required_code() )
-		);
+
+		$post_id = absint( $request->get_param( 'post_id' ) );
+		if ( $post_id > 0 && ! current_user_can( 'manage_options' ) && ! current_user_can( 'edit_post', $post_id ) ) {
+			return new WP_Error(
+				'rest_forbidden',
+				__( 'Sorry, you are not allowed to access this endpoint.', 'jetpack' ),
+				array( 'status' => rest_authorization_required_code() )
+			);
+		}
+
+		return true;
 	}
 }
 
