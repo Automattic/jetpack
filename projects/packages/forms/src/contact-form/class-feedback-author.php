@@ -147,9 +147,13 @@ class Feedback_Author {
 		}
 
 		$hash = md5( strtolower( trim( $this->email ) ) );
-		$name = rawurlencode( $this->get_display_name() );
+		$name = $this->get_name();
 
-		return "https://gravatar.com/avatar/{$hash}?d=initials&name={$name}&s=96";
+		if ( ! empty( $name ) ) {
+			return "https://gravatar.com/avatar/{$hash}?d=initials&name=" . rawurlencode( $name ) . '&s=96';
+		}
+
+		return "https://gravatar.com/avatar/{$hash}?d=mp&s=96";
 	}
 
 	/**

@@ -383,7 +383,7 @@ function StageInner() {
 					);
 					const showEmail =
 						item.author_email && displayName !== decodeEntities( item.author_email );
-					const defaultImage = item.author_name || item.author_email ? 'initials' : 'mp';
+					const defaultImage = item.author_name ? 'initials' : 'mp';
 
 					return (
 						<Stack align="center" gap="sm">
@@ -403,7 +403,7 @@ function StageInner() {
 							<Gravatar
 								email={ item.author_email || item.ip } // With IP we still return placeholder image
 								defaultImage={ defaultImage }
-								displayName={ displayName }
+								displayName={ item.author_name ? decodeEntities( item.author_name ) : undefined }
 								size={ 32 }
 								useHovercard={ false }
 							/>
