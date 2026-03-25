@@ -1,0 +1,50 @@
+name: Agent Experience Evaluation
+
+on:
+  schedule:
+    - cron: '0 6 * * 1' # Weekly, Monday 6am UTC
+  pull_request: # TODO: Remove after initial testing
+    paths:
+      - 'projects/github-actions/agent-experience-eval/**'
+      - '.github/workflows/agent-experience-eval.yml'
+      - 'tools/score-agent-experience.sh'
+  push:
+    paths:
+      - 'CLAUDE.md'
+      - '**/CLAUDE.md'
+      - 'AGENTS.md'
+      - '**/AGENTS.md'
+      - '.claude/**'
+      - '**/.claude/**'
+      - '.cursorrules'
+      - '**/.cursorrules'
+      - '.cursor/**'
+      - '**/.cursor/**'
+      - '.windsurfrules'
+      - '.aider.conf.yml'
+      - '.codeiumrc'
+      - '.github/copilot-instructions.md'
+      - '.codex/**'
+  workflow_dispatch: {}
+
+jobs:
+  evaluate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Claude Code
+        run: npm install -g @anthropic-ai/claude-code
+
+      - name: Evaluate Agent Experience
+        uses: ./projects/github-actions/agent-experience-eval
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+
+      - name: Upload evaluation artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent-experience-eval
+          path: agent-experience-eval.json
+          retention-days: 30

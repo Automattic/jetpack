@@ -1,0 +1,69 @@
+name: "Agent Experience Evaluation"
+description: "Evaluate a repository's AI agent experience quality by scoring its CLAUDE.md, AGENTS.md, and other AI instruction files against a standardized rubric."
+branding:
+  icon: 'award'
+  color: 'blue'
+inputs:
+  anthropic_api_key:
+    description: "Anthropic API key for Claude Code CLI"
+    required: true
+  max_turns:
+    description: "Maximum turns for the Claude Code CLI evaluation"
+    required: false
+    default: "15"
+  output_path:
+    description: "Path where the evaluation JSON file will be written"
+    required: false
+    default: "agent-experience-eval.json"
+outputs:
+  score:
+    description: "Overall evaluation score (0-100)"
+    value: ${{ steps.eval.outputs.score }}
+  grade:
+    description: "Letter grade (A, B, C, D, F)"
+    value: ${{ steps.eval.outputs.grade }}
+  json_path:
+    description: "Path to the evaluation JSON file"
+    value: ${{ steps.eval.outputs.json_path }}
+runs:
+  using: composite
+  steps:
+    - name: Run evaluation
+      id: eval
+      shell: bash
+      env:
+        ANTHROPIC_API_KEY: ${{ inputs.anthropic_api_key }}
+        MAX_TURNS: ${{ inputs.max_turns }}
+        OUTPUT_PATH: ${{ inputs.output_path }}
+        ACTION_PATH: ${{ github.action_path }}
+      run: |
+        PROMPT=$(cat "$ACTION_PATH/prompt.md")
+
+        echo "::group::Running Claude Code evaluation"
+        RAW=$(claude --print --output-format text --max-turns "$MAX_TURNS" "$PROMPT" < /dev/null 2>/dev/null)
+        echo "::endgroup::"
+
+        # Extract JSON — direct parse, code fences, or brace extraction
+        if echo "$RAW" | jq . > "$OUTPUT_PATH" 2>/dev/null; then
+          :
+        elif FENCED=$(echo "$RAW" | sed -n '/^```\(json\)\?$/,/^```$/{ /^```/d; p; }') && \
+             [[ -n "$FENCED" ]] && echo "$FENCED" | jq . > "$OUTPUT_PATH" 2>/dev/null; then
+          :
+        elif BRACED=$(echo "$RAW" | sed -n '/^{/,/^}/p') && \
+             [[ -n "$BRACED" ]] && echo "$BRACED" | jq . > "$OUTPUT_PATH" 2>/dev/null; then
+          :
+        else
+          echo "::error::Could not parse JSON from Claude output"
+          echo "${RAW:0:500}"
+          exit 1
+        fi
+
+        # Read score and grade
+        SCORE=$(jq -r '.score' "$OUTPUT_PATH")
+        GRADE=$(jq -r '.grade' "$OUTPUT_PATH")
+        echo "Score: $SCORE/100 (Grade: $GRADE)"
+
+        echo "score=$SCORE" >> "$GITHUB_OUTPUT"
+        echo "grade=$GRADE" >> "$GITHUB_OUTPUT"
+        echo "json_path=$OUTPUT_PATH" >> "$GITHUB_OUTPUT"
+
