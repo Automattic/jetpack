@@ -25,11 +25,11 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 	private $handle_suffix_regex = '/-(js|css|extra|before|after)$/';
 
 	/**
-	 * Cached base path for the plugins directory.
+	 * Cached base URL for the plugins directory.
 	 *
 	 * @var string|null
 	 */
-	private $plugins_base_path = null;
+	private $plugins_base_url = null;
 
 	/**
 	 * List of allowed plugin handle prefixes whose assets should be preserved.
@@ -627,19 +627,18 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 	}
 
 	/**
-	 * Get the base path for the plugins directory.
+	 * Get the base URL for the plugins directory.
 	 *
-	 * Extracts only the path component from the plugins URL, making it
-	 * CDN-safe by ignoring the domain. Caches the result to avoid repeated
-	 * function calls.
+	 * Includes scheme and host to ensure origin checks remain intact.
+	 * Caches the result to avoid repeated function calls.
 	 *
-	 * @return string The base path for the plugins directory with trailing slash.
+	 * @return string The base URL for the plugins directory with trailing slash.
 	 */
-	private function get_plugins_base_path() {
-		if ( null === $this->plugins_base_path ) {
-			$this->plugins_base_path = trailingslashit( wp_parse_url( plugins_url(), PHP_URL_PATH ) );
+	private function get_plugins_base_url() {
+		if ( null === $this->plugins_base_url ) {
+			$this->plugins_base_url = trailingslashit( plugins_url() );
 		}
-		return $this->plugins_base_path;
+		return $this->plugins_base_url;
 	}
 
 	/**
@@ -653,10 +652,31 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 			return false;
 		}
 
-		$plugins_path = $this->get_plugins_base_path();
+		$plugins_url   = $this->get_plugins_base_url();
+		$plugins_parts = wp_parse_url( $plugins_url );
+		$src_parts     = wp_parse_url( $src );
 
-		return str_contains( $src, $plugins_path . 'gutenberg/' ) ||
-			str_contains( $src, $plugins_path . 'gutenberg-core/' ); // WPCOM-specific path
+		if ( empty( $plugins_parts ) || empty( $src_parts ) || empty( $plugins_parts['path'] ) || empty( $src_parts['path'] ) ) {
+			return false;
+		}
+
+		$plugins_host = $plugins_parts['host'] ?? '';
+		$src_host     = $src_parts['host'] ?? '';
+
+		// Enforce matching origin when a host is present.
+		if ( '' !== $src_host && '' !== $plugins_host && strcasecmp( $src_host, $plugins_host ) !== 0 ) {
+			return false;
+		}
+
+		if ( '' !== $src_host && '' !== $plugins_host && ! empty( $plugins_parts['scheme'] ) && ! empty( $src_parts['scheme'] ) && $plugins_parts['scheme'] !== $src_parts['scheme'] ) {
+			return false;
+		}
+
+		$plugins_path = trailingslashit( $plugins_parts['path'] );
+		$src_path     = $src_parts['path'];
+
+		return str_starts_with( $src_path, $plugins_path . 'gutenberg/' ) ||
+			str_starts_with( $src_path, $plugins_path . 'gutenberg-core/' ); // WPCOM-specific path
 	}
 
 	/**

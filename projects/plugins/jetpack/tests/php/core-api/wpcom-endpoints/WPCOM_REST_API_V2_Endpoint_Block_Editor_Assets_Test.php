@@ -209,6 +209,36 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Test extends Jetpack_REST_T
 	}
 
 	/**
+	 * Test that Gutenberg-looking assets from other origins are filtered out.
+	 */
+	public function test_external_origin_gutenberg_like_assets_are_filtered() {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
+
+		add_action( 'enqueue_block_editor_assets', array( $this, 'mock_external_gutenberg_like_assets' ) );
+
+		$request  = new WP_REST_Request( Requests::GET, '/wpcom/v2/editor-assets' );
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+
+		// Verify the external-origin assets are not in the output
+		$this->assertStringNotContainsString( 'external-gutenberg-script', $data['scripts'] );
+		$this->assertStringNotContainsString( 'external-gutenberg-style', $data['styles'] );
+
+		remove_action( 'enqueue_block_editor_assets', array( $this, 'mock_external_gutenberg_like_assets' ) );
+	}
+
+	/**
+	 * Enqueue assets that mimic Gutenberg paths but are served from another origin.
+	 */
+	public function mock_external_gutenberg_like_assets() {
+		wp_register_script( 'external-gutenberg-script', 'https://attacker.example.com/wp-content/plugins/gutenberg/evil.js', array(), '1.0', true );
+		wp_register_style( 'external-gutenberg-style', 'https://attacker.example.com/wp-content/plugins/gutenberg/evil.css', array(), '1.0' );
+
+		wp_enqueue_script( 'external-gutenberg-script' );
+		wp_enqueue_style( 'external-gutenberg-style' );
+	}
+
+	/**
 	 * Test that protected core handles are preserved.
 	 */
 	public function test_protected_handles_are_preserved() {
@@ -255,9 +285,9 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Test extends Jetpack_REST_T
 	}
 
 	/**
-	 * Test that WPCOM-specific Gutenberg assets are preserved when served from a CDN.
+	 * Test that Gutenberg assets served from a different origin are filtered out.
 	 */
-	public function test_wpcom_gutenberg_assets_are_preserved_with_cdn_urls() {
+	public function test_gutenberg_assets_from_other_origins_are_filtered_out() {
 		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
 
 		add_action( 'enqueue_block_editor_assets', array( $this, 'mock_cdn_gutenberg_assets' ) );
@@ -266,11 +296,11 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Test extends Jetpack_REST_T
 		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
 
-		// Verify CDN-served Gutenberg assets are preserved in the output
-		$this->assertStringContainsString( 'cdn-gutenberg-script', $data['scripts'] );
-		$this->assertStringContainsString( 'cdn-gutenberg-style', $data['styles'] );
-		$this->assertStringContainsString( 'plugins/gutenberg/script.js', $data['scripts'] );
-		$this->assertStringContainsString( 'plugins/gutenberg/style.css', $data['styles'] );
+		// Verify CDN-served Gutenberg assets are filtered from the output
+		$this->assertStringNotContainsString( 'cdn-gutenberg-script', $data['scripts'] );
+		$this->assertStringNotContainsString( 'cdn-gutenberg-style', $data['styles'] );
+		$this->assertStringNotContainsString( 'plugins/gutenberg/script.js', $data['scripts'] );
+		$this->assertStringNotContainsString( 'plugins/gutenberg/style.css', $data['styles'] );
 
 		remove_action( 'enqueue_block_editor_assets', array( $this, 'mock_cdn_gutenberg_assets' ) );
 	}
@@ -287,9 +317,9 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Test extends Jetpack_REST_T
 	}
 
 	/**
-	 * Test that WPCOM-specific gutenberg-core assets are preserved when served from a CDN.
+	 * Test that WPCOM-specific gutenberg-core assets from other origins are filtered out.
 	 */
-	public function test_wpcom_gutenberg_core_assets_are_preserved_with_cdn_urls() {
+	public function test_wpcom_gutenberg_core_assets_from_other_origins_are_filtered_out() {
 		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
 
 		add_action( 'enqueue_block_editor_assets', array( $this, 'mock_cdn_gutenberg_core_assets' ) );
@@ -298,11 +328,11 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Test extends Jetpack_REST_T
 		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
 
-		// Verify CDN-served WPCOM Gutenberg core assets are preserved in the output
-		$this->assertStringContainsString( 'cdn-gutenberg-core-script', $data['scripts'] );
-		$this->assertStringContainsString( 'cdn-gutenberg-core-style', $data['styles'] );
-		$this->assertStringContainsString( 'plugins/gutenberg-core/script.js', $data['scripts'] );
-		$this->assertStringContainsString( 'plugins/gutenberg-core/style.css', $data['styles'] );
+		// Verify CDN-served WPCOM Gutenberg core assets are filtered from the output
+		$this->assertStringNotContainsString( 'cdn-gutenberg-core-script', $data['scripts'] );
+		$this->assertStringNotContainsString( 'cdn-gutenberg-core-style', $data['styles'] );
+		$this->assertStringNotContainsString( 'plugins/gutenberg-core/script.js', $data['scripts'] );
+		$this->assertStringNotContainsString( 'plugins/gutenberg-core/style.css', $data['styles'] );
 
 		remove_action( 'enqueue_block_editor_assets', array( $this, 'mock_cdn_gutenberg_core_assets' ) );
 	}
@@ -937,39 +967,39 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets_Test extends Jetpack_REST_T
 	}
 
 	/**
-	 * Test exclude parameter with 'gutenberg' value excludes CDN-served Gutenberg assets.
+	 * Test assets from other origins are not treated as Gutenberg even when exclude is applied.
 	 */
 	public function test_exclude_parameter_with_cdn_gutenberg() {
 		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
 
-		// Add mock CDN-served Gutenberg assets with jetpack- prefix so they survive unregister_disallowed_plugin_assets
+		// Add mock CDN-served Gutenberg assets with disallowed handles.
 		add_action(
 			'enqueue_block_editor_assets',
 			function () {
-				wp_register_script( 'jetpack-cdn-gutenberg-script', 'https://cdn.example.com/wp-content/plugins/gutenberg/script.js', array(), '1.0', true );
-				wp_register_style( 'jetpack-cdn-gutenberg-style', 'https://cdn.example.com/wp-content/plugins/gutenberg/style.css', array(), '1.0' );
-				wp_enqueue_script( 'jetpack-cdn-gutenberg-script' );
-				wp_enqueue_style( 'jetpack-cdn-gutenberg-style' );
+				wp_register_script( 'cdn-gutenberg-script', 'https://cdn.example.com/wp-content/plugins/gutenberg/script.js', array(), '1.0', true );
+				wp_register_style( 'cdn-gutenberg-style', 'https://cdn.example.com/wp-content/plugins/gutenberg/style.css', array(), '1.0' );
+				wp_enqueue_script( 'cdn-gutenberg-script' );
+				wp_enqueue_style( 'cdn-gutenberg-style' );
 			}
 		);
 
-		// First, verify CDN assets ARE present without exclusion
+		// First, verify CDN assets are filtered even without exclusion
 		$request_without_exclude  = new WP_REST_Request( Requests::GET, '/wpcom/v2/editor-assets' );
 		$response_without_exclude = $this->server->dispatch( $request_without_exclude );
 		$data_without_exclude     = $response_without_exclude->get_data();
 
-		$this->assertStringContainsString( 'plugins/gutenberg/script.js', $data_without_exclude['scripts'], 'CDN Gutenberg script should be present without exclusion' );
-		$this->assertStringContainsString( 'plugins/gutenberg/style.css', $data_without_exclude['styles'], 'CDN Gutenberg style should be present without exclusion' );
+		$this->assertStringNotContainsString( 'plugins/gutenberg/script.js', $data_without_exclude['scripts'], 'CDN Gutenberg script should be filtered without exclusion' );
+		$this->assertStringNotContainsString( 'plugins/gutenberg/style.css', $data_without_exclude['styles'], 'CDN Gutenberg style should be filtered without exclusion' );
 
-		// Now verify they ARE excluded with 'exclude=gutenberg'
+		// Now verify they are still absent with 'exclude=gutenberg'
 		$request = new WP_REST_Request( Requests::GET, '/wpcom/v2/editor-assets' );
 		$request->set_param( 'exclude', 'gutenberg' );
 		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
 
-		// CDN-served Gutenberg assets should be excluded
-		$this->assertStringNotContainsString( 'plugins/gutenberg/script.js', $data['scripts'], 'CDN Gutenberg script should be excluded' );
-		$this->assertStringNotContainsString( 'plugins/gutenberg/style.css', $data['styles'], 'CDN Gutenberg style should be excluded' );
+		// CDN-served Gutenberg assets should remain excluded
+		$this->assertStringNotContainsString( 'plugins/gutenberg/script.js', $data['scripts'], 'CDN Gutenberg script should remain excluded' );
+		$this->assertStringNotContainsString( 'plugins/gutenberg/style.css', $data['styles'], 'CDN Gutenberg style should remain excluded' );
 	}
 
 	/**
