@@ -56,7 +56,8 @@ class Blaze {
 		// Add a Blaze Menu.
 		add_action( 'admin_menu', array( __CLASS__, 'enable_blaze_menu' ), 999 );
 		// Redirect old tools.php URL to the canonical admin.php URL.
-		add_action( 'admin_init', array( __CLASS__, 'redirect_legacy_advertising_url' ) );
+		// Hooked early on admin_menu so it runs before WordPress validates the page parameter.
+		add_action( 'admin_menu', array( __CLASS__, 'redirect_legacy_advertising_url' ), 1 );
 		// Add Blaze dashboard app REST API endpoints.
 		add_action( 'rest_api_init', array( new Blaze_Dashboard_REST_Controller(), 'register_rest_routes' ) );
 		// Add general Blaze REST API endpoints.
@@ -221,7 +222,8 @@ class Blaze {
 		}
 
 		// Make the API request. Uses as_user because the DSP campaigns endpoint requires a user token.
-		$url      = sprintf( '/sites/%d/wordads/dsp/api/v1/campaigns', $site_id );
+		// Use limit=1 since we only need to know if any campaign exists.
+		$url      = sprintf( '/sites/%d/wordads/dsp/api/v1/campaigns?limit=1', $site_id );
 		$response = Client::wpcom_json_api_request_as_user(
 			$url,
 			'2',
