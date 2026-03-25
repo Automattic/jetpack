@@ -578,6 +578,13 @@ class SSO {
 			true
 		);
 
+		// Persist the WordPress.com referrer signal so it survives the SSO button
+		// click, which changes the HTTP Referer to the site's own login page.
+		if ( self::is_referrer_wpcom() ) {
+			setcookie( 'jetpack_sso_wpcom_referrer', '1', time() + ( 10 * MINUTE_IN_SECONDS ), COOKIEPATH, COOKIE_DOMAIN, is_ssl(), true );
+			$_COOKIE['jetpack_sso_wpcom_referrer'] = '1';
+		}
+
 		if ( ! empty( $_GET['redirect_to'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			// If we have something to redirect to.
 			$url = esc_url_raw( wp_unslash( $_GET['redirect_to'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
@@ -755,6 +762,18 @@ class SSO {
 				true
 			);
 		}
+
+		if ( isset( $_COOKIE['jetpack_sso_wpcom_referrer'] ) ) {
+			setcookie(
+				'jetpack_sso_wpcom_referrer',
+				' ',
+				time() - YEAR_IN_SECONDS,
+				COOKIEPATH,
+				COOKIE_DOMAIN,
+				is_ssl(),
+				true
+			);
+		}
 	}
 
 	/**
@@ -889,6 +908,13 @@ class SSO {
 	 * @return bool True if the referrer is a WordPress.com domain.
 	 */
 	private static function is_referrer_wpcom() {
+		// Check the cookie persisted by save_cookies() on the initial login page
+		// load. The live HTTP Referer changes to the site's own wp-login.php when
+		// the user clicks the SSO button, so the cookie carries the original signal.
+		if ( ! empty( $_COOKIE['jetpack_sso_wpcom_referrer'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			return true;
+		}
+
 		$referer = wp_get_raw_referer();
 		if ( ! $referer ) {
 			return false;
