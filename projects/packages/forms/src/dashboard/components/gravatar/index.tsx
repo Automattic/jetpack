@@ -86,7 +86,9 @@ export default function Gravatar( {
 			alt={ displayName || '' }
 			className="jp-forms__gravatar"
 			ref={ profileImageRef }
-			src={ `https://0.gravatar.com/avatar/${ hashedEmail }?d=${ defaultImage }${ displayName ? `&name=${ encodeURIComponent( displayName ) }` : '' }` }
+			src={ `https://0.gravatar.com/avatar/${ hashedEmail }?d=${ defaultImage }${
+				displayName ? `&name=${ encodeURIComponent( displayName ) }` : ''
+			}` }
 			width={ size }
 			height={ size }
 		/>
