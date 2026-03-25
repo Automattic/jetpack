@@ -114,7 +114,7 @@ class Blaze {
 		$blaze_dashboard = new Blaze_Dashboard( 'admin.php' );
 
 		if ( self::is_dashboard_enabled() ) {
-			if ( self::has_active_campaigns() ) {
+			if ( self::has_site_campaigns() ) {
 				$page_suffix = add_menu_page(
 					esc_attr__( 'Blaze Ads', 'jetpack-blaze' ),
 					__( 'Blaze Ads', 'jetpack-blaze' ),
@@ -140,7 +140,7 @@ class Blaze {
 			$domain = ( new Jetpack_Status() )->get_site_suffix();
 			$url    = 'https://wordpress.com/advertising/' . $domain;
 
-			if ( self::has_active_campaigns() ) {
+			if ( self::has_site_campaigns() ) {
 				$page_suffix = add_menu_page(
 					esc_attr__( 'Blaze Ads', 'jetpack-blaze' ),
 					__( 'Blaze Ads', 'jetpack-blaze' ),
@@ -200,21 +200,21 @@ class Blaze {
 	}
 
 	/**
-	 * Check whether the site has active Blaze campaigns.
+	 * Check whether the site has any Blaze campaigns.
 	 *
 	 * Results are cached in a transient for one hour. On error the method
 	 * returns false so the menu falls back to a submenu entry.
 	 *
 	 * @return bool
 	 */
-	public static function has_active_campaigns() {
+	public static function has_site_campaigns() {
 		$site_id = Jetpack_Connection::get_site_id();
 
 		if ( is_wp_error( $site_id ) || ! is_numeric( $site_id ) ) {
 			return false;
 		}
 
-		$transient_name = 'jetpack_blaze_has_active_campaigns_' . $site_id;
+		$transient_name = 'jetpack_blaze_has_site_campaigns_' . $site_id;
 		$cached_result  = get_transient( $transient_name );
 
 		if ( false !== $cached_result ) {

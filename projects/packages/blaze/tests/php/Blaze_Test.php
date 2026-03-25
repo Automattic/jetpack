@@ -197,38 +197,38 @@ class Blaze_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test that has_active_campaigns() returns false when there is no site ID
+	 * Test that has_site_campaigns() returns false when there is no site ID
 	 * (the typical test-environment scenario).
 	 */
-	public function test_has_active_campaigns_returns_false_without_site_id() {
-		$this->assertFalse( Blaze::has_active_campaigns() );
+	public function test_has_site_campaigns_returns_false_without_site_id() {
+		$this->assertFalse( Blaze::has_site_campaigns() );
 	}
 
 	/**
-	 * Test that has_active_campaigns() reads the cached transient.
+	 * Test that has_site_campaigns() reads the cached transient.
 	 */
-	public function test_has_active_campaigns_cached_yes() {
+	public function test_has_site_campaigns_cached_yes() {
 		// Seed the site ID in the compact jetpack_options array (where
 		// Jetpack_Options::get_option( 'id' ) actually reads it).
 		update_option( 'jetpack_options', array( 'id' => 12345 ) );
-		set_transient( 'jetpack_blaze_has_active_campaigns_12345', 'yes', HOUR_IN_SECONDS );
+		set_transient( 'jetpack_blaze_has_site_campaigns_12345', 'yes', HOUR_IN_SECONDS );
 
-		$this->assertTrue( Blaze::has_active_campaigns() );
+		$this->assertTrue( Blaze::has_site_campaigns() );
 
-		delete_transient( 'jetpack_blaze_has_active_campaigns_12345' );
+		delete_transient( 'jetpack_blaze_has_site_campaigns_12345' );
 		delete_option( 'jetpack_options' );
 	}
 
 	/**
-	 * Test that has_active_campaigns() reads cached "no" transient.
+	 * Test that has_site_campaigns() reads cached "no" transient.
 	 */
-	public function test_has_active_campaigns_cached_no() {
+	public function test_has_site_campaigns_cached_no() {
 		update_option( 'jetpack_options', array( 'id' => 12345 ) );
-		set_transient( 'jetpack_blaze_has_active_campaigns_12345', 'no', HOUR_IN_SECONDS );
+		set_transient( 'jetpack_blaze_has_site_campaigns_12345', 'no', HOUR_IN_SECONDS );
 
-		$this->assertFalse( Blaze::has_active_campaigns() );
+		$this->assertFalse( Blaze::has_site_campaigns() );
 
-		delete_transient( 'jetpack_blaze_has_active_campaigns_12345' );
+		delete_transient( 'jetpack_blaze_has_site_campaigns_12345' );
 		delete_option( 'jetpack_options' );
 	}
 
@@ -244,7 +244,7 @@ class Blaze_Test extends BaseTestCase {
 
 		// Seed the site ID and campaign transient.
 		update_option( 'jetpack_options', array( 'id' => 12345 ) );
-		set_transient( 'jetpack_blaze_has_active_campaigns_12345', 'yes', HOUR_IN_SECONDS );
+		set_transient( 'jetpack_blaze_has_site_campaigns_12345', 'yes', HOUR_IN_SECONDS );
 
 		Blaze::enable_blaze_menu();
 
@@ -259,7 +259,7 @@ class Blaze_Test extends BaseTestCase {
 
 		$this->assertTrue( $found_top_level, 'Expected a top-level menu entry for advertising when active campaigns exist.' );
 
-		delete_transient( 'jetpack_blaze_has_active_campaigns_12345' );
+		delete_transient( 'jetpack_blaze_has_site_campaigns_12345' );
 		delete_option( 'jetpack_options' );
 		add_filter( 'jetpack_blaze_enabled', '__return_false' );
 	}
@@ -322,12 +322,12 @@ class Blaze_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test that has_active_campaigns() returns true when the API returns campaigns.
+	 * Test that has_site_campaigns() returns true when the API returns campaigns.
 	 */
-	public function test_has_active_campaigns_api_returns_campaigns() {
+	public function test_has_site_campaigns_api_returns_campaigns() {
 		update_option( 'jetpack_options', array( 'id' => 99999 ) );
 		// Ensure no cached transient.
-		delete_transient( 'jetpack_blaze_has_active_campaigns_99999' );
+		delete_transient( 'jetpack_blaze_has_site_campaigns_99999' );
 
 		Constants::$set_constants['JETPACK__WPCOM_JSON_API_BASE'] = 'https://public-api.wordpress.com';
 		update_option( 'jetpack_private_options', array( 'blog_token' => 'blog.token' ) );
@@ -342,19 +342,19 @@ class Blaze_Test extends BaseTestCase {
 			}
 		);
 
-		$this->assertTrue( Blaze::has_active_campaigns() );
+		$this->assertTrue( Blaze::has_site_campaigns() );
 
-		delete_transient( 'jetpack_blaze_has_active_campaigns_99999' );
+		delete_transient( 'jetpack_blaze_has_site_campaigns_99999' );
 		delete_option( 'jetpack_options' );
 		delete_option( 'jetpack_private_options' );
 	}
 
 	/**
-	 * Test that has_active_campaigns() returns false when the API returns empty campaigns.
+	 * Test that has_site_campaigns() returns false when the API returns empty campaigns.
 	 */
-	public function test_has_active_campaigns_api_returns_empty() {
+	public function test_has_site_campaigns_api_returns_empty() {
 		update_option( 'jetpack_options', array( 'id' => 99999 ) );
-		delete_transient( 'jetpack_blaze_has_active_campaigns_99999' );
+		delete_transient( 'jetpack_blaze_has_site_campaigns_99999' );
 
 		Constants::$set_constants['JETPACK__WPCOM_JSON_API_BASE'] = 'https://public-api.wordpress.com';
 		update_option( 'jetpack_private_options', array( 'blog_token' => 'blog.token' ) );
@@ -369,19 +369,19 @@ class Blaze_Test extends BaseTestCase {
 			}
 		);
 
-		$this->assertFalse( Blaze::has_active_campaigns() );
+		$this->assertFalse( Blaze::has_site_campaigns() );
 
-		delete_transient( 'jetpack_blaze_has_active_campaigns_99999' );
+		delete_transient( 'jetpack_blaze_has_site_campaigns_99999' );
 		delete_option( 'jetpack_options' );
 		delete_option( 'jetpack_private_options' );
 	}
 
 	/**
-	 * Test that has_active_campaigns() returns false when the API returns an error.
+	 * Test that has_site_campaigns() returns false when the API returns an error.
 	 */
-	public function test_has_active_campaigns_api_error() {
+	public function test_has_site_campaigns_api_error() {
 		update_option( 'jetpack_options', array( 'id' => 99999 ) );
-		delete_transient( 'jetpack_blaze_has_active_campaigns_99999' );
+		delete_transient( 'jetpack_blaze_has_site_campaigns_99999' );
 
 		Constants::$set_constants['JETPACK__WPCOM_JSON_API_BASE'] = 'https://public-api.wordpress.com';
 		update_option( 'jetpack_private_options', array( 'blog_token' => 'blog.token' ) );
@@ -396,9 +396,9 @@ class Blaze_Test extends BaseTestCase {
 			}
 		);
 
-		$this->assertFalse( Blaze::has_active_campaigns() );
+		$this->assertFalse( Blaze::has_site_campaigns() );
 
-		delete_transient( 'jetpack_blaze_has_active_campaigns_99999' );
+		delete_transient( 'jetpack_blaze_has_site_campaigns_99999' );
 		delete_option( 'jetpack_options' );
 		delete_option( 'jetpack_private_options' );
 	}
@@ -419,7 +419,7 @@ class Blaze_Test extends BaseTestCase {
 
 		// Seed campaigns.
 		update_option( 'jetpack_options', array( 'id' => 12345 ) );
-		set_transient( 'jetpack_blaze_has_active_campaigns_12345', 'yes', HOUR_IN_SECONDS );
+		set_transient( 'jetpack_blaze_has_site_campaigns_12345', 'yes', HOUR_IN_SECONDS );
 
 		Blaze::enable_blaze_menu();
 
@@ -433,7 +433,7 @@ class Blaze_Test extends BaseTestCase {
 
 		$this->assertTrue( $found_top_level, 'Expected top-level menu on WPCOM non-dashboard with active campaigns.' );
 
-		delete_transient( 'jetpack_blaze_has_active_campaigns_12345' );
+		delete_transient( 'jetpack_blaze_has_site_campaigns_12345' );
 		delete_option( 'jetpack_options' );
 		Constants::clear_single_constant( 'IS_WPCOM' );
 		add_filter( 'jetpack_blaze_enabled', '__return_false' );
