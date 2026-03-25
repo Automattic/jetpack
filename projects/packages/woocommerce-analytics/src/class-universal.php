@@ -89,6 +89,9 @@ class Universal {
 				// Set the REST API tracking endpoint URL.
 				<?php
 				$track_endpoint = rest_url( 'woocommerce-analytics/v1/track' );
+				// Include the WP REST nonce for logged-in users so WordPress can identify
+				// the current user via cookie auth. This is needed for the store_admin
+				// property detection, not for endpoint authorization.
 				if ( is_user_logged_in() ) {
 					$track_endpoint = add_query_arg( '_wpnonce', wp_create_nonce( 'wp_rest' ), $track_endpoint );
 				}
