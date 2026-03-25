@@ -11,6 +11,7 @@ import { Chart, type GoogleChartOptions } from 'react-google-charts';
 import { GlobalChartsContext, GlobalChartsProvider, useGlobalChartsContext } from '../../providers';
 import { lightenHexColor, normalizeColorToHex } from '../../utils/color-utils';
 import { resolveCssVariable } from '../../utils/resolve-css-var';
+import { sanitizeHtml } from '../../utils/sanitize-html';
 import { withResponsive } from '../private/with-responsive';
 import styles from './geo-chart.module.scss';
 import { GeoChartProps } from './types';
@@ -74,24 +75,50 @@ const GeoChartInternal: FC< GeoChartProps > = ( {
 	const defaultFillColorHex =
 		normalizeColorToHex( featureFillColor, null, resolveCssVariable ) || DEFAULT_FEATURE_FILL_COLOR;
 
-	// Check if data has HTML tooltips (column with role: 'tooltip' and p.html: true)
-	const hasHtmlTooltips = useMemo(
-		() =>
-			data.length > 0 &&
-			data[ 0 ].some(
-				col =>
-					typeof col === 'object' &&
-					col !== null &&
-					'role' in col &&
-					col.role === 'tooltip' &&
-					'p' in col &&
-					typeof col.p === 'object' &&
-					col.p !== null &&
-					'html' in col.p &&
-					col.p.html === true
-			),
-		[ data ]
-	);
+	// Identify HTML tooltip column indices and sanitize their content to prevent XSS.
+	const sanitizedData = useMemo( () => {
+		if ( data.length === 0 ) {
+			return { data, hasHtmlTooltips: false };
+		}
+
+		const htmlTooltipIndices: number[] = [];
+		for ( let i = 0; i < data[ 0 ].length; i++ ) {
+			const col = data[ 0 ][ i ];
+			if (
+				typeof col === 'object' &&
+				col !== null &&
+				'role' in col &&
+				col.role === 'tooltip' &&
+				'p' in col &&
+				typeof col.p === 'object' &&
+				col.p !== null &&
+				'html' in col.p &&
+				col.p.html === true
+			) {
+				htmlTooltipIndices.push( i );
+			}
+		}
+
+		if ( htmlTooltipIndices.length === 0 ) {
+			return { data, hasHtmlTooltips: false };
+		}
+
+		// Sanitize HTML content in tooltip columns for data rows (skip header row)
+		const sanitizedRows = data.slice( 1 ).map( row => {
+			const newRow = [ ...row ];
+			for ( const idx of htmlTooltipIndices ) {
+				if ( typeof newRow[ idx ] === 'string' ) {
+					newRow[ idx ] = sanitizeHtml( newRow[ idx ] as string );
+				}
+			}
+			return newRow;
+		} );
+
+		return {
+			data: [ data[ 0 ], ...sanitizedRows ] as typeof data,
+			hasHtmlTooltips: true,
+		};
+	}, [ data ] );
 
 	const options: GoogleChartOptions = useMemo(
 		() => ( {
@@ -101,7 +128,7 @@ const GeoChartInternal: FC< GeoChartProps > = ( {
 			backgroundColor: backgroundColorHex,
 			datalessRegionColor: defaultFillColorHex,
 			defaultColor: defaultFillColorHex,
-			tooltip: { trigger: 'focus', isHtml: hasHtmlTooltips },
+			tooltip: { trigger: 'focus', isHtml: sanitizedData.hasHtmlTooltips },
 			legend: 'none',
 			keepAspectRatio: true,
 		} ),
@@ -112,7 +139,7 @@ const GeoChartInternal: FC< GeoChartProps > = ( {
 			fullColorHex,
 			backgroundColorHex,
 			defaultFillColorHex,
-			hasHtmlTooltips,
+			sanitizedData.hasHtmlTooltips,
 		]
 	);
 
@@ -126,7 +153,7 @@ const GeoChartInternal: FC< GeoChartProps > = ( {
 				chartType="GeoChart"
 				width={ width }
 				height={ height }
-				data={ data }
+				data={ sanitizedData.data }
 				options={ options }
 				loader={ loadingPlaceholder }
 			/>
