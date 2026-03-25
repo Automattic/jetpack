@@ -26,17 +26,6 @@ const getDisplayName = ( response: FormResponse ) => {
 	return decodeEntities( author_name || author_email || author_url || ip );
 };
 
-/**
- * Returns only the explicitly provided author name (not email/IP fallback) for use
- * in Gravatar URLs to avoid leaking PII to third parties.
- *
- * @param {FormResponse} response - The form response object.
- * @return {string | undefined} The author name if explicitly provided, otherwise undefined.
- */
-const getGravatarDisplayName = ( response: FormResponse ): string | undefined => {
-	return response.author_name ? decodeEntities( response.author_name ) : undefined;
-};
-
 export type ResponseMetaProps = {
 	response: FormResponse;
 };
@@ -52,8 +41,10 @@ const ResponseMeta = ( { response }: ResponseMetaProps ): import('react').JSX.El
 	const displayName = getDisplayName( response );
 	// Match the data view gravatar logic: use email or IP, and set defaultImage conditionally
 	const gravatarEmail = response.author_email || response.ip;
-	const gravatarDisplayName = getGravatarDisplayName( response );
-	const defaultImage = response.author_name || response.author_email ? 'initials' : 'mp';
+	const gravatarDisplayName = response.author_name
+		? decodeEntities( response.author_name )
+		: undefined;
+	const defaultImage = response.author_name ? 'initials' : 'mp';
 
 	const responseAuthorEmailParts = response.author_email?.split( '@' ) ?? [];
 

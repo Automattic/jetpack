@@ -378,7 +378,7 @@ export default function InboxView( { parentId, pageTitle, pageSubtitle } = {} ) 
 					const authorInfo = decodeEntities(
 						item.author_name || item.author_email || item.author_url || item.ip
 					);
-					const defaultImage = item.author_name || item.author_email ? 'initials' : 'mp';
+					const defaultImage = item.author_name ? 'initials' : 'mp';
 					const secondaryInfo =
 						item.author_email && authorInfo !== decodeEntities( item.author_email ) ? (
 							<span className="jp-forms__inbox__author-field__email">

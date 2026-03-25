@@ -383,7 +383,7 @@ function StageInner() {
 					);
 					const showEmail =
 						item.author_email && displayName !== decodeEntities( item.author_email );
-					const defaultImage = item.author_name || item.author_email ? 'initials' : 'mp';
+					const defaultImage = item.author_name ? 'initials' : 'mp';
 
 					return (
 						<Stack align="center" gap="sm">
