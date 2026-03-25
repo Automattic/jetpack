@@ -6,7 +6,7 @@
  * as a static dependency. Uses classic-script globals for element,
  * i18n, and components which are always loaded on admin pages.
  *
- * Label, description, and icon are provided by the PHP registration
+ * Name, description, and logo are provided by the PHP registration
  * in register_connector() and merged automatically by the store.
  * This module only adds the render function and connection-specific
  * data (isConnected, manageUrl) via script module data.
@@ -58,12 +58,12 @@ function ConnectedBadge() {
  * Render callback for the WordPress.com connector card.
  *
  * @param {object} props             - Connector render props.
- * @param {string} props.label       - Connector label (from server).
+ * @param {string} props.name        - Connector name (from server).
  * @param {string} props.description - Connector description (from server).
- * @param {object} props.icon        - Connector icon element (from server).
+ * @param {object} props.logo        - Connector logo element (from server).
  * @return {object} React element.
  */
-function WpcomConnectorCard( { label, description, icon } ) {
+function WpcomConnectorCard( { name, description, logo } ) {
 	const buttonLabel = isConnected
 		? __( 'Manage', 'jetpack-connection' )
 		: __( 'Connect', 'jetpack-connection' );
@@ -92,8 +92,8 @@ function WpcomConnectorCard( { label, description, icon } ) {
 	);
 
 	return createElement( ConnectorItem, {
-		icon,
-		name: label,
+		logo,
+		name,
 		description,
 		actionArea,
 	} );
@@ -102,7 +102,7 @@ function WpcomConnectorCard( { label, description, icon } ) {
 /*
  * The slug must match the connector ID registered in PHP via
  * wp_connectors_init ('wordpress_com'). The store merges both
- * registrations: the server provides label, description, and icon;
+ * registrations: the server provides name, description, and logo;
  * this call adds the render function.
  */
 registerConnector( 'wordpress_com', {
