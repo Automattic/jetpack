@@ -374,8 +374,8 @@ function fixPeerDeps( pkg ) {
 		delete pkg.dependencies.sass;
 	}
 
-	// These packages declare stylelint ^16.x as a peer dep, which is CJS.
-	// Bump to v17, which is ESM.
+	// These packages went ESM-only in their latest versions, which breaks `@wordpress/stylelint-config`.
+	// So we need to keep older CJS versions for now, while bumping their stylelint peer deps.
 	if (
 		( pkg.name === 'stylelint-config-recommended' ||
 			pkg.name === 'stylelint-config-recommended-scss' ||
