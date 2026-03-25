@@ -543,7 +543,7 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
 	 * @param array                    $args   Associative array of arguments
 	 *                                         withQuotes, withInvoices, withTransactions, withLogs
 	 *
-	 * @return array result
+	 * @return array|int|false result
 	 */
 	public function getContact( $id = -1, $args = array() ) {
 
@@ -5020,7 +5020,7 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
 	 *
 	 * @param int id Contact ID
 	 *
-	 * @return int Contact wp id
+	 * @return int|false Contact wp id
 	 */
 	public function getContactWPID( $id = -1 ) {
 

@@ -291,12 +291,12 @@ class JPCRM_Fonts {
 	 *
 	 * This is an an adapted version of install_font_family() from https://github.com/dompdf/utils
 	 *
-	 * @param Dompdf      $dompdf dompdf main object.
-	 * @param string      $fontname the font-family name.
-	 * @param string      $normal the filename of the normal face font subtype.
-	 * @param string|null $bold the filename of the bold face font subtype.
-	 * @param string|null $italic the filename of the italic face font subtype.
-	 * @param string|null $bold_italic the filename of the bold italic face font subtype.
+	 * @param \Dompdf\Dompdf $dompdf dompdf main object.
+	 * @param string         $fontname the font-family name.
+	 * @param string         $normal the filename of the normal face font subtype.
+	 * @param string|null    $bold the filename of the bold face font subtype.
+	 * @param string|null    $italic the filename of the italic face font subtype.
+	 * @param string|null    $bold_italic the filename of the bold italic face font subtype.
 	 *
 	 * @throws Exception
 	 */

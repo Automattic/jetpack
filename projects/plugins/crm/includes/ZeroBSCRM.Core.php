@@ -234,14 +234,14 @@ final class ZeroBSCRM {
 	/**
 	 * Extensions instances
 	 *
-	 * @var Jetpack CRM Extensions
+	 * @var ?array
 	 */
 	public $extensions = null;
 
 	/**
 	 * External Sources
 	 *
-	 * @var Jetpack CRM External Sources
+	 * @var ?array
 	 */
 	public $external_sources = null;
 
@@ -255,7 +255,7 @@ final class ZeroBSCRM {
 	/**
 	 * Settings Object
 	 *
-	 * @var Jetpack CRM Settings Object
+	 * @var ?WHWPConfigLib
 	 */
 
 	public $settings = null;
@@ -270,7 +270,7 @@ final class ZeroBSCRM {
 	/**
 	 * Metaboxes Object
 	 *
-	 * @var Jetpack CRM Metaboxes Object
+	 * @var ?array
 	 */
 
 	public $metaboxes = null;
@@ -278,7 +278,7 @@ final class ZeroBSCRM {
 	/**
 	 * Menus Object
 	 *
-	 * @var Jetpack CRM Menus Array
+	 * @var ?array
 	 * This ultimately adds any WP menus that need injecting
 	 */
 	private $menu = null;
@@ -286,28 +286,28 @@ final class ZeroBSCRM {
 	/**
 	 * Learn Menu Object
 	 *
-	 * @var Jetpack CRM Learn menu class instance
+	 * @var ?\Automattic\JetpackCRM\Learn_Menu
 	 */
 	public $learn_menu = null;
 
 	/**
 	 * URLS Array
 	 *
-	 * @var Jetpack CRM URLS list
+	 * @var array
 	 */
 	public $urls;
 
 	/**
 	 * Slugs Array
 	 *
-	 * @var Jetpack CRM Slugs list
+	 * @var array
 	 */
 	public $slugs;
 
 	/**
 	 * Transient Array
 	 *
-	 * @var Jetpack CRM Transients list
+	 * @var array
 	 */
 	public $transients;
 
@@ -357,7 +357,7 @@ final class ZeroBSCRM {
 	 * Page Messages Array
 	 * Experimental: stores msgs such as "Contact Updated"
 	 *
-	 * @var msg arr
+	 * @var array
 	 */
 	public $pageMessages;
 
@@ -371,14 +371,14 @@ final class ZeroBSCRM {
 	/**
 	 * Acceptable mime types Array
 	 *
-	 * @var Jetpack CRM Acceptable mime types list
+	 * @var array
 	 */
 	public $acceptable_mime_types;
 
 	/**
 	 * Acceptable fields to be included in the Total Value of contacts and companies
 	 *
-	 * @var Jetpack CRM Acceptable fields to be included in the Total Value
+	 * @var array
 	 */
 	public $acceptable_total_value_fields = array(
 		'transactions' => 'Transactions',
@@ -388,7 +388,7 @@ final class ZeroBSCRM {
 	/**
 	 * Acceptable html array
 	 *
-	 * @var Jetpack CRM Acceptable html types list
+	 * @var array
 	 * Was previously: $zeroBSCRM_allowedHTML
 	 */
 	public $acceptable_html = array(
@@ -478,7 +478,7 @@ final class ZeroBSCRM {
 	/**
 	 * Acceptable (restricted) html array
 	 *
-	 * @var Jetpack CRM Acceptable (restricted) html types list
+	 * @var array
 	 * (e.g. for use in contact logs)
 	 */
 	public $acceptable_restricted_html = array(
