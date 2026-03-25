@@ -7,14 +7,12 @@
 import { execFileSync } from 'child_process';
 import fs from 'fs';
 import path from 'path';
-import { fileURLToPath } from 'url';
 import { config as dotenvConfig } from 'dotenv';
 import { SCENARIOS, getScenarioUrl } from './scenarios.js';
 
 // Load .env file from the performance directory if it exists
 // This allows local configuration of CODEVITALS_TOKEN, WP_ADMIN_USER, etc.
-const __filename_early = fileURLToPath( import.meta.url );
-const __dirname_early = path.dirname( __filename_early );
+const __dirname_early = import.meta.dirname;
 const envPath = path.join( __dirname_early, '..', '.env' );
 if ( fs.existsSync( envPath ) ) {
 	dotenvConfig( { path: envPath } );
