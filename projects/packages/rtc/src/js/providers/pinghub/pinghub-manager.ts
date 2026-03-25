@@ -204,6 +204,8 @@ class PingHubConnection {
 			const update = awarenessProtocol.encodeAwarenessUpdate( this.awareness, [ this.clientId ] );
 			this.broadcastAwareness( update );
 		}
+
+		pixel( 'pinghub.rtc.room_peers', this.awareness.getStates().size, 'ms' );
 	};
 
 	/**
