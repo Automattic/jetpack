@@ -181,7 +181,7 @@ export function getAbortControllers(
 
 /**
  * Whether the X connection limit has been reached.
- * X only allows one connection per site.
+ * X only allows one connection per user.
  *
  * @param state - State object.
  *

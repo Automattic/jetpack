@@ -75,7 +75,7 @@ export function ConfirmationForm( {
 
 	const isAlreadyConnected = useCallback(
 		( externalID: string ) => {
-			// X only allows one connection per site, so treat all accounts as already connected
+			// X only allows one connection per user, so treat all accounts as already connected
 			if ( service?.id === 'x' && hasExistingXConnection ) {
 				return true;
 			}

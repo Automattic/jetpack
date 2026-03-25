@@ -506,21 +506,21 @@ class Connections_Controller extends Base_Controller {
 
 	/**
 	 * Check if adding a new X connection would exceed the limit.
-	 * X only allows one connection per site.
+	 * Each user can only have access to one X connection at a time.
 	 *
 	 * @since $$next-version$$
 	 *
 	 * @return true|WP_Error True if the connection can be created, WP_Error if the limit is reached.
 	 */
 	private function check_x_connection_limit() {
-		$connections = Connections::get_all();
+		$connections = Connections::get_all_for_user();
 
 		if ( is_array( $connections ) ) {
 			foreach ( $connections as $connection ) {
 				if ( isset( $connection['service_name'] ) && 'x' === $connection['service_name'] ) {
 					return new WP_Error(
 						'x_connection_limit_reached',
-						__( 'Only one X connection is allowed per site. Please disconnect the existing one first.', 'jetpack-publicize-pkg' ),
+						__( 'You can only have one X connection. Please disconnect the existing one first.', 'jetpack-publicize-pkg' ),
 						array( 'status' => 403 )
 					);
 				}

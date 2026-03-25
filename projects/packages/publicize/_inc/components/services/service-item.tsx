@@ -60,7 +60,7 @@ export function ServiceItem( {
 		// For services with broken connections, we want to show the "Fix connections" button
 		// which opens the panel, so we don't want to show the initial connect form when the panel is already open
 		( hasOwnBrokenConnections && isPanelOpen ) ||
-		// X only allows one connection per site
+		// X only allows one connection per user
 		( service.id === 'x' && serviceConnections.length > 0 );
 
 	const buttonLabel =

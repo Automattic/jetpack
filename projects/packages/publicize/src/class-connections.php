@@ -85,6 +85,31 @@ class Connections {
 			}
 		}
 
+		// If the user owns an X connection, filter out shared X connections.
+		// This ensures each user only sees one X connection at a time.
+		$user_owns_x = false;
+		foreach ( $connections_for_user as $connection ) {
+			if ( isset( $connection['service_name'] ) && 'x' === $connection['service_name'] && self::user_owns_connection( $connection ) ) {
+				$user_owns_x = true;
+				break;
+			}
+		}
+
+		if ( $user_owns_x ) {
+			$connections_for_user = array_values(
+				array_filter(
+					$connections_for_user,
+					function ( $connection ) {
+						// Keep non-X connections and user-owned X connections, remove shared X connections.
+						if ( isset( $connection['service_name'] ) && 'x' === $connection['service_name'] && self::is_shared( $connection ) ) {
+							return false;
+						}
+						return true;
+					}
+				)
+			);
+		}
+
 		return $connections_for_user;
 	}
 
