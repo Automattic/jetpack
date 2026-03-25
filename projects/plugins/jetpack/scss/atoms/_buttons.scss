@@ -64,6 +64,38 @@
 	}
 }
 
+// Social preview styles
+.social-preview-container {
+	margin-left: 24px;
+	margin-right: 24px;
+	padding-left: 16px;
+	padding-right: 16px;
+	border-left: 3px solid #ccc;
+	border-right: 3px solid #ccc;
+}
+
+.social-preview-container .preview-card {
+	float: left;
+	width: 300px;
+	margin-right: 20px;
+	padding: 12px;
+	border: 1px solid #ddd;
+	border-radius: 4px;
+}
+
+.social-preview-container .preview-card .title {
+	font-size: 16px;
+	font-weight: 700;
+	margin-bottom: 8px;
+	text-align: left;
+}
+
+.social-preview-container .preview-card .description {
+	font-size: 13px;
+	color: #666;
+	text-align: left;
+}
+
 .download-jetpack {
 	display: inline-block;
 	position: relative;

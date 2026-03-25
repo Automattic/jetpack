@@ -1,7 +1,7 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { getAdminUrl } from '@automattic/jetpack-script-data';
 import { __, _x } from '@wordpress/i18n';
-import { Component } from 'react';
+import { createRef, Component } from 'react';
 import Card from 'components/card';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { ModuleToggle } from 'components/module-toggle';
@@ -15,11 +15,28 @@ import { FEATURE_JETPACK_SOCIAL } from '../lib/plans/constants';
  */
 export const Publicize = withModuleSettingsFormHelpers(
 	class extends Component {
+		constructor( props ) {
+			super( props );
+			this.previewRef = createRef();
+		}
+
 		trackClickConfigure() {
 			analytics.tracks.recordJetpackClick( {
 				target: 'configure-publicize',
 				page: 'sharing',
 			} );
+		}
+
+		handleEnablePreview() {
+			this.props.updateFormStateOptionValue( 'social_preview_enabled', true );
+		}
+
+		componentDidUpdate() {
+			// Update preview content whenever props change
+			const customMessage = this.props.getOptionValue( 'custom_message' );
+			if ( this.previewRef.current && customMessage ) {
+				this.previewRef.current.innerHTML = customMessage;
+			}
 		}
 
 		render() {
@@ -74,6 +91,29 @@ export const Publicize = withModuleSettingsFormHelpers(
 							</span>
 						</ModuleToggle>
 					</SettingsGroup>
+
+					{ /* Social preview section */ }
+					<SettingsGroup hasChild module={ { module: 'publicize' } }>
+						<div style={ { marginLeft: '20px', paddingRight: '15px' } }>
+							<h2>{ __( 'Social Preview', 'jetpack' ) }</h2>
+							<p>
+								{ __( 'Preview how your post will look when shared.', 'jetpack' ) + ' ' }
+								<a href={ getAdminUrl( 'admin.php?page=jetpack-social-preview' ) }>
+									{ __( 'Click here', 'jetpack' ) }
+								</a>
+								{ ' ' + __( 'to configure.', 'jetpack' ) }
+							</p>
+							<div className="social-preview-container" ref={ this.previewRef } />
+							<button type="button" className="jp-form-button" onClick={ this.handleEnablePreview }>
+								{ __( 'Save', 'jetpack' ) }
+							</button>
+							<img
+								alt={ __( 'Preview', 'jetpack' ) }
+								src={ getRedirectUrl( 'jetpack-social-preview-placeholder' ) }
+							/>
+						</div>
+					</SettingsGroup>
+
 					{ isActive && (
 						<Card
 							compact
