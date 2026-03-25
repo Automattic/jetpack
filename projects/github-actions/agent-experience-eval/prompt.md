@@ -7,7 +7,7 @@ a JSON object matching this exact schema:
   "version": 1,
   "score": <number 0-100, the average score from the report>,
   "grade": "<A|B|C|D|F, from the report>",
-  "files_found": ["<paths to all AI instruction files found>"],
+  "files_found": ["<relative paths from repo root, e.g. .claude/CLAUDE.md not /home/runner/work/repo/.claude/CLAUDE.md>"],
   "criteria": {
     "commands_workflows":   { "score": <0-20>, "max": 20, "notes": "<feedback from report>" },
     "architecture_clarity": { "score": <0-20>, "max": 20, "notes": "<feedback from report>" },
@@ -26,4 +26,5 @@ IMPORTANT:
 - If no AI instruction files exist, score 0, grade F.
 - The "score" field must equal the sum of all criteria scores.
 - The "grade" must match the score: A (90-100), B (70-89), C (50-69), D (30-49), F (0-29).
+- All file paths in "files_found" must be relative to the repo root (no absolute paths).
 - Output ONLY the JSON object. No markdown code fences. No text before or after.
