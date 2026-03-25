@@ -663,9 +663,9 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 		$plugins_host = $plugins_parts['host'] ?? '';
 		$src_host     = $src_parts['host'] ?? '';
 
-		// Enforce matching origin when either URL includes a host.
+		// Enforce matching host, scheme, and port when either URL includes a host.
 		if ( '' !== $src_host || '' !== $plugins_host ) {
-			// Reject when only one URL includes a host.
+			// Reject when only one URL includes a host — a host-less src cannot be origin-verified.
 			if ( ( '' === $src_host ) xor ( '' === $plugins_host ) ) {
 				return false;
 			}
@@ -677,19 +677,36 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 				$plugins_host_idn = idn_to_ascii( $plugins_host, IDNA_DEFAULT, INTL_IDNA_VARIANT_UTS46 );
 				$src_host_idn     = idn_to_ascii( $src_host, IDNA_DEFAULT, INTL_IDNA_VARIANT_UTS46 );
 
-				if ( false === $plugins_host_idn || false === $src_host_idn ) {
-					return false;
+				// Fall back to raw comparison when IDN normalization fails,
+				// rather than rejecting a potentially valid asset.
+				if ( false !== $plugins_host_idn && false !== $src_host_idn ) {
+					$plugins_host_cmp = $plugins_host_idn;
+					$src_host_cmp     = $src_host_idn;
 				}
-
-				$plugins_host_cmp = $plugins_host_idn;
-				$src_host_cmp     = $src_host_idn;
 			}
 
 			if ( strcasecmp( $src_host_cmp, $plugins_host_cmp ) !== 0 ) {
 				return false;
 			}
 
+			// Scheme check is intentionally skipped when either URL lacks a scheme
+			// (e.g. protocol-relative URLs like //example.com/...) since those
+			// inherit the page's scheme at load time.
 			if ( ! empty( $plugins_parts['scheme'] ) && ! empty( $src_parts['scheme'] ) && strcasecmp( $plugins_parts['scheme'], $src_parts['scheme'] ) !== 0 ) {
+				return false;
+			}
+
+			// Check port — default to scheme-standard port when absent.
+			$default_ports  = array(
+				'http'  => 80,
+				'https' => 443,
+			);
+			$plugins_scheme = strtolower( $plugins_parts['scheme'] ?? '' );
+			$src_scheme     = strtolower( $src_parts['scheme'] ?? '' );
+			$plugins_port   = $plugins_parts['port'] ?? ( $default_ports[ $plugins_scheme ] ?? null );
+			$src_port       = $src_parts['port'] ?? ( $default_ports[ $src_scheme ] ?? null );
+
+			if ( null !== $plugins_port && null !== $src_port && (int) $plugins_port !== (int) $src_port ) {
 				return false;
 			}
 		}
