@@ -1174,6 +1174,8 @@ class SSO {
 							array(
 								'action'                   => 'jetpack-sso',
 								'site_id'                  => Manager::get_site_id( true ),
+								'redirect_to'              => $redirect_to,
+								'request_redirect_to'      => $_request_redirect_to,
 								'broker-sso-auth-redirect' => '1',
 							),
 							$broker_auth_url
