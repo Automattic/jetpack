@@ -8,7 +8,7 @@ import mimeTypes from 'mime-types';
 /* eslint-disable no-console, n/no-process-exit */
 
 if ( process.argv[ 2 ] !== 'child' ) {
-	const cp = childProcess.fork( url.fileURLToPath( import.meta.url ), [ 'child' ], {
+	const cp = childProcess.fork( import.meta.filename, [ 'child' ], {
 		detached: true,
 		stdio: [ 'ignore', 'inherit', 'inherit', 'ipc' ],
 	} );

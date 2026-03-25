@@ -9,10 +9,9 @@
  * Icon wrapper. This avoids needing a DOM (jsdom) at runtime.
  */
 import path from 'path';
-import { fileURLToPath } from 'url';
 import jetpackWebpackConfig from '@automattic/jetpack-webpack-config/webpack';
 
-const __dirname = path.dirname( fileURLToPath( import.meta.url ) );
+const __dirname = import.meta.dirname;
 
 /**
  * Icon pipeline configuration.
