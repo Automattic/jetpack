@@ -131,6 +131,7 @@ class Agents_Manager {
 				'href'   => 'https://wordpress.com/support/courses/',
 				'meta'   => array(
 					'target' => '_blank',
+					'rel'    => 'noopener noreferrer',
 				),
 			)
 		);
@@ -144,6 +145,7 @@ class Agents_Manager {
 				'href'   => 'https://wordpress.com/blog/category/product-features/',
 				'meta'   => array(
 					'target' => '_blank',
+					'rel'    => 'noopener noreferrer',
 				),
 			)
 		);
@@ -200,6 +202,7 @@ class Agents_Manager {
 						$menu_args['href'] = self::HELP_CENTER_URL;
 						$menu_args['meta'] = array(
 							'target' => '_blank',
+							'rel'    => 'noopener noreferrer',
 						);
 					} else {
 						// For full variants, show the dropdown menu panel
@@ -207,6 +210,7 @@ class Agents_Manager {
 							'html'   => '<div id="agents-manager-masterbar" />',
 							'class'  => 'menupop',
 							'target' => '_blank',
+							'rel'    => 'noopener noreferrer',
 						);
 					}
 
