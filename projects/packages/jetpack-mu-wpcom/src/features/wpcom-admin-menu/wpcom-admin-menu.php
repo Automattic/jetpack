@@ -352,7 +352,7 @@ function wpcom_add_jetpack_submenu() {
 		// by the newsletter package's Settings::add_wp_admin_menu() for Atomic sites.
 		// Otherwise, link to Calypso for atomic Personal/Premium sites.
 		/** This filter is documented in projects/packages/newsletter/src/class-settings.php */
-		if ( ! apply_filters( 'jetpack_wp_admin_newsletter_settings_enabled', false ) ) {
+		if ( ! apply_filters( 'jetpack_wp_admin_newsletter_settings_enabled', true ) ) {
 			add_submenu_page(
 				'jetpack',
 				esc_attr__( 'Newsletter', 'jetpack-mu-wpcom' ),
@@ -429,7 +429,7 @@ function wpcom_add_jetpack_submenu() {
 	if ( $is_simple_site ) {
 		// Jetpack > Newsletter.
 		/** This filter is documented in projects/packages/newsletter/src/class-settings.php */
-		if ( apply_filters( 'jetpack_wp_admin_newsletter_settings_enabled', false ) ) {
+		if ( apply_filters( 'jetpack_wp_admin_newsletter_settings_enabled', true ) ) {
 			// Register the in-admin Newsletter settings page (with its own render callback
 			// and admin hooks). This must be done here (at priority 999999) because the
 			// Jetpack menu is created by this function and doesn't exist at earlier priorities.

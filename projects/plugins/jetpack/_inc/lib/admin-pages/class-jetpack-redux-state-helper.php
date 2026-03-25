@@ -249,7 +249,7 @@ class Jetpack_Redux_State_Helper {
 			/* This filter is already documented in jetpack/modules/subscriptions.php */
 			'isWpAdminSubscriberManagementEnabled' => apply_filters( 'jetpack_wp_admin_subscriber_management_enabled', false ),
 			/* This filter is documented in projects/packages/newsletter/src/class-settings.php */
-			'isWpAdminNewsletterSettingsEnabled'   => apply_filters( 'jetpack_wp_admin_newsletter_settings_enabled', false ),
+			'isWpAdminNewsletterSettingsEnabled'   => apply_filters( 'jetpack_wp_admin_newsletter_settings_enabled', true ),
 		);
 	}
 
