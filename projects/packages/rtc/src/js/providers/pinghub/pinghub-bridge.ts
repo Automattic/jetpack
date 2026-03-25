@@ -160,7 +160,7 @@ function detectBrowser(): string {
  * @param value - Metric value.
  * @param unit  - Unit indicator ('ms' for milliseconds, 'c' for counter).
  */
-function pixel( key: string, value: string | number, unit: string ): void {
+export function pixel( key: string, value: string | number, unit: string ): void {
 	new Image().src =
 		'https://pixel.wp.com/boom.gif?' +
 		'v=0.9&u=https://public-api.wordpress.com/pinghub&' +
@@ -328,6 +328,7 @@ export class PingHubBridge {
 		if ( this.cachedJwt && Date.now() - this.cachedJwtTimestamp < JWT_CACHE_TTL_MS ) {
 			return this.cachedJwt;
 		}
+		const start = Date.now();
 		try {
 			const response = await apiFetch< { token: string } >( {
 				path: '/wpcom/v2/rtc/pinghub-token',
@@ -335,8 +336,10 @@ export class PingHubBridge {
 			} );
 			this.cachedJwt = response?.token ?? null;
 			this.cachedJwtTimestamp = Date.now();
+			pixel( 'pinghub.rtc.jwt_fetch', Date.now() - start, 'ms' );
 			return this.cachedJwt;
 		} catch {
+			pixel( 'pinghub.rtc.jwt_fetch_error', Date.now() - start, 'ms' );
 			return null;
 		}
 	}
@@ -386,6 +389,7 @@ export class PingHubBridge {
 
 		ws.addEventListener( 'open', () => {
 			pixel( 'pinghub.conn_open', Date.now() - start, 'ms' );
+			pixel( 'pinghub.rtc.conn_open', Date.now() - start, 'ms' );
 			this.connectingWaiters.delete( room );
 			waiters.splice( 0 ).forEach( ( { resolve } ) => resolve() );
 			this.openHandlers.get( room )?.forEach( h => h() );
@@ -393,6 +397,7 @@ export class PingHubBridge {
 
 		ws.addEventListener( 'close', event => {
 			pixel( 'pinghub.conn_close_code.' + event.code, Date.now() - start, 'ms' );
+			pixel( 'pinghub.rtc.conn_close_code.' + event.code, Date.now() - start, 'ms' );
 			this.sockets.delete( room );
 			if ( this.connectingWaiters.has( room ) ) {
 				this.connectingWaiters.delete( room );
@@ -404,6 +409,7 @@ export class PingHubBridge {
 
 		ws.addEventListener( 'error', () => {
 			pixel( 'pinghub.conn_err', Date.now() - start, 'ms' );
+			pixel( 'pinghub.rtc.conn_err', Date.now() - start, 'ms' );
 		} );
 
 		ws.addEventListener( 'message', event => {
@@ -459,6 +465,7 @@ export class PingHubBridge {
 	send( room: string, data: Uint8Array ): void {
 		const ws = this.sockets.get( room );
 		if ( ! ws || ws.readyState !== WebSocket.OPEN ) {
+			pixel( 'pinghub.rtc.send_drop', 1, 'c' );
 			return;
 		}
 
