@@ -242,7 +242,8 @@ class Jetpack_Subscriptions_Test extends WP_UnitTestCase {
 	}
 
 	public static function matrix_access() {
-		$time_outdated = time() - HOUR_IN_SECONDS;
+		$time_outdated     = time() - 2 * DAY_IN_SECONDS;
+		$time_grace_period = time() - HOUR_IN_SECONDS;
 
 		return array(
 			// The follow use cases are mainly yot be thourough and probably duplicates some former use cases
@@ -315,8 +316,8 @@ class Jetpack_Subscriptions_Test extends WP_UnitTestCase {
 			static::access_use_case( 'paid_subscriber_id', false, true, 'subscribers', true, true ),
 			static::access_use_case( 'paid_subscriber_id', false, true, 'paid_subscribers', true, true ),
 
-			// Outdated paid subscription --  only matters for 'paid_subscribers' post - they are treated as normal "subscribers"
-				// loggued
+			// Outdated paid subscription (beyond grace period) -- only matters for 'paid_subscribers' post - they are treated as normal "subscribers"
+				// logged
 			static::access_use_case( 'paid_subscriber_id', true, false, '', true, true, $time_outdated ),
 			static::access_use_case( 'paid_subscriber_id', true, false, 'everybody', true, true, $time_outdated ),
 			static::access_use_case( 'paid_subscriber_id', true, false, 'subscribers', true, true, $time_outdated ),
@@ -326,6 +327,10 @@ class Jetpack_Subscriptions_Test extends WP_UnitTestCase {
 			static::access_use_case( 'paid_subscriber_id', false, true, 'everybody', true, true, $time_outdated ),
 			static::access_use_case( 'paid_subscriber_id', false, true, 'subscribers', true, true, $time_outdated ),
 			static::access_use_case( 'paid_subscriber_id', false, true, 'paid_subscribers', false, false, $time_outdated ),
+
+			// Recently expired paid subscription (within grace period) -- still granted access for renewal processing
+			static::access_use_case( 'paid_subscriber_id', true, false, 'paid_subscribers', true, true, $time_grace_period ),
+			static::access_use_case( 'paid_subscriber_id', false, true, 'paid_subscribers', true, true, $time_grace_period ),
 
 			// inactive subscription status
 			static::access_use_case( 'paid_subscriber_id', true, false, 'paid_subscribers', false, false, null, 'inactive' ),
@@ -759,11 +764,17 @@ class Jetpack_Subscriptions_Test extends WP_UnitTestCase {
 		);
 		$this->assertTrue( $subscription_service->visitor_can_view_content( Jetpack_Memberships::get_all_newsletter_plan_ids(), $post_access_level ) );
 
-		// Let's make sure date is taken into account
+		// Let's make sure date is taken into account (beyond grace period)
+		$subscription_service = $this->set_returned_token(
+			$this->get_payload( true, true, time() - 2 * DAY_IN_SECONDS, null, $gold_tier_annual_plan_id )
+		);
+		$this->assertFalse( $subscription_service->visitor_can_view_content( Jetpack_Memberships::get_all_newsletter_plan_ids(), $post_access_level ) );
+
+		// Within grace period, access should still be granted
 		$subscription_service = $this->set_returned_token(
 			$this->get_payload( true, true, time() - HOUR_IN_SECONDS, null, $gold_tier_annual_plan_id )
 		);
-		$this->assertFalse( $subscription_service->visitor_can_view_content( Jetpack_Memberships::get_all_newsletter_plan_ids(), $post_access_level ) );
+		$this->assertTrue( $subscription_service->visitor_can_view_content( Jetpack_Memberships::get_all_newsletter_plan_ids(), $post_access_level ) );
 
 		// This was removed because subscriptions in JWT_token does not provide the subscription status
 		// See https://github.com/Automattic/jetpack/pull/32710/commits/7e874089416d4d0f6b27d03420055f4b55d3c1e2
