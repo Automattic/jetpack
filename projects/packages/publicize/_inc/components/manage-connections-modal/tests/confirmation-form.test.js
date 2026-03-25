@@ -96,6 +96,7 @@ describe( 'ConfirmationForm', () => {
 					external_user_ID: 'additional-2',
 					keyring_connection_ID: 'service-1',
 					shared: undefined,
+					service_name: 'facebook',
 				},
 				{
 					display_name: 'Additional User 2',
@@ -118,6 +119,7 @@ describe( 'ConfirmationForm', () => {
 					external_user_ID: 'additional-2',
 					keyring_connection_ID: 'service-1',
 					shared: true,
+					service_name: 'facebook',
 				},
 				{
 					display_name: 'Additional User 2',
@@ -142,6 +144,7 @@ describe( 'ConfirmationForm', () => {
 					external_user_ID: 'additional-2',
 					keyring_connection_ID: 'service-1',
 					shared: undefined,
+					service_name: 'facebook',
 				},
 				{
 					display_name: 'Additional User 2',

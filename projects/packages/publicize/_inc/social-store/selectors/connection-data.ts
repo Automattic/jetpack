@@ -180,6 +180,18 @@ export function getAbortControllers(
 }
 
 /**
+ * Whether the X connection limit has been reached.
+ * X only allows one connection per site.
+ *
+ * @param state - State object.
+ *
+ * @return Whether the X connection limit has been reached.
+ */
+export function isXConnectionLimitReached( state: SocialStoreState ) {
+	return getConnectionsByService( state, 'x' ).length > 0;
+}
+
+/**
  * Whether a mastodon account is already connected.
  *
  * @param state  - State object.

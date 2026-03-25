@@ -82,6 +82,10 @@ class Connections_Controller extends Base_Controller {
 							'description' => __( 'Whether the connection is shared with other users.', 'jetpack-publicize-pkg' ),
 							'type'        => 'boolean',
 						),
+						'service_name'          => array(
+							'description' => __( 'The service name for the connection being created.', 'jetpack-publicize-pkg' ),
+							'type'        => 'string',
+						),
 					),
 				),
 				'schema' => array( $this, 'get_public_item_schema' ),
@@ -312,6 +316,13 @@ class Connections_Controller extends Base_Controller {
 	 */
 	public function create_item( $request ) {
 		if ( Publicize_Utils::is_wpcom() ) {
+			// X only allows one connection per site.
+			if ( 'x' === $request->get_param( 'service_name' ) ) {
+				$x_limit_check = $this->check_x_connection_limit();
+				if ( is_wp_error( $x_limit_check ) ) {
+					return $x_limit_check;
+				}
+			}
 
 			$input = array(
 				'keyring_connection_ID' => $request->get_param( 'keyring_connection_ID' ),
@@ -491,5 +502,31 @@ class Connections_Controller extends Base_Controller {
 		$response->set_status( 201 );
 
 		return $response;
+	}
+
+	/**
+	 * Check if adding a new X connection would exceed the limit.
+	 * X only allows one connection per site.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return true|WP_Error True if the connection can be created, WP_Error if the limit is reached.
+	 */
+	private function check_x_connection_limit() {
+		$connections = Connections::get_all();
+
+		if ( is_array( $connections ) ) {
+			foreach ( $connections as $connection ) {
+				if ( isset( $connection['service_name'] ) && 'x' === $connection['service_name'] ) {
+					return new WP_Error(
+						'x_connection_limit_reached',
+						__( 'Only one X connection is allowed per site. Please disconnect the existing one first.', 'jetpack-publicize-pkg' ),
+						array( 'status' => 403 )
+					);
+				}
+			}
+		}
+
+		return true;
 	}
 }

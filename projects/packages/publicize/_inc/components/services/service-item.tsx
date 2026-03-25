@@ -59,7 +59,9 @@ export function ServiceItem( {
 		areCustomInputsVisible ||
 		// For services with broken connections, we want to show the "Fix connections" button
 		// which opens the panel, so we don't want to show the initial connect form when the panel is already open
-		( hasOwnBrokenConnections && isPanelOpen );
+		( hasOwnBrokenConnections && isPanelOpen ) ||
+		// X only allows one connection per site
+		( service.id === 'x' && serviceConnections.length > 0 );
 
 	const buttonLabel =
 		brokenConnections.length > 1

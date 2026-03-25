@@ -69,14 +69,23 @@ export function ConfirmationForm( {
 	const service = supportedServices.find(
 		supportedService => supportedService.id === keyringResult.service
 	);
+	const hasExistingXConnection = existingConnections.some(
+		connection => connection.service_name === 'x'
+	);
+
 	const isAlreadyConnected = useCallback(
 		( externalID: string ) => {
+			// X only allows one connection per site, so treat all accounts as already connected
+			if ( service?.id === 'x' && hasExistingXConnection ) {
+				return true;
+			}
+
 			return existingConnections.some(
 				connection =>
 					connection.service_name === service?.id && connection.external_id === externalID
 			);
 		},
-		[ existingConnections, service?.id ]
+		[ existingConnections, service?.id, hasExistingXConnection ]
 	);
 
 	const accounts = useMemo( () => {
@@ -143,6 +152,7 @@ export function ConfirmationForm( {
 				external_user_ID: service.supports.additional_users ? external_user_ID : undefined,
 				keyring_connection_ID: keyringResult.ID,
 				shared: formData.get( 'shared' ) === '1' ? true : undefined,
+				service_name: service.id,
 			};
 
 			const accountInfo = accounts.not_connected.find(

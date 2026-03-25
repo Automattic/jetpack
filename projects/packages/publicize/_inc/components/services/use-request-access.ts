@@ -55,6 +55,8 @@ export function useRequestAccess( { service, onConfirm }: RequestAccessOptions )
 		[]
 	);
 
+	const isXLimitReached = useSelect( select => select( store ).isXConnectionLimitReached(), [] );
+
 	const { refreshServicesList } = useDispatch( store );
 
 	const { getService } = useSelect( select => select( store ), [] );
@@ -76,6 +78,20 @@ export function useRequestAccess( { service, onConfirm }: RequestAccessOptions )
 			const url = new URL( connectUrl );
 
 			switch ( service.id ) {
+				case 'x': {
+					if ( isXLimitReached ) {
+						createErrorNotice(
+							__(
+								'You can only connect one X account. Please disconnect the existing one first.',
+								'jetpack-publicize-pkg'
+							)
+						);
+
+						return;
+					}
+					break;
+				}
+
 				case 'mastodon': {
 					const instance = formData.get( 'instance' ).toString().trim();
 
@@ -134,6 +150,7 @@ export function useRequestAccess( { service, onConfirm }: RequestAccessOptions )
 			getService,
 			isBlueskyAccountAlreadyConnected,
 			isMastodonAlreadyConnected,
+			isXLimitReached,
 			onConfirm,
 			refreshServicesList,
 			service,
