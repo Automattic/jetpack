@@ -59,6 +59,24 @@ class Contact_Form_Block_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Test that ::register_block enables block gap spacing support for the form block.
+	 */
+	public function test_register_block_supports_block_gap() {
+		$registry   = WP_Block_Type_Registry::get_instance();
+		$block_type = $registry->get_registered( 'jetpack/contact-form' );
+
+		if ( ! $block_type ) {
+			Contact_Form_Block::register_block();
+			$block_type = $registry->get_registered( 'jetpack/contact-form' );
+		}
+
+		$this->assertNotNull( $block_type );
+		$this->assertArrayHasKey( 'spacing', $block_type->supports );
+		$this->assertArrayHasKey( 'blockGap', $block_type->supports['spacing'] );
+		$this->assertTrue( $block_type->supports['spacing']['blockGap'] );
+	}
+
+	/**
 	 * Data provider for test_register_child_blocks.
 	 */
 	public static function data_provider_test_register_child_blocks() {

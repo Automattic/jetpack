@@ -60,6 +60,9 @@ class Contact_Form_Block {
 						'allowJustification'     => true,
 						'allowWrap'              => false,
 					),
+					'spacing'              => array(
+						'blockGap' => true,
+					),
 					'__experimentalBorder' => array(
 						'color'                         => true,
 						'radius'                        => true,

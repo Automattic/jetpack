@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Add block spacing support to control the gap between form fields.

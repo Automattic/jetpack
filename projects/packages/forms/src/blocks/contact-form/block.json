@@ -17,7 +17,8 @@
 		"html": false,
 		"spacing": {
 			"padding": true,
-			"margin": true
+			"margin": true,
+			"blockGap": true
 		},
 		"align": [ "wide", "full" ],
 		"layout": {
