@@ -142,6 +142,7 @@ class WPCOM_REST_API_V2_Endpoint_Newsletter_Email_Sent_Status extends WP_REST_Co
 			);
 		}
 
+		// post_id is validated as > 0 by the route definition; this check is defensive.
 		$post_id = absint( $request->get_param( 'post_id' ) );
 		if ( $post_id > 0 && ! current_user_can( 'manage_options' ) && ! current_user_can( 'edit_post', $post_id ) ) {
 			return new WP_Error(
