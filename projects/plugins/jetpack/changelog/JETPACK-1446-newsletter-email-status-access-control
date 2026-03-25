@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Newsletter Email Status: Fix access control for the newsletter email sent status endpoint.
