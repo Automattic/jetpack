@@ -164,6 +164,16 @@ export const EmptyWrapper = ( { heading = '', body = '', actions = null }: Empty
 	</VStack>
 );
 
+export const NoResults = () => (
+	<EmptyWrapper
+		heading={ __( 'No results found', 'jetpack-forms' ) }
+		body={ __(
+			"Try adjusting your search or filters to find what you're looking for.",
+			'jetpack-forms'
+		) }
+	/>
+);
+
 const EmptyResponses = ( {
 	isSearch,
 	isSingleFormView = false,
@@ -182,13 +192,8 @@ const EmptyResponses = ( {
 
 	// Handle search and filter states first
 	const hasReadStatusFilter = !! readStatusFilter;
-	const searchHeading = __( 'No results found', 'jetpack-forms' );
-	const searchMessage = __(
-		"Try adjusting your search or filters to find what you're looking for.",
-		'jetpack-forms'
-	);
 	if ( isSearch || hasReadStatusFilter ) {
-		return <EmptyWrapper heading={ searchHeading } body={ searchMessage } />;
+		return <NoResults />;
 	}
 
 	const noTrashHeading = __( 'Trash is empty', 'jetpack-forms' );
@@ -250,6 +255,7 @@ const EmptyResponses = ( {
 					<CreateFormButton
 						label={ __( 'Create a new form', 'jetpack-forms' ) }
 						variant="primary"
+						showNameModal
 					/>
 				)
 			}

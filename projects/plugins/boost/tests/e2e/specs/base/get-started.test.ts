@@ -1,11 +1,8 @@
 import { test, expect } from '../../lib/fixtures/test';
 
 test.describe( 'Getting started page', () => {
-	test.beforeEach( async ( { boostUtils } ) => {
+	test.beforeEach( async ( { boostUtils, jetpackBoostPage } ) => {
 		await boostUtils.resetEnvironment();
-	} );
-
-	test.beforeEach( async ( { jetpackBoostPage } ) => {
 		await jetpackBoostPage.visit();
 	} );
 

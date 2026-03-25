@@ -10,6 +10,7 @@ module.exports = async () => {
 		moduleConfig,
 		{
 			entry: {
+				'ai-assistant-banner': './src/features/ai-assistant-banner/js/ai-assistant-banner.js',
 				'a8c-posts-list': './src/features/wpcom-blocks/a8c-posts-list/blocks/posts-list/index.js',
 				'block-inserter-modifications': './src/features/block-inserter-modifications/index.js',
 				'core-customizer-css':
@@ -18,6 +19,7 @@ module.exports = async () => {
 					'./src/features/custom-css/custom-css/js/core-customizer-css-preview.js',
 				'customizer-control': './src/features/custom-css/custom-css/css/customizer-control.css',
 				'error-reporting': './src/features/error-reporting/index.js',
+				'gutenberg-rtc-notices': './src/features/gutenberg-rtc-notices/index.tsx',
 				'holiday-snow': './src/features/holiday-snow/holiday-snow.scss',
 				'html-block-restricted-tags':
 					'./src/features/html-block-restricted-tags/html-block-restricted-tags.tsx',
@@ -139,6 +141,12 @@ module.exports = async () => {
 				jetpackConfig: JSON.stringify( {
 					consumer_slug: 'jetpack-mu-wpcom',
 				} ),
+				// Resolve @wordpress/sync to the global `wp.sync` provided by WordPress.
+				'@wordpress/sync': 'wp.sync',
+				// Resolve Yjs to the global `wp.sync.Y` to avoid two separate Yjs
+				// instances, which breaks shared document types. See:
+				// https://github.com/yjs/yjs/issues/438
+				yjs: 'wp.sync.Y',
 			},
 		},
 	];

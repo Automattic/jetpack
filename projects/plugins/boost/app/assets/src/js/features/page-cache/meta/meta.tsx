@@ -33,6 +33,7 @@ const Meta = () => {
 
 	const handleSeeLogsClick = () => {
 		recordBoostEvent( 'page_cache_see_logs_clicked', {} );
+		window.scrollTo( 0, 0 );
 	};
 
 	const totalBypassPatterns = bypassPatterns?.length || 0;

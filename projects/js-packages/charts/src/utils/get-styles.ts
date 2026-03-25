@@ -62,7 +62,7 @@ export function getItemShapeStyles(
 ): Record< string, unknown > {
 	const seriesShapeStyles = series.options?.legendShapeStyle ?? {};
 	const lineStyles = legendShape === 'line' ? getSeriesLineStyles( series, index, theme ) : {};
-	const themeShapeStyles = theme.legendShapeStyles?.[ index ];
+	const themeShapeStyles = theme.legend?.shapeStyles?.[ index ];
 
 	const itemShapeStyles = {
 		...seriesShapeStyles,

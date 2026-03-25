@@ -38,6 +38,9 @@ class Jetpack_Mu_Wpcom {
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_user_features' ) );
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_etk_features' ) );
 
+		// Load features that only apply to WordPress.com sites, regardless of whether the users are connected.
+		add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_sites_features' ) );
+
 		// Load ETK features flag to turn off the features in the ETK plugin.
 		// It needs higher priority than the ETK plugin.
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_etk_features_flags' ), 0 );
@@ -287,12 +290,25 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/wpcom-attachment-pages/wpcom-attachment-pages.php';
 		require_once __DIR__ . '/features/wpcom-block-editor/class-jetpack-wpcom-block-editor.php';
 		require_once __DIR__ . '/features/wpcom-block-editor/functions.editor-type.php';
+		require_once __DIR__ . '/features/wpcom-dashboard/class-wpcom-dashboard.php';
 		require_once __DIR__ . '/features/wpcom-hotfixes/wpcom-hotfixes.php';
 		require_once __DIR__ . '/features/wpcom-logout/wpcom-logout.php';
 		require_once __DIR__ . '/features/wpcom-themes/wpcom-theme-fixes.php';
 		require_once __DIR__ . '/features/wpcom-post-list/wpcom-post-types-tracking.php';
 		require_once __DIR__ . '/features/wpcom-widgets/wpcom-widgets.php';
 		require_once __DIR__ . '/features/wpcom-wpadmin-page-view/wpcom-wpadmin-page-view.php';
+
+		/*
+		 * Temporarily disable client-side media processing.
+		 *
+		 * Client-side media processing enables cross-origin isolation (COEP/COOP headers)
+		 * which can break authenticated API requests. This should be removed once client-side
+		 * media processing is compatible with Dotcom's infrastructure.
+		 *
+		 * @see gutenberg_set_up_cross_origin_isolation() in Gutenberg's lib/media/load.php
+		 * @see https://a8c.slack.com/archives/CBTN58FTJ/p1771950744814189
+		 */
+		add_filter( 'wp_client_side_media_processing_enabled', '__return_false' );
 
 		// Initializers, if needed.
 		\Marketplace_Products_Updater::init();
@@ -302,6 +318,7 @@ class Jetpack_Mu_Wpcom {
 		\Automattic\Jetpack\Classic_Theme_Helper\Featured_Content::setup();
 
 		\Automattic\Jetpack\Jetpack_Mu_Wpcom\Holiday_Snow::init();
+		\Automattic\Jetpack\Jetpack_Mu_Wpcom\Wpcom_Dashboard::init();
 
 		// Gets autoloaded from the Scheduled_Updates package.
 		if ( class_exists( 'Automattic\Jetpack\Scheduled_Updates' ) ) {
@@ -310,7 +327,7 @@ class Jetpack_Mu_Wpcom {
 	}
 
 	/**
-	 * Load features that only apply to WordPress.com users.
+	 * Load features that only apply to WordPress.com-connected users.
 	 */
 	public static function load_wpcom_user_features() {
 		// To avoid potential collisions with ETK.
@@ -325,6 +342,10 @@ class Jetpack_Mu_Wpcom {
 		if ( ! class_exists( 'A8C\FSE\Agents_Manager' ) ) {
 			require_once __DIR__ . '/features/agents-manager/class-agents-manager.php';
 		}
+		if ( ! class_exists( 'A8C\FSE\Survicate' ) ) {
+			require_once __DIR__ . '/features/survicate/class-survicate.php';
+		}
+		require_once __DIR__ . '/features/ai-assistant-banner/ai-assistant-banner.php';
 		require_once __DIR__ . '/features/html-block-restricted-tags/html-block-restricted-tags.php';
 		require_once __DIR__ . '/features/marketing/marketing.php';
 		require_once __DIR__ . '/features/pages/pages.php';
@@ -333,6 +354,7 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/wpcom-admin-bar/wpcom-admin-bar.php';
 		require_once __DIR__ . '/features/wpcom-admin-interface/wpcom-admin-interface.php';
 		require_once __DIR__ . '/features/wpcom-admin-menu/wpcom-admin-menu.php';
+		require_once __DIR__ . '/features/wpcom-colourlovers-deprecate/wpcom-colourlovers-deprecate.php';
 		require_once __DIR__ . '/features/wpcom-comments/wpcom-comments.php';
 		require_once __DIR__ . '/features/wpcom-dashboard-widgets/wpcom-dashboard-widgets.php';
 		require_once __DIR__ . '/features/wpcom-imports/wpcom-imports.php';
@@ -348,10 +370,37 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/wpcom-themes/wpcom-themes.php';
 		require_once __DIR__ . '/features/wpcom-user-edit/wpcom-user-edit.php';
 
+		// Enable newsletter settings for sites with the newsletter-package-202603 sticker.
+		add_filter( 'jetpack_wp_admin_newsletter_settings_enabled', 'wpcom_maybe_enable_newsletter_settings' );
+
+		// Initialize Newsletter Settings so hooks like the Reading page notice
+		// are registered on Simple sites (where load-jetpack.php doesn't run).
+		\Automattic\Jetpack\Newsletter\Settings::init();
+
 		// Only load the Masterbar features on WoA sites.
 		if ( class_exists( '\Automattic\Jetpack\Status\Host' ) && ( new \Automattic\Jetpack\Status\Host() )->is_woa_site() ) {
 			// This is temporary. After we cleanup Masterbar on WPCOM we should load Masterbar for Simple sites too.
 			\Automattic\Jetpack\Masterbar\Main::init();
+		}
+	}
+
+	/**
+	 * Load features that only apply to WordPress.com sites, regardless of whether the users are connected.
+	 */
+	public static function load_wpcom_sites_features() {
+		if ( is_fully_managed_agency_site() ) {
+			return;
+		}
+
+		require_once __DIR__ . '/features/gutenberg-rtc/gutenberg-rtc.php';
+
+		/**
+		 * Load features for the editor and the frontend pages.
+		 */
+		global $pagenow;
+		$allowed_pages = array( 'post.php', 'post-new.php', 'site-editor.php' );
+		if ( ( isset( $pagenow ) && in_array( $pagenow, $allowed_pages, true ) ) || ! is_admin() ) {
+			require_once __DIR__ . '/features/gutenberg-rtc-notices/gutenberg-rtc-notices.php';
 		}
 	}
 

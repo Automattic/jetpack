@@ -987,10 +987,12 @@ describe( 'ChartContext', () => {
 
 			const extendedTheme = {
 				...mockTheme,
-				legendShapeStyles: [
-					{ fill: '#LEGEND1', stroke: '#BORDER1' },
-					{ fill: '#LEGEND2', strokeWidth: 3 },
-				],
+				legend: {
+					shapeStyles: [
+						{ fill: '#LEGEND1', stroke: '#BORDER1' },
+						{ fill: '#LEGEND2', strokeWidth: 3 },
+					],
+				},
 			};
 
 			render(
@@ -1087,7 +1089,9 @@ describe( 'ChartContext', () => {
 						},
 					},
 				},
-				legendShapeStyles: [ { fill: '#LEGEND1', stroke: '#BORDER1' } ],
+				legend: {
+					shapeStyles: [ { fill: '#LEGEND1', stroke: '#BORDER1' } ],
+				},
 			};
 
 			render(
@@ -1234,7 +1238,9 @@ describe( 'ChartContext', () => {
 				...mockTheme,
 				glyphs: [ mockGlyph ],
 				seriesLineStyles: [ { strokeWidth: 2 } ],
-				legendShapeStyles: [ { fill: '#SHAPE1' } ],
+				legend: {
+					shapeStyles: [ { fill: '#SHAPE1' } ],
+				},
 			};
 
 			render(

@@ -12,6 +12,7 @@
 
 // phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
 
+use Automattic\Jetpack\Post_Media\Images;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Stats\WPCOM_Stats;
 use Automattic\Jetpack\Status;
@@ -434,7 +435,7 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 				}
 
 				foreach ( $posts as &$post ) {
-					$image = Jetpack_PostImages::get_image(
+					$image = Images::get_image(
 						$post['post_id'],
 						array(
 							'fallback_to_avatars' => (bool) $get_image_options['fallback_to_avatars'],
@@ -445,13 +446,13 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 					);
 
 					if ( $image ) {
-						$post['image'] = Jetpack_PostImages::fit_image_url(
+						$post['image'] = Images::fit_image_url(
 							$image['src'],
 							$width,
 							$height
 						);
 
-						$post['image_srcset'] = Jetpack_PostImages::generate_cropped_srcset(
+						$post['image_srcset'] = Images::generate_cropped_srcset(
 							$image,
 							$width,
 							$height

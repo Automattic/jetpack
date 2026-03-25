@@ -2,13 +2,17 @@
 	display: none;
 }
 
-.post-type-jetpack_form .editor-post-last-edited-panel {
+// Ensure the form title has enough padding to not be hidden by
+// the block toolbar.
+.post-type-jetpack_form .editor-post-title {
+	padding-block-end: 48px;
+}
+
+.post-type-jetpack_form .editor-post-last-edited-panel,
+.post-type-jetpack_form .editor-post-content-information {
 	display: none;
 }
 
-.jetpack-forms-title-modal__buttons {
-	display: flex;
-	justify-content: flex-end;
-	gap: 8px;
-	margin-block-start: 16px;
+.post-type-jetpack_form .editor-visual-editor {
+	padding: 24px 24px 0;
 }

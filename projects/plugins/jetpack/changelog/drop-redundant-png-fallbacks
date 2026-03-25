@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Recommendations: drop redundant PNG fallback images in favor of WebP, reducing plugin zip size by ~7 MB.

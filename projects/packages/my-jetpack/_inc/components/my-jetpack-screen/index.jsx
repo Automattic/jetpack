@@ -180,37 +180,44 @@ export default function MyJetpackScreen() {
 			sandboxedDomain={ sandboxedDomain }
 			apiRoot={ apiRoot }
 			apiNonce={ apiNonce }
+			title="Jetpack"
 			optionalMenuItems={ isDevVersion && userIsAdmin ? [ resetOptionsMenuItem ] : [] }
 			useInternalLinks={ shouldUseInternalLinks() }
 			className={ styles[ 'my-jetpack-screen' ] }
+			showBottomBorder={ false }
 		>
 			<h1 className="screen-reader-text">{ __( 'My Jetpack', 'jetpack-my-jetpack' ) }</h1>
 
 			<IDCModal />
-			<GlobalNotices />
-			{ ! isNewUser && (
-				<Container horizontalSpacing={ 0 }>
-					<Col>
-						<div id="jp-admin-notices" className="my-jetpack-jitm-card" />
-					</Col>
-				</Container>
-			) }
-			{ noticeMessage && (
-				<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
-					<Col>
-						<GlobalNotice
-							message={ noticeMessage }
-							title={ noticeTitle }
-							options={ noticeOptions }
-						/>
-					</Col>
-				</Container>
-			) }
 			{ isSectionVisible && userIsAdmin && <EvaluationRecommendations /> }
 
 			{ isRedirectingFromOnboarding && <OnboardingTour /> }
 
-			<MyJetpackTabPanel />
+			<MyJetpackTabPanel
+				beforeContent={
+					<>
+						<GlobalNotices />
+						{ ! isNewUser && (
+							<Container horizontalSpacing={ 0 }>
+								<Col>
+									<div id="jp-admin-notices" className="my-jetpack-jitm-card" />
+								</Col>
+							</Container>
+						) }
+						{ noticeMessage && (
+							<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
+								<Col>
+									<GlobalNotice
+										message={ noticeMessage }
+										title={ noticeTitle }
+										options={ noticeOptions }
+									/>
+								</Col>
+							</Container>
+						) }
+					</>
+				}
+			/>
 		</AdminPage>
 	);
 }

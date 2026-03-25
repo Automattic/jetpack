@@ -64,7 +64,7 @@ import type { Connection } from '../../../social-store/types';
 
 const mockSiteHasFeature = jest.requireMock( '@automattic/jetpack-script-data' )
 	.siteHasFeature as jest.Mock;
-const mockUseSelect = useSelect as jest.MockedFunction< typeof useSelect >;
+const mockUseSelect = useSelect as jest.Mock;
 const mockUsePerNetworkCustomization = usePerNetworkCustomization as jest.MockedFunction<
 	typeof usePerNetworkCustomization
 >;
@@ -86,7 +86,7 @@ const createMockConnection = ( overrides: Partial< Connection > = {} ): Connecti
 	profile_link: 'https://example.com/test',
 	profile_picture: 'https://example.com/pic.jpg',
 	service_label: 'Test Service',
-	service_name: 'test',
+	service_name: 'tumblr',
 	shared: false,
 	status: 'ok',
 	wpcom_user_id: 1,

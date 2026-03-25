@@ -2,25 +2,164 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
-## 15.6-a.1 - 2026-02-10
+## 15.7-a.5 - 2026-03-23
 ### Enhancements
-- Forms: Update response sidebar styles. [#46929]
-- WordPress.com Reader: Add new option to show a link to the WordPress.com Reader in the admin bar. [#46781]
+- Forms: Add logged-in user display name and ID to form submission emails and response sidebar. [#47652]
+- Newsletter: Add "Send newsletter by default" toggle to settings. [#47565]
+- Settings: Modernize page UI. [#47490] [#47656]
+- Sync: Improve checksum performance for meta tables. [#47579]
 
 ### Bug fixes
-- Forms: Fix IP address lookup link in response inspector. [#46969]
-- Sharing: Fix LinkedIn sharing by updating to the current share URL endpoint. [#47008]
-- Slideshow: Fix an issue with sizing when images are lazily loaded. [#46924]
+- AI Assistant: Prevent modal shaking from when content streams in. [#47616]
+- Comments: Remove resource hints for outdated gravatar domains and use secure.gravatar.com instead. [#47695]
+- Google Search Preview: Ensure site icon is shown on all sites. [#47551]
+- Image Compare Block: Fix disappearing link toolbar when highlighting caption text to add a hyperlink. [#47197]
+- Map block: Fix markers displaying as bullet points on Simple sites. [#47586]
+- Newsletter: Fix "email sent" confirmation to show "all subscribers" when post had paywall block and was emailed to everyone. [#47629]
+- Sync: Prevent incremental sync for posts with unregistered post types. [#47580]
+- WAF: Fix issue that potentially allowed bypassing WAF rules. [#47692]
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Add memberships_gift_is_sandboxed to the Jetpack sync post meta whitelist so gifting works on self-hosted Jetpack sites. [#47715]
+- API: Allow `is_garden` and `garden_name` fields to be returned by /me/sites requests by non-member users. [#47211]
+- Application Passwords: Allow authenticating VideoPress AJAX actions via application passwords. [#45220]
+- Display MCP client actor on backup undo card and backup card attribution. [#47429]
+- Enable Image Studio for Big Sky and CIAB sites regardless of Jetpack AI enabled status. [#47572]
+- Improve disabled newsletter notice copy for private sites not set for coming soon. [#47583]
+- Improve string output handling. [#47636]
+- REST API: Add big_sky_enabled field to the site endpoint response. [#47690]
+- Social: Remove post publish review prompt. [#47650]
+- Sync: Add unit test. [#47634]
+- Update package dependencies. [#47684]
+- Update subscribers affirmation copies for newsletters "will send to" message to better include access and categories both, and remove misrepresentative numbers. [#47605]
+- Update sync user test assertion to expect 0 instead of false for reassigned user ID, matching the $reassign hook parameter now used directly. [#47658]
+
+## 15.7-a.3 - 2026-03-16
+### Enhancements
+- Newsletter: Add `wpcom_newsletter_send_default` site option to control whether posts are sent to subscribers by default. [#47564]
+- SEO: Add Canonical URLs toggle to the Traffic settings page. [#47364]
+
+### Bug fixes
+- Forms: Ensure number field min and max values display in the UI after page reload. [#47511]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Add missing newsletter post metas to sync whitelist. [#47560]
+- Editor: Fix plan upgrade notice for Simple sites. [#47543]
+- Image Studio: Enable if BigSky is enabled. [#47533]
+- Newsletter editor panel: Update to reflect previous email sends and update copies. [#47301]
+- Update dependencies. [#47472]
+- Update package dependencies. [#47505]
+
+## 15.7-a.1 - 2026-03-09
+### Enhancements
+- Admin Menu: Reorder menu items so that links opening in new windows appear last. [#47417]
+- Backup: Use core components for storage popover. [#47448]
+- Block Notes: Add Block Notes as a standalone Jetpack extension plugin. [#47296]
+- Donations: Use the core WordPress spinner component. [#47467]
+- Forms: Use title header on top-level dashboard pages. [#47446]
+- Newsletter: Hide settings tab and redirect to new settings page when wp-admin newsletter settings are enabled. [#47347]
+- QR Post Code: Use site icon (favicon) instead of site logo for better rendering in the QR code center area. [#47433]
+
+### Bug fixes
+- Admin Page: Restore border on header component. [#47425]
+- Canonical URLs: Fix flaky author archive canonical URL resolution on WordPress trunk. [#47384]
+- SEO: Restore the Optimize SEO panel to the Jetpack sidebar alongside document settings. [#47318]
+- Settings: Add bottom border to the masthead header. [#47425]
+- Social: Fix slow page loads due to Social Image generation. [#45863]
+- Update AI form assistant to detect and create `core/button` blocks instead of `jetpack/button`. [#47438]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Extract the Onboarding E2E utility for re-usability. [#47407]
+- Fix flakiness in tests. [#47410]
+- Fix PHPDoc type for deprecated `videopress_prepare_attachment_for_js` wrapper. [#47358]
+- Fix TypeScript errors detected by `tsgo`. [#47426] [#47423]
+- Forms: Fix admin page header CSS specificity to prevent style conflicts. [#47313]
+- Mark all methods in the `Jetpack_PostImages` class as deprecated in favor of the Post_Media package's `Images` class. [#47376]
+- Migrate Settings page header to unified header pattern and left-align navigation tabs. [#47313]
+- Remove header border-bottom from the admin page for a cleaner unified header appearance. [#47313]
+- Switch to Native TypeScript compiler based on Go. [#47375]
+- Update package dependencies. [#47496] [#47499]
+
+## 15.6 - 2026-03-03
+### Enhancements
+- AI Assistant: Add `jetpack_ai_assistant_generation_complete` action hook for cross-package communication. [#47267]
+- AI Sidebar: Add `jetpack.ai.imageGenerationHandler` filter to allow external plugins (e.g. Image Studio) to replace the built-in AI image generation flow for the "Get Featured Image" entry point. [#47124]
+- Block Editor: Make Jetpack logo display behavior consistent across SEO and AI panels. Logo now appears in global contexts (document settings, pre-publish, post-publish) but not in the Jetpack sidebar. [#47094]
+- Form Notifications: Add new HTML email template design with respondent info header, metadata section, and improved action buttons. [#47022]
+- Forms: Allow Accordion, Details, and Icon blocks in forms, and Icon block to be added inside the file upload dropzone. [#47121]
+- Forms: Allow customizing other option in radio field. [#46461]
+- Forms: Allow filtering Forms dashboard URL. [#47039]
+- Forms: Create new forms in same tab. [#47098]
+- Forms: Render images from image select fields on email notifications. [#47160]
+- Forms: Replace dashicon with SVG icon and add tooltip to admin bar "Form Responses" link. [#47120]
+- Forms: Update response sidebar styles. [#46929]
+- Forms: Use integer format for response count in dataviews. [#47381]
+- Image Studio: Add Image Studio plugin support to block editor and media library. [#47063]
+- Post Images: Add `jetpack-ignore-thumbnail` CSS class and `jetpack_postimages_exclude_image` filter to exclude specific images from post image discovery. [#47183]
+- Reader: Add Discover card to Reader settings page to highlight feature benefits. [#47089]
+- SEO: Add Canonical URLs module for archive pages to prevent duplicate content in search engines. [#47234]
+- SEO: Add social link previews to the SEO tools UI. [#47142]
+- Site: Ensure `is_garden` is included in default site fields for server-side rendering. [#47123]
+- Social: Add visual dot to active connection in preview modal. [#47218]
+- Sync: Add `clear-queue` REST endpoint to allow clearing a Sync queue. [#47303]
+- Update external menu links to display an arrow indicator for improved performance and a more modern appearance. [#47076]
+- VideoPress: Accept SRT subtitle files for upload alongside VTT. [#46978]
+- WordPress.com Reader: Add new option to show a link to the WordPress.com Reader in the admin bar. [#46781]
+- WordPress.com Reader: Automatically enable the admin bar link on sites newly connected to WordPress.com. [#47033]
+
+### Bug fixes
+- AI Assistant: Restore Jetpack logo in pre-publish panel where branding is not otherwise apparent. [#47081]
+- Block Editor Assets: Fix Gutenberg asset detection when assets are served from a CDN. [#47072]
+- Forms: Create new form pages without a placeholder title. [#47383]
+- Forms: Fix duplicate title in plain text form submission notification emails. [#47291]
+- Forms: Fix extra margin on badges in the forms dashboard. [#47377]
+- Forms: Fix IP address lookup link in response inspector. [#46969]
+- Forms: Prevent fatal error when rendering image-select fields with invalid image payloads. [#47236]
+- Full Sync: Fix chunk size adjustment when sync is stuck to correctly preserve adjusted chunk size and stuck count across invocations. [#47293]
+- Image Studio: Fix console warnings. [#47353]
+- Sharing: Fix LinkedIn sharing by updating to the current share URL endpoint. [#47008]
+- Sharing: Remove Pocket sharing button. [#46879]
+- Shortcode embeds: Improve handling of YouTube shorts in embeds. [#47156]
+- Slideshow: Fix an issue with sizing when images are lazily loaded. [#46924]
+- Slideshow: Fix doubled navigation arrows. [#47262]
+- Slideshow block: Fix further issues with aspect ratio. [#47225]
+- Social: Fix Threads social preview for posts with gallery. [#47322]
+- Social: Fix Tumblr preview to prioritize custom message when it is set. [#47075]
+- Social: Refresh plan features on post-checkout redirect. [#46961]
+- Social Icons: Update documentation links for available icons. [#46391]
+- Subscriptions: Stop appending the “View post … subscribe” message to post excerpts in subscription emails. [#47311]
+- Subscriptions Block: Make excerpt filter more broad. [#46599]
+- Sync: Fix sync health check to verify queue size and lag before allowing status to be set to `in_sync`. [#47323]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Admin: Remove default WordPress footer on Jetpack admin pages. [#46876]
 - Admin dashboard: add new "Reader" section. [#46779]
+- Admin Menu: Add `inlineIcon` support to the admin-menu REST endpoint. [#47146]
 - AI: Remove Chrome AI built-in API experiment code. [#46896]
+- AI Assistant: Remove Jetpack logo from Improve with AI panel in the Page sidebar. [#47040]
+- Compatibility: Clean up deprecated CSS. [#47067]
 - Cover RESTful JSON API with unit tests. [#46940]
 - Cover the JSON API posts endpoint with unit tests. [#46939]
+- Hide backup and restore messaging on non-Business WPCom plans. [#47227]
+- Image Studio: Enqueue string translations for non-English locales. [#47215]
+- Image Studio: Only enable when AI features are available. [#47315]
+- Internal: Add unit tests for MCP actor fields in sync listener. [#47244]
 - Janitorial: Clean up to-test.md. [#46943]
 - Move IDC stats from Jetpack plugin to connection package. [#46967]
-- Update package dependencies. [#46936] [#47002] [#47021]
+- Newsletters: Add JP branding to dashboard widget. [#47387]
+- Recommendations: Drop redundant PNG fallback images in favor of WebP, reducing plugin zip size by ~7 MB. [#47071]
+- Reduce plugin zip size by converting vendored package images from PNG to WebP. [#47083]
+- Remove Jetpack header from Settings => Sharing on WPCom sites. [#47221]
+- Remove Summer Special references and clean up code. [#46850]
+- Remove `baseUrl` from `tsconfig` for `tsgo` migration. [#47374]
+- Replace `Jetpack_PostImages` usage with the new `Post_Media` `Images` class. [#47249]
+- SEO: Move the Optimize SEO panel from the Jetpack sidebar to the document settings panel. [#47045]
+- Sync: Add per-request in-memory cache in the Listener to reduce `get_transient` calls during action queue checks. [#47282]
+- Sync: Store `last_item` in status to improve Full Sync performance. [#47292]
+- Twitter Cards: Deprecate `Jetpack_Twitter_Cards` class in favor of `Automattic\Jetpack\Post_Media\Twitter_Cards`. [#47169]
+- Update package dependencies. [#46936] [#47002] [#47021] [#47099] [#47131] [#47173] [#47247] [#47285] [#47288] [#47300] [#47371]
 - VideoPress: Improve attachment details display with proper i18n support and WordPress core styling. [#46458]
+- WordPress.com Reader: Load feature in new module. [#46783]
 
 ## 15.5 - 2026-02-03
 ### Major Enhancements

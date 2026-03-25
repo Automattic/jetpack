@@ -58,6 +58,7 @@ export default function Gravatar( {
 						'jetpack-forms'
 					),
 					'Gravatar not found.': __( 'Gravatar not found.', 'jetpack-forms' ),
+					'This profile is private.': __( 'This profile is private.', 'jetpack-forms' ),
 					'Too Many Requests.': __( 'Too many requests.', 'jetpack-forms' ),
 					'Internal Server Error.': __( 'Internal server error.', 'jetpack-forms' ),
 					'Is this you?': __( 'Is this you?', 'jetpack-forms' ),

@@ -57,12 +57,6 @@ export const variations = [
 		icon: <SocialLogo icon={ 'pinterest' } size={ 24 } />,
 	},
 	{
-		name: 'pocket',
-		attributes: { service: 'pocket', label: 'Pocket' },
-		title: 'Pocket',
-		icon: <SocialLogo icon={ 'pocket' } size={ 24 } />,
-	},
-	{
 		name: 'reddit',
 		attributes: { service: 'reddit', label: 'Reddit' },
 		title: 'Reddit',

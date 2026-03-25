@@ -7,7 +7,6 @@ import { getSocialScriptData } from '../utils';
  * Hydrate the data stores
  */
 export async function hydrateStores() {
-	// @ts-expect-error TS2339 -- finishResolution is there but not declared; AFAICT, it's a base method from @wordpress/data and @wordpress/core-data only declares its custom methods.
 	const { addEntities, receiveEntityRecords, finishResolution } = dispatch( coreStore );
 
 	const socialToggleBase = getSocialScriptData()?.api_paths?.socialToggleBase;
@@ -75,6 +74,18 @@ export async function hydrateStores() {
 				name: 'publicize/social-image-generator/font-options',
 				baseURL: '/wpcom/v2/publicize/social-image-generator/font-options',
 				label: __( 'Publicize font options', 'jetpack-publicize-pkg' ),
+			},
+		] );
+	}
+
+	if ( ! wpcomEntities.some( ( { name } ) => name === 'publicize/x-usage' ) ) {
+		await addEntities( [
+			{
+				kind: 'wpcom/v2',
+				name: 'publicize/x-usage',
+				baseURL: '/wpcom/v2/publicize/x-usage',
+				label: __( 'Publicize X Usage', 'jetpack-publicize-pkg' ),
+				key: 'period',
 			},
 		] );
 	}

@@ -1,4 +1,3 @@
-/* eslint-disable playwright/no-standalone-expect */
 import dns from 'dns/promises';
 import { test as setup, expect } from '../fixtures/base-test';
 import logger from '../logger';
@@ -35,11 +34,18 @@ setup(
 	'verify environment readiness',
 	{ tag: [ getCIProjectNameTestTag() ] },
 	async ( { baseURL, request } ) => {
+		// eslint-disable-next-line playwright/no-conditional-in-test
+		if ( ! baseURL ) {
+			throw new Error( 'baseURL is not configured' );
+		}
+
 		// Skip connectivity checks for localhost URLs
+		// eslint-disable-next-line playwright/no-conditional-in-test
 		if ( baseURL.includes( 'localhost' ) || baseURL.includes( '127.0.0.1' ) ) {
 			await setup.step( 'skip - localhost environment', async () => {
 				logger.debug( 'Localhost environment detected, skipping connectivity checks' );
 			} );
+
 			return;
 		}
 

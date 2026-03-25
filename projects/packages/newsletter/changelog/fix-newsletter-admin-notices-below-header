@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Move admin notices and JITMs below the page header instead of rendering inside it

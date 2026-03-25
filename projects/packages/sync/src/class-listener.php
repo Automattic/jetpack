@@ -15,8 +15,9 @@ use Automattic\Jetpack\Roles;
  * This class monitors actions and logs them to the queue to be sent.
  */
 class Listener {
-	const QUEUE_STATE_CHECK_TRANSIENT = 'jetpack_sync_last_checked_queue_state';
-	const QUEUE_STATE_CHECK_TIMEOUT   = 30; // 30 seconds.
+	const QUEUE_STATE_CHECK_TRANSIENT          = 'jetpack_sync_last_checked_queue_state';
+	const QUEUE_STATE_CHECK_TIMEOUT            = 30; // 30 seconds.
+	const REQUEST_STATE_CACHE_INVALIDATE_AFTER = 50; // Number of queue adds per request before invalidating the cache.
 
 	/**
 	 * Sync queue.
@@ -45,6 +46,23 @@ class Listener {
 	 * @var int Lag limit.
 	 */
 	private $sync_queue_lag_limit;
+
+	/**
+	 * Per-request in-memory cache of queue state.
+	 * Avoids repeated get_transient() calls for every
+	 * can_add_to_queue check within a single request.
+	 *
+	 * @var array<string, array{int, float}>
+	 */
+	private $request_queue_state_cache = array();
+
+	/**
+	 * Count of successful adds per queue within this request, used to decide when
+	 * to invalidate the in-memory cache so the size estimate stays accurate.
+	 *
+	 * @var array<string, int>
+	 */
+	private $request_adds_count = array();
 
 	/**
 	 * Singleton implementation.
@@ -148,6 +166,8 @@ class Listener {
 	public function force_recheck_queue_limit() {
 		delete_transient( self::QUEUE_STATE_CHECK_TRANSIENT . '_' . $this->sync_queue->id );
 		delete_transient( self::QUEUE_STATE_CHECK_TRANSIENT . '_' . $this->full_sync_queue->id );
+		$this->request_queue_state_cache = array();
+		$this->request_adds_count        = array();
 	}
 
 	/**
@@ -164,6 +184,18 @@ class Listener {
 			return false;
 		}
 
+		// Per-request in-memory cache: avoids a get_transient() call on every can_add_to_queue
+		// check within the same request when many actions are enqueued.
+		if ( isset( $this->request_queue_state_cache[ $queue->id ] ) ) {
+			list( $queue_size, $queue_age ) = $this->request_queue_state_cache[ $queue->id ];
+			return Health::is_queue_healthy(
+				$queue_size + ( $this->request_adds_count[ $queue->id ] ?? 0 ) + 1,
+				$queue_age,
+				$this->sync_queue_size_limit,
+				$this->sync_queue_lag_limit
+			);
+		}
+
 		$state_transient_name = self::QUEUE_STATE_CHECK_TRANSIENT . '_' . $queue->id;
 
 		$queue_state = get_transient( $state_transient_name );
@@ -173,11 +205,18 @@ class Listener {
 			set_transient( $state_transient_name, $queue_state, self::QUEUE_STATE_CHECK_TIMEOUT );
 		}
 
+		// Populate in-memory cache from the transient result so subsequent calls this request
+		// don't need to hit the object cache or DB at all.
+		$this->request_queue_state_cache[ $queue->id ] = $queue_state;
+
 		list( $queue_size, $queue_age ) = $queue_state;
 
-		return ( $queue_age < $this->sync_queue_lag_limit )
-			||
-			( ( $queue_size + 1 ) < $this->sync_queue_size_limit );
+		return Health::is_queue_healthy(
+			$queue_size + 1,
+			$queue_age,
+			$this->sync_queue_size_limit,
+			$this->sync_queue_lag_limit
+		);
 	}
 
 	/**
@@ -323,7 +362,7 @@ class Listener {
 		 */
 		if ( ! $this->can_add_to_queue( $queue ) ) {
 			if ( 'sync' === $queue->id ) {
-				$this->sync_data_loss( $queue );
+				$this->sync_data_loss( $queue, $current_filter );
 			}
 			return;
 		}
@@ -371,6 +410,16 @@ class Listener {
 			);
 		}
 
+		// Track how many items have been added to this queue during this request and periodically
+		// invalidate the in-memory queue-state cache so the size/lag estimate stays accurate.
+		// Without this, a burst that fills the queue mid-request would keep passing can_add_to_queue
+		// with a stale "queue is fine" result captured at the start of the request.
+		$this->request_adds_count[ $queue->id ] = ( $this->request_adds_count[ $queue->id ] ?? 0 ) + 1;
+		if ( $this->request_adds_count[ $queue->id ] >= self::REQUEST_STATE_CACHE_INVALIDATE_AFTER ) {
+			unset( $this->request_queue_state_cache[ $queue->id ] );
+			$this->request_adds_count[ $queue->id ] = 0;
+		}
+
 		// since we've added some items, let's try to load the sender so we can send them as quickly as possible.
 		if ( ! Actions::$sender ) {
 			add_filter( 'jetpack_sync_sender_should_load', __NAMESPACE__ . '\Actions::should_initialize_sender_enqueue', 10, 1 );
@@ -383,10 +432,13 @@ class Listener {
 	/**
 	 * Sync Data Loss Handler
 	 *
-	 * @param Queue $queue Sync queue.
+	 * Sends a single 'jetpack_sync_data_loss' action to WP.com with timestamp, queue_size, queue_lag and current_filter.
+	 *
+	 * @param Queue  $queue Sync queue.
+	 * @param string $current_filter Name of action that triggered sync.
 	 * @return boolean was send successful
 	 */
-	public function sync_data_loss( $queue ) {
+	public function sync_data_loss( $queue, $current_filter = '' ) {
 		if ( ! Settings::is_sync_enabled() ) {
 			return;
 		}
@@ -400,6 +452,9 @@ class Listener {
 			'timestamp'  => microtime( true ),
 			'queue_size' => $queue->size(),
 			'queue_lag'  => $queue->lag(),
+			'extra'      => array(
+				'current_filter' => $current_filter,
+			),
 		);
 
 		$sender = Sender::get_instance();
@@ -444,7 +499,56 @@ class Listener {
 			$ip = IP_Utils::get_ip();
 
 			$actor['ip']         = $ip ? $ip : '';
-			$actor['user_agent'] = isset( $_SERVER['HTTP_USER_AGENT'] ) ? filter_var( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : 'unknown';
+			$actor['user_agent'] = isset( $_SERVER['HTTP_USER_AGENT'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : 'unknown';
+		}
+
+		$raw_mcp_header = '';
+		if ( isset( $_SERVER['HTTP_X_WPCOM_MCP'] ) && is_string( $_SERVER['HTTP_X_WPCOM_MCP'] ) ) {
+			$raw_mcp_header = trim( wp_unslash( $_SERVER['HTTP_X_WPCOM_MCP'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sanitization happens below.
+		}
+
+		if ( ! empty( $raw_mcp_header ) && preg_match( '/^[A-Za-z0-9+\/=]+$/', $raw_mcp_header ) ) {
+			// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode -- Decoding MCP header payload.
+			$decoded = base64_decode( $raw_mcp_header, true );
+			if ( false !== $decoded ) {
+				$mcp_data = json_decode( $decoded, true );
+				if ( is_array( $mcp_data ) ) {
+					if ( isset( $mcp_data['mcp_client_name'] ) && is_string( $mcp_data['mcp_client_name'] ) ) {
+						$actor['mcp_client_name'] = sanitize_text_field( $mcp_data['mcp_client_name'] );
+					}
+					if ( isset( $mcp_data['mcp_client_version'] ) && is_string( $mcp_data['mcp_client_version'] ) ) {
+						$actor['mcp_client_version'] = sanitize_text_field( $mcp_data['mcp_client_version'] );
+					}
+					if ( ! empty( $actor['mcp_client_name'] ) || ! empty( $actor['mcp_client_version'] ) ) {
+						$actor['is_mcp_agent'] = true;
+					}
+				}
+			}
+		}
+
+		/**
+		 * Filters the actor data attached to sync events.
+		 *
+		 * Actor data identifies who or what triggered a sync event (user info,
+		 * request context, MCP client details, etc.) and is sent alongside every
+		 * event to WordPress.com.
+		 *
+		 * @since 4.33.0
+		 *
+		 * @param array $actor Associative array of actor information.
+		 */
+		$actor = apply_filters( 'jetpack_sync_actor_data', $actor );
+
+		// Ensure the filter returns a valid array.
+		if ( ! is_array( $actor ) ) {
+			$actor = array();
+		}
+
+		// Sanitize string values added via the filter.
+		foreach ( $actor as $key => $value ) {
+			if ( is_string( $value ) ) {
+				$actor[ $key ] = sanitize_text_field( $value );
+			}
 		}
 
 		return $actor;

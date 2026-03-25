@@ -11,9 +11,9 @@ export type SocialUserPreferences = {
 	showPrePublishConfirmation: boolean | undefined;
 
 	/**
-	 * Whether the review prompt has been dismissed by the user.
+	 * Whether the X usage at-limit notice has been dismissed.
 	 */
-	reviewPromptDismissed: boolean | undefined;
+	dismissedXUsageNotice: boolean | undefined;
 };
 
 type BooleanPreferences = {
@@ -26,7 +26,7 @@ type Preference = keyof SocialUserPreferences;
 
 const PREFERENCES: Record< Preference, string > = {
 	showPrePublishConfirmation: 'show_pre_publish_confirmation',
-	reviewPromptDismissed: 'review_prompt_dismissed',
+	dismissedXUsageNotice: 'dismissed_x_usage_notice',
 } as const;
 
 /**

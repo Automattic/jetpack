@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Forms\ContactForm;
 
+use Automattic\Jetpack\Forms\Jetpack_Forms;
+
 /**
  * Feedback field class.
  *
@@ -438,6 +440,9 @@ class Feedback_Field {
 		if ( $this->is_of_type( 'file' ) ) {
 			return $this->render_email_file();
 		}
+		if ( $this->is_of_type( 'image-select' ) ) {
+			return $this->render_email_image_select();
+		}
 		return $this->render_email_default();
 	}
 
@@ -483,7 +488,7 @@ class Feedback_Field {
 				continue;
 			}
 			$chips[] = sprintf(
-				'<div style="display: inline-block; height: 24px; padding: 0 8px; margin: 2px 4px 2px 0; background-color: #f0f0f0; border-radius: 2px; font-size: 13px; line-height: 24px; color: %s;">%s</div>',
+				'<div style="display: inline-block; height: 24px; padding: 0 8px; margin: 2px 4px 2px 0; background-color: #f0f0f0; border-radius: 2px; font-size: ' . Feedback_Email_Renderer::FONT_SIZE_FIELD_VALUE . '; line-height: 24px; color: %s;">%s</div>',
 				Feedback_Email_Renderer::TEXT_COLOR,
 				$safe_item
 			);
@@ -506,7 +511,7 @@ class Feedback_Field {
 		$label  = $is_yes ? __( 'Yes', 'jetpack-forms' ) : __( 'No', 'jetpack-forms' );
 
 		return sprintf(
-			'<span style="display: inline-block; padding: 0 8px; border-radius: 2px; font-size: 13px; line-height: 1.4; background-color: #f0f0f0; color: %s;">%s</span>',
+			'<span style="display: inline-block; padding: 0 8px; border-radius: 2px; font-size: ' . Feedback_Email_Renderer::FONT_SIZE_FIELD_VALUE . '; line-height: 1.4; background-color: #f0f0f0; color: %s;">%s</span>',
 			Feedback_Email_Renderer::TEXT_COLOR,
 			esc_html( $label )
 		);
@@ -601,16 +606,19 @@ class Feedback_Field {
 	}
 
 	/**
-	 * Render a file field value with file name and size.
+	 * Render a file field value with thumbnail, file name, size, and download icon.
 	 *
 	 * @return string HTML with file info.
 	 */
 	private function render_email_file() {
-		if ( ! Contact_Form::is_file_upload_field( $this->value ) ) {
+		// We already know the field is type 'file' (dispatched from get_render_email_html_value).
+		// The value may or may not contain 'field_id' depending on how it was loaded,
+		// so we only check for the 'files' array rather than using is_file_upload_field().
+		if ( ! is_array( $this->value ) || ! isset( $this->value['files'] ) || ! is_array( $this->value['files'] ) ) {
 			return $this->render_email_default();
 		}
 
-		$files = $this->value['files'] ?? array();
+		$files = $this->value['files'];
 		if ( empty( $files ) ) {
 			return $this->render_empty_value_html();
 		}
@@ -623,31 +631,234 @@ class Feedback_Field {
 
 			$file_name = $file['name'] ?? __( 'Attached file', 'jetpack-forms' );
 			$file_size = isset( $file['size'] ) ? size_format( $file['size'] ) : '';
-			$file_id   = absint( $file['file_id'] );
-			$file_url  = apply_filters( 'jetpack_unauth_file_download_url', '', $file_id );
+			$file_url  = apply_filters( 'jetpack_unauth_file_download_url', '', absint( $file['file_id'] ) );
+			$file_type = $file['type'] ?? '';
 
-			$html = esc_html( $file_name );
-			if ( ! empty( $file_size ) ) {
-				$html .= sprintf( ' <span style="color: ' . Feedback_Email_Renderer::TEXT_SECONDARY_COLOR . '; font-size: 12px;">(%s)</span>', esc_html( $file_size ) );
-			}
-
-			if ( ! empty( $file_url ) ) {
-				$html = sprintf(
-					'<a href="%1$s" style="color: %3$s; text-decoration: underline;" target="_blank">%2$s</a>',
-					esc_url( $file_url ),
-					$html,
-					self::get_admin_theme_color()
-				);
-			}
-
-			$file_items[] = $html;
+			$file_items[] = $this->render_email_file_row( $file_name, $file_size, $file_url, $file_type );
 		}
 
 		if ( empty( $file_items ) ) {
 			return $this->render_empty_value_html();
 		}
 
-		return implode( '<br />', $file_items );
+		return implode( '', $file_items );
+	}
+
+	/**
+	 * Render a single file row with thumbnail, name/size, and download icon.
+	 *
+	 * @param string $file_name The file name.
+	 * @param string $file_size The formatted file size.
+	 * @param string $file_url  The download URL.
+	 * @param string $file_type The MIME type of the file.
+	 * @return string HTML table for the file row.
+	 */
+	private function render_email_file_row( $file_name, $file_size, $file_url, $file_type = '' ) {
+		$thumbnail_html = $this->get_file_thumbnail_html( $file_name, $file_type );
+
+		// File name — linked if download URL is available.
+		$name_html = esc_html( $file_name );
+		if ( ! empty( $file_url ) ) {
+			$name_html = sprintf(
+				'<a href="%1$s" style="color: %2$s; text-decoration: underline;" target="_blank">%3$s</a>',
+				esc_url( $file_url ),
+				Feedback_Email_Renderer::TEXT_COLOR,
+				$name_html
+			);
+		}
+
+		// File size on a second line.
+		$size_html = '';
+		if ( ! empty( $file_size ) ) {
+			$size_html = sprintf(
+				'<div style="font-size: 12px; color: %1$s; line-height: 1.4;">%2$s</div>',
+				Feedback_Email_Renderer::TEXT_SECONDARY_COLOR,
+				esc_html( $file_size )
+			);
+		}
+
+		// Download icon (rasterized from @wordpress/icons 'download').
+		$download_icon = '';
+		if ( ! empty( $file_url ) ) {
+			$download_icon_url = Jetpack_Forms::plugin_url() . 'contact-form/images/file-icons/download@2x.png';
+			$download_icon     = sprintf(
+				'<a href="%1$s" target="_blank" style="text-decoration: none;"><img src="%2$s" width="20" height="20" alt="%3$s" style="display: block; width: 20px; height: 20px; -webkit-user-select: none; user-select: none;" /></a>',
+				esc_url( $file_url ),
+				esc_url( $download_icon_url ),
+				esc_attr__( 'Download', 'jetpack-forms' )
+			);
+		}
+
+		// Build the file row as a table: [thumbnail] [name + size] [download icon].
+		$html  = '<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="margin-top: 4px;">';
+		$html .= '<tr>';
+
+		// Thumbnail cell.
+		$html .= '<td width="40" valign="middle" style="padding-right: 12px; width: 40px; vertical-align: middle; text-align: center;">';
+		$html .= $thumbnail_html;
+		$html .= '</td>';
+
+		// Name and size cell.
+		$html .= '<td valign="middle" style="font-size: 13px; line-height: 1.4;">';
+		$html .= '<div>' . $name_html . '</div>';
+		$html .= $size_html;
+		$html .= '</td>';
+
+		// Download icon cell.
+		if ( ! empty( $download_icon ) ) {
+			$html .= '<td width="20" valign="middle" align="right" style="padding-left: 12px; width: 20px;">';
+			$html .= $download_icon;
+			$html .= '</td>';
+		}
+
+		$html .= '</tr>';
+		$html .= '</table>';
+
+		return $html;
+	}
+
+	/**
+	 * Get the thumbnail HTML for a file attachment.
+	 *
+	 * For previewable files (images: jpg, jpeg, png, gif, webp), uses the actual
+	 * file URL as the thumbnail when available. For other file types, falls back
+	 * to a file-type icon from the file-icons directory.
+	 *
+	 * @param string $file_name The original file name (used for extension-based icon lookup).
+	 * @param string $file_type The MIME type of the file.
+	 * @return string HTML for the thumbnail.
+	 */
+	private function get_file_thumbnail_html( $file_name = '', $file_type = '' ) {
+		$icon_name = self::get_file_icon_name( $file_name, $file_type );
+		$icon_url  = Jetpack_Forms::plugin_url() . 'contact-form/images/file-icons/' . $icon_name . '@2x.png';
+
+		return sprintf(
+			'<img src="%1$s" width="24" height="24" alt=""
+				style="padding: 8px; border-radius: 50%%; width: 24px; height: 24px; background-color: #f0f0f0; -webkit-user-select: none; user-select: none;" />',
+			esc_url( $icon_url )
+		);
+	}
+
+	/**
+	 * Map a file to its icon name based on extension then MIME type category.
+	 *
+	 * Mirrors the JS logic in modules/file-field/view.js getFileIcon().
+	 *
+	 * @param string $file_name The file name.
+	 * @param string $file_type The MIME type.
+	 * @return string The icon filename without extension.
+	 */
+	private static function get_file_icon_name( $file_name, $file_type ) {
+		$extension = strtolower( pathinfo( $file_name, PATHINFO_EXTENSION ) );
+
+		$extension_map = array(
+			'pdf'  => 'pdf',
+			'doc'  => 'txt',
+			'docx' => 'txt',
+			'txt'  => 'txt',
+			'ppt'  => 'ppt',
+			'pptx' => 'ppt',
+			'xls'  => 'xls',
+			'xlsx' => 'xls',
+			'csv'  => 'xls',
+			'zip'  => 'zip',
+			'sql'  => 'sql',
+			'cal'  => 'cal',
+			'html' => 'html',
+			'mp3'  => 'mp3',
+			'mp4'  => 'mp4',
+			'png'  => 'png',
+			'jpg'  => 'png',
+			'jpeg' => 'png',
+			'gif'  => 'png',
+			'webp' => 'png',
+		);
+
+		if ( isset( $extension_map[ $extension ] ) ) {
+			return $extension_map[ $extension ];
+		}
+
+		// Fall back to MIME type category.
+		$category     = explode( '/', $file_type )[0] ?? '';
+		$category_map = array(
+			'image' => 'png',
+			'video' => 'mp4',
+			'audio' => 'mp3',
+		);
+
+		return $category_map[ $category ] ?? 'txt';
+	}
+
+	/**
+	 * Render an image-select field for email.
+	 *
+	 * Renders each selected choice as a card with an image thumbnail,
+	 * letter code, and label arranged horizontally.
+	 *
+	 * @return string HTML for the image-select field.
+	 */
+	private function render_email_image_select() {
+		if ( ! is_array( $this->value ) || empty( $this->value['choices'] ) || ! is_array( $this->value['choices'] ) ) {
+			return $this->render_empty_value_html();
+		}
+
+		$cards = array();
+		foreach ( $this->value['choices'] as $choice ) {
+			$letter     = isset( $choice['selected'] ) ? esc_html( $choice['selected'] ) : '';
+			$label      = ! empty( $choice['label'] ) ? esc_html( $choice['label'] ) : '';
+			$image_src  = ! empty( $choice['image']['src'] ) ? esc_url( $choice['image']['src'] ) : '';
+			$show_label = ! empty( $choice['showLabels'] );
+
+			// Image thumbnail or gray placeholder at 138×144.
+			if ( $image_src !== '' ) {
+				$image_html = sprintf(
+					'<div style="padding: 8px 8px 0 8px;"><img src="%s" alt="%s" width="138" height="144" style="display: block; width: 138px; height: 144px; object-fit: cover;" /></div>',
+					$image_src,
+					$label !== '' ? $label : $letter
+				);
+			} else {
+				$placeholder_icon = Jetpack_Forms::plugin_url() . 'contact-form/images/field-icons/field-image-select@2x.png';
+				$image_html       = sprintf(
+					'<div style="padding: 8px 8px 0 8px;"><div style="width: 138px; height: 144px; background-color: #f0f0f0; text-align: center; line-height: 144px;"><img src="%s" alt="" width="24" height="24" style="vertical-align: middle;" /></div></div>',
+					esc_url( $placeholder_icon )
+				);
+			}
+
+			// Letter code box + label.
+			$caption_html = '';
+			if ( $letter !== '' ) {
+				$caption_html .= sprintf(
+					'<span style="display: inline-block; min-width: 1em; padding: 4px; line-height: 1; text-align: center; border: 1px solid #dcdcde; border-radius: 2px; font-size: 11px; font-weight: 600; color: #1e1e1e; vertical-align: baseline;">%s</span>',
+					$letter
+				);
+			}
+
+			if ( $show_label && $label !== '' ) {
+				$caption_html .= sprintf(
+					' <span style="font-size: 13px; color: #1e1e1e; vertical-align: baseline;">%s</span>',
+					$label
+				);
+			}
+
+			// Card with fixed width matching the admin preview (138px image + 16px padding).
+			$card  = '<div style="display: inline-block; vertical-align: top; width: 154px; border: 1px solid #dcdcde; border-radius: 8px; margin: 0 8px 8px 0;">';
+			$card .= $image_html;
+			if ( $caption_html !== '' ) {
+				$card .= sprintf(
+					'<div style="padding: 4px 8px 8px 8px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">%s</div>',
+					$caption_html
+				);
+			}
+			$card .= '</div>';
+
+			$cards[] = $card;
+		}
+
+		if ( empty( $cards ) ) {
+			return $this->render_empty_value_html();
+		}
+
+		return implode( '', $cards );
 	}
 
 	/**

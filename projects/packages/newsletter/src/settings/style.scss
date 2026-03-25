@@ -1,85 +1,33 @@
 // Import dataviews styles for DataForm component
+@import "@wordpress/theme/design-tokens.css";
 @import "@wordpress/dataviews/build-style/style.css";
 
+#newsletter-settings-root * {
+	box-sizing: border-box;
+}
+
+.jetpack_page_jetpack-newsletter #dolly {
+	width: 100%;
+	text-align: right;
+}
+
+.newsletter-jitm-card {
+
+	.jitm-card {
+		margin-inline-end: 0;
+		margin-block: 1.5rem;
+	}
+}
+
 .newsletter-settings {
-	max-width: 1200px;
+	max-width: 660px; /* MSD and future JP settings pages are 660px wide */
 	margin-inline: auto;
 
-	// Card-based sections
-	&__section {
-		background: #fff;
-		border: 1px solid #c3c4c7;
-		box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
-		margin-bottom: 20px;
-		padding: 1.5em;
-	}
-
-	&__section-title {
-		margin: 0;
-		padding: 0;
-	}
-
-	&__section-description {
-		margin: 0;
-		padding: 0;
-		text-wrap: pretty;
-	}
-
-	&__section-content {
-		padding-top: 1em;
-
-		// Disabled state styling
-		&:disabled {
-			opacity: 0.5;
-			pointer-events: none;
-			position: relative;
-
-			&::after {
-				content: "";
-				position: absolute;
-				top: 0;
-				inset-inline-start: 0;
-				inset-inline-end: 0;
-				bottom: 0;
-				background: rgba(255, 255, 255, 0.6);
-				pointer-events: none;
-			}
-		}
-	}
-
-	&__section-actions {
-		margin-top: 2em;
-		display: flex;
-		justify-content: flex-start;
-	}
-
-	// Links styling
-	&__link {
-		margin-top: 2em;
-	}
-
-	// Help text with links
-	&__help-text {
-		margin-top: 12px;
-		font-size: 13px;
-	}
-
-	&--error {
-		padding: 20px;
-
-		h2 {
-			color: #d63638;
-			font-size: 18px;
-			margin-bottom: 12px;
-		}
-
-		p {
-			color: #646970;
-		}
-	}
-
-	// Notice component styling
 	.components-notice {
-		margin: 0 0 20px;
+		margin-block-end: var(--wpds-dimension-gap-lg, 24px);
+	}
+
+	.components-card__body > p:first-child {
+		margin-top: 0;
 	}
 }

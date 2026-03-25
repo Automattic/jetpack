@@ -155,6 +155,16 @@ class Functions_Compat_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * @author mehmoodak
+	 * @since 15.6
+	 */
+	public function test_jetpack_youtube_sanitize_url_with_shorts_url() {
+		$sanitized_url = jetpack_youtube_sanitize_url( 'https://www.youtube.com/shorts/VIDEO_ID' );
+
+		$this->assertEquals( 'https://www.youtube.com/watch?v=VIDEO_ID', $sanitized_url );
+	}
+
+	/**
 	 * @author enkrates
 	 * @since 3.2
 	 */
@@ -180,5 +190,15 @@ class Functions_Compat_Test extends WP_UnitTestCase {
 		$youtube_id = jetpack_get_youtube_id( $playlist_url );
 
 		$this->assertEquals( $expected_id, $youtube_id );
+	}
+
+	/**
+	 * @author mehmoodak
+	 * @since 15.6
+	 */
+	public function test_jetpack_get_youtube_id_with_shorts_url() {
+		$youtube_id = jetpack_get_youtube_id( 'https://www.youtube.com/shorts/VIDEO_ID' );
+
+		$this->assertEquals( 'VIDEO_ID', $youtube_id );
 	}
 } // end class

@@ -5,7 +5,7 @@ import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { useRef, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import useSiteLogo from '../hooks/use-site-logo.js';
+import useQRLogo from '../hooks/use-qr-logo.js';
 
 /**
  * React component that renders a QR code for the post,
@@ -32,10 +32,10 @@ export function QRPost() {
 		setJetpackLogo( `data:image/svg+xml;base64,${ window.btoa( serializedSVG ) }` );
 	}, [ wrapperElementRef ] );
 
-	// Pick title and permalink post.
+	// Pick permalink and logo for QR code (site icon → site logo → Jetpack logo).
 	const permalink = useSelect( select => select( editorStore ).getPermalink(), [] );
-	const { dataUrl: siteLogoUrl } = useSiteLogo( { generateDataUrl: true } );
-	const codeLogo = siteLogoUrl || jetpackLogoUrl;
+	const { dataUrl: qrLogoUrl } = useQRLogo( { generateDataUrl: true } );
+	const codeLogo = qrLogoUrl || jetpackLogoUrl;
 
 	return (
 		<div ref={ wrapperElementRef }>

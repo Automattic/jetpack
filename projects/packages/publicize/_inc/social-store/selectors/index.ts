@@ -7,6 +7,7 @@ import * as socialImageGeneratorSelectors from './social-image-generator';
 import * as socialModuleSelectors from './social-module-settings';
 import * as socialSettingsSelectors from './social-settings';
 import * as unifiedModalSelectors from './unified-modal';
+import * as xUsageSelectors from './x-usage';
 
 const selectors = {
 	...connectionDataSelectors,
@@ -18,6 +19,7 @@ const selectors = {
 	...servicesSelectors,
 	...scheduledSharesSelectors,
 	...unifiedModalSelectors,
+	...xUsageSelectors,
 };
 
 export default selectors;

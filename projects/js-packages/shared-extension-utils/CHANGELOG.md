@@ -5,6 +5,41 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.5] - 2026-03-23
+### Changed
+- Update package dependencies. [#47684]
+
+## [1.5.4] - 2026-03-16
+### Changed
+- Update dependencies. [#47472]
+
+## [1.5.3] - 2026-03-09
+### Changed
+- Switch to Native TypeScript compiler based on Go. [#47375]
+
+### Fixed
+- Fix TS type errors detected by tsgo. [#47423]
+
+## [1.5.2] - 2026-03-02
+### Changed
+- Convert `useAutosaveAndRedirect` and `getJetpackExtensionAvailability` to TypeScript. [#47382]
+
+## [1.5.1] - 2026-02-26
+### Changed
+- Update package dependencies. [#47300]
+
+## [1.5.0] - 2026-02-23
+### Changed
+- Update `JetpackEditorPanelLogo` to respect the `jetpack_show_editor_panel_branding` PHP filter. [#47094]
+
+## [1.4.13] - 2026-02-18
+### Changed
+- Set `.repository.url` in `package.json` to the mirror repo rather than the monorepo. [#47149]
+
+## [1.4.12] - 2026-02-16
+### Changed
+- Update package dependencies. [#47099]
+
 ## [1.4.11] - 2026-02-10
 ### Added
 - Shared Extension Utils: Add separate site type utils export. [#46938]
@@ -866,6 +901,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Core: prepare utility for release
 
+[1.5.5]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.5.4...1.5.5
+[1.5.4]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.5.3...1.5.4
+[1.5.3]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.5.2...1.5.3
+[1.5.2]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.5.1...1.5.2
+[1.5.1]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.5.0...1.5.1
+[1.5.0]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.4.13...1.5.0
+[1.4.13]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.4.12...1.4.13
+[1.4.12]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.4.11...1.4.12
 [1.4.11]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.4.10...1.4.11
 [1.4.10]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.4.9...1.4.10
 [1.4.9]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.4.8...1.4.9

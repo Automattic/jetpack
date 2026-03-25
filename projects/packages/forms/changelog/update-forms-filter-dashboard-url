@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Change forms dashboard URL filter to allow customizing the dashboard location and resolve legacy hash fragments from email links.

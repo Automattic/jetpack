@@ -30,10 +30,6 @@ use Automattic\Jetpack\Tracking;
 use Jetpack_Options;
 use WP_Error;
 use WP_REST_Server;
-// phpcs:ignore WordPress.Utils.I18nTextDomainFixer.MissingArgs
-use function __;
-// phpcs:ignore WordPress.Utils.I18nTextDomainFixer.MissingArgs
-use function _x;
 use function add_action;
 use function add_filter;
 use function did_action;
@@ -161,8 +157,8 @@ class Jetpack_Backup {
 	 */
 	public static function add_wp_admin_submenu() {
 		$page_suffix = Admin_Menu::add_menu(
-			__( 'Jetpack VaultPress Backup', 'jetpack-backup-pkg' ),
-			_x( 'VaultPress Backup', 'The Jetpack VaultPress Backup product name, without the Jetpack prefix', 'jetpack-backup-pkg' ),
+			'Jetpack Backup',
+			'Backup', // Product name, do not translate.
 			'manage_options',
 			'jetpack-backup',
 			array( __CLASS__, 'plugin_settings_page' ),

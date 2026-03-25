@@ -535,6 +535,111 @@ class Contact_Form_Synced_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Test that shortcode with ref attribute loads content from synced form post.
+	 */
+	public function test_shortcode_with_ref_attribute_loads_synced_form() {
+		// Disable content filtering to prevent WordPress from escaping JSON
+		kses_remove_filters();
+
+		// Use a unique label that wouldn't appear in a default form to avoid false positives
+		$unique_label = 'Unique Shortcode Test Field XYZ123';
+
+		// Create a jetpack_form post with form content containing the unique label
+		$form_id = wp_insert_post(
+			array(
+				'post_type'    => 'jetpack_form',
+				'post_status'  => 'publish',
+				'post_title'   => 'Test Synced Form',
+				'post_content' => sprintf(
+					'<!-- wp:jetpack/contact-form -->
+					<!-- wp:jetpack/field-text {"label":"%s","required":true} /-->
+					<!-- wp:jetpack/button {"element":"button","text":"Submit"} /-->
+					<!-- /wp:jetpack/contact-form -->',
+					$unique_label
+				),
+			)
+		);
+
+		kses_init_filters();
+
+		$this->assertGreaterThan( 0, $form_id, 'Synced form post should be created' );
+
+		// Process the shortcode with ref attribute
+		$shortcode = sprintf( '[contact-form ref="%d"]', $form_id );
+		$output    = do_shortcode( $shortcode );
+
+		// Verify the output contains the unique label from the synced form
+		// This ensures we're loading the actual referenced form, not a default form
+		$this->assertStringContainsString( $unique_label, $output, 'Shortcode output should contain the unique label from the referenced form' );
+	}
+
+	/**
+	 * Test that shortcode with invalid ref returns empty.
+	 */
+	public function test_shortcode_with_invalid_ref_returns_empty() {
+		// Process the shortcode with invalid ref
+		$shortcode = '[contact-form ref="99999"]'; // Non-existent form
+		$output    = do_shortcode( $shortcode );
+
+		// Should return empty or the original shortcode text (not render as a form)
+		$this->assertEmpty( $output, 'Shortcode with invalid ref should return empty' );
+	}
+
+	/**
+	 * Test that shortcode ref attribute prevents circular references.
+	 */
+	public function test_shortcode_ref_prevents_circular_reference() {
+		// Create a form that references itself
+		$form_id = wp_insert_post(
+			array(
+				'post_type'   => 'jetpack_form',
+				'post_status' => 'publish',
+				'post_title'  => 'Circular Form',
+			)
+		);
+
+		// Update the form to reference itself (circular reference)
+		kses_remove_filters();
+		$circular_content = sprintf( '<!-- wp:jetpack/contact-form {"ref":%d} /-->', $form_id );
+		wp_update_post(
+			array(
+				'ID'           => $form_id,
+				'post_content' => $circular_content,
+			)
+		);
+		kses_init_filters();
+
+		// Process the shortcode
+		$shortcode = sprintf( '[contact-form ref="%d"]', $form_id );
+		$output    = do_shortcode( $shortcode );
+
+		// Should return empty to prevent infinite loop
+		$this->assertEmpty( $output, 'Shortcode with circular ref should return empty' );
+	}
+
+	/**
+	 * Test that shortcode with ref attribute only renders published forms.
+	 */
+	public function test_shortcode_ref_only_renders_published_forms() {
+		// Create a trashed form
+		$trashed_form_id = wp_insert_post(
+			array(
+				'post_type'    => 'jetpack_form',
+				'post_status'  => 'trash',
+				'post_title'   => 'Trashed Form',
+				'post_content' => '<!-- wp:jetpack/contact-form --><!-- wp:jetpack/field-email /--><!-- /wp:jetpack/contact-form -->',
+			)
+		);
+
+		// Process the shortcode
+		$shortcode = sprintf( '[contact-form ref="%d"]', $trashed_form_id );
+		$output    = do_shortcode( $shortcode );
+
+		// Should not render trashed form
+		$this->assertEmpty( $output, 'Shortcode should not render trashed form' );
+	}
+
+	/**
 	 * Test that non-circular nested forms render successfully.
 	 */
 	public function test_non_circular_nested_forms_render() {

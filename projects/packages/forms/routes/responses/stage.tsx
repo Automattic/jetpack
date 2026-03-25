@@ -2,7 +2,6 @@
  * External dependencies
  */
 import { formatNumber } from '@automattic/number-formatters';
-import { Badge } from '@automattic/ui';
 /**
  * WordPress dependencies
  */
@@ -18,7 +17,7 @@ import { useMemo, useState, useCallback, useEffect } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __, sprintf } from '@wordpress/i18n';
 import { useParams, useSearch, useNavigate } from '@wordpress/route';
-import { Stack } from '@wordpress/ui';
+import { Badge, Stack } from '@wordpress/ui';
 import * as React from 'react';
 /**
  * Internal dependencies
@@ -453,38 +452,34 @@ function StageInner() {
 				filterBy: { operators: [ 'is' ] as Operator[] },
 				enableSorting: false,
 			},
-			...( isSingleFormView
-				? []
-				: [
-						{
-							id: 'source',
-							label: __( 'Source', 'jetpack-forms' ),
-							render: ( { item } ) => {
-								const source =
-									item.entry_title ||
-									getUrlPath( item.entry_permalink ) ||
-									__( '(no title)', 'jetpack-forms' );
-								if ( item.entry_permalink ) {
-									return styleUnreadValue(
-										<ExternalLink href={ item.entry_permalink }>{ source }</ExternalLink>,
-										item.is_unread
-									);
-								}
-								return styleUnreadValue( source, item.is_unread );
-							},
-							elements: ( ( filterOptions as unknown as FeedbackFilters )?.source || [] ).map(
-								source => ( {
-									value: source.id.toString(),
-									label:
-										decodeEntities( source.title ) ||
-										getUrlPath( source.url ) ||
-										__( '(no title)', 'jetpack-forms' ),
-								} )
-							),
-							filterBy: { operators: [ 'is' ] as Operator[] },
-							enableSorting: false,
-						},
-				  ] ),
+			{
+				id: 'source',
+				label: __( 'Source', 'jetpack-forms' ),
+				render: ( { item } ) => {
+					const source =
+						item.entry_title ||
+						getUrlPath( item.entry_permalink ) ||
+						__( '(no title)', 'jetpack-forms' );
+					if ( item.entry_permalink ) {
+						return styleUnreadValue(
+							<ExternalLink href={ item.entry_permalink }>{ source }</ExternalLink>,
+							item.is_unread
+						);
+					}
+					return styleUnreadValue( source, item.is_unread );
+				},
+				elements: ( ( filterOptions as unknown as FeedbackFilters )?.source || [] ).map(
+					source => ( {
+						value: source.id.toString(),
+						label:
+							decodeEntities( source.title ) ||
+							getUrlPath( source.url ) ||
+							__( '(no title)', 'jetpack-forms' ),
+					} )
+				),
+				filterBy: isSingleFormView ? false : { operators: [ 'is' ] as Operator[] },
+				enableSorting: false,
+			},
 			{
 				id: 'read_status',
 				label: __( 'Status', 'jetpack-forms' ),
@@ -496,7 +491,7 @@ function StageInner() {
 				enableSorting: false,
 				render: ( { item } ) => {
 					return (
-						<Badge intent="default">
+						<Badge intent="draft">
 							{ item.is_unread ? __( 'Unread', 'jetpack-forms' ) : __( 'Read', 'jetpack-forms' ) }
 						</Badge>
 					);
@@ -548,8 +543,11 @@ function StageInner() {
 	}, [] );
 
 	const {
+		ariaLabel,
 		breadcrumbs,
+		badges,
 		subtitle,
+		title,
 		actions: headerActions,
 	} = usePageHeaderDetails( {
 		screen: 'responses',
@@ -574,6 +572,9 @@ function StageInner() {
 		<Page
 			showSidebarToggle={ false }
 			breadcrumbs={ breadcrumbs }
+			badges={ badges }
+			title={ title }
+			ariaLabel={ ariaLabel }
 			subTitle={ subtitle }
 			actions={ headerActions }
 			hasPadding={ false }
