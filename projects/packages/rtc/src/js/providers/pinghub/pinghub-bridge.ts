@@ -160,7 +160,7 @@ function detectBrowser(): string {
  * @param value - Metric value.
  * @param unit  - Unit indicator ('ms' for milliseconds, 'c' for counter).
  */
-function pixel( key: string, value: string | number, unit: string ): void {
+export function pixel( key: string, value: string | number, unit: string ): void {
 	new Image().src =
 		'https://pixel.wp.com/boom.gif?' +
 		'v=0.9&u=https://public-api.wordpress.com/pinghub&' +
