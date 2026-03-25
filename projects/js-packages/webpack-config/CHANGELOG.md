@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 3.7.29 - 2026-03-23
+### Changed
+- Update package dependencies. [#47684]
+
+## 3.7.28 - 2026-03-16
+### Changed
+- Update dependencies. [#47472]
+
 ## 3.7.27 - 2026-03-09
 ### Changed
 - Centralize admin-ui CSS bundling: add subpath to defaultRequestMap and mark CSS imports as sideEffects to prevent incorrect externalization and tree-shaking. [#47313]
@@ -27,9 +35,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## 3.7.23 - 2026-02-12
 ### Changed
 - Added WebP to default file extensions handled by FileRule. [#47082]
-- Update package dependencies. [#47095]
-- Update package dependencies. [#47099]
-- Update package dependencies. [#47101]
+- Update package dependencies. [#47095] [#47099] [#47101]
 
 ## 3.7.22 - 2026-02-10
 ### Changed

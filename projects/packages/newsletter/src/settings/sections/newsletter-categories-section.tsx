@@ -205,7 +205,7 @@ export function NewsletterCategoriesSection( {
 									'edit-tags.php?taxonomy=category&referer=newsletter-categories'
 								) }
 							>
-								{ __( 'Add New Category', 'jetpack-newsletter' ) }
+								{ __( 'Add new category', 'jetpack-newsletter' ) }
 							</ExternalLink>
 						</p>
 					) }

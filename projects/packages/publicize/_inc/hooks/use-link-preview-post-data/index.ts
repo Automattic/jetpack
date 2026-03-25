@@ -59,13 +59,14 @@ export function useLinkPreviewPostData(): LinkPreviewData {
 		return imageUrl;
 	}, [] );
 
-	const siteTitle = useSelect( select => {
-		const site = select( coreStore ).getSite(
-			// The id param is optional
-			undefined
-		);
+	const { siteTitle, siteIcon } = useSelect( select => {
+		const { getUnstableBase } = select( coreStore );
+		const base = getUnstableBase( undefined );
 
-		return site?.title || '';
+		return {
+			siteTitle: base?.name || '',
+			siteIcon: base?.site_icon_url || '',
+		};
 	}, [] );
 
 	const title = useSelect( select => {
@@ -86,9 +87,10 @@ export function useLinkPreviewPostData(): LinkPreviewData {
 		return {
 			description: decodeEntities( description ),
 			image,
+			siteIcon,
 			siteTitle: decodeEntities( siteTitle ),
 			title: decodeEntities( title ),
 			url,
 		};
-	}, [ description, image, siteTitle, title, url ] );
+	}, [ description, image, siteIcon, siteTitle, title, url ] );
 }

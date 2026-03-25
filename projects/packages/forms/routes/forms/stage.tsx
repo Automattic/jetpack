@@ -1,10 +1,12 @@
 /**
  * External dependencies
  */
+import jetpackAnalytics from '@automattic/jetpack-analytics';
+import { formatNumber } from '@automattic/number-formatters';
 import { Page } from '@wordpress/admin-ui';
 import {
-	__experimentalConfirmDialog as ConfirmDialog, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	Button,
+	__experimentalConfirmDialog as ConfirmDialog, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
@@ -25,10 +27,16 @@ import { FORM_POST_TYPE } from '../../src/blocks/shared/util/constants.js';
 import CreateFormButton from '../../src/dashboard/components/create-form-button/index.tsx';
 import { EmptyWrapper, NoResults } from '../../src/dashboard/components/empty-responses/index.tsx';
 import { FormNameModal } from '../../src/dashboard/components/form-name-modal';
-import { NON_TRASH_FORM_STATUSES, getFormStatusLabel } from '../../src/dashboard/constants';
+import {
+	FORM_STATUSES,
+	NON_TRASH_FORM_STATUSES,
+	getFormStatusLabel,
+} from '../../src/dashboard/constants';
 import useDeleteForm from '../../src/dashboard/hooks/use-delete-form.ts';
-import useFormsData from '../../src/dashboard/hooks/use-forms-data.ts';
+import useFormStatusCounts from '../../src/dashboard/hooks/use-form-status-counts.ts';
+import useFormsData, { getFormsListQuery } from '../../src/dashboard/hooks/use-forms-data.ts';
 import WpRouteDashboardSearchParamsProvider from '../../src/dashboard/router/wp-route-dashboard-search-params-provider.tsx';
+import { getFormEditUrl } from '../../src/dashboard/utils.ts';
 import DataViewsHeaderRow from '../../src/dashboard/wp-build/components/dataviews-header-row';
 import FormsHelpModal from '../../src/dashboard/wp-build/components/forms-help-modal';
 import useFormItemActions from '../../src/dashboard/wp-build/hooks/use-form-item-actions';
@@ -80,8 +88,10 @@ function StageInner() {
 		[]
 	);
 	const { refreshIntegrations } = useDispatch( INTEGRATIONS_STORE );
+	const adminUrl = ( useConfigValue( 'adminUrl' ) as string ) || '';
 	const isIntegrationsEnabled = useConfigValue( 'isIntegrationsEnabled' );
 	const showDashboardIntegrations = useConfigValue( 'showDashboardIntegrations' );
+	const hasClassicForms = useConfigValue( 'hasClassicForms' );
 
 	const [ view, setView ] = useState< View >( () => ( {
 		...DEFAULT_VIEW,
@@ -112,17 +122,36 @@ function StageInner() {
 		return statusFilterValue === 'trash';
 	}, [ view.filters ] );
 
-	// Stable (non-trash) managed forms count, independent of the current DataViews search/filter state.
-	const { totalItems: totalNonTrashForms } = useFormsData( 1, 1, '', NON_TRASH_FORM_STATUSES );
+	const hasResponsesQuery = useMemo( () => {
+		const entriesFilterValue = view.filters?.find( filter => filter.field === 'entries' )?.value;
+		if ( entriesFilterValue === 'has_responses' ) {
+			return 'true';
+		}
+		if ( entriesFilterValue === 'no_responses' ) {
+			return 'false';
+		}
+		return undefined;
+	}, [ view.filters ] );
+
+	const statusCounts = useFormStatusCounts();
 
 	const { records, isLoading, totalItems, totalPages } = useFormsData(
 		view.page ?? 1,
 		view.perPage ?? 20,
 		view.search ?? '',
-		statusQuery
+		statusQuery,
+		hasResponsesQuery
 	);
 
-	const { duplicateForm, previewForm, copyEmbed, copyShortcode } = useFormItemActions();
+	const {
+		duplicateForm,
+		previewForm,
+		copyEmbed,
+		copyShortcode,
+		publishForms,
+		setFormsToDraft,
+		isUpdatingStatus,
+	} = useFormItemActions();
 
 	const {
 		isDeleting,
@@ -242,8 +271,14 @@ function StageInner() {
 			{
 				id: 'entries',
 				label: __( 'Responses', 'jetpack-forms' ),
-				type: 'integer',
-				getValue: ( { item }: { item: FormListItem } ) => item.entriesCount ?? 0,
+				getValue: ( { item }: { item: FormListItem } ) =>
+					( item.entriesCount ?? 0 ) > 0 ? 'has_responses' : 'no_responses',
+				render: ( { item }: { item: FormListItem } ) => formatNumber( item.entriesCount ?? 0 ),
+				elements: [
+					{ label: __( 'Has responses', 'jetpack-forms' ), value: 'has_responses' },
+					{ label: __( 'No responses', 'jetpack-forms' ), value: 'no_responses' },
+				],
+				filterBy: { operators: [ 'is' ] as Operator[] },
 				enableSorting: false,
 			},
 			{
@@ -253,15 +288,15 @@ function StageInner() {
 				render: ( { item }: { item: FormListItem } ) => (
 					<Badge intent="draft">{ getFormStatusLabel( item.status ) }</Badge>
 				),
-				elements: [
-					{ label: __( 'All', 'jetpack-forms' ), value: 'all' },
-					{ label: __( 'Published', 'jetpack-forms' ), value: 'publish' },
-					{ label: __( 'Draft', 'jetpack-forms' ), value: 'draft' },
-					{ label: __( 'Pending review', 'jetpack-forms' ), value: 'pending' },
-					{ label: __( 'Scheduled', 'jetpack-forms' ), value: 'future' },
-					{ label: __( 'Private', 'jetpack-forms' ), value: 'private' },
-					{ label: __( 'Trash', 'jetpack-forms' ), value: 'trash' },
-				],
+				elements: FORM_STATUSES.map( value => ( {
+					value,
+					label: sprintf(
+						/* translators: 1: status name, 2: form count */
+						__( '%1$s (%2$s)', 'jetpack-forms' ),
+						getFormStatusLabel( value ),
+						formatNumber( statusCounts[ value ] )
+					),
+				} ) ),
 				filterBy: { operators: [ 'is' ] as Operator[], isPrimary: true },
 				enableSorting: false,
 			},
@@ -272,9 +307,10 @@ function StageInner() {
 				render: ( { item }: { item: FormListItem } ) =>
 					dateI18n( dateSettings.formats.datetime, item.modified ),
 				enableSorting: false,
+				filterBy: false,
 			},
 		],
-		[ dateSettings.formats.datetime ]
+		[ dateSettings.formats.datetime, statusCounts ]
 	);
 
 	const openSingleFormView = useCallback(
@@ -292,6 +328,9 @@ function StageInner() {
 				label: __( 'Responses', 'jetpack-forms' ),
 				supportsBulk: false,
 				callback( items: FormListItem[] ) {
+					jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_form_view_responses_click', {
+						source: 'forms_list',
+					} );
 					const [ item ] = items;
 					if ( ! item ) {
 						return;
@@ -308,6 +347,10 @@ function StageInner() {
 				label: __( 'Restore', 'jetpack-forms' ),
 				supportsBulk: true,
 				async callback( items: FormListItem[] ) {
+					jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_form_restore_click', {
+						source: 'forms_list',
+						multiple: items.length > 1,
+					} );
 					if ( isDeleting ) {
 						return;
 					}
@@ -324,6 +367,10 @@ function StageInner() {
 				label: __( 'Delete permanently', 'jetpack-forms' ),
 				supportsBulk: true,
 				async callback( items: FormListItem[] ) {
+					jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_form_delete_permanently_click', {
+						source: 'forms_list',
+						multiple: items.length > 1,
+					} );
 					if ( isDeleting ) {
 						return;
 					}
@@ -342,27 +389,15 @@ function StageInner() {
 			label: __( 'Edit', 'jetpack-forms' ),
 			supportsBulk: false,
 			async callback( items: FormListItem[] ) {
+				jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_form_edit_form_click', {
+					source: 'forms_list',
+				} );
 				const [ item ] = items;
 				if ( ! item ) {
 					return;
 				}
-				const fallbackEditUrl = `post.php?post=${ item.id }&action=edit&post_type=jetpack_form`;
-				const editUrl = item.editUrl || fallbackEditUrl;
-				const url = new URL( editUrl, window.location.origin );
-				window.location.href = url.toString();
-			},
-		} );
-
-		actionsList.push( {
-			id: 'duplicate-form',
-			isPrimary: false,
-			label: __( 'Duplicate', 'jetpack-forms' ),
-			supportsBulk: false,
-			async callback( items: FormListItem[] ) {
-				const [ item ] = items;
-				if ( item ) {
-					await duplicateForm( item );
-				}
+				const editUrl = item.editUrl || getFormEditUrl( item.id, adminUrl );
+				window.location.href = editUrl;
 			},
 		} );
 
@@ -372,6 +407,9 @@ function StageInner() {
 			label: __( 'Preview', 'jetpack-forms' ),
 			supportsBulk: false,
 			async callback( items: FormListItem[] ) {
+				jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_form_preview_click', {
+					source: 'forms_list',
+				} );
 				const [ item ] = items;
 				if ( item ) {
 					await previewForm( item );
@@ -386,6 +424,9 @@ function StageInner() {
 				label: __( 'Copy embed', 'jetpack-forms' ),
 				supportsBulk: false,
 				async callback( items: FormListItem[] ) {
+					jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_form_copy_embed_click', {
+						source: 'forms_list',
+					} );
 					const [ item ] = items;
 					if ( item ) {
 						await copyEmbed( item );
@@ -399,6 +440,9 @@ function StageInner() {
 				label: __( 'Copy shortcode', 'jetpack-forms' ),
 				supportsBulk: false,
 				async callback( items: FormListItem[] ) {
+					jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_form_copy_shortcode_click', {
+						source: 'forms_list',
+					} );
 					const [ item ] = items;
 					if ( item ) {
 						await copyShortcode( item );
@@ -406,12 +450,75 @@ function StageInner() {
 				},
 			} );
 		}
+		const currentListQuery = getFormsListQuery(
+			view.page ?? 1,
+			view.perPage ?? 20,
+			view.search ?? '',
+			statusQuery
+		) as Record< string, unknown >;
+		const statusUpdateOptions = { invalidateQueries: [ currentListQuery ] };
+
+		actionsList.push( {
+			id: 'publish-form',
+			isPrimary: false,
+			label: __( 'Publish', 'jetpack-forms' ),
+			isEligible: ( item: FormListItem ) => item.status !== 'publish',
+			supportsBulk: true,
+			async callback( items: FormListItem[] ) {
+				jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_form_publish_click', {
+					source: 'forms_list',
+					multiple: items.length > 1,
+				} );
+				if ( isDeleting || isUpdatingStatus ) {
+					return;
+				}
+				const eligibleItems = ( items || [] ).filter( item => item.status !== 'publish' );
+				if ( ! eligibleItems.length ) {
+					return;
+				}
+				try {
+					await publishForms( eligibleItems, statusUpdateOptions );
+				} finally {
+					setSelection( [] );
+				}
+			},
+		} );
+
+		actionsList.push( {
+			id: 'unpublish-form',
+			isPrimary: false,
+			label: __( 'Unpublish', 'jetpack-forms' ),
+			isEligible: ( item: FormListItem ) => item.status === 'publish',
+			supportsBulk: true,
+			async callback( items: FormListItem[] ) {
+				jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_form_unpublish_click', {
+					source: 'forms_list',
+					multiple: items.length > 1,
+				} );
+				if ( isDeleting || isUpdatingStatus ) {
+					return;
+				}
+				const eligibleItems = ( items || [] ).filter( item => item.status === 'publish' );
+				if ( ! eligibleItems.length ) {
+					return;
+				}
+				try {
+					await setFormsToDraft( eligibleItems, statusUpdateOptions );
+				} finally {
+					setSelection( [] );
+				}
+			},
+		} );
+
 		actionsList.push( {
 			id: 'rename-form',
 			isPrimary: false,
 			label: __( 'Rename', 'jetpack-forms' ),
 			supportsBulk: false,
 			callback( items: FormListItem[] ) {
+				jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_form_rename_click', {
+					source: 'forms_list',
+				} );
 				const [ item ] = items;
 				if ( ! item ) {
 					return;
@@ -421,11 +528,31 @@ function StageInner() {
 		} );
 
 		actionsList.push( {
+			id: 'duplicate-form',
+			isPrimary: false,
+			label: __( 'Duplicate', 'jetpack-forms' ),
+			supportsBulk: false,
+			async callback( items: FormListItem[] ) {
+				jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_form_duplicate_click', {
+					source: 'forms_list',
+				} );
+				const [ item ] = items;
+				if ( item ) {
+					await duplicateForm( item );
+				}
+			},
+		} );
+
+		actionsList.push( {
 			id: 'trash-form',
 			isPrimary: false,
 			label: __( 'Trash', 'jetpack-forms' ),
 			supportsBulk: true,
 			async callback( items: FormListItem[] ) {
+				jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_form_trash_click', {
+					source: 'forms_list',
+					multiple: items.length > 1,
+				} );
 				if ( isDeleting ) {
 					return;
 				}
@@ -439,17 +566,25 @@ function StageInner() {
 
 		return actionsList;
 	}, [
+		adminUrl,
 		copyEmbed,
 		copyShortcode,
 		duplicateForm,
 		isDeleting,
+		isUpdatingStatus,
 		isViewingTrash,
 		onOpenPermanentDeleteConfirm,
 		openRenameModal,
 		openSingleFormView,
+		publishForms,
 		previewForm,
 		restoreForms,
+		setFormsToDraft,
+		statusQuery,
 		trashForms,
+		view.page,
+		view.perPage,
+		view.search,
 	] );
 
 	const paginationInfo = useMemo(
@@ -498,7 +633,7 @@ function StageInner() {
 		actions: headerActions,
 	} = usePageHeaderDetails( {
 		screen: 'forms',
-		formsCount: totalNonTrashForms ?? 0,
+		hasClassicForms: !! hasClassicForms,
 		isIntegrationsEnabled: !! isIntegrationsEnabled,
 		showDashboardIntegrations: !! showDashboardIntegrations,
 		onOpenIntegrations: openIntegrationsModal,
@@ -539,7 +674,7 @@ function StageInner() {
 						<EmptyWrapper
 							heading={ __( "You're set up. No forms yet.", 'jetpack-forms' ) }
 							body={ __(
-								'Create a shared form pattern to manage and reuse it across your site.',
+								'Create a form to manage and reuse it across your site.',
 								'jetpack-forms'
 							) }
 							actions={
@@ -547,11 +682,13 @@ function StageInner() {
 									<CreateFormButton
 										label={ __( 'Create a new form', 'jetpack-forms' ) }
 										variant="primary"
-										showIcon={ false }
+										showNameModal
 									/>
-									<Button size="compact" variant="secondary" onClick={ openFormsHelpModal }>
-										{ __( 'Missing forms?', 'jetpack-forms' ) }
-									</Button>
+									{ hasClassicForms && (
+										<Button size="compact" variant="secondary" onClick={ openFormsHelpModal }>
+											{ __( 'Not seeing all your forms?', 'jetpack-forms' ) }
+										</Button>
+									) }
 								</HStack>
 							}
 						/>

@@ -23,6 +23,8 @@ import Navigation from 'components/navigation';
 import NavigationSettings from 'components/navigation-settings';
 import NonAdminView from 'components/non-admin-view';
 import ReconnectModal from 'components/reconnect-modal';
+import SettingsAdminPage from 'components/settings-admin-page';
+import SettingsNavTabs from 'components/settings-nav-tabs';
 import SupportCard from 'components/support-card';
 import Tracker from 'components/tracker';
 import { imagePath } from 'constants/urls';
@@ -835,6 +837,10 @@ class Main extends Component {
 		this.props.fetchSettings();
 	}
 
+	isSettingsRoute() {
+		return settingsRoutes.includes( this.props.location.pathname );
+	}
+
 	render() {
 		const jpClasses = [ 'jp-lower' ];
 
@@ -850,7 +856,29 @@ class Main extends Component {
 			jpClasses.push( 'jp-licensing-screen' );
 		}
 
-		const mainNav = this.renderMainNav( this.props.location.pathname );
+		const pathname = this.props.location.pathname;
+		const mainNav = this.renderMainNav( pathname );
+
+		// Settings routes use the shared AdminPage component for header and footer.
+		if ( this.isSettingsRoute() ) {
+			return (
+				<div>
+					{ this.shouldShowReconnectModal() && (
+						<ReconnectModal show={ true } onHide={ this.closeReconnectModal } />
+					) }
+					<SettingsAdminPage location={ this.props.location } tabs={ <SettingsNavTabs /> }>
+						<div className={ jpClasses.join( ' ' ) }>
+							<AdminNotices />
+							<JetpackNotices />
+							{ this.shouldConnectUser() && this.connectUser() }
+							{ this.renderMainContent( pathname ) }
+						</div>
+					</SettingsAdminPage>
+					<Tracker analytics={ analytics } />
+				</div>
+			);
+		}
+
 		const showHeader = mainNav || this.shouldShowMasthead() || this.shouldShowRewindStatus();
 
 		return (
@@ -874,14 +902,14 @@ class Main extends Component {
 					<JetpackNotices />
 					{ this.shouldConnectUser() && this.connectUser() }
 
-					{ this.renderMainContent( this.props.location.pathname ) }
+					{ this.renderMainContent( pathname ) }
 					{ this.shouldShowJetpackManageBanner() && (
 						<JetpackManageBanner
-							path={ this.props.location.pathname }
+							path={ pathname }
 							isAgencyAccount={ this.props.jetpackManage.isAgencyAccount }
 						/>
 					) }
-					{ this.shouldShowSupportCard() && <SupportCard path={ this.props.location.pathname } /> }
+					{ this.shouldShowSupportCard() && <SupportCard path={ pathname } /> }
 					{ this.shouldShowAppsCard() && <AppsCard /> }
 				</div>
 				{ this.shouldShowFooter() && <Footer siteAdminUrl={ this.props.siteAdminUrl } /> }

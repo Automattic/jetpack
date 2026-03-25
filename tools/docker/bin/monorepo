@@ -112,7 +112,11 @@ fi
   # Mount rsync proxy socket if set (for SSH proxy via Unix domain socket)
   RSYNC_ENV=()
   if [[ -n "${RSYNC_PROXY_SOCKET:-}" ]]; then
-      RSYNC_ENV=( -v "$RSYNC_PROXY_SOCKET:/var/run/jp-rsync-socket" -e RSYNC_PROXY_SOCKET=/var/run/jp-rsync-socket )
+      RSYNC_ENV=( -v "$RSYNC_PROXY_SOCKET:/var/run/jp-rsync-socket" -e RSYNC_PROXY_SOCKET=/var/run/jp-rsync-socket -e RSYNC_PROXY_SECRET )
+      if [[ -z "${RSYNC_PROXY_SECRET:-}" ]]; then
+          echo "RSYNC_PROXY_SECRET is not set. Update your copy of @automattic/jetpack-cli." >&2
+          exit 1
+      fi
   fi
 
   # Worktree-specific Docker args

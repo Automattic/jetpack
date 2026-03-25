@@ -73,7 +73,12 @@ const Admin = () => {
 
 		if ( showActivateLicenseLink ) {
 			buttons.push(
-				<Button key="activate-license" variant="secondary" href={ activateLicenseUrl }>
+				<Button
+					key="activate-license"
+					size="compact"
+					variant="secondary"
+					href={ activateLicenseUrl }
+				>
 					{ __( 'Use license key', 'jetpack-backup-pkg' ) }
 				</Button>
 			);

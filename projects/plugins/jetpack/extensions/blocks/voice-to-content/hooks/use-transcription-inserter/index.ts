@@ -83,7 +83,6 @@ export default function useTranscriptionInserter(): UseTranscriptionInserterRetu
 					 * true to stay as the default value. The last parameter is set to null to prevent
 					 * focusing the inserted block, the behavior we want.
 					 */
-					// @ts-expect-error TS2554 -- `@types/wordpress__block-editor` is outdated.
 					insertBlocks( [ blocksFromHTML[ i ] ], undefined, undefined, true, null );
 
 					/*
