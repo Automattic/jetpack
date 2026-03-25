@@ -27,11 +27,11 @@ class WPCOM_REST_API_V2_Endpoint_Newsletter_Email_Sent_Status_Test extends Jetpa
 	private static $user_id_editor = 0;
 
 	/**
-	 * Mock user ID for a second editor (does not own the test post).
+	 * Mock user ID with author permissions (does not own the test post).
 	 *
 	 * @var int
 	 */
-	private static $user_id_editor_other = 0;
+	private static $user_id_author_other = 0;
 
 	/**
 	 * Mock user ID with administrator permissions.
@@ -68,7 +68,7 @@ class WPCOM_REST_API_V2_Endpoint_Newsletter_Email_Sent_Status_Test extends Jetpa
 	 */
 	public static function wpSetUpBeforeClass( $factory ) {
 		static::$user_id_editor       = $factory->user->create( array( 'role' => 'editor' ) );
-		static::$user_id_editor_other = $factory->user->create( array( 'role' => 'editor' ) );
+		static::$user_id_author_other = $factory->user->create( array( 'role' => 'author' ) );
 		static::$user_id_admin        = $factory->user->create( array( 'role' => 'administrator' ) );
 		static::$user_id_subscriber   = $factory->user->create( array( 'role' => 'subscriber' ) );
 		static::$post_id              = $factory->post->create(
@@ -125,10 +125,10 @@ class WPCOM_REST_API_V2_Endpoint_Newsletter_Email_Sent_Status_Test extends Jetpa
 	}
 
 	/**
-	 * Test that an editor cannot access a post they do not own.
+	 * Test that an author cannot access a post they do not own.
 	 */
-	public function test_editor_cannot_access_other_authors_post() {
-		wp_set_current_user( static::$user_id_editor_other );
+	public function test_author_cannot_access_other_authors_post() {
+		wp_set_current_user( static::$user_id_author_other );
 
 		$request = new WP_REST_Request( Requests::GET, static::$path );
 		$request->set_param( 'post_id', static::$post_id );
@@ -191,6 +191,8 @@ class WPCOM_REST_API_V2_Endpoint_Newsletter_Email_Sent_Status_Test extends Jetpa
 	 * Test that non-existent post returns 404.
 	 */
 	public function test_post_not_found_returns_404() {
+		wp_set_current_user( static::$user_id_admin );
+
 		$request = new WP_REST_Request( Requests::GET, static::$path );
 		$request->set_param( 'post_id', 999999 );
 		$response = $this->server->dispatch( $request );
