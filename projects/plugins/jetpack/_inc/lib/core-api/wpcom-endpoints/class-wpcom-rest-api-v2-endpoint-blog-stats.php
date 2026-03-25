@@ -137,9 +137,19 @@ class WPCOM_REST_API_V2_Endpoint_Blog_Stats extends WP_REST_Controller {
 	/**
 	 * Purge the stats cache.
 	 *
-	 * @return array Result.
+	 * @param \WP_REST_Request $request Request object.
+	 *
+	 * @return array|\WP_Error Result.
 	 */
-	public function purge_stats_cache() {
+	public function purge_stats_cache( $request ) {
+		// Verify the purge token to prevent accidental cache clears.
+		$provided_token = $request->get_param( 'purge_token' );
+		$stored_token   = get_option( 'jetpack_stats_purge_token', '' );
+
+		if ( $provided_token !== $stored_token ) {
+			return new \WP_Error( 'invalid_token', __( 'Invalid purge token.', 'jetpack' ), array( 'status' => 403 ) );
+		}
+
 		// Clear all stats-related transients.
 		$transient_keys = array(
 			'jetpack_stats_cache_blog',
