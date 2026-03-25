@@ -337,7 +337,7 @@ class Blaze_Test extends BaseTestCase {
 			function () {
 				return array(
 					'response' => array( 'code' => 200 ),
-					'body'     => wp_json_encode( array( array( 'campaign_id' => 1 ) ), JSON_UNESCAPED_SLASHES ),
+					'body'     => wp_json_encode( array( 'total' => 1, 'results' => array( array( 'campaign_id' => 1 ) ) ), JSON_UNESCAPED_SLASHES ),
 				);
 			}
 		);
@@ -364,7 +364,7 @@ class Blaze_Test extends BaseTestCase {
 			function () {
 				return array(
 					'response' => array( 'code' => 200 ),
-					'body'     => wp_json_encode( array(), JSON_UNESCAPED_SLASHES ),
+					'body'     => wp_json_encode( array( 'total' => 0, 'results' => array() ), JSON_UNESCAPED_SLASHES ),
 				);
 			}
 		);
@@ -512,7 +512,7 @@ class Blaze_Test extends BaseTestCase {
 	 */
 	public function test_redirect_legacy_url_is_hooked() {
 		Blaze::init();
-		$this->assertIsInt( has_action( 'admin_init', array( Blaze::class, 'redirect_legacy_advertising_url' ) ) );
+		$this->assertIsInt( has_action( 'admin_menu', array( Blaze::class, 'redirect_legacy_advertising_url' ) ) );
 	}
 
 	/**
