@@ -1,5 +1,6 @@
 import { hsl as d3Hsl } from '@visx/vendor/d3-color';
 import {
+	colorToRgba,
 	getColorDistance,
 	lightenHexColor,
 	isValidHexColor,
@@ -519,6 +520,45 @@ describe( 'hexToRgba', () => {
 			const result = hexToRgba( '#4f46e5', 0.3 );
 			expect( result ).toBe( 'rgba(79, 70, 229, 0.3)' );
 		} );
+	} );
+} );
+
+describe( 'colorToRgba', () => {
+	it( 'converts hex colors', () => {
+		expect( colorToRgba( '#ff0000', 0.5 ) ).toBe( 'rgba(255, 0, 0, 0.5)' );
+	} );
+
+	it( 'converts named CSS colors', () => {
+		expect( colorToRgba( 'red', 0.5 ) ).toBe( 'rgba(255, 0, 0, 0.5)' );
+	} );
+
+	it( 'converts rgb() colors', () => {
+		expect( colorToRgba( 'rgb(0, 128, 255)', 0.3 ) ).toBe( 'rgba(0, 128, 255, 0.3)' );
+	} );
+
+	it( 'converts hsl() colors', () => {
+		const result = colorToRgba( 'hsl(0, 100%, 50%)', 0.8 );
+		expect( result ).toBe( 'rgba(255, 0, 0, 0.8)' );
+	} );
+
+	it( 'converts 3-digit hex colors', () => {
+		expect( colorToRgba( '#f00', 0.5 ) ).toBe( 'rgba(255, 0, 0, 0.5)' );
+	} );
+
+	it( 'returns null for invalid color strings', () => {
+		expect( colorToRgba( 'not-a-color', 0.5 ) ).toBeNull();
+	} );
+
+	it( 'returns null for empty string', () => {
+		expect( colorToRgba( '', 0.5 ) ).toBeNull();
+	} );
+
+	it( 'returns null for non-string input', () => {
+		expect( colorToRgba( 123 as unknown as string, 0.5 ) ).toBeNull();
+	} );
+
+	it( 'returns null for NaN alpha', () => {
+		expect( colorToRgba( '#ff0000', NaN ) ).toBeNull();
 	} );
 } );
 

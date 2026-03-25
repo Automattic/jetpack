@@ -11,7 +11,7 @@ import {
 	useGlobalChartsTheme,
 	useGlobalChartsContext,
 } from '../../providers';
-import { formatPercentage, hexToRgba } from '../../utils';
+import { formatPercentage, colorToRgba } from '../../utils';
 import styles from './conversion-funnel-chart.module.scss';
 import { useFunnelSelection } from './private';
 import type { FunnelStep, ConversionFunnelChartProps } from './types';
@@ -247,7 +247,7 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 
 	// Create light background version of primary color if not set
 	const barBackgroundColor =
-		backgroundColor || hexToRgba( barColor, 0.08 ) || 'rgba(0, 0, 0, 0.08)';
+		backgroundColor || colorToRgba( barColor, 0.08 ) || 'rgba(0, 0, 0, 0.08)';
 
 	// Default main metric rendering function
 	const renderDefaultMainMetric = () => (

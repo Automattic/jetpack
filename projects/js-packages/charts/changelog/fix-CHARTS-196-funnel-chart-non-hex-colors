@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Charts: Fix conversion funnel chart crash when using non-hex color formats.
