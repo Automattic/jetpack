@@ -663,13 +663,35 @@ class WPCOM_REST_API_V2_Endpoint_Block_Editor_Assets extends WP_REST_Controller 
 		$plugins_host = $plugins_parts['host'] ?? '';
 		$src_host     = $src_parts['host'] ?? '';
 
-		// Enforce matching origin when a host is present.
-		if ( '' !== $src_host && '' !== $plugins_host && strcasecmp( $src_host, $plugins_host ) !== 0 ) {
-			return false;
-		}
+		// Enforce matching origin when either URL includes a host.
+		if ( '' !== $src_host || '' !== $plugins_host ) {
+			// Reject when only one URL includes a host.
+			if ( ( '' === $src_host ) xor ( '' === $plugins_host ) ) {
+				return false;
+			}
 
-		if ( '' !== $src_host && '' !== $plugins_host && ! empty( $plugins_parts['scheme'] ) && ! empty( $src_parts['scheme'] ) && $plugins_parts['scheme'] !== $src_parts['scheme'] ) {
-			return false;
+			$plugins_host_cmp = $plugins_host;
+			$src_host_cmp     = $src_host;
+
+			if ( function_exists( 'idn_to_ascii' ) ) {
+				$plugins_host_idn = idn_to_ascii( $plugins_host );
+				$src_host_idn     = idn_to_ascii( $src_host );
+
+				if ( false === $plugins_host_idn || false === $src_host_idn ) {
+					return false;
+				}
+
+				$plugins_host_cmp = $plugins_host_idn;
+				$src_host_cmp     = $src_host_idn;
+			}
+
+			if ( strcasecmp( $src_host_cmp, $plugins_host_cmp ) !== 0 ) {
+				return false;
+			}
+
+			if ( ! empty( $plugins_parts['scheme'] ) && ! empty( $src_parts['scheme'] ) && strcasecmp( $plugins_parts['scheme'], $src_parts['scheme'] ) !== 0 ) {
+				return false;
+			}
 		}
 
 		$plugins_path = trailingslashit( $plugins_parts['path'] );

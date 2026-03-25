@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Harden Gutenberg asset allowlist to require matching origin.
