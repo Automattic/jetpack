@@ -8,7 +8,7 @@ Usage: `/jetpack-review-pr <PR> [quick|standard|thorough]`
 
 Examples:
 - `/jetpack-review-pr 47741` — auto-detects depth from PR size
-- `/jetpack-review-pr 47741 quick` — fast review (~2 min)
+- `/jetpack-review-pr 47741 quick` — fast review (~1-2 min)
 - `/jetpack-review-pr 47741 thorough` — full review with tests (~15 min)
 
 @../../.agents/skills/jetpack-review-pr.md

@@ -1,6 +1,6 @@
 ---
 description: Review a Jetpack pull request for bugs, security, performance, convention compliance, and test coverage
-allowed-tools: Bash(gh pr view:*), Bash(gh pr diff:*), Bash(gh pr list:*), Bash(jp test:*), Bash(jp docker:*), Bash(jp phan:*), Bash(jp build:*), Bash(jp install:*), Bash(git:*), Read, Glob, Grep, Agent, Edit
+allowed-tools: Bash(gh pr view:*), Bash(gh pr diff:*), Bash(gh pr list:*), Bash(gh auth:*), Bash(jp test:*), Bash(jp docker:*), Bash(jp phan:*), Bash(jp build:*), Bash(jp install:*), Bash(git fetch:*), Bash(git worktree:*), Bash(git branch:*), Bash(git log:*), Bash(git diff:*), Bash(git rev-parse:*), Bash(grep:*), Bash(timeout:*), Bash(mktemp:*), Read, Glob, Grep, Agent
 ---
 
 Review a Jetpack pull request for code quality, bugs, security, performance, Jetpack conventions, and test adequacy.
@@ -39,12 +39,16 @@ gh pr diff <PR>
 gh pr view <PR> --json headRefOid --jq '.headRefOid'
 ```
 
+If any of these commands fail, stop immediately and report the error. Do not proceed with partial data. Common failures: invalid PR number, `gh` auth expired (run `gh auth status`), network issues.
+
+**General rule**: If any command fails during the review, always report the failure and what it means for the review. Never silently skip a check.
+
 **B) Preliminary checks** — before anything else:
 - Closed without merge → stop, tell the user
 - Merged → proceed with post-merge review
 - Draft → warn, continue
 - Trivially automated (dependency bumps with no manual code) → stop
-- **Docs/CI-only** (changes only in `.claude/`, `docs/`, `tools/`, `.github/`, or only changelog files) → stop, tell the user "No code changes to review"
+- **Docs/CI-only** (changes only in `.agents/`, `.claude/`, `docs/`, `tools/`, `.github/`, or only changelog files) → stop, tell the user "Only docs/CI files changed. Skipping code review. Re-run with `standard` depth to force a review." If the user explicitly requested a review of these files, proceed anyway.
 
 **C) Auto-detect depth** (if not specified by user):
 - `total_changes = additions + deletions`
@@ -66,11 +70,18 @@ For standard + thorough only (requires reading the diff):
 
 **F) Set up worktree** (thorough only):
 ```bash
+# Clean up stale state from previous failed reviews
+git worktree remove pr-review-<PR_NUMBER> 2>/dev/null || true
+git branch -d pr-review-<PR_NUMBER> 2>/dev/null || true
+
 WORKTREE_DIR=$(mktemp -d)
 git fetch origin pull/<PR_NUMBER>/head:pr-review-<PR_NUMBER>
 git worktree add "$WORKTREE_DIR" pr-review-<PR_NUMBER>
 ```
-If it fails, warn and fall back to diff-only for tests.
+If setup fails:
+- The Test Results section must say: "**FAILED**: Could not set up worktree — [error]. Tests were NOT executed."
+- The Verdict must note: "Thorough review requested but tests could not be executed."
+- Fall back to diff-only analysis for the remainder of the review.
 
 **G) Read project-specific CLAUDE.md** files for affected projects (standard + thorough).
 
@@ -96,7 +107,7 @@ Note: `AGENTS.md` is already loaded in your context via the CLAUDE.md `@AGENTS.m
 
 **Standard + thorough** also check:
 
-- **CSS logical properties** (if `has_css`): No physical direction properties (`margin-left` → `margin-inline-start`).
+- **CSS logical properties** (if `has_css`): Prefer CSS logical properties over physical direction properties (`margin-left` → `margin-inline-start`). Exceptions: viewport-relative positioning, animations, and other cases where physical properties are intentional.
 - **Package reuse**: Flag new external deps that duplicate monorepo packages. Check `@wordpress/data` for state, `@wordpress/i18n` for translations.
 - **Dependency changes** (if `has_deps`): Necessity, GPL license compat, version constraints, modified build scripts.
 
@@ -142,8 +153,8 @@ Note: `AGENTS.md` is already loaded in your context via the CLAUDE.md `@AGENTS.m
 *Security threat model* (thorough, or standard if security-sensitive files):
 - What trust boundaries does this code cross?
 - Could an attacker influence the inputs? What's the worst outcome?
-- Are gating mechanisms reliable for security decisions? (e.g., `wp_get_environment_type()` can be overridden via `WP_ENVIRONMENT_TYPE` constant)
-- Authorization based on capabilities (reliable) vs environment/config (spoofable)?
+- Are gating mechanisms reliable for security decisions? Environment type (`wp_get_environment_type()`) is a site-owner configuration, not an access control mechanism — do not use it as a security gate.
+- Authorization based on capabilities (reliable) vs environment/config (not access control)?
 
 *Error handling* (standard + thorough):
 - PHP should return `WP_Error` in WP contexts, not exceptions (unless project uses exception patterns)
@@ -189,11 +200,11 @@ Note: `AGENTS.md` is already loaded in your context via the CLAUDE.md `@AGENTS.m
 - All user-facing strings wrapped in translation functions with correct text domain
 - No concatenated fragments — use `sprintf()` with ordered placeholders (`%1$s`, `%2$s`)
 - `_x()` for ambiguous strings, `_n()` for plurals
-- No HTML or variables inside translation strings
+- Minimize HTML inside translation strings; use `sprintf()` to inject variables and URLs. If HTML is necessary, keep it to simple inline tags and sanitize output with `wp_kses()`.
 - JS uses `@wordpress/i18n`
 
 *Copy quality* (thorough only does codebase grep for similar patterns):
-- Grep the codebase for how existing UI labels similar concepts — flag inconsistent terminology
+- Grep the codebase for how existing UI labels handle similar concepts — flag inconsistent terminology
 - Button labels should be specific ("Save changes" not "Save")
 - Error messages should explain what happened AND what to do
 - No jargon or internal naming in user-facing strings
@@ -216,6 +227,8 @@ Note: `AGENTS.md` is already loaded in your context via the CLAUDE.md `@AGENTS.m
 ```bash
 # Determine minimum WP version dynamically
 grep -m1 'JETPACK__MINIMUM_WP_VERSION' projects/plugins/jetpack/jetpack.php
+# Find the main plugin file dynamically
+grep -rl 'Plugin Name:' projects/plugins/<affected-plugin>/*.php
 grep -m1 'Requires at least:' projects/plugins/<affected-plugin>/<main-file>.php
 ```
 - Look up `@since` tags in WP core or `wordpress-stubs` for any new WP function in the diff
@@ -228,15 +241,15 @@ grep 'MIN_PHP_VERSION' .github/versions.sh
 ```
 - Verify PHP syntax/builtins are available at the minimum version
 - Check project's own `composer.json` `require.php` — may differ from monorepo default
-- Common traps (non-exhaustive): typed properties (7.4+), arrow functions (7.4+), named args (8.0+), match (8.0+), enums (8.1+), readonly (8.1+), `array_is_list()` (8.1+, NOT polyfilled by WP)
+- Common traps (non-exhaustive): typed properties (7.4+), arrow functions (7.4+), named args (8.0+), match (8.0+), `str_contains()`/`str_starts_with()`/`str_ends_with()` (8.0+, polyfilled by WP since 5.9 — check project's minimum WP version), enums (8.1+), readonly properties (8.1+), `array_is_list()` (8.1+, NOT polyfilled by WP), readonly classes (8.2+), `json_validate()` (8.3+)
 
 ### 5. Cross-project dependency check
 
 **Quick**: skip. **Standard**: only if a package changed. **Thorough**: always.
 
 ```bash
-grep -r "automattic/jetpack-<package-name>" projects/*/composer.json
-grep -r "@automattic/jetpack-<package-name>" projects/*/package.json
+grep -r "automattic/jetpack-<package-name>" projects/*/*/composer.json
+grep -r "@automattic/jetpack-<package-name>" projects/*/*/package.json
 ```
 
 Flag changes that could break consumers (changed signatures, removed methods, altered return types). List affected downstream projects.
@@ -255,6 +268,11 @@ timeout 300 jp test js <project>
 timeout 300 jp phan <project>
 ```
 
+After each test command, check the exit code:
+- Exit 0: Tests passed
+- Exit 124: Tests timed out (5 min limit) — report as infrastructure issue, not a code problem
+- Other non-zero: Tests failed — include the last 50 lines of output
+
 If deps are missing, `jp install <project>` and retry once.
 
 **Test quality review** (read new/modified test files):
@@ -268,17 +286,19 @@ If deps are missing, `jp install <project>` and retry once.
 
 ### 7. Compile findings
 
-Score each finding (0-100) and assign severity:
-- **0-50**: Discard (false positive, pre-existing, intentional, or linter-catchable)
-- **51-75**: `[suggestion]`
-- **76-100**: `[blocker]`
+Assign severity to each finding:
+- **Discard**: False positive, pre-existing issue, intentional pattern, or linter-catchable — do not include
+- **`[suggestion]`**: Improvement worth making but not blocking (style, minor simplification, non-critical edge case)
+- **`[blocker]`**: Likely production impact — bugs, security issues, backward-compat breaks, data loss risk
 
 ### 8. Clean up (thorough only)
 
 ```bash
-git worktree remove "$WORKTREE_DIR" --force 2>/dev/null
-git branch -D pr-review-<PR_NUMBER> 2>/dev/null
+git worktree remove "$WORKTREE_DIR" --force || echo "WARNING: Failed to remove worktree at $WORKTREE_DIR"
+git branch -d pr-review-<PR_NUMBER> || echo "WARNING: Failed to delete branch pr-review-<PR_NUMBER>"
 ```
+
+If cleanup fails, warn the user and provide the manual cleanup commands.
 
 ### 9. Present results
 
