@@ -403,7 +403,7 @@ function StageInner() {
 							<Gravatar
 								email={ item.author_email || item.ip } // With IP we still return placeholder image
 								defaultImage={ defaultImage }
-								displayName={ displayName }
+								displayName={ item.author_name ? decodeEntities( item.author_name ) : undefined }
 								size={ 32 }
 								useHovercard={ false }
 							/>

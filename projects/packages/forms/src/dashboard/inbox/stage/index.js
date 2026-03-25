@@ -412,7 +412,7 @@ export default function InboxView( { parentId, pageTitle, pageSubtitle } = {} ) 
 							<Gravatar
 								email={ item.author_email || item.ip } // With IP we still return placeholder image
 								defaultImage={ defaultImage }
-								displayName={ authorInfo }
+								displayName={ item.author_name ? decodeEntities( item.author_name ) : undefined }
 								key={ item.id }
 								size={ 32 }
 								useHovercard={ false }

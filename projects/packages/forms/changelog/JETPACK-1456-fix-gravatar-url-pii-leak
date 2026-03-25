@@ -1,0 +1,4 @@
+Significance: patch
+Type: security
+
+Gravatar: Do not include email or IP address in Gravatar image URL to prevent PII leakage to third parties.
