@@ -82,9 +82,9 @@ export function ConnectionsToggleList( {
 									{ connection.display_name }
 								</div>
 								{ disabledReason === 'quota_exceeded' && (
-									<div className={ styles[ 'disabled-reason' ] }>
-										{ __( 'X sharing limit reached', 'jetpack-publicize-pkg' ) }
-									</div>
+									<span className="description">
+										{ __( 'Sharing limit reached', 'jetpack-publicize-pkg' ) }
+									</span>
 								) }
 							</div>
 						</div>

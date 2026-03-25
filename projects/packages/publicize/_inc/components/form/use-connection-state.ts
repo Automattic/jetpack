@@ -100,7 +100,7 @@ export const useConnectionState = () => {
 	const getDisabledReason = useCallback(
 		( connection: Connection ) => {
 			if ( connection.service_name === 'x' && xQuotaExceeded ) {
-				return 'quota_exceeded' as const;
+				return 'quota_exceeded';
 			}
 			return undefined;
 		},
