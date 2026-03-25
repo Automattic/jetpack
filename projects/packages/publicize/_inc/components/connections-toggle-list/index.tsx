@@ -26,7 +26,7 @@ export function ConnectionsToggleList( {
 	onClickItem,
 	getItemClassName,
 }: ConnectionsToggleListProps ) {
-	const { canBeTurnedOn, shouldBeDisabled } = useConnectionState();
+	const { canBeTurnedOn, shouldBeDisabled, getDisabledReason } = useConnectionState();
 	const { connections } = useSocialMediaConnections();
 
 	const onClickConnection = useCallback(
@@ -46,6 +46,7 @@ export function ConnectionsToggleList( {
 				const isSelected = Boolean( canBeTurnedOn( connection ) && connection.enabled );
 
 				const isDisabled = shouldBeDisabled( connection );
+				const disabledReason = getDisabledReason( connection );
 
 				const ariaLabel = getA11yLabelForConnectionToggle( connection );
 
@@ -76,8 +77,15 @@ export function ConnectionsToggleList( {
 								disabled={ isDisabled }
 								aria-label={ ariaLabel }
 							/>
-							<div className={ styles[ 'display-name' ] } title={ connection.display_name }>
-								{ connection.display_name }
+							<div>
+								<div className={ styles[ 'display-name' ] } title={ connection.display_name }>
+									{ connection.display_name }
+								</div>
+								{ disabledReason === 'quota_exceeded' && (
+									<div className={ styles[ 'disabled-reason' ] }>
+										{ __( 'X sharing limit reached', 'jetpack-publicize-pkg' ) }
+									</div>
+								) }
 							</div>
 						</div>
 					</Button>
