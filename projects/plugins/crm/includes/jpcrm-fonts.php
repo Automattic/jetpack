@@ -9,8 +9,6 @@
 
 use FontLib\Font;
 
-global $zbs; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- Removing this triggers lots of Phan complains.
-
 defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 
 /*
