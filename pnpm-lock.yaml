@@ -4,7 +4,7 @@ settings:
   autoInstallPeers: false
   excludeLinksFromLockfile: false
 
-pnpmfileChecksum: sha256-bS+tUs2CVyiRn2ml+Jw0iqsO6erS5qiJ9tAvj2I8fcw=
+pnpmfileChecksum: sha256-Ys35mipS0AKLVYmw61p4LM7WETH6EcqMJkWc7qQ+iYE=
 
 patchedDependencies:
   uuid@<11:
