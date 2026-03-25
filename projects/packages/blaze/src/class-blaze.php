@@ -221,9 +221,9 @@ class Blaze {
 			return 'yes' === $cached_result;
 		}
 
-		// Make the API request. Uses as_user because the DSP campaigns endpoint requires a user token.
-		// Use limit=1 since we only need to know if any campaign exists.
-		$url      = sprintf( '/sites/%d/wordads/dsp/api/v1/campaigns?limit=1', $site_id );
+		// Use the site-specific campaigns endpoint so we only count campaigns
+		// that belong to this site, not every campaign owned by the user.
+		$url      = sprintf( '/sites/%d/wordads/dsp/api/v1/campaigns/site/%d/stats', $site_id, $site_id );
 		$response = Client::wpcom_json_api_request_as_user(
 			$url,
 			'2',
@@ -238,7 +238,7 @@ class Blaze {
 		}
 
 		$result      = json_decode( wp_remote_retrieve_body( $response ), true );
-		$has_active  = is_array( $result ) && ! empty( $result );
+		$has_active  = is_array( $result ) && ! empty( $result['total'] );
 		$cache_value = $has_active ? 'yes' : 'no';
 
 		set_transient( $transient_name, $cache_value, HOUR_IN_SECONDS );
