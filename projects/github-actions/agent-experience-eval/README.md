@@ -42,7 +42,7 @@ jobs:
         run: npm install -g @anthropic-ai/claude-code
 
       - name: Evaluate Agent Experience
-        uses: Automattic/action-agent-experience-eval@v1
+        uses: ./projects/github-actions/agent-experience-eval  # or Automattic/action-agent-experience-eval@v1 from the mirror repo
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
 ```
@@ -54,9 +54,6 @@ jobs:
 | `anthropic_api_key` | Yes | — | Anthropic API key for Claude Code CLI |
 | `max_turns` | No | `15` | Maximum turns for the CLI evaluation |
 | `output_path` | No | `agent-experience-eval.json` | Path for the evaluation JSON file |
-| `upload_artifact` | No | `true` | Upload the JSON as a GitHub Actions artifact |
-| `artifact_name` | No | `agent-experience-eval` | Name of the uploaded artifact |
-| `artifact_retention_days` | No | `30` | Days to retain the artifact |
 
 ## Outputs
 
@@ -65,7 +62,6 @@ jobs:
 | `score` | Overall evaluation score (0-100) |
 | `grade` | Letter grade (A, B, C, D, F) |
 | `json_path` | Path to the evaluation JSON file |
-| `has_ai_files` | Whether AI instruction files were found |
 
 ## Scoring Rubric
 

@@ -3,12 +3,8 @@ name: Agent Experience Evaluation
 on:
   schedule:
     - cron: '0 6 * * 1' # Weekly, Monday 6am UTC
-  pull_request: # TODO: Remove after initial testing
-    paths:
-      - 'projects/github-actions/agent-experience-eval/**'
-      - '.github/workflows/agent-experience-eval.yml'
-      - 'tools/score-agent-experience.sh'
   push:
+    branches: ['trunk']
     paths:
       - 'CLAUDE.md'
       - '**/CLAUDE.md'
@@ -26,6 +22,10 @@ on:
       - '.github/copilot-instructions.md'
       - '.codex/**'
   workflow_dispatch: {}
+
+permissions:
+  # actions/checkout
+  contents: read
 
 jobs:
   evaluate:
