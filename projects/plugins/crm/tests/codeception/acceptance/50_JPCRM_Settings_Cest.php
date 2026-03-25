@@ -44,6 +44,7 @@ class JPCRM_Settings_Cest {
 		$I->see( 'Contact Assignment', 'label' );
 		$I->see( 'Assign Ownership', 'label' );
 		$I->see( 'Task Scheduler Ownership', 'label' );
+		$I->see( 'Show Click 2 Call links', 'label' );
 		$I->see( 'Use Navigation Mode', 'label' );
 		$I->see( 'Show Social Accounts', 'label' );
 		$I->see( 'Use AKA Mode', 'label' );
