@@ -35,7 +35,9 @@ class StagingSitePingsTest extends WP_UnitTestCase {
 	 */
 	public function test_outgoing_pings_disabled_in_staging() {
 		putenv( 'WP_ENVIRONMENT_TYPE=staging' );
-		$this->assertFalse( wpcomsh_disable_outgoing_pings_in_non_production_envs( true ) );
+		$post_links = array( 'https://example.com/post-1', 'https://example.com/post-2' );
+		wpcomsh_disable_outgoing_pings_in_non_production_envs( $post_links );
+		$this->assertEmpty( $post_links );
 	}
 
 	/**
@@ -43,7 +45,9 @@ class StagingSitePingsTest extends WP_UnitTestCase {
 	 */
 	public function test_outgoing_pings_allowed_in_production() {
 		putenv( 'WP_ENVIRONMENT_TYPE=production' );
-		$this->assertTrue( wpcomsh_disable_outgoing_pings_in_non_production_envs( true ) );
+		$post_links = array( 'https://example.com/post-1', 'https://example.com/post-2' );
+		wpcomsh_disable_outgoing_pings_in_non_production_envs( $post_links );
+		$this->assertCount( 2, $post_links );
 	}
 
 	/**
