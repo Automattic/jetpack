@@ -542,6 +542,10 @@ class WPCOM_Features {
 				'required_sticker' => 'gating-business-q1',
 				self::WPCOM_PREMIUM_PLANS,
 			),
+			array(
+				'after' => '2026-03-26',
+				self::WPCOM_PREMIUM_PLANS,
+			),
 			self::JETPACK_COMPLETE_PLANS,
 		),
 		self::AD_CREDIT_VOUCHERS                => array(
@@ -560,6 +564,10 @@ class WPCOM_Features {
 		self::ADVANCED_SEO                      => array(
 			array(
 				'required_sticker' => 'gating-business-q1',
+				self::WPCOM_PREMIUM_PLANS,
+			),
+			array(
+				'after' => '2026-03-26',
 				self::WPCOM_PREMIUM_PLANS,
 			),
 			self::WPCOM_PRO_PLANS,
@@ -667,6 +675,17 @@ class WPCOM_Features {
 				self::ECOMMERCE_BUNDLE_2Y,
 				self::ECOMMERCE_BUNDLE_3Y,
 			),
+			array(
+				'after' => '2026-03-26',
+				// Business (Excluding Monthly).
+				self::BUSINESS_BUNDLE,
+				self::BUSINESS_BUNDLE_2Y,
+				self::BUSINESS_BUNDLE_3Y,
+				// Ecommerce (Excluding Monthly).
+				self::ECOMMERCE_BUNDLE,
+				self::ECOMMERCE_BUNDLE_2Y,
+				self::ECOMMERCE_BUNDLE_3Y,
+			),
 		),
 		// BLOG_DOMAIN_ONLY - Users on Blogger plan can only purchase .blog domains.
 		self::BLOG_DOMAIN_ONLY                  => array(
@@ -763,11 +782,11 @@ class WPCOM_Features {
 		),
 		self::DONATIONS                         => array(
 			array(
-				'sticker_not_present' => 'gating-business-q1',
+				'before' => '2026-03-27',
 				self::WPCOM_ALL_SITES,
 			),
 			array(
-				'sticker_not_present' => 'gating-business-q1',
+				'before' => '2026-03-27',
 				self::WPCOM_PERSONAL_AND_HIGHER_PLANS,
 			),
 			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
@@ -827,7 +846,7 @@ class WPCOM_Features {
 		// See: https://github.com/Automattic/jetpack/pull/43177 / https://github.a8c.com/Automattic/wpcom/pull/179247
 		self::FIELD_FILE                        => array(
 			array(
-				'sticker_not_present' => 'gating-business-q1',
+				'before' => '2026-03-27',
 				self::WPCOM_PERSONAL_PLANS,
 				self::WPCOM_PREMIUM_PLANS,
 			),
@@ -837,7 +856,7 @@ class WPCOM_Features {
 		),
 		self::FORM_INTEGRATIONS                 => array(
 			array(
-				'sticker_not_present' => 'gating-business-q1',
+				'before' => '2026-03-27',
 				self::WPCOM_PERSONAL_AND_HIGHER_PLANS,
 			),
 			self::WPCOM_PRO_PLANS,
@@ -984,6 +1003,10 @@ class WPCOM_Features {
 				'required_sticker' => 'gating-business-q1',
 				self::WPCOM_BUSINESS_PLANS,
 			),
+			array(
+				'after' => '2026-03-26',
+				self::WPCOM_BUSINESS_PLANS,
+			),
 			self::WPCOM_ECOMMERCE_PLANS,
 			self::WPCOM_WOOEXPRESS_PLANS,
 			self::WOO_HOSTED_PLANS,
@@ -1025,7 +1048,7 @@ class WPCOM_Features {
 		),
 		self::MULTISTEP_FORM                    => array(
 			array(
-				'sticker_not_present' => 'gating-business-q1',
+				'before' => '2026-03-27',
 				self::WPCOM_PERSONAL_PLANS,
 				self::WPCOM_PREMIUM_PLANS,
 			),
@@ -1059,7 +1082,7 @@ class WPCOM_Features {
 		),
 		self::PAYMENTS                          => array(
 			array(
-				'sticker_not_present' => 'gating-business-q1',
+				'before' => '2026-03-27',
 				self::WPCOM_PERSONAL_PLANS,
 			),
 			self::WPCOM_STARTER_PLANS,
@@ -1067,11 +1090,11 @@ class WPCOM_Features {
 		),
 		self::PAYMENT_BUTTONS                   => array(
 			array(
-				'sticker_not_present' => 'gating-business-q1',
+				'before' => '2026-03-27',
 				self::WPCOM_ALL_SITES,
 			),
 			array(
-				'sticker_not_present' => 'gating-business-q1',
+				'before' => '2026-03-27',
 				self::WPCOM_PERSONAL_AND_HIGHER_PLANS,
 			),
 			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
@@ -1079,11 +1102,11 @@ class WPCOM_Features {
 		),
 		self::PAYPAL_PAYMENT_BUTTONS            => array(
 			array(
-				'sticker_not_present' => 'gating-business-q1',
+				'before' => '2026-03-27',
 				self::WPCOM_ALL_SITES,
 			),
 			array(
-				'sticker_not_present' => 'gating-business-q1',
+				'before' => '2026-03-27',
 				self::WPCOM_PERSONAL_AND_HIGHER_PLANS,
 			),
 			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
@@ -1183,7 +1206,7 @@ class WPCOM_Features {
 
 		self::RECURRING_PAYMENTS                => array(
 			array(
-				'sticker_not_present' => 'gating-business-q1',
+				'before' => '2026-03-27',
 				self::WPCOM_ALL_SITES,
 			),
 			self::WPCOM_STARTER_PLANS,
@@ -1272,6 +1295,10 @@ class WPCOM_Features {
 		self::SEO_PREVIEW_TOOLS                 => array(
 			array(
 				'required_sticker' => 'gating-business-q1',
+				self::WPCOM_PREMIUM_PLANS,
+			),
+			array(
+				'after' => '2026-03-26',
 				self::WPCOM_PREMIUM_PLANS,
 			),
 			self::BUNDLE_ENTERPRISE,
@@ -1490,6 +1517,11 @@ class WPCOM_Features {
 				self::WPCOM_BUSINESS_PLANS,
 				self::WPCOM_ECOMMERCE_PLANS,
 			),
+			array(
+				'after' => '2026-03-26',
+				self::WPCOM_BUSINESS_PLANS,
+				self::WPCOM_ECOMMERCE_PLANS,
+			),
 		),
 		self::UPGRADED_UPLOAD_FILETYPES         => array(
 			self::SPACE_1GB,
@@ -1603,7 +1635,7 @@ class WPCOM_Features {
 		 */
 		self::VIDEO_HOSTING                     => array(
 			array(
-				'sticker_not_present' => 'gating-business-q1',
+				'before' => '2026-03-27',
 				self::WPCOM_PREMIUM_PLANS,
 			),
 			self::WPCOM_PRO_PLANS,
@@ -1620,7 +1652,7 @@ class WPCOM_Features {
 			self::JETPACK_PREMIUM_PLANS,
 			self::JETPACK_VIDEOPRESS_PLANS,
 			array(
-				'sticker_not_present' => 'gating-business-q1',
+				'before' => '2026-03-27',
 				self::WPCOM_PREMIUM_PLANS,
 			),
 			self::WPCOM_PRO_PLANS,
@@ -1658,7 +1690,7 @@ class WPCOM_Features {
 		self::VIDEOPRESS_VIDEO                  => array(
 			self::WP_P2_PLUS_MONTHLY,
 			array(
-				'sticker_not_present' => 'gating-business-q1',
+				'before' => '2026-03-27',
 				self::WPCOM_PREMIUM_PLANS,
 			),
 			self::WPCOM_PRO_PLANS,
