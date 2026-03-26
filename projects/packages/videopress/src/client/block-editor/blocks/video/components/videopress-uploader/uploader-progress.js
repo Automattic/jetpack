@@ -177,11 +177,9 @@ const usePosterAndTitleUpdate = ( { setAttributes, videoData, onDone } ) => {
 		}
 
 		if ( videoPosterImageData ) {
-			return debouncedSendUpdatePoster( { poster_attachment_id: videoPosterImageData?.id } );
-		}
-
-		// Check if videoFrameMs is not undefined or null instead of bool check to allow 0ms. selection
-		if ( 'undefined' !== typeof videoFrameMs && null !== videoFrameMs ) {
+			debouncedSendUpdatePoster( { poster_attachment_id: videoPosterImageData?.id } );
+		} else if ( 'undefined' !== typeof videoFrameMs && null !== videoFrameMs ) {
+			// Check against undefined and null instead of bool to allow 0ms selection.
 			debouncedSendUpdatePoster( { at_time: videoFrameMs, is_millisec: true } );
 		}
 	}, [ videoPosterImageData, videoFrameMs, guid, isFinishingUpdate ] );
