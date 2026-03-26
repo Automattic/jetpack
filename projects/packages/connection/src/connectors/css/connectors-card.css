@@ -54,9 +54,13 @@
 }
 
 .wpcom-connector__plugin-icon {
-	font-size: 20px;
 	inline-size: 20px;
 	block-size: 20px;
+	flex-shrink: 0;
+}
+
+.wpcom-connector__plugin-icon--fallback {
+	font-size: 20px;
 }
 
 .wpcom-connector__unlink-user {

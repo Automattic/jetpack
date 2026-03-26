@@ -284,12 +284,41 @@ class Wpcom_Connector {
 		foreach ( $plugins as $slug => $plugin_data ) {
 			$name = isset( $plugin_data['name'] ) ? $plugin_data['name'] : $slug;
 
-			$result[] = array(
+			$entry = array(
 				'name' => $name,
 				'slug' => $slug,
 			);
+
+			$logo_url = static::get_plugin_logo_url( $slug );
+			if ( $logo_url ) {
+				$entry['logoUrl'] = $logo_url;
+			}
+
+			$result[] = $entry;
 		}
 
 		return $result;
+	}
+
+	/**
+	 * Map a plugin slug to a brand logo URL.
+	 *
+	 * Jetpack-family plugins get the Jetpack mark, WooCommerce-family
+	 * plugins get the Woo mark. Unknown slugs return null (the JS
+	 * falls back to a generic dashicon).
+	 *
+	 * @param string $slug Plugin slug.
+	 * @return string|null Logo URL or null.
+	 */
+	private static function get_plugin_logo_url( $slug ) {
+		if ( str_starts_with( $slug, 'jetpack' ) ) {
+			return plugins_url( 'images/jetpack-icon.svg', __FILE__ );
+		}
+
+		if ( str_starts_with( $slug, 'woocommerce' ) || str_starts_with( $slug, 'woo' ) ) {
+			return plugins_url( 'images/woo-icon.svg', __FILE__ );
+		}
+
+		return null;
 	}
 }

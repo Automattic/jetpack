@@ -221,10 +221,17 @@ function ConnectedPluginsSection() {
 			...connectedPlugins.map( plugin =>
 				createElement(
 					HStack,
-					{ key: plugin.slug, spacing: 2, expanded: false },
-					createElement( 'span', {
-						className: 'dashicons dashicons-admin-plugins wpcom-connector__plugin-icon',
-					} ),
+					{ key: plugin.slug, spacing: 2, expanded: false, alignment: 'center' },
+					plugin.logoUrl
+						? createElement( 'img', {
+								src: plugin.logoUrl,
+								alt: '',
+								className: 'wpcom-connector__plugin-icon',
+						  } )
+						: createElement( 'span', {
+								className:
+									'dashicons dashicons-admin-plugins wpcom-connector__plugin-icon wpcom-connector__plugin-icon--fallback',
+						  } ),
 					createElement( Text, { size: 13 }, plugin.name )
 				)
 			)
