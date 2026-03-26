@@ -55,6 +55,25 @@ export const colorToRgba = ( color: string, alpha: number ): string | null => {
 };
 
 /**
+ * Convert hex color to rgba with specified opacity.
+ *
+ * @deprecated Use `colorToRgba` instead, which accepts any CSS color format and returns null instead of throwing.
+ * @param  hex   - The hex color string (e.g., '#ff0000')
+ * @param  alpha - The opacity value. Values outside the [0, 1] range will be clamped by d3.
+ * @return The rgba color string (e.g., 'rgba(255, 0, 0, 0.5)')
+ * @throws {Error} if hex string is malformed or alpha is not a valid number
+ */
+export const hexToRgba = ( hex: string, alpha: number ): string => {
+	validateHexColor( hex );
+
+	if ( typeof alpha !== 'number' || isNaN( alpha ) ) {
+		throw new Error( 'Alpha must be a number' );
+	}
+
+	return colorToRgba( hex, alpha ) as string;
+};
+
+/**
  * Calculate the perceptual distance between two HSL colors
  * @param hsl1 - first color in HSL format [h, s, l]
  * @param hsl2 - second color in HSL format [h, s, l]

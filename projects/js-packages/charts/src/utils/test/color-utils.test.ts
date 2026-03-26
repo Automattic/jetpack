@@ -2,6 +2,7 @@ import { hsl as d3Hsl } from '@visx/vendor/d3-color';
 import {
 	colorToRgba,
 	getColorDistance,
+	hexToRgba,
 	lightenHexColor,
 	isValidHexColor,
 	validateHexColor,
@@ -327,6 +328,20 @@ describe( 'colorToRgba', () => {
 
 	it( 'returns null for NaN alpha', () => {
 		expect( colorToRgba( '#ff0000', NaN ) ).toBeNull();
+	} );
+} );
+
+describe( 'hexToRgba (deprecated)', () => {
+	it( 'converts hex to rgba', () => {
+		expect( hexToRgba( '#ff0000', 0.5 ) ).toBe( 'rgba(255, 0, 0, 0.5)' );
+	} );
+
+	it( 'throws for invalid hex', () => {
+		expect( () => hexToRgba( 'not-hex', 0.5 ) ).toThrow( 'Hex color must start with #' );
+	} );
+
+	it( 'throws for invalid alpha', () => {
+		expect( () => hexToRgba( '#ff0000', NaN ) ).toThrow( 'Alpha must be a number' );
 	} );
 } );
 
