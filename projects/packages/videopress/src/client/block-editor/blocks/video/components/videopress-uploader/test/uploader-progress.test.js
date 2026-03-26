@@ -17,7 +17,11 @@ jest.mock(
 // Declared after jest.mock calls because @wordpress/api-fetch mock needs a lazy reference.
 const mockApiFetch = jest.fn();
 jest.mock( '@wordpress/compose', () => ( {
-	useDebounce: fn => fn,
+	useDebounce: fn => {
+		const debounced = ( ...args ) => fn( ...args );
+		jest.spyOn( debounced, 'cancel' ).mockImplementation();
+		return debounced;
+	},
 	createHigherOrderComponent: () => c => c,
 } ) );
 jest.mock( '@wordpress/components', () => ( {

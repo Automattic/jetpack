@@ -119,6 +119,7 @@ const usePosterAndTitleUpdate = ( { setAttributes, videoData, onDone } ) => {
 	const handleVideoFrameSelected = ms => {
 		setVideoFrameMs( ms );
 		setVideoPosterImageData( null );
+		posterPromiseRef.current = null;
 	};
 
 	const handleDoneUpload = () => {
@@ -130,7 +131,9 @@ const usePosterAndTitleUpdate = ( { setAttributes, videoData, onDone } ) => {
 		debouncedSendUpdatePoster.cancel?.();
 
 		if ( title ) {
-			sendUpdateTitleRequest();
+			sendUpdateTitleRequest().catch( error => {
+				debug( 'Failed to update video title: %o', error );
+			} );
 		}
 
 		// Image selection: we have the URL client-side, fire the server
@@ -138,6 +141,8 @@ const usePosterAndTitleUpdate = ( { setAttributes, videoData, onDone } ) => {
 		if ( videoPosterImageData ) {
 			sendUpdatePoster( {
 				poster_attachment_id: videoPosterImageData?.id,
+			} ).catch( error => {
+				debug( 'Failed to update poster in background: %o', error );
 			} );
 			onDone( {
 				...videoData,
