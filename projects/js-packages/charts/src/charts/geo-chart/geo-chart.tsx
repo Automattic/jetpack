@@ -106,9 +106,9 @@ const GeoChartInternal: FC< GeoChartProps > = ( {
 		// Sanitize HTML content in tooltip columns for data rows (skip header row)
 		const sanitizedRows = data.slice( 1 ).map( row => {
 			const newRow = [ ...row ];
-			for ( const idx of htmlTooltipIndices ) {
-				if ( typeof newRow[ idx ] === 'string' ) {
-					newRow[ idx ] = sanitizeHtml( newRow[ idx ] as string );
+			for ( const colIndex of htmlTooltipIndices ) {
+				if ( typeof newRow[ colIndex ] === 'string' ) {
+					newRow[ colIndex ] = sanitizeHtml( newRow[ colIndex ] as string );
 				}
 			}
 			return newRow;

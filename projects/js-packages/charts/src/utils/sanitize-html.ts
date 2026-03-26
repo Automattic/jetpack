@@ -3,6 +3,14 @@
  */
 import DOMPurify from 'dompurify';
 
+// Enforce rel="noopener noreferrer" on links with target="_blank" to prevent tab-napping.
+// Registered once at module level since DOMPurify hooks are global state.
+DOMPurify.addHook( 'afterSanitizeAttributes', ( node: Element ) => {
+	if ( node.tagName === 'A' && node.getAttribute( 'target' ) === '_blank' ) {
+		node.setAttribute( 'rel', 'noopener noreferrer' );
+	}
+} );
+
 /**
  * Sanitizes an HTML string using DOMPurify, allowing only safe formatting
  * markup suitable for chart tooltip content.
@@ -11,14 +19,7 @@ import DOMPurify from 'dompurify';
  * @return Sanitized HTML string safe for rendering
  */
 export function sanitizeHtml( html: string ): string {
-	// Enforce rel="noopener noreferrer" on links with target="_blank" to prevent tab-napping
-	DOMPurify.addHook( 'afterSanitizeAttributes', ( node: Element ) => {
-		if ( node.tagName === 'A' && node.getAttribute( 'target' ) === '_blank' ) {
-			node.setAttribute( 'rel', 'noopener noreferrer' );
-		}
-	} );
-
-	const clean = DOMPurify.sanitize( html, {
+	return DOMPurify.sanitize( html, {
 		ALLOWED_TAGS: [
 			'a',
 			'b',
@@ -45,8 +46,4 @@ export function sanitizeHtml( html: string ): string {
 		],
 		ALLOWED_ATTR: [ 'class', 'href', 'target', 'rel' ],
 	} );
-
-	DOMPurify.removeAllHooks();
-
-	return clean;
 }
