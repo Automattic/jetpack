@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Users: Use the effective role when the role-change payload is empty, and avoid syncing empty roles.
