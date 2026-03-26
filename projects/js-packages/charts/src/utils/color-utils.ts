@@ -33,27 +33,8 @@ export const validateHexColor = ( hex: unknown ): void => {
 };
 
 /**
- * Convert hex color to rgba with specified opacity.
- * This is genuinely reusable across chart components.
- * @param  hex   - The hex color string (e.g., '#ff0000')
- * @param  alpha - The opacity value. Values outside the [0, 1] range will be clamped by the underlying d3 color library.
- * @return The rgba color string (e.g., 'rgba(255, 0, 0, 0.5)')
- * @throws {Error} if hex string is malformed or alpha is not a valid number
- */
-export const hexToRgba = ( hex: string, alpha: number ): string => {
-	validateHexColor( hex );
-
-	if ( typeof alpha !== 'number' || isNaN( alpha ) ) {
-		throw new Error( 'Alpha must be a number' );
-	}
-
-	// Safe to use non-null assertion since validateHexColor ensures valid hex
-	return d3Color( hex )!.copy( { opacity: alpha } ).formatRgb();
-};
-
-/**
  * Convert any valid CSS color to rgba with specified opacity.
- * Unlike hexToRgba, this gracefully handles non-hex formats (rgb, hsl, named colors, etc.)
+ * Gracefully handles any CSS color format (hex, rgb, hsl, named colors, etc.)
  * and returns null for unparseable values instead of throwing.
  *
  * @param color - Any valid CSS color string (e.g., '#ff0000', 'rgb(255, 0, 0)', 'red')

@@ -13,7 +13,7 @@ import {
 	themeArgTypes,
 } from '../../../stories';
 import { legendArgTypes, extractLegendConfig } from '../../../stories/legend-config';
-import { formatMetricValue, hexToRgba } from '../../../utils';
+import { formatMetricValue, colorToRgba } from '../../../utils';
 import LeaderboardChart from '../leaderboard-chart';
 import type { Meta, StoryObj } from '@storybook/react';
 
@@ -349,7 +349,7 @@ const LeaderboardChartWithOverlayLabelImage = ( args: StoryArgs ) => {
 		overrideColor: args.primaryColor,
 	} );
 
-	const primaryColorWithAlpha = hexToRgba( primaryColor, 0.08 );
+	const primaryColorWithAlpha = colorToRgba( primaryColor, 0.08 );
 
 	return <LeaderboardChart { ...args } primaryColor={ primaryColorWithAlpha } />;
 };
