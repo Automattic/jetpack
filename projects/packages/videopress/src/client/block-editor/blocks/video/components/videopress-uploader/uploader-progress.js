@@ -51,7 +51,12 @@ const usePosterAndTitleUpdate = ( { setAttributes, videoData, onDone } ) => {
 
 	const updatePoster = ( { data: result }, remainingRetries = 10 ) => {
 		return new Promise( resolve => {
-			if ( result?.generating && remainingRetries > 0 ) {
+			// Check for a poster URL first — the API can return both
+			// `poster` and `generating: true` simultaneously.
+			if ( result?.poster ) {
+				setAttributes( { poster: result.poster } );
+				resolve( result.poster );
+			} else if ( result?.generating && remainingRetries > 0 ) {
 				setTimeout( () => {
 					getPosterImage()
 						.then( response => updatePoster( response, remainingRetries - 1 ).then( resolve ) )
@@ -60,9 +65,6 @@ const usePosterAndTitleUpdate = ( { setAttributes, videoData, onDone } ) => {
 							resolve( null );
 						} );
 				}, 2000 );
-			} else if ( result?.poster ) {
-				setAttributes( { poster: result.poster } );
-				resolve( result.poster );
 			} else {
 				if ( result?.generating ) {
 					debug( 'Poster generation polling timed out' );
@@ -96,8 +98,10 @@ const usePosterAndTitleUpdate = ( { setAttributes, videoData, onDone } ) => {
 		} );
 	};
 
+	const posterPromiseRef = useRef( null );
+
 	const debouncedSendUpdatePoster = useDebounce( posterData => {
-		sendUpdatePoster( posterData );
+		posterPromiseRef.current = sendUpdatePoster( posterData );
 	}, 1000 );
 
 	const sendUpdateTitleRequest = () => {
@@ -129,28 +133,42 @@ const usePosterAndTitleUpdate = ( { setAttributes, videoData, onDone } ) => {
 			sendUpdateTitleRequest();
 		}
 
-		// Fire the server-side poster update in the background — don't
-		// block onDone.  We already have the poster URL client-side
-		// (videoPosterImageData.url) so we pass it through immediately.
+		// Image selection: we have the URL client-side, fire the server
+		// update in the background and proceed immediately.
 		if ( videoPosterImageData ) {
 			sendUpdatePoster( {
 				poster_attachment_id: videoPosterImageData?.id,
 			} );
-		} else if ( 'undefined' !== typeof videoFrameMs && null !== videoFrameMs ) {
-			sendUpdatePoster( {
-				at_time: videoFrameMs,
-				is_millisec: true,
+			onDone( {
+				...videoData,
+				poster: videoPosterImageData.url,
 			} );
+			return;
 		}
 
-		// Use the client-side poster URL if available so the block
-		// attribute is set immediately without waiting for the server.
-		const posterUrl = videoPosterImageData?.url;
+		// Frame selection: reuse the in-flight promise from the debounced
+		// useEffect (single request) rather than firing a duplicate POST.
+		// If the debounce hasn't fired yet, send the request now.
+		if ( 'undefined' !== typeof videoFrameMs && null !== videoFrameMs ) {
+			const posterPromise =
+				posterPromiseRef.current ||
+				sendUpdatePoster( { at_time: videoFrameMs, is_millisec: true } );
 
-		onDone( {
-			...videoData,
-			...( posterUrl ? { poster: posterUrl } : {} ),
-		} );
+			posterPromise
+				.then( posterUrl => {
+					onDone( {
+						...videoData,
+						...( posterUrl ? { poster: posterUrl } : {} ),
+					} );
+				} )
+				.catch( () => {
+					onDone( videoData );
+				} );
+			return;
+		}
+
+		// No poster edits.
+		onDone( videoData );
 	};
 
 	useEffect( () => {

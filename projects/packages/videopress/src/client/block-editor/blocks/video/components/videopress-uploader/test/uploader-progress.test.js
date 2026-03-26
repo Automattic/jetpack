@@ -117,26 +117,38 @@ describe( 'usePosterAndTitleUpdate', () => {
 		} );
 	} );
 
-	it( 'sends server-side poster update for video frame selection', async () => {
+	it( 'awaits server poster URL for video frame selection', async () => {
+		const posterUrl = 'https://example.com/frame-poster.jpg';
+		mockUploadPoster.mockResolvedValue( { data: { poster: posterUrl } } );
+
 		const { result } = renderTestHook();
 
 		act( () => {
 			getHookValues( result ).handleVideoFrameSelected( 5000 );
 		} );
 
+		// The debounced useEffect fires immediately (mock), then
+		// handleDoneUpload reuses that promise instead of duplicating.
 		await act( async () => {
 			getHookValues( result ).handleDoneUpload();
 		} );
 
+		// Only one POST should have been made (from the useEffect).
+		expect( mockUploadPoster ).toHaveBeenCalledTimes( 1 );
 		expect( mockUploadPoster ).toHaveBeenCalledWith( {
 			at_time: 5000,
 			is_millisec: true,
 		} );
-		// No client-side URL for frame selection, so onDone has no poster.
-		expect( onDone ).toHaveBeenCalledWith( videoData );
+		expect( onDone ).toHaveBeenCalledWith( {
+			...videoData,
+			poster: posterUrl,
+		} );
 	} );
 
 	it( 'handles video frame selected at 0ms', async () => {
+		const posterUrl = 'https://example.com/zero-frame.jpg';
+		mockUploadPoster.mockResolvedValue( { data: { poster: posterUrl } } );
+
 		const { result } = renderTestHook();
 
 		act( () => {
@@ -151,7 +163,10 @@ describe( 'usePosterAndTitleUpdate', () => {
 			at_time: 0,
 			is_millisec: true,
 		} );
-		expect( onDone ).toHaveBeenCalledWith( videoData );
+		expect( onDone ).toHaveBeenCalledWith( {
+			...videoData,
+			poster: posterUrl,
+		} );
 	} );
 
 	it( 'sets poster attribute via setAttributes when debounced update resolves', async () => {
