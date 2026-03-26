@@ -61,7 +61,7 @@ class Wpcom_Connector {
 			'wordpress_com',
 			array(
 				'name'           => __( 'WordPress.com account', 'jetpack-connection' ),
-				'description'    => __( 'Connect your site to WordPress.com for enhanced functionality, and Jetpack & WooCommerce services.', 'jetpack-connection' ),
+				'description'    => __( 'Connect your site to WordPress.com for enhanced functionality, Jetpack and WooCommerce services.', 'jetpack-connection' ),
 				'type'           => 'cloud_service',
 				'logo_url'       => plugins_url( 'images/wpcom-logo.svg', __FILE__ ),
 				'authentication' => array(
@@ -117,9 +117,11 @@ class Wpcom_Connector {
 		$manager      = new Manager();
 		$is_connected = $manager->is_connected() && $manager->has_connected_owner();
 
-		$data['isConnected'] = $is_connected;
-		$data['apiRoot']     = esc_url_raw( rest_url() );
-		$data['apiNonce']    = wp_create_nonce( 'wp_rest' );
+		$data['isConnected']  = $is_connected;
+		$data['isRegistered'] = $manager->is_connected();
+		$data['apiRoot']      = esc_url_raw( rest_url() );
+		$data['apiNonce']     = wp_create_nonce( 'wp_rest' );
+		$data['redirectUri']  = static::get_connectors_page_path();
 
 		if ( $is_connected ) {
 			$data['connectionOwner']  = static::get_connection_owner_data( $manager );
@@ -167,6 +169,37 @@ class Wpcom_Connector {
 				)
 			),
 		);
+	}
+
+	/**
+	 * Return the admin-relative path for the Connectors page.
+	 *
+	 * WP 7.0 core uses the standalone `options-connectors.php` file while
+	 * the Gutenberg plugin registers a submenu page under options-general.php
+	 * with slug `options-connectors-wp-admin`. Both set parent_file to
+	 * `options-general.php` for menu highlighting, so we distinguish them by
+	 * checking the actual script filename being served.
+	 *
+	 * The result is suitable for the `redirect_uri` parameter accepted by the
+	 * `jetpack/v4/connection/register` REST endpoint (which wraps it in `admin_url()`).
+	 *
+	 * @return string Admin-relative path, e.g. 'options-connectors.php'.
+	 */
+	private static function get_connectors_page_path() {
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- only compared against a hardcoded string.
+		$script = isset( $_SERVER['SCRIPT_NAME'] ) ? wp_basename( wp_unslash( $_SERVER['SCRIPT_NAME'] ) ) : '';
+
+		if ( 'options-connectors.php' === $script ) {
+			return 'options-connectors.php';
+		}
+
+		// Gutenberg plugin registers the page under options-general.php.
+		$screen = get_current_screen();
+		if ( $screen ) {
+			return 'options-general.php?page=' . rawurlencode( $screen->id );
+		}
+
+		return 'options-connectors.php';
 	}
 
 	/**
