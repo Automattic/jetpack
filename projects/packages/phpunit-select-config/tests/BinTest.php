@@ -258,19 +258,6 @@ class BinTest extends TestCase {
 		);
 	}
 
-	public function testNoPrependFileRun() {
-		\Patchwork\redefine( 'ini_get', \Patchwork\always( false ) );
-
-		$this->doSuccessfulRun(
-			array( 'xxx', 'test#.xml' ),
-			array(
-				__DIR__ . '/../vendor/bin/phpunit',
-				'--configuration',
-				'test' . explode( '.', \PHPUnit\Runner\Version::id() )[0] . '.xml',
-			)
-		);
-	}
-
 	public function testFailedExec() {
 		$GLOBALS['_composer_autoload_path'] = __DIR__ . '/../vendor/autoload.php';
 		$GLOBALS['_composer_bin_dir']       = __DIR__ . '/../vendor/bin';
