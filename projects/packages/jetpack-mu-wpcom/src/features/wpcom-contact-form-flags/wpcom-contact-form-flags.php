@@ -44,6 +44,11 @@ function wpcom_is_central_forms_management_enabled( $blog_id = null ) {
 		$blog_id = function_exists( 'get_wpcom_blog_id' ) ? get_wpcom_blog_id() : get_current_blog_id();
 	}
 
+	// Exclude e2e test sites — their tests aren't ready for CFM yet.
+	if ( function_exists( 'has_blog_sticker' ) && has_blog_sticker( 'a8c-e2e-test-blog', $blog_id ) ) {
+		return false;
+	}
+
 	// Percentage-based rollout: 50% of sites.
 	if ( ( $blog_id % 100 ) < 50 ) {
 		return true;
