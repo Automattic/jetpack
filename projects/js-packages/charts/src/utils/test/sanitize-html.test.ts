@@ -6,11 +6,9 @@ describe( 'sanitizeHtml', () => {
 		expect( sanitizeHtml( input ) ).toBe( '<b>Bold</b> <em>italic</em> <strong>strong</strong>' );
 	} );
 
-	test( 'preserves div and span with style attributes', () => {
+	test( 'strips style attributes', () => {
 		const input = '<div style="padding: 12px;"><span style="color: red;">text</span></div>';
-		expect( sanitizeHtml( input ) ).toBe(
-			'<div style="padding: 12px;"><span style="color: red;">text</span></div>'
-		);
+		expect( sanitizeHtml( input ) ).toBe( '<div><span>text</span></div>' );
 	} );
 
 	test( 'preserves br tags', () => {
@@ -46,7 +44,7 @@ describe( 'sanitizeHtml', () => {
 	test( 'preserves safe href values', () => {
 		const input = '<a href="https://example.com" target="_blank" rel="noopener">link</a>';
 		expect( sanitizeHtml( input ) ).toBe(
-			'<a href="https://example.com" target="_blank" rel="noopener">link</a>'
+			'<a href="https://example.com" target="_blank" rel="noopener noreferrer">link</a>'
 		);
 	} );
 
@@ -63,7 +61,7 @@ describe( 'sanitizeHtml', () => {
 		expect( result ).toContain( '<div>trap</div>' );
 	} );
 
-	test( 'handles complex tooltip HTML', () => {
+	test( 'handles complex tooltip HTML and strips style attributes', () => {
 		const input = `<div style="padding: 12px; font-family: sans-serif;">
 			<div style="font-weight: bold;">United States</div>
 			<div style="color: #666;">Orders: <strong>1,000</strong></div>
@@ -71,7 +69,7 @@ describe( 'sanitizeHtml', () => {
 		const result = sanitizeHtml( input );
 		expect( result ).toContain( 'United States' );
 		expect( result ).toContain( '<strong>1,000</strong>' );
-		expect( result ).not.toContain( 'script' );
+		expect( result ).not.toContain( 'style' );
 	} );
 
 	test( 'handles empty string', () => {
@@ -82,8 +80,22 @@ describe( 'sanitizeHtml', () => {
 		expect( sanitizeHtml( 'just text' ) ).toBe( 'just text' );
 	} );
 
-	test( 'removes disallowed attributes like id', () => {
+	test( 'removes disallowed attributes like id and style', () => {
 		const input = '<div id="evil" style="color: red;">text</div>';
-		expect( sanitizeHtml( input ) ).toBe( '<div style="color: red;">text</div>' );
+		expect( sanitizeHtml( input ) ).toBe( '<div>text</div>' );
+	} );
+
+	test( 'enforces rel="noopener noreferrer" on target="_blank" links', () => {
+		const input = '<a href="https://example.com" target="_blank">link</a>';
+		expect( sanitizeHtml( input ) ).toBe(
+			'<a href="https://example.com" target="_blank" rel="noopener noreferrer">link</a>'
+		);
+	} );
+
+	test( 'overrides insufficient rel on target="_blank" links', () => {
+		const input = '<a href="https://example.com" target="_blank" rel="noopener">link</a>';
+		expect( sanitizeHtml( input ) ).toBe(
+			'<a href="https://example.com" target="_blank" rel="noopener noreferrer">link</a>'
+		);
 	} );
 } );

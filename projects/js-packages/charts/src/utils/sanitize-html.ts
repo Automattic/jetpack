@@ -11,7 +11,14 @@ import DOMPurify from 'dompurify';
  * @return Sanitized HTML string safe for rendering
  */
 export function sanitizeHtml( html: string ): string {
-	return DOMPurify.sanitize( html, {
+	// Enforce rel="noopener noreferrer" on links with target="_blank" to prevent tab-napping
+	DOMPurify.addHook( 'afterSanitizeAttributes', ( node: Element ) => {
+		if ( node.tagName === 'A' && node.getAttribute( 'target' ) === '_blank' ) {
+			node.setAttribute( 'rel', 'noopener noreferrer' );
+		}
+	} );
+
+	const clean = DOMPurify.sanitize( html, {
 		ALLOWED_TAGS: [
 			'a',
 			'b',
@@ -36,6 +43,10 @@ export function sanitizeHtml( html: string ): string {
 			'u',
 			'ul',
 		],
-		ALLOWED_ATTR: [ 'style', 'class', 'href', 'target', 'rel' ],
+		ALLOWED_ATTR: [ 'class', 'href', 'target', 'rel' ],
 	} );
+
+	DOMPurify.removeAllHooks();
+
+	return clean;
 }
