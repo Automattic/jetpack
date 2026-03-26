@@ -110,11 +110,10 @@ export const parseHslString = ( hslString: string ): [ number, number, number ] 
 
 /**
  * Parse an RGB string like 'rgb(255, 0, 0)' into a hex color.
- * Note: This function specifically handles rgb() format only, not rgba().
- * For general color normalization including rgba(), use normalizeColorToHex() instead.
  *
- * @param rgbString - RGB color string (not RGBA)
- * @return hex color string or null if invalid
+ * @deprecated    Use normalizeColorToHex() instead, which handles all color formats including rgb() and rgba().
+ * @param      rgbString - RGB color string (not RGBA)
+ * @return        hex color string or null if invalid
  */
 export const parseRgbString = ( rgbString: string ): string | null => {
 	const lower = rgbString.toLowerCase().trim();
