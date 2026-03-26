@@ -19,7 +19,7 @@ const mockApiFetch = jest.fn();
 jest.mock( '@wordpress/compose', () => ( {
 	useDebounce: fn => {
 		const debounced = ( ...args ) => fn( ...args );
-		jest.spyOn( debounced, 'cancel' ).mockImplementation();
+		debounced.cancel = jest.fn(); // eslint-disable-line jest/prefer-spy-on
 		return debounced;
 	},
 	createHigherOrderComponent: () => c => c,
