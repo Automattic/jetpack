@@ -13,7 +13,7 @@ import { store as coreStore } from '@wordpress/core-data';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { DataViews } from '@wordpress/dataviews';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
-import { useEffect, useMemo, useState, useCallback, useRef } from '@wordpress/element';
+import { useEffect, useMemo, useState, useCallback } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
 import { useSearch, useNavigate } from '@wordpress/route';
@@ -173,7 +173,6 @@ function StageInner() {
 
 	// Rename modal state
 	const [ renameFormItem, setRenameFormItem ] = useState< FormListItem | null >( null );
-	const renameRetryRef = useRef< { item: FormListItem; title: string } | null >( null );
 
 	const { createSuccessNotice, createErrorNotice } = useDispatch( noticesStore );
 	const { saveEntityRecord } = useDispatch( coreStore );
@@ -211,7 +210,6 @@ function StageInner() {
 
 	const closeRenameModal = useCallback( () => {
 		setRenameFormItem( null );
-		renameRetryRef.current = null;
 	}, [] );
 
 	const handleRename = useCallback(
@@ -231,27 +229,13 @@ function StageInner() {
 				);
 
 				createSuccessNotice( __( 'Form renamed.', 'jetpack-forms' ), { type: 'snackbar' } );
-				renameRetryRef.current = null;
 			} catch ( error ) {
-				// Store retry data in case the user closes the modal manually.
-				// The modal stays open on error, but if they close it, they can retry via the snackbar.
-				const retryItem = renameFormItem;
-				const retryTitle = newTitle;
-
 				createErrorNotice( __( 'Failed to rename form.', 'jetpack-forms' ), {
 					type: 'snackbar',
-					actions: [
-						{
-							label: __( 'Retry', 'jetpack-forms' ),
-							onClick: () => {
-								renameRetryRef.current = { item: retryItem, title: retryTitle };
-								setRenameFormItem( retryItem );
-							},
-						},
-					],
 				} );
 				// eslint-disable-next-line no-console
 				console.error( 'Failed to rename form:', error );
+				throw error;
 			}
 		},
 		[ renameFormItem, saveEntityRecord, createSuccessNotice, createErrorNotice ]
@@ -736,7 +720,7 @@ function StageInner() {
 				onClose={ closeRenameModal }
 				onSave={ handleRename }
 				title={ __( 'Rename form', 'jetpack-forms' ) }
-				initialValue={ renameRetryRef.current?.title || renameFormItem?.title || '' }
+				initialValue={ renameFormItem?.title || '' }
 			/>
 			<IntegrationsModal
 				isOpen={ isIntegrationsModalOpen }
