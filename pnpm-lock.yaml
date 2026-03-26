@@ -6189,8 +6189,8 @@ importers:
         specifier: 8.57.1
         version: 8.57.1(eslint@9.39.4)(typescript@5.9.3)
       yaml:
-        specifier: 2.2.2
-        version: 2.2.2
+        specifier: 2.8.3
+        version: 2.8.3
 
   tools/performance:
     dependencies:
@@ -18179,9 +18179,10 @@ packages:
     resolution: {integrity: sha512-r3vXyErRCYJ7wg28yvBY5VSoAF8ZvlcW9/BwUzEtUsjvX/DKs24dIkuwjtuprwJJHsbyUbLApepYTR1BN4uHrg==}
     engines: {node: '>= 6'}
 
-  yaml@2.2.2:
-    resolution: {integrity: sha512-CBKFWExMn46Foo4cldiChEzn7S7SRV+wqiluAb6xmueD/fGyRHIhX8m14vVGgeFWjN540nKCNVj6P21eQjgTuA==}
-    engines: {node: '>= 14'}
+  yaml@2.8.3:
+    resolution: {integrity: sha512-AvbaCLOO2Otw/lW5bmh9d/WEdcDFdQp2Z2ZUH3pX9U2ihyUY0nvLv7J6TrWowklRGPYbB/IuIMfYgxaCPg5Bpg==}
+    engines: {node: '>= 14.6'}
+    hasBin: true
 
   yargs-parser@15.0.3:
     resolution: {integrity: sha512-/MVEVjTXy/cGAjdtQf8dW3V9b97bPN7rNn8ETj6BmAQL7ibC7O1Q9SPJbGjgh3SlwoBNXMzj/ZGIj8mBgl12YA==}
@@ -34630,7 +34631,7 @@ snapshots:
 
   yaml@1.10.2: {}
 
-  yaml@2.2.2: {}
+  yaml@2.8.3: {}
 
   yargs-parser@15.0.3:
     dependencies:
