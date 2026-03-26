@@ -1,4 +1,5 @@
-Significance: minor
-Type: added
+Significance: patch
+Type: changed
+Comment: Add quota enforcement selectors to the social store and disable X toggle when sharing limit is reached.
 
-Social: Add quota enforcement selectors and disable X toggle when sharing limit is reached.
+
