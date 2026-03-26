@@ -41,8 +41,8 @@ _default.args = {
 	hideCloseButton: false,
 };
 
-export const warning = Template.bind( {} );
-warning.args = {
+export const Warning = Template.bind( {} );
+Warning.args = {
 	level: 'warning',
 	title: 'Your hovercraft is full of eels.',
 	children: (
@@ -61,8 +61,8 @@ warning.args = {
 	hideCloseButton: false,
 };
 
-export const success = Template.bind( {} );
-success.args = {
+export const Success = Template.bind( {} );
+Success.args = {
 	level: 'success',
 	title: 'Your hovercraft has been upgraded.',
 	children: 'Please enjoy your newer, cooler hovercraft.',
@@ -75,8 +75,8 @@ success.args = {
 	hideCloseButton: false,
 };
 
-export const error = Template.bind( {} );
-error.args = {
+export const Error = Template.bind( {} );
+Error.args = {
 	level: 'error',
 	title: 'The eels have stolen your hovercraft.',
 	children:

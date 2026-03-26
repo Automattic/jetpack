@@ -10,6 +10,7 @@ type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof LineChart > >;
 const meta: Meta< StoryArgs > = {
 	...lineChartMetaArgs,
 	title: 'JS Packages/Charts Library/Charts/Line Chart/Tooltips',
+	component: lineChartMetaArgs.component, // Make eslint happy.
 };
 
 export default meta;

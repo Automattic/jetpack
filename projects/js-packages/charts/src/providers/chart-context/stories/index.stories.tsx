@@ -51,6 +51,7 @@ const meta: Meta< StoryArgs > = {
 	},
 };
 
+// eslint-disable-next-line storybook/csf-component -- This is not a component-based story.
 export default meta;
 type Story = StoryObj< StoryArgs >;
 

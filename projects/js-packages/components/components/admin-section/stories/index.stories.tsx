@@ -9,6 +9,7 @@ const meta: Meta< typeof AdminSection > = {
 	title: 'JS Packages/Components/Admin Sections',
 };
 
+// eslint-disable-next-line storybook/csf-component -- Not a component-based story?
 export default meta;
 
 // Export additional stories using pre-defined values
@@ -38,7 +39,7 @@ const Template: StoryFn< typeof AdminSection > = args => (
 export const _default = Template.bind( {} );
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export const onlyBasic = args => (
+export const OnlyBasic = args => (
 	<AdminSection>
 		<Container>
 			<Col lg={ 12 } md={ 8 } sm={ 4 }>
@@ -50,7 +51,7 @@ export const onlyBasic = args => (
 );
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export const onlyHero = args => (
+export const OnlyHero = args => (
 	<AdminSectionHero>
 		<Container>
 			<Col lg={ 12 } md={ 8 } sm={ 4 }>
