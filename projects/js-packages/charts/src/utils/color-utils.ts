@@ -195,6 +195,12 @@ export const normalizeColorToHex = (
 		return color;
 	}
 
+	// Attempt d3-color for any remaining format (e.g. named CSS colors like "steelblue")
+	const parsed = d3Color( trimmed );
+	if ( parsed ) {
+		return parsed.formatHex();
+	}
+
 	// Unknown format, return as-is
 	return color;
 };

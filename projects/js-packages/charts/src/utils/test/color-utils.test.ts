@@ -757,6 +757,20 @@ describe( 'normalizeColorToHex', () => {
 		} );
 	} );
 
+	describe( 'Named CSS colors', () => {
+		it( 'converts steelblue to hex', () => {
+			expect( normalizeColorToHex( 'steelblue' ) ).toBe( '#4682b4' );
+		} );
+
+		it( 'converts red to hex', () => {
+			expect( normalizeColorToHex( 'red' ) ).toBe( '#ff0000' );
+		} );
+
+		it( 'returns unknown strings as-is', () => {
+			expect( normalizeColorToHex( 'notacolor' ) ).toBe( 'notacolor' );
+		} );
+	} );
+
 	describe( 'CSS variables', () => {
 		it( 'returns original if no resolveCss function provided', () => {
 			expect( normalizeColorToHex( '--my-color' ) ).toBe( '--my-color' );
