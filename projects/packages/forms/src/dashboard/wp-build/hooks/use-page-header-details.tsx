@@ -140,9 +140,6 @@ export default function usePageHeaderDetails(
 	const [ renameFormItem, setRenameFormItem ] = useState< { id: number; title: string } | null >(
 		null
 	);
-	const renameRetryRef = useRef< { item: { id: number; title: string }; title: string } | null >(
-		null
-	);
 	const { saveEntityRecord, deleteEntityRecord } = useDispatch( coreDataStore ) as {
 		saveEntityRecord: (
 			kind: string,
@@ -183,7 +180,6 @@ export default function usePageHeaderDetails(
 
 	const closeRenameModal = useCallback( () => {
 		setRenameFormItem( null );
-		renameRetryRef.current = null;
 	}, [] );
 
 	const handleRename = useCallback(
@@ -203,25 +199,13 @@ export default function usePageHeaderDetails(
 				);
 
 				createSuccessNotice( __( 'Form renamed.', 'jetpack-forms' ), { type: 'snackbar' } );
-				renameRetryRef.current = null;
 			} catch ( error ) {
-				const retryItem = renameFormItem;
-				const retryTitle = newTitle;
-
 				createErrorNotice( __( 'Failed to rename form.', 'jetpack-forms' ), {
 					type: 'snackbar',
-					actions: [
-						{
-							label: __( 'Retry', 'jetpack-forms' ),
-							onClick: () => {
-								renameRetryRef.current = { item: retryItem, title: retryTitle };
-								setRenameFormItem( retryItem );
-							},
-						},
-					],
 				} );
 				// eslint-disable-next-line no-console
 				console.error( 'Failed to rename form:', error );
+				throw error;
 			}
 		},
 		[ renameFormItem, saveEntityRecord, createSuccessNotice, createErrorNotice ]
@@ -757,7 +741,7 @@ export default function usePageHeaderDetails(
 								onClose={ closeRenameModal }
 								onSave={ handleRename }
 								title={ __( 'Rename form', 'jetpack-forms' ) }
-								initialValue={ renameRetryRef.current?.title || renameFormItem?.title || '' }
+								initialValue={ renameFormItem?.title || '' }
 							/>,
 					  ]
 					: [] ),
@@ -831,7 +815,7 @@ export default function usePageHeaderDetails(
 								onClose={ closeRenameModal }
 								onSave={ handleRename }
 								title={ __( 'Rename form', 'jetpack-forms' ) }
-								initialValue={ renameRetryRef.current?.title || renameFormItem?.title || '' }
+								initialValue={ renameFormItem?.title || '' }
 							/>,
 					  ]
 					: [] ),
