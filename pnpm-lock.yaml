@@ -2423,8 +2423,8 @@ importers:
         specifier: 1.0.1
         version: 1.0.1
       '@gravatar-com/hovercards':
-        specifier: 0.15.0
-        version: 0.15.0
+        specifier: 0.16.0
+        version: 0.16.0
       '@wordpress/admin-ui':
         specifier: 1.10.0
         version: 1.10.0(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@16.26.1)
@@ -2723,8 +2723,8 @@ importers:
         specifier: 6.38.0
         version: 6.38.0
       '@gravatar-com/hovercards':
-        specifier: 0.15.0
-        version: 0.15.0
+        specifier: 0.16.0
+        version: 0.16.0
       '@gravatar-com/quick-editor':
         specifier: 0.8.0
         version: 0.8.0
@@ -7769,8 +7769,8 @@ packages:
     peerDependencies:
       graphql: ^0.8.0 || ^0.9.0 || ^0.10.0 || ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0 || ^16.0.0 || ^17.0.0
 
-  '@gravatar-com/hovercards@0.15.0':
-    resolution: {integrity: sha512-ASd6TbYDbBI3Jqh4iQkXSx57CleP43edo2UxosQVHIqDFm7fq26TV7B0TZVK80QNiaq5z03GMYtnSHMSR9hyoA==}
+  '@gravatar-com/hovercards@0.16.0':
+    resolution: {integrity: sha512-NOB73YXOUALYyqLD8SeiQkKgwrmG8wYeVz8JfqFXiH5NjAt/0iDI0pC4TL/Cqxew3XaDmGUFhXEun7mzopaaCw==}
     engines: {node: '>=20'}
 
   '@gravatar-com/quick-editor@0.8.0':
@@ -20266,7 +20266,7 @@ snapshots:
     dependencies:
       graphql: 16.12.0
 
-  '@gravatar-com/hovercards@0.15.0': {}
+  '@gravatar-com/hovercards@0.16.0': {}
 
   '@gravatar-com/quick-editor@0.8.0': {}
 
