@@ -245,7 +245,13 @@ class BinTest extends TestCase {
 	}
 
 	public function testPrependFileRun() {
-		\Patchwork\redefine( 'ini_get', \Patchwork\always( '/path/to/prepend.php' ) );
+		\Patchwork\redefine(
+			'ini_get',
+			function ( $option ) {
+				$this->assertSame( 'auto_prepend_file', $option );
+				return '/path/to/prepend.php';
+			}
+		);
 
 		$this->doSuccessfulRun(
 			array( 'xxx', 'test#.xml' ),
