@@ -137,7 +137,7 @@ export const parseRgbString = ( rgbString: string ): string | null => {
 
 /**
  * Normalize any CSS color value to a hex color string.
- * Handles hex colors, HSL strings, RGB strings, and CSS variables.
+ * Handles hex, HSL, HSLA, RGB, RGBA, named CSS colors, and CSS variables.
  *
  * @param color      - Any CSS color value
  * @param element    - Optional DOM element for resolving CSS variables
@@ -172,7 +172,7 @@ export const normalizeColorToHex = (
 	if ( trimmed.startsWith( '--' ) || trimmed.startsWith( 'var(' ) ) {
 		if ( resolveCss ) {
 			const resolved = resolveCss( color, element );
-			if ( resolved ) {
+			if ( resolved && resolved !== color ) {
 				// Recursively normalize the resolved value
 				return normalizeColorToHex( resolved, element, resolveCss );
 			}
