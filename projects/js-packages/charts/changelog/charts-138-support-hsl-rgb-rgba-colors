@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Support HSL, RGB, and RGBA theme colors in addition to hex format.
+Support all CSS color formats (HSL, HSLA, RGB, RGBA, named colors) in theme colors.
