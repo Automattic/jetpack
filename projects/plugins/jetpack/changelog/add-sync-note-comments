@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Add 'note' to the default whitelisted comment types for Sync.

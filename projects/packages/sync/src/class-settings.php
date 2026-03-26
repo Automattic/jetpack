@@ -521,6 +521,23 @@ class Settings {
 	}
 
 	/**
+	 * Returns structured filter values for allowed comment types.
+	 *
+	 * @access public
+	 * @static
+	 *
+	 * @return array Comment type filter values.
+	 */
+	public static function get_allowed_comment_types_structured() {
+		return array(
+			'comment_type' => array(
+				'operator' => 'IN',
+				'values'   => array_map( 'esc_sql', Defaults::get_comment_types_whitelist() ),
+			),
+		);
+	}
+
+	/**
 	 * Returns escaped SQL for comments, excluding any spam comments.
 	 * Can be injected directly into a WHERE clause.
 	 *
