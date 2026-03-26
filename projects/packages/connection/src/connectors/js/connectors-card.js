@@ -137,12 +137,13 @@ function StatusBadge( { label, modifier = 'connected' } ) {
 /**
  * A labelled user row with avatar, display name, and login.
  *
- * @param {object}      props       - Component props.
- * @param {string}      props.title - Section heading (uppercase label).
- * @param {object|null} props.user  - User data object with displayName, login, avatar.
+ * @param {object}      props            - Component props.
+ * @param {string}      props.title      - Section heading (uppercase label).
+ * @param {object|null} props.user       - User data object with displayName, login, avatar.
+ * @param {object|null} props.actionSlot - Optional element rendered at the end of the user row.
  * @return {object|null} React element or null.
  */
-function UserSection( { title, user } ) {
+function UserSection( { title, user, actionSlot = null } ) {
 	if ( ! user ) {
 		return null;
 	}
@@ -162,26 +163,31 @@ function UserSection( { title, user } ) {
 		),
 		createElement(
 			HStack,
-			{ spacing: 3, alignment: 'center', justify: 'flex-start' },
-			user.avatar
-				? createElement( 'img', {
-						src: user.avatar,
-						alt: '',
-						width: 36,
-						height: 36,
-						className: 'wpcom-connector__owner-avatar',
-				  } )
-				: null,
+			null,
 			createElement(
-				VStack,
-				{ spacing: 0 },
-				createElement( Text, { weight: 600, size: 13 }, user.displayName ),
+				HStack,
+				{ spacing: 3, expanded: false, alignment: 'center' },
+				user.avatar
+					? createElement( 'img', {
+							src: user.avatar,
+							alt: '',
+							width: 36,
+							height: 36,
+							className: 'wpcom-connector__owner-avatar',
+					  } )
+					: null,
 				createElement(
-					Text,
-					{ variant: 'muted', size: 12 },
-					user.email ? '@' + user.login + ' (' + user.email + ')' : '@' + user.login
+					VStack,
+					{ spacing: 0 },
+					createElement( Text, { weight: 600, size: 13 }, user.displayName ),
+					createElement(
+						Text,
+						{ variant: 'muted', size: 12 },
+						user.email ? '@' + user.login + ' (' + user.email + ')' : '@' + user.login
+					)
 				)
-			)
+			),
+			actionSlot
 		)
 	);
 }
@@ -235,6 +241,7 @@ function ConnectedPluginsSection() {
  */
 function ExpandedDetails( { onDisconnect } ) {
 	const [ isDisconnecting, setIsDisconnecting ] = useState( false );
+	const [ isUnlinking, setIsUnlinking ] = useState( false );
 
 	const handleDisconnect = async () => {
 		// eslint-disable-next-line no-alert -- intentional confirmation dialog.
@@ -269,9 +276,65 @@ function ExpandedDetails( { onDisconnect } ) {
 		}
 	};
 
+	const handleUnlinkUser = async () => {
+		if ( currentUser?.isOwner && currentUser?.hasOtherConnectedUsers ) {
+			// eslint-disable-next-line no-alert -- intentional confirmation dialog.
+			const confirmed = window.confirm(
+				__(
+					'Disconnecting the owner account will remove the Jetpack connection for all users on this site. The site will remain connected.',
+					'jetpack-connection'
+				)
+			);
+
+			if ( ! confirmed ) {
+				return;
+			}
+		}
+
+		setIsUnlinking( true );
+
+		try {
+			const body = { linked: false, force: true };
+			if ( currentUser?.isOwner ) {
+				body[ 'disconnect-all-users' ] = true;
+			}
+
+			const response = await window.fetch( apiRoot + 'jetpack/v4/connection/user', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					'X-WP-Nonce': apiNonce,
+				},
+				body: JSON.stringify( body ),
+			} );
+
+			if ( response.ok ) {
+				window.location.reload();
+			}
+		} finally {
+			setIsUnlinking( false );
+		}
+	};
+
 	const currentUserTitle = currentUser?.isOwner
 		? __( 'Connected as owner', 'jetpack-connection' )
 		: __( 'Connected as', 'jetpack-connection' );
+
+	const unlinkAction = currentUser
+		? createElement(
+				Button,
+				{
+					variant: 'link',
+					isDestructive: true,
+					size: 'compact',
+					isBusy: isUnlinking,
+					disabled: isUnlinking || isDisconnecting,
+					onClick: handleUnlinkUser,
+					className: 'wpcom-connector__unlink-user',
+				},
+				__( 'Disconnect user account', 'jetpack-connection' )
+		  )
+		: null;
 
 	return createElement(
 		VStack,
@@ -279,6 +342,7 @@ function ExpandedDetails( { onDisconnect } ) {
 		createElement( UserSection, {
 			title: currentUserTitle,
 			user: currentUser,
+			actionSlot: unlinkAction,
 		} ),
 		! currentUser?.isOwner
 			? createElement( UserSection, {
@@ -296,7 +360,7 @@ function ExpandedDetails( { onDisconnect } ) {
 					variant: 'link',
 					isDestructive: true,
 					isBusy: isDisconnecting,
-					disabled: isDisconnecting,
+					disabled: isDisconnecting || isUnlinking,
 					onClick: handleDisconnect,
 				},
 				__( 'Disconnect', 'jetpack-connection' )

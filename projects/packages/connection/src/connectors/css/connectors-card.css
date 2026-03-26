@@ -59,6 +59,11 @@
 	block-size: 20px;
 }
 
+.wpcom-connector__unlink-user {
+	margin-inline-start: auto;
+	white-space: nowrap;
+}
+
 .wpcom-connector__error {
 	color: #cc1818;
 	font-size: 13px;

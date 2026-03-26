@@ -171,12 +171,21 @@ class Wpcom_Connector {
 			}
 		}
 
+		$is_owner                  = $manager->is_connection_owner( $user_id );
+		$has_other_connected_users = false;
+
+		if ( $is_owner ) {
+			$connected_users           = $manager->get_connected_users( 'any', 2 );
+			$has_other_connected_users = count( $connected_users ) > 1;
+		}
+
 		return array(
-			'displayName' => $display_name,
-			'login'       => $login,
-			'email'       => $email,
-			'isOwner'     => $manager->is_connection_owner( $user_id ),
-			'avatar'      => get_avatar_url(
+			'displayName'            => $display_name,
+			'login'                  => $login,
+			'email'                  => $email,
+			'isOwner'                => $is_owner,
+			'hasOtherConnectedUsers' => $has_other_connected_users,
+			'avatar'                 => get_avatar_url(
 				$user_id,
 				array(
 					'size'    => 48,
