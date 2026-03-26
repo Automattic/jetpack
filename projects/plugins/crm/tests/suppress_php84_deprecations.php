@@ -1,6 +1,6 @@
 <?php
 /**
- * PHP prepend file to suppress PHP 8.5 deprecation warnings from thecodingmachine/safe vendor library.
+ * PHP prepend file to suppress PHP 8.4 deprecation warnings from thecodingmachine/safe vendor library.
  *
  * This is run via `php -d auto_prepend_file=...` so that it runs before the Composer autoloader loads
  * thecodingmachine/safe's function files, which trigger deprecations. A bootstrap runs too late.
@@ -10,7 +10,7 @@
  * @package automattic/jetpack-crm
  */
 
-if ( PHP_VERSION_ID >= 80500 ) {
+if ( PHP_VERSION_ID >= 80400 ) {
 	set_error_handler(
 		function ( $errno, $errstr, $errfile = '' ) {
 			return E_DEPRECATED === $errno
