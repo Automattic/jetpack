@@ -189,6 +189,11 @@ class Manager {
 
 		// Initial Partner management.
 		Partner::init();
+
+		// WP 7.0+ Connectors screen card (requires WP 7.0+).
+		if ( class_exists( Wpcom_Connector::class ) ) {
+			Wpcom_Connector::init();
+		}
 	}
 
 	/**
