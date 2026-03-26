@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Removed the RTC enabled check before loading the notices endpoint

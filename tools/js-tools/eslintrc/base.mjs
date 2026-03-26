@@ -75,7 +75,7 @@ export function makeBaseConfig( configurl, opts = {} ) {
 
 	const compat = new FlatCompat( {
 		baseDirectory: basedir,
-		resolvePluginsRelativeTo: fileURLToPath( import.meta.url ),
+		resolvePluginsRelativeTo: import.meta.filename,
 	} );
 
 	let m;

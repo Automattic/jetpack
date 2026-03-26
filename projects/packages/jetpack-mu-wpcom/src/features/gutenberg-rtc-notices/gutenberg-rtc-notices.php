@@ -13,9 +13,6 @@ require_once __DIR__ . '/../../utils.php';
 add_action(
 	'rest_api_init',
 	function () {
-		if ( ! \Automattic\Jetpack\RTC::is_enabled() ) {
-			return;
-		}
 		require_once __DIR__ . '/class-wp-rest-rtc-notices.php';
 		( new WP_REST_RTC_Notices() )->register_routes();
 	},
