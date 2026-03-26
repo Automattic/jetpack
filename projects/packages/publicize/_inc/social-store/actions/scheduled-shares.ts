@@ -2,6 +2,7 @@ import { store as coreStore } from '@wordpress/core-data';
 import { store as editorStore } from '@wordpress/editor';
 import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
+import { getPeriodForTimestamp } from '../../components/x-usage/utils';
 import { ScheduledShare } from '../types';
 import { SET_IS_SCHEDULING_SHARES } from './constants';
 
@@ -116,7 +117,7 @@ export function scheduleShares(
 	{ message, connectionIds, timestamp }: ScheduledSharesParams,
 	{ savePost = true, actions = [] }: ScheduledSharesConfig
 ) {
-	return async function ( { dispatch, registry } ): Promise< boolean > {
+	return async function ( { dispatch, select, registry } ): Promise< boolean > {
 		if ( ! connectionIds.length || ! timestamp ) {
 			return false;
 		}
@@ -124,7 +125,47 @@ export function scheduleShares(
 		const { isCurrentPostPublished, isEditedPostDirty, isEditedPostAutosaveable } =
 			registry.select( editorStore );
 
-		const { createErrorNotice, createSuccessNotice } = registry.dispatch( noticesStore );
+		const { createErrorNotice, createSuccessNotice, createWarningNotice } =
+			registry.dispatch( noticesStore );
+
+		// Check if X quota is exceeded for the target month.
+		let effectiveConnectionIds = connectionIds;
+		const targetPeriod = getPeriodForTimestamp( timestamp );
+
+		if ( select.isXQuotaExceeded( targetPeriod ) ) {
+			const connections = select.getConnections();
+			const xConnectionIds = new Set(
+				connections
+					.filter( connection => connection.service_name === 'x' )
+					.map( connection => Number( connection.connection_id ) )
+			);
+
+			effectiveConnectionIds = connectionIds.filter( id => ! xConnectionIds.has( id ) );
+
+			if ( ! effectiveConnectionIds.length ) {
+				createErrorNotice(
+					__(
+						'X sharing quota reached for the scheduled month. Please choose a different month or remove X from your sharing selections.',
+						'jetpack-publicize-pkg'
+					),
+					{
+						id: SCHEDULE_SHARE_NOTICE_ID,
+					}
+				);
+				return false;
+			}
+
+			createWarningNotice(
+				__(
+					'X sharing limit reached for the scheduled month. The post will be shared to your other connections only.',
+					'jetpack-publicize-pkg'
+				),
+				{
+					type: 'snackbar',
+					id: SCHEDULE_SHARE_NOTICE_ID,
+				}
+			);
+		}
 
 		if ( ! isCurrentPostPublished() ) {
 			createErrorNotice(
@@ -146,7 +187,7 @@ export function scheduleShares(
 		const post_id = registry.select( editorStore ).getCurrentPostId();
 
 		const result = await Promise.all(
-			connectionIds.map( connection_id => {
+			effectiveConnectionIds.map( connection_id => {
 				return dispatch(
 					createScheduledShare( {
 						post_id,

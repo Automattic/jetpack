@@ -1,4 +1,6 @@
 import { useSelect } from '@wordpress/data';
+import { date } from '@wordpress/date';
+import { store as editorStore } from '@wordpress/editor';
 import { useCallback } from '@wordpress/element';
 import { useMemo } from 'react';
 import useAttachedMedia from '../../hooks/use-attached-media';
@@ -23,7 +25,20 @@ export const useConnectionState = () => {
 		useMediaDetails( mediaId )[ 0 ]
 	);
 
-	const xQuotaExceeded = useSelect( select => select( socialStore ).isXQuotaExceeded(), [] );
+	const postDate = useSelect(
+		select => select( editorStore ).getEditedPostAttribute( 'date' ) as string | undefined,
+		[]
+	);
+
+	// Derive the period from the post date so quota checks apply to the correct month.
+	const postPeriod = postDate ? date( 'Y-m', postDate ) : null;
+
+	const canShareNow = useSelect( select => select( socialStore ).canShareToXNow(), [] );
+
+	const canScheduleFor = useSelect(
+		select => select( socialStore ).canScheduleXShareFor( postPeriod ),
+		[ postPeriod ]
+	);
 
 	/**
 	 * Returns whether a connection is in good shape.
@@ -59,6 +74,7 @@ export const useConnectionState = () => {
 	 * - Publicize is disabled
 	 * - There are no more connections available
 	 * - The connection is not in good shape
+	 * - X quota is exceeded for the post's target month
 	 */
 	const shouldBeDisabled = useCallback(
 		( connection: Connection ) => {
@@ -67,11 +83,11 @@ export const useConnectionState = () => {
 				! isPublicizeEnabled ||
 				// or the connection is not in good shape
 				! isInGoodShape( connection ) ||
-				// or X quota is exceeded for X connections
-				( connection.service_name === 'x' && xQuotaExceeded )
+				// or X quota is exceeded for the post's target month
+				( connection.service_name === 'x' && ! canScheduleFor )
 			);
 		},
-		[ isInGoodShape, isPublicizeEnabled, xQuotaExceeded ]
+		[ isInGoodShape, isPublicizeEnabled, canScheduleFor ]
 	);
 
 	/**
@@ -81,38 +97,68 @@ export const useConnectionState = () => {
 	 * A connection can be enabled if:
 	 * - Publicize is not disabled due to the current site plan
 	 * - The connection is in good shape
+	 * - X quota allows sharing for the post's target month
 	 */
 	const canBeTurnedOn = useCallback(
 		( connection: Connection ) => {
-			// A connection toggle can be turned ON if
 			return (
 				// Publicize is not disabled due to the current site plan
 				! isPublicizeDisabledBySitePlan &&
 				// and the connection is in good shape
 				isInGoodShape( connection ) &&
-				// and X quota is not exceeded for X connections
-				! ( connection.service_name === 'x' && xQuotaExceeded )
+				// and X quota allows sharing for the post's target month
+				! ( connection.service_name === 'x' && ! canScheduleFor )
 			);
 		},
-		[ isInGoodShape, isPublicizeDisabledBySitePlan, xQuotaExceeded ]
+		[ isInGoodShape, isPublicizeDisabledBySitePlan, canScheduleFor ]
+	);
+
+	/**
+	 * Returns whether a connection can be used for scheduling a share.
+	 */
+	const canSchedule = useCallback(
+		( connection: Connection ) => {
+			return (
+				isPublicizeEnabled &&
+				! isPublicizeDisabledBySitePlan &&
+				isInGoodShape( connection ) &&
+				! ( connection.service_name === 'x' && ! canScheduleFor )
+			);
+		},
+		[ isInGoodShape, isPublicizeEnabled, isPublicizeDisabledBySitePlan, canScheduleFor ]
 	);
 
 	const getDisabledReason = useCallback(
 		( connection: Connection ) => {
-			if ( connection.service_name === 'x' && xQuotaExceeded ) {
+			if ( connection.service_name === 'x' && ! canScheduleFor ) {
 				return 'quota_exceeded';
 			}
 			return undefined;
 		},
-		[ xQuotaExceeded ]
+		[ canScheduleFor ]
+	);
+
+	const getWarningReason = useCallback(
+		( connection: Connection ) => {
+			// Show the "schedule for a future month" hint only when the current month is
+			// exceeded and no specific post date is set yet. If the post already targets
+			// a future month with available quota, the hint is redundant.
+			if ( connection.service_name === 'x' && ! canShareNow && ! postPeriod ) {
+				return 'quota_exceeded_schedule_hint';
+			}
+			return undefined;
+		},
+		[ canShareNow, postPeriod ]
 	);
 
 	return useMemo(
 		() => ( {
 			shouldBeDisabled,
 			canBeTurnedOn,
+			canSchedule,
 			getDisabledReason,
+			getWarningReason,
 		} ),
-		[ shouldBeDisabled, canBeTurnedOn, getDisabledReason ]
+		[ shouldBeDisabled, canBeTurnedOn, canSchedule, getDisabledReason, getWarningReason ]
 	);
 };

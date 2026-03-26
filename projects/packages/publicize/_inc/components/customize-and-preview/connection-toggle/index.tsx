@@ -20,7 +20,7 @@ export type ConnectionToggleProps = {
 export function ConnectionToggle( { connection }: ConnectionToggleProps ) {
 	const { toggleById } = useSocialMediaConnections();
 	const { recordEvent } = useAnalytics();
-	const { canBeTurnedOn, shouldBeDisabled } = useConnectionState();
+	const { canSchedule, getWarningReason } = useConnectionState();
 
 	const onClickConnectionToggle = useCallback( () => {
 		toggleById( connection.connection_id );
@@ -38,21 +38,35 @@ export function ConnectionToggle( { connection }: ConnectionToggleProps ) {
 		toggleById,
 	] );
 
-	const isEnabled = Boolean( canBeTurnedOn( connection ) && connection.enabled );
-	const isDisabled = shouldBeDisabled( connection );
+	const warningReason = getWarningReason( connection );
+	const hasScheduleHint = warningReason === 'quota_exceeded_schedule_hint';
+
+	const canScheduleConnection = canSchedule( connection );
+	const isEnabled = Boolean( canScheduleConnection && connection.enabled );
+	const isDisabled = ! canScheduleConnection;
 
 	return (
-		<ToggleControl
-			__nextHasNoMarginBottom
-			label={ sprintf(
-				/* translators: %s: social media account title */
-				__( 'Share to %s', 'jetpack-publicize-pkg' ),
-				connection.display_name
+		<div>
+			<ToggleControl
+				__nextHasNoMarginBottom
+				label={ sprintf(
+					/* translators: %s: social media account title */
+					__( 'Share to %s', 'jetpack-publicize-pkg' ),
+					connection.display_name
+				) }
+				className={ styles[ 'connection-toggle' ] }
+				checked={ isEnabled }
+				onChange={ onClickConnectionToggle }
+				disabled={ isDisabled }
+			/>
+			{ hasScheduleHint && (
+				<p className={ styles.description }>
+					{ __(
+						'Current month limit reached. Schedule for a future month.',
+						'jetpack-publicize-pkg'
+					) }
+				</p>
 			) }
-			className={ styles[ 'connection-toggle' ] }
-			checked={ isEnabled }
-			onChange={ onClickConnectionToggle }
-			disabled={ isDisabled }
-		/>
+		</div>
 	);
 }

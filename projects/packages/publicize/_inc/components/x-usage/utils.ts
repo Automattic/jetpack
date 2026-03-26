@@ -2,6 +2,7 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import { getSiteFragment } from '@automattic/jetpack-shared-extension-utils';
 import { date, getDate, humanTimeDiff } from '@wordpress/date';
 import { __, sprintf } from '@wordpress/i18n';
+import { hasSocialPaidFeatures } from '../../utils/script-data';
 import styles from './styles.module.scss';
 
 /**
@@ -40,6 +41,16 @@ export function getUpgradeUrl() {
  */
 export function getCurrentPeriod() {
 	return date( 'Y-m' );
+}
+
+/**
+ * Get the period identifier for a given unix timestamp.
+ *
+ * @param {number} timestamp - Unix timestamp in seconds.
+ * @return The period string ('yyyy-mm' for paid plans, 'free' for free plans).
+ */
+export function getPeriodForTimestamp( timestamp: number ): string {
+	return hasSocialPaidFeatures() ? date( 'Y-m', new Date( timestamp * 1000 ) ) : 'free';
 }
 
 /**

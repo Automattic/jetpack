@@ -84,14 +84,43 @@ export function isXQuotaExceeded( state: object, period?: string ): boolean {
 }
 
 /**
- * Returns whether the user can share to X.
+ * Returns whether the user can share to X right now (current period).
  *
  * @param state - State object.
  *
- * @return Whether sharing to X is allowed. Defaults to true when data is missing.
+ * @return Whether sharing to X is allowed now. Defaults to true when data is missing.
  */
-export function canShareToX( state: object ): boolean {
+export function canShareToXNow( state: object ): boolean {
 	return ! isXQuotaExceeded( state );
+}
+
+/**
+ * Returns whether the user can schedule an X share.
+ *
+ * Behavior:
+ * - Free plan, quota exhausted → false (lifetime limit)
+ * - Paid plan, no period specified → true (user can pick a future month)
+ * - Paid plan, period specified → checks that period's usage against quota
+ *
+ * @param state  - State object.
+ * @param period - Optional period to check (e.g. 'yyyy-mm'). When omitted,
+ *               paid plans always return true; free plans check lifetime quota.
+ *
+ * @return Whether scheduling an X share is allowed.
+ */
+export function canScheduleXShareFor( state: object, period?: string | null ): boolean {
+	// Free plan: always check the lifetime 'free' period.
+	if ( ! hasSocialPaidFeatures() ) {
+		return ! isXQuotaExceeded( state );
+	}
+
+	// Paid plan without a specific period: allow scheduling (user can pick a future month).
+	if ( ! period ) {
+		return true;
+	}
+
+	// Paid plan with a specific period: check that period's quota.
+	return ! isXQuotaExceeded( state, period );
 }
 
 /**
