@@ -1,4 +1,4 @@
-import { Button, FormToggle, Tooltip } from '@wordpress/components';
+import { Button, FormToggle } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useCallback } from 'react';
@@ -50,7 +50,12 @@ export function ConnectionsToggleList( {
 
 				const ariaLabel = getA11yLabelForConnectionToggle( connection );
 
-				const toggleButton = (
+				const titleText =
+					disabledReason === 'quota_exceeded'
+						? __( 'Sharing limit reached', 'jetpack-publicize-pkg' )
+						: connection.display_name;
+
+				return (
 					<Button
 						key={ connection.connection_id }
 						role="switch"
@@ -67,6 +72,7 @@ export function ConnectionsToggleList( {
 						onClick={ onClickConnection( connection ) }
 						aria-label={ ariaLabel }
 						aria-checked={ isSelected }
+						title={ titleText }
 						className={ clsx( styles.item, getItemClassName?.( connection ) ) }
 					>
 						<div className={ styles[ 'connection-info' ] }>
@@ -77,22 +83,11 @@ export function ConnectionsToggleList( {
 								disabled={ isDisabled }
 								aria-label={ ariaLabel }
 							/>
-							<div className={ styles[ 'display-name' ] } title={ connection.display_name }>
+							<div className={ styles[ 'display-name' ] } title={ titleText }>
 								{ connection.display_name }
 							</div>
 						</div>
 					</Button>
-				);
-
-				return disabledReason === 'quota_exceeded' ? (
-					<Tooltip
-						key={ connection.connection_id }
-						text={ __( 'Sharing limit reached', 'jetpack-publicize-pkg' ) }
-					>
-						{ toggleButton }
-					</Tooltip>
-				) : (
-					toggleButton
 				);
 			} ) }
 		</div>
