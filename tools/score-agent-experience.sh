@@ -55,13 +55,15 @@ echo "" >&2
 echo "Score: $SCORE/100 (Grade: $GRADE)" >&2
 jq -r '.criteria | to_entries[] | "\(.key)\t\(.value.score)\t\(.value.max)"' "$OUTPUT" |
 while IFS=$'\t' read -r key score max; do
-  label=$(echo "$key" | tr '_' ' ' | sed 's/\b\(.\)/\u\1/g')
+  label=$(echo "$key" | tr '_' ' ' | awk '{for(i=1;i<=NF;i++) $i=toupper(substr($i,1,1)) substr($i,2)}1')
   if (( max > 0 )); then
     filled=$(( score * 20 / max ))
   else
     filled=0
   fi
-  bar=$(printf '█%.0s' $(seq 1 "$filled") 2>/dev/null || true)$(printf '░%.0s' $(seq 1 $((20 - filled))) 2>/dev/null || true)
+  bar=""
+  for ((i=0; i<filled; i++)); do bar+="█"; done
+  for ((i=filled; i<20; i++)); do bar+="░"; done
   printf "  %-22s %s  %s/%s\n" "$label" "$bar" "$score" "$max" >&2
 done
 echo "" >&2

@@ -27,7 +27,7 @@ fi
 # Extract JSON: direct parse, code fences, or brace extraction
 if echo "$RAW" | jq . > "$OUTPUT_PATH" 2>/dev/null; then
   :
-elif FENCED=$(echo "$RAW" | sed -n '/^```\(json\)\?$/,/^```$/{ /^```/d; p; }') && \
+elif FENCED=$(echo "$RAW" | sed -En '/^```(json)?$/,/^```$/{ /^```/d; p; }') && \
      [[ -n "$FENCED" ]] && echo "$FENCED" | jq . > "$OUTPUT_PATH" 2>/dev/null; then
   :
 elif BRACED=$(echo "$RAW" | sed -n '/^{/,/^}/p') && \
@@ -52,7 +52,10 @@ fi
 if ! [[ "$SCORE" =~ ^[0-9]+$ ]]; then
   echo "ERROR: Invalid score: $SCORE" >&2; exit 1
 fi
-if ! [[ "$GRADE" =~ ^[A-F]$ ]]; then
+if (( SCORE > 100 )); then
+  echo "ERROR: Score $SCORE exceeds maximum 100." >&2; exit 1
+fi
+if ! [[ "$GRADE" =~ ^[ABCDF]$ ]]; then
   echo "ERROR: Invalid grade: $GRADE" >&2; exit 1
 fi
 

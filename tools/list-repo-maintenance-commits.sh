@@ -27,6 +27,7 @@ PATHS=(
 
 # Projects to NOT ignore.
 MAYBE_MAINTENANCE_PROJECTS=(
+	github-actions/agent-experience-eval
 	github-actions/pr-is-up-to-date
 	github-actions/push-to-mirrors
 	github-actions/repo-gardening
