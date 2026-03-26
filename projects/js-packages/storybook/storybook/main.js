@@ -37,11 +37,11 @@ const sbconfig = {
 		'@storybook/addon-vitest',
 	],
 	viteFinal: async config => {
-		const { mergeConfig, transformWithEsbuild } = await import( 'vite' );
+		const { mergeConfig, transformWithOxc } = await import( 'vite' );
 		return mergeConfig( config, {
 			plugins: [
 				// This would normally be in vite.config.js, but we don't have one of those.
-				react(),
+				react( { include: /\.(m?[jt]sx?|cjs)$/ } ),
 
 				// Our webpack setup processes .js files as jsx. Have vite do it too.
 				{
@@ -49,10 +49,7 @@ const sbconfig = {
 					enforce: 'pre',
 					async transform( code, id ) {
 						if ( ! id.includes( 'node_modules' ) && /\.[cm]?js$/.test( id ) ) {
-							return transformWithEsbuild( code, id, {
-								loader: 'jsx',
-								jsx: 'automatic',
-							} );
+							return transformWithOxc( code, id, { lang: 'jsx' } );
 						}
 					},
 				},
@@ -100,9 +97,9 @@ const sbconfig = {
 				},
 			],
 			optimizeDeps: {
-				esbuildOptions: {
-					// Also tell the dep pre-bundling scanner to treat .js as JSX.
-					loader: { '.js': 'jsx' },
+				rolldownOptions: {
+					// Tell the dep pre-bundling scanner to treat .js as JSX.
+					moduleTypes: { '.js': 'jsx' },
 				},
 			},
 			server: {
@@ -139,21 +136,6 @@ const sbconfig = {
 			},
 			build: {
 				chunkSizeWarningLimit: Infinity, // We don't care.
-				rollupOptions: {
-					output: {
-						manualChunks( id ) {
-							// Rollup complains about inter-package circular deps if they're not in the same chunk.
-							if ( id.includes( '/node_modules/@wordpress/' ) ) {
-								return 'wordpress-packages';
-							}
-
-							// It also seems to want to split Charts into multiple chunks and then complain about it.
-							if ( id.includes( '/js-packages/charts/src/' ) ) {
-								return 'charts';
-							}
-						},
-					},
-				},
 			},
 			resolve: {
 				conditions: [ 'jetpack:src' ],

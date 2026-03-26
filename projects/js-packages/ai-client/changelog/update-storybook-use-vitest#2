@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Fix pseudo-element ordering to make lightningcss (used by vite 8 in storybook) happy.
+
+
