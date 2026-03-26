@@ -1988,7 +1988,7 @@ describe( 'ChartContext', () => {
 					</GlobalChartsProvider>
 				);
 
-				// RGBA colors should be converted to hex (transparency info is lost)
+				// RGBA colors are converted to hex (alpha is stripped)
 				const color = contextValue.getElementStyles( {
 					data: undefined,
 					index: 0,

@@ -725,7 +725,8 @@ describe( 'normalizeColorToHex', () => {
 			expect( normalizeColorToHex( 'hsla(120, 100%, 50%, 0.5)' ) ).toBe( '#00ff00' );
 		} );
 
-		it( 'converts hsla(240, 100%, 50%, 0) to #0000ff', () => {
+		it( 'converts fully transparent hsla to #000000', () => {
+			// d3-color converts fully transparent colors (alpha=0) to black
 			expect( normalizeColorToHex( 'hsla(240, 100%, 50%, 0)' ) ).toBe( '#000000' );
 		} );
 	} );
@@ -746,11 +747,11 @@ describe( 'normalizeColorToHex', () => {
 		} );
 
 		it( 'converts rgba(0, 0, 255, 0.5) to #0000ff', () => {
-			// Alpha channel is lost in hex conversion
+			// Alpha channel is stripped in hex conversion
 			expect( normalizeColorToHex( 'rgba(0, 0, 255, 0.5)' ) ).toBe( '#0000ff' );
 		} );
 
-		it( 'converts rgba(128, 128, 128, 0) to #000000', () => {
+		it( 'converts fully transparent rgba to #000000', () => {
 			// d3-color converts fully transparent colors (alpha=0) to black
 			expect( normalizeColorToHex( 'rgba(128, 128, 128, 0)' ) ).toBe( '#000000' );
 		} );

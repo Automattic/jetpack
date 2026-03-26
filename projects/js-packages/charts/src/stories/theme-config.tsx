@@ -52,7 +52,7 @@ export const mixedColorFormatsTheme: ChartTheme = {
 	},
 	leaderboardChart: {
 		primaryColor: 'rgb(42, 157, 143)',
-		secondaryColor: 'rgba(42, 157, 143, 0.4)',
+		secondaryColor: 'rgb(148, 206, 199)',
 		deltaColors: [ 'hsl(0, 70%, 50%)', 'rgb(150, 150, 150)', '#2a9d8f' ],
 	},
 	conversionFunnelChart: {
