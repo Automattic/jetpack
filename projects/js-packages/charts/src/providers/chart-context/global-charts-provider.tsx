@@ -95,12 +95,7 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( {
 						resolveCssVariable
 					);
 
-					// Skip if normalization failed or returned empty string
-					if ( ! normalizedColor ) {
-						continue;
-					}
-
-					// Only process valid hex colors (normalizeColorToHex ensures this)
+					// Only process valid hex colors
 					if ( normalizedColor.startsWith( '#' ) ) {
 						resolvedColors.push( normalizedColor );
 						const hslColor = d3Hsl( normalizedColor );

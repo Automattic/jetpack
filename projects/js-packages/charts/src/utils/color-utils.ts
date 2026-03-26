@@ -181,9 +181,10 @@ export const normalizeColorToHex = (
 		return color;
 	}
 
-	// Handle HSL, RGB, and RGBA strings using d3-color
+	// Handle HSL, HSLA, RGB, and RGBA strings using d3-color
 	if (
 		trimmed.startsWith( 'hsl(' ) ||
+		trimmed.startsWith( 'hsla(' ) ||
 		trimmed.startsWith( 'rgb(' ) ||
 		trimmed.startsWith( 'rgba(' )
 	) {

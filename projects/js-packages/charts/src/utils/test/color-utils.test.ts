@@ -716,6 +716,20 @@ describe( 'normalizeColorToHex', () => {
 		} );
 	} );
 
+	describe( 'HSLA strings', () => {
+		it( 'converts hsla(0, 100%, 50%, 1) to #ff0000', () => {
+			expect( normalizeColorToHex( 'hsla(0, 100%, 50%, 1)' ) ).toBe( '#ff0000' );
+		} );
+
+		it( 'converts hsla(120, 100%, 50%, 0.5) to #00ff00', () => {
+			expect( normalizeColorToHex( 'hsla(120, 100%, 50%, 0.5)' ) ).toBe( '#00ff00' );
+		} );
+
+		it( 'converts hsla(240, 100%, 50%, 0) to #0000ff', () => {
+			expect( normalizeColorToHex( 'hsla(240, 100%, 50%, 0)' ) ).toBe( '#000000' );
+		} );
+	} );
+
 	describe( 'RGB strings', () => {
 		it( 'converts rgb(255, 0, 0) to #ff0000', () => {
 			expect( normalizeColorToHex( 'rgb(255, 0, 0)' ) ).toBe( '#ff0000' );
