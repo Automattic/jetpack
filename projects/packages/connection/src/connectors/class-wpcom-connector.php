@@ -87,6 +87,13 @@ class Wpcom_Connector {
 			return;
 		}
 
+		wp_enqueue_style(
+			'wpcom-connector-card',
+			plugins_url( 'css/connectors-card.css', __FILE__ ),
+			array(),
+			'1.0.0'
+		);
+
 		wp_register_script_module(
 			static::MODULE_ID,
 			plugins_url( 'js/connectors-card.js', __FILE__ ),
@@ -124,11 +131,59 @@ class Wpcom_Connector {
 		$data['redirectUri']  = static::get_connectors_page_path();
 
 		if ( $is_connected ) {
+			$data['currentUser']      = static::get_current_user_data( $manager );
 			$data['connectionOwner']  = static::get_connection_owner_data( $manager );
 			$data['connectedPlugins'] = static::get_connected_plugins_data( $manager );
 		}
 
 		return $data;
+	}
+
+	/**
+	 * Get the current (logged-in) user's connection details.
+	 *
+	 * @param Manager $manager Connection manager instance.
+	 * @return array|null Current user data or null if not connected.
+	 */
+	private static function get_current_user_data( $manager ) {
+		$user_id = get_current_user_id();
+
+		if ( ! $user_id || ! $manager->is_user_connected( $user_id ) ) {
+			return null;
+		}
+
+		$user            = get_userdata( $user_id );
+		$wpcom_user_data = $manager->get_connected_user_data( $user_id );
+
+		$display_name = $user ? $user->display_name : '';
+		$login        = $user ? $user->user_login : '';
+		$email        = $user ? $user->user_email : '';
+
+		if ( is_array( $wpcom_user_data ) ) {
+			if ( ! empty( $wpcom_user_data['display_name'] ) ) {
+				$display_name = $wpcom_user_data['display_name'];
+			}
+			if ( ! empty( $wpcom_user_data['login'] ) ) {
+				$login = $wpcom_user_data['login'];
+			}
+			if ( ! empty( $wpcom_user_data['email'] ) ) {
+				$email = $wpcom_user_data['email'];
+			}
+		}
+
+		return array(
+			'displayName' => $display_name,
+			'login'       => $login,
+			'email'       => $email,
+			'isOwner'     => $manager->is_connection_owner( $user_id ),
+			'avatar'      => get_avatar_url(
+				$user_id,
+				array(
+					'size'    => 48,
+					'default' => 'mysteryman',
+				)
+			),
+		);
 	}
 
 	/**

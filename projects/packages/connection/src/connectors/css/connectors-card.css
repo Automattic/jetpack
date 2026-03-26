@@ -1,0 +1,66 @@
+/**
+ * Styles for the WordPress.com connector card on the
+ * WP core Settings > Connectors page (WP 7.0+).
+ *
+ * Enqueued by Wpcom_Connector::enqueue_script_module().
+ * Uses CSS logical properties for RTL support.
+ *
+ * ConnectorItem renders inside .components-item which has
+ * 20px padding (12px on <=480px screens). The divider uses
+ * negative inline margins to span the full card width.
+ */
+
+.wpcom-connector__expanded {
+	margin-inline: -20px;
+	margin-block-start: 4px;
+	border-block-start: 1px solid #ddd;
+	padding-block-start: 20px;
+	padding-inline: 20px;
+}
+
+@media (max-width: 480px) {
+
+	.wpcom-connector__expanded {
+		margin-inline: -12px;
+		padding-block-start: 12px;
+		padding-inline: 12px;
+	}
+}
+
+.wpcom-connector__status-badge {
+	padding: 4px 12px;
+	border-radius: 2px;
+	font-size: 13px;
+	font-weight: 500;
+	white-space: nowrap;
+}
+
+.wpcom-connector__status-badge--connected {
+	color: #345b37;
+	background-color: #eff8f0;
+}
+
+.wpcom-connector__status-badge--site-connected {
+	color: #1e4c5e;
+	background-color: #e9f0f5;
+}
+
+.wpcom-connector__section {
+	padding-block-end: 20px;
+}
+
+.wpcom-connector__owner-avatar {
+	border-radius: 50%;
+}
+
+.wpcom-connector__plugin-icon {
+	font-size: 20px;
+	inline-size: 20px;
+	block-size: 20px;
+}
+
+.wpcom-connector__error {
+	color: #cc1818;
+	font-size: 13px;
+	margin: 8px 0 0;
+}

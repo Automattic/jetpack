@@ -36,6 +36,7 @@ const initialIsRegistered = Boolean( data.isRegistered );
 const apiRoot = data.apiRoot || '';
 const apiNonce = data.apiNonce || '';
 const redirectUri = data.redirectUri || '';
+const currentUser = data.currentUser || null;
 const connectionOwner = data.connectionOwner || null;
 const connectedPlugins = data.connectedPlugins || [];
 
@@ -121,45 +122,34 @@ function addSkipPricing( url ) {
 }
 
 /**
- * Status badge with configurable label and colour scheme.
+ * Status badge with a BEM modifier for different connection states.
  *
- * @param {object} props       - Component props.
- * @param {string} props.label - Badge text.
- * @param {string} props.color - Text colour.
- * @param {string} props.bg    - Background colour.
+ * @param {object} props          - Component props.
+ * @param {string} props.label    - Badge text.
+ * @param {string} props.modifier - BEM modifier suffix (e.g. 'connected', 'site-connected').
  * @return {object} React element.
  */
-function StatusBadge( { label, color = '#345b37', bg = '#eff8f0' } ) {
-	return createElement(
-		'span',
-		{
-			style: {
-				color,
-				backgroundColor: bg,
-				padding: '4px 12px',
-				borderRadius: '2px',
-				fontSize: '13px',
-				fontWeight: 500,
-				whiteSpace: 'nowrap',
-			},
-		},
-		label
-	);
+function StatusBadge( { label, modifier = 'connected' } ) {
+	const cls = 'wpcom-connector__status-badge wpcom-connector__status-badge--' + modifier;
+	return createElement( 'span', { className: cls }, label );
 }
 
 /**
- * Connection owner section displayed in the expanded card.
+ * A labelled user row with avatar, display name, and login.
  *
+ * @param {object}      props       - Component props.
+ * @param {string}      props.title - Section heading (uppercase label).
+ * @param {object|null} props.user  - User data object with displayName, login, avatar.
  * @return {object|null} React element or null.
  */
-function ConnectionOwnerSection() {
-	if ( ! connectionOwner ) {
+function UserSection( { title, user } ) {
+	if ( ! user ) {
 		return null;
 	}
 
 	return createElement(
 		VStack,
-		{ spacing: 3 },
+		{ spacing: 3, className: 'wpcom-connector__section' },
 		createElement(
 			Text,
 			{
@@ -168,25 +158,29 @@ function ConnectionOwnerSection() {
 				upperCase: true,
 				weight: 500,
 			},
-			__( 'Connection owner', 'jetpack-connection' )
+			title
 		),
 		createElement(
 			HStack,
-			{ spacing: 3, alignment: 'center' },
-			connectionOwner.avatar
+			{ spacing: 3, alignment: 'center', justify: 'flex-start' },
+			user.avatar
 				? createElement( 'img', {
-						src: connectionOwner.avatar,
+						src: user.avatar,
 						alt: '',
 						width: 36,
 						height: 36,
-						style: { borderRadius: '50%' },
+						className: 'wpcom-connector__owner-avatar',
 				  } )
 				: null,
 			createElement(
 				VStack,
 				{ spacing: 0 },
-				createElement( Text, { weight: 600, size: 13 }, connectionOwner.displayName ),
-				createElement( Text, { variant: 'muted', size: 12 }, '@' + connectionOwner.login )
+				createElement( Text, { weight: 600, size: 13 }, user.displayName ),
+				createElement(
+					Text,
+					{ variant: 'muted', size: 12 },
+					user.email ? '@' + user.login + ' (' + user.email + ')' : '@' + user.login
+				)
 			)
 		)
 	);
@@ -204,7 +198,7 @@ function ConnectedPluginsSection() {
 
 	return createElement(
 		VStack,
-		{ spacing: 3 },
+		{ spacing: 3, className: 'wpcom-connector__section' },
 		createElement(
 			Text,
 			{
@@ -217,14 +211,13 @@ function ConnectedPluginsSection() {
 		),
 		createElement(
 			HStack,
-			{ spacing: 4, wrap: true },
+			{ spacing: 4, wrap: true, justify: 'flex-start' },
 			...connectedPlugins.map( plugin =>
 				createElement(
 					HStack,
 					{ key: plugin.slug, spacing: 2, expanded: false },
 					createElement( 'span', {
-						className: 'dashicons dashicons-admin-plugins',
-						style: { fontSize: '20px', width: '20px', height: '20px' },
+						className: 'dashicons dashicons-admin-plugins wpcom-connector__plugin-icon',
 					} ),
 					createElement( Text, { size: 13 }, plugin.name )
 				)
@@ -276,14 +269,27 @@ function ExpandedDetails( { onDisconnect } ) {
 		}
 	};
 
+	const currentUserTitle = currentUser?.isOwner
+		? __( 'Connected as owner', 'jetpack-connection' )
+		: __( 'Connected as', 'jetpack-connection' );
+
 	return createElement(
 		VStack,
 		{ spacing: 5 },
-		createElement( ConnectionOwnerSection ),
+		createElement( UserSection, {
+			title: currentUserTitle,
+			user: currentUser,
+		} ),
+		! currentUser?.isOwner
+			? createElement( UserSection, {
+					title: __( 'Connection owner', 'jetpack-connection' ),
+					user: connectionOwner,
+			  } )
+			: null,
 		createElement( ConnectedPluginsSection ),
 		createElement(
 			HStack,
-			{ spacing: 3, alignment: 'center' },
+			{ spacing: 3, justify: 'flex-start' },
 			createElement(
 				Button,
 				{
@@ -357,7 +363,11 @@ function WpcomConnectorCard( { name, description, logo } ) {
 		);
 
 		if ( isExpanded ) {
-			expandedContent = createElement( ExpandedDetails, { onDisconnect: handleDisconnect } );
+			expandedContent = createElement(
+				'div',
+				{ className: 'wpcom-connector__expanded' },
+				createElement( ExpandedDetails, { onDisconnect: handleDisconnect } )
+			);
 		}
 	} else if ( isSiteRegistered ) {
 		// State 2: Site registered but no connected owner.
@@ -366,8 +376,7 @@ function WpcomConnectorCard( { name, description, logo } ) {
 			{ spacing: 3, expanded: false },
 			createElement( StatusBadge, {
 				label: __( 'Site connected', 'jetpack-connection' ),
-				color: '#1e4c5e',
-				bg: '#e9f0f5',
+				modifier: 'site-connected',
 			} ),
 			createElement(
 				Button,
@@ -383,28 +392,32 @@ function WpcomConnectorCard( { name, description, logo } ) {
 
 		if ( isExpanded ) {
 			expandedContent = createElement(
-				VStack,
-				{ spacing: 4 },
+				'div',
+				{ className: 'wpcom-connector__expanded' },
 				createElement(
-					Text,
-					{ size: 13 },
-					__(
-						'Your site is registered with WordPress.com. Connect your user account to unlock full functionality.',
-						'jetpack-connection'
+					VStack,
+					{ spacing: 4 },
+					createElement(
+						Text,
+						{ size: 13 },
+						__(
+							'Your site is registered with WordPress.com. Connect your user account to unlock full functionality.',
+							'jetpack-connection'
+						)
+					),
+					createElement(
+						Button,
+						{
+							variant: 'primary',
+							size: 'compact',
+							onClick: handleConnect,
+							isBusy: isConnecting,
+							disabled: isConnecting,
+						},
+						isConnecting
+							? __( 'Connecting…', 'jetpack-connection' )
+							: __( 'Connect your WordPress.com account', 'jetpack-connection' )
 					)
-				),
-				createElement(
-					Button,
-					{
-						variant: 'primary',
-						size: 'compact',
-						onClick: handleConnect,
-						isBusy: isConnecting,
-						disabled: isConnecting,
-					},
-					isConnecting
-						? __( 'Connecting…', 'jetpack-connection' )
-						: __( 'Connect your WordPress.com account', 'jetpack-connection' )
 				)
 			);
 		}
@@ -438,7 +451,7 @@ function WpcomConnectorCard( { name, description, logo } ) {
 			? createElement(
 					'p',
 					{
-						style: { color: '#cc1818', fontSize: '13px', margin: '8px 0 0' },
+						className: 'wpcom-connector__error',
 						role: 'alert',
 					},
 					connectError
