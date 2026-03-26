@@ -117,7 +117,6 @@ const RenamerPlugin = {
 const entries = {
 	'_inc/build/style.min': path.join( __dirname, '../_inc/client', 'scss/style.scss' ),
 	'_inc/build/social-logos/social-logos.min': path.join( __dirname, '../scss/_social-logos.scss' ),
-	'_inc/build/social-logos/social-logos': path.join( __dirname, '../scss/_social-logos.scss' ),
 };
 
 // CSS that needs to have the rtl files renamed using the above RenamerPlugin.

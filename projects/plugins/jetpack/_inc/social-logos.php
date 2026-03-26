@@ -22,11 +22,9 @@ define( 'JETPACK_SOCIAL_LOGOS_DIR', plugin_dir_path( __FILE__ ) . 'build/social-
  */
 function jetpack_register_social_logos() {
 	if ( ! wp_style_is( 'social-logos', 'registered' ) ) {
-		/** This filter is documented in modules/sharedaddy/sharing.php */
-		$post_fix = apply_filters( 'jetpack_should_use_minified_assets', true ) ? '.min' : '';
 		wp_register_style(
 			'social-logos',
-			JETPACK_SOCIAL_LOGOS_URL . 'social-logos' . $post_fix . '.css',
+			JETPACK_SOCIAL_LOGOS_URL . 'social-logos.css',
 			false,
 			JETPACK__VERSION
 		);
