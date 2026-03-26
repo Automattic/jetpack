@@ -41,11 +41,28 @@ function wpcom_should_enforce_http_polling() {
 }
 
 /**
+ * Determine whether the current request is from the WordPress.com desktop app.
+ *
+ * @return bool
+ */
+function wpcom_rtc_is_desktop_app() {
+	if ( ! isset( $_SERVER['HTTP_USER_AGENT'] ) ) {
+		return false;
+	}
+	$user_agent = sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) );
+	return false !== strpos( $user_agent, 'WordPressDesktop' );
+}
+
+/**
  * Determine whether RTC should be enabled based on the site's features.
  *
  * @return bool
  */
 function wpcom_enable_rtc() {
+	// Disable RTC on the desktop app due to an incompatibility.
+	if ( wpcom_rtc_is_desktop_app() ) {
+		return false;
+	}
 	$has_rtc_feature = false;
 	if ( function_exists( 'wpcom_site_has_feature' ) && class_exists( 'WPCOM_Features' ) && defined( 'WPCOM_Features::REAL_TIME_COLLABORATION' ) ) {
 		$blog_id         = get_wpcom_blog_id();
