@@ -97,6 +97,20 @@ describe( 'GeoChart', () => {
 			expect( data[ 2 ][ 2 ] ).toBe( '<b>Canada</b>' );
 		} );
 
+		test( 'handles header-only data with HTML tooltip column and no data rows', () => {
+			const testData: [ ( string | object )[] ] = [
+				[ 'Country', 'Value', { type: 'string', role: 'tooltip', p: { html: true } } ],
+			];
+			renderWithTheme( { data: testData } );
+
+			const chartData = screen.getByTestId( 'chart-data' );
+			const data = JSON.parse( chartData.textContent || '[]' );
+
+			// Header row should be preserved as-is
+			expect( data ).toHaveLength( 1 );
+			expect( data[ 0 ][ 0 ] ).toBe( 'Country' );
+		} );
+
 		test( 'preserves safe HTML in tooltip content', () => {
 			const testData: [ ( string | object )[], ...[ string, number, string ][] ] = [
 				[ 'Country', 'Value', { type: 'string', role: 'tooltip', p: { html: true } } ],
