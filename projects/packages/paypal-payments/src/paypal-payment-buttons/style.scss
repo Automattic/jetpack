@@ -282,14 +282,36 @@ noscript + .jetpack-paypal-button__qr-section {
 }
 
 // ---------------------------------------------------------------
-// Dark background / dark mode support
+// Dark background / dark mode support — logo variant toggle
 // ---------------------------------------------------------------
-// The PayPal color logo (navy #003087 + blue #0070E0) has poor
-// contrast on dark backgrounds. Switch to the white-on-dark
-// variant by boosting brightness so the wordmark stays legible.
+// Show color logo by default; hide white variant.
+// On dark backgrounds, swap: hide color, show white.
+// Covers OS-level dark mode AND WordPress theme dark backgrounds.
+
+.jetpack-paypal-button__logo--white {
+	display: none;
+}
+
 @media (prefers-color-scheme: dark) {
 
-	.jetpack-paypal-button__logo {
-		filter: brightness(1.8);
+	.jetpack-paypal-button__logo--color {
+		display: none;
+	}
+
+	.jetpack-paypal-button__logo--white {
+		display: inline;
+	}
+}
+
+// WordPress block themes: dark background sections / global styles.
+.has-dark-background,
+[data-wp-dark-mode] {
+
+	.jetpack-paypal-button__logo--color {
+		display: none;
+	}
+
+	.jetpack-paypal-button__logo--white {
+		display: inline;
 	}
 }
