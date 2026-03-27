@@ -42,13 +42,14 @@ $paypal-blue: #0070ba;
 	display: block;
 	font-weight: 600;
 	font-size: 16px;
-	color: #1e1e1e;
+	color: inherit;
 }
 
 .jetpack-paypal-button__product-description {
 	display: block;
 	font-size: 14px;
-	color: #757575;
+	color: inherit;
+	opacity: 0.7;
 	margin-top: 4px;
 }
 
@@ -56,7 +57,7 @@ $paypal-blue: #0070ba;
 	display: block;
 	font-weight: 700;
 	font-size: 20px;
-	color: #1e1e1e;
+	color: inherit;
 	margin-top: 8px;
 }
 
@@ -121,7 +122,8 @@ $paypal-blue: #0070ba;
 	padding: 0;
 	text-align: center;
 	font-size: 11px;
-	color: #757575;
+	color: inherit;
+	opacity: 0.6;
 	line-height: 1.5;
 }
 
@@ -133,7 +135,8 @@ $paypal-blue: #0070ba;
 
 .jetpack-paypal-button__variants-label {
 	font-size: 12px;
-	color: #757575;
+	color: inherit;
+	opacity: 0.6;
 	margin: 0 0 8px;
 }
 
@@ -145,21 +148,23 @@ $paypal-blue: #0070ba;
 
 .jetpack-paypal-button__variant-name {
 	font-weight: 600;
-	color: #1e1e1e;
+	color: inherit;
 }
 
 .jetpack-paypal-button__variant-option {
 	display: inline-block;
-	background: #f0f0f0;
+	// Semi-transparent chip that works on both light and dark backgrounds.
+	background: rgba(128, 128, 128, 0.15);
 	border-radius: 12px;
 	padding: 2px 10px;
 	margin: 2px 3px;
 	font-size: 12px;
-	color: #1e1e1e;
+	color: inherit;
 }
 
 .jetpack-paypal-button__variant-price {
-	color: #757575;
+	color: inherit;
+	opacity: 0.6;
 	font-size: 11px;
 }
 
@@ -171,16 +176,17 @@ $paypal-blue: #0070ba;
 
 .jetpack-paypal-button__qr-toggle {
 	background: none;
-	border: 1px solid #ddd;
+	border: 1px solid currentColor;
 	border-radius: 4px;
 	padding: 6px 16px;
 	font-size: 13px;
-	color: #555;
+	color: inherit;
+	opacity: 0.6;
 	cursor: pointer;
-	transition: border-color 0.15s;
+	transition: opacity 0.15s;
 
 	&:hover {
-		border-color: #999;
+		opacity: 0.8;
 	}
 
 	&:focus-visible {
@@ -220,10 +226,11 @@ $paypal-blue: #0070ba;
 	flex: 1;
 	font-size: 12px;
 	padding: 6px 8px;
-	border: 1px solid #ddd;
+	border: 1px solid currentColor;
 	border-radius: 4px;
-	color: #555;
-	background: #f9f9f9;
+	color: inherit;
+	opacity: 0.7;
+	background: rgba(128, 128, 128, 0.1);
 	text-overflow: ellipsis;
 	overflow: hidden;
 	white-space: nowrap;
@@ -232,16 +239,16 @@ $paypal-blue: #0070ba;
 .jetpack-paypal-button__qr-copy {
 	flex-shrink: 0;
 	background: none;
-	border: 1px solid #ddd;
+	border: 1px solid currentColor;
 	border-radius: 4px;
 	padding: 6px 12px;
 	font-size: 12px;
 	color: $paypal-blue;
 	cursor: pointer;
-	transition: border-color 0.15s;
+	transition: opacity 0.15s;
 
 	&:hover {
-		border-color: $paypal-blue;
+		opacity: 0.8;
 	}
 
 	&:focus-visible {
@@ -272,4 +279,39 @@ $paypal-blue: #0070ba;
 // Hide QR toggle when JS is unavailable.
 noscript + .jetpack-paypal-button__qr-section {
 	display: none;
+}
+
+// ---------------------------------------------------------------
+// Dark background / dark mode support — logo variant toggle
+// ---------------------------------------------------------------
+// Show color logo by default; hide white variant.
+// On dark backgrounds, swap: hide color, show white.
+// Covers OS-level dark mode AND WordPress theme dark backgrounds.
+
+.jetpack-paypal-button__logo--white {
+	display: none;
+}
+
+@media (prefers-color-scheme: dark) {
+
+	.jetpack-paypal-button__logo--color {
+		display: none;
+	}
+
+	.jetpack-paypal-button__logo--white {
+		display: inline;
+	}
+}
+
+// WordPress block themes: dark background sections / global styles.
+.has-dark-background,
+[data-wp-dark-mode] {
+
+	.jetpack-paypal-button__logo--color {
+		display: none;
+	}
+
+	.jetpack-paypal-button__logo--white {
+		display: inline;
+	}
 }
