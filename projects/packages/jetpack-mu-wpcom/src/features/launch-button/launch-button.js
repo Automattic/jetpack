@@ -1,8 +1,10 @@
 import { useExperimentWithAuth } from '@automattic/jetpack-explat';
-import { getSiteData } from '@automattic/jetpack-script-data';
+import { getSiteData, isSimpleSite } from '@automattic/jetpack-script-data';
+import apiFetch from '@wordpress/api-fetch';
 import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
 import { useState } from 'react';
+import wpcomRequest, { canAccessWpcomApis } from 'wpcom-proxy-request';
 import { wpcomTrackEvent } from '../../common/tracks';
 import CelebrateLaunchModal from '../wpcom-dashboard-widgets/celebrate-launch/celebrate-launch-modal';
 
@@ -33,6 +35,7 @@ const Content = () => (
 export function LaunchButton( { onCelebrationModalClose } ) {
 	const [ , data ] = useExperimentWithAuth( 'calypso_standardized_site_launch_gating' );
 	const [ showCelebrateLaunchModal, setShowCelebrateLaunchModal ] = useState( false );
+	const [ isLaunching, setIsLaunching ] = useState( false );
 
 	const siteData = getSiteData();
 
@@ -56,18 +59,33 @@ export function LaunchButton( { onCelebrationModalClose } ) {
 		);
 	}
 
-	const launchSite = e => {
+	const launchSite = async e => {
 		e.preventDefault();
 
+		if ( isLaunching ) {
+			return;
+		}
+
+		setIsLaunching( true );
 		wpcomTrackEvent( 'wpcom_adminbar_launch_site' );
 
-		/**
-		 * TODO: Implement launch site mutation.
-		 * Just like the experiment assignment, we'll need to check if
-		 * we're on Simple or Jetpack, then dispatch the request appropriately.
-		 */
-
-		setShowCelebrateLaunchModal( true );
+		try {
+			if ( canAccessWpcomApis() && isSimpleSite() ) {
+				await wpcomRequest( {
+					path: `/sites/${ siteData.wpcom.blog_id }/launch`,
+					apiVersion: '1.1',
+					method: 'POST',
+				} );
+			} else {
+				await apiFetch( {
+					path: '/wpcom/v2/launch-site',
+					method: 'POST',
+				} );
+			}
+			setShowCelebrateLaunchModal( true );
+		} finally {
+			setIsLaunching( false );
+		}
 	};
 
 	return (
