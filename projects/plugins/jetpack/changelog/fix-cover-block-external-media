@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+External Media: ensure that WordPress' new "Embed video from URL" option appears in the Cover block options alongside Jetpack's External Media options.
