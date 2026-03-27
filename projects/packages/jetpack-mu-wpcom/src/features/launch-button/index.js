@@ -1,5 +1,8 @@
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { createRoot } from 'react-dom/client';
 import { LaunchButton } from './launch-button';
+
+const queryClient = new QueryClient();
 
 /**
  * Renders the launch button.
@@ -13,18 +16,20 @@ async function renderLaunchButton() {
 
 	const root = createRoot( launchButton );
 	root.render(
-		<LaunchButton
-			onCelebrationModalClose={ () => {
-				// We have two alternatives here...
+		<QueryClientProvider client={ queryClient }>
+			<LaunchButton
+				onCelebrationModalClose={ () => {
+					// We have two alternatives here...
 
-				// Keep the user on the same page...
-				root.unmount();
-				launchButton.remove();
+					// Keep the user on the same page...
+					root.unmount();
+					launchButton.remove();
 
-				// ...or reload it to reflect the new state.
-				// window.location.reload();
-			} }
-		/>
+					// ...or reload it to reflect the new state.
+					// window.location.reload();
+				} }
+			/>
+		</QueryClientProvider>
 	);
 }
 

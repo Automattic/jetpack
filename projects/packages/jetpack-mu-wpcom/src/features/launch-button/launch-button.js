@@ -1,10 +1,9 @@
 import { useExperimentWithAuth } from '@automattic/jetpack-explat';
 import { getSiteData } from '@automattic/jetpack-script-data';
-import apiFetch from '@wordpress/api-fetch';
 import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
 import { useState } from 'react';
-import wpcomRequest, { canAccessWpcomApis } from 'wpcom-proxy-request';
+import { useLaunchSiteMutation } from '../../common/hooks';
 import { wpcomTrackEvent } from '../../common/tracks';
 import CelebrateLaunchModal from '../wpcom-dashboard-widgets/celebrate-launch/celebrate-launch-modal';
 
@@ -37,9 +36,10 @@ const launchButtonData = typeof window === 'object' ? window.JETPACK_LAUNCH_BUTT
 export function LaunchButton( { onCelebrationModalClose } ) {
 	const [ , data ] = useExperimentWithAuth( 'calypso_standardized_site_launch_gating' );
 	const [ showCelebrateLaunchModal, setShowCelebrateLaunchModal ] = useState( false );
-	const [ isLaunching, setIsLaunching ] = useState( false );
 
 	const siteData = getSiteData();
+
+	const { mutate: launchSite } = useLaunchSiteMutation( () => setShowCelebrateLaunchModal( true ) );
 
 	// Default experience. Markup should match what's coming from the back-end.
 	if ( ! data || data.variationName !== 'ungated_site_launch' ) {
@@ -61,38 +61,15 @@ export function LaunchButton( { onCelebrationModalClose } ) {
 		);
 	}
 
-	const launchSite = async e => {
+	const handleLaunchClick = e => {
 		e.preventDefault();
-
-		if ( isLaunching ) {
-			return;
-		}
-
-		setIsLaunching( true );
 		wpcomTrackEvent( 'wpcom_adminbar_launch_site' );
-
-		try {
-			if ( canAccessWpcomApis() ) {
-				await wpcomRequest( {
-					path: `/sites/${ siteData.wpcom.blog_id }/launch`,
-					apiVersion: '1.1',
-					method: 'POST',
-				} );
-			} else {
-				await apiFetch( {
-					path: '/wpcom/v2/launch-site',
-					method: 'POST',
-				} );
-			}
-			setShowCelebrateLaunchModal( true );
-		} finally {
-			setIsLaunching( false );
-		}
+		launchSite();
 	};
 
 	return (
 		<>
-			<a className="ab-item" role="menuitem" href="#" onClick={ launchSite }>
+			<a className="ab-item" role="menuitem" href="#" onClick={ handleLaunchClick }>
 				<Content />
 			</a>
 			{ showCelebrateLaunchModal && (
