@@ -1,4 +1,3 @@
-import { getSettings } from '@wordpress/date';
 import { FALLBACK_LOCALE } from './constants.ts';
 import {
 	numberFormatCurrency,
@@ -9,6 +8,20 @@ import type { CurrencyObject, FormatCurrency, FormatNumber, GetCurrencyObject } 
 
 // Since global is used inside createNumberFormatters, we need to declare it for TS
 declare const global: typeof globalThis;
+
+declare global {
+	interface Window {
+		wp?: {
+			date?: {
+				getSettings?: () => {
+					l10n?: {
+						locale?: string;
+					};
+				};
+			};
+		};
+	}
+}
 
 export interface NumberFormatters {
 	/**
@@ -162,9 +175,7 @@ function createNumberFormatters(): NumberFormatters {
 	 * @return {string} The locale to use for formatting.
 	 */
 	const getBrowserSafeLocale = (): string => {
-		const {
-			l10n: { locale: localeFromUserSettings },
-		} = getSettings();
+		const localeFromUserSettings = window.wp?.date?.getSettings()?.l10n?.locale;
 
 		return (
 			localeState ??
