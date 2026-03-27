@@ -79,14 +79,6 @@ const AdminPage: FC< AdminPageProps > = ( {
 		</HStack>
 	) : undefined;
 
-	const footer = showFooter && (
-		<Container className={ styles[ 'admin-page-footer' ] } horizontalSpacing={ 5 }>
-			<Col>
-				<JetpackFooter menu={ optionalMenuItems } />
-			</Col>
-		</Container>
-	);
-
 	// When title or breadcrumbs are provided, use admin-ui Page for the full page layout.
 	if ( showHeader && ( composedTitle || breadcrumbs ) ) {
 		return (
@@ -103,7 +95,7 @@ const AdminPage: FC< AdminPageProps > = ( {
 					<Container fluid horizontalSpacing={ 0 }>
 						<Col>{ children }</Col>
 					</Container>
-					{ footer }
+					{ showFooter && <JetpackFooter menu={ optionalMenuItems } /> }
 				</Page>
 			</div>
 		);
@@ -135,7 +127,7 @@ const AdminPage: FC< AdminPageProps > = ( {
 			<Container fluid horizontalSpacing={ 0 }>
 				<Col>{ children }</Col>
 			</Container>
-			{ footer }
+			{ showFooter && <JetpackFooter menu={ optionalMenuItems } /> }
 		</div>
 	);
 };
