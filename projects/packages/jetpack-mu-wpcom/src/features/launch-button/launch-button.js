@@ -26,6 +26,8 @@ const Content = () => (
 	</>
 );
 
+const launchButtonData = typeof window === 'object' ? window.JETPACK_LAUNCH_BUTTON_DATA : {};
+
 /**
  * The LaunchButton component.
  * @param {object}   props                         - Props
@@ -94,13 +96,7 @@ export function LaunchButton( { onCelebrationModalClose } ) {
 				<Content />
 			</a>
 			{ showCelebrateLaunchModal && (
-				/**
-				 * Feed this component with data from enqueue_wpcom_dashboard_widgets.
-				 * We'll need to refactor that hook to be rendered within launch-button/index.php
-				 * Because not necessarily the user will be browsing the dashboard page, and that
-				 * data is not available elsewhere.
-				 */
-				<CelebrateLaunchModal onRequestClose={ onCelebrationModalClose } />
+				<CelebrateLaunchModal { ...launchButtonData } onRequestClose={ onCelebrationModalClose } />
 			) }
 		</>
 	);

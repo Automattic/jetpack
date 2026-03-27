@@ -98,6 +98,26 @@ function wpcom_enqueue_launch_button_styles() {
 		$asset_file['version'] ?? filemtime( Jetpack_Mu_Wpcom::BASE_DIR . 'build/adminbar-launch-button/adminbar-launch-button.js' ),
 		true
 	);
+
+	$bundles      = function_exists( 'wpcom_get_site_purchases' ) ? wp_list_filter( wpcom_get_site_purchases(), array( 'product_type' => 'bundle' ) ) : array();
+	$current_plan = array_pop( $bundles );
+
+	$launch_button_data = wp_json_encode(
+		array(
+			'siteUrl'         => home_url(),
+			'siteDomain'      => wp_parse_url( home_url(), PHP_URL_HOST ),
+			'sitePlan'        => $current_plan,
+			'hasCustomDomain' => function_exists( 'wpcom_site_has_feature' ) && wpcom_site_has_feature( 'custom-domain' ),
+		),
+		JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
+	);
+
+	wp_add_inline_script(
+		'adminbar-launch-button',
+		"var JETPACK_LAUNCH_BUTTON_DATA = $launch_button_data;",
+		'before'
+	);
+
 	Common\wpcom_enqueue_tracking_scripts( 'adminbar-launch-button' );
 }
 
