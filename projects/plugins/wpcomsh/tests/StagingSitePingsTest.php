@@ -113,4 +113,55 @@ class StagingSitePingsTest extends WP_UnitTestCase {
 		putenv( 'WP_ENVIRONMENT_TYPE=production' );
 		$this->assertFalse( wpcomsh_force_ping_status_closed_on_staging() );
 	}
+
+	/**
+	 * Test that the pingback UI script is not output in production.
+	 */
+	public function test_pingback_ui_not_modified_in_production() {
+		putenv( 'WP_ENVIRONMENT_TYPE=production' );
+		set_current_screen( 'options-discussion' );
+
+		ob_start();
+		wpcomsh_disable_pingback_ui_on_staging();
+		$output = ob_get_clean();
+
+		$this->assertEmpty( $output );
+
+		set_current_screen( 'front' );
+	}
+
+	/**
+	 * Test that the pingback UI script is output on the Discussion Settings page in staging.
+	 */
+	public function test_pingback_ui_disabled_on_staging_discussion_page() {
+		putenv( 'WP_ENVIRONMENT_TYPE=staging' );
+		set_current_screen( 'options-discussion' );
+
+		ob_start();
+		wpcomsh_disable_pingback_ui_on_staging();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( 'default_pingback_flag', $output );
+		$this->assertStringContainsString( 'default_ping_status', $output );
+		$this->assertStringContainsString( 'checkbox.disabled = true', $output );
+		$this->assertStringContainsString( 'Pingbacks are disabled on staging sites', $output );
+
+		set_current_screen( 'front' );
+	}
+
+	/**
+	 * Test that the pingback UI script is not output on non-Discussion admin pages in staging.
+	 */
+	public function test_pingback_ui_not_modified_on_other_admin_pages() {
+		putenv( 'WP_ENVIRONMENT_TYPE=staging' );
+		set_current_screen( 'dashboard' );
+
+		ob_start();
+		wpcomsh_disable_pingback_ui_on_staging();
+		$output = ob_get_clean();
+
+		$this->assertEmpty( $output );
+
+		set_current_screen( 'front' );
+	}
 }
