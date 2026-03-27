@@ -9,17 +9,16 @@
  */
 
 /**
- * Check if a site has the 'central-forms-management' blog sticker.
+ * Check if a site has a given blog sticker.
  *
  * Uses the appropriate sticker API depending on whether the site is
  * Simple (has_blog_sticker) or Atomic (wpcomsh_is_site_sticker_active).
  *
- * @param int $blog_id The blog ID to check.
+ * @param string $sticker The sticker name to check.
+ * @param int    $blog_id The blog ID to check.
  * @return bool
  */
-function wpcom_has_central_forms_management_sticker( $blog_id ) {
-	$sticker = 'central-forms-management';
-
+function wpcom_forms_has_blog_sticker( $sticker, $blog_id ) {
 	if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC && function_exists( 'wpcomsh_is_site_sticker_active' ) ) {
 		return (bool) wpcomsh_is_site_sticker_active( $sticker );
 	} elseif ( function_exists( 'has_blog_sticker' ) ) {
@@ -43,7 +42,7 @@ function wpcom_is_central_forms_management_enabled( $blog_id = null ) {
 	}
 
 	// Exclude e2e test sites — their tests aren't ready for CFM yet.
-	if ( function_exists( 'has_blog_sticker' ) && has_blog_sticker( 'a8c-e2e-test-blog', $blog_id ) ) {
+	if ( wpcom_forms_has_blog_sticker( 'a8c-e2e-test-blog', $blog_id ) ) {
 		return false;
 	}
 
