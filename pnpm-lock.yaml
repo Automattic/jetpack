@@ -4445,8 +4445,8 @@ importers:
         specifier: 2.15.1
         version: 2.15.1
       config:
-        specifier: 4.1.1
-        version: 4.1.1
+        specifier: 4.4.1
+        version: 4.4.1
       playwright-ctrf-json-reporter:
         specifier: ^0.0.26
         version: 0.0.26
@@ -4614,8 +4614,8 @@ importers:
         specifier: 2.15.1
         version: 2.15.1
       config:
-        specifier: 4.1.1
-        version: 4.1.1
+        specifier: 4.4.1
+        version: 4.4.1
       playwright-ctrf-json-reporter:
         specifier: ^0.0.26
         version: 0.0.26
@@ -4714,8 +4714,8 @@ importers:
         specifier: 2.15.1
         version: 2.15.1
       config:
-        specifier: 4.1.1
-        version: 4.1.1
+        specifier: 4.4.1
+        version: 4.4.1
       playwright-ctrf-json-reporter:
         specifier: ^0.0.26
         version: 0.0.26
@@ -5344,8 +5344,8 @@ importers:
         specifier: 2.15.1
         version: 2.15.1
       config:
-        specifier: 4.1.1
-        version: 4.1.1
+        specifier: 4.4.1
+        version: 4.4.1
       playwright-ctrf-json-reporter:
         specifier: ^0.0.26
         version: 0.0.26
@@ -5419,8 +5419,8 @@ importers:
         specifier: 2.15.1
         version: 2.15.1
       config:
-        specifier: 4.1.1
-        version: 4.1.1
+        specifier: 4.4.1
+        version: 4.4.1
       playwright-ctrf-json-reporter:
         specifier: ^0.0.26
         version: 0.0.26
@@ -5549,8 +5549,8 @@ importers:
         specifier: 2.15.1
         version: 2.15.1
       config:
-        specifier: 4.1.1
-        version: 4.1.1
+        specifier: 4.4.1
+        version: 4.4.1
       playwright-ctrf-json-reporter:
         specifier: ^0.0.26
         version: 0.0.26
@@ -5575,8 +5575,8 @@ importers:
         specifier: 2.15.1
         version: 2.15.1
       config:
-        specifier: 4.1.1
-        version: 4.1.1
+        specifier: 4.4.1
+        version: 4.4.1
       playwright-ctrf-json-reporter:
         specifier: ^0.0.26
         version: 0.0.26
@@ -5605,8 +5605,8 @@ importers:
         specifier: 2.15.1
         version: 2.15.1
       config:
-        specifier: 4.1.1
-        version: 4.1.1
+        specifier: 4.4.1
+        version: 4.4.1
       playwright-ctrf-json-reporter:
         specifier: ^0.0.26
         version: 0.0.26
@@ -5702,8 +5702,8 @@ importers:
         specifier: 2.15.1
         version: 2.15.1
       config:
-        specifier: 4.1.1
-        version: 4.1.1
+        specifier: 4.4.1
+        version: 4.4.1
       playwright-ctrf-json-reporter:
         specifier: ^0.0.26
         version: 0.0.26
@@ -5834,8 +5834,8 @@ importers:
         specifier: 2.15.1
         version: 2.15.1
       config:
-        specifier: 4.1.1
-        version: 4.1.1
+        specifier: 4.4.1
+        version: 4.4.1
       playwright-ctrf-json-reporter:
         specifier: ^0.0.26
         version: 0.0.26
@@ -5979,8 +5979,8 @@ importers:
         specifier: 5.6.2
         version: 5.6.2
       config:
-        specifier: 4.1.1
-        version: 4.1.1
+        specifier: 4.4.1
+        version: 4.4.1
       localtunnel:
         specifier: 2.0.2
         version: 2.0.2
@@ -11900,8 +11900,8 @@ packages:
   confbox@0.1.8:
     resolution: {integrity: sha512-RMtmw0iFkeR4YV+fUOSucriAQNb9g8zFR52MWCtl+cCZOFRNL6zeB395vPzFhEjjn4fMxXudmELnl/KF/WrK6w==}
 
-  config@4.1.1:
-    resolution: {integrity: sha512-jljfwqNZ7QHwAW9Z9NDZdJARFiu5pjLqQO0K4ooY22iY/bIY78n0afI4ANEawfgQOxri0K/3oTayX8XIauWcLA==}
+  config@4.4.1:
+    resolution: {integrity: sha512-XfN4Q4+wBKkGtgMyQ+5ayjepdb0MrdiGKfBr0G1PTLx9rnqsX+Xiw03LEUtSALZU0UVfcFp6+xYV0NL8HLF94g==}
     engines: {node: '>= 20.0.0'}
 
   configstore@7.0.0:
@@ -27054,7 +27054,7 @@ snapshots:
 
   confbox@0.1.8: {}
 
-  config@4.1.1:
+  config@4.4.1:
     dependencies:
       json5: 2.2.3
 
