@@ -1117,7 +1117,6 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 
 		$this->assertSame( 'Jetpack', $menu[ $indices['menu_index'] ][0], 'Menu title should remain unchanged.' );
 		$this->assertSame( 'Form Responses', $submenu['jetpack'][ $indices['submenu_index'] ][0], 'Submenu title should remain unchanged.' );
-
 	}
 
 	/**
@@ -1137,7 +1136,6 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 
 		$this->assertStringContainsString( 'awaiting-mod', $menu[ $indices['menu_index'] ][0], 'My Jetpack badge should be preserved.' );
 		$this->assertStringNotContainsString( 'jp-feedback-unread-counter', $menu[ $indices['menu_index'] ][0], 'Forms should not re-wrap the badge.' );
-
 	}
 
 	/**
@@ -1157,7 +1155,6 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 		$this->assertStringContainsString( 'jp-feedback-unread-counter', $menu[ $indices['menu_index'] ][0], 'Should contain Forms badge class.' );
 		$this->assertStringContainsString( 'count-3', $menu[ $indices['menu_index'] ][0], 'Should show count of 3.' );
 		$this->assertStringContainsString( "data-unread-diff='0'", $menu[ $indices['menu_index'] ][0], 'Diff should be 0 when no other badges exist.' );
-
 	}
 
 	/**
@@ -1177,7 +1174,6 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 		$this->assertStringContainsString( 'jp-feedback-unread-counter', $menu[ $indices['menu_index'] ][0], 'Should contain Forms badge class.' );
 		$this->assertStringContainsString( 'count-3', $menu[ $indices['menu_index'] ][0], 'Should show combined count of 3 (2 unread + 1 existing).' );
 		$this->assertStringContainsString( "data-unread-diff='1'", $menu[ $indices['menu_index'] ][0], 'Diff should be 1 (3 - 2).' );
-
 	}
 
 	/**
@@ -1195,7 +1191,6 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 
 		$this->assertStringContainsString( 'jp-feedback-unread-counter', $submenu['jetpack'][ $indices['submenu_index'] ][0], 'Submenu should contain Forms badge.' );
 		$this->assertStringContainsString( 'count-5', $submenu['jetpack'][ $indices['submenu_index'] ][0], 'Submenu badge should show count of 5.' );
-
 	}
 
 	/**
