@@ -51,6 +51,10 @@ minimumReleaseAgeExclude:
   - devalue@5.6.3
   # Renovate security update: undici@7.24.0
   - undici@7.24.0
+  # Renovate security update: picomatch@4.0.4
+  - picomatch@4.0.4
+  # Renovate security update: yaml@2.8.3
+  - yaml@2.8.3
 trustPolicy: no-downgrade
 trustPolicyExclude:
   # https://github.com/paulmillr/chokidar/issues/1440

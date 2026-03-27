@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+RTC Notices: Fix image URLs on Simple sites by importing public-path to set webpack publicPath correctly

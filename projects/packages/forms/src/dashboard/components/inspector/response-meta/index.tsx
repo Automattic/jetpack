@@ -41,7 +41,10 @@ const ResponseMeta = ( { response }: ResponseMetaProps ): import('react').JSX.El
 	const displayName = getDisplayName( response );
 	// Match the data view gravatar logic: use email or IP, and set defaultImage conditionally
 	const gravatarEmail = response.author_email || response.ip;
-	const defaultImage = response.author_name || response.author_email ? 'initials' : 'mp';
+	const gravatarDisplayName = response.author_name
+		? decodeEntities( response.author_name )
+		: response.author_email?.split( '@' )[ 0 ];
+	const defaultImage = gravatarDisplayName ? 'initials' : 'mp';
 
 	const responseAuthorEmailParts = response.author_email?.split( '@' ) ?? [];
 
@@ -63,7 +66,7 @@ const ResponseMeta = ( { response }: ResponseMetaProps ): import('react').JSX.El
 				<Gravatar
 					email={ gravatarEmail }
 					defaultImage={ defaultImage }
-					displayName={ displayName }
+					displayName={ gravatarDisplayName }
 					key={ gravatarEmail }
 				/>
 				<VStack spacing="0" className="jp-forms__inbox-response-meta-from">

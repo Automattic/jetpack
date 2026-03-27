@@ -16,7 +16,7 @@
 		"@wordpress/components": "32.4.0",
 		"@wordpress/core-data": "7.42.0",
 		"@wordpress/data": "10.42.0",
-		"@wordpress/dataviews": "11.3.0",
+		"@wordpress/dataviews": "13.1.0",
 		"@wordpress/date": "5.42.0",
 		"@wordpress/element": "6.42.0",
 		"@wordpress/html-entities": "4.42.0",
@@ -24,6 +24,7 @@
 		"@wordpress/icons": "12.0.0",
 		"@wordpress/notices": "5.42.0",
 		"@wordpress/route": "0.8.0",
+		"@wordpress/theme": "0.9.0",
 		"@wordpress/ui": "0.9.0"
 	},
 	"route": {

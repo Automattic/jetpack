@@ -393,7 +393,7 @@ export default function usePageHeaderDetails(
 			return [];
 		}
 
-		const formItem = { id: sourceIdNumber, title: formTitle };
+		const formItem = { id: sourceIdNumber, title: formTitle, status: formRecord?.status };
 
 		if ( formRecord?.status === 'trash' ) {
 			return [

@@ -1,5 +1,4 @@
 import type { ProviderCreator, ProviderCreatorResult } from '@wordpress/sync';
-import type { Awareness } from 'y-protocols/awareness';
 
 /*
  * Module-level state shared across all `withRoomLimit` wrappers.
@@ -8,7 +7,7 @@ import type { Awareness } from 'y-protocols/awareness';
  * HTTP request for every registered room. To fully stop polling when the
  * room limit is reached we must destroy *all* wrapped providers — entity
  * rooms AND collection rooms — in one shot. We only trigger that global
- * teardown when the current client is in the overflow set (newest by enteredAt).
+ * teardown when the current client is in the overflow set (newest by enteredAt / clientID).
  */
 let breached = false;
 
@@ -30,100 +29,23 @@ const NOOP_RESULT: ProviderCreatorResult = {
 };
 
 /**
- * Build a sorted list of unique collaborators (by WordPress user ID), ordered
- * by the time they entered the room.
+ * Wraps a provider creator to enforce a per-room connection limit.
  *
- * The earliest `enteredAt` value for each user is used so that multiple tabs
- * for the same user share a single, stable "join time".
+ * All awareness states (connections) are sorted by `collaboratorInfo.enteredAt`
+ * with the Yjs `clientID` as a deterministic tiebreaker. When the total number
+ * of connections exceeds the allowed maximum, only the current client is
+ * considered "overflow" if it is among the newest. In that case all wrapped
+ * providers in this window are destroyed.
  *
- * @param awareness - The Yjs awareness instance.
- * @return Array of user descriptors sorted by enter time.
- */
-function getSortedCollaborators(
-	awareness: Awareness
-): Array< { id: number; enteredAt: number } > {
-	const byId = new Map< number, number >();
-
-	for ( const [ , state ] of awareness.getStates() ) {
-		const info = state?.collaboratorInfo as { id?: unknown; enteredAt?: unknown } | undefined;
-		const id = info?.id;
-		const enteredAt = info?.enteredAt;
-		if ( typeof id !== 'number' || typeof enteredAt !== 'number' ) {
-			continue;
-		}
-		const prev = byId.get( id );
-		if ( prev === undefined || enteredAt < prev ) {
-			byId.set( id, enteredAt );
-		}
-	}
-
-	return Array.from( byId.entries() )
-		.map( ( [ id, enteredAt ] ) => ( { id, enteredAt } ) )
-		.sort( ( a, b ) => {
-			if ( a.enteredAt !== b.enteredAt ) {
-				return a.enteredAt - b.enteredAt;
-			}
-			return a.id - b.id;
-		} );
-}
-
-/**
- * Build a sorted list of clients (tabs) for the local WordPress user, ordered
- * by when they entered the room (earliest enteredAt per clientId).
- *
- * @param awareness   - The Yjs awareness instance.
- * @param localUserId - The WordPress user ID to filter by.
- * @return Array of client descriptors sorted by enter time.
- */
-function getSortedClientsForLocalUser(
-	awareness: Awareness,
-	localUserId: number
-): Array< { clientId: number; enteredAt: number } > {
-	const byClientId = new Map< number, number >();
-
-	for ( const [ clientId, state ] of awareness.getStates() ) {
-		const info = state?.collaboratorInfo as { id?: unknown; enteredAt?: unknown } | undefined;
-		if ( info?.id !== localUserId || typeof info?.enteredAt !== 'number' ) {
-			continue;
-		}
-		const enteredAt = info.enteredAt as number;
-		const prev = byClientId.get( clientId );
-		if ( prev === undefined || enteredAt < prev ) {
-			byClientId.set( clientId, enteredAt );
-		}
-	}
-
-	return Array.from( byClientId.entries() )
-		.map( ( [ clientId, enteredAt ] ) => ( { clientId, enteredAt } ) )
-		.sort( ( a, b ) => {
-			if ( a.enteredAt !== b.enteredAt ) {
-				return a.enteredAt - b.enteredAt;
-			}
-			return a.clientId - b.clientId;
-		} );
-}
-
-/**
- * Wraps a provider creator to enforce a per-room user limit.
- *
- * Collaborators are ordered by `enteredAt`. When the total number of unique
- * users (or clients for the same user) exceeds the allowed maximum, only the
- * current client is considered "overflow" if it is among the newest (by enteredAt).
- * In that case all wrapped providers in this window are destroyed.
- *
- * @param creator           - The provider creator to wrap.
- * @param maxPeersPerRoom   - Max other unique users allowed. Undefined or <= 0 disables peer enforcement.
- * @param maxClientsPerUser - Max additional clients (tabs) for the same user. Undefined or <= 0 disables per-user enforcement.
+ * @param creator         - The provider creator to wrap.
+ * @param maxPeersPerRoom - Max total connections allowed. Undefined or <= 0 disables enforcement.
  * @return Wrapped provider creator.
  */
 export function withRoomLimit(
 	creator: ProviderCreator,
-	maxPeersPerRoom?: number,
-	maxClientsPerUser?: number
+	maxPeersPerRoom?: number
 ): ProviderCreator {
-	const hasPeerLimit = Boolean( maxPeersPerRoom && maxPeersPerRoom > 0 );
-	const hasClientLimit = Boolean( maxClientsPerUser && maxClientsPerUser > 0 );
-	if ( ! hasPeerLimit && ! hasClientLimit ) {
+	if ( ! maxPeersPerRoom || maxPeersPerRoom <= 0 ) {
 		return creator;
 	}
 
@@ -135,6 +57,7 @@ export function withRoomLimit(
 		const { awareness } = options;
 		const innerProvider = await creator( options );
 		let destroyed = false;
+		const statusListeners: Array< ( status: unknown ) => void > = [];
 
 		/** Trigger a global teardown for all wrapped providers in this window. */
 		function destroyAll(): void {
@@ -162,6 +85,20 @@ export function withRoomLimit(
 			teardowns.length = 0;
 		}
 
+		/**
+		 * Called by destroyAll: emits the connection-limit-exceeded status so
+		 * Gutenberg shows the "Too many editors connected" modal, then tears down.
+		 */
+		function destroyWithLimitError(): void {
+			for ( const listener of statusListeners ) {
+				listener( {
+					status: 'disconnected',
+					error: { code: 'connection-limit-exceeded' },
+				} );
+			}
+			destroy();
+		}
+
 		/** Tear down this single provider and detach the awareness listener. */
 		function destroy(): void {
 			if ( destroyed ) {
@@ -178,40 +115,36 @@ export function withRoomLimit(
 				return;
 			}
 
-			const localUserId = awareness.getLocalState()?.collaboratorInfo?.id;
-			if ( typeof localUserId !== 'number' ) {
+			const states = awareness.getStates();
+			if ( states.size <= maxPeersPerRoom ) {
 				return;
 			}
 
-			// Peer limit: too many unique users; only newest users (by enteredAt) are overflow.
-			if ( hasPeerLimit ) {
-				const collaborators = getSortedCollaborators( awareness );
-				if ( collaborators.length > maxPeersPerRoom! ) {
-					const overflow = collaborators.slice( maxPeersPerRoom );
-					if ( overflow.some( user => user.id === localUserId ) ) {
-						destroyAll();
-						return;
+			// Sort all connections by enteredAt (from collaboratorInfo) so that
+			// earlier editors stay in the room. Use clientID as a tiebreaker so
+			// every client independently reaches the same ordering without
+			// needing to write any new field to the awareness state.
+			const sorted = Array.from( states.entries() )
+				.map( ( [ clientId, state ] ) => ( {
+					clientId,
+					enteredAt: ( state?.collaboratorInfo as { enteredAt?: unknown } | undefined )?.enteredAt,
+				} ) )
+				.sort( ( a, b ) => {
+					const aTime = typeof a.enteredAt === 'number' ? a.enteredAt : Infinity;
+					const bTime = typeof b.enteredAt === 'number' ? b.enteredAt : Infinity;
+					if ( aTime !== bTime ) {
+						return aTime - bTime;
 					}
-				}
-			}
+					return a.clientId - b.clientId;
+				} );
 
-			// Client limit: too many tabs for this user; only newest clients (by enteredAt) are overflow.
-			if ( hasClientLimit ) {
-				const localClientId = ( awareness as Awareness & { clientID?: unknown } ).clientID;
-				if ( typeof localClientId !== 'number' ) {
-					return;
-				}
-				const clientsForUser = getSortedClientsForLocalUser( awareness, localUserId );
-				if ( clientsForUser.length > maxClientsPerUser! ) {
-					const overflow = clientsForUser.slice( maxClientsPerUser );
-					if ( overflow.some( c => c.clientId === localClientId ) ) {
-						destroyAll();
-					}
-				}
+			const overflow = sorted.slice( maxPeersPerRoom );
+			if ( overflow.some( c => c.clientId === awareness.clientID ) ) {
+				destroyAll();
 			}
 		}
 
-		teardowns.push( destroy );
+		teardowns.push( destroyWithLimitError );
 
 		if ( awareness ) {
 			awareness.on( 'change', onAwarenessChange );
@@ -220,13 +153,29 @@ export function withRoomLimit(
 
 		return {
 			destroy: () => {
-				const idx = teardowns.indexOf( destroy );
+				const idx = teardowns.indexOf( destroyWithLimitError );
 				if ( idx >= 0 ) {
 					teardowns.splice( idx, 1 );
 				}
 				destroy();
 			},
-			on: innerProvider.on.bind( innerProvider ),
+			on: ( event: string, callback: ( ...args: unknown[] ) => void ) => {
+				if ( event === 'status' ) {
+					statusListeners.push( callback );
+					// Forward inner-provider status events only while the limit
+					// has not been breached. Once breached, destroyWithLimitError
+					// emits connection-limit-exceeded directly; subsequent events
+					// from the inner provider (e.g. PingHub's own disconnect)
+					// must not overwrite that with a generic "Connection lost".
+					innerProvider.on( event, ( ...args: unknown[] ) => {
+						if ( ! breached ) {
+							callback( ...args );
+						}
+					} );
+				} else {
+					innerProvider.on( event, callback );
+				}
+			},
 		};
 	};
 }

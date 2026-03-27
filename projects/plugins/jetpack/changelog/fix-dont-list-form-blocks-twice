@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Forms: Remove duplicate display of form blocks under the "Jetpack" block inserter section; form blocks now only appear under the "Forms" category.
