@@ -509,12 +509,17 @@ function WpcomConnectorCard( { name, description, logo } ) {
 		);
 	}
 
+	const showBadge = isConnected || isSiteRegistered;
+	const styledDescription = showBadge
+		? description
+		: createElement( 'span', { className: 'wpcom-connector__description-padded' }, description );
+
 	return createElement(
 		ConnectorItem,
 		{
 			logo,
 			name,
-			description,
+			description: styledDescription,
 			actionArea,
 		},
 		expandedContent,
