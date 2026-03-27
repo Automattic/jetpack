@@ -79,12 +79,7 @@ class Dashboard {
 			'admin_enqueue_scripts',
 			function () use ( $handle ) {
 				// Only run on the Forms admin page.
-				$current_screen = get_current_screen();
-				$is_forms_page  = (
-					( isset( $_GET['page'] ) && self::FORMS_WPBUILD_ADMIN_SLUG === $_GET['page'] ) || // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-					( $current_screen && 'jetpack-forms-responses' === $current_screen->id )
-				);
-				if ( ! $is_forms_page ) {
+				if ( ! self::is_jetpack_forms_admin_page() ) {
 					return;
 				}
 

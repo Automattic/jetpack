@@ -28,7 +28,6 @@ class Dashboard_Boot_Import_Map_Test extends BaseTestCase {
 		$GLOBALS['wp_scripts'] = null;
 		remove_all_actions( 'admin_print_footer_scripts' );
 		remove_all_actions( 'admin_enqueue_scripts' );
-		unset( $_GET['page'] );
 	}
 
 	/**
@@ -38,7 +37,7 @@ class Dashboard_Boot_Import_Map_Test extends BaseTestCase {
 		$GLOBALS['wp_scripts'] = null;
 		remove_all_actions( 'admin_print_footer_scripts' );
 		remove_all_actions( 'admin_enqueue_scripts' );
-		unset( $_GET['page'] );
+		set_current_screen( 'front' );
 		parent::tear_down();
 	}
 
@@ -48,8 +47,7 @@ class Dashboard_Boot_Import_Map_Test extends BaseTestCase {
 	 * fix moves it to a module script on admin_print_footer_scripts at priority 11.
 	 */
 	public function test_fix_moves_boot_import_to_module_script() {
-		// Simulate being on the Forms admin page.
-		$_GET['page'] = Dashboard::FORMS_WPBUILD_ADMIN_SLUG;
+		$this->set_forms_admin_screen();
 
 		$handle = Dashboard::FORMS_WPBUILD_ADMIN_SLUG . '-prerequisites';
 
@@ -101,7 +99,7 @@ class Dashboard_Boot_Import_Map_Test extends BaseTestCase {
 	 * Verify the fix does not run on non-Forms admin pages.
 	 */
 	public function test_fix_does_not_run_on_other_pages() {
-		$_GET['page'] = 'some-other-page';
+		set_current_screen( 'dashboard' );
 
 		$handle = Dashboard::FORMS_WPBUILD_ADMIN_SLUG . '-prerequisites';
 
@@ -130,10 +128,39 @@ class Dashboard_Boot_Import_Map_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Verify the fix preserves other inline scripts on the same handle.
+	 */
+	public function test_fix_preserves_other_inline_scripts() {
+		$this->set_forms_admin_screen();
+
+		$handle = Dashboard::FORMS_WPBUILD_ADMIN_SLUG . '-prerequisites';
+
+		wp_register_script( $handle, '', array(), '1.0', true );
+		wp_add_inline_script( $handle, 'console.log("other script");' );
+		wp_add_inline_script(
+			$handle,
+			'import("@wordpress/boot").then(mod => mod.initSinglePage({mountId: "app", routes: []}));'
+		);
+
+		Dashboard::fix_boot_import_map_ordering();
+		do_action( 'admin_enqueue_scripts', '' );
+
+		$after = wp_scripts()->get_data( $handle, 'after' );
+		$this->assertTrue(
+			$this->array_contains_string( is_array( $after ) ? $after : array(), 'other script' ),
+			'Non-boot inline scripts should be preserved on the classic handle.'
+		);
+		$this->assertFalse(
+			$this->array_contains_string( is_array( $after ) ? $after : array(), '@wordpress/boot' ),
+			'Boot import should be removed from the classic handle.'
+		);
+	}
+
+	/**
 	 * Verify the fix is a no-op when there is no inline script on the handle.
 	 */
 	public function test_fix_is_noop_without_inline_script() {
-		$_GET['page'] = Dashboard::FORMS_WPBUILD_ADMIN_SLUG;
+		$this->set_forms_admin_screen();
 
 		$handle = Dashboard::FORMS_WPBUILD_ADMIN_SLUG . '-prerequisites';
 
@@ -148,6 +175,13 @@ class Dashboard_Boot_Import_Map_Test extends BaseTestCase {
 		$output = ob_get_clean();
 
 		$this->assertStringNotContainsString( 'type="module"', $output );
+	}
+
+	/**
+	 * Set the current screen to the Forms wp-build admin page.
+	 */
+	private function set_forms_admin_screen() {
+		set_current_screen( 'jetpack_page_' . Dashboard::FORMS_WPBUILD_ADMIN_SLUG );
 	}
 
 	/**
