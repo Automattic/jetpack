@@ -43,6 +43,7 @@ import { store as dashboardStore } from '../../store/index.js';
 import { getFormEditUrl } from '../../utils.ts';
 import ManageIntegrationsButton from '../components/manage-integrations-button';
 import useFormItemActions from './use-form-item-actions';
+import { useRenameForm } from './use-rename-form';
 import type { ReactNode } from 'react';
 
 type ResponsesStatusView = 'inbox' | 'spam' | 'trash';
@@ -136,10 +137,8 @@ export default function usePageHeaderDetails(
 	const [ isPermanentDeleteConfirmOpen, setIsPermanentDeleteConfirmOpen ] = useState( false );
 	const permanentDeleteItemRef = useRef< { id: number } | null >( null );
 
-	// Rename form state
-	const [ renameFormItem, setRenameFormItem ] = useState< { id: number; title: string } | null >(
-		null
-	);
+	// Rename form
+	const { renameFormItem, openRenameModal, closeRenameModal, handleRename } = useRenameForm();
 	const { saveEntityRecord, deleteEntityRecord } = useDispatch( coreDataStore ) as {
 		saveEntityRecord: (
 			kind: string,
@@ -177,39 +176,6 @@ export default function usePageHeaderDetails(
 		const rendered = formRecord?.title?.rendered || '';
 		return decodeEntities( rendered );
 	}, [ formRecord?.title?.rendered ] );
-
-	const closeRenameModal = useCallback( () => {
-		setRenameFormItem( null );
-	}, [] );
-
-	const handleRename = useCallback(
-		async ( newTitle: string ) => {
-			if ( ! renameFormItem ) {
-				return;
-			}
-			try {
-				await saveEntityRecord(
-					'postType',
-					FORM_POST_TYPE,
-					{
-						id: renameFormItem.id,
-						title: newTitle,
-					},
-					{ throwOnError: true }
-				);
-
-				createSuccessNotice( __( 'Form renamed.', 'jetpack-forms' ), { type: 'snackbar' } );
-			} catch ( error ) {
-				createErrorNotice( __( 'Failed to rename form.', 'jetpack-forms' ), {
-					type: 'snackbar',
-				} );
-				// eslint-disable-next-line no-console
-				console.error( 'Failed to rename form:', error );
-				throw error;
-			}
-		},
-		[ renameFormItem, saveEntityRecord, createSuccessNotice, createErrorNotice ]
-	);
 
 	const trashForm = useCallback(
 		async ( item: { id: number } ) => {
@@ -454,7 +420,7 @@ export default function usePageHeaderDetails(
 				title: __( 'Rename', 'jetpack-forms' ),
 				onClick: () => {
 					trackAction( 'jetpack_forms_form_rename_click' );
-					setRenameFormItem( formItem );
+					openRenameModal( formItem );
 				},
 			},
 			{
@@ -488,6 +454,7 @@ export default function usePageHeaderDetails(
 		previewForm,
 		setFormsToDraft,
 		sourceIdNumber,
+		openRenameModal,
 		trackAction,
 	] );
 
