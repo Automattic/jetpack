@@ -165,6 +165,20 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 	const [ connectError, setConnectError ] = useState( null );
 	const [ isConnecting, setIsConnecting ] = useState( false );
 
+	// Partner Referrals onboarding state.
+	const [ isGeneratingSignupLink, setIsGeneratingSignupLink ] = useState( false );
+	const [ isCompletingOnboarding, setIsCompletingOnboarding ] = useState( false );
+
+	// Pre-compute "Connect with PayPal" button label to avoid nested ternary.
+	const labelConnectWithPayPal = __( 'Connect with PayPal', 'jetpack-paypal-payments' );
+	const labelCompletingSetup = __( 'Completing setup\u2026', 'jetpack-paypal-payments' );
+	let connectWithPayPalLabel = labelConnectWithPayPal;
+	if ( isGeneratingSignupLink ) {
+		connectWithPayPalLabel = labelConnecting;
+	} else if ( isCompletingOnboarding ) {
+		connectWithPayPalLabel = labelCompletingSetup;
+	}
+
 	// Wizard step state: 'welcome' | 'dashboard' | 'credentials' | 'success'
 	// Persisted in localStorage so navigating away and back doesn't reset the wizard.
 	const [ wizardStep, setWizardStep ] = useState( () => {
@@ -330,6 +344,116 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 				setIsConnecting( false );
 			} );
 	}, [ clientId, clientSecret, environment ] );
+
+	/**
+	 * Check onboarding status after Partner Referrals popup closes.
+	 */
+	const checkOnboardingStatus = useCallback( () => {
+		setIsCompletingOnboarding( true );
+
+		apiFetch( {
+			path: `${ API_BASE }/onboarding/status`,
+			method: 'GET',
+		} )
+			.then( status => {
+				if ( status.payments_receivable ) {
+					setIsConnected( true );
+					setEnvironment( status.environment || environment );
+					setWizardStep( 'success' );
+				} else {
+					setConnectError(
+						__(
+							'PayPal onboarding was not completed. Please try again.',
+							'jetpack-paypal-payments'
+						)
+					);
+				}
+			} )
+			.catch( err => {
+				setConnectError( getUserFriendlyError( err ) );
+			} )
+			.finally( () => {
+				setIsCompletingOnboarding( false );
+			} );
+	}, [ environment ] );
+
+	/**
+	 * Handle "Connect with PayPal" Partner Referrals flow.
+	 * Generates a signup link and opens PayPal in a popup.
+	 */
+	const handleConnectWithPayPal = useCallback( () => {
+		setConnectError( null );
+		setIsGeneratingSignupLink( true );
+
+		const onboardingReturnUrl =
+			window.location.href.split( '?' )[ 0 ] + '?paypal_onboarding_return=1';
+
+		apiFetch( {
+			path: `${ API_BASE }/onboarding/signup-link`,
+			method: 'POST',
+			data: {
+				return_url: onboardingReturnUrl,
+				environment,
+			},
+		} )
+			.then( response => {
+				setIsGeneratingSignupLink( false );
+
+				// Open PayPal mini-browser popup.
+				const width = 600;
+				const height = 700;
+				const left = ( window.screen.width - width ) / 2;
+				const top = ( window.screen.height - height ) / 2;
+				const popup = window.open(
+					response.action_url,
+					'PayPalOnboarding',
+					`width=${ width },height=${ height },left=${ left },top=${ top },scrollbars=yes`
+				);
+
+				// Poll for popup close (PayPal redirects back to return_url in the popup).
+				const pollTimer = setInterval( () => {
+					if ( ! popup || popup.closed ) {
+						clearInterval( pollTimer );
+						// Check if onboarding completed by checking connection status.
+						checkOnboardingStatus();
+					}
+				}, 500 );
+			} )
+			.catch( err => {
+				setIsGeneratingSignupLink( false );
+				setConnectError( getUserFriendlyError( err ) );
+			} );
+	}, [ environment, checkOnboardingStatus ] );
+
+	/**
+	 * Listen for PayPal postMessage callback (some flows use this instead of redirect).
+	 */
+	useEffect( () => {
+		const handleMessage = event => {
+			// PayPal sends onboarding data via postMessage.
+			if ( event.data && event.data.authCode && event.data.sharedId ) {
+				apiFetch( {
+					path: `${ API_BASE }/onboarding/complete`,
+					method: 'POST',
+					data: {
+						auth_code: event.data.authCode,
+						shared_id: event.data.sharedId,
+						merchant_id_in_paypal: event.data.merchantIdInPayPal || '',
+					},
+				} )
+					.then( () => {
+						setIsConnected( true );
+						setWizardStep( 'success' );
+					} )
+					.catch( err => {
+						setConnectError( getUserFriendlyError( err ) );
+					} );
+			}
+		};
+
+		window.addEventListener( 'message', handleMessage );
+		return () => window.removeEventListener( 'message', handleMessage );
+	}, [] );
 
 	/**
 	 * Handle PayPal disconnect with confirmation.
@@ -754,7 +878,7 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 						</div>
 					) }
 
-					{ /* Step 1: Welcome */ }
+					{ /* Step 1: Welcome — Partner Referrals primary, manual credentials secondary */ }
 					{ wizardStep === 'welcome' && (
 						<div className="jetpack-paypal-wizard__welcome">
 							{ paypalLogoSvg }
@@ -765,15 +889,33 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 									'jetpack-paypal-payments'
 								) }
 							</p>
-							<p>
-								{ __(
-									"You will grab API credentials - don't worry; we will walk you through getting them.",
-									'jetpack-paypal-payments'
-								) }
+							<div className="jetpack-paypal-wizard__env-toggle">
+								<ToggleControl
+									label={ __( 'Use sandbox (testing)', 'jetpack-paypal-payments' ) }
+									checked={ environment === 'sandbox' }
+									onChange={ checked => setEnvironment( checked ? 'sandbox' : 'production' ) }
+								/>
+							</div>
+							<div className="jetpack-paypal-wizard__actions">
+								<Button
+									variant="primary"
+									onClick={ handleConnectWithPayPal }
+									isBusy={ isGeneratingSignupLink || isCompletingOnboarding }
+									disabled={ isGeneratingSignupLink || isCompletingOnboarding }
+								>
+									{ connectWithPayPalLabel }
+								</Button>
+							</div>
+							{ connectError && (
+								<Notice status="error" isDismissible onDismiss={ () => setConnectError( null ) }>
+									{ connectError }
+								</Notice>
+							) }
+							<p className="jetpack-paypal-wizard__hint">
+								<Button variant="link" onClick={ () => setWizardStep( 'dashboard' ) }>
+									{ __( 'Or enter your API credentials manually', 'jetpack-paypal-payments' ) }
+								</Button>
 							</p>
-							<Button variant="primary" onClick={ () => setWizardStep( 'dashboard' ) }>
-								{ __( 'Get Started', 'jetpack-paypal-payments' ) }
-							</Button>
 						</div>
 					) }
 
