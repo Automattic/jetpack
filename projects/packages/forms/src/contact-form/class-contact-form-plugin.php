@@ -395,6 +395,10 @@ class Contact_Form_Plugin {
 			);
 		}
 
+		// Enable Central Forms Management editor features by default.
+		// Can be overridden at a higher priority to disable for specific sites.
+		add_filter( 'jetpack_block_editor_feature_flags', array( __CLASS__, 'enable_central_form_management_flag' ) );
+
 		if ( self::has_editor_feature_flag( 'central-form-management' ) ) {
 			Contact_Form::register_post_type();
 			Form_Editor::init();
@@ -412,6 +416,22 @@ class Contact_Form_Plugin {
 		/** This filter is documented in jetpack/class.jetpack-gutenberg.php. */
 		$feature_flags = apply_filters( 'jetpack_block_editor_feature_flags', array() );
 		return ! empty( $feature_flags[ $flag ] );
+	}
+
+	/**
+	 * Enable the central-form-management editor feature flag by default.
+	 *
+	 * Hooked at default priority (10). Higher-priority filters can override
+	 * to disable for specific sites.
+	 *
+	 * @param array $flags Existing feature flags.
+	 * @return array Modified feature flags.
+	 */
+	public static function enable_central_form_management_flag( $flags ) {
+		if ( ! isset( $flags['central-form-management'] ) ) {
+			$flags['central-form-management'] = true;
+		}
+		return $flags;
 	}
 
 	/**
@@ -1566,7 +1586,8 @@ class Contact_Form_Plugin {
 
 				// Jetpack submenu entries
 				foreach ( $submenu['jetpack'] as $index => $menu_item ) {
-					$admin_slug = apply_filters( 'jetpack_forms_alpha', false ) ? Dashboard::FORMS_WPBUILD_ADMIN_SLUG : Dashboard::ADMIN_SLUG;
+					/** This filter is documented in class-dashboard.php::init */
+					$admin_slug = apply_filters( 'jetpack_forms_alpha', true ) ? Dashboard::FORMS_WPBUILD_ADMIN_SLUG : Dashboard::ADMIN_SLUG;
 					if ( $admin_slug === $menu_item[2] ) {
 						// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 						$submenu['jetpack'][ $index ][0] .= $forms_unread_count_tag;
