@@ -55,8 +55,8 @@ importers:
         specifier: 6.1.1
         version: 6.1.1
       glob:
-        specifier: 13.0.0
-        version: 13.0.0
+        specifier: 13.0.6
+        version: 13.0.6
       graphql:
         specifier: 16.12.0
         version: 16.12.0
@@ -132,8 +132,8 @@ importers:
         specifier: 7.12.0
         version: 7.12.0
       glob:
-        specifier: 13.0.0
-        version: 13.0.0
+        specifier: 13.0.6
+        version: 13.0.6
       minimatch:
         specifier: 10.2.4
         version: 10.2.4
@@ -1500,8 +1500,8 @@ importers:
         specifier: 7.0.0-dev.20260225.1
         version: 7.0.0-dev.20260225.1
       glob:
-        specifier: 13.0.0
-        version: 13.0.0
+        specifier: 13.0.6
+        version: 13.0.6
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -2125,8 +2125,8 @@ importers:
         specifier: 10.4.20
         version: 10.4.20(postcss@8.5.6)
       glob:
-        specifier: 13.0.0
-        version: 13.0.0
+        specifier: 13.0.6
+        version: 13.0.6
       postcss:
         specifier: 8.5.6
         version: 8.5.6
@@ -2177,8 +2177,8 @@ importers:
         specifier: 6.42.0
         version: 6.42.0
       glob:
-        specifier: 13.0.0
-        version: 13.0.0
+        specifier: 13.0.6
+        version: 13.0.6
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -2628,8 +2628,8 @@ importers:
         specifier: 9.2.1
         version: 9.2.1
       glob:
-        specifier: 13.0.0
-        version: 13.0.0
+        specifier: 13.0.6
+        version: 13.0.6
       jest:
         specifier: 30.3.0
         version: 30.3.0
@@ -2998,8 +2998,8 @@ importers:
         specifier: 10.4.20
         version: 10.4.20(postcss@8.5.6)
       glob:
-        specifier: 13.0.0
-        version: 13.0.0
+        specifier: 13.0.6
+        version: 13.0.6
       postcss:
         specifier: 8.5.6
         version: 8.5.6
@@ -4829,8 +4829,8 @@ importers:
         specifier: 6.1.20
         version: 6.1.20
       glob:
-        specifier: 13.0.0
-        version: 13.0.0
+        specifier: 13.0.6
+        version: 13.0.6
       hopscotch:
         specifier: 0.3.1
         version: 0.3.1
@@ -5295,8 +5295,8 @@ importers:
         specifier: 0.1.8
         version: 0.1.8
       glob:
-        specifier: 13.0.0
-        version: 13.0.0
+        specifier: 13.0.6
+        version: 13.0.6
       jest:
         specifier: 30.3.0
         version: 30.3.0
@@ -5885,8 +5885,8 @@ importers:
         specifier: 7.0.0
         version: 7.0.0
       glob:
-        specifier: 13.0.0
-        version: 13.0.0
+        specifier: 13.0.6
+        version: 13.0.6
       ignore:
         specifier: 7.0.0
         version: 7.0.0
@@ -6129,8 +6129,8 @@ importers:
         specifier: 6.14.0
         version: 6.14.0
       glob:
-        specifier: 13.0.0
-        version: 13.0.0
+        specifier: 13.0.6
+        version: 13.0.6
       globals:
         specifier: 16.5.0
         version: 16.5.0
@@ -13449,10 +13449,6 @@ packages:
   glob-to-regexp@0.4.1:
     resolution: {integrity: sha512-lkX1HJXwyMcprw/5YUZc2s7DrpAiHB21/V+E1rHUrVNokkvB6bqMzT0VfV6/86ZNabt1k14YOIaT7nDvOX3Iiw==}
 
-  glob@13.0.0:
-    resolution: {integrity: sha512-tvZgpqk6fz4BaNZ66ZsRaZnbHvP/jG3uKJvAZOwEVUL4RTA5nJeeLYfyN9/VA8NX/V3IBG+hkeuGpKjvELkVhA==}
-    engines: {node: 20 || >=22}
-
   glob@13.0.6:
     resolution: {integrity: sha512-Wjlyrolmm8uDpm/ogGyXZXb1Z+Ca2B8NbJwqBVg0axK9GbBeoS7yGV6vjXnYdGm6X53iehEuxxbyiKp8QmN4Vw==}
     engines: {node: 18 || 20 || >=22}
@@ -20500,7 +20496,7 @@ snapshots:
       chalk: 4.1.2
       collect-v8-coverage: 1.0.3
       exit-x: 0.2.2
-      glob: 13.0.0
+      glob: 13.0.6
       graceful-fs: 4.2.11
       istanbul-lib-coverage: 3.2.2
       istanbul-lib-instrument: 6.0.3
@@ -20751,7 +20747,7 @@ snapshots:
       '@knighted/specifier': 2.0.9
       find-up: 7.0.0
       get-tsconfig: 4.13.6
-      glob: 13.0.0
+      glob: 13.0.6
       read-package-up: 11.0.0
       typescript: 5.9.3
     transitivePeerDependencies:
@@ -21958,7 +21954,7 @@ snapshots:
       '@rollup/pluginutils': 5.3.0(rollup@3.30.0)
       commondir: 1.0.1
       estree-walker: 2.0.2
-      glob: 13.0.0
+      glob: 13.0.6
       is-reference: 1.2.1
       magic-string: 0.30.21
     optionalDependencies:
@@ -28868,12 +28864,6 @@ snapshots:
 
   glob-to-regexp@0.4.1: {}
 
-  glob@13.0.0:
-    dependencies:
-      minimatch: 10.2.4
-      minipass: 7.1.3
-      path-scurry: 2.0.2
-
   glob@13.0.6:
     dependencies:
       minimatch: 10.2.4
@@ -29717,7 +29707,7 @@ snapshots:
       chalk: 4.1.2
       ci-info: 4.4.0
       deepmerge: 4.3.1
-      glob: 13.0.0
+      glob: 13.0.6
       graceful-fs: 4.2.11
       jest-circus: 30.3.0
       jest-docblock: 30.2.0
@@ -29746,7 +29736,7 @@ snapshots:
       chalk: 4.1.2
       ci-info: 4.4.0
       deepmerge: 4.3.1
-      glob: 13.0.0
+      glob: 13.0.6
       graceful-fs: 4.2.11
       jest-circus: 30.3.0
       jest-docblock: 30.2.0
@@ -29934,7 +29924,7 @@ snapshots:
       chalk: 4.1.2
       cjs-module-lexer: 2.2.0
       collect-v8-coverage: 1.0.3
-      glob: 13.0.0
+      glob: 13.0.6
       graceful-fs: 4.2.11
       jest-haste-map: 30.3.0
       jest-message-util: 30.3.0
@@ -33561,7 +33551,7 @@ snapshots:
       '@types/sax': 1.2.7
       commander: 12.1.0
       debug: 4.4.3
-      glob: 13.0.0
+      glob: 13.0.6
       sax: 1.5.0
       svg-pathdata: 7.2.0
       transformation-matrix: 3.1.0
@@ -33677,7 +33667,7 @@ snapshots:
   test-exclude@7.0.2:
     dependencies:
       '@istanbuljs/schema': 0.1.3
-      glob: 13.0.0
+      glob: 13.0.6
       minimatch: 10.2.4
 
   test-exclude@8.0.0:
