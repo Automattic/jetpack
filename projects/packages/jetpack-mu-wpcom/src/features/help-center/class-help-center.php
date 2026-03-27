@@ -186,7 +186,7 @@ class Help_Center {
 	public function enqueue_script( $variant, $dependencies, $version ) {
 		$script_dependencies = $dependencies ?? array();
 
-		if ( $variant === 'wp-admin' || $variant === 'wp-admin-disconnected' ) {
+		if ( $variant === 'wp-admin' || $variant === 'wp-admin-disconnected' || $variant === 'gutenberg' || $variant === 'gutenberg-disconnected' ) {
 			add_action(
 				'admin_bar_menu',
 				function ( $wp_admin_bar ) {
@@ -255,6 +255,17 @@ class Help_Center {
 			array(),
 			$version
 		);
+
+		// In the block editor the Help Center is already present in the editor toolbar
+		// via SlotFill at viewports >= 600px. Hide the admin bar item at those widths
+		// to avoid showing it in two places; keep it visible on mobile where the admin
+		// bar is the primary navigation and the SlotFill button is hidden.
+		if ( $variant === 'gutenberg' || $variant === 'gutenberg-disconnected' ) {
+			wp_add_inline_style(
+				'help-center-' . $variant . '-style',
+				'@media (min-width:600px){#wpadminbar #wp-admin-bar-help-center{display:none!important;}}'
+			);
+		}
 
 		// This information is only needed for the connected version of the help center.
 		if ( $variant !== 'wp-admin-disconnected' && $variant !== 'gutenberg-disconnected' ) {
