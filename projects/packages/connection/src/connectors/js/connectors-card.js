@@ -22,7 +22,7 @@ const ConnectorItem = connectors.__experimentalConnectorItem || connectors.Conne
 
 const { createElement, useState } = window.wp.element;
 const { __ } = window.wp.i18n;
-const { Button } = window.wp.components;
+const { Button, Modal } = window.wp.components;
 const HStack = window.wp.components.__experimentalHStack || window.wp.components.HStack;
 const VStack = window.wp.components.__experimentalVStack || window.wp.components.VStack;
 const Text = window.wp.components.__experimentalText || window.wp.components.Text;
@@ -39,6 +39,7 @@ const redirectUri = data.redirectUri || '';
 const currentUser = data.currentUser || null;
 const connectionOwner = data.connectionOwner || null;
 const connectedPlugins = data.connectedPlugins || [];
+const siteDetails = data.siteDetails || null;
 
 /**
  * Start the Jetpack connection flow: register the site (if needed),
@@ -249,20 +250,11 @@ function ConnectedPluginsSection() {
 function ExpandedDetails( { onDisconnect } ) {
 	const [ isDisconnecting, setIsDisconnecting ] = useState( false );
 	const [ isUnlinking, setIsUnlinking ] = useState( false );
+	const [ showDetailsModal, setShowDetailsModal ] = useState( false );
+	const [ pendingConfirm, setPendingConfirm ] = useState( null );
 
-	const handleDisconnect = async () => {
-		// eslint-disable-next-line no-alert -- intentional confirmation dialog.
-		const confirmed = window.confirm(
-			__(
-				'Are you sure you want to disconnect from WordPress.com? This will affect all plugins using this connection.',
-				'jetpack-connection'
-			)
-		);
-
-		if ( ! confirmed ) {
-			return;
-		}
-
+	const executeDisconnect = async () => {
+		setPendingConfirm( null );
 		setIsDisconnecting( true );
 
 		try {
@@ -283,21 +275,19 @@ function ExpandedDetails( { onDisconnect } ) {
 		}
 	};
 
-	const handleUnlinkUser = async () => {
-		if ( currentUser?.isOwner && currentUser?.hasOtherConnectedUsers ) {
-			// eslint-disable-next-line no-alert -- intentional confirmation dialog.
-			const confirmed = window.confirm(
-				__(
-					'Disconnecting the owner account will remove the Jetpack connection for all users on this site. The site will remain connected.',
-					'jetpack-connection'
-				)
-			);
+	const handleDisconnect = () => {
+		setPendingConfirm( {
+			title: __( 'Disconnect site', 'jetpack-connection' ),
+			message: __(
+				'Are you sure you want to disconnect from WordPress.com? This will affect all plugins using this connection.',
+				'jetpack-connection'
+			),
+			onConfirm: executeDisconnect,
+		} );
+	};
 
-			if ( ! confirmed ) {
-				return;
-			}
-		}
-
+	const executeUnlinkUser = async () => {
+		setPendingConfirm( null );
 		setIsUnlinking( true );
 
 		try {
@@ -323,6 +313,22 @@ function ExpandedDetails( { onDisconnect } ) {
 		}
 	};
 
+	const handleUnlinkUser = () => {
+		if ( currentUser?.isOwner && currentUser?.hasOtherConnectedUsers ) {
+			setPendingConfirm( {
+				title: __( 'Disconnect user account', 'jetpack-connection' ),
+				message: __(
+					'Disconnecting the owner account will remove the Jetpack connection for all users on this site. The site will remain connected.',
+					'jetpack-connection'
+				),
+				onConfirm: executeUnlinkUser,
+			} );
+			return;
+		}
+
+		executeUnlinkUser();
+	};
+
 	const currentUserTitle = currentUser?.isOwner
 		? __( 'Connected as owner', 'jetpack-connection' )
 		: __( 'Connected as', 'jetpack-connection' );
@@ -331,9 +337,9 @@ function ExpandedDetails( { onDisconnect } ) {
 		? createElement(
 				Button,
 				{
-					variant: 'link',
-					isDestructive: true,
-					size: 'compact',
+					variant: 'secondary',
+					isDestructive: false,
+					size: 'small',
 					isBusy: isUnlinking,
 					disabled: isUnlinking || isDisconnecting,
 					onClick: handleUnlinkUser,
@@ -358,21 +364,118 @@ function ExpandedDetails( { onDisconnect } ) {
 			  } )
 			: null,
 		createElement( ConnectedPluginsSection ),
+		createElement( 'hr', { className: 'wpcom-connector__divider' } ),
 		createElement(
 			HStack,
-			{ spacing: 3, justify: 'flex-start' },
+			{ spacing: 3, alignment: 'center' },
+			siteDetails
+				? createElement(
+						Button,
+						{
+							variant: 'link',
+							size: 'compact',
+							onClick: () => setShowDetailsModal( true ),
+							className: 'wpcom-connector__details-link',
+						},
+						__( 'Connection details', 'jetpack-connection' )
+				  )
+				: null,
 			createElement(
 				Button,
 				{
-					variant: 'link',
+					variant: 'secondary',
 					isDestructive: true,
+					size: 'compact',
 					isBusy: isDisconnecting,
 					disabled: isDisconnecting || isUnlinking,
 					onClick: handleDisconnect,
+					className: 'wpcom-connector__disconnect-site',
 				},
-				__( 'Disconnect', 'jetpack-connection' )
+				__( 'Disconnect site', 'jetpack-connection' )
 			)
-		)
+		),
+		showDetailsModal && siteDetails
+			? createElement(
+					Modal,
+					{
+						title: __( 'Connection details', 'jetpack-connection' ),
+						onRequestClose: () => setShowDetailsModal( false ),
+						size: 'small',
+					},
+					createElement(
+						VStack,
+						{ spacing: 4, className: 'wpcom-connector__details-modal' },
+						createElement(
+							HStack,
+							{ spacing: 3, alignment: 'center' },
+							createElement(
+								Text,
+								{ variant: 'muted', size: 12 },
+								__( 'Blog ID', 'jetpack-connection' )
+							),
+							createElement( Text, { size: 13 }, String( siteDetails.blogId ) )
+						),
+						createElement(
+							HStack,
+							{ spacing: 3, alignment: 'center' },
+							createElement(
+								Text,
+								{ variant: 'muted', size: 12 },
+								__( 'Site URL', 'jetpack-connection' )
+							),
+							createElement( Text, { size: 13 }, siteDetails.siteUrl )
+						),
+						createElement(
+							HStack,
+							{ spacing: 3, alignment: 'center' },
+							createElement(
+								Text,
+								{ variant: 'muted', size: 12 },
+								__( 'Home URL', 'jetpack-connection' )
+							),
+							createElement( Text, { size: 13 }, siteDetails.homeUrl )
+						)
+					)
+			  )
+			: null,
+		pendingConfirm
+			? createElement(
+					Modal,
+					{
+						title: pendingConfirm.title,
+						onRequestClose: () => setPendingConfirm( null ),
+						size: 'small',
+					},
+					createElement(
+						VStack,
+						{ spacing: 5 },
+						createElement( Text, { size: 13 }, pendingConfirm.message ),
+						createElement(
+							HStack,
+							{ spacing: 3, justify: 'flex-end' },
+							createElement(
+								Button,
+								{
+									variant: 'tertiary',
+									size: 'compact',
+									onClick: () => setPendingConfirm( null ),
+								},
+								__( 'Cancel', 'jetpack-connection' )
+							),
+							createElement(
+								Button,
+								{
+									variant: 'primary',
+									isDestructive: true,
+									size: 'compact',
+									onClick: pendingConfirm.onConfirm,
+								},
+								__( 'Disconnect', 'jetpack-connection' )
+							)
+						)
+					)
+			  )
+			: null
 	);
 }
 
@@ -424,7 +527,7 @@ function WpcomConnectorCard( { name, description, logo } ) {
 			createElement(
 				Button,
 				{
-					variant: isExpanded ? 'tertiary' : 'secondary',
+					variant: 'secondary',
 					size: 'compact',
 					onClick: () => setIsExpanded( ! isExpanded ),
 					'aria-expanded': isExpanded,
@@ -452,7 +555,7 @@ function WpcomConnectorCard( { name, description, logo } ) {
 			createElement(
 				Button,
 				{
-					variant: isExpanded ? 'tertiary' : 'secondary',
+					variant: 'secondary',
 					size: 'compact',
 					onClick: () => setIsExpanded( ! isExpanded ),
 					'aria-expanded': isExpanded,

@@ -67,6 +67,26 @@
 	font-size: 20px;
 }
 
+.wpcom-connector__divider {
+	border: none;
+	border-block-start: 1px solid #ddd;
+	margin: 0;
+}
+
+.wpcom-connector__details-link:active,
+.wpcom-connector__details-link:focus {
+	box-shadow: none;
+	outline: none;
+}
+
+.wpcom-connector__disconnect-site {
+	margin-inline-start: auto;
+}
+
+.wpcom-connector__details-modal .components-h-stack {
+	justify-content: space-between;
+}
+
 .wpcom-connector__unlink-user {
 	margin-inline-start: auto;
 	white-space: nowrap;

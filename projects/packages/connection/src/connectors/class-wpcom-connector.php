@@ -134,6 +134,11 @@ class Wpcom_Connector {
 			$data['currentUser']      = static::get_current_user_data( $manager );
 			$data['connectionOwner']  = static::get_connection_owner_data( $manager );
 			$data['connectedPlugins'] = static::get_connected_plugins_data( $manager );
+			$data['siteDetails']      = array(
+				'blogId'  => (int) \Jetpack_Options::get_option( 'id' ),
+				'siteUrl' => site_url(),
+				'homeUrl' => home_url(),
+			);
 		}
 
 		return $data;
