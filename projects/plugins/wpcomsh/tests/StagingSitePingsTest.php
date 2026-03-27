@@ -81,4 +81,36 @@ class StagingSitePingsTest extends WP_UnitTestCase {
 		$this->assertArrayHasKey( 'pingback.ping', $result );
 		$this->assertArrayHasKey( 'wp.getPosts', $result );
 	}
+
+	/**
+	 * Test that default_pingback_flag option is forced to '0' on staging.
+	 */
+	public function test_pingback_flag_forced_off_on_staging() {
+		putenv( 'WP_ENVIRONMENT_TYPE=staging' );
+		$this->assertSame( '0', wpcomsh_force_pingback_flag_off_on_staging() );
+	}
+
+	/**
+	 * Test that default_pingback_flag option is not overridden in production.
+	 */
+	public function test_pingback_flag_not_overridden_in_production() {
+		putenv( 'WP_ENVIRONMENT_TYPE=production' );
+		$this->assertFalse( wpcomsh_force_pingback_flag_off_on_staging() );
+	}
+
+	/**
+	 * Test that default_ping_status option is forced to 'closed' on staging.
+	 */
+	public function test_ping_status_forced_closed_on_staging() {
+		putenv( 'WP_ENVIRONMENT_TYPE=staging' );
+		$this->assertSame( 'closed', wpcomsh_force_ping_status_closed_on_staging() );
+	}
+
+	/**
+	 * Test that default_ping_status option is not overridden in production.
+	 */
+	public function test_ping_status_not_overridden_in_production() {
+		putenv( 'WP_ENVIRONMENT_TYPE=production' );
+		$this->assertFalse( wpcomsh_force_ping_status_closed_on_staging() );
+	}
 }
