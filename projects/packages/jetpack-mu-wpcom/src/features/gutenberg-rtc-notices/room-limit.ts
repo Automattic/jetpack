@@ -1,5 +1,4 @@
 import type { ProviderCreator, ProviderCreatorResult } from '@wordpress/sync';
-import type { Awareness } from 'y-protocols/awareness';
 
 /*
  * Module-level state shared across all `withRoomLimit` wrappers.
@@ -8,7 +7,7 @@ import type { Awareness } from 'y-protocols/awareness';
  * HTTP request for every registered room. To fully stop polling when the
  * room limit is reached we must destroy *all* wrapped providers — entity
  * rooms AND collection rooms — in one shot. We only trigger that global
- * teardown when the current client is in the overflow set (newest by enteredAt).
+ * teardown when the current client is in the overflow set (newest by enteredAt / clientID).
  */
 let breached = false;
 
@@ -30,53 +29,16 @@ const NOOP_RESULT: ProviderCreatorResult = {
 };
 
 /**
- * Build a sorted list of unique collaborators (by WordPress user ID), ordered
- * by the time they entered the room.
+ * Wraps a provider creator to enforce a per-room connection limit.
  *
- * The earliest `enteredAt` value for each user is used so that multiple tabs
- * for the same user share a single, stable "join time".
- *
- * @param awareness - The Yjs awareness instance.
- * @return Array of user descriptors sorted by enter time.
- */
-function getSortedCollaborators(
-	awareness: Awareness
-): Array< { id: number; enteredAt: number } > {
-	const byId = new Map< number, number >();
-
-	for ( const [ , state ] of awareness.getStates() ) {
-		const info = state?.collaboratorInfo as { id?: unknown; enteredAt?: unknown } | undefined;
-		const id = info?.id;
-		const enteredAt = info?.enteredAt;
-		if ( typeof id !== 'number' || typeof enteredAt !== 'number' ) {
-			continue;
-		}
-		const prev = byId.get( id );
-		if ( prev === undefined || enteredAt < prev ) {
-			byId.set( id, enteredAt );
-		}
-	}
-
-	return Array.from( byId.entries() )
-		.map( ( [ id, enteredAt ] ) => ( { id, enteredAt } ) )
-		.sort( ( a, b ) => {
-			if ( a.enteredAt !== b.enteredAt ) {
-				return a.enteredAt - b.enteredAt;
-			}
-			return a.id - b.id;
-		} );
-}
-
-/**
- * Wraps a provider creator to enforce a per-room user limit.
- *
- * Collaborators are ordered by `enteredAt`. When the total number of unique
- * users exceeds the allowed maximum, only the current client is considered
- * "overflow" if it is among the newest (by enteredAt). In that case all
- * wrapped providers in this window are destroyed.
+ * All awareness states (connections) are sorted by `collaboratorInfo.enteredAt`
+ * with the Yjs `clientID` as a deterministic tiebreaker. When the total number
+ * of connections exceeds the allowed maximum, only the current client is
+ * considered "overflow" if it is among the newest. In that case all wrapped
+ * providers in this window are destroyed.
  *
  * @param creator         - The provider creator to wrap.
- * @param maxPeersPerRoom - Max other unique users allowed. Undefined or <= 0 disables peer enforcement.
+ * @param maxPeersPerRoom - Max total connections allowed. Undefined or <= 0 disables enforcement.
  * @return Wrapped provider creator.
  */
 export function withRoomLimit(
@@ -153,18 +115,32 @@ export function withRoomLimit(
 				return;
 			}
 
-			const localUserId = awareness.getLocalState()?.collaboratorInfo?.id;
-			if ( typeof localUserId !== 'number' ) {
+			const states = awareness.getStates();
+			if ( states.size <= maxPeersPerRoom ) {
 				return;
 			}
 
-			// Peer limit: too many unique users; only newest users (by enteredAt) are overflow.
-			const collaborators = getSortedCollaborators( awareness );
-			if ( collaborators.length > maxPeersPerRoom ) {
-				const overflow = collaborators.slice( maxPeersPerRoom );
-				if ( overflow.some( user => user.id === localUserId ) ) {
-					destroyAll();
-				}
+			// Sort all connections by enteredAt (from collaboratorInfo) so that
+			// earlier editors stay in the room. Use clientID as a tiebreaker so
+			// every client independently reaches the same ordering without
+			// needing to write any new field to the awareness state.
+			const sorted = Array.from( states.entries() )
+				.map( ( [ clientId, state ] ) => ( {
+					clientId,
+					enteredAt: ( state?.collaboratorInfo as { enteredAt?: unknown } | undefined )?.enteredAt,
+				} ) )
+				.sort( ( a, b ) => {
+					const aTime = typeof a.enteredAt === 'number' ? a.enteredAt : Infinity;
+					const bTime = typeof b.enteredAt === 'number' ? b.enteredAt : Infinity;
+					if ( aTime !== bTime ) {
+						return aTime - bTime;
+					}
+					return a.clientId - b.clientId;
+				} );
+
+			const overflow = sorted.slice( maxPeersPerRoom );
+			if ( overflow.some( c => c.clientId === awareness.clientID ) ) {
+				destroyAll();
 			}
 		}
 
