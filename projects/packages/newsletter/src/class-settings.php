@@ -300,8 +300,8 @@ class Settings {
 		}
 
 		// For Jetpack sites, use the jetpack.com redirect URL.
-		$site_id = $blog_id ? (int) $blog_id : Connection_Manager::get_site_id();
-		$args    = ( ! is_wp_error( $site_id ) && ! empty( $site_id ) )
+		$site_id = $blog_id ? (int) $blog_id : Connection_Manager::get_site_id( true );
+		$args    = ( ! empty( $site_id ) )
 			? array( 'site' => $site_id )
 			: array();
 
