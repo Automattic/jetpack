@@ -8,7 +8,7 @@ import type { Awareness } from 'y-protocols/awareness';
  * HTTP request for every registered room. To fully stop polling when the
  * room limit is reached we must destroy *all* wrapped providers — entity
  * rooms AND collection rooms — in one shot. We only trigger that global
- * teardown when the current client is in the overflow set (newest by joinedAt).
+ * teardown when the current client is in the overflow set (newest by enteredAt).
  */
 let breached = false;
 
@@ -30,17 +30,53 @@ const NOOP_RESULT: ProviderCreatorResult = {
 };
 
 /**
- * Wraps a provider creator to enforce a per-room connection limit.
+ * Build a sorted list of unique collaborators (by WordPress user ID), ordered
+ * by the time they entered the room.
  *
- * When the wrapped provider initializes it stamps a join timestamp into the
- * local awareness state (`__wpcomRtcJoinedAt`). On every awareness change,
- * connections are sorted by that timestamp. When the total number of
- * connections exceeds the allowed maximum, only the current client is
- * considered "overflow" if it is among the newest (by joinedAt). In that
- * case all wrapped providers in this window are destroyed.
+ * The earliest `enteredAt` value for each user is used so that multiple tabs
+ * for the same user share a single, stable "join time".
+ *
+ * @param awareness - The Yjs awareness instance.
+ * @return Array of user descriptors sorted by enter time.
+ */
+function getSortedCollaborators(
+	awareness: Awareness
+): Array< { id: number; enteredAt: number } > {
+	const byId = new Map< number, number >();
+
+	for ( const [ , state ] of awareness.getStates() ) {
+		const info = state?.collaboratorInfo as { id?: unknown; enteredAt?: unknown } | undefined;
+		const id = info?.id;
+		const enteredAt = info?.enteredAt;
+		if ( typeof id !== 'number' || typeof enteredAt !== 'number' ) {
+			continue;
+		}
+		const prev = byId.get( id );
+		if ( prev === undefined || enteredAt < prev ) {
+			byId.set( id, enteredAt );
+		}
+	}
+
+	return Array.from( byId.entries() )
+		.map( ( [ id, enteredAt ] ) => ( { id, enteredAt } ) )
+		.sort( ( a, b ) => {
+			if ( a.enteredAt !== b.enteredAt ) {
+				return a.enteredAt - b.enteredAt;
+			}
+			return a.id - b.id;
+		} );
+}
+
+/**
+ * Wraps a provider creator to enforce a per-room user limit.
+ *
+ * Collaborators are ordered by `enteredAt`. When the total number of unique
+ * users exceeds the allowed maximum, only the current client is considered
+ * "overflow" if it is among the newest (by enteredAt). In that case all
+ * wrapped providers in this window are destroyed.
  *
  * @param creator         - The provider creator to wrap.
- * @param maxPeersPerRoom - Max connections allowed per room. Undefined or <= 0 disables enforcement.
+ * @param maxPeersPerRoom - Max other unique users allowed. Undefined or <= 0 disables peer enforcement.
  * @return Wrapped provider creator.
  */
 export function withRoomLimit(
@@ -102,32 +138,24 @@ export function withRoomLimit(
 				return;
 			}
 
-			const states = awareness.getStates();
-			if ( states.size <= maxPeersPerRoom ) {
+			const localUserId = awareness.getLocalState()?.collaboratorInfo?.id;
+			if ( typeof localUserId !== 'number' ) {
 				return;
 			}
 
-			// Sort connections by join time (oldest first). Use clientID as a
-			// tiebreaker so the ordering is deterministic across all peers.
-			const sorted = Array.from( states.entries() )
-				.map( ( [ clientId, state ] ) => ( {
-					clientId,
-					joinedAt: ( state?.__wpcomRtcJoinedAt as number ) ?? 0,
-				} ) )
-				.sort( ( a, b ) => a.joinedAt - b.joinedAt || a.clientId - b.clientId );
-
-			const overflow = sorted.slice( maxPeersPerRoom );
-			if ( overflow.some( c => c.clientId === awareness.clientID ) ) {
-				destroyAll();
+			// Peer limit: too many unique users; only newest users (by enteredAt) are overflow.
+			const collaborators = getSortedCollaborators( awareness );
+			if ( collaborators.length > maxPeersPerRoom ) {
+				const overflow = collaborators.slice( maxPeersPerRoom );
+				if ( overflow.some( user => user.id === localUserId ) ) {
+					destroyAll();
+				}
 			}
 		}
 
 		teardowns.push( destroy );
 
 		if ( awareness ) {
-			// Stamp our join time into the awareness state so that all peers
-			// can sort connections by join order and agree on who is overflow.
-			( awareness as Awareness ).setLocalStateField( '__wpcomRtcJoinedAt', Date.now() );
 			awareness.on( 'change', onAwarenessChange );
 			onAwarenessChange();
 		}
