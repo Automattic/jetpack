@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fixed form rename modal closing even when save fails, so users can retry without losing their input
