@@ -3,9 +3,9 @@ import { getSiteData } from '@automattic/jetpack-script-data';
 import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
 import { useState } from 'react';
+import CelebrateLaunchModal from '../../common/celebrate-launch-modal';
 import { useLaunchSiteMutation } from '../../common/hooks';
 import { wpcomTrackEvent } from '../../common/tracks';
-import CelebrateLaunchModal from '../wpcom-dashboard-widgets/celebrate-launch/celebrate-launch-modal';
 
 const icon = (
 	<svg viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
