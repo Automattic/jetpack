@@ -84,13 +84,8 @@ const SUPPORTED_CURRENCIES = [
  */
 const VALID_CURRENCY_CODES = new Set( SUPPORTED_CURRENCIES.map( c => c.value ) );
 
-/**
- * Button type options for the block display style.
- */
-const BUTTON_TYPE_OPTIONS = [
-	{ label: __( 'PayPal + Debit/Credit Card', 'jetpack-paypal-payments' ), value: 'stacked' },
-	{ label: __( 'PayPal Only', 'jetpack-paypal-payments' ), value: 'single' },
-];
+// Button type is always 'single' — the hosted payment page handles
+// payment method selection (PayPal, cards, wallets, etc.).
 
 /**
  * REST API base path for PayPal endpoints.
@@ -108,7 +103,6 @@ const API_BASE = '/jetpack/v4/paypal';
 export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } ) {
 	const {
 		isApiManaged,
-		buttonType,
 		scriptSrc,
 		hostedButtonId,
 		buttonText,
@@ -653,12 +647,6 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 				</div>
 				<InspectorControls>
 					<PanelBody title={ __( 'Button Settings', 'jetpack-paypal-payments' ) }>
-						<SelectControl
-							label={ __( 'Payment Methods', 'jetpack-paypal-payments' ) }
-							value={ buttonType }
-							options={ BUTTON_TYPE_OPTIONS }
-							onChange={ value => setAttributes( { buttonType: value } ) }
-						/>
 						<TextControl
 							label={ __( 'Button Text', 'jetpack-paypal-payments' ) }
 							value={ buttonText }
@@ -1068,7 +1056,6 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 
 					<PayPalButtonPreview
 						buttonText={ buttonText }
-						buttonType={ buttonType }
 						productName={ productName }
 						price={ price }
 						currencyCode={ currencyCode }
@@ -1465,13 +1452,6 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 					<h4 className="jetpack-paypal-payment-buttons__section-heading">
 						{ __( 'Button Appearance', 'jetpack-paypal-payments' ) }
 					</h4>
-					<SelectControl
-						label={ __( 'Payment Methods', 'jetpack-paypal-payments' ) }
-						value={ buttonType }
-						options={ BUTTON_TYPE_OPTIONS }
-						onChange={ value => setAttributes( { buttonType: value } ) }
-						disabled={ isCreating }
-					/>
 					<TextControl
 						label={ __( 'Button Text', 'jetpack-paypal-payments' ) }
 						value={ buttonText || '' }

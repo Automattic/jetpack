@@ -16,7 +16,6 @@
 import { useBlockProps } from '@wordpress/block-editor';
 import { __ } from '@wordpress/i18n';
 import { CURRENCY_SYMBOLS } from './currency-symbols';
-import PayPalLogo from './paypal-logo';
 
 /**
  * Save component for the PayPal Payment Buttons block.
@@ -44,8 +43,6 @@ export default function PayPalPaymentButtonsSave( { attributes } ) {
 
 	// API-managed V2 block — render styled button linking to PayPal payment URL.
 	if ( isApiManaged && paymentLink ) {
-		const isStacked = buttonType === 'stacked';
-
 		return (
 			<div { ...blockProps }>
 				<div className="jetpack-paypal-button">
@@ -73,47 +70,23 @@ export default function PayPalPaymentButtonsSave( { attributes } ) {
 						) }
 					</div>
 
-					{ /* PayPal button(s) */ }
-					<div
-						className={ `jetpack-paypal-button__buttons jetpack-paypal-button__buttons--${ buttonType }` }
-					>
-						{ /*
-						 * Primary PayPal button.
-						 *
-						 * The PayPal wordmark (inline SVG) must appear on the button per
-						 * PayPal brand guidelines. aria-hidden on the SVG keeps assistive
-						 * technology focused on the visible button text for the accessible
-						 * label. The screen-reader span announces the new-tab behaviour
-						 * per WCAG 2.1 SC 3.2.2.
-						 */ }
+					{ /* Checkout button — theme-native styling via wp-element-button.
+					 * No PayPal branding here; the hosted payment page handles
+					 * payment method selection (PayPal, cards, wallets, etc.).
+					 * Screen-reader span announces new-tab behaviour per WCAG 2.1 SC 3.2.2.
+					 */ }
+					<div className="jetpack-paypal-button__buttons">
 						<a
 							href={ paymentLink }
-							className="jetpack-paypal-button__paypal-link"
+							className="jetpack-paypal-button__checkout-link wp-element-button"
 							target="_blank"
 							rel="noopener noreferrer"
 						>
-							<PayPalLogo />
-							<span className="jetpack-paypal-button__button-text">
-								{ buttonText || __( 'Pay Now', 'jetpack-paypal-payments' ) }
-							</span>
+							{ buttonText || __( 'Buy Now', 'jetpack-paypal-payments' ) }
 							<span className="screen-reader-text">
 								{ __( '(opens in a new tab)', 'jetpack-paypal-payments' ) }
 							</span>
 						</a>
-
-						{ isStacked && (
-							<a
-								href={ paymentLink }
-								className="jetpack-paypal-button__debit-link"
-								target="_blank"
-								rel="noopener noreferrer"
-							>
-								{ __( 'Debit or Credit Card', 'jetpack-paypal-payments' ) }
-								<span className="screen-reader-text">
-									{ __( '(opens in a new tab)', 'jetpack-paypal-payments' ) }
-								</span>
-							</a>
-						) }
 					</div>
 
 					{ /* PayPal brand attribution */ }

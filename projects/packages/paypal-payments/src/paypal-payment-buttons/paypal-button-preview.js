@@ -18,7 +18,6 @@
 import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { CURRENCY_SYMBOLS } from './currency-symbols';
-import PayPalLogo from './paypal-logo';
 
 /**
  * Format a price with currency symbol.
@@ -80,7 +79,6 @@ function CopyablePaymentLink( { paymentLink } ) {
  *
  * @param {object}  props                    - Component props.
  * @param {string}  props.buttonText         - Text displayed on the button.
- * @param {string}  props.buttonType         - Layout type: 'stacked' or 'single'.
  * @param {string}  props.productName        - Product name to display.
  * @param {string}  props.price              - Price value string.
  * @param {string}  props.currencyCode       - ISO currency code.
@@ -93,7 +91,6 @@ function CopyablePaymentLink( { paymentLink } ) {
  */
 export default function PayPalButtonPreview( {
 	buttonText,
-	buttonType = 'stacked',
 	productName,
 	price,
 	currencyCode = 'USD',
@@ -103,8 +100,6 @@ export default function PayPalButtonPreview( {
 	variants,
 	imageUrl,
 } ) {
-	const isStacked = buttonType === 'stacked';
-
 	return (
 		<div className="jetpack-paypal-button-preview">
 			{ /* Product image */ }
@@ -142,23 +137,11 @@ export default function PayPalButtonPreview( {
 				</div>
 			) }
 
-			{ /* PayPal-styled button */ }
-			<div
-				className={ `jetpack-paypal-button-preview__buttons jetpack-paypal-button-preview__buttons--${ buttonType }` }
-			>
-				{ /* Non-interactive preview elements — use div, not <a role="button"> */ }
-				<div className="jetpack-paypal-button-preview__paypal-button" aria-hidden="true">
-					<PayPalLogo />
-					<span className="jetpack-paypal-button-preview__button-text">
-						{ buttonText || __( 'Pay Now', 'jetpack-paypal-payments' ) }
-					</span>
+			{ /* Checkout button preview — theme-native style, no PayPal branding */ }
+			<div className="jetpack-paypal-button-preview__buttons">
+				<div className="jetpack-paypal-button-preview__checkout-button" aria-hidden="true">
+					{ buttonText || __( 'Buy Now', 'jetpack-paypal-payments' ) }
 				</div>
-
-				{ isStacked && (
-					<div className="jetpack-paypal-button-preview__debit-button" aria-hidden="true">
-						{ __( 'Debit or Credit Card', 'jetpack-paypal-payments' ) }
-					</div>
-				) }
 			</div>
 
 			{ /* Payment link with copy button */ }

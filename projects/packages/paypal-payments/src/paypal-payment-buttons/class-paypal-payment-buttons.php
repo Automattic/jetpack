@@ -171,23 +171,6 @@ class PayPal_Payment_Buttons {
 	}
 
 	/**
-	 * PayPal logo SVG markup for frontend button rendering.
-	 * Matches the inline SVG from paypal-button-preview.js.
-	 *
-	 * @return string SVG markup.
-	 */
-	private static function get_paypal_logo_svg() {
-		return '<svg class="jetpack-paypal-button__logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 101 32" width="80" height="20" aria-label="PayPal">'
-			. '<path d="M12.5 4.7h-7c-.5 0-.9.3-1 .8L1.6 25c0 .3.2.6.6.6h3.3c.5 0 .9-.3 1-.8l.8-5.4c0-.5.5-.8 1-.8h2.3c4.7 0 7.4-2.3 8.1-6.8.3-2 0-3.5-.9-4.6C16.7 5.5 14.9 4.7 12.5 4.7zm.8 6.7c-.4 2.6-2.3 2.6-4.2 2.6h-1l.8-4.8c0-.3.3-.5.6-.5h.5c1.3 0 2.5 0 3.1.7.4.5.5 1.2.2 2z" fill="#253B80"/>'
-			. '<path d="M35.2 11.3h-3.3c-.3 0-.5.2-.6.5l-.1.9-.2-.3c-.7-1-2.2-1.3-3.7-1.3-3.5 0-6.4 2.6-7 6.3-.3 1.8.1 3.6 1.2 4.8 1 1.1 2.4 1.6 4.1 1.6 2.9 0 4.5-1.9 4.5-1.9l-.1.9c0 .3.2.6.6.6h3c.5 0 .9-.3 1-.8l1.8-11.5c-.1-.4-.4-.8-.7-.8zm-4.5 6.1c-.3 1.8-1.8 3-3.6 3-.9 0-1.6-.3-2.1-.8-.4-.5-.6-1.3-.5-2.1.3-1.8 1.8-3 3.6-3 .9 0 1.6.3 2.1.8.4.6.6 1.3.5 2.1z" fill="#253B80"/>'
-			. '<path d="M55.1 11.3h-3.4c-.3 0-.6.2-.8.4l-4.5 6.6-1.9-6.4c-.1-.4-.5-.6-.9-.6h-3.3c-.4 0-.7.4-.5.7l3.6 10.5-3.4 4.8c-.3.4 0 .9.4.9h3.3c.3 0 .6-.1.8-.4l10.9-15.7c.3-.4 0-.8-.3-.8z" fill="#253B80"/>'
-			. '<path d="M67.4 4.7h-7c-.5 0-.9.3-1 .8L56.5 25c0 .3.2.6.6.6h3.5c.3 0 .6-.2.7-.6l.8-5.2c0-.5.5-.8 1-.8h2.3c4.7 0 7.4-2.3 8.1-6.8.3-2 0-3.5-.9-4.6-1.1-1.2-2.9-1.9-5.2-1.9zm.8 6.7c-.4 2.6-2.3 2.6-4.2 2.6h-1l.8-4.8c0-.3.3-.5.6-.5h.5c1.3 0 2.5 0 3.1.7.3.5.4 1.2.2 2z" fill="#179BD7"/>'
-			. '<path d="M90.1 11.3h-3.3c-.3 0-.5.2-.6.5l-.1.9-.2-.3c-.7-1-2.2-1.3-3.7-1.3-3.5 0-6.4 2.6-7 6.3-.3 1.8.1 3.6 1.2 4.8 1 1.1 2.4 1.6 4.1 1.6 2.9 0 4.5-1.9 4.5-1.9l-.1.9c0 .3.2.6.6.6h3c.5 0 .9-.3 1-.8l1.8-11.5c-.1-.4-.3-.8-.7-.8zm-4.5 6.1c-.3 1.8-1.8 3-3.6 3-.9 0-1.6-.3-2.1-.8-.4-.5-.6-1.3-.5-2.1.3-1.8 1.8-3 3.6-3 .9 0 1.6.3 2.1.8.4.6.5 1.3.5 2.1z" fill="#179BD7"/>'
-			. '<path d="M95.1 5.2l-3 19.9c0 .3.2.6.6.6h2.9c.5 0 .9-.3 1-.8L99.5 5.5c0-.3-.2-.6-.6-.6h-3.2c-.2 0-.5.1-.6.3z" fill="#179BD7"/>'
-			. '</svg>';
-	}
-
-	/**
 	 * Render an API-managed PayPal payment button on the frontend.
 	 *
 	 * @param array $attributes The block attributes.
@@ -199,8 +182,7 @@ class PayPal_Payment_Buttons {
 		$product_name        = $attributes['productName'] ?? '';
 		$price               = $attributes['price'] ?? '';
 		$currency            = $attributes['currencyCode'] ?? 'USD';
-		$button_text         = $attributes['buttonText'] ?? __( 'Pay Now', 'jetpack-paypal-payments' );
-		$button_type         = $attributes['buttonType'] ?? 'stacked';
+		$button_text         = $attributes['buttonText'] ?? __( 'Buy Now', 'jetpack-paypal-payments' );
 		$product_description = $attributes['productDescription'] ?? '';
 		$image_url           = $attributes['imageUrl'] ?? '';
 		$variants_enabled    = ! empty( $attributes['variantsEnabled'] );
@@ -227,8 +209,6 @@ class PayPal_Payment_Buttons {
 			add_query_arg( 'at_code', self::PAYPAL_PARTNER_ATTRIBUTION_ID, $sanitized_payment_url )
 		);
 
-		$is_stacked = 'stacked' === $button_type;
-
 		// Product image (WordPress-side only, not sent to PayPal).
 		$image_html = '';
 		if ( ! empty( $image_url ) ) {
@@ -253,16 +233,6 @@ class PayPal_Payment_Buttons {
 			$price_html = sprintf(
 				'<span class="jetpack-paypal-button__product-price">%s</span>',
 				esc_html( self::format_price( $price, $currency ) )
-			);
-		}
-
-		// Build debit/credit secondary button (stacked layout only).
-		$debit_button_html = '';
-		if ( $is_stacked ) {
-			$debit_button_html = sprintf(
-				'<a href="%s" class="jetpack-paypal-button__debit-link" target="_blank" rel="noopener noreferrer">%s</a>',
-				$action_url,
-				esc_html__( 'Debit or Credit Card', 'jetpack-paypal-payments' )
 			);
 		}
 
@@ -334,13 +304,12 @@ class PayPal_Payment_Buttons {
 				. '</div></div>';
 		}
 
-		$paypal_logo        = self::get_paypal_logo_svg();
 		$wrapper_attributes = get_block_wrapper_attributes();
 
 		return sprintf(
-			'<div %12$s>
+			'<div %9$s>
 	<div class="jetpack-paypal-button">
-		%13$s
+		%10$s
 		<div class="jetpack-paypal-button__product">
 			<div class="jetpack-paypal-button__product-info">
 				<span class="jetpack-paypal-button__product-name">%1$s</span>
@@ -348,31 +317,25 @@ class PayPal_Payment_Buttons {
 			</div>
 			%3$s
 		</div>
-		%10$s
-		<div class="jetpack-paypal-button__buttons jetpack-paypal-button__buttons--%4$s">
-			<a href="%5$s" class="jetpack-paypal-button__paypal-link" target="_blank" rel="noopener noreferrer">
-				%6$s
-				<span class="jetpack-paypal-button__button-text">%7$s</span>
-			</a>
-			%8$s
+		%7$s
+		<div class="jetpack-paypal-button__buttons">
+			<a href="%4$s" class="jetpack-paypal-button__checkout-link wp-element-button" target="_blank" rel="noopener noreferrer">%5$s<span class="screen-reader-text">%11$s</span></a>
 		</div>
-		<p class="jetpack-paypal-button__attribution">%9$s</p>
-		%11$s
+		<p class="jetpack-paypal-button__attribution">%6$s</p>
+		%8$s
 	</div>
 </div>',
 			esc_html( $product_name ),
 			$description_html,
 			$price_html,
-			esc_attr( $button_type ),
 			$action_url,
-			$paypal_logo,
 			esc_html( $button_text ),
-			$debit_button_html,
 			esc_html__( 'Powered by PayPal', 'jetpack-paypal-payments' ),
 			$variants_html,
 			$qr_html,
 			$wrapper_attributes,
-			$image_html
+			$image_html,
+			esc_html__( '(opens in a new tab)', 'jetpack-paypal-payments' )
 		);
 	}
 

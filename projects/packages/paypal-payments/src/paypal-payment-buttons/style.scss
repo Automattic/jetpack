@@ -6,36 +6,21 @@
  * Styles for the published page rendering of PayPal buttons.
  * Loaded on the frontend only (not in editor).
  *
- * Updated for WOOPTP-156: PayPal brand compliance and WordPress design
- * guidelines.
- *
- *  - Primary button changed from display:block to display:flex to
- *    accommodate the PayPal wordmark SVG alongside the button text.
- *  - Added .jetpack-paypal-button__logo at consistent 20px height,
- *    matching the editor preview (editor.scss).
- *  - `:focus` replaced with `:focus-visible` per WordPress.com and
- *    Jetpack design guidelines (WCAG 2.4.7 / WP Core accessibility).
- *  - "Powered by PayPal" attribution styles added.
- *  - Responsive: button container stacks on narrow viewports by default
- *    (already correct since we use flex-direction: column).
+ * The checkout button uses the `wp-element-button` class to inherit
+ * the active theme's button styles (colors, typography, border-radius).
+ * No PayPal branding on the button itself — the hosted payment page
+ * handles payment method selection. "Powered by PayPal" attribution
+ * is shown below the button for brand compliance.
  *
  * @package automattic/jetpack-paypal-payments
- * @since 0.8.0
+ * @since 0.9.0
  */
 
 // WP-standard font stack used by Twenty Twenty-Four, Jetpack blocks,
 // and WordPress.com themes.
 $font-stack: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
 
-// PayPal brand gold — canonical value from the PayPal JS SDK.
-$paypal-gold: #ffc439;
-$paypal-gold-hover: #f0b72a;
-
-// PayPal dark — used for the secondary debit/credit button.
-$paypal-dark: #2c2e2f;
-$paypal-dark-hover: #1a1b1c;
-
-// PayPal focus ring colour (PayPal blue).
+// PayPal blue — used for focus rings and QR code link accents.
 $paypal-blue: #0070ba;
 
 .jetpack-paypal-button {
@@ -100,109 +85,22 @@ $paypal-blue: #0070ba;
 	display: flex;
 	flex-direction: column;
 	gap: 8px;
-
-	&--single {
-
-		.jetpack-paypal-button__debit-link {
-			display: none;
-		}
-	}
 }
 
 // ---------------------------------------------------------------
-// PayPal logo (shared by both editor preview and frontend)
+// Checkout button — inherits theme styles via wp-element-button
 // ---------------------------------------------------------------
 
-// The logo class is intentionally shared between the editor
-// (.jetpack-paypal-button-preview__paypal-button .jetpack-paypal-button__logo)
-// and the frontend — keeping rendering identical in both contexts.
-// Height is set to 20px here; the editor scopes its own 20px rule
-// inside the preview button selector so there is no specificity conflict.
-.jetpack-paypal-button__paypal-link,
-.jetpack-paypal-button__debit-link {
-
-	.jetpack-paypal-button__logo {
-		height: 20px;
-		width: auto;
-		flex-shrink: 0;
-		display: block; // prevents inline baseline gap
-	}
-}
-
-// ---------------------------------------------------------------
-// PayPal primary button
-// ---------------------------------------------------------------
-
-.jetpack-paypal-button__paypal-link {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	gap: 8px;
-	padding: 14px 24px;
-	background: $paypal-gold;
-	border: none;
-	border-radius: 25px;
+// The .wp-element-button class applies the active theme's button
+// styles (background, color, font, border-radius, padding) so the
+// button blends with the rest of the site. We only add minimal
+// overrides for layout and text-decoration.
+.jetpack-paypal-button__checkout-link {
+	display: block;
+	width: 100%;
 	text-align: center;
 	text-decoration: none;
-	font-size: 16px;
-	font-weight: 600;
-	color: $paypal-dark;
 	cursor: pointer;
-	transition: background 0.2s;
-
-	// Button text node — prevents the SVG and text from reflowing awkwardly
-	// if the container is narrow.
-	.jetpack-paypal-button__button-text {
-		flex-shrink: 1;
-		min-width: 0;
-	}
-
-	&:hover {
-		background: $paypal-gold-hover;
-		color: $paypal-dark;
-	}
-
-	// :focus-visible targets keyboard-only focus, avoiding the persistent
-	// focus ring on mouse/touch interaction. Consistent with WordPress Core
-	// and Gutenberg block styles.
-	&:focus-visible {
-		outline: 2px solid $paypal-blue;
-		outline-offset: 2px;
-		background: $paypal-gold;
-	}
-}
-
-// ---------------------------------------------------------------
-// Debit / credit secondary button
-// ---------------------------------------------------------------
-
-.jetpack-paypal-button__debit-link {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	gap: 8px;
-	padding: 14px 24px;
-	background: $paypal-dark;
-	border: none;
-	border-radius: 25px;
-	text-align: center;
-	text-decoration: none;
-	font-size: 14px;
-	font-weight: 500;
-	color: #fff;
-	cursor: pointer;
-	transition: background 0.2s;
-
-	&:hover {
-		background: $paypal-dark-hover;
-		color: #fff;
-	}
-
-	&:focus-visible {
-		outline: 2px solid $paypal-blue;
-		outline-offset: 2px;
-		background: $paypal-dark;
-	}
 }
 
 // ---------------------------------------------------------------

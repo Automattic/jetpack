@@ -50,12 +50,12 @@
 		},
 		"buttonText": {
 			"type": "string",
-			"default": "Pay Now"
+			"default": "Buy Now"
 		},
 		"buttonType": {
 			"type": "string",
 			"enum": [ "stacked", "single" ],
-			"default": "stacked"
+			"default": "single"
 		},
 		"scriptSrc": {
 			"type": "string",

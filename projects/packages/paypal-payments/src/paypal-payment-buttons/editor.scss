@@ -413,64 +413,24 @@
 	flex-direction: column;
 	gap: 8px;
 	margin-bottom: 12px;
-
-	&--single {
-
-		.jetpack-paypal-button-preview__debit-button {
-			display: none;
-		}
-	}
 }
 
-// PayPal primary button
-.jetpack-paypal-button-preview__paypal-button {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	gap: 8px;
+// Checkout button preview — mirrors the theme-native wp-element-button
+// appearance. Uses WordPress default dark style as a representative
+// preview since the editor doesn't have access to frontend theme styles.
+.jetpack-paypal-button-preview__checkout-button {
+	display: block;
+	width: 100%;
 	padding: 14px 24px;
-	background: #ffc439;
+	background: #1e1e1e;
 	border: none;
-	border-radius: 25px;
+	border-radius: 4px;
 	cursor: default;
+	text-align: center;
 	text-decoration: none;
-	transition: background 0.2s;
-
-	.jetpack-paypal-button__logo {
-		height: 18px;
-		width: auto;
-	}
-
-	.jetpack-paypal-button-preview__button-text {
-		font-size: 15px;
-		font-weight: 600;
-		color: #2c2e2f;
-	}
-
-	&:hover {
-		background: #f0b72a;
-	}
-}
-
-// Debit/credit secondary button
-.jetpack-paypal-button-preview__debit-button {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	padding: 14px 24px;
-	background: #2c2e2f;
-	border: none;
-	border-radius: 25px;
-	cursor: default;
-	text-decoration: none;
-	font-size: 14px;
-	font-weight: 500;
+	font-size: 15px;
+	font-weight: 600;
 	color: #fff;
-
-	&:hover {
-		background: #1a1b1c;
-		color: #fff;
-	}
 }
 
 // Payment link reference
