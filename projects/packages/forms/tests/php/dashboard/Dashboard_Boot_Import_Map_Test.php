@@ -21,13 +21,24 @@ use WorDBless\BaseTestCase;
 class Dashboard_Boot_Import_Map_Test extends BaseTestCase {
 
 	/**
-	 * Clean up after each test.
+	 * Set up before each test.
 	 */
-	public function tear_down() {
-		// Reset the script queue.
+	public function set_up() {
+		parent::set_up();
 		$GLOBALS['wp_scripts'] = null;
 		remove_all_actions( 'admin_print_footer_scripts' );
 		remove_all_actions( 'admin_enqueue_scripts' );
+		unset( $_GET['page'] );
+	}
+
+	/**
+	 * Clean up after each test.
+	 */
+	public function tear_down() {
+		$GLOBALS['wp_scripts'] = null;
+		remove_all_actions( 'admin_print_footer_scripts' );
+		remove_all_actions( 'admin_enqueue_scripts' );
+		unset( $_GET['page'] );
 		parent::tear_down();
 	}
 
@@ -37,6 +48,9 @@ class Dashboard_Boot_Import_Map_Test extends BaseTestCase {
 	 * fix moves it to a module script on admin_print_footer_scripts at priority 11.
 	 */
 	public function test_fix_moves_boot_import_to_module_script() {
+		// Simulate being on the Forms admin page.
+		$_GET['page'] = Dashboard::FORMS_WPBUILD_ADMIN_SLUG;
+
 		$handle = Dashboard::FORMS_WPBUILD_ADMIN_SLUG . '-prerequisites';
 
 		// Simulate the generated page-wp-admin.php: register script + inline import().
@@ -78,30 +92,62 @@ class Dashboard_Boot_Import_Map_Test extends BaseTestCase {
 		do_action( 'admin_print_footer_scripts' );
 		$output = ob_get_clean();
 
-		$this->assertStringContainsString( '<script type="module">', $output );
+		$this->assertMatchesRegularExpression( '/<script\b[^>]*type=["\']module["\'][^>]*>/', $output );
 		$this->assertStringContainsString( '@wordpress/boot', $output );
 		$this->assertStringContainsString( 'initSinglePage', $output );
+	}
+
+	/**
+	 * Verify the fix does not run on non-Forms admin pages.
+	 */
+	public function test_fix_does_not_run_on_other_pages() {
+		$_GET['page'] = 'some-other-page';
+
+		$handle = Dashboard::FORMS_WPBUILD_ADMIN_SLUG . '-prerequisites';
+
+		wp_register_script( $handle, '', array(), '1.0', true );
+		wp_add_inline_script(
+			$handle,
+			'import("@wordpress/boot").then(mod => mod.initSinglePage({mountId: "app", routes: []}));'
+		);
+
+		Dashboard::fix_boot_import_map_ordering();
+		do_action( 'admin_enqueue_scripts', '' );
+
+		// The inline script should still be on the classic handle.
+		$after = wp_scripts()->get_data( $handle, 'after' );
+		$this->assertTrue(
+			$this->array_contains_string( is_array( $after ) ? $after : array(), '@wordpress/boot' ),
+			'import("@wordpress/boot") should remain on the classic script handle on other pages.'
+		);
+
+		// Nothing should be hooked to admin_print_footer_scripts.
+		ob_start();
+		do_action( 'admin_print_footer_scripts' );
+		$output = ob_get_clean();
+
+		$this->assertStringNotContainsString( 'type="module"', $output );
 	}
 
 	/**
 	 * Verify the fix is a no-op when there is no inline script on the handle.
 	 */
 	public function test_fix_is_noop_without_inline_script() {
+		$_GET['page'] = Dashboard::FORMS_WPBUILD_ADMIN_SLUG;
+
 		$handle = Dashboard::FORMS_WPBUILD_ADMIN_SLUG . '-prerequisites';
 
 		wp_register_script( $handle, '', array(), '1.0', true );
 		// No wp_add_inline_script — the handle has no 'after' data.
 
 		Dashboard::fix_boot_import_map_ordering();
-
 		do_action( 'admin_enqueue_scripts', '' );
 
-		// Nothing should be hooked at priority 11.
 		ob_start();
 		do_action( 'admin_print_footer_scripts' );
 		$output = ob_get_clean();
 
-		$this->assertStringNotContainsString( '<script type="module">', $output );
+		$this->assertStringNotContainsString( 'type="module"', $output );
 	}
 
 	/**

@@ -78,6 +78,16 @@ class Dashboard {
 		add_action(
 			'admin_enqueue_scripts',
 			function () use ( $handle ) {
+				// Only run on the Forms admin page.
+				$current_screen = get_current_screen();
+				$is_forms_page  = (
+					( isset( $_GET['page'] ) && self::FORMS_WPBUILD_ADMIN_SLUG === $_GET['page'] ) || // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+					( $current_screen && 'jetpack-forms-responses' === $current_screen->id )
+				);
+				if ( ! $is_forms_page ) {
+					return;
+				}
+
 				$data = wp_scripts()->get_data( $handle, 'after' );
 				if ( empty( $data ) ) {
 					return;
@@ -105,7 +115,7 @@ class Dashboard {
 				add_action(
 					'admin_print_footer_scripts',
 					function () use ( $init_script ) {
-						echo '<script type="module">' . $init_script . "</script>\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Generated JS with JSON-encoded data from wp_json_encode.
+						wp_print_inline_script_tag( $init_script, array( 'type' => 'module' ) );
 					},
 					11
 				);
