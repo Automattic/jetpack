@@ -180,11 +180,12 @@ const ActivationScreenControls = props => {
 				<p>
 					{ createInterpolateElement(
 						__(
-							'<strong>Check your email</strong> for your license key. You should have received it after making your purchase.',
+							'<strong>Purchased a plan?</strong><br />Check your email for your license key and paste it below.',
 							'jetpack-licensing'
 						),
 						{
-							strong: <strong></strong>,
+							strong: <strong />,
+							br: <br />,
 						}
 					) }
 				</p>

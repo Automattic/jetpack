@@ -65,7 +65,7 @@ class AJAX {
 			return false;
 		}
 
-		preg_match( '/^[a-z0-9]+$/i', $guid, $matches );
+		preg_match( '/^[a-z0-9]{8}$/i', $guid, $matches );
 
 		if ( empty( $matches ) ) {
 			return false;

@@ -34,6 +34,7 @@ export const CATEGORY_CARDS_AND_MODULES: {
 		cards: [ 'stats', 'social', 'jetpack-ai', 'crm' ],
 		modules: [
 			'blaze',
+			'canonical-urls',
 			'comment-likes',
 			'comments',
 			'contact-form',
@@ -46,6 +47,7 @@ export const CATEGORY_CARDS_AND_MODULES: {
 			'subscriptions',
 			'woocommerce-analytics',
 			'wordads',
+			'wpcom-reader',
 		],
 	},
 	performance: {

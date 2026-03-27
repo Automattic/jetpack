@@ -8,6 +8,7 @@ import {
 	NextdoorPostPreview,
 	ThreadsPostPreview,
 	TumblrPostPreview,
+	TwitterPostPreview,
 } from '@automattic/social-previews';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
@@ -231,16 +232,6 @@ export function PostPreview( { connection }: PostPreviewProps ) {
 				caption = getCombinedText( title, excerpt );
 			}
 
-			const captionLength =
-				// 500 characters
-				500 -
-				// Number of characters in the article URL
-				url.length -
-				// 2 characters for line break
-				2;
-
-			caption = decodeEntities( caption ).slice( 0, captionLength );
-
 			caption += `\n\n${ url }`;
 
 			return (
@@ -253,16 +244,42 @@ export function PostPreview( { connection }: PostPreviewProps ) {
 			);
 		}
 
-		case 'tumblr':
+		case 'tumblr': {
+			const desc = message || description;
+
 			return (
 				<TumblrPostPreview
 					{ ...commonProps }
+					title={ message ? '' : title }
+					description={ desc }
 					user={ { displayName: user.displayName, avatarUrl: user.profileImage } }
-					customText={ message }
 				/>
 			);
+		}
+
+		case 'x': {
+			let text = title;
+
+			if ( message ) {
+				text = message;
+			} else if ( title && excerpt ) {
+				text = getCombinedText( title, excerpt );
+			}
+
+			text += `\n\n${ url }`;
+
+			return (
+				<TwitterPostPreview
+					{ ...commonProps }
+					description={ description }
+					text={ text }
+					screenName={ user.externalName }
+					name={ user.displayName }
+				/>
+			);
+		}
 
 		default:
-			return null;
+			return <div>{ __( 'Preview not available.', 'jetpack-publicize-pkg' ) }</div>;
 	}
 }

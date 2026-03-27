@@ -5,6 +5,130 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.0] - 2026-03-24
+### Changed
+- Internal updates. [#43811]
+
+## [0.59.0] - 2026-03-23
+### Added
+- ChartLayout: Add component for shared chart and legend layout. [#47554]
+
+### Changed
+- Move tooltip portal containerRef from ChartLayout to inner svg-wrapper in pie charts. [#47619]
+- Remove internal hooks, utilities, and types from public exports to reduce API surface. [#47703]
+- Remove `percentage` from DataPointPercentage interface. [#47668]
+- Standardize legend stories and documentation across all chart types. [#47545]
+- Update package dependencies. [#47684] [#47719]
+
+### Removed
+- Remove individual chart entry point exports in favor of the main package entry point for v1. [#47673]
+
+### Fixed
+- Derive default legend shape from chart type in composition API. [#47671]
+- Fix broken story references and simplify legend sections in Storybook docs. [#47663]
+- Fix empty-state text wrapping when all legend items are hidden. [#47620]
+
+## [0.58.0] - 2026-03-16
+### Security
+- Fix ReDoS vulnerability in date parsing timezone detection. [#47524]
+
+### Changed
+- Breaking: Consolidate flat legend props into a nested legend configuration object on BaseChartProps. [#47506]
+- Charts: Fix Legend position prop in the composition API so that legends render in the correct top or bottom slot. [#47478]
+- Remove useHasLegendChild hook from @automattic/charts/hooks (charts now derive legend presence from useChartChildren). [#47478]
+- Update dependencies. [#47472]
+
+### Fixed
+- Bundle fast-deep-equal as a non-external dependency to fix compatibility with webpack strict ESM mode. [#47372]
+
+## [0.57.0] - 2026-03-09
+### Added
+- Add identity-obj-proxy to enable CSS module class assertions in tests. [#47476]
+
+### Changed
+- BREAKING: Legend: Replace individual visx styling props with itemStyles, labelStyles, shapeStyles objects, rename legendItemClassName to itemClassName, add labelClassName, and move maxWidth/textOverflow into labelStyles. LeaderboardChart: replace legendShapeWidth/legendShapeHeight with legendShapeStyles. [#47454]
+- Breaking: Legend theme properties (`legendShapeStyles`, `legendLabelStyles`, `legendContainerStyles`) are now nested under a `legend` object (`legend.shapeStyles`, `legend.labelStyles`, `legend.containerStyles`) in `ChartTheme`. [#47439]
+- Switch to Native TypeScript compiler based on Go. [#47375]
+- Update package dependencies. [#47496]
+
+### Fixed
+- Fix leaderboard chart height calculation to include legend layout and keep responsive sizing by default. [#47369]
+- Fix zero-value bars not visible in small chart heights by ensuring minimum pixel-based value. [#47477]
+- Legend: Fix value rendering for falsy values (e.g. 0), guard against empty string spans, make value optional in types, and use index-based lookup for better performance. [#47459]
+
+## [0.56.7] - 2026-03-02
+### Changed
+- Improve AI agent documentation and validation workflow for chart development. [#47334]
+- Standardize chart documentation structure: add Responsive Behavior and Legends as standard sections, remove Browser Compatibility and Performance Considerations sections, and align all chart docs to established template. [#47363]
+
+## [0.56.6] - 2026-02-26
+### Changed
+- Simplify relocated portal positioning with CSS inset shorthand. [#47220]
+- Update package dependencies. [#47285] [#47300] [#47309]
+
+### Fixed
+- Fix chart height and size calculations for Pie Chart and variants. [#47074]
+- Fix `PieSemiCircleChart` height and size calculations to be responsive by default, maintaining 2:1 width-to-height ratio. [#47312]
+- Tooltip: Prevent flash at origin before visx calculates correct position. [#47189]
+
+## [0.56.5] - 2026-02-23
+### Changed
+- Add dynamic x‑axis margin in `LineChart` to prevent crowded/clipped tick labels. [#45815]
+
+## [0.56.4] - 2026-02-19
+### Changed
+- Build: strip data-testid attributes from production builds to reduce bundle size and keep the DOM cleaner. [#47185]
+
+### Fixed
+- ConversionFunnelChart: Default to filling the parent container height and add a height prop for explicit sizing. [#47119]
+- Relocate visx tooltip portals from document.body into the chart container to fix z-index stacking issues with sticky headers and other positioned elements. [#47118]
+
+## [0.56.3] - 2026-02-18
+### Changed
+- Set `.repository.url` in `package.json` to the mirror repo rather than the monorepo. [#47149]
+
+## [0.56.2] - 2026-02-16
+### Changed
+- Internal updates.
+
+## [0.56.1] - 2026-02-12
+### Changed
+- Remove redundant moduleNameMapper from jest config. [#46962]
+- Update package dependencies. [#47099]
+
+### Fixed
+- Allow responsive wrapper to shrink properly in flex layouts by adding min-width and min-height CSS properties. [#47070]
+- Compatibility: Clean up deprecated CSS. [#47067]
+
+## [0.56.0] - 2026-02-10
+### Added
+- Add `renderTooltip` prop for custom tooltip rendering in pie charts. [#46971]
+
+### Changed
+- Responsive charts now fill parent container by default instead of using a fixed aspect ratio. [#46846]
+
+### Fixed
+- Bundle `@wordpress/ui` into dist output to prevent runtime errors in consumers using wp-build. [#47004]
+- Fix tooltip positioning when container moves without triggering containerBounds refresh. [#46963]
+
+## [0.55.0] - 2026-02-04
+### Changed
+- Update package dependencies. [#46933]
+
+### Fixed
+- Fix Sparkline component export paths in package.json and update documentation to include GeoChart, Sparkline, and TrendIndicator components. [#46842]
+
+## [0.54.3] - 2026-02-03
+### Changed
+- Update package dependencies. [#46905]
+
+### Fixed
+- Add missing stories referenced by Storybook MDX docs. [#46883]
+
+## [0.54.2] - 2026-02-02
+### Changed
+- Update package dependencies. [#46854]
+
 ## [0.54.1] - 2026-01-26
 ### Changed
 - Update dependencies. [#43811]
@@ -640,6 +764,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed lints following ESLint rule changes for TS [#40584]
 - Fixing a bug in Chart storybook data. [#40640]
 
+[1.0.0]: https://github.com/Automattic/charts/compare/v0.59.0...v1.0.0
+[0.59.0]: https://github.com/Automattic/charts/compare/v0.58.0...v0.59.0
+[0.58.0]: https://github.com/Automattic/charts/compare/v0.57.0...v0.58.0
+[0.57.0]: https://github.com/Automattic/charts/compare/v0.56.7...v0.57.0
+[0.56.7]: https://github.com/Automattic/charts/compare/v0.56.6...v0.56.7
+[0.56.6]: https://github.com/Automattic/charts/compare/v0.56.5...v0.56.6
+[0.56.5]: https://github.com/Automattic/charts/compare/v0.56.4...v0.56.5
+[0.56.4]: https://github.com/Automattic/charts/compare/v0.56.3...v0.56.4
+[0.56.3]: https://github.com/Automattic/charts/compare/v0.56.2...v0.56.3
+[0.56.2]: https://github.com/Automattic/charts/compare/v0.56.1...v0.56.2
+[0.56.1]: https://github.com/Automattic/charts/compare/v0.56.0...v0.56.1
+[0.56.0]: https://github.com/Automattic/charts/compare/v0.55.0...v0.56.0
+[0.55.0]: https://github.com/Automattic/charts/compare/v0.54.3...v0.55.0
+[0.54.3]: https://github.com/Automattic/charts/compare/v0.54.2...v0.54.3
+[0.54.2]: https://github.com/Automattic/charts/compare/v0.54.1...v0.54.2
 [0.54.1]: https://github.com/Automattic/charts/compare/v0.54.0...v0.54.1
 [0.54.0]: https://github.com/Automattic/charts/compare/v0.53.4...v0.54.0
 [0.53.4]: https://github.com/Automattic/charts/compare/v0.53.3...v0.53.4

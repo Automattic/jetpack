@@ -41,13 +41,20 @@ export async function createSyncedForm(
 			innerBlocks: blockData?.innerBlocks,
 		},
 	] );
+
+	// detect if currentPostId is valid before passing it to the saveEntityRecord
+	const meta =
+		currentPostId > 0
+			? {
+					[ FORM_SOURCE_META_KEY ]: currentPostId,
+			  }
+			: {};
+
 	const response = ( await dispatch( coreStore ).saveEntityRecord( 'postType', FORM_POST_TYPE, {
 		title: pageTitle || __( 'Untitled Form', 'jetpack-forms' ),
 		content: blockMarkup,
 		status: 'publish',
-		meta: {
-			[ FORM_SOURCE_META_KEY ]: currentPostId,
-		},
+		meta,
 	} ) ) as JetpackFormPost;
 
 	return response.id;

@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add Central Forms Management feature flags for percentage-based rollout on both Simple and Atomic sites.

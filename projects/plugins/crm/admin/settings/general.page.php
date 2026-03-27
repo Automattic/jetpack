@@ -1,6 +1,5 @@
 <?php
 /*
-!
  * Admin Page: Settings: General settings
  */
 
@@ -329,7 +328,7 @@ if ( ! $confirmAct ) {
 			<thead>
 
 			<tr>
-				<th colspan="2" class="wmid"><?php esc_html_e( 'General Settings', 'zero-bs-crm' ); ?>:</th>
+				<th colspan="2" class="wmid"><?php esc_html_e( 'Display & Layout Options', 'zero-bs-crm' ); ?>:</th>
 			</tr>
 
 			</thead>

@@ -4,8 +4,8 @@ import { useCallback } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import { store as socialStore } from '../../social-store';
 import { Connection, KeyringResult } from '../../social-store/types';
+import { SupportedService } from '../services/types';
 import { useRequestAccess } from '../services/use-request-access';
-import { SupportedService } from '../services/use-supported-services';
 import type { ComponentProps } from 'react';
 
 export type ReconnectProps = {

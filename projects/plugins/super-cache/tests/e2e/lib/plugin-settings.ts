@@ -66,7 +66,12 @@ type Settings = {
  */
 export async function updateSettings( authCookie: string, settings: Partial< Settings > ) {
 	for ( const [ name, value ] of Object.entries( settings ) ) {
-		await settingsHandlers[ name ]( authCookie, value );
+		await (
+			settingsHandlers as Record<
+				string,
+				( authCookie: string, value: unknown ) => Promise< void >
+			>
+		 )[ name ]( authCookie, value );
 	}
 }
 

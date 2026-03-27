@@ -27,24 +27,25 @@
 		"tunnel:down": "./bin/tunnel.sh down",
 		"tunnel:reset": "./bin/tunnel.sh reset",
 		"tunnel:up": "./bin/tunnel.sh up",
-		"typecheck": "tsc --noEmit"
+		"typecheck": "tsgo --noEmit"
 	},
 	"browserslist": [],
 	"devDependencies": {
-		"@playwright/test": "1.55.1",
+		"@playwright/test": "1.58.2",
 		"@slack/web-api": "7.12.0",
+		"@types/config": "3.3.5",
 		"@types/lodash-es": "4.17.12",
-		"@types/node": "^20.4.2",
-		"@wordpress/e2e-test-utils-playwright": "1.38.0",
+		"@types/node": "^24.12.0",
+		"@typescript/native-preview": "7.0.0-dev.20260225.1",
+		"@wordpress/e2e-test-utils-playwright": "1.42.0",
 		"allure-playwright": "2.15.1",
-		"axios": "1.12.0",
+		"axios": "1.13.5",
 		"chalk": "5.6.2",
 		"config": "4.1.1",
 		"localtunnel": "2.0.2",
 		"lodash-es": "4.17.23",
 		"playwright-ctrf-json-reporter": "^0.0.26",
 		"shell-escape": "0.2.0",
-		"typescript": "5.9.3",
 		"winston": "3.17.0",
 		"yargs": "18.0.0"
 	}

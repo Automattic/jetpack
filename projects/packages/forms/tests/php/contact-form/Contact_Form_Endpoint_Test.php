@@ -168,11 +168,24 @@ class Contact_Form_Endpoint_Test extends TestCase {
 		$this->assertArrayHasKey( 'author_avatar', $schema_properties );
 		$this->assertArrayHasKey( 'email_marketing_consent', $schema_properties );
 		$this->assertArrayHasKey( 'ip', $schema_properties );
+		$this->assertArrayHasKey( 'country_code', $schema_properties );
+		$this->assertArrayHasKey( 'browser', $schema_properties );
+		$this->assertArrayHasKey( 'logged_in_user', $schema_properties );
 		$this->assertArrayHasKey( 'entry_title', $schema_properties );
 		$this->assertArrayHasKey( 'entry_permalink', $schema_properties );
 		$this->assertArrayHasKey( 'subject', $schema_properties );
 		$this->assertArrayHasKey( 'fields', $schema_properties );
 		$this->assertArrayHasKey( 'is_unread', $schema_properties );
+
+		// Verify logged_in_user schema structure
+		$logged_in_user_schema = $schema_properties['logged_in_user'];
+		$this->assertArrayHasKey( 'type', $logged_in_user_schema );
+		$this->assertContains( 'object', $logged_in_user_schema['type'] );
+		$this->assertContains( 'null', $logged_in_user_schema['type'] );
+		$this->assertArrayHasKey( 'properties', $logged_in_user_schema );
+		$this->assertArrayHasKey( 'display_name', $logged_in_user_schema['properties'] );
+		$this->assertArrayHasKey( 'username', $logged_in_user_schema['properties'] );
+		$this->assertArrayHasKey( 'id', $logged_in_user_schema['properties'] );
 
 		// Also make sure that we don't have fields that are not relevant to feedback.
 		$this->assertArrayNotHasKey( 'link', $schema_properties );
@@ -774,24 +787,100 @@ JSON_DATA{"1_name":"Test Author","2_email":"author@example.com","3_file":{"field
 		add_post_meta( $post_id, '_feedback_subject', 'Test Subject' );
 		add_post_meta( $post_id, '_feedback_ip', '127.0.0.1' );
 
-		// Test the get_item endpoint
+		// Test the get_item endpoint with collection format to get rich field data
+		$request = new WP_REST_Request( 'GET', '/wp/v2/feedback/' . $post_id );
+		$request->set_param( 'fields_format', 'collection' );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 200, $response->get_status() );
+		$data = $response->get_data();
+
+		// Verify file field data in response (collection format returns array of field objects)
+		$this->assertArrayHasKey( 'fields', $data );
+		$this->assertIsArray( $data['fields'] );
+
+		// Find the file field in the collection array
+		$file_field = null;
+		foreach ( $data['fields'] as $field ) {
+			if ( isset( $field['type'] ) && $field['type'] === 'file' ) {
+				$file_field = $field;
+				break;
+			}
+		}
+
+		$this->assertNotNull( $file_field, 'File field should exist in fields collection' );
+		$this->assertArrayHasKey( 'value', $file_field );
+		$this->assertArrayHasKey( 'files', $file_field['value'] );
+
+		$file = $file_field['value']['files'][0];
+		$this->assertEquals( 123, $file['file_id'] );
+		$this->assertEquals( 'test.jpg', $file['name'] );
+		$this->assertEquals( '1 KB', $file['size'] );
+		$this->assertTrue( $file['is_previewable'] );
+		$this->assertTrue( $data['has_file'] );
+	}
+
+	/**
+	 * Test fields_format parameter defaults to label-value format for backwards compatibility
+	 */
+	public function test_fields_format_defaults_to_label_value() {
+		$post_id = Utility::create_legacy_feedback(
+			array(
+				'Name'  => 'Test User',
+				'Email' => 'test@example.com',
+			),
+			'Test message',
+			'Test User'
+		);
+
+		// Request WITHOUT fields_format parameter - should return label-value format
 		$request  = new WP_REST_Request( 'GET', '/wp/v2/feedback/' . $post_id );
 		$response = $this->server->dispatch( $request );
 
 		$this->assertEquals( 200, $response->get_status() );
 		$data = $response->get_data();
 
-		// Verify file field data in response
 		$this->assertArrayHasKey( 'fields', $data );
-		$this->assertArrayHasKey( 'file', $data['fields'] );
-		$this->assertArrayHasKey( 'files', $data['fields']['file'] );
+		$this->assertIsArray( $data['fields'] );
 
-		$file = $data['fields']['file']['files'][0];
-		$this->assertEquals( 123, $file['file_id'] );
-		$this->assertEquals( 'test.jpg', $file['name'] );
-		$this->assertEquals( '1 KB', $file['size'] );
-		$this->assertTrue( $file['is_previewable'] );
-		$this->assertTrue( $data['has_file'] );
+		// label-value format should have field labels as keys
+		$this->assertArrayHasKey( 'Name', $data['fields'] );
+		$this->assertArrayHasKey( 'Email', $data['fields'] );
+		$this->assertEquals( 'Test User', $data['fields']['Name'] );
+		$this->assertEquals( 'test@example.com', $data['fields']['Email'] );
+	}
+
+	/**
+	 * Test fields_format=collection returns rich field data
+	 */
+	public function test_fields_format_collection_returns_rich_data() {
+		$post_id = Utility::create_legacy_feedback(
+			array(
+				'Name'  => 'Test User',
+				'Email' => 'test@example.com',
+			),
+			'Test message',
+			'Test User'
+		);
+
+		// Request WITH fields_format=collection - should return array of field objects
+		$request = new WP_REST_Request( 'GET', '/wp/v2/feedback/' . $post_id );
+		$request->set_param( 'fields_format', 'collection' );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 200, $response->get_status() );
+		$data = $response->get_data();
+
+		$this->assertArrayHasKey( 'fields', $data );
+		$this->assertIsArray( $data['fields'] );
+
+		// collection format should be an indexed array of objects with label, value, type, etc.
+		$first_field = $data['fields'][0];
+		$this->assertArrayHasKey( 'label', $first_field );
+		$this->assertArrayHasKey( 'value', $first_field );
+		$this->assertArrayHasKey( 'type', $first_field );
+		$this->assertArrayHasKey( 'id', $first_field );
+		$this->assertArrayHasKey( 'key', $first_field );
 	}
 
 	/**
@@ -1092,5 +1181,113 @@ JSON_DATA{"1_name":"Test Author","2_email":"author@example.com","3_file":{"field
 		$response = $this->server->dispatch( $request );
 
 		$this->assertEquals( 401, $response->get_status() );
+	}
+
+	/**
+	 * Test prepare_item_for_response includes logged_in_user when user is logged in.
+	 */
+	public function test_prepare_item_for_response_with_logged_in_user() {
+		$user_id = wp_insert_user(
+			array(
+				'user_login'   => 'testuser',
+				'user_pass'    => 'testpass',
+				'display_name' => 'Test Display Name',
+			)
+		);
+
+		$feedback_time = current_time( 'mysql' );
+		$content       = wp_json_encode(
+			array(
+				'subject'        => 'Test Subject',
+				'ip'             => '127.0.0.1',
+				'country_code'   => 'US',
+				'entry_title'    => 'Test Form',
+				'entry_page'     => 123,
+				'logged_in_user' => array(
+					'display_name' => 'Test Display Name',
+					'username'     => 'testuser',
+					'id'           => $user_id,
+				),
+				'fields'         => array(
+					array(
+						'id'    => '1',
+						'label' => 'Name',
+						'value' => 'Submitter Name',
+					),
+				),
+			),
+			JSON_UNESCAPED_SLASHES
+		);
+
+		$post_id = wp_insert_post(
+			array(
+				'post_type'      => 'feedback',
+				'post_status'    => 'publish',
+				'post_title'     => 'Test Feedback - ' . $feedback_time,
+				'post_content'   => $content,
+				'post_mime_type' => 'v2',
+			)
+		);
+
+		$request  = new WP_REST_Request( 'GET', '/wp/v2/feedback/' . $post_id );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 200, $response->get_status() );
+		$data = $response->get_data();
+
+		$this->assertArrayHasKey( 'logged_in_user', $data );
+		$this->assertIsArray( $data['logged_in_user'] );
+		$this->assertArrayHasKey( 'display_name', $data['logged_in_user'] );
+		$this->assertArrayHasKey( 'username', $data['logged_in_user'] );
+		$this->assertArrayHasKey( 'id', $data['logged_in_user'] );
+		$this->assertEquals( 'Test Display Name', $data['logged_in_user']['display_name'] );
+		$this->assertEquals( 'testuser', $data['logged_in_user']['username'] );
+		$this->assertEquals( $user_id, $data['logged_in_user']['id'] );
+
+		wp_delete_user( $user_id );
+	}
+
+	/**
+	 * Test prepare_item_for_response returns null for logged_in_user when not logged in.
+	 */
+	public function test_prepare_item_for_response_without_logged_in_user() {
+		$feedback_time = current_time( 'mysql' );
+		$content       = wp_json_encode(
+			array(
+				'subject'        => 'Test Subject',
+				'ip'             => '127.0.0.1',
+				'country_code'   => 'US',
+				'entry_title'    => 'Test Form',
+				'entry_page'     => 123,
+				'logged_in_user' => null,
+				'fields'         => array(
+					array(
+						'id'    => '1',
+						'label' => 'Name',
+						'value' => 'Submitter Name',
+					),
+				),
+			),
+			JSON_UNESCAPED_SLASHES
+		);
+
+		$post_id = wp_insert_post(
+			array(
+				'post_type'      => 'feedback',
+				'post_status'    => 'publish',
+				'post_title'     => 'Test Feedback - ' . $feedback_time,
+				'post_content'   => $content,
+				'post_mime_type' => 'v2',
+			)
+		);
+
+		$request  = new WP_REST_Request( 'GET', '/wp/v2/feedback/' . $post_id );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 200, $response->get_status() );
+		$data = $response->get_data();
+
+		$this->assertArrayHasKey( 'logged_in_user', $data );
+		$this->assertNull( $data['logged_in_user'] );
 	}
 }

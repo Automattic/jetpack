@@ -14,9 +14,7 @@ const NAMESPACE = 'jetpack/social';
 function createRegistryWithPreferencesStore( initialPreferences = {} ) {
 	const registry = createRegistry();
 
-	registry
-		// @ts-expect-error register method exists
-		.register( preferencesStore );
+	registry.register( preferencesStore );
 
 	// Set initial preferences if provided
 	Object.entries( initialPreferences ).forEach( ( [ name, value ] ) => {
@@ -36,14 +34,12 @@ describe( 'useSocialUserPreferences', () => {
 			),
 		} );
 
-		expect( result.current.data.prePublishConfirmation ).toBeUndefined();
-		expect( result.current.data.reviewPromptDismissed ).toBeUndefined();
+		expect( result.current.data.showPrePublishConfirmation ).toBeUndefined();
 	} );
 
 	it( 'should return the initial preference values', () => {
 		const registry = createRegistryWithPreferencesStore( {
-			pre_publish_confirmation: true,
-			review_prompt_dismissed: false,
+			show_pre_publish_confirmation: true,
 		} );
 
 		const { result } = renderHook( () => useSocialUserPreferences(), {
@@ -52,8 +48,7 @@ describe( 'useSocialUserPreferences', () => {
 			),
 		} );
 
-		expect( result.current.data.prePublishConfirmation ).toBe( true );
-		expect( result.current.data.reviewPromptDismissed ).toBe( false );
+		expect( result.current.data.showPrePublishConfirmation ).toBe( true );
 	} );
 
 	it( 'should set a preference value', () => {
@@ -66,21 +61,15 @@ describe( 'useSocialUserPreferences', () => {
 		} );
 
 		act( () => {
-			result.current.set( 'prePublishConfirmation', true );
+			result.current.set( 'showPrePublishConfirmation', true );
 		} );
 
-		expect( result.current.data.prePublishConfirmation ).toBe( true );
-
-		act( () => {
-			result.current.set( 'reviewPromptDismissed', true );
-		} );
-
-		expect( result.current.data.reviewPromptDismissed ).toBe( true );
+		expect( result.current.data.showPrePublishConfirmation ).toBe( true );
 	} );
 
 	it( 'should toggle a boolean preference value', () => {
 		const registry = createRegistryWithPreferencesStore( {
-			pre_publish_confirmation: false,
+			show_pre_publish_confirmation: false,
 		} );
 
 		const { result } = renderHook( () => useSocialUserPreferences(), {
@@ -89,18 +78,18 @@ describe( 'useSocialUserPreferences', () => {
 			),
 		} );
 
-		expect( result.current.data.prePublishConfirmation ).toBe( false );
+		expect( result.current.data.showPrePublishConfirmation ).toBe( false );
 
 		act( () => {
-			result.current.toggle( 'prePublishConfirmation' );
+			result.current.toggle( 'showPrePublishConfirmation' );
 		} );
 
-		expect( result.current.data.prePublishConfirmation ).toBe( true );
+		expect( result.current.data.showPrePublishConfirmation ).toBe( true );
 
 		act( () => {
-			result.current.toggle( 'prePublishConfirmation' );
+			result.current.toggle( 'showPrePublishConfirmation' );
 		} );
 
-		expect( result.current.data.prePublishConfirmation ).toBe( false );
+		expect( result.current.data.showPrePublishConfirmation ).toBe( false );
 	} );
 } );

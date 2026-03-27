@@ -75,7 +75,7 @@ export function makeBaseConfig( configurl, opts = {} ) {
 
 	const compat = new FlatCompat( {
 		baseDirectory: basedir,
-		resolvePluginsRelativeTo: fileURLToPath( import.meta.url ),
+		resolvePluginsRelativeTo: import.meta.filename,
 	} );
 
 	let m;
@@ -479,10 +479,14 @@ export function makeBaseConfig( configurl, opts = {} ) {
 			rules: {
 				...eslintPluginPackageJson.configs.recommended.rules,
 
+				// Our mirror repo publishing setup makes `files` pointless.
+				'package-json/require-files': 'off',
+
 				// Empty browserslist does something.
 				'package-json/no-empty-fields': [ 'error', { ignoreProperties: [ 'browserslist' ] } ],
 
 				// Maybe someday, but not yet.
+				'package-json/require-sideEffects': 'off',
 				'package-json/require-type': 'off',
 			},
 		},

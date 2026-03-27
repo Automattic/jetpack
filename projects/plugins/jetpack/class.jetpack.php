@@ -27,6 +27,7 @@ use Automattic\Jetpack\Identity_Crisis;
 use Automattic\Jetpack\Licensing;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
+use Automattic\Jetpack\Newsletter\Reader_Link;
 use Automattic\Jetpack\Paths;
 use Automattic\Jetpack\Plugin\Deprecate;
 use Automattic\Jetpack\Plugin\Tracking as Plugin_Tracking;
@@ -519,6 +520,11 @@ class Jetpack {
 					} // Should we have some type of fallback if something fails here?
 				}
 
+				// Set the newsletter send default option for existing sites.
+				if ( false === get_option( 'wpcom_newsletter_send_default' ) ) {
+					add_option( 'wpcom_newsletter_send_default', 1 );
+				}
+
 				if ( did_action( 'wp_loaded' ) ) {
 					self::upgrade_on_load();
 				} else {
@@ -699,6 +705,7 @@ class Jetpack {
 		// After a successful connection.
 		add_action( 'jetpack_site_registered', array( $this, 'activate_default_modules_on_site_register' ) );
 		add_action( 'jetpack_site_registered', array( $this, 'handle_unique_registrations_stats' ) );
+		add_action( 'jetpack_site_registered', array( Reader_Link::class, 'activate_on_connection' ), 9 );
 
 		// Actions for Manager::authorize().
 		add_action( 'jetpack_authorize_starting', array( $this, 'authorize_starting' ) );
@@ -1887,6 +1894,8 @@ class Jetpack {
 		 * @param bool true Should Twitter Card Meta tags be disabled. Default to true.
 		 */
 		if ( ! apply_filters( 'jetpack_disable_twitter_cards', false ) ) {
+			// @todo Remove this require once the deprecated Jetpack_Twitter_Cards wrapper has been removed.
+			// Twitter Cards functionality now lives in the jetpack-post-media package (Automattic\Jetpack\Post_Media\Twitter_Cards).
 			require_once JETPACK__PLUGIN_DIR . 'class.jetpack-twitter-cards.php';
 		}
 	}
@@ -5813,11 +5822,18 @@ endif;
 	}
 
 	/**
-	 * Returns a boolean for whether backups UI should be displayed or not.
+	 * Whether UI for backups should be displayed.
+	 *
+	 * On WPCom platforms this is gated on the backups-self-serve site feature.
+	 * On self-hosted Jetpack sites it falls back to the jetpack_show_backups filter.
 	 *
 	 * @return bool Should backups UI be displayed?
 	 */
 	public static function show_backups_ui() {
+		if ( ( new \Automattic\Jetpack\Status\Host() )->is_wpcom_platform() ) {
+			return function_exists( 'wpcom_site_has_feature' ) && wpcom_site_has_feature( 'backups-self-serve' );
+		}
+
 		/**
 		 * Whether UI for backups should be displayed.
 		 *
@@ -5826,6 +5842,22 @@ endif;
 		 * @param bool $show_backups Should UI for backups be displayed? True by default.
 		 */
 		return self::is_plugin_active( 'vaultpress/vaultpress.php' ) || apply_filters( 'jetpack_show_backups', true );
+	}
+
+	/**
+	 * Whether UI for security scanning should be displayed.
+	 *
+	 * On WPCom platforms this is gated on the scan-self-serve site feature.
+	 * On self-hosted Jetpack sites it always returns true.
+	 *
+	 * @return bool Should scan UI be displayed?
+	 */
+	public static function show_scan_ui() {
+		if ( ( new \Automattic\Jetpack\Status\Host() )->is_wpcom_platform() ) {
+			return function_exists( 'wpcom_site_has_feature' ) && wpcom_site_has_feature( 'scan-self-serve' );
+		}
+
+		return true;
 	}
 
 	/**

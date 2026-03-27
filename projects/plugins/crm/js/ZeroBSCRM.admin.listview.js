@@ -5372,7 +5372,7 @@ function zeroBSCRMJS_listView_bindInlineEditSave() {
 							// replace html  + do classes
 							jQuery( lThis )
 								.closest( '.zbs-inline-editing' )
-								.html( lLabel )
+								.text( lLabel )
 								.removeClass( 'zbs-inline-editing' )
 								.addClass( 'zbs-inline-edit' );
 
@@ -5402,7 +5402,7 @@ function zeroBSCRMJS_listView_bindInlineEditSave() {
 				// replace html  + do classes
 				jQuery( lThis )
 					.closest( '.zbs-inline-editing' )
-					.html( lLabel )
+					.text( lLabel )
 					.removeClass( 'zbs-inline-editing' )
 					.addClass( 'zbs-inline-edit' );
 

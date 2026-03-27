@@ -4,11 +4,10 @@
 
 import { createRequire } from 'module';
 import path from 'path';
-import { fileURLToPath } from 'url';
 import jetpackWebpackConfig from '@automattic/jetpack-webpack-config/webpack';
+import { NodePackageImporter } from 'sass-embedded';
 
-const __filename = fileURLToPath( import.meta.url );
-const __dirname = path.dirname( __filename );
+const __dirname = import.meta.dirname;
 const require = createRequire( import.meta.url );
 
 /**
@@ -105,11 +104,31 @@ export default {
 			// Handle CSS.
 			jetpackWebpackConfig.CssRule( {
 				extensions: [ 'css', 'sass', 'scss' ],
-				extraLoaders: [ { loader: 'sass-loader', options: { api: 'modern-compiler' } } ],
+				extraLoaders: [
+					{
+						loader: 'sass-loader',
+						options: {
+							api: 'modern-compiler',
+							sassOptions: {
+								importers: [ new NodePackageImporter() ],
+							},
+						},
+					},
+				],
 			} ),
 
-			// Handle images.
-			jetpackWebpackConfig.FileRule(),
+			// Allow importing .svg files as raw HTML strings via `?raw` query.
+			{
+				test: /\.svg$/i,
+				resourceQuery: /raw/,
+				type: 'asset/source',
+			},
+
+			// Handle images (exclude ?raw SVG imports).
+			{
+				...jetpackWebpackConfig.FileRule(),
+				resourceQuery: { not: [ /raw/ ] },
+			},
 		],
 	},
 	plugins: [

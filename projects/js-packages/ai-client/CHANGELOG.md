@@ -5,6 +5,59 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.34.8] - 2026-03-23
+### Security
+- Fix markdown-to-HTML paragraph renderer. [#47637]
+
+### Changed
+- Update package dependencies. [#47684] [#47719]
+
+### Fixed
+- AI Assistant: Prevent modal shaking from when content streams in by correcting header margins and making the header sticky. [#47616]
+
+## [0.34.7] - 2026-03-16
+### Changed
+- Update dependencies. [#47472]
+
+## [0.34.6] - 2026-03-09
+### Changed
+- Switch to Native TypeScript compiler based on Go. [#47375]
+
+## [0.34.5] - 2026-03-02
+### Changed
+- Update dependencies. [#46758]
+
+## [0.34.4] - 2026-02-26
+### Changed
+- Update package dependencies. [#47285] [#47300] [#47309]
+
+## [0.34.3] - 2026-02-23
+### Changed
+- Update dependencies. [#46758]
+
+## [0.34.2] - 2026-02-18
+### Changed
+- Set `.repository.url` in `package.json` to the mirror repo rather than the monorepo. [#47149]
+- Update package dependencies. [#47131]
+
+## [0.34.1] - 2026-02-16
+### Fixed
+- Compatibility: Clean up deprecated CSS. [#47067]
+
+## [0.34.0] - 2026-02-10
+### Added
+- AI Client: Add explicit window interface with missing types. [#46938]
+
+### Changed
+- Update package dependencies. [#46905]
+
+### Removed
+- Remove Chrome AI built-in API integration code. [#46896]
+
+## [0.33.32] - 2026-02-02
+### Changed
+- Update package dependencies. [#46854]
+
 ## [0.33.31] - 2026-01-26
 ### Changed
 - Update dependencies. [#46741]
@@ -786,6 +839,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - AI Client: stop using smart document visibility handling on the fetchEventSource library, so it does not restart the completion when changing tabs. [#32004]
 - Updated package dependencies. [#31468] [#31659] [#31785]
 
+[0.34.8]: https://github.com/Automattic/jetpack-ai-client/compare/v0.34.7...v0.34.8
+[0.34.7]: https://github.com/Automattic/jetpack-ai-client/compare/v0.34.6...v0.34.7
+[0.34.6]: https://github.com/Automattic/jetpack-ai-client/compare/v0.34.5...v0.34.6
+[0.34.5]: https://github.com/Automattic/jetpack-ai-client/compare/v0.34.4...v0.34.5
+[0.34.4]: https://github.com/Automattic/jetpack-ai-client/compare/v0.34.3...v0.34.4
+[0.34.3]: https://github.com/Automattic/jetpack-ai-client/compare/v0.34.2...v0.34.3
+[0.34.2]: https://github.com/Automattic/jetpack-ai-client/compare/v0.34.1...v0.34.2
+[0.34.1]: https://github.com/Automattic/jetpack-ai-client/compare/v0.34.0...v0.34.1
+[0.34.0]: https://github.com/Automattic/jetpack-ai-client/compare/v0.33.32...v0.34.0
+[0.33.32]: https://github.com/Automattic/jetpack-ai-client/compare/v0.33.31...v0.33.32
 [0.33.31]: https://github.com/Automattic/jetpack-ai-client/compare/v0.33.30...v0.33.31
 [0.33.30]: https://github.com/Automattic/jetpack-ai-client/compare/v0.33.29...v0.33.30
 [0.33.29]: https://github.com/Automattic/jetpack-ai-client/compare/v0.33.28...v0.33.29

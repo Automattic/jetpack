@@ -9,6 +9,7 @@ import {
 } from '@wordpress/dataviews';
 import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { SHARING_ACTIVITY_TABS } from '../../../utils';
 import ConnectionIcon from '../../connection-icon';
 import { ActivityAction } from './activity-action';
 import { ActivityStatus } from './activity-status';
@@ -73,13 +74,14 @@ function getFiltersForTab( filter: SharingActivityFilter ): Filter[] {
  * @param {ActivityViewProps} props - Component props.
  * @return React element.
  */
-export function ActivityView( { filter = 'all' }: ActivityViewProps ) {
+export function ActivityView( { filter = SHARING_ACTIVITY_TABS.ALL }: ActivityViewProps ) {
 	const { items, isLoading } = useSharingActivity();
 
 	// DataView state
 	const [ view, setView ] = useState< View >( {
 		type: 'table',
-		fields: [ FIELD_CONNECTION, FIELD_TIME, FIELD_STATUS, FIELD_ACTIONS ],
+		titleField: FIELD_CONNECTION,
+		fields: [ FIELD_TIME, FIELD_STATUS, FIELD_ACTIONS ],
 		sort: {
 			field: FIELD_TIME,
 			direction: 'desc' as SortDirection,

@@ -1,3 +1,4 @@
+import { isWoASite as _isWoASite } from '@automattic/jetpack-script-data';
 import { __, _x } from '@wordpress/i18n';
 import debugFactory from 'debug';
 import PropTypes from 'prop-types';
@@ -15,6 +16,7 @@ import {
 	userCanManageModules as _userCanManageModules,
 	userIsSubscriber as _userIsSubscriber,
 	userCanPublish,
+	isWpAdminNewsletterSettingsEnabled as _isWpAdminNewsletterSettingsEnabled,
 } from 'state/initial-state';
 import {
 	getModules,
@@ -200,13 +202,23 @@ export class NavigationSettings extends Component {
 							{ _x( 'Traffic', 'Navigation item.', 'jetpack' ) }
 						</NavItem>
 					) }
-					{ this.props.hasAnyOfTheseModules( [ 'subscriptions' ] ) && (
+					{ this.props.hasAnyOfTheseModules( [ 'subscriptions' ] ) &&
+						! this.props.isWpAdminNewsletterSettingsEnabled && (
+							<NavItem
+								path="#newsletter"
+								onClick={ this.handleClickForTracking( 'newsletter' ) }
+								selected={ this.props.location.pathname === '/newsletter' }
+							>
+								{ _x( 'Newsletter', 'Navigation item.', 'jetpack' ) }
+							</NavItem>
+						) }
+					{ this.props.hasAnyOfTheseModules( [ 'wpcom-reader' ] ) && ! this.props.isWoASite && (
 						<NavItem
-							path="#newsletter"
-							onClick={ this.handleClickForTracking( 'newsletter' ) }
-							selected={ this.props.location.pathname === '/newsletter' }
+							path="#reader"
+							onClick={ this.handleClickForTracking( 'reader' ) }
+							selected={ this.props.location.pathname === '/reader' }
 						>
-							{ _x( 'Newsletter', 'Navigation item.', 'jetpack' ) }
+							{ _x( 'Reader', 'Navigation item.', 'jetpack' ) }
 						</NavItem>
 					) }
 					{ this.props.hasAnyOfTheseModules( [ 'wordads' ] ) && (
@@ -284,6 +296,8 @@ NavigationSettings.propTypes = {
 	isModuleActivated: PropTypes.func.isRequired,
 	searchHasFocus: PropTypes.bool.isRequired,
 	location: PropTypes.object.isRequired,
+	isWoASite: PropTypes.bool.isRequired,
+	isWpAdminNewsletterSettingsEnabled: PropTypes.bool,
 };
 
 NavigationSettings.defaultProps = {
@@ -294,6 +308,8 @@ NavigationSettings.defaultProps = {
 	isSiteConnected: false,
 	isModuleActivated: noop,
 	searchHasFocus: false,
+	isWoASite: false,
+	isWpAdminNewsletterSettingsEnabled: false,
 };
 
 export default connect(
@@ -310,6 +326,8 @@ export default connect(
 		moduleList: getModules( state ),
 		isPluginActive: plugin_slug => isPluginActive( state, plugin_slug ),
 		searchTerm: getSearchTerm( state ),
+		isWoASite: _isWoASite( state ),
+		isWpAdminNewsletterSettingsEnabled: _isWpAdminNewsletterSettingsEnabled( state ),
 	} ),
 	dispatch => ( {
 		searchForTerm: term => dispatch( filterSearch( term ) ),

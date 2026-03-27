@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-CSV Importer: Fix path separator issue causing import failures on Windows servers.

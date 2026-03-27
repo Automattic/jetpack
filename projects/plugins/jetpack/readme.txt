@@ -1,8 +1,8 @@
 === Jetpack - WP Security, Backup, Speed, & Growth ===
-Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav, alternatekev, andy, annamcphee, annezazu, apeatling, arcangelini, arsihasi, azaozz, barry, batmoo, beaulebens, bindlegirl, biskobe, bjorsch, blobaugh, brbrr, brileyhooper, cainm, cena, cfinke, cgastrell, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, daniloercoli, davoraltman, delawski, designsimply, dkmyta, dllh, drawmyface, dsmart, dun2mis, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, joen, jblz, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lhkowalski, lschuyler, macmanx, martinremy, matt, mattwiebe, matveb, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, miguelxavierpenha, mikeyarce, mkaz, nancythanki, nickmomrik, njweller, nunyvega, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, renatoagds, retrofox, richardmtl, richardmuscat, robertbpugh, roccotripaldi, ryancowles, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, thehenridev, tmoorewp, tyxla, Viper007Bond, westi, williamvianas, wpkaren, yoavf, zinigor
+Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav, alternatekev, andy, annamcphee, annezazu, apeatling, arcangelini, arsihasi, azaozz, barry, batmoo, beaulebens, bindlegirl, biskobe, bjorsch, blobaugh, brbrr, brileyhooper, cainm, cena, cfinke, cgastrell, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, daniloercoli, davoraltman, delawski, designsimply, dkmyta, dllh, dlocc, drawmyface, dsmart, dun2mis, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, joen, jblz, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lhkowalski, lschuyler, macmanx, martinremy, matt, mattwiebe, matveb, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, miguelxavierpenha, mikeyarce, mkaz, nancythanki, nickmomrik, njweller, nunyvega, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, renatoagds, retrofox, richardmtl, richardmuscat, robertbpugh, roccotripaldi, ryancowles, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, thehenridev, tmoorewp, tyxla, Viper007Bond, westi, williamvianas, wpkaren, yoavf, zinigor
 Tags: Security, backup, malware, scan, performance
-Stable tag: 15.5-a.5
-Requires at least: 6.7
+Stable tag: 15.7-a.5
+Requires at least: 6.8
 Requires PHP: 7.2
 Tested up to: 6.9
 License: GPLv2 or later
@@ -326,19 +326,22 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 15.5-a.5 - 2026-01-26
+### 15.7-a.5 - 2026-03-23
 #### Enhancements
-- Forms: Update DataViews header and filters.
-- Likes: Enable CSS inlining.
-- Social: Refactor share status UI to use Notice component.
-- Social: Show a snackbar while sharing is in progress.
-- Social: Use fallback avatar for Jetpack Social connection icons.
+- Forms: Add logged-in user display name and ID to form submission emails and response sidebar.
+- Newsletter: Add "Send newsletter by default" toggle to settings.
+- Settings: Modernize page UI.
+- Sync: Improve checksum performance for meta tables.
 
 #### Bug fixes
-- AI Assistant: Fix markdown rendering in feedback sidebar to properly display bold text, lists, and other formatting.
-- Copy Post: Copy Gutenberg Footnotes block content when duplicating posts.
-- Google Fonts: Prevent Gutenberg 22.4+ from printing all registered fonts.
-- Social Previews: Use fallback image when social preview profile picture fails.
+- AI Assistant: Prevent modal shaking from when content streams in.
+- Comments: Remove resource hints for outdated gravatar domains and use secure.gravatar.com instead.
+- Google Search Preview: Ensure site icon is shown on all sites.
+- Image Compare Block: Fix disappearing link toolbar when highlighting caption text to add a hyperlink.
+- Map block: Fix markers displaying as bullet points on Simple sites.
+- Newsletter: Fix "email sent" confirmation to show "all subscribers" when post had paywall block and was emailed to everyone.
+- Sync: Prevent incremental sync for posts with unregistered post types.
+- WAF: Fix issue that potentially allowed bypassing WAF rules.
 
 --------
 

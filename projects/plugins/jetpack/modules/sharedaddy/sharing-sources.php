@@ -6,6 +6,7 @@
  */
 
 use Automattic\Jetpack\Device_Detection\User_Agent_Info;
+use Automattic\Jetpack\Post_Media\Images;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
@@ -1775,13 +1776,11 @@ class Share_LinkedIn extends Sharing_Source {
 
 		$post_link = $this->get_share_url( $post->ID );
 
-		// Using the same URL as the official button, which is *not* LinkedIn's documented sharing link
-		// https://www.linkedin.com/cws/share?url={url}&token=&isFramed=false
 		$linkedin_url = add_query_arg(
 			array(
 				'url' => rawurlencode( $post_link ),
 			),
-			'https://www.linkedin.com/cws/share?token=&isFramed=false'
+			'https://www.linkedin.com/sharing/share-offsite/'
 		);
 
 		// Record stats
@@ -2711,11 +2710,9 @@ class Share_Pinterest extends Sharing_Source {
 	 * @return string
 	 */
 	public function get_image( $post ) {
-		if ( class_exists( 'Jetpack_PostImages' ) ) {
-			$image = Jetpack_PostImages::get_image( $post->ID, array( 'fallback_to_avatars' => true ) );
-			if ( ! empty( $image ) ) {
-				return $image['src'];
-			}
+		$image = Images::get_image( $post->ID, array( 'fallback_to_avatars' => true ) );
+		if ( ! empty( $image ) ) {
+			return $image['src'];
 		}
 
 		/**
@@ -2908,141 +2905,6 @@ class Share_Pinterest extends Sharing_Source {
 				} )();
 			</script>
 			<?php
-		endif;
-	}
-}
-
-/**
- * Pocket sharing service.
- */
-class Share_Pocket extends Sharing_Source {
-	/**
-	 * Service short name.
-	 *
-	 * @var string
-	 */
-	public $shortname = 'pocket';
-
-	/**
-	 * Service icon font code.
-	 *
-	 * @var string
-	 */
-	public $icon = '\f224';
-
-	/**
-	 * Constructor.
-	 *
-	 * @param int   $id       Sharing source ID.
-	 * @param array $settings Sharing settings.
-	 */
-	public function __construct( $id, array $settings ) {
-		parent::__construct( $id, $settings );
-
-		if ( 'official' === $this->button_style ) {
-			$this->smart = true;
-		} else {
-			$this->smart = false;
-		}
-	}
-
-	/**
-	 * Service name.
-	 *
-	 * @return string
-	 */
-	public function get_name() {
-		return __( 'Pocket', 'jetpack' );
-	}
-
-	/**
-	 * Process sharing request. Add actions that need to happen when sharing here.
-	 *
-	 * @param WP_Post $post Post object.
-	 * @param array   $post_data Array of information about the post we're sharing.
-	 *
-	 * @return void
-	 */
-	public function process_request( $post, array $post_data ) {
-		// Record stats
-		parent::process_request( $post, $post_data );
-
-		$pocket_url = esc_url_raw( 'https://getpocket.com/save/?url=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&title=' . rawurlencode( $this->get_share_title( $post->ID ) ) );
-
-		parent::redirect_request( $pocket_url );
-	}
-
-	/**
-	 * Get the markup of the sharing button.
-	 *
-	 * @param WP_Post $post Post object.
-	 *
-	 * @return string
-	 */
-	public function get_display( $post ) {
-		if ( $this->smart ) {
-			$post_count = 'horizontal';
-
-			$button  = '';
-			$button .= '<div class="pocket_button">';
-			$button .= sprintf( '<a href="https://getpocket.com/save" class="pocket-btn" data-lang="%s" data-save-url="%s" data-pocket-count="%s" >%s</a>', 'en', esc_attr( $this->get_share_url( $post->ID ) ), $post_count, esc_attr__( 'Pocket', 'jetpack' ) );
-			$button .= '</div>';
-
-			return $button;
-		} else {
-			return $this->get_link( $this->get_process_request_url( $post->ID ), _x( 'Pocket', 'share to', 'jetpack' ), __( 'Share on Pocket', 'jetpack' ), 'share=pocket', 'sharing-pocket-' . $post->ID );
-		}
-	}
-
-	/**
-	 * AMP display for Pocket.
-	 *
-	 * @param \WP_Post $post The current post being viewed.
-	 */
-	public function get_amp_display( $post ) {
-		$attrs = array(
-			'data-share-endpoint' => esc_url_raw( 'https://getpocket.com/save/?url=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&title=' . rawurlencode( $this->get_share_title( $post->ID ) ) ),
-		);
-
-		return $this->build_amp_markup( $attrs );
-	}
-
-	/**
-	 * Add content specific to a service in the footer.
-	 */
-	public function display_footer() {
-		if ( $this->smart ) :
-			?>
-		<script>
-		( function () {
-			var currentScript = document.currentScript;
-
-			// Don't use Pocket's default JS as it we need to force init new Pocket share buttons loaded via JS.
-			function jetpack_sharing_pocket_init() {
-				var script = document.createElement( 'script' );
-				var prev = currentScript || document.getElementsByTagName( 'script' )[ 0 ];
-				script.setAttribute( 'async', true );
-				script.setAttribute( 'src', 'https://widgets.getpocket.com/v1/j/btn.js?v=1' );
-				prev.parentNode.insertBefore( script, prev );
-			}
-
-			if ( document.readyState === 'loading' ) {
-				document.addEventListener( 'DOMContentLoaded', jetpack_sharing_pocket_init );
-			} else {
-				jetpack_sharing_pocket_init();
-			}
-			document.body.addEventListener( 'is.post-load', jetpack_sharing_pocket_init );
-		} )();
-		</script>
-			<?php
-		else :
-			$this->js_dialog(
-				$this->shortname,
-				array(
-					'width'  => 450,
-					'height' => 450,
-				)
-			);
 		endif;
 	}
 }

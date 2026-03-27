@@ -4,6 +4,7 @@ import {
 	sharedThemeArgs,
 	ChartStoryArgs,
 	legendArgTypes,
+	extractLegendConfig,
 	medalCountsData,
 	largeValuesData,
 	trafficData,
@@ -58,6 +59,7 @@ const meta: Meta< StoryArgs > = {
 	},
 	render: args => {
 		const { seriesCount, ...chartProps } = args;
+		const legend = extractLegendConfig( args );
 
 		// Determine data based on seriesCount control
 		let data = chartProps.data;
@@ -69,7 +71,7 @@ const meta: Meta< StoryArgs > = {
 			data = medalCountsData;
 		}
 
-		return <BarChart { ...chartProps } data={ data } />;
+		return <BarChart { ...chartProps } legend={ legend } data={ data } />;
 	},
 } satisfies Meta< StoryArgs >;
 
@@ -85,8 +87,22 @@ export const Default: Story = {
 		data: [ medalCountsData[ 0 ], medalCountsData[ 1 ], medalCountsData[ 2 ] ], // limit to 3 series for better readability
 		gridVisibility: 'x',
 		maxWidth: 1200,
-		aspectRatio: 0.5,
 		resizeDebounceTime: 300,
+	},
+};
+
+export const FixedDimensions: Story = {
+	args: {
+		...Default.args,
+		width: 600,
+		height: 300,
+	},
+};
+
+export const AspectRatio: Story = {
+	args: {
+		...Default.args,
+		aspectRatio: 0.3,
 	},
 };
 
@@ -139,37 +155,6 @@ export const TimeSeries: Story = {
 		docs: {
 			description: {
 				story: 'Bar chart with a time series.',
-			},
-		},
-	},
-};
-
-// Story without tooltip
-export const ManyDataSeries: Story = {
-	args: {
-		...Default.args,
-		data: medalCountsData,
-	},
-	parameters: {
-		docs: {
-			description: {
-				story: 'Bar chart with many data series.',
-			},
-		},
-	},
-};
-
-export const FixedDimensions: Story = {
-	args: {
-		...Default.args,
-		width: 800,
-		height: 400,
-		data: [ medalCountsData[ 0 ], medalCountsData[ 1 ], medalCountsData[ 2 ] ],
-	},
-	parameters: {
-		docs: {
-			description: {
-				story: 'Bar chart with fixed dimensions that override the responsive behavior.',
 			},
 		},
 	},
@@ -253,18 +238,16 @@ SmartFormatting.parameters = {
 	},
 };
 
-export const WithInteractiveLegend: Story = {
+export const WithLegend: Story = {
 	args: {
 		...Default.args,
 		showLegend: true,
-		legendInteractive: true,
-		chartId: 'bar-chart-with-interactive-legend',
 	},
 	parameters: {
 		docs: {
 			description: {
 				story:
-					'Bar chart with interactive legend. Click on legend items to toggle series visibility. When all series are hidden, a message will be displayed prompting you to click legend items to show data again.',
+					'Props-based legend using `showLegend` and the `legend` config object. Use Storybook controls to adjust legend position, alignment, orientation, shape, and interactivity.',
 			},
 		},
 	},
@@ -272,60 +255,27 @@ export const WithInteractiveLegend: Story = {
 
 // Story demonstrating composition API
 export const WithCompositionLegend: StoryObj< typeof BarChart > = {
-	render: args => (
-		<div style={ { width: '800px' } }>
+	render: args => {
+		const legend = extractLegendConfig( args );
+		return (
 			<BarChart
-				data={ args.data || [ medalCountsData[ 0 ], medalCountsData[ 1 ], medalCountsData[ 2 ] ] }
-				withTooltips={ true }
-				gridVisibility="x"
-				maxWidth={ 1200 }
-				aspectRatio={ 0.5 }
+				{ ...Default.args }
+				{ ...args }
+				legend={ { interactive: legend?.interactive } }
+				chartId="composition-bar-chart"
 			>
-				<BarChart.Legend
-					orientation={ args.legendOrientation || 'horizontal' }
-					alignment={ args.legendAlignment || 'center' }
-					position={ args.legendPosition || 'bottom' }
-					maxWidth={ args.legendMaxWidth }
-					textOverflow={ args.legendTextOverflow || 'wrap' }
-				/>
+				<BarChart.Legend { ...legend } />
 			</BarChart>
-		</div>
-	),
-	argTypes: {
-		legendInteractive: {
-			table: { disable: true },
-		},
+		);
 	},
-	parameters: {
-		docs: {
-			description: {
-				story:
-					'Demonstrates using the composition API with `<BarChart.Legend />` as a child component. This provides the same functionality as the `showLegend` prop but allows for more flexible composition patterns.',
-			},
-		},
-	},
-};
-
-// Story showcasing legend customization controls
-export const CustomLegendPositioning: Story = {
 	args: {
-		withTooltips: true,
-		data: medalCountsData.slice( 0, 3 ), // Use first 3 series for cleaner legend
-		gridVisibility: 'x',
-		maxWidth: 1200,
-		aspectRatio: 0.5,
-		resizeDebounceTime: 300,
-		// showLegend defaults to false, explicitly enabling for demonstration
-		showLegend: true,
-		legendOrientation: 'vertical',
-		legendAlignment: 'start',
-		legendPosition: 'top',
+		...Default.args,
 	},
 	parameters: {
 		docs: {
 			description: {
 				story:
-					'Bar chart with top-left positioned vertical legend. This demonstrates non-default legend positioning to showcase different legend placement possibilities.',
+					'Composition API using `<BarChart.Legend />` as a child component for explicit legend placement and configuration. This is the recommended approach for flexible legend positioning.',
 			},
 		},
 	},
@@ -408,13 +358,32 @@ export const ZeroValueComparison: StoryObj< typeof BarChart > = {
 					/>
 				</div>
 			</div>
+
+			<div>
+				<h3>Small Chart Height (100px)</h3>
+				<p style={ { marginBottom: '20px', color: '#666' } }>
+					Zero-value bars remain visible even in small charts. The minimum pixel height ensures bars
+					are at least 2 pixels tall regardless of chart dimensions.
+				</p>
+				<div style={ { width: '600px', height: '100px', border: '1px solid #e0e0e0' } }>
+					<BarChart
+						data={ dataWithZeroValues }
+						showZeroValues={ true }
+						withTooltips={ true }
+						gridVisibility="x"
+					/>
+				</div>
+			</div>
 		</div>
 	),
+	args: {
+		containerHeight: '1600px', // Extra height to demonstrate zero-value bars in small chart height scenario
+	},
 	parameters: {
 		docs: {
 			description: {
 				story:
-					'Comparison showing the difference between disabled and enabled zero value display modes. The feature preserves data integrity by keeping the original value for tooltips while providing visual feedback through minimum bar heights.',
+					'Comparison showing the difference between disabled and enabled zero value display modes. The feature preserves data integrity by keeping the original value for tooltips while providing visual feedback through minimum bar heights. Zero-value bars remain visible even in small chart heights.',
 			},
 		},
 	},

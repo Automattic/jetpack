@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Remove unused `jetpack_show_wpcom_upgrades_email_menu` filter.

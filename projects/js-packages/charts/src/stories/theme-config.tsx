@@ -10,7 +10,7 @@ export const DEFAULT_ACCENT_COLOR = '#4a19ab';
  * Custom theme using a CSS variable for dynamic color generation
  */
 export const customTheme: ChartTheme = {
-	colors: [ 'var(--wpds-color-bg-interactive-brand)' ],
+	colors: [ 'var(--wpds-color-bg-interactive-brand-weak)' ],
 	seriesLineStyles: [
 		{},
 		{
@@ -54,10 +54,6 @@ export const themeArgTypes = {
 	},
 };
 
-/**
- * Shared default args for theme-related controls in chart stories
- * These provide actual default values that appear in Storybook controls
- */
 export const sharedThemeArgs = {
 	themeName: 'default',
 	accentColor: DEFAULT_ACCENT_COLOR,

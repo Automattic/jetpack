@@ -65,6 +65,7 @@ export const useGetPaidPlanNeedsPluginsContent = ( {
 							site: siteSuffix,
 							path: planPurchaseId,
 						} ) }
+						children={ null }
 					/>
 				),
 			}
@@ -86,6 +87,7 @@ export const useGetPaidPlanNeedsPluginsContent = ( {
 							site: siteSuffix,
 							path: planPurchaseId,
 						} ) }
+						children={ null }
 					/>
 				),
 			}
@@ -107,6 +109,7 @@ export const useGetPaidPlanNeedsPluginsContent = ( {
 							site: siteSuffix,
 							path: planPurchaseId,
 						} ) }
+						children={ null }
 					/>
 				),
 			}

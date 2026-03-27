@@ -1,7 +1,7 @@
 import './util/form-styles.js';
 
 const { generateStyleVariables } = window.jetpackForms;
-const FRONTEND_SELECTOR = '.wp-block-jetpack-contact-form-container';
+const FRONTEND_SELECTOR = '.jetpack-contact-form-container';
 
 //Fallback in case of the page load event takes too long to fire up
 const fallbackTimer = setTimeout( () => {

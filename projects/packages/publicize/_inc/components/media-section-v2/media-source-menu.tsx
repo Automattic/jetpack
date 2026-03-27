@@ -23,6 +23,7 @@ export default function MediaSourceMenu( {
 	onMediaLibraryClick,
 	onAiImageClick,
 	disabled = false,
+	featuredImageId,
 	children,
 }: MediaSourceMenuProps ) {
 	// Get options from function to ensure translations are loaded
@@ -75,6 +76,10 @@ export default function MediaSourceMenu( {
 							isSelected={ currentSource === option.id }
 							onSelect={ onSelect }
 							onClose={ onClose }
+							disabled={
+								currentSource === option.id ||
+								( option.id === 'featured-image' && ! featuredImageId )
+							}
 						/>
 					) ) }
 				</MenuGroup>
@@ -103,6 +108,7 @@ export default function MediaSourceMenu( {
 			linkPreviewOptions,
 			attachmentOptions,
 			currentSource,
+			featuredImageId,
 			onSelect,
 			onMediaLibraryClick,
 			onAiImageClick,

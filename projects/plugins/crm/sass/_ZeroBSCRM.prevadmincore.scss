@@ -116,8 +116,7 @@ code,
 kbd,
 pre,
 samp {
-	/* stylelint-disable-next-line font-family-no-duplicate-names
-	-- this is a known rendering hack to force proportional font sizes. */
+	/* stylelint-disable-next-line font-family-no-duplicate-names -- this is a known rendering hack to force proportional font sizes. */
 	font-family: monospace, monospace;
 	font-size: 1em;
 }
@@ -237,7 +236,7 @@ th {
 	blockquote,
 	pre {
 		border: 1px solid #999;
-		page-break-inside: avoid;
+		break-inside: avoid;
 	}
 
 	thead {
@@ -246,7 +245,7 @@ th {
 
 	img,
 	tr {
-		page-break-inside: avoid;
+		break-inside: avoid;
 	}
 
 	img {
@@ -262,7 +261,7 @@ th {
 
 	h2,
 	h3 {
-		page-break-after: avoid;
+		break-after: avoid;
 	}
 
 	select {

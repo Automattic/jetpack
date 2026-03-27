@@ -25,6 +25,7 @@ export const MyJetpackRoutes = {
 	AddStats: '/add-stats',
 	AddLicense: '/add-license',
 	JetpackAi: '/jetpack-ai',
+	ProtectDetails: '/protect-details',
 	RedeemToken: '/redeem-token',
 } as const;
 
@@ -91,6 +92,7 @@ export const JETPACK_NON_PAID_MODULES = [
 	'account-protection',
 	'blaze',
 	'blocks',
+	'canonical-urls',
 	'carousel',
 	'comment-likes',
 	'comments',
@@ -111,6 +113,7 @@ export const JETPACK_NON_PAID_MODULES = [
 	'post-by-email',
 	'post-list',
 	'protect',
+	'wpcom-reader',
 	'related-posts',
 	'seo-tools',
 	'sharedaddy',

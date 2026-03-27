@@ -1,17 +1,7 @@
 .bar-chart {
-	display: flex;
-	flex-direction: column;
-
-	&--legend-top {
-		flex-direction: column-reverse;
-	}
 
 	svg {
 		overflow: visible;
-	}
-
-	&-legend {
-		margin-top: 1rem;
 	}
 
 	&--animated rect {

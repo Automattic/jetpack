@@ -1,5 +1,4 @@
 import * as connectionData from './connection-data';
-import * as renderCount from './render-count';
 import * as scheduledSharesActions from './scheduled-shares';
 import * as servicesActions from './services';
 import * as sharePost from './share-post';
@@ -10,12 +9,12 @@ import * as socialNoteSettings from './social-notes';
 import * as socialSettings from './social-settings';
 import * as unifiedModal from './unified-modal';
 import * as utmActions from './utm-settings';
+import * as xUsageActions from './x-usage';
 
 const actions = {
 	...shareStatus,
 	...sharePost,
 	...connectionData,
-	...renderCount,
 	...sigActions,
 	...utmActions,
 	...socialNoteSettings,
@@ -24,6 +23,7 @@ const actions = {
 	...servicesActions,
 	...scheduledSharesActions,
 	...unifiedModal,
+	...xUsageActions,
 };
 
 export default actions;

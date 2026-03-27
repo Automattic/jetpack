@@ -15,6 +15,7 @@ import {
 	CLEAR_INVALID_RECORDS,
 	ADD_PENDING_ACTION,
 	REMOVE_PENDING_ACTION,
+	SET_FORM_STATUS_COUNTS,
 } from './action-types.js';
 
 const filters = ( state = {}, action ) => {
@@ -31,6 +32,7 @@ const currentQuery = (
 		page: 1,
 		per_page: 20,
 		status: 'draft,publish',
+		fields_format: 'collection',
 	},
 	action
 ) => {
@@ -136,6 +138,13 @@ const pendingActions = ( state = new Set(), action ) => {
 	return state;
 };
 
+const formStatusCounts = ( state = null, action ) => {
+	if ( action.type === SET_FORM_STATUS_COUNTS ) {
+		return action.formStatusCounts;
+	}
+	return state;
+};
+
 export default combineReducers( {
 	selectedResponsesFromCurrentDataset,
 	filters,
@@ -143,4 +152,5 @@ export default combineReducers( {
 	counts,
 	invalidRecords,
 	pendingActions,
+	formStatusCounts,
 } );

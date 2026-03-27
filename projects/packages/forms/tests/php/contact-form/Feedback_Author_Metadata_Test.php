@@ -208,13 +208,15 @@ class Feedback_Author_Metadata_Test extends BaseTestCase {
 
 		$saved_response = Feedback::get( $post_id );
 		$this->assertEquals( $email, $saved_response->get_author_email(), 'Author email should match the legacy feedback post author email' );
-		$this->assertEquals( get_avatar_url( $email ), $saved_response->get_author_avatar(), 'Author email should match the legacy feedback post author email' );
+		$avatar_url = $saved_response->get_author_avatar();
+		$this->assertStringContainsString( 'gravatar.com/avatar/', $avatar_url, 'Author avatar should be a Gravatar URL' );
+		$this->assertStringContainsString( 'd=mp', $avatar_url, 'Author avatar should use mystery person default when no name is set' );
+		$this->assertStringNotContainsString( 'name=', $avatar_url, 'Author avatar should not include name parameter when no name is set' );
 	}
 
 	public function test_computed_email() {
 
 		$email   = 'email@email.com';
-		$avatar  = get_avatar_url( $email );
 		$form_id = Utility::get_form_id();
 		// Create a form submission
 		$_post_data = Utility::get_post_request(
@@ -240,9 +242,11 @@ class Feedback_Author_Metadata_Test extends BaseTestCase {
 		$saved_response   = Feedback::get( $feedback_post_id );
 
 		$this->assertEquals( $email, $response->get_author_email(), 'Author email should match the form submission' );
-		$this->assertEquals( $avatar, $saved_response->get_author_avatar(), 'Author avatar should match the legacy feedback post author email' );
+		$avatar_url = $saved_response->get_author_avatar();
+		$this->assertStringContainsString( 'gravatar.com/avatar/', $avatar_url, 'Author avatar should be a Gravatar URL' );
+		$this->assertStringContainsString( 'd=initials', $avatar_url, 'Author avatar should use initials default' );
+		$this->assertStringContainsString( 'name=author', $avatar_url, 'Author avatar should include name parameter' );
 		$this->assertEquals( $email, $saved_response->get_author_email(), 'Author email should match the saved form submission' );
-		$this->assertEquals( $avatar, $saved_response->get_author_avatar(), 'Author email should match the legacy feedback post author email' );
 	}
 
 	public function test_computed_email_filter() {

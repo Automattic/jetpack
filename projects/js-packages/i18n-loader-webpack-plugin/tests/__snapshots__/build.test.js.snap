@@ -20,11 +20,11 @@ exports[`Webpack \`basic-test\` Build results: Webpack build files 1`] = `
   },
   "main.asset.php": {},
   "main.js": {
-    "jpI18nState": "/***/ "@wordpress/jp-i18n-loader":
+    "jpI18nState": "/***/ "@wordpress/jp-i18n-loader"
 /*!**************************************!*\\
   !*** external ["wp","jpI18nLoader"] ***!
   \\**************************************/
-/***/ ((module) => {
+(module) {
 
 "use strict";
 module.exports = window["wp"]["jpI18nLoader"];
@@ -93,11 +93,11 @@ exports[`Webpack \`ignore-modules\` Build results: Webpack build files 1`] = `
   },
   "array/main2.asset.php": {},
   "array/main2.js": {
-    "jpI18nState": "/***/ "@wordpress/jp-i18n-loader":
+    "jpI18nState": "/***/ "@wordpress/jp-i18n-loader"
 /*!**************************************!*\\
   !*** external ["wp","jpI18nLoader"] ***!
   \\**************************************/
-/***/ ((module) => {
+(module) {
 
 "use strict";
 module.exports = window["wp"]["jpI18nLoader"];
@@ -152,11 +152,11 @@ module.exports = window["wp"]["jpI18nLoader"];
   },
   "function/main2.asset.php": {},
   "function/main2.js": {
-    "jpI18nState": "/***/ "@wordpress/jp-i18n-loader":
+    "jpI18nState": "/***/ "@wordpress/jp-i18n-loader"
 /*!**************************************!*\\
   !*** external ["wp","jpI18nLoader"] ***!
   \\**************************************/
-/***/ ((module) => {
+(module) {
 
 "use strict";
 module.exports = window["wp"]["jpI18nLoader"];
@@ -211,11 +211,11 @@ module.exports = window["wp"]["jpI18nLoader"];
   },
   "regex/main2.asset.php": {},
   "regex/main2.js": {
-    "jpI18nState": "/***/ "@wordpress/jp-i18n-loader":
+    "jpI18nState": "/***/ "@wordpress/jp-i18n-loader"
 /*!**************************************!*\\
   !*** external ["wp","jpI18nLoader"] ***!
   \\**************************************/
-/***/ ((module) => {
+(module) {
 
 "use strict";
 module.exports = window["wp"]["jpI18nLoader"];
@@ -270,11 +270,11 @@ module.exports = window["wp"]["jpI18nLoader"];
   },
   "string/main2.asset.php": {},
   "string/main2.js": {
-    "jpI18nState": "/***/ "@wordpress/jp-i18n-loader":
+    "jpI18nState": "/***/ "@wordpress/jp-i18n-loader"
 /*!**************************************!*\\
   !*** external ["wp","jpI18nLoader"] ***!
   \\**************************************/
-/***/ ((module) => {
+(module) {
 
 "use strict";
 module.exports = window["wp"]["jpI18nLoader"];
@@ -352,11 +352,11 @@ exports[`Webpack \`loader-failures\` Build results: Webpack build files 1`] = `
 {
   "a.asset.php": {},
   "a.js": {
-    "jpI18nState": "/***/ "@wordpress/jp-i18n-loader":
+    "jpI18nState": "/***/ "@wordpress/jp-i18n-loader"
 /*!**************************************!*\\
   !*** external ["wp","jpI18nLoader"] ***!
   \\**************************************/
-/***/ ((module) => {
+(module) {
 
 "use strict";
 module.exports = window["wp"]["jpI18nLoader"];
@@ -415,11 +415,11 @@ exports[`Webpack \`manual-externals\` Build results: Webpack build files 1`] = `
     "loader": null,
   },
   "main.js": {
-    "jpI18nState": "/***/ "@wordpress/jp-i18n-loader":
+    "jpI18nState": "/***/ "@wordpress/jp-i18n-loader"
 /*!*******************************!*\\
   !*** external "jpI18nLoader" ***!
   \\*******************************/
-/***/ ((module) => {
+(module) {
 
 "use strict";
 module.exports = global["jpI18nLoader"];
@@ -587,11 +587,11 @@ exports[`Webpack \`multiple-runtime\` Build results: Webpack build files 1`] = `
   },
   "runtime~main.asset.php": {},
   "runtime~main.js": {
-    "jpI18nState": "/***/ "@wordpress/jp-i18n-loader":
+    "jpI18nState": "/***/ "@wordpress/jp-i18n-loader"
 /*!**************************************!*\\
   !*** external ["wp","jpI18nLoader"] ***!
   \\**************************************/
-/***/ ((module) => {
+(module) {
 
 module.exports = window["wp"]["jpI18nLoader"];
 ",
@@ -628,11 +628,11 @@ module.exports = window["wp"]["jpI18nLoader"];
   },
   "runtime~main2.asset.php": {},
   "runtime~main2.js": {
-    "jpI18nState": "/***/ "@wordpress/jp-i18n-loader":
+    "jpI18nState": "/***/ "@wordpress/jp-i18n-loader"
 /*!**************************************!*\\
   !*** external ["wp","jpI18nLoader"] ***!
   \\**************************************/
-/***/ ((module) => {
+(module) {
 
 module.exports = window["wp"]["jpI18nLoader"];
 ",
@@ -696,11 +696,11 @@ exports[`Webpack \`nested-includes\` Build results: Webpack build files 1`] = `
   },
   "main.asset.php": {},
   "main.js": {
-    "jpI18nState": "/***/ "@wordpress/jp-i18n-loader":
+    "jpI18nState": "/***/ "@wordpress/jp-i18n-loader"
 /*!**************************************!*\\
   !*** external ["wp","jpI18nLoader"] ***!
   \\**************************************/
-/***/ ((module) => {
+(module) {
 
 "use strict";
 module.exports = window["wp"]["jpI18nLoader"];
@@ -924,11 +924,11 @@ exports[`Webpack \`single-runtime\` Build results: Webpack build files 1`] = `
   },
   "runtime.asset.php": {},
   "runtime.js": {
-    "jpI18nState": "/***/ "@wordpress/jp-i18n-loader":
+    "jpI18nState": "/***/ "@wordpress/jp-i18n-loader"
 /*!**************************************!*\\
   !*** external ["wp","jpI18nLoader"] ***!
   \\**************************************/
-/***/ ((module) => {
+(module) {
 
 module.exports = window["wp"]["jpI18nLoader"];
 ",
@@ -988,11 +988,11 @@ exports[`Webpack \`splitting\` Build results: Webpack build files 1`] = `
   },
   "main.asset.php": {},
   "main.js": {
-    "jpI18nState": "/***/ "@wordpress/jp-i18n-loader":
+    "jpI18nState": "/***/ "@wordpress/jp-i18n-loader"
 /*!**************************************!*\\
   !*** external ["wp","jpI18nLoader"] ***!
   \\**************************************/
-/***/ ((module) => {
+(module) {
 
 "use strict";
 module.exports = window["wp"]["jpI18nLoader"];
@@ -1030,11 +1030,11 @@ module.exports = window["wp"]["jpI18nLoader"];
   },
   "main2.asset.php": {},
   "main2.js": {
-    "jpI18nState": "/***/ "@wordpress/jp-i18n-loader":
+    "jpI18nState": "/***/ "@wordpress/jp-i18n-loader"
 /*!**************************************!*\\
   !*** external ["wp","jpI18nLoader"] ***!
   \\**************************************/
-/***/ ((module) => {
+(module) {
 
 "use strict";
 module.exports = window["wp"]["jpI18nLoader"];

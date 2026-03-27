@@ -1,11 +1,11 @@
 === Jetpack Boost - Website Speed, Performance and Critical CSS  ===
-Contributors: automattic, xwp, adnan007, bjorsch, danwalmsley, davidlonjon, dilirity, donncha, ebinnion, exelero, jeherve, jpolakovic, karthikbhatb, kraftbj, lsarsfield, luchad0res, pyronaur, rheinardkorf, scruffian, thingalon
+Contributors: automattic, xwp, adnan007, bjorsch, danwalmsley, davidlonjon, dilirity, donncha, ebinnion, exelero, jeherve, jpolakovic, karthikbhatb, kraftbj, lsarsfield, luchad0res, pyronaur, rheinardkorf, scruffian, thingalon, dlocc
 Donate link: https://automattic.com
 Tags: performance, speed, web vitals, critical css, cache
-Requires at least: 6.7
+Requires at least: 6.8
 Tested up to: 6.9
 Requires PHP: 7.2
-Stable tag: 4.5.6-beta
+Stable tag: 4.5.8-beta
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -183,14 +183,22 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 4.5.6-beta - 2026-01-26
+### 4.5.8-beta - 2026-03-09
+
 #### Changed
-- My Jetpack: Check red bubble notification async when cache is not available.
-- Update composer.lock.
-- Update package dependencies.
+
+- Remove header border-bottom from the admin page for a cleaner unified header appearance.
+- Replaced the large Jetpack Boost logo header with a compact unified header pattern (Jetpack icon + title + subtitle) for consistent product identity.
+- Replace license activation link with a "Use license key" button in the header actions area.
+- Switch to Native TypeScript compiler based on Go.
 
 #### Fixed
-- LCP: Skip image optimizations that would break responsive backgrounds or custom focal points under specific configurations.
+
+- Admin Page: Restore border on header component.
+- Compatibility: Clean up deprecated CSS.
+- Fix Hello Dolly banner background color and clear floats in admin layout.
+- Fix TS errors detected by tsgo.
+- I18N: Fix translatable strings extraction
 
 --------
 

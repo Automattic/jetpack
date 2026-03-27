@@ -8,6 +8,7 @@
 // We live in the namespace of the test autoloader to avoid many use statements.
 namespace Automattic\Jetpack\Autoloader\jpCurrent;
 
+use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
@@ -16,6 +17,7 @@ use Test_Plugin_Factory;
 /**
  * Test suite class for the Autoloader part responsible for ensuring only the latest autoloader is ever executed.
  */
+#[AllowMockObjectsWithoutExpectations /* Mocks created in setUp, some tests add expectations and others don't. */ ]
 class LatestAutoloaderGuardTest extends TestCase {
 
 	/**
@@ -51,9 +53,9 @@ class LatestAutoloaderGuardTest extends TestCase {
 	 */
 	public function setUp(): void {
 		parent::setUp();
-		$this->plugins_handler    = $this->createStub( Plugins_Handler::class );
+		$this->plugins_handler    = $this->createMock( Plugins_Handler::class );
 		$this->autoloader_handler = $this->createMock( Autoloader_Handler::class );
-		$this->autoloader_locator = $this->createStub( Autoloader_Locator::class );
+		$this->autoloader_locator = $this->createMock( Autoloader_Locator::class );
 		$this->guard              = new Latest_Autoloader_Guard(
 			$this->plugins_handler,
 			$this->autoloader_handler,

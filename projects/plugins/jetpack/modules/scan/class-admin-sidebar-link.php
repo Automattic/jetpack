@@ -72,7 +72,7 @@ class Admin_Sidebar_Link {
 			Admin_Menu::add_menu(
 				/** "Scan" is a product name, do not translate. */
 				'Scan',
-				'Scan <span class="dashicons dashicons-external"></span>',
+				'Scan <span aria-hidden="true">↗</span>',
 				'manage_options',
 				esc_url( Redirect::get_url( 'cloud-scan-history-wp-menu' ) ),
 				null,
@@ -85,7 +85,7 @@ class Admin_Sidebar_Link {
 			Admin_Menu::add_menu(
 				/** "Scan" is a product name, do not translate. */
 				'Scan',
-				'Scan <span class="dashicons dashicons-external"></span>',
+				'Scan <span aria-hidden="true">↗</span>',
 				'manage_options',
 				esc_url( Redirect::get_url( 'cloud-scan-history-wp-menu' ) ),
 				null,
@@ -97,7 +97,7 @@ class Admin_Sidebar_Link {
 			Admin_Menu::add_menu(
 				/** "VaultPress Backup" is a product name, do not translate. */
 				'VaultPress Backup',
-				'VaultPress Backup <span class="dashicons dashicons-external"></span>',
+				'VaultPress Backup <span aria-hidden="true">↗</span>',
 				'manage_options',
 				esc_url( Redirect::get_url( 'calypso-backups' ) ),
 				null,
@@ -115,7 +115,7 @@ class Admin_Sidebar_Link {
 	 */
 	private function get_link_offset() {
 		global $submenu;
-		$offset = 9;
+		$offset = 17;
 
 		if ( ! array_key_exists( 'jetpack', $submenu ) ) {
 			return $offset;

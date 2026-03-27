@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Exclude e2e test sites from Central Forms Management rollout.

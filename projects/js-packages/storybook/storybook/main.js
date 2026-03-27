@@ -2,6 +2,7 @@
  * This file is inspired by https://github.com/WordPress/gutenberg/blob/trunk/storybook/main.js
  */
 
+import { createRequire } from 'node:module';
 import path from 'node:path';
 import { fileURLToPath } from 'url';
 import postcssPlugins from '@wordpress/postcss-plugins-preset';
@@ -9,7 +10,11 @@ import { EsbuildPlugin } from 'esbuild-loader';
 import remarkGfm from 'remark-gfm';
 import { projects } from './projects.js';
 
-const __dirname = path.dirname( fileURLToPath( import.meta.url ) );
+// Resolve postcss-import via the preset package that depends on it.
+const presetRequire = createRequire( import.meta.resolve( '@wordpress/postcss-plugins-preset' ) );
+const postcssImport = presetRequire( 'postcss-import' );
+
+const __dirname = import.meta.dirname;
 
 const storiesSearch = '*.@(mdx|@(story|stories).@(js|jsx|ts|tsx))';
 const stories = [ process.env.NODE_ENV !== 'test' && `./stories/**/${ storiesSearch }` ]
@@ -76,7 +81,23 @@ const sbconfig = {
 					options: {
 						postcssOptions: {
 							ident: 'postcss',
-							plugins: postcssPlugins,
+							plugins: postcssPlugins.map( postcssPlugin => {
+								// Override postcss-import's resolve to support package.json "exports".
+								if ( postcssPlugin.postcssPlugin === 'postcss-import' ) {
+									return postcssImport( {
+										resolve: ( id, basedir ) => {
+											try {
+												return presetRequire.resolve( id, {
+													paths: [ basedir ],
+												} );
+											} catch {
+												return id;
+											}
+										},
+									} );
+								}
+								return postcssPlugin;
+							} ),
 						},
 					},
 				},

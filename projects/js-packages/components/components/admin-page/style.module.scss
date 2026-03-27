@@ -9,10 +9,38 @@
 		background-color: var(--jp-white);
 	}
 
+	// Remove the admin-ui header border when tabs are present,
+	// or when showBottomBorder is false.
+	// Ideally admin-ui would expose a prop or CSS custom property for this:
+	// https://github.com/WordPress/gutenberg/issues/75428
+	&.without-bottom-border :global(.admin-ui-page__header) {
+		border-bottom: none;
+	}
+
+	// Disable sticky header until we make it work better across all pages.
+	// JETPACK-1386
+	:global(.admin-ui-page__header) {
+		position: relative;
+		z-index: 1;
+	}
+
+	// Normalize admin headers: implementation of admin-ui needs to
+	// comprehend old wp-admin floating containers, such as Hello Dolly.
+	:global(.admin-ui-page) {
+		clear: both;
+	}
+
 	.admin-page-header {
 		display: flex;
 		align-items: center;
 		gap: 8px;
+	}
+
+	// Ensure footer Container padding is included in its max-width,
+	// preventing horizontal scroll when the content area is narrower
+	// than the Container's max-width + padding (JETPACK-1424).
+	.admin-page-footer {
+		box-sizing: border-box;
 	}
 
 	.sandbox-domain-badge {
@@ -26,3 +54,9 @@
 		color: #fff;
 	}
 }
+
+// Make Hello Dolly background white for Jetpack admin pages.
+:global(.jetpack-admin-page #dolly) {
+	background-color: #fff;
+}
+

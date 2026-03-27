@@ -78,7 +78,7 @@ async function fixDeps( pkg ) {
 	// https://github.com/WordPress/gutenberg/issues/73257 (fixed in @wordpress/icons v11, but see above)
 	// https://github.com/WordPress/gutenberg/issues/74394
 	if (
-		( pkg.name === '@wordpress/icons' || pkg.name === '@wordpress/image-cropper' ) &&
+		pkg.name === '@wordpress/icons' &&
 		! pkg.dependencies?.react &&
 		! pkg.peerDependencies?.react
 	) {
@@ -162,6 +162,20 @@ async function fixDeps( pkg ) {
 				pkg.dependencies[ dep ] = '>=' + ver.substring( 1 );
 			}
 		}
+	}
+
+	// Outdated dependencies
+	if ( pkg.name === '@wordpress/stylelint-config' ) {
+		for ( const field of [ 'dependencies', 'peerDependencies' ] ) {
+			for ( const [ dep, ver ] of Object.entries( pkg[ field ] ?? {} ) ) {
+				if ( dep.startsWith( 'stylelint' ) || dep === '@stylistic/stylelint-plugin' ) {
+					pkg[ field ][ dep ] = ver.replace( /^(?:\^|>=)?/, '>=' );
+				}
+			}
+		}
+	}
+	if ( pkg.name === '@wordpress/theme' && pkg.peerDependencies?.stylelint ) {
+		pkg.peerDependencies.stylelint = pkg.peerDependencies.stylelint.replace( /^(?:\^|>=)?/, '>=' );
 	}
 
 	// Update localtunnel axios dep to avoid CVE
@@ -256,10 +270,13 @@ async function fixDeps( pkg ) {
 		}
 	}
 
-	// Seems to depend on hoisting. 33306 doesn't seem to directly address it, but 33315 looks like it will fix it anyway.
-	// https://github.com/storybookjs/storybook/issues/33306
-	if ( pkg.name === 'storybook' && ! pkg.dependencies[ '@vitest/mocker' ] ) {
-		pkg.dependencies[ '@vitest/mocker' ] = '*';
+	// Glob decided to deprecate everything <12, even though tons of stuff still depends on older versions.
+	// On the plus side, the net change from v10 to v13 is deleting the CLI from the package.
+	if ( pkg.dependencies?.glob?.match( /^\^1[0-2](?:\.\d+)*$/ ) ) {
+		pkg.dependencies.glob = '^13';
+	}
+	if ( pkg.peerDependencies?.glob?.match( /^\^1[0-2](?:\.\d+)*$/ ) ) {
+		pkg.dependencies.glob = '^13';
 	}
 
 	// CVE-2026-22036
@@ -269,15 +286,6 @@ async function fixDeps( pkg ) {
 		pkg.dependencies?.undici?.startsWith( '^5.' )
 	) {
 		pkg.dependencies.undici = '^6.23.0';
-	}
-
-	// GHSA-73rr-hh4g-fpgx
-	// https://github.com/WordPress/gutenberg/issues/74669
-	if (
-		( pkg.name === '@wordpress/block-editor' || pkg.name === '@wordpress/sync' ) &&
-		( pkg.dependencies?.diff?.startsWith( '^4.' ) || pkg.dependencies?.diff?.startsWith( '4.' ) )
-	) {
-		pkg.dependencies.diff = '^8.0.3';
 	}
 
 	return pkg;
@@ -334,6 +342,22 @@ function fixPeerDeps( pkg ) {
 		pkg.peerDependencies?.[ '@wordpress/i18n' ].startsWith( '^5.' )
 	) {
 		pkg.peerDependencies[ '@wordpress/i18n' ] = '^6';
+	}
+
+	// Outdated peer dependency because Gutenberg is still on node 20.
+	if (
+		pkg.name === '@wordpress/e2e-test-utils-playwright' &&
+		! pkg.peerDependencies?.[ '@types/node' ]?.includes( '^24.' )
+	) {
+		pkg.peerDependencies[ '@types/node' ] += ' || ^24.0.0';
+	}
+
+	// Outdated dependency because Calypso is still on node 22.
+	if (
+		pkg.name === '@automattic/calypso-config' &&
+		! pkg.dependencies?.[ '@types/node' ]?.includes( '^24.' )
+	) {
+		pkg.dependencies[ '@types/node' ] += ' || ^24.0.0';
 	}
 
 	// Should be an optional peer dep, but isn't.

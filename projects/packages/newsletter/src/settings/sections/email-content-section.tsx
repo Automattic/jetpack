@@ -1,18 +1,24 @@
 /**
  * External dependencies
  */
-import { Notice } from '@wordpress/components';
+import {
+	Card,
+	CardHeader,
+	CardBody,
+	Notice,
+	__experimentalHeading as Heading, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+} from '@wordpress/components';
 import { DataForm, type Field } from '@wordpress/dataviews/wp';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import { getNewsletterScriptData } from '../script-data';
 import type { NewsletterSettings } from '../types';
 
 interface EmailContentSectionProps {
 	data: NewsletterSettings;
 	onChange: ( updates: Partial< NewsletterSettings > ) => void;
-	isSitePublic: boolean;
 	isNewsletterEnabled: boolean;
 }
 
@@ -27,9 +33,9 @@ interface EmailContentSectionProps {
 export function EmailContentSection( {
 	data,
 	onChange,
-	isSitePublic,
 	isNewsletterEnabled,
 }: EmailContentSectionProps ): JSX.Element {
+	const isSitePublic = getNewsletterScriptData()?.isSitePublic ?? true;
 	const fields: Field< NewsletterSettings >[] = [
 		{
 			id: 'wpcom_featured_image_in_email',
@@ -60,33 +66,35 @@ export function EmailContentSection( {
 	];
 
 	return (
-		<div className="newsletter-settings__section">
-			<h3 className="newsletter-settings__section-title">
-				{ __( 'Email content', 'jetpack-newsletter' ) }
-			</h3>
-			<fieldset className="newsletter-settings__section-content" disabled={ ! isNewsletterEnabled }>
-				{ ! isSitePublic && (
-					<Notice status="warning" isDismissible={ false }>
-						{ __(
-							'Featured images will not be used in your emails while the site is private, because access to the images is restricted to your site only.',
-							'jetpack-newsletter'
-						) }
-					</Notice>
-				) }
+		<Card>
+			<CardHeader>
+				<Heading level={ 4 }>{ __( 'Email content', 'jetpack-newsletter' ) }</Heading>
+			</CardHeader>
+			<CardBody>
+				<fieldset disabled={ ! isNewsletterEnabled }>
+					{ ! isSitePublic && (
+						<Notice status="warning" isDismissible={ false }>
+							{ __(
+								'Featured images will not be used in your emails until the site is public, because access to the images is restricted to your site only.',
+								'jetpack-newsletter'
+							) }
+						</Notice>
+					) }
 
-				<DataForm
-					data={ data }
-					fields={ fields }
-					form={ {
-						layout: {
-							type: 'regular',
-							labelPosition: 'top',
-						},
-						fields: [ 'wpcom_featured_image_in_email', 'wpcom_subscription_emails_use_excerpt' ],
-					} }
-					onChange={ onChange }
-				/>
-			</fieldset>
-		</div>
+					<DataForm
+						data={ data }
+						fields={ fields }
+						form={ {
+							layout: {
+								type: 'regular',
+								labelPosition: 'top',
+							},
+							fields: [ 'wpcom_featured_image_in_email', 'wpcom_subscription_emails_use_excerpt' ],
+						} }
+						onChange={ onChange }
+					/>
+				</fieldset>
+			</CardBody>
+		</Card>
 	);
 }

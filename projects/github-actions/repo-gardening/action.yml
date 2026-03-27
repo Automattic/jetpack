@@ -40,6 +40,10 @@ inputs:
     description: "Slack channel ID where issues needing extra triage / escalation will be sent"
     required: false
     default: ""
+  slack_product_ambassadors_channel:
+    description: "Slack channel ID where messages about PRs needing docs review will be sent"
+    required: false
+    default: ""
   tasks:
     description: "Comma-separated selection of task names (function name, camelCase) this action should run. e.g. addLabels,cleanLabels"
     required: false
@@ -64,6 +68,18 @@ inputs:
     description: "OpenAI API key"
     required: false
     default: ""
+  linear_api_key:
+    description: 'Linear API key, used to create issues on Linear when needed.'
+    required: false
+    default: ''
+  linear_docs_team_id:
+    description: 'Linear Team ID for the team handling documentation-related issues.'
+    required: false
+    default: ''
+  slack_notify_on_customer_report:
+    description: 'Send a Slack notification when a "Customer Report" label is added to an issue. Default to true.'
+    required: false
+    default: 'true'
 runs:
   using: node24
   main: "dist/index.js"

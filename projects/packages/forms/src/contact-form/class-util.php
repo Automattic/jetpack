@@ -252,7 +252,7 @@ class Util {
 
 		$grunion_delete_limit = 100;
 
-		$now_gmt = current_time( 'mysql', 1 );
+		$now_gmt = current_time( 'mysql', true );
 		// Use the spam status changed date if available, otherwise fall back to post_date_gmt for backward compatibility
 		$sql      = $wpdb->prepare(
 			"
@@ -306,7 +306,7 @@ class Util {
 
 		$grunion_delete_limit = 100;
 
-		$now_gmt = current_time( 'mysql', 1 );
+		$now_gmt = current_time( 'mysql', true );
 		$sql     = $wpdb->prepare(
 			"
 			SELECT `ID`
@@ -468,5 +468,19 @@ class Util {
 				sanitize_file_name( get_bloginfo( 'name' ) ),
 				sanitize_file_name( html_entity_decode( $source, ENT_QUOTES | ENT_HTML5, 'UTF-8' ) )
 			);
+	}
+
+	/**
+	 * Ensures a field label ends with a colon, unless it ends with a question mark.
+	 *
+	 * @param string $label The field label.
+	 * @return string The formatted label.
+	 */
+	public static function maybe_add_colon_to_label( $label ) {
+		$formatted_label = $label ? $label : '';
+		// Special case for the Terms consent field block which a period after the label.
+		$formatted_label = str_ends_with( $formatted_label, '?' ) ? $formatted_label : rtrim( $formatted_label, ':.' ) . ':';
+
+		return $formatted_label;
 	}
 }

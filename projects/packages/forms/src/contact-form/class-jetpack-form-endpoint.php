@@ -21,10 +21,105 @@ class Jetpack_Form_Endpoint extends \WP_REST_Posts_Controller {
 	private $entries_count_by_form_id = null;
 
 	/**
+	 * Whether the current request filters by has_responses.
+	 *
+	 * @var bool
+	 */
+	public $has_responses_filter = true;
+
+	/**
 	 * Constructor.
 	 */
 	public function __construct() {
 		parent::__construct( Contact_Form::POST_TYPE );
+	}
+
+	/**
+	 * Registers the routes for the objects of the controller.
+	 */
+	public function register_routes() {
+		parent::register_routes();
+
+		// Register custom preview-url route.
+		register_rest_route(
+			$this->namespace,
+			'/' . $this->rest_base . '/(?P<id>[\d]+)/preview-url',
+			array(
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'get_preview_url' ),
+				'permission_callback' => array( $this, 'get_item_permissions_check' ),
+				'args'                => array(
+					'id' => array(
+						'description'       => __( 'Unique identifier for the form.', 'jetpack-forms' ),
+						'type'              => 'integer',
+						'required'          => true,
+						'sanitize_callback' => 'absint',
+					),
+				),
+			)
+		);
+
+		// Get form status counts.
+		register_rest_route(
+			$this->namespace,
+			'/' . $this->rest_base . '/status-counts',
+			array(
+				'methods'             => \WP_REST_Server::READABLE,
+				'permission_callback' => array( $this, 'get_items_permissions_check' ),
+				'callback'            => array( $this, 'get_status_counts' ),
+			)
+		);
+	}
+
+	/**
+	 * Retrieves per-status counts for the jetpack_form post type.
+	 *
+	 * Uses wp_count_posts() which returns all status counts in a single query.
+	 *
+	 * @return \WP_REST_Response Response object with status counts.
+	 */
+	public function get_status_counts() {
+		$counts = wp_count_posts( Contact_Form::POST_TYPE );
+
+		$publish = (int) ( $counts->publish ?? 0 );
+		$draft   = (int) ( $counts->draft ?? 0 );
+		$pending = (int) ( $counts->pending ?? 0 );
+		$future  = (int) ( $counts->future ?? 0 );
+		$private = (int) ( $counts->{'private'} ?? 0 );
+		$trash   = (int) ( $counts->trash ?? 0 );
+
+		return rest_ensure_response(
+			array(
+				'all'     => $publish + $draft + $pending + $future + $private,
+				'publish' => $publish,
+				'draft'   => $draft,
+				'pending' => $pending,
+				'future'  => $future,
+				'private' => $private,
+				'trash'   => $trash,
+			)
+		);
+	}
+
+	/**
+	 * Get the preview URL for a form.
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 * @return \WP_REST_Response|\WP_Error Response object or WP_Error.
+	 */
+	public function get_preview_url( $request ) {
+		$form_id     = $request->get_param( 'id' );
+		$preview_url = Form_Preview::generate_preview_url( $form_id );
+
+		if ( ! $preview_url ) {
+			return new \WP_Error(
+				'rest_cannot_preview',
+				__( 'Unable to generate preview URL.', 'jetpack-forms' ),
+				array( 'status' => 403 )
+			);
+		}
+
+		return rest_ensure_response( array( 'preview_url' => $preview_url ) );
 	}
 
 	/**
@@ -45,6 +140,14 @@ class Jetpack_Form_Endpoint extends \WP_REST_Posts_Controller {
 			'sanitize_callback' => 'sanitize_key',
 		);
 
+		$params['has_responses'] = array(
+			'description'       => __( 'Filter forms by whether they have responses. "true" returns only forms with responses, "false" returns only forms without.', 'jetpack-forms' ),
+			'type'              => 'string',
+			'enum'              => array( '', 'true', 'false' ),
+			'default'           => '',
+			'sanitize_callback' => 'sanitize_key',
+		);
+
 		return $params;
 	}
 
@@ -57,7 +160,17 @@ class Jetpack_Form_Endpoint extends \WP_REST_Posts_Controller {
 	 * @return \WP_REST_Response|\WP_Error
 	 */
 	public function get_items( $request ) {
+		$has_responses = (string) $request->get_param( 'has_responses' );
+		if ( '' !== $has_responses ) {
+			$this->has_responses_filter = ( 'true' === $has_responses );
+			add_filter( 'posts_clauses', array( $this, 'filter_by_responses' ), 10, 2 );
+		}
+
 		$response = parent::get_items( $request );
+
+		if ( '' !== $has_responses ) {
+			remove_filter( 'posts_clauses', array( $this, 'filter_by_responses' ), 10 );
+		}
 
 		if ( is_wp_error( $response ) ) {
 			return $response;
@@ -143,6 +256,40 @@ class Jetpack_Form_Endpoint extends \WP_REST_Posts_Controller {
 
 		wp_cache_set( $cache_key, $counts_by_form_id, $cache_group, 15 ); // 15 seconds.
 		return $counts_by_form_id;
+	}
+
+	/**
+	 * Filter posts_clauses to include/exclude forms that have feedback responses.
+	 *
+	 * @param array     $clauses SQL clauses.
+	 * @param \WP_Query $query   The current WP_Query instance.
+	 * @return array Modified clauses.
+	 */
+	public function filter_by_responses( $clauses, $query ) {
+		global $wpdb;
+
+		// Only modify the query for jetpack_form post type.
+		if ( $query->get( 'post_type' ) !== $this->post_type ) {
+			return $clauses;
+		}
+
+		$feedback_type = Feedback::POST_TYPE;
+		$operator      = $this->has_responses_filter ? 'EXISTS' : 'NOT EXISTS';
+
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$subquery = $wpdb->prepare(
+			"SELECT 1 FROM {$wpdb->posts} AS feedback
+			WHERE feedback.post_parent = {$wpdb->posts}.ID
+			AND feedback.post_type = %s
+			AND feedback.post_status IN (%s, %s)",
+			$feedback_type,
+			'publish',
+			'draft'
+		);
+
+		$clauses['where'] .= " AND $operator ($subquery)";
+
+		return $clauses;
 	}
 
 	/**

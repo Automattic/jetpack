@@ -17,13 +17,6 @@ require_once __DIR__ . '/class-admin-menu.php';
  */
 class WPcom_Admin_Menu extends Admin_Menu {
 	/**
-	 * Holds the current plan, set by get_current_plan().
-	 *
-	 * @var array
-	 */
-	private $current_plan = array();
-
-	/**
 	 * WPcom_Admin_Menu constructor.
 	 */
 	protected function __construct() {
@@ -31,8 +24,7 @@ class WPcom_Admin_Menu extends Admin_Menu {
 
 		add_action( 'wp_ajax_sidebar_state', array( $this, 'ajax_sidebar_state' ) );
 		add_action( 'wp_ajax_jitm_dismiss', array( $this, 'wp_ajax_jitm_dismiss' ) );
-		add_action( 'wp_ajax_upsell_nudge_jitm', array( $this, 'wp_ajax_upsell_nudge_jitm' ) );
-		add_action( 'admin_enqueue_scripts', array( $this, 'wpcom_upsell_nudge_jitm_fix' ) );
+		add_action( 'adminmenu', array( $this, 'render_upsell_nudge' ), 100 );
 		add_action( 'admin_init', array( $this, 'sync_sidebar_collapsed_state' ) );
 		add_action( 'admin_menu', array( $this, 'remove_submenus' ), 140 ); // After hookpress hook at 130.
 	}
@@ -161,48 +153,6 @@ class WPcom_Admin_Menu extends Admin_Menu {
 				'feature_class'                => $message->feature_class,
 				'id'                           => $message->id,
 			);
-		}
-	}
-
-	/**
-	 * Gets the current plan and stores it in $this->current_plan so the database is only called once per request.
-	 *
-	 * @return array
-	 */
-	private function get_current_plan() {
-		if ( empty( $this->current_plan ) && class_exists( 'WPCOM_Store_API' ) ) {
-			$this->current_plan = \WPCOM_Store_API::get_current_plan( get_current_blog_id() );
-		}
-		return $this->current_plan;
-	}
-
-	/**
-	 * Adds Upgrades menu.
-	 *
-	 * @param string $plan The current WPCOM plan of the blog.
-	 */
-	public function add_upgrades_menu( $plan = null ) {
-		$current_plan = $this->get_current_plan();
-		if ( ! empty( $current_plan['product_name_short'] ) ) {
-			$plan = $current_plan['product_name_short'];
-		}
-
-		parent::add_upgrades_menu( $plan );
-
-		$last_upgrade_submenu_position = $this->get_submenu_item_count( 'paid-upgrades.php' );
-
-		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-		add_submenu_page( 'paid-upgrades.php', __( 'Domains', 'jetpack-masterbar' ), __( 'Domains', 'jetpack-masterbar' ), 'manage_options', 'https://wordpress.com/domains/manage/' . $this->domain, null, $last_upgrade_submenu_position - 1 );
-
-		/** This filter is already documented in modules/masterbar/admin-menu/class-atomic-admin-menu.php */
-		if ( apply_filters( 'jetpack_show_wpcom_upgrades_email_menu', false ) ) {
-			// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-			add_submenu_page( 'paid-upgrades.php', __( 'Emails', 'jetpack-masterbar' ), __( 'Emails', 'jetpack-masterbar' ), 'manage_options', 'https://wordpress.com/email/' . $this->domain, null, $last_upgrade_submenu_position );
-		}
-
-		if ( defined( 'WPCOM_ENABLE_ADD_ONS_MENU_ITEM' ) && WPCOM_ENABLE_ADD_ONS_MENU_ITEM ) {
-			// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-			add_submenu_page( 'paid-upgrades.php', __( 'Add-Ons', 'jetpack-masterbar' ), __( 'Add-Ons', 'jetpack-masterbar' ), 'manage_options', 'https://wordpress.com/add-ons/' . $this->domain, null, 1 );
 		}
 	}
 
@@ -350,11 +300,6 @@ class WPcom_Admin_Menu extends Admin_Menu {
 		/* @see https://github.com/Automattic/wp-calypso/issues/49210 */
 		remove_submenu_page( 'index.php', 'my-blogs' );
 		$_registered_pages['admin_page_my-blogs'] = true; // phpcs:ignore
-
-		remove_submenu_page( 'paid-upgrades.php', 'premium-themes' );
-		remove_submenu_page( 'paid-upgrades.php', 'domains' );
-		remove_submenu_page( 'paid-upgrades.php', 'my-upgrades' );
-		remove_submenu_page( 'paid-upgrades.php', 'billing-history' );
 
 		remove_submenu_page( 'themes.php', 'customize.php?autofocus[panel]=amp_panel&return=' . rawurlencode( admin_url() ) );
 

@@ -4,11 +4,9 @@
 
 import { createRequire } from 'module';
 import path from 'path';
-import { fileURLToPath } from 'url';
 import jetpackWebpackConfig from '@automattic/jetpack-webpack-config/webpack';
 
-const __filename = fileURLToPath( import.meta.url );
-const __dirname = path.dirname( __filename );
+const __dirname = import.meta.dirname;
 const require = createRequire( import.meta.url );
 
 /**
@@ -34,6 +32,7 @@ export default {
 	mode: jetpackWebpackConfig.mode,
 	entry: {
 		newsletter: path.join( __dirname, 'src/settings/index.tsx' ),
+		'reader-link': path.join( __dirname, 'src/reader-link/style.scss' ),
 	},
 	output: {
 		...jetpackWebpackConfig.output,
@@ -61,17 +60,6 @@ export default {
 			// Transpile JavaScript and TypeScript
 			jetpackWebpackConfig.TranspileRule( {
 				exclude: /node_modules\//,
-				babelOpts: {
-					configFile: false,
-					plugins: [
-						[
-							require.resolve( '@automattic/babel-plugin-replace-textdomain' ),
-							{
-								textdomain: 'jetpack-newsletter',
-							},
-						],
-					],
-				},
 			} ),
 
 			// Transpile @automattic/* in node_modules too.
@@ -81,6 +69,11 @@ export default {
 
 			/**
 			 * Transpile `@wordpress/dataviews` in node_modules too.
+			 *
+			 * Uses configFile: false to avoid inheriting babel.config.js, and
+			 * manually applies textdomain replacement with i18n function variants
+			 * to handle the aliased function names (e.g. __1, _x2) in the
+			 * dataviews build-wp bundle.
 			 *
 			 * @see https://github.com/Automattic/jetpack/issues/39907
 			 */

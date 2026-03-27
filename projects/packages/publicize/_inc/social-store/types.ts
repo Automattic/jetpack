@@ -1,4 +1,5 @@
-import { AttachedMedia, MediaSourceValue } from '../utils';
+import { ConnectionService } from '../types';
+import { AttachedMedia, MediaSourceValue, SHARING_ACTIVITY_TABS } from '../utils';
 
 export type ConnectionStatus = 'ok' | 'broken' | 'must_reauth';
 
@@ -21,7 +22,7 @@ export type Connection = Partial< EditorConnection > & {
 	profile_link: string;
 	profile_picture: string;
 	service_label: string;
-	service_name: string;
+	service_name: ConnectionService[ 'id' ];
 	shared: boolean;
 	status: ConnectionStatus;
 	wpcom_user_id: number;
@@ -81,10 +82,20 @@ export type ScheduledShares = {
 	isScheduling?: boolean;
 };
 
+export type UnifiedModalData = {
+	sharingActivity?: {
+		initialTab?: ( typeof SHARING_ACTIVITY_TABS )[ keyof typeof SHARING_ACTIVITY_TABS ];
+	};
+	socialPreview?: {
+		initialTab?: string;
+	};
+};
+
 export type UnifiedModalState = {
 	isOpen?: boolean;
 	initialPath?: string;
 	isScreenLocked?: boolean;
+	data?: UnifiedModalData;
 };
 
 export type RenderCount = { [ Key in 'social-preview' | 'edit-template' ]?: number };

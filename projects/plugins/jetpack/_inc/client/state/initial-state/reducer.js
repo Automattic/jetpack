@@ -538,6 +538,17 @@ export function showBackups( state ) {
 }
 
 /**
+ * Check if scan UI should be displayed.
+ *
+ * @param {object} state - Global state tree
+ *
+ * @return {boolean} True if scan UI should be displayed.
+ */
+export function showScan( state ) {
+	return state.jetpack.initialState.siteData?.showScan ?? true;
+}
+
+/**
  * Determines if the Jetpack Recommendations should be displayed
  *
  * @param {object} state - Global state tree
@@ -848,6 +859,16 @@ export function isWpAdminSubscriberManagementEnabled( state ) {
 }
 
 /**
+ * Returns true if the wp-admin Newsletter settings page is enabled.
+ *
+ * @param {object} state - Global state tree.
+ * @return {boolean} True if the Newsletter settings page is enabled.
+ */
+export function isWpAdminNewsletterSettingsEnabled( state ) {
+	return !! state.jetpack.initialState.isWpAdminNewsletterSettingsEnabled;
+}
+
+/**
  * Check if the Sharing block is available on the site.
  *
  * @param {object} state - Global state tree.
@@ -855,6 +876,16 @@ export function isWpAdminSubscriberManagementEnabled( state ) {
  */
 export function isSharingBlockAvailable( state ) {
 	return !! state.jetpack.initialState.siteData.isSharingBlockAvailable;
+}
+
+/**
+ * Check if the Like block is available on the site.
+ *
+ * @param {object} state - Global state tree.
+ * @return {boolean} True if the Like block is available on the site.
+ */
+export function isLikeBlockAvailable( state ) {
+	return !! state.jetpack.initialState.siteData.isLikeBlockAvailable;
 }
 
 /**

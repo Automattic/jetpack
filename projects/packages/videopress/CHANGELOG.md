@@ -5,6 +5,72 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.35.6] - 2026-03-23
+### Changed
+- Update package dependencies. [#47684] [#47719]
+
+### Fixed
+- Auto-complete upload when user hasn't edited title or poster, and self-heal failed oEmbed cache. [#47356]
+
+## [0.35.5] - 2026-03-16
+### Changed
+- Update dependencies. [#47472]
+
+## [0.35.4] - 2026-03-09
+### Changed
+- Clean up REST API endpoint schemas to use proper JSON Schema types and constraints. [#47017]
+- Migrate main admin page header to use unified AdminHeader component from jetpack-components. [#47313]
+- Switch to Native TypeScript compiler based on Go. [#47375]
+- Update package dependencies. [#47496] [#47499]
+
+### Fixed
+- Refresh VideoPress video thumbnails in the Media Library grid automatically after transcoding completes. [#47358]
+
+## [0.35.3] - 2026-03-02
+### Changed
+- Update dependencies. [#46758]
+
+## [0.35.2] - 2026-02-26
+### Changed
+- Update package dependencies. [#47285] [#47288] [#47300] [#47309]
+- Use `apiFetch` in GutenbergKit for token authentication middleware support. [#45254]
+
+## [0.35.1] - 2026-02-23
+### Changed
+- Update package dependencies. [#47165] [#47173]
+
+### Fixed
+- Pass current user ID when deleting VideoPress videos on wpcom to fix activity log attribution. [#47204]
+- Video block: Only intercept video file uploads when the VideoPress module is active. [#46894]
+
+## [0.35.0] - 2026-02-16
+### Added
+- Tracks: Accept SRT subtitle files for upload alongside VTT. [#46978]
+
+### Changed
+- Update package dependencies. [#47099]
+
+## [0.34.1] - 2026-02-10
+### Changed
+- Update package dependencies. [#47002]
+
+## [0.34.0] - 2026-02-04
+### Added
+- Add email rendering support for the videopress/video block. [#46798]
+
+### Changed
+- Update package dependencies. [#46905]
+
+### Fixed
+- Clarify error messages when video uploads fail due to plan limitations. [#46668]
+- Fix compatibility with Gutenberg 22.4 by removing invalid null timezone argument from dateI18n calls. [#46928]
+- Fix upgrade notice incorrectly showing for A4A (Automattic for Agencies) VideoPress customers by using dynamic features API instead of hardcoded plan slugs. [#46835]
+- Fix video query to only return VideoPress videos instead of all video types. [#46689]
+
+## [0.33.4] - 2026-02-02
+### Changed
+- Update package dependencies. [#46854]
+
 ## [0.33.3] - 2026-01-26
 ### Changed
 - Update dependencies. [#46741]
@@ -1818,6 +1884,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created empty package [#24952]
 
+[0.35.6]: https://github.com/Automattic/jetpack-videopress/compare/v0.35.5...v0.35.6
+[0.35.5]: https://github.com/Automattic/jetpack-videopress/compare/v0.35.4...v0.35.5
+[0.35.4]: https://github.com/Automattic/jetpack-videopress/compare/v0.35.3...v0.35.4
+[0.35.3]: https://github.com/Automattic/jetpack-videopress/compare/v0.35.2...v0.35.3
+[0.35.2]: https://github.com/Automattic/jetpack-videopress/compare/v0.35.1...v0.35.2
+[0.35.1]: https://github.com/Automattic/jetpack-videopress/compare/v0.35.0...v0.35.1
+[0.35.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.34.1...v0.35.0
+[0.34.1]: https://github.com/Automattic/jetpack-videopress/compare/v0.34.0...v0.34.1
+[0.34.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.33.4...v0.34.0
+[0.33.4]: https://github.com/Automattic/jetpack-videopress/compare/v0.33.3...v0.33.4
 [0.33.3]: https://github.com/Automattic/jetpack-videopress/compare/v0.33.2...v0.33.3
 [0.33.2]: https://github.com/Automattic/jetpack-videopress/compare/v0.33.1...v0.33.2
 [0.33.1]: https://github.com/Automattic/jetpack-videopress/compare/v0.33.0...v0.33.1

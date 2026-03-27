@@ -17,7 +17,7 @@ test.afterEach( async ( { requestUtils } ) => {
 	// https://developer.wordpress.org/rest-api/reference/posts/#delete-a-post
 	// "/wp/v2/feedback" does not yet support batch requests.
 	await Promise.all(
-		feedbackSubmissions.map( feedback =>
+		feedbackSubmissions.map( ( feedback: { id: number } ) =>
 			requestUtils.rest( {
 				method: 'DELETE',
 				path: `/wp/v2/feedback/${ feedback.id }`,
@@ -48,6 +48,7 @@ function isFormSubmissionResponse( response: Response ) {
 test.describe( 'Forms: Submission', () => {
 	test( 'Submits a simple contact form', async ( { admin, editor } ) => {
 		const formTitle = 'E2E Test Form';
+
 		await test.step( 'Visit the block editor and insert a form', async () => {
 			await admin.createNewPost();
 			await editor.insertBlock( {
@@ -153,7 +154,7 @@ test.describe( 'Forms: Submission', () => {
 			// Get the form ID from the wrapping element, this will allow us to check the contents
 			// of the exact form that was submitted after submission.
 			const formId = await previewPage
-				.locator( '.wp-block-jetpack-contact-form-container' )
+				.locator( '.jetpack-contact-form-container' )
 				.filter( { has: formToSubmit } )
 				.getAttribute( 'id' );
 			await formToSubmit.getByRole( 'textbox', { name: 'Name' } ).fill( 'John Doe' );
