@@ -41,16 +41,11 @@ function registerRoomLimitFilter(): void {
 		20
 	);
 
-	// Disable Gutenberg's built-in connection limit check only when our branded
-	// replacement modal is active. Otherwise, Gutenberg's native "Too many editors
-	// connected" modal should be allowed to show.
-	if ( enableLimitNotices ) {
-		addFilter(
-			'sync.pollingProvider.maxClientsPerRoom',
-			'wpcom/rtc-disable-builtin-limit',
-			() => Number.MAX_SAFE_INTEGER
-		);
-	}
+	addFilter(
+		'sync.pollingProvider.maxClientsPerRoom',
+		'wpcom/rtc-disable-builtin-limit',
+		() => Number.MAX_SAFE_INTEGER
+	);
 }
 
 // Room-limit enforcement always runs (it stops polling, sends join requests).
