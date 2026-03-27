@@ -7,6 +7,10 @@
 
 namespace Automattic\Jetpack\Extensions\BlockNotes;
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Status\Host;
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
 }
@@ -22,14 +26,51 @@ const HEADLESS_AGENT_PROVIDER = 'block-notes/headless-agent-provider';
 /**
  * Check if Block Notes is enabled.
  *
- * Returns true if either the unified chat experience or the
- * jetpack_block_notes_enabled filter is active.
+ * Enabled when the Big Sky plugin is active, or when Jetpack AI
+ * features are not disabled.
  *
  * @return bool
  */
 function is_block_notes_enabled() {
-	return apply_filters( 'agents_manager_use_unified_experience', false )
-		|| apply_filters( 'jetpack_block_notes_enabled', false );
+	if ( is_big_sky_enabled() ) {
+		return true;
+	}
+
+	if ( ! has_jetpack_ai_features() ) {
+		return false;
+	}
+
+	return true;
+}
+
+/**
+ * Check if the Big Sky plugin is active and enabled.
+ *
+ * @return bool
+ */
+function is_big_sky_enabled() {
+	return class_exists( 'Big_Sky' ) && get_option( 'big_sky_enable', '1' );
+}
+
+/**
+ * Check whether AI features are available.
+ *
+ * - wpcom simple: always available.
+ * - Otherwise requires a connected owner with AI not disabled
+ *   (same conditions the AI Assistant plugin uses to register).
+ *
+ * @return bool
+ */
+function has_jetpack_ai_features() {
+	$host = new Host();
+
+	if ( $host->is_wpcom_simple() ) {
+		return true;
+	}
+
+	return ( new Connection_Manager( 'jetpack' ) )->has_connected_owner()
+		&& ! ( new Status() )->is_offline_mode()
+		&& apply_filters( 'jetpack_ai_enabled', true );
 }
 
 /**
@@ -212,7 +253,7 @@ add_action( 'enqueue_block_editor_assets', __NAMESPACE__ . '\enqueue_block_notes
 
 /**
  * Enable the agents manager unified experience on self-hosted sites
- * when jetpack_block_notes_enabled is true.
+ * when Block Notes is enabled.
  *
  * This ensures the agents manager loads and can host the headless agent
  * even when the unified chat experience is not otherwise enabled.
@@ -225,7 +266,7 @@ function enable_agents_manager_for_block_notes( $use_unified_experience ) {
 		return true;
 	}
 
-	return (bool) apply_filters( 'jetpack_block_notes_enabled', false );
+	return is_block_notes_enabled();
 }
 add_filter( 'agents_manager_use_unified_experience', __NAMESPACE__ . '\enable_agents_manager_for_block_notes' );
 
