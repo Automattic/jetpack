@@ -23,17 +23,34 @@ function wpcom_has_features_edge_sticker() {
 }
 
 /**
- * Determine whether RTC should be enabled for Atomic sites.
+ * Determine if the site is part of the HTTP-polling gradual rollout.
  *
  * @return bool
  */
-function wpcom_should_enforce_http_polling() {
+function wpcom_is_rtc_http_polling_rollout() {
 	$blog_id = get_wpcom_blog_id();
 
 	if (
 		defined( 'IS_ATOMIC' ) && IS_ATOMIC &&
 		( $blog_id % 100 < 50 ) &&
 		! wpcom_has_features_edge_sticker() // Sites with the sticker should use WS.
+	) {
+		return true;
+	}
+	return false;
+}
+
+/**
+ * Determine if the site is part of the HTTP-polling gradual rollout.
+ *
+ * @return bool
+ */
+function wpcom_is_rtc_websocket_rollout() {
+	$blog_id = get_wpcom_blog_id();
+
+	if (
+		defined( 'IS_WPCOM' ) && IS_WPCOM &&
+		( $blog_id % 100 < 1 )
 	) {
 		return true;
 	}
@@ -78,7 +95,7 @@ function wpcom_enable_rtc() {
 		return false;
 	}
 
-	if ( wpcom_should_enforce_http_polling() ) {
+	if ( wpcom_is_rtc_http_polling_rollout() || wpcom_is_rtc_websocket_rollout() ) {
 		return true;
 	}
 
@@ -98,7 +115,7 @@ add_filter( 'jetpack_rtc_enabled', 'wpcom_enable_rtc' );
  * @return array Modified array of RTC providers, enforcing 'http-polling' if necessary.
  */
 function wpcom_rtc_providers( $providers ) {
-	if ( wpcom_should_enforce_http_polling() ) {
+	if ( wpcom_is_rtc_http_polling_rollout() ) {
 		return array( 'http-polling' );
 	}
 	return $providers;
