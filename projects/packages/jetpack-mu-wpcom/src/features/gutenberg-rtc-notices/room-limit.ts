@@ -95,6 +95,7 @@ export function withRoomLimit(
 		const { awareness } = options;
 		const innerProvider = await creator( options );
 		let destroyed = false;
+		const statusListeners: Array< ( status: unknown ) => void > = [];
 
 		/** Trigger a global teardown for all wrapped providers in this window. */
 		function destroyAll(): void {
@@ -120,6 +121,20 @@ export function withRoomLimit(
 				fn();
 			}
 			teardowns.length = 0;
+		}
+
+		/**
+		 * Called by destroyAll: emits the connection-limit-exceeded status so
+		 * Gutenberg shows the "Too many editors connected" modal, then tears down.
+		 */
+		function destroyWithLimitError(): void {
+			for ( const listener of statusListeners ) {
+				listener( {
+					status: 'disconnected',
+					error: { code: 'connection-limit-exceeded' },
+				} );
+			}
+			destroy();
 		}
 
 		/** Tear down this single provider and detach the awareness listener. */
@@ -153,7 +168,7 @@ export function withRoomLimit(
 			}
 		}
 
-		teardowns.push( destroy );
+		teardowns.push( destroyWithLimitError );
 
 		if ( awareness ) {
 			awareness.on( 'change', onAwarenessChange );
@@ -162,13 +177,18 @@ export function withRoomLimit(
 
 		return {
 			destroy: () => {
-				const idx = teardowns.indexOf( destroy );
+				const idx = teardowns.indexOf( destroyWithLimitError );
 				if ( idx >= 0 ) {
 					teardowns.splice( idx, 1 );
 				}
 				destroy();
 			},
-			on: innerProvider.on.bind( innerProvider ),
+			on: ( event: string, callback: ( ...args: unknown[] ) => void ) => {
+				if ( event === 'status' ) {
+					statusListeners.push( callback );
+				}
+				innerProvider.on( event, callback );
+			},
 		};
 	};
 }
