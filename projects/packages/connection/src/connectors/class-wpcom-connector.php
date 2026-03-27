@@ -41,7 +41,7 @@ class Wpcom_Connector {
 		}
 		static::$initialized = true;
 
-		add_action( 'wp_connectors_init', array( static::class, 'register_connector' ) );
+		add_action( 'wp_connectors_init', array( static::class, 'register_connector' ), 20 );
 		add_action( 'admin_enqueue_scripts', array( static::class, 'enqueue_script_module' ) );
 	}
 
