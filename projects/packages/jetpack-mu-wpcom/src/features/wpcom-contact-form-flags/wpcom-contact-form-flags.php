@@ -32,9 +32,7 @@ function wpcom_has_central_forms_management_sticker( $blog_id ) {
 /**
  * Check if Central Forms Management is enabled for a given blog.
  *
- * Enabled when the blog falls within the percentage-based rollout
- * (blog_id % 100 < 50, i.e. 50%) or has the 'central-forms-management'
- * blog sticker.
+ * Enabled for all WordPress.com sites except e2e test sites.
  *
  * @param int|null $blog_id Blog ID. Defaults to the current WP.com blog ID.
  * @return bool
@@ -49,12 +47,7 @@ function wpcom_is_central_forms_management_enabled( $blog_id = null ) {
 		return false;
 	}
 
-	// Percentage-based rollout: 50% of sites.
-	if ( ( $blog_id % 100 ) < 50 ) {
-		return true;
-	}
-
-	return wpcom_has_central_forms_management_sticker( $blog_id );
+	return true;
 }
 
 /**
