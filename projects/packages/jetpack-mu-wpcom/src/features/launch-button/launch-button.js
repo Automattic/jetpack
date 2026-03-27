@@ -1,5 +1,5 @@
 import { useExperimentWithAuth } from '@automattic/jetpack-explat';
-import { getSiteData, isSimpleSite } from '@automattic/jetpack-script-data';
+import { getSiteData } from '@automattic/jetpack-script-data';
 import apiFetch from '@wordpress/api-fetch';
 import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
@@ -72,7 +72,7 @@ export function LaunchButton( { onCelebrationModalClose } ) {
 		wpcomTrackEvent( 'wpcom_adminbar_launch_site' );
 
 		try {
-			if ( canAccessWpcomApis() && isSimpleSite() ) {
+			if ( canAccessWpcomApis() ) {
 				await wpcomRequest( {
 					path: `/sites/${ siteData.wpcom.blog_id }/launch`,
 					apiVersion: '1.1',

@@ -60,10 +60,15 @@ class WPCOM_REST_API_V2_Endpoint_Jetpack_Launch_Site extends WP_REST_Controller 
 		$blog_id  = \Jetpack_Options::get_option( 'id' );
 		$response = Client::wpcom_json_api_request_as_user(
 			'/sites/' . rawurlencode( $blog_id ) . '/launch',
-			'1.1',
-			array( 'method' => 'POST' ),
+			'v2',
+			array(
+				'method'  => 'POST',
+				'headers' => array(
+					'content-type' => 'application/json',
+				),
+			),
 			null,
-			'rest'
+			'wpcom'
 		);
 
 		if ( is_wp_error( $response ) ) {
