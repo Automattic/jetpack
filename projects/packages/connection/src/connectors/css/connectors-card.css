@@ -32,7 +32,8 @@
 }
 
 .wpcom-connector__status-badge {
-	padding: 4px 12px;
+	padding-block: 4px;
+	padding-inline: 12px;
 	border-radius: 2px;
 	font-size: 13px;
 	font-weight: 500;
@@ -73,8 +74,7 @@
 	margin: 0;
 }
 
-.wpcom-connector__details-link:active,
-.wpcom-connector__details-link:focus {
+.wpcom-connector__details-link:focus:not(:focus-visible) {
 	box-shadow: none;
 	outline: none;
 }
@@ -92,7 +92,7 @@
 	min-inline-size: 0;
 }
 
-.wpcom-connector__unlink-user {
+.wpcom-connector__inline-action {
 	margin-inline-start: auto;
 	white-space: nowrap;
 }
@@ -100,5 +100,5 @@
 .wpcom-connector__error {
 	color: #cc1818;
 	font-size: 13px;
-	margin: 8px 0 0;
+	margin-block-start: 8px;
 }

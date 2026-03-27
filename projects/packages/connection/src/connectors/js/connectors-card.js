@@ -244,12 +244,11 @@ function ConnectedPluginsSection() {
  * Expanded content shown when the user clicks "Details".
  *
  * @param {object}   props              - Component props.
- * @param {Function} props.onDisconnect - Callback after successful disconnect.
  * @param {boolean}  props.isConnecting - Whether a user connection is in progress.
  * @param {Function} props.onConnect    - Callback to start user authorization flow.
  * @return {object} React element.
  */
-function ExpandedDetails( { onDisconnect, isConnecting = false, onConnect = null } ) {
+function ExpandedDetails( { isConnecting = false, onConnect = null } ) {
 	const [ isDisconnecting, setIsDisconnecting ] = useState( false );
 	const [ isUnlinking, setIsUnlinking ] = useState( false );
 	const [ showDetailsModal, setShowDetailsModal ] = useState( false );
@@ -270,7 +269,7 @@ function ExpandedDetails( { onDisconnect, isConnecting = false, onConnect = null
 			} );
 
 			if ( response.ok ) {
-				onDisconnect();
+				window.location.reload();
 			}
 		} finally {
 			setIsDisconnecting( false );
@@ -345,7 +344,7 @@ function ExpandedDetails( { onDisconnect, isConnecting = false, onConnect = null
 					isBusy: isUnlinking,
 					disabled: isUnlinking || isDisconnecting,
 					onClick: handleUnlinkUser,
-					className: 'wpcom-connector__unlink-user',
+					className: 'wpcom-connector__inline-action',
 				},
 				__( 'Disconnect user account', 'jetpack-connection' )
 		  )
@@ -376,7 +375,7 @@ function ExpandedDetails( { onDisconnect, isConnecting = false, onConnect = null
 							onClick: onConnect,
 							isBusy: isConnecting,
 							disabled: isConnecting || isDisconnecting,
-							className: 'wpcom-connector__unlink-user',
+							className: 'wpcom-connector__inline-action',
 						},
 						isConnecting
 							? __( 'Connecting…', 'jetpack-connection' )
@@ -529,16 +528,10 @@ function ExpandedDetails( { onDisconnect, isConnecting = false, onConnect = null
  */
 function WpcomConnectorCard( { name, description, logo } ) {
 	const [ isExpanded, setIsExpanded ] = useState( false );
-	const [ isConnected, setIsConnected ] = useState( initialIsConnected );
-	const [ isSiteRegistered, setIsSiteRegistered ] = useState( initialIsRegistered );
+	const isConnected = initialIsConnected;
+	const isSiteRegistered = initialIsRegistered;
 	const [ isConnecting, setIsConnecting ] = useState( false );
 	const [ connectError, setConnectError ] = useState( null );
-
-	const handleDisconnect = () => {
-		setIsConnected( false );
-		setIsSiteRegistered( false );
-		setIsExpanded( false );
-	};
 
 	const handleConnect = async () => {
 		setIsConnecting( true );
@@ -579,7 +572,7 @@ function WpcomConnectorCard( { name, description, logo } ) {
 			expandedContent = createElement(
 				'div',
 				{ className: 'wpcom-connector__expanded' },
-				createElement( ExpandedDetails, { onDisconnect: handleDisconnect } )
+				createElement( ExpandedDetails )
 			);
 		}
 	} else if ( isSiteRegistered ) {
@@ -608,7 +601,6 @@ function WpcomConnectorCard( { name, description, logo } ) {
 				'div',
 				{ className: 'wpcom-connector__expanded' },
 				createElement( ExpandedDetails, {
-					onDisconnect: handleDisconnect,
 					isConnecting,
 					onConnect: handleConnect,
 				} )

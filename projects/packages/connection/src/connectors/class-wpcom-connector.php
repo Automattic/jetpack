@@ -87,11 +87,12 @@ class Wpcom_Connector {
 			return;
 		}
 
+		$css_path = __DIR__ . '/css/connectors-card.css';
 		wp_enqueue_style(
 			'wpcom-connector-card',
 			plugins_url( 'css/connectors-card.css', __FILE__ ),
 			array(),
-			'1.0.0'
+			(string) @filemtime( $css_path ) // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- fallback to empty string if file is missing.
 		);
 
 		wp_register_script_module(
@@ -121,16 +122,15 @@ class Wpcom_Connector {
 	 * @return array Filtered script module data.
 	 */
 	public static function get_connector_data( $data ) {
-		$manager      = new Manager();
-		$is_connected = $manager->is_connected() && $manager->has_connected_owner();
+		$manager       = new Manager();
+		$is_registered = $manager->is_connected();
+		$is_connected  = $is_registered && $manager->has_connected_owner();
 
 		$data['isConnected']  = $is_connected;
-		$data['isRegistered'] = $manager->is_connected();
+		$data['isRegistered'] = $is_registered;
 		$data['apiRoot']      = esc_url_raw( rest_url() );
 		$data['apiNonce']     = wp_create_nonce( 'wp_rest' );
 		$data['redirectUri']  = static::get_connectors_page_path();
-
-		$is_registered = $manager->is_connected();
 
 		if ( $is_registered ) {
 			$data['connectedPlugins'] = static::get_connected_plugins_data( $manager );
