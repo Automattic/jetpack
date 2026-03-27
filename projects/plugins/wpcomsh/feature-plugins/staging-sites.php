@@ -66,3 +66,66 @@ function wpcomsh_disable_incoming_pings_in_non_production_envs( $methods ) {
 	return $methods;
 }
 add_filter( 'xmlrpc_methods', 'wpcomsh_disable_incoming_pings_in_non_production_envs' );
+
+/**
+ * Forces the default_pingback_flag option to '0' on staging sites so the
+ * Discussion Settings UI reflects that outgoing pingbacks are disabled.
+ *
+ * @return string '0' on staging sites, allowing normal behavior otherwise.
+ */
+function wpcomsh_force_pingback_flag_off_on_staging() {
+	if ( 'staging' === wp_get_environment_type() ) {
+		return '0';
+	}
+
+	return false;
+}
+add_filter( 'pre_option_default_pingback_flag', 'wpcomsh_force_pingback_flag_off_on_staging' );
+
+/**
+ * Forces the default_ping_status option to 'closed' on staging sites so the
+ * Discussion Settings UI reflects that incoming pingbacks are disabled.
+ *
+ * @return string 'closed' on staging sites, allowing normal behavior otherwise.
+ */
+function wpcomsh_force_ping_status_closed_on_staging() {
+	if ( 'staging' === wp_get_environment_type() ) {
+		return 'closed';
+	}
+
+	return false;
+}
+add_filter( 'pre_option_default_ping_status', 'wpcomsh_force_ping_status_closed_on_staging' );
+
+/**
+ * Disables pingback checkboxes and adds an explanation on the Discussion
+ * Settings page for staging sites.
+ */
+function wpcomsh_disable_pingback_ui_on_staging() {
+	if ( 'staging' !== wp_get_environment_type() ) {
+		return;
+	}
+
+	$screen = get_current_screen();
+	if ( ! $screen || 'options-discussion' !== $screen->id ) {
+		return;
+	}
+
+	?>
+	<script>
+	( function() {
+		var ids = [ 'default_pingback_flag', 'default_ping_status' ];
+		ids.forEach( function( id ) {
+			var checkbox = document.getElementById( id );
+			if ( checkbox ) {
+				checkbox.disabled = true;
+				var note = document.createElement( 'em' );
+				note.textContent = ' — Pingbacks are disabled on staging sites to prevent unintended outbound requests.';
+				checkbox.parentNode.appendChild( note );
+			}
+		} );
+	} )();
+	</script>
+	<?php
+}
+add_action( 'admin_print_footer_scripts', 'wpcomsh_disable_pingback_ui_on_staging' );
