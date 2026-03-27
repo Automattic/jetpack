@@ -87,6 +87,11 @@
 	justify-content: space-between;
 }
 
+.wpcom-connector__connect-prompt-text {
+	flex: 1;
+	min-inline-size: 0;
+}
+
 .wpcom-connector__unlink-user {
 	margin-inline-start: auto;
 	white-space: nowrap;

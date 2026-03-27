@@ -245,9 +245,11 @@ function ConnectedPluginsSection() {
  *
  * @param {object}   props              - Component props.
  * @param {Function} props.onDisconnect - Callback after successful disconnect.
+ * @param {boolean}  props.isConnecting - Whether a user connection is in progress.
+ * @param {Function} props.onConnect    - Callback to start user authorization flow.
  * @return {object} React element.
  */
-function ExpandedDetails( { onDisconnect } ) {
+function ExpandedDetails( { onDisconnect, isConnecting = false, onConnect = null } ) {
 	const [ isDisconnecting, setIsDisconnecting ] = useState( false );
 	const [ isUnlinking, setIsUnlinking ] = useState( false );
 	const [ showDetailsModal, setShowDetailsModal ] = useState( false );
@@ -349,20 +351,57 @@ function ExpandedDetails( { onDisconnect } ) {
 		  )
 		: null;
 
+	const connectPrompt =
+		! currentUser && onConnect
+			? createElement(
+					HStack,
+					{ spacing: 3, className: 'wpcom-connector__section' },
+					createElement(
+						'div',
+						{ className: 'wpcom-connector__connect-prompt-text' },
+						createElement(
+							Text,
+							{ size: 13 },
+							__(
+								'Your site is registered with WordPress.com. Connect your user account to unlock full functionality.',
+								'jetpack-connection'
+							)
+						)
+					),
+					createElement(
+						Button,
+						{
+							variant: 'secondary',
+							size: 'small',
+							onClick: onConnect,
+							isBusy: isConnecting,
+							disabled: isConnecting || isDisconnecting,
+							className: 'wpcom-connector__unlink-user',
+						},
+						isConnecting
+							? __( 'Connecting…', 'jetpack-connection' )
+							: __( 'Connect account', 'jetpack-connection' )
+					)
+			  )
+			: null;
+
 	return createElement(
 		VStack,
 		{ spacing: 5 },
-		createElement( UserSection, {
-			title: currentUserTitle,
-			user: currentUser,
-			actionSlot: unlinkAction,
-		} ),
-		! currentUser?.isOwner
+		currentUser
+			? createElement( UserSection, {
+					title: currentUserTitle,
+					user: currentUser,
+					actionSlot: unlinkAction,
+			  } )
+			: null,
+		currentUser && ! currentUser?.isOwner
 			? createElement( UserSection, {
 					title: __( 'Connection owner', 'jetpack-connection' ),
 					user: connectionOwner,
 			  } )
 			: null,
+		connectPrompt,
 		createElement( ConnectedPluginsSection ),
 		createElement( 'hr', { className: 'wpcom-connector__divider' } ),
 		createElement(
@@ -568,31 +607,11 @@ function WpcomConnectorCard( { name, description, logo } ) {
 			expandedContent = createElement(
 				'div',
 				{ className: 'wpcom-connector__expanded' },
-				createElement(
-					VStack,
-					{ spacing: 4 },
-					createElement(
-						Text,
-						{ size: 13 },
-						__(
-							'Your site is registered with WordPress.com. Connect your user account to unlock full functionality.',
-							'jetpack-connection'
-						)
-					),
-					createElement(
-						Button,
-						{
-							variant: 'primary',
-							size: 'compact',
-							onClick: handleConnect,
-							isBusy: isConnecting,
-							disabled: isConnecting,
-						},
-						isConnecting
-							? __( 'Connecting…', 'jetpack-connection' )
-							: __( 'Connect your WordPress.com account', 'jetpack-connection' )
-					)
-				)
+				createElement( ExpandedDetails, {
+					onDisconnect: handleDisconnect,
+					isConnecting,
+					onConnect: handleConnect,
+				} )
 			);
 		}
 	} else {

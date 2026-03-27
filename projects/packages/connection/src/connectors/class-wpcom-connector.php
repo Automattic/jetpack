@@ -130,15 +130,20 @@ class Wpcom_Connector {
 		$data['apiNonce']     = wp_create_nonce( 'wp_rest' );
 		$data['redirectUri']  = static::get_connectors_page_path();
 
-		if ( $is_connected ) {
-			$data['currentUser']      = static::get_current_user_data( $manager );
-			$data['connectionOwner']  = static::get_connection_owner_data( $manager );
+		$is_registered = $manager->is_connected();
+
+		if ( $is_registered ) {
 			$data['connectedPlugins'] = static::get_connected_plugins_data( $manager );
 			$data['siteDetails']      = array(
 				'blogId'  => (int) \Jetpack_Options::get_option( 'id' ),
 				'siteUrl' => site_url(),
 				'homeUrl' => home_url(),
 			);
+		}
+
+		if ( $is_connected ) {
+			$data['currentUser']     = static::get_current_user_data( $manager );
+			$data['connectionOwner'] = static::get_connection_owner_data( $manager );
 		}
 
 		return $data;
