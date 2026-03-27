@@ -31,8 +31,6 @@ import { STORE_ID } from 'store';
 
 import './styles.scss';
 
-const JETPACK_SEARCH__LINK = 'https://jetpack.com/upgrade/search';
-
 /**
  * defines UpsellPage.
  *
@@ -110,7 +108,6 @@ export default function UpsellPage( { isLoading = false } ) {
 							</Button>
 						)
 					}
-					moduleNameHref={ JETPACK_SEARCH__LINK }
 					useInternalLinks={ shouldUseInternalLinks() }
 				>
 					<AdminSectionHero>

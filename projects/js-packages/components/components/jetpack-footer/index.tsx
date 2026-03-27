@@ -33,9 +33,7 @@ const ExternalIcon: FC = () => (
  * @return {ReactNode} JetpackFooter component.
  */
 const JetpackFooter: FC< JetpackFooterProps > = ( {
-	moduleName = 'Jetpack' /** "Jetpack" is a product name, do not translate. */,
 	className,
-	moduleNameHref = 'https://jetpack.com',
 	menu,
 	useInternalLinks,
 	onAboutClick,
@@ -81,13 +79,6 @@ const JetpackFooter: FC< JetpackFooterProps > = ( {
 		items = [ ...items, ...menu ];
 	}
 
-	const jetpackItemContent = (
-		<>
-			<JetpackIcon />
-			{ moduleName }
-		</>
-	);
-
 	return (
 		<footer
 			className={ clsx(
@@ -105,11 +96,8 @@ const JetpackFooter: FC< JetpackFooterProps > = ( {
 		>
 			<ul>
 				<li className="jp-dashboard-footer__jp-item">
-					{ moduleNameHref ? (
-						<a href={ moduleNameHref }>{ jetpackItemContent }</a>
-					) : (
-						jetpackItemContent
-					) }
+					<JetpackIcon />
+					{ 'Jetpack' /* "Jetpack" is a product name, do not translate. */ }
 				</li>
 				{ items.map( item => {
 					const isButton = item.role === 'button';

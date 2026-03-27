@@ -19,10 +19,7 @@ const Admin = () => {
 	const showConnectionCard = ! isRegistered || ! isUserConnected;
 
 	return (
-		<AdminPage
-			moduleName={ __( 'Jetpack Starter Plugin', 'jetpack-starter-plugin' ) }
-			useInternalLinks={ shouldUseInternalLinks() }
-		>
+		<AdminPage useInternalLinks={ shouldUseInternalLinks() }>
 			<AdminSectionHero>
 				{ showConnectionCard ? (
 					<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>

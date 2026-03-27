@@ -5,8 +5,6 @@ import JetpackFooter from '../index.tsx';
 
 describe( 'JetpackFooter', () => {
 	const className = 'sample-classname';
-	const moduleName = 'Test module';
-	const moduleNameHref = 'https://jetpack.com/path/to-some-page';
 
 	describe( 'Render the component', () => {
 		const menu = [
@@ -50,20 +48,10 @@ describe( 'JetpackFooter', () => {
 			expect( element ).toBeInTheDocument();
 		} );
 
-		it( 'should render the module name as a link', () => {
-			render( <JetpackFooter moduleName={ moduleName } moduleNameHref={ moduleNameHref } /> );
+		it( 'should render Jetpack as regular text', () => {
+			render( <JetpackFooter /> );
 
-			const element = screen.getByText( moduleName );
-
-			expect( element ).toBeInTheDocument();
-			expect( element ).toBeInstanceOf( HTMLAnchorElement );
-			expect( element ).toHaveAttribute( 'href', moduleNameHref );
-		} );
-
-		it( 'should render the module name as regular text', () => {
-			render( <JetpackFooter moduleName={ moduleName } moduleNameHref={ null } /> );
-
-			const element = screen.getByText( moduleName );
+			const element = screen.getByText( 'Jetpack' );
 
 			expect( element ).toBeInTheDocument();
 			expect( element ).not.toBeInstanceOf( HTMLAnchorElement );
@@ -107,14 +95,7 @@ describe( 'JetpackFooter', () => {
 		} );
 
 		it( 'should match the snapshot', () => {
-			const { container } = render(
-				<JetpackFooter
-					className={ className }
-					moduleName={ moduleName }
-					moduleNameHref={ moduleNameHref }
-					menu={ menu }
-				/>
-			);
+			const { container } = render( <JetpackFooter className={ className } menu={ menu } /> );
 			expect( container ).toMatchSnapshot( 'all props' );
 		} );
 	} );

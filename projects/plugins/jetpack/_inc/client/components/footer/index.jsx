@@ -145,7 +145,6 @@ export class Footer extends Component {
 					<div className="jp-footer__container">
 						<JetpackFooter
 							menu={ menu }
-							moduleNameHref={ getRedirectUrl( 'jetpack' ) }
 							onAboutClick={ this.trackAboutClick }
 							onPrivacyClick={ this.trackPrivacyClick }
 							onTermsClick={ this.trackTermsClick }

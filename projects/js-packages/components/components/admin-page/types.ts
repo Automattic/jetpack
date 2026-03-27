@@ -8,11 +8,6 @@ export type AdminPageProps = {
 	children: ReactNode;
 
 	/**
-	 * Name of the module, e.g. 'Jetpack Search' that will be displayed in the footer.
-	 */
-	moduleName?: string;
-
-	/**
 	 * Whether or not to display the Header
 	 */
 	showHeader?: boolean;
@@ -63,11 +58,6 @@ export type AdminPageProps = {
 	 * Whether or not to link to Jetpack plugin admin pages.
 	 */
 	useInternalLinks?: boolean;
-
-	/**
-	 * Link that the Footer Module name will link to (optional).
-	 */
-	moduleNameHref?: string;
 
 	/**
 	 * Whether or not to display the Background Color

@@ -26,8 +26,6 @@ import type { FC, ReactNode } from 'react';
 const AdminPage: FC< AdminPageProps > = ( {
 	children,
 	className,
-	moduleName = 'Jetpack' /** "Jetpack" is a product name, do not translate. */,
-	moduleNameHref,
 	showHeader = true,
 	showFooter = true,
 	useInternalLinks = false,
@@ -85,12 +83,7 @@ const AdminPage: FC< AdminPageProps > = ( {
 	const footer = showFooter && (
 		<Container className={ styles[ 'admin-page-footer' ] } horizontalSpacing={ 5 }>
 			<Col>
-				<JetpackFooter
-					moduleName={ moduleName }
-					moduleNameHref={ moduleNameHref }
-					menu={ optionalMenuItems }
-					useInternalLinks={ useInternalLinks }
-				/>
+				<JetpackFooter menu={ optionalMenuItems } useInternalLinks={ useInternalLinks } />
 			</Col>
 		</Container>
 	);

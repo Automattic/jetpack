@@ -16,10 +16,7 @@ const Admin = () => {
 	const { isUserConnected, isRegistered } = connectionStatus;
 	const showConnectionCard = ! isRegistered || ! isUserConnected;
 	return (
-		<AdminPage
-			moduleName={ __( 'Jetpack Classic Theme Helper Plugin', 'classic-theme-helper-plugin' ) }
-			useInternalLinks={ shouldUseInternalLinks() }
-		>
+		<AdminPage useInternalLinks={ shouldUseInternalLinks() }>
 			<AdminSectionHero>
 				{ showConnectionCard ? (
 					<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>

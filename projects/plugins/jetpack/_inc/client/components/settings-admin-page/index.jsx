@@ -128,7 +128,6 @@ const SettingsAdminPage = props => {
 				showBackground={ true }
 				tabs={ tabs }
 				optionalMenuItems={ footerMenuItems }
-				moduleNameHref={ getRedirectUrl( 'jetpack' ) }
 				useInternalLinks={ !! siteConnectionStatus }
 				actions={ isWoASite() && <HeaderNav location={ location } /> }
 			>

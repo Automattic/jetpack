@@ -60,18 +60,13 @@ export const SocialAdminPage = () => {
 		};
 	}, [] );
 
-	const { social, jetpack } = getSocialScriptData().plugin_info;
-
-	const moduleName = social.version
-		? `Jetpack Social ${ social.version }`
-		: `Jetpack ${ jetpack.version }`;
+	const { social } = getSocialScriptData().plugin_info;
 
 	const canManageOptions = currentUserCan( 'manage_options' );
 
 	if ( showConnectionCard ) {
 		return (
 			<AdminPage
-				moduleName={ moduleName }
 				title={ 'Social' /** "Social" is a product name, do not translate. */ }
 				subTitle={ __( 'Publish once. Share everywhere.', 'jetpack-publicize-pkg' ) }
 				showBackground={ false }
@@ -96,7 +91,6 @@ export const SocialAdminPage = () => {
 
 	return (
 		<AdminPage
-			moduleName={ moduleName }
 			title={ 'Social' /** "Social" is a product name, do not translate. */ }
 			subTitle={ subTitle }
 			actions={ licenseAction }
