@@ -24,7 +24,6 @@ export default defineConfig( {
 				],
 				test: {
 					name: 'storybook',
-					testTimeout: 30000, // Apparently there's no way to do a per-story timeout, have to set it globally.
 					browser: {
 						enabled: true,
 						headless: true,
