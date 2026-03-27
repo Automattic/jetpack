@@ -10,7 +10,6 @@ import {
 	Notice,
 	useBreakpointMatch,
 } from '@automattic/jetpack-components';
-import { shouldUseInternalLinks } from '@automattic/jetpack-shared-extension-utils';
 import { __, _x } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useContext, useEffect, useLayoutEffect, useRef, useState } from 'react';
@@ -182,7 +181,6 @@ export default function MyJetpackScreen() {
 			apiNonce={ apiNonce }
 			title="Jetpack"
 			optionalMenuItems={ isDevVersion && userIsAdmin ? [ resetOptionsMenuItem ] : [] }
-			useInternalLinks={ shouldUseInternalLinks() }
 			className={ styles[ 'my-jetpack-screen' ] }
 			showBottomBorder={ false }
 		>

@@ -105,16 +105,7 @@ function buildFooterMenuItems( props ) {
 }
 
 const SettingsAdminPage = props => {
-	const {
-		apiRoot,
-		apiNonce,
-		isDevVersion,
-		displayDevCard,
-		siteConnectionStatus,
-		location,
-		tabs,
-		children,
-	} = props;
+	const { apiRoot, apiNonce, isDevVersion, displayDevCard, location, tabs, children } = props;
 
 	const footerMenuItems = buildFooterMenuItems( props );
 
@@ -128,7 +119,6 @@ const SettingsAdminPage = props => {
 				showBackground={ true }
 				tabs={ tabs }
 				optionalMenuItems={ footerMenuItems }
-				useInternalLinks={ !! siteConnectionStatus }
 				actions={ isWoASite() && <HeaderNav location={ location } /> }
 			>
 				{ children }

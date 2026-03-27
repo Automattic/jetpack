@@ -7,7 +7,6 @@ import {
 	getProductCheckoutUrl,
 } from '@automattic/jetpack-components';
 import { useConnectionErrorNotice, ConnectionError } from '@automattic/jetpack-connection';
-import { shouldUseInternalLinks } from '@automattic/jetpack-shared-extension-utils';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import NoticesList from 'components/global-notices';
@@ -265,10 +264,7 @@ const Footer = () => {
 	return (
 		<div className="jp-search-dashboard-footer jp-search-dashboard-wrap">
 			<div className="jp-search-dashboard-row">
-				<JetpackFooter
-					className="lg-col-span-12 md-col-span-8 sm-col-span-4"
-					useInternalLinks={ shouldUseInternalLinks() }
-				/>
+				<JetpackFooter className="lg-col-span-12 md-col-span-8 sm-col-span-4" />
 			</div>
 		</div>
 	);

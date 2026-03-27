@@ -55,11 +55,6 @@ export type AdminPageProps = {
 	showFooter?: boolean;
 
 	/**
-	 * Whether or not to link to Jetpack plugin admin pages.
-	 */
-	useInternalLinks?: boolean;
-
-	/**
 	 * Whether or not to display the Background Color
 	 */
 	showBackground?: boolean;

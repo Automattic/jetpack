@@ -18,7 +18,6 @@ import {
 	siteHasFeature,
 	currentUserCan,
 } from '@automattic/jetpack-script-data';
-import { shouldUseInternalLinks } from '@automattic/jetpack-shared-extension-utils';
 import { Button } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { useState, useCallback } from '@wordpress/element';
@@ -70,7 +69,6 @@ export const SocialAdminPage = () => {
 				title={ 'Social' /** "Social" is a product name, do not translate. */ }
 				subTitle={ __( 'Publish once. Share everywhere.', 'jetpack-publicize-pkg' ) }
 				showBackground={ false }
-				useInternalLinks={ shouldUseInternalLinks() }
 			>
 				<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
 					<Col>
@@ -95,7 +93,6 @@ export const SocialAdminPage = () => {
 			subTitle={ subTitle }
 			actions={ licenseAction }
 			showFooter={ isJetpackSite }
-			useInternalLinks={ shouldUseInternalLinks() }
 		>
 			<GlobalNotices />
 			{ isJetpackSite && ! hasSocialPaidFeatures() && showPricingPage && ! pricingPageDismissed ? (

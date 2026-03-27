@@ -7,7 +7,6 @@ import {
 } from '@automattic/jetpack-components';
 import { ConnectScreenRequiredPlan } from '@automattic/jetpack-connection';
 import { getScriptData } from '@automattic/jetpack-script-data';
-import { shouldUseInternalLinks } from '@automattic/jetpack-shared-extension-utils';
 import { __ } from '@wordpress/i18n';
 import styles from './styles.module.scss';
 
@@ -16,7 +15,7 @@ const Admin = () => {
 	const { isUserConnected, isRegistered } = connectionStatus;
 	const showConnectionCard = ! isRegistered || ! isUserConnected;
 	return (
-		<AdminPage useInternalLinks={ shouldUseInternalLinks() }>
+		<AdminPage>
 			<AdminSectionHero>
 				{ showConnectionCard ? (
 					<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>

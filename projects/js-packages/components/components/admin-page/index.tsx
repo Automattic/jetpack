@@ -28,7 +28,6 @@ const AdminPage: FC< AdminPageProps > = ( {
 	className,
 	showHeader = true,
 	showFooter = true,
-	useInternalLinks = false,
 	showBackground = true,
 	sandboxedDomain = '',
 	apiRoot = '',
@@ -83,7 +82,7 @@ const AdminPage: FC< AdminPageProps > = ( {
 	const footer = showFooter && (
 		<Container className={ styles[ 'admin-page-footer' ] } horizontalSpacing={ 5 }>
 			<Col>
-				<JetpackFooter menu={ optionalMenuItems } useInternalLinks={ useInternalLinks } />
+				<JetpackFooter menu={ optionalMenuItems } />
 			</Col>
 		</Container>
 	);

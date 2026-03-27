@@ -1,5 +1,5 @@
 import { isWpcomPlatformSite } from '@automattic/jetpack-script-data';
-import { __, _x } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import { Icon, external } from '@wordpress/icons';
 import clsx from 'clsx';
 import { getRedirectUrl } from '../../index.ts';
@@ -33,38 +33,14 @@ const ExternalIcon: FC = () => (
  * @param {JetpackFooterProps} props - Component properties.
  * @return {ReactNode} JetpackFooter component.
  */
-const JetpackFooter: FC< JetpackFooterProps > = ( {
-	className,
-	menu,
-	useInternalLinks,
-	onPrivacyClick,
-	onTermsClick,
-	...otherProps
-} ) => {
+const JetpackFooter: FC< JetpackFooterProps > = ( { className, menu, ...otherProps } ) => {
 	const [ isSm ] = useBreakpointMatch( 'sm', '<=' );
 	const [ isMd ] = useBreakpointMatch( 'md', '<=' );
 	const [ isLg ] = useBreakpointMatch( 'lg', '>' );
 
 	const siteAdminUrl = getSiteAdminUrl();
 
-	let items: JetpackFooterMenuItem[] = [
-		{
-			label: _x( 'Privacy', 'Shorthand for Privacy Policy.', 'jetpack-components' ),
-			title: __( "Automattic's Privacy Policy", 'jetpack-components' ),
-			href: useInternalLinks
-				? new URL( 'admin.php?page=jetpack#/privacy', siteAdminUrl ).href
-				: getRedirectUrl( 'a8c-privacy' ),
-			target: useInternalLinks ? '_self' : '_blank',
-			onClick: onPrivacyClick,
-		},
-		{
-			label: _x( 'Terms', 'Shorthand for Terms of Service.', 'jetpack-components' ),
-			title: __( 'WordPress.com Terms of Service', 'jetpack-components' ),
-			href: getRedirectUrl( 'wpcom-tos' ),
-			target: '_blank',
-			onClick: onTermsClick,
-		},
-	];
+	let items: JetpackFooterMenuItem[] = [];
 
 	if ( isWpcomPlatformSite() ) {
 		items = [

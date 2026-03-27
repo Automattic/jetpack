@@ -16,7 +16,6 @@ import {
 	ThemeProvider,
 } from '@automattic/jetpack-components';
 import { ConnectionError, useConnectionErrorNotice } from '@automattic/jetpack-connection';
-import { shouldUseInternalLinks } from '@automattic/jetpack-shared-extension-utils';
 import { formatNumberCompact } from '@automattic/number-formatters';
 import { Button } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
@@ -108,7 +107,6 @@ export default function UpsellPage( { isLoading = false } ) {
 							</Button>
 						)
 					}
-					useInternalLinks={ shouldUseInternalLinks() }
 				>
 					<AdminSectionHero>
 						{ isNewPricing ? (

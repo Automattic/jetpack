@@ -15,14 +15,6 @@ import {
 } from 'state/initial-state';
 import onKeyDownCallback from 'utils/onkeydown-callback';
 
-const smoothScroll = () => {
-	const jpContentY = document.getElementById( 'jp-navigation' ).offsetTop;
-	window.scrollTo( 0, window.scrollY - jpContentY / 1.5 );
-	if ( window.scrollY > jpContentY ) {
-		window.requestAnimationFrame( smoothScroll );
-	}
-};
-
 export class Footer extends Component {
 	static displayName = 'Footer';
 
@@ -37,21 +29,6 @@ export class Footer extends Component {
 		analytics.tracks.recordJetpackClick( {
 			target: 'footer_link',
 			link: 'version',
-		} );
-	};
-
-	trackTermsClick = () => {
-		analytics.tracks.recordJetpackClick( {
-			target: 'footer_link',
-			link: 'terms',
-		} );
-	};
-
-	trackPrivacyClick = () => {
-		window.requestAnimationFrame( smoothScroll );
-		analytics.tracks.recordJetpackClick( {
-			target: 'footer_link',
-			link: 'privacy',
 		} );
 	};
 
@@ -136,12 +113,7 @@ export class Footer extends Component {
 			<ThemeProvider>
 				<div className={ clsx( 'jp-footer', classes ) }>
 					<div className="jp-footer__container">
-						<JetpackFooter
-							menu={ menu }
-							onPrivacyClick={ this.trackPrivacyClick }
-							onTermsClick={ this.trackTermsClick }
-							useInternalLinks={ this.props.siteConnectionStatus }
-						/>
+						<JetpackFooter menu={ menu } />
 					</div>
 					{ this.props.isDevVersion && this.props.displayDevCard && <DevCard /> }
 				</div>

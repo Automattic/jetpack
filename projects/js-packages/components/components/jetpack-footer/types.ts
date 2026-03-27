@@ -20,22 +20,7 @@ export type JetpackFooterProps = {
 	menu?: JetpackFooterMenuItem[];
 
 	/**
-	 * Whether to enable Jetpack admin links.
-	 */
-	useInternalLinks?: boolean;
-
-	/**
 	 * URL of the site WP Admin.
 	 */
 	siteAdminUrl?: string;
-
-	/**
-	 * Function called when the Privacy link is clicked.
-	 */
-	onPrivacyClick?: () => void;
-
-	/**
-	 * Function called when the Terms link is clicked.
-	 */
-	onTermsClick?: () => void;
 };

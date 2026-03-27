@@ -72,7 +72,7 @@ describe( 'JetpackFooter', () => {
 
 			expect( element ).toBeInTheDocument();
 			// eslint-disable-next-line testing-library/no-node-access
-			expect( element.children ).toHaveLength( 2 + 2 + menu.length ); // 2 logos, 2 generic links
+			expect( element.children ).toHaveLength( 2 + menu.length ); // 2 logos
 		} );
 
 		it( 'should render the links', () => {
