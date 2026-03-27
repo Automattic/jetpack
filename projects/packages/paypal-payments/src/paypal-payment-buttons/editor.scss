@@ -419,7 +419,10 @@
 // appearance. Uses WordPress default dark style as a representative
 // preview since the editor doesn't have access to frontend theme styles.
 .jetpack-paypal-button-preview__checkout-button {
-	display: block;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 6px;
 	width: 100%;
 	padding: 14px 24px;
 	background: #1e1e1e;
@@ -431,6 +434,12 @@
 	font-size: 15px;
 	font-weight: 600;
 	color: #fff;
+
+	.jetpack-paypal-button__logo {
+		height: 18px;
+		width: auto;
+		flex-shrink: 0;
+	}
 }
 
 // Payment link reference

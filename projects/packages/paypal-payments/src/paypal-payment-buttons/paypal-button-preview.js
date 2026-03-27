@@ -18,6 +18,7 @@
 import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { CURRENCY_SYMBOLS } from './currency-symbols';
+import PayPalLogo from './paypal-logo';
 
 /**
  * Format a price with currency symbol.
@@ -78,7 +79,6 @@ function CopyablePaymentLink( { paymentLink } ) {
  * appearance on the frontend. Clicking is disabled in the editor.
  *
  * @param {object}  props                    - Component props.
- * @param {string}  props.buttonText         - Text displayed on the button.
  * @param {string}  props.productName        - Product name to display.
  * @param {string}  props.price              - Price value string.
  * @param {string}  props.currencyCode       - ISO currency code.
@@ -90,7 +90,6 @@ function CopyablePaymentLink( { paymentLink } ) {
  * @return {Element} Button preview element.
  */
 export default function PayPalButtonPreview( {
-	buttonText,
 	productName,
 	price,
 	currencyCode = 'USD',
@@ -137,10 +136,11 @@ export default function PayPalButtonPreview( {
 				</div>
 			) }
 
-			{ /* Checkout button preview — theme-native style, no PayPal branding */ }
+			{ /* Checkout button preview — theme-native style with PayPal wordmark */ }
 			<div className="jetpack-paypal-button-preview__buttons">
 				<div className="jetpack-paypal-button-preview__checkout-button" aria-hidden="true">
-					{ buttonText || __( 'Buy Now', 'jetpack-paypal-payments' ) }
+					<span>{ __( 'Buy Now With', 'jetpack-paypal-payments' ) }</span>
+					<PayPalLogo />
 				</div>
 			</div>
 

@@ -50,7 +50,7 @@
 		},
 		"buttonText": {
 			"type": "string",
-			"default": "Buy Now"
+			"default": "Buy Now With PayPal"
 		},
 		"buttonType": {
 			"type": "string",

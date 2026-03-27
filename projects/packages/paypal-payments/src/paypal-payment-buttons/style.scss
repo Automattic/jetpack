@@ -96,11 +96,20 @@ $paypal-blue: #0070ba;
 // button blends with the rest of the site. We only add minimal
 // overrides for layout and text-decoration.
 .jetpack-paypal-button__checkout-link {
-	display: block;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 6px;
 	width: 100%;
 	text-align: center;
 	text-decoration: none;
 	cursor: pointer;
+
+	.jetpack-paypal-button__logo {
+		height: 18px;
+		width: auto;
+		flex-shrink: 0;
+	}
 }
 
 // ---------------------------------------------------------------

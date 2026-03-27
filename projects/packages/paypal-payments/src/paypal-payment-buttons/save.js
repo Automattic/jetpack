@@ -16,6 +16,7 @@
 import { useBlockProps } from '@wordpress/block-editor';
 import { __ } from '@wordpress/i18n';
 import { CURRENCY_SYMBOLS } from './currency-symbols';
+import PayPalLogo from './paypal-logo';
 
 /**
  * Save component for the PayPal Payment Buttons block.
@@ -30,7 +31,6 @@ export default function PayPalPaymentButtonsSave( { attributes } ) {
 		buttonType,
 		scriptSrc,
 		hostedButtonId,
-		buttonText,
 		paymentLink,
 		productName,
 		price,
@@ -70,10 +70,9 @@ export default function PayPalPaymentButtonsSave( { attributes } ) {
 						) }
 					</div>
 
-					{ /* Checkout button — theme-native styling via wp-element-button.
-					 * No PayPal branding here; the hosted payment page handles
-					 * payment method selection (PayPal, cards, wallets, etc.).
-					 * Screen-reader span announces new-tab behaviour per WCAG 2.1 SC 3.2.2.
+					{ /* Checkout button — theme-native styling via wp-element-button
+					 * with the PayPal wordmark inline. Screen-reader span announces
+					 * new-tab behaviour per WCAG 2.1 SC 3.2.2.
 					 */ }
 					<div className="jetpack-paypal-button__buttons">
 						<a
@@ -82,9 +81,12 @@ export default function PayPalPaymentButtonsSave( { attributes } ) {
 							target="_blank"
 							rel="noopener noreferrer"
 						>
-							{ buttonText || __( 'Buy Now', 'jetpack-paypal-payments' ) }
+							<span className="jetpack-paypal-button__button-text">
+								{ __( 'Buy Now With', 'jetpack-paypal-payments' ) }
+							</span>
+							<PayPalLogo />
 							<span className="screen-reader-text">
-								{ __( '(opens in a new tab)', 'jetpack-paypal-payments' ) }
+								{ __( 'PayPal (opens in a new tab)', 'jetpack-paypal-payments' ) }
 							</span>
 						</a>
 					</div>

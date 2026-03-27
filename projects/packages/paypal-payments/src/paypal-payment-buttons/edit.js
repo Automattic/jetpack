@@ -1055,7 +1055,6 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 					) }
 
 					<PayPalButtonPreview
-						buttonText={ buttonText }
 						productName={ productName }
 						price={ price }
 						currencyCode={ currencyCode }
