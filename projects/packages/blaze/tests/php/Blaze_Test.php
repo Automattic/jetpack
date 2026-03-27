@@ -711,4 +711,98 @@ class Blaze_Test extends BaseTestCase {
 			),
 		);
 	}
+
+	/**
+	 * Test that the jetpack_blaze_menu_slug filter changes the registered menu slug.
+	 */
+	public function test_menu_slug_filter() {
+		global $submenu;
+
+		wp_set_current_user( $this->admin_id );
+		add_filter( 'jetpack_blaze_enabled', '__return_true' );
+		add_filter( 'jetpack_blaze_menu_slug', fn() => 'wp-blaze' );
+
+		Blaze::enable_blaze_menu();
+
+		$parent_slug   = Blaze::get_menu_parent();
+		$found_submenu = false;
+		if ( isset( $submenu[ $parent_slug ] ) ) {
+			foreach ( $submenu[ $parent_slug ] as $item ) {
+				if ( 'wp-blaze' === $item[2] ) {
+					$found_submenu = true;
+					break;
+				}
+			}
+		}
+		$this->assertTrue( $found_submenu, 'Expected a submenu entry with slug wp-blaze when filter is applied.' );
+
+		// Verify the default slug is not registered.
+		$found_default = false;
+		if ( isset( $submenu[ $parent_slug ] ) ) {
+			foreach ( $submenu[ $parent_slug ] as $item ) {
+				if ( 'advertising' === $item[2] ) {
+					$found_default = true;
+					break;
+				}
+			}
+		}
+		$this->assertFalse( $found_default, 'Default slug "advertising" should not be registered when filter overrides it.' );
+
+		remove_all_filters( 'jetpack_blaze_menu_slug' );
+		add_filter( 'jetpack_blaze_enabled', '__return_false' );
+	}
+
+	/**
+	 * Test that the jetpack_blaze_menu_label filter changes the menu label.
+	 */
+	public function test_menu_label_filter() {
+		global $submenu;
+
+		wp_set_current_user( $this->admin_id );
+		add_filter( 'jetpack_blaze_enabled', '__return_true' );
+		add_filter( 'jetpack_blaze_menu_label', fn() => 'Custom Ads' );
+
+		Blaze::enable_blaze_menu();
+
+		$parent_slug = Blaze::get_menu_parent();
+		$found_label = null;
+		if ( isset( $submenu[ $parent_slug ] ) ) {
+			foreach ( $submenu[ $parent_slug ] as $item ) {
+				if ( 'advertising' === $item[2] ) {
+					$found_label = $item[0];
+					break;
+				}
+			}
+		}
+
+		$this->assertSame( 'Custom Ads', $found_label );
+
+		remove_all_filters( 'jetpack_blaze_menu_label' );
+		add_filter( 'jetpack_blaze_enabled', '__return_false' );
+	}
+
+	/**
+	 * Test that get_campaign_management_url() uses the filtered slug.
+	 */
+	public function test_campaign_management_url_uses_filtered_slug() {
+		add_filter( 'jetpack_blaze_menu_slug', fn() => 'wp-blaze' );
+
+		$url_data = Blaze::get_campaign_management_url( 42 );
+		$this->assertStringContainsString( 'admin.php?page=wp-blaze', $url_data['link'] );
+		$this->assertStringNotContainsString( 'page=advertising', $url_data['link'] );
+
+		remove_all_filters( 'jetpack_blaze_menu_slug' );
+	}
+
+	/**
+	 * Test that the jetpack_blaze_menu_parent filter can override the parent slug.
+	 */
+	public function test_menu_parent_filter() {
+		add_filter( 'jetpack_blaze_menu_parent', fn() => 'custom-parent' );
+
+		$parent = Blaze::get_menu_parent();
+		$this->assertSame( 'custom-parent', $parent );
+
+		remove_all_filters( 'jetpack_blaze_menu_parent' );
+	}
 }
