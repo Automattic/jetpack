@@ -74,7 +74,7 @@
 	margin: 0;
 }
 
-.wpcom-connector__details-link:focus:not(:focus-visible) {
+.wpcom-connector__details-link:focus:not(:active) {
 	box-shadow: none;
 	outline: none;
 }

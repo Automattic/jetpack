@@ -122,6 +122,8 @@ function addSkipPricing( url ) {
 	}
 }
 
+/* ── Small presentational components ────────────────────────────── */
+
 /**
  * Status badge with a BEM modifier for different connection states.
  *
@@ -141,13 +143,18 @@ function StatusBadge( { label, modifier = 'connected' } ) {
  * @param {object}      props            - Component props.
  * @param {string}      props.title      - Section heading (uppercase label).
  * @param {object|null} props.user       - User data object with displayName, login, avatar.
+ * @param {string|null} props.subtitle   - Override for the default login/email line.
  * @param {object|null} props.actionSlot - Optional element rendered at the end of the user row.
  * @return {object|null} React element or null.
  */
-function UserSection( { title, user, actionSlot = null } ) {
+function UserSection( { title, user, subtitle = null, actionSlot = null } ) {
 	if ( ! user ) {
 		return null;
 	}
+
+	const defaultSubtitle = user.email
+		? '@' + user.login + ' (' + user.email + ')'
+		: '@' + user.login;
 
 	return createElement(
 		VStack,
@@ -181,11 +188,7 @@ function UserSection( { title, user, actionSlot = null } ) {
 					VStack,
 					{ spacing: 0 },
 					createElement( Text, { weight: 600, size: 13 }, user.displayName ),
-					createElement(
-						Text,
-						{ variant: 'muted', size: 12 },
-						user.email ? '@' + user.login + ' (' + user.email + ')' : '@' + user.login
-					)
+					createElement( Text, { variant: 'muted', size: 12 }, subtitle || defaultSubtitle )
 				)
 			),
 			actionSlot
@@ -239,6 +242,126 @@ function ConnectedPluginsSection() {
 		)
 	);
 }
+
+/**
+ * Prompt shown to admins whose user account is not yet linked.
+ *
+ * @param {object}   props                 - Component props.
+ * @param {Function} props.onConnect       - Callback to start the authorization flow.
+ * @param {boolean}  props.isConnecting    - Whether a connection attempt is in progress.
+ * @param {boolean}  props.isDisconnecting - Whether a disconnect is in progress (disables button).
+ * @return {object} React element.
+ */
+function ConnectPrompt( { onConnect, isConnecting, isDisconnecting } ) {
+	return createElement(
+		HStack,
+		{ spacing: 3, className: 'wpcom-connector__section' },
+		createElement(
+			'div',
+			{ className: 'wpcom-connector__connect-prompt-text' },
+			createElement(
+				Text,
+				{ size: 13 },
+				__(
+					'Your site is registered with WordPress.com. Connect your user account to unlock full functionality.',
+					'jetpack-connection'
+				)
+			)
+		),
+		createElement(
+			Button,
+			{
+				variant: 'secondary',
+				size: 'small',
+				onClick: onConnect,
+				isBusy: isConnecting,
+				disabled: isConnecting || isDisconnecting,
+				className: 'wpcom-connector__inline-action',
+			},
+			isConnecting
+				? __( 'Connecting…', 'jetpack-connection' )
+				: __( 'Connect account', 'jetpack-connection' )
+		)
+	);
+}
+
+/* ── Modal components ───────────────────────────────────────────── */
+
+/**
+ * Destructive confirmation dialog (disconnect site or unlink owner).
+ *
+ * @param {object}   props           - Component props.
+ * @param {string}   props.title     - Modal heading.
+ * @param {string}   props.message   - Body text explaining consequences.
+ * @param {Function} props.onConfirm - Called when the user confirms.
+ * @param {Function} props.onCancel  - Called when the user cancels or closes.
+ * @return {object} React element.
+ */
+function ConfirmationModal( { title, message, onConfirm, onCancel } ) {
+	return createElement(
+		Modal,
+		{ title, onRequestClose: onCancel, size: 'small' },
+		createElement(
+			VStack,
+			{ spacing: 5 },
+			createElement( Text, { size: 13 }, message ),
+			createElement(
+				HStack,
+				{ spacing: 3, justify: 'flex-end' },
+				createElement(
+					Button,
+					{ variant: 'tertiary', size: 'compact', onClick: onCancel },
+					__( 'Cancel', 'jetpack-connection' )
+				),
+				createElement(
+					Button,
+					{
+						variant: 'primary',
+						isDestructive: true,
+						size: 'compact',
+						onClick: onConfirm,
+					},
+					__( 'Disconnect', 'jetpack-connection' )
+				)
+			)
+		)
+	);
+}
+
+/**
+ * Read-only modal showing blog ID, site URL, and home URL.
+ *
+ * @param {object}   props         - Component props.
+ * @param {Function} props.onClose - Called when the modal is dismissed.
+ * @return {object} React element.
+ */
+function SiteDetailsModal( { onClose } ) {
+	const row = ( label, value ) =>
+		createElement(
+			HStack,
+			{ spacing: 3, alignment: 'center' },
+			createElement( Text, { variant: 'muted', size: 12 }, label ),
+			createElement( Text, { size: 13 }, value )
+		);
+
+	return createElement(
+		Modal,
+		{
+			title: __( 'Connection details', 'jetpack-connection' ),
+			onRequestClose: onClose,
+			size: 'small',
+		},
+		createElement(
+			VStack,
+			{ spacing: 4, className: 'wpcom-connector__details-modal' },
+			row( __( 'Blog ID', 'jetpack-connection' ), String( siteDetails.blogId ) ),
+			row( __( 'Site URL', 'jetpack-connection' ), siteDetails.siteUrl ),
+			row( __( 'Home URL', 'jetpack-connection' ), siteDetails.homeUrl )
+		)
+	);
+}
+
+/* ── Expanded details panel ─────────────────────────────────────── */
 
 /**
  * Expanded content shown when the user clicks "Details".
@@ -319,89 +442,72 @@ function ExpandedDetails( { isConnecting = false, onConnect = null } ) {
 			setPendingConfirm( {
 				title: __( 'Disconnect user account', 'jetpack-connection' ),
 				message: __(
-					'Disconnecting the owner account will remove the Jetpack connection for all users on this site. The site will remain connected.',
+					'Disconnecting the owner account will remove the WordPress.com account connection for all users on this site. The site will remain connected to WordPress.com.',
 					'jetpack-connection'
 				),
 				onConfirm: executeUnlinkUser,
 			} );
-			return;
+		} else {
+			executeUnlinkUser();
 		}
-
-		executeUnlinkUser();
 	};
-
-	const currentUserTitle = currentUser?.isOwner
-		? __( 'Connected as owner', 'jetpack-connection' )
-		: __( 'Connected as', 'jetpack-connection' );
-
-	const unlinkAction = currentUser
-		? createElement(
-				Button,
-				{
-					variant: 'secondary',
-					isDestructive: false,
-					size: 'small',
-					isBusy: isUnlinking,
-					disabled: isUnlinking || isDisconnecting,
-					onClick: handleUnlinkUser,
-					className: 'wpcom-connector__inline-action',
-				},
-				__( 'Disconnect user account', 'jetpack-connection' )
-		  )
-		: null;
-
-	const connectPrompt =
-		! currentUser && onConnect
-			? createElement(
-					HStack,
-					{ spacing: 3, className: 'wpcom-connector__section' },
-					createElement(
-						'div',
-						{ className: 'wpcom-connector__connect-prompt-text' },
-						createElement(
-							Text,
-							{ size: 13 },
-							__(
-								'Your site is registered with WordPress.com. Connect your user account to unlock full functionality.',
-								'jetpack-connection'
-							)
-						)
-					),
-					createElement(
-						Button,
-						{
-							variant: 'secondary',
-							size: 'small',
-							onClick: onConnect,
-							isBusy: isConnecting,
-							disabled: isConnecting || isDisconnecting,
-							className: 'wpcom-connector__inline-action',
-						},
-						isConnecting
-							? __( 'Connecting…', 'jetpack-connection' )
-							: __( 'Connect account', 'jetpack-connection' )
-					)
-			  )
-			: null;
 
 	return createElement(
 		VStack,
 		{ spacing: 5 },
+
+		// Current user info + unlink action (only when the viewing admin is linked).
 		currentUser
 			? createElement( UserSection, {
-					title: currentUserTitle,
+					title: currentUser.isOwner
+						? __( 'Connected as owner', 'jetpack-connection' )
+						: __( 'Connected as', 'jetpack-connection' ),
 					user: currentUser,
-					actionSlot: unlinkAction,
+					actionSlot: createElement(
+						Button,
+						{
+							variant: 'secondary',
+							isDestructive: false,
+							size: 'small',
+							isBusy: isUnlinking,
+							disabled: isUnlinking || isDisconnecting,
+							onClick: handleUnlinkUser,
+							className: 'wpcom-connector__inline-action',
+						},
+						__( 'Disconnect user account', 'jetpack-connection' )
+					),
 			  } )
 			: null,
-		currentUser && ! currentUser?.isOwner
+
+		// Connect prompt (only when the viewing admin is NOT linked).
+		! currentUser && onConnect
+			? createElement( ConnectPrompt, {
+					onConnect,
+					isConnecting,
+					isDisconnecting,
+			  } )
+			: null,
+
+		// Connection owner (shown to non-owners and unlinked admins).
+		connectionOwner && ! currentUser?.isOwner
 			? createElement( UserSection, {
 					title: __( 'Connection owner', 'jetpack-connection' ),
 					user: connectionOwner,
+					subtitle: connectionOwner.localLogin
+						? '@' +
+						  connectionOwner.login +
+						  ' ( ' +
+						  __( 'local:', 'jetpack-connection' ) +
+						  ' ' +
+						  connectionOwner.localLogin +
+						  ' )'
+						: null,
 			  } )
 			: null,
-		connectPrompt,
+
 		createElement( ConnectedPluginsSection ),
+
+		// Footer: connection details link + disconnect site button.
 		createElement( 'hr', { className: 'wpcom-connector__divider' } ),
 		createElement(
 			HStack,
@@ -432,90 +538,25 @@ function ExpandedDetails( { isConnecting = false, onConnect = null } ) {
 				__( 'Disconnect site', 'jetpack-connection' )
 			)
 		),
+
+		// Modals (rendered but visually hidden until triggered).
 		showDetailsModal && siteDetails
-			? createElement(
-					Modal,
-					{
-						title: __( 'Connection details', 'jetpack-connection' ),
-						onRequestClose: () => setShowDetailsModal( false ),
-						size: 'small',
-					},
-					createElement(
-						VStack,
-						{ spacing: 4, className: 'wpcom-connector__details-modal' },
-						createElement(
-							HStack,
-							{ spacing: 3, alignment: 'center' },
-							createElement(
-								Text,
-								{ variant: 'muted', size: 12 },
-								__( 'Blog ID', 'jetpack-connection' )
-							),
-							createElement( Text, { size: 13 }, String( siteDetails.blogId ) )
-						),
-						createElement(
-							HStack,
-							{ spacing: 3, alignment: 'center' },
-							createElement(
-								Text,
-								{ variant: 'muted', size: 12 },
-								__( 'Site URL', 'jetpack-connection' )
-							),
-							createElement( Text, { size: 13 }, siteDetails.siteUrl )
-						),
-						createElement(
-							HStack,
-							{ spacing: 3, alignment: 'center' },
-							createElement(
-								Text,
-								{ variant: 'muted', size: 12 },
-								__( 'Home URL', 'jetpack-connection' )
-							),
-							createElement( Text, { size: 13 }, siteDetails.homeUrl )
-						)
-					)
-			  )
+			? createElement( SiteDetailsModal, {
+					onClose: () => setShowDetailsModal( false ),
+			  } )
 			: null,
 		pendingConfirm
-			? createElement(
-					Modal,
-					{
-						title: pendingConfirm.title,
-						onRequestClose: () => setPendingConfirm( null ),
-						size: 'small',
-					},
-					createElement(
-						VStack,
-						{ spacing: 5 },
-						createElement( Text, { size: 13 }, pendingConfirm.message ),
-						createElement(
-							HStack,
-							{ spacing: 3, justify: 'flex-end' },
-							createElement(
-								Button,
-								{
-									variant: 'tertiary',
-									size: 'compact',
-									onClick: () => setPendingConfirm( null ),
-								},
-								__( 'Cancel', 'jetpack-connection' )
-							),
-							createElement(
-								Button,
-								{
-									variant: 'primary',
-									isDestructive: true,
-									size: 'compact',
-									onClick: pendingConfirm.onConfirm,
-								},
-								__( 'Disconnect', 'jetpack-connection' )
-							)
-						)
-					)
-			  )
+			? createElement( ConfirmationModal, {
+					title: pendingConfirm.title,
+					message: pendingConfirm.message,
+					onConfirm: pendingConfirm.onConfirm,
+					onCancel: () => setPendingConfirm( null ),
+			  } )
 			: null
 	);
 }
+
+/* ── Main card component ────────────────────────────────────────── */
 
 /**
  * Render callback for the WordPress.com connector card.
@@ -550,12 +591,19 @@ function WpcomConnectorCard( { name, description, logo } ) {
 	let actionArea;
 	let expandedContent = null;
 
-	if ( isConnected ) {
-		// State 3: Fully connected (site + user).
+	if ( isConnected || isSiteRegistered ) {
+		// Site is registered with WordPress.com (with or without a connected owner).
+		const badgeProps = isConnected
+			? { label: __( 'Connected', 'jetpack-connection' ) }
+			: {
+					label: __( 'Site connected', 'jetpack-connection' ),
+					modifier: 'site-connected',
+			  };
+
 		actionArea = createElement(
 			HStack,
 			{ spacing: 3, expanded: false },
-			createElement( StatusBadge, { label: __( 'Connected', 'jetpack-connection' ) } ),
+			createElement( StatusBadge, badgeProps ),
 			createElement(
 				Button,
 				{
@@ -569,45 +617,18 @@ function WpcomConnectorCard( { name, description, logo } ) {
 		);
 
 		if ( isExpanded ) {
-			expandedContent = createElement(
-				'div',
-				{ className: 'wpcom-connector__expanded' },
-				createElement( ExpandedDetails )
-			);
-		}
-	} else if ( isSiteRegistered ) {
-		// State 2: Site registered but no connected owner.
-		actionArea = createElement(
-			HStack,
-			{ spacing: 3, expanded: false },
-			createElement( StatusBadge, {
-				label: __( 'Site connected', 'jetpack-connection' ),
-				modifier: 'site-connected',
-			} ),
-			createElement(
-				Button,
-				{
-					variant: 'secondary',
-					size: 'compact',
-					onClick: () => setIsExpanded( ! isExpanded ),
-					'aria-expanded': isExpanded,
-				},
-				isExpanded ? __( 'Close', 'jetpack-connection' ) : __( 'Details', 'jetpack-connection' )
-			)
-		);
-
-		if ( isExpanded ) {
+			const needsUserConnection = ! currentUser;
 			expandedContent = createElement(
 				'div',
 				{ className: 'wpcom-connector__expanded' },
 				createElement( ExpandedDetails, {
-					isConnecting,
-					onConnect: handleConnect,
+					isConnecting: needsUserConnection ? isConnecting : false,
+					onConnect: needsUserConnection ? handleConnect : null,
 				} )
 			);
 		}
 	} else {
-		// State 1: Neither connected.
+		// Not connected at all — show a simple connect button.
 		actionArea = createElement(
 			Button,
 			{

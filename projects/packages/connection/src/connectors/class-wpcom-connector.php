@@ -79,7 +79,7 @@ class Wpcom_Connector {
 	public static function enqueue_script_module() {
 		$screen = get_current_screen();
 
-		if ( ! $screen || 'options-connectors' !== $screen->id ) {
+		if ( ! $screen || ! static::is_connectors_screen( $screen ) ) {
 			return;
 		}
 
@@ -162,46 +162,22 @@ class Wpcom_Connector {
 			return null;
 		}
 
-		$user            = get_userdata( $user_id );
-		$wpcom_user_data = $manager->get_connected_user_data( $user_id );
+		$user      = get_userdata( $user_id );
+		$user_info = static::resolve_user_fields( $user, $manager->get_connected_user_data( $user_id ) );
+		$is_owner  = $manager->is_connection_owner( $user_id );
 
-		$display_name = $user ? $user->display_name : '';
-		$login        = $user ? $user->user_login : '';
-		$email        = $user ? $user->user_email : '';
-
-		if ( is_array( $wpcom_user_data ) ) {
-			if ( ! empty( $wpcom_user_data['display_name'] ) ) {
-				$display_name = $wpcom_user_data['display_name'];
-			}
-			if ( ! empty( $wpcom_user_data['login'] ) ) {
-				$login = $wpcom_user_data['login'];
-			}
-			if ( ! empty( $wpcom_user_data['email'] ) ) {
-				$email = $wpcom_user_data['email'];
-			}
-		}
-
-		$is_owner                  = $manager->is_connection_owner( $user_id );
 		$has_other_connected_users = false;
-
 		if ( $is_owner ) {
 			$connected_users           = $manager->get_connected_users( 'any', 2 );
 			$has_other_connected_users = count( $connected_users ) > 1;
 		}
 
-		return array(
-			'displayName'            => $display_name,
-			'login'                  => $login,
-			'email'                  => $email,
-			'isOwner'                => $is_owner,
-			'hasOtherConnectedUsers' => $has_other_connected_users,
-			'avatar'                 => get_avatar_url(
-				$user_id,
-				array(
-					'size'    => 48,
-					'default' => 'mysteryman',
-				)
-			),
+		return array_merge(
+			$user_info,
+			array(
+				'isOwner'                => $is_owner,
+				'hasOtherConnectedUsers' => $has_other_connected_users,
+			)
 		);
 	}
 
@@ -218,10 +194,27 @@ class Wpcom_Connector {
 			return null;
 		}
 
-		$wpcom_user_data = $manager->get_connected_user_data( $owner->ID );
+		$fields = static::resolve_user_fields( $owner, $manager->get_connected_user_data( $owner->ID ) );
 
-		$display_name = $owner->display_name;
-		$login        = $owner->user_login;
+		$fields['localLogin'] = $owner->user_login;
+
+		return $fields;
+	}
+
+	/**
+	 * Merge local WP user fields with WordPress.com user data.
+	 *
+	 * WPCOM values take precedence when available. Returns the common
+	 * user shape used by both currentUser and connectionOwner.
+	 *
+	 * @param \WP_User|false $wp_user        Local WordPress user object (false if unavailable).
+	 * @param array|false    $wpcom_user_data WPCOM user data from the connection manager.
+	 * @return array User data with displayName, login, email, and avatar.
+	 */
+	private static function resolve_user_fields( $wp_user, $wpcom_user_data ) {
+		$display_name = $wp_user ? $wp_user->display_name : '';
+		$login        = $wp_user ? $wp_user->user_login : '';
+		$email        = $wp_user ? $wp_user->user_email : '';
 
 		if ( is_array( $wpcom_user_data ) ) {
 			if ( ! empty( $wpcom_user_data['display_name'] ) ) {
@@ -230,19 +223,41 @@ class Wpcom_Connector {
 			if ( ! empty( $wpcom_user_data['login'] ) ) {
 				$login = $wpcom_user_data['login'];
 			}
+			if ( ! empty( $wpcom_user_data['email'] ) ) {
+				$email = $wpcom_user_data['email'];
+			}
 		}
+
+		$user_id = $wp_user ? $wp_user->ID : 0;
 
 		return array(
 			'displayName' => $display_name,
 			'login'       => $login,
-			'avatar'      => get_avatar_url(
-				$owner->ID,
-				array(
-					'size'    => 48,
-					'default' => 'mysteryman',
+			'email'       => $email,
+			'avatar'      => $user_id
+				? get_avatar_url(
+					$user_id,
+					array(
+						'size'    => 48,
+						'default' => 'mysteryman',
+					)
 				)
-			),
+				: '',
 		);
+	}
+
+	/**
+	 * Check whether the given screen is the Connectors settings page.
+	 *
+	 * Handles both WP 7.0 core (`options-connectors`) and the Gutenberg
+	 * plugin (`settings_page_options-connectors-wp-admin`).
+	 *
+	 * @param \WP_Screen $screen Current admin screen.
+	 * @return bool
+	 */
+	private static function is_connectors_screen( $screen ) {
+		return 'options-connectors' === $screen->id
+			|| 'settings_page_options-connectors-wp-admin' === $screen->id;
 	}
 
 	/**
@@ -292,7 +307,7 @@ class Wpcom_Connector {
 		$result = array();
 
 		foreach ( $plugins as $slug => $plugin_data ) {
-			$name = isset( $plugin_data['name'] ) ? $plugin_data['name'] : $slug;
+			$name = $plugin_data['name'] ?? $slug;
 
 			$entry = array(
 				'name' => $name,
