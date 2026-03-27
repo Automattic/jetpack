@@ -73,6 +73,11 @@ const JetpackFooter: FC< JetpackFooterProps > = ( {
 				title: __( 'Jetpack products', 'jetpack-components' ),
 				href: new URL( 'admin.php?page=my-jetpack#/products', siteAdminUrl ).href,
 			},
+			{
+				label: __( 'Help', 'jetpack-components' ),
+				title: '',
+				href: new URL( 'admin.php?page=my-jetpack#/help', siteAdminUrl ).href,
+			},
 			...items,
 		];
 	}
