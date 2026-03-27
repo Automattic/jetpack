@@ -68,62 +68,22 @@ function getSortedCollaborators(
 }
 
 /**
- * Build a sorted list of clients (tabs) for the local WordPress user, ordered
- * by when they entered the room (earliest enteredAt per clientId).
- *
- * @param awareness   - The Yjs awareness instance.
- * @param localUserId - The WordPress user ID to filter by.
- * @return Array of client descriptors sorted by enter time.
- */
-function getSortedClientsForLocalUser(
-	awareness: Awareness,
-	localUserId: number
-): Array< { clientId: number; enteredAt: number } > {
-	const byClientId = new Map< number, number >();
-
-	for ( const [ clientId, state ] of awareness.getStates() ) {
-		const info = state?.collaboratorInfo as { id?: unknown; enteredAt?: unknown } | undefined;
-		if ( info?.id !== localUserId || typeof info?.enteredAt !== 'number' ) {
-			continue;
-		}
-		const enteredAt = info.enteredAt as number;
-		const prev = byClientId.get( clientId );
-		if ( prev === undefined || enteredAt < prev ) {
-			byClientId.set( clientId, enteredAt );
-		}
-	}
-
-	return Array.from( byClientId.entries() )
-		.map( ( [ clientId, enteredAt ] ) => ( { clientId, enteredAt } ) )
-		.sort( ( a, b ) => {
-			if ( a.enteredAt !== b.enteredAt ) {
-				return a.enteredAt - b.enteredAt;
-			}
-			return a.clientId - b.clientId;
-		} );
-}
-
-/**
  * Wraps a provider creator to enforce a per-room user limit.
  *
  * Collaborators are ordered by `enteredAt`. When the total number of unique
- * users (or clients for the same user) exceeds the allowed maximum, only the
- * current client is considered "overflow" if it is among the newest (by enteredAt).
- * In that case all wrapped providers in this window are destroyed.
+ * users exceeds the allowed maximum, only the current client is considered
+ * "overflow" if it is among the newest (by enteredAt). In that case all
+ * wrapped providers in this window are destroyed.
  *
- * @param creator           - The provider creator to wrap.
- * @param maxPeersPerRoom   - Max other unique users allowed. Undefined or <= 0 disables peer enforcement.
- * @param maxClientsPerUser - Max additional clients (tabs) for the same user. Undefined or <= 0 disables per-user enforcement.
+ * @param creator         - The provider creator to wrap.
+ * @param maxPeersPerRoom - Max other unique users allowed. Undefined or <= 0 disables peer enforcement.
  * @return Wrapped provider creator.
  */
 export function withRoomLimit(
 	creator: ProviderCreator,
-	maxPeersPerRoom?: number,
-	maxClientsPerUser?: number
+	maxPeersPerRoom?: number
 ): ProviderCreator {
-	const hasPeerLimit = Boolean( maxPeersPerRoom && maxPeersPerRoom > 0 );
-	const hasClientLimit = Boolean( maxClientsPerUser && maxClientsPerUser > 0 );
-	if ( ! hasPeerLimit && ! hasClientLimit ) {
+	if ( ! maxPeersPerRoom || maxPeersPerRoom <= 0 ) {
 		return creator;
 	}
 
@@ -184,29 +144,11 @@ export function withRoomLimit(
 			}
 
 			// Peer limit: too many unique users; only newest users (by enteredAt) are overflow.
-			if ( hasPeerLimit ) {
-				const collaborators = getSortedCollaborators( awareness );
-				if ( collaborators.length > maxPeersPerRoom! ) {
-					const overflow = collaborators.slice( maxPeersPerRoom );
-					if ( overflow.some( user => user.id === localUserId ) ) {
-						destroyAll();
-						return;
-					}
-				}
-			}
-
-			// Client limit: too many tabs for this user; only newest clients (by enteredAt) are overflow.
-			if ( hasClientLimit ) {
-				const localClientId = ( awareness as Awareness & { clientID?: unknown } ).clientID;
-				if ( typeof localClientId !== 'number' ) {
-					return;
-				}
-				const clientsForUser = getSortedClientsForLocalUser( awareness, localUserId );
-				if ( clientsForUser.length > maxClientsPerUser! ) {
-					const overflow = clientsForUser.slice( maxClientsPerUser );
-					if ( overflow.some( c => c.clientId === localClientId ) ) {
-						destroyAll();
-					}
+			const collaborators = getSortedCollaborators( awareness );
+			if ( collaborators.length > maxPeersPerRoom ) {
+				const overflow = collaborators.slice( maxPeersPerRoom );
+				if ( overflow.some( user => user.id === localUserId ) ) {
+					destroyAll();
 				}
 			}
 		}
