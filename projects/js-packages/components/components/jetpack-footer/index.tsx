@@ -36,7 +36,6 @@ const JetpackFooter: FC< JetpackFooterProps > = ( {
 	className,
 	menu,
 	useInternalLinks,
-	onAboutClick,
 	onPrivacyClick,
 	onTermsClick,
 	...otherProps
@@ -48,15 +47,6 @@ const JetpackFooter: FC< JetpackFooterProps > = ( {
 	const siteAdminUrl = getSiteAdminUrl();
 
 	let items: JetpackFooterMenuItem[] = [
-		{
-			label: _x( 'About', 'Link to learn more about Jetpack.', 'jetpack-components' ),
-			title: __( 'About Jetpack', 'jetpack-components' ),
-			href: useInternalLinks
-				? new URL( 'admin.php?page=jetpack_about', siteAdminUrl ).href
-				: getRedirectUrl( 'jetpack-about' ),
-			target: useInternalLinks ? '_self' : '_blank',
-			onClick: onAboutClick,
-		},
 		{
 			label: _x( 'Privacy', 'Shorthand for Privacy Policy.', 'jetpack-components' ),
 			title: __( "Automattic's Privacy Policy", 'jetpack-components' ),
@@ -126,11 +116,9 @@ const JetpackFooter: FC< JetpackFooterProps > = ( {
 				} ) }
 				<li className="jp-dashboard-footer__a8c-item">
 					<a
-						href={
-							useInternalLinks
-								? new URL( 'admin.php?page=jetpack_about', siteAdminUrl ).href
-								: getRedirectUrl( 'a8c-about' )
-						}
+						href={ getRedirectUrl( 'a8c-about' ) }
+						target="_blank"
+						rel="noopener noreferrer"
 						aria-label={ __( 'An Automattic Airline', 'jetpack-components' ) }
 					>
 						<AutomatticBylineLogo aria-hidden="true" />

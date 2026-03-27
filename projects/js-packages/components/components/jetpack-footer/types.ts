@@ -30,11 +30,6 @@ export type JetpackFooterProps = {
 	siteAdminUrl?: string;
 
 	/**
-	 * Function called when the About link is clicked.
-	 */
-	onAboutClick?: () => void;
-
-	/**
 	 * Function called when the Privacy link is clicked.
 	 */
 	onPrivacyClick?: () => void;

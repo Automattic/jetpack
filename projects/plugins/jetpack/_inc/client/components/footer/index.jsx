@@ -47,13 +47,6 @@ export class Footer extends Component {
 		} );
 	};
 
-	trackAboutClick = () => {
-		analytics.tracks.recordJetpackClick( {
-			target: 'footer_link',
-			link: 'about',
-		} );
-	};
-
 	trackPrivacyClick = () => {
 		window.requestAnimationFrame( smoothScroll );
 		analytics.tracks.recordJetpackClick( {
@@ -145,7 +138,6 @@ export class Footer extends Component {
 					<div className="jp-footer__container">
 						<JetpackFooter
 							menu={ menu }
-							onAboutClick={ this.trackAboutClick }
 							onPrivacyClick={ this.trackPrivacyClick }
 							onTermsClick={ this.trackTermsClick }
 							useInternalLinks={ this.props.siteConnectionStatus }
