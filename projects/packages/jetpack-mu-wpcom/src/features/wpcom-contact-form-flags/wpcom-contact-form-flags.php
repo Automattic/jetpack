@@ -46,6 +46,11 @@ function wpcom_is_central_forms_management_enabled( $blog_id = null ) {
 		return false;
 	}
 
+	// Allow disabling CFM for individual sites via blog sticker.
+	if ( wpcom_forms_has_blog_sticker( 'disable-central-forms-management', $blog_id ) ) {
+		return false;
+	}
+
 	return true;
 }
 
