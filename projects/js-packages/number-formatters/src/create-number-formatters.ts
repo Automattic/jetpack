@@ -175,8 +175,8 @@ function createNumberFormatters(): NumberFormatters {
 	 * @return {string} The locale to use for formatting.
 	 */
 	const getBrowserSafeLocale = (): string => {
-		// Accessing the user's locale from WordPress data store.
-		// This is a bit hacky but it's better than importing @wordpress/date and using its `getSettings` function,
+		// Accessing the user's locale from `@wordpress/date` package.
+		// This is a bit hacky but it's better than importing `@wordpress/date` and using its `getSettings` function,
 		// because it drags moment.js with it even though we don't need it here.
 		const localeFromUserSettings = window.wp?.date?.getSettings?.()?.l10n?.locale;
 
