@@ -162,8 +162,19 @@ export function withRoomLimit(
 			on: ( event: string, callback: ( ...args: unknown[] ) => void ) => {
 				if ( event === 'status' ) {
 					statusListeners.push( callback );
+					// Forward inner-provider status events only while the limit
+					// has not been breached. Once breached, destroyWithLimitError
+					// emits connection-limit-exceeded directly; subsequent events
+					// from the inner provider (e.g. PingHub's own disconnect)
+					// must not overwrite that with a generic "Connection lost".
+					innerProvider.on( event, ( ...args: unknown[] ) => {
+						if ( ! breached ) {
+							callback( ...args );
+						}
+					} );
+				} else {
+					innerProvider.on( event, callback );
 				}
-				innerProvider.on( event, callback );
 			},
 		};
 	};
