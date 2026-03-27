@@ -71,7 +71,7 @@ add_filter( 'xmlrpc_methods', 'wpcomsh_disable_incoming_pings_in_non_production_
  * Forces the default_pingback_flag option to '0' on staging sites so the
  * Discussion Settings UI reflects that outgoing pingbacks are disabled.
  *
- * @return string '0' on staging sites, allowing normal behavior otherwise.
+ * @return string|false '0' on staging sites, false to allow normal behavior otherwise.
  */
 function wpcomsh_force_pingback_flag_off_on_staging() {
 	if ( 'staging' === wp_get_environment_type() ) {
@@ -86,7 +86,7 @@ add_filter( 'pre_option_default_pingback_flag', 'wpcomsh_force_pingback_flag_off
  * Forces the default_ping_status option to 'closed' on staging sites so the
  * Discussion Settings UI reflects that incoming pingbacks are disabled.
  *
- * @return string 'closed' on staging sites, allowing normal behavior otherwise.
+ * @return string|false 'closed' on staging sites, false to allow normal behavior otherwise.
  */
 function wpcomsh_force_ping_status_closed_on_staging() {
 	if ( 'staging' === wp_get_environment_type() ) {
