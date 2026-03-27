@@ -1,3 +1,4 @@
+import { isWpcomPlatformSite } from '@automattic/jetpack-script-data';
 import { __, _x } from '@wordpress/i18n';
 import { Icon, external } from '@wordpress/icons';
 import clsx from 'clsx';
@@ -64,6 +65,17 @@ const JetpackFooter: FC< JetpackFooterProps > = ( {
 			onClick: onTermsClick,
 		},
 	];
+
+	if ( isWpcomPlatformSite() ) {
+		items = [
+			{
+				label: __( 'Products', 'jetpack-components' ),
+				title: __( 'Jetpack products', 'jetpack-components' ),
+				href: new URL( 'admin.php?page=my-jetpack#/products', siteAdminUrl ).href,
+			},
+			...items,
+		];
+	}
 
 	if ( menu ) {
 		items = [ ...items, ...menu ];
