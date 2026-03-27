@@ -378,7 +378,10 @@ export default function InboxView( { parentId, pageTitle, pageSubtitle } = {} ) 
 					const authorInfo = decodeEntities(
 						item.author_name || item.author_email || item.author_url || item.ip
 					);
-					const defaultImage = item.author_name ? 'initials' : 'mp';
+					const gravatarName = item.author_name
+						? decodeEntities( item.author_name )
+						: item.author_email?.split( '@' )[ 0 ];
+					const defaultImage = gravatarName ? 'initials' : 'mp';
 					const secondaryInfo =
 						item.author_email && authorInfo !== decodeEntities( item.author_email ) ? (
 							<span className="jp-forms__inbox__author-field__email">
@@ -412,7 +415,7 @@ export default function InboxView( { parentId, pageTitle, pageSubtitle } = {} ) 
 							<Gravatar
 								email={ item.author_email || item.ip } // With IP we still return placeholder image
 								defaultImage={ defaultImage }
-								displayName={ item.author_name ? decodeEntities( item.author_name ) : undefined }
+								displayName={ gravatarName }
 								key={ item.id }
 								size={ 32 }
 								useHovercard={ false }

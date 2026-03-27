@@ -86,7 +86,9 @@ class Reader_Link {
 			'id'     => 'reader',
 			'title'  => '<span class="ab-icon" title="' . __( 'Read the blogs and topics you follow', 'jetpack-newsletter' ) . '" aria-hidden="true"></span>' .
 						'<span class="ab-label">' . __( 'Reader', 'jetpack-newsletter' ) . '</span>',
-			'href'   => Urls::maybe_add_origin_site_id( 'https://wordpress.com/reader' ),
+			'href'   => method_exists( Urls::class, 'maybe_add_origin_site_id' )
+						? Urls::maybe_add_origin_site_id( 'https://wordpress.com/reader' )
+						: 'https://wordpress.com/reader',
 			'meta'   => array(
 				'class' => 'wp-admin-bar-reader',
 			),

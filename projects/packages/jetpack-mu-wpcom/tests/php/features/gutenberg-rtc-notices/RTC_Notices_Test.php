@@ -21,13 +21,11 @@ use PHPUnit\Framework\Attributes\CoversFunction;
  * Tests for RTC Notices feature.
  *
  * @covers ::wpcom_get_rtc_max_peers_per_room
- * @covers ::wpcom_get_rtc_max_clients_per_user
  * @covers ::wpcom_rtc_is_plan_owner
  * @covers ::wpcom_enqueue_rtc_notices_assets
  * @covers WP_REST_RTC_Notices
  */
 #[CoversFunction( 'wpcom_get_rtc_max_peers_per_room' )]
-#[CoversFunction( 'wpcom_get_rtc_max_clients_per_user' )]
 #[CoversFunction( 'wpcom_rtc_is_plan_owner' )]
 #[CoversFunction( 'wpcom_enqueue_rtc_notices_assets' )]
 #[CoversClass( WP_REST_RTC_Notices::class )]
@@ -108,7 +106,6 @@ class RTC_Notices_Test extends \WorDBless\BaseTestCase {
 		wp_delete_user( $this->second_user_id );
 
 		remove_all_filters( 'wpcom_rtc_max_peers_per_room' );
-		remove_all_filters( 'wpcom_rtc_max_clients_per_user' );
 		remove_all_filters( 'jetpack_rtc_enabled' );
 		remove_all_filters( 'wpcom_rtc_enable_limit_notices' );
 		remove_all_filters( 'users_pre_query' );
@@ -147,27 +144,6 @@ class RTC_Notices_Test extends \WorDBless\BaseTestCase {
 		);
 
 		$this->assertSame( 5, wpcom_get_rtc_max_peers_per_room() );
-	}
-
-	/**
-	 * Tests that default max clients per user is 2.
-	 */
-	public function test_default_max_clients_per_user() {
-		$this->assertSame( 2, wpcom_get_rtc_max_clients_per_user() );
-	}
-
-	/**
-	 * Tests that max clients per user is filterable.
-	 */
-	public function test_filterable_max_clients_per_user() {
-		add_filter(
-			'wpcom_rtc_max_clients_per_user',
-			function () {
-				return 3;
-			}
-		);
-
-		$this->assertSame( 3, wpcom_get_rtc_max_clients_per_user() );
 	}
 
 	/**
@@ -496,7 +472,6 @@ class RTC_Notices_Test extends \WorDBless\BaseTestCase {
 		$this->assertStringContainsString( '"isAdmin"', $inline );
 		$this->assertStringContainsString( '"welcomeDismissed"', $inline );
 		$this->assertStringContainsString( '"maxPeersPerRoom"', $inline );
-		$this->assertStringContainsString( '"maxClientsPerUser"', $inline );
 		$this->assertStringContainsString( '"siteSlug"', $inline );
 	}
 

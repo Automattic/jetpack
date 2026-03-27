@@ -18,13 +18,15 @@ require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/gutenberg-rtc/gutenberg-r
  *
  * @covers ::wpcom_rtc_is_desktop_app
  * @covers ::wpcom_enable_rtc
- * @covers ::wpcom_should_enforce_http_polling
+ * @covers ::wpcom_is_rtc_http_polling_rollout
+ * @covers ::wpcom_is_rtc_websocket_rollout
  * @covers ::wpcom_rtc_providers
  * @covers ::wpcom_has_features_edge_sticker
  */
 #[CoversFunction( 'wpcom_rtc_is_desktop_app' )]
 #[CoversFunction( 'wpcom_enable_rtc' )]
-#[CoversFunction( 'wpcom_should_enforce_http_polling' )]
+#[CoversFunction( 'wpcom_is_rtc_http_polling_rollout' )]
+#[CoversFunction( 'wpcom_is_rtc_websocket_rollout' )]
 #[CoversFunction( 'wpcom_rtc_providers' )]
 #[CoversFunction( 'wpcom_has_features_edge_sticker' )]
 class Gutenberg_RTC_Test extends \WorDBless\BaseTestCase {
@@ -124,14 +126,24 @@ class Gutenberg_RTC_Test extends \WorDBless\BaseTestCase {
 		$this->assertFalse( wpcom_enable_rtc() );
 	}
 
-	// ─── wpcom_should_enforce_http_polling ───────────────────────────
+	// ─── wpcom_is_rtc_http_polling_rollout ───────────────────────────
 
 	/**
 	 * Tests that HTTP polling is not enforced when IS_ATOMIC is not defined.
 	 */
 	public function test_enforce_http_polling_returns_false_when_not_atomic() {
 		// IS_ATOMIC is not defined in the test environment.
-		$this->assertFalse( wpcom_should_enforce_http_polling() );
+		$this->assertFalse( wpcom_is_rtc_http_polling_rollout() );
+	}
+
+	// ─── wpcom_is_rtc_websocket_rollout ──────────────────────────────
+
+	/**
+	 * Tests that WebSocket rollout returns false when IS_WPCOM is not defined.
+	 */
+	public function test_websocket_rollout_returns_false_when_not_wpcom() {
+		// IS_WPCOM is not defined in the test environment.
+		$this->assertFalse( wpcom_is_rtc_websocket_rollout() );
 	}
 
 	// ─── wpcom_has_features_edge_sticker ─────────────────────────────

@@ -38,13 +38,21 @@ const RtcWelcomeNotice = () => {
 
 	// Don't show the welcome notice if the sync connection is lost (e.g. room
 	// limit reached). The limit-reached modal should take priority.
-	const isDisconnected = useSelect( select => {
+	// Also detect when Gutenberg's own "Welcome to the editor" guide is visible —
+	// that means the user has never opened the editor before, so the RTC notice
+	// is irrelevant (it announces a feature to returning users).
+	const { isDisconnected, isWelcomeGuideVisible } = useSelect( select => {
 		const coreStore = select( 'core' ) as {
 			getSyncConnectionStatus?: () => SyncConnectionStatus | undefined;
 		};
-		return (
-			coreStore.getSyncConnectionStatus?.()?.status === 'disconnected' || isRoomLimitBreached()
-		);
+		const prefs = select( 'core/preferences' ) as
+			| { get: ( scope: string, key: string ) => unknown }
+			| undefined;
+		return {
+			isDisconnected:
+				coreStore.getSyncConnectionStatus?.()?.status === 'disconnected' || isRoomLimitBreached(),
+			isWelcomeGuideVisible: !! prefs?.get( 'core/edit-post', 'welcomeGuide' ),
+		};
 	}, [] );
 
 	const dismissNotice = useCallback( () => {
@@ -56,6 +64,14 @@ const RtcWelcomeNotice = () => {
 			// Silently fail - the notice will show again next time if the API call fails.
 		} );
 	}, [] );
+
+	// Auto-dismiss the RTC welcome notice for first-time editor users so it
+	// won't appear after they close Gutenberg's own "Welcome to the editor" guide.
+	useEffect( () => {
+		if ( isWelcomeGuideVisible && ! isDismissed ) {
+			dismissNotice();
+		}
+	}, [ isWelcomeGuideVisible, isDismissed, dismissNotice ] );
 
 	if ( ! config || isDismissed || ! isReady || isDisconnected ) {
 		return null;

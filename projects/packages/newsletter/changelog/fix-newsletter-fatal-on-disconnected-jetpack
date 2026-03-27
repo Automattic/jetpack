@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+avoid fatals from newsletter settings for disconnected jetpack errors

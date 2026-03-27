@@ -13,7 +13,6 @@ interface WpcomRtcNoticesConfig {
 	postsListUrl: string;
 	siteSlug: string;
 	maxPeersPerRoom?: number;
-	maxClientsPerUser?: number;
 	enableLimitNotices?: boolean;
 }
 
