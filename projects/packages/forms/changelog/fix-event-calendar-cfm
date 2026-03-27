@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix import map ordering for wp-build boot script in wp-admin, preventing 'Failed to resolve module specifier' errors.

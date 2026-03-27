@@ -60,6 +60,61 @@ class Dashboard {
 	}
 
 	/**
+	 * Fix import map ordering for the wp-build boot script.
+	 *
+	 * In wp-admin, _wp_footer_scripts (classic scripts) and print_import_map
+	 * both hook into admin_print_footer_scripts at priority 10, but
+	 * _wp_footer_scripts is registered first. This causes the inline
+	 * import("@wordpress/boot") to execute before the import map exists.
+	 *
+	 * This fix moves the import() call from the classic inline script to a
+	 * <script type="module"> printed at priority 11 (after the import map).
+	 *
+	 * Public for testability. Should not be called directly outside of this class.
+	 */
+	public static function fix_boot_import_map_ordering() {
+		$handle = self::FORMS_WPBUILD_ADMIN_SLUG . '-prerequisites';
+
+		add_action(
+			'admin_enqueue_scripts',
+			function () use ( $handle ) {
+				$data = wp_scripts()->get_data( $handle, 'after' );
+				if ( empty( $data ) ) {
+					return;
+				}
+
+				// Find and extract the import("@wordpress/boot") inline script.
+				$init_script = null;
+				$remaining   = array();
+				foreach ( $data as $line ) {
+					if ( strpos( $line, '@wordpress/boot' ) !== false ) {
+						$init_script = $line;
+					} else {
+						$remaining[] = $line;
+					}
+				}
+
+				if ( $init_script === null ) {
+					return;
+				}
+
+				// Remove the original inline script from the classic script handle.
+				wp_scripts()->add_data( $handle, 'after', $remaining );
+
+				// Re-emit it as a module script after the import map (priority 11).
+				add_action(
+					'admin_print_footer_scripts',
+					function () use ( $init_script ) {
+						echo '<script type="module">' . $init_script . "</script>\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Generated JS with JSON-encoded data from wp_json_encode.
+					},
+					11
+				);
+			},
+			PHP_INT_MAX // Run after the page's own enqueue hook.
+		);
+	}
+
+	/**
 	 * Script handle for the JS file we enqueue in the Feedback admin page.
 	 *
 	 * @var string
@@ -97,6 +152,7 @@ class Dashboard {
 
 		if ( $is_wp_build_enabled ) {
 			self::load_wp_build();
+			self::fix_boot_import_map_ordering();
 		}
 
 		add_action( 'admin_enqueue_scripts', array( $this, 'load_admin_scripts' ) );
