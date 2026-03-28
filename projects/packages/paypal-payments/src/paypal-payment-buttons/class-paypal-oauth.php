@@ -589,6 +589,12 @@ class PayPal_OAuth {
 			$status['merchant_id'] = $merchant_id;
 		}
 
+		// Partner Referrals requires a partner_id AND platform credentials
+		// to generate the signup link. In standalone mode (no Jetpack.com backend),
+		// these won't exist and manual credential entry should be used instead.
+		$partner_id                            = PayPal_Partner_Onboarding::get_partner_id();
+		$status['partner_referrals_available'] = ! empty( $partner_id ) && self::has_credentials();
+
 		return $status;
 	}
 

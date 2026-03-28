@@ -256,11 +256,20 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 	/**
 	 * Check PayPal connection status on mount.
 	 */
+	// Track whether Partner Referrals (Connect with PayPal button) is available.
+	// Requires platform-level credentials — not available in standalone mode.
+	const [ , setPartnerReferralsAvailable ] = useState( false );
+
 	useEffect( () => {
 		apiFetch( { path: `${ API_BASE }/connection` } )
 			.then( response => {
 				setIsConnected( response.connected );
 				setEnvironment( response.environment );
+				setPartnerReferralsAvailable( !! response.partner_referrals_available );
+				// In standalone mode, skip the welcome step and go straight to manual credentials.
+				if ( ! response.connected && ! response.partner_referrals_available ) {
+					setWizardStep( 'dashboard' );
+				}
 			} )
 			.catch( () => {
 				setIsConnected( false );

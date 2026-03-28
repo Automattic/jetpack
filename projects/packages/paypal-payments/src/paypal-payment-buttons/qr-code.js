@@ -1,10 +1,11 @@
 /**
  * PayPal Payment Buttons — QR Code Frontend Script.
  *
- * Generates a QR code for the current page URL on pages containing
- * a PayPal payment button. Enqueued only on relevant pages via
- * has_block() check in PHP.
+ * Generates a QR code for the PayPal payment link on pages containing
+ * a PayPal payment button. Falls back to the current page URL for
+ * legacy (V1) blocks without a payment link.
  *
+ * Enqueued only on relevant pages via has_block() check in PHP.
  * Uses the qrcode npm package (MIT, ~10KB) for canvas-based generation.
  * No external API calls — everything runs client-side.
  *
@@ -48,7 +49,12 @@ function initQRCodes() {
 
 			// Generate QR on first open.
 			if ( ! generated ) {
-				QRCode.toCanvas( canvas, window.location.href, {
+				// Use PayPal payment link if available (V2 API-managed blocks),
+				// fall back to page URL for legacy V1 blocks.
+				const paymentLink = container.querySelector( '.jetpack-paypal-button__paypal-link' );
+				const qrUrl = ( paymentLink && paymentLink.href ) || window.location.href;
+
+				QRCode.toCanvas( canvas, qrUrl, {
 					width: 200,
 					margin: 2,
 					errorCorrectionLevel: 'M',

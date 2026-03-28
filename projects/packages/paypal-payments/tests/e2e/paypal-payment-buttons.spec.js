@@ -18,7 +18,7 @@
  * @since 0.8.0
  */
 
-const { test, expect } = require( '@playwright/test' );
+const { test, expect } = require( '@playwright/test' ); // eslint-disable-line import/no-extraneous-dependencies -- resolved by plugin-level e2e package.json
 const { MOCK_RESPONSES, setupPayPalMocks, setupDisconnectedMocks } = require( './paypal-api-mock' );
 
 // ---------------------------------------------------------------
@@ -45,7 +45,7 @@ async function goToNewPost( page ) {
  * @param {import('@playwright/test').Page} page - Playwright page instance.
  */
 async function insertPayPalBlock( page ) {
-	await page.click( 'button[aria-label="Toggle block inserter"]' );
+	await page.click( 'button[aria-label="Block Inserter"]' );
 	await page.fill( 'input[placeholder="Search"]', 'PayPal' );
 	await page.click( 'button.editor-block-list-item-jetpack-paypal-payment-buttons' );
 	await page.waitForSelector( '.wp-block-jetpack-paypal-payment-buttons' );
@@ -975,7 +975,7 @@ test.describe( 'PayPal Payment Buttons Block', () => {
 			await goToNewPost( page );
 
 			// Open the block inserter.
-			await page.click( 'button[aria-label="Toggle block inserter"]' );
+			await page.click( 'button[aria-label="Block Inserter"]' );
 			await page.fill( 'input[placeholder="Search"]', 'PayPal' );
 
 			// The block result button should contain an SVG (not a dashicon span).

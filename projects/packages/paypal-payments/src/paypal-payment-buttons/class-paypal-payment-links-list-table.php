@@ -12,7 +12,7 @@
 namespace Automattic\Jetpack\PaypalPayments;
 
 if ( ! defined( 'ABSPATH' ) ) {
-	exit( 0 );
+	exit;
 }
 
 if ( ! class_exists( 'WP_List_Table' ) ) {
