@@ -24,7 +24,11 @@
  */
 
 const { test, expect } = require( '@playwright/test' );
-const { MOCK_RESPONSES, setupPayPalMocks, setupDisconnectedMocks } = require( './paypal-api-mock' );
+const {
+	MOCK_RESPONSES,
+	setupPayPalMocks,
+	setupDisconnectedMocks,
+} = require( './paypal-api-mock.cjs' );
 
 // ---------------------------------------------------------------
 // Helpers
