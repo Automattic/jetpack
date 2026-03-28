@@ -25,7 +25,7 @@ class PayPal_Partner_Onboarding_Test extends TestCase {
 	protected function tearDown(): void {
 		parent::tearDown();
 
-		delete_option( PayPal_Partner_Onboarding::SELLER_NONCE_OPTION_KEY );
+		delete_transient( PayPal_Partner_Onboarding::SELLER_NONCE_TRANSIENT_KEY );
 		delete_option( PayPal_Partner_Onboarding::PARTNER_ID_OPTION_KEY );
 		delete_option( PayPal_Partner_Onboarding::MERCHANT_ID_OPTION_KEY );
 		delete_option( PayPal_Partner_Onboarding::ONBOARDING_METHOD_OPTION_KEY );
@@ -91,13 +91,13 @@ class PayPal_Partner_Onboarding_Test extends TestCase {
 	 * Test cleanup removes all onboarding options.
 	 */
 	public function test_cleanup_removes_onboarding_data() {
-		update_option( PayPal_Partner_Onboarding::SELLER_NONCE_OPTION_KEY, 'test_nonce' );
+		set_transient( PayPal_Partner_Onboarding::SELLER_NONCE_TRANSIENT_KEY, 'test_nonce', 30 * MINUTE_IN_SECONDS );
 		update_option( PayPal_Partner_Onboarding::MERCHANT_ID_OPTION_KEY, 'test_merchant' );
 		update_option( PayPal_Partner_Onboarding::ONBOARDING_METHOD_OPTION_KEY, 'partner_referrals' );
 
 		PayPal_Partner_Onboarding::cleanup();
 
-		$this->assertFalse( get_option( PayPal_Partner_Onboarding::SELLER_NONCE_OPTION_KEY ) );
+		$this->assertFalse( get_transient( PayPal_Partner_Onboarding::SELLER_NONCE_TRANSIENT_KEY ) );
 		$this->assertFalse( get_option( PayPal_Partner_Onboarding::MERCHANT_ID_OPTION_KEY ) );
 		$this->assertFalse( get_option( PayPal_Partner_Onboarding::ONBOARDING_METHOD_OPTION_KEY ) );
 	}

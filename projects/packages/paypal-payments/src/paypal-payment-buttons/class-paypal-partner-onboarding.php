@@ -56,11 +56,12 @@ class PayPal_Partner_Onboarding {
 	const MERCHANT_CREDENTIALS_ENDPOINT = '/v1/customer/partners/%s/merchant-integrations/credentials/';
 
 	/**
-	 * Option key for storing the seller nonce used during onboarding.
+	 * Transient key for storing the seller nonce used during onboarding.
+	 * Stored as a transient with 30-minute TTL so abandoned flows auto-expire.
 	 *
 	 * @var string
 	 */
-	const SELLER_NONCE_OPTION_KEY = 'jetpack_paypal_payment_buttons_seller_nonce';
+	const SELLER_NONCE_TRANSIENT_KEY = 'jetpack_paypal_payment_buttons_seller_nonce';
 
 	/**
 	 * Option key for storing the partner merchant ID.
@@ -172,12 +173,13 @@ class PayPal_Partner_Onboarding {
 		}
 
 		// Generate and store an encrypted seller nonce for the auth code exchange.
+		// Uses a 30-minute transient so abandoned onboarding flows auto-expire.
 		$seller_nonce    = self::generate_seller_nonce();
 		$encrypted_nonce = PayPal_OAuth::encrypt( $seller_nonce );
 		if ( is_wp_error( $encrypted_nonce ) ) {
 			return $encrypted_nonce;
 		}
-		update_option( self::SELLER_NONCE_OPTION_KEY, $encrypted_nonce, false );
+		set_transient( self::SELLER_NONCE_TRANSIENT_KEY, $encrypted_nonce, 30 * MINUTE_IN_SECONDS );
 
 		// Build the tracking ID from the site URL for uniqueness.
 		$tracking_id = 'woo-ncps-' . substr( md5( get_site_url() ), 0, 12 ) . '-' . time();
@@ -301,7 +303,7 @@ class PayPal_Partner_Onboarding {
 	 * @return true|\WP_Error True on success, WP_Error on failure.
 	 */
 	public static function complete_onboarding( $auth_code, $shared_id, $merchant_id_in_paypal ) {
-		$encrypted_nonce = get_option( self::SELLER_NONCE_OPTION_KEY, '' );
+		$encrypted_nonce = get_transient( self::SELLER_NONCE_TRANSIENT_KEY );
 		if ( empty( $encrypted_nonce ) ) {
 			return new \WP_Error(
 				'paypal_onboarding_no_nonce',
@@ -311,7 +313,7 @@ class PayPal_Partner_Onboarding {
 
 		$seller_nonce = PayPal_OAuth::decrypt( $encrypted_nonce );
 		if ( false === $seller_nonce ) {
-			delete_option( self::SELLER_NONCE_OPTION_KEY );
+			delete_transient( self::SELLER_NONCE_TRANSIENT_KEY );
 			return new \WP_Error(
 				'paypal_onboarding_nonce_corrupt',
 				__( 'Onboarding session data could not be read. Please try connecting again.', 'jetpack-paypal-payments' )
@@ -428,7 +430,7 @@ class PayPal_Partner_Onboarding {
 		update_option( self::ONBOARDING_METHOD_OPTION_KEY, 'partner_referrals', false );
 
 		// Clean up the seller nonce — it's single-use.
-		delete_option( self::SELLER_NONCE_OPTION_KEY );
+		delete_transient( self::SELLER_NONCE_TRANSIENT_KEY );
 
 		// Step 4: Validate that the credentials work and the API is accessible.
 		$validation = PayPal_OAuth::validate_credentials();
@@ -516,7 +518,7 @@ class PayPal_Partner_Onboarding {
 	 * @return void
 	 */
 	public static function cleanup() {
-		delete_option( self::SELLER_NONCE_OPTION_KEY );
+		delete_transient( self::SELLER_NONCE_TRANSIENT_KEY );
 		delete_option( self::MERCHANT_ID_OPTION_KEY );
 		delete_option( self::ONBOARDING_METHOD_OPTION_KEY );
 		// Note: Partner ID is not deleted — it's a site-level config, not per-merchant.

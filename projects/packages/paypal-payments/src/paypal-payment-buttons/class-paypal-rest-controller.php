@@ -821,15 +821,15 @@ class PayPal_REST_Controller {
 				'items'       => array(
 					'type'       => 'object',
 					'properties' => array(
-						'name'        => array(
+						'name'                => array(
 							'type'     => 'string',
 							'required' => true,
 						),
-						'description' => array(
+						'description'         => array(
 							'type'     => 'string',
 							'required' => false,
 						),
-						'unit_amount' => array(
+						'unit_amount'         => array(
 							'type'       => 'object',
 							'required'   => true,
 							'properties' => array(
@@ -843,10 +843,75 @@ class PayPal_REST_Controller {
 								),
 							),
 						),
-						'quantity'    => array(
+						'quantity'            => array(
 							'type'     => 'string',
 							'required' => false,
 							'default'  => '1',
+						),
+						'variants'            => array(
+							'type'       => 'object',
+							'required'   => false,
+							'properties' => array(
+								'dimensions' => array(
+									'type'  => 'array',
+									'items' => array(
+										'type'       => 'object',
+										'properties' => array(
+											'name'    => array( 'type' => 'string' ),
+											'primary' => array( 'type' => 'boolean' ),
+											'options' => array(
+												'type'  => 'array',
+												'items' => array(
+													'type' => 'object',
+													'properties' => array(
+														'label'       => array( 'type' => 'string' ),
+														'unit_amount' => array(
+															'type'       => 'object',
+															'properties' => array(
+																'currency_code' => array( 'type' => 'string' ),
+																'value'         => array( 'type' => 'string' ),
+															),
+														),
+													),
+												),
+											),
+										),
+									),
+								),
+							),
+						),
+						'adjustable_quantity' => array(
+							'type'       => 'object',
+							'required'   => false,
+							'properties' => array(
+								'maximum' => array( 'type' => 'integer' ),
+							),
+						),
+						'customer_notes'      => array(
+							'type'     => 'array',
+							'required' => false,
+							'items'    => array(
+								'type'       => 'object',
+								'properties' => array(
+									'label'    => array( 'type' => 'string' ),
+									'required' => array( 'type' => 'boolean' ),
+								),
+							),
+						),
+						'taxes'               => array(
+							'type'     => 'array',
+							'required' => false,
+							'items'    => array(
+								'type'       => 'object',
+								'properties' => array(
+									'name'  => array( 'type' => 'string' ),
+									'type'  => array(
+										'type' => 'string',
+										'enum' => array( 'PERCENTAGE', 'PREFERENCE' ),
+									),
+									'value' => array( 'type' => 'string' ),
+								),
+							),
 						),
 					),
 				),
@@ -919,12 +984,117 @@ class PayPal_REST_Controller {
 				$clean_item['description'] = sanitize_text_field( $item['description'] );
 			}
 			if ( ! empty( $item['quantity'] ) ) {
-				$clean_item['quantity'] = sanitize_text_field( $item['quantity'] );
+				$clean_item['quantity'] = (string) max( 1, absint( $item['quantity'] ) );
 			}
+
+			// Variants (product options with optional per-option pricing).
+			if ( ! empty( $item['variants'] ) && is_array( $item['variants'] ) ) {
+				$clean_item['variants'] = self::sanitize_variants( $item['variants'] );
+			}
+
+			// Adjustable quantity configuration.
+			if ( ! empty( $item['adjustable_quantity'] ) && is_array( $item['adjustable_quantity'] ) ) {
+				$clean_item['adjustable_quantity'] = array(
+					'maximum' => isset( $item['adjustable_quantity']['maximum'] )
+						? absint( $item['adjustable_quantity']['maximum'] )
+						: 10,
+				);
+			}
+
+			// Customer notes (custom checkout fields).
+			if ( ! empty( $item['customer_notes'] ) && is_array( $item['customer_notes'] ) ) {
+				$clean_notes = array();
+				foreach ( $item['customer_notes'] as $note ) {
+					if ( is_array( $note ) && ! empty( $note['label'] ) ) {
+						$clean_notes[] = array(
+							'label'    => sanitize_text_field( $note['label'] ),
+							'required' => ! empty( $note['required'] ),
+						);
+					}
+				}
+				if ( ! empty( $clean_notes ) ) {
+					$clean_item['customer_notes'] = $clean_notes;
+				}
+			}
+
+			// Tax configuration.
+			if ( ! empty( $item['taxes'] ) && is_array( $item['taxes'] ) ) {
+				$clean_taxes = array();
+				$valid_types = array( 'PERCENTAGE', 'PREFERENCE' );
+				foreach ( $item['taxes'] as $tax ) {
+					if ( is_array( $tax ) && ! empty( $tax['name'] ) ) {
+						$tax_type      = isset( $tax['type'] ) ? sanitize_text_field( $tax['type'] ) : 'PERCENTAGE';
+						$clean_taxes[] = array(
+							'name'  => sanitize_text_field( $tax['name'] ),
+							'type'  => in_array( $tax_type, $valid_types, true ) ? $tax_type : 'PERCENTAGE',
+							'value' => isset( $tax['value'] ) && 'PROFILE' !== $tax['value']
+							? (string) max( 0, floatval( $tax['value'] ) )
+							: ( 'PREFERENCE' === $tax_type ? 'PROFILE' : '0' ),
+						);
+					}
+				}
+				if ( ! empty( $clean_taxes ) ) {
+					$clean_item['taxes'] = $clean_taxes;
+				}
+			}
+
 			$sanitized[] = $clean_item;
 		}
 
 		return $sanitized;
+	}
+
+	/**
+	 * Sanitize variant dimensions and options.
+	 *
+	 * @param array $variants Raw variants data from the REST request.
+	 * @return array Sanitized variants.
+	 */
+	private static function sanitize_variants( $variants ) {
+		$clean = array();
+
+		if ( ! empty( $variants['dimensions'] ) && is_array( $variants['dimensions'] ) ) {
+			$clean_dims = array();
+			foreach ( $variants['dimensions'] as $dimension ) {
+				if ( ! is_array( $dimension ) ) {
+					continue;
+				}
+				$clean_dim = array(
+					'name'    => isset( $dimension['name'] ) ? sanitize_text_field( $dimension['name'] ) : '',
+					'primary' => ! empty( $dimension['primary'] ),
+				);
+
+				if ( ! empty( $dimension['options'] ) && is_array( $dimension['options'] ) ) {
+					$clean_opts = array();
+					foreach ( $dimension['options'] as $option ) {
+						if ( ! is_array( $option ) ) {
+							continue;
+						}
+						$clean_opt = array(
+							'label' => isset( $option['label'] ) ? sanitize_text_field( $option['label'] ) : '',
+						);
+						// Per-option pricing (only on primary dimension).
+						if ( ! empty( $option['unit_amount'] ) && is_array( $option['unit_amount'] ) ) {
+							$clean_opt['unit_amount'] = array(
+								'currency_code' => isset( $option['unit_amount']['currency_code'] )
+									? sanitize_text_field( $option['unit_amount']['currency_code'] )
+									: 'USD',
+								'value'         => isset( $option['unit_amount']['value'] )
+									? sanitize_text_field( $option['unit_amount']['value'] )
+									: '0.00',
+							);
+						}
+						$clean_opts[] = $clean_opt;
+					}
+					$clean_dim['options'] = $clean_opts;
+				}
+
+				$clean_dims[] = $clean_dim;
+			}
+			$clean['dimensions'] = $clean_dims;
+		}
+
+		return $clean;
 	}
 
 	/**

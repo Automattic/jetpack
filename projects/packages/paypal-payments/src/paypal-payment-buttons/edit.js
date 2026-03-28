@@ -429,7 +429,16 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 	 * Listen for PayPal postMessage callback (some flows use this instead of redirect).
 	 */
 	useEffect( () => {
+		// PayPal's mini-browser onboarding flow posts messages from www.* origins.
+		// The api-m.* domains are API-only and do not send postMessages.
+		const PAYPAL_ORIGINS = [ 'https://www.paypal.com', 'https://www.sandbox.paypal.com' ];
+
 		const handleMessage = event => {
+			// Only accept messages from PayPal domains to prevent credential injection.
+			if ( ! PAYPAL_ORIGINS.includes( event.origin ) ) {
+				return;
+			}
+
 			// PayPal sends onboarding data via postMessage.
 			if ( event.data && event.data.authCode && event.data.sharedId ) {
 				apiFetch( {

@@ -511,9 +511,15 @@ class PayPal_Payment_Buttons {
 	}
 
 	/**
-	 * Register hooks.
+	 * Register hooks (idempotent — safe to call from multiple block renders).
 	 */
 	public static function register_hooks() {
+		static $registered = false;
+		if ( $registered ) {
+			return;
+		}
+		$registered = true;
+
 		add_filter( 'safe_style_css', array( __CLASS__, 'add_style_display' ) );
 	}
 

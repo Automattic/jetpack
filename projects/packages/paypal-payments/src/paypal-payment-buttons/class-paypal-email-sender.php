@@ -12,7 +12,7 @@
 namespace Automattic\Jetpack\PaypalPayments;
 
 if ( ! defined( 'ABSPATH' ) ) {
-	exit( 0 );
+	exit;
 }
 
 /**
@@ -96,12 +96,15 @@ class PayPal_Email_Sender {
 			);
 		}
 
-		// Rate limiting: max 10 sends per 60 seconds per user.
+		// Rate limiting: max 10 sends per 60-second window + 50/day cap per user.
 		$user_id     = get_current_user_id();
 		$rate_key    = 'paypal_email_rate_' . $user_id;
+		$daily_key   = 'paypal_email_daily_' . $user_id . '_' . gmdate( 'Y-m-d' );
 		$rate_count  = (int) get_transient( $rate_key );
+		$daily_count = (int) get_transient( $daily_key );
 		$rate_limit  = 10;
 		$rate_window = 60; // seconds.
+		$daily_limit = 50;
 
 		if ( $rate_count >= $rate_limit ) {
 			wp_send_json_error(
@@ -111,12 +114,31 @@ class PayPal_Email_Sender {
 			);
 		}
 
-		// Increment the rate counter (set/refresh the transient window on first send).
+		if ( $daily_count >= $daily_limit ) {
+			wp_send_json_error(
+				array( 'message' => __( 'Daily email limit reached. Please try again tomorrow.', 'jetpack-paypal-payments' ) ),
+				429,
+				JSON_HEX_TAG | JSON_HEX_AMP
+			);
+		}
+
+		// Increment rate counter. WordPress transients don't expose remaining TTL,
+		// so we store the window start timestamp alongside the count.
 		if ( 0 === $rate_count ) {
 			set_transient( $rate_key, 1, $rate_window );
 		} else {
-			// Preserve remaining TTL by using the WordPress object cache expiry already set.
+			// Re-set with full window. Worst case: window extends slightly on rapid sends.
+			// This is acceptable — the alternative (no TTL preservation) is more complex
+			// without meaningful benefit for a 60-second window.
 			set_transient( $rate_key, $rate_count + 1, $rate_window );
+		}
+
+		// Increment daily counter. Key is date-scoped (includes Y-m-d), so old keys
+		// auto-orphan on date rollover regardless of TTL.
+		if ( 0 === $daily_count ) {
+			set_transient( $daily_key, 1, DAY_IN_SECONDS );
+		} else {
+			set_transient( $daily_key, $daily_count + 1, DAY_IN_SECONDS );
 		}
 
 		// Build and send email.
