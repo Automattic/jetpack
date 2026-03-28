@@ -19,14 +19,8 @@ async function renderLaunchButton() {
 		<QueryClientProvider client={ queryClient }>
 			<LaunchButton
 				onCelebrationModalClose={ () => {
-					// We have two alternatives here...
-
-					// Keep the user on the same page...
 					root.unmount();
 					launchButton.remove();
-
-					// ...or reload it to reflect the new state.
-					// window.location.reload();
 				} }
 			/>
 		</QueryClientProvider>
