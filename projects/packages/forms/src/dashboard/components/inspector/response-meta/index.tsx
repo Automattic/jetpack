@@ -43,8 +43,8 @@ const ResponseMeta = ( { response }: ResponseMetaProps ): import('react').JSX.El
 	const gravatarEmail = response.author_email || response.ip;
 	const gravatarDisplayName = response.author_name
 		? decodeEntities( response.author_name )
-		: undefined;
-	const defaultImage = response.author_name ? 'initials' : 'mp';
+		: response.author_email?.split( '@' )[ 0 ];
+	const defaultImage = gravatarDisplayName ? 'initials' : 'mp';
 
 	const responseAuthorEmailParts = response.author_email?.split( '@' ) ?? [];
 

@@ -102,7 +102,12 @@ export function ConvertFormToolbar( {
 			// Clear block and set ref to the new form
 			replaceInnerBlocks( clientId, [], false );
 			const clearedAttributes = Object.keys( attributes ).reduce(
-				( acc, key ) => ( { ...acc, [ key ]: undefined } ),
+				( acc, key ) => {
+					if ( key === 'ref' ) {
+						return acc;
+					}
+					return { ...acc, [ key ]: undefined };
+				},
 				{ ref: formId }
 			);
 			updateBlockAttributes( clientId, clearedAttributes );

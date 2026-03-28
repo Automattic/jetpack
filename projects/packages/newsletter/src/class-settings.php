@@ -303,10 +303,14 @@ class Settings {
 		}
 
 		// For Jetpack sites, use the jetpack.com redirect URL.
-		$site_id = $blog_id ? $blog_id : Connection_Manager::get_site_id();
+		$site_id = $blog_id ? (int) $blog_id : Connection_Manager::get_site_id( true );
+		$args    = ( ! empty( $site_id ) )
+			? array( 'site' => $site_id )
+			: array();
+
 		return Redirect::get_url(
 			'jetpack-settings-jetpack-manage-subscribers',
-			array( 'site' => $site_id )
+			$args
 		);
 	}
 

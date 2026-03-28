@@ -28,7 +28,7 @@ const enableLimitNotices = window.wpcomRtcNotices?.enableLimitNotices ?? false;
  */
 function registerRoomLimitFilter(): void {
 	const config = window.wpcomRtcNotices;
-	if ( ! config?.maxPeersPerRoom && ! config?.maxClientsPerUser ) {
+	if ( ! config?.maxPeersPerRoom ) {
 		return;
 	}
 
@@ -36,15 +36,11 @@ function registerRoomLimitFilter(): void {
 		'sync.providers',
 		'wpcom/rtc-room-limits',
 		( providers: ProviderCreator[] ) => {
-			return providers.map( creator =>
-				withRoomLimit( creator, config.maxPeersPerRoom, config.maxClientsPerUser )
-			);
+			return providers.map( creator => withRoomLimit( creator, config.maxPeersPerRoom ) );
 		},
 		20
 	);
 
-	// Disable Gutenberg's built-in connection limit check so our
-	// room-limit.ts handles it with branded notices instead.
 	addFilter(
 		'sync.pollingProvider.maxClientsPerRoom',
 		'wpcom/rtc-disable-builtin-limit',
