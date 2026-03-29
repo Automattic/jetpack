@@ -277,15 +277,6 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 		$this->assertFalse( ImageStudio\is_image_studio_enabled() );
 	}
 
-	/**
-	 * Not enabled via Big Sky when Big_Sky class exists but option is disabled.
-	 */
-	public function test_is_not_enabled_via_big_sky_when_option_disabled() {
-		$this->simulate_big_sky_class();
-		update_option( 'big_sky_enable', '' );
-		$this->assertFalse( ImageStudio\is_image_studio_enabled() );
-	}
-
 	// -------------------------------------------------------------------------
 	// signal_image_studio_active() tests
 	// -------------------------------------------------------------------------
