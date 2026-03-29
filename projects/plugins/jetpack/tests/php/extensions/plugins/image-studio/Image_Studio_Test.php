@@ -1541,60 +1541,6 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	}
 
 	// -------------------------------------------------------------------------
-	// is_dev_mode() tests
-	// -------------------------------------------------------------------------
-
-	/**
-	 * Test is_dev_mode returns true for localhost.
-	 */
-	public function test_is_dev_mode_returns_true_for_localhost() {
-		update_option( 'siteurl', 'http://localhost' );
-
-		$this->assertTrue( ImageStudio\is_dev_mode() );
-	}
-
-	/**
-	 * Test is_dev_mode returns true for jurassic.tube domains.
-	 */
-	public function test_is_dev_mode_returns_true_for_jurassic_tube() {
-		update_option( 'siteurl', 'https://mysite.jurassic.tube' );
-
-		$this->assertTrue( ImageStudio\is_dev_mode() );
-	}
-
-	/**
-	 * Test is_dev_mode returns true for jurassic.ninja domains.
-	 */
-	public function test_is_dev_mode_returns_true_for_jurassic_ninja() {
-		update_option( 'siteurl', 'https://mysite.jurassic.ninja' );
-
-		$this->assertTrue( ImageStudio\is_dev_mode() );
-	}
-
-	/**
-	 * Test is_dev_mode returns true when proxied via server variable.
-	 */
-	public function test_is_dev_mode_returns_true_when_proxied_via_server_var() {
-		update_option( 'siteurl', 'https://example.com' );
-		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
-
-		$result = ImageStudio\is_dev_mode();
-
-		unset( $_SERVER['A8C_PROXIED_REQUEST'] );
-
-		$this->assertTrue( $result );
-	}
-
-	/**
-	 * Test is_dev_mode returns false for regular production sites.
-	 */
-	public function test_is_dev_mode_returns_false_for_production_sites() {
-		update_option( 'siteurl', 'https://myproductionsite.com' );
-
-		$this->assertFalse( ImageStudio\is_dev_mode() );
-	}
-
-	// -------------------------------------------------------------------------
 	// is_big_sky_enabled() tests
 	// -------------------------------------------------------------------------
 
