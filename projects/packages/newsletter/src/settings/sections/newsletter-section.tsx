@@ -131,7 +131,7 @@ export function NewsletterSection( { data, onChange }: NewsletterSectionProps ):
 					onChange={ handleChange }
 				/>
 				{ data.subscriptions && newsletterScriptData && (
-					<div>
+					<div className="newsletter-manage-subscribers">
 						<ExternalLink
 							href={ newsletterScriptData.subscriberManagementUrl }
 							onClick={ handleManageSubscribersClick }
