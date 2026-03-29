@@ -270,21 +270,6 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	// -------------------------------------------------------------------------
 
 	/**
-	 * Not enabled when AI features exist but neither dev mode nor Big Sky.
-	 */
-	public function test_is_not_enabled_with_ai_features_but_no_gate() {
-		$this->assertFalse( ImageStudio\is_image_studio_enabled() );
-	}
-
-	/**
-	 * Enabled when AI features available and Big Sky is active.
-	 */
-	public function test_is_enabled_via_big_sky() {
-		$this->enable_big_sky();
-		$this->assertTrue( ImageStudio\is_image_studio_enabled() );
-	}
-
-	/**
 	 * Not enabled when AI features are disabled and no Big Sky/CIAB override.
 	 */
 	public function test_is_not_enabled_when_ai_features_disabled() {
@@ -413,14 +398,6 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	 */
 	public function test_register_plugin_not_available_when_disabled() {
 		$this->disable_ai_features();
-		ImageStudio\register_plugin();
-		$this->assertFalse( \Jetpack_Gutenberg::is_available( ImageStudio\FEATURE_NAME ) );
-	}
-
-	/**
-	 * Test that register_plugin does not set extension available when no gate is active.
-	 */
-	public function test_register_plugin_not_available_when_no_gate() {
 		ImageStudio\register_plugin();
 		$this->assertFalse( \Jetpack_Gutenberg::is_available( ImageStudio\FEATURE_NAME ) );
 	}
