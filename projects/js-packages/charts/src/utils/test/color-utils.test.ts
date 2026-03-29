@@ -800,6 +800,22 @@ describe( 'normalizeColorToHex', () => {
 			const mockResolve = jest.fn().mockReturnValue( null );
 			expect( normalizeColorToHex( '--my-color', null, mockResolve ) ).toBe( '--my-color' );
 		} );
+
+		it( 'returns original when CSS variable resolves to empty string', () => {
+			const mockResolve = jest.fn().mockReturnValue( '' );
+			expect( normalizeColorToHex( '--empty', null, mockResolve ) ).toBe( '--empty' );
+		} );
+
+		it( 'does not infinite loop on indirect CSS variable cycle', () => {
+			const mockResolve = jest.fn().mockImplementation( ( v: string ) => {
+				if ( v === '--a' ) return 'var(--b)';
+				if ( v === 'var(--b)' ) return '--a';
+
+				return null;
+			} );
+
+			expect( () => normalizeColorToHex( '--a', null, mockResolve ) ).not.toThrow();
+		} );
 	} );
 
 	describe( 'Invalid inputs', () => {

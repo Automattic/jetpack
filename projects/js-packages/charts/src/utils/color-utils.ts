@@ -142,12 +142,14 @@ export const parseRgbString = ( rgbString: string ): string | null => {
  * @param color      - Any CSS color value
  * @param element    - Optional DOM element for resolving CSS variables
  * @param resolveCss - Function to resolve CSS variables (injected for testability)
+ * @param _depth     - Internal recursion depth counter to prevent infinite loops
  * @return hex color string, or the original value if conversion fails
  */
 export const normalizeColorToHex = (
 	color: string,
 	element?: HTMLElement | null,
-	resolveCss?: ( value: string, el?: HTMLElement | null ) => string | null
+	resolveCss?: ( value: string, el?: HTMLElement | null ) => string | null,
+	_depth = 0
 ): string => {
 	if ( ! color || typeof color !== 'string' ) {
 		return '';
@@ -172,9 +174,9 @@ export const normalizeColorToHex = (
 	if ( trimmed.startsWith( '--' ) || trimmed.startsWith( 'var(' ) ) {
 		if ( resolveCss ) {
 			const resolved = resolveCss( color, element );
-			if ( resolved && resolved !== color ) {
+			if ( resolved && resolved !== color && _depth < 10 ) {
 				// Recursively normalize the resolved value
-				return normalizeColorToHex( resolved, element, resolveCss );
+				return normalizeColorToHex( resolved, element, resolveCss, _depth + 1 );
 			}
 		}
 		// Can't resolve CSS variable, return original
