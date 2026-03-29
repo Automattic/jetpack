@@ -801,6 +801,11 @@ describe( 'normalizeColorToHex', () => {
 			expect( normalizeColorToHex( '--my-color', null, mockResolve ) ).toBe( '--my-color' );
 		} );
 
+		it( 'returns original when CSS variable resolves to itself', () => {
+			const mockResolve = jest.fn().mockImplementation( ( v: string ) => v );
+			expect( normalizeColorToHex( '--loop', null, mockResolve ) ).toBe( '--loop' );
+		} );
+
 		it( 'returns original when CSS variable resolves to empty string', () => {
 			const mockResolve = jest.fn().mockReturnValue( '' );
 			expect( normalizeColorToHex( '--empty', null, mockResolve ) ).toBe( '--empty' );
