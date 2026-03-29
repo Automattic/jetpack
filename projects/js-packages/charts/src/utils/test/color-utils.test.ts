@@ -821,6 +821,50 @@ describe( 'normalizeColorToHex', () => {
 
 			expect( () => normalizeColorToHex( '--a', null, mockResolve ) ).not.toThrow();
 		} );
+
+		it( 'resolves multi-hop CSS variable chain', () => {
+			const mockResolve = jest.fn().mockImplementation( ( v: string ) => {
+				if ( v === '--a' ) return 'var(--b)';
+				if ( v === 'var(--b)' ) return 'hsl(0, 100%, 50%)';
+
+				return null;
+			} );
+
+			expect( normalizeColorToHex( '--a', null, mockResolve ) ).toBe( '#ff0000' );
+		} );
+	} );
+
+	describe( 'Whitespace handling', () => {
+		it( 'trims leading and trailing spaces from hex', () => {
+			expect( normalizeColorToHex( '  #ff0000  ' ) ).toBe( '#ff0000' );
+		} );
+
+		it( 'trims spaces from HSL string', () => {
+			expect( normalizeColorToHex( '  hsl(0, 100%, 50%)  ' ) ).toBe( '#ff0000' );
+		} );
+
+		it( 'trims spaces from named color', () => {
+			expect( normalizeColorToHex( '  red  ' ) ).toBe( '#ff0000' );
+		} );
+	} );
+
+	describe( 'Case insensitivity', () => {
+		it( 'converts uppercase HSL', () => {
+			expect( normalizeColorToHex( 'HSL(0, 100%, 50%)' ) ).toBe( '#ff0000' );
+		} );
+
+		it( 'converts uppercase RGB', () => {
+			expect( normalizeColorToHex( 'RGB(255, 0, 0)' ) ).toBe( '#ff0000' );
+		} );
+
+		it( 'converts uppercase RGBA', () => {
+			expect( normalizeColorToHex( 'RGBA(0, 0, 255, 1)' ) ).toBe( '#0000ff' );
+		} );
+
+		it( 'handles uppercase VAR() syntax', () => {
+			const mockResolve = jest.fn().mockReturnValue( '#ff0000' );
+			expect( normalizeColorToHex( 'VAR(--my-color)', null, mockResolve ) ).toBe( '#ff0000' );
+		} );
 	} );
 
 	describe( 'Invalid inputs', () => {
