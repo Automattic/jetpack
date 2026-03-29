@@ -27,11 +27,48 @@ export const customTheme: ChartTheme = {
 } as ChartTheme;
 
 /**
+ * Theme that uses a variety of color formats (hex, RGB, RGBA, HSL, named)
+ * to demonstrate and test color normalization support.
+ */
+export const mixedColorFormatsTheme: ChartTheme = {
+	colors: [
+		'#e63946',
+		'rgb(42, 157, 143)',
+		'hsl(48, 96%, 53%)',
+		'rgba(38, 70, 83, 0.9)',
+		'steelblue',
+		'hsl(280, 60%, 50%)',
+		'rgb(244, 162, 97)',
+	],
+	backgroundColor: 'hsl(0, 0%, 98%)',
+	gridColor: 'rgba(0, 0, 0, 0.1)',
+	gridColorDark: 'rgba(255, 255, 255, 0.15)',
+	gridStyles: {
+		stroke: 'rgb(200, 200, 200)',
+		strokeWidth: 1,
+	},
+	geoChart: {
+		featureFillColor: 'hsl(0, 0%, 93%)',
+	},
+	leaderboardChart: {
+		primaryColor: 'rgb(42, 157, 143)',
+		secondaryColor: 'rgb(148, 206, 199)',
+		deltaColors: [ 'hsl(0, 70%, 50%)', 'rgb(150, 150, 150)', '#2a9d8f' ],
+	},
+	conversionFunnelChart: {
+		primaryColor: 'hsl(200, 60%, 45%)',
+		positiveChangeColor: 'rgb(42, 157, 143)',
+		negativeChangeColor: 'hsl(0, 70%, 50%)',
+	},
+} as ChartTheme;
+
+/**
  * Centralized theme map for all chart stories
  */
 export const CHART_THEME_MAP: Record< string, ChartTheme | undefined > = {
 	default: defaultTheme,
 	custom: customTheme,
+	'mixed-color-formats': mixedColorFormatsTheme,
 };
 
 /**

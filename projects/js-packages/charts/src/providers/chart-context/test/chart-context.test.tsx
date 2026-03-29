@@ -1907,7 +1907,7 @@ describe( 'ChartContext', () => {
 				};
 
 				const cssVarTheme: ChartTheme = {
-					colors: [ '--rgb-color', '#ff0000' ],
+					colors: [ '--rgb-color', '#00ff00' ],
 				} as ChartTheme;
 
 				render(
@@ -1916,13 +1916,134 @@ describe( 'ChartContext', () => {
 					</GlobalChartsProvider>
 				);
 
-				// Non-hex colors are currently skipped, should use second color
+				// RGB colors should now be converted to hex and used
 				const color = contextValue.getElementStyles( {
 					data: undefined,
 					index: 0,
 				} ).color;
 
 				expect( color ).toBe( '#ff0000' );
+			} );
+
+			it( 'handles CSS variables resolving to HSL colors', () => {
+				window.getComputedStyle = jest.fn( () => ( {
+					getPropertyValue: ( prop: string ) => {
+						if ( prop === '--hsl-color' ) {
+							return 'hsl(120, 100%, 50%)'; // HSL format (green)
+						}
+						return '';
+					},
+				} ) ) as unknown as typeof window.getComputedStyle;
+
+				let contextValue: GlobalChartsContextValue;
+
+				const TestComponent = () => {
+					contextValue = useGlobalChartsContext();
+					return <div>Test</div>;
+				};
+
+				const cssVarTheme: ChartTheme = {
+					colors: [ '--hsl-color', '#ff0000' ],
+				} as ChartTheme;
+
+				render(
+					<GlobalChartsProvider theme={ cssVarTheme }>
+						<TestComponent />
+					</GlobalChartsProvider>
+				);
+
+				// HSL colors should be converted to hex and used
+				const color = contextValue.getElementStyles( {
+					data: undefined,
+					index: 0,
+				} ).color;
+
+				expect( color ).toBe( '#00ff00' );
+			} );
+
+			it( 'handles CSS variables resolving to RGBA colors', () => {
+				window.getComputedStyle = jest.fn( () => ( {
+					getPropertyValue: ( prop: string ) => {
+						if ( prop === '--rgba-color' ) {
+							return 'rgba(0, 0, 255, 0.5)'; // RGBA format (blue with transparency)
+						}
+						return '';
+					},
+				} ) ) as unknown as typeof window.getComputedStyle;
+
+				let contextValue: GlobalChartsContextValue;
+
+				const TestComponent = () => {
+					contextValue = useGlobalChartsContext();
+					return <div>Test</div>;
+				};
+
+				const cssVarTheme: ChartTheme = {
+					colors: [ '--rgba-color', '#ff0000' ],
+				} as ChartTheme;
+
+				render(
+					<GlobalChartsProvider theme={ cssVarTheme }>
+						<TestComponent />
+					</GlobalChartsProvider>
+				);
+
+				// RGBA colors are converted to hex (alpha is stripped)
+				const color = contextValue.getElementStyles( {
+					data: undefined,
+					index: 0,
+				} ).color;
+
+				expect( color ).toBe( '#0000ff' );
+			} );
+
+			it( 'handles mix of RGB, HSL, and hex in theme colors', () => {
+				window.getComputedStyle = jest.fn( () => ( {
+					getPropertyValue: ( prop: string ) => {
+						if ( prop === '--rgb-red' ) {
+							return 'rgb(255, 0, 0)';
+						}
+						if ( prop === '--hsl-green' ) {
+							return 'hsl(120, 100%, 50%)';
+						}
+						return '';
+					},
+				} ) ) as unknown as typeof window.getComputedStyle;
+
+				let contextValue: GlobalChartsContextValue;
+
+				const TestComponent = () => {
+					contextValue = useGlobalChartsContext();
+					return <div>Test</div>;
+				};
+
+				const cssVarTheme: ChartTheme = {
+					colors: [ '--rgb-red', '--hsl-green', '#0000ff' ],
+				} as ChartTheme;
+
+				render(
+					<GlobalChartsProvider theme={ cssVarTheme }>
+						<TestComponent />
+					</GlobalChartsProvider>
+				);
+
+				// All color formats should be properly converted
+				const color1 = contextValue.getElementStyles( {
+					data: undefined,
+					index: 0,
+				} ).color;
+				const color2 = contextValue.getElementStyles( {
+					data: undefined,
+					index: 1,
+				} ).color;
+				const color3 = contextValue.getElementStyles( {
+					data: undefined,
+					index: 2,
+				} ).color;
+
+				expect( color1 ).toBe( '#ff0000' ); // RGB red
+				expect( color2 ).toBe( '#00ff00' ); // HSL green
+				expect( color3 ).toBe( '#0000ff' ); // Hex blue
 			} );
 		} );
 
@@ -2058,7 +2179,7 @@ describe( 'ChartContext', () => {
 				} ).color;
 
 				expect( color1 ).toBe( '#ff0000' );
-				expect( color2 ).toBe( '#bad' ); // Invalid color is still in palette
+				expect( color2 ).toBe( '#bbaadd' ); // #bad is expanded to #bbaadd by normalizeColorToHex
 				expect( color3 ).toBe( '#0000ff' );
 			} );
 		} );
