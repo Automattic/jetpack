@@ -396,42 +396,6 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	}
 
 	// -------------------------------------------------------------------------
-	// should_load_on_current_screen() tests
-	// -------------------------------------------------------------------------
-
-	/**
-	 * Test should_load_on_current_screen returns true on Media Library.
-	 */
-	public function test_should_load_on_media_library() {
-		$this->set_media_library_screen();
-		$this->assertTrue( ImageStudio\should_load_on_current_screen() );
-	}
-
-	/**
-	 * Test should_load_on_current_screen returns true on block editor.
-	 */
-	public function test_should_load_on_block_editor() {
-		$this->set_block_editor_screen();
-		$this->assertTrue( ImageStudio\should_load_on_current_screen() );
-	}
-
-	/**
-	 * Test should_load_on_current_screen returns false on dashboard.
-	 */
-	public function test_should_not_load_on_dashboard() {
-		set_current_screen( 'dashboard' );
-		$this->assertFalse( ImageStudio\should_load_on_current_screen() );
-	}
-
-	/**
-	 * Test should_load_on_current_screen returns false when no screen.
-	 */
-	public function test_should_not_load_when_no_screen() {
-		$GLOBALS['current_screen'] = null;
-		$this->assertFalse( ImageStudio\should_load_on_current_screen() );
-	}
-
-	// -------------------------------------------------------------------------
 	// register_plugin() tests
 	// -------------------------------------------------------------------------
 

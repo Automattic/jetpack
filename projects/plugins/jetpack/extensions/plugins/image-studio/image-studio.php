@@ -131,19 +131,6 @@ function is_media_library() {
 }
 
 /**
- * Determine if Image Studio should load on the current screen.
- *
- * - Media Library: load if either filter is true.
- * - Block editors (Post/Site Editor): load if either filter is true.
- * - Other screens: don't load.
- *
- * @return bool
- */
-function should_load_on_current_screen() {
-	return is_media_library() || is_block_editor();
-}
-
-/**
  * Register the Image Studio plugin.
  *
  * Registers unconditionally when either filter is true. Screen-level gating
