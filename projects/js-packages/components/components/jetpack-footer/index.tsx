@@ -56,9 +56,7 @@ const JetpackFooter: FC< JetpackFooterProps > = ( { className, menu, ...otherPro
 		>
 			<Stack className="jetpack-footer__logo" direction="row" gap="sm" align="center">
 				<JetpackLogo showText={ false } height={ 16 } aria-hidden="true" />
-				<Text variant="body-md" className="jetpack-footer__logo-text">
-					Jetpack
-				</Text>
+				<Text variant="body-md">Jetpack</Text>
 			</Stack>
 			<Stack render={ <ul /> } direction="row" gap="lg" wrap="wrap">
 				{ items.map( item => {
