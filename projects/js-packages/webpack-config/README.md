@@ -200,6 +200,7 @@ This provides an instance of [@wordpress/dependency-extraction-webpack-plugin](h
 By default, the following additional dependencies are extracted:
 - `@automattic/jetpack-script-data`: Handle `jetpack-script-data` provided by PHP package [automattic/jetpack-assets](https://packagist.org/packages/automattic/jetpack-assets).
 - `@automattic/jetpack-connection`: Handle `jetpack-connection` provided by PHP package [automattic/jetpack-connection](https://packagist.org/packages/automattic/jetpack-connection).
+- `@automattic/jetpack-shared-extension-utils`: Handle `jetpack-shared-extension-utils` provided by PHP package [automattic/jetpack-assets](https://packagist.org/packages/automattic/jetpack-assets). Note: subpath imports (e.g. `/components`, `/icons`, `/site-type-utils`) are explicitly excluded from externalization and will continue to be bundled.
 
 One additional option is recognized:
 

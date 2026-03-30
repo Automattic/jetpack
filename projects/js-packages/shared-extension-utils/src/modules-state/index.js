@@ -1,4 +1,4 @@
-import { createReduxStore, register, dispatch } from '@wordpress/data';
+import { createReduxStore, register, dispatch, select } from '@wordpress/data';
 import actions from './actions';
 import controls from './controls';
 import reducer from './reducer';
@@ -14,7 +14,12 @@ export const store = createReduxStore( JETPACK_MODULES_STORE_ID, {
 	selectors,
 } );
 
-register( store );
+// Guard against duplicate registration when multiple bundles include this package.
+try {
+	select( JETPACK_MODULES_STORE_ID );
+} catch {
+	register( store );
+}
 
 const initialData =
 	window?.Initial_State?.getModules || // Jetpack Dashboard

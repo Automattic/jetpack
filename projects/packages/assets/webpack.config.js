@@ -61,4 +61,42 @@ module.exports = [
 			} ),
 		],
 	},
+	{
+		...sharedConfig,
+		entry: {
+			'jetpack-shared-extension-utils': {
+				import: './src/js/shared-extension-utils.js',
+				library: {
+					name: 'JetpackSharedExtensionUtils',
+					type: 'umd',
+				},
+			},
+		},
+		module: {
+			strictExportPresence: true,
+			rules: [
+				// Transpile JavaScript, including node_modules.
+				jetpackWebpackConfig.TranspileRule(),
+				jetpackWebpackConfig.TranspileRule( {
+					includeNodeModules: [ '@automattic/jetpack-' ],
+				} ),
+				jetpackWebpackConfig.CssRule( {
+					extensions: [ 'css', 'sass', 'scss' ],
+					extraLoaders: [ { loader: 'sass-loader', options: { api: 'modern-compiler' } } ],
+				} ),
+				jetpackWebpackConfig.FileRule(),
+			],
+		},
+		plugins: [
+			...jetpackWebpackConfig.StandardPlugins( {
+				MiniCssExtractPlugin: { filename: '[name].css' },
+				DependencyExtractionPlugin: {
+					requestMap: {
+						// We don't want to externalize this package, we rather want to bundle it.
+						'@automattic/jetpack-shared-extension-utils': {},
+					},
+				},
+			} ),
+		],
+	},
 ];

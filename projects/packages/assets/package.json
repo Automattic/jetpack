@@ -13,6 +13,7 @@
 	"browserslist": "extends @wordpress/browserslist-config",
 	"dependencies": {
 		"@automattic/jetpack-script-data": "workspace:*",
+		"@automattic/jetpack-shared-extension-utils": "workspace:*",
 		"@wordpress/i18n": "6.15.0",
 		"react": "18.3.1"
 	},
@@ -22,6 +23,8 @@
 		"concurrently": "9.2.1",
 		"jest": "30.3.0",
 		"md5-es": "1.8.2",
+		"sass-embedded": "1.97.3",
+		"sass-loader": "16.0.5",
 		"webpack": "5.105.2",
 		"webpack-cli": "6.0.1"
 	}

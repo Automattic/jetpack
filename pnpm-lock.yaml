@@ -1823,6 +1823,9 @@ importers:
       '@automattic/jetpack-script-data':
         specifier: workspace:*
         version: link:../../js-packages/script-data
+      '@automattic/jetpack-shared-extension-utils':
+        specifier: workspace:*
+        version: link:../../js-packages/shared-extension-utils
       '@wordpress/i18n':
         specifier: 6.15.0
         version: 6.15.0
@@ -1845,6 +1848,12 @@ importers:
       md5-es:
         specifier: 1.8.2
         version: 1.8.2
+      sass-embedded:
+        specifier: 1.97.3
+        version: 1.97.3
+      sass-loader:
+        specifier: 16.0.5
+        version: 16.0.5(sass-embedded@1.97.3)(webpack@5.105.2)
       webpack:
         specifier: 5.105.2
         version: 5.105.2(webpack-cli@6.0.1)
