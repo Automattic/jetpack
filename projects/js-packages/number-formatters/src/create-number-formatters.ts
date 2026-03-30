@@ -181,9 +181,12 @@ function createNumberFormatters(): NumberFormatters {
 		const localeFromUserSettings =
 			typeof window !== 'undefined' ? window.wp?.date?.getSettings?.()?.l10n?.locale : undefined;
 
+		const localeFromNavigator =
+			typeof window !== 'undefined' ? global?.window?.navigator?.language : undefined;
+
 		return (
 			localeState ??
-			( localeFromUserSettings || global?.window?.navigator?.language ) ??
+			( localeFromUserSettings || localeFromNavigator ) ??
 			FALLBACK_LOCALE
 		).split( '_' )[ 0 ];
 	};
