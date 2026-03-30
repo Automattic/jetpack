@@ -4,7 +4,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useRefEffect } from '@wordpress/compose';
 import { addQueryArgs } from '@wordpress/url';
 import { useState } from 'react';
-import CelebrateLaunchModal from '../../../common/celebrate-launch-modal';
+import CelebrateLaunchModal from '../../../common/celebrate-launch/celebrate-launch-modal';
 import { useLaunchSiteMutation } from '../../../common/hooks';
 
 import './style.scss';
