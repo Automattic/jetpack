@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+number-formatters imported @wordpress/date which imports moment.js. But numbers-formatters only needs the settings from wp.date. This change makes it so we access the settings directly.
