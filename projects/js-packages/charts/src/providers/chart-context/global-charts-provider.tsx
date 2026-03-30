@@ -125,8 +125,15 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( {
 			minHue,
 			maxHue,
 		} );
-		setIsColorPaletteResolved( true );
 	}, [ providerTheme ] );
+
+	// Set after paint (useEffect, not useLayoutEffect) so consumers see
+	// one render with resolved colors before this flag flips to true.
+	useEffect( () => {
+		if ( colorCache.colors.length > 0 ) {
+			setIsColorPaletteResolved( true );
+		}
+	}, [ colorCache ] );
 
 	const [ groupToColorMap, setGroupToColorMap ] = useState< Map< string, string > >(
 		() => new Map()

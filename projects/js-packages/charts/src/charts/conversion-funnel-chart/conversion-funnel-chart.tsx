@@ -52,7 +52,7 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 } ) => {
 	const chartId = useChartId( providedChartId );
 	const { conversionFunnelChart: conversionFunnelChartSettings } = useGlobalChartsTheme();
-	const { getElementStyles } = useGlobalChartsContext();
+	const { getElementStyles, isColorPaletteResolved } = useGlobalChartsContext();
 	const chartRef = useRef< HTMLDivElement >( null );
 	const selectedBarRef = useRef< HTMLDivElement | null >( null );
 
@@ -348,7 +348,11 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 						return (
 							<div
 								key={ step.id }
-								className={ clsx( styles[ 'funnel-step' ], isBlurred && styles.blurred ) }
+								className={ clsx(
+									styles[ 'funnel-step' ],
+									isColorPaletteResolved && styles[ 'funnel-step__animated' ],
+									isBlurred && styles.blurred
+								) }
 							>
 								{ /* Step Label and Rate */ }
 								<div className={ styles[ 'step-header' ] }>
@@ -376,7 +380,11 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 
 								{ /* Funnel Bar */ }
 								<div
-									className={ clsx( styles[ 'bar-container' ], isBlurred && styles.disabled ) }
+									className={ clsx(
+										styles[ 'bar-container' ],
+										isColorPaletteResolved && styles[ 'bar-container__animated' ],
+										isBlurred && styles.disabled
+									) }
 									onClick={ stepHandlers.get( step.id )?.onClick }
 									onKeyDown={ stepHandlers.get( step.id )?.onKeyDown }
 									role="button"
@@ -385,10 +393,14 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 									style={ { backgroundColor: barBackgroundColor } }
 								>
 									<div
-										className={ clsx( styles[ 'funnel-bar' ], {
-											[ styles[ 'funnel-bar--animated' ] ]:
-												animation && ! loading && ! prefersReducedMotion,
-										} ) }
+										className={ clsx(
+											styles[ 'funnel-bar' ],
+											isColorPaletteResolved && styles[ 'funnel-bar__animated' ],
+											{
+												[ styles[ 'funnel-bar__animated-entry' ] ]:
+													animation && ! loading && ! prefersReducedMotion,
+											}
+										) }
 										style={ {
 											height: `${ barHeight }%`,
 											backgroundColor: barColor,
