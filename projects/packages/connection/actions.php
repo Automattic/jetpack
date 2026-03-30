@@ -13,21 +13,11 @@ if ( function_exists( 'add_action' ) ) {
 		array( Automattic\Jetpack\Connection\Connection_Assets::class, 'configure' ),
 		1
 	);
-	add_action(
-		'plugins_loaded',
-		array( Automattic\Jetpack\Connection\Site_Health::class, 'init' ),
-		1
-	);
 } else {
 	global $wp_filter;
 	// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 	$wp_filter['plugins_loaded'][1][] = array(
 		'accepted_args' => 0,
 		'function'      => array( Automattic\Jetpack\Connection\Connection_Assets::class, 'configure' ),
-	);
-	// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-	$wp_filter['plugins_loaded'][1][] = array(
-		'accepted_args' => 0,
-		'function'      => array( Automattic\Jetpack\Connection\Site_Health::class, 'init' ),
 	);
 }
