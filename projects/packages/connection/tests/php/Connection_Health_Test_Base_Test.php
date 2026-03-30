@@ -1,0 +1,287 @@
+<?php
+/**
+ * Tests for the Connection_Health_Test_Base class.
+ *
+ * @package automattic/jetpack-connection
+ */
+
+namespace Automattic\Jetpack\Connection;
+
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\TestCase;
+
+/**
+ * Tests for the Connection_Health_Test_Base class.
+ *
+ * @covers \Automattic\Jetpack\Connection\Connection_Health_Test_Base
+ */
+#[CoversClass( Connection_Health_Test_Base::class )]
+class Connection_Health_Test_Base_Test extends TestCase {
+
+	/**
+	 * Test instance.
+	 *
+	 * @var Connection_Health_Test_Base
+	 */
+	private $base;
+
+	/**
+	 * Set up test fixtures.
+	 */
+	public function setUp(): void {
+		parent::setUp();
+		$this->base = new Connection_Health_Test_Base();
+	}
+
+	/**
+	 * Test adding a test successfully.
+	 */
+	public function test_add_test_success() {
+		$result = $this->base->add_test(
+			function () {
+				return array( 'pass' => true );
+			},
+			'test_example',
+			'direct'
+		);
+		$this->assertTrue( $result );
+	}
+
+	/**
+	 * Test adding a test with duplicate name fails.
+	 */
+	public function test_add_test_duplicate_name() {
+		$callable = function () {
+			return array( 'pass' => true );
+		};
+		$this->base->add_test( $callable, 'test_dup' );
+		$result = $this->base->add_test( $callable, 'test_dup' );
+		$this->assertInstanceOf( \WP_Error::class, $result );
+	}
+
+	/**
+	 * Test adding a test with invalid callable fails.
+	 */
+	public function test_add_test_invalid_callable() {
+		$result = $this->base->add_test( 'not_a_callable_function_xyz', 'test_invalid' );
+		$this->assertInstanceOf( \WP_Error::class, $result );
+	}
+
+	/**
+	 * Test list_tests returns all tests by default.
+	 */
+	public function test_list_tests_all() {
+		$this->base->add_test( function () {}, 'test_a', 'direct' );
+		$this->base->add_test( function () {}, 'test_b', 'async' );
+
+		$tests = $this->base->list_tests();
+		$this->assertCount( 2, $tests );
+		$this->assertArrayHasKey( 'test_a', $tests );
+		$this->assertArrayHasKey( 'test_b', $tests );
+	}
+
+	/**
+	 * Test list_tests filters by type.
+	 */
+	public function test_list_tests_by_type() {
+		$this->base->add_test( function () {}, 'test_direct', 'direct' );
+		$this->base->add_test( function () {}, 'test_async', 'async' );
+
+		$direct = $this->base->list_tests( 'direct' );
+		$this->assertCount( 1, $direct );
+		$this->assertArrayHasKey( 'test_direct', $direct );
+
+		$async = $this->base->list_tests( 'async' );
+		$this->assertCount( 1, $async );
+		$this->assertArrayHasKey( 'test_async', $async );
+	}
+
+	/**
+	 * Test run_test executes a registered test.
+	 */
+	public function test_run_test_success() {
+		$this->base->add_test(
+			function () {
+				return Connection_Health_Test_Base::passing_test( array( 'name' => 'test_run' ) );
+			},
+			'test_run'
+		);
+
+		$result = $this->base->run_test( 'test_run' );
+		$this->assertTrue( $result['pass'] );
+	}
+
+	/**
+	 * Test run_test returns WP_Error for unknown test.
+	 */
+	public function test_run_test_unknown() {
+		$result = $this->base->run_test( 'nonexistent' );
+		$this->assertInstanceOf( \WP_Error::class, $result );
+	}
+
+	/**
+	 * Test pass() returns true when all tests pass.
+	 */
+	public function test_pass_all_passing() {
+		$this->base->add_test(
+			function () {
+				return Connection_Health_Test_Base::passing_test( array( 'name' => 'test_pass1' ) );
+			},
+			'test_pass1'
+		);
+		$this->base->add_test(
+			function () {
+				return Connection_Health_Test_Base::passing_test( array( 'name' => 'test_pass2' ) );
+			},
+			'test_pass2'
+		);
+
+		$this->assertTrue( $this->base->pass() );
+	}
+
+	/**
+	 * Test pass() returns false when a test fails.
+	 */
+	public function test_pass_with_failure() {
+		$this->base->add_test(
+			function () {
+				return Connection_Health_Test_Base::passing_test( array( 'name' => 'test_ok' ) );
+			},
+			'test_ok'
+		);
+		$this->base->add_test(
+			function () {
+				return Connection_Health_Test_Base::failing_test( array( 'name' => 'test_fail' ) );
+			},
+			'test_fail'
+		);
+
+		$this->assertFalse( $this->base->pass() );
+	}
+
+	/**
+	 * Test pass() returns true when tests are skipped (not failed).
+	 */
+	public function test_pass_with_skipped() {
+		$this->base->add_test(
+			function () {
+				return Connection_Health_Test_Base::skipped_test( array( 'name' => 'test_skip' ) );
+			},
+			'test_skip'
+		);
+
+		$this->assertTrue( $this->base->pass() );
+	}
+
+	/**
+	 * Test list_fails returns only failed tests.
+	 */
+	public function test_list_fails() {
+		$this->base->add_test(
+			function () {
+				return Connection_Health_Test_Base::passing_test( array( 'name' => 'test_ok' ) );
+			},
+			'test_ok'
+		);
+		$this->base->add_test(
+			function () {
+				return Connection_Health_Test_Base::failing_test(
+					array(
+						'name'              => 'test_fail',
+						'short_description' => 'This test failed.',
+					)
+				);
+			},
+			'test_fail'
+		);
+		$this->base->add_test(
+			function () {
+				return Connection_Health_Test_Base::skipped_test( array( 'name' => 'test_skip' ) );
+			},
+			'test_skip'
+		);
+
+		$fails = $this->base->list_fails();
+		$this->assertCount( 1, $fails );
+	}
+
+	/**
+	 * Test passing_test helper returns correct structure.
+	 */
+	public function test_passing_test_structure() {
+		$result = Connection_Health_Test_Base::passing_test( array( 'name' => 'my_test' ) );
+
+		$this->assertTrue( $result['pass'] );
+		$this->assertEquals( 'my_test', $result['name'] );
+		$this->assertTrue( $result['show_in_site_health'] );
+	}
+
+	/**
+	 * Test failing_test helper returns correct structure.
+	 */
+	public function test_failing_test_structure() {
+		$result = Connection_Health_Test_Base::failing_test(
+			array(
+				'name'              => 'my_test',
+				'short_description' => 'Something broke',
+			)
+		);
+
+		$this->assertFalse( $result['pass'] );
+		$this->assertEquals( 'critical', $result['severity'] );
+		$this->assertEquals( 'Something broke', $result['short_description'] );
+	}
+
+	/**
+	 * Test skipped_test helper returns correct structure.
+	 */
+	public function test_skipped_test_structure() {
+		$result = Connection_Health_Test_Base::skipped_test( array( 'name' => 'my_test' ) );
+
+		$this->assertEquals( 'skipped', $result['pass'] );
+	}
+
+	/**
+	 * Test informational_test helper returns correct structure.
+	 */
+	public function test_informational_test_structure() {
+		$result = Connection_Health_Test_Base::informational_test( array( 'name' => 'my_test' ) );
+
+		$this->assertEquals( 'informational', $result['pass'] );
+	}
+
+	/**
+	 * Test output_fails_as_wp_error returns false when all pass.
+	 */
+	public function test_output_fails_as_wp_error_when_passing() {
+		$this->base->add_test(
+			function () {
+				return Connection_Health_Test_Base::passing_test( array( 'name' => 'ok' ) );
+			},
+			'ok'
+		);
+
+		$this->assertFalse( $this->base->output_fails_as_wp_error() );
+	}
+
+	/**
+	 * Test output_fails_as_wp_error returns WP_Error when tests fail.
+	 */
+	public function test_output_fails_as_wp_error_when_failing() {
+		$this->base->add_test(
+			function () {
+				return Connection_Health_Test_Base::failing_test(
+					array(
+						'name'              => 'fail_test',
+						'short_description' => 'Broken',
+					)
+				);
+			},
+			'fail_test'
+		);
+
+		$error = $this->base->output_fails_as_wp_error();
+		$this->assertInstanceOf( \WP_Error::class, $error );
+		$this->assertEquals( 'failed_fail_test', $error->get_error_code() );
+	}
+}
