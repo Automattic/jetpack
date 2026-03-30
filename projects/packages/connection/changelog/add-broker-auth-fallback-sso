@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+SSO: Fall back to the main broker URL for authorization when no separate broker auth URL is defined.
