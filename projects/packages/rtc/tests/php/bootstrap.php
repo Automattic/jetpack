@@ -21,6 +21,7 @@ if ( ! function_exists( 'get_wpcom_blog_id' ) ) {
 	 * Stub for get_wpcom_blog_id() used in tests.
 	 *
 	 * @return int|false
+	 * @phan-suppress PhanRedefineFunction Phan doesn't evaluate function_exists() guards; this stub is only active when the real function is absent.
 	 */
 	function get_wpcom_blog_id() {
 		$id = get_option( 'wpcom_blog_id_stub', false );
