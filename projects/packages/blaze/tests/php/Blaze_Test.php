@@ -37,6 +37,13 @@ class Blaze_Test extends BaseTestCase {
 	 * Set up before each test.
 	 */
 	public function set_up() {
+		// Reset admin menu globals to avoid state leakage between tests.
+		global $menu, $submenu, $_parent_pages, $_registered_pages;
+		$menu              = array();
+		$submenu           = array();
+		$_parent_pages     = array();
+		$_registered_pages = array();
+
 		$this->admin_id = wp_insert_user(
 			array(
 				'user_login' => 'dummy_user',
@@ -149,6 +156,375 @@ class Blaze_Test extends BaseTestCase {
 		$this->assertNotEmpty( menu_page_url( 'advertising', false ) );
 
 		add_filter( 'jetpack_blaze_enabled', '__return_false' );
+	}
+
+	/**
+	 * Test that the menu label is "Blaze Ads" (not "Advertising").
+	 */
+	public function test_admin_menu_label_is_blaze_ads() {
+		global $submenu;
+
+		wp_set_current_user( $this->admin_id );
+		add_filter( 'jetpack_blaze_enabled', '__return_true' );
+
+		Blaze::enable_blaze_menu();
+
+		// Find the "advertising" submenu entry and verify its label.
+		$parent_slug = Blaze::get_menu_parent();
+		$found_label = null;
+		if ( isset( $submenu[ $parent_slug ] ) ) {
+			foreach ( $submenu[ $parent_slug ] as $item ) {
+				if ( 'advertising' === $item[2] ) {
+					$found_label = $item[0];
+					break;
+				}
+			}
+		}
+
+		$this->assertSame( 'Blaze Ads', $found_label );
+
+		add_filter( 'jetpack_blaze_enabled', '__return_false' );
+	}
+
+	/**
+	 * Test that get_menu_parent() returns 'tools.php' when neither WooCommerce
+	 * nor Jetpack connection is present.
+	 */
+	public function test_get_menu_parent_fallback() {
+		// In the test environment, WooCommerce class does not exist and
+		// the site is not WPCOM or Jetpack-connected, so we should get tools.php.
+		$this->assertSame( 'tools.php', Blaze::get_menu_parent() );
+	}
+
+	/**
+	 * Test that has_site_campaigns() returns false when there is no site ID
+	 * (the typical test-environment scenario).
+	 */
+	public function test_has_site_campaigns_returns_false_without_site_id() {
+		$this->assertFalse( Blaze::has_site_campaigns() );
+	}
+
+	/**
+	 * Test that has_site_campaigns() reads the cached transient.
+	 */
+	public function test_has_site_campaigns_cached_yes() {
+		// Seed the site ID in the compact jetpack_options array (where
+		// Jetpack_Options::get_option( 'id' ) actually reads it).
+		update_option( 'jetpack_options', array( 'id' => 12345 ) );
+		set_transient( 'jetpack_blaze_has_site_campaigns_12345', 'yes', HOUR_IN_SECONDS );
+
+		$this->assertTrue( Blaze::has_site_campaigns() );
+
+		delete_transient( 'jetpack_blaze_has_site_campaigns_12345' );
+		delete_option( 'jetpack_options' );
+	}
+
+	/**
+	 * Test that has_site_campaigns() reads cached "no" transient.
+	 */
+	public function test_has_site_campaigns_cached_no() {
+		update_option( 'jetpack_options', array( 'id' => 12345 ) );
+		set_transient( 'jetpack_blaze_has_site_campaigns_12345', 'no', HOUR_IN_SECONDS );
+
+		$this->assertFalse( Blaze::has_site_campaigns() );
+
+		delete_transient( 'jetpack_blaze_has_site_campaigns_12345' );
+		delete_option( 'jetpack_options' );
+	}
+
+	/**
+	 * Test that enable_blaze_menu() registers a top-level menu when the site
+	 * has active campaigns (transient cached as 'yes').
+	 */
+	public function test_top_level_menu_when_active_campaigns() {
+		global $menu;
+
+		wp_set_current_user( $this->admin_id );
+		add_filter( 'jetpack_blaze_enabled', '__return_true' );
+
+		// Seed the site ID and campaign transient.
+		update_option( 'jetpack_options', array( 'id' => 12345 ) );
+		set_transient( 'jetpack_blaze_has_site_campaigns_12345', 'yes', HOUR_IN_SECONDS );
+
+		Blaze::enable_blaze_menu();
+
+		// Verify a top-level menu entry exists for 'advertising'.
+		$found_top_level = false;
+		foreach ( (array) $menu as $item ) {
+			if ( isset( $item[2] ) && 'advertising' === $item[2] ) {
+				$found_top_level = true;
+				break;
+			}
+		}
+
+		$this->assertTrue( $found_top_level, 'Expected a top-level menu entry for advertising when active campaigns exist.' );
+
+		delete_transient( 'jetpack_blaze_has_site_campaigns_12345' );
+		delete_option( 'jetpack_options' );
+		add_filter( 'jetpack_blaze_enabled', '__return_false' );
+	}
+
+	/**
+	 * Test that enable_blaze_menu() registers a submenu (not top-level)
+	 * when the site has no active campaigns.
+	 */
+	public function test_submenu_when_no_active_campaigns() {
+		global $menu, $submenu;
+
+		wp_set_current_user( $this->admin_id );
+		add_filter( 'jetpack_blaze_enabled', '__return_true' );
+
+		Blaze::enable_blaze_menu();
+
+		// Verify 'advertising' is NOT in the top-level menu.
+		$found_top_level = false;
+		foreach ( (array) $menu as $item ) {
+			if ( isset( $item[2] ) && 'advertising' === $item[2] ) {
+				$found_top_level = true;
+				break;
+			}
+		}
+		$this->assertFalse( $found_top_level, 'Did not expect a top-level menu entry when no active campaigns.' );
+
+		// Verify it exists as a submenu instead.
+		$parent_slug   = Blaze::get_menu_parent();
+		$found_submenu = false;
+		if ( isset( $submenu[ $parent_slug ] ) ) {
+			foreach ( $submenu[ $parent_slug ] as $item ) {
+				if ( 'advertising' === $item[2] ) {
+					$found_submenu = true;
+					break;
+				}
+			}
+		}
+		$this->assertTrue( $found_submenu, 'Expected a submenu entry for advertising under ' . $parent_slug );
+
+		add_filter( 'jetpack_blaze_enabled', '__return_false' );
+	}
+
+	/**
+	 * Test that get_menu_parent() returns 'woocommerce-marketing' when WooCommerce
+	 * is active and the marketing menu is registered.
+	 */
+	public function test_get_menu_parent_woocommerce() {
+		global $menu;
+
+		// In CI the WooCommerce stubs are already loaded, so class_exists
+		// returns true. Skip the test when the class is not available.
+		if ( ! class_exists( 'WooCommerce' ) ) {
+			$this->markTestSkipped( 'WooCommerce class not available.' );
+		}
+
+		// Simulate WooCommerce marketing menu being registered.
+		$menu[] = array( 'Marketing', 'manage_options', 'woocommerce-marketing', '', '', '', '' );
+
+		$this->assertSame( 'woocommerce-marketing', Blaze::get_menu_parent() );
+	}
+
+	/**
+	 * Test that has_site_campaigns() returns true when the API returns campaigns.
+	 */
+	public function test_has_site_campaigns_api_returns_campaigns() {
+		update_option( 'jetpack_options', array( 'id' => 99999 ) );
+		// Ensure no cached transient.
+		delete_transient( 'jetpack_blaze_has_site_campaigns_99999' );
+
+		Constants::$set_constants['JETPACK__WPCOM_JSON_API_BASE'] = 'https://public-api.wordpress.com';
+		update_option( 'jetpack_private_options', array( 'blog_token' => 'blog.token' ) );
+
+		add_filter(
+			'pre_http_request',
+			function () {
+				return array(
+					'response' => array( 'code' => 200 ),
+					'body'     => wp_json_encode(
+						array(
+							'total'   => 1,
+							'results' => array( array( 'campaign_id' => 1 ) ),
+						),
+						JSON_UNESCAPED_SLASHES
+					),
+				);
+			}
+		);
+
+		$this->assertTrue( Blaze::has_site_campaigns() );
+
+		delete_transient( 'jetpack_blaze_has_site_campaigns_99999' );
+		delete_option( 'jetpack_options' );
+		delete_option( 'jetpack_private_options' );
+	}
+
+	/**
+	 * Test that has_site_campaigns() returns false when the API returns empty campaigns.
+	 */
+	public function test_has_site_campaigns_api_returns_empty() {
+		update_option( 'jetpack_options', array( 'id' => 99999 ) );
+		delete_transient( 'jetpack_blaze_has_site_campaigns_99999' );
+
+		Constants::$set_constants['JETPACK__WPCOM_JSON_API_BASE'] = 'https://public-api.wordpress.com';
+		update_option( 'jetpack_private_options', array( 'blog_token' => 'blog.token' ) );
+
+		add_filter(
+			'pre_http_request',
+			function () {
+				return array(
+					'response' => array( 'code' => 200 ),
+					'body'     => wp_json_encode(
+						array(
+							'total'   => 0,
+							'results' => array(),
+						),
+						JSON_UNESCAPED_SLASHES
+					),
+				);
+			}
+		);
+
+		$this->assertFalse( Blaze::has_site_campaigns() );
+
+		delete_transient( 'jetpack_blaze_has_site_campaigns_99999' );
+		delete_option( 'jetpack_options' );
+		delete_option( 'jetpack_private_options' );
+	}
+
+	/**
+	 * Test that has_site_campaigns() returns false when the API returns an error.
+	 */
+	public function test_has_site_campaigns_api_error() {
+		update_option( 'jetpack_options', array( 'id' => 99999 ) );
+		delete_transient( 'jetpack_blaze_has_site_campaigns_99999' );
+
+		Constants::$set_constants['JETPACK__WPCOM_JSON_API_BASE'] = 'https://public-api.wordpress.com';
+		update_option( 'jetpack_private_options', array( 'blog_token' => 'blog.token' ) );
+
+		add_filter(
+			'pre_http_request',
+			function () {
+				return array(
+					'response' => array( 'code' => 403 ),
+					'body'     => '',
+				);
+			}
+		);
+
+		$this->assertFalse( Blaze::has_site_campaigns() );
+
+		delete_transient( 'jetpack_blaze_has_site_campaigns_99999' );
+		delete_option( 'jetpack_options' );
+		delete_option( 'jetpack_private_options' );
+	}
+
+	/**
+	 * Test that enable_blaze_menu() registers a top-level menu on WPCOM
+	 * when the dashboard is disabled and the site has active campaigns.
+	 */
+	public function test_wpcom_non_dashboard_top_level_menu_with_campaigns() {
+		global $menu;
+
+		wp_set_current_user( $this->admin_id );
+		add_filter( 'jetpack_blaze_enabled', '__return_true' );
+		add_filter( 'jetpack_blaze_dashboard_enable', '__return_false' );
+
+		// Simulate WPCOM platform.
+		Constants::set_constant( 'IS_WPCOM', true );
+
+		// Seed campaigns.
+		update_option( 'jetpack_options', array( 'id' => 12345 ) );
+		set_transient( 'jetpack_blaze_has_site_campaigns_12345', 'yes', HOUR_IN_SECONDS );
+
+		Blaze::enable_blaze_menu();
+
+		$found_top_level = false;
+		foreach ( (array) $menu as $item ) {
+			if ( isset( $item[2] ) && str_contains( $item[2], 'advertising' ) ) {
+				$found_top_level = true;
+				break;
+			}
+		}
+
+		$this->assertTrue( $found_top_level, 'Expected top-level menu on WPCOM non-dashboard with active campaigns.' );
+
+		delete_transient( 'jetpack_blaze_has_site_campaigns_12345' );
+		delete_option( 'jetpack_options' );
+		Constants::clear_single_constant( 'IS_WPCOM' );
+		add_filter( 'jetpack_blaze_enabled', '__return_false' );
+		remove_all_filters( 'jetpack_blaze_dashboard_enable' );
+	}
+
+	/**
+	 * Test that enable_blaze_menu() registers a submenu on WPCOM
+	 * when the dashboard is disabled and there are no active campaigns.
+	 */
+	public function test_wpcom_non_dashboard_submenu_without_campaigns() {
+		global $submenu;
+
+		wp_set_current_user( $this->admin_id );
+		add_filter( 'jetpack_blaze_enabled', '__return_true' );
+		add_filter( 'jetpack_blaze_dashboard_enable', '__return_false' );
+
+		Constants::set_constant( 'IS_WPCOM', true );
+
+		Blaze::enable_blaze_menu();
+
+		// Should be a submenu, not top-level.
+		$found_submenu = false;
+		foreach ( (array) $submenu as $items ) {
+			foreach ( $items as $item ) {
+				if ( isset( $item[2] ) && str_contains( $item[2], 'advertising' ) ) {
+					$found_submenu = true;
+					break 2;
+				}
+			}
+		}
+
+		$this->assertTrue( $found_submenu, 'Expected submenu on WPCOM non-dashboard without campaigns.' );
+
+		Constants::clear_single_constant( 'IS_WPCOM' );
+		add_filter( 'jetpack_blaze_enabled', '__return_false' );
+		remove_all_filters( 'jetpack_blaze_dashboard_enable' );
+	}
+
+	/**
+	 * Test that get_menu_parent() returns 'jetpack' on WPCOM platform.
+	 */
+	public function test_get_menu_parent_wpcom_platform() {
+		Constants::set_constant( 'IS_WPCOM', true );
+
+		$this->assertSame( 'jetpack', Blaze::get_menu_parent() );
+
+		Constants::clear_single_constant( 'IS_WPCOM' );
+	}
+
+	/**
+	 * Test that redirect_legacy_advertising_url does not redirect when not on tools.php.
+	 */
+	public function test_redirect_legacy_url_no_redirect_on_other_pages() {
+		global $pagenow;
+		$pagenow = 'edit.php';
+
+		// Should not redirect (no exit), just return.
+		Blaze::redirect_legacy_advertising_url();
+
+		// If we get here, no redirect happened.
+		$this->assertTrue( true );
+	}
+
+	/**
+	 * Test that get_campaign_management_url() uses admin.php (not tools.php).
+	 */
+	public function test_campaign_management_url_uses_admin_php() {
+		$url_data = Blaze::get_campaign_management_url( 42 );
+		$this->assertStringContainsString( 'admin.php?page=advertising', $url_data['link'] );
+		$this->assertStringNotContainsString( 'tools.php', $url_data['link'] );
+	}
+
+	/**
+	 * Test that redirect_legacy_advertising_url is hooked on admin_init.
+	 */
+	public function test_redirect_legacy_url_is_hooked() {
+		Blaze::init();
+		$this->assertIsInt( has_action( 'admin_menu', array( Blaze::class, 'redirect_legacy_advertising_url' ) ) );
 	}
 
 	/**
@@ -334,5 +710,119 @@ class Blaze_Test extends BaseTestCase {
 				false,
 			),
 		);
+	}
+
+	/**
+	 * Test that the jetpack_blaze_menu_slug filter changes the registered menu slug.
+	 */
+	public function test_menu_slug_filter() {
+		global $submenu;
+
+		wp_set_current_user( $this->admin_id );
+		add_filter( 'jetpack_blaze_enabled', '__return_true' );
+		add_filter(
+			'jetpack_blaze_menu_slug',
+			function () {
+				return 'wp-blaze';
+			}
+		);
+
+		Blaze::enable_blaze_menu();
+
+		$parent_slug   = Blaze::get_menu_parent();
+		$found_submenu = false;
+		if ( isset( $submenu[ $parent_slug ] ) ) {
+			foreach ( $submenu[ $parent_slug ] as $item ) {
+				if ( 'wp-blaze' === $item[2] ) {
+					$found_submenu = true;
+					break;
+				}
+			}
+		}
+		$this->assertTrue( $found_submenu, 'Expected a submenu entry with slug wp-blaze when filter is applied.' );
+
+		// Verify the default slug is not registered.
+		$found_default = false;
+		if ( isset( $submenu[ $parent_slug ] ) ) {
+			foreach ( $submenu[ $parent_slug ] as $item ) {
+				if ( 'advertising' === $item[2] ) {
+					$found_default = true;
+					break;
+				}
+			}
+		}
+		$this->assertFalse( $found_default, 'Default slug "advertising" should not be registered when filter overrides it.' );
+
+		remove_all_filters( 'jetpack_blaze_menu_slug' );
+		add_filter( 'jetpack_blaze_enabled', '__return_false' );
+	}
+
+	/**
+	 * Test that the jetpack_blaze_menu_label filter changes the menu label.
+	 */
+	public function test_menu_label_filter() {
+		global $submenu;
+
+		wp_set_current_user( $this->admin_id );
+		add_filter( 'jetpack_blaze_enabled', '__return_true' );
+		add_filter(
+			'jetpack_blaze_menu_label',
+			function () {
+				return 'Custom Ads';
+			}
+		);
+
+		Blaze::enable_blaze_menu();
+
+		$parent_slug = Blaze::get_menu_parent();
+		$found_label = null;
+		if ( isset( $submenu[ $parent_slug ] ) ) {
+			foreach ( $submenu[ $parent_slug ] as $item ) {
+				if ( 'advertising' === $item[2] ) {
+					$found_label = $item[0];
+					break;
+				}
+			}
+		}
+
+		$this->assertSame( 'Custom Ads', $found_label );
+
+		remove_all_filters( 'jetpack_blaze_menu_label' );
+		add_filter( 'jetpack_blaze_enabled', '__return_false' );
+	}
+
+	/**
+	 * Test that get_campaign_management_url() uses the filtered slug.
+	 */
+	public function test_campaign_management_url_uses_filtered_slug() {
+		add_filter(
+			'jetpack_blaze_menu_slug',
+			function () {
+				return 'wp-blaze';
+			}
+		);
+
+		$url_data = Blaze::get_campaign_management_url( 42 );
+		$this->assertStringContainsString( 'admin.php?page=wp-blaze', $url_data['link'] );
+		$this->assertStringNotContainsString( 'page=advertising', $url_data['link'] );
+
+		remove_all_filters( 'jetpack_blaze_menu_slug' );
+	}
+
+	/**
+	 * Test that the jetpack_blaze_menu_parent filter can override the parent slug.
+	 */
+	public function test_menu_parent_filter() {
+		add_filter(
+			'jetpack_blaze_menu_parent',
+			function () {
+				return 'custom-parent';
+			}
+		);
+
+		$parent = Blaze::get_menu_parent();
+		$this->assertSame( 'custom-parent', $parent );
+
+		remove_all_filters( 'jetpack_blaze_menu_parent' );
 	}
 }
