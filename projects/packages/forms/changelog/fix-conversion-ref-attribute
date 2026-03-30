@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fixed ref attribute being cleared instead of set during synced form conversion.

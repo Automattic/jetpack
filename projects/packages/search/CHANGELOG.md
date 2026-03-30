@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.56.6] - 2026-03-30
+### Changed
+- Update package dependencies. [#47799]
+
 ## [0.56.5] - 2026-03-23
 ### Changed
 - Move admin notices and JITMs below the page header instead of rendering inside it. [#47558]
@@ -1478,6 +1482,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update PHPUnit configs to include just what needs coverage rather than include everything then try to exclude stuff that doesn't.
 
+[0.56.6]: https://github.com/Automattic/jetpack-search/compare/v0.56.5...v0.56.6
 [0.56.5]: https://github.com/Automattic/jetpack-search/compare/v0.56.4...v0.56.5
 [0.56.4]: https://github.com/Automattic/jetpack-search/compare/v0.56.3...v0.56.4
 [0.56.3]: https://github.com/Automattic/jetpack-search/compare/v0.56.2...v0.56.3

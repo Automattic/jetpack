@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-wp-build-polyfills",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"private": true,
 	"description": "Polyfills for WordPress Core packages not available in WP < 7.0",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/wp-build-polyfills/#readme",
