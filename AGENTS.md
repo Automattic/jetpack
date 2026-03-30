@@ -131,6 +131,7 @@ jp test coverage <project>      # Generate coverage report (optional)
 ### PHP Testing
 
 - `jp test php` works for most projects. A few plugins that require a full WordPress copy (`plugins/jetpack`, `plugins/crm`, `plugins/wpcomsh`) use `jp docker phpunit` instead.
+- **PHP version matrix**: CI runs PHP tests against every supported version from 7.2 to 8.5 (see `.github/versions.sh` for current values). When fixing an issue on one PHP version, ensure the fix is compatible with all supported versions — don't use syntax or functions unavailable in PHP 7.2 unless the project's `composer.json` requires a higher minimum.
 - `jp test php` does not support passthrough options like `--filter`. To filter tests in Docker-based projects, use: `jp docker phpunit jetpack -- --filter=Jetpack_Sync_Post_Test` or `jp docker phpunit jetpack -- --group jetpack-sync`
 - PHP testing approaches vary by project:
   - Some packages use basic PHPUnit with `yoast/phpunit-polyfills` (no WordPress-specific testing)
