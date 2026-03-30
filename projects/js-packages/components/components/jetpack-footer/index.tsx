@@ -1,9 +1,8 @@
-import { isWpcomPlatformSite } from '@automattic/jetpack-script-data';
+import { isWpcomPlatformSite, getAdminUrl } from '@automattic/jetpack-script-data';
 import { __ } from '@wordpress/i18n';
 import { Stack, Text, Link } from '@wordpress/ui';
 import clsx from 'clsx';
 import { getRedirectUrl } from '../../index.ts';
-import getSiteAdminUrl from '../../tools/get-site-admin-url/index.ts';
 import AutomatticBylineLogo from '../automattic-byline-logo/index.tsx';
 import './style.scss';
 import JetpackLogo from '../jetpack-logo/index.tsx';
@@ -17,8 +16,6 @@ import type { FC } from 'react';
  * @return {ReactNode} JetpackFooter component.
  */
 const JetpackFooter: FC< JetpackFooterProps > = ( { className, menu, ...otherProps } ) => {
-	const siteAdminUrl = getSiteAdminUrl();
-
 	let items: JetpackFooterMenuItem[] = [];
 
 	if ( ! isWpcomPlatformSite() ) {
@@ -26,12 +23,12 @@ const JetpackFooter: FC< JetpackFooterProps > = ( { className, menu, ...otherPro
 			{
 				label: __( 'Products', 'jetpack-components' ),
 				title: __( 'Jetpack products', 'jetpack-components' ),
-				href: new URL( 'admin.php?page=my-jetpack#/products', siteAdminUrl ).href,
+				href: getAdminUrl( 'admin.php?page=my-jetpack#/products' ),
 			},
 			{
 				label: __( 'Help', 'jetpack-components' ),
 				title: '',
-				href: new URL( 'admin.php?page=my-jetpack#/help', siteAdminUrl ).href,
+				href: getAdminUrl( 'admin.php?page=my-jetpack#/help' ),
 			},
 			...items,
 		];
