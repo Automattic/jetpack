@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Newsletter Email Status: Fix IDOR vulnerability by adding per-post access control to the newsletter email sent status endpoint.

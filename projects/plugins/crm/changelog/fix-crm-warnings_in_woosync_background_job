@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+WooSync: Skip tag insertion if there are no tags to insert.

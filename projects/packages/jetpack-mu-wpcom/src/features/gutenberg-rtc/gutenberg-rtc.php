@@ -23,16 +23,13 @@ function wpcom_has_features_edge_sticker() {
 }
 
 /**
- * Determine whether RTC should be enabled for Atomic sites.
+ * Determine if the site is part of the HTTP-polling gradual rollout.
  *
  * @return bool
  */
-function wpcom_should_enforce_http_polling() {
-	$blog_id = get_wpcom_blog_id();
-
+function wpcom_is_rtc_http_polling_rollout() {
 	if (
 		defined( 'IS_ATOMIC' ) && IS_ATOMIC &&
-		( $blog_id % 100 < 25 ) &&
 		! wpcom_has_features_edge_sticker() // Sites with the sticker should use WS.
 	) {
 		return true;
@@ -41,11 +38,45 @@ function wpcom_should_enforce_http_polling() {
 }
 
 /**
+ * Determine if the site is part of the HTTP-polling gradual rollout.
+ *
+ * @return bool
+ */
+function wpcom_is_rtc_websocket_rollout() {
+	$blog_id = get_wpcom_blog_id();
+
+	if (
+		defined( 'IS_WPCOM' ) && IS_WPCOM &&
+		( $blog_id % 100 < 5 )
+	) {
+		return true;
+	}
+	return false;
+}
+
+/**
+ * Determine whether the current request is from the WordPress.com desktop app.
+ *
+ * @return bool
+ */
+function wpcom_rtc_is_desktop_app() {
+	if ( ! isset( $_SERVER['HTTP_USER_AGENT'] ) ) {
+		return false;
+	}
+	$user_agent = sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) );
+	return false !== strpos( $user_agent, 'WordPressDesktop' );
+}
+
+/**
  * Determine whether RTC should be enabled based on the site's features.
  *
  * @return bool
  */
 function wpcom_enable_rtc() {
+	// Disable RTC on the desktop app due to an incompatibility.
+	if ( wpcom_rtc_is_desktop_app() ) {
+		return false;
+	}
 	$has_rtc_feature = false;
 	if ( function_exists( 'wpcom_site_has_feature' ) && class_exists( 'WPCOM_Features' ) && defined( 'WPCOM_Features::REAL_TIME_COLLABORATION' ) ) {
 		$blog_id         = get_wpcom_blog_id();
@@ -61,7 +92,7 @@ function wpcom_enable_rtc() {
 		return false;
 	}
 
-	if ( wpcom_should_enforce_http_polling() ) {
+	if ( wpcom_is_rtc_http_polling_rollout() || wpcom_is_rtc_websocket_rollout() ) {
 		return true;
 	}
 
@@ -81,7 +112,7 @@ add_filter( 'jetpack_rtc_enabled', 'wpcom_enable_rtc' );
  * @return array Modified array of RTC providers, enforcing 'http-polling' if necessary.
  */
 function wpcom_rtc_providers( $providers ) {
-	if ( wpcom_should_enforce_http_polling() ) {
+	if ( wpcom_is_rtc_http_polling_rollout() ) {
 		return array( 'http-polling' );
 	}
 	return $providers;

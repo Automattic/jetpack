@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fixed undo restoring wrong form status for non-standard statuses in dashboard header actions

@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Add passthru support for auto_prepend_file.

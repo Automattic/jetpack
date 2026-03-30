@@ -14,7 +14,7 @@ import { projects } from './projects.js';
 const presetRequire = createRequire( import.meta.resolve( '@wordpress/postcss-plugins-preset' ) );
 const postcssImport = presetRequire( 'postcss-import' );
 
-const __dirname = path.dirname( fileURLToPath( import.meta.url ) );
+const __dirname = import.meta.dirname;
 
 const storiesSearch = '*.@(mdx|@(story|stories).@(js|jsx|ts|tsx))';
 const stories = [ process.env.NODE_ENV !== 'test' && `./stories/**/${ storiesSearch }` ]

@@ -1,0 +1,4 @@
+Significance: patch
+Type: security
+
+Charts: Sanitize GeoChart HTML tooltip content with DOMPurify to prevent XSS.

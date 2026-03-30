@@ -18,7 +18,7 @@ export default function makeReactConfig( configurl ) {
 
 	const compat = new FlatCompat( {
 		baseDirectory: basedir,
-		resolvePluginsRelativeTo: fileURLToPath( import.meta.url ),
+		resolvePluginsRelativeTo: import.meta.filename,
 	} );
 
 	return defineConfig(
