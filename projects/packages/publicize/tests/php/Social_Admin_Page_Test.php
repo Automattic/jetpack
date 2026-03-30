@@ -87,7 +87,8 @@ class Social_Admin_Page_Test extends BaseTestCase {
 				array(
 					'plan'     => array( 'product_slug' => 'jetpack_free' ),
 					'products' => array(),
-				)
+				),
+				JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT
 			),
 			'headers'  => array(),
 			'cookies'  => array(),
@@ -119,7 +120,7 @@ class Social_Admin_Page_Test extends BaseTestCase {
 	 * It refreshes plan data when the nonce is valid.
 	 */
 	public function test_admin_init_refreshes_plan_with_valid_nonce() {
-		$_GET['refresh_plan_data'] = '1';
+		$_GET['refresh_plan_data']     = '1';
 		$_REQUEST['refresh_plan_data'] = '1';
 		$_REQUEST['_wpnonce']          = wp_create_nonce( Social_Admin_Page::REFRESH_PLAN_NONCE_ACTION );
 		$_GET['_wpnonce']              = $_REQUEST['_wpnonce'];
@@ -137,7 +138,7 @@ class Social_Admin_Page_Test extends BaseTestCase {
 
 		add_filter( 'wp_die_handler', array( $this, 'throw_on_wp_die' ), 10 );
 
-		$_GET['refresh_plan_data'] = '1';
+		$_GET['refresh_plan_data']     = '1';
 		$_REQUEST['refresh_plan_data'] = '1';
 		$_REQUEST['_wpnonce']          = 'invalid';
 		$_GET['_wpnonce']              = $_REQUEST['_wpnonce'];
