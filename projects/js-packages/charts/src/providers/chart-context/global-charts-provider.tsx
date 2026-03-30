@@ -86,25 +86,19 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( {
 		if ( Array.isArray( colors ) ) {
 			for ( const color of colors ) {
 				if ( color && typeof color === 'string' ) {
-					let colorValue = color;
+					// Normalize color to hex format, handling CSS variables, RGB, HSL, etc.
+					// This uses normalizeColorToHex which resolves CSS variables and converts
+					// rgb(), rgba(), hsl() formats to hex
+					const normalizedColor = normalizeColorToHex(
+						color,
+						wrapperRef.current,
+						resolveCssVariable
+					);
 
-					// Handle CSS custom properties - resolve them to actual values
-					// Supports both '--var-name' and 'var(--var-name)' formats
-					// Use wrapper element to resolve scoped CSS variables
-					if ( color.startsWith( '--' ) || color.startsWith( 'var(' ) ) {
-						const resolved = resolveCssVariable( color, wrapperRef.current );
-
-						if ( resolved === null || resolved === '' ) {
-							continue;
-						}
-
-						colorValue = resolved;
-					}
-
-					// Process hex colors
-					if ( colorValue.startsWith( '#' ) ) {
-						resolvedColors.push( colorValue );
-						const hslColor = d3Hsl( colorValue );
+					// Only process valid hex colors
+					if ( normalizedColor.startsWith( '#' ) ) {
+						resolvedColors.push( normalizedColor );
+						const hslColor = d3Hsl( normalizedColor );
 						// d3Hsl returns NaN values for invalid colors
 						if ( ! isNaN( hslColor.h ) ) {
 							const hslTuple: [ number, number, number ] = [

@@ -130,23 +130,21 @@ export function NewsletterSection( { data, onChange }: NewsletterSectionProps ):
 					} }
 					onChange={ handleChange }
 				/>
-				{ data.subscriptions && newsletterScriptData && (
-					<div>
-						<ExternalLink
-							href={ newsletterScriptData.subscriberManagementUrl }
-							onClick={ handleManageSubscribersClick }
-						>
-							{ __( 'Manage all subscribers', 'jetpack-newsletter' ) }
-						</ExternalLink>
-					</div>
-				) }
 			</CardBody>
-			<CardFooter>
+			<CardFooter className="newsletter-card-footer">
 				<ExternalLink
 					href={ getRedirectUrl( 'jetpack-support-subscriptions', { anchor: 'privacy' } ) }
 				>
 					{ __( 'Privacy information', 'jetpack-newsletter' ) }
 				</ExternalLink>
+				{ data.subscriptions && newsletterScriptData && (
+					<ExternalLink
+						href={ newsletterScriptData.subscriberManagementUrl }
+						onClick={ handleManageSubscribersClick }
+					>
+						{ __( 'Manage all subscribers', 'jetpack-newsletter' ) }
+					</ExternalLink>
+				) }
 			</CardFooter>
 		</Card>
 	);
