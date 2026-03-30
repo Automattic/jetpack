@@ -1,36 +1,15 @@
 import { addFilter } from '@wordpress/hooks';
 import { createPingHubProvider } from './pinghub';
 
-/**
- * Register providers (e.g. PingHub) supplied by the server alongside the existing HTTP-polling provider.
- */
-function jetpackRegisterRTCProviders() {
-	const getProviders = () => {
-		if ( ! window.jetpackRTC?.providers ) {
-			return [];
+addFilter( 'sync.providers', 'jetpack/rtc-providers', ( defaultProviders: unknown[] ) => {
+	if ( ! window.jetpackRTC?.providers ) {
+		return [];
+	}
+	const jetpackRTCProviders = [];
+	window.jetpackRTC.providers.forEach( ( provider: string ) => {
+		if ( provider === 'pinghub' ) {
+			jetpackRTCProviders.push( createPingHubProvider() );
 		}
-
-		return window.jetpackRTC.providers
-			.map( ( provider: string ) => {
-				switch ( provider ) {
-					case 'pinghub': {
-						return createPingHubProvider();
-					}
-					default:
-						return null;
-				}
-			} )
-			.filter( Boolean );
-	};
-
-	addFilter( 'sync.providers', 'jetpack/rtc-providers', ( existing: unknown[] ) => {
-		const ours = getProviders();
-		// Empty means the site is not eligible for RTC — disable it entirely.
-		if ( ours.length === 0 ) {
-			return [];
-		}
-		return [ ...existing, ...ours ];
 	} );
-}
-
-jetpackRegisterRTCProviders();
+	return [ ...defaultProviders, ...jetpackRTCProviders ];
+} );
