@@ -49,20 +49,26 @@ const LaunchpadWidget = ( { siteDomain, siteIntent } ) => {
 	const { mutate: launchSite } = useLaunchSiteMutation( () => setShowCelebrateLaunchModal( true ) );
 
 	const onTaskClick = task => {
-		if ( ! task.isLaunchTask ) {
+		if ( ! task.isLaunchTask || ! variationName ) {
 			return;
-		}
-
-		if ( variationName === 'gated_site_launch' ) {
-			window.location.href = addQueryArgs( 'https://wordpress.com/start/launch-site', {
-				siteSlug: data.siteDomain,
-				ref: 'wp-admin',
-			} );
-			return false;
 		}
 
 		if ( variationName === 'ungated_site_launch' ) {
 			launchSite();
+			// This prop will be introduced in https://github.com/Automattic/wp-calypso/pull/109434.
+			// Then we'll need to update the Launchpad package version.
+			return false;
+		}
+
+		if ( variationName === 'gated_site_launch' ) {
+			window.location.assign(
+				addQueryArgs( 'https://wordpress.com/start/launch-site', {
+					siteSlug: siteDomain,
+					ref: 'wp-admin',
+				} )
+			);
+			// This prop will be introduced in https://github.com/Automattic/wp-calypso/pull/109434.
+			// Then we'll need to update the Launchpad package version.
 			return false;
 		}
 	};
