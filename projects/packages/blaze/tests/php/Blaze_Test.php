@@ -720,7 +720,12 @@ class Blaze_Test extends BaseTestCase {
 
 		wp_set_current_user( $this->admin_id );
 		add_filter( 'jetpack_blaze_enabled', '__return_true' );
-		add_filter( 'jetpack_blaze_menu_slug', fn() => 'wp-blaze' );
+		add_filter(
+			'jetpack_blaze_menu_slug',
+			function () {
+				return 'wp-blaze';
+			}
+		);
 
 		Blaze::enable_blaze_menu();
 
@@ -760,7 +765,12 @@ class Blaze_Test extends BaseTestCase {
 
 		wp_set_current_user( $this->admin_id );
 		add_filter( 'jetpack_blaze_enabled', '__return_true' );
-		add_filter( 'jetpack_blaze_menu_label', fn() => 'Custom Ads' );
+		add_filter(
+			'jetpack_blaze_menu_label',
+			function () {
+				return 'Custom Ads';
+			}
+		);
 
 		Blaze::enable_blaze_menu();
 
@@ -785,7 +795,12 @@ class Blaze_Test extends BaseTestCase {
 	 * Test that get_campaign_management_url() uses the filtered slug.
 	 */
 	public function test_campaign_management_url_uses_filtered_slug() {
-		add_filter( 'jetpack_blaze_menu_slug', fn() => 'wp-blaze' );
+		add_filter(
+			'jetpack_blaze_menu_slug',
+			function () {
+				return 'wp-blaze';
+			}
+		);
 
 		$url_data = Blaze::get_campaign_management_url( 42 );
 		$this->assertStringContainsString( 'admin.php?page=wp-blaze', $url_data['link'] );
@@ -798,7 +813,12 @@ class Blaze_Test extends BaseTestCase {
 	 * Test that the jetpack_blaze_menu_parent filter can override the parent slug.
 	 */
 	public function test_menu_parent_filter() {
-		add_filter( 'jetpack_blaze_menu_parent', fn() => 'custom-parent' );
+		add_filter(
+			'jetpack_blaze_menu_parent',
+			function () {
+				return 'custom-parent';
+			}
+		);
 
 		$parent = Blaze::get_menu_parent();
 		$this->assertSame( 'custom-parent', $parent );
