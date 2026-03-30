@@ -95,9 +95,8 @@ export const wordpressPlansStore = createReduxStore( store, {
 } );
 
 // Guard against duplicate registration when multiple bundles include this package.
-try {
-	select( store );
-} catch {
+// Note: select() returns undefined (not throws) for unregistered stores.
+if ( ! select( store ) ) {
 	register( wordpressPlansStore );
 }
 

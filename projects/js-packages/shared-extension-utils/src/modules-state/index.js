@@ -15,9 +15,8 @@ export const store = createReduxStore( JETPACK_MODULES_STORE_ID, {
 } );
 
 // Guard against duplicate registration when multiple bundles include this package.
-try {
-	select( JETPACK_MODULES_STORE_ID );
-} catch {
+// Note: select() returns undefined (not throws) for unregistered stores.
+if ( ! select( JETPACK_MODULES_STORE_ID ) ) {
 	register( store );
 }
 
