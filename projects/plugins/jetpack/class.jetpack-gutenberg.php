@@ -1418,227 +1418,132 @@ if ( ( new Host() )->is_woa_site() ) {
 }
 
 /**
- * Debug: Output Block Notes diagnostic info to the browser console.
+ * Debug: Output Block Notes diagnostic info as a visible admin notice.
  *
  * Temporary — remove before merging to trunk.
- *
- * Placed here (not in block-notes.php) because block-notes.php is only loaded
- * when should_load() passes (connection + blocks module). This file is always
- * required by class.jetpack.php, so debug output appears regardless.
  */
 add_action(
-	'admin_footer',
+	'admin_notices',
 	function () {
-		if ( ! is_admin() || ! current_user_can( 'manage_options' ) ) {
+		if ( ! current_user_can( 'manage_options' ) ) {
 			return;
 		}
 
-		$debug = array();
+		$lines = array();
+		$lines[] = '<div style="background:#1e1e1e;color:#e0e0e0;font-family:monospace;font-size:12px;padding:12px 16px;margin:10px 0;border-left:4px solid #0073aa;max-height:500px;overflow:auto;">';
+		$lines[] = '<strong style="color:#0073aa;font-size:14px;">Block Notes Debug</strong><br>';
 
-		// --- Section 0: File loading ---
+		$t = function ( $v ) {
+			if ( true === $v ) {
+				return '<span style="color:#4caf50;font-weight:bold;">true</span>';
+			}
+			if ( false === $v ) {
+				return '<span style="color:#f44336;font-weight:bold;">false</span>';
+			}
+			return esc_html( (string) $v );
+		};
+
+		$h = function ( $text ) {
+			return '<br><span style="color:#0073aa;font-weight:bold;border-bottom:1px solid #333;">' . esc_html( $text ) . '</span><br>';
+		};
+
+		// Section 0: File loading.
 		$block_notes_loaded = function_exists( 'Automattic\Jetpack\Extensions\BlockNotes\is_block_notes_enabled' );
-
-		$debug['=== 0. FILE LOADING ===']        = '';
-		$debug['block-notes.php loaded']          = $block_notes_loaded;
-		$debug['Jetpack_Gutenberg::should_load()'] = Jetpack_Gutenberg::should_load();
+		$lines[]            = $h( '0. FILE LOADING' );
+		$lines[]            = 'block-notes.php loaded: ' . $t( $block_notes_loaded ) . '<br>';
+		$lines[]            = 'Jetpack_Gutenberg::should_load(): ' . $t( Jetpack_Gutenberg::should_load() ) . '<br>';
 
 		if ( class_exists( 'Jetpack' ) ) {
-			$debug['Jetpack::is_connection_ready()'] = Jetpack::is_connection_ready();
+			$lines[] = 'Jetpack::is_connection_ready(): ' . $t( Jetpack::is_connection_ready() ) . '<br>';
 		}
+		$lines[] = 'is_offline_mode(): ' . $t( ( new \Automattic\Jetpack\Status() )->is_offline_mode() ) . '<br>';
+		$lines[] = 'blocks module active: ' . $t( ( new \Automattic\Jetpack\Modules() )->is_active( 'blocks' ) ) . '<br>';
 
-		$status = new \Automattic\Jetpack\Status();
-		$debug['is_offline_mode()'] = $status->is_offline_mode();
+		if ( $block_notes_loaded ) {
+			// Section 1: Enablement.
+			$lines[] = $h( '1. ENABLEMENT FLAGS' );
+			$lines[] = 'agents_manager_use_unified_experience: ' . $t( apply_filters( 'agents_manager_use_unified_experience', false ) ) . '<br>';
+			$lines[] = 'jetpack_block_notes_enabled: ' . $t( apply_filters( 'jetpack_block_notes_enabled', false ) ) . '<br>';
+			$lines[] = 'is_block_notes_enabled(): ' . $t( \Automattic\Jetpack\Extensions\BlockNotes\is_block_notes_enabled() ) . '<br>';
 
-		$modules = new \Automattic\Jetpack\Modules();
-		$debug['blocks module active'] = $modules->is_active( 'blocks' );
-
-		if ( ! $block_notes_loaded ) {
-			$debug['!!! STOPPED HERE'] = 'block-notes.php was never included. Fix the above checks first.';
-
-			$js_data = wp_json_encode( $debug, JSON_PRETTY_PRINT | JSON_HEX_TAG | JSON_HEX_AMP );
-			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Temporary debug, admin-only.
-			echo '<script>
-			console.group("%cBlock Notes Debug", "font-weight:bold;font-size:14px;color:#d63638");
-			Object.entries(' . $js_data . ').forEach(([k,v]) => {
-				if (v === "") { console.log("%c" + k, "font-weight:bold;color:#0073aa;margin-top:4px"); }
-				else if (v === false) { console.log("%c" + k + ": %cfalse", "color:#333", "color:red;font-weight:bold"); }
-				else if (v === true) { console.log("%c" + k + ": %ctrue", "color:#333", "color:green;font-weight:bold"); }
-				else { console.log(k + ":", v); }
-			});
-			console.groupEnd();
-			</script>';
-			return;
-		}
-
-		// --- Section 1: Enablement flags ---
-		$unified_filter = apply_filters( 'agents_manager_use_unified_experience', false );
-		$bn_filter      = apply_filters( 'jetpack_block_notes_enabled', false );
-		$enabled        = \Automattic\Jetpack\Extensions\BlockNotes\is_block_notes_enabled();
-
-		$debug['=== 1. ENABLEMENT FLAGS ===']                  = '';
-		$debug['agents_manager_use_unified_experience filter']  = $unified_filter;
-		$debug['jetpack_block_notes_enabled filter']            = $bn_filter;
-		$debug['is_block_notes_enabled() result']               = $enabled;
-
-		// --- Section 2: Filter hooks registered ---
-		global $wp_filter;
-		$filter_names = array( 'agents_manager_use_unified_experience', 'jetpack_block_notes_enabled' );
-		$debug['=== 2. REGISTERED FILTER CALLBACKS ==='] = '';
-		foreach ( $filter_names as $filter_name ) {
-			$hooks = array();
-			if ( isset( $wp_filter[ $filter_name ] ) ) {
-				foreach ( $wp_filter[ $filter_name ]->callbacks as $priority => $callbacks ) {
-					foreach ( $callbacks as $callback ) {
-						$fn = $callback['function'];
-						if ( is_string( $fn ) ) {
-							$name = $fn;
-						} elseif ( is_array( $fn ) ) {
-							$name = ( is_object( $fn[0] ) ? get_class( $fn[0] ) : $fn[0] ) . '::' . $fn[1];
-						} elseif ( $fn instanceof \Closure ) {
-							$name = '{closure}';
-						} else {
-							$name = '(unknown)';
+			// Section 2: Filter callbacks.
+			global $wp_filter;
+			$lines[] = $h( '2. FILTER CALLBACKS' );
+			foreach ( array( 'agents_manager_use_unified_experience', 'jetpack_block_notes_enabled' ) as $fname ) {
+				$hooks = array();
+				if ( isset( $wp_filter[ $fname ] ) ) {
+					foreach ( $wp_filter[ $fname ]->callbacks as $pri => $cbs ) {
+						foreach ( $cbs as $cb ) {
+							$fn = $cb['function'];
+							if ( is_string( $fn ) ) {
+								$hooks[] = "pri $pri: $fn";
+							} elseif ( is_array( $fn ) ) {
+								$hooks[] = 'pri ' . $pri . ': ' . ( is_object( $fn[0] ) ? get_class( $fn[0] ) : $fn[0] ) . '::' . $fn[1];
+							} else {
+								$hooks[] = "pri $pri: (closure)";
+							}
 						}
-						$hooks[] = "pri $priority: $name";
 					}
 				}
+				$lines[] = esc_html( $fname ) . ': ' . ( $hooks ? esc_html( implode( ' | ', $hooks ) ) : '<span style="color:#f44336;">NONE</span>' ) . '<br>';
 			}
-			$debug[ "$filter_name callbacks" ] = ! empty( $hooks ) ? implode( ' | ', $hooks ) : 'NONE — nothing is hooking this filter!';
+		} else {
+			$lines[] = '<br><span style="color:#f44336;font-weight:bold;">!! block-notes.php was never included — fix section 0 first</span><br>';
 		}
 
-		// --- Section 3: Agents Manager ---
+		// Section 3: Agents Manager.
 		$am_class = 'Automattic\\Jetpack\\Agents_Manager\\Agents_Manager';
-
-		$debug['=== 3. AGENTS MANAGER ===']  = '';
-		$debug['Agents_Manager class exists'] = class_exists( $am_class );
-		$debug['jetpack-mu-wpcom version']    = defined( 'JETPACK_MU_WPCOM_VERSION' ) ? JETPACK_MU_WPCOM_VERSION : 'NOT LOADED';
+		$lines[]  = $h( '3. AGENTS MANAGER' );
+		$lines[]  = 'class exists: ' . $t( class_exists( $am_class ) ) . '<br>';
+		$lines[]  = 'jetpack-mu-wpcom: ' . $t( defined( 'JETPACK_MU_WPCOM_VERSION' ) ? JETPACK_MU_WPCOM_VERSION : 'NOT LOADED' ) . '<br>';
 
 		if ( class_exists( $am_class ) && method_exists( $am_class, 'is_dev_mode' ) ) {
 			try {
-				$reflection = new \ReflectionMethod( $am_class, 'is_dev_mode' );
-				$reflection->setAccessible( true ); // phpcs:ignore
-				$debug['Agents_Manager::is_dev_mode()'] = $reflection->invoke( null );
+				$ref = new \ReflectionMethod( $am_class, 'is_dev_mode' );
+				$ref->setAccessible( true ); // phpcs:ignore
+				$lines[] = 'is_dev_mode(): ' . $t( $ref->invoke( null ) ) . '<br>';
 			} catch ( \Exception $e ) {
-				$debug['Agents_Manager::is_dev_mode()'] = 'reflection error: ' . $e->getMessage();
+				$lines[] = 'is_dev_mode(): error<br>';
 			}
-		} else {
-			$debug['Agents_Manager::is_dev_mode()'] = 'class/method not available';
 		}
 
-		// --- Section 4: Site & user environment ---
-		$domain = wp_parse_url( get_site_url(), PHP_URL_HOST );
+		// Section 4: Environment.
+		$domain  = wp_parse_url( get_site_url(), PHP_URL_HOST );
+		$lines[] = $h( '4. ENVIRONMENT' );
+		$lines[] = 'domain: ' . esc_html( $domain ) . '<br>';
+		$lines[] = 'JETPACK__VERSION: ' . $t( defined( 'JETPACK__VERSION' ) ? JETPACK__VERSION : 'N/A' ) . '<br>';
+		$lines[] = 'user_id: ' . $t( get_current_user_id() ) . '<br>';
 
-		$debug['=== 4. SITE ENVIRONMENT ===']       = '';
-		$debug['site_url']                           = get_site_url();
-		$debug['domain']                             = $domain;
-		$debug['is_localhost']                       = ( 'localhost' === $domain );
-		$debug['is_jurassic']                        = ( false !== stristr( $domain, '.jurassic.tube' ) || false !== stristr( $domain, '.jurassic.ninja' ) );
-		$debug['AT_PROXIED_REQUEST']                 = defined( 'AT_PROXIED_REQUEST' ) ? AT_PROXIED_REQUEST : 'not defined';
-		$debug['ATOMIC_CLIENT_ID']                   = defined( 'ATOMIC_CLIENT_ID' ) ? ATOMIC_CLIENT_ID : 'not defined';
-		$debug['IS_WPCOM']                           = defined( 'IS_WPCOM' ) ? IS_WPCOM : 'not defined';
-		$debug['JETPACK__VERSION']                   = defined( 'JETPACK__VERSION' ) ? JETPACK__VERSION : 'not defined';
-		$debug['current_user_id']                    = get_current_user_id();
-		$debug['SCRIPT_DEBUG']                       = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG;
-		$debug['WP_DEBUG']                           = defined( 'WP_DEBUG' ) && WP_DEBUG;
-
-		// --- Section 5: Jetpack connection ---
-		$debug['=== 5. JETPACK CONNECTION ==='] = '';
-		if ( class_exists( 'Jetpack' ) ) {
-			$debug['Jetpack::is_connection_ready()'] = Jetpack::is_connection_ready();
-		}
+		// Section 5: Connection.
+		$lines[] = $h( '5. CONNECTION' );
 		if ( class_exists( 'Automattic\\Jetpack\\Connection\\Manager' ) ) {
-			$conn = new \Automattic\Jetpack\Connection\Manager();
-			$debug['has_connected_owner()']  = $conn->has_connected_owner();
-			$debug['is_user_connected()']    = $conn->is_user_connected();
+			$conn    = new \Automattic\Jetpack\Connection\Manager();
+			$lines[] = 'has_connected_owner(): ' . $t( $conn->has_connected_owner() ) . '<br>';
+			$lines[] = 'is_user_connected(): ' . $t( $conn->is_user_connected() ) . '<br>';
 		}
 
-		// --- Section 6: Screen info ---
-		$screen      = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
-		$screen_base = $screen ? $screen->base : 'N/A';
-		$screen_pt   = $screen ? $screen->post_type : 'N/A';
-		$is_block_ed = $screen && $screen->is_block_editor();
-
-		$debug['=== 6. SCREEN ===']          = '';
-		$debug['screen.base']                 = $screen_base;
-		$debug['screen.post_type']            = $screen_pt;
-		$debug['screen.is_block_editor()']    = $is_block_ed;
-
-		if ( $block_notes_loaded ) {
-			$debug['should_load_on_current_screen()'] = \Automattic\Jetpack\Extensions\BlockNotes\should_load_on_current_screen();
-		}
-
-		// --- Section 7: Asset loading ---
-		$asset_json_url  = 'https://widgets.wp.com/agents-manager/block-notes.asset.json';
-		$asset_json_path = ABSPATH . 'widgets.wp.com/agents-manager/block-notes.asset.json';
-		$local_exists    = file_exists( $asset_json_path );
-		$transient_val   = get_transient( 'jetpack_block_notes_asset' );
-
-		$debug['=== 7. ASSET LOADING ===']  = '';
-		$debug['ASSET_JSON_URL']             = $asset_json_url;
-		$debug['local path']                 = $asset_json_path;
-		$debug['local file exists']          = $local_exists;
-		$debug['transient cached']           = ( false !== $transient_val );
-
-		if ( false !== $transient_val ) {
-			$debug['asset source']       = 'transient';
-			$debug['asset version']      = $transient_val['version'] ?? 'missing';
-			$debug['asset deps']         = isset( $transient_val['dependencies'] ) ? implode( ', ', $transient_val['dependencies'] ) : 'none';
-		} else {
-			$resp = wp_safe_remote_get( $asset_json_url );
+		// Section 6: Asset.
+		$lines[]       = $h( '6. ASSET' );
+		$transient_val = get_transient( 'jetpack_block_notes_asset' );
+		$lines[]       = 'transient cached: ' . $t( false !== $transient_val ) . '<br>';
+		if ( false === $transient_val ) {
+			$resp = wp_safe_remote_get( 'https://widgets.wp.com/agents-manager/block-notes.asset.json' );
 			if ( is_wp_error( $resp ) ) {
-				$debug['remote fetch ERROR'] = $resp->get_error_message();
+				$lines[] = 'remote: ' . $t( $resp->get_error_message() ) . '<br>';
 			} else {
-				$http_code     = wp_remote_retrieve_response_code( $resp );
-				$content_type  = wp_remote_retrieve_header( $resp, 'content-type' );
-				$body          = wp_remote_retrieve_body( $resp );
-
-				$debug['remote HTTP status']  = $http_code;
-				$debug['remote content-type']  = $content_type;
-				$debug['remote body (500ch)']  = substr( $body, 0, 500 );
-
-				if ( 200 === $http_code ) {
-					$parsed = json_decode( $body, true );
-					if ( json_last_error() !== JSON_ERROR_NONE ) {
-						$debug['JSON parse error'] = json_last_error_msg();
-					} else {
-						$debug['asset version']    = $parsed['version'] ?? 'missing';
-						$debug['asset deps']       = isset( $parsed['dependencies'] ) ? implode( ', ', $parsed['dependencies'] ) : 'none';
-					}
-				}
+				$lines[] = 'remote HTTP: ' . $t( wp_remote_retrieve_response_code( $resp ) ) . '<br>';
 			}
 		}
 
-		// --- Section 8: Extension availability ---
-		$debug['=== 8. EXTENSION STATUS ==='] = '';
-		$availability = Jetpack_Gutenberg::get_extension_availability();
-		if ( isset( $availability['block-notes'] ) ) {
-			$debug['block-notes availability'] = $availability['block-notes'];
-		} else {
-			$debug['block-notes availability'] = 'NOT REGISTERED — set_extension_available() was never called';
-		}
+		// Section 7: Extension & enqueue.
+		$lines[] = $h( '7. EXTENSION & ENQUEUE' );
+		$avail   = Jetpack_Gutenberg::get_extension_availability();
+		$lines[] = 'block-notes registered: ' . $t( isset( $avail['block-notes'] ) ? wp_json_encode( $avail['block-notes'] ) : 'NOT REGISTERED' ) . '<br>';
+		$lines[] = 'script enqueued: ' . $t( wp_script_is( 'block-notes', 'enqueued' ) ) . '<br>';
 
-		// List all registered extensions for context.
-		$extensions = Jetpack_Gutenberg::get_extensions();
-		$debug['registered extensions (has block-notes?)'] = in_array( 'block-notes', $extensions, true ) ? 'YES, in list' : 'NO, not in extensions list';
+		$lines[] = '</div>';
 
-		// --- Section 9: Enqueue status ---
-		$debug['=== 9. ENQUEUE STATUS ===']       = '';
-		$debug['script registered (block-notes)']  = wp_script_is( 'block-notes', 'registered' );
-		$debug['script enqueued (block-notes)']    = wp_script_is( 'block-notes', 'enqueued' );
-
-		// --- Output ---
-		$js_data = wp_json_encode( $debug, JSON_PRETTY_PRINT | JSON_HEX_TAG | JSON_HEX_AMP );
-
-		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Temporary debug, admin-only, remove before merge.
-		echo '<script>
-		console.group("%cBlock Notes Debug", "font-weight:bold;font-size:14px;color:#0073aa");
-		Object.entries(' . $js_data . ').forEach(([k,v]) => {
-			if (v === "") { console.log("%c" + k, "font-weight:bold;color:#0073aa;margin-top:4px"); }
-			else if (v === false) { console.log("%c" + k + ": %cfalse", "color:#333", "color:red;font-weight:bold"); }
-			else if (v === true) { console.log("%c" + k + ": %ctrue", "color:#333", "color:green;font-weight:bold"); }
-			else { console.log(k + ":", v); }
-		});
-		console.groupEnd();
-		</script>';
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Temporary debug notice, admin-only.
+		echo implode( "\n", $lines );
 	}
 );
