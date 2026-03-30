@@ -5,6 +5,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [7.15.0] - 2026-03-30
+### Security
+- Gravatar: Do not include email or IP address in Gravatar image URL. [#47779]
+- Improve form submission validation. [#47795]
+
+### Added
+- Add WordPress Playground blueprint for Forms development. [#47758]
+- Dashboard: Add tracking events for form-level actions (preview, copy embed, copy shortcode, duplicate, trash, restore, delete, rename, publish/unpublish, edit, view responses). [#47646]
+
+### Changed
+- Exclude blueprints directory from production builds. [#47821]
+- Gravatar: Show initials derived from email prefix instead of mystery person avatar when no name is provided. [#47807]
+- Remove reduntant de-registration of Jetpack collection in forms editor. [#47614]
+- Update DataViews dependency. [#46973]
+- Update legacy Node calls. [#47770]
+- Update package dependencies. [#47686] [#47799] [#47818]
+
+### Fixed
+- Ensure form rename modal does not close when save fails, so users can retry without losing their input. [#47796]
+- Fix phone field initialization failure when script module loads after DOMContentLoaded. [#47657]
+- Fix undo restoring wrong form status for non-standard statuses in dashboard header actions. [#47798]
+- Prevent Forms dashboard black screen when The Events Calendar is active by replacing fragile import() in inline script with a proper script module. [#47823]
+- Set ref attribute instead of clearing it during synced form conversion. [#47794]
+
 ## [7.14.0] - 2026-03-23
 ### Added
 - Add logged-in user display name and ID to form submission emails and response sidebar. [#47652]
@@ -2372,6 +2396,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a new jetpack/forms package [#28409]
 - Added a public load_contact_form method for initializing the contact form module. [#28416]
 
+[7.15.0]: https://github.com/automattic/jetpack-forms/compare/v7.14.0...v7.15.0
 [7.14.0]: https://github.com/automattic/jetpack-forms/compare/v7.13.0...v7.14.0
 [7.13.0]: https://github.com/automattic/jetpack-forms/compare/v7.12.0...v7.13.0
 [7.12.0]: https://github.com/automattic/jetpack-forms/compare/v7.11.0...v7.12.0

@@ -1,3 +1,10 @@
+## [3.3.12] - 2026-03-30
+### Changed
+- Update package dependencies. [#47818]
+
+### Fixed
+- Build: Adjust CSS output to be compliant with Stylelint rules. [#47745]
+
 ## [3.3.11] - 2026-03-09
 ### Changed
 - Switch to Native TypeScript compiler based on Go. [#47375]
@@ -317,6 +324,7 @@
 
 - Build: Refactored (aligned build system with Gridicons).
 
+[3.3.12]: https://github.com/Automattic/social-logos/compare/v3.3.11...v3.3.12
 [3.3.11]: https://github.com/Automattic/social-logos/compare/v3.3.10...v3.3.11
 [3.3.10]: https://github.com/Automattic/social-logos/compare/v3.3.9...v3.3.10
 [3.3.9]: https://github.com/Automattic/social-logos/compare/v3.3.8...v3.3.9

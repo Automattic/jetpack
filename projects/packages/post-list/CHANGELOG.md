@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.12] - 2026-03-30
+### Changed
+- Update dependencies. [#47510]
+
 ## [0.9.11] - 2026-03-23
 ### Changed
 - Update package dependencies. [#47684]
@@ -334,6 +338,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated the default columns displayed on the post and page list screens
 - Refactored thumbnail preview to function server side. All javascript removed.
 
+[0.9.12]: https://github.com/automattic/jetpack-post-list/compare/v0.9.11...v0.9.12
 [0.9.11]: https://github.com/automattic/jetpack-post-list/compare/v0.9.10...v0.9.11
 [0.9.10]: https://github.com/automattic/jetpack-post-list/compare/v0.9.9...v0.9.10
 [0.9.9]: https://github.com/automattic/jetpack-post-list/compare/v0.9.8...v0.9.9

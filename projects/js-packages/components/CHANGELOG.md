@@ -2,6 +2,12 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## [1.7.0] - 2026-03-30
+### Changed
+- Remove double heading wrapper from AdminPage title, fixing header title sizing across all Jetpack admin pages. [#47696]
+- Update legacy Node calls. [#47770]
+- Update package dependencies. [#47799]
+
 ## [1.6.1] - 2026-03-23
 ### Changed
 - Update package dependencies. [#47684] [#47719]
@@ -1709,6 +1715,7 @@
 ### Changed
 - Update node version requirement to 14.16.1
 
+[1.7.0]: https://github.com/Automattic/jetpack-components/compare/1.6.1...1.7.0
 [1.6.1]: https://github.com/Automattic/jetpack-components/compare/1.6.0...1.6.1
 [1.6.0]: https://github.com/Automattic/jetpack-components/compare/1.5.0...1.6.0
 [1.5.0]: https://github.com/Automattic/jetpack-components/compare/1.4.16...1.5.0

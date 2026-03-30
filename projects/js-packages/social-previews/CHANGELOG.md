@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.1.1] - 2026-03-30
+### Changed
+- Update package dependencies. [#47799]
+
 ## [3.1.0] - 2026-03-23
 ### Added
 - Google Search Preview: Add optional siteIcon prop to allow passing a custom favicon URL. [#47551]
@@ -151,6 +155,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release after extracting from Calypso.
 
+[3.1.1]: https://github.com/Automattic/social-previews/compare/v3.1.0...v3.1.1
 [3.1.0]: https://github.com/Automattic/social-previews/compare/v3.0.12...v3.1.0
 [3.0.12]: https://github.com/Automattic/social-previews/compare/v3.0.11...v3.0.12
 [3.0.11]: https://github.com/Automattic/social-previews/compare/v3.0.10...v3.0.11

@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.27.18] - 2026-03-30
+### Changed
+- Update package dependencies. [#47818]
+
 ## [0.27.17] - 2026-03-23
 ### Changed
 - Update package dependencies. [#47684]
@@ -546,6 +550,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Notifications: Change Icon [#37676]
 - Updated package dependencies. [#37669] [#37706]
 
+[0.27.18]: https://github.com/Automattic/jetpack-masterbar/compare/v0.27.17...v0.27.18
 [0.27.17]: https://github.com/Automattic/jetpack-masterbar/compare/v0.27.16...v0.27.17
 [0.27.16]: https://github.com/Automattic/jetpack-masterbar/compare/v0.27.15...v0.27.16
 [0.27.15]: https://github.com/Automattic/jetpack-masterbar/compare/v0.27.14...v0.27.15

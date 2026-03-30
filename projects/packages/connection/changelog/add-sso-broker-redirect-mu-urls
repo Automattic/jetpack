@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Replace transient-based SSO broker URL storage with a constant-based approach gated by a WordPress.com authorization signal, and fall back to WordPress.com SSO when the referrer is a WordPress.com domain.
