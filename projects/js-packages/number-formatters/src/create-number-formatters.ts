@@ -6,9 +6,6 @@ import {
 import { numberFormat, numberFormatCompact } from './number-format.ts';
 import type { CurrencyObject, FormatCurrency, FormatNumber, GetCurrencyObject } from './types.ts';
 
-// Since global is used inside createNumberFormatters, we need to declare it for TS
-declare const global: typeof globalThis;
-
 declare global {
 	interface Window {
 		wp?: {
@@ -182,7 +179,7 @@ function createNumberFormatters(): NumberFormatters {
 			typeof window !== 'undefined' ? window.wp?.date?.getSettings?.()?.l10n?.locale : undefined;
 
 		const localeFromNavigator =
-			typeof window !== 'undefined' ? global?.window?.navigator?.language : undefined;
+			typeof window !== 'undefined' ? window?.navigator?.language : undefined;
 
 		return (
 			localeState ??
