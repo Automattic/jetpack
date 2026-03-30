@@ -23,10 +23,14 @@ function jetpackRegisterRTCProviders() {
 			.filter( Boolean );
 	};
 
-	addFilter( 'sync.providers', 'jetpack/rtc-providers', ( existing: unknown[] ) => [
-		...existing,
-		...getProviders(),
-	] );
+	addFilter( 'sync.providers', 'jetpack/rtc-providers', ( existing: unknown[] ) => {
+		const ours = getProviders();
+		// Empty means the site is not eligible for RTC — disable it entirely.
+		if ( ours.length === 0 ) {
+			return [];
+		}
+		return [ ...existing, ...ours ];
+	} );
 }
 
 jetpackRegisterRTCProviders();
