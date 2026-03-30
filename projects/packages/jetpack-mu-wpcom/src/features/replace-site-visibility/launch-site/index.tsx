@@ -1,5 +1,9 @@
+import { useExperimentWithAuth } from '@automattic/jetpack-explat';
 import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
+import { useState } from 'react';
+import CelebrateLaunchModal from '../../../common/celebrate-launch-modal';
+import { useLaunchSiteMutation } from '../../../common/hooks';
 import { wpcomTrackEvent } from '../../../common/tracks';
 import SitePreviewLink from '../site-preview-link';
 import type { SitePreviewLinkObject } from '../site-preview-link';
@@ -14,6 +18,9 @@ interface Props {
 	blogPublic: number;
 	wpcomComingSoon: number;
 	wpcomPublicComingSoon: number;
+	siteDomain: string;
+	sitePlan?: { product_slug: string };
+	hasCustomDomain: boolean;
 }
 
 const LaunchSite = ( {
@@ -26,7 +33,15 @@ const LaunchSite = ( {
 	blogPublic,
 	wpcomComingSoon,
 	wpcomPublicComingSoon,
+	siteDomain,
+	sitePlan,
+	hasCustomDomain,
 }: Props ) => {
+	const [ , experimentData ] = useExperimentWithAuth( 'calypso_standardized_site_launch_gating' );
+	const [ showCelebrateLaunchModal, setShowCelebrateLaunchModal ] = useState( false );
+
+	const { mutate: launchSite } = useLaunchSiteMutation( () => setShowCelebrateLaunchModal( true ) );
+
 	// isPrivateAndUnlaunched means it is an unlaunched coming soon v1 site
 	const isPrivateAndUnlaunched = -1 === blogPublic && isUnlaunchedSite;
 	const isAnyComingSoonEnabled =
@@ -39,7 +54,28 @@ const LaunchSite = ( {
 		search: 'yes',
 	} );
 
+	const gatedLaunchUrl = addQueryArgs( 'https://wordpress.com/start/launch-site', {
+		siteSlug: siteDomain,
+		ref: 'wp-admin',
+	} );
+
 	const showPreviewLink = isAnyComingSoonEnabled && hasSitePreviewLink;
+
+	const handleLaunchClick = () => {
+		wpcomTrackEvent( 'wpcom_settings_reading_launch_site_button_click' );
+
+		if ( experimentData?.variationName === 'ungated_site_launch' ) {
+			launchSite();
+			return;
+		}
+
+		if ( experimentData?.variationName === 'gated_site_launch' ) {
+			window.location.href = gatedLaunchUrl;
+			return;
+		}
+
+		window.location.href = launchUrl;
+	};
 
 	return (
 		<>
@@ -59,10 +95,7 @@ const LaunchSite = ( {
 				className="button is-secondary"
 				type="button"
 				style={ { marginTop: '0.5em' } }
-				onClick={ () => {
-					wpcomTrackEvent( 'wpcom_settings_reading_launch_site_button_click' );
-					window.location.href = launchUrl;
-				} }
+				onClick={ handleLaunchClick }
 			>
 				{ __( 'Launch site', 'jetpack-mu-wpcom' ) }
 			</button>
@@ -80,6 +113,15 @@ const LaunchSite = ( {
 							&nbsp;
 						</>
 					}
+				/>
+			) }
+			{ showCelebrateLaunchModal && (
+				<CelebrateLaunchModal
+					siteDomain={ siteDomain }
+					siteUrl={ homeUrl }
+					sitePlan={ sitePlan }
+					hasCustomDomain={ hasCustomDomain }
+					onRequestClose={ () => setShowCelebrateLaunchModal( false ) }
 				/>
 			) }
 		</>

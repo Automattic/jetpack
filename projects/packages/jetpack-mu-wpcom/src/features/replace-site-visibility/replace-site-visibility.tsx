@@ -1,3 +1,4 @@
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { createRoot } from 'react-dom/client';
 import LaunchSite from './launch-site';
 import SiteVisibility from './site-visibility';
@@ -17,9 +18,14 @@ declare global {
 			wpcomComingSoon: number;
 			wpcomPublicComingSoon: number;
 			wpcomDataSharingOptOut: boolean;
+			siteDomain: string;
+			sitePlan?: { product_slug: string };
+			hasCustomDomain: boolean;
 		};
 	}
 }
+
+const queryClient = new QueryClient();
 
 document.addEventListener( 'DOMContentLoaded', function () {
 	const container = document.getElementById( 'wpcom-site-visibility' );
@@ -27,7 +33,11 @@ document.addEventListener( 'DOMContentLoaded', function () {
 	if ( container && props ) {
 		const root = createRoot( container );
 		if ( props.isUnlaunchedSite ) {
-			root.render( <LaunchSite { ...props } /> );
+			root.render(
+				<QueryClientProvider client={ queryClient }>
+					<LaunchSite { ...props } />
+				</QueryClientProvider>
+			);
 		} else {
 			root.render( <SiteVisibility { ...props } /> );
 		}
