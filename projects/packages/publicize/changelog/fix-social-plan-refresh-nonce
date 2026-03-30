@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Require a nonce before refreshing plan data from the Social admin page.
