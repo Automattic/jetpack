@@ -70,6 +70,8 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( {
 		maxHue: 0,
 	} ) );
 
+	// Track if the color palette has been resolved from the DOM
+	// Useful for animations that should only run after the color palette is resolved
 	const [ isColorPaletteResolved, setIsColorPaletteResolved ] = useState( false );
 
 	// Compute color cache after DOM is updated (so CSS variables are available)
@@ -127,8 +129,6 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( {
 		} );
 	}, [ providerTheme ] );
 
-	// Set after paint (useEffect, not useLayoutEffect) so consumers see
-	// one render with resolved colors before this flag flips to true.
 	useEffect( () => {
 		if ( colorCache.colors.length > 0 ) {
 			setIsColorPaletteResolved( true );
