@@ -2,7 +2,7 @@ import { addFilter } from '@wordpress/hooks';
 import { createPingHubProvider } from './pinghub';
 
 /**
- * Register providers (e.g. PingHub) supplied by the server, and disable HTTP polling by returning only this provider.
+ * Register providers (e.g. PingHub) supplied by the server alongside the existing HTTP-polling provider.
  */
 function jetpackRegisterRTCProviders() {
 	const getProviders = () => {
@@ -23,7 +23,10 @@ function jetpackRegisterRTCProviders() {
 			.filter( Boolean );
 	};
 
-	addFilter( 'sync.providers', 'jetpack/rtc-providers', () => getProviders() );
+	addFilter( 'sync.providers', 'jetpack/rtc-providers', ( existing: unknown[] ) => [
+		...existing,
+		...getProviders(),
+	] );
 }
 
 jetpackRegisterRTCProviders();
