@@ -36,9 +36,15 @@ class Render_Blocking_JS_Test extends MockeryTestCase {
 		$reflection = new \ReflectionClass( $this->instance );
 
 		$attr_prop = $reflection->getProperty( 'ignore_attribute' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$attr_prop->setAccessible( true );
+		}
 		$attr_prop->setValue( $this->instance, 'data-jetpack-boost' );
 
 		$val_prop = $reflection->getProperty( 'ignore_value' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$val_prop->setAccessible( true );
+		}
 		$val_prop->setValue( $this->instance, 'ignore' );
 	}
 
