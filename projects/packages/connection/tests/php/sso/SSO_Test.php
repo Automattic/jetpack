@@ -510,6 +510,29 @@ class SSO_Test extends BaseTestCase {
 		$this->assertSame( 'https://broker-auth.example.com/auth', SSO::get_broker_auth_url() );
 	}
 
+	/**
+	 * Test get_broker_auth_url falls back to broker URL when auth URL is not defined.
+	 */
+	public function test_get_broker_auth_url_falls_back_to_broker_url() {
+		$nonce                         = 'auth_fallback_1';
+		$_COOKIE[ SSO::BROKER_COOKIE ] = $nonce;
+		$_COOKIE['jetpack_sso_nonce']  = $nonce;
+		Constants::set_constant( 'JETPACK_SSO_BROKER_URL', 'https://broker.example.com/sso' );
+
+		$this->assertSame( 'https://broker.example.com/sso', SSO::get_broker_auth_url() );
+	}
+
+	/**
+	 * Test get_broker_auth_url returns false when neither auth URL nor broker URL is defined.
+	 */
+	public function test_get_broker_auth_url_returns_false_when_no_urls_defined() {
+		$nonce                         = 'auth_fallback_2';
+		$_COOKIE[ SSO::BROKER_COOKIE ] = $nonce;
+		$_COOKIE['jetpack_sso_nonce']  = $nonce;
+
+		$this->assertFalse( SSO::get_broker_auth_url() );
+	}
+
 	// ──────────────────────────────────────────────
 	// validate_broker_url (via public methods)
 	// ──────────────────────────────────────────────

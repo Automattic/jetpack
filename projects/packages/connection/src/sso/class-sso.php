@@ -969,7 +969,8 @@ class SSO {
 	 *
 	 * For broker sites, this URL replaces the Jetpack authorization endpoint
 	 * for establishing user connections. Read from the JETPACK_SSO_BROKER_AUTH_URL
-	 * constant defined by the garden MU plugin.
+	 * constant defined by the garden MU plugin, falling back to the main broker
+	 * URL (JETPACK_SSO_BROKER_URL) when no separate auth URL is defined.
 	 *
 	 * @return string|false The broker authorization URL, or false if not available.
 	 */
@@ -978,7 +979,10 @@ class SSO {
 			return false;
 		}
 		$url = Constants::get_constant( 'JETPACK_SSO_BROKER_AUTH_URL' );
-		return $url ? self::validate_broker_url( $url ) : false;
+		if ( $url ) {
+			return self::validate_broker_url( $url );
+		}
+		return self::get_broker_url();
 	}
 
 	/**
