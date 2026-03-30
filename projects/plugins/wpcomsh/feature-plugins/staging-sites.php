@@ -111,12 +111,11 @@ function wpcomsh_disable_pingback_ui_on_staging() {
 		return;
 	}
 
-	$message = esc_js( __( 'Pingbacks are disabled on staging sites to prevent unintended outbound requests.', 'wpcomsh' ) );
 	?>
 	<script>
 	( function() {
 		var ids = [ 'default_pingback_flag', 'default_ping_status' ];
-		var message = ' — <?php echo $message; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped above with esc_js. ?>';
+		var message = ' — ' + <?php echo wp_json_encode( __( 'Pingbacks are disabled on staging sites to prevent unintended outbound requests.', 'wpcomsh' ) ); ?>;
 		ids.forEach( function( id ) {
 			var checkbox = document.getElementById( id );
 			if ( checkbox ) {
