@@ -87,6 +87,10 @@ class REST_Pinghub_Token extends WP_REST_Controller {
 
 		$token = $this->generate_token( $blog_id );
 
+		if ( is_wp_error( $token ) ) {
+			return $token;
+		}
+
 		if ( $token === null ) {
 			return new WP_Error(
 				'rest_pinghub_token_error',
@@ -102,7 +106,7 @@ class REST_Pinghub_Token extends WP_REST_Controller {
 	 * Generate the JWT token for PingHub authentication.
 	 *
 	 * @param int $blog_id The blog ID.
-	 * @return string|null Signed JWT, or null on failure.
+	 * @return string|WP_Error|null Signed JWT, a WP_Error on a known failure, or null on an unexpected failure.
 	 */
 	private function generate_token( $blog_id ) {
 		// Simple WordPress.com sites: use the internal REST endpoint.
@@ -121,6 +125,20 @@ class REST_Pinghub_Token extends WP_REST_Controller {
 		// Jetpack/Atomic: call the WPCOM endpoint over the Jetpack connection.
 		if ( ! class_exists( 'Automattic\Jetpack\Connection\Client' ) ) {
 			return null;
+		}
+
+		// The WPCOM sign endpoint requires a user token. Return a named error so
+		// the client can prompt the user to link their account instead of showing
+		// a generic 500.
+		if ( class_exists( 'Automattic\Jetpack\Connection\Manager' ) ) {
+			$manager = new \Automattic\Jetpack\Connection\Manager();
+			if ( ! $manager->is_user_connected( get_current_user_id() ) ) {
+				return new WP_Error(
+					'user_not_connected',
+					__( 'Your account is not linked to WordPress.com. Please connect your account to use real-time collaboration.', 'jetpack-rtc' ),
+					array( 'status' => 403 )
+				);
+			}
 		}
 
 		$response = \Automattic\Jetpack\Connection\Client::wpcom_json_api_request_as_user(

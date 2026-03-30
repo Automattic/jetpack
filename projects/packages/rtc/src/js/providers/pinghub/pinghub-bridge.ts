@@ -274,6 +274,8 @@ export class PingHubBridge {
 	private jwtBackoffDelay = JWT_BACKOFF_BASE_MS;
 	/** Timestamp before which JWT fetches are suppressed. */
 	private jwtBackoffUntil = 0;
+	/** Set to true once we learn the user has no WP.com connection, to avoid repeated connection attempts. */
+	private userNotConnected = false;
 	/** Reassembly buffer: key = room + ':' + msgId, value = { totalChunks, chunks } */
 	private chunkBuffers = new Map<
 		string,
@@ -426,6 +428,11 @@ export class PingHubBridge {
 	 * Fetch a short-lived JWT for PingHub authentication via the REST endpoint.
 	 * Caches the token for 1 minute to avoid redundant requests on reconnects.
 	 *
+	 * If the endpoint returns `user_not_connected` (the current user has no
+	 * Jetpack/WP.com user token), fires a `wpcom-rtc-user-not-connected` window
+	 * event so the editor can prompt the user to link their account, and marks
+	 * the bridge so that future connect() calls are skipped.
+	 *
 	 * @return JWT string, or null on failure.
 	 */
 	private async fetchPinghubJwt(): Promise< string | null > {
@@ -449,12 +456,24 @@ export class PingHubBridge {
 			this.resetJwtState();
 			pixel( 'pinghub.rtc.jwt_fetch', Date.now() - start, 'ms' );
 			return this.cachedJwt;
-		} catch {
+		} catch ( error ) {
+			const elapsed = Date.now() - start;
+			pixel( 'pinghub.rtc.jwt_fetch_error', elapsed, 'ms' );
+			if (
+				! this.userNotConnected &&
+				error !== null &&
+				typeof error === 'object' &&
+				'code' in error &&
+				error.code === 'user_not_connected'
+			) {
+				this.userNotConnected = true;
+				window.dispatchEvent( new CustomEvent( 'wpcom-rtc-user-not-connected' ) );
+				return null;
+			}
+
 			this.jwtFetchFailures++;
 			this.jwtBackoffUntil = Date.now() + this.jwtBackoffDelay;
 			this.jwtBackoffDelay = Math.min( this.jwtBackoffDelay * 2, JWT_BACKOFF_MAX_MS );
-			const elapsed = Date.now() - start;
-			pixel( 'pinghub.rtc.jwt_fetch_error', elapsed, 'ms' );
 			logConnectionEvent( 'jwt_fetch_error', {
 				duration_ms: elapsed,
 				failure_count: this.jwtFetchFailures,
@@ -581,6 +600,10 @@ export class PingHubBridge {
 	 * @return Promise that resolves when the connection is open.
 	 */
 	async connect( room: string ): Promise< void > {
+		if ( this.userNotConnected ) {
+			return Promise.reject( new Error( 'User not connected to WordPress.com' ) );
+		}
+
 		this.registeredRooms.add( room );
 
 		if ( this.wsState === 'open' ) {

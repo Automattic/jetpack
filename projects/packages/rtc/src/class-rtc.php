@@ -391,6 +391,17 @@ class RTC {
 		$is_plan_owner = self::is_plan_owner();
 		$post_type     = get_post_type();
 
+		// Build the WP.com user-connection URL for users on Jetpack/Atomic who have
+		// not yet linked their account. Simple (IS_WPCOM) sites are skipped because
+		// all users there are already WP.com users.
+		$connect_user_url = '';
+		if ( ! defined( 'IS_WPCOM' ) && class_exists( 'Automattic\Jetpack\Connection\Manager' ) ) {
+			$manager = new \Automattic\Jetpack\Connection\Manager();
+			if ( ! $manager->is_user_connected( get_current_user_id() ) ) {
+				$connect_user_url = (string) $manager->get_authorization_url( null, null, 'rtc' );
+			}
+		}
+
 		$data = wp_json_encode(
 			array(
 				'assetsUrl'          => plugins_url( '../build/', __FILE__ ),
@@ -405,6 +416,7 @@ class RTC {
 				'siteSlug'           => self::get_site_slug(),
 				'maxPeersPerRoom'    => self::get_max_peers_per_room(),
 				'enableLimitNotices' => apply_filters( 'jetpack_rtc_enable_limit_notices', false ),
+				'connectUserUrl'     => $connect_user_url,
 			),
 			JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 		);
