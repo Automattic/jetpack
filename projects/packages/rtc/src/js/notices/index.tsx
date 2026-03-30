@@ -18,9 +18,6 @@ import { registerJoinTracking } from '../tracking/track-join';
 import RtcAdminSomeoneWaitingNotice from './notices/rtc-admin-someone-waiting-notice';
 import { registerConnectionErrorModalFilter } from './notices/rtc-connection-error-modal-filter';
 import RtcNonAdminPostUpgradeNotice from './notices/rtc-non-admin-post-upgrade-notice';
-import RtcUserNotConnectedModal, {
-	registerUserNotConnectedFilter,
-} from './notices/rtc-user-not-connected-modal';
 import { withRoomLimit } from './room-limit';
 import type { ProviderCreator } from '@wordpress/sync';
 
@@ -63,10 +60,6 @@ registerConnectionErrorTracking();
 // The branded modals are gated behind enableLimitNotices.
 registerRoomLimitFilter();
 
-// Always suppress Gutenberg's "Connection lost" modal for user_not_connected
-// errors — our RtcUserNotConnectedModal handles the prompt instead.
-registerUserNotConnectedFilter();
-
 if ( enableLimitNotices ) {
 	registerConnectionErrorModalFilter();
 }
@@ -74,7 +67,6 @@ if ( enableLimitNotices ) {
 const RtcNoticesPlugin = () => {
 	return (
 		<>
-			<RtcUserNotConnectedModal />
 			{ enableLimitNotices && <RtcAdminSomeoneWaitingNotice /> }
 			{ enableLimitNotices && <RtcNonAdminPostUpgradeNotice /> }
 		</>

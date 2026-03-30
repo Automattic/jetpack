@@ -106,12 +106,27 @@ class RTC {
 
 		$allowed_providers = array( 'http-polling', 'pinghub' );
 
+		// PingHub requires a WP.com user token. On Jetpack/Atomic sites where
+		// the current user hasn't linked their account, fall back to http-polling
+		// so the editor stays functional without a WebSocket connection.
+		$default_providers = array( 'pinghub' );
+		if (
+			! defined( 'IS_WPCOM' ) &&
+			class_exists( 'Automattic\Jetpack\Connection\Manager' ) &&
+			get_current_user_id()
+		) {
+			$manager = new \Automattic\Jetpack\Connection\Manager();
+			if ( $manager->is_connected() && ! $manager->is_user_connected( get_current_user_id() ) ) {
+				$default_providers = array( 'http-polling' );
+			}
+		}
+
 		/**
 		 * Filter the list of RTC providers.
 		 *
 		 * @param string[] $providers List of provider identifiers.
 		 */
-		$providers = apply_filters( 'jetpack_rtc_providers', array( 'pinghub' ) );
+		$providers = apply_filters( 'jetpack_rtc_providers', $default_providers );
 		if ( ! is_array( $providers ) ) {
 			return array();
 		}
@@ -391,18 +406,6 @@ class RTC {
 		$is_plan_owner = self::is_plan_owner();
 		$post_type     = get_post_type();
 
-		// Build the WP.com user-connection URL for users on Jetpack/Atomic who have
-		// not yet linked their account. Simple (IS_WPCOM) sites are skipped because
-		// all users there are already WP.com users.
-		$connect_user_url = '';
-		if ( ! defined( 'IS_WPCOM' ) && class_exists( 'Automattic\Jetpack\Connection\Manager' ) ) {
-			$user_id = get_current_user_id();
-			$manager = new \Automattic\Jetpack\Connection\Manager();
-			if ( $user_id && $manager->is_connected() && ! $manager->is_user_connected( $user_id ) ) {
-				$connect_user_url = (string) $manager->get_authorization_url( null, null, 'rtc' );
-			}
-		}
-
 		$data = wp_json_encode(
 			array(
 				'assetsUrl'          => plugins_url( '../build/', __FILE__ ),
@@ -417,7 +420,6 @@ class RTC {
 				'siteSlug'           => self::get_site_slug(),
 				'maxPeersPerRoom'    => self::get_max_peers_per_room(),
 				'enableLimitNotices' => apply_filters( 'jetpack_rtc_enable_limit_notices', false ),
-				'connectUserUrl'     => $connect_user_url,
 			),
 			JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 		);
