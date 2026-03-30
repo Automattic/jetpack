@@ -34,7 +34,8 @@ class Shared_Extension_Utils_Assets {
 			__FILE__,
 			array(
 				'in_footer'  => true,
-				'textdomain' => 'jetpack-assets',
+				// phpcs:ignore Jetpack.Functions.I18n.TextDomainMismatch, WordPress.Utils.I18nTextDomainFixer -- Bundle contains shared-extension-utils code with its own textdomain.
+				'textdomain' => 'jetpack-shared-extension-utils',
 			)
 		);
 	}
