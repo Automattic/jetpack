@@ -41,10 +41,14 @@ const RtcUserNotConnectedModal = () => {
 				},
 			} }
 			secondaryAction={ {
-				label: __( 'Edit without real-time collaboration', 'jetpack-mu-wpcom' ),
-				onClick: () => setIsOpen( false ),
+				label: __( 'Back to posts', 'jetpack-mu-wpcom' ),
+				onClick: () => {
+					window.location.href = config.postsListUrl;
+				},
 			} }
-			onRequestClose={ () => setIsOpen( false ) }
+			onRequestClose={ () => {} }
+			isDismissible={ false }
+			shouldCloseOnClickOutside={ false }
 		/>
 	);
 };
