@@ -2,7 +2,7 @@ import { useExperimentWithAuth } from '@automattic/jetpack-explat';
 import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
 import { useState } from 'react';
-import CelebrateLaunchModal from '../../../common/celebrate-launch-modal';
+import CelebrateLaunchModal from '../../../common/celebrate-launch/celebrate-launch-modal';
 import { useLaunchSiteMutation } from '../../../common/hooks';
 import { wpcomTrackEvent } from '../../../common/tracks';
 import SitePreviewLink from '../site-preview-link';
