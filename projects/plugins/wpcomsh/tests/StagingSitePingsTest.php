@@ -144,7 +144,7 @@ class StagingSitePingsTest extends WP_UnitTestCase {
 		$this->assertStringContainsString( 'default_pingback_flag', $output );
 		$this->assertStringContainsString( 'default_ping_status', $output );
 		$this->assertStringContainsString( 'checkbox.disabled = true', $output );
-		$this->assertStringContainsString( 'Pingbacks are disabled on staging sites', $output );
+		$this->assertStringContainsString( 'Pingbacks are disabled on staging sites to prevent unintended outbound requests.', $output );
 
 		set_current_screen( 'front' );
 	}
