@@ -28,11 +28,8 @@ function wpcom_has_features_edge_sticker() {
  * @return bool
  */
 function wpcom_is_rtc_http_polling_rollout() {
-	$blog_id = get_wpcom_blog_id();
-
 	if (
 		defined( 'IS_ATOMIC' ) && IS_ATOMIC &&
-		( $blog_id % 100 < 50 ) &&
 		! wpcom_has_features_edge_sticker() // Sites with the sticker should use WS.
 	) {
 		return true;
@@ -50,7 +47,7 @@ function wpcom_is_rtc_websocket_rollout() {
 
 	if (
 		defined( 'IS_WPCOM' ) && IS_WPCOM &&
-		( $blog_id % 100 < 1 )
+		( $blog_id % 100 < 5 )
 	) {
 		return true;
 	}
