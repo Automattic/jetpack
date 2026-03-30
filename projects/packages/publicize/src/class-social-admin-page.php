@@ -97,7 +97,9 @@ class Social_Admin_Page {
 		// without making API calls on every admin page load.
 		if ( isset( $_GET['refresh_plan_data'] ) ) {
 			check_admin_referer( self::REFRESH_PLAN_NONCE_ACTION );
-			Current_Plan::refresh_from_wpcom();
+			if ( apply_filters( 'jetpack_social_should_refresh_plan_data', true ) ) {
+				Current_Plan::refresh_from_wpcom();
+			}
 		}
 
 		/**

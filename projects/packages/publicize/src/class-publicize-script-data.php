@@ -118,8 +118,9 @@ class Publicize_Script_Data {
 			'urls'                 => array(),
 			'settings'             => self::get_social_settings(),
 			'plugin_info'          => self::get_plugin_info(),
-			'nonces'               => self::get_nonces(),
 		);
+
+		$basic_data['nonces'] = self::get_nonces();
 
 		if ( ! Utils::is_publicize_active() ) {
 			return $basic_data;

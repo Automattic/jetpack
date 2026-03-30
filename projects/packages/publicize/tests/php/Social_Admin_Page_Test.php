@@ -45,6 +45,7 @@ class Social_Admin_Page_Test extends BaseTestCase {
 
 		Jetpack_Options::update_option( 'id', 123 );
 		add_filter( 'pre_http_request', array( $this, 'mock_wpcom_plan_request' ), 10, 3 );
+		add_filter( 'jetpack_social_should_refresh_plan_data', array( $this, 'capture_refresh_attempt' ) );
 	}
 
 	/**
@@ -53,6 +54,7 @@ class Social_Admin_Page_Test extends BaseTestCase {
 	public function tear_down() {
 		remove_filter( 'pre_http_request', array( $this, 'mock_wpcom_plan_request' ), 10 );
 		remove_filter( 'wp_die_handler', array( $this, 'throw_on_wp_die' ), 10 );
+		remove_filter( 'jetpack_social_should_refresh_plan_data', array( $this, 'capture_refresh_attempt' ) );
 
 		unset( $_GET['refresh_plan_data'], $_GET['_wpnonce'] );
 		$this->refresh_called = false;
@@ -93,6 +95,16 @@ class Social_Admin_Page_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Capture refresh attempts while allowing tests to short-circuit.
+	 *
+	 * @return bool
+	 */
+	public function capture_refresh_attempt() {
+		$this->refresh_called = true;
+		return false;
+	}
+
+	/**
 	 * Custom wp_die handler for assertions.
 	 *
 	 * @return callable
@@ -108,7 +120,9 @@ class Social_Admin_Page_Test extends BaseTestCase {
 	 */
 	public function test_admin_init_refreshes_plan_with_valid_nonce() {
 		$_GET['refresh_plan_data'] = '1';
-		$_GET['_wpnonce']          = wp_create_nonce( Social_Admin_Page::REFRESH_PLAN_NONCE_ACTION );
+		$_REQUEST['refresh_plan_data'] = '1';
+		$_REQUEST['_wpnonce']          = wp_create_nonce( Social_Admin_Page::REFRESH_PLAN_NONCE_ACTION );
+		$_GET['_wpnonce']              = $_REQUEST['_wpnonce'];
 
 		Social_Admin_Page::init()->admin_init();
 
@@ -124,7 +138,9 @@ class Social_Admin_Page_Test extends BaseTestCase {
 		add_filter( 'wp_die_handler', array( $this, 'throw_on_wp_die' ), 10 );
 
 		$_GET['refresh_plan_data'] = '1';
-		$_GET['_wpnonce']          = 'invalid';
+		$_REQUEST['refresh_plan_data'] = '1';
+		$_REQUEST['_wpnonce']          = 'invalid';
+		$_GET['_wpnonce']              = $_REQUEST['_wpnonce'];
 
 		Social_Admin_Page::init()->admin_init();
 	}
