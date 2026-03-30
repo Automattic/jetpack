@@ -804,8 +804,8 @@ importers:
         specifier: 7.0.0-dev.20260225.1
         version: 7.0.0-dev.20260225.1
       express:
-        specifier: 4.22.0
-        version: 4.22.0
+        specifier: 4.22.1
+        version: 4.22.1
       jest:
         specifier: 30.3.0
         version: 30.3.0(@types/node@24.12.0)
@@ -11003,6 +11003,7 @@ packages:
   '@xmldom/xmldom@0.9.8':
     resolution: {integrity: sha512-p96FSY54r+WJ50FIOsCOjyj/wavs8921hG5+kVMmZgKcvIKxMXHTrjNJvRgWa/zuX3B6t2lijLNFaOyuxUH+2A==}
     engines: {node: '>=14.6'}
+    deprecated: this version has critical issues, please update to the latest version
 
   '@xtuc/ieee754@1.2.0':
     resolution: {integrity: sha512-DX8nKgqcGwsc0eJSqYt5lwP4DH5FlHnmuWWBRy7X0NcaGR0ZtuyeESgMwTYVEtxmsNGY+qit4QYT/MIYTOTPeA==}
@@ -12945,10 +12946,6 @@ packages:
   expect@30.3.0:
     resolution: {integrity: sha512-1zQrciTiQfRdo7qJM1uG4navm8DayFa2TgCSRlzUyNkhcJ6XUZF3hjnpkyr3VhAqPH7i/9GkG7Tv5abz6fqz0Q==}
     engines: {node: ^18.14.0 || ^20.0.0 || ^22.0.0 || >=24.0.0}
-
-  express@4.22.0:
-    resolution: {integrity: sha512-c2iPh3xp5vvCLgaHK03+mWLFPhox7j1LwyxcZwFVApEv5i0X+IjPpbT50SJJwwLpdBVfp45AkK/v+AFgv/XlfQ==}
-    engines: {node: '>= 0.10.0'}
 
   express@4.22.1:
     resolution: {integrity: sha512-F2X8g9P1X7uCPZMA3MVf9wcTqlyNp7IhH5qPCI0izhaOIYXaW9L535tGA3qmjRzpH+bZczqq7hVKxTR4NWnu+g==}
@@ -28150,42 +28147,6 @@ snapshots:
       jest-message-util: 30.3.0
       jest-mock: 30.3.0
       jest-util: 30.3.0
-
-  express@4.22.0:
-    dependencies:
-      accepts: 1.3.8
-      array-flatten: 1.1.1
-      body-parser: 1.20.4
-      content-disposition: 0.5.4
-      content-type: 1.0.5
-      cookie: 0.7.2
-      cookie-signature: 1.0.7
-      debug: 2.6.9
-      depd: 2.0.0
-      encodeurl: 2.0.0
-      escape-html: 1.0.3
-      etag: 1.8.1
-      finalhandler: 1.3.2
-      fresh: 0.5.2
-      http-errors: 2.0.1
-      merge-descriptors: 1.0.3
-      methods: 1.1.2
-      on-finished: 2.4.1
-      parseurl: 1.3.3
-      path-to-regexp: 0.1.12
-      proxy-addr: 2.0.7
-      qs: 6.14.2
-      range-parser: 1.2.1
-      safe-buffer: 5.2.1
-      send: 0.19.2
-      serve-static: 1.16.3
-      setprototypeof: 1.2.0
-      statuses: 2.0.2
-      type-is: 1.6.18
-      utils-merge: 1.0.1
-      vary: 1.1.2
-    transitivePeerDependencies:
-      - supports-color
 
   express@4.22.1:
     dependencies:
