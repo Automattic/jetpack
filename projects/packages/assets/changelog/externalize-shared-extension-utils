@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Build and register the shared-extension-utils UMD bundle alongside jetpack-script-data.

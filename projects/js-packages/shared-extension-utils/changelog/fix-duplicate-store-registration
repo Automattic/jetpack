@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Add guard against duplicate store registration when multiple bundles include this package.

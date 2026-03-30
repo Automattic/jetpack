@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add shared-extension-utils to the webpack externals map, with subpath imports excluded from externalization.
