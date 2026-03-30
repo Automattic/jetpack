@@ -1,26 +1,27 @@
-.jetpack-footer {
-	align-items: center;
-	border-top: var(--wpds-border-width-xs, 1px) solid var(--wpds-color-stroke-surface-neutral-weak, #e0e0e0);
-	display: flex;
-	flex-wrap: wrap;
-	font-size: var(--font-body-extra-small);
-	padding: var(--wpds-dimension-padding-2xl, 24px);
-	width: 100%;
-	line-height: 1.333;
+@use "sass:meta";
+@include meta.load-css("pkg:@wordpress/theme/design-tokens.css");
+@include meta.load-css("pkg:@wordpress/admin-ui/build-style/style.css");
 
-	a {
-		text-decoration: none;
+.jetpack-footer {
+	border-top: var(--wpds-border-width-xs, 1px) solid var(--wpds-color-stroke-surface-neutral-weak, #e0e0e0);
+	box-sizing: border-box;
+	padding: var(--wpds-dimension-padding-xl) var(--wpds-dimension-padding-2xl);
+	width: 100%;
+
+	.jetpack-footer__menu-item {
 
 		&:any-link,
 		&[role="button"] {
-			color: inherit;
+			color: var(--wpds-color-fg-interactive-neutral-weak);
+			cursor: pointer;
+			text-decoration: none;
 		}
 
 		&:hover {
 			text-decoration: underline;
-			text-decoration-thickness: 1.5px;
 		}
 
+		/*
 		&:focus {
 			box-shadow: none;
 			outline-width: 0;
@@ -32,6 +33,7 @@
 			outline: 1.5px solid currentColor;
 			outline-offset: 3px;
 		}
+		*/
 	}
 
 	> ul {
@@ -40,32 +42,25 @@
 		padding: 0;
 
 		> li {
-			margin-bottom: 0;
-
-			> a {
-				display: flex;
-				align-items: center;
-				gap: 0.25rem;
-
-				min-height: 44px; // Minimum target area size
-			}
+			margin: 0;
 		}
 	}
 }
 
-a.jetpack-footer__a8c {
-	text-decoration: none;
-	margin-inline-start: auto;
+.jetpack-footer__logo {
+	flex-shrink: 0;
 }
 
-.jetpack-footer__accessible-external-link {
-	border: 0;
-	clip-path: inset(50%);
-	height: 1px;
-	margin: -1px;
-	overflow: hidden;
-	padding: 0;
-	position: absolute;
-	width: 1px;
-	overflow-wrap: normal;
+.jetpack-footer__logo-text {
+	font-weight: var(--wpds-font-weight-regular);
+}
+
+a.jetpack-footer__a8c {
+	flex-shrink: 0;
+	margin-inline-start: auto;
+	text-decoration: none;
+
+	svg {
+		fill: var(--wpds-color-fg-interactive-neutral-weak);
+	}
 }

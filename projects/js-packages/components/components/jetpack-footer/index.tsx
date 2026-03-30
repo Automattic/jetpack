@@ -1,9 +1,6 @@
 import { isWpcomPlatformSite } from '@automattic/jetpack-script-data';
-import {
-	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
-	__experimentalText as Text, // eslint-disable-line @wordpress/no-unsafe-wp-apis
-} from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import { Stack, Text, Link } from '@wordpress/ui';
 import clsx from 'clsx';
 import { getRedirectUrl } from '../../index.ts';
 import getSiteAdminUrl from '../../tools/get-site-admin-url/index.ts';
@@ -11,21 +8,7 @@ import AutomatticBylineLogo from '../automattic-byline-logo/index.tsx';
 import './style.scss';
 import JetpackLogo from '../jetpack-logo/index.tsx';
 import type { JetpackFooterProps, JetpackFooterMenuItem } from './types.ts';
-import type { FC, ReactNode } from 'react';
-import '@wordpress/admin-ui/build-style/style.css';
-
-const ExternalIcon: FC = () => (
-	<>
-		{ ' ' }
-		<span aria-hidden="true">↗</span>
-		<span className="jetpack-footer__accessible-external-link">
-			{
-				/* translators: accessibility text */
-				__( '(opens in a new tab)', 'jetpack-components' )
-			}
-		</span>
-	</>
-);
+import type { FC } from 'react';
 
 /**
  * JetpackFooter component displays a tiny Jetpack logo with the product name on the left and the Automattic Airline "by line" on the right.
@@ -38,7 +21,7 @@ const JetpackFooter: FC< JetpackFooterProps > = ( { className, menu, ...otherPro
 
 	let items: JetpackFooterMenuItem[] = [];
 
-	if ( isWpcomPlatformSite() ) {
+	if ( ! isWpcomPlatformSite() ) {
 		items = [
 			{
 				label: __( 'Products', 'jetpack-components' ),
@@ -59,58 +42,79 @@ const JetpackFooter: FC< JetpackFooterProps > = ( { className, menu, ...otherPro
 	}
 
 	return (
-		<HStack
-			as="footer"
+		<Stack
+			render={ <footer /> }
 			className={ clsx( 'jetpack-footer', className ) }
 			aria-label={ __( 'Jetpack', 'jetpack-components' ) }
 			role="contentinfo"
-			justify="start"
 			direction="row"
+			justify="flex-start"
+			align="center"
+			wrap="wrap"
+			gap="xl"
 			{ ...otherProps }
 		>
-			<HStack className="jetpack-footer-footer__logo">
-				<JetpackLogo logoColor="#000" showText={ false } height={ 16 } aria-hidden="true" />
-				Jetpack
-			</HStack>
-			<HStack as="ul" direction="row" spacing={ 2 }>
+			<Stack className="jetpack-footer__logo" direction="row" gap="sm" align="center">
+				<JetpackLogo showText={ false } height={ 16 } aria-hidden="true" />
+				<Text variant="body-md" className="jetpack-footer__logo-text">
+					Jetpack
+				</Text>
+			</Stack>
+			<Stack render={ <ul /> } direction="row" gap="lg" wrap="wrap">
 				{ items.map( item => {
 					const isButton = item.role === 'button';
 					const isExternalLink = ! isButton && item.target === '_blank';
 
+					const menuItemClassName = clsx( 'jetpack-footer__menu-item', {
+						'is-external': isExternalLink,
+					} );
+
 					return (
 						<li key={ item.label }>
 							<Text
-								as={ isButton ? 'span' : 'a' }
-								href={ item.href || '' }
-								title={ item.title || '' }
-								target={ item.target || '' }
-								onClick={ item.onClick || undefined }
-								onKeyDown={ item.onKeyDown || undefined }
-								className={ clsx( 'jetpack-footer__menu-item', {
-									'is-external': isExternalLink,
-								} ) }
-								role={ item.role }
-								rel={ isExternalLink ? 'noopener noreferrer' : undefined }
-								tabIndex={ isButton ? 0 : undefined }
-								variant="muted"
+								variant="body-sm"
+								className={ menuItemClassName }
+								render={
+									isButton ? (
+										<Link
+											render={ <Text variant="body-md" render={ <span /> } /> }
+											tone="neutral"
+											variant="default"
+											role={ item.role }
+											tabIndex={ 0 }
+											onClick={ item.onClick || undefined }
+											onKeyDown={ item.onKeyDown || undefined }
+										/>
+									) : (
+										<Link
+											render={ <Text variant="body-md" render={ <a /> } /> }
+											tone="neutral"
+											variant="default"
+											href={ item.href || '' }
+											title={ item.title || '' }
+											openInNewTab={ isExternalLink }
+											role={ item.role }
+											onClick={ item.onClick || undefined }
+											onKeyDown={ item.onKeyDown || undefined }
+										/>
+									)
+								}
 							>
 								{ item.label }
 							</Text>
-							{ isExternalLink && <ExternalIcon /> }
 						</li>
 					);
 				} ) }
-			</HStack>
+			</Stack>
 			<a
-				aria-label={ __( 'An Automattic Airline', 'jetpack-components' ) }
 				className="jetpack-footer__a8c"
 				href={ getRedirectUrl( 'a8c-about' ) }
 				rel="noopener noreferrer"
 				target="_blank"
 			>
-				<AutomatticBylineLogo aria-hidden="true" />
+				<AutomatticBylineLogo height={ 8 } />
 			</a>
-		</HStack>
+		</Stack>
 	);
 };
 
