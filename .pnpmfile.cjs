@@ -259,15 +259,6 @@ async function fixDeps( pkg ) {
 		pkg.dependencies[ '@xmldom/xmldom' ] = '^0.9';
 	}
 
-	// Outdated, deprecated dependency.
-	// https://github.com/hipstersmoothie/react-docgen-typescript-plugin/issues/93
-	if (
-		pkg.name === '@storybook/react-docgen-typescript-plugin' &&
-		pkg.dependencies?.[ 'flat-cache' ] === '^3.0.4'
-	) {
-		pkg.dependencies[ 'flat-cache' ] = '^4';
-	}
-
 	// Dependency on "latest" makes for many spurious updates. Leave it for the lockfile maintenance PRs.
 	// No upstream evident to report bugs to.
 	if ( pkg.name === '@paulirish/trace_engine' ) {
@@ -294,6 +285,14 @@ async function fixDeps( pkg ) {
 		pkg.dependencies?.undici?.startsWith( '^5.' )
 	) {
 		pkg.dependencies.undici = '^6.23.0';
+	}
+
+	// Outdated dependency
+	if (
+		pkg.name === '@storybook/react-vite' &&
+		pkg.dependencies?.[ '@joshwooding/vite-plugin-react-docgen-typescript' ] === '^0.6.4'
+	) {
+		pkg.dependencies[ '@joshwooding/vite-plugin-react-docgen-typescript' ] = '^0.7.0';
 	}
 
 	return pkg;

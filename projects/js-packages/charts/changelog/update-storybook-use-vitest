@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+ChartLayout: Display svg as block to avoid unexpected resizing in certain browser environments.

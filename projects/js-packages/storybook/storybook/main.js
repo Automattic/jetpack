@@ -2,28 +2,23 @@
  * This file is inspired by https://github.com/WordPress/gutenberg/blob/trunk/storybook/main.js
  */
 
-import { createRequire } from 'node:module';
 import path from 'node:path';
 import { fileURLToPath } from 'url';
-import postcssPlugins from '@wordpress/postcss-plugins-preset';
-import { EsbuildPlugin } from 'esbuild-loader';
+import react from '@vitejs/plugin-react';
 import remarkGfm from 'remark-gfm';
+import jetpackConfig from './jetpackConfig.js';
 import { projects } from './projects.js';
-
-// Resolve postcss-import via the preset package that depends on it.
-const presetRequire = createRequire( import.meta.resolve( '@wordpress/postcss-plugins-preset' ) );
-const postcssImport = presetRequire( 'postcss-import' );
 
 const __dirname = import.meta.dirname;
 
 const storiesSearch = '*.@(mdx|@(story|stories).@(js|jsx|ts|tsx))';
 const stories = [ process.env.NODE_ENV !== 'test' && `./stories/**/${ storiesSearch }` ]
-	.concat( projects.map( project => `${ project }/**/stories/${ storiesSearch }` ) )
+	.concat(
+		projects.map( project =>
+			path.relative( __dirname, `${ project }/**/stories/${ storiesSearch }` )
+		)
+	)
 	.filter( Boolean );
-
-const includePaths = [ fileURLToPath( new URL( '.', import.meta.url ) ) ].concat( projects );
-
-const customEnvVariables = {};
 
 const sbconfig = {
 	stories,
@@ -39,97 +34,133 @@ const sbconfig = {
 			},
 		},
 		'@storybook/addon-a11y',
-		'@storybook/addon-webpack5-compiler-babel',
+		'@storybook/addon-vitest',
 	],
-	webpackFinal: async config => {
-		// Remove source maps in production builds.
-		if ( process.env.NODE_ENV === 'production' ) {
-			config.devtool = false;
-		}
+	viteFinal: async config => {
+		const { mergeConfig, transformWithOxc } = await import( 'vite' );
+		return mergeConfig( config, {
+			plugins: [
+				// This would normally be in vite.config.js, but we don't have one of those.
+				react( { include: /\.(m?[jt]sx?|cjs)$/ } ),
 
-		// Remove minimization in dev builds.
-		if ( process.env.NODE_ENV !== 'production' ) {
-			config.optimization.minimize = false;
-		}
-
-		// Remove ProgressPlugin
-		config.plugins = config.plugins.filter( p => p.constructor.name !== 'ProgressPlugin' );
-
-		// Use esbuild to minify.
-		config.optimization.minimizer = [
-			new EsbuildPlugin( {
-				target: 'esnext',
-			} ),
-		];
-
-		// Find the DefinePlugin
-		const plugin = config.plugins.find( p => p.definitions?.[ 'process.env' ] );
-		// Add custom env variables
-		// https://github.com/storybookjs/storybook/issues/12270
-		Object.keys( customEnvVariables ).forEach( key => {
-			plugin.definitions[ 'process.env' ][ key ] = JSON.stringify( customEnvVariables[ key ] );
-		} );
-
-		// Add sass handling.
-		config.module.rules.push( {
-			test: /\.scss$/,
-			use: [
-				'style-loader',
-				'css-loader',
+				// Our webpack setup processes .js files as jsx. Have vite do it too.
 				{
-					loader: 'postcss-loader',
-					options: {
-						postcssOptions: {
-							ident: 'postcss',
-							plugins: postcssPlugins.map( postcssPlugin => {
-								// Override postcss-import's resolve to support package.json "exports".
-								if ( postcssPlugin.postcssPlugin === 'postcss-import' ) {
-									return postcssImport( {
-										resolve: ( id, basedir ) => {
-											try {
-												return presetRequire.resolve( id, {
-													paths: [ basedir ],
-												} );
-											} catch {
-												return id;
-											}
-										},
-									} );
-								}
-								return postcssPlugin;
-							} ),
-						},
+					name: 'jsx-in-js',
+					enforce: 'pre',
+					async transform( code, id ) {
+						if ( ! id.includes( 'node_modules' ) && /\.[cm]?js$/.test( id ) ) {
+							return transformWithOxc( code, id, { lang: 'jsx' } );
+						}
 					},
 				},
-				{ loader: 'sass-loader', options: { api: 'modern-compiler' } },
+
+				// Stub `@automattic/jetpack-config`, the whole `jetpackConfig` thing confuses Storybook/vite/vitest/esbuild/rolldown/etc to no end.
+				// If you're trying to use those tools for something else, consider somehow fixing `@automattic/jetpack-config` instead of perpetuating this hack.
+				{
+					name: 'virtual-jetpack-config',
+					enforce: 'pre',
+					resolveId( id ) {
+						if ( id === '@automattic/jetpack-config' ) return '\0@automattic/jetpack-config';
+					},
+					load( id ) {
+						if ( id === '\0@automattic/jetpack-config' )
+							return `
+								const jetpackConfig = ${ JSON.stringify( jetpackConfig ) };
+								export const jetpackConfigHas = key => Object.hasOwn( jetpackConfig, key );
+								export const jetpackConfigGet = key => {
+									if ( ! jetpackConfigHas( key ) ) {
+										throw '@automattic/jetpack-config: "' + key + '" is not defined in Storybook.';
+									}
+									return jetpackConfig[ key ];
+								};
+							`;
+					},
+				},
+
+				// Handle packages/search's weird `resolve.modules` setting.
+				{
+					name: 'search-dashboard-modules',
+					async resolveId( id, importer ) {
+						if (
+							id.startsWith( 'components/' ) &&
+							importer?.includes( '/search/src/dashboard/' )
+						) {
+							const dummyFile = path.join(
+								__dirname,
+								'../../../packages/search/src/dashboard/dummy.js'
+							);
+							return this.resolve( './' + id, dummyFile, {
+								skipSelf: true,
+							} );
+						}
+					},
+				},
 			],
-			include: includePaths,
+			optimizeDeps: {
+				rolldownOptions: {
+					// Tell the dep pre-bundling scanner to treat .js as JSX.
+					moduleTypes: { '.js': 'jsx' },
+				},
+			},
+			server: {
+				watch: {
+					// Vite doesn't like our vendor symlink loops.
+					ignored: [ '**/vendor/**', '**/jetpack_vendor/**' ],
+				},
+			},
+			css: {
+				preprocessorOptions: {
+					scss: {
+						api: 'modern-compiler',
+						loadPaths: [
+							'node_modules',
+							// Handle packages/search's weird `resolve.modules` setting for scss resolution too.
+							path.join( __dirname, '../../../packages/search/src/dashboard' ),
+						],
+						// Boost-specific alias. Needs separate configuration from the below, sigh.
+						importers: [
+							{
+								findFileUrl( url ) {
+									if ( url.startsWith( '$css/' ) ) {
+										return new URL(
+											'../../../plugins/boost/app/assets/src/css/' + url.slice( 5 ),
+											import.meta.url
+										);
+									}
+									return null;
+								},
+							},
+						],
+					},
+				},
+			},
+			build: {
+				chunkSizeWarningLimit: Infinity, // We don't care.
+			},
+			resolve: {
+				conditions: [ 'jetpack:src' ],
+				// Somehow or other vitest blows up trying to process `node_modules/storybook/dist/manager-api/index.js` unless we set this.
+				dedupe: [ 'react', 'react-dom' ],
+				alias: {
+					...config.resolve?.alias,
+
+					// Boost-specific aliases
+					$lib: path.join( __dirname, '../../../plugins/boost/app/assets/src/js/lib' ),
+					$features: path.join( __dirname, '../../../plugins/boost/app/assets/src/js/features' ),
+					$layout: path.join( __dirname, '../../../plugins/boost/app/assets/src/js/layout' ),
+					$svg: path.join( __dirname, '../../../plugins/boost/app/assets/src/js/svg' ),
+					$css: path.join( __dirname, '../../../plugins/boost/app/assets/src/css' ),
+					$images: path.join( __dirname, '../../../plugins/boost/app/assets/static/images' ),
+
+					// Stuff @wordpress/block-editor → postcss probes but doesn't need.
+					// Without these, vitest dumps lots of complaints about https://vite.dev/guide/troubleshooting#module-externalized-for-browser-compatibility.
+					fs: path.join( __dirname, 'empty.js' ),
+					path: path.join( __dirname, 'empty.js' ),
+					url: path.join( __dirname, 'empty.js' ),
+					'source-map-js': path.join( __dirname, 'empty.js' ),
+				},
+			},
 		} );
-
-		// Conform to Webpack module resolution rule for Search dashboard.
-		config.resolve.modules.push(
-			fileURLToPath( new URL( '../../../packages/search/src/dashboard/', import.meta.url ) )
-		);
-
-		// So packages don't need to be pre-built.
-		config.resolve.conditionNames = [
-			'jetpack:src',
-			...( config.resolve.conditionNames ?? [ '...' ] ),
-		];
-
-		config.resolve.alias = {
-			...config.resolve.alias,
-
-			// Boost specific aliases
-			$lib: path.join( __dirname, '../../../plugins/boost/app/assets/src/js/lib' ),
-			$features: path.join( __dirname, '../../../plugins/boost/app/assets/src/js/features' ),
-			$layout: path.join( __dirname, '../../../plugins/boost/app/assets/src/js/layout' ),
-			$svg: path.join( __dirname, '../../../plugins/boost/app/assets/src/js/svg' ),
-			$css: path.join( __dirname, '../../../plugins/boost/app/assets/src/css' ),
-			$images: path.join( __dirname, '../../../plugins/boost/app/assets/static/images' ),
-		};
-
-		return config;
 	},
 	refs: {
 		gutenberg: {
@@ -141,18 +172,13 @@ const sbconfig = {
 		// Workaround https://github.com/storybookjs/storybook/issues/21710
 		// from https://storybook.js.org/docs/faq#how-do-i-fix-module-resolution-in-special-environments
 		name: path.dirname(
-			fileURLToPath( import.meta.resolve( '@storybook/react-webpack5/package.json' ) )
+			fileURLToPath( import.meta.resolve( '@storybook/react-vite/package.json' ) )
 		),
 		options: {},
 	},
-	staticDirs: [ '../public' ],
 	typescript: {
 		reactDocgen: 'react-docgen-typescript',
 	},
-	babel: async () => ( {
-		presets: [
-			fileURLToPath( import.meta.resolve( '@automattic/jetpack-webpack-config/babel/preset' ) ),
-		],
-	} ),
+	staticDirs: [ '../public' ],
 };
 export default sbconfig;
