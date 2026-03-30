@@ -1,10 +1,8 @@
-import { AdminPage, getRedirectUrl } from '@automattic/jetpack-components';
-import { isJetpackSelfHostedSite, isWoASite } from '@automattic/jetpack-script-data';
-import { __, _x, sprintf } from '@wordpress/i18n';
+import { AdminPage } from '@automattic/jetpack-components';
+import { isWoASite } from '@automattic/jetpack-script-data';
+import { __ } from '@wordpress/i18n';
 import { connect } from 'react-redux';
 import DevCard from 'components/dev-card';
-import analytics from 'lib/analytics';
-import { getSiteConnectionStatus } from 'state/connection';
 import { canDisplayDevCard, enableDevCard, resetOptions } from 'state/dev-version';
 import {
 	isDevVersion as _isDevVersion,
@@ -24,68 +22,13 @@ import { HeaderNav } from '../masthead/header-nav';
  * @return {Array} Footer menu items.
  */
 function buildFooterMenuItems( props ) {
-	const { currentVersion, isDevVersion, siteAdminUrl, siteConnectionStatus, canManageOptions } =
-		props;
+	const { isDevVersion, canManageOptions } = props;
 
 	const menu = [];
 
-	if ( isJetpackSelfHostedSite() ) {
-		menu.push( {
-			label: sprintf(
-				/* Translators: %s: a version number. */
-				__( 'Version %s', 'jetpack' ),
-				currentVersion
-			),
-			href: getRedirectUrl( 'jetpack' ),
-			target: '_blank',
-			onClick: () => {
-				analytics.tracks.recordJetpackClick( {
-					target: 'footer_link',
-					link: 'version',
-				} );
-			},
-		} );
-	}
-
-	if ( siteConnectionStatus && canManageOptions ) {
-		menu.push( {
-			label: _x(
-				'Modules',
-				'Navigation item. Noun. Links to a list of modules for Jetpack.',
-				'jetpack'
-			),
-			title: __( 'Access the full list of Jetpack modules available on your site.', 'jetpack' ),
-			href: siteAdminUrl + 'admin.php?page=jetpack_modules',
-			onClick: () => {
-				analytics.tracks.recordJetpackClick( {
-					target: 'footer_link',
-					link: 'modules',
-				} );
-			},
-		} );
-	}
-
-	if ( canManageOptions ) {
-		menu.push( {
-			label: _x(
-				'Debug',
-				'Navigation item. Noun. Links to a debugger tool for Jetpack.',
-				'jetpack'
-			),
-			title: __( "Test your site's compatibility with Jetpack.", 'jetpack' ),
-			href: siteAdminUrl + 'admin.php?page=jetpack-debugger',
-			onClick: () => {
-				analytics.tracks.recordJetpackClick( {
-					target: 'footer_link',
-					link: 'debug',
-				} );
-			},
-		} );
-	}
-
 	if ( isDevVersion && canManageOptions ) {
 		menu.push( {
-			label: _x( 'Reset Options (dev only)', 'Navigation item.', 'jetpack' ),
+			label: 'Reset options (devs)',
 			role: 'button',
 			onKeyDown: onKeyDownCallback( props.doResetOptions ),
 			onClick: props.doResetOptions,
@@ -94,7 +37,7 @@ function buildFooterMenuItems( props ) {
 
 	if ( isDevVersion ) {
 		menu.push( {
-			label: _x( 'Dev Tools', 'Navigation item.', 'jetpack' ),
+			label: 'Tools (devs)',
 			role: 'button',
 			onKeyDown: onKeyDownCallback( props.doEnableDevCard ),
 			onClick: props.doEnableDevCard,
@@ -137,7 +80,6 @@ export default connect(
 		displayDevCard: canDisplayDevCard( state ),
 		canManageOptions: userCanManageOptions( state ),
 		siteAdminUrl: getSiteAdminUrl( state ),
-		siteConnectionStatus: getSiteConnectionStatus( state ),
 	} ),
 	dispatch => ( {
 		doResetOptions: () => {
