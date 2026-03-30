@@ -111,6 +111,13 @@ class Social_Admin_Page_Test extends BaseTestCase {
 	 * @return callable
 	 */
 	public function throw_on_wp_die() {
+		/**
+		 * @param string|\Stringable $message Error message passed to wp_die.
+		 *
+		 * @return void
+		 *
+		 * @throws \Exception When invoked for assertions.
+		 */
 		return static function ( $message ) {
 			throw new \Exception( (string) $message );
 		};
