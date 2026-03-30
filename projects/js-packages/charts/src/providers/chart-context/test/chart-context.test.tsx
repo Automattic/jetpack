@@ -47,6 +47,24 @@ describe( 'ChartContext', () => {
 			expect( contextValue.charts ).toBeInstanceOf( Map );
 		} );
 
+		it( 'exposes isColorPaletteResolved as true after render', () => {
+			let contextValue: GlobalChartsContextValue;
+
+			const TestComponent = () => {
+				contextValue = useGlobalChartsContext();
+				return <div>Test</div>;
+			};
+
+			render(
+				<GlobalChartsProvider>
+					<TestComponent />
+				</GlobalChartsProvider>
+			);
+
+			// After render + layout effects, isColorPaletteResolved should be true
+			expect( contextValue.isColorPaletteResolved ).toBe( true );
+		} );
+
 		it( 'throws error when useGlobalChartsContext is used outside provider', () => {
 			const TestComponent = () => {
 				useGlobalChartsContext();

@@ -70,6 +70,8 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( {
 		maxHue: 0,
 	} ) );
 
+	const [ isColorPaletteResolved, setIsColorPaletteResolved ] = useState( false );
+
 	// Compute color cache after DOM is updated (so CSS variables are available)
 	// Resolves CSS variables from the wrapper element's scope to handle scoped variables
 	// Note: Only re-runs when providerTheme changes, not when wrapper element changes.
@@ -123,6 +125,7 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( {
 			minHue,
 			maxHue,
 		} );
+		setIsColorPaletteResolved( true );
 	}, [ providerTheme ] );
 
 	const [ groupToColorMap, setGroupToColorMap ] = useState< Map< string, string > >(
@@ -271,6 +274,7 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( {
 			toggleSeriesVisibility,
 			isSeriesVisible,
 			getHiddenSeries,
+			isColorPaletteResolved,
 		} ),
 		[
 			charts,
@@ -282,6 +286,7 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( {
 			toggleSeriesVisibility,
 			isSeriesVisible,
 			getHiddenSeries,
+			isColorPaletteResolved,
 		]
 	);
 
