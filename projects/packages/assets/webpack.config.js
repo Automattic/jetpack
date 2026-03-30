@@ -96,6 +96,9 @@ module.exports = [
 						'@automattic/jetpack-shared-extension-utils': {},
 					},
 				},
+				// The bundled code uses the shared-extension-utils textdomain, not jetpack-assets.
+				I18nCheckPlugin: { expectDomain: 'jetpack-shared-extension-utils' },
+				I18nLoaderPlugin: { textdomain: 'jetpack-shared-extension-utils' },
 			} ),
 		],
 	},
