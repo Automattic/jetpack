@@ -60,8 +60,8 @@ class Wpcom_Connector {
 		$registry->register( // @phan-suppress-current-line PhanUndeclaredClassMethod -- WP 7.0+ class.
 			'wordpress_com',
 			array(
-				'name'           => __( 'WordPress.com account', 'jetpack-connection' ),
-				'description'    => __( 'Connect your site to WordPress.com for enhanced functionality, Jetpack and WooCommerce services.', 'jetpack-connection' ),
+				'name'           => __( 'WordPress.com', 'jetpack-connection' ),
+				'description'    => __( 'Enhanced functionality with Jetpack and WooCommerce.', 'jetpack-connection' ),
 				'type'           => 'cloud_service',
 				'logo_url'       => plugins_url( 'images/wpcom-logo.svg', __FILE__ ),
 				'authentication' => array(
@@ -329,8 +329,9 @@ class Wpcom_Connector {
 	 * Map a plugin slug to a brand logo URL.
 	 *
 	 * Jetpack-family plugins get the Jetpack mark, WooCommerce-family
-	 * plugins get the Woo mark. Unknown slugs return null (the JS
-	 * falls back to a generic dashicon).
+	 * plugins get the Woo mark, and Automattic for Agencies gets the
+	 * Automattic mark. Unknown slugs return null (the JS falls back
+	 * to a generic dashicon).
 	 *
 	 * @param string $slug Plugin slug.
 	 * @return string|null Logo URL or null.
@@ -342,6 +343,10 @@ class Wpcom_Connector {
 
 		if ( str_starts_with( $slug, 'woocommerce' ) || str_starts_with( $slug, 'woo' ) ) {
 			return plugins_url( 'images/woo-icon.svg', __FILE__ );
+		}
+
+		if ( str_starts_with( $slug, 'automattic' ) ) {
+			return plugins_url( 'images/automattic-icon.svg', __FILE__ );
 		}
 
 		return null;

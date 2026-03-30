@@ -466,15 +466,14 @@ function ExpandedDetails( { isConnecting = false, onConnect = null } ) {
 					actionSlot: createElement(
 						Button,
 						{
-							variant: 'secondary',
-							isDestructive: false,
-							size: 'small',
+							variant: 'link',
+							isDestructive: true,
 							isBusy: isUnlinking,
 							disabled: isUnlinking || isDisconnecting,
 							onClick: handleUnlinkUser,
 							className: 'wpcom-connector__inline-action',
 						},
-						__( 'Disconnect user account', 'jetpack-connection' )
+						__( 'Disconnect account', 'jetpack-connection' )
 					),
 			  } )
 			: null,
@@ -497,7 +496,7 @@ function ExpandedDetails( { isConnecting = false, onConnect = null } ) {
 						? '@' +
 						  connectionOwner.login +
 						  ' ( ' +
-						  __( 'local:', 'jetpack-connection' ) +
+						  __( 'local username:', 'jetpack-connection' ) +
 						  ' ' +
 						  connectionOwner.localLogin +
 						  ' )'
