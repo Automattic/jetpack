@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix Forms dashboard black screen when The Events Calendar is active by replacing fragile import() in inline script with a proper script module.
