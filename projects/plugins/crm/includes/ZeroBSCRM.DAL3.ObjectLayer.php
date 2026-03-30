@@ -437,26 +437,26 @@ class zbsDAL_ObjectLayer {
 		#} / Build WHERE
 
 		#} Ownership v1.0 - the following adds SITE + TEAM checks, and (optionally), owner
-		$params = array_merge( $params, $zbs->DAL2->tools->ownershipQueryVars( $ignoreowner ) ); // merges in any req.
-		$ownQ   = $zbs->DAL2->ownershipSQL( $ignoreowner );
+		$params = array_merge( $params, $zbs->DAL->tools->ownershipQueryVars( $ignoreowner ) ); // merges in any req.
+		$ownQ   = $zbs->DAL->ownershipSQL( $ignoreowner );
 		if ( ! empty( $ownQ ) ) {
-			$additionalWhere = $zbs->DAL2->spaceAnd( $additionalWhere ) . $ownQ; // adds str to query
+			$additionalWhere = $zbs->DAL->spaceAnd( $additionalWhere ) . $ownQ; // adds str to query
 		}
 		#} / Ownership
 
 		#} Append to sql (this also automatically deals with sortby and paging)
-		$query .= $zbs->DAL2->buildWhereStr( $whereStr, $additionalWhere ) . $zbs->DAL2->buildSort( $sortByField, $sortOrder ) . $zbs->DAL2->buildPaging( $page, $perPage );
+		$query .= $zbs->DAL->buildWhereStr( $whereStr, $additionalWhere ) . $zbs->DAL->buildSort( $sortByField, $sortOrder ) . $zbs->DAL->buildPaging( $page, $perPage ); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
 
 		try {
 
 			#} Prep & run query
-			$queryObj     = $zbs->DAL2->prepare( $query, $params );
-			$potentialRes = $zbs->DAL2->get_results( $queryObj, OBJECT );
+			$queryObj     = $zbs->DAL->prepare( $query, $params );
+			$potentialRes = $zbs->DAL->get_results( $queryObj, OBJECT );
 
 		} catch ( Exception $e ) {
 
 			#} General SQL Err
-			$zbs->DAL2->catchSQLError( $e );
+			$zbs->DAL->catchSQLError( $e );
 
 		}
 

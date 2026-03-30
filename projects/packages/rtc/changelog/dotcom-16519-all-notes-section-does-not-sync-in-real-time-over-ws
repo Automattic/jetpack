@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+PingHub: support root/comment entity type so collaborative notes sync in real time over WebSockets
