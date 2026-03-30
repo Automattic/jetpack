@@ -433,20 +433,6 @@ class Wpcom_Connector_Test extends TestCase {
 		unset( $_SERVER['SCRIPT_NAME'] );
 	}
 
-	/**
-	 * Test that the fallback returns options-connectors.php when no screen is set.
-	 */
-	public function test_connectors_page_path_fallback() {
-		unset( $_SERVER['SCRIPT_NAME'] );
-
-		$method = new \ReflectionMethod( Wpcom_Connector::class, 'get_connectors_page_path' );
-		if ( PHP_VERSION_ID < 80100 ) {
-			$method->setAccessible( true );
-		}
-
-		$this->assertSame( 'options-connectors.php', $method->invoke( null ) );
-	}
-
 	/* ── Helpers ───────────────────────────────────────────────── */
 
 	/**

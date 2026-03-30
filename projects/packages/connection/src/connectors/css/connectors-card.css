@@ -97,6 +97,22 @@
 	white-space: nowrap;
 }
 
+@media (max-width: 480px) {
+
+	.wpcom-connector__section.components-h-stack,
+	.wpcom-connector__section > .components-h-stack {
+		flex-wrap: wrap;
+	}
+
+	.wpcom-connector__connect-prompt-text {
+		min-inline-size: 100%;
+	}
+
+	.wpcom-connector__inline-action {
+		margin-inline-start: 0;
+	}
+}
+
 .wpcom-connector__error {
 	color: #cc1818;
 	font-size: 13px;
