@@ -34,8 +34,13 @@ class Wpcom_Connector_Test extends TestCase {
 		parent::setUp();
 
 		// Reset the static $initialized flag so init() can be called in each test.
-		$ref = new \ReflectionClass( Wpcom_Connector::class );
-		$ref->setStaticPropertyValue( 'initialized', false );
+		$ref  = new \ReflectionClass( Wpcom_Connector::class );
+		$prop = $ref->getProperty( 'initialized' );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$prop->setAccessible( true );
+		}
+		$prop->setValue( null, false );
 
 		$this->admin_id = wp_insert_user(
 			array(
@@ -426,6 +431,20 @@ class Wpcom_Connector_Test extends TestCase {
 		$this->assertSame( 'options-connectors.php', $method->invoke( null ) );
 
 		unset( $_SERVER['SCRIPT_NAME'] );
+	}
+
+	/**
+	 * Test that the fallback returns options-connectors.php when no screen is set.
+	 */
+	public function test_connectors_page_path_fallback() {
+		unset( $_SERVER['SCRIPT_NAME'] );
+
+		$method = new \ReflectionMethod( Wpcom_Connector::class, 'get_connectors_page_path' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+
+		$this->assertSame( 'options-connectors.php', $method->invoke( null ) );
 	}
 
 	/* ── Helpers ───────────────────────────────────────────────── */
