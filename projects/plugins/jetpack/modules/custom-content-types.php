@@ -1,6 +1,6 @@
 <?php
 /**
- * Module Name: Custom content types
+ * Module Name: Custom Content Types
  * Module Description: Display different types of content on your site with custom content types.
  * First Introduced: 3.1
  * Requires Connection: No
