@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Remove issue and issue_comment triggers from the gardening workflow, since issue triage now happens in Linear.
