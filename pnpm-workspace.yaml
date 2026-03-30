@@ -30,10 +30,8 @@ minimumReleaseAgeExclude:
   - '@automattic/*'
   - '@woocommerce/*'
   - '@wordpress/*'
-  # CVE-2026-33750
-  - brace-expansion@1.1.13 || 2.0.3
-  # CVE-2026-33916
-  - handlebars@4.7.9
+  # GHSA-wh4c-j3r5-mjhp
+  - '@xmldom/xmldom@0.9.9'
 trustPolicy: no-downgrade
 trustPolicyExclude:
   # https://github.com/paulmillr/chokidar/issues/1440
