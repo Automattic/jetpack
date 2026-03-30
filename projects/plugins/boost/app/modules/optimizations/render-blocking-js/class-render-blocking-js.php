@@ -348,7 +348,10 @@ class Render_Blocking_JS implements Feature, Changes_Output_On_Activation, Optim
 	 * @return bool
 	 */
 	public function is_opened_script( $buffer ) {
-		$opening_tags_count = preg_match_all( '~<\s*script(?![^>]*%s="%s")([^>]*)>~', $buffer );
+		$opening_tags_count = preg_match_all(
+			sprintf( '~<\s*script(?![^>]*%s="%s")([^>]*)>~', preg_quote( $this->ignore_attribute, '~' ), preg_quote( $this->ignore_value, '~' ) ),
+			$buffer
+		);
 		$closing_tags_count = preg_match_all( '~<\s*/script[^>]*>~', $buffer );
 
 		/**

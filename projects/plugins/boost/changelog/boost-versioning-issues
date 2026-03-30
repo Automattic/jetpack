@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Render Blocking JS: Fix script counting in is_opened_script() to properly exclude ignored scripts.
