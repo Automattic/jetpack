@@ -29,15 +29,6 @@ function wpcom_get_rtc_max_peers_per_room() {
 }
 
 /**
- * Get the maximum number of clients (tabs) allowed per user in a room.
- *
- * @return int Max clients per user.
- */
-function wpcom_get_rtc_max_clients_per_user() {
-	return (int) apply_filters( 'wpcom_rtc_max_clients_per_user', 2 );
-}
-
-/**
  * Check if the current user is the plan owner for this site.
  * Works on Simple sites (via wpcom_get_blog_owner) and Atomic sites
  * (via Jetpack connection master_user). Returns false on self-hosted
@@ -127,7 +118,6 @@ function wpcom_enqueue_rtc_notices_assets() {
 			'postsListUrl'       => admin_url( 'edit.php' ),
 			'siteSlug'           => wpcom_get_site_slug(),
 			'maxPeersPerRoom'    => wpcom_get_rtc_max_peers_per_room(),
-			'maxClientsPerUser'  => wpcom_get_rtc_max_clients_per_user(),
 			'enableLimitNotices' => apply_filters( 'wpcom_rtc_enable_limit_notices', false ),
 		),
 		JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP

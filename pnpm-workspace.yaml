@@ -30,31 +30,10 @@ minimumReleaseAgeExclude:
   - '@automattic/*'
   - '@woocommerce/*'
   - '@wordpress/*'
-  # GHSA-7h2j-956f-4vf2
-  - '@isaacs/brace-expansion@5.0.1'
-  # Renovate security update: webpack@5.104.1
-  - webpack@5.104.1
-  # Renovate security update: axios@1.13.5
-  - axios@1.13.5
-  # Renovate security update: qs@6.14.2
-  - qs@6.14.2
-  # Renovate security update: markdown-it@14.1.1
-  - markdown-it@14.1.1
-  # Renovate security update: minimatch@10.2.1
-  - minimatch@10.2.1
-  # Renovate security update: swiper@12.1.2
-  - swiper@12.1.2
-  # Renovate security update: rollup@3.30.0
-  - rollup@3.30.0
-  # Renovate security update: svelte@5.53.5 (also needs devalue@5.6.3)
-  - svelte@5.53.5
-  - devalue@5.6.3
-  # Renovate security update: undici@7.24.0
-  - undici@7.24.0
-  # Renovate security update: picomatch@4.0.4
-  - picomatch@4.0.4
-  # Renovate security update: yaml@2.8.3
-  - yaml@2.8.3
+  # CVE-2026-33750
+  - brace-expansion@1.1.13 || 2.0.3
+  # CVE-2026-33916
+  - handlebars@4.7.9
 trustPolicy: no-downgrade
 trustPolicyExclude:
   # https://github.com/paulmillr/chokidar/issues/1440
@@ -110,6 +89,10 @@ ignoredOptionalDependencies:
 
 # Dependencies needing patching.
 patchedDependencies:
+
+  # Vite/esbuild doesn't like the `__esModule` + `exports["default"]` pattern, it winds up double-wrapping the default.
+  # See also https://github.com/WordPress/gutenberg/issues/39619
+  react-autosize-textarea: .pnpm-patches/react-autosize-textarea.patch
 
   # uuid up to v11 had CommonJS files with ESM content too.
   # No bug report, because it's already fixed in the latest versions.

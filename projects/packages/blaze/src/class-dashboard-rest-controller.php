@@ -1235,6 +1235,12 @@ class Dashboard_REST_Controller {
 
 		if ( ! is_wp_error( $response ) && is_array( $response ) ) {
 			$response['sync_ready'] = $sync_ready;
+
+			// Invalidate the cached campaign check so the menu updates immediately.
+			$site_id = $this->get_site_id();
+			if ( ! is_wp_error( $site_id ) ) {
+				delete_transient( 'jetpack_blaze_has_site_campaigns_' . $site_id );
+			}
 		}
 
 		return $response;

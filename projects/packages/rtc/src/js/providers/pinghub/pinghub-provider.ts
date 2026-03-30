@@ -136,10 +136,15 @@ function getRoom( objectType: string, objectId: string | null ): string {
 export function createPingHubProvider(): ProviderCreator {
 	return async ( { awareness, objectType, objectId, ydoc } ): Promise< ProviderCreatorResult > => {
 		/**
-		 * Only post-like entities with a concrete ID are supported now.
+		 * The sync manager only invokes provider creators for entity types that
+		 * have a syncConfig, so no explicit allowlist is needed here.
+		 *
+		 * Collection-level sync (objectId is null, from loadCollection) is only
+		 * meaningful for root/ entities such as root/comment (notes). Post-type
+		 * and taxonomy entities are always synced per-record, so skip them when
+		 * no concrete ID is present.
 		 */
-		const SUPPORTED_OBJECT_TYPES = new Set( [ 'postType/post', 'postType/page' ] );
-		if ( ! SUPPORTED_OBJECT_TYPES.has( objectType ) || ! objectId ) {
+		if ( ! objectId && ! objectType.startsWith( 'root/' ) ) {
 			return {
 				destroy: () => {},
 				on: () => {},
