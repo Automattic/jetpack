@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-PingHub: return 403 user_not_connected instead of 500 when the current user has no Jetpack/WP.com user token, and stop reconnection attempts in that case
+PingHub: return 403 user_not_connected instead of 500 when the current user is not connected to WP.com, and stop reconnection attempts in that case
