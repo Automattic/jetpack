@@ -62,7 +62,7 @@ export default function CelebrateLaunchModal( {
 					) }
 				</p>
 			);
-			buttonText = __( 'Claim your domain', 'jetpack-mu-wpcom' );
+			buttonText = __( 'Get your domain', 'jetpack-mu-wpcom' );
 			buttonHref = `https://wordpress.com/domains/add/${ siteSlug }`;
 		} else if ( isPaidPlan && isBilledMonthly && ! hasCustomDomain ) {
 			contentElement = (
