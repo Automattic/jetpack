@@ -313,6 +313,8 @@ class Wpcom_Connector {
 	 * the auth webhook fails. The transient is read on the next
 	 * Connectors page load so the JS card can display the error.
 	 *
+	 * @since $$next-version$$
+	 *
 	 * @param \WP_Error $error Authorization error.
 	 */
 	public static function store_auth_error( $error ) {
