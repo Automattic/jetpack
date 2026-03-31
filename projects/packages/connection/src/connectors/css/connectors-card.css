@@ -117,4 +117,15 @@
 	color: #cc1818;
 	font-size: 13px;
 	margin-block-start: 8px;
+	padding-block: 8px;
+	padding-inline: 12px;
+	border-inline-start: 4px solid #cc1818;
+	background-color: #fcecec;
+	border-radius: 2px;
+	align-items: center;
+}
+
+.wpcom-connector__error .components-button {
+	color: #cc1818;
+	flex-shrink: 0;
 }

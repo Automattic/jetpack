@@ -64,6 +64,10 @@ class Wpcom_Connector_Test extends TestCase {
 		// Remove hooks that init() may have registered.
 		remove_all_actions( 'wp_connectors_init' );
 		remove_all_actions( 'admin_enqueue_scripts' );
+		remove_all_actions( 'jetpack_client_authorize_error' );
+
+		// Clean up any auth error transients left by tests.
+		delete_transient( 'wpcom_connector_auth_error_' . $this->admin_id );
 
 		WorDBless_Options::init()->clear_options();
 		WorDBless_Users::init()->clear_all_users();
@@ -80,6 +84,7 @@ class Wpcom_Connector_Test extends TestCase {
 
 		$this->assertIsInt( has_action( 'wp_connectors_init', array( Wpcom_Connector::class, 'register_connector' ) ) );
 		$this->assertIsInt( has_action( 'admin_enqueue_scripts', array( Wpcom_Connector::class, 'enqueue_script_module' ) ) );
+		$this->assertIsInt( has_action( 'jetpack_client_authorize_error', array( Wpcom_Connector::class, 'store_auth_error' ) ) );
 	}
 
 	/**
@@ -431,6 +436,126 @@ class Wpcom_Connector_Test extends TestCase {
 		$this->assertSame( 'options-connectors.php', $method->invoke( null ) );
 
 		unset( $_SERVER['SCRIPT_NAME'] );
+	}
+
+	/* ── store_auth_error() / consume_auth_error() ───────────── */
+
+	/**
+	 * Test that store_auth_error stores a transient for a WP_Error.
+	 */
+	public function test_store_auth_error_saves_transient() {
+		$error = new \WP_Error( 'auth_denied', 'Authorization was denied.' );
+
+		Wpcom_Connector::store_auth_error( $error );
+
+		$stored = get_transient( 'wpcom_connector_auth_error_' . $this->admin_id );
+		$this->assertSame( 'Authorization was denied.', $stored );
+	}
+
+	/**
+	 * Test that store_auth_error ignores non-WP_Error values.
+	 */
+	public function test_store_auth_error_ignores_non_wp_error() {
+		Wpcom_Connector::store_auth_error( 'not an error' );
+
+		$this->assertFalse( get_transient( 'wpcom_connector_auth_error_' . $this->admin_id ) );
+	}
+
+	/**
+	 * Test that store_auth_error does nothing when no user is logged in.
+	 */
+	public function test_store_auth_error_no_user() {
+		wp_set_current_user( 0 );
+
+		Wpcom_Connector::store_auth_error( new \WP_Error( 'fail', 'Failure.' ) );
+
+		$this->assertFalse( get_transient( 'wpcom_connector_auth_error_0' ) );
+	}
+
+	/**
+	 * Test that consume_auth_error reads and deletes the transient.
+	 */
+	public function test_consume_auth_error_reads_and_deletes() {
+		set_transient( 'wpcom_connector_auth_error_' . $this->admin_id, 'Token expired.', 60 );
+
+		$method = new \ReflectionMethod( Wpcom_Connector::class, 'consume_auth_error' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+
+		$result = $method->invoke( null );
+		$this->assertSame( 'Token expired.', $result );
+
+		// Transient should be deleted after consumption.
+		$this->assertFalse( get_transient( 'wpcom_connector_auth_error_' . $this->admin_id ) );
+	}
+
+	/**
+	 * Test that consume_auth_error deletes the transient even when value is an empty string.
+	 */
+	public function test_consume_auth_error_deletes_empty_string_transient() {
+		set_transient( 'wpcom_connector_auth_error_' . $this->admin_id, '', 60 );
+
+		$method = new \ReflectionMethod( Wpcom_Connector::class, 'consume_auth_error' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+
+		$result = $method->invoke( null );
+		$this->assertSame( '', $result );
+
+		// Transient must be deleted even though the value was falsy.
+		$this->assertFalse( get_transient( 'wpcom_connector_auth_error_' . $this->admin_id ) );
+	}
+
+	/**
+	 * Test that consume_auth_error returns false when no transient exists.
+	 */
+	public function test_consume_auth_error_returns_false_when_empty() {
+		$method = new \ReflectionMethod( Wpcom_Connector::class, 'consume_auth_error' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+
+		$this->assertFalse( $method->invoke( null ) );
+	}
+
+	/**
+	 * Test that consume_auth_error returns false for logged-out users.
+	 */
+	public function test_consume_auth_error_returns_false_no_user() {
+		wp_set_current_user( 0 );
+
+		$method = new \ReflectionMethod( Wpcom_Connector::class, 'consume_auth_error' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+
+		$this->assertFalse( $method->invoke( null ) );
+	}
+
+	/**
+	 * Test that get_connector_data includes authError when transient is set.
+	 */
+	public function test_get_connector_data_includes_auth_error() {
+		set_transient( 'wpcom_connector_auth_error_' . $this->admin_id, 'Auth failed.', 60 );
+
+		$data = Wpcom_Connector::get_connector_data( array() );
+
+		$this->assertArrayHasKey( 'authError', $data );
+		$this->assertSame( 'Auth failed.', $data['authError'] );
+
+		// Transient should be consumed (deleted).
+		$this->assertFalse( get_transient( 'wpcom_connector_auth_error_' . $this->admin_id ) );
+	}
+
+	/**
+	 * Test that get_connector_data omits authError when no transient exists.
+	 */
+	public function test_get_connector_data_omits_auth_error_when_none() {
+		$data = Wpcom_Connector::get_connector_data( array() );
+
+		$this->assertArrayNotHasKey( 'authError', $data );
 	}
 
 	/* ── Helpers ───────────────────────────────────────────────── */
