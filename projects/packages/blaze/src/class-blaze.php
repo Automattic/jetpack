@@ -137,18 +137,17 @@ class Blaze {
 		 */
 		$css_prefix = apply_filters( 'jetpack_blaze_dashboard_css_prefix', 'jp-blaze' );
 
-		$parent_slug     = self::get_menu_parent();
-		$is_simple_site  = defined( 'IS_WPCOM' ) && IS_WPCOM;
-		$blaze_dashboard = new Blaze_Dashboard( 'admin.php', $menu_slug, $css_prefix );
+		$parent_slug = self::get_menu_parent();
 
-		// On Simple Sites the embedded wp-admin dashboard does not work under a
-		// plugin parent menu (admin.php?page=advertising is not routed by the
-		// WPCOM admin bridge and falls back to /home/).  Use the external
-		// Calypso URL instead, which is the same approach every other Jetpack
-		// submenu item takes on Simple Sites.
-		$use_embedded_dashboard = self::is_dashboard_enabled() && ! $is_simple_site;
+		// On Simple Sites the WPCOM admin bridge only routes tools.php?page=…
+		// URLs.  admin.php?page=… under a plugin parent falls back to /home/.
+		// Keep tools.php as the dashboard base so the embedded dashboard keeps
+		// working on Simple Sites.
+		$is_simple_site = defined( 'IS_WPCOM' ) && IS_WPCOM;
+		$admin_page     = $is_simple_site ? 'tools.php' : 'admin.php';
+		$blaze_dashboard = new Blaze_Dashboard( $admin_page, $menu_slug, $css_prefix );
 
-		if ( $use_embedded_dashboard ) {
+		if ( self::is_dashboard_enabled() ) {
 			if ( self::has_site_campaigns() ) {
 				$page_suffix = add_menu_page(
 					esc_attr( $menu_label ),
@@ -303,12 +302,6 @@ class Blaze {
 	 * @return void
 	 */
 	public static function redirect_legacy_advertising_url() {
-		// On Simple Sites the menu is not registered under admin.php, so
-		// redirecting tools.php → admin.php would land on an unroutable URL.
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			return;
-		}
-
 		global $pagenow;
 
 		if (
@@ -316,6 +309,12 @@ class Blaze {
 			&& isset( $_GET['page'] ) // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			&& 'advertising' === $_GET['page'] // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		) {
+			// On Simple Sites the dashboard still uses tools.php as its base,
+			// so there is nothing to redirect — the URL is already correct.
+			if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+				return;
+			}
+
 			/** This filter is documented in Blaze::enable_blaze_menu() */
 			$menu_slug = apply_filters( 'jetpack_blaze_menu_slug', 'advertising' );
 			wp_safe_redirect( admin_url( 'admin.php?page=' . $menu_slug ), 302 );
@@ -486,15 +485,12 @@ class Blaze {
 	 * @return array An array with the link, and whether this is a Calypso or a wp-admin link.
 	 */
 	public static function get_campaign_management_url( $post_id ) {
-		$is_simple_site = defined( 'IS_WPCOM' ) && IS_WPCOM;
-
-		// Use the embedded dashboard URL on non-Simple sites with the dashboard enabled.
-		// Simple Sites cannot route admin.php?page=* under plugin parent menus,
-		// so they fall through to the Calypso URL below.
-		if ( self::is_dashboard_enabled() && ! $is_simple_site ) {
+		if ( self::is_dashboard_enabled() ) {
 			/** This filter is documented in Blaze::enable_blaze_menu() */
 			$menu_slug = apply_filters( 'jetpack_blaze_menu_slug', 'advertising' );
-			$admin_url = admin_url( 'admin.php?page=' . $menu_slug );
+			// Simple Sites use tools.php; all other installations use admin.php.
+			$admin_page = ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ? 'tools.php' : 'admin.php';
+			$admin_url  = admin_url( $admin_page . '?page=' . $menu_slug );
 			$hostname  = wp_parse_url( get_site_url(), PHP_URL_HOST );
 			$blaze_url = sprintf(
 				'%1$s#!/advertising/posts/promote/post-%2$s/%3$s',
