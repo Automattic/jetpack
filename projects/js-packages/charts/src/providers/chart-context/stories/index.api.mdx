@@ -16,6 +16,7 @@ The main provider component that enables chart context functionality.
 | ---- | ---- | ------- | ----------- |
 | `theme` | `Partial<ChartTheme>` | `defaultTheme` | Custom theme object that gets merged with the default theme |
 | `children` | `ReactNode` | - | **Required.** Chart components and other React elements |
+| `portalContainer` | `React.RefObject<HTMLElement \| null>` | - | Optional ref to an element that chart tooltip portals should be relocated into. When provided, visx tooltip portals (normally appended to `document.body`) will be moved into this container so they participate in the same CSS stacking context. |
 
 ## GlobalChartsContextValue
 
@@ -50,7 +51,7 @@ interface GlobalChartsContextValue {
 ```typescript
 interface ChartRegistration {
 	legendItems: BaseLegendItem[];
-	chartType: string;
+	chartType: ChartType;
 	metadata?: Record<string, unknown>;
 }
 ```
@@ -58,10 +59,10 @@ interface ChartRegistration {
 ## ElementStyles Type
 
 ```typescript
-interface ElementStyles {
+type ElementStyles = {
 	color: string;
-	lineStyles: CSSProperties & LineStyles;
-	glyph?: (props: GlyphProps) => ReactNode;
+	lineStyles: LineStyles;
+	glyph: <Datum extends object>(props: GlyphProps<Datum>) => ReactNode;
 	shapeStyles: CSSProperties & LineStyles;
-}
+};
 ```
