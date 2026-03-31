@@ -72,6 +72,11 @@ module.exports = [
 				},
 			},
 		},
+		// Provide a minimal jetpackConfig so that the bundled @automattic/jetpack-api
+		// (pulled in transitively via use-connection) doesn't log a console error.
+		externals: {
+			jetpackConfig: JSON.stringify( {} ),
+		},
 		module: {
 			strictExportPresence: true,
 			rules: [
