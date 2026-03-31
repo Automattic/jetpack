@@ -9,8 +9,7 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/Automattic/jetpack.git",
-		"directory": "projects/js-packages/agent-experience-eval"
+		"url": "git+https://github.com/Automattic/jetpack-agent-experience-eval.git"
 	},
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
