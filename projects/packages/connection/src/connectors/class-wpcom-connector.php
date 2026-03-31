@@ -144,9 +144,8 @@ class Wpcom_Connector {
 				'siteUrl' => site_url(),
 				'homeUrl' => home_url(),
 			);
-			$modules                  = new Modules();
-			if ( $modules->is_module( 'sso' ) ) {
-				$data['ssoStatus'] = $modules->is_active( 'sso' ) ? __( 'Enabled', 'jetpack-connection' ) : __( 'Not enabled', 'jetpack-connection' );
+			if ( false !== \Jetpack_Options::get_option( 'active_modules' ) ) {
+				$data['ssoStatus'] = ( new Modules() )->is_active( 'sso', false );
 			}
 		}
 

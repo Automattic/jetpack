@@ -46,7 +46,7 @@ const siteDetails = data.siteDetails || null;
 const CONNECTOR_LOGO = data.connectorLogoUrl
 	? createElement( 'img', { src: data.connectorLogoUrl, alt: '', width: 36, height: 36 } )
 	: null;
-const ssoStatus = data.ssoStatus || null;
+const ssoStatus = 'ssoStatus' in data ? data.ssoStatus : null;
 
 /**
  * Start the Jetpack connection flow: register the site (if needed),
@@ -364,7 +364,13 @@ function SiteDetailsModal( { onClose } ) {
 			row( __( 'Blog ID', 'jetpack-connection' ), String( siteDetails.blogId ) ),
 			row( __( 'Site URL', 'jetpack-connection' ), siteDetails.siteUrl ),
 			row( __( 'Home URL', 'jetpack-connection' ), siteDetails.homeUrl ),
-			ssoStatus && row( __( 'WordPress.com login (SSO)', 'jetpack-connection' ), ssoStatus )
+			ssoStatus !== null &&
+				row(
+					__( 'WordPress.com login (SSO)', 'jetpack-connection' ),
+					ssoStatus
+						? __( 'Enabled', 'jetpack-connection' )
+						: __( 'Not enabled', 'jetpack-connection' )
+				)
 		)
 	);
 }
