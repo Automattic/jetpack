@@ -11,6 +11,9 @@
  * This module adds the render function and passes connection-specific
  * data (owner, plugins, disconnect) via script module data.
  *
+ * The render prop naming differs between WP core (name, logo) and
+ * the Gutenberg plugin (label, icon), so the card accepts both.
+ *
  * @see Wpcom_Connector::enqueue_script_module()
  */
 
@@ -560,13 +563,30 @@ function ExpandedDetails( { isConnecting = false, onConnect = null } ) {
 /**
  * Render callback for the WordPress.com connector card.
  *
+ * Props vary between WordPress core (name, description, logo)
+ * and the Gutenberg plugin (label, description, icon).
+ *
  * @param {object} props             - Connector render props.
- * @param {string} props.name        - Connector name (from server).
- * @param {string} props.description - Connector description (from server).
- * @param {object} props.logo        - Connector logo element (from server).
+ * @param {string} props.name        - Connector name (core).
+ * @param {string} props.label       - Connector label (Gutenberg).
+ * @param {string} props.description - Connector description.
+ * @param {object} props.logo        - Logo element (core).
+ * @param {object} props.icon        - Icon element (Gutenberg).
  * @return {object} React element.
  */
-function WpcomConnectorCard( { name, description, logo } ) {
+function WpcomConnectorCard( { name, label, description, logo, icon } ) {
+	const connectorName = name || label;
+	const connectorLogo =
+		logo ||
+		icon ||
+		( data.connectorLogoUrl
+			? createElement( 'img', {
+					src: data.connectorLogoUrl,
+					alt: '',
+					width: 36,
+					height: 36,
+			  } )
+			: null );
 	const [ isExpanded, setIsExpanded ] = useState( false );
 	const isConnected = initialIsConnected;
 	const isSiteRegistered = initialIsRegistered;
@@ -651,8 +671,10 @@ function WpcomConnectorCard( { name, description, logo } ) {
 	return createElement(
 		ConnectorItem,
 		{
-			logo,
-			name,
+			logo: connectorLogo,
+			icon: connectorLogo,
+			name: connectorName,
+			label: connectorName,
 			description: styledDescription,
 			actionArea,
 		},
@@ -671,5 +693,9 @@ function WpcomConnectorCard( { name, description, logo } ) {
 }
 
 registerConnector( 'wordpress_com', {
+	name: data.connectorName || 'WordPress.com',
+	label: data.connectorName || 'WordPress.com',
+	description: data.connectorDescription || 'Enhanced functionality with Jetpack and WooCommerce.',
+	logoUrl: data.connectorLogoUrl || '',
 	render: WpcomConnectorCard,
 } );

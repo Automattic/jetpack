@@ -126,11 +126,14 @@ class Wpcom_Connector {
 		$is_registered = $manager->is_connected();
 		$is_connected  = $is_registered && $manager->has_connected_owner();
 
-		$data['isConnected']  = $is_connected;
-		$data['isRegistered'] = $is_registered;
-		$data['apiRoot']      = esc_url_raw( rest_url() );
-		$data['apiNonce']     = wp_create_nonce( 'wp_rest' );
-		$data['redirectUri']  = static::get_connectors_page_path();
+		$data['isConnected']          = $is_connected;
+		$data['isRegistered']         = $is_registered;
+		$data['apiRoot']              = esc_url_raw( rest_url() );
+		$data['apiNonce']             = wp_create_nonce( 'wp_rest' );
+		$data['redirectUri']          = static::get_connectors_page_path();
+		$data['connectorName']        = __( 'WordPress.com', 'jetpack-connection' );
+		$data['connectorDescription'] = __( 'Enhanced functionality with Jetpack and WooCommerce.', 'jetpack-connection' );
+		$data['connectorLogoUrl']     = plugins_url( 'images/wpcom-logo.svg', __FILE__ );
 
 		if ( $is_registered ) {
 			$data['connectedPlugins'] = static::get_connected_plugins_data( $manager );
@@ -338,7 +341,7 @@ class Wpcom_Connector {
 	 */
 	private static function get_plugin_logo_url( $slug ) {
 		if ( str_starts_with( $slug, 'jetpack' ) ) {
-			return plugins_url( 'images/jetpack-icon.svg', __FILE__ );
+			return plugins_url( 'images/jetpack-icon.svg', __FILE__ ); // str_starts_with() is polyfilled by WP since 5.9; this code only runs on WP 7.0+.
 		}
 
 		if ( str_starts_with( $slug, 'woocommerce' ) || str_starts_with( $slug, 'woo' ) ) {
