@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Extensions\BlockNotes;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\My_Jetpack\Products\Jetpack_Ai;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 
@@ -26,8 +27,8 @@ const HEADLESS_AGENT_PROVIDER = 'block-notes/headless-agent-provider';
 /**
  * Check if Block Notes is enabled.
  *
- * Enabled when the Big Sky plugin is active, or when Jetpack AI
- * features are not disabled.
+ * Enabled when the Big Sky plugin is active, or when the site has
+ * a paid Jetpack AI plan and AI features are not disabled.
  *
  * @return bool
  */
@@ -40,7 +41,39 @@ function is_block_notes_enabled() {
 		return false;
 	}
 
+	if ( ! has_paid_ai_plan() ) {
+		return false;
+	}
+
 	return true;
+}
+
+/**
+ * Check if the site has a paid Jetpack AI plan.
+ *
+ * Tries the My Jetpack product class first, then falls back to the
+ * Jetpack AI Helper which lives in the Jetpack plugin itself.
+ *
+ * @return bool
+ */
+function has_paid_ai_plan() {
+	$has_paid_plan = false;
+
+	if ( class_exists( Jetpack_Ai::class ) ) {
+		$has_paid_plan = Jetpack_Ai::has_paid_plan_for_product();
+	} elseif ( class_exists( 'Jetpack_AI_Helper' ) ) {
+		$feature_data  = \Jetpack_AI_Helper::get_ai_assistance_feature();
+		$has_paid_plan = ! is_wp_error( $feature_data ) && ! empty( $feature_data['has-feature'] );
+	}
+
+	/**
+	 * Filter whether the site has a paid AI plan.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param bool $has_paid_plan Whether the site has a paid AI plan.
+	 */
+	return apply_filters( 'jetpack_block_notes_has_paid_ai_plan', $has_paid_plan );
 }
 
 /**
