@@ -179,6 +179,8 @@ class Wpcom_Connector_Test extends TestCase {
 	public function test_sso_status_false_when_inactive() {
 		\Jetpack_Options::update_option( 'blog_token', 'test.secret' );
 		\Jetpack_Options::update_option( 'id', 12345 );
+		Plugin_Storage::configure();
+		Plugin_Storage::upsert( 'jetpack', array( 'name' => 'Jetpack' ) );
 		\Jetpack_Options::update_option( 'active_modules', array() );
 
 		$data = Wpcom_Connector::get_connector_data( array() );
@@ -192,6 +194,8 @@ class Wpcom_Connector_Test extends TestCase {
 	public function test_sso_status_true_when_active() {
 		\Jetpack_Options::update_option( 'blog_token', 'test.secret' );
 		\Jetpack_Options::update_option( 'id', 12345 );
+		Plugin_Storage::configure();
+		Plugin_Storage::upsert( 'jetpack', array( 'name' => 'Jetpack' ) );
 		\Jetpack_Options::update_option( 'active_modules', array( 'sso' ) );
 
 		$data = Wpcom_Connector::get_connector_data( array() );
