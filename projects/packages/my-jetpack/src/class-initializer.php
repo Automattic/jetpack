@@ -158,8 +158,8 @@ class Initializer {
 	 */
 	public static function add_my_jetpack_menu_item() {
 		$page_suffix = Admin_Menu::add_menu(
-			__( 'My Jetpack', 'jetpack-my-jetpack' ),
-			__( 'My Jetpack', 'jetpack-my-jetpack' ),
+			__( 'Dashboard', 'jetpack-my-jetpack' ),
+			__( 'Dashboard', 'jetpack-my-jetpack' ),
 			'edit_posts',
 			'my-jetpack',
 			array( __CLASS__, 'admin_page' ),

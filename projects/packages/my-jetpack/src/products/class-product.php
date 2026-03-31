@@ -1027,8 +1027,8 @@ abstract class Product {
 			'jetpack-home' => sprintf(
 				'<a href="%1$s" title="%3$s">%2$s</a>',
 				admin_url( 'admin.php?page=my-jetpack' ),
-				__( 'My Jetpack', 'jetpack-my-jetpack' ),
-				__( 'My Jetpack dashboard', 'jetpack-my-jetpack' )
+				__( 'Dashboard', 'jetpack-my-jetpack' ),
+				__( 'Dashboard', 'jetpack-my-jetpack' )
 			),
 		);
 

@@ -919,7 +919,7 @@ class Jetpack_Sync_Functions_Test extends Jetpack_Sync_TestBase {
 		);
 
 		if ( ! defined( 'IS_ATOMIC' ) || ! IS_ATOMIC ) {
-			$expected_array['jetpack/jetpack.php']['My Jetpack'] = admin_url( 'admin.php?page=my-jetpack' );
+			$expected_array['jetpack/jetpack.php']['Dashboard'] = admin_url( 'admin.php?page=my-jetpack' );
 		}
 
 		$this->assertEquals( $expected_array, $this->extract_plugins_we_are_testing( $plugins_action_links ) );

@@ -152,7 +152,7 @@ class Jetpack_JITM_Test extends TestCase {
 		return array(
 			'Jetpack main dashboard'         => array( 'toplevel_page_jetpack', true ),
 			'Jetpack about page'             => array( 'admin_page_jetpack_about', true ),
-			'My Jetpack'                     => array( 'jetpack_page_my-jetpack', true ),
+			'Dashboard'                      => array( 'jetpack_page_my-jetpack', true ),
 			'Posts List'                     => array( 'edit-post', false ),
 			'Main dashboard'                 => array( 'dashboard', false ),
 			'WooCommerce admin page'         => array( 'woocommerce_page_wc-admin', true ),

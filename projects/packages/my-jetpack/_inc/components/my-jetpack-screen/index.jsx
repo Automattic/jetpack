@@ -186,7 +186,7 @@ export default function MyJetpackScreen() {
 			className={ styles[ 'my-jetpack-screen' ] }
 			showBottomBorder={ false }
 		>
-			<h1 className="screen-reader-text">{ __( 'My Jetpack', 'jetpack-my-jetpack' ) }</h1>
+			<h1 className="screen-reader-text">{ __( 'Dashboard', 'jetpack-my-jetpack' ) }</h1>
 
 			<IDCModal />
 			{ isSectionVisible && userIsAdmin && <EvaluationRecommendations /> }
