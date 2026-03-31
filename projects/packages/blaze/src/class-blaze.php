@@ -13,7 +13,6 @@ use Automattic\Jetpack\Blaze\REST_Controller;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Jetpack_Connection;
-use Automattic\Jetpack\Status as Jetpack_Status;
 use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Sync\Settings as Sync_Settings;
 use WP_Post;
@@ -164,16 +163,13 @@ class Blaze {
 			}
 			add_action( 'load-' . $page_suffix, array( $blaze_dashboard, 'admin_init' ) );
 		} elseif ( ( new Host() )->is_wpcom_platform() ) {
-			$domain = ( new Jetpack_Status() )->get_site_suffix();
-			$url    = 'https://wordpress.com/advertising/' . $domain;
-
 			if ( self::has_site_campaigns() ) {
 				$page_suffix = add_menu_page(
 					esc_attr( $menu_label ),
 					$menu_label,
 					'manage_options',
-					$url,
-					null, // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539
+					$menu_slug,
+					array( $blaze_dashboard, 'render' ),
 					'dashicons-megaphone',
 					30
 				);
@@ -183,8 +179,8 @@ class Blaze {
 					esc_attr( $menu_label ),
 					$menu_label,
 					'manage_options',
-					$url,
-					null, // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539
+					$menu_slug,
+					array( $blaze_dashboard, 'render' ),
 					1
 				);
 			}
