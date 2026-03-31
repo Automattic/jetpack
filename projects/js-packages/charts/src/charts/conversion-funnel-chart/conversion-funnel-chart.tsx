@@ -399,7 +399,7 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 								>
 									<div
 										className={ clsx( styles[ 'funnel-bar' ], {
-											[ styles[ 'funnel-bar--animated-entry' ] ]:
+											[ styles[ 'funnel-bar--animated' ] ]:
 												animation && ! loading && ! prefersReducedMotion,
 										} ) }
 										style={ {
