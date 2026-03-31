@@ -7,4 +7,5 @@ export {
 	type CommandReference,
 } from './validator.js';
 export { buildPrompt, type PromptResult } from './prompt.js';
+export { renderHumanReport } from './human-output.js';
 export { evaluationResultSchema, type EvaluationResult, type CriterionResult } from './schema.js';

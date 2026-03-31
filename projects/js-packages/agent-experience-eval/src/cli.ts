@@ -5,7 +5,7 @@ import { dirname, resolve } from 'node:path';
 import { parseArgs } from 'node:util';
 import Anthropic from '@anthropic-ai/sdk';
 import { evaluate } from './evaluator.js';
-import type { EvaluationResult, CriterionResult } from './schema.js';
+import { renderHumanReport } from './human-output.js';
 
 /**
  * Prints CLI usage information.
@@ -14,56 +14,35 @@ function printUsage(): void {
 	console.log( `Usage: agent-experience-eval [options]
 
 Options:
-  -o, --output <path>   Write JSON to file (default: stdout)
-  --repo <path>         Repository root (default: cwd)
-  --model <model>       Claude model (default: claude-sonnet-4-6)
-  -h, --help            Show this help message
+  -o, --output <path>     Write JSON to file (default: stdout)
+  --repo <path>           Repository root (default: cwd)
+  --model <model>         Claude model (default: claude-sonnet-4-6)
+  --format <json|human|auto>  Output format (default: auto)
+                            auto: human on TTY, JSON when piped
+  -h, --help              Show this help message
 ` );
 }
 
 /**
- * Renders an ASCII progress bar.
+ * Resolves the effective output format.
  *
- * @param score - The achieved score.
- * @param max   - The maximum possible score.
- * @param width - Character width of the bar.
- * @return The rendered progress bar string.
+ * @param format        - Explicit format choice or "auto".
+ * @param hasOutputFile - Whether --output was provided.
+ * @return The resolved format: "json" or "human".
  */
-function progressBar( score: number, max: number, width = 20 ): string {
-	const filled = max > 0 ? Math.round( ( score / max ) * width ) : 0;
-	const empty = width - filled;
-	return '█'.repeat( filled ) + '░'.repeat( empty );
-}
-
-/**
- * Prints a human-readable evaluation summary to the console.
- *
- * @param result - The evaluation result to summarize.
- */
-function printSummary( result: EvaluationResult ): void {
-	console.log( `\nScore: ${ result.score }/100 (Grade ${ result.grade })\n` );
-
-	const criteria = result.criteria as Record< string, CriterionResult >;
-	for ( const [ name, criterion ] of Object.entries( criteria ) ) {
-		const label = name.replace( /_/g, ' ' ).replace( /\b\w/g, c => c.toUpperCase() );
-		const bar = progressBar( criterion.score, criterion.max );
-		const padded = label.padEnd( 25 );
-		console.log( `  ${ padded } ${ bar }  ${ criterion.score }/${ criterion.max }` );
+function resolveFormat( format: string, hasOutputFile: boolean ): 'json' | 'human' {
+	if ( format === 'json' ) {
+		return 'json';
 	}
-
-	if ( result.issues.length > 0 ) {
-		console.log( `\nIssues (${ result.issues.length }):` );
-		for ( const issue of result.issues ) {
-			console.log( `  - ${ issue }` );
-		}
+	if ( format === 'human' ) {
+		return 'human';
 	}
-
-	if ( result.recommendations.length > 0 ) {
-		console.log( `\nRecommendations (${ result.recommendations.length }):` );
-		for ( const rec of result.recommendations ) {
-			console.log( `  - ${ rec }` );
-		}
+	// auto: if writing to a file, JSON goes to file; human to stdout if TTY
+	// if no file, human on TTY, JSON when piped
+	if ( hasOutputFile ) {
+		return process.stdout.isTTY ? 'human' : 'json';
 	}
+	return process.stdout.isTTY ? 'human' : 'json';
 }
 
 /**
@@ -75,6 +54,7 @@ async function main(): Promise< void > {
 			output: { type: 'string', short: 'o' },
 			repo: { type: 'string', default: process.cwd() },
 			model: { type: 'string' },
+			format: { type: 'string', default: 'auto' },
 			help: { type: 'boolean', short: 'h', default: false },
 		},
 		strict: true,
@@ -86,6 +66,7 @@ async function main(): Promise< void > {
 	}
 
 	const repoRoot = values.repo ? resolve( values.repo ) : process.cwd();
+	const format = resolveFormat( values.format ?? 'auto', !! values.output );
 
 	try {
 		const metadata = await evaluate( {
@@ -95,17 +76,21 @@ async function main(): Promise< void > {
 
 		const json = JSON.stringify( metadata, null, 2 );
 
+		// Always write JSON to file if --output provided
 		if ( values.output ) {
 			await mkdir( dirname( values.output ), { recursive: true } );
 			await writeFile( values.output, json );
+		}
 
-			// Print human-readable summary to TTY
-			if ( process.stdout.isTTY ) {
-				console.log( `Output written to ${ values.output }` );
-				printSummary( metadata.result );
+		if ( format === 'human' ) {
+			// Human-readable report to stdout
+			const report = renderHumanReport( metadata, repoRoot );
+			process.stdout.write( report );
+			if ( values.output ) {
+				console.log( `  JSON written to ${ values.output }` );
 			}
-		} else {
-			// Write JSON to stdout
+		} else if ( ! values.output ) {
+			// JSON to stdout only if no file was specified
 			process.stdout.write( json + '\n' );
 		}
 	} catch ( error: unknown ) {
