@@ -13,17 +13,15 @@
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
 	"scripts": {
-		"build": "ncc build src/index.ts -o dist --source-map",
+		"build": "tsdown",
 		"clean": "rm -rf dist/"
 	},
-	"dependencies": {
-		"@actions/artifact": "^2.3.2",
-		"@actions/core": "^1.11.1",
-		"@automattic/jetpack-agent-experience-eval": "workspace:*"
-	},
 	"devDependencies": {
+		"@actions/artifact": "^6.2.1",
+		"@actions/core": "^1.11.1",
+		"@automattic/jetpack-agent-experience-eval": "workspace:*",
 		"@types/node": "^24.12.0",
-		"@vercel/ncc": "^0.38.3",
+		"tsdown": "^0.21.7",
 		"typescript": "5.9.3"
 	}
 }

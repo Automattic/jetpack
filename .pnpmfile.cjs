@@ -67,6 +67,15 @@ async function fixDeps( pkg ) {
 		pkg.dependencies[ '@wordpress/icons' ] += ' <11';
 	}
 
+	// Missing dependency on @protobuf-ts/runtime-rpc in @actions/artifact.
+	// The generated protobuf code imports it but it's not declared in package.json.
+	// https://github.com/actions/toolkit/issues/1898
+	if ( pkg.name === '@actions/artifact' && ! pkg.dependencies?.[ '@protobuf-ts/runtime-rpc' ] ) {
+		pkg.dependencies = pkg.dependencies || {};
+		pkg.dependencies[ '@protobuf-ts/runtime-rpc' ] =
+			pkg.dependencies[ '@protobuf-ts/runtime' ] || '*';
+	}
+
 	// Outdated dependency version causing dependabot warnings.
 	// Once we can drop @wordpress/icons v10 (see above), looks like this can go away.
 	// https://github.com/WordPress/gutenberg/issues/69557
