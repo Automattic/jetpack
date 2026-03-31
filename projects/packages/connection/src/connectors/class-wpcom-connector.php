@@ -11,6 +11,8 @@
 
 namespace Automattic\Jetpack\Connection;
 
+use Automattic\Jetpack\Modules;
+
 /**
  * WordPress.com connector card handler.
  *
@@ -142,6 +144,10 @@ class Wpcom_Connector {
 				'siteUrl' => site_url(),
 				'homeUrl' => home_url(),
 			);
+			$modules                  = new Modules();
+			if ( $modules->is_module( 'sso' ) ) {
+				$data['ssoStatus'] = $modules->is_active( 'sso' ) ? __( 'Enabled', 'jetpack-connection' ) : __( 'Not enabled', 'jetpack-connection' );
+			}
 		}
 
 		if ( $is_connected ) {
