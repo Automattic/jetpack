@@ -52,8 +52,7 @@ function is_block_notes_enabled() {
  * Check if the site has a paid Jetpack AI plan.
  *
  * On WordPress.com, uses the lightweight wpcom_site_has_feature() lookup.
- * On self-hosted sites, tries the My Jetpack product class first, then
- * falls back to the Jetpack AI Helper.
+ * On self-hosted and Atomic sites, uses the My Jetpack product class.
  *
  * @return bool
  */
