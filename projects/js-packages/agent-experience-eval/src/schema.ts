@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from 'zod/v4';
 
 const criterionSchema = z.object( {
 	score: z.number().min( 0 ),

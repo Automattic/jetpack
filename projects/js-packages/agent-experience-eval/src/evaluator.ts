@@ -63,7 +63,8 @@ export async function evaluate( options: EvaluateOptions ): Promise< EvaluateMet
 		max_tokens: maxTokens,
 		messages: [ { role: 'user', content: prompt } ],
 		output_config: {
-			format: zodOutputFormat( evaluationResultSchema ),
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any -- SDK types expect zod v3 ZodType but runtime uses zod/v4
+			format: zodOutputFormat( evaluationResultSchema as any ),
 		},
 	} );
 
