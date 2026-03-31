@@ -10,7 +10,7 @@ import {
 	Notice,
 	useBreakpointMatch,
 } from '@automattic/jetpack-components';
-import { __, _x } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useContext, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router';
@@ -162,12 +162,7 @@ export default function MyJetpackScreen() {
 	}
 
 	const resetOptionsMenuItem = {
-		label: _x(
-			'Reset Options (dev only)',
-			'Button for option to reset Jetpack Options',
-			'jetpack-my-jetpack'
-		),
-		title: __( 'Reset Options', 'jetpack-my-jetpack' ),
+		label: 'Reset options (devs)',
 		role: 'button',
 		onClick: () => resetJetpackOptions(),
 		onKeyDown: e => onKeyDownCallback( e, () => resetJetpackOptions() ),
