@@ -55,7 +55,7 @@
 	height: 100%;
 
 	&--animated {
-		transition: all 0.3s ease;
+		transition: opacity 0.3s ease;
 	}
 
 	&.blurred {
