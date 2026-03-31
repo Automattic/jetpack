@@ -37,23 +37,36 @@ function wpcom_get_rtc_max_peers_per_room() {
  * @return bool
  */
 function wpcom_rtc_is_plan_owner() {
-	$current_user_id = get_current_user_id();
+	$owner_id = wpcom_rtc_get_plan_owner_id();
+	if ( ! $owner_id ) {
+		return false;
+	}
+	return get_current_user_id() === $owner_id;
+}
 
+/**
+ * Get the plan owner's user ID for this site.
+ * Works on Simple sites (via wpcom_get_blog_owner) and Atomic sites
+ * (via Jetpack connection master_user). Returns 0 on self-hosted
+ * since there is no WP.com plan to upgrade.
+ *
+ * @return int Plan owner user ID, or 0 if unavailable.
+ */
+function wpcom_rtc_get_plan_owner_id() {
 	// Simple sites: wpcom_get_blog_owner is the canonical source.
 	if ( function_exists( 'wpcom_get_blog_owner' ) ) {
-		$owner_id = wpcom_get_blog_owner( get_wpcom_blog_id() );
-		return (int) $current_user_id === (int) $owner_id;
+		return (int) wpcom_get_blog_owner( get_wpcom_blog_id() );
 	}
 
 	// Atomic sites: the Jetpack connection master_user is the plan owner.
 	if ( class_exists( 'Jetpack_Options' ) ) {
 		$master_user = \Jetpack_Options::get_option( 'master_user' );
 		if ( $master_user ) {
-			return (int) $current_user_id === (int) $master_user;
+			return (int) $master_user;
 		}
 	}
 
-	return false;
+	return 0;
 }
 
 /**

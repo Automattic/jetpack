@@ -117,6 +117,11 @@ class RTC_Notices_Test extends \WorDBless\BaseTestCase {
 		delete_user_option( $this->user_id, WP_REST_RTC_Notices::OPTION_KEY );
 		delete_transient( WP_REST_RTC_Notices::JOIN_REQUEST_OPTION . '_' . 999999 );
 
+		// Clean up rate-limit transients that may have been set by tests.
+		global $wpdb;
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+		$wpdb->query( "DELETE FROM {$wpdb->options} WHERE option_name LIKE '%rtc_notif_sent_%'" );
+
 		// Reset the REST server so stale route registrations don't leak
 		// into other test classes (e.g. Launchpad endpoint tests).
 		global $wp_rest_server;
@@ -492,6 +497,13 @@ class RTC_Notices_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Tests that plan owner ID returns 0 when no owner detection is available.
+	 */
+	public function test_plan_owner_id_returns_zero_without_detection() {
+		$this->assertSame( 0, wpcom_rtc_get_plan_owner_id() );
+	}
+
+	/**
 	 * Tests that plan owner returns false when no owner detection is available.
 	 */
 	public function test_plan_owner_returns_false_without_detection() {
@@ -515,6 +527,173 @@ class RTC_Notices_Test extends \WorDBless\BaseTestCase {
 		$this->assertFalse( wpcom_rtc_is_plan_owner() );
 
 		\Jetpack_Options::delete_option( 'master_user' );
+	}
+
+	/**
+	 * Tests that plan owner ID returns master_user via Jetpack_Options.
+	 */
+	public function test_plan_owner_id_via_jetpack_master_user() {
+		if ( ! class_exists( 'Jetpack_Options' ) ) {
+			$this->markTestSkipped( 'Jetpack_Options not available' );
+		}
+
+		\Jetpack_Options::update_option( 'master_user', $this->user_id );
+		$this->assertSame( $this->user_id, wpcom_rtc_get_plan_owner_id() );
+
+		\Jetpack_Options::delete_option( 'master_user' );
+	}
+
+	/**
+	 * Tests that send_admin_bell_notification does not fail when
+	 * notes_send_callback is unavailable (non-WPCOM environment).
+	 */
+	public function test_bell_notification_skips_without_notes_function() {
+		$post_id = wp_insert_post(
+			array(
+				'post_title'  => 'Bell Test Post',
+				'post_status' => 'publish',
+			)
+		);
+
+		$user    = wp_get_current_user();
+		$blog_id = get_current_blog_id();
+
+		// Should not throw — gracefully skips when notes_send_callback doesn't exist.
+		WP_REST_RTC_Notices::send_admin_bell_notification( $blog_id, $post_id, $user, $this->user_id );
+
+		// If we reach here without error, the guard works.
+		$this->assertTrue( true );
+
+		wp_delete_post( $post_id, true );
+	}
+
+	/**
+	 * Tests that async notifications are rate-limited by transient.
+	 */
+	public function test_async_notifications_rate_limited() {
+		if ( ! class_exists( 'Jetpack_Options' ) ) {
+			$this->markTestSkipped( 'Jetpack_Options not available' );
+		}
+
+		$post_id = wp_insert_post(
+			array(
+				'post_title'  => 'Rate Limit Test Post',
+				'post_status' => 'publish',
+			)
+		);
+
+		add_filter( 'wpcom_rtc_enable_limit_notices', '__return_true', 999 );
+		\Jetpack_Options::update_option( 'master_user', $this->user_id );
+
+		wp_set_current_user( $this->second_user_id );
+		$user    = wp_get_current_user();
+		$blog_id = get_current_blog_id();
+
+		// First call sets the transient.
+		$throttle_key = sprintf( 'rtc_notif_sent_%d_%d_%d', $blog_id, $post_id, $user->ID );
+		$this->assertFalse( get_transient( $throttle_key ) );
+
+		WP_REST_RTC_Notices::send_async_admin_notifications( $post_id, $user );
+		$this->assertNotFalse( get_transient( $throttle_key ) );
+
+		// Clean up.
+		delete_transient( $throttle_key );
+		remove_all_filters( 'wpcom_rtc_enable_limit_notices' );
+		\Jetpack_Options::delete_option( 'master_user' );
+		wp_set_current_user( $this->user_id );
+		wp_delete_post( $post_id, true );
+	}
+
+	/**
+	 * Tests that the notification interval is filterable.
+	 */
+	public function test_async_notification_interval_is_filterable() {
+		if ( ! class_exists( 'Jetpack_Options' ) ) {
+			$this->markTestSkipped( 'Jetpack_Options not available' );
+		}
+
+		$post_id = wp_insert_post(
+			array(
+				'post_title'  => 'Interval Test Post',
+				'post_status' => 'publish',
+			)
+		);
+
+		add_filter( 'wpcom_rtc_enable_limit_notices', '__return_true', 999 );
+		add_filter(
+			'wpcom_rtc_async_notification_interval',
+			function () {
+				return 3600; // 1 hour
+			}
+		);
+		\Jetpack_Options::update_option( 'master_user', $this->user_id );
+
+		wp_set_current_user( $this->second_user_id );
+		$user = wp_get_current_user();
+
+		WP_REST_RTC_Notices::send_async_admin_notifications( $post_id, $user );
+
+		// The transient should exist (we can't easily verify its TTL,
+		// but confirming it was set is sufficient).
+		$blog_id      = get_current_blog_id();
+		$throttle_key = sprintf( 'rtc_notif_sent_%d_%d_%d', $blog_id, $post_id, $user->ID );
+		$this->assertNotFalse( get_transient( $throttle_key ) );
+
+		delete_transient( $throttle_key );
+		remove_all_filters( 'wpcom_rtc_enable_limit_notices' );
+		remove_all_filters( 'wpcom_rtc_async_notification_interval' );
+		\Jetpack_Options::delete_option( 'master_user' );
+		wp_set_current_user( $this->user_id );
+		wp_delete_post( $post_id, true );
+	}
+
+	/**
+	 * Tests that build_email_html produces valid HTML with expected elements.
+	 */
+	public function test_build_email_html() {
+		$html = WP_REST_RTC_Notices::build_email_html(
+			'https://example.com/hero.png',
+			'Test Heading',
+			'Test body text',
+			'https://example.com/upgrade',
+			'Upgrade Now'
+		);
+
+		$this->assertStringContainsString( 'https://example.com/hero.png', $html );
+		$this->assertStringContainsString( 'Test Heading', $html );
+		$this->assertStringContainsString( 'Test body text', $html );
+		$this->assertStringContainsString( 'https://example.com/upgrade', $html );
+		$this->assertStringContainsString( 'Upgrade Now', $html );
+		$this->assertStringContainsString( '#3858e9', $html ); // Brand color.
+	}
+
+	/**
+	 * Tests that record_join_request calls async notifications.
+	 * Since notes_send_callback is unavailable in tests, we just verify
+	 * the join request itself still works correctly.
+	 */
+	public function test_record_join_request_with_bell_notification() {
+		$post_id = wp_insert_post(
+			array(
+				'post_title'  => 'Notification Test Post',
+				'post_status' => 'publish',
+			)
+		);
+
+		$controller = new WP_REST_RTC_Notices();
+		$request    = new WP_REST_Request( 'POST', '/wpcom/v2/rtc-notices/join-request' );
+		$request->set_param( 'post_id', $post_id );
+		$response = $controller->record_join_request( $request );
+
+		$this->assertTrue( $response->get_data()['success'] );
+
+		// Verify the transient was still set correctly.
+		$request = new WP_REST_Request( 'GET', '/wpcom/v2/rtc-notices/join-requests' );
+		$request->set_param( 'post_id', $post_id );
+		$response = $controller->get_join_requests( $request );
+		$this->assertCount( 1, $response->get_data()['requests'] );
+
+		wp_delete_post( $post_id, true );
 	}
 
 	/**
