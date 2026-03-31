@@ -143,8 +143,8 @@ class Blaze {
 		// URLs.  admin.php?page=… under a plugin parent falls back to /home/.
 		// Keep tools.php as the dashboard base so the embedded dashboard keeps
 		// working on Simple Sites.
-		$is_simple_site = defined( 'IS_WPCOM' ) && IS_WPCOM;
-		$admin_page     = $is_simple_site ? 'tools.php' : 'admin.php';
+		$is_simple_site  = defined( 'IS_WPCOM' ) && IS_WPCOM;
+		$admin_page      = $is_simple_site ? 'tools.php' : 'admin.php';
 		$blaze_dashboard = new Blaze_Dashboard( $admin_page, $menu_slug, $css_prefix );
 
 		if ( self::is_dashboard_enabled() ) {
@@ -491,7 +491,7 @@ class Blaze {
 			// Simple Sites use tools.php; all other installations use admin.php.
 			$admin_page = ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ? 'tools.php' : 'admin.php';
 			$admin_url  = admin_url( $admin_page . '?page=' . $menu_slug );
-			$hostname  = wp_parse_url( get_site_url(), PHP_URL_HOST );
+			$hostname   = wp_parse_url( get_site_url(), PHP_URL_HOST );
 			$blaze_url = sprintf(
 				'%1$s#!/advertising/posts/promote/post-%2$s/%3$s',
 				$admin_url,
