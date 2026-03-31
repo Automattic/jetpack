@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Forms: Fix fatal error when a form field value is an array and is used as an array key in get_legacy_extra_values().

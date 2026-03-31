@@ -312,4 +312,55 @@ class Feedback_Legacy_Compatibility_Test extends BaseTestCase {
 		$this->assertEquals( 'こんにちは世界', $response->get_field_value_by_label( 'Special こんにちは世界' ), 'Special field value should match' );
 		$this->assertEquals( '🙈', $response->get_field_value_by_label( 'Message' ), 'Message field value should match' );
 	}
+
+	/**
+	 * Regression test for the fatal error when a field of a type listed in
+	 * $non_extra_fields (e.g. 'url') has an array as its submitted value.
+	 *
+	 * When POST data contains an array for a field (possible if multiple values share
+	 * the same field name), get_field_value() returns an array. Previously,
+	 * get_legacy_extra_values() tried to use that array as an array key, resulting in:
+	 * TypeError: Cannot access offset of type array on array
+	 */
+	public function test_get_legacy_extra_values_with_array_field_value_does_not_fatal() {
+		global $post;
+
+		$feedback_time  = current_time( 'mysql' );
+		$comment_author = 'Test User';
+		$feedback_title = "{$comment_author} - {$feedback_time}";
+
+		// Create a url-type field whose value is an array (simulating a POST where
+		// multiple values were submitted for the same field name).
+		$url_field  = new Feedback_Field( '1_Website', 'Website', array( 'https://example.com', 'https://another.com' ), 'url', array(), 'url' );
+		$text_field = new Feedback_Field( '2_Name', 'Name', 'Test User', 'name', array(), 'name' );
+
+		$content = array(
+			'subject' => 'Test Subject',
+			'ip'      => '127.0.0.1',
+			'fields'  => array(
+				$url_field->serialize(),
+				$text_field->serialize(),
+			),
+		);
+
+		$post_id = wp_insert_post(
+			array(
+				'post_type'      => 'feedback',
+				'post_status'    => 'publish',
+				'post_title'     => addslashes( wp_kses( $feedback_title, array() ) ),
+				'post_date'      => $feedback_time,
+				'post_name'      => md5( $feedback_title ),
+				'post_content'   => wp_json_encode( $content, JSON_UNESCAPED_SLASHES ),
+				'post_mime_type' => 'v2',
+				'post_parent'    => $post ? $post->ID : 0,
+			)
+		);
+
+		$response = Feedback::get( $post_id );
+		$this->assertInstanceOf( Feedback::class, $response );
+
+		// This must not throw a TypeError (FORMS-670).
+		$extra_values = $response->get_legacy_extra_values( 'default' );
+		$this->assertIsArray( $extra_values, 'get_legacy_extra_values() should return an array even when field values are arrays' );
+	}
 }

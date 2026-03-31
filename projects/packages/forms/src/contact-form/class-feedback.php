@@ -651,8 +651,13 @@ class Feedback {
 
 		// Create a map of special fields to check agains their values.
 		foreach ( $this->fields as $field ) {
-			if ( in_array( $field->get_type(), $non_extra_fields, true ) && $field->get_render_value( $context ) ) {
-				$special_fields[ $field->get_render_value( $context ) ] = true;
+			if ( in_array( $field->get_type(), $non_extra_fields, true ) ) {
+				$render_value = $field->get_render_value( $context );
+				// Only use scalar values as array keys to avoid a TypeError when the
+				// render value is an array (e.g. URL fields in certain contexts).
+				if ( $render_value && is_string( $render_value ) ) {
+					$special_fields[ $render_value ] = true;
+				}
 			}
 		}
 
@@ -660,7 +665,8 @@ class Feedback {
 			if ( $field->compile_field( 'default' ) ) {
 				continue;
 			}
-			if ( $field->get_type() === 'basic' && isset( $special_fields[ $field->get_render_value() ] ) ) {
+			$render_value = $field->get_render_value();
+			if ( $field->get_type() === 'basic' && is_string( $render_value ) && isset( $special_fields[ $render_value ] ) ) {
 				++$count;
 				continue; // Skip fields that are already present in the non-extra fields.
 			}
