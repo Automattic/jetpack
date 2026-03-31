@@ -22,9 +22,9 @@ Options:
   -h, --help                    Show this help message
 
 Examples:
-  agent-experience-eval                      # human report to terminal
-  agent-experience-eval -o eval.json         # JSON to file, human to terminal
-  agent-experience-eval --format json        # JSON to stdout (for piping)
+  agent-experience-eval                          # human report to terminal
+  agent-experience-eval -o eval.json             # JSON to file, human summary to terminal
+  agent-experience-eval --format json            # JSON to stdout (for piping)
   agent-experience-eval --format human -o r.txt  # human report to file
 ` );
 }
@@ -72,6 +72,7 @@ async function main(): Promise< void > {
 		console.error( `Error: Invalid --format value "${ formatValue }". Use json, human, or auto.` );
 		process.exit( 1 );
 	}
+	const isExplicitFormat = formatValue !== 'auto';
 	const format = resolveFormat( formatValue );
 
 	try {
@@ -80,24 +81,31 @@ async function main(): Promise< void > {
 			model: values.model,
 		} );
 
-		// Build the output string in the requested format
-		const output =
-			format === 'human'
-				? renderHumanReport( metadata, repoRoot )
-				: JSON.stringify( metadata, null, 2 ) + '\n';
-
 		if ( values.output ) {
-			// Write to file
 			await mkdir( dirname( values.output ), { recursive: true } );
-			await writeFile( values.output, output );
 
-			// If writing to file and stdout is a TTY, also show human summary
-			if ( process.stdout.isTTY && format !== 'human' ) {
-				process.stdout.write( renderHumanReport( metadata, repoRoot ) );
+			if ( isExplicitFormat ) {
+				// Explicit --format: write that format to the file
+				const output =
+					format === 'human'
+						? renderHumanReport( metadata, repoRoot )
+						: JSON.stringify( metadata, null, 2 ) + '\n';
+				await writeFile( values.output, output );
+			} else {
+				// Auto with --output: always write JSON to file
+				await writeFile( values.output, JSON.stringify( metadata, null, 2 ) + '\n' );
+				// Show human summary on TTY
+				if ( process.stdout.isTTY ) {
+					process.stdout.write( renderHumanReport( metadata, repoRoot ) );
+				}
 			}
-			console.log( `  Output written to ${ values.output }` );
+			console.error( `Output written to ${ values.output }` );
 		} else {
-			// Write to stdout
+			// No --output: write resolved format to stdout
+			const output =
+				format === 'human'
+					? renderHumanReport( metadata, repoRoot )
+					: JSON.stringify( metadata, null, 2 ) + '\n';
 			process.stdout.write( output );
 		}
 	} catch ( error: unknown ) {

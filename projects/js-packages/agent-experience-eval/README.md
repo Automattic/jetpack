@@ -7,13 +7,30 @@ Requires Node.js >= 22 and an Anthropic API key.
 ## CLI Usage
 
 ```bash
-npx @automattic/jetpack-agent-experience-eval --repo /path/to/repo -o eval.json
+# Human-readable report to terminal
+agent-experience-eval
+
+# JSON to file, human summary to terminal
+agent-experience-eval -o eval.json
+
+# JSON to stdout (for piping)
+agent-experience-eval --format json
+
+# Human report saved to file
+agent-experience-eval --format human -o report.txt
+
+# Evaluate a different repo
+agent-experience-eval --repo /path/to/repo -o eval.json
 ```
 
 Options:
-- `-o, --output <path>` — Write JSON to file (default: stdout)
+- `-o, --output <path>` — Write output to file
 - `--repo <path>` — Repository root (default: cwd)
 - `--model <model>` — Claude model (default: claude-sonnet-4-6)
+- `--format <json|human|auto>` — Output format (default: auto)
+  - `auto`: human report on TTY, JSON when piped. With `-o`, JSON goes to file and human summary to terminal.
+  - `json`: JSON output
+  - `human`: human-readable report
 - `-h, --help` — Show help
 
 ## Programmatic API
@@ -52,4 +69,4 @@ Need to report a security vulnerability? Go to [https://automattic.com/security/
 
 ## License
 
-Licensed under [GNU General Public License v2 (or later)](./LICENSE.txt)
+Licensed under GNU General Public License v2 (or later).

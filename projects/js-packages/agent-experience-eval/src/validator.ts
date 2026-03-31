@@ -83,13 +83,23 @@ function extractReferencedCommands( content: string ): string[] {
 		'remove',
 	] );
 
-	// Match: pnpm run X, npm run X, yarn run X
-	// Also: pnpm X, npm X — but skip flags (--filter etc.) and non-script subcommands
-	const npmPattern = /(?:pnpm|npm|yarn)\s+(?:run\s+)?(?:--\S+\s+)*([a-zA-Z][a-zA-Z0-9_:-]*)/g;
-	for ( const match of content.matchAll( npmPattern ) ) {
-		const cmd = match[ 1 ];
-		if ( ! NON_SCRIPT_SUBCOMMANDS.has( cmd ) ) {
-			commands.add( cmd );
+	// Match: pnpm run X, npm run X, yarn run X, pnpm X, npm X
+	// Two-pass approach to avoid ReDoS: first find tool invocations, then extract the script name
+	const toolLinePattern = /(?:pnpm|npm|yarn)\s+(.+)/g;
+	for ( const match of content.matchAll( toolLinePattern ) ) {
+		const rest = match[ 1 ].trim();
+		// Strip "run " prefix if present
+		const afterRun = rest.startsWith( 'run ' ) ? rest.slice( 4 ).trim() : rest;
+		// Skip flags, take first non-flag token
+		const tokens = afterRun.split( /\s+/ );
+		for ( const token of tokens ) {
+			if ( token.startsWith( '-' ) ) {
+				continue;
+			}
+			if ( /^[a-zA-Z][a-zA-Z0-9_:-]*$/.test( token ) && ! NON_SCRIPT_SUBCOMMANDS.has( token ) ) {
+				commands.add( token );
+			}
+			break;
 		}
 	}
 
@@ -200,14 +210,26 @@ export async function validateCurrency(
 	const referencedCommands: CommandReference[] = [];
 
 	for ( const file of files ) {
+		const fileDir = dirname( file.relativePath );
+
 		const pathRefs = extractReferencedPaths( file.content );
 		for ( const p of pathRefs ) {
 			let exists = false;
-			try {
-				await access( join( repoRoot, p ) );
-				exists = true;
-			} catch {
-				// Path doesn't exist
+			// Try resolving relative to the instruction file's directory first,
+			// then fall back to repo root
+			const candidates = [ join( repoRoot, fileDir, p ), join( repoRoot, p ) ];
+			for ( const candidate of candidates ) {
+				// Ensure resolved path stays inside repo root
+				if ( ! candidate.startsWith( repoRoot ) ) {
+					continue;
+				}
+				try {
+					await access( candidate );
+					exists = true;
+					break;
+				} catch {
+					// Try next candidate
+				}
 			}
 			referencedPaths.push( {
 				path: p,
@@ -217,7 +239,6 @@ export async function validateCurrency(
 		}
 
 		const cmdRefs = extractReferencedCommands( file.content );
-		const fileDir = dirname( file.relativePath );
 		for ( const cmd of cmdRefs ) {
 			const foundIn = await findCommandSource( repoRoot, cmd, fileDir );
 			referencedCommands.push( {
