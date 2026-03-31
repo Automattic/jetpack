@@ -399,8 +399,18 @@ interface GlobalChartsContextValue {
 	// Theme and styling
 	theme: CompleteChartTheme;
 	getElementStyles: (params: GetElementStylesParams) => ElementStyles;
+
+	// Series visibility management for interactive legends
+	toggleSeriesVisibility: (chartId: string, seriesLabel: string) => void;
+	isSeriesVisible: (chartId: string, seriesLabel: string) => boolean;
+	getHiddenSeries: (chartId: string) => Set<string>;
+
+	// Color palette resolution state
+	isColorPaletteResolved: boolean;
 }
 ```
+
+`isColorPaletteResolved` is `false` until the provider's color cache has been resolved from the DOM and painted. Chart components can use this to defer CSS transitions or animations that would otherwise interpolate from a fallback color to the resolved theme color on initial render.
 
 ### ChartRegistration Type
 
