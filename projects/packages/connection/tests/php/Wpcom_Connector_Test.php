@@ -65,6 +65,29 @@ class Wpcom_Connector_Test extends TestCase {
 		remove_all_actions( 'wp_connectors_init' );
 		remove_all_actions( 'admin_enqueue_scripts' );
 
+		$reflection_class = new \ReflectionClass( '\Automattic\Jetpack\Connection\Plugin_Storage' );
+		try {
+			$reflection_class->setStaticPropertyValue( 'configured', false );
+			$reflection_class->setStaticPropertyValue( 'plugins', array() );
+			$reflection_class->setStaticPropertyValue( 'current_blog_id', null );
+		} catch ( \ReflectionException $e ) { // PHP 7 compat
+			foreach ( array(
+				'configured'      => false,
+				'plugins'         => array(),
+				'current_blog_id' => null,
+			) as $prop => $default ) {
+				$p = $reflection_class->getProperty( $prop );
+				if ( PHP_VERSION_ID < 80100 ) {
+					$p->setAccessible( true );
+				}
+				$p->setValue( null, $default );
+			}
+		}
+		remove_action( 'update_option_active_plugins', array( Plugin_Storage::class, 'set_flag_to_refresh_active_connected_plugins' ) );
+
+		// Reset Manager's memoized connection status.
+		( new Manager() )->reset_connection_status();
+
 		WorDBless_Options::init()->clear_options();
 		WorDBless_Users::init()->clear_all_users();
 		wp_set_current_user( 0 );
