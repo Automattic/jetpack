@@ -331,7 +331,6 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 				className={ clsx(
 					styles[ 'conversion-funnel-chart' ],
 					loading && styles.loading,
-					isColorPaletteResolved && styles.animated,
 					className
 				) }
 				style={ { ...style, height: resolvedHeight } }
@@ -357,7 +356,11 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 						return (
 							<div
 								key={ step.id }
-								className={ clsx( styles[ 'funnel-step' ], isBlurred && styles.blurred ) }
+								className={ clsx(
+									styles[ 'funnel-step' ],
+									isColorPaletteResolved && styles[ 'funnel-step--animated' ],
+									isBlurred && styles.blurred
+								) }
 							>
 								{ /* Step Label and Rate */ }
 								<div className={ styles[ 'step-header' ] }>
@@ -395,7 +398,7 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 								>
 									<div
 										className={ clsx( styles[ 'funnel-bar' ], {
-											[ styles[ 'funnel-bar__animated-entry' ] ]:
+											[ styles[ 'funnel-bar--animated-entry' ] ]:
 												animation && ! loading && ! prefersReducedMotion,
 										} ) }
 										style={ {

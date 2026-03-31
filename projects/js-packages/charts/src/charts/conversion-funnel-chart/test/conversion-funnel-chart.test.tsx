@@ -467,9 +467,11 @@ describe( 'ConversionFunnelChart', () => {
 			render( <ConversionFunnelChart { ...defaultProps } /> );
 
 			// After render, effects have run (via useEffect in GlobalChartsProvider),
-			// so the palette is resolved and the animated class is applied to the root
+			// so the palette is resolved and the animated class is applied to funnel steps
 			const chart = screen.getByTestId( 'conversion-funnel-chart' );
-			expect( chart ).toHaveClass( 'animated' );
+			// eslint-disable-next-line testing-library/no-node-access -- verifying CSS class on non-interactive wrapper
+			const funnelStep = chart.querySelector( '[class*="funnel-step"]' );
+			expect( funnelStep ).toHaveClass( 'funnel-step--animated' );
 		} );
 	} );
 } );

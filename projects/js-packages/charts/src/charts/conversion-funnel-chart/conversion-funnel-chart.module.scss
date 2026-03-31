@@ -6,14 +6,6 @@
 		pointer-events: none;
 	}
 
-	&.animated {
-
-		.funnel-step,
-		.bar-container,
-		.funnel-bar {
-			transition: all 0.2s ease;
-		}
-	}
 }
 
 .main-metric {
@@ -63,6 +55,9 @@
 	flex-direction: column;
 	height: 100%;
 
+	&--animated {
+		transition: all 0.2s ease;
+	}
 
 	&.blurred {
 		opacity: 0.3;
@@ -105,7 +100,6 @@
 	position: relative;
 	cursor: pointer;
 
-
 	&.disabled {
 		cursor: pointer;
 	}
@@ -116,13 +110,12 @@
 	min-height: 4px;
 	border-radius: 4px 4px 0 0;
 
-
 	&.selected {
 		box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
 		filter: brightness(1.1);
 	}
 
-	&__animated-entry {
+	&--animated-entry {
 		transform-origin: bottom;
 		transform-box: fill-box;
 		transform: scaleY(0);
