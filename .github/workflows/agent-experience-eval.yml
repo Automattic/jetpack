@@ -38,13 +38,13 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - name: Setup tools
+        uses: ./.github/actions/tool-setup
         with:
-          node-version: 22
+          php: false
 
       - name: Install dependencies
-        run: pnpm install --filter @automattic/jetpack-agent-experience-eval... --filter ./projects/github-actions/agent-experience-eval...
+        run: pnpm install
 
       - name: Build packages
         run: |
