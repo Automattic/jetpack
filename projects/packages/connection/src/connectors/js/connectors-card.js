@@ -670,38 +670,6 @@ function WpcomConnectorCard( { name, description, logo } ) {
 	);
 }
 
-/*
- * The slug must match the connector ID registered in PHP via
- * wp_connectors_init ('wordpress_com'). The store merges both
- * registrations: the server provides name, description, and logo;
- * this call adds the render function.
- *
- * The connectors store preserves JS object insertion order, so
- * whichever slug is created first appears first on the page.
- * This module may run before the connectors screen registers its
- * built-in connectors. To guarantee the WordPress.com card appears
- * after the AI provider cards, read the page's embedded data
- * (already in the DOM, ksorted by slug in PHP) and pre-register
- * placeholder entries for every other connector. The page module
- * later merges full data onto these placeholders, preserving order.
- */
-const PAGE_DATA_ID = 'wp-script-module-data-options-connectors-wp-admin';
-const pageDataEl = document.getElementById( PAGE_DATA_ID );
-if ( pageDataEl ) {
-	try {
-		const pageConnectors = JSON.parse( pageDataEl.textContent ).connectors;
-		if ( pageConnectors ) {
-			for ( const slug of Object.keys( pageConnectors ) ) {
-				if ( slug !== 'wordpress_com' ) {
-					registerConnector( slug, {} );
-				}
-			}
-		}
-	} catch {
-		/* Ignore malformed data. */
-	}
-}
-
 registerConnector( 'wordpress_com', {
 	render: WpcomConnectorCard,
 } );
