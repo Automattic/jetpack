@@ -303,7 +303,7 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 				data-testid="conversion-funnel-chart"
 				className={ clsx(
 					styles[ 'conversion-funnel-chart' ],
-					loading && styles.loading,
+					loading && styles[ 'conversion-funnel-chart--loading' ],
 					className
 				) }
 				style={ { ...style, height: resolvedHeight } }
@@ -330,7 +330,7 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 				} }
 				className={ clsx(
 					styles[ 'conversion-funnel-chart' ],
-					loading && styles.loading,
+					loading && styles[ 'conversion-funnel-chart--loading' ],
 					className
 				) }
 				style={ { ...style, height: resolvedHeight } }
@@ -360,7 +360,7 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 								className={ clsx(
 									styles[ 'funnel-step' ],
 									isColorPaletteResolved && styles[ 'funnel-step--animated' ],
-									isBlurred && styles.blurred
+									isBlurred && styles[ 'funnel-step--blurred' ]
 								) }
 							>
 								{ /* Step Label and Rate */ }
@@ -389,7 +389,7 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 
 								{ /* Funnel Bar */ }
 								<div
-									className={ clsx( styles[ 'bar-container' ], isBlurred && styles.disabled ) }
+									className={ styles[ 'bar-container' ] }
 									onClick={ stepHandlers.get( step.id )?.onClick }
 									onKeyDown={ stepHandlers.get( step.id )?.onKeyDown }
 									role="button"

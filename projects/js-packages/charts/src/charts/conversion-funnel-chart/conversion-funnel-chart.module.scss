@@ -1,7 +1,7 @@
 .conversion-funnel-chart {
 	font-family: var(--funnel-font-family, "SF Pro Text");
 
-	&.loading {
+	&--loading {
 		opacity: 0.6;
 		pointer-events: none;
 	}
@@ -58,7 +58,7 @@
 		transition: opacity 0.3s ease;
 	}
 
-	&.blurred {
+	&--blurred {
 		opacity: 0.3;
 	}
 }
@@ -98,21 +98,12 @@
 	border-radius: 4px;
 	position: relative;
 	cursor: pointer;
-
-	&.disabled {
-		cursor: pointer;
-	}
 }
 
 .funnel-bar {
 	width: 100%;
 	min-height: 4px;
 	border-radius: 4px 4px 0 0;
-
-	&.selected {
-		box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
-		filter: brightness(1.1);
-	}
 
 	&--animated {
 		transform-origin: bottom;
