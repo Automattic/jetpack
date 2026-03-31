@@ -10,7 +10,7 @@ export type JetpackFooterMenuItem = {
 
 export type JetpackFooterProps = {
 	/**
-	 * additional className of the wrapper, `jp-dashboard-footer` always included.
+	 * Additional className of the wrapper, `jetpack-footer` always included.
 	 */
 	className?: string;
 
@@ -18,9 +18,4 @@ export type JetpackFooterProps = {
 	 * Navigation menu to display in the footer.
 	 */
 	menu?: JetpackFooterMenuItem[];
-
-	/**
-	 * URL of the site WP Admin.
-	 */
-	siteAdminUrl?: string;
 };
