@@ -107,11 +107,12 @@ class Blaze {
 			return;
 		}
 
+		$parent_slug     = self::get_menu_parent();
 		$blaze_dashboard = new Blaze_Dashboard();
 
 		if ( self::is_dashboard_enabled() ) {
 			$page_suffix = add_submenu_page(
-				'tools.php',
+				$parent_slug,
 				esc_attr__( 'Advertising', 'jetpack-blaze' ),
 				__( 'Advertising', 'jetpack-blaze' ),
 				'manage_options',
@@ -123,7 +124,7 @@ class Blaze {
 		} elseif ( ( new Host() )->is_wpcom_platform() ) {
 			$domain      = ( new Jetpack_Status() )->get_site_suffix();
 			$page_suffix = add_submenu_page(
-				'tools.php',
+				$parent_slug,
 				esc_attr__( 'Advertising', 'jetpack-blaze' ),
 				__( 'Advertising', 'jetpack-blaze' ),
 				'manage_options',
@@ -133,6 +134,24 @@ class Blaze {
 			);
 			add_action( 'load-' . $page_suffix, array( $blaze_dashboard, 'admin_init' ) );
 		}
+	}
+
+	/**
+	 * Determine the parent menu slug for the Blaze dashboard.
+	 *
+	 * Uses the Jetpack top-level menu when available so the page resolves
+	 * at admin.php and the menu item is highlighted correctly.
+	 *
+	 * @return string The parent menu slug.
+	 */
+	private static function get_menu_parent() {
+		global $menu;
+		foreach ( (array) $menu as $item ) {
+			if ( isset( $item[2] ) && 'jetpack' === $item[2] ) {
+				return 'jetpack';
+			}
+		}
+		return 'tools.php';
 	}
 
 	/**
