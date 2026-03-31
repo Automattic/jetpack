@@ -118,7 +118,7 @@ class Wpcom_Connector_Test extends TestCase {
 			}
 		};
 
-		Wpcom_Connector::register_connector( $registry );
+		Wpcom_Connector::register_connector( $registry ); // @phan-suppress-current-line PhanTypeMismatchArgument -- anonymous stub satisfies the runtime interface.
 
 		$this->assertSame( 'wordpress_com', $registry->captured[0] );
 		$this->assertIsArray( $registry->captured[1] );
