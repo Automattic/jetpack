@@ -61,7 +61,7 @@ describe( 'ChartContext', () => {
 				</GlobalChartsProvider>
 			);
 
-			// After render + layout effects, isColorPaletteResolved should be true
+			// After render and effects, isColorPaletteResolved should be true
 			expect( contextValue.isColorPaletteResolved ).toBe( true );
 		} );
 
