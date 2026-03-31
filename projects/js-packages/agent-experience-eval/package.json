@@ -21,7 +21,7 @@
 		"agent-experience-eval": "./build/cli.js"
 	},
 	"scripts": {
-		"build": "pnpm run clean && pnpm exec tsgo --pretty",
+		"build": "pnpm run clean && pnpm exec tsgo -p tsconfig.build.json --pretty",
 		"clean": "rm -rf build/",
 		"test": "NODE_OPTIONS=--experimental-vm-modules jest --config=tests/jest.config.cjs",
 		"test-coverage": "pnpm run test --coverage",

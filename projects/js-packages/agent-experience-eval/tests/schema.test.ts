@@ -1,4 +1,4 @@
-import { evaluationResultSchema } from '../src/schema';
+import { evaluationResultSchema } from '../src/schema.ts';
 
 const validResult = {
 	version: 1 as const,
