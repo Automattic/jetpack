@@ -43,6 +43,9 @@ const currentUser = data.currentUser || null;
 const connectionOwner = data.connectionOwner || null;
 const connectedPlugins = data.connectedPlugins || [];
 const siteDetails = data.siteDetails || null;
+const CONNECTOR_LOGO = data.connectorLogoUrl
+	? createElement( 'img', { src: data.connectorLogoUrl, alt: '', width: 36, height: 36 } )
+	: null;
 
 /**
  * Start the Jetpack connection flow: register the site (if needed),
@@ -576,17 +579,7 @@ function ExpandedDetails( { isConnecting = false, onConnect = null } ) {
  */
 function WpcomConnectorCard( { name, label, description, logo, icon } ) {
 	const connectorName = name || label;
-	const connectorLogo =
-		logo ||
-		icon ||
-		( data.connectorLogoUrl
-			? createElement( 'img', {
-					src: data.connectorLogoUrl,
-					alt: '',
-					width: 36,
-					height: 36,
-			  } )
-			: null );
+	const connectorLogo = logo || icon || CONNECTOR_LOGO;
 	const [ isExpanded, setIsExpanded ] = useState( false );
 	const isConnected = initialIsConnected;
 	const isSiteRegistered = initialIsRegistered;
@@ -671,6 +664,7 @@ function WpcomConnectorCard( { name, label, description, logo, icon } ) {
 	return createElement(
 		ConnectorItem,
 		{
+			// ConnectorItem uses name/logo (core) or label/icon (Gutenberg).
 			logo: connectorLogo,
 			icon: connectorLogo,
 			name: connectorName,
@@ -693,9 +687,11 @@ function WpcomConnectorCard( { name, label, description, logo, icon } ) {
 }
 
 registerConnector( 'wordpress_com', {
-	name: data.connectorName || 'WordPress.com',
-	label: data.connectorName || 'WordPress.com',
-	description: data.connectorDescription || 'Enhanced functionality with Jetpack and WooCommerce.',
-	logoUrl: data.connectorLogoUrl || '',
+	name: data.connectorName ?? 'WordPress.com',
+	label: data.connectorName ?? 'WordPress.com',
+	description:
+		data.connectorDescription ??
+		__( 'Enhanced functionality with Jetpack and WooCommerce.', 'jetpack-connection' ),
+	logoUrl: data.connectorLogoUrl ?? '',
 	render: WpcomConnectorCard,
 } );

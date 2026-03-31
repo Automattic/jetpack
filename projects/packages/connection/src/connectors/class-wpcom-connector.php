@@ -60,7 +60,7 @@ class Wpcom_Connector {
 		$registry->register( // @phan-suppress-current-line PhanUndeclaredClassMethod -- WP 7.0+ class.
 			'wordpress_com',
 			array(
-				'name'           => __( 'WordPress.com', 'jetpack-connection' ),
+				'name'           => 'WordPress.com',
 				'description'    => __( 'Enhanced functionality with Jetpack and WooCommerce.', 'jetpack-connection' ),
 				'type'           => 'cloud_service',
 				'logo_url'       => plugins_url( 'images/wpcom-logo.svg', __FILE__ ),
