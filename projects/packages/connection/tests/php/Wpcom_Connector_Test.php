@@ -146,6 +146,7 @@ class Wpcom_Connector_Test extends TestCase {
 		$this->assertArrayNotHasKey( 'siteDetails', $data );
 		$this->assertArrayNotHasKey( 'currentUser', $data );
 		$this->assertArrayNotHasKey( 'connectionOwner', $data );
+		$this->assertArrayNotHasKey( 'ssoStatus', $data );
 	}
 
 	/**
@@ -156,6 +157,46 @@ class Wpcom_Connector_Test extends TestCase {
 
 		$this->assertSame( 'customValue', $data['customKey'] );
 		$this->assertArrayHasKey( 'isConnected', $data );
+	}
+
+	/* ── get_connector_data() — SSO status ──────── */
+
+	/**
+	 * Test that ssoStatus is absent when SSO module is not available (no Jetpack).
+	 */
+	public function test_sso_status_absent_when_module_unavailable() {
+		\Jetpack_Options::update_option( 'blog_token', 'test.secret' );
+		\Jetpack_Options::update_option( 'id', 12345 );
+
+		$data = Wpcom_Connector::get_connector_data( array() );
+
+		$this->assertArrayNotHasKey( 'ssoStatus', $data );
+	}
+
+	/**
+	 * Test that ssoStatus is false when SSO module is available but not active.
+	 */
+	public function test_sso_status_false_when_inactive() {
+		\Jetpack_Options::update_option( 'blog_token', 'test.secret' );
+		\Jetpack_Options::update_option( 'id', 12345 );
+		\Jetpack_Options::update_option( 'active_modules', array() );
+
+		$data = Wpcom_Connector::get_connector_data( array() );
+
+		$this->assertFalse( $data['ssoStatus'] );
+	}
+
+	/**
+	 * Test that ssoStatus is true when SSO module is active.
+	 */
+	public function test_sso_status_true_when_active() {
+		\Jetpack_Options::update_option( 'blog_token', 'test.secret' );
+		\Jetpack_Options::update_option( 'id', 12345 );
+		\Jetpack_Options::update_option( 'active_modules', array( 'sso' ) );
+
+		$data = Wpcom_Connector::get_connector_data( array() );
+
+		$this->assertTrue( $data['ssoStatus'] );
 	}
 
 	/* ── is_connectors_screen() ────────────────────────────────── */
