@@ -144,25 +144,74 @@ class Blaze {
 
 		if ( self::is_dashboard_enabled() ) {
 			if ( self::has_site_campaigns() ) {
-				$page_suffix = add_menu_page(
-					esc_attr( $menu_label ),
-					$menu_label,
-					'manage_options',
-					$menu_slug,
-					array( $blaze_dashboard, 'render' ),
-					'dashicons-megaphone',
-					30
-				);
+				if ( $is_simple_site ) {
+					// On Simple Sites, add_menu_page with a slug produces
+					// admin.php?page=slug which the WPCOM bridge cannot route.
+					// Register the page under tools.php (routable) and add a
+					// visible top-level menu pointing to it.
+					$page_suffix = add_submenu_page(
+						'tools.php',
+						esc_attr( $menu_label ),
+						$menu_label,
+						'manage_options',
+						$menu_slug,
+						array( $blaze_dashboard, 'render' ),
+						1
+					);
+					remove_submenu_page( 'tools.php', $menu_slug );
+					add_menu_page(
+						esc_attr( $menu_label ),
+						$menu_label,
+						'manage_options',
+						admin_url( 'tools.php?page=' . $menu_slug ),
+						null, // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal
+						'dashicons-megaphone',
+						30
+					);
+				} else {
+					$page_suffix = add_menu_page(
+						esc_attr( $menu_label ),
+						$menu_label,
+						'manage_options',
+						$menu_slug,
+						array( $blaze_dashboard, 'render' ),
+						'dashicons-megaphone',
+						30
+					);
+				}
 			} else {
-				$page_suffix = add_submenu_page(
-					$parent_slug,
-					esc_attr( $menu_label ),
-					$menu_label,
-					'manage_options',
-					$menu_slug,
-					array( $blaze_dashboard, 'render' ),
-					1
-				);
+				if ( $is_simple_site ) {
+					// Same approach: register routable page, link from Jetpack.
+					$page_suffix = add_submenu_page(
+						'tools.php',
+						esc_attr( $menu_label ),
+						$menu_label,
+						'manage_options',
+						$menu_slug,
+						array( $blaze_dashboard, 'render' ),
+						1
+					);
+					remove_submenu_page( 'tools.php', $menu_slug );
+					add_submenu_page(
+						$parent_slug,
+						esc_attr( $menu_label ),
+						$menu_label,
+						'manage_options',
+						admin_url( 'tools.php?page=' . $menu_slug ),
+						null, // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal
+						1
+					);
+				} else {
+					$page_suffix = add_submenu_page(
+						$parent_slug,
+						esc_attr( $menu_label ),
+						$menu_label,
+						'manage_options',
+						$menu_slug,
+						array( $blaze_dashboard, 'render' ),
+						1
+					);
+				}
 			}
 			add_action( 'load-' . $page_suffix, array( $blaze_dashboard, 'admin_init' ) );
 		} elseif ( ( new Host() )->is_wpcom_platform() ) {
