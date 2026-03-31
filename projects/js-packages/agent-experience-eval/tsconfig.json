@@ -1,0 +1,14 @@
+{
+	"extends": "jetpack-js-tools/tsconfig.tsc.json",
+	"compilerOptions": {
+		"target": "ES2022",
+		"lib": [ "ES2022" ],
+		"types": [ "node" ],
+		"rootDir": "./src",
+		"outDir": "./build/"
+	},
+	// Override the base config's "files" which includes a global.d.ts
+	// that declares a minimal `process` type conflicting with @types/node.
+	"files": [],
+	"include": [ "./src" ]
+}

@@ -1,0 +1,49 @@
+{
+	"name": "@automattic/jetpack-agent-experience-eval",
+	"version": "0.1.0-alpha",
+	"private": false,
+	"description": "CLI tool to evaluate a repository's AI agent experience quality",
+	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/agent-experience-eval/#readme",
+	"bugs": {
+		"url": "https://github.com/Automattic/jetpack/labels/[JS Package] Agent Experience Eval"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Automattic/jetpack.git",
+		"directory": "projects/js-packages/agent-experience-eval"
+	},
+	"license": "GPL-2.0-or-later",
+	"author": "Automattic",
+	"type": "module",
+	"engines": {
+		"node": ">=22"
+	},
+	"bin": {
+		"agent-experience-eval": "./build/cli.js"
+	},
+	"scripts": {
+		"build": "pnpm run clean && pnpm exec tsgo --pretty",
+		"clean": "rm -rf build/",
+		"test": "jest --config=tests/jest.config.cjs",
+		"test-coverage": "pnpm run test --coverage"
+	},
+	"main": "./build/index.js",
+	"types": "./build/index.d.ts",
+	"exports": {
+		".": {
+			"jetpack:src": "./src/index.ts",
+			"types": "./build/index.d.ts",
+			"default": "./build/index.js"
+		}
+	},
+	"devDependencies": {
+		"@types/node": "^24.12.0",
+		"@typescript/native-preview": "7.0.0-dev.20260225.1",
+		"jest": "30.2.0",
+		"typescript": "5.9.3"
+	},
+	"dependencies": {
+		"@anthropic-ai/sdk": "^0.80.0",
+		"zod": "3.25.76"
+	}
+}

@@ -1,0 +1,49 @@
+{
+	"name": "automattic/jetpack-agent-experience-eval",
+	"description": "CLI tool to evaluate a repository's AI agent experience quality",
+	"type": "library",
+	"license": "GPL-2.0-or-later",
+	"require": {},
+	"require-dev": {
+		"automattic/jetpack-changelogger": "@dev",
+		"automattic/phpunit-select-config": "@dev"
+	},
+	"autoload": {
+		"classmap": [
+			"src/"
+		]
+	},
+	"scripts": {
+		"build-development": [
+			"pnpm run build"
+		],
+		"build-production": [
+			"NODE_ENV=production pnpm run build"
+		],
+		"test-coverage": [
+			"pnpm run test-coverage"
+		],
+		"test-js": [
+			"pnpm run test"
+		]
+	},
+	"repositories": [
+		{
+			"type": "path",
+			"url": "../../packages/*",
+			"options": {
+				"monorepo": true
+			}
+		}
+	],
+	"minimum-stability": "dev",
+	"prefer-stable": true,
+	"extra": {
+		"autotagger": true,
+		"npmjs-autopublish": true,
+		"changelogger": {
+			"link-template": "https://github.com/Automattic/jetpack-agent-experience-eval/compare/v${old}...v${new}"
+		},
+		"mirror-repo": "Automattic/jetpack-agent-experience-eval"
+	}
+}
