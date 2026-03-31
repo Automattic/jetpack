@@ -99,13 +99,6 @@ function extractReferencedCommands( content: string ): string[] {
 		commands.add( match[ 1 ] );
 	}
 
-	// Match: jp X, jetpack X — these are CLI tool commands, not script names.
-	// We extract them for reporting but they can't be validated against manifests.
-	const jpPattern = /(?:jp|jetpack)\s+([a-zA-Z0-9_:-]+)/g;
-	for ( const match of content.matchAll( jpPattern ) ) {
-		commands.add( match[ 1 ] );
-	}
-
 	return [ ...commands ];
 }
 
