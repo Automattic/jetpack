@@ -1,113 +1,24 @@
-# Agent Experience Evaluation
+# agent-experience-eval
 
-A GitHub Action that evaluates a repository's AI agent experience quality by scoring its CLAUDE.md, AGENTS.md, and other AI instruction files against a standardized rubric.
+An action to evaluate a repository's AI agent experience quality
 
-## How it works
+## How to install agent-experience-eval
 
-1. **Discovers** AI instruction files (CLAUDE.md, AGENTS.md, .cursorrules, .cursor/**, etc.)
-2. **Evaluates** them using the Claude Code CLI against a 6-criteria, 100-point rubric
-3. **Validates** the structured JSON report
-4. **Uploads** the report as a GitHub Actions artifact for central collection
+### Installation From Git Repo
 
-## Usage
+## Contribute
 
-```yaml
-# .github/workflows/agent-experience-eval.yml
-name: Agent Experience Evaluation
+## Get Help
 
-on:
-  schedule:
-    - cron: '0 6 * * 1'  # Weekly, Monday 6am UTC
-  push:
-    paths:
-      - 'CLAUDE.md'
-      - '**/CLAUDE.md'
-      - 'AGENTS.md'
-      - '**/AGENTS.md'
-      - '.claude/**'
-      - '**/.claude/**'
-      - '.cursorrules'
-      - '**/.cursorrules'
-      - '.cursor/**'
-      - '**/.cursor/**'
-  workflow_dispatch: {}
+## Using this package in your WordPress plugin
 
-jobs:
-  evaluate:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
+If you plan on using this package in your WordPress plugin, we would recommend that you use [Jetpack Autoloader](https://packagist.org/packages/automattic/jetpack-autoloader) as your autoloader. This will allow for maximum interoperability with other plugins that use this package as well.
 
-      - name: Install Claude Code
-        run: npm install -g @anthropic-ai/claude-code
+## Security
 
-      - name: Evaluate Agent Experience
-        uses: ./projects/github-actions/agent-experience-eval  # or Automattic/action-agent-experience-eval@v1 from the mirror repo
-        with:
-          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-```
+Need to report a security vulnerability? Go to [https://automattic.com/security/](https://automattic.com/security/) or directly to our security bug bounty site [https://hackerone.com/automattic](https://hackerone.com/automattic).
 
-## Inputs
+## License
 
-| Input | Required | Default | Description |
-|-------|----------|---------|-------------|
-| `anthropic_api_key` | Yes | — | Anthropic API key for Claude Code CLI |
-| `max_turns` | No | `15` | Maximum turns for the CLI evaluation |
-| `output_path` | No | `agent-experience-eval.json` | Path for the evaluation JSON file |
+agent-experience-eval is licensed under [GNU General Public License v2 (or later)](./LICENSE.txt)
 
-## Outputs
-
-| Output | Description |
-|--------|-------------|
-| `score` | Overall evaluation score (0-100) |
-| `grade` | Letter grade (A, B, C, D, F) |
-| `json_path` | Path to the evaluation JSON file |
-
-## Scoring Rubric
-
-| Criterion | Points | Description |
-|-----------|--------|-------------|
-| Commands/Workflows | 20 | Build, test, lint, deploy commands documented |
-| Architecture Clarity | 20 | Codebase map with directories, modules, data flow |
-| Non-obvious Patterns | 15 | Gotchas, quirks, workarounds, edge cases |
-| Conciseness | 15 | Dense, valuable content with no filler |
-| Currency | 15 | Commands work, file refs accurate, stack current |
-| Actionability | 15 | Copy-paste ready commands, concrete steps |
-
-**Grade scale:** A (90-100), B (70-89), C (50-69), D (30-49), F (0-29)
-
-## Artifact Schema
-
-The action produces a JSON artifact with this structure:
-
-```json
-{
-  "version": 1,
-  "score": 72,
-  "grade": "B",
-  "files_found": ["CLAUDE.md", ".cursor/rules/testing.mdc"],
-  "criteria": {
-    "commands_workflows":   { "score": 18, "max": 20, "notes": "..." },
-    "architecture_clarity": { "score": 15, "max": 20, "notes": "..." },
-    "non_obvious_patterns": { "score": 12, "max": 15, "notes": "..." },
-    "conciseness":          { "score": 10, "max": 15, "notes": "..." },
-    "currency":             { "score": 8,  "max": 15, "notes": "..." },
-    "actionability":        { "score": 9,  "max": 15, "notes": "..." }
-  },
-  "issues": ["..."],
-  "recommendations": ["..."]
-}
-```
-
-## AI Files Detected
-
-The action searches for:
-
-- `CLAUDE.md`, `AGENTS.md`, `AGENTS.override.md` (root and subdirectories)
-- `.cursorrules`, `.windsurfrules`, `.aider.conf.yml`, `.codeiumrc`
-- `.github/copilot-instructions.md`
-- `.claude/**`, `.cursor/**`, `.codex/**` directories
-
-## Prerequisites
-
-The Claude Code CLI (`@anthropic-ai/claude-code`) must be installed on the runner before this action runs. See the usage example above.

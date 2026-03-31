@@ -1,53 +1,42 @@
 name: "Agent Experience Evaluation"
-description: "Evaluate a repository's AI agent experience quality by scoring its CLAUDE.md, AGENTS.md, and other AI instruction files against a standardized rubric."
+description: "Evaluate repository AI agent experience quality"
 branding:
   icon: 'award'
   color: 'blue'
+
 inputs:
   anthropic_api_key:
-    description: "Anthropic API key for Claude Code CLI"
+    description: "Anthropic API key"
     required: true
-  max_turns:
-    description: "Maximum turns for the Claude Code CLI evaluation"
+  model:
+    description: "Claude model to use"
     required: false
-    default: "15"
+    default: "claude-sonnet-4-6"
   output_path:
-    description: "Path where the evaluation JSON file will be written"
+    description: "Path for JSON output"
     required: false
     default: "agent-experience-eval.json"
+  upload_artifact:
+    description: "Whether to upload the artifact"
+    required: false
+    default: "true"
+  artifact_name:
+    description: "Name of the uploaded artifact"
+    required: false
+    default: "agent-experience-eval"
+  artifact_retention_days:
+    description: "Artifact retention days"
+    required: false
+    default: "30"
+
 outputs:
   score:
-    description: "Overall evaluation score (0-100)"
-    value: ${{ steps.eval.outputs.score }}
+    description: "Overall score (0-100)"
   grade:
-    description: "Letter grade (A, B, C, D, F)"
-    value: ${{ steps.eval.outputs.grade }}
+    description: "Letter grade"
   json_path:
-    description: "Path to the evaluation JSON file"
-    value: ${{ steps.eval.outputs.json_path }}
+    description: "Path to JSON report"
+
 runs:
-  using: composite
-  steps:
-    - name: Run evaluation
-      id: eval
-      shell: bash
-      env:
-        ANTHROPIC_API_KEY: ${{ inputs.anthropic_api_key }}
-        MAX_TURNS: ${{ inputs.max_turns }}
-        OUTPUT_PATH: ${{ inputs.output_path }}
-        ACTION_PATH: ${{ github.action_path }}
-      run: |
-        PROMPT=$(cat "$ACTION_PATH/prompt.md")
-        export PROMPT OUTPUT_PATH MAX_TURNS
-
-        echo "::group::Running Claude Code evaluation"
-        if ! "$ACTION_PATH/run.sh"; then
-          echo "::endgroup::"
-          exit 1
-        fi
-        echo "::endgroup::"
-
-        SCORE=$(jq -r '.score' "$OUTPUT_PATH")
-        GRADE=$(jq -r '.grade' "$OUTPUT_PATH")
-        echo "Score: $SCORE/100 (Grade: $GRADE)"
-
+  using: node24
+  main: dist/index.js

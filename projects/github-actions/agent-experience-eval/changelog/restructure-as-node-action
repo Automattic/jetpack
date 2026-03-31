@@ -1,0 +1,4 @@
+Significance: major
+Type: changed
+
+Restructured as a Node action using the new @automattic/jetpack-agent-experience-eval package. Calls the Claude API directly via the Anthropic SDK — no Claude CLI required. Handles artifact upload internally.

@@ -1,0 +1,29 @@
+{
+	"private": true,
+	"description": "GitHub Action to evaluate a repository's AI agent experience quality",
+	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/github-actions/agent-experience-eval/#readme",
+	"bugs": {
+		"url": "https://github.com/Automattic/jetpack/labels/[Action] Agent Experience Eval"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Automattic/jetpack.git",
+		"directory": "projects/github-actions/agent-experience-eval"
+	},
+	"license": "GPL-2.0-or-later",
+	"author": "Automattic",
+	"scripts": {
+		"build": "ncc build src/index.ts -o dist --source-map",
+		"clean": "rm -rf dist/"
+	},
+	"dependencies": {
+		"@actions/artifact": "^2.3.2",
+		"@actions/core": "^1.11.1",
+		"@automattic/jetpack-agent-experience-eval": "workspace:*"
+	},
+	"devDependencies": {
+		"@types/node": "^24.12.0",
+		"@vercel/ncc": "^0.38.3",
+		"typescript": "5.9.3"
+	}
+}
