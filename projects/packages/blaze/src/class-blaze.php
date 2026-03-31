@@ -476,8 +476,8 @@ class Blaze {
 			/** This filter is documented in Blaze::enable_blaze_menu() */
 			$menu_slug = apply_filters( 'jetpack_blaze_menu_slug', 'advertising' );
 			$admin_url = admin_url( 'admin.php?page=' . $menu_slug );
-			$hostname   = wp_parse_url( get_site_url(), PHP_URL_HOST );
-			$blaze_url  = sprintf(
+			$hostname  = wp_parse_url( get_site_url(), PHP_URL_HOST );
+			$blaze_url = sprintf(
 				'%1$s#!/advertising/posts/promote/post-%2$s/%3$s',
 				$admin_url,
 				esc_attr( $post_id ),
