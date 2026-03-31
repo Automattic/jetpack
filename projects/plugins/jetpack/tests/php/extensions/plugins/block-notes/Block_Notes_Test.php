@@ -273,6 +273,19 @@ class Block_Notes_Test extends \WP_UnitTestCase {
 	}
 
 	/**
+	 * Enabled via Big Sky when class exists and option has never been set.
+	 *
+	 * The big_sky_enable option defaults to '1', so plugin presence
+	 * implies the feature should be on.
+	 */
+	public function test_is_enabled_via_big_sky_when_option_never_set() {
+		$this->disable_ai_features();
+		$this->simulate_big_sky_class();
+		delete_option( 'big_sky_enable' );
+		$this->assertTrue( BlockNotes\is_block_notes_enabled() );
+	}
+
+	/**
 	 * Not enabled when AI features are available but no paid AI plan.
 	 */
 	public function test_is_not_enabled_without_paid_ai_plan() {
@@ -294,7 +307,9 @@ class Block_Notes_Test extends \WP_UnitTestCase {
 	// -------------------------------------------------------------------------
 
 	/**
-	 * Returns false when no paid plan is present and no filter override.
+	 * Returns false when no paid plan and no filter — exercises the
+	 * Jetpack_Ai::has_paid_plan_for_product() branch (class is autoloaded
+	 * but returns false without a real WPCOM connection).
 	 */
 	public function test_has_paid_ai_plan_false_without_paid_plan() {
 		remove_all_filters( 'jetpack_block_notes_has_paid_ai_plan' );
@@ -306,16 +321,6 @@ class Block_Notes_Test extends \WP_UnitTestCase {
 	 */
 	public function test_has_paid_ai_plan_true_via_filter() {
 		$this->assertTrue( BlockNotes\has_paid_ai_plan() );
-	}
-
-	/**
-	 * Exercises the Jetpack_Ai class_exists branch without the filter override.
-	 */
-	public function test_has_paid_ai_plan_checks_jetpack_ai_class() {
-		remove_all_filters( 'jetpack_block_notes_has_paid_ai_plan' );
-		// Jetpack_Ai class is autoloaded, so the class_exists branch is reached.
-		// Without a real WPCOM connection, has_paid_plan_for_product() returns false.
-		$this->assertFalse( BlockNotes\has_paid_ai_plan() );
 	}
 
 	// -------------------------------------------------------------------------

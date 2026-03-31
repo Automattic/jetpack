@@ -78,6 +78,9 @@ function has_paid_ai_plan() {
 /**
  * Check if the Big Sky plugin is active and enabled.
  *
+ * Defaults to enabled ('1') when the Big_Sky class exists but the option
+ * has never been set — plugin presence implies the feature should be on.
+ *
  * @return bool
  */
 function is_big_sky_enabled() {
@@ -87,9 +90,11 @@ function is_big_sky_enabled() {
 /**
  * Check whether AI features are available.
  *
- * - wpcom simple: always available.
- * - Otherwise requires a connected owner with AI not disabled
- *   (same conditions the AI Assistant plugin uses to register).
+ * - wpcom simple: always returns true. The jetpack_ai_enabled filter
+ *   does not apply here; the paid plan check in has_paid_ai_plan()
+ *   gates access instead.
+ * - Otherwise requires a connected owner, not in offline mode, and
+ *   AI not disabled via the jetpack_ai_enabled filter.
  *
  * @return bool
  */
@@ -136,8 +141,8 @@ function should_load_on_current_screen() {
 /**
  * Register the Block Notes plugin.
  *
- * Registers unconditionally when either filter is true. Screen-level gating
- * happens at enqueue time since get_current_screen() is not available here.
+ * Registers when Block Notes is enabled. Screen-level gating happens at
+ * enqueue time since get_current_screen() is not available here.
  *
  * @return void
  */
