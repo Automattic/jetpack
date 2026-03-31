@@ -1,10 +1,9 @@
 {
-	"extends": "jetpack-js-tools/tsconfig.tsc.json",
+	"extends": "jetpack-js-tools/tsconfig.base.json",
 	"compilerOptions": {
 		"target": "ES2022",
 		"lib": [ "ES2022" ],
-		"types": [ "node", "jest" ],
-		"noEmit": true
+		"types": [ "node", "jest" ]
 	},
 	// Override the base config's "files" which includes a global.d.ts
 	// that declares a minimal `process` type conflicting with @types/node.
