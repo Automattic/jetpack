@@ -293,9 +293,14 @@ function do_enqueue_assets() {
 		true
 	);
 
+	$image_studio_data = array(
+		'enabled' => true,
+		'version' => 1.0,
+	);
+
 	wp_add_inline_script(
 		FEATURE_NAME,
-		'if ( typeof window.imageStudioData === "undefined" ) { window.imageStudioData = ' . wp_json_encode( array( 'enabled' => true ), JSON_HEX_TAG | JSON_HEX_AMP ) . '; }',
+		'if ( typeof window.imageStudioData === "undefined" ) { window.imageStudioData = ' . wp_json_encode( $image_studio_data, JSON_HEX_TAG | JSON_HEX_AMP ) . '; }',
 		'before'
 	);
 
