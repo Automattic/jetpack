@@ -131,7 +131,7 @@ class Wpcom_Connector {
 		$data['apiRoot']              = esc_url_raw( rest_url() );
 		$data['apiNonce']             = wp_create_nonce( 'wp_rest' );
 		$data['redirectUri']          = static::get_connectors_page_path();
-		$data['connectorName']        = __( 'WordPress.com', 'jetpack-connection' );
+		$data['connectorName']        = 'WordPress.com';
 		$data['connectorDescription'] = __( 'Enhanced functionality with Jetpack and WooCommerce.', 'jetpack-connection' );
 		$data['connectorLogoUrl']     = plugins_url( 'images/wpcom-logo.svg', __FILE__ );
 
