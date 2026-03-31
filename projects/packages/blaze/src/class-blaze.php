@@ -137,27 +137,12 @@ class Blaze {
 		 */
 		$css_prefix = apply_filters( 'jetpack_blaze_dashboard_css_prefix', 'jp-blaze' );
 
-		$parent_slug = self::get_menu_parent();
+		$parent_slug     = self::get_menu_parent();
+		$is_simple_site  = defined( 'IS_WPCOM' ) && IS_WPCOM;
+		$admin_page      = $is_simple_site ? 'tools.php' : 'admin.php';
+		$blaze_dashboard = new Blaze_Dashboard( $admin_page, $menu_slug, $css_prefix );
 
-		$is_simple_site      = defined( 'IS_WPCOM' ) && IS_WPCOM;
-		$admin_page          = $is_simple_site ? 'tools.php' : 'admin.php';
-		$blaze_dashboard     = new Blaze_Dashboard( $admin_page, $menu_slug, $css_prefix );
-		$dashboard_enabled   = self::is_dashboard_enabled();
-		$has_campaigns       = self::has_site_campaigns();
-		$wpcom_admin_iface   = get_option( 'wpcom_admin_interface', '(not set)' );
-
-		// DEBUG — remove before merging.
-		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-		error_log( sprintf(
-			'[BLAZE-DEBUG] enable_blaze_menu: parent_slug=%s, is_simple=%s, dashboard_enabled=%s, has_campaigns=%s, wpcom_admin_interface=%s',
-			$parent_slug,
-			$is_simple_site ? 'yes' : 'no',
-			$dashboard_enabled ? 'yes' : 'no',
-			$has_campaigns ? 'yes' : 'no',
-			$wpcom_admin_iface
-		) );
-
-		if ( $dashboard_enabled ) {
+		if ( self::is_dashboard_enabled() ) {
 			if ( $has_campaigns ) {
 				$page_suffix = add_menu_page(
 					esc_attr( $menu_label ),
@@ -500,8 +485,8 @@ class Blaze {
 			$menu_slug = apply_filters( 'jetpack_blaze_menu_slug', 'advertising' );
 			// Simple Sites use tools.php; all other installations use admin.php.
 			$admin_page = ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ? 'tools.php' : 'admin.php';
-			$admin_url  = admin_url( $admin_page . '?page=' . $menu_slug );
-			$hostname   = wp_parse_url( get_site_url(), PHP_URL_HOST );
+			$admin_url = admin_url( $admin_page . '?page=' . $menu_slug );
+			$hostname  = wp_parse_url( get_site_url(), PHP_URL_HOST );
 			$blaze_url = sprintf(
 				'%1$s#!/advertising/posts/promote/post-%2$s/%3$s',
 				$admin_url,
