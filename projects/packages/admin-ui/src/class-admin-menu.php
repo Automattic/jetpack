@@ -332,7 +332,7 @@ class Admin_Menu {
 			$menu_title,
 			'manage_options',
 			esc_url( $upgrade_url ),
-			null,
+			'__return_null',
 			999
 		);
 
