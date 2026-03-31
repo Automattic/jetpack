@@ -66,7 +66,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/admin-ui",
-                "reference": "35c5547f0d22d865152761ac473e666767b59d70"
+                "reference": "902acd74b1533a2f28b411c6d7bd47f7a7b0504e"
             },
             "require": {
                 "automattic/jetpack-plans": "@dev",
