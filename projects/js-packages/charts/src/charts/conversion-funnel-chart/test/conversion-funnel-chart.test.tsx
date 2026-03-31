@@ -467,9 +467,9 @@ describe( 'ConversionFunnelChart', () => {
 			render( <ConversionFunnelChart { ...defaultProps } /> );
 
 			// After render, effects have run (via useEffect in GlobalChartsProvider),
-			// so the palette is resolved and the __animated classes are applied to funnel bars
-			const bars = screen.getAllByRole( 'button' );
-			expect( bars[ 0 ] ).toHaveClass( 'bar-container__animated' );
+			// so the palette is resolved and the animated class is applied to the root
+			const chart = screen.getByTestId( 'conversion-funnel-chart' );
+			expect( chart ).toHaveClass( 'animated' );
 		} );
 	} );
 } );
