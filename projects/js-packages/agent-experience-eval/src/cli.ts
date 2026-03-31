@@ -66,7 +66,12 @@ async function main(): Promise< void > {
 	}
 
 	const repoRoot = values.repo ? resolve( values.repo ) : process.cwd();
-	const format = resolveFormat( values.format ?? 'auto', !! values.output );
+	const formatValue = values.format ?? 'auto';
+	if ( ! [ 'json', 'human', 'auto' ].includes( formatValue ) ) {
+		console.error( `Error: Invalid --format value "${ formatValue }". Use json, human, or auto.` );
+		process.exit( 1 );
+	}
+	const format = resolveFormat( formatValue, !! values.output );
 
 	try {
 		const metadata = await evaluate( {

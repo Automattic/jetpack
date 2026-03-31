@@ -34,7 +34,10 @@ function formatBytes( bytes: number ): string {
 	if ( bytes < 1024 ) {
 		return `${ bytes } B`;
 	}
-	return `${ ( bytes / 1024 ).toFixed( 1 ) } KB`;
+	if ( bytes < 1024 * 1024 ) {
+		return `${ ( bytes / 1024 ).toFixed( 1 ) } KB`;
+	}
+	return `${ ( bytes / ( 1024 * 1024 ) ).toFixed( 1 ) } MB`;
 }
 
 /**
@@ -62,23 +65,34 @@ export function renderHumanReport( metadata: EvaluateMetadata, repoRoot?: string
 	);
 	lines.push( '' );
 
-	// Criteria
+	// Criteria — render known ones in order, then any extras
 	lines.push( '  Criteria' );
 	const criteria = result.criteria as Record< string, CriterionResult >;
-	for ( const { key, label } of CRITERIA_ORDER ) {
-		const c = criteria[ key ];
-		if ( ! c ) {
-			continue;
-		}
+	const knownKeys = new Set( CRITERIA_ORDER.map( entry => entry.key ) );
+
+	const renderCriterion = ( label: string, c: CriterionResult ) => {
 		const bar = progressBar( c.score, c.max );
 		const padded = label.padEnd( 25 );
 		lines.push( `    ${ padded } ${ String( c.score ).padStart( 2 ) }/${ c.max }  ${ bar }` );
 		if ( c.notes ) {
-			// Wrap notes to ~76 chars indented
 			const wrapped = wordWrap( c.notes, 72 );
 			for ( const line of wrapped ) {
 				lines.push( `      ${ line }` );
 			}
+		}
+	};
+
+	for ( const { key, label } of CRITERIA_ORDER ) {
+		const c = criteria[ key ];
+		if ( c ) {
+			renderCriterion( label, c );
+		}
+	}
+	// Render any criteria not in CRITERIA_ORDER (future-proofing)
+	for ( const [ key, c ] of Object.entries( criteria ) ) {
+		if ( ! knownKeys.has( key ) ) {
+			const label = key.replace( /_/g, ' ' ).replace( /\b\w/g, ch => ch.toUpperCase() );
+			renderCriterion( label, c );
 		}
 	}
 	lines.push( '' );
