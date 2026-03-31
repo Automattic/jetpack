@@ -384,6 +384,8 @@ class WPCOM_Features {
 	public const BACKUPS_RESTORE                   = 'restore';
 	public const BACKUPS_SELF_SERVE                = 'backups-self-serve';
 	public const BACKUP_ONE_TIME                   = 'backup-one-time';
+	public const BIG_SKY                           = 'big-sky';
+	public const BIG_SKY_EXISTING_SITE             = 'big-sky-existing-site';
 	public const BLAZE_CREDITS_VOUCHER             = 'blaze-credits-voucher';
 	public const BLOG_DOMAIN_ONLY                  = 'blog-domain-only';
 	public const CALENDLY                          = 'calendly';
@@ -641,6 +643,17 @@ class WPCOM_Features {
 		 */
 		self::BACKUP_ONE_TIME                   => array(
 			self::JETPACK_BACKUP_ONE_TIME,
+		),
+		// Free trials can upgrade to any plan level.
+		self::BIG_SKY                           => array(
+			self::WPCOM_PERSONAL_PLANS,
+			self::WPCOM_BUSINESS_PLANS,
+			self::WPCOM_PREMIUM_PLANS,
+			self::WPCOM_ECOMMERCE_PLANS,
+		),
+		// Existing sites can only enable it if they have a business or higher plan.
+		self::BIG_SKY_EXISTING_SITE             => array(
+			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 		),
 		self::BLAZE_CREDITS_VOUCHER             => array(
 			array(
@@ -1165,10 +1178,7 @@ class WPCOM_Features {
 		),
 
 		self::REAL_TIME_COLLABORATION           => array(
-			array(
-				'required_sticker' => 'wpcom-features-edge',
-				self::WPCOM_PERSONAL_AND_HIGHER_PLANS,
-			),
+			self::WPCOM_PERSONAL_AND_HIGHER_PLANS,
 		),
 
 		self::RECURRING_PAYMENTS                => array(

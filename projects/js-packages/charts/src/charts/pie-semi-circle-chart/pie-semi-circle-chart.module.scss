@@ -5,15 +5,9 @@
 		width: 100%;
 	}
 
-	// Flex wrapper that fills remaining Stack space and measures the SVG area
-	&__svg-wrapper {
-		flex: 1;
-		min-height: 0; // Required for flex shrinking
-		min-width: 0; // Required for flex shrinking
+	&__centering {
 		width: 100%;
-		display: flex;
-		align-items: center;
-		justify-content: center;
+		height: 100%;
 	}
 
 	.label {

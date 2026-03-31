@@ -9,7 +9,6 @@
 
 namespace Automattic\Jetpack_Boost\Lib;
 
-use Automattic\Jetpack\Config as Jetpack_Config;
 use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Terms_Of_Service;
 
@@ -271,26 +270,5 @@ class Connection {
 	 */
 	public static function rest_authorization_required_code() {
 		return is_user_logged_in() ? 403 : 401;
-	}
-
-	public function ensure_connection() {
-		/**
-		 * Filter that fakes the connection to WordPress.com. Useful for testing.
-		 *
-		 * @param bool $connection Return true to fake the connection.
-		 *
-		 * @since   1.0.0
-		 */
-		if ( ! apply_filters( 'jetpack_boost_connection_bypass', false ) ) {
-			$jetpack_config = new Jetpack_Config();
-			$jetpack_config->ensure(
-				'connection',
-				array(
-					'slug'     => 'jetpack-boost',
-					'name'     => 'Jetpack Boost',
-					'url_info' => '', // Optional, URL of the plugin.
-				)
-			);
-		}
 	}
 }

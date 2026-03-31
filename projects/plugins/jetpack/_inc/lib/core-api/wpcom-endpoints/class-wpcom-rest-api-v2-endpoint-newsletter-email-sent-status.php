@@ -114,6 +114,7 @@ class WPCOM_REST_API_V2_Endpoint_Newsletter_Email_Sent_Status extends WP_REST_Co
 				'paid_tier'                 => $paid_tier,
 				'post_categories'           => isset( $first['post_categories'] ) && is_array( $first['post_categories'] ) ? $first['post_categories'] : array(),
 				'has_newsletter_categories' => ! empty( $first['has_newsletter_categories'] ),
+				'has_paywall_block'         => isset( $first['has_paywall_block'] ) ? (bool) $first['has_paywall_block'] : null,
 				'timestamp'                 => $ts,
 			);
 		}
@@ -129,17 +130,29 @@ class WPCOM_REST_API_V2_Endpoint_Newsletter_Email_Sent_Status extends WP_REST_Co
 	/**
 	 * Permission check for the endpoint.
 	 *
+	 * @param WP_REST_Request $request Request object.
 	 * @return bool|WP_Error
 	 */
-	public function permission_check() {
-		if ( current_user_can( 'manage_options' ) || current_user_can( 'view_stats' ) || current_user_can( 'edit_posts' ) ) {
-			return true;
+	public function permission_check( $request ) {
+		if ( ! current_user_can( 'manage_options' ) && ! current_user_can( 'view_stats' ) && ! current_user_can( 'edit_posts' ) ) {
+			return new WP_Error(
+				'rest_forbidden',
+				__( 'Sorry, you are not allowed to access this endpoint.', 'jetpack' ),
+				array( 'status' => rest_authorization_required_code() )
+			);
 		}
-		return new WP_Error(
-			'rest_forbidden',
-			__( 'Sorry, you are not allowed to access this endpoint.', 'jetpack' ),
-			array( 'status' => rest_authorization_required_code() )
-		);
+
+		// post_id is validated as > 0 by the route definition; this check is defensive.
+		$post_id = absint( $request->get_param( 'post_id' ) );
+		if ( $post_id > 0 && ! current_user_can( 'manage_options' ) && ! current_user_can( 'edit_post', $post_id ) ) {
+			return new WP_Error(
+				'rest_forbidden',
+				__( 'Sorry, you are not allowed to access this endpoint.', 'jetpack' ),
+				array( 'status' => rest_authorization_required_code() )
+			);
+		}
+
+		return true;
 	}
 }
 

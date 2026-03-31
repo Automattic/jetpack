@@ -1,4 +1,4 @@
-@import "@wordpress/theme/design-tokens.css";
+@use "../../../../dashboard/design-tokens";
 
 .jetpack-forms-integrations-modal .components-modal__header-heading {
 	font-weight: 400;

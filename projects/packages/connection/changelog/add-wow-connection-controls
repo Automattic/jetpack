@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Connector card: Prevent site disconnection and owner account unlinking on WoA and VIP sites.

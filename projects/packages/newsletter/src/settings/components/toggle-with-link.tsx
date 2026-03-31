@@ -8,7 +8,6 @@ import { type Field } from '@wordpress/dataviews/wp';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
-import './toggle-with-link.scss';
 
 interface ToggleWithLinkProps {
 	data: Record< string, unknown >;
@@ -52,8 +51,8 @@ export function ToggleWithLink( {
 			checked={ !! data[ field.id ] }
 			onChange={ handleChange }
 			label={
-				<span className="toggle-with-link__label">
-					{ field.label }
+				<span>
+					{ field.label }{ ' ' }
 					{ isExternal ? (
 						<ExternalLink href={ url } onClick={ onLinkClick }>
 							{ linkText }

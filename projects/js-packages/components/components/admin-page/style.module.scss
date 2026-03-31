@@ -21,6 +21,7 @@
 	// JETPACK-1386
 	:global(.admin-ui-page__header) {
 		position: relative;
+		z-index: 1;
 	}
 
 	// Normalize admin headers: implementation of admin-ui needs to
