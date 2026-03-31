@@ -356,6 +356,7 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 						return (
 							<div
 								key={ step.id }
+								data-testid="funnel-step"
 								className={ clsx(
 									styles[ 'funnel-step' ],
 									isColorPaletteResolved && styles[ 'funnel-step--animated' ],
