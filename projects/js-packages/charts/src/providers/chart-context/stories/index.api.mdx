@@ -1,0 +1,67 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title="JS Packages/Charts Library/Global Context/API Reference" />
+
+# Chart Context API Reference
+
+This document provides comprehensive API documentation for the Global Charts Context system.
+
+## GlobalChartsProvider
+
+The main provider component that enables chart context functionality.
+
+**Props:**
+
+| Prop | Type | Default | Description |
+| ---- | ---- | ------- | ----------- |
+| `theme` | `Partial<ChartTheme>` | `defaultTheme` | Custom theme object that gets merged with the default theme |
+| `children` | `ReactNode` | - | **Required.** Chart components and other React elements |
+
+## GlobalChartsContextValue
+
+The context value shape provided by `useGlobalChartsContext`:
+
+```typescript
+interface GlobalChartsContextValue {
+	// Chart registry
+	charts: Map<string, ChartRegistration>;
+	registerChart: (id: string, data: ChartRegistration) => void;
+	unregisterChart: (id: string) => void;
+	getChartData: (id: string) => ChartRegistration | undefined;
+
+	// Theme and styling
+	theme: CompleteChartTheme;
+	getElementStyles: (params: GetElementStylesParams) => ElementStyles;
+
+	// Series visibility management for interactive legends
+	toggleSeriesVisibility: (chartId: string, seriesLabel: string) => void;
+	isSeriesVisible: (chartId: string, seriesLabel: string) => boolean;
+	getHiddenSeries: (chartId: string) => Set<string>;
+
+	// Color palette resolution state
+	isColorPaletteResolved: boolean;
+}
+```
+
+`isColorPaletteResolved` is `false` until the provider's color cache has been resolved from the DOM and painted. Chart components can use this to defer CSS transitions or animations that would otherwise interpolate from a fallback color to the resolved theme color on initial render.
+
+## ChartRegistration Type
+
+```typescript
+interface ChartRegistration {
+	legendItems: BaseLegendItem[];
+	chartType: string;
+	metadata?: Record<string, unknown>;
+}
+```
+
+## ElementStyles Type
+
+```typescript
+interface ElementStyles {
+	color: string;
+	lineStyles: CSSProperties & LineStyles;
+	glyph?: (props: GlyphProps) => ReactNode;
+	shapeStyles: CSSProperties & LineStyles;
+}
+```
