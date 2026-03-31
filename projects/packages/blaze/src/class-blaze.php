@@ -108,7 +108,8 @@ class Blaze {
 		}
 
 		$parent_slug     = self::get_menu_parent();
-		$blaze_dashboard = new Blaze_Dashboard();
+		$admin_page      = 'jetpack' === $parent_slug ? 'admin.php' : 'tools.php';
+		$blaze_dashboard = new Blaze_Dashboard( $admin_page );
 
 		if ( self::is_dashboard_enabled() ) {
 			$page_suffix = add_submenu_page(
@@ -318,9 +319,11 @@ class Blaze {
 	 */
 	public static function get_campaign_management_url( $post_id ) {
 		if ( self::is_dashboard_enabled() ) {
-			$admin_url = admin_url( 'tools.php?page=advertising' );
-			$hostname  = wp_parse_url( get_site_url(), PHP_URL_HOST );
-			$blaze_url = sprintf(
+			$parent_slug = self::get_menu_parent();
+			$admin_page  = 'jetpack' === $parent_slug ? 'admin.php' : 'tools.php';
+			$admin_url   = admin_url( $admin_page . '?page=advertising' );
+			$hostname    = wp_parse_url( get_site_url(), PHP_URL_HOST );
+			$blaze_url   = sprintf(
 				'%1$s#!/advertising/posts/promote/post-%2$s/%3$s',
 				$admin_url,
 				esc_attr( $post_id ),
