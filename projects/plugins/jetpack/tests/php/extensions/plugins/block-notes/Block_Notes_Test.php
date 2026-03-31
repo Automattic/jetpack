@@ -290,6 +290,35 @@ class Block_Notes_Test extends \WP_UnitTestCase {
 	}
 
 	// -------------------------------------------------------------------------
+	// has_paid_ai_plan() tests
+	// -------------------------------------------------------------------------
+
+	/**
+	 * Returns false when no paid plan is present and no filter override.
+	 */
+	public function test_has_paid_ai_plan_false_without_paid_plan() {
+		remove_all_filters( 'jetpack_block_notes_has_paid_ai_plan' );
+		$this->assertFalse( BlockNotes\has_paid_ai_plan() );
+	}
+
+	/**
+	 * Returns true when filter overrides to true.
+	 */
+	public function test_has_paid_ai_plan_true_via_filter() {
+		$this->assertTrue( BlockNotes\has_paid_ai_plan() );
+	}
+
+	/**
+	 * Exercises the Jetpack_Ai class_exists branch without the filter override.
+	 */
+	public function test_has_paid_ai_plan_checks_jetpack_ai_class() {
+		remove_all_filters( 'jetpack_block_notes_has_paid_ai_plan' );
+		// Jetpack_Ai class is autoloaded, so the class_exists branch is reached.
+		// Without a real WPCOM connection, has_paid_plan_for_product() returns false.
+		$this->assertFalse( BlockNotes\has_paid_ai_plan() );
+	}
+
+	// -------------------------------------------------------------------------
 	// is_post_editor() tests
 	// -------------------------------------------------------------------------
 
