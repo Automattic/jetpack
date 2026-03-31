@@ -139,16 +139,26 @@ class Blaze {
 
 		$parent_slug = self::get_menu_parent();
 
-		// On Simple Sites the WPCOM admin bridge only routes tools.php?page=…
-		// URLs.  admin.php?page=… under a plugin parent falls back to /home/.
-		// Keep tools.php as the dashboard base so the embedded dashboard keeps
-		// working on Simple Sites.
-		$is_simple_site  = defined( 'IS_WPCOM' ) && IS_WPCOM;
-		$admin_page      = $is_simple_site ? 'tools.php' : 'admin.php';
-		$blaze_dashboard = new Blaze_Dashboard( $admin_page, $menu_slug, $css_prefix );
+		$is_simple_site      = defined( 'IS_WPCOM' ) && IS_WPCOM;
+		$admin_page          = $is_simple_site ? 'tools.php' : 'admin.php';
+		$blaze_dashboard     = new Blaze_Dashboard( $admin_page, $menu_slug, $css_prefix );
+		$dashboard_enabled   = self::is_dashboard_enabled();
+		$has_campaigns       = self::has_site_campaigns();
+		$wpcom_admin_iface   = get_option( 'wpcom_admin_interface', '(not set)' );
 
-		if ( self::is_dashboard_enabled() ) {
-			if ( self::has_site_campaigns() ) {
+		// DEBUG — remove before merging.
+		// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+		error_log( sprintf(
+			'[BLAZE-DEBUG] enable_blaze_menu: parent_slug=%s, is_simple=%s, dashboard_enabled=%s, has_campaigns=%s, wpcom_admin_interface=%s',
+			$parent_slug,
+			$is_simple_site ? 'yes' : 'no',
+			$dashboard_enabled ? 'yes' : 'no',
+			$has_campaigns ? 'yes' : 'no',
+			$wpcom_admin_iface
+		) );
+
+		if ( $dashboard_enabled ) {
+			if ( $has_campaigns ) {
 				$page_suffix = add_menu_page(
 					esc_attr( $menu_label ),
 					$menu_label,
