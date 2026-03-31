@@ -1,5 +1,5 @@
 import { access, readFile } from 'node:fs/promises';
-import { join } from 'node:path';
+import { join, dirname, relative } from 'node:path';
 import type { DiscoveredFile } from './discovery.js';
 
 export interface PathReference {
@@ -90,8 +90,8 @@ function extractReferencedCommands( content: string ): string[] {
 		commands.add( cmd );
 	}
 
-	// Match: make X, composer X
-	const makePattern = /(?:make|composer)\s+([a-zA-Z0-9_:-]+)/g;
+	// Match: make X, composer X, jp X (Jetpack monorepo CLI)
+	const makePattern = /(?:make|composer|jp|jetpack)\s+([a-zA-Z0-9_:-]+)/g;
 	for ( const match of content.matchAll( makePattern ) ) {
 		commands.add( match[ 1 ] );
 	}
@@ -100,17 +100,17 @@ function extractReferencedCommands( content: string ): string[] {
 }
 
 /**
- * Tries to find where a command is defined.
- * Checks package.json scripts, Makefile targets, and composer.json scripts.
- * Returns the relative path to the file where found, or null.
- * @param repoRoot - Absolute path to the repository root.
- * @param command  - Command name to search for.
- * @return Relative path to the file where the command was found, or null.
+ * Checks a single directory for a command in package.json scripts,
+ * Makefile targets, or composer.json scripts.
+ *
+ * @param dir     - Absolute path to the directory to check.
+ * @param command - Command name to search for.
+ * @return The filename where found (e.g., "package.json"), or null.
  */
-async function findCommandSource( repoRoot: string, command: string ): Promise< string | null > {
-	// Check root package.json
+async function checkDirForCommand( dir: string, command: string ): Promise< string | null > {
+	// Check package.json scripts
 	try {
-		const pkgJson = JSON.parse( await readFile( join( repoRoot, 'package.json' ), 'utf-8' ) );
+		const pkgJson = JSON.parse( await readFile( join( dir, 'package.json' ), 'utf-8' ) );
 		if ( pkgJson.scripts?.[ command ] ) {
 			return 'package.json';
 		}
@@ -118,9 +118,9 @@ async function findCommandSource( repoRoot: string, command: string ): Promise< 
 		// No package.json or invalid JSON
 	}
 
-	// Check Makefile
+	// Check Makefile targets
 	try {
-		const makefile = await readFile( join( repoRoot, 'Makefile' ), 'utf-8' );
+		const makefile = await readFile( join( dir, 'Makefile' ), 'utf-8' );
 		const targetPattern = new RegExp( `^${ command }\\s*:`, 'm' );
 		if ( targetPattern.test( makefile ) ) {
 			return 'Makefile';
@@ -131,12 +131,52 @@ async function findCommandSource( repoRoot: string, command: string ): Promise< 
 
 	// Check composer.json scripts
 	try {
-		const composerJson = JSON.parse( await readFile( join( repoRoot, 'composer.json' ), 'utf-8' ) );
+		const composerJson = JSON.parse( await readFile( join( dir, 'composer.json' ), 'utf-8' ) );
 		if ( composerJson.scripts?.[ command ] ) {
 			return 'composer.json';
 		}
 	} catch {
 		// No composer.json or invalid JSON
+	}
+
+	return null;
+}
+
+/**
+ * Finds where a command is defined, searching from the instruction file's
+ * directory up to the repo root. This handles monorepos where commands are
+ * defined in subproject manifests.
+ *
+ * @param repoRoot        - Absolute path to the repository root.
+ * @param command         - Command name to search for.
+ * @param referencedInDir - Directory of the instruction file that references this command.
+ * @return Relative path to the file where the command was found, or null.
+ */
+async function findCommandSource(
+	repoRoot: string,
+	command: string,
+	referencedInDir: string
+): Promise< string | null > {
+	// Walk from the instruction file's directory up to (and including) repo root
+	let current = join( repoRoot, referencedInDir );
+
+	while ( true ) {
+		const found = await checkDirForCommand( current, command );
+		if ( found ) {
+			return join( relative( repoRoot, current ), found );
+		}
+
+		// Stop at repo root
+		if ( current === repoRoot ) {
+			break;
+		}
+
+		const parent = dirname( current );
+		// Safety: stop if we can't go higher
+		if ( parent === current ) {
+			break;
+		}
+		current = parent;
 	}
 
 	return null;
@@ -174,8 +214,9 @@ export async function validateCurrency(
 		}
 
 		const cmdRefs = extractReferencedCommands( file.content );
+		const fileDir = dirname( file.relativePath );
 		for ( const cmd of cmdRefs ) {
-			const foundIn = await findCommandSource( repoRoot, cmd );
+			const foundIn = await findCommandSource( repoRoot, cmd, fileDir );
 			referencedCommands.push( {
 				command: cmd,
 				found: foundIn !== null,

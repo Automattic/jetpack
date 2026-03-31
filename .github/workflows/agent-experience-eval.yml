@@ -9,14 +9,14 @@ on:
       - '**/CLAUDE.md'
       - '**/AGENTS.md'
       - '**/AGENTS.override.md'
-      - '.claude/**'
-      - '.cursor/**'
-      - '.codex/**'
-      - '.cursorrules'
-      - '.windsurfrules'
-      - '.aider.conf.yml'
-      - '.codeiumrc'
-      - '.github/copilot-instructions.md'
+      - '**/.claude/**'
+      - '**/.cursor/**'
+      - '**/.codex/**'
+      - '**/.cursorrules'
+      - '**/.windsurfrules'
+      - '**/.aider.conf.yml'
+      - '**/.codeiumrc'
+      - '**/.github/copilot-instructions.md'
   pull_request:
     paths:
       - 'projects/github-actions/agent-experience-eval/**'
@@ -37,6 +37,19 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v6
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        run: pnpm install --filter @automattic/jetpack-agent-experience-eval... --filter ./projects/github-actions/agent-experience-eval...
+
+      - name: Build packages
+        run: |
+          pnpm --filter @automattic/jetpack-agent-experience-eval build
+          pnpm --filter ./projects/github-actions/agent-experience-eval run build
 
       - name: Evaluate Agent Experience
         uses: ./projects/github-actions/agent-experience-eval

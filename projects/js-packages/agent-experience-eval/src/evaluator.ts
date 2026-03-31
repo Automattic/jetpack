@@ -72,8 +72,30 @@ export async function evaluate( options: EvaluateOptions ): Promise< EvaluateMet
 		throw new Error( `Evaluation failed. Stop reason: ${ response.stop_reason }` );
 	}
 
+	const result = response.parsed_output as EvaluationResult;
+
+	// Post-parse cross-field validation
+	const criteriaSum = Object.values( result.criteria ).reduce( ( sum, c ) => sum + c.score, 0 );
+	if ( result.score !== criteriaSum ) {
+		result.score = criteriaSum;
+	}
+
+	let expectedGrade: EvaluationResult[ 'grade' ] = 'F';
+	if ( criteriaSum >= 90 ) {
+		expectedGrade = 'A';
+	} else if ( criteriaSum >= 70 ) {
+		expectedGrade = 'B';
+	} else if ( criteriaSum >= 50 ) {
+		expectedGrade = 'C';
+	} else if ( criteriaSum >= 30 ) {
+		expectedGrade = 'D';
+	}
+	if ( result.grade !== expectedGrade ) {
+		result.grade = expectedGrade;
+	}
+
 	return {
-		result: response.parsed_output,
+		result,
 		discovery: files,
 		validation,
 		promptTruncated: truncated,
