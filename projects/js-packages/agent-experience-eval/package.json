@@ -23,8 +23,9 @@
 	"scripts": {
 		"build": "pnpm run clean && pnpm exec tsgo --pretty",
 		"clean": "rm -rf build/",
-		"test": "jest --config=tests/jest.config.cjs",
-		"test-coverage": "pnpm run test --coverage"
+		"test": "NODE_OPTIONS=--experimental-vm-modules jest --config=tests/jest.config.cjs",
+		"test-coverage": "pnpm run test --coverage",
+		"typecheck": "tsgo --noEmit"
 	},
 	"main": "./build/index.js",
 	"types": "./build/index.d.ts",
