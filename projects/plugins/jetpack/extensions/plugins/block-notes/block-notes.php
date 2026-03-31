@@ -51,15 +51,19 @@ function is_block_notes_enabled() {
 /**
  * Check if the site has a paid Jetpack AI plan.
  *
- * Uses the Jetpack AI product class to verify the site has an active
- * paid AI subscription (yearly, monthly, or bi-yearly) or a bundle
- * plan that includes the ai-assistant feature.
+ * Tries the My Jetpack product class first, then falls back to the
+ * Jetpack AI Helper which lives in the Jetpack plugin itself.
  *
  * @return bool
  */
 function has_paid_ai_plan() {
-	if ( ! class_exists( Jetpack_Ai::class ) ) {
-		return false;
+	$has_paid_plan = false;
+
+	if ( class_exists( Jetpack_Ai::class ) ) {
+		$has_paid_plan = Jetpack_Ai::has_paid_plan_for_product();
+	} elseif ( class_exists( 'Jetpack_AI_Helper' ) ) {
+		$feature_data  = \Jetpack_AI_Helper::get_ai_assistance_feature();
+		$has_paid_plan = ! is_wp_error( $feature_data ) && ! empty( $feature_data['has-feature'] );
 	}
 
 	/**
@@ -69,7 +73,7 @@ function has_paid_ai_plan() {
 	 *
 	 * @param bool $has_paid_plan Whether the site has a paid AI plan.
 	 */
-	return apply_filters( 'jetpack_block_notes_has_paid_ai_plan', Jetpack_Ai::has_paid_plan_for_product() );
+	return apply_filters( 'jetpack_block_notes_has_paid_ai_plan', $has_paid_plan );
 }
 
 /**
