@@ -1,18 +1,50 @@
-# agent-experience-eval
+# @automattic/jetpack-agent-experience-eval
 
-CLI tool to evaluate a repository's AI agent experience quality
+Evaluate a repository's AI agent experience quality. Scores CLAUDE.md, AGENTS.md, and other AI instruction files against a standardized rubric using the Claude API.
 
-## How to install agent-experience-eval
+Requires Node.js >= 22 and an Anthropic API key.
 
-### Installation From Git Repo
+## CLI Usage
 
-## Contribute
+```bash
+npx @automattic/jetpack-agent-experience-eval --repo /path/to/repo -o eval.json
+```
 
-## Get Help
+Options:
+- `-o, --output <path>` — Write JSON to file (default: stdout)
+- `--repo <path>` — Repository root (default: cwd)
+- `--model <model>` — Claude model (default: claude-sonnet-4-6)
+- `-h, --help` — Show help
 
-## Using this package in your WordPress plugin
+## Programmatic API
 
-If you plan on using this package in your WordPress plugin, we would recommend that you use [Jetpack Autoloader](https://packagist.org/packages/automattic/jetpack-autoloader) as your autoloader. This will allow for maximum interoperability with other plugins that use this package as well.
+```typescript
+import { evaluate } from '@automattic/jetpack-agent-experience-eval';
+
+const metadata = await evaluate({
+  repoRoot: '/path/to/repo',
+  apiKey: 'sk-ant-...',          // or set ANTHROPIC_API_KEY env var
+  model: 'claude-sonnet-4-6',   // optional
+});
+
+console.log(metadata.result.score);  // 0-100
+console.log(metadata.result.grade);  // A, B, C, D, F
+```
+
+### Lower-level helpers
+
+```typescript
+import { discoverFiles, validateCurrency, buildPrompt } from '@automattic/jetpack-agent-experience-eval';
+
+// Just find AI instruction files
+const files = await discoverFiles('/path/to/repo');
+
+// Validate referenced paths and commands
+const validation = await validateCurrency('/path/to/repo', files);
+
+// Build the prompt (without calling the API)
+const { prompt, truncated } = buildPrompt(files, validation);
+```
 
 ## Security
 
@@ -20,5 +52,4 @@ Need to report a security vulnerability? Go to [https://automattic.com/security/
 
 ## License
 
-agent-experience-eval is licensed under [GNU General Public License v2 (or later)](./LICENSE.txt)
-
+Licensed under [GNU General Public License v2 (or later)](./LICENSE.txt)
