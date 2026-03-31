@@ -43,6 +43,9 @@ const currentUser = data.currentUser || null;
 const connectionOwner = data.connectionOwner || null;
 const connectedPlugins = data.connectedPlugins || [];
 const siteDetails = data.siteDetails || null;
+const isWoaSite = Boolean( data.isWoaSite );
+const isVipSite = Boolean( data.isVipSite );
+const isManagedPlatformSite = isWoaSite || isVipSite;
 const CONNECTOR_LOGO = data.connectorLogoUrl
 	? createElement( 'img', { src: data.connectorLogoUrl, alt: '', width: 36, height: 36 } )
 	: null;
@@ -469,18 +472,21 @@ function ExpandedDetails( { isConnecting = false, onConnect = null } ) {
 						? __( 'Connected as owner', 'jetpack-connection' )
 						: __( 'Connected as', 'jetpack-connection' ),
 					user: currentUser,
-					actionSlot: createElement(
-						Button,
-						{
-							variant: 'link',
-							isDestructive: true,
-							isBusy: isUnlinking,
-							disabled: isUnlinking || isDisconnecting,
-							onClick: handleUnlinkUser,
-							className: 'wpcom-connector__inline-action',
-						},
-						__( 'Disconnect account', 'jetpack-connection' )
-					),
+					actionSlot:
+						isManagedPlatformSite && currentUser.isOwner
+							? null
+							: createElement(
+									Button,
+									{
+										variant: 'link',
+										isDestructive: true,
+										isBusy: isUnlinking,
+										disabled: isUnlinking || isDisconnecting,
+										onClick: handleUnlinkUser,
+										className: 'wpcom-connector__inline-action',
+									},
+									__( 'Disconnect account', 'jetpack-connection' )
+							  ),
 			  } )
 			: null,
 
@@ -529,19 +535,21 @@ function ExpandedDetails( { isConnecting = false, onConnect = null } ) {
 						__( 'Connection details', 'jetpack-connection' )
 				  )
 				: null,
-			createElement(
-				Button,
-				{
-					variant: 'secondary',
-					isDestructive: true,
-					size: 'compact',
-					isBusy: isDisconnecting,
-					disabled: isDisconnecting || isUnlinking,
-					onClick: handleDisconnect,
-					className: 'wpcom-connector__disconnect-site',
-				},
-				__( 'Disconnect site', 'jetpack-connection' )
-			)
+			isManagedPlatformSite
+				? null
+				: createElement(
+						Button,
+						{
+							variant: 'secondary',
+							isDestructive: true,
+							size: 'compact',
+							isBusy: isDisconnecting,
+							disabled: isDisconnecting || isUnlinking,
+							onClick: handleDisconnect,
+							className: 'wpcom-connector__disconnect-site',
+						},
+						__( 'Disconnect site', 'jetpack-connection' )
+				  )
 		),
 
 		// Modals (rendered but visually hidden until triggered).

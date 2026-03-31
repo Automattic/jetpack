@@ -11,6 +11,8 @@
 
 namespace Automattic\Jetpack\Connection;
 
+use Automattic\Jetpack\Status\Host;
+
 /**
  * WordPress.com connector card handler.
  *
@@ -148,6 +150,10 @@ class Wpcom_Connector {
 			$data['currentUser']     = static::get_current_user_data( $manager );
 			$data['connectionOwner'] = static::get_connection_owner_data( $manager );
 		}
+
+		$host              = new Host();
+		$data['isWoaSite'] = $host->is_woa_site();
+		$data['isVipSite'] = $host->is_vip_site();
 
 		return $data;
 	}
