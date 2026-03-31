@@ -63,6 +63,7 @@ class Connection_Health_Test_Base_Test extends TestCase {
 	 * Test adding a test with invalid callable fails.
 	 */
 	public function test_add_test_invalid_callable() {
+		// @phan-suppress-next-line PhanUndeclaredFunctionInCallable -- Intentionally invalid callable for testing.
 		$result = $this->base->add_test( 'not_a_callable_function_xyz', 'test_invalid' );
 		$this->assertInstanceOf( \WP_Error::class, $result );
 	}

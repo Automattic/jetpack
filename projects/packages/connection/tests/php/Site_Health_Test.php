@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Connection;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
 
@@ -56,8 +57,10 @@ class Site_Health_Test extends TestCase {
 	 * leak into other tests.
 	 *
 	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 */
 	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
 	public function test_maybe_register_defers_to_legacy_jetpack() {
 		// Simulate old Jetpack having loaded debug-functions.php which defines
 		// the global function jetpack_debugger_site_status_tests.
