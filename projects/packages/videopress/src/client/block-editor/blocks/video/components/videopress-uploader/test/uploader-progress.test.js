@@ -75,6 +75,7 @@ describe( 'usePosterAndTitleUpdate', () => {
 			videoPosterImageData,
 			isFinishingUpdate,
 			hasPosterEdits,
+			videoRef,
 		] = result.current;
 
 		return {
@@ -85,6 +86,7 @@ describe( 'usePosterAndTitleUpdate', () => {
 			videoPosterImageData,
 			isFinishingUpdate,
 			hasPosterEdits,
+			videoRef,
 		};
 	};
 
@@ -121,39 +123,76 @@ describe( 'usePosterAndTitleUpdate', () => {
 		} );
 	} );
 
-	it( 'awaits server poster URL for video frame selection', async () => {
-		const posterUrl = 'https://example.com/frame-poster.jpg';
-		mockUploadPoster.mockResolvedValue( { data: { poster: posterUrl } } );
+	it( 'captures frame client-side and uploads as poster on Done', async () => {
+		const posterUrl = 'https://example.com/wp-content/uploads/poster.jpg';
+		const fakeBlob = new Blob( [ 'fake' ], { type: 'image/jpeg' } );
+
+		// Mock the media upload response.
+		mockApiFetch.mockResolvedValue( { id: 99, source_url: posterUrl } );
 
 		const { result } = renderTestHook();
+		const { videoRef } = getHookValues( result );
+
+		// Simulate a video element with capturable dimensions.
+		videoRef.current = {
+			videoWidth: 640,
+			videoHeight: 360,
+		};
+
+		// Mock canvas and toBlob globally for captureVideoFrame.
+		const mockToBlob = jest.fn( cb => cb( fakeBlob ) );
+		const mockGetContext = jest.fn( () => ( { drawImage: jest.fn() } ) );
+		jest.spyOn( document, 'createElement' ).mockReturnValue( {
+			width: 0,
+			height: 0,
+			getContext: mockGetContext,
+			toBlob: mockToBlob,
+		} );
 
 		act( () => {
 			getHookValues( result ).handleVideoFrameSelected( 5000 );
 		} );
 
-		// The debounced useEffect fires immediately (mock), then
-		// handleDoneUpload reuses that promise instead of duplicating.
 		await act( async () => {
 			getHookValues( result ).handleDoneUpload();
+			await Promise.resolve();
+			await Promise.resolve();
 		} );
 
-		// Only one POST should have been made (from the useEffect).
-		expect( mockUploadPoster ).toHaveBeenCalledTimes( 1 );
-		expect( mockUploadPoster ).toHaveBeenCalledWith( {
-			at_time: 5000,
-			is_millisec: true,
-		} );
+		// Should upload via WP media API, not the VideoPress poster endpoint.
+		expect( mockApiFetch ).toHaveBeenCalledWith(
+			expect.objectContaining( {
+				path: '/wp/v2/media',
+				method: 'POST',
+			} )
+		);
+		expect( mockUploadPoster ).not.toHaveBeenCalled();
 		expect( onDone ).toHaveBeenCalledWith( {
 			...videoData,
 			poster: posterUrl,
 		} );
+
+		document.createElement.mockRestore();
 	} );
 
-	it( 'handles video frame selected at 0ms', async () => {
-		const posterUrl = 'https://example.com/zero-frame.jpg';
-		mockUploadPoster.mockResolvedValue( { data: { poster: posterUrl } } );
+	it( 'handles frame capture at 0ms', async () => {
+		const posterUrl = 'https://example.com/wp-content/uploads/poster.jpg';
+		const fakeBlob = new Blob( [ 'fake' ], { type: 'image/jpeg' } );
+
+		mockApiFetch.mockResolvedValue( { id: 99, source_url: posterUrl } );
 
 		const { result } = renderTestHook();
+		const { videoRef } = getHookValues( result );
+
+		videoRef.current = { videoWidth: 640, videoHeight: 360 };
+
+		const mockToBlob = jest.fn( cb => cb( fakeBlob ) );
+		jest.spyOn( document, 'createElement' ).mockReturnValue( {
+			width: 0,
+			height: 0,
+			getContext: jest.fn( () => ( { drawImage: jest.fn() } ) ),
+			toBlob: mockToBlob,
+		} );
 
 		act( () => {
 			getHookValues( result ).handleVideoFrameSelected( 0 );
@@ -161,16 +200,90 @@ describe( 'usePosterAndTitleUpdate', () => {
 
 		await act( async () => {
 			getHookValues( result ).handleDoneUpload();
+			await Promise.resolve();
+			await Promise.resolve();
 		} );
 
-		expect( mockUploadPoster ).toHaveBeenCalledWith( {
-			at_time: 0,
-			is_millisec: true,
-		} );
 		expect( onDone ).toHaveBeenCalledWith( {
 			...videoData,
 			poster: posterUrl,
 		} );
+
+		document.createElement.mockRestore();
+	} );
+
+	it( 'falls back to onDone without poster when frame capture fails', async () => {
+		mockApiFetch.mockRejectedValue( new Error( 'upload failed' ) );
+
+		const { result } = renderTestHook();
+		const { videoRef } = getHookValues( result );
+
+		videoRef.current = { videoWidth: 640, videoHeight: 360 };
+
+		jest.spyOn( document, 'createElement' ).mockReturnValue( {
+			width: 0,
+			height: 0,
+			getContext: jest.fn( () => ( { drawImage: jest.fn() } ) ),
+			toBlob: jest.fn( cb => cb( new Blob( [ 'fake' ] ) ) ),
+		} );
+
+		act( () => {
+			getHookValues( result ).handleVideoFrameSelected( 5000 );
+		} );
+
+		await act( async () => {
+			getHookValues( result ).handleDoneUpload();
+			await Promise.resolve();
+			await Promise.resolve();
+		} );
+
+		// Should fall back gracefully.
+		expect( onDone ).toHaveBeenCalledWith( videoData );
+
+		document.createElement.mockRestore();
+	} );
+
+	it( 'falls back to onDone without poster when toBlob returns null', async () => {
+		const { result } = renderTestHook();
+		const { videoRef } = getHookValues( result );
+
+		videoRef.current = { videoWidth: 640, videoHeight: 360 };
+
+		jest.spyOn( document, 'createElement' ).mockReturnValue( {
+			width: 0,
+			height: 0,
+			getContext: jest.fn( () => ( { drawImage: jest.fn() } ) ),
+			toBlob: jest.fn( cb => cb( null ) ),
+		} );
+
+		act( () => {
+			getHookValues( result ).handleVideoFrameSelected( 5000 );
+		} );
+
+		await act( async () => {
+			getHookValues( result ).handleDoneUpload();
+			await Promise.resolve();
+			await Promise.resolve();
+		} );
+
+		expect( onDone ).toHaveBeenCalledWith( videoData );
+
+		document.createElement.mockRestore();
+	} );
+
+	it( 'falls back to onDone without poster when videoRef is missing', async () => {
+		const { result } = renderTestHook();
+
+		// videoRef.current is null by default — don't set it.
+		act( () => {
+			getHookValues( result ).handleVideoFrameSelected( 5000 );
+		} );
+
+		await act( async () => {
+			getHookValues( result ).handleDoneUpload();
+		} );
+
+		expect( onDone ).toHaveBeenCalledWith( videoData );
 	} );
 
 	it( 'sets poster attribute via setAttributes when debounced update resolves', async () => {

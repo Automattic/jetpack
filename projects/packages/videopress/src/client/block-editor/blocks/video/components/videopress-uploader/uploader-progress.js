@@ -21,6 +21,26 @@ import UploadingEditor from './uploader-editor.js';
 
 const debug = debugFactory( 'videopress:block:uploader' );
 
+/**
+ * Captures the current frame from a video element as a JPEG blob.
+ *
+ * @param {HTMLVideoElement} video - The video element to capture from.
+ * @return {Promise<Blob>} A promise that resolves with the JPEG blob.
+ */
+const captureVideoFrame = video => {
+	const canvas = document.createElement( 'canvas' );
+	canvas.width = video.videoWidth;
+	canvas.height = video.videoHeight;
+	canvas.getContext( '2d' ).drawImage( video, 0, 0 );
+	return new Promise( ( resolve, reject ) =>
+		canvas.toBlob(
+			blob => ( blob ? resolve( blob ) : reject( new Error( 'toBlob failed' ) ) ),
+			'image/jpeg',
+			0.95
+		)
+	);
+};
+
 const usePosterAndTitleUpdate = ( { setAttributes, videoData, onDone } ) => {
 	const [ isFinishingUpdate, setIsFinishingUpdate ] = useState( false );
 	const [ videoFrameMs, setVideoFrameMs ] = useState( null );
@@ -99,6 +119,7 @@ const usePosterAndTitleUpdate = ( { setAttributes, videoData, onDone } ) => {
 	};
 
 	const posterPromiseRef = useRef( null );
+	const videoRef = useRef( null );
 
 	const debouncedSendUpdatePoster = useDebounce( posterData => {
 		posterPromiseRef.current = sendUpdatePoster( posterData );
@@ -151,22 +172,31 @@ const usePosterAndTitleUpdate = ( { setAttributes, videoData, onDone } ) => {
 			return;
 		}
 
-		// Frame selection: reuse the in-flight promise from the debounced
-		// useEffect (single request) rather than firing a duplicate POST.
-		// If the debounce hasn't fired yet, send the request now.
-		if ( 'undefined' !== typeof videoFrameMs && null !== videoFrameMs ) {
-			const posterPromise =
-				posterPromiseRef.current ||
-				sendUpdatePoster( { at_time: videoFrameMs, is_millisec: true } );
+		// Frame selection: capture the frame client-side from the video
+		// element and upload it to the WP Media Library as an attachment.
+		// The attachment URL is used directly as the poster, bypassing
+		// the VideoPress poster API. This avoids depending on server-side
+		// frame extraction which requires the video to be fully transcoded.
+		if ( 'undefined' !== typeof videoFrameMs && null !== videoFrameMs && videoRef.current ) {
+			captureVideoFrame( videoRef.current )
+				.then( blob => {
+					const formData = new FormData();
+					formData.append( 'file', blob, 'poster.jpg' );
 
-			posterPromise
-				.then( posterUrl => {
-					onDone( {
-						...videoData,
-						...( posterUrl ? { poster: posterUrl } : {} ),
+					return apiFetch( {
+						path: '/wp/v2/media',
+						method: 'POST',
+						body: formData,
 					} );
 				} )
-				.catch( () => {
+				.then( attachment => {
+					onDone( {
+						...videoData,
+						poster: attachment.source_url,
+					} );
+				} )
+				.catch( error => {
+					debug( 'Failed to capture/upload frame poster: %o', error );
 					onDone( videoData );
 				} );
 			return;
@@ -183,11 +213,8 @@ const usePosterAndTitleUpdate = ( { setAttributes, videoData, onDone } ) => {
 
 		if ( videoPosterImageData ) {
 			debouncedSendUpdatePoster( { poster_attachment_id: videoPosterImageData?.id } );
-		} else if ( 'undefined' !== typeof videoFrameMs && null !== videoFrameMs ) {
-			// Check against undefined and null instead of bool to allow 0ms selection.
-			debouncedSendUpdatePoster( { at_time: videoFrameMs, is_millisec: true } );
 		}
-	}, [ videoPosterImageData, videoFrameMs, guid, isFinishingUpdate ] );
+	}, [ videoPosterImageData, guid, isFinishingUpdate ] );
 
 	const hasPosterEdits = videoPosterImageData !== null || videoFrameMs !== null;
 
@@ -199,6 +226,7 @@ const usePosterAndTitleUpdate = ( { setAttributes, videoData, onDone } ) => {
 		videoPosterImageData,
 		isFinishingUpdate,
 		hasPosterEdits,
+		videoRef,
 	];
 };
 
@@ -223,6 +251,7 @@ const UploaderProgress = ( {
 		videoPosterImageData,
 		isFinishingUpdate,
 		hasPosterEdits,
+		videoRef,
 	] = usePosterAndTitleUpdate( {
 		setAttributes,
 		videoData: { ...uploadedVideoData, title: attributes.title },
@@ -273,6 +302,7 @@ const UploaderProgress = ( {
 				onRemovePoster={ handleRemovePoster }
 				onVideoFrameSelected={ handleVideoFrameSelected }
 				videoPosterImageData={ videoPosterImageData }
+				videoRef={ videoRef }
 			/>
 
 			<div className="videopress-uploader-progress">
