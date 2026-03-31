@@ -2,10 +2,6 @@ name: Gardening
 on:
   pull_request_target: # When a PR is opened, edited, updated, closed, or a label is added.
     types: [opened, reopened, synchronize, edited, labeled, closed ]
-  issues: # For auto-triage of issues.
-    types: [opened, reopened, labeled, edited, closed]
-  issue_comment: # To gather support references in issue comments.
-    types: [created]
   push:
     branches:
       - trunk # Every time a PR is merged to trunk.
@@ -62,12 +58,8 @@ jobs:
 
       - name: Wait for prior instances of the workflow to finish
         uses: ./.github/actions/turnstile
-        with:
-          # Split issues and issue_comment triggers from the rest. Otherwise a lot of issue work can result in pushes to trunk timing out.
-          events:        ${{ case( github.event_name == 'issues' || github.event_name == 'issue_comment', 'issues issue_comment', '' ) }}
-          ignore-events: ${{ case( github.event_name == 'issues' || github.event_name == 'issue_comment', '', 'issues issue_comment' ) }}
 
-      - name: "Run the action (assign, manage milestones, for issues and PRs)"
+      - name: "Run the action (assign, manage milestones, for PRs)"
         uses: ./projects/github-actions/repo-gardening
         env:
           PR_WORKSPACE: ${{ github.workspace }}${{ case( github.event_name == 'pull_request_target', '/pr-checkout', '' ) }}
