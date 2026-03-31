@@ -51,19 +51,18 @@ function is_block_notes_enabled() {
 /**
  * Check if the site has a paid Jetpack AI plan.
  *
- * Tries the My Jetpack product class first, then falls back to the
- * Jetpack AI Helper which lives in the Jetpack plugin itself.
+ * On WordPress.com, uses the lightweight wpcom_site_has_feature() lookup.
+ * On self-hosted and Atomic sites, uses the My Jetpack product class.
  *
  * @return bool
  */
 function has_paid_ai_plan() {
 	$has_paid_plan = false;
 
-	if ( class_exists( Jetpack_Ai::class ) ) {
+	if ( defined( 'IS_WPCOM' ) && IS_WPCOM && function_exists( 'wpcom_site_has_feature' ) ) {
+		$has_paid_plan = wpcom_site_has_feature( 'ai-assistant', get_current_blog_id() );
+	} elseif ( class_exists( Jetpack_Ai::class ) ) {
 		$has_paid_plan = Jetpack_Ai::has_paid_plan_for_product();
-	} elseif ( class_exists( 'Jetpack_AI_Helper' ) ) {
-		$feature_data  = \Jetpack_AI_Helper::get_ai_assistance_feature();
-		$has_paid_plan = ! is_wp_error( $feature_data ) && ! empty( $feature_data['has-feature'] );
 	}
 
 	/**
