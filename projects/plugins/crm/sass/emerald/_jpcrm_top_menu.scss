@@ -1,47 +1,51 @@
 #jpcrm-top-menu {
-	padding: 20px 20px 0 20px;
+	padding: 16px 24px 0;
 	display: block;
 	background-color: #fff;
 
-	/* handle top menu logo cube */
+	/* logo area — keeps .logo-cube class for backward compatibility */
 	.logo-cube {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		height: 24px;
 		cursor: pointer;
-		height: 40px;
-		width: 200px;
-		line-height: 1;
-		transition: transform 0.33s;
-		transform-style: preserve-3d;
 
-		&:hover {
-			transform: rotateX(90deg); /* Text bleed at 90º */
+		.jpcrm-header-logo__icon {
+			height: 20px;
+			width: 20px;
+			flex-shrink: 0;
 		}
 
-		.cube-side {
-			height: 40px;
-			background-color: #fff;
-			text-align: center;
+		.jpcrm-header-logo__text {
+			font-family: -apple-system, system-ui, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+			font-size: 15px;
+			font-weight: 499;
+			line-height: 28px;
+			color: #1d2327;
+		}
 
-			&.side1 {
-				transform: translateZ(20px);
+		.jpcrm-fullscreen-toggle {
+			opacity: 0;
+			font-size: 17px;
+			color: rgba(0, 0, 0, 0.4);
+			transition: opacity 0.2s;
+			margin: 0;
+		}
 
-				img {
-					max-width: 100%;
-					max-height: 40px;
-				}
-			}
-
-			&.side2 {
-				font-size: 40px;
-				transform: rotateX(-90deg) translateZ(-20px);
-			}
+		&:hover .jpcrm-fullscreen-toggle {
+			opacity: 1;
 		}
 	}
 
 	menu-bar {
-		margin-top: 10px;
+		margin-top: 8px;
+		margin-left: -1em;
+		padding-bottom: 0;
 		display: flex;
 		justify-content: space-between;
 		align-items: end;
+		border-bottom: 1px solid #dcdcde;
 
 		menu-section {
 
