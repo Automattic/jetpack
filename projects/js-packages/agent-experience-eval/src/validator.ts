@@ -42,6 +42,10 @@ function extractReferencedPaths( content: string ): string[] {
 		if ( candidate.startsWith( 'http' ) || candidate.startsWith( '//' ) ) {
 			continue;
 		}
+		// Skip path traversal attempts and absolute paths
+		if ( candidate.includes( '..' ) || candidate.startsWith( '/' ) ) {
+			continue;
+		}
 		// Skip package names like @scope/pkg
 		if ( candidate.startsWith( '@' ) && ! candidate.includes( '/' + '/' ) ) {
 			// Allow if it has a second slash (e.g., @scope/pkg/src/file.ts)
@@ -66,33 +70,39 @@ function extractReferencedPaths( content: string ): string[] {
 function extractReferencedCommands( content: string ): string[] {
 	const commands = new Set< string >();
 
-	// Match: pnpm run X, npm run X, yarn run X, pnpm X, npm X
-	const npmPattern = /(?:pnpm|npm|yarn)\s+(?:run\s+)?([a-zA-Z0-9_:-]+)/g;
+	const NON_SCRIPT_SUBCOMMANDS = new Set( [
+		'install',
+		'ci',
+		'init',
+		'publish',
+		'pack',
+		'link',
+		'exec',
+		'dlx',
+		'add',
+		'remove',
+	] );
+
+	// Match: pnpm run X, npm run X, yarn run X
+	// Also: pnpm X, npm X — but skip flags (--filter etc.) and non-script subcommands
+	const npmPattern = /(?:pnpm|npm|yarn)\s+(?:run\s+)?(?:--\S+\s+)*([a-zA-Z][a-zA-Z0-9_:-]*)/g;
 	for ( const match of content.matchAll( npmPattern ) ) {
 		const cmd = match[ 1 ];
-		// Skip common subcommands that aren't scripts
-		if (
-			[
-				'install',
-				'ci',
-				'init',
-				'publish',
-				'pack',
-				'link',
-				'exec',
-				'dlx',
-				'add',
-				'remove',
-			].includes( cmd )
-		) {
-			continue;
+		if ( ! NON_SCRIPT_SUBCOMMANDS.has( cmd ) ) {
+			commands.add( cmd );
 		}
-		commands.add( cmd );
 	}
 
-	// Match: make X, composer X, jp X (Jetpack monorepo CLI)
-	const makePattern = /(?:make|composer|jp|jetpack)\s+([a-zA-Z0-9_:-]+)/g;
+	// Match: make X, composer X
+	const makePattern = /(?:make|composer)\s+([a-zA-Z0-9_:-]+)/g;
 	for ( const match of content.matchAll( makePattern ) ) {
+		commands.add( match[ 1 ] );
+	}
+
+	// Match: jp X, jetpack X — these are CLI tool commands, not script names.
+	// We extract them for reporting but they can't be validated against manifests.
+	const jpPattern = /(?:jp|jetpack)\s+([a-zA-Z0-9_:-]+)/g;
+	for ( const match of content.matchAll( jpPattern ) ) {
 		commands.add( match[ 1 ] );
 	}
 
