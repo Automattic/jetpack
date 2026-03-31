@@ -28,17 +28,32 @@ const debug = debugFactory( 'videopress:block:uploader' );
  * @return {Promise<Blob>} A promise that resolves with the JPEG blob.
  */
 const captureVideoFrame = video => {
-	const canvas = document.createElement( 'canvas' );
-	canvas.width = video.videoWidth;
-	canvas.height = video.videoHeight;
-	canvas.getContext( '2d' ).drawImage( video, 0, 0 );
-	return new Promise( ( resolve, reject ) =>
+	return new Promise( ( resolve, reject ) => {
+		const canvas = document.createElement( 'canvas' );
+		canvas.width = video.videoWidth;
+		canvas.height = video.videoHeight;
+
+		const context = canvas.getContext( '2d' );
+		if ( ! context ) {
+			reject( new Error( 'Could not get 2D context for canvas' ) );
+			return;
+		}
+
+		try {
+			context.drawImage( video, 0, 0 );
+		} catch ( error ) {
+			reject(
+				error instanceof Error ? error : new Error( 'Failed to draw video frame to canvas' )
+			);
+			return;
+		}
+
 		canvas.toBlob(
 			blob => ( blob ? resolve( blob ) : reject( new Error( 'toBlob failed' ) ) ),
 			'image/jpeg',
 			0.95
-		)
-	);
+		);
+	} );
 };
 
 const usePosterAndTitleUpdate = ( { setAttributes, videoData, onDone } ) => {
