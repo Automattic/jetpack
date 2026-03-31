@@ -456,7 +456,7 @@ class Wpcom_Connector_Test extends TestCase {
 	 * Test that store_auth_error ignores non-WP_Error values.
 	 */
 	public function test_store_auth_error_ignores_non_wp_error() {
-		Wpcom_Connector::store_auth_error( 'not an error' );
+		Wpcom_Connector::store_auth_error( 'not an error' ); // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- intentionally passing wrong type to test the guard.
 
 		$this->assertFalse( get_transient( 'wpcom_connector_auth_error_' . $this->admin_id ) );
 	}
