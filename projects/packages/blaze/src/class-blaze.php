@@ -138,80 +138,29 @@ class Blaze {
 		$css_prefix = apply_filters( 'jetpack_blaze_dashboard_css_prefix', 'jp-blaze' );
 
 		$parent_slug     = self::get_menu_parent();
-		$is_simple_site  = defined( 'IS_WPCOM' ) && IS_WPCOM;
-		$admin_page      = $is_simple_site ? 'tools.php' : 'admin.php';
-		$blaze_dashboard = new Blaze_Dashboard( $admin_page, $menu_slug, $css_prefix );
+		$blaze_dashboard = new Blaze_Dashboard( 'admin.php', $menu_slug, $css_prefix );
 
 		if ( self::is_dashboard_enabled() ) {
 			if ( self::has_site_campaigns() ) {
-				if ( $is_simple_site ) {
-					// On Simple Sites, add_menu_page with a slug produces
-					// admin.php?page=slug which the WPCOM bridge cannot route.
-					// Register the page under tools.php (routable) and add a
-					// visible top-level menu pointing to it.
-					$page_suffix = add_submenu_page(
-						'tools.php',
-						esc_attr( $menu_label ),
-						$menu_label,
-						'manage_options',
-						$menu_slug,
-						array( $blaze_dashboard, 'render' ),
-						1
-					);
-					remove_submenu_page( 'tools.php', $menu_slug );
-					add_menu_page(
-						esc_attr( $menu_label ),
-						$menu_label,
-						'manage_options',
-						admin_url( 'tools.php?page=' . $menu_slug ),
-						null, // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal
-						'dashicons-megaphone',
-						30
-					);
-				} else {
-					$page_suffix = add_menu_page(
-						esc_attr( $menu_label ),
-						$menu_label,
-						'manage_options',
-						$menu_slug,
-						array( $blaze_dashboard, 'render' ),
-						'dashicons-megaphone',
-						30
-					);
-				}
+				$page_suffix = add_menu_page(
+					esc_attr( $menu_label ),
+					$menu_label,
+					'manage_options',
+					$menu_slug,
+					array( $blaze_dashboard, 'render' ),
+					'dashicons-megaphone',
+					30
+				);
 			} else {
-				if ( $is_simple_site ) {
-					// Same approach: register routable page, link from Jetpack.
-					$page_suffix = add_submenu_page(
-						'tools.php',
-						esc_attr( $menu_label ),
-						$menu_label,
-						'manage_options',
-						$menu_slug,
-						array( $blaze_dashboard, 'render' ),
-						1
-					);
-					remove_submenu_page( 'tools.php', $menu_slug );
-					add_submenu_page(
-						$parent_slug,
-						esc_attr( $menu_label ),
-						$menu_label,
-						'manage_options',
-						admin_url( 'tools.php?page=' . $menu_slug ),
-						null, // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal
-						1
-					);
-				} else {
-					$page_suffix = add_submenu_page(
-						$parent_slug,
-						esc_attr( $menu_label ),
-						$menu_label,
-						'manage_options',
-						$menu_slug,
-						array( $blaze_dashboard, 'render' ),
-						1
-					);
-				}
+				$page_suffix = add_submenu_page(
+					$parent_slug,
+					esc_attr( $menu_label ),
+					$menu_label,
+					'manage_options',
+					$menu_slug,
+					array( $blaze_dashboard, 'render' ),
+					1
+				);
 			}
 			add_action( 'load-' . $page_suffix, array( $blaze_dashboard, 'admin_init' ) );
 		} elseif ( ( new Host() )->is_wpcom_platform() ) {
@@ -353,12 +302,6 @@ class Blaze {
 			&& isset( $_GET['page'] ) // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			&& 'advertising' === $_GET['page'] // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		) {
-			// On Simple Sites the dashboard still uses tools.php as its base,
-			// so there is nothing to redirect — the URL is already correct.
-			if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-				return;
-			}
-
 			/** This filter is documented in Blaze::enable_blaze_menu() */
 			$menu_slug = apply_filters( 'jetpack_blaze_menu_slug', 'advertising' );
 			wp_safe_redirect( admin_url( 'admin.php?page=' . $menu_slug ), 302 );
@@ -532,9 +475,7 @@ class Blaze {
 		if ( self::is_dashboard_enabled() ) {
 			/** This filter is documented in Blaze::enable_blaze_menu() */
 			$menu_slug = apply_filters( 'jetpack_blaze_menu_slug', 'advertising' );
-			// Simple Sites use tools.php; all other installations use admin.php.
-			$admin_page = ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ? 'tools.php' : 'admin.php';
-			$admin_url  = admin_url( $admin_page . '?page=' . $menu_slug );
+			$admin_url = admin_url( 'admin.php?page=' . $menu_slug );
 			$hostname   = wp_parse_url( get_site_url(), PHP_URL_HOST );
 			$blaze_url  = sprintf(
 				'%1$s#!/advertising/posts/promote/post-%2$s/%3$s',
