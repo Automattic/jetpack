@@ -17,7 +17,7 @@ const FileRule = require( './webpack/file-rule' );
 const MiniCSSWithRTLWebpackPlugin = require( './webpack/mini-css-with-rtl' );
 const PnpmDeterministicModuleIdsWebpackPlugin = require( './webpack/pnpm-deterministic-ids.js' );
 const TerserPlugin = require( './webpack/terser' );
-const TranspileRule = require( './webpack/transpile-rule' );
+const BaseTranspileRule = require( './webpack/transpile-rule' );
 
 const CssMinimizerPlugin = options => new CssMinimizerWebpackPlugin( options );
 
@@ -60,6 +60,21 @@ const i18nFilterFunction = file => {
 	const i = file.lastIndexOf( '/node_modules/' ) + 14;
 	return i < 14 || file.startsWith( '@automattic/', i );
 };
+
+/**
+ * Generate i18n function variants for replace-textdomain plugin compatibility.
+ *
+ * @param {string} baseFn - Base function name (e.g., '__', '_x', '_n').
+ * @param {number} value  - Textdomain argument position (1-based index).
+ * @return {object} Object mapping function names to textdomain positions.
+ */
+const generateI18nVariants = ( baseFn, value ) =>
+	Object.fromEntries(
+		Array.from( { length: 100 }, ( _, i ) => [
+			`${ baseFn }${ i || '' }`, // empty suffix for 0
+			value,
+		] )
+	);
 
 const getUniqueName = () => {
 	let dir = process.cwd(),
@@ -250,6 +265,39 @@ const PnpmDeterministicModuleIdsPlugin = options => [
 ];
 
 const WebpackRtlPlugin = options => [ new WebpackRTLWebpackPlugin( options ) ];
+
+const TranspileRule = ( options = {} ) => {
+	const includeNodeModules = options.includeNodeModules || [];
+	const shouldRewriteWordPressUi = includeNodeModules.some(
+		module => module === '@wordpress/ui' || module.startsWith( '@wordpress/ui/' )
+	);
+
+	if ( ! shouldRewriteWordPressUi ) {
+		return BaseTranspileRule( options );
+	}
+
+	const textdomainPlugin = [
+		require.resolve( '@automattic/babel-plugin-replace-textdomain' ),
+		{
+			textdomain: loadTextDomainFromComposerJson(),
+			functions: {
+				...generateI18nVariants( '__', 1 ),
+				...generateI18nVariants( '_x', 2 ),
+				...generateI18nVariants( '_n', 3 ),
+			},
+		},
+	];
+
+	const existingPlugins = options.babelOpts?.plugins || [];
+
+	return BaseTranspileRule( {
+		...options,
+		babelOpts: {
+			...options.babelOpts,
+			plugins: [ ...existingPlugins, textdomainPlugin ],
+		},
+	} );
+};
 
 const StandardPlugins = ( options = {} ) => {
 	if ( typeof options.ForkTSCheckerPlugin === 'undefined' ) {
