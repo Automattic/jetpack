@@ -10,6 +10,7 @@ const MSG_SYNC = 0x00;
 const MSG_AWARENESS = 0x01;
 const RECONNECT_BASE_DELAY_MS = 1000;
 const RECONNECT_MAX_DELAY_MS = 30 * 1000;
+const MAX_RECONNECT_ATTEMPTS = 5;
 const PINGHUB_MANAGER_ORIGIN = 'pinghub-manager';
 
 interface RegisterRoomOptions {
@@ -44,6 +45,7 @@ class PingHubConnection {
 	private syncStep1RepliedTo = new Set< number >();
 	public reconnectTimer: ReturnType< typeof setTimeout > | null = null;
 	public reconnectDelay = RECONNECT_BASE_DELAY_MS;
+	public reconnectAttempts = 0;
 
 	public constructor( options: RegisterRoomOptions ) {
 		this.room = options.room;
@@ -174,6 +176,11 @@ class PingHubConnection {
 		if ( this.reconnectTimer !== null ) {
 			return;
 		}
+		if ( this.reconnectAttempts >= MAX_RECONNECT_ATTEMPTS ) {
+			this.onStatusChange( { status: 'disconnected' } );
+			return;
+		}
+		this.reconnectAttempts++;
 		this.reconnectTimer = setTimeout( () => {
 			this.reconnectTimer = null;
 			if ( rooms.has( this.room ) ) {
@@ -193,6 +200,7 @@ class PingHubConnection {
 		this.connected = true;
 		this.syncStep1RepliedTo.clear();
 		this.reconnectDelay = RECONNECT_BASE_DELAY_MS;
+		this.reconnectAttempts = 0;
 		this.onStatusChange( { status: 'connected' } );
 
 		this.sendSyncStep1();
@@ -385,6 +393,7 @@ function handleVisibilityChange(): void {
 			connection.reconnectTimer = null;
 		}
 		connection.reconnectDelay = RECONNECT_BASE_DELAY_MS;
+		connection.reconnectAttempts = 0;
 		connection.connect();
 	}
 }
