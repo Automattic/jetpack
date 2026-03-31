@@ -275,12 +275,19 @@ function zeroBSCRM_admin_top_menu( $branding = 'zero-bs-crm', $page = 'dash' ) {
 		<!---  // mobile only menu -->
 	<div id="jpcrm-top-menu">
 		<div class="logo-cube <?php echo esc_attr( $admin_menu_state ); ?>">
-			<div class="cube-side side1">
-				<img alt="Jetpack CRM logo" src="<?php echo esc_url( jpcrm_get_logo( false ) ); ?>">
-			</div>
-			<div class="cube-side side2">
-				<i class="expand icon fa-flip-horizontal"></i>
-			</div>
+			<?php
+			$header_icon = '<img alt="" src="' . esc_url( plugins_url( '/i/icon-32.png', ZBS_ROOTFILE ) ) . '" width="20" height="20" class="jpcrm-header-logo__icon" />';
+			##WLREMOVE
+			$header_icon = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="20" height="20" class="jpcrm-header-logo__icon" aria-hidden="true" focusable="false">'
+				. '<path fill="#069e08" d="M16,0C7.2,0,0,7.2,0,16s7.2,16,16,16s16-7.2,16-16S24.8,0,16,0z M15,19H7l8-16V19z M17,29V13h8L17,29z"/>'
+				. '</svg>';
+			##/WLREMOVE
+			echo $header_icon; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Hardcoded HTML with pre-escaped attributes.
+			##WLREMOVE
+			?>
+			<span class="jpcrm-header-logo__text"><?php esc_html_e( 'CRM', 'zero-bs-crm' ); ?></span>
+			<?php ##/WLREMOVE ?>
+			<i class="expand icon jpcrm-fullscreen-toggle" title="<?php esc_attr_e( 'Toggle full screen', 'zero-bs-crm' ); ?>"></i>
 		</div>
 
 		<menu-bar>
