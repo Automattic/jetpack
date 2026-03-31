@@ -22,12 +22,10 @@ const JetpackFooter: FC< JetpackFooterProps > = ( { className, menu, ...otherPro
 		items = [
 			{
 				label: __( 'Products', 'jetpack-components' ),
-				title: __( 'Jetpack products', 'jetpack-components' ),
 				href: getAdminUrl( 'admin.php?page=my-jetpack#/products' ),
 			},
 			{
 				label: __( 'Help', 'jetpack-components' ),
-				title: '',
 				href: getAdminUrl( 'admin.php?page=my-jetpack#/help' ),
 			},
 			...items,
@@ -58,17 +56,12 @@ const JetpackFooter: FC< JetpackFooterProps > = ( { className, menu, ...otherPro
 			<Stack render={ <ul /> } direction="row" gap="lg" wrap="wrap">
 				{ items.map( item => {
 					const isButton = item.role === 'button';
-					const isExternalLink = ! isButton && item.target === '_blank';
-
-					const menuItemClassName = clsx( 'jetpack-footer__menu-item', {
-						'is-external': isExternalLink,
-					} );
 
 					return (
 						<li key={ item.label }>
 							<Text
 								variant="body-sm"
-								className={ menuItemClassName }
+								className="jetpack-footer__menu-item"
 								render={
 									isButton ? (
 										<Link
@@ -87,7 +80,6 @@ const JetpackFooter: FC< JetpackFooterProps > = ( { className, menu, ...otherPro
 											variant="default"
 											href={ item.href || '' }
 											title={ item.title || '' }
-											openInNewTab={ isExternalLink }
 											role={ item.role }
 											onClick={ item.onClick || undefined }
 											onKeyDown={ item.onKeyDown || undefined }

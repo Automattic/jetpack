@@ -13,13 +13,8 @@ describe( 'JetpackFooter', () => {
 				href: '/',
 			},
 			{
-				label: 'External link',
-				href: '/',
-				target: '_blank',
-			},
-			{
 				label: 'Button link',
-				href: '/',
+				onClick: () => {},
 				role: 'button',
 			},
 		];
@@ -60,36 +55,20 @@ describe( 'JetpackFooter', () => {
 		it( 'should render the Automattic logo', () => {
 			render( <JetpackFooter /> );
 
-			const element = screen.getByLabelText( 'An Automattic Airline', { selector: 'a' } );
+			const element = screen.getByText( 'An Automattic Airline', {
+				selector: '#jp-automattic-byline-logo-title',
+			} );
 
 			expect( element ).toBeInTheDocument();
-		} );
-
-		it( 'should render a list', () => {
-			render( <JetpackFooter menu={ menu } /> );
-
-			const element = screen.getByRole( 'list' );
-
-			expect( element ).toBeInTheDocument();
-			// eslint-disable-next-line testing-library/no-node-access
-			expect( element.children ).toHaveLength( 2 + menu.length ); // 2 logos
 		} );
 
 		it( 'should render the links', () => {
 			render( <JetpackFooter menu={ menu } /> );
-			const externalLinkLabel = menu[ 1 ].label + '(opens in a new tab)';
 
 			const link = screen.getByRole( 'link', { name: menu[ 0 ].label } );
-			const externalLink = screen.getByRole( 'link', { name: externalLinkLabel } );
-			const button = screen.getByRole( 'button', { name: menu[ 2 ].label } );
+			const button = screen.getByRole( 'button', { name: menu[ 1 ].label } );
 
 			expect( link ).toBeInTheDocument();
-
-			expect( externalLink ).toBeInTheDocument();
-			expect( externalLink ).toHaveAttribute( 'target', '_blank' );
-			expect( externalLink ).toHaveAttribute( 'rel', 'noopener noreferrer' );
-			expect( externalLink ).toContainHTML( 'svg' );
-
 			expect( button ).toBeInTheDocument();
 			expect( button ).toHaveAttribute( 'tabindex', '0' );
 		} );
