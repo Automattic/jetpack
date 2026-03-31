@@ -466,8 +466,8 @@ describe( 'ConversionFunnelChart', () => {
 		it( 'enables transitions once color palette is resolved', () => {
 			render( <ConversionFunnelChart { ...defaultProps } /> );
 
-			// After render, layout effects have run so palette is resolved
-			// and the __animated classes should be applied to funnel bars
+			// After render, effects have run (via useEffect in GlobalChartsProvider),
+			// so the palette is resolved and the __animated classes are applied to funnel bars
 			const bars = screen.getAllByRole( 'button' );
 			expect( bars[ 0 ] ).toHaveClass( 'bar-container__animated' );
 		} );
