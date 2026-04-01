@@ -45,6 +45,7 @@ class Wpcom_Connector {
 
 		add_action( 'wp_connectors_init', array( static::class, 'register_connector' ), 20 );
 		add_action( 'admin_enqueue_scripts', array( static::class, 'enqueue_script_module' ) );
+		add_action( 'jetpack_client_authorize_error', array( static::class, 'store_auth_error' ) );
 	}
 
 	/**
@@ -154,6 +155,11 @@ class Wpcom_Connector {
 		$host              = new Host();
 		$data['isWoaSite'] = $host->is_woa_site();
 		$data['isVipSite'] = $host->is_vip_site();
+
+		$auth_error = static::consume_auth_error();
+		if ( $auth_error ) {
+			$data['authError'] = $auth_error;
+		}
 
 		return $data;
 	}
@@ -298,6 +304,50 @@ class Wpcom_Connector {
 		}
 
 		return 'options-connectors.php';
+	}
+
+	/**
+	 * Store an authorization error in a short-lived transient.
+	 *
+	 * Hooked to `jetpack_client_authorize_error` which fires when
+	 * the auth webhook fails. The transient is read on the next
+	 * Connectors page load so the JS card can display the error.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param \WP_Error $error Authorization error.
+	 */
+	public static function store_auth_error( $error ) {
+		if ( is_wp_error( $error ) ) {
+			$user_id = get_current_user_id();
+			if ( $user_id ) {
+				set_transient(
+					'wpcom_connector_auth_error_' . $user_id,
+					$error->get_error_message(),
+					60
+				);
+			}
+		}
+	}
+
+	/**
+	 * Read and delete a stored authorization error for the current user.
+	 *
+	 * @return string|false Error message or false if none.
+	 */
+	private static function consume_auth_error() {
+		$user_id = get_current_user_id();
+		if ( ! $user_id ) {
+			return false;
+		}
+
+		$key   = 'wpcom_connector_auth_error_' . $user_id;
+		$error = get_transient( $key );
+		if ( false !== $error ) {
+			delete_transient( $key );
+		}
+
+		return $error;
 	}
 
 	/**
