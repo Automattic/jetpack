@@ -338,7 +338,7 @@ class Admin_Menu {
 			$menu_title,
 			'manage_options',
 			esc_url( $upgrade_url ),
-			'__return_null',
+			null, // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 			999
 		);
 
