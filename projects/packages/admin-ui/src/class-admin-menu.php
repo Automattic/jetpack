@@ -284,6 +284,12 @@ class Admin_Menu {
 		// Check the active plan - use the is_free field or product_slug.
 		$plan = get_option( 'jetpack_active_plan', array() );
 
+		// Back-compat: older plan payloads use class to indicate paid plans.
+		if ( isset( $plan['class'] ) && 'free' !== $plan['class'] ) {
+			$is_free = false;
+			return $is_free;
+		}
+
 		// If the plan explicitly says it's not free, trust that.
 		if ( isset( $plan['is_free'] ) && false === $plan['is_free'] ) {
 			$is_free = false;
