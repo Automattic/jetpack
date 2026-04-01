@@ -201,6 +201,7 @@ class PingHubConnection {
 		this.syncStep1RepliedTo.clear();
 		this.reconnectDelay = RECONNECT_BASE_DELAY_MS;
 		this.reconnectAttempts = 0;
+		bridge?.resetJwtState();
 		this.onStatusChange( { status: 'connected' } );
 
 		this.sendSyncStep1();
@@ -384,6 +385,7 @@ function handleVisibilityChange(): void {
 		return;
 	}
 	isUnloadPending = false;
+	bridge?.resetJwtState();
 	for ( const [ , connection ] of rooms ) {
 		if ( connection.connected ) {
 			continue;

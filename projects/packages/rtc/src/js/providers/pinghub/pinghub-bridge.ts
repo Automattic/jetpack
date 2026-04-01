@@ -328,6 +328,18 @@ export class PingHubBridge {
 	}
 
 	/**
+	 * Reset JWT backoff state so the next fetch attempt is not suppressed.
+	 *
+	 * Called by the manager when reconnect state is reset (e.g. on tab
+	 * visibility change or successful connection).
+	 */
+	resetJwtState(): void {
+		this.jwtFetchFailures = 0;
+		this.jwtBackoffDelay = JWT_BACKOFF_BASE_MS;
+		this.jwtBackoffUntil = 0;
+	}
+
+	/**
 	 * Fetch a short-lived JWT for PingHub authentication via the REST endpoint.
 	 * Caches the token for 1 minute to avoid redundant requests on reconnects.
 	 *
@@ -351,9 +363,7 @@ export class PingHubBridge {
 			} );
 			this.cachedJwt = response?.token ?? null;
 			this.cachedJwtTimestamp = Date.now();
-			this.jwtFetchFailures = 0;
-			this.jwtBackoffDelay = JWT_BACKOFF_BASE_MS;
-			this.jwtBackoffUntil = 0;
+			this.resetJwtState();
 			pixel( 'pinghub.rtc.jwt_fetch', Date.now() - start, 'ms' );
 			return this.cachedJwt;
 		} catch {
@@ -400,7 +410,7 @@ export class PingHubBridge {
 			this.connectingWaiters.delete( room );
 			const err = new Error( 'PingHub JWT fetch failed' );
 			waiters.splice( 0 ).forEach( ( { reject } ) => reject( err ) );
-			return;
+			return Promise.reject( err );
 		}
 
 		const wsUrl = this.fullPath( room ) + '?jwt=' + encodeURIComponent( jwt );
