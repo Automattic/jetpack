@@ -3641,11 +3641,11 @@ importers:
   projects/packages/rtc:
     dependencies:
       '@wordpress/api-fetch':
-        specifier: 7.41.0
-        version: 7.41.0
+        specifier: 7.42.0
+        version: 7.42.0
       '@wordpress/hooks':
-        specifier: 4.41.0
-        version: 4.41.0
+        specifier: 4.42.0
+        version: 4.42.0
       lib0:
         specifier: 0.2.99
         version: 0.2.99
@@ -3660,8 +3660,8 @@ importers:
         specifier: workspace:*
         version: link:../../js-packages/webpack-config
       '@wordpress/browserslist-config':
-        specifier: 6.41.0
-        version: 6.41.0
+        specifier: 6.42.0
+        version: 6.42.0
       webpack:
         specifier: 5.105.2
         version: 5.105.2(webpack-cli@6.0.1)
@@ -10488,10 +10488,6 @@ packages:
     peerDependencies:
       react: ^18.0.0
 
-  '@wordpress/api-fetch@7.41.0':
-    resolution: {integrity: sha512-oZ2HWCEa5v32Rvrgqck8ePYXPsJ/3KEdZjfthXQrt/U/D5LIl7AyFZvdqnV3OxHL6tj8fvFOEzB71OHGeV7H9A==}
-    engines: {node: '>=18.12.0', npm: '>=8.19.2'}
-
   '@wordpress/api-fetch@7.42.0':
     resolution: {integrity: sha512-Y6WI4ZovoKNaSz6TTtZwc80RrgIoGc8lxDLi/KCHAr4Nyxu6YaSfLPtHsaqDmrggdZuce7KHx0T/oyHKtDu0Aw==}
     engines: {node: '>=18.12.0', npm: '>=8.19.2'}
@@ -10552,10 +10548,6 @@ packages:
     peerDependencies:
       react: ^18.0.0
       react-dom: ^18.0.0
-
-  '@wordpress/browserslist-config@6.41.0':
-    resolution: {integrity: sha512-Cp9JcjdL6ZYVNUGgXR/XOO9Fueb3i0dzpvdpC1pB/iJldiQWYRPZ7LMCaJrwprG92/AfuU68BaR5CwTwrSN5tA==}
-    engines: {node: '>=18.12.0', npm: '>=8.19.2'}
 
   '@wordpress/browserslist-config@6.42.0':
     resolution: {integrity: sha512-nof8KS4I8lqopdIaAa+Cqz6UtM3x09MpeAH2JWsP2GcczPudClCju67unQGVgsHKXJqAjYtFpx4GfVYn+Rtr/w==}
@@ -10728,10 +10720,6 @@ packages:
     peerDependencies:
       react: ^18.0.0
       react-dom: ^18.0.0
-
-  '@wordpress/hooks@4.41.0':
-    resolution: {integrity: sha512-WDbLcLA3DOcjDGNLcxHZTPyhltWd/75G2hxFphe/hzcJUNmgysDTSSXO/bBrIWf6rwWD6TS3ejCaGC9J6DwYiw==}
-    engines: {node: '>=18.12.0', npm: '>=8.19.2'}
 
   '@wordpress/hooks@4.42.0':
     resolution: {integrity: sha512-isdznPKo+LEAGrP/o6SnWjxKYKn4KNzb5dmpnYPTbLh13gE/p8KctpLyzMsgR2GBXF8soAL+hpXMxxKoTQSabA==}
@@ -23516,11 +23504,6 @@ snapshots:
       react: 18.3.1
       uuid: 9.0.1(patch_hash=87a713b75995ed86c0ecd0cadfd1b9f85092ca16fdff7132ff98b62fc3cf2db0)
 
-  '@wordpress/api-fetch@7.41.0':
-    dependencies:
-      '@wordpress/i18n': 6.15.0
-      '@wordpress/url': 4.42.0
-
   '@wordpress/api-fetch@7.42.0':
     dependencies:
       '@wordpress/i18n': 6.15.0
@@ -24013,8 +23996,6 @@ snapshots:
       - '@types/react-dom'
       - stylelint
       - supports-color
-
-  '@wordpress/browserslist-config@6.41.0': {}
 
   '@wordpress/browserslist-config@6.42.0': {}
 
@@ -25056,8 +25037,6 @@ snapshots:
       - '@types/react-dom'
       - stylelint
       - supports-color
-
-  '@wordpress/hooks@4.41.0': {}
 
   '@wordpress/hooks@4.42.0': {}
 
