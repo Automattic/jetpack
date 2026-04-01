@@ -680,11 +680,12 @@ class Connection_Health_Test_Base {
 		$method          = array_shift( $methods );
 
 		$iv = '';
+		// @phan-suppress-next-line PhanTypeMismatchArgumentInternal -- $env_key is populated by reference by openssl_seal().
 		if ( $public_key && $method && openssl_seal( $data, $encrypted_data, $env_key, array( $public_key ), $method, $iv ) ) {
 			// We are returning base64-encoded values to ensure they're characters we can use in JSON responses without issue.
 			$return = array(
 				'data'   => base64_encode( $encrypted_data ), // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
-				'key'    => base64_encode( $env_key[0] ), // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
+				'key'    => base64_encode( $env_key[0] ), // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode -- @phan-suppress-current-line PhanTypeArraySuspiciousNullable
 				'iv'     => base64_encode( $iv ), // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
 				'cipher' => strtoupper( $method ),
 			);
@@ -692,6 +693,7 @@ class Connection_Health_Test_Base {
 
 		// openssl_free_key was deprecated as no longer needed in PHP 8.0+. Can remove when PHP 8.0 is our minimum. (lol).
 		if ( PHP_VERSION_ID < 80000 ) {
+			// @phan-suppress-next-line PhanDeprecatedFunctionInternal
 			openssl_free_key( $public_key ); // phpcs:ignore PHPCompatibility.FunctionUse.RemovedFunctions.openssl_free_keyDeprecated, Generic.PHP.DeprecatedFunctions.Deprecated
 		}
 

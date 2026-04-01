@@ -53,6 +53,7 @@ class Site_Health_Test extends TestCase {
 	 */
 	public function test_maybe_register_defers_to_legacy_jetpack() {
 		// Simulate old Jetpack having registered its Site Health filter.
+		// @phan-suppress-next-line PhanUndeclaredFunctionInCallable -- Intentionally referencing a function defined by old Jetpack, not this package.
 		add_filter( 'site_status_tests', 'jetpack_debugger_site_status_tests' );
 
 		Site_Health::maybe_register_site_health();
