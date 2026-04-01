@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Jetpack Connection Heath tests: Migrate from Jetpack plugin to Connection package
