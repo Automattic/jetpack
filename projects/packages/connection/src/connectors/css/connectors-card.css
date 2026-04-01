@@ -74,7 +74,8 @@
 	margin-inline-start: auto;
 }
 
-.wpcom-connector__modal.components-modal__frame {
+.wpcom-connector__modal.components-modal__frame,
+.wpcom-connector__modal {
 	max-inline-size: 480px;
 }
 
