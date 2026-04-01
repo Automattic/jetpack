@@ -313,7 +313,13 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 * wp jetpack connect
 	 */
 	public function connect() {
-		if ( Jetpack::is_connection_ready() ) {
+		$connection = new Connection_Manager( 'jetpack' );
+
+		// A site is fully connected only when it has both a site-level connection
+		// and a connected owner. After "wp jetpack disconnect blog" the site may
+		// still appear site-level connected (e.g. via a JETPACK_BLOG_TOKEN constant)
+		// but with no owner, which leaves My Jetpack in the onboarding state.
+		if ( $connection->is_connected() && $connection->has_connected_owner() ) {
 			WP_CLI::success( __( 'This site is already connected to WordPress.com.', 'jetpack' ) );
 			return;
 		}
@@ -333,19 +339,19 @@ class Jetpack_CLI extends WP_CLI_Command {
 		$user = $admins[0];
 		wp_set_current_user( $user->ID );
 
-		$connection = new Connection_Manager( 'jetpack' );
-
-		// Register the site with WordPress.com.
-		$result = $connection->try_registration();
-		if ( is_wp_error( $result ) ) {
-			WP_CLI::error(
-				sprintf(
-					/* translators: %1$s is the error code, %2$s is the error message */
-					__( 'Site registration failed (#%1$s: %2$s)', 'jetpack' ),
-					$result->get_error_code(),
-					$result->get_error_message()
-				)
-			);
+		// Register the site with WordPress.com if not already registered.
+		if ( ! $connection->is_connected() ) {
+			$result = $connection->try_registration();
+			if ( is_wp_error( $result ) ) {
+				WP_CLI::error(
+					sprintf(
+						/* translators: %1$s is the error code, %2$s is the error message */
+						__( 'Site registration failed (#%1$s: %2$s)', 'jetpack' ),
+						$result->get_error_code(),
+						$result->get_error_message()
+					)
+				);
+			}
 		}
 
 		// Get the authorization URL for the admin user.
