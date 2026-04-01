@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix Blaze Ads menu generating broken URL on Simple Sites by using Admin_Menu to avoid race condition with Jetpack top-level menu creation.
