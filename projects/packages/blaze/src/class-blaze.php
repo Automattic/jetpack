@@ -126,7 +126,7 @@ class Blaze {
 		 *
 		 * @param string $menu_label The menu label. Default 'Blaze Ads'.
 		 */
-		$menu_label = apply_filters( 'jetpack_blaze_menu_label', __( 'Blaze Ads Test 2', 'jetpack-blaze' ) );
+		$menu_label = apply_filters( 'jetpack_blaze_menu_label', __( 'Blaze Ads', 'jetpack-blaze' ) );
 
 		/**
 		 * Filter the CSS class prefix for the Blaze dashboard.
