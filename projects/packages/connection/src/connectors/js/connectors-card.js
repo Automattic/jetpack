@@ -339,7 +339,7 @@ function ConfirmationModal( { title, message, onConfirm, onCancel } ) {
 }
 
 /**
- * Read-only modal showing blog ID, site URL, and home URL.
+ * Read-only modal showing blog ID, site URL, home URL, and SSO status.
  *
  * @param {object}   props         - Component props.
  * @param {Function} props.onClose - Called when the modal is dismissed.
