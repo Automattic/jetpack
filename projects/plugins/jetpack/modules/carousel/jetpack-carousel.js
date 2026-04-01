@@ -1,6 +1,7 @@
 /* global wpcom, jetpackCarouselStrings, DocumentTouch */
 /* eslint-disable no-shadow */
 
+alert( 'jp carousel' );
 ( function () {
 	'use strict';
 	var swiper;
@@ -905,19 +906,23 @@
 		}
 
 		function selectBestImageUrl( args ) {
+			console.log( 'selectBestImageUrl', args );
 			if ( typeof args !== 'object' ) {
 				args = {};
 			}
 
 			if ( typeof args.origFile === 'undefined' ) {
+				console.log( ' exit 1' );
 				return '';
 			}
 
 			if ( typeof args.origWidth === 'undefined' || typeof args.maxWidth === 'undefined' ) {
+				console.log( ' exit 2' );
 				return args.origFile;
 			}
 
 			if ( typeof args.mediumFile === 'undefined' || typeof args.largeFile === 'undefined' ) {
+				console.log( ' exit 3' );
 				return args.origFile;
 			}
 
@@ -943,6 +948,8 @@
 			}
 
 			if ( largeWidth >= args.maxWidth || largeHeight >= args.maxHeight ) {
+				console.log( { args, mediumWidth, largeWidth } );
+				console.log( ' pick large' );
 				return args.largeFile;
 			}
 
@@ -951,13 +958,17 @@
 			var mediumHeight = parseInt( mediumSizeParts[ 1 ], 10 );
 
 			if ( mediumWidth >= args.maxWidth || mediumHeight >= args.maxHeight ) {
+				console.log( { args, mediumWidth, largeWidth } );
+				console.log( ' pick medium' );
 				return args.mediumFile;
 			}
+			console.log( { args, mediumWidth, largeWidth } );
 
 			if ( isPhotonUrl ) {
 				// args.origFile doesn't point to a Photon url, so in this case we use args.largeFile
 				// to return the photon url of the original image.
 				if ( args.largeFile.lastIndexOf( '?' ) === -1 ) {
+					console.log( ' exit 4' );
 					return args.largeFile;
 				}
 
@@ -975,9 +986,11 @@
 				}
 
 				// Return a Photon URL image that's better fitted for the viewport.
+				console.log( ' exit 5' );
 				return sanitizedUrl.toString();
 			}
 
+			console.log( ' exit 6' );
 			return args.origFile;
 		}
 
