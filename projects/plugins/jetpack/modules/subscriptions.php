@@ -979,6 +979,14 @@ class Jetpack_Subscriptions {
 	 *
 	 * @return bool
 	 */
+/**
+	 * Checks if the current user can publish posts.
+	 *
+	 * @param bool     $allowed   Whether the user can add the object meta. Default false.
+	 * @param string   $meta_key  The meta key.
+	 * @param int      $object_id Object ID.
+	 * @return bool
+	 */
 	public function first_published_status_meta_auth_callback( $allowed, $meta_key, $object_id ) {
 		$post_type        = get_post_type( $object_id );
 		$post_type_object = $post_type ? get_post_type_object( $post_type ) : null;
