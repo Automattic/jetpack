@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack;
 
+use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Blaze\Dashboard as Blaze_Dashboard;
 use Automattic\Jetpack\Blaze\Dashboard_REST_Controller as Blaze_Dashboard_REST_Controller;
 use Automattic\Jetpack\Blaze\REST_Controller;
@@ -125,7 +126,7 @@ class Blaze {
 		 *
 		 * @param string $menu_label The menu label. Default 'Blaze Ads'.
 		 */
-		$menu_label = apply_filters( 'jetpack_blaze_menu_label', __( 'Blaze Ads', 'jetpack-blaze' ) );
+		$menu_label = apply_filters( 'jetpack_blaze_menu_label', __( 'Blaze Ads Test 2', 'jetpack-blaze' ) );
 
 		/**
 		 * Filter the CSS class prefix for the Blaze dashboard.
@@ -139,8 +140,9 @@ class Blaze {
 		$parent_slug     = self::get_menu_parent();
 		$blaze_dashboard = new Blaze_Dashboard( 'admin.php', $menu_slug, $css_prefix );
 
-		if ( self::is_dashboard_enabled() ) {
+		if ( self::is_dashboard_enabled() || ( new Host() )->is_wpcom_platform() ) {
 			if ( self::has_site_campaigns() ) {
+				// Top-level menu when the site has campaigns — no parent dependency.
 				$page_suffix = add_menu_page(
 					esc_attr( $menu_label ),
 					$menu_label,
@@ -150,9 +152,13 @@ class Blaze {
 					'dashicons-megaphone',
 					30
 				);
-			} else {
-				$page_suffix = add_submenu_page(
-					$parent_slug,
+			} elseif ( 'jetpack' === $parent_slug ) {
+				// Use Admin_Menu to register under Jetpack. This avoids a race
+				// condition on Simple Sites where the Jetpack top-level menu is
+				// created at priority 1000, but this code runs at 999. Registering
+				// via add_submenu_page before the parent exists causes WordPress to
+				// compute the wrong page hookname, resulting in a broken menu URL.
+				$page_suffix = Admin_Menu::add_menu(
 					esc_attr( $menu_label ),
 					$menu_label,
 					'manage_options',
@@ -160,20 +166,9 @@ class Blaze {
 					array( $blaze_dashboard, 'render' ),
 					1
 				);
-			}
-			add_action( 'load-' . $page_suffix, array( $blaze_dashboard, 'admin_init' ) );
-		} elseif ( ( new Host() )->is_wpcom_platform() ) {
-			if ( self::has_site_campaigns() ) {
-				$page_suffix = add_menu_page(
-					esc_attr( $menu_label ),
-					$menu_label,
-					'manage_options',
-					$menu_slug,
-					array( $blaze_dashboard, 'render' ),
-					'dashicons-megaphone',
-					30
-				);
 			} else {
+				// For other parents (tools.php, woocommerce-marketing) that are
+				// guaranteed to exist at this priority, use add_submenu_page directly.
 				$page_suffix = add_submenu_page(
 					$parent_slug,
 					esc_attr( $menu_label ),
