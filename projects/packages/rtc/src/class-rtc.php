@@ -195,11 +195,21 @@ class RTC {
 	 * @return mixed
 	 */
 	public static function filter_rtc_option( $value ) {
+		global $pagenow;
+
 		$providers = self::get_providers();
 		// No providers: force the option off, regardless of what's in the DB.
 		if ( count( $providers ) === 0 ) {
 			return '0';
 		}
+
+		// Disable RTC for super admins that are not members of the blog to avoid
+		// accidentally exposing their presence to site owners (e.g. during support).
+		// Skip this on the Writing settings page so they can still toggle the option.
+		if ( 'options-writing.php' !== $pagenow && is_super_admin() && ! is_user_member_of_blog() ) {
+			return '0';
+		}
+
 		// Providers exist: respect whatever is stored.
 		return $value;
 	}
