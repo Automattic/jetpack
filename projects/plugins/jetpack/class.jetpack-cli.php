@@ -308,40 +308,14 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 *
 	 * Only administrators may run this command.
 	 *
-	 * ## OPTIONS
-	 *
-	 * [--site=<url>]
-	 * : Override the site URL sent to WordPress.com during registration.
-	 *   Useful when the local site URL (e.g. localhost) is not publicly
-	 *   reachable but an external tunnel URL is (e.g. mysite.jurassic.tube).
-	 *
 	 * ## EXAMPLES
 	 *
 	 * wp jetpack connect
-	 * wp jetpack connect --site=https://mysite.jurassic.tube
-	 *
-	 * @param array $args       Positional args.
-	 * @param array $assoc_args Named args.
 	 */
-	public function connect( $args, $assoc_args ) {
+	public function connect() {
 		if ( Jetpack::is_connection_ready() ) {
 			WP_CLI::success( __( 'This site is already connected to WordPress.com.', 'jetpack' ) );
 			return;
-		}
-
-		// If a --site URL is provided, override the URLs used during registration.
-		// We hook at the option level (pre_option_*) so the override applies
-		// everywhere: the domain validation check, Urls::get_raw_url() which
-		// reads from the DB directly, and the registration request body.
-		if ( ! empty( $assoc_args['site'] ) ) {
-			$site_url              = esc_url_raw( $assoc_args['site'] );
-			$url_override_callback = function () use ( $site_url ) {
-				return $site_url;
-			};
-			add_filter( 'pre_option_siteurl', $url_override_callback );
-			add_filter( 'pre_option_home', $url_override_callback );
-			add_filter( 'jetpack_sync_home_url', $url_override_callback, 100 );
-			add_filter( 'jetpack_sync_site_url', $url_override_callback, 100 );
 		}
 
 		// Find an admin user to connect as.
