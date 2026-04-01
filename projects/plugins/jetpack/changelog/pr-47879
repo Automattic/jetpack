@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Connection Details: Fix layout of the connection details modal to properly handle varying URL lengths and screen sizes.
