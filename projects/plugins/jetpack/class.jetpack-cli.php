@@ -330,22 +330,17 @@ class Jetpack_CLI extends WP_CLI_Command {
 		}
 
 		// If a --site URL is provided, override the URLs used during registration.
+		// This must cover both the WordPress-level URLs (used by the pre-register
+		// domain check) and the Jetpack sync URLs (sent in the registration body).
 		if ( ! empty( $assoc_args['site'] ) ) {
-			$site_url = esc_url_raw( $assoc_args['site'] );
-			add_filter(
-				'jetpack_sync_home_url',
-				function () use ( $site_url ) {
-					return $site_url;
-				},
-				100
-			);
-			add_filter(
-				'jetpack_sync_site_url',
-				function () use ( $site_url ) {
-					return $site_url;
-				},
-				100
-			);
+			$site_url              = esc_url_raw( $assoc_args['site'] );
+			$url_override_callback = function () use ( $site_url ) {
+				return $site_url;
+			};
+			add_filter( 'home_url', $url_override_callback, 100 );
+			add_filter( 'site_url', $url_override_callback, 100 );
+			add_filter( 'jetpack_sync_home_url', $url_override_callback, 100 );
+			add_filter( 'jetpack_sync_site_url', $url_override_callback, 100 );
 		}
 
 		// Find an admin user to connect as.
