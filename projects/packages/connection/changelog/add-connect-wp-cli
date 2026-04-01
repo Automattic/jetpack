@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Add `src/connectors` to the Composer autoload classmap so the Wpcom_Connector class is found.

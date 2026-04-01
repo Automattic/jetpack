@@ -301,6 +301,64 @@ class Jetpack_CLI extends WP_CLI_Command {
 	}
 
 	/**
+	 * Connect this site to WordPress.com.
+	 *
+	 * Registers the site and returns an authorization URL that must be
+	 * opened in a browser to complete the connection.
+	 *
+	 * Only administrators may run this command.
+	 *
+	 * ## EXAMPLES
+	 *
+	 * wp jetpack connect
+	 */
+	public function connect() {
+		if ( Jetpack::is_connection_ready() ) {
+			WP_CLI::success( __( 'This site is already connected to WordPress.com.', 'jetpack' ) );
+			return;
+		}
+
+		// Find an admin user to connect as.
+		$admins = get_users(
+			array(
+				'role'   => 'administrator',
+				'number' => 1,
+			)
+		);
+		if ( empty( $admins ) ) {
+			WP_CLI::error( __( 'No administrator user found on this site.', 'jetpack' ) );
+		}
+		$user = $admins[0];
+		wp_set_current_user( $user->ID );
+
+		$connection = new Connection_Manager( 'jetpack' );
+
+		// Register the site with WordPress.com.
+		$result = $connection->try_registration();
+		if ( is_wp_error( $result ) ) {
+			WP_CLI::error(
+				sprintf(
+					/* translators: %1$s is the error code, %2$s is the error message */
+					__( 'Site registration failed (#%1$s: %2$s)', 'jetpack' ),
+					$result->get_error_code(),
+					$result->get_error_message()
+				)
+			);
+		}
+
+		// Get the authorization URL for the admin user.
+		$url = $connection->get_authorization_url( $user, null, 'cli', true );
+		if ( ! $url ) {
+			WP_CLI::error( __( 'Failed to generate the authorization URL.', 'jetpack' ) );
+		}
+
+		/* translators: %s is the admin username */
+		WP_CLI::line( sprintf( __( 'Site registered successfully as "%s". To complete the connection, open this URL in your browser:', 'jetpack' ), $user->user_login ) );
+		WP_CLI::line( '' );
+		WP_CLI::line( $url );
+	}
+
+	/**
 	 * Reset Jetpack options and settings to default
 	 *
 	 * ## OPTIONS

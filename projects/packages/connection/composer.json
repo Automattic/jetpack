@@ -32,6 +32,7 @@
 		"classmap": [
 			"legacy",
 			"src/",
+			"src/connectors",
 			"src/webhooks",
 			"src/identity-crisis"
 		]
