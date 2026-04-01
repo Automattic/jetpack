@@ -21,13 +21,3 @@ require_once __DIR__ . '/debugger/class-jetpack-debugger.php';
 require_once __DIR__ . '/debugger/debug-functions.php';
 
 add_filter( 'debug_information', array( 'Jetpack_Debug_Data', 'core_debug_data' ) );
-
-/*
- * Only register legacy Site Health hooks if the connection package does not
- * provide its own Site_Health class. When the connection package handles Site
- * Health, registering here as well would cause duplicate tests.
- */
-if ( ! class_exists( 'Automattic\Jetpack\Connection\Site_Health' ) ) {
-	add_filter( 'site_status_tests', 'jetpack_debugger_site_status_tests' );
-	add_action( 'wp_ajax_health-check-jetpack-local_testing_suite', 'jetpack_debugger_ajax_local_testing_suite' );
-}

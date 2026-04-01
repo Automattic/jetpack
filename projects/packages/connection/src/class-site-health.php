@@ -50,11 +50,10 @@ class Site_Health {
 	 * @since $$next-version$$
 	 */
 	public static function maybe_register_site_health() {
-		// Defer to the old Jetpack plugin's debugger if it has loaded its Site Health
-		// integration. The function jetpack_debugger_site_status_tests is defined in
-		// the Jetpack plugin's debug-functions.php, which is loaded unconditionally
-		// in admin context by older Jetpack versions.
-		if ( function_exists( 'jetpack_debugger_site_status_tests' ) ) {
+		// Defer to the old Jetpack plugin's debugger if it has already registered
+		// its Site Health filter. Old Jetpack versions add this filter during plugin
+		// loading, so by admin_init it is already present.
+		if ( has_filter( 'site_status_tests', 'jetpack_debugger_site_status_tests' ) ) {
 			return;
 		}
 

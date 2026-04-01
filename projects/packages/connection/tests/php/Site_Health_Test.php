@@ -8,8 +8,6 @@
 namespace Automattic\Jetpack\Connection;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\PreserveGlobalState;
-use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -51,20 +49,11 @@ class Site_Health_Test extends TestCase {
 
 	/**
 	 * Test that maybe_register_site_health defers when the legacy Jetpack debugger
-	 * function exists (simulating an old Jetpack plugin).
-	 *
-	 * This test runs in a separate process so the function definition doesn't
-	 * leak into other tests.
-	 *
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
+	 * filter is present (simulating an old Jetpack plugin).
 	 */
-	#[RunInSeparateProcess]
-	#[PreserveGlobalState( false )]
 	public function test_maybe_register_defers_to_legacy_jetpack() {
-		// Simulate old Jetpack having loaded debug-functions.php which defines
-		// the global function jetpack_debugger_site_status_tests.
-		require_once __DIR__ . '/fixtures/legacy-debugger-functions.php';
+		// Simulate old Jetpack having registered its Site Health filter.
+		add_filter( 'site_status_tests', 'jetpack_debugger_site_status_tests' );
 
 		Site_Health::maybe_register_site_health();
 
