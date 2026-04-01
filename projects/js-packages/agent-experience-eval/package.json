@@ -18,7 +18,7 @@
 		"node": ">=22"
 	},
 	"bin": {
-		"agent-experience-eval": "./bin/agent-experience-eval.js"
+		"agent-experience-eval": "./bin/cli.js"
 	},
 	"scripts": {
 		"build": "pnpm run clean && pnpm exec tsgo -p tsconfig.build.json --pretty",
