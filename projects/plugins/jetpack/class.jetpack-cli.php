@@ -330,15 +330,16 @@ class Jetpack_CLI extends WP_CLI_Command {
 		}
 
 		// If a --site URL is provided, override the URLs used during registration.
-		// This must cover both the WordPress-level URLs (used by the pre-register
-		// domain check) and the Jetpack sync URLs (sent in the registration body).
+		// We hook at the option level (pre_option_*) so the override applies
+		// everywhere: the domain validation check, Urls::get_raw_url() which
+		// reads from the DB directly, and the registration request body.
 		if ( ! empty( $assoc_args['site'] ) ) {
 			$site_url              = esc_url_raw( $assoc_args['site'] );
 			$url_override_callback = function () use ( $site_url ) {
 				return $site_url;
 			};
-			add_filter( 'home_url', $url_override_callback, 100 );
-			add_filter( 'site_url', $url_override_callback, 100 );
+			add_filter( 'pre_option_siteurl', $url_override_callback );
+			add_filter( 'pre_option_home', $url_override_callback );
 			add_filter( 'jetpack_sync_home_url', $url_override_callback, 100 );
 			add_filter( 'jetpack_sync_site_url', $url_override_callback, 100 );
 		}
