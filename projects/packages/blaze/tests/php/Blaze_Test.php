@@ -8,6 +8,7 @@
 
 namespace Automattic\Jetpack;
 
+use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
@@ -466,6 +467,10 @@ class Blaze_Test extends BaseTestCase {
 		Constants::set_constant( 'IS_WPCOM', true );
 
 		Blaze::enable_blaze_menu();
+
+		// On WPCOM the parent is 'jetpack', so the item is queued via
+		// Admin_Menu::add_menu(). Flush the queue to populate $submenu.
+		Admin_Menu::admin_menu_hook_callback();
 
 		// Should be a submenu, not top-level.
 		$found_submenu = false;
