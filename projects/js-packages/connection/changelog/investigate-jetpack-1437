@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Guard against duplicate store registration when multiple bundles include the connection package.
