@@ -584,6 +584,12 @@ importers:
       '@wordpress/notices':
         specifier: 5.42.0
         version: 5.42.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@wordpress/theme':
+        specifier: 0.9.0
+        version: 0.9.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.5.0)
+      '@wordpress/ui':
+        specifier: 0.9.0
+        version: 0.9.0(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.5.0)
       clsx:
         specifier: 2.1.1
         version: 2.1.1
