@@ -90,6 +90,7 @@ class Admin_Menu_Test extends TestCase {
 		global $submenu;
 		$submenu = array();
 		delete_option( 'jetpack_active_plan' );
+		delete_option( 'jetpack_site_products' );
 
 		$reflection = new \ReflectionClass( Admin_Menu::class );
 
@@ -330,7 +331,7 @@ class Admin_Menu_Test extends TestCase {
 		Admin_Menu::add_upgrade_menu_item_styles();
 		$output = ob_get_clean();
 
-		$this->assertStringContainsString( 'jetpack-upgrade-menu__icon', $output );
+		$this->assertStringContainsString( Admin_Menu::UPGRADE_MENU_SLUG, $output );
 		$this->assertStringContainsString( '#069e08', $output );
 	}
 
