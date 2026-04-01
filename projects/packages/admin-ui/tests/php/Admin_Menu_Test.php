@@ -96,13 +96,11 @@ class Admin_Menu_Test extends TestCase {
 
 		if ( $reflection->hasProperty( 'menu_items' ) ) {
 			$menu_items = $reflection->getProperty( 'menu_items' );
-			$menu_items->setAccessible( true );
 			$menu_items->setValue( null, array() );
 		}
 
 		if ( $reflection->hasProperty( 'initialized' ) ) {
 			$initialized = $reflection->getProperty( 'initialized' );
-			$initialized->setAccessible( true );
 			$initialized->setValue( null, false );
 		}
 	}
