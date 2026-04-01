@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Connection;
 
+use Automattic\Jetpack\Redirect;
+use Automattic\Jetpack\Status;
 use WP_Error;
 
 /**
@@ -65,6 +67,10 @@ class Connection_Health_Test_Base {
 	 * @return true|WP_Error True if successfully added. WP_Error on failure.
 	 */
 	public function add_test( $callable, $name, $type = 'direct', $groups = array( 'default' ) ) {
+		if ( is_array( $name ) ) {
+			// Pre-7.3.0 method passed the $groups parameter here.
+			return new WP_Error( 'invalid_arguments', __( 'add_test arguments changed in 7.3.0. Please reference inline documentation.', 'jetpack-connection' ) );
+		}
 		if ( array_key_exists( $name, $this->tests ) ) {
 			return new WP_Error( 'duplicate_test', __( 'Test names must be unique.', 'jetpack-connection' ) );
 		}
@@ -326,6 +332,234 @@ class Connection_Health_Test_Base {
 	}
 
 	/**
+	 * Helper function to check if the site is connected and not in offline mode.
+	 *
+	 * @return bool
+	 */
+	protected function helper_is_connected() {
+		return ( new Manager() )->is_connected() && ! ( new Status() )->is_offline_mode();
+	}
+
+	/**
+	 * Helper function to look up the connection owner and return the local WP_User.
+	 *
+	 * @return \WP_User The connection owner user.
+	 */
+	protected function helper_retrieve_connection_owner() {
+		$owner_id = ( new Manager() )->get_connection_owner_id();
+		return new \WP_User( $owner_id );
+	}
+
+	/**
+	 * Retrieve the blog token if it exists.
+	 *
+	 * @return object|false
+	 */
+	protected function helper_get_blog_token() {
+		return ( new Tokens() )->get_access_token();
+	}
+
+	/**
+	 * Returns the URL to reconnect.
+	 *
+	 * @return string The reconnect URL.
+	 */
+	protected static function helper_get_reconnect_url() {
+		/**
+		 * Filters the URL used to reconnect the Jetpack connection.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param string $url The reconnect URL.
+		 */
+		return apply_filters( 'jetpack_connection_reconnect_url', admin_url( 'admin.php?page=jetpack#/reconnect' ) );
+	}
+
+	/**
+	 * Returns a support URL.
+	 *
+	 * @return string The support URL.
+	 */
+	protected function helper_get_support_url() {
+		/**
+		 * Filters the Jetpack support URL used in connection health tests.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param string $url The support URL.
+		 */
+		return apply_filters(
+			'jetpack_connection_support_url',
+			Redirect::get_url( 'jetpack-contact-support' )
+		);
+	}
+
+	/**
+	 * Gets translated support text.
+	 *
+	 * @return string
+	 */
+	protected function helper_get_support_text() {
+		return __( 'Please contact Jetpack support.', 'jetpack-connection' );
+	}
+
+	/**
+	 * Returns the translated text to reconnect.
+	 *
+	 * @return string
+	 */
+	protected static function helper_get_reconnect_text() {
+		return __( 'Reconnect Jetpack now', 'jetpack-connection' );
+	}
+
+	/**
+	 * Returns the translated text for failing tests due to timeouts.
+	 *
+	 * @return string
+	 */
+	protected static function helper_get_timeout_text() {
+		return __( 'The test timed out which may sometimes indicate a failure or may be a false failure. Please relaunch tests.', 'jetpack-connection' );
+	}
+
+	/**
+	 * Gets translated reconnect long description.
+	 *
+	 * @param string $connection_error  The connection specific error.
+	 * @param string $recommendation   The recommendation for resolving the connection error.
+	 *
+	 * @return string The translated long description.
+	 */
+	protected static function helper_get_reconnect_long_description( $connection_error, $recommendation ) {
+		return sprintf(
+			'<p>%1$s</p>' .
+			'<p><span class="dashicons fail"><span class="screen-reader-text">%2$s</span></span> %3$s</p><p><strong>%4$s</strong></p>',
+			__( 'A healthy connection ensures Jetpack essential services are provided to your WordPress site, such as Stats and Site Security.', 'jetpack-connection' ),
+			/* translators: screen reader text indicating a test failed */
+			__( 'Error', 'jetpack-connection' ),
+			$connection_error,
+			$recommendation
+		);
+	}
+
+	/**
+	 * Helper function to return consistent responses for a connection failing test.
+	 *
+	 * @param string $name             The test method name.
+	 * @param string $connection_error The connection specific error.
+	 * @param string $recommendation   The recommendation for resolving the connection error.
+	 *
+	 * @return array Test results.
+	 */
+	public static function connection_failing_test( $name, $connection_error = '', $recommendation = '' ) {
+		$connection_error = empty( $connection_error ) ? __( 'Your site is not connected to Jetpack.', 'jetpack-connection' ) : $connection_error;
+		$recommendation   = empty( $recommendation ) ? __( 'We recommend reconnecting Jetpack.', 'jetpack-connection' ) : $recommendation;
+
+		$args = array(
+			'name'              => $name,
+			'short_description' => $connection_error,
+			'action'            => self::helper_get_reconnect_url(),
+			'action_label'      => self::helper_get_reconnect_text(),
+			'long_description'  => self::helper_get_reconnect_long_description( $connection_error, $recommendation ),
+		);
+
+		return self::failing_test( $args );
+	}
+
+	/**
+	 * Gets translated text to enable outbound requests.
+	 *
+	 * @param string $protocol Either 'HTTP' or 'HTTPS'.
+	 *
+	 * @return string
+	 */
+	protected function helper_enable_outbound_requests( $protocol ) {
+		return sprintf(
+			/* translators: %1$s - request protocol, either http or https */
+			__(
+				'Your server did not successfully connect to the Jetpack server using %1$s
+				Please ask your hosting provider to confirm your server can make outbound requests to jetpack.com.',
+				'jetpack-connection'
+			),
+			$protocol
+		);
+	}
+
+	/**
+	 * Returns 30 for use with a filter to increase HTTP request timeout.
+	 *
+	 * @return int 30
+	 */
+	public static function increase_timeout() {
+		return 30;
+	}
+
+	/**
+	 * Returns a human-readable explanation of why the site is in offline mode.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return string The offline mode trigger explanation.
+	 */
+	public static function offline_mode_trigger_text() {
+		$status = new Status();
+
+		if ( ! $status->is_offline_mode() ) {
+			return __( 'Jetpack is not in Offline Mode.', 'jetpack-connection' );
+		}
+
+		if ( defined( 'JETPACK_DEV_DEBUG' ) && JETPACK_DEV_DEBUG ) {
+			$notice = __( 'The JETPACK_DEV_DEBUG constant is defined in wp-config.php or elsewhere.', 'jetpack-connection' );
+		} elseif ( defined( 'WP_LOCAL_DEV' ) && WP_LOCAL_DEV ) {
+			$notice = __( 'The WP_LOCAL_DEV constant is defined in wp-config.php or elsewhere.', 'jetpack-connection' );
+		} elseif ( $status->is_local_site() ) {
+			$notice = __( 'The site URL is a known local development environment URL (e.g. http://localhost).', 'jetpack-connection' );
+		} elseif ( get_option( 'jetpack_offline_mode' ) ) {
+			$notice = __( 'The jetpack_offline_mode option is set to true.', 'jetpack-connection' );
+		} else {
+			$notice = __( 'The jetpack_offline_mode filter is set to true.', 'jetpack-connection' );
+		}
+
+		return $notice;
+	}
+
+	/**
+	 * Provide WP_CLI friendly testing results.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $group Testing group whose results we are outputting. Default 'all'.
+	 */
+	public function output_results_for_cli( $group = 'all' ) {
+		if ( ! ( defined( 'WP_CLI' ) && WP_CLI ) ) {
+			return;
+		}
+
+		if ( ( new Status() )->is_offline_mode() ) {
+			\WP_CLI::line( __( 'Jetpack is in Offline Mode:', 'jetpack-connection' ) );
+			\WP_CLI::line( self::offline_mode_trigger_text() );
+		}
+		\WP_CLI::line( __( 'TEST RESULTS:', 'jetpack-connection' ) );
+		foreach ( $this->raw_results( $group ) as $test ) {
+			if ( true === $test['pass'] ) {
+				\WP_CLI::log( \WP_CLI::colorize( '%gPassed:%n  ' . $test['name'] ) );
+			} elseif ( 'skipped' === $test['pass'] ) {
+				\WP_CLI::log( \WP_CLI::colorize( '%ySkipped:%n ' . $test['name'] ) );
+				if ( $test['short_description'] ) {
+					\WP_CLI::log( '         ' . $test['short_description'] );
+				}
+			} elseif ( 'informational' === $test['pass'] ) {
+				\WP_CLI::log( \WP_CLI::colorize( '%yInfo:%n    ' . $test['name'] ) );
+				if ( $test['short_description'] ) {
+					\WP_CLI::log( '         ' . $test['short_description'] );
+				}
+			} else {
+				\WP_CLI::log( \WP_CLI::colorize( '%rFailed:%n  ' . $test['name'] ) );
+				\WP_CLI::log( '         ' . $test['short_description'] );
+			}
+		}
+	}
+
+	/**
 	 * Output results of failures in format expected by Core's Site Health tool for async tests.
 	 *
 	 * @since $$next-version$$
@@ -421,6 +655,47 @@ class Connection_Health_Test_Base {
 		}
 
 		return $error;
+	}
+
+	/**
+	 * Encrypt data for sending to WordPress.com.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $data Data to encrypt with the WP.com Public Key.
+	 *
+	 * @return false|array False if functionality not available. Array of encrypted data, encryption key.
+	 */
+	public function encrypt_string_for_wpcom( $data ) {
+		$return = false;
+		if ( ! function_exists( 'openssl_get_publickey' ) || ! function_exists( 'openssl_seal' ) ) {
+			return $return;
+		}
+
+		$public_key = openssl_get_publickey( REST_Connector::JETPACK__DEBUGGER_PUBLIC_KEY );
+
+		// Select the first allowed cipher method.
+		$allowed_methods = array( 'aes-256-ctr', 'aes-256-cbc' );
+		$methods         = array_intersect( $allowed_methods, openssl_get_cipher_methods() );
+		$method          = array_shift( $methods );
+
+		$iv = '';
+		if ( $public_key && $method && openssl_seal( $data, $encrypted_data, $env_key, array( $public_key ), $method, $iv ) ) {
+			// We are returning base64-encoded values to ensure they're characters we can use in JSON responses without issue.
+			$return = array(
+				'data'   => base64_encode( $encrypted_data ), // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
+				'key'    => base64_encode( $env_key[0] ), // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
+				'iv'     => base64_encode( $iv ), // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
+				'cipher' => strtoupper( $method ),
+			);
+		}
+
+		// openssl_free_key was deprecated as no longer needed in PHP 8.0+. Can remove when PHP 8.0 is our minimum. (lol).
+		if ( PHP_VERSION_ID < 80000 ) {
+			openssl_free_key( $public_key ); // phpcs:ignore PHPCompatibility.FunctionUse.RemovedFunctions.openssl_free_keyDeprecated, Generic.PHP.DeprecatedFunctions.Deprecated
+		}
+
+		return $return;
 	}
 
 	/**

@@ -60,6 +60,15 @@ class Connection_Health_Test_Base_Test extends TestCase {
 	}
 
 	/**
+	 * Test adding a test with pre-7.3.0 arguments (array as name) fails.
+	 */
+	public function test_add_test_legacy_arguments() {
+		$result = $this->base->add_test( function () {}, array( 'default' ) );
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertEquals( 'invalid_arguments', $result->get_error_code() );
+	}
+
+	/**
 	 * Test adding a test with invalid callable fails.
 	 */
 	public function test_add_test_invalid_callable() {
@@ -284,5 +293,63 @@ class Connection_Health_Test_Base_Test extends TestCase {
 		$error = $this->base->output_fails_as_wp_error();
 		$this->assertInstanceOf( \WP_Error::class, $error );
 		$this->assertEquals( 'failed_fail_test', $error->get_error_code() );
+	}
+
+	/**
+	 * Test that a subclass extending Connection_Health_Test_Base can use helper
+	 * methods and register its tests on an external Connection_Health_Tests instance
+	 * via the jetpack_connection_tests_loaded action.
+	 *
+	 * This simulates the pattern used by the Jetpack plugin's Jetpack_Cxn_Tests class.
+	 */
+	public function test_external_subclass_can_register_tests_via_action() {
+		// Create a subclass that uses helper methods from the base class.
+		$external = new class() extends Connection_Health_Test_Base {
+			/**
+			 * Constructor — auto-discovers test methods.
+			 */
+			public function __construct() {
+				parent::__construct();
+				$methods = get_class_methods( self::class );
+				foreach ( $methods as $method ) {
+					if ( ! str_contains( $method, 'test__' ) ) {
+						continue;
+					}
+					$this->add_test( array( $this, $method ), $method, 'direct' );
+				}
+			}
+
+			/**
+			 * A test that uses helper methods from the base class.
+			 *
+			 * @return array
+			 */
+			protected function test__plugin_specific() {
+				// Exercise helper methods to verify they're accessible.
+				$this->helper_is_connected();
+				$this->helper_get_support_text();
+				$this->helper_get_support_url();
+				return self::passing_test( array( 'name' => 'test__plugin_specific' ) );
+			}
+		};
+
+		// Verify the subclass discovered its test.
+		$tests = $external->list_tests();
+		$this->assertArrayHasKey( 'test__plugin_specific', $tests );
+
+		// Simulate registering on a Connection_Health_Tests instance (as done via action hook).
+		$connection_tests = new Connection_Health_Tests();
+		$initial_count    = count( $connection_tests->list_tests() );
+
+		foreach ( $external->list_tests() as $test ) {
+			$connection_tests->add_test( $test['test'], $test['name'], $test['type'] );
+		}
+
+		$this->assertCount( $initial_count + 1, $connection_tests->list_tests() );
+		$this->assertArrayHasKey( 'test__plugin_specific', $connection_tests->list_tests() );
+
+		// Verify the test can actually be run from the connection tests instance.
+		$result = $connection_tests->run_test( 'test__plugin_specific' );
+		$this->assertTrue( $result['pass'] );
 	}
 }

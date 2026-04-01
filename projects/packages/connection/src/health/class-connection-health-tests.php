@@ -40,173 +40,25 @@ class Connection_Health_Tests extends Connection_Health_Test_Base {
 		 *
 		 * Allows other packages or plugins to register additional tests.
 		 *
-		 * @since $$next-version$$
+		 * @since 7.1.0
+		 * @since 8.3.0 Passes the test suite instance.
+		 * @since $$next-version$$ Moved from Jetpack_Cxn_Tests to Connection_Health_Tests.
 		 *
 		 * @param Connection_Health_Tests $this The Connection_Health_Tests instance.
 		 */
-		do_action( 'jetpack_connection_health_tests_loaded', $this );
-	}
+		do_action( 'jetpack_connection_tests_loaded', $this );
 
-	/**
-	 * Helper function to check if the site is connected and not in offline mode.
-	 *
-	 * @return bool
-	 */
-	protected function helper_is_connected() {
-		return ( new Manager() )->is_connected() && ! ( new Status() )->is_offline_mode();
-	}
-
-	/**
-	 * Helper function to look up the connection owner and return the local WP_User.
-	 *
-	 * @return \WP_User The connection owner user.
-	 */
-	protected function helper_retrieve_connection_owner() {
-		$owner_id = ( new Manager() )->get_connection_owner_id();
-		return new \WP_User( $owner_id );
-	}
-
-	/**
-	 * Retrieve the blog token if it exists.
-	 *
-	 * @return object|false
-	 */
-	protected function helper_get_blog_token() {
-		return ( new Tokens() )->get_access_token();
-	}
-
-	/**
-	 * Returns the URL to reconnect.
-	 *
-	 * @return string The reconnect URL.
-	 */
-	protected static function helper_get_reconnect_url() {
 		/**
-		 * Filters the URL used to reconnect the Jetpack connection.
+		 * Determines if the WP.com testing suite should be included.
 		 *
-		 * @since $$next-version$$
+		 * @since 7.1.0
+		 * @since 8.1.0 Default false.
 		 *
-		 * @param string $url The reconnect URL.
+		 * @param bool $run_test To run the WP.com testing suite. Default false.
 		 */
-		return apply_filters( 'jetpack_connection_reconnect_url', admin_url( 'admin.php?page=jetpack#/reconnect' ) );
-	}
-
-	/**
-	 * Returns a support URL.
-	 *
-	 * @return string The support URL.
-	 */
-	protected function helper_get_support_url() {
-		/**
-		 * Filters the Jetpack support URL used in connection health tests.
-		 *
-		 * @since $$next-version$$
-		 *
-		 * @param string $url The support URL.
-		 */
-		return apply_filters(
-			'jetpack_connection_support_url',
-			Redirect::get_url( 'jetpack-contact-support' )
-		);
-	}
-
-	/**
-	 * Gets translated support text.
-	 *
-	 * @return string
-	 */
-	protected function helper_get_support_text() {
-		return __( 'Please contact Jetpack support.', 'jetpack-connection' );
-	}
-
-	/**
-	 * Returns the translated text to reconnect.
-	 *
-	 * @return string
-	 */
-	protected static function helper_get_reconnect_text() {
-		return __( 'Reconnect Jetpack now', 'jetpack-connection' );
-	}
-
-	/**
-	 * Returns the translated text for failing tests due to timeouts.
-	 *
-	 * @return string
-	 */
-	protected static function helper_get_timeout_text() {
-		return __( 'The test timed out which may sometimes indicate a failure or may be a false failure. Please relaunch tests.', 'jetpack-connection' );
-	}
-
-	/**
-	 * Gets translated reconnect long description.
-	 *
-	 * @param string $connection_error  The connection specific error.
-	 * @param string $recommendation   The recommendation for resolving the connection error.
-	 *
-	 * @return string The translated long description.
-	 */
-	protected static function helper_get_reconnect_long_description( $connection_error, $recommendation ) {
-		return sprintf(
-			'<p>%1$s</p>' .
-			'<p><span class="dashicons fail"><span class="screen-reader-text">%2$s</span></span> %3$s</p><p><strong>%4$s</strong></p>',
-			__( 'A healthy connection ensures Jetpack essential services are provided to your WordPress site, such as Stats and Site Security.', 'jetpack-connection' ),
-			/* translators: screen reader text indicating a test failed */
-			__( 'Error', 'jetpack-connection' ),
-			$connection_error,
-			$recommendation
-		);
-	}
-
-	/**
-	 * Helper function to return consistent responses for a connection failing test.
-	 *
-	 * @param string $name             The test method name.
-	 * @param string $connection_error The connection specific error.
-	 * @param string $recommendation   The recommendation for resolving the connection error.
-	 *
-	 * @return array Test results.
-	 */
-	public static function connection_failing_test( $name, $connection_error = '', $recommendation = '' ) {
-		$connection_error = empty( $connection_error ) ? __( 'Your site is not connected to Jetpack.', 'jetpack-connection' ) : $connection_error;
-		$recommendation   = empty( $recommendation ) ? __( 'We recommend reconnecting Jetpack.', 'jetpack-connection' ) : $recommendation;
-
-		$args = array(
-			'name'              => $name,
-			'short_description' => $connection_error,
-			'action'            => self::helper_get_reconnect_url(),
-			'action_label'      => self::helper_get_reconnect_text(),
-			'long_description'  => self::helper_get_reconnect_long_description( $connection_error, $recommendation ),
-		);
-
-		return self::failing_test( $args );
-	}
-
-	/**
-	 * Gets translated text to enable outbound requests.
-	 *
-	 * @param string $protocol Either 'HTTP' or 'HTTPS'.
-	 *
-	 * @return string
-	 */
-	protected function helper_enable_outbound_requests( $protocol ) {
-		return sprintf(
-			/* translators: %1$s - request protocol, either http or https */
-			__(
-				'Your server did not successfully connect to the Jetpack server using %1$s
-				Please ask your hosting provider to confirm your server can make outbound requests to jetpack.com.',
-				'jetpack-connection'
-			),
-			$protocol
-		);
-	}
-
-	/**
-	 * Returns 30 for use with a filter to increase HTTP request timeout.
-	 *
-	 * @return int 30
-	 */
-	public static function increase_timeout() {
-		return 30;
+		if ( apply_filters( 'jetpack_debugger_run_self_test', false ) ) {
+			$this->add_test( array( $this, 'last__wpcom_self_test' ), 'test__wpcom_self_test', 'direct' );
+		}
 	}
 
 	/**
@@ -682,6 +534,84 @@ class Connection_Health_Tests extends Connection_Health_Test_Base {
 					),
 					"define( '$needed_constant', $server_port )"
 				),
+			)
+		);
+	}
+
+	/**
+	 * Test that PHP's XML library is installed.
+	 *
+	 * @return array Test results.
+	 */
+	protected function test__xml_parser_available() {
+		$name = 'test__xml_parser_available';
+		if ( function_exists( 'xml_parser_create' ) ) {
+			return self::passing_test( array( 'name' => $name ) );
+		}
+
+		return self::failing_test(
+			array(
+				'name'              => $name,
+				'label'             => __( 'PHP XML manipulation libraries are not available.', 'jetpack-connection' ),
+				'short_description' => __( 'Please ask your hosting provider to refer to our server requirements and enable PHP\'s XML module.', 'jetpack-connection' ),
+				'action_label'      => __( 'View our server requirements', 'jetpack-connection' ),
+				'action'            => Redirect::get_url( 'jetpack-support-server-requirements' ),
+			)
+		);
+	}
+
+	/**
+	 * Calls to WP.com to run the connection diagnostic testing suite.
+	 *
+	 * Intentionally added last as it will be skipped if any local failed conditions exist.
+	 *
+	 * @since 7.1.0
+	 *
+	 * @return array Test results.
+	 */
+	protected function last__wpcom_self_test() {
+		$name = 'test__wpcom_self_test';
+
+		$status = new Status();
+		if ( ! ( new Manager() )->is_connected() || $status->is_offline_mode() || $status->in_safe_mode() || ! $this->pass ) {
+			return self::skipped_test( array( 'name' => $name ) );
+		}
+
+		$self_xml_rpc_url = site_url( 'xmlrpc.php' );
+
+		$api_base = Constants::get_constant( 'JETPACK__API_BASE' );
+		if ( ! $api_base ) {
+			$api_base = Utils::DEFAULT_JETPACK__API_BASE;
+		}
+		$testsite_url = $api_base . 'testsite/1/?url=';
+
+		add_filter( 'http_request_timeout', array( static::class, 'increase_timeout' ), PHP_INT_MAX - 1 );
+
+		$response = wp_remote_get( $testsite_url . $self_xml_rpc_url );
+
+		remove_filter( 'http_request_timeout', array( static::class, 'increase_timeout' ), PHP_INT_MAX - 1 );
+
+		if ( 200 === wp_remote_retrieve_response_code( $response ) ) {
+			return self::passing_test( array( 'name' => $name ) );
+		} elseif ( is_wp_error( $response ) && str_contains( $response->get_error_message(), 'cURL error 28' ) ) {
+			return self::skipped_test(
+				array(
+					'name'              => $name,
+					'short_description' => self::helper_get_timeout_text(),
+				)
+			);
+		}
+
+		return self::failing_test(
+			array(
+				'name'              => $name,
+				'short_description' => sprintf(
+					/* translators: %1$s - A debugging url */
+					__( 'Jetpack.com detected an error on the WP.com Self Test. Visit the Jetpack Debug page for more info: %1$s, or contact support.', 'jetpack-connection' ),
+					Redirect::get_url( 'jetpack-support-debug', array( 'query' => 'url=' . rawurlencode( site_url() ) ) )
+				),
+				'action_label'      => $this->helper_get_support_text(),
+				'action'            => $this->helper_get_support_url(),
 			)
 		);
 	}
