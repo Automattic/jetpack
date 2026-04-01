@@ -32,7 +32,6 @@
 		"classmap": [
 			"legacy",
 			"src/",
-			"src/health",
 			"src/webhooks",
 			"src/identity-crisis"
 		]
