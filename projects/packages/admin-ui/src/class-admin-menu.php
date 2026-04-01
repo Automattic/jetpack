@@ -275,42 +275,31 @@ class Admin_Menu {
 	 * @return bool True if the site has no paid plan.
 	 */
 	private static function is_free_plan() {
-		static $is_free = null;
-
-		if ( null !== $is_free ) {
-			return $is_free;
-		}
-
 		// Check the active plan - use the is_free field or product_slug.
 		$plan = get_option( 'jetpack_active_plan', array() );
 
 		// Back-compat: older plan payloads use class to indicate paid plans.
 		if ( isset( $plan['class'] ) && 'free' !== $plan['class'] ) {
-			$is_free = false;
-			return $is_free;
+			return false;
 		}
 
 		// If the plan explicitly says it's not free, trust that.
 		if ( isset( $plan['is_free'] ) && false === $plan['is_free'] ) {
-			$is_free = false;
-			return $is_free;
+			return false;
 		}
 
 		// Check if the product slug indicates a paid plan.
 		if ( isset( $plan['product_slug'] ) && 'jetpack_free' !== $plan['product_slug'] ) {
-			$is_free = false;
-			return $is_free;
+			return false;
 		}
 
 		// Also check for site products (licenses can add products without changing plan).
 		$products = get_option( 'jetpack_site_products', array() );
 		if ( ! empty( $products ) && is_array( $products ) ) {
-			$is_free = false;
-			return $is_free;
+			return false;
 		}
 
-		$is_free = true;
-		return $is_free;
+		return true;
 	}
 
 	/**

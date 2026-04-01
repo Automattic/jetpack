@@ -8,7 +8,6 @@
 namespace Automattic\Jetpack\Admin_UI;
 
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -195,9 +194,7 @@ class Admin_Menu_Test extends TestCase {
 	 * Upgrade item appears in the submenu for an administrator on a free plan.
 	 *
 	 * @return void
-	 * @runInSeparateProcess
 	 */
-	#[RunInSeparateProcess]
 	public function test_upgrade_menu_item_shown_for_free_plan_admin() {
 		wp_set_current_user( self::$admin_user_id );
 
@@ -211,9 +208,7 @@ class Admin_Menu_Test extends TestCase {
 	 * Upgrade item is shown when is_free is explicitly true.
 	 *
 	 * @return void
-	 * @runInSeparateProcess
 	 */
-	#[RunInSeparateProcess]
 	public function test_upgrade_menu_item_shown_when_is_free_true() {
 		wp_set_current_user( self::$admin_user_id );
 		update_option(
@@ -234,9 +229,7 @@ class Admin_Menu_Test extends TestCase {
 	 * Upgrade item is shown for legacy plan format when class is free.
 	 *
 	 * @return void
-	 * @runInSeparateProcess
 	 */
-	#[RunInSeparateProcess]
 	public function test_upgrade_menu_item_shown_for_legacy_free_class_plan() {
 		wp_set_current_user( self::$admin_user_id );
 		update_option( 'jetpack_active_plan', array( 'class' => 'free' ) );
@@ -251,9 +244,7 @@ class Admin_Menu_Test extends TestCase {
 	 * Upgrade item is absent when the site has a paid plan.
 	 *
 	 * @return void
-	 * @runInSeparateProcess
 	 */
-	#[RunInSeparateProcess]
 	public function test_upgrade_menu_item_hidden_for_paid_plan() {
 		wp_set_current_user( self::$admin_user_id );
 		update_option(
@@ -274,9 +265,7 @@ class Admin_Menu_Test extends TestCase {
 	 * Upgrade item is absent for legacy plan format when class is paid.
 	 *
 	 * @return void
-	 * @runInSeparateProcess
 	 */
-	#[RunInSeparateProcess]
 	public function test_upgrade_menu_item_hidden_for_legacy_paid_class_plan() {
 		wp_set_current_user( self::$admin_user_id );
 		update_option( 'jetpack_active_plan', array( 'class' => 'security' ) );
@@ -293,9 +282,7 @@ class Admin_Menu_Test extends TestCase {
 	 * Tests the real-world data structure where plan option includes is_free field.
 	 *
 	 * @return void
-	 * @runInSeparateProcess
 	 */
-	#[RunInSeparateProcess]
 	public function test_upgrade_menu_item_hidden_when_is_free_false() {
 		wp_set_current_user( self::$admin_user_id );
 		update_option(
@@ -316,9 +303,7 @@ class Admin_Menu_Test extends TestCase {
 	 * Upgrade item is absent when product_slug indicates a paid plan.
 	 *
 	 * @return void
-	 * @runInSeparateProcess
 	 */
-	#[RunInSeparateProcess]
 	public function test_upgrade_menu_item_hidden_for_paid_product_slug() {
 		wp_set_current_user( self::$admin_user_id );
 		update_option(
@@ -338,9 +323,7 @@ class Admin_Menu_Test extends TestCase {
 	 * Upgrade item is absent when site has products from attached licenses.
 	 *
 	 * @return void
-	 * @runInSeparateProcess
 	 */
-	#[RunInSeparateProcess]
 	public function test_upgrade_menu_item_hidden_when_site_has_products() {
 		wp_set_current_user( self::$admin_user_id );
 		update_option(
@@ -362,9 +345,7 @@ class Admin_Menu_Test extends TestCase {
 	 * Upgrade item is absent for users without manage_options capability.
 	 *
 	 * @return void
-	 * @runInSeparateProcess
 	 */
-	#[RunInSeparateProcess]
 	public function test_upgrade_menu_item_hidden_for_non_admin() {
 		wp_set_current_user( self::$editor_user_id );
 
@@ -380,9 +361,7 @@ class Admin_Menu_Test extends TestCase {
 	 * The sidebar is visible everywhere in wp-admin, so styles must load globally.
 	 *
 	 * @return void
-	 * @runInSeparateProcess
 	 */
-	#[RunInSeparateProcess]
 	public function test_upgrade_menu_item_styles_output_for_free_plan() {
 		wp_set_current_user( self::$admin_user_id );
 
@@ -398,9 +377,7 @@ class Admin_Menu_Test extends TestCase {
 	 * No CSS output when the site has a paid plan.
 	 *
 	 * @return void
-	 * @runInSeparateProcess
 	 */
-	#[RunInSeparateProcess]
 	public function test_upgrade_menu_item_styles_no_output_for_paid_plan() {
 		wp_set_current_user( self::$admin_user_id );
 		update_option(
@@ -422,9 +399,7 @@ class Admin_Menu_Test extends TestCase {
 	 * No CSS output when is_free is false.
 	 *
 	 * @return void
-	 * @runInSeparateProcess
 	 */
-	#[RunInSeparateProcess]
 	public function test_upgrade_menu_item_styles_no_output_when_is_free_false() {
 		wp_set_current_user( self::$admin_user_id );
 		update_option(
@@ -446,9 +421,7 @@ class Admin_Menu_Test extends TestCase {
 	 * No CSS output when site has products.
 	 *
 	 * @return void
-	 * @runInSeparateProcess
 	 */
-	#[RunInSeparateProcess]
 	public function test_upgrade_menu_item_styles_no_output_when_site_has_products() {
 		wp_set_current_user( self::$admin_user_id );
 		update_option(
