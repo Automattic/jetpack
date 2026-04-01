@@ -285,7 +285,7 @@ function zeroBSCRM_admin_top_menu( $branding = 'zero-bs-crm', $page = 'dash' ) {
 			echo $header_icon; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Hardcoded HTML with pre-escaped attributes.
 			##WLREMOVE
 			?>
-			<span class="jpcrm-header-logo__text"><?php esc_html_e( 'CRM', 'zero-bs-crm' ); ?></span>
+			<span class="jpcrm-header-logo__text">CRM</span>
 			<?php ##/WLREMOVE ?>
 			<i class="expand icon jpcrm-fullscreen-toggle" title="<?php esc_attr_e( 'Toggle full screen', 'zero-bs-crm' ); ?>"></i>
 		</div>
