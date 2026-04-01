@@ -321,8 +321,10 @@ class Jetpack_CLI extends WP_CLI_Command {
 		// Find an admin user to connect as.
 		$admins = get_users(
 			array(
-				'role'   => 'administrator',
-				'number' => 1,
+				'role'    => 'administrator',
+				'number'  => 1,
+				'orderby' => 'ID',
+				'order'   => 'ASC',
 			)
 		);
 		if ( empty( $admins ) ) {
@@ -356,6 +358,8 @@ class Jetpack_CLI extends WP_CLI_Command {
 		WP_CLI::line( sprintf( __( 'Site registered successfully as "%s". To complete the connection, open this URL in your browser:', 'jetpack' ), $user->user_login ) );
 		WP_CLI::line( '' );
 		WP_CLI::line( $url );
+		WP_CLI::line( '' );
+		WP_CLI::line( __( 'Note: This URL expires in 2 hours.', 'jetpack' ) );
 	}
 
 	/**
