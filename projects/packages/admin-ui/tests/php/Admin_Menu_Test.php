@@ -96,11 +96,19 @@ class Admin_Menu_Test extends TestCase {
 
 		if ( $reflection->hasProperty( 'menu_items' ) ) {
 			$menu_items = $reflection->getProperty( 'menu_items' );
+			// @todo Remove this call once we no longer need to support PHP <8.1.
+			if ( PHP_VERSION_ID < 80100 ) {
+				$menu_items->setAccessible( true );
+			}
 			$menu_items->setValue( null, array() );
 		}
 
 		if ( $reflection->hasProperty( 'initialized' ) ) {
 			$initialized = $reflection->getProperty( 'initialized' );
+			// @todo Remove this call once we no longer need to support PHP <8.1.
+			if ( PHP_VERSION_ID < 80100 ) {
+				$initialized->setAccessible( true );
+			}
 			$initialized->setValue( null, false );
 		}
 	}
