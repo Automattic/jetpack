@@ -8,11 +8,18 @@
 namespace Automattic\Jetpack\Admin_UI;
 
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use PHPUnit\Framework\TestCase;
 
 /**
  * Connection Manager functionality testing.
+ *
+ * @runTestsInSeparateProcesses
+ * @preserveGlobalState disabled
  */
+#[RunTestsInSeparateProcesses]
+#[PreserveGlobalState( false )]
 class Admin_Menu_Test extends TestCase {
 
 	/**
@@ -174,6 +181,8 @@ class Admin_Menu_Test extends TestCase {
 	 * @return void
 	 */
 	public function test_first_menu() {
+		wp_set_current_user( self::$admin_user_id );
+
 		Admin_Menu::init();
 		Admin_Menu::add_menu( 'Test', 'Test', 'edit_posts', 'menu_1', '__return_null', 3 );
 		Admin_Menu::add_menu( 'Test', 'Test', 'edit_posts', 'menu_2', '__return_null', 1 );
@@ -224,11 +233,47 @@ class Admin_Menu_Test extends TestCase {
 	}
 
 	/**
+	 * Upgrade item is shown for legacy plan format when class is free.
+	 *
+	 * @return void
+	 */
+	public function test_upgrade_menu_item_shown_for_legacy_free_class_plan() {
+		wp_set_current_user( self::$admin_user_id );
+		update_option( 'jetpack_active_plan', array( 'class' => 'free' ) );
+
+		Admin_Menu::init();
+		do_action( 'admin_menu' );
+
+		$this->assertUpgradeMenuItemPresent();
+	}
+
+	/**
 	 * Upgrade item is absent when the site has a paid plan.
 	 *
 	 * @return void
 	 */
 	public function test_upgrade_menu_item_hidden_for_paid_plan() {
+		wp_set_current_user( self::$admin_user_id );
+		update_option(
+			'jetpack_active_plan',
+			array(
+				'product_slug' => 'jetpack_security',
+				'is_free'      => false,
+			)
+		);
+
+		Admin_Menu::init();
+		do_action( 'admin_menu' );
+
+		$this->assertUpgradeMenuItemAbsent();
+	}
+
+	/**
+	 * Upgrade item is absent for legacy plan format when class is paid.
+	 *
+	 * @return void
+	 */
+	public function test_upgrade_menu_item_hidden_for_legacy_paid_class_plan() {
 		wp_set_current_user( self::$admin_user_id );
 		update_option( 'jetpack_active_plan', array( 'class' => 'security' ) );
 
@@ -342,7 +387,13 @@ class Admin_Menu_Test extends TestCase {
 	 */
 	public function test_upgrade_menu_item_styles_no_output_for_paid_plan() {
 		wp_set_current_user( self::$admin_user_id );
-		update_option( 'jetpack_active_plan', array( 'class' => 'premium' ) );
+		update_option(
+			'jetpack_active_plan',
+			array(
+				'product_slug' => 'jetpack_complete',
+				'is_free'      => false,
+			)
+		);
 
 		ob_start();
 		Admin_Menu::add_upgrade_menu_item_styles();
