@@ -1,9 +1,7 @@
 @use "@automattic/jetpack-base-styles/root-variables";
 
 // Keep the slug in sync with `UPGRADE_MENU_SLUG` at class-admin-menu.php
-$upgrade-menu-slug: jetpack-wpadmin-sidebar-free-plan-upsell-menu-item;
-
-#adminmenu li.#{$upgrade-menu-slug} > a {
+#adminmenu li.jetpack-wpadmin-sidebar-free-plan-upsell-menu-item > a {
 
 	&,
 	&:hover {
