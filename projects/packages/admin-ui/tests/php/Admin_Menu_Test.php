@@ -91,6 +91,8 @@ class Admin_Menu_Test extends TestCase {
 		$submenu = array();
 		delete_option( 'jetpack_active_plan' );
 		delete_option( 'jetpack_site_products' );
+		wp_dequeue_style( 'jetpack-admin-ui-upgrade-menu' );
+		wp_deregister_style( 'jetpack-admin-ui-upgrade-menu' );
 
 		$reflection = new \ReflectionClass( Admin_Menu::class );
 
@@ -362,29 +364,26 @@ class Admin_Menu_Test extends TestCase {
 	}
 
 	/**
-	 * CSS styles are output for a free-plan site on any admin screen.
+	 * Upgrade menu stylesheet is enqueued for a free-plan site.
 	 *
 	 * The sidebar is visible everywhere in wp-admin, so styles must load globally.
 	 *
 	 * @return void
 	 */
-	public function test_upgrade_menu_item_styles_output_for_free_plan() {
+	public function test_upgrade_menu_item_styles_enqueued_for_free_plan() {
 		wp_set_current_user( self::$admin_user_id );
 
-		ob_start();
 		Admin_Menu::add_upgrade_menu_item_styles();
-		$output = ob_get_clean();
 
-		$this->assertStringContainsString( Admin_Menu::UPGRADE_MENU_SLUG, $output );
-		$this->assertStringContainsString( '#069e08', $output );
+		$this->assertTrue( wp_style_is( 'jetpack-admin-ui-upgrade-menu', 'enqueued' ) );
 	}
 
 	/**
-	 * No CSS output when the site has a paid plan.
+	 * No stylesheet enqueue when the site has a paid plan.
 	 *
 	 * @return void
 	 */
-	public function test_upgrade_menu_item_styles_no_output_for_paid_plan() {
+	public function test_upgrade_menu_item_styles_not_enqueued_for_paid_plan() {
 		wp_set_current_user( self::$admin_user_id );
 		update_option(
 			'jetpack_active_plan',
@@ -394,19 +393,17 @@ class Admin_Menu_Test extends TestCase {
 			)
 		);
 
-		ob_start();
 		Admin_Menu::add_upgrade_menu_item_styles();
-		$output = ob_get_clean();
 
-		$this->assertSame( '', $output );
+		$this->assertFalse( wp_style_is( 'jetpack-admin-ui-upgrade-menu', 'enqueued' ) );
 	}
 
 	/**
-	 * No CSS output when is_free is false.
+	 * No stylesheet enqueue when is_free is false.
 	 *
 	 * @return void
 	 */
-	public function test_upgrade_menu_item_styles_no_output_when_is_free_false() {
+	public function test_upgrade_menu_item_styles_not_enqueued_when_is_free_false() {
 		wp_set_current_user( self::$admin_user_id );
 		update_option(
 			'jetpack_active_plan',
@@ -416,19 +413,17 @@ class Admin_Menu_Test extends TestCase {
 			)
 		);
 
-		ob_start();
 		Admin_Menu::add_upgrade_menu_item_styles();
-		$output = ob_get_clean();
 
-		$this->assertSame( '', $output );
+		$this->assertFalse( wp_style_is( 'jetpack-admin-ui-upgrade-menu', 'enqueued' ) );
 	}
 
 	/**
-	 * No CSS output when site has products.
+	 * No stylesheet enqueue when site has products.
 	 *
 	 * @return void
 	 */
-	public function test_upgrade_menu_item_styles_no_output_when_site_has_products() {
+	public function test_upgrade_menu_item_styles_not_enqueued_when_site_has_products() {
 		wp_set_current_user( self::$admin_user_id );
 		update_option(
 			'jetpack_site_products',
@@ -439,11 +434,9 @@ class Admin_Menu_Test extends TestCase {
 			)
 		);
 
-		ob_start();
 		Admin_Menu::add_upgrade_menu_item_styles();
-		$output = ob_get_clean();
 
-		$this->assertSame( '', $output );
+		$this->assertFalse( wp_style_is( 'jetpack-admin-ui-upgrade-menu', 'enqueued' ) );
 	}
 
 	/**

@@ -54,7 +54,7 @@ class Admin_Menu {
 			self::handle_akismet_menu();
 			add_action( 'admin_menu', array( __CLASS__, 'admin_menu_hook_callback' ), 1000 ); // Jetpack uses 998.
 			add_action( 'network_admin_menu', array( __CLASS__, 'admin_menu_hook_callback' ), 1000 ); // Jetpack uses 998.
-			add_action( 'admin_head', array( __CLASS__, 'add_upgrade_menu_item_styles' ) );
+			add_action( 'admin_enqueue_scripts', array( __CLASS__, 'add_upgrade_menu_item_styles' ) );
 		}
 	}
 
@@ -345,10 +345,10 @@ class Admin_Menu {
 	}
 
 	/**
-	 * Outputs inline CSS to style the "Upgrade Jetpack" menu item in Jetpack green.
+	 * Enqueues admin styles for the "Upgrade Jetpack" menu item.
 	 *
-	 * The sidebar menu is visible on every admin page, so styles must load globally.
-	 * Only outputs for free-plan sites on self-hosted installs.
+	 * The sidebar menu is visible on every admin page, so styles load globally.
+	 * Only enqueues for free-plan sites on self-hosted installs.
 	 *
 	 * @return void
 	 */
@@ -357,42 +357,16 @@ class Admin_Menu {
 			return;
 		}
 
-		// All color schemes have bold upsell text
-		$styles_template =
-			'#adminmenu li.%slug% > a,' .
-			'#adminmenu li.%slug% > a:hover { ' .
-			'font-weight: 600; }';
+		$asset_file = dirname( __DIR__ ) . '/build/admin-menu-style.asset.php';
+		if ( file_exists( $asset_file ) ) {
+			$asset = require $asset_file;
 
-		// Safe admin color schemes have Jetpack Green as the highlight color.
-		$safe_color_schemes = array( 'fresh', 'light', 'modern', 'coffee', 'midnight' );
-		$color_selectors    = array();
-		foreach ( $safe_color_schemes as $color_scheme ) {
-			$color_selectors[] = '.admin-color-' . $color_scheme . ' #adminmenu li.%slug% > a';
-			$color_selectors[] = '.admin-color-' . $color_scheme . ' #adminmenu li.%slug% > a:hover';
+			wp_enqueue_style(
+				'jetpack-admin-ui-upgrade-menu',
+				plugins_url( '../build/admin-menu-style.css', __FILE__ ),
+				$asset['dependencies'] ?? array(),
+				$asset['version'] ?? self::PACKAGE_VERSION
+			);
 		}
-
-		$styles_template .= implode( ',', $color_selectors ) . '{color: #069e08 !important;}';
-
-		// Special color schemes have a different highlight color suitable to the scheme to stay readable.
-		$special_color_schemes = array(
-			'coffee'    => '#9ea476',
-			'ectoplasm' => '#a3b745',
-			'midnight'  => '#e14d43',
-		);
-
-		foreach ( $special_color_schemes as $color_scheme => $color ) {
-			$styles_template .= '.admin-color-' . $color_scheme . ' #adminmenu li.%slug% > a,';
-			$styles_template .= '.admin-color-' . $color_scheme . ' #adminmenu li.%slug% > a:hover {color: ' . $color . ' !important;}';
-		}
-
-		$styles = str_replace( '%slug%', esc_attr( self::UPGRADE_MENU_SLUG ), $styles_template );
-
-		?>
-		<style>
-			<?php echo $styles; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Output is a CSS string generated from trusted selectors and an escaped slug. ?>
-		</style>
-		<?php
 	}
 }
-
-

@@ -1822,7 +1822,26 @@ importers:
 
   projects/packages/account-protection: {}
 
-  projects/packages/admin-ui: {}
+  projects/packages/admin-ui:
+    devDependencies:
+      '@automattic/jetpack-webpack-config':
+        specifier: workspace:*
+        version: link:../../js-packages/webpack-config
+      '@wordpress/browserslist-config':
+        specifier: 6.42.0
+        version: 6.42.0
+      sass-embedded:
+        specifier: 1.97.3
+        version: 1.97.3
+      sass-loader:
+        specifier: 16.0.5
+        version: 16.0.5(sass-embedded@1.97.3)(webpack@5.105.2)
+      webpack:
+        specifier: 5.105.2
+        version: 5.105.2(webpack-cli@6.0.1)
+      webpack-cli:
+        specifier: 6.0.1
+        version: 6.0.1(webpack@5.105.2)
 
   projects/packages/assets:
     dependencies:
