@@ -49,7 +49,7 @@ const isManagedPlatformSite = isWoaSite || isVipSite;
 const CONNECTOR_LOGO = data.connectorLogoUrl
 	? createElement( 'img', { src: data.connectorLogoUrl, alt: '', width: 36, height: 36 } )
 	: null;
-const ssoStatus = 'ssoStatus' in data ? data.ssoStatus : null;
+const ssoStatus = data.ssoStatus ?? null;
 
 /**
  * Start the Jetpack connection flow: register the site (if needed),
