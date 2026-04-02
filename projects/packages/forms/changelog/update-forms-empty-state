@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Update empty state to use component from wp-ui.
