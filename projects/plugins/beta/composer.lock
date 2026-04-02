@@ -12,7 +12,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/admin-ui",
-                "reference": "827d689e815ae1112f6823ed45a51739d78bac4f"
+                "reference": "d71575c86c7f4cec8c3354e21c15db817b966515"
             },
             "require": {
                 "automattic/jetpack-redirect": "@dev",
@@ -50,6 +50,12 @@
                 ]
             },
             "scripts": {
+                "build-development": [
+                    "pnpm run build"
+                ],
+                "build-production": [
+                    "pnpm run build-production"
+                ],
                 "phpunit": [
                     "phpunit-select-config phpunit.#.xml.dist --colors=always"
                 ],
