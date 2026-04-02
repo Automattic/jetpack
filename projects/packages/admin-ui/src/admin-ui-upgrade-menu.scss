@@ -9,9 +9,11 @@ $upgrade-menu-slug: jetpack-wpadmin-sidebar-free-plan-upsell-menu-item;
 	border-radius: var(--jp-border-radius) !important;
 	box-shadow: none !important;
 	color: var(--jp-white) !important;
-	font-weight: 600;
-	margin-left: 5px;
-	margin-right: 5px;
+	margin: 2px 4px;
+	max-width: 250px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
 }
 
 #adminmenu li.#{$upgrade-menu-slug} > a:hover {
