@@ -27,7 +27,6 @@ class Site_Health_Test extends TestCase {
 		// Reset the static initialized flag via reflection.
 		$reflection = new \ReflectionClass( Site_Health::class );
 		$property   = $reflection->getProperty( 'initialized' );
-		$property->setAccessible( true );
 		$property->setValue( null, false );
 
 		remove_all_filters( 'site_status_tests' );

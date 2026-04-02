@@ -228,6 +228,7 @@ class Connection_Health_Tests_Test extends TestCase {
 			}
 		);
 
+		// @phan-suppress-next-line PhanNoopNew -- Constructor fires the action we're testing.
 		new Connection_Health_Tests();
 		remove_all_actions( 'jetpack_connection_tests_loaded' );
 
