@@ -111,7 +111,7 @@
 				'@wordpress/ui',
 			],
 			separateMajorMinor: false,
-			// Teams that can help vet the update
+			// Teams that can help test the update
 			additionalReviewers: [
 				'team:triforce', // Monorepo overall, Publicize, My Jetpack
 				'team:loop', // Newsletter dashboard & subscriber management
