@@ -921,7 +921,7 @@ alert( 'jp carousel' );
 				return args.origFile;
 			}
 
-			if ( typeof args.mediumFile === 'undefined' || typeof args.largeFile === 'undefined' ) {
+			if ( typeof args.largeFile === 'undefined' ) {
 				console.log( ' exit 3' );
 				return args.origFile;
 			}
@@ -948,21 +948,10 @@ alert( 'jp carousel' );
 			}
 
 			if ( largeWidth >= args.maxWidth || largeHeight >= args.maxHeight ) {
-				console.log( { args, mediumWidth, largeWidth } );
+				console.log( { args, largeWidth } );
 				console.log( ' pick large' );
 				return args.largeFile;
 			}
-
-			var mediumSizeParts = getImageSizeParts( args.mediumFile, args.origWidth, isPhotonUrl );
-			var mediumWidth = parseInt( mediumSizeParts[ 0 ], 10 );
-			var mediumHeight = parseInt( mediumSizeParts[ 1 ], 10 );
-
-			if ( mediumWidth >= args.maxWidth || mediumHeight >= args.maxHeight ) {
-				console.log( { args, mediumWidth, largeWidth } );
-				console.log( ' pick medium' );
-				return args.mediumFile;
-			}
-			console.log( { args, mediumWidth, largeWidth } );
 
 			if ( isPhotonUrl ) {
 				// args.origFile doesn't point to a Photon url, so in this case we use args.largeFile
@@ -1445,7 +1434,6 @@ alert( 'jp carousel' );
 					imageMeta: domUtil.getJSONAttribute( item, 'data-image-meta' ) || {},
 					title: item.getAttribute( 'data-image-title' ) || '',
 					desc: item.getAttribute( 'data-image-description' ) || '',
-					mediumFile: item.getAttribute( 'data-medium-file' ) || '',
 					largeFile: item.getAttribute( 'data-large-file' ) || '',
 					origFile: origFile || '',
 					thumbSize: { width: item.naturalWidth, height: item.naturalHeight },
@@ -1476,7 +1464,6 @@ alert( 'jp carousel' );
 						origHeight: attrs.origHeight,
 						maxWidth: max.width,
 						maxHeight: max.height,
-						mediumFile: attrs.mediumFile,
 						largeFile: attrs.largeFile,
 					} );
 				}
