@@ -360,15 +360,13 @@ class Admin_Menu {
 		}
 
 		$asset_file = dirname( __DIR__ ) . '/build/admin-ui-upgrade-menu.asset.php';
-		if ( file_exists( $asset_file ) ) {
-			$asset = require $asset_file;
+		$asset      = file_exists( $asset_file ) ? require $asset_file : array();
 
-			wp_enqueue_style(
-				'jetpack-admin-ui-upgrade-menu',
-				plugins_url( '../build/admin-ui-upgrade-menu.css', __FILE__ ),
-				$asset['dependencies'] ?? array(),
-				$asset['version'] ?? self::PACKAGE_VERSION
-			);
-		}
+		wp_enqueue_style(
+			'jetpack-admin-ui-upgrade-menu',
+			plugins_url( '../build/admin-ui-upgrade-menu.css', __FILE__ ),
+			$asset['dependencies'] ?? array(),
+			$asset['version'] ?? self::PACKAGE_VERSION
+		);
 	}
 }
