@@ -3,19 +3,23 @@
 // Keep the slug in sync with `UPGRADE_MENU_SLUG` at class-admin-menu.php
 $upgrade-menu-slug: jetpack-wpadmin-sidebar-free-plan-upsell-menu-item;
 
-#adminmenu li.#{$upgrade-menu-slug} > a,
-#adminmenu li.#{$upgrade-menu-slug} > a:hover {
-	background: var(--jp-green-40) !important;
-	border-radius: var(--jp-border-radius) !important;
-	box-shadow: none !important;
-	color: var(--jp-white) !important;
-	margin: 2px 4px;
-	max-width: 250px;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	white-space: nowrap;
-}
+#adminmenu li.#{$upgrade-menu-slug} > a {
 
-#adminmenu li.#{$upgrade-menu-slug} > a:hover {
-	background: var(--jp-green-30) !important;
+	&,
+	&:hover {
+		background: var(--jp-green-40) !important;
+		border-radius: var(--jp-border-radius) !important;
+		box-shadow: none !important;
+		color: var(--jp-white) !important;
+		margin: 2px 4px;
+		max-width: 250px;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	&:hover {
+		background: var(--jp-green-30) !important;
+	}
+
 }
