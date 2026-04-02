@@ -48,7 +48,7 @@ export const getFormLabel = ( { ref } ) => {
 	} );
 };
 
-const icon = renderMaterialIcon(
+export const icon = renderMaterialIcon(
 	<>
 		<Path fillRule="evenodd" clipRule="evenodd" d="M18 9H13V7.5H18V9Z" />
 		<Path fillRule="evenodd" clipRule="evenodd" d="M18 16.5H13V15H18V16.5Z" />
