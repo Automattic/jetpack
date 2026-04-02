@@ -69,6 +69,29 @@ class Wpcom_Connector_Test extends TestCase {
 		// Clean up any auth error transients left by tests.
 		delete_transient( 'wpcom_connector_auth_error_' . $this->admin_id );
 
+		$reflection_class = new \ReflectionClass( '\Automattic\Jetpack\Connection\Plugin_Storage' );
+		try {
+			$reflection_class->setStaticPropertyValue( 'configured', false );
+			$reflection_class->setStaticPropertyValue( 'plugins', array() );
+			$reflection_class->setStaticPropertyValue( 'current_blog_id', null );
+		} catch ( \ReflectionException $e ) { // PHP 7 compat
+			foreach ( array(
+				'configured'      => false,
+				'plugins'         => array(),
+				'current_blog_id' => null,
+			) as $prop => $default ) {
+				$p = $reflection_class->getProperty( $prop );
+				if ( PHP_VERSION_ID < 80100 ) {
+					$p->setAccessible( true );
+				}
+				$p->setValue( null, $default );
+			}
+		}
+		remove_action( 'update_option_active_plugins', array( Plugin_Storage::class, 'set_flag_to_refresh_active_connected_plugins' ) );
+
+		// Reset Manager's memoized connection status.
+		( new Manager() )->reset_connection_status();
+
 		WorDBless_Options::init()->clear_options();
 		WorDBless_Users::init()->clear_all_users();
 		wp_set_current_user( 0 );
@@ -151,6 +174,7 @@ class Wpcom_Connector_Test extends TestCase {
 		$this->assertArrayNotHasKey( 'siteDetails', $data );
 		$this->assertArrayNotHasKey( 'currentUser', $data );
 		$this->assertArrayNotHasKey( 'connectionOwner', $data );
+		$this->assertArrayNotHasKey( 'ssoStatus', $data );
 	}
 
 	/**
@@ -161,6 +185,50 @@ class Wpcom_Connector_Test extends TestCase {
 
 		$this->assertSame( 'customValue', $data['customKey'] );
 		$this->assertArrayHasKey( 'isConnected', $data );
+	}
+
+	/* ── get_connector_data() — SSO status ──────── */
+
+	/**
+	 * Test that ssoStatus is absent when SSO module is not available (no Jetpack).
+	 */
+	public function test_sso_status_absent_when_module_unavailable() {
+		\Jetpack_Options::update_option( 'blog_token', 'test.secret' );
+		\Jetpack_Options::update_option( 'id', 12345 );
+
+		$data = Wpcom_Connector::get_connector_data( array() );
+
+		$this->assertArrayNotHasKey( 'ssoStatus', $data );
+	}
+
+	/**
+	 * Test that ssoStatus is false when SSO module is available but not active.
+	 */
+	public function test_sso_status_false_when_inactive() {
+		\Jetpack_Options::update_option( 'blog_token', 'test.secret' );
+		\Jetpack_Options::update_option( 'id', 12345 );
+		Plugin_Storage::configure();
+		Plugin_Storage::upsert( 'jetpack', array( 'name' => 'Jetpack' ) );
+		\Jetpack_Options::update_option( 'active_modules', array() );
+
+		$data = Wpcom_Connector::get_connector_data( array() );
+
+		$this->assertFalse( $data['ssoStatus'] );
+	}
+
+	/**
+	 * Test that ssoStatus is true when SSO module is active.
+	 */
+	public function test_sso_status_true_when_active() {
+		\Jetpack_Options::update_option( 'blog_token', 'test.secret' );
+		\Jetpack_Options::update_option( 'id', 12345 );
+		Plugin_Storage::configure();
+		Plugin_Storage::upsert( 'jetpack', array( 'name' => 'Jetpack' ) );
+		\Jetpack_Options::update_option( 'active_modules', array( 'sso' ) );
+
+		$data = Wpcom_Connector::get_connector_data( array() );
+
+		$this->assertTrue( $data['ssoStatus'] );
 	}
 
 	/* ── is_connectors_screen() ────────────────────────────────── */
