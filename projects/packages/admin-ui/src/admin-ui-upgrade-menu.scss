@@ -10,11 +10,8 @@
 		box-shadow: none !important;
 		color: var(--jp-white) !important;
 		margin: 2px 4px;
-		max-width: 250px;
-		overflow: hidden;
 		text-align: center;
-		text-overflow: ellipsis;
-		white-space: nowrap;
+		text-wrap: pretty;
 	}
 
 	&:hover {
