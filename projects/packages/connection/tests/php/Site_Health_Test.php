@@ -34,7 +34,9 @@ class Site_Health_Test extends TestCase {
 		$property->setValue( null, false );
 
 		remove_all_filters( 'site_status_tests' );
+		remove_all_filters( 'pre_http_request' );
 		remove_all_actions( 'admin_init' );
+		remove_all_actions( 'wp_ajax_health-check-jetpack-connection-health' );
 	}
 
 	/**
@@ -114,5 +116,98 @@ class Site_Health_Test extends TestCase {
 		$this->assertArrayHasKey( 'label', $first_test );
 		$this->assertArrayHasKey( 'test', $first_test );
 		$this->assertIsCallable( $first_test['test'] );
+	}
+
+	/**
+	 * Test that maybe_register_site_health registers the AJAX action.
+	 */
+	public function test_maybe_register_adds_ajax_action() {
+		Site_Health::maybe_register_site_health();
+
+		$this->assertNotFalse(
+			has_action( 'wp_ajax_health-check-jetpack-connection-health', array( Site_Health::class, 'ajax_local_testing_suite' ) )
+		);
+	}
+
+	/**
+	 * Test that invoking a direct test callback returns valid Site Health structure for a passing test.
+	 */
+	public function test_direct_callback_returns_site_health_format_for_passing_test() {
+		$core_tests = array(
+			'direct' => array(),
+			'async'  => array(),
+		);
+
+		$result = Site_Health::register_site_health_tests( $core_tests );
+
+		// xml_parser_available always passes in CI.
+		$this->assertArrayHasKey( 'test__xml_parser_available', $result['direct'] );
+		$callback = $result['direct']['test__xml_parser_available']['test'];
+
+		$output = $callback();
+
+		$this->assertIsArray( $output );
+		$this->assertArrayHasKey( 'label', $output );
+		$this->assertArrayHasKey( 'status', $output );
+		$this->assertArrayHasKey( 'badge', $output );
+		$this->assertArrayHasKey( 'description', $output );
+		$this->assertArrayHasKey( 'actions', $output );
+		$this->assertArrayHasKey( 'test', $output );
+		$this->assertEquals( 'good', $output['status'] );
+		$this->assertEquals( 'jetpack_test__xml_parser_available', $output['test'] );
+	}
+
+	/**
+	 * Test that invoking a direct test callback returns correct structure for a failing test.
+	 */
+	public function test_direct_callback_returns_site_health_format_for_failing_test() {
+		// Mock HTTP to fail for outbound_http.
+		add_filter(
+			'pre_http_request',
+			function () {
+				return array(
+					'response' => array( 'code' => 500 ),
+					'body'     => 'Error',
+				);
+			}
+		);
+
+		$core_tests = array(
+			'direct' => array(),
+			'async'  => array(),
+		);
+
+		$result = Site_Health::register_site_health_tests( $core_tests );
+
+		$this->assertArrayHasKey( 'test__outbound_http', $result['direct'] );
+		$callback = $result['direct']['test__outbound_http']['test'];
+
+		$output = $callback();
+
+		$this->assertIsArray( $output );
+		$this->assertNotEquals( 'good', $output['status'] );
+		$this->assertEquals( 'jetpack_test__outbound_http', $output['test'] );
+	}
+
+	/**
+	 * Test that invoking a direct test callback returns correct structure for a skipped test.
+	 */
+	public function test_direct_callback_returns_site_health_format_for_skipped_test() {
+		$core_tests = array(
+			'direct' => array(),
+			'async'  => array(),
+		);
+
+		$result = Site_Health::register_site_health_tests( $core_tests );
+
+		// blog_token_if_exists skips when not connected.
+		$this->assertArrayHasKey( 'test__blog_token_if_exists', $result['direct'] );
+		$callback = $result['direct']['test__blog_token_if_exists']['test'];
+
+		$output = $callback();
+
+		$this->assertIsArray( $output );
+		// Skipped tests still return 'good' status (they aren't failures).
+		$this->assertEquals( 'good', $output['status'] );
 	}
 }

@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Connection;
 
+use Automattic\Jetpack\Status\Cache as StatusCache;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
@@ -33,6 +34,18 @@ class Connection_Health_Test_Base_Test extends TestCase {
 	public function setUp(): void {
 		parent::setUp();
 		$this->base = new Connection_Health_Test_Base();
+	}
+
+	/**
+	 * Clean up after each test.
+	 */
+	public function tearDown(): void {
+		parent::tearDown();
+		StatusCache::clear();
+		remove_all_filters( 'jetpack_connection_reconnect_url' );
+		remove_all_filters( 'jetpack_connection_support_url' );
+		remove_all_filters( 'jetpack_connection_site_health_badge_label' );
+		remove_all_filters( 'jetpack_offline_mode' );
 	}
 
 	/**
@@ -296,6 +309,295 @@ class Connection_Health_Test_Base_Test extends TestCase {
 		$error = $this->base->output_fails_as_wp_error();
 		$this->assertInstanceOf( \WP_Error::class, $error );
 		$this->assertEquals( 'failed_fail_test', $error->get_error_code() );
+	}
+
+	/**
+	 * Test run_tests populates results and sets the pass flag.
+	 */
+	public function test_run_tests_populates_results() {
+		$this->base->add_test(
+			function () {
+				return Connection_Health_Test_Base::passing_test( array( 'name' => 'test_a' ) );
+			},
+			'test_a',
+			'direct'
+		);
+		$this->base->add_test(
+			function () {
+				return Connection_Health_Test_Base::skipped_test( array( 'name' => 'test_b' ) );
+			},
+			'test_b',
+			'async'
+		);
+
+		$results = $this->base->raw_results();
+		$this->assertCount( 2, $results );
+		$this->assertTrue( $this->base->pass() );
+	}
+
+	/**
+	 * Test run_tests sets pass to false when a test fails.
+	 */
+	public function test_run_tests_sets_pass_false_on_failure() {
+		$this->base->add_test(
+			function () {
+				return Connection_Health_Test_Base::passing_test( array( 'name' => 'ok' ) );
+			},
+			'ok'
+		);
+		$this->base->add_test(
+			function () {
+				return Connection_Health_Test_Base::failing_test( array( 'name' => 'bad' ) );
+			},
+			'bad'
+		);
+
+		$this->assertFalse( $this->base->pass() );
+	}
+
+	/**
+	 * Test raw_results filters by type.
+	 */
+	public function test_raw_results_filters_by_type() {
+		$this->base->add_test(
+			function () {
+				return Connection_Health_Test_Base::passing_test( array( 'name' => 'direct_test' ) );
+			},
+			'direct_test',
+			'direct'
+		);
+		$this->base->add_test(
+			function () {
+				return Connection_Health_Test_Base::passing_test( array( 'name' => 'async_test' ) );
+			},
+			'async_test',
+			'async'
+		);
+
+		$direct_results = $this->base->raw_results( 'direct' );
+		$this->assertCount( 1, $direct_results );
+
+		$async_results = $this->base->raw_results( 'async' );
+		$this->assertCount( 1, $async_results );
+	}
+
+	/**
+	 * Test list_fails filters by type.
+	 */
+	public function test_list_fails_filters_by_type() {
+		$this->base->add_test(
+			function () {
+				return Connection_Health_Test_Base::failing_test(
+					array(
+						'name'              => 'direct_fail',
+						'short_description' => 'Failed',
+					)
+				);
+			},
+			'direct_fail',
+			'direct'
+		);
+		$this->base->add_test(
+			function () {
+				return Connection_Health_Test_Base::failing_test(
+					array(
+						'name'              => 'async_fail',
+						'short_description' => 'Failed',
+					)
+				);
+			},
+			'async_fail',
+			'async'
+		);
+
+		$direct_fails = $this->base->list_fails( 'direct' );
+		$this->assertCount( 1, $direct_fails );
+
+		$async_fails = $this->base->list_fails( 'async' );
+		$this->assertCount( 1, $async_fails );
+	}
+
+	/**
+	 * Test connection_failing_test returns correct structure with defaults.
+	 */
+	public function test_connection_failing_test_structure() {
+		$result = Connection_Health_Test_Base::connection_failing_test( 'test_cxn_fail' );
+
+		$this->assertFalse( $result['pass'] );
+		$this->assertEquals( 'test_cxn_fail', $result['name'] );
+		$this->assertEquals( 'critical', $result['severity'] );
+		$this->assertNotEmpty( $result['short_description'] );
+		$this->assertNotEmpty( $result['action'] );
+		$this->assertNotEmpty( $result['action_label'] );
+		$this->assertNotEmpty( $result['long_description'] );
+	}
+
+	/**
+	 * Test connection_failing_test with custom error and recommendation.
+	 */
+	public function test_connection_failing_test_with_custom_args() {
+		$result = Connection_Health_Test_Base::connection_failing_test(
+			'test_custom',
+			'Custom error message',
+			'Try this fix'
+		);
+
+		$this->assertFalse( $result['pass'] );
+		$this->assertEquals( 'Custom error message', $result['short_description'] );
+		$this->assertStringContainsString( 'Custom error message', $result['long_description'] );
+		$this->assertStringContainsString( 'Try this fix', $result['long_description'] );
+	}
+
+	/**
+	 * Test connection_failing_test uses the reconnect URL filter.
+	 */
+	public function test_connection_failing_test_reconnect_url_filter() {
+		add_filter(
+			'jetpack_connection_reconnect_url',
+			function () {
+				return 'https://example.com/custom-reconnect';
+			}
+		);
+
+		$result = Connection_Health_Test_Base::connection_failing_test( 'test_filter' );
+		$this->assertEquals( 'https://example.com/custom-reconnect', $result['action'] );
+	}
+
+	/**
+	 * Test increase_timeout returns 30.
+	 */
+	public function test_increase_timeout() {
+		$this->assertEquals( 30, Connection_Health_Test_Base::increase_timeout() );
+	}
+
+	/**
+	 * Test offline_mode_trigger_text when not in offline mode.
+	 */
+	public function test_offline_mode_trigger_text_when_not_offline() {
+		$text = Connection_Health_Test_Base::offline_mode_trigger_text();
+		$this->assertStringContainsString( 'not in Offline Mode', $text );
+	}
+
+	/**
+	 * Test offline_mode_trigger_text when in offline mode via filter.
+	 */
+	public function test_offline_mode_trigger_text_when_offline_via_filter() {
+		StatusCache::clear();
+		add_filter( 'jetpack_offline_mode', '__return_true' );
+
+		$text = Connection_Health_Test_Base::offline_mode_trigger_text();
+		$this->assertStringContainsString( 'jetpack_offline_mode', $text );
+	}
+
+	/**
+	 * Test get_site_health_badge_label returns default.
+	 */
+	public function test_get_site_health_badge_label_default() {
+		$this->assertEquals( 'Jetpack', $this->base->get_site_health_badge_label() );
+	}
+
+	/**
+	 * Test get_site_health_badge_label can be filtered.
+	 */
+	public function test_get_site_health_badge_label_filtered() {
+		add_filter(
+			'jetpack_connection_site_health_badge_label',
+			function () {
+				return 'Custom Plugin';
+			}
+		);
+
+		$this->assertEquals( 'Custom Plugin', $this->base->get_site_health_badge_label() );
+	}
+
+	/**
+	 * Test output_results_for_core_async_site_health when all tests pass.
+	 */
+	public function test_output_results_for_core_async_site_health_passing() {
+		$this->base->add_test(
+			function () {
+				return Connection_Health_Test_Base::passing_test( array( 'name' => 'test_ok' ) );
+			},
+			'test_ok'
+		);
+
+		$result = $this->base->output_results_for_core_async_site_health();
+
+		$this->assertIsArray( $result );
+		$this->assertEquals( 'good', $result['status'] );
+		$this->assertArrayHasKey( 'label', $result );
+		$this->assertArrayHasKey( 'badge', $result );
+		$this->assertArrayHasKey( 'description', $result );
+		$this->assertEquals( 'jetpack_connection_local_testing_suite', $result['test'] );
+	}
+
+	/**
+	 * Test encrypt_string_for_wpcom returns encrypted data.
+	 */
+	public function test_encrypt_string_for_wpcom() {
+		if ( ! function_exists( 'openssl_get_publickey' ) ) {
+			$this->markTestSkipped( 'openssl extension not available.' );
+		}
+
+		$result = $this->base->encrypt_string_for_wpcom( 'test data' );
+		$this->assertIsArray( $result );
+		$this->assertArrayHasKey( 'data', $result );
+		$this->assertArrayHasKey( 'key', $result );
+		$this->assertArrayHasKey( 'iv', $result );
+		$this->assertArrayHasKey( 'cipher', $result );
+	}
+
+	/**
+	 * Test output_fails_as_wp_error aggregates multiple failures.
+	 */
+	public function test_output_fails_as_wp_error_multiple_failures() {
+		$this->base->add_test(
+			function () {
+				return Connection_Health_Test_Base::failing_test(
+					array(
+						'name'              => 'fail_one',
+						'short_description' => 'First failure',
+					)
+				);
+			},
+			'fail_one'
+		);
+		$this->base->add_test(
+			function () {
+				return Connection_Health_Test_Base::failing_test(
+					array(
+						'name'              => 'fail_two',
+						'short_description' => 'Second failure',
+					)
+				);
+			},
+			'fail_two'
+		);
+
+		$error = $this->base->output_fails_as_wp_error();
+		$this->assertInstanceOf( \WP_Error::class, $error );
+		$this->assertEquals( 'failed_fail_one', $error->get_error_code() );
+		$codes = $error->get_error_codes();
+		$this->assertContains( 'failed_fail_one', $codes );
+		$this->assertContains( 'failed_fail_two', $codes );
+	}
+
+	/**
+	 * Test output_results_for_cli returns early when not in WP_CLI context.
+	 */
+	public function test_output_results_for_cli_returns_early_outside_cli() {
+		// Should not error or produce output when WP_CLI is not defined.
+		$this->base->add_test(
+			function () {
+				return Connection_Health_Test_Base::passing_test( array( 'name' => 'test_cli' ) );
+			},
+			'test_cli'
+		);
+
+		$this->base->output_results_for_cli();
+
+		// If we reach here without error, the guard works.
+		$this->assertTrue( true );
 	}
 
 	/**

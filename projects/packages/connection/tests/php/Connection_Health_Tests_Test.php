@@ -276,7 +276,10 @@ class Connection_Health_Tests_Test extends TestCase {
 		// bypassing its validation that the user actually exists in the DB.
 		$reflection = new \ReflectionClass( Manager::class );
 		$property   = $reflection->getProperty( 'connection_owner_id' );
-		$property->setAccessible( true );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
 		$property->setValue( null, 99999 );
 
 		$mock = $this->create_mock_with_helpers(
