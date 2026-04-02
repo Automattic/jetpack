@@ -14,8 +14,10 @@ use PHPUnit\Framework\TestCase;
  * Tests for the Connection_Health_Test_Base class.
  *
  * @covers \Automattic\Jetpack\Connection\Connection_Health_Test_Base
+ * @covers \Automattic\Jetpack\Connection\Connection_Health_Tests
  */
 #[CoversClass( Connection_Health_Test_Base::class )]
+#[CoversClass( Connection_Health_Tests::class )]
 class Connection_Health_Test_Base_Test extends TestCase {
 
 	/**
