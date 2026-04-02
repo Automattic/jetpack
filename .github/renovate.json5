@@ -102,7 +102,6 @@
 			matchPackageNames: [
 				'@wordpress/admin-ui',
 				'@wordpress/dataviews',
-				'@wordpress/dataviews/wp',
 				'@wordpress/icons',
 				'@wordpress/interface',
 				'@wordpress/undo-manager',
