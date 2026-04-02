@@ -43,6 +43,13 @@ class Wpcom_Connector {
 	const GUTENBERG_CONNECTORS_SCREEN_ID = 'settings_page_options-connectors-wp-admin';
 
 	/**
+	 * Page slug registered by the Gutenberg plugin for the connectors submenu page.
+	 *
+	 * @var string
+	 */
+	const GUTENBERG_CONNECTORS_PAGE_SLUG = 'options-connectors-wp-admin';
+
+	/**
 	 * Initialize the connector.
 	 */
 	public static function init() {
@@ -317,7 +324,7 @@ class Wpcom_Connector {
 		// Gutenberg plugin registers the page under options-general.php.
 		$screen = get_current_screen();
 		if ( $screen && static::GUTENBERG_CONNECTORS_SCREEN_ID === $screen->id ) {
-			return 'options-general.php?page=options-connectors-wp-admin';
+			return 'options-general.php?page=' . static::GUTENBERG_CONNECTORS_PAGE_SLUG;
 		}
 
 		return 'options-connectors.php';

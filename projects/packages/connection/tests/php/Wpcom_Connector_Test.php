@@ -516,7 +516,7 @@ class Wpcom_Connector_Test extends TestCase {
 		$_SERVER['SCRIPT_NAME'] = '/wp-admin/options-general.php';
 
 		$screen                    = new \stdClass();
-		$screen->id                = 'settings_page_options-connectors-wp-admin';
+		$screen->id                = Wpcom_Connector::GUTENBERG_CONNECTORS_SCREEN_ID;
 		$GLOBALS['current_screen'] = $screen;
 
 		$method = new \ReflectionMethod( Wpcom_Connector::class, 'get_connectors_page_path' );
@@ -528,7 +528,7 @@ class Wpcom_Connector_Test extends TestCase {
 
 		unset( $GLOBALS['current_screen'], $_SERVER['SCRIPT_NAME'] );
 
-		$this->assertSame( 'options-general.php?page=options-connectors-wp-admin', $result );
+		$this->assertSame( 'options-general.php?page=' . Wpcom_Connector::GUTENBERG_CONNECTORS_PAGE_SLUG, $result );
 	}
 
 	/* ── store_auth_error() / consume_auth_error() ───────────── */

@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Fix connection flow in connector card when using Gutenberg, and ensuring modals always show on disconnection.
+Fix connection flow in connector card when using Gutenberg and ensure modals always show on disconnection.
