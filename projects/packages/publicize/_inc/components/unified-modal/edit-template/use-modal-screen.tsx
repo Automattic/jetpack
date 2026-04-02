@@ -47,6 +47,8 @@ export function useModalScreen() {
 			path: '/edit-template',
 			title: __( 'Edit social image template', 'jetpack-publicize-pkg' ),
 			isScreenLocked,
+			onBack: handleSave,
+			onClose: handleSave,
 			sidebar: (
 				<Sidebar
 					localState={ localState }

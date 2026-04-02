@@ -42,6 +42,16 @@ export type ScreenProps = Omit<
 	footerActions?: FooterProps[ 'actions' ];
 
 	/**
+	 * Optional callback to run before navigating back.
+	 */
+	onBack?: VoidFunction;
+
+	/**
+	 * Optional callback to run before closing the modal.
+	 */
+	onClose?: VoidFunction;
+
+	/**
 	 * className to be applied to the modal.
 	 */
 	className?: string;
@@ -71,6 +81,8 @@ export function Screen( {
 	sidebar,
 	headerIcon,
 	isScreenLocked,
+	onBack,
+	onClose,
 	footerContent,
 	footerActions,
 	children,
@@ -86,7 +98,13 @@ export function Screen( {
 			{ ...props }
 		>
 			<Flex direction="column" gap={ 0 }>
-				<Header title={ title } isScreenLocked={ isScreenLocked } icon={ headerIcon } />
+				<Header
+					title={ title }
+					isScreenLocked={ isScreenLocked }
+					icon={ headerIcon }
+					onBack={ onBack }
+					onClose={ onClose }
+				/>
 
 				<Flex gap={ 0 } align="start" className="jp-navigator-modal__body">
 					{ sidebar ? <div className="jp-navigator-modal__sidebar">{ sidebar }</div> : null }
