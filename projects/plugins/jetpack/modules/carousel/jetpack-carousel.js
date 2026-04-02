@@ -906,23 +906,19 @@ alert( 'jp carousel2' );
 		}
 
 		function selectBestImageUrl( args ) {
-			console.log( 'selectBestImageUrl', args );
 			if ( typeof args !== 'object' ) {
 				args = {};
 			}
 
 			if ( typeof args.origFile === 'undefined' ) {
-				console.log( ' exit 1' );
 				return '';
 			}
 
 			if ( typeof args.origWidth === 'undefined' || typeof args.maxWidth === 'undefined' ) {
-				console.log( ' exit 2' );
 				return args.origFile;
 			}
 
 			if ( typeof args.largeFile === 'undefined' ) {
-				console.log( ' exit 3' );
 				return args.origFile;
 			}
 
@@ -948,8 +944,6 @@ alert( 'jp carousel2' );
 			}
 
 			if ( largeWidth >= args.maxWidth || largeHeight >= args.maxHeight ) {
-				console.log( { args, largeWidth } );
-				console.log( ' pick large' );
 				return args.largeFile;
 			}
 
@@ -957,7 +951,6 @@ alert( 'jp carousel2' );
 				// args.origFile doesn't point to a Photon url, so in this case we use args.largeFile
 				// to return the photon url of the original image.
 				if ( args.largeFile.lastIndexOf( '?' ) === -1 ) {
-					console.log( ' exit 4' );
 					return args.largeFile;
 				}
 
@@ -975,11 +968,9 @@ alert( 'jp carousel2' );
 				}
 
 				// Return a Photon URL image that's better fitted for the viewport.
-				console.log( ' exit 5' );
 				return sanitizedUrl.toString();
 			}
 
-			console.log( ' exit 6' );
 			return args.origFile;
 		}
 
