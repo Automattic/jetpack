@@ -1,7 +1,6 @@
 /* global wpcom, jetpackCarouselStrings, DocumentTouch */
 /* eslint-disable no-shadow */
 
-alert( 'jp carousel2' );
 ( function () {
 	'use strict';
 	var swiper;
