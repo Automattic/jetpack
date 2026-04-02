@@ -34,19 +34,8 @@ module.exports = [
 					includeNodeModules: [ '@automattic/jetpack-' ],
 				} ),
 
-				// Add textdomains (but no other optimizations) for @wordpress/dataviews.
-				jetpackWebpackConfig.TranspileRule( {
-					includeNodeModules: [ '@wordpress/dataviews/' ],
-					babelOpts: {
-						configFile: false,
-						plugins: [
-							[
-								require.resolve( '@automattic/babel-plugin-replace-textdomain' ),
-								{ textdomain: 'jetpack-my-jetpack' },
-							],
-						],
-					},
-				} ),
+				// Workarounds for non-extracted `@wordpress/*` packages.
+				...jetpackWebpackConfig.BundledWpPkgsTranspileRules(),
 
 				// Handle CSS.
 				jetpackWebpackConfig.CssRule( {

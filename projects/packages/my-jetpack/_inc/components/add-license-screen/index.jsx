@@ -3,7 +3,6 @@
  */
 import { AdminPage, Container, Col } from '@automattic/jetpack-components';
 import { ActivationScreen } from '@automattic/jetpack-licensing';
-import { shouldUseInternalLinks } from '@automattic/jetpack-shared-extension-utils';
 import { useCallback, useState, useMemo } from 'react';
 /*
  * Internal dependencies
@@ -54,11 +53,7 @@ export default function AddLicenseScreen() {
 	const { siteSuffix = '', adminUrl = '' } = getMyJetpackWindowInitialState();
 
 	return (
-		<AdminPage
-			showHeader={ false }
-			showBackground={ false }
-			useInternalLinks={ shouldUseInternalLinks() }
-		>
+		<AdminPage showHeader={ false } showBackground={ false }>
 			<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
 				<Col>
 					<GoBackLink onClick={ onClickGoBack } reload={ hasActivatedLicense } />

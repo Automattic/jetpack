@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add `BundledWpPkgsTranspileRules` to centralize the hacks needed for non-extracted `@wordpress/*` packages.

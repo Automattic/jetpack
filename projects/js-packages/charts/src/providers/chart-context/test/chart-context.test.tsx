@@ -47,6 +47,57 @@ describe( 'ChartContext', () => {
 			expect( contextValue.charts ).toBeInstanceOf( Map );
 		} );
 
+		it( 'exposes isColorPaletteResolved as true after render', () => {
+			let contextValue: GlobalChartsContextValue;
+
+			const TestComponent = () => {
+				contextValue = useGlobalChartsContext();
+				return <div>Test</div>;
+			};
+
+			render(
+				<GlobalChartsProvider>
+					<TestComponent />
+				</GlobalChartsProvider>
+			);
+
+			// After render and effects, isColorPaletteResolved should be true
+			expect( contextValue.isColorPaletteResolved ).toBe( true );
+		} );
+
+		it( 'resolves palette again after theme change', () => {
+			let contextValue: GlobalChartsContextValue;
+
+			const TestComponent = () => {
+				contextValue = useGlobalChartsContext();
+				return <div>Test</div>;
+			};
+
+			const theme1: Partial< ChartTheme > = {
+				colors: [ '#006DAB', '#1F9828' ],
+			};
+			const theme2: Partial< ChartTheme > = {
+				colors: [ '#FF0000', '#00FF00' ],
+			};
+
+			const { rerender } = render(
+				<GlobalChartsProvider theme={ theme1 }>
+					<TestComponent />
+				</GlobalChartsProvider>
+			);
+
+			expect( contextValue.isColorPaletteResolved ).toBe( true );
+
+			rerender(
+				<GlobalChartsProvider theme={ theme2 }>
+					<TestComponent />
+				</GlobalChartsProvider>
+			);
+
+			// After theme change, palette should re-resolve to true
+			expect( contextValue.isColorPaletteResolved ).toBe( true );
+		} );
+
 		it( 'throws error when useGlobalChartsContext is used outside provider', () => {
 			const TestComponent = () => {
 				useGlobalChartsContext();

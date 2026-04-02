@@ -38,6 +38,11 @@ class Block_Notes_Test extends \WP_UnitTestCase {
 		$this->saved_wp_scripts = $GLOBALS['wp_scripts'] ?? null;
 		$GLOBALS['wp_scripts']  = new WP_Scripts();
 		$this->reset_availability();
+		$this->simulate_connected_owner();
+		$this->simulate_paid_ai_plan();
+		// Ensure Big Sky is disabled by default so tests aren't affected by the
+		// Big_Sky class persisting across tests once simulate_big_sky_class() runs.
+		update_option( 'big_sky_enable', '0' );
 		$this->saved_screen = $GLOBALS['current_screen'] ?? null;
 	}
 
@@ -46,12 +51,15 @@ class Block_Notes_Test extends \WP_UnitTestCase {
 	 */
 	public function tear_down() {
 		delete_transient( BlockNotes\ASSET_TRANSIENT );
-		remove_all_filters( 'jetpack_block_notes_enabled' );
 		remove_all_filters( 'agents_manager_use_unified_experience' );
 		remove_all_filters( 'agents_manager_agent_providers' );
 		remove_all_filters( 'pre_http_request' );
+		remove_all_filters( 'jetpack_ai_enabled' );
+		remove_all_filters( 'jetpack_block_notes_has_paid_ai_plan' );
 		remove_filter( 'get_avatar_data', 'Automattic\Jetpack\Extensions\BlockNotes\customize_ai_avatar', 10 );
 		unregister_meta_key( 'comment', 'bigsky_ai_processed_date' );
+		( new \Automattic\Jetpack\Connection\Manager( 'jetpack' ) )->reset_connection_status();
+		delete_option( 'big_sky_enable' );
 		$GLOBALS['current_screen'] = $this->saved_screen;
 		$GLOBALS['wp_scripts']     = $this->saved_wp_scripts;
 		parent::tear_down();
@@ -68,24 +76,59 @@ class Block_Notes_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Enable Block Notes via jetpack_block_notes_enabled filter.
+	 * Simulate a connected Jetpack owner so has_jetpack_ai_features() returns true.
+	 *
+	 * Called in set_up() so every test starts with AI features available.
+	 * Tests that need AI features off should use disable_ai_features() instead.
 	 */
-	private function enable_block_notes() {
-		add_filter( 'jetpack_block_notes_enabled', '__return_true' );
+	private function simulate_connected_owner() {
+		$user_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
+		\Jetpack_Options::update_option( 'master_user', $user_id );
+		\Jetpack_Options::update_option( 'user_tokens', array( $user_id => 'token.secret.' . $user_id ) );
+		( new \Automattic\Jetpack\Connection\Manager( 'jetpack' ) )->reset_connection_status();
 	}
 
 	/**
-	 * Disable Block Notes via filter.
+	 * Disable AI features via the jetpack_ai_enabled kill switch.
 	 */
-	private function disable_block_notes() {
-		add_filter( 'jetpack_block_notes_enabled', '__return_false' );
+	private function disable_ai_features() {
+		add_filter( 'jetpack_ai_enabled', '__return_false' );
 	}
 
 	/**
-	 * Enable unified chat experience filter.
+	 * Simulate having a paid AI plan via the jetpack_block_notes_has_paid_ai_plan filter.
 	 */
-	private function enable_unified_experience() {
-		add_filter( 'agents_manager_use_unified_experience', '__return_true' );
+	private function simulate_paid_ai_plan() {
+		add_filter( 'jetpack_block_notes_has_paid_ai_plan', '__return_true' );
+	}
+
+	/**
+	 * Simulate not having a paid AI plan via the jetpack_block_notes_has_paid_ai_plan filter.
+	 */
+	private function simulate_no_paid_ai_plan() {
+		add_filter( 'jetpack_block_notes_has_paid_ai_plan', '__return_false' );
+	}
+
+	/**
+	 * Simulate the Big_Sky class existing (as if the Big Sky plugin were active).
+	 *
+	 * The class is declared in the global namespace once and persists for the
+	 * rest of the PHP process, but test isolation is achieved through the
+	 * big_sky_enable option, which is cleaned up in tear_down().
+	 */
+	private function simulate_big_sky_class() {
+		if ( ! class_exists( 'Big_Sky' ) ) {
+			// phpcs:ignore Generic.Files.OneObjectStructurePerFile.MultipleFound, Generic.Classes.DuplicateClassName.Found
+			eval( 'class Big_Sky {}' ); // @codingStandardsIgnoreLine — minimal stub for unit test isolation.
+		}
+	}
+
+	/**
+	 * Enable Big Sky by simulating the class and setting the option.
+	 */
+	private function enable_big_sky() {
+		$this->simulate_big_sky_class();
+		update_option( 'big_sky_enable', '1' );
 	}
 
 	/**
@@ -118,7 +161,6 @@ class Block_Notes_Test extends \WP_UnitTestCase {
 				'dependencies' => array(),
 			);
 		}
-		$this->enable_block_notes();
 		$this->set_post_editor_screen();
 		BlockNotes\register_plugin();
 		set_transient( BlockNotes\ASSET_TRANSIENT, $asset_data, HOUR_IN_SECONDS );
@@ -174,39 +216,111 @@ class Block_Notes_Test extends \WP_UnitTestCase {
 	}
 
 	// -------------------------------------------------------------------------
+	// has_jetpack_ai_features() tests
+	// -------------------------------------------------------------------------
+
+	/**
+	 * AI features available by default in the test environment.
+	 */
+	public function test_has_jetpack_ai_features_true_by_default() {
+		$this->assertTrue( BlockNotes\has_jetpack_ai_features() );
+	}
+
+	/**
+	 * AI features disabled via jetpack_ai_enabled kill switch.
+	 */
+	public function test_has_jetpack_ai_features_false_when_ai_disabled() {
+		$this->disable_ai_features();
+		$this->assertFalse( BlockNotes\has_jetpack_ai_features() );
+	}
+
+	// -------------------------------------------------------------------------
 	// is_block_notes_enabled() tests
 	// -------------------------------------------------------------------------
 
 	/**
-	 * Test is_block_notes_enabled returns true when jetpack_block_notes_enabled is true.
+	 * Enabled when AI features are available.
 	 */
-	public function test_is_enabled_via_jetpack_filter() {
-		$this->enable_block_notes();
+	public function test_is_enabled_with_ai_features() {
 		$this->assertTrue( BlockNotes\is_block_notes_enabled() );
 	}
 
 	/**
-	 * Test is_block_notes_enabled returns true when unified experience is true.
+	 * Enabled when Big Sky is active and AI features are disabled.
 	 */
-	public function test_is_enabled_via_unified_experience() {
-		$this->enable_unified_experience();
+	public function test_is_enabled_via_big_sky() {
+		$this->disable_ai_features();
+		$this->enable_big_sky();
 		$this->assertTrue( BlockNotes\is_block_notes_enabled() );
 	}
 
 	/**
-	 * Test is_block_notes_enabled returns false when both filters are false.
+	 * Not enabled when AI features are disabled and no Big Sky override.
 	 */
-	public function test_is_not_enabled_when_both_filters_false() {
+	public function test_is_not_enabled_when_ai_features_disabled() {
+		$this->disable_ai_features();
 		$this->assertFalse( BlockNotes\is_block_notes_enabled() );
 	}
 
 	/**
-	 * Test is_block_notes_enabled returns true when both filters are true.
+	 * Not enabled via Big Sky when Big_Sky class exists but option is disabled.
 	 */
-	public function test_is_enabled_when_both_filters_true() {
-		$this->enable_block_notes();
-		$this->enable_unified_experience();
+	public function test_is_not_enabled_via_big_sky_when_option_disabled() {
+		$this->disable_ai_features();
+		$this->simulate_big_sky_class();
+		update_option( 'big_sky_enable', '' );
+		$this->assertFalse( BlockNotes\is_block_notes_enabled() );
+	}
+
+	/**
+	 * Enabled via Big Sky when class exists and option has never been set.
+	 *
+	 * The big_sky_enable option defaults to '1', so plugin presence
+	 * implies the feature should be on.
+	 */
+	public function test_is_enabled_via_big_sky_when_option_never_set() {
+		$this->disable_ai_features();
+		$this->simulate_big_sky_class();
+		delete_option( 'big_sky_enable' );
 		$this->assertTrue( BlockNotes\is_block_notes_enabled() );
+	}
+
+	/**
+	 * Not enabled when AI features are available but no paid AI plan.
+	 */
+	public function test_is_not_enabled_without_paid_ai_plan() {
+		$this->simulate_no_paid_ai_plan();
+		$this->assertFalse( BlockNotes\is_block_notes_enabled() );
+	}
+
+	/**
+	 * Enabled via Big Sky even without a paid AI plan.
+	 */
+	public function test_is_enabled_via_big_sky_without_paid_plan() {
+		$this->simulate_no_paid_ai_plan();
+		$this->enable_big_sky();
+		$this->assertTrue( BlockNotes\is_block_notes_enabled() );
+	}
+
+	// -------------------------------------------------------------------------
+	// has_paid_ai_plan() tests
+	// -------------------------------------------------------------------------
+
+	/**
+	 * Returns false when no paid plan and no filter — exercises the
+	 * Jetpack_Ai::has_paid_plan_for_product() branch (class is autoloaded
+	 * but returns false without a real WPCOM connection).
+	 */
+	public function test_has_paid_ai_plan_false_without_paid_plan() {
+		remove_all_filters( 'jetpack_block_notes_has_paid_ai_plan' );
+		$this->assertFalse( BlockNotes\has_paid_ai_plan() );
+	}
+
+	/**
+	 * Returns true when filter overrides to true.
+	 */
+	public function test_has_paid_ai_plan_true_via_filter() {
+		$this->assertTrue( BlockNotes\has_paid_ai_plan() );
 	}
 
 	// -------------------------------------------------------------------------
@@ -302,28 +416,28 @@ class Block_Notes_Test extends \WP_UnitTestCase {
 	// -------------------------------------------------------------------------
 
 	/**
-	 * Test that register_plugin sets extension available when jetpack_block_notes_enabled is true.
+	 * Test that register_plugin sets extension available when AI features are available.
 	 */
 	public function test_register_plugin_sets_available_when_enabled() {
-		$this->enable_block_notes();
 		BlockNotes\register_plugin();
 		$this->assertTrue( \Jetpack_Gutenberg::is_available( BlockNotes\FEATURE_NAME ) );
 	}
 
 	/**
-	 * Test that register_plugin sets extension available when unified experience is true.
+	 * Test that register_plugin sets extension available via Big Sky.
 	 */
-	public function test_register_plugin_sets_available_when_unified_experience() {
-		$this->enable_unified_experience();
+	public function test_register_plugin_sets_available_via_big_sky() {
+		$this->disable_ai_features();
+		$this->enable_big_sky();
 		BlockNotes\register_plugin();
 		$this->assertTrue( \Jetpack_Gutenberg::is_available( BlockNotes\FEATURE_NAME ) );
 	}
 
 	/**
-	 * Test that register_plugin does not set extension available when both filters are false.
+	 * Test that register_plugin does not set extension available when AI features are disabled.
 	 */
 	public function test_register_plugin_not_available_when_disabled() {
-		$this->disable_block_notes();
+		$this->disable_ai_features();
 		BlockNotes\register_plugin();
 		$this->assertFalse( \Jetpack_Gutenberg::is_available( BlockNotes\FEATURE_NAME ) );
 	}
@@ -334,8 +448,6 @@ class Block_Notes_Test extends \WP_UnitTestCase {
 	 * Screen-level gating happens at enqueue time, not registration.
 	 */
 	public function test_register_plugin_available_regardless_of_screen() {
-		$this->enable_block_notes();
-
 		// Post editor - still registers.
 		$this->set_post_editor_screen();
 		BlockNotes\register_plugin();
@@ -375,7 +487,6 @@ class Block_Notes_Test extends \WP_UnitTestCase {
 	 * Test nothing enqueued when not on post editor screen.
 	 */
 	public function test_nothing_enqueued_on_dashboard() {
-		$this->enable_block_notes();
 		set_current_screen( 'dashboard' );
 		BlockNotes\register_plugin();
 		set_transient(
@@ -395,7 +506,6 @@ class Block_Notes_Test extends \WP_UnitTestCase {
 	 * Test nothing enqueued on page editor (post type != 'post').
 	 */
 	public function test_nothing_enqueued_on_page_editor() {
-		$this->enable_block_notes();
 		$this->set_page_editor_screen();
 		BlockNotes\register_plugin();
 		set_transient(
@@ -434,7 +544,6 @@ class Block_Notes_Test extends \WP_UnitTestCase {
 	 * Test nothing enqueued when asset file is unavailable.
 	 */
 	public function test_nothing_enqueued_when_asset_unavailable() {
-		$this->enable_block_notes();
 		$this->set_post_editor_screen();
 		BlockNotes\register_plugin();
 		$this->mock_remote_asset( false );
@@ -460,10 +569,10 @@ class Block_Notes_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Test nothing enqueued when Block Notes is disabled.
+	 * Test nothing enqueued when AI features are disabled.
 	 */
-	public function test_nothing_enqueued_when_extension_not_available() {
-		$this->disable_block_notes();
+	public function test_nothing_enqueued_when_ai_features_disabled() {
+		$this->disable_ai_features();
 		$this->set_post_editor_screen();
 		BlockNotes\register_plugin();
 		set_transient(
@@ -856,11 +965,9 @@ class Block_Notes_Test extends \WP_UnitTestCase {
 
 	/**
 	 * Test that enable_agents_manager_for_block_notes returns true
-	 * when jetpack_block_notes_enabled is true.
+	 * when AI features are available.
 	 */
 	public function test_enable_agents_manager_returns_true_when_block_notes_enabled() {
-		$this->enable_block_notes();
-
 		$result = BlockNotes\enable_agents_manager_for_block_notes( false );
 
 		$this->assertTrue( $result );
@@ -868,10 +975,10 @@ class Block_Notes_Test extends \WP_UnitTestCase {
 
 	/**
 	 * Test that enable_agents_manager_for_block_notes returns false
-	 * when jetpack_block_notes_enabled is false and input is false.
+	 * when AI features are disabled and input is false.
 	 */
 	public function test_enable_agents_manager_returns_false_when_block_notes_disabled() {
-		$this->disable_block_notes();
+		$this->disable_ai_features();
 
 		$result = BlockNotes\enable_agents_manager_for_block_notes( false );
 
@@ -890,11 +997,9 @@ class Block_Notes_Test extends \WP_UnitTestCase {
 
 	/**
 	 * Test that enable_agents_manager_for_block_notes preserves true
-	 * when both unified experience and block notes are enabled.
+	 * when input is already true and block notes is also enabled.
 	 */
 	public function test_enable_agents_manager_no_double_registration() {
-		$this->enable_block_notes();
-
 		$result = BlockNotes\enable_agents_manager_for_block_notes( true );
 
 		$this->assertTrue( $result );
@@ -906,11 +1011,9 @@ class Block_Notes_Test extends \WP_UnitTestCase {
 
 	/**
 	 * Test that agents_manager_agent_providers includes Block Notes provider
-	 * when jetpack_block_notes_enabled is true.
+	 * when AI features are available.
 	 */
 	public function test_agent_providers_includes_block_notes_when_enabled() {
-		$this->enable_block_notes();
-
 		$providers = BlockNotes\register_headless_agent_provider( array() );
 
 		$this->assertContains( BlockNotes\HEADLESS_AGENT_PROVIDER, $providers );
@@ -918,21 +1021,11 @@ class Block_Notes_Test extends \WP_UnitTestCase {
 
 	/**
 	 * Test that agents_manager_agent_providers does NOT include Block Notes
-	 * provider when jetpack_block_notes_enabled is false.
+	 * provider when AI features are disabled.
 	 */
 	public function test_agent_providers_excludes_block_notes_when_disabled() {
-		$this->disable_block_notes();
+		$this->disable_ai_features();
 
-		$providers = BlockNotes\register_headless_agent_provider( array() );
-
-		$this->assertNotContains( BlockNotes\HEADLESS_AGENT_PROVIDER, $providers );
-	}
-
-	/**
-	 * Test that agents_manager_agent_providers does NOT include Block Notes
-	 * provider when no filter is set (default false).
-	 */
-	public function test_agent_providers_excludes_block_notes_by_default() {
 		$providers = BlockNotes\register_headless_agent_provider( array() );
 
 		$this->assertNotContains( BlockNotes\HEADLESS_AGENT_PROVIDER, $providers );
@@ -942,8 +1035,6 @@ class Block_Notes_Test extends \WP_UnitTestCase {
 	 * Test that register_headless_agent_provider preserves existing providers.
 	 */
 	public function test_agent_providers_preserves_existing_providers() {
-		$this->enable_block_notes();
-
 		$existing  = array( 'some-other/provider' );
 		$providers = BlockNotes\register_headless_agent_provider( $existing );
 
@@ -966,7 +1057,6 @@ class Block_Notes_Test extends \WP_UnitTestCase {
 	 * Test that register_meta_fields registers the bigsky_ai_processed_date comment meta when enabled.
 	 */
 	public function test_register_meta_fields_registers_comment_meta_when_enabled() {
-		$this->enable_block_notes();
 		BlockNotes\register_meta_fields();
 
 		$registered = get_registered_meta_keys( 'comment' );
@@ -983,7 +1073,7 @@ class Block_Notes_Test extends \WP_UnitTestCase {
 	 * Test that register_meta_fields does not register comment meta when disabled.
 	 */
 	public function test_register_meta_fields_skipped_when_disabled() {
-		$this->disable_block_notes();
+		$this->disable_ai_features();
 		BlockNotes\register_meta_fields();
 
 		$registered = get_registered_meta_keys( 'comment' );

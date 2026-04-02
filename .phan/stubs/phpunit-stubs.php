@@ -1,6 +1,6 @@
 <?php
 /**
- * Stubs automatically generated from PHPUnit 12.5.14
+ * Stubs automatically generated from PHPUnit 12.5.15
  * using the definition file `tools/stubs/phpunit-stub-defs.php` in the Jetpack monorepo.
  *
  * Do not edit this directly! Run tools/stubs/update-stubs.sh to regenerate it.
@@ -14984,7 +14984,7 @@ final readonly class HookedProperty
     /**
      * @param non-empty-string $name
      */
-    public function __construct(string $name, \SebastianBergmann\Type\Type $type, bool $getHook, bool $setHook, ?\SebastianBergmann\Type\Type $setterType)
+    public function __construct(string $name, \SebastianBergmann\Type\Type $type, bool $getHook, bool $setHook, bool $virtual, ?\SebastianBergmann\Type\Type $setterType)
     {
     }
     public function name(): string
@@ -14999,7 +14999,13 @@ final readonly class HookedProperty
     public function hasSetHook(): bool
     {
     }
-    public function setterType(): \SebastianBergmann\Type\Type
+    public function shouldGenerateGetHook(): bool
+    {
+    }
+    public function shouldGenerateSetHook(): bool
+    {
+    }
+    public function setterType(): ?\SebastianBergmann\Type\Type
     {
     }
 }
@@ -19539,6 +19545,9 @@ final class CodeCoverage
     {
     }
     public function generateReports(\PHPUnit\TextUI\Output\Printer $printer, \PHPUnit\TextUI\Configuration\Configuration $configuration): void
+    {
+    }
+    public function warnIfFilterIsNotConfigured(\PHPUnit\TextUI\Configuration\CodeCoverageFilterRegistry $codeCoverageFilterRegistry, \PHPUnit\TextUI\Configuration\Configuration $configuration): void
     {
     }
 }

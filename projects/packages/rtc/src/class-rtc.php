@@ -54,24 +54,41 @@ class RTC {
 		foreach ( array( self::OPTION_OLD, self::OPTION_NEW ) as $option ) {
 			add_filter( 'option_' . $option, array( __CLASS__, 'filter_rtc_option' ), 10 );
 			add_filter( 'default_option_' . $option, array( __CLASS__, 'default_rtc_option' ), 20, 2 );
+			add_filter( 'pre_option_' . $option, array( __CLASS__, 'pre_rtc_option' ) );
 		}
+	}
+
+	/**
+	 * Determine whether RTC is allowed.
+	 *
+	 * @return bool
+	 */
+	public static function is_allowed() {
+		/**
+		 * Filter whether RTC can be enabled.
+		 *
+		 * @param bool $is_enabled Whether RTC can be enabled.
+		 */
+		return apply_filters( 'jetpack_rtc_enabled', false );
 	}
 
 	/**
 	 * Determine whether RTC is enabled.
 	 *
-	 * Disabled by default until the PingHub provider is ready
-	 * and we are confident in proceeding with the rollout.
-	 *
 	 * @return bool
 	 */
 	public static function is_enabled() {
-		/**
-		 * Filter whether RTC is enabled.
-		 *
-		 * @param bool $is_enabled Whether RTC is enabled.
-		 */
-		return apply_filters( 'jetpack_rtc_enabled', false );
+		global $pagenow;
+
+		// Real-time collaboration is not enabled in the site editor.
+		if (
+			'site-editor.php' === $pagenow ||
+			( 'admin.php' === $pagenow && isset( $_GET['page'] ) && 'site-editor-v2' === sanitize_text_field( wp_unslash( $_GET['page'] ) ) ) // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		) {
+			return false;
+		}
+
+		return self::is_allowed() && (bool) get_option( 'wp_collaboration_enabled' );
 	}
 
 	/**
@@ -121,13 +138,7 @@ class RTC {
 	 * @return void
 	 */
 	public static function enqueue_assets() {
-		global $pagenow;
-
-		// Real-time collaboration is not enabled in the site editor.
-		if (
-			'site-editor.php' === $pagenow ||
-			( 'admin.php' === $pagenow && isset( $_GET['page'] ) && 'site-editor-v2' === sanitize_text_field( wp_unslash( $_GET['page'] ) ) ) // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		) {
+		if ( ! self::is_enabled() ) {
 			return;
 		}
 
@@ -168,13 +179,12 @@ class RTC {
 	}
 
 	/**
-	 * Unregister the RTC setting field on the Writing page.
+	 * Unregister the RTC setting field on the Writing page if RTC is not allowed.
 	 *
 	 * @return void
 	 */
 	public static function unregister_rtc_setting() {
-		$providers = self::get_providers();
-		if ( count( $providers ) > 0 ) {
+		if ( self::is_allowed() ) {
 			return;
 		}
 
@@ -188,24 +198,24 @@ class RTC {
 	}
 
 	/**
-	 * When there are no providers, always force the option off.
-	 * When there are providers, respect the stored option value.
+	 * When RTC is not allowed, always force the option off.
+	 * When RTC is allowed, respect the stored option value.
 	 *
 	 * @param mixed $value  The value of the option.
 	 * @return mixed
 	 */
 	public static function filter_rtc_option( $value ) {
-		$providers = self::get_providers();
-		// No providers: force the option off, regardless of what's in the DB.
-		if ( count( $providers ) === 0 ) {
+		// RTC not allowed: force the option off, regardless of what's in the DB.
+		if ( ! self::is_allowed() ) {
 			return '0';
 		}
-		// Providers exist: respect whatever is stored.
+
+		// RTC allowed: respect whatever is stored.
 		return $value;
 	}
 
 	/**
-	 * When there ARE providers and the option is NOT stored yet,
+	 * When RTC is allowed and the option is NOT stored yet,
 	 * default the option to enabled (1), unless the old option
 	 * has a stored value to migrate from.
 	 *
@@ -218,18 +228,35 @@ class RTC {
 	 * @return mixed
 	 */
 	public static function default_rtc_option( $default = '', $option = '' ) {
-		$providers = self::get_providers();
-		// No providers: keep default disabled.
-		if ( count( $providers ) === 0 ) {
+		// RTC not allowed: keep default disabled.
+		if ( ! self::is_allowed() ) {
 			return '0';
 		}
-		// Providers exist and option is not stored yet
+		// RTC allowed and option is not stored yet
 		if ( $option === self::OPTION_NEW ) {
 			// If the old option is set, use that.
 			return get_option( self::OPTION_OLD );
 		}
 		// Default to enabled.
 		return '1';
+	}
+
+	/**
+	 * Disable RTC for super admins that are not members of the blog to avoid
+	 * accidentally exposing their presence to site users (e.g. during support).
+	 * Skip this on the Writing settings page so they can still toggle the option.
+	 *
+	 * @return mixed
+	 */
+	public static function pre_rtc_option() {
+		global $pagenow;
+
+		if ( 'options-writing.php' !== $pagenow && is_super_admin() && ! is_user_member_of_blog() ) {
+			return '0';
+		}
+
+		// Returning false to let `get_option` proceed normally.
+		return false;
 	}
 
 	/**
@@ -240,8 +267,11 @@ class RTC {
 	public static function override_rtc_setting_default() {
 		global $wp_registered_settings;
 
-		$providers = self::get_providers();
-		$default   = count( $providers ) > 0;
+		// No need to override the setting when RTC is not allowed, since we unregister it
+		// in `unregister_rtc_setting`.
+		if ( ! self::is_allowed() ) {
+			return;
+		}
 
 		foreach ( array( self::OPTION_OLD, self::OPTION_NEW ) as $option ) {
 			// Only re-register the option if Gutenberg already registered it.
@@ -258,8 +288,7 @@ class RTC {
 					'type'              => 'boolean',
 					'description'       => __( 'Enable Real-Time Collaboration', 'jetpack-rtc' ),
 					'sanitize_callback' => 'rest_sanitize_boolean',
-					// Dynamic default: true when providers exist, false otherwise.
-					'default'           => $default,
+					'default'           => true,
 					'show_in_rest'      => true,
 				)
 			);

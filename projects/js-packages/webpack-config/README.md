@@ -45,6 +45,9 @@ module.exports = {
 				includeNodeModules: [ '@automattic/jetpack-' ],
 			} ),
 
+			// Workarounds for non-extracted `@wordpress/*` packages.
+			...jetpackWebpackConfig.BundledWpPkgsTranspileRules(),
+
 			// Handle CSS.
 			jetpackWebpackConfig.CssRule(),
 
@@ -268,7 +271,7 @@ Requires WordPress's `wp-react-refresh-runtime` script to be enqueued.
 
 #### Module rules and loaders
 
-Note all rule sets are provided as factory functions returning a single rule.
+Note all rule sets (except `BundledWpPkgsTranspileRules`) are provided as factory functions returning a single rule.
 
 ##### `TranspileRule( options )`
 
@@ -284,6 +287,15 @@ Options are:
   - `cacheDirectory`: `path.resolve( '.cache/babel` )`.
   - `cacheCompression`: `true`.
   - If `path.resolve( 'babel.config.js' )` exists, `configFile` will default to that. Otherwise, `presets` will default to set some appropriate defaults (which will require the peer dependencies on [@babel/core](https://www.npmjs.com/package/@babel/core) and [@babel/runtime](https://www.npmjs.com/package/@babel/runtime)).
+
+##### `BundledWpPkgsTranspileRules( options )`
+
+This provides two instances of `TranspileRule` configured to handle known `@wordpress/*` packages that aren't extracted by `@wordpress/dependency-extraction-webpack-plugin`.
+
+If you're not using the relevant packages, there's no need to use this.
+
+Options are:
+- `textdomain`: Text domain for [@automattic/babel-plugin-replace-textdomain](https://www.npmjs.com/package/@automattic/babel-plugin-replace-textdomain). Defaults to reading the domain from `composer.json`.
 
 ##### `CssRule( options )`
 

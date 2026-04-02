@@ -40,30 +40,40 @@ class RTC_Test extends \WorDBless\BaseTestCase {
 	private $original_wp_styles;
 
 	/**
+	 * Original $pagenow value to restore after each test.
+	 *
+	 * @var string|null
+	 */
+	private $original_pagenow;
+
+	/**
 	 * Save global state before each test.
 	 */
 	public function set_up(): void {
 		parent::set_up();
-		global $wp_settings_fields, $wp_scripts, $wp_styles;
+		global $wp_settings_fields, $wp_scripts, $wp_styles, $pagenow;
 		$this->original_wp_settings_fields = $wp_settings_fields;
 		$this->original_wp_scripts         = $wp_scripts;
 		$this->original_wp_styles          = $wp_styles;
+		$this->original_pagenow            = $pagenow;
 	}
 
 	/**
 	 * Clean up filters and restore global state after each test.
 	 */
 	public function tear_down(): void {
-		global $wp_settings_fields, $wp_scripts, $wp_styles;
+		global $wp_settings_fields, $wp_scripts, $wp_styles, $pagenow;
 		$wp_settings_fields = $this->original_wp_settings_fields; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		$wp_scripts         = $this->original_wp_scripts; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		$wp_styles          = $this->original_wp_styles; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$pagenow            = $this->original_pagenow; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		remove_all_filters( 'jetpack_rtc_enabled' );
 		remove_all_filters( 'jetpack_rtc_providers' );
-		remove_all_filters( 'option_' . RTC::OPTION_OLD );
-		remove_all_filters( 'default_option_' . RTC::OPTION_OLD );
-		remove_all_filters( 'option_' . RTC::OPTION_NEW );
-		remove_all_filters( 'default_option_' . RTC::OPTION_NEW );
+		foreach ( array( RTC::OPTION_OLD, RTC::OPTION_NEW ) as $option ) {
+			remove_all_filters( 'option_' . $option );
+			remove_all_filters( 'default_option_' . $option );
+			remove_all_filters( 'pre_option_' . $option );
+		}
 
 		// Reset the static $initialized flag so hooks are re-registered in the next test.
 		$reflection = new \ReflectionProperty( RTC::class, 'initialized' );
@@ -129,23 +139,75 @@ class RTC_Test extends \WorDBless\BaseTestCase {
 		$this->assertSame( 20, has_filter( 'default_option_' . RTC::OPTION_NEW, array( RTC::class, 'default_rtc_option' ) ) );
 	}
 
+	/**
+	 * Tests that init hooks pre_rtc_option on both old and new pre option filters.
+	 */
+	public function test_init_hooks_pre_rtc_option() {
+		RTC::init();
+		$this->assertSame( 10, has_filter( 'pre_option_' . RTC::OPTION_OLD, array( RTC::class, 'pre_rtc_option' ) ) );
+		$this->assertSame( 10, has_filter( 'pre_option_' . RTC::OPTION_NEW, array( RTC::class, 'pre_rtc_option' ) ) );
+	}
+
+	// -------------------------------------------------------------------------
+	// is_allowed tests
+	// -------------------------------------------------------------------------
+
+	/**
+	 * Tests that RTC is not allowed by default.
+	 */
+	public function test_is_allowed_default() {
+		$this->assertFalse( RTC::is_allowed() );
+	}
+
+	/**
+	 * Tests that RTC can be allowed via filter.
+	 */
+	public function test_is_allowed_via_filter() {
+		add_filter( 'jetpack_rtc_enabled', '__return_true' );
+		$this->assertTrue( RTC::is_allowed() );
+	}
+
 	// -------------------------------------------------------------------------
 	// is_enabled tests
 	// -------------------------------------------------------------------------
 
 	/**
-	 * Tests that RTC is disabled by default.
+	 * Tests that RTC is disabled when not allowed.
 	 */
-	public function test_is_enabled_default() {
+	public function test_is_enabled_returns_false_when_not_allowed() {
+		update_option( RTC::OPTION_NEW, '1' );
 		$this->assertFalse( RTC::is_enabled() );
 	}
 
 	/**
-	 * Tests that RTC can be enabled via filter.
+	 * Tests that RTC is enabled when allowed and the option is on.
 	 */
-	public function test_is_enabled_via_filter() {
+	public function test_is_enabled_returns_true_when_allowed_and_option_enabled() {
 		add_filter( 'jetpack_rtc_enabled', '__return_true' );
+		RTC::init();
 		$this->assertTrue( RTC::is_enabled() );
+	}
+
+	/**
+	 * Tests that RTC is disabled when allowed but the option is off.
+	 */
+	public function test_is_enabled_returns_false_when_allowed_but_option_disabled() {
+		add_filter( 'jetpack_rtc_enabled', '__return_true' );
+		update_option( RTC::OPTION_NEW, '0' );
+		$this->assertFalse( RTC::is_enabled() );
+	}
+
+	/**
+	 * Tests that RTC is disabled in the site editor.
+	 */
+	public function test_is_enabled_returns_false_in_site_editor() {
+		global $pagenow;
+
+		add_filter( 'jetpack_rtc_enabled', '__return_true' );
+		RTC::init();
+
+		$pagenow = 'site-editor.php'; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$this->assertFalse( RTC::is_enabled() );
 	}
 
 	// -------------------------------------------------------------------------
@@ -178,6 +240,7 @@ class RTC_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function test_get_providers_returns_providers_when_enabled() {
 		add_filter( 'jetpack_rtc_enabled', '__return_true' );
+		RTC::init();
 		add_filter(
 			'jetpack_rtc_providers',
 			function () {
@@ -193,6 +256,7 @@ class RTC_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function test_get_providers_filters_unknown_providers() {
 		add_filter( 'jetpack_rtc_enabled', '__return_true' );
+		RTC::init();
 		add_filter(
 			'jetpack_rtc_providers',
 			function () {
@@ -208,6 +272,7 @@ class RTC_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function test_get_providers_handles_non_array_filter() {
 		add_filter( 'jetpack_rtc_enabled', '__return_true' );
+		RTC::init();
 		add_filter(
 			'jetpack_rtc_providers',
 			function () {
@@ -223,6 +288,7 @@ class RTC_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function test_get_providers_reindexes_after_filtering() {
 		add_filter( 'jetpack_rtc_enabled', '__return_true' );
+		RTC::init();
 		add_filter(
 			'jetpack_rtc_providers',
 			function () {
@@ -241,6 +307,7 @@ class RTC_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function test_get_providers_handles_empty_filter() {
 		add_filter( 'jetpack_rtc_enabled', '__return_true' );
+		RTC::init();
 		add_filter(
 			'jetpack_rtc_providers',
 			function () {
@@ -256,6 +323,7 @@ class RTC_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function test_get_providers_default_passes_allowlist() {
 		add_filter( 'jetpack_rtc_enabled', '__return_true' );
+		RTC::init();
 
 		$this->assertSame( array( 'pinghub' ), RTC::get_providers() );
 	}
@@ -269,6 +337,7 @@ class RTC_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function test_enqueue_assets_skips_http_polling_only() {
 		add_filter( 'jetpack_rtc_enabled', '__return_true' );
+		RTC::init();
 		add_filter(
 			'jetpack_rtc_providers',
 			function () {
@@ -286,6 +355,7 @@ class RTC_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function test_enqueue_assets_enqueues_when_pinghub() {
 		add_filter( 'jetpack_rtc_enabled', '__return_true' );
+		RTC::init();
 		add_filter(
 			'jetpack_rtc_providers',
 			function () {
@@ -303,6 +373,7 @@ class RTC_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function test_enqueue_assets_enqueues_with_multiple_providers() {
 		add_filter( 'jetpack_rtc_enabled', '__return_true' );
+		RTC::init();
 		add_filter(
 			'jetpack_rtc_providers',
 			function () {
@@ -320,6 +391,7 @@ class RTC_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function test_enqueue_assets_does_not_include_jwt_token() {
 		add_filter( 'jetpack_rtc_enabled', '__return_true' );
+		RTC::init();
 		add_filter(
 			'jetpack_rtc_providers',
 			function () {
@@ -338,12 +410,16 @@ class RTC_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Tests that enqueue still registers the script when no providers are available.
+	 * Tests that enqueue skips when RTC is not enabled.
 	 */
-	public function test_enqueue_assets_enqueues_when_no_providers() {
+	public function test_enqueue_assets_skips_when_not_enabled() {
+		// Reset scripts to ensure clean state.
+		global $wp_scripts;
+		$wp_scripts = new \WP_Scripts(); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+
 		RTC::enqueue_assets();
 
-		$this->assertTrue( wp_script_is( 'jetpack-rtc', 'enqueued' ) );
+		$this->assertFalse( wp_script_is( 'jetpack-rtc', 'enqueued' ) );
 	}
 
 	// -------------------------------------------------------------------------
@@ -351,9 +427,9 @@ class RTC_Test extends \WorDBless\BaseTestCase {
 	// -------------------------------------------------------------------------
 
 	/**
-	 * Tests that unregister_rtc_setting removes both old and new fields when no providers exist.
+	 * Tests that unregister_rtc_setting removes both old and new fields when RTC is not allowed.
 	 */
-	public function test_unregister_rtc_setting_removes_field_when_no_providers() {
+	public function test_unregister_rtc_setting_removes_field_when_not_allowed() {
 		global $wp_settings_fields;
 
 		$wp_settings_fields['writing']['default'][ RTC::OPTION_OLD ] = array( 'id' => RTC::OPTION_OLD ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
@@ -366,9 +442,9 @@ class RTC_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Tests that unregister_rtc_setting keeps both fields when providers exist.
+	 * Tests that unregister_rtc_setting keeps both fields when RTC is allowed.
 	 */
-	public function test_unregister_rtc_setting_keeps_field_when_providers_exist() {
+	public function test_unregister_rtc_setting_keeps_field_when_allowed() {
 		global $wp_settings_fields;
 
 		add_filter( 'jetpack_rtc_enabled', '__return_true' );
@@ -400,16 +476,16 @@ class RTC_Test extends \WorDBless\BaseTestCase {
 	// -------------------------------------------------------------------------
 
 	/**
-	 * Tests that filter_rtc_option forces '0' when no providers exist.
+	 * Tests that filter_rtc_option forces '0' when RTC is not allowed.
 	 */
-	public function test_filter_rtc_option_returns_0_when_no_providers() {
+	public function test_filter_rtc_option_returns_0_when_not_allowed() {
 		$this->assertSame( '0', RTC::filter_rtc_option( '1' ) );
 	}
 
 	/**
-	 * Tests that filter_rtc_option passes through the value when providers exist.
+	 * Tests that filter_rtc_option passes through the value when RTC is allowed.
 	 */
-	public function test_filter_rtc_option_passes_through_when_providers_exist() {
+	public function test_filter_rtc_option_passes_through_when_allowed() {
 		add_filter( 'jetpack_rtc_enabled', '__return_true' );
 
 		$this->assertSame( '1', RTC::filter_rtc_option( '1' ) );
@@ -421,16 +497,16 @@ class RTC_Test extends \WorDBless\BaseTestCase {
 	// -------------------------------------------------------------------------
 
 	/**
-	 * Tests that default_rtc_option returns '0' when no providers exist.
+	 * Tests that default_rtc_option returns '0' when RTC is not allowed.
 	 */
-	public function test_default_rtc_option_returns_0_when_no_providers() {
+	public function test_default_rtc_option_returns_0_when_not_allowed() {
 		$this->assertSame( '0', RTC::default_rtc_option() );
 	}
 
 	/**
-	 * Tests that default_rtc_option returns '1' when providers exist and no option is stored.
+	 * Tests that default_rtc_option returns '1' when RTC is allowed and no option is stored.
 	 */
-	public function test_default_rtc_option_returns_1_when_providers_exist() {
+	public function test_default_rtc_option_returns_1_when_allowed() {
 		add_filter( 'jetpack_rtc_enabled', '__return_true' );
 
 		$this->assertSame( '1', RTC::default_rtc_option( '', RTC::OPTION_OLD ) );
@@ -444,5 +520,47 @@ class RTC_Test extends \WorDBless\BaseTestCase {
 		update_option( RTC::OPTION_OLD, '0' );
 
 		$this->assertSame( '0', RTC::default_rtc_option( '', RTC::OPTION_NEW ) );
+	}
+
+	// -------------------------------------------------------------------------
+	// pre_rtc_option tests
+	// -------------------------------------------------------------------------
+
+	/**
+	 * Tests that pre_rtc_option passes through (returns false) when no user is logged in.
+	 */
+	public function test_pre_rtc_option_passes_through_when_logged_out() {
+		wp_set_current_user( 0 );
+		$this->assertFalse( RTC::pre_rtc_option() );
+	}
+
+	/**
+	 * Tests that pre_rtc_option passes through for a blog member.
+	 *
+	 * In single-site, is_user_member_of_blog() is always true for existing users,
+	 * so the super admin non-member condition is never met.
+	 */
+	public function test_pre_rtc_option_passes_through_for_blog_member() {
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'admin_member',
+				'user_pass'  => 'password',
+				'role'       => 'administrator',
+			)
+		);
+		wp_set_current_user( $user_id );
+
+		$this->assertFalse( RTC::pre_rtc_option() );
+	}
+
+	/**
+	 * Tests that pre_rtc_option passes through on the Writing settings page
+	 * regardless of user role, so super admins can still toggle the setting.
+	 */
+	public function test_pre_rtc_option_passes_through_on_writing_settings_page() {
+		global $pagenow;
+		$pagenow = 'options-writing.php'; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+
+		$this->assertFalse( RTC::pre_rtc_option() );
 	}
 }
