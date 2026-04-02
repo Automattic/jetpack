@@ -4,7 +4,7 @@ const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpac
 module.exports = [
 	{
 		entry: {
-			'admin-menu-style': './src/admin-menu-style.scss',
+			'admin-ui-upgrade-menu': './src/admin-ui-upgrade-menu.scss',
 		},
 		mode: jetpackWebpackConfig.mode,
 		devtool: jetpackWebpackConfig.devtool,

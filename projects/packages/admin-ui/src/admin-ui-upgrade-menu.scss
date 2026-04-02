@@ -1,6 +1,7 @@
+// Keep the slug in sync with `UPGRADE_MENU_SLUG` at class-admin-menu.php
 $upgrade-menu-slug: jetpack-wpadmin-sidebar-free-plan-upsell-menu-item;
 $upgrade-menu-default-color: #069e08;
-$upgrade-menu-safe-color-schemes: fresh, light, modern;
+$upgrade-menu-default-color-schemes: fresh, light, modern;
 $upgrade-menu-special-color-schemes: (
 	coffee: #9ea476,
 	ectoplasm: #a3b745,
@@ -25,14 +26,12 @@ $upgrade-menu-special-color-schemes: (
 	font-weight: 600;
 }
 
-
-@each $theme in $upgrade-menu-safe-color-schemes {
+@each $theme in $upgrade-menu-default-color-schemes {
 
 	@include upgrade-menu-item-theme-selector($theme) {
 		color: $upgrade-menu-default-color !important;
 	}
 }
-
 
 @each $theme, $color in $upgrade-menu-special-color-schemes {
 

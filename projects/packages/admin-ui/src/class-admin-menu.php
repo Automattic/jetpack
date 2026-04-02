@@ -18,6 +18,8 @@ class Admin_Menu {
 	/**
 	 * Slug used for the upgrade menu item and redirect URL.
 	 *
+	 * Keep the slug in sync with `$upgrade-menu-slug` at admin-ui-upgrade-menu.scss
+	 *
 	 * @var string
 	 */
 	const UPGRADE_MENU_SLUG = 'jetpack-wpadmin-sidebar-free-plan-upsell-menu-item';
@@ -357,13 +359,13 @@ class Admin_Menu {
 			return;
 		}
 
-		$asset_file = dirname( __DIR__ ) . '/build/admin-menu-style.asset.php';
+		$asset_file = dirname( __DIR__ ) . '/build/admin-ui-upgrade-menu.asset.php';
 		if ( file_exists( $asset_file ) ) {
 			$asset = require $asset_file;
 
 			wp_enqueue_style(
 				'jetpack-admin-ui-upgrade-menu',
-				plugins_url( '../build/admin-menu-style.css', __FILE__ ),
+				plugins_url( '../build/admin-ui-upgrade-menu.css', __FILE__ ),
 				$asset['dependencies'] ?? array(),
 				$asset['version'] ?? self::PACKAGE_VERSION
 			);
