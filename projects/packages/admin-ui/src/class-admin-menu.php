@@ -363,7 +363,7 @@ class Admin_Menu {
 			'#adminmenu li.%slug% > a:hover { ' .
 			'font-weight: 600; }';
 
-		// Safe admin color schemes for the highlight color while being readable.
+		// Safe admin color schemes have Jetpack Green as the highlight color.
 		$safe_color_schemes = array( 'fresh', 'light', 'modern', 'coffee', 'midnight' );
 		$color_selectors    = array();
 		foreach ( $safe_color_schemes as $color_scheme ) {
@@ -372,6 +372,18 @@ class Admin_Menu {
 		}
 
 		$styles_template .= implode( ',', $color_selectors ) . '{color: #069e08 !important;}';
+
+		// Special color schemes have a different highlight color suitable to the scheme to stay readable.
+		$special_color_schemes = array(
+			'coffee'    => '#9ea476',
+			'ectoplasm' => '#a3b745',
+			'midnight'  => '#e14d43',
+		);
+
+		foreach ( $special_color_schemes as $color_scheme => $color ) {
+			$styles_template .= '.admin-color-' . $color_scheme . ' #adminmenu li.%slug% > a,';
+			$styles_template .= '.admin-color-' . $color_scheme . ' #adminmenu li.%slug% > a:hover {color: ' . $color . ' !important;}';
+		}
 
 		$styles = str_replace( '%slug%', esc_attr( self::UPGRADE_MENU_SLUG ), $styles_template );
 
