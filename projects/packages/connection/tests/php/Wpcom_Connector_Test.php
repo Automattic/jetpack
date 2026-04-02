@@ -506,6 +506,31 @@ class Wpcom_Connector_Test extends TestCase {
 		unset( $_SERVER['SCRIPT_NAME'] );
 	}
 
+	/**
+	 * Test that the Gutenberg plugin screen returns the correct page slug, not the screen ID.
+	 *
+	 * WordPress auto-prefixes submenu screen IDs (e.g. settings_page_<slug>), so using
+	 * $screen->id directly as the page= parameter would produce an invalid URL.
+	 */
+	public function test_connectors_page_path_gutenberg() {
+		$_SERVER['SCRIPT_NAME'] = '/wp-admin/options-general.php';
+
+		$screen                    = new \stdClass();
+		$screen->id                = 'settings_page_options-connectors-wp-admin';
+		$GLOBALS['current_screen'] = $screen;
+
+		$method = new \ReflectionMethod( Wpcom_Connector::class, 'get_connectors_page_path' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+
+		$result = $method->invoke( null );
+
+		unset( $GLOBALS['current_screen'], $_SERVER['SCRIPT_NAME'] );
+
+		$this->assertSame( 'options-general.php?page=options-connectors-wp-admin', $result );
+	}
+
 	/* ── store_auth_error() / consume_auth_error() ───────────── */
 
 	/**
