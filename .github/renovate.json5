@@ -93,17 +93,30 @@
 			matchPackageNames: [ 'docker/**' ],
 		},
 
-		// Separate this from 'monorepo:wordpress' while it's still considered unstable.
+		// Bundled, WordPress dependencies are separated from 'monorepo:wordpress' while
+		// they're still considered unstable and can have significant breaking changes.
+		// Since they're not externalized to WP, they have higher chance of impacting functionality.
 		{
-			groupName: '@wordpress/dataviews',
-			matchPackageNames: [ '@wordpress/dataviews' ],
+			groupName: 'Bundled @wordpress/* monorepo',
+			// See the list at https://github.com/WordPress/gutenberg/blob/580d8bd24b9d1647a66fecc3115edf9b7dce64b1/packages/dependency-extraction-webpack-plugin/lib/util.js#L2
+			matchPackageNames: [
+				'@wordpress/admin-ui',
+				'@wordpress/dataviews',
+				'@wordpress/dataviews/wp',
+				'@wordpress/icons',
+				'@wordpress/interface',
+				'@wordpress/undo-manager',
+				'@wordpress/fields',
+				'@wordpress/views',
+				'@wordpress/ui',
+			],
 			separateMajorMinor: false,
-			// Teams using DataViews in their projects
+			// Teams that can help vet the update
 			additionalReviewers: [
-				'team:triforce', // Publicize, My Jetpack
-				'team:loop', // Newsletter subscriber management
+				'team:triforce', // Monorepo overall, Publicize, My Jetpack
+				'team:loop', // Newsletter dashboard & subscriber management
 				'team:bastion', // Scan
-				'team:zap', // Forms
+				'team:zap', // Forms, much of the recent componentry work.
 			],
 		},
 
