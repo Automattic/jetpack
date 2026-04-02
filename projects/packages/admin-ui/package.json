@@ -15,9 +15,21 @@
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
 	"scripts": {
-		"build": "echo 'Not implemented.'",
-		"build-js": "echo 'Not implemented.'",
-		"build-production": "echo 'Not implemented.'",
-		"build-production-js": "echo 'Not implemented.'"
+		"build": "pnpm run clean && webpack --config webpack.config.js",
+		"build-production": "pnpm run clean && NODE_ENV=production BABEL_ENV=production webpack --config webpack.config.js && pnpm run validate",
+		"clean": "rm -rf build/",
+		"validate": "pnpm exec validate-es build/",
+		"watch": "pnpm run build && pnpm webpack watch"
+	},
+	"browserslist": [
+		"extends @wordpress/browserslist-config"
+	],
+	"devDependencies": {
+		"@automattic/jetpack-webpack-config": "workspace:*",
+		"@wordpress/browserslist-config": "6.42.0",
+		"sass-embedded": "1.97.3",
+		"sass-loader": "16.0.5",
+		"webpack": "5.105.2",
+		"webpack-cli": "6.0.1"
 	}
 }
