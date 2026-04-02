@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Update @wordpress/private-apis to v1.43.0 to include @wordpress/views in the core modules allowlist, fixing a crash with latest Gutenberg trunk.
