@@ -519,18 +519,22 @@ function ExpandedDetails( { isConnecting = false, onConnect = null } ) {
 	};
 
 	const handleUnlinkUser = () => {
-		if ( currentUser?.isOwner && currentUser?.hasOtherConnectedUsers ) {
-			setPendingConfirm( {
-				title: __( 'Disconnect user account', 'jetpack-connection' ),
-				message: __(
-					'Disconnecting the owner account will remove the WordPress.com account connection for all users on this site. The site will remain connected to WordPress.com.',
-					'jetpack-connection'
-				),
-				onConfirm: executeUnlinkUser,
-			} );
-		} else {
-			executeUnlinkUser();
-		}
+		const message =
+			currentUser?.isOwner && currentUser?.hasOtherConnectedUsers
+				? __(
+						'Disconnecting the owner account will remove the WordPress.com account connection for all users on this site. The site will remain connected to WordPress.com.',
+						'jetpack-connection'
+				  )
+				: __(
+						'Are you sure you want to disconnect your WordPress.com account? The site will remain connected to WordPress.com.',
+						'jetpack-connection'
+				  );
+
+		setPendingConfirm( {
+			title: __( 'Disconnect user account', 'jetpack-connection' ),
+			message,
+			onConfirm: executeUnlinkUser,
+		} );
 	};
 
 	return createElement(
