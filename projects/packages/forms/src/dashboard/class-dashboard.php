@@ -152,13 +152,6 @@ class Dashboard {
 		add_action( 'admin_menu', array( $this, 'add_admin_submenu' ), self::MENU_PRIORITY );
 		add_action( 'admin_menu', array( __CLASS__, 'redirect_dashboard_url_cross_variant' ), 1 );
 
-		Assets::add_resource_hint(
-			array(
-				'//secure.gravatar.com',
-			),
-			'dns-prefetch'
-		);
-
 		// Flag to enable the wp-build-based dashboard.
 		$is_wp_build_enabled = apply_filters( 'jetpack_forms_alpha', false );
 
