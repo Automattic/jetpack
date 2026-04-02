@@ -11,9 +11,11 @@ const CssMinimizerWebpackPlugin = require( 'css-minimizer-webpack-plugin' );
 const ForkTSCheckerWebpackPlugin = require( 'fork-ts-checker-webpack-plugin' );
 const MiniCssExtractWebpackPlugin = require( 'mini-css-extract-plugin' );
 const webpack = require( 'webpack' );
+const BundledWpPkgsTranspileRules = require( './webpack/bundled-wp-pkgs-transpile-rules' );
 const CssRule = require( './webpack/css-rule' );
 const DevServer = require( './webpack/dev-server' );
 const FileRule = require( './webpack/file-rule' );
+const loadTextDomainFromComposerJson = require( './webpack/load-textdomain-from-composer-json.js' );
 const MiniCSSWithRTLWebpackPlugin = require( './webpack/mini-css-with-rtl' );
 const PnpmDeterministicModuleIdsWebpackPlugin = require( './webpack/pnpm-deterministic-ids.js' );
 const TerserPlugin = require( './webpack/terser' );
@@ -22,36 +24,6 @@ const TranspileRule = require( './webpack/transpile-rule' );
 const CssMinimizerPlugin = options => new CssMinimizerWebpackPlugin( options );
 
 /****** Functions ******/
-
-let loadTextDomainFromComposerJson = () => {
-	let dir = process.cwd(),
-		olddir,
-		ret;
-	do {
-		const file = path.join( dir, 'composer.json' );
-		if ( fs.existsSync( file ) ) {
-			const cfg = JSON.parse( fs.readFileSync( file, { encoding: 'utf8' } ) );
-			if ( cfg.extra ) {
-				if ( cfg.extra.textdomain ) {
-					ret = cfg.extra.textdomain;
-				} else if ( cfg.extra[ 'wp-plugin-slug' ] ) {
-					ret = cfg.extra[ 'wp-plugin-slug' ];
-				} else if ( cfg.extra[ 'beta-plugin-slug' ] ) {
-					ret = cfg.extra[ 'beta-plugin-slug' ];
-				}
-			}
-			break;
-		}
-
-		olddir = dir;
-		dir = path.dirname( dir );
-	} while ( dir !== olddir );
-
-	// thunk it
-	loadTextDomainFromComposerJson = () => ret;
-
-	return ret;
-};
 
 const i18nFilterFunction = file => {
 	if ( ! /\.(?:jsx?|tsx?|cjs|mjs|svelte)$/.test( file ) ) {
@@ -338,6 +310,7 @@ module.exports = {
 	ReactRefreshWebpackPlugin,
 	// Module rules and loaders.
 	TranspileRule,
+	BundledWpPkgsTranspileRules,
 	CssRule,
 	FileRule,
 };
