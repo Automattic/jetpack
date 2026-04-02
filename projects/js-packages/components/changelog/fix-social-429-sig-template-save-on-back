@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Added onBack and onClose callback props to NavigatorModal Screen and Header components

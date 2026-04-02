@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fixed SIG template changes not saving when using the back arrow or close button
