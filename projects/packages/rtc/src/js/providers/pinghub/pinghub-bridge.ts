@@ -178,6 +178,33 @@ export function pixel( key: string, value: string | number, unit: string ): void
 		'"]}';
 }
 
+/**
+ * Log a PingHub connection lifecycle event to the server for Logstash.
+ * Fire-and-forget: errors are silently swallowed.
+ *
+ * @param event      - Event name: 'connected', 'disconnected', or 'jwt_fetch_error'.
+ * @param properties - Event properties (close_code, connection_lifetime_ms, etc.).
+ */
+export function logConnectionEvent(
+	event: string,
+	properties: Record< string, unknown > = {}
+): void {
+	if ( ! window.jetpackRTC?.connectionLogging ) {
+		return;
+	}
+	apiFetch( {
+		path: '/wpcom/v2/rtc/connection-log',
+		method: 'POST',
+		data: {
+			event,
+			properties: {
+				browser: detectBrowser(),
+				...properties,
+			},
+		},
+	} ).catch( () => {} );
+}
+
 export class PingHubBridge {
 	private openHandlers = new Map< string, Set< () => void > >();
 	private closeHandlers = new Map< string, Set< ( code: number, reason: string ) => void > >();
@@ -370,7 +397,12 @@ export class PingHubBridge {
 			this.jwtFetchFailures++;
 			this.jwtBackoffUntil = Date.now() + this.jwtBackoffDelay;
 			this.jwtBackoffDelay = Math.min( this.jwtBackoffDelay * 2, JWT_BACKOFF_MAX_MS );
-			pixel( 'pinghub.rtc.jwt_fetch_error', Date.now() - start, 'ms' );
+			const elapsed = Date.now() - start;
+			pixel( 'pinghub.rtc.jwt_fetch_error', elapsed, 'ms' );
+			logConnectionEvent( 'jwt_fetch_error', {
+				duration_ms: elapsed,
+				failure_count: this.jwtFetchFailures,
+			} );
 			return null;
 		}
 	}
@@ -421,16 +453,28 @@ export class PingHubBridge {
 		const start = Date.now();
 
 		ws.addEventListener( 'open', () => {
-			pixel( 'pinghub.conn_open', Date.now() - start, 'ms' );
-			pixel( 'pinghub.rtc.conn_open', Date.now() - start, 'ms' );
+			const elapsed = Date.now() - start;
+			pixel( 'pinghub.conn_open', elapsed, 'ms' );
+			pixel( 'pinghub.rtc.conn_open', elapsed, 'ms' );
+			logConnectionEvent( 'connected', {
+				room,
+				time_to_connect_ms: elapsed,
+			} );
 			this.connectingWaiters.delete( room );
 			waiters.splice( 0 ).forEach( ( { resolve } ) => resolve() );
 			this.openHandlers.get( room )?.forEach( h => h() );
 		} );
 
 		ws.addEventListener( 'close', event => {
-			pixel( 'pinghub.conn_close_code.' + event.code, Date.now() - start, 'ms' );
-			pixel( 'pinghub.rtc.conn_close_code.' + event.code, Date.now() - start, 'ms' );
+			const elapsed = Date.now() - start;
+			pixel( 'pinghub.conn_close_code.' + event.code, elapsed, 'ms' );
+			pixel( 'pinghub.rtc.conn_close_code.' + event.code, elapsed, 'ms' );
+			logConnectionEvent( 'disconnected', {
+				room,
+				close_code: event.code,
+				close_reason: event.reason,
+				connection_lifetime_ms: elapsed,
+			} );
 			this.sockets.delete( room );
 			if ( this.connectingWaiters.has( room ) ) {
 				this.connectingWaiters.delete( room );
