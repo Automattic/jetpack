@@ -252,8 +252,12 @@ class Admin_Menu {
 	 * @return bool True if the upgrade menu should be shown.
 	 */
 	private static function should_show_upgrade_menu() {
-		// Only show to administrators.
+		// Only show to administrators on single-site installs.
 		if ( ! current_user_can( 'manage_options' ) ) {
+			return false;
+		}
+
+		if ( is_multisite() ) {
 			return false;
 		}
 
