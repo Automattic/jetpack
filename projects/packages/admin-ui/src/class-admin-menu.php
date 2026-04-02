@@ -16,18 +16,11 @@ class Admin_Menu {
 	const PACKAGE_VERSION = '0.6.0';
 
 	/**
-	 * Redirect source slug used as the upgrade URL identifier.
+	 * Slug used for the upgrade menu item and redirect URL.
 	 *
 	 * @var string
 	 */
-	const UPGRADE_REDIRECT_SLUG = 'jetpack-wpadmin-sidebar-free-plan-upsell-menu-item';
-
-	/**
-	 * Menu item CSS class.
-	 *
-	 * @var string
-	 */
-	const UPGRADE_MENU_SLUG = 'jp-sidebar-upsell-menu-item';
+	const UPGRADE_MENU_SLUG = 'jetpack-wpadmin-sidebar-free-plan-upsell-menu-item';
 
 	/**
 	 * Fallback upgrade URL when the Redirect class is unavailable.
@@ -322,7 +315,7 @@ class Admin_Menu {
 		}
 
 		$upgrade_url = class_exists( '\Automattic\Jetpack\Redirect' )
-			? \Automattic\Jetpack\Redirect::get_url( self::UPGRADE_REDIRECT_SLUG )
+			? \Automattic\Jetpack\Redirect::get_url( self::UPGRADE_MENU_SLUG )
 			: self::UPGRADE_MENU_FALLBACK_URL;
 
 		$menu_title = esc_html__( 'Upgrade Jetpack', 'jetpack-admin-ui' )
