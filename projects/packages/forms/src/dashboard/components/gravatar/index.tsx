@@ -91,6 +91,7 @@ export default function Gravatar( {
 			}` }
 			width={ size }
 			height={ size }
+			loading="lazy"
 		/>
 	);
 }
