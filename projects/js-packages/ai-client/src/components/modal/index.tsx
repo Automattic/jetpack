@@ -57,7 +57,6 @@ export default function AiAssistantModal( {
 		>
 			<div className="ai-assistant-modal__content" style={ { maxWidth } }>
 				<ModalHeader requestingState={ requestingState } onClose={ handleClose } title={ title } />
-				<hr className="ai-assistant-modal__divider" />
 				{ children }
 			</div>
 		</Modal>

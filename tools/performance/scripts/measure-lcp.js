@@ -5,13 +5,11 @@
 
 import fs from 'fs';
 import path from 'path';
-import { fileURLToPath } from 'url';
 import { chromium } from 'playwright';
 import { SCENARIOS, getScenarioUrl } from './scenarios.js';
 import { median as calcMedian, mean as calcMean, stdDev as calcStdDev } from './stats.js';
 
-const __filename = fileURLToPath( import.meta.url );
-const __dirname = path.dirname( __filename );
+const __dirname = import.meta.dirname;
 
 // Calibration file path
 const CALIBRATION_FILE = path.join( __dirname, '..', 'calibration.json' );

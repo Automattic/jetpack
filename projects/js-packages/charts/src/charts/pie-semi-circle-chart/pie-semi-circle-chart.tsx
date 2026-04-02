@@ -8,7 +8,11 @@ import clsx from 'clsx';
 import { useCallback, useContext, useMemo } from 'react';
 import { Legend, useChartLegendItems } from '../../components/legend';
 import { BaseTooltip } from '../../components/tooltip';
-import { useInteractiveLegendData, usePrefersReducedMotion } from '../../hooks';
+import {
+	useDataWithPercentages,
+	useInteractiveLegendData,
+	usePrefersReducedMotion,
+} from '../../hooks';
 import {
 	GlobalChartsProvider,
 	useChartId,
@@ -21,10 +25,16 @@ import { ChartSVG, ChartHTML, useChartChildren } from '../private/chart-composit
 import { ChartLayout } from '../private/chart-layout';
 import { RadialWipeAnimation } from '../private/radial-wipe-animation';
 import { SingleChartContext } from '../private/single-chart-context';
+import { SvgEmptyState } from '../private/svg-empty-state';
 import { withResponsive } from '../private/with-responsive';
 import styles from './pie-semi-circle-chart.module.scss';
 import type { LegendValueDisplay } from '../../components/legend';
-import type { BaseChartProps, DataPointPercentage, Optional } from '../../types';
+import type {
+	BaseChartProps,
+	DataPointPercentage,
+	DataPointPercentageCalculated,
+	Optional,
+} from '../../types';
 import type { ChartComponentWithComposition } from '../private/chart-composition';
 import type { ResponsiveConfig } from '../private/with-responsive';
 import type { PieArcDatum } from '@visx/shape/lib/shapes/Pie';
@@ -35,9 +45,9 @@ import type { FC, MouseEvent, ReactNode } from 'react';
  */
 export type PieSemiCircleChartRenderTooltipParams = {
 	/**
-	 * The data point being hovered, including label, value, and percentage.
+	 * The data point being hovered, including label, value, and calculated percentage.
 	 */
-	tooltipData: DataPointPercentage;
+	tooltipData: DataPointPercentageCalculated;
 };
 
 /**
@@ -125,7 +135,7 @@ type PieSemiCircleChartResponsiveComponent = ChartComponentWithComposition<
 	PieSemiCircleChartBaseProps & ResponsiveConfig
 >;
 
-export type ArcData = PieArcDatum< DataPointPercentage >;
+export type ArcData = PieArcDatum< DataPointPercentageCalculated >;
 
 /**
  * Validates the semi-circle pie chart data
@@ -138,15 +148,15 @@ const validateData = ( data: DataPointPercentage[] ) => {
 	}
 
 	// Check for negative values
-	const hasNegativeValues = data.some( item => item.percentage < 0 || item.value < 0 );
+	const hasNegativeValues = data.some( item => item.value < 0 );
 	if ( hasNegativeValues ) {
 		return { isValid: false, message: 'Invalid data: Negative values are not allowed' };
 	}
 
-	// Validate total percentage is greater than 0
-	const totalPercentage = data.reduce( ( sum, item ) => sum + item.percentage, 0 );
-	if ( totalPercentage <= 0 ) {
-		return { isValid: false, message: 'Invalid percentage total: Must be greater than 0' };
+	// Validate total value is greater than 0
+	const totalValue = data.reduce( ( sum, item ) => sum + item.value, 0 );
+	if ( totalValue <= 0 ) {
+		return { isValid: false, message: 'Invalid data: Total value must be greater than 0' };
 	}
 
 	return { isValid: true, message: '' };
@@ -178,7 +188,7 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 
 	const chartId = useChartId( providedChartId );
 	const { tooltipOpen, tooltipLeft, tooltipTop, tooltipData, hideTooltip, showTooltip } =
-		useTooltip< DataPointPercentage >();
+		useTooltip< DataPointPercentageCalculated >();
 
 	// Set up portal tooltip for better z-index handling
 	// We get containerBounds to cancel out stale offsets in the position calculation
@@ -233,9 +243,12 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 
 	const { getElementStyles, isSeriesVisible } = useGlobalChartsContext();
 
+	// Calculate percentages from values (single source of truth)
+	const dataWithPercentages = useDataWithPercentages( data );
+
 	// Filter and recalculate data for interactive legends
 	const { visibleData, allSegmentsHidden, legendData } = useInteractiveLegendData( {
-		data,
+		data: dataWithPercentages,
 		chartId,
 		legendInteractive,
 		isSeriesVisible,
@@ -244,12 +257,12 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 	// Define accessors with useMemo to avoid changing dependencies
 	const accessors = useMemo(
 		() => ( {
-			value: ( d: DataPointPercentage ) => d.value,
+			value: ( d: DataPointPercentageCalculated ) => d.value,
 			sort: (
-				a: DataPointPercentage & { index: number },
-				b: DataPointPercentage & { index: number }
+				a: DataPointPercentageCalculated & { index: number },
+				b: DataPointPercentageCalculated & { index: number }
 			) => b.value - a.value,
-			fill: ( d: DataPointPercentage & { index: number } ) =>
+			fill: ( d: DataPointPercentageCalculated & { index: number } ) =>
 				getElementStyles( { data: d, index: d.index } ).color,
 		} ),
 		[ getElementStyles ]
@@ -341,7 +354,6 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 	return (
 		<SingleChartContext.Provider value={ { chartId } }>
 			<ChartLayout
-				ref={ containerRef }
 				legendPosition={ legendPosition }
 				legendElement={ legendElement }
 				legendChildren={ legendChildren }
@@ -386,6 +398,7 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 
 					return (
 						<Stack
+							ref={ containerRef }
 							align="center"
 							justify="center"
 							className={ styles[ 'pie-semi-circle-chart__centering' ] }
@@ -415,22 +428,16 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 									}
 								>
 									{ allSegmentsHidden ? (
-										<text
-											textAnchor="middle"
-											y={ -radius / 2 }
-											fill="#ccc"
-											fontSize="14"
-											fontFamily="-apple-system,BlinkMacSystemFont,Roboto,Helvetica Neue,sans-serif"
-										>
+										<SvgEmptyState x={ 0 } y={ -radius / 2 } width={ width } height={ height }>
 											{ __(
 												'All segments are hidden. Click legend items to show data.',
 												'jetpack-charts'
 											) }
-										</text>
+										</SvgEmptyState>
 									) : (
 										<>
 											{ /* Pie chart */ }
-											<Pie< DataPointPercentage & { index: number } >
+											<Pie< DataPointPercentageCalculated & { index: number } >
 												data={ dataWithIndex }
 												pieValue={ accessors.value }
 												outerRadius={ radius }

@@ -1,6 +1,5 @@
 import analytics from '@automattic/jetpack-analytics';
 import restApi from '@automattic/jetpack-api';
-import { shouldUseInternalLinks } from '@automattic/jetpack-shared-extension-utils';
 import { useSelect, select as syncSelect } from '@wordpress/data';
 import { useMemo } from 'react';
 import SearchConnectionPage from 'components/pages/connection-page';
@@ -84,12 +83,7 @@ function AfterConnectionPage() {
 
 	return (
 		<>
-			{ supportsSearch && (
-				<SearchDashboardPage
-					isLoading={ isPageLoading }
-					useInternalLinks={ shouldUseInternalLinks() }
-				/>
-			) }
+			{ supportsSearch && <SearchDashboardPage isLoading={ isPageLoading } /> }
 			{ ! supportsSearch && <UpsellPage isLoading={ isPageLoading } /> }
 		</>
 	);

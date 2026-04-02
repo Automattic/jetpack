@@ -180,13 +180,25 @@ export const WithLegend: Story = {
 		...Default.args,
 		showLegend: true,
 	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Props-based legend using `showLegend` and the `legend` config object. Use Storybook controls to adjust legend position, alignment, orientation, shape, and interactivity.',
+			},
+		},
+	},
 };
 
 export const WithCompositionLegend: Story = {
 	render: args => {
 		const legend = extractLegendConfig( args );
 		return (
-			<PieChart { ...args } chartId="composition-pie-chart">
+			<PieChart
+				{ ...args }
+				legend={ { interactive: legend?.interactive } }
+				chartId="composition-pie-chart"
+			>
 				<PieChart.Legend { ...legend } />
 			</PieChart>
 		);
@@ -198,86 +210,7 @@ export const WithCompositionLegend: Story = {
 		docs: {
 			description: {
 				story:
-					'Demonstrates the new composition API allowing flexible component composition. The chart can be used with traditional props or with explicit child components for more control.',
-			},
-		},
-	},
-};
-
-export const InteractiveLegend: Story = {
-	render: args => (
-		<GlobalChartsProvider>
-			<PieChartUnresponsive
-				chartId="interactive-pie-chart"
-				size={ args.size }
-				data={ args.data }
-				showLegend={ true }
-				legend={ extractLegendConfig( args ) }
-				legendValueDisplay={ args.legendValueDisplay }
-			>
-				<p style={ { color: '#666' } }>
-					Click legend items to show/hide segments. Percentages recalculate automatically for
-					visible segments.
-				</p>
-			</PieChartUnresponsive>
-		</GlobalChartsProvider>
-	),
-	args: {
-		data,
-		size: 400,
-		legendInteractive: true,
-	},
-	parameters: {
-		docs: {
-			description: {
-				story:
-					'Interactive legends allow users to toggle segment visibility by clicking legend items. When segments are hidden, the visible segments are recalculated to total 100%. Requires chartId and GlobalChartsProvider.',
-			},
-		},
-	},
-};
-
-export const CustomLegendPositioning: Story = {
-	args: {
-		data: [
-			{
-				label: 'Desktop',
-				value: 45000,
-				valueDisplay: '45K',
-				percentage: 45,
-			},
-			{
-				label: 'Mobile',
-				value: 35000,
-				valueDisplay: '35K',
-				percentage: 35,
-			},
-			{
-				label: 'Tablet',
-				value: 20000,
-				valueDisplay: '20K',
-				percentage: 20,
-			},
-		],
-		thickness: 1, // Full pie chart
-		gapScale: 0.03,
-		padding: 20,
-		cornerScale: 0.03,
-		withTooltips: true,
-		showLegend: true,
-		legendOrientation: 'vertical',
-		legendAlignment: 'center',
-		legendPosition: 'top',
-		legendShape: 'circle',
-		size: 400,
-		containerWidth: '432px',
-		containerHeight: '432px',
-	},
-	parameters: {
-		docs: {
-			description: {
-				story:
-					'Pie chart with top-end positioned vertical legend. This demonstrates non-default legend positioning to showcase different legend placement possibilities with device usage data.',
+					'Composition API using `<PieChart.Legend />` as a child component for explicit legend placement and configuration. This is the recommended approach for flexible legend positioning.',
 			},
 		},
 	},
@@ -286,9 +219,9 @@ export const CustomLegendPositioning: Story = {
 export const CompositionAPI: Story = {
 	render: args => {
 		const chartData = args.data || [
-			{ label: 'Desktop', value: 45, percentage: 45 },
-			{ label: 'Mobile', value: 30, percentage: 30 },
-			{ label: 'Tablet', value: 25, percentage: 25 },
+			{ label: 'Desktop', value: 45 },
+			{ label: 'Mobile', value: 30 },
+			{ label: 'Tablet', value: 25 },
 		];
 
 		return (
@@ -378,21 +311,18 @@ export const CustomLabelColors: Story = {
 				label: 'Desktop',
 				value: 45000,
 				valueDisplay: '45K',
-				percentage: 45,
 				color: '#FF6B6B', // Light red segment
 			},
 			{
 				label: 'Mobile',
 				value: 35000,
 				valueDisplay: '35K',
-				percentage: 35,
 				color: '#4ECDC4', // Light teal segment
 			},
 			{
 				label: 'Tablet',
 				value: 20000,
 				valueDisplay: '20K',
-				percentage: 20,
 				color: '#45B7D1', // Light blue segment
 			},
 		],
@@ -421,29 +351,21 @@ export const ErrorStates: Story = {
 		<div style={ { display: 'grid', gap: '2rem', gridTemplateColumns: 'repeat(2, 1fr)' } }>
 			<div>
 				<h3>Empty Data</h3>
-				<PieChart data={ [] } />
-			</div>
-			<div>
-				<h3>Invalid Percentage Total</h3>
-				<PieChart
-					data={ [
-						{ label: 'A', value: 30, percentage: 30 },
-						{ label: 'B', value: 40, percentage: 40 },
-					] } // Only adds up to 70%
-				/>
+				<PieChart height={ 300 } data={ [] } />
 			</div>
 			<div>
 				<h3>Negative Values</h3>
 				<PieChart
+					height={ 300 }
 					data={ [
-						{ label: 'A', value: -30, percentage: -30 },
-						{ label: 'B', value: 130, percentage: 130 },
+						{ label: 'A', value: -30 },
+						{ label: 'B', value: 130 },
 					] }
 				/>
 			</div>
 			<div>
 				<h3>Single Data Point</h3>
-				<PieChart height={ 300 } data={ [ { label: 'A', value: 100, percentage: 100 } ] } />
+				<PieChart height={ 300 } data={ [ { label: 'A', value: 100 } ] } />
 			</div>
 		</div>
 	),

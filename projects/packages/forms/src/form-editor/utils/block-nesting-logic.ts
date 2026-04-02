@@ -23,9 +23,9 @@ export interface BlockNestingAction {
 	 */
 	insertionIndex?: number;
 	/**
-	 * Whether to add a submit button after the moved blocks (for move-blocks action)
+	 * Whether the target block was empty before insertion (for move-blocks action)
 	 */
-	addSubmitButton?: boolean;
+	targetWasEmpty?: boolean;
 	/**
 	 * The clientId of the existing empty paragraph to select (for dedupe-empty-paragraph action)
 	 */
@@ -40,22 +40,22 @@ export interface BlockNestingAction {
  * 2. Detecting when to add a submit button (when the form was empty/placeholder state)
  * 3. Calculating the correct insertion index (before the submit button if one exists)
  *
- * @param formBlock    - The form block that will receive the moved blocks
- * @param blocksToMove - The blocks that need to be moved into the form
+ * @param targetBlock  - The block that will receive the moved blocks (form block or step block)
+ * @param blocksToMove - The blocks that need to be moved into the target
  * @return Action object describing what to do
  */
 export function determineBlockNestingAction(
-	formBlock: Block,
+	targetBlock: Block,
 	blocksToMove: Block[]
 ): BlockNestingAction {
-	const wasEmpty = formBlock.innerBlocks.length === 0;
+	const wasEmpty = targetBlock.innerBlocks.length === 0;
 
 	// Check for dedupe-empty-paragraph case:
-	// If the only block to move is an empty paragraph and the form already has an empty
+	// If the only block to move is an empty paragraph and the target already has an empty
 	// paragraph at the end (before the submit button), just select the existing one
 	if ( ! wasEmpty && blocksToMove.length === 1 && isEmptyParagraph( blocksToMove[ 0 ] ) ) {
-		// Find the last non-button block in the form
-		const lastNonButtonBlock = [ ...formBlock.innerBlocks ]
+		// Find the last non-button block in the target
+		const lastNonButtonBlock = [ ...targetBlock.innerBlocks ]
 			.reverse()
 			.find( b => b.name !== 'jetpack/button' && b.name !== 'core/button' );
 
@@ -69,18 +69,18 @@ export function determineBlockNestingAction(
 
 	// Move blocks case
 	if ( wasEmpty ) {
-		// Form was empty (placeholder state), add a submit button after the moved blocks
+		// Form was empty (placeholder state)
 		return {
 			type: 'move-blocks',
 			insertionIndex: 0,
-			addSubmitButton: true,
+			targetWasEmpty: true,
 		};
 	}
 
 	// Form already has blocks, insert new blocks at the target index (before submit button if exists)
 	return {
 		type: 'move-blocks',
-		insertionIndex: getInsertionIndex( formBlock ),
-		addSubmitButton: false,
+		insertionIndex: getInsertionIndex( targetBlock ),
+		targetWasEmpty: false,
 	};
 }

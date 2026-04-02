@@ -9,7 +9,7 @@ import {
 	GlobalNotices,
 	useGlobalNotices,
 } from '@automattic/jetpack-components';
-import { getSiteType, isSimpleSite } from '@automattic/jetpack-script-data';
+import { getSiteType } from '@automattic/jetpack-script-data';
 import { Notice, Disabled, Spinner } from '@wordpress/components';
 import { createRoot, useCallback, useEffect, useState, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -388,10 +388,16 @@ function NewsletterSettingsApp(): JSX.Element | null {
 				'jetpack-newsletter'
 			) }
 		>
+			<GlobalNotices />
+			<Container horizontalSpacing={ 0 }>
+				<Col>
+					<div id="jp-admin-notices" className="newsletter-jitm-card" />
+				</Col>
+			</Container>
 			<Container horizontalSpacing={ 3 }>
 				<Col>
 					<Stack gap="md" direction="column" className="newsletter-settings">
-						{ ! isSimpleSite() && <NewsletterSection data={ data } onChange={ handleAutoSave } /> }
+						<NewsletterSection data={ data } onChange={ handleAutoSave } />
 
 						<Disabled isDisabled={ ! data.subscriptions }>
 							<Stack gap="md" direction="column">
@@ -456,8 +462,6 @@ function NewsletterSettingsApp(): JSX.Element | null {
 							</Stack>
 						</Disabled>
 					</Stack>
-
-					<GlobalNotices />
 				</Col>
 			</Container>
 		</AdminPage>

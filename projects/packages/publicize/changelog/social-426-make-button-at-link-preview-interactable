@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Make link preview icons clickable to open the clicked service tab by default.

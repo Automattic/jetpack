@@ -3,14 +3,12 @@
  */
 
 import path from 'path';
-import { fileURLToPath } from 'url';
 import jetpackWebpackConfig from '@automattic/jetpack-webpack-config/webpack';
 import RemoveAssetWebpackPlugin from '@automattic/remove-asset-webpack-plugin';
 import autoprefixer from 'autoprefixer';
 import { glob } from 'glob';
 
-const __filename = fileURLToPath( import.meta.url );
-const __dirname = path.dirname( __filename );
+const __dirname = import.meta.dirname;
 
 const scriptSrcDir = path.join( __dirname, '../src/contact-form/js' );
 const styleSrcDir = path.join( __dirname, '../src/contact-form/css' );
@@ -132,13 +130,10 @@ const RenamerPlugin = {
 export default [
 	{
 		...sharedWebpackConfig,
-		entry: glob
-			.sync( path.join( scriptSrcDir, '*.{js,ts,tsx}' ) )
-			.filter( filepath => ! filepath.endsWith( '/grunion.js' ) )
-			.reduce( ( acc, filepath ) => {
-				acc[ 'js/' + path.parse( filepath ).name ] = filepath;
-				return acc;
-			}, {} ),
+		entry: glob.sync( path.join( scriptSrcDir, '*.{js,ts,tsx}' ) ).reduce( ( acc, filepath ) => {
+			acc[ 'js/' + path.parse( filepath ).name ] = filepath;
+			return acc;
+		}, {} ),
 	},
 	{
 		...sharedWebpackConfig,

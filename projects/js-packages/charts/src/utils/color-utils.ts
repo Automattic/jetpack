@@ -111,13 +111,15 @@ export const parseHslString = ( hslString: string ): [ number, number, number ] 
 /**
  * Parse an RGB string like 'rgb(255, 0, 0)' into a hex color.
  *
- * @param rgbString - RGB color string
- * @return hex color string or null if invalid
+ * @deprecated    Use normalizeColorToHex() instead, which handles all color formats including rgb() and rgba().
+ * @param      rgbString - RGB color string (not RGBA)
+ * @return        hex color string or null if invalid
  */
 export const parseRgbString = ( rgbString: string ): string | null => {
 	const lower = rgbString.toLowerCase().trim();
 
 	// Check prefix - only handle rgb(), not rgba()
+	// This is intentional - use normalizeColorToHex for rgba() support
 	if ( ! lower.startsWith( 'rgb(' ) || lower.startsWith( 'rgba(' ) ) {
 		return null;
 	}
@@ -135,17 +137,19 @@ export const parseRgbString = ( rgbString: string ): string | null => {
 
 /**
  * Normalize any CSS color value to a hex color string.
- * Handles hex colors, HSL strings, RGB strings, and CSS variables.
+ * Handles hex, HSL, HSLA, RGB, RGBA, named CSS colors, and CSS variables.
  *
  * @param color      - Any CSS color value
  * @param element    - Optional DOM element for resolving CSS variables
  * @param resolveCss - Function to resolve CSS variables (injected for testability)
+ * @param _depth     - Internal recursion depth counter to prevent infinite loops
  * @return hex color string, or the original value if conversion fails
  */
 export const normalizeColorToHex = (
 	color: string,
 	element?: HTMLElement | null,
-	resolveCss?: ( value: string, el?: HTMLElement | null ) => string | null
+	resolveCss?: ( value: string, el?: HTMLElement | null ) => string | null,
+	_depth = 0
 ): string => {
 	if ( ! color || typeof color !== 'string' ) {
 		return '';
@@ -170,26 +174,33 @@ export const normalizeColorToHex = (
 	if ( trimmed.startsWith( '--' ) || trimmed.startsWith( 'var(' ) ) {
 		if ( resolveCss ) {
 			const resolved = resolveCss( color, element );
-			if ( resolved ) {
+			if ( resolved && resolved !== color && _depth < 10 ) {
 				// Recursively normalize the resolved value
-				return normalizeColorToHex( resolved, element, resolveCss );
+				return normalizeColorToHex( resolved, element, resolveCss, _depth + 1 );
 			}
 		}
 		// Can't resolve CSS variable, return original
 		return color;
 	}
 
-	// Handle HSL and RGB strings using d3-color
-	if ( trimmed.startsWith( 'hsl(' ) || trimmed.startsWith( 'rgb(' ) ) {
-		// Reject rgba() - we only handle rgb()
-		if ( trimmed.startsWith( 'rgba(' ) ) {
-			return color;
-		}
+	// Handle HSL, HSLA, RGB, and RGBA strings using d3-color
+	if (
+		trimmed.startsWith( 'hsl(' ) ||
+		trimmed.startsWith( 'hsla(' ) ||
+		trimmed.startsWith( 'rgb(' ) ||
+		trimmed.startsWith( 'rgba(' )
+	) {
 		const parsed = d3Color( trimmed );
 		if ( parsed ) {
 			return parsed.formatHex();
 		}
 		return color;
+	}
+
+	// Attempt d3-color for any remaining format (e.g. named CSS colors like "steelblue")
+	const parsed = d3Color( trimmed );
+	if ( parsed ) {
+		return parsed.formatHex();
 	}
 
 	// Unknown format, return as-is

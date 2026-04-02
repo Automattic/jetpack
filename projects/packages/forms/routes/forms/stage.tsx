@@ -1,20 +1,19 @@
 /**
  * External dependencies
  */
+import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { formatNumber } from '@automattic/number-formatters';
 import { Page } from '@wordpress/admin-ui';
 import {
-	__experimentalConfirmDialog as ConfirmDialog, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	Button,
+	__experimentalConfirmDialog as ConfirmDialog, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
-import { store as coreStore } from '@wordpress/core-data';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { DataViews } from '@wordpress/dataviews';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
-import { useEffect, useMemo, useState, useCallback, useRef } from '@wordpress/element';
+import { useEffect, useMemo, useState, useCallback } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { store as noticesStore } from '@wordpress/notices';
 import { useSearch, useNavigate } from '@wordpress/route';
 import { Badge } from '@wordpress/ui';
 import * as React from 'react';
@@ -22,7 +21,6 @@ import * as React from 'react';
  * Internal dependencies
  */
 import IntegrationsModal from '../../src/blocks/contact-form/components/jetpack-integrations-modal';
-import { FORM_POST_TYPE } from '../../src/blocks/shared/util/constants.js';
 import CreateFormButton from '../../src/dashboard/components/create-form-button/index.tsx';
 import { EmptyWrapper, NoResults } from '../../src/dashboard/components/empty-responses/index.tsx';
 import { FormNameModal } from '../../src/dashboard/components/form-name-modal';
@@ -40,6 +38,7 @@ import DataViewsHeaderRow from '../../src/dashboard/wp-build/components/dataview
 import FormsHelpModal from '../../src/dashboard/wp-build/components/forms-help-modal';
 import useFormItemActions from '../../src/dashboard/wp-build/hooks/use-form-item-actions';
 import usePageHeaderDetails from '../../src/dashboard/wp-build/hooks/use-page-header-details';
+import { useRenameForm } from '../../src/dashboard/wp-build/hooks/use-rename-form';
 import '../../src/dashboard/wp-build/style.scss';
 import useConfigValue from '../../src/hooks/use-config-value';
 import { INTEGRATIONS_STORE, IntegrationsSelectors } from '../../src/store/integrations';
@@ -90,6 +89,7 @@ function StageInner() {
 	const adminUrl = ( useConfigValue( 'adminUrl' ) as string ) || '';
 	const isIntegrationsEnabled = useConfigValue( 'isIntegrationsEnabled' );
 	const showDashboardIntegrations = useConfigValue( 'showDashboardIntegrations' );
+	const hasClassicForms = useConfigValue( 'hasClassicForms' );
 
 	const [ view, setView ] = useState< View >( () => ( {
 		...DEFAULT_VIEW,
@@ -169,12 +169,8 @@ function StageInner() {
 	const [ selection, setSelection ] = useState< string[] >( [] );
 	const [ pendingPermanentDeleteCount, setPendingPermanentDeleteCount ] = useState( 0 );
 
-	// Rename modal state
-	const [ renameFormItem, setRenameFormItem ] = useState< FormListItem | null >( null );
-	const renameRetryRef = useRef< { item: FormListItem; title: string } | null >( null );
-
-	const { createSuccessNotice, createErrorNotice } = useDispatch( noticesStore );
-	const { saveEntityRecord } = useDispatch( coreStore );
+	// Rename form
+	const { renameFormItem, openRenameModal, closeRenameModal, handleRename } = useRenameForm();
 
 	// Selection is local state. Clear it whenever the view changes (page/perPage/search/filters).
 	useEffect( () => {
@@ -202,58 +198,6 @@ function StageInner() {
 			setSelection( [] );
 		}
 	}, [ confirmPermanentDelete ] );
-
-	const openRenameModal = useCallback( ( item: FormListItem ) => {
-		setRenameFormItem( item );
-	}, [] );
-
-	const closeRenameModal = useCallback( () => {
-		setRenameFormItem( null );
-		renameRetryRef.current = null;
-	}, [] );
-
-	const handleRename = useCallback(
-		async ( newTitle: string ) => {
-			if ( ! renameFormItem ) {
-				return;
-			}
-			try {
-				await saveEntityRecord(
-					'postType',
-					FORM_POST_TYPE,
-					{
-						id: renameFormItem.id,
-						title: newTitle,
-					},
-					{ throwOnError: true }
-				);
-
-				createSuccessNotice( __( 'Form renamed.', 'jetpack-forms' ), { type: 'snackbar' } );
-				renameRetryRef.current = null;
-			} catch ( error ) {
-				// Store retry data in case the user closes the modal manually.
-				// The modal stays open on error, but if they close it, they can retry via the snackbar.
-				const retryItem = renameFormItem;
-				const retryTitle = newTitle;
-
-				createErrorNotice( __( 'Failed to rename form.', 'jetpack-forms' ), {
-					type: 'snackbar',
-					actions: [
-						{
-							label: __( 'Retry', 'jetpack-forms' ),
-							onClick: () => {
-								renameRetryRef.current = { item: retryItem, title: retryTitle };
-								setRenameFormItem( retryItem );
-							},
-						},
-					],
-				} );
-				// eslint-disable-next-line no-console
-				console.error( 'Failed to rename form:', error );
-			}
-		},
-		[ renameFormItem, saveEntityRecord, createSuccessNotice, createErrorNotice ]
-	);
 
 	const fields = useMemo(
 		() => [
@@ -326,6 +270,9 @@ function StageInner() {
 				label: __( 'Responses', 'jetpack-forms' ),
 				supportsBulk: false,
 				callback( items: FormListItem[] ) {
+					jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_form_view_responses_click', {
+						source: 'forms_list',
+					} );
 					const [ item ] = items;
 					if ( ! item ) {
 						return;
@@ -342,6 +289,10 @@ function StageInner() {
 				label: __( 'Restore', 'jetpack-forms' ),
 				supportsBulk: true,
 				async callback( items: FormListItem[] ) {
+					jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_form_restore_click', {
+						source: 'forms_list',
+						multiple: items.length > 1,
+					} );
 					if ( isDeleting ) {
 						return;
 					}
@@ -358,6 +309,10 @@ function StageInner() {
 				label: __( 'Delete permanently', 'jetpack-forms' ),
 				supportsBulk: true,
 				async callback( items: FormListItem[] ) {
+					jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_form_delete_permanently_click', {
+						source: 'forms_list',
+						multiple: items.length > 1,
+					} );
 					if ( isDeleting ) {
 						return;
 					}
@@ -376,6 +331,9 @@ function StageInner() {
 			label: __( 'Edit', 'jetpack-forms' ),
 			supportsBulk: false,
 			async callback( items: FormListItem[] ) {
+				jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_form_edit_form_click', {
+					source: 'forms_list',
+				} );
 				const [ item ] = items;
 				if ( ! item ) {
 					return;
@@ -391,6 +349,9 @@ function StageInner() {
 			label: __( 'Preview', 'jetpack-forms' ),
 			supportsBulk: false,
 			async callback( items: FormListItem[] ) {
+				jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_form_preview_click', {
+					source: 'forms_list',
+				} );
 				const [ item ] = items;
 				if ( item ) {
 					await previewForm( item );
@@ -405,6 +366,9 @@ function StageInner() {
 				label: __( 'Copy embed', 'jetpack-forms' ),
 				supportsBulk: false,
 				async callback( items: FormListItem[] ) {
+					jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_form_copy_embed_click', {
+						source: 'forms_list',
+					} );
 					const [ item ] = items;
 					if ( item ) {
 						await copyEmbed( item );
@@ -418,6 +382,9 @@ function StageInner() {
 				label: __( 'Copy shortcode', 'jetpack-forms' ),
 				supportsBulk: false,
 				async callback( items: FormListItem[] ) {
+					jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_form_copy_shortcode_click', {
+						source: 'forms_list',
+					} );
 					const [ item ] = items;
 					if ( item ) {
 						await copyShortcode( item );
@@ -440,6 +407,10 @@ function StageInner() {
 			isEligible: ( item: FormListItem ) => item.status !== 'publish',
 			supportsBulk: true,
 			async callback( items: FormListItem[] ) {
+				jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_form_publish_click', {
+					source: 'forms_list',
+					multiple: items.length > 1,
+				} );
 				if ( isDeleting || isUpdatingStatus ) {
 					return;
 				}
@@ -462,6 +433,10 @@ function StageInner() {
 			isEligible: ( item: FormListItem ) => item.status === 'publish',
 			supportsBulk: true,
 			async callback( items: FormListItem[] ) {
+				jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_form_unpublish_click', {
+					source: 'forms_list',
+					multiple: items.length > 1,
+				} );
 				if ( isDeleting || isUpdatingStatus ) {
 					return;
 				}
@@ -483,6 +458,9 @@ function StageInner() {
 			label: __( 'Rename', 'jetpack-forms' ),
 			supportsBulk: false,
 			callback( items: FormListItem[] ) {
+				jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_form_rename_click', {
+					source: 'forms_list',
+				} );
 				const [ item ] = items;
 				if ( ! item ) {
 					return;
@@ -497,6 +475,9 @@ function StageInner() {
 			label: __( 'Duplicate', 'jetpack-forms' ),
 			supportsBulk: false,
 			async callback( items: FormListItem[] ) {
+				jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_form_duplicate_click', {
+					source: 'forms_list',
+				} );
 				const [ item ] = items;
 				if ( item ) {
 					await duplicateForm( item );
@@ -510,6 +491,10 @@ function StageInner() {
 			label: __( 'Trash', 'jetpack-forms' ),
 			supportsBulk: true,
 			async callback( items: FormListItem[] ) {
+				jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_form_trash_click', {
+					source: 'forms_list',
+					multiple: items.length > 1,
+				} );
 				if ( isDeleting ) {
 					return;
 				}
@@ -590,7 +575,7 @@ function StageInner() {
 		actions: headerActions,
 	} = usePageHeaderDetails( {
 		screen: 'forms',
-		formsCount: statusCounts.all,
+		hasClassicForms: !! hasClassicForms,
 		isIntegrationsEnabled: !! isIntegrationsEnabled,
 		showDashboardIntegrations: !! showDashboardIntegrations,
 		onOpenIntegrations: openIntegrationsModal,
@@ -631,7 +616,7 @@ function StageInner() {
 						<EmptyWrapper
 							heading={ __( "You're set up. No forms yet.", 'jetpack-forms' ) }
 							body={ __(
-								'Create a shared form pattern to manage and reuse it across your site.',
+								'Create a form to manage and reuse it across your site.',
 								'jetpack-forms'
 							) }
 							actions={
@@ -639,11 +624,13 @@ function StageInner() {
 									<CreateFormButton
 										label={ __( 'Create a new form', 'jetpack-forms' ) }
 										variant="primary"
-										showIcon={ false }
+										showNameModal
 									/>
-									<Button size="compact" variant="secondary" onClick={ openFormsHelpModal }>
-										{ __( 'Missing forms?', 'jetpack-forms' ) }
-									</Button>
+									{ hasClassicForms && (
+										<Button size="compact" variant="secondary" onClick={ openFormsHelpModal }>
+											{ __( 'Not seeing all your forms?', 'jetpack-forms' ) }
+										</Button>
+									) }
 								</HStack>
 							}
 						/>
@@ -691,7 +678,7 @@ function StageInner() {
 				onClose={ closeRenameModal }
 				onSave={ handleRename }
 				title={ __( 'Rename form', 'jetpack-forms' ) }
-				initialValue={ renameRetryRef.current?.title || renameFormItem?.title || '' }
+				initialValue={ renameFormItem?.title || '' }
 			/>
 			<IntegrationsModal
 				isOpen={ isIntegrationsModalOpen }

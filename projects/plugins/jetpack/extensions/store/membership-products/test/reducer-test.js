@@ -128,27 +128,6 @@ describe( 'Membership products reducer testing', () => {
 		} );
 	} );
 
-	test( 'set newsletter categories subscriptions count action type adds the newsletter categories subscriptions count to the returned state.', () => {
-		// Given
-		const anyNewsletterCategoriesSubscriptionsCount = 1;
-		const anySetNewsletterCategoriesSubscriptionsCountAction = {
-			type: 'SET_NEWSLETTER_CATEGORIES_SUBSCRIPTIONS_COUNT',
-			newsletterCategoriesSubscriptionsCount: anyNewsletterCategoriesSubscriptionsCount,
-		};
-
-		// When
-		const returnedState = reducer(
-			DEFAULT_STATE,
-			anySetNewsletterCategoriesSubscriptionsCountAction
-		);
-
-		// Then
-		expect( returnedState ).toStrictEqual( {
-			...DEFAULT_STATE,
-			newsletterCategoriesSubscriptionsCount: anyNewsletterCategoriesSubscriptionsCount,
-		} );
-	} );
-
 	test( 'SET_TOTAL_EMAILS_SENT_COUNT action adds the total emails sent count to the returned state.', () => {
 		const anyTotalEmailsSentCount = 10;
 		const anySetTotalEmailsSentCountAction = {

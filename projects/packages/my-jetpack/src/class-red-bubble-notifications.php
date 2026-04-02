@@ -187,6 +187,10 @@ class Red_Bubble_Notifications {
 	 * @return array
 	 */
 	public static function alert_if_last_backup_failed( array $red_bubble_slugs ) {
+		// Backup is not supported on multisite installations.
+		if ( is_multisite() ) {
+			return $red_bubble_slugs;
+		}
 		// Make sure the Notice wasn't previously dismissed.
 		if ( ! empty( $_COOKIE['backup_failure_dismissed'] ) ) {
 			return $red_bubble_slugs;
@@ -220,6 +224,10 @@ class Red_Bubble_Notifications {
 	 * @return array
 	 */
 	public static function alert_if_protect_has_threats( array $red_bubble_slugs ) {
+		// Scan is not supported on multisite installations.
+		if ( is_multisite() ) {
+			return $red_bubble_slugs;
+		}
 		// Make sure the Notice hasn't been dismissed.
 		if ( ! empty( $_COOKIE['protect_threats_detected_dismissed'] ) ) {
 			return $red_bubble_slugs;

@@ -6,12 +6,8 @@
 
 import fs from 'fs';
 import path from 'path';
-import { fileURLToPath } from 'url';
 import { chromium } from 'playwright';
 import { median, truncate } from './stats.js';
-
-const __filename = fileURLToPath( import.meta.url );
-const __dirname = path.dirname( __filename );
 
 // Configuration
 const TARGET_SCORE = 1000;
@@ -21,7 +17,7 @@ const SCORE_TOLERANCE = 10;
 const BENCHMARK_DURATION_MS = 500;
 
 // Output path
-const CALIBRATION_FILE = path.join( __dirname, '..', 'calibration.json' );
+const CALIBRATION_FILE = path.join( import.meta.dirname, '..', 'calibration.json' );
 
 // Cache for benchmark scores within a single pass (keyed by throttle rate)
 const scoreCache = new Map();

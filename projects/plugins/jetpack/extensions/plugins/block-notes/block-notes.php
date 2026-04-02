@@ -7,6 +7,11 @@
 
 namespace Automattic\Jetpack\Extensions\BlockNotes;
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\My_Jetpack\Products\Jetpack_Ai;
+use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Status\Host;
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
 }
@@ -22,14 +27,87 @@ const HEADLESS_AGENT_PROVIDER = 'block-notes/headless-agent-provider';
 /**
  * Check if Block Notes is enabled.
  *
- * Returns true if either the unified chat experience or the
- * jetpack_block_notes_enabled filter is active.
+ * Enabled when the Big Sky plugin is active, or when the site has
+ * a paid Jetpack AI plan and AI features are not disabled.
  *
  * @return bool
  */
 function is_block_notes_enabled() {
-	return apply_filters( 'agents_manager_use_unified_experience', false )
-		|| apply_filters( 'jetpack_block_notes_enabled', false );
+	if ( is_big_sky_enabled() ) {
+		return true;
+	}
+
+	if ( ! has_jetpack_ai_features() ) {
+		return false;
+	}
+
+	if ( ! has_paid_ai_plan() ) {
+		return false;
+	}
+
+	return true;
+}
+
+/**
+ * Check if the site has a paid Jetpack AI plan.
+ *
+ * On WordPress.com, uses the lightweight wpcom_site_has_feature() lookup.
+ * On self-hosted and Atomic sites, uses the My Jetpack product class.
+ *
+ * @return bool
+ */
+function has_paid_ai_plan() {
+	$has_paid_plan = false;
+
+	if ( defined( 'IS_WPCOM' ) && IS_WPCOM && function_exists( 'wpcom_site_has_feature' ) ) {
+		$has_paid_plan = wpcom_site_has_feature( 'ai-assistant', get_current_blog_id() );
+	} elseif ( class_exists( Jetpack_Ai::class ) ) {
+		$has_paid_plan = Jetpack_Ai::has_paid_plan_for_product();
+	}
+
+	/**
+	 * Filter whether the site has a paid AI plan.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param bool $has_paid_plan Whether the site has a paid AI plan.
+	 */
+	return apply_filters( 'jetpack_block_notes_has_paid_ai_plan', $has_paid_plan );
+}
+
+/**
+ * Check if the Big Sky plugin is active and enabled.
+ *
+ * Defaults to enabled ('1') when the Big_Sky class exists but the option
+ * has never been set — plugin presence implies the feature should be on.
+ *
+ * @return bool
+ */
+function is_big_sky_enabled() {
+	return class_exists( 'Big_Sky' ) && get_option( 'big_sky_enable', '1' );
+}
+
+/**
+ * Check whether AI features are available.
+ *
+ * - wpcom simple: always returns true. The jetpack_ai_enabled filter
+ *   does not apply here; the paid plan check in has_paid_ai_plan()
+ *   gates access instead.
+ * - Otherwise requires a connected owner, not in offline mode, and
+ *   AI not disabled via the jetpack_ai_enabled filter.
+ *
+ * @return bool
+ */
+function has_jetpack_ai_features() {
+	$host = new Host();
+
+	if ( $host->is_wpcom_simple() ) {
+		return true;
+	}
+
+	return ( new Connection_Manager( 'jetpack' ) )->has_connected_owner()
+		&& ! ( new Status() )->is_offline_mode()
+		&& apply_filters( 'jetpack_ai_enabled', true );
 }
 
 /**
@@ -63,8 +141,8 @@ function should_load_on_current_screen() {
 /**
  * Register the Block Notes plugin.
  *
- * Registers unconditionally when either filter is true. Screen-level gating
- * happens at enqueue time since get_current_screen() is not available here.
+ * Registers when Block Notes is enabled. Screen-level gating happens at
+ * enqueue time since get_current_screen() is not available here.
  *
  * @return void
  */
@@ -212,7 +290,7 @@ add_action( 'enqueue_block_editor_assets', __NAMESPACE__ . '\enqueue_block_notes
 
 /**
  * Enable the agents manager unified experience on self-hosted sites
- * when jetpack_block_notes_enabled is true.
+ * when Block Notes is enabled.
  *
  * This ensures the agents manager loads and can host the headless agent
  * even when the unified chat experience is not otherwise enabled.
@@ -225,7 +303,7 @@ function enable_agents_manager_for_block_notes( $use_unified_experience ) {
 		return true;
 	}
 
-	return (bool) apply_filters( 'jetpack_block_notes_enabled', false );
+	return is_block_notes_enabled();
 }
 add_filter( 'agents_manager_use_unified_experience', __NAMESPACE__ . '\enable_agents_manager_for_block_notes' );
 

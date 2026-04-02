@@ -21,7 +21,7 @@ use Jetpack_Tracks_Client;
  */
 class Settings {
 
-	const PACKAGE_VERSION = '0.6.0';
+	const PACKAGE_VERSION = '0.7.0';
 	/**
 	 * Whether the class has been initialized
 	 *
@@ -50,9 +50,9 @@ class Settings {
 		 *
 		 * @since 15.3.0
 		 *
-		 * @param bool $enabled Whether to enable the new newsletter settings UI. Default false.
+		 * @param bool $enabled Whether to enable the new newsletter settings UI. Default true.
 		 */
-		return apply_filters( 'jetpack_wp_admin_newsletter_settings_enabled', false );
+		return apply_filters( 'jetpack_wp_admin_newsletter_settings_enabled', true );
 	}
 
 	/**
@@ -94,15 +94,16 @@ class Settings {
 			add_action( 'admin_init', array( $this, 'add_reading_page_notice' ) );
 		}
 
-		if ( ! $this->expose_to_users() ) {
-			return;
-		}
-
 		// Hijack the config URLs to point to our settings page.
 		// Priority 20 to override the default URL set in subscriptions.php.
+		// Check expose_to_users() lazily in the callback so filters registered
+		// after init() (e.g. by jetpack-mu-wpcom) are available.
 		add_filter(
 			'jetpack_module_configuration_url_subscriptions',
-			function () {
+			function ( $url ) {
+				if ( ! $this->expose_to_users() ) {
+					return $url;
+				}
 				return Urls::get_newsletter_settings_url( ( new Status() )->get_site_suffix() );
 			},
 			20
@@ -118,6 +119,8 @@ class Settings {
 		}
 
 		// Add admin menu item.
+		// The expose_to_users() check is deferred to add_wp_admin_menu() so that
+		// filters registered after init() are available when admin_menu fires.
 		// Use priority 999 to ensure menu items are queued BEFORE Admin_Menu::admin_menu_hook_callback
 		// runs at priority 1000 to process all queued items.
 		add_action( 'admin_menu', array( $this, 'add_wp_admin_menu' ), 999 );
@@ -300,10 +303,14 @@ class Settings {
 		}
 
 		// For Jetpack sites, use the jetpack.com redirect URL.
-		$site_id = $blog_id ? $blog_id : Connection_Manager::get_site_id();
+		$site_id = $blog_id ? (int) $blog_id : Connection_Manager::get_site_id( true );
+		$args    = ( ! empty( $site_id ) )
+			? array( 'site' => $site_id )
+			: array();
+
 		return Redirect::get_url(
 			'jetpack-settings-jetpack-manage-subscribers',
-			array( 'site' => $site_id )
+			$args
 		);
 	}
 

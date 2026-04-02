@@ -36,6 +36,7 @@ import { useChartChildren } from '../private/chart-composition';
 import { ChartLayout } from '../private/chart-layout';
 import { DefaultGlyph } from '../private/default-glyph';
 import { SingleChartContext, type SingleChartRef } from '../private/single-chart-context';
+import { SvgEmptyState } from '../private/svg-empty-state';
 import { withResponsive } from '../private/with-responsive';
 import styles from './line-chart.module.scss';
 import { LineChartAnnotation, LineChartAnnotationsOverlay, LineChartGlyph } from './private';
@@ -537,19 +538,17 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 											{ chartOptions.axis.y.display && <Axis { ...chartOptions.axis.y } /> }
 
 											{ allSeriesHidden ? (
-												<text
+												<SvgEmptyState
 													x={ width / 2 }
 													y={ chartHeight / 2 }
-													textAnchor="middle"
-													fill={ providerTheme.gridStyles?.stroke || '#ccc' }
-													fontSize="14"
-													fontFamily="-apple-system,BlinkMacSystemFont,Roboto,Helvetica Neue,sans-serif"
+													width={ width }
+													height={ chartHeight }
 												>
 													{ __(
 														'All series are hidden. Click legend items to show data.',
 														'jetpack-charts'
 													) }
-												</text>
+												</SvgEmptyState>
 											) : null }
 
 											{ seriesWithVisibility.map( ( { series: seriesData, index, isVisible } ) => {

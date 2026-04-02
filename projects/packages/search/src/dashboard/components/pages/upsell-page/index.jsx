@@ -16,7 +16,6 @@ import {
 	ThemeProvider,
 } from '@automattic/jetpack-components';
 import { ConnectionError, useConnectionErrorNotice } from '@automattic/jetpack-connection';
-import { shouldUseInternalLinks } from '@automattic/jetpack-shared-extension-utils';
 import { formatNumberCompact } from '@automattic/number-formatters';
 import { Button } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
@@ -30,8 +29,6 @@ import useProductCheckoutWorkflow from 'hooks/use-product-checkout-workflow';
 import { STORE_ID } from 'store';
 
 import './styles.scss';
-
-const JETPACK_SEARCH__LINK = 'https://jetpack.com/upgrade/search';
 
 /**
  * defines UpsellPage.
@@ -105,13 +102,11 @@ export default function UpsellPage( { isLoading = false } ) {
 					) }
 					actions={
 						! isWpcom && (
-							<Button variant="secondary" href={ activateLicenseUrl }>
+							<Button size="compact" variant="secondary" href={ activateLicenseUrl }>
 								{ __( 'Use license key', 'jetpack-search-pkg' ) }
 							</Button>
 						)
 					}
-					moduleNameHref={ JETPACK_SEARCH__LINK }
-					useInternalLinks={ shouldUseInternalLinks() }
 				>
 					<AdminSectionHero>
 						{ isNewPricing ? (

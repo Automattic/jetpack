@@ -474,6 +474,12 @@ class Posts extends Module {
 			return false;
 		}
 
+		// During incremental sync, skip posts whose type is not registered (e.g. CPT unregistered before sync).
+		// Full sync may have already sent them; we simply don't enqueue incremental updates for them.
+		if ( ! get_post_type_object( $post->post_type ) ) {
+			return false;
+		}
+
 		return array( (int) $post_id, $this->filter_post_content_and_add_links( $post ), $update, $previous_state );
 	}
 
