@@ -27,6 +27,10 @@ class Site_Health_Test extends TestCase {
 		// Reset the static initialized flag via reflection.
 		$reflection = new \ReflectionClass( Site_Health::class );
 		$property   = $reflection->getProperty( 'initialized' );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
 		$property->setValue( null, false );
 
 		remove_all_filters( 'site_status_tests' );
