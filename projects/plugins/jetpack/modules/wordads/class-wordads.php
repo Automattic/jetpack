@@ -352,7 +352,7 @@ class WordAds {
 	 * @return array Domains for hinting.
 	 */
 	public function resource_hints( $hints, $relation_type ) {
-		if ( 'dns-prefetch' === $relation_type ) {
+		if ( 'dns-prefetch' === $relation_type && ! is_404() ) {
 			$hints[] = '//s.pubmine.com';
 			$hints[] = '//x.bidswitch.net';
 			$hints[] = '//static.criteo.net';
@@ -379,7 +379,7 @@ class WordAds {
 	 * IPONWEB metadata used by the various scripts
 	 */
 	public function insert_head_meta() {
-		if ( self::is_amp() ) {
+		if ( self::is_amp() || is_404() ) {
 			return;
 		}
 		$hosting_type = ( new Host() )->is_woa_site() ? 1 : 2; // 1 = WPCOM, 2 = Jetpack.
