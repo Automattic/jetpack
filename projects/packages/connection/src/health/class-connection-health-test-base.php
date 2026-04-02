@@ -104,12 +104,11 @@ class Connection_Health_Test_Base {
 
 		$tests = array();
 		foreach ( $this->tests as $name => $value ) {
-			if ( 'all' === $group || $group === $value['group'] ) {
+			$value_groups = isset( $value['group'] ) ? (array) $value['group'] : array();
+			if ( ( 'all' === $group || in_array( $group, $value_groups, true ) )
+				&& ( 'all' === $type || $type === $value['type'] )
+			) {
 				$tests[ $name ] = $value;
-			}
-
-			if ( 'all' !== $type && $type !== $value['type'] ) {
-				unset( $tests[ $name ] );
 			}
 		}
 
@@ -544,7 +543,7 @@ class Connection_Health_Test_Base {
 			\WP_CLI::line( self::offline_mode_trigger_text() );
 		}
 		\WP_CLI::line( __( 'TEST RESULTS:', 'jetpack-connection' ) );
-		foreach ( $this->raw_results( $group ) as $test ) {
+		foreach ( $this->raw_results( 'all', $group ) as $test ) {
 			if ( true === $test['pass'] ) {
 				\WP_CLI::log( \WP_CLI::colorize( '%gPassed:%n  ' . $test['name'] ) );
 			} elseif ( 'skipped' === $test['pass'] ) {
@@ -598,17 +597,17 @@ class Connection_Health_Test_Base {
 		foreach ( $fails as $fail ) {
 			if ( ! $error ) {
 				$error                 = true;
-				$result['label']       = $fail['message'];
+				$result['label']       = $fail['short_description'];
 				$result['status']      = $fail['severity'];
 				$result['description'] = sprintf(
 					'<p>%s</p>',
-					$fail['resolution']
+					$fail['long_description'] ? $fail['long_description'] : $fail['short_description']
 				);
 				if ( ! empty( $fail['action'] ) ) {
 					$result['actions'] = sprintf(
 						'<a class="button button-primary" href="%1$s" target="_blank" rel="noopener noreferrer">%2$s <span class="screen-reader-text">%3$s</span><span aria-hidden="true" class="dashicons dashicons-external"></span></a>',
 						esc_url( $fail['action'] ),
-						__( 'Resolve', 'jetpack-connection' ),
+						$fail['action_label'] ? $fail['action_label'] : __( 'Resolve', 'jetpack-connection' ),
 						/* translators: accessibility text */
 						__( '(opens in a new tab)', 'jetpack-connection' )
 					);
@@ -617,7 +616,7 @@ class Connection_Health_Test_Base {
 				$result['description'] .= sprintf(
 					'<p>%s</p>',
 					__( 'There was another problem:', 'jetpack-connection' )
-				) . ' ' . $fail['message'] . ': ' . $fail['resolution'];
+				) . ' ' . $fail['short_description'];
 				if ( 'critical' === $fail['severity'] ) {
 					$result['status'] = 'critical';
 				}
@@ -638,7 +637,7 @@ class Connection_Health_Test_Base {
 	 * @return WP_Error|false WP_Error with all failed tests or false if no failures.
 	 */
 	public function output_fails_as_wp_error( $type = 'all', $group = 'all' ) {
-		if ( $this->pass( $group ) ) {
+		if ( $this->pass( $type, $group ) ) {
 			return false;
 		}
 		$fails = $this->list_fails( $type, $group );

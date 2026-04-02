@@ -123,6 +123,25 @@ class Connection_Health_Test_Base_Test extends TestCase {
 	}
 
 	/**
+	 * Test list_tests filters by group.
+	 */
+	public function test_list_tests_by_group() {
+		$this->base->add_test( function () {}, 'test_default', 'direct' );
+		$this->base->add_test( function () {}, 'test_custom', 'direct', array( 'custom' ) );
+
+		$default = $this->base->list_tests( 'all', 'default' );
+		$this->assertCount( 1, $default );
+		$this->assertArrayHasKey( 'test_default', $default );
+
+		$custom = $this->base->list_tests( 'all', 'custom' );
+		$this->assertCount( 1, $custom );
+		$this->assertArrayHasKey( 'test_custom', $custom );
+
+		$all = $this->base->list_tests( 'all', 'all' );
+		$this->assertCount( 2, $all );
+	}
+
+	/**
 	 * Test run_test executes a registered test.
 	 */
 	public function test_run_test_success() {
@@ -532,6 +551,35 @@ class Connection_Health_Test_Base_Test extends TestCase {
 	}
 
 	/**
+	 * Test output_results_for_core_async_site_health with a failing async test.
+	 */
+	public function test_output_results_for_core_async_site_health_failing() {
+		$this->base->add_test(
+			function () {
+				return Connection_Health_Test_Base::failing_test(
+					array(
+						'name'              => 'async_fail',
+						'short_description' => 'Something broke',
+						'long_description'  => 'Detailed explanation',
+						'action'            => 'https://example.com/fix',
+						'action_label'      => 'Fix it',
+					)
+				);
+			},
+			'async_fail',
+			'async'
+		);
+
+		$result = $this->base->output_results_for_core_async_site_health();
+
+		$this->assertEquals( 'Something broke', $result['label'] );
+		$this->assertEquals( 'critical', $result['status'] );
+		$this->assertStringContainsString( 'Detailed explanation', $result['description'] );
+		$this->assertStringContainsString( 'https://example.com/fix', $result['actions'] );
+		$this->assertStringContainsString( 'Fix it', $result['actions'] );
+	}
+
+	/**
 	 * Test encrypt_string_for_wpcom returns encrypted data.
 	 */
 	public function test_encrypt_string_for_wpcom() {
@@ -580,6 +628,32 @@ class Connection_Health_Test_Base_Test extends TestCase {
 		$codes = $error->get_error_codes();
 		$this->assertContains( 'failed_fail_one', $codes );
 		$this->assertContains( 'failed_fail_two', $codes );
+	}
+
+	/**
+	 * Test output_fails_as_wp_error passes type and group to pass().
+	 */
+	public function test_output_fails_as_wp_error_respects_type_filter() {
+		$this->base->add_test(
+			function () {
+				return Connection_Health_Test_Base::failing_test(
+					array(
+						'name'              => 'async_fail',
+						'short_description' => 'Async failure',
+					)
+				);
+			},
+			'async_fail',
+			'async'
+		);
+
+		// Filtering by 'direct' should not see the async failure.
+		$this->assertFalse( $this->base->output_fails_as_wp_error( 'direct' ) );
+
+		// Filtering by 'async' should see it.
+		$error = $this->base->output_fails_as_wp_error( 'async' );
+		$this->assertInstanceOf( \WP_Error::class, $error );
+		$this->assertEquals( 'failed_async_fail', $error->get_error_code() );
 	}
 
 	/**

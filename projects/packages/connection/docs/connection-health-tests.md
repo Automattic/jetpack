@@ -164,7 +164,7 @@ add_filter(
 | `jetpack_connection_tests_loaded` | Action. Fires after built-in tests are registered. Receives the `Connection_Health_Tests` instance. | — |
 | `jetpack_debugger_run_self_test` | Whether to include the WP.com self-test. | `false` |
 | `jetpack_connection_support_url` | Support URL shown in failing test results. | Jetpack support contact page |
-| `jetpack_connection_reconnect_url` | Reconnect URL shown in connection failure results. | `admin.php?page=jetpack#/reconnect` |
+| `jetpack_connection_reconnect_url` | Reconnect URL shown in connection failure results. | Empty string by default; the Jetpack plugin provides the reconnect URL when available. |
 | `jetpack_connection_site_health_badge_label` | Badge label shown in Site Health. | `'Jetpack'` |
 
 ## Test result format
