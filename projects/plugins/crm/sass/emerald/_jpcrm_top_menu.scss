@@ -1,3 +1,5 @@
+@import "@wordpress/theme/design-tokens.css";
+
 #jpcrm-top-menu {
 	padding: var(--wpds-dimension-padding-xl, 16px) var(--wpds-dimension-padding-2xl, 24px) 0;
 	display: block;
@@ -18,10 +20,10 @@
 
 		.jpcrm-header-logo__text {
 			font-family: -apple-system, system-ui, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
-			font-size: 15px;
+			font-size: var(--wpds-font-size-lg, 15px);
 			font-weight: 499;
-			line-height: 28px;
-			color: #1d2327;
+			line-height: var(--wpds-font-line-height-lg, 28px);
+			color: var(--wpds-color-fg-content-neutral, #1d2327);
 		}
 
 		.jpcrm-fullscreen-toggle {
