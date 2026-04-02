@@ -186,7 +186,7 @@ HTML;
 			return false;
 		}
 
-		// The overlay only appears on the blog home and front page; skip expensive checks on all other pages.
+		// The overlay only appears on the blog home and front page.
 		if ( ! is_home() && ! is_front_page() ) {
 			return false;
 		}
