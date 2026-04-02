@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Hide "Upgrade Jetpack" sidebar menu item on multisite installations.
