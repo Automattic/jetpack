@@ -16,11 +16,18 @@ class Admin_Menu {
 	const PACKAGE_VERSION = '0.6.0';
 
 	/**
-	 * Redirect source slug used as the upgrade URL identifier and CSS class.
+	 * Redirect source slug used as the upgrade URL identifier.
 	 *
 	 * @var string
 	 */
-	const UPGRADE_MENU_SLUG = 'jetpack-wpadmin-sidebar-free-plan-upsell-menu-item';
+	const UPGRADE_REDIRECT_SLUG = 'jetpack-wpadmin-sidebar-free-plan-upsell-menu-item';
+
+	/**
+	 * Menu item CSS class.
+	 *
+	 * @var string
+	 */
+	const UPGRADE_MENU_SLUG = 'jp-sidebar-upsell-menu-item';
 
 	/**
 	 * Fallback upgrade URL when the Redirect class is unavailable.
@@ -315,7 +322,7 @@ class Admin_Menu {
 		}
 
 		$upgrade_url = class_exists( '\Automattic\Jetpack\Redirect' )
-			? \Automattic\Jetpack\Redirect::get_url( self::UPGRADE_MENU_SLUG )
+			? \Automattic\Jetpack\Redirect::get_url( self::UPGRADE_REDIRECT_SLUG )
 			: self::UPGRADE_MENU_FALLBACK_URL;
 
 		$menu_title = esc_html__( 'Upgrade Jetpack', 'jetpack-admin-ui' )
@@ -356,14 +363,31 @@ class Admin_Menu {
 		if ( ! self::should_show_upgrade_menu() ) {
 			return;
 		}
+
+		// All color schemes have bold upsell text
+		$styles_template =
+			'#adminmenu li.%slug% > a,' .
+			'#adminmenu li.%slug% > a:hover { ' .
+			'font-weight: 600; }';
+
+		// Safe admin color schemes for the highlight color while being readable.
+		$safe_color_schemes = array( 'fresh', 'light', 'modern', 'coffee', 'midnight' );
+		$color_selectors    = array();
+		foreach ( $safe_color_schemes as $color_scheme ) {
+			$color_selectors[] = '.admin-color-' . $color_scheme . ' #adminmenu li.%slug% > a';
+			$color_selectors[] = '.admin-color-' . $color_scheme . ' #adminmenu li.%slug% > a:hover';
+		}
+
+		$styles_template .= implode( ',', $color_selectors ) . '{color: #069e08 !important;}';
+
+		$styles = str_replace( '%slug%', esc_attr( self::UPGRADE_MENU_SLUG ), $styles_template );
+
 		?>
 		<style>
-			#adminmenu li.<?php echo esc_attr( self::UPGRADE_MENU_SLUG ); ?> > a,
-			#adminmenu li.<?php echo esc_attr( self::UPGRADE_MENU_SLUG ); ?> > a:hover {
-				color: #069e08 !important;
-				font-weight: 600;
-			}
+			<?php echo $styles; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Output is a CSS string generated from trusted selectors and an escaped slug. ?>
 		</style>
 		<?php
 	}
 }
+
+
