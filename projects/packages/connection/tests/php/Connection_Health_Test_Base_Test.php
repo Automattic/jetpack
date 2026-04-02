@@ -427,8 +427,8 @@ class Connection_Health_Test_Base_Test extends TestCase {
 		$this->assertEquals( 'test_cxn_fail', $result['name'] );
 		$this->assertEquals( 'critical', $result['severity'] );
 		$this->assertNotEmpty( $result['short_description'] );
-		$this->assertNotEmpty( $result['action'] );
-		$this->assertNotEmpty( $result['action_label'] );
+		$this->assertFalse( $result['action'] );
+		$this->assertFalse( $result['action_label'] );
 		$this->assertNotEmpty( $result['long_description'] );
 	}
 

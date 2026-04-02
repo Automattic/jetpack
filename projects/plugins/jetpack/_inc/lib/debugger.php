@@ -34,6 +34,16 @@ add_filter(
 );
 
 /*
+ * Provide the Jetpack reconnect URL for connection health test failures.
+ */
+add_filter(
+	'jetpack_connection_reconnect_url',
+	function () {
+		return admin_url( 'admin.php?page=jetpack#/reconnect' );
+	}
+);
+
+/*
  * Register Jetpack-specific tests with the connection package's Site Health integration.
  * This adds Jetpack tests (sync health) alongside the connection package's own tests
  * when Site Health runs.

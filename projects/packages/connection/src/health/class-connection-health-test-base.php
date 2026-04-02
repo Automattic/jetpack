@@ -372,7 +372,7 @@ class Connection_Health_Test_Base {
 		 *
 		 * @param string $url The reconnect URL.
 		 */
-		return apply_filters( 'jetpack_connection_reconnect_url', admin_url( 'admin.php?page=jetpack#/reconnect' ) );
+		return apply_filters( 'jetpack_connection_reconnect_url', '' );
 	}
 
 	/**
@@ -454,13 +454,18 @@ class Connection_Health_Test_Base {
 		$connection_error = empty( $connection_error ) ? __( 'Your site is not connected to Jetpack.', 'jetpack-connection' ) : $connection_error;
 		$recommendation   = empty( $recommendation ) ? __( 'We recommend reconnecting Jetpack.', 'jetpack-connection' ) : $recommendation;
 
+		$reconnect_url = self::helper_get_reconnect_url();
+
 		$args = array(
 			'name'              => $name,
 			'short_description' => $connection_error,
-			'action'            => self::helper_get_reconnect_url(),
-			'action_label'      => self::helper_get_reconnect_text(),
 			'long_description'  => self::helper_get_reconnect_long_description( $connection_error, $recommendation ),
 		);
+
+		if ( ! empty( $reconnect_url ) ) {
+			$args['action']       = $reconnect_url;
+			$args['action_label'] = self::helper_get_reconnect_text();
+		}
 
 		return self::failing_test( $args );
 	}
