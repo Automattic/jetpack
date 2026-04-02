@@ -73,7 +73,10 @@ async function startConnectionFlow( siteRegistered ) {
 			{ headers: { 'X-WP-Nonce': apiNonce } }
 		);
 		if ( ! authRes.ok ) {
-			throw new Error( 'Failed to retrieve authorization URL' );
+			const errBody = await authRes.json().catch( () => null );
+			throw new Error(
+				errBody?.message || __( 'Failed to retrieve authorization URL.', 'jetpack-connection' )
+			);
 		}
 		const authData = await authRes.json();
 		const authorizeUrl = authData?.authorizeUrl || authData;
@@ -99,7 +102,8 @@ async function startConnectionFlow( siteRegistered ) {
 	} );
 
 	if ( ! response.ok ) {
-		throw new Error( 'Registration failed' );
+		const errBody = await response.json().catch( () => null );
+		throw new Error( errBody?.message || __( 'Site registration failed.', 'jetpack-connection' ) );
 	}
 
 	const result = await response.json();
@@ -133,6 +137,34 @@ function addSkipPricing( url ) {
 }
 
 /* ── Small presentational components ────────────────────────────── */
+
+/**
+ * Inline error notice with an optional dismiss button.
+ *
+ * @param {object}        props           - Component props.
+ * @param {string}        props.message   - Error message text.
+ * @param {Function|null} props.onDismiss - Callback to clear the error; omit for non-dismissible.
+ * @return {object} React element.
+ */
+function ErrorNotice( { message, onDismiss = null } ) {
+	return createElement(
+		HStack,
+		{ spacing: 2, className: 'wpcom-connector__error', role: 'alert' },
+		createElement( Text, { size: 13 }, message ),
+		onDismiss
+			? createElement(
+					Button,
+					{
+						variant: 'link',
+						size: 'small',
+						onClick: onDismiss,
+						'aria-label': __( 'Dismiss error', 'jetpack-connection' ),
+					},
+					__( 'Dismiss', 'jetpack-connection' )
+			  )
+			: null
+	);
+}
 
 /**
  * Status badge with a BEM modifier for different connection states.
@@ -393,10 +425,12 @@ function ExpandedDetails( { isConnecting = false, onConnect = null } ) {
 	const [ isUnlinking, setIsUnlinking ] = useState( false );
 	const [ showDetailsModal, setShowDetailsModal ] = useState( false );
 	const [ pendingConfirm, setPendingConfirm ] = useState( null );
+	const [ actionError, setActionError ] = useState( null );
 
 	const executeDisconnect = async () => {
 		setPendingConfirm( null );
 		setIsDisconnecting( true );
+		setActionError( null );
 
 		try {
 			const response = await window.fetch( apiRoot + 'jetpack/v4/connection', {
@@ -410,7 +444,18 @@ function ExpandedDetails( { isConnecting = false, onConnect = null } ) {
 
 			if ( response.ok ) {
 				window.location.reload();
+				return;
 			}
+
+			const errBody = await response.json().catch( () => null );
+			setActionError(
+				errBody?.message ||
+					__( 'Failed to disconnect the site. Please try again.', 'jetpack-connection' )
+			);
+		} catch {
+			setActionError(
+				__( 'Failed to disconnect the site. Please try again.', 'jetpack-connection' )
+			);
 		} finally {
 			setIsDisconnecting( false );
 		}
@@ -430,6 +475,7 @@ function ExpandedDetails( { isConnecting = false, onConnect = null } ) {
 	const executeUnlinkUser = async () => {
 		setPendingConfirm( null );
 		setIsUnlinking( true );
+		setActionError( null );
 
 		try {
 			const body = { linked: false, force: true };
@@ -448,7 +494,18 @@ function ExpandedDetails( { isConnecting = false, onConnect = null } ) {
 
 			if ( response.ok ) {
 				window.location.reload();
+				return;
 			}
+
+			const errBody = await response.json().catch( () => null );
+			setActionError(
+				errBody?.message ||
+					__( 'Failed to disconnect the account. Please try again.', 'jetpack-connection' )
+			);
+		} catch {
+			setActionError(
+				__( 'Failed to disconnect the account. Please try again.', 'jetpack-connection' )
+			);
 		} finally {
 			setIsUnlinking( false );
 		}
@@ -526,6 +583,13 @@ function ExpandedDetails( { isConnecting = false, onConnect = null } ) {
 
 		createElement( ConnectedPluginsSection ),
 
+		actionError
+			? createElement( ErrorNotice, {
+					message: actionError,
+					onDismiss: () => setActionError( null ),
+			  } )
+			: null,
+
 		// Footer: connection details link + disconnect site button.
 		createElement( 'hr', { className: 'wpcom-connector__divider' } ),
 		createElement(
@@ -600,7 +664,7 @@ function WpcomConnectorCard( { name, label, description, logo, icon } ) {
 	const isConnected = initialIsConnected;
 	const isSiteRegistered = initialIsRegistered;
 	const [ isConnecting, setIsConnecting ] = useState( false );
-	const [ connectError, setConnectError ] = useState( null );
+	const [ connectError, setConnectError ] = useState( data.authError || null );
 
 	const handleConnect = async () => {
 		setIsConnecting( true );
@@ -690,14 +754,10 @@ function WpcomConnectorCard( { name, label, description, logo, icon } ) {
 		},
 		expandedContent,
 		connectError
-			? createElement(
-					'p',
-					{
-						className: 'wpcom-connector__error',
-						role: 'alert',
-					},
-					connectError
-			  )
+			? createElement( ErrorNotice, {
+					message: connectError,
+					onDismiss: () => setConnectError( null ),
+			  } )
 			: null
 	);
 }

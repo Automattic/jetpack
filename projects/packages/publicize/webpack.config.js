@@ -29,19 +29,8 @@ const socialWebpackConfig = {
 				includeNodeModules: [ '@automattic/jetpack-' ],
 			} ),
 
-			// Add textdomains (but no other optimizations) for @wordpress/dataviews and its dependencies.
-			jetpackWebpackConfig.TranspileRule( {
-				includeNodeModules: [ '@wordpress/dataviews/', '@wordpress/ui' ],
-				babelOpts: {
-					configFile: false,
-					plugins: [
-						[
-							require.resolve( '@automattic/babel-plugin-replace-textdomain' ),
-							{ textdomain: 'jetpack-publicize-pkg' },
-						],
-					],
-				},
-			} ),
+			// Workarounds for non-extracted `@wordpress/*` packages.
+			...jetpackWebpackConfig.BundledWpPkgsTranspileRules(),
 
 			// Handle CSS.
 			jetpackWebpackConfig.CssRule( {

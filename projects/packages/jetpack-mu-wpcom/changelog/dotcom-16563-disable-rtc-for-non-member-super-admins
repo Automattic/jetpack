@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+RTC notices: Remove duplicated site editor and option checks, rely on RTC::is_enabled() instead.

@@ -26,11 +26,8 @@ import type { FC, ReactNode } from 'react';
 const AdminPage: FC< AdminPageProps > = ( {
 	children,
 	className,
-	moduleName = 'Jetpack' /** "Jetpack" is a product name, do not translate. */,
-	moduleNameHref,
 	showHeader = true,
 	showFooter = true,
-	useInternalLinks = false,
 	showBackground = true,
 	sandboxedDomain = '',
 	apiRoot = '',
@@ -82,19 +79,6 @@ const AdminPage: FC< AdminPageProps > = ( {
 		</HStack>
 	) : undefined;
 
-	const footer = showFooter && (
-		<Container className={ styles[ 'admin-page-footer' ] } horizontalSpacing={ 5 }>
-			<Col>
-				<JetpackFooter
-					moduleName={ moduleName }
-					moduleNameHref={ moduleNameHref }
-					menu={ optionalMenuItems }
-					useInternalLinks={ useInternalLinks }
-				/>
-			</Col>
-		</Container>
-	);
-
 	// When title or breadcrumbs are provided, use admin-ui Page for the full page layout.
 	if ( showHeader && ( composedTitle || breadcrumbs ) ) {
 		return (
@@ -111,7 +95,7 @@ const AdminPage: FC< AdminPageProps > = ( {
 					<Container fluid horizontalSpacing={ 0 }>
 						<Col>{ children }</Col>
 					</Container>
-					{ footer }
+					{ showFooter && <JetpackFooter menu={ optionalMenuItems } /> }
 				</Page>
 			</div>
 		);
@@ -143,7 +127,7 @@ const AdminPage: FC< AdminPageProps > = ( {
 			<Container fluid horizontalSpacing={ 0 }>
 				<Col>{ children }</Col>
 			</Container>
-			{ footer }
+			{ showFooter && <JetpackFooter menu={ optionalMenuItems } /> }
 		</div>
 	);
 };

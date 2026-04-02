@@ -198,9 +198,11 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/admin-ui",
-                "reference": "35c5547f0d22d865152761ac473e666767b59d70"
+                "reference": "827d689e815ae1112f6823ed45a51739d78bac4f"
             },
             "require": {
+                "automattic/jetpack-redirect": "@dev",
+                "automattic/jetpack-status": "@dev",
                 "php": ">=7.2"
             },
             "require-dev": {
