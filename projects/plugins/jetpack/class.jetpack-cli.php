@@ -306,13 +306,32 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 * Registers the site and returns an authorization URL that must be
 	 * opened in a browser to complete the connection.
 	 *
-	 * Only administrators may run this command.
+	 * Uses the current WP-CLI user (set via --user or wp-cli.yml). The
+	 * user must have the manage_options capability.
+	 *
+	 * Note: Multisite is not yet supported. If you need multisite support,
+	 * please open an issue at https://github.com/Automattic/jetpack/issues
 	 *
 	 * ## EXAMPLES
 	 *
 	 * wp jetpack connect
+	 * wp jetpack connect --user=admin
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $args       Positional args.
+	 * @param array $assoc_args Named args.
 	 */
-	public function connect() {
+	public function connect( $args, $assoc_args ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		if ( is_multisite() ) {
+			WP_CLI::error( __( 'Multisite is not yet supported by this command. Please open an issue at https://github.com/Automattic/jetpack/issues if you need this feature.', 'jetpack' ) );
+		}
+
+		$user = wp_get_current_user();
+		if ( ! $user->exists() || ! user_can( $user, 'manage_options' ) ) {
+			WP_CLI::error( __( 'The current user must have the manage_options capability. Use --user=<admin> to specify an administrator.', 'jetpack' ) );
+		}
+
 		$connection = new Connection_Manager( 'jetpack' );
 
 		// A site is fully connected only when it has both a site-level connection
@@ -323,21 +342,6 @@ class Jetpack_CLI extends WP_CLI_Command {
 			WP_CLI::success( __( 'This site is already connected to WordPress.com.', 'jetpack' ) );
 			return;
 		}
-
-		// Find an admin user to connect as.
-		$admins = get_users(
-			array(
-				'role'    => 'administrator',
-				'number'  => 1,
-				'orderby' => 'ID',
-				'order'   => 'ASC',
-			)
-		);
-		if ( empty( $admins ) ) {
-			WP_CLI::error( __( 'No administrator user found on this site.', 'jetpack' ) );
-		}
-		$user = $admins[0];
-		wp_set_current_user( $user->ID );
 
 		// Register the site with WordPress.com if not already registered.
 		if ( ! $connection->is_connected() ) {
@@ -354,8 +358,11 @@ class Jetpack_CLI extends WP_CLI_Command {
 			}
 		}
 
-		// Get the authorization URL for the admin user.
+		// Get the authorization URL for the current user.
 		$url = $connection->get_authorization_url( $user, null, 'cli', true );
+		if ( is_wp_error( $url ) ) {
+			WP_CLI::error( $url->get_error_message() );
+		}
 		if ( ! $url ) {
 			WP_CLI::error( __( 'Failed to generate the authorization URL.', 'jetpack' ) );
 		}

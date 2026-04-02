@@ -1,4 +1,0 @@
-Significance: minor
-Type: enhancement
-
-Add `wp jetpack connect` WP-CLI command that registers the site and returns an authorization URL to complete the connection.
