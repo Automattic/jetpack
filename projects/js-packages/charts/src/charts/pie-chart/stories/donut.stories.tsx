@@ -1,8 +1,6 @@
 /* eslint-disable @wordpress/no-unsafe-wp-apis */
-import {
-	__experimentalText as WPText,
-	__experimentalHStack as HStack,
-} from '@wordpress/components';
+import { __experimentalHStack as HStack } from '@wordpress/components';
+import { Text as WPText } from '@wordpress/ui';
 import { Fragment } from 'react';
 import { BaseLegendItem } from '../../../components/legend/types';
 import {
@@ -279,12 +277,12 @@ const CustomPieLegend = ( {
 								backgroundColor: color,
 							} }
 						/>
-						<WPText size="small">{ item.label }</WPText>
+						<WPText variant="body-sm">{ item.label }</WPText>
 					</HStack>
-					<WPText size="small" weight={ 600 } style={ { textAlign: 'right' } }>
+					<WPText variant="body-sm" style={ { fontWeight: 600, textAlign: 'right' } }>
 						{ item.formattedValue }
 					</WPText>
-					<WPText size="small" style={ { textAlign: 'right', color: '#008a20' } }>
+					<WPText variant="body-sm" style={ { textAlign: 'right', color: '#008a20' } }>
 						{ withComparison && item.comparison }
 					</WPText>
 				</Fragment>

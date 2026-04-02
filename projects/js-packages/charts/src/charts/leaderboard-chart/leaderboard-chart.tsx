@@ -1,8 +1,8 @@
 /* eslint-disable @wordpress/no-unsafe-wp-apis */
-import { __experimentalGrid as Grid, __experimentalText as Text } from '@wordpress/components';
+import { __experimentalGrid as Grid } from '@wordpress/components';
 import { Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Stack } from '@wordpress/ui';
+import { Stack, Text } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useContext, useMemo, type FC } from 'react';
 import { Legend } from '../../components/legend';
