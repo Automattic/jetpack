@@ -378,34 +378,41 @@ function ConfirmationModal( { title, message, onConfirm, onCancel } ) {
  * @return {object} React element.
  */
 function SiteDetailsModal( { onClose } ) {
-	const row = ( label, value ) =>
+	const row = ( label, value ) => [
 		createElement(
-			HStack,
-			{ spacing: 3, alignment: 'center' },
-			createElement( Text, { variant: 'muted', size: 12 }, label ),
-			createElement( Text, { size: 13 }, value )
-		);
+			Text,
+			{ key: label, variant: 'muted', size: 12, className: 'wpcom-connector__details-label' },
+			label
+		),
+		createElement(
+			Text,
+			{ key: label + '-value', size: 13, className: 'wpcom-connector__details-value' },
+			value
+		),
+	];
 
 	return createElement(
 		Modal,
 		{
+			className: 'wpcom-connector__modal',
 			title: __( 'Connection details', 'jetpack-connection' ),
 			onRequestClose: onClose,
 			size: 'small',
 		},
 		createElement(
-			VStack,
-			{ spacing: 4, className: 'wpcom-connector__details-modal' },
-			row( __( 'Blog ID', 'jetpack-connection' ), String( siteDetails.blogId ) ),
-			row( __( 'Site URL', 'jetpack-connection' ), siteDetails.siteUrl ),
-			row( __( 'Home URL', 'jetpack-connection' ), siteDetails.homeUrl ),
-			ssoStatus !== null &&
-				row(
-					__( 'WordPress.com login (SSO)', 'jetpack-connection' ),
-					ssoStatus
-						? __( 'Enabled', 'jetpack-connection' )
-						: __( 'Not enabled', 'jetpack-connection' )
-				)
+			'div',
+			{ className: 'wpcom-connector__details-modal' },
+			...row( __( 'Blog ID', 'jetpack-connection' ), String( siteDetails.blogId ) ),
+			...row( __( 'Site URL', 'jetpack-connection' ), siteDetails.siteUrl ),
+			...row( __( 'Home URL', 'jetpack-connection' ), siteDetails.homeUrl ),
+			...( ssoStatus !== null
+				? row(
+						__( 'WordPress.com login (SSO)', 'jetpack-connection' ),
+						ssoStatus
+							? __( 'Enabled', 'jetpack-connection' )
+							: __( 'Not enabled', 'jetpack-connection' )
+				  )
+				: [] )
 		)
 	);
 }
