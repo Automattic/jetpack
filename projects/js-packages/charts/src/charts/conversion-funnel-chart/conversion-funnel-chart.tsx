@@ -52,7 +52,7 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 } ) => {
 	const chartId = useChartId( providedChartId );
 	const { conversionFunnelChart: conversionFunnelChartSettings } = useGlobalChartsTheme();
-	const { getElementStyles } = useGlobalChartsContext();
+	const { getElementStyles, isColorPaletteResolved } = useGlobalChartsContext();
 	const chartRef = useRef< HTMLDivElement >( null );
 	const selectedBarRef = useRef< HTMLDivElement | null >( null );
 
@@ -301,7 +301,11 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 			<Stack
 				direction="column"
 				data-testid="conversion-funnel-chart"
-				className={ clsx( styles.conversionFunnelChart, loading && styles.loading, className ) }
+				className={ clsx(
+					styles[ 'conversion-funnel-chart' ],
+					loading && styles.loading,
+					className
+				) }
 				style={ { ...style, height: resolvedHeight } }
 			>
 				<div className={ styles[ 'empty-state' ] }>
@@ -324,7 +328,11 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 					portalContainerRef( node );
 					chartRef.current = node;
 				} }
-				className={ clsx( styles.conversionFunnelChart, loading && styles.loading, className ) }
+				className={ clsx(
+					styles[ 'conversion-funnel-chart' ],
+					loading && styles.loading,
+					className
+				) }
 				style={ { ...style, height: resolvedHeight } }
 			>
 				{ /* Main Metric */ }
@@ -348,7 +356,12 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 						return (
 							<div
 								key={ step.id }
-								className={ clsx( styles[ 'funnel-step' ], isBlurred && styles.blurred ) }
+								data-testid="funnel-step"
+								className={ clsx(
+									styles[ 'funnel-step' ],
+									isColorPaletteResolved && styles[ 'funnel-step--animated' ],
+									isBlurred && styles.blurred
+								) }
 							>
 								{ /* Step Label and Rate */ }
 								<div className={ styles[ 'step-header' ] }>
