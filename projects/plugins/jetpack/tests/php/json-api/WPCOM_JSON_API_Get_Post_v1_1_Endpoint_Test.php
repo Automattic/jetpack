@@ -2,7 +2,7 @@
 /**
  * WPCOM_JSON_API_Get_Post_v1_1_Endpoint unit tests.
  *
- * Run this test with command: jetpack docker phpunit jetpack -- --filter=WPCOM_JSON_API_Get_Post_v1_1_Endpoint_Test
+ * Run this test with command: jetpack docker phpunit jetpack -- --filter=WPCOM_JSON_API_Get_Post_V1_1_Endpoint_Test
  *
  * @package automattic/jetpack
  */
@@ -20,7 +20,7 @@ require_once JETPACK__PLUGIN_DIR . 'json-endpoints/class.wpcom-json-api-get-post
  * @covers \WPCOM_JSON_API_Get_Post_v1_1_Endpoint
  */
 #[CoversClass( WPCOM_JSON_API_Get_Post_v1_1_Endpoint::class )]
-class WPCOM_JSON_API_Get_Post_v1_1_Endpoint_Test extends WP_UnitTestCase {
+class WPCOM_JSON_API_Get_Post_V1_1_Endpoint_Test extends WP_UnitTestCase {
 	use WP_UnitTestCase_Fix;
 
 	/**
