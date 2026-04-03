@@ -142,6 +142,8 @@ export async function rsyncInit( argv ) {
 		}
 	}
 
+	const password = argv.password || null;
+
 	if ( argv.watch ) {
 		await tracks( 'rsync_watch' );
 		let watcher;
@@ -150,7 +152,7 @@ export async function rsyncInit( argv ) {
 				console.debug( `rsync due to event ${ event } for ${ eventfile }` );
 			}
 
-			const paths = await rsyncToDest( sourcePluginPath, finalDest );
+			const paths = await rsyncToDest( sourcePluginPath, finalDest, password );
 
 			// Warn but don't fail if file was intentionally not synced. We still want to sync
 			// if a change event occurs, as other change events could have been debounced.
@@ -237,7 +239,7 @@ export async function rsyncInit( argv ) {
 		};
 		await rsyncAndUpdateWatches( 'startup', 'jetpack rsync --watch' );
 	} else {
-		await rsyncToDest( sourcePluginPath, finalDest );
+		await rsyncToDest( sourcePluginPath, finalDest, password );
 
 		console.log( '\n' );
 		console.log(
@@ -562,13 +564,15 @@ async function getUntrackedFiles( pluginPath ) {
 /**
  * Function that does the actual work of rsync.
  *
- * @param {string} source - Source path.
- * @param {string} dest   - Final destination path, including plugin slug.
+ * @param {string}      source   - Source path.
+ * @param {string}      dest     - Final destination path, including plugin slug.
+ * @param {string|null} password - SSH password for the remote host, or null for interactive prompt.
  * @return {Promise<Set>} Synced path set.
  */
-async function rsyncToDest( source, dest ) {
+async function rsyncToDest( source, dest, password = null ) {
 	const paths = await collectPaths( source );
 	const tmpFile = await createFilterFile( paths );
+	let askpassFile = null;
 
 	try {
 		// Some versions of openrsync partially work with --copy-unsafe-links, so do that for them.
@@ -593,12 +597,35 @@ async function rsyncToDest( source, dest ) {
 
 		rsyncArgs.push( source, dest );
 
-		await runCommand( 'rsync', rsyncArgs );
+		// When a password is provided, use SSH_ASKPASS to feed it to SSH automatically.
+		const runOpts = { stdio: 'inherit' };
+		if ( password ) {
+			askpassFile = tmp.fileSync( { mode: 0o700, postfix: '.sh' } );
+			await fs.writeFile(
+				askpassFile.name,
+				`#!/bin/sh\necho '${ password.replace( /'/g, "'\\''" ) }'\n`
+			);
+			runOpts.env = {
+				...process.env,
+				SSH_ASKPASS: askpassFile.name,
+				SSH_ASKPASS_REQUIRE: 'force',
+			};
+			// Pipe stdin so SSH doesn't try to read the password from the terminal.
+			runOpts.stdio = [ 'pipe', 'inherit', 'inherit' ];
+		}
+
+		await runCommand( 'rsync', rsyncArgs, runOpts );
 		tmpFile.removeCallback();
+		if ( askpassFile ) {
+			askpassFile.removeCallback();
+		}
 	} catch ( e ) {
 		console.log( e );
 		console.error( chalk.red( 'Uh oh! ' + e.message ) );
 		tmpFile.removeCallback();
+		if ( askpassFile ) {
+			askpassFile.removeCallback();
+		}
 		process.exit( 1 );
 	}
 
@@ -791,6 +818,10 @@ export function rsyncDefine( yargs ) {
 				.option( 'non-interactive', {
 					describe: 'Do not use interactive prompts. Ideal for CI runs.',
 					type: 'boolean',
+				} )
+				.option( 'password', {
+					describe: 'SSH password for the remote host. Passed via SSH_ASKPASS.',
+					type: 'string',
 				} );
 		},
 		async argv => {
