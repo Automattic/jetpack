@@ -1,0 +1,5 @@
+Significance: minor
+Type: major
+Comment: Disable the 'Correct spelling and grammar' option from AI Assistant toolbar menus by default. It can be re-enabled via the 'ai_correct_spelling_enabled' filter.
+
+AI Assistant: Disable the "Correct spelling and grammar" toolbar option by default.
