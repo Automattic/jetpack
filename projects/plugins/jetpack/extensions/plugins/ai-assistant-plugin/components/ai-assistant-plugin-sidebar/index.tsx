@@ -39,8 +39,6 @@ import { ComponentType, useCallback, useMemo } from 'react';
 import useAiProductPage from '../../../../blocks/ai-assistant/hooks/use-ai-product-page';
 import { getFeatureAvailability } from '../../../../blocks/ai-assistant/lib/utils/get-feature-availability';
 import JetpackPluginSidebar from '../../../../shared/jetpack-plugin-sidebar';
-import { Breve, registerBreveHighlights, Highlight } from '../breve';
-import { getBreveAvailability, canWriteBriefBeEnabled } from '../breve/utils/get-availability';
 import Feedback from '../feedback';
 import TitleOptimization from '../title-optimization';
 import UsagePanel from '../usage-panel';
@@ -89,7 +87,6 @@ const JetpackAndSettingsContent = ( {
 }: JetpackSettingsContentProps ) => {
 	const { checkoutUrl } = useAICheckout();
 	const { productPageUrl } = useAiProductPage();
-	const isBreveAvailable = getBreveAvailability();
 	const isPostEmpty = useSelect( select => select( editorStore ).isEditedPostEmpty(), [] );
 	const { editPost } = useDispatch( editorStore );
 
@@ -154,17 +151,6 @@ const JetpackAndSettingsContent = ( {
 					<Notice isDismissible={ false } status="warning">
 						{ __( 'The following features require content to work.', 'jetpack' ) }
 					</Notice>
-				</PanelRow>
-			) }
-
-			{ canWriteBriefBeEnabled() && isBreveAvailable && (
-				<PanelRow>
-					<BaseControl __nextHasNoMarginBottom={ true }>
-						<BaseControl.VisualLabel>
-							{ __( 'Write Brief (Beta)', 'jetpack' ) }
-						</BaseControl.VisualLabel>
-						<Breve />
-					</BaseControl>
 				</PanelRow>
 			) }
 
@@ -267,11 +253,8 @@ export default function AiAssistantPluginSidebar() {
 
 	const showUsagePanel = planType === PLAN_TYPE_FREE;
 	const showFairUsageNotice = planType === PLAN_TYPE_UNLIMITED && isOverLimit;
-	const isBreveAvailable = getBreveAvailability();
-
 	return (
 		<>
-			{ isBreveAvailable && <Highlight /> }
 			<JetpackPluginSidebar>
 				<PanelBody
 					title={ title }
@@ -324,6 +307,3 @@ export default function AiAssistantPluginSidebar() {
 		</>
 	);
 }
-
-// Register the highlight format type from the Breve component
-registerBreveHighlights();
