@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Image Guide: Exclude from JS concatenation on Atomic/WoW sites to prevent script errors.
