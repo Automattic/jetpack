@@ -16,6 +16,22 @@ class Admin_Menu {
 	const PACKAGE_VERSION = '0.6.0';
 
 	/**
+	 * Slug used for the upgrade menu item and redirect URL.
+	 *
+	 * Keep the slug in sync with `$upgrade-menu-slug` at admin-ui-upgrade-menu.scss
+	 *
+	 * @var string
+	 */
+	const UPGRADE_MENU_SLUG = 'jetpack-wpadmin-sidebar-free-plan-upsell-menu-item';
+
+	/**
+	 * Fallback upgrade URL when the Redirect class is unavailable.
+	 *
+	 * @var string
+	 */
+	const UPGRADE_MENU_FALLBACK_URL = 'https://jetpack.com/upgrade/';
+
+	/**
 	 * Whether this class has been initialized
 	 *
 	 * @var boolean
@@ -40,6 +56,7 @@ class Admin_Menu {
 			self::handle_akismet_menu();
 			add_action( 'admin_menu', array( __CLASS__, 'admin_menu_hook_callback' ), 1000 ); // Jetpack uses 998.
 			add_action( 'network_admin_menu', array( __CLASS__, 'admin_menu_hook_callback' ), 1000 ); // Jetpack uses 998.
+			add_action( 'admin_enqueue_scripts', array( __CLASS__, 'add_upgrade_menu_item_styles' ) );
 		}
 	}
 
@@ -140,6 +157,8 @@ class Admin_Menu {
 		if ( ! $can_see_toplevel_menu ) {
 			remove_menu_page( 'jetpack' );
 		}
+
+		self::maybe_add_upgrade_menu_item();
 	}
 
 	/**
@@ -224,5 +243,130 @@ class Admin_Menu {
 
 		$url = $fallback ? $fallback : admin_url();
 		return $url;
+	}
+
+	/**
+	 * Checks whether the current site should show the upgrade menu item.
+	 *
+	 * The upgrade menu is only shown to administrators on free-plan sites
+	 * that are not hosted on WordPress.com.
+	 *
+	 * @return bool True if the upgrade menu should be shown.
+	 */
+	private static function should_show_upgrade_menu() {
+		// Only show to administrators.
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return false;
+		}
+
+		// Don't show upsells on WordPress.com platform.
+		if ( class_exists( '\Automattic\Jetpack\Status\Host' ) ) {
+			$host = new \Automattic\Jetpack\Status\Host();
+			if ( $host->is_wpcom_platform() ) {
+				return false;
+			}
+		}
+
+		// Only show to free-plan sites.
+		return self::is_free_plan();
+	}
+
+	/**
+	 * Checks whether the current site is on a free Jetpack plan with no active paid license.
+	 *
+	 * @return bool True if the site has no paid plan.
+	 */
+	private static function is_free_plan() {
+		// Check the active plan - use the is_free field or product_slug.
+		$plan = get_option( 'jetpack_active_plan', array() );
+
+		// Back-compat: older plan payloads use class to indicate paid plans.
+		if ( isset( $plan['class'] ) && 'free' !== $plan['class'] ) {
+			return false;
+		}
+
+		// If the plan explicitly says it's not free, trust that.
+		if ( isset( $plan['is_free'] ) && false === $plan['is_free'] ) {
+			return false;
+		}
+
+		// Check if the product slug indicates a paid plan.
+		if ( isset( $plan['product_slug'] ) && 'jetpack_free' !== $plan['product_slug'] ) {
+			return false;
+		}
+
+		// Also check for site products (licenses can add products without changing plan).
+		$products = get_option( 'jetpack_site_products', array() );
+		if ( ! empty( $products ) && is_array( $products ) ) {
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Conditionally adds an "Upgrade Jetpack" submenu item for free-plan sites.
+	 *
+	 * Only shown to users with manage_options capability on self-hosted sites without a paid Jetpack plan or license.
+	 *
+	 * @return void
+	 */
+	private static function maybe_add_upgrade_menu_item() {
+		if ( ! self::should_show_upgrade_menu() ) {
+			return;
+		}
+
+		$upgrade_url = class_exists( '\Automattic\Jetpack\Redirect' )
+			? \Automattic\Jetpack\Redirect::get_url( self::UPGRADE_MENU_SLUG )
+			: self::UPGRADE_MENU_FALLBACK_URL;
+
+		$menu_title = esc_html__( 'Upgrade Jetpack', 'jetpack-admin-ui' )
+			. ' <span aria-hidden="true">↗</span>';
+
+		add_submenu_page(
+			'jetpack',
+			__( 'Upgrade Jetpack', 'jetpack-admin-ui' ),
+			$menu_title,
+			'manage_options',
+			esc_url( $upgrade_url ),
+			null, // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
+			999
+		);
+
+		// Add a CSS class to the <li> element so styles can target it precisely.
+		global $submenu;
+		if ( ! empty( $submenu['jetpack'] ) ) {
+			foreach ( $submenu['jetpack'] as $index => $item ) {
+				if ( isset( $item[2] ) && false !== strpos( $item[2], self::UPGRADE_MENU_SLUG ) ) {
+					// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+					$submenu['jetpack'][ $index ][4] = ( ! empty( $item[4] ) ? $item[4] . ' ' : '' ) . self::UPGRADE_MENU_SLUG;
+					break;
+				}
+			}
+		}
+	}
+
+	/**
+	 * Enqueues admin styles for the "Upgrade Jetpack" menu item.
+	 *
+	 * The sidebar menu is visible on every admin page, so styles load globally.
+	 * Only enqueues for free-plan sites on self-hosted installs.
+	 *
+	 * @return void
+	 */
+	public static function add_upgrade_menu_item_styles() {
+		if ( ! self::should_show_upgrade_menu() ) {
+			return;
+		}
+
+		$asset_file = dirname( __DIR__ ) . '/build/admin-ui-upgrade-menu.asset.php';
+		$asset      = file_exists( $asset_file ) ? require $asset_file : array();
+
+		wp_enqueue_style(
+			'jetpack-admin-ui-upgrade-menu',
+			plugins_url( '../build/admin-ui-upgrade-menu.css', __FILE__ ),
+			$asset['dependencies'] ?? array(),
+			$asset['version'] ?? self::PACKAGE_VERSION
+		);
 	}
 }

@@ -22,15 +22,6 @@
 	padding-inline: 20px;
 }
 
-@media (max-width: 480px) {
-
-	.wpcom-connector__expanded {
-		margin-inline: -12px;
-		padding-block-start: 12px;
-		padding-inline: 12px;
-	}
-}
-
 .wpcom-connector__status-badge {
 	padding-block: 4px;
 	padding-inline: 12px;
@@ -83,8 +74,27 @@
 	margin-inline-start: auto;
 }
 
-.wpcom-connector__details-modal .components-h-stack {
-	justify-content: space-between;
+.wpcom-connector__modal.components-modal__frame,
+.wpcom-connector__modal {
+	max-inline-size: 480px;
+}
+
+.wpcom-connector__details-modal {
+	display: grid;
+	grid-template-columns: max-content 1fr;
+	column-gap: 16px;
+	row-gap: 10px;
+	align-items: baseline;
+}
+
+.wpcom-connector__details-label {
+	white-space: nowrap;
+}
+
+.wpcom-connector__details-value {
+	overflow-wrap: break-word;
+	min-inline-size: 0;
+	text-align: end;
 }
 
 .wpcom-connector__connect-prompt-text {
@@ -99,6 +109,12 @@
 
 @media (max-width: 480px) {
 
+	.wpcom-connector__expanded {
+		margin-inline: -12px;
+		padding-block-start: 12px;
+		padding-inline: 12px;
+	}
+
 	.wpcom-connector__section.components-h-stack,
 	.wpcom-connector__section > .components-h-stack {
 		flex-wrap: wrap;
@@ -110,6 +126,19 @@
 
 	.wpcom-connector__inline-action {
 		margin-inline-start: 0;
+	}
+
+	.wpcom-connector__details-modal {
+		grid-template-columns: 1fr;
+		row-gap: 4px;
+	}
+
+	.wpcom-connector__details-label:not(:first-child) {
+		margin-block-start: 8px;
+	}
+
+	.wpcom-connector__details-value {
+		text-align: start;
 	}
 }
 

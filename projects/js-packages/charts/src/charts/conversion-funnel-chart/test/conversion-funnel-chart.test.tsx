@@ -461,4 +461,15 @@ describe( 'ConversionFunnelChart', () => {
 			expect( customRenderMainMetric ).toHaveBeenCalled();
 		} );
 	} );
+
+	describe( 'Color palette readiness', () => {
+		it( 'enables transitions once color palette is resolved', () => {
+			render( <ConversionFunnelChart { ...defaultProps } /> );
+
+			// After render, effects have run (via useEffect in GlobalChartsProvider),
+			// so the palette is resolved and the animated class is applied to funnel steps
+			const funnelStep = screen.getAllByTestId( 'funnel-step' )[ 0 ];
+			expect( funnelStep ).toHaveClass( 'funnel-step--animated' );
+		} );
+	} );
 } );

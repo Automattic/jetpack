@@ -11,6 +11,7 @@
 
 namespace Automattic\Jetpack\Connection;
 
+use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Status\Host;
 
 /**
@@ -145,6 +146,10 @@ class Wpcom_Connector {
 				'siteUrl' => site_url(),
 				'homeUrl' => home_url(),
 			);
+
+			if ( in_array( 'jetpack', array_column( $data['connectedPlugins'], 'slug' ), true ) ) {
+				$data['ssoStatus'] = ( new Modules() )->is_active( 'sso', false );
+			}
 		}
 
 		if ( $is_connected ) {

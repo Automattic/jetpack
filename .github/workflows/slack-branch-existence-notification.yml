@@ -65,7 +65,7 @@ jobs:
           fi
 
       - name: Send message to releases channel
-        uses: slackapi/slack-github-action@v2.1.0
+        uses: slackapi/slack-github-action@v3.0.1
         with:
           token: ${{ secrets.SLACK_TOKEN }}
           method: chat.postMessage
