@@ -11,7 +11,10 @@ import type { FC } from 'react';
 
 declare global {
 	interface Window {
-		JetpackNetworkAdminData;
+		JetpackNetworkAdminData?: {
+			sitesUrl: string;
+			settingsUrl: string;
+		};
 	}
 }
 

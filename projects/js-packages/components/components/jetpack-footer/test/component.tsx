@@ -78,7 +78,10 @@ describe( 'JetpackFooter', () => {
 		} );
 
 		it( 'should hide default links when JetpackNetworkAdminData is present', () => {
-			window.JetpackNetworkAdminData = {};
+			window.JetpackNetworkAdminData = {
+				sitesUrl: '/',
+				settingsUrl: '/',
+			};
 
 			render( <JetpackFooter /> );
 
