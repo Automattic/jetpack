@@ -47,7 +47,7 @@ function wpcom_is_rtc_websocket_rollout() {
 
 	if (
 		defined( 'IS_WPCOM' ) && IS_WPCOM &&
-		( $blog_id % 100 < 5 )
+		( $blog_id % 100 < 20 )
 	) {
 		return true;
 	}
