@@ -241,8 +241,8 @@ export default function AiAssistantToolbarDropdownContent( {
 						quickAction =>
 							! ( quickAction.options?.rootParentOnly && blockParents.length > 0 ) &&
 							! (
-									quickAction.key === QUICK_EDIT_KEY_CORRECT_SPELLING && ! isCorrectSpellingAvailable
-								)
+								quickAction.key === QUICK_EDIT_KEY_CORRECT_SPELLING && ! isCorrectSpellingAvailable
+							)
 					)
 					.map( quickAction => {
 						return (
