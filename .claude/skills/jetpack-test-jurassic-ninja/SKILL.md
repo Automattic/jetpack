@@ -36,7 +36,7 @@ If missing: tell user to run `pnpm install` in the monorepo root, or `pnpm jetpa
 ### Check 3: Dependencies installed
 
 ```bash
-test -d node_modules && echo "pnpm deps OK" || echo "MISSING"
+test -d "$(git rev-parse --show-toplevel)/node_modules" && echo "pnpm deps OK" || echo "MISSING"
 ```
 
 If missing: run `jetpack install -r` to install pnpm and composer dependencies.
@@ -80,6 +80,8 @@ jetpack build plugins/{plugin}
 ```
 
 Required — without it the remote site gets broken symlinks and fatal errors like `Class not found`.
+
+If the build fails, stop and report the error to the user — do not proceed to rsync.
 
 ### 4. Run the rsync
 

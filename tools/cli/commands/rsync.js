@@ -601,32 +601,27 @@ async function rsyncToDest( source, dest, password = null ) {
 		const runOpts = { stdio: 'inherit' };
 		if ( password ) {
 			askpassFile = tmp.fileSync( { mode: 0o700, postfix: '.sh' } );
-			await fs.writeFile(
-				askpassFile.name,
-				`#!/bin/sh\necho '${ password.replace( /'/g, "'\\''" ) }'\n`
-			);
+			await fs.writeFile( askpassFile.name, '#!/bin/sh\nprintf \'%s\\n\' "$ASKPASS_PASSWORD"\n' );
 			runOpts.env = {
 				...process.env,
 				SSH_ASKPASS: askpassFile.name,
 				SSH_ASKPASS_REQUIRE: 'force',
+				ASKPASS_PASSWORD: password,
 			};
 			// Pipe stdin so SSH doesn't try to read the password from the terminal.
 			runOpts.stdio = [ 'pipe', 'inherit', 'inherit' ];
 		}
 
 		await runCommand( 'rsync', rsyncArgs, runOpts );
-		tmpFile.removeCallback();
-		if ( askpassFile ) {
-			askpassFile.removeCallback();
-		}
 	} catch ( e ) {
 		console.log( e );
 		console.error( chalk.red( 'Uh oh! ' + e.message ) );
+		process.exit( 1 );
+	} finally {
 		tmpFile.removeCallback();
 		if ( askpassFile ) {
 			askpassFile.removeCallback();
 		}
-		process.exit( 1 );
 	}
 
 	return paths;
@@ -820,7 +815,8 @@ export function rsyncDefine( yargs ) {
 					type: 'boolean',
 				} )
 				.option( 'password', {
-					describe: 'SSH password for the remote host. Passed via SSH_ASKPASS.',
+					describe:
+						'SSH password for the remote host. Passed via SSH_ASKPASS. Note: the password may be visible in process listings.',
 					type: 'string',
 				} );
 		},
