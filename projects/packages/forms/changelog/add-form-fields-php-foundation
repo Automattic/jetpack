@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Forms: Add PHP foundation for custom field extensibility with filter hooks and unified field registry.
