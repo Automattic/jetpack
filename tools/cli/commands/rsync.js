@@ -807,7 +807,7 @@ export function rsyncDefine( yargs ) {
 				} )
 				.option( 'watch', {
 					describe:
-						'Watch the plugin for changes and rsync on change. Note this will probably not be useful if rsync prompts for a password.',
+						'Watch the plugin for changes and rsync on change. Note this will probably not be useful if rsync prompts for a password, unless --password is also provided.',
 					type: 'boolean',
 				} )
 				.option( 'non-interactive', {
