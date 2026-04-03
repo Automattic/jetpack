@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Forms: Add label block support, dashboard extensibility hooks, and Interactivity API context for custom fields.
