@@ -119,6 +119,17 @@ jobs:
             mkdir "$BUILD_BASE"
             touch "$BUILD_BASE/mirrors.txt"
           else
+            # On trunk pushes, exclude wpcom deploy projects (plugins/jetpack, plugins/mu-wpcom-plugin)
+            # which are built by the parallel build_wpcom job. This cuts the general build from ~13 min to ~3.5 min.
+            if [[ "$GITHUB_EVENT_NAME" == "push" && "$GITHUB_REF" == "refs/heads/trunk" ]]; then
+              GENERAL=()
+              for P in "${PROJECTS[@]}"; do
+                if [[ "$P" != "plugins/jetpack" && "$P" != "plugins/mu-wpcom-plugin" ]]; then
+                  GENERAL+=("$P")
+                fi
+              done
+              PROJECTS=("${GENERAL[@]}")
+            fi
             pnpm jetpack build -v --no-pnpm-install --for-mirrors="$BUILD_BASE" "${PROJECTS[@]}"
           fi
 
@@ -191,6 +202,110 @@ jobs:
           script: |
             const { checkTestReminderComment } = require('.github/files/build-reminder-comment/check-test-reminder-comment.js')
             await checkTestReminderComment( github, context, core );
+
+  build_wpcom:
+    name: Build wpcom deploy projects
+    runs-on: ubuntu-latest
+    timeout-minutes: 25  # Should take ~10 min, but turnstile may add wait time.
+    permissions:
+      # .github/actions/turnstile
+      actions: read
+      # actions/checkout
+      contents: read
+      # push-to-mirrors uses secrets.API_TOKEN_GITHUB, so no need for permissions
+
+    # Only run on pushes to trunk. Other branches and PRs don't need the wpcom build lane.
+    if: github.event_name == 'push' && github.ref == 'refs/heads/trunk' && github.repository == 'Automattic/jetpack'
+
+    env:
+      BUILD_BASE: /tmp/jetpack-build-wpcom
+
+    steps:
+      - uses: actions/checkout@v6
+        timeout-minutes: 1
+
+      - name: Setup tools
+        uses: ./.github/actions/tool-setup
+        timeout-minutes: 2
+
+      - name: Pnpm install
+        run: pnpm install
+        timeout-minutes: 3
+
+      # Same as the general build's "Deepen tree for packages" step, but scoped to the wpcom projects.
+      - name: Deepen tree for packages
+        run: |
+          WPCOM_PROJECTS=(plugins/jetpack plugins/mu-wpcom-plugin)
+          depth=$( git rev-list --count --first-parent HEAD )
+          [[ "$depth" -lt 1000 ]] && depth=1000
+          BASE=$PWD
+          REF=$(git rev-parse HEAD)
+          for SLUG in $(pnpm jetpack dependencies list --add-dependencies --extra="build" --ignore-root "${WPCOM_PROJECTS[@]}"); do
+            cd "$BASE/projects/$SLUG/"
+            if [[ "$SLUG" == packages/* ]]; then
+              SUBDIR=.
+              # Only deepen if it'll be a -alpha, i.e. it has changelog entries
+              CHANGES_DIR="$(jq -r '.extra.changelogger["changes-dir"] // "changelog"' composer.json)"
+              [[ -d "$CHANGES_DIR" && -n "$(ls -- "$CHANGES_DIR")" ]] || continue
+            elif [[ "$SLUG" == js-packages/social-logos ]]; then
+              SUBDIR=./src/svg
+            else
+              continue
+            fi
+            echo "Checking depth for $SLUG"
+            while git log --format='%h, %D,' -1 "$SUBDIR" | grep ', grafted,'; do
+              depth=$((depth * 2))
+              echo "::group::Deepen to $depth"
+              echo "/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --progress --no-recurse-submodules --depth=$depth --filter=blob:none origin $REF"
+              /usr/bin/git -c protocol.version=2 fetch --no-tags --prune --progress --no-recurse-submodules --depth=$depth --filter=blob:none origin "$REF"
+              echo "::endgroup::"
+            done
+          done
+        timeout-minutes: 2
+
+      - name: Build wpcom projects
+        run: pnpm jetpack build -v --no-pnpm-install --for-mirrors="$BUILD_BASE" plugins/jetpack plugins/mu-wpcom-plugin
+        timeout-minutes: 15
+
+      - name: Filter mirrors to wpcom repos
+        id: filter
+        run: |
+          WPCOM_MIRRORS=("Automattic/jetpack-production" "Automattic/jetpack-mu-wpcom-plugin")
+          if [[ ! -s "$BUILD_BASE/mirrors.txt" ]]; then
+            echo "No mirrors were built."
+            echo "any=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          FILTERED=""
+          for MIRROR in "${WPCOM_MIRRORS[@]}"; do
+            if grep -q --fixed-strings --line-regexp "$MIRROR" "$BUILD_BASE/mirrors.txt"; then
+              FILTERED+="$MIRROR"$'\n'
+            fi
+          done
+          if [[ -z "$FILTERED" ]]; then
+            echo "wpcom mirrors not found in build output."
+            echo "any=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          printf '%s' "$FILTERED" > "$BUILD_BASE/mirrors.txt"
+          echo "wpcom mirrors to push:"
+          cat "$BUILD_BASE/mirrors.txt"
+          echo "any=true" >> "$GITHUB_OUTPUT"
+
+      - name: Wait for prior instances of the workflow to finish
+        if: steps.filter.outputs.any == 'true'
+        uses: ./.github/actions/turnstile
+
+      - name: Push wpcom mirrors
+        if: steps.filter.outputs.any == 'true'
+        uses: ./projects/github-actions/push-to-mirrors
+        with:
+          source-directory: ${{ github.workspace }}
+          token: ${{ secrets.API_TOKEN_GITHUB }}
+          upstream-ref-since: '2024-04-10'
+          username: matticbot
+          working-directory: ${{ env.BUILD_BASE }}
+        timeout-minutes: 5
 
   jetpack_beta:
     name: Create artifact for Jetpack Beta plugin
@@ -281,7 +396,7 @@ jobs:
           compression-level: 0
 
   update_mirrors:
-    name: Push to mirror repos
+    name: Push general mirror repos
     runs-on: ubuntu-latest
     needs: build
     permissions:
