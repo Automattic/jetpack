@@ -20,7 +20,7 @@ export type HeaderProps = {
 	/**
 	 * Optional callback to run before navigating back.
 	 */
-	onBack?: VoidFunction;
+	onGoBack?: VoidFunction;
 	/**
 	 * Optional callback to run before closing the modal.
 	 */
@@ -37,16 +37,16 @@ export function Header( {
 	icon,
 	title,
 	isScreenLocked,
-	onBack,
+	onGoBack: onGoBackProp,
 	onClose: onCloseProp,
 }: HeaderProps ) {
 	const context = useContext( NavigatorModalContext );
 	const navigator = useNavigator();
 
 	const onGoBack = useCallback( () => {
-		onBack?.();
+		onGoBackProp?.();
 		navigator.goBack();
-	}, [ navigator, onBack ] );
+	}, [ navigator, onGoBackProp ] );
 
 	const onCloseModal = useCallback( () => {
 		onCloseProp?.();

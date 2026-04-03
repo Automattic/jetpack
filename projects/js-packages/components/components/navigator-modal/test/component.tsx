@@ -124,19 +124,19 @@ describe( 'Screen', () => {
 		mockGoBack.mockClear();
 	} );
 
-	it( 'calls onBack before navigating back when back button is clicked', async () => {
+	it( 'calls onGoBack before navigating back when back button is clicked', async () => {
 		const user = userEvent.setup();
-		const onBack = jest.fn();
+		const onGoBack = jest.fn();
 
-		render( <Screen path="/test" title="Test" onBack={ onBack } /> );
+		render( <Screen path="/test" title="Test" onGoBack={ onGoBack } /> );
 
 		await user.click( screen.getByLabelText( 'Go back' ) );
 
-		expect( onBack ).toHaveBeenCalledTimes( 1 );
+		expect( onGoBack ).toHaveBeenCalledTimes( 1 );
 		expect( mockGoBack ).toHaveBeenCalledTimes( 1 );
 	} );
 
-	it( 'navigates back without calling onBack when onBack is not provided', async () => {
+	it( 'navigates back without calling onGoBack when onGoBack is not provided', async () => {
 		const user = userEvent.setup();
 
 		render( <Screen path="/test" title="Test" /> );
@@ -147,7 +147,7 @@ describe( 'Screen', () => {
 	} );
 
 	it( 'does not show back button when screen is locked', () => {
-		render( <Screen path="/test" title="Test" isScreenLocked onBack={ jest.fn() } /> );
+		render( <Screen path="/test" title="Test" isScreenLocked onGoBack={ jest.fn() } /> );
 
 		expect( screen.queryByLabelText( 'Go back' ) ).not.toBeInTheDocument();
 	} );
