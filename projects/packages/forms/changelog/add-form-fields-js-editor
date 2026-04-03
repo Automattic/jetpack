@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Forms: Add JavaScript Field API for registering custom form field blocks in the editor.
