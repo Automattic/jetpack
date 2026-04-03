@@ -37,7 +37,9 @@ const LaunchSite = ( {
 	sitePlan,
 	hasCustomDomain,
 }: Props ) => {
-	const [ , experimentData ] = useExperimentWithAuth( 'calypso_standardized_site_launch_gating' );
+	const [ , experimentData ] = useExperimentWithAuth(
+		'calypso_launch_button_experiment_test_20260319_4'
+	);
 	const [ showCelebrateLaunchModal, setShowCelebrateLaunchModal ] = useState( false );
 
 	const { mutate: launchSite } = useLaunchSiteMutation( () => setShowCelebrateLaunchModal( true ) );
