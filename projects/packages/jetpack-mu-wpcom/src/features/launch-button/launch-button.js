@@ -34,7 +34,7 @@ const launchButtonData = typeof window === 'object' ? window.JETPACK_LAUNCH_BUTT
  * @return {React.ReactNode} The LaunchButton component.
  */
 export function LaunchButton( { onCelebrationModalClose } ) {
-	const [ , data ] = useExperimentWithAuth( 'calypso_standardized_site_launch_gating' );
+	const [ , data ] = useExperimentWithAuth( 'calypso_launch_button_experiment_test_20260319_4' );
 	const [ showCelebrateLaunchModal, setShowCelebrateLaunchModal ] = useState( false );
 
 	const siteData = getSiteData();
