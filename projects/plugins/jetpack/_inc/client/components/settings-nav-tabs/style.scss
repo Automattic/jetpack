@@ -135,9 +135,9 @@ $spacing-base: var(--spacing-base, 8px);
 }
 
 .jp-settings-nav__tab {
-	color: var(--jp-black);
-	font-size: var(--font-body);
-	line-height: 1.5;
+	color: var(--wpds-color-fg-interactive-neutral, #1e1e1e);
+	font-size: var(--wpds-font-size-md, 13px);
+	line-height: 1.2;
 	text-decoration: none;
 	padding: #{$spacing-base} 0;
 	margin-inline-end: calc(#{$spacing-base} * 4);
@@ -156,8 +156,7 @@ $spacing-base: var(--spacing-base, 8px);
 	&:hover,
 	&:focus {
 		box-shadow: none;
-		color: var(--jp-black);
-		opacity: 0.7;
+		color: var(--wp-components-color-accent, var(--wp-admin-theme-color, #3858e9));
 	}
 
 	&:focus,
