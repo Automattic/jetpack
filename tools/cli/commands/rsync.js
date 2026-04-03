@@ -600,7 +600,7 @@ async function rsyncToDest( source, dest, password = null ) {
 		// When a password is provided, use SSH_ASKPASS to feed it to SSH automatically.
 		const runOpts = { stdio: 'inherit' };
 		if ( password ) {
-			askpassFile = tmp.fileSync( { mode: 0o700, postfix: '.sh' } );
+			askpassFile = tmp.fileSync( { discardDescriptor: true, mode: 0o700, postfix: '.sh' } );
 			await fs.writeFile( askpassFile.name, '#!/bin/sh\nprintf \'%s\\n\' "$ASKPASS_PASSWORD"\n' );
 			runOpts.env = {
 				...process.env,
