@@ -683,7 +683,7 @@ abstract class SAL_Post {
 	}
 
 	/**
-	 * Returns true if the post is password protected, regardless of user permissions.
+	 * Returns true if the post is password protected, regardless of whether the current user can view the password value.
 	 *
 	 * @return bool
 	 */
