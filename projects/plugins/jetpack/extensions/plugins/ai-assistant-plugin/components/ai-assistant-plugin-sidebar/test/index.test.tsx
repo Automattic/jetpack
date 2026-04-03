@@ -150,17 +150,6 @@ jest.mock( '../../../../../shared/jetpack-plugin-sidebar', () => ( {
 	),
 } ) );
 
-jest.mock( '../../breve', () => ( {
-	Breve: () => null,
-	registerBreveHighlights: jest.fn(),
-	Highlight: () => null,
-} ) );
-
-jest.mock( '../../breve/utils/get-availability', () => ( {
-	getBreveAvailability: () => false,
-	canWriteBriefBeEnabled: () => false,
-} ) );
-
 jest.mock( '../../feedback', () => ( { __esModule: true, default: () => null } ) );
 jest.mock( '../../title-optimization', () => ( { __esModule: true, default: () => null } ) );
 jest.mock( '../../usage-panel', () => ( { __esModule: true, default: () => null } ) );
