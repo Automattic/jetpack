@@ -15,9 +15,9 @@ import { useSelect } from '@wordpress/data';
 import { useMemo } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __ } from '@wordpress/i18n';
-import { useConnectionPreviewData } from '../../hooks/use-connection-preview-data';
-import { Connection } from '../../social-store/types';
-import { InstagramNoMediaNotice } from '../form/instagram-no-media-notice';
+import { useConnectionPreviewData } from '../../../hooks/use-connection-preview-data';
+import { Connection } from '../../../social-store/types';
+import { InstagramNoMediaNotice } from '../../form/instagram-no-media-notice';
 
 export type PostPreviewProps = {
 	connection: Connection;
