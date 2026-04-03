@@ -209,6 +209,32 @@ _stq.push([ "clickTrackerInit", "%2$s", "%3$s" ]);',
 	}
 
 	/**
+	 * Remove the dns-prefetch resource hint for stats.wp.com.
+	 *
+	 * WordPress automatically adds dns-prefetch hints for enqueued script hosts via
+	 * wp_dependencies_unique_hosts(). Since we're deprioritizing the stats script,
+	 * the dns-prefetch is counterproductive — it front-loads DNS resolution for a
+	 * resource we're intentionally delaying.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array  $urls          Array of resource hint URLs.
+	 * @param string $relation_type The relation type (dns-prefetch, preconnect, etc.).
+	 * @return array Filtered URLs.
+	 */
+	public static function remove_stats_dns_prefetch( $urls, $relation_type ) {
+		if ( 'dns-prefetch' === $relation_type ) {
+			$urls = array_filter(
+				$urls,
+				static function ( $url ) {
+					return is_string( $url ) && ! str_contains( $url, 'stats.wp.com' );
+				}
+			);
+		}
+		return $urls;
+	}
+
+	/**
 	 * Enqueue the Stats pixel.
 	 * Do not use this function directly, it is hooked into `wp_enqueue_scripts`.
 	 *
@@ -231,6 +257,7 @@ _stq.push([ "clickTrackerInit", "%2$s", "%3$s" ]);',
 			)
 		);
 		add_filter( 'wp_script_attributes', array( static::class, 'add_low_fetchpriority' ) );
+		add_filter( 'wp_resource_hints', array( static::class, 'remove_stats_dns_prefetch' ), 100, 2 );
 
 		$data = self::build_view_data();
 

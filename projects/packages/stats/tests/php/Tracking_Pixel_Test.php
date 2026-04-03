@@ -301,6 +301,26 @@ class Tracking_Pixel_Test extends StatsBaseTestCase {
 	}
 
 	/**
+	 * Test that the wp_resource_hints filter removes dns-prefetch for stats.wp.com.
+	 */
+	public function test_remove_stats_dns_prefetch() {
+		$urls   = array( '//stats.wp.com', '//example.com', '//other.com' );
+		$result = Tracking_Pixel::remove_stats_dns_prefetch( $urls, 'dns-prefetch' );
+		$this->assertNotContains( '//stats.wp.com', $result );
+		$this->assertContains( '//example.com', $result );
+		$this->assertContains( '//other.com', $result );
+	}
+
+	/**
+	 * Test that the wp_resource_hints filter does not affect non-dns-prefetch hints.
+	 */
+	public function test_remove_stats_dns_prefetch_ignores_other_relations() {
+		$urls   = array( '//stats.wp.com', '//example.com' );
+		$result = Tracking_Pixel::remove_stats_dns_prefetch( $urls, 'preconnect' );
+		$this->assertContains( '//stats.wp.com', $result );
+	}
+
+	/**
 	 * Test for Tracking_Pixel::test_get_footer_to_add for an amp request
 	 */
 	public function test_get_amp_footer() {
