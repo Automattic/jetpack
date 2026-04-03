@@ -36,6 +36,20 @@ class Wpcom_Connector {
 	const MODULE_ID = '@automattic/jetpack-connection-connectors';
 
 	/**
+	 * Screen ID assigned by WordPress to the Gutenberg plugin's connectors submenu page.
+	 *
+	 * @var string
+	 */
+	const GUTENBERG_CONNECTORS_SCREEN_ID = 'settings_page_options-connectors-wp-admin';
+
+	/**
+	 * Page slug registered by the Gutenberg plugin for the connectors submenu page.
+	 *
+	 * @var string
+	 */
+	const GUTENBERG_CONNECTORS_PAGE_SLUG = 'options-connectors-wp-admin';
+
+	/**
 	 * Initialize the connector.
 	 */
 	public static function init() {
@@ -277,7 +291,7 @@ class Wpcom_Connector {
 	 */
 	private static function is_connectors_screen( $screen ) {
 		return 'options-connectors' === $screen->id
-			|| 'settings_page_options-connectors-wp-admin' === $screen->id;
+			|| static::GUTENBERG_CONNECTORS_SCREEN_ID === $screen->id;
 	}
 
 	/**
@@ -288,6 +302,11 @@ class Wpcom_Connector {
 	 * with slug `options-connectors-wp-admin`. Both set parent_file to
 	 * `options-general.php` for menu highlighting, so we distinguish them by
 	 * checking the actual script filename being served.
+	 *
+	 * Note: for the Gutenberg case we use the registered page slug directly,
+	 * not `$screen->id`. WordPress auto-prefixes screen IDs for submenu pages
+	 * (e.g. `settings_page_options-connectors-wp-admin`), so using `$screen->id`
+	 * as the `page=` parameter produces an invalid URL.
 	 *
 	 * The result is suitable for the `redirect_uri` parameter accepted by the
 	 * `jetpack/v4/connection/register` REST endpoint (which wraps it in `admin_url()`).
@@ -304,8 +323,8 @@ class Wpcom_Connector {
 
 		// Gutenberg plugin registers the page under options-general.php.
 		$screen = get_current_screen();
-		if ( $screen ) {
-			return 'options-general.php?page=' . rawurlencode( $screen->id );
+		if ( $screen && static::GUTENBERG_CONNECTORS_SCREEN_ID === $screen->id ) {
+			return 'options-general.php?page=' . static::GUTENBERG_CONNECTORS_PAGE_SLUG;
 		}
 
 		return 'options-connectors.php';
