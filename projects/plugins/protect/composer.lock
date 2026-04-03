@@ -135,7 +135,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/admin-ui",
-                "reference": "d71575c86c7f4cec8c3354e21c15db817b966515"
+                "reference": "b85d3fbbc9298316d8cd1d3e35f50a6e0b17c07c"
             },
             "require": {
                 "automattic/jetpack-redirect": "@dev",
@@ -187,6 +187,10 @@
                 ],
                 "test-php": [
                     "@composer phpunit"
+                ],
+                "watch": [
+                    "Composer\\Config::disableProcessTimeout",
+                    "pnpm run watch"
                 ]
             },
             "license": [
