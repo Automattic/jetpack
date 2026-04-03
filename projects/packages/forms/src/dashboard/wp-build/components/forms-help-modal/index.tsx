@@ -37,7 +37,7 @@ export default function FormsHelpModal( { isOpen, onClose }: Props ) {
 	const [ dontShowAgain, setDontShowAgain ] = useState( false );
 	const { receiveConfigValue } = useDispatch( CONFIG_STORE );
 
-	const handleClose = useCallback( () => {
+	const handleSubmit = useCallback( () => {
 		if ( dontShowAgain ) {
 			receiveConfigValue( 'hasClassicForms', false );
 			apiFetch( {
@@ -53,10 +53,7 @@ export default function FormsHelpModal( { isOpen, onClose }: Props ) {
 	}
 
 	return (
-		<Modal
-			title={ __( 'Not seeing all your forms?', 'jetpack-forms' ) }
-			onRequestClose={ handleClose }
-		>
+		<Modal title={ __( 'Not seeing all your forms?', 'jetpack-forms' ) } onRequestClose={ onClose }>
 			<VStack spacing="4">
 				<Text>
 					{ __( 'The Forms list shows reusable forms, not simple form blocks.', 'jetpack-forms' ) }
@@ -83,7 +80,7 @@ export default function FormsHelpModal( { isOpen, onClose }: Props ) {
 						checked={ dontShowAgain }
 						onChange={ setDontShowAgain }
 					/>
-					<Button variant="primary" onClick={ handleClose }>
+					<Button variant="primary" onClick={ handleSubmit }>
 						{ __( 'Got it', 'jetpack-forms' ) }
 					</Button>
 				</HStack>
