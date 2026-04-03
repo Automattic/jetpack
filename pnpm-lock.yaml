@@ -2580,8 +2580,8 @@ importers:
         specifier: 6.42.0
         version: 6.42.0
       '@wordpress/build':
-        specifier: 0.10.1-next.v.202603102151.0
-        version: 0.10.1-next.v.202603102151.0(@babel/core@7.29.0)(@wordpress/boot@0.9.0(@types/react-dom@18.3.7(@types/react@18.3.28))(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.5.0))(@wordpress/route@0.8.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/theme@0.9.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.5.0))(browserslist@4.28.1)
+        specifier: 0.11.0
+        version: 0.11.0(@babel/core@7.29.0)(@wordpress/boot@0.9.0(@types/react-dom@18.3.7(@types/react@18.3.28))(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.5.0))(@wordpress/route@0.8.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/theme@0.9.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.5.0))(browserslist@4.28.1)
       '@wordpress/date':
         specifier: 5.42.0
         version: 5.42.0
@@ -10422,8 +10422,8 @@ packages:
     resolution: {integrity: sha512-nof8KS4I8lqopdIaAa+Cqz6UtM3x09MpeAH2JWsP2GcczPudClCju67unQGVgsHKXJqAjYtFpx4GfVYn+Rtr/w==}
     engines: {node: '>=18.12.0', npm: '>=8.19.2'}
 
-  '@wordpress/build@0.10.1-next.v.202603102151.0':
-    resolution: {integrity: sha512-uk7LIvouTnrMTgFnvdGvS/BhVjBkkL5fwnr8JCyRud4AObAzsJRixu+ZG//T6SNLdJuiLdF5zihMBKCEqVvN8g==}
+  '@wordpress/build@0.11.0':
+    resolution: {integrity: sha512-YKy+7SuEC583+19uMgZs9MgwNWKruRFLilgHj8BaEoc6OrkkacHrXlEJewRRdTgqgCyLb1eMPtY6VuRpEj/VfA==}
     engines: {node: '>=20.10.0', npm: '>=10.2.3'}
     hasBin: true
     peerDependencies:
@@ -24077,7 +24077,7 @@ snapshots:
 
   '@wordpress/browserslist-config@6.42.0': {}
 
-  '@wordpress/build@0.10.1-next.v.202603102151.0(@babel/core@7.29.0)(@wordpress/boot@0.9.0(@types/react-dom@18.3.7(@types/react@18.3.28))(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.5.0))(@wordpress/route@0.8.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/theme@0.9.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.5.0))(browserslist@4.28.1)':
+  '@wordpress/build@0.11.0(@babel/core@7.29.0)(@wordpress/boot@0.9.0(@types/react-dom@18.3.7(@types/react@18.3.28))(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.5.0))(@wordpress/route@0.8.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/theme@0.9.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.5.0))(browserslist@4.28.1)':
     dependencies:
       '@emotion/babel-plugin': 11.13.5
       autoprefixer: 10.4.27(postcss@8.5.6)

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+JetpackFooter: Pin base font-size to design token to prevent page context from leaking into footer layout.
