@@ -146,7 +146,14 @@ export function withRoomLimit(
 
 		teardowns.push( destroyWithLimitError );
 
-		if ( awareness ) {
+		// Only enforce the peer limit on entity rooms (objectId !== null).
+		// Collection rooms (objectId === null) are shared across posts, so
+		// their awareness aggregates all editors site-wide — not just those
+		// on the same post. Monitoring them would cause the limit to behave
+		// as a global cap instead of a per-post cap.
+		const isEntityRoom = options.objectId !== null;
+
+		if ( awareness && isEntityRoom ) {
 			awareness.on( 'change', onAwarenessChange );
 			onAwarenessChange();
 		}
