@@ -1,0 +1,5 @@
+Significance: minor
+Type: major
+Comment: Disable the Write Brief (Breve) proofreading feature by default. It can be re-enabled via the 'breve_enabled' filter.
+
+AI Assistant: Disable the Write Brief (Breve) proofreading feature by default.
