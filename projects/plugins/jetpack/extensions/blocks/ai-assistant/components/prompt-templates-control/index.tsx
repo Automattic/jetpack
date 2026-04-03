@@ -17,12 +17,12 @@ import {
 } from '@automattic/jetpack-ai-client';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { MenuItem, MenuGroup, ToolbarDropdownMenu } from '@wordpress/components';
+import { __ } from '@wordpress/i18n';
+import { title, postContent, postExcerpt, termDescription, post, pencil } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
 import { getFeatureAvailability } from '../../lib/utils/get-feature-availability';
-import { __ } from '@wordpress/i18n';
-import { title, postContent, postExcerpt, termDescription, post, pencil } from '@wordpress/icons';
 
 type PromptTemplatesControlProps = {
 	hasContentBefore: boolean;
