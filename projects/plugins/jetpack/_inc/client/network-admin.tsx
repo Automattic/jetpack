@@ -5,9 +5,8 @@ import {
 	Col,
 	getRedirectUrl,
 } from '@automattic/jetpack-components';
-import { Button } from '@wordpress/components';
 import { createRoot } from '@wordpress/element';
-import { __, _x } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import { useEffect, useRef } from 'react';
 
 type PageType = 'sites' | 'settings';
@@ -33,39 +32,6 @@ const PAGE_CONFIG: Record< PageType, { title: string; subTitle: string } > = {
 };
 
 /**
- * Navigation buttons for the header actions slot.
- *
- * @param {object}   props          - Component props.
- * @param {PageType} props.pageType - The current page type.
- * @return {import('react').ReactNode} Header action buttons.
- */
-function HeaderActions( { pageType }: { pageType: PageType } ) {
-	const data = window.JetpackNetworkAdminData;
-	if ( ! data ) {
-		return null;
-	}
-
-	return (
-		<>
-			<Button
-				size="compact"
-				variant={ pageType === 'sites' ? 'primary' : 'secondary' }
-				href={ data.sitesUrl }
-			>
-				{ _x( 'Sites', 'Navigation item', 'jetpack' ) }
-			</Button>
-			<Button
-				size="compact"
-				variant={ pageType === 'settings' ? 'primary' : 'secondary' }
-				href={ data.settingsUrl }
-			>
-				{ _x( 'Network Settings', 'Navigation item', 'jetpack' ) }
-			</Button>
-		</>
-	);
-}
-
-/**
  * Wraps the server-rendered network admin page content with the unified
  * Jetpack AdminPage header and footer.
  *
@@ -89,7 +55,6 @@ function NetworkAdminApp( { pageType }: { pageType: PageType } ) {
 		<AdminPage
 			title={ config.title }
 			subTitle={ config.subTitle }
-			actions={ <HeaderActions pageType={ pageType } /> }
 			optionalMenuItems={ [
 				{
 					label: __( 'Support', 'jetpack' ),
