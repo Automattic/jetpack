@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Settings: Replace custom tab navigation with @wordpress/ui Tabs component for proper ARIA semantics, built-in overflow handling, and animated indicator.
