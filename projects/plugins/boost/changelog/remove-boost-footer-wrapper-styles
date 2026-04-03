@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Admin: Rely on default Jetpack footer styling without Boost-specific layout overrides.
