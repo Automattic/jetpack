@@ -9,6 +9,12 @@ import JetpackLogo from '../jetpack-logo/index.tsx';
 import type { JetpackFooterProps, JetpackFooterMenuItem } from './types.ts';
 import type { FC } from 'react';
 
+declare global {
+	interface Window {
+		JetpackNetworkAdminData;
+	}
+}
+
 /**
  * JetpackFooter component displays a tiny Jetpack logo with the product name on the left and the Automattic Airline "by line" on the right.
  *
@@ -18,7 +24,7 @@ import type { FC } from 'react';
 const JetpackFooter: FC< JetpackFooterProps > = ( { className, menu, ...otherProps } ) => {
 	let items: JetpackFooterMenuItem[] = [];
 
-	if ( ! isWpcomPlatformSite() ) {
+	if ( ! isWpcomPlatformSite() && ! window?.JetpackNetworkAdminData ) {
 		items = [
 			{
 				label: __( 'Products', 'jetpack-components' ),

@@ -1,4 +1,10 @@
-import { AdminPage, ThemeProvider, Container, Col } from '@automattic/jetpack-components';
+import {
+	AdminPage,
+	ThemeProvider,
+	Container,
+	Col,
+	getRedirectUrl,
+} from '@automattic/jetpack-components';
 import { Button } from '@wordpress/components';
 import { createRoot } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
@@ -84,6 +90,12 @@ function NetworkAdminApp( { pageType }: { pageType: PageType } ) {
 			title={ config.title }
 			subTitle={ config.subTitle }
 			actions={ <HeaderActions pageType={ pageType } /> }
+			optionalMenuItems={ [
+				{
+					label: __( 'Support', 'jetpack' ),
+					href: getRedirectUrl( 'jetpack-support' ),
+				},
+			] }
 		>
 			<Container horizontalSpacing={ 5 } horizontalGap={ 0 }>
 				<Col>
