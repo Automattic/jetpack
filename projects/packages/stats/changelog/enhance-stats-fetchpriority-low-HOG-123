@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Add fetchpriority=low to the Stats script and remove dns-prefetch for stats.wp.com to improve LCP in Safari and Firefox.
