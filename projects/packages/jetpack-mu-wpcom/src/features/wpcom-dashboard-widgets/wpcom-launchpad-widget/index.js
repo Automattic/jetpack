@@ -41,7 +41,9 @@ function useSetHrefBase() {
 }
 
 const LaunchpadWidget = ( { siteDomain, siteIntent } ) => {
-	const [ , experimentData ] = useExperimentWithAuth( 'calypso_standardized_site_launch_gating' );
+	const [ , experimentData ] = useExperimentWithAuth(
+		'calypso_launch_button_experiment_test_20260319_4'
+	);
 	const [ showCelebrateLaunchModal, setShowCelebrateLaunchModal ] = useState( false );
 
 	const variationName = experimentData?.variationName;
