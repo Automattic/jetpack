@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Forms: Add style support and convention-over-configuration asset loading for custom fields.
