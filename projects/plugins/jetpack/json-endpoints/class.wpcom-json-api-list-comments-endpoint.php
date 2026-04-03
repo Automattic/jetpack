@@ -383,4 +383,116 @@ class WPCOM_JSON_API_List_Comments_Endpoint extends WPCOM_JSON_API_Comment_Endpo
 
 		return $return;
 	}
+
+	/**
+	 * Post-process the response for wpcom sites in WPCOM context.
+	 * Called automatically by process_wpcom_request.
+	 *
+	 * @param array $response The response array.
+	 * @return array Modified response.
+	 */
+	public function filter_response( $response ) {
+		return self::add_wpcom_field_to_authors( $response, $this->query_args() );
+	}
+
+	/**
+	 * Add WPCOM field to comment authors in the response by matching their Gravatar hash to WPCOM users.
+	 *
+	 * @param array|object $response  The response.
+	 * @param array        $args      The query args.
+	 * @return array|object Modified response.
+	 */
+	public static function add_wpcom_field_to_authors( $response, $args ) {
+		// Only add wpcom fields if requested. This avoids extra queries when the data isn't needed.
+		if ( empty( $args['author_wpcom_data'] ) ) {
+			return $response;
+		}
+
+		// Step 1: Get authors keyed by their Gravatar hash.
+		$hash_to_authors = array();
+		$comments        = is_array( $response ) ? $response['comments'] : $response->comments;
+		foreach ( $comments as $comment ) {
+			$author = (object) array();
+			// WPCOM sites return comments as arrays and Jetpack sites return comments as objects, so we need to check both.
+			if ( is_array( $comment ) && isset( $comment['author'] ) ) {
+				$author = $comment['author'];
+			} elseif ( isset( $comment->author ) ) {
+				$author = $comment->author;
+			}
+
+			// If wpcom fields are already set, skip this author. This is necessary as profile_URL have user_login in this case instead of hash.
+			if ( isset( $author->wpcom_id ) && isset( $author->wpcom_login ) ) {
+				continue;
+			}
+
+			// Extract the Gravatar hash from the profile URL (https://gravatar.com/{hash}).
+			$hash = basename( rtrim( $author->profile_URL ?? '', '/' ) ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+			if ( ! $hash ) {
+				continue;
+			}
+
+			$hash_to_authors[ $hash ][] = $author; // Adding multiple authors to same hash for multiple comments by same author.
+		}
+
+		// Step 2: Using hashes request all Gravatar profiles in parallel.
+		$requests = array();
+		foreach ( array_keys( $hash_to_authors ) as $hash ) {
+			$requests[ $hash ] = array( 'url' => "https://gravatar.com/{$hash}.json" );
+		}
+		$gravatar_responses = class_exists( 'WpOrg\Requests\Requests' ) ? \WpOrg\Requests\Requests::request_multiple( $requests ) : \Requests::request_multiple( $requests );
+
+		// Step 3: Parse responses and get logins.
+		$hash_to_login = array();
+		foreach ( $gravatar_responses as $hash => $gravatar_response ) {
+			if ( ! isset( $gravatar_response->body ) ) {
+				continue;
+			}
+			$body = json_decode( $gravatar_response->body, true );
+			if ( ! empty( $body['entry'][0]['preferredUsername'] ) ) {
+				$hash_to_login[ $hash ] = $body['entry'][0]['preferredUsername'];
+			}
+		}
+
+		// Step 4: Single DB query for all matched users.
+		$users = get_users(
+			array(
+				'login__in' => array_values( $hash_to_login ),
+				'blog_id'   => 0,
+				'number'    => count( $hash_to_login ),
+			)
+		);
+
+		$login_to_user = array();
+		foreach ( $users as $user ) {
+			$login_to_user[ $user->user_login ] = $user;
+		}
+
+		// Step 5: Map results back to each author object.
+		foreach ( $hash_to_login as $hash => $login ) {
+			if ( ! isset( $login_to_user[ $login ] ) ) {
+				continue;
+			}
+
+			$user = $login_to_user[ $login ];
+			// For multiple authors with the same hash (i.e. multiple comments by the same author).
+			foreach ( $hash_to_authors[ $hash ] as $author ) {
+				$author->wpcom_id    = (int) $user->ID;
+				$author->wpcom_login = $user->user_login;
+			}
+		}
+
+		return $response;
+	}
 }
+
+/**
+ * Post process the response for Jetpack sites in WPCOM context.
+ */
+add_filter(
+	'wpcom_json_api_jetpack_response',
+	function ( $response, $json_api_request_args, $endpoint ) {
+		return $endpoint instanceof WPCOM_JSON_API_List_Comments_Endpoint ? $endpoint::add_wpcom_field_to_authors( $response, $endpoint->query_args() ) : $response;
+	},
+	10,
+	4
+);
