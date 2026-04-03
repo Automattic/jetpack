@@ -33,7 +33,7 @@ function wpcom_should_show_ai_assistant_banner() {
 	}
 
 	// Don't show if AI assistant is already enabled.
-	if ( get_option( 'big_sky_enable' ) ) {
+	if ( class_exists( 'Big_Sky' ) && get_option( 'big_sky_enable', '1' ) ) {
 		return false;
 	}
 
