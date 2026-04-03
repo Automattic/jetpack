@@ -320,12 +320,11 @@ class Admin_Menu {
 			? \Automattic\Jetpack\Redirect::get_url( self::UPGRADE_MENU_SLUG )
 			: self::UPGRADE_MENU_FALLBACK_URL;
 
-		$menu_title = esc_html__( 'Upgrade Jetpack', 'jetpack-admin-ui' )
-			. ' <span aria-hidden="true">↗</span>';
+		$menu_title = esc_html__( 'Upgrade Jetpack', 'jetpack-admin-ui' );
 
 		add_submenu_page(
 			'jetpack',
-			__( 'Upgrade Jetpack', 'jetpack-admin-ui' ),
+			$menu_title,
 			$menu_title,
 			'manage_options',
 			esc_url( $upgrade_url ),
