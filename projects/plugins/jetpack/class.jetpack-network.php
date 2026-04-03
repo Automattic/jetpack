@@ -520,28 +520,28 @@ class Jetpack_Network {
 	 * @since $$next-version$$
 	 */
 	public function enqueue_network_admin_scripts() {
-		$build_dir        = JETPACK__PLUGIN_DIR . '_inc/build/';
-		$script_deps_path = $build_dir . 'network-admin.asset.php';
+		$build_dir         = JETPACK__PLUGIN_DIR . '_inc/build/';
+		$script_asset_path = $build_dir . 'network-admin.asset.php';
 
-		if ( ! file_exists( $script_deps_path ) ) {
+		if ( ! file_exists( $script_asset_path ) ) {
 			return;
 		}
 
-		$script_deps = require $script_deps_path;
+		$script_asset = require $script_asset_path;
 
 		wp_enqueue_script(
 			'jetpack-network-admin',
 			plugins_url( '_inc/build/network-admin.js', JETPACK__PLUGIN_FILE ),
-			$script_deps['dependencies'],
-			$script_deps['version'],
+			$script_asset['dependencies'],
+			$script_asset['version'],
 			true
 		);
 
 		wp_enqueue_style(
 			'jetpack-network-admin',
 			plugins_url( '_inc/build/network-admin.css', JETPACK__PLUGIN_FILE ),
-			array( 'wp-components' ),
-			$script_deps['version']
+			array(),
+			$script_asset['version']
 		);
 
 		wp_set_script_translations( 'jetpack-network-admin', 'jetpack' );
