@@ -688,7 +688,7 @@ abstract class SAL_Post {
 	 * @return bool
 	 */
 	public function get_has_password(): bool {
-		return strlen( (string) $this->post->post_password ) > 0;
+		return ! empty( $this->post->post_password );
 	}
 
 	/**
