@@ -478,6 +478,10 @@ class WPCOM_JSON_API_List_Comments_Endpoint extends WPCOM_JSON_API_Comment_Endpo
 			foreach ( $hash_to_authors[ $hash ] as $author ) {
 				$author->wpcom_id    = (int) $user->ID;
 				$author->wpcom_login = $user->user_login;
+
+				if ( $author->name === $author->login ) {
+					$author->name = $user->display_name;
+				}
 			}
 		}
 
