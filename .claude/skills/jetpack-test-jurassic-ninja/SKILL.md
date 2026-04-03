@@ -85,8 +85,10 @@ If the build fails, stop and report the error to the user — do not proceed to 
 
 ### 4. Run the rsync
 
+Derive the SSH host from the site's `ssh_command` field (e.g. `ssh foo.jurassic.ninja@sftp.wp.com` → host is `sftp.wp.com`). Do not hardcode the SSH host — it may change.
+
 ```bash
-jetpack rsync {plugin} {domain}@ssh.atomicsites.net:/srv/htdocs/wp-content/plugins/{plugin-slug} --non-interactive --password='{JN_PASSWORD}'
+jetpack rsync {plugin} {domain}@{ssh_host}:/srv/htdocs/wp-content/plugins/{plugin-slug} --non-interactive --password='{JN_PASSWORD}'
 ```
 
 The `--password` flag passes the SSH password automatically via `SSH_ASKPASS`.
