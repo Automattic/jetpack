@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Stats: Add fetchpriority="low" attribute to the Stats script tag to improve performance by reducing network contention with resources in the critical rendering path.

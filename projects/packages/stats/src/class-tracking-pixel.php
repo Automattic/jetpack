@@ -190,6 +190,26 @@ _stq.push([ "clickTrackerInit", "%2$s", "%3$s" ]);',
 	}
 
 	/**
+	 * Add fetchpriority="low" attribute to the Stats script tag to reduce network contention
+	 * with resources in the critical rendering path (e.g., the LCP element image).
+	 *
+	 * This benefits Safari and Firefox, which don't automatically assign low priority to
+	 * async/defer scripts (unlike Chrome).
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $tag    The HTML string for the script tag.
+	 * @param string $handle The script handle.
+	 * @return string The modified script tag HTML.
+	 */
+	public static function add_fetchpriority_low_attribute( $tag, $handle ) {
+		if ( 'jetpack-stats' !== $handle ) {
+			return $tag;
+		}
+		return str_replace( '<script ', '<script fetchpriority="low" ', $tag );
+	}
+
+	/**
 	 * Enqueue the Stats pixel.
 	 * Do not use this function directly, it is hooked into `wp_enqueue_scripts`.
 	 *
@@ -211,6 +231,10 @@ _stq.push([ "clickTrackerInit", "%2$s", "%3$s" ]);',
 				'strategy'  => 'defer',
 			)
 		);
+
+		if ( ! has_filter( 'script_loader_tag', array( static::class, 'add_fetchpriority_low_attribute' ) ) ) {
+			add_filter( 'script_loader_tag', array( static::class, 'add_fetchpriority_low_attribute' ), 10, 2 );
+		}
 
 		$data = self::build_view_data();
 

@@ -341,4 +341,23 @@ _stq.push([ "clickTrackerInit", "1234", "0" ]);';
 		remove_filter( 'stats_array', array( $this, 'stats_array_filter_replace_srv' ) );
 		$this->assertSame( $expected_pixel_details, $pixel_details );
 	}
+
+	/**
+	 * Test that add_fetchpriority_low_attribute adds fetchpriority="low" to the jetpack-stats script tag.
+	 */
+	public function test_add_fetchpriority_low_attribute_jetpack_stats() {
+		$tag      = '<script type="text/javascript" src="https://stats.wp.com/e-202520.js" defer></script>';
+		$result   = Tracking_Pixel::add_fetchpriority_low_attribute( $tag, 'jetpack-stats' );
+		$expected = '<script fetchpriority="low" type="text/javascript" src="https://stats.wp.com/e-202520.js" defer></script>';
+		$this->assertSame( $expected, $result );
+	}
+
+	/**
+	 * Test that add_fetchpriority_low_attribute does not modify tags for other script handles.
+	 */
+	public function test_add_fetchpriority_low_attribute_other_handle() {
+		$tag    = '<script type="text/javascript" src="https://example.com/script.js"></script>';
+		$result = Tracking_Pixel::add_fetchpriority_low_attribute( $tag, 'other-script' );
+		$this->assertSame( $tag, $result );
+	}
 }
