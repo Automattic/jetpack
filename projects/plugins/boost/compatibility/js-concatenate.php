@@ -18,6 +18,9 @@ function maybe_do_not_concat( $do_concat, $handle ) {
 		'wc-bookings-booking-form',
 		// WooCommerce Analytics
 		'woocommerce-analytics-client',
+		// Boost Image Guide — webpack IIFE bundle with wp_localize_script data
+		// that produces a malformed concatenated bundle on Atomic/WoW sites.
+		'jetpack-boost-guide',
 	);
 
 	if ( in_array( $handle, $excluded_handles, true ) ) {
