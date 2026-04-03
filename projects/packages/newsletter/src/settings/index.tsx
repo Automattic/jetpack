@@ -9,9 +9,17 @@ import {
 	GlobalNotices,
 	useGlobalNotices,
 } from '@automattic/jetpack-components';
-import { getSiteType } from '@automattic/jetpack-script-data';
+import { useConnection, getUserConnectionUrl } from '@automattic/jetpack-connection';
+import { getSiteType, isSimpleSite } from '@automattic/jetpack-script-data';
 import { Notice, Disabled, Spinner } from '@wordpress/components';
-import { createRoot, useCallback, useEffect, useState, useMemo } from '@wordpress/element';
+import {
+	createInterpolateElement,
+	createRoot,
+	useCallback,
+	useEffect,
+	useState,
+	useMemo,
+} from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Stack } from '@wordpress/ui';
 /**
@@ -88,6 +96,18 @@ function NewsletterSettingsApp(): JSX.Element | null {
 
 	// Get newsletter script data
 	const newsletterScriptData = useMemo( () => getNewsletterScriptData(), [] );
+
+	// Check if the site has a connected owner.
+	// On Simple sites, users are always connected — skip the check.
+	const { hasConnectedOwner: rawHasConnectedOwner } = useConnection();
+	const hasConnectedOwner = isSimpleSite() || rawHasConnectedOwner;
+	const connectUrl = useMemo(
+		() =>
+			getUserConnectionUrl( {
+				from: 'jetpack-newsletter',
+			} ),
+		[]
+	);
 
 	// Global notices for success/error messages
 	const { createSuccessNotice, createErrorNotice } = useGlobalNotices();
@@ -396,72 +416,89 @@ function NewsletterSettingsApp(): JSX.Element | null {
 			</Container>
 			<Container horizontalSpacing={ 3 }>
 				<Col>
-					<Stack gap="md" direction="column" className="newsletter-settings">
-						<NewsletterSection data={ data } onChange={ handleAutoSave } />
+					{ ! hasConnectedOwner && (
+						<div className="newsletter-settings-connect-notice">
+							<Notice status="warning" isDismissible={ false }>
+								{ createInterpolateElement(
+									__(
+										'Connect your WordPress.com account to enable and set up your newsletter. <a>Connect now</a>',
+										'jetpack-newsletter'
+									),
+									{
+										a: <a href={ connectUrl } />,
+									}
+								) }
+							</Notice>
+						</div>
+					) }
+					<div className={ ! hasConnectedOwner ? 'newsletter-settings-disabled' : undefined }>
+						<Stack gap="md" direction="column" className="newsletter-settings">
+							<NewsletterSection data={ data } onChange={ handleAutoSave } />
 
-						<Disabled isDisabled={ ! data.subscriptions }>
-							<Stack gap="md" direction="column">
-								<SubscriptionsSection
-									data={ data }
-									onChange={ handleSubscriptionChange }
-									onSave={ saveSubscriptionSettings }
-									isSaving={ isSavingSubscriptions }
-									hasChanges={ hasSubscriptionChanges }
-									isNewsletterEnabled={ data.subscriptions }
-								/>
+							<Disabled isDisabled={ ! data.subscriptions }>
+								<Stack gap="md" direction="column">
+									<SubscriptionsSection
+										data={ data }
+										onChange={ handleSubscriptionChange }
+										onSave={ saveSubscriptionSettings }
+										isSaving={ isSavingSubscriptions }
+										hasChanges={ hasSubscriptionChanges }
+										isNewsletterEnabled={ data.subscriptions }
+									/>
 
-								<PaidNewsletterSection
-									isNewsletterEnabled={ data.subscriptions }
-									hasActivePlan={ data.newsletter_has_active_plan }
-								/>
+									<PaidNewsletterSection
+										isNewsletterEnabled={ data.subscriptions }
+										hasActivePlan={ data.newsletter_has_active_plan }
+									/>
 
-								<NewsletterCategoriesSection
-									data={ data }
-									onChange={ handleNewsletterCategoriesChange }
-									onSave={ saveNewsletterCategories }
-									isSaving={ isSavingNewsletterCategories }
-									hasChanges={ hasNewsletterCategoriesChanges }
-									isNewsletterEnabled={ data.subscriptions }
-								/>
+									<NewsletterCategoriesSection
+										data={ data }
+										onChange={ handleNewsletterCategoriesChange }
+										onSave={ saveNewsletterCategories }
+										isSaving={ isSavingNewsletterCategories }
+										hasChanges={ hasNewsletterCategoriesChanges }
+										isNewsletterEnabled={ data.subscriptions }
+									/>
 
-								<EmailContentSection
-									data={ data }
-									onChange={ handleAutoSave }
-									isNewsletterEnabled={ data.subscriptions }
-								/>
+									<EmailContentSection
+										data={ data }
+										onChange={ handleAutoSave }
+										isNewsletterEnabled={ data.subscriptions }
+									/>
 
-								<EmailBylineSection
-									data={ data }
-									onChange={ handleAutoSave }
-									isNewsletterEnabled={ data.subscriptions }
-								/>
+									<EmailBylineSection
+										data={ data }
+										onChange={ handleAutoSave }
+										isNewsletterEnabled={ data.subscriptions }
+									/>
 
-								<EmailSenderSettingsSection
-									data={ data }
-									onChange={ handleSenderNameChange }
-									onSave={ saveSenderName }
-									isSaving={ isSavingSenderName }
-									hasChanges={ hasSenderNameChanges }
-									isNewsletterEnabled={ data.subscriptions }
-								/>
+									<EmailSenderSettingsSection
+										data={ data }
+										onChange={ handleSenderNameChange }
+										onSave={ saveSenderName }
+										isSaving={ isSavingSenderName }
+										hasChanges={ hasSenderNameChanges }
+										isNewsletterEnabled={ data.subscriptions }
+									/>
 
-								<EmailReplyToSettingsSection
-									data={ data }
-									onChange={ handleAutoSave }
-									isNewsletterEnabled={ data.subscriptions }
-								/>
+									<EmailReplyToSettingsSection
+										data={ data }
+										onChange={ handleAutoSave }
+										isNewsletterEnabled={ data.subscriptions }
+									/>
 
-								<WelcomeEmailSection
-									data={ data }
-									onChange={ handleWelcomeEmailChange }
-									onSave={ saveWelcomeEmail }
-									isSaving={ isSavingWelcomeEmail }
-									hasChanges={ hasWelcomeEmailChanges }
-									isNewsletterEnabled={ data.subscriptions }
-								/>
-							</Stack>
-						</Disabled>
-					</Stack>
+									<WelcomeEmailSection
+										data={ data }
+										onChange={ handleWelcomeEmailChange }
+										onSave={ saveWelcomeEmail }
+										isSaving={ isSavingWelcomeEmail }
+										hasChanges={ hasWelcomeEmailChanges }
+										isNewsletterEnabled={ data.subscriptions }
+									/>
+								</Stack>
+							</Disabled>
+						</Stack>
+					</div>
 				</Col>
 			</Container>
 		</AdminPage>
