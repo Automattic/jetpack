@@ -93,6 +93,8 @@ class Admin_Menu_Test extends TestCase {
 		delete_option( 'jetpack_site_products' );
 		wp_dequeue_style( 'jetpack-admin-ui-upgrade-menu' );
 		wp_deregister_style( 'jetpack-admin-ui-upgrade-menu' );
+		wp_dequeue_script( 'jetpack-admin-ui-upgrade-menu' );
+		wp_deregister_script( 'jetpack-admin-ui-upgrade-menu' );
 
 		$reflection = new \ReflectionClass( Admin_Menu::class );
 
