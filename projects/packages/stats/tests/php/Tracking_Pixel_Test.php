@@ -277,6 +277,30 @@ class Tracking_Pixel_Test extends StatsBaseTestCase {
 	}
 
 	/**
+	 * Test that the wp_script_attributes filter adds fetchpriority="low" to the jetpack-stats script.
+	 */
+	public function test_add_fetchpriority_low_via_script_attributes() {
+		$attributes = array(
+			'id'  => 'jetpack-stats-js',
+			'src' => 'https://stats.wp.com/e-202620.js',
+		);
+		$result     = Tracking_Pixel::add_low_fetchpriority( $attributes );
+		$this->assertSame( 'low', $result['fetchpriority'] );
+	}
+
+	/**
+	 * Test that the wp_script_attributes filter does not modify other scripts.
+	 */
+	public function test_add_fetchpriority_low_ignores_other_scripts() {
+		$attributes = array(
+			'id'  => 'other-script-js',
+			'src' => 'https://example.com/script.js',
+		);
+		$result     = Tracking_Pixel::add_low_fetchpriority( $attributes );
+		$this->assertArrayNotHasKey( 'fetchpriority', $result );
+	}
+
+	/**
 	 * Test for Tracking_Pixel::test_get_footer_to_add for an amp request
 	 */
 	public function test_get_amp_footer() {
