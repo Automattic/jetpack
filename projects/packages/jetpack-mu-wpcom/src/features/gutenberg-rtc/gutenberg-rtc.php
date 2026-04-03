@@ -88,7 +88,13 @@ function wpcom_enable_rtc() {
 	}
 
 	$has_needed_gutenberg_version = defined( 'GUTENBERG_VERSION' ) && is_string( GUTENBERG_VERSION ) && version_compare( (string) GUTENBERG_VERSION, '22.7.0', '>=' );
-	if ( ! $has_needed_gutenberg_version ) {
+
+	// WordPress 7.0+ includes RTC support in core.
+	// strtok strips beta/RC suffixes (e.g. "7.0-beta1" → "7.0") so pre-release versions match.
+	global $wp_version;
+	$has_needed_wp_version = version_compare( strtok( $wp_version, '-' ), '7.0', '>=' );
+
+	if ( ! $has_needed_gutenberg_version && ! $has_needed_wp_version ) {
 		return false;
 	}
 
