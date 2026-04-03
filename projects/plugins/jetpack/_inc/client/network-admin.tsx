@@ -17,11 +17,11 @@ declare global {
 
 const PAGE_CONFIG: Record< PageType, { title: string; subTitle: string } > = {
 	sites: {
-		title: __( 'Network Sites', 'jetpack' ),
+		title: __( 'Network sites', 'jetpack' ),
 		subTitle: __( 'Manage Jetpack connections across your network.', 'jetpack' ),
 	},
 	settings: {
-		title: __( 'Network Settings', 'jetpack' ),
+		title: __( 'Network settings', 'jetpack' ),
 		subTitle: __( 'Configure Jetpack settings for your entire network.', 'jetpack' ),
 	},
 };
