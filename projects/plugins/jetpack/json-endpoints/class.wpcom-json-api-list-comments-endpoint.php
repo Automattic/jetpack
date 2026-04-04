@@ -392,7 +392,7 @@ class WPCOM_JSON_API_List_Comments_Endpoint extends WPCOM_JSON_API_Comment_Endpo
 	 * @return array Modified response.
 	 */
 	public function filter_response( $response ) {
-		return self::add_wpcom_field_to_authors( $response, $this->query_args() );
+		return self::add_wpcom_fields_to_authors( $response, $this->query_args() );
 	}
 
 	/**
@@ -402,7 +402,7 @@ class WPCOM_JSON_API_List_Comments_Endpoint extends WPCOM_JSON_API_Comment_Endpo
 	 * @param array        $args      The query args.
 	 * @return array|object Modified response.
 	 */
-	public static function add_wpcom_field_to_authors( $response, $args ) {
+	public static function add_wpcom_fields_to_authors( $response, $args ) {
 		// Only add wpcom fields if requested. This avoids extra queries when the data isn't needed.
 		if ( empty( $args['author_wpcom_data'] ) ) {
 			return $response;
@@ -444,6 +444,10 @@ class WPCOM_JSON_API_List_Comments_Endpoint extends WPCOM_JSON_API_Comment_Endpo
 		// Step 3: Parse responses and get logins.
 		$hash_to_login = array();
 		foreach ( $gravatar_responses as $hash => $gravatar_response ) {
+			if ( $gravatar_response->status_code !== 200 ) {
+				$hash_to_login[ $hash ] = '-1'; // Marking -1 for hashes that don't have a valid Gravatar profile.
+				continue;
+			}
 			if ( ! isset( $gravatar_response->body ) ) {
 				continue;
 			}
@@ -469,6 +473,11 @@ class WPCOM_JSON_API_List_Comments_Endpoint extends WPCOM_JSON_API_Comment_Endpo
 
 		// Step 5: Map results back to each author object.
 		foreach ( $hash_to_login as $hash => $login ) {
+			if ( '-1' === $login ) {
+				foreach ( $hash_to_authors[ $hash ] as $author ) {
+					$author->profile_URL = ''; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+				}
+			}
 			if ( ! isset( $login_to_user[ $login ] ) ) {
 				continue;
 			}
@@ -478,6 +487,7 @@ class WPCOM_JSON_API_List_Comments_Endpoint extends WPCOM_JSON_API_Comment_Endpo
 			foreach ( $hash_to_authors[ $hash ] as $author ) {
 				$author->wpcom_id    = (int) $user->ID;
 				$author->wpcom_login = $user->user_login;
+				$author->description = $user->description;
 
 				if ( $author->name === $author->login ) {
 					$author->name = $user->display_name;
@@ -495,7 +505,7 @@ class WPCOM_JSON_API_List_Comments_Endpoint extends WPCOM_JSON_API_Comment_Endpo
 add_filter(
 	'wpcom_json_api_jetpack_response',
 	function ( $response, $json_api_request_args, $endpoint ) {
-		return $endpoint instanceof WPCOM_JSON_API_List_Comments_Endpoint ? $endpoint::add_wpcom_field_to_authors( $response, $endpoint->query_args() ) : $response;
+		return $endpoint instanceof WPCOM_JSON_API_List_Comments_Endpoint ? $endpoint::add_wpcom_fields_to_authors( $response, $endpoint->query_args() ) : $response;
 	},
 	10,
 	4
