@@ -825,6 +825,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 					'first_name'     => '(string)',
 					'last_name'      => '(string)',
 					'nice_name'      => '(string)',
+					'description'    => '(string)',
 					'URL'            => '(URL)',
 					'avatar_URL'     => '(URL)',
 					'profile_URL'    => '(URL)',
@@ -1441,36 +1442,39 @@ abstract class WPCOM_JSON_API_Endpoint {
 	 * @return object
 	 */
 	public function get_author( $author, $show_email_and_ip = false ) {
-		$is_jetpack = null;
-		$login      = null;
-		$email      = null;
-		$name       = null;
-		$first_name = null;
-		$last_name  = null;
-		$nice       = null;
-		$url        = null;
-		$ip_address = isset( $author->comment_author_IP ) ? $author->comment_author_IP : '';
-		$site_id    = -1;
+		$is_jetpack  = null;
+		$login       = null;
+		$email       = null;
+		$name        = null;
+		$first_name  = null;
+		$last_name   = null;
+		$nice        = null;
+		$description = null;
+		$url         = null;
+		$ip_address  = isset( $author->comment_author_IP ) ? $author->comment_author_IP : '';
+		$site_id     = -1;
 
 		if ( isset( $author->comment_author_email ) ) {
-			$id         = empty( $author->user_id ) ? 0 : (int) $author->user_id;
-			$login      = '';
-			$email      = $author->comment_author_email;
-			$name       = $author->comment_author;
-			$first_name = '';
-			$last_name  = '';
-			$url        = $author->comment_author_url;
-			$avatar_url = $this->api->get_avatar_url( $author );
-			$nice       = '';
+			$id          = empty( $author->user_id ) ? 0 : (int) $author->user_id;
+			$login       = '';
+			$email       = $author->comment_author_email;
+			$name        = $author->comment_author;
+			$first_name  = '';
+			$last_name   = '';
+			$url         = $author->comment_author_url;
+			$avatar_url  = $this->api->get_avatar_url( $author );
+			$nice        = '';
+			$description = '';
 
 			// Add additional user data to the response if a valid user ID is available.
 			if ( 0 < $id ) {
 				$user = get_user_by( 'id', $id );
 				if ( $user instanceof WP_User ) {
-					$login      = $user->user_login ?? '';
-					$first_name = $user->first_name ?? '';
-					$last_name  = $user->last_name ?? '';
-					$nice       = $user->user_nicename ?? '';
+					$login       = $user->user_login ?? '';
+					$first_name  = $user->first_name ?? '';
+					$last_name   = $user->last_name ?? '';
+					$nice        = $user->user_nicename ?? '';
+					$description = $user->description ?? '';
 				} else {
 					trigger_error( 'Unknown user', E_USER_WARNING ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_trigger_error
 				}
@@ -1503,14 +1507,15 @@ abstract class WPCOM_JSON_API_Endpoint {
 			$is_jetpack = true === apply_filters( 'is_jetpack_site', false, get_current_blog_id() );
 			$post_id    = $author->ID;
 			if ( $is_jetpack && ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ) {
-				$id         = get_post_meta( $post_id, '_jetpack_post_author_external_id', true );
-				$email      = get_post_meta( $post_id, '_jetpack_author_email', true );
-				$login      = '';
-				$name       = get_post_meta( $post_id, '_jetpack_author', true );
-				$first_name = '';
-				$last_name  = '';
-				$url        = '';
-				$nice       = '';
+				$id          = get_post_meta( $post_id, '_jetpack_post_author_external_id', true );
+				$email       = get_post_meta( $post_id, '_jetpack_author_email', true );
+				$login       = '';
+				$name        = get_post_meta( $post_id, '_jetpack_author', true );
+				$first_name  = '';
+				$last_name   = '';
+				$url         = '';
+				$nice        = '';
+				$description = '';
 			} else {
 				$author = $author->post_author;
 			}
@@ -1523,14 +1528,15 @@ abstract class WPCOM_JSON_API_Endpoint {
 
 				return null;
 			}
-			$id         = $user->ID;
-			$email      = $user->user_email;
-			$login      = $user->user_login;
-			$name       = $user->display_name;
-			$first_name = $user->first_name;
-			$last_name  = $user->last_name;
-			$url        = $user->user_url;
-			$nice       = $user->user_nicename;
+			$id          = $user->ID;
+			$email       = $user->user_email;
+			$login       = $user->user_login;
+			$name        = $user->display_name;
+			$first_name  = $user->first_name;
+			$last_name   = $user->last_name;
+			$url         = $user->user_url;
+			$nice        = $user->user_nicename;
+			$description = $user->description;
 		}
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM && ! $is_jetpack ) {
 			/**
@@ -1581,6 +1587,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 			'first_name'  => (string) $first_name,
 			'last_name'   => (string) $last_name,
 			'nice_name'   => (string) $nice,
+			'description' => (string) $description,
 			'URL'         => (string) esc_url_raw( $url ),
 			'avatar_URL'  => (string) esc_url_raw( $avatar_url ),
 			'profile_URL' => (string) esc_url_raw( $profile_url ),
@@ -1600,12 +1607,14 @@ abstract class WPCOM_JSON_API_Endpoint {
 				$user                  = get_user_by( 'id', $id );
 				$author['wpcom_id']    = isset( $user->ID ) ? (int) $user->ID : null;
 				$author['wpcom_login'] = $user->user_login ?? '';
+				$author['description'] = $user->description ?? '';
 			} else {
 				// If this is a Jetpack site, use the connection manager to get the user data.
 				$wpcom_user_data = ( new Manager() )->get_connected_user_data( $id );
 				if ( $wpcom_user_data && isset( $wpcom_user_data['ID'] ) ) {
 					$author['wpcom_id']    = (int) $wpcom_user_data['ID'];
 					$author['wpcom_login'] = $wpcom_user_data['login'] ?? '';
+					$author['description'] = $wpcom_user_data['description'] ?? '';
 				}
 			}
 		}
