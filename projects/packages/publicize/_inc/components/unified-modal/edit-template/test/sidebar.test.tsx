@@ -189,6 +189,49 @@ describe( 'Sidebar', () => {
 			} );
 		} );
 
+		it( 'should switch imageType from default to none when default image is deleted', async () => {
+			( useMediaDetails as jest.Mock ).mockReturnValue( [ {}, true ] );
+			render(
+				<Sidebar
+					localState={ { ...defaultLocalState, imageType: 'default' } }
+					setLocalState={ mockSetLocalState }
+					defaultImageId={ 789 }
+					featuredImageId={ 456 }
+				/>
+			);
+
+			await waitFor( () => {
+				expect( mockSetLocalState ).toHaveBeenCalled();
+				const updater = mockSetLocalState.mock.calls[ 0 ][ 0 ];
+				const newState = updater( { ...defaultLocalState, imageType: 'default' } );
+				expect( newState ).toEqual( expect.objectContaining( { imageType: 'none' } ) );
+			} );
+		} );
+
+		it( 'should hide Default Image option when default image does not exist', async () => {
+			const user = userEvent.setup();
+			// useMediaDetails returns isNotFound=true for the deleted default image
+			( useMediaDetails as jest.Mock ).mockReturnValue( [ {}, true ] );
+			render(
+				<Sidebar
+					localState={ { ...defaultLocalState, imageType: 'featured' } }
+					setLocalState={ mockSetLocalState }
+					defaultImageId={ 789 }
+					featuredImageId={ 456 }
+				/>
+			);
+
+			// Need to click Select image since there's no preview (media not found)
+			const selectButton = screen.getByText( 'Select image' );
+			await user.click( selectButton );
+
+			await waitFor( () => {
+				expect( screen.getByText( 'Featured Image' ) ).toBeInTheDocument();
+				expect( screen.getByText( 'Media Library' ) ).toBeInTheDocument();
+				expect( screen.queryByText( 'Default Image' ) ).not.toBeInTheDocument();
+			} );
+		} );
+
 		it( 'should show warning notice when featured image is not set', () => {
 			( useMediaDetails as jest.Mock ).mockReturnValue( [ {} ] );
 			render(

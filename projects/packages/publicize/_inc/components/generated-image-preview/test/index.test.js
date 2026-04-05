@@ -74,7 +74,9 @@ describe( 'GeneratedImagePreview', () => {
 		render( <GeneratedImagePreview /> );
 
 		await waitFor( () => {
-			expect( apiFetch ).toHaveBeenCalledWith( getPostBody( 'Custom text', 'dois' ) );
+			expect( apiFetch ).toHaveBeenCalledWith(
+				expect.objectContaining( getPostBody( 'Custom text', 'dois' ) )
+			);
 		} );
 	} );
 
@@ -83,7 +85,9 @@ describe( 'GeneratedImagePreview', () => {
 		render( <GeneratedImagePreview /> );
 
 		await waitFor( () => {
-			expect( apiFetch ).toHaveBeenCalledWith( getPostBody( 'Title', 'dois' ) );
+			expect( apiFetch ).toHaveBeenCalledWith(
+				expect.objectContaining( getPostBody( 'Title', 'dois' ) )
+			);
 		} );
 	} );
 
@@ -98,6 +102,18 @@ describe( 'GeneratedImagePreview', () => {
 				`https://jetpack.com/redirect/?source=sigenerate&query=t%3D${ TEST_TOKEN }`
 			);
 		} );
+	} );
+
+	it( 'should not show the spinner on image error', async () => {
+		render( <GeneratedImagePreview /> );
+
+		const image = screen.queryByRole( 'img' );
+		fireEvent.error( image );
+
+		await waitFor( () => {
+			expect( screen.queryByTestId( 'spinner' ) ).not.toBeInTheDocument();
+		} );
+		expect( image ).not.toHaveClass( 'hidden' );
 	} );
 
 	it( 'should not show the spinner on image load', async () => {

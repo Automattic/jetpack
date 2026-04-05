@@ -53,6 +53,10 @@ export default function GeneratedImagePreview( {
 		setImageLoaded( true );
 	}, [] );
 
+	const onImageError = useCallback( () => {
+		setImageLoaded( true );
+	}, [] );
+
 	// Reset imageLoaded when URL changes
 	const prevUrlRef = useCallback(
 		( node: HTMLImageElement | null ) => {
@@ -75,6 +79,7 @@ export default function GeneratedImagePreview( {
 						src={ url ?? undefined }
 						alt={ __( 'Generated preview', 'jetpack-publicize-pkg' ) }
 						onLoad={ onImageLoad }
+						onError={ onImageError }
 					/>
 					{ isLoading && <Spinner data-testid="spinner" /> }
 				</div>

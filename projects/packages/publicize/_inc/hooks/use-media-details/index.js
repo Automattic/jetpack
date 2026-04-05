@@ -88,29 +88,49 @@ const getMediaDetails = async media => {
  * Hook to handle storing the attached media.
  *
  * @param {number} mediaId - ID of the current media in the Media Lib.
- * @return {[ mediaDetails: import('./types').MediaDetails ]} - The media details
+ * @return {[ mediaDetails: import('./types').MediaDetails, isNotFound?: boolean ]} - The media details and whether the attachment was not found
  */
 export default function useMediaDetails( mediaId = null ) {
 	const [ mediaDetails, setMediaDetails ] = useState( [ {} ] );
 
-	const mediaObject = useSelect(
-		select =>
-			select( 'core' ).getEntityRecord( 'postType', 'attachment', mediaId, { context: 'view' } ),
+	const { mediaObject, hasResolved } = useSelect(
+		select => {
+			if ( ! mediaId ) {
+				return { mediaObject: null, hasResolved: true };
+			}
+			return {
+				mediaObject: select( 'core' ).getEntityRecord( 'postType', 'attachment', mediaId, {
+					context: 'view',
+				} ),
+				hasResolved: select( 'core' ).hasFinishedResolution( 'getEntityRecord', [
+					'postType',
+					'attachment',
+					mediaId,
+					{ context: 'view' },
+				] ),
+			};
+		},
 		[ mediaId ]
 	);
 
+	// If resolution finished but attachment doesn't exist, treat as no media
+	const resolvedMedia = mediaObject || ( hasResolved ? null : undefined );
+
 	const getAsyncDetails = useCallback( async () => {
 		try {
-			const details = await getMediaDetails( mediaObject );
+			const details = await getMediaDetails( resolvedMedia );
 			setMediaDetails( [ details ?? {} ] );
 		} catch {
 			setMediaDetails( [ {} ] );
 		}
-	}, [ mediaObject ] );
+	}, [ resolvedMedia ] );
 
 	useEffect( () => {
 		getAsyncDetails();
 	}, [ getAsyncDetails ] );
 
-	return mediaDetails;
+	// Return whether the media was resolved but not found (deleted attachment)
+	const isNotFound = hasResolved && ! mediaObject && !! mediaId;
+
+	return [ mediaDetails[ 0 ], isNotFound ];
 }

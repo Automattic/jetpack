@@ -90,16 +90,18 @@ describe( 'useSigPreview', () => {
 			expect( result.current.isLoading ).toBe( false );
 		} );
 
-		expect( apiFetch ).toHaveBeenCalledWith( {
-			path: 'wpcom/v2/publicize/social-image-generator/generate-token',
-			method: 'POST',
-			data: {
-				text: 'Test Post Title',
-				image_url: 'https://example.com/image.jpg',
-				template: 'flavor',
-				font: 'roboto',
-			},
-		} );
+		expect( apiFetch ).toHaveBeenCalledWith(
+			expect.objectContaining( {
+				path: 'wpcom/v2/publicize/social-image-generator/generate-token',
+				method: 'POST',
+				data: {
+					text: 'Test Post Title',
+					image_url: 'https://example.com/image.jpg',
+					template: 'flavor',
+					font: 'roboto',
+				},
+			} )
+		);
 		expect( mockSetToken ).toHaveBeenCalledWith( 'test-token-123' );
 		expect( result.current.url ).toBe( 'https://example.com/sigenerate?t=test-token-123' );
 	} );
@@ -184,6 +186,57 @@ describe( 'useSigPreview', () => {
 		clearTimeoutSpy.mockRestore();
 	} );
 
+	it( 'should abort in-flight fetch when deps change', async () => {
+		// Use a promise that we can control to keep the fetch in-flight
+		let resolveApiFetch;
+		apiFetch.mockImplementation(
+			( { signal } ) =>
+				new Promise( ( resolve, reject ) => {
+					resolveApiFetch = resolve;
+					signal.addEventListener( 'abort', () =>
+						reject( new DOMException( 'Aborted', 'AbortError' ) )
+					);
+				} )
+		);
+
+		const { result, rerender } = renderHook(
+			( { enabled } ) => useSigPreview( enabled, { shouldDebounce: false } ),
+			{ initialProps: { enabled: true } }
+		);
+
+		// Trigger the fetch
+		await act( async () => {
+			jest.runAllTimers();
+		} );
+
+		expect( apiFetch ).toHaveBeenCalledTimes( 1 );
+		// Still loading — fetch hasn't resolved
+		expect( result.current.isLoading ).toBe( true );
+
+		// Change deps to trigger cleanup, which should abort the fetch
+		apiFetch.mockResolvedValue( 'new-token' );
+		useImageGeneratorConfig.mockReturnValue( {
+			...mockImageGeneratorConfig,
+			customText: 'Changed',
+		} );
+		rerender( { enabled: true } );
+
+		// The aborted fetch should not update state
+		// Resolve the original promise to verify it's ignored
+		resolveApiFetch?.( 'stale-token' );
+
+		await act( async () => {
+			jest.runAllTimers();
+		} );
+
+		await waitFor( () => {
+			expect( result.current.isLoading ).toBe( false );
+		} );
+
+		// URL should be from the new fetch, not the stale one
+		expect( result.current.url ).toBe( 'https://example.com/sigenerate?t=new-token' );
+	} );
+
 	it( 'should return null URL when disabled even if previously had URL', async () => {
 		const { result, rerender } = renderHook( ( { enabled } ) => useSigPreview( enabled ), {
 			initialProps: { enabled: true },
@@ -202,6 +255,49 @@ describe( 'useSigPreview', () => {
 
 		expect( result.current.url ).toBeNull();
 		expect( result.current.isLoading ).toBe( false );
+	} );
+
+	it( 'should stop loading when apiFetch rejects', async () => {
+		apiFetch.mockRejectedValue( new Error( 'Token generation failed' ) );
+
+		const { result } = renderHook( () => useSigPreview( true ) );
+
+		expect( result.current.isLoading ).toBe( true );
+
+		await act( async () => {
+			jest.runAllTimers();
+		} );
+
+		await waitFor( () => {
+			expect( result.current.isLoading ).toBe( false );
+		} );
+
+		expect( result.current.url ).toBeNull();
+	} );
+
+	it( 'should stop loading when attachment is resolved but missing', async () => {
+		useSelect.mockReturnValue( {
+			title: 'Test Post Title',
+			imageUrl: null,
+		} );
+
+		const { result } = renderHook( () => useSigPreview( true ) );
+
+		await act( async () => {
+			jest.runAllTimers();
+		} );
+
+		await waitFor( () => {
+			expect( result.current.isLoading ).toBe( false );
+		} );
+
+		expect( apiFetch ).toHaveBeenCalledWith(
+			expect.objectContaining( {
+				data: expect.objectContaining( {
+					image_url: null,
+				} ),
+			} )
+		);
 	} );
 
 	it( 'should use space as fallback when no title and no custom text', async () => {
