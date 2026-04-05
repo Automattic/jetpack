@@ -16,7 +16,9 @@ class Admin_Menu {
 	const PACKAGE_VERSION = '0.6.0';
 
 	/**
-	 * Redirect source slug used as the upgrade URL identifier and CSS class.
+	 * Slug used for the upgrade menu item and redirect URL.
+	 *
+	 * Keep the slug in sync with `$upgrade-menu-slug` at admin-ui-upgrade-menu.scss
 	 *
 	 * @var string
 	 */
@@ -54,7 +56,7 @@ class Admin_Menu {
 			self::handle_akismet_menu();
 			add_action( 'admin_menu', array( __CLASS__, 'admin_menu_hook_callback' ), 1000 ); // Jetpack uses 998.
 			add_action( 'network_admin_menu', array( __CLASS__, 'admin_menu_hook_callback' ), 1000 ); // Jetpack uses 998.
-			add_action( 'admin_head', array( __CLASS__, 'add_upgrade_menu_item_styles' ) );
+			add_action( 'admin_enqueue_scripts', array( __CLASS__, 'add_upgrade_menu_item_styles' ) );
 		}
 	}
 
@@ -345,10 +347,10 @@ class Admin_Menu {
 	}
 
 	/**
-	 * Outputs inline CSS to style the "Upgrade Jetpack" menu item in Jetpack green.
+	 * Enqueues admin styles for the "Upgrade Jetpack" menu item.
 	 *
-	 * The sidebar menu is visible on every admin page, so styles must load globally.
-	 * Only outputs for free-plan sites on self-hosted installs.
+	 * The sidebar menu is visible on every admin page, so styles load globally.
+	 * Only enqueues for free-plan sites on self-hosted installs.
 	 *
 	 * @return void
 	 */
@@ -356,14 +358,15 @@ class Admin_Menu {
 		if ( ! self::should_show_upgrade_menu() ) {
 			return;
 		}
-		?>
-		<style>
-			#adminmenu li.<?php echo esc_attr( self::UPGRADE_MENU_SLUG ); ?> > a,
-			#adminmenu li.<?php echo esc_attr( self::UPGRADE_MENU_SLUG ); ?> > a:hover {
-				color: #069e08 !important;
-				font-weight: 600;
-			}
-		</style>
-		<?php
+
+		$asset_file = dirname( __DIR__ ) . '/build/admin-ui-upgrade-menu.asset.php';
+		$asset      = file_exists( $asset_file ) ? require $asset_file : array();
+
+		wp_enqueue_style(
+			'jetpack-admin-ui-upgrade-menu',
+			plugins_url( '../build/admin-ui-upgrade-menu.css', __FILE__ ),
+			$asset['dependencies'] ?? array(),
+			$asset['version'] ?? self::PACKAGE_VERSION
+		);
 	}
 }

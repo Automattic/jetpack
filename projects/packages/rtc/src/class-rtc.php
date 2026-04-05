@@ -10,6 +10,7 @@
 
 namespace Automattic\Jetpack;
 
+use Automattic\Jetpack\RTC\REST_Connection_Log;
 use Automattic\Jetpack\RTC\REST_Pinghub_Token;
 
 /**
@@ -130,6 +131,10 @@ class RTC {
 	 */
 	public static function register_rest_routes() {
 		( new REST_Pinghub_Token() )->register_routes();
+
+		if ( function_exists( 'log2logstash' ) ) {
+			( new REST_Connection_Log() )->register_routes();
+		}
 	}
 
 	/**
@@ -166,7 +171,8 @@ class RTC {
 
 		$data = wp_json_encode(
 			array(
-				'providers' => $providers,
+				'providers'         => $providers,
+				'connectionLogging' => function_exists( 'log2logstash' ),
 			),
 			JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 		);

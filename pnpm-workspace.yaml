@@ -32,6 +32,9 @@ minimumReleaseAgeExclude:
   - '@wordpress/*'
   # GHSA-wh4c-j3r5-mjhp
   - '@xmldom/xmldom@0.9.9'
+  # Renovate security update: lodash-es@4.18.1
+  - lodash-es@4.18.1
+  - lodash@4.18.1
 trustPolicy: no-downgrade
 trustPolicyExclude:
   # https://github.com/paulmillr/chokidar/issues/1440

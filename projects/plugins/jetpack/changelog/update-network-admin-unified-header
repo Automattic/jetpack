@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Network Admin: Replace legacy PHP masthead on Network Sites and Network Settings pages with the unified AdminPage header from @automattic/jetpack-components.

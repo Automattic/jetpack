@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+RTC: Enforce peer limit per post instead of globally across all posts

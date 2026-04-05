@@ -143,6 +143,11 @@ const classicPolyfills = [
 		packageName: '@wordpress/theme',
 		library: [ 'wp', 'theme' ],
 	},
+	{
+		name: 'views',
+		packageName: '@wordpress/views',
+		library: [ 'wp', 'views' ],
+	},
 ];
 
 const modulePolyfills = [
