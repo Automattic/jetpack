@@ -12,11 +12,7 @@
 
 import { test as baseTest, expect } from '_jetpack-e2e-commons/fixtures/base-test';
 import JetpackBoostPage from '../pages/jetpack-boost-page';
-import {
-	FullStackUtils,
-	activateBoostModuleDev,
-	deactivateBoostModuleDev,
-} from '../utils/full-stack-utils';
+import { FullStackUtils } from '../utils/full-stack-utils';
 
 const test = baseTest.extend<
 	{ jetpackBoostPage: JetpackBoostPage },
@@ -51,4 +47,4 @@ test.afterEach( async ( { fullStackUtils }, testInfo ) => {
 	}
 } );
 
-export { test, expect, activateBoostModuleDev, deactivateBoostModuleDev };
+export { test, expect };

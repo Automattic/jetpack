@@ -9,44 +9,13 @@
  */
 
 import { execFile } from 'child_process';
-import { readFileSync, mkdirSync, existsSync } from 'fs';
-import { join, dirname } from 'path';
+import { mkdirSync, existsSync } from 'fs';
+import { dirname } from 'path';
 import { promisify } from 'util';
 import { test as setup, expect } from '@playwright/test';
-import { executeCommand } from '_jetpack-e2e-commons/utils/cli';
+import { getDevDomain, executeDevWpCommand } from './utils/full-stack-utils';
 
 const execFileAsync = promisify( execFile );
-
-/**
- * Read DEV_DOMAIN from the boost-cloud .env file.
- *
- * @return {string} The dev domain, or 'jetpack-boost.test' as fallback.
- */
-function getDevDomain(): string {
-	const dir = process.env.BOOST_CLOUD_DIR!;
-	try {
-		const envContent = readFileSync( join( dir, '.env' ), 'utf8' );
-		const match = envContent.match( /^DEV_DOMAIN=(.+)$/m );
-		return match?.[ 1 ] ?? 'jetpack-boost.test';
-	} catch {
-		return 'jetpack-boost.test';
-	}
-}
-
-/**
- * Execute a WP-CLI command against the dev WordPress container.
- *
- * @param  command - WP-CLI command string or argument array.
- * @return {Promise<string>} Command stdout.
- */
-async function executeDevWpCommand( command: string | string[] ): Promise< string > {
-	const devDomain = getDevDomain();
-	const base = [ 'pnpm', 'jetpack', 'docker', 'wp', '--', `--url=http://${ devDomain }` ];
-	if ( Array.isArray( command ) ) {
-		return executeCommand( [ ...base, ...command ] );
-	}
-	return executeCommand( [ ...base, ...command.trim().split( /\s+/ ) ] );
-}
 
 /**
  * Execute a Docker CLI command via child_process.execFile.
@@ -161,9 +130,10 @@ setup( 'full-stack environment health check', async ( { request } ) => {
 
 	// Gate 7: No debug-critical-css-providers.php mu-plugin
 	await setup.step( 'debug-critical-css-providers mu-plugin is not present', async () => {
-		const output = await executeDevWpCommand(
-			"eval \"echo file_exists(WPMU_PLUGIN_DIR . '/debug-critical-css-providers.php') ? 'EXISTS' : 'NOT_FOUND';\""
-		);
+		const output = await executeDevWpCommand( [
+			'eval',
+			"echo file_exists(WPMU_PLUGIN_DIR . '/debug-critical-css-providers.php') ? 'EXISTS' : 'NOT_FOUND';",
+		] );
 		expect(
 			output.trim(),
 			'debug-critical-css-providers.php is present in mu-plugins. ' +

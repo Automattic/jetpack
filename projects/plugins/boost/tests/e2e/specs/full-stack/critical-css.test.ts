@@ -7,7 +7,7 @@
  * Requires: Jetpack dev Docker + boost-cloud Docker + boost-developer plugin
  */
 
-import { test, expect, activateBoostModuleDev } from '../../lib/fixtures/full-stack-test';
+import { test, expect } from '../../lib/fixtures/full-stack-test';
 
 test.describe.serial( 'Full-stack Critical CSS generation', () => {
 	test.beforeAll( async ( { fullStackUtils } ) => {
@@ -18,9 +18,9 @@ test.describe.serial( 'Full-stack Critical CSS generation', () => {
 		await fullStackUtils.setBoostDevOption( 'css_mode', 'cloud' );
 
 		// Activating cloud_css triggers Cloud_CSS::activate() → Regenerate::start()
-		// via the jetpack_boost_module_status_updated action (added in Step 0b).
+		// via the jetpack_boost_module_status_updated action in the CLI.
 		// This sends a CSS generation request to Shield immediately.
-		await activateBoostModuleDev( 'cloud_css' );
+		await fullStackUtils.activateModule( 'cloud_css' );
 	} );
 
 	test( 'generates Critical CSS via Shield and Hydra', async ( {

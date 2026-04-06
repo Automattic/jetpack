@@ -122,11 +122,14 @@ class CLI {
 			);
 		}
 
-		$module->update( $status );
+		$updated = $module->update( $status );
 
 		// Fire the same action that the DataSync REST path fires (Modules_State_Entry::set),
 		// so CLI activation triggers module hooks like Cloud_CSS::activate() → Regenerate::start().
-		do_action( 'jetpack_boost_module_status_updated', $module_slug, $status );
+		// Only fire when the status actually changed, matching the DataSync guard.
+		if ( $updated ) {
+			do_action( 'jetpack_boost_module_status_updated', $module_slug, $status );
+		}
 
 		if ( $module_slug === 'page_cache' && $status ) {
 			$setup_result = Page_Cache_Setup::run_setup();

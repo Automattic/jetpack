@@ -100,30 +100,6 @@ export async function executeDevJetpackBoostCommand(
 }
 
 /**
- * Activate one or more Boost modules on the dev WordPress container.
- *
- * @param modules - Module slug(s) to activate.
- */
-export async function activateBoostModuleDev( modules: string | string[] ): Promise< void > {
-	const moduleArray = Array.isArray( modules ) ? modules : [ modules ];
-	for ( const mod of moduleArray ) {
-		await executeDevJetpackBoostCommand( `module activate ${ mod }` );
-	}
-}
-
-/**
- * Deactivate one or more Boost modules on the dev WordPress container.
- *
- * @param modules - Module slug(s) to deactivate.
- */
-export async function deactivateBoostModuleDev( modules: string | string[] ): Promise< void > {
-	const moduleArray = Array.isArray( modules ) ? modules : [ modules ];
-	for ( const mod of moduleArray ) {
-		await executeDevJetpackBoostCommand( `module deactivate ${ mod }` );
-	}
-}
-
-/**
  * Full-stack test utilities class.
  * Worker-scoped in the Playwright fixture (one instance per worker).
  */
@@ -297,6 +273,30 @@ export class FullStackUtils {
 			'boost-shield',
 			'boost-hydra-css',
 		] );
+	}
+
+	/**
+	 * Activate one or more Boost modules on the dev WordPress container.
+	 *
+	 * @param modules - Module slug(s) to activate.
+	 */
+	async activateModule( modules: string | string[] ): Promise< void > {
+		const moduleArray = Array.isArray( modules ) ? modules : [ modules ];
+		for ( const mod of moduleArray ) {
+			await executeDevJetpackBoostCommand( `module activate ${ mod }` );
+		}
+	}
+
+	/**
+	 * Deactivate one or more Boost modules on the dev WordPress container.
+	 *
+	 * @param modules - Module slug(s) to deactivate.
+	 */
+	async deactivateModule( modules: string | string[] ): Promise< void > {
+		const moduleArray = Array.isArray( modules ) ? modules : [ modules ];
+		for ( const mod of moduleArray ) {
+			await executeDevJetpackBoostCommand( `module deactivate ${ mod }` );
+		}
 	}
 
 	/**
