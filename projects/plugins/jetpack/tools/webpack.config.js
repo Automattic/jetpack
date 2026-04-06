@@ -48,6 +48,9 @@ const sharedWebpackConfig = {
 				includeNodeModules: [ '@automattic/', 'debug/' ],
 			} ),
 
+			// Workarounds for non-extracted `@wordpress/*` packages.
+			...jetpackWebpackConfig.BundledWpPkgsTranspileRules(),
+
 			// Handle CSS.
 			jetpackWebpackConfig.CssRule( {
 				extensions: [ 'css', 'sass', 'scss' ],
@@ -154,6 +157,7 @@ module.exports = [
 				},
 			},
 			'plugins-page': path.join( __dirname, '../_inc/client', 'plugins-entry.js' ),
+			'network-admin': path.join( __dirname, '../_inc/client', 'network-admin.tsx' ),
 		},
 		plugins: [
 			...sharedWebpackConfig.plugins,

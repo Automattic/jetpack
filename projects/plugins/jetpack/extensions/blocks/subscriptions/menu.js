@@ -39,7 +39,7 @@ const NewsletterMenu = ( { openPreviewModal } ) => {
 	return (
 		<PluginSidebar
 			name="jetpack-newsletter-settings-sidebar"
-			title={ __( 'Newsletter', 'jetpack' ) }
+			title={ 'Jetpack Newsletter' }
 			icon={ <SendIcon /> }
 			className="jetpack-newsletter-settings-sidebar"
 		>

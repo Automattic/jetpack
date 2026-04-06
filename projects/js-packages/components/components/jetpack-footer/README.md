@@ -1,20 +1,33 @@
 # Jetpack Admin Footer
 
 Component that renders Jetpack Admin Footer.
-It takes moduleName and URL to show in the footer.
 
-## How to use:
+## How to use
+
+Note that most of the time you would just use `admin-page` component, which includes the footer. If you must use footer independently, basic usage is:
 
 ```js
-<JetpackFooter moduleName="Jetpack Search" className="jp-dashboard-footer" />
+<JetpackFooter />
+```
+
+In special occasions you might want to use custom className or additional menu links:
+
+```js
+const menu = [
+  {
+    label: "Support",
+    href="https://wordpress.com/support/",
+  },
+  {
+    label: "Chat",
+    onClick: () => {},
+  }
+];
+
+<JetpackFooter menu={ menu } className="my-footer" />
 ```
 
 ## Props
 
-- `className`: String - (default: `jp-dashboard-footer`) the additional class name set on the element.
-- `moduleName`: String - (default: `Jetpack`) set the name of the Module, e.g. `Jetpack Search`.
-- `moduleNameHref`: String - (default: `https://jetpack.com`) link that the Module name will link to.
-- `menu`: JetpackFooterMenuItem[] - (default: `undefined`) set the menu items to be rendered in the footer.
-- `onAboutClick`: () => void - (default: `undefined`) function called when the About link is clicked.
-- `onPrivacyClick`: () => void - (default: `undefined`) function called when the Privacy link is clicked.
-- `onTermsClick`: () => void - (default: `undefined`) function called when the Terms link is clicked.
+- `className`: String - (default: `jetpack-footer`) the additional class name set on the element.
+- `menu`: JetpackFooterMenuItem[] - (default: `undefined`) set additional menu items to be rendered in the footer.

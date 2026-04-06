@@ -285,15 +285,8 @@ class Jetpack_Network {
 		add_menu_page( 'Jetpack', 'Jetpack', 'jetpack_network_admin_page', 'jetpack', array( $this, 'wrap_network_admin_page' ), $icon, 3 );
 		$jetpack_sites_page_hook    = add_submenu_page( 'jetpack', __( 'Jetpack Sites', 'jetpack' ), __( 'Sites', 'jetpack' ), 'jetpack_network_sites_page', 'jetpack', array( $this, 'wrap_network_admin_page' ) );
 		$jetpack_settings_page_hook = add_submenu_page( 'jetpack', __( 'Settings', 'jetpack' ), __( 'Settings', 'jetpack' ), 'jetpack_network_settings_page', 'jetpack-settings', array( $this, 'wrap_render_network_admin_settings_page' ) );
-		add_action( "admin_print_styles-$jetpack_sites_page_hook", array( 'Jetpack_Admin_Page', 'load_wrapper_styles' ) );
-		add_action( "admin_print_styles-$jetpack_settings_page_hook", array( 'Jetpack_Admin_Page', 'load_wrapper_styles' ) );
-		/**
-		 * As jetpack_register_genericons is by default fired off a hook,
-		 * the hook may have already fired by this point.
-		 * So, let's just trigger it manually.
-		 */
-		require_once JETPACK__PLUGIN_DIR . '_inc/genericons.php';
-		jetpack_register_genericons();
+		add_action( "load-$jetpack_sites_page_hook", array( $this, 'admin_init_network_page' ) );
+		add_action( "load-$jetpack_settings_page_hook", array( $this, 'admin_init_network_page' ) );
 	}
 
 	/**
@@ -513,10 +506,64 @@ class Jetpack_Network {
 	}
 
 	/**
-	 * A hook handler for adding admin pages and subpages.
+	 * Initializes assets for network admin pages.
+	 *
+	 * @since 15.7
+	 */
+	public function admin_init_network_page() {
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_network_admin_scripts' ) );
+	}
+
+	/**
+	 * Enqueues the JS and CSS for the unified network admin header.
+	 *
+	 * @since 15.7
+	 */
+	public function enqueue_network_admin_scripts() {
+		$build_dir         = JETPACK__PLUGIN_DIR . '_inc/build/';
+		$script_asset_path = $build_dir . 'network-admin.asset.php';
+
+		if ( ! file_exists( $script_asset_path ) ) {
+			return;
+		}
+
+		$script_asset = require $script_asset_path;
+
+		wp_enqueue_script(
+			'jetpack-network-admin',
+			plugins_url( '_inc/build/network-admin.js', JETPACK__PLUGIN_FILE ),
+			$script_asset['dependencies'],
+			$script_asset['version'],
+			true
+		);
+
+		wp_enqueue_style(
+			'jetpack-network-admin',
+			plugins_url( '_inc/build/network-admin.css', JETPACK__PLUGIN_FILE ),
+			array(),
+			$script_asset['version']
+		);
+
+		wp_set_script_translations( 'jetpack-network-admin', 'jetpack' );
+
+		wp_localize_script(
+			'jetpack-network-admin',
+			'JetpackNetworkAdminData',
+			array(
+				'sitesUrl'    => network_admin_url( 'admin.php?page=jetpack' ),
+				'settingsUrl' => network_admin_url( 'admin.php?page=jetpack-settings' ),
+			)
+		);
+	}
+
+	/**
+	 * Renders the Network Sites page with the unified admin header.
 	 */
 	public function wrap_network_admin_page() {
-		Jetpack_Admin_Page::wrap_ui( array( $this, 'network_admin_page' ) );
+		echo '<div id="jp-network-admin-root" data-page="sites"></div>';
+		echo '<div id="jp-network-admin-content" style="display:none">';
+		$this->network_admin_page();
+		echo '</div>';
 	}
 
 	/**
@@ -528,7 +575,6 @@ class Jetpack_Network {
 	 */
 	public function network_admin_page() {
 		global $current_site;
-		$this->network_admin_page_header();
 
 		$jp = Jetpack::init();
 
@@ -650,17 +696,19 @@ class Jetpack_Network {
 	}
 
 	/**
-	 * A hook handler for adding admin pages and subpages.
+	 * Renders the Network Settings page with the unified admin header.
 	 */
 	public function wrap_render_network_admin_settings_page() {
-		Jetpack_Admin_Page::wrap_ui( array( $this, 'render_network_admin_settings_page' ) );
+		echo '<div id="jp-network-admin-root" data-page="settings"></div>';
+		echo '<div id="jp-network-admin-content" style="display:none">';
+		$this->render_network_admin_settings_page();
+		echo '</div>';
 	}
 
 	/**
 	 * A hook rendering the admin settings page.
 	 */
 	public function render_network_admin_settings_page() {
-		$this->network_admin_page_header();
 		$options = wp_parse_args( get_site_option( $this->settings_name ), $this->setting_defaults );
 
 		$modules      = array();

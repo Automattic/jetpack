@@ -55,9 +55,6 @@ class Blaze {
 		add_action( 'enqueue_block_editor_assets', array( __CLASS__, 'enqueue_block_editor_assets' ) );
 		// Add a Blaze Menu.
 		add_action( 'admin_menu', array( __CLASS__, 'enable_blaze_menu' ), 999 );
-		// Redirect old tools.php URL to the canonical admin.php URL.
-		// Hooked early on admin_menu so it runs before WordPress validates the page parameter.
-		add_action( 'admin_menu', array( __CLASS__, 'redirect_legacy_advertising_url' ), 1 );
 		// Add Blaze dashboard app REST API endpoints.
 		add_action( 'rest_api_init', array( new Blaze_Dashboard_REST_Controller(), 'register_rest_routes' ) );
 		// Add general Blaze REST API endpoints.
@@ -110,198 +107,31 @@ class Blaze {
 			return;
 		}
 
-		/**
-		 * Filter the menu page slug used for the Blaze dashboard.
-		 *
-		 * @since $$next-version$$
-		 *
-		 * @param string $menu_slug The menu page slug. Default 'advertising'.
-		 */
-		$menu_slug = apply_filters( 'jetpack_blaze_menu_slug', 'advertising' );
-
-		/**
-		 * Filter the menu label for the Blaze dashboard menu item.
-		 *
-		 * @since $$next-version$$
-		 *
-		 * @param string $menu_label The menu label. Default 'Blaze Ads'.
-		 */
-		$menu_label = apply_filters( 'jetpack_blaze_menu_label', __( 'Blaze Ads', 'jetpack-blaze' ) );
-
-		/**
-		 * Filter the CSS class prefix for the Blaze dashboard.
-		 *
-		 * @since $$next-version$$
-		 *
-		 * @param string $css_prefix The CSS class prefix. Default 'jp-blaze'.
-		 */
-		$css_prefix = apply_filters( 'jetpack_blaze_dashboard_css_prefix', 'jp-blaze' );
-
-		$parent_slug     = self::get_menu_parent();
-		$blaze_dashboard = new Blaze_Dashboard( 'admin.php', $menu_slug, $css_prefix );
+		$blaze_dashboard = new Blaze_Dashboard();
 
 		if ( self::is_dashboard_enabled() ) {
-			if ( self::has_site_campaigns() ) {
-				$page_suffix = add_menu_page(
-					esc_attr( $menu_label ),
-					$menu_label,
-					'manage_options',
-					$menu_slug,
-					array( $blaze_dashboard, 'render' ),
-					'dashicons-megaphone',
-					30
-				);
-			} else {
-				$page_suffix = add_submenu_page(
-					$parent_slug,
-					esc_attr( $menu_label ),
-					$menu_label,
-					'manage_options',
-					$menu_slug,
-					array( $blaze_dashboard, 'render' ),
-					1
-				);
-			}
+			$page_suffix = add_submenu_page(
+				'tools.php',
+				esc_attr__( 'Advertising', 'jetpack-blaze' ),
+				__( 'Advertising', 'jetpack-blaze' ),
+				'manage_options',
+				'advertising',
+				array( $blaze_dashboard, 'render' ),
+				1
+			);
 			add_action( 'load-' . $page_suffix, array( $blaze_dashboard, 'admin_init' ) );
 		} elseif ( ( new Host() )->is_wpcom_platform() ) {
-			$domain = ( new Jetpack_Status() )->get_site_suffix();
-			$url    = 'https://wordpress.com/advertising/' . $domain;
-
-			if ( self::has_site_campaigns() ) {
-				$page_suffix = add_menu_page(
-					esc_attr( $menu_label ),
-					$menu_label,
-					'manage_options',
-					$url,
-					null, // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539
-					'dashicons-megaphone',
-					30
-				);
-			} else {
-				$page_suffix = add_submenu_page(
-					$parent_slug,
-					esc_attr( $menu_label ),
-					$menu_label,
-					'manage_options',
-					$url,
-					null, // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539
-					1
-				);
-			}
+			$domain      = ( new Jetpack_Status() )->get_site_suffix();
+			$page_suffix = add_submenu_page(
+				'tools.php',
+				esc_attr__( 'Advertising', 'jetpack-blaze' ),
+				__( 'Advertising', 'jetpack-blaze' ),
+				'manage_options',
+				'https://wordpress.com/advertising/' . $domain,
+				null, // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539
+				1
+			);
 			add_action( 'load-' . $page_suffix, array( $blaze_dashboard, 'admin_init' ) );
-		}
-	}
-
-	/**
-	 * Determine the appropriate parent menu slug based on the installation context.
-	 *
-	 * - WooCommerce active: parent is 'woocommerce-marketing'
-	 * - WPCOM platform or Jetpack connected: parent is 'jetpack'
-	 * - Otherwise: parent is 'tools.php'
-	 *
-	 * @return string The parent menu slug.
-	 */
-	public static function get_menu_parent() {
-		if ( class_exists( 'WooCommerce' ) ) {
-			// Only use woocommerce-marketing if the menu is actually registered.
-			global $menu;
-			foreach ( (array) $menu as $item ) {
-				if ( isset( $item[2] ) && 'woocommerce-marketing' === $item[2] ) {
-					$parent = 'woocommerce-marketing';
-
-					/**
-					 * Filter the parent menu slug for the Blaze dashboard submenu item.
-					 *
-					 * @since $$next-version$$
-					 *
-					 * @param string $parent The parent menu slug.
-					 */
-					return apply_filters( 'jetpack_blaze_menu_parent', $parent );
-				}
-			}
-		}
-
-		if ( ( new Host() )->is_wpcom_platform() ) {
-			/** This filter is documented above. */
-			return apply_filters( 'jetpack_blaze_menu_parent', 'jetpack' );
-		}
-
-		// should_initialize() already checks Jetpack connection, so if we reach
-		// enable_blaze_menu() on a self-hosted site, the site is connected.
-		$connection = new Jetpack_Connection();
-		if ( $connection->is_connected() ) {
-			/** This filter is documented above. */
-			return apply_filters( 'jetpack_blaze_menu_parent', 'jetpack' );
-		}
-
-		/** This filter is documented above. */
-		return apply_filters( 'jetpack_blaze_menu_parent', 'tools.php' );
-	}
-
-	/**
-	 * Check whether the site has any Blaze campaigns.
-	 *
-	 * Results are cached in a transient for one hour. On error the method
-	 * returns false so the menu falls back to a submenu entry.
-	 *
-	 * @return bool
-	 */
-	public static function has_site_campaigns() {
-		$site_id = Jetpack_Connection::get_site_id();
-
-		if ( is_wp_error( $site_id ) || ! is_numeric( $site_id ) ) {
-			return false;
-		}
-
-		$transient_name = 'jetpack_blaze_has_site_campaigns_' . $site_id;
-		$cached_result  = get_transient( $transient_name );
-
-		if ( false !== $cached_result ) {
-			return 'yes' === $cached_result;
-		}
-
-		// Use the site-specific stats endpoint so we count all campaigns
-		// belonging to this site regardless of status (including those in moderation).
-		$url      = sprintf( '/sites/%d/wordads/dsp/api/v1/campaigns/site/%d/stats', $site_id, $site_id );
-		$response = Client::wpcom_json_api_request_as_user(
-			$url,
-			'2',
-			array( 'method' => 'GET' ),
-			null,
-			'wpcom'
-		);
-
-		if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
-			set_transient( $transient_name, 'no', HOUR_IN_SECONDS );
-			return false;
-		}
-
-		$result      = json_decode( wp_remote_retrieve_body( $response ), true );
-		$has_active  = is_array( $result ) && ! empty( $result['total'] );
-		$cache_value = $has_active ? 'yes' : 'no';
-
-		set_transient( $transient_name, $cache_value, HOUR_IN_SECONDS );
-
-		return $has_active;
-	}
-
-	/**
-	 * Redirect the legacy tools.php?page=advertising URL to admin.php?page=advertising.
-	 *
-	 * @return void
-	 */
-	public static function redirect_legacy_advertising_url() {
-		global $pagenow;
-
-		if (
-			'tools.php' === $pagenow
-			&& isset( $_GET['page'] ) // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			&& 'advertising' === $_GET['page'] // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		) {
-			/** This filter is documented in Blaze::enable_blaze_menu() */
-			$menu_slug = apply_filters( 'jetpack_blaze_menu_slug', 'advertising' );
-			wp_safe_redirect( admin_url( 'admin.php?page=' . $menu_slug ), 302 );
-			exit;
 		}
 	}
 
@@ -469,9 +299,7 @@ class Blaze {
 	 */
 	public static function get_campaign_management_url( $post_id ) {
 		if ( self::is_dashboard_enabled() ) {
-			/** This filter is documented in Blaze::enable_blaze_menu() */
-			$menu_slug = apply_filters( 'jetpack_blaze_menu_slug', 'advertising' );
-			$admin_url = admin_url( 'admin.php?page=' . $menu_slug );
+			$admin_url = admin_url( 'tools.php?page=advertising' );
 			$hostname  = wp_parse_url( get_site_url(), PHP_URL_HOST );
 			$blaze_url = sprintf(
 				'%1$s#!/advertising/posts/promote/post-%2$s/%3$s',

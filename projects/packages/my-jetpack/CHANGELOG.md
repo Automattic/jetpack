@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.34.1] - 2026-04-06
+### Changed
+- AI product page: Remove Write Brief (Breve) video showcase section. [#47914]
+- Reorder admin menu items so external links appear last. [#47418]
+- Update admin page footer design. [#47840]
+- Update package dependencies. [#47870]
+
+## [5.34.0] - 2026-03-30
+### Changed
+- Update DataViews dependency. [#46973]
+- Update Newsletter manage URL to default to new WP Admin settings page. [#47750]
+- Update package dependencies. [#47799]
+
+### Fixed
+- Suppress backup failure and scan threat notifications on multisite installations where these products are not supported. [#47284]
+
 ## [5.33.0] - 2026-03-23
 ### Added
 - Display MCP client actor attribution in My Jetpack backup card. [#47429]
@@ -2581,6 +2597,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[5.34.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.34.0...5.34.1
+[5.34.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.33.0...5.34.0
 [5.33.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.32.0...5.33.0
 [5.32.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.31.9...5.32.0
 [5.31.9]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.31.8...5.31.9

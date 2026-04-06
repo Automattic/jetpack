@@ -8,7 +8,6 @@ import {
 	JetpackLogo,
 	getRedirectUrl,
 } from '@automattic/jetpack-components';
-import { shouldUseInternalLinks } from '@automattic/jetpack-shared-extension-utils';
 import { formatNumberCompact } from '@automattic/number-formatters';
 import { Button, Card, ExternalLink } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
@@ -88,11 +87,7 @@ export default function ProtectProductPage() {
 	const securityFeaturesUrl = getRedirectUrl( 'jetpack-security' );
 
 	return (
-		<AdminPage
-			showHeader={ false }
-			showBackground={ true }
-			useInternalLinks={ shouldUseInternalLinks() }
-		>
+		<AdminPage showHeader={ false } showBackground={ true }>
 			<Container fluid horizontalSpacing={ 3 } horizontalGap={ 2 }>
 				{ /* Header Section */ }
 				<Col className={ clsx( styles[ 'product-interstitial__section' ] ) }>

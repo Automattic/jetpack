@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Add 'note' to the default whitelisted comment types and centralize the list in the Defaults class.

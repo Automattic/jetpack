@@ -60,25 +60,7 @@ function wpcom_rtc_is_plan_owner() {
  * Enqueue block editor assets for RTC notices and limits.
  */
 function wpcom_enqueue_rtc_notices_assets() {
-	global $pagenow;
-
 	if ( ! \Automattic\Jetpack\RTC::is_enabled() ) {
-		return;
-	}
-
-	// Real-time collaboration is not enabled in the site editor.
-	if (
-		'site-editor.php' === $pagenow ||
-		( 'admin.php' === $pagenow && isset( $_GET['page'] ) && 'site-editor-v2' === sanitize_text_field( wp_unslash( $_GET['page'] ) ) ) // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-	) {
-		return;
-	}
-
-	// Don't show notices if the user has turned off RTC in Writing Settings.
-	// Both the old and new option names must be false to consider it disabled.
-	$old_option = get_option( 'wp_enable_real_time_collaboration', false );
-	$new_option = get_option( 'wp_collaboration_enabled', false );
-	if ( ! $old_option && ! $new_option ) {
 		return;
 	}
 

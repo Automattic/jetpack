@@ -10,6 +10,8 @@ const MSG_SYNC = 0x00;
 const MSG_AWARENESS = 0x01;
 const RECONNECT_BASE_DELAY_MS = 1000;
 const RECONNECT_MAX_DELAY_MS = 30 * 1000;
+const MAX_RECONNECT_ATTEMPTS = 5;
+const STABLE_CONNECTION_MS = 30 * 1000;
 const PINGHUB_MANAGER_ORIGIN = 'pinghub-manager';
 
 interface RegisterRoomOptions {
@@ -44,6 +46,8 @@ class PingHubConnection {
 	private syncStep1RepliedTo = new Set< number >();
 	public reconnectTimer: ReturnType< typeof setTimeout > | null = null;
 	public reconnectDelay = RECONNECT_BASE_DELAY_MS;
+	public reconnectAttempts = 0;
+	private stableConnectionTimer: ReturnType< typeof setTimeout > | null = null;
 
 	public constructor( options: RegisterRoomOptions ) {
 		this.room = options.room;
@@ -68,6 +72,11 @@ class PingHubConnection {
 	public destroy(): void {
 		if ( this.connected ) {
 			this.removeAwareness( 'provider-destroy' );
+		}
+
+		if ( this.stableConnectionTimer !== null ) {
+			clearTimeout( this.stableConnectionTimer );
+			this.stableConnectionTimer = null;
 		}
 
 		if ( this.reconnectTimer !== null ) {
@@ -174,6 +183,11 @@ class PingHubConnection {
 		if ( this.reconnectTimer !== null ) {
 			return;
 		}
+		if ( this.reconnectAttempts >= MAX_RECONNECT_ATTEMPTS ) {
+			this.onStatusChange( { status: 'disconnected' } );
+			return;
+		}
+		this.reconnectAttempts++;
 		this.reconnectTimer = setTimeout( () => {
 			this.reconnectTimer = null;
 			if ( rooms.has( this.room ) ) {
@@ -192,8 +206,21 @@ class PingHubConnection {
 		}
 		this.connected = true;
 		this.syncStep1RepliedTo.clear();
-		this.reconnectDelay = RECONNECT_BASE_DELAY_MS;
 		this.onStatusChange( { status: 'connected' } );
+
+		// Reset backoff state only after the connection has been stable for
+		// a while. If the connection closes immediately (e.g. server rejects
+		// after auth), the counters are preserved so MAX_RECONNECT_ATTEMPTS
+		// is respected and we don't loop forever.
+		if ( this.stableConnectionTimer !== null ) {
+			clearTimeout( this.stableConnectionTimer );
+		}
+		this.stableConnectionTimer = setTimeout( () => {
+			this.stableConnectionTimer = null;
+			this.reconnectDelay = RECONNECT_BASE_DELAY_MS;
+			this.reconnectAttempts = 0;
+			bridge?.resetJwtState();
+		}, STABLE_CONNECTION_MS );
 
 		this.sendSyncStep1();
 
@@ -213,6 +240,10 @@ class PingHubConnection {
 	 */
 	private handleWsClose = (): void => {
 		this.connected = false;
+		if ( this.stableConnectionTimer !== null ) {
+			clearTimeout( this.stableConnectionTimer );
+			this.stableConnectionTimer = null;
+		}
 		if ( ! rooms.has( this.room ) ) {
 			return;
 		}
@@ -376,6 +407,7 @@ function handleVisibilityChange(): void {
 		return;
 	}
 	isUnloadPending = false;
+	bridge?.resetJwtState();
 	for ( const [ , connection ] of rooms ) {
 		if ( connection.connected ) {
 			continue;
@@ -385,6 +417,7 @@ function handleVisibilityChange(): void {
 			connection.reconnectTimer = null;
 		}
 		connection.reconnectDelay = RECONNECT_BASE_DELAY_MS;
+		connection.reconnectAttempts = 0;
 		connection.connect();
 	}
 }

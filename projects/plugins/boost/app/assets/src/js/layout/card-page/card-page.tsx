@@ -1,5 +1,5 @@
-import Footer from '$layout/footer/footer';
 import BoostAdminPage from '$layout/boost-admin-page/boost-admin-page';
+import { JetpackFooter } from '@automattic/jetpack-components';
 import BackButton from '$features/ui/back-button/back-button';
 import JetpackLogo from '$svg/jetpack-green';
 import clsx from 'clsx';
@@ -40,7 +40,7 @@ const CardPage = ( {
 				</div>
 
 				<div className={ styles.footer }>
-					<Footer />
+					<JetpackFooter />
 				</div>
 			</div>
 		</BoostAdminPage>

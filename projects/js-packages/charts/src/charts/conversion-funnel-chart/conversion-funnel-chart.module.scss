@@ -1,7 +1,7 @@
-.conversionFunnelChart {
+.conversion-funnel-chart {
 	font-family: var(--funnel-font-family, "SF Pro Text");
 
-	&.loading {
+	&--loading {
 		opacity: 0.6;
 		pointer-events: none;
 	}
@@ -53,9 +53,12 @@
 	display: flex;
 	flex-direction: column;
 	height: 100%;
-	transition: all 0.3s ease;
 
-	&.blurred {
+	&--animated {
+		transition: opacity 0.3s ease;
+	}
+
+	&--blurred {
 		opacity: 0.3;
 	}
 }
@@ -95,24 +98,12 @@
 	border-radius: 4px;
 	position: relative;
 	cursor: pointer;
-	transition: all 0.2s ease;
-
-
-	&.disabled {
-		cursor: pointer;
-	}
 }
 
 .funnel-bar {
 	width: 100%;
 	min-height: 4px;
 	border-radius: 4px 4px 0 0;
-	transition: all 0.3s ease;
-
-	&.selected {
-		box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
-		filter: brightness(1.1);
-	}
 
 	&--animated {
 		transform-origin: bottom;
