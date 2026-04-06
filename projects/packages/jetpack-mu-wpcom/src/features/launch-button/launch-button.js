@@ -1,5 +1,4 @@
 import { useExperimentWithAuth } from '@automattic/jetpack-explat';
-import { getSiteData } from '@automattic/jetpack-script-data';
 import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
 import { useState } from 'react';
@@ -37,15 +36,15 @@ export function LaunchButton( { onCelebrationModalClose } ) {
 	const [ , data ] = useExperimentWithAuth( 'calypso_standardized_site_launch_gating' );
 	const [ showCelebrateLaunchModal, setShowCelebrateLaunchModal ] = useState( false );
 
-	const siteData = getSiteData();
-
-	const { mutate: launchSite } = useLaunchSiteMutation( () => setShowCelebrateLaunchModal( true ) );
+	const { mutate: launchSite } = useLaunchSiteMutation( launchButtonData.blogId, () =>
+		setShowCelebrateLaunchModal( true )
+	);
 
 	// Default experience. Markup should match what's coming from the back-end.
 	if ( ! data || data.variationName !== 'ungated_site_launch' ) {
 		// Maybe this data can come from the server.
 		const launchUrl = addQueryArgs( 'https://wordpress.com/start/launch-site', {
-			siteSlug: siteData.suffix,
+			siteSlug: launchButtonData.siteDomain,
 			ref: 'wp-admin',
 		} );
 
