@@ -3,7 +3,7 @@
 #jpcrm-top-menu {
 	padding: var(--wpds-dimension-padding-xl, 16px) var(--wpds-dimension-padding-2xl, 24px) 0;
 	display: block;
-	background-color: #fff;
+	background-color: var(--wpds-color-bg-surface-neutral-strong, #fff);
 
 	.logo-cube {
 		display: flex;
@@ -29,7 +29,7 @@
 		.jpcrm-fullscreen-toggle {
 			opacity: 0;
 			font-size: 17px;
-			color: rgba(0, 0, 0, 0.4);
+			color: var(--wpds-color-fg-content-neutral-weak, #6d6d6d);
 			transition: opacity 0.2s;
 			margin: 0;
 		}
@@ -49,14 +49,11 @@
 		border-bottom: var(--wpds-border-width-xs, 1px) solid var(--wpds-color-stroke-surface-neutral-weak, #dcdcde);
 
 		menu-section {
-
-			font-size: 14px;
-			font-family: Lato, "Helvetica Neue", Arial, Helvetica, sans-serif;
 			display: flex;
 			align-items: center;
 
 			.item {
-				color: var(--jp-black) !important;
+				color: var(--wpds-color-fg-content-neutral, #1e1e1e) !important;
 				padding: 1em;
 				line-height: 1;
 
@@ -91,14 +88,14 @@
 
 					i {
 						margin-right: 10px;
-						color: rgba(0, 0, 0, 0.4);
+						color: var(--wpds-color-fg-content-neutral-weak, #6d6d6d);
 					}
 				}
 
 				&:hover {
 
 					.item i {
-						color: rgba(0, 0, 0, 0.87);
+						color: var(--wpds-color-fg-content-neutral, #1e1e1e);
 					}
 				}
 			}
