@@ -6,6 +6,10 @@ import SuggestionBadge from '../components/suggestion-badge';
 import SuggestAllButton from '../components/suggest-all-button';
 import { VALID_SECTIONS } from '../constants';
 
+// React roots created here are never explicitly unmounted. This is safe because the
+// Guidelines page is a traditional wp-admin page — navigating away triggers a full
+// page reload, which destroys all JS state including these roots.
+
 let headerInjected = false;
 
 function injectHeaderButton() {
