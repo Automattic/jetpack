@@ -58,14 +58,15 @@ export function injectHeaderButton() {
 		return true;
 	}
 
-	const header = document.querySelector( '.admin-ui-page__header' );
-	if ( ! header ) {
+	// Target the actions slot inside the header row, not the outer header column.
+	const actionsSlot = document.querySelector( '.admin-ui-page__header-actions' );
+	if ( ! actionsSlot ) {
 		return false;
 	}
 
 	const container = document.createElement( 'div' );
 	container.className = 'jetpack-content-guidelines-ai__header-container';
-	header.appendChild( container );
+	actionsSlot.appendChild( container );
 	createRoot( container ).render( createElement( SuggestAllButton ) );
 
 	headerInjected = true;
