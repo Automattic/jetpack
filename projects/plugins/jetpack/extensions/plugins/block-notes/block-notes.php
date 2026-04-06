@@ -68,7 +68,7 @@ function has_paid_ai_plan() {
 	/**
 	 * Filter whether the site has a paid AI plan.
 	 *
-	 * @since $$next-version$$
+	 * @since 15.7
 	 *
 	 * @param bool $has_paid_plan Whether the site has a paid AI plan.
 	 */

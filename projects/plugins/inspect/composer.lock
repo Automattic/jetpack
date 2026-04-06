@@ -66,7 +66,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/admin-ui",
-                "reference": "4a22370d0dcae70a9f3900a13bf4bcd69909438d"
+                "reference": "a3c1bc1f402db286170a9db91ff17a2a70c64298"
             },
             "require": {
                 "automattic/jetpack-redirect": "@dev",
@@ -93,7 +93,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-admin-ui/compare/${old}...${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.6.x-dev"
+                    "dev-trunk": "0.7.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
@@ -417,7 +417,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "f996ae5caff6b5b1980d0eba9c3b6fca03f590ab"
+                "reference": "fa0e4dada46afad497a55c5a5003a585224fe6b4"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
@@ -453,7 +453,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-connection/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "8.1.x-dev"
+                    "dev-trunk": "8.2.x-dev"
                 },
                 "dependencies": {
                     "test-only": [

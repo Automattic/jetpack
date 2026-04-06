@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fix conversion funnel chart color flicker on initial render by deferring CSS transitions until the color palette is resolved.

@@ -326,13 +326,21 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 15.7-a.7 - 2026-03-30
-#### Enhancements
-- Add 'note' to the default whitelisted comment types for Sync.
+### 15.7-beta - 2026-04-06
+#### Major Enhancements
+- AI Assistant: Disable the Write Brief (Breve) proofreading feature by default. It can be re-enabled via the 'breve_enabled' filter.
+- Jetpack AI Image Generation & Editing: Evolve & enhance Jetpack AI Image Generation.
 
-#### Bug fixes
-- Forms: Only show form blocks under the "Forms" category of the block inserter.
-- Newsletter Email Status: Add per-post access control to the newsletter email sent status endpoint.
+#### Enhancements
+- Admin Menu: Reorder menu items so that links opening in new windows appear last.
+- Block Notes: Update enablement logic to use AI feature checks and gate feature behind a paid Jetpack AI plan.
+- Network Admin: Replace legacy PHP masthead on Network Sites and Network Settings pages with the unified AdminPage header from @automattic/jetpack-components.
+- Settings: Align tab navigation font and color with WordPress design system tokens.
+- Update admin page footer with Products and Help navigation links, replacing About, Privacy, and Terms links.
+- Update network admin settings visually.
+
+#### Improved compatibility
+- External Media: ensure that the new WordPress "Embed video from URL" option appears in the Cover block options alongside Jetpack's External Media options.
 
 --------
 

@@ -64,7 +64,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-admin-ui/compare/${old}...${new}"
 		},
 		"branch-alias": {
-			"dev-trunk": "0.6.x-dev"
+			"dev-trunk": "0.7.x-dev"
 		},
 		"dependencies": {
 			"test-only": [
