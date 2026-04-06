@@ -44,24 +44,9 @@ trustPolicyExclude:
   - reselect@5.1.1
 
   # Packages where newer majors have provenance but we're still on an older one.
-  - '@octokit/endpoint@9.0.6'
-  - '@octokit/plugin-paginate-rest@9.2.2'
-  - '@oxc-parser/binding-darwin-arm64@0.78.0'
-  - '@oxc-parser/binding-darwin-x64@0.78.0'
-  - '@oxc-parser/binding-linux-arm64-gnu@0.78.0'
-  - '@oxc-parser/binding-linux-arm64-musl@0.78.0'
-  - '@oxc-parser/binding-linux-arm-gnueabihf@0.78.0'
-  - '@oxc-parser/binding-linux-x64-gnu@0.78.0'
-  - '@oxc-parser/binding-linux-x64-musl@0.78.0'
-  - '@oxc-parser/binding-wasm32-wasi@0.78.0'
-  - '@oxc-parser/binding-win32-arm64-msvc@0.78.0'
-  - '@oxc-parser/binding-win32-x64-msvc@0.78.0'
   - rollup@3.30.0
   - rxjs@7.8.2
   - semver@6.3.1
-  - svelte@4.2.19
-  - undici@5.29.0
-  - undici-types@6.21.0
 
 # Package compromise avoidance: require dep build script approval.
 strictDepBuilds: true
