@@ -2,6 +2,7 @@ import { createReduxStore, register } from '@wordpress/data';
 
 const DEFAULT_STATE = {
 	loading: false,
+	loadingSections: {},
 	suggestions: {},
 };
 
@@ -20,6 +21,12 @@ const actions = {
 	},
 	clearAllSuggestions() {
 		return { type: 'CLEAR_ALL_SUGGESTIONS' };
+	},
+	startSectionLoading( slug ) {
+		return { type: 'START_SECTION_LOADING', slug };
+	},
+	stopSectionLoading( slug ) {
+		return { type: 'STOP_SECTION_LOADING', slug };
 	},
 };
 
@@ -41,6 +48,16 @@ function reducer( state = DEFAULT_STATE, action ) {
 		}
 		case 'CLEAR_ALL_SUGGESTIONS':
 			return { ...state, suggestions: {} };
+		case 'START_SECTION_LOADING':
+			return {
+				...state,
+				loadingSections: { ...state.loadingSections, [ action.slug ]: true },
+			};
+		case 'STOP_SECTION_LOADING': {
+			const loadingSections = { ...state.loadingSections };
+			delete loadingSections[ action.slug ];
+			return { ...state, loadingSections };
+		}
 		default:
 			return state;
 	}
@@ -61,6 +78,9 @@ const selectors = {
 	},
 	hasSuggestions( state ) {
 		return Object.keys( state.suggestions ).length > 0;
+	},
+	isSectionLoading( state, slug ) {
+		return state.loading || !! state.loadingSections[ slug ];
 	},
 };
 

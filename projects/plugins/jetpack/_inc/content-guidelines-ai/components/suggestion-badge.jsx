@@ -4,13 +4,16 @@ import { __ } from '@wordpress/i18n';
 import { AI_STORE_NAME } from '../store';
 
 export default function SuggestionBadge( { slug } ) {
-	const loading = useSelect( select => select( AI_STORE_NAME ).isLoading(), [] );
+	const sectionLoading = useSelect(
+		select => select( AI_STORE_NAME ).isSectionLoading( slug ),
+		[ slug ]
+	);
 	const hasSuggestion = useSelect(
 		select => select( AI_STORE_NAME ).hasSuggestion( slug ),
 		[ slug ]
 	);
 
-	if ( loading && ! hasSuggestion ) {
+	if ( sectionLoading && ! hasSuggestion ) {
 		return (
 			<span className="jetpack-content-guidelines-ai__badge jetpack-content-guidelines-ai__badge--loading">
 				<Spinner />

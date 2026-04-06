@@ -12,6 +12,7 @@
 	font-size: 13px;
 }
 
+// Badge in accordion headers.
 .jetpack-content-guidelines-ai__badge-container {
 	display: inline-flex;
 	align-items: center;
@@ -45,6 +46,7 @@
 	height: 16px;
 }
 
+// Suggestion preview inside accordion.
 .jetpack-content-guidelines-ai__suggestion {
 	margin-bottom: 16px;
 }
@@ -58,4 +60,15 @@
 	display: flex;
 	gap: 8px;
 	margin-top: 8px;
+}
+
+// Hide Gutenberg's DataForm and Save/Clear when a suggestion is active.
+.has-jetpack-suggestion > .components-v-stack > .dataforms-layouts-regular,
+.has-jetpack-suggestion > .components-v-stack > .components-h-stack {
+	display: none;
+}
+
+// Per-section generate button container.
+.jetpack-content-guidelines-ai__section-button-container {
+	display: inline-flex;
 }

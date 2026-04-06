@@ -1,6 +1,6 @@
 import { Button, TextareaControl } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
-import { useCallback } from '@wordpress/element';
+import { useCallback, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { STORE_NAME } from '../constants';
 import { AI_STORE_NAME } from '../store';
@@ -12,6 +12,19 @@ export default function SuggestionActions( { slug } ) {
 	);
 	const { clearSuggestion } = useDispatch( AI_STORE_NAME );
 	const { setGuideline } = useDispatch( STORE_NAME );
+
+	// Toggle a class on the form to hide Gutenberg's DataForm + buttons when suggestion is active.
+	useEffect( () => {
+		const form = document.getElementById( `content-guidelines-${ slug }` );
+		if ( ! form ) {
+			return;
+		}
+		if ( suggestion ) {
+			form.classList.add( 'has-jetpack-suggestion' );
+		} else {
+			form.classList.remove( 'has-jetpack-suggestion' );
+		}
+	}, [ slug, suggestion ] );
 
 	const handleAccept = useCallback( () => {
 		setGuideline( slug, suggestion );
@@ -29,6 +42,8 @@ export default function SuggestionActions( { slug } ) {
 	return (
 		<div className="jetpack-content-guidelines-ai__suggestion">
 			<TextareaControl
+				label={ __( 'Suggested guidelines', 'jetpack' ) }
+				hideLabelFromVision
 				value={ suggestion }
 				readOnly
 				rows={ 6 }
