@@ -23,9 +23,19 @@ export default function SuggestAllButton() {
 	}, [] );
 
 	const allEmpty = VALID_SECTIONS.every( slug => ! allGuidelines[ slug ] );
+	const hasSuggestions = useSelect(
+		select => VALID_SECTIONS.some( slug => select( AI_STORE_NAME ).hasSuggestion( slug ) ),
+		[]
+	);
+
+	// Show "Generate" when empty, "Improve" when content exists.
 	const label = allEmpty
 		? __( 'Generate guidelines', 'jetpack' )
 		: __( 'Improve guidelines', 'jetpack' );
+
+	// Hide when the banner is visible (all empty, no suggestions, not loading).
+	const bannerVisible = allEmpty && ! hasSuggestions && ! loading;
+	const style = bannerVisible ? { display: 'none' } : undefined;
 
 	const handleClick = useCallback( async () => {
 		if ( showUnavailableNotice( createWarningNotice ) ) {
@@ -61,15 +71,16 @@ export default function SuggestAllButton() {
 
 	return (
 		<Button
+			style={ style }
 			variant="primary"
-			icon={ <JetpackLogo size={ 20 } /> }
+			icon={ <JetpackLogo size={ 8 } /> }
 			onClick={ handleClick }
 			disabled={ loading }
 			accessibleWhenDisabled
 			isBusy={ loading }
 			className="jetpack-content-guidelines-ai__suggest-all-button"
 		>
-			{ loading ? __( 'Generating\u2026', 'jetpack' ) : label }
+			{ label }
 		</Button>
 	);
 }

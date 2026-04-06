@@ -10,24 +10,25 @@ export default function SuggestionActions( { slug } ) {
 		select => select( AI_STORE_NAME ).getSuggestion( slug ),
 		[ slug ]
 	);
+	const sectionLoading = useSelect(
+		select => select( AI_STORE_NAME ).isSectionLoading( slug ),
+		[ slug ]
+	);
 	const { clearSuggestion } = useDispatch( AI_STORE_NAME );
 	const { setGuideline } = useDispatch( STORE_NAME );
 
-	// Toggle a class on the form to hide Gutenberg's DataForm + buttons when suggestion is active.
+	// Toggle classes on the form for suggestion visibility and shimmer loading effect.
 	useEffect( () => {
 		const form = document.getElementById( `content-guidelines-${ slug }` );
 		if ( ! form ) {
 			return;
 		}
-		if ( suggestion ) {
-			form.classList.add( 'has-jetpack-suggestion' );
-		} else {
-			form.classList.remove( 'has-jetpack-suggestion' );
-		}
+		form.classList.toggle( 'has-jetpack-suggestion', !! suggestion );
+		form.classList.toggle( 'is-jetpack-loading', sectionLoading && ! suggestion );
 		return () => {
-			form.classList.remove( 'has-jetpack-suggestion' );
+			form.classList.remove( 'has-jetpack-suggestion', 'is-jetpack-loading' );
 		};
-	}, [ slug, suggestion ] );
+	}, [ slug, suggestion, sectionLoading ] );
 
 	const handleAccept = useCallback( () => {
 		setGuideline( slug, suggestion );
@@ -49,7 +50,6 @@ export default function SuggestionActions( { slug } ) {
 				hideLabelFromVision
 				value={ suggestion }
 				readOnly
-				rows={ 6 }
 				className="jetpack-content-guidelines-ai__suggestion-text"
 			/>
 			<div className="jetpack-content-guidelines-ai__suggestion-actions">

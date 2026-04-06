@@ -1,3 +1,4 @@
+import { Badge } from '@automattic/jetpack-components';
 import { Spinner } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
@@ -15,7 +16,7 @@ export default function SuggestionBadge( { slug } ) {
 
 	if ( sectionLoading && ! hasSuggestion ) {
 		return (
-			<span className="jetpack-content-guidelines-ai__badge jetpack-content-guidelines-ai__badge--loading">
+			<span className="jetpack-content-guidelines-ai__badge--loading">
 				<Spinner />
 			</span>
 		);
@@ -23,9 +24,9 @@ export default function SuggestionBadge( { slug } ) {
 
 	if ( hasSuggestion ) {
 		return (
-			<span className="jetpack-content-guidelines-ai__badge jetpack-content-guidelines-ai__badge--suggestion">
+			<Badge variant="success">
 				{ __( 'Suggestion', 'jetpack' ) }
-			</span>
+			</Badge>
 		);
 	}
 

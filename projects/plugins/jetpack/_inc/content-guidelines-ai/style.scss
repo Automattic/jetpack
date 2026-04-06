@@ -2,6 +2,11 @@
 	display: inline-flex;
 }
 
+.jetpack-content-guidelines-ai__suggest-all-button .jetpack-logo {
+	width: 18px;
+	height: 18px;
+}
+
 // Empty state banner.
 .jetpack-content-guidelines-ai__banner {
 	position: relative;
@@ -56,26 +61,6 @@
 	}
 }
 
-.jetpack-content-guidelines-ai__banner-close-text {
-	color: #48ff50 !important;
-
-	&:hover {
-		color: #3de046 !important;
-	}
-}
-
-.jetpack-content-guidelines-ai__banner-close {
-	position: absolute;
-	top: 8px;
-	right: 8px;
-	z-index: 1;
-	color: #fff !important;
-
-	&:hover {
-		color: #daffdc !important;
-	}
-}
-
 .jetpack-content-guidelines-ai__banner-orb {
 	position: absolute;
 	border-radius: 50%;
@@ -97,31 +82,15 @@
 }
 
 // Badge in accordion headers.
+// Jetpack CSS custom properties are normally set by ThemeProvider, which doesn't
+// wrap this page. Define the tokens our Badge component needs as fallbacks.
 .jetpack-content-guidelines-ai__badge-container {
+	--jp-green-5: #d0e6b8;
+	--jp-green-50: #008710;
+
 	display: inline-flex;
 	align-items: center;
 	margin-left: auto;
-}
-
-.jetpack-content-guidelines-ai__badge {
-	display: inline-flex;
-	align-items: center;
-	gap: 4px;
-	font-size: 12px;
-	font-weight: 500;
-	line-height: 1;
-	padding: 4px 8px;
-	border-radius: 12px;
-}
-
-.jetpack-content-guidelines-ai__badge--suggestion {
-	color: var(--jp-green-40, #00a32a);
-	background: var(--jp-green-0, #edfaef);
-}
-
-.jetpack-content-guidelines-ai__badge--suggestion::before {
-	content: "\2714";
-	font-size: 10px;
 }
 
 .jetpack-content-guidelines-ai__badge--loading .components-spinner {
@@ -131,28 +100,77 @@
 }
 
 // Suggestion preview inside accordion.
+// Match the VStack spacing={4} (16px gap) used by the Gutenberg form.
 .jetpack-content-guidelines-ai__suggestion {
-	margin-bottom: 16px;
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+}
+
+// Remove the default margin that TextareaControl adds via its wrapper.
+.jetpack-content-guidelines-ai__suggestion-text {
+	margin-bottom: 0;
 }
 
 .jetpack-content-guidelines-ai__suggestion-text textarea {
-	min-height: 120px;
 	background: var(--jp-gray-0, #f9f9f9);
 }
 
 .jetpack-content-guidelines-ai__suggestion-actions {
 	display: flex;
 	gap: 8px;
-	margin-top: 8px;
+}
+
+// Green shimmer overlay on the textarea during AI generation.
+// We make the textarea wrapper positioned so the ::after overlay works.
+.is-jetpack-loading .components-textarea-control {
+	position: relative;
+
+	&::after {
+		content: "";
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		pointer-events: none;
+		border-radius: 4px;
+		background: linear-gradient(90deg, transparent 0%, rgba(0, 135, 0, 0.08) 50%, transparent 100%);
+		background-size: 200% 100%;
+		animation: jetpack-cg-shimmer 1.5s infinite;
+		z-index: 1;
+	}
+}
+
+.is-jetpack-loading textarea {
+	border-color: var(--jp-green-40, #069e08) !important;
+	pointer-events: none;
+}
+
+@keyframes jetpack-cg-shimmer {
+	0% {
+		background-position: -200% 0;
+	}
+
+	100% {
+		background-position: 200% 0;
+	}
 }
 
 // Hide Gutenberg's DataForm and Save/Clear when a suggestion is active.
-.has-jetpack-suggestion > .components-v-stack > .dataforms-layouts-regular,
-.has-jetpack-suggestion > .components-v-stack > .components-h-stack {
+// Also hide the per-section generate button since Accept/Dismiss replaces it.
+.has-jetpack-suggestion > :first-child > :not(.jetpack-content-guidelines-ai__actions-container) {
 	display: none;
 }
 
-// Per-section generate button container.
+// Injected containers should not affect layout when their content is empty.
+// React root inside means :empty won't work, so we use zero-size when not active.
+.jetpack-content-guidelines-ai__actions-container,
 .jetpack-content-guidelines-ai__section-button-container {
+	display: contents;
+}
+
+// Per-section generate button.
+.jetpack-content-guidelines-ai__section-generate-button {
 	display: inline-flex;
 }

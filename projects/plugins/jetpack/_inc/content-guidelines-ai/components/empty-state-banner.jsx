@@ -47,8 +47,8 @@ export default function EmptyStateBanner() {
 		}
 	}, [ startLoading, stopLoading, setSuggestion, createWarningNotice, createErrorNotice ] );
 
-	// Hide when guidelines exist or suggestions are pending review.
-	if ( ! allEmpty || hasSuggestions ) {
+	// Hide when guidelines exist, suggestions are pending, or generation is in progress.
+	if ( ! allEmpty || hasSuggestions || loading ) {
 		return null;
 	}
 
