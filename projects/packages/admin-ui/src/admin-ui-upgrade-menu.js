@@ -10,8 +10,7 @@ domReady( function () {
 	}
 
 	const className = config.menuItemClass;
-	const eventName = config.tracksEventName;
-	if ( ! className || ! eventName ) {
+	if ( ! className ) {
 		return;
 	}
 
@@ -21,6 +20,14 @@ domReady( function () {
 		return;
 	}
 
-	item.classList.add( 'jptracks' );
-	item.setAttribute( 'data-jptracks-name', eventName );
+	const analytics = window.analytics;
+
+	// Initialize Tracks
+	if ( 'undefined' !== typeof analytics && config.tracksUserData ) {
+		analytics.initialize( config.tracksUserData.userid, config.tracksUserData.username );
+	}
+
+	item.addEventListener( 'click', function () {
+		analytics.tracks.recordEvent( 'jetpack_sidebar_free_upgrade_click', config.tracksEventData );
+	} );
 } );

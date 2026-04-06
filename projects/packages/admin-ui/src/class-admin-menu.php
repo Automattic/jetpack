@@ -7,6 +7,10 @@
 
 namespace Automattic\Jetpack\Admin_UI;
 
+use Automattic\Jetpack\Tracking;
+use Jetpack_Options;
+use Jetpack_Tracks_Client;
+
 /**
  * This class offers a wrapper to add_submenu_page and makes sure stand-alone plugin's menu items are always added under the Jetpack top level menu.
  * If the Jetpack top level was not previously registered by other plugin, it will be registered here.
@@ -23,13 +27,6 @@ class Admin_Menu {
 	 * @var string
 	 */
 	const UPGRADE_MENU_SLUG = 'jetpack-wpadmin-sidebar-free-plan-upsell-menu-item';
-
-	/**
-	 * Tracks event name for the upgrade submenu link (prefixed with `jetpack_` server-side).
-	 *
-	 * @var string
-	 */
-	const UPGRADE_MENU_TRACKS_EVENT_NAME = 'wp_admin_sidebar_upgrade_jetpack_click';
 
 	/**
 	 * Fallback upgrade URL when the Redirect class is unavailable.
@@ -376,42 +373,44 @@ class Admin_Menu {
 			$asset['version'] ?? self::PACKAGE_VERSION
 		);
 
-		self::maybe_enqueue_upgrade_menu_tracks_script( $asset );
+		self::enqueue_upgrade_menu_tracks_script( $asset );
 	}
 
 	/**
-	 * Enqueues Tracks (jptracks) for the upgrade submenu when the Connection package is available.
+	 * Enqueues Tracks for the upgrade submenu item.
 	 *
 	 * @param array $asset Parsed contents of admin-ui-upgrade-menu.asset.php.
 	 * @return void
 	 */
-	private static function maybe_enqueue_upgrade_menu_tracks_script( $asset ) {
+	private static function enqueue_upgrade_menu_tracks_script( $asset ) {
 		if ( ! class_exists( '\Automattic\Jetpack\Tracking' ) ) {
 			return;
 		}
 
-		( new \Automattic\Jetpack\Tracking( 'jetpack' ) )->enqueue_tracks_scripts();
-
-		$version = $asset['version'] ?? self::PACKAGE_VERSION;
-		$deps    = array_merge(
-			array( 'jquery', 'jptracks' ),
-			$asset['dependencies'] ?? array()
-		);
+		Tracking::register_tracks_functions_scripts( true );
 
 		wp_enqueue_script(
 			'jetpack-admin-ui-upgrade-menu',
 			plugins_url( '../build/admin-ui-upgrade-menu.js', __FILE__ ),
-			$deps,
-			$version,
+			$asset['dependencies'] ?? array(),
+			$asset['version'] ?? self::PACKAGE_VERSION,
 			true
 		);
+
+		$current_screen = get_current_screen();
+		$is_admin       = current_user_can( 'jetpack_disconnect' );
 
 		wp_localize_script(
 			'jetpack-admin-ui-upgrade-menu',
 			'jetpackAdminUiUpgradeMenu',
 			array(
 				'menuItemClass'   => self::UPGRADE_MENU_SLUG,
-				'tracksEventName' => self::UPGRADE_MENU_TRACKS_EVENT_NAME,
+				'tracksUserData'  => Jetpack_Tracks_Client::get_connected_user_tracks_identity(),
+				'tracksEventData' => array(
+					'isAdmin'       => $is_admin,
+					'currentScreen' => $current_screen ? $current_screen->id : false,
+					'blogID'        => Jetpack_Options::get_option( 'id' ),
+				),
 			)
 		);
 	}
