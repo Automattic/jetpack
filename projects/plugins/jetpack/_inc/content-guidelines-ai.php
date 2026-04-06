@@ -25,7 +25,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @param string $hook_suffix The current admin page hook suffix.
  */
 function jetpack_content_guidelines_ai_enqueue_scripts( $hook_suffix ) {
-	if ( 'settings_page_content-guidelines-wp-admin' !== $hook_suffix ) {
+	if ( 'settings_page_guidelines-wp-admin' !== $hook_suffix ) {
 		return;
 	}
 
