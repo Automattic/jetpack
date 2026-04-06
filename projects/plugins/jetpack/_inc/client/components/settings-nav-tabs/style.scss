@@ -159,7 +159,6 @@ $spacing-base: var(--spacing-base, 8px);
 		color: var(--wp-components-color-accent, var(--wp-admin-theme-color, #3858e9));
 	}
 
-	&:focus,
 	&:focus-visible {
 		outline-color: gb.$gray-100;
 	}
