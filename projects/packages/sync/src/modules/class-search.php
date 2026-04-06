@@ -772,6 +772,7 @@ class Search extends Module {
 		'translation_priority',
 
 		// woocommerce.
+		'documentation_category',
 		'pa_accessory-type',
 		'pa_actor',
 		'pa_age',
