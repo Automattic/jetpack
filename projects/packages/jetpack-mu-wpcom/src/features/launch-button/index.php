@@ -81,13 +81,9 @@ function wpcom_add_launch_button_to_admin_bar( WP_Admin_Bar $admin_bar ) {
  * Enqueue the necessary styles for the admin bar button.
  */
 function wpcom_enqueue_launch_button_styles() {
-	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- This is a context check, not a form submission.
-	$is_preview = isset( $_GET['preview'] ) && 'true' === sanitize_text_field( wp_unslash( $_GET['preview'] ) );
-
-	if ( ! current_user_can( 'manage_options' ) || $is_preview ) {
+	if ( ! current_user_can( 'manage_options' ) ) {
 		return;
 	}
-
 	$version = filemtime( __DIR__ . '/style.css' );
 	wp_enqueue_style( 'launch-banner', plugins_url( 'style.css', __FILE__ ), array(), $version );
 	$asset_file = include Jetpack_Mu_Wpcom::BASE_DIR . 'build/adminbar-launch-button/adminbar-launch-button.asset.php';
@@ -98,26 +94,6 @@ function wpcom_enqueue_launch_button_styles() {
 		$asset_file['version'] ?? filemtime( Jetpack_Mu_Wpcom::BASE_DIR . 'build/adminbar-launch-button/adminbar-launch-button.js' ),
 		true
 	);
-
-	$bundles      = function_exists( 'wpcom_get_site_purchases' ) ? wp_list_filter( wpcom_get_site_purchases(), array( 'product_type' => 'bundle' ) ) : array();
-	$current_plan = array_pop( $bundles );
-
-	$launch_button_data = wp_json_encode(
-		array(
-			'siteUrl'         => home_url(),
-			'siteDomain'      => wp_parse_url( home_url(), PHP_URL_HOST ),
-			'sitePlan'        => $current_plan,
-			'hasCustomDomain' => function_exists( 'wpcom_site_has_feature' ) && wpcom_site_has_feature( 'custom-domain' ),
-		),
-		JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
-	);
-
-	wp_add_inline_script(
-		'adminbar-launch-button',
-		"var JETPACK_LAUNCH_BUTTON_DATA = $launch_button_data;",
-		'before'
-	);
-
 	Common\wpcom_enqueue_tracking_scripts( 'adminbar-launch-button' );
 }
 

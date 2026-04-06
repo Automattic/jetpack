@@ -2188,9 +2188,6 @@ importers:
       debug:
         specifier: 4.4.3
         version: 4.4.3
-      wpcom-proxy-request:
-        specifier: ^7.0.7
-        version: 7.0.7
     devDependencies:
       '@automattic/jetpack-webpack-config':
         specifier: workspace:*
@@ -2656,12 +2653,6 @@ importers:
       '@automattic/jetpack-components':
         specifier: workspace:*
         version: link:../../js-packages/components
-      '@automattic/jetpack-explat':
-        specifier: workspace:*
-        version: link:../explat
-      '@automattic/jetpack-script-data':
-        specifier: workspace:*
-        version: link:../../js-packages/script-data
       '@automattic/jetpack-shared-extension-utils':
         specifier: workspace:*
         version: link:../../js-packages/shared-extension-utils
