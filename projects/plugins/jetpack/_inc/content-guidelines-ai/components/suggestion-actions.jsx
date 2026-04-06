@@ -1,6 +1,7 @@
-import { Button, TextareaControl } from '@wordpress/components';
+import { diffWords } from 'diff/lib/diff/word';
+import { Button } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
-import { useCallback, useEffect } from '@wordpress/element';
+import { useCallback, useEffect, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { STORE_NAME } from '../constants';
 import { AI_STORE_NAME } from '../store';
@@ -12,6 +13,10 @@ export default function SuggestionActions( { slug } ) {
 	);
 	const sectionLoading = useSelect(
 		select => select( AI_STORE_NAME ).isSectionLoading( slug ),
+		[ slug ]
+	);
+	const original = useSelect(
+		select => select( STORE_NAME ).getGuideline( slug ) || '',
 		[ slug ]
 	);
 	const { clearSuggestion } = useDispatch( AI_STORE_NAME );
@@ -30,6 +35,13 @@ export default function SuggestionActions( { slug } ) {
 		};
 	}, [ slug, suggestion, sectionLoading ] );
 
+	const diff = useMemo( () => {
+		if ( ! suggestion ) {
+			return [];
+		}
+		return diffWords( original, suggestion );
+	}, [ original, suggestion ] );
+
 	const handleAccept = useCallback( () => {
 		setGuideline( slug, suggestion );
 		clearSuggestion( slug );
@@ -45,13 +57,25 @@ export default function SuggestionActions( { slug } ) {
 
 	return (
 		<div className="jetpack-content-guidelines-ai__suggestion">
-			<TextareaControl
-				label={ __( 'Suggested guidelines', 'jetpack' ) }
-				hideLabelFromVision
-				value={ suggestion }
-				readOnly
-				className="jetpack-content-guidelines-ai__suggestion-text"
-			/>
+			<div className="jetpack-content-guidelines-ai__diff">
+				{ diff.map( ( part, i ) => {
+					if ( part.added ) {
+						return (
+							<ins key={ i } className="jetpack-content-guidelines-ai__diff-added">
+								{ part.value }
+							</ins>
+						);
+					}
+					if ( part.removed ) {
+						return (
+							<del key={ i } className="jetpack-content-guidelines-ai__diff-removed">
+								{ part.value }
+							</del>
+						);
+					}
+					return <span key={ i }>{ part.value }</span>;
+				} ) }
+			</div>
 			<div className="jetpack-content-guidelines-ai__suggestion-actions">
 				<Button variant="primary" onClick={ handleAccept }>
 					{ __( 'Accept suggestion', 'jetpack' ) }

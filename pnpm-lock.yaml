@@ -5141,6 +5141,9 @@ importers:
       deepmerge:
         specifier: 4.3.1
         version: 4.3.1
+      diff:
+        specifier: ^8.0.4
+        version: 8.0.4
       email-validator:
         specifier: 2.0.4
         version: 2.0.4
@@ -12172,6 +12175,10 @@ packages:
 
   diff@8.0.3:
     resolution: {integrity: sha512-qejHi7bcSD4hQAZE0tNAawRK1ZtafHDmMTMkrrIGgSLl7hTnQHmKCeB45xAcbfTqK2zowkM3j3bHt/4b/ARbYQ==}
+    engines: {node: '>=0.3.1'}
+
+  diff@8.0.4:
+    resolution: {integrity: sha512-DPi0FmjiSU5EvQV0++GFDOJ9ASQUVFh5kD+OzOnYdi7n3Wpm9hWWGfB/O2blfHcMVTL5WkQXSnRiK9makhrcnw==}
     engines: {node: '>=0.3.1'}
 
   dns-packet@5.6.1:
@@ -27206,6 +27213,8 @@ snapshots:
   diff@4.0.4: {}
 
   diff@8.0.3: {}
+
+  diff@8.0.4: {}
 
   dns-packet@5.6.1:
     dependencies:

@@ -108,12 +108,26 @@
 }
 
 // Remove the default margin that TextareaControl adds via its wrapper.
-.jetpack-content-guidelines-ai__suggestion-text {
-	margin-block-end: 0;
+// Word-level diff display.
+.jetpack-content-guidelines-ai__diff {
+	padding: 12px;
+	border: 1px solid #dcdcde;
+	border-radius: 4px;
+	background: var(--jp-gray-0, #f9f9f9);
+	font-size: 13px;
+	line-height: 20px;
+	white-space: pre-wrap;
+	word-wrap: break-word;
 }
 
-.jetpack-content-guidelines-ai__suggestion-text textarea {
-	background: var(--jp-gray-0, #f9f9f9);
+.jetpack-content-guidelines-ai__diff-added {
+	background: #d4edda;
+	text-decoration: none;
+}
+
+.jetpack-content-guidelines-ai__diff-removed {
+	background: #f8d7da;
+	text-decoration: line-through;
 }
 
 .jetpack-content-guidelines-ai__suggestion-actions {
