@@ -1,4 +1,4 @@
 Significance: minor
-Type: other
+Type: major
 
 AI Assistant: Deprecate the Write Brief (Breve) proofreading feature. The sidebar now shows a deprecation notice with a link to documentation instead of the feature UI. It can be re-enabled via the 'breve_enabled' filter.
