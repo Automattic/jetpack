@@ -45,7 +45,7 @@ function jetpack_content_guidelines_ai_enqueue_scripts( $hook_suffix ) {
 
 	wp_enqueue_style(
 		'jetpack-content-guidelines-ai',
-		plugins_url( '_inc/build/content-guidelines-ai.min.css', JETPACK__PLUGIN_FILE ),
+		plugins_url( '_inc/build/content-guidelines-ai.css', JETPACK__PLUGIN_FILE ),
 		array( 'wp-components' ),
 		$asset['version']
 	);
