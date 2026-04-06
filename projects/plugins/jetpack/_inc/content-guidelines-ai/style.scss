@@ -82,8 +82,9 @@
 }
 
 // Badge in accordion headers.
-// Jetpack CSS custom properties are normally set by ThemeProvider, which doesn't
-// wrap this page. Define the tokens our Badge component needs as fallbacks.
+// Jetpack CSS custom properties are normally set by
+// ThemeProvider, which doesn't wrap this page. Define
+// the tokens our Badge component needs as fallbacks.
 .jetpack-content-guidelines-ai__badge-container {
 	--jp-green-5: #d0e6b8;
 	--jp-green-50: #008710;
@@ -117,7 +118,7 @@
 	font-size: 13px;
 	line-height: 20px;
 	white-space: pre-wrap;
-	word-wrap: break-word;
+	overflow-wrap: break-word;
 }
 
 .jetpack-content-guidelines-ai__diff-added {
@@ -158,6 +159,7 @@
 	pointer-events: none;
 }
 
+
 @keyframes jetpack-cg-shimmer {
 	0% {
 		background-position: -200% 0;
@@ -175,7 +177,8 @@
 }
 
 // Injected containers should not affect layout when their content is empty.
-// React root inside means :empty won't work, so we use zero-size when not active.
+// React root inside means :empty won't work,
+// so we use display:contents when not active.
 .jetpack-content-guidelines-ai__actions-container,
 .jetpack-content-guidelines-ai__section-button-container {
 	display: contents;
