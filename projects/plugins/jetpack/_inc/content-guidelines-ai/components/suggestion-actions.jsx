@@ -1,4 +1,4 @@
-import { diffWords } from 'diff/lib/diff/word';
+import { diffWords } from 'diff';
 import { Button } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback, useEffect, useMemo } from '@wordpress/element';
