@@ -1,5 +1,6 @@
 import { createRoot, createElement } from '@wordpress/element';
 import GenerateButton from '../components/generate-button';
+import SuggestAllButton from '../components/suggest-all-button';
 import { VALID_SECTIONS } from '../constants';
 
 /**
@@ -44,17 +45,45 @@ export function injectButtons() {
 	return injectedCount === VALID_SECTIONS.length;
 }
 
+let headerInjected = false;
+
 /**
- * Start observing DOM and inject buttons when accordion forms appear.
- * Disconnects once all sections have been injected.
+ * Inject SuggestAllButton into the page header.
+ *
+ * @return {boolean} True if the header button has been injected.
+ */
+export function injectHeaderButton() {
+	if ( headerInjected ) {
+		return true;
+	}
+
+	const header = document.querySelector( '.admin-ui-page__header' );
+	if ( ! header ) {
+		return false;
+	}
+
+	const container = document.createElement( 'div' );
+	container.className = 'jetpack-content-guidelines-ai__header-container';
+	header.appendChild( container );
+	createRoot( container ).render( createElement( SuggestAllButton ) );
+
+	headerInjected = true;
+	return true;
+}
+
+/**
+ * Start observing DOM and inject all components.
+ * Disconnects once everything has been injected.
  */
 export function startInjection() {
-	if ( injectButtons() ) {
+	const allDone = () => injectButtons() && injectHeaderButton();
+
+	if ( allDone() ) {
 		return;
 	}
 
 	const observer = new MutationObserver( () => {
-		if ( injectButtons() ) {
+		if ( allDone() ) {
 			observer.disconnect();
 		}
 	} );
