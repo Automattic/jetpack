@@ -1,3 +1,4 @@
+import apiFetch from '@wordpress/api-fetch';
 import { API_PATH } from '../constants';
 
 const MOCK = true; // ← flip to false to use real API
@@ -39,7 +40,6 @@ export async function suggestGuidelines( sections, existingContent = {} ) {
 		data.existing_content = filtered;
 	}
 
-	const { default: apiFetch } = await import( '@wordpress/api-fetch' );
 	return apiFetch( {
 		path: API_PATH,
 		method: 'POST',
