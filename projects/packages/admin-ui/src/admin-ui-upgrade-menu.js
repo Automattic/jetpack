@@ -25,20 +25,6 @@ domReady( function () {
 		window.analytics.initialize( config.tracksUserData?.userid, config.tracksUserData?.username );
 	}
 
-	// Only record the "seen" event if the parent menu is open.
-	const parentTopLevelMenu = item.closest( '#toplevel_page_jetpack' );
-	const isParentMenuOpen =
-		parentTopLevelMenu &&
-		parentTopLevelMenu.classList.contains( 'wp-menu-open' ) &&
-		parentTopLevelMenu.classList.contains( 'wp-has-current-submenu' );
-
-	if ( isParentMenuOpen ) {
-		window.analytics.tracks.recordEvent(
-			'jetpack_sidebar_free_upgrade_seen',
-			config.tracksEventData
-		);
-	}
-
 	item.addEventListener( 'click', function () {
 		window.analytics.tracks.recordEvent(
 			'jetpack_sidebar_free_upgrade_click',

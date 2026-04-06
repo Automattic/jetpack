@@ -397,19 +397,21 @@ class Admin_Menu {
 			true
 		);
 
-		$current_screen = get_current_screen();
-		$is_admin       = current_user_can( 'jetpack_disconnect' );
+		$current_screen   = get_current_screen();
+		$is_admin         = current_user_can( 'jetpack_disconnect' );
+		$site_id          = class_exists( 'Jetpack_Options' ) ? Jetpack_Options::get_option( 'id' ) : null;
+		$tracks_user_data = class_exists( 'Jetpack_Tracks_Client' ) ? Jetpack_Tracks_Client::get_connected_user_tracks_identity() : null;
 
 		wp_localize_script(
 			'jetpack-admin-ui-upgrade-menu',
 			'jetpackAdminUiUpgradeMenu',
 			array(
 				'menuItemClass'   => self::UPGRADE_MENU_SLUG,
-				'tracksUserData'  => Jetpack_Tracks_Client::get_connected_user_tracks_identity(),
+				'tracksUserData'  => $tracks_user_data,
 				'tracksEventData' => array(
 					'isAdmin'       => $is_admin,
 					'currentScreen' => $current_screen ? $current_screen->id : false,
-					'blogID'        => Jetpack_Options::get_option( 'id' ),
+					'blogID'        => $site_id,
 				),
 			)
 		);
