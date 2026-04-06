@@ -880,14 +880,14 @@ class Woo_Sync_Background_Sync_Job {
 
 				} else {
 
-						$this->debug( 'Company import failed: <code>' . wp_json_encode( $crm_object_data['company'], JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . '</code>' );
+						$this->debug( 'Company import failed: <code>' . htmlspecialchars( wp_json_encode( $crm_object_data['company'], JSON_UNESCAPED_SLASHES ) ) . '</code>' );
 
 				}
 			}
 		} else {
 
 			// failed to add contact?
-			$this->debug( 'Contact import failed, or there was no contact to import. Contact Data: <code>' . wp_json_encode( $crm_object_data['contact'], JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . '</code>' );
+			$this->debug( 'Contact import failed, or there was no contact to import. Contact Data: <code>' . htmlspecialchars( wp_json_encode( $crm_object_data['contact'], JSON_UNESCAPED_SLASHES ) ) . '</code>' );
 
 		}
 
@@ -928,7 +928,7 @@ class Woo_Sync_Background_Sync_Job {
 
 			} else {
 
-				$this->debug( 'invoice import failed: <code>' . wp_json_encode( $crm_object_data['invoice'], JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . '</code>' );
+				$this->debug( 'invoice import failed: <code>' . htmlspecialchars( wp_json_encode( $crm_object_data['invoice'], JSON_UNESCAPED_SLASHES ) ) . '</code>' );
 
 			}
 		}
@@ -975,7 +975,7 @@ class Woo_Sync_Background_Sync_Job {
 			}
 		} else {
 
-			$this->debug( 'Transaction import failed: <code>' . wp_json_encode( $crm_object_data['transaction'], JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . '</code>' );
+			$this->debug( 'Transaction import failed: <code>' . htmlspecialchars( wp_json_encode( $crm_object_data['transaction'], JSON_UNESCAPED_SLASHES ) ) . '</code>' );
 
 		}
 
