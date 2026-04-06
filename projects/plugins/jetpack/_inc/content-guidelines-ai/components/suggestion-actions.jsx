@@ -22,7 +22,9 @@ export default function SuggestionActions( { slug } ) {
 	const { clearSuggestion } = useDispatch( AI_STORE_NAME );
 	const { setGuideline } = useDispatch( STORE_NAME );
 
-	// Toggle classes on the form for suggestion visibility and shimmer loading effect.
+	// Direct DOM class manipulation is necessary because this component is rendered in
+	// a separate React root injected into Gutenberg's page — we can't control classes
+	// on Gutenberg-owned elements through React props.
 	useEffect( () => {
 		const form = document.getElementById( `content-guidelines-${ slug }` );
 		if ( ! form ) {
