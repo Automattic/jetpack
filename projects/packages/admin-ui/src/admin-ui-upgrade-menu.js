@@ -27,6 +27,8 @@ domReady( function () {
 		analytics.initialize( config.tracksUserData.userid, config.tracksUserData.username );
 	}
 
+	analytics.tracks.recordEvent( 'jetpack_sidebar_free_upgrade_seen', config.tracksEventData );
+
 	item.addEventListener( 'click', function () {
 		analytics.tracks.recordEvent( 'jetpack_sidebar_free_upgrade_click', config.tracksEventData );
 	} );
