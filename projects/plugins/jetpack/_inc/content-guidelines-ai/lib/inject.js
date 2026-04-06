@@ -1,4 +1,5 @@
 import { createRoot, createElement } from '@wordpress/element';
+import EmptyStateBanner from '../components/empty-state-banner';
 import GenerateButton from '../components/generate-button';
 import SuggestAllButton from '../components/suggest-all-button';
 import { VALID_SECTIONS } from '../constants';
@@ -71,12 +72,38 @@ export function injectHeaderButton() {
 	return true;
 }
 
+let bannerInjected = false;
+
+/**
+ * Inject EmptyStateBanner before the guideline list.
+ *
+ * @return {boolean} True if the banner has been injected.
+ */
+export function injectBanner() {
+	if ( bannerInjected ) {
+		return true;
+	}
+
+	const list = document.querySelector( '.content-guidelines__list' );
+	if ( ! list ) {
+		return false;
+	}
+
+	const container = document.createElement( 'div' );
+	container.className = 'jetpack-content-guidelines-ai__banner-container';
+	list.parentElement.insertBefore( container, list );
+	createRoot( container ).render( createElement( EmptyStateBanner ) );
+
+	bannerInjected = true;
+	return true;
+}
+
 /**
  * Start observing DOM and inject all components.
  * Disconnects once everything has been injected.
  */
 export function startInjection() {
-	const allDone = () => injectButtons() && injectHeaderButton();
+	const allDone = () => injectButtons() && injectHeaderButton() && injectBanner();
 
 	if ( allDone() ) {
 		return;
