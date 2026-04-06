@@ -76,12 +76,32 @@ for ( const item of trustPolicyExclude.items ) {
 	}
 
 	const pkg = item.toJSON();
-	if ( ! packages[ pkg ] ) {
+	const pkgs = [];
+	if ( pkg.match( /@\d+(?:\.\d+)*$/ ) ) {
+		pkgs.push( pkg );
+	} else if ( pkg.match( /@\d+(?:\.\d+)*(?:\s*\|\|\s*\d+(?:\.\d+)*)+$/ ) ) {
+		const idx = pkg.lastIndexOf( '@' );
+		for ( const v of pkg.substring( idx + 1 ).split( /\s*\|\|\s*/ ) ) {
+			pkgs.push( pkg.substring( 0, idx + 1 ) + v );
+		}
+	} else {
 		error(
 			file,
 			yamlLine( item, fileContents ),
-			`Package ${ pkg } does not seem to be installed. Remove it from trustPolicyExclude.`
+			`Unrecognized trustPolicyExclude item format ${ pkg }. This may be valid for pnpm, but the audit script doesn't recognize it.`
 		);
 		process.exitCode = 1;
+		continue;
+	}
+
+	for ( const p of pkgs ) {
+		if ( ! packages[ p ] ) {
+			error(
+				file,
+				yamlLine( item, fileContents ),
+				`Package ${ p } does not seem to be installed. Remove it from trustPolicyExclude.`
+			);
+			process.exitCode = 1;
+		}
 	}
 }
