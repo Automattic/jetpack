@@ -346,8 +346,7 @@ class Admin_Menu {
 			foreach ( $submenu['jetpack'] as $index => $item ) {
 				if ( isset( $item[2] ) && false !== strpos( $item[2], self::UPGRADE_MENU_SLUG ) ) {
 					// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-					$submenu['jetpack'][ $index ][4] = ( ! empty( $item[4] ) ? $item[4] . ' ' : '' ) . self::UPGRADE_MENU_SLUG . ' jptracks';
-					l( $submenu );
+					$submenu['jetpack'][ $index ][4] = ( ! empty( $item[4] ) ? $item[4] . ' ' : '' ) . self::UPGRADE_MENU_SLUG;
 					break;
 				}
 			}
