@@ -332,15 +332,48 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 - Jetpack AI Image Generation & Editing: Evolve & enhance Jetpack AI Image Generation.
 
 #### Enhancements
+- Add 'note' to the default whitelisted comment types for Sync.
 - Admin Menu: Reorder menu items so that links opening in new windows appear last.
+- Admin Menu: Reorder menu items so that links opening in new windows appear last.
+- Backup: Use core components for storage popover.
+- Block Notes: Add Block Notes as a standalone Jetpack extension plugin.
 - Block Notes: Update enablement logic to use AI feature checks and gate feature behind a paid Jetpack AI plan.
+- Donations: Use the core WordPress spinner component.
+- Forms: Add logged-in user display name and ID to form submission emails and response sidebar.
+- Forms: Use title header on top-level dashboard pages.
 - Network Admin: Replace legacy PHP masthead on Network Sites and Network Settings pages with the unified AdminPage header from @automattic/jetpack-components.
+- Newsletter: Add "Send newsletter by default" toggle to settings.
+- Newsletter: Add `wpcom_newsletter_send_default` site option to control whether posts are sent to subscribers by default.
+- Newsletter: Hide settings tab and redirect to new settings page when wp-admin newsletter settings are enabled.
+- QR Post Code: Use site icon (favicon) instead of site logo for better rendering in the QR code center area.
+- SEO: Add Canonical URLs toggle to the Traffic settings page.
 - Settings: Align tab navigation font and color with WordPress design system tokens.
+- Settings: Modernize page UI.
+- Sync: Improve checksum performance for meta tables.
 - Update admin page footer with Products and Help navigation links, replacing About, Privacy, and Terms links.
 - Update network admin settings visually.
 
 #### Improved compatibility
 - External Media: ensure that the new WordPress "Embed video from URL" option appears in the Cover block options alongside Jetpack's External Media options.
+
+#### Bug fixes
+- Admin Page: Restore border on header component.
+- AI Assistant: Prevent modal shaking from when content streams in.
+- Canonical URLs: Fix flaky author archive canonical URL resolution on WordPress trunk.
+- Comments: Remove resource hints for outdated gravatar domains and use secure.gravatar.com instead.
+- Forms: Ensure number field min and max values display in the UI after page reload.
+- Forms: Only show form blocks under the "Forms" category of the block inserter.
+- Google Search Preview: Ensure site icon is shown on all sites.
+- Image Compare Block: Fix disappearing link toolbar when highlighting caption text to add a hyperlink.
+- Map block: Fix markers displaying as bullet points on Simple sites.
+- Newsletter: Fix "email sent" confirmation to show "all subscribers" when post had paywall block and was emailed to everyone.
+- Newsletter Email Status: Add per-post access control to the newsletter email sent status endpoint.
+- SEO: Restore the Optimize SEO panel to the Jetpack sidebar alongside document settings.
+- Settings: Add bottom border to the masthead header.
+- Social: Fix slow page loads due to Social Image generation.
+- Sync: Prevent incremental sync for posts with unregistered post types.
+- Update AI form assistant to detect and create `core/button` blocks instead of `jetpack/button`.
+- WAF: Fix issue that potentially allowed bypassing WAF rules.
 
 --------
 
