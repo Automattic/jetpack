@@ -167,7 +167,7 @@ const JetpackAndSettingsContent = ( {
 							<Breve />
 						) : (
 							<p className="jetpack-ai-breve-deprecated-notice">
-								{ __( 'This feature has been deprecated.', 'jetpack' ) }{ ' ' }
+								{ __( 'Write Brief has been removed from the default experience.', 'jetpack' ) }{ ' ' }
 								<ExternalLink href="https://jetpack.com/support/publish-better-content-with-write-brief-with-ai/">
 									{ __( 'Learn more', 'jetpack' ) }
 								</ExternalLink>
