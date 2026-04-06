@@ -6,57 +6,62 @@ import SuggestionBadge from '../components/suggestion-badge';
 import SuggestAllButton from '../components/suggest-all-button';
 import { VALID_SECTIONS } from '../constants';
 
-// React roots created here are never explicitly unmounted. This is safe because the
-// Guidelines page is a traditional wp-admin page — navigating away triggers a full
-// page reload, which destroys all JS state including these roots.
+// Injection containers are tracked by reference. Before considering a slot "injected",
+// we verify the container is still in the DOM — Gutenberg's <Navigator> removes and
+// re-adds the main screen when navigating to/from revision history, which destroys
+// our injected elements while JS module state persists.
 
-let headerInjected = false;
+let headerContainer = null;
+let bannerContainer = null;
+const badgeContainers = {};
+const actionContainers = {};
+const sectionButtonContainers = {};
+
+/**
+ * Check if an element is still attached to the document.
+ *
+ * @param {Element|null} el - The element to check.
+ * @return {boolean} True if the element is connected to the DOM.
+ */
+function isInDOM( el ) {
+	return el?.isConnected ?? false;
+}
 
 function injectHeaderButton() {
-	if ( headerInjected ) {
-		return true;
+	if ( isInDOM( headerContainer ) ) {
+		return;
 	}
 
 	const actionsSlot = document.querySelector( '.admin-ui-page__header-actions' );
 	if ( ! actionsSlot ) {
-		return false;
+		return;
 	}
 
-	const container = document.createElement( 'div' );
-	container.className = 'jetpack-content-guidelines-ai__header-container';
-	actionsSlot.appendChild( container );
-	createRoot( container ).render( createElement( SuggestAllButton ) );
-
-	headerInjected = true;
-	return true;
+	headerContainer = document.createElement( 'div' );
+	headerContainer.className = 'jetpack-content-guidelines-ai__header-container';
+	actionsSlot.appendChild( headerContainer );
+	createRoot( headerContainer ).render( createElement( SuggestAllButton ) );
 }
 
-let bannerInjected = false;
-
 function injectBanner() {
-	if ( bannerInjected ) {
-		return true;
+	if ( isInDOM( bannerContainer ) ) {
+		return;
 	}
 
 	const list = document.querySelector( '.content-guidelines__list' );
 	if ( ! list ) {
-		return false;
+		return;
 	}
 
-	const container = document.createElement( 'div' );
-	container.className = 'jetpack-content-guidelines-ai__banner-container';
-	list.parentElement.insertBefore( container, list );
-	createRoot( container ).render( createElement( EmptyStateBanner ) );
-
-	bannerInjected = true;
-	return true;
+	bannerContainer = document.createElement( 'div' );
+	bannerContainer.className = 'jetpack-content-guidelines-ai__banner-container';
+	list.parentElement.insertBefore( bannerContainer, list );
+	createRoot( bannerContainer ).render( createElement( EmptyStateBanner ) );
 }
-
-const badgeRoots = {};
 
 function injectBadges() {
 	for ( const slug of VALID_SECTIONS ) {
-		if ( badgeRoots[ slug ] ) {
+		if ( isInDOM( badgeContainers[ slug ] ) ) {
 			continue;
 		}
 
@@ -75,8 +80,6 @@ function injectBadges() {
 			continue;
 		}
 
-		// The trigger has an HStack > [VStack(title+desc), chevron_or_HStack].
-		// We want to insert the badge before the chevron.
 		const hStack = trigger.firstElementChild;
 		if ( ! hStack ) {
 			continue;
@@ -91,17 +94,14 @@ function injectBadges() {
 			hStack.appendChild( container );
 		}
 
-		const root = createRoot( container );
-		root.render( createElement( SuggestionBadge, { slug } ) );
-		badgeRoots[ slug ] = root;
+		createRoot( container ).render( createElement( SuggestionBadge, { slug } ) );
+		badgeContainers[ slug ] = container;
 	}
 }
 
-const actionRoots = {};
-
 function injectSuggestionActions() {
 	for ( const slug of VALID_SECTIONS ) {
-		if ( actionRoots[ slug ] ) {
+		if ( isInDOM( actionContainers[ slug ] ) ) {
 			continue;
 		}
 
@@ -110,7 +110,6 @@ function injectSuggestionActions() {
 			continue;
 		}
 
-		// Insert suggestion actions at the top of the form's VStack.
 		const vStack = form.firstElementChild;
 		if ( ! vStack ) {
 			continue;
@@ -120,17 +119,14 @@ function injectSuggestionActions() {
 		container.className = 'jetpack-content-guidelines-ai__actions-container';
 		vStack.insertBefore( container, vStack.firstChild );
 
-		const root = createRoot( container );
-		root.render( createElement( SuggestionActions, { slug } ) );
-		actionRoots[ slug ] = root;
+		createRoot( container ).render( createElement( SuggestionActions, { slug } ) );
+		actionContainers[ slug ] = container;
 	}
 }
 
-const sectionButtonRoots = {};
-
 function injectSectionButtons() {
 	for ( const slug of VALID_SECTIONS ) {
-		if ( sectionButtonRoots[ slug ] ) {
+		if ( isInDOM( sectionButtonContainers[ slug ] ) ) {
 			continue;
 		}
 
@@ -139,7 +135,6 @@ function injectSectionButtons() {
 			continue;
 		}
 
-		// Find the HStack containing the save button.
 		const saveButton = form.querySelector( '.save-button' );
 		const hStack = saveButton?.parentElement;
 		if ( ! hStack ) {
@@ -150,41 +145,27 @@ function injectSectionButtons() {
 		container.className = 'jetpack-content-guidelines-ai__section-button-container';
 		hStack.appendChild( container );
 
-		const root = createRoot( container );
-		root.render( createElement( SectionGenerateButton, { slug } ) );
-		sectionButtonRoots[ slug ] = root;
+		createRoot( container ).render( createElement( SectionGenerateButton, { slug } ) );
+		sectionButtonContainers[ slug ] = container;
 	}
+}
+
+function runAll() {
+	injectHeaderButton();
+	injectBanner();
+	injectBadges();
+	injectSuggestionActions();
+	injectSectionButtons();
 }
 
 /**
  * Start observing DOM and inject all components.
+ * The observer never disconnects because Gutenberg's Navigator can
+ * remove and re-add the main screen (e.g. revision history navigation).
  */
 export function startInjection() {
-	const allDone = () => {
-		injectHeaderButton();
-		injectBanner();
-		injectBadges();
-		injectSuggestionActions();
-		injectSectionButtons();
+	runAll();
 
-		return (
-			headerInjected &&
-			bannerInjected &&
-			VALID_SECTIONS.every(
-				s => badgeRoots[ s ] && actionRoots[ s ] && sectionButtonRoots[ s ]
-			)
-		);
-	};
-
-	if ( allDone() ) {
-		return;
-	}
-
-	const observer = new MutationObserver( () => {
-		if ( allDone() ) {
-			observer.disconnect();
-		}
-	} );
-
+	const observer = new MutationObserver( () => runAll() );
 	observer.observe( document.body, { childList: true, subtree: true } );
 }
