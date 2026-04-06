@@ -11,9 +11,7 @@ export default function SuggestAllButton() {
 
 	const allGuidelines = useSelect( select => {
 		const store = select( STORE_NAME );
-		return Object.fromEntries(
-			VALID_SECTIONS.map( slug => [ slug, store.getGuideline( slug ) ] )
-		);
+		return Object.fromEntries( VALID_SECTIONS.map( slug => [ slug, store.getGuideline( slug ) ] ) );
 	}, [] );
 
 	const allEmpty = VALID_SECTIONS.every( slug => ! allGuidelines[ slug ] );
@@ -29,9 +27,7 @@ export default function SuggestAllButton() {
 	// Hide via display:none (not null) so the component stays mounted — returning null
 	// from a DOM-injected React root prevented re-rendering when loading started.
 	const bannerVisible = allEmpty && ! hasSuggestions && ! loading;
-	const hiddenProps = bannerVisible
-		? { style: { display: 'none' }, 'aria-hidden': true }
-		: {};
+	const hiddenProps = bannerVisible ? { style: { display: 'none' }, 'aria-hidden': true } : {};
 
 	return (
 		<Button

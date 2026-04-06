@@ -1,24 +1,18 @@
-import { diffWords } from 'diff';
 import { Button } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback, useEffect, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { diffWords } from 'diff';
 import { STORE_NAME } from '../constants';
 import { AI_STORE_NAME } from '../store';
 
 export default function SuggestionActions( { slug } ) {
-	const suggestion = useSelect(
-		select => select( AI_STORE_NAME ).getSuggestion( slug ),
-		[ slug ]
-	);
+	const suggestion = useSelect( select => select( AI_STORE_NAME ).getSuggestion( slug ), [ slug ] );
 	const sectionLoading = useSelect(
 		select => select( AI_STORE_NAME ).isSectionLoading( slug ),
 		[ slug ]
 	);
-	const original = useSelect(
-		select => select( STORE_NAME ).getGuideline( slug ) || '',
-		[ slug ]
-	);
+	const original = useSelect( select => select( STORE_NAME ).getGuideline( slug ) || '', [ slug ] );
 	const { clearSuggestion } = useDispatch( AI_STORE_NAME );
 	const { setGuideline } = useDispatch( STORE_NAME );
 
@@ -59,7 +53,11 @@ export default function SuggestionActions( { slug } ) {
 
 	return (
 		<div className="jetpack-content-guidelines-ai__suggestion">
-			<div className="jetpack-content-guidelines-ai__diff" role="region" aria-label={ __( 'Suggested changes', 'jetpack' ) }>
+			<div
+				className="jetpack-content-guidelines-ai__diff"
+				role="region"
+				aria-label={ __( 'Suggested changes', 'jetpack' ) }
+			>
 				<span className="screen-reader-text">
 					{ __( 'Changes from current to suggested guidelines:', 'jetpack' ) }
 				</span>

@@ -19,9 +19,7 @@ export default function useGenerateAll() {
 
 	const allGuidelines = useSelect( select => {
 		const store = select( STORE_NAME );
-		return Object.fromEntries(
-			VALID_SECTIONS.map( slug => [ slug, store.getGuideline( slug ) ] )
-		);
+		return Object.fromEntries( VALID_SECTIONS.map( slug => [ slug, store.getGuideline( slug ) ] ) );
 	}, [] );
 
 	const generate = useCallback( async () => {
@@ -47,14 +45,20 @@ export default function useGenerateAll() {
 				}
 			}
 		} catch {
-			createErrorNotice(
-				__( 'Failed to generate guidelines. Please try again.', 'jetpack' ),
-				{ type: 'snackbar' }
-			);
+			createErrorNotice( __( 'Failed to generate guidelines. Please try again.', 'jetpack' ), {
+				type: 'snackbar',
+			} );
 		} finally {
 			stopLoading();
 		}
-	}, [ allGuidelines, startLoading, stopLoading, setSuggestion, createErrorNotice, createWarningNotice ] );
+	}, [
+		allGuidelines,
+		startLoading,
+		stopLoading,
+		setSuggestion,
+		createErrorNotice,
+		createWarningNotice,
+	] );
 
 	return { generate, loading };
 }

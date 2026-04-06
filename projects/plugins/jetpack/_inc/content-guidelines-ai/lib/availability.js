@@ -9,7 +9,7 @@ import { config } from '../constants';
  */
 export function showUnavailableNotice( createWarningNotice ) {
 	return false; // TODO: remove — skip availability check for local testing
-	if ( config.available ) { // eslint-disable-line no-unreachable
+	if ( config.available ) {
 		return false;
 	}
 

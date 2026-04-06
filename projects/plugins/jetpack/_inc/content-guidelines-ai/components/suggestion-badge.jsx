@@ -23,11 +23,7 @@ export default function SuggestionBadge( { slug } ) {
 	}
 
 	if ( hasSuggestion ) {
-		return (
-			<Badge variant="success">
-				{ __( 'Suggestion', 'jetpack' ) }
-			</Badge>
-		);
+		return <Badge variant="success">{ __( 'Suggestion', 'jetpack' ) }</Badge>;
 	}
 
 	return null;

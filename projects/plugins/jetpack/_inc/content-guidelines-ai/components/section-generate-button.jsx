@@ -10,17 +10,13 @@ import { AI_STORE_NAME } from '../store';
 
 export default function SectionGenerateButton( { slug } ) {
 	const { createErrorNotice, createWarningNotice } = useDispatch( noticesStore );
-	const { startSectionLoading, stopSectionLoading, setSuggestion } =
-		useDispatch( AI_STORE_NAME );
+	const { startSectionLoading, stopSectionLoading, setSuggestion } = useDispatch( AI_STORE_NAME );
 
 	const sectionLoading = useSelect(
 		select => select( AI_STORE_NAME ).isSectionLoading( slug ),
 		[ slug ]
 	);
-	const draft = useSelect(
-		select => select( STORE_NAME ).getGuideline( slug ),
-		[ slug ]
-	);
+	const draft = useSelect( select => select( STORE_NAME ).getGuideline( slug ), [ slug ] );
 
 	const isEmpty = ! draft;
 	const generateLabel = __( 'Generate guidelines', 'jetpack' );
@@ -41,10 +37,9 @@ export default function SectionGenerateButton( { slug } ) {
 				setSuggestion( slug, suggestion );
 			}
 		} catch {
-			createErrorNotice(
-				__( 'Failed to generate guidelines. Please try again.', 'jetpack' ),
-				{ type: 'snackbar' }
-			);
+			createErrorNotice( __( 'Failed to generate guidelines. Please try again.', 'jetpack' ), {
+				type: 'snackbar',
+			} );
 		} finally {
 			stopSectionLoading( slug );
 		}
