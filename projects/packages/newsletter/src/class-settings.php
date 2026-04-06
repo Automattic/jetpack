@@ -118,6 +118,11 @@ class Settings {
 			return;
 		}
 
+		// On sites using Jetpack, only show the menu if the site is connected.
+		if ( ! ( new Connection_Manager() )->is_connected() ) {
+			return;
+		}
+
 		// Add admin menu item.
 		// The expose_to_users() check is deferred to add_wp_admin_menu() so that
 		// filters registered after init() are available when admin_menu fires.
