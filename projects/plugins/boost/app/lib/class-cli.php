@@ -28,7 +28,7 @@ class CLI {
 	 */
 	private $jetpack_boost;
 
-	const MAKE_E2E_TESTS_WORK_MODULES = array( 'critical_css', 'speculation_rules', 'render_blocking_js', 'page_cache', 'lcp', 'minify_js', 'minify_css', 'image_cdn', 'image_guide' );
+	const MAKE_E2E_TESTS_WORK_MODULES = array( 'critical_css', 'cloud_css', 'speculation_rules', 'render_blocking_js', 'page_cache', 'lcp', 'minify_js', 'minify_css', 'image_cdn', 'image_guide' );
 
 	/**
 	 * CLI constructor.
@@ -123,6 +123,10 @@ class CLI {
 		}
 
 		$module->update( $status );
+
+		// Fire the same action that the DataSync REST path fires (Modules_State_Entry::set),
+		// so CLI activation triggers module hooks like Cloud_CSS::activate() → Regenerate::start().
+		do_action( 'jetpack_boost_module_status_updated', $module_slug, $status );
 
 		if ( $module_slug === 'page_cache' && $status ) {
 			$setup_result = Page_Cache_Setup::run_setup();
