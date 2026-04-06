@@ -156,18 +156,30 @@ function injectSectionButtons() {
  * Start observing DOM and inject all components.
  */
 export function startInjection() {
-	injectHeaderButton();
-	injectBanner();
-	injectBadges();
-	injectSuggestionActions();
-	injectSectionButtons();
-
-	const observer = new MutationObserver( () => {
+	const allDone = () => {
 		injectHeaderButton();
 		injectBanner();
 		injectBadges();
 		injectSuggestionActions();
 		injectSectionButtons();
+
+		return (
+			headerInjected &&
+			bannerInjected &&
+			VALID_SECTIONS.every(
+				s => badgeRoots[ s ] && actionRoots[ s ] && sectionButtonRoots[ s ]
+			)
+		);
+	};
+
+	if ( allDone() ) {
+		return;
+	}
+
+	const observer = new MutationObserver( () => {
+		if ( allDone() ) {
+			observer.disconnect();
+		}
 	} );
 
 	observer.observe( document.body, { childList: true, subtree: true } );

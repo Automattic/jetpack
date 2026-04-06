@@ -19,9 +19,6 @@ const actions = {
 	clearSuggestion( slug ) {
 		return { type: 'CLEAR_SUGGESTION', slug };
 	},
-	clearAllSuggestions() {
-		return { type: 'CLEAR_ALL_SUGGESTIONS' };
-	},
 	startSectionLoading( slug ) {
 		return { type: 'START_SECTION_LOADING', slug };
 	},
@@ -46,8 +43,6 @@ function reducer( state = DEFAULT_STATE, action ) {
 			delete suggestions[ action.slug ];
 			return { ...state, suggestions };
 		}
-		case 'CLEAR_ALL_SUGGESTIONS':
-			return { ...state, suggestions: {} };
 		case 'START_SECTION_LOADING':
 			return {
 				...state,
@@ -73,12 +68,6 @@ const selectors = {
 	hasSuggestion( state, slug ) {
 		return !! state.suggestions[ slug ];
 	},
-	getAllSuggestions( state ) {
-		return state.suggestions;
-	},
-	hasSuggestions( state ) {
-		return Object.keys( state.suggestions ).length > 0;
-	},
 	isSectionLoading( state, slug ) {
 		return state.loading || !! state.loadingSections[ slug ];
 	},
@@ -86,7 +75,7 @@ const selectors = {
 
 export const AI_STORE_NAME = 'jetpack/content-guidelines-ai';
 
-export const aiStore = createReduxStore( AI_STORE_NAME, {
+const aiStore = createReduxStore( AI_STORE_NAME, {
 	reducer,
 	actions,
 	selectors,

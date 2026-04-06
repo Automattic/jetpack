@@ -2,14 +2,98 @@
 	display: inline-flex;
 }
 
+// Empty state banner.
 .jetpack-content-guidelines-ai__banner {
+	position: relative;
+	background: #003010;
+	border-radius: 8px;
+	padding: 32px;
+	overflow: hidden;
+	min-height: 220px;
+	display: flex;
+	align-items: flex-start;
 	width: min(680px, 100%);
-	margin: 0 auto 16px;
+	box-sizing: border-box;
+	margin: 0 auto 24px;
 }
 
-.jetpack-content-guidelines-ai__banner-text {
-	margin: 0 0 12px;
-	font-size: 13px;
+.jetpack-content-guidelines-ai__banner-content {
+	position: relative;
+	z-index: 1;
+	display: flex;
+	flex-direction: column;
+	max-width: 520px;
+
+	h2 {
+		color: #daffdc;
+		font-size: 32px;
+		line-height: 40px;
+		font-weight: 500;
+		margin: 0 0 12px;
+	}
+
+	p {
+		color: #daffdc;
+		font-size: 13px;
+		line-height: 20px;
+		margin: 0 0 64px;
+	}
+}
+
+.jetpack-content-guidelines-ai__banner-actions {
+	display: flex;
+	gap: 8px;
+}
+
+.jetpack-content-guidelines-ai__banner-cta {
+	background-color: #48ff50 !important;
+	color: #003010 !important;
+	border-color: #48ff50 !important;
+
+	&:hover {
+		background-color: #3de046 !important;
+		border-color: #3de046 !important;
+	}
+}
+
+.jetpack-content-guidelines-ai__banner-close-text {
+	color: #48ff50 !important;
+
+	&:hover {
+		color: #3de046 !important;
+	}
+}
+
+.jetpack-content-guidelines-ai__banner-close {
+	position: absolute;
+	top: 8px;
+	right: 8px;
+	z-index: 1;
+	color: #fff !important;
+
+	&:hover {
+		color: #daffdc !important;
+	}
+}
+
+.jetpack-content-guidelines-ai__banner-orb {
+	position: absolute;
+	border-radius: 50%;
+	pointer-events: none;
+	width: 236px;
+	height: 236px;
+	background: linear-gradient(to right, #04c, #48ff50);
+
+	&--top {
+		top: -134px;
+		right: -30px;
+		filter: blur(25px);
+	}
+
+	&--bottom {
+		bottom: -120px;
+		right: 70px;
+	}
 }
 
 // Badge in accordion headers.
@@ -31,8 +115,8 @@
 }
 
 .jetpack-content-guidelines-ai__badge--suggestion {
-	color: #00a32a;
-	background: #edfaef;
+	color: var(--jp-green-40, #00a32a);
+	background: var(--jp-green-0, #edfaef);
 }
 
 .jetpack-content-guidelines-ai__badge--suggestion::before {
@@ -53,7 +137,7 @@
 
 .jetpack-content-guidelines-ai__suggestion-text textarea {
 	min-height: 120px;
-	background: #f9f9f9;
+	background: var(--jp-gray-0, #f9f9f9);
 }
 
 .jetpack-content-guidelines-ai__suggestion-actions {

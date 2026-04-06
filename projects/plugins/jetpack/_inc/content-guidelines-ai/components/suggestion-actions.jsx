@@ -24,6 +24,9 @@ export default function SuggestionActions( { slug } ) {
 		} else {
 			form.classList.remove( 'has-jetpack-suggestion' );
 		}
+		return () => {
+			form.classList.remove( 'has-jetpack-suggestion' );
+		};
 	}, [ slug, suggestion ] );
 
 	const handleAccept = useCallback( () => {

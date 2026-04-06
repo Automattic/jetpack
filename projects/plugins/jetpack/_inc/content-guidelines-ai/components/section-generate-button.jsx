@@ -5,9 +5,8 @@ import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
 import { STORE_NAME } from '../constants';
 import { suggestGuidelines } from '../lib/api';
+import { showUnavailableNotice } from '../lib/availability';
 import { AI_STORE_NAME } from '../store';
-
-const config = window.jetpackContentGuidelinesAiConfig || {};
 
 export default function SectionGenerateButton( { slug } ) {
 	const { createErrorNotice, createWarningNotice } = useDispatch( noticesStore );
@@ -29,23 +28,7 @@ export default function SectionGenerateButton( { slug } ) {
 		: __( 'Improve guidelines', 'jetpack' );
 
 	const handleClick = useCallback( async () => {
-		if ( ! config.available ) {
-			const message = ! config.isConnected
-				? __(
-						'Jetpack AI is not available. Connect your site to WordPress.com to get started.',
-						'jetpack'
-				  )
-				: __( 'Upgrade now to start using Jetpack AI.', 'jetpack' );
-			const actionLabel = ! config.isConnected
-				? __( 'Connect', 'jetpack' )
-				: __( 'Upgrade', 'jetpack' );
-
-			createWarningNotice( message, {
-				type: 'snackbar',
-				actions: config.upgradeUrl
-					? [ { label: actionLabel, url: config.upgradeUrl } ]
-					: [],
-			} );
+		if ( showUnavailableNotice( createWarningNotice ) ) {
 			return;
 		}
 
