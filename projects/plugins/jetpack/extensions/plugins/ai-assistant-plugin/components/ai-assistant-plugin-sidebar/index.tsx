@@ -161,7 +161,7 @@ const JetpackAndSettingsContent = ( {
 				<PanelRow>
 					<BaseControl __nextHasNoMarginBottom={ true }>
 						<BaseControl.VisualLabel>
-							{ __( 'Write Brief', 'jetpack' ) }
+							{ __( 'Write Brief (Beta)', 'jetpack' ) }
 						</BaseControl.VisualLabel>
 						{ isBreveAvailable ? (
 							<Breve />
