@@ -187,6 +187,7 @@ describe( 'useConnectionPreviewData', () => {
 				mediaData: { width: 800, height: 600, sourceUrl: 'https://example.com/featured.jpg' },
 				metaData: { mime: 'image/jpeg', fileSize: 1024, length: 0 },
 			},
+			false,
 		] );
 
 		const connection = createMockConnection( { media_source: 'featured-image' } );

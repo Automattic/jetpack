@@ -1,3 +1,4 @@
+import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { useCallback, useEffect, useState } from '@wordpress/element';
 
@@ -88,7 +89,7 @@ const getMediaDetails = async media => {
  * Hook to handle storing the attached media.
  *
  * @param {number} mediaId - ID of the current media in the Media Lib.
- * @return {[ mediaDetails: import('./types').MediaDetails, isNotFound?: boolean ]} - The media details and whether the attachment was not found
+ * @return {[ mediaDetails: import('./types').MediaDetails, isNotFound: boolean ]} - The media details and whether the attachment was not found
  */
 export default function useMediaDetails( mediaId = null ) {
 	const [ mediaDetails, setMediaDetails ] = useState( [ {} ] );
@@ -99,10 +100,10 @@ export default function useMediaDetails( mediaId = null ) {
 				return { mediaObject: null, hasResolved: true };
 			}
 			return {
-				mediaObject: select( 'core' ).getEntityRecord( 'postType', 'attachment', mediaId, {
+				mediaObject: select( coreStore ).getEntityRecord( 'postType', 'attachment', mediaId, {
 					context: 'view',
 				} ),
-				hasResolved: select( 'core' ).hasFinishedResolution( 'getEntityRecord', [
+				hasResolved: select( coreStore ).hasFinishedResolution( 'getEntityRecord', [
 					'postType',
 					'attachment',
 					mediaId,

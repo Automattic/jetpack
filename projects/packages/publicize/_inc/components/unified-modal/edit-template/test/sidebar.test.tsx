@@ -61,6 +61,7 @@ const setupMocks = () => {
 				sourceUrl: 'https://example.com/image.jpg',
 			},
 		},
+		false,
 	] );
 
 	( fontOptions.useSocialImageFontOptions as jest.Mock ).mockReturnValue( {
@@ -233,7 +234,7 @@ describe( 'Sidebar', () => {
 		} );
 
 		it( 'should show warning notice when featured image is not set', () => {
-			( useMediaDetails as jest.Mock ).mockReturnValue( [ {} ] );
+			( useMediaDetails as jest.Mock ).mockReturnValue( [ {}, false ] );
 			render(
 				<Sidebar
 					localState={ defaultLocalState }
