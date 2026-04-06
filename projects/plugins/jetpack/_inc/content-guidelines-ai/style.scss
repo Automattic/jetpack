@@ -70,14 +70,14 @@
 	background: linear-gradient(to right, #04c, #48ff50);
 
 	&--top {
-		top: -134px;
-		right: -30px;
+		inset-block-start: -134px;
+		inset-inline-end: -30px;
 		filter: blur(25px);
 	}
 
 	&--bottom {
-		bottom: -120px;
-		right: 70px;
+		inset-block-end: -120px;
+		inset-inline-end: 70px;
 	}
 }
 
@@ -90,7 +90,7 @@
 
 	display: inline-flex;
 	align-items: center;
-	margin-left: auto;
+	margin-inline-start: auto;
 }
 
 .jetpack-content-guidelines-ai__badge--loading .components-spinner {
@@ -109,7 +109,7 @@
 
 // Remove the default margin that TextareaControl adds via its wrapper.
 .jetpack-content-guidelines-ai__suggestion-text {
-	margin-bottom: 0;
+	margin-block-end: 0;
 }
 
 .jetpack-content-guidelines-ai__suggestion-text textarea {
@@ -129,10 +129,7 @@
 	&::after {
 		content: "";
 		position: absolute;
-		top: 0;
-		left: 0;
-		right: 0;
-		bottom: 0;
+		inset: 0;
 		pointer-events: none;
 		border-radius: 4px;
 		background: linear-gradient(90deg, transparent 0%, rgba(0, 135, 0, 0.08) 50%, transparent 100%);
