@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fix missing margin prop in SelectControl component.

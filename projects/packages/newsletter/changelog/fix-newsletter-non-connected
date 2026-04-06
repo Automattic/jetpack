@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Admin menu: do not display when a site is not connected to WordPress.com yet.
