@@ -36,7 +36,8 @@
 		"@wordpress/api-fetch": "7.43.0",
 		"@wordpress/url": "4.43.0",
 		"cookie": "1.0.2",
-		"debug": "4.4.3"
+		"debug": "4.4.3",
+		"wpcom-proxy-request": "^7.0.7"
 	},
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
