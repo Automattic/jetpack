@@ -80,7 +80,7 @@ add_action(
 
 			$site_locale = get_locale();
 			// Only enable Write Brief for sites with an English locale
-			if ( str_starts_with( $site_locale, 'en' ) && apply_filters( 'breve_enabled', true ) ) {
+			if ( str_starts_with( $site_locale, 'en' ) && apply_filters( 'breve_enabled', false ) ) {
 				Jetpack_Gutenberg::set_extension_available( 'ai-proofread-breve' );
 			}
 

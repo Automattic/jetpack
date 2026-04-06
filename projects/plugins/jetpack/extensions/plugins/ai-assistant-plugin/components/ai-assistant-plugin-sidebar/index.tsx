@@ -157,13 +157,22 @@ const JetpackAndSettingsContent = ( {
 				</PanelRow>
 			) }
 
-			{ canWriteBriefBeEnabled() && isBreveAvailable && (
+			{ canWriteBriefBeEnabled() && (
 				<PanelRow>
 					<BaseControl __nextHasNoMarginBottom={ true }>
 						<BaseControl.VisualLabel>
-							{ __( 'Write Brief (Beta)', 'jetpack' ) }
+							{ __( 'Write Brief', 'jetpack' ) }
 						</BaseControl.VisualLabel>
-						<Breve />
+						{ isBreveAvailable ? (
+							<Breve />
+						) : (
+							<p className="jetpack-ai-breve-deprecated-notice">
+								{ __( 'This feature has been deprecated.', 'jetpack' ) }{ ' ' }
+								<ExternalLink href="https://jetpack.com/support/publish-better-content-with-write-brief-with-ai/">
+									{ __( 'Learn more', 'jetpack' ) }
+								</ExternalLink>
+							</p>
+						) }
 					</BaseControl>
 				</PanelRow>
 			) }
