@@ -157,22 +157,13 @@ const JetpackAndSettingsContent = ( {
 				</PanelRow>
 			) }
 
-			{ canWriteBriefBeEnabled() && (
+			{ canWriteBriefBeEnabled() && isBreveAvailable && (
 				<PanelRow>
 					<BaseControl __nextHasNoMarginBottom={ true }>
 						<BaseControl.VisualLabel>
 							{ __( 'Write Brief (Beta)', 'jetpack' ) }
 						</BaseControl.VisualLabel>
-						{ isBreveAvailable ? (
-							<Breve />
-						) : (
-							<p className="jetpack-ai-breve-deprecated-notice">
-								{ __( 'Write Brief has been removed from the default experience.', 'jetpack' ) }{ ' ' }
-								<ExternalLink href="https://jetpack.com/support/publish-better-content-with-write-brief-with-ai/">
-									{ __( 'Learn more', 'jetpack' ) }
-								</ExternalLink>
-							</p>
-						) }
+						<Breve />
 					</BaseControl>
 				</PanelRow>
 			) }
@@ -242,6 +233,14 @@ const JetpackAndSettingsContent = ( {
 					{ __( 'AI guidelines', 'jetpack' ) }
 				</ExternalLink>
 			</PanelRow>
+
+			{ ! isBreveAvailable && (
+				<PanelRow className="jetpack-ai-sidebar__external-link">
+					<ExternalLink href="https://jetpack.com/support/publish-better-content-with-write-brief-with-ai/">
+						{ __( 'Write Brief (Deprecated)', 'jetpack' ) }
+					</ExternalLink>
+				</PanelRow>
+			) }
 		</>
 	);
 };
