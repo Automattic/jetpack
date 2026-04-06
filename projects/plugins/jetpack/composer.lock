@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "412e3283d915564627f517a0a31ff159",
+    "content-hash": "4fd91d0e9458bade498f43254d740fd2",
     "packages": [
         {
             "name": "automattic/block-delimiter",
@@ -3650,24 +3650,30 @@
         },
         {
             "name": "automattic/woocommerce-analytics",
-            "version": "dev-trunk",
+            "version": "v0.16.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Automattic/woocommerce-analytics.git",
+                "reference": "147ab87b9f4045dfa6404114273b0ff52da287f6"
+            },
             "dist": {
-                "type": "path",
-                "url": "../../packages/woocommerce-analytics",
-                "reference": "81c9635770bc72bc376f61e00605760bd4356f5d"
+                "type": "zip",
+                "url": "https://api.github.com/repos/Automattic/woocommerce-analytics/zipball/147ab87b9f4045dfa6404114273b0ff52da287f6",
+                "reference": "147ab87b9f4045dfa6404114273b0ff52da287f6",
+                "shasum": ""
             },
             "require": {
-                "automattic/block-delimiter": "@dev",
-                "automattic/jetpack-assets": "@dev",
-                "automattic/jetpack-connection": "@dev",
-                "automattic/jetpack-constants": "@dev",
-                "automattic/jetpack-device-detection": "@dev",
+                "automattic/block-delimiter": "^0.3.5",
+                "automattic/jetpack-assets": "^4.3.30",
+                "automattic/jetpack-connection": "^8.1.0",
+                "automattic/jetpack-constants": "^3.0.8",
+                "automattic/jetpack-device-detection": "^3.4.0",
                 "php": ">=7.2"
             },
             "require-dev": {
-                "automattic/jetpack-changelogger": "@dev",
+                "automattic/jetpack-changelogger": "^6.0.14",
                 "automattic/jetpack-test-environment": "@dev",
-                "automattic/phpunit-select-config": "@dev",
+                "automattic/phpunit-select-config": "^1.0.4",
                 "yoast/phpunit-polyfills": "^4.0.0"
             },
             "suggest": {
@@ -3675,15 +3681,15 @@
             },
             "type": "jetpack-library",
             "extra": {
-                "mirror-repo": "Automattic/woocommerce-analytics",
-                "changelogger": {
-                    "link-template": "https://github.com/Automattic/woocommerce-analytics/compare/v${old}...v${new}"
-                },
                 "autotagger": true,
+                "textdomain": "woocommerce-analytics",
+                "mirror-repo": "Automattic/woocommerce-analytics",
                 "branch-alias": {
                     "dev-trunk": "0.16.x-dev"
                 },
-                "textdomain": "woocommerce-analytics",
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/woocommerce-analytics/compare/v${old}...v${new}"
+                },
                 "version-constants": {
                     "::PACKAGE_VERSION": "src/class-woocommerce-analytics.php"
                 }
@@ -3693,30 +3699,15 @@
                     "src/"
                 ]
             },
-            "scripts": {
-                "phpunit": [
-                    "phpunit-select-config phpunit.#.xml.dist --colors=always"
-                ],
-                "test-coverage": [
-                    "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
-                ],
-                "test-php": [
-                    "@composer phpunit"
-                ],
-                "build-production": [
-                    "pnpm run build-production"
-                ],
-                "build-development": [
-                    "pnpm run build"
-                ]
-            },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "GPL-2.0-or-later"
             ],
             "description": "Enhanced analytics for WooCommerce users.",
-            "transport-options": {
-                "relative": true
-            }
+            "support": {
+                "source": "https://github.com/Automattic/woocommerce-analytics/tree/v0.16.2"
+            },
+            "time": "2026-03-30T16:05:23+00:00"
         },
         {
             "name": "wikimedia/aho-corasick",
@@ -6621,8 +6612,7 @@
         "automattic/jetpack-videopress": 20,
         "automattic/jetpack-waf": 20,
         "automattic/patchwork-redefine-exit": 20,
-        "automattic/phpunit-select-config": 20,
-        "automattic/woocommerce-analytics": 20
+        "automattic/phpunit-select-config": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,
