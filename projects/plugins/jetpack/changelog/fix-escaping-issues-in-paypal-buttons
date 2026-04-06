@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+PayPal Payments Button: fix escaping issue for stacked payments buttons
