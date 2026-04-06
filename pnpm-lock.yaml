@@ -1823,10 +1823,6 @@ importers:
   projects/packages/account-protection: {}
 
   projects/packages/admin-ui:
-    dependencies:
-      '@wordpress/dom-ready':
-        specifier: 4.42.0
-        version: 4.42.0
     devDependencies:
       '@automattic/jetpack-base-styles':
         specifier: workspace:*

@@ -24,9 +24,6 @@
 	"browserslist": [
 		"extends @wordpress/browserslist-config"
 	],
-	"dependencies": {
-		"@wordpress/dom-ready": "4.42.0"
-	},
 	"devDependencies": {
 		"@automattic/jetpack-base-styles": "workspace:*",
 		"@automattic/jetpack-webpack-config": "workspace:*",
