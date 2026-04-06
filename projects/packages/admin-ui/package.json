@@ -25,6 +25,7 @@
 		"extends @wordpress/browserslist-config"
 	],
 	"devDependencies": {
+		"@automattic/jetpack-base-styles": "workspace:*",
 		"@automattic/jetpack-webpack-config": "workspace:*",
 		"@wordpress/browserslist-config": "6.42.0",
 		"sass-embedded": "1.97.3",
