@@ -6,6 +6,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'url';
 import react from '@vitejs/plugin-react';
 import remarkGfm from 'remark-gfm';
+import { NodePackageImporter } from 'sass-embedded';
 import jetpackConfig from './jetpackConfig.js';
 import { projects } from './projects.js';
 
@@ -119,6 +120,7 @@ const sbconfig = {
 						],
 						// Boost-specific alias. Needs separate configuration from the below, sigh.
 						importers: [
+							new NodePackageImporter(),
 							{
 								findFileUrl( url ) {
 									if ( url.startsWith( '$css/' ) ) {

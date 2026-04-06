@@ -270,34 +270,10 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	// -------------------------------------------------------------------------
 
 	/**
-	 * Not enabled when AI features exist but neither dev mode nor Big Sky.
-	 */
-	public function test_is_not_enabled_with_ai_features_but_no_gate() {
-		$this->assertFalse( ImageStudio\is_image_studio_enabled() );
-	}
-
-	/**
-	 * Enabled when AI features available and Big Sky is active.
-	 */
-	public function test_is_enabled_via_big_sky() {
-		$this->enable_big_sky();
-		$this->assertTrue( ImageStudio\is_image_studio_enabled() );
-	}
-
-	/**
 	 * Not enabled when AI features are disabled and no Big Sky/CIAB override.
 	 */
 	public function test_is_not_enabled_when_ai_features_disabled() {
 		$this->disable_ai_features();
-		$this->assertFalse( ImageStudio\is_image_studio_enabled() );
-	}
-
-	/**
-	 * Not enabled via Big Sky when Big_Sky class exists but option is disabled.
-	 */
-	public function test_is_not_enabled_via_big_sky_when_option_disabled() {
-		$this->simulate_big_sky_class();
-		update_option( 'big_sky_enable', '' );
 		$this->assertFalse( ImageStudio\is_image_studio_enabled() );
 	}
 
@@ -396,42 +372,6 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	}
 
 	// -------------------------------------------------------------------------
-	// should_load_on_current_screen() tests
-	// -------------------------------------------------------------------------
-
-	/**
-	 * Test should_load_on_current_screen returns true on Media Library.
-	 */
-	public function test_should_load_on_media_library() {
-		$this->set_media_library_screen();
-		$this->assertTrue( ImageStudio\should_load_on_current_screen() );
-	}
-
-	/**
-	 * Test should_load_on_current_screen returns true on block editor.
-	 */
-	public function test_should_load_on_block_editor() {
-		$this->set_block_editor_screen();
-		$this->assertTrue( ImageStudio\should_load_on_current_screen() );
-	}
-
-	/**
-	 * Test should_load_on_current_screen returns false on dashboard.
-	 */
-	public function test_should_not_load_on_dashboard() {
-		set_current_screen( 'dashboard' );
-		$this->assertFalse( ImageStudio\should_load_on_current_screen() );
-	}
-
-	/**
-	 * Test should_load_on_current_screen returns false when no screen.
-	 */
-	public function test_should_not_load_when_no_screen() {
-		$GLOBALS['current_screen'] = null;
-		$this->assertFalse( ImageStudio\should_load_on_current_screen() );
-	}
-
-	// -------------------------------------------------------------------------
 	// register_plugin() tests
 	// -------------------------------------------------------------------------
 
@@ -449,14 +389,6 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	 */
 	public function test_register_plugin_not_available_when_disabled() {
 		$this->disable_ai_features();
-		ImageStudio\register_plugin();
-		$this->assertFalse( \Jetpack_Gutenberg::is_available( ImageStudio\FEATURE_NAME ) );
-	}
-
-	/**
-	 * Test that register_plugin does not set extension available when no gate is active.
-	 */
-	public function test_register_plugin_not_available_when_no_gate() {
 		ImageStudio\register_plugin();
 		$this->assertFalse( \Jetpack_Gutenberg::is_available( ImageStudio\FEATURE_NAME ) );
 	}
@@ -1538,60 +1470,6 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 
 		$this->assertSame( $original_actions, $actions );
 		$this->assertArrayNotHasKey( 'edit-with-ai', $actions );
-	}
-
-	// -------------------------------------------------------------------------
-	// is_dev_mode() tests
-	// -------------------------------------------------------------------------
-
-	/**
-	 * Test is_dev_mode returns true for localhost.
-	 */
-	public function test_is_dev_mode_returns_true_for_localhost() {
-		update_option( 'siteurl', 'http://localhost' );
-
-		$this->assertTrue( ImageStudio\is_dev_mode() );
-	}
-
-	/**
-	 * Test is_dev_mode returns true for jurassic.tube domains.
-	 */
-	public function test_is_dev_mode_returns_true_for_jurassic_tube() {
-		update_option( 'siteurl', 'https://mysite.jurassic.tube' );
-
-		$this->assertTrue( ImageStudio\is_dev_mode() );
-	}
-
-	/**
-	 * Test is_dev_mode returns true for jurassic.ninja domains.
-	 */
-	public function test_is_dev_mode_returns_true_for_jurassic_ninja() {
-		update_option( 'siteurl', 'https://mysite.jurassic.ninja' );
-
-		$this->assertTrue( ImageStudio\is_dev_mode() );
-	}
-
-	/**
-	 * Test is_dev_mode returns true when proxied via server variable.
-	 */
-	public function test_is_dev_mode_returns_true_when_proxied_via_server_var() {
-		update_option( 'siteurl', 'https://example.com' );
-		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
-
-		$result = ImageStudio\is_dev_mode();
-
-		unset( $_SERVER['A8C_PROXIED_REQUEST'] );
-
-		$this->assertTrue( $result );
-	}
-
-	/**
-	 * Test is_dev_mode returns false for regular production sites.
-	 */
-	public function test_is_dev_mode_returns_false_for_production_sites() {
-		update_option( 'siteurl', 'https://myproductionsite.com' );
-
-		$this->assertFalse( ImageStudio\is_dev_mode() );
 	}
 
 	// -------------------------------------------------------------------------

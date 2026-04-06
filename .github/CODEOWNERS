@@ -38,7 +38,11 @@
 /projects/packages/phpunit-select-config @Automattic/jetpack-monorepo
 /projects/packages/stub-generator @Automattic/jetpack-monorepo
 /projects/plugins/beta @Automattic/jetpack-monorepo
+/projects/plugins/beta/composer.lock # No owner - too noisy
+/projects/plugins/beta/changelog # No owner - to go with the above
 /projects/plugins/starter-plugin @Automattic/jetpack-monorepo
+/projects/plugins/starter-plugin/composer.lock # No owner - too noisy
+/projects/plugins/starter-plugin/changelog # No owner - to go with the above
 /stylelint.config.mjs @Automattic/jetpack-monorepo
 /tools @Automattic/jetpack-monorepo
 /tools/e2e-commons # No owner assigned

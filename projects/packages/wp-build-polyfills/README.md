@@ -20,6 +20,7 @@ This package provides those missing packages so that plugins using `@wordpress/b
 | `wp-notices`      | `@wordpress/notices`    | Yes — missing component exports |
 | `wp-private-apis` | `@wordpress/private-apis` | Yes — incomplete allowlist |
 | `wp-theme`        | `@wordpress/theme`      | No — only registered if absent |
+| `wp-views`        | `@wordpress/views`      | No — only registered if absent |
 
 ### Script modules (ESM)
 

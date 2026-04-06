@@ -11,9 +11,7 @@ export default meta;
 const Template: StoryFn< typeof JetpackFooter > = args => <JetpackFooter { ...args } />;
 
 const DefaultArgs = {
-	moduleName: 'Jetpack',
 	className: '',
-	moduleNameHref: 'https://jetpack.com',
 };
 
 export const _default = Template.bind( {} );
