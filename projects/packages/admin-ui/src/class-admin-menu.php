@@ -261,7 +261,7 @@ class Admin_Menu {
 	 * @return bool True if the upgrade menu should be shown.
 	 */
 	private static function should_show_upgrade_menu() {
-		return true;
+
 		// Only show to administrators.
 		if ( ! current_user_can( 'manage_options' ) ) {
 			return false;
