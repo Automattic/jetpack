@@ -236,12 +236,9 @@ const JetpackAndSettingsContent = ( {
 
 			{ ! isBreveAvailable && (
 				<PanelRow className="jetpack-ai-sidebar__external-link">
-					<span>
-						{ __( 'Write Brief (Beta) has been removed from the default experience.', 'jetpack' ) }{ ' ' }
-						<ExternalLink href="https://jetpack.com/support/publish-better-content-with-write-brief-with-ai/">
-							{ __( 'Learn more', 'jetpack' ) }
-						</ExternalLink>
-					</span>
+					<ExternalLink href="https://jetpack.com/support/publish-better-content-with-write-brief-with-ai/">
+						{ __( 'Write Brief (Beta) has been removed from the default experience', 'jetpack' ) }
+					</ExternalLink>
 				</PanelRow>
 			) }
 		</>
