@@ -26,13 +26,16 @@ export default function SuggestAllButton() {
 		? __( 'Generate guidelines', 'jetpack' )
 		: __( 'Improve guidelines', 'jetpack' );
 
-	// Hide when the banner is visible (all empty, no suggestions, not loading).
+	// Hide via display:none (not null) so the component stays mounted — returning null
+	// from a DOM-injected React root prevented re-rendering when loading started.
 	const bannerVisible = allEmpty && ! hasSuggestions && ! loading;
-	const style = bannerVisible ? { display: 'none' } : undefined;
+	const hiddenProps = bannerVisible
+		? { style: { display: 'none' }, 'aria-hidden': true }
+		: {};
 
 	return (
 		<Button
-			style={ style }
+			{ ...hiddenProps }
 			variant="primary"
 			icon={ <JetpackLogo size={ 8 } /> }
 			onClick={ generate }
