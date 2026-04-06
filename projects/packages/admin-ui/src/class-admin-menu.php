@@ -390,8 +390,8 @@ class Admin_Menu {
 		Tracking::register_tracks_functions_scripts( true );
 
 		wp_enqueue_script(
-			'jetpack-admin-ui-upgrade-menu',
-			plugins_url( '../build/admin-ui-upgrade-menu.js', __FILE__ ),
+			'jetpack-admin-ui-upgrade-menu-tracking',
+			plugins_url( '../build/admin-ui-upgrade-menu-tracking.js', __FILE__ ),
 			$asset['dependencies'] ?? array(),
 			$asset['version'] ?? self::PACKAGE_VERSION,
 			true
@@ -403,7 +403,7 @@ class Admin_Menu {
 		$tracks_user_data = class_exists( 'Jetpack_Tracks_Client' ) ? Jetpack_Tracks_Client::get_connected_user_tracks_identity() : null;
 
 		wp_localize_script(
-			'jetpack-admin-ui-upgrade-menu',
+			'jetpack-admin-ui-upgrade-menu-tracking',
 			'jetpackAdminUiUpgradeMenu',
 			array(
 				'menuItemClass'   => self::UPGRADE_MENU_SLUG,

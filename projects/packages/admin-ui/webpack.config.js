@@ -16,10 +16,8 @@ module.exports = {
 	},
 	node: false,
 	entry: {
-		'admin-ui-upgrade-menu': [
-			'./src/admin-ui-upgrade-menu.js',
-			'./src/admin-ui-upgrade-menu.scss',
-		],
+		'admin-ui-upgrade-menu-tracking': [ './src/admin-ui-upgrade-menu-tracking.js' ],
+		'admin-ui-upgrade-menu': [ './src/admin-ui-upgrade-menu.scss' ],
 	},
 	plugins: [ ...jetpackWebpackConfig.StandardPlugins() ],
 	module: {
