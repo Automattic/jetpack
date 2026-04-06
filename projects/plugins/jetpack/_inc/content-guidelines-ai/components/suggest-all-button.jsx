@@ -1,22 +1,25 @@
 import { Button } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
-import { useCallback, useState } from '@wordpress/element';
+import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
 import { STORE_NAME, VALID_SECTIONS } from '../constants';
 import { suggestGuidelines } from '../lib/api';
+import { AI_STORE_NAME } from '../store';
 
 const config = window.jetpackContentGuidelinesAiConfig || {};
 
 export default function SuggestAllButton() {
-	const [ loading, setLoading ] = useState( false );
-	const { setGuideline } = useDispatch( STORE_NAME );
-	const { createErrorNotice, createWarningNotice, createSuccessNotice } =
-		useDispatch( noticesStore );
+	const { createErrorNotice, createWarningNotice } = useDispatch( noticesStore );
+	const { startLoading, stopLoading, setSuggestion } = useDispatch( AI_STORE_NAME );
+
+	const loading = useSelect( select => select( AI_STORE_NAME ).isLoading(), [] );
 
 	const allGuidelines = useSelect( select => {
 		const store = select( STORE_NAME );
-		return Object.fromEntries( VALID_SECTIONS.map( slug => [ slug, store.getGuideline( slug ) ] ) );
+		return Object.fromEntries(
+			VALID_SECTIONS.map( slug => [ slug, store.getGuideline( slug ) ] )
+		);
 	}, [] );
 
 	const allEmpty = VALID_SECTIONS.every( slug => ! allGuidelines[ slug ] );
@@ -43,7 +46,7 @@ export default function SuggestAllButton() {
 			return;
 		}
 
-		setLoading( true );
+		startLoading();
 		try {
 			const existingContent = Object.fromEntries(
 				VALID_SECTIONS.filter( slug => allGuidelines[ slug ] ).map( slug => [
@@ -55,28 +58,20 @@ export default function SuggestAllButton() {
 			const response = await suggestGuidelines( VALID_SECTIONS, existingContent );
 			const suggestions = response?.suggestions || {};
 
-			let appliedCount = 0;
 			for ( const slug of VALID_SECTIONS ) {
 				if ( suggestions[ slug ] ) {
-					setGuideline( slug, suggestions[ slug ] );
-					appliedCount++;
+					setSuggestion( slug, suggestions[ slug ] );
 				}
 			}
-
-			if ( appliedCount > 0 ) {
-				createSuccessNotice(
-					__( 'Guidelines generated. Review and save each section.', 'jetpack' ),
-					{ type: 'snackbar' }
-				);
-			}
 		} catch {
-			createErrorNotice( __( 'Failed to generate guidelines. Please try again.', 'jetpack' ), {
-				type: 'snackbar',
-			} );
+			createErrorNotice(
+				__( 'Failed to generate guidelines. Please try again.', 'jetpack' ),
+				{ type: 'snackbar' }
+			);
 		} finally {
-			setLoading( false );
+			stopLoading();
 		}
-	}, [ allGuidelines, setGuideline, createErrorNotice, createWarningNotice, createSuccessNotice ] );
+	}, [ allGuidelines, startLoading, stopLoading, setSuggestion, createErrorNotice, createWarningNotice ] );
 
 	return (
 		<Button

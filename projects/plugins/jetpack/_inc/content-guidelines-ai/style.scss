@@ -11,3 +11,51 @@
 	margin: 0 0 12px;
 	font-size: 13px;
 }
+
+.jetpack-content-guidelines-ai__badge-container {
+	display: inline-flex;
+	align-items: center;
+	margin-left: auto;
+}
+
+.jetpack-content-guidelines-ai__badge {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	font-size: 12px;
+	font-weight: 500;
+	line-height: 1;
+	padding: 4px 8px;
+	border-radius: 12px;
+}
+
+.jetpack-content-guidelines-ai__badge--suggestion {
+	color: #00a32a;
+	background: #edfaef;
+}
+
+.jetpack-content-guidelines-ai__badge--suggestion::before {
+	content: "\2714";
+	font-size: 10px;
+}
+
+.jetpack-content-guidelines-ai__badge--loading .components-spinner {
+	margin: 0;
+	width: 16px;
+	height: 16px;
+}
+
+.jetpack-content-guidelines-ai__suggestion {
+	margin-bottom: 16px;
+}
+
+.jetpack-content-guidelines-ai__suggestion-text textarea {
+	min-height: 120px;
+	background: #f9f9f9;
+}
+
+.jetpack-content-guidelines-ai__suggestion-actions {
+	display: flex;
+	gap: 8px;
+	margin-top: 8px;
+}
