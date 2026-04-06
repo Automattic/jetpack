@@ -1,4 +1,3 @@
-import { JetpackLogo } from '@automattic/jetpack-components';
 import { Button } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
@@ -8,6 +7,21 @@ import { STORE_NAME, VALID_SECTIONS } from '../constants';
 import { suggestGuidelines } from '../lib/api';
 import { showUnavailableNotice } from '../lib/availability';
 import { AI_STORE_NAME } from '../store';
+
+const jetpackIcon = (
+	<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+		<g transform="translate(3,3)">
+			<path
+				d="M9 18C13.9706 18 18 13.9706 18 9C18 4.02944 13.9706 0 9 0C4.02944 0 0 4.02944 0 9C0 13.9706 4.02944 18 9 18Z"
+				fill="#069E08"
+			/>
+			<path
+				d="M14.0335 7.48851L9.53353 16.2141V7.48851H14.0335ZM8.6224 10.4944H4.13997L8.6224 1.78636V10.4944Z"
+				fill="white"
+			/>
+		</g>
+	</svg>
+);
 
 export default function SuggestAllButton() {
 	const { createErrorNotice, createWarningNotice } = useDispatch( noticesStore );
@@ -62,7 +76,7 @@ export default function SuggestAllButton() {
 	return (
 		<Button
 			variant="primary"
-			icon={ <JetpackLogo showText={ false } height={ 24 } /> }
+			icon={ jetpackIcon }
 			onClick={ handleClick }
 			disabled={ loading }
 			accessibleWhenDisabled
