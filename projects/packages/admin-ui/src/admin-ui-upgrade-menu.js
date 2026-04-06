@@ -16,7 +16,7 @@ domReady( function () {
 	}
 
 	// Class comes from PHP (UPGRADE_MENU_SLUG); safe for querySelector.
-	const item = document.querySelector( 'li.' + className );
+	const item = document.querySelector( `li.${ className } a` );
 	if ( ! item ) {
 		return;
 	}
