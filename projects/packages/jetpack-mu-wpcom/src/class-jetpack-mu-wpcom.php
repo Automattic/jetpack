@@ -87,9 +87,6 @@ class Jetpack_Mu_Wpcom {
 		// Filter to ensure JetpackScriptData.site.host and is_wpcom_platform is set, to ensure Jetpack blocks work as expected via P2.
 		add_filter( 'jetpack_public_js_script_data', array( __CLASS__, 'add_jetpack_script_data_for_p2' ), 10, 1 );
 
-		// Filter to populate JetpackScriptData.site.wpcom.blog_id with the actual WP.com blog ID.
-		add_filter( 'jetpack_admin_js_script_data', array( __CLASS__, 'set_wpcom_blog_id_script_data' ), 10, 1 );
-
 		/**
 		 * Runs right after the Jetpack_Mu_Wpcom package is initialized.
 		 *
@@ -748,20 +745,6 @@ class Jetpack_Mu_Wpcom {
 		if ( class_exists( 'Automattic\Jetpack\Classic_Theme_Helper\Social_Links' ) ) {
 			new \Automattic\Jetpack\Classic_Theme_Helper\Social_Links();
 		}
-	}
-
-	/**
-	 * Populate JetpackScriptData.site.wpcom.blog_id with the actual WP.com blog ID.
-	 *
-	 * @param array $data The script data.
-	 * @return array
-	 */
-	public static function set_wpcom_blog_id_script_data( $data ) {
-		$blog_id = get_wpcom_blog_id();
-		if ( $blog_id ) {
-			$data['site']['wpcom']['blog_id'] = $blog_id;
-		}
-		return $data;
 	}
 
 	/**
