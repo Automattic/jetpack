@@ -22,9 +22,9 @@ export default function SuggestAllButton() {
 		[]
 	);
 
-	const label = allEmpty
-		? __( 'Generate guidelines', 'jetpack' )
-		: __( 'Improve guidelines', 'jetpack' );
+	const generateLabel = __( 'Generate guidelines', 'jetpack' );
+	const improveLabel = __( 'Improve guidelines', 'jetpack' );
+	const label = allEmpty ? generateLabel : improveLabel;
 
 	// Hide via display:none (not null) so the component stays mounted — returning null
 	// from a DOM-injected React root prevented re-rendering when loading started.

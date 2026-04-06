@@ -23,9 +23,9 @@ export default function SectionGenerateButton( { slug } ) {
 	);
 
 	const isEmpty = ! draft;
-	const label = isEmpty
-		? __( 'Generate guidelines', 'jetpack' )
-		: __( 'Improve guidelines', 'jetpack' );
+	const generateLabel = __( 'Generate guidelines', 'jetpack' );
+	const improveLabel = __( 'Improve guidelines', 'jetpack' );
+	const label = isEmpty ? generateLabel : improveLabel;
 
 	const handleClick = useCallback( async () => {
 		if ( showUnavailableNotice( createWarningNotice ) ) {
