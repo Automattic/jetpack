@@ -59,7 +59,10 @@ export default function SuggestionActions( { slug } ) {
 
 	return (
 		<div className="jetpack-content-guidelines-ai__suggestion">
-			<div className="jetpack-content-guidelines-ai__diff">
+			<div className="jetpack-content-guidelines-ai__diff" role="region" aria-label={ __( 'Suggested changes', 'jetpack' ) }>
+				<span className="screen-reader-text">
+					{ __( 'Changes from current to suggested guidelines:', 'jetpack' ) }
+				</span>
 				{ diff.map( ( part, i ) => {
 					if ( part.added ) {
 						return (
