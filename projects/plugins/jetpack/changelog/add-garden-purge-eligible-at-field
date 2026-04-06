@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Add garden_purge_eligible_at field to the site API endpoint.
