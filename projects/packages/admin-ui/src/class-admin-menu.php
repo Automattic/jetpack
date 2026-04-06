@@ -409,9 +409,9 @@ class Admin_Menu {
 				'menuItemClass'   => self::UPGRADE_MENU_SLUG,
 				'tracksUserData'  => $tracks_user_data,
 				'tracksEventData' => array(
-					'isAdmin'       => $is_admin,
-					'currentScreen' => $current_screen ? $current_screen->id : false,
-					'blogID'        => $site_id,
+					'is_admin'       => $is_admin,
+					'current_screen' => $current_screen ? $current_screen->id : false,
+					'blog_id'        => $site_id,
 				),
 			)
 		);
