@@ -88,7 +88,7 @@ for ( const item of trustPolicyExclude.items ) {
 		error(
 			file,
 			yamlLine( item, fileContents ),
-			`Unrecognized trustPolicyExclude item format ${ pkg }. This may be valid for pnpm, but the audit script doesn't recognize it.`
+			`Unrecognized trustPolicyExclude item format ${ pkg }. This may be valid for pnpm, but the audit script doesn't recognize it. It'd probably be safer to list only the exact versions needed (with \`||\`) anyway.`
 		);
 		process.exitCode = 1;
 		continue;
