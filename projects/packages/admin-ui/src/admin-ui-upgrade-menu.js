@@ -20,16 +20,29 @@ domReady( function () {
 		return;
 	}
 
-	const analytics = window.analytics;
-
 	// Initialize Tracks
-	if ( 'undefined' !== typeof analytics && config.tracksUserData ) {
-		analytics.initialize( config.tracksUserData.userid, config.tracksUserData.username );
+	if ( 'undefined' !== typeof window?.analytics && config.tracksUserData ) {
+		window.analytics.initialize( config.tracksUserData?.userid, config.tracksUserData?.username );
 	}
 
-	analytics.tracks.recordEvent( 'jetpack_sidebar_free_upgrade_seen', config.tracksEventData );
+	// Only record the "seen" event if the parent menu is open.
+	const parentTopLevelMenu = item.closest( '#toplevel_page_jetpack' );
+	const isParentMenuOpen =
+		parentTopLevelMenu &&
+		parentTopLevelMenu.classList.contains( 'wp-menu-open' ) &&
+		parentTopLevelMenu.classList.contains( 'wp-has-current-submenu' );
+
+	if ( isParentMenuOpen ) {
+		window.analytics.tracks.recordEvent(
+			'jetpack_sidebar_free_upgrade_seen',
+			config.tracksEventData
+		);
+	}
 
 	item.addEventListener( 'click', function () {
-		analytics.tracks.recordEvent( 'jetpack_sidebar_free_upgrade_click', config.tracksEventData );
+		window.analytics.tracks.recordEvent(
+			'jetpack_sidebar_free_upgrade_click',
+			config.tracksEventData
+		);
 	} );
 } );
