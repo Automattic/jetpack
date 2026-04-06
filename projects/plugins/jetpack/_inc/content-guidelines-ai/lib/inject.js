@@ -6,166 +6,158 @@ import SuggestionBadge from '../components/suggestion-badge';
 import SuggestAllButton from '../components/suggest-all-button';
 import { VALID_SECTIONS } from '../constants';
 
-// Injection containers are tracked by reference. Before considering a slot "injected",
-// we verify the container is still in the DOM — Gutenberg's <Navigator> removes and
-// re-adds the main screen when navigating to/from revision history, which destroys
-// our injected elements while JS module state persists.
+// Each injection point tracks both the DOM container and its React root.
+// Before re-injecting, we unmount the old root to ensure proper cleanup
+// of effects and subscriptions. We verify containers via isConnected since
+// Gutenberg's <Navigator> removes/re-adds the main screen DOM when
+// navigating to revision history and back.
 
-let headerContainer = null;
-let bannerContainer = null;
-const badgeContainers = {};
-const actionContainers = {};
-const sectionButtonContainers = {};
+const slots = {
+	header: { container: null, root: null },
+	banner: { container: null, root: null },
+};
+
+for ( const slug of VALID_SECTIONS ) {
+	slots[ `badge-${ slug }` ] = { container: null, root: null };
+	slots[ `actions-${ slug }` ] = { container: null, root: null };
+	slots[ `button-${ slug }` ] = { container: null, root: null };
+}
 
 /**
- * Check if an element is still attached to the document.
+ * Inject a React component into the DOM, reusing or replacing the slot.
  *
- * @param {Element|null} el - The element to check.
- * @return {boolean} True if the element is connected to the DOM.
+ * @param {string}   key       - Slot key in the slots map.
+ * @param {Function} findParent - Returns { parent, before, className } or null.
+ * @param {Function} Component - React component to render.
+ * @param {Object}   [props]   - Props to pass to the component.
  */
-function isInDOM( el ) {
-	return el?.isConnected ?? false;
-}
+function inject( key, findParent, Component, props ) {
+	const slot = slots[ key ];
 
-function injectHeaderButton() {
-	if ( isInDOM( headerContainer ) ) {
+	// Already injected and still in DOM — nothing to do.
+	if ( slot.container?.isConnected ) {
 		return;
 	}
 
-	const actionsSlot = document.querySelector( '.admin-ui-page__header-actions' );
-	if ( ! actionsSlot ) {
+	// Container was removed — unmount the old root to clean up effects.
+	if ( slot.root ) {
+		slot.root.unmount();
+		slot.root = null;
+		slot.container = null;
+	}
+
+	const target = findParent();
+	if ( ! target ) {
 		return;
 	}
 
-	headerContainer = document.createElement( 'div' );
-	headerContainer.className = 'jetpack-content-guidelines-ai__header-container';
-	actionsSlot.appendChild( headerContainer );
-	createRoot( headerContainer ).render( createElement( SuggestAllButton ) );
-}
+	const { parent, before, className, tag } = target;
+	const container = document.createElement( tag || 'div' );
+	container.className = className;
 
-function injectBanner() {
-	if ( isInDOM( bannerContainer ) ) {
-		return;
+	if ( before ) {
+		parent.insertBefore( container, before );
+	} else {
+		parent.appendChild( container );
 	}
 
-	const list = document.querySelector( '.content-guidelines__list' );
-	if ( ! list ) {
-		return;
-	}
+	const root = createRoot( container );
+	root.render( createElement( Component, props ) );
 
-	bannerContainer = document.createElement( 'div' );
-	bannerContainer.className = 'jetpack-content-guidelines-ai__banner-container';
-	list.parentElement.insertBefore( bannerContainer, list );
-	createRoot( bannerContainer ).render( createElement( EmptyStateBanner ) );
-}
-
-function injectBadges() {
-	for ( const slug of VALID_SECTIONS ) {
-		if ( isInDOM( badgeContainers[ slug ] ) ) {
-			continue;
-		}
-
-		const form = document.getElementById( `content-guidelines-${ slug }` );
-		if ( ! form ) {
-			continue;
-		}
-
-		const accordion = form.closest( '.content-guidelines__accordion' );
-		if ( ! accordion ) {
-			continue;
-		}
-
-		const trigger = accordion.querySelector( '.content-guidelines__accordion-trigger' );
-		if ( ! trigger ) {
-			continue;
-		}
-
-		const hStack = trigger.firstElementChild;
-		if ( ! hStack ) {
-			continue;
-		}
-
-		const container = document.createElement( 'span' );
-		container.className = 'jetpack-content-guidelines-ai__badge-container';
-		const chevron = hStack.lastElementChild;
-		if ( chevron ) {
-			hStack.insertBefore( container, chevron );
-		} else {
-			hStack.appendChild( container );
-		}
-
-		createRoot( container ).render( createElement( SuggestionBadge, { slug } ) );
-		badgeContainers[ slug ] = container;
-	}
-}
-
-function injectSuggestionActions() {
-	for ( const slug of VALID_SECTIONS ) {
-		if ( isInDOM( actionContainers[ slug ] ) ) {
-			continue;
-		}
-
-		const form = document.getElementById( `content-guidelines-${ slug }` );
-		if ( ! form ) {
-			continue;
-		}
-
-		const vStack = form.firstElementChild;
-		if ( ! vStack ) {
-			continue;
-		}
-
-		const container = document.createElement( 'div' );
-		container.className = 'jetpack-content-guidelines-ai__actions-container';
-		vStack.insertBefore( container, vStack.firstChild );
-
-		createRoot( container ).render( createElement( SuggestionActions, { slug } ) );
-		actionContainers[ slug ] = container;
-	}
-}
-
-function injectSectionButtons() {
-	for ( const slug of VALID_SECTIONS ) {
-		if ( isInDOM( sectionButtonContainers[ slug ] ) ) {
-			continue;
-		}
-
-		const form = document.getElementById( `content-guidelines-${ slug }` );
-		if ( ! form ) {
-			continue;
-		}
-
-		const saveButton = form.querySelector( '.save-button' );
-		const hStack = saveButton?.parentElement;
-		if ( ! hStack ) {
-			continue;
-		}
-
-		const container = document.createElement( 'div' );
-		container.className = 'jetpack-content-guidelines-ai__section-button-container';
-		hStack.appendChild( container );
-
-		createRoot( container ).render( createElement( SectionGenerateButton, { slug } ) );
-		sectionButtonContainers[ slug ] = container;
-	}
+	slot.container = container;
+	slot.root = root;
 }
 
 function runAll() {
-	injectHeaderButton();
-	injectBanner();
-	injectBadges();
-	injectSuggestionActions();
-	injectSectionButtons();
+	// Header button.
+	inject( 'header', () => {
+		const actionsSlot = document.querySelector( '.admin-ui-page__header-actions' );
+		return actionsSlot
+			? { parent: actionsSlot, className: 'jetpack-content-guidelines-ai__header-container' }
+			: null;
+	}, SuggestAllButton );
+
+	// Empty state banner.
+	inject( 'banner', () => {
+		const list = document.querySelector( '.content-guidelines__list' );
+		return list
+			? {
+					parent: list.parentElement,
+					before: list,
+					className: 'jetpack-content-guidelines-ai__banner-container',
+				}
+			: null;
+	}, EmptyStateBanner );
+
+	// Per-section injections.
+	for ( const slug of VALID_SECTIONS ) {
+		const form = document.getElementById( `content-guidelines-${ slug }` );
+		if ( ! form ) {
+			continue;
+		}
+
+		// Badge in accordion header.
+		inject( `badge-${ slug }`, () => {
+			const accordion = form.closest( '.content-guidelines__accordion' );
+			const trigger = accordion?.querySelector( '.content-guidelines__accordion-trigger' );
+			const hStack = trigger?.firstElementChild;
+			if ( ! hStack ) {
+				return null;
+			}
+			return {
+				parent: hStack,
+				before: hStack.lastElementChild,
+				className: 'jetpack-content-guidelines-ai__badge-container',
+				tag: 'span',
+			};
+		}, SuggestionBadge, { slug } );
+
+		// Suggestion actions (diff + accept/dismiss) at top of form.
+		inject( `actions-${ slug }`, () => {
+			const vStack = form.firstElementChild;
+			return vStack
+				? {
+						parent: vStack,
+						before: vStack.firstChild,
+						className: 'jetpack-content-guidelines-ai__actions-container',
+					}
+				: null;
+		}, SuggestionActions, { slug } );
+
+		// Per-section generate button next to save.
+		inject( `button-${ slug }`, () => {
+			const saveButton = form.querySelector( '.save-button' );
+			const hStack = saveButton?.parentElement;
+			return hStack
+				? {
+						parent: hStack,
+						className: 'jetpack-content-guidelines-ai__section-button-container',
+					}
+				: null;
+		}, SectionGenerateButton, { slug } );
+	}
 }
 
 /**
  * Start observing DOM and inject all components.
  * The observer never disconnects because Gutenberg's Navigator can
  * remove and re-add the main screen (e.g. revision history navigation).
+ * Callbacks are debounced via requestAnimationFrame to avoid running
+ * on every individual DOM mutation.
  */
 export function startInjection() {
 	runAll();
 
-	const observer = new MutationObserver( () => runAll() );
+	let scheduled = false;
+	const observer = new MutationObserver( () => {
+		if ( ! scheduled ) {
+			scheduled = true;
+			requestAnimationFrame( () => {
+				scheduled = false;
+				runAll();
+			} );
+		}
+	} );
+
 	observer.observe( document.body, { childList: true, subtree: true } );
 }
