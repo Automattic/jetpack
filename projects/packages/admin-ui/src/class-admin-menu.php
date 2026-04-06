@@ -7,6 +7,10 @@
 
 namespace Automattic\Jetpack\Admin_UI;
 
+use Automattic\Jetpack\Tracking;
+use Jetpack_Options;
+use Jetpack_Tracks_Client;
+
 /**
  * This class offers a wrapper to add_submenu_page and makes sure stand-alone plugin's menu items are always added under the Jetpack top level menu.
  * If the Jetpack top level was not previously registered by other plugin, it will be registered here.
@@ -254,6 +258,7 @@ class Admin_Menu {
 	 * @return bool True if the upgrade menu should be shown.
 	 */
 	private static function should_show_upgrade_menu() {
+
 		// Only show to administrators.
 		if ( ! current_user_can( 'manage_options' ) ) {
 			return false;
@@ -366,6 +371,49 @@ class Admin_Menu {
 			plugins_url( '../build/admin-ui-upgrade-menu.css', __FILE__ ),
 			$asset['dependencies'] ?? array(),
 			$asset['version'] ?? self::PACKAGE_VERSION
+		);
+
+		self::enqueue_upgrade_menu_tracks_script( $asset );
+	}
+
+	/**
+	 * Enqueues Tracks for the upgrade submenu item.
+	 *
+	 * @param array $asset Parsed contents of admin-ui-upgrade-menu.asset.php.
+	 * @return void
+	 */
+	private static function enqueue_upgrade_menu_tracks_script( $asset ) {
+		if ( ! class_exists( '\Automattic\Jetpack\Tracking' ) ) {
+			return;
+		}
+
+		Tracking::register_tracks_functions_scripts( true );
+
+		wp_enqueue_script(
+			'jetpack-admin-ui-upgrade-menu-tracking',
+			plugins_url( '../build/admin-ui-upgrade-menu-tracking.js', __FILE__ ),
+			$asset['dependencies'] ?? array(),
+			$asset['version'] ?? self::PACKAGE_VERSION,
+			true
+		);
+
+		$current_screen   = get_current_screen();
+		$is_admin         = current_user_can( 'jetpack_disconnect' );
+		$site_id          = class_exists( 'Jetpack_Options' ) ? Jetpack_Options::get_option( 'id' ) : null;
+		$tracks_user_data = class_exists( 'Jetpack_Tracks_Client' ) ? Jetpack_Tracks_Client::get_connected_user_tracks_identity() : null;
+
+		wp_localize_script(
+			'jetpack-admin-ui-upgrade-menu-tracking',
+			'jetpackAdminUiUpgradeMenu',
+			array(
+				'menuItemClass'   => self::UPGRADE_MENU_SLUG,
+				'tracksUserData'  => $tracks_user_data,
+				'tracksEventData' => array(
+					'isAdmin'       => $is_admin,
+					'currentScreen' => $current_screen ? $current_screen->id : false,
+					'blogID'        => $site_id,
+				),
+			)
 		);
 	}
 }

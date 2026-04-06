@@ -198,7 +198,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/admin-ui",
-                "reference": "b85d3fbbc9298316d8cd1d3e35f50a6e0b17c07c"
+                "reference": "4a22370d0dcae70a9f3900a13bf4bcd69909438d"
             },
             "require": {
                 "automattic/jetpack-redirect": "@dev",
@@ -207,6 +207,7 @@
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
+                "automattic/jetpack-connection": "@dev",
                 "automattic/jetpack-logo": "@dev",
                 "automattic/jetpack-test-environment": "@dev",
                 "automattic/phpunit-select-config": "@dev",
@@ -225,6 +226,11 @@
                 },
                 "branch-alias": {
                     "dev-trunk": "0.6.x-dev"
+                },
+                "dependencies": {
+                    "test-only": [
+                        "packages/connection"
+                    ]
                 },
                 "version-constants": {
                     "::PACKAGE_VERSION": "src/class-admin-menu.php"
