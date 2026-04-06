@@ -1,9 +1,9 @@
 <?php
 /**
- * Content Guidelines AI — "Generate with Jetpack" button injection.
+ * Content Guidelines AI — Jetpack AI integration.
  *
  * Enqueues a standalone JS bundle on the Content Guidelines admin page
- * that injects AI-powered generate buttons next to each "Save guidelines" button.
+ * that adds AI-powered guideline generation via Jetpack.
  *
  * @package automattic/jetpack
  */
