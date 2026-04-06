@@ -40,7 +40,7 @@ trustPolicyExclude:
   # https://github.com/paulmillr/chokidar/issues/1440
   - chokidar@4.0.3
 
-  # Don't know why 5.1.0 had provenance but 5.1.1 doesn't. But both are over a year old and there's nothing suspicious in the diff. 🤷
+  # https://github.com/reduxjs/reselect/issues/752
   - reselect@5.1.1
 
   # Packages where newer majors have provenance but we're still on an older one.
