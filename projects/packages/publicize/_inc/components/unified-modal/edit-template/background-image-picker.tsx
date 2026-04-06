@@ -150,7 +150,12 @@ export function BackgroundImagePicker( {
 	);
 
 	const [ mediaDetails, isMediaNotFound ] = useMediaDetails( displayImageId );
-	const [ , isDefaultImageNotFound ] = useMediaDetails( defaultImageId );
+	// Only make a separate call for the default image if it differs from the displayed image
+	const [ , isDefaultImageOnlyNotFound ] = useMediaDetails(
+		displayImageId !== defaultImageId ? defaultImageId : null
+	);
+	const isDefaultImageNotFound =
+		displayImageId === defaultImageId ? isMediaNotFound : isDefaultImageOnlyNotFound;
 	const imageUrl = mediaDetails?.mediaData?.sourceUrl;
 	const isLoading = Boolean( displayImageId ) && ! imageUrl && ! isMediaNotFound;
 	const showFeaturedImageNotice = imageType === 'featured' && ! featuredImageId;
