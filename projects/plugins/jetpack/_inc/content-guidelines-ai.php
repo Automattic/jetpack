@@ -43,6 +43,13 @@ function jetpack_content_guidelines_ai_enqueue_scripts( $hook_suffix ) {
 		true
 	);
 
+	wp_enqueue_style(
+		'jetpack-content-guidelines-ai',
+		plugins_url( '_inc/build/content-guidelines-ai.min.css', JETPACK__PLUGIN_FILE ),
+		array( 'wp-components' ),
+		$asset['version']
+	);
+
 	// Determine AI availability per site type and pass config to JS.
 	if ( ! class_exists( 'Jetpack_AI_Helper' ) ) {
 		require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-ai-helper.php';
