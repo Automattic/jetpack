@@ -1,9 +1,7 @@
 /**
- * Marks the wp-admin Jetpack sidebar "Upgrade Jetpack" item for Tracks (see tracks-ajax.js / jptracks).
+ * Marks the wp-admin Jetpack sidebar "Upgrade Jetpack" item for Tracks.
  */
-import domReady from '@wordpress/dom-ready';
-
-domReady( function () {
+document.addEventListener( 'DOMContentLoaded', () => {
 	const config = window.jetpackAdminUiUpgradeMenu;
 	if ( typeof config === 'undefined' ) {
 		return;
@@ -26,7 +24,7 @@ domReady( function () {
 	}
 
 	item.addEventListener( 'click', function () {
-		window.analytics.tracks.recordEvent(
+		window.analytics?.tracks?.recordEvent(
 			'jetpack_sidebar_free_upgrade_click',
 			config.tracksEventData
 		);
