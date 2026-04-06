@@ -99,6 +99,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'garden_name'                 => '(string) The name of the Garden site.',
 		'garden_partner'              => '(string) The partner of the Garden site.',
 		'garden_is_provisioned'       => '(bool) If the Garden site is provisioned.',
+		'garden_purge_eligible_at'    => '(string) UTC datetime when the Garden site becomes eligible for purging.',
 		'is_wpcom_flex'               => '(bool) If the site is a Flex site',
 		'big_sky_enabled'             => '(bool) Whether the Big Sky AI assistant is enabled for this site.',
 	);
@@ -261,6 +262,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'garden_name',
 		'garden_partner',
 		'garden_is_provisioned',
+		'garden_purge_eligible_at',
 		'is_wpcom_flex',
 		'big_sky_enabled',
 	);
@@ -662,6 +664,9 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 				break;
 			case 'garden_is_provisioned':
 				$response[ $key ] = $this->site->garden_is_provisioned();
+				break;
+			case 'garden_purge_eligible_at':
+				$response[ $key ] = $this->site->garden_purge_eligible_at();
 				break;
 			case 'is_wpcom_flex':
 				$response[ $key ] = $this->site->is_wpcom_flex();

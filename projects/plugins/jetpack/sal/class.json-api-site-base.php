@@ -1746,6 +1746,15 @@ abstract class SAL_Site {
 	}
 
 	/**
+	 * Get the UTC datetime when the Garden site becomes eligible for purging.
+	 *
+	 * @return string|null
+	 */
+	public function garden_purge_eligible_at() {
+		return null;
+	}
+
+	/**
 	 * Detect whether the site is a Flex site.
 	 *
 	 * @return bool
