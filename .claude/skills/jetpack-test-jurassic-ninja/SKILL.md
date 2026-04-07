@@ -63,6 +63,33 @@ If the sites list is empty, tell the user:
 
 > You don't have any Jurassic Ninja sites. Create one at **https://jurassic.ninja/create**, wait for it to be ready, then try again.
 
+### Check 6: SSH access to Jurassic Ninja
+
+Test whether the user has SSH key-based access configured for the JN SFTP host:
+
+```bash
+ssh -o BatchMode=yes -o ConnectTimeout=5 -o StrictHostKeyChecking=no {domain}@ssh.atomicsites.net exit 2>&1
+```
+
+Where `{domain}` is the domain of the target site (e.g. `foo.jurassic.ninja`).
+
+**If the command succeeds (exit code 0):** SSH keys are configured — skip password entirely. Set `SSH_OK=true`.
+
+**If the command fails:** SSH key auth is not configured. Tell the user:
+
+> SSH key authentication to `ssh.atomicsites.net` is not configured. You can fix this by adding the following to your `~/.ssh/config`:
+>
+> ```
+> Host ssh.atomicsites.net
+>     HostName ssh.atomicsites.net
+>     Include ~/.ssh/a8c-key.config
+>     ProxyJump proxy.automattic.com
+> ```
+>
+> For now, I'll use the site password instead.
+
+Then set `SSH_OK=false` and retrieve the password from the site data to use as a fallback.
+
 ## Workflow
 
 ### 1. Determine which plugin to sync
@@ -85,10 +112,20 @@ If the build fails, stop and report the error to the user — do not proceed to 
 
 ### 4. Run the rsync
 
-Derive the SSH host from the site's `ssh_command` field (e.g. `ssh foo.jurassic.ninja@sftp.wp.com` → host is `sftp.wp.com`). Do not hardcode the SSH host — it may change.
+The SSH host is always `ssh.atomicsites.net`.
+
+**If SSH_OK is true** (key-based auth works):
 
 ```bash
-jetpack rsync {plugin} {domain}@{ssh_host}:/srv/htdocs/wp-content/plugins/{plugin-slug} --non-interactive --password='{JN_PASSWORD}'
+jetpack rsync {plugin} {domain}@ssh.atomicsites.net:/srv/htdocs/wp-content/plugins/{plugin-slug} --non-interactive
+```
+
+No `--password` flag needed — SSH keys handle authentication.
+
+**If SSH_OK is false** (falling back to password):
+
+```bash
+jetpack rsync {plugin} {domain}@ssh.atomicsites.net:/srv/htdocs/wp-content/plugins/{plugin-slug} --non-interactive --password='{JN_PASSWORD}'
 ```
 
 The `--password` flag passes the SSH password automatically via `SSH_ASKPASS`.
@@ -98,3 +135,4 @@ The `--password` flag passes the SSH password automatically via `SSH_ASKPASS`.
 After sync completes, show:
 - The admin login URL: `https://{domain}/?auto_login`
 - Reminder: set `define('JETPACK_AUTOLOAD_DEV', true);` in a mu-plugin on the remote site
+- If SSH_OK was false: remind the user to set up SSH keys for a smoother experience next time
