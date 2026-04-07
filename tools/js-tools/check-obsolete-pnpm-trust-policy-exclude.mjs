@@ -52,7 +52,7 @@ if ( ! ( pnpmWorkspace.contents instanceof YAML.YAMLMap ) ) {
 }
 const trustPolicyExclude = pnpmWorkspace.contents.get( 'trustPolicyExclude' );
 if ( ! trustPolicyExclude ) {
-	debug( 'No trustPolicyExclude found. That's good!' );
+	debug( `No trustPolicyExclude found. That's good!` );
 	process.exit( 0 );
 }
 if ( ! ( trustPolicyExclude instanceof YAML.YAMLSeq ) ) {
