@@ -36,8 +36,7 @@ function is_block_notes_enabled() {
 	/*
 	 * Temporarily disabled while we investigate expensive API calls
 	 * triggered by has_paid_ai_plan() on every Gutenberg page load for
-	 * self-hosted sites, and premature Agents Manager activation via
-	 * the unified experience filter.
+	 * self-hosted sites.
 	 */
 	return false;
 }
