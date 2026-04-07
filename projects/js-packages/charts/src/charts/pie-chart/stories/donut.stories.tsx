@@ -1,6 +1,4 @@
-/* eslint-disable @wordpress/no-unsafe-wp-apis */
-import { __experimentalHStack as HStack } from '@wordpress/components';
-import { Text } from '@wordpress/ui';
+import { Stack, Text } from '@wordpress/ui';
 import { Fragment } from 'react';
 import { BaseLegendItem } from '../../../components/legend/types';
 import {
@@ -267,7 +265,7 @@ const CustomPieLegend = ( {
 
 			return (
 				<Fragment key={ index }>
-					<HStack direction="row" justify="flex-start" spacing={ 2 }>
+					<Stack direction="row" justify="flex-start" gap="sm">
 						<div
 							style={ {
 								width: '8px',
@@ -278,7 +276,7 @@ const CustomPieLegend = ( {
 							} }
 						/>
 						<Text variant="body-sm">{ item.label }</Text>
-					</HStack>
+					</Stack>
 					<Text variant="body-sm" style={ { fontWeight: 600, textAlign: 'right' } }>
 						{ item.formattedValue }
 					</Text>
