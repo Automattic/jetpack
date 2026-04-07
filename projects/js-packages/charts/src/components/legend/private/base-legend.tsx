@@ -1,6 +1,7 @@
 import { Group } from '@visx/group';
 import { LegendItem, LegendLabel, LegendOrdinal, LegendShape } from '@visx/legend';
 import { scaleOrdinal } from '@visx/scale';
+import { Stack } from '@wordpress/ui';
 import clsx from 'clsx';
 import {
 	type RefAttributes,
@@ -15,11 +16,6 @@ import { GlobalChartsContext, useGlobalChartsTheme } from '../../../providers';
 import { valueOrIdentity, valueOrIdentityString, labelTransformFactory } from '../utils';
 import styles from './base-legend.module.scss';
 import type { BaseLegendProps } from '../types';
-
-const orientationToFlexDirection = {
-	horizontal: 'row' as const,
-	vertical: 'column' as const,
-};
 
 // Component for legend text with truncation detection
 // Moved outside BaseLegend to prevent recreation on every render
@@ -159,6 +155,13 @@ export const BaseLegend: ForwardRefExoticComponent<
 			[ interactive, handleLegendClick ]
 		);
 
+		const alignmentToFlex = {
+			start: 'flex-start',
+			center: 'center',
+			end: 'flex-end',
+		} as const;
+		const flexAlignment = alignmentToFlex[ alignment ] ?? 'center';
+
 		return render ? (
 			render( items )
 		) : (
@@ -168,20 +171,17 @@ export const BaseLegend: ForwardRefExoticComponent<
 				labelTransform={ labelTransform }
 			>
 				{ labels => (
-					<div
+					<Stack
 						ref={ ref }
+						direction={ orientation === 'vertical' ? 'column' : 'row' }
+						gap={ orientation === 'vertical' ? 'sm' : 'lg' }
+						align={ orientation === 'vertical' ? flexAlignment : undefined }
+						justify={ orientation === 'horizontal' ? flexAlignment : undefined }
+						wrap={ orientation === 'horizontal' ? 'wrap' : undefined }
 						role="list"
 						data-testid={ `legend-${ orientation }` }
-						className={ clsx(
-							styles.legend,
-							styles[ `legend--${ orientation }` ],
-							styles[ `legend--alignment-${ alignment }` ],
-							className
-						) }
-						style={ {
-							flexDirection: orientationToFlexDirection[ orientation ],
-							...theme.legend?.containerStyles,
-						} }
+						className={ clsx( styles.legend, className ) }
+						style={ theme.legend?.containerStyles }
 					>
 						{ labels.map( ( label, i ) => {
 							const visible = isSeriesVisible( label.text );
@@ -278,7 +278,7 @@ export const BaseLegend: ForwardRefExoticComponent<
 								</LegendItem>
 							);
 						} ) }
-					</div>
+					</Stack>
 				) }
 			</LegendOrdinal>
 		);
