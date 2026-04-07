@@ -405,6 +405,7 @@ describe( 'resolveCssVariable', () => {
 		} );
 
 		it( 'handles complex selector scoped elements', () => {
+			// Simulate an element with specific classes/attributes like .uLgshq-root[data-wpds-theme-provider-id]
 			const themedElement = document.createElement( 'div' );
 			themedElement.className = 'uLgshq-root';
 			themedElement.setAttribute( 'data-wpds-theme-provider-id', ':rj:' );
