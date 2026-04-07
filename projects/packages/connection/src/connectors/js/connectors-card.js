@@ -342,7 +342,7 @@ function ConnectPrompt( { onConnect, isConnecting, isDisconnecting } ) {
 function ConfirmationModal( { title, message, onConfirm, onCancel } ) {
 	return createElement(
 		Modal,
-		{ title, onRequestClose: onCancel, size: 'small' },
+		{ title, onRequestClose: onCancel, size: 'small', role: 'alertdialog' },
 		createElement(
 			VStack,
 			{ spacing: 5 },
