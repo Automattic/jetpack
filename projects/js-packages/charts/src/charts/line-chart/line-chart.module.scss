@@ -26,10 +26,7 @@
 	}
 
 	&__tooltip-row {
-		display: flex;
-		align-items: center;
 		padding: 4px 0;
-		justify-content: space-between;
 	}
 
 	&__tooltip-label {
@@ -79,13 +76,6 @@
 			position: initial;
 			margin: auto;
 		}
-	}
-
-	&__annotation-label-popover-header {
-		display: flex;
-		flex-direction: row;
-		justify-content: space-between;
-		align-items: start;
 	}
 
 	&__annotation-label-popover-content {
