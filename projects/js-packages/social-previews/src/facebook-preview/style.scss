@@ -30,7 +30,7 @@
 	/* stylelint-disable-next-line scales/font-sizes */
 	font-size: 0.9375rem; // 15px
 	line-height: 1.33;
-	word-break: break-word;
+	overflow-wrap: break-word;
 }
 
 .facebook-preview__custom-text-post-url {
@@ -66,7 +66,7 @@
 	background-color: vars.$facebook-preview-text-background-color;
 	color: vars.$facebook-preview-text-color;
 
-	word-break: break-word;
+	overflow-wrap: break-word;
 }
 
 .facebook-preview__text-wrapper {

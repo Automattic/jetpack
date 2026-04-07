@@ -1,4 +1,10 @@
 /**
+ * Maximum number of rating icons to render.
+ * Used to prevent DOM bloat from malformed or excessively large values.
+ */
+export const MAX_RATING_ICONS = 10;
+
+/**
  * Rating icon SVG paths.
  * Single source of truth for star and heart icon paths used across the forms package.
  */

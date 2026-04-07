@@ -1,5 +1,6 @@
 <?php
 
+use Automattic\Jetpack\Status\Cache as StatusCache;
 use PHPUnit\Framework\Attributes\CoversFunction;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
@@ -14,6 +15,7 @@ use PHPUnit\Framework\Attributes\Group;
  * @covers ::jetpack_og_get_site_fallback_blank_image
  * @covers ::jetpack_og_get_site_image
  * @covers ::jetpack_og_generate_fallback_social_image
+ * @covers ::jetpack_og_get_fallback_social_image
  * @group jetpack-opengraph
  */
 #[CoversFunction( 'jetpack_og_get_image' )]
@@ -22,6 +24,7 @@ use PHPUnit\Framework\Attributes\Group;
 #[CoversFunction( 'jetpack_og_get_site_fallback_blank_image' )]
 #[CoversFunction( 'jetpack_og_get_site_image' )]
 #[CoversFunction( 'jetpack_og_generate_fallback_social_image' )]
+#[CoversFunction( 'jetpack_og_get_fallback_social_image' )]
 #[Group( 'jetpack-opengraph' )]
 class Functions_OpenGraph_Test extends Jetpack_Attachment_TestCase {
 
@@ -600,5 +603,61 @@ class Functions_OpenGraph_Test extends Jetpack_Attachment_TestCase {
 				},
 			),
 		);
+	}
+
+	/**
+	 * Test that jetpack_og_get_fallback_social_image returns early in offline mode.
+	 */
+	public function test_jetpack_og_get_fallback_social_image_returns_early_in_offline_mode() {
+		// Simulate offline mode.
+		add_filter( 'jetpack_offline_mode', '__return_true' );
+		StatusCache::clear();
+
+		$result = jetpack_og_get_fallback_social_image( 200, 200 );
+
+		$this->assertIsArray( $result );
+		$this->assertArrayHasKey( 'src', $result );
+		// In offline mode the function should return the site image directly,
+		// not a Social Image Generator URL.
+		$this->assertStringNotContainsString( 'https://s0.wp.com/_si/', $result['src'] );
+
+		// Clean up.
+		remove_filter( 'jetpack_offline_mode', '__return_true' );
+		StatusCache::clear();
+	}
+
+	/**
+	 * Test that jetpack_og_get_fallback_social_image skips dynamic image generation in offline mode
+	 * even when a social image token would be available.
+	 */
+	public function test_jetpack_og_get_fallback_social_image_skips_generation_in_offline_mode() {
+		// Simulate offline mode.
+		add_filter( 'jetpack_offline_mode', '__return_true' );
+		StatusCache::clear();
+
+		// Provide a token that would trigger SIG image generation if the function didn't bail early.
+		$token_filter = function () {
+			return 'test_token_should_not_be_used';
+		};
+		add_filter( 'jetpack_og_get_social_image_token', $token_filter );
+
+		// Set a site icon so we get a deterministic site image with a real src.
+		update_option( 'site_icon', $this->icon_id );
+
+		$result = jetpack_og_get_fallback_social_image( 200, 200 );
+
+		$this->assertIsArray( $result );
+		$this->assertArrayHasKey( 'src', $result );
+		// The token should never be used — the function should return before reaching generation.
+		$this->assertStringNotContainsString( 'test_token_should_not_be_used', $result['src'] );
+		$this->assertStringNotContainsString( 'https://s0.wp.com/_si/', $result['src'] );
+		// It should return the site icon image.
+		$this->assertEquals( 'site_icon', $result['type'] );
+
+		// Clean up.
+		remove_filter( 'jetpack_offline_mode', '__return_true' );
+		remove_filter( 'jetpack_og_get_social_image_token', $token_filter );
+		delete_option( 'site_icon' );
+		StatusCache::clear();
 	}
 }

@@ -1,7 +1,6 @@
-import { Badge } from '@automattic/ui';
-import '@automattic/ui/style.css';
 import { BaseControl, ExternalLink, TextControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import { Badge } from '@wordpress/ui';
 import SalesforceIcon from '../../../../../icons/salesforce.tsx';
 import HelpMessage from '../../help-message/index.jsx';
 import CreateSalesforceLeadFormButton from '../components/create-salesforce-lead-form-button.tsx';
@@ -47,11 +46,11 @@ export function buildSalesforceCard( {
 			} ),
 			setupBadge:
 				context === 'dashboard' ? (
-					<Badge intent="success" className="integration-card__setup-badge">
+					<Badge intent="stable" className="integration-card__setup-badge">
 						{ __( 'Configured per form', 'jetpack-forms' ) }
 					</Badge>
 				) : (
-					<Badge intent="default" className="integration-card__setup-badge">
+					<Badge intent="draft" className="integration-card__setup-badge">
 						{ __( 'Enter organization ID', 'jetpack-forms' ) }
 					</Badge>
 				),

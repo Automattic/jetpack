@@ -2,6 +2,7 @@
  * External dependencies
  */
 import jetpackAnalytics from '@automattic/jetpack-analytics';
+import { formatNumber } from '@automattic/number-formatters';
 import apiFetch from '@wordpress/api-fetch';
 import { Icon, Spinner } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
@@ -79,6 +80,9 @@ const invalidateCacheAndNavigate = (
 	// Invalidate counts to ensure accurate totals
 	registry.dispatch( dashboardStore ).invalidateCounts();
 
+	// Invalidate all entity record resolutions so the Forms list entries_count is refreshed.
+	registry.dispatch( coreStore ).invalidateResolutionForStoreSelector( 'getEntityRecords' );
+
 	// Navigate to correct page if current page will be invalid
 	const { getTrashCount, getSpamCount, getInboxCount } = registry.select( dashboardStore );
 	const { setCurrentQuery } = registry.dispatch( dashboardStore );
@@ -129,14 +133,14 @@ const getGenericErrorMessage = ( numberOfErrors: number ): string => {
 	return numberOfErrors === 1
 		? __( 'An error occurred.', 'jetpack-forms' )
 		: sprintf(
-				/* translators: %d: the number of responses. */
+				/* translators: %s: the number of responses. */
 				_n(
-					'An error occurred for %d response.',
-					'An error occurred for %d responses.',
+					'An error occurred for %s response.',
+					'An error occurred for %s responses.',
 					numberOfErrors,
 					'jetpack-forms'
 				),
-				numberOfErrors
+				formatNumber( numberOfErrors )
 		  );
 };
 
@@ -290,27 +294,38 @@ type SearchParams = {
 	[ key: string ]: string | string[] | undefined;
 };
 
-type GetActionsParams = {
-	navigate: NavigateFunction;
-	searchParams: SearchParams;
-	view: string | undefined;
-};
-
 type ActionWithDestructive = Action & {
 	isDestructive?: boolean;
 };
 
+type GetActionsParams = {
+	navigate: NavigateFunction;
+	searchParams: SearchParams;
+};
+
+type GetActionsReturn = {
+	viewAction: Action;
+	editFormAction: Action;
+	markAsSpamAction: Action;
+	markAsNotSpamAction: Action;
+	restoreAction: Action;
+	moveToTrashAction: Action;
+	deleteAction: ActionWithDestructive;
+	markAsReadAction: Action;
+	markAsUnreadAction: Action;
+};
+
+type GetRowActionsParams = GetActionsParams & {
+	view: string | undefined;
+};
+
 /**
- * Get actions configuration for form responses DataViews.
+ * Get the actions for the form responses DataViews.
  *
  * @param {GetActionsParams} params - Parameters for generating actions.
- * @return {ActionWithDestructive[]} Array of action configurations.
+ * @return {GetActionsReturn} Object containing the actions.
  */
-export function getActions( {
-	navigate,
-	searchParams,
-	view,
-}: GetActionsParams ): ActionWithDestructive[] {
+export function getActions( { navigate, searchParams }: GetActionsParams ): GetActionsReturn {
 	const viewAction: Action = {
 		id: 'view-response',
 		isPrimary: true,
@@ -381,14 +396,14 @@ export function getActions( {
 			const busyMessage = isUndo
 				? undoingMessage
 				: sprintf(
-						/* translators: %d: the number of responses. */
+						/* translators: %s: the number of responses. */
 						_n(
-							'Moving %d response to spam…',
-							'Moving %d responses to spam…',
+							'Moving %s response to spam…',
+							'Moving %s responses to spam…',
 							items.length,
 							'jetpack-forms'
 						),
-						items.length
+						formatNumber( items.length )
 				  );
 
 			createInfoNotice( busyMessage, {
@@ -431,14 +446,14 @@ export function getActions( {
 						items.length === 1
 							? __( 'Response marked as spam.', 'jetpack-forms' )
 							: sprintf(
-									/* translators: %d: the number of responses. */
+									/* translators: %s: the number of responses. */
 									_n(
-										'%d response marked as spam.',
-										'%d responses marked as spam.',
+										'%s response marked as spam.',
+										'%s responses marked as spam.',
 										items.length,
 										'jetpack-forms'
 									),
-									items.length
+									formatNumber( items.length )
 							  );
 
 					if ( ! isUndo ) {
@@ -521,14 +536,14 @@ export function getActions( {
 			const busyMessage = isUndo
 				? undoingMessage
 				: sprintf(
-						/* translators: %d: the number of responses. */
+						/* translators: %s: the number of responses. */
 						_n(
-							'Marking %d response as not spam…',
-							'Marking %d responses as not spam…',
+							'Marking %s response as not spam…',
+							'Marking %s responses as not spam…',
 							items.length,
 							'jetpack-forms'
 						),
-						items.length
+						formatNumber( items.length )
 				  );
 
 			createInfoNotice( busyMessage, {
@@ -566,14 +581,14 @@ export function getActions( {
 						items.length === 1
 							? __( 'Response marked as not spam.', 'jetpack-forms' )
 							: sprintf(
-									/* translators: %d: the number of responses. */
+									/* translators: %s: the number of responses. */
 									_n(
-										'%d response marked as not spam.',
-										'%d responses marked as not spam.',
+										'%s response marked as not spam.',
+										'%s responses marked as not spam.',
 										items.length,
 										'jetpack-forms'
 									),
-									items.length
+									formatNumber( items.length )
 							  );
 
 					if ( ! isUndo ) {
@@ -654,14 +669,14 @@ export function getActions( {
 			const busyMessage = isUndo
 				? undoingMessage
 				: sprintf(
-						/* translators: %d: the number of responses. */
+						/* translators: %s: the number of responses. */
 						_n(
-							'Restoring %d response…',
-							'Restoring %d responses…',
+							'Restoring %s response…',
+							'Restoring %s responses…',
 							items.length,
 							'jetpack-forms'
 						),
-						items.length
+						formatNumber( items.length )
 				  );
 
 			createInfoNotice( busyMessage, {
@@ -698,14 +713,14 @@ export function getActions( {
 						items.length === 1
 							? __( 'Response restored.', 'jetpack-forms' )
 							: sprintf(
-									/* translators: %d: the number of responses. */
+									/* translators: %s: the number of responses. */
 									_n(
-										'%d response restored.',
-										'%d responses restored.',
+										'%s response restored.',
+										'%s responses restored.',
 										items.length,
 										'jetpack-forms'
 									),
-									items.length
+									formatNumber( items.length )
 							  );
 
 					if ( ! isUndo ) {
@@ -782,14 +797,14 @@ export function getActions( {
 			const busyMessage = isUndo
 				? undoingMessage
 				: sprintf(
-						/* translators: %d: the number of responses. */
+						/* translators: %s: the number of responses. */
 						_n(
-							'Moving %d response to trash…',
-							'Moving %d responses to trash…',
+							'Moving %s response to trash…',
+							'Moving %s responses to trash…',
 							items.length,
 							'jetpack-forms'
 						),
-						items.length
+						formatNumber( items.length )
 				  );
 
 			createInfoNotice( busyMessage, {
@@ -830,14 +845,14 @@ export function getActions( {
 						items.length === 1
 							? __( 'Response moved to trash.', 'jetpack-forms' )
 							: sprintf(
-									/* translators: %d: the number of responses. */
+									/* translators: %s: the number of responses. */
 									_n(
-										'%d response moved to trash.',
-										'%d responses moved to trash.',
+										'%s response moved to trash.',
+										'%s responses moved to trash.',
 										items.length,
 										'jetpack-forms'
 									),
-									items.length
+									formatNumber( items.length )
 							  );
 
 					if ( ! isUndo ) {
@@ -939,14 +954,14 @@ export function getActions( {
 					items.length === 1
 						? __( 'Response deleted permanently.', 'jetpack-forms' )
 						: sprintf(
-								/* translators: %d: the number of responses. */
+								/* translators: %s: the number of responses. */
 								_n(
-									'%d response deleted permanently.',
-									'%d responses deleted permanently.',
+									'%s response deleted permanently.',
+									'%s responses deleted permanently.',
 									items.length,
 									'jetpack-forms'
 								),
-								items.length
+								formatNumber( items.length )
 						  );
 
 				createSuccessNotice( successMessage, { type: 'snackbar', id: 'delete-action' } );
@@ -1064,14 +1079,14 @@ export function getActions( {
 					items.length === 1
 						? __( 'Response marked as read.', 'jetpack-forms' )
 						: sprintf(
-								/* translators: %d: the number of responses. */
+								/* translators: %s: the number of responses. */
 								_n(
-									'%d response marked as read.',
-									'%d responses marked as read.',
+									'%s response marked as read.',
+									'%s responses marked as read.',
 									items.length,
 									'jetpack-forms'
 								),
-								items.length
+								formatNumber( items.length )
 						  );
 
 				createSuccessNotice( successMessage, {
@@ -1173,14 +1188,14 @@ export function getActions( {
 					items.length === 1
 						? __( 'Response marked as unread.', 'jetpack-forms' )
 						: sprintf(
-								/* translators: %d: the number of responses. */
+								/* translators: %s: the number of responses. */
 								_n(
-									'%d response marked as unread.',
-									'%d responses marked as unread.',
+									'%s response marked as unread.',
+									'%s responses marked as unread.',
 									items.length,
 									'jetpack-forms'
 								),
-								items.length
+								formatNumber( items.length )
 						  );
 
 				createSuccessNotice( successMessage, {
@@ -1206,6 +1221,45 @@ export function getActions( {
 			createErrorNotice( errorMessage, { type: 'snackbar' } );
 		},
 	};
+
+	return {
+		viewAction,
+		editFormAction,
+		markAsSpamAction,
+		markAsNotSpamAction,
+		restoreAction,
+		moveToTrashAction,
+		deleteAction,
+		markAsReadAction,
+		markAsUnreadAction,
+	};
+}
+
+/**
+ * Get actions configuration for form responses DataViews.
+ *
+ * @param {GetRowActionsParams} params - Parameters for generating actions.
+ * @return {ActionWithDestructive[]} Array of action configurations.
+ */
+export function getRowActions( {
+	navigate,
+	searchParams,
+	view,
+}: GetRowActionsParams ): ActionWithDestructive[] {
+	const {
+		viewAction,
+		editFormAction,
+		markAsSpamAction,
+		markAsNotSpamAction,
+		restoreAction,
+		moveToTrashAction,
+		deleteAction,
+		markAsReadAction,
+		markAsUnreadAction,
+	} = getActions( {
+		navigate,
+		searchParams,
+	} );
 
 	switch ( view ) {
 		case 'trash':

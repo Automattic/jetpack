@@ -8,7 +8,7 @@ module.exports = {
 		'<rootDir>/index.{js,mjs,cjs,jsx,ts,tsx,mts,cts}',
 		'<rootDir>/*.d.ts',
 
-		// Exclude test files. Keep the patterns here in sync with testMatch in ./config.base.js and tools/js-tools/eslintrc/base.js.
+		// Exclude test files. Keep the patterns here in sync with testMatch in ./config.node.js and tools/js-tools/eslintrc/files.mjs.
 		'!<rootDir>/**/__tests__/**/*.[jt]s?(x)',
 		'!<rootDir>/**/?(*.)+(spec|test).[jt]s?(x)',
 		'!<rootDir>/**/test/*.[jt]s?(x)',

@@ -1,0 +1,150 @@
+// Gutenberg versions will use different classname strategies
+// for layout flex support, make it backwards compatible using both.
+.wp-block-jetpack-contact-form-container.is-layout-flex,
+.wp-block-jetpack-contact-form.is-layout-flex,
+.wp-block-jetpack-contact-form-is-layout-flex {
+
+	&.is-horizontal {
+		// Ignore the wrap setting and use flex-flow to control the layout.
+		// In the end this is what we want as our form layout doesn't really
+		// follow flexbox rules.
+		flex-flow: row wrap;
+
+		.wp-block-button,
+		.wp-block-jetpack-button {
+			// align-self: flex-end;
+			// this is so button has the same style on editor and frontend.
+			flex: 0 0 auto;
+
+			.wp-block-button__link {
+				word-break: normal;
+			}
+		}
+	}
+
+	&.is-vertical:not(.is-content-justification-stretch) {
+
+		.jetpack-field__width-25,
+		.wp-block-button__width-25 {
+			width: 25%;
+		}
+
+		.jetpack-field__width-33,
+		.wp-block-button__width-33 {
+			width: 33.33%;
+		}
+
+		.jetpack-field__width-50,
+		.wp-block-button__width-50 {
+			width: 50%;
+		}
+
+		.jetpack-field__width-75,
+		.wp-block-button__width-75 {
+			width: 75%;
+		}
+
+		.jetpack-field__width-100,
+		.wp-block-button__width-100 {
+			width: 100%;
+		}
+
+	}
+
+	// multistep forms must remain vertical and pass down layout rules.
+	.is-multistep & {
+		// multistep has a complex structure, the outer container needs to be a block
+		// so the auxiliary elements (nav/progress) remain on top/bottom of the step.
+		display: block;
+
+		// since we are forced to use a block container,
+		// we need to use margin-top the container children instead of flex-gap.
+		> *:not(:first-child) {
+			margin-top: var(--wp--style--block-gap, 1.5rem);
+		}
+
+		.wp-block-jetpack-form-step {
+			display: flex;
+			flex-wrap: wrap;
+			width: 100%;
+		}
+
+		.jetpack-form-steps-wrapper {
+			width: 100%;
+		}
+
+		.wp-block-jetpack-form-progress-indicator {
+			align-self: normal;
+		}
+
+		&.is-content-justification-left .wp-block-jetpack-form-step {
+			align-items: flex-start;
+		}
+
+		&.is-content-justification-right .wp-block-jetpack-form-step {
+			align-items: flex-end;
+		}
+
+		&.is-content-justification-center .wp-block-jetpack-form-step {
+			align-items: center;
+		}
+
+
+		&.is-horizontal {
+
+			.wp-block-jetpack-form-step {
+				align-items: flex-end;
+			}
+		}
+
+		&.is-vertical {
+
+			.wp-block-jetpack-form-step {
+				flex-direction: column;
+			}
+		}
+
+		&.is-nowrap {
+
+			.wp-block-jetpack-form-step {
+				flex-wrap: nowrap;
+			}
+		}
+	}
+
+	&.is-style-outlined,
+	&.is-style-animated {
+
+		.contact-form__inset-label-wrap {
+			box-sizing: border-box;
+			position: relative;
+			flex: 1 1 100%;
+			width: 100%;
+
+			&.grunion-field-width-25-wrap {
+				flex: 1 1 calc(25% - var(--wp--style--block-gap, 1.5rem) * 1);
+			}
+
+			&.grunion-field-width-33-wrap {
+				flex: 1 1 calc(33.33% - var(--wp--style--block-gap, 1.5rem) * 1);
+			}
+
+			&.grunion-field-width-50-wrap {
+				flex: 1 1 calc(50% - var(--wp--style--block-gap, 1.5rem) * 1);
+			}
+
+			&.grunion-field-width-75-wrap {
+				flex: 1 1 calc(75% - var(--wp--style--block-gap, 1.5rem) * 1);
+			}
+
+			&.grunion-field-width-100-wrap {
+				flex: 1 1 100%;
+			}
+
+			&.grunion-field-width-auto-wrap {
+				flex: 1 1 auto;
+				width: auto;
+			}
+		}
+	}
+}

@@ -8,6 +8,7 @@
  */
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Newsletter\Settings as Newsletter_Settings;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Subscribers_Dashboard\Dashboard as Subscribers_Dashboard;
 
@@ -101,84 +102,162 @@ add_action( 'admin_menu', 'wpcom_add_my_home_menu' );
  * Adds a Hosting menu.
  */
 function wpcom_add_hosting_menu() {
-	if ( get_option( 'wpcom_admin_interface' ) !== 'wp-admin' ) {
+	$domain = wp_parse_url( home_url(), PHP_URL_HOST );
+
+	$menu_title = sprintf(
+		'%1$s<span class="inline-icon dashicons dashicons-external"></span>',
+		__( 'Hosting', 'jetpack-mu-wpcom' )
+	);
+
+	add_menu_page(
+		__( 'Hosting', 'jetpack-mu-wpcom' ),
+		$menu_title,
+		'manage_options',
+		esc_url( "https://wordpress.com/overview/$domain" ),
+		null, // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal
+		'dashicons-cloud',
+		2.98
+	);
+}
+add_action( 'admin_menu', 'wpcom_add_hosting_menu' );
+
+/**
+ * Enqueues admin menu styles.
+ */
+function wpcom_admin_menu_enqueue_styles() {
+	wp_enqueue_style(
+		'wpcom-admin-menu',
+		plugins_url( 'wpcom-admin-menu.css', __FILE__ ),
+		array(),
+		filemtime( __DIR__ . '/wpcom-admin-menu.css' )
+	);
+}
+add_action( 'admin_enqueue_scripts', 'wpcom_admin_menu_enqueue_styles' );
+
+/**
+ * Adds an Upgrades menu.
+ *
+ * This centralizes the Upgrades menu registration for all admin interfaces (Calypso and wp-admin).
+ * The masterbar classes defer to this function instead of registering their own Upgrades menu.
+ */
+function wpcom_add_upgrades_menu() {
+	// Don't show Upgrades on staging sites.
+	if ( get_option( 'wpcom_is_staging_site' ) ) {
 		return;
 	}
 
-	$parent_slug = 'wpcom-hosting-menu';
 	$domain      = wp_parse_url( home_url(), PHP_URL_HOST );
+	$parent_slug = 'paid-upgrades.php';
+
+	// Build the menu title, optionally with the plan label.
+	$plan = wpcom_get_current_plan_name();
+	if ( $plan ) {
+		// Add display:none as a default for cases when CSS is not loaded.
+		// Calypso and the masterbar CSS override this to show the plan label.
+		$menu_title = sprintf(
+			'%1$s<span class="inline-text" style="display:none">%2$s</span>',
+			__( 'Upgrades', 'jetpack-mu-wpcom' ),
+			esc_html( $plan )
+		);
+	} else {
+		$menu_title = __( 'Upgrades', 'jetpack-mu-wpcom' );
+	}
 
 	add_menu_page(
-		esc_attr__( 'Hosting', 'jetpack-mu-wpcom' ),
-		esc_attr__( 'Hosting', 'jetpack-mu-wpcom' ),
+		__( 'Upgrades', 'jetpack-mu-wpcom' ),
+		$menu_title,
 		'manage_options',
 		$parent_slug,
 		null, // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal
-		'dashicons-cloud',
+		'dashicons-cart',
+		2.99
+	);
+
+	add_submenu_page(
+		$parent_slug,
+		__( 'Plans', 'jetpack-mu-wpcom' ),
+		__( 'Plans', 'jetpack-mu-wpcom' ),
+		'manage_options',
+		esc_url( "https://wordpress.com/plans/$domain" ),
+		null, // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal
+		1
+	);
+
+	add_submenu_page(
+		$parent_slug,
+		__( 'Add-ons', 'jetpack-mu-wpcom' ),
+		__( 'Add-ons', 'jetpack-mu-wpcom' ),
+		'manage_options',
+		esc_url( "https://wordpress.com/add-ons/$domain" ),
+		null, // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal
+		2
+	);
+
+	add_submenu_page(
+		$parent_slug,
+		__( 'Domains', 'jetpack-mu-wpcom' ),
+		__( 'Domains', 'jetpack-mu-wpcom' ),
+		'manage_options',
+		esc_url( "https://wordpress.com/domains/manage/$domain" ),
+		null, // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal
 		3
 	);
 
 	add_submenu_page(
 		$parent_slug,
-		esc_attr__( 'Overview', 'jetpack-mu-wpcom' ),
-		esc_attr__( 'Overview', 'jetpack-mu-wpcom' ),
-		'manage_options',
-		esc_url( "https://wordpress.com/overview/$domain" ),
-		null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal
-	);
-
-	add_submenu_page(
-		$parent_slug,
-		esc_attr__( 'Plans', 'jetpack-mu-wpcom' ),
-		esc_attr__( 'Plans', 'jetpack-mu-wpcom' ),
-		'manage_options',
-		esc_url( "https://wordpress.com/plans/$domain" ),
-		null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal
-	);
-
-	add_submenu_page(
-		$parent_slug,
-		esc_attr__( 'Add-ons', 'jetpack-mu-wpcom' ),
-		esc_attr__( 'Add-ons', 'jetpack-mu-wpcom' ),
-		'manage_options',
-		esc_url( "https://wordpress.com/add-ons/$domain" ),
-		null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal
-	);
-
-	add_submenu_page(
-		$parent_slug,
-		esc_attr__( 'Domains', 'jetpack-mu-wpcom' ),
-		esc_attr__( 'Domains', 'jetpack-mu-wpcom' ),
-		'manage_options',
-		esc_url( "https://wordpress.com/domains/manage/$domain" ),
-		null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal
-	);
-
-	add_submenu_page(
-		$parent_slug,
-		esc_attr__( 'Emails', 'jetpack-mu-wpcom' ),
-		esc_attr__( 'Emails', 'jetpack-mu-wpcom' ),
+		__( 'Emails', 'jetpack-mu-wpcom' ),
+		__( 'Emails', 'jetpack-mu-wpcom' ),
 		'manage_options',
 		esc_url( "https://wordpress.com/email/$domain" ),
-		null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal
+		null, // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal
+		4
 	);
 
 	add_submenu_page(
 		$parent_slug,
-		esc_attr__( 'Purchases', 'jetpack-mu-wpcom' ),
-		esc_attr__( 'Purchases', 'jetpack-mu-wpcom' ),
+		__( 'Purchases', 'jetpack-mu-wpcom' ),
+		__( 'Purchases', 'jetpack-mu-wpcom' ),
 		'manage_options',
 		esc_url( "https://wordpress.com/purchases/subscriptions/$domain" ),
-		null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal
+		null, // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal
+		5
 	);
 
 	// By default, WordPress adds a submenu item for the parent menu item, which we don't want.
-	remove_submenu_page(
-		$parent_slug,
-		$parent_slug
-	);
+	remove_submenu_page( $parent_slug, $parent_slug );
+
+	// Remove legacy Upgrades submenus registered elsewhere on WP.com.
+	remove_submenu_page( $parent_slug, 'premium-themes' );
+	remove_submenu_page( $parent_slug, 'domains' );
+	remove_submenu_page( $parent_slug, 'my-upgrades' );
+	remove_submenu_page( $parent_slug, 'billing-history' );
 }
-add_action( 'admin_menu', 'wpcom_add_hosting_menu' );
+add_action( 'admin_menu', 'wpcom_add_upgrades_menu', 140 ); // After hookpress hook at 130, needed to ensure the legacy submenus are removed.
+
+/**
+ * Gets the current plan's short name.
+ *
+ * @return string|null The plan name, or null if unavailable.
+ */
+function wpcom_get_current_plan_name() {
+	// Simple sites: use WPCOM_Store_API.
+	if ( class_exists( 'WPCOM_Store_API' ) ) {
+		$current_plan = \WPCOM_Store_API::get_current_plan( get_current_blog_id() );
+		if ( ! empty( $current_plan['product_name_short'] ) ) {
+			return $current_plan['product_name_short'];
+		}
+	}
+
+	// Atomic sites: use Jetpack Current_Plan.
+	if ( class_exists( 'Automattic\Jetpack\Current_Plan' ) ) {
+		$products = \Automattic\Jetpack\Current_Plan::get();
+		if ( array_key_exists( 'product_name_short', $products ) ) {
+			return $products['product_name_short'];
+		}
+	}
+
+	return null;
+}
 
 /**
  * Re-order the submenu items of the given menu slug according to a sorted array of submenu slugs.
@@ -269,15 +348,20 @@ function wpcom_add_jetpack_submenu() {
 		);
 
 		// Jetpack > Newsletter (Calypso).
-		// Force Calypso for atomic Personal/Premium sites since local Jetpack newsletter page exposes broken pages.
-		add_submenu_page(
-			'jetpack',
-			esc_attr__( 'Newsletter', 'jetpack-mu-wpcom' ),
-			__( 'Newsletter', 'jetpack-mu-wpcom' ),
-			'manage_options',
-			'https://wordpress.com/settings/newsletter/' . $domain,
-			null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-		);
+		// When the new wp-admin newsletter settings page is enabled, the menu item is added
+		// by the newsletter package's Settings::add_wp_admin_menu() for Atomic sites.
+		// Otherwise, link to Calypso for atomic Personal/Premium sites.
+		/** This filter is documented in projects/packages/newsletter/src/class-settings.php */
+		if ( ! apply_filters( 'jetpack_wp_admin_newsletter_settings_enabled', true ) ) {
+			add_submenu_page(
+				'jetpack',
+				esc_attr__( 'Newsletter', 'jetpack-mu-wpcom' ),
+				__( 'Newsletter', 'jetpack-mu-wpcom' ),
+				'manage_options',
+				\Automattic\Jetpack\Newsletter\Urls::get_newsletter_settings_url( $domain ),
+				null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
+			);
+		}
 	}
 	// @codeCoverageIgnoreEnd
 
@@ -344,14 +428,24 @@ function wpcom_add_jetpack_submenu() {
 
 	if ( $is_simple_site ) {
 		// Jetpack > Newsletter.
-		add_submenu_page(
-			'jetpack',
-			__( 'Newsletter', 'jetpack-mu-wpcom' ),
-			__( 'Newsletter', 'jetpack-mu-wpcom' ),
-			'manage_options',
-			'https://wordpress.com/settings/newsletter/' . $domain,
-			null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-		);
+		/** This filter is documented in projects/packages/newsletter/src/class-settings.php */
+		if ( apply_filters( 'jetpack_wp_admin_newsletter_settings_enabled', true ) ) {
+			// Register the in-admin Newsletter settings page (with its own render callback
+			// and admin hooks). This must be done here (at priority 999999) because the
+			// Jetpack menu is created by this function and doesn't exist at earlier priorities.
+			$newsletter_settings = new Newsletter_Settings();
+			$newsletter_settings->add_wp_admin_submenu();
+		} else {
+			// No local settings page — just add a menu link that points to Calypso.
+			add_submenu_page(
+				'jetpack',
+				__( 'Newsletter', 'jetpack-mu-wpcom' ),
+				__( 'Newsletter', 'jetpack-mu-wpcom' ),
+				'manage_options',
+				\Automattic\Jetpack\Newsletter\Urls::get_newsletter_settings_url( $domain ),
+				null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
+			);
+		}
 
 		// Jetpack > Traffic
 		add_submenu_page(

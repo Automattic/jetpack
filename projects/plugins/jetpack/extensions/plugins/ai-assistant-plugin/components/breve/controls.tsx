@@ -1,4 +1,5 @@
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
+import { store as blockEditorStore } from '@wordpress/block-editor';
 import {
 	BaseControl,
 	PanelRow,
@@ -13,6 +14,7 @@ import { useDispatch, useSelect, withSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { useState, useEffect, useCallback } from 'react';
 import features from './features';
+import { store as breveStore } from './store';
 import calculateFleschKincaid from './utils/flesch-kincaid-utils';
 import { canWriteBriefFeatureBeEnabled } from './utils/get-availability';
 import { getPostText } from './utils/get-post-text';
@@ -148,7 +150,7 @@ const Controls = ( { blocks, disabledFeatures } ) => {
 
 export default compose(
 	withSelect( selectFn => ( {
-		blocks: selectFn( 'core/block-editor' ).getBlocks(),
-		disabledFeatures: selectFn( 'jetpack/ai-breve' ).getDisabledFeatures(),
+		blocks: selectFn( blockEditorStore ).getBlocks(),
+		disabledFeatures: ( selectFn( breveStore ) as unknown as BreveSelect ).getDisabledFeatures(),
 	} ) )
 )( Controls );

@@ -156,5 +156,18 @@ module.exports = {
 			}
 			return Object.values( ret );
 		} )(),
+		// Override PHP version constraint for certain packages that are plugins to other tools. We want renovate to recommend updates even if a constraint bump is needed.
+		{
+			matchFileNames: [
+				'projects/packages/codesniffer/composer.json',
+				'projects/packages/phan-plugins/composer.json',
+				'projects/packages/phpcs-filter/composer.json',
+			],
+			matchDatasources: [ 'packagist' ],
+			matchDepTypes: [ 'require' ],
+			constraints: {
+				php: `~${ versions.PHP_VERSION }.0`,
+			},
+		},
 	],
 };

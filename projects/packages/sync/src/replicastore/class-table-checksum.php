@@ -213,18 +213,14 @@ class Table_Checksum {
 				'range_field'               => 'comment_ID',
 				'key_fields'                => array( 'comment_ID' ),
 				'checksum_fields'           => array( 'comment_date_gmt' ),
-				'filter_values'             => array(
-					'comment_type'     => array(
-						'operator' => 'IN',
-						'values'   => apply_filters(
-							'jetpack_sync_whitelisted_comment_types',
-							array( '', 'comment', 'trackback', 'pingback', 'review' )
+				'filter_values'             => array_merge(
+					Sync\Settings::get_allowed_comment_types_structured(),
+					array(
+						'comment_approved' => array(
+							'operator' => 'NOT IN',
+							'values'   => array( 'spam' ),
 						),
-					),
-					'comment_approved' => array(
-						'operator' => 'NOT IN',
-						'values'   => array( 'spam' ),
-					),
+					)
 				),
 				'is_table_enabled_callback' => function () {
 					return false !== Sync\Modules::get_module( 'comments' );
@@ -415,14 +411,14 @@ class Table_Checksum {
 	protected function prepare_fields( $table_configuration ) {
 		$this->key_fields                = $table_configuration['key_fields'];
 		$this->range_field               = $table_configuration['range_field'];
-		$this->checksum_fields           = isset( $table_configuration['checksum_fields'] ) ? $table_configuration['checksum_fields'] : array();
-		$this->checksum_text_fields      = isset( $table_configuration['checksum_text_fields'] ) ? $table_configuration['checksum_text_fields'] : array();
-		$this->filter_values             = isset( $table_configuration['filter_values'] ) ? $table_configuration['filter_values'] : null;
+		$this->checksum_fields           = $table_configuration['checksum_fields'] ?? array();
+		$this->checksum_text_fields      = $table_configuration['checksum_text_fields'] ?? array();
+		$this->filter_values             = $table_configuration['filter_values'] ?? null;
 		$this->additional_filter_sql     = ! empty( $table_configuration['filter_sql'] ) ? $table_configuration['filter_sql'] : '';
-		$this->parent_table              = isset( $table_configuration['parent_table'] ) ? $table_configuration['parent_table'] : null;
-		$this->parent_join_field         = isset( $table_configuration['parent_join_field'] ) ? $table_configuration['parent_join_field'] : $table_configuration['range_field'];
-		$this->table_join_field          = isset( $table_configuration['table_join_field'] ) ? $table_configuration['table_join_field'] : $table_configuration['range_field'];
-		$this->is_table_enabled_callback = isset( $table_configuration['is_table_enabled_callback'] ) ? $table_configuration['is_table_enabled_callback'] : false;
+		$this->parent_table              = $table_configuration['parent_table'] ?? null;
+		$this->parent_join_field         = $table_configuration['parent_join_field'] ?? $table_configuration['range_field'];
+		$this->table_join_field          = $table_configuration['table_join_field'] ?? $table_configuration['range_field'];
+		$this->is_table_enabled_callback = $table_configuration['is_table_enabled_callback'] ?? false;
 	}
 
 	/**
@@ -671,7 +667,10 @@ class Table_Checksum {
 		$filter_stamenet = $this->build_filter_statement( $range_from, $range_to, $filter_values );
 
 		$join_statement = '';
-		if ( $this->parent_table ) {
+		// On WPCOM the checksum comparison does not use the parent table INNER JOIN.
+		// WPCOM sets parent_table in its config solely for the count optimization in
+		// get_range_edges(), so we skip the JOIN to avoid query differences.
+		if ( $this->parent_table && ! ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ) {
 			$parent_table_obj    = new Table_Checksum( $this->parent_table );
 			$parent_filter_query = $parent_table_obj->build_filter_statement( null, null, null, 'parent_table' );
 
@@ -741,19 +740,26 @@ class Table_Checksum {
 
 		$this->validate_fields( array( $this->range_field ) );
 
-		// Performance :: When getting the postmeta range we do not want to filter by the whitelist.
-		// The reason for this is that it leads to a non-performant query that can timeout.
-		// Instead lets get the range based on posts regardless of meta.
+		// Performance :: For meta tables (postmeta, commentmeta, termmeta, woocommerce_order_itemmeta)
+		// we strip the filter_values (e.g. meta_key whitelist) when building the range edges query.
+		// These filters cause non-performant queries that can timeout on large tables.
+		// The actual data filtering happens during checksum calculation — via the filter_values
+		// WHERE clause and, when enabled, the parent table INNER JOIN.
+		$is_meta_table = in_array(
+			$this->table,
+			array( $wpdb->postmeta, $wpdb->commentmeta, $wpdb->termmeta, "{$wpdb->prefix}woocommerce_order_itemmeta" ),
+			true
+		);
 		$filter_values = $this->filter_values;
-		if ( $wpdb->postmeta === $this->table ) {
+		if ( $is_meta_table ) {
 			$this->filter_values = null;
 		}
 
 		// `trim()` to make sure we don't add the statement if it's empty.
 		$filters = trim( $this->build_filter_statement( $range_from, $range_to ) );
 
-		// Reset Post meta filter.
-		if ( $wpdb->postmeta === $this->table ) {
+		// Restore filter values.
+		if ( $is_meta_table ) {
 			$this->filter_values = $filter_values;
 		}
 
@@ -783,6 +789,33 @@ class Table_Checksum {
 		 * If `$limit` is not specified, we can directly use the table.
 		 */
 		if ( ! $limit ) {
+			// For tables that would use COUNT(DISTINCT), avoid the expensive full table scan
+			// by using the parent table's count instead. Only for full-table calls — sub-range
+			// calls need the actual COUNT(DISTINCT) scoped to the range, and those are cheap
+			// because the WHERE clause limits the scan.
+			if ( $distinct_count && null === $range_from && null === $range_to ) {
+				$parent_count = $this->get_parent_table_count();
+				if ( (int) $parent_count > 0 ) {
+					$min_max_query = "
+						SELECT
+							MIN({$this->range_field}) as min_range,
+							MAX({$this->range_field}) as max_range
+						FROM
+							{$this->table}
+							{$filter_statement}
+					";
+
+					// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+					$result = $wpdb->get_row( $min_max_query, ARRAY_A );
+
+					if ( $result && is_array( $result ) ) {
+						$result['item_count']                    = $parent_count;
+						self::$range_edges_cache[ $this->table ] = $result;
+						return $result;
+					}
+				}
+			}
+
 			$query .= "
 				{$this->table}
 	            {$filter_statement}
@@ -815,7 +848,91 @@ class Table_Checksum {
 			throw new Exception( 'Unable to get range edges' );
 		}
 
+		// Cache full-range results so child meta tables can reuse the parent's count.
+		// Only cache when no range constraints — sub-range counts would pollute the cache.
+		if ( ! $limit && null === $range_from && null === $range_to ) {
+			self::$range_edges_cache[ $this->table ] = $result;
+		}
+
 		return $result;
+	}
+
+	/**
+	 * Static cache for range edge results, keyed by table name.
+	 *
+	 * When checksum_all() processes tables sequentially, the parent table's
+	 * get_range_edges() result is cached so child tables can reuse the
+	 * item_count without re-querying.
+	 *
+	 * @var array
+	 */
+	private static $range_edges_cache = array();
+
+	/**
+	 * Reset the static range edges cache.
+	 *
+	 * Should be called when the underlying data changes and cached
+	 * counts may be stale (e.g. between test runs).
+	 */
+	public static function reset_range_edges_cache() {
+		self::$range_edges_cache = array();
+	}
+
+	/**
+	 * Get the row count from the parent table as an approximate item count.
+	 *
+	 * For tables with compound keys or non-unique range fields, COUNT(DISTINCT range_field)
+	 * causes expensive full table scans. Since item_count is only used for bucket sizing
+	 * in checksum_histogram(), the parent table's row count is an acceptable approximation.
+	 * In typical cases the parent count >= the distinct child count, producing slightly
+	 * more (smaller) buckets. The caller guards against a zero parent count (e.g. orphaned
+	 * child rows) by falling back to the original COUNT(DISTINCT) query.
+	 *
+	 * Returns false when the parent table's count is not a reliable proxy (e.g.
+	 * term_taxonomy, whose count does not correlate with distinct range_field values
+	 * in terms, termmeta, or term_relationships).
+	 *
+	 * Uses a static cache so that if the parent table was already processed
+	 * (e.g. posts before postmeta in checksum_all), no additional query is needed.
+	 *
+	 * @return int|false The parent table row count, or false if not applicable.
+	 */
+	private function get_parent_table_count() {
+		if ( ! $this->parent_table ) {
+			return false;
+		}
+
+		// term_taxonomy's count is not a reliable proxy for the distinct range_field
+		// values in terms, termmeta, or term_relationships.
+		if ( 'term_taxonomy' === $this->parent_table ) {
+			return false;
+		}
+
+		try {
+			$parent_table_obj = new Table_Checksum( $this->parent_table );
+		} catch ( Exception $e ) {
+			return false;
+		}
+
+		// Check static cache first — the parent may have been queried already
+		// (e.g. posts processed before postmeta in checksum_all).
+		if ( isset( self::$range_edges_cache[ $parent_table_obj->table ] ) ) {
+			return (int) self::$range_edges_cache[ $parent_table_obj->table ]['item_count'];
+		}
+
+		// Query the parent table's range edges. For single-key parent tables this is
+		// a simple COUNT (no DISTINCT), so it's fast.
+		try {
+			$parent_range = $parent_table_obj->get_range_edges();
+
+			if ( is_array( $parent_range ) && isset( $parent_range['item_count'] ) ) {
+				return (int) $parent_range['item_count'];
+			}
+
+			return false;
+		} catch ( Exception $e ) {
+			return false;
+		}
 	}
 
 	/**

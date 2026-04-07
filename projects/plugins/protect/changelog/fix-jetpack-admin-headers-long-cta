@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Constrain license activation link width on mobile to prevent header overflow.

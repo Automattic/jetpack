@@ -502,6 +502,11 @@ class WooCommerce extends Module {
 		'woocommerce_allow_tracking',
 		'woocommerce_task_list_hidden',
 		'woocommerce_cod_settings',
+		'woocommerce_store_address',
+		'woocommerce_store_address_2',
+		'woocommerce_store_city',
+		'woocommerce_store_postcode',
+		'woocommerce_admin_install_timestamp',
 	);
 
 	/**

@@ -1,6 +1,5 @@
 <?php
 /*
-!
  * Jetpack CRM
  * https://jetpackcrm.com
  * V1.20
@@ -261,7 +260,7 @@ function zbs_color_grabber() {
 			background-color: <?php echo esc_html( $zbsadmincolors[1] ); ?> !important;
 		}
 		.zerobs_quote{
-			background-color: <?php echo esc_html( $zbsadmincolors[3] ); ?> !important;
+			background-color: <?php echo esc_html( $zbsadmincolors[3] ?? $zbsadmincolors[2] ); ?> !important;
 		}
 		.graph-box .view-me, .rev{
 			color: <?php echo esc_html( $zbsadmincolors[0] ); ?> !important;
@@ -322,7 +321,7 @@ function zeroBSCRM_catchDashboard() {
 			// $screen = get_current_screen();
 
 			// } Does:
-			global $pagenow,$zbs;
+			global $pagenow, $zbs;
 
 			if ( $pagenow == 'profile.php' || $pagenow == 'index.php' ) {// $screen->base == 'dashboard' ) {
 

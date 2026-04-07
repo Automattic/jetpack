@@ -1,5 +1,5 @@
 <?php
-/*!
+/*
  * Jetpack CRM
  * https://jetpackcrm.com
  *
@@ -15,12 +15,12 @@ defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
  * MailPoet Background Sync class
  */
 class Mailpoet_Background_Sync {
-	
+
 	/**
 	 * If set to true this will echo progress of a sync job.
 	 */
 	public $debug = false;
-	
+
 	/**
 	 * Future proofing multi-connections
 	 */
@@ -37,16 +37,14 @@ class Mailpoet_Background_Sync {
 	public function __construct() {
 
 		// load job class
-		require_once JPCRM_MAILPOET_ROOT_PATH. 'includes/class-mailpoet-background-sync-job.php';
+		require_once JPCRM_MAILPOET_ROOT_PATH . 'includes/class-mailpoet-background-sync-job.php';
 
 		// Initialise Hooks
 		$this->init_hooks();
 
 		// Schedule cron
 		$this->schedule_cron();
-
 	}
-		
 
 	/**
 	 * Main Class Instance.
@@ -55,43 +53,38 @@ class Mailpoet_Background_Sync {
 	 *
 	 * @since 2.0
 	 * @static
-	 * @see 
+	 * @see
 	 * @return Mailpoet_Background_Sync main instance
 	 */
 	public static function instance() {
-		if ( is_null( self::$_instance ) ) {
+		if ( self::$_instance === null ) {
 			self::$_instance = new self();
 		}
 		return self::$_instance;
 	}
 
-
 	/**
 	 * Returns main class instance
 	 */
-	public function mailpoet(){
+	public function mailpoet() {
 
 		global $zbs;
 		return $zbs->modules->mailpoet;
-
 	}
 
-	
 	/**
 	 * If $this->debug is true, outputs passed string
 	 *
 	 * @param string - Debug string
 	 */
-	private function debug( $str ){
+	private function debug( $str ) {
 
-		if ( $this->debug ){
+		if ( $this->debug ) {
 
 			echo '[' . zeroBSCRM_locale_utsToDatetime( time() ) . '] ' . $str . '<br>';
 
 		}
-
 	}
-
 
 	/**
 	 * Initialise Hooks
@@ -104,18 +97,16 @@ class Mailpoet_Background_Sync {
 		// Syncing based on MailPoet hooks:
 
 		// Subscriber edits/changes:
-		add_action( 'mailpoet_subscriber_created',    array( $this, 'add_update_subscriber_by_id' ), 1, 1 );
-		add_action( 'mailpoet_subscriber_updated',    array( $this, 'add_update_subscriber_by_id' ), 1, 1 );
-		add_action( 'mailpoet_subscriber_deleted',    array( $this, 'delete_subscriber_by_id' ), 1, 1 );
-		add_action( 'mailpoet_multiple_subscribers_created',    array( $this, 'add_update_subscribers_by_id' ), 1, 1 );
-		add_action( 'mailpoet_multiple_subscribers_updated',    array( $this, 'add_update_subscribers_by_id' ), 1, 1 );
-		add_action( 'mailpoet_multiple_subscribers_deleted',    array( $this, 'delete_subscribers_by_id' ), 1, 1 );
+		add_action( 'mailpoet_subscriber_created', array( $this, 'add_update_subscriber_by_id' ), 1, 1 );
+		add_action( 'mailpoet_subscriber_updated', array( $this, 'add_update_subscriber_by_id' ), 1, 1 );
+		add_action( 'mailpoet_subscriber_deleted', array( $this, 'delete_subscriber_by_id' ), 1, 1 );
+		add_action( 'mailpoet_multiple_subscribers_created', array( $this, 'add_update_subscribers_by_id' ), 1, 1 );
+		add_action( 'mailpoet_multiple_subscribers_updated', array( $this, 'add_update_subscribers_by_id' ), 1, 1 );
+		add_action( 'mailpoet_multiple_subscribers_deleted', array( $this, 'delete_subscribers_by_id' ), 1, 1 );
 
 		// add our cron task to the core crm cron monitor list
-		add_filter( 'jpcrm_cron_to_monitor',               array( $this, 'add_cron_monitor' ) );
-
+		add_filter( 'jpcrm_cron_to_monitor', array( $this, 'add_cron_monitor' ) );
 	}
-
 
 	/**
 	 * Setup cron schedule
@@ -124,34 +115,29 @@ class Mailpoet_Background_Sync {
 
 		// schedule it
 		if ( ! wp_next_scheduled( 'jpcrm_mailpoet_sync' ) ) {
-		  wp_schedule_event( time(), '5min', 'jpcrm_mailpoet_sync' );
-		}	
-
+			wp_schedule_event( time(), '5min', 'jpcrm_mailpoet_sync' );
+		}
 	}
-
 
 	/**
 	 * Run cron job
 	 */
-	public function cron_job(){
+	public function cron_job() {
 
 		// define global to mark this as a cron call
 		define( 'jpcrm_mailpoet_cron_running', 1 );
 
 		// fire job
 		$this->sync_subscribers();
-
 	}
 
 	/**
 	 * Returns bool as to whether or not the current call was made via cron
 	 */
-	private function is_cron(){
+	private function is_cron() {
 
 		return defined( 'jpcrm_mailpoet_cron_running' );
-
 	}
-
 
 	/**
 	 * Filter call to add the cron zbssendbot to the watcher system
@@ -163,16 +149,15 @@ class Mailpoet_Background_Sync {
 
 		if ( is_array( $crons ) ) {
 
-			$crons[ 'jpcrm_mailpoet_sync' ] = '5min';
+			$crons['jpcrm_mailpoet_sync'] = '5min';
 		}
 
 		return $crons;
 	}
 
-
 	/**
 	 * Main job function: this will retrieve and import subscribers from MailPoet
-	 * 	This can be called in three 'modes'
+	 *  This can be called in three 'modes'
 	 *    - via cron (as defined by `jpcrm_mailpoet_cron_running`)
 	 *    - via AJAX (if not via cron and not in debug mode)
 	 *    - for debug (if $this->debug is set) This is designed to be called inline and will output progress of sync job
@@ -185,10 +170,9 @@ class Mailpoet_Background_Sync {
 	 *      - if completed sync: JSON summary info is output and then exit() is called
 	 *      - else count of subscribers imported is returned
 	 */
-	public function sync_subscribers( $silent = false ){
+	public function sync_subscribers( $silent = false ) {
 
 		global $zbs;
-		
 
 		$this->debug( 'Fired `sync_subscribers()`.' );
 
@@ -206,15 +190,15 @@ class Mailpoet_Background_Sync {
 
 		// prep silos
 		$total_remaining_pages = 0;
-		$total_pages = 0;
-		$errors = array();
-		$subscribers_synced = 0;
+		$total_pages           = 0;
+		$errors                = array();
+		$subscribers_synced    = 0;
 
-		// blocker			
-		if ( !defined( 'jpcrm_mailpoet_running' ) ) {
-		
+		// blocker
+		if ( ! defined( 'jpcrm_mailpoet_running' ) ) {
+
 			define( 'jpcrm_mailpoet_running', 1 );
-		
+
 		}
 
 		// init class
@@ -222,10 +206,11 @@ class Mailpoet_Background_Sync {
 
 		// start sync job
 		$sync_result = $sync_job->run_sync();
-		
+
 		$this->debug( 'Sync Result:<pre>' . print_r( $sync_result, 1 ) . '</pre>' );
 
-		/* will be
+		/*
+		will be
 		false
 
 		or
@@ -238,31 +223,30 @@ class Mailpoet_Background_Sync {
 
 		);*/
 
-		if ( is_array( $sync_result ) && isset( $sync_result['total_pages'] ) && isset( $sync_result['total_remaining_pages'] ) ){
+		if ( is_array( $sync_result ) && isset( $sync_result['total_pages'] ) && isset( $sync_result['total_remaining_pages'] ) ) {
 
 			// maintain overall % counts later used to provide a summary % across sync site connections
-			$total_pages += (int)$sync_result['total_pages'];
+			$total_pages           += (int) $sync_result['total_pages'];
 			$total_remaining_pages += $sync_result['total_remaining_pages'];
-			$subscribers_synced = (int)$sync_result['subscribers_synced'];
+			$subscribers_synced     = (int) $sync_result['subscribers_synced'];
 
 		}
 
-
 		// discern completeness
 		// either maxxed pages, or more likely x no = y no
-		if ( $total_remaining_pages == 0 || $this->mailpoet()->get_all_mailpoet_subscribers_count() <= $this->mailpoet()->get_crm_mailpoet_contact_count() ){
+		if ( $total_remaining_pages == 0 || $this->mailpoet()->get_all_mailpoet_subscribers_count() <= $this->mailpoet()->get_crm_mailpoet_contact_count() ) {
 
-			$sync_status = 'sync_completed';
+			$sync_status        = 'sync_completed';
 			$overall_percentage = 100;
-			$status_short_text = __( 'Sync Completed', 'zero-bs-crm' );
-			$status_long_text = __( 'MailPoet Sync has imported all existing subscribers and will continue to import future subscribers.', 'zero-bs-crm' );
+			$status_short_text  = __( 'Sync Completed', 'zero-bs-crm' );
+			$status_long_text   = __( 'MailPoet Sync has imported all existing subscribers and will continue to import future subscribers.', 'zero-bs-crm' );
 
 		} else {
 
-			$sync_status = 'sync_part_complete';
-			$overall_percentage = (int)( ( $total_pages - $total_remaining_pages ) / $total_pages * 100 );
-			$status_short_text = __( 'Syncing subscribers from MailPoet...', 'zero-bs-crm' );
-			$status_long_text = '';
+			$sync_status        = 'sync_part_complete';
+			$overall_percentage = (int) ( ( $total_pages - $total_remaining_pages ) / $total_pages * 100 );
+			$status_short_text  = __( 'Syncing subscribers from MailPoet...', 'zero-bs-crm' );
+			$status_long_text   = '';
 
 		}
 
@@ -271,9 +255,9 @@ class Mailpoet_Background_Sync {
 
 			return array(
 
-					'status'               => $sync_status, // sync_completed sync_part_complete job_in_progress error
-					'status_short_text'    => $status_short_text,
-					'percentage_completed' => $overall_percentage,
+				'status'               => $sync_status, // sync_completed sync_part_complete job_in_progress error
+				'status_short_text'    => $status_short_text,
+				'percentage_completed' => $overall_percentage,
 
 			);
 
@@ -287,14 +271,12 @@ class Mailpoet_Background_Sync {
 				'page_no'                          => ( $total_pages - $total_remaining_pages ),
 				'subscribers_synced'               => $subscribers_synced,
 				'percentage_completed'             => $overall_percentage,
-				'total_crm_contacts_from_mailpoet' => $this->mailpoet()->get_crm_mailpoet_contact_count()
+				'total_crm_contacts_from_mailpoet' => $this->mailpoet()->get_crm_mailpoet_contact_count(),
 			);
-			$mailpoet_latest_stats = $this->mailpoet()->get_jpcrm_mailpoet_latest_stats();
+			$mailpoet_latest_stats     = $this->mailpoet()->get_jpcrm_mailpoet_latest_stats();
 			wp_send_json( array_merge( $mailpoet_latest_stats, $mailpoetsync_status_array ) );
 		}
-
 	}
-
 
 	/**
 	 * Set's a completion status for MailPoet Subscriber imports
@@ -303,44 +285,41 @@ class Mailpoet_Background_Sync {
 	 *
 	 * @return bool $status
 	 */
-	public function set_first_import_status( $status ){
+	public function set_first_import_status( $status ) {
 
 		$status_bool = false;
 
-		if ( $status == 'yes' || $status === true ){
+		if ( $status == 'yes' || $status === true ) {
 
 			$status_bool = true;
 
 		}
 
-		// set it 
+		// set it
 		$this->mailpoet()->settings->update( 'first_import_complete', $status_bool );
 
 		return $status_bool;
-
 	}
-
 
 	/**
 	 * Returns a completion status for MailPoet Subscriber imports
 	 *
 	 * @return bool $status
 	 */
-	public function first_import_completed(){
+	public function first_import_completed() {
 
 		$status_bool = false;
 
 		// get
 		$first_import_complete = $this->mailpoet()->settings->get( 'first_import_complete', false );
 
-		if ( $first_import_complete == 'yes' || $first_import_complete === true || $first_import_complete == 1 ){
+		if ( $first_import_complete == 'yes' || $first_import_complete === true || $first_import_complete == 1 ) {
 
 			$status_bool = true;
 
 		}
 
 		return $status_bool;
-
 	}
 
 	/**
@@ -348,35 +327,31 @@ class Mailpoet_Background_Sync {
 	 *
 	 * @return int $page
 	 */
-	public function set_resume_from_page( $page_no ){
+	public function set_resume_from_page( $page_no ) {
 
 		$this->mailpoet()->settings->update( 'resume_from_page', $page_no );
 
 		return $page_no;
-
 	}
-
 
 	/**
 	 * Return current working page index (to resume from)
 	 *
 	 * @return int $page
 	 */
-	public function resume_from_page(){
+	public function resume_from_page() {
 
 		return $this->mailpoet()->settings->get( 'resume_from_page', 0 );
-
 	}
-
 
 	/**
 	 * Returns 'local' or 'api'
 	 *  (whichever mode is selected in settings)
 	 */
-	public function import_mode( $str_mode = false ){
+	public function import_mode( $str_mode = false ) {
 
 		// import mode
-		$mode = (int)$this->mode;
+		$mode = (int) $this->mode;
 
 		// debug/string mode
 		if ( $str_mode ) {
@@ -388,10 +363,7 @@ class Mailpoet_Background_Sync {
 		}
 
 		return $mode;
-
 	}
-
-
 
 	/**
 	 * Add or Update subscriber
@@ -401,7 +373,7 @@ class Mailpoet_Background_Sync {
 	 * - email
 	 * - doens't seem to fire on: change of newsletter, change of tags
 	 */
-	public function add_update_subscriber_by_id( int $subscriberId ){
+	public function add_update_subscriber_by_id( int $subscriberId ) {
 
 		global $zbs;
 
@@ -410,134 +382,135 @@ class Mailpoet_Background_Sync {
 
 		// retrieve records
 		$potential_subscriber = $this->mailpoet()->get_mailpoet_subscriber_by_subscriber_id( $subscriberId );
-		$potential_contact = $zbs->DAL->contacts->getContact( -1, array(
+		$potential_contact    = $zbs->DAL->contacts->getContact(
+			-1,
+			array(
 
-            'externalSource'    => 'mailpoet',
-            'externalSourceUID' => $subscriberId,
+				'externalSource'    => 'mailpoet',
+				'externalSourceUID' => $subscriberId,
 
-        ));
+			)
+		);
 
 		// got records?
 		if (
 				is_array( $potential_subscriber ) && isset( $potential_subscriber['email'] )
-		){
+		) {
 
 			// Update:
-			if ( is_array( $potential_contact ) && isset( $potential_contact['id'] ) ){
-		
+			if ( is_array( $potential_contact ) && isset( $potential_contact['id'] ) ) {
+
 				// note changes
-				$previous_data = $potential_contact;
+				$previous_data   = $potential_contact;
 				$contact_changes = array();
 
 				// email (will always be the same until https://github.com/Automattic/zero-bs-crm/issues/2565)
 				// ... in fact this next block is defunct as it stands because getSubscriber above gets the subscriber
 				// ... AFTER email change.
-				if ( $potential_subscriber['email'] != $potential_contact['email'] ){
+				if ( $potential_subscriber['email'] != $potential_contact['email'] ) {
 
 					$contact_changes['email'] = $potential_subscriber->data->email;
 
 					// if email changed, add old as an alias
 					// for that we need the old alias list to append to
 					$contact_aliases = is_array( $potential_contact['aliases'] ) ? $potential_contact['aliases'] : array();
-					if ( !in_array( $previous_data['email'], $contact_aliases ) ){
+					if ( ! in_array( $previous_data['email'], $contact_aliases ) ) {
 
 						$contact_aliases[] = $previous_data['email'];
 
 					}
-
 				}
 
 				// first name
-				if ( $potential_subscriber['first_name'] != $potential_contact['fname'] ){
+				if ( $potential_subscriber['first_name'] != $potential_contact['fname'] ) {
 
 					$contact_changes['fname'] = $potential_subscriber['first_name'];
 
 				}
 
 				// last name
-				if ( $potential_subscriber['last_name'] != $potential_contact['lname'] ){
+				if ( $potential_subscriber['last_name'] != $potential_contact['lname'] ) {
 
 					$contact_changes['lname'] = $potential_subscriber['last_name'];
 
-				}		
+				}
 
 				// enact changes
-				if ( count( $contact_changes ) > 0 ){
-		
+				if ( count( $contact_changes ) > 0 ) {
+
 					// we split this into field + contact_aliases changes, because then we can use limitedFields support
 
 					// build limited fields:
 					$contact_changes_as_limited_fields = array();
-					foreach ( $contact_changes as $key => $value ){
+					foreach ( $contact_changes as $key => $value ) {
 
 						$contact_changes_as_limited_fields[] = array(
 
-							'key'    => 'zbsc_' . $key,
-							'val'    => $value,
-							'type'   => '%s' // all are strings here
+							'key'  => 'zbsc_' . $key,
+							'val'  => $value,
+							'type' => '%s', // all are strings here
 
 						);
 
 					}
 
 					// enact
-					$zbs->DAL->contacts->addUpdateContact( array( 
-						
-						'id'            => $potential_contact['id'],
-						'limitedFields' => $contact_changes_as_limited_fields 
+					$zbs->DAL->contacts->addUpdateContact(
+						array(
 
-					));
+							'id'            => $potential_contact['id'],
+							'limitedFields' => $contact_changes_as_limited_fields,
+
+						)
+					);
 
 					// any aliases to add?
-					if ( isset( $contact_aliases ) && count( $contact_aliases ) ){
+					if ( isset( $contact_aliases ) && count( $contact_aliases ) ) {
 
-						foreach ( $contact_aliases as $alias ){
+						foreach ( $contact_aliases as $alias ) {
 
-	                        zeroBS_addObjAlias( ZBS_TYPE_CONTACT, $potential_contact['id'], $alias );
+							zeroBS_addObjAlias( ZBS_TYPE_CONTACT, $potential_contact['id'], $alias );
 						}
-
 					}
 
 					// do we add logs?
-					if ( $autolog_changes == "1" ){
+					if ( $autolog_changes == '1' ) {
 
 						// build log
 						$object_change_str = '';
-						if ( isset( $contact_changes['email'] ) ){
+						if ( isset( $contact_changes['email'] ) ) {
 
-							$object_change_str .= sprintf ( '%s: <code>%s</code> → <code>%s</code><br>', __( 'Email', 'zero-bs-crm' ), $previous_data['email'], $contact_changes['email'] );
-
-						}
-						if ( isset( $contact_changes['fname'] ) ){
-
-							$object_change_str .= sprintf ( '%s: <code>%s</code> → <code>%s</code><br>', __( 'First name', 'zero-bs-crm' ), $previous_data['fname'], $contact_changes['fname'] );
+							$object_change_str .= sprintf( '%s: <code>%s</code> → <code>%s</code><br>', __( 'Email', 'zero-bs-crm' ), $previous_data['email'], $contact_changes['email'] );
 
 						}
-						if ( isset( $contact_changes['lname'] ) ){
+						if ( isset( $contact_changes['fname'] ) ) {
 
-							$object_change_str .= sprintf ( '%s: <code>%s</code> → <code>%s</code><br>', __( 'Last name', 'zero-bs-crm' ), $previous_data['lname'], $contact_changes['lname'] );
+							$object_change_str .= sprintf( '%s: <code>%s</code> → <code>%s</code><br>', __( 'First name', 'zero-bs-crm' ), $previous_data['fname'], $contact_changes['fname'] );
+
+						}
+						if ( isset( $contact_changes['lname'] ) ) {
+
+							$object_change_str .= sprintf( '%s: <code>%s</code> → <code>%s</code><br>', __( 'Last name', 'zero-bs-crm' ), $previous_data['lname'], $contact_changes['lname'] );
 
 						}
 
 						// add log
-						if ( !empty( $object_change_str ) ){
+						if ( ! empty( $object_change_str ) ) {
 
 							zeroBS_addUpdateLog(
 								$potential_contact['id'],
 								-1,
 								-1,
 								array(
-									'type' => __( 'Contact Changed via MailPoet', 'zero-bs-crm' ),
+									'type'      => __( 'Contact Changed via MailPoet', 'zero-bs-crm' ),
 									'shortdesc' => __( 'Contact details changed via connected MailPoet subscriber', 'zero-bs-crm' ),
-									'longdesc' => $object_change_str,
+									'longdesc'  => $object_change_str,
 								),
 								'zerobs_customer'
 							);
 
 						}
-
 					}
-
 				}
 
 				return;
@@ -546,7 +519,7 @@ class Mailpoet_Background_Sync {
 
 				// New addition
 
-				// Note we can't act on this hook because currently the only thing passed is the 
+				// Note we can't act on this hook because currently the only thing passed is the
 				// MailPoet ID, from which the user can't currently (via MailPoet API) be retrieved
 				// ... so when they add that we can use $this->mailpoet()->get_mailpoet_subscriber_by_subscriber_id
 				// in it's real sense and write logic here to import the addition.
@@ -555,9 +528,7 @@ class Mailpoet_Background_Sync {
 				// see #temporary-workaround
 				// gh-2565
 
-
 			}
-
 		}
 
 		// Temporary workaround for lack of accessibility to getSubscriberByID in MP API
@@ -566,9 +537,9 @@ class Mailpoet_Background_Sync {
 		// Attempts to grab the last inserted sub. This will be hit and miss, but will work smoothly for
 		// small, infrequently updated lists
 		$last_updated_guess_timestamp = time() + jpcrm_get_wp_timezone_offset_in_seconds() - 1;
-		$potential_subscribers = $this->mailpoet()->get_mailpoet_subscribers( false, false, $last_updated_guess_timestamp, 1, 0, false, true, true );
+		$potential_subscribers        = $this->mailpoet()->get_mailpoet_subscribers( false, false, $last_updated_guess_timestamp, 1, 0, false, true, true );
 
-		if ( is_array( $potential_subscribers ) && count( $potential_subscribers ) > 0 ){
+		if ( is_array( $potential_subscribers ) && count( $potential_subscribers ) > 0 ) {
 
 			// push this sub through our sync import function:
 
@@ -577,15 +548,13 @@ class Mailpoet_Background_Sync {
 			$sync_job->import_subscriber( $potential_subscribers[0] );
 
 		}
-
-
 	}
 
 	/**
 	 * Delete subscriber
 	 * Fired by hooks: mailpoet_subscriber_created, mailpoet_subscriber_updated, mailpoet_subscriber_deleted
 	 */
-	public function delete_subscriber_by_id( int $subscriberId ){
+	public function delete_subscriber_by_id( int $subscriberId ) {
 
 		global $zbs;
 
@@ -593,54 +562,61 @@ class Mailpoet_Background_Sync {
 		$delete_action = $this->mailpoet()->settings->get( 'delete_action', 'none' );
 
 		// shall we delete the related crm contact?
-		if ( $delete_action == 'delete' || $delete_action == 'delete_save_related_objects' ){
+		if ( $delete_action == 'delete' || $delete_action == 'delete_save_related_objects' ) {
 
 			// retrieve record
-			$potential_contact_id = $zbs->DAL->contacts->getContact( -1, array(
+			$potential_contact_id = $zbs->DAL->contacts->getContact(
+				-1,
+				array(
 
-	            'externalSource'    => 'mailpoet',
-	            'externalSourceUID' => $subscriberId,
+					'externalSource'    => 'mailpoet',
+					'externalSourceUID' => $subscriberId,
 
-	            'onlyID'            => true,
+					'onlyID'            => true,
 
-	        ));
+				)
+			);
 
 			// got record?
-			if ( $potential_contact_id ){
+			if ( $potential_contact_id ) {
 
 				$save_orphans = false;
 				if ( $delete_action == 'delete_save_related_objects' ) {
-					
+
 					$save_orphans = true;
 
 				}
 
 				// delete the contact
-				$zbs->DAL->contacts->deleteContact( array(
+				$zbs->DAL->contacts->deleteContact(
+					array(
 
-					'id'            => $potential_contact_id,
-					'saveOrphans'   => $save_orphans,
+						'id'          => $potential_contact_id,
+						'saveOrphans' => $save_orphans,
 
-				));
+					)
+				);
 
 			}
-
 		} elseif ( $delete_action == 'add_note' ) {
 
 			// if it was deleted in MailPoet but user has 'add_note' selected as delete action, we add a log to contact
 
 			// retrieve record
-			$potential_contact_id = $zbs->DAL->contacts->getContact( -1, array(
+			$potential_contact_id = $zbs->DAL->contacts->getContact(
+				-1,
+				array(
 
-	            'externalSource'    => 'mailpoet',
-	            'externalSourceUID' => $subscriberId,
+					'externalSource'    => 'mailpoet',
+					'externalSourceUID' => $subscriberId,
 
-	            'onlyID'            => true,
+					'onlyID'            => true,
 
-	        ));
+				)
+			);
 
 			// got record?
-			if ( $potential_contact_id ){
+			if ( $potential_contact_id ) {
 
 				zeroBS_addUpdateLog(
 					$potential_contact_id,
@@ -649,50 +625,44 @@ class Mailpoet_Background_Sync {
 					array(
 						'type'      => __( 'Subscriber deleted in MailPoet', 'zero-bs-crm' ),
 						'shortdesc' => __( 'Associated MailPoet subscriber was deleted in MailPoet', 'zero-bs-crm' ),
-						'longdesc'  => ''
+						'longdesc'  => '',
 					),
 					'zerobs_customer'
 				);
 
 			}
-
 		}
 
 		// if we're not deleting the contact, we need to remove the external source record
 		// for the contact, because there's no link any more.
 		// ... actually if we leave it in tact it still records useful info (the fact the source was MP)
-
 	}
 
-
 	/**
-	 * Add or Update subscribers 
+	 * Add or Update subscribers
 	 * Fired by hooks: mailpoet_multiple_subscribers_created, mailpoet_multiple_subscribers_updated
 	 */
-	public function add_update_subscribers_by_id( int $minActionTimestamp ){
+	public function add_update_subscribers_by_id( int $minActionTimestamp ) {
 
 		// catch these via sync
 		$this->sync_subscribers( true );
-
 	}
 
-
 	/**
-	 * Delete subscribers 
+	 * Delete subscribers
 	 * Fired by hook: mailpoet_multiple_subscribers_deleted
 	 */
-	public function delete_subscribers_by_id( array $subscriberIds ){
+	public function delete_subscribers_by_id( array $subscriberIds ) {
 
 		// here we rely on our other function `delete_subscriber_by_id()`
 		// which has all of the settings-based delete actions
-		if ( count( $subscriberIds ) > 0 ){
+		if ( count( $subscriberIds ) > 0 ) {
 
-			foreach ( $subscriberIds as $subscriber_id ){
+			foreach ( $subscriberIds as $subscriber_id ) {
 
 				$this->delete_subscriber_by_id( $subscriber_id );
 
-			} 
+			}
 		}
-
 	}
 }

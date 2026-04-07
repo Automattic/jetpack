@@ -5,7 +5,7 @@ import { createInterpolateElement } from '@wordpress/element';
 import { __, _x, sprintf } from '@wordpress/i18n';
 import { store as socialStore } from '../../social-store';
 import { Connection } from '../../social-store/types';
-import { SupportedService } from '../services/use-supported-services';
+import { SupportedService } from '../services/types';
 import { Disconnect } from './disconnect';
 import { Reconnect } from './reconnect';
 
@@ -59,7 +59,10 @@ export function ConnectionStatus( { connection, service }: ConnectionStatusProps
 							),
 							{
 								link: (
-									<ExternalLink href={ getRedirectUrl( 'jetpack-social-manual-sharing-help' ) } />
+									<ExternalLink
+										href={ getRedirectUrl( 'jetpack-social-manual-sharing-help' ) }
+										children={ null }
+									/>
 								),
 							}
 						);

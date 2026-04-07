@@ -30,36 +30,25 @@ minimumReleaseAgeExclude:
   - '@automattic/*'
   - '@woocommerce/*'
   - '@wordpress/*'
-  # Renovate security update: lodash@4.17.23
-  - lodash@4.17.23
-  # Renovate security update: lodash-es@4.17.23
-  - lodash-es@4.17.23
+  # GHSA-wh4c-j3r5-mjhp
+  - '@xmldom/xmldom@0.9.9'
+  # Renovate security update: lodash-es@4.18.1
+  - lodash-es@4.18.1
+  - lodash@4.18.1
+  # Renovate security update: vite@8.0.5
+  - vite@8.0.5
 trustPolicy: no-downgrade
 trustPolicyExclude:
   # https://github.com/paulmillr/chokidar/issues/1440
   - chokidar@4.0.3
 
-  # Don't know why 5.1.0 had provenance but 5.1.1 doesn't. But both are over a year old and there's nothing suspicious in the diff. 🤷
+  # https://github.com/reduxjs/reselect/issues/752
   - reselect@5.1.1
 
   # Packages where newer majors have provenance but we're still on an older one.
-  - '@octokit/endpoint@9.0.6'
-  - '@octokit/plugin-paginate-rest@9.2.2'
-  - '@oxc-parser/binding-darwin-arm64@0.78.0'
-  - '@oxc-parser/binding-darwin-x64@0.78.0'
-  - '@oxc-parser/binding-linux-arm64-gnu@0.78.0'
-  - '@oxc-parser/binding-linux-arm64-musl@0.78.0'
-  - '@oxc-parser/binding-linux-arm-gnueabihf@0.78.0'
-  - '@oxc-parser/binding-linux-x64-gnu@0.78.0'
-  - '@oxc-parser/binding-linux-x64-musl@0.78.0'
-  - '@oxc-parser/binding-wasm32-wasi@0.78.0'
-  - '@oxc-parser/binding-win32-arm64-msvc@0.78.0'
-  - '@oxc-parser/binding-win32-x64-msvc@0.78.0'
+  - rollup@3.30.0
   - rxjs@7.8.2
   - semver@6.3.1
-  - svelte@4.2.19
-  - undici@5.29.0
-  - undici-types@6.21.0
 
 # Package compromise avoidance: require dep build script approval.
 strictDepBuilds: true
@@ -69,6 +58,8 @@ allowBuilds:
   '@swc/core': false
   esbuild: false
   unrs-resolver: false
+  # Tries to rebuild its bundled libs if a newer version of libvips-dev is installed, which probably isn't.
+  sharp: false
   # Attempt to show "remember to install other stuff" spam.
   svelte-preprocess: false
   # Attempt to show "support me" spam.
@@ -86,6 +77,10 @@ ignoredOptionalDependencies:
 
 # Dependencies needing patching.
 patchedDependencies:
+
+  # Vite/esbuild doesn't like the `__esModule` + `exports["default"]` pattern, it winds up double-wrapping the default.
+  # See also https://github.com/WordPress/gutenberg/issues/39619
+  react-autosize-textarea: .pnpm-patches/react-autosize-textarea.patch
 
   # uuid up to v11 had CommonJS files with ESM content too.
   # No bug report, because it's already fixed in the latest versions.

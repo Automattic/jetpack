@@ -15,9 +15,9 @@ export interface UserInfo {
 
 export interface SubscriptionDetails {
 	email: {
-		send_posts: boolean;
-		send_comments: boolean;
-		post_delivery_frequency: string;
+		send_posts?: boolean;
+		send_comments?: boolean;
+		post_delivery_frequency?: string;
 	};
 	notification?: {
 		send_posts: boolean;
@@ -91,8 +91,8 @@ export interface SimpleSubscribeModalProps {
 	closeModalHandler: () => void;
 	email: string;
 	subscribeState?: string;
-	setSubscribeState?: ( boolean ) => void;
-	setHasIframe?: ( boolean ) => void;
+	setSubscribeState?: ( value: 'SUBSCRIBING' | 'LOADING' | 'SUBSCRIBED' ) => void;
+	setHasIframe?: ( value: boolean ) => void;
 }
 
 export type MailLoginData = {

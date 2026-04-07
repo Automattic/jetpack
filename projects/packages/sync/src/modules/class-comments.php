@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Sync\Modules;
 
+use Automattic\Jetpack\Sync\Defaults;
 use Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Sync\Settings;
 
@@ -205,21 +206,10 @@ class Comments extends Module {
 	 *
 	 * @access public
 	 *
-	 * @return array Defaults to [ '', 'trackback', 'pingback' ].
+	 * @return array Defaults to [ '', 'comment', 'trackback', 'pingback', 'review', 'note' ].
 	 */
 	public function get_whitelisted_comment_types() {
-		/**
-		 * Comment types present in this list will sync their status changes to WordPress.com.
-		 *
-		 * @since 1.6.3
-		 * @since-jetpack 7.6.0
-		 *
-		 * @param array A list of comment types.
-		 */
-		return apply_filters(
-			'jetpack_sync_whitelisted_comment_types',
-			array( '', 'comment', 'trackback', 'pingback', 'review' )
-		);
+		return Defaults::get_comment_types_whitelist();
 	}
 
 	/**

@@ -24,15 +24,12 @@ const SideContent = ( { isLoading, illustration, illustrationClassName, sidebarC
 	if ( illustration ) {
 		return (
 			<div className="jp-recommendations-question__illustration-container">
-				<picture className="jp-recommendations-question__illustration-picture">
-					<source type="image/webp" srcSet={ `${ imgBase }.webp 1x, ${ imgBase }-2x.webp 2x` } />
-					<img
-						className={ clsx( 'jp-recommendations-question__illustration', illustrationClassName ) }
-						srcSet={ `${ imgBase }-2x.png 2x` }
-						src={ `${ imgBase }.png` }
-						alt=""
-					/>
-				</picture>
+				<img
+					className={ clsx( 'jp-recommendations-question__illustration', illustrationClassName ) }
+					srcSet={ `${ imgBase }-2x.webp 2x` }
+					src={ `${ imgBase }.webp` }
+					alt=""
+				/>
 			</div>
 		);
 	}

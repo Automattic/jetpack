@@ -950,6 +950,22 @@ class Helper {
 			 * @param bool Prevent cookie reset for automattic sites as default value.
 			 */
 			'preventTrackingCookiesReset' => apply_filters( 'jetpack_instant_search_prevent_tracking_cookies_reset', function_exists( 'is_automattic' ) && is_automattic() ),
+
+			/**
+			 * Whether to disable Tracks and TrainTracks analytics.
+			 *
+			 * This can be enabled via URL parameter (?disable_tracking=1) for testing,
+			 * or via the filter for permanent configuration. Useful for debugging issues
+			 * where tracking may interfere with search functionality, such as Safari's
+			 * advanced tracking protection.
+			 *
+			 * @module search
+			 *
+			 * @since 0.56.0
+			 *
+			 * @param bool $disable_tracking Whether to disable tracking. Default false.
+			 */
+			'disableTracking'             => self::is_tracking_disabled() || apply_filters( 'jetpack_instant_search_disable_tracking', false ),
 		);
 
 		/**
@@ -1036,5 +1052,17 @@ class Helper {
 		$referrer = wp_get_referer();
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash
 		return ( isset( $_GET['new_pricing_202208'] ) && $_GET['new_pricing_202208'] ) || $referrer && strpos( $referrer, 'new_pricing_202208=1' ) !== false;
+	}
+
+	/**
+	 * Returns true if tracking should be disabled via URL parameter, which is used for testing purposes.
+	 *
+	 * @since 0.56.0
+	 *
+	 * @return bool
+	 */
+	public static function is_tracking_disabled() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash
+		return isset( $_GET['disable_tracking'] ) && $_GET['disable_tracking'];
 	}
 }

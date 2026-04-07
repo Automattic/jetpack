@@ -3,7 +3,8 @@ import { Button } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { useCallback } from '@wordpress/element';
-import { __, _x } from '@wordpress/i18n';
+import { __, _x, sprintf } from '@wordpress/i18n';
+import { usePerNetworkCustomization } from '../../hooks/use-per-network-customization';
 import usePublicizeConfig from '../../hooks/use-publicize-config';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import { store as socialStore } from '../../social-store';
@@ -29,6 +30,19 @@ export function PreviewPostsTrigger() {
 		openUnifiedModal();
 	}, [ isModalOpen, openUnifiedModal, recordEvent ] );
 
+	const buttonLabel = isPostPublished
+		? _x(
+				'Preview and share',
+				'Verb: The button label for the preview modal button',
+				'jetpack-publicize-pkg'
+		  )
+		: _x(
+				'Preview and customize',
+				'Verb: The button label for the preview modal trigger',
+				'jetpack-publicize-pkg'
+		  );
+	const perNetworkMode = usePerNetworkCustomization();
+
 	if (
 		! hasConnections ||
 		// Resharing for published posts cannot work without user connection.
@@ -38,15 +52,24 @@ export function PreviewPostsTrigger() {
 	}
 
 	return (
-		<Button
-			variant="secondary"
-			onClick={ handleOpenModal }
-			className={ styles[ 'preview-posts-trigger' ] }
-			disabled={ ! isPublicizeEnabled }
-		>
-			{ isPostPublished
-				? _x( 'Preview & share', 'The button label for the modal trigger', 'jetpack-publicize-pkg' )
-				: __( 'Preview and customize', 'jetpack-publicize-pkg' ) }
-		</Button>
+		<>
+			<Button
+				variant="secondary"
+				onClick={ handleOpenModal }
+				className={ styles[ 'preview-posts-trigger' ] }
+				disabled={ ! isPublicizeEnabled }
+			>
+				{ buttonLabel }
+			</Button>
+			{ perNetworkMode.isEnabled ? (
+				<p className={ styles[ 'per-network-customization-notice' ] }>
+					{ sprintf(
+						/* translators: %s: button/section label like "Preview and customize" */
+						__( 'Customizing per account. Manage in "%s" above.', 'jetpack-publicize-pkg' ),
+						buttonLabel
+					) }
+				</p>
+			) : null }
+		</>
 	);
 }

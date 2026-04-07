@@ -2,9 +2,8 @@
  * External dependencies
  */
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { isSimpleSite } from '@automattic/jetpack-script-data';
+import { isSimpleSite, getMyJetpackUrl } from '@automattic/jetpack-script-data';
 import {
-	getJetpackData,
 	isMyJetpackAvailable,
 	useAutosaveAndRedirect,
 } from '@automattic/jetpack-shared-extension-utils';
@@ -21,7 +20,7 @@ export default function useAiProductPage(): {
 } {
 	const isMyJetpackReallyAvailable = isMyJetpackAvailable() && ! isSimpleSite();
 	const productPageUrl = isMyJetpackReallyAvailable
-		? `${ getJetpackData()?.adminUrl || '' }admin.php?page=my-jetpack#/jetpack-ai`
+		? getMyJetpackUrl( '#/jetpack-ai' )
 		: getRedirectUrl( 'org-ai' );
 
 	const { autosaveAndRedirect, isRedirecting } = useAutosaveAndRedirect( productPageUrl );

@@ -4,7 +4,7 @@ jpcrm-dashcount {
 	display: grid;
 	grid-template-columns: repeat(auto-fit, 250px);
 	counter-reset: grid-items;
-	grid-gap: 10px 20px;
+	gap: 10px 20px;
 
 	&.wide-cards {
 		grid-template-columns: repeat(auto-fit, 300px);

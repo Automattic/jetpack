@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fix branch search not working for uppercase branch names.

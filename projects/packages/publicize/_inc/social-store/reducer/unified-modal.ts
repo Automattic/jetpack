@@ -59,7 +59,10 @@ export function unifiedModal(
 		case SET_UNIFIED_MODAL_DATA:
 			return {
 				...state,
-				data: action.data,
+				data: {
+					...state?.data,
+					...action.data,
+				},
 			};
 		default:
 			return state;

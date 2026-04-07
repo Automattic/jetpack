@@ -13,6 +13,7 @@ use Automattic\Jetpack\Connection\SSO\Helpers;
 use Automattic\Jetpack\Connection\SSO\Notices;
 use Automattic\Jetpack\Connection\SSO\User_Admin;
 use Automattic\Jetpack\Connection\Webhooks\Authorize_Redirect;
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Roles;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
@@ -39,6 +40,24 @@ class SSO {
 	 * @var \Automattic\Jetpack\Connection\SSO
 	 */
 	public static $instance = null;
+
+	/**
+	 * Stores the WP_User being authenticated via SSO so the
+	 * attach_session_information callback can tag the session.
+	 *
+	 * @var WP_User|null
+	 */
+	private static $sso_user_for_2fa = null;
+
+	/**
+	 * Cookie name for the SSO broker authorization signal.
+	 *
+	 * Set when WP.com signals that a broker should be used for SSO. The cookie
+	 * value is the SSO nonce, tying the signal to a specific authentication flow.
+	 *
+	 * @var string
+	 */
+	const BROKER_COOKIE = 'jetpack_sso_broker';
 
 	/**
 	 * Automattic\Jetpack\Connection\SSO constructor.
@@ -559,6 +578,17 @@ class SSO {
 			true
 		);
 
+		// Persist the WordPress.com referrer signal so it survives the SSO button
+		// click, which changes the HTTP Referer to the site's own login page.
+		// Uses the live-only check to avoid a self-reinforcing cookie loop.
+		if ( self::is_live_referrer_wpcom() ) {
+			setcookie( 'jetpack_sso_wpcom_referrer', '1', time() + ( 10 * MINUTE_IN_SECONDS ), COOKIEPATH, COOKIE_DOMAIN, is_ssl(), true );
+			$_COOKIE['jetpack_sso_wpcom_referrer'] = '1';
+		} elseif ( ! empty( $_COOKIE['jetpack_sso_wpcom_referrer'] ) ) {
+			setcookie( 'jetpack_sso_wpcom_referrer', ' ', time() - YEAR_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN, is_ssl(), true );
+			unset( $_COOKIE['jetpack_sso_wpcom_referrer'] );
+		}
+
 		if ( ! empty( $_GET['redirect_to'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			// If we have something to redirect to.
 			$url = esc_url_raw( wp_unslash( $_GET['redirect_to'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
@@ -724,6 +754,30 @@ class SSO {
 				true
 			);
 		}
+
+		if ( isset( $_COOKIE[ self::BROKER_COOKIE ] ) ) {
+			setcookie(
+				self::BROKER_COOKIE,
+				' ',
+				time() - YEAR_IN_SECONDS,
+				COOKIEPATH,
+				COOKIE_DOMAIN,
+				is_ssl(),
+				true
+			);
+		}
+
+		if ( isset( $_COOKIE['jetpack_sso_wpcom_referrer'] ) ) {
+			setcookie(
+				'jetpack_sso_wpcom_referrer',
+				' ',
+				time() - YEAR_IN_SECONDS,
+				COOKIEPATH,
+				COOKIE_DOMAIN,
+				is_ssl(),
+				true
+			);
+		}
 	}
 
 	/**
@@ -755,20 +809,176 @@ class SSO {
 				return new WP_Error( $xml->getErrorCode(), $xml->getErrorMessage() );
 			}
 
-			$nonce = sanitize_key( $xml->getResponse() );
+			$response = $xml->getResponse();
+
+			// The response may be a plain nonce string (default) or an associative
+			// array containing 'nonce' and a 'use_sso_broker' signal for sites that
+			// use an external SSO broker (e.g. CIAB stores via the MSD).
+			if ( is_array( $response ) ) {
+				if ( empty( $response['nonce'] ) ) {
+					return new WP_Error( 'invalid_response', __( 'Invalid nonce response from WordPress.com.', 'jetpack-connection' ) );
+				}
+
+				$nonce      = sanitize_key( $response['nonce'] );
+				$use_broker = ! empty( $response['use_sso_broker'] );
+			} else {
+				$nonce      = sanitize_key( $response );
+				$use_broker = false;
+			}
+
+			$cookie_expiry = time() + ( 10 * MINUTE_IN_SECONDS );
 
 			setcookie(
 				'jetpack_sso_nonce',
 				$nonce,
-				time() + ( 10 * MINUTE_IN_SECONDS ),
+				$cookie_expiry,
 				COOKIEPATH,
 				COOKIE_DOMAIN,
 				is_ssl(),
 				true
 			);
+			// Ensure this request can use the nonce immediately after setcookie().
+			$_COOKIE['jetpack_sso_nonce'] = $nonce;
+
+			if ( $use_broker ) {
+				setcookie(
+					self::BROKER_COOKIE,
+					$nonce,
+					$cookie_expiry,
+					COOKIEPATH,
+					COOKIE_DOMAIN,
+					is_ssl(),
+					true
+				);
+				// Mirror the broker signal in-memory for this request.
+				$_COOKIE[ self::BROKER_COOKIE ] = $nonce;
+			} else {
+				setcookie( self::BROKER_COOKIE, ' ', time() - YEAR_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN, is_ssl(), true );
+				unset( $_COOKIE[ self::BROKER_COOKIE ] );
+			}
 		}
 
 		return $nonce;
+	}
+
+	/**
+	 * Validates a broker URL string.
+	 *
+	 * @param string $url The URL to validate.
+	 * @return string|false The URL if valid HTTPS with a host, or false.
+	 */
+	private static function validate_broker_url( $url ) {
+		if ( empty( $url ) || ! is_string( $url ) ) {
+			return false;
+		}
+
+		$sanitized = esc_url_raw( $url );
+		$url_parts = wp_parse_url( $sanitized );
+
+		if ( $url_parts && 'https' === ( $url_parts['scheme'] ?? '' ) && ! empty( $url_parts['host'] ) ) {
+			return $sanitized;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Checks whether WP.com has authorized broker mode for the current SSO flow.
+	 *
+	 * The broker cookie is set during the nonce request when WP.com signals
+	 * that broker SSO should be used. Its value matches the SSO nonce to tie
+	 * the authorization to a specific flow.
+	 *
+	 * @return bool True if WP.com authorized broker mode for this nonce.
+	 */
+	private static function is_broker_authorized() {
+		$broker_signal = ! empty( $_COOKIE[ self::BROKER_COOKIE ] ) // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			? sanitize_key( wp_unslash( $_COOKIE[ self::BROKER_COOKIE ] ) ) // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			: false;
+		$current_nonce = ! empty( $_COOKIE['jetpack_sso_nonce'] ) // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			? sanitize_key( wp_unslash( $_COOKIE['jetpack_sso_nonce'] ) ) // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			: false;
+
+		return $broker_signal && $current_nonce && $broker_signal === $current_nonce;
+	}
+
+	/**
+	 * Checks whether the current request's referrer is a WordPress.com domain.
+	 *
+	 * Used to skip the broker URL when the user navigated from Calypso or
+	 * another WordPress.com interface, so they stay within the expected
+	 * wordpress.com SSO flow.
+	 *
+	 * @return bool True if the referrer is a WordPress.com domain.
+	 */
+	private static function is_referrer_wpcom() {
+		// Check the cookie persisted by save_cookies() on the initial login page
+		// load. The live HTTP Referer changes to the site's own wp-login.php when
+		// the user clicks the SSO button, so the cookie carries the original signal.
+		if ( ! empty( $_COOKIE['jetpack_sso_wpcom_referrer'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			return true;
+		}
+
+		return self::is_live_referrer_wpcom();
+	}
+
+	/**
+	 * Checks the live HTTP Referer header against WordPress.com domains.
+	 *
+	 * Unlike is_referrer_wpcom(), this does NOT consult the persisted cookie,
+	 * so it is safe to call from save_cookies() without creating a
+	 * self-reinforcing loop.
+	 *
+	 * @return bool True if the live referrer is a WordPress.com domain.
+	 */
+	private static function is_live_referrer_wpcom() {
+		$referer = wp_get_raw_referer();
+		if ( ! $referer ) {
+			return false;
+		}
+
+		$wpcom_hosts = array(
+			'wordpress.com',
+			'horizon.wordpress.com',
+			'wpcalypso.wordpress.com',
+		);
+
+		$referer_host = wp_parse_url( $referer, PHP_URL_HOST );
+		return $referer_host && in_array( $referer_host, $wpcom_hosts, true );
+	}
+
+	/**
+	 * Retrieves the SSO broker URL if authorized by WP.com and defined by the MU plugin.
+	 *
+	 * The broker URL is read from the JETPACK_SSO_BROKER_URL constant, which
+	 * is expected to be defined by a garden MU plugin (e.g. for CIAB stores).
+	 * It is only used when WP.com has signaled broker mode via the nonce response.
+	 *
+	 * @return string|false The broker URL, or false if not available.
+	 */
+	public static function get_broker_url() {
+		if ( ! self::is_broker_authorized() ) {
+			return false;
+		}
+		$url = Constants::get_constant( 'JETPACK_SSO_BROKER_URL' );
+		return $url ? self::validate_broker_url( $url ) : false;
+	}
+
+	/**
+	 * Retrieves the SSO broker authorization URL if authorized by WP.com.
+	 *
+	 * For broker sites, this URL replaces the Jetpack authorization endpoint
+	 * for establishing user connections. Read from the JETPACK_SSO_BROKER_AUTH_URL
+	 * constant defined by the garden MU plugin.
+	 *
+	 * @return string|false The broker authorization URL, or false if not available.
+	 */
+	public static function get_broker_auth_url() {
+		if ( ! self::is_broker_authorized() ) {
+			return false;
+		}
+		$url = Constants::get_constant( 'JETPACK_SSO_BROKER_AUTH_URL' );
+		return $url ? self::validate_broker_url( $url ) : false;
 	}
 
 	/**
@@ -918,24 +1128,55 @@ class SSO {
 			// Cache the user's details, so we can present it back to them on their user screen.
 			update_user_meta( $user->ID, 'wpcom_user_data', $user_data );
 
+			/*
+			 * Two-Factor plugin 0.15.0+ unconditionally hooks wp_login at PHP_INT_MAX,
+			 * which destroys the auth session and prompts for local 2FA — even for SSO
+			 * logins that already completed 2FA on WordPress.com.
+			 *
+			 * When WP.com confirms the user has 2FA active, remove Two-Factor's wp_login
+			 * hook so SSO can complete without a redundant local 2FA prompt.
+			 *
+			 * When WP.com 2FA is NOT active, the hook stays and Two-Factor can enforce
+			 * local 2FA as a safety net.
+			 *
+			 * @see https://github.com/WordPress/two-factor/issues/811
+			 */
+			/**
+			 * Filter whether to accept WordPress.com 2FA in place of a local
+			 * Two-Factor prompt during SSO login.
+			 *
+			 * Return false to always require the local Two-Factor prompt,
+			 * even when the user has completed 2FA on WordPress.com.
+			 *
+			 * @since 8.1.0
+			 * @module sso
+			 *
+			 * @param bool    $accept    Whether to accept WP.com 2FA. Default true.
+			 * @param object  $user_data WordPress.com user data from SSO validation.
+			 * @param WP_User $user      The local WordPress user.
+			 */
+			$accept_wpcom_2fa = apply_filters( 'jetpack_sso_accept_wpcom_2fa', true, $user_data, $user );
+
+			if (
+				! empty( $user_data->two_step_enabled )
+				&& class_exists( 'Two_Factor_Core' )
+				&& $accept_wpcom_2fa
+			) {
+				self::$sso_user_for_2fa = $user;
+				add_filter( 'attach_session_information', array( static::class, 'add_two_factor_session_meta' ), 10, 2 );
+
+				remove_action( 'wp_login', array( 'Two_Factor_Core', 'wp_login' ), PHP_INT_MAX );
+			}
+
 			add_filter( 'auth_cookie_expiration', array( Helpers::class, 'extend_auth_cookie_expiration_for_sso' ) );
 			wp_set_auth_cookie( $user->ID, true );
 			remove_filter( 'auth_cookie_expiration', array( Helpers::class, 'extend_auth_cookie_expiration_for_sso' ) );
+			remove_filter( 'attach_session_information', array( static::class, 'add_two_factor_session_meta' ), 10 );
 
 			/** This filter is documented in core/src/wp-includes/user.php */
 			do_action( 'wp_login', $user->user_login, $user );
 
 			wp_set_current_user( $user->ID );
-
-			$_request_redirect_to = isset( $_REQUEST['redirect_to'] ) ? esc_url_raw( wp_unslash( $_REQUEST['redirect_to'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			$redirect_to          = user_can( $user, 'edit_posts' ) ? admin_url() : self::profile_page_url();
-
-			// If we have a saved redirect to request in a cookie.
-			if ( ! empty( $_COOKIE['jetpack_sso_redirect_to'] ) ) {
-				// Set that as the requested redirect to.
-				$redirect_to          = esc_url_raw( wp_unslash( $_COOKIE['jetpack_sso_redirect_to'] ) );
-				$_request_redirect_to = $redirect_to;
-			}
 
 			$json_api_auth_environment = Helpers::get_json_api_auth_environment();
 
@@ -952,12 +1193,40 @@ class SSO {
 				)
 			);
 
+			$_request_redirect_to = isset( $_REQUEST['redirect_to'] ) ? esc_url_raw( wp_unslash( $_REQUEST['redirect_to'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			$redirect_to          = user_can( $user, 'edit_posts' ) ? admin_url() : self::profile_page_url();
+
+			// If we have a saved redirect to request in a cookie.
+			if ( ! empty( $_COOKIE['jetpack_sso_redirect_to'] ) ) {
+				// Set that as the requested redirect to.
+				$redirect_to          = esc_url_raw( wp_unslash( $_COOKIE['jetpack_sso_redirect_to'] ) );
+				$_request_redirect_to = $redirect_to;
+			}
+
 			if ( $is_json_api_auth ) {
 				$authorize_json_api = new Authorize_Json_Api();
 				$authorize_json_api->verify_json_api_authorization_request( $json_api_auth_environment );
 				$authorize_json_api->store_json_api_authorization_token( $user->user_login, $user );
 
 			} elseif ( ! $is_user_connected ) {
+				$broker_auth_url = self::get_broker_auth_url();
+				if ( $broker_auth_url ) {
+					add_filter( 'allowed_redirect_hosts', array( Helpers::class, 'allowed_redirect_hosts' ) );
+					wp_safe_redirect(
+						add_query_arg(
+							array(
+								'action'                   => 'jetpack-sso',
+								'site_id'                  => Manager::get_site_id( true ),
+								'redirect_to'              => $redirect_to,
+								'request_redirect_to'      => $_request_redirect_to,
+								'broker-sso-auth-redirect' => '1',
+							),
+							$broker_auth_url
+						)
+					);
+					exit( 0 );
+				}
+
 				wp_safe_redirect(
 					add_query_arg(
 						array(
@@ -1086,10 +1355,30 @@ class SSO {
 	}
 
 	/**
-	 * Build WordPress.com SSO URL with appropriate query parameters.
+	 * Returns the base URL for SSO authentication.
+	 *
+	 * If a broker URL is available (authorized by WP.com and defined by the
+	 * garden MU plugin), that URL is used unless the user navigated from a
+	 * WordPress.com domain. Otherwise falls back to the default WordPress.com
+	 * login URL.
+	 *
+	 * @return string The base SSO URL.
+	 */
+	public static function get_sso_base_url() {
+		$broker_url = self::get_broker_url();
+		if ( $broker_url && ! self::is_referrer_wpcom() ) {
+			return $broker_url;
+		}
+		return 'https://wordpress.com/wp-login.php';
+	}
+
+	/**
+	 * Build SSO URL with appropriate query parameters.
+	 *
+	 * The base URL can be WordPress.com or an authorized broker URL.
 	 *
 	 * @param array $args Optional query parameters.
-	 * @return string|WP_Error WordPress.com SSO URL
+	 * @return string|WP_Error Redirect URL for SSO authentication.
 	 */
 	public function build_sso_url( $args = array() ) {
 		$sso_nonce = ! empty( $args['sso_nonce'] ) ? $args['sso_nonce'] : self::request_initial_nonce();
@@ -1106,16 +1395,15 @@ class SSO {
 			return $sso_nonce;
 		}
 
-		return add_query_arg( $args, 'https://wordpress.com/wp-login.php' );
+		return add_query_arg( $args, self::get_sso_base_url() );
 	}
 
 	/**
-	 * Build WordPress.com SSO URL with appropriate query parameters,
-	 * including the parameters necessary to force the user to reauthenticate
-	 * on WordPress.com.
+	 * Build SSO URL with appropriate query parameters, including the
+	 * parameters necessary to force the user to reauthenticate.
 	 *
 	 * @param array $args Optional query parameters.
-	 * @return string|WP_Error WordPress.com SSO URL
+	 * @return string|WP_Error Redirect URL for SSO authentication.
 	 */
 	public function build_reauth_and_sso_url( $args = array() ) {
 		$sso_nonce = ! empty( $args['sso_nonce'] ) ? $args['sso_nonce'] : self::request_initial_nonce();
@@ -1145,7 +1433,7 @@ class SSO {
 			return $args['sso_nonce'];
 		}
 
-		return add_query_arg( $args, 'https://wordpress.com/wp-login.php' );
+		return add_query_arg( $args, self::get_sso_base_url() );
 	}
 
 	/**
@@ -1272,5 +1560,20 @@ class SSO {
 	 **/
 	public function get_user_data( $user_id ) {
 		return get_user_meta( $user_id, 'wpcom_user_data', true );
+	}
+
+	/**
+	 * Marks a session as two-factor-authenticated when SSO handled 2FA via WP.com.
+	 *
+	 * @param array $session Session information array.
+	 * @param int   $user_id User ID for the session being created.
+	 * @return array Modified session information.
+	 */
+	public static function add_two_factor_session_meta( $session, $user_id ) {
+		if ( self::$sso_user_for_2fa && self::$sso_user_for_2fa->ID === $user_id ) {
+			$session['two-factor-login'] = time();
+			self::$sso_user_for_2fa      = null;
+		}
+		return $session;
 	}
 }

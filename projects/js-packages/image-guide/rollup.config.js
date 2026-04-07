@@ -92,7 +92,13 @@ export default {
 
 		// If we're building for production (npm run build
 		// instead of npm run dev), minify
-		production && terser(),
+		production &&
+			terser( {
+				mangle: {
+					// Preserve WP i18n methods.
+					reserved: [ '__', '_n', '_nx', '_x' ],
+				},
+			} ),
 	],
 
 	watch: {

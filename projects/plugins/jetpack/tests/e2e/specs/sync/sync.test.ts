@@ -12,7 +12,7 @@ import {
 test.describe( 'Sync', () => {
 	const wpcomRestAPIBase = 'https://public-api.wordpress.com/rest/';
 	let wpcomBlogId;
-	let wpcomForcedPostsUrl;
+	let wpcomForcedPostsUrl: string;
 	let wpcomPostsResponse;
 	let wpcomPosts;
 

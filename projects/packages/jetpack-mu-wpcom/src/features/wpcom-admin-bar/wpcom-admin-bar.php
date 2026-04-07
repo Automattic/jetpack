@@ -7,9 +7,10 @@
  * @package automattic/jetpack-mu-wpcom
  */
 
-use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Connection\Urls;
 use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
+use Automattic\Jetpack\Newsletter\Reader_Link;
 use Automattic\Jetpack\Status;
 
 // The $icon-color variable for admin color schemes.
@@ -30,21 +31,14 @@ const WPCOM_ADMIN_ICON_COLORS = array(
 /**
  * Adds the origin_site_id query parameter to a URL.
  *
+ * @deprecated $$next-version$$ Use Automattic\Jetpack\Connection\Urls::maybe_add_origin_site_id instead.
+ *
  * @param string $url The URL to add the query param to.
- * @return string The URL with the origin_site_id query parameter mey be added.
+ * @return string The URL with the origin_site_id query parameter maybe added.
  */
 function maybe_add_origin_site_id_to_url( $url ) {
-	$site_id = Connection_Manager::get_site_id();
-	if ( is_wp_error( $site_id ) ) {
-		return $url;
-	}
-
-	// Add query param to URL only for users who can access wp-admin.
-	if ( ! is_user_member_of_blog() ) {
-		return $url;
-	}
-
-	return add_query_arg( 'origin_site_id', $site_id, $url );
+	_deprecated_function( __FUNCTION__, 'jetpack-mu-wpcom-$$next-version$$', 'Automattic\Jetpack\Connection\Urls::maybe_add_origin_site_id' );
+	return Urls::maybe_add_origin_site_id( $url );
 }
 
 /**
@@ -174,7 +168,7 @@ function wpcom_replace_wp_logo_with_wpcom_logo_menu( $wp_admin_bar ) {
 						/* translators: Hidden accessibility text. */
 						__( 'All Sites', 'jetpack-mu-wpcom' ) .
 						'</span>',
-			'href'  => add_origin_admin_bar_to_url( maybe_add_origin_site_id_to_url( 'https://wordpress.com/sites' ) ),
+			'href'  => add_origin_admin_bar_to_url( Urls::maybe_add_origin_site_id( 'https://wordpress.com/sites' ) ),
 			'meta'  => array(
 				'menu_title' => __( 'All Sites', 'jetpack-mu-wpcom' ),
 			),
@@ -186,7 +180,7 @@ function wpcom_replace_wp_logo_with_wpcom_logo_menu( $wp_admin_bar ) {
 			'parent' => 'wpcom-logo',
 			'id'     => 'wpcom-sites',
 			'title'  => __( 'Sites', 'jetpack-mu-wpcom' ),
-			'href'   => add_origin_admin_bar_to_url( maybe_add_origin_site_id_to_url( 'https://wordpress.com/sites' ) ),
+			'href'   => add_origin_admin_bar_to_url( Urls::maybe_add_origin_site_id( 'https://wordpress.com/sites' ) ),
 		)
 	);
 
@@ -195,7 +189,7 @@ function wpcom_replace_wp_logo_with_wpcom_logo_menu( $wp_admin_bar ) {
 			'parent' => 'wpcom-logo',
 			'id'     => 'wpcom-domains',
 			'title'  => __( 'Domains', 'jetpack-mu-wpcom' ),
-			'href'   => add_origin_admin_bar_to_url( maybe_add_origin_site_id_to_url( 'https://wordpress.com/domains/manage' ) ),
+			'href'   => add_origin_admin_bar_to_url( Urls::maybe_add_origin_site_id( 'https://wordpress.com/domains/manage' ) ),
 		)
 	);
 
@@ -281,27 +275,8 @@ function wpcom_add_shopping_cart( $wp_admin_bar ) {
 // Hook the cart icon to the admin bar menu, placing it before the reader icon (same as Calypso).
 add_action( 'admin_bar_menu', 'wpcom_add_shopping_cart', 11 );
 
-/**
- * Adds the Reader menu.
- *
- * @param WP_Admin_Bar $wp_admin_bar The WP_Admin_Bar core object.
- */
-function wpcom_add_reader_menu( $wp_admin_bar ) {
-	$wp_admin_bar->add_menu(
-		array(
-			'id'     => 'reader',
-			'title'  => '<span class="ab-icon" title="' . __( 'Read the blogs and topics you follow', 'jetpack-mu-wpcom' ) . '" aria-hidden="true"></span>' .
-						'<span class="ab-label">' . __( 'Reader', 'jetpack-mu-wpcom' ) . '</span>',
-			'href'   => maybe_add_origin_site_id_to_url( 'https://wordpress.com/reader' ),
-			'meta'   => array(
-				'class' => 'wp-admin-bar-reader',
-			),
-			'parent' => 'top-secondary',
-		)
-	);
-}
 // Add the reader icon to the admin bar before the help center icon.
-add_action( 'admin_bar_menu', 'wpcom_add_reader_menu', 11 );
+Reader_Link::init();
 
 /**
  * Points the "Edit Profile" and "Howdy,..." to /me if the user is not member of the blog.
@@ -315,13 +290,13 @@ function wpcom_replace_edit_profile_menu_to_me( $wp_admin_bar ) {
 
 	$edit_profile_node = $wp_admin_bar->get_node( 'user-info' );
 	if ( $edit_profile_node ) {
-		$edit_profile_node->href  = add_origin_admin_bar_to_url( maybe_add_origin_site_id_to_url( 'https://wordpress.com/me' ) );
+		$edit_profile_node->href  = add_origin_admin_bar_to_url( Urls::maybe_add_origin_site_id( 'https://wordpress.com/me' ) );
 		$edit_profile_node->title = preg_replace( "/(<span class='display-name edit-profile'>)(.*?)(<\/span>)/", '$1' . __( 'My Profile', 'jetpack-mu-wpcom' ) . '$3', $edit_profile_node->title );
 		$wp_admin_bar->add_node( (array) $edit_profile_node );
 	}
 	$my_account_node = $wp_admin_bar->get_node( 'my-account' );
 	if ( $my_account_node ) {
-		$my_account_node->href = add_origin_admin_bar_to_url( maybe_add_origin_site_id_to_url( 'https://wordpress.com/me' ) );
+		$my_account_node->href = add_origin_admin_bar_to_url( Urls::maybe_add_origin_site_id( 'https://wordpress.com/me' ) );
 		$wp_admin_bar->add_node( (array) $my_account_node );
 	}
 }
@@ -352,7 +327,7 @@ function wpcom_add_my_wpcom_account_submenu( $wp_admin_bar ) {
 			'parent' => 'wpcom-account',
 			'id'     => 'my-wpcom-account',
 			'title'  => '<span class="button wpcom-button">' . $button_text . '</span>',
-			'href'   => add_origin_admin_bar_to_url( maybe_add_origin_site_id_to_url( 'https://wordpress.com/me/account' ) ),
+			'href'   => add_origin_admin_bar_to_url( Urls::maybe_add_origin_site_id( 'https://wordpress.com/me/account' ) ),
 		)
 	);
 }

@@ -1,5 +1,5 @@
-<?php 
-/*!
+<?php
+/*
  * Jetpack CRM
  * https://jetpackcrm.com
  * V1.20
@@ -9,9 +9,7 @@
  * Date: 01/11/16
  */
 
-
 defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
-
 
 /*
 	Add code in here for the dashboard boxes. Keeps it a bit tidier than ALL in the AdminPages.php file
@@ -21,9 +19,9 @@ defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 		zbs_dashboard_customiser_after_row_1:   lets you add a on / off control (if desired after tht total boxes checkbox controls)
 */
 
-//example code to add a new box below the totals, but above the funnels. This one is NOT turn off-able (is off-able a word, lol).
-add_action('zbs_dashboard_pre_dashbox_post_totals', 'zeroBS_dashboard_crm_list_growth', 1);
-function zeroBS_dashboard_crm_list_growth(){
+// example code to add a new box below the totals, but above the funnels. This one is NOT turn off-able (is off-able a word, lol).
+add_action( 'zbs_dashboard_pre_dashbox_post_totals', 'zeroBS_dashboard_crm_list_growth', 1 );
+function zeroBS_dashboard_crm_list_growth() {
 
 	global $zbs;
 	$contacts_added_in_last_year = (int) $zbs->DAL->contacts->getContacts( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase

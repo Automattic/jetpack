@@ -73,6 +73,15 @@ const FeedbackComments = ( { postId }: FeedbackCommentsProps ): JSX.Element => {
 		[ postId, page ]
 	);
 	const hasMoreComments = page * perPage < ( totalComments || 0 );
+
+	// Reset state when postId changes to avoid showing stale comments from a different post.
+	useEffect( () => {
+		setPage( 1 );
+		setLoadedComments( [] );
+		setClientAddedComments( [] );
+		setError( null );
+	}, [ postId ] );
+
 	useEffect( () => {
 		// If the selector returned nothing yet, do nothing.
 		if ( ! commentsPage ) {
@@ -105,12 +114,6 @@ const FeedbackComments = ( { postId }: FeedbackCommentsProps ): JSX.Element => {
 			return prev.concat( toAdd );
 		} );
 	}, [ commentsPage ] );
-
-	useEffect( () => {
-		setLoadedComments( [] );
-		setClientAddedComments( [] );
-		setPage( 1 );
-	}, [ postId ] );
 
 	const scrollToBottom = useCallback( () => {
 		const button = document.querySelector( '.jp-forms__feedback-comments-form-button' );
@@ -226,7 +229,7 @@ const FeedbackComments = ( { postId }: FeedbackCommentsProps ): JSX.Element => {
 
 				{ isLoadingComments && (
 					<span className="jp-forms__feedback-loading">
-						<Spinner size={ 12 } />
+						<Spinner height={ 12 } width={ 12 } />
 					</span>
 				) }
 			</h3>

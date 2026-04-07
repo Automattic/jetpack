@@ -1,6 +1,4 @@
 .line-chart {
-	display: flex;
-	flex-direction: column;
 	position: relative;
 
 	&--animated {
@@ -10,10 +8,6 @@
 			transform: scaleY(0);
 			animation: rise 1s ease-out forwards;
 		}
-	}
-
-	&--legend-top {
-		flex-direction: column-reverse;
 	}
 
 	svg {

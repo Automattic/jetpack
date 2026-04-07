@@ -139,7 +139,7 @@ class Server {
 			 * @since 1.6.3
 			 * @since-jetpack 4.2.0
 			 *
-			 * @param token The token object of the misbehaving site
+			 * @param object|null $token The token object of the misbehaving site
 			 */
 			do_action( 'jetpack_sync_multi_request_fail', $token );
 
@@ -155,7 +155,8 @@ class Server {
 		 * @since 1.6.3
 		 * @since-jetpack 4.2.0
 		 *
-		 * @param array Array of actions received from the remote site
+		 * @param array       $events Array of actions received from the remote site
+		 * @param object|null $token  The auth token used to invoke the API
 		 */
 		do_action( 'jetpack_sync_remote_actions', $events, $token );
 
@@ -168,14 +169,14 @@ class Server {
 			 * @since 1.6.3
 			 * @since-jetpack 4.2.0
 			 *
-			 * @param string $action_name The name of the action executed on the remote site
-			 * @param array $args The arguments passed to the action
-			 * @param int $user_id The external_user_id who did the action
-			 * @param bool $silent Whether the item was created via import
-			 * @param double $timestamp Timestamp (in seconds) when the action occurred
-			 * @param double $sent_timestamp Timestamp (in seconds) when the action was transmitted
-			 * @param string $queue_id ID of the queue from which the event was sent (sync or full_sync)
-			 * @param array $token The auth token used to invoke the API
+			 * @param string      $action_name    The name of the action executed on the remote site
+			 * @param array       $args           The arguments passed to the action
+			 * @param int         $user_id        The external_user_id who did the action
+			 * @param bool        $silent         Whether the item was created via import
+			 * @param double      $timestamp      Timestamp (in seconds) when the action occurred
+			 * @param double      $sent_timestamp Timestamp (in seconds) when the action was transmitted
+			 * @param string      $queue_id       ID of the queue from which the event was sent (sync or full_sync)
+			 * @param object|null $token          The auth token used to invoke the API
 			 */
 			do_action( 'jetpack_sync_remote_action', $action_name, $args, $user_id, $silent, $timestamp, $sent_timestamp, $queue_id, $token );
 

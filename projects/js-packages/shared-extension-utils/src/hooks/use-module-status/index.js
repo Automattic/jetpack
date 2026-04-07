@@ -3,10 +3,18 @@ import { useMemo, useCallback } from '@wordpress/element';
 import { JETPACK_MODULES_STORE_ID } from '../../modules-state';
 
 /**
+ * @typedef {object} ModuleStatus
+ * @property {boolean}  isModuleActive   - Whether the module is active.
+ * @property {boolean}  isChangingStatus - Whether the module's status is currently being changed.
+ * @property {boolean}  isLoadingModules - Whether the modules are currently being loaded.
+ * @property {Function} changeStatus     - Function to change the module's status.
+ */
+
+/**
  * Manage a Jetpack module's status (get and set).
  *
  * @param {string} name - The module's name.
- * @return {object} Module status/control object.
+ * @return {ModuleStatus} Module status/control object.
  */
 const useModuleStatus = name => {
 	const { isModuleActive, isChangingStatus, isLoadingModules } = useSelect(

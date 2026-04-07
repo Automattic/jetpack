@@ -9,8 +9,8 @@ import { STORE_ID } from '../../store';
 import BackupPromotionBlock from '../backup-promotion';
 import { BackupVideoSection } from '../backup-video-section';
 import { WhyINeedVPBackup } from '../why-i-need-vp-backup';
-import benGiordanoTestimonial from './assets/ben-giordano-testimonial.png';
-import timFerrissTestimonial from './assets/tim-ferriss-testimonial.png';
+import benGiordanoTestimonial from './assets/ben-giordano-testimonial.webp';
+import timFerrissTestimonial from './assets/tim-ferriss-testimonial.webp';
 
 const testimonials = [
 	{

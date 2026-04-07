@@ -1,5 +1,4 @@
 import { Container, Col, AdminPage } from '@automattic/jetpack-components';
-import { shouldUseInternalLinks } from '@automattic/jetpack-shared-extension-utils';
 import { __ } from '@wordpress/i18n';
 import { useSearchParams } from 'react-router';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
@@ -16,11 +15,7 @@ const ConnectionScreen: FC = () => {
 	const returnToPage = useMyJetpackReturnToPage();
 	const { apiRoot, apiNonce, registrationNonce } = useMyJetpackConnection();
 	return (
-		<AdminPage
-			showHeader={ false }
-			showBackground={ false }
-			useInternalLinks={ shouldUseInternalLinks() }
-		>
+		<AdminPage showHeader={ false } showBackground={ false }>
 			<Container horizontalSpacing={ 8 } horizontalGap={ 0 }>
 				<Col className={ styles[ 'relative-col' ] }>
 					<CloseLink

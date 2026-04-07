@@ -1,6 +1,6 @@
 import { ToolbarGroup, ToolbarButton, Path } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import renderMaterialIcon from './render-material-icon.js';
+import renderMaterialIcon from './render-material-icon.jsx';
 
 const ToolbarRequiredGroup = ( { required, onClick, disabled = false, disabledTooltip = '' } ) => {
 	const title = disabled && disabledTooltip ? disabledTooltip : __( 'Required', 'jetpack-forms' );

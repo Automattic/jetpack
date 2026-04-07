@@ -1,14 +1,25 @@
 import { render, screen } from '@testing-library/react';
 import { Group } from '@visx/group';
 import '@testing-library/jest-dom';
+import { GlobalChartsProvider } from '../../../providers';
 import { PieChartUnresponsive as PieChart } from '../index';
 
 describe( 'PieChart Composition API', () => {
 	const mockData = [
-		{ label: 'A', value: 30, percentage: 30 },
-		{ label: 'B', value: 40, percentage: 40 },
-		{ label: 'C', value: 30, percentage: 30 },
+		{ label: 'A', value: 30 },
+		{ label: 'B', value: 40 },
+		{ label: 'C', value: 30 },
 	];
+
+	const renderWithChildren = ( props = {}, children = undefined ) => {
+		return render(
+			<GlobalChartsProvider>
+				<PieChart data={ mockData } size={ 400 } { ...props }>
+					{ children }
+				</PieChart>
+			</GlobalChartsProvider>
+		);
+	};
 
 	describe( 'Compound Components', () => {
 		it( 'renders PieChart.SVG children inside the SVG element', () => {
@@ -146,6 +157,36 @@ describe( 'PieChart Composition API', () => {
 			// HTML elements should be outside SVG
 			expect( svg!.contains( legacyHtml ) ).toBe( false );
 			expect( svg!.contains( newHtml ) ).toBe( false );
+		} );
+	} );
+
+	describe( 'Composition Legend', () => {
+		test( 'renders composition legend as child component', () => {
+			renderWithChildren( {}, <PieChart.Legend /> );
+
+			const legendItems = screen.getAllByTestId( 'legend-item' );
+			expect( legendItems ).toHaveLength( 3 );
+			expect( legendItems[ 0 ] ).toHaveTextContent( 'A' );
+			expect( legendItems[ 1 ] ).toHaveTextContent( 'B' );
+			expect( legendItems[ 2 ] ).toHaveTextContent( 'C' );
+		} );
+
+		test( 'renders composition legend regardless of showLegend value', () => {
+			renderWithChildren( { showLegend: false }, <PieChart.Legend /> );
+
+			expect( screen.getAllByTestId( 'legend-item' ) ).toHaveLength( 3 );
+		} );
+
+		test( 'renders composition legend in top position', () => {
+			renderWithChildren( {}, <PieChart.Legend position="top" /> );
+
+			expect( screen.getAllByTestId( 'legend-item' ) ).toHaveLength( 3 );
+
+			// Legend should appear before the chart SVG in DOM order
+			const html = document.body.innerHTML;
+			expect( html.indexOf( 'data-testid="legend-horizontal"' ) ).toBeLessThan(
+				html.indexOf( 'data-testid="pie-segment"' )
+			);
 		} );
 	} );
 } );

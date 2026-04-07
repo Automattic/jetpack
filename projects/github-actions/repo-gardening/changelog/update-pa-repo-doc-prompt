@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Improve the check-if-docs-needed AI prompt to reduce false positives by tightening criteria for inclusion and exclusion and adding a conservative approach.

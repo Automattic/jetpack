@@ -1,3 +1,4 @@
+import { Stack } from '@wordpress/ui';
 import { defaultTheme, useGlobalChartsContext } from '../../../providers';
 import {
 	chartDecorator,
@@ -11,7 +12,7 @@ import {
 	categorizedMetricsData as dataWithImageColor,
 	themeArgTypes,
 } from '../../../stories';
-import { legendArgTypes } from '../../../stories/legend-config';
+import { legendArgTypes, extractLegendConfig } from '../../../stories/legend-config';
 import { formatMetricValue, hexToRgba } from '../../../utils';
 import LeaderboardChart from '../leaderboard-chart';
 import type { Meta, StoryObj } from '@storybook/react';
@@ -98,24 +99,6 @@ const meta: Meta< StoryArgs > = {
 				defaultValue: { summary: 'false' },
 			},
 		},
-		legendShapeWidth: {
-			control: 'number',
-			description: 'Width of legend shapes in pixels',
-			table: {
-				category: 'Legend',
-				type: { summary: 'number' },
-				defaultValue: { summary: '8' },
-			},
-		},
-		legendShapeHeight: {
-			control: 'number',
-			description: 'Height of legend shapes in pixels',
-			table: {
-				category: 'Legend',
-				type: { summary: 'number' },
-				defaultValue: { summary: '8' },
-			},
-		},
 		legendLabels: {
 			control: 'object',
 			description: 'Custom labels for legend items',
@@ -138,11 +121,13 @@ const meta: Meta< StoryArgs > = {
 		legendAlignment: 'center',
 		legendOrientation: 'horizontal',
 		legendShape: 'circle',
-		legendShapeWidth: 8,
-		legendShapeHeight: 8,
 		withOverlayLabel: false,
 	},
 	decorators: [ chartDecorator ],
+	render: args => {
+		const legend = extractLegendConfig( args );
+		return <LeaderboardChart { ...args } legend={ legend } />;
+	},
 };
 
 export default meta;
@@ -154,6 +139,21 @@ export const Default: Story = {
 		data: sampleData,
 		withComparison: true,
 		loading: false,
+	},
+};
+
+export const FixedDimensions: Story = {
+	args: {
+		...Default.args,
+		width: 300,
+		height: 400,
+	},
+};
+
+export const AspectRatio: Story = {
+	args: {
+		...Default.args,
+		aspectRatio: 0.4,
 	},
 };
 
@@ -211,6 +211,21 @@ export const EmptyData: Story = {
 		withComparison: true,
 		loading: false,
 	},
+};
+
+export const EmptyDataWithChildren: Story = {
+	args: {
+		data: [],
+		withComparison: true,
+		loading: false,
+	},
+	render: args => (
+		<LeaderboardChart { ...args }>
+			<Stack direction="row" gap="xs" align="center" justify="center">
+				Child element
+			</Stack>
+		</LeaderboardChart>
+	),
 };
 
 export const LargeValues: Story = {
@@ -369,91 +384,63 @@ export const WithLegend: Story = {
 		loading: false,
 		showLegend: true,
 	},
-};
-
-export const CustomLegendLabels: Story = {
-	args: {
-		data: sampleData,
-		withComparison: true,
-		loading: false,
-		showLegend: true,
-		legendLabels: {
-			primary: 'Aug 11-Sep 9, 2025',
-			comparison: 'Jul 11-Aug 11, 2025',
-		},
-	},
-};
-
-export const WithCompositionLegend: Story = {
-	render: args => (
-		<div
-			style={ {
-				display: 'grid',
-				gap: '2rem',
-				gridTemplateColumns: 'repeat(2, 1fr)',
-				alignItems: 'start',
-			} }
-		>
-			<div>
-				<h3 style={ { marginTop: 0, marginBottom: '1rem' } }>Traditional Props-based Legend</h3>
-				<LeaderboardChart { ...args } showLegend={ true } />
-			</div>
-			<div>
-				<h3 style={ { marginTop: 0, marginBottom: '1rem' } }>
-					Composition API with Legend Component
-				</h3>
-				<LeaderboardChart { ...args }>
-					<LeaderboardChart.Legend
-						shape="circle"
-						shapeWidth={ 8 }
-						shapeHeight={ 8 }
-						style={ { marginTop: '16px' } }
-					/>
-				</LeaderboardChart>
-			</div>
-		</div>
-	),
-	args: {
-		data: sampleData,
-		withComparison: true,
-		loading: false,
-		legendLabels: {
-			primary: 'Aug 11-Sep 9, 2025',
-			comparison: 'Jul 11-Aug 11, 2025',
-		},
-	},
-	argTypes: {
-		legendInteractive: {
-			table: { disable: true },
-		},
-	},
 	parameters: {
 		docs: {
 			description: {
 				story:
-					'Demonstrates the composition API allowing flexible component composition. The chart can be used with traditional props or with explicit child components for more control over legend positioning and styling.',
+					'Props-based legend using `showLegend` and the `legend` config object. Use Storybook controls to adjust legend position, alignment, orientation, shape, and interactivity.',
 			},
 		},
 	},
 };
 
-export const InteractiveLegend: Story = {
+export const WithLegendLabels: Story = {
 	args: {
 		data: sampleData,
 		withComparison: true,
 		loading: false,
 		showLegend: true,
-		legendInteractive: true,
 		legendLabels: {
-			primary: 'Current period',
-			comparison: 'Previous period',
+			primary: 'Aug 11-Sep 9, 2025',
+			comparison: 'Jul 11-Aug 11, 2025',
 		},
 	},
 	parameters: {
 		docs: {
 			description: {
 				story:
-					'Interactive legend allows users to click legend items to toggle the visibility of current and previous period data. Click on the legend items to show/hide the corresponding bars and values. When all series are hidden, a message is displayed.',
+					'Props-based legend using `showLegend`, the `legend` config object, and the `legendLabels` prop to customize primary and comparison labels. Other legend options (position, alignment, orientation, shape, interactivity) can be adjusted via Storybook controls.',
+			},
+		},
+	},
+};
+
+export const WithCompositionLegend: Story = {
+	render: args => {
+		const legend = extractLegendConfig( args );
+		return (
+			<LeaderboardChart
+				{ ...args }
+				legend={ { interactive: legend?.interactive } }
+				chartId="composition-leaderboard-chart"
+			>
+				<LeaderboardChart.Legend
+					{ ...legend }
+					shapeStyles={ { width: 8, height: 8, ...legend?.shapeStyles } }
+				/>
+			</LeaderboardChart>
+		);
+	},
+	args: {
+		data: sampleData,
+		withComparison: true,
+		loading: false,
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Composition API using `<LeaderboardChart.Legend />` as a child component for explicit legend placement and configuration. This is the recommended approach for flexible legend positioning.',
 			},
 		},
 	},

@@ -1,6 +1,6 @@
 import { __ } from '@wordpress/i18n';
 import edit from './edit.js';
-import RangeIcon from './icon.js';
+import RangeIcon from './icon.jsx';
 import save from './save.js';
 
 const name = 'input-range';

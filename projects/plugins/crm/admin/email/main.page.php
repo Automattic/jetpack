@@ -1,6 +1,5 @@
 <?php
 /*
-!
  * Main Email page: This is the main file which renders the (single-send) email layout
  * Jetpack CRM - https://jetpackcrm.com
  *

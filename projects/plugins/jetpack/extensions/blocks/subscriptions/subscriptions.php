@@ -88,11 +88,14 @@ function register_block() {
 		)
 	);
 
+	// The meta is a "don't send" flag, so invert the blog option (which defaults to true = "send").
+	$dont_email_default = ! get_option( 'wpcom_newsletter_send_default', true );
+
 	register_post_meta(
 		'post',
 		META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS,
 		array(
-			'default'       => false,
+			'default'       => $dont_email_default,
 			'show_in_rest'  => true,
 			'single'        => true,
 			'type'          => 'boolean',
@@ -138,6 +141,8 @@ function register_block() {
 					META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS,
 					META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS,
 					META_NAME_CONTAINS_PAYWALLED_CONTENT,
+					META_NAME_FOR_POST_TIER_ID_SETTINGS,
+					META_NAME_CONTAINS_PAID_CONTENT,
 				)
 			);
 		}
@@ -152,9 +157,6 @@ function register_block() {
 
 	// Hide existing comments
 	add_filter( 'get_comment', __NAMESPACE__ . '\maybe_gate_existing_comments' );
-
-	// Gate the excerpt for a post
-	add_filter( 'get_the_excerpt', __NAMESPACE__ . '\jetpack_filter_excerpt_for_newsletter', 10, 2 );
 
 	// Add a 'Newsletter' column to the Edit posts page
 	// We only display the "Newsletter" column if we have configured the paid newsletter plan
@@ -980,28 +982,6 @@ function render_email( $block_content, array $parsed_block, $rendering_context )
 		$button_parsed_block,
 		$rendering_context
 	);
-}
-
-/**
- * Filter excerpts looking for subscription data.
- *
- * @param string   $excerpt The extrapolated excerpt string.
- * @param \WP_Post $post    The current post being processed (in `get_the_excerpt`).
- *
- * @return mixed
- */
-function jetpack_filter_excerpt_for_newsletter( $excerpt, $post = null ) {
-	// The blogmagazine theme is overriding WP core `get_the_excerpt` filter and only passing the excerpt
-	// TODO: Until this is fixed, return the excerpt without gating. See https://github.com/Automattic/jetpack/pull/28102#issuecomment-1369161116
-	if ( $post instanceof \WP_Post && str_contains( $post->post_content, '<!-- wp:jetpack/subscriptions -->' ) ) {
-		$excerpt .= sprintf(
-			// translators: %s is the permalink url to the current post.
-			__( "<p><a href='%s'>View post</a> to subscribe to site newsletter.</p>", 'jetpack' ),
-			get_post_permalink()
-		);
-	}
-
-	return $excerpt;
 }
 
 /**

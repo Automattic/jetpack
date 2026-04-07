@@ -125,6 +125,7 @@ require_once __DIR__ . '/vendor/automattic/text-media-widget-styles/text-media-w
 require_once __DIR__ . '/endpoints/rest-api.php';
 
 // Load feature plugins.
+require_once __DIR__ . '/feature-plugins/activitypub.php';
 require_once __DIR__ . '/feature-plugins/additional-css.php';
 require_once __DIR__ . '/feature-plugins/autosave-revision.php';
 require_once __DIR__ . '/feature-plugins/blaze.php';
@@ -148,6 +149,7 @@ require_once __DIR__ . '/feature-plugins/staging-sites.php';
 require_once __DIR__ . '/feature-plugins/stats.php';
 require_once __DIR__ . '/feature-plugins/woocommerce.php';
 require_once __DIR__ . '/feature-plugins/wordpress-mods.php';
+require_once __DIR__ . '/feature-plugins/wpcom-reader-link.php';
 require_once __DIR__ . '/feature-plugins/featured-image-in-email.php';
 
 /**

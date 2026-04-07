@@ -10,6 +10,12 @@ import { createBlock, getBlockTransforms, findTransform } from '@wordpress/block
  */
 import transforms from '../index';
 
+const mockIsVideoPressActive = jest.fn();
+
+jest.mock( '../../../../../lib/connection', () => ( {
+	isVideoPressActive: ( ...args ) => mockIsVideoPressActive( ...args ),
+} ) );
+
 jest.mock( '@wordpress/blob', () => ( {
 	createBlobURL: jest.fn(),
 } ) );
@@ -42,6 +48,9 @@ describe( 'transforms', () => {
 		beforeEach( () => {
 			jest.clearAllMocks();
 			( findTransform as jest.Mock ).mockReturnValue( null );
+
+			// Default: VideoPress is active
+			mockIsVideoPressActive.mockReturnValue( true );
 		} );
 
 		it( 'should return false when no files are provided', () => {
@@ -201,6 +210,22 @@ describe( 'transforms', () => {
 
 			// Ensure the unmatched file didn't cause issues
 			expect( result ).toHaveLength( 2 );
+		} );
+
+		describe( 'VideoPress active check', () => {
+			it( 'should return false when VideoPress is not active', () => {
+				mockIsVideoPressActive.mockReturnValue( false );
+
+				const mockFile = new File( [ '' ], 'test.mp4', { type: 'video/mp4' } );
+				expect( transformFromFile.isMatch( [ mockFile ] ) ).toBe( false );
+			} );
+
+			it( 'should return true when VideoPress is active', () => {
+				mockIsVideoPressActive.mockReturnValue( true );
+
+				const mockFile = new File( [ '' ], 'test.mp4', { type: 'video/mp4' } );
+				expect( transformFromFile.isMatch( [ mockFile ] ) ).toBe( true );
+			} );
 		} );
 	} );
 } );

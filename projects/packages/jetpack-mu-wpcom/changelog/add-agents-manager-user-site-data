@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Agents Manager: Add user, site, and section data to agentsManagerData for standalone operation without Help Center.

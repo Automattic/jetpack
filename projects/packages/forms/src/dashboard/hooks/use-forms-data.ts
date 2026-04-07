@@ -14,14 +14,21 @@ export type FormListItem = {
 /**
  * Build the query object for fetching Forms list records from core-data.
  *
- * @param page    - Current page number.
- * @param perPage - Items per page.
- * @param search  - Search term.
- * @param status  - REST `status` query param (comma-separated list or single status).
+ * @param page         - Current page number.
+ * @param perPage      - Items per page.
+ * @param search       - Search term.
+ * @param status       - REST `status` query param (comma-separated list or single status).
  *
+ * @param hasResponses - Filter by whether forms have responses ("true"/"false").
  * @return Query params for useEntityRecords / core-data.
  */
-export function getFormsListQuery( page: number, perPage: number, search: string, status: string ) {
+export function getFormsListQuery(
+	page: number,
+	perPage: number,
+	search: string,
+	status: string,
+	hasResponses?: string
+) {
 	const queryParams: Record< string, unknown > = {
 		context: 'edit',
 		jetpack_forms_context: 'dashboard',
@@ -34,6 +41,10 @@ export function getFormsListQuery( page: number, perPage: number, search: string
 
 	if ( search ) {
 		queryParams.search = search;
+	}
+
+	if ( hasResponses ) {
+		queryParams.has_responses = hasResponses;
 	}
 
 	return queryParams;
@@ -58,22 +69,24 @@ type UseFormsDataReturn = {
 /**
  * Fetch Forms list records for the Forms dashboard table.
  *
- * @param page    - Current page number.
- * @param perPage - Items per page.
- * @param search  - Search term.
- * @param status  - REST `status` query param (comma-separated list or single status).
+ * @param page         - Current page number.
+ * @param perPage      - Items per page.
+ * @param search       - Search term.
+ * @param status       - REST `status` query param (comma-separated list or single status).
  *
+ * @param hasResponses - Filter by whether forms have responses ("true"/"false").
  * @return Forms list data for the current query.
  */
 export default function useFormsData(
 	page: number,
 	perPage: number,
 	search: string,
-	status: string
+	status: string,
+	hasResponses?: string
 ): UseFormsDataReturn {
 	const query = useMemo( () => {
-		return getFormsListQuery( page, perPage, search, status );
-	}, [ page, perPage, search, status ] );
+		return getFormsListQuery( page, perPage, search, status, hasResponses );
+	}, [ page, perPage, search, status, hasResponses ] );
 
 	const {
 		records: rawRecords,
@@ -82,17 +95,28 @@ export default function useFormsData(
 		totalPages,
 	} = useEntityRecords( 'postType', 'jetpack_form', query );
 
-	const records = ( rawRecords || [] ).map( item => {
-		const typedItem = item as JetpackFormRestItem;
-		return {
-			id: typedItem.id,
-			title: decodeEntities( typedItem.title?.rendered || '' ),
-			status: typedItem.status,
-			modified: typedItem.modified,
-			entriesCount: typedItem.entries_count ?? 0,
-			editUrl: typedItem.edit_url,
-		};
-	} );
+	const records = useMemo( () => {
+		const seen = new Set< number >();
+		const items: FormListItem[] = [];
+		for ( const item of rawRecords || [] ) {
+			const typedItem = item as JetpackFormRestItem;
+			// Deduplicate records because core-data can momentarily return the same entity
+			// twice during optimistic updates (e.g. when bulk-publishing forms).
+			if ( seen.has( typedItem.id ) ) {
+				continue;
+			}
+			seen.add( typedItem.id );
+			items.push( {
+				id: typedItem.id,
+				title: decodeEntities( typedItem.title?.rendered || '' ),
+				status: typedItem.status,
+				modified: typedItem.modified,
+				entriesCount: typedItem.entries_count ?? 0,
+				editUrl: typedItem.edit_url,
+			} );
+		}
+		return items;
+	}, [ rawRecords ] );
 
 	return {
 		records,

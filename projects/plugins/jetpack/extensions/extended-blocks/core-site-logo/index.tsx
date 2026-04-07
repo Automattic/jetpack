@@ -6,6 +6,7 @@ import { BlockControls } from '@wordpress/block-editor';
 import { getBlockType } from '@wordpress/blocks';
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { useDispatch, useSelect, select } from '@wordpress/data';
+import { store as editPostStore } from '@wordpress/edit-post';
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { addFilter } from '@wordpress/hooks';
 /*
@@ -184,8 +185,7 @@ function canExtendBlock( name: string ): boolean {
 	 * TODO: the `editPostStore` is undefined for P2 sites.
 	 * Let's find a way to check if the block is hidden there.
 	 */
-	const { getHiddenBlockTypes } = select( 'core/edit-post' ) || {};
-	const hiddenBlocks = getHiddenBlockTypes?.() || []; // It will extend the block if the function is undefined
+	const hiddenBlocks = select( editPostStore ).getHiddenBlockTypes?.() ?? [];
 
 	if ( hiddenBlocks.includes( 'jetpack/ai-assistant' ) ) {
 		return false;

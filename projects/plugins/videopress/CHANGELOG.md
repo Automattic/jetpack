@@ -4,6 +4,23 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## 2.8 - 2026-02-04
+### Added
+- Adding Jetpack Protect details page for users without the dedicated Jetpack Protect plugin. [#46630]
+- IDC: Add revalidation for IDCs. [#46268]
+
+### Changed
+- My Jetpack: Check red bubble notification async when cache is not available. [#46396]
+
+### Removed
+- General: Update minimum WordPress version to 6.8. [#46801]
+
+### Fixed
+- Clarify error messages when video uploads fail due to plan limitations. [#46668]
+- Fix compatibility with Gutenberg 22.4 by removing invalid null timezone argument from dateI18n calls. [#46928]
+- Fix upgrade notice incorrectly showing for A4A (Automattic for Agencies) VideoPress customers by using dynamic features API instead of hardcoded plan slugs. [#46835]
+- Fix video query to only return VideoPress videos instead of all video types. [#46689]
+
 ## 2.7 - 2025-11-21
 ### Added
 - Tested up to WordPress 6.9. [#45571]

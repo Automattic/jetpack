@@ -169,10 +169,18 @@ class Newsletter extends Module_Product {
 	/**
 	 * Get the URL where the user manages the product
 	 *
+	 * Note: This intentionally does not use \Automattic\Jetpack\Newsletter\Urls::get_newsletter_settings_url()
+	 * to avoid adding the newsletter package as a dependency of my-jetpack (which would pull it into all
+	 * plugins that depend on my-jetpack). The full URL utility handles additional cases (Simple sites,
+	 * WoA with Calypso interface preference) that are not relevant in the wp-admin context here.
+	 *
 	 * @return ?string
 	 */
 	public static function get_manage_url() {
-		return admin_url( 'admin.php?page=jetpack#/settings?term=newsletter' );
+		if ( apply_filters( 'jetpack_wp_admin_newsletter_settings_enabled', true ) ) {
+			return admin_url( 'admin.php?page=jetpack-newsletter' );
+		}
+		return admin_url( 'admin.php?page=jetpack#/newsletter' );
 	}
 
 	/**

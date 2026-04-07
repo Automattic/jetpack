@@ -105,6 +105,12 @@ class Jetpack_Admin {
 
 		// Register Jetpack partner coupon hooks.
 		Jetpack_Partner_Coupon::register_coupon_admin_hooks( 'jetpack', Jetpack::admin_url() );
+
+		// Remove default WordPress admin footer on Jetpack pages only.
+		add_filter( 'admin_footer_text', array( $this, 'maybe_remove_admin_footer_text' ) );
+		add_filter( 'update_footer', array( $this, 'maybe_remove_admin_footer_version' ), 11 );
+		add_filter( 'admin_body_class', array( $this, 'add_jetpack_admin_body_class' ) );
+		add_action( 'admin_head', array( $this, 'add_footer_removal_styles' ) );
 	}
 
 	/**
@@ -579,6 +585,82 @@ class Jetpack_Admin {
 		}
 
 		return $value;
+	}
+
+	/**
+	 * Check if we're on a Jetpack admin page.
+	 *
+	 * Similar to how WooCommerce checks for its admin pages by comparing
+	 * against known screen ID patterns.
+	 *
+	 * @return bool True if on a Jetpack admin page, false otherwise.
+	 */
+	private function is_jetpack_admin_page() {
+		$screen = get_current_screen();
+		if ( ! $screen ) {
+			return false;
+		}
+
+		// Check for Jetpack admin pages:
+		// - toplevel_page_jetpack (main Jetpack menu page)
+		// - toplevel_page_jetpack-network (Jetpack Network Admin menu page)
+		// - jetpack_page_* (Jetpack submenu pages)
+		// - admin_page_jetpack* (legacy/special Jetpack pages)
+		// Or check if parent_base is 'jetpack' or 'jetpack-network' (submenu pages)
+		return (
+		$screen->id === 'toplevel_page_jetpack' ||
+		$screen->id === 'toplevel_page_jetpack-network' ||
+		str_starts_with( $screen->id, 'jetpack_page_' ) ||
+		str_starts_with( $screen->id, 'admin_page_jetpack' ) ||
+		$screen->parent_base === 'jetpack' ||
+		$screen->parent_base === 'jetpack-network'
+		);
+	}
+
+	/**
+	 * Add a body class to Jetpack admin pages.
+	 *
+	 * @param string $classes Space-separated list of CSS classes.
+	 * @return string Modified class list.
+	 */
+	public function add_jetpack_admin_body_class( $classes ) {
+		if ( $this->is_jetpack_admin_page() ) {
+			return trim( $classes ) . ' jetpack-admin-page ';
+		}
+		return $classes;
+	}
+
+	/**
+	 * Add inline styles to remove footer padding on Jetpack pages.
+	 *
+	 * This needs to be inline because jetpack-admin.css is not loaded on
+	 * React-powered admin pages (they use load_wrapper_styles instead).
+	 */
+	public function add_footer_removal_styles() {
+		if ( ! $this->is_jetpack_admin_page() ) {
+			return;
+		}
+		echo '<style>.jetpack-admin-page #wpbody-content { padding-bottom: 0; } .jetpack-admin-page #wpfooter { display: none; }</style>';
+	}
+
+	/**
+	 * Remove the admin footer text on Jetpack pages.
+	 *
+	 * @param string $content The default footer text.
+	 * @return string Empty string on Jetpack pages, original content otherwise.
+	 */
+	public function maybe_remove_admin_footer_text( $content ) {
+		return $this->is_jetpack_admin_page() ? '' : $content;
+	}
+
+	/**
+	 * Remove the admin footer version on Jetpack pages.
+	 *
+	 * @param string $content The default footer version text.
+	 * @return string Empty string on Jetpack pages, original content otherwise.
+	 */
+	public function maybe_remove_admin_footer_version( $content ) {
+		return $this->is_jetpack_admin_page() ? '' : $content;
 	}
 }
 Jetpack_Admin::init();

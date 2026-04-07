@@ -1,28 +1,53 @@
 import { Modal, Navigator } from '@wordpress/components';
 import clsx from 'clsx';
-import { useContext } from 'react';
+import { useCallback, useContext } from 'react';
 import { NavigatorModalContext } from './context.ts';
 import { Screen } from './screen.tsx';
-import styles from './styles.module.scss';
-import { TNavigatorModalContext, SharedProps } from './types.ts';
+import './styles.scss';
+import { TNavigatorModalContext } from './types.ts';
+
+type ModalProps = React.ComponentProps< typeof Modal >;
+
+// Omit onRequestClose since NavigatorModal uses onClose from TNavigatorModalContext instead
+type NavigatorModalProps = Omit< ModalProps, 'onRequestClose' > & TNavigatorModalContext;
 
 /**
  * Renders the internal NavigatorModal component.
  *
- * @param { SharedProps } props - Props
+ * @param { ModalProps } props - Props
  *
  * @return Component
  */
-function InternalNavigatorModal( { children, className }: SharedProps ) {
-	const context = useContext( NavigatorModalContext );
+function InternalNavigatorModal( {
+	children,
+	className,
+	...props
+}: Omit< ModalProps, 'onRequestClose' > ) {
+	const { onClose, initialPath } = useContext( NavigatorModalContext );
+
+	// WordPress Modal's dismisser mechanism (ModalContext) calls onRequestClose()
+	// without arguments when another non-nested Modal mounts. We guard against
+	// this so that external modals (e.g. Image Studio) don't destroy this one.
+	// User-initiated closes (Escape, close button) always pass an event.
+	// The NavigatorModal's own Header/Footer close buttons call context.onClose
+	// directly and are unaffected by this guard.
+	const onRequestClose = useCallback(
+		( event?: React.SyntheticEvent ) => {
+			if ( event ) {
+				onClose?.();
+			}
+		},
+		[ onClose ]
+	);
 
 	return (
 		<Modal
 			__experimentalHideHeader
-			onRequestClose={ context.onClose }
-			className={ clsx( styles.modal, className ) }
+			onRequestClose={ onRequestClose }
+			className={ clsx( 'jp-navigator-modal', className ) }
+			{ ...props }
 		>
-			<Navigator initialPath={ context.initialPath } className={ styles.navigator }>
+			<Navigator initialPath={ initialPath } className="jp-navigator-modal__navigator">
 				{ children }
 			</Navigator>
 		</Modal>
@@ -32,7 +57,7 @@ function InternalNavigatorModal( { children, className }: SharedProps ) {
 /**
  * Renders a modal with navigator capabilities.
  *
- * @param {SharedProps & TNavigatorModalContext} props - Props
+ * @param {NavigatorModalProps} props - Props
  *
  * @return Component
  */
@@ -42,10 +67,13 @@ function NavigatorModalMain( {
 	initialPath = '/',
 	onClose,
 	isDismissible = true,
-}: SharedProps & TNavigatorModalContext ) {
+	...props
+}: NavigatorModalProps ) {
 	return (
 		<NavigatorModalContext.Provider value={ { onClose, initialPath, isDismissible } }>
-			<InternalNavigatorModal className={ className }>{ children }</InternalNavigatorModal>
+			<InternalNavigatorModal className={ className } { ...props }>
+				{ children }
+			</InternalNavigatorModal>
 		</NavigatorModalContext.Provider>
 	);
 }

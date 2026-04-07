@@ -4,7 +4,7 @@
 import apiFetch from '@wordpress/api-fetch';
 import { Button, TextControl } from '@wordpress/components';
 import { useDebounce } from '@wordpress/compose';
-import { useState, useEffect } from '@wordpress/element';
+import { useState, useEffect, useRef } from '@wordpress/element';
 import { escapeHTML } from '@wordpress/escape-html';
 import { __, sprintf } from '@wordpress/i18n';
 import debugFactory from 'debug';
@@ -135,6 +135,8 @@ const usePosterAndTitleUpdate = ( { setAttributes, videoData, onDone } ) => {
 		}
 	}, [ videoPosterImageData, videoFrameMs, guid ] );
 
+	const hasPosterEdits = videoPosterImageData !== null || videoFrameMs !== null;
+
 	return [
 		handleVideoFrameSelected,
 		handleSelectPoster,
@@ -142,6 +144,7 @@ const usePosterAndTitleUpdate = ( { setAttributes, videoData, onDone } ) => {
 		handleDoneUpload,
 		videoPosterImageData,
 		isFinishingUpdate,
+		hasPosterEdits,
 	];
 };
 
@@ -165,30 +168,27 @@ const UploaderProgress = ( {
 		handleDoneUpload,
 		videoPosterImageData,
 		isFinishingUpdate,
+		hasPosterEdits,
 	] = usePosterAndTitleUpdate( {
 		setAttributes,
 		videoData: { ...uploadedVideoData, title: attributes.title },
 		onDone,
 	} );
 
-	/**
-	 * Flag to control the processing state
-	 */
-	const [ isProcessing, setIsProcessing ] = useState( true );
+	const hasUserEdits = !! attributes.title || hasPosterEdits;
+	const hasAutoCompleted = useRef( false );
 
 	/**
-	 * When the upload and the metadata update is ready,
-	 * wait for some time and then release the "Done" button.
+	 * Auto-complete the upload when the user hasn't made edits.
+	 * If the user edited the title or poster, show the "Done" button instead.
 	 */
 	useEffect( () => {
-		if ( uploadedVideoData && ! isFinishingUpdate && isProcessing ) {
-			debug( 'Waiting for some time before enabling the DONE button...' );
-			setTimeout( () => {
-				debug( 'Done, enabling the DONE button now...' );
-				setIsProcessing( false );
-			}, 2500 );
+		if ( uploadedVideoData && ! hasUserEdits && ! hasAutoCompleted.current ) {
+			hasAutoCompleted.current = true;
+			debug( 'Auto-completing upload (no user edits detected)...' );
+			handleDoneUpload();
 		}
-	}, [ uploadedVideoData, isFinishingUpdate ] );
+	}, [ uploadedVideoData, hasUserEdits, handleDoneUpload ] );
 
 	const roundedProgress = Math.round( progress );
 	const cssWidth = { width: `${ roundedProgress }%` };
@@ -258,19 +258,21 @@ const UploaderProgress = ( {
 					</>
 				) : (
 					<>
-						{ ! isProcessing ? (
-							<span>{ __( 'Upload Complete!', 'jetpack-videopress-pkg' ) } 🎉</span>
+						{ hasUserEdits ? (
+							<>
+								<span>{ __( 'Upload Complete!', 'jetpack-videopress-pkg' ) } 🎉</span>
+								<Button
+									variant="primary"
+									onClick={ handleDoneUpload }
+									disabled={ isFinishingUpdate }
+									isBusy={ isFinishingUpdate }
+								>
+									{ __( 'Done', 'jetpack-videopress-pkg' ) }
+								</Button>
+							</>
 						) : (
 							<span>{ __( 'Finishing up …', 'jetpack-videopress-pkg' ) } 🎬</span>
 						) }
-						<Button
-							variant="primary"
-							onClick={ handleDoneUpload }
-							disabled={ isProcessing }
-							isBusy={ isProcessing }
-						>
-							{ __( 'Done', 'jetpack-videopress-pkg' ) }
-						</Button>
 					</>
 				) }
 			</div>

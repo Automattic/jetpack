@@ -31,6 +31,7 @@ function ThemedUnifiedModal() {
 				className={ styles[ 'unified-modal' ] }
 				initialPath={ initialPath || '/' }
 				onClose={ onClose }
+				size="fill"
 			>
 				<NavigatorModal.Screen { ...socialPostPreviewModalScreen } />
 				<NavigatorModal.Screen { ...editTemplateModalScreen } />

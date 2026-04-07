@@ -1,5 +1,5 @@
-import { Spinner } from '@automattic/jetpack-components';
 import { useBlockProps } from '@wordpress/block-editor';
+import { Spinner } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useState, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -179,7 +179,7 @@ const Edit = props => {
 		content = <StripeNudge blockName="donations" />;
 	} else if ( ! currency ) {
 		// Memberships settings are still loading
-		content = <Spinner color="black" />;
+		content = <Spinner />;
 	} else {
 		content = <Tabs { ...props } products={ products } />;
 	}

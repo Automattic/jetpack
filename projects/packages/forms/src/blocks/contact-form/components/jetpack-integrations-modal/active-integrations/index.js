@@ -9,18 +9,12 @@ export default function ActiveIntegrations( { integrations, attributes, isLoadin
 		switch ( integration.id ) {
 			case 'akismet':
 				if ( integration.isConnected ) {
-					acc.push( {
-						...integration,
-						tooltip: __( 'Akismet is connected for this form', 'jetpack-forms' ),
-					} );
+					acc.push( integration );
 				}
 				break;
 			case 'zero-bs-crm':
 				if ( integration.isActive && integration.details?.hasExtension && attributes.jetpackCRM ) {
-					acc.push( {
-						...integration,
-						tooltip: __( 'Jetpack CRM is connected for this form', 'jetpack-forms' ),
-					} );
+					acc.push( integration );
 				}
 				break;
 			case 'mailpoet':
@@ -29,10 +23,7 @@ export default function ActiveIntegrations( { integrations, attributes, isLoadin
 					integration.isConnected &&
 					attributes.mailpoet?.enabledForForm
 				) {
-					acc.push( {
-						...integration,
-						tooltip: __( 'MailPoet is connected for this form', 'jetpack-forms' ),
-					} );
+					acc.push( integration );
 				}
 				break;
 			case 'hostinger-reach':
@@ -41,10 +32,7 @@ export default function ActiveIntegrations( { integrations, attributes, isLoadin
 					integration.isConnected &&
 					attributes.hostingerReach?.enabledForForm
 				) {
-					acc.push( {
-						...integration,
-						tooltip: __( 'Hostinger Reach is connected for this form', 'jetpack-forms' ),
-					} );
+					acc.push( integration );
 				}
 				break;
 			case 'salesforce':
@@ -53,10 +41,7 @@ export default function ActiveIntegrations( { integrations, attributes, isLoadin
 					attributes.salesforceData?.organizationId &&
 					isValidSalesforceOrgId( attributes.salesforceData.organizationId )
 				) {
-					acc.push( {
-						...integration,
-						tooltip: __( 'Salesforce is connected for this form', 'jetpack-forms' ),
-					} );
+					acc.push( integration );
 				}
 				break;
 		}
@@ -82,7 +67,10 @@ export default function ActiveIntegrations( { integrations, attributes, isLoadin
 	return (
 		<div className="jetpack-forms-active-integrations">
 			{ activeIntegrations.map( integration => (
-				<Tooltip key={ integration.id } text={ integration.tooltip }>
+				<Tooltip
+					key={ integration.id }
+					text={ integration.activeTooltip || integration.title || '' }
+				>
 					<span className="jetpack-forms-active-integrations__item">
 						{ integration.iconUrl ? (
 							<img

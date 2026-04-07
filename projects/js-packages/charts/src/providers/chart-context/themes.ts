@@ -17,12 +17,14 @@ const defaultTheme: CompleteChartTheme = {
 	gridColorDark: '',
 	xTickLineStyles: { stroke: 'black' },
 	xAxisLineStyles: { stroke: '#DCDCDE', strokeWidth: 1 },
-	legendLabelStyles: {
-		color: 'var(--jp-gray-80, #2c3338)',
+	legend: {
+		labelStyles: {
+			color: 'var(--jp-gray-80, #2c3338)',
+		},
+		containerStyles: {},
+		shapeStyles: [],
 	},
-	legendContainerStyles: {},
 	seriesLineStyles: [],
-	legendShapeStyles: [],
 	glyphs: [],
 	svgLabelSmall: { fill: 'var(--jp-gray-80, #2c3338)' },
 	annotationStyles: {

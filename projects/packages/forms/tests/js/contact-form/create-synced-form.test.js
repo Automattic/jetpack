@@ -93,4 +93,26 @@ describe( 'createSyncedForm', () => {
 			},
 		] );
 	} );
+
+	it( 'should have no meta if currentPostId is invalid', async () => {
+		mockSaveEntityRecord.mockResolvedValue( { id: 42 } );
+
+		const blockData = {
+			attributes: { to: 'test@example.com' },
+			innerBlocks: [],
+		};
+
+		const result = await createSyncedForm( blockData, 'My Form', 0 );
+
+		expect( result ).toBe( 42 );
+		expect( mockSaveEntityRecord ).toHaveBeenCalledWith(
+			'postType',
+			'jetpack_form',
+			expect.objectContaining( {
+				title: 'My Form',
+				status: 'publish',
+				meta: {},
+			} )
+		);
+	} );
 } );

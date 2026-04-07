@@ -1,14 +1,26 @@
 /**
  * External dependencies
  */
-import { Button } from '@wordpress/components';
+import analytics from '@automattic/jetpack-analytics';
+import { getSiteType } from '@automattic/jetpack-script-data';
+import {
+	Button,
+	Card,
+	CardHeader,
+	CardBody,
+	CardFooter,
+	__experimentalText as Text, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+	__experimentalHeading as Heading, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+} from '@wordpress/components';
 import { DataForm, type Field } from '@wordpress/dataviews/wp';
+import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
 import { ToggleWithEditorLink } from '../components/toggle-with-link';
-import type { NewsletterSettings, JetpackNewsletterSettings } from '../types';
+import { getNewsletterScriptData } from '../script-data';
+import type { NewsletterSettings } from '../types';
 
 interface FieldRenderProps {
 	data: NewsletterSettings;
@@ -18,7 +30,6 @@ interface FieldRenderProps {
 
 interface SubscriptionsSectionProps {
 	data: NewsletterSettings;
-	jetpackSettings: JetpackNewsletterSettings | undefined;
 	onChange: ( updates: Partial< NewsletterSettings > ) => void;
 	onSave: () => void;
 	isSaving: boolean;
@@ -34,33 +45,40 @@ interface SubscriptionsSectionProps {
  */
 export function SubscriptionsSection( {
 	data,
-	jetpackSettings,
 	onChange,
 	onSave,
 	isSaving,
 	hasChanges,
 	isNewsletterEnabled,
 }: SubscriptionsSectionProps ): JSX.Element {
+	const siteType = getSiteType();
+	const newsletterScriptData = getNewsletterScriptData();
+
 	// Translation strings for save button
 	const savingText = __( 'Saving…', 'jetpack-newsletter' );
 	const saveText = __( 'Save', 'jetpack-newsletter' );
 
+	// Track section save
+	const handleSave = useCallback( () => {
+		analytics.tracks.recordEvent( 'jetpack_newsletter_section_save', {
+			site_type: siteType,
+			section: 'subscriptions',
+		} );
+		onSave();
+	}, [ onSave, siteType ] );
+
 	// Helper to check if we can show editor links for block theme features
 	const canShowBlockThemeEditorLinks =
-		jetpackSettings?.isBlockTheme &&
-		jetpackSettings?.siteAdminUrl &&
-		jetpackSettings?.themeStylesheet;
+		newsletterScriptData?.isBlockTheme && newsletterScriptData?.themeStylesheet;
 
 	// Helper to check if we can show editor links for subscription site edit features
 	const canShowSubscriptionEditorLinks =
-		jetpackSettings?.isSubscriptionSiteEditSupported &&
-		jetpackSettings?.siteAdminUrl &&
-		jetpackSettings?.themeStylesheet;
+		newsletterScriptData?.isSubscriptionSiteEditSupported && newsletterScriptData?.themeStylesheet;
 
 	const fields: Field< NewsletterSettings >[] = [
 		{
 			id: 'jetpack_subscriptions_subscribe_post_end_enabled',
-			label: __( 'Add the Subscribe Block at the end of each post.', 'jetpack-newsletter' ),
+			label: __( 'Add the Subscribe Block at the end of each post', 'jetpack-newsletter' ),
 			type: 'boolean' as const,
 			Edit: canShowSubscriptionEditorLinks
 				? ( { data: formData, field, onChange: fieldOnChange }: FieldRenderProps ) => (
@@ -68,17 +86,17 @@ export function SubscriptionsSection( {
 							data={ formData }
 							field={ field }
 							onChange={ fieldOnChange }
-							siteAdminUrl={ jetpackSettings.siteAdminUrl }
-							themeStylesheet={ jetpackSettings.themeStylesheet }
+							themeStylesheet={ newsletterScriptData.themeStylesheet }
 							postType="wp_template"
 							templateId="single"
+							siteType={ siteType }
 						/>
 				  )
 				: ( 'toggle' as const ),
 		},
 		{
 			id: 'sm_enabled',
-			label: __( 'Show subscription pop-up when scrolling a post.', 'jetpack-newsletter' ),
+			label: __( 'Show subscription pop-up when scrolling a post', 'jetpack-newsletter' ),
 			type: 'boolean' as const,
 			Edit: canShowBlockThemeEditorLinks
 				? ( { data: formData, field, onChange: fieldOnChange }: FieldRenderProps ) => (
@@ -86,10 +104,10 @@ export function SubscriptionsSection( {
 							data={ formData }
 							field={ field }
 							onChange={ fieldOnChange }
-							siteAdminUrl={ jetpackSettings.siteAdminUrl }
-							themeStylesheet={ jetpackSettings.themeStylesheet }
+							themeStylesheet={ newsletterScriptData.themeStylesheet }
 							postType="wp_template_part"
 							templateId="jetpack-subscribe-modal"
+							siteType={ siteType }
 						/>
 				  )
 				: ( 'toggle' as const ),
@@ -104,10 +122,10 @@ export function SubscriptionsSection( {
 							data={ formData }
 							field={ field }
 							onChange={ fieldOnChange }
-							siteAdminUrl={ jetpackSettings.siteAdminUrl }
-							themeStylesheet={ jetpackSettings.themeStylesheet }
+							themeStylesheet={ newsletterScriptData.themeStylesheet }
 							postType="wp_template_part"
 							templateId="jetpack-subscribe-overlay"
+							siteType={ siteType }
 						/>
 				  )
 				: ( 'toggle' as const ),
@@ -122,10 +140,10 @@ export function SubscriptionsSection( {
 							data={ formData }
 							field={ field }
 							onChange={ fieldOnChange }
-							siteAdminUrl={ jetpackSettings.siteAdminUrl }
-							themeStylesheet={ jetpackSettings.themeStylesheet }
+							themeStylesheet={ newsletterScriptData.themeStylesheet }
 							postType="wp_template_part"
 							templateId="jetpack-subscribe-floating-button"
+							siteType={ siteType }
 						/>
 				  )
 				: ( 'toggle' as const ),
@@ -140,10 +158,10 @@ export function SubscriptionsSection( {
 							data={ formData }
 							field={ field }
 							onChange={ fieldOnChange }
-							siteAdminUrl={ jetpackSettings.siteAdminUrl }
-							themeStylesheet={ jetpackSettings.themeStylesheet }
+							themeStylesheet={ newsletterScriptData.themeStylesheet }
 							postType="wp_template"
 							templateId="index"
+							siteType={ siteType }
 						/>
 				  )
 				: ( 'toggle' as const ),
@@ -158,10 +176,10 @@ export function SubscriptionsSection( {
 							data={ formData }
 							field={ field }
 							onChange={ fieldOnChange }
-							siteAdminUrl={ jetpackSettings.siteAdminUrl }
-							themeStylesheet={ jetpackSettings.themeStylesheet }
+							themeStylesheet={ newsletterScriptData.themeStylesheet }
 							postType="wp_template"
 							templateId="index"
+							siteType={ siteType }
 						/>
 				  )
 				: ( 'toggle' as const ),
@@ -187,65 +205,68 @@ export function SubscriptionsSection( {
 	];
 
 	return (
-		<div className="newsletter-settings__section">
-			<h3 className="newsletter-settings__section-title">
-				{ __( 'Subscriptions', 'jetpack-newsletter' ) }
-			</h3>
-			<p className="newsletter-settings__section-description">
-				{ __(
-					'Automatically add subscription forms to your site and turn visitors into subscribers.',
-					'jetpack-newsletter'
-				) }
-			</p>
-			<fieldset className="newsletter-settings__section-content" disabled={ ! isNewsletterEnabled }>
-				<DataForm
-					data={ data }
-					fields={ fields }
-					form={ {
-						layout: {
-							type: 'regular',
-							labelPosition: 'top',
-						},
-						fields: [
-							{
-								id: 'homepage_and_posts',
-								label: __( 'Homepage and posts', 'jetpack-newsletter' ),
-								children: [
-									'jetpack_subscriptions_subscribe_post_end_enabled',
-									'sm_enabled',
-									'jetpack_subscribe_overlay_enabled',
-									'jetpack_subscribe_floating_button_enabled',
-								],
+		<Card>
+			<CardHeader>
+				<Heading level={ 4 }>{ __( 'Subscriptions', 'jetpack-newsletter' ) }</Heading>
+			</CardHeader>
+			<CardBody>
+				<p>
+					<Text>
+						{ __(
+							'Automatically add subscription forms to your site and turn visitors into subscribers.',
+							'jetpack-newsletter'
+						) }
+					</Text>
+				</p>
+				<fieldset disabled={ ! isNewsletterEnabled }>
+					<DataForm
+						data={ data }
+						fields={ fields }
+						form={ {
+							layout: {
+								type: 'regular',
+								labelPosition: 'top',
 							},
-							{
-								id: 'navigation',
-								label: __( 'Navigation', 'jetpack-newsletter' ),
-								children: [
-									'jetpack_subscriptions_subscribe_navigation_enabled',
-									'jetpack_subscriptions_login_navigation_enabled',
-								],
-							},
-							{
-								id: 'comments',
-								label: __( 'Comments', 'jetpack-newsletter' ),
-								children: [ 'stb_enabled', 'stc_enabled' ],
-							},
-						],
-					} }
-					onChange={ onChange }
-				/>
-
-				<div className="newsletter-settings__section-actions">
-					<Button
-						variant="primary"
-						onClick={ onSave }
-						disabled={ ! isNewsletterEnabled || isSaving || ! hasChanges }
-						isBusy={ isSaving }
-					>
-						{ isSaving ? savingText : saveText }
-					</Button>
-				</div>
-			</fieldset>
-		</div>
+							fields: [
+								{
+									id: 'homepage_and_posts',
+									label: __( 'Homepage and posts', 'jetpack-newsletter' ),
+									children: [
+										'jetpack_subscriptions_subscribe_post_end_enabled',
+										'sm_enabled',
+										'jetpack_subscribe_overlay_enabled',
+										'jetpack_subscribe_floating_button_enabled',
+									],
+								},
+								{
+									id: 'navigation',
+									label: __( 'Navigation', 'jetpack-newsletter' ),
+									children: [
+										'jetpack_subscriptions_subscribe_navigation_enabled',
+										'jetpack_subscriptions_login_navigation_enabled',
+									],
+								},
+								{
+									id: 'comments',
+									label: __( 'Comments', 'jetpack-newsletter' ),
+									children: [ 'stb_enabled', 'stc_enabled' ],
+								},
+							],
+						} }
+						onChange={ onChange }
+					/>
+				</fieldset>
+			</CardBody>
+			<CardFooter>
+				<Button
+					variant="primary"
+					onClick={ handleSave }
+					disabled={ ! isNewsletterEnabled || isSaving || ! hasChanges }
+					isBusy={ isSaving }
+				>
+					{ isSaving ? savingText : saveText }
+				</Button>
+			</CardFooter>
+		</Card>
 	);
 }

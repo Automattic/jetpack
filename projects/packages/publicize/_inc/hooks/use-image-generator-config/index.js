@@ -1,6 +1,6 @@
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
-import { useCallback } from '@wordpress/element';
+import { useCallback, useRef } from '@wordpress/element';
 import { usePostMeta } from '../use-post-meta';
 
 const getCurrentSettings = ( sigSettings, isPostPublished ) => ( {
@@ -44,6 +44,10 @@ export default function useImageGeneratorConfig() {
 		isPostPublished: select( editorStore ).isCurrentPostPublished(),
 	} ) );
 
+	// Ref to always have latest settings, avoiding stale closure issues in async callbacks
+	const imageGeneratorSettingsRef = useRef( imageGeneratorSettings );
+	imageGeneratorSettingsRef.current = imageGeneratorSettings;
+
 	const updateProperty = useCallback(
 		( key, value ) => {
 			const settings = { ...imageGeneratorSettings, [ key ]: value };
@@ -60,10 +64,24 @@ export default function useImageGeneratorConfig() {
 		[ imageGeneratorSettings, updateJetpackSocialOptions ]
 	);
 
+	// setToken uses a ref to get the LATEST settings at execution time,
+	// preventing race conditions where async SIG fetch could overwrite
+	// user's changes (like enabled: false) with stale closure values.
+	const setToken = useCallback(
+		value => {
+			const currentSettings = imageGeneratorSettingsRef.current;
+			updateJetpackSocialOptions( 'image_generator_settings', {
+				...currentSettings,
+				token: value,
+			} );
+		},
+		[ updateJetpackSocialOptions ]
+	);
+
 	return {
 		...getCurrentSettings( jetpackSocialOptions.image_generator_settings, isPostPublished ),
 		setIsEnabled: value => updateProperty( 'enabled', value ),
-		setToken: value => updateProperty( 'token', value ),
+		setToken,
 		updateSettings,
 	};
 }

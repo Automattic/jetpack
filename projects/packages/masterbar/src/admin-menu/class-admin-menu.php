@@ -7,8 +7,6 @@
 
 namespace Automattic\Jetpack\Masterbar;
 
-use Automattic\Jetpack\Assets;
-
 require_once __DIR__ . '/class-base-admin-menu.php';
 
 /**
@@ -20,7 +18,6 @@ class Admin_Menu extends Base_Admin_Menu {
 	 * Create the desired menu output.
 	 */
 	public function reregister_menu_items() {
-		$this->add_upgrades_menu();
 		$this->add_appearance_menu();
 		$this->add_plugins_menu();
 		$this->add_users_menu();
@@ -85,49 +82,6 @@ class Admin_Menu extends Base_Admin_Menu {
 		}
 
 		return true;
-	}
-
-	/**
-	 * Adds Upgrades menu.
-	 *
-	 * @param string $plan The current WPCOM plan of the blog.
-	 */
-	public function add_upgrades_menu( $plan = null ) {
-		global $menu;
-
-		$menu_exists = false;
-		foreach ( $menu as $item ) {
-			if ( 'paid-upgrades.php' === $item[2] ) {
-				$menu_exists = true;
-				break;
-			}
-		}
-
-		if ( ! $menu_exists ) {
-			if ( $plan ) {
-				// Add display:none as a default for cases when CSS is not loaded.
-				$site_upgrades = '%1$s<span class="inline-text" style="display:none">%2$s</span>';
-				$site_upgrades = sprintf(
-					$site_upgrades,
-					__( 'Upgrades', 'jetpack-masterbar' ),
-					// phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText
-					__( $plan, 'jetpack-masterbar' )
-				);
-			} else {
-				$site_upgrades = __( 'Upgrades', 'jetpack-masterbar' );
-			}
-			// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-			add_menu_page( __( 'Upgrades', 'jetpack-masterbar' ), $site_upgrades, 'manage_options', 'paid-upgrades.php', null, 'dashicons-cart', 2.99 );
-		}
-		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-		add_submenu_page( 'paid-upgrades.php', __( 'Plans', 'jetpack-masterbar' ), __( 'Plans', 'jetpack-masterbar' ), 'manage_options', 'https://wordpress.com/plans/' . $this->domain, null, 1 );
-		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-		add_submenu_page( 'paid-upgrades.php', __( 'Purchases', 'jetpack-masterbar' ), __( 'Purchases', 'jetpack-masterbar' ), 'manage_options', 'https://wordpress.com/purchases/subscriptions/' . $this->domain, null, 2 );
-
-		if ( ! $menu_exists ) {
-			// Remove the submenu auto-created by Core.
-			$this->hide_submenu_page( 'paid-upgrades.php', 'paid-upgrades.php' );
-		}
 	}
 
 	/**
@@ -203,20 +157,25 @@ class Admin_Menu extends Base_Admin_Menu {
 	}
 
 	/**
-	 * AJAX handler for retrieving the upsell nudge.
+	 * Renders the upsell nudge directly in the admin menu.
+	 *
+	 * This renders server-side via the `adminmenu` hook to avoid the layout
+	 * shift caused by the previous AJAX-based approach.
 	 */
-	public function wp_ajax_upsell_nudge_jitm() {
-		check_ajax_referer( 'upsell_nudge_jitm' );
+	public function render_upsell_nudge() {
+		// Skip if jetpack-mu-wpcom is already rendering the upsell banner.
+		if ( has_action( 'adminmenu', 'wpcom_add_sidebar_notice_menu_page' ) ) {
+			return;
+		}
 
-		// Filter to turn off all just in time messages
 		/** This action is already documented in \Automattic\Jetpack\JITMS\JITM */
 		if ( ! apply_filters( 'jetpack_just_in_time_msgs', true ) ) {
-			wp_die();
+			return;
 		}
 
 		$nudge = $this->get_upsell_nudge();
 		if ( ! $nudge ) {
-			wp_die();
+			return;
 		}
 
 		$link = $nudge['link'];
@@ -249,24 +208,14 @@ class Admin_Menu extends Base_Admin_Menu {
 				</div>
 			</a>
 		</li>
+		<script>
+		( function ( el ) {
+			if ( el && el.parentNode ) {
+				el.parentNode.prepend( el );
+			}
+		} )( document.getElementById( 'toplevel_page_site-notices' ) );
+		</script>
 		<?php
-		wp_die();
-	}
-
-	/**
-	 * Fixes scrollbar issue if upsell nudge is loaded.
-	 * https://github.com/Automattic/dotcom-forge/issues/7936
-	 */
-	public function wpcom_upsell_nudge_jitm_fix() {
-		$assets_base_path = '../../dist/admin-menu/';
-		Assets::register_script(
-			'wpcom-upsell-nudge-jitm-fix',
-			$assets_base_path . 'wpcom-upsell-nudge-jitm-fix.js',
-			__FILE__,
-			array(
-				'enqueue' => true,
-			)
-		);
 	}
 
 	/**

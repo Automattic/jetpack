@@ -258,6 +258,7 @@ class Jetpack_Sync_Options_Test extends Jetpack_Sync_TestBase {
 			'jetpack_post_date_in_email'                   => false,
 			'wpcom_newsletter_categories'                  => array(),
 			'wpcom_newsletter_categories_enabled'          => false,
+			'wpcom_newsletter_send_default'                => true,
 			'wpcom_gifting_subscription'                   => true,
 			'launch-status'                                => 'unlaunched',
 			'wpcom_subscription_emails_use_excerpt'        => false,
@@ -341,6 +342,18 @@ class Jetpack_Sync_Options_Test extends Jetpack_Sync_TestBase {
 			$contentless_options_difference,
 			'Some contentless options don\'t have a test: ' . print_r( $contentless_options_difference, 1 )
 		);
+	}
+
+	public function test_don_t_sync_jetpack_options_if_changed_key_is_blacklisted() {
+		$this->setSyncClientDefaults();
+
+		$this->server_replica_storage->reset();
+
+		Jetpack_Options::update_option( 'last_heartbeat', microtime( true ) );
+
+		$this->sender->do_sync();
+
+		$this->assertFalse( $this->server_replica_storage->get_option( 'jetpack_options' ) );
 	}
 
 	public function assertOptionIsSynced( $option_name, $value ) {

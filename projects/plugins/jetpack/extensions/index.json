@@ -74,14 +74,15 @@
 		"ai-response-feedback",
 		"ai-assistant-image-extension",
 		"ai-seo-enhancer",
-		"paypal-payment-buttons"
+		"paypal-payment-buttons",
+		"image-studio",
+		"block-notes"
 	],
 	"beta": [
 		"google-docs-embed",
 		"recipe",
 		"v6-video-frame-poster",
 		"videopress/video-chapters",
-		"latex",
 		"ai-assistant-backend-prompts",
 		"ai-list-to-table-transform"
 	],

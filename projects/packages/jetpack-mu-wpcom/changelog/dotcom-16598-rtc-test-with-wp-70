@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+RTC: Enable when WordPress 7.0+ is detected without the Gutenberg plugin

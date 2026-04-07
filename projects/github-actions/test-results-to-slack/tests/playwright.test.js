@@ -1,5 +1,5 @@
-const fs = require( 'fs' );
-const { setInputData } = require( './test-utils' );
+import fs from 'fs';
+import { setInputData } from './test-utils.js';
 
 describe( 'Playwright report content', () => {
 	const rootPath = 'tests/resources/playwright';
@@ -18,7 +18,7 @@ describe( 'Playwright report content', () => {
 			expected = JSON.parse( fs.readFileSync( expected, { encoding: 'utf8' } ) );
 		}
 
-		const { getPlaywrightBlocks } = require( '../src/playwright' );
+		const { getPlaywrightBlocks } = await import( '../src/playwright.js' );
 		expect( getPlaywrightBlocks() ).toEqual( expected );
 	} );
 
@@ -33,7 +33,7 @@ describe( 'Playwright report content', () => {
 			const playwrightOutputDir = `${ rootPath }/**/results`;
 			setInputData( { playwrightOutputDir } );
 
-			const { getAttachmentPath } = require( '../src/playwright' );
+			const { getAttachmentPath } = await import( '../src/playwright.js' );
 			expect( getAttachmentPath( outputPath, attachmentPath ) ).toEqual( expected );
 		}
 	);

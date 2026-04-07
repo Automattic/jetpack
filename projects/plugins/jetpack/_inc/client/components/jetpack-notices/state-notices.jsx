@@ -218,7 +218,7 @@ class JetpackStateNotices extends Component {
 				break;
 			case 'protect_misconfigured_ip':
 				message = __(
-					'Your server is misconfigured, which means that Jetpack Protect is unable to effectively protect your site.',
+					'Your server is misconfigured, which means that Jetpack Brute Force Protection is unable to effectively protect your site.',
 					'jetpack'
 				);
 				status = 'is-info';

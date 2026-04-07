@@ -19,76 +19,34 @@ use PHPUnit\Framework\TestCase;
 class External_Storage_Test extends TestCase {
 
 	/**
-	 * Set up a test provider before each test.
-	 */
-	public function setUp(): void {
-		parent::setUp();
-
-		// Register a simple test provider for more realistic testing
-		$test_provider = new class() implements \Automattic\Jetpack\Connection\Storage_Provider_Interface {
-			public function is_available() {
-				return true;
-			}
-			public function should_handle( $option_name ) {
-				return in_array( $option_name, array( 'blog_token', 'id', 'test_key' ), true );
-			}
-			public function get( $option_name ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-				// Return null to simulate empty state for testing
-				return null;
-			}
-			public function get_environment_id() {
-				return 'test';
-			}
-		};
-
-		External_Storage::register_provider( $test_provider );
-	}
-
-	/**
-	 * Reset provider after each test.
+	 * Reset provider and static caches after each test.
 	 */
 	public function tearDown(): void {
 		parent::tearDown();
 
-		// Reset the provider using reflection
 		$reflection = new \ReflectionClass( External_Storage::class );
-		$property   = $reflection->getProperty( 'provider' );
-		// @todo Remove this call once we no longer need to support PHP <8.1.
-		if ( PHP_VERSION_ID < 80100 ) {
-			$property->setAccessible( true );
-		}
-		$property->setValue( null, null );
-	}
 
-	/**
-	 * Test get_value with provider that returns null (empty state).
-	 *
-	 * Note: This test avoids calling get_value() which would trigger logging.
-	 * Instead we test the provider registration and basic functionality.
-	 */
-	public function test_provider_returns_null() {
-		// Test that we can register a provider and it behaves as expected
-		$reflection        = new \ReflectionClass( External_Storage::class );
+		// Reset the provider
 		$provider_property = $reflection->getProperty( 'provider' );
 		// @todo Remove this call once we no longer need to support PHP <8.1.
 		if ( PHP_VERSION_ID < 80100 ) {
 			$provider_property->setAccessible( true );
 		}
-		$provider = $provider_property->getValue();
+		$provider_property->setValue( null, null );
 
-		// Verify provider is registered and behaves correctly
-		$this->assertNotNull( $provider );
-		$this->assertTrue( $provider->is_available() );
-		$this->assertTrue( $provider->should_handle( 'blog_token' ) );
-		$this->assertNull( $provider->get( 'blog_token' ) );
-		$this->assertEquals( 'test', $provider->get_environment_id() );
+		// Reset the static logged_events cache
+		$logged_events_property = $reflection->getProperty( 'logged_events' );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$logged_events_property->setAccessible( true );
+		}
+		$logged_events_property->setValue( null, array() );
 	}
 
 	/**
-	 * Test provider registration and usage.
+	 * Test provider registration and get_value functionality.
 	 */
-	public function test_provider_registration_and_usage() {
-		// Create a simple mock provider implementing the interface
+	public function test_provider_registration_and_get_value() {
 		$provider = new class() implements \Automattic\Jetpack\Connection\Storage_Provider_Interface {
 			public function is_available() {
 				return true;
@@ -97,113 +55,105 @@ class External_Storage_Test extends TestCase {
 				return 'blog_token' === $option_name;
 			}
 			public function get( $option_name ) {
-				if ( 'blog_token' === $option_name ) {
-					return 'test-token-value';
-				}
-				return null;
+				return 'blog_token' === $option_name ? 'test-token-value' : null;
 			}
 			public function get_environment_id() {
 				return 'test';
 			}
 		};
 
-		// Register provider
-		$result = External_Storage::register_provider( $provider );
-		$this->assertTrue( $result );
+		// Test registration
+		$this->assertTrue( External_Storage::register_provider( $provider ) );
 
-		// Test that it returns the expected value
-		$this->assertEquals( 'test-token-value', External_Storage::get_value( 'blog_token' ) );
+		// Test get_value returns provider value
+		$this->assertSame( 'test-token-value', External_Storage::get_value( 'blog_token' ) );
 
-		// Test that it returns null for unhandled options
-		$this->assertNull( External_Storage::get_value( 'id' ) );
+		// Test get_value returns null for unhandled options
+		$this->assertNull( External_Storage::get_value( 'unhandled_option' ) );
 	}
 
 	/**
-	 * Test that interface ensures all required methods are implemented.
+	 * Test provider with only required methods (no optional methods).
 	 */
-	public function test_interface_enforces_required_methods() {
-		// Create a provider that implements the interface
+	public function test_provider_without_optional_methods() {
 		$provider = new class() implements \Automattic\Jetpack\Connection\Storage_Provider_Interface {
 			public function is_available() {
-				return false;
+				return true;
 			}
-			public function should_handle( $option_name ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-				return false;
+			public function should_handle( $option_name ) {
+				return 'blog_token' === $option_name;
 			}
-			public function get( $option_name ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-				return null;
+			public function get( $option_name ) {
+				return 'blog_token' === $option_name ? 'test-value' : null;
 			}
 			public function get_environment_id() {
 				return 'test-minimal';
 			}
 		};
 
-		// Registration should succeed because all required methods are present
-		$result = External_Storage::register_provider( $provider );
-		$this->assertTrue( $result );
+		External_Storage::register_provider( $provider );
 
-		// Test that the provider works as expected
-		$this->assertFalse( $provider->is_available() );
-		$this->assertFalse( $provider->should_handle( 'blog_token' ) );
-		$this->assertNull( $provider->get( 'blog_token' ) );
-		$this->assertEquals( 'test-minimal', $provider->get_environment_id() );
+		// Verify optional methods don't exist
+		$this->assertFalse( method_exists( $provider, 'handle_error_event' ) );
+		$this->assertFalse( method_exists( $provider, 'get_empty_state_delay_threshold' ) );
+
+		// Verify provider still works
+		$this->assertSame( 'test-value', External_Storage::get_value( 'blog_token' ) );
 	}
 
 	/**
-	 * Test log_event method exists and is callable.
-	 *
-	 * Note: We only test method existence to avoid triggering debug logging.
+	 * Test rate limiting with static cache prevents duplicate logs.
 	 */
-	public function test_log_event_method_exists() {
-		// Test that the method exists and is callable
-		$this->assertTrue( method_exists( 'Automattic\Jetpack\Connection\External_Storage', 'log_event' ) );
-		$this->assertTrue( is_callable( array( 'Automattic\Jetpack\Connection\External_Storage', 'log_event' ) ) );
+	public function test_rate_limiting_with_static_cache() {
+		delete_transient( 'jetpack_ext_storage_rate_limit_error_rate_test' );
+		delete_transient( 'jetpack_ext_storage_rate_limit_error_other_key' );
+		delete_transient( 'jetpack_ext_storage_rate_limit_empty_rate_test' );
 
-		// Don't call the method to avoid debug logging output
-	}
-
-	/**
-	 * Test rate limiting logic by directly testing the private method.
-	 *
-	 * Note: We use reflection to test the rate limiting logic without triggering debug logging.
-	 */
-	public function test_rate_limiting_logic() {
-		// Clear any existing transients
-		delete_transient( 'jetpack_ext_storage_rate_limit_test_key' );
-
-		// Use reflection to access the private should_log_event method
 		$reflection = new \ReflectionClass( External_Storage::class );
-		$method     = $reflection->getMethod( 'should_log_event' );
+
+		// Reset static cache
+		$logged_events_property = $reflection->getProperty( 'logged_events' );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$logged_events_property->setAccessible( true );
+		}
+		$logged_events_property->setValue( null, array() );
+
+		$method = $reflection->getMethod( 'should_log_event' );
 		// @todo Remove this call once we no longer need to support PHP <8.1.
 		if ( PHP_VERSION_ID < 80100 ) {
 			$method->setAccessible( true );
 		}
 
-		// First call should return true (no rate limiting yet)
-		$result1 = $method->invoke( null, 'test_key' );
-		$this->assertTrue( $result1 );
+		// First call should return true
+		$this->assertTrue( $method->invoke( null, 'rate_test', 'error' ) );
 
-		// Verify rate limit transient was set
-		$this->assertNotFalse( get_transient( 'jetpack_ext_storage_rate_limit_test_key' ) );
+		// Verify both caches are set (key includes event type)
+		$this->assertNotFalse( get_transient( 'jetpack_ext_storage_rate_limit_error_rate_test' ) );
+		$this->assertArrayHasKey( 'error_rate_test', $logged_events_property->getValue() );
 
-		// Second immediate call should return false (rate limited)
-		$result2 = $method->invoke( null, 'test_key' );
-		$this->assertFalse( $result2 );
+		// Second call with same key and event type should return false (blocked by static cache)
+		$this->assertFalse( $method->invoke( null, 'rate_test', 'error' ) );
+
+		// Different key should still work
+		$this->assertTrue( $method->invoke( null, 'other_key', 'error' ) );
+
+		// Same key with different event type should also work
+		$this->assertTrue( $method->invoke( null, 'rate_test', 'empty' ) );
+		$this->assertArrayHasKey( 'empty_rate_test', $logged_events_property->getValue() );
 
 		// Clean up
-		delete_transient( 'jetpack_ext_storage_rate_limit_test_key' );
+		delete_transient( 'jetpack_ext_storage_rate_limit_error_rate_test' );
+		delete_transient( 'jetpack_ext_storage_rate_limit_error_other_key' );
+		delete_transient( 'jetpack_ext_storage_rate_limit_empty_rate_test' );
 	}
 
 	/**
-	 * Test empty state delay logic by directly testing the private method.
-	 *
-	 * Note: We use reflection to test the delay logic without triggering debug logging.
+	 * Test empty state delay mechanism with default threshold.
 	 */
-	public function test_empty_state_delay_logic() {
-		// Clear any existing transients
-		delete_transient( 'jetpack_external_storage_empty_delay_test_key' );
+	public function test_empty_state_delay_mechanism() {
+		delete_transient( 'jetpack_external_storage_empty_delay_delay_test' );
 
-		// Use reflection to access the private should_report_empty_state method
 		$reflection = new \ReflectionClass( External_Storage::class );
 		$method     = $reflection->getMethod( 'should_report_empty_state' );
 		// @todo Remove this call once we no longer need to support PHP <8.1.
@@ -211,18 +161,91 @@ class External_Storage_Test extends TestCase {
 			$method->setAccessible( true );
 		}
 
-		// First call should return false (sets delay, doesn't report yet)
-		$result1 = $method->invoke( null, 'test_key' );
-		$this->assertFalse( $result1 );
+		// First call sets transient and returns false
+		$this->assertFalse( $method->invoke( null, 'delay_test' ) );
+		$this->assertNotFalse( get_transient( 'jetpack_external_storage_empty_delay_delay_test' ) );
 
-		// Verify delay transient was set
-		$this->assertNotFalse( get_transient( 'jetpack_external_storage_empty_delay_test_key' ) );
-
-		// Second immediate call should still return false (within delay period)
-		$result2 = $method->invoke( null, 'test_key' );
-		$this->assertFalse( $result2 );
+		// Second call within delay period still returns false
+		$this->assertFalse( $method->invoke( null, 'delay_test' ) );
 
 		// Clean up
-		delete_transient( 'jetpack_external_storage_empty_delay_test_key' );
+		delete_transient( 'jetpack_external_storage_empty_delay_delay_test' );
+	}
+
+	/**
+	 * Test provider with custom delay threshold of 0 (immediate reporting).
+	 */
+	public function test_provider_custom_delay_threshold_zero() {
+		delete_transient( 'jetpack_external_storage_empty_delay_immediate_test' );
+
+		$provider = new class() implements \Automattic\Jetpack\Connection\Storage_Provider_Interface {
+			public function is_available() {
+				return true;
+			}
+			public function should_handle( $option_name ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+				return true;
+			}
+			public function get( $option_name ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+				return null;
+			}
+			public function get_environment_id() {
+				return 'test';
+			}
+			public function get_empty_state_delay_threshold() {
+				return 0; // No delay - external storage is source of truth
+			}
+		};
+
+		External_Storage::register_provider( $provider );
+
+		$reflection = new \ReflectionClass( External_Storage::class );
+		$method     = $reflection->getMethod( 'should_report_empty_state' );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+
+		// First call sets transient and should return false
+		$this->assertFalse( $method->invoke( null, 'immediate_test' ) );
+
+		// Second call returns true immediately (threshold is 0)
+		$this->assertTrue( $method->invoke( null, 'immediate_test' ) );
+
+		// Clean up
+		delete_transient( 'jetpack_external_storage_empty_delay_immediate_test' );
+	}
+
+	/**
+	 * Test provider with optional methods implemented.
+	 */
+	public function test_provider_with_optional_methods() {
+		$provider = new class() implements \Automattic\Jetpack\Connection\Storage_Provider_Interface {
+			public function is_available() {
+				return true;
+			}
+			public function should_handle( $option_name ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+				return true;
+			}
+			public function get( $option_name ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+				return null;
+			}
+			public function get_environment_id() {
+				return 'test';
+			}
+			public function get_empty_state_delay_threshold() {
+				return 90;
+			}
+			public function handle_error_event( $event_type, $key, $details, $environment ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+				// Custom error handling
+			}
+		};
+
+		// Verify optional methods exist
+		$this->assertTrue( method_exists( $provider, 'handle_error_event' ) );
+		$this->assertTrue( method_exists( $provider, 'get_empty_state_delay_threshold' ) );
+
+		// Verify custom threshold value
+		$reflection = new \ReflectionMethod( $provider, 'get_empty_state_delay_threshold' );
+		$this->assertSame( 90, $reflection->invoke( $provider ) );
 	}
 }

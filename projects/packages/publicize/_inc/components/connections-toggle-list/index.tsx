@@ -14,6 +14,8 @@ export type ConnectionsToggleListProps = {
 	getItemClassName?: ( connection: Connection ) => string;
 };
 
+const noop = () => {};
+
 /**
  * The component to render a list of social media connections as a toggle list.
  *
@@ -70,6 +72,7 @@ export function ConnectionsToggleList( {
 							<FormToggle
 								tabIndex={ -1 }
 								checked={ isSelected }
+								onChange={ noop }
 								disabled={ isDisabled }
 								aria-label={ ariaLabel }
 							/>

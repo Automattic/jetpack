@@ -22,6 +22,8 @@ export interface IntegrationMetadata {
 	enabledByDefault?: boolean;
 	/** URL to an SVG/icon for this integration provided by the backend. */
 	iconUrl?: string | null;
+	/** Tooltip for the integration when it is active. */
+	activeTooltip?: string;
 }
 
 /**
@@ -134,6 +136,12 @@ export interface FormResponse {
 	country_code: string;
 	/** The browser and platform used to submit the form. */
 	browser?: string;
+	/** The logged-in user who submitted the form, if any. */
+	logged_in_user?: {
+		display_name: string;
+		username: string;
+		id: number;
+	} | null;
 	/** The title of the form that the response was submitted to. */
 	entry_title: string;
 	/** The permalink of the form that the response was submitted to. */
@@ -320,6 +328,8 @@ export interface FormsConfigData {
 	canActivatePlugins?: boolean;
 	/** Whether there are any feedback (form response) posts on the site. */
 	hasFeedback?: boolean;
+	/** Whether the site has classic (non-synced) form submissions. */
+	hasClassicForms?: boolean;
 	/** Whether form notes are enabled. */
 	isNotesEnabled?: boolean;
 	/** The URL of the Forms responses list in wp-admin. */
@@ -330,6 +340,8 @@ export interface FormsConfigData {
 	gdriveConnectSupportURL?: string;
 	/** Base URL to static/assets for the Forms package. */
 	pluginAssetsURL?: string;
+	/** Base URL to file-type icon SVGs (e.g. txt.svg, pdf.svg). */
+	fileIconsUrl?: string;
 	/** The site suffix/fragment for building admin links. */
 	siteURL?: string;
 	/** The dashboard URL with migration acknowledgement parameter. */

@@ -5,6 +5,8 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Post_Media\Images;
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
 }
@@ -191,5 +193,5 @@ add_filter( 'jetpack_open_graph_tags', 'enhanced_og_video' );
  * @return bool True if the post has a suitable featured image, false otherwise.
  */
 function enhanced_og_has_featured_image( $post_id ) {
-	return ! empty( Jetpack_PostImages::from_thumbnail( $post_id ) );
+	return ! empty( Images::from_thumbnail( $post_id ) );
 }

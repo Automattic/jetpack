@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Forms\ContactForm;
 
+use Automattic\Jetpack\Forms\Jetpack_Forms;
+
 /**
  * Feedback field class.
  *
@@ -14,6 +16,13 @@ namespace Automattic\Jetpack\Forms\ContactForm;
  */
 class Feedback_Field {
 	use Country_Code_Utils;
+
+	/**
+	 * Cached admin theme color.
+	 *
+	 * @var string|null
+	 */
+	private static $admin_theme_color = null;
 
 	/**
 	 * The key of the field.
@@ -147,6 +156,8 @@ class Feedback_Field {
 				return $this->get_render_web_value();
 			case 'email':
 				return $this->get_render_email_value();
+			case 'email_html':
+				return $this->get_render_email_html_value();
 			case 'ajax':
 				return $this->get_render_web_value(); // For now, we use the same value for ajax and web.
 			case 'csv':
@@ -345,9 +356,38 @@ class Feedback_Field {
 	/**
 	 * Get the value of the field for rendering the email.
 	 *
-	 * @return string
+	 * Returns structured data for type-aware rendering when possible,
+	 * similar to get_render_web_value(). The escape_and_sanitize_field_value()
+	 * method in Contact_Form already handles all these structured types.
+	 *
+	 * @return mixed
 	 */
 	private function get_render_email_value() {
+		// Phone: string with country flag prefix.
+		if ( $this->is_of_type( 'phone' ) || $this->is_of_type( 'telephone' ) ) {
+			return $this->get_phone_value_with_flag();
+		}
+
+		// URL: structured array for link rendering.
+		if ( $this->is_of_type( 'url' ) && ! empty( $this->value ) ) {
+			return array(
+				'type'         => 'url',
+				'url'          => $this->value,
+				'displayValue' => $this->value,
+			);
+		}
+
+		// File: return raw value (has field_id + files keys).
+		if ( $this->is_of_type( 'file' ) ) {
+			return $this->value;
+		}
+
+		// Rating: structured array with rating data.
+		if ( $this->is_of_type( 'rating' ) ) {
+			return $this->get_rating_value();
+		}
+
+		// Image-select: keep current string format for backward compat.
 		if ( $this->is_of_type( 'image-select' ) ) {
 			$choices = array();
 
@@ -357,7 +397,6 @@ class Feedback_Field {
 
 				if ( ! empty( $choice['label'] ) ) {
 					$value .= ' - ' . $choice['label'];
-
 				}
 				$choices[] = $value;
 			}
@@ -365,7 +404,461 @@ class Feedback_Field {
 			return implode( ', ', $choices );
 		}
 
+		// Checkbox-multiple: preserve array for chip rendering.
+		if ( $this->is_of_type( 'checkbox-multiple' ) && is_array( $this->value ) ) {
+			return $this->value;
+		}
+
 		return $this->get_render_default_value();
+	}
+
+	/**
+	 * Get the value of the field rendered as final HTML for the email template.
+	 *
+	 * Unlike get_render_email_value() which returns structured data for the
+	 * backward-compat filter path, this returns ready-to-use HTML for the
+	 * type-aware email rendering path.
+	 *
+	 * @return string HTML for the field value.
+	 */
+	private function get_render_email_html_value() {
+		if ( $this->is_of_type( 'select' ) || $this->is_of_type( 'radio' ) || $this->is_of_type( 'checkbox-multiple' ) ) {
+			return $this->render_email_chips( $this->value );
+		}
+		if ( $this->is_of_type( 'checkbox' ) || $this->is_of_type( 'consent' ) ) {
+			return $this->render_email_consent();
+		}
+		if ( $this->is_of_type( 'phone' ) || $this->is_of_type( 'telephone' ) ) {
+			return $this->render_email_phone();
+		}
+		if ( $this->is_of_type( 'url' ) ) {
+			return $this->render_email_url();
+		}
+		if ( $this->is_of_type( 'rating' ) ) {
+			return $this->render_email_rating();
+		}
+		if ( $this->is_of_type( 'file' ) ) {
+			return $this->render_email_file();
+		}
+		if ( $this->is_of_type( 'image-select' ) ) {
+			return $this->render_email_image_select();
+		}
+		return $this->render_email_default();
+	}
+
+	/**
+	 * Render an empty value HTML.
+	 *
+	 * @return string HTML for empty values.
+	 */
+	private function render_empty_value_html() {
+		return '<span style="color: ' . Feedback_Email_Renderer::TEXT_SECONDARY_COLOR . ';">&mdash;</span>';
+	}
+
+	/**
+	 * Render a default text value for email (text, name, email, textarea, date, time, etc).
+	 *
+	 * @return string Escaped and formatted HTML.
+	 */
+	private function render_email_default() {
+		if ( empty( $this->value ) && $this->value !== '0' ) {
+			return $this->render_empty_value_html();
+		}
+
+		return Contact_Form::escape_and_sanitize_field_value( $this->value );
+	}
+
+	/**
+	 * Render tag/chip values for select, radio, and checkbox-multiple fields.
+	 *
+	 * @param mixed $value The field value (string or array).
+	 * @return string HTML with rounded chip elements.
+	 */
+	private function render_email_chips( $value ) {
+		if ( empty( $value ) && $value !== '0' ) {
+			return $this->render_empty_value_html();
+		}
+
+		$values = is_array( $value ) ? $value : array( $value );
+		$chips  = array();
+
+		foreach ( $values as $item ) {
+			$safe_item = esc_html( is_string( $item ) ? $item : (string) $item );
+			if ( $safe_item === '' ) {
+				continue;
+			}
+			$chips[] = sprintf(
+				'<div style="display: inline-block; height: 24px; padding: 0 8px; margin: 2px 4px 2px 0; background-color: #f0f0f0; border-radius: 2px; font-size: ' . Feedback_Email_Renderer::FONT_SIZE_FIELD_VALUE . '; line-height: 24px; color: %s;">%s</div>',
+				Feedback_Email_Renderer::TEXT_COLOR,
+				$safe_item
+			);
+		}
+
+		if ( empty( $chips ) ) {
+			return $this->render_empty_value_html();
+		}
+
+		return implode( '<br />', $chips );
+	}
+
+	/**
+	 * Render a consent/checkbox field value as a Yes/No chip.
+	 *
+	 * @return string HTML with a colored chip.
+	 */
+	private function render_email_consent() {
+		$is_yes = ! empty( $this->value ) && strtolower( trim( (string) $this->value ) ) !== 'no';
+		$label  = $is_yes ? __( 'Yes', 'jetpack-forms' ) : __( 'No', 'jetpack-forms' );
+
+		return sprintf(
+			'<span style="display: inline-block; padding: 0 8px; border-radius: 2px; font-size: ' . Feedback_Email_Renderer::FONT_SIZE_FIELD_VALUE . '; line-height: 1.4; background-color: #f0f0f0; color: %s;">%s</span>',
+			Feedback_Email_Renderer::TEXT_COLOR,
+			esc_html( $label )
+		);
+	}
+
+	/**
+	 * Render a phone field value as a clickable tel: link.
+	 *
+	 * @return string HTML with tel: link.
+	 */
+	private function render_email_phone() {
+		if ( empty( $this->value ) ) {
+			return $this->render_empty_value_html();
+		}
+
+		$raw_phone    = preg_replace( '/[^\d+]/', '', (string) $this->value );
+		$country_code = $this->get_country_code_from_phone( $this->value );
+		$flag_prefix  = '';
+
+		if ( ! empty( $country_code ) ) {
+			$flag = self::country_code_to_emoji_flag( $country_code );
+			if ( ! empty( $flag ) ) {
+				$flag_prefix = $flag . ' ';
+			}
+		}
+
+		return $flag_prefix . sprintf(
+			'<a href="tel:%1$s" style="color: %3$s; text-decoration: underline;">%2$s</a>',
+			esc_attr( $raw_phone ),
+			esc_html( $this->value ),
+			self::get_admin_theme_color()
+		);
+	}
+
+	/**
+	 * Render a URL field value as a clickable link.
+	 *
+	 * @return string HTML with clickable link.
+	 */
+	private function render_email_url() {
+		if ( empty( $this->value ) ) {
+			return $this->render_empty_value_html();
+		}
+
+		$url = $this->value;
+
+		// Prepend scheme if missing so the href is valid, but display the original input.
+		if ( ! preg_match( '/^https?:\/\//i', $url ) ) {
+			$url = 'https://' . $url;
+		}
+
+		return sprintf(
+			'<a href="%1$s" style="color: %3$s; text-decoration: underline;" target="_blank">%2$s</a>',
+			esc_url( $url ),
+			esc_html( $this->value ),
+			self::get_admin_theme_color()
+		);
+	}
+
+	/**
+	 * Render a rating field value as star characters.
+	 *
+	 * @return string HTML with gold/gray stars.
+	 */
+	private function render_email_rating() {
+		if ( empty( $this->value ) || ! is_string( $this->value ) || strpos( $this->value, '/' ) === false ) {
+			return $this->render_email_default();
+		}
+
+		$parts = explode( '/', $this->value );
+		if ( count( $parts ) !== 2 ) {
+			return $this->render_email_default();
+		}
+
+		$rating = (int) $parts[0];
+		$max    = (int) $parts[1];
+
+		if ( $max <= 0 ) {
+			return $this->render_email_default();
+		}
+
+		$stars = '';
+		for ( $i = 1; $i <= $max; $i++ ) {
+			if ( $i <= $rating ) {
+				$stars .= '<span style="color: #e6a117; font-size: 20px;">&#9733;</span>';
+			} else {
+				$stars .= '<span style="color: #cccccc; font-size: 20px;">&#9733;</span>';
+			}
+		}
+
+		return $stars;
+	}
+
+	/**
+	 * Render a file field value with thumbnail, file name, size, and download icon.
+	 *
+	 * @return string HTML with file info.
+	 */
+	private function render_email_file() {
+		// We already know the field is type 'file' (dispatched from get_render_email_html_value).
+		// The value may or may not contain 'field_id' depending on how it was loaded,
+		// so we only check for the 'files' array rather than using is_file_upload_field().
+		if ( ! is_array( $this->value ) || ! isset( $this->value['files'] ) || ! is_array( $this->value['files'] ) ) {
+			return $this->render_email_default();
+		}
+
+		$files = $this->value['files'];
+		if ( empty( $files ) ) {
+			return $this->render_empty_value_html();
+		}
+
+		$file_items = array();
+		foreach ( $files as $file ) {
+			if ( empty( $file['file_id'] ) ) {
+				continue;
+			}
+
+			$file_name = $file['name'] ?? __( 'Attached file', 'jetpack-forms' );
+			$file_size = isset( $file['size'] ) ? size_format( $file['size'] ) : '';
+			$file_url  = apply_filters( 'jetpack_unauth_file_download_url', '', absint( $file['file_id'] ) );
+			$file_type = $file['type'] ?? '';
+
+			$file_items[] = $this->render_email_file_row( $file_name, $file_size, $file_url, $file_type );
+		}
+
+		if ( empty( $file_items ) ) {
+			return $this->render_empty_value_html();
+		}
+
+		return implode( '', $file_items );
+	}
+
+	/**
+	 * Render a single file row with thumbnail, name/size, and download icon.
+	 *
+	 * @param string $file_name The file name.
+	 * @param string $file_size The formatted file size.
+	 * @param string $file_url  The download URL.
+	 * @param string $file_type The MIME type of the file.
+	 * @return string HTML table for the file row.
+	 */
+	private function render_email_file_row( $file_name, $file_size, $file_url, $file_type = '' ) {
+		$thumbnail_html = $this->get_file_thumbnail_html( $file_name, $file_type );
+
+		// File name — linked if download URL is available.
+		$name_html = esc_html( $file_name );
+		if ( ! empty( $file_url ) ) {
+			$name_html = sprintf(
+				'<a href="%1$s" style="color: %2$s; text-decoration: underline;" target="_blank">%3$s</a>',
+				esc_url( $file_url ),
+				Feedback_Email_Renderer::TEXT_COLOR,
+				$name_html
+			);
+		}
+
+		// File size on a second line.
+		$size_html = '';
+		if ( ! empty( $file_size ) ) {
+			$size_html = sprintf(
+				'<div style="font-size: 12px; color: %1$s; line-height: 1.4;">%2$s</div>',
+				Feedback_Email_Renderer::TEXT_SECONDARY_COLOR,
+				esc_html( $file_size )
+			);
+		}
+
+		// Download icon (rasterized from @wordpress/icons 'download').
+		$download_icon = '';
+		if ( ! empty( $file_url ) ) {
+			$download_icon_url = Jetpack_Forms::plugin_url() . 'contact-form/images/file-icons/download@2x.png';
+			$download_icon     = sprintf(
+				'<a href="%1$s" target="_blank" style="text-decoration: none;"><img src="%2$s" width="20" height="20" alt="%3$s" style="display: block; width: 20px; height: 20px; -webkit-user-select: none; user-select: none;" /></a>',
+				esc_url( $file_url ),
+				esc_url( $download_icon_url ),
+				esc_attr__( 'Download', 'jetpack-forms' )
+			);
+		}
+
+		// Build the file row as a table: [thumbnail] [name + size] [download icon].
+		$html  = '<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="margin-top: 4px;">';
+		$html .= '<tr>';
+
+		// Thumbnail cell.
+		$html .= '<td width="40" valign="middle" style="padding-right: 12px; width: 40px; vertical-align: middle; text-align: center;">';
+		$html .= $thumbnail_html;
+		$html .= '</td>';
+
+		// Name and size cell.
+		$html .= '<td valign="middle" style="font-size: 13px; line-height: 1.4;">';
+		$html .= '<div>' . $name_html . '</div>';
+		$html .= $size_html;
+		$html .= '</td>';
+
+		// Download icon cell.
+		if ( ! empty( $download_icon ) ) {
+			$html .= '<td width="20" valign="middle" align="right" style="padding-left: 12px; width: 20px;">';
+			$html .= $download_icon;
+			$html .= '</td>';
+		}
+
+		$html .= '</tr>';
+		$html .= '</table>';
+
+		return $html;
+	}
+
+	/**
+	 * Get the thumbnail HTML for a file attachment.
+	 *
+	 * For previewable files (images: jpg, jpeg, png, gif, webp), uses the actual
+	 * file URL as the thumbnail when available. For other file types, falls back
+	 * to a file-type icon from the file-icons directory.
+	 *
+	 * @param string $file_name The original file name (used for extension-based icon lookup).
+	 * @param string $file_type The MIME type of the file.
+	 * @return string HTML for the thumbnail.
+	 */
+	private function get_file_thumbnail_html( $file_name = '', $file_type = '' ) {
+		$icon_name = self::get_file_icon_name( $file_name, $file_type );
+		$icon_url  = Jetpack_Forms::plugin_url() . 'contact-form/images/file-icons/' . $icon_name . '@2x.png';
+
+		return sprintf(
+			'<img src="%1$s" width="24" height="24" alt=""
+				style="padding: 8px; border-radius: 50%%; width: 24px; height: 24px; background-color: #f0f0f0; -webkit-user-select: none; user-select: none;" />',
+			esc_url( $icon_url )
+		);
+	}
+
+	/**
+	 * Map a file to its icon name based on extension then MIME type category.
+	 *
+	 * Mirrors the JS logic in modules/file-field/view.js getFileIcon().
+	 *
+	 * @param string $file_name The file name.
+	 * @param string $file_type The MIME type.
+	 * @return string The icon filename without extension.
+	 */
+	private static function get_file_icon_name( $file_name, $file_type ) {
+		$extension = strtolower( pathinfo( $file_name, PATHINFO_EXTENSION ) );
+
+		$extension_map = array(
+			'pdf'  => 'pdf',
+			'doc'  => 'txt',
+			'docx' => 'txt',
+			'txt'  => 'txt',
+			'ppt'  => 'ppt',
+			'pptx' => 'ppt',
+			'xls'  => 'xls',
+			'xlsx' => 'xls',
+			'csv'  => 'xls',
+			'zip'  => 'zip',
+			'sql'  => 'sql',
+			'cal'  => 'cal',
+			'html' => 'html',
+			'mp3'  => 'mp3',
+			'mp4'  => 'mp4',
+			'png'  => 'png',
+			'jpg'  => 'png',
+			'jpeg' => 'png',
+			'gif'  => 'png',
+			'webp' => 'png',
+		);
+
+		if ( isset( $extension_map[ $extension ] ) ) {
+			return $extension_map[ $extension ];
+		}
+
+		// Fall back to MIME type category.
+		$category     = explode( '/', $file_type )[0] ?? '';
+		$category_map = array(
+			'image' => 'png',
+			'video' => 'mp4',
+			'audio' => 'mp3',
+		);
+
+		return $category_map[ $category ] ?? 'txt';
+	}
+
+	/**
+	 * Render an image-select field for email.
+	 *
+	 * Renders each selected choice as a card with an image thumbnail,
+	 * letter code, and label arranged horizontally.
+	 *
+	 * @return string HTML for the image-select field.
+	 */
+	private function render_email_image_select() {
+		if ( ! is_array( $this->value ) || empty( $this->value['choices'] ) || ! is_array( $this->value['choices'] ) ) {
+			return $this->render_empty_value_html();
+		}
+
+		$cards = array();
+		foreach ( $this->value['choices'] as $choice ) {
+			$letter     = isset( $choice['selected'] ) ? esc_html( $choice['selected'] ) : '';
+			$label      = ! empty( $choice['label'] ) ? esc_html( $choice['label'] ) : '';
+			$image_src  = ! empty( $choice['image']['src'] ) ? esc_url( $choice['image']['src'] ) : '';
+			$show_label = ! empty( $choice['showLabels'] );
+
+			// Image thumbnail or gray placeholder at 138×144.
+			if ( $image_src !== '' ) {
+				$image_html = sprintf(
+					'<div style="padding: 8px 8px 0 8px;"><img src="%s" alt="%s" width="138" height="144" style="display: block; width: 138px; height: 144px; object-fit: cover;" /></div>',
+					$image_src,
+					$label !== '' ? $label : $letter
+				);
+			} else {
+				$placeholder_icon = Jetpack_Forms::plugin_url() . 'contact-form/images/field-icons/field-image-select@2x.png';
+				$image_html       = sprintf(
+					'<div style="padding: 8px 8px 0 8px;"><div style="width: 138px; height: 144px; background-color: #f0f0f0; text-align: center; line-height: 144px;"><img src="%s" alt="" width="24" height="24" style="vertical-align: middle;" /></div></div>',
+					esc_url( $placeholder_icon )
+				);
+			}
+
+			// Letter code box + label.
+			$caption_html = '';
+			if ( $letter !== '' ) {
+				$caption_html .= sprintf(
+					'<span style="display: inline-block; min-width: 1em; padding: 4px; line-height: 1; text-align: center; border: 1px solid #dcdcde; border-radius: 2px; font-size: 11px; font-weight: 600; color: #1e1e1e; vertical-align: baseline;">%s</span>',
+					$letter
+				);
+			}
+
+			if ( $show_label && $label !== '' ) {
+				$caption_html .= sprintf(
+					' <span style="font-size: 13px; color: #1e1e1e; vertical-align: baseline;">%s</span>',
+					$label
+				);
+			}
+
+			// Card with fixed width matching the admin preview (138px image + 16px padding).
+			$card  = '<div style="display: inline-block; vertical-align: top; width: 154px; border: 1px solid #dcdcde; border-radius: 8px; margin: 0 8px 8px 0;">';
+			$card .= $image_html;
+			if ( $caption_html !== '' ) {
+				$card .= sprintf(
+					'<div style="padding: 4px 8px 8px 8px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">%s</div>',
+					$caption_html
+				);
+			}
+			$card .= '</div>';
+
+			$cards[] = $card;
+		}
+
+		if ( empty( $cards ) ) {
+			return $this->render_empty_value_html();
+		}
+
+		return implode( '', $cards );
 	}
 
 	/**
@@ -501,6 +994,77 @@ class Feedback_Field {
 	 */
 	public function get_type() {
 		return $this->type;
+	}
+
+	/**
+	 * Get the icon filename for a given field type.
+	 *
+	 * @param string $type The field type.
+	 * @return string The icon name (without path or extension).
+	 */
+	public static function get_icon_name_for_type( $type ) {
+		$map = array(
+			'text'              => 'field-text',
+			'name'              => 'field-name',
+			'email'             => 'field-email',
+			'textarea'          => 'field-textarea',
+			'select'            => 'field-select',
+			'radio'             => 'field-single-choice',
+			'checkbox'          => 'field-checkbox',
+			'checkbox-multiple' => 'field-multiple-choice',
+			'phone'             => 'field-telephone',
+			'telephone'         => 'field-telephone',
+			'number'            => 'field-number',
+			'slider'            => 'field-slider',
+			'date'              => 'field-date',
+			'time'              => 'field-time',
+			'url'               => 'field-url',
+			'rating'            => 'field-rating',
+			'image-select'      => 'field-image-select',
+			'file'              => 'field-file',
+			'consent'           => 'field-consent',
+			'hidden'            => 'field-hidden',
+		);
+		return $map[ $type ] ?? 'field-text';
+	}
+
+	/**
+	 * Get the WordPress admin theme color for use in email links.
+	 *
+	 * Resolves the site admin's admin_color preference to the matching
+	 * --wp-admin-theme-color hex value so email links visually match
+	 * the Forms dashboard.
+	 *
+	 * @return string Hex color string.
+	 */
+	public static function get_admin_theme_color() {
+		if ( self::$admin_theme_color !== null ) {
+			return self::$admin_theme_color;
+		}
+
+		$color_scheme = 'fresh';
+		$admin_user   = get_user_by( 'email', get_option( 'admin_email' ) );
+		if ( $admin_user ) {
+			$saved = get_user_option( 'admin_color', $admin_user->ID );
+			if ( $saved ) {
+				$color_scheme = $saved;
+			}
+		}
+
+		$map = array(
+			'fresh'     => '#2271b1',
+			'light'     => '#0085ba',
+			'blue'      => '#096484',
+			'coffee'    => '#c7a589',
+			'ectoplasm' => '#a3b745',
+			'midnight'  => '#e14d43',
+			'ocean'     => '#9ebaa0',
+			'sunrise'   => '#dd823b',
+			'modern'    => '#3858e9',
+		);
+
+		self::$admin_theme_color = $map[ $color_scheme ] ?? '#2271b1';
+		return self::$admin_theme_color;
 	}
 
 	/**

@@ -33,8 +33,7 @@ function jpcrm_settings_page_html_woosync() {
 	call_user_func( "Automattic\JetpackCRM\jpcrm_settings_page_html_{$page}_{$current_tab}" );
 
 	// enqueue settings styles
-	if ( function_exists( 'Automattic\JetpackCRM\jpcrm_woosync_connections_styles_scripts' ) ){
+	if ( function_exists( 'Automattic\JetpackCRM\jpcrm_woosync_connections_styles_scripts' ) ) {
 		jpcrm_woosync_connections_styles_scripts();
 	}
-
 }

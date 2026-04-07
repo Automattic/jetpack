@@ -1,6 +1,5 @@
 <?php
 /*
-!
  * Admin Page Partial: Settings: Template variant block
  *
  * This block outputs a <select> for a template variant selector setting (e.g. invoice pdf template)

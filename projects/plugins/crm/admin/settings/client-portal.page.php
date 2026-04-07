@@ -1,6 +1,5 @@
 <?php
 /*
-!
  * Admin Page: Settings: Client Portal settings
  */
 
@@ -79,14 +78,14 @@ if ( isset( $_POST['editwplf'] ) && zeroBSCRM_isZBSAdminOrAdmin() ) {
 	$zbsStatusSettingPotential = array();
 	$zbsStatuses               = explode( ',', $zbsStatusStr );
 
-		foreach ( $zbsStatuses as $statusStr ) {
+	foreach ( $zbsStatuses as $statusStr ) {
 
-			// permify
-			$statusKey = strtolower( str_replace( ' ', '_', str_replace( ':', '_', $statusStr ) ) );
+		// permify
+		$statusKey = strtolower( str_replace( ' ', '_', str_replace( ':', '_', $statusStr ) ) );
 
-			// check post
-			if ( isset( $_POST[ 'wpzbscrm_portaluser_group_' . $statusKey ] ) ) {
-				$zbsStatusSettingPotential[] = $statusKey;
+		// check post
+		if ( isset( $_POST[ 'wpzbscrm_portaluser_group_' . $statusKey ] ) ) {
+			$zbsStatusSettingPotential[] = $statusKey;
 		}
 	}
 

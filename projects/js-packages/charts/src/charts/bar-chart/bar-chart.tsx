@@ -11,7 +11,6 @@ import {
 	useChartDataTransform,
 	useZeroValueDisplay,
 	useChartMargin,
-	useElementHeight,
 	usePrefersReducedMotion,
 } from '../../hooks';
 import {
@@ -19,11 +18,13 @@ import {
 	useChartId,
 	useChartRegistration,
 	useGlobalChartsContext,
-	useGlobalChartsTheme,
 	GlobalChartsContext,
 } from '../../providers';
 import { attachSubComponents } from '../../utils';
+import { useChartChildren } from '../private/chart-composition';
+import { ChartLayout } from '../private/chart-layout';
 import { SingleChartContext } from '../private/single-chart-context';
+import { SvgEmptyState } from '../private/svg-empty-state';
 import { withResponsive } from '../private/with-responsive';
 import styles from './bar-chart.module.scss';
 import { useBarChartOptions } from './private';
@@ -37,7 +38,6 @@ export interface BarChartProps extends BaseChartProps< SeriesData[] > {
 	orientation?: 'horizontal' | 'vertical';
 	withPatterns?: boolean;
 	showZeroValues?: boolean;
-	legendInteractive?: boolean;
 	children?: ReactNode;
 }
 
@@ -78,28 +78,23 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	data,
 	chartId: providedChartId,
 	width,
-	height = 400,
+	height,
 	className,
 	margin,
 	withTooltips = false,
 	showLegend = false,
-	legendOrientation = 'horizontal',
-	legendPosition = 'bottom',
-	legendAlignment = 'center',
-	legendMaxWidth,
-	legendTextOverflow = 'wrap',
-	legendItemClassName,
-	legendShape = 'rect',
+	legend = {},
 	gridVisibility: gridVisibilityProp,
 	renderTooltip,
 	options = {},
 	orientation = 'vertical',
 	withPatterns = false,
 	showZeroValues = false,
-	legendInteractive = false,
 	animation,
 	children,
+	gap = 'md',
 } ) => {
+	const legendInteractive = legend.interactive ?? false;
 	const horizontal = orientation === 'horizontal';
 	const chartId = useChartId( providedChartId );
 	const theme = useXYChartTheme( data );
@@ -107,16 +102,29 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	const dataSorted = useChartDataTransform( data );
 
 	// Transform data to add a small value for zero bars to make them visible
+	// For vertical bars, height determines bar pixel height; for horizontal bars, width does
 	const dataWithVisibleZeros = useZeroValueDisplay( dataSorted, {
 		enabled: showZeroValues,
+		valueAxisLength: horizontal ? width : height,
 	} );
 
 	// Create legend items using the reusable hook
 	const legendItems = useChartLegendItems( dataSorted );
 	const chartOptions = useBarChartOptions( dataWithVisibleZeros, horizontal, options );
 	const defaultMargin = useChartMargin( height, chartOptions, dataSorted, theme, horizontal );
-	const [ legendRef, legendHeight ] = useElementHeight< HTMLDivElement >();
 	const chartRef = useRef< HTMLDivElement >( null );
+
+	// Process children for composition API (Legend, etc.)
+	const { legendChildren, nonLegendChildren } = useChartChildren( children, 'BarChart' );
+	const [ measuredChartHeight, setMeasuredChartHeight ] = useState< number | undefined >();
+
+	const handleContentHeightChange = useCallback(
+		( contentHeight: number ) => {
+			const chartHeight = contentHeight > 0 ? contentHeight : height;
+			setMeasuredChartHeight( chartHeight );
+		},
+		[ height ]
+	);
 	const [ selectedIndex, setSelectedIndex ] = useState< number | undefined >( undefined );
 	const [ isNavigating, setIsNavigating ] = useState( false );
 
@@ -134,7 +142,6 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	} );
 
 	const { getElementStyles, isSeriesVisible } = useGlobalChartsContext();
-	const providerTheme = useGlobalChartsTheme();
 
 	// Add visibility information to series when using interactive legends
 	const seriesWithVisibility = useMemo( () => {
@@ -312,150 +319,166 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	const gridVisibility = gridVisibilityProp ?? chartOptions.gridVisibility;
 	const highlightedBarStyle = createKeyboardHighlightStyle();
 
+	const legendPosition = legend.position ?? 'bottom';
+	const legendElement = showLegend && (
+		<Legend
+			orientation={ legend.orientation ?? 'horizontal' }
+			position={ legendPosition }
+			alignment={ legend.alignment ?? 'center' }
+			labelStyles={ legend.labelStyles }
+			itemClassName={ legend.itemClassName }
+			itemStyles={ legend.itemStyles }
+			shapeStyles={ legend.shapeStyles }
+			className={ styles[ 'bar-chart__legend' ] }
+			shape={ legend.shape ?? 'rect' }
+			chartId={ chartId }
+			interactive={ legendInteractive }
+		/>
+	);
+
 	return (
 		<SingleChartContext.Provider
 			value={ {
 				chartId,
 				chartWidth: width,
-				chartHeight: height - ( showLegend ? legendHeight : 0 ),
+				chartHeight: measuredChartHeight || 0,
 			} }
 		>
-			<div
+			<ChartLayout
+				legendPosition={ legendPosition }
+				legendElement={ legendElement }
+				legendChildren={ legendChildren }
+				gap={ gap }
 				className={ clsx(
 					'bar-chart',
 					styles[ 'bar-chart' ],
 					{
 						[ styles[ `bar-chart--animated${ horizontal ? '-horizontal' : '' }` ] ]:
 							animation && ! prefersReducedMotion,
-						[ styles[ 'bar-chart--legend-top' ] ]: showLegend && legendPosition === 'top',
 					},
 					className
 				) }
+				style={ { width, height } }
 				data-testid="bar-chart"
-				role="grid"
-				aria-label={ __( 'Bar chart', 'jetpack-charts' ) }
-				style={ {
-					width,
-					height,
-				} }
-				tabIndex={ 0 }
-				onKeyDown={ onChartKeyDown }
-				onFocus={ onChartFocus }
-				onBlur={ onChartBlur }
-				ref={ chartRef }
-				data-chart-id={ `bar-chart-${ chartId }` } // Unique ID for the chart
+				data-chart-id={ `bar-chart-${ chartId }` }
+				trailingContent={ nonLegendChildren }
+				onContentHeightChange={ handleContentHeightChange }
 			>
-				<XYChart
-					theme={ theme }
-					width={ width }
-					height={ height - ( showLegend ? legendHeight : 0 ) }
-					margin={ {
-						...defaultMargin,
-						...margin,
-						...( showLegend && legendPosition === 'top'
-							? { top: ( defaultMargin.top || 0 ) + legendHeight }
-							: {} ),
-					} }
-					xScale={ chartOptions.xScale }
-					yScale={ chartOptions.yScale }
-					horizontal={ horizontal }
-					pointerEventsDataKey="nearest"
-				>
-					<Grid
-						columns={ gridVisibility.includes( 'y' ) }
-						rows={ gridVisibility.includes( 'x' ) }
-						numTicks={ 4 }
-					/>
+				{ ( { contentHeight } ) => {
+					const chartHeight = contentHeight > 0 ? contentHeight : height;
 
-					{ withPatterns && (
-						<>
-							<defs data-testid="bar-chart-patterns">
-								{ dataSorted.map( ( seriesData, index ) =>
-									renderPattern( index, getElementStyles( { data: seriesData, index } ).color )
-								) }
-							</defs>
-							<style>
-								{ dataSorted.map( ( seriesData, index ) =>
-									createPatternBorderStyle(
-										index,
-										getElementStyles( { data: seriesData, index } ).color
-									)
-								) }
-							</style>
-						</>
-					) }
-
-					{ highlightedBarStyle && <style>{ highlightedBarStyle }</style> }
-
-					{ allSeriesHidden ? (
-						<text
-							x={ width / 2 }
-							y={ ( height - ( showLegend ? legendHeight : 0 ) ) / 2 }
-							textAnchor="middle"
-							fill={ providerTheme.gridStyles?.stroke || '#ccc' }
-							fontSize="14"
-							fontFamily="-apple-system,BlinkMacSystemFont,Roboto,Helvetica Neue,sans-serif"
+					return (
+						<div
+							role="grid"
+							aria-label={ __( 'Bar chart', 'jetpack-charts' ) }
+							tabIndex={ 0 }
+							onKeyDown={ onChartKeyDown }
+							onFocus={ onChartFocus }
+							onBlur={ onChartBlur }
 						>
-							{ __( 'All series are hidden. Click legend items to show data.', 'jetpack-charts' ) }
-						</text>
-					) : null }
+							{ chartHeight > 0 && (
+								<div ref={ chartRef }>
+									<XYChart
+										theme={ theme }
+										width={ width }
+										height={ chartHeight }
+										margin={ {
+											...defaultMargin,
+											...margin,
+										} }
+										xScale={ chartOptions.xScale }
+										yScale={ chartOptions.yScale }
+										horizontal={ horizontal }
+										pointerEventsDataKey="nearest"
+									>
+										<Grid
+											columns={ gridVisibility.includes( 'y' ) }
+											rows={ gridVisibility.includes( 'x' ) }
+											numTicks={ 4 }
+										/>
 
-					<BarGroup padding={ chartOptions.barGroup.padding }>
-						{ seriesWithVisibility.map( ( { series: seriesData, index, isVisible } ) => {
-							// Skip rendering invisible series
-							if ( ! isVisible ) {
-								return null;
-							}
+										{ withPatterns && (
+											<>
+												<defs data-testid="bar-chart-patterns">
+													{ dataSorted.map( ( seriesData, index ) =>
+														renderPattern(
+															index,
+															getElementStyles( { data: seriesData, index } ).color
+														)
+													) }
+												</defs>
+												<style>
+													{ dataSorted.map( ( seriesData, index ) =>
+														createPatternBorderStyle(
+															index,
+															getElementStyles( { data: seriesData, index } ).color
+														)
+													) }
+												</style>
+											</>
+										) }
 
-							return (
-								<BarSeries
-									key={ seriesData?.label }
-									dataKey={ seriesData?.label }
-									data={ seriesData.data as DataPointDate[] }
-									yAccessor={ chartOptions.accessors.yAccessor }
-									xAccessor={ chartOptions.accessors.xAccessor }
-									colorAccessor={ getBarBackground( index ) }
-								/>
-							);
-						} ) }
-					</BarGroup>
+										{ highlightedBarStyle && <style>{ highlightedBarStyle }</style> }
 
-					<Axis { ...chartOptions.axis.x } />
-					<Axis { ...chartOptions.axis.y } />
+										{ allSeriesHidden ? (
+											<SvgEmptyState
+												x={ width / 2 }
+												y={ chartHeight / 2 }
+												width={ width }
+												height={ chartHeight }
+											>
+												{ __(
+													'All series are hidden. Click legend items to show data.',
+													'jetpack-charts'
+												) }
+											</SvgEmptyState>
+										) : null }
 
-					{ withTooltips && (
-						<AccessibleTooltip
-							detectBounds
-							snapTooltipToDatumX
-							snapTooltipToDatumY
-							renderTooltip={ renderTooltip || renderDefaultTooltip }
-							selectedIndex={ selectedIndex }
-							tooltipRef={ tooltipRef }
-							keyboardFocusedClassName={ styles[ 'bar-chart__tooltip--keyboard-focused' ] }
-							series={ data }
-							mode="individual"
-						/>
-					) }
-				</XYChart>
+										<BarGroup padding={ chartOptions.barGroup.padding }>
+											{ seriesWithVisibility.map( ( { series: seriesData, index, isVisible } ) => {
+												// Skip rendering invisible series
+												if ( ! isVisible ) {
+													return null;
+												}
 
-				{ showLegend && (
-					<Legend
-						orientation={ legendOrientation }
-						position={ legendPosition }
-						alignment={ legendAlignment }
-						maxWidth={ legendMaxWidth }
-						textOverflow={ legendTextOverflow }
-						legendItemClassName={ legendItemClassName }
-						className={ styles[ 'bar-chart__legend' ] }
-						shape={ legendShape }
-						ref={ legendRef }
-						chartId={ chartId }
-						interactive={ legendInteractive }
-					/>
-				) }
+												return (
+													<BarSeries
+														key={ seriesData?.label }
+														dataKey={ seriesData?.label }
+														data={ seriesData.data as DataPointDate[] }
+														yAccessor={ chartOptions.accessors.yAccessor }
+														xAccessor={ chartOptions.accessors.xAccessor }
+														colorAccessor={ getBarBackground( index ) }
+													/>
+												);
+											} ) }
+										</BarGroup>
 
-				{ children }
-			</div>
+										<Axis { ...chartOptions.axis.x } />
+										<Axis { ...chartOptions.axis.y } />
+
+										{ withTooltips && (
+											<AccessibleTooltip
+												detectBounds
+												snapTooltipToDatumX
+												snapTooltipToDatumY
+												renderTooltip={ renderTooltip || renderDefaultTooltip }
+												selectedIndex={ selectedIndex }
+												tooltipRef={ tooltipRef }
+												keyboardFocusedClassName={
+													styles[ 'bar-chart__tooltip--keyboard-focused' ]
+												}
+												series={ data }
+												mode="individual"
+											/>
+										) }
+									</XYChart>
+								</div>
+							) }
+						</div>
+					);
+				} }
+			</ChartLayout>
 		</SingleChartContext.Provider>
 	);
 };

@@ -47,11 +47,16 @@ jest.mock( '../../use-sig-preview', () => ( {
 	default: jest.fn(),
 } ) );
 
+jest.mock( '../../use-post-meta', () => ( {
+	usePostMeta: jest.fn(),
+} ) );
+
 import { renderHook } from '@testing-library/react';
 import { useSelect } from '@wordpress/data';
 import { useConnectionPreviewData } from '../';
 import useMediaDetails from '../../use-media-details';
 import { usePerNetworkCustomization } from '../../use-per-network-customization';
+import { usePostMeta } from '../../use-post-meta';
 import useSigPreview from '../../use-sig-preview';
 import useSocialMediaMessage from '../../use-social-media-message';
 import { useSocialPreviewPostData } from '../../use-social-preview-post-data';
@@ -59,7 +64,7 @@ import type { Connection } from '../../../social-store/types';
 
 const mockSiteHasFeature = jest.requireMock( '@automattic/jetpack-script-data' )
 	.siteHasFeature as jest.Mock;
-const mockUseSelect = useSelect as jest.MockedFunction< typeof useSelect >;
+const mockUseSelect = useSelect as jest.Mock;
 const mockUsePerNetworkCustomization = usePerNetworkCustomization as jest.MockedFunction<
 	typeof usePerNetworkCustomization
 >;
@@ -71,6 +76,7 @@ const mockUseSocialPreviewPostData = useSocialPreviewPostData as jest.MockedFunc
 >;
 const mockUseMediaDetails = useMediaDetails as jest.MockedFunction< typeof useMediaDetails >;
 const mockUseSigPreview = useSigPreview as jest.MockedFunction< typeof useSigPreview >;
+const mockUsePostMeta = usePostMeta as jest.MockedFunction< typeof usePostMeta >;
 
 const createMockConnection = ( overrides: Partial< Connection > = {} ): Connection => ( {
 	connection_id: '123',
@@ -80,7 +86,7 @@ const createMockConnection = ( overrides: Partial< Connection > = {} ): Connecti
 	profile_link: 'https://example.com/test',
 	profile_picture: 'https://example.com/pic.jpg',
 	service_label: 'Test Service',
-	service_name: 'test',
+	service_name: 'tumblr',
 	shared: false,
 	status: 'ok',
 	wpcom_user_id: 1,
@@ -90,6 +96,7 @@ const createMockConnection = ( overrides: Partial< Connection > = {} ): Connecti
 
 const defaultPostData = {
 	title: 'Test Post',
+	siteTitle: 'Test Site',
 	description: 'Test description',
 	url: 'https://example.com/post',
 	image: 'https://example.com/image.jpg',
@@ -111,8 +118,11 @@ describe( 'useConnectionPreviewData', () => {
 			maxLength: 280,
 		} );
 		mockUseSocialPreviewPostData.mockReturnValue( defaultPostData );
-		mockUseMediaDetails.mockReturnValue( [ null ] );
+		mockUseMediaDetails.mockReturnValue( [ null, false ] );
 		mockUseSigPreview.mockReturnValue( { url: null, isLoading: false } );
+		mockUsePostMeta.mockReturnValue( {
+			mediaSource: undefined,
+		} as ReturnType< typeof usePostMeta > );
 	} );
 
 	afterAll( () => {
@@ -177,6 +187,7 @@ describe( 'useConnectionPreviewData', () => {
 				mediaData: { width: 800, height: 600, sourceUrl: 'https://example.com/featured.jpg' },
 				metaData: { mime: 'image/jpeg', fileSize: 1024, length: 0 },
 			},
+			false,
 		] );
 
 		const connection = createMockConnection( { media_source: 'featured-image' } );
@@ -193,7 +204,7 @@ describe( 'useConnectionPreviewData', () => {
 		mockUsePerNetworkCustomization.mockReturnValue( { isEnabled: true, toggle: jest.fn() } );
 		// When no featured image is set, useMediaDetails returns [ {} ] with no mediaData.sourceUrl
 		// The hook checks featuredImageDetails?.mediaData?.sourceUrl to handle this edge case
-		mockUseMediaDetails.mockReturnValue( [ {} ] as ReturnType< typeof useMediaDetails > );
+		mockUseMediaDetails.mockReturnValue( [ {}, false ] as ReturnType< typeof useMediaDetails > );
 
 		const connection = createMockConnection( { media_source: 'featured-image' } );
 

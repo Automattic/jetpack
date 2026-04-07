@@ -1,5 +1,5 @@
 import { __ } from '@wordpress/i18n';
-import SliderIcon from '../input-range/icon.js';
+import SliderIcon from '../input-range/icon.jsx';
 import defaultSettings from '../shared/settings/index.js';
 import edit from './edit.js';
 import save from './save.js';

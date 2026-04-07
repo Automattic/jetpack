@@ -1,6 +1,6 @@
 import { Circle, Rect } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import renderMaterialIcon from '../shared/components/render-material-icon.js';
+import renderMaterialIcon from '../shared/components/render-material-icon.jsx';
 import edit from './edit.js';
 
 export const name = 'form-progress-indicator';

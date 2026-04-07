@@ -715,4 +715,78 @@ class Feedback_Fields_Test extends BaseTestCase {
 		$this->assertSame( '', $response->get_field_value_by_form_field_id( 'email' ) );
 		$this->assertNull( $response->get_field_by_form_field_id( 'email' ) );
 	}
+
+	/**
+	 * Test that "Other" option in radio fields is processed correctly.
+	 */
+	public function test_radio_field_with_other_option() {
+		$form_id = Utility::get_form_id();
+
+		// Create form submission with separate radio value and text input value
+		// This simulates the actual POST data from the form
+		$_post_data = Utility::get_post_request(
+			array(
+				'favoritecolor'            => 'Other',  // Radio button value
+				'favoritecolor-other-text' => 'Purple with green stripes',  // Text input value
+			),
+			'g' . $form_id
+		);
+
+		// Create options data with an "Other" option
+		$optionsdata = Contact_Form::esc_shortcode_val(
+			wp_json_encode(
+				array(
+					array(
+						'label' => 'Red',
+					),
+					array(
+						'label' => 'Blue',
+					),
+					array(
+						'label'   => 'Other',
+						'isOther' => true,
+					),
+				),
+				JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
+			)
+		);
+
+		$shortcode = "[contact-field type='radio' label='Favorite Color' allowOther='1' options='Red,Blue,Other' optionsdata='{$optionsdata}' /]";
+
+		$form = new Contact_Form(
+			array(
+				'title' => 'Test Form',
+			),
+			$shortcode
+		);
+
+		$response         = Feedback::from_submission( $_post_data, $form );
+		$feedback_post_id = $response->save();
+		$saved_response   = Feedback::get( $feedback_post_id );
+
+		// Get the field
+		$fields = $response->get_fields();
+		$this->assertNotEmpty( $fields, 'Fields should not be empty' );
+
+		$field = reset( $fields ); // Get first field
+		$this->assertInstanceOf( Feedback_Field::class, $field, 'Field should be a Feedback_Field instance' );
+
+		// Test that the value is preserved
+		$this->assertEquals( 'Other: Purple with green stripes', $field->get_value(), 'Value should be preserved as submitted' );
+
+		// Test that metadata is set correctly
+		$meta = $field->get_meta();
+		$this->assertTrue( $meta['is_other_option'], 'is_other_option should be true' );
+		$this->assertEquals( 'Other', $meta['other_label'], 'other_label should be "Other"' );
+		$this->assertEquals( 'Purple with green stripes', $meta['other_user_value'], 'other_user_value should contain custom text' );
+
+		// Test saved response
+		$saved_fields = $saved_response->get_fields();
+		$saved_field  = reset( $saved_fields );
+
+		$this->assertEquals( 'Other: Purple with green stripes', $saved_field->get_value(), 'Saved value should match' );
+		$saved_meta = $saved_field->get_meta();
+		$this->assertTrue( $saved_meta['is_other_option'], 'Saved is_other_option should be true' );
+		$this->assertEquals( 'Purple with green stripes', $saved_meta['other_user_value'], 'Saved other_user_value should match' );
+	}
 }

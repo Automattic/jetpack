@@ -1,0 +1,4 @@
+Significance: minor
+Type: fixed
+
+Fix disabling of outgoing pingbacks from staging sites.

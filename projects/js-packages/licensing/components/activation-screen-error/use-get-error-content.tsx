@@ -22,7 +22,8 @@ export const useGetErrorContent = ( licenseError: string, errorType: LicenseErro
 				<ExternalLink
 					href={ getRedirectUrl( 'jetpack-support-license-activation' ) }
 					rel="noopener noreferrer"
-				></ExternalLink>
+					children={ null }
+				/>
 			),
 		}
 	);
@@ -46,7 +47,8 @@ export const useGetErrorContent = ( licenseError: string, errorType: LicenseErro
 											href={ getRedirectUrl( 'jetpack-support-activate-license', {
 												anchor: 'different-user',
 											} ) }
-										></ExternalLink>
+											children={ null }
+										/>
 									),
 								}
 							) }
@@ -89,7 +91,8 @@ export const useGetErrorContent = ( licenseError: string, errorType: LicenseErro
 										<ExternalLink
 											rel="noopener noreferrer"
 											href={ getRedirectUrl( 'jetpack-support-license-activation' ) }
-										></ExternalLink>
+											children={ null }
+										/>
 									),
 								}
 							) }
@@ -105,7 +108,8 @@ export const useGetErrorContent = ( licenseError: string, errorType: LicenseErro
 										<ExternalLink
 											rel="noopener noreferrer"
 											href={ getRedirectUrl( 'my-jetpack-my-plans-purchase-no-site' ) }
-										></ExternalLink>
+											children={ null }
+										/>
 									),
 								}
 							) }

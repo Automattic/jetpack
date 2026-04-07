@@ -72,8 +72,6 @@ Use `direction="neutral"` for unchanged values. The indicator displays in gray w
 - **`className`**: Additional CSS class name
 - **`style`**: Inline CSS styles
 
-## Visual Customization
-
 ### Without Icon
 
 Hide the directional icon when you only need color-coded text:
@@ -83,25 +81,6 @@ Hide the directional icon when you only need color-coded text:
 <Source
 	language="tsx"
 	code={`<TrendIndicator direction="up" value="+14%" showIcon={false} />`}
-/>
-
-### Custom Styling
-
-Apply custom styles using the `className` or `style` props:
-
-<Source
-	language="tsx"
-	code={`<TrendIndicator
-	direction="up"
-	value="+25%"
-	style={{ fontSize: '1.5rem', fontWeight: 700 }}
-/>
-
-<TrendIndicator
-	direction="down"
-	value="-10%"
-	className="my-custom-trend"
-/>`}
 />
 
 ### Value Formats
@@ -123,7 +102,26 @@ The `value` prop accepts any string or number format:
 <TrendIndicator direction="up" value="2.5k" />`}
 />
 
-## Theming
+## Styling and Customization
+
+Apply custom styles using the `className` or `style` props:
+
+<Source
+	language="tsx"
+	code={`<TrendIndicator
+	direction="up"
+	value="+25%"
+	style={{ fontSize: '1.5rem', fontWeight: 700 }}
+/>
+
+<TrendIndicator
+	direction="down"
+	value="-10%"
+	className="my-custom-trend"
+/>`}
+/>
+
+## Theming Integration
 
 The component uses CSS custom properties for colors, making it easy to customize:
 
@@ -204,11 +202,3 @@ The TrendIndicator component includes built-in accessibility features:
 	<span>+14%</span>
 </span>`}
 />
-
-## Browser Compatibility
-
-TrendIndicator is compatible with all modern browsers:
-- Chrome/Edge (latest)
-- Firefox (latest)
-- Safari (latest)
-- Mobile browsers (iOS Safari, Chrome Mobile)

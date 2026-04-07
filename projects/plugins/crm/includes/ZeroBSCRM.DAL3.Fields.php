@@ -1,6 +1,5 @@
 <?php
 /*
-!
  * Jetpack CRM
  * https://jetpackcrm.com
  * V1.1.19
@@ -22,13 +21,13 @@ if ( ! defined( 'ZEROBSCRM_PATH' ) ) {
 	/ Breaking Checks
 	====================================================== */
 
-		global $zbsFieldsEnabled,$zbsFieldSorts,$zbsAddressFields;
+		global $zbsFieldsEnabled, $zbsFieldSorts, $zbsAddressFields;
 		$zbsFieldsEnabled = array(); // } ALSO added 'opt' field #} if this is set it'll be checked whether $zbsFieldsEnabled['optname'] global is true/false
 		$zbsFieldSorts    = array();
 		$zbsAddressFields = array();
 
 		// these are all DAL3 Object Loaded via zeroBSCRM_fields_initialise():
-		global $zbsCustomerFields,$zbsCompanyFields,$zbsCustomerQuoteFields,$zbsCustomerInvoiceFields,$zbsTransactionFields,$zbsFormFields;
+		global $zbsCustomerFields, $zbsCompanyFields, $zbsCustomerQuoteFields, $zbsCustomerInvoiceFields, $zbsTransactionFields, $zbsFormFields;
 		$zbsCustomerFields        = array();
 		$zbsCompanyFields         = array();
 		$zbsCustomerQuoteFields   = array();
@@ -42,13 +41,14 @@ if ( ! defined( 'ZEROBSCRM_PATH' ) ) {
 	// This gets run in Core.php after initialising zbsDAL class
 function zeroBSCRM_fields_initialise() {
 
-	global $zbs,$zbsFieldsEnabled,$zbsFieldSorts,$zbsAddressFields;
-	global $zbsCustomerFields,$zbsCompanyFields,$zbsCustomerQuoteFields,$zbsCustomerInvoiceFields,$zbsTransactionFields,$zbsFormFields;
+	global $zbs, $zbsFieldsEnabled, $zbsFieldSorts, $zbsAddressFields;
+	global $zbsCustomerFields, $zbsCompanyFields, $zbsCustomerQuoteFields, $zbsCustomerInvoiceFields, $zbsTransactionFields, $zbsFormFields;
 
 	/*
 	======================================================
 	Legacy / Unchanged
-	====================================================== */
+	======================================================
+	*/
 
 	$zbsAddressFields = array(
 		'addr1'    => array(
@@ -108,12 +108,14 @@ function zeroBSCRM_fields_initialise() {
 	/*
 	======================================================
 	/ Legacy / Unchanged
-	====================================================== */
+	======================================================
+	*/
 
 	/*
 	======================================================
 	Contacts
-	====================================================== */
+	======================================================
+	*/
 
 	// Load from  object model :)
 	$zbsCustomerFields = $zbs->DAL->contacts->generateFieldsGlobalArr();
@@ -149,12 +151,14 @@ function zeroBSCRM_fields_initialise() {
 	/*
 	======================================================
 	/ Contacts
-	====================================================== */
+	======================================================
+	*/
 
 	/*
 	======================================================
 	Companies
-	====================================================== */
+	======================================================
+	*/
 
 	// Load from  object model :)
 	$zbsCompanyFields = $zbs->DAL->companies->generateFieldsGlobalArr();
@@ -188,12 +192,14 @@ function zeroBSCRM_fields_initialise() {
 	/*
 	======================================================
 	/ Companies
-	====================================================== */
+	======================================================
+	*/
 
 	/*
 	======================================================
 	Quotes
-	====================================================== */
+	======================================================
+	*/
 
 	// Load from  object model :)
 	$zbsCustomerQuoteFields = $zbs->DAL->quotes->generateFieldsGlobalArr();
@@ -215,12 +221,14 @@ function zeroBSCRM_fields_initialise() {
 	/*
 	======================================================
 	/ Quotes
-	====================================================== */
+	======================================================
+	*/
 
 	/*
 	======================================================
 	Invoices
-	====================================================== */
+	======================================================
+	*/
 
 	/*
 	NOTE:
@@ -258,12 +266,14 @@ function zeroBSCRM_fields_initialise() {
 	/*
 	======================================================
 	/ Invoices
-	====================================================== */
+	======================================================
+	*/
 
 	/*
 	======================================================
 	Transactions
-	====================================================== */
+	======================================================
+	*/
 
 	// Load from  object model :)
 	$zbsTransactionFields = $zbs->DAL->transactions->generateFieldsGlobalArr();
@@ -284,12 +294,14 @@ function zeroBSCRM_fields_initialise() {
 	/*
 	======================================================
 	/ Transactions
-	====================================================== */
+	======================================================
+	*/
 
 	/*
 	======================================================
 	Forms
-	====================================================== */
+	======================================================
+	*/
 
 	// Load from  object model :)
 	$zbsFormFields = $zbs->DAL->forms->generateFieldsGlobalArr();
@@ -316,7 +328,8 @@ function zeroBSCRM_fields_initialise() {
 	/*
 	======================================================
 	/ Forms
-	====================================================== */
+	======================================================
+	*/
 }
 
 /*
@@ -397,7 +410,7 @@ function zeroBSCRM_unpackCustomFields() {
 	// } Jammed for now, adds country if set!
 	zeroBSCRM_internalAddressFieldMods();
 
-	global $zbs,$zbsAddressFields,$zbsFieldSorts;
+	global $zbs, $zbsAddressFields, $zbsFieldSorts;
 
 	$customfields = $zbs->settings->get( 'customfields' );
 
@@ -1289,7 +1302,7 @@ function zeroBSCRM_customFields_getSlugOrCreate( $fieldLabel = '', $objectTypeSt
 	// block ID here too
 	if ( ! empty( $fieldLabel ) && ! empty( $objectTypeStr ) && $fieldLabel != 'ID' && isset( $customFieldsToProcess[ $objectTypeStr ] ) ) {
 
-		global $wDB,$zbs;
+		global $wDB, $zbs;
 
 		$customFieldsArr = $zbs->settings->get( 'customfields' );
 
@@ -1332,21 +1345,21 @@ function zeroBSCRM_customFields_getSlugOrCreate( $fieldLabel = '', $objectTypeSt
 
 					// NOW SAVE DOWN
 
-						if ( isset( $customFieldsArr['customers'] ) && is_array( $customFieldsArr['customers'] ) ) {
+					if ( isset( $customFieldsArr['customers'] ) && is_array( $customFieldsArr['customers'] ) ) {
 
-							// slight array reconfig
-							$db2CustomFields = array();
-							foreach ( $customFieldsArr['customers'] as $cfArr ) {
-								$db2CustomFields[ $zbs->DAL->makeSlug( $cfArr[1] ) ] = $cfArr;
+						// slight array reconfig
+						$db2CustomFields = array();
+						foreach ( $customFieldsArr['customers'] as $cfArr ) {
+							$db2CustomFields[ $zbs->DAL->makeSlug( $cfArr[1] ) ] = $cfArr;
 						}
 
-							// simple maintain DAL2 (needs to also)
-							$zbs->DAL->updateActiveCustomFields(
-								array(
-									'objtypeid' => 1,
-									'fields'    => $db2CustomFields,
-								)
-							);
+						// simple maintain DAL2 (needs to also)
+						$zbs->DAL->updateActiveCustomFields(
+							array(
+								'objtypeid' => 1,
+								'fields'    => $db2CustomFields,
+							)
+						);
 					}
 
 					// } Brutal update

@@ -123,23 +123,17 @@ class Waf_Request {
 	 */
 	public function get_headers() {
 		$value              = array();
-		$has_content_type   = false;
 		$has_content_length = false;
 		foreach ( $_SERVER as $k => $v ) {
 			$k = strtolower( $k );
 			if ( 'http_' === substr( $k, 0, 5 ) ) {
 				$value[] = array( $this->normalize_header_name( substr( $k, 5 ) ), $v );
 			} elseif ( 'content_type' === $k && '' !== $v ) {
-				$has_content_type = true;
-				$value[]          = array( 'content-type', $v );
+				$value[] = array( 'content-type', $v );
 			} elseif ( 'content_length' === $k && '' !== $v ) {
 				$has_content_length = true;
 				$value[]            = array( 'content-length', $v );
 			}
-		}
-		if ( ! $has_content_type ) {
-			// default Content-Type per RFC 7231 section 3.1.5.5.
-			$value[] = array( 'content-type', 'application/octet-stream' );
 		}
 		if ( ! $has_content_length ) {
 			$value[] = array( 'content-length', '0' );

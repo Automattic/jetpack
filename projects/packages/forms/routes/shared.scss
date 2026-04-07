@@ -1,0 +1,15 @@
+@use "sass:meta";
+@include meta.load-css("@wordpress/dataviews/build-style/style.css");
+
+.jp-forms-dataviews__view-actions {
+	// On small screens, switch to column-reverse stacking
+	@container (width < 500px) {
+		--wp-ui-stack-justify: flex-start;
+		flex-direction: column-reverse;
+		align-items: flex-start;
+	}
+
+	> div:not(:empty) {
+		min-height: 48px;
+	}
+}

@@ -19,7 +19,7 @@ class Playground_DB_Importer {
 	/**
 	 * Name of the table where SQLite map the internal types to the MySQL types.
 	 */
-	public const SQLITE_DATA_TYPES_TABLE = '_mysql_data_types_cache';
+	public const SQLITE_DATA_TYPES_TABLE = '_wp_sqlite_mysql_information_schema_columns';
 
 	/**
 	 * Name of the table where SQLite store the autoincrement value.
@@ -313,7 +313,7 @@ class Playground_DB_Importer {
 
 		// Get the "type map" of the table.
 		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- SQLITE_DATA_TYPES_TABLE is a constant string.
-		$query   = $this->prepare( 'SELECT column_or_index, mysql_type from ' . self::SQLITE_DATA_TYPES_TABLE . ' where `table`=%s;', $table_name );
+		$query   = $this->prepare( 'SELECT COLUMN_NAME, COLUMN_TYPE from ' . self::SQLITE_DATA_TYPES_TABLE . ' where `TABLE_NAME`=%s;', $table_name );
 		$results = $this->db->query( $query );
 
 		if ( ! $results ) {
@@ -322,18 +322,13 @@ class Playground_DB_Importer {
 
 		$mysql_map = array();
 
-		// Schema: column_or_index|mysql_type
+		// Schema: COLUMN_NAME|COLUMN_TYPE
 		while ( $column = $results->fetchArray( SQLITE3_ASSOC ) ) { // phpcs:ignore Generic.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
-			// Hot fix: the default SQLite driver sometimes generate a column named `KEY`.
-			if ( $column['column_or_index'] === 'KEY' ) {
-				continue;
-			}
-
 			// Map by column name and MySQL type.
-			$mysql_map[ $column['column_or_index'] ] = $column['mysql_type'];
+			$mysql_map[ $column['COLUMN_NAME'] ] = $column['COLUMN_TYPE'];
 		}
 
-		// Tables like `'_wp_sqlite_*` do not have entries in the `_mysql_data_types_cache` table.
+		// Tables like `'_wp_sqlite_*` do not have entries in the `_wp_sqlite_mysql_information_schema_columns` table.
 		// In this case, we return an empty map.
 		if ( empty( $mysql_map ) ) {
 			return array(
@@ -363,11 +358,6 @@ class Playground_DB_Importer {
 
 		// Schema: cid|name|type|notnull|dflt_value|pk
 		while ( $column = $results->fetchArray( SQLITE3_ASSOC ) ) { // phpcs:ignore Generic.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
-			// Hot fix: skip `KEY` columns.
-			if ( $column['name'] === 'KEY' ) {
-				continue;
-			}
-
 			$is_primary    = $column['pk'] >= 1;
 			$field_names[] = $column['name'];
 
@@ -420,22 +410,18 @@ class Playground_DB_Importer {
 		// Schema: name|sql
 		while ( $column = $results->fetchArray( SQLITE3_ASSOC ) ) { // phpcs:ignore Generic.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
 			// Some SQLite columns are not indexed. See https://sqlite.org/forum/info/f16f8ed8666c5e97
-			if ( ! array_key_exists( $column['name'], $mysql_map ) ) {
+			if ( $column['sql'] === null ) {
 				continue;
-			}
-
-			if ( ! in_array( $mysql_map[ $column['name'] ], array( 'KEY', 'UNIQUE' ), true ) ) {
-				return new WP_Error( 'missing-index', 'Query error: not a valid SQLite database, missing index' );
 			}
 
 			// Strip out the index definition.
 			// wp_comments__comment_approved_date_gmt|CREATE INDEX "wp_comments__comment_approved_date_gmt" ON "wp_comments" ("comment_approved", "comment_date_gmt")
-			$split_query = explode( '" ON "' . $table_name . '" ', $column['sql'] );
+			$split_query = explode( '` ON `' . $table_name . '` ', $column['sql'] );
 			$real_name   = SQL_Generator::get_index_name( $column['name'] );
 			$new_index   = array(
 				'name'    => $real_name,
-				'type'    => $mysql_map[ $column['name'] ],
-				'columns' => str_replace( '"', '`', $split_query[1] ),
+				'type'    => ( strpos( $column['sql'], 'CREATE UNIQUE INDEX' ) === 0 ) ? 'UNIQUE' : 'KEY',
+				'columns' => $split_query[1],
 			);
 
 			if ( array_key_exists( $real_name, $map_by_name ) ) {
@@ -474,7 +460,7 @@ class Playground_DB_Importer {
 	 *
 	 * @return string
 	 */
-	private function sqlite_type_to_format( string $type ): string {
+	public function sqlite_type_to_format( string $type ): string {
 		switch ( $type ) {
 			case 'integer':
 				return '%d';

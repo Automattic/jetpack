@@ -10,7 +10,16 @@ export interface SocialUrls {
 }
 
 export type ConnectionService = {
-	id: string;
+	id:
+		| 'bluesky'
+		| 'facebook'
+		| 'instagram-business'
+		| 'linkedin'
+		| 'mastodon'
+		| 'nextdoor'
+		| 'threads'
+		| 'tumblr'
+		| 'x';
 	label: string;
 	description: string;
 	url: string;

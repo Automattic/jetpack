@@ -30,6 +30,13 @@ class Help_Center {
 	private $is_support_site = false;
 
 	/**
+	 * Whether the current site is a forum site.
+	 *
+	 * @var bool
+	 */
+	private $is_forum_site = false;
+
+	/**
 	 * The purchases of the current site.
 	 *
 	 * @var array
@@ -44,7 +51,9 @@ class Help_Center {
 			$this->purchases = wp_list_filter( wpcom_get_site_purchases(), array( 'product_type' => 'bundle' ) );
 		}
 
-		$this->is_support_site = defined( 'WPCOM_SUPPORT_BLOG_IDS' ) && in_array( get_current_blog_id(), (array) WPCOM_SUPPORT_BLOG_IDS, true );
+		$blog_id               = get_current_blog_id();
+		$this->is_forum_site   = defined( 'WPCOM_FORUM_BLOG_IDS' ) && in_array( $blog_id, (array) WPCOM_FORUM_BLOG_IDS, true );
+		$this->is_support_site = ( defined( 'WPCOM_SUPPORT_BLOG_IDS' ) && in_array( $blog_id, (array) WPCOM_SUPPORT_BLOG_IDS, true ) ) || $this->is_forum_site;
 
 		// Always register REST API endpoints.
 		add_action( 'rest_api_init', array( $this, 'register_rest_api' ) );
@@ -168,18 +177,6 @@ class Help_Center {
 	}
 
 	/**
-	 * Acts as a feature flag, returning a boolean for whether we should show the next steps tutorial UI.
-	 *
-	 * @return boolean
-	 */
-	public static function is_next_steps_tutorial_enabled() {
-		return apply_filters(
-			'help_center_should_enable_next_steps_tutorial',
-			false
-		);
-	}
-
-	/**
 	 * Enqueue Help Center assets.
 	 *
 	 * @param string $variant The variant of the asset file to get.
@@ -253,7 +250,7 @@ class Help_Center {
 		);
 
 		wp_enqueue_style(
-			'help-center-style',
+			'help-center-' . $variant . '-style',
 			'https://widgets.wp.com/help-center/help-center-' . $variant . ( is_rtl() ? '.rtl.css' : '.css' ),
 			array(),
 			$version
@@ -261,18 +258,6 @@ class Help_Center {
 
 		// This information is only needed for the connected version of the help center.
 		if ( $variant !== 'wp-admin-disconnected' && $variant !== 'gutenberg-disconnected' ) {
-			// Adds feature flags for development.
-			wp_add_inline_script(
-				'help-center',
-				'const helpCenterFeatureFlags = ' . wp_json_encode(
-					array(
-						'loadNextStepsTutorial' => self::is_next_steps_tutorial_enabled(),
-					),
-					JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
-				),
-				'before'
-			);
-
 			$user_id            = get_current_user_id();
 			$user_data          = get_userdata( $user_id );
 			$username           = $user_data ? $user_data->user_login : null;
@@ -281,14 +266,22 @@ class Help_Center {
 			$avatar_url         = $user_data ? ( function_exists( 'wpcom_get_avatar_url' ) ? wpcom_get_avatar_url( $user_email, 64, '', true )[0] : get_avatar_url( $user_id ) ) : null;
 			$is_commerce_garden = defined( 'IS_COMMERCE_GARDEN' );
 
+			if ( $this->is_forum_site ) {
+				$section_name = 'wp.com/forums';
+			} elseif ( $this->is_support_site ) {
+				$section_name = 'wp.com/support';
+			} else {
+				$section_name = $variant;
+			}
+
 			wp_add_inline_script(
 				'help-center',
-				'const helpCenterData = ' . wp_json_encode(
+				'if ( typeof helpCenterData === "undefined" ) { var helpCenterData = ' . wp_json_encode(
 					array(
 						'isProxied'        => boolval( self::is_proxied() ),
 						'isSU'             => defined( 'WPCOM_SUPPORT_SESSION' ) && WPCOM_SUPPORT_SESSION,
 						'isSSP'            => isset( $_COOKIE['ssp'] ),
-						'sectionName'      => $this->is_support_site ? 'wp.com/support' : $variant,
+						'sectionName'      => $section_name,
 						'isCommerceGarden' => $is_commerce_garden,
 						'currentUser'      => array(
 							'ID'           => $user_id,
@@ -301,7 +294,7 @@ class Help_Center {
 						'locale'           => self::determine_iso_639_locale(),
 					),
 					JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
-				),
+				) . '; }',
 				'before'
 			);
 		}
@@ -497,8 +490,13 @@ class Help_Center {
 	 */
 	public function is_block_editor() {
 		global $current_screen;
+
+		if ( ! $current_screen ) {
+			return false;
+		}
+
 		// widgets screen does have the block editor but also no Gutenberg top bar.
-		return $current_screen && $current_screen->is_block_editor() && $current_screen->id !== 'widgets';
+		return $current_screen->is_block_editor() && $current_screen->id !== 'widgets';
 	}
 
 	/**
@@ -632,25 +630,42 @@ class Help_Center {
 			return;
 		}
 
-		// Support sites only support logged-out users when the Odie answers feature is enabled.
-		if ( ! is_user_logged_in() && ! self::is_proxied() && ! get_option( 'dotcom_support_enable_odie_answers', false ) ) {
-			return;
+		// Do not load Help Center for logged-out users if we are not on support sites and the experiment variation is the treatment.
+		if ( ! is_user_logged_in() ) {
+			if ( ! $this->is_support_site ) {
+				return;
+			}
+
+			$experiment_variation = null;
+			if ( function_exists( '\ExPlat\assign_maybe_anon_user' ) ) {
+				$experiment_variation = \ExPlat\assign_maybe_anon_user( 'wpcom_ai_on_logged_out_support_pages_v3' );
+			} else {
+				log2logstash(
+					array(
+						'feature' => 'help-center',
+						'message' => 'ExPlat\assign_maybe_anon_user function is unavailable',
+					)
+				);
+			}
+			if ( $experiment_variation !== 'treatment' ) {
+				return;
+			}
 		}
 
+		$suffix = $this->is_jetpack_disconnected() ? '-disconnected' : '';
+
 		if ( $is_next_admin ) {
-			$variant = 'ciab-admin' . ( $this->is_jetpack_disconnected() ? '-disconnected' : '' );
+			$variant = 'ciab-admin' . $suffix;
 		} elseif ( $this->is_support_site ) {
 			if ( ! is_user_logged_in() ) {
 				$variant = 'logged-out';
 			} else {
-				$variant = 'wp-admin' . ( $this->is_jetpack_disconnected() ? '-disconnected' : '' );
+				$variant = ( $this->is_block_editor() ? 'gutenberg' : 'wp-admin' ) . $suffix;
 			}
 		} elseif ( $this->is_loading_on_frontend() ) {
 			$variant = 'wp-admin-disconnected';
-		} elseif ( $this->is_block_editor() ) {
-			$variant = 'gutenberg' . ( $this->is_jetpack_disconnected() ? '-disconnected' : '' );
 		} else {
-			$variant = 'wp-admin' . ( $this->is_jetpack_disconnected() ? '-disconnected' : '' );
+			$variant = ( $this->is_block_editor() ? 'gutenberg' : 'wp-admin' ) . $suffix;
 		}
 
 		$cache_key  = 'help-center-asset-' . $variant . '.asset.json';

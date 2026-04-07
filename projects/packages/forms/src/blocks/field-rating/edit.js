@@ -4,9 +4,10 @@ import {
 	RangeControl,
 } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import JetpackFieldControls from '../shared/components/jetpack-field-controls.js';
 import useFormWrapper from '../shared/hooks/use-form-wrapper.js';
+import { MAX_RATING_ICONS } from './rating-icons.js';
 
 /**
  * Rating Field Edit Component
@@ -25,7 +26,7 @@ export default function RatingFieldEdit( props ) {
 
 	// Direct update functions for rating attributes
 	const updateMax = newMax => {
-		const validatedMax = Math.min( Math.max( parseInt( newMax ) || 5, 2 ), 10 );
+		const validatedMax = Math.min( Math.max( parseInt( newMax ) || 5, 2 ), MAX_RATING_ICONS );
 		const validatedDefault = Math.min( defaultValue, validatedMax );
 		setAttributes( {
 			max: validatedMax,
@@ -91,9 +92,13 @@ export default function RatingFieldEdit( props ) {
 								<NumberControl
 									__next40pxDefaultSize
 									__unstableInputWidth="50%"
-									help={ __( 'Highest rating users can select (2–10).', 'jetpack-forms' ) }
+									help={ sprintf(
+										/* translators: %d: maximum rating value (e.g. 10) */
+										__( 'Highest rating users can select (2–%d).', 'jetpack-forms' ),
+										MAX_RATING_ICONS
+									) }
 									label={ __( 'Maximum rating', 'jetpack-forms' ) }
-									max={ 10 }
+									max={ MAX_RATING_ICONS }
 									min={ 2 }
 									onChange={ updateMax }
 									spinControls="custom"

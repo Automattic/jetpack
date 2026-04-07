@@ -1,6 +1,12 @@
 /**
  * External dependencies
  */
+import {
+	Card,
+	CardHeader,
+	CardBody,
+	__experimentalHeading as Heading, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+} from '@wordpress/components';
 import { DataForm, type Field } from '@wordpress/dataviews/wp';
 import { __ } from '@wordpress/i18n';
 /**
@@ -52,24 +58,26 @@ export function EmailReplyToSettingsSection( {
 	];
 
 	return (
-		<div className="newsletter-settings__section">
-			<h3 className="newsletter-settings__section-title">
-				{ __( 'Reply-to settings', 'jetpack-newsletter' ) }
-			</h3>
-			<fieldset className="newsletter-settings__section-content" disabled={ ! isNewsletterEnabled }>
-				<DataForm
-					data={ data }
-					fields={ fields }
-					form={ {
-						layout: {
-							type: 'regular',
-							labelPosition: 'top',
-						},
-						fields: [ 'jetpack_subscriptions_reply_to' ],
-					} }
-					onChange={ onChange }
-				/>
-			</fieldset>
-		</div>
+		<Card>
+			<CardHeader>
+				<Heading level={ 4 }>{ __( 'Reply-to settings', 'jetpack-newsletter' ) }</Heading>
+			</CardHeader>
+			<CardBody>
+				<fieldset disabled={ ! isNewsletterEnabled }>
+					<DataForm
+						data={ data }
+						fields={ fields }
+						form={ {
+							layout: {
+								type: 'regular',
+								labelPosition: 'top',
+							},
+							fields: [ 'jetpack_subscriptions_reply_to' ],
+						} }
+						onChange={ onChange }
+					/>
+				</fieldset>
+			</CardBody>
+		</Card>
 	);
 }

@@ -1,5 +1,5 @@
 <?php
-/*!
+/*
  * Jetpack CRM
  * https://jetpackcrm.com
  * V1.1.18
@@ -11,14 +11,15 @@
 
 defined( 'ZEROBSCRM_PATH' ) || exit( 0 );
 
-/* ======================================================
+/*
+======================================================
 	MIGRATION FUNCS
-   ====================================================== */
+	====================================================== */
 
 global $zeroBSCRM_migrations; $zeroBSCRM_migrations = array(
 	'288', // build client portal page (moved to shortcodes) if using
 	'2963', // 2.96.3 - installs page templates
-	'29999', // Flush permalinks 
+	'29999', // Flush permalinks
 	'411', // 4.11.0 - Ensure upload folders are secure
 	'50', // 5.0 - Alter external sources table for existing users (added origin)
 	'53', // 5.3 - Migrate all encrypted data to new encryption endpoints
@@ -37,7 +38,7 @@ global $zeroBSCRM_migrations; $zeroBSCRM_migrations = array(
 	'gh3465_increase_city_field_size',  // from gh issue 3465, increases the city field size to 200
 	'tax_rate_precision_fix', // increase tax rate precision from 2 to 10 decimal places
 	'ensure_notifications_table', // Ensure notifications table exists
-	);
+);
 
 global $zeroBSCRM_migrations_requirements; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 $zeroBSCRM_migrations_requirements = array( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
@@ -47,87 +48,98 @@ $zeroBSCRM_migrations_requirements = array( // phpcs:ignore WordPress.NamingConv
 	'55a'  => array( 'wp_loaded' ),
 );
 
-
 // mark's a migration complete
-function zeroBSCRM_migrations_markComplete($migrationKey=-1,$logObj=false){
+function zeroBSCRM_migrations_markComplete( $migrationKey = -1, $logObj = false ) {
 
 	global $zeroBSCRM_migrations;
 
-	if (!empty($migrationKey) && in_array($migrationKey, $zeroBSCRM_migrations)) {
+	if ( ! empty( $migrationKey ) && in_array( $migrationKey, $zeroBSCRM_migrations ) ) {
 
-		$completedMigrations = zeroBSCRM_migrations_getCompleted();
+		$completedMigrations   = zeroBSCRM_migrations_getCompleted();
 		$completedMigrations[] = $migrationKey;
 
 		// we're using wp options because they're reliable OUTSIDE of the scope of our settings model
-		// ... which has changed through versions 
+		// ... which has changed through versions
 		// the separation here is key, at 2.88 WH discovered much re-running + pain due to this.
 		// stick to a separate migration system (away from zbssettings)
-	    update_option('zbsmigrations',$completedMigrations, false);
+		update_option( 'zbsmigrations', $completedMigrations, false );
 
 		// log opt?
-	    update_option('zbsmigration'.$migrationKey,array('completed'=>time(),'meta'=>$logObj), false);
+		update_option(
+			'zbsmigration' . $migrationKey,
+			array(
+				'completed' => time(),
+				'meta'      => $logObj,
+			),
+			false
+		);
 
 	}
 }
 
 // gets the list of completed migrations
-function zeroBSCRM_migrations_getCompleted(){
+function zeroBSCRM_migrations_getCompleted() {
 
 	// we're using wp options because they're reliable OUTSIDE of the scope of our settings model
-	// ... which has changed through versions 
+	// ... which has changed through versions
 	// the separation here is key, at 2.88 WH discovered much re-running + pain due to this.
 	// stick to a separate migration system (away from zbssettings)
 
 	// BUT WAIT! hilariously, for those who already have finished migrations, this'll re-run them
 	// ... so here we 'MIGRATE' the migrations :o ffs
-	global $zbs; $migrations = $zbs->settings->get('migrations'); if (isset($migrations) && is_array($migrations) && count($migrations) > 0) {
-	
-		$existingMigrationsMigration = get_option( 'zbsmigrationsdal', -1);
+	global $zbs;
+	$migrations = $zbs->settings->get( 'migrations' ); if ( isset( $migrations ) && is_array( $migrations ) && count( $migrations ) > 0 ) {
 
-		if ($existingMigrationsMigration == -1){
+		$existingMigrationsMigration = get_option( 'zbsmigrationsdal', -1 );
+
+		if ( $existingMigrationsMigration == -1 ) {
 			// copy over +
 			// to stop this ever rerunning + confusing things, we set an option to say migrated the migrations, LOL
-			update_option('zbsmigrations',$migrations, false);
-			update_option('zbsmigrationsdal',2, false);
+			update_option( 'zbsmigrations', $migrations, false );
+			update_option( 'zbsmigrationsdal', 2, false );
 		}
 	}
 
 	// normal return
 	return get_option( 'zbsmigrations', array() );
-
 }
 
 // gets details on a migration
-function jpcrm_migrations_get_migration($migrationKey=''){
+function jpcrm_migrations_get_migration( $migrationKey = '' ) {
 
 	// we're using wp options because they're reliable OUTSIDE of the scope of our settings model
-	// ... which has changed through versions 
+	// ... which has changed through versions
 	// the separation here is key, at 2.88 WH discovered much re-running + pain due to this.
 	// stick to a separate migration system (away from zbssettings)
-	$finished = false; $migrations = zeroBSCRM_migrations_getCompleted(); if (in_array($migrationKey,$migrations)) $finished = true;
+	$finished   = false;
+	$migrations = zeroBSCRM_migrations_getCompleted();
+	if ( in_array( $migrationKey, $migrations ) ) {
+		$finished = true;
+	}
 
-	return array($finished,get_option('zbsmigration'.$migrationKey,false));
-
+	return array( $finished, get_option( 'zbsmigration' . $migrationKey, false ) );
 }
 
-function zeroBSCRM_migrations_run( $settingsArr = false, $run_at = 'init' ){
+function zeroBSCRM_migrations_run( $settingsArr = false, $run_at = 'init' ) {
 
-	global $zeroBSCRM_migrations,$zeroBSCRM_migrations_requirements;
+	global $zeroBSCRM_migrations, $zeroBSCRM_migrations_requirements;
 
-	    // catch migration block removal (can be run from system status):
-	    if (current_user_can('admin_zerobs_manage_options') && isset($_GET['resetmigrationblock']) && wp_verify_nonce( $_GET['_wpnonce'], 'resetmigrationblock' ) ){
+		// catch migration block removal (can be run from system status):
+	if ( current_user_can( 'admin_zerobs_manage_options' ) && isset( $_GET['resetmigrationblock'] ) && wp_verify_nonce( $_GET['_wpnonce'], 'resetmigrationblock' ) ) {
 
-	        // unblock migration blocks
-	        delete_option('zbsmigrationpreloadcatch');
-	        delete_option('zbsmigrationblockerrors');
+		// unblock migration blocks
+		delete_option( 'zbsmigrationpreloadcatch' );
+		delete_option( 'zbsmigrationblockerrors' );
 
-	        // flag
-	        $migrationBlocksRemoved = true;
-	    }
+		// flag
+		$migrationBlocksRemoved = true;
+	}
 
 	#} Check if we've been stumped by blocking errs, and STOP migrating if so
-	$blockingErrs = get_option( 'zbsmigrationblockerrors', false);
-    if ($blockingErrs !== false && !empty($blockingErrs)) return false;
+	$blockingErrs = get_option( 'zbsmigrationblockerrors', false );
+	if ( $blockingErrs !== false && ! empty( $blockingErrs ) ) {
+		return false;
+	}
 
 	#} load migrated list if not loaded
 	$migratedAlreadyArr = zeroBSCRM_migrations_getCompleted();
@@ -136,107 +148,114 @@ function zeroBSCRM_migrations_run( $settingsArr = false, $run_at = 'init' ){
 	$migrationRunCount = 0;
 
 	#} cycle through any migrations + fire if not fired.
-	if (count($zeroBSCRM_migrations) > 0) foreach ($zeroBSCRM_migrations as $migration){
+	if ( count( $zeroBSCRM_migrations ) > 0 ) {
+		foreach ( $zeroBSCRM_migrations as $migration ) {
 
-		if (!in_array($migration,$migratedAlreadyArr) && function_exists('zeroBSCRM_migration_'.$migration)) {
+			if ( ! in_array( $migration, $migratedAlreadyArr ) && function_exists( 'zeroBSCRM_migration_' . $migration ) ) {
 
-			$run = true;
+				$run = true;
 
-			// check reached state
-			if ( isset( $zeroBSCRM_migrations_requirements[$migration] ) ){
+				// check reached state
+				if ( isset( $zeroBSCRM_migrations_requirements[ $migration ] ) ) {
 
-				// 'preload' requirement means this migration needs to run AFTER a reload AFTER the previous migration
-				// ... so if preload here, we kill this loop, if prev migrations have run
-				if ( in_array( 'preload', $zeroBSCRM_migrations_requirements[$migration]) && $migrationRunCount > 0 ){
+					// 'preload' requirement means this migration needs to run AFTER a reload AFTER the previous migration
+					// ... so if preload here, we kill this loop, if prev migrations have run
+					if ( in_array( 'preload', $zeroBSCRM_migrations_requirements[ $migration ] ) && $migrationRunCount > 0 ) {
 
-					// ... as a catch to stop infinite reloads, we check whether more than 3 of these have run in a row, and we stop that.
-					$previousAttempts = get_option( 'zbsmigrationpreloadcatch', array());
-					if (!is_array($previousAttempts)) $previousAttempts = array();
-					if (!isset($previousAttempts[$migration])) $previousAttempts[$migration] = 1;
-					if ($previousAttempts[$migration] < 5){
+						// ... as a catch to stop infinite reloads, we check whether more than 3 of these have run in a row, and we stop that.
+						$previousAttempts = get_option( 'zbsmigrationpreloadcatch', array() );
+						if ( ! is_array( $previousAttempts ) ) {
+							$previousAttempts = array();
+						}
+						if ( ! isset( $previousAttempts[ $migration ] ) ) {
+							$previousAttempts[ $migration ] = 1;
+						}
+						if ( $previousAttempts[ $migration ] < 5 ) {
 
-						// update count
-						$previousAttempts[$migration]++;
-						update_option('zbsmigrationpreloadcatch', $previousAttempts, false);
+							// update count
+							++$previousAttempts[ $migration ];
+							update_option( 'zbsmigrationpreloadcatch', $previousAttempts, false );
 
-						// stop running migrations, reload the page
-						header("Refresh:0");
-						exit( 0 );
+							// stop running migrations, reload the page
+							header( 'Refresh:0' );
+							exit( 0 );
 
-					} else {
+						} else {
 
-						// set a global which'll show up on systemstatus if this state occurs.
-						update_option('zbsmigrationblockerrors', $migration, false);					
+							// set a global which'll show up on systemstatus if this state occurs.
+							update_option( 'zbsmigrationblockerrors', $migration, false );
 
-						// expose an error that the world's about to rupture
-					    add_action('after-zerobscrm-admin-init','zeroBSCRM_adminNotices_majorMigrationError');
-			    		add_action( 'admin_notices', 'zeroBSCRM_adminNotices_majorMigrationError' );
+							// expose an error that the world's about to rupture
+							add_action( 'after-zerobscrm-admin-init', 'zeroBSCRM_adminNotices_majorMigrationError' );
+							add_action( 'admin_notices', 'zeroBSCRM_adminNotices_majorMigrationError' );
 
+						}
 					}
 
-				}				
+					// assume func
+					foreach ( $zeroBSCRM_migrations_requirements[ $migration ] as $check ) {
 
-				// assume func
-				foreach ($zeroBSCRM_migrations_requirements[$migration] as $check){
+						// skip 'preload', dealt with above
+						// skip 'wp_loaded', dealt with in second run
+						if ( $check !== 'preload' && $check !== 'wp_loaded' ) {
 
-					// skip 'preload', dealt with above
-					// skip 'wp_loaded', dealt with in second run
-					if ( $check !== 'preload' && $check !== 'wp_loaded' ){
+							$checkFuncName = 'zeroBSCRM_migrations_checks_' . $check;
+							if ( ! call_user_func( $checkFuncName ) ) {
+								$run = false;
+							}
+						}
+					}
 
-						$checkFuncName = 'zeroBSCRM_migrations_checks_'.$check;
-						if (!call_user_func($checkFuncName)) $run = false;
+					// wp_loaded
+					if ( in_array( 'wp_loaded', $zeroBSCRM_migrations_requirements[ $migration ] ) ) {
 
+						$run = false;
+
+						if ( $run_at == 'wp_loaded' ) {
+							$run = true;
+						}
 					}
 				}
-				
-				// wp_loaded
-				if ( in_array( 'wp_loaded', $zeroBSCRM_migrations_requirements[$migration] ) ){
 
-					$run = false;
+				// go
+				if ( $run ) {
 
-					if ( $run_at == 'wp_loaded' ){
-						 $run = true;
-					}
+					// run migration
+					call_user_func( 'zeroBSCRM_migration_' . $migration );
+
+					// update count
+					++$migrationRunCount;
 
 				}
-
-			}
-
-			// go
-			if ($run) {
-
-				// run migration
-				call_user_func('zeroBSCRM_migration_'.$migration);
-				
-				// update count
-				$migrationRunCount++;
-
 			}
 		}
-
 	}
-
 }
 
-function zeroBSCRM_migrations_checks_postsettings(){
+function zeroBSCRM_migrations_checks_postsettings() {
 
 	global $zbs;
-	/* didn't work:
+	/*
+	didn't work:
 	if (isset($zbs->settings) && method_exists($zbs->settings,'get')){
 		$possiblyInstalled = $zbs->settings->get('settingsinstalled',true);
 		if (isset($possiblyInstalled) && $possiblyInstalled > 0) return true;
 	} */
 	// HARD DB settings check
 	try {
-		$potentialDBSetting = $zbs->DAL->getSetting(array('key' => 'settingsinstalled','fullDetails' => false));	
+		$potentialDBSetting = $zbs->DAL->getSetting(
+			array(
+				'key'         => 'settingsinstalled',
+				'fullDetails' => false,
+			)
+		);
 
-		if (isset($potentialDBSetting) && $potentialDBSetting > 0) {
+		if ( isset( $potentialDBSetting ) && $potentialDBSetting > 0 ) {
 
 			return true;
 
 		}
-
-	} catch (Exception $e){
+	} catch ( Exception $e ) {
 
 	}
 
@@ -244,47 +263,43 @@ function zeroBSCRM_migrations_checks_postsettings(){
 }
 
 // general migration mechanism error
-function zeroBSCRM_adminNotices_majorMigrationError(){
+function zeroBSCRM_adminNotices_majorMigrationError() {
 
-     //pop in a Notify Me Notification here instead....?
-	 if (get_current_user_id() > 0){
+	// pop in a Notify Me Notification here instead....?
+	if ( get_current_user_id() > 0 ) {
 
-	     // already sent?
-	     $msgSent = get_transient('zbs-migration-general-errors');
-	     if (!$msgSent){
+		// already sent?
+		$msgSent = get_transient( 'zbs-migration-general-errors' );
+		if ( ! $msgSent ) {
 
-	       zeroBSCRM_notifyme_insert_notification(get_current_user_id(), -999, -1, 'migration.blocked.errors','migration.blocked.errors');
-	       set_transient( 'zbs-migration-general-errors', 20, 24 * 7 * HOUR_IN_SECONDS );
+			zeroBSCRM_notifyme_insert_notification( get_current_user_id(), -999, -1, 'migration.blocked.errors', 'migration.blocked.errors' );
+			set_transient( 'zbs-migration-general-errors', 20, 24 * 7 * HOUR_IN_SECONDS );
 
-	    }
-
+		}
 	}
-
 }
 
-/* ======================================================
+/*
+======================================================
 	/ MIGRATION FUNCS
-   ====================================================== */
+	====================================================== */
 
-
-
-/* ======================================================
+/*
+======================================================
 	MIGRATIONS
-   ====================================================== */
+	====================================================== */
 
 	/*
 	* Migration 2.88 - build client portal page (moved to shortcodes) if using
 	*/
-	function zeroBSCRM_migration_288(){
+function zeroBSCRM_migration_288() {
 
-		global $zbs;
+	global $zbs;
 
-		zeroBSCRM_portal_checkCreatePage();
-		
-		zeroBSCRM_migrations_markComplete('288',array('updated'=>'1'));
+	zeroBSCRM_portal_checkCreatePage();
 
-	}
-
+	zeroBSCRM_migrations_markComplete( '288', array( 'updated' => '1' ) );
+}
 
 	/*
 	* Migration 2.4 - Refresh user roles
@@ -292,361 +307,352 @@ function zeroBSCRM_adminNotices_majorMigrationError(){
 	*  for v5 we combined these, though in time the need for this method of install should be done away with
 	*  Previously, migrations: 2.96.3, 2.96.4, 2.96.6, 2.97.4, 4.0.7, 4.0.8
 	*/
-	function zeroBSCRM_migration_2963(){
-		
-		global $zbs, $wpdb, $ZBSCRM_t;
+function zeroBSCRM_migration_2963() {
 
-		#} Check + create
-		zeroBSCRM_checkTablesExist();
+	global $zbs, $wpdb, $ZBSCRM_t;
 
-		#} Make the DB emails...
-		zeroBSCRM_populateEmailTemplateList();
+	#} Check + create
+	zeroBSCRM_checkTablesExist();
 
+	#} Make the DB emails...
+	zeroBSCRM_populateEmailTemplateList();
 
-		// ===== Previously: Migration 2.96.3 - adds new template for 'client portal pw reset'
+	// ===== Previously: Migration 2.96.3 - adds new template for 'client portal pw reset'
 
-		#} default is admin email and CRM name	
-		//now all done via zeroBSCRM_mailDelivery_defaultFromname
-		$from_name = zeroBSCRM_mailDelivery_defaultFromname();
+	#} default is admin email and CRM name
+	// now all done via zeroBSCRM_mailDelivery_defaultFromname
+	$from_name = zeroBSCRM_mailDelivery_defaultFromname();
 
-		/* This wasn't used in end, switched to default mail delivery opt 
-		$from_address = zeroBSCRM_mailDelivery_defaultEmail();; //default WordPress admin email ?
-		$reply_to = '';
-		$cc = ''; */
-		$deliveryMethod = zeroBSCRM_getMailDeliveryDefault(); 
-		
-		$ID = 6;
-		$reply_to = '';
-		$cc = '';
-		$bcc = '';
+	/*
+		This wasn't used in end, switched to default mail delivery opt
+	$from_address = zeroBSCRM_mailDelivery_defaultEmail();; //default WordPress admin email ?
+	$reply_to = '';
+	$cc = ''; */
+	$deliveryMethod = zeroBSCRM_getMailDeliveryDefault();
 
-		#} The email stuff...
-		$subject = __("Your Client Portal Password", 'zero-bs-crm');
-		$content = zeroBSCRM_mail_retrieveDefaultBodyTemplate('clientportalpwreset');
-		$active = 1; //1 = true..
-		if(zeroBSCRM_mailTemplate_exists($ID) == 0){
-			$content = zeroBSCRM_mailTemplate_processEmailHTML($content);
-			//zeroBSCRM_insertEmailTemplate($ID,$from_name,$from_address,$reply_to,$cc,$bcc,$subject,$content,$active);
-			zeroBSCRM_insertEmailTemplate($ID,$deliveryMethod,$bcc,$subject,$content,$active);
-		}
+	$ID       = 6;
+	$reply_to = '';
+	$cc       = '';
+	$bcc      = '';
 
-		// ===== / Previously: Migration 2.96.3
+	#} The email stuff...
+	$subject = __( 'Your Client Portal Password', 'zero-bs-crm' );
+	$content = zeroBSCRM_mail_retrieveDefaultBodyTemplate( 'clientportalpwreset' );
+	$active  = 1; // 1 = true..
+	if ( zeroBSCRM_mailTemplate_exists( $ID ) == 0 ) {
+		$content = zeroBSCRM_mailTemplate_processEmailHTML( $content );
+		// zeroBSCRM_insertEmailTemplate($ID,$from_name,$from_address,$reply_to,$cc,$bcc,$subject,$content,$active);
+		zeroBSCRM_insertEmailTemplate( $ID, $deliveryMethod, $bcc, $subject, $content, $active );
+	}
 
+	// ===== / Previously: Migration 2.96.3
 
-		// ===== Previously: last one hadn't got the html file, this ADDS file proper :)
+	// ===== Previously: last one hadn't got the html file, this ADDS file proper :)
 
-		#} default is admin email and CRM name	
-		//now all done via zeroBSCRM_mailDelivery_defaultFromname
-		$from_name = zeroBSCRM_mailDelivery_defaultFromname();
+	#} default is admin email and CRM name
+	// now all done via zeroBSCRM_mailDelivery_defaultFromname
+	$from_name = zeroBSCRM_mailDelivery_defaultFromname();
 
-		/* This wasn't used in end, switched to default mail delivery opt 
-		$from_address = zeroBSCRM_mailDelivery_defaultEmail();; //default WordPress admin email ?
-		$reply_to = '';
-		$cc = ''; */
-		$deliveryMethod = zeroBSCRM_getMailDeliveryDefault(); 
-		
-		$ID = 6;
-		$reply_to = '';
-		$cc = '';
-		$bcc = '';
+	/*
+		This wasn't used in end, switched to default mail delivery opt
+	$from_address = zeroBSCRM_mailDelivery_defaultEmail();; //default WordPress admin email ?
+	$reply_to = '';
+	$cc = ''; */
+	$deliveryMethod = zeroBSCRM_getMailDeliveryDefault();
 
-		// BRUTAL DELETE old one
-		$wpdb->delete( $ZBSCRM_t['system_mail_templates'], array( 'zbsmail_id' => $ID ) );
+	$ID       = 6;
+	$reply_to = '';
+	$cc       = '';
+	$bcc      = '';
 
-		#} The email stuff...
-		$subject = __("Your Client Portal Password", 'zero-bs-crm');
-		$content = zeroBSCRM_mail_retrieveDefaultBodyTemplate('clientportalpwreset');
-		
-		$active = 1; //1 = true..
-		if(zeroBSCRM_mailTemplate_exists($ID) == 0){
-			$content = zeroBSCRM_mailTemplate_processEmailHTML($content);
-			//zeroBSCRM_insertEmailTemplate($ID,$from_name,$from_address,$reply_to,$cc,$bcc,$subject,$content,$active);
-			zeroBSCRM_insertEmailTemplate($ID,$deliveryMethod,$bcc,$subject,$content,$active);
-		}
+	// BRUTAL DELETE old one
+	$wpdb->delete( $ZBSCRM_t['system_mail_templates'], array( 'zbsmail_id' => $ID ) );
 
-		// ===== / Previously: last one hadn't got the html file, this ADDS file proper :)
+	#} The email stuff...
+	$subject = __( 'Your Client Portal Password', 'zero-bs-crm' );
+	$content = zeroBSCRM_mail_retrieveDefaultBodyTemplate( 'clientportalpwreset' );
 
+	$active = 1; // 1 = true..
+	if ( zeroBSCRM_mailTemplate_exists( $ID ) == 0 ) {
+		$content = zeroBSCRM_mailTemplate_processEmailHTML( $content );
+		// zeroBSCRM_insertEmailTemplate($ID,$from_name,$from_address,$reply_to,$cc,$bcc,$subject,$content,$active);
+		zeroBSCRM_insertEmailTemplate( $ID, $deliveryMethod, $bcc, $subject, $content, $active );
+	}
 
-		// ===== Previously: adds template for 'invoice summary statement sent'
+	// ===== / Previously: last one hadn't got the html file, this ADDS file proper :)
 
-		#} default is admin email and CRM name	
-		//now all done via zeroBSCRM_mailDelivery_defaultFromname
-		$from_name = zeroBSCRM_mailDelivery_defaultFromname();
+	// ===== Previously: adds template for 'invoice summary statement sent'
 
-		/* This wasn't used in end, switched to default mail delivery opt 
-		$from_address = zeroBSCRM_mailDelivery_defaultEmail();; //default WordPress admin email ?
-		$reply_to = '';
-		$cc = ''; */
-		$deliveryMethod = zeroBSCRM_getMailDeliveryDefault(); 
-		
-		$ID = 7;
-		$reply_to = '';
-		$cc = '';
-		$bcc = '';
-		
-		#} The email stuff...
-		$subject = __("Your Statement", 'zero-bs-crm');
-		$content = zeroBSCRM_mail_retrieveDefaultBodyTemplate('invoicestatementsent');
+	#} default is admin email and CRM name
+	// now all done via zeroBSCRM_mailDelivery_defaultFromname
+	$from_name = zeroBSCRM_mailDelivery_defaultFromname();
 
-		// BRUTAL DELETE old one
-		$wpdb->delete( $ZBSCRM_t['system_mail_templates'], array( 'zbsmail_id' => $ID ) );
-		
-		$active = 1; //1 = true..
-		if(zeroBSCRM_mailTemplate_exists($ID) == 0){
-			$content = zeroBSCRM_mailTemplate_processEmailHTML($content);
-			//zeroBSCRM_insertEmailTemplate($ID,$from_name,$from_address,$reply_to,$cc,$bcc,$subject,$content,$active);
-			zeroBSCRM_insertEmailTemplate($ID,$deliveryMethod,$bcc,$subject,$content,$active);
-		}
+	/*
+		This wasn't used in end, switched to default mail delivery opt
+	$from_address = zeroBSCRM_mailDelivery_defaultEmail();; //default WordPress admin email ?
+	$reply_to = '';
+	$cc = ''; */
+	$deliveryMethod = zeroBSCRM_getMailDeliveryDefault();
 
-		// ===== / Previously: adds template for 'invoice summary statement sent'
+	$ID       = 7;
+	$reply_to = '';
+	$cc       = '';
+	$bcc      = '';
 
+	#} The email stuff...
+	$subject = __( 'Your Statement', 'zero-bs-crm' );
+	$content = zeroBSCRM_mail_retrieveDefaultBodyTemplate( 'invoicestatementsent' );
 
-		// ===== Previously: 2.97.4 - fixes duplicated email templates (found on 2 installs so far)
+	// BRUTAL DELETE old one
+	$wpdb->delete( $ZBSCRM_t['system_mail_templates'], array( 'zbsmail_id' => $ID ) );
 
-		// 7 template emails up to here :)
-		for ($i = 0; $i <= 7; $i++){
+	$active = 1; // 1 = true..
+	if ( zeroBSCRM_mailTemplate_exists( $ID ) == 0 ) {
+		$content = zeroBSCRM_mailTemplate_processEmailHTML( $content );
+		// zeroBSCRM_insertEmailTemplate($ID,$from_name,$from_address,$reply_to,$cc,$bcc,$subject,$content,$active);
+		zeroBSCRM_insertEmailTemplate( $ID, $deliveryMethod, $bcc, $subject, $content, $active );
+	}
 
-			// count em
-			$sql = $wpdb->prepare("SELECT ID FROM " . $ZBSCRM_t['system_mail_templates'] . " WHERE zbsmail_id = %d GROUP BY ID ORDER BY zbsmail_id DESC, zbsmail_lastupdated DESC", $i);
-			$r = $wpdb->get_results($sql, ARRAY_A);
+	// ===== / Previously: adds template for 'invoice summary statement sent'
 
-				// if too many, delete oldest (few?)
-				if (is_array($r) && count($r) > 1){
+	// ===== Previously: 2.97.4 - fixes duplicated email templates (found on 2 installs so far)
 
-					$count = 0;
+	// 7 template emails up to here :)
+	for ( $i = 0; $i <= 7; $i++ ) {
 
-					// first stays, as the above selects in order by last updated
-					foreach ($r as $x){
+		// count em
+		$sql = $wpdb->prepare( 'SELECT ID FROM ' . $ZBSCRM_t['system_mail_templates'] . ' WHERE zbsmail_id = %d GROUP BY ID ORDER BY zbsmail_id DESC, zbsmail_lastupdated DESC', $i );
+		$r   = $wpdb->get_results( $sql, ARRAY_A );
 
-						// if already got one, delete this (extra)
-						if ($count > 0){
+			// if too many, delete oldest (few?)
+		if ( is_array( $r ) && count( $r ) > 1 ) {
 
-							// BRUTAL DELETE old one
-							$wpdb->delete( $ZBSCRM_t['system_mail_templates'], array( 'ID' => $x['ID'] ) );
+			$count = 0;
 
-						}
+			// first stays, as the above selects in order by last updated
+			foreach ( $r as $x ) {
 
-						$count++;
+				// if already got one, delete this (extra)
+				if ( $count > 0 ) {
 
-					}
+					// BRUTAL DELETE old one
+					$wpdb->delete( $ZBSCRM_t['system_mail_templates'], array( 'ID' => $x['ID'] ) );
 
 				}
 
+				++$count;
+
+			}
 		}
-		
-		// ===== / Previously: 2.97.4 - fixes duplicated email templates (found on 2 installs so far)
-		
+	}
 
-		// ===== Previously: 4.0.7 - corrects outdated task notification template
+	// ===== / Previously: 2.97.4 - fixes duplicated email templates (found on 2 installs so far)
 
-		// retrieve existing template - hardtyped
-		$existingTemplate = $wpdb->get_var('SELECT zbsmail_body FROM '.$ZBSCRM_t['system_mail_templates'].' WHERE ID = 6');
+	// ===== Previously: 4.0.7 - corrects outdated task notification template
 
-		// load new
-		$newTemplate = zeroBSCRM_mail_retrieveDefaultBodyTemplate( 'tasknotification' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	// retrieve existing template - hardtyped
+	$existingTemplate = $wpdb->get_var( 'SELECT zbsmail_body FROM ' . $ZBSCRM_t['system_mail_templates'] . ' WHERE ID = 6' );
+
+	// load new
+	$newTemplate = zeroBSCRM_mail_retrieveDefaultBodyTemplate( 'tasknotification' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 	// back it up into a WP option if was different
 	if ( $existingTemplate !== $newTemplate ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 		update_option( 'jpcrm_tasknotificationtemplate', $existingTemplate, false ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 	}
 
-		// overwrite
-		$sql = "UPDATE " . $ZBSCRM_t['system_mail_templates'] . " SET zbsmail_body = %s WHERE ID = 6";
-		$q = $wpdb->prepare($sql,array($newTemplate));
-		$wpdb->query($q);
-		
-		// ===== / Previously: 4.0.7 - corrects outdated task notification template
-		
+	// overwrite
+	$sql = 'UPDATE ' . $ZBSCRM_t['system_mail_templates'] . ' SET zbsmail_body = %s WHERE ID = 6';
+	$q   = $wpdb->prepare( $sql, array( $newTemplate ) );
+	$wpdb->query( $q );
 
-		// ===== Previously: 4.0.8 - Set the default reference type for invoices & Update the existing template for email notifications (had old label)
-        
-        if ( $zbs->DAL->invoices->getFullCount() > 0 ) {
-            // The user has used the invoice module. Default reference type = manual
-            $zbs->settings->update( 'reftype', 'manual' );
-        }
+	// ===== / Previously: 4.0.7 - corrects outdated task notification template
 
+	// ===== Previously: 4.0.8 - Set the default reference type for invoices & Update the existing template for email notifications (had old label)
 
-        // Update the existing template for email notifications (had old label)     
-		global $ZBSCRM_t,$wpdb;
-
-		// retrieve existing template - hardtyped
-		$existingTemplate = $wpdb->get_var('SELECT zbsmail_body FROM '.$ZBSCRM_t['system_mail_templates'].' WHERE ID = 4');
-
-		// load new
-		$newTemplate = zeroBSCRM_mail_retrieveDefaultBodyTemplate('invoicesent');
-
-		// back it up into a WP option if was different
-	    if ($existingTemplate !== $newTemplate) update_option('jpcrm_invnotificationtemplate',$existingTemplate, false);
-
-		// overwrite
-		$sql = "UPDATE " . $ZBSCRM_t['system_mail_templates'] . " SET zbsmail_body = %s WHERE ID = 4";
-		$q = $wpdb->prepare($sql,array($newTemplate));
-		$wpdb->query($q);
-
-		// ===== / Previously: 4.0.8 - Set the default reference type for invoices & Update the existing template for email notifications (had old label)
-
-		zeroBSCRM_migrations_markComplete('2963',array('updated'=>'1'));
-
+	if ( $zbs->DAL->invoices->getFullCount() > 0 ) {
+		// The user has used the invoice module. Default reference type = manual
+		$zbs->settings->update( 'reftype', 'manual' );
 	}
 
+	// Update the existing template for email notifications (had old label)
+	global $ZBSCRM_t, $wpdb;
+
+	// retrieve existing template - hardtyped
+	$existingTemplate = $wpdb->get_var( 'SELECT zbsmail_body FROM ' . $ZBSCRM_t['system_mail_templates'] . ' WHERE ID = 4' );
+
+	// load new
+	$newTemplate = zeroBSCRM_mail_retrieveDefaultBodyTemplate( 'invoicesent' );
+
+	// back it up into a WP option if was different
+	if ( $existingTemplate !== $newTemplate ) {
+		update_option( 'jpcrm_invnotificationtemplate', $existingTemplate, false );
+	}
+
+	// overwrite
+	$sql = 'UPDATE ' . $ZBSCRM_t['system_mail_templates'] . ' SET zbsmail_body = %s WHERE ID = 4';
+	$q   = $wpdb->prepare( $sql, array( $newTemplate ) );
+	$wpdb->query( $q );
+
+	// ===== / Previously: 4.0.8 - Set the default reference type for invoices & Update the existing template for email notifications (had old label)
+
+	zeroBSCRM_migrations_markComplete( '2963', array( 'updated' => '1' ) );
+}
 
 	/*
 	* Migration 2.99.99 - set permalinks to flush (was used with v3.0 migration, left in tact as portal may be dependent)
 	*/
-	function zeroBSCRM_migration_29999(){
+function zeroBSCRM_migration_29999() {
 
-		// set permalinks to flush, this'll cause them to be refreshed on 3000 migration
-		// ... as that has preload setting
-		jpcrm_flag_for_flush_rewrite();
+	// set permalinks to flush, this'll cause them to be refreshed on 3000 migration
+	// ... as that has preload setting
+	jpcrm_flag_for_flush_rewrite();
 
-		// fini
-		zeroBSCRM_migrations_markComplete('29999',array('updated'=>1));
-
-	}
+	// fini
+	zeroBSCRM_migrations_markComplete( '29999', array( 'updated' => 1 ) );
+}
 
 	/*
 	* Migration 4.11.0 - secure upload folders
-    *  previously:
-    *  4.5.0 - Adds indexing protection to directories with potentially sensitive .html files
+	*  previously:
+	*  4.5.0 - Adds indexing protection to directories with potentially sensitive .html files
 	*  4.11.0 - secure upload folders
 	*/
-	function zeroBSCRM_migration_411(){
+function zeroBSCRM_migration_411() {
 
-		$wp_uploads_dir = wp_upload_dir();
+	$wp_uploads_dir = wp_upload_dir();
 
-		// directories to secure
-		// if these ever expand beyond this we should move the list to core & manage periodic checks
-		$directories = array(
+	// directories to secure
+	// if these ever expand beyond this we should move the list to core & manage periodic checks
+	$directories = array(
 
-			ZEROBSCRM_PATH . 'templates/',
-			ZEROBSCRM_PATH . 'templates/emails/',
-			ZEROBSCRM_PATH . 'templates/invoices/',
-			ZEROBSCRM_PATH . 'templates/quotes/',
+		ZEROBSCRM_PATH . 'templates/',
+		ZEROBSCRM_PATH . 'templates/emails/',
+		ZEROBSCRM_PATH . 'templates/invoices/',
+		ZEROBSCRM_PATH . 'templates/quotes/',
 
-			$wp_uploads_dir['basedir'] . '/' . 'zbscrm-store/_wip/',
+		$wp_uploads_dir['basedir'] . '/' . 'zbscrm-store/_wip/',
 
-		);
+	);
 
-		// secure them!
-		foreach ( $directories as $directory ){
-			jpcrm_create_and_secure_dir_from_external_access( $directory, true );
-		}
-
-		jpcrm_create_and_secure_dir_from_external_access( $wp_uploads_dir['basedir'] . '/' . 'zbscrm-store/', false );
-
-		// mark complete
-		zeroBSCRM_migrations_markComplete('411',array('updated'=>1));
-
+	// secure them!
+	foreach ( $directories as $directory ) {
+		jpcrm_create_and_secure_dir_from_external_access( $directory, true );
 	}
+
+	jpcrm_create_and_secure_dir_from_external_access( $wp_uploads_dir['basedir'] . '/' . 'zbscrm-store/', false );
+
+	// mark complete
+	zeroBSCRM_migrations_markComplete( '411', array( 'updated' => 1 ) );
+}
 
 	/*
 	* Migration 5.0 - Alter external sources table for existing users (added origin)
 	*/
-	function zeroBSCRM_migration_50(){
+function zeroBSCRM_migration_50() {
 
-		global $zbs, $wpdb, $ZBSCRM_t;
+	global $zbs, $wpdb, $ZBSCRM_t;
 
-		// external source tweak
-		if ( !zeroBSCRM_migration_tableHasColumn( $ZBSCRM_t['externalsources'], 'zbss_origin' ) ){
+	// external source tweak
+	if ( ! zeroBSCRM_migration_tableHasColumn( $ZBSCRM_t['externalsources'], 'zbss_origin' ) ) {
 
-			$sql = "ALTER TABLE " . $ZBSCRM_t['externalsources'] . " ADD COLUMN `zbss_origin` VARCHAR(400) NULL DEFAULT NULL AFTER `zbss_uid`, ADD INDEX (zbss_origin);";
-			$wpdb->query( $sql );
-
-		}
-
-		// add transaction status
-
-		// build string
-    $transaction_statuses = zeroBSCRM_getTransactionsStatuses(true);
-    $deleted_string = __( 'Deleted', 'zero-bs-crm' );
-    if ( !in_array( $deleted_string, $transaction_statuses ) ){
-      $transaction_statuses[] = $deleted_string;
-    }
-    $transaction_statuses_str = implode( ',', $transaction_statuses );
-
-    // update
-    $customisedFields = $zbs->settings->get('customisedfields');
-    $customisedFields['transactions']['status'][1] = $transaction_statuses_str;   
-    $zbs->settings->update('customisedfields',$customisedFields);
-
-
-		// mark complete
-		zeroBSCRM_migrations_markComplete( '50', array( 'updated' => 1 ) );
+		$sql = 'ALTER TABLE ' . $ZBSCRM_t['externalsources'] . ' ADD COLUMN `zbss_origin` VARCHAR(400) NULL DEFAULT NULL AFTER `zbss_uid`, ADD INDEX (zbss_origin);';
+		$wpdb->query( $sql );
 
 	}
 
+	// add transaction status
+
+	// build string
+	$transaction_statuses = zeroBSCRM_getTransactionsStatuses( true );
+	$deleted_string       = __( 'Deleted', 'zero-bs-crm' );
+	if ( ! in_array( $deleted_string, $transaction_statuses ) ) {
+		$transaction_statuses[] = $deleted_string;
+	}
+	$transaction_statuses_str = implode( ',', $transaction_statuses );
+
+	// update
+	$customisedFields                              = $zbs->settings->get( 'customisedfields' );
+	$customisedFields['transactions']['status'][1] = $transaction_statuses_str;
+	$zbs->settings->update( 'customisedfields', $customisedFields );
+
+	// mark complete
+	zeroBSCRM_migrations_markComplete( '50', array( 'updated' => 1 ) );
+}
 
 	/*
 	* 5.3 - Migrate all encrypted data to new encryption endpoints
 	*/
-	function zeroBSCRM_migration_53(){
+function zeroBSCRM_migration_53() {
 
-		global $zbs;
+	global $zbs;
 
-		// load libs
+	// load libs
 
-		// ~5.3
-		if ( ! function_exists( 'zeroBSCRM_encrypt' ) ) {
-			require( ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.Encryption.php' );
-		}
+	// ~5.3
+	if ( ! function_exists( 'zeroBSCRM_encrypt' ) ) {
+		require ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.Encryption.php';
+	}
 
-		// 5.3~
-		$zbs->load_encryption();
+	// 5.3~
+	$zbs->load_encryption();
 
-		// count
-		$successful_recryptions = 0;
+	// count
+	$successful_recryptions = 0;
 
-		// Mail Delivery methods (if any):
+	// Mail Delivery methods (if any):
 
-		// previous decrypt key
-		$decryption_key = hex2bin( zeroBSCRM_getSetting('smtpkey') );
+	// previous decrypt key
+	$decryption_key = hex2bin( zeroBSCRM_getSetting( 'smtpkey' ) );
 
-		// retrieve existing
-		$existing_mail_delivery_methods = zeroBSCRM_getSetting( 'smtpaccs' );
-		if (!is_array($existing_mail_delivery_methods)) $existing_mail_delivery_methods = array();
+	// retrieve existing
+	$existing_mail_delivery_methods = zeroBSCRM_getSetting( 'smtpaccs' );
+	if ( ! is_array( $existing_mail_delivery_methods ) ) {
+		$existing_mail_delivery_methods = array();
+	}
 
-		// cycle through them and re-encrypt
-		$replacement_delivery_methods = array();
-		foreach ( $existing_mail_delivery_methods as $method_key => $method_array ){
+	// cycle through them and re-encrypt
+	$replacement_delivery_methods = array();
+	foreach ( $existing_mail_delivery_methods as $method_key => $method_array ) {
 
-				$updated_method_array = $method_array;
+			$updated_method_array = $method_array;
 
-				if ( isset( $method_array['pass'] ) ){
+		if ( isset( $method_array['pass'] ) ) {
 
-					// decrypt (hiding deprecation notices via param)
-					$password = zeroBSCRM_encryption_unsafe_process( 'decrypt', $method_array['pass'], $decryption_key, zeroBSCRM_get_iv( true ), true );
+			// decrypt (hiding deprecation notices via param)
+			$password = zeroBSCRM_encryption_unsafe_process( 'decrypt', $method_array['pass'], $decryption_key, zeroBSCRM_get_iv( true ), true );
 
-					// This is used as a fallback because some users can still have passwords
-					// that were encrypted using the wrong IV.
-					if ( !$password ) {
-						$password = zeroBSCRM_encryption_unsafe_process( 'decrypt', $method_array['pass'], $decryption_key, $decryption_key, true );
-					}
+			// This is used as a fallback because some users can still have passwords
+			// that were encrypted using the wrong IV.
+			if ( ! $password ) {
+				$password = zeroBSCRM_encryption_unsafe_process( 'decrypt', $method_array['pass'], $decryption_key, $decryption_key, true );
+			}
 
-					if ( $password ) {
+			if ( $password ) {
 
-						// encrypt password:
-						$updated_method_array['pass'] = $zbs->encryption->encrypt( $password, 'smtp' );
+				// encrypt password:
+				$updated_method_array['pass'] = $zbs->encryption->encrypt( $password, 'smtp' );
 
-					} else {
+			} else {
 
-						// keep existing ciphertext; likely already updated but otherwise corrupt
-						$updated_method_array['pass'] = $method_array['pass'];
+				// keep existing ciphertext; likely already updated but otherwise corrupt
+				$updated_method_array['pass'] = $method_array['pass'];
 
-					}
+			}
 
-					$successful_recryptions++;
-
-				}
-
-				$replacement_delivery_methods[ $method_key ] = $updated_method_array;
+			++$successful_recryptions;
 
 		}
 
-		// update em
-		$zbs->settings->update( 'smtpaccs', $replacement_delivery_methods );
+			$replacement_delivery_methods[ $method_key ] = $updated_method_array;
 
-		// There was some old usage of pwmanager on companys with CPTs, for now we're skipping support.
-		// $pws = get_post_meta($id,$zbsPasswordManager['dbkey'],true);
+	}
+
+	// update em
+	$zbs->settings->update( 'smtpaccs', $replacement_delivery_methods );
+
+	// There was some old usage of pwmanager on companys with CPTs, for now we're skipping support.
+	// $pws = get_post_meta($id,$zbsPasswordManager['dbkey'],true);
 
 	// hash secret if not already hashed
 	$api_secret = $zbs->DAL->setting( 'api_secret' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
@@ -655,233 +661,222 @@ function zeroBSCRM_adminNotices_majorMigrationError(){
 		$zbs->DAL->updateSetting( 'api_secret', $hashed_api_secret ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 	}
 
-		global $wpdb, $ZBSCRM_t;
-		// add indexes for performance
-		if ( jpcrm_database_server_has_ability('fulltext_index') && !jpcrm_migration_table_has_index( $ZBSCRM_t['customfields'], 'search' ) ) {
-			$sql = 'ALTER TABLE ' . $ZBSCRM_t['customfields'] . ' ADD FULLTEXT INDEX `search` (`zbscf_objval`);';
-			$wpdb->query( $sql );
-		}
-		if ( !jpcrm_migration_table_has_index( $ZBSCRM_t['taglinks'], 'zbstl_tagid+zbstl_objtype' ) ) {
-			$sql = 'ALTER TABLE ' . $ZBSCRM_t['taglinks'] . ' ADD INDEX `zbstl_tagid+zbstl_objtype` (`zbstl_tagid`,`zbstl_objtype`) USING BTREE;';
-			$wpdb->query( $sql );
-		}
-		if ( !jpcrm_migration_table_has_index( $ZBSCRM_t['externalsources'], 'zbss_uid+zbss_source+zbss_objtype' ) ) {
-			$sql = 'ALTER TABLE ' . $ZBSCRM_t['externalsources'] . ' ADD INDEX `zbss_uid+zbss_source+zbss_objtype` (`zbss_uid`,`zbss_source`,`zbss_objtype`) USING BTREE;';
-			$wpdb->query( $sql );
-		}
-		if ( !jpcrm_migration_table_has_index( $ZBSCRM_t['meta'], 'zbsm_objid+zbsm_key+zbsm_objtype' ) ) {
-			$sql = 'ALTER TABLE ' . $ZBSCRM_t['meta'] . ' ADD INDEX `zbsm_objid+zbsm_key+zbsm_objtype` (`zbsm_objid`,`zbsm_key`,`zbsm_objtype`) USING BTREE;';
-			$wpdb->query( $sql );
-		}
-		if ( !jpcrm_migration_table_has_index( $ZBSCRM_t['logs'], 'zbsl_created' ) ) {
-			$sql = 'ALTER TABLE ' . $ZBSCRM_t['logs'] . ' ADD INDEX `zbsl_created` (`zbsl_created`) USING BTREE;';
-			$wpdb->query( $sql );
-		}
-		if ( !jpcrm_migration_table_has_index( $ZBSCRM_t['contacts'], 'zbsc_status' ) ) {
-			$sql = 'ALTER TABLE ' . $ZBSCRM_t['contacts'] . ' ADD INDEX `zbsc_status` (`zbsc_status`) USING BTREE;';
-			$wpdb->query( $sql );
-		}
-
-		// remove errant .htaccess file
-		$wp_uploads_dir = wp_upload_dir();
-		$errant_htaccess = $wp_uploads_dir['basedir'] . '/' . 'zbscrm-store/.htaccess';
-		if ( file_exists( $errant_htaccess ) ) {
-			unlink( $errant_htaccess );
-		}
-		// mark complete
-		zeroBSCRM_migrations_markComplete( '53', array( 'updated' => $successful_recryptions ) );
-
+	global $wpdb, $ZBSCRM_t;
+	// add indexes for performance
+	if ( jpcrm_database_server_has_ability( 'fulltext_index' ) && ! jpcrm_migration_table_has_index( $ZBSCRM_t['customfields'], 'search' ) ) {
+		$sql = 'ALTER TABLE ' . $ZBSCRM_t['customfields'] . ' ADD FULLTEXT INDEX `search` (`zbscf_objval`);';
+		$wpdb->query( $sql );
 	}
+	if ( ! jpcrm_migration_table_has_index( $ZBSCRM_t['taglinks'], 'zbstl_tagid+zbstl_objtype' ) ) {
+		$sql = 'ALTER TABLE ' . $ZBSCRM_t['taglinks'] . ' ADD INDEX `zbstl_tagid+zbstl_objtype` (`zbstl_tagid`,`zbstl_objtype`) USING BTREE;';
+		$wpdb->query( $sql );
+	}
+	if ( ! jpcrm_migration_table_has_index( $ZBSCRM_t['externalsources'], 'zbss_uid+zbss_source+zbss_objtype' ) ) {
+		$sql = 'ALTER TABLE ' . $ZBSCRM_t['externalsources'] . ' ADD INDEX `zbss_uid+zbss_source+zbss_objtype` (`zbss_uid`,`zbss_source`,`zbss_objtype`) USING BTREE;';
+		$wpdb->query( $sql );
+	}
+	if ( ! jpcrm_migration_table_has_index( $ZBSCRM_t['meta'], 'zbsm_objid+zbsm_key+zbsm_objtype' ) ) {
+		$sql = 'ALTER TABLE ' . $ZBSCRM_t['meta'] . ' ADD INDEX `zbsm_objid+zbsm_key+zbsm_objtype` (`zbsm_objid`,`zbsm_key`,`zbsm_objtype`) USING BTREE;';
+		$wpdb->query( $sql );
+	}
+	if ( ! jpcrm_migration_table_has_index( $ZBSCRM_t['logs'], 'zbsl_created' ) ) {
+		$sql = 'ALTER TABLE ' . $ZBSCRM_t['logs'] . ' ADD INDEX `zbsl_created` (`zbsl_created`) USING BTREE;';
+		$wpdb->query( $sql );
+	}
+	if ( ! jpcrm_migration_table_has_index( $ZBSCRM_t['contacts'], 'zbsc_status' ) ) {
+		$sql = 'ALTER TABLE ' . $ZBSCRM_t['contacts'] . ' ADD INDEX `zbsc_status` (`zbsc_status`) USING BTREE;';
+		$wpdb->query( $sql );
+	}
+
+	// remove errant .htaccess file
+	$wp_uploads_dir  = wp_upload_dir();
+	$errant_htaccess = $wp_uploads_dir['basedir'] . '/' . 'zbscrm-store/.htaccess';
+	if ( file_exists( $errant_htaccess ) ) {
+		unlink( $errant_htaccess );
+	}
+	// mark complete
+	zeroBSCRM_migrations_markComplete( '53', array( 'updated' => $successful_recryptions ) );
+}
 
 	/*
 	* Migration 5.4
-  * - Support pinned logs.
-  * - Migrate all log meta stored in old dehydrated fashion. (Will do in 1k chunks until finished.)
+ * - Support pinned logs.
+ * - Migrate all log meta stored in old dehydrated fashion. (Will do in 1k chunks until finished.)
 	*/
-	function zeroBSCRM_migration_54(){
+function zeroBSCRM_migration_54() {
 
-		global $zbs, $wpdb, $ZBSCRM_t;
+	global $zbs, $wpdb, $ZBSCRM_t;
 
-		// add zbsl_pinned to log table if not existing
-		if ( !zeroBSCRM_migration_tableHasColumn( $ZBSCRM_t['logs'], 'zbsl_pinned' ) ) {
-			$sql = 'ALTER TABLE ' . $ZBSCRM_t['logs'] . ' ADD `zbsl_pinned` int(1) NULL AFTER `zbsl_longdesc`;';
-			$wpdb->query( $sql );
-		}
+	// add zbsl_pinned to log table if not existing
+	if ( ! zeroBSCRM_migration_tableHasColumn( $ZBSCRM_t['logs'], 'zbsl_pinned' ) ) {
+		$sql = 'ALTER TABLE ' . $ZBSCRM_t['logs'] . ' ADD `zbsl_pinned` int(1) NULL AFTER `zbsl_longdesc`;';
+		$wpdb->query( $sql );
+	}
 
-		// get outdated log meta count
-		$outdated_log_meta_count = (int)$wpdb->get_var( 'SELECT COUNT(ID) FROM ' . $ZBSCRM_t['meta'] . ' WHERE zbsm_objtype = 8 AND zbsm_key = "logmeta"' );
+	// get outdated log meta count
+	$outdated_log_meta_count = (int) $wpdb->get_var( 'SELECT COUNT(ID) FROM ' . $ZBSCRM_t['meta'] . ' WHERE zbsm_objtype = 8 AND zbsm_key = "logmeta"' );
 
-		if ( $outdated_log_meta_count > 0 ) {
+	if ( $outdated_log_meta_count > 0 ) {
 
-			// get outdated meta records
-			$outdated_log_meta_records = $wpdb->get_results( 'SELECT * FROM ' . $ZBSCRM_t['meta'] . ' WHERE zbsm_objtype = 8 AND zbsm_key = "logmeta" ORDER BY ID DESC LIMIT 5000' );
+		// get outdated meta records
+		$outdated_log_meta_records = $wpdb->get_results( 'SELECT * FROM ' . $ZBSCRM_t['meta'] . ' WHERE zbsm_objtype = 8 AND zbsm_key = "logmeta" ORDER BY ID DESC LIMIT 5000' );
 
-			foreach ( $outdated_log_meta_records as $log_record ){
+		foreach ( $outdated_log_meta_records as $log_record ) {
 
-				// hydrate - Note that `[]` doesn't hydrate into array with this
-				$log_meta = $zbs->DAL->decodeIfJSON( $zbs->DAL->stripSlashes( $log_record->zbsm_val ) );
+			// hydrate - Note that `[]` doesn't hydrate into array with this
+			$log_meta = $zbs->DAL->decodeIfJSON( $zbs->DAL->stripSlashes( $log_record->zbsm_val ) );
 
-				// insert new line foreach meta
-				if ( is_array( $log_meta ) ){
+			// insert new line foreach meta
+			if ( is_array( $log_meta ) ) {
 
-					foreach ( $log_meta as $key => $value ){
+				foreach ( $log_meta as $key => $value ) {
 
-						$zbs->DAL->updateMeta( ZBS_TYPE_LOG, $log_record->zbsm_objid, $zbs->DAL->makeSlug( $key ), $value );
-
-					}
+					$zbs->DAL->updateMeta( ZBS_TYPE_LOG, $log_record->zbsm_objid, $zbs->DAL->makeSlug( $key ), $value );
 
 				}
-
-				// delete old 'dehydrated whole' line
-				zeroBSCRM_db2_deleteGeneric( $log_record->ID, 'meta' );
-
 			}
 
-			// any left?
-			$outdated_log_meta_count = (int)$wpdb->get_var( 'SELECT COUNT(ID) FROM ' . $ZBSCRM_t['meta'] . ' WHERE zbsm_objtype = 8 AND zbsm_key = "logmeta"' );
+			// delete old 'dehydrated whole' line
+			zeroBSCRM_db2_deleteGeneric( $log_record->ID, 'meta' );
 
 		}
 
-		if ( $outdated_log_meta_count == 0 ){
-
-			// mark complete
-			zeroBSCRM_migrations_markComplete( '54', array( 'updated' => 1 ) );
-
-		}
+		// any left?
+		$outdated_log_meta_count = (int) $wpdb->get_var( 'SELECT COUNT(ID) FROM ' . $ZBSCRM_t['meta'] . ' WHERE zbsm_objtype = 8 AND zbsm_key = "logmeta"' );
 
 	}
+
+	if ( $outdated_log_meta_count == 0 ) {
+
+		// mark complete
+		zeroBSCRM_migrations_markComplete( '54', array( 'updated' => 1 ) );
+
+	}
+}
 
 	/*
 	* Migration 5.4.3
 	* - Removes unwanted .htaccess files
 	*/
-	function zeroBSCRM_migration_543() {
-		// recursively deletes all .htaccess files starting from the root storage folder 
-		$root_storage = zeroBSCRM_privatisedDirCheck();
-		if ( $root_storage !== false ) {
-			$recursive_file_iterator = new RecursiveIteratorIterator( new RecursiveDirectoryIterator( $root_storage['path'] ) );
-			$htaccess_files          = array();
+function zeroBSCRM_migration_543() {
+	// recursively deletes all .htaccess files starting from the root storage folder
+	$root_storage = zeroBSCRM_privatisedDirCheck();
+	if ( $root_storage !== false ) {
+		$recursive_file_iterator = new RecursiveIteratorIterator( new RecursiveDirectoryIterator( $root_storage['path'] ) );
+		$htaccess_files          = array();
 
-			foreach ( $recursive_file_iterator as $file ) {
-				if ( $file->isDir() || $file->getBasename() != '.htaccess' ) {
-					continue;
-				}
-				$htaccess_files[] = $file->getPathname();
+		foreach ( $recursive_file_iterator as $file ) {
+			if ( $file->isDir() || $file->getBasename() != '.htaccess' ) {
+				continue;
 			}
-
-			foreach ( $htaccess_files as $errant_htaccess ) {
-				if ( is_file( $errant_htaccess ) ){
-						unlink( $errant_htaccess );
-				}
-			}
+			$htaccess_files[] = $file->getPathname();
 		}
 
-		// mark this migration as complete
-		zeroBSCRM_migrations_markComplete( '543', array( 'updated' => 1 ) );
+		foreach ( $htaccess_files as $errant_htaccess ) {
+			if ( is_file( $errant_htaccess ) ) {
+					unlink( $errant_htaccess );
+			}
+		}
 	}
+
+	// mark this migration as complete
+	zeroBSCRM_migrations_markComplete( '543', array( 'updated' => 1 ) );
+}
 
 	/*
 	* Migration 5.4.4
 	* - Forces re-install of default fonts (moved to new JPCRM storage folder)
 	*/
-	function zeroBSCRM_migration_544(){
+function zeroBSCRM_migration_544() {
 
-		global $zbs;
+	global $zbs;
 
-		// font reinstall
-		$shouldBeInstalled = zeroBSCRM_getSetting( 'feat_pdfinv' );
-		if ( $shouldBeInstalled == "1" ){
+	// font reinstall
+	$shouldBeInstalled = zeroBSCRM_getSetting( 'feat_pdfinv' );
+	if ( $shouldBeInstalled == '1' ) {
 
-			// force reinstall of fonts
-			$fonts = $zbs->get_fonts();
-			if ( !$fonts->extract_and_install_default_fonts() ) {
-				return false;
-			}
-
+		// force reinstall of fonts
+		$fonts = $zbs->get_fonts();
+		if ( ! $fonts->extract_and_install_default_fonts() ) {
+			return false;
 		}
-
-		// mark complete
-		zeroBSCRM_migrations_markComplete( '544', array( 'updated' => 1 ) );
-
 	}
+
+	// mark complete
+	zeroBSCRM_migrations_markComplete( '544', array( 'updated' => 1 ) );
+}
 
 	/*
 	* Migration 5.5
 	* - Deletes orphaned rows linked to invoices in the objlinks table
 	*/
-	function zeroBSCRM_migration_55() {
+function zeroBSCRM_migration_55() {
 
-		global $zbs, $wpdb, $ZBSCRM_t;
+	global $zbs, $wpdb, $ZBSCRM_t;
 
-		// Deletes links when missing invoices are the 'to' object
-		$wpdb->query(
-				' DELETE FROM ' . $ZBSCRM_t['objlinks']
-			. ' WHERE '
-			. ' zbsol_objtype_to = ' . ZBS_TYPE_INVOICE
-			. ' AND zbsol_objid_to NOT IN ( SELECT ID from ' . $ZBSCRM_t['invoices'] . ' ) '
-		);
+	// Deletes links when missing invoices are the 'to' object
+	$wpdb->query(
+		' DELETE FROM ' . $ZBSCRM_t['objlinks']
+		. ' WHERE '
+		. ' zbsol_objtype_to = ' . ZBS_TYPE_INVOICE
+		. ' AND zbsol_objid_to NOT IN ( SELECT ID from ' . $ZBSCRM_t['invoices'] . ' ) '
+	);
 
-		// Deletes links when missing invoices are the 'from' object
-		$wpdb->query(
-				' DELETE FROM ' . $ZBSCRM_t['objlinks']
-			. ' WHERE '
-			. ' zbsol_objtype_from = ' . ZBS_TYPE_INVOICE
-			. ' AND zbsol_objid_from NOT IN ( SELECT ID from ' . $ZBSCRM_t['invoices'] . ' ) '
-		);
+	// Deletes links when missing invoices are the 'from' object
+	$wpdb->query(
+		' DELETE FROM ' . $ZBSCRM_t['objlinks']
+		. ' WHERE '
+		. ' zbsol_objtype_from = ' . ZBS_TYPE_INVOICE
+		. ' AND zbsol_objid_from NOT IN ( SELECT ID from ' . $ZBSCRM_t['invoices'] . ' ) '
+	);
 
-		// Deletes orphaned line items
-		$wpdb->query(
-			  ' DELETE FROM ' . $ZBSCRM_t['lineitems'] . ' WHERE ID NOT IN'
-			. ' ('
-			. '   SELECT zbsol_objid_from FROM ' . $ZBSCRM_t['objlinks']
-			. '   WHERE '
-			. '    zbsol_objtype_from = ' . ZBS_TYPE_LINEITEM
-			. ' )'
-		);
+	// Deletes orphaned line items
+	$wpdb->query(
+		' DELETE FROM ' . $ZBSCRM_t['lineitems'] . ' WHERE ID NOT IN'
+		. ' ('
+		. '   SELECT zbsol_objid_from FROM ' . $ZBSCRM_t['objlinks']
+		. '   WHERE '
+		. '    zbsol_objtype_from = ' . ZBS_TYPE_LINEITEM
+		. ' )'
+	);
 
-		// mark complete
-		zeroBSCRM_migrations_markComplete( '55', array( 'updated' => 1 ) );
-
-	}
+	// mark complete
+	zeroBSCRM_migrations_markComplete( '55', array( 'updated' => 1 ) );
+}
 
 	/*
 	* Migration 5.5a
 	* Recompiles segments, runs on later schedule (wp_loaded)
 	*/
-	function zeroBSCRM_migration_55a(){
+function zeroBSCRM_migration_55a() {
 
-		global $zbs;
+	global $zbs;
 
-		// recompile segments with new condition names
-		$zbs->DAL->segments->compile_all_segments();
+	// recompile segments with new condition names
+	$zbs->DAL->segments->compile_all_segments();
 
-		// mark complete
-		zeroBSCRM_migrations_markComplete( '55a', array( 'updated' => 1 ) );
-
-
-	}
-
-
+	// mark complete
+	zeroBSCRM_migrations_markComplete( '55a', array( 'updated' => 1 ) );
+}
 
 	/*
 	* Migration 5.5.1
 	* - Deletes orphaned aka rows linked to contacts since deleted
 	*/
-	function zeroBSCRM_migration_551() {
+function zeroBSCRM_migration_551() {
 
-		global $zbs, $wpdb, $ZBSCRM_t;
+	global $zbs, $wpdb, $ZBSCRM_t;
 
-		// Deletes orphaned aka rows
-		$wpdb->query(
-			  'DELETE FROM ' . $ZBSCRM_t['aka'] 
-			  . ' WHERE aka_type = ' . ZBS_TYPE_CONTACT . ' AND aka_id NOT IN'
-			  . ' (SELECT id FROM ' . $ZBSCRM_t['contacts'] . ')'
-		);
+	// Deletes orphaned aka rows
+	$wpdb->query(
+		'DELETE FROM ' . $ZBSCRM_t['aka']
+			. ' WHERE aka_type = ' . ZBS_TYPE_CONTACT . ' AND aka_id NOT IN'
+			. ' (SELECT id FROM ' . $ZBSCRM_t['contacts'] . ')'
+	);
 
-		// mark complete
-		zeroBSCRM_migrations_markComplete( '551', array( 'updated' => 1 ) );
-
-	}
+	// mark complete
+	zeroBSCRM_migrations_markComplete( '551', array( 'updated' => 1 ) );
+}
 
 /**
  * Migration 5.6.0
@@ -1353,98 +1348,101 @@ function zeroBSCRM_migration_ensure_notifications_table() {
 	return true;
 }
 
-/* ======================================================
+/*
+======================================================
 	/ MIGRATIONS
-   ====================================================== */
+	====================================================== */
 
+/*
+======================================================
+	MIGRATION Helpers
+	====================================================== */
 
-/* ======================================================
-   MIGRATION Helpers
-   ====================================================== */
+	// simplistic arr manager
+function zeroBSCRM_migration_addErrToStack( $err = array(), $errKey = '' ) {
 
-   // simplistic arr manager
-   function zeroBSCRM_migration_addErrToStack($err=array(),$errKey=''){
+	if ( $errKey !== '' ) {
 
-   		if ($errKey !== ''){
+			$existing = get_option( $errKey, array() );
 
-   			$existing = get_option($errKey, array());
+			// catch err in err stack.
+		if ( ! is_array( $existing ) ) {
+			$existing = array();
+		}
 
-   			// catch err in err stack.
-   			if (!is_array($existing)) $existing = array();
-
-   			// add + update
-   			$existing[] = $err;
-			update_option( $errKey, $existing, false);
+			// add + update
+			$existing[] = $err;
+			update_option( $errKey, $existing, false );
 
 			return true;
 
-   		}
+	}
 
-   		return false;
-   }
+	return false;
+}
 
-   // checks if a column already exists
-   // note $tableName is used unchecked
-   function zeroBSCRM_migration_tableHasColumn( $table_name, $column_name ){
+	// checks if a column already exists
+	// note $tableName is used unchecked
+function zeroBSCRM_migration_tableHasColumn( $table_name, $column_name ) {
 
-   		global $wpdb;
+	global $wpdb;
 
-   		if ( !empty( $table_name ) && !empty( $column_name ) ){
+	if ( ! empty( $table_name ) && ! empty( $column_name ) ) {
 
-   			$query = $wpdb->prepare( "SHOW COLUMNS FROM " . $table_name . " LIKE %s", $column_name );
-	
-	   		$row = $wpdb->get_results( $query );
-			
-			if ( is_array( $row ) && count( $row ) > 0 ){
+			$query = $wpdb->prepare( 'SHOW COLUMNS FROM ' . $table_name . ' LIKE %s', $column_name );
 
-				return true;
+			$row = $wpdb->get_results( $query );
 
-			}
-
-		}
-
-		return false;
-
-   }
-
-   /*
-   * Verifies if a mysql table has an index named X
-   */
-   function jpcrm_migration_table_has_index( $table_name, $index_name ){
-
-   		global $wpdb;
-
-		$query = $wpdb->prepare( "SHOW INDEX FROM " . $table_name . " WHERE Key_name = %s", $index_name );
-		$row = $wpdb->get_results( $query );
-
-		if ( is_array( $row ) && count( $row ) > 0){
+		if ( is_array( $row ) && count( $row ) > 0 ) {
 
 			return true;
 
 		}
+	}
 
-		return false;
-		
-   }
+	return false;
+}
 
-   /**
-	* Retrieves the data typo of the given colemn name in the given table name.
-	* It's worth noting that it will have the size of the field too, so `int(10)`
-	* rather than just `int`.
-	*
-	* @param $table_name string The table name to query.
-	* @param $column_name string The column name to query.
-	*
-	* @return string|false The column type as a string, or `false` on failure.
+	/*
+	* Verifies if a mysql table has an index named X
 	*/
-   function zeraBSCRM_migration_get_column_data_type( $table_name, $column_name ) {
-	   global $wpdb;
+function jpcrm_migration_table_has_index( $table_name, $index_name ) {
 
-	   $column = $wpdb->get_row( $wpdb->prepare( 
-		   "SHOW COLUMNS FROM $table_name LIKE %s",
-		   $column_name ) );
-	   return empty( $column ) ? false : $column->Type;
-   }
+	global $wpdb;
+
+	$query = $wpdb->prepare( 'SHOW INDEX FROM ' . $table_name . ' WHERE Key_name = %s', $index_name );
+	$row   = $wpdb->get_results( $query );
+
+	if ( is_array( $row ) && count( $row ) > 0 ) {
+
+			return true;
+
+	}
+
+	return false;
+}
+
+	/**
+	 * Retrieves the data typo of the given colemn name in the given table name.
+	 * It's worth noting that it will have the size of the field too, so `int(10)`
+	 * rather than just `int`.
+	 *
+	 * @param $table_name string The table name to query.
+	 * @param $column_name string The column name to query.
+	 *
+	 * @return string|false The column type as a string, or `false` on failure.
+	 */
+function zeraBSCRM_migration_get_column_data_type( $table_name, $column_name ) {
+	global $wpdb;
+
+	$column = $wpdb->get_row(
+		$wpdb->prepare(
+			"SHOW COLUMNS FROM $table_name LIKE %s",
+			$column_name
+		)
+	);
+	return empty( $column ) ? false : $column->Type;
+}
 
 /**
  * Loads everything needed to use the WP_Filesystem_Direct class.
@@ -1519,6 +1517,7 @@ function jpcrm_migration_regenerate_tag_slugs_for_obj_type( int $obj_type_id ) {
 	}
 }
 
-/* ======================================================
-   / MIGRATION Helpers
-   ====================================================== */
+/*
+======================================================
+	/ MIGRATION Helpers
+	====================================================== */

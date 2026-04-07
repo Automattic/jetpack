@@ -9,7 +9,7 @@ import { ConnectionStatus } from '../connection-management/connection-status';
 import { Disconnect } from '../connection-management/disconnect';
 import { MarkAsShared } from '../connection-management/mark-as-shared';
 import styles from './style.module.scss';
-import { SupportedService } from './use-supported-services';
+import { SupportedService } from './types';
 
 export type ServiceConnectionInfoProps = {
 	connection: Connection;

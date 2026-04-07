@@ -46,6 +46,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 				'marketing_redirect_slug' => 'org-spam',
 				'title'                   => __( 'Akismet Spam Protection', 'jetpack-forms' ),
 				'subtitle'                => __( 'Akismet filters out form spam with 99% accuracy', 'jetpack-forms' ),
+				'active_tooltip'          => __( 'This form is protected with Akismet spam protection.', 'jetpack-forms' ),
 				// Overriding this may automatically enable/disable the integration when editing a form.
 				'enabled_by_default'      => false,
 				'icon_url'                => trailingslashit( Jetpack_Forms::assets_url() ) . 'images/integrations/akismet.svg',
@@ -57,6 +58,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 				'marketing_redirect_slug' => 'org-crm',
 				'title'                   => __( 'Jetpack CRM', 'jetpack-forms' ),
 				'subtitle'                => __( 'Store contact form submissions in your CRM', 'jetpack-forms' ),
+				'active_tooltip'          => __( 'Jetpack CRM is connected for this form.', 'jetpack-forms' ),
 				// Overriding this may automatically enable/disable the integration when editing a form.
 				'enabled_by_default'      => false,
 				'icon_url'                => trailingslashit( Jetpack_Forms::assets_url() ) . 'images/integrations/zero-bs-crm.svg',
@@ -68,6 +70,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 				'marketing_redirect_slug' => null,
 				'title'                   => __( 'Salesforce', 'jetpack-forms' ),
 				'subtitle'                => __( 'Send form contacts to Salesforce', 'jetpack-forms' ),
+				'active_tooltip'          => __( 'Salesforce is connected for this form.', 'jetpack-forms' ),
 				// Overriding this may automatically enable/disable the integration when editing a form.
 				'enabled_by_default'      => false,
 				'icon_url'                => trailingslashit( Jetpack_Forms::assets_url() ) . 'images/integrations/salesforce.svg',
@@ -79,6 +82,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 				'marketing_redirect_slug' => null,
 				'title'                   => __( 'Google Sheets', 'jetpack-forms' ),
 				'subtitle'                => __( 'Export form responses to Google Sheets.', 'jetpack-forms' ),
+				'active_tooltip'          => __( 'Google Sheets is connected for this form.', 'jetpack-forms' ),
 				// Overriding this may automatically enable/disable the integration when editing a form.
 				'enabled_by_default'      => false,
 				'icon_url'                => trailingslashit( Jetpack_Forms::assets_url() ) . 'images/integrations/google-drive.svg',
@@ -90,6 +94,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 				'marketing_redirect_slug' => 'org-mailpoet',
 				'title'                   => __( 'MailPoet email marketing', 'jetpack-forms' ),
 				'subtitle'                => __( 'Send newsletters and marketing emails directly from your site.', 'jetpack-forms' ),
+				'active_tooltip'          => __( 'MailPoet is connected for this form.', 'jetpack-forms' ),
 				// Overriding this may automatically enable/disable the integration when editing a form.
 				'enabled_by_default'      => false,
 				'icon_url'                => trailingslashit( Jetpack_Forms::assets_url() ) . 'images/integrations/mailpoet.svg',
@@ -105,6 +110,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 				'marketing_redirect_slug' => 'hostinger-reach',
 				'title'                   => __( 'Hostinger Reach', 'jetpack-forms' ),
 				'subtitle'                => __( 'Send newsletters and marketing emails via Hostinger Reach.', 'jetpack-forms' ),
+				'active_tooltip'          => __( 'Hostinger Reach is connected for this form.', 'jetpack-forms' ),
 				// Overriding this may automatically enable/disable the integration when editing a form.
 				'enabled_by_default'      => false,
 				'icon_url'                => trailingslashit( Jetpack_Forms::assets_url() ) . 'images/integrations/hostinger-reach.svg',
@@ -128,6 +134,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 		 *                            - marketing_redirect_slug (string|null) : Redirect slug for marketing links, or null.
 		 *                            - title (string)                 : Default UI title for the integration.
 		 *                            - subtitle (string)              : Default UI subtitle/description for the integration.
+		 *                            - active_tooltip (string)        : Tooltip copy for when the integration is active/connected.
 		 *                            - enabled_by_default (bool)      : Whether the integration is enabled by default on new forms.
 		 *                            - icon_url (string|null)         : Absolute URL to an icon to display in the UI.
 		 */
@@ -300,6 +307,17 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			)
 		);
 
+		// Dismiss the classic forms notice.
+		register_rest_route(
+			$this->namespace,
+			$this->rest_base . '/dismiss-classic-forms-notice',
+			array(
+				'methods'             => \WP_REST_Server::CREATABLE,
+				'callback'            => array( $this, 'dismiss_classic_forms_notice' ),
+				'permission_callback' => array( $this, 'get_items_permissions_check' ),
+			)
+		);
+
 		// Get optimized status counts.
 		register_rest_route(
 			$this->namespace,
@@ -345,6 +363,49 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			)
 		);
 	}
+	/**
+	 * Get source array from post IDs
+	 *
+	 * @param array $post_ids Array of post IDs.
+	 *
+	 * @return array Array of sources.
+	 */
+	private static function get_source_array( $post_ids ) {
+		if ( empty( $post_ids ) ) {
+			return array();
+		}
+
+		$source_query = new WP_Query(
+			array(
+				'post__in'       => $post_ids,
+				'post_status'    => array( 'publish', 'draft', 'pending', 'future', 'private', 'inherit', 'trash' ),
+				'post_type'      => 'any',
+				'orderby'        => 'post_title',
+				'order'          => 'ASC',
+				'posts_per_page' => count( $post_ids ), // Retrieve all in the post_ids array but no more than that.
+			)
+		);
+
+		return array_map(
+			static function ( $post ) {
+				$permalink = get_permalink( $post->ID );
+				if ( $permalink === false ) {
+					$permalink = '';
+				}
+				$status = get_post_status( $post );
+				$title  = get_the_title( $post->ID );
+				if ( 'trash' === $status ) {
+					$title = sprintf( /* translators: %s: post title */ __( '(trashed) %s', 'jetpack-forms' ), $title );
+				}
+				return array(
+					'id'    => $post->ID,
+					'title' => $title,
+					'url'   => $permalink,
+				);
+			},
+			$source_query->posts
+		);
+	}
 
 	/**
 	 * Retrieves all distinct sources (posts) and all the distinct available dates that
@@ -367,6 +428,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 		$source_ids = Contact_Form_Plugin::get_all_parent_post_ids(
 			array_diff_key( array( 'post_status' => array( 'draft', 'publish', 'spam', 'trash' ) ), array( 'post_parent' => '' ) )
 		);
+
 		return rest_ensure_response(
 			array(
 				'date'   => array_map(
@@ -378,16 +440,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 					},
 					$months
 				),
-				'source' => array_map(
-					static function ( $post_id ) {
-						return array(
-							'id'    => $post_id,
-							'title' => get_the_title( $post_id ),
-							'url'   => get_permalink( $post_id ),
-						);
-					},
-					$source_ids
-				),
+				'source' => self::get_source_array( $source_ids ),
 			)
 		);
 	}
@@ -573,6 +626,36 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			'context'     => array( 'view', 'edit', 'embed' ),
 			'arg_options' => array(
 				'sanitize_callback' => 'sanitize_text_field',
+			),
+			'readonly'    => true,
+		);
+
+		$schema['properties']['logged_in_user'] = array(
+			'description' => __( 'The logged-in user who submitted the form, if any.', 'jetpack-forms' ),
+			'type'        => array( 'object', 'null' ),
+			'context'     => array( 'view', 'edit', 'embed' ),
+			'properties'  => array(
+				'display_name' => array(
+					'type'        => 'string',
+					'description' => __( 'The display name of the logged-in user.', 'jetpack-forms' ),
+					'arg_options' => array(
+						'sanitize_callback' => 'sanitize_text_field',
+					),
+				),
+				'username'     => array(
+					'type'        => 'string',
+					'description' => __( 'The username of the logged-in user.', 'jetpack-forms' ),
+					'arg_options' => array(
+						'sanitize_callback' => 'sanitize_text_field',
+					),
+				),
+				'id'           => array(
+					'type'        => 'integer',
+					'description' => __( 'The ID of the logged-in user.', 'jetpack-forms' ),
+					'arg_options' => array(
+						'sanitize_callback' => 'absint',
+					),
+				),
 			),
 			'readonly'    => true,
 		);
@@ -841,6 +924,10 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 
 		if ( rest_is_field_included( 'browser', $fields ) ) {
 			$data['browser'] = $feedback_response->get_browser();
+		}
+
+		if ( rest_is_field_included( 'logged_in_user', $fields ) ) {
+			$data['logged_in_user'] = $feedback_response->get_logged_in_user();
 		}
 
 		if ( rest_is_field_included( 'entry_title', $fields ) ) {
@@ -1229,6 +1316,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			'marketingUrl'     => $marketing_redirect_slug ? Redirect::get_url( $marketing_redirect_slug ) : null,
 			'enabledByDefault' => isset( $config['enabled_by_default'] ) ? (bool) $config['enabled_by_default'] : false,
 			'iconUrl'          => $icon_url ? esc_url_raw( $icon_url ) : null,
+			'activeTooltip'    => isset( $config['active_tooltip'] ) ? sanitize_text_field( $config['active_tooltip'] ) : '',
 		);
 	}
 
@@ -1497,6 +1585,17 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 	}
 
 	/**
+	 * Dismiss the classic forms notice by updating the option to 'dismissed'.
+	 *
+	 * @return WP_REST_Response
+	 */
+	public function dismiss_classic_forms_notice() {
+		update_option( Forms_Dashboard::CLASSIC_FORMS_OPTION, Forms_Dashboard::CLASSIC_FORMS_STATE_DISMISSED, false );
+
+		return rest_ensure_response( array( 'success' => true ) );
+	}
+
+	/**
 	 * Return consolidated Forms config payload.
 	 *
 	 * @param WP_REST_Request $request Request.
@@ -1514,8 +1613,10 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			'blogId'                         => get_current_blog_id(),
 			'gdriveConnectSupportURL'        => esc_url( Redirect::get_url( 'jetpack-support-contact-form-export' ) ),
 			'pluginAssetsURL'                => Jetpack_Forms::assets_url(),
+			'fileIconsUrl'                   => Jetpack_Forms::plugin_url() . 'contact-form/images/file-icons/',
 			'siteURL'                        => ( new Status() )->get_site_suffix(),
 			'hasFeedback'                    => ( new Forms_Dashboard() )->has_feedback(),
+			'hasClassicForms'                => ( new Forms_Dashboard() )->get_classic_forms_state() === Forms_Dashboard::CLASSIC_FORMS_STATE_CLASSIC,
 			'isNotesEnabled'                 => Forms_Dashboard::is_notes_enabled(),
 			'isIntegrationsEnabled'          => Jetpack_Forms::is_integrations_enabled(),
 			'isWebhooksEnabled'              => Jetpack_Forms::is_webhooks_enabled(),

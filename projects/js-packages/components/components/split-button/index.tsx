@@ -21,10 +21,17 @@ const SplitButton: FC< SplitButtonProps > = ( {
 	label,
 	...buttonProps
 } ) => {
+	// Cast to work around WPButton's strict union type
+	const wpButtonProps = {
+		variant,
+		className: styles.button,
+		...buttonProps,
+	} as React.ComponentProps< typeof Button >;
+
 	return (
 		<Flex className={ styles[ 'split-button' ] }>
 			<div role="group" className="components-button-group">
-				<Button variant={ variant } { ...buttonProps } className={ styles.button } />
+				<Button { ...wpButtonProps } />
 				<DropdownMenu
 					toggleProps={ { variant, className: styles.button, ...toggleProps } }
 					popoverProps={ { noArrow: false, ...popoverProps } }

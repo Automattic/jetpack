@@ -15,6 +15,8 @@ import { validateField, isEmptyValue } from '../../contact-form/js/validate-help
 import { getRating } from '../field-rating/view.js';
 import { maybeAddColonToLabel, maybeTransformValue, getImages, getUrl } from './helpers.js';
 import { focusNextInput, submitForm } from './shared.ts';
+// Import field type icons view to register its callbacks.
+import './field-type-icons-view.js';
 
 const withSyncEvent =
 	originalWithSyncEvent ||
@@ -64,6 +66,7 @@ const setSubmissionData = ( data = [] ) => {
 			url,
 			files,
 			rating,
+			type: item.type || 'text',
 			showPlainValue:
 				! url &&
 				! rating &&
@@ -88,6 +91,18 @@ const registerField = (
 	}
 
 	if ( ! context.fields[ fieldId ] ) {
+		// Detect pre-filled "Other" radio values (pattern: "Label: custom text")
+		let isOtherSelected = false;
+		let otherLabel = null;
+		if ( type === 'radio' && value && value.includes( ': ' ) ) {
+			const colonIndex = value.indexOf( ': ' );
+			const possibleLabel = value.substring( 0, colonIndex );
+			if ( possibleLabel.length < 30 ) {
+				isOtherSelected = true;
+				otherLabel = possibleLabel;
+			}
+		}
+
 		context.fields[ fieldId ] = {
 			id: fieldId,
 			type,
@@ -97,6 +112,8 @@ const registerField = (
 			extra,
 			error: validateField( type, value, isRequired, extra ),
 			step: context?.step ? context.step : 1,
+			isOtherSelected,
+			otherLabel,
 		};
 	}
 };
@@ -220,6 +237,18 @@ const toggleImageOptionInput = ( input, optionElement ) => {
 	}
 };
 
+/**
+ * Build the combined value for an "Other" radio option.
+ * Returns "label: text" when text is provided, or just the label.
+ *
+ * @param {string} label - The "Other" option label.
+ * @param {string} text  - The user-entered custom text.
+ * @return {string} The combined value.
+ */
+const buildOtherValue = ( label, text ) => {
+	return text ? `${ label }: ${ text }` : label;
+};
+
 const stripHtml = html => {
 	const doc = new DOMParser().parseFromString( html, 'text/html' );
 	return doc.body.textContent || '';
@@ -238,12 +267,37 @@ const { state, actions } = store( NAMESPACE, {
 				return false;
 			}
 
-			// For single input forms, show submission errors in the field error div
+			// For single input forms, show submission errors in the field error div (only one field).
 			if ( context.isSingleInputForm && context.submissionError ) {
 				return true;
 			}
 
+			// For forced horizontal forms with submission error: use per-field errors when we have
+			// validation errors (showErrors + field.error). Otherwise show generic error only on
+			// the first field to avoid showing it on all fields.
+			if ( context.isForcedHorizontal && context.submissionError ) {
+				const hasFieldError = field.error && field.error !== 'yes';
+				if ( context.showErrors && hasFieldError ) {
+					return true;
+				}
+				const firstFieldId = Object.keys( context.fields || {} )[ 0 ];
+				return fieldId === firstFieldId;
+			}
+
 			return ( context.showErrors || field.showFieldError ) && field.error && field.error !== 'yes';
+		},
+
+		get fieldAriaInvalid() {
+			// Return 'true' for invalid fields, null to remove the attribute entirely.
+			// Using null instead of false prevents VoiceOver from announcing "invalid" for valid fields.
+			return state.fieldHasErrors ? 'true' : null;
+		},
+
+		get isOtherSelected() {
+			const context = getContext();
+			const fieldId = context.fieldId;
+			const field = context.fields[ fieldId ];
+			return field?.isOtherSelected || false;
 		},
 
 		get isFormEmpty() {
@@ -288,14 +342,29 @@ const { state, actions } = store( NAMESPACE, {
 			return state.isSubmitting;
 		},
 
+		get isSuccessMessageAriaHidden() {
+			const context = getContext();
+			return context.submissionSuccess ? null : 'true';
+		},
+
 		get errorMessage() {
 			const context = getContext();
 			const fieldId = context.fieldId;
 			const field = context.fields[ fieldId ] || {};
 
-			// For single input forms, show submission errors in the field error div
+			// For single input forms, show submission errors in the field error div.
 			if ( context.isSingleInputForm && context.submissionError ) {
 				return context.submissionError;
+			}
+
+			// For forced horizontal: use per-field errors when we have validation errors.
+			else if ( context.isForcedHorizontal && context.submissionError ) {
+				const hasFieldError = field.error && field.error !== 'yes';
+				if ( context.showErrors && hasFieldError ) {
+					return getError( field );
+				}
+				const firstFieldId = Object.keys( context.fields || {} )[ 0 ];
+				return fieldId === firstFieldId ? context.submissionError : '';
 			}
 
 			if ( ! ( context.showErrors || field.showFieldError ) || ! field.error ) {
@@ -322,13 +391,21 @@ const { state, actions } = store( NAMESPACE, {
 		get showFormErrors() {
 			const context = getContext();
 
-			return ! state.isFormValid && context.showErrors;
+			return (
+				! state.isFormValid &&
+				context.showErrors &&
+				! ( context.isSingleInputForm || context.isForcedHorizontal )
+			);
 		},
 
 		get showSubmissionError() {
 			const context = getContext();
 
-			return !! context.submissionError && ! state.showFormErrors;
+			return (
+				! ( context.isForcedHorizontal || context.isSingleInputForm ) &&
+				!! context.submissionError &&
+				! state.showFormErrors
+			);
 		},
 
 		get getFormErrorMessage() {
@@ -404,12 +481,68 @@ const { state, actions } = store( NAMESPACE, {
 			let value = event.target.value;
 			const context = getContext();
 			const fieldId = context.fieldId;
+			const field = context.fields[ fieldId ];
 
 			if ( context.fieldType === 'checkbox' ) {
 				value = event.target.checked ? '1' : '';
 			}
 
+			// Deselect "Other" when a different radio option is chosen
+			if ( context.fieldType === 'radio' && field?.isOtherSelected ) {
+				const otherLabel = field.otherLabel || 'Other';
+				if ( value !== otherLabel ) {
+					field.isOtherSelected = false;
+					field.otherLabel = null;
+
+					const fieldset = event.target.closest( 'fieldset' );
+					const otherTextInput = fieldset?.querySelector( 'input[name$="-other-text"]' );
+					if ( otherTextInput ) {
+						otherTextInput.value = '';
+					}
+				}
+			}
+
 			actions.updateField( fieldId, value );
+		},
+
+		onOtherRadioChange: event => {
+			const context = getContext();
+			const fieldId = context.fieldId;
+			const field = context.fields[ fieldId ];
+
+			if ( ! event.target.checked ) {
+				return;
+			}
+
+			const otherLabel =
+				event.target.getAttribute( 'data-other-label' ) || event.target.value || 'Other';
+
+			field.isOtherSelected = true;
+			field.otherLabel = otherLabel;
+
+			const fieldset = event.target.closest( 'fieldset' );
+			const otherTextInput = fieldset?.querySelector( 'input[name$="-other-text"]' );
+			const otherText = otherTextInput?.value || '';
+
+			actions.updateField( fieldId, buildOtherValue( otherLabel, otherText ) );
+
+			// Focus the text input after a short delay to ensure it's visible
+			if ( otherTextInput ) {
+				setTimeout( () => otherTextInput.focus(), 100 );
+			}
+		},
+
+		onOtherTextInput: event => {
+			const context = getContext();
+			const fieldId = context.fieldId;
+			const field = context.fields[ fieldId ];
+
+			if ( ! field?.isOtherSelected ) {
+				return;
+			}
+
+			const otherLabel = field.otherLabel || 'Other';
+			actions.updateField( fieldId, buildOtherValue( otherLabel, event.target.value ) );
 		},
 
 		onMultipleFieldChange: event => {
@@ -498,6 +631,23 @@ const { state, actions } = store( NAMESPACE, {
 
 		onFormSubmit: withSyncEvent( function* ( event ) {
 			const context = getContext();
+
+			// Check if we're in preview mode and block submission.
+			if ( window.jetpackFormsPreviewMode ) {
+				event.preventDefault();
+				event.stopPropagation();
+				context.submissionError = config.error_types?.preview_mode;
+
+				if ( errorTimeout ) {
+					clearTimeout( errorTimeout );
+				}
+
+				errorTimeout = setTimeout( () => {
+					context.submissionError = null;
+				}, 5000 );
+
+				return;
+			}
 
 			if ( ! state.isFormValid ) {
 				context.showErrors = true;
@@ -635,7 +785,60 @@ const { state, actions } = store( NAMESPACE, {
 			if ( context.submissionSuccess || context.hasClickedBack ) {
 				const wrapperElement = document.getElementById( `contact-form-${ context.formId }` );
 				wrapperElement?.scrollIntoView( { behavior: 'smooth' } );
+
+				// Move focus to the success wrapper for screen reader announcement.
+				// The wrapper has aria-labelledby pointing to the heading, so VoiceOver
+				// will read the heading content without announcing "heading level 4".
+				if ( context.submissionSuccess && ! context.hasClickedBack ) {
+					const successWrapper = document.getElementById(
+						`contact-form-success-${ context.formHash }`
+					);
+					successWrapper?.focus();
+				}
+
 				context.hasClickedBack = false;
+			}
+		},
+
+		focusOnValidationError() {
+			const context = getContext();
+
+			if ( state.showFormErrors ) {
+				// Only move focus once per error episode to avoid trapping keyboard users.
+				if ( context.didFocusValidationError ) {
+					return;
+				}
+
+				const { ref } = getElement();
+
+				if ( ref ) {
+					ref.focus();
+					context.didFocusValidationError = true;
+				}
+			} else if ( context.didFocusValidationError ) {
+				// Reset when errors clear so future errors can move focus again.
+				context.didFocusValidationError = false;
+			}
+		},
+
+		focusOnSubmissionError() {
+			const context = getContext();
+
+			if ( state.showSubmissionError ) {
+				// Only move focus once per error episode to avoid trapping keyboard users.
+				if ( context.didFocusSubmissionError ) {
+					return;
+				}
+
+				const { ref } = getElement();
+
+				if ( ref ) {
+					ref.focus();
+					context.didFocusSubmissionError = true;
+				}
+			} else if ( context.didFocusSubmissionError ) {
+				// Reset when errors clear so future errors can move focus again.
+				context.didFocusSubmissionError = false;
 			}
 		},
 

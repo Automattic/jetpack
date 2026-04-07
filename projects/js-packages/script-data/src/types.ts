@@ -60,3 +60,11 @@ declare global {
 		JetpackScriptData: JetpackScriptData;
 	}
 }
+
+/**
+ * Site type categories for analytics and conditional logic.
+ * - 'simple': WordPress.com Simple sites
+ * - 'woa': WordPress.com sites on Atomic infrastructure
+ * - 'jetpack': Self-hosted Jetpack sites
+ */
+export type SiteType = 'simple' | 'woa' | 'jetpack';

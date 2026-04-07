@@ -5,7 +5,7 @@ import reducer from './reducer.js';
 import * as resolvers from './resolvers.js';
 import * as selectors from './selectors.js';
 
-const STORE_NAME = 'FORM_RESPONSES';
+export const STORE_NAME = 'FORM_RESPONSES';
 
 export const store = createReduxStore( STORE_NAME, {
 	actions,

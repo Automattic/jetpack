@@ -92,14 +92,14 @@
 		.twitter-preview__text {
 			color: rgb(15, 20, 25);
 			white-space: pre-wrap;
-			word-break: break-word;
+			overflow-wrap: break-word;
 		}
 
 		.twitter-preview__media {
 			border-radius: 15px; /* stylelint-disable-line scales/radii */
 			overflow: hidden;
 			display: grid;
-			grid-gap: 2px;
+			gap: 2px;
 			grid-template-areas: "a";
 			height: 300px;
 			margin-top: 12px;

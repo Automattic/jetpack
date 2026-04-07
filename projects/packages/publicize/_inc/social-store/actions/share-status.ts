@@ -6,7 +6,6 @@ import {
 	FETCH_POST_SHARE_STATUS,
 	POLLING_FOR_POST_SHARE_STATUS,
 	RECEIVE_POST_SHARE_STATUS,
-	TOGGLE_SHARE_STATUS_MODAL,
 } from './constants';
 
 /**
@@ -42,37 +41,6 @@ export function receivePostShareStaus(
 		shareStatus,
 		postId,
 	};
-}
-
-/**
- * Toggles the share status modal.
- *
- * @param {boolean} isOpen - Whether the modal is open.
- *
- * @return {object} - An action object.
- */
-export function toggleShareStatusModal( isOpen: boolean ) {
-	return {
-		type: TOGGLE_SHARE_STATUS_MODAL,
-		isOpen,
-	};
-}
-
-/**
- * Opens the share status modal.
- *
- * @return {object} - An action object.
- */
-export function openShareStatusModal() {
-	return toggleShareStatusModal( true );
-}
-
-/**
- * Closes the share status modal.
- * @return {object} - An action object.
- */
-export function closeShareStatusModal() {
-	return toggleShareStatusModal( false );
 }
 
 type IsRequestComplete = ( options: {

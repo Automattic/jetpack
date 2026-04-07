@@ -2,22 +2,33 @@
  * External dependencies
  */
 import { JetpackLogo } from '@automattic/jetpack-components';
-import { __experimentalConfirmDialog as ConfirmDialog } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
+import apiFetch from '@wordpress/api-fetch';
+import {
+	Button,
+	__experimentalConfirmDialog as ConfirmDialog, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+} from '@wordpress/components';
+import { useDispatch } from '@wordpress/data';
 import { DataViews } from '@wordpress/dataviews/wp';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
+import { store as noticesStore } from '@wordpress/notices';
 import { useNavigate } from 'react-router';
 /**
  * Internal dependencies
  */
+import { getEmbedCode, getShortcode } from '../../blocks/shared/util/embed-codes';
 import useConfigValue from '../../hooks/use-config-value.ts';
 import CreateFormButton from '../components/create-form-button/index.tsx';
 import DataViewsHeaderRow from '../components/dataviews-header-row/index.tsx';
 import { EmptyWrapper } from '../components/empty-responses/index.tsx';
 import Page from '../components/page/index.tsx';
+import { NON_TRASH_FORM_STATUSES } from '../constants.ts';
 import useDeleteForm from '../hooks/use-delete-form.ts';
 import useFormsData from '../hooks/use-forms-data.ts';
+import { getFormEditUrl } from '../utils.ts';
+import FormsHelpModal from '../wp-build/components/forms-help-modal/index.tsx';
 import { defaultLayouts, useView } from './views.ts';
 import './style.scss';
 import type { FormListItem } from '../hooks/use-forms-data.ts';
@@ -30,8 +41,14 @@ import type { Action, Operator } from '@wordpress/dataviews/wp';
  */
 export default function FormsDashboardForms(): JSX.Element | null {
 	const navigate = useNavigate();
+	const adminUrl = ( useConfigValue( 'adminUrl' ) as string ) || '';
 	const isCentralFormManagementEnabled = useConfigValue( 'isCentralFormManagementEnabled' );
 	const isCentralFormManagementDisabled = isCentralFormManagementEnabled === false;
+	const hasClassicForms = useConfigValue( 'hasClassicForms' );
+
+	const [ isFormsHelpModalOpen, setIsFormsHelpModalOpen ] = useState( false );
+	const openFormsHelpModal = useCallback( () => setIsFormsHelpModalOpen( true ), [] );
+	const closeFormsHelpModal = useCallback( () => setIsFormsHelpModalOpen( false ), [] );
 
 	const dateSettings = getDateSettings();
 	const [ view, setView ] = useView();
@@ -40,14 +57,12 @@ export default function FormsDashboardForms(): JSX.Element | null {
 		const statusFilterValue = view.filters?.find( filter => filter.field === 'status' )?.value;
 
 		// Default: show all non-trash forms (matches WP core list behavior).
-		const nonTrashStatuses = 'publish,draft,pending,future,private';
-
 		if ( ! statusFilterValue ) {
-			return nonTrashStatuses;
+			return NON_TRASH_FORM_STATUSES;
 		}
 
 		if ( statusFilterValue === 'all' ) {
-			return nonTrashStatuses;
+			return NON_TRASH_FORM_STATUSES;
 		}
 
 		return statusFilterValue;
@@ -58,11 +73,23 @@ export default function FormsDashboardForms(): JSX.Element | null {
 		return statusFilterValue === 'trash';
 	}, [ view.filters ] );
 
+	const hasResponsesQuery = useMemo( () => {
+		const entriesFilterValue = view.filters?.find( filter => filter.field === 'entries' )?.value;
+		if ( entriesFilterValue === 'has_responses' ) {
+			return 'true';
+		}
+		if ( entriesFilterValue === 'no_responses' ) {
+			return 'false';
+		}
+		return undefined;
+	}, [ view.filters ] );
+
 	const { records, isLoading, totalItems, totalPages } = useFormsData(
 		view.page,
 		view.perPage,
 		view.search,
-		statusQuery
+		statusQuery,
+		hasResponsesQuery
 	);
 	const {
 		isDeleting,
@@ -78,6 +105,8 @@ export default function FormsDashboardForms(): JSX.Element | null {
 		recordsLength: records?.length ?? 0,
 		statusQuery,
 	} );
+
+	const { createErrorNotice, createSuccessNotice } = useDispatch( noticesStore );
 
 	const [ selection, setSelection ] = useState< string[] >( [] );
 	const [ pendingPermanentDeleteCount, setPendingPermanentDeleteCount ] = useState( 0 );
@@ -146,8 +175,14 @@ export default function FormsDashboardForms(): JSX.Element | null {
 			{
 				id: 'entries',
 				label: __( 'Entries', 'jetpack-forms' ),
-				getValue: ( { item }: { item: FormListItem } ) => item.entriesCount ?? 0,
+				getValue: ( { item }: { item: FormListItem } ) =>
+					( item.entriesCount ?? 0 ) > 0 ? 'has_responses' : 'no_responses',
 				render: ( { item }: { item: FormListItem } ) => item.entriesCount ?? 0,
+				elements: [
+					{ label: __( 'Has responses', 'jetpack-forms' ), value: 'has_responses' },
+					{ label: __( 'No responses', 'jetpack-forms' ), value: 'no_responses' },
+				],
+				filterBy: { operators: [ 'is' ] as Operator[] },
 				enableSorting: false,
 			},
 			{
@@ -206,10 +241,84 @@ export default function FormsDashboardForms(): JSX.Element | null {
 					if ( ! item ) {
 						return;
 					}
-					const fallbackEditUrl = `post.php?post=${ item.id }&action=edit&post_type=jetpack_form`;
-					const editUrl = item.editUrl || fallbackEditUrl;
-					const url = new URL( editUrl, window.location.origin );
-					window.location.href = url.toString();
+					const editUrl = item.editUrl || getFormEditUrl( item.id, adminUrl );
+					window.location.href = editUrl;
+				},
+			},
+			{
+				id: 'preview-form',
+				isPrimary: false,
+				label: __( 'Preview', 'jetpack-forms' ),
+				supportsBulk: false,
+				async callback( items: FormListItem[] ) {
+					const [ item ] = items;
+					if ( ! item ) {
+						return;
+					}
+
+					try {
+						const response = await apiFetch< { preview_url: string } >( {
+							path: `/wp/v2/jetpack-forms/${ item.id }/preview-url`,
+						} );
+						window.open( response.preview_url, '_blank' );
+					} catch ( error ) {
+						createErrorNotice(
+							__( 'Failed to generate preview URL. Please try again.', 'jetpack-forms' ),
+							{ type: 'snackbar' }
+						);
+						// eslint-disable-next-line no-console
+						console.error( 'Failed to get preview URL:', error );
+					}
+				},
+			},
+			{
+				id: 'copy-embed',
+				isPrimary: false,
+				label: __( 'Copy embed', 'jetpack-forms' ),
+				supportsBulk: false,
+				async callback( items: FormListItem[] ) {
+					const [ item ] = items;
+					if ( ! item ) {
+						return;
+					}
+
+					const embedCode = getEmbedCode( item.id );
+					try {
+						await navigator.clipboard.writeText( embedCode );
+						createSuccessNotice( __( 'Embed code copied to clipboard.', 'jetpack-forms' ), {
+							type: 'snackbar',
+						} );
+					} catch {
+						createErrorNotice(
+							__( 'Failed to copy embed code. Please try again.', 'jetpack-forms' ),
+							{ type: 'snackbar' }
+						);
+					}
+				},
+			},
+			{
+				id: 'copy-shortcode',
+				isPrimary: false,
+				label: __( 'Copy shortcode', 'jetpack-forms' ),
+				supportsBulk: false,
+				async callback( items: FormListItem[] ) {
+					const [ item ] = items;
+					if ( ! item ) {
+						return;
+					}
+
+					const embedCode = getShortcode( item.id );
+					try {
+						await navigator.clipboard.writeText( embedCode );
+						createSuccessNotice( __( 'Shortcode copied to clipboard.', 'jetpack-forms' ), {
+							type: 'snackbar',
+						} );
+					} catch {
+						createErrorNotice(
+							__( 'Failed to copy shortcode. Please try again.', 'jetpack-forms' ),
+							{ type: 'snackbar' }
+						);
+					}
 				},
 			},
 		];
@@ -268,6 +377,9 @@ export default function FormsDashboardForms(): JSX.Element | null {
 
 		return actionsList;
 	}, [
+		adminUrl,
+		createErrorNotice,
+		createSuccessNotice,
 		isDeleting,
 		isViewingTrash,
 		navigate,
@@ -286,7 +398,7 @@ export default function FormsDashboardForms(): JSX.Element | null {
 
 	const onChangeView = useCallback( newView => setView( newView ), [ setView ] );
 
-	const headerActions = useMemo( () => [ <CreateFormButton key="create" /> ], [] );
+	const headerActions = useMemo( () => [ <CreateFormButton key="create" showNameModal /> ], [] );
 	const getItemId = useCallback( ( item: FormListItem ) => String( item.id ), [] );
 	const onClickItem = useCallback(
 		( item: FormListItem ) => {
@@ -309,7 +421,18 @@ export default function FormsDashboardForms(): JSX.Element | null {
 						{ __( 'Forms', 'jetpack-forms' ) }
 					</div>
 				}
-				subTitle={ __( 'View and manage all your forms in one place.', 'jetpack-forms' ) }
+				subTitle={
+					hasClassicForms ? (
+						<>
+							{ __( 'View and manage all your forms.', 'jetpack-forms' ) }{ ' ' }
+							<Button variant="link" onClick={ openFormsHelpModal }>
+								{ __( 'Not seeing all your forms?', 'jetpack-forms' ) }
+							</Button>
+						</>
+					) : (
+						__( 'View and manage all your forms in one place.', 'jetpack-forms' )
+					)
+				}
 				actions={ headerActions }
 				hasPadding={ false }
 			>
@@ -323,14 +446,22 @@ export default function FormsDashboardForms(): JSX.Element | null {
 						<EmptyWrapper
 							heading={ __( "You're set up. No forms yet.", 'jetpack-forms' ) }
 							body={ __(
-								'Create a shared form pattern to manage and reuse it across your site.',
+								'Create a form to manage and reuse it across your site.',
 								'jetpack-forms'
 							) }
 							actions={
-								<CreateFormButton
-									label={ __( 'Create a new form', 'jetpack-forms' ) }
-									variant="primary"
-								/>
+								<HStack justify="center" spacing="2">
+									<CreateFormButton
+										label={ __( 'Create a new form', 'jetpack-forms' ) }
+										variant="primary"
+										showNameModal
+									/>
+									{ hasClassicForms && (
+										<Button size="compact" variant="secondary" onClick={ openFormsHelpModal }>
+											{ __( 'Not seeing all your forms?', 'jetpack-forms' ) }
+										</Button>
+									) }
+								</HStack>
 							}
 						/>
 					}
@@ -374,6 +505,7 @@ export default function FormsDashboardForms(): JSX.Element | null {
 					</div>
 				</DataViews>
 			</Page>
+			<FormsHelpModal isOpen={ isFormsHelpModalOpen } onClose={ closeFormsHelpModal } />
 		</div>
 	);
 }

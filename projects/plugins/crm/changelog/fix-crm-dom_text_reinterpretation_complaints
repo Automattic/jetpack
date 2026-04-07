@@ -1,0 +1,4 @@
+Significance: patch
+Type: security
+
+CRM: Escape DOM-sourced values.

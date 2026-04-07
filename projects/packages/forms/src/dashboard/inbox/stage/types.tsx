@@ -1,4 +1,5 @@
 import type { FormResponse } from '../../../types/index.ts';
+import type { IconType } from '@wordpress/components';
 import type { StoreDescriptor } from '@wordpress/data';
 
 /**
@@ -62,6 +63,7 @@ export type DispatchActions = {
 		invalidateCache?: boolean
 	) => void;
 	invalidateResolution: ( selector: string, args: unknown[] ) => void;
+	invalidateResolutionForStoreSelector: ( selector: string ) => void;
 
 	// Dashboard store actions
 	updateCountsOptimistically: (
@@ -119,7 +121,7 @@ export type Registry = {
 export type Action = {
 	id: string;
 	isPrimary: boolean;
-	icon: React.ReactNode;
+	icon: IconType;
 	label: string;
 	modalHeader?: string;
 	isEligible?: ( item: FormResponse ) => boolean;

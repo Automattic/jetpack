@@ -1,7 +1,7 @@
 /* eslint-disable @wordpress/no-unsafe-wp-apis */
 import { Flex, FlexBlock, PanelRow, __experimentalText as Text } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import illustration from '../../assets/networks-illustration.png';
+import illustration from '../../assets/networks-illustration.webp';
 import { SettingsButton } from './settings-button';
 import styles from './styles.module.scss';
 

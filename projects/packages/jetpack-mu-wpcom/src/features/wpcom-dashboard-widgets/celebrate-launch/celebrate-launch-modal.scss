@@ -1,168 +1,94 @@
-$breakpoint-mobile: 782px; //Mobile size.
+@use "@wordpress/base-styles/breakpoints" as *;
+@use "@wordpress/base-styles/colors" as *;
+@use "@wordpress/base-styles/variables" as *;
 
-.launched__modal {
+.launched__modal .components-modal__children-container p:first-child {
+	margin-top: 0;
+}
 
-	p {
-		font-size: 16px;
+.launched__modal-site {
+	align-items: center;
+	border: 1px solid $gray-600;
+	border-radius: $radius-small;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+	padding: $grid-unit-05 $grid-unit-10;
+
+	@media (min-width: $break-small) {
+		flex-direction: row;
+	}
+
+	&:hover .launchpad__clipboard-button {
+		opacity: 1;
+	}
+}
+
+.launched__modal-domain {
+	align-items: center;
+	display: flex;
+	justify-content: center;
+	max-width: 100%;
+	min-width: 0;
+
+	.launched__modal-domain-text {
 		margin: 0;
-	}
-
-	&.components-modal__frame {
-		max-width: 640px;
-	}
-
-	.components-modal__header {
-		padding: 48px;
-	}
-
-	.components-modal__content {
-		margin: 0;
-		padding: 0;
-	}
-
-	&-content {
-		padding: 48px;
-		padding-bottom: 40px;
-		display: flex;
-		flex-direction: column;
-		gap: 32px;
-
-		@media (min-width: $breakpoint-mobile) {
-			min-width: 640px;
-		}
-	}
-
-	&-heading {
-		color: var(--studio-gray-100);
-		font-family: Recoleta, "Noto Serif", Georgia, "Times New Roman", Times, serif;
-		font-size: 2rem;
-		line-height: 40px;
-		font-weight: 400;
-		letter-spacing: 0.2px;
-		margin: 0;
-		padding-bottom: 8px;
-	}
-
-	&-domain {
-		display: flex;
-		justify-content: center;
-		align-items: center;
-		max-width: 100%;
-
-		@media (min-width: $breakpoint-mobile) {
-			max-width: 75%;
-		}
-	}
-
-	&-body,
-	&-domain-text {
-		margin: 0;
-		color: var(--studio-gray-80);
-		font-size: 1rem;
-		line-height: 24px;
-	}
-
-	&-domain-text {
-		padding: 0 8px;
-
-		// prevent text overflow
+		overflow: hidden;
 		text-overflow: ellipsis;
 		white-space: nowrap;
-		overflow: hidden;
 	}
+}
 
-	&-buttons {
-		display: flex;
-		flex-direction: row;
-		justify-content: end;
-		gap: 16px;
-	}
+.launchpad__clipboard-button {
+	margin-left: $grid-unit-05;
+	opacity: 1;
 
-	&-site {
-		padding: 8px;
-		background: var(--studio-gray-0);
-		display: flex;
-		flex-direction: column;
-		justify-content: space-between;
-		align-items: center;
-
-		@media (min-width: $breakpoint-mobile) {
-			flex-direction: row;
-		}
-	}
-
-	.launchpad__clipboard-button {
-		min-width: 18px;
+	@media (min-width: $break-small) {
 		opacity: 0;
 	}
 
-	.launchpad__clipboard-button:focus {
+	&:focus {
 		opacity: 1;
 	}
+}
 
-	&-site:hover {
+.launched__modal-view-site {
+	color: $gray-900;
+	display: flex;
+	gap: $grid-unit-05;
 
-		.launchpad__clipboard-button {
-			opacity: 1;
-		}
+	&:visited {
+		color: $gray-900;
 	}
 
-	&-customize {
-		color: var(--studio-blue-50);
-		font-size: 0.875rem;
-		display: inline-flex;
-		flex-direction: row;
-		justify-content: start;
-		gap: 6px;
-		padding: 0;
-		margin: 0;
-		margin-top: 16px;
-	}
-
-	&-upsell {
-		border-top: 1px solid var(--studio-gray-5);
-		background: var(--studio-gray-0);
-		display: flex;
-		justify-content: center;
-		align-items: center;
-		padding: 32px 48px;
-		gap: 32px;
-		flex-direction: column;
-
-		@media (min-width: $breakpoint-mobile) {
-			flex-direction: row;
-		}
-
-		.components-button {
-			height: 42px;
-		}
-	}
-
-	&-upsell-content p {
-		margin-bottom: 0;
-	}
-
-	&-upsell-content-highlight {
-		font-weight: 700;
-	}
-
-	&-view-site {
-		display: flex;
-		gap: 4px;
-
-		font-weight: 500;
-		/* stylelint-disable-next-line */
-		font-size: 14px;
-		line-height: 20px;
-		letter-spacing: -0.154px;
-		color: #101517;
-	}
-
-	&-view-site:visited {
-		color: #101517;
-	}
-
-	&-view-site:hover {
+	&:hover {
 		text-decoration: underline;
+	}
+
+	.launched__modal-view-site-text {
+		font-weight: $font-weight-medium;
+		font-size: $font-size-x-small;
+		line-height: $font-line-height-small;
+		white-space: nowrap;
+	}
+}
+
+.launched__modal-upsell {
+	align-items: center;
+	background-color: $gray-100;
+	display: flex;
+	flex-direction: column;
+	gap: $grid-unit-15;
+	justify-content: center;
+	margin: $grid-unit-30 -#{$grid-unit-30} -#{$grid-unit-30} -#{$grid-unit-30};
+	padding: $grid-unit-30;
+
+	p {
+		margin: 0;
+	}
+
+	@media (min-width: $break-small) {
+		flex-direction: row;
+		gap: $grid-unit-30;
 	}
 }

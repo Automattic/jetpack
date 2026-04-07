@@ -414,7 +414,8 @@ describe( 'resolveCssVariable', () => {
 				if ( element === themedElement ) {
 					return {
 						getPropertyValue: ( prop: string ) => {
-							if ( prop === '--wpds-color-bg-interactive-brand' ) {
+							// eslint-disable-next-line @wordpress/no-unknown-ds-tokens -- Thinks this is a use rather than a test.
+							if ( prop === '--wpds-color-bg-interactive-brand-weak' ) {
 								return '#c029dc'; // User's custom accent color
 							}
 							return '';
@@ -427,7 +428,8 @@ describe( 'resolveCssVariable', () => {
 			} );
 			window.getComputedStyle = mockGetComputedStyle as unknown as typeof window.getComputedStyle;
 
-			const result = resolveCssVariable( '--wpds-color-bg-interactive-brand', themedElement );
+			// eslint-disable-next-line @wordpress/no-unknown-ds-tokens -- Thinks this is a use rather than a test.
+			const result = resolveCssVariable( '--wpds-color-bg-interactive-brand-weak', themedElement );
 			expect( result ).toBe( '#c029dc' );
 		} );
 	} );

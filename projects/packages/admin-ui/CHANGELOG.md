@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.0] - 2026-04-06
+### Added
+- Add "Upgrade Jetpack" menu item for free users in the Jetpack admin menu. [#47418]
+- Admin: Record Tracks when the Jetpack sidebar "Upgrade Jetpack" link is clicked. [#47937]
+
+### Changed
+- Comment: Update Tracks event prop names to be lowercase. [#47955]
+- Update design of the sidebar upsell. [#47909]
+
+### Fixed
+- Fix upgrade menu item color on problematic admin color schemes and add build pipeline for CSS assets. [#47903]
+
+## [0.6.0] - 2026-03-30
+### Changed
+- Sidebar: Change "Anti-spam" to "Akismet Anti-spam". [#47834]
+
+## [0.5.12] - 2026-03-09
+### Changed
+- Simplify Akismet admin menu title from 'Akismet Anti-spam' to 'Anti-spam'. [#47417]
+
 ## [0.5.11] - 2025-08-04
 ### Changed
 - Internal updates.
@@ -212,6 +232,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Fixing menu visibility issues.
 
+[0.7.0]: https://github.com/Automattic/jetpack-admin-ui/compare/0.6.0...0.7.0
+[0.6.0]: https://github.com/Automattic/jetpack-admin-ui/compare/0.5.12...0.6.0
+[0.5.12]: https://github.com/Automattic/jetpack-admin-ui/compare/0.5.11...0.5.12
 [0.5.11]: https://github.com/Automattic/jetpack-admin-ui/compare/0.5.10...0.5.11
 [0.5.10]: https://github.com/Automattic/jetpack-admin-ui/compare/0.5.9...0.5.10
 [0.5.9]: https://github.com/Automattic/jetpack-admin-ui/compare/0.5.8...0.5.9

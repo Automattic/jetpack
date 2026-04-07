@@ -3,11 +3,14 @@
 import { Button, Flex, Navigator } from '@wordpress/components';
 import { useReducer } from 'react';
 import { NavigatorModal } from '../index.tsx';
+import type { Meta } from '@storybook/react';
 
-export default {
+const meta: Meta< typeof NavigatorModal > = {
 	title: 'JS Packages/Components/NavigatorModal',
 	component: NavigatorModal,
 };
+
+export default meta;
 
 /**
  * Default NavigatorModal story with multiple screens.

@@ -33,7 +33,6 @@
 	> p {
 		// These rules hide the element visually, but not to screen readers.
 		border: 0;
-		clip: rect(1px, 1px, 1px, 1px);
 		clip-path: inset(50%);
 		height: 1px;
 		margin: -1px;
@@ -41,7 +40,7 @@
 		padding: 0;
 		position: absolute;
 		width: 1px;
-		word-wrap: normal !important;
+		overflow-wrap: normal !important;
 	}
 
 	// This immediate span is a whole star.

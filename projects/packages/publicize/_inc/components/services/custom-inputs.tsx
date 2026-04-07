@@ -5,8 +5,8 @@ import { createInterpolateElement, useCallback, useId, useState } from '@wordpre
 import { __, _x, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { store } from '../../social-store';
-import { SupportedService } from '../services/use-supported-services';
 import styles from './style.module.scss';
+import { SupportedService } from './types';
 import type { ChangeEvent } from 'react';
 
 type CustomInputsProps = {
@@ -158,7 +158,9 @@ export function CustomInputs( { service }: CustomInputsProps ) {
 								'jetpack-publicize-pkg'
 							),
 							{
-								link: <ExternalLink href="https://bsky.app/settings/app-passwords" />,
+								link: (
+									<ExternalLink href="https://bsky.app/settings/app-passwords" children={ null } />
+								),
 							}
 						) }
 					</p>

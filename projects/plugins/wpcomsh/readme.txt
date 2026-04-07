@@ -1,7 +1,7 @@
 === WP.com Site Helper ===
 Contributors: lamosty, obenland, automattic
 Tags: WP.com
-Requires at least: 6.7
+Requires at least: 6.8
 Requires PHP: 7.4
 Tested up to: 6.9
 Stable tag: 8.0.0

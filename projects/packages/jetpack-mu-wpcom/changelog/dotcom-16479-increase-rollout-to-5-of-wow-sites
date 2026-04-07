@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+RTC: Increase HTTP polling rollout to 5% of WoW sites

@@ -347,17 +347,19 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 		</p>
 
 		<?php
-		switch ( get_locale() ) {
+		$lang = strtolower( substr( get_locale(), 0, 2 ) );
+		switch ( $lang ) {
 			case 'es':
-				$support = 'https://es.support.wordpress.com/social-media-icons-widget/#iconos-disponibles';
+				$support = 'https://wordpress.com/es/support/wordpress-editor/blocks/social-icons-block/display-social-profiles/#iconos-sociales-compatibles';
 				break;
 
-			case 'pt-br':
-				$support = 'https://br.support.wordpress.com/widgets/widget-de-icones-sociais/#ícones-disponíveis';
+			case 'pt':
+				$support = 'https://wordpress.com/pt-br/support/exibir-perfis-de-redes-sociais/#icones-de-redes-sociais-compativeis';
 				break;
 
 			default:
-				$support = 'https://en.support.wordpress.com/widgets/social-media-icons-widget/#available-icons';
+				$support = 'https://wordpress.com/support/wordpress-editor/blocks/social-icons-block/display-social-profiles/#supported-social-icons';
+				break;
 		}
 		?>
 
@@ -637,11 +639,6 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 				'url'   => array( 'pinterest.' ),
 				'icon'  => 'pinterest',
 				'label' => 'Pinterest',
-			),
-			array(
-				'url'   => array( 'getpocket.com' ),
-				'icon'  => 'pocket',
-				'label' => 'Pocket',
 			),
 			array(
 				'url'   => array( 'ravelry.com' ),

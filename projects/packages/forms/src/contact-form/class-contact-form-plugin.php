@@ -31,6 +31,9 @@ use WP_Post;
 // Load the Form_Submission_Error class.
 require_once __DIR__ . '/class-form-submission-error.php';
 
+// Load the Form_Preview class.
+require_once __DIR__ . '/class-form-preview.php';
+
 /**
  * Sets up various actions, filters, post types, post statuses, shortcodes.
  */
@@ -238,6 +241,7 @@ class Contact_Form_Plugin {
 		add_action( 'current_screen', array( $this, 'redirect_edit_feedback_to_jetpack_forms' ) );
 
 		add_filter( 'use_block_editor_for_post_type', array( $this, 'use_block_editor_for_post_type' ), 10, 2 );
+		add_filter( 'use_block_editor_for_post', array( $this, 'use_block_editor_for_post' ), 10, 2 );
 
 		// Restrict feedback comments to logged-in users only
 		add_filter( 'comments_open', array( $this, 'restrict_feedback_comments_to_logged_in' ), 10, 2 );
@@ -323,6 +327,9 @@ class Contact_Form_Plugin {
 		// Track when post status changes to feedback posts types.
 		add_action( 'transition_post_status', array( $this, 'track_feedback_status_change' ), 10, 3 );
 
+		// Purge edge cache when a jetpack_form post is published, updated, or unpublished.
+		add_action( 'transition_post_status', array( $this, 'purge_edge_cache_on_form_status_change' ), 10, 3 );
+
 		// POST handler
 		if (
 			isset( $_SERVER['REQUEST_METHOD'] ) && 'POST' === strtoupper( sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ) ) )
@@ -344,6 +351,20 @@ class Contact_Form_Plugin {
 		 */
 		wp_register_style( 'grunion.css', Jetpack_Forms::plugin_url() . '../dist/contact-form/css/grunion.css', array(), \JETPACK__VERSION );
 		wp_style_add_data( 'grunion.css', 'rtl', 'replace' );
+
+		wp_register_style(
+			'jetpack-forms-layout',
+			Jetpack_Forms::plugin_url() . '../dist/contact-form/css/jetpack-forms-layout.css',
+			array(),
+			\JETPACK__VERSION
+		);
+
+		wp_register_style(
+			'jetpack-form-status-notice',
+			Jetpack_Forms::plugin_url() . '../dist/contact-form/css/form-status-notice.css',
+			array(),
+			\JETPACK__VERSION
+		);
 
 		add_filter( 'js_do_concat', array( __CLASS__, 'disable_forms_view_script_concat' ), 10, 3 );
 
@@ -377,6 +398,7 @@ class Contact_Form_Plugin {
 		if ( self::has_editor_feature_flag( 'central-form-management' ) ) {
 			Contact_Form::register_post_type();
 			Form_Editor::init();
+			Form_Preview::init();
 		}
 	}
 
@@ -661,6 +683,16 @@ class Contact_Form_Plugin {
 						if ( $option_label ) {
 							$option_attrs = self::get_block_support_classes_and_styles( 'jetpack/option', $option['attrs'] );
 							$option_data  = array( 'label' => $option_label );
+
+							// Preserve isOther attribute from the option block so
+							// server-side rendering can attach special handlers.
+							if ( ! empty( $option['attrs']['isOther'] ) ) {
+								$option_data['isOther'] = true;
+								$atts['allowother']     = true;
+							}
+							if ( ! empty( $option['attrs']['otherPlaceholder'] ) ) {
+								$option_data['otherPlaceholder'] = $option['attrs']['otherPlaceholder'];
+							}
 
 							if ( isset( $option_attrs['class'] ) ) {
 								$option_data['class'] = $option_attrs['class'] . ' wp-block-jetpack-option';
@@ -947,23 +979,44 @@ class Contact_Form_Plugin {
 		}
 
 		while ( $processor->next_tag() ) {
-			$id = $processor->get_attribute( 'data-id-attr' );
-			if ( 'previous-step' === $id ) {
+			// Check for button type - support both legacy (data-id-attr) and new (class-based) identification.
+			$id              = $processor->get_attribute( 'data-id-attr' );
+			$is_previous_btn = 'previous-step' === $id || $processor->has_class( 'form-button-previous' );
+			$is_next_btn     = 'next-step' === $id || $processor->has_class( 'form-button-next' );
+			$is_submit_btn   = 'submit-step' === $id || $processor->has_class( 'form-button-submit' );
+
+			if ( $is_previous_btn ) {
 				$processor->remove_attribute( 'id' );
 				$processor->add_class( 'disable-spinner is-previous is-hidden' );
 				$processor->set_attribute( 'data-wp-on--click', 'actions.previousStep' );
 				$processor->set_attribute( 'data-wp-class--is-hidden', 'state.isFirstStep' );
 			}
-			if ( 'next-step' === $id ) {
+			if ( $is_next_btn ) {
 				$processor->remove_attribute( 'id' );
 				$processor->add_class( 'disable-spinner is-next' );
 				$processor->set_attribute( 'data-wp-on--click', 'actions.nextStep' );
 				$processor->set_attribute( 'data-wp-class--is-hidden', 'state.isLastStep' );
 			}
-			if ( 'submit-step' === $id ) {
+			if ( $is_submit_btn ) {
 				$processor->remove_attribute( 'id' );
-				$processor->add_class( 'is-submit is-hidden' );
+				if ( $processor->has_class( 'is-submit' ) ) {
+					$processor->add_class( 'is-hidden' );
+				} else {
+					$processor->add_class( 'is-submit is-hidden' );
+				}
+
 				$processor->set_attribute( 'data-wp-class--is-hidden', 'state.isNotLastStep' );
+				if ( 'BUTTON' === $processor->get_tag() ) {
+					Contact_Form::add_submit_button_interactivity_attributes( $processor );
+				} else {
+					$processor->set_bookmark( 'pre-button-search' );
+					if ( $processor->next_tag( 'button' ) ) {
+						Contact_Form::add_submit_button_interactivity_attributes( $processor );
+					} else {
+						$processor->seek( 'pre-button-search' );
+					}
+					$processor->release_bookmark( 'pre-button-search' );
+				}
 			}
 		}
 
@@ -1481,7 +1534,7 @@ class Contact_Form_Plugin {
 	public function unread_count() {
 
 		global $submenu, $menu;
-		if ( apply_filters( 'jetpack_forms_use_new_menu_parent', true ) && current_user_can( 'edit_pages' ) ) {
+		if ( current_user_can( 'edit_pages' ) ) {
 			// show the count on Jetpack and Jetpack → Forms
 			$unread = self::get_unread_count();
 
@@ -1512,7 +1565,8 @@ class Contact_Form_Plugin {
 
 				// Jetpack submenu entries
 				foreach ( $submenu['jetpack'] as $index => $menu_item ) {
-					if ( 'jetpack-forms-admin' === $menu_item[2] ) {
+					$admin_slug = apply_filters( 'jetpack_forms_alpha', false ) ? Dashboard::FORMS_WPBUILD_ADMIN_SLUG : Dashboard::ADMIN_SLUG;
+					if ( $admin_slug === $menu_item[2] ) {
 						// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 						$submenu['jetpack'][ $index ][0] .= $forms_unread_count_tag;
 					}
@@ -1552,6 +1606,11 @@ class Contact_Form_Plugin {
 	 * Conditionally attached to `template_redirect`
 	 */
 	public function process_form_submission() {
+		// Block submissions in preview mode.
+		if ( Form_Preview::is_preview_mode() ) {
+			return;
+		}
+
 		// Add a filter to replace tokens in the subject field with sanitized field values.
 		add_filter( 'contact_form_subject', array( $this, 'replace_tokens_with_input' ), 10, 2 );
 
@@ -2221,6 +2280,7 @@ class Contact_Form_Plugin {
 		$form['user_agent']       = isset( $_SERVER['HTTP_USER_AGENT'] ) ? filter_var( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : '';
 		$form['referrer']         = isset( $_SERVER['HTTP_REFERER'] ) ? esc_url_raw( wp_unslash( $_SERVER['HTTP_REFERER'] ) ) : '';
 		$form['blog']             = get_option( 'home' );
+		$form['blog_lang']        = get_bloginfo( 'language' );
 		$form['comment_date_gmt'] = gmdate( DATE_ATOM, time() ); // ISO 8601. See https://www.php.net/manual/en/class.datetimeinterface.php#datetimeinterface.constants.types
 
 		foreach ( $_SERVER as $key => $value ) {
@@ -3148,7 +3208,7 @@ class Contact_Form_Plugin {
 		$post_id = wp_insert_post(
 			array(
 				'post_type'    => 'page',
-				'post_title'   => esc_html__( 'Jetpack Forms', 'jetpack-forms' ),
+				'post_title'   => '',
 				'post_content' => $pattern_content,
 			)
 		);
@@ -3476,14 +3536,42 @@ class Contact_Form_Plugin {
 	}
 
 	/**
-	 * Disable Block Editor for feedbacks.
+	 * Control Block Editor usage for form-related post types.
+	 *
+	 * Disables the Block Editor for feedback (form responses) and
+	 * forces it on for jetpack_form (form definitions), even if the
+	 * Classic Editor plugin is active.
 	 *
 	 * @param bool   $can_edit Whether the post type can be edited or not.
 	 * @param string $post_type The post type being checked.
 	 * @return bool
 	 */
 	public function use_block_editor_for_post_type( $can_edit, $post_type ) {
-		return 'feedback' === $post_type ? false : $can_edit;
+		if ( 'feedback' === $post_type ) {
+			return false;
+		}
+
+		if ( Contact_Form::POST_TYPE === $post_type ) {
+			return true;
+		}
+
+		return $can_edit;
+	}
+
+	/**
+	 * Force the Block Editor for jetpack_form posts, even if the
+	 * Classic Editor plugin is active.
+	 *
+	 * @param bool    $can_edit Whether the post can be edited or not.
+	 * @param WP_Post $post    The post being checked.
+	 * @return bool
+	 */
+	public function use_block_editor_for_post( $can_edit, $post ) {
+		if ( Contact_Form::POST_TYPE === get_post_type( $post ) ) {
+			return true;
+		}
+
+		return $can_edit;
 	}
 
 	/**
@@ -3652,6 +3740,33 @@ class Contact_Form_Plugin {
 	}
 
 	/**
+	 * Purges the edge cache when a jetpack_form post is published, updated while published, or unpublished.
+	 *
+	 * @param string       $new_status The new post status.
+	 * @param string       $old_status The old post status.
+	 * @param WP_Post|null $post       The post object, when available.
+	 */
+	public function purge_edge_cache_on_form_status_change( $new_status, $old_status, ?WP_Post $post = null ) {
+		if ( ! $post instanceof WP_Post ) {
+			return;
+		}
+
+		if ( Contact_Form::POST_TYPE !== $post->post_type ) {
+			return;
+		}
+
+		if ( 'publish' === $new_status || 'publish' === $old_status ) {
+			/**
+			 * Fires when the edge cache for the entire domain should be purged.
+			 *
+			 * This action is handled by the WordPress.com hosting platform
+			 * and has no effect in self-hosted WordPress environments.
+			 */
+			do_action( 'edge_cache_purge_domain' );
+		}
+	}
+
+	/**
 	 * Tracks when a feedback post status changes to 'spam' and stores the timestamp.
 	 * This allows us to accurately determine when spam was marked, independent of other post updates.
 	 *
@@ -3809,15 +3924,15 @@ class Contact_Form_Plugin {
 	}
 
 	/**
-	 * Redirect users from the edit-feedback screen to the Jetpack Forms admin page.
+	 * Redirect users from the edit-feedback and edit-jetpack_form screens to the Jetpack Forms admin page.
 	 *
-	 * This method is hooked to 'current_screen' and checks if the current screen
-	 * is 'edit-feedback'. If so, it redirects the user to admin.php?page=jetpack-forms-admin.
+	 * This method is hooked to 'current_screen' and redirects:
+	 * - edit-jetpack_form: to #/forms (legacy) or &p=/forms (wp-build)
+	 * - edit-feedback: to #/responses?status=inbox (legacy) or &p=/responses/inbox (wp-build)
 	 *
 	 * @since 6.0.0
 	 */
 	public function redirect_edit_feedback_to_jetpack_forms() {
-		// Only proceed if we have a valid screen object
 		if ( ! function_exists( 'get_current_screen' ) ) {
 			return;
 		}
@@ -3828,7 +3943,19 @@ class Contact_Form_Plugin {
 			return;
 		}
 
-		$redirect = Dashboard::get_admin_url( $screen->id );
+		// Don't redirect if we're already on the Forms admin page (prevents redirect loop).
+		if ( Dashboard::is_jetpack_forms_admin_page() ) {
+			return;
+		}
+
+		$redirect = null;
+
+		if ( 'edit-jetpack_form' === $screen->id ) {
+			$redirect = Dashboard::get_forms_admin_url( 'forms' );
+		} elseif ( 'edit-feedback' === $screen->id ) {
+			$redirect = Dashboard::get_forms_admin_url( 'inbox' );
+		}
+
 		if ( $redirect ) {
 			wp_safe_redirect( $redirect );
 			exit;

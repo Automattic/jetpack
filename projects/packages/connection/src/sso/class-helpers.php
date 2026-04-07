@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Connection\SSO;
 
+use Automattic\Jetpack\Connection\SSO;
 use Automattic\Jetpack\Constants;
 use Jetpack_IXR_Client;
 
@@ -208,6 +209,15 @@ class Helpers {
 			$base_url_parts = wp_parse_url( esc_url_raw( $api_base ) );
 			if ( $base_url_parts && ! empty( $base_url_parts['host'] ) ) {
 				$hosts[] = $base_url_parts['host'];
+			}
+		}
+
+		foreach ( array( SSO::get_broker_url(), SSO::get_broker_auth_url() ) as $broker_url ) {
+			if ( $broker_url ) {
+				$broker_parts = wp_parse_url( $broker_url );
+				if ( $broker_parts && ! empty( $broker_parts['host'] ) ) {
+					$hosts[] = $broker_parts['host'];
+				}
 			}
 		}
 

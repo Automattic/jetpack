@@ -222,7 +222,7 @@ export function getQuestions( type ) {
 				},
 				{
 					message:
-						'This TypeScript package will contain pre-built code, built using tsc (no bundling or minification).',
+						'This TypeScript package will contain pre-built code, built using tsgo (no bundling or minification).',
 					value: 'ts-tsc',
 				},
 			],
@@ -710,9 +710,12 @@ function createPackageJson( packageJson, answers ) {
 		if ( ts ) {
 			packageJson.devDependencies.typescript = findVersionFromPnpmLock( 'typescript' );
 			if ( answers.typescript === 'ts-tsc' ) {
+				packageJson.devDependencies[ '@typescript/native-preview' ] = findVersionFromPnpmLock(
+					'@typescript/native-preview'
+				);
 				packageJson.scripts = {
 					...packageJson.scripts,
-					build: 'pnpm run clean && pnpm exec tsc --pretty',
+					build: 'pnpm run clean && pnpm exec tsgo --pretty',
 					clean: 'rm -rf build/',
 				};
 				packageJson.exports = {
@@ -999,7 +1002,7 @@ function createReadMeTxt( answers ) {
 		`=== Jetpack ${ answers.name } ===\n` +
 		'Contributors: automattic,\n' +
 		'Tags: jetpack, stuff\n' +
-		'Requires at least: 6.7\n' +
+		'Requires at least: 6.8\n' +
 		'Requires PHP: 7.2\n' +
 		'Tested up to: 6.9\n' +
 		`Stable tag: ${ answers.version }\n` +

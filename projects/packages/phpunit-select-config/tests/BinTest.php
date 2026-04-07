@@ -244,6 +244,26 @@ class BinTest extends TestCase {
 		);
 	}
 
+	public function testPrependFileRun() {
+		\Patchwork\redefine(
+			'ini_get',
+			function ( $option ) {
+				$this->assertSame( 'auto_prepend_file', $option );
+				return '/path/to/prepend.php';
+			}
+		);
+
+		$this->doSuccessfulRun(
+			array( 'xxx', 'test#.xml' ),
+			array(
+				'-dauto_prepend_file=/path/to/prepend.php',
+				__DIR__ . '/../vendor/bin/phpunit',
+				'--configuration',
+				'test' . explode( '.', \PHPUnit\Runner\Version::id() )[0] . '.xml',
+			)
+		);
+	}
+
 	public function testFailedExec() {
 		$GLOBALS['_composer_autoload_path'] = __DIR__ . '/../vendor/autoload.php';
 		$GLOBALS['_composer_bin_dir']       = __DIR__ . '/../vendor/bin';

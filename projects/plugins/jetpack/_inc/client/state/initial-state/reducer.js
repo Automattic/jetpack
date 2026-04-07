@@ -538,6 +538,17 @@ export function showBackups( state ) {
 }
 
 /**
+ * Check if scan UI should be displayed.
+ *
+ * @param {object} state - Global state tree
+ *
+ * @return {boolean} True if scan UI should be displayed.
+ */
+export function showScan( state ) {
+	return state.jetpack.initialState.siteData?.showScan ?? true;
+}
+
+/**
  * Determines if the Jetpack Recommendations should be displayed
  *
  * @param {object} state - Global state tree
@@ -845,6 +856,16 @@ export function isBlazeDashboardEnabled( state ) {
  */
 export function isWpAdminSubscriberManagementEnabled( state ) {
 	return !! state.jetpack.initialState.isWpAdminSubscriberManagementEnabled;
+}
+
+/**
+ * Returns true if the wp-admin Newsletter settings page is enabled.
+ *
+ * @param {object} state - Global state tree.
+ * @return {boolean} True if the Newsletter settings page is enabled.
+ */
+export function isWpAdminNewsletterSettingsEnabled( state ) {
+	return !! state.jetpack.initialState.isWpAdminNewsletterSettingsEnabled;
 }
 
 /**
