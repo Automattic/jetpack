@@ -2,7 +2,6 @@ import type { ConnectionScriptData } from '@automattic/jetpack-connection';
 
 declare module '*.png';
 declare module '*.svg';
-declare module '*.svg?component';
 declare module '*.svg?raw';
 declare module '*.jpeg';
 declare module '*.jpg';

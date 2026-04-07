@@ -153,19 +153,10 @@ function zeroBSCRMJS_viewContactInit() {
 	jQuery( '.zbs-contact-action' )
 		.off( 'click' )
 		.on( 'click', function () {
-			// get action type (at launch, only url)
-			const actionType = jQuery( this ).attr( 'data-action' );
-
-			if ( typeof actionType !== 'undefined' ) {
-				switch ( actionType ) {
-					case 'url': {
-						const u = jQuery( this ).attr( 'data-url' );
-						if ( typeof u !== 'undefined' && u ) {
-							window.location = u;
-						}
-
-						break;
-					}
+			if ( this.dataset.action === 'url' ) {
+				const u = this.dataset.url;
+				if ( u && ( u.startsWith( 'https://' ) || u.startsWith( 'http://' ) ) ) {
+					window.location = u;
 				}
 			}
 		} );

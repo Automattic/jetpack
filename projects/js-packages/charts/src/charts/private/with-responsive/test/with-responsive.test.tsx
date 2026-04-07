@@ -47,10 +47,10 @@ describe( 'withResponsive', () => {
 			expect( component ).toHaveStyle( { width: '400px' } );
 		} );
 
-		test( 'passes size prop equal to container width', () => {
-			render( <ResponsiveComponent data={ [] } /> );
+		test( 'passes explicit size prop through to component', () => {
+			render( <ResponsiveComponent data={ [] } size={ 200 } /> );
 			const component = screen.getByTestId( 'mock-component' );
-			expect( component ).toHaveAttribute( 'data-size', '600' );
+			expect( component ).toHaveAttribute( 'data-size', '200' );
 		} );
 	} );
 
@@ -61,8 +61,8 @@ describe( 'withResponsive', () => {
 			expect( wrapper ).toHaveStyle( { width: '100%', height: '100%' } );
 		} );
 
-		test( 'wrapper uses size prop for dimensions when provided', () => {
-			render( <ResponsiveComponent data={ [] } size={ 200 } /> );
+		test( 'wrapper uses explicit width/height for dimensions when provided', () => {
+			render( <ResponsiveComponent data={ [] } width={ 200 } height={ 200 } /> );
 			const wrapper = screen.getByTestId( 'responsive-wrapper' );
 			expect( wrapper ).toHaveStyle( { width: '200px', height: '200px' } );
 		} );

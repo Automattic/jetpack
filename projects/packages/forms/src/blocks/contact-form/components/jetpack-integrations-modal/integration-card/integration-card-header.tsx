@@ -2,8 +2,6 @@
  * External dependencies
  */
 import jetpackAnalytics from '@automattic/jetpack-analytics';
-import { Badge } from '@automattic/ui';
-import '@automattic/ui/style.css';
 /**
  * Internal dependencies
  */
@@ -17,6 +15,7 @@ import {
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { chevronDown, chevronUp, plugins } from '@wordpress/icons';
+import { Badge } from '@wordpress/ui';
 import clsx from 'clsx';
 import useConfigValue from '../../../../../hooks/use-config-value.ts';
 import PluginActionButton from './plugin-action-button.tsx';
@@ -142,7 +141,10 @@ const IntegrationCardHeader = ( {
 						{ __isPartial && (
 							<Animate type="loading">
 								{ ( { className } ) => (
-									<Badge className={ clsx( 'integration-card__plugin-badge', className ) }>
+									<Badge
+										intent="draft"
+										className={ clsx( 'integration-card__plugin-badge', className ) }
+									>
 										{ ' ' /* intentionally left blank */ }
 									</Badge>
 								) }
@@ -150,20 +152,20 @@ const IntegrationCardHeader = ( {
 						) }
 						{ showPluginAction && (
 							<Badge
-								intent={ isInstalled && ! isActive ? 'warning' : 'default' }
+								intent={ isInstalled && ! isActive ? 'low' : 'draft' }
 								className="integration-card__plugin-badge"
 							>
 								{ pluginActionLabel }
 							</Badge>
 						) }
 						{ showConnectedBadge && (
-							<Badge intent="success" className="integration-card__connected-badge">
+							<Badge intent="stable" className="integration-card__connected-badge">
 								{ __( 'Enabled', 'jetpack-forms' ) }
 							</Badge>
 						) }
 						{ showPendingBadge &&
 							( setupBadge || (
-								<Badge intent="warning" className="integration-card__setup-badge">
+								<Badge intent="low" className="integration-card__setup-badge">
 									{ __( 'Needs connection', 'jetpack-forms' ) }
 								</Badge>
 							) ) }

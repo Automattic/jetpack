@@ -1,6 +1,7 @@
 import { Path } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import renderMaterialIcon from '../shared/components/render-material-icon.jsx';
+import deprecated from './deprecated.js';
 import edit from './edit.js';
 import save from './save.js';
 
@@ -71,6 +72,7 @@ const settings = {
 		max: { type: 'number' },
 	},
 	edit,
+	deprecated,
 	save,
 };
 

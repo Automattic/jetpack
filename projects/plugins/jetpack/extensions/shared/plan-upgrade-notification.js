@@ -41,16 +41,21 @@ function getPlanUrl() {
 		if ( queryParams.get( 'plan_upgraded' ) ) {
 			let planName = null;
 
-			getPlanNameFromApi: try {
-				// not updating if simple site
+			try {
 				if ( isSimpleSite() ) {
-					break getPlanNameFromApi;
+					const siteObj = await apiFetch( {
+						path: `/sites/${ parseInt( window?.Jetpack_Editor_Initial_State?.wpcomBlogId ) || 0 }`,
+						apiNamespace: 'rest/v1.1',
+					} );
+					if ( siteObj?.plan ) {
+						planName = siteObj.plan.product_name_short;
+					}
+				} else {
+					const jetpackSiteInfo = await apiFetch( { path: '/jetpack/v4/site' } );
+					const data = JSON.parse( jetpackSiteInfo.data );
+
+					planName = data.plan.product_name;
 				}
-
-				const jetpackSiteInfo = await apiFetch( { path: '/jetpack/v4/site' } );
-				const data = JSON.parse( jetpackSiteInfo.data );
-
-				planName = data.plan.product_name;
 			} finally {
 				const planUrl = getPlanUrl();
 

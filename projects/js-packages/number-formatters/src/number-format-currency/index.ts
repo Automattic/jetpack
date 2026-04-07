@@ -389,6 +389,7 @@ const getCurrencyObject = ( {
 		integer,
 		fraction,
 		hasNonZeroFraction,
+		floatValue: numberAsFloat,
 	};
 };
 

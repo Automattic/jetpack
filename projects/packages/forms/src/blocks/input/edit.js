@@ -104,7 +104,10 @@ const InputEdit = ( { attributes, clientId, isSelected, name, setAttributes, con
 							key="min"
 							label={ __( 'Minimum value', 'jetpack-forms' ) }
 							value={ min }
-							onChange={ value => setAttributes( { min: value } ) }
+							onChange={ value => {
+								const parsed = parseFloat( value );
+								setAttributes( { min: Number.isFinite( parsed ) ? parsed : undefined } );
+							} }
 							max={ max }
 							__nextHasNoMarginBottom={ true }
 							__next40pxDefaultSize={ true }
@@ -116,12 +119,11 @@ const InputEdit = ( { attributes, clientId, isSelected, name, setAttributes, con
 						<NumberControl
 							key="max"
 							label={ __( 'Maximum value', 'jetpack-forms' ) }
-							value={ attributes.max }
-							onChange={ value =>
-								setAttributes( {
-									max: value,
-								} )
-							}
+							value={ max }
+							onChange={ value => {
+								const parsed = parseFloat( value );
+								setAttributes( { max: Number.isFinite( parsed ) ? parsed : undefined } );
+							} }
 							min={ min }
 							__nextHasNoMarginBottom={ true }
 							__next40pxDefaultSize={ true }

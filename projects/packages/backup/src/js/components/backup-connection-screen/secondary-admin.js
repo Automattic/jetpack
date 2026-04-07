@@ -3,7 +3,7 @@ import { ConnectScreen } from '@automattic/jetpack-connection';
 import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { STORE_ID } from '../../store';
-import connectImage from './assets/connect-backup.png';
+import connectImage from './assets/connect-backup.webp';
 
 export const BackupSecondaryAdminConnectionScreen = () => {
 	const APINonce = useSelect( select => select( STORE_ID ).getAPINonce(), [] );

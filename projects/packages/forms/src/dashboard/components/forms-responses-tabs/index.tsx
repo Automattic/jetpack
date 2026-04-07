@@ -3,11 +3,8 @@
  */
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Tabs } from '@wordpress/ui';
 import { useLocation, useNavigate } from 'react-router';
-/**
- * Internal dependencies
- */
-import * as Tabs from '../tabs/index.ts';
 
 type TabValue = 'forms' | 'responses';
 
@@ -32,7 +29,7 @@ export default function FormsResponsesTabs(): JSX.Element {
 
 	return (
 		<Tabs.Root value={ value } onValueChange={ onValueChange }>
-			<Tabs.List density="compact">
+			<Tabs.List variant="minimal">
 				<Tabs.Tab value="responses">{ __( 'Responses', 'jetpack-forms' ) }</Tabs.Tab>
 				<Tabs.Tab value="forms">{ __( 'Forms', 'jetpack-forms' ) }</Tabs.Tab>
 			</Tabs.List>

@@ -76,11 +76,11 @@ class Jetpack_Manage {
 
 		return Admin_Menu::add_menu(
 			__( 'Jetpack Manage', 'jetpack-my-jetpack' ),
-			_x( 'Jetpack Manage', 'product name shown in menu', 'jetpack-my-jetpack' ) . ' <span class="dashicons dashicons-external"></span>',
+			_x( 'Jetpack Manage', 'product name shown in menu', 'jetpack-my-jetpack' ) . ' <span aria-hidden="true">↗</span>',
 			'manage_options',
 			esc_url( Redirect::get_url( 'cloud-manage-dashboard-wp-menu', $args ) ),
 			null,
-			15
+			16
 		);
 	}
 

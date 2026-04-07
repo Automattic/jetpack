@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix PHP warning when used with the new 'Modern' admin UI color scheme.

@@ -69,8 +69,11 @@ describe( 'SettingsCard', () => {
 				<Child />
 			</SettingsCard>
 		);
-		// eslint-disable-next-line testing-library/no-node-access
-		expect( screen.getByText( 'Comments' ).closest( '.dops-section-header' ) ).toBeInTheDocument();
+
+		const header = screen.getByText( 'Comments' );
+		expect( header ).toBeInTheDocument();
+		// Verify it's inside the card header
+		expect( header.closest( '.jp-form-settings-card__header' ) ).not.toBeNull(); // eslint-disable-line testing-library/no-node-access
 	} );
 
 	it( "when not saving and has settings to save, it's enabled", () => {
@@ -97,11 +100,11 @@ describe( 'SettingsCard', () => {
 			);
 			expect(
 				// eslint-disable-next-line testing-library/no-node-access
-				screen.getByText( 'A custom header' ).closest( '.dops-section-header' )
+				screen.getByText( 'A custom header' ).closest( '.jp-form-settings-card__header' )
 			).toBeInTheDocument();
 			expect(
 				// eslint-disable-next-line testing-library/no-node-access
-				screen.queryByText( 'Comments' )?.closest( '.dops-section-header' ) || null
+				screen.queryByText( 'Comments' )?.closest( '.jp-form-settings-card__header' ) || null
 			).not.toBeInTheDocument();
 		} );
 	} );

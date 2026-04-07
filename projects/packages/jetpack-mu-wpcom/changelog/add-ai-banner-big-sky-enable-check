@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+AI Assistant Banner: Hide banner when the AI assistant is already enabled via big_sky_enable option.

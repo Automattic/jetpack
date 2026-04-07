@@ -7,7 +7,6 @@ import type {
 } from '../../types';
 import type { GlyphProps } from '@visx/xychart';
 import type { RenderTooltipParams } from '@visx/xychart/lib/components/Tooltip';
-import type { GapSize } from '@wordpress/theme';
 import type { ReactNode, SVGProps, FC } from 'react';
 
 export type LineChartAnnotationProps = {
@@ -42,14 +41,7 @@ export interface LineChartProps extends BaseChartProps< SeriesData[] > {
 		showVertical?: boolean;
 		showHorizontal?: boolean;
 	};
-	legendInteractive?: boolean;
 	children?: ReactNode;
-	/**
-	 * Gap between chart elements (SVG, legend, children).
-	 * Uses WordPress design system tokens.
-	 * @default 'md'
-	 */
-	gap?: GapSize;
 }
 
 export type TooltipDatum = {

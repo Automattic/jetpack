@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.28.2] - 2026-03-23
+### Security
+- WAF: Fix issue that potentially allowed bypassing WAF rules. [#47692]
+
+## [0.28.1] - 2026-02-23
+### Changed
+- Update dependencies. [#39263]
+
+## [0.28.0] - 2026-02-16
+### Added
+- Enable support for ModSecurity's `MATCHED_VAR*` family of targets. [#47012]
+
+## [0.27.11] - 2026-02-10
+### Fixed
+- Fix mishandling of empty Content-Type headers. [#46986]
+
 ## [0.27.10] - 2026-02-02
 ### Changed
 - Update dependencies. [#39263]
@@ -513,6 +529,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Core: do not ship .phpcs.dir.xml in production builds.
 
+[0.28.2]: https://github.com/Automattic/jetpack-waf/compare/v0.28.1...v0.28.2
+[0.28.1]: https://github.com/Automattic/jetpack-waf/compare/v0.28.0...v0.28.1
+[0.28.0]: https://github.com/Automattic/jetpack-waf/compare/v0.27.11...v0.28.0
+[0.27.11]: https://github.com/Automattic/jetpack-waf/compare/v0.27.10...v0.27.11
 [0.27.10]: https://github.com/Automattic/jetpack-waf/compare/v0.27.9...v0.27.10
 [0.27.9]: https://github.com/Automattic/jetpack-waf/compare/v0.27.8...v0.27.9
 [0.27.8]: https://github.com/Automattic/jetpack-waf/compare/v0.27.7...v0.27.8

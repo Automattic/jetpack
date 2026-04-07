@@ -1,0 +1,12 @@
+@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+
+.social-icons-list {
+	display: flex;
+	gap: 0.5rem;
+	flex-wrap: wrap;
+}
+
+.social-icon-button {
+	padding: 0;
+	height: auto;
+}

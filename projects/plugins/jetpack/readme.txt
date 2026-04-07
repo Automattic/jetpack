@@ -1,7 +1,7 @@
 === Jetpack - WP Security, Backup, Speed, & Growth ===
-Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav, alternatekev, andy, annamcphee, annezazu, apeatling, arcangelini, arsihasi, azaozz, barry, batmoo, beaulebens, bindlegirl, biskobe, bjorsch, blobaugh, brbrr, brileyhooper, cainm, cena, cfinke, cgastrell, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, daniloercoli, davoraltman, delawski, designsimply, dkmyta, dllh, drawmyface, dsmart, dun2mis, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, joen, jblz, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lhkowalski, lschuyler, macmanx, martinremy, matt, mattwiebe, matveb, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, miguelxavierpenha, mikeyarce, mkaz, nancythanki, nickmomrik, njweller, nunyvega, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, renatoagds, retrofox, richardmtl, richardmuscat, robertbpugh, roccotripaldi, ryancowles, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, thehenridev, tmoorewp, tyxla, Viper007Bond, westi, williamvianas, wpkaren, yoavf, zinigor
+Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav, alternatekev, andy, annamcphee, annezazu, apeatling, arcangelini, arsihasi, azaozz, barry, batmoo, beaulebens, bindlegirl, biskobe, bjorsch, blobaugh, brbrr, brileyhooper, cainm, cena, cfinke, cgastrell, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, daniloercoli, davoraltman, delawski, designsimply, dkmyta, dllh, dlocc, drawmyface, dsmart, dun2mis, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, joen, jblz, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lhkowalski, lschuyler, macmanx, martinremy, matt, mattwiebe, matveb, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, miguelxavierpenha, mikeyarce, mkaz, nancythanki, nickmomrik, njweller, nunyvega, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, renatoagds, retrofox, richardmtl, richardmuscat, robertbpugh, roccotripaldi, ryancowles, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, thehenridev, tmoorewp, tyxla, Viper007Bond, westi, williamvianas, wpkaren, yoavf, zinigor
 Tags: Security, backup, malware, scan, performance
-Stable tag: 15.5
+Stable tag: 15.7-beta
 Requires at least: 6.8
 Requires PHP: 7.2
 Tested up to: 6.9
@@ -326,47 +326,54 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 15.5 - 2026-02-03
+### 15.7-beta - 2026-04-06
 #### Major Enhancements
-- General: Update minimum WordPress version to 6.8.
+- AI Assistant: Disable the Write Brief (Breve) proofreading feature by default. It can be re-enabled via the 'breve_enabled' filter.
+- Jetpack AI Image Generation & Editing: Evolve & enhance Jetpack AI Image Generation.
 
 #### Enhancements
-- Add Jetpack Protect details page for users without the dedicated Jetpack Protect plugin.
-- Command Palette: Add site switcher command to quickly switch between WordPress.com connected sites.
-- Forms: Add form editor.
-- Forms: Add ref attribute support for the form block.
-- Forms: Add single forms screen.
-- Forms: Allow merging two options together with backspace.
-- Forms: Display star and heart rating icons on form submission confirmation page.
-- Forms: Make form webhooks generally available.
-- Forms: Update DataViews header and filters.
-- IDC: Add revalidation of IDC.
-- Instant Search: Show WooCommerce product filters in filter widget.
-- Likes: Add minified build for CSS.
-- Likes: Display a notice to block theme users explaining they can add the Like block directly in the site editor instead of enabling the legacy feature.
-- Likes: Enable CSS inlining.
-- My Jetpack: Check red bubble notifications async when cache is not available.
-- Sharing: Improve accessibility of sharing button texts by removing "Click to" prefix.
-- Social: Gate per-network customization behind paid features.
-- Social: Mark new connections as shared by default for privileged users.
-- Social: Refactor share status UI to use Notice component.
-- Social: Show a snackbar while sharing is in progress.
-- Social: Use fallback avatar for Jetpack Social connection icons.
+- Add 'note' to the default whitelisted comment types for Sync.
+- Admin Menu: Reorder menu items so that links opening in new windows appear last.
+- Admin Menu: Reorder menu items so that links opening in new windows appear last.
+- Backup: Use core components for storage popover.
+- Block Notes: Add Block Notes as a standalone Jetpack extension plugin.
+- Block Notes: Update enablement logic to use AI feature checks and gate feature behind a paid Jetpack AI plan.
+- Donations: Use the core WordPress spinner component.
+- Forms: Add logged-in user display name and ID to form submission emails and response sidebar.
+- Forms: Use title header on top-level dashboard pages.
+- Network Admin: Replace legacy PHP masthead on Network Sites and Network Settings pages with the unified AdminPage header from @automattic/jetpack-components.
+- Newsletter: Add "Send newsletter by default" toggle to settings.
+- Newsletter: Add `wpcom_newsletter_send_default` site option to control whether posts are sent to subscribers by default.
+- Newsletter: Hide settings tab and redirect to new settings page when wp-admin newsletter settings are enabled.
+- QR Post Code: Use site icon (favicon) instead of site logo for better rendering in the QR code center area.
+- SEO: Add Canonical URLs toggle to the Traffic settings page.
+- Settings: Align tab navigation font and color with WordPress design system tokens.
+- Settings: Modernize page UI.
+- Sync: Improve checksum performance for meta tables.
+- Update admin page footer with Products and Help navigation links, replacing About, Privacy, and Terms links.
+- Update network admin settings visually.
+
+#### Improved compatibility
+- External Media: ensure that the new WordPress "Embed video from URL" option appears in the Cover block options alongside Jetpack's External Media options.
 
 #### Bug fixes
-- About Page: Fix plugin icon positioning and sizing.
-- AI Assistant: Fix markdown rendering in feedback sidebar to properly display bold text, lists, and other formatting.
-- AI Search: Prevent AI Search from disappearing when returning certain responses.
-- Contact Form: Fix checkbox field value not being properly output in the classic editor form builder.
-- Copy Post: Copy Gutenberg Footnotes block content when duplicating posts.
-- Forms: Fix date exports.
-- Forms: Improve VoiceOver for form submissions.
-- Google Fonts: Prevent Gutenberg 22.4+ from printing all registered fonts.
-- Shortcode: Fix broken YouTube URL on the classic editor.
-- Site Switcher: Fix partial keyword matching so typing 'swit' shows 'Switch to...' results in the command palette.
-- Slideshow: Ensure slideshows do not stretch to parent container width on mobile if no list height is set.
-- Social Previews: Use fallback image when social preview profile picture fails.
-- UI: Prevent social modals in editor from stretching too wide on large screens.
+- Admin Page: Restore border on header component.
+- AI Assistant: Prevent modal shaking from when content streams in.
+- Canonical URLs: Fix flaky author archive canonical URL resolution on WordPress trunk.
+- Comments: Remove resource hints for outdated gravatar domains and use secure.gravatar.com instead.
+- Forms: Ensure number field min and max values display in the UI after page reload.
+- Forms: Only show form blocks under the "Forms" category of the block inserter.
+- Google Search Preview: Ensure site icon is shown on all sites.
+- Image Compare Block: Fix disappearing link toolbar when highlighting caption text to add a hyperlink.
+- Map block: Fix markers displaying as bullet points on Simple sites.
+- Newsletter: Fix "email sent" confirmation to show "all subscribers" when post had paywall block and was emailed to everyone.
+- Newsletter Email Status: Add per-post access control to the newsletter email sent status endpoint.
+- SEO: Restore the Optimize SEO panel to the Jetpack sidebar alongside document settings.
+- Settings: Add bottom border to the masthead header.
+- Social: Fix slow page loads due to Social Image generation.
+- Sync: Prevent incremental sync for posts with unregistered post types.
+- Update AI form assistant to detect and create `core/button` blocks instead of `jetpack/button`.
+- WAF: Fix issue that potentially allowed bypassing WAF rules.
 
 --------
 

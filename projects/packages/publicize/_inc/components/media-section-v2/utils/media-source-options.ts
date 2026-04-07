@@ -5,6 +5,7 @@
 import { AiSVG } from '@automattic/jetpack-ai-client';
 import { __ } from '@wordpress/i18n';
 import { image, starEmpty, media as mediaIcon } from '@wordpress/icons';
+import { getSocialScriptData } from '../../../utils';
 import { MediaSourceOption, MediaSourceType } from '../types';
 
 /**
@@ -14,6 +15,8 @@ import { MediaSourceOption, MediaSourceType } from '../types';
  * @return {MediaSourceOption[]} Array of media source options
  */
 export function getMediaSourceOptions(): MediaSourceOption[] {
+	const { plugin_info } = getSocialScriptData();
+
 	return [
 		{
 			id: 'sig',
@@ -37,17 +40,19 @@ export function getMediaSourceOptions(): MediaSourceOption[] {
 				'jetpack-publicize-pkg'
 			),
 		},
-		{
-			id: 'ai-image',
-			label: __( 'Generate image', 'jetpack-publicize-pkg' ),
-			description: __( 'You are using an AI-generated image.', 'jetpack-publicize-pkg' ),
-			icon: AiSVG,
-			group: 'attachment',
-			attachmentDescription: __(
-				'Shares your AI-generated image as an attachment for higher engagement.',
-				'jetpack-publicize-pkg'
-			),
-		},
+		plugin_info.jetpack.version
+			? {
+					id: 'ai-image',
+					label: __( 'Generate image', 'jetpack-publicize-pkg' ),
+					description: __( 'You are using an AI-generated image.', 'jetpack-publicize-pkg' ),
+					icon: AiSVG,
+					group: 'attachment',
+					attachmentDescription: __(
+						'Shares your AI-generated image as an attachment for higher engagement.',
+						'jetpack-publicize-pkg'
+					),
+			  }
+			: null,
 		{
 			id: 'media-library',
 			label: __( 'From Media Library', 'jetpack-publicize-pkg' ),
@@ -55,7 +60,7 @@ export function getMediaSourceOptions(): MediaSourceOption[] {
 			icon: mediaIcon,
 			group: 'attachment',
 		},
-	];
+	].filter( Boolean ) as MediaSourceOption[];
 }
 
 interface MediaSourceContext {

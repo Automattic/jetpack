@@ -7,17 +7,20 @@ import {
 } from '@automattic/jetpack-shared-extension-utils';
 import { JetpackEditorPanelLogo } from '@automattic/jetpack-shared-extension-utils/components';
 import { Button, Notice, PanelRow } from '@wordpress/components';
-import { useSelect } from '@wordpress/data';
+import { useDispatch, useSelect } from '@wordpress/data';
 import {
 	PluginPrePublishPanel,
 	PluginPostPublishPanel,
 	PluginDocumentSettingPanel,
 	store as editorStore,
 } from '@wordpress/editor';
-import { useState } from '@wordpress/element';
+import { useLayoutEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { external, Icon } from '@wordpress/icons';
-import { accessOptions } from '../../shared/memberships/constants';
+import {
+	accessOptions,
+	META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS,
+} from '../../shared/memberships/constants';
 import { useAccessLevel, isNewsletterFeatureEnabled } from '../../shared/memberships/edit';
 import {
 	NewsletterAccessDocumentSettings,
@@ -33,6 +36,65 @@ import { NewsletterTestEmailModal } from './email-preview';
 
 import './panel.scss';
 
+/**
+ * Tracks status transitions and save completions, dispatching Redux flags so
+ * SubscribersAffirmation can show the republish/modify blurb even when the
+ * post-publish panel remounts. Stays mounted for the editor session.
+ *
+ * @return {null} Renders nothing.
+ */
+function NewsletterRepublishTracker() {
+	const prevStatusRef = useRef( null );
+	const {
+		setPublishedWithEmailEnabledInSession: dispatchPublishedWithEmail,
+		setAlreadySentPostModifiedInSession: dispatchModifiedAlreadySent,
+	} = useDispatch( membershipProductsStore );
+
+	const { postId, postMeta, postEmailSentState, status, isSavingPost } = useSelect( select => {
+		const { getCurrentPost, getEditedPostAttribute } = select( editorStore );
+		const { getPostEmailSentState } = select( membershipProductsStore );
+		const post = getCurrentPost();
+		const id = post?.id;
+		if ( id ) {
+			getPostEmailSentState( id );
+		}
+		return {
+			postId: id,
+			postMeta: getEditedPostAttribute( 'meta' ),
+			postEmailSentState: id ? getPostEmailSentState( id ) : null,
+			status: post?.status,
+			isSavingPost: select( editorStore ).isSavingPost(),
+		};
+	}, [] );
+
+	useLayoutEffect( () => {
+		if ( postId ) {
+			if ( status === 'publish' ) {
+				const didTransition = prevStatusRef.current !== null && prevStatusRef.current !== 'publish';
+				if ( didTransition ) {
+					if ( ! postMeta?.[ META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS ] ) {
+						dispatchPublishedWithEmail( postId );
+					}
+				}
+			}
+			if ( isSavingPost && postEmailSentState?.email_sent_at != null ) {
+				dispatchModifiedAlreadySent( postId );
+			}
+		}
+		prevStatusRef.current = status;
+	}, [
+		status,
+		postId,
+		isSavingPost,
+		postEmailSentState?.email_sent_at,
+		postMeta,
+		dispatchPublishedWithEmail,
+		dispatchModifiedAlreadySent,
+	] );
+
+	return null;
+}
+
 function NewsletterEditorSettingsPanel( { accessLevel } ) {
 	return (
 		<PluginDocumentSettingPanel
@@ -46,11 +108,30 @@ function NewsletterEditorSettingsPanel( { accessLevel } ) {
 	);
 }
 
-const NewsletterDisabledNotice = () => (
-	<Notice status="info" isDismissible={ false } className="edit-post-post-visibility__notice">
-		{ __( 'You will be able to send newsletters once the site is published', 'jetpack' ) }
-	</Notice>
-);
+// Subscriptions will not be triggered on private sites ( on WordPress.com simple and WoA ),
+// nor on sites that have not been launched yet.
+const getNewsletterDisabledMessage = () => {
+	if ( isComingSoon() ) {
+		return __( 'You will be able to send newsletters once the site is published', 'jetpack' );
+	}
+	if ( isPrivateSite() ) {
+		return __( 'Emails will not be sent to subscribers while your site is private', 'jetpack' );
+	}
+	return null;
+};
+
+const NewsletterDisabledNotice = () => {
+	const message = getNewsletterDisabledMessage();
+	if ( ! message ) {
+		return null;
+	}
+
+	return (
+		<Notice status="info" isDismissible={ false } className="edit-post-post-visibility__notice">
+			{ message }
+		</Notice>
+	);
+};
 
 const NewsletterDisabledPanels = () => (
 	<>
@@ -194,14 +275,13 @@ export default function SubscribePanels() {
 		return null;
 	}
 
-	// Subscriptions will not be triggered on private sites ( on WordPress.com simple and WoA ),
-	// nor on sites that have not been launched yet.
-	if ( isPrivateSite() || isComingSoon() ) {
+	if ( getNewsletterDisabledMessage() ) {
 		return <NewsletterDisabledPanels />;
 	}
 
 	return (
 		<>
+			<NewsletterRepublishTracker />
 			<NewsletterEditorSettingsPanel accessLevel={ accessLevel } />
 			<NewsletterPrePublishSettingsPanel
 				accessLevel={ accessLevel }
@@ -215,3 +295,5 @@ export default function SubscribePanels() {
 		</>
 	);
 }
+
+export { NewsletterRepublishTracker, getNewsletterDisabledMessage };

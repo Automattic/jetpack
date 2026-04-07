@@ -9,10 +9,12 @@ import { getUserInfoCookie, isAuthRequired } from '../../utils';
 import { NewCommentEmail } from '../new-comment-email';
 import { NewPostsEmail } from '../new-posts-email';
 import { EmailFormCookieConsent } from './email-form-cookie-consent';
-import { getProfile } from './profile-get';
+import { getProfile, type CommentUser } from './profile-get';
 import type { ChangeEvent } from 'preact/compat';
 import './style.scss';
 import '@gravatar-com/hovercards/dist/style.css';
+
+type UserProfileData = Partial< CommentUser > | null;
 
 interface EmailFormProps {
 	shouldShowEmailForm: boolean;
@@ -35,7 +37,7 @@ export const EmailForm = ( { shouldShowEmailForm }: EmailFormProps ) => {
 	const isNameTouched = useSignal( false );
 	const isValidAuthor = useSignal( true );
 	const isLoadingProfile = useSignal( false );
-	const userProfile = useSignal( null );
+	const userProfile = useSignal< UserProfileData >( null );
 	const userEmail = useComputed( () => mailLoginData.value.email || '' );
 	const userName = useComputed( () => mailLoginData.value.author || '' );
 	const userUrl = useComputed( () => mailLoginData.value.url || '' );
@@ -133,11 +135,9 @@ export const EmailForm = ( { shouldShowEmailForm }: EmailFormProps ) => {
 
 		if ( userCookie?.service === 'guest' ) {
 			mailLoginData.value = {
-				...( userCookie?.email && { email: userCookie?.email } ),
-				...( userCookie?.author && {
-					author: userCookie?.author,
-				} ),
-				...( userCookie?.url && { url: userCookie?.url } ),
+				email: userCookie?.email ?? '',
+				author: userCookie?.author ?? '',
+				url: userCookie?.url ?? '',
 			};
 
 			if ( userCookie?.email ) {
@@ -166,7 +166,10 @@ export const EmailForm = ( { shouldShowEmailForm }: EmailFormProps ) => {
 						<label htmlFor="verbum-email-form-email" className="verbum__label">
 							{ userProfile?.value?.emailHash ? (
 								<Suspense fallback={ <Email /> }>
-									<ProfileImage key={ userProfile.value.email } profile={ userProfile.value } />
+									<ProfileImage
+										key={ userProfile.value.email }
+										profile={ userProfile.value as CommentUser }
+									/>
 								</Suspense>
 							) : (
 								<Email />

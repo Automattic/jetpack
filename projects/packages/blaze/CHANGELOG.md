@@ -5,15 +5,53 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.27.11] - 2026-04-06
+### Changed
+- Update dependencies. [#47038]
+
+## [0.27.10] - 2026-03-30
+### Changed
+- Update dependencies. [#47038]
+
+## [0.27.9] - 2026-03-23
+### Changed
+- Update package dependencies. [#47684]
+
+## [0.27.8] - 2026-03-16
+### Changed
+- Update dependencies. [#47472]
+
+## [0.27.7] - 2026-03-09
+### Changed
+- Update package dependencies. [#47496]
+
+## [0.27.6] - 2026-03-02
+### Changed
+- Update dependencies. [#47038]
+
+## [0.27.5] - 2026-02-26
+### Changed
+- Update package dependencies. [#47300]
+
+## [0.27.4] - 2026-02-23
+### Changed
+- Update package dependencies. [#47173]
+
+## [0.27.3] - 2026-02-16
+### Changed
+- Update package dependencies. [#47099]
+
+## [0.27.2] - 2026-02-10
+### Changed
+- Update dependencies. [#46931] [#47002]
+
 ## [0.27.1] - 2026-02-02
 ### Changed
 - Update package dependencies. [#46854]
 
 ## [0.27.0] - 2026-01-26
 ### Added
-- Improve post promotion speed by handling the Blaze “advise campaign” endpoint locally, reducing the initial sync delay. [#46623]
-- Improve post promotion speed by handling the Blaze “create campaign” endpoint locally, reducing the initial sync delay. [#46642]
-- Improve post promotion speed by handling the Blaze “get article” endpoint locally, reducing the initial sync delay. [#46578]
+- Improve post promotion speed by handling various Blaze endpoints locally, reducing the initial sync delay. [#46578] [#46623] [#46642]
 
 ### Changed
 - Reduce time-to-first-use by querying local database when Jetpack Sync is not ready. [#46500]
@@ -769,6 +807,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Updated package dependencies. [#27906]
 
+[0.27.11]: https://github.com/automattic/jetpack-blaze/compare/v0.27.10...v0.27.11
+[0.27.10]: https://github.com/automattic/jetpack-blaze/compare/v0.27.9...v0.27.10
+[0.27.9]: https://github.com/automattic/jetpack-blaze/compare/v0.27.8...v0.27.9
+[0.27.8]: https://github.com/automattic/jetpack-blaze/compare/v0.27.7...v0.27.8
+[0.27.7]: https://github.com/automattic/jetpack-blaze/compare/v0.27.6...v0.27.7
+[0.27.6]: https://github.com/automattic/jetpack-blaze/compare/v0.27.5...v0.27.6
+[0.27.5]: https://github.com/automattic/jetpack-blaze/compare/v0.27.4...v0.27.5
+[0.27.4]: https://github.com/automattic/jetpack-blaze/compare/v0.27.3...v0.27.4
+[0.27.3]: https://github.com/automattic/jetpack-blaze/compare/v0.27.2...v0.27.3
+[0.27.2]: https://github.com/automattic/jetpack-blaze/compare/v0.27.1...v0.27.2
 [0.27.1]: https://github.com/automattic/jetpack-blaze/compare/v0.27.0...v0.27.1
 [0.27.0]: https://github.com/automattic/jetpack-blaze/compare/v0.26.24...v0.27.0
 [0.26.24]: https://github.com/automattic/jetpack-blaze/compare/v0.26.23...v0.26.24

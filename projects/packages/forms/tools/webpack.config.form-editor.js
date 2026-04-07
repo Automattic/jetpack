@@ -3,11 +3,9 @@
  */
 
 import path from 'path';
-import { fileURLToPath } from 'url';
 import jetpackWebpackConfig from '@automattic/jetpack-webpack-config/webpack';
 
-const __filename = fileURLToPath( import.meta.url );
-const __dirname = path.dirname( __filename );
+const __dirname = import.meta.dirname;
 
 export default {
 	mode: jetpackWebpackConfig.mode,
@@ -62,14 +60,6 @@ export default {
 				extraLoaders: [ { loader: 'sass-loader', options: { api: 'modern-compiler' } } ],
 			} ),
 
-			// Allow importing .svg files as React components via `?component` query.
-			{
-				test: /\.svg$/i,
-				issuer: /\.[jt]sx?$/,
-				resourceQuery: /component/,
-				use: [ '@svgr/webpack' ],
-			},
-
 			// Allow importing .svg files as raw HTML strings via `?raw` query.
 			{
 				test: /\.svg$/i,
@@ -77,10 +67,10 @@ export default {
 				type: 'asset/source',
 			},
 
-			// Handle images (exclude ?component and ?raw SVG imports).
+			// Handle images (exclude ?raw SVG imports).
 			{
 				...jetpackWebpackConfig.FileRule(),
-				resourceQuery: { not: [ /component/, /raw/ ] },
+				resourceQuery: { not: [ /raw/ ] },
 			},
 		],
 	},

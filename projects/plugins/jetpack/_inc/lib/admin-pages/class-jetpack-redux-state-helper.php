@@ -186,6 +186,7 @@ class Jetpack_Redux_State_Helper {
 				'showPromotions'             => apply_filters( 'jetpack_show_promotions', true ),
 				'plan'                       => Jetpack_Plan::get(),
 				'showBackups'                => Jetpack::show_backups_ui(),
+				'showScan'                   => Jetpack::show_scan_ui(),
 				'showRecommendations'        => Jetpack_Recommendations::is_enabled(),
 				/** This filter is documented in my-jetpack/src/class-initializer.php */
 				'showMyJetpack'              => My_Jetpack_Initializer::should_initialize(),
@@ -247,6 +248,8 @@ class Jetpack_Redux_State_Helper {
 			'subscriptionSiteEditSupported'        => $current_theme->is_block_theme(),
 			/* This filter is already documented in jetpack/modules/subscriptions.php */
 			'isWpAdminSubscriberManagementEnabled' => apply_filters( 'jetpack_wp_admin_subscriber_management_enabled', false ),
+			/* This filter is documented in projects/packages/newsletter/src/class-settings.php */
+			'isWpAdminNewsletterSettingsEnabled'   => apply_filters( 'jetpack_wp_admin_newsletter_settings_enabled', true ),
 		);
 	}
 

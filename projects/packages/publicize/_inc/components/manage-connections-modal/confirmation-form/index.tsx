@@ -76,7 +76,7 @@ export function ConfirmationForm( {
 					connection.service_name === service?.id && connection.external_id === externalID
 			);
 		},
-		[ existingConnections, service.id ]
+		[ existingConnections, service?.id ]
 	);
 
 	const accounts = useMemo( () => {

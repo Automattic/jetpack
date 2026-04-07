@@ -542,14 +542,7 @@ class zeroBSCRM_list {
 			var zbsDrawListViewColUpdateBlocker = false;
 			var zbsDrawListViewColUpdateAJAXBlocker = false;
 
-			var zbsObjectEmailLinkPrefix = '
-			<?php
-
-				// this assumes is contact for now, just sends to prefill - perhaps later add mailto: optional (wh wants lol)
-				echo jpcrm_esc_link( 'email', -1, 'zerobs_customer', true );
-
-			?>
-			';
+			var zbsObjectEmailLinkPrefix = '<?php echo jpcrm_esc_link( 'email', -1, 'zerobs_customer', true ); /* this assumes is contact for now, just sends to prefill - perhaps later add mailto: optional (wh wants lol) */ ?>';
 			var zbsObjectViewLinkPrefixCustomer = '<?php echo jpcrm_esc_link( 'view', -1, 'zerobs_customer', true ); ?>';
 			var zbsObjectViewLinkPrefixCompany = '<?php echo jpcrm_esc_link( 'view', -1, 'zerobs_company', true ); ?>';
 			var zbsObjectViewLinkPrefixQuote = '<?php echo jpcrm_esc_link( 'edit', -1, 'zerobs_quote', true ); ?>';

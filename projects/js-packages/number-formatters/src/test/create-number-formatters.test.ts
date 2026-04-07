@@ -137,6 +137,7 @@ describe( 'createNumberFormatters()', () => {
 				fraction: ',32',
 				sign: '',
 				hasNonZeroFraction: true,
+				floatValue: 9800900.32,
 			} );
 		} );
 
@@ -153,6 +154,7 @@ describe( 'createNumberFormatters()', () => {
 					fraction: '.32',
 					sign: '',
 					hasNonZeroFraction: true,
+					floatValue: 9800900.32,
 				} );
 			} );
 
@@ -168,6 +170,7 @@ describe( 'createNumberFormatters()', () => {
 					fraction: '.32',
 					sign: '',
 					hasNonZeroFraction: true,
+					floatValue: 9800900.32,
 				} );
 			} );
 		} );

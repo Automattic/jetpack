@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Forms\ContactForm;
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Device_Detection\User_Agent_Info;
+use Automattic\Jetpack\Forms\Dashboard\Dashboard as Forms_Dashboard;
 use WP_Post;
 /**
  * Handles the response for a contact form submission.
@@ -184,6 +185,13 @@ class Feedback {
 	protected $form_id = null;
 
 	/**
+	 * The logged-in user who submitted the feedback, if any.
+	 *
+	 * @var array|null Array with 'display_name' and 'id' keys, or null if not logged in.
+	 */
+	protected $logged_in_user = null;
+
+	/**
 	 * Create a response object from a feedback post ID.
 	 *
 	 * @param int $feedback_post_id The ID of the feedback post.
@@ -268,6 +276,7 @@ class Feedback {
 		$this->subject      = $parsed_content['subject'] ?? $this->get_first_field_of_type( 'subject' );
 
 		$this->notification_recipients = $parsed_content['notification_recipients'] ?? array();
+		$this->logged_in_user          = $parsed_content['logged_in_user'] ?? null;
 
 		$this->author_data = new Feedback_Author(
 			$this->get_first_field_of_type( 'name', 'pre_comment_author_name' ),
@@ -320,9 +329,9 @@ class Feedback {
 
 		$this->source = Feedback_Source::from_submission( $current_post, $current_page_number );
 
-		// Extract and validate form ID from POST data or ref attribute
-		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verification happens in process_form_submission()
-		$form_id_attribute = $post_data['contact-form-ref'] ?? $form->get_attribute( 'ref' );
+		// Use the form's ref attribute as the authoritative form ID.
+		// The ref is set server-side (from the JWT or shortcode attributes) and cannot be tampered with.
+		$form_id_attribute = $form->get_attribute( 'ref' );
 		$form_id_attribute = is_numeric( $form_id_attribute ) ? absint( $form_id_attribute ) : 0;
 		$this->form_id     = $form_id_attribute > 0 ? $form_id_attribute : null;
 
@@ -341,6 +350,16 @@ class Feedback {
 		$this->feedback_time         = current_time( 'mysql' );
 		$this->legacy_feedback_title = "{$this->get_author()} - {$this->feedback_time}";
 		$this->legacy_feedback_id    = md5( $this->legacy_feedback_title );
+
+		// Capture logged-in user info at submission time.
+		if ( is_user_logged_in() ) {
+			$current_user         = wp_get_current_user();
+			$this->logged_in_user = array(
+				'display_name' => $current_user->display_name,
+				'username'     => $current_user->user_login,
+				'id'           => $current_user->ID,
+			);
+		}
 	}
 
 	/**
@@ -440,6 +459,72 @@ class Feedback {
 		}
 
 		return $value;
+	}
+
+	/**
+	 * Process a radio field value to detect and extract "Other" option metadata.
+	 *
+	 * This method checks if a radio field value matches the "Other" pattern and combines
+	 * it with the corresponding text input value if present.
+	 *
+	 * @param string $value     The raw field value from the submission.
+	 * @param object $field     The field object from the form.
+	 * @param string $field_id  The field ID.
+	 * @param array  $post_data The POST data from the submission.
+	 *
+	 * @return array An array with 'value' and 'meta' keys.
+	 */
+	private function process_radio_field_value( $value, $field, $field_id, $post_data ) {
+		$meta        = array();
+		$allow_other = $field->get_attribute( 'allowother' );
+
+		if ( ! $allow_other || ! is_string( $value ) ) {
+			return array(
+				'value' => $value,
+				'meta'  => $meta,
+			);
+		}
+
+		$options_data = $field->get_attribute( 'optionsdata' );
+		$other_label  = null;
+
+		if ( ! empty( $options_data ) && is_array( $options_data ) ) {
+			foreach ( $options_data as $option ) {
+				if ( ! empty( $option['isOther'] ) ) {
+					$other_label = Contact_Form_Plugin::strip_tags( $option['label'] );
+					break;
+				}
+			}
+		}
+
+		if ( empty( $other_label ) ) {
+			return array(
+				'value' => $value,
+				'meta'  => $meta,
+			);
+		}
+
+		if ( $value === $other_label ) {
+			$other_text_key = $field_id . '-other-text';
+			$custom_text    = '';
+
+			if ( isset( $post_data[ $other_text_key ] ) ) {
+				$custom_text = sanitize_textarea_field( wp_unslash( $post_data[ $other_text_key ] ) );
+			}
+
+			$meta['is_other_option']  = true;
+			$meta['other_label']      = $other_label;
+			$meta['other_user_value'] = $custom_text;
+
+			if ( ! empty( $custom_text ) ) {
+				$value = $other_label . ': ' . $custom_text;
+			}
+		}
+
+		return array(
+			'value' => $value,
+			'meta'  => $meta,
+		);
 	}
 
 	/**
@@ -736,6 +821,7 @@ class Feedback {
 			'contact_form_subject' => $this->get_subject(),
 			'comment_author_ip'    => $this->get_ip_address(),
 			'comment_content'      => empty( $this->get_comment_content() ) ? null : $this->get_comment_content(),
+			'permalink'            => $this->get_entry_permalink(),
 		);
 
 		foreach ( $this->fields as $field ) {
@@ -1011,6 +1097,15 @@ class Feedback {
 	}
 
 	/**
+	 * Get the logged-in user information who submitted the feedback.
+	 *
+	 * @return array|null Array with 'display_name' and 'id' keys, or null if not logged in.
+	 */
+	public function get_logged_in_user() {
+		return $this->logged_in_user;
+	}
+
+	/**
 	 * Get the email subject.
 	 *
 	 * @return string
@@ -1250,6 +1345,12 @@ class Feedback {
 			)
 		);
 
+		// If this feedback does not have a jetpack_form parent,
+		// it's a classic form — mark the state accordingly.
+		if ( empty( $this->form_id ) ) {
+			Forms_Dashboard::mark_classic_form_detected();
+		}
+
 		$feedback_post = get_post( $post_id );
 		return $feedback_post ?? 0;
 	}
@@ -1268,6 +1369,7 @@ class Feedback {
 				'country_code'            => $this->country_code,
 				'user_agent'              => $this->user_agent,
 				'notification_recipients' => $this->notification_recipients,
+				'logged_in_user'          => $this->logged_in_user,
 			),
 			$this->source->serialize()
 		);
@@ -1815,7 +1917,14 @@ class Feedback {
 			$label = wp_strip_all_tags( $field->get_attribute( 'label' ) );
 			$key   = $i . '_' . $label;
 
-			$meta           = self::get_field_meta( $field, $type );
+			$meta = self::get_field_meta( $field, $type );
+
+			// Process radio fields to detect and extract "Other" option metadata
+			if ( $type === 'radio' ) {
+				$processed = $this->process_radio_field_value( $value, $field, $field_id, $post_data );
+				$value     = $processed['value'];
+				$meta      = array_merge( $meta, $processed['meta'] );
+			}
 			$fields[ $key ] = new Feedback_Field( $key, $label, $value, $type, $meta, $field_id );
 			if ( ! $this->has_file && $fields[ $key ]->has_file() ) {
 				$this->has_file = true;

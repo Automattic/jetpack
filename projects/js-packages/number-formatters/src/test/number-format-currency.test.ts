@@ -28,6 +28,7 @@ describe( 'getCurrencyObject() default export', () => {
 			fraction: '.57',
 			sign: '-',
 			hasNonZeroFraction: true,
+			floatValue: -1234.57,
 		} );
 	} );
 } );
@@ -410,15 +411,20 @@ describe( 'numberFormatCurrency()', () => {
 			} );
 			expect( money ).toBe( 'R$ 9.800.900,32' );
 		} );
-		it( 'IDR', () => {
-			const money = numberFormatCurrency( {
-				number: 107280000,
-				currency: 'IDR',
-				browserSafeLocale: 'in-ID',
-				isSmallestUnit: true,
-			} );
-			expect( money ).toBe( 'Rp 1.072.800,00' );
-		} );
+		// Disabled temporarily due to the smallest unit being changed:
+		// https://unicode-org.atlassian.net/browse/CLDR-11586
+		// See also: p1773338482018929-slack-C034JEXD1RD
+		// eslint-disable-next-line jest/no-commented-out-tests
+		// it( 'IDR', () => {
+		// 	const money = numberFormatCurrency( {
+		// 		number: 107280000,
+		// 		currency: 'IDR',
+		// 		browserSafeLocale: 'in-ID',
+		// 		isSmallestUnit: true,
+		// 	} );
+		// eslint-disable-next-line no-irregular-whitespace
+		// 	expect( money ).toBe( 'Rp 1.072.800,00' );
+		// } );
 	} );
 } );
 
@@ -436,6 +442,7 @@ describe( 'getCurrencyObject()', () => {
 			fraction: '.00',
 			sign: '',
 			hasNonZeroFraction: false,
+			floatValue: 0,
 		} );
 	} );
 
@@ -452,6 +459,7 @@ describe( 'getCurrencyObject()', () => {
 			fraction: '.57',
 			sign: '-',
 			hasNonZeroFraction: true,
+			floatValue: -1234.57,
 		} );
 	} );
 
@@ -468,6 +476,7 @@ describe( 'getCurrencyObject()', () => {
 			fraction: '.00',
 			sign: '',
 			hasNonZeroFraction: false,
+			floatValue: 10,
 		} );
 	} );
 
@@ -484,6 +493,7 @@ describe( 'getCurrencyObject()', () => {
 			fraction: '.99',
 			sign: '',
 			hasNonZeroFraction: true,
+			floatValue: 9.99,
 		} );
 	} );
 
@@ -501,6 +511,7 @@ describe( 'getCurrencyObject()', () => {
 			fraction: '.32',
 			sign: '',
 			hasNonZeroFraction: true,
+			floatValue: 99.32,
 		} );
 	} );
 
@@ -518,6 +529,7 @@ describe( 'getCurrencyObject()', () => {
 			fraction: '',
 			sign: '',
 			hasNonZeroFraction: false,
+			floatValue: 9932,
 		} );
 	} );
 
@@ -535,6 +547,7 @@ describe( 'getCurrencyObject()', () => {
 			fraction: '.32',
 			sign: '',
 			hasNonZeroFraction: true,
+			floatValue: 99.32,
 		} );
 	} );
 
@@ -552,6 +565,7 @@ describe( 'getCurrencyObject()', () => {
 				fraction: '.32',
 				sign: '',
 				hasNonZeroFraction: true,
+				floatValue: 9800900.32,
 			} );
 		} );
 
@@ -569,6 +583,7 @@ describe( 'getCurrencyObject()', () => {
 				fraction: '.32',
 				sign: '+',
 				hasNonZeroFraction: true,
+				floatValue: 9800900.32,
 			} );
 		} );
 
@@ -586,6 +601,7 @@ describe( 'getCurrencyObject()', () => {
 				fraction: '.32',
 				sign: '-',
 				hasNonZeroFraction: true,
+				floatValue: -9800900.32,
 			} );
 		} );
 
@@ -602,6 +618,7 @@ describe( 'getCurrencyObject()', () => {
 				fraction: '.32',
 				sign: '',
 				hasNonZeroFraction: true,
+				floatValue: 9800900.32,
 			} );
 		} );
 
@@ -618,6 +635,7 @@ describe( 'getCurrencyObject()', () => {
 				fraction: '.32',
 				sign: '',
 				hasNonZeroFraction: true,
+				floatValue: 9800900.32,
 			} );
 		} );
 
@@ -634,6 +652,7 @@ describe( 'getCurrencyObject()', () => {
 				fraction: '.32',
 				sign: '',
 				hasNonZeroFraction: true,
+				floatValue: 9800900.32,
 			} );
 		} );
 
@@ -650,6 +669,7 @@ describe( 'getCurrencyObject()', () => {
 				fraction: ',32',
 				sign: '',
 				hasNonZeroFraction: true,
+				floatValue: 9800900.32,
 			} );
 		} );
 
@@ -666,6 +686,7 @@ describe( 'getCurrencyObject()', () => {
 				fraction: '.32',
 				sign: '',
 				hasNonZeroFraction: true,
+				floatValue: 9800900.32,
 			} );
 		} );
 
@@ -682,6 +703,7 @@ describe( 'getCurrencyObject()', () => {
 				fraction: '',
 				sign: '',
 				hasNonZeroFraction: false,
+				floatValue: 9800900,
 			} );
 		} );
 
@@ -698,6 +720,7 @@ describe( 'getCurrencyObject()', () => {
 				fraction: ',32',
 				sign: '',
 				hasNonZeroFraction: true,
+				floatValue: 9800900.32,
 			} );
 		} );
 	} );

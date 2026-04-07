@@ -9,7 +9,7 @@ namespace Automattic\Jetpack\StubGenerator\PhpParser;
 
 <<<'PHAN'
 @phan-type ClassDefs = '*'|array<string,'*'|array{constant?:'*'|string[],property?:'*'|string[],method?:'*'|string[]}>
-@phan-type Definitions = array{constant:'*'|string[],function:'*'|string[],class:ClassDefs,interface:ClassDefs,trait:ClassDefs}
+@phan-type Definitions = array{constant:'*'|string[],function:'*'|string[],class:ClassDefs,interface:ClassDefs,trait:ClassDefs,enum:ClassDefs}
 PHAN;
 
 use PhpParser\BuilderFactory;
@@ -24,6 +24,7 @@ use PhpParser\Node\Stmt\Class_;
 use PhpParser\Node\Stmt\ClassConst;
 use PhpParser\Node\Stmt\ClassMethod;
 use PhpParser\Node\Stmt\Const_;
+use PhpParser\Node\Stmt\Enum_;
 use PhpParser\Node\Stmt\Expression;
 use PhpParser\Node\Stmt\Function_;
 use PhpParser\Node\Stmt\Interface_;
@@ -106,6 +107,7 @@ class StubNodeVisitor extends NodeVisitorAbstract {
 				'class'     => '*',
 				'trait'     => '*',
 				'interface' => '*',
+				'enum'      => '*',
 			);
 		} else {
 			$this->defs = $defs + array(
@@ -114,12 +116,13 @@ class StubNodeVisitor extends NodeVisitorAbstract {
 				'class'     => array(),
 				'trait'     => array(),
 				'interface' => array(),
+				'enum'      => array(),
 			);
 		}
 	}
 
 	/**
-	 * Determine which def field to use for a class/interface/trait memeber.
+	 * Determine which def field to use for a class/interface/trait/enum memeber.
 	 *
 	 * @param ?Node  $node Node.
 	 * @param string $type 'method', 'property', or 'constant'.
@@ -138,6 +141,8 @@ class StubNodeVisitor extends NodeVisitorAbstract {
 				$which = 'interface';
 			} elseif ( $parent instanceof Trait_ ) {
 				$which = 'trait';
+			} elseif ( $parent instanceof Enum_ ) {
+				$which = 'enum';
 			} else {
 				$parent = $parent->getAttribute( 'parent' );
 			}
@@ -209,8 +214,8 @@ class StubNodeVisitor extends NodeVisitorAbstract {
 			return null;
 		}
 
-		if ( $node instanceof Class_ || $node instanceof Trait_ || $node instanceof Interface_ ) {
-			$which = $node instanceof Class_ ? 'class' : ( $node instanceof Trait_ ? 'trait' : 'interface' );
+		if ( $node instanceof Class_ || $node instanceof Trait_ || $node instanceof Interface_ || $node instanceof Enum_ ) {
+			$which = $node instanceof Class_ ? 'class' : ( $node instanceof Trait_ ? 'trait' : ( $node instanceof Interface_ ? 'interface' : 'enum' ) );
 
 			if ( $this->defs[ $which ] === '*' || isset( $this->defs[ $which ][ $node->namespacedName->toString() ] ) ) {
 				$this->debug( "Processing $which {$node->namespacedName}" );
@@ -291,6 +296,8 @@ class StubNodeVisitor extends NodeVisitorAbstract {
 				$this->debug( "Skipping private method {$node->name}" );
 			} elseif ( $parent instanceof Class_ && $parent->isFinal() && $node->isProtected() ) {
 				$this->debug( "Skipping final-class protected method {$node->name}" );
+			} elseif ( $parent instanceof Enum_ && ( $node->isPrivate() || $node->isProtected() ) ) {
+				$this->debug( "Skipping enum private/protected method {$node->name}" );
 			} elseif ( $defs === '*' || in_array( $node->name->toString(), $defs, true ) ) {
 				// Ignore anything inside the method.
 				if ( $node->stmts ) {
@@ -347,6 +354,8 @@ class StubNodeVisitor extends NodeVisitorAbstract {
 					$this->debug( "Skipping private const {$const->name}" );
 				} elseif ( $parent instanceof Class_ && $parent->isFinal() && $node->isProtected() ) {
 					$this->debug( "Skipping final-class protected const {$const->name}" );
+				} elseif ( $parent instanceof Enum_ && ( $node->isPrivate() || $node->isProtected() ) ) {
+					$this->debug( "Skipping enum private/protected const {$const->name}" );
 				} elseif ( $defs === '*' || in_array( $const->name->toString(), $defs, true ) ) {
 					$this->debug( "Keeping const {$const->name}" );
 					$kept[] = $const;
@@ -371,6 +380,7 @@ class StubNodeVisitor extends NodeVisitorAbstract {
 		if ( $node instanceof Class_ ||
 			$node instanceof Trait_ ||
 			$node instanceof Interface_ ||
+			$node instanceof Enum_ ||
 			$node instanceof Function_ ||
 			$node instanceof Const_ ||
 			// @phan-suppress-next-line PhanUndeclaredProperty -- Phan's inferrence is limited

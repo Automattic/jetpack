@@ -24,7 +24,10 @@ import type { ReactElement } from 'react';
 
 const DEFAULT_KIND = 'subtitles';
 
-const ACCEPTED_FILE_TYPES = '.vtt,text/vtt';
+const ACCEPTED_FILE_TYPES: Record< string, string > = {
+	'.vtt': 'text/vtt',
+	'.srt': 'application/x-subrip',
+};
 
 const KIND_OPTIONS = [
 	{ label: __( 'Subtitles', 'jetpack-videopress-pkg' ), value: 'subtitles' },
@@ -120,11 +123,6 @@ export default function TrackForm( {
 		return null;
 	}
 
-	const help = sprintf(
-		/* translators: %s: The allowed file types to be uploaded as a video text track." */
-		__( 'Add a new text track to the video. Allowed formats: %s', 'jetpack-videopress-pkg' ),
-		ACCEPTED_FILE_TYPES
-	);
 	debug( 'error', error );
 
 	return (
@@ -147,7 +145,7 @@ export default function TrackForm( {
 
 									updateTrack( 'tmpFile', files[ 0 ] );
 								} }
-								accept={ ACCEPTED_FILE_TYPES }
+								accept={ Object.entries( ACCEPTED_FILE_TYPES ).join() }
 								render={ ( { openFileDialog } ) => {
 									return (
 										<Button
@@ -164,7 +162,16 @@ export default function TrackForm( {
 							/>
 						</MediaUploadCheck>
 					</div>
-					<div className="video-tracks-control__track-form-upload-file-help">{ help }</div>
+					<div className="video-tracks-control__track-form-upload-file-help">
+						{ sprintf(
+							/* translators: %s: The allowed file types to be uploaded as a video text track." */
+							__(
+								'Add a new text track to the video. Allowed formats: %s',
+								'jetpack-videopress-pkg'
+							),
+							Object.keys( ACCEPTED_FILE_TYPES ).join( ', ' )
+						) }
+					</div>
 				</div>
 				<div className="video-tracks-control__track-form-label-language">
 					<TextControl

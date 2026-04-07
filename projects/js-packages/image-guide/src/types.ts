@@ -1,9 +1,9 @@
 import type { MeasurableImageStore } from './stores/MeasurableImageStore.ts';
-import type { ComponentConstructorOptions } from 'svelte';
 
 export type GuideSize = 'normal' | 'small' | 'micro';
-export interface ImageGuideConfig extends ComponentConstructorOptions {
+export interface ImageGuideConfig {
 	target: HTMLElement;
+	intro?: boolean;
 	props: {
 		stores: MeasurableImageStore[];
 	};

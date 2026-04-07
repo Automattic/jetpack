@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Fix E2E builds: Jetpack now requires Social-Logos to have been built.
+
+

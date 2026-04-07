@@ -80,11 +80,27 @@ const requestMediaToken = function (
 				break;
 		}
 
-		fetch( adminAjaxAPI, {
+		// Use apiFetch when running inside GutenbergKit (for app password auth
+		// middleware), but fall back to native fetch everywhere else — including
+		// the block editor, token-bridge.js, and the front-end — where
+		// wp.apiFetch may not be enqueued.
+		const useApiFetch = !! window?.GBKit && typeof window.wp?.apiFetch === 'function';
+
+		const fetchOptions = {
 			method: 'POST',
 			credentials: 'same-origin',
 			body: new URLSearchParams( fetchData ),
-		} )
+		};
+
+		const fetchPromise: Promise< Response > = useApiFetch
+			? window.wp.apiFetch( {
+					url: adminAjaxAPI,
+					...fetchOptions,
+					parse: false,
+			  } )
+			: fetch( adminAjaxAPI, fetchOptions );
+
+		fetchPromise
 			.then( response => {
 				if ( ! response.ok ) {
 					throw new Error( 'Network response was not ok' );

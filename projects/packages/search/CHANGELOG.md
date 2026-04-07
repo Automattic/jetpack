@@ -5,6 +5,62 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.56.7] - 2026-04-06
+### Changed
+- Update admin page footer design. [#47840]
+
+## [0.56.6] - 2026-03-30
+### Changed
+- Update package dependencies. [#47799]
+
+## [0.56.5] - 2026-03-23
+### Changed
+- Move admin notices and JITMs below the page header instead of rendering inside it. [#47558]
+- Search: Update header action buttons to use compact size for consistent UI. [#47679]
+- Update package dependencies. [#47684]
+
+## [0.56.4] - 2026-03-16
+### Changed
+- Update dependencies. [#47472]
+
+## [0.56.3] - 2026-03-09
+### Changed
+- Dashboard: Remove global CSS overrides and move admin notices inside the main container. [#47313]
+- Migrate upsell page header to use unified AdminHeader component. [#47313]
+- Replace license activation link with a "Use license key" button in the header actions area. [#47434]
+- Use the core WordPress spinner component for the dashboard loading state. [#47467]
+- Update package dependencies. [#47496]
+
+### Fixed
+- Constrain license activation link width on mobile to prevent header overflow. [#47431]
+
+## [0.56.2] - 2026-03-02
+### Changed
+- Update package dependencies. [#47357]
+
+## [0.56.1] - 2026-02-26
+### Changed
+- Search admin: Change `max-width` of contents to 1040px. [#47326]
+- Update package dependencies. [#47288] [#47300]
+
+## [0.56.0] - 2026-02-23
+### Added
+- Add a new `disable_tracking` feature flag. [#46722]
+
+### Changed
+- Update package dependencies. [#47173]
+
+## [0.55.4] - 2026-02-16
+### Changed
+- Update package dependencies. [#47099]
+
+### Fixed
+- Compatibility: Clean up deprecated CSS. [#47067]
+
+## [0.55.3] - 2026-02-10
+### Changed
+- Update dependencies. [#46931] [#47002]
+
 ## [0.55.2] - 2026-02-02
 ### Changed
 - Update package dependencies. [#46854]
@@ -1430,6 +1486,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update PHPUnit configs to include just what needs coverage rather than include everything then try to exclude stuff that doesn't.
 
+[0.56.7]: https://github.com/Automattic/jetpack-search/compare/v0.56.6...v0.56.7
+[0.56.6]: https://github.com/Automattic/jetpack-search/compare/v0.56.5...v0.56.6
+[0.56.5]: https://github.com/Automattic/jetpack-search/compare/v0.56.4...v0.56.5
+[0.56.4]: https://github.com/Automattic/jetpack-search/compare/v0.56.3...v0.56.4
+[0.56.3]: https://github.com/Automattic/jetpack-search/compare/v0.56.2...v0.56.3
+[0.56.2]: https://github.com/Automattic/jetpack-search/compare/v0.56.1...v0.56.2
+[0.56.1]: https://github.com/Automattic/jetpack-search/compare/v0.56.0...v0.56.1
+[0.56.0]: https://github.com/Automattic/jetpack-search/compare/v0.55.4...v0.56.0
+[0.55.4]: https://github.com/Automattic/jetpack-search/compare/v0.55.3...v0.55.4
+[0.55.3]: https://github.com/Automattic/jetpack-search/compare/v0.55.2...v0.55.3
 [0.55.2]: https://github.com/Automattic/jetpack-search/compare/v0.55.1...v0.55.2
 [0.55.1]: https://github.com/Automattic/jetpack-search/compare/v0.55.0...v0.55.1
 [0.55.0]: https://github.com/Automattic/jetpack-search/compare/v0.54.10...v0.55.0

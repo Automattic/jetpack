@@ -24,7 +24,7 @@ export interface StackProps extends React.HTMLAttributes< HTMLElement > {
  * @return The normalized gap value.
  */
 export const getNormalizedGap = ( gap: number | CSSProperties[ 'gap' ] ) =>
-	typeof gap === 'number' ? `calc( ${ gap } * var( --wpds-spacing-05 ) )` : gap;
+	typeof gap === 'number' ? `calc( ${ gap } * var( --wpds-dimension-gap-xs ) )` : gap;
 
 /**
  * A flexible layout component using CSS Flexbox for consistent spacing and alignment.

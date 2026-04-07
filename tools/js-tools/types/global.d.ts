@@ -1,4 +1,6 @@
 declare module '*.mdx';
+declare module '*.css';
+declare module '*.scss';
 declare module '*.module.scss' {
 	const classes: { [ key: string ]: string };
 	export default classes;
@@ -6,6 +8,7 @@ declare module '*.module.scss' {
 declare module '*.gif';
 declare module '*.png';
 declare module '*.svg';
+declare module '*.webp';
 
 // Add the process declaration
 declare const process: {

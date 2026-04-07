@@ -2,7 +2,6 @@
  * External dependencies
  */
 import { formatNumber } from '@automattic/number-formatters';
-import { Badge } from '@automattic/ui';
 /**
  * WordPress dependencies
  */
@@ -18,7 +17,7 @@ import { useMemo, useState, useCallback, useEffect } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __, sprintf } from '@wordpress/i18n';
 import { useParams, useSearch, useNavigate } from '@wordpress/route';
-import { Stack } from '@wordpress/ui';
+import { Badge, Stack } from '@wordpress/ui';
 import * as React from 'react';
 /**
  * Internal dependencies
@@ -33,7 +32,8 @@ import DataViewsHeaderRow from '../../src/dashboard/wp-build/components/dataview
 import usePageHeaderDetails from '../../src/dashboard/wp-build/hooks/use-page-header-details';
 import useConfigValue from '../../src/hooks/use-config-value';
 import { INTEGRATIONS_STORE, IntegrationsSelectors } from '../../src/store/integrations';
-import { getActions } from './actions';
+import { getRowActions } from './actions';
+import '../../src/dashboard/wp-build/style.scss';
 import './style.scss';
 /**
  * Types
@@ -383,7 +383,10 @@ function StageInner() {
 					);
 					const showEmail =
 						item.author_email && displayName !== decodeEntities( item.author_email );
-					const defaultImage = item.author_name || item.author_email ? 'initials' : 'mp';
+					const gravatarName = item.author_name
+						? decodeEntities( item.author_name )
+						: item.author_email?.split( '@' )[ 0 ];
+					const defaultImage = gravatarName ? 'initials' : 'mp';
 
 					return (
 						<Stack align="center" gap="sm">
@@ -403,7 +406,7 @@ function StageInner() {
 							<Gravatar
 								email={ item.author_email || item.ip } // With IP we still return placeholder image
 								defaultImage={ defaultImage }
-								displayName={ displayName }
+								displayName={ gravatarName }
 								size={ 32 }
 								useHovercard={ false }
 							/>
@@ -452,38 +455,34 @@ function StageInner() {
 				filterBy: { operators: [ 'is' ] as Operator[] },
 				enableSorting: false,
 			},
-			...( isSingleFormView
-				? []
-				: [
-						{
-							id: 'source',
-							label: __( 'Source', 'jetpack-forms' ),
-							render: ( { item } ) => {
-								const source =
-									item.entry_title ||
-									getUrlPath( item.entry_permalink ) ||
-									__( '(no title)', 'jetpack-forms' );
-								if ( item.entry_permalink ) {
-									return styleUnreadValue(
-										<ExternalLink href={ item.entry_permalink }>{ source }</ExternalLink>,
-										item.is_unread
-									);
-								}
-								return styleUnreadValue( source, item.is_unread );
-							},
-							elements: ( ( filterOptions as unknown as FeedbackFilters )?.source || [] ).map(
-								source => ( {
-									value: source.id.toString(),
-									label:
-										decodeEntities( source.title ) ||
-										getUrlPath( source.url ) ||
-										__( '(no title)', 'jetpack-forms' ),
-								} )
-							),
-							filterBy: { operators: [ 'is' ] as Operator[] },
-							enableSorting: false,
-						},
-				  ] ),
+			{
+				id: 'source',
+				label: __( 'Source', 'jetpack-forms' ),
+				render: ( { item } ) => {
+					const source =
+						item.entry_title ||
+						getUrlPath( item.entry_permalink ) ||
+						__( '(no title)', 'jetpack-forms' );
+					if ( item.entry_permalink ) {
+						return styleUnreadValue(
+							<ExternalLink href={ item.entry_permalink }>{ source }</ExternalLink>,
+							item.is_unread
+						);
+					}
+					return styleUnreadValue( source, item.is_unread );
+				},
+				elements: ( ( filterOptions as unknown as FeedbackFilters )?.source || [] ).map(
+					source => ( {
+						value: source.id.toString(),
+						label:
+							decodeEntities( source.title ) ||
+							getUrlPath( source.url ) ||
+							__( '(no title)', 'jetpack-forms' ),
+					} )
+				),
+				filterBy: isSingleFormView ? false : { operators: [ 'is' ] as Operator[] },
+				enableSorting: false,
+			},
 			{
 				id: 'read_status',
 				label: __( 'Status', 'jetpack-forms' ),
@@ -495,7 +494,7 @@ function StageInner() {
 				enableSorting: false,
 				render: ( { item } ) => {
 					return (
-						<Badge intent="default">
+						<Badge intent="draft">
 							{ item.is_unread ? __( 'Unread', 'jetpack-forms' ) : __( 'Read', 'jetpack-forms' ) }
 						</Badge>
 					);
@@ -522,7 +521,7 @@ function StageInner() {
 
 	const actions = useMemo(
 		() =>
-			getActions( {
+			getRowActions( {
 				navigate,
 				searchParams,
 				view: statusView,
@@ -547,8 +546,11 @@ function StageInner() {
 	}, [] );
 
 	const {
+		ariaLabel,
 		breadcrumbs,
+		badges,
 		subtitle,
+		title,
 		actions: headerActions,
 	} = usePageHeaderDetails( {
 		screen: 'responses',
@@ -573,6 +575,9 @@ function StageInner() {
 		<Page
 			showSidebarToggle={ false }
 			breadcrumbs={ breadcrumbs }
+			badges={ badges }
+			title={ title }
+			ariaLabel={ ariaLabel }
 			subTitle={ subtitle }
 			actions={ headerActions }
 			hasPadding={ false }
@@ -580,9 +585,10 @@ function StageInner() {
 			<DataViews
 				empty={
 					<EmptyResponses
-						status={ statusView }
 						isSearch={ !! view.search }
+						isSingleFormView={ isSingleFormView }
 						readStatusFilter={ readStatusFilter }
+						status={ statusView }
 					/>
 				}
 				data={ records || EMPTY_ARRAY }

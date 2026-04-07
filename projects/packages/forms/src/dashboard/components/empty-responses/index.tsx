@@ -38,9 +38,10 @@ type UseInstallAkismetReturn = {
 };
 
 type EmptyResponsesProps = {
-	status: string;
 	isSearch: boolean;
+	isSingleFormView?: boolean;
 	readStatusFilter?: 'unread' | 'read';
+	status: string;
 };
 
 type EmptyWrapperProps = {
@@ -163,7 +164,22 @@ export const EmptyWrapper = ( { heading = '', body = '', actions = null }: Empty
 	</VStack>
 );
 
-const EmptyResponses = ( { status, isSearch, readStatusFilter }: EmptyResponsesProps ) => {
+export const NoResults = () => (
+	<EmptyWrapper
+		heading={ __( 'No results found', 'jetpack-forms' ) }
+		body={ __(
+			"Try adjusting your search or filters to find what you're looking for.",
+			'jetpack-forms'
+		) }
+	/>
+);
+
+const EmptyResponses = ( {
+	isSearch,
+	isSingleFormView = false,
+	readStatusFilter,
+	status,
+}: EmptyResponsesProps ) => {
 	const emptyTrashDays = useConfigValue( 'emptyTrashDays' ) ?? 0;
 	const {
 		shouldShowAkismetCta,
@@ -176,13 +192,8 @@ const EmptyResponses = ( { status, isSearch, readStatusFilter }: EmptyResponsesP
 
 	// Handle search and filter states first
 	const hasReadStatusFilter = !! readStatusFilter;
-	const searchHeading = __( 'No results found', 'jetpack-forms' );
-	const searchMessage = __(
-		"Try adjusting your search or filters to find what you're looking for.",
-		'jetpack-forms'
-	);
 	if ( isSearch || hasReadStatusFilter ) {
-		return <EmptyWrapper heading={ searchHeading } body={ searchMessage } />;
+		return <NoResults />;
 	}
 
 	const noTrashHeading = __( 'Trash is empty', 'jetpack-forms' );
@@ -240,7 +251,13 @@ const EmptyResponses = ( { status, isSearch, readStatusFilter }: EmptyResponsesP
 				'jetpack-forms'
 			) }
 			actions={
-				<CreateFormButton label={ __( 'Create a new form', 'jetpack-forms' ) } variant="primary" />
+				! isSingleFormView && (
+					<CreateFormButton
+						label={ __( 'Create a new form', 'jetpack-forms' ) }
+						variant="primary"
+						showNameModal
+					/>
+				)
 			}
 		/>
 	);

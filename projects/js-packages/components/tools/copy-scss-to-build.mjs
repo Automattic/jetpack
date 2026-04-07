@@ -1,12 +1,8 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
-
-const __filename = fileURLToPath( import.meta.url );
-const __dirname = path.dirname( __filename );
 
 // `tools/` -> package root.
-const packageRoot = path.resolve( __dirname, '..' );
+const packageRoot = path.resolve( import.meta.dirname, '..' );
 const buildRoot = path.join( packageRoot, 'build' );
 
 const IGNORED_DIRS = new Set( [ 'build', 'node_modules', '.git' ] );
@@ -50,7 +46,7 @@ async function main() {
 		return;
 	}
 
-	for await ( const filePath of fs.glob( '**/*.scss', {
+	for await ( const filePath of fs.glob( '**/*.{scss,css}', {
 		cwd: packageRoot,
 		exclude: Array.from( IGNORED_DIRS, dir => `**/${ dir }/**` ),
 	} ) ) {

@@ -2,7 +2,7 @@ import { Icon, VisuallyHidden } from '@wordpress/components';
 import { __, _x } from '@wordpress/i18n';
 import { info } from '@wordpress/icons';
 import { Connection } from '../../../social-store/types';
-import { PostPreview } from '../../social-post-modal/post-preview';
+import { PostPreview } from './post-preview';
 import styles from './styles.module.scss';
 
 type PreviewSectionProps = {

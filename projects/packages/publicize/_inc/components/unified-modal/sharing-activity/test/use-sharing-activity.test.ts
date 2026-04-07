@@ -16,7 +16,7 @@ import { SharedActivityItem } from '../types';
 import { useSharingActivity } from '../use-sharing-activity';
 import type { Connection, ScheduledShare, ShareStatusItem } from '../../../../social-store/types';
 
-const mockUseSelect = useSelect as jest.MockedFunction< typeof useSelect >;
+const mockUseSelect = useSelect as jest.Mock;
 
 const createMockConnection = ( overrides: Partial< Connection > = {} ): Connection => ( {
 	connection_id: '123',

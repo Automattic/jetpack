@@ -16,6 +16,7 @@ The BarListChart component extends the BarChart component to create a list-style
 <Source
 	language="jsx"
 	code={ `import { BarListChart } from '@automattic/charts';
+import '@automattic/charts/style.css';
 
 	const data = [
 		{
@@ -270,6 +271,28 @@ Bar List Charts integrate seamlessly with the chart theming system. The default 
 	</GlobalChartsProvider>` }
 />
 
+## Responsive Behavior
+
+By default, BarListChart **fills its parent container's dimensions**. The parent must have an explicit height:
+
+<Source
+	language="jsx"
+	code={ `// Fill parent container (default) - parent needs explicit height
+	<div style={{ width: '100%', height: '300px' }}>
+		<BarListChart data={data} />
+	</div>
+
+	// Use aspect ratio - height calculated from width
+	<div style={{ width: '100%' }}>
+		<BarListChart data={data} aspectRatio={0.4} />
+	</div>
+
+	// Fixed dimensions
+	<BarListChart data={data} width={600} height={300} />` }
+/>
+
+For more details on responsive behavior, see the [Responsive Design section](./?path=/docs/js-packages-charts-library-introduction--docs#responsive-design) in the introduction.
+
 ## Animation
 
 The Bar List Chart component supports an optional entry animation that creates a smooth reveal effect when the chart first renders:
@@ -292,28 +315,6 @@ The Bar List Chart component supports an optional entry animation that creates a
 - **Duration**: 1000ms (1 second) with ease-out timing
 
 **Note**: The animation plays once when the chart initially renders and does not repeat.
-
-## Responsive Behavior
-
-By default, BarListChart **fills its parent container's dimensions**. The parent must have an explicit height:
-
-<Source
-	language="jsx"
-	code={ `// Fill parent container (default) - parent needs explicit height
-	<div style={{ width: '100%', height: '300px' }}>
-		<BarListChart data={data} />
-	</div>
-
-	// Use aspect ratio - height calculated from width
-	<div style={{ width: '100%' }}>
-		<BarListChart data={data} aspectRatio={0.4} />
-	</div>
-
-	// Fixed dimensions
-	<BarListChart data={data} width={600} height={300} />` }
-/>
-
-For more details on responsive behavior, see the [Responsive Design section](./?path=/docs/js-packages-charts-library-introduction--docs#responsive-design) in the introduction.
 
 ## Advanced Features
 

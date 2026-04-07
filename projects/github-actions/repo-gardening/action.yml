@@ -68,6 +68,18 @@ inputs:
     description: "OpenAI API key"
     required: false
     default: ""
+  linear_api_key:
+    description: 'Linear API key, used to create issues on Linear when needed.'
+    required: false
+    default: ''
+  linear_docs_team_id:
+    description: 'Linear Team ID for the team handling documentation-related issues.'
+    required: false
+    default: ''
+  slack_notify_on_customer_report:
+    description: 'Send a Slack notification when a "Customer Report" label is added to an issue. Default to true.'
+    required: false
+    default: 'true'
 runs:
   using: node24
   main: "dist/index.js"

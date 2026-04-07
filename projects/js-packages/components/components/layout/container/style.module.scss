@@ -8,11 +8,12 @@
 	@include breakpoints.media(#{$size}) using ($columns) {
 		padding: 0 #{$padding};
 		grid-template-columns: repeat(#{$columns}, minmax(0, 1fr));
+		max-width: calc(var(--max-container-width) + 2 * #{$padding});
 	}
 }
 
 .container {
-	--max-container-width: 1128px;
+	--max-container-width: 1040px;
 	// vertical spacing
 	--vertical-gutter: 24px;
 	// horizontal spacing
@@ -20,7 +21,6 @@
 
 	display: grid;
 	column-gap: var(--vertical-gutter);
-	max-width: var(--max-container-width);
 	margin: 0 auto;
 	width: 100%;
 

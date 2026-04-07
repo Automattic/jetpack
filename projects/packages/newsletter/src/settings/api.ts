@@ -7,45 +7,51 @@
  */
 
 import restApi from '@automattic/jetpack-api';
+import { getSiteData, isSimpleSite } from '@automattic/jetpack-script-data';
 import apiFetch from '@wordpress/api-fetch';
-import type { JetpackNewsletterSettings } from './types';
 
 let apiInitialized = false;
 
 /**
- * Initialize the REST API with settings from PHP.
+ * Initialize the REST API with data from JetpackScriptData.
  * Only needed for non-Simple sites. Call this before making API requests.
- *
- * @param {JetpackNewsletterSettings} jetpackSettings - Settings from PHP
  */
-export function initializeApi( jetpackSettings: JetpackNewsletterSettings | undefined ): void {
-	if ( apiInitialized || jetpackSettings?.isWpcomSimple ) {
+export function initializeApi(): void {
+	if ( apiInitialized || isSimpleSite() ) {
 		return;
 	}
 
-	if ( jetpackSettings?.restApiRoot && jetpackSettings?.restApiNonce ) {
-		restApi.setApiRoot( jetpackSettings.restApiRoot );
-		restApi.setApiNonce( jetpackSettings.restApiNonce );
+	const siteData = getSiteData();
+	if ( siteData?.rest_root && siteData?.rest_nonce ) {
+		restApi.setApiRoot( siteData.rest_root );
+		restApi.setApiNonce( siteData.rest_nonce );
 		apiInitialized = true;
 	}
+}
+
+/**
+ * Get the blog ID from JetpackScriptData.
+ *
+ * @return {number} The blog ID
+ */
+function getBlogId(): number {
+	return getSiteData()?.wpcom?.blog_id ?? 0;
 }
 
 /**
  * Fetch settings from the Jetpack REST API.
  * On Simple sites, uses the WordPress.com REST API.
  *
- * @param {JetpackNewsletterSettings} jetpackSettings - Settings from PHP
  * @return {Promise<Record<string, unknown>>} The settings object
  */
-export async function fetchSettings(
-	jetpackSettings: JetpackNewsletterSettings | undefined
-): Promise< Record< string, unknown > > {
-	if ( jetpackSettings?.isWpcomSimple && jetpackSettings?.blogID ) {
-		return fetchSettingsViaWpcomApi( jetpackSettings.blogID );
+export async function fetchSettings(): Promise< Record< string, unknown > > {
+	const blogId = getBlogId();
+	if ( isSimpleSite() && blogId ) {
+		return fetchSettingsViaWpcomApi( blogId );
 	}
 
 	// For non-Simple sites, use the standard API
-	initializeApi( jetpackSettings );
+	initializeApi();
 	return restApi.fetchSettings();
 }
 
@@ -53,20 +59,19 @@ export async function fetchSettings(
  * Update settings via the Jetpack REST API.
  * On Simple sites, uses the WordPress.com REST API.
  *
- * @param {Record<string, unknown>}   updates         - The settings to update
- * @param {JetpackNewsletterSettings} jetpackSettings - Settings from PHP
+ * @param {Record<string, unknown>} updates - The settings to update
  * @return {Promise<Record<string, unknown>>} The response
  */
 export async function updateSettings(
-	updates: Record< string, unknown >,
-	jetpackSettings: JetpackNewsletterSettings | undefined
+	updates: Record< string, unknown >
 ): Promise< Record< string, unknown > > {
-	if ( jetpackSettings?.isWpcomSimple && jetpackSettings?.blogID ) {
-		return updateSettingsViaWpcomApi( updates, jetpackSettings.blogID );
+	const blogId = getBlogId();
+	if ( isSimpleSite() && blogId ) {
+		return updateSettingsViaWpcomApi( updates, blogId );
 	}
 
 	// For non-Simple sites, use the standard API
-	initializeApi( jetpackSettings );
+	initializeApi();
 	return restApi.updateSettings( updates );
 }
 
@@ -123,14 +128,12 @@ export interface Category {
  * Fetch all categories, handling pagination.
  * On Simple sites, uses the WordPress.com REST API.
  *
- * @param {JetpackNewsletterSettings} jetpackSettings - Settings from PHP
  * @return {Promise<Category[]>} Array of categories
  */
-export async function fetchCategories(
-	jetpackSettings: JetpackNewsletterSettings | undefined
-): Promise< Category[] > {
-	if ( jetpackSettings?.isWpcomSimple && jetpackSettings?.blogID ) {
-		return fetchCategoriesViaWpcomApi( jetpackSettings.blogID );
+export async function fetchCategories(): Promise< Category[] > {
+	const blogId = getBlogId();
+	if ( isSimpleSite() && blogId ) {
+		return fetchCategoriesViaWpcomApi( blogId );
 	}
 
 	return fetchCategoriesViaWpApi();

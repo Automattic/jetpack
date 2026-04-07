@@ -11,14 +11,12 @@ import {
 	Col,
 	useBreakpointMatch,
 	ContextualUpgradeTrigger,
-	JetpackVideoPressLogo,
 } from '@automattic/jetpack-components';
 import {
 	useProductCheckoutWorkflow,
 	useConnectionErrorNotice,
 	ConnectionError,
 } from '@automattic/jetpack-connection';
-import { shouldUseInternalLinks } from '@automattic/jetpack-shared-extension-utils';
 import { FormFileUpload } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
@@ -193,9 +191,8 @@ const Admin = () => {
 
 	return (
 		<AdminPage
-			moduleName={ __( 'Jetpack VideoPress', 'jetpack-videopress-pkg' ) }
-			header={ <JetpackVideoPressLogo /> }
-			useInternalLinks={ shouldUseInternalLinks() }
+			title={ 'VideoPress' /** "VideoPress" is a product name, do not translate. */ }
+			subTitle={ __( 'Professional quality, ad-free video hosting.', 'jetpack-videopress-pkg' ) }
 		>
 			<div
 				className={ clsx( styles[ 'files-overlay' ], {

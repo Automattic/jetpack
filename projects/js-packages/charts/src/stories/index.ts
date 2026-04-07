@@ -10,7 +10,7 @@ export {
 export { themeArgTypes, sharedThemeArgs, CHART_THEME_MAP } from './theme-config';
 
 // Legend configuration
-export { legendArgTypes } from './legend-config';
+export { legendArgTypes, extractLegendConfig } from './legend-config';
 
 // Tooltip configuration
 export { tooltipArgTypes, lineChartTooltipArgTypes } from './tooltip-config';

@@ -5,10 +5,11 @@ import { translate } from '../i18n';
 import { VerbumSignals } from '../state';
 import { serviceData } from '../utils';
 import { EmailForm } from './EmailForm';
+import type { SocialServiceName } from '../hooks/useSocialLogin';
 
 const { mustLogIn, requireNameEmail, commentRegistration } = VerbumComments;
 interface LoggedOutProps {
-	login: ( service: string ) => void;
+	login: ( service: SocialServiceName ) => void;
 	canWeAccessCookies: boolean;
 	loginWindow: Window | null;
 }
@@ -136,7 +137,7 @@ export const LoggedOut = ( { login, canWeAccessCookies, loginWindow }: LoggedOut
 											className="components-button is-link"
 											onClick={ () => {
 												setActiveService( closeLoginPopupService );
-												loginWindow.close();
+												loginWindow?.close();
 											} }
 										>
 											{ translate( 'Cancel' ) }

@@ -1,6 +1,6 @@
 import { Modal, Navigator } from '@wordpress/components';
 import clsx from 'clsx';
-import { useContext } from 'react';
+import { useCallback, useContext } from 'react';
 import { NavigatorModalContext } from './context.ts';
 import { Screen } from './screen.tsx';
 import './styles.scss';
@@ -23,16 +23,31 @@ function InternalNavigatorModal( {
 	className,
 	...props
 }: Omit< ModalProps, 'onRequestClose' > ) {
-	const context = useContext( NavigatorModalContext );
+	const { onClose, initialPath } = useContext( NavigatorModalContext );
+
+	// WordPress Modal's dismisser mechanism (ModalContext) calls onRequestClose()
+	// without arguments when another non-nested Modal mounts. We guard against
+	// this so that external modals (e.g. Image Studio) don't destroy this one.
+	// User-initiated closes (Escape, close button) always pass an event.
+	// The NavigatorModal's own Header/Footer close buttons call context.onClose
+	// directly and are unaffected by this guard.
+	const onRequestClose = useCallback(
+		( event?: React.SyntheticEvent ) => {
+			if ( event ) {
+				onClose?.();
+			}
+		},
+		[ onClose ]
+	);
 
 	return (
 		<Modal
 			__experimentalHideHeader
-			onRequestClose={ context.onClose }
+			onRequestClose={ onRequestClose }
 			className={ clsx( 'jp-navigator-modal', className ) }
 			{ ...props }
 		>
-			<Navigator initialPath={ context.initialPath } className="jp-navigator-modal__navigator">
+			<Navigator initialPath={ initialPath } className="jp-navigator-modal__navigator">
 				{ children }
 			</Navigator>
 		</Modal>

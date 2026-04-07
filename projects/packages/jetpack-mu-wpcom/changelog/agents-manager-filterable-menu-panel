@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Agents Manager: Make should_display_menu_panel() respect the agents_manager_use_unified_experience filter.

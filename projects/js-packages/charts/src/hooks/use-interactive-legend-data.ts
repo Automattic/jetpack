@@ -2,7 +2,8 @@ import { useMemo } from 'react';
 
 /**
  * Data point interface for charts with interactive legends.
- * Requires label for series identification, value for calculations, and percentage for display.
+ * Requires label for series identification, value for calculations,
+ * and percentage (should be pre-calculated by the chart component).
  */
 interface DataPointWithPercentage {
 	label: string;
@@ -14,7 +15,7 @@ interface DataPointWithPercentage {
  * Parameters for the useInteractiveLegendData hook.
  */
 interface UseInteractiveLegendDataParams< T extends DataPointWithPercentage > {
-	/** The chart data to filter based on legend visibility */
+	/** The chart data with pre-calculated percentages */
 	data: T[];
 	/** Unique chart identifier, required for interactive legends */
 	chartId: string | undefined;
@@ -33,9 +34,9 @@ interface UseInteractiveLegendDataResult< T extends DataPointWithPercentage > {
 	/** Boolean indicating if all segments are hidden */
 	allSegmentsHidden: boolean;
 	/**
-	 * Legend data with recalculated percentages for visible items.
-	 * Uses original data for hidden items, but shows recalculated percentages for visible ones.
-	 * This ensures the legend displays accurate percentages while maintaining all entries.
+	 * Legend data with stable percentage formatting.
+	 * Hidden items keep their original percentage.
+	 * Visible items show recalculated percentages that total 100%.
 	 */
 	legendData: T[];
 }
@@ -85,8 +86,9 @@ export const useInteractiveLegendData = < T extends DataPointWithPercentage >( {
 	isSeriesVisible,
 }: UseInteractiveLegendDataParams< T > ): UseInteractiveLegendDataResult< T > => {
 	// Filter and recalculate data for interactive legends
+	// Note: data should already have percentages calculated by the chart component
 	const visibleData = useMemo( () => {
-		// If interactive mode is disabled or no chartId, return all data unchanged
+		// If interactive mode is disabled or no chartId, return data as-is
 		if ( ! chartId || ! legendInteractive ) {
 			return data;
 		}
@@ -99,9 +101,8 @@ export const useInteractiveLegendData = < T extends DataPointWithPercentage >( {
 			return [];
 		}
 
-		// Recalculate percentages so visible segments total 100%
+		// Recalculate percentages from values so visible segments total 100%
 		const totalValue = filtered.reduce( ( sum, segment ) => sum + segment.value, 0 );
-
 		return filtered.map( segment => ( {
 			...segment,
 			percentage: totalValue > 0 ? ( segment.value / totalValue ) * 100 : 0,
@@ -113,24 +114,26 @@ export const useInteractiveLegendData = < T extends DataPointWithPercentage >( {
 		return legendInteractive && visibleData.length === 0;
 	}, [ legendInteractive, visibleData ] );
 
-	// Prepare legend data with recalculated percentages for visible items
-	// This maintains all legend entries but shows updated percentages for visible segments
+	// Prepare legend data with percentages
+	// Hidden items keep their original percentage (calculated from all values)
+	// Visible items show recalculated percentages (totaling 100%)
 	const legendData = useMemo( () => {
 		if ( ! legendInteractive || ! chartId ) {
 			return data;
 		}
 
-		// Map original data to show recalculated percentages for visible items
+		// Build a Map for O(1) lookups instead of O(n) find() calls
+		const visibleDataMap = new Map( visibleData.map( d => [ d.label, d ] ) );
+
 		return data.map( segment => {
 			const isVisible = isSeriesVisible( chartId, segment.label );
 			if ( ! isVisible ) {
-				// Return original data for hidden items
+				// Hidden items keep original percentage
 				return segment;
 			}
 
-			// For visible items, find the recalculated percentage from visibleData
-			const recalculated = visibleData.find( d => d.label === segment.label );
-			return recalculated || segment;
+			// For visible items, get the recalculated percentage from visibleData
+			return visibleDataMap.get( segment.label ) || segment;
 		} );
 	}, [ data, visibleData, legendInteractive, chartId, isSeriesVisible ] );
 

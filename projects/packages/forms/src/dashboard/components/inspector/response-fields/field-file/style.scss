@@ -75,6 +75,9 @@
 		background-image: url(../../../../../contact-form/images/file-icons/zip.svg);
 	}
 
+	&.has-thumbnail {
+		background-image: none;
+	}
 }
 
 .jp-forms__inbox-response-file__info {

@@ -13,6 +13,7 @@ const settings = {
 	allowedBlocks: [
 		'core/button',
 		'core/heading',
+		'core/icon',
 		'core/image',
 		'core/list',
 		'core/paragraph',

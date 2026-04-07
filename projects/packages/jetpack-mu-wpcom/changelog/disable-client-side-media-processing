@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Temporarily disable client-side media processing to prevent cross-origin isolation headers from breaking authenticated API requests

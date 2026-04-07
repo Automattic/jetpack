@@ -142,7 +142,7 @@ class Users extends Module {
 
 		add_action( 'deleted_user', array( $this, 'deleted_user_handler' ), 10, 2 );
 		add_action( 'jetpack_deleted_user', $callable, 10, 3 );
-		add_action( 'remove_user_from_blog', array( $this, 'remove_user_from_blog_handler' ), 10, 2 );
+		add_action( 'remove_user_from_blog', array( $this, 'remove_user_from_blog_handler' ), 10, 3 );
 		add_action( 'jetpack_removed_user_from_blog', $callable, 10, 2 );
 
 		// User roles.
@@ -632,7 +632,9 @@ class Users extends Module {
 		);
 
 		// The jetpack_sync_register_user payload is identical to jetpack_sync_save_user, don't send both.
-		if ( $this->is_create_user() || $this->is_add_user_to_blog() ) {
+		if ( $this->is_function_in_backtrace(
+			array_merge( $this->get_create_user_functions(), $this->get_add_user_to_blog_functions() )
+		) ) {
 			return;
 		}
 		/**
@@ -703,7 +705,9 @@ class Users extends Module {
 			$this->add_flags( $user_id, array( 'capabilities_changed' => true ) );
 		}
 
-		if ( $this->is_create_user() || $this->is_add_user_to_blog() || $this->is_delete_user() ) {
+		if ( $this->is_function_in_backtrace(
+			array_merge( $this->get_create_user_functions(), $this->get_add_user_to_blog_functions(), $this->get_delete_user_functions() )
+		) ) {
 			return;
 		}
 
@@ -843,16 +847,17 @@ class Users extends Module {
 	 *
 	 * @access public
 	 *
-	 * @param int $user_id ID of the user.
-	 * @param int $blog_id ID of the blog.
+	 * @param int $user_id  ID of the user.
+	 * @param int $blog_id  ID of the blog.
+	 * @param int $reassign ID of the user to whom to reassign posts.
 	 */
-	public function remove_user_from_blog_handler( $user_id, $blog_id ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	public function remove_user_from_blog_handler( $user_id, $blog_id, $reassign = 0 ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		// User is removed on add, see https://github.com/WordPress/WordPress/blob/0401cee8b36df3def8e807dd766adc02b359dfaf/wp-includes/ms-functions.php#L2114.
 		if ( $this->is_add_new_user_to_blog() ) {
 			return;
 		}
 
-		$reassigned_user_id = $this->get_reassigned_network_user_id();
+		$reassigned_user_id = $reassign;
 
 		// Note that we are in the context of the blog the user is removed from, see https://github.com/WordPress/WordPress/blob/473e1ba73bc5c18c72d7f288447503713d518790/wp-includes/ms-functions.php#L233.
 		/**
@@ -879,61 +884,40 @@ class Users extends Module {
 	}
 
 	/**
-	 * Whether we're adding an existing user to a blog in this request.
+	 * Get the function names that indicate a user is being created.
 	 *
 	 * @access protected
 	 *
-	 * @return boolean
+	 * @return array
 	 */
-	protected function is_add_user_to_blog() {
-		return $this->is_function_in_backtrace( 'add_user_to_blog' );
-	}
-
-	/**
-	 * Whether we're removing a user from a blog in this request.
-	 *
-	 * @access protected
-	 *
-	 * @return boolean
-	 */
-	protected function is_delete_user() {
-		return $this->is_function_in_backtrace( array( 'wp_delete_user', 'remove_user_from_blog' ) );
-	}
-
-	/**
-	 * Whether we're creating a user or adding a new user to a blog.
-	 *
-	 * @access protected
-	 *
-	 * @return boolean
-	 */
-	protected function is_create_user() {
-		$functions = array(
+	protected function get_create_user_functions() {
+		return array(
 			'add_new_user_to_blog', // Used to suppress jetpack_sync_save_user in save_user_cap_handler when user registered on multi site.
 			'wp_create_user', // Used to suppress jetpack_sync_save_user in save_user_role_handler when user registered on multi site.
 			'wp_insert_user', // Used to suppress jetpack_sync_save_user in save_user_cap_handler and save_user_role_handler when user registered on single site.
 		);
-
-		return $this->is_function_in_backtrace( $functions );
 	}
 
 	/**
-	 * Retrieve the ID of the user the removed user's posts are reassigned to (if any).
+	 * Get the function names that indicate a user is being added to a blog.
 	 *
-	 * @return int ID of the user that got reassigned as the author of the posts.
+	 * @access protected
+	 *
+	 * @return array
 	 */
-	protected function get_reassigned_network_user_id() {
-		$backtrace = debug_backtrace( 0 ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_debug_backtrace
-		foreach ( $backtrace as $call ) {
-			if (
-				'remove_user_from_blog' === $call['function'] &&
-				3 === count( $call['args'] )
-			) {
-				return $call['args'][2];
-			}
-		}
+	protected function get_add_user_to_blog_functions() {
+		return array( 'add_user_to_blog' );
+	}
 
-		return false;
+	/**
+	 * Get the function names that indicate a user is being deleted.
+	 *
+	 * @access protected
+	 *
+	 * @return array
+	 */
+	protected function get_delete_user_functions() {
+		return array( 'wp_delete_user', 'remove_user_from_blog' );
 	}
 
 	/**
@@ -945,7 +929,7 @@ class Users extends Module {
 	 * @return bool
 	 */
 	protected function is_function_in_backtrace( $names ) {
-		$backtrace = debug_backtrace( 0 ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_debug_backtrace
+		$backtrace = debug_backtrace( DEBUG_BACKTRACE_IGNORE_ARGS ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_debug_backtrace
 		if ( ! is_array( $names ) ) {
 			$names = array( $names );
 		}

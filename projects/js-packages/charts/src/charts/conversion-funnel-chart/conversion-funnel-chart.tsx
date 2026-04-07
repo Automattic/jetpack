@@ -1,4 +1,5 @@
 import { useTooltip, useTooltipInPortal } from '@visx/tooltip';
+import { Stack } from '@wordpress/ui';
 import clsx from 'clsx';
 import { type FC, useRef, useMemo, useEffect, useCallback, useContext } from 'react';
 import { usePrefersReducedMotion } from '../../hooks';
@@ -26,6 +27,7 @@ import type { FunnelStep, ConversionFunnelChartProps } from './types';
  * @param props.loading          - Whether the chart is in loading state
  * @param props.animation        - Whether to show chart animation on initial render or not
  * @param props.className        - Additional CSS class name
+ * @param props.height           - Height of the chart container. Falls back to style.height if set, otherwise defaults to "100%".
  * @param props.style            - Custom styling
  * @param props.renderStepLabel  - Custom render function for step labels
  * @param props.renderStepRate   - Custom render function for step rates
@@ -41,6 +43,7 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 	animation,
 	className,
 	chartId: providedChartId,
+	height,
 	style,
 	renderStepLabel,
 	renderStepRate,
@@ -49,7 +52,7 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 } ) => {
 	const chartId = useChartId( providedChartId );
 	const { conversionFunnelChart: conversionFunnelChartSettings } = useGlobalChartsTheme();
-	const { getElementStyles } = useGlobalChartsContext();
+	const { getElementStyles, isColorPaletteResolved } = useGlobalChartsContext();
 	const chartRef = useRef< HTMLDivElement >( null );
 	const selectedBarRef = useRef< HTMLDivElement | null >( null );
 
@@ -223,6 +226,9 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 		};
 	}, [ clearSelectionAndRef ] );
 
+	// Resolve height: explicit height prop > style.height > default 100%
+	const resolvedHeight = height ?? style?.height ?? '100%';
+
 	// Get component settings from theme with fallbacks
 	const { primaryColor, backgroundColor, positiveChangeColor, negativeChangeColor } =
 		conversionFunnelChartSettings;
@@ -292,14 +298,20 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 	// Handle empty or undefined data
 	if ( ! isDataValid ) {
 		return (
-			<div
-				className={ clsx( styles.conversionFunnelChart, loading && styles.loading, className ) }
-				style={ style }
+			<Stack
+				direction="column"
+				data-testid="conversion-funnel-chart"
+				className={ clsx(
+					styles[ 'conversion-funnel-chart' ],
+					loading && styles[ 'conversion-funnel-chart--loading' ],
+					className
+				) }
+				style={ { ...style, height: resolvedHeight } }
 			>
 				<div className={ styles[ 'empty-state' ] }>
 					{ loading ? 'Loading...' : 'No data available' }
 				</div>
-			</div>
+			</Stack>
 		);
 	}
 
@@ -308,14 +320,20 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 
 	return (
 		<>
-			<div
+			<Stack
+				direction="column"
+				data-testid="conversion-funnel-chart"
 				ref={ node => {
 					// Set containerRef for @visx coordinate system
 					portalContainerRef( node );
 					chartRef.current = node;
 				} }
-				className={ clsx( styles.conversionFunnelChart, loading && styles.loading, className ) }
-				style={ style }
+				className={ clsx(
+					styles[ 'conversion-funnel-chart' ],
+					loading && styles[ 'conversion-funnel-chart--loading' ],
+					className
+				) }
+				style={ { ...style, height: resolvedHeight } }
 			>
 				{ /* Main Metric */ }
 				{ renderMainMetric ? (
@@ -338,7 +356,12 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 						return (
 							<div
 								key={ step.id }
-								className={ clsx( styles[ 'funnel-step' ], isBlurred && styles.blurred ) }
+								data-testid="funnel-step"
+								className={ clsx(
+									styles[ 'funnel-step' ],
+									isColorPaletteResolved && styles[ 'funnel-step--animated' ],
+									isBlurred && styles[ 'funnel-step--blurred' ]
+								) }
 							>
 								{ /* Step Label and Rate */ }
 								<div className={ styles[ 'step-header' ] }>
@@ -366,7 +389,7 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 
 								{ /* Funnel Bar */ }
 								<div
-									className={ clsx( styles[ 'bar-container' ], isBlurred && styles.disabled ) }
+									className={ styles[ 'bar-container' ] }
 									onClick={ stepHandlers.get( step.id )?.onClick }
 									onKeyDown={ stepHandlers.get( step.id )?.onKeyDown }
 									role="button"
@@ -389,7 +412,7 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 						);
 					} ) }
 				</div>
-			</div>
+			</Stack>
 
 			{ /* Tooltip Portal */ }
 			{ tooltipOpen &&

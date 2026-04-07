@@ -23,7 +23,7 @@ use PHPUnit\Framework\TestCase;
 class ParserTest extends TestCase {
 
 	/**
-	 * Get a mock Parser.
+	 * Get a stub Parser.
 	 *
 	 * @return Parser&\PHPUnit\Framework\MockObject\Stub
 	 */
@@ -33,10 +33,19 @@ class ParserTest extends TestCase {
 				->onlyMethods( array( 'parse', 'format' ) )
 				->getStub();
 		} else {
-			return $this->getMockBuilder( Parser::class )
-				->onlyMethods( array( 'parse', 'format' ) )
-				->getMock();
+			return $this->getMockParser();
 		}
+	}
+
+	/**
+	 * Get a mock Parser.
+	 *
+	 * @return Parser&\PHPUnit\Framework\MockObject\MockObject
+	 */
+	private function getMockParser() {
+		return $this->getMockBuilder( Parser::class )
+			->onlyMethods( array( 'parse', 'format' ) )
+			->getMock();
 	}
 
 	/**
@@ -64,7 +73,7 @@ class ParserTest extends TestCase {
 	 * Test formatToFile.
 	 */
 	public function testFormatToFile() {
-		$mock      = $this->getStubParser();
+		$mock      = $this->getMockParser();
 		$changelog = new Changelog();
 		$mock->method( 'format' )
 			->with( $this->identicalTo( $changelog ) )

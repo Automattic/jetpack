@@ -418,6 +418,8 @@ class DashBackups extends Component {
 			actorName,
 			actorRole,
 			actorAvatarUrl,
+			isMcpAgent,
+			mcpClient,
 			undoBackupId,
 		} = backupUndoEvent;
 
@@ -440,7 +442,14 @@ class DashBackups extends Component {
 						</div>
 						<div className="dash-backup-undo__activity-log-user-meta-name">
 							{ actorName }
-							{ actorRole && ' - ' + actorRole }
+							{ isMcpAgent
+								? ' - ' +
+								  sprintf(
+										/* translators: %s: The name of the MCP client application. */
+										__( 'via %s (MCP)', 'jetpack' ),
+										mcpClient || __( 'MCP client', 'jetpack' )
+								  )
+								: actorRole && ' - ' + actorRole }
 						</div>
 					</div>
 				</div>

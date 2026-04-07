@@ -60,12 +60,9 @@ const Template: StoryFn< typeof PieSemiCircleChart > = args => <PieSemiCircleCha
 const tooltipStoryArgs = {
 	...sharedThemeArgs,
 	data,
-	width: 400,
 	withTooltips: true,
 	label: 'OS Usage',
 	note: 'Q4 2023',
-	containerWidth: '500px',
-	resize: 'none' as const,
 };
 
 export const Default: StoryObj< typeof PieSemiCircleChart > = Template.bind( {} );

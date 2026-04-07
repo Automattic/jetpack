@@ -5,6 +5,44 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.5.1 - 2026-04-06
+### Changed
+- Internal updates.
+
+## 0.5.0 - 2026-03-30
+### Changed
+- Update DataViews dependency. [#46973]
+- Update package dependencies. [#47799]
+
+## 0.4.23 - 2026-03-23
+### Changed
+- Update package dependencies. [#47684]
+
+## 0.4.22 - 2026-03-16
+### Changed
+- Update dependencies. [#47472]
+
+## 0.4.21 - 2026-03-09
+### Changed
+- Switch to Native TypeScript compiler based on Go. [#47375]
+- Update package dependencies. [#47496]
+
+## 0.4.20 - 2026-02-26
+### Changed
+- Update package dependencies. [#47300]
+
+## 0.4.19 - 2026-02-23
+### Changed
+- Update package dependencies. [#47173]
+
+## 0.4.18 - 2026-02-16
+### Changed
+- Update package dependencies. [#47099]
+
+## 0.4.17 - 2026-02-10
+### Changed
+- Update package dependencies. [#47002]
+
 ## 0.4.16 - 2026-02-02
 ### Changed
 - Update package dependencies. [#46430] [#46853] [#46854]

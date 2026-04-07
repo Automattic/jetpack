@@ -1,18 +1,19 @@
 .leaderboardChart {
-	display: flex;
-	flex-direction: column;
 	transition: opacity 0.3s ease-in-out;
 
-	&--legend-top {
-		flex-direction: column-reverse;
-	}
-
-	&--with-legend {
-		gap: 16px;
+	&--responsive {
+		height: 100%;
+		width: 100%;
 	}
 
 	&--loading {
 		opacity: 0.5;
+	}
+
+	&__content {
+		flex: 1;
+		min-height: 0;
+		overflow: auto;
 	}
 }
 
@@ -61,8 +62,6 @@
 }
 
 .valueContainer {
-	display: flex;
-	gap: 4px;
 	justify-content: flex-end;
 }
 

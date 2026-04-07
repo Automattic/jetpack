@@ -1,0 +1,4 @@
+Significance: patch
+Type: security
+
+Prevent symlink-based file content exfiltration when reading composer.json files from PR checkouts.

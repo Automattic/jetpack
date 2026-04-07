@@ -1,61 +1,51 @@
 import { Flex, Navigator } from '@wordpress/components';
 import clsx from 'clsx';
 import { Footer, FooterProps } from './footer.tsx';
-import { Header } from './header.tsx';
+import { Header, HeaderProps } from './header.tsx';
 
 export type ScreenProps = Omit<
 	React.ComponentProps< typeof Navigator.Screen >,
 	'content' | 'children'
-> & {
-	/**
-	 * The title of the screen.
-	 */
-	title?: string;
+> &
+	Omit< HeaderProps, 'icon' > & {
+		/**
+		 * Optional icon to display in the header.
+		 */
+		headerIcon?: React.ReactNode;
 
-	/**
-	 * Optional icon to display in the header.
-	 */
-	headerIcon?: React.ReactNode;
+		/**
+		 * The path of the screen.
+		 */
+		path: string;
+		/**
+		 * The sidebar content
+		 */
+		sidebar?: React.ReactNode;
+		/**
+		 * The footer content
+		 */
+		footerContent?: React.ReactNode;
 
-	/**
-	 * The path of the screen.
-	 */
-	path: string;
-	/**
-	 * The sidebar content
-	 */
-	sidebar?: React.ReactNode;
-	/**
-	 * Whether the screen is locked or has a parent screen.
-	 *
-	 * When it's locked, it means there will be no navigation back to a previous screen.
-	 */
-	isScreenLocked?: boolean;
-	/**
-	 * The footer content
-	 */
-	footerContent?: React.ReactNode;
+		/**
+		 * The footer actions
+		 */
+		footerActions?: FooterProps[ 'actions' ];
 
-	/**
-	 * The footer actions
-	 */
-	footerActions?: FooterProps[ 'actions' ];
+		/**
+		 * className to be applied to the modal.
+		 */
+		className?: string;
 
-	/**
-	 * className to be applied to the modal.
-	 */
-	className?: string;
+		/**
+		 * The content of the screen.
+		 */
+		content?: React.ReactNode;
 
-	/**
-	 * The content of the screen.
-	 */
-	content?: React.ReactNode;
-
-	/**
-	 * The children of the screen. Alternative to `content`.
-	 */
-	children?: React.ReactNode;
-};
+		/**
+		 * The children of the screen. Alternative to `content`.
+		 */
+		children?: React.ReactNode;
+	};
 
 /**
  * Renders a screen.
@@ -71,6 +61,8 @@ export function Screen( {
 	sidebar,
 	headerIcon,
 	isScreenLocked,
+	onGoBack,
+	onClose,
 	footerContent,
 	footerActions,
 	children,
@@ -86,7 +78,13 @@ export function Screen( {
 			{ ...props }
 		>
 			<Flex direction="column" gap={ 0 }>
-				<Header title={ title } isScreenLocked={ isScreenLocked } icon={ headerIcon } />
+				<Header
+					title={ title }
+					isScreenLocked={ isScreenLocked }
+					icon={ headerIcon }
+					onGoBack={ onGoBack }
+					onClose={ onClose }
+				/>
 
 				<Flex gap={ 0 } align="start" className="jp-navigator-modal__body">
 					{ sidebar ? <div className="jp-navigator-modal__sidebar">{ sidebar }</div> : null }

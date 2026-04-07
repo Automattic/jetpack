@@ -5,6 +5,53 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.16.3] - 2026-04-06
+### Changed
+- Update dependencies. [#46383]
+
+## [0.16.2] - 2026-03-30
+### Changed
+- Update package dependencies. [#47799]
+
+### Fixed
+- Ensure store_admin property reports 1 for admin users in REST API tracking requests. [#47731]
+
+## [0.16.1] - 2026-03-23
+### Changed
+- Update package dependencies. [#47684]
+
+### Fixed
+- Disable batched analytics requests when a SOCKS proxy is configured, falling back to wp_remote_get() which respects WP_PROXY_* settings. [#47707]
+
+## [0.16.0] - 2026-03-16
+### Changed
+- Handle proxy requests at MU plugin stage and exit early for faster response time. [#46757]
+- Update dependencies. [#47472]
+
+## [0.15.7] - 2026-03-09
+### Changed
+- Switch to Native TypeScript compiler based on Go. [#47375]
+
+### Fixed
+- Fix TypeScipt type errors detected by `tsgo`. [#47423]
+
+## [0.15.6] - 2026-02-26
+### Changed
+- Update package dependencies. [#47300]
+
+## [0.15.5] - 2026-02-23
+### Changed
+- Update package dependencies. [#47173]
+
+## [0.15.4] - 2026-02-16
+### Changed
+- Update package dependencies. [#47099]
+
+## [0.15.3] - 2026-02-10
+### Changed
+- Update package dependencies. [#47002]
+- Update tracking classes to work without WooCommerce dependency. [#46756]
+
 ## [0.15.2] - 2026-02-02
 ### Changed
 - Update package dependencies. [#46854]
@@ -262,6 +309,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix namespace issue with WooCommerce class reference. [#35857]
 - General: bail early when WooCommerce is not active. [#36278]
 
+[0.16.3]: https://github.com/Automattic/woocommerce-analytics/compare/v0.16.2...v0.16.3
+[0.16.2]: https://github.com/Automattic/woocommerce-analytics/compare/v0.16.1...v0.16.2
+[0.16.1]: https://github.com/Automattic/woocommerce-analytics/compare/v0.16.0...v0.16.1
+[0.16.0]: https://github.com/Automattic/woocommerce-analytics/compare/v0.15.7...v0.16.0
+[0.15.7]: https://github.com/Automattic/woocommerce-analytics/compare/v0.15.6...v0.15.7
+[0.15.6]: https://github.com/Automattic/woocommerce-analytics/compare/v0.15.5...v0.15.6
+[0.15.5]: https://github.com/Automattic/woocommerce-analytics/compare/v0.15.4...v0.15.5
+[0.15.4]: https://github.com/Automattic/woocommerce-analytics/compare/v0.15.3...v0.15.4
+[0.15.3]: https://github.com/Automattic/woocommerce-analytics/compare/v0.15.2...v0.15.3
 [0.15.2]: https://github.com/Automattic/woocommerce-analytics/compare/v0.15.1...v0.15.2
 [0.15.1]: https://github.com/Automattic/woocommerce-analytics/compare/v0.15.0...v0.15.1
 [0.15.0]: https://github.com/Automattic/woocommerce-analytics/compare/v0.14.0...v0.15.0

@@ -5,6 +5,49 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.13] - 2026-04-06
+### Changed
+- Update package dependencies. [#47899]
+
+## [0.6.12] - 2026-03-30
+### Changed
+- Update package dependencies. [#47799]
+
+## [0.6.11] - 2026-03-23
+### Changed
+- Update package dependencies. [#47684]
+
+## [0.6.10] - 2026-03-16
+### Changed
+- Update dependencies. [#47472]
+
+## [0.6.9] - 2026-03-09
+### Changed
+- Update package dependencies. [#47496] [#47499]
+
+## [0.6.8] - 2026-03-02
+### Changed
+- Update dependencies. [#47038]
+
+## [0.6.7] - 2026-02-26
+### Changed
+- Update package dependencies. [#47300]
+
+## [0.6.6] - 2026-02-23
+### Changed
+- Update package dependencies. [#47173]
+
+## [0.6.5] - 2026-02-16
+### Changed
+- Update package dependencies. [#47099]
+
+### Fixed
+- Compatibility: Clean up deprecated CSS. [#47067]
+
+## [0.6.4] - 2026-02-10
+### Changed
+- Update dependencies. [#46931] [#47002]
+
 ## [0.6.3] - 2026-02-02
 ### Changed
 - Update package dependencies. [#46854]
@@ -151,6 +194,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Simple Payments: Move Simple Payments block to PayPal Payments package. [#43413]
 
+[0.6.13]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.6.12...v0.6.13
+[0.6.12]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.6.11...v0.6.12
+[0.6.11]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.6.10...v0.6.11
+[0.6.10]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.6.9...v0.6.10
+[0.6.9]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.6.8...v0.6.9
+[0.6.8]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.6.7...v0.6.8
+[0.6.7]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.6.6...v0.6.7
+[0.6.6]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.6.5...v0.6.6
+[0.6.5]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.6.4...v0.6.5
+[0.6.4]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.6.3...v0.6.4
 [0.6.3]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.6.2...v0.6.3
 [0.6.2]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.6.1...v0.6.2
 [0.6.1]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.6.0...v0.6.1

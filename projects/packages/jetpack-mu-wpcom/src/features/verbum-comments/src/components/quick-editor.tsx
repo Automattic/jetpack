@@ -6,7 +6,7 @@ const LOCALE_MAP = {
 	en: '',
 	zh_TW: 'zh-TW',
 	fr_ca: 'fr-CA',
-};
+} as Record< string, string >;
 
 const getLocale = ( locale: string ) => {
 	// Convert special locales to Gravatar locales
@@ -30,7 +30,7 @@ export default function getQuickEditor(
 	email: string,
 	setIsLoading: ( value: boolean ) => void,
 	setCacheBuster: ( value: number ) => void,
-	timer: string | number | NodeJS.Timeout
+	timer: ReturnType< typeof setTimeout > | null
 ): GravatarQuickEditorCore {
 	return new GravatarQuickEditorCore( {
 		scope: [ 'avatars' ],
@@ -40,7 +40,9 @@ export default function getQuickEditor(
 		onProfileUpdated: () => {
 			setIsLoading( true );
 
-			clearTimeout( timer );
+			if ( timer !== null ) {
+				clearTimeout( timer );
+			}
 
 			// Reload the new avatar
 			timer = setTimeout( () => {

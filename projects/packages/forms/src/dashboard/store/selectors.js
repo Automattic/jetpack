@@ -78,3 +78,13 @@ export const getPendingActions = state => {
 export const hasPendingActions = state => {
 	return ( state.pendingActions?.size ?? 0 ) > 0;
 };
+
+/**
+ * Get the form (jetpack_form) per-status counts.
+ *
+ * @param {object} state - The current state.
+ * @return {object|null} The form status counts object, or null if not yet loaded.
+ */
+export const getFormStatusCounts = state => {
+	return state.formStatusCounts;
+};

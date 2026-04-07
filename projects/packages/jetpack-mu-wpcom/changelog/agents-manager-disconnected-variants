@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Agents Manager: Add lightweight help icon linking to the Help Center for disconnected Jetpack views when unified experience is enabled.

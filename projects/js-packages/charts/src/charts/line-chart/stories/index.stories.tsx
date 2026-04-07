@@ -1,5 +1,6 @@
 import {
 	ChartStoryArgs,
+	extractLegendConfig,
 	temperatureData as sampleData,
 	largeValuesData,
 	trafficData as webTrafficData,
@@ -62,6 +63,7 @@ export default meta;
 const Template: StoryFn< typeof LineChart > = args => {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const { seriesCount, dimensionMode, crosshairMode, withTooltipCrosshairs, ...chartProps } = args;
+	const legend = extractLegendConfig( args );
 
 	// Determine data based on seriesCount control
 	let data = chartProps.data || lineChartStoryArgs.data;
@@ -94,6 +96,7 @@ const Template: StoryFn< typeof LineChart > = args => {
 			{ ...chartProps }
 			{ ...dimensions }
 			data={ data }
+			legend={ legend }
 			withTooltipCrosshairs={ crosshairConfig }
 		/>
 	);
@@ -138,68 +141,44 @@ Animation.args = {
 	animation: true,
 };
 
-export const WithInteractiveLegend: StoryObj< typeof LineChart > = Template.bind( {} );
-WithInteractiveLegend.args = {
+export const WithLegend: StoryObj< typeof LineChart > = Template.bind( {} );
+WithLegend.args = {
 	...lineChartStoryArgs,
-	chartId: 'interactive-legend-demo',
 	showLegend: true,
-	legendInteractive: true,
 };
 
-WithInteractiveLegend.parameters = {
+WithLegend.parameters = {
 	docs: {
 		description: {
 			story:
-				'Line chart with interactive legend. Click or tap legend items to toggle series visibility. Use Tab to focus legend items, then Enter or Space to toggle. Series colors remain stable when toggling visibility.',
-		},
-	},
-};
-
-export const CustomLegendPositioning: StoryObj< typeof LineChart > = Template.bind( {} );
-CustomLegendPositioning.args = {
-	...lineChartStoryArgs,
-	showLegend: true,
-	legendAlignment: 'start',
-	legendPosition: 'top',
-	legendOrientation: 'horizontal',
-	withLegendGlyph: true,
-};
-
-CustomLegendPositioning.parameters = {
-	docs: {
-		description: {
-			story:
-				'Line chart with top-left positioned horizontal legend. This demonstrates non-default legend positioning to showcase different legend placement possibilities with temperature data for London, Canberra, and Mars.',
+				'Props-based legend using `showLegend` and the `legend` config object. Use Storybook controls to adjust legend position, alignment, orientation, shape, and interactivity.',
 		},
 	},
 };
 
 // Story showing use with LineChart using composition API
 export const WithCompositionLegend: StoryObj< typeof LineChart > = {
-	render: args => (
-		<LineChart
-			data={ args.data || webTrafficData }
-			withGradientFill={ false }
-			withLegendGlyph={ false }
-		>
-			<LineChart.Legend
-				orientation={ args.legendOrientation || 'horizontal' }
-				alignment={ args.legendAlignment || 'center' }
-				position={ args.legendPosition || 'bottom' }
-				maxWidth={ args.legendMaxWidth }
-				textOverflow={ args.legendTextOverflow || 'wrap' }
-			/>
-		</LineChart>
-	),
-	argTypes: {
-		legendInteractive: {
-			table: { disable: true },
-		},
+	render: args => {
+		const legend = extractLegendConfig( args );
+		return (
+			<LineChart
+				{ ...Default.args }
+				{ ...args }
+				legend={ { interactive: legend?.interactive } }
+				chartId="composition-line-chart"
+			>
+				<LineChart.Legend { ...legend } />
+			</LineChart>
+		);
+	},
+	args: {
+		...Default.args,
 	},
 	parameters: {
 		docs: {
 			description: {
-				story: 'Legend used with LineChart using the composition API, positioned below the chart.',
+				story:
+					'Composition API using `<LineChart.Legend />` as a child component for explicit legend placement and configuration. This is the recommended approach for flexible legend positioning.',
 			},
 		},
 	},

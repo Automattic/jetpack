@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Image Studio: Revert PR to disable big-sky-plugin in Forno-229

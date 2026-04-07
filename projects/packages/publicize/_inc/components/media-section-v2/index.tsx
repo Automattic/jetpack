@@ -9,6 +9,7 @@ import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { MediaUpload } from '@wordpress/block-editor';
 import { BaseControl, Button, ExternalLink } from '@wordpress/components';
 import { useCallback, useMemo, useReducer, useRef } from '@wordpress/element';
+import { applyFilters } from '@wordpress/hooks';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import useFeaturedImage from '../../hooks/use-featured-image';
@@ -253,6 +254,41 @@ export default function MediaSectionV2( {
 		[ updateMediaOptions, imageGeneratorSettings, recordEvent, analyticsData ]
 	);
 
+	// Callback for external handlers to update the selected image
+	const onImageSelectCallback = useCallback(
+		( image: { id: number; url: string; mime?: string } ) => {
+			// Update media without toggling modal (custom handler manages its own UI)
+			updateMediaOptions( {
+				media_source: 'media-library',
+				attached_media: [ { id: image.id, url: image.url, type: image.mime || 'image/png' } ],
+				image_generator_settings: { ...imageGeneratorSettings, enabled: false },
+			} );
+			recordEvent( 'jetpack_social_media_source_changed', {
+				...analyticsData,
+				source: 'ai-image',
+			} );
+		},
+		[ updateMediaOptions, imageGeneratorSettings, recordEvent, analyticsData ]
+	);
+
+	// Filter to allow external plugins (e.g., Image Studio) to replace the image generation flow
+	const imageGenerationHandler = useMemo( () => {
+		const handler = applyFilters( 'jetpack.ai.imageGenerationHandler', null, {
+			entryPoint: 'social-media',
+			onImageSelect: onImageSelectCallback,
+		} );
+		// Runtime type check: only accept functions
+		return typeof handler === 'function' ? ( handler as () => void ) : null;
+	}, [ onImageSelectCallback ] );
+
+	const handleAiImageClick = useCallback( () => {
+		if ( imageGenerationHandler ) {
+			imageGenerationHandler();
+		} else {
+			toggleShowAiImageModal();
+		}
+	}, [ imageGenerationHandler, toggleShowAiImageModal ] );
+
 	const renderMediaUpload = useCallback( ( { open }: { open: () => void } ) => {
 		openMediaLibraryRef.current = open;
 		return null;
@@ -366,7 +402,7 @@ export default function MediaSectionV2( {
 								currentSource={ currentSource }
 								onSelect={ handleSourceSelect }
 								onMediaLibraryClick={ handleMediaLibraryClick }
-								onAiImageClick={ toggleShowAiImageModal }
+								onAiImageClick={ handleAiImageClick }
 								disabled={ disabled }
 								featuredImageId={ featuredImageId }
 							>
@@ -406,7 +442,7 @@ export default function MediaSectionV2( {
 							currentSource={ currentSource }
 							onSelect={ handleSourceSelect }
 							onMediaLibraryClick={ handleMediaLibraryClick }
-							onAiImageClick={ toggleShowAiImageModal }
+							onAiImageClick={ handleAiImageClick }
 							disabled={ disabled }
 							featuredImageId={ featuredImageId }
 						/>

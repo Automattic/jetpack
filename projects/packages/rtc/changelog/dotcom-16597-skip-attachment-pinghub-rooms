@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Skip attachment entities in PingHub provider to avoid excessive WebSocket connections on media-heavy sites

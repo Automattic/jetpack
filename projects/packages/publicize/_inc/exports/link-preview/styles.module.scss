@@ -1,0 +1,45 @@
+@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+
+.link-preview-modal {
+
+	&:global(.components-modal__frame.is-full-screen) {
+
+		:global(.components-modal__content) {
+			padding-inline: 0;
+		}
+
+		@include gb.break-medium() {
+			max-width: gb.$break-wide; // 1280px
+			max-height: 64rem;
+		}
+	}
+}
+
+.link-preview-tabs {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+
+	[role="tablist"] {
+		border-bottom: 1px solid var(--jp-gray);
+		justify-content: center;
+	}
+
+	[role="tabpanel"] {
+		flex: 1;
+		// Make the tab panel scrollable if the content exceeds the available height
+		// This ensures that the tablist always remains visible
+		overflow-y: auto;
+	}
+
+	.link-preview-tab {
+		padding: 3rem;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+
+		> div {
+			max-width: clamp(gb.$break-mobile, 100%, gb.$break-small);
+		}
+	}
+}

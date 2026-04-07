@@ -1,34 +1,33 @@
 import { LegendOrdinal } from '@visx/legend';
+import type {
+	LegendItemStyles,
+	LegendLabelStyles,
+	LegendPosition,
+	LegendShapeStyles,
+} from '../../types';
 import type { GlyphProps, LineStyles } from '@visx/xychart';
 import type { ComponentProps, CSSProperties, ReactNode } from 'react';
 
-// See https://airbnb.io/visx/docs/legend#Ordinal for more details.
-type LegendOrdinalProps = Omit< ComponentProps< typeof LegendOrdinal >, 'scale' | 'direction' >;
+type VisxLegendProps = Pick<
+	ComponentProps< typeof LegendOrdinal >,
+	'className' | 'shape' | 'fill' | 'size' | 'labelFormat' | 'labelTransform'
+>;
 
-export type BaseLegendProps = Omit< LegendOrdinalProps, 'shapeStyle' > & {
+export type BaseLegendProps = VisxLegendProps & {
 	items: BaseLegendItem[];
 	orientation?: 'horizontal' | 'vertical';
-	/**
-	 * TODO: Add 'left' | 'right' positioning support in future implementation
-	 */
-	position?: 'top' | 'bottom';
+	position?: LegendPosition;
 	alignment?: 'start' | 'center' | 'end';
-	/**
-	 * Maximum width for legend items. When set, text overflow behavior is controlled by textOverflow prop.
-	 * Should be a CSS value string (e.g. '200px', '50%', '10rem')
-	 */
-	maxWidth?: string;
-	/**
-	 * Controls how text behaves when it exceeds maxWidth.
-	 * - 'ellipsis': Truncate with ellipsis (ideal for widgets/small devices)
-	 * - 'wrap': Wrap text to multiple lines (default, ideal for larger displays)
-	 */
-	textOverflow?: 'ellipsis' | 'wrap';
-	/**
-	 * Additional CSS class name for legend items.
-	 * This allows consumers to customize individual legend item styling.
-	 */
-	legendItemClassName?: string;
+	/** Additional CSS class name for legend items. */
+	itemClassName?: string;
+	/** CSS styles for each legend item (margin, flexDirection). */
+	itemStyles?: LegendItemStyles;
+	/** Additional CSS class name for legend labels. */
+	labelClassName?: string;
+	/** CSS styles for legend labels (justifyContent, flex, margin). */
+	labelStyles?: LegendLabelStyles;
+	/** Styles for legend shapes (width, height, margin). */
+	shapeStyles?: LegendShapeStyles;
 	/**
 	 * Function for rendering a custom legend layout.
 	 */
@@ -51,7 +50,7 @@ export type LegendProps = Omit< BaseLegendProps, 'items' > & {
 
 export type BaseLegendItem = {
 	label: string;
-	value: number | string;
+	value?: number | string;
 	color: string;
 	glyphSize?: number;
 	renderGlyph?: < Datum extends object >( props: GlyphProps< Datum > ) => ReactNode;

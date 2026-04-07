@@ -6,6 +6,18 @@ import { fileURLToPath } from 'node:url';
 const baseConfig = {
 	extends: fileURLToPath( import.meta.resolve( '@wordpress/stylelint-config/scss-stylistic' ) ),
 	rules: {
+		// In addition to what `@wordpress/stylelint-config/scss-stylistic` does by default, also ignore comments containing /stylelint-disable/.
+		'@stylistic/max-line-length': [
+			80,
+			{
+				ignore: 'non-comments',
+				ignorePattern: [
+					'/(https?://[0-9,a-z]*.*)|(^description\\:.+)|(^tags\\:.+)/i',
+					'/stylelint-disable/',
+				],
+			},
+		],
+
 		'font-family-no-missing-generic-family-keyword': [
 			true,
 			{

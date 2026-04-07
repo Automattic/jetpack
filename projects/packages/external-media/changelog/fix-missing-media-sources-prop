@@ -1,5 +1,0 @@
-Significance: patch
-Type: fixed
-
-External Media: pass media props to MediaSources during replace flow.
-

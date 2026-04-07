@@ -5,6 +5,49 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.27.19] - 2026-04-06
+### Changed
+- Update dependencies. [#46383]
+
+## [0.27.18] - 2026-03-30
+### Changed
+- Update package dependencies. [#47818]
+
+## [0.27.17] - 2026-03-23
+### Changed
+- Update package dependencies. [#47684]
+
+## [0.27.16] - 2026-03-16
+### Changed
+- Update dependencies. [#47472]
+
+## [0.27.15] - 2026-03-09
+### Changed
+- Update package dependencies. [#47496]
+
+## [0.27.14] - 2026-02-26
+### Changed
+- Admin Menu: Move Upgrades menu registration to jetpack-mu-wpcom for all admin interfaces. [#47146]
+- Update package dependencies. [#47288] [#47300]
+
+### Fixed
+- Fix admin menu upsell banner layout shift by rendering server-side instead of via AJAX. [#47268]
+
+## [0.27.13] - 2026-02-23
+### Changed
+- Update package dependencies. [#47173]
+
+## [0.27.12] - 2026-02-16
+### Changed
+- Update package dependencies. [#47099]
+
+## [0.27.11] - 2026-02-10
+### Changed
+- Update package dependencies. [#46936] [#47002]
+
+### Fixed
+- Admin Menu: Fix passing JSON string instead of array to JITM `get_messages()`. [#46906]
+
 ## [0.27.10] - 2026-02-02
 ### Changed
 - Update package dependencies. [#46854]
@@ -511,6 +554,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Notifications: Change Icon [#37676]
 - Updated package dependencies. [#37669] [#37706]
 
+[0.27.19]: https://github.com/Automattic/jetpack-masterbar/compare/v0.27.18...v0.27.19
+[0.27.18]: https://github.com/Automattic/jetpack-masterbar/compare/v0.27.17...v0.27.18
+[0.27.17]: https://github.com/Automattic/jetpack-masterbar/compare/v0.27.16...v0.27.17
+[0.27.16]: https://github.com/Automattic/jetpack-masterbar/compare/v0.27.15...v0.27.16
+[0.27.15]: https://github.com/Automattic/jetpack-masterbar/compare/v0.27.14...v0.27.15
+[0.27.14]: https://github.com/Automattic/jetpack-masterbar/compare/v0.27.13...v0.27.14
+[0.27.13]: https://github.com/Automattic/jetpack-masterbar/compare/v0.27.12...v0.27.13
+[0.27.12]: https://github.com/Automattic/jetpack-masterbar/compare/v0.27.11...v0.27.12
+[0.27.11]: https://github.com/Automattic/jetpack-masterbar/compare/v0.27.10...v0.27.11
 [0.27.10]: https://github.com/Automattic/jetpack-masterbar/compare/v0.27.9...v0.27.10
 [0.27.9]: https://github.com/Automattic/jetpack-masterbar/compare/v0.27.8...v0.27.9
 [0.27.8]: https://github.com/Automattic/jetpack-masterbar/compare/v0.27.7...v0.27.8

@@ -9,49 +9,36 @@ import { useSelect, useDispatch } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
-import { addQueryArgs } from '@wordpress/url';
-import { FORM_POST_TYPE } from '../../shared/util/constants.js';
 import { createSyncedForm } from '../util/create-synced-form.ts';
-import { getEditorContext, type EditorContext } from '../util/get-editor-context.ts';
+import { getEditorContext } from '../util/get-editor-context.ts';
+import { navigateToForm } from '../util/navigate-to-form.ts';
 
 const FORM_CONVERSION_LOCK = 'jetpack-form-conversion';
-
-/**
- * Navigate to edit a form post.
- * - Widget/Site editor: redirects in same page (no in-editor navigation available)
- * - Post editor: uses in-editor navigation if available
- *
- * @param formId                   - The form post ID to edit.
- * @param editorContext            - The current editor context.
- * @param onNavigateToEntityRecord - Optional callback for in-editor navigation.
- */
-export const navigateToForm = (
-	formId: number,
-	editorContext: EditorContext,
-	onNavigateToEntityRecord?: ( params: { postId: number; postType: string } ) => void
-) => {
-	if ( editorContext === 'widget' || editorContext === 'site' ) {
-		const editUrl = addQueryArgs( 'post.php', { post: formId, action: 'edit' } );
-		window.location.href = editUrl;
-	} else if ( onNavigateToEntityRecord ) {
-		onNavigateToEntityRecord( { postId: formId, postType: FORM_POST_TYPE } );
-	}
-};
 
 interface ConvertFormToolbarProps {
 	clientId: string;
 	attributes: Record< string, unknown >;
+	/**
+	 * Optional callback to run before navigating to form editor.
+	 * Use this to stage any pending edits in the entity store (not save to database).
+	 */
+	onBeforeNavigate?: () => void;
 }
 
 /**
  * Toolbar component for converting inline forms to synced forms and editing synced forms.
  *
- * @param props            - Component props.
- * @param props.clientId   - The block client ID.
- * @param props.attributes - The block attributes.
+ * @param props                  - Component props.
+ * @param props.clientId         - The block client ID.
+ * @param props.attributes       - The block attributes.
+ * @param props.onBeforeNavigate - Callback to stage pending edits before navigation.
  * @return Toolbar with edit/convert buttons.
  */
-export function ConvertFormToolbar( { clientId, attributes }: ConvertFormToolbarProps ) {
+export function ConvertFormToolbar( {
+	clientId,
+	attributes,
+	onBeforeNavigate,
+}: ConvertFormToolbarProps ) {
 	const editorContext = getEditorContext();
 	const isWidgetEditor = editorContext === 'widget';
 
@@ -115,7 +102,12 @@ export function ConvertFormToolbar( { clientId, attributes }: ConvertFormToolbar
 			// Clear block and set ref to the new form
 			replaceInnerBlocks( clientId, [], false );
 			const clearedAttributes = Object.keys( attributes ).reduce(
-				( acc, key ) => ( { ...acc, [ key ]: undefined } ),
+				( acc, key ) => {
+					if ( key === 'ref' ) {
+						return acc;
+					}
+					return { ...acc, [ key ]: undefined };
+				},
 				{ ref: formId }
 			);
 			updateBlockAttributes( clientId, clearedAttributes );
@@ -133,6 +125,8 @@ export function ConvertFormToolbar( { clientId, attributes }: ConvertFormToolbar
 
 	const handleEditOriginal = () => {
 		if ( attributes.ref ) {
+			// Stage any pending edits in the entity store before navigating
+			onBeforeNavigate?.();
 			navigateToForm( attributes.ref as number, editorContext, onNavigateToEntityRecord );
 		}
 	};

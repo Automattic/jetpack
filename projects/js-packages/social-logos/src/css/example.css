@@ -47,7 +47,7 @@
 				text-align: center;
 				overflow: hidden;
 				max-height: 2.2em;
-				word-break: break-word;
+				overflow-wrap: break-word;
 
 				.is-hidden {
 					display: none;

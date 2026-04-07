@@ -2,13 +2,13 @@
  * External dependencies
  */
 import { formatNumber } from '@automattic/number-formatters';
-import { Badge } from '@automattic/ui';
 import {
 	ExternalLink,
 	Icon,
 	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalVStack as VStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
+import { Badge } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
@@ -58,7 +58,9 @@ const FieldPreview = ( { field, onFilePreview }: FieldPreviewProps ) => {
 			return (
 				<VStack spacing="2" alignment="topLeft">
 					{ ( value as string[] ).map( ( item, index ) => (
-						<Badge key={ index }>{ item }</Badge>
+						<Badge intent="draft" key={ index }>
+							{ item }
+						</Badge>
 					) ) }
 				</VStack>
 			);
@@ -86,7 +88,7 @@ const FieldPreview = ( { field, onFilePreview }: FieldPreviewProps ) => {
 		}
 
 		if ( BADGED_VALUE_FIELDS.includes( fieldType ) ) {
-			return <Badge>{ stringValue }</Badge>;
+			return <Badge intent="draft">{ stringValue }</Badge>;
 		}
 
 		// Numbers

@@ -39,8 +39,8 @@ jest.mock( '../../../social-store', () => ( {
 	store: 'jetpack-social-store',
 } ) );
 
-const mockUseDispatch = useDispatch as jest.MockedFunction< typeof useDispatch >;
-const mockUseSelect = useSelect as jest.MockedFunction< typeof useSelect >;
+const mockUseDispatch = useDispatch as jest.Mock;
+const mockUseSelect = useSelect as jest.Mock;
 const mockHasSocialPaidFeatures = scriptData.hasSocialPaidFeatures as jest.MockedFunction<
 	typeof scriptData.hasSocialPaidFeatures
 >;

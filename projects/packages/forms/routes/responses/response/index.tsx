@@ -2,7 +2,12 @@
  * WordPress dependencies
  */
 import apiFetch from '@wordpress/api-fetch';
-import { Modal, Spinner, Tip } from '@wordpress/components';
+import {
+	Modal,
+	Spinner,
+	Tip,
+	__experimentalConfirmDialog as ConfirmDialog, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+} from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback, useEffect, useState } from '@wordpress/element';
@@ -14,10 +19,12 @@ import * as React from 'react';
 /**
  * Internal dependencies
  */
+import FeedbackComments from '../../../src/dashboard/components/feedback-comments';
 import PreviewFile from '../../../src/dashboard/components/inspector/preview-file';
 import ResponseFieldsIterator from '../../../src/dashboard/components/inspector/response-fields';
 import ResponseMeta from '../../../src/dashboard/components/inspector/response-meta';
 import useInboxData from '../../../src/dashboard/hooks/use-inbox-data.ts';
+import { useMarkAsSpam } from '../../../src/dashboard/hooks/use-mark-as-spam.ts';
 import useConfigValue from '../../../src/hooks/use-config-value.ts';
 import { ResponseActions } from './actions';
 import { ResponseNavigation } from './navigation';
@@ -52,8 +59,11 @@ function SingleResponseView( {
 	const [ hasMarkedAsRead, setHasMarkedAsRead ] = useState< number | null >( null );
 
 	const emptyTrashDays = useConfigValue( 'emptyTrashDays' ) ?? 0;
+	const isNotesEnabled = useConfigValue( 'isNotesEnabled' ) ?? false;
 
 	const { editEntityRecord } = useDispatch( coreStore ) as unknown as DispatchActions;
+	const navigate = useNavigate();
+	const searchParams = useSearch( { from: '/responses/$view' } );
 
 	const { response, isLoading } = useSelect(
 		select => {
@@ -62,7 +72,7 @@ function SingleResponseView( {
 			}
 
 			return {
-				response: ( select( coreStore ) as unknown as SelectActions ).getEntityRecord(
+				response: select( coreStore ).getEditedEntityRecord(
 					'postType',
 					'feedback',
 					responseId
@@ -75,6 +85,35 @@ function SingleResponseView( {
 		},
 		[ responseId ]
 	);
+
+	// Use the mark as spam hook with wp-build specific callbacks
+	const {
+		isConfirmDialogOpen,
+		onConfirmMarkAsSpam,
+		onCancelMarkAsSpam,
+		markAsSpamConfirmationMessage,
+		isSaving,
+	} = useMarkAsSpam( response as FormResponse | null, {
+		checkParameter: () => searchParams?.mark_as_spam === 1,
+		removeParameter: () => {
+			navigate( {
+				search: {
+					...searchParams,
+					mark_as_spam: undefined,
+				},
+			} );
+		},
+		switchToSpam: ( id: number | string ) => {
+			navigate( {
+				to: '/responses/spam',
+				search: {
+					...searchParams,
+					responseIds: [ String( id ) ],
+					mark_as_spam: undefined,
+				},
+			} );
+		},
+	} );
 
 	const currentIndex = allResponseIds.indexOf( responseId );
 	const hasNext = currentIndex < allResponseIds.length - 1;
@@ -201,6 +240,8 @@ function SingleResponseView( {
 
 			<ResponseFieldsIterator fields={ response.fields } onFilePreview={ handleFilePreview } />
 
+			{ isNotesEnabled && <FeedbackComments postId={ response.id } /> }
+
 			{ response.status === 'spam' && (
 				<div className="jp-forms__inbox__tip-container">
 					<Tip>
@@ -245,6 +286,15 @@ function SingleResponseView( {
 					/>
 				</Modal>
 			) }
+
+			<ConfirmDialog
+				isOpen={ isConfirmDialogOpen }
+				onConfirm={ onConfirmMarkAsSpam }
+				onCancel={ onCancelMarkAsSpam }
+				isBusy={ isSaving }
+			>
+				{ markAsSpamConfirmationMessage }
+			</ConfirmDialog>
 		</>
 	);
 }

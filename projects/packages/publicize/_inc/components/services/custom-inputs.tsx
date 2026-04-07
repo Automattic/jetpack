@@ -5,8 +5,8 @@ import { createInterpolateElement, useCallback, useId, useState } from '@wordpre
 import { __, _x, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { store } from '../../social-store';
-import { SupportedService } from '../services/use-supported-services';
 import styles from './style.module.scss';
+import { SupportedService } from './types';
 import type { ChangeEvent } from 'react';
 
 type CustomInputsProps = {

@@ -93,7 +93,11 @@ const setConnectionStore = ( {
 	jest
 		.spyOn( storeSelect, 'getConnectionStatus' )
 		.mockReset()
-		.mockReturnValue( { isRegistered, isUserConnected, hasConnectedOwner, userConnectionData } );
+		.mockReturnValue( { isRegistered, isUserConnected, hasConnectedOwner } );
+	jest
+		.spyOn( storeSelect, 'getUserConnectionData' )
+		.mockReset()
+		.mockReturnValue( userConnectionData );
 };
 beforeAll( () => {
 	global.JetpackScriptData = {

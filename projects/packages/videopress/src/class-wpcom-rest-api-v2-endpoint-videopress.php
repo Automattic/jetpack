@@ -48,56 +48,46 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 			array(
 				'args'                => array(
 					'id'              => array(
-						'description'       => __( 'The post id for the attachment.', 'jetpack-videopress-pkg' ),
-						'type'              => 'int',
-						'required'          => true,
-						'validate_callback' => function ( $param ) {
-							return is_numeric( $param );
-						},
+						'description' => __( 'The post id for the attachment.', 'jetpack-videopress-pkg' ),
+						'type'        => 'integer',
+						'required'    => true,
 					),
 					'title'           => array(
 						'description'       => __( 'The title of the video.', 'jetpack-videopress-pkg' ),
 						'type'              => 'string',
-						'required'          => false,
 						'sanitize_callback' => 'sanitize_text_field',
 					),
 					'description'     => array(
 						'description'       => __( 'The description of the video.', 'jetpack-videopress-pkg' ),
 						'type'              => 'string',
-						'required'          => false,
 						'sanitize_callback' => 'sanitize_textarea_field',
 					),
 					'caption'         => array(
 						'description'       => __( 'The caption of the video.', 'jetpack-videopress-pkg' ),
 						'type'              => 'string',
-						'required'          => false,
 						'sanitize_callback' => 'sanitize_textarea_field',
 					),
 					'rating'          => array(
 						'description'       => __( 'The video content rating. One of G, PG-13 or R-17', 'jetpack-videopress-pkg' ),
 						'type'              => 'string',
-						'required'          => false,
 						'sanitize_callback' => 'sanitize_text_field',
 					),
 					'display_embed'   => array(
-						'description'       => __( 'Display the share menu in the player.', 'jetpack-videopress-pkg' ),
-						'type'              => 'boolean',
-						'required'          => false,
-						'sanitize_callback' => 'rest_sanitize_boolean',
+						'description' => __( 'Display the share menu in the player.', 'jetpack-videopress-pkg' ),
+						'type'        => 'boolean',
 					),
 					'allow_download'  => array(
-						'description'       => __( 'Display download option and allow viewers to download this video', 'jetpack-videopress-pkg' ),
-						'type'              => 'boolean',
-						'required'          => false,
-						'sanitize_callback' => 'rest_sanitize_boolean',
+						'description' => __( 'Display download option and allow viewers to download this video', 'jetpack-videopress-pkg' ),
+						'type'        => 'boolean',
 					),
 					'privacy_setting' => array(
-						'description'       => __( 'How to determine if the video should be public or private', 'jetpack-videopress-pkg' ),
-						'type'              => 'int',
-						'required'          => false,
-						'validate_callback' => function ( $param ) {
-							return is_numeric( $param );
-						},
+						'description' => __( 'How to determine if the video should be public or private', 'jetpack-videopress-pkg' ),
+						'type'        => 'integer',
+						'enum'        => array(
+							\VIDEOPRESS_PRIVACY::IS_PUBLIC,
+							\VIDEOPRESS_PRIVACY::IS_PRIVATE,
+							\VIDEOPRESS_PRIVACY::SITE_DEFAULT,
+						),
 					),
 				),
 				'methods'             => WP_REST_Server::EDITABLE,
@@ -111,8 +101,15 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 		// Poster Route.
 		register_rest_route(
 			$this->namespace,
-			$this->rest_base . '/(?P<video_guid>\w+)/poster',
+			$this->rest_base . '/(?P<video_guid>[A-Za-z0-9]{8})/poster',
 			array(
+				'args' => array(
+					'video_guid' => array(
+						'description' => __( 'The VideoPress GUID.', 'jetpack-videopress-pkg' ), // @phan-suppress-current-line PhanPluginMixedKeyNoKey
+						'type'        => 'string',
+						'required'    => true,
+					),
+				),
 				array(
 					'methods'             => WP_REST_Server::READABLE,
 					'callback'            => array( $this, 'videopress_block_get_poster' ),
@@ -123,26 +120,16 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 				array(
 					'args'                => array(
 						'at_time'              => array(
-							'description'       => __( 'The time in the video to use as the poster frame.', 'jetpack-videopress-pkg' ),
-							'type'              => 'int',
-							'required'          => false,
-							'validate_callback' => function ( $param ) {
-								return is_numeric( $param );
-							},
+							'description' => __( 'The time in the video to use as the poster frame.', 'jetpack-videopress-pkg' ),
+							'type'        => 'integer',
 						),
 						'is_millisec'          => array(
-							'description'       => __( 'Whether the time is in milliseconds or seconds.', 'jetpack-videopress-pkg' ),
-							'type'              => 'boolean',
-							'required'          => false,
-							'sanitize_callback' => 'rest_sanitize_boolean',
+							'description' => __( 'Whether the time is in milliseconds or seconds.', 'jetpack-videopress-pkg' ),
+							'type'        => 'boolean',
 						),
 						'poster_attachment_id' => array(
-							'description'       => __( 'The attachment id of the poster image.', 'jetpack-videopress-pkg' ),
-							'type'              => 'int',
-							'required'          => false,
-							'validate_callback' => function ( $param ) {
-								return is_numeric( $param );
-							},
+							'description' => __( 'The attachment id of the poster image.', 'jetpack-videopress-pkg' ),
+							'type'        => 'integer',
 						),
 					),
 					'methods'             => WP_REST_Server::EDITABLE,
@@ -157,8 +144,20 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 		// Endpoint to know if the video metadata is editable.
 		register_rest_route(
 			$this->namespace,
-			$this->rest_base . '/(?P<video_guid>\w+)/check-ownership/(?P<post_id>\d+)/',
+			$this->rest_base . '/(?P<video_guid>[A-Za-z0-9]{8})/check-ownership/(?P<post_id>\d+)/',
 			array(
+				'args' => array(
+					'video_guid' => array(
+						'description' => __( 'The VideoPress GUID.', 'jetpack-videopress-pkg' ), // @phan-suppress-current-line PhanPluginMixedKeyNoKey
+						'type'        => 'string',
+						'required'    => true,
+					),
+					'post_id'    => array(
+						'description' => __( 'The post id for the attachment.', 'jetpack-videopress-pkg' ),
+						'type'        => 'integer',
+						'required'    => true,
+					),
+				),
 				array(
 					'methods'             => WP_REST_Server::READABLE,
 					'callback'            => array( $this, 'videopress_video_belong_to_site' ),
@@ -169,7 +168,7 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 			)
 		);
 
-		// Token Route
+		// Token Route.
 		register_rest_route(
 			$this->namespace,
 			$this->rest_base . '/upload-jwt',
@@ -182,11 +181,18 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 			)
 		);
 
-		// Playback Token Route
+		// Playback Token Route.
 		register_rest_route(
 			$this->namespace,
-			$this->rest_base . '/playback-jwt/(?P<video_guid>\w+)',
+			$this->rest_base . '/playback-jwt/(?P<video_guid>[A-Za-z0-9]{8})',
 			array(
+				'args'                => array(
+					'video_guid' => array(
+						'description' => __( 'The VideoPress GUID.', 'jetpack-videopress-pkg' ),
+						'type'        => 'string',
+						'required'    => true,
+					),
+				),
 				'methods'             => \WP_REST_Server::EDITABLE,
 				'callback'            => array( $this, 'videopress_playback_jwt' ),
 				'permission_callback' => function () {

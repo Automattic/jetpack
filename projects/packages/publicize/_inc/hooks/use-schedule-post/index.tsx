@@ -41,14 +41,12 @@ export function useSchedulePost() {
 				Number( connection.connection_id )
 			);
 
-			const actions = siteHasFeature( features.UNIFIED_UI_V1 )
-				? [
-						{
-							label: __( 'View', 'jetpack-publicize-pkg' ),
-							onClick: openSharingActivity,
-						},
-				  ]
-				: [];
+			const actions = [
+				{
+					label: __( 'View', 'jetpack-publicize-pkg' ),
+					onClick: openSharingActivity,
+				},
+			];
 
 			/**
 			 * The share endpoint only gets the custom message as a parameter, the attached media and

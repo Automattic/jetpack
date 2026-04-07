@@ -5,6 +5,68 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [8.2.0] - 2026-04-06
+### Added
+- Add SSO details to the Connection details card. [#47861]
+- Add WordPress.com connector card for the WP 7.0+ Settings > Connectors screen with connection details and disconnect support. [#47792]
+- Connection: Display inline error notices for site registration, authorization, and disconnect failures in the WordPress.com Connectors card. [#47865]
+
+### Changed
+- Connector card: Prevent site disconnection and owner account unlinking on Wordpress.com and VIP sites. [#47862]
+
+### Fixed
+- Connection Details: Fix layout of the connection details modal to properly handle varying URL lengths and screen sizes. [#47879]
+- Fix connection flow in connector card when using Gutenberg and ensure modals always show on disconnection. [#47902]
+- Update Woo logo on connector card. [#47884]
+
+## [8.1.0] - 2026-03-30
+### Changed
+- Replace transient-based SSO broker URL storage with a constant-based approach gated by a WordPress.com authorization signal, and fall back to WordPress.com SSO when the referrer is a WordPress.com domain. [#47630]
+- Update package dependencies. [#47818]
+
+### Fixed
+- Fixed SSO login conflict with Two-Factor plugin 0.15.0+ that caused a redundant local 2FA prompt after completing WordPress.com 2FA. [#47306]
+
+## [8.0.5] - 2026-03-23
+### Changed
+- Update package dependencies. [#47684]
+
+## [8.0.4] - 2026-03-16
+### Changed
+- Update dependencies. [#47472]
+
+## [8.0.3] - 2026-03-09
+### Changed
+- Update package dependencies. [#47496]
+
+## [8.0.2] - 2026-03-02
+### Changed
+- Update dependencies. [#46383]
+
+## [8.0.1] - 2026-02-26
+### Changed
+- Update package dependencies. [#47300]
+
+## [8.0.0] - 2026-02-23
+### Removed
+- Remove deprecated methods and attributes. [#47251]
+
+## [7.1.1] - 2026-02-18
+### Changed
+- Update package dependencies. [#47173]
+
+## [7.1.0] - 2026-02-16
+### Added
+- Add `maybe_add_origin_site_id` method to the `Urls` class. [#46783]
+
+### Changed
+- Update package dependencies. [#47099]
+
+## [7.0.3] - 2026-02-10
+### Changed
+- Move IDC stats from Jetpack plugin to connection package. [#46967]
+- Update package dependencies. [#47002]
+
 ## [7.0.2] - 2026-02-04
 ### Changed
 - Update package dependencies. [#46936]
@@ -1712,6 +1774,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Separate the connection library into its own package.
 
+[8.2.0]: https://github.com/Automattic/jetpack-connection/compare/v8.1.0...v8.2.0
+[8.1.0]: https://github.com/Automattic/jetpack-connection/compare/v8.0.5...v8.1.0
+[8.0.5]: https://github.com/Automattic/jetpack-connection/compare/v8.0.4...v8.0.5
+[8.0.4]: https://github.com/Automattic/jetpack-connection/compare/v8.0.3...v8.0.4
+[8.0.3]: https://github.com/Automattic/jetpack-connection/compare/v8.0.2...v8.0.3
+[8.0.2]: https://github.com/Automattic/jetpack-connection/compare/v8.0.1...v8.0.2
+[8.0.1]: https://github.com/Automattic/jetpack-connection/compare/v8.0.0...v8.0.1
+[8.0.0]: https://github.com/Automattic/jetpack-connection/compare/v7.1.1...v8.0.0
+[7.1.1]: https://github.com/Automattic/jetpack-connection/compare/v7.1.0...v7.1.1
+[7.1.0]: https://github.com/Automattic/jetpack-connection/compare/v7.0.3...v7.1.0
+[7.0.3]: https://github.com/Automattic/jetpack-connection/compare/v7.0.2...v7.0.3
 [7.0.2]: https://github.com/Automattic/jetpack-connection/compare/v7.0.1...v7.0.2
 [7.0.1]: https://github.com/Automattic/jetpack-connection/compare/v7.0.0...v7.0.1
 [7.0.0]: https://github.com/Automattic/jetpack-connection/compare/v6.20.5...v7.0.0

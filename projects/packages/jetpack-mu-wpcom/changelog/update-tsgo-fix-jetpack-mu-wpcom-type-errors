@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix TypeScript type errors in verbum-comments for tsgo compatibility

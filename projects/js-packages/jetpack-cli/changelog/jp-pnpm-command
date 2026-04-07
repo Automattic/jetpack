@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add pnpm command for running pnpm in the monorepo root or a specific project.
