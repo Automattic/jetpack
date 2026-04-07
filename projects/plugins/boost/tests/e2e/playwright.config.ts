@@ -1,4 +1,5 @@
 import { readFileSync } from 'fs';
+import { join } from 'path';
 import baseConfig, { setupProjects } from '_jetpack-e2e-commons/playwright.config.default';
 
 /**
@@ -16,7 +17,7 @@ function getDevDomain(): string {
 		return 'jetpack-boost.test';
 	}
 	try {
-		const env = readFileSync( `${ dir }/.env`, 'utf8' );
+		const env = readFileSync( join( dir, '.env' ), 'utf8' );
 		return (
 			env
 				.match( /^DEV_DOMAIN=(.+)$/m )?.[ 1 ]
@@ -44,6 +45,9 @@ const fullStackProjects = process.env.BOOST_CLOUD_DIR
 				name: 'full-stack',
 				testMatch: '**/specs/full-stack/**',
 				dependencies: [ 'full-stack setup' ],
+				// Force single worker — full-stack tests mutate shared state
+				// (dev WordPress, boost-cloud Redis) and cannot run in parallel.
+				workers: 1,
 				use: {
 					baseURL: `http://${ getDevDomain() }`,
 					// Keep in sync with STORAGE_STATE_PATH in lib/full-stack-global-setup.ts.

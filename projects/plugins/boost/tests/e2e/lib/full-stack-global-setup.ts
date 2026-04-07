@@ -10,6 +10,7 @@
 
 import { mkdirSync, existsSync } from 'fs';
 import { dirname, join } from 'path';
+import { fileURLToPath } from 'url';
 import { test as setup, expect } from '@playwright/test';
 import {
 	getDevDomain,
@@ -20,7 +21,7 @@ import {
 
 // Keep in sync with storageState path in playwright.config.ts fullStackProjects.
 const STORAGE_STATE_PATH = join(
-	dirname( new URL( import.meta.url ).pathname ),
+	dirname( fileURLToPath( import.meta.url ) ),
 	'..',
 	'.state',
 	'full-stack-storage-state.json'
@@ -165,6 +166,14 @@ setup( 'full-stack environment health check', async ( { request } ) => {
 			loginResponse.ok() || loginResponse.status() === 302,
 			`Login failed with status ${ loginResponse.status() }`
 		).toBe( true );
+
+		// Verify authentication by requesting an admin page — a 200 with the login
+		// form would be a false positive from the POST above.
+		const adminResponse = await request.get( `http://${ devDomain }/wp-admin/profile.php` );
+		expect(
+			adminResponse.url(),
+			'Authentication failed: admin request was redirected to the login page'
+		).not.toContain( 'wp-login.php' );
 
 		// Save storage state for the full-stack test project
 		const stateDir = dirname( STORAGE_STATE_PATH );
