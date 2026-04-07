@@ -125,6 +125,7 @@ function wpcom_enqueue_launch_button_assets() {
 
 	$launch_button_data = wp_json_encode(
 		array(
+			'blogId'          => get_current_blog_id(),
 			'siteUrl'         => home_url(),
 			'siteDomain'      => wp_parse_url( home_url(), PHP_URL_HOST ),
 			'sitePlan'        => $current_plan,
