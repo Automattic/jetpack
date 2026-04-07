@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Removed .eslintignore and fixed JS linting errors in delete-cache-button.js.
