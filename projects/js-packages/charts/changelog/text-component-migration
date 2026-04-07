@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Replace __experimentalText from @wordpress/components with stable Text from @wordpress/ui.
