@@ -1446,6 +1446,8 @@ class WPCOM_Features {
 			self::A4A_JETPACK_STATS_YEARLY,
 		),
 		self::STUDIO_SYNC                       => array(
+			self::WPCOM_PRO_PLANS,
+			self::WPCOM_PERSONAL_AND_PREMIUM_PLANS,
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::WPCOM_FLEX_CACHE_SITE_FREE_PLANS,
 		),
