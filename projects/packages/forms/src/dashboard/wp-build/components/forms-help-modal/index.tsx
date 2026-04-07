@@ -58,7 +58,10 @@ export default function FormsHelpModal( { isOpen, onClose }: Props ) {
 	}
 
 	return (
-		<Modal title={ __( 'Not seeing all your forms?', 'jetpack-forms' ) } onRequestClose={ handleClose }>
+		<Modal
+			title={ __( 'Not seeing all your forms?', 'jetpack-forms' ) }
+			onRequestClose={ handleClose }
+		>
 			<VStack spacing="4">
 				<Text>
 					{ __( 'The Forms list shows reusable forms, not simple form blocks.', 'jetpack-forms' ) }
