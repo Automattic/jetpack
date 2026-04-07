@@ -1,7 +1,7 @@
 import { setLocale } from '@automattic/number-formatters';
 import { useEffect, useRef, useCallback } from 'react';
 import { GlobalChartsProvider } from '../providers';
-import { CHART_THEME_MAP, DEFAULT_ACCENT_COLOR } from './theme-config';
+import { buildCustomTheme, CHART_THEME_MAP, DEFAULT_ACCENT_COLOR } from './theme-config';
 import type { Decorator } from '@storybook/react';
 
 /**
@@ -115,11 +115,11 @@ const isValidHexColor = ( color: string ): boolean => {
 
 /**
  * Provider wrapper for Storybook chart stories
- * Handles theme setup, CSS variables for custom theme, locale initialization, and GlobalChartsProvider
+ * Handles theme setup, locale initialization, and GlobalChartsProvider
  * @param root0             - Props object
  * @param root0.children    - Child components to render
  * @param root0.themeName   - Theme name to apply
- * @param root0.accentColor - Accent color for custom theme (injected as CSS variable)
+ * @param root0.accentColor - Accent color for custom theme (passed directly into the theme)
  * @return JSX element with chart environment setup and GlobalChartsProvider
  */
 const StoryChartProvider = ( {
@@ -140,34 +140,25 @@ const StoryChartProvider = ( {
 		}
 	}, [] );
 
-	const theme = CHART_THEME_MAP[ themeName ];
-
 	// Sanitize accent color to prevent XSS via CSS injection
 	// Falls back to default if invalid hex color is provided
 	const sanitizedAccentColor = isValidHexColor( accentColor ) ? accentColor : DEFAULT_ACCENT_COLOR;
 
+	// For the custom theme, build it dynamically from the accent color.
+	// Other themes are looked up from the static map.
+	const theme =
+		themeName === 'custom'
+			? buildCustomTheme( sanitizedAccentColor )
+			: CHART_THEME_MAP[ themeName ];
+
 	// Force GlobalChartsProvider to remount when accent color changes for custom theme
-	// This ensures CSS variables are re-resolved after the DOM updates
+	// This ensures colors are re-resolved
 	const providerKey = themeName === 'custom' ? `custom-${ sanitizedAccentColor }` : themeName;
 
 	return (
-		<>
-			{ themeName === 'custom' && (
-				<style>
-					{
-						// eslint-disable-next-line @wordpress/no-unknown-ds-tokens -- Seems to be thinking this is a use, not a redefinition.
-						`
-						:root {
-							--wpds-color-bg-interactive-brand-weak: ${ sanitizedAccentColor };
-						}
-					`
-					}
-				</style>
-			) }
-			<GlobalChartsProvider key={ providerKey } theme={ theme }>
-				{ children }
-			</GlobalChartsProvider>
-		</>
+		<GlobalChartsProvider key={ providerKey } theme={ theme }>
+			{ children }
+		</GlobalChartsProvider>
 	);
 };
 

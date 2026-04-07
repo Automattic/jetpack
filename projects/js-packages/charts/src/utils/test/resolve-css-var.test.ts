@@ -405,7 +405,6 @@ describe( 'resolveCssVariable', () => {
 		} );
 
 		it( 'handles complex selector scoped elements', () => {
-			// Simulate an element with specific classes/attributes like .uLgshq-root[data-wpds-theme-provider-id]
 			const themedElement = document.createElement( 'div' );
 			themedElement.className = 'uLgshq-root';
 			themedElement.setAttribute( 'data-wpds-theme-provider-id', ':rj:' );
@@ -414,9 +413,8 @@ describe( 'resolveCssVariable', () => {
 				if ( element === themedElement ) {
 					return {
 						getPropertyValue: ( prop: string ) => {
-							// eslint-disable-next-line @wordpress/no-unknown-ds-tokens -- Thinks this is a use rather than a test.
-							if ( prop === '--wpds-color-bg-interactive-brand-weak' ) {
-								return '#c029dc'; // User's custom accent color
+							if ( prop === '--custom-accent-color' ) {
+								return '#c029dc';
 							}
 							return '';
 						},
@@ -428,8 +426,7 @@ describe( 'resolveCssVariable', () => {
 			} );
 			window.getComputedStyle = mockGetComputedStyle as unknown as typeof window.getComputedStyle;
 
-			// eslint-disable-next-line @wordpress/no-unknown-ds-tokens -- Thinks this is a use rather than a test.
-			const result = resolveCssVariable( '--wpds-color-bg-interactive-brand-weak', themedElement );
+			const result = resolveCssVariable( '--custom-accent-color', themedElement );
 			expect( result ).toBe( '#c029dc' );
 		} );
 	} );

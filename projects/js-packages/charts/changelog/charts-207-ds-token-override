@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Storybook: Replace manual design-system token override with direct accent color theming.
