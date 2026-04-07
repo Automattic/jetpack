@@ -19,7 +19,7 @@ use Automattic\Jetpack\Status\Host;
  * @return string|null
  */
 function wpcom_get_launch_button_experiment_variation(): ?string {
-	$experiment_name = 'calypso_launch_button_experiment_test_20260319_4';
+	$experiment_name = 'calypso_standardized_site_launch_gating';
 	$user_id         = get_current_user_id();
 	$cache_key       = 'launch-button-exp-var-' . $user_id . '-' . $experiment_name;
 	$cache_ttl       = HOUR_IN_SECONDS;
