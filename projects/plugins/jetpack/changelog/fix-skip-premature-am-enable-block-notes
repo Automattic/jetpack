@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Block Notes: Stop force-enabling Agents Manager site-wide via the unified experience filter.
