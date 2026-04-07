@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Sidebar upsell: hide when site is not connected to Jetpack.com.
