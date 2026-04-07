@@ -179,8 +179,10 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 
 == Screenshots ==
 
-1. Jetpack Boost Critical CSS Generation
-2. Jetpack Boost Speed Improvement
+1. Jetpack Boost dashboard with performance scores and optimization modules.
+2. Free Critical CSS generation in progress.
+3. Automatic Critical CSS generation with the upgraded plan.
+4. Historical performance tracking with the upgraded plan.
 
 == Changelog ==
 ### 4.5.8-beta - 2026-03-09
