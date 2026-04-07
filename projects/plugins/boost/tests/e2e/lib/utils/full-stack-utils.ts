@@ -57,7 +57,7 @@ export function getDevDomain(): string {
 	try {
 		const envContent = readFileSync( join( dir, '.env' ), 'utf8' );
 		const match = envContent.match( /^DEV_DOMAIN=(.+)$/m );
-		return match?.[ 1 ] ?? 'jetpack-boost.test';
+		return match?.[ 1 ]?.trim() ?? 'jetpack-boost.test';
 	} catch {
 		return 'jetpack-boost.test';
 	}
@@ -226,16 +226,6 @@ export class FullStackUtils {
 				`Last state: ${ lastState }. ` +
 				`Docker logs:\n${ logs.slice( 0, 2000 ) }`
 		);
-	}
-
-	/**
-	 * Check Shield API health.
-	 *
-	 * @return {Promise<{status: string}>} Health response object.
-	 */
-	async getShieldHealth(): Promise< { status: string } > {
-		const response = await fetch( 'http://localhost:1982/v2/health' );
-		return ( await response.json() ) as { status: string };
 	}
 
 	/**

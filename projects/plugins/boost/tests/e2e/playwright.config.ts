@@ -5,6 +5,9 @@ import baseConfig, { setupProjects } from '_jetpack-e2e-commons/playwright.confi
  * Read DEV_DOMAIN from the boost-cloud .env file for full-stack test baseURL.
  * Falls back to 'jetpack-boost.test' if BOOST_CLOUD_DIR is not set or .env is unreadable.
  *
+ * Intentionally duplicated from lib/utils/full-stack-utils.ts to avoid pulling
+ * test utility imports into config evaluation.
+ *
  * @return {string} The dev domain, or 'jetpack-boost.test' as fallback.
  */
 function getDevDomain(): string {
@@ -14,7 +17,7 @@ function getDevDomain(): string {
 	}
 	try {
 		const env = readFileSync( `${ dir }/.env`, 'utf8' );
-		return env.match( /^DEV_DOMAIN=(.+)$/m )?.[ 1 ] ?? 'jetpack-boost.test';
+		return env.match( /^DEV_DOMAIN=(.+)$/m )?.[ 1 ]?.trim() ?? 'jetpack-boost.test';
 	} catch {
 		return 'jetpack-boost.test';
 	}
@@ -38,6 +41,7 @@ const fullStackProjects = process.env.BOOST_CLOUD_DIR
 				dependencies: [ 'full-stack setup' ],
 				use: {
 					baseURL: `http://${ getDevDomain() }`,
+					// Keep in sync with STORAGE_STATE_PATH in lib/full-stack-global-setup.ts.
 					storageState: '.state/full-stack-storage-state.json',
 				},
 			},

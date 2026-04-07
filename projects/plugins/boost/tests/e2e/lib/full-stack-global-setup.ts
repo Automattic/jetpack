@@ -10,7 +10,7 @@
 
 import { execFile } from 'child_process';
 import { mkdirSync, existsSync } from 'fs';
-import { dirname } from 'path';
+import { dirname, join } from 'path';
 import { promisify } from 'util';
 import { test as setup, expect } from '@playwright/test';
 import { getDevDomain, executeDevWpCommand } from './utils/full-stack-utils';
@@ -28,6 +28,7 @@ async function execDocker( args: string[] ): Promise< string > {
 	return stdout + stderr;
 }
 
+// Keep in sync with storageState path in playwright.config.ts fullStackProjects.
 const STORAGE_STATE_PATH = join(
 	dirname( new URL( import.meta.url ).pathname ),
 	'..',
@@ -182,5 +183,3 @@ setup( 'full-stack environment health check', async ( { request } ) => {
 		await request.storageState( { path: STORAGE_STATE_PATH } );
 	} );
 } );
-
-export { STORAGE_STATE_PATH };

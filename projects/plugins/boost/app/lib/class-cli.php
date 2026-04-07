@@ -110,7 +110,7 @@ class CLI {
 	 * Set a module status.
 	 *
 	 * @param string $module_slug Module slug.
-	 * @param string $status      Module status.
+	 * @param bool   $status      Module status.
 	 */
 	private function set_module_status( $module_slug, $status ) {
 		$modules = ( new Modules_Setup() )->get_available_modules_and_submodules();

@@ -6,4 +6,5 @@ plan-data.txt
 e2e_tunnels.txt
 jetpack-private-options.txt
 /allure-results
+/.state
 storage.json
