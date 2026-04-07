@@ -13,7 +13,7 @@
     },
     {
       "step": "runPHP",
-      "code": "<?php chmod('/wordpress/wp-content', 755);"
+      "code": "<?php @chmod('/wordpress/wp-content', 0755);"
     }
   ]
 }
