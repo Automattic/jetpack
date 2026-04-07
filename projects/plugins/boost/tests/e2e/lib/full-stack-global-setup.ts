@@ -65,7 +65,9 @@ setup( 'full-stack environment health check', async ( { request } ) => {
 		let healthy = false;
 		for ( let attempt = 0; attempt < 6; attempt++ ) {
 			try {
-				const response = await fetch( 'http://localhost:1982/v2/health' );
+				const response = await fetch( 'http://localhost:1982/v2/health', {
+					signal: AbortSignal.timeout( 5_000 ),
+				} );
 				const body = ( await response.json() ) as { status: string };
 				// eslint-disable-next-line playwright/no-conditional-in-test
 				if ( body.status === 'ok' ) {
