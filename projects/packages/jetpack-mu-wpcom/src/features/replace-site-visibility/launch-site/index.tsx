@@ -9,6 +9,7 @@ import SitePreviewLink from '../site-preview-link';
 import type { SitePreviewLinkObject } from '../site-preview-link';
 
 interface Props {
+	blogId: number;
 	homeUrl: string;
 	siteTitle: string;
 	isUnlaunchedSite: boolean;
@@ -24,6 +25,7 @@ interface Props {
 }
 
 const LaunchSite = ( {
+	blogId,
 	homeUrl,
 	siteTitle,
 	isUnlaunchedSite,
@@ -40,7 +42,9 @@ const LaunchSite = ( {
 	const [ , experimentData ] = useExperimentWithAuth( 'calypso_standardized_site_launch_gating' );
 	const [ showCelebrateLaunchModal, setShowCelebrateLaunchModal ] = useState( false );
 
-	const { mutate: launchSite } = useLaunchSiteMutation( () => setShowCelebrateLaunchModal( true ) );
+	const { mutate: launchSite } = useLaunchSiteMutation( blogId, () =>
+		setShowCelebrateLaunchModal( true )
+	);
 
 	// isPrivateAndUnlaunched means it is an unlaunched coming soon v1 site
 	const isPrivateAndUnlaunched = -1 === blogPublic && isUnlaunchedSite;
@@ -87,8 +91,7 @@ const LaunchSite = ( {
 					  )
 					: __(
 							"Your site hasn't been launched yet. It's private; only you can see it until it is launched.",
-							'jetpack-mu-wpcom',
-							0
+							'jetpack-mu-wpcom'
 					  ) }
 			</p>
 			<button

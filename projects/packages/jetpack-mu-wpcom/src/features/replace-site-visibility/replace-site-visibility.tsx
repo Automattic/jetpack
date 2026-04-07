@@ -9,6 +9,7 @@ declare global {
 		JETPACK_MU_WPCOM_SITE_VISIBILITY?: {
 			homeUrl: string;
 			siteTitle: string;
+			blogId: number;
 			isWpcomStagingSite: boolean;
 			isUnlaunchedSite: boolean;
 			hasSitePreviewLink: boolean;

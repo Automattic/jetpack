@@ -14,7 +14,7 @@ import './celebrate-launch-modal.scss';
  *
  * @param {object}   props                 - Props.
  * @param {Function} props.onRequestClose  - Callback on modal close.
- * @param {object}   props.sitePlan        - The site plan.
+ * @param {object}   [props.sitePlan]      - The site plan (optional).
  * @param {string}   props.siteDomain      - The site domain.
  * @param {string}   props.siteUrl         - The site URL.
  * @param {boolean}  props.hasCustomDomain - Whether the site has a custom domain.

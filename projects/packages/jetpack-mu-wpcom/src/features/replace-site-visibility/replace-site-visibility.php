@@ -116,6 +116,7 @@ function replace_site_visibility_load_assets() {
 	$current_plan = array_pop( $bundles );
 
 	$data = array(
+		'blogId'                 => get_current_blog_id(),
 		'homeUrl'                => home_url( '/' ),
 		'siteTitle'              => get_bloginfo( 'name' ),
 		'isWpcomStagingSite'     => (bool) get_option( 'wpcom_is_staging_site' ),
