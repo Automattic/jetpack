@@ -1,0 +1,19 @@
+{
+	"landingPage": "/wp-admin/options-general.php?page=wpsupercache",
+	"steps": [
+		{
+			"step": "installPlugin",
+			"pluginData": {
+				"resource": "wordpress.org/plugins",
+				"slug": "wp-super-cache"
+			},
+			"options": {
+				"activate": true
+			}
+		},
+		{
+			"step": "runPHP",
+			"code": "<?php @chmod('/wordpress/wp-content', 0755);"
+		}
+	]
+}
