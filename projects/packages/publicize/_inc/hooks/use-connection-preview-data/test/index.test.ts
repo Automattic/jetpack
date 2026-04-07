@@ -118,7 +118,7 @@ describe( 'useConnectionPreviewData', () => {
 			maxLength: 280,
 		} );
 		mockUseSocialPreviewPostData.mockReturnValue( defaultPostData );
-		mockUseMediaDetails.mockReturnValue( [ null ] );
+		mockUseMediaDetails.mockReturnValue( [ null, false ] );
 		mockUseSigPreview.mockReturnValue( { url: null, isLoading: false } );
 		mockUsePostMeta.mockReturnValue( {
 			mediaSource: undefined,
@@ -187,6 +187,7 @@ describe( 'useConnectionPreviewData', () => {
 				mediaData: { width: 800, height: 600, sourceUrl: 'https://example.com/featured.jpg' },
 				metaData: { mime: 'image/jpeg', fileSize: 1024, length: 0 },
 			},
+			false,
 		] );
 
 		const connection = createMockConnection( { media_source: 'featured-image' } );
@@ -203,7 +204,7 @@ describe( 'useConnectionPreviewData', () => {
 		mockUsePerNetworkCustomization.mockReturnValue( { isEnabled: true, toggle: jest.fn() } );
 		// When no featured image is set, useMediaDetails returns [ {} ] with no mediaData.sourceUrl
 		// The hook checks featuredImageDetails?.mediaData?.sourceUrl to handle this edge case
-		mockUseMediaDetails.mockReturnValue( [ {} ] as ReturnType< typeof useMediaDetails > );
+		mockUseMediaDetails.mockReturnValue( [ {}, false ] as ReturnType< typeof useMediaDetails > );
 
 		const connection = createMockConnection( { media_source: 'featured-image' } );
 
