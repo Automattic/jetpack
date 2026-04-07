@@ -72,7 +72,7 @@ const RtcAdminSomeoneWaitingNotice = () => {
 	const description = sprintf(
 		/* translators: 1: user name, 2: post title */
 		__(
-			"%1$s wants to join \u201c%2$s\u201d while your team is already working on it, but you've hit your plan's collaborator limit.",
+			"%1$s wants to join “%2$s” while your team is already working on it, but you've hit your plan's collaborator limit.",
 			'jetpack-rtc'
 		),
 		waitingUser.userName,

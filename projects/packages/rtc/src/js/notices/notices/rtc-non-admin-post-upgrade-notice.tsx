@@ -45,7 +45,7 @@ const RtcNonAdminPostUpgradeNotice = () => {
 	const description = sprintf(
 		/* translators: %s: post title */
 		__(
-			'Your admin made room for more editors. Head back to \u201c%s\u201d and pick up where you left off.',
+			'Your admin made room for more editors. Head back to “%s” and pick up where you left off.',
 			'jetpack-rtc'
 		),
 		noticeData.postTitle
@@ -53,7 +53,7 @@ const RtcNonAdminPostUpgradeNotice = () => {
 
 	const ctaLabel = sprintf(
 		/* translators: %s: post title */
-		__( 'Edit \u201c%s\u201d', 'jetpack-rtc' ),
+		__( 'Edit “%s”', 'jetpack-rtc' ),
 		noticeData.postTitle
 	);
 
