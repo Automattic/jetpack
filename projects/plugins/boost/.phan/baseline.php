@@ -12,8 +12,8 @@ return [
     // PhanTypeArraySuspiciousNullable : 15+ occurrences
     // PhanPluginDuplicateConditionalNullCoalescing : 10+ occurrences
     // PhanTypeArraySuspicious : 9 occurrences
-    // PhanTypeMismatchArgument : 6 occurrences
     // PhanUndeclaredConstant : 5 occurrences
+    // PhanTypeMismatchArgument : 4 occurrences
     // PhanTypeMismatchReturnProbablyReal : 4 occurrences
     // PhanUndeclaredClassConstant : 4 occurrences
     // PhanUndeclaredFunction : 4 occurrences
@@ -32,7 +32,7 @@ return [
         'app/admin/class-config.php' => ['PhanTypeMismatchArgument'],
         'app/data-sync/class-minify-excludes-state-entry.php' => ['PhanTypeMismatchReturnProbablyReal'],
         'app/data-sync/class-performance-history-entry.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeArraySuspicious'],
-        'app/lib/class-cli.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeMismatchArgument'],
+        'app/lib/class-cli.php' => ['PhanPluginDuplicateConditionalNullCoalescing'],
         'app/lib/critical-css/class-critical-css-state.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanTypeArraySuspiciousNullable'],
         'app/lib/minify/class-concatenate-css.php' => ['PhanPluginUseReturnValueInternalKnown', 'PhanTypeMismatchArgument'],
         'app/lib/minify/class-concatenate-js.php' => ['PhanPluginUseReturnValueInternalKnown', 'PhanTypeMismatchArgument'],
