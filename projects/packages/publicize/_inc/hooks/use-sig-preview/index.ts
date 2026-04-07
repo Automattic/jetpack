@@ -89,11 +89,14 @@ export default function useSigPreview(
 					if ( ! mediaID ) {
 						return null;
 					}
-					const media = select( coreStore ).getEntityRecord( 'postType', 'attachment', mediaID, {
-						context: 'view',
-					} );
+					const media = select( coreStore ).getEntityRecord< Attachment >(
+						'postType',
+						'attachment',
+						mediaID,
+						{ context: 'view' }
+					);
 					if ( media ) {
-						return media as Attachment;
+						return media;
 					}
 					// If resolution finished but media is still undefined, the attachment doesn't exist
 					const hasResolved = select( coreStore ).hasFinishedResolution( 'getEntityRecord', [

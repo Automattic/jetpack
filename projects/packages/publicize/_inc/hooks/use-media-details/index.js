@@ -94,44 +94,45 @@ const getMediaDetails = async media => {
 export default function useMediaDetails( mediaId = null ) {
 	const [ mediaDetails, setMediaDetails ] = useState( [ {} ] );
 
-	const { mediaObject, hasResolved } = useSelect(
+	// Returns the media object, null (resolved but not found), or undefined (still loading).
+	// Same pattern as useSigPreview's getMedia callback.
+	const mediaObject = useSelect(
 		select => {
 			if ( ! mediaId ) {
-				return { mediaObject: null, hasResolved: true };
+				return null;
 			}
-			return {
-				mediaObject: select( coreStore ).getEntityRecord( 'postType', 'attachment', mediaId, {
-					context: 'view',
-				} ),
-				hasResolved: select( coreStore ).hasFinishedResolution( 'getEntityRecord', [
-					'postType',
-					'attachment',
-					mediaId,
-					{ context: 'view' },
-				] ),
-			};
+			const media = select( coreStore ).getEntityRecord( 'postType', 'attachment', mediaId, {
+				context: 'view',
+			} );
+			if ( media ) {
+				return media;
+			}
+			const hasResolved = select( coreStore ).hasFinishedResolution( 'getEntityRecord', [
+				'postType',
+				'attachment',
+				mediaId,
+				{ context: 'view' },
+			] );
+			return hasResolved ? null : undefined;
 		},
 		[ mediaId ]
 	);
 
-	// If resolution finished but attachment doesn't exist, treat as no media
-	const resolvedMedia = mediaObject || ( hasResolved ? null : undefined );
-
 	const getAsyncDetails = useCallback( async () => {
 		try {
-			const details = await getMediaDetails( resolvedMedia );
+			const details = await getMediaDetails( mediaObject );
 			setMediaDetails( [ details ?? {} ] );
 		} catch {
 			setMediaDetails( [ {} ] );
 		}
-	}, [ resolvedMedia ] );
+	}, [ mediaObject ] );
 
 	useEffect( () => {
 		getAsyncDetails();
 	}, [ getAsyncDetails ] );
 
-	// Return whether the media was resolved but not found (deleted attachment)
-	const isNotFound = hasResolved && ! mediaObject && !! mediaId;
+	// Media was resolved but the attachment doesn't exist (deleted)
+	const isNotFound = mediaObject === null && !! mediaId;
 
 	return [ mediaDetails[ 0 ], isNotFound ];
 }
