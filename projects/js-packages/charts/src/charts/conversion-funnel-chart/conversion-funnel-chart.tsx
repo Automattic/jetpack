@@ -344,18 +344,21 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 						changeColor,
 					} )
 				) : (
-					<div className={ styles[ 'main-metric' ] }>{ renderDefaultMainMetric() }</div>
+					<Stack direction="row" align="baseline" gap="sm" className={ styles[ 'main-metric' ] }>
+						{ renderDefaultMainMetric() }
+					</Stack>
 				) }
 
 				{ /* Funnel Steps */ }
-				<div className={ styles[ 'funnel-container' ] }>
+				<Stack direction="row" align="flex-end" gap="lg" className={ styles[ 'funnel-container' ] }>
 					{ steps.map( ( step, index ) => {
 						const barHeight = ( step.rate / maxRate ) * 100;
 						const { isBlurred } = getStepState( step.id );
 
 						return (
-							<div
+							<Stack
 								key={ step.id }
+								direction="column"
 								data-testid="funnel-step"
 								className={ clsx(
 									styles[ 'funnel-step' ],
@@ -408,10 +411,10 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 										} }
 									/>
 								</div>
-							</div>
+							</Stack>
 						);
 					} ) }
-				</div>
+				</Stack>
 			</Stack>
 
 			{ /* Tooltip Portal */ }

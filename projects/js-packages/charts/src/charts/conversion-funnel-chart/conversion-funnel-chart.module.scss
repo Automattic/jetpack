@@ -7,9 +7,6 @@
 }
 
 .main-metric {
-	display: flex;
-	align-items: baseline;
-	gap: 8px;
 	margin-bottom: 24px;
 	height: 20px;
 }
@@ -36,9 +33,6 @@
 }
 
 .funnel-container {
-	display: flex;
-	gap: 16px;
-	align-items: flex-end;
 	flex: 1;
 	min-height: 200px;
 	width: 100%;
@@ -47,8 +41,6 @@
 .funnel-step {
 	flex: 1 1 0;
 	min-width: 0;
-	display: flex;
-	flex-direction: column;
 	height: 100%;
 
 	&--animated {
