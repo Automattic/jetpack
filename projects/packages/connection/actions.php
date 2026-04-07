@@ -11,7 +11,7 @@ if ( function_exists( 'add_action' ) ) {
 	add_action(
 		'plugins_loaded',
 		array( Automattic\Jetpack\Connection\Connection_Assets::class, 'configure' ),
-		1
+		2
 	);
 } else {
 	global $wp_filter;
