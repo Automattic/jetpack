@@ -18,7 +18,7 @@
 					nonce: wpsc_ajax.nonce,
 				},
 				success: function () {
-					if ( wpsc_ajax.admin === 1 ) {
+					if ( wpsc_ajax.admin === '1' ) {
 						// eslint-disable-next-line no-console
 						console.log( 'Deleted entire cache' );
 					} else {
