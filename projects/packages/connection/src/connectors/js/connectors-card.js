@@ -360,7 +360,6 @@ function ConfirmationModal( { title, message, onConfirm, onCancel } ) {
 					{
 						variant: 'primary',
 						isDestructive: true,
-						size: 'compact',
 						onClick: onConfirm,
 					},
 					__( 'Disconnect', 'jetpack-connection' )
@@ -611,7 +610,6 @@ function ExpandedDetails( { isConnecting = false, onConnect = null } ) {
 						Button,
 						{
 							variant: 'link',
-							size: 'compact',
 							onClick: () => setShowDetailsModal( true ),
 							className: 'wpcom-connector__details-link',
 						},
