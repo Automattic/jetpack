@@ -28,32 +28,69 @@ const ASSET_TRANSIENT        = 'jetpack_image_studio_asset';
 /**
  * Check if Image Studio is enabled.
  *
- * Requires AI features (Big Sky or AI Assistant) plus at least one of:
- * - The unified chat experience (agents_manager_use_unified_experience).
- * - The jetpack_image_studio_enabled filter.
+ * Enabled when AI features are available and either the request is from an
+ * Automattician or the Big Sky plugin is active and enabled.
  *
  * @return bool
  */
 function is_image_studio_enabled() {
-	if ( ! has_ai_features() ) {
+	if ( is_ciab_environment() || is_big_sky_enabled() ) {
+		return true;
+	}
+
+	if ( ! has_jetpack_ai_features() ) {
 		return false;
 	}
 
-	return apply_filters( 'agents_manager_use_unified_experience', false )
-		|| apply_filters( 'jetpack_image_studio_enabled', false );
+	return true;
 }
+
+/**
+ * Check if the Big Sky plugin is active and enabled.
+ *
+ * @return bool
+ */
+function is_big_sky_enabled() {
+	return class_exists( 'Big_Sky' ) && get_option( 'big_sky_enable', '1' );
+}
+
+/**
+ * Check if current environment is CIAB (Commerce in a Box) / Next Admin.
+ *
+ * Uses the same detection method as Help Center and Agents Manager
+ *
+ * @return bool True if CIAB/Next Admin environment.
+ */
+function is_ciab_environment() {
+	return (bool) did_action( 'next_admin_init' );
+}
+
+/**
+ * Signal to Big Sky that Jetpack is handling Image Studio.
+ *
+ * Sets the jetpack_image_studio_enabled filter to true so that
+ * Big Sky skips its own Image Studio loading when Jetpack has
+ * AI features available.
+ *
+ * @return void
+ */
+function signal_image_studio_active() {
+	if ( is_image_studio_enabled() ) {
+		add_filter( 'jetpack_image_studio_enabled', '__return_true', 5 );
+	}
+}
+add_action( 'init', __NAMESPACE__ . '\signal_image_studio_active' );
 
 /**
  * Check whether AI features are available.
  *
  * - wpcom simple: always available.
- * - Atomic: requires Big Sky or AI Assistant feature flags.
- * - Self-hosted: requires a connected owner with AI not disabled
+ * - Otherwise requires a connected owner with AI not disabled
  *   (same conditions the AI Assistant plugin uses to register).
  *
  * @return bool
  */
-function has_ai_features() {
+function has_jetpack_ai_features() {
 	$host = new Host();
 
 	if ( $host->is_wpcom_simple() ) {
@@ -91,19 +128,6 @@ function is_media_library() {
 
 	$screen = get_current_screen();
 	return $screen && 'upload' === $screen->base;
-}
-
-/**
- * Determine if Image Studio should load on the current screen.
- *
- * - Media Library: load if either filter is true.
- * - Block editors (Post/Site Editor): load if either filter is true.
- * - Other screens: don't load.
- *
- * @return bool
- */
-function should_load_on_current_screen() {
-	return is_media_library() || is_block_editor();
 }
 
 /**
@@ -269,9 +293,14 @@ function do_enqueue_assets() {
 		true
 	);
 
+	$image_studio_data = array(
+		'enabled' => true,
+		'version' => '1.0',
+	);
+
 	wp_add_inline_script(
 		FEATURE_NAME,
-		'if ( typeof window.imageStudioData === "undefined" ) { window.imageStudioData = ' . wp_json_encode( array( 'enabled' => true ), JSON_HEX_TAG | JSON_HEX_AMP ) . '; }',
+		'if ( typeof window.imageStudioData === "undefined" ) { window.imageStudioData = ' . wp_json_encode( $image_studio_data, JSON_HEX_TAG | JSON_HEX_AMP ) . '; }',
 		'before'
 	);
 

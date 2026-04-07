@@ -29,7 +29,7 @@ import { store as coreStore } from '@wordpress/core-data';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { useRef, useEffect, useCallback, lazy, Suspense, useState } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import clsx from 'clsx';
 /*
  * Internal dependencies
@@ -56,6 +56,7 @@ import ContactFormSkeletonLoader from './components/jetpack-contact-form-skeleto
 import NotificationsSettings from './components/notifications-settings.js';
 import WebhooksSettings from './components/webhooks-settings.js';
 import WidgetEditorReadonlyView from './components/widget-editor-readonly-view.tsx';
+import { useCreateSyncedFormOnInsertion } from './hooks/use-create-synced-form-on-insertion.ts';
 import { useSyncedFormAutoSave } from './hooks/use-synced-form-auto-save.ts';
 import { useSyncedFormLoader } from './hooks/use-synced-form-loader.ts';
 import { useSyncedForm } from './hooks/use-synced-form.ts';
@@ -221,6 +222,7 @@ function JetpackContactFormEdit( {
 		isLoading: isResolvingSyncedForm,
 		syncedAttributes: syncedFormAttributes,
 		syncedInnerBlocks: syncedFormBlocks,
+		errorType: syncedFormErrorType,
 	} = useSyncedForm( ref );
 
 	// Backward compatibility for the deprecated customThankyou attribute.
@@ -423,6 +425,15 @@ function JetpackContactFormEdit( {
 		currentInnerBlocks,
 		isSyncingRef,
 		editEntityRecord,
+	} );
+
+	// Create synced form when a variation is inserted via the block inserter
+	useCreateSyncedFormOnInsertion( {
+		clientId,
+		ref,
+		innerBlocks: currentInnerBlocks,
+		attributes,
+		setAttributes,
 	} );
 
 	// Note: We don't clear attributes in memory when ref is set, as they're needed
@@ -1009,11 +1020,17 @@ function JetpackContactFormEdit( {
 			</div>
 		);
 	}
-	// Show error if referenced form not found
+	// Show error if referenced form not found or not accessible
 	else if ( ref && ! syncedForm && ! isResolvingSyncedForm ) {
+		// Note: The two __() calls must remain dissimilar to prevent Terser from
+		// compacting them into a single call with a ternary argument, which breaks i18n.
+		const errorMessage =
+			syncedFormErrorType === 'permission_denied'
+				? __( "You don't have permission to edit this form.", 'jetpack-forms' )
+				: _x( 'The referenced form could not be found.', 'synced form error', 'jetpack-forms' );
 		elt = (
 			<Notice status="warning" isDismissible={ false }>
-				{ __( 'The referenced form could not be found.', 'jetpack-forms' ) }
+				{ errorMessage }
 			</Notice>
 		);
 	}

@@ -1,20 +1,29 @@
 /**
  * External dependencies
  */
+import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { useBreakpointMatch } from '@automattic/jetpack-components';
 import JetpackLogo from '@automattic/jetpack-components/jetpack-logo';
 import { Breadcrumbs } from '@wordpress/admin-ui';
-import { DropdownMenu, Button } from '@wordpress/components';
+import {
+	DropdownMenu,
+	Button,
+	__experimentalConfirmDialog as ConfirmDialog, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+} from '@wordpress/components';
 import { store as coreDataStore } from '@wordpress/core-data';
-import { useSelect } from '@wordpress/data';
-import { useMemo } from '@wordpress/element';
+import { useSelect, useDispatch } from '@wordpress/data';
+import { useMemo, useState, useCallback, useRef } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __, sprintf } from '@wordpress/i18n';
 import { moreVertical } from '@wordpress/icons';
+import { store as noticesStore } from '@wordpress/notices';
+import { useNavigate } from '@wordpress/route';
 import { Badge, Stack } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
+import { FORM_POST_TYPE } from '../../../blocks/shared/util/constants.js';
+import useConfigValue from '../../../hooks/use-config-value';
 import CreateFormButton from '../../components/create-form-button';
 import EditFormButton from '../../components/edit-form-button';
 import EmptySpamButton from '../../components/empty-spam-button';
@@ -23,14 +32,18 @@ import EmptyTrashButton from '../../components/empty-trash-button';
 import EmptyTrashConfirmationModal from '../../components/empty-trash-button/confirmation-modal';
 import ExportResponsesButton from '../../components/export-responses/button';
 import ExportResponsesModal from '../../components/export-responses/modal';
+import { FormNameModal } from '../../components/form-name-modal';
 import { getFormStatusLabel } from '../../constants';
 import useCreateForm from '../../hooks/use-create-form';
 import useEmptySpam from '../../hooks/use-empty-spam';
 import useEmptyTrash from '../../hooks/use-empty-trash';
 import useExportResponses from '../../hooks/use-export-responses';
 import useInboxData from '../../hooks/use-inbox-data';
+import { store as dashboardStore } from '../../store/index.js';
+import { getFormEditUrl } from '../../utils.ts';
 import ManageIntegrationsButton from '../components/manage-integrations-button';
 import useFormItemActions from './use-form-item-actions';
+import { useRenameForm } from './use-rename-form';
 import type { ReactNode } from 'react';
 
 type ResponsesStatusView = 'inbox' | 'spam' | 'trash';
@@ -39,7 +52,7 @@ type UsePageHeaderDetailsProps = {
 	screen: 'forms' | 'responses';
 	statusView?: ResponsesStatusView;
 	sourceId?: string | number;
-	formsCount?: number;
+	hasClassicForms?: boolean;
 	isIntegrationsEnabled: boolean;
 	showDashboardIntegrations: boolean;
 	onOpenIntegrations: () => void;
@@ -70,12 +83,13 @@ export default function usePageHeaderDetails(
 	const {
 		screen,
 		sourceId,
-		formsCount,
+		hasClassicForms,
 		isIntegrationsEnabled,
 		showDashboardIntegrations,
 		onOpenIntegrations,
 		onOpenFormsHelp,
 	} = props;
+	const adminUrl = ( useConfigValue( 'adminUrl' ) as string ) || '';
 	const statusView: ResponsesStatusView = props.statusView ?? 'inbox';
 	const sourceIdNumber = useMemo( () => {
 		const value = sourceId;
@@ -85,6 +99,7 @@ export default function usePageHeaderDetails(
 
 	// Detect mobile viewport
 	const [ isSm ] = useBreakpointMatch( 'sm' );
+	const navigate = useNavigate();
 
 	// Mutually-exclusive screen flags.
 	const isFormsScreen = screen === 'forms';
@@ -92,6 +107,17 @@ export default function usePageHeaderDetails(
 
 	// Hooks for mobile dropdown menu actions
 	const { openNewForm } = useCreateForm();
+	const [ isCreateFormModalOpen, setIsCreateFormModalOpen ] = useState( false );
+	const handleCreateFormClick = useCallback( () => {
+		setIsCreateFormModalOpen( true );
+	}, [] );
+	const closeCreateFormModal = useCallback( () => setIsCreateFormModalOpen( false ), [] );
+	const handleCreateFormSave = useCallback(
+		async ( formName: string ) => {
+			await openNewForm( { formTitle: formName } );
+		},
+		[ openNewForm ]
+	);
 	const {
 		showExportModal,
 		openModal: openExportModal,
@@ -107,15 +133,42 @@ export default function usePageHeaderDetails(
 	const emptySpam = useEmptySpam();
 	const emptyTrash = useEmptyTrash();
 
+	// Permanent delete confirmation state
+	const [ isPermanentDeleteConfirmOpen, setIsPermanentDeleteConfirmOpen ] = useState( false );
+	const permanentDeleteItemRef = useRef< { id: number } | null >( null );
+
+	// Rename form
+	const { renameFormItem, openRenameModal, closeRenameModal, handleRename } = useRenameForm();
+	const { saveEntityRecord, deleteEntityRecord } = useDispatch( coreDataStore ) as {
+		saveEntityRecord: (
+			kind: string,
+			name: string,
+			record: Record< string, unknown >,
+			options?: { throwOnError?: boolean }
+		) => Promise< unknown >;
+		deleteEntityRecord: (
+			kind: string,
+			name: string,
+			recordId: number,
+			query?: Record< string, unknown >,
+			options?: { throwOnError?: boolean }
+		) => Promise< unknown >;
+	};
+	const { createSuccessNotice, createErrorNotice } = useDispatch( noticesStore );
+	const { invalidateFormStatusCounts } = useDispatch( dashboardStore );
+
 	const formRecord = useSelect(
-		select =>
-			sourceIdNumber
-				? ( select( coreDataStore ).getEntityRecord(
-						'postType',
-						'jetpack_form',
-						sourceIdNumber
-				  ) as { title?: { rendered?: string }; status?: string } | undefined )
-				: undefined,
+		select => {
+			if ( ! sourceIdNumber ) {
+				return undefined;
+			}
+			const record = select( coreDataStore ).getEntityRecord(
+				'postType',
+				'jetpack_form',
+				sourceIdNumber
+			) as { title?: { rendered?: string }; status?: string } | undefined;
+			return record;
+		},
 		[ sourceIdNumber ]
 	);
 
@@ -123,6 +176,140 @@ export default function usePageHeaderDetails(
 		const rendered = formRecord?.title?.rendered || '';
 		return decodeEntities( rendered );
 	}, [ formRecord?.title?.rendered ] );
+
+	const trashForm = useCallback(
+		async ( item: { id: number } ) => {
+			const previousStatus = formRecord?.status || 'draft';
+			try {
+				await deleteEntityRecord(
+					'postType',
+					FORM_POST_TYPE,
+					item.id,
+					{ force: false },
+					{ throwOnError: true }
+				);
+
+				invalidateFormStatusCounts();
+				createSuccessNotice( __( 'Form moved to trash.', 'jetpack-forms' ), {
+					type: 'snackbar',
+					actions: [
+						{
+							label: __( 'Undo', 'jetpack-forms' ),
+							onClick: () => {
+								saveEntityRecord(
+									'postType',
+									FORM_POST_TYPE,
+									{ id: item.id, status: previousStatus },
+									{ throwOnError: true }
+								)
+									.then( () => {
+										invalidateFormStatusCounts();
+										createSuccessNotice( __( 'Form restored.', 'jetpack-forms' ), {
+											type: 'snackbar',
+										} );
+									} )
+									.catch( () => {
+										createErrorNotice( __( 'Could not restore form.', 'jetpack-forms' ), {
+											type: 'snackbar',
+										} );
+									} );
+							},
+						},
+					],
+				} );
+
+				// Navigate back to the forms list since the form no longer exists.
+				navigate( { to: '/forms' } );
+			} catch ( error ) {
+				createErrorNotice( __( 'Failed to move form to trash.', 'jetpack-forms' ), {
+					type: 'snackbar',
+				} );
+				// eslint-disable-next-line no-console
+				console.error( 'Failed to trash form:', error );
+			}
+		},
+		[
+			deleteEntityRecord,
+			formRecord?.status,
+			invalidateFormStatusCounts,
+			createSuccessNotice,
+			createErrorNotice,
+			saveEntityRecord,
+			navigate,
+		]
+	);
+
+	const restoreForm = useCallback(
+		async ( item: { id: number } ) => {
+			try {
+				await saveEntityRecord(
+					'postType',
+					FORM_POST_TYPE,
+					{ id: item.id, status: 'publish' },
+					{ throwOnError: true }
+				);
+
+				invalidateFormStatusCounts();
+				createSuccessNotice( __( 'Form restored.', 'jetpack-forms' ), {
+					type: 'snackbar',
+				} );
+			} catch ( error ) {
+				createErrorNotice( __( 'Could not restore form.', 'jetpack-forms' ), {
+					type: 'snackbar',
+				} );
+				// eslint-disable-next-line no-console
+				console.error( 'Failed to restore form:', error );
+			}
+		},
+		[ saveEntityRecord, invalidateFormStatusCounts, createSuccessNotice, createErrorNotice ]
+	);
+
+	const openPermanentDeleteConfirm = useCallback( ( item: { id: number } ) => {
+		permanentDeleteItemRef.current = item;
+		setIsPermanentDeleteConfirmOpen( true );
+	}, [] );
+
+	const closePermanentDeleteConfirm = useCallback( () => {
+		setIsPermanentDeleteConfirmOpen( false );
+		permanentDeleteItemRef.current = null;
+	}, [] );
+
+	const confirmPermanentDelete = useCallback( async () => {
+		const item = permanentDeleteItemRef.current;
+		if ( ! item ) {
+			return;
+		}
+		setIsPermanentDeleteConfirmOpen( false );
+		permanentDeleteItemRef.current = null;
+
+		try {
+			await deleteEntityRecord(
+				'postType',
+				FORM_POST_TYPE,
+				item.id,
+				{ force: true },
+				{ throwOnError: true }
+			);
+
+			invalidateFormStatusCounts();
+			createSuccessNotice( __( 'Form deleted permanently.', 'jetpack-forms' ), {
+				type: 'snackbar',
+			} );
+			navigate( { to: '/forms' } );
+		} catch ( error ) {
+			createErrorNotice( __( 'Could not delete form.', 'jetpack-forms' ), {
+				type: 'snackbar',
+			} );
+			// eslint-disable-next-line no-console
+			console.error( 'Failed to permanently delete form:', error );
+		}
+	}, [
+		deleteEntityRecord,
+		invalidateFormStatusCounts,
+		createSuccessNotice,
+		createErrorNotice,
+		navigate,
+	] );
 
 	const formStatus = formRecord?.status;
 
@@ -135,22 +322,55 @@ export default function usePageHeaderDetails(
 		return <Badge intent="draft">{ statusLabel }</Badge>;
 	}, [ isSingleFormScreen, formStatus, statusLabel ] );
 
-	const { duplicateForm, previewForm, copyEmbed, copyShortcode } = useFormItemActions();
+	const {
+		duplicateForm,
+		previewForm,
+		copyEmbed,
+		copyShortcode,
+		publishForms,
+		setFormsToDraft,
+		isUpdatingStatus,
+	} = useFormItemActions();
+
+	const trackAction = useCallback( ( eventName: string, source = 'form_header' ) => {
+		jetpackAnalytics.tracks.recordEvent( eventName, {
+			source,
+		} );
+	}, [] );
 
 	const formItemControls = useMemo( () => {
 		if ( ! sourceIdNumber ) {
 			return [];
 		}
 
-		const formItem = { id: sourceIdNumber, title: formTitle };
+		const formItem = { id: sourceIdNumber, title: formTitle, status: formRecord?.status };
+
+		if ( formRecord?.status === 'trash' ) {
+			return [
+				{
+					title: __( 'Restore', 'jetpack-forms' ),
+					onClick: () => {
+						trackAction( 'jetpack_forms_form_restore_click' );
+						restoreForm( formItem );
+					},
+				},
+				{
+					title: __( 'Delete permanently', 'jetpack-forms' ),
+					onClick: () => {
+						trackAction( 'jetpack_forms_form_delete_permanently_click' );
+						openPermanentDeleteConfirm( formItem );
+					},
+				},
+			];
+		}
+
 		const controls: Array< { title: string; onClick: () => void } > = [
 			{
-				title: __( 'Duplicate', 'jetpack-forms' ),
-				onClick: () => duplicateForm( formItem ),
-			},
-			{
 				title: __( 'Preview', 'jetpack-forms' ),
-				onClick: () => previewForm( formItem ),
+				onClick: () => {
+					trackAction( 'jetpack_forms_form_preview_click' );
+					previewForm( formItem );
+				},
 			},
 		];
 
@@ -158,17 +378,85 @@ export default function usePageHeaderDetails(
 			controls.push(
 				{
 					title: __( 'Copy embed', 'jetpack-forms' ),
-					onClick: () => copyEmbed( formItem ),
+					onClick: () => {
+						trackAction( 'jetpack_forms_form_copy_embed_click' );
+						copyEmbed( formItem );
+					},
 				},
 				{
 					title: __( 'Copy shortcode', 'jetpack-forms' ),
-					onClick: () => copyShortcode( formItem ),
+					onClick: () => {
+						trackAction( 'jetpack_forms_form_copy_shortcode_click' );
+						copyShortcode( formItem );
+					},
 				}
 			);
 		}
 
+		if ( formRecord?.status === 'publish' ) {
+			controls.push( {
+				title: __( 'Unpublish', 'jetpack-forms' ),
+				onClick: () => {
+					if ( ! isUpdatingStatus ) {
+						trackAction( 'jetpack_forms_form_unpublish_click' );
+						setFormsToDraft( [ formItem ] );
+					}
+				},
+			} );
+		} else {
+			controls.push( {
+				title: __( 'Publish', 'jetpack-forms' ),
+				onClick: () => {
+					if ( ! isUpdatingStatus ) {
+						trackAction( 'jetpack_forms_form_publish_click' );
+						publishForms( [ formItem ] );
+					}
+				},
+			} );
+		}
+
+		controls.push(
+			{
+				title: __( 'Rename', 'jetpack-forms' ),
+				onClick: () => {
+					trackAction( 'jetpack_forms_form_rename_click' );
+					openRenameModal( formItem );
+				},
+			},
+			{
+				title: __( 'Duplicate', 'jetpack-forms' ),
+				onClick: () => {
+					trackAction( 'jetpack_forms_form_duplicate_click' );
+					duplicateForm( formItem );
+				},
+			},
+			{
+				title: __( 'Trash', 'jetpack-forms' ),
+				onClick: () => {
+					trackAction( 'jetpack_forms_form_trash_click' );
+					trashForm( formItem );
+				},
+			}
+		);
+
 		return controls;
-	}, [ sourceIdNumber, formTitle, duplicateForm, previewForm, copyEmbed, copyShortcode ] );
+	}, [
+		copyEmbed,
+		copyShortcode,
+		duplicateForm,
+		trashForm,
+		restoreForm,
+		openPermanentDeleteConfirm,
+		formRecord?.status,
+		formTitle,
+		isUpdatingStatus,
+		publishForms,
+		previewForm,
+		setFormsToDraft,
+		sourceIdNumber,
+		openRenameModal,
+		trackAction,
+	] );
 
 	const WrapWithJetpackLogo = ( { children }: { children: ReactNode } ) => (
 		<Stack align="center" gap="xs">
@@ -215,14 +503,11 @@ export default function usePageHeaderDetails(
 			const shortMessage = __( 'View and manage all your forms.', 'jetpack-forms' );
 			const longMessage = __( 'View and manage all your forms in one place.', 'jetpack-forms' );
 
-			const shouldShowFormsHelpLink =
-				!! onOpenFormsHelp && ( typeof formsCount !== 'number' || formsCount < 5 );
-
-			return shouldShowFormsHelpLink ? (
+			return hasClassicForms ? (
 				<>
 					{ shortMessage }{ ' ' }
 					<Button variant="link" onClick={ onOpenFormsHelp }>
-						{ __( 'Missing forms?', 'jetpack-forms' ) }
+						{ __( 'Not seeing all your forms?', 'jetpack-forms' ) }
 					</Button>
 				</>
 			) : (
@@ -242,7 +527,20 @@ export default function usePageHeaderDetails(
 		}
 
 		return __( 'View and manage all your form responses in one place.', 'jetpack-forms' );
-	}, [ formTitle, isFormsScreen, isSingleFormScreen, onOpenFormsHelp, formsCount ] );
+	}, [ formTitle, isFormsScreen, isSingleFormScreen, onOpenFormsHelp, hasClassicForms ] );
+
+	const trackEditFormClick = useCallback(
+		() => trackAction( 'jetpack_forms_form_edit_form_click' ),
+		[ trackAction ]
+	);
+	const trackExportClick = useCallback(
+		() => trackAction( 'jetpack_forms_form_export_click' ),
+		[ trackAction ]
+	);
+	const trackExportClickResponsesList = useCallback(
+		() => trackAction( 'jetpack_forms_form_export_click', 'responses_list' ),
+		[ trackAction ]
+	);
 
 	const actions = useMemo( () => {
 		// Mobile: show dropdown menu with actions
@@ -259,7 +557,7 @@ export default function usePageHeaderDetails(
 				}
 
 				dropdownControls.push( {
-					onClick: () => openNewForm( {} ),
+					onClick: handleCreateFormClick,
 					title: __( 'Create a form', 'jetpack-forms' ),
 				} );
 			} else if ( isSingleFormScreen ) {
@@ -267,15 +565,17 @@ export default function usePageHeaderDetails(
 				if ( statusView === 'inbox' && sourceIdNumber ) {
 					dropdownControls.push( {
 						onClick: () => {
-							const fallbackEditUrl = `post.php?post=${ sourceIdNumber }&action=edit&post_type=jetpack_form`;
-							const url = new URL( fallbackEditUrl, window.location.origin );
-							window.location.href = url.toString();
+							trackAction( 'jetpack_forms_form_edit_form_click' );
+							window.location.href = getFormEditUrl( sourceIdNumber, adminUrl );
 						},
 						title: __( 'Edit form', 'jetpack-forms' ),
 					} );
 				}
 				dropdownControls.push( {
-					onClick: openExportModal,
+					onClick: () => {
+						trackAction( 'jetpack_forms_form_export_click' );
+						openExportModal();
+					},
 					title: exportLabel,
 					isDisabled: ! hasResponses,
 				} );
@@ -308,13 +608,16 @@ export default function usePageHeaderDetails(
 
 				if ( statusView === 'inbox' ) {
 					dropdownControls.push( {
-						onClick: () => openNewForm( { showPatterns: false } ),
+						onClick: handleCreateFormClick,
 						title: __( 'Create a form', 'jetpack-forms' ),
 					} );
 				}
 
 				dropdownControls.push( {
-					onClick: openExportModal,
+					onClick: () => {
+						trackAction( 'jetpack_forms_form_export_click', 'responses_list' );
+						openExportModal();
+					},
 					title: exportLabel,
 					isDisabled: ! hasResponses,
 				} );
@@ -349,6 +652,20 @@ export default function usePageHeaderDetails(
 					toggleProps={ { size: 'compact' } }
 				/>,
 				// Include modals when on mobile
+				...( isCreateFormModalOpen
+					? [
+							<FormNameModal
+								key="create-form-modal"
+								isOpen={ isCreateFormModalOpen }
+								onClose={ closeCreateFormModal }
+								onSave={ handleCreateFormSave }
+								title={ __( 'Create form', 'jetpack-forms' ) }
+								primaryButtonLabel={ __( 'Create', 'jetpack-forms' ) }
+								secondaryButtonLabel={ __( 'Cancel', 'jetpack-forms' ) }
+								placeholder={ __( 'Enter form title', 'jetpack-forms' ) }
+							/>,
+					  ]
+					: [] ),
 				...( showExportModal
 					? [
 							<ExportResponsesModal
@@ -383,6 +700,37 @@ export default function usePageHeaderDetails(
 							/>,
 					  ]
 					: [] ),
+				...( renameFormItem
+					? [
+							<FormNameModal
+								key="rename-form-modal"
+								isOpen={ !! renameFormItem }
+								onClose={ closeRenameModal }
+								onSave={ handleRename }
+								title={ __( 'Rename form', 'jetpack-forms' ) }
+								initialValue={ renameFormItem?.title || '' }
+							/>,
+					  ]
+					: [] ),
+				...( isPermanentDeleteConfirmOpen
+					? [
+							<ConfirmDialog
+								key="permanent-delete-confirm"
+								onCancel={ closePermanentDeleteConfirm }
+								onConfirm={ confirmPermanentDelete }
+								isOpen={ isPermanentDeleteConfirmOpen }
+								confirmButtonText={ __( 'Delete permanently', 'jetpack-forms' ) }
+							>
+								<h3>{ __( 'Delete permanently', 'jetpack-forms' ) }</h3>
+								<p>
+									{ __(
+										'This will permanently delete this form. This action cannot be undone.',
+										'jetpack-forms'
+									) }
+								</p>
+							</ConfirmDialog>,
+					  ]
+					: [] ),
 			];
 		}
 
@@ -392,19 +740,26 @@ export default function usePageHeaderDetails(
 				...( isIntegrationsEnabled && showDashboardIntegrations
 					? [ <ManageIntegrationsButton key="integrations" onClick={ onOpenIntegrations } /> ]
 					: [] ),
-				<CreateFormButton key="create" variant="primary" showIcon={ false } />,
+				<CreateFormButton key="create" variant="primary" showIcon={ false } showNameModal />,
 			];
 		}
 
 		if ( isSingleFormScreen ) {
 			return [
-				...( sourceIdNumber
-					? [ <EditFormButton key="edit-form" formId={ sourceIdNumber } /> ]
+				...( sourceIdNumber && formStatus !== 'trash'
+					? [
+							<EditFormButton
+								key="edit-form"
+								formId={ sourceIdNumber }
+								onClick={ trackEditFormClick }
+							/>,
+					  ]
 					: [] ),
 				<ExportResponsesButton
 					key="export"
 					isPrimary={ statusView === 'inbox' }
 					showIcon={ false }
+					onClick={ trackExportClick }
 				/>,
 				...( statusView === 'trash' ? [ <EmptyTrashButton key="empty-trash" /> ] : [] ),
 				...( statusView === 'spam' ? [ <EmptySpamButton key="empty-spam" /> ] : [] ),
@@ -417,6 +772,37 @@ export default function usePageHeaderDetails(
 								label={ __( 'More actions', 'jetpack-forms' ) }
 								toggleProps={ { size: 'compact' } }
 							/>,
+					  ]
+					: [] ),
+				...( renameFormItem
+					? [
+							<FormNameModal
+								key="rename-form-modal"
+								isOpen={ !! renameFormItem }
+								onClose={ closeRenameModal }
+								onSave={ handleRename }
+								title={ __( 'Rename form', 'jetpack-forms' ) }
+								initialValue={ renameFormItem?.title || '' }
+							/>,
+					  ]
+					: [] ),
+				...( isPermanentDeleteConfirmOpen
+					? [
+							<ConfirmDialog
+								key="permanent-delete-confirm"
+								onCancel={ closePermanentDeleteConfirm }
+								onConfirm={ confirmPermanentDelete }
+								isOpen={ isPermanentDeleteConfirmOpen }
+								confirmButtonText={ __( 'Delete permanently', 'jetpack-forms' ) }
+							>
+								<h3>{ __( 'Delete permanently', 'jetpack-forms' ) }</h3>
+								<p>
+									{ __(
+										'This will permanently delete this form. This action cannot be undone.',
+										'jetpack-forms'
+									) }
+								</p>
+							</ConfirmDialog>,
 					  ]
 					: [] ),
 			];
@@ -434,6 +820,7 @@ export default function usePageHeaderDetails(
 							variant="secondary"
 							showPatterns={ false }
 							showIcon={ false }
+							showNameModal
 						/>,
 				  ]
 				: [] ),
@@ -441,11 +828,13 @@ export default function usePageHeaderDetails(
 				key="export"
 				isPrimary={ statusView === 'inbox' }
 				showIcon={ false }
+				onClick={ trackExportClickResponsesList }
 			/>,
 			...( statusView === 'trash' ? [ <EmptyTrashButton key="empty-trash" /> ] : [] ),
 			...( statusView === 'spam' ? [ <EmptySpamButton key="empty-spam" /> ] : [] ),
 		];
 	}, [
+		adminUrl,
 		isSm,
 		isIntegrationsEnabled,
 		onOpenIntegrations,
@@ -455,7 +844,10 @@ export default function usePageHeaderDetails(
 		isSingleFormScreen,
 		formItemControls,
 		statusView,
-		openNewForm,
+		handleCreateFormClick,
+		isCreateFormModalOpen,
+		closeCreateFormModal,
+		handleCreateFormSave,
 		openExportModal,
 		showExportModal,
 		closeExportModal,
@@ -479,6 +871,17 @@ export default function usePageHeaderDetails(
 		emptySpam.onConfirmEmptying,
 		emptySpam.totalItemsSpam,
 		emptySpam.selectedResponsesCount,
+		renameFormItem,
+		closeRenameModal,
+		handleRename,
+		isPermanentDeleteConfirmOpen,
+		closePermanentDeleteConfirm,
+		confirmPermanentDelete,
+		formStatus,
+		trackAction,
+		trackEditFormClick,
+		trackExportClick,
+		trackExportClickResponsesList,
 	] );
 
 	return { ariaLabel, breadcrumbs, title, badges, subtitle, actions };

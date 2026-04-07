@@ -5,12 +5,10 @@ Fixes #
 * 
 
 ### Other information
-<!-- Check the box below to generate a changelog entry. -->
-- [ ] Generate changelog entries for this PR (using AI).
 
 ## Related product discussion/links
 <!-- If you're an Automattician, include a shortlink to the P2, Slack, and/or Linear discussions here. -->
-* 
+*
 
 ## Does this pull request change what data or activity we track or use?
 <!--- If so, please add the "[Status] Needs Privacy Updates" label and explain what changes there are. -->

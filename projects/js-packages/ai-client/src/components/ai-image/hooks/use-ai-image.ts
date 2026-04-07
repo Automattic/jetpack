@@ -119,8 +119,12 @@ export default function useAiImage( {
 
 	// the selec/useEffect combo...
 	const loadedMedia = useSelect(
-		( select: ( store ) => CoreSelectors ) =>
-			select( 'core' )?.getEntityRecord?.( 'postType', 'attachment', previousMediaId ),
+		select =>
+			( select( 'core' ) as CoreSelectors )?.getEntityRecord?.(
+				'postType',
+				'attachment',
+				previousMediaId
+			),
 		[ previousMediaId ]
 	);
 	useEffect( () => {

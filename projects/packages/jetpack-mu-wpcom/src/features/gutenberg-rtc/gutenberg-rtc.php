@@ -1,117 +1,130 @@
 <?php
 /**
- * Gutenberg RTC (Real-Time Collaboration) customizations
- * This handles RTC-related configurations for the Gutenberg editor on JP sites.
+ * Real-time Collaboration (RTC) integration.
  *
- * Currently disables HTTP polling to prevent issues, but can be extended
- * in the future for other RTC-related customizations.
+ * Enables the RTC package based on the site's features.
  *
  * @package automattic/jetpack-mu-wpcom
  */
 
 /**
- * Determines whether Gutenberg RTC is enabled.
+ * Check if the current site has the `wpcom-features-edge` sticker.
  *
- * Disabled by default until the PingHub provider is ready
- * and we are confident in proceeding with the rollout.
+ * @return bool|mixed
  */
-function wpcom_is_gutenberg_rtc_enabled() {
-	$is_enabled = false;
-	if ( function_exists( 'wpcom_site_has_feature' ) && class_exists( 'WPCOM_Features' ) ) {
-		$blog_id    = get_wpcom_blog_id();
-		$is_enabled = wpcom_site_has_feature( WPCOM_Features::REAL_TIME_COLLABORATION, $blog_id );
+function wpcom_has_features_edge_sticker() {
+	$sticker = 'wpcom-features-edge';
+	if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC && function_exists( 'wpcomsh_is_site_sticker_active' ) ) {
+		return wpcomsh_is_site_sticker_active( $sticker );
+	} elseif ( function_exists( 'has_blog_sticker' ) ) {
+		return has_blog_sticker( $sticker, get_wpcom_blog_id() );
 	}
-
-	return apply_filters( 'wpcom_is_gutenberg_rtc_enabled', $is_enabled );
+	return false;
 }
 
 /**
- * Get WPCOM RTC providers.
- */
-function wpcom_get_gutenberg_rtc_providers() {
-	if ( ! wpcom_is_gutenberg_rtc_enabled() ) {
-		return array();
-	}
-
-	$allowed_providers = array( 'http-polling', 'pinghub' );
-	$providers         = apply_filters( 'wpcom_gutenberg_rtc_providers', array( 'pinghub' ) );
-	if ( ! is_array( $providers ) ) {
-		return array();
-	}
-
-	return array_values(
-		array_filter(
-			$providers,
-			function ( $provider ) use ( $allowed_providers ) {
-				return in_array( $provider, $allowed_providers, true );
-			}
-		)
-	);
-}
-
-/**
- * Enqueue block editor assets for Gutenberg RTC customizations.
- */
-function wpcom_enqueue_gutenberg_rtc_assets() {
-	$providers = wpcom_get_gutenberg_rtc_providers();
-
-	// If HTTP polling (Gutenberg’s built-in default provider when this script isn’t enqueued)
-	// is the only provider being used, then we don’t need to inject any assets since that’s
-	// already the default behavior.
-	if ( count( $providers ) === 1 && in_array( 'http-polling', $providers, true ) ) {
-		return;
-	}
-
-	$handle = jetpack_mu_wpcom_enqueue_assets( 'gutenberg-rtc', array( 'js' ) );
-
-	$data = wp_json_encode(
-		array(
-			'providers' => wpcom_get_gutenberg_rtc_providers(),
-		),
-		JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
-	);
-
-	wp_add_inline_script(
-		$handle,
-		"var wpcomGutenbergRTC = $data;",
-		'before'
-	);
-}
-add_action( 'enqueue_block_editor_assets', 'wpcom_enqueue_gutenberg_rtc_assets' );
-
-/**
- * Unregister the RTC setting field, Collaboration, on the Writing page if there are no RTC providers.
- */
-function wpcom_unregister_rtc_setting() {
-	global $wp_settings_fields;
-
-	$providers   = wpcom_get_gutenberg_rtc_providers();
-	$option_name = 'wp_enable_real_time_collaboration';
-	if ( isset( $wp_settings_fields['writing']['default'][ $option_name ] ) && count( $providers ) === 0 ) {
-		unset( $wp_settings_fields['writing']['default'][ $option_name ] );
-	}
-
-	// TODO: Clean up the old name. See https://github.com/WordPress/gutenberg/pull/75837.
-	$option_name = 'enable_real_time_collaboration';
-	if ( isset( $wp_settings_fields['writing']['default'][ $option_name ] ) && count( $providers ) === 0 ) {
-		unset( $wp_settings_fields['writing']['default'][ $option_name ] );
-	}
-}
-add_action( 'admin_init', 'wpcom_unregister_rtc_setting', 11 );
-
-/**
- * Disable the `wp_enable_real_time_collaboration` option if there are no RTC providers.
+ * Determine if the site is part of the HTTP-polling gradual rollout.
  *
- * @param mixed $pre_option The value to return instead of the option value.
- * @return string|false Filtered wp_enable_real_time_collaboration option
+ * @return bool
  */
-function wpcom_disable_rtc_option( $pre_option ) {
-	$providers = wpcom_get_gutenberg_rtc_providers();
-	if ( count( $providers ) === 0 ) {
-		return '0';
+function wpcom_is_rtc_http_polling_rollout() {
+	if (
+		defined( 'IS_ATOMIC' ) && IS_ATOMIC &&
+		! wpcom_has_features_edge_sticker() // Sites with the sticker should use WS.
+	) {
+		return true;
+	}
+	return false;
+}
+
+/**
+ * Determine if the site is part of the HTTP-polling gradual rollout.
+ *
+ * @return bool
+ */
+function wpcom_is_rtc_websocket_rollout() {
+	$blog_id = get_wpcom_blog_id();
+
+	if (
+		defined( 'IS_WPCOM' ) && IS_WPCOM &&
+		( $blog_id % 100 < 20 )
+	) {
+		return true;
+	}
+	return false;
+}
+
+/**
+ * Determine whether the current request is from the WordPress.com desktop app.
+ *
+ * @return bool
+ */
+function wpcom_rtc_is_desktop_app() {
+	if ( ! isset( $_SERVER['HTTP_USER_AGENT'] ) ) {
+		return false;
+	}
+	$user_agent = sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) );
+	return false !== strpos( $user_agent, 'WordPressDesktop' );
+}
+
+/**
+ * Determine whether RTC should be enabled based on the site's features.
+ *
+ * @return bool
+ */
+function wpcom_enable_rtc() {
+	// Disable RTC on the desktop app due to an incompatibility.
+	if ( wpcom_rtc_is_desktop_app() ) {
+		return false;
+	}
+	$has_rtc_feature = false;
+	if ( function_exists( 'wpcom_site_has_feature' ) && class_exists( 'WPCOM_Features' ) && defined( 'WPCOM_Features::REAL_TIME_COLLABORATION' ) ) {
+		$blog_id         = get_wpcom_blog_id();
+		$has_rtc_feature = wpcom_site_has_feature( \WPCOM_Features::REAL_TIME_COLLABORATION, $blog_id );
 	}
 
-	return $pre_option;
+	if ( ! $has_rtc_feature ) {
+		return false;
+	}
+
+	$has_needed_gutenberg_version = defined( 'GUTENBERG_VERSION' ) && is_string( GUTENBERG_VERSION ) && version_compare( (string) GUTENBERG_VERSION, '22.7.0', '>=' );
+
+	// WordPress 7.0+ includes RTC support in core.
+	// strtok strips beta/RC suffixes (e.g. "7.0-beta1" → "7.0") so pre-release versions match.
+	global $wp_version;
+	$has_needed_wp_version = version_compare( strtok( $wp_version, '-' ), '7.0', '>=' );
+
+	if ( ! $has_needed_gutenberg_version && ! $has_needed_wp_version ) {
+		return false;
+	}
+
+	if ( wpcom_is_rtc_http_polling_rollout() || wpcom_is_rtc_websocket_rollout() ) {
+		return true;
+	}
+
+	if ( wpcom_has_features_edge_sticker() ) {
+		return true;
+	}
+
+	return false;
 }
-add_filter( 'pre_option_wp_enable_real_time_collaboration', 'wpcom_disable_rtc_option' );
-add_filter( 'pre_option_enable_real_time_collaboration', 'wpcom_disable_rtc_option' ); // TODO: Clean up the old name. See https://github.com/WordPress/gutenberg/pull/75837.
+add_filter( 'jetpack_rtc_enabled', 'wpcom_enable_rtc' );
+
+/**
+ * Filters the list of Real-Time Communication (RTC) providers.
+ *
+ * @param array $providers An array of available RTC providers.
+ *
+ * @return array Modified array of RTC providers, enforcing 'http-polling' if necessary.
+ */
+function wpcom_rtc_providers( $providers ) {
+	if ( wpcom_is_rtc_http_polling_rollout() ) {
+		return array( 'http-polling' );
+	}
+	return $providers;
+}
+add_filter( 'jetpack_rtc_providers', 'wpcom_rtc_providers' );
+
+add_filter( 'wpcom_rtc_enable_limit_notices', '__return_false', 99 );
+
+\Automattic\Jetpack\RTC::init();

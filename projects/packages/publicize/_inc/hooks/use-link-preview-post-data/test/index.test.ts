@@ -43,12 +43,12 @@ const getDefaultAttributes = (): Record< string, unknown > => ( {
 
 const setupMocks = ( {
 	attributes = getDefaultAttributes(),
-	site = { title: 'Test Site' },
+	site = { name: 'Test Site', site_icon_url: '' },
 	featuredMediaRecord = null,
 	editedPostContent = '',
 }: {
 	attributes?: Record< string, unknown >;
-	site?: { title: string } | null;
+	site?: { name: string; site_icon_url?: string } | null;
 	featuredMediaRecord?: Record< string, unknown > | null;
 	editedPostContent?: string;
 } = {} ) => {
@@ -61,6 +61,7 @@ const setupMocks = ( {
 				getEditedPostAttribute: mockGetEditedPostAttribute,
 				getEditedPostContent: jest.fn().mockReturnValue( editedPostContent ),
 				getSite: jest.fn().mockReturnValue( site ),
+				getUnstableBase: jest.fn().mockReturnValue( site ),
 			} );
 			return selectorOrMapper( mockSelect );
 		}

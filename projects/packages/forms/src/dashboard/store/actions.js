@@ -14,6 +14,8 @@ import {
 	CLEAR_INVALID_RECORDS,
 	ADD_PENDING_ACTION,
 	REMOVE_PENDING_ACTION,
+	SET_FORM_STATUS_COUNTS,
+	INVALIDATE_FORM_STATUS_COUNTS,
 } from './action-types.js';
 
 /**
@@ -182,6 +184,28 @@ export function removePendingAction( actionId ) {
 		actionId,
 	};
 }
+
+/**
+ * Set the form status counts.
+ *
+ * @param {object} formStatusCounts - Per-status counts for the jetpack_form post type.
+ * @return {object} Action object.
+ */
+export function setFormStatusCounts( formStatusCounts ) {
+	return {
+		type: SET_FORM_STATUS_COUNTS,
+		formStatusCounts,
+	};
+}
+
+/**
+ * Invalidate the form status counts so the resolver re-fetches them.
+ *
+ * @return {object} Action object.
+ */
+export const invalidateFormStatusCounts = () => {
+	return { type: INVALIDATE_FORM_STATUS_COUNTS };
+};
 
 /**
  * Performs a bulk action on responses.

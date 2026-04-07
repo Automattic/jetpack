@@ -75,7 +75,7 @@ export function makeBaseConfig( configurl, opts = {} ) {
 
 	const compat = new FlatCompat( {
 		baseDirectory: basedir,
-		resolvePluginsRelativeTo: fileURLToPath( import.meta.url ),
+		resolvePluginsRelativeTo: import.meta.filename,
 	} );
 
 	let m;
@@ -148,9 +148,6 @@ export function makeBaseConfig( configurl, opts = {} ) {
 
 	return defineConfig(
 		globalIgnores( loadIgnorePatterns( basedir ) ),
-
-		// Gutenberg stopped publishing the `.native.js` files in their packages, so we can't effectively lint them anymore.
-		globalIgnores( [ '**/*.native.[jt]s' ] ),
 
 		// Extended configs.
 		{

@@ -58,6 +58,7 @@ export default function Gravatar( {
 						'jetpack-forms'
 					),
 					'Gravatar not found.': __( 'Gravatar not found.', 'jetpack-forms' ),
+					'This profile is private.': __( 'This profile is private.', 'jetpack-forms' ),
 					'Too Many Requests.': __( 'Too many requests.', 'jetpack-forms' ),
 					'Internal Server Error.': __( 'Internal server error.', 'jetpack-forms' ),
 					'Is this you?': __( 'Is this you?', 'jetpack-forms' ),
@@ -85,9 +86,12 @@ export default function Gravatar( {
 			alt={ displayName || '' }
 			className="jp-forms__gravatar"
 			ref={ profileImageRef }
-			src={ `https://0.gravatar.com/avatar/${ hashedEmail }?d=${ defaultImage }&name=${ displayName }` }
+			src={ `https://secure.gravatar.com/avatar/${ hashedEmail }?d=${ defaultImage }${
+				displayName ? `&name=${ encodeURIComponent( displayName ) }` : ''
+			}` }
 			width={ size }
 			height={ size }
+			loading="lazy"
 		/>
 	);
 }

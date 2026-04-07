@@ -2,6 +2,95 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 15.7-beta - 2026-04-06
+### Major Enhancements
+- AI Assistant: Disable the Write Brief (Breve) proofreading feature by default. It can be re-enabled via the 'breve_enabled' filter. [#47914]
+- Jetpack AI Image Generation & Editing: Evolve & enhance Jetpack AI Image Generation. [#47829]
+
+### Enhancements
+- Admin Menu: Reorder menu items so that links opening in new windows appear last. [#47418]
+- Block Notes: Update enablement logic to use AI feature checks and gate feature behind a paid Jetpack AI plan. [#47810]
+- Network Admin: Replace legacy PHP masthead on Network Sites and Network Settings pages with the unified AdminPage header from @automattic/jetpack-components. [#47912]
+- Settings: Align tab navigation font and color with WordPress design system tokens. [#47942]
+- Update admin page footer with Products and Help navigation links, replacing About, Privacy, and Terms links. [#47840]
+- Update network admin settings visually. [#47912]
+
+### Improved compatibility
+- External Media: ensure that the new WordPress "Embed video from URL" option appears in the Cover block options alongside Jetpack's External Media options. [#47819]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Comment: Add Tracking to Jetpack upsell link. [#47937]
+- Fix upgrade menu item color on problematic admin color schemes. [#47903]
+- Module list: Ensure capitalization is consistent. [#47843]
+- Remove memberships_gift CPT, replaced by COMPS on WordPress.com. [#47859]
+- Subscriptions: Update panel name to include Jetpack branding. [#47857]
+- Update design of the sidebar upsell. [#47909]
+- Update package dependencies. [#47899]
+
+## 15.7-a.7 - 2026-03-30
+### Enhancements
+- Add 'note' to the default whitelisted comment types for Sync. [#47746]
+
+### Bug fixes
+- Forms: Only show form blocks under the "Forms" category of the block inserter. [#47614]
+- Newsletter Email Status: Add per-post access control to the newsletter email sent status endpoint. [#47778]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Brute Force Protection: Update error when module can't be activated. [#47660]
+- Build: Sync Social Logos font from @automattic/social-logos. [#47753]
+- Newsletter: Default the jetpack_wp_admin_newsletter_settings_enabled filter to true and hide the old settings tab when the new settings page is active. [#47750]
+- SEO Tools: Prevent PHP warnings when handling malformed data. [#47804]
+- Sharing: Prevent warning when handling malformed data. [#47805]
+- Update package dependencies. [#47799] [#47818] [#47825]
+
+## 15.7-a.5 - 2026-03-23
+### Enhancements
+- Forms: Add logged-in user display name and ID to form submission emails and response sidebar. [#47652]
+- Newsletter: Add "Send newsletter by default" toggle to settings. [#47565]
+- Settings: Modernize page UI. [#47490] [#47656]
+- Sync: Improve checksum performance for meta tables. [#47579]
+
+### Bug fixes
+- AI Assistant: Prevent modal shaking from when content streams in. [#47616]
+- Comments: Remove resource hints for outdated gravatar domains and use secure.gravatar.com instead. [#47695]
+- Google Search Preview: Ensure site icon is shown on all sites. [#47551]
+- Image Compare Block: Fix disappearing link toolbar when highlighting caption text to add a hyperlink. [#47197]
+- Map block: Fix markers displaying as bullet points on Simple sites. [#47586]
+- Newsletter: Fix "email sent" confirmation to show "all subscribers" when post had paywall block and was emailed to everyone. [#47629]
+- Sync: Prevent incremental sync for posts with unregistered post types. [#47580]
+- WAF: Fix issue that potentially allowed bypassing WAF rules. [#47692]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Add memberships_gift_is_sandboxed to the Jetpack sync post meta whitelist so gifting works on self-hosted Jetpack sites. [#47715]
+- API: Allow `is_garden` and `garden_name` fields to be returned by /me/sites requests by non-member users. [#47211]
+- Application Passwords: Allow authenticating VideoPress AJAX actions via application passwords. [#45220]
+- Display MCP client actor on backup undo card and backup card attribution. [#47429]
+- Enable Image Studio for Big Sky and CIAB sites regardless of Jetpack AI enabled status. [#47572]
+- Improve disabled newsletter notice copy for private sites not set for coming soon. [#47583]
+- Improve string output handling. [#47636]
+- REST API: Add big_sky_enabled field to the site endpoint response. [#47690]
+- Social: Remove post publish review prompt. [#47650]
+- Sync: Add unit test. [#47634]
+- Update package dependencies. [#47684]
+- Update subscribers affirmation copies for newsletters "will send to" message to better include access and categories both, and remove misrepresentative numbers. [#47605]
+- Update sync user test assertion to expect 0 instead of false for reassigned user ID, matching the $reassign hook parameter now used directly. [#47658]
+
+## 15.7-a.3 - 2026-03-16
+### Enhancements
+- Newsletter: Add `wpcom_newsletter_send_default` site option to control whether posts are sent to subscribers by default. [#47564]
+- SEO: Add Canonical URLs toggle to the Traffic settings page. [#47364]
+
+### Bug fixes
+- Forms: Ensure number field min and max values display in the UI after page reload. [#47511]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Add missing newsletter post metas to sync whitelist. [#47560]
+- Editor: Fix plan upgrade notice for Simple sites. [#47543]
+- Image Studio: Enable if BigSky is enabled. [#47533]
+- Newsletter editor panel: Update to reflect previous email sends and update copies. [#47301]
+- Update dependencies. [#47472]
+- Update package dependencies. [#47505]
+
 ## 15.7-a.1 - 2026-03-09
 ### Enhancements
 - Admin Menu: Reorder menu items so that links opening in new windows appear last. [#47417]

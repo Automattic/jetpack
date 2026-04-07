@@ -5,6 +5,62 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.2] - 2026-04-06
+### Changed
+- Conversion Funnel Chart: Rename non-BEM classnames to BEM modifiers. [#47854]
+- Update package dependencies. [#47870] [#47886]
+
+### Fixed
+- Fix conversion funnel chart color flicker on initial render by deferring CSS transitions until the color palette is resolved. [#47851]
+
+## [1.0.1] - 2026-03-30
+### Security
+- Sanitize GeoChart HTML tooltip content with DOMPurify. [#47789]
+
+### Changed
+- Bump minimum Node version to 20.11. [#47770]
+- Support all CSS color formats (HSL, HSLA, RGB, RGBA, named colors) in theme colors. [#46349]
+- Update package dependencies. [#47799]
+
+### Fixed
+- ChartLayout: Display SVG as block to avoid unexpected resizing in certain browser environments. [#47802]
+
+## [1.0.0] - 2026-03-24
+### Changed
+- Internal updates. [#43811]
+
+## [0.59.0] - 2026-03-23
+### Added
+- ChartLayout: Add component for shared chart and legend layout. [#47554]
+
+### Changed
+- Move tooltip portal containerRef from ChartLayout to inner svg-wrapper in pie charts. [#47619]
+- Remove internal hooks, utilities, and types from public exports to reduce API surface. [#47703]
+- Remove `percentage` from DataPointPercentage interface. [#47668]
+- Standardize legend stories and documentation across all chart types. [#47545]
+- Update package dependencies. [#47684] [#47719]
+
+### Removed
+- Remove individual chart entry point exports in favor of the main package entry point for v1. [#47673]
+
+### Fixed
+- Derive default legend shape from chart type in composition API. [#47671]
+- Fix broken story references and simplify legend sections in Storybook docs. [#47663]
+- Fix empty-state text wrapping when all legend items are hidden. [#47620]
+
+## [0.58.0] - 2026-03-16
+### Security
+- Fix ReDoS vulnerability in date parsing timezone detection. [#47524]
+
+### Changed
+- Breaking: Consolidate flat legend props into a nested legend configuration object on BaseChartProps. [#47506]
+- Charts: Fix Legend position prop in the composition API so that legends render in the correct top or bottom slot. [#47478]
+- Remove useHasLegendChild hook from @automattic/charts/hooks (charts now derive legend presence from useChartChildren). [#47478]
+- Update dependencies. [#47472]
+
+### Fixed
+- Bundle fast-deep-equal as a non-external dependency to fix compatibility with webpack strict ESM mode. [#47372]
+
 ## [0.57.0] - 2026-03-09
 ### Added
 - Add identity-obj-proxy to enable CSS module class assertions in tests. [#47476]
@@ -728,6 +784,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed lints following ESLint rule changes for TS [#40584]
 - Fixing a bug in Chart storybook data. [#40640]
 
+[1.0.2]: https://github.com/Automattic/charts/compare/v1.0.1...v1.0.2
+[1.0.1]: https://github.com/Automattic/charts/compare/v1.0.0...v1.0.1
+[1.0.0]: https://github.com/Automattic/charts/compare/v0.59.0...v1.0.0
+[0.59.0]: https://github.com/Automattic/charts/compare/v0.58.0...v0.59.0
+[0.58.0]: https://github.com/Automattic/charts/compare/v0.57.0...v0.58.0
 [0.57.0]: https://github.com/Automattic/charts/compare/v0.56.7...v0.57.0
 [0.56.7]: https://github.com/Automattic/charts/compare/v0.56.6...v0.56.7
 [0.56.6]: https://github.com/Automattic/charts/compare/v0.56.5...v0.56.6

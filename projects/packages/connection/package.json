@@ -27,16 +27,16 @@
 	"dependencies": {
 		"@automattic/jetpack-connection": "workspace:*",
 		"@automattic/jetpack-idc": "workspace:*",
-		"@wordpress/data": "10.41.0",
-		"@wordpress/element": "6.41.0"
+		"@wordpress/data": "10.43.0",
+		"@wordpress/element": "6.43.0"
 	},
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
 		"@babel/core": "7.29.0",
 		"@babel/preset-env": "7.29.0",
 		"@babel/runtime": "7.28.6",
-		"@wordpress/browserslist-config": "6.41.0",
-		"glob": "13.0.0",
+		"@wordpress/browserslist-config": "6.43.0",
+		"glob": "13.0.6",
 		"react": "18.3.1",
 		"react-dom": "18.3.1",
 		"sass-embedded": "1.97.3",

@@ -750,19 +750,16 @@ export const osUsageData: DataPointPercentage[] = [
 		label: 'MacOS',
 		value: 30000,
 		valueDisplay: '30K',
-		percentage: 23,
 	},
 	{
 		label: 'Linux',
 		value: 22000,
 		valueDisplay: '22K',
-		percentage: 17,
 	},
 	{
 		label: 'Windows',
 		value: 80000,
 		valueDisplay: '80K',
-		percentage: 60,
 	},
 ];
 
@@ -779,19 +776,16 @@ export const partialOsUsageData: DataPointPercentage[] = [
 		label: 'MacOS',
 		value: 30000,
 		valueDisplay: '30K',
-		percentage: 5,
 	},
 	{
 		label: 'Linux',
 		value: 22000,
 		valueDisplay: '22K',
-		percentage: 1,
 	},
 	{
 		label: 'Windows',
 		value: 80000,
 		valueDisplay: '80K',
-		percentage: 2,
 	},
 ];
 
@@ -897,13 +891,11 @@ export const customerRevenueData: DataPointPercentage[] = [
 		label: 'New',
 		value: 302331.27,
 		valueDisplay: '$302.33K',
-		percentage: 66.97,
 	},
 	{
 		label: 'Returning',
 		value: 149111.41,
 		valueDisplay: '$149.11K',
-		percentage: 33.03,
 	},
 ];
 

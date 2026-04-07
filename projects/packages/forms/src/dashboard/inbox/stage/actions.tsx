@@ -71,6 +71,9 @@ const invalidateCacheAndNavigate = (
 	// Invalidate counts to ensure accurate totals
 	registry.dispatch( dashboardStore ).invalidateCounts();
 
+	// Invalidate all entity record resolutions so the Forms list entries_count is refreshed.
+	registry.dispatch( coreStore ).invalidateResolutionForStoreSelector( 'getEntityRecords' );
+
 	// Navigate to correct page if current page will be invalid
 	const { getTrashCount, getSpamCount, getInboxCount } = registry.select( dashboardStore );
 	const { setCurrentQuery } = registry.dispatch( dashboardStore );

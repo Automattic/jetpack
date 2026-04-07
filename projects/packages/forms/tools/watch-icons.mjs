@@ -17,12 +17,11 @@
 
 import { spawn } from 'child_process';
 import { watch } from 'fs';
-import { dirname, join } from 'path';
-import { fileURLToPath } from 'url';
+import { join } from 'path';
 import { glob } from 'glob';
 import { iconPipelineConfig } from './webpack.config.extract-icons.js';
 
-const __dirname = dirname( fileURLToPath( import.meta.url ) );
+const __dirname = import.meta.dirname;
 const { blocksDir, blockDirPattern, iconFilenames } = iconPipelineConfig;
 
 const iconBasenameSet = new Set( iconFilenames );

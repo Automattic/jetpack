@@ -1,3 +1,4 @@
+// Import dataviews styles for DataForm component
 @import "@wordpress/theme/design-tokens.css";
 @import "@wordpress/dataviews/build-style/style.css";
 
@@ -10,11 +11,56 @@
 	text-align: right;
 }
 
+.newsletter-jitm-card {
+
+	.jitm-card {
+		margin-inline-end: 0;
+		margin-block: 1.5rem;
+	}
+}
+
+.newsletter-settings-connect-notice {
+	max-width: 660px;
+	margin-inline: auto;
+	margin-block-end: var(--wpds-dimension-gap-lg, 24px);
+
+	.components-notice {
+		margin: 0;
+	}
+}
+
+.newsletter-settings-disabled {
+	position: relative;
+
+	&::before {
+		content: "";
+		position: absolute;
+		top: -2px;
+		left: 0;
+		z-index: 1;
+		background: rgba(255, 255, 255, 0.6);
+		width: 100%;
+		height: calc(100% + 2px);
+		pointer-events: all;
+	}
+}
+
 .newsletter-settings {
-	max-width: 1200px;
+	max-width: 660px; /* MSD and future JP settings pages are 660px wide */
 	margin-inline: auto;
 
 	.components-notice {
 		margin-block-end: var(--wpds-dimension-gap-lg, 24px);
+	}
+
+	.components-card__body > p:first-child {
+		margin-top: 0;
+	}
+
+	.newsletter-card-footer {
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: space-between;
+		gap: 8px;
 	}
 }

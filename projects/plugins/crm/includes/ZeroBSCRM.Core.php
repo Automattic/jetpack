@@ -234,14 +234,14 @@ final class ZeroBSCRM {
 	/**
 	 * Extensions instances
 	 *
-	 * @var Jetpack CRM Extensions
+	 * @var ?array
 	 */
 	public $extensions = null;
 
 	/**
 	 * External Sources
 	 *
-	 * @var Jetpack CRM External Sources
+	 * @var ?array
 	 */
 	public $external_sources = null;
 
@@ -255,7 +255,7 @@ final class ZeroBSCRM {
 	/**
 	 * Settings Object
 	 *
-	 * @var Jetpack CRM Settings Object
+	 * @var ?WHWPConfigLib
 	 */
 
 	public $settings = null;
@@ -270,7 +270,7 @@ final class ZeroBSCRM {
 	/**
 	 * Metaboxes Object
 	 *
-	 * @var Jetpack CRM Metaboxes Object
+	 * @var ?array
 	 */
 
 	public $metaboxes = null;
@@ -278,7 +278,7 @@ final class ZeroBSCRM {
 	/**
 	 * Menus Object
 	 *
-	 * @var Jetpack CRM Menus Array
+	 * @var ?array
 	 * This ultimately adds any WP menus that need injecting
 	 */
 	private $menu = null;
@@ -286,28 +286,28 @@ final class ZeroBSCRM {
 	/**
 	 * Learn Menu Object
 	 *
-	 * @var Jetpack CRM Learn menu class instance
+	 * @var ?\Automattic\JetpackCRM\Learn_Menu
 	 */
 	public $learn_menu = null;
 
 	/**
 	 * URLS Array
 	 *
-	 * @var Jetpack CRM URLS list
+	 * @var array
 	 */
 	public $urls;
 
 	/**
 	 * Slugs Array
 	 *
-	 * @var Jetpack CRM Slugs list
+	 * @var array
 	 */
 	public $slugs;
 
 	/**
 	 * Transient Array
 	 *
-	 * @var Jetpack CRM Transients list
+	 * @var array
 	 */
 	public $transients;
 
@@ -347,12 +347,6 @@ final class ZeroBSCRM {
 	);
 
 	/**
-	 * Libraries included (3.0.12+)
-	 * Note: All paths need to be prepended by ZEROBSCRM_PATH before use
-	 */
-	private $libs = array();
-
-	/**
 	 * Usage Tracking
 	 *
 	 * @var object Usage tracking class
@@ -363,7 +357,7 @@ final class ZeroBSCRM {
 	 * Page Messages Array
 	 * Experimental: stores msgs such as "Contact Updated"
 	 *
-	 * @var msg arr
+	 * @var array
 	 */
 	public $pageMessages;
 
@@ -377,14 +371,14 @@ final class ZeroBSCRM {
 	/**
 	 * Acceptable mime types Array
 	 *
-	 * @var Jetpack CRM Acceptable mime types list
+	 * @var array
 	 */
 	public $acceptable_mime_types;
 
 	/**
 	 * Acceptable fields to be included in the Total Value of contacts and companies
 	 *
-	 * @var Jetpack CRM Acceptable fields to be included in the Total Value
+	 * @var array
 	 */
 	public $acceptable_total_value_fields = array(
 		'transactions' => 'Transactions',
@@ -394,7 +388,7 @@ final class ZeroBSCRM {
 	/**
 	 * Acceptable html array
 	 *
-	 * @var Jetpack CRM Acceptable html types list
+	 * @var array
 	 * Was previously: $zeroBSCRM_allowedHTML
 	 */
 	public $acceptable_html = array(
@@ -484,7 +478,7 @@ final class ZeroBSCRM {
 	/**
 	 * Acceptable (restricted) html array
 	 *
-	 * @var Jetpack CRM Acceptable (restricted) html types list
+	 * @var array
 	 * (e.g. for use in contact logs)
 	 */
 	public $acceptable_restricted_html = array(
@@ -2826,70 +2820,6 @@ final class ZeroBSCRM {
 
 	// ======= / Menu Management =========
 
-	// ========== Basic Library Management =========
-
-	/**
-	 * Retrieve array of details for a library
-	 * Returns: array() or false
-	 */
-	public function lib( $libKey = '' ) {
-
-		if ( isset( $this->libs[ $libKey ] ) && is_array( $this->libs[ $libKey ] ) ) {
-
-			// update path to use ZEROBSCRM_PATH
-			$ret            = $this->libs[ $libKey ];
-			$ret['path']    = ZEROBSCRM_PATH . $this->libs[ $libKey ]['path'];
-			$ret['include'] = ZEROBSCRM_PATH . $this->libs[ $libKey ]['include'];
-
-			return $ret;
-		}
-
-		return false;
-	}
-
-	/**
-	 * Retrieve root path for a library
-	 * Returns: str or false
-	 */
-	public function libPath( $libKey = '' ) {
-
-		if ( isset( $this->libs[ $libKey ] ) && isset( $this->libs[ $libKey ]['path'] ) ) {
-			return ZEROBSCRM_PATH . $this->libs[ $libKey ]['path'];
-		}
-
-		return false;
-	}
-
-	/**
-	 * Retrieve full include path for a library
-	 * Returns: str or false
-	 */
-	public function libInclude( $libKey = '' ) {
-
-		if ( isset( $this->libs[ $libKey ] ) && isset( $this->libs[ $libKey ]['include'] ) ) {
-			return ZEROBSCRM_PATH . $this->libs[ $libKey ]['include'];
-		}
-
-		return false;
-	}
-
-	/**
-	 * Returns the correct dompdf lib version depending on php compatibility
-	 *
-	 * @deprecated We no longer load Dompdf through this library system.
-	 *
-	 * @param string $lib_key The key/machine name.
-	 * @return string
-	 */
-	private function checkDompdfVersion( $lib_key ) {
-
-		if ( $lib_key === 'dompdf' ) {
-			$lib_key = 'dompdf-2';
-		}
-
-		return $lib_key;
-	}
-
 	/*
 	* Returns bool, are we running on a PHP version $operator (e.g. '>=') to $version
 	*/
@@ -2899,53 +2829,8 @@ final class ZeroBSCRM {
 	}
 
 	/**
-	 * Retrieve version of a library
-	 * Returns: str or false
+	 * Autoload files from a directory which match a regex filter
 	 */
-	public function libVer( $libKey = '' ) {
-
-		if ( isset( $this->libs[ $libKey ] ) && isset( $this->libs[ $libKey ]['version'] ) ) {
-			return $this->libs[ $libKey ]['version'];
-		}
-
-		return false;
-	}
-
-	/**
-	 * Check if library already loaded
-	 * Returns: bool
-	 */
-	public function libIsLoaded( $libKey = '' ) {
-
-		if ( isset( $this->libs[ $libKey ] ) && isset( $this->libs[ $libKey ]['include'] ) && ! isset( $this->libs[ $libKey ]['loaded'] ) ) {
-			return false;
-		}
-
-		return true;
-	}
-
-	/**
-	 * Load a library via include
-	 * Returns: str or false
-	 */
-	public function libLoad( $libKey = '' ) {
-
-		if (
-			isset( $this->libs[ $libKey ] ) &&
-			isset( $this->libs[ $libKey ]['include'] ) &&
-			! isset( $this->libs[ $libKey ]['loaded'] ) &&
-			file_exists( ZEROBSCRM_PATH . $this->libs[ $libKey ]['include'] )
-		) {
-			require_once ZEROBSCRM_PATH . $this->libs[ $libKey ]['include'];
-				$this->libs[ $libKey ]['loaded'] = true;
-		}
-
-				return false;
-	}
-
-				/**
-				 * Autoload files from a directory which match a regex filter
-				 */
 	public function autoload_from_directory( string $directory, string $regex_filter ) {
 
 		$files = scandir( $directory );

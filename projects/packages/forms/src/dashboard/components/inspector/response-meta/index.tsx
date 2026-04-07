@@ -41,11 +41,24 @@ const ResponseMeta = ( { response }: ResponseMetaProps ): import('react').JSX.El
 	const displayName = getDisplayName( response );
 	// Match the data view gravatar logic: use email or IP, and set defaultImage conditionally
 	const gravatarEmail = response.author_email || response.ip;
-	const defaultImage = response.author_name || response.author_email ? 'initials' : 'mp';
+	const gravatarDisplayName = response.author_name
+		? decodeEntities( response.author_name )
+		: response.author_email?.split( '@' )[ 0 ];
+	const defaultImage = gravatarDisplayName ? 'initials' : 'mp';
 
 	const responseAuthorEmailParts = response.author_email?.split( '@' ) ?? [];
 
 	const dateSettings = getDateSettings();
+
+	// Logged-in user row content: either shows display name and ID, username and ID, or just the ID.
+	const loggedInUser = response?.logged_in_user?.id ? response.logged_in_user : null;
+	const loggedInUserName = loggedInUser?.display_name || loggedInUser?.username || null;
+	let loggedInUserDisplay = null;
+	if ( loggedInUser ) {
+		loggedInUserDisplay = loggedInUserName
+			? `${ loggedInUserName } (#${ loggedInUser.id })`
+			: `#${ loggedInUser.id }`;
+	}
 
 	return (
 		<div className="jp-forms__inbox-response-meta">
@@ -53,7 +66,7 @@ const ResponseMeta = ( { response }: ResponseMetaProps ): import('react').JSX.El
 				<Gravatar
 					email={ gravatarEmail }
 					defaultImage={ defaultImage }
-					displayName={ displayName }
+					displayName={ gravatarDisplayName }
 					key={ gravatarEmail }
 				/>
 				<VStack spacing="0" className="jp-forms__inbox-response-meta-from">
@@ -124,6 +137,12 @@ const ResponseMeta = ( { response }: ResponseMetaProps ): import('react').JSX.El
 						<tr>
 							<th>{ __( 'Browser:', 'jetpack-forms' ) }&nbsp;</th>
 							<td>{ response.browser }</td>
+						</tr>
+					) }
+					{ loggedInUserDisplay && (
+						<tr>
+							<th>{ __( 'Logged-in user:', 'jetpack-forms' ) }&nbsp;</th>
+							<td>{ loggedInUserDisplay }</td>
 						</tr>
 					) }
 				</tbody>

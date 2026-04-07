@@ -6,7 +6,6 @@
  * sharing message.
  */
 
-import { siteHasFeature } from '@automattic/jetpack-script-data';
 import { PanelRow } from '@wordpress/components';
 import useAttachedMedia from '../../hooks/use-attached-media';
 import useFeaturedImage from '../../hooks/use-featured-image';
@@ -15,11 +14,9 @@ import useMediaRestrictions from '../../hooks/use-media-restrictions';
 import { usePerNetworkCustomization } from '../../hooks/use-per-network-customization';
 import usePublicizeConfig from '../../hooks/use-publicize-config';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
-import { features } from '../../utils';
-import { SocialPostModal } from '../social-post-modal/modal';
+import { XUsage } from '../x-usage';
 import { ConnectionsList } from './connections-list';
 import { EmptyState } from './empty-state';
-import { EnhancedFeaturesNudge } from './enhanced-features-nudge';
 import { PreviewPostsTrigger } from './preview-posts-trigger';
 import { SharePostForm } from './share-post-form';
 import { UserConnectionNotice } from './user-connection-notice';
@@ -66,9 +63,9 @@ export default function PublicizeForm() {
 			<PanelRow>
 				<ConnectionsList />
 			</PanelRow>
+			<XUsage />
 			{ needsUserConnection ? <UserConnectionNotice /> : null }
-			{ siteHasFeature( features.UNIFIED_UI_V1 ) ? <PreviewPostsTrigger /> : <SocialPostModal /> }
-			{ ! siteHasFeature( features.UNIFIED_UI_V1 ) ? <EnhancedFeaturesNudge /> : null }
+			<PreviewPostsTrigger />
 			{ showSharePostForm && <SharePostForm analyticsData={ { location: 'editor' } } /> }
 		</>
 	);

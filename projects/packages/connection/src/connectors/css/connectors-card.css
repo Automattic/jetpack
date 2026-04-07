@@ -1,0 +1,160 @@
+/**
+ * Styles for the WordPress.com connector card on the
+ * WP core Settings > Connectors page (WP 7.0+).
+ *
+ * Enqueued by Wpcom_Connector::enqueue_script_module().
+ * Uses CSS logical properties for RTL support.
+ *
+ * ConnectorItem renders inside .components-item which has
+ * 20px padding (12px on <=480px screens). The divider uses
+ * negative inline margins to span the full card width.
+ */
+
+.wpcom-connector__description-padded {
+	padding-inline-end: 40px;
+}
+
+.wpcom-connector__expanded {
+	margin-inline: -20px;
+	margin-block-start: 4px;
+	border-block-start: 1px solid #ddd;
+	padding-block-start: 20px;
+	padding-inline: 20px;
+}
+
+.wpcom-connector__status-badge {
+	padding-block: 4px;
+	padding-inline: 12px;
+	border-radius: 2px;
+	font-size: 13px;
+	font-weight: 500;
+	white-space: nowrap;
+}
+
+.wpcom-connector__status-badge--connected {
+	color: #345b37;
+	background-color: #eff8f0;
+}
+
+.wpcom-connector__status-badge--site-connected {
+	color: #1e4c5e;
+	background-color: #e9f0f5;
+}
+
+.wpcom-connector__section {
+	padding-block-end: 20px;
+}
+
+.wpcom-connector__owner-avatar {
+	border-radius: 50%;
+}
+
+.wpcom-connector__plugin-icon {
+	inline-size: 20px;
+	block-size: 20px;
+	flex-shrink: 0;
+}
+
+.wpcom-connector__plugin-icon--fallback {
+	font-size: 20px;
+}
+
+.wpcom-connector__divider {
+	border: none;
+	border-block-start: 1px solid #ddd;
+	margin: 0;
+}
+
+.wpcom-connector__details-link:focus:not(:active) {
+	box-shadow: none;
+	outline: none;
+}
+
+.wpcom-connector__disconnect-site {
+	margin-inline-start: auto;
+}
+
+.wpcom-connector__modal.components-modal__frame,
+.wpcom-connector__modal {
+	max-inline-size: 480px;
+}
+
+.wpcom-connector__details-modal {
+	display: grid;
+	grid-template-columns: max-content 1fr;
+	column-gap: 16px;
+	row-gap: 10px;
+	align-items: baseline;
+}
+
+.wpcom-connector__details-label {
+	white-space: nowrap;
+}
+
+.wpcom-connector__details-value {
+	overflow-wrap: break-word;
+	min-inline-size: 0;
+	text-align: end;
+}
+
+.wpcom-connector__connect-prompt-text {
+	flex: 1;
+	min-inline-size: 0;
+}
+
+.wpcom-connector__inline-action {
+	margin-inline-start: auto;
+	white-space: nowrap;
+}
+
+@media (max-width: 480px) {
+
+	.wpcom-connector__expanded {
+		margin-inline: -12px;
+		padding-block-start: 12px;
+		padding-inline: 12px;
+	}
+
+	.wpcom-connector__section.components-h-stack,
+	.wpcom-connector__section > .components-h-stack {
+		flex-wrap: wrap;
+	}
+
+	.wpcom-connector__connect-prompt-text {
+		min-inline-size: 100%;
+	}
+
+	.wpcom-connector__inline-action {
+		margin-inline-start: 0;
+	}
+
+	.wpcom-connector__details-modal {
+		grid-template-columns: 1fr;
+		row-gap: 4px;
+	}
+
+	.wpcom-connector__details-label:not(:first-child) {
+		margin-block-start: 8px;
+	}
+
+	.wpcom-connector__details-value {
+		text-align: start;
+	}
+}
+
+.wpcom-connector__error {
+	color: #cc1818;
+	font-size: 13px;
+	margin-block-start: 8px;
+	padding-block: 8px;
+	padding-inline: 12px;
+	border-inline-start: 4px solid #cc1818;
+	background-color: #fcecec;
+	border-radius: 2px;
+	align-items: center;
+}
+
+.wpcom-connector__error .components-button {
+	color: #cc1818;
+	flex-shrink: 0;
+}
