@@ -188,8 +188,9 @@ export class FullStackUtils {
 			await executeDevWpCommand(
 				'plugin deactivate e2e-mock-boost-connection e2e-mock-speed-score-api e2e-mock-premium-features'
 			);
-		} catch {
-			// Ignore errors if plugins are not installed
+		} catch ( error ) {
+			// Expected when mock plugins are not installed; log other errors for debugging.
+			console.debug( 'Mock plugin deactivation (non-fatal):', String( error ) );
 		}
 
 		// Write all 19 boost_dev keys with correct defaults

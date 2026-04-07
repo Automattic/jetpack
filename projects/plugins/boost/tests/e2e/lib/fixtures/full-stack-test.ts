@@ -19,6 +19,8 @@ const test = baseTest.extend<
 	{ fullStackUtils: FullStackUtils }
 >( {
 	jetpackBoostPage: async ( { page }, use ) => {
+		// Log uncaught page errors — base-test.ts provides this via its extended page fixture,
+		// but we add it explicitly since full-stack tests may not always extend base-test.
 		page.on( 'pageerror', exception => {
 			console.error( `Page error: "${ exception }"` );
 		} );

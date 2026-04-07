@@ -27,7 +27,14 @@ const STORAGE_STATE_PATH = join(
 );
 
 setup( 'full-stack environment health check', async ( { request } ) => {
-	const boostCloudDir = process.env.BOOST_CLOUD_DIR!;
+	const boostCloudDir = process.env.BOOST_CLOUD_DIR;
+	// eslint-disable-next-line playwright/no-conditional-in-test
+	if ( ! boostCloudDir ) {
+		throw new Error(
+			'BOOST_CLOUD_DIR environment variable is required. ' +
+				'Set it to the path of your boost-cloud repository.'
+		);
+	}
 	const devDomain = getDevDomain();
 
 	// Gate 1: BOOST_CLOUD_DIR is valid
@@ -104,7 +111,8 @@ setup( 'full-stack environment health check', async ( { request } ) => {
 			'%{http_code}',
 			`http://${ devDomain }/`,
 		] );
-		const httpCode = parseInt( output.trim(), 10 );
+		// Parse last line only — Docker Compose may emit stderr warnings before stdout.
+		const httpCode = parseInt( output.trim().split( '\n' ).pop() ?? '', 10 );
 		expect(
 			[ 200, 301, 302 ],
 			`Hydra got HTTP ${ httpCode } reaching http://${ devDomain }/`
