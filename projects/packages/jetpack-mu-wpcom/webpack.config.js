@@ -19,7 +19,6 @@ module.exports = async () => {
 					'./src/features/custom-css/custom-css/js/core-customizer-css-preview.js',
 				'customizer-control': './src/features/custom-css/custom-css/css/customizer-control.css',
 				'error-reporting': './src/features/error-reporting/index.js',
-				'gutenberg-rtc-notices': './src/features/gutenberg-rtc-notices/index.tsx',
 				'holiday-snow': './src/features/holiday-snow/holiday-snow.scss',
 				'html-block-restricted-tags':
 					'./src/features/html-block-restricted-tags/html-block-restricted-tags.tsx',

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Move RTC notices feature to the jetpack-rtc package.

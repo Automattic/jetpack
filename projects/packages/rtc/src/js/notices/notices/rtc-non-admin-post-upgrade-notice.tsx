@@ -6,7 +6,7 @@
  * were previously blocked from.
  */
 
-import { useEffect, useState } from '@wordpress/element';
+import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import RtcNoticeModal from '../rtc-notice-modal';
 
@@ -20,7 +20,7 @@ interface PostUpgradeData {
 }
 
 const RtcNonAdminPostUpgradeNotice = () => {
-	const config = window.wpcomRtcNotices;
+	const config = window.jetpackRtcNotices;
 	const [ noticeData, setNoticeData ] = useState< PostUpgradeData | null >( null );
 
 	// Listen for a custom event dispatched by the RTC sync layer.
@@ -36,6 +36,8 @@ const RtcNonAdminPostUpgradeNotice = () => {
 		};
 	}, [ config ] );
 
+	const handleClose = useCallback( () => setNoticeData( null ), [] );
+
 	if ( ! noticeData || config?.isAdmin ) {
 		return null;
 	}
@@ -44,21 +46,21 @@ const RtcNonAdminPostUpgradeNotice = () => {
 		/* translators: %s: post title */
 		__(
 			'Your admin made room for more editors. Head back to \u201c%s\u201d and pick up where you left off.',
-			'jetpack-mu-wpcom'
+			'jetpack-rtc'
 		),
 		noticeData.postTitle
 	);
 
 	const ctaLabel = sprintf(
 		/* translators: %s: post title */
-		__( 'Edit \u201c%s\u201d', 'jetpack-mu-wpcom' ),
+		__( 'Edit \u201c%s\u201d', 'jetpack-rtc' ),
 		noticeData.postTitle
 	);
 
 	return (
 		<RtcNoticeModal
 			isOpen={ true }
-			title={ __( 'Let the collaboration begin', 'jetpack-mu-wpcom' ) }
+			title={ __( 'Let the collaboration begin', 'jetpack-rtc' ) }
 			description={ description }
 			primaryAction={ {
 				label: ctaLabel,
@@ -66,7 +68,7 @@ const RtcNonAdminPostUpgradeNotice = () => {
 					window.location.href = noticeData.postEditUrl;
 				},
 			} }
-			onRequestClose={ () => setNoticeData( null ) }
+			onRequestClose={ handleClose }
 			className="rtc-notice-modal--non-admin-post-upgrade"
 		/>
 	);

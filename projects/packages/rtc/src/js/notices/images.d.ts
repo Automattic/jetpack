@@ -3,7 +3,7 @@ declare module '*.png' {
 	export default src;
 }
 
-interface WpcomRtcNoticesConfig {
+interface JetpackRtcNoticesConfig {
 	isAdmin: boolean;
 	isPlanOwner: boolean;
 	welcomeDismissed: boolean;
@@ -13,9 +13,10 @@ interface WpcomRtcNoticesConfig {
 	postsListUrl: string;
 	siteSlug: string;
 	maxPeersPerRoom?: number;
+	enableWelcomeNotice?: boolean;
 	enableLimitNotices?: boolean;
 }
 
 interface Window {
-	wpcomRtcNotices?: WpcomRtcNoticesConfig;
+	jetpackRtcNotices?: JetpackRtcNoticesConfig;
 }

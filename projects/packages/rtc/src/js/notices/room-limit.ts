@@ -65,7 +65,7 @@ export function withRoomLimit(
 			( window as Record< string, unknown > ).__wpcomRtcRoomLimitBreached = true;
 
 			// Non-admin: record a join request so the admin gets notified.
-			const config = window.wpcomRtcNotices;
+			const config = window.jetpackRtcNotices;
 			if ( config && ! config.isAdmin && config.postId ) {
 				const wp = ( window as Record< string, unknown > ).wp as
 					| { apiFetch?: ( opts: Record< string, unknown > ) => Promise< unknown > }

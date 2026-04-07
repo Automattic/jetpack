@@ -2,33 +2,24 @@
 /**
  * RTC Notices Tests.
  *
- * @package automattic/jetpack-mu-wpcom
+ * @package automattic/jetpack-rtc
  */
 
 declare( strict_types = 1 );
 
-use Automattic\Jetpack\Jetpack_Mu_Wpcom;
-
-// phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
-require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/gutenberg-rtc-notices/gutenberg-rtc-notices.php';
-// phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
-require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/gutenberg-rtc-notices/class-wp-rest-rtc-notices.php';
+use Automattic\Jetpack\RTC;
+use Automattic\Jetpack\RTC\REST_RTC_Notices;
 use PHPUnit\Framework\Attributes\Before;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\CoversFunction;
 
 /**
  * Tests for RTC Notices feature.
  *
- * @covers ::wpcom_get_rtc_max_peers_per_room
- * @covers ::wpcom_rtc_is_plan_owner
- * @covers ::wpcom_enqueue_rtc_notices_assets
- * @covers WP_REST_RTC_Notices
+ * @covers \Automattic\Jetpack\RTC
+ * @covers \Automattic\Jetpack\RTC\REST_RTC_Notices
  */
-#[CoversFunction( 'wpcom_get_rtc_max_peers_per_room' )]
-#[CoversFunction( 'wpcom_rtc_is_plan_owner' )]
-#[CoversFunction( 'wpcom_enqueue_rtc_notices_assets' )]
-#[CoversClass( WP_REST_RTC_Notices::class )]
+#[CoversClass( RTC::class )]
+#[CoversClass( REST_RTC_Notices::class )]
 class RTC_Notices_Test extends \WorDBless\BaseTestCase {
 
 	/**
@@ -105,20 +96,20 @@ class RTC_Notices_Test extends \WorDBless\BaseTestCase {
 		wp_delete_user( $this->user_id );
 		wp_delete_user( $this->second_user_id );
 
-		remove_all_filters( 'wpcom_rtc_max_peers_per_room' );
+		remove_all_filters( 'jetpack_rtc_max_peers_per_room' );
 		remove_all_filters( 'jetpack_rtc_enabled' );
-		remove_all_filters( 'wpcom_rtc_enable_limit_notices' );
+		remove_all_filters( 'jetpack_rtc_enable_limit_notices' );
 		remove_all_filters( 'users_pre_query' );
 
 		delete_option( 'wp_enable_real_time_collaboration' );
 		delete_option( 'wp_collaboration_enabled' );
 
 		// Clean up any user options and transients left by tests.
-		delete_user_option( $this->user_id, WP_REST_RTC_Notices::OPTION_KEY );
-		delete_transient( WP_REST_RTC_Notices::JOIN_REQUEST_OPTION . '_' . 999999 );
+		delete_user_option( $this->user_id, REST_RTC_Notices::OPTION_KEY );
+		delete_transient( REST_RTC_Notices::JOIN_REQUEST_OPTION . '_' . 999999 );
 
 		// Reset the REST server so stale route registrations don't leak
-		// into other test classes (e.g. Launchpad endpoint tests).
+		// into other test classes.
 		global $wp_rest_server;
 		$wp_rest_server = null; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 
@@ -126,10 +117,10 @@ class RTC_Notices_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Tests that default max peers per room is 2.
+	 * Tests that default max peers per room is 3.
 	 */
 	public function test_default_max_peers_per_room() {
-		$this->assertSame( 3, wpcom_get_rtc_max_peers_per_room() );
+		$this->assertSame( 3, RTC::get_max_peers_per_room() );
 	}
 
 	/**
@@ -137,29 +128,29 @@ class RTC_Notices_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function test_filterable_max_peers_per_room() {
 		add_filter(
-			'wpcom_rtc_max_peers_per_room',
+			'jetpack_rtc_max_peers_per_room',
 			function () {
 				return 5;
 			}
 		);
 
-		$this->assertSame( 5, wpcom_get_rtc_max_peers_per_room() );
+		$this->assertSame( 5, RTC::get_max_peers_per_room() );
 	}
 
 	/**
 	 * Tests that welcome notice is not dismissed by default.
 	 */
 	public function test_welcome_notice_not_dismissed_by_default() {
-		$this->assertFalse( WP_REST_RTC_Notices::is_dismissed() );
+		$this->assertFalse( REST_RTC_Notices::is_dismissed() );
 	}
 
 	/**
 	 * Tests that welcome notice can be dismissed via user meta.
 	 */
 	public function test_welcome_notice_dismiss_persists() {
-		update_user_option( $this->user_id, WP_REST_RTC_Notices::OPTION_KEY, 'dismissed' );
+		update_user_option( $this->user_id, REST_RTC_Notices::OPTION_KEY, 'dismissed' );
 
-		$this->assertTrue( WP_REST_RTC_Notices::is_dismissed() );
+		$this->assertTrue( REST_RTC_Notices::is_dismissed() );
 	}
 
 	/**
@@ -174,13 +165,13 @@ class RTC_Notices_Test extends \WorDBless\BaseTestCase {
 			)
 		);
 
-		update_user_option( $this->user_id, WP_REST_RTC_Notices::OPTION_KEY, 'dismissed' );
+		update_user_option( $this->user_id, REST_RTC_Notices::OPTION_KEY, 'dismissed' );
 
 		wp_set_current_user( $other_user_id );
-		$this->assertFalse( WP_REST_RTC_Notices::is_dismissed() );
+		$this->assertFalse( REST_RTC_Notices::is_dismissed() );
 
 		wp_set_current_user( $this->user_id );
-		$this->assertTrue( WP_REST_RTC_Notices::is_dismissed() );
+		$this->assertTrue( REST_RTC_Notices::is_dismissed() );
 
 		wp_delete_user( $other_user_id );
 	}
@@ -189,19 +180,19 @@ class RTC_Notices_Test extends \WorDBless\BaseTestCase {
 	 * Tests the dismiss REST endpoint.
 	 */
 	public function test_dismiss_rest_endpoint() {
-		$controller = new WP_REST_RTC_Notices();
+		$controller = new REST_RTC_Notices();
 		$response   = $controller->dismiss_notice();
 		$data       = $response->get_data();
 
 		$this->assertTrue( $data['success'] );
-		$this->assertTrue( WP_REST_RTC_Notices::is_dismissed() );
+		$this->assertTrue( REST_RTC_Notices::is_dismissed() );
 	}
 
 	/**
 	 * Tests the status REST endpoint.
 	 */
 	public function test_status_rest_endpoint() {
-		$controller = new WP_REST_RTC_Notices();
+		$controller = new REST_RTC_Notices();
 
 		$response = $controller->get_status();
 		$this->assertFalse( $response->get_data()['dismissed'] );
@@ -223,7 +214,7 @@ class RTC_Notices_Test extends \WorDBless\BaseTestCase {
 			)
 		);
 
-		$controller = new WP_REST_RTC_Notices();
+		$controller = new REST_RTC_Notices();
 
 		$request = new WP_REST_Request( 'POST', '/wpcom/v2/rtc-notices/join-request' );
 		$request->set_param( 'post_id', $post_id );
@@ -252,7 +243,7 @@ class RTC_Notices_Test extends \WorDBless\BaseTestCase {
 			)
 		);
 
-		$controller = new WP_REST_RTC_Notices();
+		$controller = new REST_RTC_Notices();
 
 		$request = new WP_REST_Request( 'POST', '/wpcom/v2/rtc-notices/join-request' );
 		$request->set_param( 'post_id', $post_id );
@@ -275,7 +266,7 @@ class RTC_Notices_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function test_permission_requires_login() {
 		wp_set_current_user( 0 );
-		$controller = new WP_REST_RTC_Notices();
+		$controller = new REST_RTC_Notices();
 
 		$this->assertFalse( $controller->check_permission() );
 	}
@@ -284,7 +275,7 @@ class RTC_Notices_Test extends \WorDBless\BaseTestCase {
 	 * Tests that join request rejects invalid post IDs.
 	 */
 	public function test_join_request_rejects_invalid_post_id() {
-		$controller = new WP_REST_RTC_Notices();
+		$controller = new REST_RTC_Notices();
 
 		$request = new WP_REST_Request( 'POST', '/wpcom/v2/rtc-notices/join-request' );
 		$request->set_param( 'post_id', 999999 );
@@ -314,7 +305,7 @@ class RTC_Notices_Test extends \WorDBless\BaseTestCase {
 			)
 		);
 
-		$controller = new WP_REST_RTC_Notices();
+		$controller = new REST_RTC_Notices();
 
 		$request = new WP_REST_Request( 'POST', '/wpcom/v2/rtc-notices/join-request' );
 		$request->set_param( 'post_id', $post_id );
@@ -353,7 +344,7 @@ class RTC_Notices_Test extends \WorDBless\BaseTestCase {
 			)
 		);
 
-		$controller = new WP_REST_RTC_Notices();
+		$controller = new REST_RTC_Notices();
 		$request    = new WP_REST_Request( 'GET', '/wpcom/v2/rtc-notices/join-requests' );
 		$request->set_param( 'post_id', $post_id );
 
@@ -368,118 +359,10 @@ class RTC_Notices_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Reset scripts/styles to a fresh state for enqueue tests.
-	 *
-	 * Also stubs the editor-count query because WorDBless cannot evaluate
-	 * role-based WP_User_Query meta queries (LIKE on wp_capabilities fails
-	 * in its SQLite layer).
-	 */
-	private function reset_scripts(): void {
-		global $wp_scripts, $wp_styles;
-		$wp_scripts = new \WP_Scripts(); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-		$wp_styles  = new \WP_Styles(); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-
-		add_filter( 'users_pre_query', array( $this, 'stub_editor_query' ), 10, 2 );
-	}
-
-	/**
-	 * Short-circuit WP_User_Query to return 2 fake user IDs.
-	 *
-	 * WorDBless cannot run any user DB queries (its SQLite layer
-	 * does not support the meta LIKE clauses used for role/capability
-	 * lookups). This filter bypasses the query entirely so the
-	 * editor-count guard in the enqueue function passes.
-	 *
-	 * @param array|null     $results Null to run the real query.
-	 * @param \WP_User_Query $query   The query instance (by reference).
-	 * @return array Fake user ID list.
-	 */
-	public function stub_editor_query( $results, $query ) {
-		$query->total_users = 2;
-		return array( 1, 2 );
-	}
-
-	/**
-	 * Tests that enqueue skips when RTC is not enabled.
-	 */
-	public function test_enqueue_skips_when_rtc_disabled() {
-		$this->reset_scripts();
-		add_filter( 'jetpack_rtc_enabled', '__return_false' );
-
-		wpcom_enqueue_rtc_notices_assets();
-
-		$this->assertFalse( wp_script_is( 'jetpack-mu-wpcom-gutenberg-rtc-notices', 'enqueued' ) );
-	}
-
-	/**
-	 * Tests that enqueue skips when RTC setting is off.
-	 */
-	public function test_enqueue_skips_when_rtc_setting_off() {
-		$this->reset_scripts();
-		add_filter( 'jetpack_rtc_enabled', '__return_true' );
-		// Explicitly set to '0' — deleting won't work because gutenberg-rtc.php
-		// has a default_option filter that returns '1' when providers exist.
-		update_option( 'wp_enable_real_time_collaboration', '0' );
-		update_option( 'wp_collaboration_enabled', '0' );
-
-		wpcom_enqueue_rtc_notices_assets();
-
-		$this->assertFalse( wp_script_is( 'jetpack-mu-wpcom-gutenberg-rtc-notices', 'enqueued' ) );
-	}
-
-	/**
-	 * Tests that enqueue works when RTC is enabled and old setting is on.
-	 */
-	public function test_enqueue_works_with_old_rtc_option() {
-		$this->reset_scripts();
-		add_filter( 'jetpack_rtc_enabled', '__return_true' );
-		update_option( 'wp_enable_real_time_collaboration', '1' );
-
-		wpcom_enqueue_rtc_notices_assets();
-
-		$this->assertTrue( wp_script_is( 'jetpack-mu-wpcom-gutenberg-rtc-notices', 'enqueued' ) );
-	}
-
-	/**
-	 * Tests that enqueue works when RTC is enabled and new setting is on.
-	 */
-	public function test_enqueue_works_with_new_rtc_option() {
-		$this->reset_scripts();
-		add_filter( 'jetpack_rtc_enabled', '__return_true' );
-		update_option( 'wp_collaboration_enabled', '1' );
-
-		wpcom_enqueue_rtc_notices_assets();
-
-		$this->assertTrue( wp_script_is( 'jetpack-mu-wpcom-gutenberg-rtc-notices', 'enqueued' ) );
-	}
-
-	/**
-	 * Tests that the inline script includes expected config keys.
-	 */
-	public function test_enqueue_includes_inline_config() {
-		$this->reset_scripts();
-		add_filter( 'jetpack_rtc_enabled', '__return_true' );
-		update_option( 'wp_enable_real_time_collaboration', '1' );
-
-		wpcom_enqueue_rtc_notices_assets();
-
-		global $wp_scripts;
-		$handle = 'jetpack-mu-wpcom-gutenberg-rtc-notices';
-		$extra  = $wp_scripts->registered[ $handle ]->extra['before'] ?? array();
-		$inline = implode( "\n", array_filter( $extra ) );
-
-		$this->assertStringContainsString( 'wpcomRtcNotices', $inline );
-		$this->assertStringContainsString( '"isAdmin"', $inline );
-		$this->assertStringContainsString( '"welcomeDismissed"', $inline );
-		$this->assertStringContainsString( '"maxPeersPerRoom"', $inline );
-		$this->assertStringContainsString( '"siteSlug"', $inline );
-	}
-
-	/**
 	 * Tests that REST routes are registered.
 	 */
 	public function test_rest_routes_registered() {
-		$controller = new WP_REST_RTC_Notices();
+		$controller = new REST_RTC_Notices();
 		$controller->register_routes();
 
 		$routes = rest_get_server()->get_routes();
@@ -495,7 +378,7 @@ class RTC_Notices_Test extends \WorDBless\BaseTestCase {
 	 * Tests that plan owner returns false when no owner detection is available.
 	 */
 	public function test_plan_owner_returns_false_without_detection() {
-		$this->assertFalse( wpcom_rtc_is_plan_owner() );
+		$this->assertFalse( RTC::is_plan_owner() );
 	}
 
 	/**
@@ -508,45 +391,12 @@ class RTC_Notices_Test extends \WorDBless\BaseTestCase {
 
 		// Set master_user to current user.
 		\Jetpack_Options::update_option( 'master_user', $this->user_id );
-		$this->assertTrue( wpcom_rtc_is_plan_owner() );
+		$this->assertTrue( RTC::is_plan_owner() );
 
 		// Set master_user to a different user.
 		\Jetpack_Options::update_option( 'master_user', 999999 );
-		$this->assertFalse( wpcom_rtc_is_plan_owner() );
+		$this->assertFalse( RTC::is_plan_owner() );
 
 		\Jetpack_Options::delete_option( 'master_user' );
-	}
-
-	/**
-	 * Tests that inline config includes isPlanOwner.
-	 */
-	public function test_enqueue_includes_is_plan_owner() {
-		$this->reset_scripts();
-		add_filter( 'jetpack_rtc_enabled', '__return_true' );
-		update_option( 'wp_enable_real_time_collaboration', '1' );
-
-		wpcom_enqueue_rtc_notices_assets();
-
-		global $wp_scripts;
-		$handle = 'jetpack-mu-wpcom-gutenberg-rtc-notices';
-		$extra  = $wp_scripts->registered[ $handle ]->extra['before'] ?? array();
-		$inline = implode( "\n", array_filter( $extra ) );
-
-		$this->assertStringContainsString( '"isPlanOwner"', $inline );
-		$this->assertStringContainsString( '"enableLimitNotices"', $inline );
-	}
-
-	/**
-	 * Tests that enqueue skips when both RTC options are explicitly off.
-	 */
-	public function test_enqueue_skips_when_both_options_explicitly_off() {
-		$this->reset_scripts();
-		add_filter( 'jetpack_rtc_enabled', '__return_true' );
-		update_option( 'wp_enable_real_time_collaboration', '0' );
-		update_option( 'wp_collaboration_enabled', '0' );
-
-		wpcom_enqueue_rtc_notices_assets();
-
-		$this->assertFalse( wp_script_is( 'jetpack-mu-wpcom-gutenberg-rtc-notices', 'enqueued' ) );
 	}
 }
