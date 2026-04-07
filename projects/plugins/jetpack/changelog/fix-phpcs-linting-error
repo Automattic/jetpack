@@ -1,4 +1,0 @@
-Significance: minor
-Type: enhancement
-
-SAL: Add has_password field to post API response.

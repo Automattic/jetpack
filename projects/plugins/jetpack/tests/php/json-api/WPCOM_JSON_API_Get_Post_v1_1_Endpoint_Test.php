@@ -20,7 +20,7 @@ require_once JETPACK__PLUGIN_DIR . 'json-endpoints/class.wpcom-json-api-get-post
  * @covers \WPCOM_JSON_API_Get_Post_v1_1_Endpoint
  */
 #[CoversClass( WPCOM_JSON_API_Get_Post_v1_1_Endpoint::class )]
-class WPCOM_JSON_API_Get_Post_v1_1_Endpoint_Test extends WP_UnitTestCase {
+class WPCOM_JSON_API_Get_Post_v1_1_Endpoint_Test extends WP_UnitTestCase { // phpcs:ignore PEAR.NamingConventions.ValidClassName.Invalid -- matches source class naming.
 	use WP_UnitTestCase_Fix;
 
 	/**
