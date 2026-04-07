@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Enable wp-admin newsletter settings for all wpcom sites instead of gating behind the newsletter-package-202603 sticker.

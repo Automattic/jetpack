@@ -22,7 +22,7 @@ const BoostAdminPage = ( {
 
 	const licenseAction =
 		showActivateLicense && ! isWoaHosting() && ! hasPlan ? (
-			<Button variant="secondary" href={ activateLicenseUrl }>
+			<Button size="compact" variant="secondary" href={ activateLicenseUrl }>
 				{ __( 'Use license key', 'jetpack-boost' ) }
 			</Button>
 		) : undefined;

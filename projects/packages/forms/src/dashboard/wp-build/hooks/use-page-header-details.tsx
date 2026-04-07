@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { useBreakpointMatch } from '@automattic/jetpack-components';
 import JetpackLogo from '@automattic/jetpack-components/jetpack-logo';
 import { Breadcrumbs } from '@wordpress/admin-ui';
@@ -42,6 +43,7 @@ import { store as dashboardStore } from '../../store/index.js';
 import { getFormEditUrl } from '../../utils.ts';
 import ManageIntegrationsButton from '../components/manage-integrations-button';
 import useFormItemActions from './use-form-item-actions';
+import { useRenameForm } from './use-rename-form';
 import type { ReactNode } from 'react';
 
 type ResponsesStatusView = 'inbox' | 'spam' | 'trash';
@@ -135,13 +137,8 @@ export default function usePageHeaderDetails(
 	const [ isPermanentDeleteConfirmOpen, setIsPermanentDeleteConfirmOpen ] = useState( false );
 	const permanentDeleteItemRef = useRef< { id: number } | null >( null );
 
-	// Rename form state
-	const [ renameFormItem, setRenameFormItem ] = useState< { id: number; title: string } | null >(
-		null
-	);
-	const renameRetryRef = useRef< { item: { id: number; title: string }; title: string } | null >(
-		null
-	);
+	// Rename form
+	const { renameFormItem, openRenameModal, closeRenameModal, handleRename } = useRenameForm();
 	const { saveEntityRecord, deleteEntityRecord } = useDispatch( coreDataStore ) as {
 		saveEntityRecord: (
 			kind: string,
@@ -179,52 +176,6 @@ export default function usePageHeaderDetails(
 		const rendered = formRecord?.title?.rendered || '';
 		return decodeEntities( rendered );
 	}, [ formRecord?.title?.rendered ] );
-
-	const closeRenameModal = useCallback( () => {
-		setRenameFormItem( null );
-		renameRetryRef.current = null;
-	}, [] );
-
-	const handleRename = useCallback(
-		async ( newTitle: string ) => {
-			if ( ! renameFormItem ) {
-				return;
-			}
-			try {
-				await saveEntityRecord(
-					'postType',
-					FORM_POST_TYPE,
-					{
-						id: renameFormItem.id,
-						title: newTitle,
-					},
-					{ throwOnError: true }
-				);
-
-				createSuccessNotice( __( 'Form renamed.', 'jetpack-forms' ), { type: 'snackbar' } );
-				renameRetryRef.current = null;
-			} catch ( error ) {
-				const retryItem = renameFormItem;
-				const retryTitle = newTitle;
-
-				createErrorNotice( __( 'Failed to rename form.', 'jetpack-forms' ), {
-					type: 'snackbar',
-					actions: [
-						{
-							label: __( 'Retry', 'jetpack-forms' ),
-							onClick: () => {
-								renameRetryRef.current = { item: retryItem, title: retryTitle };
-								setRenameFormItem( retryItem );
-							},
-						},
-					],
-				} );
-				// eslint-disable-next-line no-console
-				console.error( 'Failed to rename form:', error );
-			}
-		},
-		[ renameFormItem, saveEntityRecord, createSuccessNotice, createErrorNotice ]
-	);
 
 	const trashForm = useCallback(
 		async ( item: { id: number } ) => {
@@ -381,22 +332,34 @@ export default function usePageHeaderDetails(
 		isUpdatingStatus,
 	} = useFormItemActions();
 
+	const trackAction = useCallback( ( eventName: string, source = 'form_header' ) => {
+		jetpackAnalytics.tracks.recordEvent( eventName, {
+			source,
+		} );
+	}, [] );
+
 	const formItemControls = useMemo( () => {
 		if ( ! sourceIdNumber ) {
 			return [];
 		}
 
-		const formItem = { id: sourceIdNumber, title: formTitle };
+		const formItem = { id: sourceIdNumber, title: formTitle, status: formRecord?.status };
 
 		if ( formRecord?.status === 'trash' ) {
 			return [
 				{
 					title: __( 'Restore', 'jetpack-forms' ),
-					onClick: () => restoreForm( formItem ),
+					onClick: () => {
+						trackAction( 'jetpack_forms_form_restore_click' );
+						restoreForm( formItem );
+					},
 				},
 				{
 					title: __( 'Delete permanently', 'jetpack-forms' ),
-					onClick: () => openPermanentDeleteConfirm( formItem ),
+					onClick: () => {
+						trackAction( 'jetpack_forms_form_delete_permanently_click' );
+						openPermanentDeleteConfirm( formItem );
+					},
 				},
 			];
 		}
@@ -404,7 +367,10 @@ export default function usePageHeaderDetails(
 		const controls: Array< { title: string; onClick: () => void } > = [
 			{
 				title: __( 'Preview', 'jetpack-forms' ),
-				onClick: () => previewForm( formItem ),
+				onClick: () => {
+					trackAction( 'jetpack_forms_form_preview_click' );
+					previewForm( formItem );
+				},
 			},
 		];
 
@@ -412,11 +378,17 @@ export default function usePageHeaderDetails(
 			controls.push(
 				{
 					title: __( 'Copy embed', 'jetpack-forms' ),
-					onClick: () => copyEmbed( formItem ),
+					onClick: () => {
+						trackAction( 'jetpack_forms_form_copy_embed_click' );
+						copyEmbed( formItem );
+					},
 				},
 				{
 					title: __( 'Copy shortcode', 'jetpack-forms' ),
-					onClick: () => copyShortcode( formItem ),
+					onClick: () => {
+						trackAction( 'jetpack_forms_form_copy_shortcode_click' );
+						copyShortcode( formItem );
+					},
 				}
 			);
 		}
@@ -426,6 +398,7 @@ export default function usePageHeaderDetails(
 				title: __( 'Unpublish', 'jetpack-forms' ),
 				onClick: () => {
 					if ( ! isUpdatingStatus ) {
+						trackAction( 'jetpack_forms_form_unpublish_click' );
 						setFormsToDraft( [ formItem ] );
 					}
 				},
@@ -435,6 +408,7 @@ export default function usePageHeaderDetails(
 				title: __( 'Publish', 'jetpack-forms' ),
 				onClick: () => {
 					if ( ! isUpdatingStatus ) {
+						trackAction( 'jetpack_forms_form_publish_click' );
 						publishForms( [ formItem ] );
 					}
 				},
@@ -444,15 +418,24 @@ export default function usePageHeaderDetails(
 		controls.push(
 			{
 				title: __( 'Rename', 'jetpack-forms' ),
-				onClick: () => setRenameFormItem( formItem ),
+				onClick: () => {
+					trackAction( 'jetpack_forms_form_rename_click' );
+					openRenameModal( formItem );
+				},
 			},
 			{
 				title: __( 'Duplicate', 'jetpack-forms' ),
-				onClick: () => duplicateForm( formItem ),
+				onClick: () => {
+					trackAction( 'jetpack_forms_form_duplicate_click' );
+					duplicateForm( formItem );
+				},
 			},
 			{
 				title: __( 'Trash', 'jetpack-forms' ),
-				onClick: () => trashForm( formItem ),
+				onClick: () => {
+					trackAction( 'jetpack_forms_form_trash_click' );
+					trashForm( formItem );
+				},
 			}
 		);
 
@@ -471,6 +454,8 @@ export default function usePageHeaderDetails(
 		previewForm,
 		setFormsToDraft,
 		sourceIdNumber,
+		openRenameModal,
+		trackAction,
 	] );
 
 	const WrapWithJetpackLogo = ( { children }: { children: ReactNode } ) => (
@@ -544,6 +529,19 @@ export default function usePageHeaderDetails(
 		return __( 'View and manage all your form responses in one place.', 'jetpack-forms' );
 	}, [ formTitle, isFormsScreen, isSingleFormScreen, onOpenFormsHelp, hasClassicForms ] );
 
+	const trackEditFormClick = useCallback(
+		() => trackAction( 'jetpack_forms_form_edit_form_click' ),
+		[ trackAction ]
+	);
+	const trackExportClick = useCallback(
+		() => trackAction( 'jetpack_forms_form_export_click' ),
+		[ trackAction ]
+	);
+	const trackExportClickResponsesList = useCallback(
+		() => trackAction( 'jetpack_forms_form_export_click', 'responses_list' ),
+		[ trackAction ]
+	);
+
 	const actions = useMemo( () => {
 		// Mobile: show dropdown menu with actions
 		if ( isSm ) {
@@ -567,13 +565,17 @@ export default function usePageHeaderDetails(
 				if ( statusView === 'inbox' && sourceIdNumber ) {
 					dropdownControls.push( {
 						onClick: () => {
+							trackAction( 'jetpack_forms_form_edit_form_click' );
 							window.location.href = getFormEditUrl( sourceIdNumber, adminUrl );
 						},
 						title: __( 'Edit form', 'jetpack-forms' ),
 					} );
 				}
 				dropdownControls.push( {
-					onClick: openExportModal,
+					onClick: () => {
+						trackAction( 'jetpack_forms_form_export_click' );
+						openExportModal();
+					},
 					title: exportLabel,
 					isDisabled: ! hasResponses,
 				} );
@@ -612,7 +614,10 @@ export default function usePageHeaderDetails(
 				}
 
 				dropdownControls.push( {
-					onClick: openExportModal,
+					onClick: () => {
+						trackAction( 'jetpack_forms_form_export_click', 'responses_list' );
+						openExportModal();
+					},
 					title: exportLabel,
 					isDisabled: ! hasResponses,
 				} );
@@ -703,7 +708,7 @@ export default function usePageHeaderDetails(
 								onClose={ closeRenameModal }
 								onSave={ handleRename }
 								title={ __( 'Rename form', 'jetpack-forms' ) }
-								initialValue={ renameRetryRef.current?.title || renameFormItem?.title || '' }
+								initialValue={ renameFormItem?.title || '' }
 							/>,
 					  ]
 					: [] ),
@@ -742,12 +747,19 @@ export default function usePageHeaderDetails(
 		if ( isSingleFormScreen ) {
 			return [
 				...( sourceIdNumber && formStatus !== 'trash'
-					? [ <EditFormButton key="edit-form" formId={ sourceIdNumber } /> ]
+					? [
+							<EditFormButton
+								key="edit-form"
+								formId={ sourceIdNumber }
+								onClick={ trackEditFormClick }
+							/>,
+					  ]
 					: [] ),
 				<ExportResponsesButton
 					key="export"
 					isPrimary={ statusView === 'inbox' }
 					showIcon={ false }
+					onClick={ trackExportClick }
 				/>,
 				...( statusView === 'trash' ? [ <EmptyTrashButton key="empty-trash" /> ] : [] ),
 				...( statusView === 'spam' ? [ <EmptySpamButton key="empty-spam" /> ] : [] ),
@@ -770,7 +782,7 @@ export default function usePageHeaderDetails(
 								onClose={ closeRenameModal }
 								onSave={ handleRename }
 								title={ __( 'Rename form', 'jetpack-forms' ) }
-								initialValue={ renameRetryRef.current?.title || renameFormItem?.title || '' }
+								initialValue={ renameFormItem?.title || '' }
 							/>,
 					  ]
 					: [] ),
@@ -816,6 +828,7 @@ export default function usePageHeaderDetails(
 				key="export"
 				isPrimary={ statusView === 'inbox' }
 				showIcon={ false }
+				onClick={ trackExportClickResponsesList }
 			/>,
 			...( statusView === 'trash' ? [ <EmptyTrashButton key="empty-trash" /> ] : [] ),
 			...( statusView === 'spam' ? [ <EmptySpamButton key="empty-spam" /> ] : [] ),
@@ -865,6 +878,10 @@ export default function usePageHeaderDetails(
 		closePermanentDeleteConfirm,
 		confirmPermanentDelete,
 		formStatus,
+		trackAction,
+		trackEditFormClick,
+		trackExportClick,
+		trackExportClickResponsesList,
 	] );
 
 	return { ariaLabel, breadcrumbs, title, badges, subtitle, actions };

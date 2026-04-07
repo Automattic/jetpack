@@ -3,13 +3,14 @@
  */
 import analytics from '@automattic/jetpack-analytics';
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { getSiteType } from '@automattic/jetpack-script-data';
+import { getSiteType, isSimpleSite } from '@automattic/jetpack-script-data';
 import {
 	Card,
 	CardHeader,
 	CardBody,
 	CardFooter,
 	ExternalLink,
+	ToggleControl,
 	__experimentalHeading as Heading, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
 import { DataForm, type Field } from '@wordpress/dataviews/wp';
@@ -63,15 +64,52 @@ export function NewsletterSection( { data, onChange }: NewsletterSectionProps ):
 	}, [ siteType ] );
 
 	const fields: Field< NewsletterSettings >[] = [
+		...( ! isSimpleSite()
+			? [
+					{
+						id: 'subscriptions',
+						label: __(
+							'Let visitors subscribe to this site and receive emails when you publish a post',
+							'jetpack-newsletter'
+						),
+						type: 'boolean' as const,
+						Edit: 'toggle' as const,
+					},
+			  ]
+			: [] ),
 		{
-			id: 'subscriptions',
-			label: __(
-				'Let visitors subscribe to this site and receive emails when you publish a post',
+			id: 'wpcom_newsletter_send_default',
+			label: __( 'Email new posts to subscribers by default', 'jetpack-newsletter' ),
+			type: 'boolean' as const,
+			Edit( { field, onChange: onChangeField, data: formData } ) {
+				const handleToggle = useCallback( () => {
+					onChangeField(
+						field.setValue( {
+							item: formData,
+							value: ! field.getValue( { item: formData } ),
+						} )
+					);
+				}, [ onChangeField, field, formData ] );
+				return (
+					<ToggleControl
+						label={ field.label }
+						help={ field.description }
+						checked={ !! field.getValue( { item: formData } ) }
+						onChange={ handleToggle }
+						disabled={ ! isSimpleSite() && ! formData.subscriptions }
+					/>
+				);
+			},
+			description: __(
+				'When on, the newsletter option will be pre-selected each time you publish. You can change it in the newsletter panel in the editor before publishing any post.',
 				'jetpack-newsletter'
 			),
-			type: 'boolean' as const,
-			Edit: 'toggle' as const,
 		},
+	];
+
+	const formFields = [
+		...( ! isSimpleSite() ? [ 'subscriptions' ] : [] ),
+		'wpcom_newsletter_send_default',
 	];
 
 	return (
@@ -88,27 +126,25 @@ export function NewsletterSection( { data, onChange }: NewsletterSectionProps ):
 							type: 'regular',
 							labelPosition: 'top',
 						},
-						fields: [ 'subscriptions' ],
+						fields: formFields,
 					} }
 					onChange={ handleChange }
 				/>
-				{ data.subscriptions && newsletterScriptData && (
-					<div>
-						<ExternalLink
-							href={ newsletterScriptData.subscriberManagementUrl }
-							onClick={ handleManageSubscribersClick }
-						>
-							{ __( 'Manage all subscribers', 'jetpack-newsletter' ) }
-						</ExternalLink>
-					</div>
-				) }
 			</CardBody>
-			<CardFooter>
+			<CardFooter className="newsletter-card-footer">
 				<ExternalLink
 					href={ getRedirectUrl( 'jetpack-support-subscriptions', { anchor: 'privacy' } ) }
 				>
 					{ __( 'Privacy information', 'jetpack-newsletter' ) }
 				</ExternalLink>
+				{ data.subscriptions && newsletterScriptData && (
+					<ExternalLink
+						href={ newsletterScriptData.subscriberManagementUrl }
+						onClick={ handleManageSubscribersClick }
+					>
+						{ __( 'Manage all subscribers', 'jetpack-newsletter' ) }
+					</ExternalLink>
+				) }
 			</CardFooter>
 		</Card>
 	);

@@ -166,12 +166,9 @@ See the `feature-documentation.mdx.template` for the complete section structure.
 
 Only include this section if the chart supports legends. Remove this section entirely if the chart has no legend capabilities.
 
-Document legend features including:
+Show a single basic example using the composition API (`<[Component].Legend />`), then link to the Legend component docs for full configuration (positioning, orientation, shapes, interactivity, etc.). Do not duplicate legend configuration details in each chart's docs — the Legend component docs are the single source of truth.
 
-- **Basic Legend**: How to enable with `showLegend`, orientation, alignment, and position props
-- **Custom Legend Shapes**: Shape options and custom glyphs if supported
-- **Composition API**: Using `<[Component].Legend />` as a child component for flexible positioning, if supported
-- **Interactive Legends**: Toggling series visibility with `legendInteractive`, requirements (`GlobalChartsProvider`, `chartId`), keyboard support, and visual feedback
+If the chart has a chart-specific legend prop not covered by the Legend component (e.g. `legendLabels` on LeaderboardChart), include a brief example for that prop.
 
 See the `feature-documentation.mdx.template` for the complete section structure.
 

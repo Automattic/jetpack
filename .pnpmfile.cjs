@@ -164,14 +164,22 @@ async function fixDeps( pkg ) {
 		}
 	}
 
-	// Outdated dependencies
+	// @wordpress/stylelint-config is still CJS, which caps how high we can upgrade.
 	if ( pkg.name === '@wordpress/stylelint-config' ) {
-		for ( const field of [ 'dependencies', 'peerDependencies' ] ) {
-			for ( const [ dep, ver ] of Object.entries( pkg[ field ] ?? {} ) ) {
-				if ( dep.startsWith( 'stylelint' ) || dep === '@stylistic/stylelint-plugin' ) {
-					pkg[ field ][ dep ] = ver.replace( /^(?:\^|>=)?/, '>=' );
-				}
-			}
+		if ( pkg.dependencies?.[ '@stylistic/stylelint-plugin' ]?.startsWith( '^3.' ) ) {
+			pkg.dependencies[ '@stylistic/stylelint-plugin' ] = '^5';
+		}
+		if ( pkg.dependencies?.[ 'stylelint-config-recommended' ]?.startsWith( '^14.' ) ) {
+			pkg.dependencies[ 'stylelint-config-recommended' ] = '^17'; // 18 is ESM
+		}
+		if ( pkg.dependencies?.[ 'stylelint-config-recommended-scss' ]?.startsWith( '^14.' ) ) {
+			pkg.dependencies[ 'stylelint-config-recommended-scss' ] = '^16'; // 17 is ESM
+		}
+		if ( pkg.peerDependencies?.stylelint?.startsWith( '^16.' ) ) {
+			pkg.peerDependencies.stylelint = '^17';
+		}
+		if ( pkg.peerDependencies?.[ 'stylelint-scss' ]?.startsWith( '^6.' ) ) {
+			pkg.peerDependencies[ 'stylelint-scss' ] = '^7';
 		}
 	}
 	if ( pkg.name === '@wordpress/theme' && pkg.peerDependencies?.stylelint ) {
@@ -251,15 +259,6 @@ async function fixDeps( pkg ) {
 		pkg.dependencies[ '@xmldom/xmldom' ] = '^0.9';
 	}
 
-	// Outdated, deprecated dependency.
-	// https://github.com/hipstersmoothie/react-docgen-typescript-plugin/issues/93
-	if (
-		pkg.name === '@storybook/react-docgen-typescript-plugin' &&
-		pkg.dependencies?.[ 'flat-cache' ] === '^3.0.4'
-	) {
-		pkg.dependencies[ 'flat-cache' ] = '^4';
-	}
-
 	// Dependency on "latest" makes for many spurious updates. Leave it for the lockfile maintenance PRs.
 	// No upstream evident to report bugs to.
 	if ( pkg.name === '@paulirish/trace_engine' ) {
@@ -286,6 +285,14 @@ async function fixDeps( pkg ) {
 		pkg.dependencies?.undici?.startsWith( '^5.' )
 	) {
 		pkg.dependencies.undici = '^6.23.0';
+	}
+
+	// Outdated dependency
+	if (
+		pkg.name === '@storybook/react-vite' &&
+		pkg.dependencies?.[ '@joshwooding/vite-plugin-react-docgen-typescript' ] === '^0.6.4'
+	) {
+		pkg.dependencies[ '@joshwooding/vite-plugin-react-docgen-typescript' ] = '^0.7.0';
 	}
 
 	return pkg;
@@ -347,15 +354,35 @@ function fixPeerDeps( pkg ) {
 	// Outdated peer dependency because Gutenberg is still on node 20.
 	if (
 		pkg.name === '@wordpress/e2e-test-utils-playwright' &&
-		pkg.peerDependencies?.[ '@types/node' ]?.startsWith( '^20.' )
+		! pkg.peerDependencies?.[ '@types/node' ]?.includes( '^24.' )
 	) {
-		pkg.peerDependencies[ '@types/node' ] += ' || ^22.0.0';
+		pkg.peerDependencies[ '@types/node' ] += ' || ^24.0.0';
+	}
+
+	// Outdated dependency because Calypso is still on node 22.
+	if (
+		pkg.name === '@automattic/calypso-config' &&
+		! pkg.dependencies?.[ '@types/node' ]?.includes( '^24.' )
+	) {
+		pkg.dependencies[ '@types/node' ] += ' || ^24.0.0';
 	}
 
 	// Should be an optional peer dep, but isn't.
 	// Since it already has a (non-optional 🙄) peer dep on sass-embedded, we can just delete the sass dep.
 	if ( pkg.name === 'esbuild-sass-plugin' && pkg.dependencies.sass ) {
 		delete pkg.dependencies.sass;
+	}
+
+	// These packages went ESM-only in their latest versions, which breaks `@wordpress/stylelint-config`.
+	// So we need to keep older CJS versions for now, while bumping their stylelint peer deps.
+	if (
+		( pkg.name === 'stylelint-config-recommended' ||
+			pkg.name === 'stylelint-config-recommended-scss' ||
+			pkg.name === '@stylistic/stylelint-plugin' ||
+			pkg.name === 'stylelint-scss' ) &&
+		pkg.peerDependencies?.stylelint?.startsWith( '^16.' )
+	) {
+		pkg.peerDependencies.stylelint = '^17';
 	}
 
 	// 0.x versions treat `^` like `~`. Replace with `>=`.

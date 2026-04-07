@@ -1,6 +1,6 @@
 import SpeedScore from '$features/speed-score/speed-score';
-import Footer from '$layout/footer/footer';
 import BoostAdminPage from '$layout/boost-admin-page/boost-admin-page';
+import { JetpackFooter } from '@automattic/jetpack-components';
 import Support from './support/support';
 import Tips from './tips/tips';
 import clsx from 'clsx';
@@ -38,7 +38,7 @@ const SettingsPage = ( { children }: SettingsPageProps ) => {
 
 						{ hasPrioritySupport && <Support /> }
 
-						<Footer />
+						<JetpackFooter />
 						<NoticeManager />
 					</div>
 				</BoostAdminPage>

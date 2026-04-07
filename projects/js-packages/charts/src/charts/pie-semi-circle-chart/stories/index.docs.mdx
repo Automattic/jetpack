@@ -16,6 +16,7 @@ The PieSemiCircleChart component renders data as segments in a semi-circular arc
 <Source
 	language="jsx"
 	code={ `import { PieSemiCircleChart } from '@automattic/charts';
+import '@automattic/charts/style.css';
 
 	const data = [
 		{
@@ -172,47 +173,20 @@ The chart gracefully handles single data points, rendering a complete semi-circl
 	/>` }
 />
 
-## Legend Integration
+## Legends
 
-### Legend Positioning
+Use the composition API to add a legend by placing `<PieSemiCircleChart.Legend />` as a child:
 
-Control legend placement using alignment properties:
-
-<Source
-	language="jsx"
-	code={ `// Legend at top-right
-	<PieSemiCircleChart
-		data={ data }
-		showLegend={ true }
-		legend={{
-			alignment: 'end',
-			position: 'top',
-		}}
-	/>
-
-	// Vertical legend on the right
-	<PieSemiCircleChart
-		data={ data }
-		showLegend={ true }
-		legend={{
-			orientation: 'vertical',
-			alignment: 'end',
-		}}
-	/>` }
-/>
-
-### Legend Shape Options
-
-Customize legend indicators with different shapes:
+<Canvas of={ PieSemiCircleChartStories.WithCompositionLegend } />
 
 <Source
 	language="jsx"
-	code={ `<PieSemiCircleChart
-	data={ data }
-	showLegend={ true }
-	legend={{ shape: 'rect' }} // Options: 'rect', 'circle', 'line'
-/>` }
+	code={ `<PieSemiCircleChart data={ data }>
+		<PieSemiCircleChart.Legend />
+	</PieSemiCircleChart>` }
 />
+
+For full legend configuration options — positioning, orientation, shapes, interactivity, and the composition API — see the [Legend component docs](./?path=/docs/js-packages-charts-library-components-legend--docs).
 
 ## Styling and Customization
 

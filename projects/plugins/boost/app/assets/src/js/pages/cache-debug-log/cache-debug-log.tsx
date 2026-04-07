@@ -1,9 +1,8 @@
 import { __ } from '@wordpress/i18n';
 import BoostAdminPage from '$layout/boost-admin-page/boost-admin-page';
-import Footer from '$layout/footer/footer';
 import styles from './cache-debug-log.module.scss';
 import clsx from 'clsx';
-import { CopyToClipboard, JetpackLogo } from '@automattic/jetpack-components';
+import { CopyToClipboard, JetpackFooter, JetpackLogo } from '@automattic/jetpack-components';
 import { useDebugLog } from '$features/page-cache/lib/stores';
 import { useNavigate } from 'react-router';
 import { recordBoostEvent } from '$lib/utils/analytics';
@@ -53,6 +52,7 @@ const CacheDebugLog = () => {
 			<div id="jb-dashboard" className="jb-dashboard jb-dashboard--main">
 				<div className={ clsx( 'jb-section jb-section--main', styles.section ) }>
 					<div className="jb-container">
+						<div id="jp-admin-notices" className="jetpack-boost-jitm-card" />
 						<header className={ styles.header }>
 							<h3>{ __( 'Jetpack Boost Cache Log Viewer', 'jetpack-boost' ) }</h3>
 							<CopyToClipboard
@@ -69,7 +69,7 @@ const CacheDebugLog = () => {
 						<pre className={ styles[ 'log-text' ] }>{ debugLog }</pre>
 					</div>
 				</div>
-				<Footer />
+				<JetpackFooter />
 			</div>
 		</BoostAdminPage>
 	);

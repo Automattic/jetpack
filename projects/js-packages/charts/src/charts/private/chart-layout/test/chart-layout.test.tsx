@@ -128,16 +128,6 @@ describe( 'ChartLayout', () => {
 		expect( screen.getByTestId( 'layout' ) ).toBeInTheDocument();
 	} );
 
-	it( 'forwards ref to Stack', () => {
-		const ref = jest.fn();
-		render(
-			<ChartLayout ref={ ref } legendPosition="bottom" legendChildren={ [] }>
-				<div>Chart</div>
-			</ChartLayout>
-		);
-		expect( ref ).toHaveBeenCalledWith( expect.any( HTMLElement ) );
-	} );
-
 	it( 'calls function-as-children with measurement props', () => {
 		const childFn = jest.fn().mockReturnValue( <div data-testid="chart-content">Chart</div> );
 

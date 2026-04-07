@@ -496,6 +496,104 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Test that the built boot module asset file only contains script handles
+	 * that are registered by WordPress Core or polyfilled by this package.
+	 *
+	 * This prevents silent runtime failures where WordPress skips printing
+	 * the entire prerequisites script because a dependency handle is missing.
+	 */
+	public function test_boot_asset_has_no_unregistered_handles() {
+		$asset_file = dirname( __DIR__, 2 ) . '/build/modules/boot/index.asset.php';
+
+		if ( ! file_exists( $asset_file ) ) {
+			$this->markTestSkipped( 'Boot asset file not found — run `pnpm run build` first.' );
+		}
+
+		$asset = require $asset_file;
+		$this->assertIsArray( $asset, 'Asset file should return an array.' );
+		$this->assertArrayHasKey( 'dependencies', $asset, 'Asset file should have a dependencies key.' );
+
+		// Script handles registered by WordPress Core (wp_default_scripts).
+		$core_handles = array(
+			'react',
+			'react-dom',
+			'react-jsx-runtime',
+			'wp-a11y',
+			'wp-api-fetch',
+			'wp-blob',
+			'wp-block-directory',
+			'wp-block-editor',
+			'wp-block-library',
+			'wp-block-serialization-default-parser',
+			'wp-blocks',
+			'wp-commands',
+			'wp-components',
+			'wp-compose',
+			'wp-core-data',
+			'wp-customize-widgets',
+			'wp-data',
+			'wp-data-controls',
+			'wp-date',
+			'wp-deprecated',
+			'wp-dom',
+			'wp-dom-ready',
+			'wp-edit-post',
+			'wp-edit-site',
+			'wp-edit-widgets',
+			'wp-editor',
+			'wp-element',
+			'wp-escape-html',
+			'wp-format-library',
+			'wp-hooks',
+			'wp-html-entities',
+			'wp-i18n',
+			'wp-is-shallow-equal',
+			'wp-keyboard-shortcuts',
+			'wp-keycodes',
+			'wp-list-reusable-blocks',
+			'wp-media-utils',
+			'wp-notices',
+			'wp-nux',
+			'wp-plugins',
+			'wp-preferences',
+			'wp-preferences-persistence',
+			'wp-primitives',
+			'wp-priority-queue',
+			'wp-private-apis',
+			'wp-redux-routine',
+			'wp-reusable-blocks',
+			'wp-rich-text',
+			'wp-server-side-render',
+			'wp-shortcode',
+			'wp-style-engine',
+			'wp-token-list',
+			'wp-url',
+			'wp-viewport',
+			'wp-warning',
+			'wp-widgets',
+			'wp-wordcount',
+		);
+
+		// Handles polyfilled by this package.
+		$polyfill_handles = WP_Build_Polyfills::SCRIPT_HANDLES;
+
+		$known_handles = array_merge( $core_handles, $polyfill_handles );
+
+		$unknown = array_diff( $asset['dependencies'], $known_handles );
+		if ( ! empty( $unknown ) ) {
+			$this->fail(
+				sprintf(
+					"Boot module asset file contains unregistered script handle(s): %s.\n" .
+					"This will cause a silent failure at runtime (blank page, no errors).\n" .
+					'Add the corresponding @wordpress/* package to devDependencies in ' .
+					'projects/packages/wp-build-polyfills/package.json so webpack bundles it.',
+					implode( ', ', $unknown )
+				)
+			);
+		}
+	}
+
+	/**
 	 * Test that only requested polyfills are registered.
 	 */
 	public function test_register_scripts_only_registers_requested_handles() {

@@ -16,6 +16,7 @@ The Leaderboard Chart component provides a clean, responsive visualization for d
 <Source
 	language="tsx"
 	code={ `import { LeaderboardChart } from '@automattic/charts';
+import '@automattic/charts/style.css';
 
 	<LeaderboardChart
 		data={data}
@@ -316,26 +317,20 @@ Calculate the `currentShare` and `previousShare` values to determine bar widths:
 
 ## Legends
 
-### Basic Legend
+Use the composition API to add a legend by placing `<LeaderboardChart.Legend />` as a child:
 
-Display a legend to help users understand the data visualization:
-
-<Canvas of={ LeaderboardChartStories.WithLegend } />
+<Canvas of={ LeaderboardChartStories.WithCompositionLegend } />
 
 <Source
 	language="tsx"
-	code={ `<LeaderboardChart
-		data={data}
-		withComparison={true}
-		showLegend={true}
-	/>` }
+	code={ `<LeaderboardChart data={data} withComparison={true}>
+		<LeaderboardChart.Legend />
+	</LeaderboardChart>` }
 />
 
-### Custom Legend Labels
+Use `legendLabels` to show descriptive labels (e.g. date ranges) for the primary and comparison series:
 
-Customize legend labels with specific date ranges or descriptive text:
-
-<Canvas of={ LeaderboardChartStories.CustomLegendLabels } />
+<Canvas of={ LeaderboardChartStories.WithLegendLabels } />
 
 <Source
 	language="tsx"
@@ -350,25 +345,7 @@ Customize legend labels with specific date ranges or descriptive text:
 	/>` }
 />
 
-### Composition API Legend
-
-Use the composition API for explicit legend placement:
-
-<Canvas of={ LeaderboardChartStories.WithCompositionLegend } />
-
-### Interactive Legends
-
-Enable interactive legend items to toggle visibility of current and comparison series:
-
-<Canvas of={ LeaderboardChartStories.InteractiveLegend } />
-
-**Legend Configuration Options:**
-- Control legend positioning, alignment, and visual appearance
-- Customize legend shapes and sizes
-- Add custom labels for different time periods or data series
-- Control legend/content spacing with the chart-level `gap` prop
-
-See the [API Reference](./?path=/docs/js-packages-charts-library-charts-leaderboard-chart-api-reference--docs) for detailed prop information.
+For full legend configuration options — positioning, orientation, shapes, interactivity, and the composition API — see the [Legend component docs](./?path=/docs/js-packages-charts-library-components-legend--docs).
 
 ## Styling and Customization
 

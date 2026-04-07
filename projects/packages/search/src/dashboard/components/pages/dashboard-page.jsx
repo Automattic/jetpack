@@ -7,7 +7,6 @@ import {
 	getProductCheckoutUrl,
 } from '@automattic/jetpack-components';
 import { useConnectionErrorNotice, ConnectionError } from '@automattic/jetpack-connection';
-import { shouldUseInternalLinks } from '@automattic/jetpack-shared-extension-utils';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import NoticesList from 'components/global-notices';
@@ -33,6 +32,8 @@ export default function DashboardPage( { isLoading = false } ) {
 	useSelect( select => select( STORE_ID ).getSearchModuleStatus(), [] );
 	useSelect( select => select( STORE_ID ).getSearchStats(), [] );
 
+	const apiRoot = useSelect( select => select( STORE_ID ).getAPIRootUrl() );
+	const apiNonce = useSelect( select => select( STORE_ID ).getAPINonce() );
 	const domain = useSelect( select => select( STORE_ID ).getCalypsoSlug() );
 	const blogID = useSelect( select => select( STORE_ID ).getBlogId() );
 	const siteAdminUrl = useSelect( select => select( STORE_ID ).getSiteAdminUrl() );
@@ -106,40 +107,51 @@ export default function DashboardPage( { isLoading = false } ) {
 	};
 
 	return (
-		<>
-			{ isPageLoading && <Loading /> }
-			{ ! isPageLoading && (
-				<div className="jp-search-dashboard-page">
-					<AdminPage
-						title={ 'Search' /** "Search" is a product name, do not translate. */ }
-						subTitle={ __(
-							'Help your visitors find exactly what they are looking for.',
-							'jetpack-search-pkg'
-						) }
-						actions={
-							( ( isNewPricing && isFreePlan ) || ! supportsInstantSearch ) && (
-								<Button variant="link" onClick={ sendPaidPlanToCart }>
-									{ __( 'Upgrade Jetpack Search', 'jetpack-search-pkg' ) }
-								</Button>
-							)
-						}
-						className="uses-new-admin-ui"
-						showFooter={ false }
-					>
-						<Container horizontalSpacing={ 0 } horizontalGap={ 3 }>
-							{ hasConnectionError && (
-								<Col lg={ 12 } md={ 12 } sm={ 12 }>
-									<ConnectionError />
-								</Col>
-							) }
-							<Col>
-								<div id="jp-admin-notices" className="jetpack-search-jitm-card" />
-							</Col>
-						</Container>
-						<MockedSearchInterface
+		<div className="jp-search-dashboard-page">
+			<AdminPage
+				title={ 'Search' /** "Search" is a product name, do not translate. */ }
+				subTitle={ __(
+					'Help your visitors find exactly what they are looking for.',
+					'jetpack-search-pkg'
+				) }
+				actions={
+					! isPageLoading &&
+					( ( isNewPricing && isFreePlan ) || ! supportsInstantSearch ) && (
+						<Button size="compact" variant="link" onClick={ sendPaidPlanToCart }>
+							{ __( 'Upgrade Jetpack Search', 'jetpack-search-pkg' ) }
+						</Button>
+					)
+				}
+				apiRoot={ apiRoot }
+				apiNonce={ apiNonce }
+				className="uses-new-admin-ui"
+				showFooter={ false }
+			>
+				<div className="jp-search-dashboard-top jp-search-dashboard-wrap">
+					{ /* Always in the DOM so JITM JS finds it immediately (Path A). */ }
+					<div className="jp-search-dashboard-row">
+						<div
+							id="jp-admin-notices"
+							className="jetpack-search-jitm-card sm-col-span-4 md-col-span-8 lg-col-span-12"
+						/>
+					</div>
+					{ isPageLoading && <Loading /> }
+					{ ! isPageLoading && (
+						<MockedSearchContent
 							supportsInstantSearch={ supportsInstantSearch }
 							supportsOnlyClassicSearch={ supportsOnlyClassicSearch }
 						/>
+					) }
+				</div>
+				{ ! isPageLoading && (
+					<>
+						{ hasConnectionError && (
+							<Container horizontalSpacing={ 0 } horizontalGap={ 3 }>
+								<Col lg={ 12 } md={ 12 } sm={ 12 }>
+									<ConnectionError />
+								</Col>
+							</Container>
+						) }
 						{ isNewPricing && supportsInstantSearch && (
 							<PlanInfo
 								hasIndex={ postCount !== 0 }
@@ -174,15 +186,15 @@ export default function DashboardPage( { isLoading = false } ) {
 								isTogglingInstantSearch={ isTogglingInstantSearch }
 							/>
 						</div>
-						<Footer />
+						<JetpackFooter />
 						<NoticesList
 							notices={ notices }
 							handleLocalNoticeDismissClick={ handleLocalNoticeDismissClick }
 						/>
-					</AdminPage>
-				</div>
-			) }
-		</>
+					</>
+				) }
+			</AdminPage>
+		</div>
 	);
 }
 
@@ -222,9 +234,9 @@ const PlanInfo = ( { hasIndex, recordMeterInfo, isFreePlan, sendPaidPlanToCart }
 	);
 };
 
-const MockedSearchInterface = ( { supportsInstantSearch, supportsOnlyClassicSearch } ) => {
+const MockedSearchContent = ( { supportsInstantSearch, supportsOnlyClassicSearch } ) => {
 	return (
-		<div className="jp-search-dashboard-top jp-search-dashboard-wrap">
+		<>
 			<div className="jp-search-dashboard-row">
 				<div className="jp-search-dashboard-top__title lg-col-span-6 md-col-span-7 sm-col-span-4">
 					<h1>
@@ -244,19 +256,6 @@ const MockedSearchInterface = ( { supportsInstantSearch, supportsOnlyClassicSear
 					/>
 				</div>
 			</div>
-		</div>
-	);
-};
-
-const Footer = () => {
-	return (
-		<div className="jp-search-dashboard-footer jp-search-dashboard-wrap">
-			<div className="jp-search-dashboard-row">
-				<JetpackFooter
-					className="lg-col-span-12 md-col-span-8 sm-col-span-4"
-					useInternalLinks={ shouldUseInternalLinks() }
-				/>
-			</div>
-		</div>
+		</>
 	);
 };

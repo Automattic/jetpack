@@ -69,6 +69,8 @@ const SettingRow = ( {
  *
  * @return {object} The form block attributes, clientId, and whether it has fields.
  */
+const EMPTY_ATTRIBUTES: Record< string, unknown > = {};
+
 const useFormAttributes = () => {
 	return useSelect( select => {
 		const { getBlocks } = select( blockEditorStore ) as {
@@ -80,7 +82,7 @@ const useFormAttributes = () => {
 		const hasFields = formBlock?.innerBlocks?.length;
 
 		return {
-			attributes: ( formBlock?.attributes || {} ) as Record< string, unknown >,
+			attributes: ( formBlock?.attributes as Record< string, unknown > ) ?? EMPTY_ATTRIBUTES,
 			clientId: formBlock?.clientId || '',
 			hasFields,
 		};

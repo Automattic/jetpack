@@ -12,6 +12,7 @@ import connectionsThreads from '../../assets/connections-threads.webp';
 import connectionsTumblr from '../../assets/connections-tumblr.webp';
 import { ConnectionService } from '../../types';
 import { ServiceUiDetails } from './types';
+import { XNotice } from './x-notice';
 
 /**
  * Get the UI details for a given service.
@@ -240,14 +241,15 @@ export function getServiceUiDetails( id: ConnectionService[ 'id' ] ): ServiceUiD
 			return {
 				icon: props => <SocialServiceIcon serviceName="x" { ...props } />,
 				badges: [ badgeNew ],
-				description: __( 'Share posts to X.', 'jetpack-publicize-pkg' ),
+				description: __( 'Share with your X network.', 'jetpack-publicize-pkg' ),
 				examples: [
 					() => (
 						<>
 							{ __(
-								'Reach your audience by automatically sharing your posts to X when you publish.',
+								'You asked, we listened. You can share to X directly from your Jetpack site again.',
 								'jetpack-publicize-pkg'
 							) }
+							<XNotice />
 						</>
 					),
 				],

@@ -7,6 +7,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import { getEmbedCode, getShortcode } from '../../blocks/shared/util/embed-codes';
 import { CopyCodeRow } from './copy-code-row';
 
 export const EMBED_CODE_PANEL_PLUGIN = 'jetpack-form-embed-code-panel';
@@ -42,8 +43,8 @@ export const EmbedCodePanel = () => {
 		return null;
 	}
 
-	const embedCode = `<!-- wp:jetpack/contact-form {"ref":${ postId }} /-->`;
-	const shortcode = `[contact-form ref="${ postId }"]`;
+	const embedCode = getEmbedCode( postId );
+	const shortcode = getShortcode( postId );
 
 	return (
 		<PluginPostStatusInfo className="jetpack-form-embed-code">

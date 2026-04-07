@@ -10,6 +10,7 @@ import { store as noticesStore } from '@wordpress/notices';
  * Internal dependencies
  */
 import { FORM_POST_TYPE } from '../../../blocks/shared/util/constants.js';
+import { getEmbedCode, getShortcode } from '../../../blocks/shared/util/embed-codes';
 import { NON_TRASH_FORM_STATUSES } from '../../constants';
 import { getFormsListQuery } from '../../hooks/use-forms-data.ts';
 import useDuplicateForm from './use-duplicate-form';
@@ -73,7 +74,7 @@ export default function useFormItemActions(): UseFormItemActionsReturn {
 
 	const copyEmbed = useCallback(
 		async ( item: FormItem ) => {
-			const embedCode = `<!-- wp:jetpack/contact-form {"ref":${ item.id }} /-->`;
+			const embedCode = getEmbedCode( item.id );
 			try {
 				await navigator.clipboard.writeText( embedCode );
 				createSuccessNotice( __( 'Embed code copied to clipboard.', 'jetpack-forms' ), {
@@ -90,7 +91,7 @@ export default function useFormItemActions(): UseFormItemActionsReturn {
 
 	const copyShortcode = useCallback(
 		async ( item: FormItem ) => {
-			const shortcode = `[contact-form ref="${ item.id }"]`;
+			const shortcode = getShortcode( item.id );
 			try {
 				await navigator.clipboard.writeText( shortcode );
 				createSuccessNotice( __( 'Shortcode copied to clipboard.', 'jetpack-forms' ), {

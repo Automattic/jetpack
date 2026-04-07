@@ -10,7 +10,6 @@ import {
 	getRedirectUrl,
 	Notice,
 } from '@automattic/jetpack-components';
-import { shouldUseInternalLinks } from '@automattic/jetpack-shared-extension-utils';
 import { Button, Card, ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
@@ -59,8 +58,6 @@ export default function () {
 	const videoTitleForms = __( 'Build forms using prompts', 'jetpack-my-jetpack' );
 	const videoTitleContentFeedback = __( 'Get feedback on posts', 'jetpack-my-jetpack' );
 
-	const videoTitleBreve = __( 'Make your writing easy to read', 'jetpack-my-jetpack' );
-
 	debug( aiAssistantFeature );
 	const {
 		requestsCount: allTimeRequests = 0,
@@ -88,8 +85,6 @@ export default function () {
 	const videoLinkContentFeedback = getRedirectUrl(
 		'jetpack-ai-product-page-content-feedback-link'
 	);
-
-	const videoLinkBreve = getRedirectUrl( 'jetpack-ai-product-page-breve' );
 
 	// isRegistered works as a flag to know if the page can link to a post creation or not
 	const ctaURL = isRegistered
@@ -204,18 +199,8 @@ export default function () {
 		setShowNotice( showRenewalNotice || showUpgradeNotice );
 	}, [ showRenewalNotice, showUpgradeNotice ] );
 
-	const newBadge = (
-		<span className={ styles[ 'product-interstitial__new-badge' ] }>
-			{ __( 'New', 'jetpack-my-jetpack' ) }{ ' ' }
-		</span>
-	);
-
 	return (
-		<AdminPage
-			showHeader={ false }
-			showBackground={ true }
-			useInternalLinks={ shouldUseInternalLinks() }
-		>
+		<AdminPage showHeader={ false } showBackground={ true }>
 			<Container fluid horizontalSpacing={ 3 } horizontalGap={ 2 }>
 				<Col className={ clsx( styles[ 'product-interstitial__section' ] ) }>
 					<div className={ styles[ 'product-interstitial__section-wrapper-wide' ] }>
@@ -358,40 +343,6 @@ export default function () {
 							{ __( 'Discover all the Jetpack features powered by AI', 'jetpack-my-jetpack' ) }
 						</p>
 						<div className={ styles[ 'product-interstitial__usage-videos' ] }>
-							<div className={ styles[ 'product-interstitial__usage-videos-item' ] }>
-								<div className={ styles[ 'product-interstitial__usage-videos-video' ] }>
-									<iframe
-										width="280"
-										height="157"
-										src="https://videopress.com/embed/2OU6GCMs?posterUrl=https%3A%2F%2Fjetpackme.files.wordpress.com%2F2024%2F07%2Fjetpack-ai-breve-poster.png%3Fw%3D560"
-										allowFullScreen
-										allow="clipboard-write"
-										title={ videoTitleBreve }
-									></iframe>
-									<script src="https://videopress.com/videopress-iframe.js"></script>
-								</div>
-								<div className={ styles[ 'product-interstitial__usage-videos-content' ] }>
-									<div className={ styles[ 'product-interstitial__usage-videos-heading' ] }>
-										{ videoTitleBreve }
-										{ newBadge }
-									</div>
-									<div className={ styles[ 'product-interstitial__usage-videos-text' ] }>
-										{ __(
-											'Simplify your writing with AI suggestions to fix long sentences and complex words and sound more confident. As you type, check your Reading grade score to make sure it suits your audience.',
-											'jetpack-my-jetpack'
-										) }
-									</div>
-									<Button
-										className={ styles[ 'product-interstitial__usage-videos-link' ] }
-										icon={ help }
-										target="_blank"
-										href={ videoLinkBreve }
-									>
-										{ __( 'Learn more', 'jetpack-my-jetpack' ) }
-									</Button>
-								</div>
-							</div>
-
 							<div className={ styles[ 'product-interstitial__usage-videos-item' ] }>
 								<div className={ styles[ 'product-interstitial__usage-videos-video' ] }>
 									<iframe

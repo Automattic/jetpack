@@ -19,7 +19,7 @@ class WP_Build_Polyfills {
 	/**
 	 * Available polyfill handles for classic scripts.
 	 */
-	const SCRIPT_HANDLES = array( 'wp-notices', 'wp-private-apis', 'wp-theme' );
+	const SCRIPT_HANDLES = array( 'wp-notices', 'wp-private-apis', 'wp-theme', 'wp-views' );
 
 	/**
 	 * Available polyfill module IDs.
@@ -140,6 +140,9 @@ class WP_Build_Polyfills {
 			),
 			'wp-theme'        => array(
 				'path' => 'theme',
+			),
+			'wp-views'        => array(
+				'path' => 'views',
 			),
 		);
 

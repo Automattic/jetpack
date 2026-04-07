@@ -392,6 +392,27 @@ class Jetpack_Sync_Listener_Test extends Jetpack_Sync_TestBase {
 		$this->assertSame( 2, $transient_calls );
 	}
 
+	public function test_jetpack_sync_actor_data_filter() {
+		$user_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
+		wp_set_current_user( $user_id );
+		$queue = $this->listener->get_sync_queue();
+		$queue->reset();
+
+		$callback = function ( $actor ) {
+			$actor['client_name'] = '<script>xss</script>woo_ai';
+			return $actor;
+		};
+		add_filter( 'jetpack_sync_actor_data', $callback );
+		self::factory()->post->create();
+		remove_filter( 'jetpack_sync_actor_data', $callback );
+
+		$all = $queue->get_all();
+		$this->assertNotEmpty( $all );
+
+		$actor = $all[0]->value[5];
+		$this->assertEquals( 'woo_ai', $actor['client_name'] );
+	}
+
 	public function get_page_url() {
 		return 'http' . ( isset( $_SERVER['HTTPS'] ) ? 's' : '' ) . '://' . "{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}";
 	}

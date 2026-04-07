@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix Social Image Generator preview infinite spinner when the default background image has been deleted from the media library.

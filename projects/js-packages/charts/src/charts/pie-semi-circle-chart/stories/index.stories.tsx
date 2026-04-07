@@ -186,12 +186,12 @@ export const ErrorStates: Story = {
 			</div>
 
 			<div>
-				<h3>Zero Total Percentage</h3>
+				<h3>Zero Total Value</h3>
 				<PieSemiCircleChart
 					width={ 300 }
 					data={ [
-						{ label: 'A', value: 0, percentage: 0 },
-						{ label: 'B', value: 0, percentage: 0 },
+						{ label: 'A', value: 0 },
+						{ label: 'B', value: 0 },
 					] }
 				/>
 			</div>
@@ -201,18 +201,15 @@ export const ErrorStates: Story = {
 				<PieSemiCircleChart
 					width={ 300 }
 					data={ [
-						{ label: 'A', value: -30, percentage: -30 },
-						{ label: 'B', value: 130, percentage: 130 },
+						{ label: 'A', value: -30 },
+						{ label: 'B', value: 130 },
 					] }
 				/>
 			</div>
 
 			<div>
 				<h3>Single Data Point</h3>
-				<PieSemiCircleChart
-					height={ 300 }
-					data={ [ { label: 'Single Point', value: 100, percentage: 100 } ] }
-				/>
+				<PieSemiCircleChart height={ 300 } data={ [ { label: 'Single Point', value: 100 } ] } />
 			</div>
 		</div>
 	),

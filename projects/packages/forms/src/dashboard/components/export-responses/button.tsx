@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { Button } from '@wordpress/components';
+import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { download } from '@wordpress/icons';
 /**
@@ -16,9 +17,11 @@ import './style.scss';
 const ExportResponsesButton = ( {
 	isPrimary = false,
 	showIcon = true,
+	onClick: onClickProp,
 }: {
 	isPrimary?: boolean;
 	showIcon?: boolean;
+	onClick?: () => void;
 } ) => {
 	const {
 		showExportModal,
@@ -34,6 +37,11 @@ const ExportResponsesButton = ( {
 	const isEmpty = isLoadingData || totalItems === 0;
 	const isDisabled = isEmpty || userCanExport === false;
 
+	const handleClick = useCallback( () => {
+		onClickProp?.();
+		openModal();
+	}, [ onClickProp, openModal ] );
+
 	if ( userCanExport === false ) {
 		return null;
 	}
@@ -44,7 +52,7 @@ const ExportResponsesButton = ( {
 				size="compact"
 				variant={ isPrimary ? 'primary' : 'secondary' }
 				icon={ showIcon ? download : undefined }
-				onClick={ openModal }
+				onClick={ handleClick }
 				accessibleWhenDisabled
 				disabled={ isDisabled }
 				label={ isEmpty ? __( 'Nothing to export.', 'jetpack-forms' ) : '' }

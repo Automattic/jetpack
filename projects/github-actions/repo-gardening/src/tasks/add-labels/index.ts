@@ -1,4 +1,3 @@
-import { fileURLToPath } from 'url';
 import { getInput } from '@actions/core';
 import cleanName from '../../utils/clean-name.ts';
 import debug from '../../utils/debug.ts';
@@ -6,8 +5,6 @@ import getFiles from '../../utils/get-files.ts';
 import getAvailableLabels from '../../utils/labels/get-available-labels.ts';
 import getLabels from '../../utils/labels/get-labels.ts';
 import type { OctokitClient, PullRequestEvent } from '../../types.ts';
-
-const __filename = fileURLToPath( import.meta.url );
 
 /**
  * Build a list of labels to add to the pull request, based off our file list.
@@ -55,7 +52,7 @@ async function getFileDerivedLabels(
 				);
 				// Produce a GitHub error annotation pointing here.
 				const line = Number( err.stack?.split( '\n' )[ 1 ]?.split( ':' )[ 1 ] ) - 2;
-				debug( `::error file=${ __filename },line=${ line }::${ err.message }` );
+				debug( `::error file=${ import.meta.filename },line=${ line }::${ err.message }` );
 				throw err;
 			}
 			keywords.add( `[${ prefix }] ${ cleanName( project.groups.pname ) }` );

@@ -11,6 +11,7 @@ import {
 	userCanManageModules as _userCanManageModules,
 	userIsSubscriber as _userIsSubscriber,
 	userCanPublish,
+	isWpAdminNewsletterSettingsEnabled as _isWpAdminNewsletterSettingsEnabled,
 } from 'state/initial-state';
 import {
 	hasAnyOfTheseModules,
@@ -65,6 +66,7 @@ const SettingsNavTabs = props => {
 		hasPerformanceFeature,
 		hasModules,
 		isModuleActive,
+		isWpAdminNewsletterSettingsEnabled,
 		searchTerm,
 		searchForTerm,
 	} = props;
@@ -156,7 +158,7 @@ const SettingsNavTabs = props => {
 						onClick={ () => trackNavClick( 'traffic' ) }
 					/>
 				) }
-				{ hasModules( [ 'subscriptions' ] ) && (
+				{ hasModules( [ 'subscriptions' ] ) && ! isWpAdminNewsletterSettingsEnabled && (
 					<Tab
 						to="/newsletter"
 						label={ TAB_LABELS[ '/newsletter' ] }
@@ -267,6 +269,7 @@ export default connect(
 		hasPerformanceFeature: hasAnyPerformanceFeature( state ),
 		hasModules: modules => hasAnyOfTheseModules( state, modules ),
 		isModuleActive: module => isModuleActivated( state, module ),
+		isWpAdminNewsletterSettingsEnabled: _isWpAdminNewsletterSettingsEnabled( state ),
 		searchTerm: getSearchTerm( state ),
 	} ),
 	dispatch => ( {

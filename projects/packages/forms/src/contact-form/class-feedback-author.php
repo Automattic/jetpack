@@ -147,9 +147,14 @@ class Feedback_Author {
 		}
 
 		$hash = md5( strtolower( trim( $this->email ) ) );
-		$name = rawurlencode( $this->get_display_name() );
+		$name = $this->get_name();
 
-		return "https://gravatar.com/avatar/{$hash}?d=initials&name={$name}&s=96";
+		if ( empty( $name ) ) {
+			// Use the email prefix as a fallback for initials.
+			$name = strstr( $this->email, '@', true );
+		}
+
+		return "https://gravatar.com/avatar/{$hash}?d=initials&name=" . rawurlencode( $name ) . '&s=96';
 	}
 
 	/**

@@ -83,6 +83,7 @@ export const BackupNowButton = ( { children, tooltipText, tracksEventName, onCli
 	const button = (
 		<div>
 			<Button
+				size="compact"
 				accessibleWhenDisabled
 				disabled={ disabled }
 				isBusy={ isEnqueuing || backupCurrentlyInProgress }

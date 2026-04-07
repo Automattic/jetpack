@@ -68,8 +68,8 @@ const barChartData: SeriesData[] = [
 ];
 
 const pieChartData: DataPointPercentage[] = [
-	{ label: 'Desktop', value: 65, percentage: 65 },
-	{ label: 'Mobile', value: 35, percentage: 35 },
+	{ label: 'Desktop', value: 65 },
+	{ label: 'Mobile', value: 35 },
 ];
 
 // Basic standalone legends

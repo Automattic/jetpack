@@ -652,20 +652,20 @@ class Help_Center {
 			}
 		}
 
+		$suffix = $this->is_jetpack_disconnected() ? '-disconnected' : '';
+
 		if ( $is_next_admin ) {
-			$variant = 'ciab-admin' . ( $this->is_jetpack_disconnected() ? '-disconnected' : '' );
+			$variant = 'ciab-admin' . $suffix;
 		} elseif ( $this->is_support_site ) {
 			if ( ! is_user_logged_in() ) {
 				$variant = 'logged-out';
 			} else {
-				$variant = 'wp-admin' . ( $this->is_jetpack_disconnected() ? '-disconnected' : '' );
+				$variant = ( $this->is_block_editor() ? 'gutenberg' : 'wp-admin' ) . $suffix;
 			}
 		} elseif ( $this->is_loading_on_frontend() ) {
 			$variant = 'wp-admin-disconnected';
-		} elseif ( $this->is_block_editor() ) {
-			$variant = 'gutenberg' . ( $this->is_jetpack_disconnected() ? '-disconnected' : '' );
 		} else {
-			$variant = 'wp-admin' . ( $this->is_jetpack_disconnected() ? '-disconnected' : '' );
+			$variant = ( $this->is_block_editor() ? 'gutenberg' : 'wp-admin' ) . $suffix;
 		}
 
 		$cache_key  = 'help-center-asset-' . $variant . '.asset.json';

@@ -7,30 +7,16 @@
 import { execFileSync } from 'child_process';
 import fs from 'fs';
 import path from 'path';
-import { fileURLToPath } from 'url';
 import { config as dotenvConfig } from 'dotenv';
 import { SCENARIOS, getScenarioUrl } from './scenarios.js';
 
 // Load .env file from the performance directory if it exists
 // This allows local configuration of CODEVITALS_TOKEN, WP_ADMIN_USER, etc.
-const __filename_early = fileURLToPath( import.meta.url );
-const __dirname_early = path.dirname( __filename_early );
-const envPath = path.join( __dirname_early, '..', '.env' );
+const __dirname = import.meta.dirname;
+const envPath = path.join( __dirname, '..', '.env' );
 if ( fs.existsSync( envPath ) ) {
 	dotenvConfig( { path: envPath } );
 }
-
-// Check Node.js version early - we require Node 18+ for global fetch/AbortController
-const NODE_MAJOR_VERSION = parseInt( process.versions.node.split( '.' )[ 0 ], 10 );
-if ( NODE_MAJOR_VERSION < 18 ) {
-	console.error( `✗ Node.js 18 or higher is required (found v${ process.versions.node })` );
-	console.error( '  This script uses global fetch and AbortController which require Node 18+.' );
-	console.error( '  Please upgrade Node.js: https://nodejs.org/' );
-	process.exit( 1 );
-}
-
-// Reuse the early-computed __dirname path
-const __dirname = __dirname_early;
 
 // Path constants
 const PERFORMANCE_DIR = path.join( __dirname, '..' );
