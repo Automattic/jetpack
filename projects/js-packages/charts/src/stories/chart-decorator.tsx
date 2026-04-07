@@ -121,11 +121,13 @@ const isValidHexColor = ( color: string ): boolean => {
 
 /**
  * Provider wrapper for Storybook chart stories
- * Handles theme setup, WPDS ThemeProvider for accent colors, locale initialization, and GlobalChartsProvider
+ * Handles theme setup, WPDS ThemeProvider, locale initialization, and GlobalChartsProvider.
+ * Always wraps in ThemeProvider to mirror the real WordPress environment where
+ * design-system tokens are expected to be available.
  * @param root0             - Props object
  * @param root0.children    - Child components to render
  * @param root0.themeName   - Theme name to apply
- * @param root0.accentColor - Accent color for custom theme (fed to WPDS ThemeProvider as primary seed)
+ * @param root0.accentColor - Accent color fed to WPDS ThemeProvider as primary seed
  * @return JSX element with chart environment setup and GlobalChartsProvider
  */
 const StoryChartProvider = ( {
@@ -156,17 +158,13 @@ const StoryChartProvider = ( {
 	// This ensures CSS variables are re-resolved after the DOM updates
 	const providerKey = themeName === 'custom' ? `custom-${ sanitizedAccentColor }` : themeName;
 
-	const provider = (
-		<GlobalChartsProvider key={ providerKey } theme={ theme }>
-			{ children }
-		</GlobalChartsProvider>
+	return (
+		<ThemeProvider color={ { primary: sanitizedAccentColor } }>
+			<GlobalChartsProvider key={ providerKey } theme={ theme }>
+				{ children }
+			</GlobalChartsProvider>
+		</ThemeProvider>
 	);
-
-	if ( themeName === 'custom' ) {
-		return <ThemeProvider color={ { primary: sanitizedAccentColor } }>{ provider }</ThemeProvider>;
-	}
-
-	return provider;
 };
 
 /**
