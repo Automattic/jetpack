@@ -98,6 +98,7 @@ class RTC_Notices_Test extends \WorDBless\BaseTestCase {
 
 		remove_all_filters( 'jetpack_rtc_max_peers_per_room' );
 		remove_all_filters( 'jetpack_rtc_enabled' );
+		remove_all_filters( 'jetpack_rtc_enable_welcome_notice' );
 		remove_all_filters( 'jetpack_rtc_enable_limit_notices' );
 		remove_all_filters( 'users_pre_query' );
 
@@ -398,5 +399,104 @@ class RTC_Notices_Test extends \WorDBless\BaseTestCase {
 		$this->assertFalse( RTC::is_plan_owner() );
 
 		\Jetpack_Options::delete_option( 'master_user' );
+	}
+
+	// -------------------------------------------------------------------------
+	// load_notices enqueue tests
+	// -------------------------------------------------------------------------
+
+	/**
+	 * Reset scripts/styles to a fresh state for enqueue tests.
+	 *
+	 * Also stubs the editor-count query because WorDBless cannot evaluate
+	 * role-based WP_User_Query meta queries (LIKE on wp_capabilities fails
+	 * in its SQLite layer).
+	 */
+	private function reset_scripts(): void {
+		global $wp_scripts, $wp_styles;
+		$wp_scripts = new \WP_Scripts(); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$wp_styles  = new \WP_Styles(); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+
+		add_filter( 'users_pre_query', array( $this, 'stub_editor_query' ), 10, 2 );
+	}
+
+	/**
+	 * Short-circuit WP_User_Query to return 2 fake user IDs.
+	 *
+	 * WorDBless cannot run any user DB queries (its SQLite layer
+	 * does not support the meta LIKE clauses used for role/capability
+	 * lookups). This filter bypasses the query entirely so the
+	 * editor-count guard in the enqueue function passes.
+	 *
+	 * @param array|null     $results Null to run the real query.
+	 * @param \WP_User_Query $query   The query instance (by reference).
+	 * @return array Fake user ID list.
+	 */
+	public function stub_editor_query( $results, $query ) {
+		$query->total_users = 2;
+		return array( 1, 2 );
+	}
+
+	/**
+	 * Tests that load_notices skips when RTC is not enabled.
+	 */
+	public function test_load_notices_skips_when_rtc_disabled() {
+		$this->reset_scripts();
+		add_filter( 'jetpack_rtc_enabled', '__return_false' );
+
+		RTC::load_notices();
+
+		$this->assertFalse( wp_script_is( 'jetpack-rtc-notices', 'enqueued' ) );
+	}
+
+	/**
+	 * Tests that load_notices enqueues when RTC is enabled.
+	 */
+	public function test_load_notices_enqueues_when_rtc_enabled() {
+		$this->reset_scripts();
+		add_filter( 'jetpack_rtc_enabled', '__return_true' );
+		update_option( 'wp_collaboration_enabled', '1' );
+
+		RTC::load_notices();
+
+		$this->assertTrue( wp_script_is( 'jetpack-rtc-notices', 'enqueued' ) );
+	}
+
+	/**
+	 * Tests that load_notices skips when RTC setting is off.
+	 */
+	public function test_load_notices_skips_when_rtc_setting_off() {
+		$this->reset_scripts();
+		add_filter( 'jetpack_rtc_enabled', '__return_true' );
+		update_option( 'wp_enable_real_time_collaboration', '0' );
+		update_option( 'wp_collaboration_enabled', '0' );
+
+		RTC::load_notices();
+
+		$this->assertFalse( wp_script_is( 'jetpack-rtc-notices', 'enqueued' ) );
+	}
+
+	/**
+	 * Tests that the inline script includes expected config keys.
+	 */
+	public function test_load_notices_includes_inline_config() {
+		$this->reset_scripts();
+		add_filter( 'jetpack_rtc_enabled', '__return_true' );
+		update_option( 'wp_collaboration_enabled', '1' );
+
+		RTC::load_notices();
+
+		global $wp_scripts;
+		$handle = 'jetpack-rtc-notices';
+		$extra  = $wp_scripts->registered[ $handle ]->extra['before'] ?? array();
+		$inline = implode( "\n", array_filter( $extra ) );
+
+		$this->assertStringContainsString( 'jetpackRtcNotices', $inline );
+		$this->assertStringContainsString( '"assetsUrl"', $inline );
+		$this->assertStringContainsString( '"isAdmin"', $inline );
+		$this->assertStringContainsString( '"welcomeDismissed"', $inline );
+		$this->assertStringContainsString( '"maxPeersPerRoom"', $inline );
+		$this->assertStringContainsString( '"enableWelcomeNotice"', $inline );
+		$this->assertStringContainsString( '"enableLimitNotices"', $inline );
 	}
 }

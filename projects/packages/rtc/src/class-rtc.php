@@ -141,7 +141,7 @@ class RTC {
 	}
 
 	/**
-	 * Enqueue the assets that extends the RTC providers.
+	 * Enqueue the assets that extend the RTC providers.
 	 *
 	 * @return void
 	 */

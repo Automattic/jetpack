@@ -23,6 +23,7 @@ use WP_REST_Server;
  */
 class REST_RTC_Notices extends WP_REST_Controller {
 
+	// Kept as wpcom_* for backward compatibility with existing user meta.
 	const OPTION_KEY          = 'wpcom_rtc_welcome_notice_dismissed';
 	const JOIN_REQUEST_OPTION = 'rtc_pending_join_requests';
 

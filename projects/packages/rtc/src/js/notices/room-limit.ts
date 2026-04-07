@@ -19,7 +19,7 @@ let breached = false;
  * @return Whether the room limit has been breached.
  */
 export function isRoomLimitBreached(): boolean {
-	return ( window as Record< string, unknown > ).__wpcomRtcRoomLimitBreached === true;
+	return ( window as Record< string, unknown > ).__jetpackRtcRoomLimitBreached === true;
 }
 const teardowns: Array< () => void > = [];
 
@@ -62,7 +62,7 @@ export function withRoomLimit(
 		/** Trigger a global teardown for all wrapped providers in this window. */
 		function destroyAll(): void {
 			breached = true;
-			( window as Record< string, unknown > ).__wpcomRtcRoomLimitBreached = true;
+			( window as Record< string, unknown > ).__jetpackRtcRoomLimitBreached = true;
 
 			// Non-admin: record a join request so the admin gets notified.
 			const config = window.jetpackRtcNotices;

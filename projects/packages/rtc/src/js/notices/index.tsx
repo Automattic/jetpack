@@ -7,7 +7,7 @@ import './public-path';
  * Entry point for real-time collaboration notices in the block editor.
  * Registers a sync.providers filter (priority 20) that wraps providers with
  * room-limit enforcement, a filter on editor.SyncConnectionErrorModal to
- * replace Gutenberg's default connection error modal with branded WP.com
+ * replace Gutenberg's default connection error modal with RTC-specific
  * notices, and a block editor plugin for the welcome notice and admin polling.
  */
 
