@@ -21,6 +21,9 @@ const test = baseTest.extend<
 	jetpackBoostPage: async ( { page }, use ) => {
 		await use( new JetpackBoostPage( page ) );
 	},
+	// Worker-scoped: one instance shared across all tests in a worker.
+	// Full-stack specs must use test.describe.serial because the shared Docker
+	// environment (dev WordPress, Redis, boost-cloud) cannot handle concurrent tests.
 	fullStackUtils: [
 		async ( {}, use ) => {
 			await use( new FullStackUtils() );

@@ -118,7 +118,12 @@ setup( 'full-stack environment health check', async ( { request } ) => {
 		] );
 		// Extract 3-digit HTTP status code — execDocker concatenates stdout+stderr,
 		// so Docker Compose warnings may surround curl's status code output.
-		const httpCode = parseInt( output.match( /\b[1-5]\d{2}\b/ )?.[ 0 ] ?? '', 10 );
+		const match = output.match( /\b[1-5]\d{2}\b/ );
+		expect(
+			match,
+			`No HTTP status code found in Docker output: ${ output.slice( 0, 200 ) }`
+		).not.toBeNull();
+		const httpCode = parseInt( match![ 0 ], 10 );
 		expect(
 			[ 200, 301, 302 ],
 			`Hydra got HTTP ${ httpCode } reaching http://${ devDomain }/`
