@@ -74,6 +74,12 @@
 	margin-inline-start: auto;
 }
 
+.wpcom-connector__modal .components-button:focus:not(:focus-visible),
+.wpcom-connector__confirm-modal .components-button:focus:not(:focus-visible) {
+	box-shadow: none;
+	outline: none;
+}
+
 .wpcom-connector__modal.components-modal__frame,
 .wpcom-connector__modal {
 	max-inline-size: 480px;
