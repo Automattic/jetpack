@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix `str_starts_with()` PHP 8.1+ deprecation when `$wp_cache_home_path` is null in `get_current_url_supercache_dir()`.

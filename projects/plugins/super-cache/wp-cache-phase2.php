@@ -853,9 +853,10 @@ function get_current_url_supercache_dir( $post_id = 0 ) {
 				$uri = '';
 			}
 		} else {
-			$uri = str_replace( $site_url, '', $permalink );
-			if ( ! str_starts_with( $uri, $wp_cache_home_path ) ) {
-				$uri = rtrim( $wp_cache_home_path, '/' ) . $uri;
+			$uri       = str_replace( $site_url, '', $permalink );
+			$home_path = $wp_cache_home_path ?? '';
+			if ( $home_path !== '' && ! str_starts_with( $uri, $home_path ) ) {
+				$uri = rtrim( $home_path, '/' ) . $uri;
 			}
 		}
 	} else {
