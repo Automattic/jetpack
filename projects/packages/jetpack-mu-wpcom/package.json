@@ -34,7 +34,7 @@
 		"@automattic/jetpack-explat": "workspace:*",
 		"@automattic/jetpack-script-data": "workspace:*",
 		"@automattic/jetpack-shared-extension-utils": "workspace:*",
-		"@automattic/launchpad": "1.1.5",
+		"@automattic/launchpad": "1.2.2",
 		"@automattic/typography": "1.0.0",
 		"@codemirror/autocomplete": "6.18.6",
 		"@codemirror/commands": "6.8.1",
