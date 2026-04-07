@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fix a PHP warning when the newest cached pages list is unavailable.
