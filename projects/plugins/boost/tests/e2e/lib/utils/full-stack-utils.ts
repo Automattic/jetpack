@@ -57,7 +57,7 @@ export function getDevDomain(): string {
 	try {
 		const envContent = readFileSync( join( dir, '.env' ), 'utf8' );
 		const match = envContent.match( /^DEV_DOMAIN=(.+)$/m );
-		return match?.[ 1 ]?.trim() ?? 'jetpack-boost.test';
+		return match?.[ 1 ]?.trim().replace( /^["']|["']$/g, '' ) ?? 'jetpack-boost.test';
 	} catch {
 		return 'jetpack-boost.test';
 	}
@@ -97,6 +97,54 @@ export async function executeDevJetpackBoostCommand(
 		return executeDevWpCommand( [ 'jetpack-boost', ...command ] );
 	}
 	return executeDevWpCommand( `jetpack-boost ${ command }` );
+}
+
+/**
+ * Execute a Docker CLI command via child_process.execFile.
+ * Uses execFile directly because the e2e-commons executeCommand allowlist
+ * (wp, pnpm, sh) does not include docker. execFile is safe against
+ * shell injection (no shell expansion).
+ *
+ * @param  args - Arguments passed to the docker CLI.
+ * @return {Promise<string>} Combined stdout and stderr.
+ */
+export async function execDocker( args: string[] ): Promise< string > {
+	try {
+		const { stdout, stderr } = await execFileAsync( 'docker', args, {
+			timeout: 30_000,
+		} );
+		return stdout + stderr;
+	} catch ( error ) {
+		const msg = String( error );
+		if ( msg.includes( 'ENOENT' ) ) {
+			throw new Error( 'Docker not found. Is Docker installed and in your PATH?' );
+		}
+		if ( msg.includes( 'Cannot connect' ) || msg.includes( 'connect ECONNREFUSED' ) ) {
+			throw new Error(
+				'Docker daemon is not running. Start Docker Desktop or the Docker service.'
+			);
+		}
+		throw error;
+	}
+}
+
+/**
+ * Flush all Redis data in the boost-cloud Docker stack.
+ * Clears BullMQ job queues and dedup locks.
+ *
+ * @param boostCloudDir - Path to the boost-cloud repository.
+ */
+export async function flushRedis( boostCloudDir: string ): Promise< void > {
+	await execDocker( [
+		'compose',
+		'-f',
+		`${ boostCloudDir }/docker-compose.yml`,
+		'exec',
+		'-T',
+		'redis',
+		'redis-cli',
+		'FLUSHALL',
+	] );
 }
 
 /**
@@ -159,19 +207,9 @@ export class FullStackUtils {
 
 	/**
 	 * Flush all Redis data. Clears BullMQ job queues and dedup locks.
-	 * Uses -T flag to disable pseudo-TTY allocation (avoids TTY bug from cloud.sh).
 	 */
 	async flushRedis(): Promise< void > {
-		await this.execDocker( [
-			'compose',
-			'-f',
-			`${ this.boostCloudDir }/docker-compose.yml`,
-			'exec',
-			'-T',
-			'redis',
-			'redis-cli',
-			'FLUSHALL',
-		] );
+		await flushRedis( this.boostCloudDir );
 	}
 
 	/**
@@ -254,7 +292,7 @@ export class FullStackUtils {
 	 * @return {Promise<string>} Combined stdout and stderr from the log tail.
 	 */
 	async captureDockerLogs(): Promise< string > {
-		return this.execDocker( [
+		return execDocker( [
 			'compose',
 			'-f',
 			`${ this.boostCloudDir }/docker-compose.yml`,
@@ -286,40 +324,6 @@ export class FullStackUtils {
 		const moduleArray = Array.isArray( modules ) ? modules : [ modules ];
 		for ( const mod of moduleArray ) {
 			await executeDevJetpackBoostCommand( `module deactivate ${ mod }` );
-		}
-	}
-
-	/**
-	 * Single point for all Docker command execution.
-	 * Uses child_process.execFile directly because the e2e-commons executeCommand
-	 * allowlist (wp, pnpm, sh) does not include docker.
-	 * execFile is safe against shell injection (no shell expansion).
-	 *
-	 * @param  args - Arguments passed to the docker CLI.
-	 * @return {Promise<string>} Combined stdout and stderr.
-	 */
-	private async execDocker( args: string[] ): Promise< string > {
-		try {
-			const { stdout, stderr } = await execFileAsync( 'docker', args, {
-				timeout: 30_000,
-			} );
-			return stdout + stderr;
-		} catch ( error ) {
-			const msg = String( error );
-			if ( msg.includes( 'ENOENT' ) ) {
-				throw new Error( 'Docker not found. Is Docker installed and in your PATH?' );
-			}
-			if ( msg.includes( 'Cannot connect' ) || msg.includes( 'connect ECONNREFUSED' ) ) {
-				throw new Error(
-					'Docker daemon is not running. Start Docker Desktop or the Docker service.'
-				);
-			}
-			if ( msg.includes( 'is not running' ) ) {
-				throw new Error(
-					`boost-cloud Docker is not running. Start it with: cd ${ this.boostCloudDir } && docker compose up -d`
-				);
-			}
-			throw error;
 		}
 	}
 }

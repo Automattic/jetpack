@@ -8,25 +8,15 @@
  * and runs before any full-stack test specs.
  */
 
-import { execFile } from 'child_process';
 import { mkdirSync, existsSync } from 'fs';
 import { dirname, join } from 'path';
-import { promisify } from 'util';
 import { test as setup, expect } from '@playwright/test';
-import { getDevDomain, executeDevWpCommand } from './utils/full-stack-utils';
-
-const execFileAsync = promisify( execFile );
-
-/**
- * Execute a Docker CLI command via child_process.execFile.
- *
- * @param  args - Arguments passed to the docker CLI.
- * @return {Promise<string>} Combined stdout and stderr.
- */
-async function execDocker( args: string[] ): Promise< string > {
-	const { stdout, stderr } = await execFileAsync( 'docker', args, { timeout: 30_000 } );
-	return stdout + stderr;
-}
+import {
+	getDevDomain,
+	executeDevWpCommand,
+	execDocker,
+	flushRedis,
+} from './utils/full-stack-utils';
 
 // Keep in sync with storageState path in playwright.config.ts fullStackProjects.
 const STORAGE_STATE_PATH = join(
@@ -146,16 +136,7 @@ setup( 'full-stack environment health check', async ( { request } ) => {
 
 	// Gate 8: Flush Redis to clear stale BullMQ jobs from interrupted prior runs
 	await setup.step( 'Flush Redis', async () => {
-		await execDocker( [
-			'compose',
-			'-f',
-			`${ boostCloudDir }/docker-compose.yml`,
-			'exec',
-			'-T',
-			'redis',
-			'redis-cli',
-			'FLUSHALL',
-		] );
+		await flushRedis( boostCloudDir );
 	} );
 
 	// Gate 9: Authenticate against dev WordPress and save storage state

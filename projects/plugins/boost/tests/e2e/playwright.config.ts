@@ -17,7 +17,12 @@ function getDevDomain(): string {
 	}
 	try {
 		const env = readFileSync( `${ dir }/.env`, 'utf8' );
-		return env.match( /^DEV_DOMAIN=(.+)$/m )?.[ 1 ]?.trim() ?? 'jetpack-boost.test';
+		return (
+			env
+				.match( /^DEV_DOMAIN=(.+)$/m )?.[ 1 ]
+				?.trim()
+				.replace( /^["']|["']$/g, '' ) ?? 'jetpack-boost.test'
+		);
 	} catch {
 		return 'jetpack-boost.test';
 	}
