@@ -289,25 +289,6 @@ function enqueue_block_notes() {
 add_action( 'enqueue_block_editor_assets', __NAMESPACE__ . '\enqueue_block_notes' );
 
 /**
- * Enable the agents manager unified experience on self-hosted sites
- * when Block Notes is enabled.
- *
- * This ensures the agents manager loads and can host the headless agent
- * even when the unified chat experience is not otherwise enabled.
- *
- * @param bool $use_unified_experience Current value of the filter.
- * @return bool
- */
-function enable_agents_manager_for_block_notes( $use_unified_experience ) {
-	if ( $use_unified_experience ) {
-		return true;
-	}
-
-	return is_block_notes_enabled();
-}
-add_filter( 'agents_manager_use_unified_experience', __NAMESPACE__ . '\enable_agents_manager_for_block_notes' );
-
-/**
  * Register the Block Notes headless agent provider with the agents manager.
  *
  * When Block Notes is enabled, adds the Block Notes headless

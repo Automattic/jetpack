@@ -51,7 +51,6 @@ class Block_Notes_Test extends \WP_UnitTestCase {
 	 */
 	public function tear_down() {
 		delete_transient( BlockNotes\ASSET_TRANSIENT );
-		remove_all_filters( 'agents_manager_use_unified_experience' );
 		remove_all_filters( 'agents_manager_agent_providers' );
 		remove_all_filters( 'pre_http_request' );
 		remove_all_filters( 'jetpack_ai_enabled' );
@@ -957,52 +956,6 @@ class Block_Notes_Test extends \WP_UnitTestCase {
 		$result = BlockNotes\get_asset_data_from_remote();
 
 		$this->assertFalse( $result );
-	}
-
-	// -------------------------------------------------------------------------
-	// enable_agents_manager_for_block_notes() tests
-	// -------------------------------------------------------------------------
-
-	/**
-	 * Test that enable_agents_manager_for_block_notes returns true
-	 * when AI features are available.
-	 */
-	public function test_enable_agents_manager_returns_true_when_block_notes_enabled() {
-		$result = BlockNotes\enable_agents_manager_for_block_notes( false );
-
-		$this->assertTrue( $result );
-	}
-
-	/**
-	 * Test that enable_agents_manager_for_block_notes returns false
-	 * when AI features are disabled and input is false.
-	 */
-	public function test_enable_agents_manager_returns_false_when_block_notes_disabled() {
-		$this->disable_ai_features();
-
-		$result = BlockNotes\enable_agents_manager_for_block_notes( false );
-
-		$this->assertFalse( $result );
-	}
-
-	/**
-	 * Test that enable_agents_manager_for_block_notes does not override
-	 * when agents_manager_use_unified_experience is already true.
-	 */
-	public function test_enable_agents_manager_preserves_existing_true() {
-		$result = BlockNotes\enable_agents_manager_for_block_notes( true );
-
-		$this->assertTrue( $result );
-	}
-
-	/**
-	 * Test that enable_agents_manager_for_block_notes preserves true
-	 * when input is already true and block notes is also enabled.
-	 */
-	public function test_enable_agents_manager_no_double_registration() {
-		$result = BlockNotes\enable_agents_manager_for_block_notes( true );
-
-		$this->assertTrue( $result );
 	}
 
 	// -------------------------------------------------------------------------
