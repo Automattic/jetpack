@@ -512,7 +512,7 @@ class Connection_Health_Test_Base_Test extends TestCase {
 	 * Test get_site_health_badge_label returns default.
 	 */
 	public function test_get_site_health_badge_label_default() {
-		$this->assertEquals( 'Jetpack', $this->base->get_site_health_badge_label() );
+		$this->assertEquals( 'WordPress.com Connection', $this->base->get_site_health_badge_label() );
 	}
 
 	/**

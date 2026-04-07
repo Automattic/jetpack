@@ -408,7 +408,7 @@ class Connection_Health_Test_Base {
 	 * @return string
 	 */
 	protected static function helper_get_reconnect_text() {
-		return __( 'Reconnect Jetpack now', 'jetpack-connection' );
+		return __( 'Reconnect now', 'jetpack-connection' );
 	}
 
 	/**
@@ -432,7 +432,7 @@ class Connection_Health_Test_Base {
 		return sprintf(
 			'<p>%1$s</p>' .
 			'<p><span class="dashicons fail"><span class="screen-reader-text">%2$s</span></span> %3$s</p><p><strong>%4$s</strong></p>',
-			__( 'A healthy connection ensures Jetpack essential services are provided to your WordPress site, such as Stats and Site Security.', 'jetpack-connection' ),
+			__( 'A healthy WordPress.com connection allows connected plugins (such as Jetpack and WooCommerce) to provide features like Stats, Site Security, and Payments.', 'jetpack-connection' ),
 			/* translators: screen reader text indicating a test failed */
 			__( 'Error', 'jetpack-connection' ),
 			$connection_error,
@@ -450,8 +450,8 @@ class Connection_Health_Test_Base {
 	 * @return array Test results.
 	 */
 	public static function connection_failing_test( $name, $connection_error = '', $recommendation = '' ) {
-		$connection_error = empty( $connection_error ) ? __( 'Your site is not connected to Jetpack.', 'jetpack-connection' ) : $connection_error;
-		$recommendation   = empty( $recommendation ) ? __( 'We recommend reconnecting Jetpack.', 'jetpack-connection' ) : $recommendation;
+		$connection_error = empty( $connection_error ) ? __( 'Your site is not connected to WordPress.com.', 'jetpack-connection' ) : $connection_error;
+		$recommendation   = empty( $recommendation ) ? __( 'We recommend reconnecting your site to WordPress.com.', 'jetpack-connection' ) : $recommendation;
 
 		$reconnect_url = self::helper_get_reconnect_url();
 
@@ -480,8 +480,8 @@ class Connection_Health_Test_Base {
 		return sprintf(
 			/* translators: %1$s - request protocol, either http or https */
 			__(
-				'Your server did not successfully connect to the Jetpack server using %1$s
-				Please ask your hosting provider to confirm your server can make outbound requests to jetpack.com.',
+				'Your server did not successfully connect to WordPress.com using %1$s.
+				Please ask your hosting provider to confirm your server can make outbound requests to WordPress.com.',
 				'jetpack-connection'
 			),
 			$protocol
@@ -508,7 +508,7 @@ class Connection_Health_Test_Base {
 		$status = new Status();
 
 		if ( ! $status->is_offline_mode() ) {
-			return __( 'Jetpack is not in Offline Mode.', 'jetpack-connection' );
+			return __( 'The site is not in Offline Mode.', 'jetpack-connection' );
 		}
 
 		if ( defined( 'JETPACK_DEV_DEBUG' ) && JETPACK_DEV_DEBUG ) {
@@ -539,7 +539,7 @@ class Connection_Health_Test_Base {
 		}
 
 		if ( ( new Status() )->is_offline_mode() ) {
-			\WP_CLI::line( __( 'Jetpack is in Offline Mode:', 'jetpack-connection' ) );
+			\WP_CLI::line( __( 'Your site is in Offline Mode:', 'jetpack-connection' ) );
 			\WP_CLI::line( self::offline_mode_trigger_text() );
 		}
 		\WP_CLI::line( __( 'TEST RESULTS:', 'jetpack-connection' ) );
@@ -574,7 +574,7 @@ class Connection_Health_Test_Base {
 		$badge_label = $this->get_site_health_badge_label();
 
 		$result = array(
-			'label'       => __( 'Jetpack connection passed all async tests.', 'jetpack-connection' ),
+			'label'       => __( 'WordPress.com connection passed all async tests.', 'jetpack-connection' ),
 			'status'      => 'good',
 			'badge'       => array(
 				'label' => $badge_label,
@@ -582,7 +582,7 @@ class Connection_Health_Test_Base {
 			),
 			'description' => sprintf(
 				'<p>%s</p>',
-				__( "Jetpack connection's async local testing suite passed all tests!", 'jetpack-connection' )
+				__( "The WordPress.com connection's async local testing suite passed all tests!", 'jetpack-connection' )
 			),
 			'actions'     => '',
 			'test'        => 'jetpack_connection_local_testing_suite',
@@ -717,8 +717,8 @@ class Connection_Health_Test_Base {
 		 *
 		 * @since $$next-version$$
 		 *
-		 * @param string $label The badge label. Default 'Jetpack'.
+		 * @param string $label The badge label. Default 'WordPress.com Connection'.
 		 */
-		return apply_filters( 'jetpack_connection_site_health_badge_label', __( 'Jetpack', 'jetpack-connection' ) );
+		return apply_filters( 'jetpack_connection_site_health_badge_label', __( 'WordPress.com Connection', 'jetpack-connection' ) );
 	}
 }

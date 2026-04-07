@@ -1,6 +1,6 @@
 <?php
 /**
- * Collection of health tests for the Jetpack connection.
+ * Collection of health tests for the WordPress.com connection.
  *
  * @package automattic/jetpack-connection
  */
@@ -73,7 +73,7 @@ class Connection_Health_Tests extends Connection_Health_Test_Base {
 			return self::skipped_test(
 				array(
 					'name'              => $name,
-					'short_description' => __( 'Jetpack is not connected. No blog token to check.', 'jetpack-connection' ),
+					'short_description' => __( 'Your site is not connected to WordPress.com. No site token to check.', 'jetpack-connection' ),
 				)
 			);
 		}
@@ -83,7 +83,7 @@ class Connection_Health_Tests extends Connection_Health_Test_Base {
 			return self::passing_test( array( 'name' => $name ) );
 		}
 
-		return self::connection_failing_test( $name, __( 'Blog token is missing.', 'jetpack-connection' ) );
+		return self::connection_failing_test( $name, __( 'The site token used to authenticate with WordPress.com is missing.', 'jetpack-connection' ) );
 	}
 
 	/**
@@ -98,7 +98,7 @@ class Connection_Health_Tests extends Connection_Health_Test_Base {
 			return self::skipped_test(
 				array(
 					'name'              => $name,
-					'short_description' => __( 'Blog token is missing.', 'jetpack-connection' ),
+					'short_description' => __( 'The site token used to authenticate with WordPress.com is missing.', 'jetpack-connection' ),
 				)
 			);
 		}
@@ -107,14 +107,14 @@ class Connection_Health_Tests extends Connection_Health_Test_Base {
 			return self::passing_test(
 				array(
 					'name'             => $name,
-					'label'            => __( 'Your site is connected to Jetpack', 'jetpack-connection' ),
+					'label'            => __( 'Your site is connected to WordPress.com', 'jetpack-connection' ),
 					'long_description' => sprintf(
 						'<p>%1$s</p>' .
 						'<p><span class="dashicons pass"><span class="screen-reader-text">%2$s</span></span> %3$s</p>',
-						__( 'A healthy connection ensures Jetpack essential services are provided to your WordPress site, such as Stats and Site Security.', 'jetpack-connection' ),
+						__( 'A healthy WordPress.com connection allows connected plugins (such as Jetpack and WooCommerce) to provide features like Stats, Site Security, and Payments.', 'jetpack-connection' ),
 						/* translators: Screen reader text indicating a test has passed */
 						__( 'Passed', 'jetpack-connection' ),
-						__( 'Your site is connected to Jetpack.', 'jetpack-connection' )
+						__( 'Your site is connected to WordPress.com.', 'jetpack-connection' )
 					),
 				)
 			);
@@ -122,12 +122,12 @@ class Connection_Health_Tests extends Connection_Health_Test_Base {
 			return self::skipped_test(
 				array(
 					'name'              => $name,
-					'short_description' => __( 'Jetpack is in Offline Mode.', 'jetpack-connection' ),
+					'short_description' => __( 'Your site is in Offline Mode.', 'jetpack-connection' ),
 				)
 			);
 		}
 
-		return self::connection_failing_test( $name, __( 'Your site is not connected to Jetpack', 'jetpack-connection' ) );
+		return self::connection_failing_test( $name, __( 'Your site is not connected to WordPress.com', 'jetpack-connection' ) );
 	}
 
 	/**
@@ -142,7 +142,7 @@ class Connection_Health_Tests extends Connection_Health_Test_Base {
 			return self::skipped_test(
 				array(
 					'name'              => $name,
-					'short_description' => __( 'Jetpack is not connected. No connection owner to check.', 'jetpack-connection' ),
+					'short_description' => __( 'Your site is not connected to WordPress.com. No connection owner to check.', 'jetpack-connection' ),
 				)
 			);
 		}
@@ -150,7 +150,7 @@ class Connection_Health_Tests extends Connection_Health_Test_Base {
 			return self::skipped_test(
 				array(
 					'name'              => $name,
-					'short_description' => __( 'Jetpack is running without a connected user. No connection owner to check.', 'jetpack-connection' ),
+					'short_description' => __( 'The site is connected to WordPress.com without a user. No connection owner to check.', 'jetpack-connection' ),
 				)
 			);
 		}
@@ -162,7 +162,7 @@ class Connection_Health_Tests extends Connection_Health_Test_Base {
 
 		return self::connection_failing_test(
 			$name,
-			__( 'The user who set up the Jetpack connection no longer exists on this site.', 'jetpack-connection' )
+			__( 'The user who set up the WordPress.com connection no longer exists on this site.', 'jetpack-connection' )
 		);
 	}
 
@@ -178,7 +178,7 @@ class Connection_Health_Tests extends Connection_Health_Test_Base {
 			return self::skipped_test(
 				array(
 					'name'              => $name,
-					'short_description' => __( 'Jetpack is not connected.', 'jetpack-connection' ),
+					'short_description' => __( 'Your site is not connected to WordPress.com.', 'jetpack-connection' ),
 				)
 			);
 		}
@@ -186,7 +186,7 @@ class Connection_Health_Tests extends Connection_Health_Test_Base {
 			return self::skipped_test(
 				array(
 					'name'              => $name,
-					'short_description' => __( 'Jetpack is running without a connected user. No connection owner to check.', 'jetpack-connection' ),
+					'short_description' => __( 'The site is connected to WordPress.com without a user. No connection owner to check.', 'jetpack-connection' ),
 				)
 			);
 		}
@@ -197,9 +197,9 @@ class Connection_Health_Tests extends Connection_Health_Test_Base {
 		}
 
 		/* translators: a WordPress username */
-		$connection_error = sprintf( __( 'The user (%s) who set up the Jetpack connection is not an administrator.', 'jetpack-connection' ), $owner_user->user_login );
+		$connection_error = sprintf( __( 'The user (%s) who set up the WordPress.com connection is not an administrator.', 'jetpack-connection' ), $owner_user->user_login );
 		/* translators: a WordPress username */
-		$recommendation = sprintf( __( 'We recommend either upgrading the user (%s) or reconnecting Jetpack.', 'jetpack-connection' ), $owner_user->user_login );
+		$recommendation = sprintf( __( 'We recommend either upgrading the user (%s) or reconnecting your site to WordPress.com.', 'jetpack-connection' ), $owner_user->user_login );
 
 		return self::connection_failing_test( $name, $connection_error, $recommendation );
 	}
@@ -268,7 +268,7 @@ class Connection_Health_Tests extends Connection_Health_Test_Base {
 			return self::skipped_test(
 				array(
 					'name'              => $name,
-					'short_description' => __( 'Jetpack is not connected.', 'jetpack-connection' ),
+					'short_description' => __( 'Your site is not connected to WordPress.com.', 'jetpack-connection' ),
 				)
 			);
 		}
@@ -370,7 +370,7 @@ class Connection_Health_Tests extends Connection_Health_Test_Base {
 		$valid = ( new Tokens() )->validate_blog_token();
 
 		if ( ! $valid ) {
-			return self::connection_failing_test( $name, __( 'Blog token validation failed.', 'jetpack-connection' ) );
+			return self::connection_failing_test( $name, __( 'The site token used to authenticate with WordPress.com could not be validated.', 'jetpack-connection' ) );
 		}
 
 		return self::passing_test( array( 'name' => $name ) );
@@ -408,7 +408,7 @@ class Connection_Health_Tests extends Connection_Health_Test_Base {
 			return self::passing_test( array( 'name' => $name ) );
 		}
 
-		return self::connection_failing_test( $name, __( 'Invalid Jetpack connection tokens.', 'jetpack-connection' ) );
+		return self::connection_failing_test( $name, __( 'Invalid WordPress.com connection tokens.', 'jetpack-connection' ) );
 	}
 
 	/**
