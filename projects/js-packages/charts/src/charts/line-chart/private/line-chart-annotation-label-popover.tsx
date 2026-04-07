@@ -89,12 +89,7 @@ const LineChartAnnotationLabelWithPopover: FC< LineChartAnnotationLabelWithPopov
 				) }
 				data-testid="line-chart-annotation-label-popover"
 			>
-				<Stack
-					direction="row"
-					align="flex-start"
-					justify="space-between"
-					className={ styles[ 'line-chart__annotation-label-popover-header' ] }
-				>
+				<Stack direction="row" align="flex-start" justify="space-between">
 					<div className={ styles[ 'line-chart__annotation-label-popover-content' ] }>
 						{ renderLabelPopover( { title, subtitle } ) }
 					</div>
