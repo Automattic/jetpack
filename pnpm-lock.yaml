@@ -486,7 +486,7 @@ importers:
         specifier: 6.43.0
         version: 6.43.0
       '@wordpress/private-apis':
-        specifier: ^1.43.0
+        specifier: 1.43.0
         version: 1.43.0
       babel-jest:
         specifier: 30.3.0
