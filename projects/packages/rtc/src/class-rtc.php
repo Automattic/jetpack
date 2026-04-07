@@ -395,6 +395,7 @@ class RTC {
 
 		$data = wp_json_encode(
 			array(
+				'assetsUrl'           => plugins_url( '../build/', __FILE__ ),
 				'isAdmin'             => $is_admin_user,
 				'isPlanOwner'         => $is_plan_owner,
 				'welcomeDismissed'    => REST_RTC_Notices::is_dismissed(),

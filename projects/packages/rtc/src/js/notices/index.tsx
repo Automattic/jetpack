@@ -1,7 +1,10 @@
+/*** THIS MUST BE THE FIRST THING EVALUATED IN THIS SCRIPT *****/
+import './public-path';
+
 /**
  * Gutenberg RTC Notices & Limits
  *
- * WP.com-specific entry point for real-time collaboration in the block editor.
+ * Entry point for real-time collaboration notices in the block editor.
  * Registers a sync.providers filter (priority 20) that wraps providers with
  * room-limit enforcement, a filter on editor.SyncConnectionErrorModal to
  * replace Gutenberg's default connection error modal with branded WP.com

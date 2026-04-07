@@ -4,6 +4,7 @@ declare module '*.png' {
 }
 
 interface JetpackRtcNoticesConfig {
+	assetsUrl?: string;
 	isAdmin: boolean;
 	isPlanOwner: boolean;
 	welcomeDismissed: boolean;
