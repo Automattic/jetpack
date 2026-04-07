@@ -123,8 +123,8 @@ class WP_Build_Polyfills {
 		// Force-replace only when Core's bundled scripts are incomplete (WP < 7.0)
 		// AND Gutenberg is not active. When Gutenberg is present, its script
 		// registrations (priority 10) are always self-consistent — replacing them
-		// with our polyfills can break packages that Gutenberg ships but our
-		// polyfill's allowlist doesn't cover yet (e.g. @wordpress/views).
+		// with our polyfills can break packages that Gutenberg adds in the future while
+		// our polyfill's allowlist doesn't cover them yet.
 		$gutenberg_active = defined( 'GUTENBERG_VERSION' );
 		$force_replace    = ! $gutenberg_active
 			&& version_compare( $GLOBALS['wp_version'] ?? '0', $wp_version_threshold, '<' );
