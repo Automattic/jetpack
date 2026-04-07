@@ -51,14 +51,13 @@ const LaunchpadWidget = ( { siteDomain, siteIntent } ) => {
 	);
 
 	const onTaskClick = task => {
+		// If not a launch task or no variant (control), resort to default behavior.
 		if ( ! task.isLaunchTask || ! variationName ) {
 			return;
 		}
 
 		if ( variationName === 'ungated_site_launch' ) {
 			launchSite();
-			// This prop will be introduced in https://github.com/Automattic/wp-calypso/pull/109434.
-			// Then we'll need to update the Launchpad package version.
 			return false;
 		}
 
@@ -69,8 +68,6 @@ const LaunchpadWidget = ( { siteDomain, siteIntent } ) => {
 					ref: 'wp-admin',
 				} )
 			);
-			// This prop will be introduced in https://github.com/Automattic/wp-calypso/pull/109434.
-			// Then we'll need to update the Launchpad package version.
 			return false;
 		}
 	};
@@ -96,7 +93,10 @@ const LaunchpadWidget = ( { siteDomain, siteIntent } ) => {
 			{ showCelebrateLaunchModal && (
 				<CelebrateLaunchModal
 					{ ...data }
-					onRequestClose={ () => setShowCelebrateLaunchModal( false ) }
+					onRequestClose={ () => {
+						setShowCelebrateLaunchModal( false );
+						window.location.reload();
+					} }
 				/>
 			) }
 		</>
