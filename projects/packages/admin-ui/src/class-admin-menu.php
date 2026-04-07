@@ -264,17 +264,17 @@ class Admin_Menu {
 			return false;
 		}
 
-		// Only show after the site is connected.
-		if ( ! self::is_site_connected() ) {
-			return false;
-		}
-
 		// Don't show upsells on WordPress.com platform.
 		if ( class_exists( '\Automattic\Jetpack\Status\Host' ) ) {
 			$host = new \Automattic\Jetpack\Status\Host();
 			if ( $host->is_wpcom_platform() ) {
 				return false;
 			}
+		}
+
+		// Only show after the site is connected.
+		if ( ! self::is_site_connected() ) {
+			return false;
 		}
 
 		// Only show to free-plan sites.
