@@ -14,20 +14,29 @@ use Automattic\Jetpack\Status\Host;
 /**
  * Resolves the ExPlat assignment for the launch button experiment.
  * Returns the variation name string or null.
+ * Results are cached per user for 1 hour.
  *
  * @return string|null
  */
 function wpcom_get_launch_button_experiment_variation(): ?string {
 	$experiment_name = 'calypso_launch_button_experiment_test_20260319_4';
+	$user_id         = get_current_user_id();
+	$cache_key       = 'launch-button-exp-var-' . $user_id . '-' . $experiment_name;
+	$cache_ttl       = HOUR_IN_SECONDS;
+
+	// Check for cached result.
+	$cached_result = get_transient( $cache_key );
+	if ( false !== $cached_result ) {
+		return '' === $cached_result ? null : $cached_result;
+	}
+
+	$variation = null;
 
 	if ( ( new Host() )->is_wpcom_simple() ) {
 		if ( function_exists( '\ExPlat\assign_current_user' ) ) {
-			return \ExPlat\assign_current_user( $experiment_name );
+			$variation = \ExPlat\assign_current_user( $experiment_name );
 		}
-		return null;
-	}
-
-	if ( ( new Connection_Manager() )->is_user_connected() ) {
+	} elseif ( ( new Connection_Manager() )->is_user_connected() ) {
 		$response = Client::wpcom_json_api_request_as_user(
 			add_query_arg(
 				array( 'experiment_names' => $experiment_name ),
@@ -37,12 +46,15 @@ function wpcom_get_launch_button_experiment_variation(): ?string {
 		);
 
 		if ( ! is_wp_error( $response ) && 200 === wp_remote_retrieve_response_code( $response ) ) {
-			$data = json_decode( wp_remote_retrieve_body( $response ), true );
-			return $data['variations'][ $experiment_name ] ?? null;
+			$data      = json_decode( wp_remote_retrieve_body( $response ), true );
+			$variation = $data['variations'][ $experiment_name ] ?? null;
 		}
 	}
 
-	return null;
+	// Cache the result (use empty string to represent null for transient compatibility).
+	set_transient( $cache_key, $variation ?? '', $cache_ttl );
+
+	return $variation;
 }
 
 /**
