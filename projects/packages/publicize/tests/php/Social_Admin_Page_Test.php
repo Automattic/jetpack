@@ -112,14 +112,16 @@ class Social_Admin_Page_Test extends BaseTestCase {
 	 */
 	public function throw_on_wp_die() {
 		/**
+		 * Custom wp_die handler that throws an exception to allow assertions on wp_die calls.
+		 *
 		 * @param string|\Stringable $message Error message passed to wp_die.
 		 *
-		 * @return void
+		 * @return never
 		 *
 		 * @throws \Exception When invoked for assertions.
 		 */
 		return static function ( $message ) {
-			throw new \Exception( (string) $message );
+			throw new \Exception( esc_html( $message ) );
 		};
 	}
 
