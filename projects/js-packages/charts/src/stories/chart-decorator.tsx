@@ -150,16 +150,17 @@ const StoryChartProvider = ( {
 
 	const theme = CHART_THEME_MAP[ themeName ];
 
-	// Sanitize accent color to prevent XSS via CSS injection
-	// Falls back to default if invalid hex color is provided
+	// Only seed a custom primary color when the custom theme is active.
+	// Other themes use ThemeProvider's built-in default.
 	const sanitizedAccentColor = isValidHexColor( accentColor ) ? accentColor : DEFAULT_ACCENT_COLOR;
+	const themeProviderColor = themeName === 'custom' ? { primary: sanitizedAccentColor } : undefined;
 
 	// Force GlobalChartsProvider to remount when accent color changes for custom theme
 	// This ensures CSS variables are re-resolved after the DOM updates
 	const providerKey = themeName === 'custom' ? `custom-${ sanitizedAccentColor }` : themeName;
 
 	return (
-		<ThemeProvider color={ { primary: sanitizedAccentColor } }>
+		<ThemeProvider color={ themeProviderColor }>
 			<GlobalChartsProvider key={ providerKey } theme={ theme }>
 				{ children }
 			</GlobalChartsProvider>
