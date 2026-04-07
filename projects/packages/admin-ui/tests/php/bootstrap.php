@@ -10,6 +10,10 @@
  */
 require_once __DIR__ . '/../../vendor/autoload.php';
 
+if ( ! class_exists( '\Automattic\Jetpack\Connection\Manager' ) ) {
+	require_once __DIR__ . '/stubs/class-manager.php';
+}
+
 define( 'WP_DEBUG', true );
 
 // Initialize WordPress test environment

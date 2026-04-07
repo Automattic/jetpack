@@ -91,6 +91,7 @@ class Admin_Menu_Test extends TestCase {
 		$submenu = array();
 		delete_option( 'jetpack_active_plan' );
 		delete_option( 'jetpack_site_products' );
+		update_option( 'jetpack_options', array( 'id' => 123456 ) );
 		wp_dequeue_style( 'jetpack-admin-ui-upgrade-menu' );
 		wp_deregister_style( 'jetpack-admin-ui-upgrade-menu' );
 		wp_dequeue_script( 'jetpack-admin-ui-upgrade-menu' );
@@ -358,6 +359,21 @@ class Admin_Menu_Test extends TestCase {
 	 */
 	public function test_upgrade_menu_item_hidden_for_non_admin() {
 		wp_set_current_user( self::$editor_user_id );
+
+		Admin_Menu::init();
+		do_action( 'admin_menu' );
+
+		$this->assertUpgradeMenuItemAbsent();
+	}
+
+	/**
+	 * Upgrade item is absent when the site is not connected.
+	 *
+	 * @return void
+	 */
+	public function test_upgrade_menu_item_hidden_when_site_not_connected() {
+		wp_set_current_user( self::$admin_user_id );
+		update_option( 'jetpack_options', array() );
 
 		Admin_Menu::init();
 		do_action( 'admin_menu' );

@@ -264,6 +264,11 @@ class Admin_Menu {
 			return false;
 		}
 
+		// Only show after the site is connected.
+		if ( ! self::is_site_connected() ) {
+			return false;
+		}
+
 		// Don't show upsells on WordPress.com platform.
 		if ( class_exists( '\Automattic\Jetpack\Status\Host' ) ) {
 			$host = new \Automattic\Jetpack\Status\Host();
@@ -274,6 +279,19 @@ class Admin_Menu {
 
 		// Only show to free-plan sites.
 		return self::is_free_plan();
+	}
+
+	/**
+	 * Checks whether the site is connected to WordPress.com.
+	 *
+	 * @return bool True if the site has a connected blog ID.
+	 */
+	private static function is_site_connected() {
+		if ( class_exists( '\Automattic\Jetpack\Connection\Manager' ) ) {
+			return (bool) ( new \Automattic\Jetpack\Connection\Manager() )->is_connected();
+		}
+
+		return false;
 	}
 
 	/**
