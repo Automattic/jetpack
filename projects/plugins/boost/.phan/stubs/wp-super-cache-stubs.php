@@ -1,9 +1,12 @@
 <?php
 /**
- * Stubs for WP Super Cache functions used by Boost compatibility code.
+ * Stubs for WP Super Cache functions and constants used by Boost compatibility code.
  *
  * @package automattic/jetpack-boost
  */
+
+define( 'WPCACHEHOME', '/tmp/wp-super-cache/' );
+define( 'WPCACHECONFIGPATH', '/tmp' );
 
 /**
  * Clear the WP Super Cache cache.
