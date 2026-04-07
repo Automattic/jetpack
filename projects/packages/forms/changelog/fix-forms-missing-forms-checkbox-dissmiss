@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fixed 'Don't show this again' checkbox in Forms help modal dismissing permanently when closing via X button or Escape key instead of only when clicking 'Got it'

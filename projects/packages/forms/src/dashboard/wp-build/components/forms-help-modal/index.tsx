@@ -37,6 +37,11 @@ export default function FormsHelpModal( { isOpen, onClose }: Props ) {
 	const [ dontShowAgain, setDontShowAgain ] = useState( false );
 	const { receiveConfigValue } = useDispatch( CONFIG_STORE );
 
+	const handleClose = useCallback( () => {
+		setDontShowAgain( false );
+		onClose();
+	}, [ onClose ] );
+
 	const handleSubmit = useCallback( () => {
 		if ( dontShowAgain ) {
 			receiveConfigValue( 'hasClassicForms', false );
@@ -45,15 +50,15 @@ export default function FormsHelpModal( { isOpen, onClose }: Props ) {
 				method: 'POST',
 			} );
 		}
-		onClose();
-	}, [ dontShowAgain, onClose, receiveConfigValue ] );
+		handleClose();
+	}, [ dontShowAgain, handleClose, receiveConfigValue ] );
 
 	if ( ! isOpen ) {
 		return null;
 	}
 
 	return (
-		<Modal title={ __( 'Not seeing all your forms?', 'jetpack-forms' ) } onRequestClose={ onClose }>
+		<Modal title={ __( 'Not seeing all your forms?', 'jetpack-forms' ) } onRequestClose={ handleClose }>
 			<VStack spacing="4">
 				<Text>
 					{ __( 'The Forms list shows reusable forms, not simple form blocks.', 'jetpack-forms' ) }
