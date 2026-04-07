@@ -41,7 +41,7 @@ const fileContents = fs.readFileSync( file, 'utf8' );
 const pnpmWorkspace = YAML.parseDocument( fileContents );
 if ( pnpmWorkspace.errors.length ) {
 	for ( const e of pnpmWorkspace.errors ) {
-		const line = fileContents.substr( 0, e.source.range.start ).split( /\n/ ).length;
+		const line = fileContents.substring( 0, e.source.range.start ).split( /\n/ ).length;
 		error( file, line, `${ e.name }: ${ e.message }` );
 	}
 	process.exit( 1 );
@@ -52,7 +52,7 @@ if ( ! ( pnpmWorkspace.contents instanceof YAML.YAMLMap ) ) {
 }
 const trustPolicyExclude = pnpmWorkspace.contents.get( 'trustPolicyExclude' );
 if ( ! trustPolicyExclude ) {
-	debug( 'No trustPolicyExclude found' );
+	debug( 'No trustPolicyExclude found. That's good!' );
 	process.exit( 0 );
 }
 if ( ! ( trustPolicyExclude instanceof YAML.YAMLSeq ) ) {
