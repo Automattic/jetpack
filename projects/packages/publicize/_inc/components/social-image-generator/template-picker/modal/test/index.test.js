@@ -7,8 +7,9 @@ jest.mock( '../../../../media-picker', () => {
 	return () => <div>Media Picker</div>;
 } );
 
+const mockUseMediaDetails = jest.fn( () => [ {}, false ] );
 jest.mock( '../../../../../hooks/use-media-details', () => {
-	return jest.fn( () => [ {} ] );
+	return ( ...args ) => mockUseMediaDetails( ...args );
 } );
 
 /**
@@ -39,6 +40,7 @@ const openTemplatePickerModal = async ( { onSave = () => {}, imageId = null } = 
 describe( 'TemplatePickerModal', () => {
 	beforeEach( () => {
 		jest.spyOn( console, 'warn' ).mockImplementation( () => {} );
+		mockUseMediaDetails.mockReturnValue( [ {}, false ] );
 	} );
 
 	afterEach( () => {
@@ -97,6 +99,19 @@ describe( 'TemplatePickerModal', () => {
 
 		expect( handleSave ).not.toHaveBeenCalled();
 		expect( screen.queryByText( /Set default Template and Image/i ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'should clear selected image when attachment is not found', async () => {
+		mockUseMediaDetails.mockReturnValue( [ {}, true ] );
+		const handleSave = jest.fn();
+		const { user } = await openTemplatePickerModal( { onSave: handleSave, imageId: 123 } );
+
+		const saveButton = screen.getByRole( 'button', {
+			name: /Save/i,
+		} );
+		await user.click( saveButton );
+
+		expect( handleSave ).toHaveBeenCalledWith( { imageId: null, template: null, font: '' } );
 	} );
 
 	it( 'should pick a default image', async () => {
