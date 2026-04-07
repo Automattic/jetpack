@@ -1,6 +1,6 @@
 <?php
 /**
- * Stubs automatically generated from PHPUnit 12.5.15
+ * Stubs automatically generated from PHPUnit 12.5.16
  * using the definition file `tools/stubs/phpunit-stub-defs.php` in the Jetpack monorepo.
  *
  * Do not edit this directly! Run tools/stubs/update-stubs.sh to regenerate it.
@@ -28008,7 +28008,35 @@ final readonly class GlobalState
     public static function getConstantsAsString(): string
     {
     }
-    public static function getGlobalsAsString(): string
+    public static function exportGlobals(): \PHPUnit\Util\GlobalStateResult
+    {
+    }
+}
+/**
+ * @immutable
+ *
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ *
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final readonly class GlobalStateResult
+{
+    /**
+     * @param list<array{name: non-empty-string, reason: non-empty-string}> $skippedGlobals
+     */
+    public function __construct(string $globalsString, array $skippedGlobals)
+    {
+    }
+    public function globalsString(): string
+    {
+    }
+    /**
+     * @return list<array{name: non-empty-string, reason: non-empty-string}>
+     */
+    public function skippedGlobals(): array
+    {
+    }
+    public function hasSkippedGlobals(): bool
     {
     }
 }

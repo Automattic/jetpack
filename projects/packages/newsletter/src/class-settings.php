@@ -21,7 +21,7 @@ use Jetpack_Tracks_Client;
  */
 class Settings {
 
-	const PACKAGE_VERSION = '0.7.0';
+	const PACKAGE_VERSION = '0.8.0';
 	/**
 	 * Whether the class has been initialized
 	 *
@@ -115,6 +115,11 @@ class Settings {
 		// which will call add_wp_admin_submenu() directly. Skip adding the menu here to avoid
 		// trying to add a submenu before the parent menu exists.
 		if ( $host->is_wpcom_simple() ) {
+			return;
+		}
+
+		// On sites using Jetpack, only show the menu if the site is connected.
+		if ( ! ( new Connection_Manager() )->is_connected() ) {
 			return;
 		}
 

@@ -6,6 +6,10 @@ import JetpackFooter from '../index.tsx';
 describe( 'JetpackFooter', () => {
 	const className = 'sample-classname';
 
+	afterEach( () => {
+		delete window.JetpackNetworkAdminData;
+	} );
+
 	describe( 'Render the component', () => {
 		const menu = [
 			{
@@ -71,6 +75,18 @@ describe( 'JetpackFooter', () => {
 			expect( link ).toBeInTheDocument();
 			expect( button ).toBeInTheDocument();
 			expect( button ).toHaveAttribute( 'tabindex', '0' );
+		} );
+
+		it( 'should hide default links when JetpackNetworkAdminData is present', () => {
+			window.JetpackNetworkAdminData = {
+				sitesUrl: '/',
+				settingsUrl: '/',
+			};
+
+			render( <JetpackFooter /> );
+
+			expect( screen.queryByRole( 'link', { name: 'Products' } ) ).not.toBeInTheDocument();
+			expect( screen.queryByRole( 'link', { name: 'Help' } ) ).not.toBeInTheDocument();
 		} );
 
 		it( 'should match the snapshot', () => {

@@ -19,6 +19,32 @@
 	}
 }
 
+.newsletter-settings-connect-notice {
+	max-width: 660px;
+	margin-inline: auto;
+	margin-block-end: var(--wpds-dimension-gap-lg, 24px);
+
+	.components-notice {
+		margin: 0;
+	}
+}
+
+.newsletter-settings-disabled {
+	position: relative;
+
+	&::before {
+		content: "";
+		position: absolute;
+		top: -2px;
+		left: 0;
+		z-index: 1;
+		background: rgba(255, 255, 255, 0.6);
+		width: 100%;
+		height: calc(100% + 2px);
+		pointer-events: all;
+	}
+}
+
 .newsletter-settings {
 	max-width: 660px; /* MSD and future JP settings pages are 660px wide */
 	margin-inline: auto;

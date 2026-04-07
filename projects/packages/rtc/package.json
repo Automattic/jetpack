@@ -24,15 +24,15 @@
 		"extends @wordpress/browserslist-config"
 	],
 	"dependencies": {
-		"@wordpress/api-fetch": "7.42.0",
-		"@wordpress/hooks": "4.42.0",
+		"@wordpress/api-fetch": "7.43.0",
+		"@wordpress/hooks": "4.43.0",
 		"lib0": "0.2.99",
 		"y-protocols": "^1.0.7",
 		"yjs": "13.6.29"
 	},
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
-		"@wordpress/browserslist-config": "6.42.0",
+		"@wordpress/browserslist-config": "6.43.0",
 		"webpack": "5.105.2",
 		"webpack-cli": "6.0.1"
 	}
