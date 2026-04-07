@@ -19,24 +19,24 @@ Run these checks in order. Stop at the first failure and help the user fix it.
 ### Check 1: rsync installed
 
 ```bash
-which rsync && rsync --version | head -1
+rsync --version
 ```
 
-- If missing: tell user to `brew install rsync`
+- If the command fails: tell user to `brew install rsync`
 - If output contains `openrsync` on macOS: warn that `brew install rsync` is recommended for proper symlink handling
 
 ### Check 2: jetpack CLI available
 
 ```bash
-which jetpack
+pnpm jetpack --help
 ```
 
-If missing: tell user to run `pnpm install` in the monorepo root, or `pnpm jetpack` to verify.
+If missing: tell user to run `pnpm install` in the monorepo root.
 
 ### Check 3: Dependencies installed
 
 ```bash
-test -d "$(git rev-parse --show-toplevel)/node_modules" && echo "pnpm deps OK" || echo "MISSING"
+ls node_modules/.package-lock.json
 ```
 
 If missing: run `jetpack install -r` to install pnpm and composer dependencies.
