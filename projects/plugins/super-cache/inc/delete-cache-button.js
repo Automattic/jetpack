@@ -1,3 +1,4 @@
+/* global wpsc_ajax */
 ( function ( $ ) {
 	$( document ).ready( function () {
 		$( '#wp-admin-bar-delete-cache' ).on( 'click', function () {
@@ -16,12 +17,17 @@
 					// send the nonce along with the request
 					nonce: wpsc_ajax.nonce,
 				},
-				success: function ( msg ) {
-					wpsc_ajax.admin == 1 && console.log( 'Deleted entire cache' );
-					wpsc_ajax.admin == 0 && console.log( 'Deleted cache for this page and reloading' );
+				success: function () {
+					if ( wpsc_ajax.admin === '1' ) {
+						// eslint-disable-next-line no-console
+						console.log( 'Deleted entire cache' );
+					} else {
+						// eslint-disable-next-line no-console
+						console.log( 'Deleted cache for this page and reloading' );
+					}
 					window.location.reload();
 				},
-				complete: function ( msg ) {
+				complete: function () {
 					$( '#wp-admin-bar-delete-cache' ).fadeIn( 'slow' );
 				},
 			} );
