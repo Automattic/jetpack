@@ -34,19 +34,26 @@ const launchButtonData = typeof window === 'object' ? window.JETPACK_LAUNCH_BUTT
 export function LaunchButton( { onCelebrationModalClose } ) {
 	const [ showCelebrateLaunchModal, setShowCelebrateLaunchModal ] = useState( false );
 
-	const { mutate: launchSite } = useLaunchSiteMutation( launchButtonData.blogId, () =>
+	const { mutate: launchSite, isPending } = useLaunchSiteMutation( launchButtonData.blogId, () =>
 		setShowCelebrateLaunchModal( true )
 	);
 
 	const handleLaunchClick = e => {
 		e.preventDefault();
+		if ( isPending ) return;
 		wpcomTrackEvent( 'wpcom_adminbar_launch_site' );
 		launchSite();
 	};
 
 	return (
 		<>
-			<a className="ab-item" role="menuitem" href="#" onClick={ handleLaunchClick }>
+			<a
+				className={ `ab-item${ isPending ? ' is-busy' : '' }` }
+				role="menuitem"
+				href="#"
+				onClick={ handleLaunchClick }
+				aria-disabled={ isPending }
+			>
 				<Content />
 			</a>
 			{ showCelebrateLaunchModal && (
