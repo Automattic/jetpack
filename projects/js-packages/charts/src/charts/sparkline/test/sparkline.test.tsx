@@ -3,11 +3,11 @@
 import { render, screen } from '@testing-library/react';
 import { Sparkline, SparklineUnresponsive } from '../';
 import { GlobalChartsProvider, defaultTheme } from '../../../providers';
-import { buildCustomTheme, DEFAULT_ACCENT_COLOR } from '../../../stories/theme-config';
+import { customTheme } from '../../../stories/theme-config';
 
 const THEME_MAP = {
 	default: defaultTheme,
-	custom: buildCustomTheme( DEFAULT_ACCENT_COLOR ),
+	custom: customTheme,
 };
 
 describe( 'Sparkline', () => {

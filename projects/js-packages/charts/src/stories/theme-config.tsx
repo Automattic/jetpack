@@ -7,30 +7,26 @@ import type { ChartTheme } from '../types';
 export const DEFAULT_ACCENT_COLOR = '#4a19ab';
 
 /**
- * Build a custom theme with a given accent color.
- * Accepts the color directly rather than referencing a design-system token,
- * following the WordPress guidance to not manually override DS tokens.
- * @param accentColor - Hex color string to use as the primary chart color.
- * @return A ChartTheme configured with the given accent color.
+ * Custom theme using a CSS variable set by `ThemeProvider` for dynamic color generation.
+ * The `--wpds-color-bg-interactive-brand-weak` token is set by wrapping
+ * the component tree in a WPDS `ThemeProvider` with a `color.primary` seed.
  */
-export function buildCustomTheme( accentColor: string ): ChartTheme {
-	return {
-		colors: [ accentColor ],
-		seriesLineStyles: [
-			{},
-			{
-				strokeDasharray: '5 8',
-			},
-		],
-		geoChart: {
-			featureFillColor: '#ffffff',
+export const customTheme: ChartTheme = {
+	colors: [ 'var(--wpds-color-bg-interactive-brand-weak)' ],
+	seriesLineStyles: [
+		{},
+		{
+			strokeDasharray: '5 8',
 		},
-		gridStyles: {
-			stroke: '#ffe3e3',
-			strokeWidth: 2,
-		},
-	} as ChartTheme;
-}
+	],
+	geoChart: {
+		featureFillColor: '#ffffff',
+	},
+	gridStyles: {
+		stroke: '#ffe3e3',
+		strokeWidth: 2,
+	},
+} as ChartTheme;
 
 /**
  * Theme that uses a variety of color formats (hex, RGB, RGBA, HSL, named)
@@ -69,13 +65,11 @@ export const mixedColorFormatsTheme: ChartTheme = {
 } as ChartTheme;
 
 /**
- * Centralized static theme map for all chart stories.
- * The 'custom' theme is not included here because it is built dynamically
- * from the user-selected accent color via `buildCustomTheme()`.
+ * Centralized theme map for all chart stories
  */
 export const CHART_THEME_MAP: Record< string, ChartTheme | undefined > = {
 	default: defaultTheme,
-	custom: undefined,
+	custom: customTheme,
 	'mixed-color-formats': mixedColorFormatsTheme,
 };
 

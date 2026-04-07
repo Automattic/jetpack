@@ -1,8 +1,14 @@
 import { setLocale } from '@automattic/number-formatters';
+import { privateApis as themePrivateApis } from '@wordpress/theme';
 import { useEffect, useRef, useCallback } from 'react';
 import { GlobalChartsProvider } from '../providers';
-import { buildCustomTheme, CHART_THEME_MAP, DEFAULT_ACCENT_COLOR } from './theme-config';
+import { CHART_THEME_MAP, DEFAULT_ACCENT_COLOR } from './theme-config';
+import { unlock } from './unlock';
 import type { Decorator } from '@storybook/react';
+
+const { ThemeProvider } = unlock( themePrivateApis ) as {
+	ThemeProvider: typeof import('@wordpress/theme').ThemeProvider;
+};
 
 /**
  * Generic StoryArgs type that extends any chart component props with themeName
@@ -115,11 +121,11 @@ const isValidHexColor = ( color: string ): boolean => {
 
 /**
  * Provider wrapper for Storybook chart stories
- * Handles theme setup, locale initialization, and GlobalChartsProvider
+ * Handles theme setup, WPDS ThemeProvider for accent colors, locale initialization, and GlobalChartsProvider
  * @param root0             - Props object
  * @param root0.children    - Child components to render
  * @param root0.themeName   - Theme name to apply
- * @param root0.accentColor - Accent color for custom theme (passed directly into the theme)
+ * @param root0.accentColor - Accent color for custom theme (fed to WPDS ThemeProvider as primary seed)
  * @return JSX element with chart environment setup and GlobalChartsProvider
  */
 const StoryChartProvider = ( {
@@ -140,26 +146,27 @@ const StoryChartProvider = ( {
 		}
 	}, [] );
 
+	const theme = CHART_THEME_MAP[ themeName ];
+
 	// Sanitize accent color to prevent XSS via CSS injection
 	// Falls back to default if invalid hex color is provided
 	const sanitizedAccentColor = isValidHexColor( accentColor ) ? accentColor : DEFAULT_ACCENT_COLOR;
 
-	// For the custom theme, build it dynamically from the accent color.
-	// Other themes are looked up from the static map.
-	const theme =
-		themeName === 'custom'
-			? buildCustomTheme( sanitizedAccentColor )
-			: CHART_THEME_MAP[ themeName ];
-
 	// Force GlobalChartsProvider to remount when accent color changes for custom theme
-	// This ensures colors are re-resolved
+	// This ensures CSS variables are re-resolved after the DOM updates
 	const providerKey = themeName === 'custom' ? `custom-${ sanitizedAccentColor }` : themeName;
 
-	return (
+	const provider = (
 		<GlobalChartsProvider key={ providerKey } theme={ theme }>
 			{ children }
 		</GlobalChartsProvider>
 	);
+
+	if ( themeName === 'custom' ) {
+		return <ThemeProvider color={ { primary: sanitizedAccentColor } }>{ provider }</ThemeProvider>;
+	}
+
+	return provider;
 };
 
 /**
