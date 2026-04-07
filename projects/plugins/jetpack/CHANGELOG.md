@@ -5,7 +5,7 @@
 
 ## 15.7-beta.2 - 2026-04-07
 ### Bug fixes
-- Forthcoming...
+- Block Notes: Temporarily disable feature to prevent expensive API calls on every Gutenberg page load. [#47976]
 
 ## 15.7-beta - 2026-04-06
 ### Major Enhancements
