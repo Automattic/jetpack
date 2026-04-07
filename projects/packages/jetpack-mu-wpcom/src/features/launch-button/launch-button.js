@@ -1,6 +1,4 @@
-import { useExperimentWithAuth } from '@automattic/jetpack-explat';
 import { __ } from '@wordpress/i18n';
-import { addQueryArgs } from '@wordpress/url';
 import { useState } from 'react';
 import CelebrateLaunchModal from '../../common/celebrate-launch/celebrate-launch-modal';
 import { useLaunchSiteMutation } from '../../common/hooks';
@@ -28,37 +26,17 @@ const launchButtonData = typeof window === 'object' ? window.JETPACK_LAUNCH_BUTT
 
 /**
  * The LaunchButton component.
+ * Renders only when the user is in the `ungated_site_launch` variation.
  * @param {object}   props                         - Props
  * @param {Function} props.onCelebrationModalClose - Callback on celebration modal close.
  * @return {React.ReactNode} The LaunchButton component.
  */
 export function LaunchButton( { onCelebrationModalClose } ) {
-	const [ , data ] = useExperimentWithAuth( 'calypso_standardized_site_launch_gating' );
 	const [ showCelebrateLaunchModal, setShowCelebrateLaunchModal ] = useState( false );
 
 	const { mutate: launchSite } = useLaunchSiteMutation( launchButtonData.blogId, () =>
 		setShowCelebrateLaunchModal( true )
 	);
-
-	// Default experience. Markup should match what's coming from the back-end.
-	if ( ! data || data.variationName !== 'ungated_site_launch' ) {
-		// Maybe this data can come from the server.
-		const launchUrl = addQueryArgs( 'https://wordpress.com/start/launch-site', {
-			siteSlug: launchButtonData.siteDomain,
-			ref: 'wp-admin',
-		} );
-
-		return (
-			<a
-				className="ab-item"
-				role="menuitem"
-				href={ launchUrl }
-				onClick={ () => wpcomTrackEvent( 'wpcom_adminbar_launch_site' ) }
-			>
-				<Content />
-			</a>
-		);
-	}
 
 	const handleLaunchClick = e => {
 		e.preventDefault();

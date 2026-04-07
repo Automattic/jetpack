@@ -5,8 +5,45 @@
  * @package automattic/jetpack-mu-wpcom
  */
 
+use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\Common;
+use Automattic\Jetpack\Status\Host;
+
+/**
+ * Resolves the ExPlat assignment for the launch button experiment.
+ * Returns the variation name string or null.
+ *
+ * @return string|null
+ */
+function wpcom_get_launch_button_experiment_variation(): ?string {
+	$experiment_name = 'calypso_launch_button_experiment_test_20260319_4';
+
+	if ( ( new Host() )->is_wpcom_simple() ) {
+		if ( function_exists( '\ExPlat\assign_current_user' ) ) {
+			return \ExPlat\assign_current_user( $experiment_name );
+		}
+		return null;
+	}
+
+	if ( ( new Connection_Manager() )->is_user_connected() ) {
+		$response = Client::wpcom_json_api_request_as_user(
+			add_query_arg(
+				array( 'experiment_names' => $experiment_name ),
+				'/experiments/0.1.0/assignments/calypso'
+			),
+			'v2'
+		);
+
+		if ( ! is_wp_error( $response ) && 200 === wp_remote_retrieve_response_code( $response ) ) {
+			$data = json_decode( wp_remote_retrieve_body( $response ), true );
+			return $data['variations'][ $experiment_name ] ?? null;
+		}
+	}
+
+	return null;
+}
 
 /**
  * Determine whether the launch button should be shown/enhanced on this request.
@@ -83,7 +120,7 @@ function wpcom_add_launch_button_to_admin_bar( WP_Admin_Bar $admin_bar ) {
 			'id'     => 'menu-id',
 			'parent' => null,
 			'group'  => null,
-			'title'  => '<span class="ab-icon">' . $icon . '</span><span class="ab-label">' . __( 'Launch site', 'jetpack-mu-wpcom' ) . '</span>',
+			'title'  => '<span class="ab-icon">' . $icon . '</span><span class="ab-label">' . __( 'Launch site TEST', 'jetpack-mu-wpcom' ) . '</span>',
 			'href'   => add_query_arg(
 				array(
 					'siteSlug' => $blog_domain,
@@ -130,6 +167,7 @@ function wpcom_enqueue_launch_button_assets() {
 			'siteDomain'      => wp_parse_url( home_url(), PHP_URL_HOST ),
 			'sitePlan'        => $current_plan,
 			'hasCustomDomain' => function_exists( 'wpcom_site_has_feature' ) && wpcom_site_has_feature( 'custom-domain' ),
+			'variationName'   => wpcom_get_launch_button_experiment_variation(),
 		),
 		JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 	);

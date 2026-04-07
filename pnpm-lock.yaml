@@ -2656,9 +2656,6 @@ importers:
       '@automattic/jetpack-components':
         specifier: workspace:*
         version: link:../../js-packages/components
-      '@automattic/jetpack-explat':
-        specifier: workspace:*
-        version: link:../explat
       '@automattic/jetpack-script-data':
         specifier: workspace:*
         version: link:../../js-packages/script-data
