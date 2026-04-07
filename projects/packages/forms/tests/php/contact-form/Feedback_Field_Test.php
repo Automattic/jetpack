@@ -587,6 +587,43 @@ class Feedback_Field_Test extends BaseTestCase {
 		$this->assertEquals( 5, $value['maxRating'] );
 	}
 
+	/**
+	 * Test rating field with non-string array input renders safely in web context.
+	 */
+	public function test_rating_field_with_array_value_renders_safely_in_web_context() {
+		$field = new Feedback_Field( 'rating_key', 'Rating', array( '1/5', '2/5' ), 'rating' );
+
+		$value = $field->get_render_value( 'web' );
+
+		$this->assertIsString( $value );
+		$this->assertSame( '', $value );
+	}
+
+	/**
+	 * Test rating field with non-string array input renders safely in email context.
+	 */
+	public function test_rating_field_with_array_value_renders_safely_in_email_context() {
+		$field = new Feedback_Field( 'rating_key', 'Rating', array( '3/5' ), 'rating' );
+
+		$value = $field->get_render_value( 'email' );
+
+		$this->assertIsString( $value );
+		$this->assertSame( '', $value );
+	}
+
+	/**
+	 * Regression pin for the email_html rating path. render_email_rating() already
+	 * guards non-string input; this test exists to keep that safe path safe.
+	 */
+	public function test_rating_field_with_array_value_renders_safely_in_email_html_context() {
+		$field = new Feedback_Field( 'rating_key', 'Rating', array( '3/5' ), 'rating' );
+
+		$value = $field->get_render_value( 'email_html' );
+
+		$this->assertIsString( $value );
+		$this->assertStringNotContainsString( '&#9733;', $value );
+	}
+
 	// ─── Email HTML rendering tests ───
 
 	/**

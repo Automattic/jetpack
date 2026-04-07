@@ -317,6 +317,12 @@ class Feedback_Field {
 	 * @return array|string Structured rating data or original value if parsing fails.
 	 */
 	private function get_rating_value() {
+		// Field values arrive as `mixed` (per the constructor); short-circuit
+		// to an empty string for non-string values.
+		if ( ! is_string( $this->value ) ) {
+			return '';
+		}
+
 		if ( empty( $this->value ) ) {
 			return $this->value;
 		}
