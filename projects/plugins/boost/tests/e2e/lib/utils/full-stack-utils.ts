@@ -70,7 +70,9 @@ export function getDevDomain(): string {
  * Passes --url to ensure home_url() returns the correct domain instead of http://localhost
  * (wp-config.php:99 sets WP_HOME='http://localhost' when HTTP_HOST is empty in Docker).
  *
- * Always uses array form to preserve JSON arguments containing spaces.
+ * **Use array form for commands with spaces in arguments** (JSON values, `wp eval` code, etc.).
+ * The string form splits on whitespace, matching the e2e-commons `executeCommand` convention,
+ * but will break quoted/space-containing args.
  *
  * @param  command - WP-CLI command string or argument array.
  * @return {Promise<string>} Command stdout.
