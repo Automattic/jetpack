@@ -33,19 +33,13 @@ const HEADLESS_AGENT_PROVIDER = 'block-notes/headless-agent-provider';
  * @return bool
  */
 function is_block_notes_enabled() {
-	if ( is_big_sky_enabled() ) {
-		return true;
-	}
-
-	if ( ! has_jetpack_ai_features() ) {
-		return false;
-	}
-
-	if ( ! has_paid_ai_plan() ) {
-		return false;
-	}
-
-	return true;
+	/*
+	 * Temporarily disabled while we investigate expensive API calls
+	 * triggered by has_paid_ai_plan() on every Gutenberg page load for
+	 * self-hosted sites, and premature Agents Manager activation via
+	 * the unified experience filter.
+	 */
+	return false;
 }
 
 /**
