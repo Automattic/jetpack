@@ -239,12 +239,12 @@ function zeroBSCRM_html_addEditSegment( $potentialID = -1 ) {
 					to: '<?php esc_html_e( 'to', 'zero-bs-crm' ); ?>',
 					eg: '<?php esc_html_e( 'e.g.', 'zero-bs-crm' ); ?>',
 
-					saveSegment: '<?php echo esc_html( zeroBSCRM_slashOut( 'Save Segment', true ) ) . ' <i class="save icon">'; ?>',
-					savedSegment: '<?php echo esc_html( zeroBSCRM_slashOut( 'Segment Saved', true ) ) . ' <i class="check circle outline icon">'; ?>',
+					saveSegment: '<?php esc_html_e( 'Save Segment', 'zero-bs-crm' ); ?> <i class="save icon">',
+					savedSegment: '<?php esc_html_e( 'Segment Saved', 'zero-bs-crm' ); ?> <i class="check circle outline icon">',
 
 					contactfields: '=== <?php esc_html_e( 'Contact Fields', 'zero-bs-crm' ); ?> ===',
 
-					default_description: '<?php echo esc_html( zeroBSCRM_slashOut( 'Condition which selects contacts based on given value', true ) ); ?>',
+					default_description: '<?php esc_html_e( 'Condition which selects contacts based on given value', 'zero-bs-crm' ); ?>',
 				};
 				var jpcrm_external_source_list = <?php echo wp_json_encode( $external_source_array, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
 
