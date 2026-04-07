@@ -24,11 +24,11 @@
 		"extends @wordpress/browserslist-config"
 	],
 	"dependencies": {
-		"@wordpress/api-fetch": "7.42.0",
+		"@wordpress/api-fetch": "7.43.0",
 		"@wordpress/components": "32.4.0",
 		"@wordpress/data": "10.42.0",
 		"@wordpress/element": "6.42.0",
-		"@wordpress/hooks": "4.42.0",
+		"@wordpress/hooks": "4.43.0",
 		"@wordpress/i18n": "6.15.0",
 		"@wordpress/plugins": "7.42.0",
 		"clsx": "2.1.1",
@@ -41,7 +41,7 @@
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
 		"@wordpress/base-styles": "6.18.0",
-		"@wordpress/browserslist-config": "6.42.0",
+		"@wordpress/browserslist-config": "6.43.0",
 		"sass-embedded": "1.97.3",
 		"sass-loader": "16.0.5",
 		"webpack": "5.105.2",

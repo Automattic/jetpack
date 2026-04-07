@@ -2,6 +2,31 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 15.7-beta - 2026-04-06
+### Major Enhancements
+- AI Assistant: Disable the Write Brief (Breve) proofreading feature by default. It can be re-enabled via the 'breve_enabled' filter. [#47914]
+- Jetpack AI Image Generation & Editing: Evolve & enhance Jetpack AI Image Generation. [#47829]
+
+### Enhancements
+- Admin Menu: Reorder menu items so that links opening in new windows appear last. [#47418]
+- Block Notes: Update enablement logic to use AI feature checks and gate feature behind a paid Jetpack AI plan. [#47810]
+- Network Admin: Replace legacy PHP masthead on Network Sites and Network Settings pages with the unified AdminPage header from @automattic/jetpack-components. [#47912]
+- Settings: Align tab navigation font and color with WordPress design system tokens. [#47942]
+- Update admin page footer with Products and Help navigation links, replacing About, Privacy, and Terms links. [#47840]
+- Update network admin settings visually. [#47912]
+
+### Improved compatibility
+- External Media: ensure that the new WordPress "Embed video from URL" option appears in the Cover block options alongside Jetpack's External Media options. [#47819]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Comment: Add Tracking to Jetpack upsell link. [#47937]
+- Fix upgrade menu item color on problematic admin color schemes. [#47903]
+- Module list: Ensure capitalization is consistent. [#47843]
+- Remove memberships_gift CPT, replaced by COMPS on WordPress.com. [#47859]
+- Subscriptions: Update panel name to include Jetpack branding. [#47857]
+- Update design of the sidebar upsell. [#47909]
+- Update package dependencies. [#47899]
+
 ## 15.7-a.7 - 2026-03-30
 ### Enhancements
 - Add 'note' to the default whitelisted comment types for Sync. [#47746]

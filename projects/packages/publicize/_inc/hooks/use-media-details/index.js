@@ -1,3 +1,4 @@
+import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { useCallback, useEffect, useState } from '@wordpress/element';
 
@@ -88,14 +89,32 @@ const getMediaDetails = async media => {
  * Hook to handle storing the attached media.
  *
  * @param {number} mediaId - ID of the current media in the Media Lib.
- * @return {[ mediaDetails: import('./types').MediaDetails ]} - The media details
+ * @return {[ mediaDetails: import('./types').MediaDetails, isNotFound: boolean ]} - The media details and whether the attachment was not found
  */
 export default function useMediaDetails( mediaId = null ) {
 	const [ mediaDetails, setMediaDetails ] = useState( [ {} ] );
 
+	// Returns the media object, null (resolved but not found), or undefined (still loading).
+	// Same pattern as useSigPreview's getMedia callback.
 	const mediaObject = useSelect(
-		select =>
-			select( 'core' ).getEntityRecord( 'postType', 'attachment', mediaId, { context: 'view' } ),
+		select => {
+			if ( ! mediaId ) {
+				return null;
+			}
+			const media = select( coreStore ).getEntityRecord( 'postType', 'attachment', mediaId, {
+				context: 'view',
+			} );
+			if ( media ) {
+				return media;
+			}
+			const hasResolved = select( coreStore ).hasFinishedResolution( 'getEntityRecord', [
+				'postType',
+				'attachment',
+				mediaId,
+				{ context: 'view' },
+			] );
+			return hasResolved ? null : undefined;
+		},
 		[ mediaId ]
 	);
 
@@ -112,5 +131,8 @@ export default function useMediaDetails( mediaId = null ) {
 		getAsyncDetails();
 	}, [ getAsyncDetails ] );
 
-	return mediaDetails;
+	// Media was resolved but the attachment doesn't exist (deleted)
+	const isNotFound = mediaObject === null && !! mediaId;
+
+	return [ mediaDetails[ 0 ], isNotFound ];
 }

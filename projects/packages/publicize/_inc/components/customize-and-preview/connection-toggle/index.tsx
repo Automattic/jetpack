@@ -45,9 +45,10 @@ export function ConnectionToggle( { connection }: ConnectionToggleProps ) {
 		<ToggleControl
 			__nextHasNoMarginBottom
 			label={ sprintf(
-				/* translators: %s: social media account title */
-				__( 'Share to %s', 'jetpack-publicize-pkg' ),
-				connection.display_name
+				/* translators: %1$s: social media account name, %2$s: social media platform name (e.g. Facebook, LinkedIn) */
+				__( 'Share to %1$s on %2$s', 'jetpack-publicize-pkg' ),
+				connection.display_name,
+				connection.service_label
 			) }
 			className={ styles[ 'connection-toggle' ] }
 			checked={ isEnabled }
