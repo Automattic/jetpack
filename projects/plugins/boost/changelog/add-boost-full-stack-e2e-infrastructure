@@ -1,3 +1,4 @@
 Significance: patch
-Type: added
-Comment: Add full-stack E2E test infrastructure for the Boost Cloud pipeline. Fix WP-CLI module activation not triggering side-effect hooks (e.g., Cloud CSS regeneration).
+Type: fixed
+
+Fix WP-CLI module activation not triggering side-effect hooks (e.g., Cloud CSS regeneration). Add full-stack E2E test infrastructure for the Boost Cloud pipeline.

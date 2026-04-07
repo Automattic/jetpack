@@ -149,10 +149,17 @@ class CLI {
 
 		$status_label = $status ? __( 'activated', 'jetpack-boost' ) : __( 'deactivated', 'jetpack-boost' );
 
-		/* translators: The %1$s refers to the module slug, %2$s refers to the module state (either activated or deactivated)*/
-		\WP_CLI::success(
-			sprintf( __( "'%1\$s' has been %2\$s.", 'jetpack-boost' ), $module_slug, $status_label )
-		);
+		if ( $updated ) {
+			/* translators: The %1$s refers to the module slug, %2$s refers to the module state (either activated or deactivated)*/
+			\WP_CLI::success(
+				sprintf( __( "'%1\$s' has been %2\$s.", 'jetpack-boost' ), $module_slug, $status_label )
+			);
+		} else {
+			/* translators: The %1$s refers to the module slug, %2$s refers to the module state (either activated or deactivated)*/
+			\WP_CLI::warning(
+				sprintf( __( "'%1\$s' was already %2\$s.", 'jetpack-boost' ), $module_slug, $status_label )
+			);
+		}
 	}
 
 	/**

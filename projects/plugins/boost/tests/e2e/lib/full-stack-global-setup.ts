@@ -57,7 +57,9 @@ setup( 'full-stack environment health check', async ( { request } ) => {
 		).toContain( response.status() );
 	} );
 
-	// Gate 3: Shield API is healthy
+	// Gate 3: Shield API is healthy.
+	// Uses localhost:1982 (host-side port mapping) — not boost-shield:1982 (Docker-internal).
+	// BOOST_DEV_DEFAULTS.shield_url uses the Docker hostname for container-to-container routing.
 	await setup.step( 'Shield API is healthy', async () => {
 		let healthy = false;
 		for ( let attempt = 0; attempt < 6; attempt++ ) {
@@ -111,8 +113,9 @@ setup( 'full-stack environment health check', async ( { request } ) => {
 			'%{http_code}',
 			`http://${ devDomain }/`,
 		] );
-		// Parse last line only — Docker Compose may emit stderr warnings before stdout.
-		const httpCode = parseInt( output.trim().split( '\n' ).pop() ?? '', 10 );
+		// Extract 3-digit HTTP status code — execDocker concatenates stdout+stderr,
+		// so Docker Compose warnings may surround curl's status code output.
+		const httpCode = parseInt( output.match( /\b[1-5]\d{2}\b/ )?.[ 0 ] ?? '', 10 );
 		expect(
 			[ 200, 301, 302 ],
 			`Hydra got HTTP ${ httpCode } reaching http://${ devDomain }/`
