@@ -46,7 +46,9 @@ const LaunchpadWidget = ( { siteDomain, siteIntent } ) => {
 
 	const variationName = experimentData?.variationName;
 
-	const { mutate: launchSite } = useLaunchSiteMutation( () => setShowCelebrateLaunchModal( true ) );
+	const { mutate: launchSite } = useLaunchSiteMutation( data.blogId, () =>
+		setShowCelebrateLaunchModal( true )
+	);
 
 	const onTaskClick = task => {
 		if ( ! task.isLaunchTask || ! variationName ) {
