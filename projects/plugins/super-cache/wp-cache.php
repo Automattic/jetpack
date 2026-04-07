@@ -1383,8 +1383,11 @@ table.wpsc-settings-table {
 		<p><?php _e( 'Newest Cached Pages:', 'wp-super-cache' ); ?><ol>
 			<?php
 			foreach ( array_reverse( $supercache_last_cached_option ) as $url ) {
+				if ( ! is_array( $url ) ) {
+					continue;
+				}
 				$since = time() - strtotime( $url['date'] ?? '' );
-				echo "<li><a title='" . sprintf( esc_html__( 'Cached %s seconds ago', 'wp-super-cache' ), (int) $since ) . "' href='" . site_url( $url['url'] ) . "'>" . substr( $url['url'], 0, 20 ) . "</a></li>\n";
+				echo "<li><a title='" . sprintf( esc_html__( 'Cached %s seconds ago', 'wp-super-cache' ), (int) $since ) . "' href='" . esc_url( site_url( $url['url'] ?? '' ) ) . "'>" . substr( $url['url'] ?? '', 0, 20 ) . "</a></li>\n";
 			}
 			?>
 			</ol>

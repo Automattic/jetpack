@@ -1,4 +1,4 @@
-Significance: minor
-Type: changed
+Significance: patch
+Type: fixed
 
-WP Super Cache: fix "Trying to access array offset on false" PHP warning by typechecking 'supercache_last_cached' option return value
+Fix a PHP warning when the newest cached pages list is unavailable.
