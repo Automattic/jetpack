@@ -1387,7 +1387,8 @@ table.wpsc-settings-table {
 					continue;
 				}
 				$since = time() - strtotime( $url['date'] ?? '' );
-				echo "<li><a title='" . sprintf( esc_html__( 'Cached %s seconds ago', 'wp-super-cache' ), (int) $since ) . "' href='" . esc_url( site_url( $url['url'] ?? '' ) ) . "'>" . substr( $url['url'] ?? '', 0, 20 ) . "</a></li>\n";
+				// translators: %s is the number of seconds since the page was cached.
+				echo "<li><a title='" . sprintf( esc_html__( 'Cached %s seconds ago', 'wp-super-cache' ), (int) $since ) . "' href='" . esc_url( site_url( $url['url'] ?? '' ) ) . "'>" . esc_html( substr( $url['url'] ?? '', 0, 20 ) ) . "</a></li>\n";
 			}
 			?>
 			</ol>
