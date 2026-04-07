@@ -216,9 +216,9 @@ function zeroBSCRM_html_addEditSegment( $potentialID = -1 ) {
 				var jpcrm_available_contact_tags = <?php echo wp_json_encode( $available_tags_contacts, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
 				var jpcrm_available_transaction_tags = <?php echo wp_json_encode( $available_tags_transactions, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
 				var zbsAvailableStatuses = <?php echo wp_json_encode( $availableStatuses, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
-				var zbsSegmentStemURL = '<?php echo jpcrm_esc_link( 'edit', -1, 'segment', true ); ?>';
-				var jpcrm_contact_stem_URL = '<?php echo jpcrm_esc_link( 'view', -1, 'contact', true ); ?>';
-				var zbsSegmentListURL = '<?php echo jpcrm_esc_link( $zbs->slugs['segments'] ); ?>';
+				var zbsSegmentStemURL = <?php echo wp_json_encode( jpcrm_esc_link( 'edit', -1, 'segment', true ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
+				var jpcrm_contact_stem_URL = <?php echo wp_json_encode( jpcrm_esc_link( 'view', -1, 'contact', true ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
+				var zbsSegmentListURL = <?php echo wp_json_encode( jpcrm_esc_link( $zbs->slugs['segments'] ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
 				var zbsSegmentSEC = <?php echo wp_json_encode( wp_create_nonce( 'zbs-ajax-nonce' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
 				var zbsSegmentLang = {
 					generalerrortitle: '<?php esc_html_e( 'General Error', 'zero-bs-crm' ); ?>',
