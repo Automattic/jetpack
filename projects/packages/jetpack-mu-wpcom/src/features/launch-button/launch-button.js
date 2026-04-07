@@ -1,7 +1,7 @@
 import { __ } from '@wordpress/i18n';
 import { useState } from 'react';
 import CelebrateLaunchModal from '../../common/celebrate-launch/celebrate-launch-modal';
-import { useLaunchSiteMutation } from '../../common/hooks';
+import launchSite from '../../common/launch-site';
 import { wpcomTrackEvent } from '../../common/tracks';
 
 const icon = (
@@ -33,16 +33,26 @@ const launchButtonData = typeof window === 'object' ? window.JETPACK_LAUNCH_BUTT
  */
 export function LaunchButton( { onCelebrationModalClose } ) {
 	const [ showCelebrateLaunchModal, setShowCelebrateLaunchModal ] = useState( false );
-
-	const { mutate: launchSite, isPending } = useLaunchSiteMutation( launchButtonData.blogId, () =>
-		setShowCelebrateLaunchModal( true )
-	);
+	const [ isPending, setIsPending ] = useState( false );
 
 	const handleLaunchClick = e => {
 		e.preventDefault();
 		if ( isPending ) return;
+
+		setIsPending( true );
 		wpcomTrackEvent( 'wpcom_adminbar_launch_site' );
-		launchSite();
+
+		launchSite( launchButtonData.blogId )
+			.then( () => {
+				setShowCelebrateLaunchModal( true );
+			} )
+			.catch( error => {
+				// eslint-disable-next-line no-console
+				console.error( 'Failed to launch site:', error );
+			} )
+			.finally( () => {
+				setIsPending( false );
+			} );
 	};
 
 	return (
