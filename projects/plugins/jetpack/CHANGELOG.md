@@ -2,7 +2,12 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
-## 15.7 - 2026-04-07
+
+## 15.7-beta.2 - 2026-04-07
+### Bug fixes
+- Forthcoming...
+
+## 15.7-beta - 2026-04-06
 ### Major Enhancements
 - Jetpack AI Image Generation & Editing: Evolve & enhance Jetpack AI Image Generation. [#47829]
 
