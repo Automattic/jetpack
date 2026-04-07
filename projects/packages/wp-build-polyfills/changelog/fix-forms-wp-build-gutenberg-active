@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Skip force-replacing polyfill scripts when the Gutenberg plugin is active, preventing crashes from allowlist mismatches (e.g. @wordpress/views).
