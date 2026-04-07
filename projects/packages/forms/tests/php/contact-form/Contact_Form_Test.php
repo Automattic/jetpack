@@ -4096,4 +4096,135 @@ class Contact_Form_Test extends BaseTestCase {
 		$this->assertContains( 'jetpack-contact-form-container', $classes_array );
 		$this->assertContains( 'alignwide', $classes_array );
 	}
+
+	/**
+	 * Test that get_field_type_icon rejects field types that don't match the
+	 * required format (lowercase letter prefix, then lowercase letters, digits,
+	 * or hyphens).
+	 *
+	 * @dataProvider data_provider_get_field_type_icon_invalid
+	 *
+	 * @param mixed  $field_type  The field type to test.
+	 * @param string $description Human-readable description of the case.
+	 */
+	#[DataProvider( 'data_provider_get_field_type_icon_invalid' )]
+	public function test_get_field_type_icon_rejects_invalid_field_type_format( $field_type, $description ) {
+		$reflection = new \ReflectionClass( Contact_Form::class );
+		$method     = $reflection->getMethod( 'get_field_type_icon' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+
+		$result = $method->invoke( null, $field_type );
+
+		$this->assertSame( '', $result, $description );
+	}
+
+	/**
+	 * Data provider for invalid field type format cases.
+	 *
+	 * @return array[]
+	 */
+	public static function data_provider_get_field_type_icon_invalid() {
+		return array(
+			'contains parent directory segment' => array(
+				'../../../../etc/passwd',
+				'Field type containing ../ should be rejected',
+			),
+			'contains url-encoded path segment' => array(
+				'..%2F..%2Fetc%2Fpasswd',
+				'Field type with url-encoded path segment should be rejected',
+			),
+			'contains backslash path segment'   => array(
+				'..\\..\\windows\\system32',
+				'Field type with backslash path segment should be rejected',
+			),
+			'leading slash'                     => array(
+				'/etc/passwd',
+				'Field type beginning with a forward slash should be rejected',
+			),
+			'contains null byte'                => array(
+				"text\0.svg",
+				'Field type with embedded null byte should be rejected',
+			),
+			'uppercase letters'                 => array(
+				'TEXT',
+				'Uppercase field type should be rejected (strict format)',
+			),
+			'starts with digit'                 => array(
+				'1text',
+				'Field type starting with digit should be rejected',
+			),
+			'starts with hyphen'                => array(
+				'-text',
+				'Field type starting with hyphen should be rejected',
+			),
+			'contains space'                    => array(
+				'text field',
+				'Field type with space should be rejected',
+			),
+			'non-string array'                  => array(
+				array( 'text' ),
+				'Array field type should be rejected',
+			),
+			'non-string integer'                => array(
+				123,
+				'Integer field type should be rejected',
+			),
+			'non-string null'                   => array(
+				null,
+				'Null field type should be rejected',
+			),
+			'empty string'                      => array(
+				'',
+				'Empty field type should be rejected',
+			),
+		);
+	}
+
+	/**
+	 * Test that get_field_type_icon returns valid SVG markup for known field types.
+	 *
+	 * Companion to test_get_field_type_icon_rejects_invalid_field_type_format —
+	 * ensures the format check does not break legitimate field types.
+	 *
+	 * @dataProvider data_provider_get_field_type_icon_valid
+	 *
+	 * @param string $field_type The valid field type to test.
+	 */
+	#[DataProvider( 'data_provider_get_field_type_icon_valid' )]
+	public function test_get_field_type_icon_accepts_valid_types( $field_type ) {
+		$reflection = new \ReflectionClass( Contact_Form::class );
+		$method     = $reflection->getMethod( 'get_field_type_icon' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+
+		$result = $method->invoke( null, $field_type );
+
+		// Valid field types either return SVG markup (when the icon file exists)
+		// or an empty string (when the block directory exists but has no icon.svg yet).
+		$this->assertIsString( $result, "Field type '$field_type' should return a string" );
+		if ( $result !== '' ) {
+			$this->assertStringContainsString( '<svg', $result, "Field type '$field_type' should return SVG markup" );
+		}
+	}
+
+	/**
+	 * Data provider for valid field type acceptance test cases.
+	 *
+	 * @return array[]
+	 */
+	public static function data_provider_get_field_type_icon_valid() {
+		return array(
+			'text'                           => array( 'text' ),
+			'email'                          => array( 'email' ),
+			'textarea'                       => array( 'textarea' ),
+			'phone (via exception map)'      => array( 'phone' ),
+			'telephone (via exception map)'  => array( 'telephone' ),
+			'radio (via exception map)'      => array( 'radio' ),
+			'checkbox-multiple (hyphenated)' => array( 'checkbox-multiple' ),
+			'image-select (hyphenated)'      => array( 'image-select' ),
+		);
+	}
 }

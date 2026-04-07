@@ -1743,6 +1743,13 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * @return string The SVG icon HTML.
 	 */
 	private static function get_field_type_icon( $field_type ) {
+		// Reject field types that don't fit the expected 'field-{type}' naming
+		// convention. Valid types are non-empty strings of lowercase letters,
+		// digits, and hyphens starting with a letter.
+		if ( ! is_string( $field_type ) || ! preg_match( '/^[a-z][a-z0-9-]*$/', $field_type ) ) {
+			return '';
+		}
+
 		// Map field types that don't follow the 'field-{type}' naming convention.
 		static $type_exceptions = array(
 			'phone'             => 'field-telephone',
