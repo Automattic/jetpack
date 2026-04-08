@@ -2,19 +2,9 @@
 	display: inline-flex;
 }
 
-// Reversed Jetpack logo: white circle, button color shows
-// through the transparent lightning bolt cutout.
 .jetpack-content-guidelines-ai__suggest-all-button .jetpack-logo {
 	width: 18px;
 	height: 18px;
-
-	.jetpack-logo__icon-circle {
-		fill: #fff;
-	}
-
-	.jetpack-logo__icon-triangle {
-		fill: var(--wp-components-color-accent, #3858e9);
-	}
 }
 
 // Empty state banner.

@@ -1,4 +1,4 @@
-import { JetpackLogo } from '@automattic/jetpack-shared-extension-utils/icons';
+import { JetpackLogo } from '@automattic/jetpack-components';
 import { Button } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
@@ -30,7 +30,7 @@ export default function SuggestAllButton() {
 		<Button
 			{ ...hiddenProps }
 			variant="primary"
-			icon={ <JetpackLogo size={ 8 } /> }
+			icon={ <JetpackLogo showText={ false } height={ 18 } logoColor="#fff" /> }
 			onClick={ generate }
 			disabled={ loading }
 			accessibleWhenDisabled
