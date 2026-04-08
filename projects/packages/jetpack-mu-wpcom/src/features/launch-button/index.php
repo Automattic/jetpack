@@ -143,6 +143,24 @@ function wpcom_enqueue_launch_button_assets() {
 	Common\wpcom_enqueue_tracking_scripts( 'adminbar-launch-button' );
 }
 
+/**
+ * Enqueue a wp-admin only script that flags the launch button as being in wp-admin.
+ *
+ * This is used to determine whether to reload the page when the celebration modal is closed.
+ */
+function wpcom_enqueue_admin_launch_button_assets() {
+	if ( ! wpcom_should_show_launch_button() ) {
+		return;
+	}
+
+	wp_add_inline_script(
+		'adminbar-launch-button',
+		'var JETPACK_LAUNCH_BUTTON_DATA_ADMIN = true;',
+		'before'
+	);
+}
+
 add_action( 'admin_bar_menu', 'wpcom_add_launch_button_to_admin_bar', 500 );
 add_action( 'wp_enqueue_scripts', 'wpcom_enqueue_launch_button_assets' );
 add_action( 'admin_enqueue_scripts', 'wpcom_enqueue_launch_button_assets' );
+add_action( 'admin_enqueue_scripts', 'wpcom_enqueue_admin_launch_button_assets' );
