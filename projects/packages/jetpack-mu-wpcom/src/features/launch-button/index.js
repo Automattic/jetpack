@@ -4,6 +4,9 @@ import { LaunchButton } from './launch-button';
 
 const queryClient = new QueryClient();
 
+const launchButtonDataAdmin =
+	typeof window === 'object' ? window.JETPACK_LAUNCH_BUTTON_DATA_ADMIN : false;
+
 /**
  * Renders the launch button.
  * @return {Promise<void>}
@@ -19,6 +22,12 @@ async function renderLaunchButton() {
 		<QueryClientProvider client={ queryClient }>
 			<LaunchButton
 				onCelebrationModalClose={ () => {
+					if ( launchButtonDataAdmin ) {
+						// If we're in wp-admin, reload the page so the new site status is reflected.
+						window.location.reload();
+						return;
+					}
+
 					root.unmount();
 					launchButton.remove();
 				} }
