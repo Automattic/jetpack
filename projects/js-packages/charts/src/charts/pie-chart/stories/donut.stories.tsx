@@ -265,7 +265,7 @@ const CustomPieLegend = ( {
 
 			return (
 				<Fragment key={ index }>
-					<Stack direction="row" justify="flex-start" gap="sm">
+					<Stack direction="row" justify="flex-start" align="center" gap="sm">
 						<div
 							style={ {
 								width: '8px',
