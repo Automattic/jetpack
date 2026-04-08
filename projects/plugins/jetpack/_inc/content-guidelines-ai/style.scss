@@ -2,9 +2,18 @@
 	display: inline-flex;
 }
 
+// Reversed Jetpack logo: white circle, green lightning.
 .jetpack-content-guidelines-ai__suggest-all-button .jetpack-logo {
 	width: 18px;
 	height: 18px;
+
+	.jetpack-logo__icon-circle {
+		fill: #fff;
+	}
+
+	.jetpack-logo__icon-triangle {
+		fill: #069e08;
+	}
 }
 
 // Empty state banner.

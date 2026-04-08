@@ -3,7 +3,6 @@ import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { closeSmall } from '@wordpress/icons';
-import { STORE_NAME, VALID_SECTIONS } from '../constants';
 import useGenerateAll from '../hooks/use-generate-all';
 import { AI_STORE_NAME } from '../store';
 
@@ -12,11 +11,6 @@ export default function EmptyStateBanner() {
 	const { dismissBanner } = useDispatch( AI_STORE_NAME );
 
 	const dismissed = useSelect( select => select( AI_STORE_NAME ).isBannerDismissed(), [] );
-
-	const allEmpty = useSelect( select => {
-		const store = select( STORE_NAME );
-		return VALID_SECTIONS.every( slug => ! store.getGuideline( slug ) );
-	}, [] );
 
 	const handleDismiss = useCallback( () => {
 		dismissBanner();
@@ -27,7 +21,7 @@ export default function EmptyStateBanner() {
 		generate();
 	}, [ dismissBanner, generate ] );
 
-	if ( dismissed || ! allEmpty ) {
+	if ( dismissed ) {
 		return null;
 	}
 
