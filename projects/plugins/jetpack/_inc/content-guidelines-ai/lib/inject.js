@@ -125,9 +125,7 @@ function runAll() {
 			{ slug }
 		);
 
-		// Suggestion actions (diff overlay + accept/dismiss buttons).
-		// Appended at the end of the VStack. The diff overlay
-		// repositions itself into the textarea wrapper via JS.
+		// Suggestion actions (diff + accept/dismiss) at top of form.
 		inject(
 			`actions-${ slug }`,
 			() => {
@@ -135,6 +133,7 @@ function runAll() {
 				return vStack
 					? {
 							parent: vStack,
+							before: vStack.firstChild,
 							className: 'jetpack-content-guidelines-ai__actions-container',
 					  }
 					: null;

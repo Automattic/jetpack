@@ -128,19 +128,18 @@
 	height: 16px;
 }
 
-// Suggestion actions container — only shows Accept/Dismiss buttons.
-// The diff overlay is repositioned into the textarea wrapper via JS.
-.jetpack-content-guidelines-ai__suggestion-actions {
+// Suggestion preview inside accordion.
+// Match the VStack spacing={4} (16px gap) used by the Gutenberg form.
+.jetpack-content-guidelines-ai__suggestion {
 	display: flex;
-	gap: 8px;
+	flex-direction: column;
+	gap: 16px;
 }
 
-// Word-level diff overlay — positioned absolutely over the
-// Gutenberg textarea. Inherits the textarea's exact dimensions
-// so there's no style matching or layout shift.
+// Word-level diff display.
+// Styled to match the Gutenberg textarea — green border indicates
+// a suggestion is active. Clicking anywhere accepts the suggestion.
 .jetpack-content-guidelines-ai__diff {
-	position: absolute;
-	inset: 0;
 	padding: 9px 11px;
 	border: 1px solid var(--jp-green-40, #069e08);
 	border-radius: 2px;
@@ -149,10 +148,16 @@
 	line-height: 20px;
 	white-space: pre-wrap;
 	overflow-wrap: break-word;
-	overflow-y: auto;
+	// Height matched to the Gutenberg textarea via CSS variable
+	// set in suggestion-actions.jsx to prevent layout shift.
+	min-height: var(--jetpack-cg-textarea-height, 100px);
 	cursor: pointer;
 	box-sizing: border-box;
-	z-index: 1;
+}
+
+.jetpack-content-guidelines-ai__suggestion-actions {
+	display: flex;
+	gap: 8px;
 }
 
 .jetpack-content-guidelines-ai__diff-added {
@@ -199,15 +204,11 @@
 	}
 }
 
-// When a suggestion is active, hide Save/Clear buttons and
-// the per-section generate button — Accept/Dismiss replaces them.
-.has-jetpack-suggestion .save-button,
-.has-jetpack-suggestion .save-button ~ * {
-	display: none !important;
-}
-
-.has-jetpack-suggestion
-	.jetpack-content-guidelines-ai__section-button-container {
+// When a suggestion is active, hide Gutenberg's DataForm (textarea)
+// and buttons — replaced by the diff view + Accept/Dismiss.
+// Target by known class prefixes rather than structural selectors.
+.has-jetpack-suggestion .dataforms-layouts__wrapper,
+.has-jetpack-suggestion .components-h-stack {
 	display: none;
 }
 

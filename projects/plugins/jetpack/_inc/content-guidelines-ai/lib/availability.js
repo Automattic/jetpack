@@ -8,7 +8,6 @@ import { config } from '../constants';
  * @return {boolean} True if AI is unavailable (notice was shown).
  */
 export function showUnavailableNotice( createWarningNotice ) {
-	return false; // TODO: remove — skip availability check for local testing
 	if ( config.available ) {
 		return false;
 	}
