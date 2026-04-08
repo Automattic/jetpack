@@ -6,36 +6,49 @@
 	background-color: var(--wpds-color-bg-surface-neutral-strong, #fff);
 
 	.logo-cube {
-		display: flex;
-		align-items: center;
-		gap: var(--wpds-dimension-gap-sm, 8px);
-		height: 24px;
 		cursor: pointer;
+		width: fit-content;
+		height: 24px;
+		line-height: 1;
+		transition: transform 0.33s;
+		transform-style: preserve-3d;
 
-		.jpcrm-header-logo__icon {
-			height: 20px;
-			width: 20px;
-			flex-shrink: 0;
+		&:hover {
+			transform: rotateX(90deg);
 		}
 
-		.jpcrm-header-logo__text {
-			font-family: -apple-system, system-ui, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
-			font-size: var(--wpds-font-size-lg, 15px);
-			font-weight: 499;
-			line-height: var(--wpds-font-line-height-lg, 28px);
-			color: var(--wpds-color-fg-content-neutral, #1d2327);
-		}
+		.cube-side {
+			height: 24px;
 
-		.jpcrm-fullscreen-toggle {
-			opacity: 0;
-			font-size: 17px;
-			color: var(--wpds-color-fg-content-neutral-weak, #6d6d6d);
-			transition: opacity 0.2s;
-			margin: 0;
-		}
+			&.side1 {
+				display: flex;
+				align-items: center;
+				gap: var(--wpds-dimension-gap-sm, 8px);
+				transform: translateZ(12px);
 
-		&:hover .jpcrm-fullscreen-toggle {
-			opacity: 1;
+				.jpcrm-header-logo__icon {
+					flex-shrink: 0;
+				}
+
+				.jpcrm-header-logo__text {
+					font-family: -apple-system, system-ui, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+					font-size: var(--wpds-font-size-lg, 15px);
+					font-weight: 499;
+					line-height: var(--wpds-font-line-height-lg, 28px);
+					color: var(--wpds-color-fg-content-neutral, #1d2327);
+				}
+			}
+
+			&.side2 {
+				font-size: 24px;
+				text-align: center;
+				transform: rotateX(-90deg) translateZ(-12px);
+
+				.jpcrm-fullscreen-toggle {
+					color: var(--wpds-color-fg-content-neutral-weak, #6d6d6d);
+					margin: 0;
+				}
+			}
 		}
 	}
 
