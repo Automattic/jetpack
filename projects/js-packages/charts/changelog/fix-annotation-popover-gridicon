@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Fix Line Chart Annotations Custom story error in Storybook by replacing CJS-only gridicons dependency with @wordpress/icons.
+Fix Line Chart Annotations Custom and Alert story errors in Storybook by replacing the CJS-only gridicons dependency with @wordpress/icons.
