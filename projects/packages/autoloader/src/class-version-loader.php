@@ -42,13 +42,6 @@ class Version_Loader {
 	private $resolved_classes = array();
 
 	/**
-	 * Cache: resolved PRS4 namespaces.
-	 *
-	 * @var array<string,string>
-	 */
-	private $resolved_namespaces = array();
-
-	/**
 	 * The constructor.
 	 *
 	 * @param Version_Selector $version_selector The Version_Selector object.
@@ -160,31 +153,13 @@ class Version_Loader {
 		if ( ! $class_index ) {
 			return null;
 		}
-		$class_for_path     = str_replace( '\\', '/', $class_name );
-		$original_namespace = substr( $class_name, 0, $class_index );
+		$class_for_path = str_replace( '\\', '/', $class_name );
 
-		// Warm phase: Since a previous lookup resolved a file in the same namespace, we will first
-		// search for the target file in the same PSR4 map. It is likely that we will find it there.
-		// TBD: hit to miss ratio for WooCommerce as an example to verify this warm branch working.
-		if ( isset( $this->resolved_namespaces[ $original_namespace ] ) ) {
-			$namespace = $this->resolved_namespaces[ $original_namespace ];
-			$suffix    = '/' . substr( $class_for_path, strlen( $namespace ) ) . '.php';
-			$data      = $this->psr4_map[ $namespace ];
-			foreach ( $data['path'] as $path ) {
-				$file = $path . $suffix;
-				if ( file_exists( $file ) ) {
-					return array(
-						'version' => $data['version'],
-						'path'    => $file,
-					);
-				}
-			}
-		}
-
-		// Cold phase: search for the namespace by iteratively removing the last segment until a match
-		// is found. This approach prioritizes the most specific namespaces, reducing search time.
+		// Search for the namespace by iteratively cutting off the last segment until
+		// we find a match. This allows us to check the most-specific namespaces
+		// first as well as minimize the amount of time spent looking.
 		for (
-			$class_namespace = $original_namespace;
+			$class_namespace = substr( $class_name, 0, $class_index );
 			! empty( $class_namespace );
 			$class_namespace = substr( $class_namespace, 0, strrpos( $class_namespace, '\\' ) )
 		) {
@@ -198,7 +173,6 @@ class Version_Loader {
 			foreach ( $data['path'] as $path ) {
 				$file = $path . $suffix;
 				if ( file_exists( $file ) ) {
-					$this->resolved_namespaces[ $original_namespace ] = $namespace;
 					return array(
 						'version' => $data['version'],
 						'path'    => $file,
