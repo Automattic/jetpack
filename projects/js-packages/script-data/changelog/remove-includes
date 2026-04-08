@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Use .indexOf instead of .includes for broader support without polyfills
