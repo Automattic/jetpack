@@ -13,14 +13,16 @@
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
 	"scripts": {
-		"build": "pnpm run clean && pnpm run build-client && pnpm run build-extensions && pnpm run build-widget-visibility && pnpm run build-asset-cdn-json",
+		"build": "pnpm run clean && pnpm run build-client && pnpm run build-extensions && pnpm run build-widget-visibility && pnpm run build-ai-sidebar && pnpm run build-asset-cdn-json",
+		"build-ai-sidebar": "webpack --config ./tools/webpack.config.ai-sidebar.js",
 		"build-asset-cdn-json": "php tools/build-asset-cdn-json.php",
 		"build-client": "concurrently --names js,css,module-headings 'webpack --config ./tools/webpack.config.js' 'webpack --config ./tools/webpack.config.css.js' 'php tools/build-module-headings-translations.php'",
 		"build-concurrently": "pnpm run clean && concurrently 'pnpm:build-client' 'pnpm:build-extensions' 'pnpm:build-widget-visibility' && pnpm run build-asset-cdn-json",
 		"build-extensions": "webpack --config ./tools/webpack.config.extensions.js && tools/check-block-assets.php && php tools/build-block-manifest.php",
-		"build-production": "pnpm run clean && pnpm run build-production-client && pnpm run build-production-extensions && pnpm run build-production-widget-visibility && pnpm run build-asset-cdn-json",
+		"build-production": "pnpm run clean && pnpm run build-production-client && pnpm run build-production-extensions && pnpm run build-production-widget-visibility && pnpm run build-production-ai-sidebar && pnpm run build-asset-cdn-json",
+		"build-production-ai-sidebar": "NODE_ENV=production BABEL_ENV=production pnpm run build-ai-sidebar",
 		"build-production-client": "NODE_ENV=production BABEL_ENV=production pnpm run build-client && pnpm exec validate-es ./_inc/build/",
-		"build-production-concurrently": "pnpm run clean && concurrently 'pnpm:build-production-client' 'pnpm:build-production-extensions' 'pnpm:build-production-widget-visibility' && pnpm run build-asset-cdn-json",
+		"build-production-concurrently": "pnpm run clean && concurrently 'pnpm:build-production-client' 'pnpm:build-production-extensions' 'pnpm:build-production-widget-visibility' 'pnpm:build-production-ai-sidebar' && pnpm run build-asset-cdn-json",
 		"build-production-extensions": "NODE_ENV=production BABEL_ENV=production pnpm run build-extensions && pnpm exec validate-es ./_inc/blocks",
 		"build-production-widget-visibility": "NODE_ENV=production BABEL_ENV=production pnpm run build-widget-visibility && pnpm exec validate-es ./_inc/build/widget-visibility/editor",
 		"build-widget-visibility": "webpack --config ./tools/webpack.config.widget-visibility.js",
@@ -41,6 +43,8 @@
 		"extends @wordpress/browserslist-config"
 	],
 	"dependencies": {
+		"@automattic/agenttic-client": "^0.1.49",
+		"@automattic/agenttic-ui": "^0.1.49",
 		"@automattic/calypso-color-schemes": "4.0.0",
 		"@automattic/format-currency": "1.0.1",
 		"@automattic/jetpack-ai-client": "workspace:*",

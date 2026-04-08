@@ -18,6 +18,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
 }
 
+require_once __DIR__ . '/class-title-optimization-ability.php';
+Title_Optimization_Ability::init();
+
 /**
  * Registers our block for use in Gutenberg
  * This is done via an action so that we can disable
