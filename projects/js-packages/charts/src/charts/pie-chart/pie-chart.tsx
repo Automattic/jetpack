@@ -475,7 +475,6 @@ const PieChartInternal = ( {
 																		dy=".33em"
 																		fill={ providerTheme.labelTextColor || '#333' }
 																		fontSize={ fontSize }
-																		fontFamily={ providerTheme.svgLabelSmall?.fontFamily }
 																		textAnchor="middle"
 																		pointerEvents="none"
 																	>

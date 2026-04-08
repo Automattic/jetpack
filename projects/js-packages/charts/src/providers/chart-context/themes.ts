@@ -26,10 +26,7 @@ const defaultTheme: CompleteChartTheme = {
 	},
 	seriesLineStyles: [],
 	glyphs: [],
-	svgLabelSmall: {
-		fill: 'var(--jp-gray-80, #2c3338)',
-		fontFamily: 'var(--wpds-font-family-body, sans-serif)',
-	},
+	svgLabelSmall: { fill: 'var(--jp-gray-80, #2c3338)' },
 	annotationStyles: {
 		label: {
 			anchorLineStroke: 'var(--jp-gray-80, #2c3338)',
