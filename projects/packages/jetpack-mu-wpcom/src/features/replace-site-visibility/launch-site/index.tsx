@@ -61,18 +61,16 @@ const LaunchSite = ( {
 
 	const showPreviewLink = isAnyComingSoonEnabled && hasSitePreviewLink;
 
-	let launchDescription;
-	if ( isAnyComingSoonEnabled ) {
-		launchDescription = __(
+	const descriptions = {
+		comingSoon: __(
 			'Your site hasn\'t been launched yet. It is hidden from visitors behind a "Coming Soon" notice until it is launched.',
 			'jetpack-mu-wpcom'
-		);
-	} else {
-		launchDescription = __(
+		),
+		private: __(
 			"Your site hasn't been launched yet. It's private; only you can see it until it is launched.",
 			'jetpack-mu-wpcom'
-		);
-	}
+		),
+	};
 
 	const handleLaunchClick = () => {
 		wpcomTrackEvent( 'wpcom_settings_reading_launch_site_button_click' );
@@ -87,7 +85,7 @@ const LaunchSite = ( {
 
 	return (
 		<>
-			<p>{ launchDescription }</p>
+			<p>{ isAnyComingSoonEnabled ? descriptions.comingSoon : descriptions.private }</p>
 			<button
 				className="button is-secondary"
 				type="button"
