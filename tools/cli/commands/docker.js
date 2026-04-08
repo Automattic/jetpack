@@ -258,12 +258,13 @@ const launchNgrok = argv => {
 /**
  * Builds the command options for running PHPUnit tests inside a Docker container.
  *
- * @param {object}        argv                      - Command line args.
- * @param {Array}         opts                      - Options for the Docker command.
- * @param {object}        unitTestArgs              - Unit test args.
- * @param {string}        unitTestArgs.plugin       - The name of the plugin we're running tests against.
- * @param {string}        [unitTestArgs.configFile] - The PHPUnit configuration file to use. Defaults to 'phpunit.#.xml.dist'.
- * @param {Array<string>} [unitTestArgs.envVars]    - Environment variables to set in the Docker container.
+ * @param {object}        argv                       - Command line args.
+ * @param {Array}         opts                       - Options for the Docker command.
+ * @param {object}        unitTestArgs               - Unit test args.
+ * @param {string}        unitTestArgs.plugin        - The name of the plugin we're running tests against.
+ * @param {string}        [unitTestArgs.configFile]  - The PHPUnit configuration file to use. Defaults to 'phpunit.#.xml.dist'.
+ * @param {Array<string>} [unitTestArgs.envVars]     - Environment variables to set in the Docker container.
+ * @param {string}        [unitTestArgs.prependFile] - PHP file to auto-prepend (sets -d auto_prepend_file). Ignored when --php is used.
  * @return {Array} Modified opts array.
  */
 const buildPhpUnitTestCmd = ( argv, opts, unitTestArgs ) => {
@@ -277,10 +278,22 @@ const buildPhpUnitTestCmd = ( argv, opts, unitTestArgs ) => {
 		}
 	}
 
+	let phpunitCmd;
+	if ( argv.php ) {
+		phpunitCmd = [ '/var/scripts/phpunit-version-wrapper.sh', argv.php ];
+	} else if ( unitTestArgs.prependFile ) {
+		phpunitCmd = [
+			'php',
+			'-d',
+			`auto_prepend_file=${ unitTestArgs.prependFile }`,
+			'vendor/bin/phpunit-select-config',
+		];
+	} else {
+		phpunitCmd = [ 'vendor/bin/phpunit-select-config' ];
+	}
+
 	opts.push(
-		...( argv.php
-			? [ '/var/scripts/phpunit-version-wrapper.sh', argv.php ]
-			: [ 'vendor/bin/phpunit-select-config' ] ),
+		...phpunitCmd,
 		'/var/www/html/wp-content/plugins/' + unitTestArgs.plugin + '/' + configFile,
 		...passthruArgs
 	);
@@ -399,6 +412,8 @@ const buildExecCmd = argv => {
 				break;
 			case 'crm':
 				unitTestArgs.plugin = 'zero-bs-crm';
+				// @todo: Remove this when we drop support for PHP <8.0 and we can bump `thecodingmachine/safe` to v2.
+				unitTestArgs.prependFile = 'tests/suppress_php84_deprecations.php';
 				break;
 			case 'wpcomsh':
 				unitTestArgs.plugin = 'wpcomsh';

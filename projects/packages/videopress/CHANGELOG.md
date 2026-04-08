@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.36.1] - 2026-04-06
+### Changed
+- Update admin page footer design. [#47840]
+- Update package dependencies. [#47870]
+
+## [0.36.0] - 2026-03-30
+### Changed
+- Unify admin dashboard page header with admin-ui components. [#47641]
+- Update package dependencies. [#47799]
+
 ## [0.35.6] - 2026-03-23
 ### Changed
 - Update package dependencies. [#47684] [#47719]
@@ -1884,6 +1894,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created empty package [#24952]
 
+[0.36.1]: https://github.com/Automattic/jetpack-videopress/compare/v0.36.0...v0.36.1
+[0.36.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.35.6...v0.36.0
 [0.35.6]: https://github.com/Automattic/jetpack-videopress/compare/v0.35.5...v0.35.6
 [0.35.5]: https://github.com/Automattic/jetpack-videopress/compare/v0.35.4...v0.35.5
 [0.35.4]: https://github.com/Automattic/jetpack-videopress/compare/v0.35.3...v0.35.4

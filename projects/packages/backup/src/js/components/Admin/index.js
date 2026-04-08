@@ -8,7 +8,6 @@ import {
 	LoadingPlaceholder,
 } from '@automattic/jetpack-components';
 import { useConnectionErrorNotice, ConnectionError } from '@automattic/jetpack-connection';
-import { shouldUseInternalLinks } from '@automattic/jetpack-shared-extension-utils';
 import apiFetch from '@wordpress/api-fetch';
 import { Button, ExternalLink } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
@@ -124,7 +123,6 @@ const Admin = () => {
 				'jetpack-backup-pkg'
 			) }
 			actions={ headerActions }
-			useInternalLinks={ shouldUseInternalLinks() }
 		>
 			<div id="jetpack-backup-admin-container" className="jp-content">
 				<div className="content">

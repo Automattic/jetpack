@@ -31,33 +31,8 @@ module.exports = [
 					includeNodeModules: [ '@automattic/' ],
 				} ),
 
-				// Add textdomains (but no other optimizations) for @wordpress/dataviews.
-				jetpackWebpackConfig.TranspileRule( {
-					includeNodeModules: [ '@wordpress/dataviews/' ],
-					babelOpts: {
-						configFile: false,
-						plugins: [
-							[
-								require.resolve( '@automattic/babel-plugin-replace-textdomain' ),
-								{ textdomain: 'jetpack-subscribers-dashboard' },
-							],
-						],
-					},
-				} ),
-
-				// Add textdomains (but no other optimizations) for @wordpress/dataviews.
-				jetpackWebpackConfig.TranspileRule( {
-					includeNodeModules: [ '@wordpress/dataviews/build-wp/' ],
-					babelOpts: {
-						configFile: false,
-						plugins: [
-							[
-								require.resolve( '@automattic/babel-plugin-replace-textdomain' ),
-								{ textdomain: 'jetpack-subscribers-dashboard' },
-							],
-						],
-					},
-				} ),
+				// Workarounds for non-extracted `@wordpress/*` packages.
+				...jetpackWebpackConfig.BundledWpPkgsTranspileRules(),
 
 				// Handle CSS.
 				jetpackWebpackConfig.CssRule( {

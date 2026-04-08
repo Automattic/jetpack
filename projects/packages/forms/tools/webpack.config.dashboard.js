@@ -2,32 +2,11 @@
  * Builds the forms dashboard JS bundle.
  */
 
-import { createRequire } from 'module';
 import path from 'path';
 import jetpackWebpackConfig from '@automattic/jetpack-webpack-config/webpack';
 import { NodePackageImporter } from 'sass-embedded';
 
 const __dirname = import.meta.dirname;
-const require = createRequire( import.meta.url );
-
-/**
- * Generate i18n function variants for `@automattic/babel-plugin-replace-textdomain`.
- *
- * The `@wordpress/dataviews` currently uses the i18n functions under a variety of aliases,
- * which makes it a pain to add the proper textdomain. This function generates an object
- * with the base function and 99 more variants as keys.
- *
- * @param {string} baseFn - Base function name (e.g., '__', '_x', '_n')
- * @param {number} value  - Textdomain argument position (1-based index)
- * @return {object} Object mapping function names to textdomain positions
- */
-const generateI18nVariants = ( baseFn, value ) =>
-	Object.fromEntries(
-		Array.from( { length: 100 }, ( _, i ) => [
-			`${ baseFn }${ i || '' }`, // empty suffix for 0
-			value,
-		] )
-	);
 
 export default {
 	mode: jetpackWebpackConfig.mode,
@@ -76,30 +55,8 @@ export default {
 				includeNodeModules: [ '@automattic/', 'debug/' ],
 			} ),
 
-			/**
-			 * Transpile `@wordpress/dataviews` in node_modules too.
-			 *
-			 * @see https://github.com/Automattic/jetpack/issues/39907
-			 */
-			jetpackWebpackConfig.TranspileRule( {
-				includeNodeModules: [ '@wordpress/dataviews/build-wp/' ],
-				babelOpts: {
-					configFile: false,
-					plugins: [
-						[
-							require.resolve( '@automattic/babel-plugin-replace-textdomain' ),
-							{
-								textdomain: 'jetpack-forms',
-								functions: {
-									...generateI18nVariants( '__', 1 ),
-									...generateI18nVariants( '_x', 2 ),
-									...generateI18nVariants( '_n', 3 ),
-								},
-							},
-						],
-					],
-				},
-			} ),
+			// Workarounds for non-extracted `@wordpress/*` packages.
+			...jetpackWebpackConfig.BundledWpPkgsTranspileRules(),
 
 			// Handle CSS.
 			jetpackWebpackConfig.CssRule( {

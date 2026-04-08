@@ -281,6 +281,10 @@ class Jetpack_SEO {
 		 */
 		$meta = apply_filters( 'jetpack_seo_meta_tags', $meta );
 
+		if ( ! is_array( $meta ) ) {
+			return;
+		}
+
 		// Output them.
 		foreach ( $meta as $name => $content ) {
 			if ( ! empty( $content ) ) {

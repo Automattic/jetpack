@@ -15,7 +15,6 @@ import {
 } from '@automattic/jetpack-components';
 import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
 import { getScriptData, getMyJetpackUrl } from '@automattic/jetpack-script-data';
-import { shouldUseInternalLinks } from '@automattic/jetpack-shared-extension-utils';
 import { Spinner } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -381,11 +380,7 @@ export default function PricingInterstitial( { slug } ) {
 	const currencyCode = productPricing?.currencyCode || bundlePricing?.currencyCode || 'USD';
 
 	return (
-		<AdminPage
-			showHeader={ false }
-			showBackground={ false }
-			useInternalLinks={ shouldUseInternalLinks() }
-		>
+		<AdminPage showHeader={ false } showBackground={ false }>
 			<Container
 				className={ styles.interstitialContainer }
 				horizontalSpacing={ 3 }

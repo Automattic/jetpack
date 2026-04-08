@@ -248,20 +248,37 @@ class Agents_Manager {
 		 */
 		$use_unified_experience = apply_filters( 'agents_manager_use_unified_experience', false );
 
+		/**
+		 * Filter the default agent ID for the Agents Manager.
+		 *
+		 * Allows host applications (e.g., CIAB, WooCommerce AI) to specify a custom
+		 * workflow agent instead of the default orchestrator. The value is passed to
+		 * the frontend as `agentsManagerData.agentId` and consumed by `useAgentConfig()`.
+		 *
+		 * @param string|null $agent_id The agent ID to use, or null for default behavior.
+		 */
+		$agent_id = apply_filters( 'agents_manager_agent_id', null );
+
 		$this->enqueue_script( $variant );
+
+		$inline_data = array(
+			'agentProviders'       => $agent_providers,
+			'useUnifiedExperience' => $use_unified_experience,
+			'isDevMode'            => self::is_dev_mode(),
+			'sectionName'          => $variant,
+			'currentUser'          => $this->get_current_user_data(),
+			'site'                 => $this->get_current_site(),
+			'helpCenterUrl'        => self::HELP_CENTER_URL,
+		);
+
+		if ( $agent_id ) {
+			$inline_data['agentId'] = $agent_id;
+		}
 
 		wp_add_inline_script(
 			'agents-manager',
 			'const agentsManagerData = ' . wp_json_encode(
-				array(
-					'agentProviders'       => $agent_providers,
-					'useUnifiedExperience' => $use_unified_experience,
-					'isDevMode'            => self::is_dev_mode(),
-					'sectionName'          => $variant,
-					'currentUser'          => $this->get_current_user_data(),
-					'site'                 => $this->get_current_site(),
-					'helpCenterUrl'        => self::HELP_CENTER_URL,
-				),
+				$inline_data,
 				JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 			) . ';',
 			'before'

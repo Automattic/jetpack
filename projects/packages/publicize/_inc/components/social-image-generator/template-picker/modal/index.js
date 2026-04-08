@@ -1,6 +1,6 @@
 import { ThemeProvider } from '@automattic/jetpack-components';
 import { Button, Modal, BaseControl, SelectControl } from '@wordpress/components';
-import { useState, useCallback } from '@wordpress/element';
+import { useState, useCallback, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import useMediaDetails from '../../../../hooks/use-media-details';
 import { useSocialImageFontOptions } from '../../../../hooks/use-social-image-font-options';
@@ -29,7 +29,14 @@ const TemplatePickerModal = ( { onSave, render, template = null, imageId = null,
 	const [ selectedTemplate, setSelectedTemplate ] = useState( template );
 	const [ selectedImageId, setSelectedImageId ] = useState( imageId );
 	const [ selectedFont, setSelectedFont ] = useState( font );
-	const [ mediaDetails ] = useMediaDetails( selectedImageId );
+	const [ mediaDetails, isMediaNotFound ] = useMediaDetails( selectedImageId );
+
+	// Clear selected image if the attachment no longer exists
+	useEffect( () => {
+		if ( isMediaNotFound ) {
+			setSelectedImageId( null );
+		}
+	}, [ isMediaNotFound ] );
 
 	const openPicker = useCallback( () => setIsOpen( true ), [ setIsOpen ] );
 	const closePicker = useCallback( () => {

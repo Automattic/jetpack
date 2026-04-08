@@ -1148,7 +1148,7 @@ class SSO {
 			 * Return false to always require the local Two-Factor prompt,
 			 * even when the user has completed 2FA on WordPress.com.
 			 *
-			 * @since $$next-version$$
+			 * @since 8.1.0
 			 * @module sso
 			 *
 			 * @param bool    $accept    Whether to accept WP.com 2FA. Default true.
