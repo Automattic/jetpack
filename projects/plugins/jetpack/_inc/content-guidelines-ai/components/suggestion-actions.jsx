@@ -16,6 +16,7 @@ export default function SuggestionActions( { slug } ) {
 	const { setGuideline } = useDispatch( STORE_NAME );
 
 	const [ original, setOriginal ] = useState( '' );
+	const [ textareaHeight, setTextareaHeight ] = useState( null );
 
 	// Direct DOM class manipulation is necessary because this component is rendered in
 	// a separate React root injected into Gutenberg's page — we can't control classes
@@ -26,11 +27,14 @@ export default function SuggestionActions( { slug } ) {
 			return;
 		}
 
-		// Capture textarea draft value before hiding it.
+		// Capture textarea draft and height before hiding it.
 		if ( suggestion && ! form.classList.contains( 'has-jetpack-suggestion' ) ) {
 			const textarea = form.querySelector( 'textarea' );
 			if ( textarea ) {
 				setOriginal( textarea.value || '' );
+				if ( textarea.offsetHeight > 0 ) {
+					setTextareaHeight( textarea.offsetHeight );
+				}
 			}
 		}
 
@@ -75,6 +79,7 @@ export default function SuggestionActions( { slug } ) {
 		<div className="jetpack-content-guidelines-ai__suggestion">
 			<div
 				className="jetpack-content-guidelines-ai__diff"
+				style={ textareaHeight ? { height: textareaHeight } : undefined }
 				role="button"
 				tabIndex={ 0 }
 				aria-label={ __( 'Click to accept suggested changes', 'jetpack' ) }
