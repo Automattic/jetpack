@@ -25,7 +25,7 @@
 	},
 	"devDependencies": {
 		"@babel/core": "7.29.0",
-		"@babel/preset-env": "7.29.0",
+		"@babel/preset-env": "7.29.2",
 		"@rollup/plugin-commonjs": "26.0.1",
 		"@rollup/plugin-node-resolve": "15.3.0",
 		"@rollup/plugin-terser": "1.0.0",
