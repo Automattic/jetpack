@@ -263,13 +263,13 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 
 	// Default tooltip rendering function
 	const renderDefaultTooltip = ( step: FunnelStep ) => (
-		<>
+		<Stack direction="column" align="flex-start" gap="xs">
 			<div className={ styles[ 'tooltip-title' ] }>{ step.label }</div>
 			<div className={ styles[ 'tooltip-content' ] }>
 				{ formatPercentage( step.rate ) }
 				{ ` • ${ step.count ?? 'no' } items` }
 			</div>
-		</>
+		</Stack>
 	);
 
 	// Validate data
