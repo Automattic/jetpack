@@ -17,6 +17,12 @@ import { valueOrIdentity, valueOrIdentityString, labelTransformFactory } from '.
 import styles from './base-legend.module.scss';
 import type { BaseLegendProps } from '../types';
 
+const ALIGNMENT_TO_FLEX = {
+	start: 'flex-start',
+	center: 'center',
+	end: 'flex-end',
+} as const;
+
 // Component for legend text with truncation detection
 // Moved outside BaseLegend to prevent recreation on every render
 const LegendText = ( {
@@ -155,12 +161,7 @@ export const BaseLegend: ForwardRefExoticComponent<
 			[ interactive, handleLegendClick ]
 		);
 
-		const alignmentToFlex = {
-			start: 'flex-start',
-			center: 'center',
-			end: 'flex-end',
-		} as const;
-		const flexAlignment = alignmentToFlex[ alignment ] ?? 'center';
+		const flexAlignment = ALIGNMENT_TO_FLEX[ alignment ] ?? 'center';
 
 		return render ? (
 			render( items )
