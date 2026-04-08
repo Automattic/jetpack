@@ -1,7 +1,4 @@
 .conversion-funnel-chart {
-	// `--funnel-font-family` is deprecated: prefer `--wpds-font-family-body`.
-	// Kept here as a fallback for backward compatibility.
-	font-family: var(--wpds-font-family-body, var(--funnel-font-family, sans-serif));
 
 	&--loading {
 		opacity: 0.6;
@@ -69,9 +66,6 @@
 
 .step-label {
 	color: #757575;
-	// `--step-font-family` is deprecated: prefer `--wpds-font-family-body`.
-	// Kept here as a fallback for backward compatibility.
-	font-family: var(--wpds-font-family-body, var(--step-font-family, sans-serif));
 	font-size: var(--wpds-font-size-sm, 12px);
 	font-style: normal;
 	font-weight: var(--wpds-font-weight-regular, 400);
@@ -84,9 +78,6 @@
 
 .step-rate {
 	color: #1e1e1e;
-	// `--step-font-family` is deprecated: prefer `--wpds-font-family-body`.
-	// Kept here as a fallback for backward compatibility.
-	font-family: var(--wpds-font-family-body, var(--step-font-family, sans-serif));
 	font-size: var(--wpds-font-size-md, 13px);
 	font-style: normal;
 	font-weight: var(--wpds-font-weight-medium, 499);
@@ -130,7 +121,6 @@
 	justify-content: center;
 	align-items: flex-start;
 	gap: 4px;
-	font-family: var(--wpds-font-family-body, sans-serif);
 
 	border-bottom: 1px solid var(--Gray-Gray-5, #dcdcde);
 	background: var(--black-white-white, #fff);

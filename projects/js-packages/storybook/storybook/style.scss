@@ -7,3 +7,10 @@
 @import "@wordpress/block-library/build-style/style.css";
 @import "@wordpress/block-library/build-style/theme.css";
 @import "@wordpress/block-library/build-style/editor.css";
+
+// Treat Storybook as a WPDS-themed host application so components
+// inherit the design system body font through the normal cascade,
+// rather than each component declaring font-family at its root.
+body {
+	font-family: var(--wpds-font-family-body, system-ui, sans-serif);
+}
