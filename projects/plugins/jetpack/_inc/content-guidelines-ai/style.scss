@@ -128,29 +128,31 @@
 	height: 16px;
 }
 
-// Suggestion preview inside accordion.
-// Match the VStack spacing={4} (16px gap) used by the Gutenberg form.
-.jetpack-content-guidelines-ai__suggestion {
+// Suggestion actions container — only shows Accept/Dismiss buttons.
+// The diff overlay is repositioned into the textarea wrapper via JS.
+.jetpack-content-guidelines-ai__suggestion-actions {
 	display: flex;
-	flex-direction: column;
-	gap: 16px;
+	gap: 8px;
 }
 
-// Word-level diff display.
-// Styled to match the Gutenberg textarea — green border indicates
-// a suggestion is active. Clicking anywhere accepts the suggestion.
+// Word-level diff overlay — positioned absolutely over the
+// Gutenberg textarea. Inherits the textarea's exact dimensions
+// so there's no style matching or layout shift.
 .jetpack-content-guidelines-ai__diff {
-	padding: 12px;
-	border: 2px solid var(--jp-green-40, #069e08);
-	border-radius: 4px;
+	position: absolute;
+	inset: 0;
+	padding: 9px 11px;
+	border: 1px solid var(--jp-green-40, #069e08);
+	border-radius: 2px;
 	background: #fff;
 	font-size: 13px;
 	line-height: 20px;
 	white-space: pre-wrap;
 	overflow-wrap: break-word;
-	min-height: 140px;
+	overflow-y: auto;
 	cursor: pointer;
 	box-sizing: border-box;
+	z-index: 1;
 }
 
 .jetpack-content-guidelines-ai__diff-added {
@@ -161,11 +163,6 @@
 .jetpack-content-guidelines-ai__diff-removed {
 	background: #f8d7da;
 	text-decoration: line-through;
-}
-
-.jetpack-content-guidelines-ai__suggestion-actions {
-	display: flex;
-	gap: 8px;
 }
 
 // Green shimmer overlay on the textarea during AI generation.
@@ -202,9 +199,15 @@
 	}
 }
 
-// Hide Gutenberg's DataForm and Save/Clear when a suggestion is active.
-// Also hide the per-section generate button since Accept/Dismiss replaces it.
-.has-jetpack-suggestion > :first-child > :not(.jetpack-content-guidelines-ai__actions-container) {
+// When a suggestion is active, hide Save/Clear buttons and
+// the per-section generate button — Accept/Dismiss replaces them.
+.has-jetpack-suggestion .save-button,
+.has-jetpack-suggestion .save-button ~ * {
+	display: none !important;
+}
+
+.has-jetpack-suggestion
+	.jetpack-content-guidelines-ai__section-button-container {
 	display: none;
 }
 

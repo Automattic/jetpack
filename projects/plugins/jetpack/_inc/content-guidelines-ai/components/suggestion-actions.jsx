@@ -1,6 +1,6 @@
 import { Button } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
-import { useCallback, useEffect, useMemo } from '@wordpress/element';
+import { useCallback, useEffect, useMemo, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { diffWords } from 'diff';
 import { STORE_NAME } from '../constants';
@@ -15,6 +15,7 @@ export default function SuggestionActions( { slug } ) {
 	const original = useSelect( select => select( STORE_NAME ).getGuideline( slug ) || '', [ slug ] );
 	const { clearSuggestion } = useDispatch( AI_STORE_NAME );
 	const { setGuideline } = useDispatch( STORE_NAME );
+	const overlayRef = useRef( null );
 
 	// Direct DOM class manipulation is necessary because this component is rendered in
 	// a separate React root injected into Gutenberg's page — we can't control classes
@@ -24,10 +25,26 @@ export default function SuggestionActions( { slug } ) {
 		if ( ! form ) {
 			return;
 		}
+
 		form.classList.toggle( 'has-jetpack-suggestion', !! suggestion );
 		form.classList.toggle( 'is-jetpack-loading', sectionLoading && ! suggestion );
+
+		// When suggestion is active, overlay the diff on top of the textarea.
+		// Make the textarea wrapper positioned so the overlay can cover it.
+		const textareaWrapper = form.querySelector( '.components-textarea-control' );
+		if ( textareaWrapper && suggestion ) {
+			textareaWrapper.style.position = 'relative';
+			// Move our overlay into the textarea wrapper so it covers the textarea.
+			if ( overlayRef.current && overlayRef.current.parentElement !== textareaWrapper ) {
+				textareaWrapper.appendChild( overlayRef.current );
+			}
+		}
+
 		return () => {
 			form.classList.remove( 'has-jetpack-suggestion', 'is-jetpack-loading' );
+			if ( textareaWrapper ) {
+				textareaWrapper.style.position = '';
+			}
 		};
 	}, [ slug, suggestion, sectionLoading ] );
 
@@ -64,6 +81,7 @@ export default function SuggestionActions( { slug } ) {
 	return (
 		<div className="jetpack-content-guidelines-ai__suggestion">
 			<div
+				ref={ overlayRef }
 				className="jetpack-content-guidelines-ai__diff"
 				role="button"
 				tabIndex={ 0 }
