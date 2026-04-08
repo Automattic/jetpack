@@ -109,6 +109,11 @@ class RTC_Notices_Test extends \WorDBless\BaseTestCase {
 		delete_user_option( $this->user_id, REST_RTC_Notices::OPTION_KEY );
 		delete_transient( REST_RTC_Notices::JOIN_REQUEST_OPTION . '_' . 999999 );
 
+		// Clean up rate-limit transients that may have been set by tests.
+		global $wpdb;
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+		$wpdb->query( "DELETE FROM {$wpdb->options} WHERE option_name LIKE '%rtc_notif_sent_%'" );
+
 		// Reset the REST server so stale route registrations don't leak
 		// into other test classes.
 		global $wp_rest_server;
@@ -498,5 +503,73 @@ class RTC_Notices_Test extends \WorDBless\BaseTestCase {
 		$this->assertStringContainsString( '"maxPeersPerRoom"', $inline );
 		$this->assertStringContainsString( '"enableWelcomeNotice"', $inline );
 		$this->assertStringContainsString( '"enableLimitNotices"', $inline );
+	}
+
+	/**
+	 * Tests that plan owner ID returns 0 when no owner detection is available.
+	 */
+	public function test_plan_owner_id_returns_zero_without_detection() {
+		$this->assertSame( 0, RTC::get_plan_owner_id() );
+	}
+
+	/**
+	 * Tests that plan owner ID returns master_user via Jetpack_Options.
+	 */
+	public function test_plan_owner_id_via_jetpack_master_user() {
+		if ( ! class_exists( 'Jetpack_Options' ) ) {
+			$this->markTestSkipped( 'Jetpack_Options not available' );
+		}
+
+		\Jetpack_Options::update_option( 'master_user', $this->user_id );
+		$this->assertSame( $this->user_id, RTC::get_plan_owner_id() );
+
+		\Jetpack_Options::delete_option( 'master_user' );
+	}
+
+	/**
+	 * Tests that send_admin_bell_notification does not fail when
+	 * notes_send_callback is unavailable (non-WPCOM environment).
+	 */
+	public function test_bell_notification_skips_without_notes_function() {
+		// Should not throw — gracefully skips when notes_send_callback doesn't exist.
+		wpcom_send_bell_notification( $this->user_id, 'test_type', array( 'key' => 'value' ), 'dedup-1' );
+		$this->assertTrue( true );
+	}
+
+	/**
+	 * Tests that async notifications are rate-limited by transient.
+	 */
+	public function test_async_notifications_rate_limited() {
+		if ( ! class_exists( 'Jetpack_Options' ) ) {
+			$this->markTestSkipped( 'Jetpack_Options not available' );
+		}
+
+		$post_id = wp_insert_post(
+			array(
+				'post_title'  => 'Rate Limit Test Post',
+				'post_status' => 'publish',
+			)
+		);
+
+		add_filter( 'jetpack_rtc_enable_limit_notices', '__return_true', 999 );
+		\Jetpack_Options::update_option( 'master_user', $this->user_id );
+
+		wp_set_current_user( $this->second_user_id );
+		$user    = wp_get_current_user();
+		$blog_id = get_current_blog_id();
+
+		// First call sets the transient.
+		$throttle_key = sprintf( 'rtc_notif_sent_%d_%d_%d', $blog_id, $post_id, $user->ID );
+		$this->assertFalse( get_transient( $throttle_key ) );
+
+		REST_RTC_Notices::send_async_admin_notifications( $post_id, $user );
+		$this->assertNotFalse( get_transient( $throttle_key ) );
+
+		// Clean up.
+		delete_transient( $throttle_key );
+		remove_all_filters( 'jetpack_rtc_enable_limit_notices' );
+		\Jetpack_Options::delete_option( 'master_user' );
+		wp_set_current_user( $this->user_id );
+		wp_delete_post( $post_id, true );
 	}
 }
