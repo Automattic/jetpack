@@ -50,7 +50,7 @@ const DEFAULT_TICK_LENGTH = 8;
  */
 const DEFAULT_Y_TICK_WIDTH = 40;
 
-const resolveFontSize = ( val?: number | string ): number | undefined => {
+export const resolveFontSize = ( val?: number | string ): number | undefined => {
 	if ( typeof val === 'number' && ! isNaN( val ) ) {
 		return val;
 	}

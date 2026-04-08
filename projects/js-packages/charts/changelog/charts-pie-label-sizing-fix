@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Charts: PieChart label background width now accounts for themed fontFamily, fontWeight, and string fontSize values.

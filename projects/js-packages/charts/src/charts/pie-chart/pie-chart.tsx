@@ -8,6 +8,7 @@ import { useCallback, useContext, useMemo } from 'react';
 import { Legend, useChartLegendItems } from '../../components/legend';
 import { BaseTooltip } from '../../components/tooltip';
 import {
+	resolveFontSize,
 	useDataWithPercentages,
 	useInteractiveLegendData,
 	usePrefersReducedMotion,
@@ -441,12 +442,12 @@ const PieChartInternal = ( {
 														groupProps.onMouseLeave = onMouseLeave;
 													}
 
-													const fontSize =
-														typeof providerTheme.svgLabelSmall?.fontSize === 'number'
-															? providerTheme.svgLabelSmall.fontSize
-															: 12;
+													const svgLabelSmall = providerTheme.svgLabelSmall;
+													const fontSize = resolveFontSize( svgLabelSmall?.fontSize ) ?? 12;
 													const estimatedTextWidth = getStringWidth( arc.data.label, {
 														fontSize,
+														fontFamily: svgLabelSmall?.fontFamily,
+														fontWeight: svgLabelSmall?.fontWeight,
 													} );
 													const labelPadding = 6;
 													const backgroundWidth = estimatedTextWidth + labelPadding * 2;
