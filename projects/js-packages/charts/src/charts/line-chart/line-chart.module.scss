@@ -21,7 +21,7 @@
 	}
 
 	&__tooltip-date {
-		font-weight: 700;
+		font-weight: var(--wpds-font-weight-medium, 499);
 		padding-bottom: 10px;
 	}
 
@@ -33,7 +33,7 @@
 	}
 
 	&__tooltip-label {
-		font-weight: var(--wpds-font-weight-medium, 500);
+		font-weight: var(--wpds-font-weight-medium, 499);
 		padding-right: 1rem;
 	}
 
