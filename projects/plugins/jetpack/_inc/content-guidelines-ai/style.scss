@@ -2,7 +2,8 @@
 	display: inline-flex;
 }
 
-// Reversed Jetpack logo: white circle, green lightning.
+// Reversed Jetpack logo: white circle, button color shows
+// through the transparent lightning bolt cutout.
 .jetpack-content-guidelines-ai__suggest-all-button .jetpack-logo {
 	width: 18px;
 	height: 18px;
@@ -12,7 +13,7 @@
 	}
 
 	.jetpack-logo__icon-triangle {
-		fill: #069e08;
+		fill: transparent;
 	}
 }
 
