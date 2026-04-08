@@ -573,7 +573,6 @@ function StageInner() {
 
 	return (
 		<Page
-			showSidebarToggle={ false }
 			breadcrumbs={ breadcrumbs }
 			badges={ badges }
 			title={ title }
