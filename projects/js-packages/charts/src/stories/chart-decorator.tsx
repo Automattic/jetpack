@@ -161,9 +161,21 @@ const StoryChartProvider = ( {
 
 	return (
 		<ThemeProvider color={ themeProviderColor }>
-			<GlobalChartsProvider key={ providerKey } theme={ theme }>
-				{ children }
-			</GlobalChartsProvider>
+			<div
+				id="app"
+				/*
+					Storybook acts as a WPDS-themed host application so charts
+					inherit the design system body font through normal CSS
+					cascade.
+					 */
+				style={ {
+					fontFamily: 'var(--wpds-font-family-body, system-ui, sans-serif)',
+				} }
+			>
+				<GlobalChartsProvider key={ providerKey } theme={ theme }>
+					{ children }
+				</GlobalChartsProvider>
+			</div>
 		</ThemeProvider>
 	);
 };

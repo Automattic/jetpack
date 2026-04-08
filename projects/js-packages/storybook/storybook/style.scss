@@ -7,12 +7,3 @@
 @import "@wordpress/block-library/build-style/style.css";
 @import "@wordpress/block-library/build-style/theme.css";
 @import "@wordpress/block-library/build-style/editor.css";
-
-// Charts stories are wrapped by a decorator in preview.jsx that applies
-// this class, so the Charts Library renders as if it were inside a
-// WPDS-themed host application (inheriting the design system body font
-// through normal CSS cascade, rather than each chart declaring
-// font-family at its root).
-.charts-storybook-host {
-	font-family: var(--wpds-font-family-body, system-ui, sans-serif);
-}
