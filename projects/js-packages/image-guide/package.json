@@ -40,7 +40,7 @@
 	},
 	"devDependencies": {
 		"@babel/core": "^7.0.0",
-		"@babel/preset-env": "7.29.0",
+		"@babel/preset-env": "7.29.2",
 		"@babel/preset-react": "7.28.5",
 		"@babel/preset-typescript": "7.28.5",
 		"@rollup/plugin-babel": "6.0.4",
