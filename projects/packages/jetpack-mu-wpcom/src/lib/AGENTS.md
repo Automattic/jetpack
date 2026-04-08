@@ -49,6 +49,25 @@ wpcom_send_bell_notification(
 );
 ```
 
+### Blog Transients (`lib/transients.php`)
+
+| Function | Returns | Description |
+|----------|---------|-------------|
+| `wpcom_set_blog_transient( $key, $value, $expiration )` | `bool` | Set a blog-scoped transient. |
+| `wpcom_get_blog_transient( $key )` | `mixed` | Get a blog-scoped transient. Returns `false` if not set. |
+| `wpcom_delete_blog_transient( $key )` | `bool` | Delete a blog-scoped transient. |
+
+**Why use these instead of `set_transient()` directly?** Intent clarity. These wrappers make it explicit that the data is per-blog. On Simple sites (multisite), `set_transient()` already stores per-blog in each blog's `wp_options` table. On Atomic (single-site), there is only one blog. The wrappers add no runtime logic.
+
+**Example:**
+```php
+// Rate-limit an action to once per day per blog.
+if ( ! wpcom_get_blog_transient( 'my_feature_throttle' ) ) {
+    wpcom_set_blog_transient( 'my_feature_throttle', 1, DAY_IN_SECONDS );
+    // Do the thing...
+}
+```
+
 ## Testing
 
 Tests are in `tests/php/lib/`. Run with:
