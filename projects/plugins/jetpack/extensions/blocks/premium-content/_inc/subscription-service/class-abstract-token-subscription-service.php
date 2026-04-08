@@ -77,6 +77,103 @@ abstract class Abstract_Token_Subscription_Service implements Subscription_Servi
 	}
 
 	/**
+	 * Attempt to refresh the current token against the WordPress.com refresh endpoint
+	 * and, on success, persist the fresh token in the cookie and return the decoded
+	 * payload.
+	 *
+	 * This is called when a subscriber has a JWT token whose subscription data is
+	 * stale (e.g. the cookie contains an old end_date from before a Stripe renewal).
+	 * The refresh endpoint accepts the existing token, re-queries billing, and
+	 * returns a fresh token reflecting current subscription state.
+	 *
+	 * @return array|null Decoded fresh payload on success, null on any failure.
+	 */
+	protected function refresh_token_payload() {
+		$current_token = $this->get_and_set_token_from_request();
+		if ( empty( $current_token ) ) {
+			return null;
+		}
+
+		$fresh_token = $this->fetch_refreshed_token( $current_token );
+		if ( empty( $fresh_token ) ) {
+			return null;
+		}
+
+		$fresh_payload = $this->decode_token( $fresh_token );
+		if ( empty( $fresh_payload ) ) {
+			return null;
+		}
+
+		$this->set_token_cookie( $fresh_token );
+		return $fresh_payload;
+	}
+
+	/**
+	 * POST the current token to the WordPress.com refresh endpoint and return a
+	 * fresh JWT string, or null on any failure.
+	 *
+	 * Response handling:
+	 *  - 200 with jwt_token → return fresh token string.
+	 *  - 400 (iat expired) / 401 (bad signature) → deterministic failure: clear the
+	 *    cookie so the visitor is routed through the normal auth flow on the next
+	 *    page load, and return null.
+	 *  - Any other non-200 / WP_Error / network timeout → transient failure: leave
+	 *    the cookie alone so a temporary endpoint outage does not mass-log-out
+	 *    subscribers, and return null.
+	 *
+	 * @param string $current_token The token to present for refresh.
+	 * @return string|null Fresh token string, or null on failure.
+	 */
+	protected function fetch_refreshed_token( $current_token ) {
+		$response = wp_remote_post(
+			self::REST_URL_ORIGIN . 'memberships/jwt/refresh',
+			array(
+				'timeout' => 10,
+				'headers' => array( 'Content-Type' => 'application/json' ),
+				'body'    => wp_json_encode(
+					array(
+						'token'   => $current_token,
+						'site_id' => $this->get_site_id(),
+					),
+					JSON_UNESCAPED_SLASHES
+				),
+			)
+		);
+
+		if ( is_wp_error( $response ) ) {
+			// Transient (network error / timeout). Leave cookie, deny.
+			return null;
+		}
+
+		$code = (int) wp_remote_retrieve_response_code( $response );
+
+		if ( 200 === $code ) {
+			$body = json_decode( wp_remote_retrieve_body( $response ), true );
+			if ( is_array( $body ) && ! empty( $body['jwt_token'] ) && is_string( $body['jwt_token'] ) ) {
+				return $body['jwt_token'];
+			}
+			// Malformed 200 — treat as transient.
+			return null;
+		}
+
+		if ( 400 === $code || 401 === $code ) {
+			// Deterministic failure — clear cookie so the subscriber re-authenticates.
+			self::clear_token_cookie();
+			return null;
+		}
+
+		// Any other status (5xx, 403, 404, etc.) — transient. Leave cookie, deny.
+		return null;
+	}
+
+	/**
+	 * Get the site ID for the current site.
+	 *
+	 * @return int
+	 */
+	abstract public function get_site_id();
+
+	/**
 	 * Get the token payload .
 	 *
 	 * @return array
@@ -156,6 +253,19 @@ abstract class Abstract_Token_Subscription_Service implements Subscription_Servi
 			);
 			$subscriptions      = (array) $payload['subscriptions'];
 			$is_paid_subscriber = static::validate_subscriptions( $valid_plan_ids, $subscriptions );
+
+			// If the token's subscriptions do not satisfy the required plans (e.g. the token has a
+			// stale end_date from before a subscription renewal), attempt a single refresh against
+			// the WordPress.com refresh endpoint before denying access.
+			if ( ! $is_paid_subscriber && ! empty( $valid_plan_ids ) ) {
+				$fresh_payload = $this->refresh_token_payload();
+				if ( ! empty( $fresh_payload ) ) {
+					$payload            = $fresh_payload;
+					$is_blog_subscriber = isset( $payload['blog_sub'] ) && self::BLOG_SUB_ACTIVE === $payload['blog_sub'];
+					$subscriptions      = isset( $payload['subscriptions'] ) ? (array) $payload['subscriptions'] : array();
+					$is_paid_subscriber = static::validate_subscriptions( $valid_plan_ids, $subscriptions );
+				}
+			}
 		}
 
 		$has_access = $this->user_has_access( $access_level, $is_blog_subscriber, $is_paid_subscriber, get_the_ID(), $subscriptions );
