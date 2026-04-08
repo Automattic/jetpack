@@ -1,5 +1,6 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { createRoot } from 'react-dom/client';
+import LaunchCelebrationModal from './launch-celebration-modal';
 import LaunchSite from './launch-site';
 import SiteVisibility from './site-visibility';
 import type { SitePreviewLinkObject } from './site-preview-link';
@@ -40,7 +41,12 @@ document.addEventListener( 'DOMContentLoaded', function () {
 				</QueryClientProvider>
 			);
 		} else {
-			root.render( <SiteVisibility { ...props } /> );
+			root.render(
+				<>
+					<SiteVisibility { ...props } />
+					<LaunchCelebrationModal { ...props } />
+				</>
+			);
 		}
 	}
 } );

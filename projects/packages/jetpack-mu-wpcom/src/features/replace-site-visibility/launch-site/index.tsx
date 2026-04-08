@@ -42,7 +42,7 @@ const LaunchSite = ( {
 	const [ , experimentData ] = useExperimentWithAuth( 'calypso_standardized_site_launch_gating' );
 	const [ showCelebrateLaunchModal, setShowCelebrateLaunchModal ] = useState( false );
 
-	const { mutate: launchSite } = useLaunchSiteMutation( blogId, () =>
+	const { mutate: launchSite, isPending } = useLaunchSiteMutation( blogId, () =>
 		setShowCelebrateLaunchModal( true )
 	);
 
@@ -56,11 +56,7 @@ const LaunchSite = ( {
 		source: 'options-reading.php',
 		new: siteTitle,
 		search: 'yes',
-	} );
-
-	const gatedLaunchUrl = addQueryArgs( 'https://wordpress.com/start/launch-site', {
-		siteSlug: siteDomain,
-		ref: 'wp-admin',
+		ref: 'wp-admin/options-reading.php',
 	} );
 
 	const showPreviewLink = isAnyComingSoonEnabled && hasSitePreviewLink;
@@ -70,11 +66,6 @@ const LaunchSite = ( {
 
 		if ( experimentData?.variationName === 'ungated_site_launch' ) {
 			launchSite();
-			return;
-		}
-
-		if ( experimentData?.variationName === 'gated_site_launch' ) {
-			window.location.href = gatedLaunchUrl;
 			return;
 		}
 
@@ -98,6 +89,7 @@ const LaunchSite = ( {
 				className="button is-secondary"
 				type="button"
 				style={ { marginTop: '0.5em' } }
+				disabled={ isPending }
 				onClick={ handleLaunchClick }
 			>
 				{ __( 'Launch site', 'jetpack-mu-wpcom' ) }
@@ -124,7 +116,10 @@ const LaunchSite = ( {
 					siteUrl={ homeUrl }
 					sitePlan={ sitePlan }
 					hasCustomDomain={ hasCustomDomain }
-					onRequestClose={ () => setShowCelebrateLaunchModal( false ) }
+					onRequestClose={ () => {
+						setShowCelebrateLaunchModal( false );
+						window.location.reload();
+					} }
 				/>
 			) }
 		</>
