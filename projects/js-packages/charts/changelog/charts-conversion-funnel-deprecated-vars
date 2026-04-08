@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Charts: Restore backward compatibility for deprecated --funnel-font-family and --step-font-family CSS variables in ConversionFunnelChart.
