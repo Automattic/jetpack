@@ -201,26 +201,30 @@ class REST_RTC_Notices extends WP_REST_Controller {
 		// Expire after 2 minutes.
 		set_transient( $key, $requests, 2 * MINUTE_IN_SECONDS );
 
-		// Send async bell notification to the plan owner so
-		// they see it even when they are not in the editor.
-		self::send_async_admin_notifications( $post_id, $user );
+		// Fire rate-limited action so listeners (bell, email, etc.)
+		// can notify the plan owner.
+		self::maybe_fire_collaborator_blocked( $post_id, $user );
 
 		return rest_ensure_response( array( 'success' => true ) );
 	}
 
 	/**
-	 * Send async notifications (bell) to the plan owner when a
-	 * non-admin is blocked by the collaborator limit.
+	 * Fire the jetpack_rtc_collaborator_blocked action if not throttled.
 	 *
-	 * Rate-limited: only fires once per configurable interval (default 24 h)
-	 * per (blog, post, blocked user) combination.
+	 * Rate-limited to once per day per blog. Listeners hook into the
+	 * action to send notifications (bell, email, etc.).
 	 *
 	 * @param int      $post_id The post the user was trying to join.
 	 * @param \WP_User $user    The blocked user.
 	 */
-	public static function send_async_admin_notifications( $post_id, $user ) {
-		// Only send when limit notices are enabled.
+	public static function maybe_fire_collaborator_blocked( $post_id, $user ) {
+		// Only fire when limit notices are enabled.
 		if ( ! apply_filters( 'jetpack_rtc_enable_limit_notices', false ) ) {
+			return;
+		}
+
+		// Check rate limit — once per day per blog.
+		if ( wpcom_get_blog_transient( 'rtc_collaborator_blocked_fired' ) ) {
 			return;
 		}
 
@@ -229,40 +233,40 @@ class REST_RTC_Notices extends WP_REST_Controller {
 			return;
 		}
 
-		// Rate-limit: one notification set per (blog, post, user) per interval.
-		$blog_id          = get_current_blog_id();
-		$throttle_key     = sprintf( 'rtc_notif_sent_%d_%d_%d', $blog_id, $post_id, $user->ID );
-		$throttle_seconds = (int) apply_filters( 'jetpack_rtc_async_notification_interval', DAY_IN_SECONDS );
-
-		if ( get_transient( $throttle_key ) ) {
-			return;
-		}
-
-		// Set the throttle *before* sending so concurrent requests don't
+		// Set the throttle *before* firing so concurrent requests don't
 		// race past the check.
-		set_transient( $throttle_key, 1, $throttle_seconds );
+		wpcom_set_blog_transient( 'rtc_collaborator_blocked_fired', 1, DAY_IN_SECONDS );
 
-		self::send_admin_bell_notification( $blog_id, $post_id, $user, $owner_id );
+		/**
+		 * Fires when a non-admin user is blocked by the collaborator limit.
+		 *
+		 * Rate-limited to once per day per blog. Hook into this action
+		 * to add notification strategies (bell, email, Slack, etc.).
+		 *
+		 * @param int      $post_id  The post the user was trying to join.
+		 * @param \WP_User $user     The blocked user.
+		 * @param int      $owner_id The plan owner's user ID.
+		 */
+		do_action( 'jetpack_rtc_collaborator_blocked', $post_id, $user, $owner_id );
 	}
 
 	/**
-	 * Send a WordPress.com bell notification to the plan owner.
+	 * Bell notification listener for the collaborator blocked action.
 	 *
-	 * @param int      $blog_id  The blog ID.
 	 * @param int      $post_id  The post the user was trying to join.
 	 * @param \WP_User $user     The blocked user.
 	 * @param int      $owner_id The plan owner's user ID.
 	 */
-	public static function send_admin_bell_notification( $blog_id, $post_id, $user, $owner_id ) {
+	public static function on_collaborator_blocked( $post_id, $user, $owner_id ) {
 		wpcom_send_bell_notification(
 			$owner_id,
 			'rtc_collaborator_blocked',
 			array(
-				'blog_id' => $blog_id,
+				'blog_id' => get_current_blog_id(),
 				'post_id' => $post_id,
 				'user_id' => $user->ID,
 			),
-			sprintf( 'rtc-blocked-%d-%d-%d', $blog_id, $post_id, $user->ID )
+			sprintf( 'rtc-blocked-%d-%d-%d', get_current_blog_id(), $post_id, $user->ID )
 		);
 	}
 

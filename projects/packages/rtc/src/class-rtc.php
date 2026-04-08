@@ -50,6 +50,7 @@ class RTC {
 		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_routes' ) );
 		add_action( 'enqueue_block_editor_assets', array( __CLASS__, 'register_providers' ) );
 		add_action( 'enqueue_block_editor_assets', array( __CLASS__, 'load_notices' ) );
+		add_action( 'jetpack_rtc_collaborator_blocked', array( RTC\REST_RTC_Notices::class, 'on_collaborator_blocked' ), 10, 3 );
 		add_action( 'load-options-writing.php', array( __CLASS__, 'unregister_rtc_setting' ) );
 		add_action( 'load-options-writing.php', array( __CLASS__, 'override_rtc_setting_default' ) );
 
