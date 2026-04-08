@@ -73,6 +73,7 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	public function tear_down() {
 		delete_transient( ImageStudio\ASSET_TRANSIENT );
 		remove_all_filters( 'jetpack_image_studio_enabled' );
+		remove_all_filters( 'jetpack_image_studio_available' );
 		remove_all_filters( 'pre_http_request' );
 		remove_all_filters( 'locale' );
 		remove_all_filters( 'jetpack_ai_enabled' );
@@ -277,6 +278,48 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 		$this->assertFalse( ImageStudio\is_image_studio_enabled() );
 	}
 
+	/**
+	 * Enabled when Big Sky is active.
+	 */
+	public function test_is_enabled_via_big_sky() {
+		$this->enable_big_sky();
+		$this->assertTrue( ImageStudio\is_image_studio_enabled() );
+	}
+
+	/**
+	 * NOT auto-enabled in CIAB when AI features are unavailable (opt-in required).
+	 *
+	 * Disables AI features to isolate the CIAB path — without this, the
+	 * function returns true via the AI-features branch regardless of CIAB.
+	 */
+	public function test_is_not_enabled_in_ciab_by_default() {
+		$this->disable_ai_features();
+		do_action( 'next_admin_init' );
+		$this->assertTrue( ImageStudio\is_ciab_environment() );
+		$this->assertFalse( ImageStudio\is_image_studio_enabled() );
+	}
+
+	/**
+	 * Enabled in CIAB when opted in via jetpack_image_studio_available filter,
+	 * even when AI features are unavailable.
+	 */
+	public function test_is_enabled_in_ciab_when_opted_in_via_filter() {
+		$this->disable_ai_features();
+		do_action( 'next_admin_init' );
+		add_filter( 'jetpack_image_studio_available', '__return_true' );
+		$this->assertTrue( ImageStudio\is_image_studio_enabled() );
+	}
+
+	/**
+	 * Not enabled when filter jetpack_image_studio_available returns false,
+	 * even when other conditions (Big Sky) are met.
+	 */
+	public function test_is_not_enabled_when_filter_returns_false() {
+		$this->enable_big_sky();
+		add_filter( 'jetpack_image_studio_available', '__return_false' );
+		$this->assertFalse( ImageStudio\is_image_studio_enabled() );
+	}
+
 	// -------------------------------------------------------------------------
 	// signal_image_studio_active() tests
 	// -------------------------------------------------------------------------
@@ -297,6 +340,38 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 		$this->disable_ai_features();
 		ImageStudio\signal_image_studio_active();
 		$this->assertFalse( apply_filters( 'jetpack_image_studio_enabled', false ) );
+	}
+
+	/**
+	 * Test do_enqueue_assets also sets the Big Sky signal filter.
+	 */
+	public function test_do_enqueue_assets_sets_big_sky_signal() {
+		$this->enable_big_sky();
+		set_transient(
+			ImageStudio\ASSET_TRANSIENT,
+			array(
+				'version'      => '1.0.0',
+				'dependencies' => array(),
+			),
+			HOUR_IN_SECONDS
+		);
+
+		// Clear any signal from init hook.
+		remove_all_filters( 'jetpack_image_studio_enabled' );
+
+		ImageStudio\do_enqueue_assets();
+		$this->assertTrue( apply_filters( 'jetpack_image_studio_enabled', false ) );
+	}
+
+	/**
+	 * Test do_enqueue_assets is hooked to next_admin_init at priority 1000.
+	 */
+	public function test_do_enqueue_assets_hooked_to_next_admin_init() {
+		$priority = has_action(
+			'next_admin_init',
+			'Automattic\Jetpack\Extensions\ImageStudio\do_enqueue_assets'
+		);
+		$this->assertSame( 1000, $priority );
 	}
 
 	// -------------------------------------------------------------------------
@@ -499,6 +574,53 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 			if ( is_string( $line ) && strpos( $line, 'imageStudioData' ) !== false ) {
 				$found = true;
 				$this->assertStringContainsString( '"enabled":true', $line );
+			}
+		}
+		$this->assertTrue( $found, 'Inline script with imageStudioData not found.' );
+	}
+
+	/**
+	 * Test inline script includes wp-admin environment by default.
+	 */
+	public function test_inline_script_includes_wp_admin_environment() {
+		$this->enable_and_enqueue_block_editor();
+
+		$inline = $GLOBALS['wp_scripts']->get_data( ImageStudio\FEATURE_NAME, 'before' );
+
+		$found = false;
+		foreach ( $inline as $line ) {
+			if ( is_string( $line ) && strpos( $line, 'imageStudioData' ) !== false ) {
+				$found = true;
+				$this->assertStringContainsString( '"environment":"wp-admin"', $line );
+			}
+		}
+		$this->assertTrue( $found, 'Inline script with imageStudioData not found.' );
+	}
+
+	/**
+	 * Test inline script includes ciab-admin environment in CIAB context.
+	 */
+	public function test_inline_script_includes_ciab_environment() {
+		do_action( 'next_admin_init' );
+		add_filter( 'jetpack_image_studio_available', '__return_true' );
+		set_transient(
+			ImageStudio\ASSET_TRANSIENT,
+			array(
+				'version'      => '1.0.0',
+				'dependencies' => array(),
+			),
+			HOUR_IN_SECONDS
+		);
+
+		ImageStudio\do_enqueue_assets();
+
+		$inline = $GLOBALS['wp_scripts']->get_data( ImageStudio\FEATURE_NAME, 'before' );
+
+		$found = false;
+		foreach ( $inline as $line ) {
+			if ( is_string( $line ) && strpos( $line, 'imageStudioData' ) !== false ) {
+				$found = true;
+				$this->assertStringContainsString( '"environment":"ciab-admin"', $line );
 			}
 		}
 		$this->assertTrue( $found, 'Inline script with imageStudioData not found.' );

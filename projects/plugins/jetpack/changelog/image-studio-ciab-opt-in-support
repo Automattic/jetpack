@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Image Studio: Add CIAB/Next Admin support via opt-in filter and next_admin_init hook.

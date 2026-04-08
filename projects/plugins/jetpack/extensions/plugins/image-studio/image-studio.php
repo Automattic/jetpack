@@ -28,21 +28,32 @@ const ASSET_TRANSIENT        = 'jetpack_image_studio_asset';
 /**
  * Check if Image Studio is enabled.
  *
- * Enabled when AI features are available and either the request is from an
- * Automattician or the Big Sky plugin is active and enabled.
+ * Enabled by default when Big Sky is active or Jetpack AI features are
+ * available. The result is passed through the {@see 'jetpack_image_studio_available'}
+ * filter so consumers (e.g. CIAB / Next Admin) can opt in or out.
  *
  * @return bool
  */
 function is_image_studio_enabled() {
-	if ( is_ciab_environment() || is_big_sky_enabled() ) {
-		return true;
+	if ( is_big_sky_enabled() ) {
+		$enabled = true;
+	} elseif ( ! has_jetpack_ai_features() ) {
+		$enabled = false;
+	} else {
+		$enabled = true;
 	}
 
-	if ( ! has_jetpack_ai_features() ) {
-		return false;
-	}
-
-	return true;
+	/**
+	 * Filter whether Image Studio is available.
+	 *
+	 * Allows consumers (e.g. CIAB / Next Admin) to enable or disable
+	 * Image Studio independently of the default environment checks.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param bool $enabled Whether Image Studio is currently enabled.
+	 */
+	return (bool) apply_filters( 'jetpack_image_studio_available', $enabled );
 }
 
 /**
@@ -263,6 +274,9 @@ function do_enqueue_assets() {
 		return;
 	}
 
+	// Signal to Big Sky that Jetpack is handling Image Studio, so it skips its own loading.
+	add_filter( 'jetpack_image_studio_enabled', '__return_true', 5 );
+
 	$asset_data = get_asset_data();
 	if ( ! $asset_data ) {
 		return;
@@ -294,8 +308,9 @@ function do_enqueue_assets() {
 	);
 
 	$image_studio_data = array(
-		'enabled' => true,
-		'version' => '1.0',
+		'enabled'     => true,
+		'version'     => '1.0',
+		'environment' => is_ciab_environment() ? 'ciab-admin' : 'wp-admin',
 	);
 
 	wp_add_inline_script(
@@ -311,6 +326,18 @@ function do_enqueue_assets() {
 		$version
 	);
 }
+
+/*
+ * CIAB / Next Admin SPA context.
+ *
+ * In the CIAB SPA, admin_enqueue_scripts never fires and there is no
+ * current_screen. Assets are enqueued on next_admin_init (after the
+ * SPA's script dequeue sweep). The CIAB consumer must opt in via the
+ * jetpack_image_studio_available filter before this priority fires.
+ *
+ * Follows the same pattern as Help Center and Agents Manager.
+ */
+add_action( 'next_admin_init', __NAMESPACE__ . '\do_enqueue_assets', 1000 );
 
 /**
  * Enqueue Image Studio assets in the block editor.
