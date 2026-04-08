@@ -23,7 +23,7 @@
 		"@typescript/native-preview": "7.0.0-dev.20260225.1",
 		"_jetpack-e2e-commons": "workspace:*",
 		"allure-playwright": "2.15.1",
-		"config": "4.1.1",
+		"config": "4.4.1",
 		"playwright-ctrf-json-reporter": "^0.0.26"
 	},
 	"ci": {

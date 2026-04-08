@@ -135,15 +135,29 @@ function getRoom( objectType: string, objectId: string | null ): string {
  */
 export function createPingHubProvider(): ProviderCreator {
 	return async ( { awareness, objectType, objectId, ydoc } ): Promise< ProviderCreatorResult > => {
+		const noopProvider = {
+			destroy: () => {},
+			on: () => {},
+		};
+
 		/**
-		 * Only post-like entities with a concrete ID are supported now.
+		 * The sync manager only invokes provider creators for entity types that
+		 * have a syncConfig, so no explicit allowlist is needed here.
+		 *
+		 * Collection-level sync (objectId is null, from loadCollection) is only
+		 * meaningful for root/ entities such as root/comment (notes). Post-type
+		 * and taxonomy entities are always synced per-record, so skip them when
+		 * no concrete ID is present.
 		 */
-		const SUPPORTED_OBJECT_TYPES = new Set( [ 'postType/post', 'postType/page' ] );
-		if ( ! SUPPORTED_OBJECT_TYPES.has( objectType ) || ! objectId ) {
-			return {
-				destroy: () => {},
-				on: () => {},
-			};
+		if ( ! objectId && ! objectType.startsWith( 'root/' ) ) {
+			return noopProvider;
+		}
+
+		// Skip attachments: real-time collaboration on attachment metadata has
+		// minimal value, and media-heavy sites can trigger hundreds of
+		// simultaneous WebSocket connections (one per attachment entity).
+		if ( objectType === 'postType/attachment' ) {
+			return noopProvider;
 		}
 
 		const room = getRoom( objectType, objectId );

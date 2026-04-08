@@ -8,6 +8,7 @@ import { useState } from 'react';
 import { store as socialStore } from '../../../../social-store';
 import ToggleSection from '../toggle-section';
 import styles from './styles.module.scss';
+import type { SocialNotesConfig } from '../../../../social-store/types';
 import type { Dispatch, FC, SetStateAction } from 'react';
 
 type SocialNotesToggleProps = {
@@ -32,12 +33,15 @@ const handleStateUpdating = async (
 };
 
 const SocialNotesToggle: FC< SocialNotesToggleProps > = ( { disabled } ) => {
-	const { isEnabled, notesConfig, isUpdating } = useSelect( select => {
+	const { isEnabled, isUpdating, appendLink, linkFormat } = useSelect( select => {
 		const store = select( socialStore );
 
+		const { socialNotes } = store.getSocialSettings();
+
 		return {
-			isEnabled: store.getSocialSettings().socialNotes.enabled,
-			notesConfig: store.getSocialSettings().socialNotes.config,
+			isEnabled: socialNotes.enabled,
+			appendLink: socialNotes.config.append_link ?? true,
+			linkFormat: socialNotes.config.link_format,
 			isUpdating: store.isSavingSiteSettings(),
 		};
 	}, [] );
@@ -60,13 +64,12 @@ const SocialNotesToggle: FC< SocialNotesToggleProps > = ( { disabled } ) => {
 			handleStateUpdating(
 				() =>
 					updateSocialNotesConfig( {
-						...notesConfig,
 						append_link,
 					} ),
 				setIsAppendLinkToggleUpdating
 			);
 		},
-		[ notesConfig, updateSocialNotesConfig ]
+		[ updateSocialNotesConfig ]
 	);
 
 	const onChangeLinkFormat = useCallback(
@@ -74,16 +77,13 @@ const SocialNotesToggle: FC< SocialNotesToggleProps > = ( { disabled } ) => {
 			handleStateUpdating(
 				() =>
 					updateSocialNotesConfig( {
-						...notesConfig,
-						link_format: link_format as ( typeof notesConfig )[ 'link_format' ],
+						link_format: link_format as SocialNotesConfig[ 'link_format' ],
 					} ),
 				setIsLinkFormatUpdating
 			);
 		},
-		[ notesConfig, updateSocialNotesConfig ]
+		[ updateSocialNotesConfig ]
 	);
-
-	const appendLink = notesConfig.append_link ?? true;
 
 	return (
 		<ToggleSection
@@ -131,7 +131,7 @@ const SocialNotesToggle: FC< SocialNotesToggleProps > = ( { disabled } ) => {
 					{ appendLink ? (
 						<SelectControl
 							label={ __( 'Link format', 'jetpack-publicize-pkg' ) }
-							value={ notesConfig.link_format ?? 'full_url' }
+							value={ linkFormat ?? 'full_url' }
 							onChange={ onChangeLinkFormat }
 							disabled={ isLinkFormatUpdating || isUpdating || isAppendLinkToggleUpdating }
 							options={ [

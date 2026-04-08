@@ -1,10 +1,15 @@
+import { useExperimentWithAuth } from '@automattic/jetpack-explat';
 import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
+import { useState } from 'react';
+import CelebrateLaunchModal from '../../../common/celebrate-launch/celebrate-launch-modal';
+import { useLaunchSiteMutation } from '../../../common/hooks';
 import { wpcomTrackEvent } from '../../../common/tracks';
 import SitePreviewLink from '../site-preview-link';
 import type { SitePreviewLinkObject } from '../site-preview-link';
 
 interface Props {
+	blogId: number;
 	homeUrl: string;
 	siteTitle: string;
 	isUnlaunchedSite: boolean;
@@ -14,9 +19,13 @@ interface Props {
 	blogPublic: number;
 	wpcomComingSoon: number;
 	wpcomPublicComingSoon: number;
+	siteDomain: string;
+	sitePlan?: { product_slug: string };
+	hasCustomDomain: boolean;
 }
 
 const LaunchSite = ( {
+	blogId,
 	homeUrl,
 	siteTitle,
 	isUnlaunchedSite,
@@ -26,7 +35,17 @@ const LaunchSite = ( {
 	blogPublic,
 	wpcomComingSoon,
 	wpcomPublicComingSoon,
+	siteDomain,
+	sitePlan,
+	hasCustomDomain,
 }: Props ) => {
+	const [ , experimentData ] = useExperimentWithAuth( 'calypso_standardized_site_launch_gating' );
+	const [ showCelebrateLaunchModal, setShowCelebrateLaunchModal ] = useState( false );
+
+	const { mutate: launchSite, isPending } = useLaunchSiteMutation( blogId, () =>
+		setShowCelebrateLaunchModal( true )
+	);
+
 	// isPrivateAndUnlaunched means it is an unlaunched coming soon v1 site
 	const isPrivateAndUnlaunched = -1 === blogPublic && isUnlaunchedSite;
 	const isAnyComingSoonEnabled =
@@ -37,32 +56,42 @@ const LaunchSite = ( {
 		source: 'options-reading.php',
 		new: siteTitle,
 		search: 'yes',
+		ref: 'wp-admin/options-reading.php',
 	} );
 
 	const showPreviewLink = isAnyComingSoonEnabled && hasSitePreviewLink;
 
+	const descriptions = {
+		comingSoon: __(
+			'Your site hasn\'t been launched yet. It is hidden from visitors behind a "Coming Soon" notice until it is launched.',
+			'jetpack-mu-wpcom'
+		),
+		private: __(
+			"Your site hasn't been launched yet. It's private; only you can see it until it is launched.",
+			'jetpack-mu-wpcom'
+		),
+	};
+
+	const handleLaunchClick = () => {
+		wpcomTrackEvent( 'wpcom_settings_reading_launch_site_button_click' );
+
+		if ( experimentData?.variationName === 'ungated_site_launch' ) {
+			launchSite();
+			return;
+		}
+
+		window.location.href = launchUrl;
+	};
+
 	return (
 		<>
-			<p>
-				{ isAnyComingSoonEnabled
-					? __(
-							'Your site hasn\'t been launched yet. It is hidden from visitors behind a "Coming Soon" notice until it is launched.',
-							'jetpack-mu-wpcom'
-					  )
-					: __(
-							"Your site hasn't been launched yet. It's private; only you can see it until it is launched.",
-							'jetpack-mu-wpcom',
-							0
-					  ) }
-			</p>
+			<p>{ isAnyComingSoonEnabled ? descriptions.comingSoon : descriptions.private }</p>
 			<button
 				className="button is-secondary"
 				type="button"
 				style={ { marginTop: '0.5em' } }
-				onClick={ () => {
-					wpcomTrackEvent( 'wpcom_settings_reading_launch_site_button_click' );
-					window.location.href = launchUrl;
-				} }
+				disabled={ isPending }
+				onClick={ handleLaunchClick }
 			>
 				{ __( 'Launch site', 'jetpack-mu-wpcom' ) }
 			</button>
@@ -80,6 +109,18 @@ const LaunchSite = ( {
 							&nbsp;
 						</>
 					}
+				/>
+			) }
+			{ showCelebrateLaunchModal && (
+				<CelebrateLaunchModal
+					siteDomain={ siteDomain }
+					siteUrl={ homeUrl }
+					sitePlan={ sitePlan }
+					hasCustomDomain={ hasCustomDomain }
+					onRequestClose={ () => {
+						setShowCelebrateLaunchModal( false );
+						window.location.reload();
+					} }
 				/>
 			) }
 		</>

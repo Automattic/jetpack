@@ -122,6 +122,9 @@ function getBlogId(): number | null {
 }
 
 const JWT_CACHE_TTL_MS = 60 * 1000; // 1 minute
+const MAX_JWT_FETCH_FAILURES = 5;
+const JWT_BACKOFF_BASE_MS = 1000;
+const JWT_BACKOFF_MAX_MS = 30 * 1000;
 
 let detectedBrowser: string | null = null;
 
@@ -175,6 +178,33 @@ export function pixel( key: string, value: string | number, unit: string ): void
 		'"]}';
 }
 
+/**
+ * Log a PingHub connection lifecycle event to the server for Logstash.
+ * Fire-and-forget: errors are silently swallowed.
+ *
+ * @param event      - Event name: 'connected', 'disconnected', or 'jwt_fetch_error'.
+ * @param properties - Event properties (close_code, connection_lifetime_ms, etc.).
+ */
+export function logConnectionEvent(
+	event: string,
+	properties: Record< string, unknown > = {}
+): void {
+	if ( ! window.jetpackRTC?.connectionLogging ) {
+		return;
+	}
+	apiFetch( {
+		path: '/wpcom/v2/rtc/connection-log',
+		method: 'POST',
+		data: {
+			event,
+			properties: {
+				browser: detectBrowser(),
+				...properties,
+			},
+		},
+	} ).catch( () => {} );
+}
+
 export class PingHubBridge {
 	private openHandlers = new Map< string, Set< () => void > >();
 	private closeHandlers = new Map< string, Set< ( code: number, reason: string ) => void > >();
@@ -191,6 +221,12 @@ export class PingHubBridge {
 	/** Cached JWT for PingHub authentication. */
 	private cachedJwt: string | null = null;
 	private cachedJwtTimestamp = 0;
+	/** Consecutive JWT fetch failure count. */
+	private jwtFetchFailures = 0;
+	/** Exponential backoff delay for JWT fetch retries. */
+	private jwtBackoffDelay = JWT_BACKOFF_BASE_MS;
+	/** Timestamp before which JWT fetches are suppressed. */
+	private jwtBackoffUntil = 0;
 	/** Reassembly buffer: key = room + ':' + msgId, value = { totalChunks, chunks } */
 	private chunkBuffers = new Map<
 		string,
@@ -319,6 +355,18 @@ export class PingHubBridge {
 	}
 
 	/**
+	 * Reset JWT backoff state so the next fetch attempt is not suppressed.
+	 *
+	 * Called by the manager when reconnect state is reset (e.g. on tab
+	 * visibility change or successful connection).
+	 */
+	resetJwtState(): void {
+		this.jwtFetchFailures = 0;
+		this.jwtBackoffDelay = JWT_BACKOFF_BASE_MS;
+		this.jwtBackoffUntil = 0;
+	}
+
+	/**
 	 * Fetch a short-lived JWT for PingHub authentication via the REST endpoint.
 	 * Caches the token for 1 minute to avoid redundant requests on reconnects.
 	 *
@@ -328,6 +376,12 @@ export class PingHubBridge {
 		if ( this.cachedJwt && Date.now() - this.cachedJwtTimestamp < JWT_CACHE_TTL_MS ) {
 			return this.cachedJwt;
 		}
+		if ( this.jwtFetchFailures >= MAX_JWT_FETCH_FAILURES ) {
+			return null;
+		}
+		if ( Date.now() < this.jwtBackoffUntil ) {
+			return null;
+		}
 		const start = Date.now();
 		try {
 			const response = await apiFetch< { token: string } >( {
@@ -336,10 +390,19 @@ export class PingHubBridge {
 			} );
 			this.cachedJwt = response?.token ?? null;
 			this.cachedJwtTimestamp = Date.now();
+			this.resetJwtState();
 			pixel( 'pinghub.rtc.jwt_fetch', Date.now() - start, 'ms' );
 			return this.cachedJwt;
 		} catch {
-			pixel( 'pinghub.rtc.jwt_fetch_error', Date.now() - start, 'ms' );
+			this.jwtFetchFailures++;
+			this.jwtBackoffUntil = Date.now() + this.jwtBackoffDelay;
+			this.jwtBackoffDelay = Math.min( this.jwtBackoffDelay * 2, JWT_BACKOFF_MAX_MS );
+			const elapsed = Date.now() - start;
+			pixel( 'pinghub.rtc.jwt_fetch_error', elapsed, 'ms' );
+			logConnectionEvent( 'jwt_fetch_error', {
+				duration_ms: elapsed,
+				failure_count: this.jwtFetchFailures,
+			} );
 			return null;
 		}
 	}
@@ -372,15 +435,17 @@ export class PingHubBridge {
 		const waiters: Array< { resolve: () => void; reject: ( err: Error ) => void } > = [];
 		this.connectingWaiters.set( room, waiters );
 
-		// Fetch a short-lived JWT so the connection authenticates even when
-		// WPCOM cookies are absent (third-party cookie blocking on
-		// custom-domain Jetpack/Atomic sites).
-		let wsUrl = this.fullPath( room );
+		// Fetch a short-lived JWT for authentication. Without it the
+		// connection cannot authenticate, so bail out early.
 		const jwt = await this.fetchPinghubJwt();
-		if ( jwt ) {
-			wsUrl += '?jwt=' + encodeURIComponent( jwt );
+		if ( ! jwt ) {
+			this.connectingWaiters.delete( room );
+			const err = new Error( 'PingHub JWT fetch failed' );
+			waiters.splice( 0 ).forEach( ( { reject } ) => reject( err ) );
+			return Promise.reject( err );
 		}
 
+		const wsUrl = this.fullPath( room ) + '?jwt=' + encodeURIComponent( jwt );
 		const ws = new WebSocket( wsUrl );
 		ws.binaryType = 'arraybuffer';
 		this.sockets.set( room, ws );
@@ -388,16 +453,28 @@ export class PingHubBridge {
 		const start = Date.now();
 
 		ws.addEventListener( 'open', () => {
-			pixel( 'pinghub.conn_open', Date.now() - start, 'ms' );
-			pixel( 'pinghub.rtc.conn_open', Date.now() - start, 'ms' );
+			const elapsed = Date.now() - start;
+			pixel( 'pinghub.conn_open', elapsed, 'ms' );
+			pixel( 'pinghub.rtc.conn_open', elapsed, 'ms' );
+			logConnectionEvent( 'connected', {
+				room,
+				time_to_connect_ms: elapsed,
+			} );
 			this.connectingWaiters.delete( room );
 			waiters.splice( 0 ).forEach( ( { resolve } ) => resolve() );
 			this.openHandlers.get( room )?.forEach( h => h() );
 		} );
 
 		ws.addEventListener( 'close', event => {
-			pixel( 'pinghub.conn_close_code.' + event.code, Date.now() - start, 'ms' );
-			pixel( 'pinghub.rtc.conn_close_code.' + event.code, Date.now() - start, 'ms' );
+			const elapsed = Date.now() - start;
+			pixel( 'pinghub.conn_close_code.' + event.code, elapsed, 'ms' );
+			pixel( 'pinghub.rtc.conn_close_code.' + event.code, elapsed, 'ms' );
+			logConnectionEvent( 'disconnected', {
+				room,
+				close_code: event.code,
+				close_reason: event.reason,
+				connection_lifetime_ms: elapsed,
+			} );
 			this.sockets.delete( room );
 			if ( this.connectingWaiters.has( room ) ) {
 				this.connectingWaiters.delete( room );

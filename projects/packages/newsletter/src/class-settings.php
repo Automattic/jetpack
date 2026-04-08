@@ -21,7 +21,7 @@ use Jetpack_Tracks_Client;
  */
 class Settings {
 
-	const PACKAGE_VERSION = '0.6.2';
+	const PACKAGE_VERSION = '0.8.0';
 	/**
 	 * Whether the class has been initialized
 	 *
@@ -115,6 +115,11 @@ class Settings {
 		// which will call add_wp_admin_submenu() directly. Skip adding the menu here to avoid
 		// trying to add a submenu before the parent menu exists.
 		if ( $host->is_wpcom_simple() ) {
+			return;
+		}
+
+		// On sites using Jetpack, only show the menu if the site is connected.
+		if ( ! ( new Connection_Manager() )->is_connected() ) {
 			return;
 		}
 
@@ -303,10 +308,14 @@ class Settings {
 		}
 
 		// For Jetpack sites, use the jetpack.com redirect URL.
-		$site_id = $blog_id ? $blog_id : Connection_Manager::get_site_id();
+		$site_id = $blog_id ? (int) $blog_id : Connection_Manager::get_site_id( true );
+		$args    = ( ! empty( $site_id ) )
+			? array( 'site' => $site_id )
+			: array();
+
 		return Redirect::get_url(
 			'jetpack-settings-jetpack-manage-subscribers',
-			array( 'site' => $site_id )
+			$args
 		);
 	}
 

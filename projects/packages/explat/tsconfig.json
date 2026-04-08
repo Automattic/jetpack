@@ -2,5 +2,10 @@
 	"extends": "jetpack-js-tools/tsconfig.base.json",
 	// List all sources and source-containing subdirs.
 	"include": [ "./src/client/**/*" ],
-	"files": [ "./global.d.ts" ]
+	"files": [ "./global.d.ts" ],
+	"compilerOptions": {
+		"typeRoots": [ "./node_modules/@types/", "src" ],
+		"sourceMap": true,
+		"outDir": "./build/"
+	}
 }

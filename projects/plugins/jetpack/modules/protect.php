@@ -1,6 +1,6 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 /**
- * Module Name: Brute force protection
+ * Module Name: Brute Force Protection
  * Module Description: Block malicious login attempts automatically and keep hackers out.
  * Sort Order: 1
  * Recommendation Order: 4

@@ -149,9 +149,6 @@ export function makeBaseConfig( configurl, opts = {} ) {
 	return defineConfig(
 		globalIgnores( loadIgnorePatterns( basedir ) ),
 
-		// Gutenberg stopped publishing the `.native.js` files in their packages, so we can't effectively lint them anymore.
-		globalIgnores( [ '**/*.native.[jt]s' ] ),
-
 		// Extended configs.
 		{
 			files: javascriptFiles,

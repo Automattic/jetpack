@@ -1,6 +1,0 @@
-{
-	"extends": "_jetpack-e2e-commons/tsconfig.json",
-	"compilerOptions": {
-		"esModuleInterop": true
-	}
-}
