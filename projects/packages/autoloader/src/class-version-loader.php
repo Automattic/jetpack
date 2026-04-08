@@ -35,6 +35,20 @@ class Version_Loader {
 	private $filemap;
 
 	/**
+	 * Cache: resolved and unresolved classes.
+	 *
+	 * @var array<string,mixed>
+	 */
+	private $resolved_classes = array();
+
+	/**
+	 * Cache: resolved PRS4 files.
+	 *
+	 * @var array<string,string>
+	 */
+	private $resolved_namespaces = array();
+
+	/**
 	 * The constructor.
 	 *
 	 * @param Version_Selector $version_selector The Version_Selector object.
@@ -79,16 +93,15 @@ class Version_Loader {
 	public function find_class_file( $class_name ) {
 		// Prevent repeated attempts to load non-existent classes during class existence checks.
 		// These attempts occur when extensions perform compatibility and integration checks.
-		static $resolved_classes = array();
-		if ( ! array_key_exists( $class_name, $resolved_classes ) ) {
-			$data = $this->select_newest_file(
+		if ( ! array_key_exists( $class_name, $this->resolved_classes ) ) {
+			$data                                  = $this->select_newest_file(
 				$this->classmap[ $class_name ] ?? null,
 				$this->find_psr4_file( $class_name )
 			);
-			$resolved_classes[ $class_name ] = $data['path'] ?? null;
+			$this->resolved_classes[ $class_name ] = $data['path'] ?? null;
 		}
 
-		return $resolved_classes[ $class_name ];
+		return $this->resolved_classes[ $class_name ];
 	}
 
 	/**
@@ -153,9 +166,8 @@ class Version_Loader {
 		// Warm phase: Since a previous lookup resolved a file in the same namespace, we will first
 		// search for the target file in the same PSR4 map. It is likely that we will find it there.
 		// TBD: hit to miss ratio for WooCommerce as an example to verify this warm branch working.
-		static $resolved_namespaces = array();
-		if ( isset( $resolved_namespaces[ $original_namespace ] ) ) {
-			$namespace = $resolved_namespaces[ $original_namespace ];
+		if ( isset( $this->resolved_namespaces[ $original_namespace ] ) ) {
+			$namespace = $this->resolved_namespaces[ $original_namespace ];
 			$suffix    = '/' . substr( $class_for_path, strlen( $namespace ) ) . '.php';
 			$data      = $this->psr4_map[ $namespace ];
 			foreach ( $data['path'] as $path ) {
@@ -186,7 +198,7 @@ class Version_Loader {
 			foreach ( $data['path'] as $path ) {
 				$file = $path . $suffix;
 				if ( file_exists( $file ) ) {
-					$resolved_namespaces[ $original_namespace ] = $namespace;
+					$this->resolved_namespaces[ $original_namespace ] = $namespace;
 					return array(
 						'version' => $data['version'],
 						'path'    => $file,
