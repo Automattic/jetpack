@@ -247,6 +247,15 @@ Use the `style` prop or `className` prop to customize the chart container:
 	/>` }
 />
 
+### Deprecated CSS Custom Properties
+
+The following CSS custom properties are **deprecated** and will be removed in a future release. They are still honored as fallbacks for backward compatibility, but new code should set `--wpds-font-family-body` instead (typically via the host app's theme/admin configuration, not raw CSS overrides):
+
+- `--funnel-font-family` — previously applied to the chart root, main rate, and change indicator. Replaced by `--wpds-font-family-body`.
+- `--step-font-family` — previously applied to step labels and step rates. Replaced by `--wpds-font-family-body`.
+
+If `--wpds-font-family-body` is set, it takes precedence and the deprecated variables are ignored.
+
 ## Theming Integration
 
 Conversion Funnel Charts integrate seamlessly with the chart theming system. The default theme has neutral colors and styling, and is automatically applied to all charts unless a custom theme is provided. A custom theme can be provided by wrapping your chart in `GlobalChartsProvider` and passing a custom theme object with the properties you want to override to the `theme` prop:
