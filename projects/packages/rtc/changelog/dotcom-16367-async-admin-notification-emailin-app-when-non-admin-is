@@ -1,4 +1,4 @@
-Significance: patch
-Type: changed
+Significance: minor
+Type: added
 
-Extract RTC::get_plan_owner_id() from is_plan_owner() and update REST controller to use it instead of the removed wpcom_rtc_get_plan_owner_id() function
+Send bell and email notifications to the plan owner when a non-admin is blocked by the collaborator limit
