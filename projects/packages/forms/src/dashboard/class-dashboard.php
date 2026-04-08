@@ -28,10 +28,21 @@ class Dashboard {
 	 * This is for the new DataViews-based responses list.
 	 */
 	public static function load_wp_build() {
-		// Load build.php unconditionally so that script/module/route registration
-		// hooks are available to any host application (standalone Forms page, CIAB, etc.).
-		// The actual route init action (jetpack-forms-responses-wp-admin_init) is fired
-		// by each host's own enqueue handler — not here — to avoid double-firing.
+		// Always load for the standalone Forms page.
+		$should_load = self::get_admin_query_page() === self::FORMS_WPBUILD_ADMIN_SLUG;
+
+		/**
+		 * Filter whether to load the wp-build asset registrations.
+		 * Host applications (e.g., CIAB) can return true to opt in.
+		 *
+		 * @param bool $should_load Whether build.php should be loaded.
+		 */
+		$should_load = apply_filters( 'jetpack_forms_load_wp_build', $should_load );
+
+		if ( ! $should_load ) {
+			return;
+		}
+
 		$wp_build_index = dirname( __DIR__, 2 ) . '/build/build.php';
 
 		if ( file_exists( $wp_build_index ) ) {
