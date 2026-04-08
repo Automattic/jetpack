@@ -571,7 +571,8 @@ class Jetpack_AI_Sidebar {
 
 		// Use wpcom_get_avatar_url on Simple sites, fall back to get_avatar_url elsewhere.
 		if ( function_exists( 'wpcom_get_avatar_url' ) ) {
-			$avatar_url = wpcom_get_avatar_url( $user_email, 64, '', true )[0];
+			$avatar_result = wpcom_get_avatar_url( $user_email, 64, '', true );
+			$avatar_url    = is_array( $avatar_result ) ? $avatar_result[0] : get_avatar_url( $user_id );
 		} else {
 			$avatar_url = get_avatar_url( $user_id );
 		}

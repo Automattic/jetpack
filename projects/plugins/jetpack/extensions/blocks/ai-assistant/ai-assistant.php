@@ -19,7 +19,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 require_once __DIR__ . '/class-title-optimization-ability.php';
-Title_Optimization_Ability::init();
+if ( apply_filters( 'jetpack_ai_enabled', true ) ) {
+	Title_Optimization_Ability::init();
+}
 
 /**
  * Registers our block for use in Gutenberg

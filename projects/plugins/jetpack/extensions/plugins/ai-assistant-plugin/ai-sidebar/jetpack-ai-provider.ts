@@ -412,7 +412,7 @@ export const toolProvider = {
 		}
 
 		if ( isUpdateBlockContentTool( name ) ) {
-			return { result: handleUpdateBlockContent( args ), returnToAgent: false };
+			return { result: await handleUpdateBlockContent( args ), returnToAgent: false };
 		}
 
 		if ( hasAbilitiesApi() ) {

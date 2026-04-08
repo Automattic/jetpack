@@ -33,9 +33,6 @@ module.exports = {
 	plugins: [
 		...jetpackWebpackConfig.StandardPlugins( {
 			MiniCssExtractPlugin: {},
-			// Disable i18n checker — agenttic-ui has minified _n() calls
-			// that trigger false positives.
-			I18nCheckPlugin: false,
 		} ),
 		// Copy the ESM wrapper alongside the IIFE bundle.
 		new CopyPlugin( {
@@ -70,6 +67,16 @@ module.exports = {
 			// Transpile @automattic/* in node_modules too.
 			jetpackWebpackConfig.TranspileRule( {
 				includeNodeModules: [ '@automattic/' ],
+			} ),
+
+			// agenttic-ui has _n() calls that confuse i18n-check-webpack-plugin. Rename them.
+			jetpackWebpackConfig.TranspileRule( {
+				includeNodeModules: [ '@automattic/agenttic-ui' ],
+				babelOpts: {
+					configFile: false,
+					plugins: [ [ 'babel-plugin-transform-rename-properties', { rename: { _n: '_nǃ' } } ] ],
+					presets: [],
+				},
 			} ),
 
 			// Handle CSS.
