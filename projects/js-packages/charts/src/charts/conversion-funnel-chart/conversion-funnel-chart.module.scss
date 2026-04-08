@@ -19,7 +19,6 @@
 	overflow: hidden;
 	color: #1e1e1e;
 	text-overflow: ellipsis;
-	font-family: var(--wpds-font-family-body, sans-serif);
 	font-size: var(--wpds-font-size-xl, 18px);
 	font-style: normal;
 	font-weight: var(--wpds-font-weight-medium, 500);
@@ -30,7 +29,6 @@
 .change-indicator {
 	overflow: hidden;
 	text-overflow: ellipsis;
-	font-family: var(--wpds-font-family-body, sans-serif);
 	font-size: var(--wpds-font-size-md, 13px);
 	font-style: normal;
 	font-weight: var(--wpds-font-weight-medium, 500);
@@ -69,7 +67,6 @@
 
 .step-label {
 	color: #757575;
-	font-family: var(--wpds-font-family-body, sans-serif);
 	font-size: var(--wpds-font-size-sm, 12px);
 	font-style: normal;
 	font-weight: var(--wpds-font-weight-regular, 400);
@@ -82,7 +79,6 @@
 
 .step-rate {
 	color: #1e1e1e;
-	font-family: var(--wpds-font-family-body, sans-serif);
 	font-size: var(--wpds-font-size-md, 13px);
 	font-style: normal;
 	font-weight: var(--wpds-font-weight-medium, 500);
@@ -126,6 +122,7 @@
 	justify-content: center;
 	align-items: flex-start;
 	gap: 4px;
+	font-family: var(--wpds-font-family-body, sans-serif);
 
 	border-bottom: 1px solid var(--Gray-Gray-5, #dcdcde);
 	background: var(--black-white-white, #fff);
@@ -139,7 +136,6 @@
 
 .tooltip-title {
 	color: #1e1e1e;
-	font-family: var(--wpds-font-family-body, sans-serif);
 	font-size: var(--wpds-font-size-sm, 12px);
 	font-style: normal;
 	font-weight: var(--wpds-font-weight-regular, 400);
@@ -148,7 +144,6 @@
 
 .tooltip-content {
 	color: #1e1e1e;
-	font-family: var(--wpds-font-family-body, sans-serif);
 	font-size: var(--wpds-font-size-md, 13px);
 	font-style: normal;
 	font-weight: var(--wpds-font-weight-medium, 500);
