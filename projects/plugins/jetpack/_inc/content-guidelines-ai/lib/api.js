@@ -19,6 +19,12 @@ function delay( ms ) {
 /**
  * Generate or improve guidelines for the given sections.
  *
+ * Translates between the internal format used by our components and the
+ * API's categories-based format:
+ *
+ * API request:  { categories: { site: {}, copy: { guidelines: "..." } } }
+ * API response: { site: { guidelines: "..." }, copy: { guidelines: "..." } }
+ *
  * @param {string[]}                sections          - Sections to generate.
  * @param {Object.<string, string>} [existingContent] - Existing content keyed by section slug.
  * @return {Promise<Object>} Response with `suggestions` keyed by section slug.
@@ -33,18 +39,27 @@ export async function suggestGuidelines( sections, existingContent = {} ) {
 		};
 	}
 
-	const data = { sections };
-
-	const filtered = Object.fromEntries(
-		Object.entries( existingContent ).filter( ( [ , v ] ) => v )
-	);
-	if ( Object.keys( filtered ).length > 0 ) {
-		data.existing_content = filtered;
+	// Build categories object for the API.
+	const categories = {};
+	for ( const slug of sections ) {
+		const existing = existingContent[ slug ];
+		categories[ slug ] = existing ? { guidelines: existing } : {};
 	}
 
-	return apiFetch( {
+	const response = await apiFetch( {
 		path: API_PATH,
 		method: 'POST',
-		data,
+		data: { categories },
 	} );
+
+	// Normalize API response to { suggestions: { slug: text } }.
+	const suggestions = {};
+	for ( const slug of sections ) {
+		const guidelines = response?.[ slug ]?.guidelines;
+		if ( guidelines ) {
+			suggestions[ slug ] = guidelines;
+		}
+	}
+
+	return { suggestions };
 }
