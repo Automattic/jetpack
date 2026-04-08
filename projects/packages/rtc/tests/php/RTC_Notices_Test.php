@@ -565,7 +565,7 @@ class RTC_Notices_Test extends \WorDBless\BaseTestCase {
 			)
 		);
 
-		add_filter( 'wpcom_rtc_enable_limit_notices', '__return_true', 999 );
+		add_filter( 'jetpack_rtc_enable_limit_notices', '__return_true', 999 );
 		\Jetpack_Options::update_option( 'master_user', $this->user_id );
 
 		wp_set_current_user( $this->second_user_id );
@@ -581,7 +581,7 @@ class RTC_Notices_Test extends \WorDBless\BaseTestCase {
 
 		// Clean up.
 		delete_transient( $throttle_key );
-		remove_all_filters( 'wpcom_rtc_enable_limit_notices' );
+		remove_all_filters( 'jetpack_rtc_enable_limit_notices' );
 		\Jetpack_Options::delete_option( 'master_user' );
 		wp_set_current_user( $this->user_id );
 		wp_delete_post( $post_id, true );
@@ -602,9 +602,9 @@ class RTC_Notices_Test extends \WorDBless\BaseTestCase {
 			)
 		);
 
-		add_filter( 'wpcom_rtc_enable_limit_notices', '__return_true', 999 );
+		add_filter( 'jetpack_rtc_enable_limit_notices', '__return_true', 999 );
 		add_filter(
-			'wpcom_rtc_async_notification_interval',
+			'jetpack_rtc_async_notification_interval',
 			function () {
 				return 3600; // 1 hour
 			}
@@ -623,8 +623,8 @@ class RTC_Notices_Test extends \WorDBless\BaseTestCase {
 		$this->assertNotFalse( get_transient( $throttle_key ) );
 
 		delete_transient( $throttle_key );
-		remove_all_filters( 'wpcom_rtc_enable_limit_notices' );
-		remove_all_filters( 'wpcom_rtc_async_notification_interval' );
+		remove_all_filters( 'jetpack_rtc_enable_limit_notices' );
+		remove_all_filters( 'jetpack_rtc_async_notification_interval' );
 		\Jetpack_Options::delete_option( 'master_user' );
 		wp_set_current_user( $this->user_id );
 		wp_delete_post( $post_id, true );

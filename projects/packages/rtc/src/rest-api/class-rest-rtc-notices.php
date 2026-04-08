@@ -220,7 +220,7 @@ class REST_RTC_Notices extends WP_REST_Controller {
 	 */
 	public static function send_async_admin_notifications( $post_id, $user ) {
 		// Only send when limit notices are enabled.
-		if ( ! apply_filters( 'wpcom_rtc_enable_limit_notices', false ) ) {
+		if ( ! apply_filters( 'jetpack_rtc_enable_limit_notices', false ) ) {
 			return;
 		}
 
@@ -232,7 +232,7 @@ class REST_RTC_Notices extends WP_REST_Controller {
 		// Rate-limit: one notification set per (blog, post, user) per interval.
 		$blog_id          = get_current_blog_id();
 		$throttle_key     = sprintf( 'rtc_notif_sent_%d_%d_%d', $blog_id, $post_id, $user->ID );
-		$throttle_seconds = (int) apply_filters( 'wpcom_rtc_async_notification_interval', DAY_IN_SECONDS );
+		$throttle_seconds = (int) apply_filters( 'jetpack_rtc_async_notification_interval', DAY_IN_SECONDS );
 
 		if ( get_transient( $throttle_key ) ) {
 			return;
