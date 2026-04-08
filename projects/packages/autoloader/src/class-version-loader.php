@@ -42,7 +42,7 @@ class Version_Loader {
 	private $resolved_classes = array();
 
 	/**
-	 * Cache: resolved PRS4 files.
+	 * Cache: resolved PRS4 namespaces.
 	 *
 	 * @var array<string,string>
 	 */
