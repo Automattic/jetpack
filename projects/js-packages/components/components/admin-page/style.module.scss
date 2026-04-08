@@ -1,4 +1,7 @@
 .admin-page {
+	// Ensures portaled popovers from `@wordpress/ui` appear correctly.
+	// See https://github.com/WordPress/gutenberg/blob/trunk/packages/ui/README.md#setup
+	isolation: isolate;
 	margin-left: -20px; // to neutralize the padding of #wpcontent.
 
 	@media (max-width: 782px) {
