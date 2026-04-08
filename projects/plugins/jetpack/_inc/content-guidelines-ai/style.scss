@@ -204,6 +204,12 @@
 	}
 }
 
+// Sync textarea height with the captured value so accepting a
+// suggestion doesn't cause the textarea to reset to default height.
+.content-guidelines__accordion-form[style*="--jetpack-cg-textarea-height"] textarea {
+	height: var(--jetpack-cg-textarea-height);
+}
+
 // Hide Gutenberg's DataForm and Save/Clear when a suggestion is active.
 // Also hide the per-section generate button since Accept/Dismiss replaces it.
 .has-jetpack-suggestion > :first-child > :not(.jetpack-content-guidelines-ai__actions-container) {

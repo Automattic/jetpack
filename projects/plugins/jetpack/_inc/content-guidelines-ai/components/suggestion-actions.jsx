@@ -39,9 +39,10 @@ export default function SuggestionActions( { slug } ) {
 
 		form.classList.toggle( 'has-jetpack-suggestion', !! suggestion );
 		form.classList.toggle( 'is-jetpack-loading', sectionLoading && ! suggestion );
+		// Keep --jetpack-cg-textarea-height on the form so the textarea
+		// retains the matched height after accepting a suggestion.
 		return () => {
 			form.classList.remove( 'has-jetpack-suggestion', 'is-jetpack-loading' );
-			form.style.removeProperty( '--jetpack-cg-textarea-height' );
 		};
 	}, [ slug, suggestion, sectionLoading ] );
 
