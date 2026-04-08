@@ -39,7 +39,7 @@ If missing: tell user to run `pnpm install` in the monorepo root.
 ls node_modules/.package-lock.json
 ```
 
-If missing: run `jetpack install -r` to install pnpm and composer dependencies.
+If missing: run `pnpm jetpack install -r` to install pnpm and composer dependencies.
 
 ### Check 4: Jurassic Ninja MCP provider
 
@@ -77,7 +77,7 @@ Where `{domain}` is the domain of the target site (e.g. `foo.jurassic.ninja`).
 
 **If the command fails:** SSH key auth is not configured. Tell the user:
 
-> SSH key authentication to `ssh.atomicsites.net` is not configured. You can fix this by adding the following to your `~/.ssh/config`:
+> SSH key authentication to `ssh.atomicsites.net` is not configured. If you are an Automattician, you can fix this by adding the following to your `~/.ssh/config`:
 >
 > ```
 > Host ssh.atomicsites.net
@@ -100,13 +100,26 @@ Default: `jetpack`. Use a different plugin only if the user specifies one.
 
 Use the **first** site from the list (most recently created) unless the user specifies a different one.
 
-### 3. Build the plugin
+### 3. Build the plugin (only if needed)
+
+Check whether the plugin's build output already exists. Most plugins use `build/` as the output directory, but Jetpack uses `_inc/build/`.
 
 ```bash
-jetpack build plugins/{plugin}
+# For plugins/jetpack:
+ls projects/plugins/jetpack/_inc/build/ 2>/dev/null
+# For other plugins:
+ls projects/plugins/{plugin}/build/ 2>/dev/null
 ```
 
-Required — without it the remote site gets broken symlinks and fatal errors like `Class not found`.
+**If build output exists:** Skip the build — it's already been done. Tell the user you're skipping the build since output exists.
+
+**If build output is missing:** Build the plugin. Use `--deps` to also build any monorepo dependencies the plugin needs (e.g. packages it depends on). Without `--deps`, builds can fail if dependency packages haven't been built yet.
+
+```bash
+pnpm jetpack build --deps plugins/{plugin}
+```
+
+Note: `--deps` can take a while for plugins with many dependencies (like Jetpack). If the build is slow and the user wants to iterate quickly, they can pre-build once with `--deps` and then subsequent syncs will skip the build entirely.
 
 If the build fails, stop and report the error to the user — do not proceed to rsync.
 
@@ -117,7 +130,7 @@ The SSH host is always `ssh.atomicsites.net`.
 **If SSH_OK is true** (key-based auth works):
 
 ```bash
-jetpack rsync {plugin} {domain}@ssh.atomicsites.net:/srv/htdocs/wp-content/plugins/{plugin-slug} --non-interactive
+pnpm jetpack rsync {plugin} {domain}@ssh.atomicsites.net:/srv/htdocs/wp-content/plugins/{plugin-slug} --non-interactive
 ```
 
 No `--password` flag needed — SSH keys handle authentication.
@@ -125,7 +138,7 @@ No `--password` flag needed — SSH keys handle authentication.
 **If SSH_OK is false** (falling back to password):
 
 ```bash
-jetpack rsync {plugin} {domain}@ssh.atomicsites.net:/srv/htdocs/wp-content/plugins/{plugin-slug} --non-interactive --password='{JN_PASSWORD}'
+pnpm jetpack rsync {plugin} {domain}@ssh.atomicsites.net:/srv/htdocs/wp-content/plugins/{plugin-slug} --non-interactive --password='{JN_PASSWORD}'
 ```
 
 The `--password` flag passes the SSH password automatically via `SSH_ASKPASS`.
