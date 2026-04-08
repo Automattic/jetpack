@@ -56,11 +56,19 @@ const preview = {
 		backgrounds: { value: 'jetpack-dashboard' },
 	},
 	decorators: [
-		Story => (
-			<ThemeProvider id="storybook-stories" targetDom={ document.body }>
-				<Story />
-			</ThemeProvider>
-		),
+		( Story, context ) => {
+			// Charts stories render inside a WPDS-themed wrapper so they
+			// inherit the design system body font through normal CSS cascade.
+			// Chart components intentionally do not declare font-family at
+			// their root — they rely on the host application to provide it.
+			const isChartsStory = context.title?.startsWith( 'JS Packages/Charts Library' );
+			const content = <Story />;
+			return (
+				<ThemeProvider id="storybook-stories" targetDom={ document.body }>
+					{ isChartsStory ? <div className="charts-storybook-host">{ content }</div> : content }
+				</ThemeProvider>
+			);
+		},
 	],
 	tags: [ 'autodocs' ],
 };
