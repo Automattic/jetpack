@@ -44,7 +44,7 @@
 .legend-item {
 	display: flex;
 	align-items: center;
-	font-size: 0.875rem;
+	font-size: var(--wpds-font-size-md, 0.875rem);
 
 	&--interactive {
 		cursor: pointer;
@@ -101,6 +101,6 @@
 }
 
 .legend-item-value {
-	font-weight: 500;
+	font-weight: var(--wpds-font-weight-medium, 500);
 	flex-shrink: 0; // Prevent value from shrinking when text is ellipsized
 }

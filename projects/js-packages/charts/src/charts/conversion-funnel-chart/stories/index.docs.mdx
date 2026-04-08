@@ -249,13 +249,12 @@ Use the `style` prop or `className` prop to customize the chart container:
 
 ### CSS Custom Properties
 
-The component exposes CSS custom properties for font customization:
+Typography is controlled via WPDS (WordPress Design System) tokens. Override these CSS custom properties to customize fonts:
 
 <Source
 	language="css"
 	code={ `.my-custom-funnel {
-		--funnel-font-family: "Inter", sans-serif;
-		--step-font-family: "Inter", sans-serif;
+		--wpds-font-family-body: "Inter", sans-serif;
 	}` }
 />
 

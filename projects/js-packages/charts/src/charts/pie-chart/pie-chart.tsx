@@ -441,8 +441,10 @@ const PieChartInternal = ( {
 														groupProps.onMouseLeave = onMouseLeave;
 													}
 
-													// Estimate text width more accurately for background sizing
-													const fontSize = 12;
+													const fontSize =
+														typeof providerTheme.svgLabelSmall?.fontSize === 'number'
+															? providerTheme.svgLabelSmall.fontSize
+															: 12;
 													const estimatedTextWidth = getStringWidth( arc.data.label, {
 														fontSize,
 													} );
@@ -473,6 +475,7 @@ const PieChartInternal = ( {
 																		dy=".33em"
 																		fill={ providerTheme.labelTextColor || '#333' }
 																		fontSize={ fontSize }
+																		fontFamily={ providerTheme.svgLabelSmall?.fontFamily }
 																		textAnchor="middle"
 																		pointerEvents="none"
 																	>

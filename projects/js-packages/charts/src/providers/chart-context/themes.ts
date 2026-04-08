@@ -26,7 +26,11 @@ const defaultTheme: CompleteChartTheme = {
 	},
 	seriesLineStyles: [],
 	glyphs: [],
-	svgLabelSmall: { fill: 'var(--jp-gray-80, #2c3338)' },
+	svgLabelSmall: {
+		fill: 'var(--jp-gray-80, #2c3338)',
+		fontFamily:
+			'var(--wpds-font-family-body, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif)',
+	},
 	annotationStyles: {
 		label: {
 			anchorLineStroke: 'var(--jp-gray-80, #2c3338)',
