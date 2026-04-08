@@ -80,15 +80,13 @@ class Version_Loader {
 		// Prevent repeated attempts to load non-existent classes during class existence checks.
 		// These attempts occur when extensions perform compatibility and integration checks.
 		static $resolved_classes = array();
-		if ( array_key_exists( $class_name, $resolved_classes ) ) {
-			return $resolved_classes[ $class_name ];
+		if ( ! array_key_exists( $class_name, $resolved_classes ) ) {
+			$data = $this->select_newest_file(
+				$this->classmap[ $class_name ] ?? null,
+				$this->find_psr4_file( $class_name )
+			);
+			$resolved_classes[ $class_name ] = $data['path'] ?? null;
 		}
-
-		$data = $this->select_newest_file(
-			$this->classmap[ $class_name ] ?? null,
-			$this->find_psr4_file( $class_name )
-		);
-		$resolved_classes[ $class_name ] = $data['path'] ?? null;
 
 		return $resolved_classes[ $class_name ];
 	}
