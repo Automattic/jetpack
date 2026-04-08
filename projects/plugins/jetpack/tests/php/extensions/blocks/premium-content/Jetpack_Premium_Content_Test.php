@@ -260,7 +260,7 @@ class Jetpack_Premium_Content_Test extends WP_UnitTestCase {
 				'code'    => 200,
 				'message' => 'OK',
 			),
-			'body'     => wp_json_encode( array( 'jwt_token' => $fresh_token ), JSON_UNESCAPED_SLASHES ),
+			'body'     => wp_json_encode( array( 'token' => $fresh_token ), JSON_UNESCAPED_SLASHES ),
 			'headers'  => array(),
 			'cookies'  => array(),
 		);
@@ -319,7 +319,7 @@ class Jetpack_Premium_Content_Test extends WP_UnitTestCase {
 				'code'    => 200,
 				'message' => 'OK',
 			),
-			'body'     => wp_json_encode( array( 'jwt_token' => $empty_token ), JSON_UNESCAPED_SLASHES ),
+			'body'     => wp_json_encode( array( 'token' => $empty_token ), JSON_UNESCAPED_SLASHES ),
 			'headers'  => array(),
 			'cookies'  => array(),
 		);

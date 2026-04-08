@@ -149,8 +149,8 @@ abstract class Abstract_Token_Subscription_Service implements Subscription_Servi
 
 		if ( 200 === $code ) {
 			$body = json_decode( wp_remote_retrieve_body( $response ), true );
-			if ( is_array( $body ) && ! empty( $body['jwt_token'] ) && is_string( $body['jwt_token'] ) ) {
-				return $body['jwt_token'];
+			if ( is_array( $body ) && ! empty( $body['token'] ) && is_string( $body['token'] ) ) {
+				return $body['token'];
 			}
 			// Malformed 200 — treat as transient.
 			return null;
