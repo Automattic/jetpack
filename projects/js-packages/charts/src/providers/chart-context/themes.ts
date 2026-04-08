@@ -28,8 +28,7 @@ const defaultTheme: CompleteChartTheme = {
 	glyphs: [],
 	svgLabelSmall: {
 		fill: 'var(--jp-gray-80, #2c3338)',
-		fontFamily:
-			'var(--wpds-font-family-body, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif)',
+		fontFamily: 'var(--wpds-font-family-body, sans-serif)',
 	},
 	annotationStyles: {
 		label: {
