@@ -102,6 +102,14 @@
 }
 
 // Badge in accordion headers.
+// Hide badge when accordion is expanded — the Accept/Dismiss
+// buttons inside already communicate the suggestion state.
+// stylelint-disable-next-line selector-max-compound-selectors
+.content-guidelines__accordion-trigger[aria-expanded="true"]
+	.jetpack-content-guidelines-ai__badge-container {
+	display: none;
+}
+
 // Jetpack CSS custom properties are normally set by
 // ThemeProvider, which doesn't wrap this page. Define
 // the tokens our Badge component needs as fallbacks.
@@ -128,17 +136,21 @@
 	gap: 16px;
 }
 
-// Remove the default margin that TextareaControl adds via its wrapper.
 // Word-level diff display.
+// Styled to match the Gutenberg textarea — green border indicates
+// a suggestion is active. Clicking anywhere accepts the suggestion.
 .jetpack-content-guidelines-ai__diff {
 	padding: 12px;
-	border: 1px solid #dcdcde;
+	border: 2px solid var(--jp-green-40, #069e08);
 	border-radius: 4px;
-	background: var(--jp-gray-0, #f9f9f9);
+	background: #fff;
 	font-size: 13px;
 	line-height: 20px;
 	white-space: pre-wrap;
 	overflow-wrap: break-word;
+	min-height: 140px;
+	cursor: pointer;
+	box-sizing: border-box;
 }
 
 .jetpack-content-guidelines-ai__diff-added {

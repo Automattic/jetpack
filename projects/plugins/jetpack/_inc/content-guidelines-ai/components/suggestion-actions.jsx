@@ -47,6 +47,16 @@ export default function SuggestionActions( { slug } ) {
 		clearSuggestion( slug );
 	}, [ slug, clearSuggestion ] );
 
+	const handleKeyDown = useCallback(
+		e => {
+			if ( e.key === 'Enter' || e.key === ' ' ) {
+				e.preventDefault();
+				handleAccept();
+			}
+		},
+		[ handleAccept ]
+	);
+
 	if ( ! suggestion ) {
 		return null;
 	}
@@ -55,8 +65,11 @@ export default function SuggestionActions( { slug } ) {
 		<div className="jetpack-content-guidelines-ai__suggestion">
 			<div
 				className="jetpack-content-guidelines-ai__diff"
-				role="region"
-				aria-label={ __( 'Suggested changes', 'jetpack' ) }
+				role="button"
+				tabIndex={ 0 }
+				aria-label={ __( 'Click to accept suggested changes', 'jetpack' ) }
+				onClick={ handleAccept }
+				onKeyDown={ handleKeyDown }
 			>
 				<span className="screen-reader-text">
 					{ __( 'Changes from current to suggested guidelines:', 'jetpack' ) }
