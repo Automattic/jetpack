@@ -1,6 +1,6 @@
 import { createScale, getTicks } from '@visx/scale';
 import { useMemo } from 'react';
-import { getLongestTickWidth } from '../utils';
+import { getLongestTickWidth, resolveFontSize } from '../utils';
 import type { BaseChartProps, DataPointDate, SeriesData } from '../types';
 import type { XYChartTheme } from '@visx/xychart';
 
@@ -49,19 +49,6 @@ const DEFAULT_TICK_LENGTH = 8;
  * measure them via getLongestTickWidth.
  */
 const DEFAULT_Y_TICK_WIDTH = 40;
-
-export const resolveFontSize = ( val?: number | string ): number | undefined => {
-	if ( typeof val === 'number' && ! isNaN( val ) ) {
-		return val;
-	}
-
-	if ( typeof val === 'string' ) {
-		const parsed = parseFloat( val );
-		return isNaN( parsed ) ? undefined : parsed;
-	}
-
-	return undefined;
-};
 
 const getXAxisLabelMetrics = ( theme: XYChartTheme, orientation: 'top' | 'bottom' ) => {
 	const xAxisStyles =

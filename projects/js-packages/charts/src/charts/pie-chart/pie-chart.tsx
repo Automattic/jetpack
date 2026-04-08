@@ -8,7 +8,6 @@ import { useCallback, useContext, useMemo } from 'react';
 import { Legend, useChartLegendItems } from '../../components/legend';
 import { BaseTooltip } from '../../components/tooltip';
 import {
-	resolveFontSize,
 	useDataWithPercentages,
 	useInteractiveLegendData,
 	usePrefersReducedMotion,
@@ -21,7 +20,7 @@ import {
 	useGlobalChartsTheme,
 	GlobalChartsContext,
 } from '../../providers';
-import { attachSubComponents } from '../../utils';
+import { attachSubComponents, resolveFontSize } from '../../utils';
 import { getStringWidth } from '../../visx/text';
 import { ChartSVG, ChartHTML, useChartChildren } from '../private/chart-composition';
 import { ChartLayout } from '../private/chart-layout';
