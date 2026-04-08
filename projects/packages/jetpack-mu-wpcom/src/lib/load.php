@@ -10,3 +10,4 @@
 
 require_once __DIR__ . '/site-owner.php';
 require_once __DIR__ . '/admin-notifications.php';
+require_once __DIR__ . '/transients.php';
