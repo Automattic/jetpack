@@ -2,6 +2,7 @@ import { Button } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { closeSmall } from '@wordpress/icons';
 import { STORE_NAME, VALID_SECTIONS } from '../constants';
 import useGenerateAll from '../hooks/use-generate-all';
 
@@ -50,8 +51,22 @@ export default function EmptyStateBanner() {
 					>
 						{ __( 'Get started', 'jetpack' ) }
 					</Button>
+					<Button
+						className="jetpack-content-guidelines-ai__banner-close-text"
+						variant="tertiary"
+						onClick={ handleDismiss }
+					>
+						{ __( 'Close', 'jetpack' ) }
+					</Button>
 				</div>
 			</div>
+			<Button
+				className="jetpack-content-guidelines-ai__banner-close"
+				icon={ closeSmall }
+				label={ __( 'Dismiss banner', 'jetpack' ) }
+				size="small"
+				onClick={ handleDismiss }
+			/>
 			<div className="jetpack-content-guidelines-ai__banner-orb jetpack-content-guidelines-ai__banner-orb--top" />
 			<div className="jetpack-content-guidelines-ai__banner-orb jetpack-content-guidelines-ai__banner-orb--bottom" />
 		</div>

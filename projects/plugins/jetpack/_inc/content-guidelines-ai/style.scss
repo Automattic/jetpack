@@ -61,6 +61,26 @@
 	}
 }
 
+.jetpack-content-guidelines-ai__banner-close-text {
+	color: #48ff50 !important;
+
+	&:hover {
+		color: #3de046 !important;
+	}
+}
+
+.jetpack-content-guidelines-ai__banner-close {
+	position: absolute;
+	inset-block-start: 8px;
+	inset-inline-end: 8px;
+	z-index: 1;
+	color: #fff !important;
+
+	&:hover {
+		color: #daffdc !important;
+	}
+}
+
 .jetpack-content-guidelines-ai__banner-orb {
 	position: absolute;
 	border-radius: 50%;
