@@ -28,19 +28,16 @@ export default function SuggestionActions( { slug } ) {
 			return;
 		}
 
-		// Capture textarea value and height before hiding it.
-		if ( suggestion ) {
+		// Capture textarea draft value before hiding it.
+		if ( suggestion && ! form.classList.contains( 'has-jetpack-suggestion' ) ) {
 			const textarea = form.querySelector( 'textarea' );
 			if ( textarea ) {
 				setOriginal( textarea.value || '' );
-				form.style.setProperty( '--jetpack-cg-textarea-height', `${ textarea.offsetHeight }px` );
 			}
 		}
 
 		form.classList.toggle( 'has-jetpack-suggestion', !! suggestion );
 		form.classList.toggle( 'is-jetpack-loading', sectionLoading && ! suggestion );
-		// Keep --jetpack-cg-textarea-height on the form so the textarea
-		// retains the matched height after accepting a suggestion.
 		return () => {
 			form.classList.remove( 'has-jetpack-suggestion', 'is-jetpack-loading' );
 		};

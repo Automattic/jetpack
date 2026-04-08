@@ -148,9 +148,7 @@
 	line-height: 20px;
 	white-space: pre-wrap;
 	overflow-wrap: break-word;
-	// Height is set dynamically via CSS variable from suggestion-actions.jsx
-	// to match the Gutenberg textarea and prevent layout shift.
-	min-height: var(--jetpack-cg-textarea-height, 100px);
+	overflow-y: auto;
 	cursor: pointer;
 	box-sizing: border-box;
 }
@@ -202,12 +200,6 @@
 	100% {
 		background-position: 200% 0;
 	}
-}
-
-// Sync textarea height with the captured value so accepting a
-// suggestion doesn't cause the textarea to reset to default height.
-.content-guidelines__accordion-form[style*="--jetpack-cg-textarea-height"] textarea {
-	height: var(--jetpack-cg-textarea-height);
 }
 
 // Hide Gutenberg's DataForm and Save/Clear when a suggestion is active.
