@@ -322,6 +322,7 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 		<>
 			<Stack
 				direction="column"
+				gap="xl"
 				data-testid="conversion-funnel-chart"
 				ref={ node => {
 					// Set containerRef for @visx coordinate system
