@@ -2,19 +2,13 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
-
-## 15.7-beta.2 - 2026-04-07
-### Bug fixes
-- Block Notes: Temporarily disable feature to prevent expensive API calls on every Gutenberg page load. [#47976]
-
-## 15.7-beta - 2026-04-06
+## 15.7 - 2026-04-08
 ### Major Enhancements
 - Jetpack AI Image Generation & Editing: Evolve & enhance Jetpack AI Image Generation. [#47829]
 
 ### Enhancements
 - Admin Menu: Add Upgrade Jetpack menu item for free users. [#47418]
 - Admin Menu: Reorder menu items so that links opening in new windows appear last. [#47417]
-- Block Notes: Add Block Notes as a standalone Jetpack extension plugin. [#47296]
 - Forms: Add logged-in user display name and ID to form submission emails and response sidebar. [#47652]
 - Network Admin: Update UI. [#47912]
 - Newsletter: Add "Send newsletter by default" setting. [#47564] [#47565]
@@ -56,6 +50,8 @@
 - API: Allow `is_garden` and `garden_name` fields to be returned by /me/sites requests by non-member users. [#47211]
 - Application Passwords: Allow authenticating VideoPress AJAX actions via application passwords. [#45220]
 - Backup: Use core components for storage popover. [#47448]
+- Block Notes: Add Block Notes as a standalone Jetpack extension plugin. [#47296]
+- Block Notes: Temporarily disable feature to prevent expensive API calls on every Gutenberg page load. [#47976]
 - Block Notes: Update enablement logic to use AI feature checks and gate feature behind a paid Jetpack AI plan. [#47810]
 - Brute Force Protection: Update error when module can't be activated. [#47660]
 - Build: Sync Social Logos font from @automattic/social-logos. [#47753]

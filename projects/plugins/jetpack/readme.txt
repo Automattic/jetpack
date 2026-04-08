@@ -326,14 +326,13 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 15.7 - 2026-04-07
+### 15.7 - 2026-04-08
 #### Major Enhancements
 - Jetpack AI Image Generation & Editing: Evolve & enhance Jetpack AI Image Generation.
 
 #### Enhancements
 - Admin Menu: Add Upgrade Jetpack menu item for free users.
 - Admin Menu: Reorder menu items so that links opening in new windows appear last.
-- Block Notes: Add Block Notes as a standalone Jetpack extension plugin.
 - Forms: Add logged-in user display name and ID to form submission emails and response sidebar.
 - Network Admin: Update UI.
 - Newsletter: Add "Send newsletter by default" setting.
