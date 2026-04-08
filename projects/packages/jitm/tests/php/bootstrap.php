@@ -5,6 +5,10 @@
  * @package automattic/jetpack-jitm
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	define( 'ABSPATH', __DIR__ . '/' );
+}
+
 /**
  * Include the composer autoloader.
  */
