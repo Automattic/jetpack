@@ -114,7 +114,15 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 			array(),
 			JETPACK__VERSION
 		);
-		wp_style_add_data( 'jetpack-subscriptions', 'path', $path );
+
+		// `wp_maybe_inline_styles()` requires a filesystem path, not a URL.
+		$style_path = JETPACK__PLUGIN_DIR . (
+			/** This filter is documented in projects/plugins/jetpack/load-jetpack.php */
+			apply_filters( 'jetpack_should_use_minified_assets', true )
+				? '_inc/build/subscriptions/subscriptions.min.css'
+				: 'modules/subscriptions/subscriptions.css'
+		);
+		wp_style_add_data( 'jetpack-subscriptions', 'path', $style_path );
 	}
 
 	/**

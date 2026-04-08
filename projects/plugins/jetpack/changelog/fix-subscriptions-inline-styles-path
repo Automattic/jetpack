@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Subscriptions: fix `wp_maybe_inline_styles` notice for the `jetpack-subscriptions` stylesheet by registering a filesystem path instead of a URL.
