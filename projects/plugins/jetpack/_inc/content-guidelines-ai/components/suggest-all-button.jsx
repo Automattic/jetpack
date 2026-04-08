@@ -1,13 +1,26 @@
 import { JetpackLogo } from '@automattic/jetpack-shared-extension-utils/icons';
 import { Button } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
+import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { STORE_NAME, VALID_SECTIONS } from '../constants';
 import useGenerateAll from '../hooks/use-generate-all';
-import { AI_STORE_NAME } from '../store';
+
+const DISMISS_KEY = 'jetpack_content_guidelines_banner_dismissed';
 
 export default function SuggestAllButton() {
 	const { generate, loading } = useGenerateAll();
+
+	// Track banner dismissed state — re-read when loading changes
+	// (banner sets this to '1' when "Get started" is clicked).
+	const [ bannerDismissed, setBannerDismissed ] = useState(
+		() => localStorage.getItem( DISMISS_KEY ) === '1'
+	);
+
+	// Re-check localStorage when loading state changes (banner may have just dismissed).
+	if ( ! bannerDismissed && localStorage.getItem( DISMISS_KEY ) === '1' ) {
+		setBannerDismissed( true );
+	}
 
 	const allGuidelines = useSelect( select => {
 		const store = select( STORE_NAME );
@@ -15,19 +28,14 @@ export default function SuggestAllButton() {
 	}, [] );
 
 	const allEmpty = VALID_SECTIONS.every( slug => ! allGuidelines[ slug ] );
-	const hasSuggestions = useSelect(
-		select => VALID_SECTIONS.some( slug => select( AI_STORE_NAME ).hasSuggestion( slug ) ),
-		[]
-	);
 
 	const generateLabel = __( 'Generate guidelines', 'jetpack' );
 	const improveLabel = __( 'Improve guidelines', 'jetpack' );
 	const label = allEmpty ? generateLabel : improveLabel;
 
-	// Hide via display:none (not null) so the component stays mounted — returning null
-	// from a DOM-injected React root prevented re-rendering when loading started.
-	const bannerVisible = allEmpty && ! hasSuggestions && ! loading;
-	const hiddenProps = bannerVisible ? { style: { display: 'none' }, 'aria-hidden': true } : {};
+	// Hide when the banner is still showing (all empty + not dismissed).
+	const showBanner = allEmpty && ! bannerDismissed;
+	const hiddenProps = showBanner ? { style: { display: 'none' }, 'aria-hidden': true } : {};
 
 	return (
 		<Button

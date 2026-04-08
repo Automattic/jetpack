@@ -1,25 +1,34 @@
 import { Button } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
+import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { STORE_NAME, VALID_SECTIONS } from '../constants';
 import useGenerateAll from '../hooks/use-generate-all';
-import { AI_STORE_NAME } from '../store';
+
+const DISMISS_KEY = 'jetpack_content_guidelines_banner_dismissed';
 
 export default function EmptyStateBanner() {
-	const { generate, loading } = useGenerateAll();
+	const { generate } = useGenerateAll();
+
+	const [ dismissed, setDismissed ] = useState( () => localStorage.getItem( DISMISS_KEY ) === '1' );
 
 	const allEmpty = useSelect( select => {
 		const store = select( STORE_NAME );
 		return VALID_SECTIONS.every( slug => ! store.getGuideline( slug ) );
 	}, [] );
 
-	const hasSuggestions = useSelect(
-		select => VALID_SECTIONS.some( slug => select( AI_STORE_NAME ).hasSuggestion( slug ) ),
-		[]
-	);
+	const handleDismiss = useCallback( () => {
+		setDismissed( true );
+		localStorage.setItem( DISMISS_KEY, '1' );
+	}, [] );
 
-	// Hide when guidelines exist, suggestions are pending, or generation is in progress.
-	if ( ! allEmpty || hasSuggestions || loading ) {
+	const handleGetStarted = useCallback( () => {
+		handleDismiss();
+		generate();
+	}, [ handleDismiss, generate ] );
+
+	// Hide when explicitly dismissed or when guidelines exist.
+	if ( dismissed || ! allEmpty ) {
 		return null;
 	}
 
@@ -37,7 +46,7 @@ export default function EmptyStateBanner() {
 					<Button
 						className="jetpack-content-guidelines-ai__banner-cta"
 						variant="primary"
-						onClick={ generate }
+						onClick={ handleGetStarted }
 					>
 						{ __( 'Get started', 'jetpack' ) }
 					</Button>
