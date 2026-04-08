@@ -35,6 +35,18 @@ class Jetpack_AI_Sidebar {
 	 * @return void
 	 */
 	public static function init(): void {
+		/**
+		 * Filter to enable or disable the Jetpack AI sidebar feature.
+		 *
+		 * When false (the default), the AI sidebar provider, AM CDN loader,
+		 * and abilities script are not registered.
+		 *
+		 * @param bool $enabled Whether the AI sidebar is enabled. Default false.
+		 */
+		if ( ! apply_filters( 'jetpack_ai_sidebar_enabled', false ) ) {
+			return;
+		}
+
 		// Register as Agents Manager provider. The filter fires inside
 		// Agents_Manager::enqueue_scripts() — harmless if AM is not active.
 		// Priority 20 so Jetpack loads AFTER Image Studio (priority 10).

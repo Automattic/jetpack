@@ -19,7 +19,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 require_once __DIR__ . '/class-title-optimization-ability.php';
-if ( apply_filters( 'jetpack_ai_enabled', true ) ) {
+if ( apply_filters( 'jetpack_ai_enabled', true ) && apply_filters( 'jetpack_ai_sidebar_enabled', false ) ) {
 	Title_Optimization_Ability::init();
 }
 
