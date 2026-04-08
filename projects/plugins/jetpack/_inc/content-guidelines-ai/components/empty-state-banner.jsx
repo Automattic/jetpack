@@ -1,17 +1,17 @@
 import { Button } from '@wordpress/components';
-import { useSelect } from '@wordpress/data';
-import { useCallback, useState } from '@wordpress/element';
+import { useDispatch, useSelect } from '@wordpress/data';
+import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { closeSmall } from '@wordpress/icons';
 import { STORE_NAME, VALID_SECTIONS } from '../constants';
 import useGenerateAll from '../hooks/use-generate-all';
-
-const DISMISS_KEY = 'jetpack_content_guidelines_banner_dismissed';
+import { AI_STORE_NAME } from '../store';
 
 export default function EmptyStateBanner() {
 	const { generate } = useGenerateAll();
+	const { dismissBanner } = useDispatch( AI_STORE_NAME );
 
-	const [ dismissed, setDismissed ] = useState( () => localStorage.getItem( DISMISS_KEY ) === '1' );
+	const dismissed = useSelect( select => select( AI_STORE_NAME ).isBannerDismissed(), [] );
 
 	const allEmpty = useSelect( select => {
 		const store = select( STORE_NAME );
@@ -19,16 +19,14 @@ export default function EmptyStateBanner() {
 	}, [] );
 
 	const handleDismiss = useCallback( () => {
-		setDismissed( true );
-		localStorage.setItem( DISMISS_KEY, '1' );
-	}, [] );
+		dismissBanner();
+	}, [ dismissBanner ] );
 
 	const handleGetStarted = useCallback( () => {
-		handleDismiss();
+		dismissBanner();
 		generate();
-	}, [ handleDismiss, generate ] );
+	}, [ dismissBanner, generate ] );
 
-	// Hide when explicitly dismissed or when guidelines exist.
 	if ( dismissed || ! allEmpty ) {
 		return null;
 	}

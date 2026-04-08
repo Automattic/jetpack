@@ -1,9 +1,12 @@
 import { createReduxStore, register } from '@wordpress/data';
 
+const DISMISS_KEY = 'jetpack_content_guidelines_banner_dismissed';
+
 const DEFAULT_STATE = {
 	loading: false,
 	loadingSections: {},
 	suggestions: {},
+	bannerDismissed: localStorage.getItem( DISMISS_KEY ) === '1',
 };
 
 const actions = {
@@ -25,6 +28,10 @@ const actions = {
 	stopSectionLoading( slug ) {
 		return { type: 'STOP_SECTION_LOADING', slug };
 	},
+	dismissBanner() {
+		localStorage.setItem( DISMISS_KEY, '1' );
+		return { type: 'DISMISS_BANNER' };
+	},
 };
 
 function reducer( state = DEFAULT_STATE, action ) {
@@ -43,6 +50,8 @@ function reducer( state = DEFAULT_STATE, action ) {
 			delete suggestions[ action.slug ];
 			return { ...state, suggestions };
 		}
+		case 'DISMISS_BANNER':
+			return { ...state, bannerDismissed: true };
 		case 'START_SECTION_LOADING':
 			return {
 				...state,
@@ -70,6 +79,9 @@ const selectors = {
 	},
 	isSectionLoading( state, slug ) {
 		return state.loading || !! state.loadingSections[ slug ];
+	},
+	isBannerDismissed( state ) {
+		return state.bannerDismissed;
 	},
 };
 
