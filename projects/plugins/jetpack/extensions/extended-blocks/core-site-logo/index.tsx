@@ -184,8 +184,10 @@ function canExtendBlock( name: string ): boolean {
 	 * Note: `select( 'core/edit-post' )` returns null on P2 sites (no post editor),
 	 * so we fall back to an empty array, which allows the extension to load.
 	 */
-	const { getHiddenBlockTypes } = select( 'core/edit-post' ) || {};
-	const hiddenBlocks = getHiddenBlockTypes?.() || [];
+	const hiddenBlocks =
+		(
+			select( 'core/edit-post' ) as null | { getHiddenBlockTypes?: () => string[] }
+		 )?.getHiddenBlockTypes?.() ?? [];
 
 	if ( hiddenBlocks.includes( 'jetpack/ai-assistant' ) ) {
 		return false;
