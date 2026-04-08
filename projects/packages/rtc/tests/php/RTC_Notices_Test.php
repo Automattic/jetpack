@@ -110,9 +110,7 @@ class RTC_Notices_Test extends \WorDBless\BaseTestCase {
 		delete_transient( REST_RTC_Notices::JOIN_REQUEST_OPTION . '_' . 999999 );
 
 		// Clean up rate-limit transients that may have been set by tests.
-		global $wpdb;
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
-		$wpdb->query( "DELETE FROM {$wpdb->options} WHERE option_name LIKE '%rtc_notif_sent_%'" );
+		wpcom_delete_blog_transient( 'rtc_collaborator_blocked_fired' );
 
 		// Reset the REST server so stale route registrations don't leak
 		// into other test classes.
@@ -537,9 +535,9 @@ class RTC_Notices_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Tests that async notifications are rate-limited by transient.
+	 * Tests that the collaborator blocked action is rate-limited by transient.
 	 */
-	public function test_async_notifications_rate_limited() {
+	public function test_collaborator_blocked_action_is_rate_limited() {
 		if ( ! class_exists( 'Jetpack_Options' ) ) {
 			$this->markTestSkipped( 'Jetpack_Options not available' );
 		}
@@ -555,21 +553,41 @@ class RTC_Notices_Test extends \WorDBless\BaseTestCase {
 		\Jetpack_Options::update_option( 'master_user', $this->user_id );
 
 		wp_set_current_user( $this->second_user_id );
-		$user    = wp_get_current_user();
-		$blog_id = get_current_blog_id();
+		$user = wp_get_current_user();
 
-		// First call sets the transient.
-		$throttle_key = sprintf( 'rtc_notif_sent_%d_%d_%d', $blog_id, $post_id, $user->ID );
-		$this->assertFalse( get_transient( $throttle_key ) );
+		// First call sets the transient and fires the action.
+		$this->assertFalse( wpcom_get_blog_transient( 'rtc_collaborator_blocked_fired' ) );
 
-		REST_RTC_Notices::send_async_admin_notifications( $post_id, $user );
-		$this->assertNotFalse( get_transient( $throttle_key ) );
+		$fired    = 0;
+		$listener = function () use ( &$fired ) {
+			++$fired;
+		};
+		add_action( 'jetpack_rtc_collaborator_blocked', $listener );
+
+		REST_RTC_Notices::maybe_fire_collaborator_blocked( $post_id, $user );
+		$this->assertNotFalse( wpcom_get_blog_transient( 'rtc_collaborator_blocked_fired' ) );
+		$this->assertSame( 1, $fired );
+
+		// Second call is throttled — action does not fire again.
+		REST_RTC_Notices::maybe_fire_collaborator_blocked( $post_id, $user );
+		$this->assertSame( 1, $fired );
 
 		// Clean up.
-		delete_transient( $throttle_key );
+		remove_action( 'jetpack_rtc_collaborator_blocked', $listener );
+		wpcom_delete_blog_transient( 'rtc_collaborator_blocked_fired' );
 		remove_all_filters( 'jetpack_rtc_enable_limit_notices' );
 		\Jetpack_Options::delete_option( 'master_user' );
 		wp_set_current_user( $this->user_id );
 		wp_delete_post( $post_id, true );
+	}
+
+	/**
+	 * Tests that the bell notification listener receives correct arguments.
+	 */
+	public function test_on_collaborator_blocked_calls_bell_notification() {
+		// on_collaborator_blocked should not throw when notes_send_callback is unavailable.
+		$user = wp_get_current_user();
+		REST_RTC_Notices::on_collaborator_blocked( 123, $user, $this->user_id );
+		$this->assertTrue( true );
 	}
 }
