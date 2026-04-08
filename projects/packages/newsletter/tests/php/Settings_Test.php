@@ -38,6 +38,9 @@ class Settings_Test extends BaseTestCase {
 		remove_all_actions( 'admin_menu' );
 		remove_all_actions( 'admin_init' );
 		remove_all_filters( 'jetpack_module_configuration_url_subscriptions' );
+
+		// Clear the load action registered by add_wp_admin_menu on success.
+		remove_all_actions( 'load-jetpack_page_jetpack-newsletter' );
 	}
 
 	/**
@@ -52,7 +55,7 @@ class Settings_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test that add_wp_admin_menu does not register menu when not connected.
+	 * Test that add_wp_admin_menu does not register the menu when not connected.
 	 */
 	public function test_add_wp_admin_menu_does_not_register_menu_when_not_connected() {
 		// Ensure disconnected state.
@@ -63,15 +66,14 @@ class Settings_Test extends BaseTestCase {
 		$settings = new Settings();
 		$settings->add_wp_admin_menu();
 
-		// If the method returned early due to not connected, no menu page should exist.
-		$this->assertEmpty(
-			menu_page_url( 'jetpack-newsletter', false ),
+		$this->assertFalse(
+			has_action( 'load-jetpack_page_jetpack-newsletter', array( $settings, 'admin_init' ) ),
 			'Newsletter menu should not be registered when site is not connected'
 		);
 	}
 
 	/**
-	 * Test that add_wp_admin_menu registers menu when connected.
+	 * Test that add_wp_admin_menu registers the menu when connected.
 	 */
 	public function test_add_wp_admin_menu_registers_menu_when_connected() {
 		// Simulate connected state.
@@ -82,8 +84,8 @@ class Settings_Test extends BaseTestCase {
 		$settings = new Settings();
 		$settings->add_wp_admin_menu();
 
-		$this->assertNotEmpty(
-			menu_page_url( 'jetpack-newsletter', false ),
+		$this->assertNotFalse(
+			has_action( 'load-jetpack_page_jetpack-newsletter', array( $settings, 'admin_init' ) ),
 			'Newsletter menu should be registered when site is connected'
 		);
 	}

@@ -136,12 +136,12 @@ class Settings {
 	 * (defaults to true). Set to false to hide the menu while keeping page accessible.
 	 */
 	public function add_wp_admin_menu() {
-		// On sites using Jetpack, only show the menu if the site is connected.
-		if ( ! ( new Connection_Manager() )->is_connected() ) {
+		if ( ! $this->expose_to_users() ) {
 			return;
 		}
 
-		if ( ! $this->expose_to_users() ) {
+		// On sites using Jetpack, only show the menu if the site is connected.
+		if ( ! ( new Connection_Manager() )->is_connected() ) {
 			return;
 		}
 
