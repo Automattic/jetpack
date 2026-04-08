@@ -531,23 +531,9 @@ class RTC_Notices_Test extends \WorDBless\BaseTestCase {
 	 * notes_send_callback is unavailable (non-WPCOM environment).
 	 */
 	public function test_bell_notification_skips_without_notes_function() {
-		$post_id = wp_insert_post(
-			array(
-				'post_title'  => 'Bell Test Post',
-				'post_status' => 'publish',
-			)
-		);
-
-		$user    = wp_get_current_user();
-		$blog_id = get_current_blog_id();
-
 		// Should not throw — gracefully skips when notes_send_callback doesn't exist.
-		REST_RTC_Notices::send_admin_bell_notification( $blog_id, $post_id, $user, $this->user_id );
-
-		// If we reach here without error, the guard works.
+		wpcom_send_bell_notification( $this->user_id, 'test_type', array( 'key' => 'value' ), 'dedup-1' );
 		$this->assertTrue( true );
-
-		wp_delete_post( $post_id, true );
 	}
 
 	/**
@@ -634,7 +620,7 @@ class RTC_Notices_Test extends \WorDBless\BaseTestCase {
 	 * Tests that build_email_html produces valid HTML with expected elements.
 	 */
 	public function test_build_email_html() {
-		$html = REST_RTC_Notices::build_email_html(
+		$html = wpcom_build_email_html(
 			'https://example.com/hero.png',
 			'Test Heading',
 			'Test body text',

@@ -30,6 +30,7 @@ class Jetpack_Mu_Wpcom {
 		// Shared code for src/features.
 		require_once self::PKG_DIR . 'src/common/index.php'; // phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
 		require_once __DIR__ . '/utils.php';
+		require_once __DIR__ . '/lib/load.php';
 
 		// Load features that don't need any special loading considerations.
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_features' ) );

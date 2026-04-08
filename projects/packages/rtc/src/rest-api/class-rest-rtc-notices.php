@@ -255,11 +255,7 @@ class REST_RTC_Notices extends WP_REST_Controller {
 	 * @param int      $owner_id The plan owner's user ID.
 	 */
 	public static function send_admin_bell_notification( $blog_id, $post_id, $user, $owner_id ) {
-		if ( ! function_exists( 'notes_send_callback' ) ) {
-			return;
-		}
-
-		notes_send_callback(
+		wpcom_send_bell_notification(
 			$owner_id,
 			'rtc_collaborator_blocked',
 			array(
@@ -267,9 +263,7 @@ class REST_RTC_Notices extends WP_REST_Controller {
 				'post_id' => $post_id,
 				'user_id' => $user->ID,
 			),
-			sprintf( 'rtc-blocked-%d-%d-%d', $blog_id, $post_id, $user->ID ),
-			1,     // Mark as unread.
-			false  // Allow updating existing note.
+			sprintf( 'rtc-blocked-%d-%d-%d', $blog_id, $post_id, $user->ID )
 		);
 	}
 
@@ -291,7 +285,7 @@ class REST_RTC_Notices extends WP_REST_Controller {
 		}
 
 		$post_title = get_the_title( $post_id );
-		$site_slug  = function_exists( 'wpcom_get_site_slug' ) ? wpcom_get_site_slug() : wp_parse_url( home_url(), PHP_URL_HOST );
+		$site_slug  = wpcom_get_site_slug();
 		$post_edit  = get_edit_post_link( $post_id, 'raw' );
 
 		$upgrade_url = 'https://wordpress.com/setup/plan-upgrade/plans?' . http_build_query(
@@ -318,87 +312,8 @@ class REST_RTC_Notices extends WP_REST_Controller {
 
 		$cta_label = __( 'Upgrade to collaborate', 'jetpack-rtc' );
 
-		$html = self::build_email_html( $hero_url, $heading, $body, $upgrade_url, $cta_label );
-
-		$send = function_exists( 'wp_html_mail' ) ? 'wp_html_mail' : 'wp_mail';
-
-		if ( 'wp_mail' === $send ) {
-			add_filter( 'wp_mail_content_type', array( __CLASS__, 'html_content_type' ) );
-		}
-
-		call_user_func( $send, $owner->user_email, $subject, $html );
-
-		if ( 'wp_mail' === $send ) {
-			remove_filter( 'wp_mail_content_type', array( __CLASS__, 'html_content_type' ) );
-		}
-	}
-
-	/**
-	 * Return text/html content type for wp_mail.
-	 *
-	 * @return string
-	 */
-	public static function html_content_type() {
-		return 'text/html';
-	}
-
-	/**
-	 * Build the HTML body for the collaborator-blocked email.
-	 *
-	 * The layout mirrors the in-editor RTC notice modal: a hero
-	 * illustration at the top, followed by a title, body text,
-	 * and a prominent CTA button.
-	 *
-	 * @param string $hero_url    URL to the hero illustration image.
-	 * @param string $heading     Email heading / title.
-	 * @param string $body        Email body text.
-	 * @param string $cta_url     URL for the CTA button.
-	 * @param string $cta_label   Label for the CTA button.
-	 * @return string Full HTML email string.
-	 */
-	public static function build_email_html( $hero_url, $heading, $body, $cta_url, $cta_label ) {
-		$hero_url  = esc_url( $hero_url );
-		$cta_url   = esc_url( $cta_url );
-		$cta_label = esc_html( $cta_label );
-		$heading   = esc_html( $heading );
-
-		return <<<HTML
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>{$heading}</title>
-</head>
-<body style="margin:0;padding:0;background-color:#f0f0f0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,sans-serif;">
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f0f0f0;padding:32px 0;">
-<tr><td align="center">
-<table role="presentation" width="409" cellpadding="0" cellspacing="0" style="background-color:#ffffff;border-radius:8px;overflow:hidden;max-width:409px;">
-	<!-- Hero illustration -->
-	<tr>
-		<td style="padding:0;line-height:0;">
-			<img src="{$hero_url}" alt="" width="409" style="width:100%;height:auto;display:block;border-radius:8px 8px 0 0;" />
-		</td>
-	</tr>
-	<!-- Body -->
-	<tr>
-		<td style="padding:24px 32px 32px;">
-			<h1 style="margin:0;font-size:20px;font-weight:600;line-height:1.3;color:#1e1e1e;">{$heading}</h1>
-			<p style="margin:12px 0 0;font-size:14px;line-height:1.6;color:#1e1e1e;">{$body}</p>
-			<!-- CTA button -->
-			<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-top:24px;">
-			<tr><td align="center">
-				<a href="{$cta_url}" target="_blank" style="display:inline-block;width:100%;padding:12px 24px;font-size:14px;font-weight:500;color:#ffffff;background-color:#3858e9;border-radius:4px;text-decoration:none;text-align:center;box-sizing:border-box;">{$cta_label}</a>
-			</td></tr>
-			</table>
-		</td>
-	</tr>
-</table>
-</td></tr>
-</table>
-</body>
-</html>
-HTML;
+		$html = wpcom_build_email_html( $hero_url, $heading, $body, $upgrade_url, $cta_label );
+		wpcom_send_email_notification( $owner->user_email, $subject, $html );
 	}
 
 	/**

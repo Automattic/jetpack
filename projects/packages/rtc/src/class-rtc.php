@@ -322,11 +322,7 @@ class RTC {
 	 * @return bool
 	 */
 	public static function is_plan_owner() {
-		$owner_id = self::get_plan_owner_id();
-		if ( ! $owner_id ) {
-			return false;
-		}
-		return get_current_user_id() === $owner_id;
+		return wpcom_is_site_owner();
 	}
 
 	/**
@@ -338,20 +334,7 @@ class RTC {
 	 * @return int Plan owner user ID, or 0 if unavailable.
 	 */
 	public static function get_plan_owner_id() {
-		// Simple sites: wpcom_get_blog_owner is the canonical source.
-		if ( function_exists( 'wpcom_get_blog_owner' ) ) {
-			return (int) wpcom_get_blog_owner( get_wpcom_blog_id() );
-		}
-
-		// Atomic sites: the Jetpack connection master_user is the plan owner.
-		if ( class_exists( 'Jetpack_Options' ) ) {
-			$master_user = \Jetpack_Options::get_option( 'master_user' );
-			if ( $master_user ) {
-				return (int) $master_user;
-			}
-		}
-
-		return 0;
+		return wpcom_get_site_owner_id();
 	}
 
 	/**
@@ -360,16 +343,7 @@ class RTC {
 	 * @return string
 	 */
 	private static function get_site_slug() {
-		if ( function_exists( 'wpcom_get_site_slug' ) ) {
-			return wpcom_get_site_slug();
-		}
-
-		if ( class_exists( '\Automattic\Jetpack\Status' ) ) {
-			$jetpack_status = new \Automattic\Jetpack\Status();
-			return $jetpack_status->get_site_suffix();
-		}
-
-		return '';
+		return wpcom_get_site_slug();
 	}
 
 	/**

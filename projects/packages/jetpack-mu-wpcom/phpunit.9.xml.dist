@@ -16,5 +16,8 @@
 		<testsuite name="common">
 			<directory suffix="Test.php">tests/php/common</directory>
 		</testsuite>
+		<testsuite name="lib">
+			<directory suffix="Test.php">tests/php/lib</directory>
+		</testsuite>
 	</testsuites>
 </phpunit>
