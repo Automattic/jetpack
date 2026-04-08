@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Image Guide: Exclude from JS concatenation on Atomic/WoW sites to prevent script errors.
+Image Guide: Fix script errors when JavaScript concatenation is enabled.
