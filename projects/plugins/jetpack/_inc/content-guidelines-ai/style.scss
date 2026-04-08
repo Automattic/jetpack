@@ -106,7 +106,7 @@
 // buttons inside already communicate the suggestion state.
 // stylelint-disable-next-line selector-max-compound-selectors
 .content-guidelines__accordion-trigger[aria-expanded="true"]
-	.jetpack-content-guidelines-ai__badge-container {
+.jetpack-content-guidelines-ai__badge-container {
 	display: none;
 }
 
@@ -148,16 +148,11 @@
 	line-height: 20px;
 	white-space: pre-wrap;
 	overflow-wrap: break-word;
-	// Height matched to the Gutenberg textarea via CSS variable
-	// set in suggestion-actions.jsx to prevent layout shift.
+	// Height is set dynamically via CSS variable from suggestion-actions.jsx
+	// to match the Gutenberg textarea and prevent layout shift.
 	min-height: var(--jetpack-cg-textarea-height, 100px);
 	cursor: pointer;
 	box-sizing: border-box;
-}
-
-.jetpack-content-guidelines-ai__suggestion-actions {
-	display: flex;
-	gap: 8px;
 }
 
 .jetpack-content-guidelines-ai__diff-added {
@@ -168,6 +163,11 @@
 .jetpack-content-guidelines-ai__diff-removed {
 	background: #f8d7da;
 	text-decoration: line-through;
+}
+
+.jetpack-content-guidelines-ai__suggestion-actions {
+	display: flex;
+	gap: 8px;
 }
 
 // Green shimmer overlay on the textarea during AI generation.
@@ -204,11 +204,9 @@
 	}
 }
 
-// When a suggestion is active, hide Gutenberg's DataForm (textarea)
-// and buttons — replaced by the diff view + Accept/Dismiss.
-// Target by known class prefixes rather than structural selectors.
-.has-jetpack-suggestion .dataforms-layouts__wrapper,
-.has-jetpack-suggestion .components-h-stack {
+// Hide Gutenberg's DataForm and Save/Clear when a suggestion is active.
+// Also hide the per-section generate button since Accept/Dismiss replaces it.
+.has-jetpack-suggestion > :first-child > :not(.jetpack-content-guidelines-ai__actions-container) {
 	display: none;
 }
 
