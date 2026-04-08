@@ -365,9 +365,10 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 									isColorPaletteResolved && styles[ 'funnel-step--animated' ],
 									isBlurred && styles[ 'funnel-step--blurred' ]
 								) }
+								gap="xl"
 							>
 								{ /* Step Label and Rate */ }
-								<div className={ styles[ 'step-header' ] }>
+								<div>
 									{ renderStepLabel ? (
 										renderStepLabel( {
 											step,
@@ -391,7 +392,9 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 								</div>
 
 								{ /* Funnel Bar */ }
-								<div
+								<Stack
+									direction="column"
+									justify="flex-end"
 									className={ styles[ 'bar-container' ] }
 									onClick={ stepHandlers.get( step.id )?.onClick }
 									onKeyDown={ stepHandlers.get( step.id )?.onKeyDown }
@@ -410,7 +413,7 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 											backgroundColor: barColor,
 										} }
 									/>
-								</div>
+								</Stack>
 							</Stack>
 						);
 					} ) }

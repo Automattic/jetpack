@@ -52,10 +52,6 @@
 	}
 }
 
-.step-header {
-	margin-bottom: 24px;
-}
-
 .step-label {
 	color: #757575;
 	font-size: var(--wpds-font-size-sm, 12px);
@@ -80,8 +76,6 @@
 
 .bar-container {
 	flex: 1;
-	display: flex;
-	align-items: flex-end;
 	border-radius: 4px;
 	position: relative;
 	cursor: pointer;
