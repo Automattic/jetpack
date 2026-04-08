@@ -1,6 +1,6 @@
 import { Button } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
-import { useCallback, useEffect, useMemo } from '@wordpress/element';
+import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { diffWords } from 'diff';
 import { STORE_NAME } from '../constants';
@@ -12,9 +12,12 @@ export default function SuggestionActions( { slug } ) {
 		select => select( AI_STORE_NAME ).isSectionLoading( slug ),
 		[ slug ]
 	);
-	const original = useSelect( select => select( STORE_NAME ).getGuideline( slug ) || '', [ slug ] );
 	const { clearSuggestion } = useDispatch( AI_STORE_NAME );
 	const { setGuideline } = useDispatch( STORE_NAME );
+
+	// Capture the current textarea draft (which may differ from the saved
+	// store value if the user edited without saving) to diff against.
+	const [ original, setOriginal ] = useState( '' );
 
 	// Direct DOM class manipulation is necessary because this component is rendered in
 	// a separate React root injected into Gutenberg's page — we can't control classes
@@ -25,11 +28,11 @@ export default function SuggestionActions( { slug } ) {
 			return;
 		}
 
-		// Capture the textarea height before hiding it so our diff container
-		// can match it and prevent layout shift.
+		// Capture textarea value and height before hiding it.
 		if ( suggestion ) {
 			const textarea = form.querySelector( 'textarea' );
 			if ( textarea ) {
+				setOriginal( textarea.value || '' );
 				form.style.setProperty( '--jetpack-cg-textarea-height', `${ textarea.offsetHeight }px` );
 			}
 		}
