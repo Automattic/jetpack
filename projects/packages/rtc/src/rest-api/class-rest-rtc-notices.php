@@ -201,7 +201,69 @@ class REST_RTC_Notices extends WP_REST_Controller {
 		// Expire after 2 minutes.
 		set_transient( $key, $requests, 2 * MINUTE_IN_SECONDS );
 
+		// Send async bell notification to the plan owner so
+		// they see it even when they are not in the editor.
+		self::send_async_admin_notifications( $post_id, $user );
+
 		return rest_ensure_response( array( 'success' => true ) );
+	}
+
+	/**
+	 * Send async notifications (bell) to the plan owner when a
+	 * non-admin is blocked by the collaborator limit.
+	 *
+	 * Rate-limited: only fires once per configurable interval (default 24 h)
+	 * per (blog, post, blocked user) combination.
+	 *
+	 * @param int      $post_id The post the user was trying to join.
+	 * @param \WP_User $user    The blocked user.
+	 */
+	public static function send_async_admin_notifications( $post_id, $user ) {
+		// Only send when limit notices are enabled.
+		if ( ! apply_filters( 'jetpack_rtc_enable_limit_notices', false ) ) {
+			return;
+		}
+
+		$owner_id = \Automattic\Jetpack\RTC::get_plan_owner_id();
+		if ( ! $owner_id ) {
+			return;
+		}
+
+		// Rate-limit: one notification set per (blog, post, user) per interval.
+		$blog_id          = get_current_blog_id();
+		$throttle_key     = sprintf( 'rtc_notif_sent_%d_%d_%d', $blog_id, $post_id, $user->ID );
+		$throttle_seconds = (int) apply_filters( 'jetpack_rtc_async_notification_interval', DAY_IN_SECONDS );
+
+		if ( get_transient( $throttle_key ) ) {
+			return;
+		}
+
+		// Set the throttle *before* sending so concurrent requests don't
+		// race past the check.
+		set_transient( $throttle_key, 1, $throttle_seconds );
+
+		self::send_admin_bell_notification( $blog_id, $post_id, $user, $owner_id );
+	}
+
+	/**
+	 * Send a WordPress.com bell notification to the plan owner.
+	 *
+	 * @param int      $blog_id  The blog ID.
+	 * @param int      $post_id  The post the user was trying to join.
+	 * @param \WP_User $user     The blocked user.
+	 * @param int      $owner_id The plan owner's user ID.
+	 */
+	public static function send_admin_bell_notification( $blog_id, $post_id, $user, $owner_id ) {
+		wpcom_send_bell_notification(
+			$owner_id,
+			'rtc_collaborator_blocked',
+			array(
+				'blog_id' => $blog_id,
+				'post_id' => $post_id,
+				'user_id' => $user->ID,
+			),
+			sprintf( 'rtc-blocked-%d-%d-%d', $blog_id, $post_id, $user->ID )
+		);
 	}
 
 	/**
