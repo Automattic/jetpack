@@ -4,6 +4,7 @@ import SectionGenerateButton from '../components/section-generate-button';
 import SuggestAllButton from '../components/suggest-all-button';
 import SuggestionActions from '../components/suggestion-actions';
 import SuggestionBadge from '../components/suggestion-badge';
+import UpgradeNotice from '../components/upgrade-notice';
 import { VALID_SECTIONS } from '../constants';
 
 // Each injection point tracks both the DOM container and its React root.
@@ -14,6 +15,7 @@ import { VALID_SECTIONS } from '../constants';
 
 const slots = {
 	header: { container: null, root: null },
+	'upgrade-notice': { container: null, root: null },
 	banner: { container: null, root: null },
 };
 
@@ -79,6 +81,22 @@ function runAll() {
 				: null;
 		},
 		SuggestAllButton
+	);
+
+	// Upgrade notice — shown above the guideline list when AI is unavailable.
+	inject(
+		'upgrade-notice',
+		() => {
+			const list = document.querySelector( '.content-guidelines__list' );
+			return list
+				? {
+						parent: list.parentElement,
+						before: list,
+						className: 'jetpack-content-guidelines-ai__upgrade-notice-container',
+				  }
+				: null;
+		},
+		UpgradeNotice
 	);
 
 	// Empty state banner.

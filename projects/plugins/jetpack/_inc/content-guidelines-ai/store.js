@@ -6,6 +6,7 @@ const DEFAULT_STATE = {
 	loading: false,
 	loadingSections: {},
 	suggestions: {},
+	upgradeNotice: false,
 	bannerDismissed: localStorage.getItem( DISMISS_KEY ) === '1',
 };
 
@@ -27,6 +28,12 @@ const actions = {
 	},
 	stopSectionLoading( slug ) {
 		return { type: 'STOP_SECTION_LOADING', slug };
+	},
+	showUpgradeNotice() {
+		return { type: 'SHOW_UPGRADE_NOTICE' };
+	},
+	hideUpgradeNotice() {
+		return { type: 'HIDE_UPGRADE_NOTICE' };
 	},
 	dismissBanner() {
 		localStorage.setItem( DISMISS_KEY, '1' );
@@ -50,6 +57,10 @@ function reducer( state = DEFAULT_STATE, action ) {
 			delete suggestions[ action.slug ];
 			return { ...state, suggestions };
 		}
+		case 'SHOW_UPGRADE_NOTICE':
+			return { ...state, upgradeNotice: true };
+		case 'HIDE_UPGRADE_NOTICE':
+			return { ...state, upgradeNotice: false };
 		case 'DISMISS_BANNER':
 			return { ...state, bannerDismissed: true };
 		case 'START_SECTION_LOADING':
@@ -79,6 +90,9 @@ const selectors = {
 	},
 	isSectionLoading( state, slug ) {
 		return state.loading || !! state.loadingSections[ slug ];
+	},
+	isUpgradeNoticeVisible( state ) {
+		return state.upgradeNotice;
 	},
 	isBannerDismissed( state ) {
 		return state.bannerDismissed;

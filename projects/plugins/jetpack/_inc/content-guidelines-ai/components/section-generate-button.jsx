@@ -9,7 +9,7 @@ import { showUnavailableNotice } from '../lib/availability';
 import { AI_STORE_NAME } from '../store';
 
 export default function SectionGenerateButton( { slug } ) {
-	const { createErrorNotice, createWarningNotice } = useDispatch( noticesStore );
+	const { createErrorNotice } = useDispatch( noticesStore );
 	const { startSectionLoading, stopSectionLoading, setSuggestion } = useDispatch( AI_STORE_NAME );
 
 	const sectionLoading = useSelect(
@@ -24,7 +24,7 @@ export default function SectionGenerateButton( { slug } ) {
 	const label = isEmpty ? generateLabel : improveLabel;
 
 	const handleClick = useCallback( async () => {
-		if ( showUnavailableNotice( createWarningNotice ) ) {
+		if ( showUnavailableNotice() ) {
 			return;
 		}
 
@@ -43,15 +43,7 @@ export default function SectionGenerateButton( { slug } ) {
 		} finally {
 			stopSectionLoading( slug );
 		}
-	}, [
-		slug,
-		draft,
-		startSectionLoading,
-		stopSectionLoading,
-		setSuggestion,
-		createErrorNotice,
-		createWarningNotice,
-	] );
+	}, [ slug, draft, startSectionLoading, stopSectionLoading, setSuggestion, createErrorNotice ] );
 
 	return (
 		<Button

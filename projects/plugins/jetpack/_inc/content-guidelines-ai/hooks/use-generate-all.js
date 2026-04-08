@@ -13,7 +13,7 @@ import { AI_STORE_NAME } from '../store';
  * @return {{ generate: Function, loading: boolean }} Generate callback and loading state.
  */
 export default function useGenerateAll() {
-	const { createErrorNotice, createWarningNotice } = useDispatch( noticesStore );
+	const { createErrorNotice } = useDispatch( noticesStore );
 	const { startLoading, stopLoading, setSuggestion } = useDispatch( AI_STORE_NAME );
 	const loading = useSelect( select => select( AI_STORE_NAME ).isLoading(), [] );
 
@@ -23,7 +23,7 @@ export default function useGenerateAll() {
 	}, [] );
 
 	const generate = useCallback( async () => {
-		if ( showUnavailableNotice( createWarningNotice ) ) {
+		if ( showUnavailableNotice() ) {
 			return;
 		}
 
@@ -51,14 +51,7 @@ export default function useGenerateAll() {
 		} finally {
 			stopLoading();
 		}
-	}, [
-		allGuidelines,
-		startLoading,
-		stopLoading,
-		setSuggestion,
-		createErrorNotice,
-		createWarningNotice,
-	] );
+	}, [ allGuidelines, startLoading, stopLoading, setSuggestion, createErrorNotice ] );
 
 	return { generate, loading };
 }

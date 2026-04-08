@@ -1,31 +1,17 @@
-import { __ } from '@wordpress/i18n';
+import { dispatch } from '@wordpress/data';
 import { config } from '../constants';
+import { AI_STORE_NAME } from '../store';
 
 /**
- * Show an unavailable notice if Jetpack AI is not available.
+ * Check if Jetpack AI is unavailable. If so, show the upgrade notice.
  *
- * @param {Function} createWarningNotice - Notice dispatcher.
- * @return {boolean} True if AI is unavailable (notice was shown).
+ * @return {boolean} True if AI is unavailable.
  */
-export function showUnavailableNotice( createWarningNotice ) {
+export function showUnavailableNotice() {
 	if ( config.available ) {
 		return false;
 	}
 
-	const message = ! config.isConnected
-		? __(
-				'Jetpack AI is not available. Connect your site to WordPress.com to get started.',
-				'jetpack'
-		  )
-		: __( 'Upgrade now to start using Jetpack AI.', 'jetpack' );
-	const actionLabel = ! config.isConnected
-		? __( 'Connect', 'jetpack' )
-		: __( 'Upgrade', 'jetpack' );
-
-	createWarningNotice( message, {
-		type: 'snackbar',
-		actions: config.upgradeUrl ? [ { label: actionLabel, url: config.upgradeUrl } ] : [],
-	} );
-
+	dispatch( AI_STORE_NAME ).showUpgradeNotice();
 	return true;
 }
