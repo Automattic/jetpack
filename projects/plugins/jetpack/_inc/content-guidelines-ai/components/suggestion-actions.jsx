@@ -1,6 +1,6 @@
 import { Button } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
-import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
+import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { diffWords } from 'diff';
 import { STORE_NAME } from '../constants';
@@ -15,9 +15,31 @@ export default function SuggestionActions( { slug } ) {
 	const { clearSuggestion } = useDispatch( AI_STORE_NAME );
 	const { setGuideline } = useDispatch( STORE_NAME );
 
-	// Capture the current textarea draft (which may differ from the saved
-	// store value if the user edited without saving) to diff against.
 	const [ original, setOriginal ] = useState( '' );
+	const capturedHeight = useRef( null );
+
+	// Continuously track the textarea height while it's visible (idle or loading).
+	// This ensures we always have the latest height even if the user resizes.
+	useEffect( () => {
+		if ( suggestion ) {
+			return;
+		}
+		const form = document.getElementById( `content-guidelines-${ slug }` );
+		const textarea = form?.querySelector( 'textarea' );
+		if ( ! textarea ) {
+			return;
+		}
+
+		// Capture immediately.
+		capturedHeight.current = textarea.offsetHeight;
+
+		// Also watch for resize via ResizeObserver.
+		const observer = new ResizeObserver( () => {
+			capturedHeight.current = textarea.offsetHeight;
+		} );
+		observer.observe( textarea );
+		return () => observer.disconnect();
+	}, [ slug, suggestion ] );
 
 	// Direct DOM class manipulation is necessary because this component is rendered in
 	// a separate React root injected into Gutenberg's page — we can't control classes
@@ -73,10 +95,13 @@ export default function SuggestionActions( { slug } ) {
 		return null;
 	}
 
+	const diffStyle = capturedHeight.current ? { height: capturedHeight.current } : undefined;
+
 	return (
 		<div className="jetpack-content-guidelines-ai__suggestion">
 			<div
 				className="jetpack-content-guidelines-ai__diff"
+				style={ diffStyle }
 				role="button"
 				tabIndex={ 0 }
 				aria-label={ __( 'Click to accept suggested changes', 'jetpack' ) }
