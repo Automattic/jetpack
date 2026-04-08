@@ -179,6 +179,25 @@ class Main_Test extends StatsBaseTestCase {
 	}
 
 	/**
+	 * Test Main::map_meta_caps with multi-role user where admin is not the first role.
+	 */
+	public function test_view_stats_meta_mapping_multi_role() {
+		$dummy_user_id = wp_insert_user(
+			array(
+				'user_login' => 'dummy_multirole',
+				'user_pass'  => 'password',
+				'role'       => 'subscriber',
+			)
+		);
+
+		// Add administrator as a second role.
+		$user = new \WP_User( $dummy_user_id );
+		$user->add_role( 'administrator' );
+
+		$this->assertTrue( user_can( $dummy_user_id, 'view_stats' ) );
+	}
+
+	/**
 	 * Test Main::should_track
 	 */
 	public function test_should_track_will_return_false_without_connection() {
