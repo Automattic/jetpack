@@ -7,7 +7,6 @@
 
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\Common;
-use Automattic\Jetpack\Status\Host;
 
 /**
  * Determine whether the launch button should be shown/enhanced on this request.
@@ -101,46 +100,6 @@ function wpcom_add_launch_button_to_admin_bar( WP_Admin_Bar $admin_bar ) {
 }
 
 /**
- * Enqueue `wp-components` styles for contexts where the block editor/admin bundle is not loaded.
- *
- * The celebration modal uses `@wordpress/components` (Modal, Button). Those styles are available in
- * wp-admin, but not on the front end with only the admin bar — without them, typography and chrome look wrong.
- *
- * @param string $version The asset version string.
- * @param bool   $should_enqueue Whether styles should be enqueued for this request.
- * @return void
- */
-function wpcom_launch_button_maybe_enqueue_wp_components_styles( $version, $should_enqueue ) {
-	if ( ! $should_enqueue ) {
-		return;
-	}
-
-	$stylesheet     = is_rtl() ? 'build/components/style-rtl.css' : 'build/components/style.css';
-	$stylesheet_url = plugins_url( 'gutenberg/' . $stylesheet );
-
-	if ( function_exists( 'gutenberg_url' ) ) {
-		// @phan-suppress-next-line PhanUndeclaredFunction
-		$stylesheet_url = gutenberg_url( $stylesheet );
-	}
-
-	wp_enqueue_style(
-		'wp-components',
-		$stylesheet_url,
-		array( 'dashicons' ),
-		$version
-	);
-}
-
-/**
- * Whether the launch button should load standalone `wp-components` styles for this request.
- *
- * @return bool
- */
-function wpcom_launch_button_needs_standalone_wp_components_styles(): bool {
-	return ! is_admin() || ( is_customize_preview() && ( new Host() )->is_wpcom_simple() );
-}
-
-/**
  * Enqueue the necessary assets for the admin bar button.
  */
 function wpcom_enqueue_launch_button_assets() {
@@ -152,35 +111,12 @@ function wpcom_enqueue_launch_button_assets() {
 	wp_enqueue_style( 'launch-banner', plugins_url( 'style.css', __FILE__ ), array(), $version );
 
 	$asset_file = include Jetpack_Mu_Wpcom::BASE_DIR . 'build/adminbar-launch-button/adminbar-launch-button.asset.php';
-	$bundle_ver = $asset_file['version'] ?? filemtime( Jetpack_Mu_Wpcom::BASE_DIR . 'build/adminbar-launch-button/adminbar-launch-button.js' );
-
-	$needs_wp_components = wpcom_launch_button_needs_standalone_wp_components_styles();
-	wpcom_launch_button_maybe_enqueue_wp_components_styles( $bundle_ver, $needs_wp_components );
-
-	$css_ext      = is_rtl() ? 'rtl.css' : 'css';
-	$css_relative = 'build/adminbar-launch-button/adminbar-launch-button.' . $css_ext;
-	$css_path     = Jetpack_Mu_Wpcom::BASE_DIR . $css_relative;
-	if ( is_rtl() && ! file_exists( $css_path ) ) {
-		$css_relative = 'build/adminbar-launch-button/adminbar-launch-button.css';
-		$css_path     = Jetpack_Mu_Wpcom::BASE_DIR . $css_relative;
-	}
-
-	$bundle_style_deps = $needs_wp_components ? array( 'wp-components' ) : array();
-
-	if ( file_exists( $css_path ) ) {
-		wp_enqueue_style(
-			'adminbar-launch-button-bundle',
-			plugins_url( $css_relative, Jetpack_Mu_Wpcom::BASE_FILE ),
-			$bundle_style_deps,
-			file_exists( $css_path ) ? filemtime( $css_path ) : $bundle_ver
-		);
-	}
 
 	wp_enqueue_script(
 		'adminbar-launch-button',
 		plugins_url( 'build/adminbar-launch-button/adminbar-launch-button.js', Jetpack_Mu_Wpcom::BASE_FILE ),
 		$asset_file['dependencies'] ?? array(),
-		$bundle_ver,
+		$asset_file['version'] ?? filemtime( Jetpack_Mu_Wpcom::BASE_DIR . 'build/adminbar-launch-button/adminbar-launch-button.js' ),
 		true
 	);
 
