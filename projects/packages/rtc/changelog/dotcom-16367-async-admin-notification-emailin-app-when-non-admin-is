@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Extract RTC::get_plan_owner_id() from is_plan_owner() and update REST controller to use it instead of the removed wpcom_rtc_get_plan_owner_id() function
