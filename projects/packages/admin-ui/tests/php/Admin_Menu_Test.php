@@ -96,6 +96,13 @@ class Admin_Menu_Test extends TestCase {
 		wp_dequeue_script( 'jetpack-admin-ui-upgrade-menu' );
 		wp_deregister_script( 'jetpack-admin-ui-upgrade-menu' );
 
+		// Default to a connected, non-offline site so existing tests cover only the plan checks.
+		self::set_connection_status( true );
+		remove_all_filters( 'jetpack_offline_mode' );
+		if ( class_exists( '\Automattic\Jetpack\Status\Cache' ) ) {
+			\Automattic\Jetpack\Status\Cache::clear();
+		}
+
 		$reflection = new \ReflectionClass( Admin_Menu::class );
 
 		if ( $reflection->hasProperty( 'menu_items' ) ) {
@@ -366,6 +373,36 @@ class Admin_Menu_Test extends TestCase {
 	}
 
 	/**
+	 * Upgrade item is absent when the site is in offline (development) mode.
+	 *
+	 * @return void
+	 */
+	public function test_upgrade_menu_item_hidden_when_offline_mode() {
+		wp_set_current_user( self::$admin_user_id );
+		add_filter( 'jetpack_offline_mode', '__return_true' );
+
+		Admin_Menu::init();
+		do_action( 'admin_menu' );
+
+		$this->assertUpgradeMenuItemAbsent();
+	}
+
+	/**
+	 * Upgrade item is absent when the site is not connected to WordPress.com.
+	 *
+	 * @return void
+	 */
+	public function test_upgrade_menu_item_hidden_when_not_connected() {
+		wp_set_current_user( self::$admin_user_id );
+		self::set_connection_status( false );
+
+		Admin_Menu::init();
+		do_action( 'admin_menu' );
+
+		$this->assertUpgradeMenuItemAbsent();
+	}
+
+	/**
 	 * Upgrade menu stylesheet is enqueued for a free-plan site.
 	 *
 	 * The sidebar is visible everywhere in wp-admin, so styles must load globally.
@@ -439,6 +476,60 @@ class Admin_Menu_Test extends TestCase {
 		Admin_Menu::add_upgrade_menu_item_styles();
 
 		$this->assertFalse( wp_style_is( 'jetpack-admin-ui-upgrade-menu', 'enqueued' ) );
+	}
+
+	/**
+	 * No stylesheet enqueue when the site is in offline (development) mode.
+	 *
+	 * @return void
+	 */
+	public function test_upgrade_menu_item_styles_not_enqueued_when_offline_mode() {
+		wp_set_current_user( self::$admin_user_id );
+		add_filter( 'jetpack_offline_mode', '__return_true' );
+
+		Admin_Menu::add_upgrade_menu_item_styles();
+
+		$this->assertFalse( wp_style_is( 'jetpack-admin-ui-upgrade-menu', 'enqueued' ) );
+	}
+
+	/**
+	 * No stylesheet enqueue when the site is not connected to WordPress.com.
+	 *
+	 * @return void
+	 */
+	public function test_upgrade_menu_item_styles_not_enqueued_when_not_connected() {
+		wp_set_current_user( self::$admin_user_id );
+		self::set_connection_status( false );
+
+		Admin_Menu::add_upgrade_menu_item_styles();
+
+		$this->assertFalse( wp_style_is( 'jetpack-admin-ui-upgrade-menu', 'enqueued' ) );
+	}
+
+	/**
+	 * Overrides the Connection Manager's memoized `is_connected` status for the duration of a test.
+	 *
+	 * Avoids having to stand up real blog tokens just to flip the connection bit.
+	 *
+	 * @param bool $connected Whether to report the site as connected.
+	 * @return void
+	 */
+	private static function set_connection_status( $connected ) {
+		if ( ! class_exists( '\Automattic\Jetpack\Connection\Manager' ) ) {
+			return;
+		}
+
+		$reflection = new \ReflectionClass( \Automattic\Jetpack\Connection\Manager::class );
+		if ( ! $reflection->hasProperty( 'is_connected' ) ) {
+			return;
+		}
+
+		$property = $reflection->getProperty( 'is_connected' );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
+		$property->setValue( null, (bool) $connected );
 	}
 
 	/**

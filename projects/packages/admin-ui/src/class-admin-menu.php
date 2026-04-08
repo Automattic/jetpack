@@ -253,7 +253,8 @@ class Admin_Menu {
 	 * Checks whether the current site should show the upgrade menu item.
 	 *
 	 * The upgrade menu is only shown to administrators on free-plan sites
-	 * that are not hosted on WordPress.com.
+	 * that are not hosted on WordPress.com, are connected to WordPress.com,
+	 * and are not in offline (development) mode.
 	 *
 	 * @return bool True if the upgrade menu should be shown.
 	 */
@@ -268,6 +269,22 @@ class Admin_Menu {
 		if ( class_exists( '\Automattic\Jetpack\Status\Host' ) ) {
 			$host = new \Automattic\Jetpack\Status\Host();
 			if ( $host->is_wpcom_platform() ) {
+				return false;
+			}
+		}
+
+		// Don't show upsells when the site is in offline (development) mode.
+		if ( class_exists( '\Automattic\Jetpack\Status' ) ) {
+			$status = new \Automattic\Jetpack\Status();
+			if ( $status->is_offline_mode() ) {
+				return false;
+			}
+		}
+
+		// Don't show upsells when the site is not connected to WordPress.com.
+		if ( class_exists( '\Automattic\Jetpack\Connection\Manager' ) ) {
+			$connection = new \Automattic\Jetpack\Connection\Manager();
+			if ( ! $connection->is_connected() ) {
 				return false;
 			}
 		}

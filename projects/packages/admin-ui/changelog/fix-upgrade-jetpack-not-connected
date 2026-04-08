@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Upgrade menu: do not display when the site is not connected or in offline mode
