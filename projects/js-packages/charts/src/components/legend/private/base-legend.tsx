@@ -257,23 +257,24 @@ export const BaseLegend: ForwardRefExoticComponent<
 											labelClassName
 										) }
 										style={ {
-											justifyContent: labelJustifyContent,
 											flex: labelFlex,
 											margin: labelMargin,
 											...theme.legend?.labelStyles,
 										} }
 									>
-										<LegendText
-											text={ label.text }
-											textOverflow={ textOverflow }
-											maxWidth={ maxWidth }
-										/>
-										{ matchedItem?.value != null && matchedItem.value !== '' && (
-											<span className={ styles[ 'legend-item-value' ] }>
-												{ '\u00A0' }
-												{ matchedItem.value }
-											</span>
-										) }
+										<Stack align="center" gap="sm" justify={ labelJustifyContent }>
+											<LegendText
+												text={ label.text }
+												textOverflow={ textOverflow }
+												maxWidth={ maxWidth }
+											/>
+											{ matchedItem?.value != null && matchedItem.value !== '' && (
+												<span className={ styles[ 'legend-item-value' ] }>
+													{ '\u00A0' }
+													{ matchedItem.value }
+												</span>
+											) }
+										</Stack>
 									</LegendLabel>
 								</LegendItem>
 							);

@@ -36,14 +36,6 @@
 	}
 }
 
-.legend-item-label {
-	display: flex;
-	align-items: center;
-	gap: 0.5rem;
-
-	/* Text wrapping is handled at the text level, not the label container */
-}
-
 .legend-item-text {
 
 	&--wrap {
