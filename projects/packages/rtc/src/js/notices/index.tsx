@@ -1,13 +1,13 @@
 /*** THIS MUST BE THE FIRST THING EVALUATED IN THIS SCRIPT *****/
-import '../../common/public-path';
+import './public-path';
 
 /**
  * Gutenberg RTC Notices & Limits
  *
- * WP.com-specific entry point for real-time collaboration in the block editor.
+ * Entry point for real-time collaboration notices in the block editor.
  * Registers a sync.providers filter (priority 20) that wraps providers with
  * room-limit enforcement, a filter on editor.SyncConnectionErrorModal to
- * replace Gutenberg's default connection error modal with branded WP.com
+ * replace Gutenberg's default connection error modal with RTC-specific
  * notices, and a block editor plugin for the welcome notice and admin polling.
  */
 
@@ -20,21 +20,22 @@ import RtcWelcomeNotice from './notices/rtc-welcome-notice';
 import { withRoomLimit } from './room-limit';
 import type { ProviderCreator } from '@wordpress/sync';
 
-const enableLimitNotices = window.wpcomRtcNotices?.enableLimitNotices ?? false;
+const enableWelcomeNotice = window.jetpackRtcNotices?.enableWelcomeNotice ?? false;
+const enableLimitNotices = window.jetpackRtcNotices?.enableLimitNotices ?? false;
 
 /**
  * Wrap all sync providers with room-limit enforcement.
  * Runs at priority 20 so it wraps providers registered by the rtc package (priority 10).
  */
 function registerRoomLimitFilter(): void {
-	const config = window.wpcomRtcNotices;
+	const config = window.jetpackRtcNotices;
 	if ( ! config?.maxPeersPerRoom ) {
 		return;
 	}
 
 	addFilter(
 		'sync.providers',
-		'wpcom/rtc-room-limits',
+		'jetpack/rtc-room-limits',
 		( providers: ProviderCreator[] ) => {
 			return providers.map( creator => withRoomLimit( creator, config.maxPeersPerRoom ) );
 		},
@@ -43,7 +44,7 @@ function registerRoomLimitFilter(): void {
 
 	addFilter(
 		'sync.pollingProvider.maxClientsPerRoom',
-		'wpcom/rtc-disable-builtin-limit',
+		'jetpack/rtc-disable-builtin-limit',
 		() => Number.MAX_SAFE_INTEGER
 	);
 }
@@ -59,13 +60,13 @@ if ( enableLimitNotices ) {
 const RtcNoticesPlugin = () => {
 	return (
 		<>
-			<RtcWelcomeNotice />
+			{ enableWelcomeNotice && <RtcWelcomeNotice /> }
 			{ enableLimitNotices && <RtcAdminSomeoneWaitingNotice /> }
 			{ enableLimitNotices && <RtcNonAdminPostUpgradeNotice /> }
 		</>
 	);
 };
 
-registerPlugin( 'wpcom-rtc-notices', {
+registerPlugin( 'jetpack-rtc-notices', {
 	render: RtcNoticesPlugin,
 } );

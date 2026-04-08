@@ -30,8 +30,10 @@ interface SyncConnectionErrorModalProps {
 	title: string;
 }
 
+const noop = () => {};
+
 const WpcomSyncConnectionErrorModal: FC< SyncConnectionErrorModalProps > = () => {
-	const config = window.wpcomRtcNotices;
+	const config = window.jetpackRtcNotices;
 	const joinRequestSent = useRef( false );
 
 	// Non-admin: record a join request so the admin gets notified.
@@ -62,24 +64,24 @@ const WpcomSyncConnectionErrorModal: FC< SyncConnectionErrorModalProps > = () =>
 		return (
 			<RtcNoticeModal
 				isOpen={ true }
-				title={ __( 'Allow your team to collaborate', 'jetpack-mu-wpcom' ) }
+				title={ __( 'Allow your team to collaborate', 'jetpack-rtc' ) }
 				description={ __(
 					"Your plan's collaborator limit has been reached. No room for anyone else right now.",
-					'jetpack-mu-wpcom'
+					'jetpack-rtc'
 				) }
 				primaryAction={ {
-					label: __( 'Upgrade to invite your entire team', 'jetpack-mu-wpcom' ),
+					label: __( 'Upgrade to invite your entire team', 'jetpack-rtc' ),
 					onClick: () => {
 						window.location.href = upgradeUrl;
 					},
 				} }
 				secondaryAction={ {
-					label: __( 'Back to posts', 'jetpack-mu-wpcom' ),
+					label: __( 'Back to posts', 'jetpack-rtc' ),
 					onClick: () => {
 						window.location.href = config.postsListUrl;
 					},
 				} }
-				onRequestClose={ () => {} }
+				onRequestClose={ noop }
 				isDismissible={ false }
 				shouldCloseOnClickOutside={ false }
 				className="rtc-notice-modal--limit-reached"
@@ -90,18 +92,18 @@ const WpcomSyncConnectionErrorModal: FC< SyncConnectionErrorModalProps > = () =>
 	return (
 		<RtcNoticeModal
 			isOpen={ true }
-			title={ __( "You can't edit this together yet", 'jetpack-mu-wpcom' ) }
+			title={ __( "You can't edit this together yet", 'jetpack-rtc' ) }
 			description={ __(
 				"Your team is already editing this post and the collaborator limit has been reached. We've notified your admin so they can make room.",
-				'jetpack-mu-wpcom'
+				'jetpack-rtc'
 			) }
 			primaryAction={ {
-				label: __( 'Back to posts', 'jetpack-mu-wpcom' ),
+				label: __( 'Back to posts', 'jetpack-rtc' ),
 				onClick: () => {
 					window.location.href = config.postsListUrl;
 				},
 			} }
-			onRequestClose={ () => {} }
+			onRequestClose={ noop }
 			isDismissible={ false }
 			shouldCloseOnClickOutside={ false }
 			className="rtc-notice-modal--limit-reached"

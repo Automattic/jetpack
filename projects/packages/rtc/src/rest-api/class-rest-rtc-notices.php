@@ -8,14 +8,22 @@
  * - Join requests: when a non-admin is blocked by the collaborator limit,
  *   their browser records a join request so the admin can be notified.
  *
- * @package automattic/jetpack-mu-wpcom
+ * @package automattic/jetpack-rtc
  */
+
+namespace Automattic\Jetpack\RTC;
+
+use WP_REST_Controller;
+use WP_REST_Request;
+use WP_REST_Response;
+use WP_REST_Server;
 
 /**
- * Class WP_REST_RTC_Notices
+ * Class REST_RTC_Notices
  */
-class WP_REST_RTC_Notices extends WP_REST_Controller {
+class REST_RTC_Notices extends WP_REST_Controller {
 
+	// Kept as wpcom_* for backward compatibility with existing user meta.
 	const OPTION_KEY          = 'wpcom_rtc_welcome_notice_dismissed';
 	const JOIN_REQUEST_OPTION = 'rtc_pending_join_requests';
 
@@ -108,17 +116,17 @@ class WP_REST_RTC_Notices extends WP_REST_Controller {
 	 * Check if the current user can edit the post specified in the request.
 	 *
 	 * @param WP_REST_Request $request The request.
-	 * @return bool|WP_Error
+	 * @return bool|\WP_Error
 	 */
 	public function check_edit_post_permission( $request ) {
 		$post_id = $request->get_param( 'post_id' );
 
 		if ( ! get_post( $post_id ) ) {
-			return new \WP_Error( 'rest_post_invalid_id', __( 'Invalid post ID.', 'jetpack-mu-wpcom' ), array( 'status' => 404 ) );
+			return new \WP_Error( 'rest_post_invalid_id', __( 'Invalid post ID.', 'jetpack-rtc' ), array( 'status' => 404 ) );
 		}
 
 		if ( ! current_user_can( 'edit_post', $post_id ) ) {
-			return new \WP_Error( 'rest_forbidden', __( 'Sorry, you are not allowed to edit this post.', 'jetpack-mu-wpcom' ), array( 'status' => 403 ) );
+			return new \WP_Error( 'rest_forbidden', __( 'Sorry, you are not allowed to edit this post.', 'jetpack-rtc' ), array( 'status' => 403 ) );
 		}
 
 		return true;
@@ -128,7 +136,7 @@ class WP_REST_RTC_Notices extends WP_REST_Controller {
 	 * Check if the current user is an admin who can edit the post.
 	 *
 	 * @param WP_REST_Request $request The request.
-	 * @return bool|WP_Error
+	 * @return bool|\WP_Error
 	 */
 	public function check_admin_edit_post_permission( $request ) {
 		if ( ! current_user_can( 'manage_options' ) ) {

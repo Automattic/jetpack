@@ -25,7 +25,7 @@ interface SyncConnectionStatus {
 }
 
 const RtcWelcomeNotice = () => {
-	const config = window.wpcomRtcNotices;
+	const config = window.jetpackRtcNotices;
 
 	const [ isDismissed, setIsDismissed ] = useState( config?.welcomeDismissed ?? true );
 	const [ isReady, setIsReady ] = useState( false );
@@ -80,13 +80,13 @@ const RtcWelcomeNotice = () => {
 	return (
 		<RtcNoticeModal
 			isOpen={ ! isDismissed }
-			title={ __( 'Edit posts together, in real time', 'jetpack-mu-wpcom' ) }
+			title={ __( 'Edit posts together, in real time', 'jetpack-rtc' ) }
 			description={ __(
 				"You can now edit posts with others at the same time. See each other's changes instantly, right in the WordPress editor. Have fun, and if you have questions or feedback reach out to our support team.",
-				'jetpack-mu-wpcom'
+				'jetpack-rtc'
 			) }
 			primaryAction={ {
-				label: __( 'Start editing together', 'jetpack-mu-wpcom' ),
+				label: __( 'Start editing together', 'jetpack-rtc' ),
 				onClick: dismissNotice,
 			} }
 			onRequestClose={ dismissNotice }

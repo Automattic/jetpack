@@ -1,5 +1,5 @@
 import { addFilter } from '@wordpress/hooks';
-import { createPingHubProvider } from './providers/pinghub';
+import { createPingHubProvider } from './pinghub';
 
 /**
  * Register providers (e.g. PingHub) supplied by the server, and disable HTTP polling by returning only this provider.
