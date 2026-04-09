@@ -440,6 +440,64 @@ class Feedback_Legacy_Compatibility_Test extends BaseTestCase {
 		$this->assertTrue( $found_colors, 'Extra values should contain the checkbox-multiple array value' );
 	}
 
+	/**
+	 * Legacy v1 feedback stores checkbox-multiple values as JSON arrays in
+	 * post_content. When loaded, these become Feedback_Field objects with
+	 * type 'basic' (not 'checkbox-multiple') and an array value.
+	 *
+	 * Verify the full array is preserved through get_legacy_extra_values()
+	 * and not flattened to just the first element by the reset() guard.
+	 */
+	public function test_legacy_v1_checkbox_multiple_array_preserved() {
+		// In legacy v1 format, checkbox-multiple values are stored as JSON arrays.
+		// When loaded via process_legacy_values(), the field type becomes 'basic'.
+		$post_id = Utility::create_legacy_feedback(
+			array(
+				'1_Colors'  => array( 'red', 'blue', 'green' ),
+				'2_Name'    => 'Test User',
+				'3_Comment' => 'Hello world',
+			)
+		);
+
+		$response = Feedback::get( $post_id );
+		$this->assertInstanceOf( Feedback::class, $response );
+
+		// The array value should survive the round-trip through legacy format.
+		// In default context, get_render_default_value() implodes arrays to strings.
+		$value_default = $response->get_field_value_by_label( 'Colors', 'default' );
+		$this->assertEquals( 'red, blue, green', $value_default, 'Legacy v1 checkbox-multiple should be imploded in default context' );
+
+		// In submit context, get_render_submit_value() returns the raw value.
+		$value_submit = $response->get_field_value_by_label( 'Colors', 'submit' );
+		$this->assertIsArray( $value_submit, 'Legacy v1 checkbox-multiple should remain an array in submit context' );
+		$this->assertEquals( array( 'red', 'blue', 'green' ), $value_submit, 'Legacy v1 checkbox-multiple should preserve all values' );
+
+		// get_legacy_extra_values should not flatten the array via reset().
+		$extra_values_submit = $response->get_legacy_extra_values( 'submit' );
+		$this->assertIsArray( $extra_values_submit, 'get_legacy_extra_values(submit) should work with legacy checkbox-multiple' );
+
+		// The field should appear in extra values with all array items intact.
+		$found_colors = false;
+		foreach ( $extra_values_submit as $value ) {
+			if ( is_array( $value ) && $value === array( 'red', 'blue', 'green' ) ) {
+				$found_colors = true;
+				break;
+			}
+		}
+		$this->assertTrue( $found_colors, 'Legacy v1 checkbox-multiple array should not be flattened to first element' );
+
+		// Also verify default context preserves the imploded string.
+		$extra_values_default = $response->get_legacy_extra_values( 'default' );
+		$found_colors_string  = false;
+		foreach ( $extra_values_default as $value ) {
+			if ( $value === 'red, blue, green' ) {
+				$found_colors_string = true;
+				break;
+			}
+		}
+		$this->assertTrue( $found_colors_string, 'Legacy v1 checkbox-multiple should appear as imploded string in default context extra values' );
+	}
+
 	public function test_escape_legacy_v2_special_characters_handeling() {
 		$post_id = Utility::create_legacy_feedback_v2(
 			array(
