@@ -772,21 +772,32 @@ class ManagerIntegrationTest extends \WorDBless\BaseTestCase {
 			}
 		};
 
-		// This should fire jetpack_external_storage_provider_registered,
-		// which resets the memoized is_connected value.
-		External_Storage::register_provider( $provider );
+		try {
+			// This should fire jetpack_external_storage_provider_registered,
+			// which resets the memoized is_connected value.
+			External_Storage::register_provider( $provider );
 
-		// Next call should re-evaluate with the provider and return true.
-		$this->assertTrue( $this->manager->is_connected() );
+			// Next call should re-evaluate with the provider and return true.
+			$this->assertTrue( $this->manager->is_connected() );
+		} finally {
+			// Clean up: remove provider and reset init_fired.
+			$reflection = new \ReflectionClass( External_Storage::class );
 
-		// Clean up: remove provider.
-		$reflection = new \ReflectionClass( External_Storage::class );
-		$prop       = $reflection->getProperty( 'provider' );
-		// @todo Remove this call once we no longer need to support PHP <8.1.
-		if ( PHP_VERSION_ID < 80100 ) {
-			$prop->setAccessible( true );
+			$prop = $reflection->getProperty( 'provider' );
+			// @todo Remove this call once we no longer need to support PHP <8.1.
+			if ( PHP_VERSION_ID < 80100 ) {
+				$prop->setAccessible( true );
+			}
+			$prop->setValue( null, null );
+
+			$init_fired = $reflection->getProperty( 'init_fired' );
+			// @todo Remove this call once we no longer need to support PHP <8.1.
+			if ( PHP_VERSION_ID < 80100 ) {
+				$init_fired->setAccessible( true );
+			}
+			$init_fired->setValue( null, false );
+
+			$this->reset_connection_status();
 		}
-		$prop->setValue( null, null );
-		$this->reset_connection_status();
 	}
 }

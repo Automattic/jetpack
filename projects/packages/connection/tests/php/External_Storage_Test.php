@@ -49,6 +49,10 @@ class External_Storage_Test extends TestCase {
 			$init_fired_property->setAccessible( true );
 		}
 		$init_fired_property->setValue( null, false );
+
+		// Remove any action callbacks added during tests
+		remove_all_filters( 'jetpack_external_storage_init' );
+		remove_all_filters( 'jetpack_external_storage_provider_registered' );
 	}
 
 	/**
@@ -274,8 +278,6 @@ class External_Storage_Test extends TestCase {
 
 		External_Storage::get_value( 'blog_token' );
 		$this->assertSame( 1, $fired, 'Init action should not fire again on subsequent calls' );
-
-		remove_all_filters( 'jetpack_external_storage_init' );
 	}
 
 	/**
@@ -306,8 +308,6 @@ class External_Storage_Test extends TestCase {
 
 		$value = External_Storage::get_value( 'id' );
 		$this->assertSame( 12345, $value, 'Provider registered during init action should serve the triggering read' );
-
-		remove_all_filters( 'jetpack_external_storage_init' );
 	}
 
 	/**
@@ -339,7 +339,5 @@ class External_Storage_Test extends TestCase {
 
 		External_Storage::register_provider( $provider );
 		$this->assertSame( $provider, $received_provider, 'Registered action should pass the provider instance' );
-
-		remove_all_filters( 'jetpack_external_storage_provider_registered' );
 	}
 }
