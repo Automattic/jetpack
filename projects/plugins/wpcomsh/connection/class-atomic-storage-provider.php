@@ -19,6 +19,34 @@ if ( interface_exists( 'Automattic\Jetpack\Connection\Storage_Provider_Interface
 	class Atomic_Storage_Provider implements \Automattic\Jetpack\Connection\Storage_Provider_Interface {
 
 		/**
+		 * Cached Atomic_Persistent_Data instance (immutable within a request).
+		 *
+		 * @var \Atomic_Persistent_Data|null
+		 */
+		private $persistent_data = null;
+
+		/**
+		 * Cached WP_User resolved from the connection owner email.
+		 *
+		 * @var \WP_User|null
+		 */
+		private $resolved_user = null;
+
+		/**
+		 * The email address that produced $resolved_user.
+		 *
+		 * @var string|null
+		 */
+		private $resolved_email = null;
+
+		/**
+		 * Re-entrancy guard: true while reading tokens from the DB via the cached path.
+		 *
+		 * @var bool
+		 */
+		private $is_reading_tokens_from_db = false;
+
+		/**
 		 * Check if Atomic Persistent Data is available in current environment.
 		 *
 		 * @return bool True if available, false otherwise.
@@ -34,7 +62,10 @@ if ( interface_exists( 'Automattic\Jetpack\Connection\Storage_Provider_Interface
 		 * @return bool True if this provider should handle the option.
 		 */
 		public function should_handle( $option_name ) {
-			// Handle blog connection data by default
+			if ( 'user_tokens' === $option_name && $this->is_reading_tokens_from_db ) {
+				return false;
+			}
+
 			return in_array( $option_name, array( 'blog_token', 'id', 'master_user', 'user_tokens' ), true );
 		}
 
@@ -45,7 +76,10 @@ if ( interface_exists( 'Automattic\Jetpack\Connection\Storage_Provider_Interface
 		 * @return mixed The option value, or null if not found.
 		 */
 		public function get( $option_name ) {
-			$persistent_data = new Atomic_Persistent_Data();
+			if ( null === $this->persistent_data ) {
+				$this->persistent_data = new Atomic_Persistent_Data();
+			}
+			$persistent_data = $this->persistent_data;
 
 			switch ( $option_name ) {
 				case 'blog_token':
@@ -126,6 +160,38 @@ if ( interface_exists( 'Automattic\Jetpack\Connection\Storage_Provider_Interface
 		}
 
 		/**
+		 * Resolve a WP_User from an email address, caching the result for the request.
+		 *
+		 * Guarantees at most one DB lookup per email per request, regardless of
+		 * object-cache state. Both get_master_user_id() and get_user_tokens() use
+		 * the same owner email, so this deduplicates the query and validation.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param string $email The user email.
+		 * @return \WP_User|null The user object, or null if not found/invalid.
+		 */
+		private function resolve_user_by_email( $email ) {
+			if ( $email === $this->resolved_email ) {
+				return $this->resolved_user;
+			}
+
+			$this->resolved_email = $email;
+			$this->resolved_user  = null;
+
+			if ( ! function_exists( 'get_user_by' ) || empty( $email ) || ! is_email( $email ) ) {
+				return null;
+			}
+
+			$user = get_user_by( 'email', $email );
+			if ( $user instanceof \WP_User ) {
+				$this->resolved_user = $user;
+			}
+
+			return $this->resolved_user;
+		}
+
+		/**
 		 * Get the master user id from email.
 		 *
 		 * @since 9.0.0
@@ -134,20 +200,8 @@ if ( interface_exists( 'Automattic\Jetpack\Connection\Storage_Provider_Interface
 		 * @return int|bool The master user id or false if not found.
 		 */
 		public function get_master_user_id( $email ) {
-			// Ensure WordPress core functions are loaded
-			if ( ! function_exists( 'get_user_by' ) || empty( $email ) ) {
-				return false;
-			}
-
-			if ( ! is_email( $email ) ) {
-				return false;
-			}
-
-			$user = get_user_by( 'email', $email );
-			if ( ! $user instanceof \WP_User ) {
-				return false;
-			}
-			return $user->ID;
+			$user = $this->resolve_user_by_email( $email );
+			return $user ? $user->ID : false;
 		}
 
 		/**
@@ -232,20 +286,17 @@ if ( interface_exists( 'Automattic\Jetpack\Connection\Storage_Provider_Interface
 				// Re-apply cleanup to latest tokens (might find no conflicts now if state changed)
 				$latest_result = $this->remove_conflicting_tokens( $latest_tokens, $normalized_token, $user_id );
 
-				// Write the cleaned latest state
-				$latest_options['user_tokens'] = $latest_result['tokens'];
-				\Jetpack_Options::update_raw_option( 'jetpack_private_options', $latest_options, false );
+				if ( $latest_result['had_conflicts'] ) {
+					$latest_options['user_tokens'] = $latest_result['tokens'];
+					\Jetpack_Options::update_raw_option( 'jetpack_private_options', $latest_options, false );
 
-				// Also clear master_user from database since connection owner data has changed
-				// External storage will provide the correct value on next read
-				\Jetpack_Options::delete_option( 'master_user' );
+					\Jetpack_Options::delete_option( 'master_user' );
 
-				// Clear object cache to ensure cached values are invalidated
-				wp_cache_delete( 'alloptions', 'options' );
-				wp_cache_delete( 'jetpack_options', 'options' );
-				wp_cache_delete( 'jetpack_private_options', 'options' );
+					wp_cache_delete( 'alloptions', 'options' );
+					wp_cache_delete( 'jetpack_options', 'options' );
+					wp_cache_delete( 'jetpack_private_options', 'options' );
+				}
 
-				// Return what we actually wrote to the database
 				return $latest_result['tokens'];
 			}
 
@@ -263,19 +314,12 @@ if ( interface_exists( 'Automattic\Jetpack\Connection\Storage_Provider_Interface
 		 * @return array|false The user tokens array or false if not found/invalid.
 		 */
 		public function get_user_tokens( $email, $secret ) {
-			// Validate input
 			if ( empty( $email ) || empty( $secret ) ) {
 				return false;
 			}
 
-			// Ensure WordPress core functions are loaded
-			if ( ! function_exists( 'get_user_by' ) || ! is_email( $email ) ) {
-				return false;
-			}
-
-			// Get user by email
-			$user = get_user_by( 'email', $email );
-			if ( ! $user instanceof \WP_User ) {
+			$user = $this->resolve_user_by_email( $email );
+			if ( ! $user ) {
 				return false;
 			}
 
@@ -286,11 +330,20 @@ if ( interface_exists( 'Automattic\Jetpack\Connection\Storage_Provider_Interface
 			// We need to append LOCAL user_id to make it 3 parts for Jetpack validation
 			$normalized_token = $secret . '.' . $user_id;
 
-			// Get existing tokens from database (bypass external storage to avoid circular dependency)
-			$private_options = \Jetpack_Options::get_raw_option( 'jetpack_private_options', array() );
-			$existing_tokens = isset( $private_options['user_tokens'] ) && is_array( $private_options['user_tokens'] )
-				? $private_options['user_tokens']
-				: array();
+			// Read existing tokens via the autoloaded-options cache instead of a raw
+			// DB query.  The re-entrancy guard makes should_handle('user_tokens')
+			// return false so Jetpack_Options::get_option() falls through to the
+			// normal WP get_option() path which is already in memory.
+			$this->is_reading_tokens_from_db = true;
+			try {
+				$existing_tokens = \Jetpack_Options::get_option( 'user_tokens', array() );
+			} finally {
+				$this->is_reading_tokens_from_db = false;
+			}
+
+			if ( ! is_array( $existing_tokens ) ) {
+				$existing_tokens = array();
+			}
 
 			// Validate tokens and clean up if there's a mismatch
 			if ( ! empty( $existing_tokens ) ) {
