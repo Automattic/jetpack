@@ -36,9 +36,11 @@ export function LaunchButton( { onCelebrationModalClose } ) {
 	const [ , data ] = useExperimentWithAuth( 'calypso_standardized_site_launch_gating' );
 	const [ showCelebrateLaunchModal, setShowCelebrateLaunchModal ] = useState( false );
 
-	const { mutate: launchSite, isPending } = useLaunchSiteMutation( launchButtonData.blogId, () =>
-		setShowCelebrateLaunchModal( true )
-	);
+	const {
+		mutate: launchSite,
+		isPending,
+		isSuccess,
+	} = useLaunchSiteMutation( launchButtonData.blogId, () => setShowCelebrateLaunchModal( true ) );
 
 	// Default experience. Markup should match what's coming from the back-end.
 	if ( ! data || data.variationName !== 'ungated_site_launch' ) {
@@ -69,17 +71,25 @@ export function LaunchButton( { onCelebrationModalClose } ) {
 
 	return (
 		<>
-			<a
-				className={ `ab-item${ isPending ? ' is-busy' : '' }` }
-				role="menuitem"
-				href="#"
-				onClick={ handleLaunchClick }
-				aria-disabled={ isPending }
-			>
-				<Content />
-			</a>
+			{ ! isSuccess && (
+				<a
+					className={ `ab-item${ isPending ? ' is-busy' : '' }` }
+					role="menuitem"
+					href="#"
+					onClick={ handleLaunchClick }
+					aria-disabled={ isPending }
+				>
+					<Content />
+				</a>
+			) }
 			{ showCelebrateLaunchModal && (
-				<CelebrateLaunchModal { ...launchButtonData } onRequestClose={ onCelebrationModalClose } />
+				<CelebrateLaunchModal
+					{ ...launchButtonData }
+					onRequestClose={ () => {
+						setShowCelebrateLaunchModal( false );
+						onCelebrationModalClose();
+					} }
+				/>
 			) }
 		</>
 	);

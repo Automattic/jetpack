@@ -28,35 +28,53 @@ class Dashboard {
 	 * This is for the new DataViews-based responses list.
 	 */
 	public static function load_wp_build() {
-		if ( self::get_admin_query_page() === self::FORMS_WPBUILD_ADMIN_SLUG ) {
-			// When no route path is specified, redirect to the default view
-			// so the client-side router doesn't need a catch-all root route.
-			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			if ( ! isset( $_GET['p'] ) ) {
-				$default_tab = Contact_Form_Plugin::has_editor_feature_flag( 'central-form-management' )
-					? 'forms'
-					: 'inbox';
+		// Always load for the standalone Forms page.
+		$should_load = self::get_admin_query_page() === self::FORMS_WPBUILD_ADMIN_SLUG;
 
-				wp_safe_redirect( self::get_forms_admin_url( $default_tab ) );
+		/**
+		 * Filter whether to load the wp-build asset registrations.
+		 * Host applications (e.g., CIAB) can return true to opt in.
+		 *
+		 * @param bool $should_load Whether build.php should be loaded.
+		 */
+		$should_load = apply_filters( 'jetpack_forms_load_wp_build', $should_load );
 
-				exit;
-			}
-
-			// Register polyfills for WP < 7.0 (must run before build.php).
-			WP_Build_Polyfills::register(
-				'jetpack-forms',
-				array_merge(
-					WP_Build_Polyfills::SCRIPT_HANDLES,
-					WP_Build_Polyfills::MODULE_IDS
-				)
-			);
-
-			$wp_build_index = dirname( __DIR__, 2 ) . '/build/build.php';
-
-			if ( file_exists( $wp_build_index ) ) {
-				require_once $wp_build_index;
-			}
+		if ( ! $should_load ) {
+			return;
 		}
+
+		$wp_build_index = dirname( __DIR__, 2 ) . '/build/build.php';
+
+		if ( file_exists( $wp_build_index ) ) {
+			require_once $wp_build_index;
+		}
+
+		// The remaining setup only applies to the standalone Forms page.
+		if ( self::get_admin_query_page() !== self::FORMS_WPBUILD_ADMIN_SLUG ) {
+			return;
+		}
+
+		// When no route path is specified, redirect to the default view
+		// so the client-side router doesn't need a catch-all root route.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( ! isset( $_GET['p'] ) ) {
+			$default_tab = Contact_Form_Plugin::has_editor_feature_flag( 'central-form-management' )
+				? 'forms'
+				: 'inbox';
+
+			wp_safe_redirect( self::get_forms_admin_url( $default_tab ) );
+
+			exit;
+		}
+
+		// Register polyfills for WP < 7.0 (must run before enqueue).
+		WP_Build_Polyfills::register(
+			'jetpack-forms',
+			array_merge(
+				WP_Build_Polyfills::SCRIPT_HANDLES,
+				WP_Build_Polyfills::MODULE_IDS
+			)
+		);
 	}
 
 	/**

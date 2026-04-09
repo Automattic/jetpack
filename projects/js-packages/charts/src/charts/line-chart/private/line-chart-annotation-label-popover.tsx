@@ -1,6 +1,6 @@
 import { __ } from '@wordpress/i18n';
+import { Icon, close } from '@wordpress/icons';
 import clsx from 'clsx';
-import Gridicon from 'gridicons';
 import { useEffect, useId, useRef, useState } from 'react';
 import { isSafari } from '../../../utils';
 import styles from '../line-chart.module.scss';
@@ -100,7 +100,7 @@ const LineChartAnnotationLabelWithPopover: FC< LineChartAnnotationLabelWithPopov
 						className={ styles[ 'line-chart__annotation-label-popover-close-button' ] }
 						aria-label={ __( 'Close', 'jetpack-charts' ) }
 					>
-						<Gridicon icon="cross" size={ 16 } />
+						<Icon icon={ close } size={ 16 } />
 					</button>
 				</div>
 			</div>
