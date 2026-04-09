@@ -300,6 +300,8 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 		return (
 			<Stack
 				direction="column"
+				align="center"
+				justify="center"
 				data-testid="conversion-funnel-chart"
 				className={ clsx(
 					styles[ 'conversion-funnel-chart' ],
