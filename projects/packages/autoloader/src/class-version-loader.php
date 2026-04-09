@@ -35,13 +35,6 @@ class Version_Loader {
 	private $filemap;
 
 	/**
-	 * Cache: resolved and unresolved classes.
-	 *
-	 * @var array<string,mixed>
-	 */
-	private $resolved_classes = array();
-
-	/**
 	 * The constructor.
 	 *
 	 * @param Version_Selector $version_selector The Version_Selector object.
@@ -84,17 +77,15 @@ class Version_Loader {
 	 * @return string|null $file_path The path to the file if found, null if no class was found.
 	 */
 	public function find_class_file( $class_name ) {
-		// Prevent repeated attempts to load non-existent classes during class existence checks.
-		// These attempts occur when extensions perform compatibility and integration checks.
-		if ( ! array_key_exists( $class_name, $this->resolved_classes ) ) {
 			$data                                  = $this->select_newest_file(
 				$this->classmap[ $class_name ] ?? null,
 				$this->find_psr4_file( $class_name )
 			);
-			$this->resolved_classes[ $class_name ] = $data['path'] ?? null;
+		if ( ! isset( $data ) ) {
+			return null;
 		}
 
-		return $this->resolved_classes[ $class_name ];
+		return $data['path'];
 	}
 
 	/**
