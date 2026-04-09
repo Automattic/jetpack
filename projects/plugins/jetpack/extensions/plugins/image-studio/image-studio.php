@@ -35,13 +35,7 @@ const ASSET_TRANSIENT        = 'jetpack_image_studio_asset';
  * @return bool
  */
 function is_image_studio_enabled() {
-	if ( is_big_sky_enabled() ) {
-		$enabled = true;
-	} elseif ( ! has_jetpack_ai_features() ) {
-		$enabled = false;
-	} else {
-		$enabled = true;
-	}
+	$enabled = is_big_sky_enabled() || has_jetpack_ai_features();
 
 	/**
 	 * Filter whether Image Studio is available.
