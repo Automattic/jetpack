@@ -36,6 +36,100 @@ class Feedback {
 	public const STATUS_READ = 'closed';
 
 	/**
+	 * Meta key used to store the source post ID on feedback posts.
+	 *
+	 * @var string
+	 */
+	public const SOURCE_META_KEY = '_feedback_source_post_id';
+
+	/**
+	 * Cache key for the source post IDs list.
+	 *
+	 * @var string
+	 */
+	private const SOURCE_IDS_CACHE_KEY = 'jetpack_forms_source_post_ids';
+
+	/**
+	 * Cache group for forms data.
+	 *
+	 * @var string
+	 */
+	private const CACHE_GROUP = 'jetpack_forms';
+
+	/**
+	 * Returns all distinct source post IDs for feedback entries.
+	 *
+	 * Uses the _feedback_source_post_id meta for new feedback, with a fallback
+	 * to post_parent for old feedback that doesn't have the meta yet (excluding
+	 * jetpack_form parents).
+	 *
+	 * @return array Array of unique source post IDs.
+	 */
+	public static function get_all_source_post_ids() {
+		$source_ids = wp_cache_get( self::SOURCE_IDS_CACHE_KEY, self::CACHE_GROUP );
+
+		if ( false !== $source_ids ) {
+			return $source_ids;
+		}
+
+		global $wpdb;
+
+		$meta_key     = self::SOURCE_META_KEY;
+		$statuses     = array( 'draft', 'publish', 'spam', 'trash' );
+		$placeholders = implode( ',', array_fill( 0, count( $statuses ), '%s' ) );
+
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
+		$source_ids = $wpdb->get_col(
+			$wpdb->prepare(
+				"SELECT DISTINCT source_id FROM (
+					SELECT CAST(pm.meta_value AS UNSIGNED) AS source_id
+					FROM {$wpdb->postmeta} pm
+					INNER JOIN {$wpdb->posts} p ON p.ID = pm.post_id
+					WHERE pm.meta_key = %s
+					AND p.post_type = 'feedback'
+					AND p.post_status IN ({$placeholders})
+					AND pm.meta_value != '0' AND pm.meta_value != ''
+				UNION
+					SELECT p.post_parent AS source_id
+					FROM {$wpdb->posts} p
+					LEFT JOIN {$wpdb->postmeta} pm ON pm.post_id = p.ID AND pm.meta_key = %s
+					LEFT JOIN {$wpdb->posts} parent_post ON parent_post.ID = p.post_parent
+					WHERE p.post_type = 'feedback'
+					AND p.post_status IN ({$placeholders})
+					AND p.post_parent > 0
+					AND pm.meta_id IS NULL
+					AND (parent_post.post_type IS NULL OR parent_post.post_type != %s)
+				) AS combined_sources",
+				array_merge(
+					array( $meta_key ),
+					$statuses,
+					array( $meta_key ),
+					$statuses,
+					array( Contact_Form::POST_TYPE )
+				)
+			)
+		);
+		// phpcs:enable
+
+		$source_ids = array_map( 'intval', $source_ids );
+		wp_cache_set( self::SOURCE_IDS_CACHE_KEY, $source_ids, self::CACHE_GROUP );
+
+		return $source_ids;
+	}
+
+	/**
+	 * Invalidates the source post IDs cache when a feedback post is deleted.
+	 *
+	 * @param int      $post_id The deleted post ID.
+	 * @param \WP_Post $post    The deleted post object.
+	 */
+	public static function invalidate_source_ids_cache_on_delete( $post_id, $post ) {
+		if ( $post->post_type === self::POST_TYPE ) {
+			wp_cache_delete( self::SOURCE_IDS_CACHE_KEY, self::CACHE_GROUP );
+		}
+	}
+
+	/**
 	 * The form field values.
 	 *
 	 * @var array
@@ -1344,6 +1438,13 @@ class Feedback {
 				'comment_status' => self::STATUS_UNREAD, // New feedback is unread by default.
 			)
 		);
+
+		// Store source post ID as meta for queryable source filtering.
+		$source_id = $this->source->get_id();
+		if ( is_numeric( $post_id ) && (int) $post_id > 0 && is_numeric( $source_id ) && (int) $source_id > 0 ) {
+			update_post_meta( $post_id, self::SOURCE_META_KEY, (int) $source_id );
+			wp_cache_delete( self::SOURCE_IDS_CACHE_KEY, self::CACHE_GROUP );
+		}
 
 		// If this feedback does not have a jetpack_form parent,
 		// it's a classic form — mark the state accordingly.

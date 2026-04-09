@@ -1290,4 +1290,177 @@ JSON_DATA{"1_name":"Test Author","2_email":"author@example.com","3_file":{"field
 		$this->assertArrayHasKey( 'logged_in_user', $data );
 		$this->assertNull( $data['logged_in_user'] );
 	}
+
+	/**
+	 * Test that the source parameter is registered in the feedback collection schema.
+	 */
+	public function test_source_parameter_is_registered() {
+		$request  = new WP_REST_Request( 'OPTIONS', '/wp/v2/feedback' );
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+
+		$this->assertArrayHasKey( 'source', $data['endpoints'][0]['args'] );
+		$this->assertEquals( 'integer', $data['endpoints'][0]['args']['source']['type'] );
+	}
+
+	/**
+	 * Test that the source parameter is registered in the counts endpoint.
+	 */
+	public function test_source_parameter_is_registered_in_counts() {
+		$request  = new WP_REST_Request( 'OPTIONS', '/wp/v2/feedback/counts' );
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+
+		$this->assertArrayHasKey( 'source', $data['endpoints'][0]['args'] );
+		$this->assertEquals( 'integer', $data['endpoints'][0]['args']['source']['type'] );
+	}
+
+	/**
+	 * Test that the source filter accepts a valid source parameter without error.
+	 */
+	public function test_source_filter_returns_200() {
+		$request = new WP_REST_Request( 'GET', '/wp/v2/feedback' );
+		$request->set_param( 'source', 123 );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 200, $response->get_status() );
+	}
+
+	/**
+	 * Test that the counts endpoint accepts source parameter without error.
+	 */
+	public function test_counts_with_source_returns_200() {
+		$request = new WP_REST_Request( 'GET', '/wp/v2/feedback/counts' );
+		$request->set_param( 'source', 123 );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 200, $response->get_status() );
+		$data = $response->get_data();
+		$this->assertArrayHasKey( 'inbox', $data );
+		$this->assertArrayHasKey( 'spam', $data );
+		$this->assertArrayHasKey( 'trash', $data );
+	}
+
+	/**
+	 * Test that SOURCE_META_KEY constant is defined on Feedback class.
+	 */
+	public function test_source_meta_key_constant_exists() {
+		$this->assertEquals( '_feedback_source_post_id', Feedback::SOURCE_META_KEY );
+	}
+
+	/**
+	 * Test that the source filter returns only feedback matching the source post ID.
+	 */
+	public function test_source_filter_returns_matching_feedback() {
+		$source_a = wp_insert_post(
+			array(
+				'post_type'   => 'page',
+				'post_status' => 'publish',
+				'post_title'  => 'Page A',
+			)
+		);
+		$source_b = wp_insert_post(
+			array(
+				'post_type'   => 'page',
+				'post_status' => 'publish',
+				'post_title'  => 'Page B',
+			)
+		);
+
+		// Feedback with source meta pointing to page A.
+		$fb_a = wp_insert_post(
+			array(
+				'post_type'      => 'feedback',
+				'post_status'    => 'publish',
+				'post_title'     => 'Feedback from Page A',
+				'comment_status' => 'open',
+			)
+		);
+		update_post_meta( $fb_a, Feedback::SOURCE_META_KEY, $source_a );
+
+		// Feedback with source meta pointing to page B.
+		$fb_b = wp_insert_post(
+			array(
+				'post_type'      => 'feedback',
+				'post_status'    => 'publish',
+				'post_title'     => 'Feedback from Page B',
+				'comment_status' => 'open',
+			)
+		);
+		update_post_meta( $fb_b, Feedback::SOURCE_META_KEY, $source_b );
+
+		// Filter by source A — should only return feedback A.
+		$request = new WP_REST_Request( 'GET', '/wp/v2/feedback' );
+		$request->set_param( 'source', $source_a );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 200, $response->get_status() );
+		$data = $response->get_data();
+		$ids  = array_column( $data, 'id' );
+		$this->assertContains( $fb_a, $ids, 'Should include feedback from source A' );
+		$this->assertNotContains( $fb_b, $ids, 'Should not include feedback from source B' );
+	}
+
+	/**
+	 * Test that the source filter falls back to post_parent for old feedback without source meta.
+	 */
+	public function test_source_filter_falls_back_to_post_parent() {
+		$source_page = wp_insert_post(
+			array(
+				'post_type'   => 'page',
+				'post_status' => 'publish',
+				'post_title'  => 'Old Contact Page',
+			)
+		);
+
+		// Old feedback: no source meta, post_parent points to the source page (classic form behavior).
+		$fb_old = wp_insert_post(
+			array(
+				'post_type'      => 'feedback',
+				'post_status'    => 'publish',
+				'post_title'     => 'Old Feedback',
+				'post_parent'    => $source_page,
+				'comment_status' => 'open',
+			)
+		);
+
+		// New feedback on same source: has meta.
+		$fb_new = wp_insert_post(
+			array(
+				'post_type'      => 'feedback',
+				'post_status'    => 'publish',
+				'post_title'     => 'New Feedback',
+				'comment_status' => 'open',
+			)
+		);
+		update_post_meta( $fb_new, Feedback::SOURCE_META_KEY, $source_page );
+
+		// Unrelated feedback on a different page.
+		$other_page = wp_insert_post(
+			array(
+				'post_type'   => 'page',
+				'post_status' => 'publish',
+				'post_title'  => 'Other Page',
+			)
+		);
+		$fb_other   = wp_insert_post(
+			array(
+				'post_type'      => 'feedback',
+				'post_status'    => 'publish',
+				'post_title'     => 'Other Feedback',
+				'post_parent'    => $other_page,
+				'comment_status' => 'open',
+			)
+		);
+
+		$request = new WP_REST_Request( 'GET', '/wp/v2/feedback' );
+		$request->set_param( 'source', $source_page );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 200, $response->get_status() );
+		$ids = array_column( $response->get_data(), 'id' );
+		$this->assertContains( $fb_old, $ids, 'Should include old feedback via post_parent fallback' );
+		$this->assertContains( $fb_new, $ids, 'Should include new feedback via source meta' );
+		$this->assertNotContains( $fb_other, $ids, 'Should not include feedback from a different source' );
+	}
 }
