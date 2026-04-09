@@ -1113,7 +1113,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 	 * @return string Modified JOIN clause.
 	 */
 	public function join_source_meta( $join, $query ) {
-		if ( empty( $this->temp_source_filter_sql ) || 'feedback' !== $query->get( 'post_type' ) ) {
+		if ( empty( $this->temp_source_filter_sql ) || Feedback::POST_TYPE !== $query->get( 'post_type' ) ) {
 			return $join;
 		}
 		return $join . $this->temp_source_filter_sql['join'];
@@ -1127,7 +1127,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 	 * @return string Modified WHERE clause.
 	 */
 	public function filter_by_source_id( $where, $query ) {
-		if ( empty( $this->temp_source_filter_sql ) || 'feedback' !== $query->get( 'post_type' ) ) {
+		if ( empty( $this->temp_source_filter_sql ) || Feedback::POST_TYPE !== $query->get( 'post_type' ) ) {
 			return $where;
 		}
 		return $where . ' AND ' . $this->temp_source_filter_sql['where'];
