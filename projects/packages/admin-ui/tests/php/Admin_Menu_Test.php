@@ -92,6 +92,11 @@ class Admin_Menu_Test extends TestCase {
 		delete_option( 'jetpack_active_plan' );
 		delete_option( 'jetpack_site_products' );
 		update_option( 'jetpack_options', array( 'id' => 123456 ) );
+		$connection = $this->getMockBuilder( 'Automattic\Jetpack\Connection\Manager' )
+			->disableOriginalConstructor()
+			->getMock();
+		$connection->method( 'is_connected' )->willReturn( true );
+		Admin_Menu::set_connection_manager( $connection );
 		wp_dequeue_style( 'jetpack-admin-ui-upgrade-menu' );
 		wp_deregister_style( 'jetpack-admin-ui-upgrade-menu' );
 		wp_dequeue_script( 'jetpack-admin-ui-upgrade-menu' );
@@ -208,6 +213,13 @@ class Admin_Menu_Test extends TestCase {
 	 */
 	public function test_upgrade_menu_item_shown_for_free_plan_admin() {
 		wp_set_current_user( self::$admin_user_id );
+		$connection = $this->getMockBuilder( 'Automattic\Jetpack\Connection\Manager' )
+			->disableOriginalConstructor()
+			->getMock();
+		$connection->expects( $this->once() )
+			->method( 'is_connected' )
+			->willReturn( true );
+		Admin_Menu::set_connection_manager( $connection );
 
 		Admin_Menu::init();
 		do_action( 'admin_menu' );
@@ -373,7 +385,13 @@ class Admin_Menu_Test extends TestCase {
 	 */
 	public function test_upgrade_menu_item_hidden_when_site_not_connected() {
 		wp_set_current_user( self::$admin_user_id );
-		update_option( 'jetpack_options', array() );
+		$connection = $this->getMockBuilder( 'Automattic\Jetpack\Connection\Manager' )
+			->disableOriginalConstructor()
+			->getMock();
+		$connection->expects( $this->once() )
+			->method( 'is_connected' )
+			->willReturn( false );
+		Admin_Menu::set_connection_manager( $connection );
 
 		Admin_Menu::init();
 		do_action( 'admin_menu' );

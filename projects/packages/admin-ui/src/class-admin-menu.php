@@ -50,6 +50,13 @@ class Admin_Menu {
 	private static $menu_items = array();
 
 	/**
+	 * Optional connection manager dependency.
+	 *
+	 * @var object|null
+	 */
+	private static $connection_manager = null;
+
+	/**
 	 * Initialize the class and set up the main hook
 	 *
 	 * @return void
@@ -287,11 +294,26 @@ class Admin_Menu {
 	 * @return bool True if the site has a connected blog ID.
 	 */
 	private static function is_site_connected() {
-		if ( class_exists( '\Automattic\Jetpack\Connection\Manager' ) ) {
-			return (bool) ( new \Automattic\Jetpack\Connection\Manager() )->is_connected();
+		$connection_manager = self::$connection_manager;
+		if ( ! $connection_manager && class_exists( '\Automattic\Jetpack\Connection\Manager' ) ) {
+			$connection_manager = new \Automattic\Jetpack\Connection\Manager();
+		}
+
+		if ( $connection_manager && is_callable( array( $connection_manager, 'is_connected' ) ) ) {
+			return (bool) $connection_manager->is_connected();
 		}
 
 		return false;
+	}
+
+	/**
+	 * Sets the connection manager dependency.
+	 *
+	 * @param object|null $connection_manager Connection manager object.
+	 * @return void
+	 */
+	public static function set_connection_manager( $connection_manager ) {
+		self::$connection_manager = $connection_manager;
 	}
 
 	/**
