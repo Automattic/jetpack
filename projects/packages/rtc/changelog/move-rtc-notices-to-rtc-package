@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Move RTC notices (welcome notice, room-limit enforcement, join requests) from jetpack-mu-wpcom into the rtc package.

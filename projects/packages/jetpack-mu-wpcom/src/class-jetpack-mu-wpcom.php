@@ -397,15 +397,6 @@ class Jetpack_Mu_Wpcom {
 
 		require_once __DIR__ . '/features/gutenberg-rtc/gutenberg-rtc.php';
 		require_once __DIR__ . '/features/wpcom-contact-form-flags/wpcom-contact-form-flags.php';
-
-		/**
-		 * Load features for the editor and the frontend pages.
-		 */
-		global $pagenow;
-		$allowed_pages = array( 'post.php', 'post-new.php', 'site-editor.php' );
-		if ( ( isset( $pagenow ) && in_array( $pagenow, $allowed_pages, true ) ) || ! is_admin() ) {
-			require_once __DIR__ . '/features/gutenberg-rtc-notices/gutenberg-rtc-notices.php';
-		}
 	}
 
 	/**

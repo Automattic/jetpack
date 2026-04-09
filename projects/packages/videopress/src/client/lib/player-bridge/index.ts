@@ -51,7 +51,7 @@ export async function playerBridgeHandler(
 	const { event: eventName } = data;
 
 	// Propagate only allowed events.
-	if ( VIDEOPRESS_ALLOWED_LISTENING_EVENTS.includes( eventName ) ) {
+	if ( VIDEOPRESS_ALLOWED_LISTENING_EVENTS.indexOf( eventName ) !== -1 ) {
 		// Propagate only allowed origins.
 		const allowed_origins: Array< Origin > = [
 			'https://videopress.com',
@@ -64,7 +64,7 @@ export async function playerBridgeHandler(
 		}
 	}
 
-	if ( VIDEOPRESS_ALLOWED_EMITTING_EVENTS.includes( eventName ) ) {
+	if ( VIDEOPRESS_ALLOWED_EMITTING_EVENTS.indexOf( eventName ) !== -1 ) {
 		const videoPressIFrame = document.querySelector( 'iframe' );
 		const videoPressWindow = videoPressIFrame?.contentWindow;
 		if ( ! videoPressWindow ) {

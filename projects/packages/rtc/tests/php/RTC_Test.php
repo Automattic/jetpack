@@ -90,11 +90,11 @@ class RTC_Test extends \WorDBless\BaseTestCase {
 	// -------------------------------------------------------------------------
 
 	/**
-	 * Tests that init always hooks enqueue_assets.
+	 * Tests that init always hooks register_providers.
 	 */
-	public function test_init_hooks_enqueue_assets() {
+	public function test_init_hooks_register_providers() {
 		RTC::init();
-		$this->assertSame( 10, has_action( 'enqueue_block_editor_assets', array( RTC::class, 'enqueue_assets' ) ) );
+		$this->assertSame( 10, has_action( 'enqueue_block_editor_assets', array( RTC::class, 'register_providers' ) ) );
 	}
 
 	/**
@@ -329,13 +329,13 @@ class RTC_Test extends \WorDBless\BaseTestCase {
 	}
 
 	// -------------------------------------------------------------------------
-	// enqueue_assets tests
+	// register_providers tests
 	// -------------------------------------------------------------------------
 
 	/**
-	 * Tests that enqueue skips when http-polling is the only provider.
+	 * Tests that register_providers skips when http-polling is the only provider.
 	 */
-	public function test_enqueue_assets_skips_http_polling_only() {
+	public function test_register_providers_skips_http_polling_only() {
 		add_filter( 'jetpack_rtc_enabled', '__return_true' );
 		RTC::init();
 		add_filter(
@@ -345,15 +345,15 @@ class RTC_Test extends \WorDBless\BaseTestCase {
 			}
 		);
 
-		RTC::enqueue_assets();
+		RTC::register_providers();
 
-		$this->assertFalse( wp_script_is( 'jetpack-rtc', 'enqueued' ) );
+		$this->assertFalse( wp_script_is( 'jetpack-rtc-providers', 'enqueued' ) );
 	}
 
 	/**
 	 * Tests that the script is enqueued when pinghub provider is active.
 	 */
-	public function test_enqueue_assets_enqueues_when_pinghub() {
+	public function test_register_providers_enqueues_when_pinghub() {
 		add_filter( 'jetpack_rtc_enabled', '__return_true' );
 		RTC::init();
 		add_filter(
@@ -363,15 +363,15 @@ class RTC_Test extends \WorDBless\BaseTestCase {
 			}
 		);
 
-		RTC::enqueue_assets();
+		RTC::register_providers();
 
-		$this->assertTrue( wp_script_is( 'jetpack-rtc', 'enqueued' ) );
+		$this->assertTrue( wp_script_is( 'jetpack-rtc-providers', 'enqueued' ) );
 	}
 
 	/**
 	 * Tests that the script is enqueued when multiple providers including non-http-polling are active.
 	 */
-	public function test_enqueue_assets_enqueues_with_multiple_providers() {
+	public function test_register_providers_enqueues_with_multiple_providers() {
 		add_filter( 'jetpack_rtc_enabled', '__return_true' );
 		RTC::init();
 		add_filter(
@@ -381,15 +381,15 @@ class RTC_Test extends \WorDBless\BaseTestCase {
 			}
 		);
 
-		RTC::enqueue_assets();
+		RTC::register_providers();
 
-		$this->assertTrue( wp_script_is( 'jetpack-rtc', 'enqueued' ) );
+		$this->assertTrue( wp_script_is( 'jetpack-rtc-providers', 'enqueued' ) );
 	}
 
 	/**
 	 * Tests that the inline script data does not include pinghubJWTToken when assets are enqueued.
 	 */
-	public function test_enqueue_assets_does_not_include_jwt_token() {
+	public function test_register_providers_does_not_include_jwt_token() {
 		add_filter( 'jetpack_rtc_enabled', '__return_true' );
 		RTC::init();
 		add_filter(
@@ -399,9 +399,9 @@ class RTC_Test extends \WorDBless\BaseTestCase {
 			}
 		);
 
-		RTC::enqueue_assets();
+		RTC::register_providers();
 
-		$handle = 'jetpack-rtc';
+		$handle = 'jetpack-rtc-providers';
 		$this->assertTrue( wp_script_is( $handle, 'enqueued' ) );
 
 		// Ensure the inline script does NOT contain pinghubJWTToken.
@@ -410,16 +410,16 @@ class RTC_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Tests that enqueue skips when RTC is not enabled.
+	 * Tests that register_providers skips when RTC is not enabled.
 	 */
-	public function test_enqueue_assets_skips_when_not_enabled() {
+	public function test_register_providers_skips_when_not_enabled() {
 		// Reset scripts to ensure clean state.
 		global $wp_scripts;
 		$wp_scripts = new \WP_Scripts(); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 
-		RTC::enqueue_assets();
+		RTC::register_providers();
 
-		$this->assertFalse( wp_script_is( 'jetpack-rtc', 'enqueued' ) );
+		$this->assertFalse( wp_script_is( 'jetpack-rtc-providers', 'enqueued' ) );
 	}
 
 	// -------------------------------------------------------------------------

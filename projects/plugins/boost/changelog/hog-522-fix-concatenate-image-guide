@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Image Guide: Fix script errors when JavaScript concatenation is enabled.

@@ -1,0 +1,3 @@
+Significance: patch
+Type: changed
+Comment: Remove an unnecessary wp-polyfill dependency from the player bridge build.

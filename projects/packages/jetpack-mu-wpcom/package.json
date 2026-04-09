@@ -105,7 +105,7 @@
 		"@babel/core": "7.29.0",
 		"@babel/plugin-transform-react-jsx": "7.28.6",
 		"@babel/preset-react": "7.28.5",
-		"@babel/runtime": "7.28.6",
+		"@babel/runtime": "7.29.2",
 		"@lezer/generator": "1.8.0",
 		"@playwright/test": "1.58.2",
 		"@tsconfig/strictest": "2.0.5",
