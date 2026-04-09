@@ -34,7 +34,11 @@ export async function suggestGuidelines( sections, existingContent = {} ) {
 		await delay( 3000 );
 		return {
 			suggestions: Object.fromEntries(
-				sections.map( slug => [ slug, MOCK_SUGGESTIONS[ slug ] || '' ] )
+				sections.map( slug => [
+					slug,
+					MOCK_SUGGESTIONS[ slug ] ||
+						'Use this block to present clear, well-structured content. Keep text concise and focused on a single idea per block. Avoid overly long blocks — break content into smaller, scannable sections when possible.',
+				] )
 			),
 		};
 	}

@@ -232,3 +232,14 @@
 	margin: 0 auto 16px;
 	box-sizing: border-box;
 }
+
+// Block guideline modal — hide textarea when suggestion is active.
+.block-guideline-modal.has-jetpack-suggestion .components-textarea-control {
+	display: none;
+}
+
+// Block modal injected containers — collapse when empty.
+.jetpack-content-guidelines-ai__block-actions-container,
+.jetpack-content-guidelines-ai__block-button-container {
+	display: contents;
+}
