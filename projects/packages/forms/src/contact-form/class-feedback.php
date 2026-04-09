@@ -78,6 +78,8 @@ class Feedback {
 		$statuses     = array( 'draft', 'publish', 'spam', 'trash' );
 		$placeholders = implode( ',', array_fill( 0, count( $statuses ), '%s' ) );
 
+		$post_type = self::POST_TYPE;
+
 		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
 		$source_ids = $wpdb->get_col(
 			$wpdb->prepare(
@@ -86,7 +88,7 @@ class Feedback {
 					FROM {$wpdb->postmeta} pm
 					INNER JOIN {$wpdb->posts} p ON p.ID = pm.post_id
 					WHERE pm.meta_key = %s
-					AND p.post_type = 'feedback'
+					AND p.post_type = %s
 					AND p.post_status IN ({$placeholders})
 					AND pm.meta_value != '0' AND pm.meta_value != ''
 				UNION
@@ -94,16 +96,16 @@ class Feedback {
 					FROM {$wpdb->posts} p
 					LEFT JOIN {$wpdb->postmeta} pm ON pm.post_id = p.ID AND pm.meta_key = %s
 					LEFT JOIN {$wpdb->posts} parent_post ON parent_post.ID = p.post_parent
-					WHERE p.post_type = 'feedback'
+					WHERE p.post_type = %s
 					AND p.post_status IN ({$placeholders})
 					AND p.post_parent > 0
 					AND pm.meta_id IS NULL
 					AND (parent_post.post_type IS NULL OR parent_post.post_type != %s)
 				) AS combined_sources",
 				array_merge(
-					array( $meta_key ),
+					array( $meta_key, $post_type ),
 					$statuses,
-					array( $meta_key ),
+					array( $meta_key, $post_type ),
 					$statuses,
 					array( Contact_Form::POST_TYPE )
 				)

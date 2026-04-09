@@ -40,6 +40,13 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 	private $temp_source_filter_id;
 
 	/**
+	 * Cached SQL fragments for source filtering, to avoid recomputing per filter hook.
+	 *
+	 * @var array{join: string, where: string}|null
+	 */
+	private $temp_source_filter_sql;
+
+	/**
 	 * Get filtered list of supported integrations
 	 *
 	 * @return array Filtered list of supported integrations
@@ -1013,7 +1020,8 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 		if ( ! empty( $this->temp_source_filter_id ) ) {
 			remove_filter( 'posts_join', array( $this, 'join_source_meta' ), 10 );
 			remove_filter( 'posts_where', array( $this, 'filter_by_source_id' ), 10 );
-			$this->temp_source_filter_id = null;
+			$this->temp_source_filter_id  = null;
+			$this->temp_source_filter_sql = null;
 		}
 
 		return $response;
@@ -1088,7 +1096,8 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 		// Filter by source post ID using meta (with fallback to post_parent for old data).
 		$source = $request->get_param( 'source' );
 		if ( ! empty( $source ) ) {
-			$this->temp_source_filter_id = absint( $source );
+			$this->temp_source_filter_id  = absint( $source );
+			$this->temp_source_filter_sql = $this->get_source_filter_sql( $this->temp_source_filter_id );
 			add_filter( 'posts_join', array( $this, 'join_source_meta' ), 10, 2 );
 			add_filter( 'posts_where', array( $this, 'filter_by_source_id' ), 10, 2 );
 		}
@@ -1104,11 +1113,10 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 	 * @return string Modified JOIN clause.
 	 */
 	public function join_source_meta( $join, $query ) {
-		if ( empty( $this->temp_source_filter_id ) || 'feedback' !== $query->get( 'post_type' ) ) {
+		if ( empty( $this->temp_source_filter_sql ) || 'feedback' !== $query->get( 'post_type' ) ) {
 			return $join;
 		}
-		$sql = $this->get_source_filter_sql( $this->temp_source_filter_id );
-		return $join . $sql['join'];
+		return $join . $this->temp_source_filter_sql['join'];
 	}
 
 	/**
@@ -1119,11 +1127,10 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 	 * @return string Modified WHERE clause.
 	 */
 	public function filter_by_source_id( $where, $query ) {
-		if ( empty( $this->temp_source_filter_id ) || 'feedback' !== $query->get( 'post_type' ) ) {
+		if ( empty( $this->temp_source_filter_sql ) || 'feedback' !== $query->get( 'post_type' ) ) {
 			return $where;
 		}
-		$sql = $this->get_source_filter_sql( $this->temp_source_filter_id );
-		return $where . ' AND ' . $sql['where'];
+		return $where . ' AND ' . $this->temp_source_filter_sql['where'];
 	}
 
 	/**
@@ -1153,8 +1160,10 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			'default'     => array(),
 		);
 		$query_params['source']         = array(
-			'description' => __( 'Limit result set to feedback submitted from a particular source post ID.', 'jetpack-forms' ),
-			'type'        => 'integer',
+			'description'       => __( 'Limit result set to feedback submitted from a particular source post ID.', 'jetpack-forms' ),
+			'type'              => 'integer',
+			'sanitize_callback' => 'absint',
+			'validate_callback' => 'rest_validate_request_arg',
 		);
 		$query_params['is_unread']      = array(
 			'description'       => __( 'Limit result set to read or unread feedback items.', 'jetpack-forms' ),
