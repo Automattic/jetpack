@@ -317,11 +317,14 @@ class Feedback_Legacy_Compatibility_Test extends BaseTestCase {
 
 		$response = Feedback::from_submission( $_post_data, $form );
 
-		// This should not throw a TypeError even when the email field has array data.
+		// When an array is submitted for a single-value field like email,
+		// only the first value should be kept.
+		$this->assertEquals( 'first@example.com', $response->get_field_value_by_label( 'Email' ), 'Email field should use the first value from the array' );
+
+		// get_legacy_extra_values should not throw a TypeError.
 		$extra_values = $response->get_legacy_extra_values( 'submit' );
 		$this->assertIsArray( $extra_values, 'get_legacy_extra_values should return an array without fatal error' );
 
-		// Also test with default context.
 		$extra_values_default = $response->get_legacy_extra_values();
 		$this->assertIsArray( $extra_values_default, 'get_legacy_extra_values with default context should return an array without fatal error' );
 	}
