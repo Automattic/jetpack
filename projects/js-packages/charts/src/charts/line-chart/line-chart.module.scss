@@ -17,7 +17,7 @@
 	&__tooltip,
 	&__annotation-label-popover {
 		background: #fff;
-		padding: 0.5rem;
+		padding: var(--wpds-dimension-padding-sm, 0.5rem);
 	}
 
 	&__tooltip-date {
@@ -26,12 +26,12 @@
 	}
 
 	&__tooltip-row {
-		padding: 4px 0;
+		padding: var(--wpds-dimension-padding-xs, 4px) 0;
 	}
 
 	&__tooltip-label {
 		font-weight: var(--wpds-font-weight-medium, 499);
-		padding-right: 1rem;
+		padding-right: var(--wpds-dimension-padding-lg, 1rem);
 	}
 
 	&__annotations-overlay {
@@ -61,11 +61,11 @@
 		min-width: 125px;
 		background: #fff;
 		border: none;
-		border-radius: 4px;
+		border-radius: var(--wpds-border-radius-md, 4px);
 		font-size: var(--wpds-font-size-md, 13px);
 		box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 		position: fixed;
-		margin: 0.5rem;
+		margin: var(--wpds-dimension-gap-sm, 0.5rem);
 		visibility: hidden;
 
 		&--visible {
@@ -79,7 +79,7 @@
 	}
 
 	&__annotation-label-popover-content {
-		padding: 0.5rem;
+		padding: var(--wpds-dimension-padding-sm, 0.5rem);
 	}
 
 	&__annotation-label-popover-close-button {
