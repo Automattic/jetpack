@@ -398,6 +398,26 @@ class Admin_Menu_Test extends TestCase {
 	}
 
 	/**
+	 * Upgrade item is absent when the user is not connected (site is connected).
+	 *
+	 * @return void
+	 */
+	public function test_upgrade_menu_item_hidden_when_user_not_connected() {
+		wp_set_current_user( self::$admin_user_id );
+		$connection = $this->getMockBuilder( 'Automattic\Jetpack\Connection\Manager' )
+			->disableOriginalConstructor()
+			->getMock();
+		$connection->method( 'is_connected' )->willReturn( true );
+		$connection->method( 'is_user_connected' )->willReturn( false );
+		Admin_Menu::set_connection_manager( $connection );
+
+		Admin_Menu::init();
+		do_action( 'admin_menu' );
+
+		$this->assertUpgradeMenuItemAbsent();
+	}
+
+	/**
 	 * Upgrade item is absent when the site is in offline (development) mode.
 	 *
 	 * @return void

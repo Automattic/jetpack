@@ -304,7 +304,8 @@ class Admin_Menu {
 	private static function is_site_and_user_connected() {
 		$connection_manager = self::$connection_manager;
 		if ( ! $connection_manager && class_exists( '\Automattic\Jetpack\Connection\Manager' ) ) {
-			$connection_manager = new \Automattic\Jetpack\Connection\Manager();
+			$connection_manager       = new \Automattic\Jetpack\Connection\Manager();
+			self::$connection_manager = $connection_manager;
 		}
 
 		if (
