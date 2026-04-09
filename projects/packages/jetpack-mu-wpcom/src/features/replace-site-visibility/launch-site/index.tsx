@@ -39,7 +39,9 @@ const LaunchSite = ( {
 	sitePlan,
 	hasCustomDomain,
 }: Props ) => {
-	const [ , experimentData ] = useExperimentWithAuth( 'calypso_standardized_site_launch_gating' );
+	const [ , experimentData ] = useExperimentWithAuth(
+		'calypso_standardized_site_launch_gating_202603_v1'
+	);
 	const [ showCelebrateLaunchModal, setShowCelebrateLaunchModal ] = useState( false );
 
 	const { mutate: launchSite, isPending } = useLaunchSiteMutation( blogId, () =>
