@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-RTC Notices: Restore Gutenberg's native "Too many editors connected" modal on sites where branded limit notices are disabled. Fix room limit enforcement for PingHub provider by using awareness join timestamps instead of unpopulated collaboratorInfo.
