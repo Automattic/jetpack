@@ -169,7 +169,7 @@ const StoryChartProvider = ( {
 					cascade.
 					 */
 				style={ {
-					fontFamily: 'var(--wpds-font-family-body, system-ui, sans-serif)',
+					fontFamily: 'var(--wpds-font-family-body, sans-serif)',
 				} }
 			>
 				<GlobalChartsProvider key={ providerKey } theme={ theme }>
