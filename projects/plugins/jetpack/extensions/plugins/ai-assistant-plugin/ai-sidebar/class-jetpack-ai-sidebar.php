@@ -39,12 +39,12 @@ class Jetpack_AI_Sidebar {
 		/**
 		 * Filter to enable or disable the Jetpack AI sidebar feature.
 		 *
-		 * When false (the default), the AI sidebar provider, AM CDN loader,
-		 * and abilities script are not registered.
+		 * Defaults to true in dev mode (proxied Automatticians, local dev),
+		 * false otherwise. The filter allows explicit override in either direction.
 		 *
-		 * @param bool $enabled Whether the AI sidebar is enabled. Default false.
+		 * @param bool $enabled Whether the AI sidebar is enabled.
 		 */
-		if ( ! apply_filters( 'jetpack_ai_sidebar_enabled', false ) ) {
+		if ( ! apply_filters( 'jetpack_ai_sidebar_enabled', self::is_dev_mode() ) ) {
 			return;
 		}
 
