@@ -1013,7 +1013,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 		if ( ! empty( $this->temp_source_filter_id ) ) {
 			remove_filter( 'posts_join', array( $this, 'join_source_meta' ), 10 );
 			remove_filter( 'posts_where', array( $this, 'filter_by_source_id' ), 10 );
-			unset( $this->temp_source_filter_id );
+			$this->temp_source_filter_id = null;
 		}
 
 		return $response;

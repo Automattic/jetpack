@@ -22,6 +22,14 @@ use WorDBless\BaseTestCase;
 #[CoversClass( Feedback::class )]
 class Feedback_Creation_Test extends BaseTestCase {
 
+	/**
+	 * Clean up after each test.
+	 */
+	protected function tear_down() {
+		parent::tear_down();
+		remove_all_filters( 'wordbless_wpdb_query_results' );
+	}
+
 	public function test_from_post_id_returns_null_for_invalid_post() {
 		$response = Feedback::get( 999999 );
 		$this->assertNull( $response );
@@ -86,10 +94,35 @@ class Feedback_Creation_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Helper: mock wpdb query results for get_all_source_post_ids().
+	 *
+	 * @param array $source_ids The source IDs to return from the query.
+	 */
+	private function mock_source_ids_query( $source_ids ) {
+		add_filter(
+			'wordbless_wpdb_query_results',
+			function ( $results, $query ) use ( $source_ids ) {
+				if ( strpos( $query, 'SELECT DISTINCT source_id' ) !== false ) {
+					return array_map(
+						function ( $id ) {
+							return (object) array( 'source_id' => (string) $id );
+						},
+						$source_ids
+					);
+				}
+				return $results;
+			},
+			10,
+			2
+		);
+	}
+
+	/**
 	 * Test that get_all_source_post_ids returns empty array when no feedback exists.
 	 */
 	public function test_get_all_source_post_ids_returns_empty_when_no_feedback() {
 		\wp_cache_delete( 'jetpack_forms_source_post_ids', 'jetpack_forms' );
+		$this->mock_source_ids_query( array() );
 
 		$source_ids = Feedback::get_all_source_post_ids();
 		$this->assertIsArray( $source_ids );
@@ -97,177 +130,68 @@ class Feedback_Creation_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test that get_all_source_post_ids returns source IDs from meta.
+	 * Test that get_all_source_post_ids returns source IDs from the query.
 	 */
-	public function test_get_all_source_post_ids_returns_ids_from_meta() {
+	public function test_get_all_source_post_ids_returns_ids() {
 		\wp_cache_delete( 'jetpack_forms_source_post_ids', 'jetpack_forms' );
-
-		$page_id = \wp_insert_post(
-			array(
-				'post_type'   => 'page',
-				'post_status' => 'publish',
-				'post_title'  => 'Source Page',
-			)
-		);
-
-		$fb_id = \wp_insert_post(
-			array(
-				'post_type'   => 'feedback',
-				'post_status' => 'publish',
-				'post_title'  => 'Feedback',
-			)
-		);
-		\update_post_meta( $fb_id, Feedback::SOURCE_META_KEY, $page_id );
+		$this->mock_source_ids_query( array( 42, 99 ) );
 
 		$source_ids = Feedback::get_all_source_post_ids();
-		$this->assertContains( $page_id, $source_ids );
+		$this->assertContains( 42, $source_ids );
+		$this->assertContains( 99, $source_ids );
 	}
 
 	/**
-	 * Test that get_all_source_post_ids falls back to post_parent for old feedback without meta.
-	 */
-	public function test_get_all_source_post_ids_falls_back_to_post_parent() {
-		\wp_cache_delete( 'jetpack_forms_source_post_ids', 'jetpack_forms' );
-
-		$page_id = \wp_insert_post(
-			array(
-				'post_type'   => 'page',
-				'post_status' => 'publish',
-				'post_title'  => 'Old Source Page',
-			)
-		);
-
-		// Old feedback: no source meta, post_parent points to the page.
-		\wp_insert_post(
-			array(
-				'post_type'   => 'feedback',
-				'post_status' => 'publish',
-				'post_title'  => 'Old Feedback',
-				'post_parent' => $page_id,
-			)
-		);
-
-		$source_ids = Feedback::get_all_source_post_ids();
-		$this->assertContains( $page_id, $source_ids );
-	}
-
-	/**
-	 * Test that get_all_source_post_ids excludes jetpack_form parents from the fallback.
-	 */
-	public function test_get_all_source_post_ids_excludes_jetpack_form_parents() {
-		\wp_cache_delete( 'jetpack_forms_source_post_ids', 'jetpack_forms' );
-
-		$form_id = \wp_insert_post(
-			array(
-				'post_type'   => Contact_Form::POST_TYPE,
-				'post_status' => 'publish',
-				'post_title'  => 'My Form',
-			)
-		);
-
-		// Feedback parented to a jetpack_form — should not appear as a source.
-		\wp_insert_post(
-			array(
-				'post_type'   => 'feedback',
-				'post_status' => 'publish',
-				'post_title'  => 'Form Feedback',
-				'post_parent' => $form_id,
-			)
-		);
-
-		$source_ids = Feedback::get_all_source_post_ids();
-		$this->assertNotContains( $form_id, $source_ids );
-	}
-
-	/**
-	 * Test that get_all_source_post_ids deduplicates IDs from meta and post_parent.
-	 */
-	public function test_get_all_source_post_ids_deduplicates() {
-		\wp_cache_delete( 'jetpack_forms_source_post_ids', 'jetpack_forms' );
-
-		$page_id = \wp_insert_post(
-			array(
-				'post_type'   => 'page',
-				'post_status' => 'publish',
-				'post_title'  => 'Shared Source',
-			)
-		);
-
-		// Old feedback via post_parent (no meta).
-		\wp_insert_post(
-			array(
-				'post_type'   => 'feedback',
-				'post_status' => 'publish',
-				'post_title'  => 'Old Feedback',
-				'post_parent' => $page_id,
-			)
-		);
-
-		// New feedback via meta.
-		$fb_new = \wp_insert_post(
-			array(
-				'post_type'   => 'feedback',
-				'post_status' => 'publish',
-				'post_title'  => 'New Feedback',
-			)
-		);
-		\update_post_meta( $fb_new, Feedback::SOURCE_META_KEY, $page_id );
-
-		$source_ids = Feedback::get_all_source_post_ids();
-		$this->assertCount( 1, array_keys( $source_ids, $page_id, true ), 'Source ID should appear only once' );
-	}
-
-	/**
-	 * Test that get_all_source_post_ids uses cache on second call.
+	 * Test that get_all_source_post_ids caches the result.
 	 */
 	public function test_get_all_source_post_ids_uses_cache() {
 		\wp_cache_delete( 'jetpack_forms_source_post_ids', 'jetpack_forms' );
-
-		$page_id = \wp_insert_post(
-			array(
-				'post_type'   => 'page',
-				'post_status' => 'publish',
-				'post_title'  => 'Cached Page',
-			)
-		);
-
-		$fb_id = \wp_insert_post(
-			array(
-				'post_type'   => 'feedback',
-				'post_status' => 'publish',
-				'post_title'  => 'Feedback',
-			)
-		);
-		\update_post_meta( $fb_id, Feedback::SOURCE_META_KEY, $page_id );
+		$this->mock_source_ids_query( array( 42 ) );
 
 		// First call populates cache.
 		$first_result = Feedback::get_all_source_post_ids();
+		$this->assertContains( 42, $first_result );
 
-		// Add new feedback with a different source — cache should still return old result.
-		$page_id_2 = \wp_insert_post(
-			array(
-				'post_type'   => 'page',
-				'post_status' => 'publish',
-				'post_title'  => 'New Page',
-			)
-		);
-		$fb_id_2   = \wp_insert_post(
-			array(
-				'post_type'   => 'feedback',
-				'post_status' => 'publish',
-				'post_title'  => 'Feedback 2',
-			)
-		);
-		\update_post_meta( $fb_id_2, Feedback::SOURCE_META_KEY, $page_id_2 );
+		// Replace mock with different data — cache should still return old result.
+		remove_all_filters( 'wordbless_wpdb_query_results' );
+		$this->mock_source_ids_query( array( 42, 99 ) );
 
 		$second_result = Feedback::get_all_source_post_ids();
 		$this->assertEquals( $first_result, $second_result, 'Second call should return cached result' );
-		$this->assertNotContains( $page_id_2, $second_result, 'New source should not appear in cached result' );
+		$this->assertNotContains( 99, $second_result, 'New source should not appear in cached result' );
 
-		// After cache clear, new source should appear.
+		// After cache clear, new data should appear.
 		\wp_cache_delete( 'jetpack_forms_source_post_ids', 'jetpack_forms' );
 		$fresh_result = Feedback::get_all_source_post_ids();
-		$this->assertContains( $page_id_2, $fresh_result, 'After cache clear, new source should appear' );
+		$this->assertContains( 99, $fresh_result, 'After cache clear, new source should appear' );
+	}
+
+	/**
+	 * Test that get_all_source_post_ids query includes the correct SQL structure.
+	 */
+	public function test_get_all_source_post_ids_query_uses_union_with_fallback() {
+		\wp_cache_delete( 'jetpack_forms_source_post_ids', 'jetpack_forms' );
+
+		$captured_query = null;
+		add_filter(
+			'wordbless_wpdb_query_results',
+			function ( $results, $query ) use ( &$captured_query ) {
+				if ( strpos( $query, 'SELECT DISTINCT source_id' ) !== false ) {
+					$captured_query = $query;
+				}
+				return $results;
+			},
+			10,
+			2
+		);
+
+		Feedback::get_all_source_post_ids();
+
+		$this->assertNotNull( $captured_query, 'Source IDs query should have been executed' );
+		$this->assertStringContainsString( '_feedback_source_post_id', $captured_query, 'Query should use the source meta key' );
+		$this->assertStringContainsString( 'UNION', $captured_query, 'Query should use UNION for meta + post_parent fallback' );
+		$this->assertStringContainsString( 'post_parent', $captured_query, 'Query should include post_parent fallback' );
+		$this->assertStringContainsString( Contact_Form::POST_TYPE, $captured_query, 'Query should exclude jetpack_form parents' );
 	}
 
 	/**

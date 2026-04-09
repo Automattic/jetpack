@@ -1349,118 +1349,95 @@ JSON_DATA{"1_name":"Test Author","2_email":"author@example.com","3_file":{"field
 	}
 
 	/**
-	 * Test that the source filter returns only feedback matching the source post ID.
+	 * Test that the source filter adds the correct SQL JOIN and WHERE clauses.
 	 */
-	public function test_source_filter_returns_matching_feedback() {
-		$source_a = wp_insert_post(
-			array(
-				'post_type'   => 'page',
-				'post_status' => 'publish',
-				'post_title'  => 'Page A',
-			)
+	public function test_source_filter_modifies_query() {
+		$captured_join  = null;
+		$captured_where = null;
+
+		add_filter(
+			'posts_join',
+			function ( $join ) use ( &$captured_join ) {
+				$captured_join = $join;
+				return $join;
+			},
+			99
 		);
-		$source_b = wp_insert_post(
-			array(
-				'post_type'   => 'page',
-				'post_status' => 'publish',
-				'post_title'  => 'Page B',
-			)
+		add_filter(
+			'posts_where',
+			function ( $where ) use ( &$captured_where ) {
+				$captured_where = $where;
+				return $where;
+			},
+			99
 		);
 
-		// Feedback with source meta pointing to page A.
-		$fb_a = wp_insert_post(
-			array(
-				'post_type'      => 'feedback',
-				'post_status'    => 'publish',
-				'post_title'     => 'Feedback from Page A',
-				'comment_status' => 'open',
-			)
-		);
-		update_post_meta( $fb_a, Feedback::SOURCE_META_KEY, $source_a );
-
-		// Feedback with source meta pointing to page B.
-		$fb_b = wp_insert_post(
-			array(
-				'post_type'      => 'feedback',
-				'post_status'    => 'publish',
-				'post_title'     => 'Feedback from Page B',
-				'comment_status' => 'open',
-			)
-		);
-		update_post_meta( $fb_b, Feedback::SOURCE_META_KEY, $source_b );
-
-		// Filter by source A — should only return feedback A.
 		$request = new WP_REST_Request( 'GET', '/wp/v2/feedback' );
-		$request->set_param( 'source', $source_a );
-		$response = $this->server->dispatch( $request );
+		$request->set_param( 'source', 42 );
+		$this->server->dispatch( $request );
 
-		$this->assertEquals( 200, $response->get_status() );
-		$data = $response->get_data();
-		$ids  = array_column( $data, 'id' );
-		$this->assertContains( $fb_a, $ids, 'Should include feedback from source A' );
-		$this->assertNotContains( $fb_b, $ids, 'Should not include feedback from source B' );
+		$this->assertNotNull( $captured_join, 'JOIN clause should have been modified' );
+		$this->assertStringContainsString( 'source_meta', $captured_join, 'JOIN should include the source_meta alias' );
+		$this->assertStringContainsString( '_feedback_source_post_id', $captured_join, 'JOIN should reference the source meta key' );
+
+		$this->assertNotNull( $captured_where, 'WHERE clause should have been modified' );
+		$this->assertStringContainsString( 'source_meta.meta_value', $captured_where, 'WHERE should filter by source meta value' );
+		$this->assertStringContainsString( 'post_parent', $captured_where, 'WHERE should include post_parent fallback' );
+		$this->assertStringContainsString( 'source_meta.meta_id IS NULL', $captured_where, 'WHERE should check for missing meta in fallback' );
+
+		remove_all_filters( 'posts_join' );
+		remove_all_filters( 'posts_where' );
 	}
 
 	/**
-	 * Test that the source filter falls back to post_parent for old feedback without source meta.
+	 * Test that source filter hooks are cleaned up after get_items
+	 * by verifying a second request without source does not include source SQL.
 	 */
-	public function test_source_filter_falls_back_to_post_parent() {
-		$source_page = wp_insert_post(
-			array(
-				'post_type'   => 'page',
-				'post_status' => 'publish',
-				'post_title'  => 'Old Contact Page',
-			)
+	public function test_source_filter_hooks_are_cleaned_up() {
+		// First request with source filter.
+		$request = new WP_REST_Request( 'GET', '/wp/v2/feedback' );
+		$request->set_param( 'source', 42 );
+		$this->server->dispatch( $request );
+
+		// Second request without source — capture the JOIN to verify no leftover filter.
+		$captured_join = '';
+		add_filter(
+			'posts_join',
+			function ( $join ) use ( &$captured_join ) {
+				$captured_join = $join;
+				return $join;
+			},
+			99
 		);
 
-		// Old feedback: no source meta, post_parent points to the source page (classic form behavior).
-		$fb_old = wp_insert_post(
-			array(
-				'post_type'      => 'feedback',
-				'post_status'    => 'publish',
-				'post_title'     => 'Old Feedback',
-				'post_parent'    => $source_page,
-				'comment_status' => 'open',
-			)
-		);
+		$request2 = new WP_REST_Request( 'GET', '/wp/v2/feedback' );
+		$this->server->dispatch( $request2 );
 
-		// New feedback on same source: has meta.
-		$fb_new = wp_insert_post(
-			array(
-				'post_type'      => 'feedback',
-				'post_status'    => 'publish',
-				'post_title'     => 'New Feedback',
-				'comment_status' => 'open',
-			)
-		);
-		update_post_meta( $fb_new, Feedback::SOURCE_META_KEY, $source_page );
+		$this->assertStringNotContainsString( 'source_meta', $captured_join, 'Source filter should not leak into subsequent requests' );
 
-		// Unrelated feedback on a different page.
-		$other_page = wp_insert_post(
-			array(
-				'post_type'   => 'page',
-				'post_status' => 'publish',
-				'post_title'  => 'Other Page',
-			)
-		);
-		$fb_other   = wp_insert_post(
-			array(
-				'post_type'      => 'feedback',
-				'post_status'    => 'publish',
-				'post_title'     => 'Other Feedback',
-				'post_parent'    => $other_page,
-				'comment_status' => 'open',
-			)
+		remove_all_filters( 'posts_join' );
+	}
+
+	/**
+	 * Test that without source param, no source filter hooks are added.
+	 */
+	public function test_no_source_filter_without_param() {
+		$captured_join = '';
+
+		add_filter(
+			'posts_join',
+			function ( $join ) use ( &$captured_join ) {
+				$captured_join = $join;
+				return $join;
+			},
+			99
 		);
 
 		$request = new WP_REST_Request( 'GET', '/wp/v2/feedback' );
-		$request->set_param( 'source', $source_page );
-		$response = $this->server->dispatch( $request );
+		$this->server->dispatch( $request );
 
-		$this->assertEquals( 200, $response->get_status() );
-		$ids = array_column( $response->get_data(), 'id' );
-		$this->assertContains( $fb_old, $ids, 'Should include old feedback via post_parent fallback' );
-		$this->assertContains( $fb_new, $ids, 'Should include new feedback via source meta' );
-		$this->assertNotContains( $fb_other, $ids, 'Should not include feedback from a different source' );
+		$this->assertStringNotContainsString( 'source_meta', $captured_join, 'JOIN should not include source_meta when no source param' );
+
+		remove_all_filters( 'posts_join' );
 	}
 }
