@@ -191,7 +191,7 @@ jobs:
           tar --owner=0 --group=0 --xz -cvvf "$FILENAME" -C "$BUILD_BASE" --transform 's,^\.,build,' .
 
           # In case the "Push wpcom projects" below runs, it'll want a modified mirrors.txt
-          printf '%s\n' plugins/jetpack plugins/mu-wpcom-plugin > "$BUILD_BASE/mirrors.txt"
+          printf '%s\n' Automattic/jetpack-production Automattic/jetpack-mu-wpcom-plugin > "$BUILD_BASE/mirrors.txt"
 
       - name: Store build as artifact
         uses: actions/upload-artifact@v7
@@ -301,7 +301,7 @@ jobs:
           ln jetpack-build.tar.xz build.tar.xz
 
       - name: Prepare plugin zips
-        if: steps.plugins.outputs.any
+        if: steps.plugins.outputs.any == 'true'
         id: plugin-zips
         env:
           SHA: ${{ github.event.pull_request.head.sha || github.sha }}
