@@ -22,7 +22,7 @@
 
 	&__tooltip-date {
 		font-weight: var(--wpds-font-weight-medium, 499);
-		padding-bottom: 10px;
+		padding-bottom: var(--wpds-dimension-padding-md, 12px);
 	}
 
 	&__tooltip-row {
