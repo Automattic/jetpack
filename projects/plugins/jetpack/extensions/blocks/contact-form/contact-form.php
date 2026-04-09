@@ -11,5 +11,5 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
 }
 
-// Register the block
-add_action( 'init', array( Contact_Form_Block::class, 'register_block' ), 9 );
+// Block registration is now handled by Contact_Form_Plugin::register_contact_form_blocks()
+// in the jetpack-forms package, so it works regardless of the Blocks module being active.
