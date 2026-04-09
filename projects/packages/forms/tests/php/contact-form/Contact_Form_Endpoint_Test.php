@@ -1356,7 +1356,10 @@ JSON_DATA{"1_name":"Test Author","2_email":"author@example.com","3_file":{"field
 
 		// Use reflection to call private get_source_filter_sql method.
 		$method = new \ReflectionMethod( $endpoint, 'get_source_filter_sql' );
-		$sql    = $method->invoke( $endpoint, 42 );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+		$sql = $method->invoke( $endpoint, 42 );
 
 		$this->assertArrayHasKey( 'join', $sql );
 		$this->assertArrayHasKey( 'where', $sql );
