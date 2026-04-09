@@ -369,7 +369,7 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 								gap="xl"
 							>
 								{ /* Step Label and Rate */ }
-								<div>
+								<Stack direction="column" gap="xs">
 									{ renderStepLabel ? (
 										renderStepLabel( {
 											step,
@@ -390,7 +390,7 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 											{ formatPercentage( step.rate ) }
 										</span>
 									) }
-								</div>
+								</Stack>
 
 								{ /* Funnel Bar */ }
 								<Stack

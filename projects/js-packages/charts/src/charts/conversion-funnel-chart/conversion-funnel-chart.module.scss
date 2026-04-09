@@ -54,11 +54,9 @@
 .step-label {
 	color: #757575;
 	font-size: var(--wpds-font-size-sm, 12px);
-	font-style: normal;
 	font-weight: var(--wpds-font-weight-regular, 400);
-	line-height: var(--wpds-font-line-height-sm, 20px);
-	margin: 0;
-	display: block;
+	line-height: var(--wpds-font-line-height-xs, 16px);
+	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
 }
@@ -66,11 +64,8 @@
 .step-rate {
 	color: #1e1e1e;
 	font-size: var(--wpds-font-size-md, 13px);
-	font-style: normal;
 	font-weight: var(--wpds-font-weight-medium, 499);
-	line-height: var(--wpds-font-line-height-sm, 20px);
-	margin: 0;
-	display: block;
+	line-height: var(--wpds-font-line-height-xs, 16px);
 }
 
 .bar-container {
