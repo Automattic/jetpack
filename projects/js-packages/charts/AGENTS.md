@@ -25,7 +25,7 @@ jp changelog add js-packages/charts -s patch -t changed -e "Charts: <user-facing
 The package is migrating to WordPress UI and Theme as its defaults. When adding or changing code, follow these defaults unless the task explicitly says otherwise:
 
 - **Design tokens (WPDS).** In SCSS, use `var(--wpds-dimension-*, <fallback>)`, `var(--wpds-border-*, <fallback>)`, and `var(--wpds-font-*, <fallback>)` instead of hardcoded px values for spacing, padding, margins, border radius, border width, font size, and font weight. Fallbacks must match the WPDS spec value for that token — do not invent fallback values.
-- **UI primitives.** Prefer `Stack` and the stable `Text` from `@wordpress/ui` over ad-hoc flexbox or raw `<span>`/`<div>` for layout and text. Do not use `__experimental*` exports from `@wordpress/components` (e.g. `__experimentalText`, `__experimentalHStack`, `__experimentalGrid`) — use the stable `@wordpress/ui` equivalents.
+- **UI primitives.** Prefer `Stack` and the stable `Text` from `@wordpress/ui` over ad-hoc flexbox or raw `<span>`/`<div>` for layout and text. Do not use `__experimental*` exports from `@wordpress/components` (e.g. `__experimentalText`, `__experimentalHStack`) — use the stable `@wordpress/ui` equivalents. Exception: `__experimentalGrid` has no stable alternative yet and is acceptable to use for now.
 - **Theming.** Theming flows through `@wordpress/theme`'s `ThemeProvider` (unlocked via private APIs in Storybook; see `src/stories/chart-decorator.tsx`). Do not manually override DS tokens in stories or components to achieve theming — pass a color through `ThemeProvider` instead.
 - **Chart element styles.** Read chart element styles via `getElementStyles` from `GlobalChartsProvider`, not directly from `theme`. This is the supported path for color/style resolution across themes.
 
@@ -56,7 +56,7 @@ The package is migrating to WordPress UI and Theme as its defaults. When adding 
 - Accessing colors/styles directly from `theme` rather than using `getElementStyles` from `GlobalChartsProvider`.
 - Hardcoding px values in SCSS for spacing, borders, or typography where a WPDS token (`--wpds-dimension-*`, `--wpds-border-*`, `--wpds-font-*`) exists.
 - CSS variable fallback values that diverge from the WPDS spec for that token.
-- Using `__experimental*` exports from `@wordpress/components` (e.g. `__experimentalText`, `__experimentalHStack`, `__experimentalGrid`) instead of the stable `@wordpress/ui` equivalents.
+- Using `__experimental*` exports from `@wordpress/components` (e.g. `__experimentalText`, `__experimentalHStack`) instead of the stable `@wordpress/ui` equivalents. (`__experimentalGrid` is excepted — no stable alternative exists yet.)
 - Manually overriding DS tokens in stories or components to achieve theming instead of passing a color through `@wordpress/theme`'s `ThemeProvider`.
 - Responsive wrappers that conflict with component sizing semantics (fixed-height charts, resize behavior, aspect-ratio assumptions).
 - Updating `.docs.mdx` without the corresponding `.api.mdx` when API docs are affected.
