@@ -76,10 +76,9 @@ export default function BlockSuggestionButtons( { blockName } ) {
 		);
 	}
 
-	const isEmpty = ! saved;
-	const label = isEmpty
-		? __( 'Generate guidelines', 'jetpack' )
-		: __( 'Improve guidelines', 'jetpack' );
+	const generateLabel = __( 'Generate guidelines', 'jetpack' );
+	const improveLabel = __( 'Improve guidelines', 'jetpack' );
+	const label = saved ? improveLabel : generateLabel;
 
 	return (
 		<div className="jetpack-content-guidelines-ai__suggestion-actions">
