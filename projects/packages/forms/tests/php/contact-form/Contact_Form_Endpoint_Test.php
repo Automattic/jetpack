@@ -1346,56 +1346,29 @@ JSON_DATA{"1_name":"Test Author","2_email":"author@example.com","3_file":{"field
 	}
 
 	/**
-	 * Test that source=0 does not inject source filter SQL.
-	 */
-	public function test_source_filter_with_zero_value_is_ignored() {
-		$captured_sql = '';
-
-		add_filter(
-			'posts_request',
-			function ( $sql ) use ( &$captured_sql ) {
-				$captured_sql = $sql;
-				return $sql;
-			},
-			99
-		);
-
-		$request = new WP_REST_Request( 'GET', '/wp/v2/feedback' );
-		$request->set_param( 'source', 0 );
-		$this->server->dispatch( $request );
-
-		$this->assertStringNotContainsString( 'source_meta', $captured_sql, 'source=0 should not inject source filter SQL' );
-
-		remove_all_filters( 'posts_request' );
-	}
-
-	/**
 	 * Test that the source filter adds the correct SQL JOIN and WHERE clauses.
 	 */
+	/**
+	 * Test that the source filter generates the correct SQL via get_source_filter_sql.
+	 */
 	public function test_source_filter_modifies_query() {
-		$captured_sql = null;
+		$endpoint = new Contact_Form_Endpoint( 'feedback' );
 
-		add_filter(
-			'posts_request',
-			function ( $sql ) use ( &$captured_sql ) {
-				$captured_sql = $sql;
-				return $sql;
-			},
-			99
-		);
+		// Use reflection to call private get_source_filter_sql method.
+		$method = new \ReflectionMethod( $endpoint, 'get_source_filter_sql' );
+		$method->setAccessible( true );
+		$sql = $method->invoke( $endpoint, 42 );
 
-		$request = new WP_REST_Request( 'GET', '/wp/v2/feedback' );
-		$request->set_param( 'source', 42 );
-		$this->server->dispatch( $request );
+		$this->assertArrayHasKey( 'join', $sql );
+		$this->assertArrayHasKey( 'where', $sql );
 
-		$this->assertNotNull( $captured_sql, 'SQL query should have been built' );
-		$this->assertStringContainsString( 'source_meta', $captured_sql, 'SQL should include the source_meta alias' );
-		$this->assertStringContainsString( '_feedback_source_post_id', $captured_sql, 'SQL should reference the source meta key' );
-		$this->assertStringContainsString( 'source_meta.meta_value', $captured_sql, 'SQL should filter by source meta value' );
-		$this->assertStringContainsString( 'post_parent', $captured_sql, 'SQL should include post_parent fallback' );
-		$this->assertStringContainsString( 'source_meta.meta_id IS NULL', $captured_sql, 'SQL should check for missing meta in fallback' );
+		$this->assertStringContainsString( 'source_meta', $sql['join'], 'JOIN should include the source_meta alias' );
+		$this->assertStringContainsString( '_feedback_source_post_id', $sql['join'], 'JOIN should reference the source meta key' );
 
-		remove_all_filters( 'posts_request' );
+		$this->assertStringContainsString( 'source_meta.meta_value', $sql['where'], 'WHERE should filter by source meta value' );
+		$this->assertStringContainsString( 'post_parent', $sql['where'], 'WHERE should include post_parent fallback' );
+		$this->assertStringContainsString( 'source_meta.meta_id IS NULL', $sql['where'], 'WHERE should check for missing meta in fallback' );
+		$this->assertStringContainsString( "'42'", $sql['where'], 'WHERE should include the source ID value' );
 	}
 
 	/**
@@ -1409,44 +1382,77 @@ JSON_DATA{"1_name":"Test Author","2_email":"author@example.com","3_file":{"field
 		$this->server->dispatch( $request );
 
 		// Second request without source — capture SQL to verify no leftover filter.
-		$captured_sql = '';
+		$found_source_sql = false;
 		add_filter(
-			'posts_request',
-			function ( $sql ) use ( &$captured_sql ) {
-				$captured_sql = $sql;
-				return $sql;
+			'wordbless_wpdb_query_results',
+			function ( $results, $query ) use ( &$found_source_sql ) {
+				if ( strpos( $query, 'source_meta' ) !== false ) {
+					$found_source_sql = true;
+				}
+				return $results;
 			},
-			99
+			10,
+			2
 		);
 
 		$request2 = new WP_REST_Request( 'GET', '/wp/v2/feedback' );
 		$this->server->dispatch( $request2 );
 
-		$this->assertStringNotContainsString( 'source_meta', $captured_sql, 'Source filter should not leak into subsequent requests' );
+		$this->assertFalse( $found_source_sql, 'Source filter should not leak into subsequent requests' );
 
-		remove_all_filters( 'posts_request' );
+		remove_all_filters( 'wordbless_wpdb_query_results' );
 	}
 
 	/**
 	 * Test that without source param, no source filter hooks are added.
 	 */
 	public function test_no_source_filter_without_param() {
-		$captured_sql = '';
+		$found_source_sql = false;
 
 		add_filter(
-			'posts_request',
-			function ( $sql ) use ( &$captured_sql ) {
-				$captured_sql = $sql;
-				return $sql;
+			'wordbless_wpdb_query_results',
+			function ( $results, $query ) use ( &$found_source_sql ) {
+				if ( strpos( $query, 'source_meta' ) !== false ) {
+					$found_source_sql = true;
+				}
+				return $results;
 			},
-			99
+			10,
+			2
 		);
 
 		$request = new WP_REST_Request( 'GET', '/wp/v2/feedback' );
 		$this->server->dispatch( $request );
 
-		$this->assertStringNotContainsString( 'source_meta', $captured_sql, 'SQL should not include source_meta when no source param' );
+		$this->assertFalse( $found_source_sql, 'SQL should not include source_meta when no source param' );
 
-		remove_all_filters( 'posts_request' );
+		remove_all_filters( 'wordbless_wpdb_query_results' );
+	}
+
+	/**
+	 * Test that source=0 does not inject source filter SQL.
+	 */
+	public function test_source_filter_with_zero_value_is_ignored() {
+		$found_source_sql = false;
+
+		add_filter(
+			'wordbless_wpdb_query_results',
+			function ( $results, $query ) use ( &$found_source_sql ) {
+				if ( strpos( $query, 'source_meta' ) !== false ) {
+					$found_source_sql = true;
+				}
+				return $results;
+			},
+			10,
+			2
+		);
+
+		$request = new WP_REST_Request( 'GET', '/wp/v2/feedback' );
+		$request->set_param( 'source', 0 );
+		$this->server->dispatch( $request );
+
+		$this->assertFalse( $found_source_sql, 'source=0 should not inject source filter SQL' );
+
+		remove_all_filters( 'wordbless_wpdb_query_results' );
 	}
 }
