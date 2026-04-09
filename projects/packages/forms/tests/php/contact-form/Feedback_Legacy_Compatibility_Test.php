@@ -296,6 +296,36 @@ class Feedback_Legacy_Compatibility_Test extends BaseTestCase {
 		$this->assertEquals( '🙈', $response->get_field_value_by_label( 'message' ), 'Message field value should match' );
 	}
 
+	public function test_get_legacy_extra_values_with_array_post_data() {
+		$form_id    = Utility::get_form_id();
+		$_post_data = Utility::get_post_request(
+			array(
+				'email'   => array( 'first@example.com', 'second@example.com' ),
+				'name'    => 'Test User',
+				'message' => 'Hello, this is a test message.',
+			),
+			'g' . $form_id
+		);
+
+		$form = new Contact_Form(
+			array(
+				'title'       => 'Test Form',
+				'description' => 'This is a test form.',
+			),
+			"[contact-field label='Email' type='email' required='1'/][contact-field label='Name' type='name' required='1'/][contact-field label='Message' type='textarea' required='1'/]"
+		);
+
+		$response = Feedback::from_submission( $_post_data, $form );
+
+		// This should not throw a TypeError even when the email field has array data.
+		$extra_values = $response->get_legacy_extra_values( 'submit' );
+		$this->assertIsArray( $extra_values, 'get_legacy_extra_values should return an array without fatal error' );
+
+		// Also test with default context.
+		$extra_values_default = $response->get_legacy_extra_values();
+		$this->assertIsArray( $extra_values_default, 'get_legacy_extra_values with default context should return an array without fatal error' );
+	}
+
 	public function test_escape_legacy_v2_special_characters_handeling() {
 		$post_id = Utility::create_legacy_feedback_v2(
 			array(

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Prevent fatal error in get_legacy_extra_values when a field render value is an array

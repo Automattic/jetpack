@@ -649,10 +649,13 @@ class Feedback {
 		$special_fields   = array();
 		$non_extra_fields = array( 'email', 'name', 'url', 'subject', 'textarea', 'ip' );
 
-		// Create a map of special fields to check agains their values.
+		// Create a map of special fields to check against their values.
 		foreach ( $this->fields as $field ) {
-			if ( in_array( $field->get_type(), $non_extra_fields, true ) && $field->get_render_value( $context ) ) {
-				$special_fields[ $field->get_render_value( $context ) ] = true;
+			if ( in_array( $field->get_type(), $non_extra_fields, true ) ) {
+				$value = $field->get_render_value( $context );
+				if ( $value && ! is_array( $value ) ) {
+					$special_fields[ $value ] = true;
+				}
 			}
 		}
 
@@ -660,7 +663,8 @@ class Feedback {
 			if ( $field->compile_field( 'default' ) ) {
 				continue;
 			}
-			if ( $field->get_type() === 'basic' && isset( $special_fields[ $field->get_render_value() ] ) ) {
+			$render_value = $field->get_render_value();
+			if ( $field->get_type() === 'basic' && ! is_array( $render_value ) && isset( $special_fields[ $render_value ] ) ) {
 				++$count;
 				continue; // Skip fields that are already present in the non-extra fields.
 			}
