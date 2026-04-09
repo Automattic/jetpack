@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Prevent fatal error in get_legacy_extra_values when a field render value is an array
+Prevent fatal error when a non-checkbox field's render value or POST-submitted value is an array.
