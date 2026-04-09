@@ -42,7 +42,6 @@ The package has two main layers:
   - `pinghub-provider.ts` — Yjs provider (thin shell delegating to the manager).
   - `pinghub-manager.ts` — Per-room sync protocol, awareness, and reconnection logic.
   - `pinghub-bridge.ts` — WebSocket transport layer.
-  - `keepalive-worker.ts` — Web Worker for awareness keepalive ticks.
 
 ## Contribute
 
