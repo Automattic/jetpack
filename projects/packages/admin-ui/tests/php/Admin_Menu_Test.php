@@ -96,6 +96,7 @@ class Admin_Menu_Test extends TestCase {
 			->disableOriginalConstructor()
 			->getMock();
 		$connection->method( 'is_connected' )->willReturn( true );
+		$connection->method( 'is_user_connected' )->willReturn( true );
 		Admin_Menu::set_connection_manager( $connection );
 		wp_dequeue_style( 'jetpack-admin-ui-upgrade-menu' );
 		wp_deregister_style( 'jetpack-admin-ui-upgrade-menu' );
@@ -218,6 +219,10 @@ class Admin_Menu_Test extends TestCase {
 			->getMock();
 		$connection->expects( $this->once() )
 			->method( 'is_connected' )
+			->willReturn( true );
+		$connection->expects( $this->once() )
+			->method( 'is_user_connected' )
+			->with( self::$admin_user_id )
 			->willReturn( true );
 		Admin_Menu::set_connection_manager( $connection );
 

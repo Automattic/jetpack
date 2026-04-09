@@ -279,8 +279,8 @@ class Admin_Menu {
 			}
 		}
 
-		// Only show after the site is connected.
-		if ( ! self::is_site_connected() ) {
+		// Only show after the site and current user are connected.
+		if ( ! self::is_site_and_user_connected() ) {
 			return false;
 		}
 
@@ -289,25 +289,30 @@ class Admin_Menu {
 	}
 
 	/**
-	 * Checks whether the site is connected to WordPress.com.
+	 * Checks whether the site and current user are connected to WordPress.com.
 	 *
-	 * @return bool True if the site has a connected blog ID.
+	 * @return bool True if site and current user are connected.
 	 */
-	private static function is_site_connected() {
+	private static function is_site_and_user_connected() {
 		$connection_manager = self::$connection_manager;
 		if ( ! $connection_manager && class_exists( '\Automattic\Jetpack\Connection\Manager' ) ) {
 			$connection_manager = new \Automattic\Jetpack\Connection\Manager();
 		}
 
-		if ( $connection_manager && is_callable( array( $connection_manager, 'is_connected' ) ) ) {
-			return (bool) $connection_manager->is_connected();
+		if (
+			$connection_manager
+			&& is_callable( array( $connection_manager, 'is_connected' ) )
+			&& is_callable( array( $connection_manager, 'is_user_connected' ) )
+		) {
+			return (bool) $connection_manager->is_connected()
+				&& (bool) $connection_manager->is_user_connected( get_current_user_id() );
 		}
 
 		return false;
 	}
 
 	/**
-	 * Sets the connection manager dependency.
+	 * Sets the connection manager dependency; used by tests.
 	 *
 	 * @param object|null $connection_manager Connection manager object.
 	 * @return void
