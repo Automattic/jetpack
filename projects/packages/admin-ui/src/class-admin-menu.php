@@ -279,6 +279,14 @@ class Admin_Menu {
 			}
 		}
 
+		// Don't show upsells in offline/development mode.
+		if ( class_exists( '\Automattic\Jetpack\Status' ) ) {
+			$status = new \Automattic\Jetpack\Status();
+			if ( $status->is_offline_mode() ) {
+				return false;
+			}
+		}
+
 		// Only show after the site and current user are connected.
 		if ( ! self::is_site_and_user_connected() ) {
 			return false;
