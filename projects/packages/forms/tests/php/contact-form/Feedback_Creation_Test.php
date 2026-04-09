@@ -167,9 +167,9 @@ class Feedback_Creation_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test that get_all_source_post_ids query includes the correct SQL structure.
+	 * Test that get_all_source_post_ids query references both meta and post_parent.
 	 */
-	public function test_get_all_source_post_ids_query_uses_union_with_fallback() {
+	public function test_get_all_source_post_ids_query_includes_meta_and_fallback() {
 		\wp_cache_delete( 'jetpack_forms_source_post_ids', 'jetpack_forms' );
 
 		$captured_query = null;
@@ -189,7 +189,6 @@ class Feedback_Creation_Test extends BaseTestCase {
 
 		$this->assertNotNull( $captured_query, 'Source IDs query should have been executed' );
 		$this->assertStringContainsString( '_feedback_source_post_id', $captured_query, 'Query should use the source meta key' );
-		$this->assertStringContainsString( 'UNION', $captured_query, 'Query should use UNION for meta + post_parent fallback' );
 		$this->assertStringContainsString( 'post_parent', $captured_query, 'Query should include post_parent fallback' );
 		$this->assertStringContainsString( Contact_Form::POST_TYPE, $captured_query, 'Query should exclude jetpack_form parents' );
 	}

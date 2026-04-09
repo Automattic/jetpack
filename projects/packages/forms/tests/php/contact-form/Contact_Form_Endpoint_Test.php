@@ -1316,58 +1316,70 @@ JSON_DATA{"1_name":"Test Author","2_email":"author@example.com","3_file":{"field
 	}
 
 	/**
-	 * Test that the source filter accepts a valid source parameter without error.
+	 * Test that the counts endpoint applies source filter SQL when source param is set.
 	 */
-	public function test_source_filter_returns_200() {
-		$request = new WP_REST_Request( 'GET', '/wp/v2/feedback' );
-		$request->set_param( 'source', 123 );
-		$response = $this->server->dispatch( $request );
+	public function test_counts_with_source_includes_source_filter_sql() {
+		$captured_query = null;
+		add_filter(
+			'wordbless_wpdb_query_results',
+			function ( $results, $query ) use ( &$captured_query ) {
+				if ( strpos( $query, 'SUM(CASE' ) !== false && strpos( $query, 'source_meta' ) !== false ) {
+					$captured_query = $query;
+				}
+				return $results;
+			},
+			10,
+			2
+		);
 
-		$this->assertEquals( 200, $response->get_status() );
-	}
-
-	/**
-	 * Test that the counts endpoint accepts source parameter without error.
-	 */
-	public function test_counts_with_source_returns_200() {
 		$request = new WP_REST_Request( 'GET', '/wp/v2/feedback/counts' );
 		$request->set_param( 'source', 123 );
 		$response = $this->server->dispatch( $request );
 
 		$this->assertEquals( 200, $response->get_status() );
-		$data = $response->get_data();
-		$this->assertArrayHasKey( 'inbox', $data );
-		$this->assertArrayHasKey( 'spam', $data );
-		$this->assertArrayHasKey( 'trash', $data );
+		$this->assertNotNull( $captured_query, 'Counts query should include source filter SQL' );
+		$this->assertStringContainsString( '_feedback_source_post_id', $captured_query, 'Counts query should reference the source meta key' );
+		$this->assertStringContainsString( 'source_meta.meta_value', $captured_query, 'Counts query should filter by source meta value' );
+		$this->assertStringContainsString( 'post_parent', $captured_query, 'Counts query should include post_parent fallback' );
+
+		remove_all_filters( 'wordbless_wpdb_query_results' );
 	}
 
 	/**
-	 * Test that SOURCE_META_KEY constant is defined on Feedback class.
+	 * Test that source=0 does not inject source filter SQL.
 	 */
-	public function test_source_meta_key_constant_exists() {
-		$this->assertEquals( '_feedback_source_post_id', Feedback::SOURCE_META_KEY );
+	public function test_source_filter_with_zero_value_is_ignored() {
+		$captured_sql = '';
+
+		add_filter(
+			'posts_request',
+			function ( $sql ) use ( &$captured_sql ) {
+				$captured_sql = $sql;
+				return $sql;
+			},
+			99
+		);
+
+		$request = new WP_REST_Request( 'GET', '/wp/v2/feedback' );
+		$request->set_param( 'source', 0 );
+		$this->server->dispatch( $request );
+
+		$this->assertStringNotContainsString( 'source_meta', $captured_sql, 'source=0 should not inject source filter SQL' );
+
+		remove_all_filters( 'posts_request' );
 	}
 
 	/**
 	 * Test that the source filter adds the correct SQL JOIN and WHERE clauses.
 	 */
 	public function test_source_filter_modifies_query() {
-		$captured_join  = null;
-		$captured_where = null;
+		$captured_sql = null;
 
 		add_filter(
-			'posts_join',
-			function ( $join ) use ( &$captured_join ) {
-				$captured_join = $join;
-				return $join;
-			},
-			99
-		);
-		add_filter(
-			'posts_where',
-			function ( $where ) use ( &$captured_where ) {
-				$captured_where = $where;
-				return $where;
+			'posts_request',
+			function ( $sql ) use ( &$captured_sql ) {
+				$captured_sql = $sql;
+				return $sql;
 			},
 			99
 		);
@@ -1376,17 +1388,14 @@ JSON_DATA{"1_name":"Test Author","2_email":"author@example.com","3_file":{"field
 		$request->set_param( 'source', 42 );
 		$this->server->dispatch( $request );
 
-		$this->assertNotNull( $captured_join, 'JOIN clause should have been modified' );
-		$this->assertStringContainsString( 'source_meta', $captured_join, 'JOIN should include the source_meta alias' );
-		$this->assertStringContainsString( '_feedback_source_post_id', $captured_join, 'JOIN should reference the source meta key' );
+		$this->assertNotNull( $captured_sql, 'SQL query should have been built' );
+		$this->assertStringContainsString( 'source_meta', $captured_sql, 'SQL should include the source_meta alias' );
+		$this->assertStringContainsString( '_feedback_source_post_id', $captured_sql, 'SQL should reference the source meta key' );
+		$this->assertStringContainsString( 'source_meta.meta_value', $captured_sql, 'SQL should filter by source meta value' );
+		$this->assertStringContainsString( 'post_parent', $captured_sql, 'SQL should include post_parent fallback' );
+		$this->assertStringContainsString( 'source_meta.meta_id IS NULL', $captured_sql, 'SQL should check for missing meta in fallback' );
 
-		$this->assertNotNull( $captured_where, 'WHERE clause should have been modified' );
-		$this->assertStringContainsString( 'source_meta.meta_value', $captured_where, 'WHERE should filter by source meta value' );
-		$this->assertStringContainsString( 'post_parent', $captured_where, 'WHERE should include post_parent fallback' );
-		$this->assertStringContainsString( 'source_meta.meta_id IS NULL', $captured_where, 'WHERE should check for missing meta in fallback' );
-
-		remove_all_filters( 'posts_join' );
-		remove_all_filters( 'posts_where' );
+		remove_all_filters( 'posts_request' );
 	}
 
 	/**
@@ -1399,13 +1408,13 @@ JSON_DATA{"1_name":"Test Author","2_email":"author@example.com","3_file":{"field
 		$request->set_param( 'source', 42 );
 		$this->server->dispatch( $request );
 
-		// Second request without source — capture the JOIN to verify no leftover filter.
-		$captured_join = '';
+		// Second request without source — capture SQL to verify no leftover filter.
+		$captured_sql = '';
 		add_filter(
-			'posts_join',
-			function ( $join ) use ( &$captured_join ) {
-				$captured_join = $join;
-				return $join;
+			'posts_request',
+			function ( $sql ) use ( &$captured_sql ) {
+				$captured_sql = $sql;
+				return $sql;
 			},
 			99
 		);
@@ -1413,22 +1422,22 @@ JSON_DATA{"1_name":"Test Author","2_email":"author@example.com","3_file":{"field
 		$request2 = new WP_REST_Request( 'GET', '/wp/v2/feedback' );
 		$this->server->dispatch( $request2 );
 
-		$this->assertStringNotContainsString( 'source_meta', $captured_join, 'Source filter should not leak into subsequent requests' );
+		$this->assertStringNotContainsString( 'source_meta', $captured_sql, 'Source filter should not leak into subsequent requests' );
 
-		remove_all_filters( 'posts_join' );
+		remove_all_filters( 'posts_request' );
 	}
 
 	/**
 	 * Test that without source param, no source filter hooks are added.
 	 */
 	public function test_no_source_filter_without_param() {
-		$captured_join = '';
+		$captured_sql = '';
 
 		add_filter(
-			'posts_join',
-			function ( $join ) use ( &$captured_join ) {
-				$captured_join = $join;
-				return $join;
+			'posts_request',
+			function ( $sql ) use ( &$captured_sql ) {
+				$captured_sql = $sql;
+				return $sql;
 			},
 			99
 		);
@@ -1436,8 +1445,8 @@ JSON_DATA{"1_name":"Test Author","2_email":"author@example.com","3_file":{"field
 		$request = new WP_REST_Request( 'GET', '/wp/v2/feedback' );
 		$this->server->dispatch( $request );
 
-		$this->assertStringNotContainsString( 'source_meta', $captured_join, 'JOIN should not include source_meta when no source param' );
+		$this->assertStringNotContainsString( 'source_meta', $captured_sql, 'SQL should not include source_meta when no source param' );
 
-		remove_all_filters( 'posts_join' );
+		remove_all_filters( 'posts_request' );
 	}
 }
