@@ -1,4 +1,6 @@
 import { createRoot, createElement } from '@wordpress/element';
+import BlockGenerateButton from '../components/block-generate-button';
+import BlockSuggestionActions from '../components/block-suggestion-actions';
 import EmptyStateBanner from '../components/empty-state-banner';
 import SectionGenerateButton from '../components/section-generate-button';
 import SuggestAllButton from '../components/suggest-all-button';
@@ -24,6 +26,9 @@ for ( const slug of VALID_SECTIONS ) {
 	slots[ `actions-${ slug }` ] = { container: null, root: null };
 	slots[ `button-${ slug }` ] = { container: null, root: null };
 }
+
+slots[ 'block-button' ] = { container: null, root: null };
+slots[ 'block-actions' ] = { container: null, root: null };
 
 /**
  * Inject a React component into the DOM, reusing or replacing the slot.
@@ -68,6 +73,30 @@ function inject( key, findParent, Component, props ) {
 
 	slot.container = container;
 	slot.root = root;
+}
+
+/**
+ * Extract the block name from the block guideline modal.
+ * In editing mode, reads the disabled TextControl and matches against block types.
+ * In creating mode, reads the ComboboxControl's selected value.
+ */
+function getBlockNameFromModal( modal ) {
+	const { select } = wp.data;
+	const blockTypes = select( 'core/blocks' ).getBlockTypes();
+
+	// Editing mode: disabled input shows block title.
+	const disabledInput = modal.querySelector( 'input[disabled]' );
+	if ( disabledInput?.value ) {
+		return blockTypes.find( b => b.title === disabledInput.value )?.name;
+	}
+
+	// Creating mode: combobox with selected value.
+	const combobox = modal.querySelector( 'input[role="combobox"]' );
+	if ( combobox?.value ) {
+		return blockTypes.find( b => b.title === combobox.value )?.name;
+	}
+
+	return null;
 }
 
 function runAll() {
@@ -175,6 +204,47 @@ function runAll() {
 			},
 			SectionGenerateButton,
 			{ slug }
+		);
+	}
+
+	// Block guideline modal injections.
+	const blockModal = document.querySelector( '.block-guideline-modal' );
+	const blockName = blockModal ? getBlockNameFromModal( blockModal ) : null;
+
+	if ( blockName ) {
+		// Suggestion actions (diff + accept/dismiss) above textarea.
+		inject(
+			'block-actions',
+			() => {
+				const textarea = blockModal.querySelector( '.components-textarea-control' );
+				const vStack = textarea?.parentElement;
+				return vStack
+					? {
+							parent: vStack,
+							before: textarea,
+							className: 'jetpack-content-guidelines-ai__block-actions-container',
+					  }
+					: null;
+			},
+			BlockSuggestionActions,
+			{ blockName }
+		);
+
+		// Generate/Improve button in the modal actions bar.
+		inject(
+			'block-button',
+			() => {
+				const actionsBar = blockModal.querySelector( '.block-guideline-modal__actions' );
+				return actionsBar
+					? {
+							parent: actionsBar,
+							before: actionsBar.firstChild,
+							className: 'jetpack-content-guidelines-ai__block-button-container',
+					  }
+					: null;
+			},
+			BlockGenerateButton,
+			{ blockName }
 		);
 	}
 }
