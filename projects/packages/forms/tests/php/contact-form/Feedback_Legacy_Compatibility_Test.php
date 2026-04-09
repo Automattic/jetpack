@@ -296,37 +296,64 @@ class Feedback_Legacy_Compatibility_Test extends BaseTestCase {
 		$this->assertEquals( '🙈', $response->get_field_value_by_label( 'message' ), 'Message field value should match' );
 	}
 
-	public function test_get_legacy_extra_values_with_array_post_data() {
-		$form_id    = Utility::get_form_id();
-		$_post_data = Utility::get_post_request(
-			array(
-				'email'   => array( 'first@example.com', 'second@example.com' ),
-				'name'    => 'Test User',
-				'message' => 'Hello, this is a test message.',
+	/**
+	 * Regression test: get_legacy_extra_values() must not fatal when a
+	 * non-extra field (email, name, url, subject, textarea, ip) holds an
+	 * array value.
+	 *
+	 * In production this happens when POST data contains multiple values
+	 * for the same field name, causing get_field_value() to store an array.
+	 * The 'submit' context is critical because get_render_submit_value()
+	 * returns $this->value without any array-to-string conversion — unlike
+	 * 'default' context which implodes arrays.
+	 */
+	public function test_get_legacy_extra_values_with_array_field_value_does_not_fatal() {
+		$feedback_time  = current_time( 'mysql' );
+		$comment_author = 'Test User';
+		$feedback_title = "{$comment_author} - {$feedback_time}";
+
+		// Create a url-type field whose value is an array — simulating a POST
+		// where multiple values were submitted for the same field name.
+		$url_field  = new Feedback_Field( '1_Website', 'Website', array( 'https://example.com', 'https://another.com' ), 'url' );
+		$name_field = new Feedback_Field( '2_Name', 'Name', 'Test User', 'name' );
+		$text_field = new Feedback_Field( '3_Comment', 'Comment', 'Hello world', 'text' );
+
+		$content = array(
+			'subject' => 'Test Subject',
+			'ip'      => '127.0.0.1',
+			'fields'  => array(
+				$url_field->serialize(),
+				$name_field->serialize(),
+				$text_field->serialize(),
 			),
-			'g' . $form_id
 		);
 
-		$form = new Contact_Form(
+		$post_id = wp_insert_post(
 			array(
-				'title'       => 'Test Form',
-				'description' => 'This is a test form.',
-			),
-			"[contact-field label='Email' type='email' required='1'/][contact-field label='Name' type='name' required='1'/][contact-field label='Message' type='textarea' required='1'/]"
+				'post_type'      => 'feedback',
+				'post_status'    => 'publish',
+				'post_title'     => addslashes( wp_kses( $feedback_title, array() ) ),
+				'post_date'      => $feedback_time,
+				'post_name'      => md5( $feedback_title ),
+				'post_content'   => wp_json_encode( $content, JSON_UNESCAPED_SLASHES ),
+				'post_mime_type' => 'v2',
+				'post_parent'    => 0,
+			)
 		);
 
-		$response = Feedback::from_submission( $_post_data, $form );
+		$response = Feedback::get( $post_id );
+		$this->assertInstanceOf( Feedback::class, $response );
 
-		// When an array is submitted for a single-value field like email,
-		// only the first value should be kept.
-		$this->assertEquals( 'first@example.com', $response->get_field_value_by_label( 'Email' ), 'Email field should use the first value from the array' );
+		// 'submit' context — the production path (class-contact-form.php:2678).
+		// get_render_submit_value() returns the raw array, which triggers:
+		// TypeError: Cannot access offset of type array on array
+		$extra_values_submit = $response->get_legacy_extra_values( 'submit' );
+		$this->assertIsArray( $extra_values_submit, 'get_legacy_extra_values(submit) should not fatal with array field values' );
 
-		// get_legacy_extra_values should not throw a TypeError.
-		$extra_values = $response->get_legacy_extra_values( 'submit' );
-		$this->assertIsArray( $extra_values, 'get_legacy_extra_values should return an array without fatal error' );
-
-		$extra_values_default = $response->get_legacy_extra_values();
-		$this->assertIsArray( $extra_values_default, 'get_legacy_extra_values with default context should return an array without fatal error' );
+		// 'default' context — safe because get_render_default_value() implodes arrays,
+		// but verify it still works.
+		$extra_values_default = $response->get_legacy_extra_values( 'default' );
+		$this->assertIsArray( $extra_values_default, 'get_legacy_extra_values(default) should not fatal with array field values' );
 	}
 
 	public function test_escape_legacy_v2_special_characters_handeling() {
