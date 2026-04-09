@@ -32,6 +32,8 @@ minimumReleaseAgeExclude:
   - '@wordpress/*'
   # GHSA-chqc-8p9q-pq6q
   - basic-ftp@5.2.1
+  # Renovate security update: axios@1.15.0
+  - axios@1.15.0
 trustPolicy: no-downgrade
 trustPolicyExclude:
   # https://github.com/paulmillr/chokidar/issues/1440
