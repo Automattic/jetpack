@@ -363,6 +363,17 @@ class Feedback_Legacy_Compatibility_Test extends BaseTestCase {
 		$extra_values_submit = $response->get_legacy_extra_values( 'submit' );
 		$this->assertIsArray( $extra_values_submit, "get_legacy_extra_values(submit) should not fatal for {$type} with array value" );
 
+		// The Comment text field should appear in extra values with correct value.
+		$this->assertNotEmpty( $extra_values_submit, "Extra values should not be empty for {$type} with array value" );
+		$found_comment = false;
+		foreach ( $extra_values_submit as $value ) {
+			if ( $value === 'Hello world' ) {
+				$found_comment = true;
+				break;
+			}
+		}
+		$this->assertTrue( $found_comment, "Extra values should contain the Comment field value for {$type} test case" );
+
 		// 'default' context — implodes arrays to strings, verify it still works.
 		$extra_values_default = $response->get_legacy_extra_values( 'default' );
 		$this->assertIsArray( $extra_values_default, "get_legacy_extra_values(default) should not fatal for {$type} with array value" );
@@ -414,9 +425,19 @@ class Feedback_Legacy_Compatibility_Test extends BaseTestCase {
 		$value_default = $response->get_field_value_by_label( 'Colors', 'default' );
 		$this->assertEquals( 'red, blue, green', $value_default, 'checkbox-multiple value should be imploded in default context' );
 
-		// get_legacy_extra_values should work without fatal.
+		// get_legacy_extra_values should work without fatal and include the checkbox-multiple field.
 		$extra_values = $response->get_legacy_extra_values( 'submit' );
 		$this->assertIsArray( $extra_values, 'get_legacy_extra_values(submit) should work with checkbox-multiple' );
+
+		// checkbox-multiple is not in $non_extra_fields, so its value should appear in extra values.
+		$found_colors = false;
+		foreach ( $extra_values as $value ) {
+			if ( is_array( $value ) && $value === array( 'red', 'blue', 'green' ) ) {
+				$found_colors = true;
+				break;
+			}
+		}
+		$this->assertTrue( $found_colors, 'Extra values should contain the checkbox-multiple array value' );
 	}
 
 	public function test_escape_legacy_v2_special_characters_handeling() {
