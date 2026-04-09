@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Inline the keepalive Web Worker as a Blob URL so it works on sites that load scripts from a different origin.
