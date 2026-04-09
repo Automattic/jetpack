@@ -161,13 +161,12 @@ const StoryChartProvider = ( {
 
 	return (
 		<ThemeProvider color={ themeProviderColor }>
+			{ /*
+				Storybook acts as a WPDS-themed host application so charts
+				inherit the design system body font through normal CSS
+				cascade.
+			*/ }
 			<div
-				id="app"
-				/*
-					Storybook acts as a WPDS-themed host application so charts
-					inherit the design system body font through normal CSS
-					cascade.
-					 */
 				style={ {
 					fontFamily: 'var(--wpds-font-family-body, sans-serif)',
 				} }
