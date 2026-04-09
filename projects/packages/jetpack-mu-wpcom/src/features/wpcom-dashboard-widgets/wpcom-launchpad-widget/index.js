@@ -41,7 +41,9 @@ function useSetHrefBase() {
 }
 
 const LaunchpadWidget = ( { siteDomain, siteIntent } ) => {
-	const [ , experimentData ] = useExperimentWithAuth( 'calypso_standardized_site_launch_gating' );
+	const [ , experimentData ] = useExperimentWithAuth(
+		'calypso_standardized_site_launch_gating_202603_v1'
+	);
 	const [ showCelebrateLaunchModal, setShowCelebrateLaunchModal ] = useState( false );
 
 	const variationName = experimentData?.variationName;
@@ -61,7 +63,7 @@ const LaunchpadWidget = ( { siteDomain, siteIntent } ) => {
 			return false;
 		}
 
-		if ( variationName === 'gated_site_launch' ) {
+		if ( variationName === 'semi_gated_site_launch' ) {
 			window.location.assign(
 				addQueryArgs( 'https://wordpress.com/start/launch-site', {
 					siteSlug: siteDomain,
