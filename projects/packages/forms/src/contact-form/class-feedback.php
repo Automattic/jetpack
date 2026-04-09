@@ -147,7 +147,10 @@ class Feedback {
 
 		$source_id = $feedback->get_entry_id();
 		if ( is_numeric( $source_id ) && (int) $source_id > 0 ) {
-			add_post_meta( $post_id, self::SOURCE_META_KEY, (int) $source_id, true );
+			$meta_added = add_post_meta( $post_id, self::SOURCE_META_KEY, (int) $source_id, true );
+			if ( $meta_added ) {
+				wp_cache_delete( self::SOURCE_IDS_CACHE_KEY, self::CACHE_GROUP );
+			}
 		}
 	}
 

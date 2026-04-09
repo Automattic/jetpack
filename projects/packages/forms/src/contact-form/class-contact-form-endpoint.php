@@ -1103,8 +1103,8 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 	 * @param WP_Query $query The WP_Query instance.
 	 * @return string Modified JOIN clause.
 	 */
-	public function join_source_meta( $join, $query ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- Required by posts_join filter signature.
-		if ( empty( $this->temp_source_filter_id ) ) {
+	public function join_source_meta( $join, $query ) {
+		if ( empty( $this->temp_source_filter_id ) || 'feedback' !== $query->get( 'post_type' ) ) {
 			return $join;
 		}
 		$sql = $this->get_source_filter_sql( $this->temp_source_filter_id );
@@ -1118,8 +1118,8 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 	 * @param WP_Query $query The WP_Query instance.
 	 * @return string Modified WHERE clause.
 	 */
-	public function filter_by_source_id( $where, $query ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- Required by posts_where filter signature.
-		if ( empty( $this->temp_source_filter_id ) ) {
+	public function filter_by_source_id( $where, $query ) {
+		if ( empty( $this->temp_source_filter_id ) || 'feedback' !== $query->get( 'post_type' ) ) {
 			return $where;
 		}
 		$sql = $this->get_source_filter_sql( $this->temp_source_filter_id );
