@@ -49,6 +49,8 @@ jobs:
 
       - name: Setup tools
         uses: ./.github/actions/tool-setup
+        with:
+          php: false
 
       - name: Pnpm install
         run: pnpm install
@@ -205,10 +207,12 @@ jobs:
 
       - name: Wait for prior instances of the workflow to finish
         if: github.event_name == 'push' && github.repository == 'Automattic/jetpack' && matrix.what == 'wpcom'
+        continue-on-error: true  # Let the artifact still be processed if the push fails. The later `update_mirrors` job will retry.
         uses: ./.github/actions/turnstile
 
       - name: Push wpcom projects
         if: github.event_name == 'push' && github.repository == 'Automattic/jetpack' && matrix.what == 'wpcom'
+        continue-on-error: true  # Let the artifact still be processed if the push fails. The later `update_mirrors` job will retry.
         uses: ./projects/github-actions/push-to-mirrors
         with:
           source-directory: ${{ github.workspace }}
@@ -438,7 +442,15 @@ jobs:
           name: jetpack-build.tar.xz
         timeout-minutes: 2  # 2025-11-06: Successful runs normally take a few seconds
       - name: Extract build archive
-        run: tar --xz -xvvf jetpack-build.tar.xz build
+        run: |
+          tar --xz -xvvf jetpack-build.tar.xz build
+
+          # Pull certain plugins to the top.
+          : > build/mirror.txt.tmp
+          grep -Fx 'Automattic/jetpack-production' build/mirror.txt >> build/mirror.txt.tmp || true
+          grep -Fx 'Automattic/jetpack-mu-wpcom-plugin' build/mirror.txt >> build/mirror.txt.tmp || true
+          grep -vFx --file build/mirror.txt.tmp build/mirror.txt >> build/mirror.txt.tmp || true
+          mv build/mirror.txt.tmp build/mirror.txt
         timeout-minutes: 1  # 2025-11-06: Successful runs seem to take a few seconds
 
       - name: Wait for prior instances of the workflow to finish
