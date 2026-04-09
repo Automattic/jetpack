@@ -38,6 +38,9 @@ class Settings_Test extends BaseTestCase {
 		remove_all_actions( 'admin_menu' );
 		remove_all_actions( 'admin_init' );
 		remove_all_filters( 'jetpack_module_configuration_url_subscriptions' );
+
+		// Clear the load action registered by add_wp_admin_menu on success.
+		remove_all_actions( 'load-jetpack_page_jetpack-newsletter' );
 	}
 
 	/**
@@ -52,39 +55,38 @@ class Settings_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test that init_hooks does not register the admin_menu action when the site is not connected.
+	 * Test that add_wp_admin_menu does not register the menu when not connected.
 	 */
-	public function test_init_hooks_does_not_register_admin_menu_when_not_connected() {
+	public function test_add_wp_admin_menu_does_not_register_menu_when_not_connected() {
 		// Ensure disconnected state.
 		\Jetpack_Options::delete_option( 'id' );
 		\Jetpack_Options::delete_option( 'blog_token' );
 		( new Connection_Manager() )->reset_connection_status();
 
 		$settings = new Settings();
-		$settings->init_hooks();
+		$settings->add_wp_admin_menu();
 
 		$this->assertFalse(
-			has_action( 'admin_menu', array( $settings, 'add_wp_admin_menu' ) ),
-			'admin_menu action should not be registered when site is not connected'
+			has_action( 'load-jetpack_page_jetpack-newsletter', array( $settings, 'admin_init' ) ),
+			'Newsletter menu should not be registered when site is not connected'
 		);
 	}
 
 	/**
-	 * Test that init_hooks registers the admin_menu action when the site is connected.
+	 * Test that add_wp_admin_menu registers the menu when connected.
 	 */
-	public function test_init_hooks_registers_admin_menu_when_connected() {
+	public function test_add_wp_admin_menu_registers_menu_when_connected() {
 		// Simulate connected state.
 		\Jetpack_Options::update_option( 'id', 1234 );
 		\Jetpack_Options::update_option( 'blog_token', 'test_token.secret' );
 		( new Connection_Manager() )->reset_connection_status();
 
 		$settings = new Settings();
-		$settings->init_hooks();
+		$settings->add_wp_admin_menu();
 
-		$this->assertSame(
-			999,
-			has_action( 'admin_menu', array( $settings, 'add_wp_admin_menu' ) ),
-			'admin_menu action should be registered at priority 999 when site is connected'
+		$this->assertNotFalse(
+			has_action( 'load-jetpack_page_jetpack-newsletter', array( $settings, 'admin_init' ) ),
+			'Newsletter menu should be registered when site is connected'
 		);
 	}
 }
