@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Connection: Cache APD instance, email resolution, and use autoloaded options for token reads to reduce per-request DB queries.
