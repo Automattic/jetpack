@@ -12,6 +12,7 @@ namespace Automattic\Jetpack\Forms\ContactForm;
 require_once __DIR__ . '/class-utility.php'; // phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
 
 /**
@@ -297,34 +298,94 @@ class Feedback_Legacy_Compatibility_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Data provider: every field type in $non_extra_fields that must not
+	 * fatal when its value is an array.
+	 */
+	public static function data_provider_non_extra_field_types() {
+		return array(
+			'email'    => array( 'email', 'Email', array( 'first@example.com', 'second@example.com' ) ),
+			'name'     => array( 'name', 'Name', array( 'Alice', 'Bob' ) ),
+			'url'      => array( 'url', 'Website', array( 'https://example.com', 'https://another.com' ) ),
+			'subject'  => array( 'subject', 'Subject', array( 'Subject A', 'Subject B' ) ),
+			'textarea' => array( 'textarea', 'Message', array( 'First message', 'Second message' ) ),
+			'ip'       => array( 'ip', 'IP', array( '127.0.0.1', '192.168.1.1' ) ),
+		);
+	}
+
+	/**
 	 * Regression test: get_legacy_extra_values() must not fatal when a
-	 * non-extra field (email, name, url, subject, textarea, ip) holds an
-	 * array value.
+	 * non-extra field holds an array value.
 	 *
 	 * In production this happens when POST data contains multiple values
 	 * for the same field name, causing get_field_value() to store an array.
 	 * The 'submit' context is critical because get_render_submit_value()
 	 * returns $this->value without any array-to-string conversion — unlike
 	 * 'default' context which implodes arrays.
+	 *
+	 * @dataProvider data_provider_non_extra_field_types
 	 */
-	public function test_get_legacy_extra_values_with_array_field_value_does_not_fatal() {
+	#[DataProvider( 'data_provider_non_extra_field_types' )]
+	public function test_get_legacy_extra_values_with_array_field_value_does_not_fatal( $type, $label, $array_value ) {
 		$feedback_time  = current_time( 'mysql' );
-		$comment_author = 'Test User';
-		$feedback_title = "{$comment_author} - {$feedback_time}";
+		$feedback_title = "Test User - {$feedback_time}";
 
-		// Create a url-type field whose value is an array — simulating a POST
-		// where multiple values were submitted for the same field name.
-		$url_field  = new Feedback_Field( '1_Website', 'Website', array( 'https://example.com', 'https://another.com' ), 'url' );
-		$name_field = new Feedback_Field( '2_Name', 'Name', 'Test User', 'name' );
-		$text_field = new Feedback_Field( '3_Comment', 'Comment', 'Hello world', 'text' );
+		$array_field = new Feedback_Field( '1_' . $label, $label, $array_value, $type );
+		$text_field  = new Feedback_Field( '2_Comment', 'Comment', 'Hello world', 'text' );
 
 		$content = array(
 			'subject' => 'Test Subject',
 			'ip'      => '127.0.0.1',
 			'fields'  => array(
-				$url_field->serialize(),
-				$name_field->serialize(),
+				$array_field->serialize(),
 				$text_field->serialize(),
+			),
+		);
+
+		$post_id = wp_insert_post(
+			array(
+				'post_type'      => 'feedback',
+				'post_status'    => 'publish',
+				'post_title'     => addslashes( wp_kses( $feedback_title, array() ) ),
+				'post_date'      => $feedback_time,
+				'post_name'      => md5( $feedback_title . $type ),
+				'post_content'   => wp_json_encode( $content, JSON_UNESCAPED_SLASHES ),
+				'post_mime_type' => 'v2',
+				'post_parent'    => 0,
+			)
+		);
+
+		$response = Feedback::get( $post_id );
+		$this->assertInstanceOf( Feedback::class, $response, "Feedback should load for {$type} field" );
+
+		// 'submit' context — the production path (class-contact-form.php:2678).
+		// get_render_submit_value() returns the raw array, which without the fix
+		// triggers: TypeError: Cannot access offset of type array on array
+		$extra_values_submit = $response->get_legacy_extra_values( 'submit' );
+		$this->assertIsArray( $extra_values_submit, "get_legacy_extra_values(submit) should not fatal for {$type} with array value" );
+
+		// 'default' context — implodes arrays to strings, verify it still works.
+		$extra_values_default = $response->get_legacy_extra_values( 'default' );
+		$this->assertIsArray( $extra_values_default, "get_legacy_extra_values(default) should not fatal for {$type} with array value" );
+	}
+
+	/**
+	 * Verify that checkbox-multiple fields preserve their array values
+	 * through get_legacy_extra_values() — they are the one field type
+	 * that legitimately holds arrays.
+	 */
+	public function test_get_legacy_extra_values_preserves_checkbox_multiple_array() {
+		$feedback_time  = current_time( 'mysql' );
+		$feedback_title = "Test User - {$feedback_time}";
+
+		$checkbox_field = new Feedback_Field( '1_Colors', 'Colors', array( 'red', 'blue', 'green' ), 'checkbox-multiple' );
+		$name_field     = new Feedback_Field( '2_Name', 'Name', 'Test User', 'name' );
+
+		$content = array(
+			'subject' => 'Test Subject',
+			'ip'      => '127.0.0.1',
+			'fields'  => array(
+				$checkbox_field->serialize(),
+				$name_field->serialize(),
 			),
 		);
 
@@ -344,16 +405,18 @@ class Feedback_Legacy_Compatibility_Test extends BaseTestCase {
 		$response = Feedback::get( $post_id );
 		$this->assertInstanceOf( Feedback::class, $response );
 
-		// 'submit' context — the production path (class-contact-form.php:2678).
-		// get_render_submit_value() returns the raw array, which triggers:
-		// TypeError: Cannot access offset of type array on array
-		$extra_values_submit = $response->get_legacy_extra_values( 'submit' );
-		$this->assertIsArray( $extra_values_submit, 'get_legacy_extra_values(submit) should not fatal with array field values' );
+		// checkbox-multiple values should remain as arrays in submit/api contexts.
+		$value_submit = $response->get_field_value_by_label( 'Colors', 'submit' );
+		$this->assertIsArray( $value_submit, 'checkbox-multiple value should be an array in submit context' );
+		$this->assertEquals( array( 'red', 'blue', 'green' ), $value_submit, 'checkbox-multiple value should preserve all selected options' );
 
-		// 'default' context — safe because get_render_default_value() implodes arrays,
-		// but verify it still works.
-		$extra_values_default = $response->get_legacy_extra_values( 'default' );
-		$this->assertIsArray( $extra_values_default, 'get_legacy_extra_values(default) should not fatal with array field values' );
+		// In default context, arrays are imploded to a comma-separated string.
+		$value_default = $response->get_field_value_by_label( 'Colors', 'default' );
+		$this->assertEquals( 'red, blue, green', $value_default, 'checkbox-multiple value should be imploded in default context' );
+
+		// get_legacy_extra_values should work without fatal.
+		$extra_values = $response->get_legacy_extra_values( 'submit' );
+		$this->assertIsArray( $extra_values, 'get_legacy_extra_values(submit) should work with checkbox-multiple' );
 	}
 
 	public function test_escape_legacy_v2_special_characters_handeling() {
