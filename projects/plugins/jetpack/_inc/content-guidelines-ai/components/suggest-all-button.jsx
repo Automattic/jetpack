@@ -22,9 +22,8 @@ export default function SuggestAllButton() {
 	const improveLabel = __( 'Improve guidelines', 'jetpack' );
 	const label = allEmpty ? generateLabel : improveLabel;
 
-	// Hide when the banner is visible (all empty + not dismissed).
-	const showBanner = allEmpty && ! bannerDismissed;
-	const hiddenProps = showBanner ? { style: { display: 'none' }, 'aria-hidden': true } : {};
+	// Hide when the banner is visible (not yet dismissed).
+	const hiddenProps = ! bannerDismissed ? { style: { display: 'none' }, 'aria-hidden': true } : {};
 
 	return (
 		<Button
