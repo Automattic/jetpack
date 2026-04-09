@@ -904,6 +904,9 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			return rest_ensure_response( $data );
 		}
 
+		// Lazily backfill source meta for old feedback that doesn't have it yet.
+		Feedback::maybe_backfill_source_meta( $item->ID, $feedback_response );
+
 		$data['date'] = get_the_date( 'c', $data['id'] );
 		if ( rest_is_field_included( 'uid', $fields ) ) {
 			$data['uid'] = $feedback_response->get_feedback_id();

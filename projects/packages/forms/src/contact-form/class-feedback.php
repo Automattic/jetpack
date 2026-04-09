@@ -130,6 +130,28 @@ class Feedback {
 	}
 
 	/**
+	 * Backfills the source post ID meta from the feedback object's resolved source.
+	 *
+	 * For old feedback parented to a jetpack_form that doesn't have
+	 * _feedback_source_post_id set yet, this writes the meta so future
+	 * queries can filter by source without the post_parent fallback.
+	 *
+	 * @param int      $post_id  The feedback post ID.
+	 * @param Feedback $feedback The feedback object (already has source resolved from parsed content).
+	 */
+	public static function maybe_backfill_source_meta( $post_id, $feedback ) {
+		$existing = get_post_meta( $post_id, self::SOURCE_META_KEY, true );
+		if ( $existing ) {
+			return;
+		}
+
+		$source_id = $feedback->get_entry_id();
+		if ( is_numeric( $source_id ) && (int) $source_id > 0 ) {
+			add_post_meta( $post_id, self::SOURCE_META_KEY, (int) $source_id, true );
+		}
+	}
+
+	/**
 	 * The form field values.
 	 *
 	 * @var array
@@ -1442,7 +1464,7 @@ class Feedback {
 		// Store source post ID as meta for queryable source filtering.
 		$source_id = $this->source->get_id();
 		if ( is_numeric( $post_id ) && (int) $post_id > 0 && is_numeric( $source_id ) && (int) $source_id > 0 ) {
-			update_post_meta( $post_id, self::SOURCE_META_KEY, (int) $source_id );
+			add_post_meta( $post_id, self::SOURCE_META_KEY, (int) $source_id, true );
 			wp_cache_delete( self::SOURCE_IDS_CACHE_KEY, self::CACHE_GROUP );
 		}
 
