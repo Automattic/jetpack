@@ -22,6 +22,7 @@ const AI_SIDEBAR_ASSET_TRANSIENT = 'jetpack_ai_sidebar_asset';
 const AI_SIDEBAR_JS_URL          = 'https://' . AM_ASSET_BASE_PATH . 'jetpack-ai-sidebar.min.js';
 const AI_SIDEBAR_CSS_URL         = 'https://' . AM_ASSET_BASE_PATH . 'jetpack-ai-sidebar.css';
 const AI_SIDEBAR_RTL_CSS_URL     = 'https://' . AM_ASSET_BASE_PATH . 'jetpack-ai-sidebar.rtl.css';
+const AI_SIDEBAR_PROVIDER_URL    = 'https://' . AM_ASSET_BASE_PATH . 'jetpack-ai-sidebar.provider.mjs';
 
 /**
  * Handles loading the Agents Manager from CDN and registering the
@@ -383,10 +384,11 @@ class Jetpack_AI_Sidebar {
 			$version
 		);
 
-		// Register as AM provider. When Big Sky is also present, AM merges
-		// both providers — abilities, suggestions, and components are combined.
-		$esm_url     = plugins_url( '_inc/blocks/ai-sidebar/jetpack-ai-provider-esm.mjs', JETPACK__PLUGIN_FILE );
-		$providers[] = $esm_url . '?ver=' . $version;
+		// Register as AM provider via CDN-hosted ESM wrapper.
+		// AM dynamically imports this module to merge tools, suggestions, and components.
+		// No ?ver= needed — the wrapper re-exports from window.__JetpackAIProvider
+		// at import time, so its behavior always matches the loaded IIFE bundle.
+		$providers[] = AI_SIDEBAR_PROVIDER_URL;
 
 		return $providers;
 	}

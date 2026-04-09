@@ -281,7 +281,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		$providers = Jetpack_AI_Sidebar::register_provider( array() );
 
 		$this->assertCount( 1, $providers );
-		$this->assertStringContainsString( 'jetpack-ai-provider-esm.mjs', $providers[0] );
+		$this->assertStringContainsString( 'jetpack-ai-sidebar.provider.mjs', $providers[0] );
 		$this->assertTrue( wp_script_is( 'jetpack-ai-provider', 'enqueued' ) );
 		$this->assertTrue( wp_style_is( 'jetpack-ai-provider', 'enqueued' ) );
 	}
@@ -320,7 +320,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		$this->assertCount( 3, $providers );
 		$this->assertSame( 'https://example.com/provider-a.mjs', $providers[0] );
 		$this->assertSame( 'https://example.com/provider-b.mjs', $providers[1] );
-		$this->assertStringContainsString( 'jetpack-ai-provider-esm.mjs', $providers[2] );
+		$this->assertStringContainsString( 'jetpack-ai-sidebar.provider.mjs', $providers[2] );
 	}
 
 	// ──────────────────────────────────────────────────
@@ -386,7 +386,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		$providers = apply_filters( 'agents_manager_agent_providers', array() );
 
 		$this->assertCount( 1, $providers );
-		$this->assertStringContainsString( 'jetpack-ai-provider-esm.mjs', $providers[0] );
+		$this->assertStringContainsString( 'jetpack-ai-sidebar.provider.mjs', $providers[0] );
 	}
 
 	/**
