@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Hide the sidebar upsell when the site is not connected to Jetpack or is in offline mode.
