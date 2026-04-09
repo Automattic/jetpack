@@ -1,6 +1,6 @@
 import { createRoot, createElement } from '@wordpress/element';
-import BlockGenerateButton from '../components/block-generate-button';
 import BlockSuggestionActions from '../components/block-suggestion-actions';
+import BlockSuggestionButtons from '../components/block-suggestion-buttons';
 import EmptyStateBanner from '../components/empty-state-banner';
 import SectionGenerateButton from '../components/section-generate-button';
 import SuggestAllButton from '../components/suggest-all-button';
@@ -27,8 +27,8 @@ for ( const slug of VALID_SECTIONS ) {
 	slots[ `button-${ slug }` ] = { container: null, root: null };
 }
 
-slots[ 'block-button' ] = { container: null, root: null };
 slots[ 'block-actions' ] = { container: null, root: null };
+slots[ 'block-suggestion-buttons' ] = { container: null, root: null };
 
 /**
  * Inject a React component into the DOM, reusing or replacing the slot.
@@ -212,16 +212,17 @@ function runAll() {
 	const blockName = blockModal ? getBlockNameFromModal( blockModal ) : null;
 
 	if ( blockName ) {
-		// Suggestion actions (diff + accept/dismiss) above textarea.
+		// Suggestion actions (diff + accept/dismiss) inside textarea wrapper,
+		// after the label but before the <textarea> input.
 		inject(
 			'block-actions',
 			() => {
-				const textarea = blockModal.querySelector( '.components-textarea-control' );
-				const vStack = textarea?.parentElement;
-				return vStack
+				const textareaInput = blockModal.querySelector( '.components-textarea-control__input' );
+				const field = textareaInput?.parentElement;
+				return field
 					? {
-							parent: vStack,
-							before: textarea,
+							parent: field,
+							before: textareaInput,
 							className: 'jetpack-content-guidelines-ai__block-actions-container',
 					  }
 					: null;
@@ -230,20 +231,21 @@ function runAll() {
 			{ blockName }
 		);
 
-		// Generate/Improve button in the modal actions bar.
+		// Improve/Accept/Dismiss buttons — row above the action bar.
 		inject(
-			'block-button',
+			'block-suggestion-buttons',
 			() => {
 				const actionsBar = blockModal.querySelector( '.block-guideline-modal__actions' );
-				return actionsBar
+				const vStack = actionsBar?.parentElement;
+				return vStack
 					? {
-							parent: actionsBar,
-							before: actionsBar.firstChild,
-							className: 'jetpack-content-guidelines-ai__block-button-container',
+							parent: vStack,
+							before: actionsBar,
+							className: 'jetpack-content-guidelines-ai__block-suggestion-buttons-container',
 					  }
 					: null;
 			},
-			BlockGenerateButton,
+			BlockSuggestionButtons,
 			{ blockName }
 		);
 	}

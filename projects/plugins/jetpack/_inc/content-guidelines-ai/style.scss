@@ -150,7 +150,7 @@
 	overflow-wrap: break-word;
 	overflow-y: auto;
 	resize: vertical;
-	cursor: pointer;
+	cursor: default;
 	box-sizing: border-box;
 }
 
@@ -205,7 +205,7 @@
 
 // Hide Gutenberg's DataForm and Save/Clear when a suggestion is active.
 // Also hide the per-section generate button since Accept/Dismiss replaces it.
-.has-jetpack-suggestion > :first-child > :not(.jetpack-content-guidelines-ai__actions-container) {
+.has-jetpack-suggestion:not(.block-guideline-modal) > :first-child > :not(.jetpack-content-guidelines-ai__actions-container) {
 	display: none;
 }
 
@@ -233,13 +233,27 @@
 	box-sizing: border-box;
 }
 
-// Block guideline modal — hide textarea when suggestion is active.
-.block-guideline-modal.has-jetpack-suggestion .components-textarea-control {
+// Block guideline modal — hide only the textarea input
+// when suggestion is active, keeping the label visible.
+.block-guideline-modal.has-jetpack-suggestion .components-textarea-control__input {
 	display: none;
+}
+
+// Block modal — shimmer only on the textarea,
+// not the label wrapper. Suppress the ::after overlay
+// and apply shimmer as a background on the textarea.
+.block-guideline-modal.is-jetpack-loading .components-textarea-control::after {
+	content: none;
+}
+
+.block-guideline-modal.is-jetpack-loading .components-textarea-control__input {
+	background: linear-gradient(90deg, transparent 0%, rgba(0, 135, 0, 0.08) 50%, transparent 100%);
+	background-size: 200% 100%;
+	animation: jetpack-cg-shimmer 1.5s infinite;
 }
 
 // Block modal injected containers — collapse when empty.
 .jetpack-content-guidelines-ai__block-actions-container,
-.jetpack-content-guidelines-ai__block-button-container {
+.jetpack-content-guidelines-ai__block-suggestion-buttons-container {
 	display: contents;
 }

@@ -1,0 +1,97 @@
+import { Button } from '@wordpress/components';
+import { useDispatch, useSelect } from '@wordpress/data';
+import { useCallback } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
+import { store as noticesStore } from '@wordpress/notices';
+import { STORE_NAME } from '../constants';
+import { suggestGuidelines } from '../lib/api';
+import { showUnavailableNotice } from '../lib/availability';
+import { acceptBlockSuggestion } from '../lib/dom';
+import { AI_STORE_NAME } from '../store';
+
+export default function BlockSuggestionButtons( { blockName } ) {
+	const { createErrorNotice } = useDispatch( noticesStore );
+	const { startSectionLoading, stopSectionLoading, setSuggestion, clearSuggestion } =
+		useDispatch( AI_STORE_NAME );
+
+	const blockLoading = useSelect(
+		select => select( AI_STORE_NAME ).isSectionLoading( blockName ),
+		[ blockName ]
+	);
+
+	const suggestion = useSelect(
+		select => select( AI_STORE_NAME ).getSuggestion( blockName ),
+		[ blockName ]
+	);
+
+	const saved = useSelect(
+		select => select( STORE_NAME ).getBlockGuideline( blockName ),
+		[ blockName ]
+	);
+
+	const handleGenerate = useCallback( async () => {
+		if ( showUnavailableNotice() ) {
+			return;
+		}
+
+		const modal = document.querySelector( '.block-guideline-modal' );
+		const textarea = modal?.querySelector( '.components-textarea-control__input' );
+		const currentText = textarea?.value || '';
+
+		startSectionLoading( blockName );
+		try {
+			const existingContent = currentText ? { [ blockName ]: currentText } : {};
+			const response = await suggestGuidelines( [ blockName ], existingContent );
+			const text = response?.suggestions?.[ blockName ];
+			if ( text ) {
+				setSuggestion( blockName, text );
+			}
+		} catch {
+			createErrorNotice( __( 'Failed to generate guidelines. Please try again.', 'jetpack' ), {
+				type: 'snackbar',
+			} );
+		} finally {
+			stopSectionLoading( blockName );
+		}
+	}, [ blockName, startSectionLoading, stopSectionLoading, setSuggestion, createErrorNotice ] );
+
+	const handleAccept = useCallback( () => {
+		acceptBlockSuggestion( blockName, suggestion, clearSuggestion );
+	}, [ blockName, suggestion, clearSuggestion ] );
+
+	const handleDismiss = useCallback( () => {
+		clearSuggestion( blockName );
+	}, [ blockName, clearSuggestion ] );
+
+	if ( suggestion ) {
+		return (
+			<div className="jetpack-content-guidelines-ai__suggestion-actions">
+				<Button variant="primary" onClick={ handleAccept }>
+					{ __( 'Accept suggestion', 'jetpack' ) }
+				</Button>
+				<Button variant="tertiary" onClick={ handleDismiss }>
+					{ __( 'Dismiss', 'jetpack' ) }
+				</Button>
+			</div>
+		);
+	}
+
+	const isEmpty = ! saved;
+	const label = isEmpty
+		? __( 'Generate guidelines', 'jetpack' )
+		: __( 'Improve guidelines', 'jetpack' );
+
+	return (
+		<div className="jetpack-content-guidelines-ai__suggestion-actions">
+			<Button
+				variant="secondary"
+				onClick={ handleGenerate }
+				disabled={ blockLoading }
+				accessibleWhenDisabled
+				className="jetpack-content-guidelines-ai__section-generate-button"
+			>
+				{ label }
+			</Button>
+		</div>
+	);
+}

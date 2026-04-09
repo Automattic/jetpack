@@ -1,10 +1,10 @@
 import { Button } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
-import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
+import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { diffWords } from 'diff';
 import { STORE_NAME } from '../constants';
 import { AI_STORE_NAME } from '../store';
+import DiffView from './diff-view';
 
 export default function SuggestionActions( { slug } ) {
 	const suggestion = useSelect( select => select( AI_STORE_NAME ).getSuggestion( slug ), [ slug ] );
@@ -45,13 +45,6 @@ export default function SuggestionActions( { slug } ) {
 		};
 	}, [ slug, suggestion, sectionLoading ] );
 
-	const diff = useMemo( () => {
-		if ( ! suggestion ) {
-			return [];
-		}
-		return diffWords( original, suggestion );
-	}, [ original, suggestion ] );
-
 	const handleAccept = useCallback( () => {
 		setGuideline( slug, suggestion );
 		clearSuggestion( slug );
@@ -61,52 +54,18 @@ export default function SuggestionActions( { slug } ) {
 		clearSuggestion( slug );
 	}, [ slug, clearSuggestion ] );
 
-	const handleKeyDown = useCallback(
-		e => {
-			if ( e.key === 'Enter' || e.key === ' ' ) {
-				e.preventDefault();
-				handleAccept();
-			}
-		},
-		[ handleAccept ]
-	);
-
 	if ( ! suggestion ) {
 		return null;
 	}
 
 	return (
 		<div className="jetpack-content-guidelines-ai__suggestion">
-			<div
-				className="jetpack-content-guidelines-ai__diff"
-				style={ textareaHeight ? { height: textareaHeight } : undefined }
-				role="button"
-				tabIndex={ 0 }
-				aria-label={ __( 'Click to accept suggested changes', 'jetpack' ) }
-				onClick={ handleAccept }
-				onKeyDown={ handleKeyDown }
-			>
-				<span className="screen-reader-text">
-					{ __( 'Changes from current to suggested guidelines:', 'jetpack' ) }
-				</span>
-				{ diff.map( ( part, i ) => {
-					if ( part.added ) {
-						return (
-							<ins key={ i } className="jetpack-content-guidelines-ai__diff-added">
-								{ part.value }
-							</ins>
-						);
-					}
-					if ( part.removed ) {
-						return (
-							<del key={ i } className="jetpack-content-guidelines-ai__diff-removed">
-								{ part.value }
-							</del>
-						);
-					}
-					return <span key={ i }>{ part.value }</span>;
-				} ) }
-			</div>
+			<DiffView
+				original={ original }
+				suggestion={ suggestion }
+				onAccept={ handleAccept }
+				height={ textareaHeight }
+			/>
 			<div className="jetpack-content-guidelines-ai__suggestion-actions">
 				<Button variant="primary" onClick={ handleAccept }>
 					{ __( 'Accept suggestion', 'jetpack' ) }
