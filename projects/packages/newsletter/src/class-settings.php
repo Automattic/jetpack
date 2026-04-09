@@ -118,14 +118,9 @@ class Settings {
 			return;
 		}
 
-		// On sites using Jetpack, only show the menu if the site is connected.
-		if ( ! ( new Connection_Manager() )->is_connected() ) {
-			return;
-		}
-
 		// Add admin menu item.
-		// The expose_to_users() check is deferred to add_wp_admin_menu() so that
-		// filters registered after init() are available when admin_menu fires.
+		// The expose_to_users() and is_connected() checks are deferred to add_wp_admin_menu()
+		// so that filters registered after init() are available when admin_menu fires.
 		// Use priority 999 to ensure menu items are queued BEFORE Admin_Menu::admin_menu_hook_callback
 		// runs at priority 1000 to process all queued items.
 		add_action( 'admin_menu', array( $this, 'add_wp_admin_menu' ), 999 );
@@ -142,6 +137,11 @@ class Settings {
 	 */
 	public function add_wp_admin_menu() {
 		if ( ! $this->expose_to_users() ) {
+			return;
+		}
+
+		// On sites using Jetpack, only show the menu if the site is connected.
+		if ( ! ( new Connection_Manager() )->is_connected() ) {
 			return;
 		}
 
