@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Replace hardcoded typography values with WPDS design tokens for font family, size, weight, and line height.

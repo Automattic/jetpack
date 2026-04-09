@@ -371,7 +371,6 @@ export const OverlayLabelWithImage: Story = {
 		loading: false,
 		style: {
 			'--a8c--charts--leaderboard--bar--border-radius': '4px',
-			fontFamily: `"SF Pro Text", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif`,
 		},
 	},
 	render: args => <LeaderboardChartWithOverlayLabelImage { ...args } />,
