@@ -21,6 +21,10 @@
 	display: grid;
 	align-items: center;
 	grid-template-columns: 1fr;
+	// Outlier: not tokenized. The leaderboard's compact bar + gap + bar
+	// rhythm (6px bar, 6px row-gap, 6px bar) is intentional and does not
+	// map to any WPDS dimension token — gap-sm (8px) breaks the visual
+	// balance between the rows and the bars.
 	row-gap: 6px;
 	isolation: isolate;
 
