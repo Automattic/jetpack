@@ -22,14 +22,12 @@ jp changelog add js-packages/charts -s patch -t changed -e "Charts: <user-facing
 
 ## WordPress UI + Theme Integration
 
-The package is migrating to WordPress UI and Theme as its defaults (see the Linear project [WordPress UI + Theme Integration](https://linear.app/a8c/project/wordpress-ui-theme-integration-7674aa8fa4a7)). When adding or changing code, follow these defaults unless the task explicitly says otherwise:
+The package is migrating to WordPress UI and Theme as its defaults. When adding or changing code, follow these defaults unless the task explicitly says otherwise:
 
 - **Design tokens (WPDS).** In SCSS, use `var(--wpds-dimension-*, <fallback>)`, `var(--wpds-border-*, <fallback>)`, and `var(--wpds-font-*, <fallback>)` instead of hardcoded px values for spacing, padding, margins, border radius, border width, font size, and font weight. Fallbacks must match the WPDS spec value for that token — do not invent fallback values.
 - **UI primitives.** Prefer `Stack` and the stable `Text` from `@wordpress/ui` over ad-hoc flexbox or raw `<span>`/`<div>` for layout and text. Do not use `__experimental*` exports (e.g. `__experimentalText`) — use the stable `@wordpress/ui` equivalents.
 - **Theming.** Theming flows through `@wordpress/theme`'s `ThemeProvider` (unlocked via private APIs in Storybook; see `src/stories/chart-decorator.tsx`). Do not manually override DS tokens in stories or components to achieve theming — pass a color through `ThemeProvider` instead.
 - **Chart element styles.** Read chart element styles via `getElementStyles` from `GlobalChartsProvider`, not directly from `theme`. This is the supported path for color/style resolution across themes.
-
-Background reading: [design analysis](https://unifiedanalyticsp2.wordpress.com/2026/02/20/aligning-automattic-charts-with-wordpress-theme-package/) · [project P2](https://a8cchartsp2.wordpress.com/2026/04/02/wordpress-ui-theme-integration/).
 
 ## Documentation Workflow
 
