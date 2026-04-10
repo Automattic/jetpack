@@ -122,10 +122,29 @@ If you are using the Jetpack Search free option, and you have more than 5000 rec
 5. Manage all of your Jetpack products, including Search, in a single place.
 
 == Changelog ==
-### 5.2.2 - 2025-11-21
+### 6.0.0 - 2026-04-10
+#### Added
+- Add Jetpack Protect details page for users without the dedicated Jetpack Protect plugin.
+- IDC: Add revalidation for IDCs.
+
+#### Changed
+- Dependencies: Update lock file to keep root requirements in sync.
+- Instant Search: Show WooCommerce product filters in filter widget.
+- My Jetpack: Check red bubble notification async when cache is not available.
+- Remove header border-bottom from the admin page for a cleaner unified header appearance.
+- Search: Use the core WordPress spinner component for the dashboard loading state.
+- Switch to Native TypeScript compiler based on Go.
+- Update composer.lock.
+- Update design of the sidebar upsell.
+- Update package dependencies.
+
+#### Removed
+- General: Update minimum WordPress version to 6.8.
+
 #### Fixed
-- Jetpack: Remove getIconColor functions for block icons.
-- My Jetpack: Fix expiring renewal prompt to show all products.
+- Admin Page: Restore border on header component.
+- Fix TypeScript errors detected by tsgo.
+- Update e2e test selector for renamed footer CSS class.
 
 == Testimonials ==
 
