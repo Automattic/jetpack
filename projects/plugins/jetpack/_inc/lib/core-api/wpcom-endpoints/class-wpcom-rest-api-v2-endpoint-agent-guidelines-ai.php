@@ -58,12 +58,10 @@ class WPCOM_REST_API_V2_Endpoint_Agent_Guidelines_AI extends WP_REST_Controller 
 			$this->namespace,
 			'/' . $this->rest_base,
 			array(
-				array(
-					'methods'             => WP_REST_Server::CREATABLE,
-					'callback'            => array( $this, 'suggest_guidelines' ),
-					'permission_callback' => array( $this, 'permission_callback' ),
-				),
-				'args' => array(
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => array( $this, 'suggest_guidelines' ),
+				'permission_callback' => array( $this, 'permission_callback' ),
+				'args'                => array(
 					'categories' => array(
 						'description' => __( 'Categories to generate guidelines for.', 'jetpack' ),
 						'type'        => 'object',
@@ -98,7 +96,7 @@ class WPCOM_REST_API_V2_Endpoint_Agent_Guidelines_AI extends WP_REST_Controller 
 
 		$response = Client::wpcom_json_api_request_as_blog(
 			sprintf( '/sites/%d/jetpack-ai/suggest-guidelines', $blog_id ) . '?force=wpcom',
-			2,
+			'2',
 			array(
 				'method'  => 'POST',
 				'headers' => array( 'content-type' => 'application/json' ),
@@ -117,8 +115,8 @@ class WPCOM_REST_API_V2_Endpoint_Agent_Guidelines_AI extends WP_REST_Controller 
 		$data        = json_decode( $body_str, true );
 
 		if ( $status_code !== 200 ) {
-			$message = isset( $data['message'] ) ? $data['message'] : __( 'Failed to generate guidelines.', 'jetpack' );
-			$code    = isset( $data['code'] ) ? $data['code'] : 'upstream_error';
+			$message = $data['message'] ?? __( 'Failed to generate guidelines.', 'jetpack' );
+			$code    = $data['code'] ?? 'upstream_error';
 			return new WP_Error( $code, $message, array( 'status' => $status_code ) );
 		}
 
