@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Post Notification Emails: handle Like-button clicks on Atomic/WoW sites by proxying to the new wpcom/v2/email-like endpoint, restoring parity with Simple sites.
