@@ -618,7 +618,6 @@ describe( 'Instagram previews', () => {
 		expect( imgEl ).toBeInTheDocument();
 		expect( imgEl ).toHaveAttribute( 'src', IMAGE_SRC_FIXTURE );
 	} );
-
 } );
 
 describe( 'Facebook post previews', () => {

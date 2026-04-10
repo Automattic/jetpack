@@ -20,6 +20,8 @@ const MAX_RATIO = 1.91; // widest allowed
  * Detects the image's natural aspect ratio and clamps it to Instagram's
  * supported range. Hides the media container until the ratio is known
  * to prevent layout reflow.
+ *
+ * @return The clamped aspect ratio, loading state, and image event handlers.
  */
 function useInstagramAspectRatio() {
 	const [ aspectRatio, setAspectRatio ] = useState< number | undefined >();
@@ -94,12 +96,7 @@ export function InstagramPostPreview( {
 							) }
 						</div>
 					) : (
-						<img
-							className="instagram-preview__media--image"
-							src={ image }
-							alt=""
-							{ ...imgProps }
-						/>
+						<img className="instagram-preview__media--image" src={ image } alt="" { ...imgProps } />
 					) }
 				</div>
 				<div className="instagram-preview__content">

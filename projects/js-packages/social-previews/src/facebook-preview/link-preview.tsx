@@ -14,7 +14,6 @@ export type FacebookLinkPreviewProps = Omit< FacebookPreviewProps, 'imageMode' >
 export const FacebookLinkPreview: React.FC< FacebookLinkPreviewProps > = ( {
 	url,
 	title,
-	description,
 	image,
 	user,
 	customText,
