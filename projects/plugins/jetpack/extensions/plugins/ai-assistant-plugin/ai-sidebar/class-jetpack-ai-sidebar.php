@@ -14,6 +14,9 @@ namespace Automattic\Jetpack\Extensions\AiAssistantPlugin;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
+use function Automattic\Jetpack\Extensions\Shared\determine_iso_639_locale;
+
+require_once __DIR__ . '/../../../shared/cdn-locale.php';
 
 const AM_ASSET_BASE_PATH         = 'widgets.wp.com/agents-manager/';
 const AM_ASSET_TRANSIENT         = 'jetpack_am_gutenberg_asset';
@@ -176,7 +179,7 @@ class Jetpack_AI_Sidebar {
 		}
 
 		// Translations.
-		$locale = self::determine_iso_639_locale();
+		$locale = determine_iso_639_locale();
 		if ( 'en' !== $locale ) {
 			wp_enqueue_script(
 				'agents-manager-translations',
@@ -543,28 +546,6 @@ class Jetpack_AI_Sidebar {
 		}
 
 		return false;
-	}
-
-	/**
-	 * Determine the ISO 639 locale code for the current user.
-	 *
-	 * @return string The ISO 639 language code, defaulting to 'en'.
-	 */
-	private static function determine_iso_639_locale(): string {
-		$language = get_user_locale();
-		$language = strtolower( $language );
-
-		if ( in_array( $language, array( 'pt_br', 'pt-br', 'zh_tw', 'zh-tw', 'zh_cn', 'zh-cn' ), true ) ) {
-			$language = str_replace( '_', '-', $language );
-		} else {
-			$language = preg_replace( '/([-_].*)$/i', '', $language );
-		}
-
-		if ( empty( $language ) ) {
-			return 'en';
-		}
-
-		return $language;
 	}
 
 	/**
