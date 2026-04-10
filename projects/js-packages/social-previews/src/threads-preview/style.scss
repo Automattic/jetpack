@@ -7,7 +7,9 @@
 
 .threads-preview__wrapper {
 	background-color: #fff;
-	max-width: clamp(200px, 100%, 635px);
+	width: 100%;
+	max-width: 638px;
+	min-width: 200px;
 	margin-inline: auto;
 	padding-top: 1rem;
 	border-radius: 4px;
@@ -15,7 +17,9 @@
 }
 
 .threads-preview__section.social-preview__section {
-	width: clamp(200px, 100%, 635px);
+	width: 100%;
+	max-width: 638px;
+	min-width: 200px;
 
 	// To compensate for the padding for profile picture in threads threads
 	.social-preview__section-heading,
@@ -87,34 +91,60 @@
 		}
 
 		.threads-preview__media {
-			border-radius: 15px;
+			border-radius: 12px;
 			overflow: hidden;
 			display: grid;
 			gap: 2px;
 			grid-template-areas: "a";
-			height: 300px;
 			margin-top: 12px;
 
-			img,
-			video {
-				width: 100%;
-				height: 100%;
-				object-fit: cover;
+			// Single image: natural aspect ratio.
+			// 430px matches Threads' max image height in the feed.
+			&.threads-preview__media-children-1 {
+				height: auto;
+				max-height: 430px;
+				width: fit-content;
+				max-width: 100%;
 
-				&:nth-child(1) {
-					grid-area: a;
+				img,
+				video {
+					max-width: 100%;
+					max-height: 430px;
+					width: auto;
+					height: auto;
+					display: block;
+
+					&:nth-child(1) {
+						grid-area: a;
+					}
 				}
+			}
 
-				&:nth-child(2) {
-					grid-area: b;
-				}
+			// Multi-image grid: fixed height, crop to fill
+			&:not(.threads-preview__media-children-1) {
+				height: 300px;
 
-				&:nth-child(3) {
-					grid-area: c;
-				}
+				img,
+				video {
+					width: 100%;
+					height: 100%;
+					object-fit: cover;
 
-				&:nth-child(4) {
-					grid-area: d;
+					&:nth-child(1) {
+						grid-area: a;
+					}
+
+					&:nth-child(2) {
+						grid-area: b;
+					}
+
+					&:nth-child(3) {
+						grid-area: c;
+					}
+
+					&:nth-child(4) {
+						grid-area: d;
+					}
 				}
 			}
 
@@ -137,41 +167,43 @@
 
 		.threads-preview__card {
 			margin-top: 12px;
-			margin-bottom: 12px;
+			max-width: 400px;
 			overflow: hidden;
-			border: 1px solid #e1e8ed;
-			border-radius: 8px;
+			border: 1px solid rgba(0, 0, 0, 0.15);
+			border-radius: 12px;
 
 			.threads-preview__card-image {
 				width: 100%;
-				height: 100%;
 				object-fit: cover;
-				aspect-ratio: 16/9;
+				aspect-ratio: 1.91/1;
+				display: block;
 			}
 
 			.threads-preview__card-body {
-				padding: 0.75em;
+				padding: 0.75rem;
 				text-decoration: none;
-				font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-				color: var(--studio-black);
 				text-align: left;
 				overflow: hidden;
 				display: flex;
 				flex-direction: column;
-				gap: 2px;
-			}
-
-			.threads-preview__card-title {
-				text-overflow: ellipsis;
+				gap: 0.25rem;
 			}
 
 			.threads-preview__card-url {
 				font-size: 12px;
-				text-transform: lowercase;
 				color: vars.$threads-text-secondary-color;
 				white-space: nowrap;
-				overflow-inline: hidden;
+				overflow: hidden;
 				text-overflow: ellipsis;
+			}
+
+			.threads-preview__card-title {
+				font-size: 14px;
+				line-height: 1.3;
+				display: -webkit-box;
+				-webkit-line-clamp: 2;
+				-webkit-box-orient: vertical;
+				overflow: hidden;
 			}
 		}
 	}

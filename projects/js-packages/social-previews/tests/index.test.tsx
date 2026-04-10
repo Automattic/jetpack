@@ -2,14 +2,19 @@
 /* eslint-disable testing-library/no-node-access */
 /* eslint-disable testing-library/no-container */
 import '@testing-library/jest-dom';
-import { render } from '@testing-library/react';
+import { render, renderHook, act } from '@testing-library/react';
 import * as React from 'react';
 import {
 	FacebookLinkPreview as Facebook,
+	FacebookPostPreview,
+	InstagramPostPreview,
+	LinkedInPostPreview,
 	TwitterPostPreview as Twitter,
 	TwitterPreviews,
 	GoogleSearchPreview as Search,
 } from '../src';
+import { facebookDescription } from '../src/facebook-preview/helpers';
+import useImage from '../src/facebook-preview/hooks/use-image-hook';
 import { formatTweetDate } from '../src/helpers';
 
 // Mock @wordpress/components SandBox to avoid iframe initialization issues in tests
@@ -58,41 +63,7 @@ describe( 'Facebook previews', () => {
 		expect( titleEl.textContent.replace( '…', '' ) ).toHaveLength( 110 );
 	} );
 
-	it( 'should display a (hard) truncated description', () => {
-		const { container } = render(
-			<Facebook
-				url={ DEFAULT_POST_URL }
-				title={ DEFAULT_POST_TITLE }
-				description="I know the kings of England, and I quote the fights historical, From Marathon to Waterloo, in order categorical; I'm very well acquainted, too, with matters mathematical, I understand equations, both the simple and quadratical; About binomial theorem I'm teeming with a lot o' news, With many cheerful facts about the square of the hypotenuse."
-			/>
-		);
-
-		const descEl = container.querySelector( '.facebook-preview__description' );
-
-		expect( descEl ).toBeVisible();
-		expect( descEl ).toHaveTextContent(
-			"I know the kings of England, and I quote the fights historical, From Marathon to Waterloo, in order categorical; I'm very well acquainted, too, with matters mathematical, I understand equations, both …"
-		);
-		expect( descEl.textContent.replace( '…', '' ) ).toHaveLength( 200 );
-	} );
-
-	it( 'should strip html tags from the description', () => {
-		const { container } = render(
-			<Facebook
-				url={ DEFAULT_POST_URL }
-				title={ DEFAULT_POST_TITLE }
-				description="<p style='color:red'>I know the kings of <span>England, and I quote the fights historical, From Marathon to Waterloo, in order categorical; I'm very well acquainted, too, with matters mathematical, I understand equations, <span>both</span> the simple and quadratical; About binomial theorem I'm teeming with a lot o' news, With many cheerful facts about the square of the hypotenuse."
-			/>
-		);
-
-		const descEl = container.querySelector( '.facebook-preview__description' );
-
-		expect( descEl ).toBeVisible();
-		expect( descEl ).toHaveTextContent(
-			"I know the kings of England, and I quote the fights historical, From Marathon to Waterloo, in order categorical; I'm very well acquainted, too, with matters mathematical, I understand equations, both …"
-		);
-		expect( descEl.textContent.replace( '…', '' ) ).toHaveLength( 200 );
-	} );
+	// Facebook link previews no longer show descriptions — only domain and title.
 
 	it( 'should display image only when provided', () => {
 		const { container: container1 } = render(
@@ -157,46 +128,11 @@ describe( 'Twitter previews', () => {
 		);
 
 		const tweetWrapper = container.querySelector( '.twitter-preview__container' );
-		const titleEl = tweetWrapper.querySelector( '.twitter-preview__card-title' );
+		const titleEl = tweetWrapper.querySelector( '.twitter-preview__card-title-overlay span' );
 
 		expect( titleEl ).toBeVisible();
 		expect( titleEl ).toHaveTextContent(
 			"I am the very model of a modern Major-General, I've information vegetable, animal, and mineral."
-		);
-	} );
-
-	it( 'should display a truncated description', () => {
-		const { container } = render(
-			<Twitter
-				{ ...dummyProps }
-				description="I know the kings of England, and I quote the fights historical, From Marathon to Waterloo, in order categorical; I'm very well acquainted, too, with matters mathematical, I understand equations, both the simple and quadratical; About binomial theorem I'm teeming with a lot o' news, With many cheerful facts about the square of the hypotenuse."
-			/>
-		);
-
-		const tweetWrapper = container.querySelector( '.twitter-preview__container' );
-		const descEl = tweetWrapper.querySelector( '.twitter-preview__card-description' );
-
-		expect( descEl ).toBeVisible();
-		expect( descEl ).toHaveTextContent(
-			"I know the kings of England, and I quote the fights historical, From Marathon to Waterloo, in order categorical; I'm very well acquainted, too, with matters mathematical, I understand equations, both …"
-		);
-		expect( descEl.textContent.replace( '…', '' ) ).toHaveLength( 200 );
-	} );
-
-	it( 'should strip html tags from the description', () => {
-		const { container } = render(
-			<Twitter
-				{ ...dummyProps }
-				description="<p style='color:red'>I know the kings of <span>England, and I quote the fights historical, From Marathon to Waterloo, in order categorical; I'm very well acquainted, too, with matters mathematical, I understand equations, <span>both</span> the simple and quadratical; About binomial theorem I'm teeming with a lot o' news, With many cheerful facts about the square of the hypotenuse."
-			/>
-		);
-
-		const tweetWrapper = container.querySelector( '.twitter-preview__container' );
-		const descEl = tweetWrapper.querySelector( '.twitter-preview__card-description' );
-
-		expect( descEl ).toBeVisible();
-		expect( descEl ).toHaveTextContent(
-			"I know the kings of England, and I quote the fights historical, From Marathon to Waterloo, in order categorical; I'm very well acquainted, too, with matters mathematical, I understand equations, both …"
 		);
 	} );
 
@@ -224,26 +160,15 @@ describe( 'Twitter previews', () => {
 		expect( imageEl ).toHaveAttribute( 'src', IMAGE_SRC_FIXTURE );
 	} );
 
-	it( 'should display a protocol-less url only (with no separator) when author is not provided', () => {
+	it( 'should display the domain in the card', () => {
 		const { container } = render( <Twitter { ...dummyProps } url="https://wordpress.com" /> );
 
 		const tweetWrapper = container.querySelector( '.twitter-preview__container' );
 
-		const urlEl = tweetWrapper.querySelector( '.twitter-preview__card-url' );
+		const domainEl = tweetWrapper.querySelector( '.twitter-preview__card-domain' );
 
-		expect( urlEl ).toBeVisible();
-		expect( urlEl ).toHaveTextContent( 'wordpress.com' );
-	} );
-
-	describe( 'Styling hooks', () => {
-		it( 'should append a classname with the correct "type" to the root element when provided', () => {
-			const { container } = render( <Twitter { ...dummyProps } cardType="article" title="test" /> );
-
-			const tweetWrapper = container.querySelector( '.twitter-preview__container' );
-			const innerEl = tweetWrapper.querySelector( '.twitter-preview__card > div' );
-
-			expect( innerEl ).toHaveClass( 'twitter-preview__card-article' );
-		} );
+		expect( domainEl ).toBeVisible();
+		expect( domainEl ).toHaveTextContent( 'wordpress.com' );
 	} );
 
 	it( 'should render the passed profile details', () => {
@@ -653,5 +578,139 @@ describe( 'Google Search previews', () => {
 			'https://wordpress.com › alongpathnameheretoensuretruncationoccursbut…'
 		);
 		expect( urlEl.textContent.replace( '…', '' ).trimEnd() ).toHaveLength( 68 );
+	} );
+} );
+
+describe( 'Instagram previews', () => {
+	it( 'should render with image and caption', () => {
+		const { container } = render(
+			<InstagramPostPreview
+				url="https://wordpress.com/"
+				image={ IMAGE_SRC_FIXTURE }
+				name="testuser"
+				profileImage=""
+				caption="Hello from Instagram"
+			/>
+		);
+
+		const nameEl = container.querySelector( '.instagram-preview__content--name' );
+		expect( nameEl ).toHaveTextContent( 'testuser' );
+
+		const textEl = container.querySelector( '.instagram-preview__content--text' );
+		expect( textEl ).toHaveTextContent( 'Hello from Instagram' );
+
+		const imgEl = container.querySelector( '.instagram-preview__media--image' );
+		expect( imgEl ).toBeInTheDocument();
+	} );
+
+	it( 'should render with media item', () => {
+		const { container } = render(
+			<InstagramPostPreview
+				url="https://wordpress.com/"
+				name="testuser"
+				profileImage=""
+				caption="Media post"
+				media={ [ { url: IMAGE_SRC_FIXTURE, type: 'image/jpeg' } ] }
+			/>
+		);
+
+		const imgEl = container.querySelector( '.instagram-preview__media--image' );
+		expect( imgEl ).toBeInTheDocument();
+		expect( imgEl ).toHaveAttribute( 'src', IMAGE_SRC_FIXTURE );
+	} );
+
+} );
+
+describe( 'Facebook post previews', () => {
+	it( 'should render with media', () => {
+		const { container } = render(
+			<FacebookPostPreview
+				url="https://wordpress.com/"
+				title="test"
+				customText="Hello from Facebook"
+				media={ [ { url: IMAGE_SRC_FIXTURE, type: 'image/jpeg' } ] }
+			/>
+		);
+
+		const textEl = container.querySelector( '.facebook-preview__custom-text' );
+		expect( textEl ).toBeInTheDocument();
+
+		const imgEl = container.querySelector( '.facebook-preview__media-item img' );
+		expect( imgEl ).toBeInTheDocument();
+	} );
+
+	it( 'should truncate description text', () => {
+		const longText =
+			"I know the kings of England, and I quote the fights historical, From Marathon to Waterloo, in order categorical; I'm very well acquainted, too, with matters mathematical, I understand equations, both the simple and quadratical.";
+		const result = facebookDescription( longText );
+		expect( result.replace( '\u2026', '' ).length ).toBeLessThanOrEqual( 200 );
+	} );
+} );
+
+describe( 'LinkedIn previews', () => {
+	it( 'should render post preview with actions', () => {
+		const { container } = render(
+			<LinkedInPostPreview
+				url="https://wordpress.com/"
+				title="Test Post"
+				name="Test User"
+				profileImage=""
+			/>
+		);
+
+		const actions = container.querySelector( '.linkedin-preview__post-actions' );
+		expect( actions ).toBeInTheDocument();
+
+		const card = container.querySelector( '.linkedin-preview__article-card' );
+		expect( card ).toBeInTheDocument();
+	} );
+} );
+
+describe( 'useImage hook', () => {
+	it( 'should detect landscape mode from image dimensions', () => {
+		const { result } = renderHook( () => useImage( {} ) );
+
+		// Initially no mode and loading
+		expect( result.current[ 0 ] ).toBeUndefined();
+		expect( result.current[ 1 ] ).toBe( true );
+
+		// Simulate landscape image load
+		act( () => {
+			result.current[ 2 ].onLoad( {
+				target: { naturalWidth: 1200, naturalHeight: 630 },
+			} as unknown as React.SyntheticEvent< HTMLImageElement > );
+		} );
+
+		expect( result.current[ 0 ] ).toBe( 'landscape' );
+		expect( result.current[ 1 ] ).toBe( false );
+	} );
+
+	it( 'should detect portrait mode from image dimensions', () => {
+		const { result } = renderHook( () => useImage( {} ) );
+
+		act( () => {
+			result.current[ 2 ].onLoad( {
+				target: { naturalWidth: 630, naturalHeight: 1200 },
+			} as unknown as React.SyntheticEvent< HTMLImageElement > );
+		} );
+
+		expect( result.current[ 0 ] ).toBe( 'portrait' );
+		expect( result.current[ 1 ] ).toBe( false );
+	} );
+
+	it( 'should use initial mode when provided', () => {
+		const { result } = renderHook( () => useImage( { mode: 'landscape' } ) );
+
+		expect( result.current[ 0 ] ).toBe( 'landscape' );
+	} );
+
+	it( 'should handle image error', () => {
+		const { result } = renderHook( () => useImage( {} ) );
+
+		act( () => {
+			result.current[ 2 ].onError( {} as React.SyntheticEvent< HTMLImageElement > );
+		} );
+
+		expect( result.current[ 1 ] ).toBe( false );
 	} );
 } );

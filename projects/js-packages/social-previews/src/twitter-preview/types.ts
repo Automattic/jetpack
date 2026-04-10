@@ -4,9 +4,7 @@ export type TwitterPreviewsProps = SocialPreviewsBaseProps & {
 	tweets: Array< TwitterPreviewProps >;
 };
 
-export type TwitterCardProps = SocialPreviewBaseProps & {
-	cardType: string;
-};
+export type TwitterCardProps = Pick< SocialPreviewBaseProps, 'image' | 'title' | 'url' >;
 
 export type SidebarProps = {
 	showThreadConnector?: boolean;
@@ -35,4 +33,9 @@ export type TextProps = {
 
 export type TwitterPreviewProps = SidebarProps &
 	HeaderProps &
-	Partial< QuoteTweetProps & TwitterCardProps & Pick< TextProps, 'text' > >;
+	Partial<
+		QuoteTweetProps &
+			TwitterCardProps &
+			Pick< TextProps, 'text' > &
+			Pick< SocialPreviewBaseProps, 'description' | 'media' | 'caption' >
+	>;

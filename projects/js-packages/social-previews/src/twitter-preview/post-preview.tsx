@@ -11,7 +11,6 @@ import './style.scss';
 
 export const TwitterPostPreview: React.FC< TwitterPreviewProps > = ( {
 	date,
-	description,
 	image,
 	media,
 	name,
@@ -21,7 +20,6 @@ export const TwitterPostPreview: React.FC< TwitterPreviewProps > = ( {
 	text,
 	title,
 	tweetUrl,
-	cardType,
 	url,
 } ) => {
 	const hasMedia = !! media?.length;
@@ -36,15 +34,7 @@ export const TwitterPostPreview: React.FC< TwitterPreviewProps > = ( {
 						{ text ? <Text text={ text } url={ url || '' } retainUrl={ hasMedia } /> : null }
 						{ hasMedia ? <Media media={ media } /> : null }
 						{ tweetUrl ? <QuoteTweet tweetUrl={ tweetUrl } /> : null }
-						{ ! hasMedia && url && (
-							<Card
-								description={ description || '' }
-								image={ image }
-								title={ title || '' }
-								cardType={ cardType || '' }
-								url={ url }
-							/>
-						) }
+						{ ! hasMedia && url && <Card image={ image } title={ title || '' } url={ url } /> }
 					</div>
 					<Footer />
 				</div>

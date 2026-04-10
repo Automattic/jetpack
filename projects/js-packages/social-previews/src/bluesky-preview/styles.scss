@@ -1,8 +1,9 @@
 @use "./variables" as vars;
 
 .bluesky-preview__section {
-	max-width: 100%;
-	width: vars.$bluesky-preview-width;
+	width: 100%;
+	max-width: vars.$bluesky-preview-width;
+	min-width: 200px;
 	margin-inline: auto;
 }
 
@@ -25,7 +26,7 @@
 	font-family: vars.$bluesky-preview-font-family;
 	/* stylelint-disable-next-line scales/font-sizes */
 	font-size: 0.9375rem;
-	line-height: 1.47;
+	line-height: 20px;
 
 	:any-link {
 		color: vars.$bluesky-preview-accent-color;
@@ -38,6 +39,11 @@
 	margin-top: 8px;
 	min-height: 64px;
 	border-radius: 8px;
+	// 516px matches Bluesky's max image height in the feed.
+	max-height: 516px;
+	width: fit-content;
+	max-width: 100%;
+	overflow: hidden;
 
 	&.as-grid {
 		display: grid;
@@ -55,8 +61,11 @@
 
 		img,
 		video {
-			width: 100%;
-			object-fit: cover;
+			max-width: 100%;
+			max-height: 516px;
+			width: auto;
+			height: auto;
+			display: block;
 		}
 	}
 }

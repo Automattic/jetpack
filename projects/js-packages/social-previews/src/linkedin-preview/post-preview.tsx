@@ -1,7 +1,8 @@
-import { __, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import { AvatarWithFallback } from '../avatar-with-fallback';
 import { baseDomain, getTitleFromDescription, preparePreviewText } from '../helpers';
 import { FEED_TEXT_MAX_LENGTH } from './constants';
+import LinkedInPostActions from './post/actions';
 import { LinkedInPreviewProps } from './types';
 import './style.scss';
 
@@ -13,7 +14,6 @@ import './style.scss';
  * @return The LinkedIn post preview component.
  */
 export function LinkedInPostPreview( {
-	articleReadTime = 5,
 	image,
 	jobTitle,
 	name,
@@ -56,7 +56,7 @@ export function LinkedInPostPreview( {
 								}
 							</span>
 							<span>•</span>
-							{ /* This is the Globe SVG that represents visibility to be "public" */ }
+							{ /* Globe SVG representing "public" visibility */ }
 							<svg viewBox="0 0 16 16" fill="currentColor" width="16" height="16" focusable="false">
 								<path d="M8 1a7 7 0 107 7 7 7 0 00-7-7zM3 8a5 5 0 011-3l.55.55A1.5 1.5 0 015 6.62v1.07a.75.75 0 00.22.53l.56.56a.75.75 0 00.53.22H7v.69a.75.75 0 00.22.53l.56.56a.75.75 0 01.22.53V13a5 5 0 01-5-5zm6.24 4.83l2-2.46a.75.75 0 00.09-.8l-.58-1.16A.76.76 0 0010 8H7v-.19a.51.51 0 01.28-.45l.38-.19a.74.74 0 01.68 0L9 7.5l.38-.7a1 1 0 00.12-.48v-.85a.78.78 0 01.21-.53l1.07-1.09a5 5 0 01-1.54 9z" />
 							</svg>
@@ -100,31 +100,26 @@ export function LinkedInPostPreview( {
 							) ) }
 						</div>
 					) : (
-						<article>
-							{ image ? <img className="linkedin-preview__image" src={ image } alt="" /> : null }
-							{ url ? (
-								<div className="linkedin-preview__description">
-									<h2 className="linkedin-preview__description--title">
-										{ title || getTitleFromDescription( description ) }
-									</h2>
-									<div className="linkedin-preview__description--meta">
-										<span className="linkedin-preview__description--url">
-											{ baseDomain( url ) }
-										</span>
-										<span>•</span>
-										<span>
-											{ sprintf(
-												// translators: %d is the number of minutes it takes to read the article
-												__( '%d min read', 'social-previews' ),
-												articleReadTime
-											) }
-										</span>
+						url && (
+							<div className="linkedin-preview__article-card">
+								{ image ? (
+									<div className="linkedin-preview__article-card--image">
+										<img src={ image } alt="" />
 									</div>
+								) : null }
+								<div className="linkedin-preview__article-card--details">
+									<span className="linkedin-preview__article-card--title">
+										{ title || getTitleFromDescription( description ) }
+									</span>
+									<span className="linkedin-preview__article-card--domain">
+										{ baseDomain( url ) }
+									</span>
 								</div>
-							) : null }
-						</article>
+							</div>
+						)
 					) }
 				</div>
+				<LinkedInPostActions />
 			</section>
 		</div>
 	);

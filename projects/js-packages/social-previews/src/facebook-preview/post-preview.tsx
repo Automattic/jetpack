@@ -1,6 +1,4 @@
-import { PORTRAIT_MODE } from '../constants';
 import CustomText from './custom-text';
-import useImage from './hooks/use-image-hook';
 import FacebookPostActions from './post/actions';
 import FacebookPostHeader from './post/header';
 import type { FacebookPreviewProps } from './types';
@@ -12,11 +10,7 @@ export const FacebookPostPreview: React.FC< FacebookPreviewProps > = ( {
 	user,
 	customText,
 	media,
-	imageMode,
 } ) => {
-	const [ mode ] = useImage( { mode: imageMode } );
-	const modeClass = `is-${ mode === PORTRAIT_MODE ? 'portrait' : 'landscape' }`;
-
 	return (
 		<div className="facebook-preview__post">
 			<FacebookPostHeader user={ user } />
@@ -24,11 +18,11 @@ export const FacebookPostPreview: React.FC< FacebookPreviewProps > = ( {
 				{ customText && <CustomText text={ customText } url={ url } forceUrlDisplay /> }
 				<div className="facebook-preview__body">
 					{ media ? (
-						<div className={ `facebook-preview__media ${ modeClass }` }>
+						<div className="facebook-preview__media">
 							{ media.map( ( mediaItem, index ) => (
 								<div
 									key={ `facebook-preview__media-item-${ index }` }
-									className={ `facebook-preview__media-item ${ modeClass }` }
+									className="facebook-preview__media-item"
 								>
 									{ mediaItem.type.startsWith( 'video/' ) ? (
 										<video controls>

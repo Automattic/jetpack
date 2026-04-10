@@ -27,7 +27,7 @@
 		display: block;
 
 		width: 100%;
-		min-height: 100%;
+		aspect-ratio: 1.91 / 1;
 		object-fit: cover;
 
 		border-start-start-radius: inherit;
@@ -65,10 +65,13 @@
 .mastodon-preview__card-site {
 	font-size: 0.875rem;
 	display: block;
+	color: #535374;
 }
 
-.mastodon-preview__card-description {
+.mastodon-preview__card-description,
+.mastodon-preview__card-author {
 	font-size: 0.875rem;
+	color: #535374;
 	overflow: hidden;
 	text-overflow: ellipsis;
 

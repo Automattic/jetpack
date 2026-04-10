@@ -2,7 +2,8 @@
 
 .facebook-preview__post {
 	overflow-y: hidden;
-	max-width: clamp(#{vars.$facebook-preview-min-width}, 100%, #{vars.$facebook-preview-max-width});
+	width: 100%;
+	max-width: vars.$facebook-preview-max-width;
 	margin-inline: auto;
 
 	display: flex;
@@ -48,10 +49,6 @@
 	&.is-loading {
 		visibility: hidden;
 	}
-
-	&.is-portrait {
-		flex-direction: row;
-	}
 }
 
 .facebook-preview__text {
@@ -73,7 +70,7 @@
 	width: 100%;
 }
 
-.facebook-preview__url {
+.facebook-preview__post .facebook-preview__url {
 	margin-bottom: 0.25rem;
 
 	color: vars.$facebook-preview-light-text-color;
@@ -81,16 +78,16 @@
 	/* stylelint-disable-next-line scales/font-sizes */
 	font-size: 0.8125rem; // 13px
 	line-height: 1;
-	text-transform: uppercase;
+	text-transform: lowercase;
 }
 
-.facebook-preview__title {
+.facebook-preview__post .facebook-preview__title {
 	margin: 0.25rem 0 0.125rem;
 
 	/* stylelint-disable-next-line scales/font-sizes */
-	font-size: 0.9444rem; // 17px
+	font-size: 0.9375rem; // 15px
 	font-weight: 600;
-	line-height: 1.18;
+	line-height: 1.33;
 }
 
 .facebook-preview__description {
@@ -100,11 +97,6 @@
 	font-size: 0.9375rem; // 15px
 	line-height: 1.33;
 
-	.facebook-preview__body.is-landscape &.is-compact {
-		white-space: nowrap;
-		overflow: hidden;
-		text-overflow: ellipsis;
-	}
 }
 
 .facebook-preview__image,
@@ -121,28 +113,9 @@
 
 .facebook-preview__image {
 
-	&.is-empty {
-		width: 140px;
-		height: 140px;
-
-		border-inline-end: vars.$facebook-preview-body-border;
-	}
-
-	&.is-portrait {
-
-		img {
-			width: 278px;
-			height: 430px;
-		}
-	}
-
 	&.is-landscape {
 
 		img {
-			// At the moment of writing, the post card on Facebook.com
-			// goes from 508 to 680px wide on desktop.
-			// In landscape mode, the image takes the full width of the card, and
-			// respect the 1.91 aspect ratio at any width.
 			width: 100%;
 			aspect-ratio: 1.91;
 		}
@@ -153,46 +126,19 @@
 .facebook-preview__media-item {
 	display: flex;
 	justify-content: center;
+	overflow: hidden;
 
 	width: 100%;
+	// Cap height at 4:5 ratio to match Facebook's mobile feed max
+	max-height: 850px;
 
 	background-color: vars.$facebook-preview-image-background;
 
-	&.is-portrait {
-
-		img {
-			width: 500px;
-			height: 685px;
-		}
-	}
-
-	&.is-landscape {
-
-		img {
-			width: 100%;
-			aspect-ratio: 1.78;
-		}
-	}
-}
-
-.facebook-preview__info {
-	position: absolute;
-	right: 15px;
-	top: -10px;
-
-	display: flex;
-	justify-content: center;
-	align-items: center;
-
-	width: 30px;
-	height: 30px;
-
-	background-color: vars.$facebook-preview-card-background-color;
-	border: vars.$facebook-preview-body-border;
-	border-radius: 50%;
-
-	i {
-		filter: invert(8%);
+	img,
+	video {
+		width: 100%;
+		height: auto;
+		object-fit: cover;
 	}
 }
 
