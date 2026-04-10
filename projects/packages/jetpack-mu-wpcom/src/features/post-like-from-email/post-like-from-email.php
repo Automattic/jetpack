@@ -46,7 +46,7 @@ function wpcom_handle_post_like_from_email() {
 		return;
 	}
 
-	$blog_id = \Jetpack_Options::get_option( 'id' );
+	$blog_id = get_wpcom_blog_id();
 	if ( ! $blog_id ) {
 		return;
 	}
