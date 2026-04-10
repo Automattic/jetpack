@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Fixed Forms block not working when the Blocks module is inactive by registering the block directly from the Forms package and providing the required editor initial state.
+Fixed the Form block when the Blocks module is inactive by registering it directly from the Forms package and providing the required editor initial state.
