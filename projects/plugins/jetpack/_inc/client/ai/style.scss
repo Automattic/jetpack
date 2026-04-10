@@ -1,0 +1,26 @@
+.jetpack-ai-admin {
+	max-width: 640px;
+	padding: 24px 0;
+
+	&__header {
+		margin-bottom: 24px;
+	}
+
+	&__back {
+		margin-bottom: 12px;
+
+		.components-button.is-tertiary {
+			padding-left: 0;
+		}
+	}
+
+	&__content {
+		// Ensure notices stack correctly
+	}
+
+	&__loading {
+		display: flex;
+		justify-content: center;
+		padding: 48px 0;
+	}
+}

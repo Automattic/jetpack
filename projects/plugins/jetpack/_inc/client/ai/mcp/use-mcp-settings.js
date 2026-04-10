@@ -1,0 +1,81 @@
+/**
+ * Custom hook for fetching and updating MCP settings via the wpcom/v2/jetpack-ai/mcp-settings endpoint.
+ *
+ * The PHP proxy at wpcom/v2/jetpack-ai/mcp-settings forwards requests to
+ * the WPCOM /me/settings API which handles partial mcp_abilities merges server-side.
+ * Updates only need to send the changed portion (e.g. { sites: [...] }).
+ */
+
+import apiFetch from '@wordpress/api-fetch';
+import { useCallback, useEffect, useState } from '@wordpress/element';
+
+const ENDPOINT = '/wpcom/v2/jetpack-ai/mcp-settings';
+
+/**
+ * Hook that loads and exposes MCP settings for the current site.
+ *
+ * @return {{ isLoading: boolean, isSaving: boolean, mcpAbilities: Object|null, error: string|null, updateMcpAbilities: Function }} MCP settings state and updater.
+ */
+export function useMcpSettings() {
+	const [ isLoading, setIsLoading ] = useState( true );
+	const [ isSaving, setIsSaving ] = useState( false );
+	const [ mcpAbilities, setMcpAbilities ] = useState( null );
+	const [ error, setError ] = useState( null );
+
+	useEffect( () => {
+		let cancelled = false;
+		setIsLoading( true );
+		apiFetch( { path: ENDPOINT } )
+			.then( data => {
+				if ( ! cancelled ) {
+					setMcpAbilities( data?.mcp_abilities ?? {} );
+					setError( null );
+				}
+			} )
+			.catch( err => {
+				if ( ! cancelled ) {
+					setError( err?.message ?? 'Failed to load MCP settings.' );
+				}
+			} )
+			.finally( () => {
+				if ( ! cancelled ) {
+					setIsLoading( false );
+				}
+			} );
+		return () => {
+			cancelled = true;
+		};
+	}, [] );
+
+	/**
+	 * Send a partial mcp_abilities update.
+	 * The WPCOM /me/settings API merges the update into existing abilities server-side.
+	 *
+	 * @param {object} update - Partial mcp_abilities payload, e.g. { sites: [...] }
+	 * @return {Promise} Resolves when the update is saved.
+	 */
+	const updateMcpAbilities = useCallback(
+		update => {
+			setIsSaving( true );
+			return apiFetch( {
+				path: ENDPOINT,
+				method: 'POST',
+				data: { mcp_abilities: update },
+			} )
+				.then( data => {
+					setMcpAbilities( data?.mcp_abilities ?? mcpAbilities );
+					setError( null );
+				} )
+				.catch( err => {
+					setError( err?.message ?? 'Failed to save MCP settings.' );
+					throw err;
+				} )
+				.finally( () => {
+					setIsSaving( false );
+				} );
+		},
+		[ mcpAbilities ]
+	);
+
+	return { isLoading, isSaving, mcpAbilities, error, updateMcpAbilities };
+}

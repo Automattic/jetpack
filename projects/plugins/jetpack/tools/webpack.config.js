@@ -170,6 +170,23 @@ module.exports = [
 			} ),
 		},
 	},
+	// Build AI admin page JS.
+	{
+		...sharedWebpackConfig,
+		entry: {
+			'jetpack-ai-admin': path.join( __dirname, '../_inc/client', 'ai-admin.js' ),
+		},
+		plugins: [
+			...sharedWebpackConfig.plugins,
+			...jetpackWebpackConfig.DependencyExtractionPlugin(),
+		],
+		externals: {
+			...sharedWebpackConfig.externals,
+			jetpackConfig: JSON.stringify( {
+				consumer_slug: 'jetpack',
+			} ),
+		},
+	},
 	// Build generator.jsx (which produces pre-rendered HTML).
 	{
 		...sharedWebpackConfig,

@@ -1,0 +1,225 @@
+/**
+ * MCP Settings hub — main view shown at wp-admin/admin.php?page=jetpack-ai.
+ * Shows the enable/disable toggle and navigation to Read, Write, and Setup sub-views.
+ */
+
+import {
+	Button,
+	Card,
+	CardBody,
+	CardDivider,
+	Icon,
+	ToggleControl,
+	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+	__experimentalText as Text, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+	__experimentalVStack as VStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+} from '@wordpress/components';
+import { useCallback } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
+import { seen, pencil, connection, chevronRight } from '@wordpress/icons';
+import { isWriteTool } from './categories';
+import {
+	getAccountMcpAbilities,
+	getSiteContextToolIds,
+	getSiteLevelEnabled,
+	getSiteMcpAbilities,
+	mergeSiteMcpAbilities,
+} from './utils';
+
+import './style.scss';
+
+/**
+ * Compute a badge text + intent for a set of tools.
+ *
+ * @param {Array}   tools          - Tool entries to evaluate.
+ * @param {boolean} defaultEnabled - Fallback enabled state when there are no overrides.
+ * @return {{ text: string, intent?: string }} Badge descriptor.
+ */
+function computeBadge( tools, defaultEnabled ) {
+	if ( tools.length === 0 ) {
+		return defaultEnabled
+			? { text: __( 'All enabled', 'jetpack' ), intent: 'success' }
+			: { text: __( 'Disabled', 'jetpack' ) };
+	}
+	const enabledCount = tools.filter( ( [ , t ] ) => t.enabled ).length;
+	if ( enabledCount === tools.length ) {
+		return { text: __( 'All enabled', 'jetpack' ), intent: 'success' };
+	}
+	if ( enabledCount === 0 ) {
+		return { text: __( 'Disabled', 'jetpack' ) };
+	}
+	return {
+		/* translators: %1$d: enabled count, %2$d: total count */
+		text: sprintf( __( '%1$d of %2$d enabled', 'jetpack' ), enabledCount, tools.length ),
+		intent: 'info',
+	};
+}
+
+/**
+ * Minimal sprintf supporting positional %N$d / %N$s placeholders.
+ *
+ * @param {string}    format - Format string.
+ * @param {...number} args   - Replacement values.
+ * @return {string} Formatted string.
+ */
+function sprintf( format, ...args ) {
+	let i = 0;
+	return format.replace( /%\d+\$[ds]/g, () => args[ i++ ] );
+}
+
+/**
+ * A tappable row that navigates to a sub-view, visually similar to calypso's
+ * RouterLinkSummaryButton.
+ *
+ * @param {object}                            props         - Component props.
+ * @param {*}                                 props.icon    - WordPress icon.
+ * @param {string}                            props.title   - Row label.
+ * @param {{ text: string, intent?: string }} props.badge   - Optional badge.
+ * @param {Function}                          props.onClick - Click handler.
+ * @return {object} Component markup.
+ */
+function SummaryRow( { icon, title, badge, onClick } ) {
+	return (
+		<Button className="jetpack-ai-mcp__summary-row" onClick={ onClick } variant="tertiary">
+			<HStack justify="space-between" alignment="center" style={ { width: '100%' } }>
+				<HStack spacing={ 3 } alignment="center" justify="flex-start">
+					<Icon icon={ icon } size={ 24 } />
+					<Text weight={ 500 }>{ title }</Text>
+				</HStack>
+				<HStack spacing={ 2 } alignment="center" justify="flex-end">
+					{ badge && (
+						<span
+							className={ `jetpack-ai-mcp__badge jetpack-ai-mcp__badge--${
+								badge.intent ?? 'neutral'
+							}` }
+						>
+							{ badge.text }
+						</span>
+					) }
+					<Icon icon={ chevronRight } size={ 20 } />
+				</HStack>
+			</HStack>
+		</Button>
+	);
+}
+
+/**
+ * MCP hub component.
+ *
+ * @param {object}   props              - Component props.
+ * @param {object}   props.mcpAbilities - Full mcp_abilities object from API.
+ * @param {number}   props.blogId       - Current site's blog ID.
+ * @param {boolean}  props.isSaving     - Whether a save is in progress.
+ * @param {Function} props.onNavigate   - Called with 'read' | 'write' | 'setup'.
+ * @param {Function} props.onUpdate     - Called with partial mcp_abilities update.
+ * @return {object} Component markup.
+ */
+export default function McpHub( { mcpAbilities, blogId, isSaving, onNavigate, onUpdate } ) {
+	const accountAbilities = getAccountMcpAbilities( mcpAbilities ?? {} );
+	const siteContextToolIds = getSiteContextToolIds( mcpAbilities ?? {} );
+	const siteAbilities = getSiteMcpAbilities( mcpAbilities ?? {}, blogId );
+	const siteAccountAbilities = siteContextToolIds.size
+		? Object.fromEntries(
+				Object.entries( accountAbilities ).filter( ( [ id ] ) => siteContextToolIds.has( id ) )
+		  )
+		: accountAbilities;
+	const merged = mergeSiteMcpAbilities( siteAccountAbilities, siteAbilities );
+
+	const isMcpEnabled = getSiteLevelEnabled( mcpAbilities ?? {}, blogId );
+	const hasSiteAbilityOverrides = Object.keys( siteAbilities ).length > 0;
+	const defaultToolEnabled = mcpAbilities?.site_level_enabled_default ?? false;
+
+	const availableTools = Object.entries( merged ).filter( ( [ , t ] ) => t.visible !== false );
+	const readTools = availableTools.filter( ( [ id, t ] ) => ! isWriteTool( id, t ) );
+	const writeTools = availableTools.filter( ( [ id, t ] ) => isWriteTool( id, t ) );
+
+	const defaultBadge = defaultToolEnabled
+		? { text: __( 'All enabled', 'jetpack' ), intent: 'success' }
+		: { text: __( 'Disabled', 'jetpack' ) };
+	const readBadge = hasSiteAbilityOverrides
+		? computeBadge( readTools, defaultToolEnabled )
+		: defaultBadge;
+	const writeBadge = hasSiteAbilityOverrides
+		? computeBadge( writeTools, defaultToolEnabled )
+		: defaultBadge;
+
+	const handleMcpToggle = useCallback(
+		enabled => {
+			const abilities = {};
+			if ( enabled ) {
+				readTools.forEach( ( [ toolId ] ) => {
+					abilities[ toolId ] = true;
+				} );
+			}
+			onUpdate( {
+				sites: [
+					{
+						blog_id: blogId,
+						site_level_enabled: enabled,
+						abilities,
+					},
+				],
+			} );
+		},
+		[ blogId, onUpdate, readTools ]
+	);
+
+	const navigateToRead = useCallback( () => onNavigate( 'read' ), [ onNavigate ] );
+	const navigateToWrite = useCallback( () => onNavigate( 'write' ), [ onNavigate ] );
+	const navigateToSetup = useCallback( () => onNavigate( 'setup' ), [ onNavigate ] );
+
+	return (
+		<>
+			<Card className="jetpack-ai-mcp__access-card">
+				<CardBody>
+					<VStack spacing={ 4 }>
+						<VStack spacing={ 1 }>
+							<Text as="h3" weight={ 600 }>
+								{ __( 'External AI agent access', 'jetpack' ) }
+							</Text>
+							<Text variant="muted">
+								{ __( 'Allow external AI agents to access this site via MCP.', 'jetpack' ) }
+							</Text>
+						</VStack>
+						<ToggleControl
+							__nextHasNoMarginBottom
+							checked={ isMcpEnabled }
+							disabled={ isSaving }
+							label={ __( 'Enable MCP access for this site', 'jetpack' ) }
+							onChange={ handleMcpToggle }
+						/>
+					</VStack>
+				</CardBody>
+
+				{ isMcpEnabled && (
+					<>
+						<CardDivider />
+						<SummaryRow
+							icon={ seen }
+							title={ __( 'Read', 'jetpack' ) }
+							badge={ readBadge }
+							onClick={ navigateToRead }
+						/>
+						<CardDivider />
+						<SummaryRow
+							icon={ pencil }
+							title={ __( 'Write', 'jetpack' ) }
+							badge={ writeBadge }
+							onClick={ navigateToWrite }
+						/>
+					</>
+				) }
+			</Card>
+
+			{ isMcpEnabled && (
+				<Card>
+					<SummaryRow
+						icon={ connection }
+						title={ __( 'Connect external AI agent', 'jetpack' ) }
+						onClick={ navigateToSetup }
+					/>
+				</Card>
+			) }
+		</>
+	);
+}
