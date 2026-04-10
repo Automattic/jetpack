@@ -332,7 +332,9 @@ function StageInner() {
 			return true;
 		}
 
-		return Object.keys( queryParams ).some(
+		const allKeys = new Set( [ ...Object.keys( currentQuery ), ...Object.keys( queryParams ) ] );
+
+		return Array.from( allKeys ).some(
 			key => currentQuery[ key ] !== queryParams[ key as keyof QueryParams ]
 		);
 	}, [ currentQuery, queryParams ] );

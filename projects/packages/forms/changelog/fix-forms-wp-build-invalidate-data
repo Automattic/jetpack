@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Show loading state instead of stale data when navigating between form response listings
+Show loading state instead of stale data when navigating between form response listings.
