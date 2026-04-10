@@ -5,8 +5,7 @@
  * Handles Like-button clicks originating from post-notification emails on
  * Atomic/WoW sites by proxying the request to the wpcom/v2/email-like endpoint
  * (which validates the HMAC and records the like server-side), then redirecting
- * the visitor to the post permalink. Mirrors the behavior of like-button.php on
- * Simple sites so the user experience is identical.
+ * the visitor to the post permalink.
  *
  * @package automattic/jetpack-mu-wpcom
  */
@@ -19,7 +18,7 @@ use Automattic\Jetpack\Connection\Client;
  * Detect a like-from-email request, forward it to wpcom, and redirect to the post.
  *
  * The response body from the wpcom endpoint is intentionally ignored — the visitor
- * always lands on the post permalink, matching like-button.php on Simple sites.
+ * always lands on the post permalink.
  *
  * @return void
  */
@@ -32,8 +31,8 @@ function wpcom_handle_post_like_from_email() {
 		return;
 	}
 
-	// On Simple sites, the existing wpcom-side like-button.php already handles this
-	// at the same priority — bail to avoid double-firing if jetpack-mu-wpcom is loaded inside wpcom.
+	// On wpcom, the like is already handled at the same priority — bail to avoid
+	// double-firing if jetpack-mu-wpcom is loaded inside wpcom.
 	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 		return;
 	}
