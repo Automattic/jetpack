@@ -1,9 +1,12 @@
 @use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
 
 .tab-panel-wrapper {
+	min-height: 0;
+	overflow-y: auto;
 
 	@include gb.break-medium() {
 		display: grid;
+		overflow-y: unset;
 
 		&[data-variant="global"] {
 			grid-template-columns: clamp(200px, 33.33%, 350px) minmax(0, 1fr);
@@ -12,7 +15,10 @@
 
 	&[data-plan="paid"] {
 		border-top: 1px solid gb.$gray-200;
-		overflow: auto;
+
+		@include gb.break-medium() {
+			overflow: hidden;
+		}
 	}
 
 	[role="tablist"] {
@@ -32,10 +38,15 @@
 .tab-panel {
 
 	display: grid;
+	min-height: 0;
 
 	@include gb.break-medium() {
 		grid-template-rows: auto 1fr;
 		height: 100%;
+	}
+
+	:global(.components-tab-panel__tab-content) {
+		min-height: 0;
 	}
 
 	:global(.components-tab-panel__tabs-item) {
@@ -76,6 +87,10 @@
 	grid-template-columns: 1fr;
 	height: 100%;
 
+	@include gb.break-medium() {
+		overflow: hidden;
+	}
+
 	// On mobile per-network mode,
 	// move connection toggle above customization section
 	&[data-variant="per-network"] {
@@ -115,6 +130,10 @@
 .preview-wrapper {
 	display: flex;
 	flex-direction: column;
+
+	@include gb.break-medium() {
+		overflow-y: auto;
+	}
 
 	// Make the preview section fill remaining space
 	> :last-child {
