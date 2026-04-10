@@ -127,25 +127,30 @@ class REST_Pinghub_Token extends WP_REST_Controller {
 			return null;
 		}
 
-		// The WPCOM sign endpoint requires a user token. Return a named error so
-		// the client can prompt the user to link their account instead of showing
-		// a generic 500.
+		$is_user_connected = false;
 		if ( class_exists( 'Automattic\Jetpack\Connection\Manager' ) ) {
-			$manager = new \Automattic\Jetpack\Connection\Manager();
-			if ( ! $manager->is_user_connected( get_current_user_id() ) ) {
-				return new WP_Error(
-					'user_not_connected',
-					__( 'Your account is not linked to WordPress.com. Please connect your account to use real-time collaboration.', 'jetpack-rtc' ),
-					array( 'status' => 403 )
-				);
-			}
+			$manager           = new \Automattic\Jetpack\Connection\Manager();
+			$is_user_connected = $manager->is_user_connected( get_current_user_id() );
 		}
 
-		$response = \Automattic\Jetpack\Connection\Client::wpcom_json_api_request_as_user(
-			"/sites/$blog_id/jetpack-pinghub/jwt/sign",
-			'2',
-			array( 'method' => 'POST' )
-		);
+		if ( $is_user_connected ) {
+			// Connected user: request with their WP.com user token.
+			$response = \Automattic\Jetpack\Connection\Client::wpcom_json_api_request_as_user(
+				"/sites/$blog_id/jetpack-pinghub/jwt/sign",
+				'2',
+				array( 'method' => 'POST' )
+			);
+		} else {
+			// Local (unconnected) user: request with the blog token, passing
+			// the local user's identity so the WPCOM endpoint can embed it in
+			// the JWT. The permission_callback already verified edit_posts.
+			$response = \Automattic\Jetpack\Connection\Client::wpcom_json_api_request_as_blog(
+				"/sites/$blog_id/jetpack-pinghub/jwt/sign",
+				'2',
+				array( 'method' => 'POST' ),
+				array( 'local_user_id' => get_current_user_id() )
+			);
+		}
 
 		if ( is_wp_error( $response ) ) {
 			return null;

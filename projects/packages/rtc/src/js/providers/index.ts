@@ -1,7 +1,7 @@
 import { addFilter } from '@wordpress/hooks';
 import { createPingHubProvider } from './pinghub';
 
-addFilter( 'sync.providers', 'jetpack/rtc-providers', ( defaultProviders: unknown[] ) => {
+addFilter( 'sync.providers', 'jetpack/rtc-providers', () => {
 	if ( ! window.jetpackRTC?.providers ) {
 		return [];
 	}
@@ -11,5 +11,5 @@ addFilter( 'sync.providers', 'jetpack/rtc-providers', ( defaultProviders: unknow
 			jetpackRTCProviders.push( createPingHubProvider() );
 		}
 	} );
-	return [ ...defaultProviders, ...jetpackRTCProviders ];
+	return jetpackRTCProviders;
 } );

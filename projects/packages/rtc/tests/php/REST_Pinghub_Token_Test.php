@@ -55,14 +55,15 @@ class REST_Pinghub_Token_Test extends \WorDBless\BaseTestCase {
 	}
 
 	// -------------------------------------------------------------------------
-	// generate_token – user_not_connected path
+	// generate_token – unconnected user uses blog token path
 	// -------------------------------------------------------------------------
 
 	/**
-	 * Returns WP_Error('user_not_connected') when the current user has no Jetpack
-	 * user token and the Connection Manager is available.
+	 * When the current user has no Jetpack user token, generate_token() falls
+	 * back to the blog-token path (wpcom_json_api_request_as_blog). In the
+	 * test environment (no real WPCOM connection), this returns null.
 	 */
-	public function test_generate_token_returns_user_not_connected_when_no_token(): void {
+	public function test_generate_token_returns_null_for_unconnected_user(): void {
 		if ( ! class_exists( 'Automattic\Jetpack\Connection\Manager' ) ) {
 			$this->markTestSkipped( 'Jetpack Connection Manager not available.' );
 		}
@@ -73,9 +74,8 @@ class REST_Pinghub_Token_Test extends \WorDBless\BaseTestCase {
 
 		$result = $this->generate_token->invoke( $this->endpoint, 123 );
 
-		$this->assertInstanceOf( WP_Error::class, $result );
-		$this->assertSame( 'user_not_connected', $result->get_error_code() );
-		$this->assertSame( 403, $result->get_error_data()['status'] );
+		// Without a real WPCOM connection, the blog-token API call returns null.
+		$this->assertNull( $result );
 	}
 
 	// -------------------------------------------------------------------------
@@ -96,17 +96,14 @@ class REST_Pinghub_Token_Test extends \WorDBless\BaseTestCase {
 	}
 
 	// -------------------------------------------------------------------------
-	// create_item – WP_Error passthrough
+	// create_item – null token returns 500
 	// -------------------------------------------------------------------------
 
 	/**
-	 * Passes a WP_Error from generate_token() straight through to the caller,
-	 * preserving its error code and HTTP status.
-	 *
-	 * Ensures a 403 user_not_connected reaches the client instead of being
-	 * swallowed and replaced with a generic 500.
+	 * When generate_token() returns null (e.g. no real WPCOM connection),
+	 * create_item() returns a generic 500 error.
 	 */
-	public function test_create_item_passes_through_wp_error_from_generate_token(): void {
+	public function test_create_item_returns_500_when_token_is_null(): void {
 		if ( ! class_exists( 'Automattic\Jetpack\Connection\Manager' ) ) {
 			$this->markTestSkipped( 'Jetpack Connection Manager not available.' );
 		}
@@ -120,9 +117,9 @@ class REST_Pinghub_Token_Test extends \WorDBless\BaseTestCase {
 		$request  = new WP_REST_Request( 'POST', '/wpcom/v2/rtc/pinghub-token' );
 		$response = $this->endpoint->create_item( $request );
 
-		// generate_token() returns user_not_connected; create_item() must echo it.
+		// Without a real WPCOM connection, generate_token() returns null → 500.
 		$this->assertInstanceOf( WP_Error::class, $response );
-		$this->assertSame( 'user_not_connected', $response->get_error_code() );
-		$this->assertSame( 403, $response->get_error_data()['status'] );
+		$this->assertSame( 'rest_pinghub_token_error', $response->get_error_code() );
+		$this->assertSame( 500, $response->get_error_data()['status'] );
 	}
 }
