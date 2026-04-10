@@ -114,7 +114,7 @@ class Feedback {
 		// phpcs:enable
 
 		$source_ids = array_map( 'intval', $source_ids );
-		wp_cache_set( self::SOURCE_IDS_CACHE_KEY, $source_ids, self::CACHE_GROUP );
+		wp_cache_set( self::SOURCE_IDS_CACHE_KEY, $source_ids, self::CACHE_GROUP, HOUR_IN_SECONDS );
 
 		return $source_ids;
 	}

@@ -1348,9 +1348,6 @@ JSON_DATA{"1_name":"Test Author","2_email":"author@example.com","3_file":{"field
 	/**
 	 * Test that the source filter adds the correct SQL JOIN and WHERE clauses.
 	 */
-	/**
-	 * Test that the source filter generates the correct SQL via get_source_filter_sql.
-	 */
 	public function test_source_filter_modifies_query() {
 		$endpoint = new Contact_Form_Endpoint( 'feedback' );
 
