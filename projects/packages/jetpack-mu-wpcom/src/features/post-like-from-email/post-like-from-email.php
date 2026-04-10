@@ -46,8 +46,13 @@ function wpcom_handle_post_like_from_email() {
 		return;
 	}
 
+	$blog_id = \Jetpack_Options::get_option( 'id' );
+	if ( ! $blog_id ) {
+		return;
+	}
+
 	Client::wpcom_json_api_request_as_blog(
-		'/email-like',
+		'/sites/' . rawurlencode( $blog_id ) . '/email-like',
 		'2',
 		array(
 			'method'  => 'POST',
@@ -57,7 +62,7 @@ function wpcom_handle_post_like_from_email() {
 		),
 		wp_json_encode(
 			array(
-				'postid'     => $postid,
+				'post_id'    => $postid,
 				'like_actor' => $like_actor,
 				'like_hmac'  => $like_hmac,
 			),
