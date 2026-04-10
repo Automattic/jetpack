@@ -62,12 +62,21 @@ function is_big_sky_enabled() {
 /**
  * Check if current environment is CIAB (Commerce in a Box) / Next Admin.
  *
- * Uses the same detection method as Help Center and Agents Manager
+ * On CIAB sites the entire admin is the CIAB SPA — every request runs in
+ * CIAB context — so the presence of the CIAB plugin marker constant is a
+ * sufficient signal.
+ *
+ * Note: Help Center and Agents Manager use `did_action( 'next_admin_init' )`
+ * for the same check. We can't reuse that signal because we also need to
+ * detect CIAB during REST requests (the CIAB editor calls a REST endpoint
+ * that fires `enqueue_block_editor_assets` to collect editor assets), and
+ * `next_admin_init` only fires during the CIAB SPA page render — not during
+ * REST requests.
  *
  * @return bool True if CIAB/Next Admin environment.
  */
 function is_ciab_environment() {
-	return (bool) did_action( 'next_admin_init' );
+	return defined( 'NEXT_ADMIN_PLUGIN_DIR' );
 }
 
 /**
@@ -324,10 +333,11 @@ function do_enqueue_assets() {
 /*
  * CIAB / Next Admin SPA context.
  *
- * In the CIAB SPA, admin_enqueue_scripts never fires and there is no
- * current_screen. Assets are enqueued on next_admin_init (after the
- * SPA's script dequeue sweep). The CIAB consumer must opt in via the
- * jetpack_image_studio_available filter before this priority fires.
+ * In the CIAB SPA, assets enqueued during admin_enqueue_scripts are
+ * dequeued before the SPA renders. Assets are re-enqueued on
+ * next_admin_init (after the dequeue sweep). The CIAB consumer must
+ * opt in via the jetpack_image_studio_available filter before this
+ * priority fires.
  *
  * Follows the same pattern as Help Center and Agents Manager.
  */
@@ -339,7 +349,7 @@ add_action( 'next_admin_init', __NAMESPACE__ . '\do_enqueue_assets', 1000 );
  * @return void
  */
 function enqueue_image_studio() {
-	if ( ! is_block_editor() ) {
+	if ( is_ciab_environment() || ! is_block_editor() ) {
 		return;
 	}
 
@@ -353,7 +363,7 @@ add_action( 'enqueue_block_editor_assets', __NAMESPACE__ . '\enqueue_image_studi
  * @return void
  */
 function enqueue_image_studio_admin() {
-	if ( ! is_media_library() ) {
+	if ( is_ciab_environment() || ! is_media_library() ) {
 		return;
 	}
 

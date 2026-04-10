@@ -7,6 +7,8 @@
 
 use Automattic\Jetpack\Extensions\ImageStudio;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 
 require_once JETPACK__PLUGIN_DIR . '/extensions/plugins/image-studio/image-studio.php';
 require_once JETPACK__PLUGIN_DIR . '/extensions/plugins/ai-assistant-plugin/ai-assistant-plugin.php';
@@ -287,25 +289,11 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * NOT auto-enabled in CIAB when AI features are unavailable (opt-in required).
-	 *
-	 * Disables AI features to isolate the CIAB path — without this, the
-	 * function returns true via the AI-features branch regardless of CIAB.
+	 * Enabled when opted in via the jetpack_image_studio_available filter,
+	 * even when AI features and Big Sky are unavailable.
 	 */
-	public function test_is_not_enabled_in_ciab_by_default() {
+	public function test_is_enabled_when_opted_in_via_filter() {
 		$this->disable_ai_features();
-		do_action( 'next_admin_init' );
-		$this->assertTrue( ImageStudio\is_ciab_environment() );
-		$this->assertFalse( ImageStudio\is_image_studio_enabled() );
-	}
-
-	/**
-	 * Enabled in CIAB when opted in via jetpack_image_studio_available filter,
-	 * even when AI features are unavailable.
-	 */
-	public function test_is_enabled_in_ciab_when_opted_in_via_filter() {
-		$this->disable_ai_features();
-		do_action( 'next_admin_init' );
 		add_filter( 'jetpack_image_studio_available', '__return_true' );
 		$this->assertTrue( ImageStudio\is_image_studio_enabled() );
 	}
@@ -318,6 +306,36 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 		$this->enable_big_sky();
 		add_filter( 'jetpack_image_studio_available', '__return_false' );
 		$this->assertFalse( ImageStudio\is_image_studio_enabled() );
+	}
+
+	// -------------------------------------------------------------------------
+	// is_ciab_environment() tests
+	// -------------------------------------------------------------------------
+
+	/**
+	 * Default state: CIAB plugin marker constant is not defined.
+	 */
+	public function test_is_ciab_environment_false_when_constant_not_defined() {
+		$this->assertFalse( defined( 'NEXT_ADMIN_PLUGIN_DIR' ) );
+		$this->assertFalse( ImageStudio\is_ciab_environment() );
+	}
+
+	/**
+	 * CIAB detected when the plugin marker constant is defined.
+	 *
+	 * Runs in a separate process so the `define()` does not leak into other
+	 * tests — PHP constants persist for the rest of the process once set,
+	 * which would otherwise force every subsequent test into CIAB mode.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_is_ciab_environment_true_when_constant_defined() {
+		require_once JETPACK__PLUGIN_DIR . '/extensions/plugins/image-studio/image-studio.php';
+		define( 'NEXT_ADMIN_PLUGIN_DIR', '/fake/ciab/plugin' );
+		$this->assertTrue( ImageStudio\is_ciab_environment() );
 	}
 
 	// -------------------------------------------------------------------------
@@ -599,9 +617,20 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 
 	/**
 	 * Test inline script includes ciab-admin environment in CIAB context.
+	 *
+	 * Runs in a separate process so defining `NEXT_ADMIN_PLUGIN_DIR` does
+	 * not leak into other tests (see is_ciab_environment tests above).
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
 	public function test_inline_script_includes_ciab_environment() {
-		do_action( 'next_admin_init' );
+		require_once JETPACK__PLUGIN_DIR . '/extensions/plugins/image-studio/image-studio.php';
+		define( 'NEXT_ADMIN_PLUGIN_DIR', '/fake/ciab/plugin' );
+
+		$GLOBALS['wp_scripts'] = new WP_Scripts();
 		add_filter( 'jetpack_image_studio_available', '__return_true' );
 		set_transient(
 			ImageStudio\ASSET_TRANSIENT,
@@ -617,7 +646,7 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 		$inline = $GLOBALS['wp_scripts']->get_data( ImageStudio\FEATURE_NAME, 'before' );
 
 		$found = false;
-		foreach ( $inline as $line ) {
+		foreach ( (array) $inline as $line ) {
 			if ( is_string( $line ) && strpos( $line, 'imageStudioData' ) !== false ) {
 				$found = true;
 				$this->assertStringContainsString( '"environment":"ciab-admin"', $line );
