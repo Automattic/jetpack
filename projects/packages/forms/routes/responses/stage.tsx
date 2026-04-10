@@ -72,6 +72,7 @@ type QueryParams = {
 	order?: string;
 	is_unread?: boolean;
 	parent?: string;
+	source?: string;
 	before?: string;
 	after?: string;
 	search?: string;
@@ -305,7 +306,7 @@ function StageInner() {
 				queryArgs.is_unread = filter.value === 'unread';
 			}
 			if ( ! isSingleFormView && filter.field === 'source' ) {
-				queryArgs.parent = filter.value;
+				queryArgs.source = filter.value;
 			}
 			if ( filter.field === 'date' ) {
 				const [ year, month ] = filter.value.split( '/' ).map( Number );
