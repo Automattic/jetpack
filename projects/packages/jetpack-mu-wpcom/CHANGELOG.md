@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.10.1] - 2026-04-10
+### Changed
+- RTC: Bump WebSocket gradual rollout to 100% on simple sites. [#48043]
+
+### Fixed
+- Post Notification Emails: handle Like-button clicks on Atomic/WoW sites by proxying to the new wpcom/v2/email-like endpoint, restoring parity with Simple sites. [#48021]
+
 ## [6.10.0] - 2026-04-09
 ### Added
 - Add AI assistant banner to the WordPress.com dashboard for Business/Commerce sites. [#47623]
@@ -35,7 +42,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Verbum Editor: Allow logged-in users to get embed info. [#46824]
 
 ### Changed
-  Abort load and log if required asset files are missing. [#46665]
+- Abort load and log if required asset files are missing. [#46665]
 - Add AGENTS.md and CLAUDE.md for Agents Manager feature. [#47762]
 - Add dev mode to Agents Manager. [#46617]
 - Add Help Center backend documentation and testing steps. [#47562]
@@ -1877,6 +1884,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Testing initial package release.
 
+[6.10.1]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v6.10.0...v6.10.1
 [6.10.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v6.9.0...v6.10.0
 [6.9.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v6.8.1...v6.9.0
 [6.8.1]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v6.8.0...v6.8.1
