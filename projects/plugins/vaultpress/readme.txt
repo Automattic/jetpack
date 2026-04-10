@@ -32,9 +32,13 @@ View our full list of FAQs at [http://help.vaultpress.com/faq/](http://help.vaul
 A Jetpack VaultPress subscription is for a single WordPress site.
 
 == Changelog ==
-### 4.0.6 - 2025-11-21
+### 4.0.7 - 2026-04-10
+#### Changed
+- Update package dependencies.
+
 #### Fixed
-- Phan: Address PhanPossiblyUndeclaredVariable violations.
+- Ensure proper flags are used with `json_encode()`.
+- Avoid fatal error when receiving an error from the VaultPress service.
 
 --------
 
