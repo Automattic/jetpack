@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.20] - 2026-04-09
+### Changed
+- Update package dependencies. [#47890]
+
 ## [0.4.19] - 2026-04-06
 ### Changed
 - Launch Site: Implement direct site launch from the WP Admin masterbar button via an ExPlat experiment, with a shared mutation hook and celebration modal for use across launch entry points. [#47705]
@@ -326,6 +330,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - ExPlat: add condition to prevent fetching the experiment assignment if there's not anon id (meaning that Tracks is likely disabled) [#38327]
 - Updated package dependencies. [#38132]
 
+[0.4.20]: https://github.com/Automattic/jetpack-explat/compare/v0.4.19...v0.4.20
 [0.4.19]: https://github.com/Automattic/jetpack-explat/compare/v0.4.18...v0.4.19
 [0.4.18]: https://github.com/Automattic/jetpack-explat/compare/v0.4.17...v0.4.18
 [0.4.17]: https://github.com/Automattic/jetpack-explat/compare/v0.4.16...v0.4.17
