@@ -18,11 +18,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
 }
 
-require_once __DIR__ . '/class-title-optimization-ability.php';
-if ( apply_filters( 'jetpack_ai_enabled', true ) && apply_filters( 'jetpack_ai_sidebar_enabled', false ) ) {
-	Title_Optimization_Ability::init();
-}
-
 /**
  * Registers our block for use in Gutenberg
  * This is done via an action so that we can disable
