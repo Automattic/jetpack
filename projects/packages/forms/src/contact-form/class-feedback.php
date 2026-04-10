@@ -391,18 +391,11 @@ class Feedback {
 		}
 
 		if ( isset( $post_data[ $key ] ) ) {
-			$raw_value = wp_unslash( $post_data[ $key ] );
-
-			// Only checkbox-multiple legitimately accepts array values.
-			// For all other field types, take the first element if an array was submitted.
-			if ( is_array( $raw_value ) && $type !== 'checkbox-multiple' ) {
-				$raw_value = reset( $raw_value );
+			if ( is_array( $post_data[ $key ] ) ) {
+				return array_map( 'sanitize_textarea_field', wp_unslash( $post_data[ $key ] ) );
+			} else {
+				return sanitize_textarea_field( wp_unslash( $post_data[ $key ] ) );
 			}
-
-			if ( is_array( $raw_value ) ) {
-				return array_map( 'sanitize_textarea_field', $raw_value );
-			}
-			return sanitize_textarea_field( $raw_value );
 		}
 		return '';
 	}
