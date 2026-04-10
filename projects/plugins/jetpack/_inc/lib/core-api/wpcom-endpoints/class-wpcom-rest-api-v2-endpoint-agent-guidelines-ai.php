@@ -33,11 +33,6 @@ class WPCOM_REST_API_V2_Endpoint_Agent_Guidelines_AI extends WP_REST_Controller 
 	public $rest_base = 'jetpack-ai/suggest-guidelines';
 
 	/**
-	 * Valid guideline sections.
-	 */
-	private const VALID_SECTIONS = array( 'site', 'copy', 'images', 'additional' );
-
-	/**
 	 * Constructor.
 	 */
 	public function __construct() {
@@ -69,36 +64,10 @@ class WPCOM_REST_API_V2_Endpoint_Agent_Guidelines_AI extends WP_REST_Controller 
 					'permission_callback' => array( $this, 'permission_callback' ),
 				),
 				'args' => array(
-					'sections'         => array(
-						'type'     => 'array',
-						'required' => true,
-						'items'    => array(
-							'type' => 'string',
-							'enum' => self::VALID_SECTIONS,
-						),
-					),
-					'existing_content' => array(
-						'type'     => 'object',
-						'required' => false,
-						'default'  => array(),
-					),
-					'filters'          => array(
-						'description' => __( 'Optional content filters to narrow the analyzed content.', 'jetpack' ),
+					'categories' => array(
+						'description' => __( 'Categories to generate guidelines for.', 'jetpack' ),
 						'type'        => 'object',
-						'required'    => false,
-						'default'     => array(),
-						'properties'  => array(
-							'authors'    => array(
-								'description' => __( 'Limit to posts by these author IDs.', 'jetpack' ),
-								'type'        => 'array',
-								'items'       => array( 'type' => 'integer' ),
-							),
-							'categories' => array(
-								'description' => __( 'Limit to posts in these category IDs.', 'jetpack' ),
-								'type'        => 'array',
-								'items'       => array( 'type' => 'integer' ),
-							),
-						),
+						'required'    => true,
 					),
 				),
 			)
@@ -124,18 +93,8 @@ class WPCOM_REST_API_V2_Endpoint_Agent_Guidelines_AI extends WP_REST_Controller 
 		$blog_id = \Jetpack_Options::get_option( 'id' );
 
 		$body = array(
-			'sections' => $request->get_param( 'sections' ),
+			'categories' => $request->get_param( 'categories' ),
 		);
-
-		$existing_content = $request->get_param( 'existing_content' );
-		if ( ! empty( $existing_content ) ) {
-			$body['existing_content'] = $existing_content;
-		}
-
-		$filters = $request->get_param( 'filters' );
-		if ( ! empty( $filters ) ) {
-			$body['filters'] = $filters;
-		}
 
 		$response = Client::wpcom_json_api_request_as_blog(
 			sprintf( '/sites/%d/jetpack-ai/suggest-guidelines', $blog_id ) . '?force=wpcom',

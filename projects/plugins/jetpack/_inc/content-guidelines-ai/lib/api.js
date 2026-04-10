@@ -1,53 +1,38 @@
 import apiFetch from '@wordpress/api-fetch';
-import { API_PATH } from '../constants';
-
-const MOCK = true; // ← flip to false to use real API
-
-const MOCK_SUGGESTIONS = {
-	site: 'This is a modern WordPress site focused on sharing in-depth tutorials, step-by-step guides, and best practices for web development and design. The primary audience includes developers, designers, and content creators who want to build beautiful, performant, and accessible websites.',
-	copy: 'Write in a clear, conversational tone that balances technical accuracy with approachability. Use active voice and short paragraphs. Avoid jargon unless defining it first. Address the reader directly with "you" and "your".',
-	images:
-		'Use high-quality screenshots at 2x resolution. Prefer light mode for UI captures. Add descriptive alt text. Use PNG for UI screenshots, WebP for photographs. Keep file sizes under 200KB where possible.',
-	additional:
-		'Always include code examples with syntax highlighting. Link to official documentation. Update posts when APIs change. Include a "Prerequisites" section for tutorial content.',
-};
-
-function delay( ms ) {
-	return new Promise( resolve => setTimeout( resolve, ms ) );
-}
+import { API_PATH, VALID_SECTIONS } from '../constants';
 
 /**
- * Generate or improve guidelines for the given sections.
+ * Generate or improve guidelines for the given sections/blocks.
  *
  * Translates between the internal format used by our components and the
  * API's categories-based format:
  *
- * API request:  { categories: { site: {}, copy: { guidelines: "..." } } }
- * API response: { site: { guidelines: "..." }, copy: { guidelines: "..." } }
+ * API request:  { categories: { site: {}, copy: { guidelines: "..." }, blocks: { "core/paragraph": {} } } }
+ * API response: { site: { guidelines: "..." }, blocks: { "core/paragraph": { guidelines: "..." } } }
  *
- * @param {string[]}                sections          - Sections to generate.
- * @param {Object.<string, string>} [existingContent] - Existing content keyed by section slug.
- * @return {Promise<Object>} Response with `suggestions` keyed by section slug.
+ * @param {string[]}                slugs             - Section slugs or block names to generate.
+ * @param {Object.<string, string>} [existingContent] - Existing content keyed by slug.
+ * @return {Promise<Object>} Response with `suggestions` keyed by slug.
  */
-export async function suggestGuidelines( sections, existingContent = {} ) {
-	if ( MOCK ) {
-		await delay( 3000 );
-		return {
-			suggestions: Object.fromEntries(
-				sections.map( slug => [
-					slug,
-					MOCK_SUGGESTIONS[ slug ] ||
-						'Use this block to present clear, well-structured content. Keep text concise and focused on a single idea per block. Avoid overly long blocks — break content into smaller, scannable sections when possible.',
-				] )
-			),
-		};
+export async function suggestGuidelines( slugs, existingContent = {} ) {
+	// Build categories object for the API.
+	// Standard sections go as top-level keys, block names go under `blocks`.
+	const categories = {};
+	const blockEntries = {};
+
+	for ( const slug of slugs ) {
+		const existing = existingContent[ slug ];
+		const entry = existing ? { guidelines: existing } : {};
+
+		if ( VALID_SECTIONS.includes( slug ) ) {
+			categories[ slug ] = entry;
+		} else {
+			blockEntries[ slug ] = entry;
+		}
 	}
 
-	// Build categories object for the API.
-	const categories = {};
-	for ( const slug of sections ) {
-		const existing = existingContent[ slug ];
-		categories[ slug ] = existing ? { guidelines: existing } : {};
+	if ( Object.keys( blockEntries ).length > 0 ) {
+		categories.blocks = blockEntries;
 	}
 
 	const response = await apiFetch( {
@@ -58,10 +43,17 @@ export async function suggestGuidelines( sections, existingContent = {} ) {
 
 	// Normalize API response to { suggestions: { slug: text } }.
 	const suggestions = {};
-	for ( const slug of sections ) {
-		const guidelines = response?.[ slug ]?.guidelines;
-		if ( guidelines ) {
-			suggestions[ slug ] = guidelines;
+	for ( const slug of slugs ) {
+		if ( VALID_SECTIONS.includes( slug ) ) {
+			const guidelines = response?.[ slug ]?.guidelines;
+			if ( guidelines ) {
+				suggestions[ slug ] = guidelines;
+			}
+		} else {
+			const guidelines = response?.blocks?.[ slug ]?.guidelines;
+			if ( guidelines ) {
+				suggestions[ slug ] = guidelines;
+			}
 		}
 	}
 
