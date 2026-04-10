@@ -1,11 +1,15 @@
 /**
- * Globe Icon Component
+ * Globe Icon Component.
  *
+ * Accepts any standard SVG props (e.g. `width`, `height`, `className`, `style`)
+ * so consumers can size and style it to fit their context.
+ *
+ * @param props - Standard SVG props.
  * @return The Globe SVG icon component.
  */
-export function GlobeIcon() {
+export function GlobeIcon( props: React.SVGProps< SVGSVGElement > ) {
 	return (
-		<svg width="14" height="14" fill="none" viewBox="0 0 24 24" aria-hidden="true">
+		<svg width="14" height="14" fill="none" viewBox="0 0 24 24" aria-hidden="true" { ...props }>
 			<path
 				fill="currentColor"
 				fillRule="evenodd"
