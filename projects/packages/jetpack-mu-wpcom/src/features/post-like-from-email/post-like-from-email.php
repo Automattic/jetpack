@@ -52,7 +52,7 @@ function wpcom_handle_post_like_from_email() {
 	}
 
 	Client::wpcom_json_api_request_as_blog(
-		'/sites/' . rawurlencode( $blog_id ) . '/email-like',
+		'/sites/' . $blog_id . '/email-like',
 		'2',
 		array(
 			'method'  => 'POST',
