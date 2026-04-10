@@ -332,11 +332,8 @@ function StageInner() {
 			return true;
 		}
 
-		return (
-			currentQuery.status !== queryParams.status ||
-			currentQuery.page !== queryParams.page ||
-			currentQuery.parent !== queryParams.parent ||
-			currentQuery.search !== queryParams.search
+		return Object.keys( queryParams ).some(
+			key => currentQuery[ key ] !== queryParams[ key as keyof QueryParams ]
 		);
 	}, [ currentQuery, queryParams ] );
 
