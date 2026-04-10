@@ -84,7 +84,12 @@ class Email_Service_Test extends BaseTestCase {
 		$user     = new \WP_User();
 		$user->ID = 1;
 
-		$filter_args = array();
+		$filter_args = array(
+			'handled'   => null,
+			'user_id'   => null,
+			'auth_code' => null,
+			'blog_id'   => null,
+		);
 		$callback    = function ( $handled, $user_id, $auth_code, $blog_id ) use ( &$filter_args ) {
 			$filter_args = compact( 'handled', 'user_id', 'auth_code', 'blog_id' );
 			return true;
