@@ -187,6 +187,7 @@ function StageInner() {
 		totalItemsInbox,
 		totalItemsSpam,
 		totalItemsTrash,
+		currentQuery,
 	} = useInboxData( { status: statusView } );
 
 	useEffect( () => {
@@ -321,6 +322,23 @@ function StageInner() {
 	useEffect( () => {
 		setCurrentQuery( queryParams );
 	}, [ queryParams, setCurrentQuery ] );
+
+	// Detect when the store's query hasn't caught up to the locally computed queryParams.
+	// setCurrentQuery runs in a useEffect (after paint), so for one render cycle the store
+	// still holds the previous query and useEntityRecords returns stale cached data.
+	// Force a loading state during that gap to avoid flashing old results.
+	const isQueryStale = useMemo( () => {
+		if ( ! currentQuery ) {
+			return true;
+		}
+
+		return (
+			currentQuery.status !== queryParams.status ||
+			currentQuery.page !== queryParams.page ||
+			currentQuery.parent !== queryParams.parent ||
+			currentQuery.search !== queryParams.search
+		);
+	}, [ currentQuery, queryParams ] );
 
 	// Keep selected responses in store for shared dashboard behavior (e.g., export).
 	useEffect( () => {
@@ -590,12 +608,12 @@ function StageInner() {
 						status={ statusView }
 					/>
 				}
-				data={ records || EMPTY_ARRAY }
+				data={ isQueryStale ? EMPTY_ARRAY : records || EMPTY_ARRAY }
 				fields={ fields as Field< unknown >[] }
 				view={ view }
 				onChangeView={ onChangeView }
 				paginationInfo={ paginationInfo }
-				isLoading={ isLoadingData }
+				isLoading={ isLoadingData || isQueryStale }
 				getItemId={ getItemId }
 				defaultLayouts={ defaultLayouts }
 				selection={ selection }
