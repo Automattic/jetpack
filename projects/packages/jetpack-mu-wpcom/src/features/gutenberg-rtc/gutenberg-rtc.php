@@ -43,7 +43,12 @@ function wpcom_is_rtc_http_polling_rollout() {
  * @return bool
  */
 function wpcom_is_rtc_websocket_rollout() {
-	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+	$blog_id = get_wpcom_blog_id();
+
+	if (
+		defined( 'IS_WPCOM' ) && IS_WPCOM &&
+		( $blog_id % 100 < 50 )
+	) {
 		return true;
 	}
 	return false;
