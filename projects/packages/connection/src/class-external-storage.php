@@ -31,8 +31,6 @@
 
 namespace Automattic\Jetpack\Connection;
 
-require_once __DIR__ . '/interface-storage-provider.php';
-
 /**
  * External Storage utilities class.
  *
