@@ -16,7 +16,7 @@ import {
 } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { seen, pencil, connection, chevronRight } from '@wordpress/icons';
+import { seen, pencil, connection, chevronRight, check } from '@wordpress/icons';
 import { isWriteTool } from './categories';
 import {
 	getAccountMcpAbilities,
@@ -79,20 +79,18 @@ function sprintf( format, ...args ) {
  * @return {object} Component markup.
  */
 function SummaryRow( { icon, title, badge, onClick } ) {
+	const intent = badge?.intent ?? 'neutral';
 	return (
 		<Button className="jetpack-ai-mcp__summary-row" onClick={ onClick } variant="tertiary">
 			<HStack justify="space-between" alignment="center" style={ { width: '100%' } }>
-				<HStack spacing={ 3 } alignment="center" justify="flex-start">
+				<HStack spacing={ 2 } alignment="center" justify="flex-start">
 					<Icon icon={ icon } size={ 24 } />
-					<Text weight={ 500 }>{ title }</Text>
+					<Text>{ title }</Text>
 				</HStack>
 				<HStack spacing={ 2 } alignment="center" justify="flex-end">
 					{ badge && (
-						<span
-							className={ `jetpack-ai-mcp__badge jetpack-ai-mcp__badge--${
-								badge.intent ?? 'neutral'
-							}` }
-						>
+						<span className={ `jetpack-ai-mcp__badge jetpack-ai-mcp__badge--${ intent }` }>
+							{ intent === 'success' && <Icon icon={ check } size={ 16 } /> }
 							{ badge.text }
 						</span>
 					) }
@@ -100,6 +98,32 @@ function SummaryRow( { icon, title, badge, onClick } ) {
 				</HStack>
 			</HStack>
 		</Button>
+	);
+}
+
+/**
+ * A card row for the "Connect external AI agent" action — shows title + description.
+ *
+ * @param {object}   props             - Component props.
+ * @param {string}   props.title       - Row title.
+ * @param {string}   props.description - Row description.
+ * @param {Function} props.onClick     - Click handler.
+ * @return {object} Component markup.
+ */
+function ConnectRow( { title, description, onClick } ) {
+	return (
+		<button className="jetpack-ai-mcp__connect-row" onClick={ onClick } type="button">
+			<span className="jetpack-ai-mcp__connect-row-icon">
+				<Icon icon={ connection } size={ 24 } />
+			</span>
+			<span className="jetpack-ai-mcp__connect-row-text">
+				<p className="jetpack-ai-mcp__connect-row-title">{ title }</p>
+				<p className="jetpack-ai-mcp__connect-row-description">{ description }</p>
+			</span>
+			<span className="jetpack-ai-mcp__connect-row-chevron">
+				<Icon icon={ chevronRight } size={ 24 } />
+			</span>
+		</button>
 	);
 }
 
@@ -185,7 +209,7 @@ export default function McpHub( { mcpAbilities, blogId, isSaving, onNavigate, on
 							__nextHasNoMarginBottom
 							checked={ isMcpEnabled }
 							disabled={ isSaving }
-							label={ __( 'Enable MCP access for this site', 'jetpack' ) }
+							label={ __( 'Enable MCP access', 'jetpack' ) }
 							onChange={ handleMcpToggle }
 						/>
 					</VStack>
@@ -213,9 +237,12 @@ export default function McpHub( { mcpAbilities, blogId, isSaving, onNavigate, on
 
 			{ isMcpEnabled && (
 				<Card>
-					<SummaryRow
-						icon={ connection }
+					<ConnectRow
 						title={ __( 'Connect external AI agent', 'jetpack' ) }
+						description={ __(
+							'Get instructions for connecting your external AI agent.',
+							'jetpack'
+						) }
 						onClick={ navigateToSetup }
 					/>
 				</Card>

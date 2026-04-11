@@ -32,7 +32,8 @@ export function getAccountMcpAbilities( userSettings ) {
  * @return {Set<string>} Set of tool IDs available in site context.
  */
 export function getSiteContextToolIds( userSettings ) {
-	const siteTools = userSettings?.mcp_abilities?.site || {};
+	// Support both flat format (userSettings.site) and nested (userSettings.mcp_abilities.site).
+	const siteTools = userSettings?.site || userSettings?.mcp_abilities?.site || {};
 	return new Set( Object.keys( siteTools ) );
 }
 
@@ -44,7 +45,8 @@ export function getSiteContextToolIds( userSettings ) {
  * @return {Record<string, boolean>} Site-level ability overrides keyed by tool ID.
  */
 export function getSiteMcpAbilities( userSettings, siteId ) {
-	const mcpSites = userSettings?.mcp_abilities?.sites || [];
+	// Support both flat format (userSettings.sites) and nested (userSettings.mcp_abilities.sites).
+	const mcpSites = userSettings?.sites || userSettings?.mcp_abilities?.sites || [];
 	const siteEntry = mcpSites.find( site => site.blog_id === parseInt( siteId ) );
 	return siteEntry?.abilities || {};
 }
@@ -76,11 +78,14 @@ export function mergeSiteMcpAbilities( accountAbilities, siteAbilities ) {
  * @return {boolean} Whether site-level MCP access is enabled.
  */
 export function getSiteLevelEnabled( userSettings, siteId ) {
-	const mcpAbilities = userSettings?.mcp_abilities;
-	const mcpSites = mcpAbilities?.sites || [];
+	// Support both flat format (userSettings.sites) and nested (userSettings.mcp_abilities.sites).
+	const mcpSites = userSettings?.sites || userSettings?.mcp_abilities?.sites || [];
 	const siteEntry = mcpSites.find( site => site.blog_id === parseInt( siteId ) );
 	if ( siteEntry ) {
 		return siteEntry.site_level_enabled === true;
 	}
-	return mcpAbilities?.site_level_enabled_default === true;
+	return (
+		( userSettings?.site_level_enabled_default ??
+			userSettings?.mcp_abilities?.site_level_enabled_default ) === true
+	);
 }
