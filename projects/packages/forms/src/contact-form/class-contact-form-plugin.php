@@ -1607,11 +1607,6 @@ class Contact_Form_Plugin {
 	 * Conditionally attached to `template_redirect`
 	 */
 	public function process_form_submission() {
-		// Block submissions in preview mode.
-		if ( Form_Preview::is_preview_mode() ) {
-			return;
-		}
-
 		// Add a filter to replace tokens in the subject field with sanitized field values.
 		add_filter( 'contact_form_subject', array( $this, 'replace_tokens_with_input' ), 10, 2 );
 
@@ -1623,6 +1618,24 @@ class Contact_Form_Plugin {
 
 		if ( ! is_string( $id ) || ! is_string( $hash ) ) {
 			return Form_Submission_Error::system_error( 'invalid_form_id_or_hash', __( 'Invalid form ID or hash.', 'jetpack-forms' ) );
+		}
+
+		// Detect and authorize submissions coming from form preview. When a preview
+		// submission is detected we let it flow through the normal pipeline but
+		// flag the resulting feedback as a test response.
+		$is_preview_submission = false;
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- the nonce is verified inside verify_preview_submission().
+		if ( ! empty( $_POST[ Form_Preview::PREVIEW_SUBMIT_FIELD ] ) ) {
+			$preview_form_id = is_numeric( $id ) ? (int) $id : 0;
+			if ( $preview_form_id > 0 && Form_Preview::verify_preview_submission( $preview_form_id ) ) {
+				$is_preview_submission = true;
+			} else {
+				// Preview flag was present but nonce/caps did not check out. Reject.
+				return Form_Submission_Error::system_error(
+					'invalid_preview_submission',
+					__( 'Invalid form preview submission.', 'jetpack-forms' )
+				);
+			}
 		}
 
 		if ( is_user_logged_in() ) {
@@ -1721,6 +1734,9 @@ class Contact_Form_Plugin {
 			if ( Jetpack_Forms::is_webhooks_enabled() && ! empty( $form->attributes['webhooks'] ) ) {
 				Form_Webhooks::init();
 			}
+			// Flag the submission as originating from a form preview so the form
+			// treats the resulting feedback as a test response.
+			$form->set_is_preview_submission( $is_preview_submission );
 			// Process the form
 			return $form->process_submission();
 		}
@@ -1908,6 +1924,10 @@ class Contact_Form_Plugin {
 		if ( ! empty( $form->attributes['webhooks'] ) ) {
 			Form_Webhooks::init();
 		}
+
+		// Flag the submission as originating from a form preview so the form
+		// treats the resulting feedback as a test response.
+		$form->set_is_preview_submission( $is_preview_submission );
 
 		// Process the form
 		return $form->process_submission();
@@ -2906,11 +2926,14 @@ class Contact_Form_Plugin {
 	/**
 	 * Returns an array of feedback data for export.
 	 *
-	 * @param array $feedback_ids Array of feedback IDs to fetch the data for.
+	 * @param array $feedback_ids           Array of feedback IDs to fetch the data for.
+	 * @param bool  $include_test_responses Whether to include feedback that was submitted
+	 *                                      from form preview. Defaults to false, meaning
+	 *                                      preview/test responses are excluded from the export.
 	 *
 	 * @return array
 	 */
-	public function get_export_feedback_data( $feedback_ids ) {
+	public function get_export_feedback_data( $feedback_ids, $include_test_responses = false ) {
 		$feedback_data   = array();
 		$all_field_names = array();
 
@@ -2919,6 +2942,11 @@ class Contact_Form_Plugin {
 			$response = Feedback::get( $feedback_id );
 			if ( ! $response instanceof Feedback ) {
 				continue; // Skip if the feedback is not an instance of Feedback.
+			}
+
+			// Skip test responses from form preview unless explicitly requested.
+			if ( ! $include_test_responses && $response->is_test() ) {
+				continue;
 			}
 
 			// Get fields with automatic duplicate handling (label-value shape includes counts)
@@ -3078,7 +3106,8 @@ class Contact_Form_Plugin {
 			}
 		}
 
-		if ( ! empty( $_POST['selected'] ) && is_array( $_POST['selected'] ) ) {
+		$has_explicit_selection = ! empty( $_POST['selected'] ) && is_array( $_POST['selected'] );
+		if ( $has_explicit_selection ) {
 			$args['include'] = array_filter(
 				array_map(
 					function ( $selected ) {
@@ -3091,7 +3120,11 @@ class Contact_Form_Plugin {
 
 		$feedbacks = get_posts( $args );
 
-		return $this->get_export_feedback_data( $feedbacks );
+		// Test responses from form preview are excluded from bulk exports by
+		// default. When the user has explicitly picked specific rows (via the
+		// dashboard selection UI), we trust their selection and include any
+		// test responses that landed in it.
+		return $this->get_export_feedback_data( $feedbacks, $has_explicit_selection );
 	}
 
 	/**

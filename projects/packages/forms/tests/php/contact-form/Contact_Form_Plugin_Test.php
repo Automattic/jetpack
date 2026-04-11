@@ -916,6 +916,95 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 		Utility::destroy_post_context( $current_post );
 	}
 
+	/**
+	 * Helper: insert a v3-format feedback post, optionally flagged as a test submission.
+	 *
+	 * @param bool $is_test Whether to mark the feedback as a test submission.
+	 * @return int The new feedback post ID.
+	 */
+	private function insert_v3_feedback_post( $is_test = false ) {
+		$content = array(
+			'subject'     => 'Test Subject',
+			'ip'          => '127.0.0.1',
+			'entry_title' => 'Source Post',
+			'entry_page'  => 1,
+			'source_id'   => 0,
+			'source_type' => 'single',
+			'request_url' => '',
+			'fields'      => array(
+				array(
+					'id'    => '1_Name',
+					'label' => 'Name',
+					'type'  => 'text',
+					'value' => $is_test ? 'Preview Tester' : 'Real User',
+				),
+			),
+		);
+
+		if ( $is_test ) {
+			$content['is_test'] = true;
+		}
+
+		// Clear the Feedback static cache so repeat calls in one test see fresh data.
+		Feedback::clear_cache();
+
+		return wp_insert_post(
+			array(
+				'post_type'      => 'feedback',
+				'post_status'    => 'publish',
+				'post_title'     => 'Preview ' . ( $is_test ? 'test' : 'real' ) . ' ' . microtime(),
+				'post_content'   => wp_json_encode( $content, JSON_UNESCAPED_SLASHES ),
+				'post_mime_type' => 'v3',
+			)
+		);
+	}
+
+	/**
+	 * By default, the export excludes feedback flagged as test submissions.
+	 */
+	public function test_export_excludes_test_feedback_by_default() {
+		$plugin  = Contact_Form_Plugin::init();
+		$real_id = $this->insert_v3_feedback_post( false );
+		$test_id = $this->insert_v3_feedback_post( true );
+
+		$result = $plugin->get_export_feedback_data( array( $real_id, $test_id ) );
+
+		$this->assertIsArray( $result );
+		$this->assertArrayHasKey( ' ID', $result );
+		$this->assertEquals(
+			array( $real_id ),
+			$result[' ID'],
+			'The default export should only return the non-test feedback row.'
+		);
+
+		wp_delete_post( $real_id, true );
+		wp_delete_post( $test_id, true );
+	}
+
+	/**
+	 * Callers that pass an explicit selection (e.g. the dashboard's selected
+	 * row IDs) include the test responses in that selection — the user
+	 * deliberately picked them.
+	 */
+	public function test_export_includes_test_feedback_when_explicitly_requested() {
+		$plugin  = Contact_Form_Plugin::init();
+		$real_id = $this->insert_v3_feedback_post( false );
+		$test_id = $this->insert_v3_feedback_post( true );
+
+		$result = $plugin->get_export_feedback_data( array( $real_id, $test_id ), true );
+
+		$this->assertIsArray( $result );
+		$this->assertArrayHasKey( ' ID', $result );
+		$this->assertEqualsCanonicalizing(
+			array( $real_id, $test_id ),
+			$result[' ID'],
+			'When include_test_responses is true, both rows should be present in the export.'
+		);
+
+		wp_delete_post( $real_id, true );
+		wp_delete_post( $test_id, true );
+	}
+
 	public function test_interpersonal_data_exporter() {
 
 		$post_id = Utility::create_legacy_feedback(

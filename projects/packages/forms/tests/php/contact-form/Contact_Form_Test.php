@@ -132,6 +132,61 @@ class Contact_Form_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Preview (test) submissions mark the feedback as a test response, skip
+	 * Akismet, and still keep the post_status as 'publish' so the owner can
+	 * find it in the normal inbox alongside real responses.
+	 */
+	public function test_process_submission_marks_preview_submission_as_test_feedback() {
+		$this->add_field_values(
+			array(
+				'name'    => 'Preview Tester',
+				'email'   => 'preview@example.com',
+				'message' => 'This should be stored as test feedback',
+			)
+		);
+
+		// Track whether Akismet filter was invoked — it must not be.
+		$akismet_called = 0;
+		add_filter(
+			'jetpack_contact_form_is_spam',
+			function ( $is_spam ) use ( &$akismet_called ) {
+				++$akismet_called;
+				return $is_spam;
+			},
+			10,
+			1
+		);
+
+		$form = new Contact_Form(
+			array(),
+			"[contact-field label='Name' type='name' required='1'/][contact-field label='Email' type='email' required='1'/][contact-field label='Message' type='textarea' required='1'/]"
+		);
+		$form->set_is_preview_submission( true );
+
+		$initial_count = count( Posts::init()->posts );
+		$result        = $form->process_submission();
+
+		$this->assertTrue( is_string( $result ), 'Form submission should be successful for preview submissions.' );
+
+		$final_posts = Posts::init()->posts;
+		$this->assertCount( $initial_count + 1, $final_posts, 'A feedback post should be created for preview submissions.' );
+
+		$new_post = end( $final_posts );
+		$this->assertEquals( 'feedback', $new_post->post_type, 'The new post should be of type feedback.' );
+		$this->assertEquals( 'publish', $new_post->post_status, 'Test feedback should be stored with publish status, not spam.' );
+
+		$this->assertSame( 0, $akismet_called, 'Akismet filter must not be invoked for preview (test) submissions.' );
+
+		// Round-trip through the Feedback reader to confirm the is_test flag is
+		// serialized into post_content.
+		$feedback = Feedback::get( $new_post->ID );
+		$this->assertInstanceOf( Feedback::class, $feedback );
+		$this->assertTrue( $feedback->is_test(), 'Feedback loaded from post_content should report is_test() === true.' );
+
+		remove_all_filters( 'jetpack_contact_form_is_spam' );
+	}
+
+	/**
 	 * Test that form submissions are stored in database when saveResponses is not specified (defaults to 'yes')
 	 */
 	public function test_process_submission_stores_feedback_when_save_responses_default() {

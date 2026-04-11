@@ -388,7 +388,8 @@ class Feedback {
 			$parsed_content['entry_title'] ?? '',
 			$parsed_content['entry_page'] ?? 1,
 			$parsed_content['source_type'] ?? 'single',
-			$parsed_content['request_url'] ?? ''
+			$parsed_content['request_url'] ?? '',
+			! empty( $parsed_content['is_test'] )
 		);
 
 		$this->ip_address   = $parsed_content['ip'] ?? $this->get_first_field_of_type( 'ip' );
@@ -1456,12 +1457,36 @@ class Feedback {
 	public function get_entry_short_permalink() {
 		return $this->source->get_relative_permalink();
 	}
+
+	/**
+	 * Whether this feedback was submitted from a form preview (test submission).
+	 *
+	 * @return bool
+	 */
+	public function is_test() {
+		return $this->source->is_test();
+	}
+
+	/**
+	 * Flag this feedback as a test submission from form preview.
+	 *
+	 * @return void
+	 */
+	public function mark_as_test() {
+		$this->source->set_is_test( true );
+	}
+
 	/**
 	 * Save the feedback entry to the database.
 	 *
 	 * @return int
 	 */
 	public function save() {
+		// Test feedback (from form preview) is created as already-read so it does
+		// not bump the unread counter in the dashboard — the form owner explicitly
+		// triggered it and doesn't need to be notified of "new" responses.
+		$comment_status = $this->is_test() ? self::STATUS_READ : self::STATUS_UNREAD;
+
 		$post_id = wp_insert_post(
 			array(
 				'post_type'      => self::POST_TYPE,
@@ -1472,7 +1497,7 @@ class Feedback {
 				'post_content'   => $this->serialize(), // In V3 we started to addslashes.
 				'post_mime_type' => 'v3', // a way to help us identify what version of the data this is.
 				'post_parent'    => $this->form_id ?? $this->source->get_id(),
-				'comment_status' => self::STATUS_UNREAD, // New feedback is unread by default.
+				'comment_status' => $comment_status,
 			)
 		);
 

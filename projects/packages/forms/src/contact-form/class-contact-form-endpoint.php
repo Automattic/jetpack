@@ -807,6 +807,26 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			'readonly'    => true,
 		);
 
+		$schema['properties']['is_test'] = array(
+			'description' => __( 'Whether the form response was submitted from a form preview (test response).', 'jetpack-forms' ),
+			'type'        => 'boolean',
+			'context'     => array( 'view', 'edit', 'embed' ),
+			'arg_options' => array(
+				'sanitize_callback' => 'rest_sanitize_boolean',
+			),
+			'readonly'    => true,
+		);
+
+		$schema['properties']['preview_url'] = array(
+			'description' => __( 'URL to the form preview that produced this response, when the response is a test submission.', 'jetpack-forms' ),
+			'type'        => array( 'string', 'null' ),
+			'context'     => array( 'view', 'edit', 'embed' ),
+			'arg_options' => array(
+				'sanitize_callback' => 'esc_url_raw',
+			),
+			'readonly'    => true,
+		);
+
 		$this->schema = $schema;
 
 		return $this->add_additional_fields_schema( $this->schema );
@@ -986,6 +1006,21 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 
 		if ( rest_is_field_included( 'is_unread', $fields ) ) {
 			$data['is_unread'] = $feedback_response->is_unread();
+		}
+
+		if ( rest_is_field_included( 'is_test', $fields ) ) {
+			$data['is_test'] = $feedback_response->is_test();
+		}
+
+		if ( rest_is_field_included( 'preview_url', $fields ) ) {
+			$preview_url = null;
+			if ( $feedback_response->is_test() ) {
+				$form_id = $feedback_response->get_form_id();
+				if ( $form_id ) {
+					$preview_url = Form_Preview::generate_preview_url( (int) $form_id );
+				}
+			}
+			$data['preview_url'] = $preview_url;
 		}
 
 		$response->set_data( $data );

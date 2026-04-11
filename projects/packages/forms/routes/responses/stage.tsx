@@ -146,6 +146,38 @@ function getUrlPath( url: string ): string | null {
 }
 
 /**
+ * Badge surfacing that a response came from form preview.
+ *
+ * When a preview URL is available, the badge is wrapped in a link pointing
+ * to the preview so the form owner can re-open it. Otherwise it renders as
+ * a plain label.
+ *
+ * @param props            - Component props.
+ * @param props.previewUrl - URL to the form preview, or null/undefined.
+ * @return The badge element.
+ */
+function FormPreviewBadge( { previewUrl }: { previewUrl?: string | null } ) {
+	const label = __( 'Form Preview', 'jetpack-forms' );
+	const badge = <Badge intent="none">{ label }</Badge>;
+
+	if ( ! previewUrl ) {
+		return badge;
+	}
+
+	return (
+		<a
+			href={ previewUrl }
+			target="_blank"
+			rel="noreferrer"
+			style={ { textDecoration: 'none' } }
+			aria-label={ __( 'Open form preview in a new tab', 'jetpack-forms' ) }
+		>
+			{ badge }
+		</a>
+	);
+}
+
+/**
  * Stage component for the form responses DataViews.
  *
  * @return The stage component.
@@ -432,9 +464,14 @@ function StageInner() {
 							/>
 							{ styleUnreadValue(
 								<Stack direction="column" gap="2xs">
-									<Text ellipsizeMode="tail" limit={ 50 } truncate>
-										{ displayName }
-									</Text>
+									<Stack direction="row" align="center" gap="xs">
+										{ item.is_test && (
+											<Badge intent="informational">{ __( 'Test', 'jetpack-forms' ) }</Badge>
+										) }
+										<Text ellipsizeMode="tail" limit={ 50 } truncate>
+											{ displayName }
+										</Text>
+									</Stack>
 									{ showEmail && (
 										<Text variant="muted" size={ 12 } ellipsizeMode="tail" limit={ 50 } truncate>
 											{ item.author_email }
@@ -479,6 +516,14 @@ function StageInner() {
 				id: 'source',
 				label: __( 'Source', 'jetpack-forms' ),
 				render: ( { item } ) => {
+					// Test responses (submitted from form preview) don't point at a
+					// real source page — surface a Form Preview badge in place of the link.
+					if ( item.is_test ) {
+						return styleUnreadValue(
+							<FormPreviewBadge previewUrl={ item.preview_url } />,
+							item.is_unread
+						);
+					}
 					const source =
 						item.entry_title ||
 						getUrlPath( item.entry_permalink ) ||

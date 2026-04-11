@@ -230,6 +230,108 @@ class Form_Preview_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Helper to restore $_POST after each preview-submission test.
+	 *
+	 * @var array
+	 */
+	private $saved_post = array();
+
+	/**
+	 * Seed $_POST with valid preview submission credentials for a given form id.
+	 *
+	 * @param int $form_id Form ID whose preview nonce should be used.
+	 */
+	private function seed_preview_post_data( $form_id ) {
+		$this->saved_post                                  = $_POST;
+		$_POST[ Form_Preview::PREVIEW_SUBMIT_FIELD ]       = '1';
+		$_POST[ Form_Preview::PREVIEW_SUBMIT_NONCE_FIELD ] = wp_create_nonce(
+			Form_Preview::PREVIEW_SUBMIT_NONCE_ACTION . $form_id
+		);
+	}
+
+	/**
+	 * Reset $_POST after a preview-submission test.
+	 */
+	private function reset_preview_post_data() {
+		$_POST = $this->saved_post;
+	}
+
+	/**
+	 * The verify helper accepts a valid editor preview submission.
+	 */
+	public function test_verify_preview_submission_accepts_valid_editor_post() {
+		wp_set_current_user( $this->editor_id );
+		$this->seed_preview_post_data( $this->form_id );
+
+		$this->assertTrue( Form_Preview::verify_preview_submission( $this->form_id ) );
+
+		$this->reset_preview_post_data();
+	}
+
+	/**
+	 * The verify helper rejects a preview submission from a logged-out user.
+	 */
+	public function test_verify_preview_submission_rejects_logged_out_user() {
+		wp_set_current_user( 0 );
+		$this->seed_preview_post_data( $this->form_id );
+
+		$this->assertFalse( Form_Preview::verify_preview_submission( $this->form_id ) );
+
+		$this->reset_preview_post_data();
+	}
+
+	/**
+	 * The verify helper rejects a preview submission from a user without edit_post caps.
+	 */
+	public function test_verify_preview_submission_rejects_subscriber() {
+		wp_set_current_user( $this->subscriber_id );
+		$this->seed_preview_post_data( $this->form_id );
+
+		$this->assertFalse( Form_Preview::verify_preview_submission( $this->form_id ) );
+
+		$this->reset_preview_post_data();
+	}
+
+	/**
+	 * A nonce generated for form A must not authorize a submission for form B.
+	 */
+	public function test_verify_preview_submission_rejects_foreign_form_nonce() {
+		wp_set_current_user( $this->editor_id );
+		$other_form_id = wp_insert_post(
+			array(
+				'post_type'    => Contact_Form::POST_TYPE,
+				'post_status'  => 'publish',
+				'post_title'   => 'Other Form',
+				'post_content' => '<!-- wp:jetpack/contact-form /-->',
+				'post_author'  => $this->editor_id,
+			)
+		);
+
+		$this->seed_preview_post_data( $other_form_id );
+
+		$this->assertFalse( Form_Preview::verify_preview_submission( $this->form_id ) );
+
+		$this->reset_preview_post_data();
+		wp_delete_post( $other_form_id, true );
+	}
+
+	/**
+	 * The verify helper rejects a preview submission when the preview flag is missing from $_POST.
+	 */
+	public function test_verify_preview_submission_rejects_missing_flag() {
+		wp_set_current_user( $this->editor_id );
+		$saved_post = $_POST;
+		unset( $_POST[ Form_Preview::PREVIEW_SUBMIT_FIELD ] );
+		$_POST[ Form_Preview::PREVIEW_SUBMIT_NONCE_FIELD ] = wp_create_nonce(
+			Form_Preview::PREVIEW_SUBMIT_NONCE_ACTION . $this->form_id
+		);
+
+		$this->assertFalse( Form_Preview::verify_preview_submission( $this->form_id ) );
+
+		$_POST = $saved_post;
+	}
+
+	/**
 	 * Test preview works with draft forms.
 	 */
 	public function test_preview_works_with_draft_form() {
