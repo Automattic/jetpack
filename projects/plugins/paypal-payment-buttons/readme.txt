@@ -4,7 +4,7 @@ Tags: paypal, payments, ecommerce, blocks, checkout
 Requires at least: 6.8
 Requires PHP: 7.2
 Tested up to: 6.9
-Stable tag: 0.3.2
+Stable tag: 0.4.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
