@@ -103,7 +103,16 @@ export default function App() {
 					</Notice>
 				) }
 
-				{ ! isLoading && ! error && (
+				{ ! isLoading && ! error && ! blogId && (
+					<Notice status="warning" isDismissible={ false }>
+						{ __(
+							'This site is not connected to WordPress.com. Please connect Jetpack to manage MCP settings.',
+							'jetpack'
+						) }
+					</Notice>
+				) }
+
+				{ ! isLoading && ! error && !! blogId && (
 					<VStack spacing={ 4 }>
 						{ view === 'hub' && (
 							<McpHub

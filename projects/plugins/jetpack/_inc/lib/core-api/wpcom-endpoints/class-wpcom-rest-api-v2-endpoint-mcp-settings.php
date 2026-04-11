@@ -142,7 +142,34 @@ class WPCOM_REST_API_V2_Endpoint_MCP_Settings extends WP_REST_Controller {
 				$mcp_abilities = array();
 			}
 
+			// Shallow-merge top-level keys first.
 			$mcp_abilities = array_replace( $existing_mcp_abilities, $mcp_abilities );
+
+			// Deep-merge `sites` entries by blog_id, and nested `abilities` by tool ID.
+			if ( isset( $mcp_abilities['sites'] ) && is_array( $mcp_abilities['sites'] ) &&
+				isset( $existing_mcp_abilities['sites'] ) && is_array( $existing_mcp_abilities['sites'] ) ) {
+				$existing_sites = array();
+				foreach ( $existing_mcp_abilities['sites'] as $entry ) {
+					if ( isset( $entry['blog_id'] ) ) {
+						$existing_sites[ $entry['blog_id'] ] = $entry;
+					}
+				}
+				foreach ( $mcp_abilities['sites'] as $entry ) {
+					if ( ! isset( $entry['blog_id'] ) ) {
+						continue;
+					}
+					$blog_id = $entry['blog_id'];
+					if ( isset( $existing_sites[ $blog_id ] ) ) {
+						$existing_abilities         = isset( $existing_sites[ $blog_id ]['abilities'] ) && is_array( $existing_sites[ $blog_id ]['abilities'] ) ? $existing_sites[ $blog_id ]['abilities'] : array();
+						$new_abilities              = isset( $entry['abilities'] ) && is_array( $entry['abilities'] ) ? $entry['abilities'] : array();
+						$entry['abilities']         = array_replace( $existing_abilities, $new_abilities );
+						$existing_sites[ $blog_id ] = array_replace( $existing_sites[ $blog_id ], $entry );
+					} else {
+						$existing_sites[ $blog_id ] = $entry;
+					}
+				}
+				$mcp_abilities['sites'] = array_values( $existing_sites );
+			}
 
 			update_user_option( get_current_user_id(), 'mcp_abilities', $mcp_abilities );
 			return rest_ensure_response( array( 'mcp_abilities' => $mcp_abilities ) );
