@@ -4,17 +4,16 @@
 	"type": "wordpress-plugin",
 	"license": "GPL-2.0-or-later",
 	"require": {
-		"automattic/jetpack-autoloader": "@dev",
-		"automattic/jetpack-assets": "@dev",
-		"automattic/jetpack-composer-plugin": "@dev",
-		"automattic/jetpack-paypal-payments": "@dev",
-		"automattic/jetpack-blocks": "@dev"
+		"automattic/jetpack-autoloader": "^5.0.16",
+		"automattic/jetpack-assets": "^4.3.32",
+		"automattic/jetpack-composer-plugin": "^4.0.5",
+		"automattic/jetpack-paypal-payments": "^0.6.14",
+		"automattic/jetpack-blocks": "^3.3.0"
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "^4.0.0",
-		"automattic/jetpack-changelogger": "@dev",
-		"automattic/jetpack-test-environment": "@dev",
-		"automattic/phpunit-select-config": "@dev"
+		"automattic/jetpack-changelogger": "^6.0.14",
+		"automattic/phpunit-select-config": "^1.0.4"
 	},
 	"autoload": {
 		"classmap": [
@@ -43,15 +42,7 @@
 			"pnpm run watch"
 		]
 	},
-	"repositories": [
-		{
-			"type": "path",
-			"url": "../../packages/*",
-			"options": {
-				"monorepo": true
-			}
-		}
-	],
+	"repositories": [],
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
@@ -59,7 +50,10 @@
 		"release-branch-prefix": "paypal-payment-buttons",
 		"autorelease": true,
 		"autotagger": true,
-		"wp-plugin-slug": "paypal-payment-buttons"
+		"wp-plugin-slug": "paypal-payment-buttons",
+		"non-mirrored-require-dev": [
+			"automattic/jetpack-test-environment"
+		]
 	},
 	"config": {
 		"allow-plugins": {
