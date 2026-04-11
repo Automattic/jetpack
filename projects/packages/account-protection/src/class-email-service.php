@@ -50,7 +50,7 @@ class Email_Service {
 		 * When the filter returns a truthy value, the default WPCOM API email send is skipped,
 		 * allowing sites to deliver the email locally (e.g. via `wp_mail()`).
 		 *
-		 * @since $$next-version$$
+		 * @since 0.3.0
 		 *
 		 * @param bool   $handled  Whether the email has been handled. Default false.
 		 * @param int    $user_id  The user ID.
