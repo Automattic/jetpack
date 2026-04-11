@@ -127,7 +127,23 @@ class WPCOM_REST_API_V2_Endpoint_MCP_Settings extends WP_REST_Controller {
 		$mcp_abilities = $request->get_param( 'mcp_abilities' );
 
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			// On WordPress.com, write directly.
+			// On WordPress.com, merge partial updates into the stored value.
+			$existing_mcp_abilities = get_user_option( 'mcp_abilities', get_current_user_id() );
+
+			if ( is_object( $existing_mcp_abilities ) ) {
+				$existing_mcp_abilities = get_object_vars( $existing_mcp_abilities );
+			} elseif ( ! is_array( $existing_mcp_abilities ) ) {
+				$existing_mcp_abilities = array();
+			}
+
+			if ( is_object( $mcp_abilities ) ) {
+				$mcp_abilities = get_object_vars( $mcp_abilities );
+			} elseif ( ! is_array( $mcp_abilities ) ) {
+				$mcp_abilities = array();
+			}
+
+			$mcp_abilities = array_replace( $existing_mcp_abilities, $mcp_abilities );
+
 			update_user_option( get_current_user_id(), 'mcp_abilities', $mcp_abilities );
 			return rest_ensure_response( array( 'mcp_abilities' => $mcp_abilities ) );
 		}
@@ -156,4 +172,4 @@ class WPCOM_REST_API_V2_Endpoint_MCP_Settings extends WP_REST_Controller {
 	}
 }
 
-new WPCOM_REST_API_V2_Endpoint_MCP_Settings();
+wpcom_rest_api_v2_load_plugin( 'WPCOM_REST_API_V2_Endpoint_MCP_Settings' );

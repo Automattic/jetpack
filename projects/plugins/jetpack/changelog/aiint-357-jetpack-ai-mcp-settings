@@ -1,4 +1,4 @@
 Significance: minor
-Type: added
+Type: enhancement
 
 AI: Add Jetpack AI admin page with MCP settings. Registers an "AI" submenu under Jetpack and provides a React-based interface for configuring external AI agent access (MCP) for the site, including per-tool read/write toggles and agent setup instructions.

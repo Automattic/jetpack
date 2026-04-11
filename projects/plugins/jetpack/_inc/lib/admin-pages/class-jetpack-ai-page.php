@@ -55,6 +55,13 @@ class Jetpack_AI_Page extends Jetpack_Admin_Page {
 	}
 
 	/**
+	 * Load shared wrapper styles used by the base admin page renderer.
+	 */
+	public function additional_styles() {
+		Jetpack_Admin_Page::load_wrapper_styles();
+	}
+
+	/**
 	 * Enqueue scripts and styles for the AI admin page.
 	 */
 	public function page_admin_scripts() {

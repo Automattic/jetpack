@@ -8,6 +8,7 @@
 
 import apiFetch from '@wordpress/api-fetch';
 import { useCallback, useEffect, useState } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 
 const ENDPOINT = '/wpcom/v2/jetpack-ai/mcp-settings';
 
@@ -34,7 +35,7 @@ export function useMcpSettings() {
 			} )
 			.catch( err => {
 				if ( ! cancelled ) {
-					setError( err?.message ?? 'Failed to load MCP settings.' );
+					setError( err?.message ?? __( 'Failed to load MCP settings.', 'jetpack' ) );
 				}
 			} )
 			.finally( () => {
@@ -67,7 +68,7 @@ export function useMcpSettings() {
 					setError( null );
 				} )
 				.catch( err => {
-					setError( err?.message ?? 'Failed to save MCP settings.' );
+					setError( err?.message ?? __( 'Failed to save MCP settings.', 'jetpack' ) );
 					throw err;
 				} )
 				.finally( () => {

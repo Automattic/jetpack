@@ -15,7 +15,7 @@ import {
 	__experimentalVStack as VStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { seen, pencil, connection, chevronRight, check } from '@wordpress/icons';
 import { isWriteTool } from './categories';
 import {
@@ -53,18 +53,6 @@ function computeBadge( tools, defaultEnabled ) {
 		text: sprintf( __( '%1$d of %2$d enabled', 'jetpack' ), enabledCount, tools.length ),
 		intent: 'info',
 	};
-}
-
-/**
- * Minimal sprintf supporting positional %N$d / %N$s placeholders.
- *
- * @param {string}    format - Format string.
- * @param {...number} args   - Replacement values.
- * @return {string} Formatted string.
- */
-function sprintf( format, ...args ) {
-	let i = 0;
-	return format.replace( /%\d+\$[ds]/g, () => args[ i++ ] );
 }
 
 /**
