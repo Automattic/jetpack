@@ -70,6 +70,10 @@ const ExportResponsesModal = ( {
 			size="large"
 		>
 			<VStack spacing={ 6 }>
+				<CSVExport onExport={ onExport } />
+				{ isGoogleDriveEnabled && (
+					<GoogleDriveExport onExport={ onExport } autoConnect={ autoConnectGdrive } />
+				) }
 				{ selectedTestCount > 0 && (
 					<Notice status="warning" isDismissible={ false }>
 						{ sprintf(
@@ -83,10 +87,6 @@ const ExportResponsesModal = ( {
 							selectedTestCount
 						) }
 					</Notice>
-				) }
-				<CSVExport onExport={ onExport } />
-				{ isGoogleDriveEnabled && (
-					<GoogleDriveExport onExport={ onExport } autoConnect={ autoConnectGdrive } />
 				) }
 				{ selectedIds.length === 0 && selectedTestCount === 0 && (
 					<Notice status="info" isDismissible={ false }>
