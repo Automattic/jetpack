@@ -4,7 +4,7 @@ settings:
   autoInstallPeers: false
   excludeLinksFromLockfile: false
 
-pnpmfileChecksum: sha256-YaOCD52gNmEJLibFNs1n5Zpg1ImPxbiqI999mq8jiBQ=
+pnpmfileChecksum: sha256-himJwc73aV4ix13KvfnEfGbePgSiCksPacZHL9lfVp8=
 
 patchedDependencies:
   react-autosize-textarea:
@@ -11149,9 +11149,9 @@ packages:
       '@babel/core': ^7.12.0
       webpack: '>=5.61.0'
 
-  babel-plugin-istanbul@7.0.1:
-    resolution: {integrity: sha512-D8Z6Qm8jCvVXtIRkBnqNHX0zJ37rQcFJ9u8WOS6tkYOsRdHBzypCstaxWiu5ZIlqQtviRYbgnRLSoCEvjqcqbA==}
-    engines: {node: '>=12'}
+  babel-plugin-istanbul@8.0.0:
+    resolution: {integrity: sha512-18wCskrN3DgbuBmp1gr7LBGT8xdz5xhQQqFvFhVxbkl8VBCrMKQ2YtqBWtUal1Zrc1HTuX0011+Brjw78TCFkg==}
+    engines: {node: '>=18'}
 
   babel-plugin-jest-hoist@30.3.0:
     resolution: {integrity: sha512-+TRkByhsws6sfPjVaitzadk1I0F5sPvOVUH5tyTSzhePpsGIVrdeunHSw/C36QeocS95OOk8lunc4rlu5Anwsg==}
@@ -20090,7 +20090,7 @@ snapshots:
       '@babel/core': 7.29.0
       '@jest/types': 30.3.0
       '@jridgewell/trace-mapping': 0.3.31
-      babel-plugin-istanbul: 7.0.1
+      babel-plugin-istanbul: 8.0.0
       chalk: 4.1.2
       convert-source-map: 2.0.0
       fast-json-stable-stringify: 2.1.0
@@ -26137,7 +26137,7 @@ snapshots:
       '@babel/core': 7.29.0
       '@jest/transform': 30.3.0
       '@types/babel__core': 7.20.5
-      babel-plugin-istanbul: 7.0.1
+      babel-plugin-istanbul: 8.0.0
       babel-preset-jest: 30.3.0(@babel/core@7.29.0)
       chalk: 4.1.2
       graceful-fs: 4.2.11
@@ -26151,7 +26151,7 @@ snapshots:
       find-up: 5.0.0
       webpack: 5.105.2(webpack-cli@6.0.1)
 
-  babel-plugin-istanbul@7.0.1:
+  babel-plugin-istanbul@8.0.0:
     dependencies:
       '@babel/helper-plugin-utils': 7.28.6
       '@istanbuljs/load-nyc-config': 1.1.0
