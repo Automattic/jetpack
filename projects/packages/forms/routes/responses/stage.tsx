@@ -486,21 +486,22 @@ function StageInner() {
 				id: 'source',
 				label: __( 'Source', 'jetpack-forms' ),
 				render: ( { item } ) => {
+					// Test responses point at the regenerated preview URL instead of
+					// the hosting page, and always surface as "Form preview".
+					if ( item.is_test ) {
+						const previewLabel = __( 'Form preview', 'jetpack-forms' );
+						if ( item.preview_url ) {
+							return styleUnreadValue(
+								<ExternalLink href={ item.preview_url }>{ previewLabel }</ExternalLink>,
+								item.is_unread
+							);
+						}
+						return styleUnreadValue( previewLabel, item.is_unread );
+					}
 					const source =
 						item.entry_title ||
 						getUrlPath( item.entry_permalink ) ||
 						__( '(no title)', 'jetpack-forms' );
-					// Test responses point at the regenerated preview URL instead of
-					// the hosting page.
-					if ( item.is_test ) {
-						if ( item.preview_url ) {
-							return styleUnreadValue(
-								<ExternalLink href={ item.preview_url }>{ source }</ExternalLink>,
-								item.is_unread
-							);
-						}
-						return styleUnreadValue( source, item.is_unread );
-					}
 					if ( item.entry_permalink ) {
 						return styleUnreadValue(
 							<ExternalLink href={ item.entry_permalink }>{ source }</ExternalLink>,

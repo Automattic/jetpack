@@ -39,9 +39,8 @@ const getDisplayName = ( response: FormResponse ) => {
  * @return Source cell content.
  */
 const SourceCell = ( { response }: { response: FormResponse } ) => {
-	const label = decodeEntities( response.entry_title ) || getPath( response );
-
 	if ( response.is_test ) {
+		const label = __( 'Form preview', 'jetpack-forms' );
 		if ( response.preview_url ) {
 			return <ExternalLink href={ response.preview_url }>{ label }</ExternalLink>;
 		}
@@ -49,10 +48,14 @@ const SourceCell = ( { response }: { response: FormResponse } ) => {
 	}
 
 	if ( response.entry_permalink ) {
-		return <ExternalLink href={ response.entry_permalink }>{ label }</ExternalLink>;
+		return (
+			<ExternalLink href={ response.entry_permalink }>
+				{ decodeEntities( response.entry_title ) || getPath( response ) }
+			</ExternalLink>
+		);
 	}
 
-	return <>{ label }</>;
+	return <>{ decodeEntities( response.entry_title ) }</>;
 };
 
 export type ResponseMetaProps = {
