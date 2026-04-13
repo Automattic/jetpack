@@ -33,6 +33,19 @@ const HEADLESS_AGENT_PROVIDER = 'block-notes/headless-agent-provider';
  * @return bool
  */
 function is_block_notes_enabled() {
+	/**
+	 * Temporarily disabled while we investigate expensive API calls
+	 * triggered by has_paid_ai_plan() on every Gutenberg page load for
+	 * self-hosted sites. Filter allows tests and development to re-enable.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param bool $enabled Whether Block Notes is force-enabled. Default false.
+	 */
+	if ( ! apply_filters( 'jetpack_block_notes_enabled', false ) ) {
+		return false;
+	}
+
 	if ( is_big_sky_enabled() ) {
 		return true;
 	}
@@ -68,7 +81,7 @@ function has_paid_ai_plan() {
 	/**
 	 * Filter whether the site has a paid AI plan.
 	 *
-	 * @since $$next-version$$
+	 * @since 15.7
 	 *
 	 * @param bool $has_paid_plan Whether the site has a paid AI plan.
 	 */

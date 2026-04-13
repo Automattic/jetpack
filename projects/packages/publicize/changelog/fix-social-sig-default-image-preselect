@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix edit template modal not preselecting Default Image when a default image is configured

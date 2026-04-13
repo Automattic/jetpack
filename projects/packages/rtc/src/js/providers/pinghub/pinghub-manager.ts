@@ -357,27 +357,74 @@ class PingHubConnection {
 }
 
 /**
- * Create a Web Worker that sends periodic 'tick' messages for awareness keepalive.
- *
- * @return Worker
+ * URL for the current keepalive worker's Blob, so we can revoke it on teardown.
  */
-function createKeepaliveWorker(): Worker {
-	const worker = new Worker( new URL( './keepalive-worker', import.meta.url ) );
-	worker.onmessage = () => {
-		for ( const [ , connection ] of rooms ) {
-			connection.broadcastLocalAwareness();
-		}
-	};
-	return worker;
+let keepaliveWorkerUrl: string | null = null;
+
+/**
+ * Fallback main-thread interval ID, used when a Web Worker cannot be created.
+ * Main-thread timers are throttled in background tabs, but this is better
+ * than failing entirely.
+ */
+let keepaliveFallbackTimer: ReturnType< typeof setInterval > | null = null;
+
+/**
+ * Invoke the awareness keepalive for every registered room.
+ */
+function runKeepaliveTick(): void {
+	for ( const [ , connection ] of rooms ) {
+		connection.broadcastLocalAwareness();
+	}
 }
 
 /**
- * Tear down the keepalive worker.
+ * Create a Web Worker that sends periodic 'tick' messages for awareness keepalive.
+ *
+ * The worker script is inlined as a Blob URL instead of loaded from a separate
+ * file. Web Workers are subject to same-origin policy: if the JS bundle is loaded
+ * from a different origin than the page (e.g. `s0.wp.com` scripts on a
+ * `*.wordpress.com` page), constructing a Worker from an external URL throws a
+ * SecurityError. Blob URLs are treated as same-origin with the page that created
+ * them, sidestepping the issue.
+ *
+ * @return Worker or null if the worker cannot be created.
+ */
+function createKeepaliveWorker(): Worker | null {
+	try {
+		const workerCode = "setInterval(function(){postMessage('tick');},25000);";
+		const blob = new Blob( [ workerCode ], { type: 'application/javascript' } );
+		keepaliveWorkerUrl = URL.createObjectURL( blob );
+		const worker = new Worker( keepaliveWorkerUrl );
+		worker.onmessage = runKeepaliveTick;
+		return worker;
+	} catch {
+		// Worker construction can fail if Blob/Worker APIs are unavailable
+		// or blocked by CSP. Fall back to a main-thread interval so RTC
+		// still works (awareness may be throttled in background tabs).
+		if ( keepaliveWorkerUrl ) {
+			URL.revokeObjectURL( keepaliveWorkerUrl );
+			keepaliveWorkerUrl = null;
+		}
+		keepaliveFallbackTimer = setInterval( runKeepaliveTick, 25 * 1000 );
+		return null;
+	}
+}
+
+/**
+ * Tear down the keepalive worker (or the fallback interval).
  */
 function destroyKeepaliveWorker(): void {
 	if ( keepaliveWorker ) {
 		keepaliveWorker.terminate();
 		keepaliveWorker = null;
+	}
+	if ( keepaliveWorkerUrl ) {
+		URL.revokeObjectURL( keepaliveWorkerUrl );
+		keepaliveWorkerUrl = null;
+	}
+	if ( keepaliveFallbackTimer !== null ) {
+		clearInterval( keepaliveFallbackTimer );
+		keepaliveFallbackTimer = null;
 	}
 }
 
@@ -455,7 +502,7 @@ function registerRoom( options: RegisterRoomOptions ): void {
 		areListenersRegistered = true;
 	}
 
-	if ( ! keepaliveWorker ) {
+	if ( ! keepaliveWorker && keepaliveFallbackTimer === null ) {
 		keepaliveWorker = createKeepaliveWorker();
 	}
 

@@ -6,7 +6,7 @@
 
 import { MediaUpload } from '@wordpress/block-editor';
 import { Button, Dropdown, MenuGroup, MenuItem, Notice } from '@wordpress/components';
-import { useCallback, useMemo, useRef } from '@wordpress/element';
+import { useCallback, useEffect, useMemo, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { image, media as mediaIcon } from '@wordpress/icons';
 import useMediaDetails from '../../../hooks/use-media-details';
@@ -149,9 +149,15 @@ export function BackgroundImagePicker( {
 		[ imageType, imageId, featuredImageId, defaultImageId ]
 	);
 
-	const [ mediaDetails ] = useMediaDetails( displayImageId );
+	const [ mediaDetails, isMediaNotFound ] = useMediaDetails( displayImageId );
+	// Only make a separate call for the default image if it differs from the displayed image
+	const [ , isDefaultImageOnlyNotFound ] = useMediaDetails(
+		displayImageId !== defaultImageId ? defaultImageId : null
+	);
+	const isDefaultImageNotFound =
+		displayImageId === defaultImageId ? isMediaNotFound : isDefaultImageOnlyNotFound;
 	const imageUrl = mediaDetails?.mediaData?.sourceUrl;
-	const isLoading = Boolean( displayImageId ) && ! imageUrl;
+	const isLoading = Boolean( displayImageId ) && ! imageUrl && ! isMediaNotFound;
 	const showFeaturedImageNotice = imageType === 'featured' && ! featuredImageId;
 
 	// Build preview data for MediaPreview component
@@ -166,11 +172,19 @@ export function BackgroundImagePicker( {
 		};
 	}, [ imageUrl, isLoading, displayImageId ] );
 
+	// If default image was selected but no longer exists, fall back to 'none'
+	useEffect( () => {
+		if ( imageType === 'default' && isDefaultImageNotFound ) {
+			onImageTypeChange( 'none' );
+		}
+	}, [ imageType, isDefaultImageNotFound, onImageTypeChange ] );
+
 	// Build menu options (no "No Image" - Remove button handles that)
+	const hasValidDefaultImage = Boolean( defaultImageId ) && ! isDefaultImageNotFound;
 	const menuOptions = useMemo( () => {
 		const options: MenuOption[] = [];
 
-		if ( defaultImageId ) {
+		if ( hasValidDefaultImage ) {
 			options.push( {
 				id: 'default',
 				label: __( 'Default Image', 'jetpack-publicize-pkg' ),
@@ -191,7 +205,7 @@ export function BackgroundImagePicker( {
 		} );
 
 		return options;
-	}, [ defaultImageId ] );
+	}, [ hasValidDefaultImage ] );
 
 	// Handle media library selection
 	const handleMediaSelect = useCallback(

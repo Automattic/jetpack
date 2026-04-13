@@ -256,6 +256,17 @@ class REST_Controller {
 			)
 		);
 
+		// Get referrer spam list.
+		register_rest_route(
+			static::$namespace,
+			sprintf( '/sites/%d/stats/referrers/spam', Jetpack_Options::get_option( 'id' ) ),
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'get_referrer_spam_list' ),
+				'permission_callback' => array( $this, 'can_user_view_general_stats_callback' ),
+			)
+		);
+
 		// Mark referrer spam.
 		register_rest_route(
 			static::$namespace,
@@ -1020,6 +1031,25 @@ class REST_Controller {
 	 */
 	public function get_notice_status() {
 		return ( new Notices() )->get_notices_to_show();
+	}
+
+	/**
+	 * Get the list of spam referrers.
+	 *
+	 * @return array
+	 */
+	public function get_referrer_spam_list() {
+		return WPCOM_Client::request_as_blog(
+			sprintf(
+				'/sites/%d/stats/referrers/spam',
+				Jetpack_Options::get_option( 'id' )
+			),
+			'v1.1',
+			array(
+				'timeout' => 5,
+				'method'  => 'GET',
+			)
+		);
 	}
 
 	/**

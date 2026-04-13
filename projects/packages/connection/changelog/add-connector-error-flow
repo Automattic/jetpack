@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Connection: Display inline error notices for site registration, authorization, and disconnect failures in the WordPress.com Connectors card.

@@ -85,24 +85,39 @@ export default function useSigPreview(
 				imageId,
 				featuredImage,
 				defaultImageId,
-				( mediaID: number | null ) =>
-					select( coreStore ).getEntityRecord( 'postType', 'attachment', mediaID ) as Attachment
+				( mediaID: number | null ) => {
+					if ( ! mediaID ) {
+						return null;
+					}
+					const media = select( coreStore ).getEntityRecord< Attachment >(
+						'postType',
+						'attachment',
+						mediaID,
+						{ context: 'view' }
+					);
+					if ( media ) {
+						return media;
+					}
+					// If resolution finished but media is still undefined, the attachment doesn't exist
+					const hasResolved = select( coreStore ).hasFinishedResolution( 'getEntityRecord', [
+						'postType',
+						'attachment',
+						mediaID,
+						{ context: 'view' },
+					] );
+					return hasResolved ? null : undefined;
+				}
 			),
 		};
 	} );
 
 	const imageTitle = useMemo( () => customText || title || ' ', [ customText, title ] );
 	const imageTitleRef = useRef( imageTitle );
-	const generatedImageUrlRef = useRef( generatedImageUrl );
 
 	// Ref to track current enabled state, used to prevent stale closure issues
 	// when async fetch completes after user has disabled SIG
 	const enabledRef = useRef( enabled );
 	enabledRef.current = enabled;
-
-	useEffect( () => {
-		generatedImageUrlRef.current = generatedImageUrl;
-	} );
 
 	useEffect( () => {
 		if ( ! enabled ) {
@@ -113,40 +128,46 @@ export default function useSigPreview(
 			return;
 		}
 
+		const controller = new AbortController();
+
 		const handler = setTimeout(
 			async () => {
 				setIsLoading( true );
 
-				const sigToken = await apiFetch< string >( {
-					path: 'wpcom/v2/publicize/social-image-generator/generate-token',
-					method: 'POST',
-					data: {
-						text: imageTitle,
-						image_url: imageUrl,
-						template,
-						font,
-					},
-				} );
+				try {
+					const sigToken = await apiFetch< string >( {
+						path: 'wpcom/v2/publicize/social-image-generator/generate-token',
+						method: 'POST',
+						data: {
+							text: imageTitle,
+							image_url: imageUrl,
+							template,
+							font,
+						},
+						signal: controller.signal,
+					} );
 
-				// Check if SIG is still enabled before updating token
-				// This prevents race conditions where user disabled SIG while fetch was in progress
-				if ( ! enabledRef.current ) {
-					setIsLoading( false );
-					return;
+					// Check if SIG is still enabled before updating token
+					// This prevents race conditions where user disabled SIG while fetch was in progress
+					if ( ! enabledRef.current ) {
+						return;
+					}
+
+					setToken?.( sigToken );
+					onNewToken?.( sigToken );
+
+					const url = getSigImageUrl( sigToken );
+					setGeneratedImageUrl( url );
+				} catch {
+					if ( ! controller.signal.aborted ) {
+						// Token generation failed — clear the URL so the preview shows the empty state
+						setGeneratedImageUrl( null );
+					}
+				} finally {
+					if ( ! controller.signal.aborted ) {
+						setIsLoading( false );
+					}
 				}
-
-				setToken?.( sigToken );
-				onNewToken?.( sigToken );
-
-				const url = getSigImageUrl( sigToken );
-				// If the URL turns out to be the same, we set the loading state to false,
-				// as the <img> onLoad event will not fire if the src is the same.
-				if ( url === generatedImageUrlRef.current ) {
-					setIsLoading( false );
-					return;
-				}
-				setGeneratedImageUrl( url );
-				setIsLoading( false );
 			},
 			// We only want to debounce on string changes.
 			imageTitle === imageTitleRef.current || ! shouldDebounce ? 0 : 1500
@@ -154,6 +175,7 @@ export default function useSigPreview(
 
 		return () => {
 			clearTimeout( handler );
+			controller.abort();
 			imageTitleRef.current = imageTitle;
 		};
 		// setToken is not a dependency here (same as original GeneratedImagePreview)

@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Subscriptions: avoid conflicts in the block editor when editing custom post types.

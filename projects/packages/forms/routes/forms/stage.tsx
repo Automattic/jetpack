@@ -595,7 +595,6 @@ function StageInner() {
 
 	return (
 		<Page
-			showSidebarToggle={ false }
 			breadcrumbs={ breadcrumbs }
 			title={ title }
 			ariaLabel={ ariaLabel }

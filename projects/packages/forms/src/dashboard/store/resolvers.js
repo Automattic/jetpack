@@ -33,6 +33,9 @@ export const getCounts =
 		if ( queryParams?.parent ) {
 			params.parent = queryParams.parent;
 		}
+		if ( queryParams?.source ) {
+			params.source = queryParams.source;
+		}
 		if ( queryParams?.before ) {
 			params.before = queryParams.before;
 		}

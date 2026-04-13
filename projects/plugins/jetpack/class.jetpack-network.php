@@ -508,7 +508,7 @@ class Jetpack_Network {
 	/**
 	 * Initializes assets for network admin pages.
 	 *
-	 * @since $$next-version$$
+	 * @since 15.7
 	 */
 	public function admin_init_network_page() {
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_network_admin_scripts' ) );
@@ -517,7 +517,7 @@ class Jetpack_Network {
 	/**
 	 * Enqueues the JS and CSS for the unified network admin header.
 	 *
-	 * @since $$next-version$$
+	 * @since 15.7
 	 */
 	public function enqueue_network_admin_scripts() {
 		$build_dir         = JETPACK__PLUGIN_DIR . '_inc/build/';

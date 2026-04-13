@@ -17,7 +17,7 @@ use Automattic\Jetpack\Status\Host;
 /**
  * WordPress.com connector card handler.
  *
- * @since $$next-version$$
+ * @since 8.2.0
  */
 class Wpcom_Connector {
 
@@ -69,7 +69,7 @@ class Wpcom_Connector {
 	 * The wp_connectors_init action is available in WordPress 7.0+.
 	 * On older versions this action never fires, so the hook is safely a no-op.
 	 *
-	 * @since $$next-version$$
+	 * @since 8.2.0
 	 *
 	 * @param \WP_Connector_Registry $registry Connector registry instance.
 	 */
@@ -92,7 +92,7 @@ class Wpcom_Connector {
 	/**
 	 * Enqueue the connectors card script module on the Settings > Connectors page.
 	 *
-	 * @since $$next-version$$
+	 * @since 8.2.0
 	 */
 	public static function enqueue_script_module() {
 		$screen = get_current_screen();
@@ -134,7 +134,7 @@ class Wpcom_Connector {
 	/**
 	 * Build the data passed to the script module via the script_module_data_ filter.
 	 *
-	 * @since $$next-version$$
+	 * @since 8.2.0
 	 *
 	 * @param array $data Existing script module data.
 	 * @return array Filtered script module data.
@@ -337,7 +337,7 @@ class Wpcom_Connector {
 	 * the auth webhook fails. The transient is read on the next
 	 * Connectors page load so the JS card can display the error.
 	 *
-	 * @since $$next-version$$
+	 * @since 8.2.0
 	 *
 	 * @param \WP_Error $error Authorization error.
 	 */

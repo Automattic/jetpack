@@ -326,7 +326,7 @@ jobs:
   test-report:
     name: "Test report"
     runs-on: ubuntu-latest
-    if: ${{ always() && needs.e2e-tests.result != 'cancelled' }}
+    if: ${{ always() && needs.e2e-tests.result != 'cancelled' && github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name }}
     needs: [e2e-tests]
 
     steps:
@@ -382,7 +382,7 @@ jobs:
       actions: read
       # actions/checkout, actions/download-artifact
       contents: read
-    if: ${{ always() && needs.e2e-tests.result != 'cancelled' }}
+    if: ${{ always() && needs.e2e-tests.result != 'cancelled' && github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name }}
     needs: [e2e-tests]
 
     steps:

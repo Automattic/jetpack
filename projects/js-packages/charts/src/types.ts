@@ -243,6 +243,8 @@ export type ChartTheme = {
 	};
 	/** Styles for small SVG text (eg. axis tick labels), passed through to the XYChart theme. */
 	svgLabelSmall?: TextProps;
+	/** Styles for large SVG text (eg. axis titles), passed through to the XYChart theme. */
+	svgLabelBig?: TextProps;
 	annotationStyles?: AnnotationStyles;
 	/** GeoChart specific settings */
 	geoChart?: {
