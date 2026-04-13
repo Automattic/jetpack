@@ -41,11 +41,6 @@ import './style.scss';
 import type { FormResponse } from '../../src/types/index.ts';
 import type { View, Field, Action, Operator } from '@wordpress/dataviews';
 
-type FeedbackFilterDate = {
-	month: number;
-	year: number;
-};
-
 type FeedbackFilterSource = {
 	id: number;
 	title: string;
@@ -53,7 +48,6 @@ type FeedbackFilterSource = {
 };
 
 type FeedbackFilters = {
-	date: FeedbackFilterDate[];
 	source: FeedbackFilterSource[];
 };
 
@@ -347,35 +341,32 @@ function StageInner() {
 						endDate = new Date( dateValue );
 					}
 
-				// Validate dates before processing
-				if (
-					! isNaN( startDate.getTime() ) &&
-					! isNaN( endDate.getTime() )
-				) {
-					startDate.setUTCHours( 0, 0, 0, 0 );
-					endDate.setUTCHours( 23, 59, 59, 999 );
+					// Validate dates before processing
+					if ( ! isNaN( startDate.getTime() ) && ! isNaN( endDate.getTime() ) ) {
+						startDate.setUTCHours( 0, 0, 0, 0 );
+						endDate.setUTCHours( 23, 59, 59, 999 );
 
-					const startOfDayISO = startDate.toISOString();
-					const endOfDayISO = endDate.toISOString();
+						const startOfDayISO = startDate.toISOString();
+						const endOfDayISO = endDate.toISOString();
 
-					// Convert operator to REST API operator. Note, before and after are treated as inclusive.
-					switch ( operator ) {
-						case 'on':
-							queryArgs.after = startOfDayISO;
-							queryArgs.before = endOfDayISO;
-							break;
-						case 'before':
-							queryArgs.before = endOfDayISO;
-							break;
-						case 'after':
-							queryArgs.after = startOfDayISO;
-							break;
-						case 'between':
-							queryArgs.after = startOfDayISO;
-							queryArgs.before = endOfDayISO;
-							break;
+						// Convert operator to REST API operator. Note, before and after are treated as inclusive.
+						switch ( operator ) {
+							case 'on':
+								queryArgs.after = startOfDayISO;
+								queryArgs.before = endOfDayISO;
+								break;
+							case 'before':
+								queryArgs.before = endOfDayISO;
+								break;
+							case 'after':
+								queryArgs.after = startOfDayISO;
+								break;
+							case 'between':
+								queryArgs.after = startOfDayISO;
+								queryArgs.before = endOfDayISO;
+								break;
+						}
 					}
-				}
 				}
 			}
 		} );
@@ -530,16 +521,6 @@ function StageInner() {
 					}
 					return item.date;
 				},
-				elements: ( ( filterOptions as unknown as FeedbackFilters )?.date || [] ).map( filter => {
-					const date = new Date();
-					date.setDate( 1 );
-					date.setMonth( filter.month - 1 );
-					date.setFullYear( filter.year );
-					return {
-						label: dateI18n( __( 'F Y', 'jetpack-forms' ), date ),
-						value: `${ filter.year }/${ filter.month }`,
-					};
-				} ),
 			},
 			{
 				id: 'source',
