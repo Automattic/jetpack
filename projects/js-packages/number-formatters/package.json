@@ -45,6 +45,7 @@
 		"@types/jest": "30.0.0",
 		"@typescript/native-preview": "7.0.0-dev.20260225.1",
 		"jest": "30.3.0",
+		"jetpack-js-tools": "workspace:*",
 		"typescript": "5.9.3"
 	}
 }

@@ -1182,6 +1182,9 @@ importers:
       jest:
         specifier: 30.3.0
         version: 30.3.0
+      jetpack-js-tools:
+        specifier: workspace:*
+        version: link:../../../tools/js-tools
       typescript:
         specifier: 5.9.3
         version: 5.9.3
