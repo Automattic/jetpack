@@ -263,11 +263,21 @@ class Feedback_Email_Renderer {
 			$form_title = Contact_Form::get_post_property( $form->current_post, 'post_title' );
 		}
 
+		// Test responses don't have a real source page; surface them as
+		// "Form preview" in the metadata table to match the dashboard.
+		if ( $is_test ) {
+			$source_label = __( 'Form preview', 'jetpack-forms' );
+			$source_url   = '';
+		} else {
+			$source_label = $form_title;
+			$source_url   = $url;
+		}
+
 		// Build metadata for the new email template.
 		$metadata = array(
 			'date'           => $time,
-			'source'         => $form_title,
-			'source_url'     => $url,
+			'source'         => $source_label,
+			'source_url'     => $source_url,
 			'device'         => $response->get_browser(),
 			'ip'             => $comment_author_ip,
 			'ip_flag'        => $response->get_country_flag(),
