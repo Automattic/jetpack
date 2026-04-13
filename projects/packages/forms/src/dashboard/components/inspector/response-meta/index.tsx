@@ -94,7 +94,7 @@ const ResponseMeta = ( { response }: ResponseMetaProps ): import('react').JSX.El
 
 	return (
 		<div className="jp-forms__inbox-response-meta">
-			<HStack alignment="center" spacing="3" wrap={ false }>
+			<HStack alignment="topLeft" spacing="3" wrap={ false }>
 				<Gravatar
 					email={ gravatarEmail }
 					defaultImage={ defaultImage }
@@ -132,7 +132,7 @@ const ResponseMeta = ( { response }: ResponseMetaProps ): import('react').JSX.El
 					) }
 				</VStack>
 				{ response.is_test && (
-					<span style={ { marginLeft: 'auto' } }>
+					<span style={ { marginLeft: 'auto', alignSelf: 'center' } }>
 						<Badge intent="none" aria-label={ __( 'Test response', 'jetpack-forms' ) }>
 							{ __( 'Test', 'jetpack-forms' ) }
 						</Badge>
