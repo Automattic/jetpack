@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Newsletter: Fail silently on email stats fetch errors in the editor and skip the fetch for drafts so timeouts no longer flash as errors in Gutenberg.

@@ -49,7 +49,6 @@ Once connected, your site will display within Automattic for Agencies.
 - IDC: Add revalidation for IDCs.
 
 #### Changed
-- Comment: Add Tracking to Jetpack upsell link.
 - Dependencies: Update lock file to keep root requirements in sync.
 - Remove header border-bottom from the admin page for a cleaner unified header appearance.
 - Update dependencies.
