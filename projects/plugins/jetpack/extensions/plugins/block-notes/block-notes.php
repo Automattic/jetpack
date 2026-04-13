@@ -38,7 +38,7 @@ function is_block_notes_enabled() {
 	 * triggered by has_paid_ai_plan() on every Gutenberg page load for
 	 * self-hosted sites. Filter allows tests and development to re-enable.
 	 *
-	 * @since $$next-version$$
+	 * @since 15.8
 	 *
 	 * @param bool $enabled Whether Block Notes is force-enabled. Default false.
 	 */

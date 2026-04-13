@@ -10,7 +10,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - IDC: Add revalidation for IDCs. [#46268]
 
 ### Changed
-- Comment: Add Tracking to Jetpack upsell link. [#47937]
 - Dependencies: Update lock file to keep root requirements in sync. [#47418]
 - Remove header border-bottom from the admin page for a cleaner unified header appearance. [#47313]
 - Update dependencies. [#47472]

@@ -2,6 +2,17 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 15.8-a.1 - 2026-04-13
+### Bug fixes
+- AI Site Logo extension: Fix static import of @wordpress/edit-post that caused the no-post-editor bundle to list wp-edit-post as a dependency, breaking the P2 frontend block inserter. [#47987]
+- Newsletter: Fail silently on email stats fetch errors in the editor and skip the fetch for drafts so timeouts no longer flash as errors in Gutenberg. [#48002]
+- PayPal Payments Button: Fix escaping issue for stacked payments buttons. [#47761]
+- Subscriptions: Avoid conflicts in the block editor when editing custom post types. [#47876]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- AI Assistant: Add an "Update on Write Brief (Beta)" link in the sidebar when Write Brief is disabled. [#47947]
+- Update package dependencies. [#47890] [#47998]
+
 ## 15.7 - 2026-04-08
 ### Major Enhancements
 - Jetpack AI Image Generation & Editing: Evolve & enhance Jetpack AI Image Generation. [#47829]
@@ -55,7 +66,6 @@
 - Block Notes: Update enablement logic to use AI feature checks and gate feature behind a paid Jetpack AI plan. [#47810]
 - Brute Force Protection: Update error when module can't be activated. [#47660]
 - Build: Sync Social Logos font from @automattic/social-logos. [#47753]
-- Comment: Add Tracking to Jetpack upsell link. [#47937]
 - Display MCP client actor on backup undo card and backup card attribution. [#47429]
 - Donations: Use the core WordPress spinner component. [#47467]
 - Editor: Fix plan upgrade notice for Simple sites. [#47543]
