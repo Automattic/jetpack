@@ -286,15 +286,14 @@ class Feedback_Email_Renderer {
 		 */
 		$message = apply_filters( 'contact_form_message', implode( '', $message ), $message );
 
-		// Prepend a prominent TEST SUBMISSION banner when this came from a form
+		// Render a prominent TEST SUBMISSION banner when this came from a form
 		// preview, so the form owner can immediately tell that this response is
-		// a synthetic test.
-		if ( $is_test ) {
-			$message = self::build_test_submission_banner() . $message;
-		}
+		// a synthetic test. It is injected at the very top of the email so the
+		// rest of the body still looks like a normal submission email.
+		$banner = $is_test ? self::build_test_submission_banner() : '';
 
 		// This is called after `contact_form_message`, in order to preserve back-compat.
-		$message = self::wrap_message_in_html_tags( $title, $message, $footer, $actions, $respondent_info, $metadata );
+		$message = self::wrap_message_in_html_tags( $title, $message, $footer, $actions, $respondent_info, $metadata, $banner );
 
 		return array(
 			'title'   => $title,
@@ -580,10 +579,11 @@ class Feedback_Email_Renderer {
 	 * @param string $actions - HTML for actions displayed in the email.
 	 * @param array  $respondent_info - Optional. Respondent information array with 'name', 'email', 'avatar'.
 	 * @param array  $metadata - Optional. Metadata array with 'date', 'source', 'source_url', 'device', 'ip', 'ip_flag', 'logged_in_user' (with display_name, username, id).
+	 * @param string $banner - Optional. HTML banner inserted at the very top of the email body (above the title).
 	 *
 	 * @return string
 	 */
-	public static function wrap_message_in_html_tags( $title, $body, $footer, $actions = '', $respondent_info = array(), $metadata = array() ) {
+	public static function wrap_message_in_html_tags( $title, $body, $footer, $actions = '', $respondent_info = array(), $metadata = array(), $banner = '' ) {
 		// Don't do anything if the message was already wrapped in HTML tags
 		// That could have be done by a plugin via filters.
 		if ( str_contains( $body, '<html' ) ) {
@@ -678,7 +678,8 @@ class Feedback_Email_Renderer {
 			$actions,
 			$powered_by_html,
 			$respondent_html,
-			$metadata_html
+			$metadata_html,
+			$banner
 		);
 
 		// Inject print styles into <body> for Outlook.com compatibility (it strips <head> styles
