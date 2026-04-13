@@ -44,6 +44,25 @@ class Email_Service {
 	public function api_send_auth_email( int $user_id, string $auth_code ) {
 		$blog_id = Jetpack_Options::get_option( 'id' );
 
+		/**
+		 * Filters whether the Account Protection verification email should be handled externally.
+		 *
+		 * When the filter returns a truthy value, the default WPCOM API email send is skipped,
+		 * allowing sites to deliver the email locally (e.g. via `wp_mail()`).
+		 *
+		 * @since 0.3.0
+		 *
+		 * @param bool   $handled  Whether the email has been handled. Default false.
+		 * @param int    $user_id  The user ID.
+		 * @param string $auth_code The authentication code.
+		 * @param int    $blog_id  The blog ID, or false if not available.
+		 */
+		$handled = apply_filters( 'jetpack_account_protection_send_auth_email', false, $user_id, $auth_code, $blog_id );
+
+		if ( $handled ) {
+			return true;
+		}
+
 		if ( ! $blog_id || ! $this->connection_manager->is_connected() ) {
 			return new \WP_Error( 'jetpack_connection_error', __( 'Jetpack is not connected. Please connect and try again.', 'jetpack-account-protection' ) );
 		}

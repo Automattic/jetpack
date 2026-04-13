@@ -33,6 +33,20 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 
 	/**
+	 * Temporary storage for the source filter ID used in query modifications.
+	 *
+	 * @var int|null
+	 */
+	private $temp_source_filter_id;
+
+	/**
+	 * Cached SQL fragments for source filtering, to avoid recomputing per filter hook.
+	 *
+	 * @var array{join: string, where: string}|null
+	 */
+	private $temp_source_filter_sql;
+
+	/**
 	 * Get filtered list of supported integrations
 	 *
 	 * @return array Filtered list of supported integrations
@@ -359,6 +373,12 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 						'sanitize_callback' => 'rest_sanitize_boolean',
 						'validate_callback' => 'rest_validate_request_arg',
 					),
+					'source'    => array(
+						'description'       => 'Limit results to feedback submitted from a specific source post ID.',
+						'type'              => 'integer',
+						'sanitize_callback' => 'absint',
+						'validate_callback' => 'rest_validate_request_arg',
+					),
 				),
 			)
 		);
@@ -414,8 +434,6 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 	 * @return WP_REST_Response Response object on success.
 	 */
 	public function get_filters() {
-		// TODO: investigate how we can do this better regarding usage of $wpdb
-		// performance by querying all the entities, etc..
 		global $wpdb;
 		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		$months = $wpdb->get_results(
@@ -424,10 +442,9 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			WHERE post_type = 'feedback'
 			ORDER BY post_date DESC"
 		);
+
+		$source_ids = Feedback::get_all_source_post_ids();
 		// phpcs:enable
-		$source_ids = Contact_Form_Plugin::get_all_parent_post_ids(
-			array_diff_key( array( 'post_status' => array( 'draft', 'publish', 'spam', 'trash' ) ), array( 'post_parent' => '' ) )
-		);
 
 		return rest_ensure_response(
 			array(
@@ -456,32 +473,40 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 
 		$search    = $request->get_param( 'search' );
 		$parent    = $request->get_param( 'parent' );
+		$source    = $request->get_param( 'source' );
 		$before    = $request->get_param( 'before' );
 		$after     = $request->get_param( 'after' );
 		$is_unread = $request->get_param( 'is_unread' );
 
-		$where_conditions = array( $wpdb->prepare( 'post_type = %s', 'feedback' ) );
+		$join_clause      = '';
+		$where_conditions = array( $wpdb->prepare( "{$wpdb->posts}.post_type = %s", 'feedback' ) );
 
 		if ( ! empty( $search ) ) {
 			$search_like        = '%' . $wpdb->esc_like( $search ) . '%';
-			$where_conditions[] = $wpdb->prepare( '(post_title LIKE %s OR post_content LIKE %s)', $search_like, $search_like );
+			$where_conditions[] = $wpdb->prepare( "({$wpdb->posts}.post_title LIKE %s OR {$wpdb->posts}.post_content LIKE %s)", $search_like, $search_like );
 		}
 
 		if ( ! empty( $parent ) ) {
-			$where_conditions[] = $wpdb->prepare( 'post_parent = %d', $parent );
+			$where_conditions[] = $wpdb->prepare( "{$wpdb->posts}.post_parent = %d", $parent );
+		}
+
+		if ( ! empty( $source ) ) {
+			$source_sql         = $this->get_source_filter_sql( absint( $source ) );
+			$join_clause       .= $source_sql['join'];
+			$where_conditions[] = $source_sql['where'];
 		}
 
 		if ( ! empty( $before ) ) {
-			$where_conditions[] = $wpdb->prepare( 'post_date <= %s', $before );
+			$where_conditions[] = $wpdb->prepare( "{$wpdb->posts}.post_date <= %s", $before );
 		}
 
 		if ( ! empty( $after ) ) {
-			$where_conditions[] = $wpdb->prepare( 'post_date >= %s', $after );
+			$where_conditions[] = $wpdb->prepare( "{$wpdb->posts}.post_date >= %s", $after );
 		}
 
 		if ( null !== $is_unread ) {
 			$comment_status     = $is_unread ? Feedback::STATUS_UNREAD : Feedback::STATUS_READ;
-			$where_conditions[] = $wpdb->prepare( 'comment_status = %s', $comment_status );
+			$where_conditions[] = $wpdb->prepare( "{$wpdb->posts}.comment_status = %s", $comment_status );
 		}
 
 		$where_clause = implode( ' AND ', $where_conditions );
@@ -490,11 +515,12 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		$counts = $wpdb->get_row(
 			"SELECT
-			SUM(CASE WHEN post_status IN ('publish', 'draft') THEN 1 ELSE 0 END) as inbox,
-			SUM(CASE WHEN post_status = 'spam' THEN 1 ELSE 0 END) as spam,
-			SUM(CASE WHEN post_status = 'trash' THEN 1 ELSE 0 END) as trash
-			FROM $wpdb->posts
-			WHERE $where_clause",
+			SUM(CASE WHEN {$wpdb->posts}.post_status IN ('publish', 'draft') THEN 1 ELSE 0 END) as inbox,
+			SUM(CASE WHEN {$wpdb->posts}.post_status = 'spam' THEN 1 ELSE 0 END) as spam,
+			SUM(CASE WHEN {$wpdb->posts}.post_status = 'trash' THEN 1 ELSE 0 END) as trash
+			FROM {$wpdb->posts}
+			{$join_clause}
+			WHERE {$where_clause}",
 			ARRAY_A
 		);
 		// phpcs:enable
@@ -885,6 +911,9 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			return rest_ensure_response( $data );
 		}
 
+		// Lazily backfill source meta for old feedback that doesn't have it yet.
+		Feedback::maybe_backfill_source_meta( $item->ID, $feedback_response );
+
 		$data['date'] = get_the_date( 'c', $data['id'] );
 		if ( rest_is_field_included( 'uid', $fields ) ) {
 			$data['uid'] = $feedback_response->get_feedback_id();
@@ -988,6 +1017,12 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			remove_filter( 'posts_where', array( $this, 'modify_query_for_invalid_ids' ), 10 );
 			unset( $this->temp_invalid_ids );
 		}
+		if ( ! empty( $this->temp_source_filter_id ) ) {
+			remove_filter( 'posts_join', array( $this, 'join_source_meta' ), 10 );
+			remove_filter( 'posts_where', array( $this, 'filter_by_source_id' ), 10 );
+			$this->temp_source_filter_id  = null;
+			$this->temp_source_filter_sql = null;
+		}
 
 		return $response;
 	}
@@ -1023,6 +1058,28 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 	}
 
 	/**
+	 * Returns the JOIN and WHERE SQL fragments for filtering by source post ID.
+	 *
+	 * Matches feedback with the _feedback_source_post_id meta set, or falls back
+	 * to post_parent for old feedback that doesn't have the meta yet.
+	 *
+	 * @param int $source_id The source post ID to filter by.
+	 * @return array{join: string, where: string} SQL fragments.
+	 */
+	private function get_source_filter_sql( $source_id ) {
+		global $wpdb;
+		$meta_key = esc_sql( Feedback::SOURCE_META_KEY );
+		return array(
+			'join'  => " LEFT JOIN {$wpdb->postmeta} AS source_meta ON ({$wpdb->posts}.ID = source_meta.post_id AND source_meta.meta_key = '{$meta_key}')",
+			'where' => $wpdb->prepare(
+				"(source_meta.meta_value = %s OR (source_meta.meta_id IS NULL AND {$wpdb->posts}.post_parent = %d))",
+				(string) $source_id,
+				$source_id
+			),
+		);
+	}
+
+	/**
 	 * Filters the query arguments for the feedback collection.
 	 *
 	 * @param array           $args    Key value array of query var to query value.
@@ -1036,7 +1093,44 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			$args['comment_status'] = $request['is_unread'] ? Feedback::STATUS_UNREAD : Feedback::STATUS_READ;
 		}
 
+		// Filter by source post ID using meta (with fallback to post_parent for old data).
+		$source = $request->get_param( 'source' );
+		if ( ! empty( $source ) ) {
+			$this->temp_source_filter_id  = absint( $source );
+			$this->temp_source_filter_sql = $this->get_source_filter_sql( $this->temp_source_filter_id );
+			add_filter( 'posts_join', array( $this, 'join_source_meta' ), 10, 2 );
+			add_filter( 'posts_where', array( $this, 'filter_by_source_id' ), 10, 2 );
+		}
+
 		return $args;
+	}
+
+	/**
+	 * Joins the postmeta table for source filtering.
+	 *
+	 * @param string   $join  The JOIN clause.
+	 * @param WP_Query $query The WP_Query instance.
+	 * @return string Modified JOIN clause.
+	 */
+	public function join_source_meta( $join, $query ) {
+		if ( empty( $this->temp_source_filter_sql ) || Feedback::POST_TYPE !== $query->get( 'post_type' ) ) {
+			return $join;
+		}
+		return $join . $this->temp_source_filter_sql['join'];
+	}
+
+	/**
+	 * Filters feedback by source post ID, using meta with fallback to post_parent for old data.
+	 *
+	 * @param string   $where The WHERE clause.
+	 * @param WP_Query $query The WP_Query instance.
+	 * @return string Modified WHERE clause.
+	 */
+	public function filter_by_source_id( $where, $query ) {
+		if ( empty( $this->temp_source_filter_sql ) || Feedback::POST_TYPE !== $query->get( 'post_type' ) ) {
+			return $where;
+		}
+		return $where . ' AND ' . $this->temp_source_filter_sql['where'];
 	}
 
 	/**
@@ -1064,6 +1158,12 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 				'type' => 'integer',
 			),
 			'default'     => array(),
+		);
+		$query_params['source']         = array(
+			'description'       => __( 'Limit result set to feedback submitted from a particular source post ID.', 'jetpack-forms' ),
+			'type'              => 'integer',
+			'sanitize_callback' => 'absint',
+			'validate_callback' => 'rest_validate_request_arg',
 		);
 		$query_params['is_unread']      = array(
 			'description'       => __( 'Limit result set to read or unread feedback items.', 'jetpack-forms' ),

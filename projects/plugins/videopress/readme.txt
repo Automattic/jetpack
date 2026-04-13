@@ -3,7 +3,7 @@ Contributors: automattic, retrofox, oskosk, thehenridev, renatoagds, lhkowalski,
 Tags: video, video-hosting, video-player, cdn, video-streaming
 Requires at least: 6.8
 Tested up to: 6.9
-Stable tag: 2.7
+Stable tag: 2.9
 Requires PHP: 7.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -83,20 +83,15 @@ The file size limit is 5 GB. However, on slower networks, there is a chance the 
 4. Edit your video details, cover image, and privacy from your VideoPress library.
 
 == Changelog ==
-### 2.8 - 2026-02-04
-#### Added
-- Adding Jetpack Protect details page for users without the dedicated Jetpack Protect plugin.
-- IDC: Add revalidation for IDCs.
-
+### 2.9 - 2026-04-10
 #### Changed
-- My Jetpack: Check red bubble notification async when cache is not available.
-
-#### Removed
-- General: Update minimum WordPress version to 6.8.
+- Dependencies: Update lock file to keep root requirements in sync.
+- Remove header border-bottom from the admin page for a cleaner unified header appearance.
+- Switch to Native TypeScript compiler based on Go.
+- Update dependencies.
+- Update design of the sidebar upsell.
+- Update package dependencies.
 
 #### Fixed
-- Clarify error messages when video uploads fail due to plan limitations.
-- Fix compatibility with Gutenberg 22.4 by removing invalid null timezone argument from dateI18n calls.
-- Fix upgrade notice incorrectly showing for A4A (Automattic for Agencies) VideoPress customers by using dynamic features API instead of hardcoded plan slugs.
-- Fix video query to only return VideoPress videos instead of all video types.
+- Admin Page: Restore border on header component.
 

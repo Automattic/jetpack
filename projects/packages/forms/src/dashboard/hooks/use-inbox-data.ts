@@ -248,6 +248,9 @@ export default function useInboxData( options: UseInboxDataOptions = {} ): UseIn
 		if ( currentQuery?.parent ) {
 			params.parent = currentQuery.parent;
 		}
+		if ( currentQuery?.source ) {
+			params.source = currentQuery.source;
+		}
 		if ( currentQuery?.before ) {
 			params.before = currentQuery.before;
 		}

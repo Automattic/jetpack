@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Prevent fatal error when a non-checkbox field's render value or POST-submitted value is an array.
