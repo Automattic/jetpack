@@ -24,28 +24,6 @@ class Form_Preview {
 	const PREVIEW_NONCE_ACTION = 'jetpack_form_preview_';
 
 	/**
-	 * The nonce action prefix used to authenticate POST submissions
-	 * originating from a form preview render.
-	 *
-	 * @var string
-	 */
-	const PREVIEW_SUBMIT_NONCE_ACTION = 'jetpack_form_preview_submit_';
-
-	/**
-	 * POST field name used to flag a submission as originating from form preview.
-	 *
-	 * @var string
-	 */
-	const PREVIEW_SUBMIT_FIELD = 'is_jetpack_form_preview';
-
-	/**
-	 * POST field name carrying the preview submission nonce.
-	 *
-	 * @var string
-	 */
-	const PREVIEW_SUBMIT_NONCE_FIELD = 'jetpack_form_preview_nonce';
-
-	/**
 	 * The query variable for form preview.
 	 *
 	 * @var string
@@ -317,6 +295,12 @@ class Form_Preview {
 	/**
 	 * Render the form preview content.
 	 *
+	 * The rendered markup flows through the normal block pipeline, which
+	 * embeds a signed JWT carrying the form's serialized source. Because
+	 * Feedback_Source::get_current() reads Form_Preview::is_preview_mode()
+	 * at render time, the JWT issued here travels to submission with
+	 * `is_test: true` baked into its source — no hidden nonce fields needed.
+	 *
 	 * @param WP_Post|null $form The form post.
 	 * @return string The rendered content.
 	 */
@@ -333,85 +317,12 @@ class Form_Preview {
 		$output .= '</div>';
 
 		// Parse and render the form blocks.
-		$blocks         = parse_blocks( $form->post_content );
-		$rendered_forms = '';
+		$blocks = parse_blocks( $form->post_content );
 		foreach ( $blocks as $block ) {
-			$rendered_forms .= render_block( $block );
+			$output .= render_block( $block );
 		}
-
-		// Inject the preview submission auth fields into every <form> in the rendered markup.
-		$output .= self::inject_preview_submission_fields( $rendered_forms, (int) $form->ID );
 
 		return $output;
-	}
-
-	/**
-	 * Inject hidden fields that authenticate the POST back to PHP as a preview submission.
-	 *
-	 * Adds a flag and a form-id-scoped nonce immediately before each `</form>` tag
-	 * in the given HTML. A leaked nonce only authorizes test submissions for the
-	 * specific form it was generated for.
-	 *
-	 * @param string $html    The rendered form HTML.
-	 * @param int    $form_id The form post ID the nonce should be scoped to.
-	 * @return string
-	 */
-	private static function inject_preview_submission_fields( $html, $form_id ) {
-		if ( empty( $html ) || $form_id <= 0 ) {
-			return $html;
-		}
-
-		$nonce = wp_create_nonce( self::PREVIEW_SUBMIT_NONCE_ACTION . $form_id );
-
-		$hidden_fields = sprintf(
-			'<input type="hidden" name="%1$s" value="1" /><input type="hidden" name="%2$s" value="%3$s" />',
-			esc_attr( self::PREVIEW_SUBMIT_FIELD ),
-			esc_attr( self::PREVIEW_SUBMIT_NONCE_FIELD ),
-			esc_attr( $nonce )
-		);
-
-		// Insert the hidden fields just before each closing </form> tag.
-		return preg_replace( '#</form>#i', $hidden_fields . '</form>', $html );
-	}
-
-	/**
-	 * Verify that the current POST request is an authenticated form preview submission.
-	 *
-	 * Requires the preview flag + nonce in POST, a logged-in user, and the user
-	 * to have `edit_post` capability on the form id whose nonce is presented.
-	 *
-	 * @param int $form_id The form post ID.
-	 * @return bool True when the submission is authorized to be marked as a test submission.
-	 */
-	public static function verify_preview_submission( $form_id ) {
-		// phpcs:disable WordPress.Security.NonceVerification.Missing -- this method IS the nonce verification.
-		if ( empty( $_POST[ self::PREVIEW_SUBMIT_FIELD ] ) ) {
-			return false;
-		}
-
-		$form_id = absint( $form_id );
-		if ( $form_id <= 0 ) {
-			return false;
-		}
-
-		if ( ! is_user_logged_in() ) {
-			return false;
-		}
-
-		if ( ! current_user_can( 'edit_post', $form_id ) ) {
-			return false;
-		}
-
-		$nonce = isset( $_POST[ self::PREVIEW_SUBMIT_NONCE_FIELD ] )
-			? sanitize_text_field( wp_unslash( $_POST[ self::PREVIEW_SUBMIT_NONCE_FIELD ] ) )
-			: '';
-
-		if ( ! wp_verify_nonce( $nonce, self::PREVIEW_SUBMIT_NONCE_ACTION . $form_id ) ) {
-			return false;
-		}
-
-		return true;
-		// phpcs:enable WordPress.Security.NonceVerification.Missing
 	}
 
 	/**
@@ -433,8 +344,6 @@ class Form_Preview {
 	 * Add preview mode script variable.
 	 */
 	public static function add_preview_mode_script() {
-		wp_print_inline_script_tag(
-			'window.jetpackFormsPreviewMode = true; window.jetpackFormsPreviewAllowsSubmission = true;'
-		);
+		wp_print_inline_script_tag( 'window.jetpackFormsPreviewMode = true;' );
 	}
 }

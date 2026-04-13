@@ -1620,24 +1620,6 @@ class Contact_Form_Plugin {
 			return Form_Submission_Error::system_error( 'invalid_form_id_or_hash', __( 'Invalid form ID or hash.', 'jetpack-forms' ) );
 		}
 
-		// Detect and authorize submissions coming from form preview. When a preview
-		// submission is detected we let it flow through the normal pipeline but
-		// flag the resulting feedback as a test response.
-		$is_preview_submission = false;
-		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- the nonce is verified inside verify_preview_submission().
-		if ( ! empty( $_POST[ Form_Preview::PREVIEW_SUBMIT_FIELD ] ) ) {
-			$preview_form_id = is_numeric( $id ) ? (int) $id : 0;
-			if ( $preview_form_id > 0 && Form_Preview::verify_preview_submission( $preview_form_id ) ) {
-				$is_preview_submission = true;
-			} else {
-				// Preview flag was present but nonce/caps did not check out. Reject.
-				return Form_Submission_Error::system_error(
-					'invalid_preview_submission',
-					__( 'Invalid form preview submission.', 'jetpack-forms' )
-				);
-			}
-		}
-
 		if ( is_user_logged_in() ) {
 			check_admin_referer( "contact-form_{$id}" );
 		}
@@ -1734,9 +1716,14 @@ class Contact_Form_Plugin {
 			if ( Jetpack_Forms::is_webhooks_enabled() && ! empty( $form->attributes['webhooks'] ) ) {
 				Form_Webhooks::init();
 			}
-			// Flag the submission as originating from a form preview so the form
-			// treats the resulting feedback as a test response.
-			$form->set_is_preview_submission( $is_preview_submission );
+
+			// The decoded JWT carries a serialized Feedback_Source; when the
+			// form was rendered in preview mode that source has is_test=true.
+			// Flag the submission accordingly so the response is stored as a
+			// test response. JWTs issued before this feature shipped simply
+			// omit the flag and behave as regular submissions.
+			$form->set_is_preview_submission( $form->get_source()->is_test() );
+
 			// Process the form
 			return $form->process_submission();
 		}
@@ -1924,10 +1911,6 @@ class Contact_Form_Plugin {
 		if ( ! empty( $form->attributes['webhooks'] ) ) {
 			Form_Webhooks::init();
 		}
-
-		// Flag the submission as originating from a form preview so the form
-		// treats the resulting feedback as a test response.
-		$form->set_is_preview_submission( $is_preview_submission );
 
 		// Process the form
 		return $form->process_submission();

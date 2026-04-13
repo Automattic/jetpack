@@ -177,20 +177,27 @@ class Feedback_Source {
 	public static function get_current( $attributes ) {
 		global $wp, $page;
 		$current_url = home_url( add_query_arg( array(), $wp->request ) );
+
+		// When a form is rendered inside the server-side preview
+		// (Form_Preview::maybe_render_preview), flag the source as a test
+		// submission. The flag travels with the signed JWT and is read back
+		// at submission time to branch the response into the test pipeline.
+		$is_test = Form_Preview::is_preview_mode();
+
 		if ( isset( $attributes['widget'] ) && ! empty( $attributes['widget'] ) ) {
-			return new self( $attributes['widget'], self::get_source_title(), 1, 'widget', $current_url );
+			return new self( $attributes['widget'], self::get_source_title(), 1, 'widget', $current_url, $is_test );
 		}
 
 		if ( isset( $attributes['block_template'] ) && ! empty( $attributes['block_template'] ) ) {
 			global $_wp_current_template_id;
-			return new self( $_wp_current_template_id, self::get_source_title(), $page, 'block_template', $current_url );
+			return new self( $_wp_current_template_id, self::get_source_title(), $page, 'block_template', $current_url, $is_test );
 		}
 
 		if ( isset( $attributes['block_template_part'] ) && ! empty( $attributes['block_template_part'] ) ) {
-			return new self( $attributes['block_template_part'], self::get_source_title(), $page, 'block_template_part', $current_url );
+			return new self( $attributes['block_template_part'], self::get_source_title(), $page, 'block_template_part', $current_url, $is_test );
 		}
 
-		return new Feedback_Source( \get_the_ID(), \get_the_title(), $page, 'single', $current_url );
+		return new Feedback_Source( \get_the_ID(), \get_the_title(), $page, 'single', $current_url, $is_test );
 	}
 
 	/**

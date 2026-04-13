@@ -1482,11 +1482,6 @@ class Feedback {
 	 * @return int
 	 */
 	public function save() {
-		// Test feedback (from form preview) is created as already-read so it does
-		// not bump the unread counter in the dashboard — the form owner explicitly
-		// triggered it and doesn't need to be notified of "new" responses.
-		$comment_status = $this->is_test() ? self::STATUS_READ : self::STATUS_UNREAD;
-
 		$post_id = wp_insert_post(
 			array(
 				'post_type'      => self::POST_TYPE,
@@ -1497,7 +1492,7 @@ class Feedback {
 				'post_content'   => $this->serialize(), // In V3 we started to addslashes.
 				'post_mime_type' => 'v3', // a way to help us identify what version of the data this is.
 				'post_parent'    => $this->form_id ?? $this->source->get_id(),
-				'comment_status' => $comment_status,
+				'comment_status' => self::STATUS_UNREAD, // New feedback is unread by default.
 			)
 		);
 

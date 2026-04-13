@@ -2700,6 +2700,94 @@ class Contact_Form_Test extends BaseTestCase {
 		Constants::clear_single_constant( 'JETPACK_BLOG_TOKEN' );
 	}
 
+	/**
+	 * A JWT issued while Form_Preview::is_preview_mode() is active carries
+	 * is_test=true inside its serialized source. After decode, the form's
+	 * source should report is_test() === true, which is how
+	 * process_form_submission() recognizes preview submissions.
+	 */
+	public function test_jwt_source_is_flagged_as_test_when_rendered_in_preview_mode() {
+		Constants::set_constant( 'JETPACK_BLOG_TOKEN', 'test.token' );
+
+		// Flip the Form_Preview static flag for the duration of this test so
+		// Feedback_Source::get_current() — invoked by get_jwt() — records the
+		// preview context in the serialized source.
+		$reflection   = new \ReflectionClass( Form_Preview::class );
+		$preview_flag = $reflection->getProperty( 'is_preview_mode' );
+		$preview_flag->setAccessible( true );
+		$previous_value = $preview_flag->getValue();
+		$preview_flag->setValue( null, true );
+
+		try {
+			$form = new Contact_Form(
+				array(
+					'to'      => 'preview@example.com',
+					'subject' => 'preview subject',
+				),
+				"[contact-field label='Name' type='name' required='1'/]"
+			);
+
+			$jwt = $form->get_jwt();
+
+			$decoded = Contact_Form::get_instance_from_jwt( $jwt );
+
+			$this->assertNotNull( $decoded, 'JWT should decode successfully.' );
+			$this->assertTrue(
+				$decoded->get_source()->is_test(),
+				'A JWT issued while preview mode was active should carry is_test=true in its source.'
+			);
+		} finally {
+			$preview_flag->setValue( null, $previous_value );
+			Constants::clear_single_constant( 'JETPACK_BLOG_TOKEN' );
+		}
+	}
+
+	/**
+	 * Backward compatibility: a JWT issued before this feature shipped (or
+	 * issued outside preview mode) has no is_test key in its source. After
+	 * decode, the form's source should report is_test() === false, so the
+	 * submission flows through the normal response pipeline. This matters
+	 * because JWTs can live in cached HTML fragments across page loads.
+	 */
+	public function test_jwt_without_is_test_in_source_is_not_a_preview_submission() {
+		Constants::set_constant( 'JETPACK_BLOG_TOKEN', 'test.token' );
+
+		$form = new Contact_Form(
+			array(
+				'to'      => 'normal@example.com',
+				'subject' => 'normal subject',
+			),
+			"[contact-field label='Name' type='name' required='1'/]"
+		);
+
+		$jwt = $form->get_jwt();
+
+		// Sanity-check the serialized JWT does not carry is_test. We read the
+		// unencrypted outer claims directly — implementation detail, but it
+		// documents the backward-compat contract.
+		$raw_parts       = explode( '.', $jwt );
+		$raw_payload     = $raw_parts[1] ?? '';
+		$decoded_json    = base64_decode( strtr( $raw_payload, '-_', '+/' ), true );
+		$decoded_payload = $decoded_json === false ? null : json_decode( $decoded_json, true );
+		$this->assertIsArray( $decoded_payload );
+		$this->assertArrayHasKey( 'source', $decoded_payload );
+		$this->assertArrayNotHasKey(
+			'is_test',
+			$decoded_payload['source'],
+			'Outside preview mode the source must not include an is_test key so old cached JWTs stay compatible.'
+		);
+
+		$decoded = Contact_Form::get_instance_from_jwt( $jwt );
+
+		$this->assertNotNull( $decoded );
+		$this->assertFalse(
+			$decoded->get_source()->is_test(),
+			'A JWT without is_test in its source must decode to a regular (non-test) submission.'
+		);
+
+		Constants::clear_single_constant( 'JETPACK_BLOG_TOKEN' );
+	}
+
 	public function test_get_instance_from_jwt_uses_default_secret_when_no_token_secret() {
 		// Ensure JETPACK_BLOG_TOKEN is not defined, so default secret is used
 		Constants::clear_single_constant( 'JETPACK_BLOG_TOKEN' );

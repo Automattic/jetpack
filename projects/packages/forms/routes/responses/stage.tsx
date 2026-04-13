@@ -466,7 +466,12 @@ function StageInner() {
 								<Stack direction="column" gap="2xs">
 									<Stack direction="row" align="center" gap="xs">
 										{ item.is_test && (
-											<Badge intent="informational">{ __( 'Test', 'jetpack-forms' ) }</Badge>
+											<Badge
+												intent="informational"
+												aria-label={ __( 'Test response', 'jetpack-forms' ) }
+											>
+												{ __( 'Test', 'jetpack-forms' ) }
+											</Badge>
 										) }
 										<Text ellipsizeMode="tail" limit={ 50 } truncate>
 											{ displayName }
