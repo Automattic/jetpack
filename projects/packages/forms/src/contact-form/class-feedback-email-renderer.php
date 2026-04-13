@@ -319,7 +319,7 @@ class Feedback_Email_Renderer {
 					</td>
 				</tr>
 			</table>',
-			esc_html__( 'Test submission from form preview', 'jetpack-forms' )
+			esc_html__( 'Test response via form preview', 'jetpack-forms' )
 		);
 	}
 
