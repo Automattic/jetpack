@@ -1,0 +1,3 @@
+Significance: patch
+Type: other
+Comment: Switch woocommerce-analytics dependency from monorepo path to Packagist release (^0.16) as the package source is migrating to WooCommerce core.
