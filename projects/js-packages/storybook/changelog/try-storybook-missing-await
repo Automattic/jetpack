@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Add missing `await` in vitest config, which may be causing intermittent CI errors.
