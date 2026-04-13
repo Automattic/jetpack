@@ -76,6 +76,7 @@ type QueryParams = {
 	before?: string;
 	after?: string;
 	search?: string;
+	fields_format?: string;
 };
 
 const DEFAULT_VIEW: View = {
@@ -289,6 +290,7 @@ function StageInner() {
 			page: view.page || 1,
 			orderby: view.sort?.field || 'date',
 			order: view.sort?.direction || 'desc',
+			fields_format: 'collection',
 		};
 
 		if ( view.search ) {
