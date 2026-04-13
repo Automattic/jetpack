@@ -7,11 +7,11 @@ import {
 	getTitleFromDescription,
 	preparePreviewText,
 } from '../helpers';
-import { GlobeIcon } from '../icons/globe-icon';
 import { FEED_TEXT_MAX_LENGTH } from './constants';
 import { FooterActions } from './footer-actions';
 import { ChevronIcon } from './icons/chevron-icon';
 import { DefaultImage } from './icons/default-image';
+import { GlobeIcon } from './icons/globe-icon';
 import { NextdoorPreviewProps } from './types';
 import './style.scss';
 

@@ -58,7 +58,7 @@ export function SiteIconWithFallback( {
 	}, [] );
 
 	const showIcon =
-		!! siteIconUrl &&
+		siteIconUrl &&
 		// Check if the image URL with error is different from the provided site icon URL
 		// to ensure that a change in siteIconUrl resets the error state
 		imageUrlWithError !== siteIconUrl;
