@@ -350,6 +350,17 @@ export default function InboxView( { parentId, pageTitle, pageSubtitle } = {} ) 
 							id: 'source',
 							label: __( 'Source', 'jetpack-forms' ),
 							render: ( { item } ) => {
+								if ( item.is_test ) {
+									const previewLabel = __( 'Form preview', 'jetpack-forms' );
+									if ( item.preview_url ) {
+										return (
+											<ExternalLink href={ item.preview_url }>
+												{ wrapperUnread( item.is_unread, previewLabel ) }
+											</ExternalLink>
+										);
+									}
+									return wrapperUnread( item.is_unread, previewLabel );
+								}
 								if ( ! item.entry_permalink ) {
 									return wrapperUnread( item.is_unread, decodeEntities( item.entry_title ) );
 								}
