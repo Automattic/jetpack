@@ -1,0 +1,52 @@
+.bt-dashboard {
+	max-width: 1280px;
+	margin: 0 auto;
+	padding: 0 24px 48px;
+}
+
+.bt-dashboard__header {
+	display: flex;
+	justify-content: space-between;
+	align-items: flex-start;
+	padding: 16px 8px;
+	border-bottom: 1px solid #f0f0f0;
+	margin-bottom: 24px;
+}
+
+.bt-dashboard__title {
+	font-size: 15px;
+	font-weight: 600;
+	color: #1e1e1e;
+}
+
+.bt-dashboard__desc {
+	font-size: 13px;
+	color: #757575;
+	margin-top: 4px;
+}
+
+.bt-dashboard__row {
+	margin-bottom: 24px;
+}
+
+.bt-dashboard__grid {
+	display: grid;
+	gap: 24px;
+	margin-bottom: 24px;
+}
+
+.bt-dashboard__grid--2col {
+	grid-template-columns: 1fr 1fr;
+}
+
+@media (max-width: 768px) {
+
+	.bt-dashboard__grid--2col {
+		grid-template-columns: 1fr;
+	}
+
+	.bt-dashboard__header {
+		flex-direction: column;
+		gap: 12px;
+	}
+}

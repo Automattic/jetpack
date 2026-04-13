@@ -1,0 +1,15 @@
+{
+	"name": "automattic/jetpack-bot-traffic",
+	"description": "Bot traffic analytics dashboard for Jetpack wp-admin",
+	"type": "jetpack-library",
+	"license": "GPL-2.0-or-later",
+	"require": {
+		"php": ">=7.4",
+		"automattic/jetpack-admin-ui": "@dev"
+	},
+	"autoload": {
+		"classmap": [
+			"src/"
+		]
+	}
+}

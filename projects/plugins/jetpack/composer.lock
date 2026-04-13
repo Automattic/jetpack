@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "412e3283d915564627f517a0a31ff159",
+    "content-hash": "515e882e801ee949d0a2865693f91332",
     "packages": [
         {
             "name": "automattic/block-delimiter",
@@ -801,6 +801,32 @@
                 "GPL-2.0-or-later"
             ],
             "description": "A package that handles the API to generate the speed score.",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "automattic/jetpack-bot-traffic",
+            "version": "dev-trunk",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/bot-traffic",
+                "reference": "debb7ce76b5766d4fb4d83d281e2151c546d1524"
+            },
+            "require": {
+                "automattic/jetpack-admin-ui": "@dev",
+                "php": ">=7.4"
+            },
+            "type": "jetpack-library",
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Bot traffic analytics dashboard for Jetpack wp-admin",
             "transport-options": {
                 "relative": true
             }
@@ -6594,6 +6620,7 @@
         "automattic/jetpack-blaze": 20,
         "automattic/jetpack-blocks": 20,
         "automattic/jetpack-boost-speed-score": 20,
+        "automattic/jetpack-bot-traffic": 20,
         "automattic/jetpack-changelogger": 20,
         "automattic/jetpack-classic-theme-helper": 20,
         "automattic/jetpack-compat": 20,

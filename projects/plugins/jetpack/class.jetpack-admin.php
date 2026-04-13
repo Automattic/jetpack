@@ -6,6 +6,7 @@
  */
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
+use Automattic\Jetpack\Bot_Traffic\Admin as Bot_Traffic_Admin;
 use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 use Automattic\Jetpack\Partner_Coupon as Jetpack_Partner_Coupon;
 use Automattic\Jetpack\Status;
@@ -97,6 +98,10 @@ class Jetpack_Admin {
 				Admin_Menu::init();
 			}
 		}
+
+		// Bot Traffic admin page.
+		Admin_Menu::init();
+		( new Bot_Traffic_Admin() )->init();
 
 		// Ensure an Additional CSS menu item is added to the Appearance menu whenever Jetpack is connected.
 		add_action( 'admin_menu', array( $this, 'additional_css_menu' ) );
