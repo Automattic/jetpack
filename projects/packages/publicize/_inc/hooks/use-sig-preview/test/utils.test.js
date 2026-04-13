@@ -98,6 +98,20 @@ describe( 'use-sig-preview utils', () => {
 			).toBe( FEATURED_IMAGE_STILL_LOADING );
 		} );
 
+		it( 'should return null when media resolved but attachment does not exist', () => {
+			const getMediaMockNull = () => null;
+			expect(
+				calculateImageUrl( 'featured', CUSTOM_ID, FEATURED_ID, DEFAULT_ID, getMediaMockNull )
+			).toBeNull();
+		} );
+
+		it( 'should return null when type is default and default image was deleted', () => {
+			const getMediaMockNull = () => null;
+			expect(
+				calculateImageUrl( 'default', null, FEATURED_ID, DEFAULT_ID, getMediaMockNull )
+			).toBeNull();
+		} );
+
 		it( 'should return the source_url from media', () => {
 			expect(
 				calculateImageUrl( 'featured', CUSTOM_ID, FEATURED_ID, DEFAULT_ID, getMediaMock )

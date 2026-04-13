@@ -120,21 +120,28 @@ class WP_Build_Polyfills {
 	 * @param string      $wp_version_threshold  WP version below which force-replacements apply.
 	 */
 	private static function register_scripts( $scripts, $build_dir, $base_file, $wp_version_threshold ) {
-		$force_replace = version_compare( $GLOBALS['wp_version'] ?? '0', $wp_version_threshold, '<' );
+		// Force-replace only when Core's bundled scripts are incomplete (WP < 7.0)
+		// AND Gutenberg is not active. When Gutenberg is present, its script
+		// registrations (priority 10) are always self-consistent — replacing them
+		// with our polyfills can break packages that Gutenberg adds in the future while
+		// our polyfill's allowlist doesn't cover them yet.
+		$gutenberg_active = defined( 'GUTENBERG_VERSION' );
+		$force_replace    = ! $gutenberg_active
+			&& version_compare( $GLOBALS['wp_version'] ?? '0', $wp_version_threshold, '<' );
 
 		$polyfills = array(
 			'wp-notices'      => array(
 				'path'  => 'notices',
-				// Only force-replace on older WP: older Core versions ship
-				// notices without SnackbarNotices and InlineNotices component
-				// exports that @wordpress/boot depends on.
+				// Only force-replace on older WP without Gutenberg: older Core
+				// versions ship notices without SnackbarNotices and InlineNotices
+				// component exports that @wordpress/boot depends on.
 				'force' => $force_replace,
 			),
 			'wp-private-apis' => array(
 				'path'  => 'private-apis',
-				// Only force-replace on older WP: older Core versions ship
-				// private-apis with an incomplete allowlist that rejects
-				// @wordpress/theme and @wordpress/route.
+				// Only force-replace on older WP without Gutenberg: older Core
+				// versions ship private-apis with an incomplete allowlist that
+				// rejects @wordpress/theme and @wordpress/route.
 				// Our version is a strict superset (same API, larger allowlist).
 				'force' => $force_replace,
 			),

@@ -1,6 +1,6 @@
 <?php
 /**
- * Stubs automatically generated from PHPUnit 12.5.16
+ * Stubs automatically generated from PHPUnit 12.5.17
  * using the definition file `tools/stubs/phpunit-stub-defs.php` in the Jetpack monorepo.
  *
  * Do not edit this directly! Run tools/stubs/update-stubs.sh to regenerate it.
@@ -6100,6 +6100,8 @@ abstract class Assert
     /**
      * Asserts that two variables are equal.
      *
+     * Comparison is performed using the == operator (loose comparison) and may be performed by a type-specific comparator which may apply type coercion.
+     *
      * @throws ExpectationFailedException
      */
     final public static function assertEquals(mixed $expected, mixed $actual, string $message = ''): void
@@ -6107,6 +6109,8 @@ abstract class Assert
     }
     /**
      * Asserts that two variables are equal (canonicalizing).
+     *
+     * Comparison is performed using the == operator (loose comparison) and may be performed by a type-specific comparator which may apply type coercion.
      *
      * @throws ExpectationFailedException
      */
@@ -6116,6 +6120,8 @@ abstract class Assert
     /**
      * Asserts that two variables are equal (ignoring case).
      *
+     * Comparison is performed using the == operator (loose comparison) and may be performed by a type-specific comparator which may apply type coercion.
+     *
      * @throws ExpectationFailedException
      */
     final public static function assertEqualsIgnoringCase(mixed $expected, mixed $actual, string $message = ''): void
@@ -6123,6 +6129,8 @@ abstract class Assert
     }
     /**
      * Asserts that two variables are equal (with delta).
+     *
+     * Comparison is performed using the == operator (loose comparison) and may be performed by a type-specific comparator which may apply type coercion.
      *
      * @throws ExpectationFailedException
      */
@@ -6132,6 +6140,8 @@ abstract class Assert
     /**
      * Asserts that two variables are not equal.
      *
+     * Comparison is performed using the == operator (loose comparison) and may be performed by a type-specific comparator which may apply type coercion.
+     *
      * @throws ExpectationFailedException
      */
     final public static function assertNotEquals(mixed $expected, mixed $actual, string $message = ''): void
@@ -6139,6 +6149,8 @@ abstract class Assert
     }
     /**
      * Asserts that two variables are not equal (canonicalizing).
+     *
+     * Comparison is performed using the == operator (loose comparison) and may be performed by a type-specific comparator which may apply type coercion.
      *
      * @throws ExpectationFailedException
      */
@@ -6148,6 +6160,8 @@ abstract class Assert
     /**
      * Asserts that two variables are not equal (ignoring case).
      *
+     * Comparison is performed using the == operator (loose comparison) and may be performed by a type-specific comparator which may apply type coercion.
+     *
      * @throws ExpectationFailedException
      */
     final public static function assertNotEqualsIgnoringCase(mixed $expected, mixed $actual, string $message = ''): void
@@ -6155,6 +6169,8 @@ abstract class Assert
     }
     /**
      * Asserts that two variables are not equal (with delta).
+     *
+     * Comparison is performed using the == operator (loose comparison) and may be performed by a type-specific comparator which may apply type coercion.
      *
      * @throws ExpectationFailedException
      */
@@ -6564,6 +6580,8 @@ abstract class Assert
      * Used on objects, it asserts that two variables reference
      * the same object.
      *
+     * Comparison is performed using the === operator.
+     *
      * @template ExpectedType
      *
      * @param ExpectedType $expected
@@ -6579,6 +6597,8 @@ abstract class Assert
      * Asserts that two variables do not have the same type and value.
      * Used on objects, it asserts that two variables do not reference
      * the same object.
+     *
+     * Comparison is performed using the === operator.
      *
      * @throws ExpectationFailedException
      */
@@ -8101,6 +8121,8 @@ function assertNotCount(int $expectedCount, \Countable|iterable $haystack, strin
 /**
  * Asserts that two variables are equal.
  *
+ * Comparison is performed using the == operator (loose comparison) and may be performed by a type-specific comparator which may apply type coercion.
+ *
  * @throws ExpectationFailedException
  *
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
@@ -8112,6 +8134,8 @@ function assertEquals(mixed $expected, mixed $actual, string $message = '', ...$
 }
 /**
  * Asserts that two variables are equal (canonicalizing).
+ *
+ * Comparison is performed using the == operator (loose comparison) and may be performed by a type-specific comparator which may apply type coercion.
  *
  * @throws ExpectationFailedException
  *
@@ -8125,6 +8149,8 @@ function assertEqualsCanonicalizing(mixed $expected, mixed $actual, string $mess
 /**
  * Asserts that two variables are equal (ignoring case).
  *
+ * Comparison is performed using the == operator (loose comparison) and may be performed by a type-specific comparator which may apply type coercion.
+ *
  * @throws ExpectationFailedException
  *
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
@@ -8136,6 +8162,8 @@ function assertEqualsIgnoringCase(mixed $expected, mixed $actual, string $messag
 }
 /**
  * Asserts that two variables are equal (with delta).
+ *
+ * Comparison is performed using the == operator (loose comparison) and may be performed by a type-specific comparator which may apply type coercion.
  *
  * @throws ExpectationFailedException
  *
@@ -8149,6 +8177,8 @@ function assertEqualsWithDelta(mixed $expected, mixed $actual, float $delta, str
 /**
  * Asserts that two variables are not equal.
  *
+ * Comparison is performed using the == operator (loose comparison) and may be performed by a type-specific comparator which may apply type coercion.
+ *
  * @throws ExpectationFailedException
  *
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
@@ -8160,6 +8190,8 @@ function assertNotEquals(mixed $expected, mixed $actual, string $message = '', .
 }
 /**
  * Asserts that two variables are not equal (canonicalizing).
+ *
+ * Comparison is performed using the == operator (loose comparison) and may be performed by a type-specific comparator which may apply type coercion.
  *
  * @throws ExpectationFailedException
  *
@@ -8173,6 +8205,8 @@ function assertNotEqualsCanonicalizing(mixed $expected, mixed $actual, string $m
 /**
  * Asserts that two variables are not equal (ignoring case).
  *
+ * Comparison is performed using the == operator (loose comparison) and may be performed by a type-specific comparator which may apply type coercion.
+ *
  * @throws ExpectationFailedException
  *
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
@@ -8184,6 +8218,8 @@ function assertNotEqualsIgnoringCase(mixed $expected, mixed $actual, string $mes
 }
 /**
  * Asserts that two variables are not equal (with delta).
+ *
+ * Comparison is performed using the == operator (loose comparison) and may be performed by a type-specific comparator which may apply type coercion.
  *
  * @throws ExpectationFailedException
  *
@@ -8785,6 +8821,8 @@ function assertObjectNotHasProperty(string $propertyName, object $object, string
  * Used on objects, it asserts that two variables reference
  * the same object.
  *
+ * Comparison is performed using the === operator.
+ *
  * @template ExpectedType
  *
  * @param ExpectedType $expected
@@ -8804,6 +8842,8 @@ function assertSame(mixed $expected, mixed $actual, string $message = '', ...$fu
  * Asserts that two variables do not have the same type and value.
  * Used on objects, it asserts that two variables do not reference
  * the same object.
+ *
+ * Comparison is performed using the === operator.
  *
  * @throws ExpectationFailedException
  *
@@ -14600,7 +14640,7 @@ abstract class TestDoubleBuilder
      * @return $this
      * @phan-return $this<MockedType>
      */
-    public function onlyMethods(array $methods): self
+    public function onlyMethods(array $methods): static
     {
     }
     /**
@@ -14611,7 +14651,7 @@ abstract class TestDoubleBuilder
      * @return $this
      * @phan-return $this<MockedType>
      */
-    public function setConstructorArgs(array $arguments): self
+    public function setConstructorArgs(array $arguments): static
     {
     }
     /**
@@ -14620,7 +14660,7 @@ abstract class TestDoubleBuilder
      * @return $this
      * @phan-return $this<MockedType>
      */
-    public function disableOriginalConstructor(): self
+    public function disableOriginalConstructor(): static
     {
     }
     /**
@@ -14629,7 +14669,7 @@ abstract class TestDoubleBuilder
      * @return $this
      * @phan-return $this<MockedType>
      */
-    public function enableOriginalConstructor(): self
+    public function enableOriginalConstructor(): static
     {
     }
     /**
@@ -14638,7 +14678,7 @@ abstract class TestDoubleBuilder
      * @return $this
      * @phan-return $this<MockedType>
      */
-    public function disableOriginalClone(): self
+    public function disableOriginalClone(): static
     {
     }
     /**
@@ -14647,21 +14687,21 @@ abstract class TestDoubleBuilder
      * @return $this
      * @phan-return $this<MockedType>
      */
-    public function enableOriginalClone(): self
+    public function enableOriginalClone(): static
     {
     }
     /**
      * @return $this
      * @phan-return $this<MockedType>
      */
-    public function enableAutoReturnValueGeneration(): self
+    public function enableAutoReturnValueGeneration(): static
     {
     }
     /**
      * @return $this
      * @phan-return $this<MockedType>
      */
-    public function disableAutoReturnValueGeneration(): self
+    public function disableAutoReturnValueGeneration(): static
     {
     }
     protected function getTestDouble(?string $testDoubleClassName, bool $mockObject): \PHPUnit\Framework\MockObject\MockObject|\PHPUnit\Framework\MockObject\Stub
@@ -20768,7 +20808,7 @@ namespace PHPUnit\Runner\ResultCache;
  */
 final class DefaultResultCache implements \PHPUnit\Runner\ResultCache\ResultCache
 {
-    public function __construct(?string $filepath = null)
+    public function __construct(string $filepath)
     {
     }
     public function setStatus(\PHPUnit\Runner\ResultCache\ResultCacheId $id, \PHPUnit\Framework\TestStatus\TestStatus $status): void

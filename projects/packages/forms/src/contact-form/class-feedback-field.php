@@ -264,6 +264,12 @@ class Feedback_Field {
 	 * @return string Phone number with country flag prefix.
 	 */
 	private function get_phone_value_with_flag() {
+		// Field values arrive as `mixed` (per the constructor); short-circuit
+		// to an empty string for non-string values.
+		if ( ! is_string( $this->value ) ) {
+			return '';
+		}
+
 		if ( empty( $this->value ) ) {
 			return $this->value;
 		}
@@ -317,6 +323,12 @@ class Feedback_Field {
 	 * @return array|string Structured rating data or original value if parsing fails.
 	 */
 	private function get_rating_value() {
+		// Field values arrive as `mixed` (per the constructor); short-circuit
+		// to an empty string for non-string values.
+		if ( ! is_string( $this->value ) ) {
+			return '';
+		}
+
 		if ( empty( $this->value ) ) {
 			return $this->value;
 		}
@@ -523,11 +535,13 @@ class Feedback_Field {
 	 * @return string HTML with tel: link.
 	 */
 	private function render_email_phone() {
-		if ( empty( $this->value ) ) {
+		// Guard against non-string values for the same reason as
+		// get_phone_value_with_flag().
+		if ( ! is_string( $this->value ) || empty( $this->value ) ) {
 			return $this->render_empty_value_html();
 		}
 
-		$raw_phone    = preg_replace( '/[^\d+]/', '', (string) $this->value );
+		$raw_phone    = preg_replace( '/[^\d+]/', '', $this->value );
 		$country_code = $this->get_country_code_from_phone( $this->value );
 		$flag_prefix  = '';
 

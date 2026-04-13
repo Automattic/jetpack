@@ -17,7 +17,7 @@ use Jetpack_Tracks_Client;
  */
 class Admin_Menu {
 
-	const PACKAGE_VERSION = '0.7.0';
+	const PACKAGE_VERSION = '0.8.0';
 
 	/**
 	 * Slug used for the upgrade menu item and redirect URL.
@@ -48,6 +48,13 @@ class Admin_Menu {
 	 * @var array
 	 */
 	private static $menu_items = array();
+
+	/**
+	 * Optional connection manager dependency.
+	 *
+	 * @var object|null
+	 */
+	private static $connection_manager = null;
 
 	/**
 	 * Initialize the class and set up the main hook
@@ -272,8 +279,55 @@ class Admin_Menu {
 			}
 		}
 
+		// Don't show upsells in offline/development mode.
+		if ( class_exists( '\Automattic\Jetpack\Status' ) ) {
+			$status = new \Automattic\Jetpack\Status();
+			if ( $status->is_offline_mode() ) {
+				return false;
+			}
+		}
+
+		// Only show after the site and current user are connected.
+		if ( ! self::is_site_and_user_connected() ) {
+			return false;
+		}
+
 		// Only show to free-plan sites.
 		return self::is_free_plan();
+	}
+
+	/**
+	 * Checks whether the site and current user are connected to WordPress.com.
+	 *
+	 * @return bool True if site and current user are connected.
+	 */
+	private static function is_site_and_user_connected() {
+		$connection_manager = self::$connection_manager;
+		if ( ! $connection_manager && class_exists( '\Automattic\Jetpack\Connection\Manager' ) ) {
+			$connection_manager       = new \Automattic\Jetpack\Connection\Manager();
+			self::$connection_manager = $connection_manager;
+		}
+
+		if (
+			$connection_manager
+			&& is_callable( array( $connection_manager, 'is_connected' ) )
+			&& is_callable( array( $connection_manager, 'is_user_connected' ) )
+		) {
+			return (bool) $connection_manager->is_connected()
+				&& (bool) $connection_manager->is_user_connected( get_current_user_id() );
+		}
+
+		return false;
+	}
+
+	/**
+	 * Sets the connection manager dependency; used by tests.
+	 *
+	 * @param object|null $connection_manager Connection manager object.
+	 * @return void
+	 */
+	public static function set_connection_manager( $connection_manager ) {
+		self::$connection_manager = $connection_manager;
 	}
 
 	/**
