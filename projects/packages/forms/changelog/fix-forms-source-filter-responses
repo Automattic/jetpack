@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Add source filter parameter to feedback REST API for filtering responses by source post ID, with fallback to post_parent for legacy data.
