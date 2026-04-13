@@ -36,6 +36,9 @@ const getCountQueryParams = ( currentQuery: QueryParams ): QueryParams => {
 	if ( currentQuery?.parent ) {
 		queryParams.parent = currentQuery.parent;
 	}
+	if ( currentQuery?.source ) {
+		queryParams.source = currentQuery.source;
+	}
 	if ( currentQuery?.before ) {
 		queryParams.before = currentQuery.before;
 	}

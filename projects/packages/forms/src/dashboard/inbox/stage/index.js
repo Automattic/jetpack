@@ -173,7 +173,7 @@ export default function InboxView( { parentId, pageTitle, pageSubtitle } = {} ) 
 				return accumulator;
 			}
 			if ( field === 'source' ) {
-				accumulator.parent = value;
+				accumulator.source = value;
 			}
 			if ( field === 'date' ) {
 				const [ year, month ] = value.split( '/' ).map( Number );

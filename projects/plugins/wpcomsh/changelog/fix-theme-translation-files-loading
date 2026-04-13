@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-I18n: Correct WPCOM locale fallback when theme .mo files use {textdomain}-{locale} names under the themes directory.

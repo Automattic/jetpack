@@ -130,7 +130,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/account-protection",
-                "reference": "bd9ac71a7100a78720ce60a7a0812ffac8218bbb"
+                "reference": "0a263fc4942fb73078d952340acdf87f49d296f8"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -152,7 +152,7 @@
             "extra": {
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "0.2.x-dev"
+                    "dev-trunk": "0.3.x-dev"
                 },
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/jetpack-account-protection/compare/v${old}...v${new}"
@@ -199,7 +199,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/admin-ui",
-                "reference": "a3c1bc1f402db286170a9db91ff17a2a70c64298"
+                "reference": "7b96f52e31ef50047c34a7f27870bd1c52f36787"
             },
             "require": {
                 "automattic/jetpack-redirect": "@dev",
@@ -226,7 +226,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-admin-ui/compare/${old}...${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.7.x-dev"
+                    "dev-trunk": "0.8.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
@@ -3164,7 +3164,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/stats-admin",
-                "reference": "f60f396b95fede69b361f9f9c80f01a6d4f39c3b"
+                "reference": "d3cc7e7297df5dafcd3640b17e26ec24623f5096"
             },
             "require": {
                 "automattic/jetpack-blaze": "@dev",
@@ -3190,7 +3190,7 @@
                 "autotagger": true,
                 "mirror-repo": "Automattic/jetpack-stats-admin",
                 "branch-alias": {
-                    "dev-trunk": "0.30.x-dev"
+                    "dev-trunk": "0.31.x-dev"
                 },
                 "textdomain": "jetpack-stats-admin",
                 "version-constants": {
