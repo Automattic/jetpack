@@ -303,29 +303,16 @@ class Feedback_Email_Renderer {
 	}
 
 	/**
-	 * Build the HTML banner inserted at the top of a test-submission email body.
+	 * Build the simple heading inserted at the top of a test-submission email body.
 	 *
-	 * Uses inline styles only for email-client compatibility. Colors follow the
-	 * Jetpack "notice" palette (warm amber) so the banner is visibly distinct
-	 * from normal feedback emails.
+	 * Uses inline styles only for email-client compatibility.
 	 *
 	 * @return string
 	 */
 	private static function build_test_submission_banner() {
-		$title   = __( 'Test submission from form preview', 'jetpack-forms' );
-		$message = __( 'This response was submitted from a form preview. It will not appear in your default response exports. You can delete it from the responses dashboard.', 'jetpack-forms' );
-
 		return sprintf(
-			'<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%%" style="border-collapse: collapse; margin: 0 0 24px 0;">
-				<tr>
-					<td style="padding: 16px 20px; background-color: #FCF9E8; border-left: 4px solid #DBA617; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Oxygen-Sans, Ubuntu, Cantarell, \'Helvetica Neue\', sans-serif;">
-						<div style="font-size: 14px; font-weight: 600; color: #674600; margin: 0 0 4px 0;">%1$s</div>
-						<div style="font-size: 13px; color: #674600; line-height: 1.5;">%2$s</div>
-					</td>
-				</tr>
-			</table>',
-			esc_html( $title ),
-			esc_html( $message )
+			'<p style="margin: 0 0 16px 0; font-size: 14px; font-weight: 600; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Oxygen-Sans, Ubuntu, Cantarell, \'Helvetica Neue\', sans-serif;">%s</p>',
+			esc_html__( 'Test submission from form preview', 'jetpack-forms' )
 		);
 	}
 

@@ -37,10 +37,10 @@ const ExportResponsesModal = ( {
 		};
 	}, [] ) as { integrations: Integration[] };
 
-	// Inspect the current selection so we can warn the user when their
+	// Inspect the current selection so we can inform the user when their
 	// hand-picked rows include test responses (which would otherwise be
 	// excluded automatically).
-	const { selectedIds, selectedTestCount } = useSelect( select => {
+	const selectedTestCount = useSelect( select => {
 		const ids = (
 			select( dashboardStore ) as {
 				getSelectedResponsesFromCurrentDataset: () => Array< string | number >;
@@ -53,11 +53,10 @@ const ExportResponsesModal = ( {
 				id: number
 			) => FormResponse | null | undefined;
 		};
-		const testCount = ids.reduce< number >( ( count, id ) => {
+		return ids.reduce< number >( ( count, id ) => {
 			const record = core.getEntityRecord( 'postType', 'feedback', Number( id ) );
 			return record?.is_test ? count + 1 : count;
 		}, 0 );
-		return { selectedIds: ids, selectedTestCount: testCount };
 	}, [] );
 
 	const isGoogleDriveEnabled = integrations.some(
@@ -69,32 +68,24 @@ const ExportResponsesModal = ( {
 			onRequestClose={ onRequestClose }
 			size="large"
 		>
+			{ selectedTestCount > 0 && (
+				<Notice status="info" isDismissible={ false }>
+					{ sprintf(
+						/* translators: %d: number of selected test responses. */
+						_n(
+							'Your selection includes %d test response from form preview. It will be included in the export.',
+							'Your selection includes %d test responses from form preview. They will be included in the export.',
+							selectedTestCount,
+							'jetpack-forms'
+						),
+						selectedTestCount
+					) }
+				</Notice>
+			) }
 			<VStack spacing={ 6 }>
 				<CSVExport onExport={ onExport } />
 				{ isGoogleDriveEnabled && (
 					<GoogleDriveExport onExport={ onExport } autoConnect={ autoConnectGdrive } />
-				) }
-				{ selectedTestCount > 0 && (
-					<Notice status="warning" isDismissible={ false }>
-						{ sprintf(
-							/* translators: %d: number of selected test responses. */
-							_n(
-								'Your selection includes %d test response from form preview. It will be included in the export.',
-								'Your selection includes %d test responses from form preview. They will be included in the export.',
-								selectedTestCount,
-								'jetpack-forms'
-							),
-							selectedTestCount
-						) }
-					</Notice>
-				) }
-				{ selectedIds.length === 0 && selectedTestCount === 0 && (
-					<Notice status="info" isDismissible={ false }>
-						{ __(
-							'Test responses from form preview are excluded from this export. To include one, select it from the list before exporting.',
-							'jetpack-forms'
-						) }
-					</Notice>
 				) }
 			</VStack>
 		</Modal>

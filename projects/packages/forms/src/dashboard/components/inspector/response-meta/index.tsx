@@ -39,8 +39,9 @@ const getDisplayName = ( response: FormResponse ) => {
  * @return Source cell content.
  */
 const SourceCell = ( { response }: { response: FormResponse } ) => {
+	const label = decodeEntities( response.entry_title ) || getPath( response );
+
 	if ( response.is_test ) {
-		const label = __( 'Form Preview', 'jetpack-forms' );
 		if ( response.preview_url ) {
 			return <ExternalLink href={ response.preview_url }>{ label }</ExternalLink>;
 		}
@@ -48,14 +49,10 @@ const SourceCell = ( { response }: { response: FormResponse } ) => {
 	}
 
 	if ( response.entry_permalink ) {
-		return (
-			<ExternalLink href={ response.entry_permalink }>
-				{ decodeEntities( response.entry_title ) || getPath( response ) }
-			</ExternalLink>
-		);
+		return <ExternalLink href={ response.entry_permalink }>{ label }</ExternalLink>;
 	}
 
-	return <>{ decodeEntities( response.entry_title ) }</>;
+	return <>{ label }</>;
 };
 
 export type ResponseMetaProps = {
@@ -94,15 +91,7 @@ const ResponseMeta = ( { response }: ResponseMetaProps ): import('react').JSX.El
 
 	return (
 		<div className="jp-forms__inbox-response-meta">
-			{ response.is_test && (
-				<div
-					className="jp-forms__inbox-response-meta-test-banner"
-					style={ { marginBottom: '12px' } }
-				>
-					<Badge intent="informational">{ __( 'Test', 'jetpack-forms' ) }</Badge>
-				</div>
-			) }
-			<HStack alignment="topLeft" spacing="3" wrap={ false }>
+			<HStack alignment="center" spacing="3" wrap={ false }>
 				<Gravatar
 					email={ gravatarEmail }
 					defaultImage={ defaultImage }
@@ -139,6 +128,13 @@ const ResponseMeta = ( { response }: ResponseMetaProps ): import('react').JSX.El
 						</HStack>
 					) }
 				</VStack>
+				{ response.is_test && (
+					<span style={ { marginLeft: 'auto' } }>
+						<Badge intent="none" aria-label={ __( 'Test response', 'jetpack-forms' ) }>
+							{ __( 'Test', 'jetpack-forms' ) }
+						</Badge>
+					</span>
+				) }
 			</HStack>
 			<table className="jp-forms__inbox-response-meta-table">
 				<tbody>
