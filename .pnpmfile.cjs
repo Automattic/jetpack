@@ -164,6 +164,7 @@ async function fixDeps( pkg ) {
 	}
 
 	// @wordpress/stylelint-config is still CJS, which caps how high we can upgrade.
+	// https://github.com/WordPress/gutenberg/issues/75047
 	if ( pkg.name === '@wordpress/stylelint-config' ) {
 		if ( pkg.dependencies?.[ '@stylistic/stylelint-plugin' ]?.startsWith( '^3.' ) ) {
 			pkg.dependencies[ '@stylistic/stylelint-plugin' ] = '^5';
@@ -367,6 +368,7 @@ function fixPeerDeps( pkg ) {
 
 	// These packages went ESM-only in their latest versions, which breaks `@wordpress/stylelint-config`.
 	// So we need to keep older CJS versions for now, while bumping their stylelint peer deps.
+	// https://github.com/WordPress/gutenberg/issues/75047
 	if (
 		( pkg.name === 'stylelint-config-recommended' ||
 			pkg.name === 'stylelint-config-recommended-scss' ||
