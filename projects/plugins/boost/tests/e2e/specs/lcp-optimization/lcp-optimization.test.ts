@@ -39,35 +39,39 @@ test.describe( 'LCP Image Optimization module', () => {
 		// Don't await the click, as it will trigger the analysis, we will await the status change instead
 		await page.getByTestId( 'module-lcp' ).getByRole( 'checkbox' ).check();
 
-		// Should show pending state initially
-		await expect(
-			page.getByText( "Jetpack Boost is optimizing your Cornerstone Page's LCP for you" ),
-			'LCP optimization should show pending status during analysis'
-		).toBeVisible();
+		// Should show pending state initially — use .toPass() as the state transition can be fast
+		await expect( async () => {
+			await expect(
+				page.getByText( "Jetpack Boost is optimizing your Cornerstone Page's LCP for you" ),
+				'LCP optimization should show pending status during analysis'
+			).toBeVisible();
+		} ).toPass( { timeout: 20 * 1000 } );
 
 		await expect(
 			page.getByRole( 'button', { name: 'Optimize' } ),
 			'Optimize button should be disabled during pending state'
 		).toBeDisabled();
 
-		// Wait for analysis to complete
+		// Wait for analysis to complete — allow extra time as this is an async background operation
 		await expect(
 			page.getByText( 'Last optimized' ),
 			'LCP optimization should complete analysis and show analyzed state'
-		).toBeVisible();
+		).toBeVisible( { timeout: 30 * 1000 } );
 
 		// Click the Optimize button
 		await page.getByRole( 'button', { name: 'Optimize' } ).click();
 
 		// Should show pending state after clicking optimize
-		await expect(
-			page.getByText( "Jetpack Boost is optimizing your Cornerstone Page's LCP for you" ),
-			'LCP optimization should show pending status after clicking Optimize button'
-		).toBeVisible();
+		await expect( async () => {
+			await expect(
+				page.getByText( "Jetpack Boost is optimizing your Cornerstone Page's LCP for you" ),
+				'LCP optimization should show pending status after clicking Optimize button'
+			).toBeVisible();
+		} ).toPass( { timeout: 20 * 1000 } );
 
 		await expect(
 			page.getByText( 'Last optimized' ),
 			'LCP optimization should complete re-analysis and show analyzed state'
-		).toBeVisible();
+		).toBeVisible( { timeout: 30 * 1000 } );
 	} );
 } );

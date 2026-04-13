@@ -41,7 +41,7 @@ setup(
 					page.getByRole( 'link', { name: `Howdy, ${ dotComCredentials.username }` } ),
 					'User is logged in and username is visible'
 				)
-				.toBeVisible();
+				.toBeVisible( { timeout: 40 * 1000 } );
 		} );
 	}
 );

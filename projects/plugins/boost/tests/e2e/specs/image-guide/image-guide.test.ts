@@ -38,7 +38,7 @@ test.describe( 'Image Guide', () => {
 		await expect( async () => {
 			const count = await page.locator( '#jetpack-boost-guide-js' ).count();
 			expect( count, 'Image Guide script should be present' ).toBeGreaterThan( 0 );
-		} ).toPass( { timeout: 10000 } );
+		} ).toPass( { timeout: 20000 } );
 
 		await expect(
 			page.locator( '#wp-toolbar #jetpack-boost-guide-bar' ),

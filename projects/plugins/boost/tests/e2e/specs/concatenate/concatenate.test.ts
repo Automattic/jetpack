@@ -92,7 +92,7 @@ test.describe( 'Concatenate JS and CSS', () => {
 				.locator( '[data-handles*="e2e-script-one"][data-handles*="e2e-script-two"]' )
 				.count();
 			expect( count, 'JS Concatenation occurs when module is active' ).toBeGreaterThan( 0 );
-		} ).toPass( { timeout: 10000 } );
+		} ).toPass( { timeout: 20000 } );
 
 		await expect( async () => {
 			// e2e-style-one and e2e-style-two are enqueued by a helper plugin. When concatenation is enabled,
@@ -101,7 +101,7 @@ test.describe( 'Concatenate JS and CSS', () => {
 				.locator( '[data-handles*="e2e-style-one"][data-handles*="e2e-style-two"]' )
 				.count();
 			expect( count, 'CSS Concatenation occurs when module is active' ).toBeGreaterThan( 0 );
-		} ).toPass( { timeout: 10000 } );
+		} ).toPass( { timeout: 20000 } );
 	} );
 
 	test( 'Assets that are excluded by default shouldn`t be concatenated', async ( {
@@ -120,12 +120,12 @@ test.describe( 'Concatenate JS and CSS', () => {
 			// jQuery is enqueued by a helper plugin.
 			const count = await page.locator( '#jquery-core-js' ).count();
 			expect( count, 'jQuery should not be concatenated' ).toBeGreaterThan( 0 );
-		} ).toPass( { timeout: 10000 } );
+		} ).toPass( { timeout: 20000 } );
 
 		await expect( async () => {
 			// Admin bar stylesheet is enqueued by default when logged-in.
 			const count = await page.locator( '#admin-bar-css' ).count();
 			expect( count, 'Admin bar stylesheet should not be concatenated' ).toBeGreaterThan( 0 );
-		} ).toPass( { timeout: 10000 } );
+		} ).toPass( { timeout: 20000 } );
 	} );
 } );

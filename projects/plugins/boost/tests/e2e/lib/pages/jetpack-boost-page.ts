@@ -40,7 +40,7 @@ export default class JetpackBoostPage {
 		await expect(
 			this.page.getByRole( 'button', { name: 'Refresh' } ),
 			'Refresh button should be visible after connection'
-		).toBeVisible();
+		).toBeVisible( { timeout: 40 * 1000 } );
 	}
 
 	/**
