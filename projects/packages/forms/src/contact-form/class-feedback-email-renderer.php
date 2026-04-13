@@ -303,15 +303,23 @@ class Feedback_Email_Renderer {
 	}
 
 	/**
-	 * Build the simple heading inserted at the top of a test-submission email body.
+	 * Build the HTML banner inserted at the top of a test-submission email body.
 	 *
-	 * Uses inline styles only for email-client compatibility.
+	 * Uses inline styles only for email-client compatibility. Colors follow the
+	 * Jetpack "notice" palette (warm amber) so the banner is visibly distinct
+	 * from normal feedback emails.
 	 *
 	 * @return string
 	 */
 	private static function build_test_submission_banner() {
 		return sprintf(
-			'<p style="margin: 0 0 16px 0; font-size: 14px; font-weight: 600; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Oxygen-Sans, Ubuntu, Cantarell, \'Helvetica Neue\', sans-serif;">%s</p>',
+			'<table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%%" style="border-collapse: collapse; margin: 0 0 24px 0;">
+				<tr>
+					<td style="padding: 16px 20px; background-color: #FCF9E8; border-left: 4px solid #DBA617; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Oxygen-Sans, Ubuntu, Cantarell, \'Helvetica Neue\', sans-serif;">
+						<div style="font-size: 14px; font-weight: 600; color: #674600;">%s</div>
+					</td>
+				</tr>
+			</table>',
 			esc_html__( 'Test submission from form preview', 'jetpack-forms' )
 		);
 	}
