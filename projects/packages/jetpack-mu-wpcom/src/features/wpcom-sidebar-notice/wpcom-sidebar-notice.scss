@@ -77,10 +77,12 @@
 
 	.upsell_banner__dismiss.button-link {
 		background-color: transparent;
+		border: 0;
 		color: inherit;
 		min-height: 0;
 		font-size: 12px;
 		line-height: 16px;
+		padding: 0;
 		text-align: center;
 		margin-top: -2px;
 
