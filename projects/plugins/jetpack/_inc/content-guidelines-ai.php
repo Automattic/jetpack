@@ -12,9 +12,32 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
+use Automattic\Jetpack\Status\Visitor;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
+}
+
+/**
+ * Check if the current user is an Automattician.
+ *
+ * - Simple sites: wpcom_is_proxied_request() + is_automattician()
+ * - Atomic sites: Visitor::is_automattician_feature_flags_only()
+ *
+ * @return bool
+ */
+function jetpack_content_guidelines_ai_is_automattician() {
+	// Simple sites.
+	if ( function_exists( 'wpcom_is_proxied_request' )
+		&& wpcom_is_proxied_request()
+		&& function_exists( 'is_automattician' )
+		&& is_automattician()
+	) {
+		return true;
+	}
+
+	// Atomic sites.
+	return ( new Visitor() )->is_automattician_feature_flags_only();
 }
 
 /**
@@ -26,6 +49,11 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 function jetpack_content_guidelines_ai_enqueue_scripts( $hook_suffix ) {
 	if ( 'settings_page_guidelines-wp-admin' !== $hook_suffix ) {
+		return;
+	}
+
+	// Temporarily gate to Automatticians only during internal rollout.
+	if ( ! jetpack_content_guidelines_ai_is_automattician() ) {
 		return;
 	}
 
