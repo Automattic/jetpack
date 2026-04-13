@@ -98,6 +98,10 @@ class WPCOM_JSON_API_Get_Taxonomies_Endpoint extends WPCOM_JSON_API_Endpoint {
 		$args = $this->query_args();
 		$args = $this->process_args( $args );
 
+		if ( is_wp_error( $args ) ) {              
+		    return $args;                                                                   
+		}
+
 		if ( preg_match( '#/tags#i', $path ) ) {
 			return $this->tags( $args );
 		} else {
