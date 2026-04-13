@@ -1,3 +1,4 @@
+import { useAiFeature } from '@automattic/jetpack-ai-client';
 import { Button } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
@@ -5,7 +6,6 @@ import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
 import { STORE_NAME } from '../constants';
 import { suggestGuidelines } from '../lib/api';
-import { showUnavailableNotice } from '../lib/availability';
 import { acceptBlockSuggestion } from '../lib/dom';
 import { AI_STORE_NAME } from '../store';
 
@@ -13,6 +13,7 @@ export default function BlockSuggestionButtons( { blockName } ) {
 	const { createErrorNotice } = useDispatch( noticesStore );
 	const { startSectionLoading, stopSectionLoading, setSuggestion, clearSuggestion } =
 		useDispatch( AI_STORE_NAME );
+	const { requireUpgrade } = useAiFeature();
 
 	const blockLoading = useSelect(
 		select => select( AI_STORE_NAME ).isSectionLoading( blockName ),
@@ -30,10 +31,6 @@ export default function BlockSuggestionButtons( { blockName } ) {
 	);
 
 	const handleGenerate = useCallback( async () => {
-		if ( showUnavailableNotice() ) {
-			return;
-		}
-
 		const modal = document.querySelector( '.block-guideline-modal' );
 		const textarea = modal?.querySelector( '.components-textarea-control__input' );
 		const currentText = textarea?.value || '';
@@ -85,7 +82,7 @@ export default function BlockSuggestionButtons( { blockName } ) {
 			<Button
 				variant="secondary"
 				onClick={ handleGenerate }
-				disabled={ blockLoading }
+				disabled={ blockLoading || requireUpgrade }
 				accessibleWhenDisabled
 				className="jetpack-content-guidelines-ai__section-generate-button"
 			>

@@ -1,10 +1,10 @@
+import { useAiFeature } from '@automattic/jetpack-ai-client';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
 import { STORE_NAME, VALID_SECTIONS } from '../constants';
 import { suggestGuidelines } from '../lib/api';
-import { showUnavailableNotice } from '../lib/availability';
 import { AI_STORE_NAME } from '../store';
 
 /**
@@ -16,6 +16,7 @@ export default function useGenerateAll() {
 	const { createErrorNotice } = useDispatch( noticesStore );
 	const { startLoading, stopLoading, setSuggestion } = useDispatch( AI_STORE_NAME );
 	const loading = useSelect( select => select( AI_STORE_NAME ).isLoading(), [] );
+	const { requireUpgrade } = useAiFeature();
 
 	const allGuidelines = useSelect( select => {
 		const store = select( STORE_NAME );
@@ -23,7 +24,7 @@ export default function useGenerateAll() {
 	}, [] );
 
 	const generate = useCallback( async () => {
-		if ( showUnavailableNotice() ) {
+		if ( requireUpgrade ) {
 			return;
 		}
 
@@ -51,7 +52,14 @@ export default function useGenerateAll() {
 		} finally {
 			stopLoading();
 		}
-	}, [ allGuidelines, startLoading, stopLoading, setSuggestion, createErrorNotice ] );
+	}, [
+		requireUpgrade,
+		allGuidelines,
+		startLoading,
+		stopLoading,
+		setSuggestion,
+		createErrorNotice,
+	] );
 
-	return { generate, loading };
+	return { generate, loading, requireUpgrade };
 }

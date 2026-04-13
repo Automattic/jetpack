@@ -8,10 +8,6 @@
  * @package automattic/jetpack
  */
 
-use Automattic\Jetpack\Connection\Manager as Connection_Manager;
-use Automattic\Jetpack\Redirect;
-use Automattic\Jetpack\Status;
-use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Status\Visitor;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -76,44 +72,6 @@ function jetpack_content_guidelines_ai_enqueue_scripts( $hook_suffix ) {
 		plugins_url( '_inc/build/content-guidelines-ai.css', JETPACK__PLUGIN_FILE ),
 		array( 'wp-components' ),
 		$asset['version']
-	);
-
-	// Determine AI availability per site type and pass config to JS.
-	if ( ! class_exists( 'Jetpack_AI_Helper' ) ) {
-		require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-ai-helper.php';
-	}
-
-	$host         = new Host();
-	$is_wpcom     = $host->is_wpcom_simple() || $host->is_woa_site();
-	$is_connected = $host->is_wpcom_simple()
-		|| ( ( new Connection_Manager( 'jetpack' ) )->has_connected_owner() && ! ( new Status() )->is_offline_mode() );
-	$ai_enabled   = \Jetpack_AI_Helper::is_enabled();
-
-	$config = array(
-		'available'   => $ai_enabled && $is_connected,
-		'isConnected' => $is_connected,
-	);
-
-	if ( ! $config['available'] ) {
-		if ( ! $is_connected ) {
-			// Self-hosted site not connected to WordPress.com.
-			$config['upgradeUrl'] = admin_url( 'admin.php?page=jetpack#/dashboard' );
-		} elseif ( $is_wpcom ) {
-			// wpcom simple or atomic — needs AI plan.
-			$config['upgradeUrl'] = Redirect::get_url( 'jetpack-ai-yearly-tier-upgrade-nudge' );
-		} else {
-			// Self-hosted connected — needs Jetpack AI product.
-			$config['upgradeUrl'] = Redirect::get_url( 'jetpack-ai-upgrade-url-for-jetpack-sites' );
-		}
-	}
-
-	wp_add_inline_script(
-		'jetpack-content-guidelines-ai',
-		sprintf(
-			'window.jetpackContentGuidelinesAiConfig = %s;',
-			wp_json_encode( $config, JSON_HEX_TAG | JSON_HEX_AMP )
-		),
-		'before'
 	);
 }
 

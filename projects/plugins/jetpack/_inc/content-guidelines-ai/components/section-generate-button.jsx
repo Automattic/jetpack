@@ -1,3 +1,4 @@
+import { useAiFeature } from '@automattic/jetpack-ai-client';
 import { Button } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
@@ -5,12 +6,12 @@ import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
 import { STORE_NAME } from '../constants';
 import { suggestGuidelines } from '../lib/api';
-import { showUnavailableNotice } from '../lib/availability';
 import { AI_STORE_NAME } from '../store';
 
 export default function SectionGenerateButton( { slug } ) {
 	const { createErrorNotice } = useDispatch( noticesStore );
 	const { startSectionLoading, stopSectionLoading, setSuggestion } = useDispatch( AI_STORE_NAME );
+	const { requireUpgrade } = useAiFeature();
 
 	const sectionLoading = useSelect(
 		select => select( AI_STORE_NAME ).isSectionLoading( slug ),
@@ -24,10 +25,6 @@ export default function SectionGenerateButton( { slug } ) {
 	const label = isEmpty ? generateLabel : improveLabel;
 
 	const handleClick = useCallback( async () => {
-		if ( showUnavailableNotice() ) {
-			return;
-		}
-
 		startSectionLoading( slug );
 		try {
 			const existingContent = draft ? { [ slug ]: draft } : {};
@@ -49,7 +46,7 @@ export default function SectionGenerateButton( { slug } ) {
 		<Button
 			variant="tertiary"
 			onClick={ handleClick }
-			disabled={ sectionLoading }
+			disabled={ sectionLoading || requireUpgrade }
 			accessibleWhenDisabled
 			className="jetpack-content-guidelines-ai__section-generate-button"
 		>

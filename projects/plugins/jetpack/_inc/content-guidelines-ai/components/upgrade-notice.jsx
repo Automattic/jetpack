@@ -1,37 +1,31 @@
+import { useAICheckout, useAiFeature } from '@automattic/jetpack-ai-client';
 import { Button, Notice } from '@wordpress/components';
-import { useDispatch, useSelect } from '@wordpress/data';
-import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { config } from '../constants';
-import { AI_STORE_NAME } from '../store';
 
 export default function UpgradeNotice() {
-	const visible = useSelect( select => select( AI_STORE_NAME ).isUpgradeNoticeVisible(), [] );
-	const { hideUpgradeNotice } = useDispatch( AI_STORE_NAME );
+	const { requireUpgrade: _requireUpgrade } = useAiFeature(); // eslint-disable-line no-unused-vars
+	const requireUpgrade = true; // HACK: force-show for testing checkout URL
+	const { checkoutUrl } = useAICheckout();
 
-	const handleDismiss = useCallback( () => {
-		hideUpgradeNotice();
-	}, [ hideUpgradeNotice ] );
-
-	if ( ! visible ) {
+	if ( ! requireUpgrade ) {
 		return null;
 	}
 
 	return (
 		<Notice
 			status="warning"
-			onRemove={ handleDismiss }
+			isDismissible={ false }
 			className="jetpack-content-guidelines-ai__upgrade-notice"
 		>
 			<p>
 				{ __(
-					"You've reached your limit for AI-generated suggestions. Upgrade to improve your guidelines, generate images, and unlock the full Jetpack AI Assistant.",
+					'Upgrade to Jetpack AI to generate and improve your content guidelines.',
 					'jetpack'
 				) }
 			</p>
-			{ config.upgradeUrl && (
-				<Button variant="primary" href={ config.upgradeUrl }>
-					{ __( 'View plans', 'jetpack' ) }
+			{ checkoutUrl && (
+				<Button variant="primary" href={ checkoutUrl } target="_blank">
+					{ __( 'Upgrade', 'jetpack' ) }
 				</Button>
 			) }
 		</Notice>
