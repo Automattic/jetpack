@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Fix taxonomies endpoint returning error when number parameter exceeds 1000.
