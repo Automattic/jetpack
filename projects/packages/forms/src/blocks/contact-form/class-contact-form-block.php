@@ -102,6 +102,10 @@ class Contact_Form_Block {
 		$features['multistep-form'] = Current_Plan::supports( 'multistep-form' );
 		$features['form-webhooks']  = Current_Plan::supports( 'form-webhooks' );
 
+		if ( ! isset( $features['central-form-management'] ) ) {
+			$features['central-form-management'] = true;
+		}
+
 		return $features;
 	}
 
