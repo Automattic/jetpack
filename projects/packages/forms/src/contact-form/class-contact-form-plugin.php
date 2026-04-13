@@ -395,10 +395,6 @@ class Contact_Form_Plugin {
 			);
 		}
 
-		// Enable Central Forms Management editor features by default.
-		// Can be overridden at a higher priority to disable for specific sites.
-		add_filter( 'jetpack_block_editor_feature_flags', array( __CLASS__, 'enable_central_form_management_flag' ) );
-
 		if ( self::has_editor_feature_flag( 'central-form-management' ) ) {
 			Contact_Form::register_post_type();
 			Form_Editor::init();
@@ -417,23 +413,6 @@ class Contact_Form_Plugin {
 		$feature_flags = apply_filters( 'jetpack_block_editor_feature_flags', array() );
 		return ! empty( $feature_flags[ $flag ] );
 	}
-
-	/**
-	 * Enable the central-form-management editor feature flag by default.
-	 *
-	 * Hooked at default priority (10). Higher-priority filters can override
-	 * to disable for specific sites.
-	 *
-	 * @param array $flags Existing feature flags.
-	 * @return array Modified feature flags.
-	 */
-	public static function enable_central_form_management_flag( $flags ) {
-		if ( ! isset( $flags['central-form-management'] ) ) {
-			$flags['central-form-management'] = true;
-		}
-		return $flags;
-	}
-
 	/**
 	 * Remove feedback post type from the allowed post types for related posts.
 	 *
