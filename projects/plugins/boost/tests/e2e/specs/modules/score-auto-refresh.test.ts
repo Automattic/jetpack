@@ -76,7 +76,7 @@ test.describe( 'Auto refresh of speed scores', () => {
 			// The debounce resets when the second module is toggled. Wait for loading to appear
 			// rather than relying on a hard-coded delay that may not account for CI slowness.
 			await expect( page.getByRole( 'heading', { name: 'Loading…' } ) ).toBeVisible( {
-				timeout: 5 * 1000,
+				timeout: 10 * 1000,
 			} );
 			await expect( page.locator( '.jb-score-bar--mobile .jb-score-bar__loading' ) ).toBeVisible();
 			await expect( page.locator( '.jb-score-bar--desktop .jb-score-bar__loading' ) ).toBeVisible();
