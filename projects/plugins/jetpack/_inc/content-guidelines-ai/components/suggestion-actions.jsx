@@ -34,6 +34,12 @@ export default function SuggestionActions( { slug } ) {
 				setOriginal( textarea.value || '' );
 				if ( textarea.offsetHeight > 0 ) {
 					setTextareaHeight( textarea.offsetHeight );
+				} else {
+					// Fallback when textarea is hidden (e.g. collapsed accordion).
+					// Compute height from rows attribute to match the textarea.
+					const rows = parseInt( textarea.getAttribute( 'rows' ), 10 ) || 4;
+					// line-height: 20px, padding: 9px top + 9px bottom, border: 1px + 1px.
+					setTextareaHeight( rows * 20 + 20 );
 				}
 			}
 		}

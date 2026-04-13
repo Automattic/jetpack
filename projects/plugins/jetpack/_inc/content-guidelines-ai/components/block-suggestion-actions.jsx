@@ -39,6 +39,9 @@ export default function BlockSuggestionActions( { blockName } ) {
 				setOriginal( textarea.value || '' );
 				if ( textarea.offsetHeight > 0 ) {
 					setTextareaHeight( textarea.offsetHeight );
+				} else {
+					const rows = parseInt( textarea.getAttribute( 'rows' ), 10 ) || 6;
+					setTextareaHeight( rows * 20 + 20 );
 				}
 			}
 		}
