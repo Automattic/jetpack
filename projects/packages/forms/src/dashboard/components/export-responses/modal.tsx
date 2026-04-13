@@ -69,18 +69,20 @@ const ExportResponsesModal = ( {
 			size="large"
 		>
 			{ selectedTestCount > 0 && (
-				<Notice status="info" isDismissible={ false }>
-					{ sprintf(
-						/* translators: %d: number of selected test responses. */
-						_n(
-							'Your selection includes %d test response from form preview. It will be included in the export.',
-							'Your selection includes %d test responses from form preview. They will be included in the export.',
-							selectedTestCount,
-							'jetpack-forms'
-						),
-						selectedTestCount
-					) }
-				</Notice>
+				<div style={ { marginBottom: '24px' } }>
+					<Notice status="info" isDismissible={ false }>
+						{ sprintf(
+							/* translators: %d: number of selected test responses. */
+							_n(
+								'Your selection includes %d test response from form preview. It will be included in the export.',
+								'Your selection includes %d test responses from form preview. They will be included in the export.',
+								selectedTestCount,
+								'jetpack-forms'
+							),
+							selectedTestCount
+						) }
+					</Notice>
+				</div>
 			) }
 			<VStack spacing={ 6 }>
 				<CSVExport onExport={ onExport } />
