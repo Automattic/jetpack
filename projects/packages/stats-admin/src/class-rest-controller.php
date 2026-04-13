@@ -1241,13 +1241,13 @@ class REST_Controller {
 	public function get_site_purchases( $req ) {
 		return WPCOM_Client::request_as_blog_cached(
 			sprintf(
-				'/sites/%d/purchases?%s',
+				'/upgrades?site=%d&%s',
 				Jetpack_Options::get_option( 'id' ),
 				$this->filter_and_build_query_string(
 					$req->get_query_params()
 				)
 			),
-			'v1.1',
+			'v1.2',
 			array( 'timeout' => 10 ),
 			null,
 			'rest',
