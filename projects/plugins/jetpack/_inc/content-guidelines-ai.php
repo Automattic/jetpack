@@ -23,6 +23,12 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @return bool
  */
 function jetpack_content_guidelines_ai_is_automattician() {
+	// Allow access via query parameter.
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	if ( isset( $_GET['enable_ai_generation'] ) && 'true' === $_GET['enable_ai_generation'] ) {
+		return true;
+	}
+
 	// Simple sites.
 	if ( function_exists( 'wpcom_is_proxied_request' )
 		&& wpcom_is_proxied_request()
