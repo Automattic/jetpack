@@ -20,6 +20,9 @@
 				]
 			}
 		],
+		"packageSources": [
+			"@automattic/number-formatters"
+		],
 		"externalNamespaces": {
 			"wordpress": {
 				"global": "wp",
@@ -28,8 +31,10 @@
 		}
 	},
 	"dependencies": {
+		"@automattic/number-formatters": "workspace:*",
 		"@wordpress/boot": "0.10.0",
 		"@wordpress/data": "10.43.0",
+		"@wordpress/element": "^6.22.0",
 		"@wordpress/i18n": "^6.9.0",
 		"@wordpress/icons": "^12.0.0",
 		"@wordpress/route": "0.9.0",
@@ -38,6 +43,7 @@
 	},
 	"devDependencies": {
 		"@babel/core": "7.29.0",
+		"@types/react": "18.3.28",
 		"@wordpress/build": "0.11.0",
 		"browserslist": "4.28.2"
 	}
