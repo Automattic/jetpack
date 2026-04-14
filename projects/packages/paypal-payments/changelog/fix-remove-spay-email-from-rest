@@ -1,0 +1,4 @@
+Significance: patch
+Type: security
+
+Hide the creators email of the Simple Payments block from the REST endpoints
