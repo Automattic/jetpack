@@ -32,10 +32,15 @@ export default function useSocialMediaConnections() {
 		};
 	}, [] );
 
-	const skippedConnections = useMemo(
-		() => connectionsData.disabledConnections.map( connection => connection.connection_id ),
-		[ connectionsData.disabledConnections ]
-	);
+	const skippedConnections = useMemo( () => {
+		const readyConnectionIds = connectionsData.connectionsReadyToShare.map(
+			connection => connection.connection_id
+		);
+
+		return connectionsData.connections
+			.filter( connection => ! readyConnectionIds.includes( connection.connection_id ) )
+			.map( connection => connection.connection_id );
+	}, [ connectionsData.connections, connectionsData.connectionsReadyToShare ] );
 
 	return useMemo(
 		() => ( {

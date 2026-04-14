@@ -49,10 +49,12 @@ export function ConnectionsToggleList( {
 				const isQuotaBlocked = getDisabledReason( connection ) === 'quota_exceeded';
 
 				const ariaLabel = getA11yLabelForConnectionToggle( connection );
+				const quotaReachedLabel = __( 'Sharing limit reached', 'jetpack-publicize-pkg' );
 
 				const quotaTooltipProps = isQuotaBlocked
 					? {
-							description: __( 'Sharing limit reached', 'jetpack-publicize-pkg' ),
+							label: quotaReachedLabel,
+							description: quotaReachedLabel,
 							showTooltip: true,
 							accessibleWhenDisabled: true,
 					  }
