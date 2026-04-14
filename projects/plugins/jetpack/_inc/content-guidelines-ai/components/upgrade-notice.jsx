@@ -3,8 +3,7 @@ import { Button, Notice } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 
 export default function UpgradeNotice() {
-	const { requireUpgrade: _requireUpgrade } = useAiFeature(); // eslint-disable-line no-unused-vars
-	const requireUpgrade = true; // HACK: force-show for testing checkout URL
+	const { requireUpgrade } = useAiFeature();
 	const { checkoutUrl } = useAICheckout();
 
 	if ( ! requireUpgrade ) {
