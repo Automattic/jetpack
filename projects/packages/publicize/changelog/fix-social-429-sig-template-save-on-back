@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fix edit template changes not saving when using the back arrow or close button.

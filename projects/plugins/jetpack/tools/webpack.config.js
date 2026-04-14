@@ -157,6 +157,7 @@ module.exports = [
 				},
 			},
 			'plugins-page': path.join( __dirname, '../_inc/client', 'plugins-entry.js' ),
+			'network-admin': path.join( __dirname, '../_inc/client', 'network-admin.tsx' ),
 		},
 		plugins: [
 			...sharedWebpackConfig.plugins,

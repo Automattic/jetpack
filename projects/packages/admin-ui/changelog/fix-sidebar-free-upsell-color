@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fix upgrade menu item color on problematic admin color schemes and add build pipeline for CSS assets.

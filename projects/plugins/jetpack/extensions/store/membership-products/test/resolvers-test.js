@@ -103,7 +103,10 @@ describe( 'Membership Products Resolvers', () => {
 			expect( apiFetch ).not.toHaveBeenCalled();
 		} );
 
-		test( 'WP_Error response: calls onError', async () => {
+		test( 'WP_Error response: fails silently (no onError, no dispatch)', async () => {
+			// Email stats are informational — errors should never flash in the
+			// editor (see NL-578).
+			const warnSpy = jest.spyOn( console, 'warn' ).mockImplementation( () => {} );
 			apiFetch.mockResolvedValue( {
 				errors: { rest_forbidden: [ 'Sorry, you are not allowed.' ] },
 			} );
@@ -111,7 +114,26 @@ describe( 'Membership Products Resolvers', () => {
 			const thunk = getTotalEmailsSentCount( 123, 456 );
 			await thunk( { dispatch: mockDispatch, registry: mockRegistry } );
 
-			expect( utils.onError ).toHaveBeenCalled();
+			expect( utils.onError ).not.toHaveBeenCalled();
+			expect( mockDispatch ).not.toHaveBeenCalled();
+			expect( warnSpy ).toHaveBeenCalled();
+			warnSpy.mockRestore();
+		} );
+
+		test( 'apiFetch rejects (e.g. timeout): fails silently', async () => {
+			const warnSpy = jest.spyOn( console, 'warn' ).mockImplementation( () => {} );
+			apiFetch.mockRejectedValue( new Error( 'cURL error 28: Operation timed out' ) );
+
+			const thunk = getTotalEmailsSentCount( 123, 456 );
+			await thunk( { dispatch: mockDispatch, registry: mockRegistry } );
+
+			expect( utils.onError ).not.toHaveBeenCalled();
+			expect( mockDispatch ).not.toHaveBeenCalled();
+			expect( warnSpy ).toHaveBeenCalledWith(
+				'Failed to fetch total emails sent count:',
+				'cURL error 28: Operation timed out'
+			);
+			warnSpy.mockRestore();
 		} );
 	} );
 } );

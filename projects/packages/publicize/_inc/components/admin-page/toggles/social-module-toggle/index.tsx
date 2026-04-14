@@ -11,7 +11,7 @@ import { __, _x } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useCallback } from 'react';
 import { store as socialStore } from '../../../../social-store';
-import { getSocialScriptData, hasSocialPaidFeatures } from '../../../../utils';
+import { getRefreshPlanQuery, getSocialScriptData, hasSocialPaidFeatures } from '../../../../utils';
 import { canToggleSocialModule } from '../../../../utils/misc';
 import ConnectionManagement from '../../../connection-management';
 import ToggleSection from '../toggle-section';
@@ -97,7 +97,7 @@ const SocialModuleToggle: FC = () => {
 					cta={ __( 'Power up Jetpack Social', 'jetpack-publicize-pkg' ) }
 					href={ getRedirectUrl( 'jetpack-social-admin-page-upsell', {
 						site: `${ wpcom.blog_id ?? siteSuffix }`,
-						query: 'redirect_to=admin.php?page=jetpack-social&refresh_plan_data=1',
+						query: getRefreshPlanQuery(),
 					} ) }
 					tooltipText={ __(
 						'Share custom images and videos that capture attention, use our powerful Social Image Generator to create stunning visuals, and access priority support for expert help whenever you need it.',

@@ -5,6 +5,33 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [7.17.0] - 2026-04-13
+### Added
+- Add source filter parameter to feedback REST API for filtering responses by source post ID, with fallback to post_parent for legacy data. [#48027]
+
+### Changed
+- Change header actions to be consistent with other pages. [#48036]
+- Update package dependencies. [#47890] [#47998]
+
+### Fixed
+- Bundle admin-ui base CSS in wp-build output so host applications don't need to load it separately. [#47784]
+- Enable mobile navigation sidebar toggle on all Forms dashboard pages. [#48013]
+- Fix 'Don't show this again' checkbox in the help modal so it only dismisses permanently when clicking 'Got it', not when closing via the X button or Escape key. [#47943]
+- Handle non-string values in the phone field rendering pipeline. [#47970]
+- Handle non-string values in the rating field rendering pipeline. [#47971]
+- Validate the field type before resolving the block icon path. [#47965]
+- Load build.php unconditionally when alpha is enabled, so host applications can integrate Forms routes without manual file loading. [#47997]
+- Prevent fatal error when a non-checkbox field's render value or POST-submitted value is an array. [#48032]
+
+## [7.16.0] - 2026-04-06
+### Changed
+- Clean up old About page images. [#47897]
+- Forms: Allow browsers to lazy-load avatars in responses. [#47900]
+- Update package dependencies. [#47889] [#47892] [#47899]
+
+### Fixed
+- Fix missing margin prop in SelectControl component. [#47904]
+
 ## [7.15.0] - 2026-03-30
 ### Security
 - Gravatar: Do not include email or IP address in Gravatar image URL. [#47779]
@@ -2396,6 +2423,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a new jetpack/forms package [#28409]
 - Added a public load_contact_form method for initializing the contact form module. [#28416]
 
+[7.17.0]: https://github.com/automattic/jetpack-forms/compare/v7.16.0...v7.17.0
+[7.16.0]: https://github.com/automattic/jetpack-forms/compare/v7.15.0...v7.16.0
 [7.15.0]: https://github.com/automattic/jetpack-forms/compare/v7.14.0...v7.15.0
 [7.14.0]: https://github.com/automattic/jetpack-forms/compare/v7.13.0...v7.14.0
 [7.13.0]: https://github.com/automattic/jetpack-forms/compare/v7.12.0...v7.13.0

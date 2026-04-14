@@ -507,6 +507,22 @@ class WooCommerce extends Module {
 		'woocommerce_store_city',
 		'woocommerce_store_postcode',
 		'woocommerce_admin_install_timestamp',
+		'woocommerce_enable_signup_from_checkout_for_subscriptions',
+		'woocommerce_enable_myaccount_registration',
+		'woocommerce_registration_generate_password',
+		'woocommerce_erasure_request_removes_order_data',
+		'woocommerce_erasure_request_removes_subscription_data',
+		'woocommerce_erasure_request_removes_download_data',
+		'woocommerce_allow_bulk_remove_personal_data',
+		'woocommerce_registration_privacy_policy_text',
+		'woocommerce_checkout_privacy_policy_text',
+		'woocommerce_delete_inactive_accounts',
+		'woocommerce_trash_pending_orders',
+		'woocommerce_trash_failed_orders',
+		'woocommerce_trash_cancelled_orders',
+		'woocommerce_anonymize_refunded_orders',
+		'woocommerce_anonymize_completed_orders',
+		'woocommerce_anonymize_ended_subscriptions',
 	);
 
 	/**

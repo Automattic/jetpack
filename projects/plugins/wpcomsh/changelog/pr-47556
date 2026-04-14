@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Gutenberg RTC: Connect to PingHub WebSocket directly using a server-generated JWT token, fixing real-time collaboration on custom-domain Atomic sites with third-party cookie restrictions.

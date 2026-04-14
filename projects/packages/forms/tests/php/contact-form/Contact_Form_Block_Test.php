@@ -375,6 +375,74 @@ class Contact_Form_Block_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Test that register_block registers the jetpack/contact-form block type.
+	 */
+	public function test_register_block() {
+		$registry = WP_Block_Type_Registry::get_instance();
+
+		// Unregister if already registered from a previous test.
+		if ( $registry->is_registered( 'jetpack/contact-form' ) ) {
+			$registry->unregister( 'jetpack/contact-form' );
+		}
+
+		Contact_Form_Block::register_block();
+
+		$this->assertTrue( $registry->is_registered( 'jetpack/contact-form' ) );
+	}
+
+	/**
+	 * Test that maybe_register_blocks_editor_script registers a fallback
+	 * jetpack-blocks-editor script when the Blocks module is inactive.
+	 */
+	public function test_maybe_register_blocks_editor_script_registers_fallback() {
+		// Deregister the script if it exists from a previous test.
+		wp_deregister_script( 'jetpack-blocks-editor' );
+
+		$method = new \ReflectionMethod( Contact_Form_Block::class, 'maybe_register_blocks_editor_script' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+		$method->invoke( null );
+
+		// The fallback script should now be registered.
+		$this->assertTrue( wp_script_is( 'jetpack-blocks-editor', 'registered' ), 'jetpack-blocks-editor script should be registered as a fallback.' );
+
+		// The fallback style should also be registered.
+		$this->assertTrue( wp_style_is( 'jetpack-blocks-editor', 'registered' ), 'jetpack-blocks-editor style should be registered as a fallback.' );
+
+		// Verify the localized Jetpack_Editor_Initial_State data contains expected keys.
+		$scripts = wp_scripts();
+		$data    = $scripts->get_data( 'jetpack-blocks-editor', 'data' );
+
+		$this->assertNotEmpty( $data, 'jetpack-blocks-editor should have localized data.' );
+		$this->assertStringContainsString( 'available_blocks', $data );
+		$this->assertStringContainsString( 'contact-form', $data );
+		$this->assertStringContainsString( 'modules', $data );
+		$this->assertStringContainsString( 'feature_flags', $data );
+	}
+
+	/**
+	 * Test that maybe_register_blocks_editor_script is a no-op when the
+	 * script is already registered.
+	 */
+	public function test_maybe_register_blocks_editor_script_skips_when_already_registered() {
+		// Pre-register the script with a known src so we can verify it was not overwritten.
+		wp_deregister_script( 'jetpack-blocks-editor' );
+		wp_register_script( 'jetpack-blocks-editor', 'https://example.com/original.js', array(), '1.0', true );
+
+		$method = new \ReflectionMethod( Contact_Form_Block::class, 'maybe_register_blocks_editor_script' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+		$method->invoke( null );
+
+		// The original registration should be untouched.
+		$scripts = wp_scripts();
+		$script  = $scripts->registered['jetpack-blocks-editor'];
+		$this->assertSame( 'https://example.com/original.js', $script->src, 'Pre-existing script registration should not be overwritten.' );
+	}
+
+	/**
 	 * Test render_email with valid attributes.
 	 */
 	public function test_render_email_with_valid_attributes() {

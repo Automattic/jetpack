@@ -23,7 +23,7 @@ const registerConnector =
 	connectors.__experimentalRegisterConnector || connectors.registerConnector;
 const ConnectorItem = connectors.__experimentalConnectorItem || connectors.ConnectorItem;
 
-const { createElement, useState } = window.wp.element;
+const { createElement, useState, useRef } = window.wp.element;
 const { __ } = window.wp.i18n;
 const { Button, Modal } = window.wp.components;
 const HStack = window.wp.components.__experimentalHStack || window.wp.components.HStack;
@@ -134,6 +134,35 @@ function addSkipPricing( url ) {
 	} catch {
 		return url;
 	}
+}
+
+/**
+ * Focus an element once #wpwrap no longer has aria-hidden.
+ *
+ * The blur-before-open pattern on modal triggers and this helper are both
+ * workarounds for a Gutenberg bug where aria-hidden is applied to #wpwrap
+ * before focus has moved into the modal portal, causing a browser console warning.
+ *
+ * @see https://github.com/WordPress/gutenberg/issues/41503
+ *
+ * @param {HTMLElement|null} element - Element to focus.
+ */
+function focusWhenReady( element ) {
+	if ( ! element ) {
+		return;
+	}
+	const wpwrap = document.getElementById( 'wpwrap' );
+	if ( ! wpwrap || ! wpwrap.hasAttribute( 'aria-hidden' ) ) {
+		element.focus();
+		return;
+	}
+	const observer = new MutationObserver( () => {
+		if ( ! wpwrap.hasAttribute( 'aria-hidden' ) ) {
+			observer.disconnect();
+			element.focus();
+		}
+	} );
+	observer.observe( wpwrap, { attributes: true, attributeFilter: [ 'aria-hidden' ] } );
 }
 
 /* ── Small presentational components ────────────────────────────── */
@@ -342,7 +371,13 @@ function ConnectPrompt( { onConnect, isConnecting, isDisconnecting } ) {
 function ConfirmationModal( { title, message, onConfirm, onCancel } ) {
 	return createElement(
 		Modal,
-		{ title, onRequestClose: onCancel, size: 'small' },
+		{
+			title,
+			onRequestClose: onCancel,
+			size: 'small',
+			role: 'alertdialog',
+			className: 'wpcom-connector__confirm-modal',
+		},
 		createElement(
 			VStack,
 			{ spacing: 5 },
@@ -352,7 +387,7 @@ function ConfirmationModal( { title, message, onConfirm, onCancel } ) {
 				{ spacing: 3, justify: 'flex-end' },
 				createElement(
 					Button,
-					{ variant: 'tertiary', size: 'compact', onClick: onCancel },
+					{ variant: 'tertiary', size: 'compact', onClick: onCancel, autoFocus: true },
 					__( 'Cancel', 'jetpack-connection' )
 				),
 				createElement(
@@ -398,6 +433,7 @@ function SiteDetailsModal( { onClose } ) {
 			title: __( 'Connection details', 'jetpack-connection' ),
 			onRequestClose: onClose,
 			size: 'small',
+			focusOnMount: 'firstElement',
 		},
 		createElement(
 			'div',
@@ -433,6 +469,10 @@ function ExpandedDetails( { isConnecting = false, onConnect = null } ) {
 	const [ showDetailsModal, setShowDetailsModal ] = useState( false );
 	const [ pendingConfirm, setPendingConfirm ] = useState( null );
 	const [ actionError, setActionError ] = useState( null );
+	const detailsLinkRef = useRef( null );
+	const confirmTriggerRef = useRef( null );
+	const disconnectSiteRef = useRef( null );
+	const disconnectAccountRef = useRef( null );
 
 	const executeDisconnect = async () => {
 		setPendingConfirm( null );
@@ -469,6 +509,7 @@ function ExpandedDetails( { isConnecting = false, onConnect = null } ) {
 	};
 
 	const handleDisconnect = () => {
+		confirmTriggerRef.current = disconnectSiteRef.current;
 		setPendingConfirm( {
 			title: __( 'Disconnect site', 'jetpack-connection' ),
 			message: __(
@@ -519,6 +560,7 @@ function ExpandedDetails( { isConnecting = false, onConnect = null } ) {
 	};
 
 	const handleUnlinkUser = () => {
+		confirmTriggerRef.current = disconnectAccountRef.current;
 		const message =
 			currentUser?.isOwner && currentUser?.hasOtherConnectedUsers
 				? __(
@@ -554,6 +596,7 @@ function ExpandedDetails( { isConnecting = false, onConnect = null } ) {
 							: createElement(
 									Button,
 									{
+										ref: disconnectAccountRef,
 										variant: 'link',
 										isDestructive: true,
 										isBusy: isUnlinking,
@@ -610,9 +653,12 @@ function ExpandedDetails( { isConnecting = false, onConnect = null } ) {
 				? createElement(
 						Button,
 						{
+							ref: detailsLinkRef,
 							variant: 'link',
-							size: 'compact',
-							onClick: () => setShowDetailsModal( true ),
+							onClick: e => {
+								e.currentTarget.blur();
+								setShowDetailsModal( true );
+							},
 							className: 'wpcom-connector__details-link',
 						},
 						__( 'Connection details', 'jetpack-connection' )
@@ -623,6 +669,7 @@ function ExpandedDetails( { isConnecting = false, onConnect = null } ) {
 				: createElement(
 						Button,
 						{
+							ref: disconnectSiteRef,
 							variant: 'secondary',
 							isDestructive: true,
 							size: 'compact',
@@ -638,7 +685,10 @@ function ExpandedDetails( { isConnecting = false, onConnect = null } ) {
 		// Modals (rendered but visually hidden until triggered).
 		showDetailsModal && siteDetails
 			? createElement( SiteDetailsModal, {
-					onClose: () => setShowDetailsModal( false ),
+					onClose: () => {
+						setShowDetailsModal( false );
+						focusWhenReady( detailsLinkRef.current );
+					},
 			  } )
 			: null,
 		pendingConfirm
@@ -646,7 +696,10 @@ function ExpandedDetails( { isConnecting = false, onConnect = null } ) {
 					title: pendingConfirm.title,
 					message: pendingConfirm.message,
 					onConfirm: pendingConfirm.onConfirm,
-					onCancel: () => setPendingConfirm( null ),
+					onCancel: () => {
+						setPendingConfirm( null );
+						focusWhenReady( confirmTriggerRef.current );
+					},
 			  } )
 			: null
 	);
