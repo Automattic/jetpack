@@ -263,13 +263,13 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 
 	// Default tooltip rendering function
 	const renderDefaultTooltip = ( step: FunnelStep ) => (
-		<>
+		<Stack direction="column" align="flex-start" gap="xs">
 			<div className={ styles[ 'tooltip-title' ] }>{ step.label }</div>
 			<div className={ styles[ 'tooltip-content' ] }>
 				{ formatPercentage( step.rate ) }
 				{ ` • ${ step.count ?? 'no' } items` }
 			</div>
-		</>
+		</Stack>
 	);
 
 	// Validate data
@@ -322,6 +322,7 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 		<>
 			<Stack
 				direction="column"
+				gap="xl"
 				data-testid="conversion-funnel-chart"
 				ref={ node => {
 					// Set containerRef for @visx coordinate system
@@ -344,27 +345,31 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 						changeColor,
 					} )
 				) : (
-					<div className={ styles[ 'main-metric' ] }>{ renderDefaultMainMetric() }</div>
+					<Stack direction="row" align="baseline" gap="sm" className={ styles[ 'main-metric' ] }>
+						{ renderDefaultMainMetric() }
+					</Stack>
 				) }
 
 				{ /* Funnel Steps */ }
-				<div className={ styles[ 'funnel-container' ] }>
+				<Stack direction="row" align="flex-end" gap="lg" className={ styles[ 'funnel-container' ] }>
 					{ steps.map( ( step, index ) => {
 						const barHeight = ( step.rate / maxRate ) * 100;
 						const { isBlurred } = getStepState( step.id );
 
 						return (
-							<div
+							<Stack
 								key={ step.id }
+								direction="column"
 								data-testid="funnel-step"
 								className={ clsx(
 									styles[ 'funnel-step' ],
 									isColorPaletteResolved && styles[ 'funnel-step--animated' ],
 									isBlurred && styles[ 'funnel-step--blurred' ]
 								) }
+								gap="xl"
 							>
 								{ /* Step Label and Rate */ }
-								<div className={ styles[ 'step-header' ] }>
+								<div>
 									{ renderStepLabel ? (
 										renderStepLabel( {
 											step,
@@ -388,7 +393,9 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 								</div>
 
 								{ /* Funnel Bar */ }
-								<div
+								<Stack
+									direction="column"
+									justify="flex-end"
 									className={ styles[ 'bar-container' ] }
 									onClick={ stepHandlers.get( step.id )?.onClick }
 									onKeyDown={ stepHandlers.get( step.id )?.onKeyDown }
@@ -407,11 +414,11 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 											backgroundColor: barColor,
 										} }
 									/>
-								</div>
-							</div>
+								</Stack>
+							</Stack>
 						);
 					} ) }
-				</div>
+				</Stack>
 			</Stack>
 
 			{ /* Tooltip Portal */ }

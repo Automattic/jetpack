@@ -7,10 +7,6 @@
 }
 
 .main-metric {
-	display: flex;
-	align-items: baseline;
-	gap: 8px;
-	margin-bottom: 24px;
 	height: 20px;
 }
 
@@ -36,9 +32,6 @@
 }
 
 .funnel-container {
-	display: flex;
-	gap: 16px;
-	align-items: flex-end;
 	flex: 1;
 	min-height: 200px;
 	width: 100%;
@@ -47,8 +40,6 @@
 .funnel-step {
 	flex: 1 1 0;
 	min-width: 0;
-	display: flex;
-	flex-direction: column;
 	height: 100%;
 
 	&--animated {
@@ -58,10 +49,6 @@
 	&--blurred {
 		opacity: 0.3;
 	}
-}
-
-.step-header {
-	margin-bottom: 24px;
 }
 
 .step-label {
@@ -88,8 +75,6 @@
 
 .bar-container {
 	flex: 1;
-	display: flex;
-	align-items: flex-end;
 	border-radius: 4px;
 	position: relative;
 	cursor: pointer;
@@ -116,12 +101,6 @@
 }
 
 .tooltip-wrapper {
-	display: inline-flex;
-	flex-direction: column;
-	justify-content: center;
-	align-items: flex-start;
-	gap: 4px;
-
 	border-bottom: 1px solid var(--Gray-Gray-5, #dcdcde);
 	background: var(--black-white-white, #fff);
 
