@@ -1,14 +1,4 @@
 {
-	"compilerOptions": {
-		"target": "ES2020",
-		"jsx": "react-jsx",
-		"strict": true,
-		"esModuleInterop": true,
-		"skipLibCheck": true,
-		"forceConsistentCasingInFileNames": true,
-		"outDir": "build-module",
-		"rootDir": "."
-	},
-	"include": [ "routes/**/*" ],
-	"exclude": [ "node_modules", "build", "build-module" ]
+	"extends": "jetpack-js-tools/tsconfig.base.json",
+	"include": [ "routes/**/*", "packages/**/*" ]
 }
