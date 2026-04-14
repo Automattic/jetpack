@@ -7,6 +7,7 @@ import { store as noticesStore } from '@wordpress/notices';
 import { STORE_NAME } from '../constants';
 import { suggestGuidelines } from '../lib/api';
 import { acceptBlockSuggestion } from '../lib/dom';
+import { recordGuidelinesEvent } from '../lib/tracks';
 import { AI_STORE_NAME } from '../store';
 
 export default function BlockSuggestionButtons( { blockName } ) {
@@ -31,6 +32,9 @@ export default function BlockSuggestionButtons( { blockName } ) {
 	);
 
 	const handleGenerate = useCallback( async () => {
+		const action = saved ? 'improve' : 'generate';
+		recordGuidelinesEvent( 'generate', { type: 'block', slug: blockName, action } );
+
 		const modal = document.querySelector( '.block-guideline-modal' );
 		const textarea = modal?.querySelector( '.components-textarea-control__input' );
 		const currentText = textarea?.value || '';
@@ -50,13 +54,22 @@ export default function BlockSuggestionButtons( { blockName } ) {
 		} finally {
 			stopSectionLoading( blockName );
 		}
-	}, [ blockName, startSectionLoading, stopSectionLoading, setSuggestion, createErrorNotice ] );
+	}, [
+		blockName,
+		saved,
+		startSectionLoading,
+		stopSectionLoading,
+		setSuggestion,
+		createErrorNotice,
+	] );
 
 	const handleAccept = useCallback( () => {
+		recordGuidelinesEvent( 'accept', { type: 'block', slug: blockName } );
 		acceptBlockSuggestion( blockName, suggestion, clearSuggestion );
 	}, [ blockName, suggestion, clearSuggestion ] );
 
 	const handleDismiss = useCallback( () => {
+		recordGuidelinesEvent( 'dismiss', { type: 'block', slug: blockName } );
 		clearSuggestion( blockName );
 	}, [ blockName, clearSuggestion ] );
 

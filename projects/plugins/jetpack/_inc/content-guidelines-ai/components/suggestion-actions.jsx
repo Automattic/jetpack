@@ -3,6 +3,7 @@ import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { STORE_NAME } from '../constants';
+import { recordGuidelinesEvent } from '../lib/tracks';
 import { AI_STORE_NAME } from '../store';
 import DiffView from './diff-view';
 
@@ -52,11 +53,13 @@ export default function SuggestionActions( { slug } ) {
 	}, [ slug, suggestion, sectionLoading ] );
 
 	const handleAccept = useCallback( () => {
+		recordGuidelinesEvent( 'accept', { type: 'section', slug } );
 		setGuideline( slug, suggestion );
 		clearSuggestion( slug );
 	}, [ slug, suggestion, setGuideline, clearSuggestion ] );
 
 	const handleDismiss = useCallback( () => {
+		recordGuidelinesEvent( 'dismiss', { type: 'section', slug } );
 		clearSuggestion( slug );
 	}, [ slug, clearSuggestion ] );
 

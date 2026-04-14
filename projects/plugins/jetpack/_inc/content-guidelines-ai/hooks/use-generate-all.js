@@ -5,6 +5,7 @@ import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
 import { STORE_NAME, VALID_SECTIONS } from '../constants';
 import { suggestGuidelines } from '../lib/api';
+import { recordGuidelinesEvent } from '../lib/tracks';
 import { AI_STORE_NAME } from '../store';
 
 /**
@@ -27,6 +28,11 @@ export default function useGenerateAll() {
 		if ( requireUpgrade ) {
 			return;
 		}
+
+		const allEmpty = VALID_SECTIONS.every( slug => ! allGuidelines[ slug ] );
+		recordGuidelinesEvent( 'generate_all', {
+			action: allEmpty ? 'generate' : 'improve',
+		} );
 
 		startLoading();
 		try {

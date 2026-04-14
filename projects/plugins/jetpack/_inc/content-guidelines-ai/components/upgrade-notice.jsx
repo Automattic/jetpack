@@ -1,10 +1,18 @@
 import { useAICheckout, useAiFeature } from '@automattic/jetpack-ai-client';
 import { Button, Notice } from '@wordpress/components';
+import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { recordAiEvent } from '../lib/tracks';
 
 export default function UpgradeNotice() {
 	const { requireUpgrade } = useAiFeature();
 	const { checkoutUrl } = useAICheckout();
+
+	const handleUpgradeClick = useCallback( () => {
+		recordAiEvent( 'jetpack_ai_upgrade_button', {
+			placement: 'content-guidelines',
+		} );
+	}, [] );
 
 	if ( ! requireUpgrade ) {
 		return null;
@@ -23,7 +31,12 @@ export default function UpgradeNotice() {
 				) }
 			</p>
 			{ checkoutUrl && (
-				<Button variant="primary" href={ checkoutUrl } target="_blank">
+				<Button
+					variant="primary"
+					href={ checkoutUrl }
+					target="_blank"
+					onClick={ handleUpgradeClick }
+				>
 					{ __( 'Upgrade', 'jetpack' ) }
 				</Button>
 			) }
