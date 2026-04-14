@@ -143,8 +143,7 @@ abstract class Hybrid_Product extends Product {
 		$result  = parent::deactivate();
 		$modules = new Modules();
 
-		// Still treat a module as active when the option lists it, even if it's currently marked unavailable — the option is the source of truth for whether the product is still on.
-		if ( ! empty( static::$module_name ) && $modules->is_active( static::$module_name, false ) ) {
+		if ( ! empty( static::$module_name ) && $modules->is_active( static::$module_name ) ) {
 			if ( ! $modules->deactivate( static::$module_name ) ) {
 				return new WP_Error(
 					'module_deactivation_failed',
