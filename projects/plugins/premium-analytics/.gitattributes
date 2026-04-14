@@ -15,3 +15,5 @@
 changelog/**      production-exclude
 tests/**          production-exclude
 .phpcsignore      production-exclude
+.phpcs.dir.xml    production-exclude
+/composer.lock    production-exclude
