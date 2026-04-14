@@ -5,8 +5,11 @@ import { __ } from '@wordpress/i18n';
 import { recordAiEvent } from '../lib/tracks';
 
 export default function UpgradeNotice() {
-	const { requireUpgrade } = useAiFeature();
+	const { requireUpgrade, loading, currentTier } = useAiFeature();
 	const { checkoutUrl } = useAICheckout();
+
+	// eslint-disable-next-line no-console
+	console.log( '[guidelines-ai] useAiFeature:', { requireUpgrade, loading, currentTier } );
 
 	const handleUpgradeClick = useCallback( () => {
 		recordAiEvent( 'jetpack_ai_upgrade_button', {
