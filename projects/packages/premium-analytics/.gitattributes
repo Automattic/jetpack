@@ -14,3 +14,6 @@ changelog/**      production-exclude
 .phpcs.dir.xml    production-exclude
 tests/**          production-exclude
 .phpcsignore      production-exclude
+routes/**         production-exclude
+packages/**       production-exclude
+shims/**          production-exclude
