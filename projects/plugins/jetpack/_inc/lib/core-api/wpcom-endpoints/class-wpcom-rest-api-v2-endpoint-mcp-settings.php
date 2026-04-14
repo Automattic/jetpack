@@ -140,7 +140,7 @@ class WPCOM_REST_API_V2_Endpoint_MCP_Settings extends WP_REST_Controller {
 				if ( ! array_key_exists( 'readonly', $ability ) ) {
 					$ability['readonly'] = ! (bool) preg_match( '/-(create|update|delete)$/i', $ability['name'] );
 				}
-				$account_abilities[ $ability['name'] ] = $ability;
+				$account_abilities[ (string) $ability['name'] ] = $ability;
 
 				// `site` subset: tools marked site_context=true by WPCOM are the only ones
 				// relevant to the site-level settings UI. getSiteContextToolIds() in JS uses
@@ -156,7 +156,14 @@ class WPCOM_REST_API_V2_Endpoint_MCP_Settings extends WP_REST_Controller {
 		// Fall back to the enabled-abilities heuristic only if the field is absent.
 		$site_level_enabled = isset( $body['site_level_enabled'] )
 			? (bool) $body['site_level_enabled']
-			: ! empty( array_filter( (array) $account_abilities, fn( $a ) => ! empty( $a['enabled'] ) ) );
+			: ! empty(
+				array_filter(
+					(array) $account_abilities,
+					function ( $a ) {
+						return ! empty( $a['enabled'] );
+					}
+				)
+			);
 
 		// site_level_enabled_default mirrors Calypso: same value as site_level_enabled
 		// when derived from WPCOM (no per-site override concept at this layer).
