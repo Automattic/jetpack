@@ -3460,6 +3460,40 @@ importers:
 
   projects/packages/post-media: {}
 
+  projects/packages/premium-analytics:
+    dependencies:
+      '@wordpress/boot':
+        specifier: 0.10.0
+        version: 0.10.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.7.0)
+      '@wordpress/data':
+        specifier: 10.43.0
+        version: 10.43.0(react@18.3.1)
+      '@wordpress/i18n':
+        specifier: ^6.9.0
+        version: 6.16.0
+      '@wordpress/icons':
+        specifier: ^11.3.0
+        version: 11.8.0(react@18.3.1)
+      '@wordpress/route':
+        specifier: 0.9.0
+        version: 0.9.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      react:
+        specifier: 18.3.1
+        version: 18.3.1
+      react-dom:
+        specifier: 18.3.1
+        version: 18.3.1(react@18.3.1)
+    devDependencies:
+      '@babel/core':
+        specifier: 7.29.0
+        version: 7.29.0
+      '@wordpress/build':
+        specifier: 0.11.0
+        version: 0.11.0(@babel/core@7.29.0)(@wordpress/boot@0.10.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.7.0))(@wordpress/route@0.9.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(browserslist@4.25.2)
+      browserslist:
+        specifier: 4.25.2
+        version: 4.25.2
+
   projects/packages/protect-models: {}
 
   projects/packages/protect-status: {}
@@ -10554,6 +10588,12 @@ packages:
     peerDependencies:
       react: ^18
 
+  '@wordpress/icons@11.8.0':
+    resolution: {integrity: sha512-ZMNHApHMmPLpNnNLfPLRf6XWoPhZFNKFKdpMlhA6Lx04J1hLVyLRz8PuM+1o3ByxD2ZiExfSRhdmI+7VvEg6DA==}
+    engines: {node: '>=18.12.0', npm: '>=8.19.2'}
+    peerDependencies:
+      react: ^18.0.0
+
   '@wordpress/icons@12.0.0':
     resolution: {integrity: sha512-bDYsBGb1Ig/HWMt7aNrFWeABrD2wbReMazn9cZxUnXTf9ZFFrmG8PEdwmmJErDiEH9MvvAzLxadcNylWNNgeZA==}
     engines: {node: '>=18.12.0', npm: '>=8.19.2'}
@@ -11317,6 +11357,11 @@ packages:
     hasBin: true
     peerDependencies:
       browserslist: '*'
+
+  browserslist@4.25.2:
+    resolution: {integrity: sha512-0si2SJK3ooGzIawRu61ZdPCO1IncZwS8IzuX73sPZsXW6EQ/w/DAfPyKI8l1ETTCr2MnvqWitmlCUxgdul45jA==}
+    engines: {node: ^6 || ^7 || ^8 || ^9 || ^10 || ^11 || ^12 || >=13.7}
+    hasBin: true
 
   browserslist@4.28.2:
     resolution: {integrity: sha512-48xSriZYYg+8qXna9kwqjIVzuQxi+KYWp2+5nCYnYKPTr0LvD89Jqk2Or5ogxz0NUMfIjhh2lIUX/LyX9B4oIg==}
@@ -23749,6 +23794,31 @@ snapshots:
       - browserslist
       - supports-color
 
+  '@wordpress/build@0.11.0(@babel/core@7.29.0)(@wordpress/boot@0.10.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.7.0))(@wordpress/route@0.9.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(browserslist@4.25.2)':
+    dependencies:
+      '@emotion/babel-plugin': 11.13.5
+      autoprefixer: 10.4.27(postcss@8.5.6)
+      browserslist-to-esbuild: 2.1.1(browserslist@4.25.2)
+      change-case: 4.1.2
+      chokidar: 4.0.3
+      cssnano: 7.1.4(postcss@8.5.6)
+      esbuild: 0.27.4
+      esbuild-plugin-babel: 0.2.3(@babel/core@7.29.0)
+      esbuild-sass-plugin: 3.3.1(esbuild@0.27.4)(sass-embedded@1.97.3)
+      fast-glob: 3.3.3
+      moment-timezone: 0.5.48
+      postcss: 8.5.6
+      postcss-modules: 6.0.1(postcss@8.5.6)
+      rtlcss: 4.3.0
+      sass-embedded: 1.97.3
+    optionalDependencies:
+      '@wordpress/boot': 0.10.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.7.0)
+      '@wordpress/route': 0.9.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+    transitivePeerDependencies:
+      - '@babel/core'
+      - browserslist
+      - supports-color
+
   '@wordpress/commands@1.43.0(@types/react-dom@18.3.7(@types/react@18.3.28))(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@wordpress/base-styles': 6.19.0
@@ -24885,6 +24955,13 @@ snapshots:
       '@babel/runtime': 7.29.2
       '@wordpress/element': 6.43.0
       '@wordpress/primitives': 4.43.0(react@18.3.1)
+      react: 18.3.1
+
+  '@wordpress/icons@11.8.0(react@18.3.1)':
+    dependencies:
+      '@wordpress/element': 6.43.0
+      '@wordpress/primitives': 4.43.0(react@18.3.1)
+      change-case: 4.1.2
       react: 18.3.1
 
   '@wordpress/icons@12.0.0(react@18.3.1)':
@@ -26355,10 +26432,22 @@ snapshots:
     dependencies:
       fill-range: 7.1.1
 
+  browserslist-to-esbuild@2.1.1(browserslist@4.25.2):
+    dependencies:
+      browserslist: 4.25.2
+      meow: 13.2.0
+
   browserslist-to-esbuild@2.1.1(browserslist@4.28.2):
     dependencies:
       browserslist: 4.28.2
       meow: 13.2.0
+
+  browserslist@4.25.2:
+    dependencies:
+      caniuse-lite: 1.0.30001787
+      electron-to-chromium: 1.5.335
+      node-releases: 2.0.37
+      update-browserslist-db: 1.2.3(browserslist@4.25.2)
 
   browserslist@4.28.2:
     dependencies:
@@ -33420,6 +33509,12 @@ snapshots:
       '@unrs/resolver-binding-win32-arm64-msvc': 1.11.1
       '@unrs/resolver-binding-win32-ia32-msvc': 1.11.1
       '@unrs/resolver-binding-win32-x64-msvc': 1.11.1
+
+  update-browserslist-db@1.2.3(browserslist@4.25.2):
+    dependencies:
+      browserslist: 4.25.2
+      escalade: 3.2.0
+      picocolors: 1.1.1
 
   update-browserslist-db@1.2.3(browserslist@4.28.2):
     dependencies:

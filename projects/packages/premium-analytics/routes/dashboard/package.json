@@ -1,0 +1,11 @@
+{
+	"private": true,
+	"name": "dashboard-route",
+	"route": {
+		"path": "/",
+		"page": "jetpack-premium-analytics"
+	},
+	"dependencies": {
+		"@wordpress/i18n": "^6.9.0"
+	}
+}
