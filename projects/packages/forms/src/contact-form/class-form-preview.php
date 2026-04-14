@@ -35,7 +35,7 @@ class Form_Preview {
 	 *
 	 * @var string
 	 */
-	const PREVIEW_NONCE_QUERY_VAR = 'preview_nonce';
+	const PREVIEW_NONCE_QUERY_VAR = 'jetpack_form_preview_nonce';
 
 	/**
 	 * Flag to track if we're in preview mode.
