@@ -368,6 +368,14 @@ class Jetpack_AI_Sidebar {
 			return $providers;
 		}
 
+		// Don't register if the IIFE bundle cannot be loaded. The ESM wrapper
+		// re-exports from window.__JetpackAIProvider at import time; if the
+		// IIFE never ran, toolProvider is still a truthy Proxy and AM would
+		// call getAbilities() on it and get undefined, breaking the merge.
+		if ( ! self::get_ai_sidebar_asset_data() ) {
+			return $providers;
+		}
+
 		// Register as AM provider via CDN-hosted ESM wrapper.
 		// AM dynamically imports this module to merge tools, suggestions, and components.
 		// No ?ver= needed — the wrapper re-exports from window.__JetpackAIProvider

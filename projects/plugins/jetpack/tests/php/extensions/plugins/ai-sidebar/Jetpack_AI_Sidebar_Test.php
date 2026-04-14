@@ -273,17 +273,18 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	// ──────────────────────────────────────────────────
 
 	/**
-	 * Test that register_provider adds provider URL and enqueues scripts.
+	 * Test that register_provider adds provider URL (does not enqueue assets).
 	 */
-	public function test_register_provider_adds_url_and_enqueues() {
+	public function test_register_provider_adds_url() {
 		$this->cache_sidebar_asset_data();
 
 		$providers = Jetpack_AI_Sidebar::register_provider( array() );
 
 		$this->assertCount( 1, $providers );
 		$this->assertStringContainsString( 'jetpack-ai-sidebar.provider.mjs', $providers[0] );
-		$this->assertTrue( wp_script_is( 'jetpack-ai-provider', 'enqueued' ) );
-		$this->assertTrue( wp_style_is( 'jetpack-ai-provider', 'enqueued' ) );
+		// Asset enqueueing is handled by maybe_enqueue_abilities_script, not register_provider.
+		$this->assertFalse( wp_script_is( 'jetpack-ai-provider', 'enqueued' ) );
+		$this->assertFalse( wp_style_is( 'jetpack-ai-provider', 'enqueued' ) );
 	}
 
 	/**
@@ -303,8 +304,8 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		$existing  = array( 'https://example.com/other-provider.mjs' );
 		$providers = Jetpack_AI_Sidebar::register_provider( $existing );
 
-		// Should still have our provider because of the hardcoded fallback.
-		$this->assertCount( 2, $providers );
+		// No hardcoded fallback — skip registration when asset manifest is unavailable.
+		$this->assertCount( 1, $providers );
 		$this->assertSame( 'https://example.com/other-provider.mjs', $providers[0] );
 	}
 
@@ -328,9 +329,10 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	// ──────────────────────────────────────────────────
 
 	/**
-	 * Test that AI sidebar asset data is cached in a transient.
+	 * Test that AI sidebar asset data is cached and used when enqueueing.
 	 */
 	public function test_sidebar_asset_data_is_cached() {
+		$this->set_block_editor_screen();
 		$this->cache_sidebar_asset_data(
 			array(
 				'version'      => 'cached-version',
@@ -338,10 +340,9 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 			)
 		);
 
-		// Trigger register_provider which calls get_ai_sidebar_asset_data().
-		Jetpack_AI_Sidebar::register_provider( array() );
+		// Enqueue is handled by maybe_enqueue_abilities_script, not register_provider.
+		Jetpack_AI_Sidebar::maybe_enqueue_abilities_script();
 
-		// The enqueued script should use the cached version.
 		$this->assertTrue( wp_script_is( 'jetpack-ai-provider', 'enqueued' ) );
 		$registered = $GLOBALS['wp_scripts']->registered['jetpack-ai-provider'] ?? null;
 		$this->assertNotNull( $registered );
@@ -349,9 +350,10 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test that AM asset data uses hardcoded fallback when remote fetch fails.
+	 * Test that enqueue is skipped when asset manifest fetch fails.
 	 */
-	public function test_sidebar_asset_data_uses_hardcoded_fallback() {
+	public function test_sidebar_asset_data_skips_enqueue_when_fetch_fails() {
+		$this->set_block_editor_screen();
 		// Block remote fetches.
 		add_filter(
 			'pre_http_request',
@@ -360,15 +362,12 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 			}
 		);
 
+		Jetpack_AI_Sidebar::maybe_enqueue_abilities_script();
+
+		$this->assertFalse( wp_script_is( 'jetpack-ai-provider', 'enqueued' ) );
+
 		$providers = Jetpack_AI_Sidebar::register_provider( array() );
-
-		// Should still work via hardcoded fallback.
-		$this->assertCount( 1, $providers );
-		$this->assertTrue( wp_script_is( 'jetpack-ai-provider', 'enqueued' ) );
-
-		$registered = $GLOBALS['wp_scripts']->registered['jetpack-ai-provider'] ?? null;
-		$this->assertNotNull( $registered );
-		$this->assertSame( 'fallback', $registered->ver );
+		$this->assertCount( 0, $providers );
 	}
 
 	// ──────────────────────────────────────────────────
