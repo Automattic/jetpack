@@ -20,6 +20,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
 use WorDBless\Users as WorDBless_Users;
+use WP_Error;
 
 /**
  * Unit tests for Hybrid_Product::deactivate().
@@ -211,7 +212,11 @@ class Hybrid_Product_Deactivate_Test extends TestCase {
 	 * deactivated as a side effect, not just the Jetpack module.
 	 */
 	public function test_deactivate_still_deactivates_the_plugin() {
-		activate_plugins( Videopress::get_installed_plugin_filename() );
+		$plugin_filename = Videopress::get_installed_plugin_filename();
+		if ( null === $plugin_filename ) {
+			$this->fail( 'Precondition: Videopress mock plugin should be installed.' );
+		}
+		activate_plugins( $plugin_filename );
 		$this->set_module_active( 'videopress' );
 
 		$this->assertTrue( Videopress::is_standalone_plugin_active() );
@@ -222,6 +227,28 @@ class Hybrid_Product_Deactivate_Test extends TestCase {
 			Videopress::is_standalone_plugin_active(),
 			'parent::deactivate() should have deactivated the standalone plugin.'
 		);
+	}
+
+	/**
+	 * When Modules::deactivate() fails to persist, Hybrid_Product::deactivate()
+	 * surfaces the failure as a WP_Error so the REST handler can return a 400.
+	 */
+	public function test_deactivate_returns_wp_error_when_module_deactivate_fails() {
+		$this->set_module_active( 'videopress' );
+
+		$block_update = static function ( $new_value, $old_value ) {
+			return $old_value;
+		};
+		add_filter( 'pre_update_option_jetpack_active_modules', $block_update, 10, 2 );
+
+		try {
+			$result = Videopress::deactivate();
+		} finally {
+			remove_filter( 'pre_update_option_jetpack_active_modules', $block_update, 10 );
+		}
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( 'module_deactivation_failed', $result->get_error_code() );
 	}
 
 	/**
