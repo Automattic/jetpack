@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Newsletter: remove the old Jetpack Settings newsletter UI. The Newsletter settings tab is gone and the /newsletter settings route now redirects to the new Jetpack > Newsletter settings page.

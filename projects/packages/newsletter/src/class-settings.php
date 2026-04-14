@@ -40,22 +40,6 @@ class Settings {
 	}
 
 	/**
-	 * Determine whether to expose the new settings UI to users.
-	 *
-	 * @return bool
-	 */
-	private function expose_to_users() {
-		/**
-		 * Enables the new in-development newsletter settings UI in wp-admin.
-		 *
-		 * @since 15.3.0
-		 *
-		 * @param bool $enabled Whether to enable the new newsletter settings UI. Default true.
-		 */
-		return apply_filters( 'jetpack_wp_admin_newsletter_settings_enabled', true );
-	}
-
-	/**
 	 * Check if the subscriptions module is active.
 	 *
 	 * @return bool
@@ -88,23 +72,17 @@ class Settings {
 	 * Subscribe to necessary hooks.
 	 */
 	public function init_hooks() {
-		// Add the Reading settings notice regardless of the new UI feature flag,
-		// as long as subscriptions are active.
+		// Add the Reading settings notice as long as subscriptions are active.
 		if ( $this->is_subscriptions_active() ) {
 			add_action( 'admin_init', array( $this, 'add_reading_page_notice' ) );
 		}
 
 		// Hijack the config URLs to point to our settings page.
 		// Priority 20 to override the default URL set in subscriptions.php.
-		// Check expose_to_users() lazily in the callback so filters registered
-		// after init() (e.g. by jetpack-mu-wpcom) are available.
 		add_filter(
 			'jetpack_module_configuration_url_subscriptions',
-			function ( $url ) {
-				if ( ! $this->expose_to_users() ) {
-					return $url;
-				}
-				return Urls::get_newsletter_settings_url( ( new Status() )->get_site_suffix() );
+			function () {
+				return Urls::get_newsletter_settings_url();
 			},
 			20
 		);
@@ -119,8 +97,6 @@ class Settings {
 		}
 
 		// Add admin menu item.
-		// The expose_to_users() and is_connected() checks are deferred to add_wp_admin_menu()
-		// so that filters registered after init() are available when admin_menu fires.
 		// Use priority 999 to ensure menu items are queued BEFORE Admin_Menu::admin_menu_hook_callback
 		// runs at priority 1000 to process all queued items.
 		add_action( 'admin_menu', array( $this, 'add_wp_admin_menu' ), 999 );
@@ -131,15 +107,8 @@ class Settings {
 	 *
 	 * Note: This method is NOT called on wpcom Simple sites. Simple sites use
 	 * add_wp_admin_submenu() called from wpcom-admin-menu.php instead.
-	 *
-	 * Menu visibility is controlled by the jetpack_show_newsletter_menu_item filter
-	 * (defaults to true). Set to false to hide the menu while keeping page accessible.
 	 */
 	public function add_wp_admin_menu() {
-		if ( ! $this->expose_to_users() ) {
-			return;
-		}
-
 		// On sites using Jetpack, only show the menu if the site is connected.
 		if ( ! ( new Connection_Manager() )->is_connected() ) {
 			return;
@@ -147,7 +116,7 @@ class Settings {
 
 		$host = new Host();
 
-		// When new settings are enabled, should_show_menu_item() controls visibility.
+		// should_show_menu_item() controls visibility of the menu item.
 		$show_menu   = $this->should_show_menu_item();
 		$parent_slug = $show_menu ? 'jetpack' : '';
 
@@ -191,10 +160,6 @@ class Settings {
 	 * Similar to Subscribers_Dashboard::add_wp_admin_submenu().
 	 */
 	public function add_wp_admin_submenu() {
-		if ( ! $this->expose_to_users() ) {
-			return;
-		}
-
 		$parent_slug = $this->should_show_menu_item() ? 'jetpack' : '';
 		$page_suffix = add_submenu_page(
 			$parent_slug,
@@ -353,7 +318,7 @@ class Settings {
 	 * @since 0.5.1
 	 */
 	public function render_reading_page_notice() {
-		$newsletter_url = Urls::get_newsletter_settings_url( ( new Status() )->get_site_suffix() );
+		$newsletter_url = Urls::get_newsletter_settings_url();
 
 		printf(
 			'<p class="description" id="jetpack-newsletter-reading-notice">%s</p>',
