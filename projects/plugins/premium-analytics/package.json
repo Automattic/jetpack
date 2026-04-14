@@ -1,0 +1,6 @@
+{
+	"private": true,
+	"description": "Premium Analytics dashboard for Jetpack sites.",
+	"license": "GPL-2.0-or-later",
+	"author": "Automattic"
+}
