@@ -7,7 +7,7 @@ import useGenerateAll from '../hooks/use-generate-all';
 import { AI_STORE_NAME } from '../store';
 
 export default function SuggestAllButton() {
-	const { generate, loading, requireUpgrade } = useGenerateAll();
+	const { generate, loading, hasFeature } = useGenerateAll();
 
 	const bannerDismissed = useSelect( select => select( AI_STORE_NAME ).isBannerDismissed(), [] );
 
@@ -31,7 +31,7 @@ export default function SuggestAllButton() {
 			variant="primary"
 			icon={ <JetpackLogo showText={ false } height={ 18 } logoColor="#fff" /> }
 			onClick={ generate }
-			disabled={ loading || requireUpgrade }
+			disabled={ loading || ! hasFeature }
 			accessibleWhenDisabled
 			isBusy={ loading }
 			className="jetpack-content-guidelines-ai__suggest-all-button"

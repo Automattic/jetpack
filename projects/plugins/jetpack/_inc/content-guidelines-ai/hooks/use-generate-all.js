@@ -17,7 +17,7 @@ export default function useGenerateAll() {
 	const { createErrorNotice } = useDispatch( noticesStore );
 	const { startLoading, stopLoading, setSuggestion } = useDispatch( AI_STORE_NAME );
 	const loading = useSelect( select => select( AI_STORE_NAME ).isLoading(), [] );
-	const { requireUpgrade } = useAiFeature();
+	const { hasFeature } = useAiFeature();
 
 	const allGuidelines = useSelect( select => {
 		const store = select( STORE_NAME );
@@ -25,7 +25,7 @@ export default function useGenerateAll() {
 	}, [] );
 
 	const generate = useCallback( async () => {
-		if ( requireUpgrade ) {
+		if ( ! hasFeature ) {
 			return;
 		}
 
@@ -58,14 +58,7 @@ export default function useGenerateAll() {
 		} finally {
 			stopLoading();
 		}
-	}, [
-		requireUpgrade,
-		allGuidelines,
-		startLoading,
-		stopLoading,
-		setSuggestion,
-		createErrorNotice,
-	] );
+	}, [ hasFeature, allGuidelines, startLoading, stopLoading, setSuggestion, createErrorNotice ] );
 
-	return { generate, loading, requireUpgrade };
+	return { generate, loading, hasFeature };
 }

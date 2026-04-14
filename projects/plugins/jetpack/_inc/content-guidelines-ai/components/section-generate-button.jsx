@@ -12,7 +12,7 @@ import { AI_STORE_NAME } from '../store';
 export default function SectionGenerateButton( { slug } ) {
 	const { createErrorNotice } = useDispatch( noticesStore );
 	const { startSectionLoading, stopSectionLoading, setSuggestion } = useDispatch( AI_STORE_NAME );
-	const { requireUpgrade } = useAiFeature();
+	const { hasFeature } = useAiFeature();
 
 	const sectionLoading = useSelect(
 		select => select( AI_STORE_NAME ).isSectionLoading( slug ),
@@ -58,7 +58,7 @@ export default function SectionGenerateButton( { slug } ) {
 		<Button
 			variant="tertiary"
 			onClick={ handleClick }
-			disabled={ sectionLoading || requireUpgrade }
+			disabled={ sectionLoading || ! hasFeature }
 			accessibleWhenDisabled
 			className="jetpack-content-guidelines-ai__section-generate-button"
 		>

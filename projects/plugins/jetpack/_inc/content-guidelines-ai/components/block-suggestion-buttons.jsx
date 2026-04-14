@@ -14,7 +14,7 @@ export default function BlockSuggestionButtons( { blockName } ) {
 	const { createErrorNotice } = useDispatch( noticesStore );
 	const { startSectionLoading, stopSectionLoading, setSuggestion, clearSuggestion } =
 		useDispatch( AI_STORE_NAME );
-	const { requireUpgrade } = useAiFeature();
+	const { hasFeature } = useAiFeature();
 
 	const blockLoading = useSelect(
 		select => select( AI_STORE_NAME ).isSectionLoading( blockName ),
@@ -95,7 +95,7 @@ export default function BlockSuggestionButtons( { blockName } ) {
 			<Button
 				variant="secondary"
 				onClick={ handleGenerate }
-				disabled={ blockLoading || requireUpgrade }
+				disabled={ blockLoading || ! hasFeature }
 				accessibleWhenDisabled
 				className="jetpack-content-guidelines-ai__section-generate-button"
 			>

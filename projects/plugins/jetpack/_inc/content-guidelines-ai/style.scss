@@ -1,3 +1,11 @@
+// Shared color tokens for AI suggestion UI.
+// Jetpack ThemeProvider doesn't wrap this page,
+// so we define fallback values here.
+$cg-green: #069e08;
+$cg-green-light: rgba(0, 135, 0, 0.08);
+$cg-diff-added: #d4edda;
+$cg-diff-removed: #f8d7da;
+
 .jetpack-content-guidelines-ai__header-container {
 	display: inline-flex;
 }
@@ -141,7 +149,7 @@
 // a suggestion is active. Clicking anywhere accepts the suggestion.
 .jetpack-content-guidelines-ai__diff {
 	padding: 9px 11px;
-	border: 1px solid var(--jp-green-40, #069e08);
+	border: 1px solid var(--jp-green-40, $cg-green);
 	border-radius: 2px;
 	background: #fff;
 	font-size: 13px;
@@ -155,12 +163,12 @@
 }
 
 .jetpack-content-guidelines-ai__diff-added {
-	background: #d4edda;
+	background: $cg-diff-added;
 	text-decoration: none;
 }
 
 .jetpack-content-guidelines-ai__diff-removed {
-	background: #f8d7da;
+	background: $cg-diff-removed;
 	text-decoration: line-through;
 }
 
@@ -180,7 +188,7 @@
 		inset: 0;
 		pointer-events: none;
 		border-radius: 4px;
-		background: linear-gradient(90deg, transparent 0%, rgba(0, 135, 0, 0.08) 50%, transparent 100%);
+		background: linear-gradient(90deg, transparent 0%, $cg-green-light 50%, transparent 100%);
 		background-size: 200% 100%;
 		animation: jetpack-cg-shimmer 1.5s infinite;
 		z-index: 1;
@@ -188,7 +196,7 @@
 }
 
 .is-jetpack-loading textarea {
-	border-color: var(--jp-green-40, #069e08) !important;
+	border-color: var(--jp-green-40, $cg-green) !important;
 	pointer-events: none;
 }
 
@@ -247,7 +255,7 @@
 }
 
 .block-guideline-modal.is-jetpack-loading .components-textarea-control__input {
-	background: linear-gradient(90deg, transparent 0%, rgba(0, 135, 0, 0.08) 50%, transparent 100%);
+	background: linear-gradient(90deg, transparent 0%, $cg-green-light 50%, transparent 100%);
 	background-size: 200% 100%;
 	animation: jetpack-cg-shimmer 1.5s infinite;
 }
