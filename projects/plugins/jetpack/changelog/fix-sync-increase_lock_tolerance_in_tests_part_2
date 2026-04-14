@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Sync: Increase lock time tolerance in tests.
