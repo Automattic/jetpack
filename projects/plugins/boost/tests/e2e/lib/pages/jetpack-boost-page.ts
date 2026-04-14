@@ -73,7 +73,7 @@ export default class JetpackBoostPage {
 
 		if ( checkForNotice ) {
 			// Wait for the success notice to appear after toggling the module
-			this.expectNoticeToBeVisible( `Module ${ targetState ? 'activated' : 'deactivated' }` );
+			await this.expectNoticeToBeVisible( `Module ${ targetState ? 'activated' : 'deactivated' }` );
 		}
 	}
 
@@ -125,6 +125,22 @@ export default class JetpackBoostPage {
 			this.page.getByRole( 'heading', { name: /Overall Score: [A-Z]/i } ),
 			'Overall score heading should not be visible'
 		).toBeHidden();
+	}
+
+	/**
+	 * Waits for the speed score refresh request to be sent.
+	 * This indicates the debounce timer has fired and the client has initiated a score refresh.
+	 *
+	 * @param {number} timeout - Maximum time to wait in milliseconds.
+	 * @return {Promise<import('@playwright/test').Response>} The response from the speed score refresh endpoint.
+	 */
+	async waitForScoreRefreshRequest( timeout = 10 * 1000 ) {
+		return this.page.waitForResponse(
+			response =>
+				response.url().includes( '/jetpack-boost/v1/speed-scores/refresh' ) &&
+				response.request().method() === 'POST',
+			{ timeout }
+		);
 	}
 
 	/**

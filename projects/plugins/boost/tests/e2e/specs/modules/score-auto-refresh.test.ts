@@ -13,6 +13,7 @@ test.describe( 'Auto refresh of speed scores', () => {
 	} );
 
 	[ 'render_blocking_js' ].forEach( moduleSlug => {
+		// eslint-disable-next-line playwright/expect-expect
 		test( `Enabling ${ moduleSlug } should refresh scores`, async ( { jetpackBoostPage } ) => {
 			await test.step( 'Visit Jetpack Boost page', async () => {
 				await jetpackBoostPage.visit();
@@ -22,18 +23,17 @@ test.describe( 'Auto refresh of speed scores', () => {
 				await jetpackBoostPage.expectScoreToBeVisible();
 			} );
 
+			let refreshRequestPromise: ReturnType< typeof jetpackBoostPage.waitForScoreRefreshRequest >;
+
 			await test.step( `Toggle ${ moduleSlug } module on`, async () => {
+				// Set up the network listener before the toggle so we catch the request
+				// that fires after the 2-second debounce.
+				refreshRequestPromise = jetpackBoostPage.waitForScoreRefreshRequest();
 				await jetpackBoostPage.toggleModule( moduleSlug, true );
 			} );
 
-			await test.step( 'Wait for score refresh to start after debounce and verify score is visible', async () => {
-				// The score refresh triggers after a 2-second debounce. Rather than relying on a
-				// hard-coded delay, wait for the loading state to appear (indicating the refresh started),
-				// then wait for the score to become visible again.
-				await expect(
-					jetpackBoostPage.page.getByRole( 'heading', { name: 'Loading…' } ),
-					'Score refresh should start after debounce'
-				).toBeVisible( { timeout: 10 * 1000 } );
+			await test.step( 'Wait for score refresh request after debounce and verify score is visible', async () => {
+				await refreshRequestPromise;
 				await jetpackBoostPage.expectScoreToBeVisible();
 			} );
 		} );
@@ -50,6 +50,9 @@ test.describe( 'Auto refresh of speed scores', () => {
 		await test.step( 'Verify score is visible initially', async () => {
 			await jetpackBoostPage.expectScoreToBeVisible();
 		} );
+
+		// Set up network listener before the debounce window so we capture the refresh request.
+		const refreshRequestPromise = jetpackBoostPage.waitForScoreRefreshRequest();
 
 		await test.step( 'Wait 1 second before toggling another module', async () => {
 			await new Promise( resolve => setTimeout( resolve, 1000 ) );
@@ -73,13 +76,8 @@ test.describe( 'Auto refresh of speed scores', () => {
 		} );
 
 		await test.step( 'Verify score refresh starts after debounce from second module toggle', async () => {
-			// The debounce resets when the second module is toggled. Wait for loading to appear
-			// rather than relying on a hard-coded delay that may not account for CI slowness.
-			await expect( page.getByRole( 'heading', { name: 'Loading…' } ) ).toBeVisible( {
-				timeout: 10 * 1000,
-			} );
-			await expect( page.locator( '.jb-score-bar--mobile .jb-score-bar__loading' ) ).toBeVisible();
-			await expect( page.locator( '.jb-score-bar--desktop .jb-score-bar__loading' ) ).toBeVisible();
+			// Wait for the actual refresh network request instead of checking transient UI state.
+			await refreshRequestPromise;
 		} );
 
 		await test.step( 'Verify module toggle operations complete successfully', async () => {

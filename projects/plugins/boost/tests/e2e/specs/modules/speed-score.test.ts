@@ -17,17 +17,14 @@ test.describe( 'Speed Score feature', () => {
 		await jetpackBoostPage.expectScoreToBeVisible();
 	} );
 
+	// eslint-disable-next-line playwright/expect-expect
 	test( 'The Speed Scores should be able to refresh', async ( { jetpackBoostPage } ) => {
 		await jetpackBoostPage.visit();
 		await jetpackBoostPage.expectScoreToBeVisible();
+		// Set up network listener before clicking Refresh to catch the request.
+		const refreshRequestPromise = jetpackBoostPage.waitForScoreRefreshRequest();
 		await jetpackBoostPage.page.getByRole( 'button', { name: 'Refresh' } ).click();
-		// The loading state can be transient — use .toPass() to retry until it's caught.
-		await expect( async () => {
-			await expect(
-				jetpackBoostPage.page.getByRole( 'heading', { name: 'Loading…' } ),
-				'Loading… heading should be visible after refresh click'
-			).toBeVisible();
-		} ).toPass( { timeout: 10 * 1000 } );
+		await refreshRequestPromise;
 		await jetpackBoostPage.expectScoreToBeVisible();
 	} );
 
