@@ -24,6 +24,7 @@
 	"main": "./dist/cjs/index.cjs",
 	"module": "./dist/esm/index.js",
 	"types": "./dist/types/index.d.ts",
+	"wpScriptModuleExports": ".",
 	"scripts": {
 		"build": "pnpm run clean && pnpm run build:ts",
 		"build:ts": "duel --dirs",

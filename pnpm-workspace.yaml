@@ -73,6 +73,10 @@ ignoredOptionalDependencies:
 # Dependencies needing patching.
 patchedDependencies:
 
+  # Add wpPlugin.packageSources for cross-directory package discovery.
+  # Upstream PR: https://github.com/WordPress/gutenberg/pull/77226
+  '@wordpress/build@0.11.0': patches/@wordpress__build@0.11.0.patch
+
   # Vite/esbuild doesn't like the `__esModule` + `exports["default"]` pattern, it winds up double-wrapping the default.
   # See also https://github.com/WordPress/gutenberg/issues/39619
   react-autosize-textarea: .pnpm-patches/react-autosize-textarea.patch
