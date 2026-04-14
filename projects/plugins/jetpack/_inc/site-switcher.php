@@ -45,8 +45,11 @@ function jetpack_site_switcher_enqueue_scripts() {
 		true
 	);
 
-	// Ensure the command palette stylesheet is loaded; some admin pages (e.g. Stats)
-	// do not pull it in via other dependencies.
+	// Ensure the command palette stylesheets are loaded. Some admin pages (e.g. Stats)
+	// don't pull these in via other dependencies, which leaves the palette unstyled.
+	// wp-commands does not declare wp-components as a style dependency in core, so
+	// both handles must be enqueued explicitly.
+	wp_enqueue_style( 'wp-components' );
 	wp_enqueue_style( 'wp-commands' );
 
 	// Pass configuration to JavaScript
