@@ -5456,6 +5456,8 @@ importers:
         specifier: ^0.0.26
         version: 0.0.26
 
+  projects/plugins/premium-analytics: {}
+
   projects/plugins/protect:
     dependencies:
       '@automattic/jetpack-analytics':
