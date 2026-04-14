@@ -1,3 +1,4 @@
+import { useAiFeature } from '@automattic/jetpack-ai-client';
 import { Button } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
@@ -8,6 +9,7 @@ import { AI_STORE_NAME } from '../store';
 
 export default function EmptyStateBanner() {
 	const { generate } = useGenerateAll();
+	const { hasFeature } = useAiFeature();
 	const { dismissBanner } = useDispatch( AI_STORE_NAME );
 
 	const dismissed = useSelect( select => select( AI_STORE_NAME ).isBannerDismissed(), [] );
@@ -21,7 +23,7 @@ export default function EmptyStateBanner() {
 		generate();
 	}, [ dismissBanner, generate ] );
 
-	if ( dismissed ) {
+	if ( dismissed || ! hasFeature ) {
 		return null;
 	}
 
