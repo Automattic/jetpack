@@ -199,6 +199,13 @@ class Form_Preview {
 		// Set preview mode flag.
 		self::$is_preview_mode = true;
 
+		// "bare" variant: render only the form itself, without theme chrome. Used by
+		// the Classic Editor inline preview so it sees a standalone form inside its iframe.
+		// Nonce / capability already verified above.
+		if ( ! empty( $_GET['bare'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			self::render_bare_preview( $form );
+		}
+
 		// Set up fake page query context.
 		$wp_query->is_page     = true;
 		$wp_query->is_singular = true;
@@ -290,6 +297,116 @@ class Form_Preview {
 		}
 
 		return $template;
+	}
+
+	/**
+	 * Render a "bare" form preview — no theme, no page chrome. Outputs a minimal
+	 * HTML document containing only the rendered form blocks and exits.
+	 *
+	 * Callers must have already verified access (nonce + capability).
+	 *
+	 * @param WP_Post $form The form post to render.
+	 * @return void
+	 */
+	private static function render_bare_preview( WP_Post $form ) {
+		// Render blocks first so any block-registered styles/scripts get enqueued
+		// before <head> / <footer> print. This mirrors how the frontend renders
+		// the form so every block (image-select, rating, etc.) contributes its
+		// own stylesheet and view script naturally.
+		self::$is_preview_mode = true;
+		ob_start();
+		foreach ( parse_blocks( $form->post_content ) as $block ) {
+			echo render_block( $block ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- render_block returns rendered HTML.
+		}
+		$rendered_form = (string) ob_get_clean();
+
+		// Form frontend stylesheet.
+		wp_enqueue_style( 'grunion.css' );
+		self::enqueue_preview_styles();
+
+		status_header( 200 );
+		nocache_headers();
+		header( 'Content-Type: text/html; charset=' . get_bloginfo( 'charset' ) );
+
+		?><!DOCTYPE html>
+<html <?php language_attributes(); ?>>
+<head>
+	<meta charset="<?php bloginfo( 'charset' ); ?>">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title><?php echo esc_html__( 'Form preview', 'jetpack-forms' ); ?></title>
+		<?php
+		// Print everything wp_head would: registered styles (block styles, theme
+		// global styles via theme.json, the form's frontend CSS) and early scripts.
+		// Don't call wp_head() directly so we skip theme <head> injections we don't
+		// want (favicons, generator meta, SEO plugins, etc.).
+		wp_print_styles();
+		wp_custom_css_cb();
+		if ( function_exists( 'wp_print_font_faces' ) ) {
+			wp_print_font_faces();
+		}
+		if ( function_exists( 'wp_enqueue_global_styles' ) ) {
+			wp_enqueue_global_styles();
+			wp_print_styles();
+		}
+		?>
+	<style>
+		html, body { margin: 0; padding: 0; background: #fff; }
+		body {
+			font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+			padding: 16px;
+			color: #1d2327;
+			box-sizing: border-box;
+		}
+		/* Form should fill the preview iframe — ignore theme contentSize limits
+			and any user-set border on the form block. */
+		body.jetpack-form-bare-preview .wp-block-jetpack-contact-form,
+		body.jetpack-form-bare-preview .contact-form {
+			max-width: none !important;
+			width: 100%;
+			margin-left: 0;
+			margin-right: 0;
+			border: 0 !important;
+			box-shadow: none !important;
+		}
+		/* Fallback submit-button styling — classic themes (no theme.json) leave
+			wp-element-button unstyled and the browser paints its default 2px
+			outset. :where() keeps specificity at 0 so block themes' global
+			styles always win. */
+		:where(
+			body.jetpack-form-bare-preview .wp-block-button__link,
+			body.jetpack-form-bare-preview .wp-element-button,
+			body.jetpack-form-bare-preview button[type="submit"]
+		) {
+			background-color: #1e1e1e;
+			color: #fff;
+			border: 0;
+			border-radius: 2px;
+			padding: 0.667em 1.333em;
+			line-height: 1.2;
+			text-decoration: none;
+			cursor: default;
+		}
+		/* Preview only — disable interaction. */
+		body.jetpack-form-bare-preview form,
+		body.jetpack-form-bare-preview input,
+		body.jetpack-form-bare-preview textarea,
+		body.jetpack-form-bare-preview select,
+		body.jetpack-form-bare-preview button {
+			pointer-events: none;
+		}
+	</style>
+</head>
+<body class="jetpack-form-bare-preview">
+		<?php echo $rendered_form; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Already-rendered block HTML. ?>
+		<?php
+		// Print any block-registered footer styles/scripts (e.g. view scripts for
+		// interactive fields like image-select, rating).
+		wp_print_footer_scripts();
+		?>
+</body>
+</html>
+		<?php
+		exit;
 	}
 
 	/**

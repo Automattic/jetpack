@@ -16,3 +16,150 @@ i.mce-i-grunion::before,
 	height: 18px;
 	font: 18px/1 dashicons;
 }
+
+/* Pick-existing-form modal (classic editor). */
+.grunion-form-picker-overlay {
+	position: fixed;
+	inset: 0;
+	background: rgba(0, 0, 0, 0.5);
+	z-index: 160000;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 20px;
+	box-sizing: border-box;
+}
+
+.grunion-form-picker-dialog {
+	background: #fff;
+	width: 100%;
+	max-width: 780px;
+	max-height: calc(100vh - 40px);
+	display: flex;
+	flex-direction: column;
+	border-radius: 4px;
+	box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+	overflow: hidden;
+}
+
+.grunion-form-picker-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 16px 20px;
+	border-bottom: 1px solid #dcdcde;
+}
+
+.grunion-form-picker-header h1 {
+	margin: 0;
+	font-size: 18px;
+	line-height: 1.4;
+}
+
+.grunion-form-picker-close {
+	background: transparent;
+	border: 0;
+	font-size: 24px;
+	line-height: 1;
+	cursor: pointer;
+	padding: 4px 8px;
+	color: #1d2327;
+}
+
+.grunion-form-picker-close:hover,
+.grunion-form-picker-close:focus {
+	color: #2271b1;
+}
+
+.grunion-form-picker-body {
+	padding: 16px 20px;
+	overflow-y: auto;
+	flex: 1 1 auto;
+}
+
+.grunion-form-picker-intro {
+	margin-top: 0;
+}
+
+.grunion-form-picker-controls {
+	display: flex;
+	gap: 12px;
+	align-items: flex-end;
+	flex-wrap: wrap;
+	margin-bottom: 16px;
+}
+
+.grunion-form-picker-field {
+	flex: 1 1 260px;
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+
+.grunion-form-picker-field span {
+	font-weight: 600;
+}
+
+.grunion-form-picker-select {
+	width: 100%;
+	min-height: 32px;
+}
+
+.grunion-form-picker-preview {
+	border: 1px solid #dcdcde;
+	border-radius: 4px;
+	background: #f6f7f7;
+}
+
+.grunion-form-picker-preview-title {
+	margin: 0;
+	padding: 8px 12px;
+	font-size: 13px;
+	border-bottom: 1px solid #dcdcde;
+	background: #fff;
+}
+
+.grunion-form-picker-preview-frame {
+	min-height: 280px;
+	max-height: 50vh;
+	overflow: auto;
+	padding: 0;
+	background: #fff;
+	display: flex;
+	align-items: stretch;
+	justify-content: stretch;
+}
+
+.grunion-form-picker-preview-frame .grunion-form-picker-preview-hint {
+	margin: auto;
+	padding: 24px;
+	color: #646970;
+	font-style: italic;
+	text-align: center;
+}
+
+.grunion-form-picker-preview-iframe {
+	width: 100%;
+	min-height: 320px;
+	border: 0;
+	background: #fff;
+}
+
+.grunion-form-picker-empty {
+	text-align: center;
+	padding: 24px 12px;
+}
+
+.grunion-form-picker-empty h2 {
+	margin-top: 0;
+}
+
+.grunion-form-picker-footer {
+	display: flex;
+	justify-content: flex-end;
+	gap: 8px;
+	padding: 12px 20px;
+	border-top: 1px solid #dcdcde;
+	background: #f6f7f7;
+}
+

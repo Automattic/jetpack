@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Classic Editor: Replace the default form-insert buttons with a modal that lets users pick an existing saved form, preview it in an iframe, and insert a [contact-form ref="{id}"] shortcode. Hidden entirely when Central Forms Management is disabled.

@@ -8,15 +8,10 @@
 				icon: 'grunion',
 			} );
 			editor.addCommand( 'grunion_add_form', function () {
-				if ( grunionEditorView.default_form ) {
-					editor.execCommand(
-						'mceInsertContent',
-						0,
-						'[contact-form]' + grunionEditorView.default_form + '[/contact-form]'
-					);
-				} else {
-					editor.execCommand( 'mceInsertContent', 0, '[contact-form /]' );
-				}
+				jQuery( document ).trigger( 'grunion:openFormPicker', {
+					editor: editor,
+					source: 'tinymce',
+				} );
 			} );
 		},
 

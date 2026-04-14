@@ -22,10 +22,23 @@ class Editor_View {
 	 * @param \WP_Screen $screen Data about current screen.
 	 */
 	public static function add_hooks( $screen ) {
-		if ( isset( $screen->base ) && 'post' === $screen->base ) {
-			add_action( 'admin_notices', array( __CLASS__, 'handle_editor_view_js' ) );
-			add_action( 'admin_head', array( __CLASS__, 'admin_head' ) );
+		if ( ! isset( $screen->base ) || 'post' !== $screen->base ) {
+			return;
 		}
+
+		// Without Central Forms Management there are no standalone jetpack_form
+		// posts for the picker to reference, so the classic-editor insert button
+		// is not registered at all.
+		static $cfm_enabled = null;
+		if ( null === $cfm_enabled ) {
+			$cfm_enabled = Contact_Form_Plugin::has_editor_feature_flag( 'central-form-management' );
+		}
+		if ( ! $cfm_enabled ) {
+			return;
+		}
+
+		add_action( 'admin_notices', array( __CLASS__, 'handle_editor_view_js' ) );
+		add_action( 'admin_head', array( __CLASS__, 'admin_head' ) );
 	}
 
 	/**
@@ -58,7 +71,11 @@ class Editor_View {
 	 * @return array
 	 */
 	public static function mce_external_plugins( $plugin_array ) {
-		$plugin_array['grunion_form'] = plugins_url( '../../dist/contact-form/js/tinymce-plugin-form-button.js', __FILE__ );
+		$plugin_array['grunion_form'] = add_query_arg(
+			'ver',
+			\JETPACK__VERSION,
+			plugins_url( '../../dist/contact-form/js/tinymce-plugin-form-button.js', __FILE__ )
+		);
 		return $plugin_array;
 	}
 
@@ -114,6 +131,10 @@ class Editor_View {
 									'[contact-field label="' . __( 'Email', 'jetpack-forms' ) . '" type="email" required="true" /]' .
 									'[contact-field label="' . __( 'Website', 'jetpack-forms' ) . '" type="url" /]' .
 									'[contact-field label="' . __( 'Message', 'jetpack-forms' ) . '" type="textarea" /]',
+				'rest_url'                 => esc_url_raw( rest_url( 'wp/v2/jetpack-forms' ) ),
+				'rest_nonce'               => wp_create_nonce( 'wp_rest' ),
+				'new_form_url'             => esc_url_raw( admin_url( 'post-new.php?post_type=jetpack_form' ) ),
+				'edit_form_url_template'   => esc_url_raw( admin_url( 'post.php?post=%d&action=edit' ) ),
 				'labels'                   => array(
 					'submit_button_text'  => __( 'Submit', 'jetpack-forms' ),
 					/** This filter is documented in \Automattic\Jetpack\Forms\ContactForm\Contact_Form */
@@ -121,11 +142,36 @@ class Editor_View {
 					'edit_close_ays'      => __( 'Are you sure you\'d like to stop editing this form without saving your changes?', 'jetpack-forms' ),
 					'quicktags_label'     => __( 'contact form', 'jetpack-forms' ),
 					'tinymce_label'       => __( 'Add contact form', 'jetpack-forms' ),
+					'picker_title'        => __( 'Insert a form', 'jetpack-forms' ),
+					'picker_intro'        => __( 'Choose one of your saved forms to insert into this post.', 'jetpack-forms' ),
+					'picker_select_label' => __( 'Select a form', 'jetpack-forms' ),
+					'picker_placeholder'  => __( 'Choose a form…', 'jetpack-forms' ),
+					'picker_preview'      => __( 'Preview', 'jetpack-forms' ),
+					'picker_preview_hint' => __( 'Select a form to preview it here.', 'jetpack-forms' ),
+					'picker_preview_err'  => __( 'Unable to load preview.', 'jetpack-forms' ),
+					'picker_loading'      => __( 'Loading forms…', 'jetpack-forms' ),
+					'picker_load_error'   => __( 'Unable to load your forms.', 'jetpack-forms' ),
+					'picker_empty_title'  => __( 'You don\'t have any forms yet', 'jetpack-forms' ),
+					'picker_empty_body'   => __( 'Create a form in the forms editor, then return here to insert it.', 'jetpack-forms' ),
+					'picker_new_form'     => __( 'Create a new form', 'jetpack-forms' ),
+					'picker_insert'       => __( 'Insert form', 'jetpack-forms' ),
+					'picker_cancel'       => __( 'Cancel', 'jetpack-forms' ),
+					'picker_close'        => __( 'Close', 'jetpack-forms' ),
+					'picker_untitled'     => __( '(no title)', 'jetpack-forms' ),
+					'ref_preview_title'   => __( 'Saved form', 'jetpack-forms' ),
+					'ref_preview_loading' => __( 'Loading form preview…', 'jetpack-forms' ),
+					'ref_preview_error'   => __( 'Unable to load the form preview.', 'jetpack-forms' ),
 				),
 			)
 		);
 
-		add_editor_style( plugin_dir_url( __FILE__ ) . '../../dist/contact-form/css/editor-style.css' );
+		add_editor_style(
+			add_query_arg(
+				'ver',
+				\JETPACK__VERSION,
+				plugin_dir_url( __FILE__ ) . '../../dist/contact-form/css/editor-style.css'
+			)
+		);
 	}
 
 	/**
@@ -293,6 +339,53 @@ class Editor_View {
 
 <script type="text/html" id="tmpl-grunion-field-edit-option">
 	<li><input type="text" name="option" /> <a class="delete-option" href="javascript:;"><span class="screen-reader-text"><?php esc_html_e( 'Delete Option', 'jetpack-forms' ); ?></span></a></li>
+</script>
+
+<script type="text/html" id="tmpl-grunion-form-picker-modal">
+	<div class="grunion-form-picker-overlay" tabindex="-1">
+		<div class="grunion-form-picker-dialog" role="dialog" aria-modal="true" aria-labelledby="grunion-form-picker-title">
+			<header class="grunion-form-picker-header">
+				<h1 id="grunion-form-picker-title">{{ data.labels.picker_title }}</h1>
+				<button type="button" class="grunion-form-picker-close" aria-label="{{ data.labels.picker_close }}">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</header>
+			<div class="grunion-form-picker-body">
+				<p class="grunion-form-picker-intro">{{ data.labels.picker_intro }}</p>
+				<div class="grunion-form-picker-controls">
+					<label class="grunion-form-picker-field">
+						<span>{{ data.labels.picker_select_label }}</span>
+						<select class="grunion-form-picker-select" disabled>
+							<option>{{ data.labels.picker_loading }}</option>
+						</select>
+					</label>
+					<a class="button grunion-form-picker-new" href="{{ data.new_form_url }}" target="_blank" rel="noopener noreferrer">
+						{{ data.labels.picker_new_form }}
+					</a>
+				</div>
+				<div class="grunion-form-picker-preview" aria-live="polite">
+					<h2 class="grunion-form-picker-preview-title">{{ data.labels.picker_preview }}</h2>
+					<div class="grunion-form-picker-preview-frame">
+						<p class="grunion-form-picker-preview-hint">{{ data.labels.picker_preview_hint }}</p>
+					</div>
+				</div>
+			</div>
+			<footer class="grunion-form-picker-footer">
+				<button type="button" class="button grunion-form-picker-cancel">{{ data.labels.picker_cancel }}</button>
+				<button type="button" class="button button-primary grunion-form-picker-insert" disabled>{{ data.labels.picker_insert }}</button>
+			</footer>
+		</div>
+	</div>
+</script>
+
+<script type="text/html" id="tmpl-grunion-form-picker-empty">
+	<div class="grunion-form-picker-empty">
+		<h2>{{ data.labels.picker_empty_title }}</h2>
+		<p>{{ data.labels.picker_empty_body }}</p>
+		<a class="button button-primary" href="{{ data.new_form_url }}" target="_blank" rel="noopener noreferrer">
+			{{ data.labels.picker_new_form }}
+		</a>
+	</div>
 </script>
 
 <script type="text/html" id="tmpl-grunion-editor-inline">

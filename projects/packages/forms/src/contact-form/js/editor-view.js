@@ -6,6 +6,24 @@
 		return;
 	}
 
+	function buildRefShortcode( refId ) {
+		return '[contact-form ref="' + refId + '"]';
+	}
+
+	function appendBareParam( url ) {
+		return url + ( url.indexOf( '?' ) > -1 ? '&' : '?' ) + 'bare=1';
+	}
+
+	function grunionGet( url ) {
+		return $.ajax( {
+			url: url,
+			method: 'GET',
+			beforeSend: function ( xhr ) {
+				xhr.setRequestHeader( 'X-WP-Nonce', grunionEditorView.rest_nonce );
+			},
+		} );
+	}
+
 	wp.mce.grunion_wp_view_renderer = {
 		shortcode_string: 'contact-form',
 		template: wp.template( 'grunion-contact-form' ),
@@ -25,7 +43,130 @@
 		edit_template: wp.template( 'grunion-field-edit' ),
 		editor_inline: wp.template( 'grunion-editor-inline' ),
 		editor_option: wp.template( 'grunion-field-edit-option' ),
+		ref_preview_promises: {},
+		fetchRefPreviewUrl: function ( refId ) {
+			if ( this.ref_preview_promises[ refId ] ) {
+				return this.ref_preview_promises[ refId ];
+			}
+			const url = grunionEditorView.rest_url + '/' + encodeURIComponent( refId ) + '/preview-url';
+			const deferred = $.Deferred();
+			grunionGet( url )
+				.done( function ( response ) {
+					if ( response && response.preview_url ) {
+						deferred.resolve( appendBareParam( response.preview_url ) );
+					} else {
+						deferred.reject();
+					}
+				} )
+				.fail( function () {
+					deferred.reject();
+				} );
+			this.ref_preview_promises[ refId ] = deferred.promise();
+			return this.ref_preview_promises[ refId ];
+		},
+		resizeRefIframe: function ( iframe ) {
+			try {
+				const doc = iframe.contentDocument || iframe.contentWindow.document;
+				if ( ! doc || ! doc.body ) {
+					return;
+				}
+				const height = Math.max(
+					doc.body.scrollHeight,
+					doc.documentElement ? doc.documentElement.scrollHeight : 0
+				);
+				if ( height <= 0 ) {
+					return;
+				}
+				const target = height + 10;
+				// Skip no-op writes so we don't trigger needless reflow each tick.
+				if ( iframe._grunionAppliedHeight === target ) {
+					return;
+				}
+				iframe._grunionAppliedHeight = target;
+				iframe.style.height = target + 'px';
+			} catch {
+				/* cross-origin fallback — leave default height */
+			}
+		},
+		hydrateRefPreviews: function () {
+			const self = this;
+			if ( ! window.tinyMCE || ! tinyMCE.activeEditor ) {
+				return;
+			}
+			const doc = tinyMCE.activeEditor.getDoc();
+			if ( ! doc ) {
+				return;
+			}
+			const wraps = doc.querySelectorAll(
+				'.jetpack-contact-form-ref-preview[data-form-ref]:not([data-grunion-loaded])'
+			);
+			wraps.forEach( function ( wrap ) {
+				const refId = parseInt( wrap.getAttribute( 'data-form-ref' ), 10 );
+				if ( ! refId ) {
+					return;
+				}
+				wrap.setAttribute( 'data-grunion-loaded', '1' );
+				self
+					.fetchRefPreviewUrl( refId )
+					.done( function ( previewUrl ) {
+						const iframe = wrap.querySelector( 'iframe.grunion-ref-preview-iframe' );
+						if ( ! iframe ) {
+							return;
+						}
+						iframe.addEventListener( 'load', function () {
+							self.resizeRefIframe( iframe );
+							// Re-measure after late-loading images/scripts settle.
+							setTimeout( function () {
+								self.resizeRefIframe( iframe );
+							}, 300 );
+							setTimeout( function () {
+								self.resizeRefIframe( iframe );
+							}, 1000 );
+							const hint = wrap.querySelector( '.grunion-ref-preview-hint' );
+							if ( hint ) {
+								hint.style.display = 'none';
+							}
+							wrap.classList.add( 'is-loaded' );
+						} );
+						iframe.setAttribute( 'src', previewUrl );
+					} )
+					.fail( function () {
+						wrap.removeAttribute( 'data-grunion-loaded' );
+						const hint = wrap.querySelector( '.grunion-ref-preview-hint' );
+						if ( hint ) {
+							hint.textContent = grunionEditorView.labels.ref_preview_error;
+						}
+					} );
+			} );
+		},
+		getRefContent: function ( refId ) {
+			const self = this;
+			// Hydrate once the view is mounted in TinyMCE.
+			setTimeout( function () {
+				self.hydrateRefPreviews();
+			}, 50 );
+			return (
+				'<div class="jetpack-contact-form-ref-preview" data-form-ref="' +
+				refId +
+				'">' +
+				'<p class="grunion-ref-preview-hint">' +
+				grunionEditorView.labels.ref_preview_loading +
+				'</p>' +
+				// width="100%" as an HTML attribute so the iframe stretches even
+				// if no CSS reaches it. Browsers map this to width:100%.
+				'<iframe class="grunion-ref-preview-iframe" scrolling="no" width="100%" frameborder="0" title="' +
+				grunionEditorView.labels.ref_preview_title +
+				'"></iframe>' +
+				'</div>'
+			);
+		},
 		getContent: function () {
+			const namedAttrs = ( this.shortcode.attrs && this.shortcode.attrs.named ) || {};
+			const refId = parseInt( namedAttrs.ref, 10 );
+			if ( refId > 0 ) {
+				return this.getRefContent( refId );
+			}
+
 			let content = this.shortcode.content,
 				index = 0,
 				field,
@@ -61,17 +202,34 @@
 			return this.template( options );
 		},
 		edit: function ( data, update_callback ) {
-			let shortcode_data = wp.shortcode.next( this.shortcode_string, data ),
-				shortcode = shortcode_data.shortcode,
-				$tinyMCE_document = $( tinyMCE.activeEditor.getDoc() ),
-				$view = $tinyMCE_document.find( '.wpview.wpview-wrap' ).filter( function () {
-					return $( this ).attr( 'data-mce-selected' );
-				} ),
-				$editframe = $( '<iframe scrolling="no" class="inline-edit-contact-form" />' ),
-				index = 0,
-				named,
-				fields = '',
-				field;
+			const shortcode_data = wp.shortcode.next( this.shortcode_string, data );
+			const shortcode = shortcode_data.shortcode;
+
+			// Synced forms (ref attribute) are managed in the form editor, not inline.
+			const refId = parseInt(
+				( shortcode.attrs && shortcode.attrs.named && shortcode.attrs.named.ref ) || '',
+				10
+			);
+			if ( refId > 0 ) {
+				// Restore the original shortcode so the view doesn't get stuck in edit mode.
+				update_callback( wp.shortcode.string( shortcode ) );
+				const template = grunionEditorView.edit_form_url_template || '';
+				if ( template ) {
+					const url = template.replace( '%d', String( refId ) );
+					window.open( url, '_blank', 'noopener' );
+				}
+				return;
+			}
+
+			const $tinyMCE_document = $( tinyMCE.activeEditor.getDoc() );
+			const $view = $tinyMCE_document.find( '.wpview.wpview-wrap' ).filter( function () {
+				return $( this ).attr( 'data-mce-selected' );
+			} );
+			const $editframe = $( '<iframe scrolling="no" class="inline-edit-contact-form" />' );
+			let index = 0;
+			let named;
+			let fields = '';
+			let field;
 
 			if ( ! shortcode.content ) {
 				shortcode.content = grunionEditorView.default_form;
@@ -230,20 +388,263 @@
 	};
 	wp.mce.views.register( 'contact-form', wp.mce.grunion_wp_view_renderer );
 
-	// Add the 'text' editor button.
+	const FormPickerModal = ( function () {
+		const labels = grunionEditorView.labels;
+		const modalTemplate = wp.template( 'grunion-form-picker-modal' );
+		const emptyTemplate = wp.template( 'grunion-form-picker-empty' );
+
+		let $overlay = null;
+		let $dialog = null;
+		let $select = null;
+		let $previewFrame = null;
+		let $insertBtn = null;
+		let invokingElement = null;
+		let pendingEditor = null;
+		let previewRequest = 0;
+
+		function getActiveEditor() {
+			if ( pendingEditor ) {
+				return pendingEditor;
+			}
+			const $wrap = $( '#wp-content-wrap' );
+			if ( $wrap.hasClass( 'tmce-active' ) && window.tinyMCE && tinyMCE.activeEditor ) {
+				return tinyMCE.activeEditor;
+			}
+			return null;
+		}
+
+		function insertShortcode( shortcode ) {
+			const editor = getActiveEditor();
+			if ( editor && ! editor.isHidden() ) {
+				editor.execCommand( 'mceInsertContent', 0, shortcode );
+				return true;
+			}
+			if ( window.QTags && $( '#wp-content-wrap' ).hasClass( 'html-active' ) ) {
+				QTags.insertContent( shortcode );
+				return true;
+			}
+			if ( window.tinyMCE && tinyMCE.activeEditor ) {
+				tinyMCE.activeEditor.execCommand( 'mceInsertContent', 0, shortcode );
+				return true;
+			}
+			window.console.error( 'Neither TinyMCE nor QuickTags is active. Unable to insert form.' );
+			return false;
+		}
+
+		function renderEmptyState() {
+			const $body = $dialog.find( '.grunion-form-picker-body' );
+			$body.html(
+				emptyTemplate( {
+					labels: labels,
+					new_form_url: grunionEditorView.new_form_url,
+				} )
+			);
+			$dialog.find( '.grunion-form-picker-insert' ).prop( 'disabled', true ).hide();
+		}
+
+		function fetchForms() {
+			return grunionGet(
+				grunionEditorView.rest_url +
+					'?per_page=100&status=publish&orderby=modified&order=desc&_fields=id,title,modified,status'
+			);
+		}
+
+		function fetchPreviewUrl( formId ) {
+			return grunionGet(
+				grunionEditorView.rest_url + '/' + encodeURIComponent( formId ) + '/preview-url'
+			);
+		}
+
+		function populateSelect( forms ) {
+			$select.empty().prop( 'disabled', false );
+			$select.append(
+				$( '<option />', {
+					value: '',
+					text: labels.picker_placeholder,
+				} )
+			);
+
+			forms.forEach( function ( form ) {
+				const title =
+					( form.title && form.title.rendered && form.title.rendered.trim() ) ||
+					labels.picker_untitled;
+				$select.append(
+					$( '<option />', {
+						value: form.id,
+						text: title,
+					} )
+				);
+			} );
+		}
+
+		function showPreviewMessage( message ) {
+			$previewFrame.html(
+				$( '<p />', {
+					class: 'grunion-form-picker-preview-hint',
+					text: message,
+				} )
+			);
+		}
+
+		function loadPreview( formId ) {
+			previewRequest++;
+			const requestId = previewRequest;
+
+			showPreviewMessage( labels.picker_loading );
+
+			fetchPreviewUrl( formId )
+				.done( function ( response ) {
+					if ( requestId !== previewRequest || ! $previewFrame ) {
+						return;
+					}
+					if ( ! response || ! response.preview_url ) {
+						showPreviewMessage( labels.picker_preview_err );
+						return;
+					}
+					const $iframe = $( '<iframe />', {
+						src: appendBareParam( response.preview_url ),
+						class: 'grunion-form-picker-preview-iframe',
+						title: labels.picker_preview,
+					} );
+					$previewFrame.empty().append( $iframe );
+				} )
+				.fail( function () {
+					if ( requestId !== previewRequest || ! $previewFrame ) {
+						return;
+					}
+					showPreviewMessage( labels.picker_preview_err );
+				} );
+		}
+
+		function onChange() {
+			const formId = parseInt( $select.val(), 10 );
+			if ( ! formId ) {
+				$insertBtn.prop( 'disabled', true );
+				showPreviewMessage( labels.picker_preview_hint );
+				return;
+			}
+			$insertBtn.prop( 'disabled', false );
+			loadPreview( formId );
+		}
+
+		function onInsert() {
+			const formId = parseInt( $select.val(), 10 );
+			if ( ! formId ) {
+				return;
+			}
+			if ( insertShortcode( buildRefShortcode( formId ) ) ) {
+				close();
+			}
+		}
+
+		function onKeydown( e ) {
+			if ( e.key === 'Escape' || e.keyCode === 27 ) {
+				e.preventDefault();
+				close();
+			}
+		}
+
+		function close() {
+			if ( ! $overlay ) {
+				return;
+			}
+			$( document ).off( 'keydown.grunionFormPicker' );
+			$overlay.remove();
+			$overlay = null;
+			$dialog = null;
+			$select = null;
+			$previewFrame = null;
+			$insertBtn = null;
+			pendingEditor = null;
+			previewRequest = 0;
+			if ( invokingElement && typeof invokingElement.focus === 'function' ) {
+				try {
+					invokingElement.focus();
+				} catch {
+					/* no-op */
+				}
+			}
+			invokingElement = null;
+		}
+
+		function open( opts ) {
+			if ( $overlay ) {
+				return;
+			}
+			opts = opts || {};
+			invokingElement = opts.invokingElement || document.activeElement;
+			pendingEditor = opts.editor || null;
+
+			$overlay = $(
+				modalTemplate( {
+					labels: labels,
+					new_form_url: grunionEditorView.new_form_url,
+				} )
+			);
+			$dialog = $overlay.find( '.grunion-form-picker-dialog' );
+			$select = $overlay.find( '.grunion-form-picker-select' );
+			$previewFrame = $overlay.find( '.grunion-form-picker-preview-frame' );
+			$insertBtn = $overlay.find( '.grunion-form-picker-insert' );
+
+			$( 'body' ).append( $overlay );
+
+			$overlay.on( 'click', function ( e ) {
+				if ( e.target === $overlay[ 0 ] ) {
+					close();
+				}
+			} );
+			$overlay
+				.find( '.grunion-form-picker-close, .grunion-form-picker-cancel' )
+				.on( 'click', close );
+			$overlay.on( 'change', '.grunion-form-picker-select', onChange );
+			$overlay.on( 'click', '.grunion-form-picker-insert', onInsert );
+			$( document ).on( 'keydown.grunionFormPicker', onKeydown );
+
+			setTimeout( function () {
+				const $focusTarget = $dialog.find( '.grunion-form-picker-close' );
+				if ( $focusTarget.length ) {
+					$focusTarget.trigger( 'focus' );
+				}
+			}, 0 );
+
+			fetchForms()
+				.done( function ( forms ) {
+					if ( ! $overlay ) {
+						return;
+					}
+					if ( ! Array.isArray( forms ) || forms.length === 0 ) {
+						renderEmptyState();
+						return;
+					}
+					populateSelect( forms );
+				} )
+				.fail( function () {
+					if ( ! $overlay ) {
+						return;
+					}
+					$select.empty().prop( 'disabled', true );
+					$select.append( $( '<option />', { text: labels.picker_load_error } ) );
+				} );
+		}
+
+		return { open: open, close: close };
+	} )();
+
 	QTags.addButton( 'grunion_shortcode', grunionEditorView.labels.quicktags_label, function () {
-		QTags.insertContent( '[contact-form]' + grunionEditorView.default_form + '[/contact-form]' );
+		FormPickerModal.open( { invokingElement: document.activeElement } );
 	} );
 
-	const $wp_content_wrap = $( '#wp-content-wrap' );
-	$( '#insert-jetpack-contact-form' ).on( 'click', function ( e ) {
+	$( document ).on( 'click', '#insert-jetpack-contact-form', function ( e ) {
 		e.preventDefault();
-		if ( $wp_content_wrap.hasClass( 'tmce-active' ) ) {
-			tinyMCE.execCommand( 'grunion_add_form' );
-		} else if ( $wp_content_wrap.hasClass( 'html-active' ) ) {
-			QTags.insertContent( '[contact-form]' + grunionEditorView.default_form + '[/contact-form]' );
-		} else {
-			window.console.error( 'Neither TinyMCE nor QuickTags is active. Unable to insert form.' );
-		}
+		FormPickerModal.open( { invokingElement: this } );
+	} );
+
+	// TinyMCE toolbar button dispatches this event via its mce command.
+	$( document ).on( 'grunion:openFormPicker', function ( e, payload ) {
+		payload = payload || {};
+		FormPickerModal.open( {
+			editor: payload.editor || null,
+			invokingElement: document.activeElement,
+		} );
 	} );
 } )( jQuery, wp, grunionEditorView );

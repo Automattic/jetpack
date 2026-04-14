@@ -538,3 +538,53 @@ input[type="submit"]:focus {
 	margin-top: 0;
 	margin-bottom: 0;
 }
+
+/* Inline preview for [contact-form ref="{id}"] — the form is rendered inside
+   an iframe loading the site's bare preview URL, so every block-specific style
+   and script loads naturally (mirrors what the frontend shows). */
+
+/* Force block + full width on the wpview wrapper and our own wrapper. Firefox
+   otherwise falls back to the iframe's 300px HTML default because the wpview
+   wrapper doesn't always resolve to a block formatting context. */
+.wpview.wpview-wrap[data-wpview-type="contact-form"] {
+	display: block;
+	width: 100%;
+}
+
+.wpview.wpview-wrap[data-wpview-type="contact-form"] .jetpack-contact-form-ref-preview {
+	position: relative;
+	display: block;
+	box-sizing: border-box;
+	width: 100%;
+	padding: 0;
+	margin: 0;
+	background: #fff;
+	min-height: 120px;
+}
+
+.jetpack-contact-form-ref-preview.is-loaded {
+	min-height: 0;
+}
+
+.jetpack-contact-form-ref-preview .grunion-ref-preview-hint {
+	margin: 0;
+	padding: 24px;
+	color: #646970;
+	font-style: italic;
+	text-align: center;
+	background: #f6f7f7;
+}
+
+.wpview.wpview-wrap[data-wpview-type="contact-form"] .grunion-ref-preview-iframe {
+	display: block;
+	box-sizing: border-box;
+	width: 100%;
+	min-width: 100%;
+	max-width: 100%;
+	height: 320px;
+	border: 0;
+	background: #fff;
+
+	/* Prevent clicks inside the preview iframe from stealing TinyMCE selection. */
+	pointer-events: none;
+}
