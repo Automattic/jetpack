@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Inject blog_id into JS context for Tracks events via jpTracksContext global.
