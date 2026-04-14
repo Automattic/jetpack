@@ -9,6 +9,6 @@
 	"dependencies": {
 		"@wordpress/boot": "0.10.0",
 		"@wordpress/data": "10.43.0",
-		"@wordpress/icons": "^11.3.0"
+		"@wordpress/icons": "^12.0.0"
 	}
 }
