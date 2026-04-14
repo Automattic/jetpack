@@ -9,7 +9,7 @@ pnpmfileChecksum: sha256-Pzf3LTskBBhaUVLGp1XcevWWCvkOS5YwOLAhGz0XPU4=
 patchedDependencies:
   '@wordpress/build@0.11.0':
     hash: 357b8fc7ce7985a4d7aa9062f5b8826762fbacf279e4d7e55a822f9842658123
-    path: patches/@wordpress__build@0.11.0.patch
+    path: .pnpm-patches/@wordpress__build@0.11.0.patch
   react-autosize-textarea:
     hash: 5c09e1dee59caaaba3871f9d722f93e56b41169db486b059597e8f8c788aa464
     path: .pnpm-patches/react-autosize-textarea.patch
