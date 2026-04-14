@@ -14,6 +14,7 @@ namespace Automattic\Jetpack\Extensions\AiAssistantPlugin;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
+use Jetpack_Options;
 use function Automattic\Jetpack\Extensions\Shared\determine_iso_639_locale;
 
 require_once __DIR__ . '/../../../shared/cdn-locale.php';
@@ -458,24 +459,18 @@ class Jetpack_AI_Sidebar {
 	/**
 	 * Check if the current user's Jetpack connection is disconnected.
 	 *
-	 * Matches the AM class logic: only relevant on Atomic and Jetpack sites.
+	 * Only relevant on Atomic and self-hosted Jetpack sites.
 	 * On wpcom simple, users are never "disconnected" in this sense.
 	 *
 	 * @return bool
 	 */
 	private static function is_jetpack_disconnected(): bool {
-		$user_id = get_current_user_id();
-		$blog_id = get_current_blog_id();
-
-		if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
-			return ! ( new Connection_Manager( 'jetpack' ) )->is_user_connected( $user_id );
+		$host = new Host();
+		if ( $host->is_wpcom_simple() ) {
+			return false;
 		}
 
-		if ( true === apply_filters( 'is_jetpack_site', false, $blog_id ) ) {
-			return ! ( new Connection_Manager( 'jetpack' ) )->is_user_connected( $user_id );
-		}
-
-		return false;
+		return ! ( new Connection_Manager( 'jetpack' ) )->is_user_connected( get_current_user_id() );
 	}
 
 	/**
@@ -564,16 +559,17 @@ class Jetpack_AI_Sidebar {
 	/**
 	 * Get current site data for the agents manager.
 	 *
-	 * Uses jetpack_options['id'] on Atomic sites for the wpcom blog ID.
+	 * On wpcom simple, the blog ID is the wpcom site ID.
+	 * On Atomic/self-hosted, the wpcom site ID is stored in Jetpack options.
 	 *
 	 * @return array Site data with ID and domain.
 	 */
 	private static function get_current_site(): array {
-		$jetpack_options = get_option( 'jetpack_options' );
-		if ( is_array( $jetpack_options ) && isset( $jetpack_options['id'] ) ) {
-			$site_id = (int) $jetpack_options['id'];
-		} else {
+		$host = new Host();
+		if ( $host->is_wpcom_simple() ) {
 			$site_id = get_current_blog_id();
+		} else {
+			$site_id = (int) Jetpack_Options::get_option( 'id' );
 		}
 
 		return array(
