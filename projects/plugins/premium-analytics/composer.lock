@@ -142,13 +142,14 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/premium-analytics",
-                "reference": "2c6f6f7059ee108c5d6cb9aa079a757824c2d845"
+                "reference": "04a99df1641ea3b2a282d8d1144a5ebc5329022c"
             },
             "require": {
                 "php": ">=7.2"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
+                "automattic/jetpack-test-environment": "@dev",
                 "automattic/phpunit-select-config": "@dev",
                 "yoast/phpunit-polyfills": "^4.0.0"
             },
