@@ -77,7 +77,7 @@ class Jetpack_AI_Sidebar {
 	 * @return void
 	 */
 	public static function maybe_enqueue_am(): void {
-		if ( ! self::is_block_editor() ) {
+		if ( ! self::is_block_editor() || ! self::has_ai_features() ) {
 			return;
 		}
 
@@ -97,10 +97,6 @@ class Jetpack_AI_Sidebar {
 
 		// AM already loaded by jetpack-mu-wpcom — skip CDN load.
 		if ( wp_script_is( 'agents-manager' ) ) {
-			return;
-		}
-
-		if ( ! self::has_ai_features() ) {
 			return;
 		}
 
@@ -126,7 +122,7 @@ class Jetpack_AI_Sidebar {
 			return;
 		}
 
-		// Already enqueued by register_provider — skip.
+		// Guard against double-enqueue (e.g. hooked multiple times).
 		if ( wp_script_is( 'jetpack-ai-provider' ) ) {
 			return;
 		}
@@ -358,12 +354,9 @@ class Jetpack_AI_Sidebar {
 	/**
 	 * Register Jetpack AI as an Agents Manager provider.
 	 *
-	 * Loads the provider IIFE bundle from the widgets.wp.com CDN
-	 * (built from @automattic/jetpack-ai-sidebar in wp-calypso).
-	 * The IIFE assigns exports to window.__JetpackAIProvider.
-	 *
-	 * The ESM wrapper (jetpack-ai-provider-esm.mjs) re-exports from
-	 * the global and is registered with AM for dynamic import().
+	 * Appends the CDN-hosted ESM wrapper URL to the providers list so AM
+	 * can dynamically import it. Asset enqueueing is handled separately by
+	 * maybe_enqueue_abilities_script.
 	 *
 	 * @param array $providers Existing provider URLs.
 	 * @return array Updated providers.
@@ -373,36 +366,6 @@ class Jetpack_AI_Sidebar {
 		if ( did_action( 'next_admin_init' ) ) {
 			return $providers;
 		}
-
-		$asset_data = self::get_ai_sidebar_asset_data();
-		if ( ! $asset_data ) {
-			return $providers;
-		}
-
-		$version      = $asset_data['version'] ?? false;
-		$dependencies = $asset_data['dependencies'] ?? array();
-
-		if ( self::is_dev_mode() ) {
-			$version .= '-' . wp_rand();
-		}
-
-		// Always enqueue the IIFE bundle — it registers Jetpack AI
-		// abilities (select-title, update-block-content) via
-		// @wordpress/abilities, which other providers can discover.
-		wp_enqueue_script(
-			'jetpack-ai-provider',
-			AI_SIDEBAR_JS_URL,
-			$dependencies,
-			$version,
-			true
-		);
-
-		wp_enqueue_style(
-			'jetpack-ai-provider',
-			is_rtl() ? AI_SIDEBAR_RTL_CSS_URL : AI_SIDEBAR_CSS_URL,
-			array(),
-			$version
-		);
 
 		// Register as AM provider via CDN-hosted ESM wrapper.
 		// AM dynamically imports this module to merge tools, suggestions, and components.
