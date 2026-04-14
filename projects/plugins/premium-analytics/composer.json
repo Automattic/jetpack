@@ -45,7 +45,6 @@
 		"changelogger": {
 			"versioning": "semver"
 		},
-		"wp-plugin-slug": "jetpack-premium-analytics",
 		"version-constants": {
 			"JETPACK_PREMIUM_ANALYTICS__VERSION": "jetpack-premium-analytics.php"
 		}
