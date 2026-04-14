@@ -79,6 +79,7 @@ class Contact_Form_Block {
 
 		add_filter( 'render_block_data', array( __CLASS__, 'find_nested_html_block' ), 10, 3 );
 		add_filter( 'render_block_core/html', array( __CLASS__, 'render_wrapped_html_block' ), 10, 2 );
+		add_filter( 'jetpack_block_editor_feature_flags', array( __CLASS__, 'register_feature' ) );
 		add_filter( 'pre_render_block', array( __CLASS__, 'pre_render_contact_form' ), 10, 3 );
 
 		add_filter( 'block_editor_rest_api_preload_paths', array( __CLASS__, 'preload_endpoints' ) );
@@ -101,6 +102,23 @@ class Contact_Form_Block {
 		$features['multistep-form'] = Current_Plan::supports( 'multistep-form' );
 		$features['form-webhooks']  = Current_Plan::supports( 'form-webhooks' );
 
+		return self::register_central_form_management_default( $features );
+	}
+
+	/**
+	 * Lightweight bootstrap default for the `central-form-management` feature flag.
+	 *
+	 * Registered from Util::init() so that early callers of
+	 * Contact_Form_Plugin::has_editor_feature_flag() — such as the Forms dashboard
+	 * default-tab redirect, which runs before the WP `init` hook fires — see the
+	 * correct flag value. Kept separate from register_feature() so the early-boot
+	 * code path avoids the Current_Plan::supports() calls used by the paid-plan flags.
+	 *
+	 * @param array $features - the features array.
+	 *
+	 * @return array
+	 */
+	public static function register_central_form_management_default( $features ) {
 		if ( ! isset( $features['central-form-management'] ) ) {
 			$features['central-form-management'] = true;
 		}
