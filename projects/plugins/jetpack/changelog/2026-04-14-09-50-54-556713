@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Command Palette: fix broken styles on Stats and other admin pages that don't load wp-commands styles indirectly.

@@ -45,6 +45,10 @@ function jetpack_site_switcher_enqueue_scripts() {
 		true
 	);
 
+	// Ensure the command palette stylesheet is loaded; some admin pages (e.g. Stats)
+	// do not pull it in via other dependencies.
+	wp_enqueue_style( 'wp-commands' );
+
 	// Pass configuration to JavaScript
 	$api_path = ( defined( 'IS_WPCOM' ) && IS_WPCOM )
 		? '/rest/v1.1/me/sites/compact'
