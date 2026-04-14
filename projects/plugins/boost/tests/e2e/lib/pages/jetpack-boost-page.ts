@@ -32,7 +32,7 @@ export default class JetpackBoostPage {
 
 		const connectionResponse = this.page.waitForResponse(
 			response => response.url().includes( '/jetpack-boost/v1/connection' ),
-			{ timeout: 60 * 1000 }
+			{ timeout: 60000 }
 		);
 		await button.click();
 		await connectionResponse;
@@ -40,7 +40,7 @@ export default class JetpackBoostPage {
 		await expect(
 			this.page.getByRole( 'button', { name: 'Refresh' } ),
 			'Refresh button should be visible after connection'
-		).toBeVisible( { timeout: 40 * 1000 } );
+		).toBeVisible( { timeout: 40000 } );
 	}
 
 	/**
@@ -88,7 +88,7 @@ export default class JetpackBoostPage {
 		const score = this.page.locator( parent + ' .jb-score-bar__score' );
 		await score.waitFor( {
 			state: 'visible',
-			timeout: 80 * 1000,
+			timeout: 80000,
 		} );
 
 		return Number( await score.textContent() );
@@ -102,7 +102,7 @@ export default class JetpackBoostPage {
 		await expect(
 			this.page.getByRole( 'heading', { name: /Overall Score: [A-Z]/i } ),
 			'Overall score heading should be visible'
-		).toBeVisible( { timeout: 60 * 1000 } ); // Wait up to 60 seconds for the overall score heading to be visible
+		).toBeVisible( { timeout: 60000 } ); // Wait up to 60 seconds for the overall score heading to be visible
 		await expect( async () => {
 			const mobileScore = await this.getSpeedScore( 'mobile' );
 			expect( mobileScore, 'Mobile score should be greater than 0' ).toBeGreaterThan( 0 );
@@ -134,7 +134,7 @@ export default class JetpackBoostPage {
 	 * @param {number} timeout - Maximum time to wait in milliseconds.
 	 * @return {Promise<import('@playwright/test').Response>} The response from the speed score refresh endpoint.
 	 */
-	async waitForScoreRefreshRequest( timeout = 10 * 1000 ) {
+	async waitForScoreRefreshRequest( timeout = 10000 ) {
 		return this.page.waitForResponse(
 			response =>
 				response.url().includes( '/jetpack-boost/v1/speed-scores/refresh' ) &&
@@ -151,7 +151,7 @@ export default class JetpackBoostPage {
 		await expect(
 			this.page.getByTestId( 'snackbar' ).getByText( message ),
 			`Should show ${ message } notice`
-		).toBeVisible( { timeout: 30 * 1000 } );
+		).toBeVisible( { timeout: 30000 } );
 	}
 
 	// Cornerstone Pages

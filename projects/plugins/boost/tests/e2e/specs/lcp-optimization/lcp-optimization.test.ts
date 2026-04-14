@@ -45,7 +45,7 @@ test.describe( 'LCP Image Optimization module', () => {
 				page.getByText( "Jetpack Boost is optimizing your Cornerstone Page's LCP for you" ),
 				'LCP optimization should show pending status during analysis'
 			).toBeVisible();
-		} ).toPass( { timeout: 20 * 1000 } );
+		} ).toPass( { timeout: 20000 } );
 
 		await expect(
 			page.getByRole( 'button', { name: 'Optimize' } ),
@@ -56,7 +56,7 @@ test.describe( 'LCP Image Optimization module', () => {
 		await expect(
 			page.getByText( 'Last optimized' ),
 			'LCP optimization should complete analysis and show analyzed state'
-		).toBeVisible( { timeout: 30 * 1000 } );
+		).toBeVisible( { timeout: 30000 } );
 
 		// Click the Optimize button
 		await page.getByRole( 'button', { name: 'Optimize' } ).click();
@@ -67,11 +67,12 @@ test.describe( 'LCP Image Optimization module', () => {
 				page.getByText( "Jetpack Boost is optimizing your Cornerstone Page's LCP for you" ),
 				'LCP optimization should show pending status after clicking Optimize button'
 			).toBeVisible();
-		} ).toPass( { timeout: 20 * 1000 } );
+		} ).toPass( { timeout: 20000 } );
 
+		// Analysis completion can take longer than the default timeout
 		await expect(
 			page.getByText( 'Last optimized' ),
 			'LCP optimization should complete re-analysis and show analyzed state'
-		).toBeVisible( { timeout: 30 * 1000 } );
+		).toBeVisible( { timeout: 30000 } );
 	} );
 } );
