@@ -1,3 +1,4 @@
+import { jest } from '@jest/globals';
 import analytics from '../index';
 
 describe( 'analytics', () => {
