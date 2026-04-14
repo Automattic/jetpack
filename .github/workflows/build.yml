@@ -49,6 +49,8 @@ jobs:
 
       - name: Setup tools
         uses: ./.github/actions/tool-setup
+        with:
+          php: false
 
       - name: Pnpm install
         run: pnpm install
@@ -205,10 +207,12 @@ jobs:
 
       - name: Wait for prior instances of the workflow to finish
         if: github.event_name == 'push' && github.repository == 'Automattic/jetpack' && matrix.what == 'wpcom'
+        continue-on-error: true  # Let the artifact still be processed if the push fails. The later `update_mirrors` job will retry.
         uses: ./.github/actions/turnstile
 
       - name: Push wpcom projects
         if: github.event_name == 'push' && github.repository == 'Automattic/jetpack' && matrix.what == 'wpcom'
+        continue-on-error: true  # Let the artifact still be processed if the push fails. The later `update_mirrors` job will retry.
         uses: ./projects/github-actions/push-to-mirrors
         with:
           source-directory: ${{ github.workspace }}
@@ -439,7 +443,16 @@ jobs:
         timeout-minutes: 2  # 2025-11-06: Successful runs normally take a few seconds
       - name: Extract build archive
         run: tar --xz -xvvf jetpack-build.tar.xz build
-        timeout-minutes: 1  # 2025-11-06: Successful runs seem to take a few seconds
+      - name: Reorder mirrors.txt
+        run: |
+          # Pull certain plugins to the top.
+          : > build/mirrors.txt.tmp
+          grep -Fx 'Automattic/jetpack-production' build/mirrors.txt >> build/mirrors.txt.tmp || true
+          grep -Fx 'Automattic/jetpack-mu-wpcom-plugin' build/mirrors.txt >> build/mirrors.txt.tmp || true
+          grep -vFx --file build/mirrors.txt.tmp build/mirrors.txt >> build/mirrors.txt.tmp || true
+          diff -su build/mirrors.txt build/mirrors.txt.tmp || true
+          mv build/mirrors.txt.tmp build/mirrors.txt
+        timeout-minutes: 1  # 2026-04-09: Successful runs should take just a few seconds
 
       - name: Wait for prior instances of the workflow to finish
         uses: ./monorepo/.github/actions/turnstile

@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0-a.11] - 2026-04-10
+### Changed
+- Dependencies: Update lock file to keep root requirements in sync. [#47418]
+- Remove baseUrl from tsconfig for tsgo migration. [#47374]
+- Remove header border-bottom from the admin page for a cleaner unified header appearance. [#47313]
+- Switch to Native TypeScript compiler based on Go. [#47375]
+- Update dependencies. [#47472]
+- Update design of the sidebar upsell. [#47909]
+- Update package dependencies. [#46552] [#46647] [#46785] [#46854] [#47021] [#47099] [#47229] [#47300] [#47337] [#47498] [#47505] [#47610] [#47684] [#47890] [#47998]
+
+### Removed
+- General: Update minimum WordPress version to 6.8. [#46801]
+
+### Fixed
+- Admin Page: Restore border on header component. [#47425]
+- Compatibility: Clean up deprecated CSS. [#47067]
+
 ## [2.0.0-a.9] - 2026-01-09
 ### Added
 - IDC: Add revalidation for IDCs. [#46268]
@@ -53,6 +70,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - General: Update minimum PHP version to 7.2. [#40147]
 - General: Indicate compatibility with WordPress 6.8. [#42701]
 
+[2.0.0-a.11]: https://github.com/Automattic/jetpack-inspect/compare/v2.0.0-a.9...v2.0.0-a.11
 [2.0.0-a.9]: https://github.com/Automattic/jetpack-inspect/compare/v2.0.0-a.7...v2.0.0-a.9
 [2.0.0-a.7]: https://github.com/Automattic/jetpack-inspect/compare/v2.0.0-a.5...v2.0.0-a.7
 [2.0.0-a.5]: https://github.com/Automattic/jetpack-inspect/compare/v2.0.0-a.3...v2.0.0-a.5

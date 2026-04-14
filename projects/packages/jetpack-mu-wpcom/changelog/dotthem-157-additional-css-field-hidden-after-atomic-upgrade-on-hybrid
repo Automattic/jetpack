@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Global Styles: Load the feature on the customizer to fix access checks for additional CSS.

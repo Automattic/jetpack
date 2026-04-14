@@ -4,6 +4,7 @@ import { LinearGradient } from '@visx/gradient';
 import { scaleTime } from '@visx/scale';
 import { XYChart, AreaSeries, Grid, Axis, DataContext } from '@visx/xychart';
 import { __ } from '@wordpress/i18n';
+import { Stack } from '@wordpress/ui';
 import clsx from 'clsx';
 import { differenceInHours, differenceInYears } from 'date-fns';
 import {
@@ -103,12 +104,18 @@ const renderDefaultTooltip = ( params: RenderTooltipParams< DataPointDate > ) =>
 				{ nearestDatum.date?.toLocaleDateString() }
 			</div>
 			{ tooltipPoints.map( point => (
-				<div key={ point.key } className={ styles[ 'line-chart__tooltip-row' ] }>
+				<Stack
+					key={ point.key }
+					direction="row"
+					align="center"
+					justify="space-between"
+					className={ styles[ 'line-chart__tooltip-row' ] }
+				>
 					<span className={ styles[ 'line-chart__tooltip-label' ] }>{ point.key }:</span>
 					<span className={ styles[ 'line-chart__tooltip-value' ] }>
 						{ formatNumber( point.value ) }
 					</span>
-				</div>
+				</Stack>
 			) ) }
 		</div>
 	);

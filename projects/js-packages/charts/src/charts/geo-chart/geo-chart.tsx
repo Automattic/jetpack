@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
+import { Stack } from '@wordpress/ui';
 import clsx from 'clsx';
 import { FC, useContext, useMemo } from 'react';
 import { Chart, type GoogleChartOptions } from 'react-google-charts';
@@ -57,13 +58,15 @@ const GeoChartInternal: FC< GeoChartProps > = ( {
 
 	// Render loading placeholder
 	const loadingPlaceholder = (
-		<div
+		<Stack
+			align="center"
+			justify="center"
 			className={ clsx( 'geo-chart', styles.container, className ) }
 			data-testid="geo-chart-loading"
 			style={ { width, height } }
 		>
 			{ renderPlaceholder ? renderPlaceholder() : __( 'Loading map', 'jetpack-charts' ) }
-		</div>
+		</Stack>
 	);
 
 	// Google charts doesn't accept CSS variables, so we need to convert them to hex colors
@@ -144,7 +147,9 @@ const GeoChartInternal: FC< GeoChartProps > = ( {
 	);
 
 	return (
-		<div
+		<Stack
+			align="center"
+			justify="center"
 			className={ clsx( 'geo-chart', styles.container, className ) }
 			data-testid="geo-chart"
 			style={ { width, height, backgroundColor } }
@@ -157,7 +162,7 @@ const GeoChartInternal: FC< GeoChartProps > = ( {
 				options={ options }
 				loader={ loadingPlaceholder }
 			/>
-		</div>
+		</Stack>
 	);
 };
 

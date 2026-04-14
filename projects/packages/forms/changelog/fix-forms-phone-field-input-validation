@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Forms: Handle non-string values in the phone field rendering pipeline.

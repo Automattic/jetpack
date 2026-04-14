@@ -15,7 +15,7 @@ import { __, _x } from '@wordpress/i18n';
 import { useCallback } from 'react';
 import useProductInfo from '../../../hooks/use-product-info';
 import { store as socialStore } from '../../../social-store';
-import { getSocialScriptData } from '../../../utils/script-data';
+import { getRefreshPlanQuery, getSocialScriptData } from '../../../utils/script-data';
 import styles from './styles.module.scss';
 
 type PricingPageProps = {
@@ -120,7 +120,7 @@ const PricingPage = ( { onDismiss }: PricingPageProps ) => {
 					<Button
 						href={ getRedirectUrl( 'jetpack-social-v1-plan-plugin-admin-page', {
 							site: blogID ? blogID.toString() : siteSuffix,
-							query: 'redirect_to=admin.php?page=jetpack-social&refresh_plan_data=1',
+							query: getRefreshPlanQuery(),
 						} ) }
 						fullWidth
 					>

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Tests: Increase lock time tolerance.

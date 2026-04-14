@@ -1,49 +1,8 @@
 .legend {
 	align-self: stretch;
-
-	&--horizontal {
-		display: flex;
-		flex-direction: row;
-		flex-wrap: wrap;
-		gap: 16px;
-	}
-
-	&--vertical {
-		display: flex;
-		flex-direction: column;
-		gap: 8px;
-	}
-
-	&--alignment-start {
-		justify-content: flex-start;
-	}
-
-	&--alignment-center {
-		justify-content: center;
-	}
-
-	&--alignment-end {
-		justify-content: flex-end;
-	}
-
-	// Vertical legends align on the cross-axis instead
-	&--vertical.legend--alignment-start {
-		align-items: flex-start;
-	}
-
-	&--vertical.legend--alignment-center {
-		align-items: center;
-	}
-
-	&--vertical.legend--alignment-end {
-		align-items: flex-end;
-	}
-
 }
 
 .legend-item {
-	display: flex;
-	align-items: center;
 	font-size: var(--wpds-font-size-md, 13px);
 
 	&--interactive {
@@ -73,14 +32,6 @@
 			text-decoration: line-through;
 		}
 	}
-}
-
-.legend-item-label {
-	display: flex;
-	align-items: center;
-	gap: 0.5rem;
-
-	/* Text wrapping is handled at the text level, not the label container */
 }
 
 .legend-item-text {
