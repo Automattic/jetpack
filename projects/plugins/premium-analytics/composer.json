@@ -55,6 +55,6 @@
 			"automattic/jetpack-autoloader": true,
 			"automattic/jetpack-composer-plugin": true
 		},
-		"autoloader-suffix": "premium_analytics_pluginⓥ0_1_0"
+		"autoloader-suffix": "premium_analytics_pluginⓥ0_1_0_alpha"
 	}
 }
