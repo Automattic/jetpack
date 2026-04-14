@@ -357,7 +357,7 @@ const UploaderProgress = ( {
 					</>
 				) : (
 					<>
-						{ hasUserEdits ? (
+						{ hasUserEdits && uploadedVideoData ? (
 							<>
 								<span>{ __( 'Upload Complete!', 'jetpack-videopress-pkg' ) } 🎉</span>
 								<Button
