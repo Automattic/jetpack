@@ -1,6 +1,6 @@
 {
 	"private": true,
-	"name": "@jetpack-premium-analytics/init",
+	"name": "_@jetpack-premium-analytics/init",
 	"version": "0.1.0",
 	"type": "module",
 	"wpScript": true,

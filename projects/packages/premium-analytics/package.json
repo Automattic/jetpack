@@ -1,5 +1,5 @@
 {
-	"name": "jetpack-premium-analytics-app",
+	"name": "@automattic/jetpack-premium-analytics",
 	"version": "0.1.0",
 	"private": true,
 	"type": "module",
@@ -16,7 +16,7 @@
 			{
 				"id": "jetpack-premium-analytics",
 				"init": [
-					"@jetpack-premium-analytics/init"
+					"_@jetpack-premium-analytics/init"
 				]
 			}
 		],

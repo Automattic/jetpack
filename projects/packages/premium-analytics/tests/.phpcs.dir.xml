@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <ruleset>
-	<rule ref="VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable">
-		<severity>0</severity>
+	<rule ref="VariableAnalysis.CodeAnalysis.VariableAnalysis">
+		<exclude name="VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable"/>
 	</rule>
 </ruleset>
