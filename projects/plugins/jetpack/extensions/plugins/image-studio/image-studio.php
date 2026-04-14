@@ -66,6 +66,53 @@ function is_ciab_environment() {
 }
 
 /**
+ * Check if the site is in a development/testing environment.
+ *
+ * Matches the logic in Agents_Manager::is_dev_mode() so that analytics
+ * events fired from Image Studio can be tagged with is_test on the
+ * Calypso side.
+ *
+ * @return bool
+ */
+function is_dev_mode() {
+	// Known local environments.
+	$domain = wp_parse_url( get_site_url(), PHP_URL_HOST );
+	if (
+		$domain === 'localhost' ||
+		'.jurassic.tube' === stristr( $domain, '.jurassic.tube' ) ||
+		'.jurassic.ninja' === stristr( $domain, '.jurassic.ninja' )
+	) {
+		return true;
+	}
+
+	// Proxied A8C request via function.
+	if ( function_exists( 'wpcom_is_proxied_request' ) && wpcom_is_proxied_request() ) {
+		return true;
+	}
+
+	// Proxied A8C request via server variable or constant.
+	if (
+		( isset( $_SERVER['A8C_PROXIED_REQUEST'] ) && (bool) sanitize_text_field( wp_unslash( $_SERVER['A8C_PROXIED_REQUEST'] ) ) ) ||
+		( defined( 'A8C_PROXIED_REQUEST' ) && A8C_PROXIED_REQUEST )
+	) {
+		return true;
+	}
+
+	if ( defined( 'AT_PROXIED_REQUEST' ) && AT_PROXIED_REQUEST && defined( 'ATOMIC_CLIENT_ID' ) ) {
+		switch ( ATOMIC_CLIENT_ID ) {
+			case 1:
+			case 2:
+			case 3: // Pressable
+			case 32:
+			case 118: // Commerce garden client (ciab)
+				return true;
+		}
+	}
+
+	return false;
+}
+
+/**
  * Signal to Big Sky that Jetpack is handling Image Studio.
  *
  * Sets the jetpack_image_studio_enabled filter to true so that
@@ -294,8 +341,9 @@ function do_enqueue_assets() {
 	);
 
 	$image_studio_data = array(
-		'enabled' => true,
-		'version' => '1.0',
+		'enabled'   => true,
+		'version'   => '1.0',
+		'isDevMode' => is_dev_mode(),
 	);
 
 	wp_add_inline_script(

@@ -505,6 +505,25 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	}
 
 	/**
+	 * Test inline script includes isDevMode property.
+	 */
+	public function test_inline_script_includes_is_dev_mode() {
+		$this->enable_and_enqueue_block_editor();
+
+		$inline = $GLOBALS['wp_scripts']->get_data( ImageStudio\FEATURE_NAME, 'before' );
+
+		$this->assertIsArray( $inline );
+		$found = false;
+		foreach ( $inline as $line ) {
+			if ( is_string( $line ) && strpos( $line, 'imageStudioData' ) !== false ) {
+				$found = true;
+				$this->assertStringContainsString( '"isDevMode":', $line );
+			}
+		}
+		$this->assertTrue( $found, 'Inline script with imageStudioData not found.' );
+	}
+
+	/**
 	 * Test style is enqueued with wp-components dependency.
 	 */
 	public function test_style_enqueued_with_wp_components() {
