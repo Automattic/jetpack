@@ -26,6 +26,14 @@ export const useConnectionState = () => {
 	const xQuotaExceeded = useSelect( select => select( socialStore ).isXQuotaExceeded(), [] );
 
 	/**
+	 * Returns whether the connection is blocked by the X sharing quota.
+	 */
+	const isXQuotaBlocked = useCallback(
+		( connection: Connection ) => connection.service_name === 'x' && xQuotaExceeded,
+		[ xQuotaExceeded ]
+	);
+
+	/**
 	 * Returns whether a connection is in good shape.
 	 *
 	 * A connection is in good shape if:
@@ -59,6 +67,7 @@ export const useConnectionState = () => {
 	 * - Publicize is disabled
 	 * - There are no more connections available
 	 * - The connection is not in good shape
+	 * - The connection is an X connection blocked by the sharing quota
 	 */
 	const shouldBeDisabled = useCallback(
 		( connection: Connection ) => {
@@ -68,10 +77,10 @@ export const useConnectionState = () => {
 				// or the connection is not in good shape
 				! isInGoodShape( connection ) ||
 				// or X quota is exceeded for X connections
-				( connection.service_name === 'x' && xQuotaExceeded )
+				isXQuotaBlocked( connection )
 			);
 		},
-		[ isInGoodShape, isPublicizeEnabled, xQuotaExceeded ]
+		[ isInGoodShape, isPublicizeEnabled, isXQuotaBlocked ]
 	);
 
 	/**
@@ -81,6 +90,7 @@ export const useConnectionState = () => {
 	 * A connection can be enabled if:
 	 * - Publicize is not disabled due to the current site plan
 	 * - The connection is in good shape
+	 * - The connection is not an X connection blocked by the sharing quota
 	 */
 	const canBeTurnedOn = useCallback(
 		( connection: Connection ) => {
@@ -91,20 +101,20 @@ export const useConnectionState = () => {
 				// and the connection is in good shape
 				isInGoodShape( connection ) &&
 				// and X quota is not exceeded for X connections
-				! ( connection.service_name === 'x' && xQuotaExceeded )
+				! isXQuotaBlocked( connection )
 			);
 		},
-		[ isInGoodShape, isPublicizeDisabledBySitePlan, xQuotaExceeded ]
+		[ isInGoodShape, isPublicizeDisabledBySitePlan, isXQuotaBlocked ]
 	);
 
 	const getDisabledReason = useCallback(
 		( connection: Connection ) => {
-			if ( connection.service_name === 'x' && xQuotaExceeded ) {
+			if ( isXQuotaBlocked( connection ) ) {
 				return 'quota_exceeded';
 			}
 			return undefined;
 		},
-		[ xQuotaExceeded ]
+		[ isXQuotaBlocked ]
 	);
 
 	return useMemo(
