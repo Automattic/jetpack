@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Add PHPUnit tests for script module collision behavior when multiple plugins register the same packageSources entry
