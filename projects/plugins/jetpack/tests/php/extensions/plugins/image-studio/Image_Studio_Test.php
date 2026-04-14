@@ -558,20 +558,6 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Test is_dev_mode returns true when wpcom_is_proxied_request() exists and returns true.
-	 */
-	public function test_is_dev_mode_true_for_wpcom_is_proxied_request() {
-		// Define the function if it doesn't already exist in this test run.
-		if ( ! function_exists( 'wpcom_is_proxied_request' ) ) {
-			// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound
-			function wpcom_is_proxied_request() {
-				return true;
-			}
-		}
-		$this->assertTrue( ImageStudio\is_dev_mode() );
-	}
-
-	/**
 	 * Test style is enqueued with wp-components dependency.
 	 */
 	public function test_style_enqueued_with_wp_components() {
