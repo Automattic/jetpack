@@ -2,7 +2,13 @@
 /**
  * REST API endpoint for Jetpack AI MCP settings.
  *
- * Proxies GET/POST requests to /rest/v1.1/me/settings for the mcp_abilities field.
+ * GET  — proxies to WPCOM wpcom/v2/sites/{blog_id}/mcp-abilities (wpcom#205108) using
+ *         user token auth so that WPCOM can resolve the requesting user's account-level
+ *         MCP state. Reshapes the response into the { account, site, sites,
+ *         site_level_enabled_default } structure the client utilities expect.
+ * POST — proxies to WPCOM POST /sites/{blog_id}/mcp-abilities (user token auth) which
+ *         persists { site_level_enabled, abilities } to user settings via SettingsHelper,
+ *         keeping Jetpack and Calypso in sync.
  *
  * @package automattic/jetpack
  */
@@ -84,24 +90,33 @@ class WPCOM_REST_API_V2_Endpoint_MCP_Settings extends WP_REST_Controller {
 	}
 
 	/**
-	 * Get MCP settings from WordPress.com.
+	 * Fetch MCP abilities from the WPCOM wpcom/v2/sites/{blog_id}/mcp-abilities endpoint.
 	 *
-	 * @return array|WP_Error
+	 * The WPCOM endpoint accepts user token auth and returns an array of abilities.
+	 * The response is shaped to match the format the client utilities expect:
+	 * { account: { tool-id: {...} }, site: { tool-id: {...} },
+	 *   sites: [{ blog_id, site_level_enabled, abilities }],
+	 *   site_level_enabled_default: bool }
+	 *
+	 * All state is owned by WPCOM and persisted via POST /sites/{blog_id}/mcp-abilities.
+	 *
+	 * @return WP_REST_Response|WP_Error
 	 */
 	public function get_mcp_settings() {
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			// On WordPress.com, read directly from user meta.
-			$user_settings = get_user_option( 'mcp_abilities', get_current_user_id() );
-			return rest_ensure_response( array( 'mcp_abilities' => $user_settings ? $user_settings : new stdClass() ) );
+		$blog_id = defined( 'IS_WPCOM' ) && IS_WPCOM
+			? get_current_blog_id()
+			: \Jetpack_Options::get_option( 'id' );
+
+		if ( ! $blog_id ) {
+			return rest_ensure_response( array( 'mcp_abilities' => new stdClass() ) );
 		}
 
 		$response = Client::wpcom_json_api_request_as_user(
-			'/me/settings',
-			'1.1',
-			array(
-				'method'  => 'GET',
-				'headers' => array( 'Content-Type' => 'application/json' ),
-			)
+			sprintf( '/sites/%d/mcp-abilities', (int) $blog_id ),
+			'2',
+			array( 'method' => 'GET' ),
+			null,
+			'wpcom'
 		);
 
 		if ( is_wp_error( $response ) ) {
@@ -110,92 +125,142 @@ class WPCOM_REST_API_V2_Endpoint_MCP_Settings extends WP_REST_Controller {
 
 		$body = json_decode( wp_remote_retrieve_body( $response ), true );
 
+		// Transform [ {name, title, readonly, site_context, enabled, …}, … ] → { name: {…}, … }.
+		// readonly and site_context are now provided by the WPCOM endpoint (wpcom#205108).
+		// Fall back to name-suffix heuristic for readonly only if the field is absent, so
+		// this endpoint remains functional against older WPCOM builds.
+		$account_abilities = new stdClass();
+		$site_abilities    = array();
+		if ( ! empty( $body['abilities'] ) && is_array( $body['abilities'] ) ) {
+			$account_abilities = array();
+			foreach ( $body['abilities'] as $ability ) {
+				if ( empty( $ability['name'] ) ) {
+					continue;
+				}
+				if ( ! array_key_exists( 'readonly', $ability ) ) {
+					$ability['readonly'] = ! (bool) preg_match( '/-(create|update|delete)$/i', $ability['name'] );
+				}
+				$account_abilities[ $ability['name'] ] = $ability;
+
+				// `site` subset: tools marked site_context=true by WPCOM are the only ones
+				// relevant to the site-level settings UI. getSiteContextToolIds() in JS uses
+				// this to filter out account/notifications/billing/domains tools.
+				if ( ! empty( $ability['site_context'] ) ) {
+					$site_abilities[ $ability['name'] ] = $ability;
+				}
+			}
+		}
+
+		// site_level_enabled comes directly from WPCOM — it is the authoritative effective
+		// state for this site (account default applied, site exceptions factored in).
+		// Fall back to the enabled-abilities heuristic only if the field is absent.
+		$site_level_enabled = isset( $body['site_level_enabled'] )
+			? (bool) $body['site_level_enabled']
+			: ! empty( array_filter( (array) $account_abilities, fn( $a ) => ! empty( $a['enabled'] ) ) );
+
+		// site_level_enabled_default mirrors Calypso: same value as site_level_enabled
+		// when derived from WPCOM (no per-site override concept at this layer).
+		$site_level_enabled_default = $site_level_enabled;
+
+		// Build per-site abilities from the effective enabled state of each site-context
+		// tool returned by WPCOM. The WPCOM endpoint merges account defaults with any
+		// per-site user overrides saved via POST, so these values reflect what was last
+		// saved and drive the per-tool toggle states in the Read/Write views.
+		$site_tool_abilities = array();
+		foreach ( $site_abilities as $name => $ability ) {
+			$site_tool_abilities[ $name ] = ! empty( $ability['enabled'] );
+		}
+
 		return rest_ensure_response(
 			array(
-				'mcp_abilities' => $body['mcp_abilities'] ?? new stdClass(),
+				'mcp_abilities' => array(
+					'account'                    => $account_abilities,
+					'site'                       => $site_abilities,
+					'sites'                      => array(
+						array(
+							'blog_id'            => (int) $blog_id,
+							'site_level_enabled' => $site_level_enabled,
+							'abilities'          => (object) $site_tool_abilities,
+						),
+					),
+					'site_level_enabled_default' => $site_level_enabled_default,
+				),
 			)
 		);
 	}
 
 	/**
-	 * Update MCP settings on WordPress.com.
+	 * Proxy mcp_abilities update to WPCOM POST /sites/{blog_id}/mcp-abilities.
+	 *
+	 * Accepts the sites[] format used by the client:
+	 *   { sites: [{ blog_id, site_level_enabled?, abilities?: { tool_id: bool } }] }
+	 *
+	 * Extracts site_level_enabled and abilities from sites[0] and forwards them
+	 * to the WPCOM endpoint which persists them to user settings via SettingsHelper.
+	 * This keeps Jetpack and Calypso in sync — both read/write the same store.
 	 *
 	 * @param WP_REST_Request $request Full details about the request.
-	 * @return array|WP_Error
+	 * @return WP_REST_Response|WP_Error
 	 */
 	public function update_mcp_settings( $request ) {
-		$mcp_abilities = $request->get_param( 'mcp_abilities' );
+		$blog_id  = \Jetpack_Options::get_option( 'id' );
+		$incoming = $request->get_param( 'mcp_abilities' );
 
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			// On WordPress.com, merge partial updates into the stored value.
-			$existing_mcp_abilities = get_user_option( 'mcp_abilities', get_current_user_id() );
-
-			if ( is_object( $existing_mcp_abilities ) ) {
-				$existing_mcp_abilities = get_object_vars( $existing_mcp_abilities );
-			} elseif ( ! is_array( $existing_mcp_abilities ) ) {
-				$existing_mcp_abilities = array();
-			}
-
-			if ( is_object( $mcp_abilities ) ) {
-				$mcp_abilities = get_object_vars( $mcp_abilities );
-			} elseif ( ! is_array( $mcp_abilities ) ) {
-				$mcp_abilities = array();
-			}
-
-			// Shallow-merge top-level keys first.
-			$mcp_abilities = array_replace( $existing_mcp_abilities, $mcp_abilities );
-
-			// Deep-merge `sites` entries by blog_id, and nested `abilities` by tool ID.
-			if ( isset( $mcp_abilities['sites'] ) && is_array( $mcp_abilities['sites'] ) &&
-				isset( $existing_mcp_abilities['sites'] ) && is_array( $existing_mcp_abilities['sites'] ) ) {
-				$existing_sites = array();
-				foreach ( $existing_mcp_abilities['sites'] as $entry ) {
-					if ( isset( $entry['blog_id'] ) ) {
-						$existing_sites[ $entry['blog_id'] ] = $entry;
-					}
-				}
-				foreach ( $mcp_abilities['sites'] as $entry ) {
-					if ( ! isset( $entry['blog_id'] ) ) {
-						continue;
-					}
-					$blog_id = $entry['blog_id'];
-					if ( isset( $existing_sites[ $blog_id ] ) ) {
-						$existing_abilities         = isset( $existing_sites[ $blog_id ]['abilities'] ) && is_array( $existing_sites[ $blog_id ]['abilities'] ) ? $existing_sites[ $blog_id ]['abilities'] : array();
-						$new_abilities              = isset( $entry['abilities'] ) && is_array( $entry['abilities'] ) ? $entry['abilities'] : array();
-						$entry['abilities']         = array_replace( $existing_abilities, $new_abilities );
-						$existing_sites[ $blog_id ] = array_replace( $existing_sites[ $blog_id ], $entry );
-					} else {
-						$existing_sites[ $blog_id ] = $entry;
-					}
-				}
-				$mcp_abilities['sites'] = array_values( $existing_sites );
-			}
-
-			update_user_option( get_current_user_id(), 'mcp_abilities', $mcp_abilities );
-			return rest_ensure_response( array( 'mcp_abilities' => $mcp_abilities ) );
+		if ( is_object( $incoming ) ) {
+			$incoming = get_object_vars( $incoming );
+		} elseif ( ! is_array( $incoming ) ) {
+			$incoming = array();
 		}
 
-		$response = Client::wpcom_json_api_request_as_user(
-			'/me/settings',
-			'1.1',
-			array(
-				'method'  => 'POST',
-				'headers' => array( 'Content-Type' => 'application/json' ),
-				'body'    => wp_json_encode( array( 'mcp_abilities' => $mcp_abilities ), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES ),
-			)
-		);
+		// Unpack sites[0] into the flat format WPCOM POST /sites/{id}/mcp-abilities expects.
+		$wpcom_body = array();
 
-		if ( is_wp_error( $response ) ) {
-			return $response;
+		if ( ! empty( $incoming['sites'] ) && is_array( $incoming['sites'] ) ) {
+			$site_update = $incoming['sites'][0];
+			if ( is_object( $site_update ) ) {
+				$site_update = get_object_vars( $site_update );
+			}
+
+			if ( isset( $site_update['site_level_enabled'] ) ) {
+				$wpcom_body['site_level_enabled'] = (bool) $site_update['site_level_enabled'];
+			}
+
+			if ( isset( $site_update['abilities'] ) ) {
+				$abilities  = is_object( $site_update['abilities'] )
+					? get_object_vars( $site_update['abilities'] )
+					: (array) $site_update['abilities'];
+				$normalised = array();
+				foreach ( $abilities as $name => $value ) {
+					$normalised[ $name ] = (bool) $value;
+				}
+				$wpcom_body['abilities'] = $normalised;
+			}
 		}
 
-		$body = json_decode( wp_remote_retrieve_body( $response ), true );
+		if ( ! empty( $wpcom_body ) ) {
+			$response = Client::wpcom_json_api_request_as_user(
+				sprintf( '/sites/%d/mcp-abilities', (int) $blog_id ),
+				'2',
+				array( 'method' => 'POST' ),
+				$wpcom_body,
+				'wpcom'
+			);
 
-		return rest_ensure_response(
-			array(
-				'mcp_abilities' => $body['mcp_abilities'] ?? $mcp_abilities,
-			)
-		);
+			if ( is_wp_error( $response ) ) {
+				return $response;
+			}
+
+			$status = wp_remote_retrieve_response_code( $response );
+			if ( $status < 200 || $status >= 300 ) {
+				return new WP_Error(
+					'wpcom_update_failed',
+					__( 'Failed to save MCP settings on WordPress.com.', 'jetpack' ),
+					array( 'status' => 502 )
+				);
+			}
+		}
+
+		return $this->get_mcp_settings();
 	}
 }
 
