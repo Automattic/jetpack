@@ -90,6 +90,11 @@ class Jetpack_AI_Sidebar {
 			return;
 		}
 
+		// CIAB (next-admin) has AM natively via jetpack-mu-wpcom — skip CDN load.
+		if ( did_action( 'next_admin_init' ) ) {
+			return;
+		}
+
 		// AM already loaded by jetpack-mu-wpcom — skip CDN load.
 		if ( wp_script_is( 'agents-manager' ) ) {
 			return;
@@ -113,6 +118,11 @@ class Jetpack_AI_Sidebar {
 	 */
 	public static function maybe_enqueue_abilities_script(): void {
 		if ( ! self::is_block_editor() || ! self::has_ai_features() ) {
+			return;
+		}
+
+		// CIAB (next-admin) has its own AM setup — don't enqueue alongside it.
+		if ( did_action( 'next_admin_init' ) ) {
 			return;
 		}
 
@@ -359,6 +369,11 @@ class Jetpack_AI_Sidebar {
 	 * @return array Updated providers.
 	 */
 	public static function register_provider( array $providers ): array {
+		// CIAB (next-admin) has AM natively — skip to avoid duplicate agents.
+		if ( did_action( 'next_admin_init' ) ) {
+			return $providers;
+		}
+
 		$asset_data = self::get_ai_sidebar_asset_data();
 		if ( ! $asset_data ) {
 			return $providers;
