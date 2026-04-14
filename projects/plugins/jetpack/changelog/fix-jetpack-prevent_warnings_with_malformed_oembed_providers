@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+oEmbed: Prevent PHP warnings when a registered provider is malformed.
