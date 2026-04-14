@@ -7,7 +7,6 @@
 }
 
 #jp-search-dashboard {
-	background-color: variables.$white;
 	color: variables.$black;
 	font-size: 16px;
 	// 32px = wpadminbar height
@@ -19,6 +18,7 @@
 	}
 
 	.jp-search-dashboard-page {
+		background-color: variables.$white;
 		width: 100%;
 	}
 
