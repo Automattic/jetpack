@@ -210,6 +210,7 @@ export default function VariationPicker( { blockName, setAttributes, clientId, c
 				<div className="form-placeholder__shell">
 					<SelectControl
 						__next40pxDefaultSize
+						__nextHasNoMarginBottom
 						label={ __( 'Or select an existing form', 'jetpack-forms' ) }
 						options={ [
 							{ label: __( 'Select a form…', 'jetpack-forms' ), value: '' },

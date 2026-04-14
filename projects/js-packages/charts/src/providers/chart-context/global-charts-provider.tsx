@@ -70,11 +70,16 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( {
 		maxHue: 0,
 	} ) );
 
+	// Track if the color palette has been resolved from the DOM
+	// Useful for animations that should only run after the color palette is resolved
+	const [ isColorPaletteResolved, setIsColorPaletteResolved ] = useState( false );
+
 	// Compute color cache after DOM is updated (so CSS variables are available)
 	// Resolves CSS variables from the wrapper element's scope to handle scoped variables
 	// Note: Only re-runs when providerTheme changes, not when wrapper element changes.
 	// This is intentional, as wrapperRef is expected to be stable for the lifetime of the provider.
 	useLayoutEffect( () => {
+		setIsColorPaletteResolved( false );
 		const { colors } = providerTheme;
 		const resolvedColors: string[] = [];
 		const hues: number[] = [];
@@ -124,6 +129,12 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( {
 			maxHue,
 		} );
 	}, [ providerTheme ] );
+
+	useEffect( () => {
+		if ( colorCache.colors.length > 0 ) {
+			setIsColorPaletteResolved( true );
+		}
+	}, [ colorCache ] );
 
 	const [ groupToColorMap, setGroupToColorMap ] = useState< Map< string, string > >(
 		() => new Map()
@@ -271,6 +282,7 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( {
 			toggleSeriesVisibility,
 			isSeriesVisible,
 			getHiddenSeries,
+			isColorPaletteResolved,
 		} ),
 		[
 			charts,
@@ -282,6 +294,7 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( {
 			toggleSeriesVisibility,
 			isSeriesVisible,
 			getHiddenSeries,
+			isColorPaletteResolved,
 		]
 	);
 

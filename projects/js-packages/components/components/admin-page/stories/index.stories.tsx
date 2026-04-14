@@ -8,7 +8,6 @@ const meta: Meta< typeof AdminPage > = {
 	title: 'JS Packages/Components/Admin Page',
 	component: AdminPage,
 	argTypes: {
-		moduleName: { control: 'text', defaultValue: 'Jetpack' },
 		showHeader: { control: 'boolean', defaultValue: true },
 		showFooter: { control: 'boolean', defaultValue: true },
 		showBackground: { control: 'boolean', defaultValue: true },

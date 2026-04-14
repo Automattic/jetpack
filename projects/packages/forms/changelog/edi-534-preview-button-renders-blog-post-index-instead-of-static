@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Rename 'preview_nonce' query var to 'jetpack_form_preview_nonce' to avoid collision with WordPress core preview URLs, which caused static front page previews to show the blog index on wpcom sites.

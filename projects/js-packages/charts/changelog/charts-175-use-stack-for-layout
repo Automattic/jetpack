@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Charts: Replace ad-hoc flexbox layouts with @wordpress/ui Stack across legend, conversion funnel, line chart, geo chart, conversion funnel tooltip, and donut story.

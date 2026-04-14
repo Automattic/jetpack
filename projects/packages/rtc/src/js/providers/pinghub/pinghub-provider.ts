@@ -135,6 +135,11 @@ function getRoom( objectType: string, objectId: string | null ): string {
  */
 export function createPingHubProvider(): ProviderCreator {
 	return async ( { awareness, objectType, objectId, ydoc } ): Promise< ProviderCreatorResult > => {
+		const noopProvider = {
+			destroy: () => {},
+			on: () => {},
+		};
+
 		/**
 		 * The sync manager only invokes provider creators for entity types that
 		 * have a syncConfig, so no explicit allowlist is needed here.
@@ -145,10 +150,14 @@ export function createPingHubProvider(): ProviderCreator {
 		 * no concrete ID is present.
 		 */
 		if ( ! objectId && ! objectType.startsWith( 'root/' ) ) {
-			return {
-				destroy: () => {},
-				on: () => {},
-			};
+			return noopProvider;
+		}
+
+		// Skip attachments: real-time collaboration on attachment metadata has
+		// minimal value, and media-heavy sites can trigger hundreds of
+		// simultaneous WebSocket connections (one per attachment entity).
+		if ( objectType === 'postType/attachment' ) {
+			return noopProvider;
 		}
 
 		const room = getRoom( objectType, objectId );

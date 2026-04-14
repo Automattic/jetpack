@@ -199,8 +199,9 @@ function zbscrm_JS_adminMenuDropdown() {
 
 		// if calypso, loading on an embed page, already full screen, need to run this to re-adjust/hide:
 		setTimeout( function () {
-			if ( ! jQuery( '#jpcrm-top-menu .logo-cube' ).hasClass( 'menu-open' ) ) {
-				zbscrm_JS_fullscreenModeOn( jQuery( '#jpcrm-top-menu .logo-cube' ) );
+			const $logoCube = jQuery( '#jpcrm-top-menu .logo-cube' );
+			if ( $logoCube.length && ! $logoCube.hasClass( 'menu-open' ) ) {
+				zbscrm_JS_fullscreenModeOn( $logoCube );
 			}
 		}, 0 );
 	}

@@ -145,7 +145,7 @@ describe( 'MediaSectionV2', () => {
 	describe( 'No media state', () => {
 		beforeEach( () => {
 			( useFeaturedImage as jest.Mock ).mockReturnValue( null );
-			( useMediaDetails as jest.Mock ).mockReturnValue( [ null ] );
+			( useMediaDetails as jest.Mock ).mockReturnValue( [ null, false ] );
 		} );
 
 		afterEach( () => {
@@ -155,6 +155,7 @@ describe( 'MediaSectionV2', () => {
 					mediaData: { sourceUrl: 'https://example.com/featured.jpg' },
 					metaData: { mime: 'image/jpeg' },
 				},
+				false,
 			] );
 		} );
 
@@ -184,6 +185,7 @@ describe( 'MediaSectionV2', () => {
 					mediaData: { sourceUrl: 'https://example.com/attached.jpg' },
 					metaData: { mime: 'image/jpeg' },
 				},
+				false,
 			] );
 		} );
 

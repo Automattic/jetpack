@@ -4,6 +4,8 @@ import { jest } from '@jest/globals';
 import { render, screen } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 
+const mockGoBack = jest.fn();
+
 // ESM-compatible mock - must be before dynamic import
 jest.unstable_mockModule( '@wordpress/components', () => ( {
 	Modal: ( {
@@ -23,20 +25,39 @@ jest.unstable_mockModule( '@wordpress/components', () => ( {
 			{ children }
 		</div>
 	),
-	Navigator: ( { children }: { children: React.ReactNode } ) => (
-		<div data-testid="mock-navigator">{ children }</div>
+	Navigator: Object.assign(
+		( { children }: { children: React.ReactNode } ) => (
+			<div data-testid="mock-navigator">{ children }</div>
+		),
+		{
+			Screen: ( { children }: { children: React.ReactNode } ) => (
+				<div data-testid="mock-navigator-screen">{ children }</div>
+			),
+		}
 	),
-	Button: ( { children, onClick }: { children: React.ReactNode; onClick?: () => void } ) => (
-		<button onClick={ onClick }>{ children }</button>
+	Button: ( {
+		children,
+		onClick,
+		label,
+	}: {
+		children: React.ReactNode;
+		onClick?: () => void;
+		label?: string;
+	} ) => (
+		<button onClick={ onClick } aria-label={ label }>
+			{ children }
+		</button>
 	),
 	Flex: ( { children }: { children: React.ReactNode } ) => <div>{ children }</div>,
 	FlexBlock: ( { children }: { children: React.ReactNode } ) => <div>{ children }</div>,
 	FlexItem: ( { children }: { children: React.ReactNode } ) => <div>{ children }</div>,
-	useNavigator: () => ( { goBack: jest.fn(), goTo: jest.fn(), location: { path: '/' } } ),
+	useNavigator: () => ( { goBack: mockGoBack, goTo: jest.fn(), location: { path: '/' } } ),
 } ) );
 
 // Dynamic import after mock setup
 const { NavigatorModal } = await import( '../index.tsx' );
+const { Screen } = await import( '../screen.tsx' );
+const { NavigatorModalContext } = await import( '../context.ts' );
 
 describe( 'NavigatorModal', () => {
 	it( 'renders children within the modal', () => {
@@ -95,5 +116,56 @@ describe( 'NavigatorModal', () => {
 
 			expect( screen.getByTestId( 'mock-modal' ) ).toBeInTheDocument();
 		} );
+	} );
+} );
+
+describe( 'Screen', () => {
+	beforeEach( () => {
+		mockGoBack.mockClear();
+	} );
+
+	it( 'calls onGoBack before navigating back when back button is clicked', async () => {
+		const user = userEvent.setup();
+		const onGoBack = jest.fn();
+
+		render( <Screen path="/test" title="Test" onGoBack={ onGoBack } /> );
+
+		await user.click( screen.getByLabelText( 'Go back' ) );
+
+		expect( onGoBack ).toHaveBeenCalledTimes( 1 );
+		expect( mockGoBack ).toHaveBeenCalledTimes( 1 );
+	} );
+
+	it( 'navigates back without calling onGoBack when onGoBack is not provided', async () => {
+		const user = userEvent.setup();
+
+		render( <Screen path="/test" title="Test" /> );
+
+		await user.click( screen.getByLabelText( 'Go back' ) );
+
+		expect( mockGoBack ).toHaveBeenCalledTimes( 1 );
+	} );
+
+	it( 'does not show back button when screen is locked', () => {
+		render( <Screen path="/test" title="Test" isScreenLocked onGoBack={ jest.fn() } /> );
+
+		expect( screen.queryByLabelText( 'Go back' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'calls onClose before closing the modal when close button is clicked', async () => {
+		const user = userEvent.setup();
+		const onClose = jest.fn();
+		const contextOnClose = jest.fn();
+
+		render(
+			<NavigatorModalContext.Provider value={ { isDismissible: true, onClose: contextOnClose } }>
+				<Screen path="/test" title="Test" onClose={ onClose } />
+			</NavigatorModalContext.Provider>
+		);
+
+		await user.click( screen.getByLabelText( 'Close' ) );
+
+		expect( onClose ).toHaveBeenCalledTimes( 1 );
+		expect( contextOnClose ).toHaveBeenCalledTimes( 1 );
 	} );
 } );

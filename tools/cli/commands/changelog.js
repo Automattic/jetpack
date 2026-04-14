@@ -28,6 +28,7 @@ export function changelogDefine( yargs ) {
 		'Runs the changelogger wizard',
 		yarg => {
 			yarg
+				.strict( false )
 				.positional( 'cmd', {
 					describe: 'Command for changelog script to run',
 					type: 'string',

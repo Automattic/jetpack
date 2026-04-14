@@ -64,10 +64,7 @@ test.describe( 'Search Dashboard', () => {
 				'Jetpack header logo should be visible'
 			).toBeVisible();
 
-			await expect(
-				page.locator( '.jp-dashboard-footer' ),
-				'Footer should be visible'
-			).toBeVisible();
+			await expect( page.locator( '.jetpack-footer' ), 'Footer should be visible' ).toBeVisible();
 
 			await expect( customizeButton, 'Customize button should be visible' ).toBeVisible();
 

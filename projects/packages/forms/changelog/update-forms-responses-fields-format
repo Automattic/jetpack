@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Forms responses dashboard: request field values as a keyed collection from the API.
