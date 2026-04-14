@@ -173,7 +173,7 @@ export default function InboxView( { parentId, pageTitle, pageSubtitle } = {} ) 
 				return accumulator;
 			}
 			if ( field === 'source' ) {
-				accumulator.parent = value;
+				accumulator.source = value;
 			}
 			if ( field === 'date' ) {
 				const [ year, month ] = value.split( '/' ).map( Number );
@@ -378,7 +378,10 @@ export default function InboxView( { parentId, pageTitle, pageSubtitle } = {} ) 
 					const authorInfo = decodeEntities(
 						item.author_name || item.author_email || item.author_url || item.ip
 					);
-					const defaultImage = item.author_name || item.author_email ? 'initials' : 'mp';
+					const gravatarName = item.author_name
+						? decodeEntities( item.author_name )
+						: item.author_email?.split( '@' )[ 0 ];
+					const defaultImage = gravatarName ? 'initials' : 'mp';
 					const secondaryInfo =
 						item.author_email && authorInfo !== decodeEntities( item.author_email ) ? (
 							<span className="jp-forms__inbox__author-field__email">
@@ -412,7 +415,7 @@ export default function InboxView( { parentId, pageTitle, pageSubtitle } = {} ) 
 							<Gravatar
 								email={ item.author_email || item.ip } // With IP we still return placeholder image
 								defaultImage={ defaultImage }
-								displayName={ authorInfo }
+								displayName={ gravatarName }
 								key={ item.id }
 								size={ 32 }
 								useHovercard={ false }
@@ -438,7 +441,10 @@ export default function InboxView( { parentId, pageTitle, pageSubtitle } = {} ) 
 				id: 'date',
 				label: __( 'Date', 'jetpack-forms' ),
 				render: ( { item } ) => {
-					return wrapperUnread( item.is_unread, dateI18n( dateSettings.formats.date, item.date ) );
+					return wrapperUnread(
+						item.is_unread,
+						dateI18n( dateSettings.formats.datetime, item.date )
+					);
 				},
 				elements: ( filterOptions?.date || [] ).map( _filter => {
 					const date = new Date();
@@ -492,7 +498,7 @@ export default function InboxView( { parentId, pageTitle, pageSubtitle } = {} ) 
 			filterOptions?.source,
 			isMobileViewport,
 			openResponseModal,
-			dateSettings.formats.date,
+			dateSettings.formats.datetime,
 			isInboxStatusToggleView,
 			isSingleFormView,
 		]

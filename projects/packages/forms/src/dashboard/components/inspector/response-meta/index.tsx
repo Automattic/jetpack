@@ -38,14 +38,16 @@ export type ResponseMetaProps = {
  * @return {import('react').JSX.Element} The response meta component.
  */
 const ResponseMeta = ( { response }: ResponseMetaProps ): import('react').JSX.Element => {
+	const dateSettings = getDateSettings();
 	const displayName = getDisplayName( response );
 	// Match the data view gravatar logic: use email or IP, and set defaultImage conditionally
 	const gravatarEmail = response.author_email || response.ip;
-	const defaultImage = response.author_name || response.author_email ? 'initials' : 'mp';
+	const gravatarDisplayName = response.author_name
+		? decodeEntities( response.author_name )
+		: response.author_email?.split( '@' )[ 0 ];
+	const defaultImage = gravatarDisplayName ? 'initials' : 'mp';
 
 	const responseAuthorEmailParts = response.author_email?.split( '@' ) ?? [];
-
-	const dateSettings = getDateSettings();
 
 	// Logged-in user row content: either shows display name and ID, username and ID, or just the ID.
 	const loggedInUser = response?.logged_in_user?.id ? response.logged_in_user : null;
@@ -63,7 +65,7 @@ const ResponseMeta = ( { response }: ResponseMetaProps ): import('react').JSX.El
 				<Gravatar
 					email={ gravatarEmail }
 					defaultImage={ defaultImage }
-					displayName={ displayName }
+					displayName={ gravatarDisplayName }
 					key={ gravatarEmail }
 				/>
 				<VStack spacing="0" className="jp-forms__inbox-response-meta-from">

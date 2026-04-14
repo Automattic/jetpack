@@ -2,11 +2,7 @@
 
 import fs from 'fs';
 import path from 'path';
-import { fileURLToPath } from 'url';
 import { SCENARIOS } from './scenarios.js';
-
-const __filename = fileURLToPath( import.meta.url );
-const __dirname = path.dirname( __filename );
 
 /** Extract metrics for a single scenario. */
 function extractScenarioMetrics( scenario, summary ) {
@@ -129,7 +125,8 @@ async function main() {
 		codeVitalsToken: process.env.CODEVITALS_TOKEN,
 		gitHash: process.env.GIT_COMMIT,
 		gitBranch: process.env.GIT_BRANCH || 'trunk',
-		resultsPath: process.env.RESULTS_PATH || path.join( __dirname, '../results/lcp-results.json' ),
+		resultsPath:
+			process.env.RESULTS_PATH || path.join( import.meta.dirname, '../results/lcp-results.json' ),
 	};
 
 	// Validate required config

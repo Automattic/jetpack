@@ -48,6 +48,9 @@ export type PluginInfo = Record< 'social' | 'jetpack', { version: string | null 
 export interface SocialScriptData {
 	api_paths: ApiPaths;
 	assets_url: string;
+	nonces?: {
+		refresh_plan: string;
+	};
 	is_publicize_enabled: boolean;
 	plugin_info: PluginInfo;
 	settings: SocialSettings;

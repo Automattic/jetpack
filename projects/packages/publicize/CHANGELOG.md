@@ -5,6 +5,43 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.77.0] - 2026-04-13
+### Changed
+- Include platform name in social preview toggle labels and tab titles for clearer identification. [#47895]
+- Update package dependencies. [#47890] [#47998]
+
+### Fixed
+- Fix edit template modal not preselecting Default Image when a default image is configured. [#47948]
+- Fix Social Image Generator preview infinite spinner when the default background image has been deleted from the media library. [#47945]
+- Require a nonce before refreshing plan data from the Social admin page. [#47844]
+- Social: Fix independent scrolling in preview modal panels on mobile. [#48050]
+
+## [0.76.1] - 2026-04-06
+### Changed
+- Make link preview icons clickable to open the clicked service tab by default. [#47878]
+- Update admin page footer design. [#47840]
+- Update package dependencies. [#47870]
+
+### Removed
+- Remove UNIFIED_UI_V1 feature flag usage. [#47759]
+
+### Fixed
+- Fix edit template changes not saving when using the back arrow or close button. [#47896]
+- Fix useSelect warning for notesConfig on Social admin page. [#47740]
+
+## [0.76.0] - 2026-03-30
+### Added
+- Add notices for X usage in the connections modal. [#47677]
+- Add X usage UI in the editor sidebar. [#47687]
+- Expose X usage data via API. [#47604]
+
+### Changed
+- Update DataViews dependency. [#46973]
+- Update package dependencies. [#47799]
+
+### Removed
+- Remove unused components. [#47741]
+
 ## [0.75.0] - 2026-03-23
 ### Added
 - Google Search Preview: Wire up site icon to display the actual site favicon in the link preview. [#47551]
@@ -1344,6 +1381,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update package.json metadata.
 
+[0.77.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.76.1...v0.77.0
+[0.76.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.76.0...v0.76.1
+[0.76.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.75.0...v0.76.0
 [0.75.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.74.0...v0.75.0
 [0.74.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.73.2...v0.74.0
 [0.73.2]: https://github.com/Automattic/jetpack-publicize/compare/v0.73.1...v0.73.2

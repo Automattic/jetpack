@@ -54,6 +54,11 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
  * @return string
  */
 function render_block( $attr, $content, $block ) {
+	$services = get_services();
+	if ( ! isset( $attr['service'] ) || ! array_key_exists( $attr['service'], $services ) ) {
+		return $content;
+	}
+
 	$service_name = $attr['service'];
 	$title        = $attr['label'] ?? $service_name;
 	$icon         = get_social_logo( $service_name );
@@ -64,11 +69,6 @@ function render_block( $attr, $content, $block ) {
 		$service_name,
 		$post_id
 	);
-
-	$services = get_services();
-	if ( ! array_key_exists( $service_name, $services ) ) {
-		return $content;
-	}
 
 	$service      = new $services[ $service_name ]( $service_name, array() );
 	$link_props   = $service->get_link(

@@ -350,7 +350,12 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 
 			const _postEmailSentState = postId ? getPostEmailSentState( postId ) : null;
 			const emailSentAt = _postEmailSentState?.email_sent_at ?? null;
-			const shouldFetchTotalEmails = postId && blogId && postEmailResolved && emailSentAt == null;
+			// Only fetch email open stats for already-published posts. Drafts,
+			// auto-drafts, pending, and scheduled posts have never been emailed,
+			// so the WPCOM stats/opens/emails request would be a guaranteed miss
+			// (and can time out on large sites). See NL-578.
+			const shouldFetchTotalEmails =
+				postId && blogId && postEmailResolved && emailSentAt == null && status === 'publish';
 
 			return {
 				hasFinishedLoading: [
@@ -372,7 +377,7 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 					: null,
 			};
 		},
-		[ postId, blogId ]
+		[ postId, blogId, status ]
 	);
 
 	if ( ! hasFinishedLoading ) {

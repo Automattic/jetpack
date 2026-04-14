@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Update Forms e2e test to use explicit inner blocks for compatibility with Central Forms Management.

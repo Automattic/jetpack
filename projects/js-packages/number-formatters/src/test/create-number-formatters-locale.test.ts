@@ -1,61 +1,38 @@
-import { beforeEach, describe, expect, it, jest } from '@jest/globals';
+import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
+import createNumberFormatters from '../create-number-formatters.ts';
 
-const mockDateSettings = {
+const mockGetSettings = jest.fn( () => ( {
 	l10n: {
 		locale: 'fr-FR',
-		months: [],
-		monthsShort: [],
-		weekdays: [],
-		weekdaysShort: [],
-		meridiem: { am: '', pm: '', AM: '', PM: '' },
-		relative: { future: '', past: '' },
-		startOfWeek: 0 as 0 | 1 | 2 | 3 | 4 | 5 | 6,
 	},
-	formats: {
-		time: '',
-		date: '',
-		datetime: '',
-		datetimeAbbreviated: '',
-	},
-	timezone: {
-		offset: '',
-		string: '',
-		abbr: '',
-		offsetFormatted: '',
-	},
-};
-
-// Mock @wordpress/date before any imports that use it
-const mockGetSettings = jest.fn( () => mockDateSettings );
-await jest.unstable_mockModule( '@wordpress/date', () => ( {
-	getSettings: mockGetSettings,
 } ) );
 
-// Now dynamically import all dependencies after mocks are set up
-const { default: createNumberFormatters } = await import( '../create-number-formatters.ts' );
+const originalWp = window.wp;
 
 describe( 'createNumberFormatters() - locale resolution/fallback', () => {
-	const numberFormatters = createNumberFormatters();
-
 	beforeEach( () => {
 		jest.clearAllMocks();
-		mockGetSettings.mockReturnValue( mockDateSettings );
+		window.wp = {
+			date: {
+				getSettings: mockGetSettings,
+			},
+		};
+	} );
+
+	afterEach( () => {
+		window.wp = originalWp;
 	} );
 
 	it( 'should use locale from WordPress user settings when available', () => {
-		// Verify that fr-FR locale is being used
-		mockGetSettings.mockReturnValue( mockDateSettings );
+		const numberFormatters = createNumberFormatters();
 		const result = numberFormatters.formatNumber( 1234567 );
 
-		expect( result ).toBe( '1 234 567' );
+		// French locale uses narrow no-break spaces (U+202F) as thousand separators
+		expect( result ).toBe( '1\u202f234\u202f567' );
 	} );
 
 	it( 'should fall back to browser locale when WordPress locale is not set', () => {
-		// Mock getSettings to return undefined locale
-		mockGetSettings.mockReturnValue( {
-			...mockDateSettings,
-			l10n: { ...mockDateSettings.l10n, locale: '' },
-		} );
+		mockGetSettings.mockReturnValue( { l10n: { locale: '' } } );
 
 		// In jsdom v26, the property for 'language' exists on the prototype of `global.window.navigator`.
 		const nav = Object.getPrototypeOf( global.window.navigator );
@@ -67,27 +44,26 @@ describe( 'createNumberFormatters() - locale resolution/fallback', () => {
 			} );
 			expect( global.window.navigator.language ).toBe( 'de-DE' ); // Check that it worked.
 
+			const numberFormatters = createNumberFormatters();
 			const result = numberFormatters.formatNumber( 1234567 );
 
 			expect( result ).toBe( '1.234.567' );
 		} finally {
-			Object.defineProperty( nav, 'language', originalLanguageDescriptor );
+			Object.defineProperty( nav, 'language', originalLanguageDescriptor! );
 		}
 	} );
 
 	it( 'should fall back to `FALLBACK_LOCALE` ("en") when no locale is available', () => {
-		// Mock getSettings to return undefined locale
-		mockGetSettings.mockReturnValue( {
-			...mockDateSettings,
-			l10n: { ...mockDateSettings.l10n, locale: '' },
-		} );
+		mockGetSettings.mockReturnValue( { l10n: { locale: '' } } );
 
 		const originalNavigator = global.window.navigator;
 		try {
 			// Remove window.navigator to test fallback to 'en'
+			// @ts-expect-error - intentionally deleting navigator to test fallback
 			delete global.window.navigator;
 			expect( global.window.navigator ).toBeUndefined(); // Check that it worked.
 
+			const numberFormatters = createNumberFormatters();
 			const result = numberFormatters.formatNumber( 1234567 );
 
 			expect( result ).toBe( '1,234,567' );

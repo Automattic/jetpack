@@ -1290,4 +1290,168 @@ JSON_DATA{"1_name":"Test Author","2_email":"author@example.com","3_file":{"field
 		$this->assertArrayHasKey( 'logged_in_user', $data );
 		$this->assertNull( $data['logged_in_user'] );
 	}
+
+	/**
+	 * Test that the source parameter is registered in the feedback collection schema.
+	 */
+	public function test_source_parameter_is_registered() {
+		$request  = new WP_REST_Request( 'OPTIONS', '/wp/v2/feedback' );
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+
+		$this->assertArrayHasKey( 'source', $data['endpoints'][0]['args'] );
+		$this->assertEquals( 'integer', $data['endpoints'][0]['args']['source']['type'] );
+	}
+
+	/**
+	 * Test that the source parameter is registered in the counts endpoint.
+	 */
+	public function test_source_parameter_is_registered_in_counts() {
+		$request  = new WP_REST_Request( 'OPTIONS', '/wp/v2/feedback/counts' );
+		$response = $this->server->dispatch( $request );
+		$data     = $response->get_data();
+
+		$this->assertArrayHasKey( 'source', $data['endpoints'][0]['args'] );
+		$this->assertEquals( 'integer', $data['endpoints'][0]['args']['source']['type'] );
+	}
+
+	/**
+	 * Test that the counts endpoint applies source filter SQL when source param is set.
+	 */
+	public function test_counts_with_source_includes_source_filter_sql() {
+		$captured_query = null;
+		add_filter(
+			'wordbless_wpdb_query_results',
+			function ( $results, $query ) use ( &$captured_query ) {
+				if ( strpos( $query, 'SUM(CASE' ) !== false && strpos( $query, 'source_meta' ) !== false ) {
+					$captured_query = $query;
+				}
+				return $results;
+			},
+			10,
+			2
+		);
+
+		$request = new WP_REST_Request( 'GET', '/wp/v2/feedback/counts' );
+		$request->set_param( 'source', 123 );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertNotNull( $captured_query, 'Counts query should include source filter SQL' );
+		$this->assertStringContainsString( '_feedback_source_post_id', $captured_query, 'Counts query should reference the source meta key' );
+		$this->assertStringContainsString( 'source_meta.meta_value', $captured_query, 'Counts query should filter by source meta value' );
+		$this->assertStringContainsString( 'post_parent', $captured_query, 'Counts query should include post_parent fallback' );
+
+		remove_all_filters( 'wordbless_wpdb_query_results' );
+	}
+
+	/**
+	 * Test that the source filter adds the correct SQL JOIN and WHERE clauses.
+	 */
+	public function test_source_filter_modifies_query() {
+		$endpoint = new Contact_Form_Endpoint( 'feedback' );
+
+		// Use reflection to call private get_source_filter_sql method.
+		$method = new \ReflectionMethod( $endpoint, 'get_source_filter_sql' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+		$sql = $method->invoke( $endpoint, 42 );
+
+		$this->assertArrayHasKey( 'join', $sql );
+		$this->assertArrayHasKey( 'where', $sql );
+
+		$this->assertStringContainsString( 'source_meta', $sql['join'], 'JOIN should include the source_meta alias' );
+		$this->assertStringContainsString( '_feedback_source_post_id', $sql['join'], 'JOIN should reference the source meta key' );
+
+		$this->assertStringContainsString( 'source_meta.meta_value', $sql['where'], 'WHERE should filter by source meta value' );
+		$this->assertStringContainsString( 'post_parent', $sql['where'], 'WHERE should include post_parent fallback' );
+		$this->assertStringContainsString( 'source_meta.meta_id IS NULL', $sql['where'], 'WHERE should check for missing meta in fallback' );
+		$this->assertStringContainsString( "'42'", $sql['where'], 'WHERE should include the source ID value' );
+	}
+
+	/**
+	 * Test that source filter hooks are cleaned up after get_items
+	 * by verifying a second request without source does not include source SQL.
+	 */
+	public function test_source_filter_hooks_are_cleaned_up() {
+		// First request with source filter.
+		$request = new WP_REST_Request( 'GET', '/wp/v2/feedback' );
+		$request->set_param( 'source', 42 );
+		$this->server->dispatch( $request );
+
+		// Second request without source — capture SQL to verify no leftover filter.
+		$found_source_sql = false;
+		add_filter(
+			'wordbless_wpdb_query_results',
+			function ( $results, $query ) use ( &$found_source_sql ) {
+				if ( strpos( $query, 'source_meta' ) !== false ) {
+					$found_source_sql = true;
+				}
+				return $results;
+			},
+			10,
+			2
+		);
+
+		$request2 = new WP_REST_Request( 'GET', '/wp/v2/feedback' );
+		$this->server->dispatch( $request2 );
+
+		$this->assertFalse( $found_source_sql, 'Source filter should not leak into subsequent requests' );
+
+		remove_all_filters( 'wordbless_wpdb_query_results' );
+	}
+
+	/**
+	 * Test that without source param, no source filter hooks are added.
+	 */
+	public function test_no_source_filter_without_param() {
+		$found_source_sql = false;
+
+		add_filter(
+			'wordbless_wpdb_query_results',
+			function ( $results, $query ) use ( &$found_source_sql ) {
+				if ( strpos( $query, 'source_meta' ) !== false ) {
+					$found_source_sql = true;
+				}
+				return $results;
+			},
+			10,
+			2
+		);
+
+		$request = new WP_REST_Request( 'GET', '/wp/v2/feedback' );
+		$this->server->dispatch( $request );
+
+		$this->assertFalse( $found_source_sql, 'SQL should not include source_meta when no source param' );
+
+		remove_all_filters( 'wordbless_wpdb_query_results' );
+	}
+
+	/**
+	 * Test that source=0 does not inject source filter SQL.
+	 */
+	public function test_source_filter_with_zero_value_is_ignored() {
+		$found_source_sql = false;
+
+		add_filter(
+			'wordbless_wpdb_query_results',
+			function ( $results, $query ) use ( &$found_source_sql ) {
+				if ( strpos( $query, 'source_meta' ) !== false ) {
+					$found_source_sql = true;
+				}
+				return $results;
+			},
+			10,
+			2
+		);
+
+		$request = new WP_REST_Request( 'GET', '/wp/v2/feedback' );
+		$request->set_param( 'source', 0 );
+		$this->server->dispatch( $request );
+
+		$this->assertFalse( $found_source_sql, 'source=0 should not inject source filter SQL' );
+
+		remove_all_filters( 'wordbless_wpdb_query_results' );
+	}
 }

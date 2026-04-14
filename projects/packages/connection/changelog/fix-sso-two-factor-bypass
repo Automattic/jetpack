@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fixed SSO login conflict with Two-Factor plugin 0.15.0+ that caused a redundant local 2FA prompt after completing WordPress.com 2FA.

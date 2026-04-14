@@ -1,6 +1,7 @@
 <?php
 
 use Automattic\Jetpack\Connection\Utils;
+use Automattic\Jetpack\Connection\XMLRPC_Async_Call;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Sync\Users;
@@ -274,6 +275,57 @@ class Jetpack_Sync_Users_Test extends Jetpack_Sync_TestBase {
 		$this->assertTrue( $events[0]->args[1]['role_changed'] );
 		$this->assertEquals( array( 'subscriber' ), $events[0]->args[1]['previous_role'] );
 		$this->assertCount( 1, $events );
+	}
+
+	public function test_user_role_change_with_empty_set_user_role_value_uses_effective_role() {
+		Jetpack_Options::update_option(
+			'user_tokens',
+			array(
+				$this->user_id => 'apple.a.' . $this->user_id,
+			)
+		);
+
+		XMLRPC_Async_Call::$clients = array();
+
+		Users::user_role_change( $this->user_id );
+
+		$method_names = array();
+		foreach ( XMLRPC_Async_Call::$clients as $blog_clients ) {
+			foreach ( $blog_clients as $client ) {
+				foreach ( $client->calls as $call ) {
+					$method_names[] = $call['methodName'];
+				}
+			}
+		}
+
+		$this->assertContains( 'jetpack.updateRole', $method_names );
+	}
+
+	public function test_user_role_change_with_empty_effective_role_sends_update() {
+		$user = get_user_by( 'id', $this->user_id );
+		$user->remove_role( 'subscriber' );
+
+		Jetpack_Options::update_option(
+			'user_tokens',
+			array(
+				$this->user_id => 'apple.a.' . $this->user_id,
+			)
+		);
+
+		XMLRPC_Async_Call::$clients = array();
+
+		Users::user_role_change( $this->user_id );
+
+		$method_names = array();
+		foreach ( XMLRPC_Async_Call::$clients as $blog_clients ) {
+			foreach ( $blog_clients as $client ) {
+				foreach ( $client->calls as $call ) {
+					$method_names[] = $call['methodName'];
+				}
+			}
+		}
+
+		$this->assertContains( 'jetpack.updateRole', $method_names );
 	}
 
 	public function test_user_remove_role_is_synced() {
