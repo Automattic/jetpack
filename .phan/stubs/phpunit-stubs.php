@@ -1,6 +1,6 @@
 <?php
 /**
- * Stubs automatically generated from PHPUnit 12.5.17
+ * Stubs automatically generated from PHPUnit 12.5.19
  * using the definition file `tools/stubs/phpunit-stub-defs.php` in the Jetpack monorepo.
  *
  * Do not edit this directly! Run tools/stubs/update-stubs.sh to regenerate it.
@@ -16016,6 +16016,9 @@ final class JunitXmlLogger
     public function testSuiteStarted(\PHPUnit\Event\TestSuite\Started $event): void
     {
     }
+    public function testSuiteSkipped(\PHPUnit\Event\TestSuite\Skipped $event): void
+    {
+    }
     public function testSuiteFinished(): void
     {
     }
@@ -16238,6 +16241,17 @@ final readonly class TestSkippedSubscriber extends \PHPUnit\Logging\JUnit\Subscr
 final readonly class TestSuiteFinishedSubscriber extends \PHPUnit\Logging\JUnit\Subscriber implements \PHPUnit\Event\TestSuite\FinishedSubscriber
 {
     public function notify(\PHPUnit\Event\TestSuite\Finished $event): void
+    {
+    }
+}
+/**
+ * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
+ *
+ * @internal This class is not covered by the backward compatibility promise for PHPUnit
+ */
+final readonly class TestSuiteSkippedSubscriber extends \PHPUnit\Logging\JUnit\Subscriber implements \PHPUnit\Event\TestSuite\SkippedSubscriber
+{
+    public function notify(\PHPUnit\Event\TestSuite\Skipped $event): void
     {
     }
 }
