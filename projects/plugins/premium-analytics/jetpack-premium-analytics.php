@@ -33,9 +33,7 @@ if ( is_readable( $jetpack_autoloader ) ) {
 	require_once $jetpack_autoloader;
 } else {
 	if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-		error_log( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-			__( 'Error loading autoloader file for Jetpack Premium Analytics plugin', 'jetpack-premium-analytics' )
-		);
+		error_log( 'Error loading autoloader file for Jetpack Premium Analytics plugin' ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 	}
 
 	add_action(
@@ -45,22 +43,8 @@ if ( is_readable( $jetpack_autoloader ) ) {
 				return;
 			}
 
-			$message = sprintf(
-				wp_kses(
-					/* translators: Placeholder is a link to a support document. */
-					__( 'Your installation of Jetpack Premium Analytics is incomplete. If you installed Jetpack Premium Analytics from GitHub, please refer to <a href="%1$s" target="_blank" rel="noopener noreferrer">this document</a> to set up your development environment.', 'jetpack-premium-analytics' ),
-					array(
-						'a' => array(
-							'href'   => array(),
-							'target' => array(),
-							'rel'    => array(),
-						),
-					)
-				),
-				'https://github.com/Automattic/jetpack/blob/trunk/docs/development-environment.md#building-your-project'
-			);
 			wp_admin_notice(
-				$message,
+				'Your installation of Jetpack Premium Analytics is incomplete. Please refer to <a href="https://github.com/Automattic/jetpack/blob/trunk/docs/development-environment.md#building-your-project" target="_blank" rel="noopener noreferrer">this document</a> to set up your development environment.',
 				array(
 					'type'        => 'error',
 					'dismissible' => true,
@@ -76,7 +60,7 @@ if ( is_readable( $jetpack_autoloader ) ) {
 add_filter(
 	'plugin_action_links_' . JETPACK_PREMIUM_ANALYTICS_FOLDER . '/jetpack-premium-analytics.php',
 	function ( $actions ) {
-		$settings_link = '<a href="' . esc_url( admin_url( 'admin.php?page=jetpack-premium-analytics' ) ) . '">' . __( 'Settings', 'jetpack-premium-analytics' ) . '</a>';
+		$settings_link = '<a href="' . esc_url( admin_url( 'admin.php?page=jetpack-premium-analytics' ) ) . '">Settings</a>';
 		array_unshift( $actions, $settings_link );
 
 		return $actions;
