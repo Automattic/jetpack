@@ -84,6 +84,7 @@ The action relies on the following parameters.
 - (Optional) `slack_quality_channel` is the Slack public channel ID where issues needing extra triage / escalation will be sent. The value should be stored in a variable.
 - (Optional) `slack_product_ambassadors_channel` is the Slack public channel ID where messages about PRs needing docs review will be sent. The value should be stored in a variable.
 - (Optional) `reply_to_customers_threshold`. It is optional, and defaults to 10. It is the minimum number of support references needed to trigger an alert that we need to reply to customers.
+- (Optional) `slack_notify_on_customer_report` is a boolean value that controls whether a Slack notification is sent when the "Customer Report" label is added to an issue. Defaults to `true`.
 - (Optional) `triage_projects_token` is a [personal access token](https://github.com/settings/tokens/new) with `repo` and `project` scopes. The token should be stored in a secret. This is required if you want to use the `triageIssues` task.
 - (Optional) `project_board_url` is the URL of a GitHub Project Board. We'll automate some of the work on that board in the `triageIssues` task.
 - (Optional) `labels_team_assignments` is a list of features you can provide, with matching team names, as specified in the "Team" field of your GitHub Project Board used for the `triageIssues` task, and lists of labels in use in your repository.

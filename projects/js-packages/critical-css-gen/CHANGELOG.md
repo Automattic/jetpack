@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0] - 2026-04-13
+### Changed
+- Bump minimum Node version to 20.11. [#47770]
+- Update dependencies. [#47600]
+- Update package dependencies. [#47799]
+- Update package dependencies. [#47842]
+- Update package dependencies. [#47998]
+
 ## [1.0.27] - 2026-03-09
 ### Changed
 - Set `.repository.url` in `package.json` to the mirror repo rather than the monorepo. Required for enabling provenance. [#47149]
@@ -159,6 +167,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial version. [#38429]
 
+[2.0.0]: https://github.com/Automattic/jetpack-critical-css-gen/compare/v1.0.27...v2.0.0
 [1.0.27]: https://github.com/Automattic/jetpack-critical-css-gen/compare/v1.0.26...v1.0.27
 [1.0.26]: https://github.com/Automattic/jetpack-critical-css-gen/compare/v1.0.25...v1.0.26
 [1.0.25]: https://github.com/Automattic/jetpack-critical-css-gen/compare/v1.0.24...v1.0.25

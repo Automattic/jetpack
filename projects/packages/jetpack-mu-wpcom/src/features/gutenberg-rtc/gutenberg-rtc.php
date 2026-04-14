@@ -23,16 +23,13 @@ function wpcom_has_features_edge_sticker() {
 }
 
 /**
- * Determine whether RTC should be enabled for Atomic sites.
+ * Determine if the site is part of the HTTP-polling gradual rollout.
  *
  * @return bool
  */
-function wpcom_should_enforce_http_polling() {
-	$blog_id = get_wpcom_blog_id();
-
+function wpcom_is_rtc_http_polling_rollout() {
 	if (
 		defined( 'IS_ATOMIC' ) && IS_ATOMIC &&
-		( $blog_id % 100 < 5 ) &&
 		! wpcom_has_features_edge_sticker() // Sites with the sticker should use WS.
 	) {
 		return true;
@@ -41,11 +38,40 @@ function wpcom_should_enforce_http_polling() {
 }
 
 /**
+ * Determine if the site is part of the HTTP-polling gradual rollout.
+ *
+ * @return bool
+ */
+function wpcom_is_rtc_websocket_rollout() {
+	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+		return true;
+	}
+	return false;
+}
+
+/**
+ * Determine whether the current request is from the WordPress.com desktop app.
+ *
+ * @return bool
+ */
+function wpcom_rtc_is_desktop_app() {
+	if ( ! isset( $_SERVER['HTTP_USER_AGENT'] ) ) {
+		return false;
+	}
+	$user_agent = sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) );
+	return false !== strpos( $user_agent, 'WordPressDesktop' );
+}
+
+/**
  * Determine whether RTC should be enabled based on the site's features.
  *
  * @return bool
  */
 function wpcom_enable_rtc() {
+	// Disable RTC on the desktop app due to an incompatibility.
+	if ( wpcom_rtc_is_desktop_app() ) {
+		return false;
+	}
 	$has_rtc_feature = false;
 	if ( function_exists( 'wpcom_site_has_feature' ) && class_exists( 'WPCOM_Features' ) && defined( 'WPCOM_Features::REAL_TIME_COLLABORATION' ) ) {
 		$blog_id         = get_wpcom_blog_id();
@@ -57,11 +83,17 @@ function wpcom_enable_rtc() {
 	}
 
 	$has_needed_gutenberg_version = defined( 'GUTENBERG_VERSION' ) && is_string( GUTENBERG_VERSION ) && version_compare( (string) GUTENBERG_VERSION, '22.7.0', '>=' );
-	if ( ! $has_needed_gutenberg_version ) {
+
+	// WordPress 7.0+ includes RTC support in core.
+	// strtok strips beta/RC suffixes (e.g. "7.0-beta1" → "7.0") so pre-release versions match.
+	global $wp_version;
+	$has_needed_wp_version = version_compare( strtok( $wp_version, '-' ), '7.0', '>=' );
+
+	if ( ! $has_needed_gutenberg_version && ! $has_needed_wp_version ) {
 		return false;
 	}
 
-	if ( wpcom_should_enforce_http_polling() ) {
+	if ( wpcom_is_rtc_http_polling_rollout() || wpcom_is_rtc_websocket_rollout() ) {
 		return true;
 	}
 
@@ -81,13 +113,29 @@ add_filter( 'jetpack_rtc_enabled', 'wpcom_enable_rtc' );
  * @return array Modified array of RTC providers, enforcing 'http-polling' if necessary.
  */
 function wpcom_rtc_providers( $providers ) {
-	if ( wpcom_should_enforce_http_polling() ) {
+	if ( wpcom_is_rtc_http_polling_rollout() ) {
 		return array( 'http-polling' );
 	}
 	return $providers;
 }
 add_filter( 'jetpack_rtc_providers', 'wpcom_rtc_providers' );
 
-add_filter( 'wpcom_rtc_enable_limit_notices', '__return_false', 99 );
+/**
+ * Disable the RTC welcome notice on P2 sites.
+ *
+ * @param bool $is_enabled Whether the welcome notice is enabled.
+ * @return bool
+ */
+function wpcom_rtc_enable_welcome_notice( $is_enabled ) {
+	// The RTC welcome notice is too noisy for P2 sites.
+	if ( function_exists( '\WPForTeams\is_wpforteams_site' ) && \WPForTeams\is_wpforteams_site( get_current_blog_id() ) ) {
+		return false;
+	}
+
+	return $is_enabled;
+}
+add_filter( 'jetpack_rtc_enable_welcome_notice', 'wpcom_rtc_enable_welcome_notice' );
+
+add_filter( 'jetpack_rtc_enable_limit_notices', '__return_false', 99 );
 
 \Automattic\Jetpack\RTC::init();

@@ -41,6 +41,18 @@ class External_Storage_Test extends TestCase {
 			$logged_events_property->setAccessible( true );
 		}
 		$logged_events_property->setValue( null, array() );
+
+		// Reset the init_fired flag
+		$init_fired_property = $reflection->getProperty( 'init_fired' );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$init_fired_property->setAccessible( true );
+		}
+		$init_fired_property->setValue( null, false );
+
+		// Remove any action callbacks added during tests
+		remove_all_filters( 'jetpack_external_storage_init' );
+		remove_all_filters( 'jetpack_external_storage_provider_registered' );
 	}
 
 	/**
@@ -247,5 +259,85 @@ class External_Storage_Test extends TestCase {
 		// Verify custom threshold value
 		$reflection = new \ReflectionMethod( $provider, 'get_empty_state_delay_threshold' );
 		$this->assertSame( 90, $reflection->invoke( $provider ) );
+	}
+
+	/**
+	 * Test that jetpack_external_storage_init fires on first get_value() call.
+	 */
+	public function test_init_action_fires_on_first_get_value() {
+		$fired = 0;
+		add_action(
+			'jetpack_external_storage_init',
+			function () use ( &$fired ) {
+				++$fired;
+			}
+		);
+
+		External_Storage::get_value( 'id' );
+		$this->assertSame( 1, $fired, 'Init action should fire on first get_value() call' );
+
+		External_Storage::get_value( 'blog_token' );
+		$this->assertSame( 1, $fired, 'Init action should not fire again on subsequent calls' );
+	}
+
+	/**
+	 * Test that a provider registered via the init action is used by the same get_value() call.
+	 */
+	public function test_init_action_allows_late_provider_registration() {
+		$provider = new class() implements \Automattic\Jetpack\Connection\Storage_Provider_Interface {
+			public function is_available() {
+				return true;
+			}
+			public function should_handle( $option_name ) {
+				return 'id' === $option_name;
+			}
+			public function get( $option_name ) {
+				return 'id' === $option_name ? 12345 : null;
+			}
+			public function get_environment_id() {
+				return 'test-late';
+			}
+		};
+
+		add_action(
+			'jetpack_external_storage_init',
+			function () use ( $provider ) {
+				External_Storage::register_provider( $provider );
+			}
+		);
+
+		$value = External_Storage::get_value( 'id' );
+		$this->assertSame( 12345, $value, 'Provider registered during init action should serve the triggering read' );
+	}
+
+	/**
+	 * Test that jetpack_external_storage_provider_registered fires on register_provider().
+	 */
+	public function test_provider_registered_action_fires() {
+		$received_provider = null;
+		add_action(
+			'jetpack_external_storage_provider_registered',
+			function ( $provider ) use ( &$received_provider ) {
+				$received_provider = $provider;
+			}
+		);
+
+		$provider = new class() implements \Automattic\Jetpack\Connection\Storage_Provider_Interface {
+			public function is_available() {
+				return true;
+			}
+			public function should_handle( $option_name ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+				return true;
+			}
+			public function get( $option_name ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+				return null;
+			}
+			public function get_environment_id() {
+				return 'test-registered';
+			}
+		};
+
+		External_Storage::register_provider( $provider );
+		$this->assertSame( $provider, $received_provider, 'Registered action should pass the provider instance' );
 	}
 }

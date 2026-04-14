@@ -47,7 +47,7 @@ export function useFilteredPlans( { search }: UseFilteredPlansOptions ): {
 		);
 
 		return {
-			id: purchase.ID,
+			id: String( purchase.ID ),
 			title: purchase.product_name,
 			cards: $products.map( ( [ slug, product ] ) => {
 				const moduleSlug = PRODUCT_MODULES[ slug ] || slug;

@@ -22,16 +22,16 @@ Reader_Link::init();
 
 ## Settings page
 
-The settings page is gated behind the `jetpack_wp_admin_newsletter_settings_enabled` filter (defaults to `false`). When enabled, it registers a `Jetpack > Newsletter` submenu page in wp-admin with a React-based settings UI.
+The settings page is controlled by the `jetpack_wp_admin_newsletter_settings_enabled` filter (defaults to `true`). It registers a `Jetpack > Newsletter` submenu page in wp-admin with a React-based settings UI.
 
 ### Filters
 
 #### `jetpack_wp_admin_newsletter_settings_enabled`
 
-A temporary filter used during development of this package. When `true`, the new wp-admin newsletter settings page is used. When `false` (default), the existing settings pages are used instead (Calypso on WoA/Simple sites, the Jetpack Settings `#/newsletter` tab on standalone Jetpack sites). This filter will be removed once the new settings page is ready for general use.
+Controls whether the new wp-admin newsletter settings page is used. Defaults to `true`. When `false`, the existing settings pages are used instead (Calypso on WoA/Simple sites, the Jetpack Settings `#/newsletter` tab on standalone Jetpack sites). This filter will be removed in a future release.
 
 ```php
-add_filter( 'jetpack_wp_admin_newsletter_settings_enabled', '__return_true' );
+add_filter( 'jetpack_wp_admin_newsletter_settings_enabled', '__return_false' );
 ```
 
 #### `jetpack_show_newsletter_menu_item`

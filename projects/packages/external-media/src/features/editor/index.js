@@ -100,11 +100,14 @@ if ( isUserConnected() && 'function' === typeof useBlockEditContext ) {
 					<>
 						<OriginalComponent { ...props }>
 							{ ( { onClose } ) => (
-								<MediaSources
-									mediaProps={ props }
-									onClick={ onClose }
-									setSource={ setSelectedSource }
-								/>
+								<>
+									<MediaSources
+										mediaProps={ props }
+										onClick={ onClose }
+										setSource={ setSelectedSource }
+									/>
+									{ typeof props.children === 'function' && props.children( { onClose } ) }
+								</>
 							) }
 						</OriginalComponent>
 

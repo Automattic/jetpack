@@ -106,6 +106,7 @@ export function builder( yargs ) {
 			describe: 'Ignore the monorepo root.',
 			type: 'boolean',
 		} )
+		.option( 'dev', { type: 'boolean', hidden: true } )
 		.option( 'no-dev', {
 			describe: 'Do not consider dev dependencies.',
 			type: 'boolean',

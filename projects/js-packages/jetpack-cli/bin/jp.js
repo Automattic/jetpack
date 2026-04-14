@@ -6,15 +6,15 @@ import net from 'net';
 import os from 'os';
 import { dirname, join, resolve } from 'path';
 import process from 'process';
-import { fileURLToPath } from 'url';
 import chalk from 'chalk';
 import * as dotenv from 'dotenv';
 import prompts from 'prompts';
 import updateNotifier from 'update-notifier';
 
 // Get package.json path relative to this file
-const __dirname = dirname( fileURLToPath( import.meta.url ) );
-const packageJson = JSON.parse( readFileSync( resolve( __dirname, '../package.json' ), 'utf8' ) );
+const packageJson = JSON.parse(
+	readFileSync( resolve( import.meta.dirname, '../package.json' ), 'utf8' )
+);
 
 // Check for updates
 const notifier = updateNotifier( {
@@ -50,7 +50,7 @@ const isMonorepoRoot = dir => {
  * @return {boolean} True if running from source
  */
 const isRunningFromSource = () => {
-	let dir = __dirname;
+	let dir = import.meta.dirname;
 	let prevDir;
 	while ( dir !== prevDir ) {
 		if ( isMonorepoRoot( dir ) ) {

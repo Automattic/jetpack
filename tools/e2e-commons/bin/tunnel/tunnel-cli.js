@@ -2,7 +2,6 @@
 
 import childProcess from 'child_process';
 import fs from 'fs';
-import { fileURLToPath } from 'url';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 
@@ -40,7 +39,7 @@ async function tunnelOn( argv, providerName ) {
 		} );
 	}
 
-	const cliPath = fileURLToPath( import.meta.url );
+	const cliPath = import.meta.filename;
 	const args = [ 'child', '--provider', providerName ];
 	const cp = childProcess.fork( cliPath, args, {
 		detached: true,

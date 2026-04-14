@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Subscriptions: Prevent warning when $post global is malformed.

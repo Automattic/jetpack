@@ -5,13 +5,18 @@ import { useReducer } from 'react';
 import { useLinkPreviewPostData } from '../../hooks/use-link-preview-post-data';
 import styles from './styles.module.scss';
 import { LinkPreviewTabs } from './tabs';
-import { LinkPreviewData } from './types';
+import { LinkPreviewData, LinkPreviewPlatform } from './types';
 
 export type LinkPreviewModalProps = Omit< React.ComponentProps< typeof Modal >, 'children' > & {
 	/**
 	 * The data to show in the link preview modal.
 	 */
 	previewData?: Partial< LinkPreviewData >;
+
+	/**
+	 * The initial tab to show when the modal opens.
+	 */
+	initialTabName?: LinkPreviewPlatform;
 };
 
 /**
@@ -21,6 +26,7 @@ export type LinkPreviewModalProps = Omit< React.ComponentProps< typeof Modal >, 
  */
 export function LinkPreviewModal( {
 	previewData,
+	initialTabName,
 	title,
 	className,
 	...modalProps
@@ -34,7 +40,11 @@ export function LinkPreviewModal( {
 			className={ clsx( styles[ 'link-preview-modal' ], className ) }
 			{ ...modalProps }
 		>
-			<LinkPreviewTabs { ...linkPreviewData } { ...previewData } />
+			<LinkPreviewTabs
+				initialTabName={ initialTabName }
+				{ ...linkPreviewData }
+				{ ...previewData }
+			/>
 		</Modal>
 	);
 }

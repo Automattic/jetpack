@@ -189,6 +189,9 @@ class Manager {
 
 		// Initial Partner management.
 		Partner::init();
+
+		// WP 7.0+ Connectors screen card.
+		Wpcom_Connector::init();
 	}
 
 	/**
@@ -210,6 +213,7 @@ class Manager {
 		add_action( 'pre_update_jetpack_option_master_user', array( $this, 'reset_connection_status' ) );
 		// phpcs:ignore WPCUT.SwitchBlog.SwitchBlog -- wpcom flags **every** use of switch_blog, apparently expecting valid instances to ignore or suppress the sniff.
 		add_action( 'switch_blog', array( $this, 'reset_connection_status' ) );
+		add_action( 'jetpack_external_storage_provider_registered', array( $this, 'reset_connection_status' ), 10, 0 );
 
 		self::$connection_invalidators_added = true;
 	}

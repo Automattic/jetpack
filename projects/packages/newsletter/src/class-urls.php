@@ -35,9 +35,9 @@ class Urls {
 		 *
 		 * @since 0.6.0
 		 *
-		 * @param bool $enabled Whether the new settings UI is enabled. Default false.
+		 * @param bool $enabled Whether the new settings UI is enabled. Default true.
 		 */
-		if ( apply_filters( 'jetpack_wp_admin_newsletter_settings_enabled', false ) ) {
+		if ( apply_filters( 'jetpack_wp_admin_newsletter_settings_enabled', true ) ) {
 			return admin_url( 'admin.php?page=jetpack-newsletter' );
 		}
 

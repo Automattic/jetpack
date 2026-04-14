@@ -24,12 +24,6 @@ import { chalkJetpackGreen } from '../helpers/styling.js';
 export const command = 'build [project...]';
 export const describe = 'Builds one or more monorepo projects';
 
-// Priority repos are pushed to the mirror repos first so we can deploy them sooner.
-const priorityRepos = new Set( [
-	'Automattic/jetpack-production',
-	'Automattic/jetpack-mu-wpcom-plugin',
-] );
-
 /**
  * Options definition for the build subcommand.
  *
@@ -68,6 +62,7 @@ export function builder( yargs ) {
 			type: 'boolean',
 			description: 'Build for production.',
 		} )
+		.option( 'pnpm-install', { type: 'boolean', hidden: true } )
 		.option( 'no-pnpm-install', {
 			type: 'boolean',
 			description: 'Skip execution of `pnpm install` before the build.',
@@ -193,19 +188,11 @@ export async function handler( argv ) {
 		limit: pLimit( argv.concurrency ),
 		dependencies,
 		promises: {},
+		mirrorMutex: pLimit( 1 ),
 		versions: {},
-		mirrorRepos: [],
 	};
 	await listr
 		.run( ctx )
-		.then( async () => {
-			if ( argv.forMirrors && ctx.mirrorRepos.length > 0 ) {
-				const mirrorsFile = `${ argv.forMirrors }/mirrors.txt`;
-				await fs.writeFile( mirrorsFile, ctx.mirrorRepos.join( '\n' ) + '\n', {
-					encoding: 'utf8',
-				} );
-			}
-		} )
 		.finally( () => {
 			if ( missing.size ) {
 				console.error( '' );
@@ -1078,11 +1065,8 @@ async function buildProject( t ) {
 		version: projectVersionNumber,
 		runversion: projectRunVersionNumber,
 	};
-
-	// Priority repos are pushed to the mirror repos first so we can deploy them sooner.
-	if ( priorityRepos.has( gitSlug ) ) {
-		t.ctx.mirrorRepos.unshift( gitSlug );
-	} else {
-		t.ctx.mirrorRepos.push( gitSlug );
-	}
+	await t.ctx.mirrorMutex( async () => {
+		// prettier-ignore
+		await fs.appendFile( `${ t.argv.forMirrors }/mirrors.txt`, `${ gitSlug }\n`, { encoding: 'utf8' } );
+	} );
 }

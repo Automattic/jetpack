@@ -18,7 +18,7 @@ export function useConnectionTabs() {
 			return {
 				connectionId: connection.connection_id,
 				name: connection.connection_id,
-				title: connection.display_name,
+				title: `${ connection.display_name } (${ connection.service_label })`,
 				icon: (
 					<ConnectionIcon
 						serviceName={ connection.service_name }
