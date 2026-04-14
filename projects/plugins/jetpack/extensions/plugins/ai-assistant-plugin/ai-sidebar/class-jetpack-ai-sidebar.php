@@ -411,6 +411,16 @@ class Jetpack_AI_Sidebar {
 		}
 
 		if ( false === $data ) {
+			// In dev mode (sandbox/JN), the server-side fetch to widgets.wp.com
+			// won't route through the developer's sandbox. Return a minimal
+			// fallback so the IIFE and provider registration still work —
+			// the browser will load the real bundle from the sandbox.
+			if ( self::is_dev_mode() ) {
+				return array(
+					'dependencies' => array( 'wp-data', 'wp-element', 'wp-i18n' ),
+					'version'      => 'dev-' . time(),
+				);
+			}
 			return false;
 		}
 
