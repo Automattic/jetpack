@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Forms: make response exports respect the Source filter so the downloaded CSV matches the filtered inbox view.

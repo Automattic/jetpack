@@ -3089,7 +3089,32 @@ class Contact_Form_Plugin {
 			);
 		}
 
-		$feedbacks = get_posts( $args );
+		$source_id = ! empty( $_POST['source'] ) ? absint( $_POST['source'] ) : 0;
+
+		if ( $source_id > 0 ) {
+			$source_sql = Feedback::get_source_filter_sql( $source_id );
+
+			$join_cb  = function ( $join, $query ) use ( $source_sql ) {
+				if ( Feedback::POST_TYPE !== $query->get( 'post_type' ) ) {
+					return $join;
+				}
+				return $join . $source_sql['join'];
+			};
+			$where_cb = function ( $where, $query ) use ( $source_sql ) {
+				if ( Feedback::POST_TYPE !== $query->get( 'post_type' ) ) {
+					return $where;
+				}
+				return $where . ' AND ' . $source_sql['where'];
+			};
+
+			add_filter( 'posts_join', $join_cb, 10, 2 );
+			add_filter( 'posts_where', $where_cb, 10, 2 );
+			$feedbacks = get_posts( $args );
+			remove_filter( 'posts_join', $join_cb, 10 );
+			remove_filter( 'posts_where', $where_cb, 10 );
+		} else {
+			$feedbacks = get_posts( $args );
+		}
 
 		return $this->get_export_feedback_data( $feedbacks );
 	}
