@@ -390,7 +390,6 @@ Most projects in the monorepo should have a mirror repository holding a built ve
 	* Create the package in Packagist.
 	* Be sure that `automattic` is added as a maintainer.
 	* Configure a GitHub webhook to allow for auto-updates (see [Packagist docs](https://packagist.org/about#how-to-update-packages)).
-	* If creating under your own account, link your GitHub account to Packagist to enable syncing.
 3. If your project requires building, configure `.scripts.build-production` in your project's `composer.json` to run the necessary commands.
 4. If there are any files included in the monorepo that should not be included in the mirror, use `.gitattributes` to tag them with "production-exclude".
 5. If there are any built files in `.gitignore` that should be included in the mirror, use `.gitattributes` to tag them with "production-include".
