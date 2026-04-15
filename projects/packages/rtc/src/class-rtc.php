@@ -19,7 +19,7 @@ use Automattic\Jetpack\RTC\REST_RTC_Notices;
  */
 class RTC {
 
-	const PACKAGE_VERSION = '0.1.0-alpha';
+	const PACKAGE_VERSION = '0.1.0';
 
 	/**
 	 * Option names for the RTC setting.
@@ -176,6 +176,8 @@ class RTC {
 			array(
 				'providers'         => $providers,
 				'connectionLogging' => function_exists( 'log2logstash' ),
+				'currentPostType'   => get_post_type() ? get_post_type() : null,
+				'currentPostId'     => get_the_ID() ? get_the_ID() : null,
 			),
 			JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 		);

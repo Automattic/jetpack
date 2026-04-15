@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Ensure central-form-management feature flag is registered at bootstrap so early callers (including the dashboard default-tab redirect) see the correct value.

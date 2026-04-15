@@ -6,9 +6,13 @@ import { ResizableBox, SandBox } from '@wordpress/components';
 import { useCallback, useRef, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
+ * Internal dependencies
+ */
+import { isAllowedOrigin } from '../../../../../lib/videopress-allowed-origins';
+import useVideoPlayer, { getIframeWindowFromRef } from '../../../../hooks/use-video-player';
+/**
  * Types
  */
-import useVideoPlayer, { getIframeWindowFromRef } from '../../../../hooks/use-video-player';
 import type { PlayerProps } from './types';
 import type { ReactElement } from 'react';
 
@@ -138,6 +142,10 @@ export default function Player( {
 	 * provided by the videopress player through the bridge.
 	 */
 	const videoPlayerEventsHandler = useCallback( ( ev: MessageEvent ) => {
+		if ( ! isAllowedOrigin( ev.origin ) ) {
+			return;
+		}
+
 		const { data: eventData } = ev || {};
 		const { event: eventName } = eventData;
 		if ( eventName === 'videopress_loading_state' ) {

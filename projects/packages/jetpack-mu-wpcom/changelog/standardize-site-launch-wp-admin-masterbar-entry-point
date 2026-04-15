@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Launch Site: implement direct site launch from the WP Admin masterbar button via an ExPlat experiment, with a shared mutation hook and celebration modal for use across launch entry points.

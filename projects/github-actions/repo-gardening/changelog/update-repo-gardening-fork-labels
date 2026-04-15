@@ -1,4 +1,0 @@
-Significance: patch
-Type: security
-
-Prevent fork PRs from creating new labels in the repository; only add labels that already exist.

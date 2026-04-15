@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Clean up postMessage bridge code: use specific targetOrigin values, add origin checks to message listeners, remove unused legacy token bridge, and add unit tests.

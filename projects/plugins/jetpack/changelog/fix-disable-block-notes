@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Block Notes: Temporarily disable feature to prevent expensive API calls on every Gutenberg page load.

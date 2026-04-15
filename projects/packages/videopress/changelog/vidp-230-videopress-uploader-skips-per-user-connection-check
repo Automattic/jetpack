@@ -1,0 +1,4 @@
+Significance: patch
+Type: security
+
+Ensure only users who can upload media can request VideoPress upload tokens via AJAX.

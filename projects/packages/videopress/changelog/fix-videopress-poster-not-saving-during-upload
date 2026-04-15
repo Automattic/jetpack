@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix poster image not saving when selected during video upload.

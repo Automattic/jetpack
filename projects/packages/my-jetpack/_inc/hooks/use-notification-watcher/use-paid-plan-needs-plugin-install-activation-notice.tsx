@@ -123,7 +123,7 @@ const usePaidPlanNeedsPluginInstallActivationNotice: NoticeHookType = (
 	const { noticeTitle, noticeMessage, buttonLabel } = useGetPaidPlanNeedsPluginsContent( {
 		alert,
 		planName,
-		planPurchaseId: planPurchase?.ID,
+		planPurchaseId: String( planPurchase?.ID ),
 	} );
 
 	const prepareProductsArray = useCallback(
