@@ -169,13 +169,17 @@ class WPCOM_REST_API_V2_Endpoint_MCP_Settings extends WP_REST_Controller {
 		// when derived from WPCOM (no per-site override concept at this layer).
 		$site_level_enabled_default = $site_level_enabled;
 
-		// Build per-site abilities from the effective enabled state of each site-context
-		// tool returned by WPCOM. The WPCOM endpoint merges account defaults with any
-		// per-site user overrides saved via POST, so these values reflect what was last
-		// saved and drive the per-tool toggle states in the Read/Write views.
+		// Use only the explicit per-site user overrides returned by WPCOM in user_overrides.abilities.
+		// These are the raw values stored via SettingsHelper — not the computed effective states
+		// (account defaults merged with overrides). Keeping only explicit overrides here lets the
+		// JS fall back to site_level_enabled as the default for any tool not yet overridden,
+		// matching Calypso's display behaviour (all tools on when site_level_enabled:true and no
+		// per-tool overrides exist).
 		$site_tool_abilities = array();
-		foreach ( $site_abilities as $name => $ability ) {
-			$site_tool_abilities[ $name ] = ! empty( $ability['enabled'] );
+		if ( isset( $body['user_overrides']['abilities'] ) && is_array( $body['user_overrides']['abilities'] ) ) {
+			foreach ( $body['user_overrides']['abilities'] as $name => $value ) {
+				$site_tool_abilities[ (string) $name ] = (bool) $value;
+			}
 		}
 
 		return rest_ensure_response(

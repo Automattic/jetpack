@@ -27,6 +27,7 @@ import {
 import {
 	getAccountMcpAbilities,
 	getSiteContextToolIds,
+	getSiteLevelEnabled,
 	getSiteMcpAbilities,
 	mergeSiteMcpAbilities,
 } from './utils';
@@ -108,38 +109,17 @@ export default function McpRead( { mcpAbilities, blogId, isSaving, onUpdate } ) 
 				Object.entries( accountAbilities ).filter( ( [ id ] ) => siteContextToolIds.has( id ) )
 		  )
 		: accountAbilities;
-	const mergedAbilities = mergeSiteMcpAbilities( siteAccountAbilities, siteAbilities );
-
-	const hasSiteAbilityOverrides = Object.keys( siteAbilities ).length > 0;
-	const defaultToolEnabled = mcpAbilities?.site_level_enabled_default ?? false;
-
-	const effectiveAbilities = hasSiteAbilityOverrides
-		? mergedAbilities
-		: Object.fromEntries(
-				Object.entries( mergedAbilities ).map( ( [ id, tool ] ) => [
-					id,
-					{ ...tool, enabled: defaultToolEnabled },
-				] )
-		  );
-
-	const allTools = Object.entries( effectiveAbilities ).filter(
-		( [ , t ] ) => t.visible !== false
+	const isMcpEnabled = getSiteLevelEnabled( mcpAbilities ?? {}, blogId );
+	const mergedAbilities = mergeSiteMcpAbilities(
+		siteAccountAbilities,
+		siteAbilities,
+		isMcpEnabled
 	);
+
+	const allTools = Object.entries( mergedAbilities ).filter( ( [ , t ] ) => t.visible !== false );
 	const readTools = allTools.filter( ( [ id, t ] ) => ! isWriteTool( id, t ) );
 
-	const buildAbilities = useCallback(
-		overrides => {
-			if ( hasSiteAbilityOverrides ) {
-				return overrides;
-			}
-			const defaults = {};
-			allTools.forEach( ( [ id ] ) => {
-				defaults[ id ] = defaultToolEnabled;
-			} );
-			return { ...defaults, ...overrides };
-		},
-		[ allTools, defaultToolEnabled, hasSiteAbilityOverrides ]
-	);
+	const buildAbilities = useCallback( overrides => overrides, [] );
 
 	const handleToolChange = useCallback(
 		( toolId, enabled ) => {

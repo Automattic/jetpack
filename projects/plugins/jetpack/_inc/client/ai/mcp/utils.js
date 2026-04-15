@@ -55,16 +55,17 @@ export function getSiteMcpAbilities( userSettings, siteId ) {
  * Merge account-level abilities with site-level overrides.
  *
  * @param {Record<string, Object>}  accountAbilities - Account-level tool definitions.
- * @param {Record<string, boolean>} siteAbilities    - Site-level enabled overrides by tool ID.
+ * @param {Record<string, boolean>} siteAbilities    - Explicit per-site overrides by tool ID (only tools the user has explicitly set).
+ * @param {boolean|null}            defaultEnabled   - Fallback enabled state for tools not in siteAbilities (typically site_level_enabled). When null, falls back to the account-level tool.enabled value.
  * @return {Record<string, Object>} Merged abilities with site overrides applied.
  */
-export function mergeSiteMcpAbilities( accountAbilities, siteAbilities ) {
+export function mergeSiteMcpAbilities( accountAbilities, siteAbilities, defaultEnabled = null ) {
 	return Object.fromEntries(
 		Object.entries( accountAbilities ).map( ( [ toolId, tool ] ) => [
 			toolId,
 			{
 				...tool,
-				enabled: toolId in siteAbilities ? siteAbilities[ toolId ] : tool.enabled,
+				enabled: toolId in siteAbilities ? siteAbilities[ toolId ] : defaultEnabled ?? tool.enabled,
 			},
 		] )
 	);

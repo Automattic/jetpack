@@ -135,9 +135,9 @@ export default function McpHub( { mcpAbilities, blogId, isSaving, onNavigate, on
 				Object.entries( accountAbilities ).filter( ( [ id ] ) => siteContextToolIds.has( id ) )
 		  )
 		: accountAbilities;
-	const merged = mergeSiteMcpAbilities( siteAccountAbilities, siteAbilities );
-
 	const isMcpEnabled = getSiteLevelEnabled( mcpAbilities ?? {}, blogId );
+	const merged = mergeSiteMcpAbilities( siteAccountAbilities, siteAbilities, isMcpEnabled );
+
 	const hasSiteAbilityOverrides = Object.keys( siteAbilities ).length > 0;
 	const defaultToolEnabled = mcpAbilities?.site_level_enabled_default ?? false;
 
