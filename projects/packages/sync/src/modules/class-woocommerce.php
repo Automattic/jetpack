@@ -507,7 +507,7 @@ class WooCommerce extends Module {
 		'woocommerce_store_city',
 		'woocommerce_store_postcode',
 		'woocommerce_admin_install_timestamp',
-		'woocommerce_enable_signup_from_checkout_for_subscriptions',
+		'woocommerce_enable_signup_from_checkout_for_subscriptions', // This and the below options relate to the WooCommerce Accounts and Privacy settings page. Required for the Activity Log.
 		'woocommerce_enable_myaccount_registration',
 		'woocommerce_registration_generate_password',
 		'woocommerce_erasure_request_removes_order_data',
@@ -523,6 +523,8 @@ class WooCommerce extends Module {
 		'woocommerce_anonymize_refunded_orders',
 		'woocommerce_anonymize_completed_orders',
 		'woocommerce_anonymize_ended_subscriptions',
+		'woocommerce_enable_delayed_account_creation',
+		'woocommerce_gateway_stripe_retention',
 		'woocommerce_shop_page_id', // This and the below options relate to the WooCommerce Products settings page. Required for the Activity Log.
 		'woocommerce_cart_redirect_after_add',
 		'woocommerce_enable_reviews',
