@@ -1,0 +1,44 @@
+{
+	"name": "@automattic/jetpack-premium-analytics",
+	"version": "0.1.0-alpha",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"build": "wp-build && mkdir -p build/modules/boot && cp shims/boot-asset.php build/modules/boot/index.min.asset.php",
+		"build-production": "NODE_ENV=production wp-build && mkdir -p build/modules/boot && cp shims/boot-asset.php build/modules/boot/index.min.asset.php",
+		"watch": "wp-build --watch"
+	},
+	"wpPlugin": {
+		"name": "jpa",
+		"packageNamespace": "jetpack-premium-analytics",
+		"handlePrefix": "jetpack-premium-analytics",
+		"pages": [
+			{
+				"id": "jetpack-premium-analytics",
+				"init": [
+					"@jetpack-premium-analytics/init"
+				]
+			}
+		],
+		"externalNamespaces": {
+			"wordpress": {
+				"global": "wp",
+				"handlePrefix": "wp"
+			}
+		}
+	},
+	"dependencies": {
+		"@wordpress/boot": "0.10.0",
+		"@wordpress/data": "10.43.0",
+		"@wordpress/i18n": "^6.9.0",
+		"@wordpress/icons": "^12.0.0",
+		"@wordpress/route": "0.9.0",
+		"react": "18.3.1",
+		"react-dom": "18.3.1"
+	},
+	"devDependencies": {
+		"@babel/core": "7.29.0",
+		"@wordpress/build": "0.11.0",
+		"browserslist": "4.28.2"
+	}
+}
