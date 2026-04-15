@@ -82,8 +82,12 @@ export default function Player( {
 	 * of the video player.
 	 */
 	function setVideoPlayerTemporaryHeight() {
+		const wrapper = videoWrapperRef.current;
+		if ( ! wrapper ) {
+			return;
+		}
 		setVideoPlayerTemporaryHeightState(
-			( videoWrapperRef.current.offsetWidth * videoRatio ) / 100 + temporaryHeighErrorCorrection
+			( wrapper.offsetWidth * videoRatio ) / 100 + temporaryHeighErrorCorrection
 		);
 	}
 
@@ -276,6 +280,7 @@ export default function Player( {
 								html={ html }
 								scripts={ sandboxScripts }
 								styles={ [ innerContainerStyle ] }
+								allowSameOrigin
 							/>
 						) }
 

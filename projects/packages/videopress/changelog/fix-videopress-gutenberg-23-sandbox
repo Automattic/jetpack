@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix block editor errors when used with Gutenberg 23.0.0+ (SandBox allow-same-origin default changed)
