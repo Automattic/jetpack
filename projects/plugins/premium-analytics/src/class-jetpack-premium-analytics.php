@@ -24,6 +24,6 @@ class Jetpack_Premium_Analytics {
 	 * Constructor.
 	 */
 	public function __construct() {
-		Analytics::init();
+		Analytics::init( array( 'menu_title' => 'Premium Analytics' ) );
 	}
 }

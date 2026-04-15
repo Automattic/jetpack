@@ -3473,7 +3473,7 @@ importers:
         version: 6.16.0
       '@wordpress/icons':
         specifier: ^12.0.0
-        version: 12.0.0(react@18.3.1)
+        version: 12.1.0(react@18.3.1)
       '@wordpress/route':
         specifier: 0.9.0
         version: 0.9.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -5455,8 +5455,6 @@ importers:
       playwright-ctrf-json-reporter:
         specifier: ^0.0.26
         version: 0.0.26
-
-  projects/plugins/premium-analytics: {}
 
   projects/plugins/protect:
     dependencies:
