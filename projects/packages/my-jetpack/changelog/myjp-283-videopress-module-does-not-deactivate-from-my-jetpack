@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+My Jetpack: Fix Hybrid products not deactivating when activated via the Jetpack-module path.
