@@ -3092,6 +3092,7 @@ class Contact_Form_Plugin {
 		$source_id = ! empty( $_POST['source'] ) ? absint( $_POST['source'] ) : 0;
 		$join_cb   = null;
 		$where_cb  = null;
+		$feedbacks = array();
 
 		if ( $source_id > 0 ) {
 			$source_sql = Feedback::get_source_filter_sql( $source_id );
@@ -3116,8 +3117,10 @@ class Contact_Form_Plugin {
 		try {
 			$feedbacks = get_posts( $args );
 		} finally {
-			if ( $join_cb ) {
+			if ( is_callable( $join_cb ) ) {
 				remove_filter( 'posts_join', $join_cb, 10 );
+			}
+			if ( is_callable( $where_cb ) ) {
 				remove_filter( 'posts_where', $where_cb, 10 );
 			}
 		}
