@@ -15,8 +15,11 @@ return make_phan_config(
 	array(
 		'+stubs'          => array( 'wpcom' ),
 		'parse_file_list' => array(
-			// get_wpcom_blog_id() is defined in the jetpack-mu-wpcom package.
+			// Functions defined in the jetpack-mu-wpcom package.
 			__DIR__ . '/../../../packages/jetpack-mu-wpcom/src/utils.php',
+			__DIR__ . '/../../../packages/jetpack-mu-wpcom/src/lib/transients.php',
+			__DIR__ . '/../../../packages/jetpack-mu-wpcom/src/lib/admin-notifications.php',
+			__DIR__ . '/../../../packages/jetpack-mu-wpcom/src/lib/site-owner.php',
 		),
 	)
 );
