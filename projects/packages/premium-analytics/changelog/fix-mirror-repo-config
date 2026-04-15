@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Remove non-existent mirror-repo config that breaks trunk build.
