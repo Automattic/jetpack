@@ -374,7 +374,7 @@ Most projects in the monorepo should have a mirror repository holding a built ve
 1. Create the mirror repo on GitHub. It will most likely be named like "<span>https://</span>github.com/Automattic/jetpack-_something_".
 	1. Set the repo description:
 		* Begin with `[READ ONLY]`.
-		* Add a description of the project.
+		* Include a description of the project.
 		* End with `This repository is a mirror; for issue tracking and development head here: https://github.com/automattic/jetpack`.
 	2. In the repo settings, turn off wikis, PRs, issues, projects, discussions, and so on.
 	3. If the mirror repo is not under the Automattic organization, make sure that [matticbot](https://github.com/matticbot) can push to the repo.
