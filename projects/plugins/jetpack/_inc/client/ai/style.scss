@@ -1,25 +1,12 @@
-// AdminPage applies margin-left: -20px to compensate for #wpcontent padding.
-// On self-hosted WP this can overflow the viewport; clip it.
-// phpcs:ignore -- SCSS selector, not a PHP file
-.jetpack_page_jetpack-ai #wpbody-content {
-	overflow-x: hidden;
-}
-
 .jetpack-ai-admin {
 
-	// Content wrapper inside AdminPage.
-	// AdminPage's margin-left: -20px shifts the page 20px left, so #wpbody-content
-	// clips the left 20px. Add 20px extra left padding (44px total) to keep
-	// content symmetrically inset. Use border-box so padding is included in width.
+	// Content wrapper inside AdminPage's fluid container.
+	// Use border-box so the 24px padding is included in the 100% width,
+	// preventing horizontal overflow from content-box sizing.
 	&__content {
 		box-sizing: border-box;
 		width: 100%;
-		padding: 24px 24px 24px 44px;
-
-		@media (max-width: 782px) {
-			// Narrower screens use -10px AdminPage margin-left compensation.
-			padding-left: 34px;
-		}
+		padding: 24px;
 	}
 
 	&__back {
