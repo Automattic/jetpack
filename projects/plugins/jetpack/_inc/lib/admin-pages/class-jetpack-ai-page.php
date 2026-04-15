@@ -55,11 +55,12 @@ class Jetpack_AI_Page extends Jetpack_Admin_Page {
 	}
 
 	/**
-	 * Load shared wrapper styles used by the base admin page renderer.
+	 * No additional styles needed: AdminPage from @automattic/jetpack-components
+	 * owns the full layout and does not need the wrap_ui admin.css / style.min.css
+	 * bundle (which zeroes out #wpcontent padding and conflicts with AdminPage's
+	 * margin-left compensation).
 	 */
-	public function additional_styles() {
-		Jetpack_Admin_Page::load_wrapper_styles();
-	}
+	public function additional_styles() {}
 
 	/**
 	 * Enqueue scripts and styles for the AI admin page.

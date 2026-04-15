@@ -1,5 +1,4 @@
 .jetpack-ai-admin {
-	padding: 16px 24px 24px;
 
 	&__back {
 		margin-bottom: 8px;
@@ -7,10 +6,6 @@
 		.components-button.is-tertiary {
 			padding-left: 0;
 		}
-	}
-
-	&__content {
-		// Ensure notices stack correctly
 	}
 
 	&__loading {

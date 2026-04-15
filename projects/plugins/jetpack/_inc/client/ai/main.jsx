@@ -4,7 +4,7 @@
  * Manages the view stack (hub → read | write | setup) and owns the MCP settings state.
  */
 
-import { AdminPage } from '@automattic/jetpack-components';
+import { AdminPage, Col, Container } from '@automattic/jetpack-components';
 import { Button, Notice, Spinner, __experimentalVStack as VStack } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -62,21 +62,20 @@ export default function App() {
 			subTitle={ VIEW_DESCRIPTIONS[ view ] }
 			apiRoot={ apiRoot }
 			apiNonce={ apiNonce }
-			showFooter={ false }
 		>
-			<div className="jetpack-ai-admin">
-				{ isSubView && (
-					<Button
-						className="jetpack-ai-admin__back"
-						variant="tertiary"
-						icon={ arrowLeft }
-						onClick={ navigateBack }
-					>
-						{ __( 'Back', 'jetpack' ) }
-					</Button>
-				) }
+			<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
+				<Col>
+					{ isSubView && (
+						<Button
+							className="jetpack-ai-admin__back"
+							variant="tertiary"
+							icon={ arrowLeft }
+							onClick={ navigateBack }
+						>
+							{ __( 'Back', 'jetpack' ) }
+						</Button>
+					) }
 
-				<div className="jetpack-ai-admin__content">
 					{ isLoading && (
 						<div className="jetpack-ai-admin__loading">
 							<Spinner />
@@ -134,8 +133,8 @@ export default function App() {
 							{ view === 'setup' && <McpSetup /> }
 						</VStack>
 					) }
-				</div>
-			</div>
+				</Col>
+			</Container>
 		</AdminPage>
 	);
 }
