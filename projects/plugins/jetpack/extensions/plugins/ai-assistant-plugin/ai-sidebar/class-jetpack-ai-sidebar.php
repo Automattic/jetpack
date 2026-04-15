@@ -417,7 +417,7 @@ class Jetpack_AI_Sidebar {
 			// the browser will load the real bundle from the sandbox.
 			if ( self::is_dev_mode() ) {
 				return array(
-					'dependencies' => array( 'wp-data', 'wp-element', 'wp-i18n' ),
+					'dependencies' => array( 'wp-abilities', 'wp-data', 'wp-element', 'wp-i18n' ),
 					'version'      => 'dev-' . time(),
 				);
 			}
@@ -498,6 +498,9 @@ class Jetpack_AI_Sidebar {
 	private static function is_dev_mode(): bool {
 		// Known local environments.
 		$domain = wp_parse_url( get_site_url(), PHP_URL_HOST );
+		if ( ! is_string( $domain ) ) {
+			return false;
+		}
 		if (
 			$domain === 'localhost' ||
 			'.jurassic.tube' === stristr( $domain, '.jurassic.tube' ) ||
