@@ -82,6 +82,9 @@ class Container {
 		require_once __DIR__ . '/class-version-selector.php';
 		$this->dependencies[ Version_Selector::class ] = new Version_Selector();
 
+		require_once __DIR__ . '/class-constraint-checker.php';
+		$this->dependencies[ Constraint_Checker::class ] = new Constraint_Checker();
+
 		require_once __DIR__ . '/class-autoloader-locator.php';
 		$this->dependencies[ Autoloader_Locator::class ] = new Autoloader_Locator(
 			$this->get( Version_Selector::class )
@@ -92,7 +95,8 @@ class Container {
 
 		require_once __DIR__ . '/class-manifest-reader.php';
 		$this->dependencies[ Manifest_Reader::class ] = new Manifest_Reader(
-			$this->get( Version_Selector::class )
+			$this->get( Version_Selector::class ),
+			$this->get( Constraint_Checker::class )
 		);
 
 		require_once __DIR__ . '/class-plugins-handler.php';

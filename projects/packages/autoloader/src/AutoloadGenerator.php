@@ -71,8 +71,11 @@ class AutoloadGenerator {
 	) {
 		$this->filesystem->ensureDirectoryExists( $config->get( 'vendor-dir' ) );
 
+		// Build a map of package_name => [constraint, ...] from all packages' requirements.
+		$constraintMap = $this->buildConstraintMap( $localRepo, $mainPackage );
+
 		$packageMap = $composer->getAutoloadGenerator()->buildPackageMap( $installationManager, $mainPackage, $localRepo->getCanonicalPackages() );
-		$autoloads  = $this->parseAutoloads( $packageMap, $mainPackage );
+		$autoloads  = $this->parseAutoloads( $packageMap, $mainPackage, $constraintMap );
 
 		// Convert the autoloads into a format that the manifest generator can consume more easily.
 		$basePath           = $this->filesystem->normalizePath( realpath( getcwd() ) );
@@ -93,24 +96,59 @@ class AutoloadGenerator {
 	}
 
 	/**
+	 * Builds a map of package names to the version constraints placed on them
+	 * by all packages in the dependency tree (including the root package).
+	 *
+	 * @param InstalledRepositoryInterface $localRepo Installed Repository object.
+	 * @param PackageInterface             $mainPackage Main Package object.
+	 *
+	 * @return array Map of package_name => array of constraint strings.
+	 */
+	private function buildConstraintMap( InstalledRepositoryInterface $localRepo, PackageInterface $mainPackage ) {
+		$constraintMap = array();
+
+		// Collect constraints from the root package.
+		foreach ( $mainPackage->getRequires() as $link ) {
+			$target                      = $link->getTarget();
+			$constraintMap[ $target ][]  = (string) $link->getConstraint();
+		}
+
+		// Collect constraints from all installed packages.
+		foreach ( $localRepo->getCanonicalPackages() as $package ) {
+			foreach ( $package->getRequires() as $link ) {
+				$target                      = $link->getTarget();
+				$constraintMap[ $target ][]  = (string) $link->getConstraint();
+			}
+		}
+
+		// Deduplicate constraints per package.
+		foreach ( $constraintMap as $name => $constraints ) {
+			$constraintMap[ $name ] = array_values( array_unique( $constraints ) );
+		}
+
+		return $constraintMap;
+	}
+
+	/**
 	 * Compiles an ordered list of namespace => path mappings
 	 *
-	 * @param  array            $packageMap  Array of array(package, installDir-relative-to-composer.json).
-	 * @param  PackageInterface $mainPackage Main package instance.
+	 * @param  array            $packageMap    Array of array(package, installDir-relative-to-composer.json).
+	 * @param  PackageInterface $mainPackage   Main package instance.
+	 * @param  array            $constraintMap Map of package_name => array of constraint strings.
 	 *
 	 * @return array The list of path mappings.
 	 */
-	public function parseAutoloads( array $packageMap, PackageInterface $mainPackage ) {
+	public function parseAutoloads( array $packageMap, PackageInterface $mainPackage, $constraintMap = array() ) {
 		$rootPackageMap = array_shift( $packageMap );
 
 		$sortedPackageMap   = $this->sortPackageMap( $packageMap );
 		$sortedPackageMap[] = $rootPackageMap;
 		array_unshift( $packageMap, $rootPackageMap );
 
-		$psr0     = $this->parseAutoloadsType( $packageMap, 'psr-0', $mainPackage );
-		$psr4     = $this->parseAutoloadsType( $packageMap, 'psr-4', $mainPackage );
-		$classmap = $this->parseAutoloadsType( array_reverse( $sortedPackageMap ), 'classmap', $mainPackage );
-		$files    = $this->parseAutoloadsType( $sortedPackageMap, 'files', $mainPackage );
+		$psr0     = $this->parseAutoloadsType( $packageMap, 'psr-0', $mainPackage, $constraintMap );
+		$psr4     = $this->parseAutoloadsType( $packageMap, 'psr-4', $mainPackage, $constraintMap );
+		$classmap = $this->parseAutoloadsType( array_reverse( $sortedPackageMap ), 'classmap', $mainPackage, $constraintMap );
+		$files    = $this->parseAutoloadsType( $sortedPackageMap, 'files', $mainPackage, $constraintMap );
 
 		krsort( $psr0 );
 		krsort( $psr4 );
@@ -211,24 +249,29 @@ class AutoloadGenerator {
 	 *
 	 * Supports PSR-4, PSR-0, and classmap parsing.
 	 *
-	 * @param array            $packageMap Map of all the packages.
-	 * @param string           $type Type of autoloader to use.
-	 * @param PackageInterface $mainPackage Instance of the Package Object.
+	 * @param array            $packageMap    Map of all the packages.
+	 * @param string           $type          Type of autoloader to use.
+	 * @param PackageInterface $mainPackage   Instance of the Package Object.
+	 * @param array            $constraintMap Map of package_name => array of constraint strings.
 	 *
 	 * @return array
 	 */
-	protected function parseAutoloadsType( array $packageMap, $type, PackageInterface $mainPackage ) {
+	protected function parseAutoloadsType( array $packageMap, $type, PackageInterface $mainPackage, $constraintMap = array() ) {
 		$autoloads = array();
 
 		foreach ( $packageMap as $item ) {
 			list($package, $installPath) = $item;
 			$autoload                    = $package->getAutoload();
 			$version                     = $package->getVersion(); // Version of the class comes from the package - should we try to parse it?
+			$packageName                 = $package->getName();
 
 			// Store our own actual package version, not "dev-trunk" or whatever.
-			if ( $package->getName() === 'automattic/jetpack-autoloader' ) {
+			if ( $packageName === 'automattic/jetpack-autoloader' ) {
 				$version = self::VERSION;
 			}
+
+			// Look up the constraints that other packages place on this package.
+			$constraints = isset( $constraintMap[ $packageName ] ) ? $constraintMap[ $packageName ] : array();
 
 			if ( $package === $mainPackage ) {
 				$autoload = array_merge_recursive( $autoload, $package->getDevAutoload() );
@@ -244,8 +287,10 @@ class AutoloadGenerator {
 					foreach ( $paths as $path ) {
 						$relativePath              = empty( $installPath ) ? ( empty( $path ) ? '.' : $path ) : $installPath . '/' . $path;
 						$autoloads[ $namespace ][] = array(
-							'path'    => $relativePath,
-							'version' => $version,
+							'path'        => $relativePath,
+							'version'     => $version,
+							'package'     => $packageName,
+							'constraints' => $constraints,
 						);
 					}
 				}
@@ -257,8 +302,10 @@ class AutoloadGenerator {
 					foreach ( $paths as $path ) {
 						$relativePath = empty( $installPath ) ? ( empty( $path ) ? '.' : $path ) : $installPath . '/' . $path;
 						$autoloads[]  = array(
-							'path'    => $relativePath,
-							'version' => $version,
+							'path'        => $relativePath,
+							'version'     => $version,
+							'package'     => $packageName,
+							'constraints' => $constraints,
 						);
 					}
 				}
@@ -269,8 +316,10 @@ class AutoloadGenerator {
 					foreach ( $paths as $path ) {
 						$relativePath = empty( $installPath ) ? ( empty( $path ) ? '.' : $path ) : $installPath . '/' . $path;
 						$autoloads[ $this->getFileIdentifier( $package, $path ) ] = array(
-							'path'    => $relativePath,
-							'version' => $version,
+							'path'        => $relativePath,
+							'version'     => $version,
+							'package'     => $packageName,
+							'constraints' => $constraints,
 						);
 					}
 				}
