@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix stuck loading state on video card after deleting a video
