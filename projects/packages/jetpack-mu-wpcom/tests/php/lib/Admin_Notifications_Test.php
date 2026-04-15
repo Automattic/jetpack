@@ -48,7 +48,7 @@ class Admin_Notifications_Test extends \WorDBless\BaseTestCase {
 		);
 		wp_set_current_user( $user_id );
 
-		\Jetpack_Options::update_option( 'user_tokens', array( $user_id => 'test.token.' . $user_id ) );
+		\Jetpack_Options::update_option( 'blog_token', 'test.blogtoken' );
 		\Jetpack_Options::update_option( 'id', 12345 );
 
 		// Hook into pre_http_request to capture the outgoing request.
@@ -75,11 +75,12 @@ class Admin_Notifications_Test extends \WorDBless\BaseTestCase {
 
 		remove_filter( 'pre_http_request', $filter );
 		\Jetpack_Options::delete_option( 'id' );
-		\Jetpack_Options::delete_option( 'user_tokens' );
+		\Jetpack_Options::delete_option( 'blog_token' );
 		Constants::clear_single_constant( 'JETPACK__WPCOM_JSON_API_BASE' );
 
 		$this->assertNotNull( $captured, 'Expected an HTTP request to be made' );
-		$this->assertStringContainsString( '/sites/12345/site-notifications', $captured['url'] );
+		$this->assertStringContainsString( '/site-notifications', $captured['url'] );
+		$this->assertStringNotContainsString( '/sites/', $captured['url'] );
 
 		$body = json_decode( $captured['args']['body'], true );
 		$this->assertSame( 42, $body['recipient_id'] );

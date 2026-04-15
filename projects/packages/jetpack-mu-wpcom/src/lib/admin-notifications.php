@@ -36,17 +36,17 @@ function wpcom_send_bell_notification( $recipient_id, $type, $data, $dedup_key )
 	}
 
 	// WoW/Atomic sites: call the wpcom REST endpoint.
+	// Uses blog token auth — the endpoint extracts the blog_id from the token.
 	if ( ! class_exists( '\Automattic\Jetpack\Connection\Client' ) ) {
 		return;
 	}
 
-	$blog_id = \Jetpack_Options::get_option( 'id' );
-	if ( ! $blog_id ) {
+	if ( ! \Jetpack_Options::get_option( 'id' ) ) {
 		return;
 	}
 
-	\Automattic\Jetpack\Connection\Client::wpcom_json_api_request_as_user(
-		sprintf( '/sites/%d/site-notifications', $blog_id ),
+	\Automattic\Jetpack\Connection\Client::wpcom_json_api_request_as_blog(
+		'site-notifications',
 		'2',
 		array(
 			'method'  => 'POST',
