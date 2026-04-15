@@ -113,14 +113,12 @@ class Jetpack_AI_Page extends Jetpack_Admin_Page {
 	/**
 	 * Render the page container. The React app mounts into this div.
 	 *
-	 * The .wrap class activates the shared #jp-plugin-container .wrap layout rules:
-	 * max-width, horizontal padding, and margin: 0 auto centering.
+	 * AdminPage from @automattic/jetpack-components handles the full-page layout
+	 * (header, footer, background) so no wrapper is needed here.
 	 */
 	public function page_render() {
 		?>
-		<div class="wrap">
-			<div id="jetpack-ai-root"></div>
-		</div>
+		<div id="jetpack-ai-root"></div>
 		<?php
 	}
 }

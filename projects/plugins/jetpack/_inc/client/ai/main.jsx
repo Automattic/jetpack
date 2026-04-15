@@ -4,13 +4,8 @@
  * Manages the view stack (hub → read | write | setup) and owns the MCP settings state.
  */
 
-import {
-	Button,
-	Notice,
-	Spinner,
-	__experimentalText as Text, // eslint-disable-line @wordpress/no-unsafe-wp-apis
-	__experimentalVStack as VStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
-} from '@wordpress/components';
+import { AdminPage } from '@automattic/jetpack-components';
+import { Button, Notice, Spinner, __experimentalVStack as VStack } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { arrowLeft } from '@wordpress/icons';
@@ -20,17 +15,17 @@ import McpSetup from './mcp/setup';
 import { useMcpSettings } from './mcp/use-mcp-settings';
 import McpWrite from './mcp/write';
 
-const { blogId } = window?.jetpackAiSettings ?? {};
+const { blogId, apiRoot, apiNonce } = window?.jetpackAiSettings ?? {};
 
 const VIEW_TITLES = {
-	hub: __( 'AI settings', 'jetpack' ),
+	hub: __( 'AI', 'jetpack' ),
 	read: __( 'Read', 'jetpack' ),
 	write: __( 'Write', 'jetpack' ),
 	setup: __( 'Connect external AI agent', 'jetpack' ),
 };
 
 const VIEW_DESCRIPTIONS = {
-	hub: __( 'Control how external AI agents can access this site via MCP.', 'jetpack' ),
+	hub: __( 'Control how AI agents interact with your site.', 'jetpack' ),
 	read: __( 'View your site\u2019s content.', 'jetpack' ),
 	write: __( 'Create, update, and manage content on your site.', 'jetpack' ),
 	setup: __( 'Get instructions for connecting your external AI assistant.', 'jetpack' ),
@@ -62,8 +57,13 @@ export default function App() {
 	const isSubView = view !== 'hub';
 
 	return (
-		<div className="jetpack-ai-admin">
-			<div className="jetpack-ai-admin__header">
+		<AdminPage
+			title={ VIEW_TITLES[ view ] }
+			subTitle={ VIEW_DESCRIPTIONS[ view ] }
+			apiRoot={ apiRoot }
+			apiNonce={ apiNonce }
+		>
+			<div className="jetpack-ai-admin">
 				{ isSubView && (
 					<Button
 						className="jetpack-ai-admin__back"
@@ -74,75 +74,67 @@ export default function App() {
 						{ __( 'Back', 'jetpack' ) }
 					</Button>
 				) }
-				<VStack spacing={ 1 }>
-					<Text as="h1" size={ 20 } weight={ 600 }>
-						{ VIEW_TITLES[ view ] }
-					</Text>
-					{ VIEW_DESCRIPTIONS[ view ] && (
-						<Text variant="muted">{ VIEW_DESCRIPTIONS[ view ] }</Text>
+
+				<div className="jetpack-ai-admin__content">
+					{ isLoading && (
+						<div className="jetpack-ai-admin__loading">
+							<Spinner />
+						</div>
 					) }
-				</VStack>
+
+					{ ! isLoading && error && (
+						<Notice status="error" isDismissible={ false }>
+							{ error }
+						</Notice>
+					) }
+
+					{ ! isLoading && saveError && (
+						<Notice status="error" onRemove={ dismissSaveError }>
+							{ saveError }
+						</Notice>
+					) }
+
+					{ ! isLoading && ! error && ! blogId && (
+						<Notice status="warning" isDismissible={ false }>
+							{ __(
+								'This site is not connected to WordPress.com. Please connect Jetpack to manage MCP settings.',
+								'jetpack'
+							) }
+						</Notice>
+					) }
+
+					{ ! isLoading && ! error && !! blogId && (
+						<VStack spacing={ 4 }>
+							{ view === 'hub' && (
+								<McpHub
+									mcpAbilities={ mcpAbilities }
+									blogId={ blogId }
+									isSaving={ isSaving }
+									onNavigate={ setView }
+									onUpdate={ handleUpdate }
+								/>
+							) }
+							{ view === 'read' && (
+								<McpRead
+									mcpAbilities={ mcpAbilities }
+									blogId={ blogId }
+									isSaving={ isSaving }
+									onUpdate={ handleUpdate }
+								/>
+							) }
+							{ view === 'write' && (
+								<McpWrite
+									mcpAbilities={ mcpAbilities }
+									blogId={ blogId }
+									isSaving={ isSaving }
+									onUpdate={ handleUpdate }
+								/>
+							) }
+							{ view === 'setup' && <McpSetup /> }
+						</VStack>
+					) }
+				</div>
 			</div>
-
-			<div className="jetpack-ai-admin__content">
-				{ isLoading && (
-					<div className="jetpack-ai-admin__loading">
-						<Spinner />
-					</div>
-				) }
-
-				{ ! isLoading && error && (
-					<Notice status="error" isDismissible={ false }>
-						{ error }
-					</Notice>
-				) }
-
-				{ ! isLoading && saveError && (
-					<Notice status="error" onRemove={ dismissSaveError }>
-						{ saveError }
-					</Notice>
-				) }
-
-				{ ! isLoading && ! error && ! blogId && (
-					<Notice status="warning" isDismissible={ false }>
-						{ __(
-							'This site is not connected to WordPress.com. Please connect Jetpack to manage MCP settings.',
-							'jetpack'
-						) }
-					</Notice>
-				) }
-
-				{ ! isLoading && ! error && !! blogId && (
-					<VStack spacing={ 4 }>
-						{ view === 'hub' && (
-							<McpHub
-								mcpAbilities={ mcpAbilities }
-								blogId={ blogId }
-								isSaving={ isSaving }
-								onNavigate={ setView }
-								onUpdate={ handleUpdate }
-							/>
-						) }
-						{ view === 'read' && (
-							<McpRead
-								mcpAbilities={ mcpAbilities }
-								blogId={ blogId }
-								isSaving={ isSaving }
-								onUpdate={ handleUpdate }
-							/>
-						) }
-						{ view === 'write' && (
-							<McpWrite
-								mcpAbilities={ mcpAbilities }
-								blogId={ blogId }
-								isSaving={ isSaving }
-								onUpdate={ handleUpdate }
-							/>
-						) }
-						{ view === 'setup' && <McpSetup /> }
-					</VStack>
-				) }
-			</div>
-		</div>
+		</AdminPage>
 	);
 }
