@@ -19,6 +19,7 @@
 		"build-production-js": "echo 'Not implemented.'"
 	},
 	"exports": {
+		"./admin-page-layout": "./admin-page-layout.scss",
 		"./gutenberg-base-styles": "./gutenberg-base-styles.scss",
 		"./package.json": "./package.json",
 		"./root-variables": "./root-variables.scss",
