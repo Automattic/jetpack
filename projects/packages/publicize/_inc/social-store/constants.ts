@@ -7,6 +7,10 @@ export const SHOW_PRICING_PAGE_KEY = 'jetpack-social_show_pricing_page';
 
 export const CUSTOMIZE_PER_NETWORK_KEY = '_wpas_customize_per_network';
 
+// X usage quota limits
+export const FREE_PLAN_LIMIT = 5;
+export const PAID_PLAN_LIMIT = 100;
+
 /**
  * This is to avoid creating a new empty array each time.
  *
