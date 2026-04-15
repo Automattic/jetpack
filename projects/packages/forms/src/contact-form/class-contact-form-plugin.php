@@ -3047,7 +3047,7 @@ class Contact_Form_Plugin {
 
 		$args = array(
 			'posts_per_page'   => -1,
-			'post_type'        => 'feedback',
+			'post_type'        => Feedback::POST_TYPE,
 			'post_status'      => array( 'publish', 'draft' ),
 			'order'            => 'ASC',
 			'fields'           => 'ids',
@@ -3090,6 +3090,8 @@ class Contact_Form_Plugin {
 		}
 
 		$source_id = ! empty( $_POST['source'] ) ? absint( $_POST['source'] ) : 0;
+		$join_cb   = null;
+		$where_cb  = null;
 
 		if ( $source_id > 0 ) {
 			$source_sql = Feedback::get_source_filter_sql( $source_id );
@@ -3109,11 +3111,15 @@ class Contact_Form_Plugin {
 
 			add_filter( 'posts_join', $join_cb, 10, 2 );
 			add_filter( 'posts_where', $where_cb, 10, 2 );
+		}
+
+		try {
 			$feedbacks = get_posts( $args );
-			remove_filter( 'posts_join', $join_cb, 10 );
-			remove_filter( 'posts_where', $where_cb, 10 );
-		} else {
-			$feedbacks = get_posts( $args );
+		} finally {
+			if ( $join_cb ) {
+				remove_filter( 'posts_join', $join_cb, 10 );
+				remove_filter( 'posts_where', $where_cb, 10 );
+			}
 		}
 
 		return $this->get_export_feedback_data( $feedbacks );
