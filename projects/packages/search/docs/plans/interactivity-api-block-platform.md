@@ -1,4 +1,4 @@
-# Jetpack Search — Interactivity API Block Platform
+# Jetpack Search 3.0 — Interactivity API Block Platform
 
 **Date:** 2026-04-15
 **Author:** Greg Ichneumon Brown
@@ -8,7 +8,7 @@
 
 ## Summary
 
-Replace the Preact/Redux instant search overlay with a composable WordPress block system powered by the WordPress Interactivity API. The new blocks connect to the existing Jetpack Search API (v1.3), support server-side rendering, and are designed as a developer platform that any plugin or team can extend. The existing overlay is left unchanged during the transition; both implementations coexist until the overlay is rewritten as a block-editor template part in a later phase.
+This spec covers steps 1 and 2 of the [Jetpack Search 3.0 project](https://radicalupdates.wordpress.com/2026/04/15/jetpack-search-3-0/): build a composable WordPress block system powered by the WordPress Interactivity API that connects to the Jetpack Search v1.3 API. The new blocks support server-side rendering and are designed as a developer platform that any plugin or team can extend. The existing overlay is left unchanged during the transition; both implementations coexist until the overlay is rewritten as a block-editor template part in a later phase.
 
 ---
 
@@ -17,9 +17,16 @@ Replace the Preact/Redux instant search overlay with a composable WordPress bloc
 Jetpack Search currently provides two UIs:
 
 - **Instant Search overlay** — a Preact + Redux modal rendered as a React portal to `document.body`. Configured via a custom Customizer editor. Fast and mobile-optimised, but a popover that breaks out of the site design, with no block editor integration.
-- **Inline Search** — shipped in the WP.com Foundation PT (May 2025); uses the v1.3 API but renders server-side with minimal JS.
+- **Inline Search** — shipped in the WP.com Foundation PT (May 2025); renders server-side with minimal JS. Uses the v1.3 API, but sites were never fully transitioned to it from v1.0.
 
-Both share the same Elasticsearch backend via the v1.3 search API, which supports full `WP_Query`-style queries, filters, aggregations, and sorting.
+### Search API Versions
+
+Jetpack Search has two distinct API versions with important differences:
+
+- **v1.0 (Classic Search)** — uses the **global Elasticsearch index** shared across all WP.com sites. Accepts relatively arbitrary ES queries passed through from the plugin. The vast majority of sites — ~264k Business/Commerce plan sites and ~100k+ standalone Classic Search plan sites — are still on this API. Has been in production for 10+ years.
+- **v1.3** — uses the **jetpack-search index**, a site-specific index that is smaller and faster to rebuild. Accepts only query string, filters, and aggregations — not arbitrary ES queries. Currently serves ~81k sites; the Foundation PT set up the infrastructure for Inline Search using v1.3, but the full site migration from v1.0 to v1.3 has not happened. This is the API the new blocks will call.
+
+The new Interactivity API blocks target the v1.3 API exclusively.
 
 Key gaps driving this work:
 
@@ -30,9 +37,14 @@ Key gaps driving this work:
 
 ### Related Work
 
-- [PT: Fix Search on WP.com Discovery and Foundation](https://datalinkp2.wordpress.com/2025/01/30/pt-fix-search-on-wp-com-discovery-and-foundation/) — shipped the v1.3 API and Inline Search
+- [Jetpack Search 3.0 Project Overview](https://radicalupdates.wordpress.com/2026/04/15/jetpack-search-3-0/) — this spec covers steps 1 and 2
+- [PT: Fix Search on WP.com Discovery and Foundation](https://datalinkp2.wordpress.com/2025/01/30/pt-fix-search-on-wp-com-discovery-and-foundation/) — shipped the v1.3 API and Inline Search infrastructure
 - [Support WC product filtering by Jetpack Search](https://jetpackdatap2.wordpress.com/2024/07/09/support-wc-product-filtering-by-jetpack-search/) — proposal for WooCommerce faceted search
 - [Feasibility Review: Jetpack Search for Woo Marketplace](https://woomarketplace.wordpress.com/2026/03/24/feasibility-review-jetpack-search-for-woo-marketplace/) — identified gaps: no visual config UI, limited e-commerce customisation
+- [Fixing the Jetpack Search offering on WP.com](https://jetpackp2.wordpress.com/2024/12/04/fixing-the-jetpack-search-offering-on-wp-com/) — analysis of the 264k Business/Commerce sites on Classic Search v1.0 and proposed path to inline search
+- [Jetpack Search Architecture and Next Steps](https://jetpacksearch.wordpress.com/2025/01/29/jetpack-search-architecture-and-next-steps/) — deep dive on v1.0 vs v1.3 API differences, global index vs jetpack-search index, and migration challenges
+- [Discuss: Gutenberg + Jetpack Search](https://tumblrspiritp2.wordpress.com/2020/11/26/discuss-gutenberg-plus-jetpack-search/) — early discussion of block-based search direction (2020)
+- [WCEU 2024 Woo Booth Staff Feedback](https://woocommunityevents.wordpress.com/2024/06/17/wceu-2024-woo-booth-staff-feedback-requested/#comment-2112) — real merchant requests driving the WooCommerce filtering work
 
 ---
 
@@ -457,3 +469,10 @@ A triage pass against [open Search issues](https://github.com/Automattic/jetpack
 4. **Overlay Customizer migration**: The Customizer-based overlay configuration has no direct equivalent in the block editor. Users who have customised the overlay will need to rebuild their configuration as a block pattern. A migration guide and import tool should be planned for Phase 4.
 
 5. **Bundle size**: The existing instant search overlay has a strict bundle size limit enforced by `size-limit` in CI. New blocks must not bloat the overall package. Each block's `view.js` is loaded only on pages where that block is rendered.
+
+6. **API migration path for existing sites**: This is the largest operational risk. There are three distinct populations of sites to migrate:
+   - **~264k Business/Commerce sites + ~100k+ Classic Search sites on v1.0**: These sites get Classic Search for free as part of their plan or purchased it standalone. Migrating them to the new block experience requires transitioning them to the v1.3 API (and the jetpack-search index, which needs to scale from ~81k to ~300k+ sites), re-evaluating their plan/billing entitlements, and providing a UI migration path from the overlay or inline search to the new blocks. This requires WPCOM-side capacity planning and a staged rollout strategy.
+   - **~existing instant search sites on v1.3**: Sites already using the Preact/Redux overlay with the v1.3 API need a path to the new block-based UI. These sites are already on the right index but need an opt-in or migration flow to adopt the block pattern setup.
+   - **Billing/plan boundaries**: The Classic Search plan and Jetpack Search plan have different feature boundaries. The new blocks should map cleanly to plan entitlements. This must be resolved before any automatic migration occurs.
+   
+   A phased approach is likely: new sites and opted-in sites first, bulk migration of existing sites later once the v1.3 index has scaled and the UX has been validated.
