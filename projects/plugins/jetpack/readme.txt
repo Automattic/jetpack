@@ -326,12 +326,15 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 15.8-a.1 - 2026-04-13
+### 15.8-a.3 - 2026-04-15
+#### Enhancements
+- Forms: Support granular date filter in inbox.
+- Settings: Replace custom tab navigation with @wordpress/ui Tabs component for proper ARIA semantics, built-in overflow handling, and animated indicator.
+
 #### Bug fixes
-- AI Site Logo extension: Fix static import of @wordpress/edit-post that caused the no-post-editor bundle to list wp-edit-post as a dependency, breaking the P2 frontend block inserter.
-- Newsletter: Fail silently on email stats fetch errors in the editor and skip the fetch for drafts so timeouts no longer flash as errors in Gutenberg.
-- PayPal Payments Button: Fix escaping issue for stacked payments buttons.
-- Subscriptions: Avoid conflicts in the block editor when editing custom post types.
+- Fix taxonomies endpoint returning error when number parameter exceeds 1000.
+- Forms: Fix the Form block not being usable when the Blocks module is inactive.
+- Sync: Increase lock time tolerance in tests.
 
 --------
 

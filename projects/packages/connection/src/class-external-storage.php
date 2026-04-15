@@ -50,7 +50,7 @@ class External_Storage {
 	/**
 	 * Whether the init action has already fired.
 	 *
-	 * @since $$next-version$$
+	 * @since 8.3.0
 	 *
 	 * @var bool
 	 */
@@ -91,7 +91,7 @@ class External_Storage {
 		 * This allows dependent systems (like the connection status cache in Manager)
 		 * to invalidate state that may have been computed before the provider was available.
 		 *
-		 * @since $$next-version$$
+		 * @since 8.3.0
 		 *
 		 * @param Storage_Provider_Interface $provider The registered storage provider.
 		 */
@@ -126,7 +126,7 @@ class External_Storage {
 			 * since add_action() does not require the action or any classes to exist at
 			 * hook-registration time.
 			 *
-			 * @since $$next-version$$
+			 * @since 8.3.0
 			 */
 			do_action( 'jetpack_external_storage_init' );
 		}
