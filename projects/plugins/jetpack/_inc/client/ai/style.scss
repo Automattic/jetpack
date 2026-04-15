@@ -1,3 +1,10 @@
+// AdminPage applies margin-left: -20px to compensate for #wpcontent padding.
+// On self-hosted WP this can overflow the viewport; clip it.
+// phpcs:ignore -- SCSS selector, not a PHP file
+.jetpack_page_jetpack-ai #wpbody-content {
+	overflow-x: hidden;
+}
+
 .jetpack-ai-admin {
 
 	&__back {
