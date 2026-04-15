@@ -13,6 +13,7 @@ import SearchableModules from 'searchable-modules';
 import Security from 'security';
 import Sharing from 'sharing';
 import { isModuleActivated as isModuleActivatedSelector } from 'state/modules';
+import { hasAnyMatchingModule as hasAnyMatchingModuleSelector } from 'state/search';
 import Traffic from 'traffic';
 import Writing from 'writing';
 import { FEATURE_JETPACK_EARN } from '../lib/plans/constants';
@@ -29,6 +30,7 @@ class Settings extends Component {
 			siteRawUrl,
 			blogID,
 			userCanManageModules,
+			hasAnyMatchingModule,
 		} = this.props;
 		const { pathname } = location;
 		const commonProps = {
@@ -36,19 +38,20 @@ class Settings extends Component {
 			rewindStatus,
 			userCanManageModules,
 		};
+		const showEmptySearchState = !! searchTerm && ! hasAnyMatchingModule;
 
 		return (
 			<ThemeProvider>
 				<div className="jp-settings-container">
-					<div className="jp-no-results">
-						{ searchTerm
-							? sprintf(
-									/* translators: %s: a search term entered in search form. */
-									__( 'No search results found for %s', 'jetpack' ),
-									searchTerm
-							  )
-							: __( 'Enter a search term to find settings or close search.', 'jetpack' ) }
-					</div>
+					{ showEmptySearchState && (
+						<h2 className="jp-settings__section-title jp-settings__section-title--centered">
+							{ sprintf(
+								/* translators: %s: a search term entered in search form. */
+								__( 'No search results found for %s', 'jetpack' ),
+								searchTerm
+							) }
+						</h2>
+					) }
 					<Security
 						siteAdminUrl={ siteAdminUrl }
 						siteRawUrl={ siteRawUrl }
@@ -114,5 +117,6 @@ class Settings extends Component {
 export default connect( state => {
 	return {
 		isModuleActivated: module => isModuleActivatedSelector( state, module ),
+		hasAnyMatchingModule: hasAnyMatchingModuleSelector( state ),
 	};
 } )( props => <Settings { ...props } location={ useLocation() } /> );

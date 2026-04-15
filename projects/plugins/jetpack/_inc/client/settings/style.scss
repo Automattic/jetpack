@@ -110,16 +110,6 @@
 		width: 100%;
 	}
 
-	.jp-no-results {
-		display: none;
-		font-size: rem.convert(14px);
-		line-height: 1.5;
-
-		&:last-of-type {
-			display: inherit;
-		}
-	}
-
 	@include breakpoints.breakpoint( "<480px" ) {
 
 		.dops-search.is-expanded-to-container {
