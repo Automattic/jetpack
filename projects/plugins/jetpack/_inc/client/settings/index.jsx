@@ -1,5 +1,7 @@
 import { GlobalNotices, ThemeProvider } from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
+import { search } from '@wordpress/icons';
+import { EmptyState, Stack } from '@wordpress/ui';
 import { Component } from 'react';
 import { connect } from 'react-redux';
 import { useLocation } from 'react-router';
@@ -44,13 +46,21 @@ class Settings extends Component {
 			<ThemeProvider>
 				<div className="jp-settings-container">
 					{ showEmptySearchState && (
-						<h2 className="jp-settings__section-title jp-settings__section-title--centered">
-							{ sprintf(
-								/* translators: %s: a search term entered in search form. */
-								__( 'No search results found for %s', 'jetpack' ),
-								searchTerm
-							) }
-						</h2>
+						<Stack justify="center" className="jp-settings__empty-search-results">
+							<EmptyState.Root>
+								<EmptyState.Visual>
+									<EmptyState.Icon icon={ search } />
+								</EmptyState.Visual>
+								<EmptyState.Title>{ __( 'No matching settings', 'jetpack' ) }</EmptyState.Title>
+								<EmptyState.Description>
+									{ sprintf(
+										/* translators: %s: a search term entered in search form. */
+										__( 'No search results found for %s', 'jetpack' ),
+										searchTerm
+									) }
+								</EmptyState.Description>
+							</EmptyState.Root>
+						</Stack>
 					) }
 					<Security
 						siteAdminUrl={ siteAdminUrl }
