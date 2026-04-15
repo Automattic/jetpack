@@ -125,6 +125,8 @@ class Feedback {
 	 * Matches feedback with the _feedback_source_post_id meta set, or falls back
 	 * to post_parent for old feedback that doesn't have the meta yet.
 	 *
+	 * @since $$next-version$$
+	 *
 	 * @param int $source_id The source post ID to filter by.
 	 * @return array{join: string, where: string} SQL fragments.
 	 */
