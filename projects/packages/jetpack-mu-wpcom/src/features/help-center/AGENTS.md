@@ -74,7 +74,7 @@ All routes are registered under the `help-center` namespace (`/wp-json/help-cent
 - **Router history cap**: `calypso_preferences_update` limits `help_center_router_history` entries to 50 to prevent unbounded growth.
 - **Admin bar icon**: The `wp-admin` and `wp-admin-disconnected` variants add a Help Center icon to the WordPress admin bar with a notification dot SVG.
 - **Menu panel**: Behind an ExPlat experiment (`calypso_help_center_menu_popover_increase_exposure`), adds a menu panel with links to chat, chat history, support guides, courses, and product updates.
-- **Logged-out support**: On support sites, an ExPlat experiment (`wpcom_ai_on_logged_out_support_pages_v3`) gates whether logged-out users see the Help Center.
+- **Logged-out support**: On support sites, logged-out users see the Help Center.
 - **Disconnected fallback**: When the user is not connected via Jetpack, the Help Center icon links to `wordpress.com/help` instead of opening the in-app experience.
 
 ## Development
