@@ -72,6 +72,11 @@ function is_ciab_environment() {
  * events fired from Image Studio can be tagged with is_test on the
  * Calypso side.
  *
+ * Note: This intentionally duplicates the logic from
+ * Agents_Manager::is_dev_mode() in jetpack-mu-wpcom rather than calling
+ * it directly, because that package is only available on WordPress.com
+ * hosted sites, while Image Studio also runs on self-hosted Jetpack sites.
+ *
  * @return bool
  */
 function is_dev_mode() {
