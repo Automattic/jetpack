@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+AdminPage: added a stable, non-hashed `jp-admin-page` class on the component root so shared SCSS mixins and global stylesheets can target AdminPage without coupling to the hashed CSS-Modules className.
