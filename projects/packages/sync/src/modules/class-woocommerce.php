@@ -523,6 +523,52 @@ class WooCommerce extends Module {
 		'woocommerce_anonymize_refunded_orders',
 		'woocommerce_anonymize_completed_orders',
 		'woocommerce_anonymize_ended_subscriptions',
+		'woocommerce-ppcp-data-settings', // This and the below options relate to the Pay with PayPal payments settings page. Required for the Activity Log.
+		'woocommerce-ppcp-data-paylater-messaging',
+		'woocommerce_ppcp-gateway_settings',
+		'woocommerce_ppcp-card-button-gateway_settings',
+		'woocommerce_ppcp-eps_settings',
+		'woocommerce_pay-later_settings',
+		'woocommerce_ppcp-bancontact_settings',
+		'woocommerce_venmo_settings',
+		'woocommerce_ppcp-axo-gateway_settings',
+		'woocommerce_ppcp-googlepay_settings',
+		'woocommerce_ppcp-applepay_settings',
+		'woocommerce_ppcp-multibanco_settings',
+		'woocommerce_ppcp-p24_settings',
+		'woocommerce_ppcp-mybank_settings',
+		'woocommerce_ppcp-ideal_settings',
+		'woocommerce_ppcp-blik_settings',
+		'woocommerce_ppcp-pwc_settings',
+		'woocommerce_ppcp-ppcp-smart-button_settings',
+		'woocommerce_ppcp-oxxo_settings',
+		'woocommerce_ppcp-pay-upon-invoice_settings',
+		'woocommerce_ppcp-vaulting-myaccount-payments_settings',
+		'woocommerce_ppcp-fraudnet_settings',
+		'_wcpay_feature_customer_multi_currency', // This and the below options relate to WooPayments.
+		'current_protection_level',
+		'woocommerce_woocommerce_payments_settings',
+		'woocommerce_stripe_settings', // This and the below options relate to additional payment types.
+		'woocommerce_stripe_klarna_settings',
+		'woocommerce_stripe_affirm_settings',
+		'woocommerce_stripe_afterpay_clearpay_settings',
+		'woocommerce_square_credit_card_settings',
+		'woocommerce_square_cash_app_pay_settings',
+		'woocommerce_gift_cards_pay_settings',
+		'woocommerce_awx_onboarding_gateway_settings',
+		'woocommerce_amazon_payments_advanced_settings',
+		'woocommerce_amazon_payments_advanced_express_settings',
+		'airwallex-online-payments-gatewayairwallex_main_settings',
+		'airwallex-online-payments-gatewayairwallex_card_settings',
+		'airwallex-online-payments-gatewayairwallex_wechat_settings',
+		'airwallex-online-payments-gatewayairwallex_express_checkout_settings',
+		'airwallex-online-payments-gatewayairwallex_pos_settings',
+		'airwallex-online-payments-gatewayairwallex_klarna_settings',
+		'airwallex-online-payments-gatewayairwallex_afterpay_settings',
+		'woocommerce_visa_acceptance_solutions_unified_checkout_settings',
+		'woocommerce_bacs_settings', // This relates to offline payments.
+		'woocommerce_cheque_settings', // This relates to offline payments.
+		'woocommerce_cod_setting', // This relates to offline payments.
 	);
 
 	/**
