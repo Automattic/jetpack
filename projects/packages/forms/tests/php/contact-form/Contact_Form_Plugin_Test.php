@@ -1678,4 +1678,123 @@ class Contact_Form_Plugin_Test extends BaseTestCase {
 		$this->assertTrue( $plugin->use_block_editor_for_post( true, $post ) );
 		$this->assertFalse( $plugin->use_block_editor_for_post( false, $post ) );
 	}
+
+	/**
+	 * Creates a user and grants the `export` cap via the `user_has_cap`
+	 * filter so tests don't depend on role/option state (which WorDBless
+	 * can clear between tests).
+	 *
+	 * Returns a cleanup closure that removes the cap filter.
+	 *
+	 * @param string $login The user login.
+	 * @return array{0:int,1:callable} [ user_id, cleanup callback ]
+	 */
+	private static function create_export_capable_user( $login ) {
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => $login,
+				'user_pass'  => 'password',
+				'role'       => 'administrator',
+			)
+		);
+		$grant   = function ( $allcaps ) {
+			$allcaps['export'] = true;
+			return $allcaps;
+		};
+		add_filter( 'user_has_cap', $grant );
+		$cleanup = function () use ( $grant ) {
+			remove_filter( 'user_has_cap', $grant );
+		};
+		return array( $user_id, $cleanup );
+	}
+
+	/**
+	 * Regression test: the response export must apply the Source filter so the
+	 * downloaded CSV matches the filtered inbox view.
+	 *
+	 * Previously (regression from #48027) the export ignored `$_POST['source']`
+	 * and returned all feedback entries regardless of the dashboard's selected
+	 * source. Asserting that the feedback SQL issued during export includes the
+	 * shared source-filter JOIN/WHERE protects against that reintroducing.
+	 */
+	public function test_export_applies_source_filter_when_source_post_param_is_set() {
+		list( $admin_id, $cleanup_cap ) = self::create_export_capable_user( 'export_source_admin' );
+		wp_set_current_user( $admin_id );
+
+		$plugin = Contact_Form_Plugin::init();
+
+		$captured_query = null;
+		add_filter(
+			'wordbless_wpdb_query_results',
+			function ( $results, $query ) use ( &$captured_query ) {
+				if ( strpos( $query, 'source_meta' ) !== false ) {
+					$captured_query = $query;
+				}
+				return $results;
+			},
+			10,
+			2
+		);
+
+		$nonce                                 = wp_create_nonce( 'feedback_export' );
+		$_POST['feedback_export_nonce_csv']    = $nonce;
+		$_REQUEST['feedback_export_nonce_csv'] = $nonce;
+		$_POST['source']                       = '42';
+
+		$plugin->get_feedback_entries_from_post();
+
+		$this->assertNotNull( $captured_query, 'Export query should include the source filter SQL when $_POST[source] is set' );
+		$this->assertStringContainsString( '_feedback_source_post_id', $captured_query, 'Export query should reference the source meta key' );
+		$this->assertStringContainsString( 'source_meta.meta_value', $captured_query, 'Export query should filter by source meta value' );
+		$this->assertStringContainsString( 'post_parent', $captured_query, 'Export query should include the post_parent fallback' );
+
+		remove_all_filters( 'wordbless_wpdb_query_results' );
+		$cleanup_cap();
+		unset(
+			$_POST['feedback_export_nonce_csv'],
+			$_REQUEST['feedback_export_nonce_csv'],
+			$_POST['source']
+		);
+		wp_set_current_user( 0 );
+	}
+
+	/**
+	 * Regression test: without `$_POST['source']`, the export must not inject
+	 * source-filter SQL (so unfiltered exports stay unfiltered).
+	 */
+	public function test_export_without_source_post_param_does_not_include_source_sql() {
+		list( $admin_id, $cleanup_cap ) = self::create_export_capable_user( 'export_no_source_admin' );
+		wp_set_current_user( $admin_id );
+
+		$plugin = Contact_Form_Plugin::init();
+
+		$found_source_sql = false;
+		add_filter(
+			'wordbless_wpdb_query_results',
+			function ( $results, $query ) use ( &$found_source_sql ) {
+				if ( strpos( $query, 'source_meta' ) !== false ) {
+					$found_source_sql = true;
+				}
+				return $results;
+			},
+			10,
+			2
+		);
+
+		$nonce                                 = wp_create_nonce( 'feedback_export' );
+		$_POST['feedback_export_nonce_csv']    = $nonce;
+		$_REQUEST['feedback_export_nonce_csv'] = $nonce;
+
+		$plugin->get_feedback_entries_from_post();
+
+		$this->assertFalse( $found_source_sql, 'Export query should not include source filter SQL when $_POST[source] is absent' );
+
+		remove_all_filters( 'wordbless_wpdb_query_results' );
+		$cleanup_cap();
+		unset(
+			$_POST['feedback_export_nonce_csv'],
+			$_REQUEST['feedback_export_nonce_csv']
+		);
+		wp_set_current_user( 0 );
+	}
 }
