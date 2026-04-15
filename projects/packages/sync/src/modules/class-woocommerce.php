@@ -545,7 +545,9 @@ class WooCommerce extends Module {
 		'woocommerce_attribute_lookup_direct_updates',
 		'woocommerce_attribute_lookup_optimized_updates',
 		'woocommerce-ppcp-data-settings', // This and the below options relate to the Pay with PayPal payments settings page. Required for the Activity Log.
+		'woocommerce-ppcp-data-payment',
 		'woocommerce-ppcp-data-paylater-messaging',
+		'woocommerce-ppcp-data-styling',
 		'woocommerce_ppcp-gateway_settings',
 		'woocommerce_ppcp-card-button-gateway_settings',
 		'woocommerce_ppcp-eps_settings',
@@ -563,6 +565,7 @@ class WooCommerce extends Module {
 		'woocommerce_ppcp-pwc_settings',
 		'woocommerce_ppcp-ppcp-smart-button_settings',
 		'woocommerce_ppcp-oxxo_settings',
+		'woocommerce_ppcp-trustly_settings',
 		'woocommerce_ppcp-pay-upon-invoice_settings',
 		'woocommerce_ppcp-vaulting-myaccount-payments_settings',
 		'woocommerce_ppcp-fraudnet_settings',
