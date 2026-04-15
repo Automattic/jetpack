@@ -52,8 +52,8 @@ importers:
         specifier: 75.0.0
         version: 75.0.0(graphql@16.12.0)
       '@slack/web-api':
-        specifier: 7.12.0
-        version: 7.12.0
+        specifier: 7.15.1
+        version: 7.15.1
       compare-versions:
         specifier: 6.1.1
         version: 6.1.1
@@ -132,8 +132,8 @@ importers:
         specifier: 9.0.0
         version: 9.0.0
       '@slack/web-api':
-        specifier: 7.12.0
-        version: 7.12.0
+        specifier: 7.15.1
+        version: 7.15.1
       glob:
         specifier: 13.0.6
         version: 13.0.6
@@ -5936,8 +5936,8 @@ importers:
         specifier: 1.58.2
         version: 1.58.2
       '@slack/web-api':
-        specifier: 7.12.0
-        version: 7.12.0
+        specifier: 7.15.1
+        version: 7.15.1
       '@types/lodash-es':
         specifier: 4.17.12
         version: 4.17.12
@@ -9303,8 +9303,8 @@ packages:
     resolution: {integrity: sha512-eWX2mdt1ktpn8+40iiMc404uGrih+2fxiky3zBcPjtXKj6HLRdYlmhrPkJi7JTJm8dpXR6BWVWEDBXtaWMKD6A==}
     engines: {node: '>= 12.13.0', npm: '>= 6.12.0'}
 
-  '@slack/web-api@7.12.0':
-    resolution: {integrity: sha512-LrDxjYyqjeYYQGVdVZ6EYHunFmzveOr2pFpShr6TzW4KNFpdNNnpKekjtMg0PJlOsMibSySLGQqiBZQDasmRCA==}
+  '@slack/web-api@7.15.1':
+    resolution: {integrity: sha512-y+TAF7TszcmFzbVtBkFqAdBwKSoD+8shkNxhp4WIfFwXmCKdFje9WD6evROApPa2FTy1v1uc9yBaJs3609PPgg==}
     engines: {node: '>= 18', npm: '>= 8.6.0'}
 
   '@so-ric/colorspace@1.1.6':
@@ -21776,7 +21776,7 @@ snapshots:
 
   '@slack/types@2.20.1': {}
 
-  '@slack/web-api@7.12.0':
+  '@slack/web-api@7.15.1':
     dependencies:
       '@slack/logger': 4.0.1
       '@slack/types': 2.20.1
