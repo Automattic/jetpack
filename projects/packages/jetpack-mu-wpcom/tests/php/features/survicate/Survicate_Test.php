@@ -359,6 +359,20 @@ class Survicate_Test extends \WorDBless\BaseTestCase {
 		$this->assertStringContainsString( 'test@example.com', $inline_script );
 	}
 
+	/**
+	 * Tests that enqueue_scripts includes Help Center suppression logic.
+	 */
+	public function test_enqueue_scripts_includes_help_center_suppression() {
+		$this->enqueue_survicate_scripts();
+
+		$inline_script = $this->get_inline_script();
+
+		$this->assertStringContainsString( 'initHelpCenterSuppression', $inline_script );
+		$this->assertStringContainsString( 'automattic/help-center', $inline_script );
+		$this->assertStringContainsString( 'isHelpCenterShown', $inline_script );
+		$this->assertStringContainsString( 'closeSurvey', $inline_script );
+	}
+
 	// ---- Singleton tests ----
 
 	/**

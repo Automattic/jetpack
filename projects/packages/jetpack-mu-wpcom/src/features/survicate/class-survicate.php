@@ -139,6 +139,30 @@ class Survicate {
 	window.addEventListener( 'SurvicateReady', function () {
 		window._sva.setVisitorTraits( traits );
 	} );
+
+	// Close any visible Survicate survey when the Help Center opens.
+	// Mirrors the suppression logic in wp-calypso's @automattic/survicate package.
+	function initHelpCenterSuppression() {
+		if ( ! window.wp || ! window.wp.data || ! window.wp.data.subscribe ) {
+			return;
+		}
+		var wasOpen = false;
+		window.wp.data.subscribe( function () {
+			try {
+				var store = window.wp.data.select( 'automattic/help-center' );
+				var isOpen = !! ( store && store.isHelpCenterShown && store.isHelpCenterShown() );
+				if ( isOpen && ! wasOpen && window._sva && window._sva.closeSurvey ) {
+					window._sva.closeSurvey();
+				}
+				wasOpen = isOpen;
+			} catch ( e ) {}
+		} );
+	}
+	if ( document.readyState !== 'loading' ) {
+		initHelpCenterSuppression();
+	} else {
+		document.addEventListener( 'DOMContentLoaded', initHelpCenterSuppression );
+	}
 } )();
 JS
 		);
