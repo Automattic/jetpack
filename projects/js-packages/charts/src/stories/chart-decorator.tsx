@@ -168,7 +168,8 @@ const StoryChartProvider = ( {
 			*/ }
 			<div
 				style={ {
-					fontFamily: 'var(--wpds-font-family-body, sans-serif)',
+					// eslint-disable-next-line @wordpress/no-unknown-ds-tokens -- Token exists in @wordpress/theme@0.11.0 but @wordpress/eslint-plugin@24.5.0 bundles an older theme token list.
+					fontFamily: 'var(--wpds-typography-font-family-body, sans-serif)',
 				} }
 			>
 				<GlobalChartsProvider key={ providerKey } theme={ theme }>
