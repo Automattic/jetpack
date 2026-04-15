@@ -20,13 +20,13 @@ export default function UpgradeNotice() {
 
 	return (
 		<Notice
-			status="warning"
-			isDismissible={ false }
+			status="success"
+			isDismissible
 			className="jetpack-content-guidelines-ai__upgrade-notice"
 		>
 			<p>
 				{ __(
-					'Upgrade to Jetpack AI to generate and improve your content guidelines.',
+					'Not sure where to start? Jetpack can read your site and suggest guidelines tailored to your content. Upgrade to get started.',
 					'jetpack'
 				) }
 			</p>
