@@ -50,6 +50,13 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	private $saved_wp_styles;
 
 	/**
+	 * Saved siteurl option for restoration in tear_down.
+	 *
+	 * @var string
+	 */
+	private $saved_siteurl;
+
+	/**
 	 * Set up before each test.
 	 */
 	public function set_up() {
@@ -64,7 +71,8 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 		// Ensure Big Sky is disabled by default so tests aren't affected by the
 		// Big_Sky class persisting across tests once simulate_big_sky_class() runs.
 		update_option( 'big_sky_enable', '0' );
-		$this->saved_screen = $GLOBALS['current_screen'] ?? null;
+		$this->saved_screen  = $GLOBALS['current_screen'] ?? null;
+		$this->saved_siteurl = get_option( 'siteurl' );
 	}
 
 	/**
@@ -78,6 +86,7 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 		remove_all_filters( 'jetpack_ai_enabled' );
 		( new \Automattic\Jetpack\Connection\Manager( 'jetpack' ) )->reset_connection_status();
 		delete_option( 'big_sky_enable' );
+		update_option( 'siteurl', $this->saved_siteurl );
 		$GLOBALS['current_screen'] = $this->saved_screen;
 		$GLOBALS['wp_scripts']     = $this->saved_wp_scripts;
 		$GLOBALS['wp_styles']      = $this->saved_wp_styles;
