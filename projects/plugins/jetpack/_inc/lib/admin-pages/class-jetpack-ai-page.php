@@ -111,10 +111,20 @@ class Jetpack_AI_Page extends Jetpack_Admin_Page {
 	}
 
 	/**
+	 * Override the base render() to skip wrap_ui entirely.
+	 *
+	 * Wrap_ui renders the Jetpack masthead header and static footer, which
+	 * duplicate the header/footer that AdminPage (React) already provides.
+	 * Calling page_render() directly lets AdminPage own the full layout.
+	 */
+	public function render() {
+		$this->page_render();
+	}
+
+	/**
 	 * Render the page container. The React app mounts into this div.
 	 *
-	 * AdminPage from @automattic/jetpack-components handles the full-page layout
-	 * (header, footer, background) so no wrapper is needed here.
+	 * AdminPage from @automattic/jetpack-components handles the full-page layout.
 	 */
 	public function page_render() {
 		?>

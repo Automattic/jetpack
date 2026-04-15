@@ -62,6 +62,7 @@ export default function App() {
 			subTitle={ VIEW_DESCRIPTIONS[ view ] }
 			apiRoot={ apiRoot }
 			apiNonce={ apiNonce }
+			showFooter={ false }
 		>
 			<div className="jetpack-ai-admin">
 				{ isSubView && (
