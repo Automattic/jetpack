@@ -7,6 +7,21 @@
 
 .jetpack-ai-admin {
 
+	// Content wrapper inside AdminPage.
+	// AdminPage's margin-left: -20px shifts the page 20px left, so #wpbody-content
+	// clips the left 20px. Add 20px extra left padding (44px total) to keep
+	// content symmetrically inset. Use border-box so padding is included in width.
+	&__content {
+		box-sizing: border-box;
+		width: 100%;
+		padding: 24px 24px 24px 44px;
+
+		@media (max-width: 782px) {
+			// Narrower screens use -10px AdminPage margin-left compensation.
+			padding-left: 34px;
+		}
+	}
+
 	&__back {
 		margin-bottom: 8px;
 

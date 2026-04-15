@@ -4,7 +4,7 @@
  * Manages the view stack (hub → read | write | setup) and owns the MCP settings state.
  */
 
-import { AdminPage, Col, Container } from '@automattic/jetpack-components';
+import { AdminPage } from '@automattic/jetpack-components';
 import { Button, Notice, Spinner, __experimentalVStack as VStack } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -63,78 +63,76 @@ export default function App() {
 			apiRoot={ apiRoot }
 			apiNonce={ apiNonce }
 		>
-			<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
-				<Col>
-					{ isSubView && (
-						<Button
-							className="jetpack-ai-admin__back"
-							variant="tertiary"
-							icon={ arrowLeft }
-							onClick={ navigateBack }
-						>
-							{ __( 'Back', 'jetpack' ) }
-						</Button>
-					) }
+			<div className="jetpack-ai-admin__content">
+				{ isSubView && (
+					<Button
+						className="jetpack-ai-admin__back"
+						variant="tertiary"
+						icon={ arrowLeft }
+						onClick={ navigateBack }
+					>
+						{ __( 'Back', 'jetpack' ) }
+					</Button>
+				) }
 
-					{ isLoading && (
-						<div className="jetpack-ai-admin__loading">
-							<Spinner />
-						</div>
-					) }
+				{ isLoading && (
+					<div className="jetpack-ai-admin__loading">
+						<Spinner />
+					</div>
+				) }
 
-					{ ! isLoading && error && (
-						<Notice status="error" isDismissible={ false }>
-							{ error }
-						</Notice>
-					) }
+				{ ! isLoading && error && (
+					<Notice status="error" isDismissible={ false }>
+						{ error }
+					</Notice>
+				) }
 
-					{ ! isLoading && saveError && (
-						<Notice status="error" onRemove={ dismissSaveError }>
-							{ saveError }
-						</Notice>
-					) }
+				{ ! isLoading && saveError && (
+					<Notice status="error" onRemove={ dismissSaveError }>
+						{ saveError }
+					</Notice>
+				) }
 
-					{ ! isLoading && ! error && ! blogId && (
-						<Notice status="warning" isDismissible={ false }>
-							{ __(
-								'This site is not connected to WordPress.com. Please connect Jetpack to manage MCP settings.',
-								'jetpack'
-							) }
-						</Notice>
-					) }
+				{ ! isLoading && ! error && ! blogId && (
+					<Notice status="warning" isDismissible={ false }>
+						{ __(
+							'This site is not connected to WordPress.com. Please connect Jetpack to manage MCP settings.',
+							'jetpack'
+						) }
+					</Notice>
+				) }
 
-					{ ! isLoading && ! error && !! blogId && (
-						<VStack spacing={ 4 }>
-							{ view === 'hub' && (
-								<McpHub
-									mcpAbilities={ mcpAbilities }
-									blogId={ blogId }
-									isSaving={ isSaving }
-									onNavigate={ setView }
-									onUpdate={ handleUpdate }
-								/>
-							) }
-							{ view === 'read' && (
-								<McpRead
-									mcpAbilities={ mcpAbilities }
-									blogId={ blogId }
-									isSaving={ isSaving }
-									onUpdate={ handleUpdate }
-								/>
-							) }
-							{ view === 'write' && (
-								<McpWrite
-									mcpAbilities={ mcpAbilities }
-									blogId={ blogId }
-									isSaving={ isSaving }
-									onUpdate={ handleUpdate }
-								/>
-							) }
-							{ view === 'setup' && <McpSetup /> }
-						</VStack>
-					) }
-				</Col>
-			</Container>
+				{ ! isLoading && ! error && !! blogId && (
+					<VStack spacing={ 4 }>
+						{ view === 'hub' && (
+							<McpHub
+								mcpAbilities={ mcpAbilities }
+								blogId={ blogId }
+								isSaving={ isSaving }
+								onNavigate={ setView }
+								onUpdate={ handleUpdate }
+							/>
+						) }
+						{ view === 'read' && (
+							<McpRead
+								mcpAbilities={ mcpAbilities }
+								blogId={ blogId }
+								isSaving={ isSaving }
+								onUpdate={ handleUpdate }
+							/>
+						) }
+						{ view === 'write' && (
+							<McpWrite
+								mcpAbilities={ mcpAbilities }
+								blogId={ blogId }
+								isSaving={ isSaving }
+								onUpdate={ handleUpdate }
+							/>
+						) }
+						{ view === 'setup' && <McpSetup /> }
+					</VStack>
+				) }
+			</div>
 		</AdminPage>
 	);
 }
