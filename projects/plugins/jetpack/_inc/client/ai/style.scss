@@ -1,11 +1,19 @@
+// phpcs:ignore -- SCSS selector, not a PHP file
+.jetpack_page_jetpack-ai .admin-ui-page {
+	// Extend white background to fill the full viewport height.
+	min-height: 100vh;
+}
+
 .jetpack-ai-admin {
 
 	// Content wrapper inside AdminPage's fluid container.
 	// Use border-box so the 24px padding is included in the 100% width,
 	// preventing horizontal overflow from content-box sizing.
+	// max-width matches the Figma design constraint.
 	&__content {
 		box-sizing: border-box;
 		width: 100%;
+		max-width: 960px;
 		padding: 24px;
 	}
 
