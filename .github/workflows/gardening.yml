@@ -42,7 +42,7 @@ jobs:
         env:
           COMPOSER_ROOT_VERSION: dev-trunk
         run: |
-          pnpm install
+          pnpm install --frozen-lockfile --prefer-offline
           composer install
           composer build-development
         working-directory: ./projects/github-actions/repo-gardening

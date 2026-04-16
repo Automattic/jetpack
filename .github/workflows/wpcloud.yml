@@ -39,7 +39,7 @@ jobs:
       - name: Monorepo install
         run: |
           echo "::group::Pnpm"
-          pnpm install
+          pnpm install --frozen-lockfile --prefer-offline
           echo "::endgroup::"
       - name: Detect if wpcomsh has changed
         id: changed
