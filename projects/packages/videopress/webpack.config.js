@@ -12,8 +12,6 @@ module.exports = [
 			'lib/token-bridge': './src/client/lib/token-bridge/index.ts',
 			'lib/player-bridge': './src/client/lib/player-bridge/index.ts',
 
-			'lib/videopress-token-bridge': './src/client/lib/videopress-token-bridge.js',
-
 			// VideoPress dashboard page
 			'admin/index': './src/client/admin/index.js',
 

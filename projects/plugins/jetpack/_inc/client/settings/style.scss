@@ -142,6 +142,10 @@
 		color: #23282d;
 		margin-top: rem.convert(48px);
 		margin-bottom: rem.convert(24px);
+
+		@include breakpoints.breakpoint( "<480px" ) {
+			padding-inline: rem.convert(24px);
+		}
 	}
 
 	.dops-info-popover-button,

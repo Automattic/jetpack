@@ -29,6 +29,14 @@ class Util {
 		add_filter( 'render_block', '\Automattic\Jetpack\Forms\ContactForm\Util::grunion_contact_form_unset_block_template_part_id_global', 10, 2 );
 		add_filter( 'widget_block_content', '\Automattic\Jetpack\Forms\ContactForm\Util::grunion_contact_form_filter_widget_block_content', 1, 3 );
 
+		// Register the default for the `central-form-management` feature flag at bootstrap
+		// so that early callers of Contact_Form_Plugin::has_editor_feature_flag() — such as
+		// the Forms dashboard default-tab redirect, which runs before the `init` hook fires —
+		// see the correct value. Only the lightweight default is registered here; paid-plan
+		// flags stay in Contact_Form_Block::register_feature(), hooked later from
+		// Contact_Form_Block::register_block() on `init` priority 9.
+		add_filter( 'jetpack_block_editor_feature_flags', '\Automattic\Jetpack\Extensions\Contact_Form\Contact_Form_Block::register_central_form_management_default' );
+
 		add_action( 'init', '\Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin::init', 9 );
 		add_action( 'grunion_scheduled_delete', '\Automattic\Jetpack\Forms\ContactForm\Util::grunion_delete_old_spam' );
 		add_action( 'grunion_scheduled_delete_temp', '\Automattic\Jetpack\Forms\ContactForm\Util::grunion_delete_old_temp_feedback' );
